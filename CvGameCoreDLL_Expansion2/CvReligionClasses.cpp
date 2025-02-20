@@ -6007,7 +6007,7 @@ void CvReligionAI::DoTurn()
 		{
 			if (pLoopCity && !pLoopCity->IsResistance() && !pLoopCity->isUnderSiege())
 			{
-				int iFaith = pLoopCity->getYieldRateTimes100(YIELD_FAITH, false);
+				int iFaith = pLoopCity->getYieldRateTimes100(YIELD_FAITH);
 
 				if (pLoopCity->IsPuppet())
 					iFaith /= 2;
@@ -8876,7 +8876,7 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity) const
 		}
 	}
 
-	int iFood = max(1, pCity->getYieldRate(YIELD_FOOD, false) * iIdealCityPop);
+	int iFood = max(1, pCity->getYieldRateTimes100(YIELD_FOOD) * iIdealCityPop / 100);
 	iTempValue = 0;
 	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
@@ -9173,13 +9173,13 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity) const
 
 		if (pEntry->GetYieldPerConstruction(iI) > 0)
 		{
-			iTempValue = pEntry->GetYieldPerConstruction(iI) * (pCity->getPopulation() * pCity->getYieldRate(YIELD_PRODUCTION, false)) / 10;
+			iTempValue = pEntry->GetYieldPerConstruction(iI) * (pCity->getPopulation() * pCity->getRawProductionPerTurnTimes100()) / 1000;
 			iRtnValue += iTempValue;
 		}
 
 		if (pEntry->GetYieldPerWorldWonderConstruction(iI) > 0)
 		{
-			iTempValue = pEntry->GetYieldPerWorldWonderConstruction(iI) * (pCity->getPopulation() * pCity->getYieldRate(YIELD_PRODUCTION, false)) / 20;
+			iTempValue = pEntry->GetYieldPerWorldWonderConstruction(iI) * (pCity->getPopulation() * pCity->getRawProductionPerTurnTimes100()) / 2000;
 			iRtnValue += iTempValue;
 		}
 

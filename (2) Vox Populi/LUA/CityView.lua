@@ -775,7 +775,7 @@ function UpdateThisQueuedItem(city, queuedItemNumber, queueLength)
 	local strToolTip = "";
 	
 	local bGeneratingProduction = false;
-	if (city:GetCurrentProductionDifferenceTimes100(false, false) > 0) then
+	if (city:GetYieldRateTimes100(YieldTypes.YIELD_PRODUCTION) > 0) then
 		bGeneratingProduction = true;
 	end
 	
@@ -1936,7 +1936,7 @@ function OnCityViewUpdate()
 		local cultureStored = pCity:GetJONSCultureStored();
 		local cultureNext = pCity:GetJONSCultureThreshold();
 		local cultureDiff = cultureNext - cultureStored;
-		local borderGrowthRate = iCulturePerTurn + pCity:GetBaseYieldRate(YieldTypes.YIELD_CULTURE_LOCAL);
+		local borderGrowthRate = iCulturePerTurn + pCity:GetBaseYieldRateTimes100(YieldTypes.YIELD_CULTURE_LOCAL) / 100;
 		local borderGrowthRateIncrease = pCity:GetBorderGrowthRateIncreaseTotal();
 		borderGrowthRate = math.floor(borderGrowthRate * (100 + borderGrowthRateIncrease) / 100);
 
@@ -2134,22 +2134,14 @@ function DoUpdateProductionInfo( bNoProduction )
 	local pPlayer = Players[pCity:GetOwner()];
 
 	-- Production stored and needed
-	local iStoredProduction = pCity:GetProductionTimes100() / 100;
+	local iStoredProduction = pCity:GetProductionTimes100() / 100 + pCity:GetTotalOverflowProductionTimes100() / 100;
 	local iProductionNeeded = pCity:GetProductionNeeded();
 	if (pCity:IsProductionProcess()) then
 		iProductionNeeded = 0;
 	end
 	
 	-- Base Production per turn
-	local iProductionPerTurn = pCity:GetCurrentProductionDifferenceTimes100(false, false) / 100;--pCity:GetYieldRate(YieldTypes.YIELD_PRODUCTION);
-	local iProductionModifier = pCity:GetProductionModifier() + 100;
-	--iProductionPerTurn = iProductionPerTurn * iProductionModifier;
-	--iProductionPerTurn = iProductionPerTurn / 100;
-	
-	-- Item being produced with food? (e.g. Settlers)
-	--if (pCity:IsFoodProduction()) then
-		--iProductionPerTurn = iProductionPerTurn + pCity:GetYieldRate(YieldTypes.YIELD_FOOD) - pCity:FoodConsumption(true);
-	--end
+	local iProductionPerTurn = pCity:GetYieldRateTimes100(YieldTypes.YIELD_PRODUCTION) / 100;
 	
 	local strProductionPerTurn = Locale.ConvertTextKey("TXT_KEY_CITY_SCREEN_PROD_PER_TURN", iProductionPerTurn);
 	Controls.ProductionOutput:SetText(strProductionPerTurn);
@@ -2181,7 +2173,7 @@ function DoUpdateProductionInfo( bNoProduction )
 	
 	
 	
-	local bGeneratingProduction = pCity:IsProductionProcess() or pCity:GetCurrentProductionDifferenceTimes100(false, false) == 0;
+	local bGeneratingProduction = pCity:IsProductionProcess() or pCity:GetYieldRateTimes100(YieldTypes.YIELD_PRODUCTION) == 0;
 	
 	if (bGeneratingProduction) then
 		strNumTurns = "";
@@ -2223,7 +2215,7 @@ function DoUpdateProductionInfo( bNoProduction )
 		end
 	end
 	
-	local iBaseProductionPT = pCity:GetBaseYieldRate(YieldTypes.YIELD_PRODUCTION);
+	local iBaseProductionPT = pCity:GetBaseYieldRateTimes100(YieldTypes.YIELD_PRODUCTION) / 100;
 	
 	-- Output
 	local strBase = Locale.ConvertTextKey("TXT_KEY_YIELD_BASE", iBaseProductionPT, "[ICON_PRODUCTION]");

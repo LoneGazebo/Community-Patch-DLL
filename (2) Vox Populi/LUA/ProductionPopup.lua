@@ -287,22 +287,20 @@ function UpdateWindow( city )
     Controls.CityName:SetText( city:GetName() );
     
     local cityPopulation = city:GetPopulation();
-    Controls.Population:SetText( cityPopulation );
-    Controls.PopulationSuffix:LocalizeAndSetText("TXT_KEY_CITYVIEW_CITIZENS_TEXT", cityPopulation);
+    Controls.Population:SetText( cityPopulation*10 );
+    Controls.PopulationSuffix:LocalizeAndSetText("TXT_KEY_CITYVIEW_CITIZENS_TEXT", cityPopulation*10);
     
-    local productionYield = city:GetYieldRate(YieldTypes.YIELD_PRODUCTION);
-    local productionPerTurn = math.floor(productionYield + (productionYield * (city:GetProductionModifier() / 100)));
-    
-    local scienceYield = city:GetYieldRate(YieldTypes.YIELD_SCIENCE);
+    local productionYield = city:GetYieldRateTimes100(YieldTypes.YIELD_PRODUCTION) / 100;
+    local scienceYield = city:GetYieldRateTimes100(YieldTypes.YIELD_SCIENCE) / 100;
     if (Game.IsOption(GameOptionTypes.GAMEOPTION_NO_SCIENCE)) then
 		scienceYield = 0;
 	end
     
 	Controls.GrowthBar:SetPercent( city:GetFood() / city:GrowthThreshold() );
     Controls.Food:SetText( "[ICON_FOOD]" .. city:FoodDifference() );
-    Controls.Production:SetText( "[ICON_PRODUCTION]" .. productionPerTurn );
+    Controls.Production:SetText( "[ICON_PRODUCTION]" .. productionYield );
     Controls.Science:SetText( "[ICON_RESEARCH]" ..  scienceYield);
-    Controls.Gold:SetText( "[ICON_GOLD]" .. city:GetYieldRate( YieldTypes.YIELD_GOLD ) );
+    Controls.Gold:SetText( "[ICON_GOLD]" .. city:GetYieldRateTimes100( YieldTypes.YIELD_GOLD ) / 100 );
     Controls.Culture:SetText( "[ICON_CULTURE]" .. city:GetJONSCulturePerTurn() );
 	Controls.Faith:SetText( "[ICON_PEACE]" .. city:GetFaithPerTurn() );
 	Controls.Happiness:SetText( "[ICON_HAPPINESS_1]" .. city:GetLocalHappiness() );
@@ -347,7 +345,7 @@ function UpdateWindow( city )
 	local strTurnsLeft = g_strInfiniteTurns;
 	
 	local bGeneratingProduction = false;
-	if (city:GetCurrentProductionDifferenceTimes100(false, false) > 0) then
+	if (city:GetYieldRateTimes100(YieldTypes.YIELD_PRODUCTION) > 0) then
 		bGeneratingProduction = true;
 	end
 	
@@ -871,15 +869,14 @@ function UpdateWindow( city )
 	if (not bJustFinishedSomething) then
 		
 		-- Production stored and needed
-		local iStoredProduction = city:GetProductionTimes100() / 100;
+		local iStoredProduction = city:GetProductionTimes100() / 100 + city:GetTotalOverflowProductionTimes100() / 100;
 		local iProductionNeeded = city:GetProductionNeeded();
 		if (city:IsProductionProcess()) then
 			iProductionNeeded = 0;
 		end
 		
 		-- Base Production per turn
-		local iProductionPerTurn = city:GetCurrentProductionDifferenceTimes100(false, false) / 100;
-		local iProductionModifier = city:GetProductionModifier() + 100;
+		local iProductionPerTurn = city:GetYieldRateTimes100(YieldTypes.YIELD_PRODUCTION) / 100;
 			
 		local strProductionPerTurn = Locale.ConvertTextKey("TXT_KEY_CITY_SCREEN_PROD_PER_TURN", iProductionPerTurn);
 		Controls.ProductionOutput:SetText(strProductionPerTurn);
@@ -905,7 +902,7 @@ function UpdateWindow( city )
 			strNumTurns = Locale.ConvertTextKey("TXT_KEY_PRODUCTION_HELP_NUM_TURNS", productionTurnsLeft);
 		end
 			
-		local bGeneratingProduction = city:IsProductionProcess() or city:GetCurrentProductionDifferenceTimes100(false, false) == 0;
+		local bGeneratingProduction = city:IsProductionProcess() or city:GetYieldRateTimes100(YieldTypes.YIELD_PRODUCTION) == 0;
 		
 		if (bGeneratingProduction) then
 			strNumTurns = "";
@@ -946,7 +943,7 @@ function UpdateWindow( city )
 		Controls.b5box:SetHide( true );
 		Controls.b6box:SetHide( true );
 				
-		local bGeneratingProduction = city:GetCurrentProductionDifferenceTimes100(false, false) > 0;
+		local bGeneratingProduction = city:GetYieldRateTimes100(YieldTypes.YIELD_PRODUCTION) > 0;
 
 		local qLength = city:GetOrderQueueLength();
 		for i = 1, qLength do

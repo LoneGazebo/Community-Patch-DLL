@@ -2329,8 +2329,8 @@ void CvCity::doTurn()
 			CvProcessInfo* pkProcessInfo = GC.getProcessInfo(getProductionProcess());
 			if (pkProcessInfo && pkProcessInfo->getDefenseValue() != 0)
 			{
-				int iPile = getYieldRate(YIELD_PRODUCTION, false) * pkProcessInfo->getDefenseValue();
-				iHitsHealed += iPile / 100;
+				int iPile = getYieldRateTimes100(YIELD_PRODUCTION) * pkProcessInfo->getDefenseValue();
+				iHitsHealed += iPile / 10000;
 			}
 		}
 
@@ -2423,7 +2423,7 @@ void CvCity::doTurn()
 	GetCityBuildings()->SetSoldBuildingThisTurn(false);
 
 	
-	if (foodDifferenceTimes100(true) < 0)
+	if (getFoodPerTurnBeforeConsumptionTimes100() - getFoodConsumptionTimes100() < 0)
 	{
 		// avoid starvation if possible
 		GetCityCitizens()->DoReallocateCitizens(true);
@@ -2569,7 +2569,7 @@ void CvCity::doTurn()
 		UpdateCityYieldFromYield();
 
 		bool bWeGrew = false;
-		int iDifference = (getYieldRateTimes100(YIELD_FOOD, false) - foodConsumptionTimes100());
+		int iDifference = getYieldRateTimes100(YIELD_FOOD);
 		if (isFoodProduction() || getFood() <= 5 || iDifference <= 0)
 		{
 			doGrowth();
@@ -2597,7 +2597,7 @@ void CvCity::doTurn()
 
 		int iBorderGrowth = 0;
 		iBorderGrowth += getJONSCulturePerTurn();
-		iBorderGrowth += getYieldRate(YIELD_CULTURE_LOCAL, false);
+		iBorderGrowth += getYieldRateTimes100(YIELD_CULTURE_LOCAL) / 100;
 		// Culture accumulation
 		if (iBorderGrowth > 0)
 			ChangeJONSCultureStored(iBorderGrowth);
@@ -2631,11 +2631,11 @@ void CvCity::doTurn()
 			{
 				gDLL->UnlockAchievement(ACHIEVEMENT_CITY_100CULTURE);
 			}
-			if (getYieldRate(YIELD_GOLD, false) >= 100)
+			if ((getYieldRateTimes100(YIELD_GOLD) / 100) >= 100)
 			{
 				gDLL->UnlockAchievement(ACHIEVEMENT_CITY_100GOLD);
 			}
-			if (getYieldRate(YIELD_SCIENCE, false) >= 100)
+			if ((getYieldRateTimes100(YIELD_SCIENCE) / 100) >= 100)
 			{
 				gDLL->UnlockAchievement(ACHIEVEMENT_CITY_100SCIENCE);
 			}
@@ -2693,53 +2693,6 @@ void CvCity::doTurn()
 			UpdateSpecialReligionYields(eYield);
 			UpdateCityYields(eYield);
 		}
-
-#ifdef _DEBUG
-		//checking if yields are correct ... there have been issues
-		{
-			for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-			{
-				ASSERT_DEBUG(getBaseYieldRate((YieldTypes)iI) >= 0);
-				ASSERT_DEBUG(getYieldRate((YieldTypes)iI, false) >= 0);
-
-				int iCount = 0;
-				for (int iJ = 0; iJ < GetNumWorkablePlots(); iJ++)
-				{
-					CvPlot* pPlot = GetCityCitizens()->GetCityPlotFromIndex(iJ);
-					if (pPlot != NULL)
-					{
-						if (GetCityCitizens()->IsWorkingPlot(pPlot))
-						{
-							iCount += pPlot->getYield((YieldTypes)iI);
-						}
-					}
-				}
-
-				for (int iJ = 0; iJ < GC.getNumSpecialistInfos(); iJ++)
-				{
-					iCount += (GET_PLAYER(getOwner()).specialistYield(((SpecialistTypes)iJ), ((YieldTypes)iI)) * (GetCityCitizens()->GetSpecialistCount((SpecialistTypes)iJ)));
-				}
-
-				for (int iJ = 0; iJ < GC.getNumBuildingInfos(); iJ++)
-				{
-					const BuildingTypes eBuilding = static_cast<BuildingTypes>(iJ);
-					CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-					if (pkBuildingInfo)
-					{
-						iCount += m_pCityBuildings->GetNumActiveBuilding(eBuilding) * (pkBuildingInfo->GetYieldChange(iI) + m_pCityBuildings->GetBuildingYieldChange(pkBuildingInfo->GetBuildingClassType(), (YieldTypes)iI));
-					}
-				}
-
-				// Science from Population
-				if ((YieldTypes)iI == YIELD_SCIENCE)
-				{
-					iCount += getPopulation() * /*1 in CP, 0 in VP*/ GD_INT_GET(SCIENCE_PER_POPULATION);
-				}
-
-				ASSERT_DEBUG(iCount == getBaseYieldRate((YieldTypes)iI));
-			}
-		}
-#endif
 	}
 }
 
@@ -2815,7 +2768,7 @@ void CvCity::UpdateCityYields(YieldTypes eYield)
 	}
 	else
 	{
-		SetStaticYield(eYield, getYieldRateTimes100(eYield, false, false));
+		SetStaticYield(eYield, getYieldRateTimes100(eYield, false, false, false));
 	}
 
 	//don't forget tourism
@@ -3128,7 +3081,7 @@ int CvCity::GetEventCityYield(YieldTypes eYield) const
 void CvCity::ChangeEventCityYieldModifier(YieldTypes eYield, int iValue)
 {
 	VALIDATE_OBJECT();
-		ASSERT_DEBUG(eYield >= 0, "eYield is expected to be non-negative (invalid Index)");
+	ASSERT_DEBUG(eYield >= 0, "eYield is expected to be non-negative (invalid Index)");
 	ASSERT_DEBUG(eYield < NUM_YIELD_TYPES, "eYield is expected to be within maximum bounds (invalid Index)");
 	if (iValue != 0)
 	{
@@ -3139,7 +3092,7 @@ void CvCity::ChangeEventCityYieldModifier(YieldTypes eYield, int iValue)
 int CvCity::GetEventCityYieldModifier(YieldTypes eYield) const
 {
 	VALIDATE_OBJECT();
-		ASSERT_DEBUG(eYield >= 0, "eYield is expected to be non-negative (invalid Index)");
+	ASSERT_DEBUG(eYield >= 0, "eYield is expected to be non-negative (invalid Index)");
 	ASSERT_DEBUG(eYield < NUM_YIELD_TYPES, "eYield is expected to be within maximum bounds (invalid Index)");
 	return m_aiEventCityYieldModifier[eYield];
 }
@@ -4705,9 +4658,9 @@ bool CvCity::IsCityEventChoiceValidEspionage(CityEventChoiceTypes eEventChoice, 
 		if (iSiphonYield <= 0)
 			continue;
 
-		int iCityYield = getYieldRate(eYield, false);
+		int iCityYield = getYieldRateTimes100(eYield);
 		iCityYield *= iSiphonYield;
-		iCityYield /= 100;
+		iCityYield /= 10000;
 
 		if (iCityYield <= 0)
 		{
@@ -5577,9 +5530,9 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice, int
 				if (iSiphonYield <= 0)
 					continue;
 
-				int iCityYield = pCity->getYieldRate(eYield, false);
+				int iCityYield = pCity->getYieldRateTimes100(eYield);
 				iCityYield *= iSiphonYield;
-				iCityYield /= 100;
+				iCityYield /= 10000;
 
 				if (iCityYield <= 0)
 				{
@@ -6833,7 +6786,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 					CvEspionageSpy* pSpy = GET_PLAYER(eSpyOwner).GetEspionage()->GetSpyByID(iSpyID);
 					if (pSpy)
 					{
-						int iAmount = getYieldRate(eYield, false) * iSiphonYield / 100;
+						int iAmount = getYieldRateTimes100(eYield) * iSiphonYield / 10000;
 						int iEffectDuration = pkEventChoiceInfo->getEventDuration();
 						if (pkEventChoiceInfo->isEventDurationScaling())
 						{
@@ -7845,7 +7798,7 @@ void CvCity::updateEconomicValue()
 	//- economic value is in gold, so use a rough conversion factor for the others
 	//- for food and gold only surplus is interesting, rest is converted to other yields already
 	//- ignore trade, as the city might the change owner
-	iYieldValue += (getYieldRateTimes100(YIELD_FOOD, true) - foodConsumptionTimes100()) * 3;
+	iYieldValue += (getYieldRateTimes100(YIELD_FOOD, true)) * 3;
 	iYieldValue += getYieldRateTimes100(YIELD_PRODUCTION, true) * 4;
 	iYieldValue += getYieldRateTimes100(YIELD_SCIENCE, true) * 3;
 	iYieldValue += (getYieldRateTimes100(YIELD_GOLD, true) - GetCityBuildings()->GetTotalBaseBuildingMaintenance() * 100) * 1;
@@ -8350,13 +8303,13 @@ int CvCity::findBaseYieldRateRank(YieldTypes eYield)
 	VALIDATE_OBJECT();
 	if (!m_abBaseYieldRankValid[eYield])
 	{
-		int iRate = getBaseYieldRate(eYield);
+		int iRate = getBaseYieldRateTimes100(eYield);
 		int iRank = 1;
 		int iLoop = 0;
 		for (CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
 		{
-			if ((pLoopCity->getBaseYieldRate(eYield) > iRate) ||
-				((pLoopCity->getBaseYieldRate(eYield) == iRate) && (pLoopCity->GetID() < GetID())))
+			if ((pLoopCity->getBaseYieldRateTimes100(eYield) > iRate) ||
+				((pLoopCity->getBaseYieldRateTimes100(eYield) == iRate) && (pLoopCity->GetID() < GetID())))
 			{
 				iRank++;
 			}
@@ -8375,13 +8328,13 @@ int CvCity::findYieldRateRank(YieldTypes eYield)
 {
 	if (!m_abYieldRankValid[eYield])
 	{
-		int iRate = getYieldRateTimes100(eYield, false);
+		int iRate = getYieldRateTimes100(eYield);
 		int iRank = 1;
 		int iLoop = 0;
 		for (CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
 		{
-			if ((pLoopCity->getYieldRateTimes100(eYield, false) > iRate) ||
-				((pLoopCity->getYieldRateTimes100(eYield, false) == iRate) && (pLoopCity->GetID() < GetID())))
+			if ((pLoopCity->getYieldRateTimes100(eYield) > iRate) ||
+				((pLoopCity->getYieldRateTimes100(eYield) == iRate) && (pLoopCity->GetID() < GetID())))
 			{
 				iRank++;
 			}
@@ -10489,7 +10442,7 @@ void CvCity::ChangeResourceDemandedCountdown(int iChange)
 int CvCity::getFoodTurnsLeft() const
 {
 	VALIDATE_OBJECT();
-	int iDeltaPerTurn = foodDifferenceTimes100(false);
+	int iDeltaPerTurn = getYieldRateTimes100(YIELD_FOOD);
 	int iFoodStored = getFoodTimes100();
 	int iFoodNeededToGrow = (growthThreshold() * 100 - iFoodStored);
 
@@ -11469,34 +11422,22 @@ int CvCity::getProductionTurnsLeft() const
 }
 
 //	--------------------------------------------------------------------------------
-int CvCity::getUnitTotalProductionTurns(UnitTypes eUnit) const
-{
-	VALIDATE_OBJECT();
-	int iProductionNeeded = getProductionNeeded(eUnit) * 100;
-	int iProductionModifier = getProductionModifier(eUnit);
-	return getProductionTurnsLeft(iProductionNeeded, 0,
-		getProductionDifferenceTimes100(iProductionNeeded, 0, iProductionModifier, isUnitTypeFoodProduction(getOwner(), eUnit), true),
-		getProductionDifferenceTimes100(iProductionNeeded, 0, iProductionModifier, isUnitTypeFoodProduction(getOwner(), eUnit), false));
-}
-
-//	--------------------------------------------------------------------------------
 int CvCity::getProductionTurnsLeft(UnitTypes eUnit, int iNum) const
 {
+	ASSERT_DEBUG(eUnit != NO_UNIT);
 	VALIDATE_OBJECT();
-	int iProduction = 0;
+	int iProductionStored = 0;
 	int iFirstUnitOrder = getFirstUnitOrder(eUnit);
 
 	if ((iFirstUnitOrder == -1) || (iFirstUnitOrder == iNum))
 	{
-		iProduction += getUnitProductionTimes100(eUnit);
+		iProductionStored += getUnitProductionTimes100(eUnit);
 	}
 
 	int iProductionNeeded = getProductionNeeded(eUnit) * 100;
-	int iProductionModifier = getProductionModifier(eUnit);
+	bool bIncludeOverflow = (iNum == 0);
 
-	return getProductionTurnsLeft(iProductionNeeded, iProduction,
-		getProductionDifferenceTimes100(iProductionNeeded, iProduction, iProductionModifier, isUnitTypeFoodProduction(getOwner(), eUnit), (iNum == 0)),
-		getProductionDifferenceTimes100(iProductionNeeded, iProduction, iProductionModifier, isUnitTypeFoodProduction(getOwner(), eUnit), false));
+	return getProductionTurnsLeft(iProductionNeeded, iProductionStored, getProductionPerTurnForUnitTimes100(eUnit), bIncludeOverflow);
 }
 
 
@@ -11505,20 +11446,18 @@ int CvCity::getProductionTurnsLeft(BuildingTypes eBuilding, int iNum) const
 {
 	ASSERT_DEBUG(eBuilding != NO_BUILDING);
 	VALIDATE_OBJECT();
-	int iProduction = 0;
+	int iProductionStored = 0;
 	int iFirstBuildingOrder = getFirstBuildingOrder(eBuilding);
 
 	if ((iFirstBuildingOrder == -1) || (iFirstBuildingOrder == iNum))
 	{
-		iProduction += m_pCityBuildings->GetBuildingProductionTimes100(eBuilding);
+		iProductionStored += m_pCityBuildings->GetBuildingProductionTimes100(eBuilding);
 	}
 
 	int iProductionNeeded = getProductionNeeded(eBuilding) * 100;
-	int iProductionModifier = getProductionModifier(eBuilding);
+	bool bIncludeOverflow = (iNum == 0);
 
-	return getProductionTurnsLeft(iProductionNeeded, iProduction,
-		getProductionDifferenceTimes100(iProductionNeeded, iProduction, iProductionModifier, false, (iNum == 0)),
-		getProductionDifferenceTimes100(iProductionNeeded, iProduction, iProductionModifier, false, false));
+	return getProductionTurnsLeft(iProductionNeeded, iProductionStored, getProductionPerTurnForBuildingTimes100(eBuilding), bIncludeOverflow);
 }
 
 
@@ -11526,18 +11465,18 @@ int CvCity::getProductionTurnsLeft(BuildingTypes eBuilding, int iNum) const
 int CvCity::getProductionTurnsLeft(ProjectTypes eProject, int iNum) const
 {
 	VALIDATE_OBJECT();
-	int iProduction = 0;
+	int iProductionStored = 0;
 	int iFirstProjectOrder = getFirstProjectOrder(eProject);
 
 	if ((iFirstProjectOrder == -1) || (iFirstProjectOrder == iNum))
 	{
-		iProduction += getProjectProductionTimes100(eProject);
+		iProductionStored += getProjectProductionTimes100(eProject);
 	}
 
 	int iProductionNeeded = getProductionNeeded(eProject) * 100;
-	int iProductionModifier = getProductionModifier(eProject);
+	bool bIncludeOverflow = (iNum == 0);
 
-	return getProductionTurnsLeft(iProductionNeeded, iProduction, getProductionDifferenceTimes100(iProductionNeeded, iProduction, iProductionModifier, false, (iNum == 0)), getProductionDifferenceTimes100(iProductionNeeded, iProduction, iProductionModifier, false, false));
+	return getProductionTurnsLeft(iProductionNeeded, iProductionStored, getProductionPerTurnForProjectTimes100(eProject), bIncludeOverflow);
 }
 
 #if defined(MOD_PROCESS_STOCKPILE)
@@ -11559,12 +11498,9 @@ int CvCity::getProductionTurnsLeft(ProcessTypes eProcess, int) const
 	VALIDATE_OBJECT();
 	if (eProcess == GC.getInfoTypeForString("PROCESS_STOCKPILE", true))
 	{
-		int iProduction = getOverflowProduction();
-		int iProductionNeeded = GET_PLAYER(getOwner()).getMaxStockpile();
-		int iProductionModifier = getProductionModifier(eProcess);
-		int iProductionDifference = getProductionDifference(iProductionNeeded, iProduction, iProductionModifier, false, false);
-
-		return getProductionTurnsLeft(iProductionNeeded, iProduction, iProductionDifference, iProductionDifference);
+		int iProductionStored = getOverflowProduction() * 100;
+		int iProductionNeeded = GET_PLAYER(getOwner()).getMaxStockpile() * 100;
+		return getProductionTurnsLeft(iProductionNeeded, iProductionStored, getProductionPerTurnForProcessTimes100(eProcess), false);
 	}
 
 	return INT_MAX;
@@ -11678,7 +11614,7 @@ void CvCity::SetUnitInvestment(UnitClassTypes eUnitClass, bool bNewValue)
 		int AmountComplete = getUnitProduction(eUnit);
 		if (AmountComplete >= AmountNeededAfterInvestment)
 		{
-			int iProductionDifference = getProductionDifference(AmountNeededAfterInvestment, AmountComplete, getProductionModifier(), false, false);
+			int iProductionDifference = getYieldRateTimes100(YIELD_PRODUCTION) / 100;
 			AmountNeededAfterInvestment = max(AmountNeededAfterInvestment, AmountComplete - iProductionDifference); //allow one turn of overflow
 		}
 		m_aiUnitCostInvestmentReduction[eUnitClass] = iNumProductionNeeded - AmountNeededAfterInvestment;
@@ -11714,10 +11650,10 @@ void CvCity::SetBuildingConstructed(BuildingClassTypes eBuildingClass, bool bNew
 }
 #endif
 //	--------------------------------------------------------------------------------
-int CvCity::getProductionTurnsLeft(int iProductionNeeded, int iProduction, int iFirstProductionDifference, int iProductionDifference) const
+int CvCity::getProductionTurnsLeft(int iProductionNeeded, int iProduction, int iProductionDifference, bool bIncludeOverflow) const
 {
 	VALIDATE_OBJECT();
-	int iProductionLeft = std::max(0, (iProductionNeeded - iProduction - iFirstProductionDifference));
+	int iProductionLeft = std::max(0, (iProductionNeeded - iProduction - iProductionDifference - (bIncludeOverflow ? getTotalOverflowProductionTimes100() : 0)));
 
 	if (iProductionDifference == 0)
 	{
@@ -12698,7 +12634,7 @@ void CvCity::changeProductionTimes100(int iChange)
 											if ((YieldTypes)iI > YIELD_CULTURE_LOCAL && !MOD_BALANCE_CORE_JFD)
 												break;
 
-											int iYield = ((getBasicYieldRateTimes100(YIELD_PRODUCTION) + GET_PLAYER(m_eOwner).GetTrade()->GetTradeValuesAtCityTimes100(this, YIELD_PRODUCTION)) / 100) * getProductionToYieldModifier((YieldTypes)iI) / 100;
+											int iYield = getYieldRateTimes100(YIELD_PRODUCTION, false, true) * getProductionToYieldModifier((YieldTypes)iI) / 10000;
 
 											pOtherPlayer->doInstantYield(INSTANT_YIELD_TYPE_TR_PRODUCTION_SIPHON, false, NO_GREATPERSON, NO_BUILDING, iYield, false, NO_PLAYER, NULL, false, pOriginCity, false, true, false, (YieldTypes)iI);
 										}
@@ -12720,7 +12656,7 @@ void CvCity::changeProductionTimes100(int iChange)
 
 
 //	--------------------------------------------------------------------------------
-int CvCity::getProductionModifier(CvString* toolTipSink) const
+int CvCity::getCurrentProductionModifier(CvString* toolTipSink) const
 {
 	VALIDATE_OBJECT();
 	const OrderData* pOrderNode = headOrderQueueNode();
@@ -12748,7 +12684,6 @@ int CvCity::getProductionModifier(CvString* toolTipSink) const
 			break;
 
 		default:
-			ASSERT_DEBUG(false, "pOrderNode->eOrderType failed to match a valid option");
 			break;
 		}
 	}
@@ -13448,147 +13383,10 @@ int CvCity::getProductionModifier(ProcessTypes eProcess, CvString* toolTipSink) 
 	return iMultiplier;
 }
 
-//	--------------------------------------------------------------------------------
-int CvCity::getProductionDifference(int /*iProductionNeeded*/, int /*iProduction*/, int iProductionModifier, bool bFoodProduction, bool bOverflow) const
+
+int CvCity::getTotalOverflowProductionTimes100() const
 {
-	VALIDATE_OBJECT();
-	// Anarchy, Resistance or Razing? Then no Production is done!
-	if (GET_PLAYER(getOwner()).IsAnarchy() || IsResistance() || IsRazing())
-		return 0;
-
-	int iFoodProduction = ((bFoodProduction) ? (GetFoodProductionTimes100(getYieldRateTimes100(YIELD_FOOD, false) - foodConsumptionTimes100(true))) / 100 : 0);
-	int iOverflow = ((bOverflow) ? (getOverflowProduction() + getFeatureProduction()) : 0);
-
-	// Sum up difference
-	int iBaseProduction = getBaseYieldRate(YIELD_PRODUCTION) * 100;
-	iBaseProduction += (GetYieldPerPopTimes100(YIELD_PRODUCTION) * getPopulation());
-	iBaseProduction += (GetYieldPerPopInEmpireTimes100(YIELD_PRODUCTION) * GET_PLAYER(getOwner()).getTotalPopulation());
-	iBaseProduction += (GetYieldPerBuilding(YIELD_PRODUCTION) * GetCityBuildings()->GetNumBuildings() * 100).Truncate();
-
-	if (MOD_BALANCE_VP && IsIndustrialRouteToCapitalConnected())
-	{
-		iBaseProduction += GetConnectionGoldTimes100();
-	}
-
-	int iModifiedProduction = iBaseProduction * getBaseYieldRateModifier(YIELD_PRODUCTION, iProductionModifier);
-	iModifiedProduction /= 10000;
-
-	iModifiedProduction += iOverflow;
-	iModifiedProduction += iFoodProduction;
-
-	return iModifiedProduction;
-}
-
-
-//	--------------------------------------------------------------------------------
-int CvCity::getCurrentProductionDifference(bool bIgnoreFood, bool bOverflow) const
-{
-	VALIDATE_OBJECT();
-	return getProductionDifference(getProductionNeeded(), getProduction(), getProductionModifier(), (!bIgnoreFood && isFoodProduction()), bOverflow);
-}
-
-//	--------------------------------------------------------------------------------
-// What is the production of this city, not counting modifiers specific to what we happen to be building?
-int CvCity::getRawProductionDifference(bool bIgnoreFood, bool bOverflow) const
-{
-	VALIDATE_OBJECT();
-	return getProductionDifference(getProductionNeeded(), getProduction(), getGeneralProductionModifiers(), (!bIgnoreFood && isFoodProduction()), bOverflow);
-}
-
-
-//	--------------------------------------------------------------------------------
-int CvCity::getProductionDifferenceTimes100(int /*iProductionNeeded*/, int /*iProduction*/, int iProductionModifier, bool bFoodProduction, bool bOverflow) const
-{
-	VALIDATE_OBJECT();
-	// Anarchy, Resistance or Razing? Then no Production is done!
-	if (GET_PLAYER(getOwner()).IsAnarchy() || IsResistance() || IsRazing())
-		return 0;
-
-	int iFoodProduction = ((bFoodProduction) ? (GetFoodProductionTimes100(getYieldRateTimes100(YIELD_FOOD, false) - foodConsumptionTimes100(true))) / 100 : 0);
-	iFoodProduction *= 100;
-
-	int iOverflow = ((bOverflow) ? (getOverflowProductionTimes100() + getFeatureProduction() * 100) : 0);
-
-	// Sum up difference
-	int iBaseProduction = getBaseYieldRate(YIELD_PRODUCTION) * 100;
-	iBaseProduction += (GetYieldPerPopTimes100(YIELD_PRODUCTION) * getPopulation());
-	iBaseProduction += (GetYieldPerPopInEmpireTimes100(YIELD_PRODUCTION) * GET_PLAYER(getOwner()).getTotalPopulation());
-	iBaseProduction += (GetYieldPerBuilding(YIELD_PRODUCTION) * GetCityBuildings()->GetNumBuildings() * 100).Truncate();
-
-	if (MOD_BALANCE_VP && IsIndustrialRouteToCapitalConnected())
-	{
-		iBaseProduction += GetConnectionGoldTimes100();
-	}
-
-	int iModifiedProduction = iBaseProduction * getBaseYieldRateModifier(YIELD_PRODUCTION, iProductionModifier);
-	iModifiedProduction /= 100;
-
-	iModifiedProduction += iOverflow;
-	iModifiedProduction += iFoodProduction;
-
-	int iTradeYield = GET_PLAYER(m_eOwner).GetTrade()->GetTradeValuesAtCityTimes100(this, YIELD_PRODUCTION);
-	iModifiedProduction += iTradeYield;
-
-	return iModifiedProduction;
-}
-
-
-//	--------------------------------------------------------------------------------
-int CvCity::getCurrentProductionDifferenceTimes100(bool bIgnoreFood, bool bOverflow) const
-{
-	VALIDATE_OBJECT();
-	return getProductionDifferenceTimes100(getProductionNeeded(), getProductionTimes100(), getProductionModifier(), (!bIgnoreFood && isFoodProduction()), bOverflow);
-}
-
-//	--------------------------------------------------------------------------------
-// What is the production of this city, not counting modifiers specific to what we happen to be building?
-int CvCity::getRawProductionDifferenceTimes100(bool bIgnoreFood, bool bOverflow) const
-{
-	VALIDATE_OBJECT();
-	return getProductionDifferenceTimes100(getProductionNeeded(), getProductionTimes100(), getGeneralProductionModifiers(), (!bIgnoreFood && isFoodProduction()), bOverflow);
-}
-
-
-//	--------------------------------------------------------------------------------
-int CvCity::getExtraProductionDifference(int iExtra) const
-{
-	VALIDATE_OBJECT();
-	return getExtraProductionDifference(iExtra, getProductionModifier());
-}
-
-//	--------------------------------------------------------------------------------
-int CvCity::getExtraProductionDifference(int iExtra, UnitTypes eUnit) const
-{
-	VALIDATE_OBJECT();
-	return getExtraProductionDifference(iExtra, getProductionModifier(eUnit));
-}
-
-//	--------------------------------------------------------------------------------
-int CvCity::getExtraProductionDifference(int iExtra, BuildingTypes eBuilding) const
-{
-	VALIDATE_OBJECT();
-	return getExtraProductionDifference(iExtra, getProductionModifier(eBuilding));
-}
-
-//	--------------------------------------------------------------------------------
-int CvCity::getExtraProductionDifference(int iExtra, ProjectTypes eProject) const
-{
-	VALIDATE_OBJECT();
-	return getExtraProductionDifference(iExtra, getProductionModifier(eProject));
-}
-
-//	--------------------------------------------------------------------------------
-int CvCity::getExtraProductionDifference(int iExtra, int iModifier) const
-{
-	VALIDATE_OBJECT();
-	return ((iExtra * getBaseYieldRateModifier(YIELD_PRODUCTION, iModifier)) / 100);
-}
-
-//	--------------------------------------------------------------------------------
-/// Convert extra food to production if building a unit built partially from food
-int CvCity::GetFoodProduction(int iExcessFood) const
-{
-	return GetFoodProductionTimes100(iExcessFood * 100);
+	return getOverflowProductionTimes100() + getFeatureProduction() * 100;
 }
 
 //	--------------------------------------------------------------------------------
@@ -16173,7 +15971,7 @@ void CvCity::CheckForOperationUnits()
 
 //	--------------------------------------------------------------------------------
 //	Returns food consumed by a non-specialist citizen
-int CvCity::foodConsumptionNonSpecialistTimes100() const
+int CvCity::getFoodConsumptionNonSpecialistTimes100() const
 {
 	VALIDATE_OBJECT();
 
@@ -16186,7 +15984,7 @@ int CvCity::foodConsumptionNonSpecialistTimes100() const
 
 //	--------------------------------------------------------------------------------
 //	Returns food consumed by a specialist depending on Era and applicable modifiers
-int CvCity::foodConsumptionSpecialistTimes100() const
+int CvCity::getFoodConsumptionSpecialistTimes100() const
 {
 	VALIDATE_OBJECT();
 	int iFoodPerSpec = 0;
@@ -16217,64 +16015,28 @@ int CvCity::foodConsumptionSpecialistTimes100() const
 	return max(100, iFoodPerSpec);
 }
 
-// --------------------------------------------------------------------------------
-int CvCity::foodConsumption(bool bNoAngry, int iExtra) const
-{
-	return foodConsumptionTimes100(bNoAngry, iExtra * 100) / 100;
-}
 //	--------------------------------------------------------------------------------
-int CvCity::foodConsumptionTimes100(bool /*bNoAngry*/, int iExtra, bool bAssumeNoReductionForNonSpecialists) const
+int CvCity::getFoodConsumptionTimes100(bool bIgnoreProcess, bool bAssumeNoReductionForNonSpecialists) const
 {
 	VALIDATE_OBJECT();
 
+	int iFoodPerTurnBeforeConsumption = getFoodPerTurnBeforeConsumptionTimes100(bIgnoreProcess);
 	int iSpecialists = GetCityCitizens()->GetTotalSpecialistCount();
-	int iNonSpecialists = max(0, (getPopulation() - iSpecialists)) + iExtra;
+	int iNonSpecialists = max(0, (getPopulation() - iSpecialists));
 
-	int iConsumptionNonSpecialists = foodConsumptionNonSpecialistTimes100() * iNonSpecialists;
+	int iConsumptionNonSpecialists = getFoodConsumptionNonSpecialistTimes100() * iNonSpecialists;
 	if (IsNoStarvationNonSpecialist() && !bAssumeNoReductionForNonSpecialists)
 	{
-		iConsumptionNonSpecialists = min(getYieldRateTimes100(YIELD_FOOD, false), iConsumptionNonSpecialists);
+		iConsumptionNonSpecialists = min(iFoodPerTurnBeforeConsumption, iConsumptionNonSpecialists);
 	}
-	return max(100, iConsumptionNonSpecialists + foodConsumptionSpecialistTimes100() * iSpecialists);
-}
 
-
-//	--------------------------------------------------------------------------------
-int CvCity::foodDifference(bool bJustCheckingStarve) const
-{
-	VALIDATE_OBJECT();
-	return foodDifferenceTimes100(bJustCheckingStarve) / 100;
-}
-
-
-//	--------------------------------------------------------------------------------
-int CvCity::foodDifferenceTimes100(bool bJustCheckingStarve, CvString* toolTipSink) const
-{
-	VALIDATE_OBJECT();
-	int iDifference = getYieldRateTimes100(YIELD_FOOD, false) - foodConsumptionTimes100();
-
-	//cannot grow during settler production, but can starve!
-	//excess food will be converted to production via GetFoodProductionTimes100()
-	if (isFoodProduction())
-		iDifference = std::min(0, iDifference);
-
+	int iTotalConsumption =  max(100, iConsumptionNonSpecialists + getFoodConsumptionSpecialistTimes100() * iSpecialists);
 	//cannot starve if at size 1 and nothing stored
 	if (getPopulation() == 1 && getFoodTimes100() == 0)
 	{
-		iDifference = std::max(0, iDifference);
+		iTotalConsumption = min(iTotalConsumption, iFoodPerTurnBeforeConsumption);
 	}
-
-	if (bJustCheckingStarve) //important, otherwise we can get into endless recursion (happiness depends on food which depends on happiness!)
-		return iDifference;
-
-	// Growth Mods - Only apply if the City is growing (and not starving, otherwise it would actually have the OPPOSITE of the intended effect!)
-	if (iDifference > 0)
-	{
-		iDifference *= (100 + getGrowthMods(toolTipSink));
-		iDifference /= 100;
-	}
-
-	return iDifference;
+	return iTotalConsumption;
 }
 
 int CvCity::getGrowthMods(CvString* toolTipSink, int iAssumedLocalHappinessChange) const
@@ -17761,8 +17523,7 @@ int CvCity::getJONSCulturePerTurn(bool bStatic) const
 	// Process production into culture
 	if (getProductionToYieldModifier(YIELD_CULTURE) > 0)
 	{
-		int iTradeRouteBonus = GET_PLAYER(m_eOwner).GetTrade()->GetTradeValuesAtCityTimes100(this, YIELD_PRODUCTION);
-		iCulture += ((getBasicYieldRateTimes100(YIELD_PRODUCTION) + iTradeRouteBonus) * getProductionToYieldModifier(YIELD_CULTURE)) / 10000;
+		iCulture += (getYieldRateTimes100(YIELD_PRODUCTION, false, true) * getProductionToYieldModifier(YIELD_CULTURE)) / 10000;
 	}
 
 	return iCulture;
@@ -17861,14 +17622,7 @@ int CvCity::GetJONSCulturePerTurnFromPolicies() const
 {
 	VALIDATE_OBJECT();
 
-	int iNonSpecialist = GET_PLAYER(m_eOwner).getYieldFromNonSpecialistCitizens(YIELD_CULTURE);
 	int iValue = 0;
-	if (iNonSpecialist != 0)
-	{
-		int iBonusTimes100 = (iNonSpecialist * (getPopulation() - GetCityCitizens()->GetTotalSpecialistCount()));
-		iBonusTimes100 /= 100;
-		iValue += iBonusTimes100;
-	}
 	if (MOD_BALANCE_VP && GET_PLAYER(m_eOwner).getHappinessToCulture() != 0)
 	{
 		int iFreeCulture = GetLocalHappiness() * GET_PLAYER(m_eOwner).getHappinessToCulture();
@@ -18105,8 +17859,7 @@ int CvCity::GetFaithPerTurn(bool bStatic) const
 	// Process production into faith
 	if (getProductionToYieldModifier(YIELD_FAITH) > 0)
 	{
-		int iTradeRouteBonus = GET_PLAYER(m_eOwner).GetTrade()->GetTradeValuesAtCityTimes100(this, YIELD_PRODUCTION);
-		iFaith += ((getBasicYieldRateTimes100(YIELD_PRODUCTION) + iTradeRouteBonus) * getProductionToYieldModifier(YIELD_FAITH)) / 10000;
+		iFaith += ((getYieldRateTimes100(YIELD_PRODUCTION, false, true)) * getProductionToYieldModifier(YIELD_FAITH)) / 10000;
 	}
 
 	// Faith from having trade routes
@@ -18126,16 +17879,7 @@ int CvCity::GetFaithPerTurnFromBuildings() const
 int CvCity::GetFaithPerTurnFromPolicies() const
 {
 	VALIDATE_OBJECT();
-	int iNonSpecialist = GET_PLAYER(m_eOwner).getYieldFromNonSpecialistCitizens(YIELD_FAITH);
-	int iValue = 0;
-	if (iNonSpecialist != 0)
-	{
-		int iBonusTimes100 = (iNonSpecialist * (getPopulation() - GetCityCitizens()->GetTotalSpecialistCount()));
-		iBonusTimes100 /= 100;
-		iValue += iBonusTimes100;
-	}
-
-	return (m_iFaithPerTurnFromPolicies + iValue);
+	return m_iFaithPerTurnFromPolicies;
 }
 
 //	--------------------------------------------------------------------------------
@@ -21343,7 +21087,7 @@ CvString CvCity::GetCityUnhappinessBreakdown(bool bIncludeMedian, bool bCityBann
 		float fDeficit = 0.00f;
 		float fAmountForNextReduction = 0.00f;
 		fAmountNeeded += fBasicNeedsMedian * iPopulation;
-		fAmountHave += ((float)getYieldRateTimes100(YIELD_FOOD, false, false) + (float)getYieldRateTimes100(YIELD_PRODUCTION, false, false)) / 100;
+		fAmountHave += ((float)getFoodPerTurnBeforeConsumptionTimes100() + (float)getYieldRateTimes100(YIELD_PRODUCTION)) / 100;
 		fDeficit += fAmountNeeded - fAmountHave;
 
 		// Increase by X for -1 Unhappiness
@@ -21357,7 +21101,7 @@ CvString CvCity::GetCityUnhappinessBreakdown(bool bIncludeMedian, bool bCityBann
 		float fAmountNeeded = 0.00f;
 		float fSurplus = 0.00f;
 		fAmountNeeded += fBasicNeedsMedian * iPopulation;
-		fSurplus += (((float)getYieldRateTimes100(YIELD_FOOD, false, false) + (float)getYieldRateTimes100(YIELD_PRODUCTION, false, false)) / 100) - fAmountNeeded;
+		fSurplus += (((float)getFoodPerTurnBeforeConsumptionTimes100() + (float)getYieldRateTimes100(YIELD_PRODUCTION)) / 100) - fAmountNeeded;
 
 		strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_DISTRESS_UNHAPPINESS_SURPLUS", fSurplus);
 	}
@@ -21379,7 +21123,7 @@ CvString CvCity::GetCityUnhappinessBreakdown(bool bIncludeMedian, bool bCityBann
 		float fDeficit = 0.00f;
 		float fAmountForNextReduction = 0.00f;
 		fAmountNeeded += fGoldMedian * iPopulation;
-		fAmountHave += (float)getYieldRateTimes100(YIELD_GOLD, false, false) / 100;
+		fAmountHave += (float)getYieldRateTimes100(YIELD_GOLD) / 100;
 		fDeficit += fAmountNeeded - fAmountHave;
 
 		// Increase by X for -1 Unhappiness
@@ -21393,7 +21137,7 @@ CvString CvCity::GetCityUnhappinessBreakdown(bool bIncludeMedian, bool bCityBann
 		float fAmountNeeded = 0.00f;
 		float fSurplus = 0.00f;
 		fAmountNeeded += fGoldMedian * iPopulation;
-		fSurplus += ((float)getYieldRateTimes100(YIELD_GOLD, false, false) / 100) - fAmountNeeded;
+		fSurplus += ((float)getYieldRateTimes100(YIELD_GOLD) / 100) - fAmountNeeded;
 
 		strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_POVERTY_UNHAPPINESS_SURPLUS", fSurplus);
 	}
@@ -21415,7 +21159,7 @@ CvString CvCity::GetCityUnhappinessBreakdown(bool bIncludeMedian, bool bCityBann
 		float fDeficit = 0.00f;
 		float fAmountForNextReduction = 0.00f;
 		fAmountNeeded += fScienceMedian * iPopulation;
-		fAmountHave += (float)getYieldRateTimes100(YIELD_SCIENCE, false, false) / 100;
+		fAmountHave += (float)getYieldRateTimes100(YIELD_SCIENCE) / 100;
 		fDeficit += fAmountNeeded - fAmountHave;
 
 		// Increase by X for -1 Unhappiness
@@ -21429,7 +21173,7 @@ CvString CvCity::GetCityUnhappinessBreakdown(bool bIncludeMedian, bool bCityBann
 		float fAmountNeeded = 0.00f;
 		float fSurplus = 0.00f;
 		fAmountNeeded += fScienceMedian * iPopulation;
-		fSurplus += ((float)getYieldRateTimes100(YIELD_SCIENCE, false, false) / 100) - fAmountNeeded;
+		fSurplus += ((float)getYieldRateTimes100(YIELD_SCIENCE) / 100) - fAmountNeeded;
 
 		strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_ILLITERACY_UNHAPPINESS_SURPLUS", fSurplus);
 	}
@@ -21782,7 +21526,7 @@ int CvCity::GetDistressRaw(bool bForceRecalc, int iAssumedExtraYieldRate) const
 {
 	// First, calculate the total yield
 	// Include yields from trade routes in the yield, but not the median, to make unhappiness management easier
-	int iTotalYield = getYieldRateTimes100(YIELD_FOOD, false, false) + getYieldRateTimes100(YIELD_PRODUCTION, false, false) + iAssumedExtraYieldRate;
+	int iTotalYield = getYieldRateTimes100(YIELD_FOOD, false, false, !bForceRecalc) + getYieldRateTimes100(YIELD_PRODUCTION, false, false, !bForceRecalc) + iAssumedExtraYieldRate;
 
 	// Second, calculate the median (with need modifiers)
 	float fMedianYieldPerPop = 0.00f;
@@ -21829,7 +21573,7 @@ int CvCity::GetPovertyRaw(bool bForceRecalc, int iAssumedExtraYieldRate) const
 {
 	// First, calculate the total yield
 	// Include yields from trade routes in the yield, but not the median, to make unhappiness management easier
-	int iTotalYield = getYieldRateTimes100(YIELD_GOLD, false, false) + iAssumedExtraYieldRate;
+	int iTotalYield = getYieldRateTimes100(YIELD_GOLD, false, false, !bForceRecalc) + iAssumedExtraYieldRate;
 
 	// Second, calculate the median (with need modifiers)
 	float fMedianYieldPerPop = 0.00f;
@@ -21876,7 +21620,7 @@ int CvCity::GetIlliteracyRaw(bool bForceRecalc, int iAssumedExtraYieldRate) cons
 {
 	// First, calculate the total yield
 	// Include yields from trade routes in the yield, but not the median, to make unhappiness management easier
-	int iTotalYield = getYieldRateTimes100(YIELD_SCIENCE, false, false) + iAssumedExtraYieldRate;
+	int iTotalYield = getYieldRateTimes100(YIELD_SCIENCE, false, false, !bForceRecalc) + iAssumedExtraYieldRate;
 
 	// Second, calculate the median (with need modifiers)
 	float fMedianYieldPerPop = 0.00f;
@@ -22013,7 +21757,8 @@ int CvCity::GetUnhappinessFromFamine() const
 	if (IsPuppet() || IsResistance() || IsRazing())
 		return 0;
 
-	int iDiff = foodDifference(true);
+	// we can ignore growth mods here
+	int iDiff = (getFoodPerTurnBeforeConsumptionTimes100() - getFoodConsumptionTimes100()) / 100;
 	if (iDiff < 0 && !isFoodProduction())
 	{
 		iDiff *= -1;
@@ -22997,7 +22742,7 @@ void CvCity::UpdateSpecialReligionYields(YieldTypes eYield)
 			int iYieldPerGPT = pReligion->m_Beliefs.GetYieldPerGPT(eYield, getOwner(), this);
 			if (iYieldPerGPT > 0)
 			{
-				int iNetGold = getYieldRate(YIELD_GOLD, false);
+				int iNetGold = getYieldRateTimes100(YIELD_GOLD, false) / 100;
 				if (iNetGold > 0)
 				{
 					int iNumFollowers = GetCityReligions()->GetNumFollowers(eReligion);
@@ -23009,7 +22754,7 @@ void CvCity::UpdateSpecialReligionYields(YieldTypes eYield)
 			int iYieldPerScience = pReligion->m_Beliefs.GetYieldPerScience(eYield, getOwner(), this);
 			if (iYieldPerScience > 0)
 			{
-				int iNetScience = getYieldRate(YIELD_SCIENCE, false);
+				int iNetScience = getYieldRateTimes100(YIELD_SCIENCE, false) / 100;
 				if (iNetScience > 0)
 				{
 					int iNumFollowers = GetCityReligions()->GetNumFollowers(eReligion);
@@ -23068,7 +22813,7 @@ void CvCity::SetSpecialReligionYields(YieldTypes eIndex, int iChange)
 }
 
 //	--------------------------------------------------------------------------------
-int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* toolTipSink) const
+int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iAssumedExtraModifier, CvString* toolTipSink) const
 {
 	VALIDATE_OBJECT();
 
@@ -23362,6 +23107,12 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 		GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD_FOLLOWERS", iTempMod);
 	}
 
+	// Production Modifier for item currently in production
+	if (eIndex == YIELD_PRODUCTION)
+	{
+		iModifier += getCurrentProductionModifier(toolTipSink);
+	}
+
 	// Puppet
 	if (IsPuppet())
 	{
@@ -23486,7 +23237,8 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 		}
 	}
 
-	iModifier += iExtra;
+	// only used for internal calculations, so it doesn't need a tooltip
+	iModifier += iAssumedExtraModifier;
 
 	// note: player->invalidateYieldRankCache() must be called for anything that is checked here
 	// so if any extra checked things are added here, the cache needs to be invalidated
@@ -23523,110 +23275,182 @@ int CvCity::getHappinessModifier(YieldTypes eIndex) const
 
 	return iModifier;
 }
+
+
 //	--------------------------------------------------------------------------------
-int CvCity::getYieldRate(YieldTypes eIndex, bool bIgnoreTrade, bool bStatic) const
+/// <summary>
+/// Calculates the total amount of yields produced in the city per turn under specific conditions.
+/// The values calculated here are added to the city food storage, the production progress, or the empire-wide yield pool before the turn
+/// if the specified conditions are fulfilled.
+/// </summary>
+/// <param name="eYield"> - The yield type</param>
+/// <param name="bIgnoreTrade"> - Ignore yields from trade routes</param>
+/// <param name="bProcess"> - Ignore yields generated by working a process</param>
+/// <param name="iAssumeExtraModifier"> - Assume the yield modifier has been changed by this value. Only applied if eYield == YIELD_PRODUCTION. Needed to calculate production turns for units/buildings, because the production modifier can change depending on what is being constructed</param>
+/// <param name="bAssumeFoodProduction"> - Assume excess food is converted to production (when building a settler)</param>
+/// <param name="bIgnoreFoodConsumption"> - Ignore food consumption</param>
+/// <param name="bIgnoreGrowthMods"> - Ignore growth mods</param>
+/// <param name="tooltipSink"> - Used for generating a tooltip for the UI</param>
+int CvCity::getYieldRateTimes100(YieldTypes eYield, bool bIgnoreTrade, bool bIgnoreProcess, int iAssumeExtraModifier, bool bAssumeFoodProduction, bool bIgnoreFoodConsumption, bool bIgnoreGrowthMods, CvString* tooltipSink) const
 {
 	VALIDATE_OBJECT();
 
-	if (bStatic && !bIgnoreTrade)
-	{
-		return (GetStaticYield(eIndex) / 100);
-	}
+	const char* szIconString = GC.getYieldInfo(eYield)->getIconString();
+	CvString strLineDivision = CvString("----------------[NEWLINE]");
+	bool bBuildTooltip = (tooltipSink != NULL);
 
-	return (getYieldRateTimes100(eIndex, bIgnoreTrade) / 100);
-}
-//	--------------------------------------------------------------------------------
-int CvCity::getYieldRateTimes100(YieldTypes eIndex, bool bIgnoreTrade, bool bStatic) const
-{
-	VALIDATE_OBJECT();
-
-	if (bStatic && !bIgnoreTrade)
-	{
-		return GetStaticYield(eIndex);
-	}
-
-	// Anarchy, Resistance or Razing - no Science, Gold or Production (Prod handled in ProductionDifference)
+	// Anarchy, Resistance or Razing - no yields
 	if (GET_PLAYER(getOwner()).IsAnarchy() || IsResistance() || IsRazing())
 	{
-		if (eIndex == YIELD_GOLD || eIndex == YIELD_SCIENCE)
-		{
-			return 0;
-		}
+		if (bBuildTooltip)
+			(*tooltipSink) += GetLocalizedText("TXT_KEY_ANARCHY") + CvString("[NEWLINE]") + GetLocalizedText("TXT_KEY_YIELD_TOTAL", 0, szIconString);
 
-		if (eIndex == YIELD_TOURISM)
-		{
-			return 0;
-		}
-
-		if (eIndex == YIELD_GOLDEN_AGE_POINTS)
-		{
-			return 0;
-		}
-
-		if (eIndex == YIELD_GREAT_GENERAL_POINTS)
-		{
-			return 0;
-		}
-		if (eIndex == YIELD_GREAT_ADMIRAL_POINTS)
-		{
-			return 0;
-		}
-		if (eIndex == YIELD_POPULATION)
-		{
-			return 0;
-		}
-		if (eIndex == YIELD_CULTURE_LOCAL)
-		{
-			return 0;
-		}
+		return 0;
 	}
 
-	int iPostModifierYield = 0;
 
-	if (getProductionToYieldModifier(eIndex) != 0)
-	{
-		// We want to process production to production and call it stockpiling!
-		int iTradeRouteBonus = bIgnoreTrade ? 0 : GET_PLAYER(m_eOwner).GetTrade()->GetTradeValuesAtCityTimes100(this, YIELD_PRODUCTION);
-		iPostModifierYield = ((getBasicYieldRateTimes100(YIELD_PRODUCTION) + iTradeRouteBonus) * getProductionToYieldModifier(eIndex)) / 100;
-	}
+	// yield rate before modifiers, for example yields from buildings, terrain, etc
+	CvString tooltipBaseYieldRate;
+	int iBaseYield = getBaseYieldRateTimes100(eYield, bBuildTooltip ? &tooltipBaseYieldRate : NULL);
 
-	if (!bIgnoreTrade)
-	{
-		iPostModifierYield += GET_PLAYER(m_eOwner).GetTrade()->GetTradeValuesAtCityTimes100(this, eIndex);
-	}
-
-	return getBasicYieldRateTimes100(eIndex) + iPostModifierYield;
-}
-
-int CvCity::getBasicYieldRateTimes100(YieldTypes eIndex) const
-{
-	// Sum up yield rate
-	int iBaseYield = getBaseYieldRate(eIndex) * 100;
-	iBaseYield += (GetYieldPerPopTimes100(eIndex) * getPopulation());
-	iBaseYield += (GetYieldPerPopInEmpireTimes100(eIndex) * GET_PLAYER(m_eOwner).getTotalPopulation());
-	iBaseYield += (GetYieldPerBuilding(eIndex) * GetCityBuildings()->GetNumBuildings() * 100).Truncate();
-
-	// Yield from Industrial City Connections
-	if (MOD_BALANCE_VP && IsIndustrialRouteToCapitalConnected() && eIndex == YIELD_PRODUCTION)
-	{
-		iBaseYield += GetConnectionGoldTimes100();
-	}
-
-	// Player-level yield per religion
-	iBaseYield += GET_PLAYER(m_eOwner).GetYieldChangesPerReligionTimes100(eIndex) * GetCityReligions()->GetNumReligionsWithFollowers();
-
-	int iNonSpecialist = GET_PLAYER(m_eOwner).getYieldFromNonSpecialistCitizens(eIndex);
-	if (iNonSpecialist != 0)
-	{
-		int iBonusTimes100 = (iNonSpecialist * (getPopulation() - GetCityCitizens()->GetTotalSpecialistCount()));
-		iBaseYield += iBonusTimes100;
-	}
-
-	int iModifiedYield = iBaseYield * getBaseYieldRateModifier(eIndex, 0, NULL);
+	// yield rate modifier. `getBaseYieldRateModifier` returns a percentage value that is applied to the base yield rate
+	CvString tooltipYieldModifiers;
+	int iModifiedYield = iBaseYield * getBaseYieldRateModifier(eYield, eYield == YIELD_PRODUCTION ? iAssumeExtraModifier : 0, bBuildTooltip ? &tooltipYieldModifiers : NULL);
 	iModifiedYield /= 100;
 
-	return iModifiedYield;
+	// additional yields that are unaffected by modifiers: trade routes, yield from processes, yields from other yields, food consumption, food->prod conversion
+	CvString tooltipPostModifierYields;
+	int iPostModifierYield = GetPostModifierYieldRateTimes100(eYield, bIgnoreTrade, bIgnoreProcess, bIgnoreFoodConsumption, bAssumeFoodProduction, bBuildTooltip ? &tooltipPostModifierYields : NULL);
+
+	int iTotalYieldBeforeGrowth = iModifiedYield + iPostModifierYield;
+	int iTotalYield = iTotalYieldBeforeGrowth;
+
+	// for food there are two modifiers: the regular food modifier that has already been applied above, and a growth modifier that is applied now to the excess food after consumption
+	// only apply if the City is growing (and not starving, otherwise it would actually have the OPPOSITE of the intended effect!)
+	CvString tooltipGrowthMods;
+	if (!bIgnoreGrowthMods && eYield == YIELD_FOOD && iTotalYield > 0)
+	{
+
+		iTotalYield *= 100 + getGrowthMods(bBuildTooltip ? &tooltipGrowthMods : NULL);
+		iTotalYield /= 100;
+	}
+	
+	if (bBuildTooltip)
+	{
+		(*tooltipSink) += tooltipBaseYieldRate;
+		if (!tooltipYieldModifiers.IsEmpty())
+		{
+			if (!tooltipBaseYieldRate.IsEmpty())
+			{
+				(*tooltipSink) += strLineDivision;
+			}
+			(*tooltipSink) += GetLocalizedText("TXT_KEY_YIELD_BASE", (float)iBaseYield/100, szIconString) + CvString("[NEWLINE]");
+			(*tooltipSink) += CvString("----------------") /*todo: replace with strLineDivision*/;
+			(*tooltipSink) += tooltipYieldModifiers /*todo: remove the newline*/ + CvString("[NEWLINE]");
+			// if there are both modifiers and post-modifier yields, show an additional subtotal
+			if (!tooltipPostModifierYields.IsEmpty())
+			{
+				(*tooltipSink) += strLineDivision;
+				(*tooltipSink) += GetLocalizedText("TXT_KEY_YIELD_MODIFIED", (float)iModifiedYield/100, szIconString) + CvString("[NEWLINE]");
+				(*tooltipSink) += strLineDivision;
+			}
+		}
+		if (!tooltipPostModifierYields.IsEmpty())
+		{
+			(*tooltipSink) += tooltipPostModifierYields;
+		}
+		if (tooltipGrowthMods.IsEmpty())
+		{
+			(*tooltipSink) += strLineDivision;
+			(*tooltipSink) += GetLocalizedText(iTotalYield >= 0 ? "TXT_KEY_YIELD_TOTAL" : "TXT_KEY_YIELD_TOTAL_NEGATIVE", (float)iTotalYield / 100, szIconString);
+		}
+		else
+		{
+			(*tooltipSink) += strLineDivision;
+			(*tooltipSink) += GetLocalizedText("TXT_KEY_EXCESS_FOOD_BEFORE_GROWTH", (float)iTotalYieldBeforeGrowth / 100, szIconString) + CvString("[NEWLINE]");
+			(*tooltipSink) += CvString("----------------") /*todo: replace with strLineDivision*/;
+			(*tooltipSink) += tooltipGrowthMods /*todo: remove the newline*/ + CvString("[NEWLINE]");
+			(*tooltipSink) += strLineDivision;
+			(*tooltipSink) += GetLocalizedText(iTotalYield >= 0 ? "TXT_KEY_YIELD_TOTAL" : "TXT_KEY_YIELD_TOTAL_NEGATIVE", (float)iTotalYield / 100, szIconString);
+		}
+
+		(*tooltipSink) += CvString("[NEWLINE][NEWLINE]DLL TOOLTIP"); /*todo: remove */
+	}
+
+
+	return iTotalYield;
 }
+//	--------------------------------------------------------------------------------
+/// <summary>
+/// Calculates the total amount of yield eIndex produced in the city per turn.
+/// The values calculated here are the ones shown in the city UI, at the start of each turn they are added to
+/// the city food storage, the production progress, or the empire-wide yield pool.
+/// </summary>
+/// <param name="eYield"> - The yield type</param>
+/// <param name="bIgnoreTrade"> - Ignore yields from trade routes</param>
+/// <param name="bProcess"> - Ignore yields generated by working a process</param>
+/// <param name="iAssumeExtraModifier"> - Assume a production modifier </param>
+int CvCity::getYieldRateTimes100(YieldTypes eYield, bool bIgnoreTrade, bool bIgnoreProcess, bool bUseCachedValue, CvString* tooltipSink) const
+{
+	VALIDATE_OBJECT();
+
+	if (bUseCachedValue && !bIgnoreTrade && !bIgnoreProcess && !tooltipSink)
+	{
+		return GetStaticYield(eYield);
+	}
+
+	return getYieldRateTimes100(eYield, bIgnoreTrade, bIgnoreProcess, 0, isFoodProduction(), false, false, tooltipSink);
+}
+
+/// calculate food production in the city before consumption and before growth mods
+int CvCity::getFoodPerTurnBeforeConsumptionTimes100(bool bIgnoreProcess) const {
+	return getYieldRateTimes100(YIELD_FOOD, false, bIgnoreProcess, 0, false, true, true);
+}
+/// calculate production per turn if the city were to build eUnit
+int CvCity::getProductionPerTurnForUnitTimes100(UnitTypes eUnit) const
+{
+	// the yield modifier might change depending on what is produced, take that into account
+	int iExtraModifier = getProductionModifier(eUnit) - getCurrentProductionModifier();
+	bool bAssumeFoodProduction = isUnitTypeFoodProduction(getOwner(), eUnit);
+	return getYieldRateTimes100(YIELD_PRODUCTION, false, true, iExtraModifier, bAssumeFoodProduction, false, false);
+}
+
+/// calculate production per turn if the city were to build eBuilding
+int CvCity::getProductionPerTurnForBuildingTimes100(BuildingTypes eBuilding) const
+{
+	// the yield modifier might change depending on what is produced, take that into account
+	int iExtraModifier = getProductionModifier(eBuilding) - getCurrentProductionModifier();
+	bool bAssumeFoodProduction = false;
+	return getYieldRateTimes100(YIELD_PRODUCTION, false, true, iExtraModifier, bAssumeFoodProduction, false, false);
+}
+
+/// calculate production per turn if the city were to build eBuilding
+int CvCity::getProductionPerTurnForProcessTimes100(ProcessTypes eProcess) const
+{
+	// the yield modifier might change depending on what is produced, take that into account
+	int iExtraModifier = getProductionModifier(eProcess) - getCurrentProductionModifier();
+	bool bAssumeFoodProduction = false;
+	return getYieldRateTimes100(YIELD_PRODUCTION, false, true, iExtraModifier, bAssumeFoodProduction, false, false);
+}
+
+/// calculate production per turn if the city were to build eProject
+int CvCity::getProductionPerTurnForProjectTimes100(ProjectTypes eProject) const
+{
+	// the yield modifier might change depending on what is produced, take that into account
+	int iExtraModifier = getProductionModifier(eProject) - getCurrentProductionModifier();
+	bool bAssumeFoodProduction = false;
+	return getYieldRateTimes100(YIELD_PRODUCTION, false, true, iExtraModifier, bAssumeFoodProduction, false, false);
+}
+
+/// calculate production per turn in the city, ignoring modifiers specific to what's being produced
+int CvCity::getRawProductionPerTurnTimes100() const
+{
+	// don't assume a modifier specific to what's being produced
+	int iExtraModifier = 0 - getCurrentProductionModifier();
+	bool bAssumeFoodProduction = false;
+	return getYieldRateTimes100(YIELD_PRODUCTION, false, true, iExtraModifier, bAssumeFoodProduction, false, false);
+}
+
 
 void CvCity::UpdateCityYieldFromYield()
 {
@@ -23634,22 +23458,25 @@ void CvCity::UpdateCityYieldFromYield()
 	for (int iI = 0; iI < iNumYieldType; iI++)
 	{
 		YieldTypes eYieldIn = static_cast<YieldTypes>(iI);
-		int iYieldIn = getBaseYieldRate(eYieldIn, true);
+		int iYieldIn = getBaseYieldRateTimes100(eYieldIn);
 		for (int iJ = 0; iJ < iNumYieldType; iJ++)
 		{
 			YieldTypes eYieldOut = static_cast<YieldTypes>(iJ);
 			int iYieldOut = iYieldIn * GetBuildingYieldFromYield(eYieldIn, eYieldOut) / 100;
-			SetRealYieldFromYield(eYieldIn, eYieldOut, iYieldOut);
+			SetRealYieldFromYieldTimes100(eYieldIn, eYieldOut, iYieldOut);
 		}
 	}
 }
 
 //	--------------------------------------------------------------------------------
-//	TODO: Still missing GetYieldPerPopTimes100 (TXT_KEY_YIELD_FROM_POP), GetYieldPerPopInEmpireTimes100 (TXT_KEY_YIELD_FROM_EMPIRE_POP),
-//	GetConnectionGoldTimes100 (TXT_KEY_YIELD_FROM_CONNECTION or TXT_KEY_YIELD_FROM_INDUSTRIAL_CITY_CONNECTION depending on connection type),
-//	GetTradeValuesAtCityTimes100 (TXT_KEY_YIELD_FROM_TRADE_ROUTES)
-//	Put all of them before misc.
-int CvCity::getBaseYieldRate(const YieldTypes eYield, CvString* tooltipSink) const
+/// Calculates the amount of base yields produced in the city per turn,
+/// and generates a tooltip if `tooltipSink` is provided.
+/// Base yields are all yields that are calculated before yield modifiers are applied,
+/// for examples yields from Terrain, Buildings or Great Works.
+/// In general, every source of per-turn yields should be implemented here,
+/// unless there is a specific reason to implement it in `getPostModifierYieldRateTimes100` instead.
+/// The total yield calculation is done in `getYieldRateTimes100`.
+int CvCity::getBaseYieldRateTimes100(const YieldTypes eYield, CvString* tooltipSink) const
 {
 	VALIDATE_OBJECT();
 	ASSERT_DEBUG(eYield > NO_YIELD, "eIndex expected to be >= 0");
@@ -23659,126 +23486,204 @@ int CvCity::getBaseYieldRate(const YieldTypes eYield, CvString* tooltipSink) con
 	const char* szIconString = GC.getYieldInfo(eYield)->getIconString();
 	int iYield = 0;
 
-	int iTempYield = GetBaseYieldRateFromGreatWorks(eYield);
+	int iTempYield = GetBaseYieldRateFromGreatWorks(eYield) * 100;
 	iYield += iTempYield;
 	if (tooltipSink)
-		GC.getGame().BuildProdModHelpText(tooltipSink, "TXT_KEY_YIELD_FROM_ART_CBP", iTempYield, szIconString);
+		GC.getGame().BuildYieldTimes100HelpText(tooltipSink, "TXT_KEY_YIELD_FROM_ART_CBP", iTempYield, szIconString);
 
-	iTempYield = GetBaseYieldRateFromTerrain(eYield);
+	iTempYield = GetBaseYieldRateFromTerrain(eYield) * 100;
 	iYield += iTempYield;
 	if (tooltipSink)
-		GC.getGame().BuildProdModHelpText(tooltipSink, "TXT_KEY_YIELD_FROM_TERRAIN", iTempYield, szIconString);
+		GC.getGame().BuildYieldTimes100HelpText(tooltipSink, "TXT_KEY_YIELD_FROM_TERRAIN", iTempYield, szIconString);
 
-	iTempYield = GetBaseYieldRateFromBuildings(eYield);
+	iTempYield = GetBaseYieldRateFromBuildings(eYield) * 100;
+	iTempYield += (GetYieldPerBuilding(eYield) * GetCityBuildings()->GetNumBuildings() * 100).Truncate();
 	iYield += iTempYield;
 	if (tooltipSink)
-		GC.getGame().BuildProdModHelpText(tooltipSink, "TXT_KEY_YIELD_FROM_BUILDINGS", iTempYield, szIconString);
+		GC.getGame().BuildYieldTimes100HelpText(tooltipSink, "TXT_KEY_YIELD_FROM_BUILDINGS", iTempYield, szIconString);
 
-	iTempYield = GetBaseYieldRateFromSpecialists(eYield);
+	iTempYield = GetBaseYieldRateFromSpecialists(eYield) * 100;
 	iYield += iTempYield;
 	if (tooltipSink)
-		GC.getGame().BuildProdModHelpText(tooltipSink, "TXT_KEY_YIELD_FROM_SPECIALISTS", iTempYield, szIconString);
+		GC.getGame().BuildYieldTimes100HelpText(tooltipSink, "TXT_KEY_YIELD_FROM_SPECIALISTS", iTempYield, szIconString);
 
-	iTempYield = GetBaseYieldRateFromReligion(eYield);
+	iTempYield = GetBaseYieldRateFromReligion(eYield) * 100;
 	iYield += iTempYield;
 	if (tooltipSink)
-		GC.getGame().BuildProdModHelpText(tooltipSink, "TXT_KEY_YIELD_FROM_RELIGION", iTempYield, szIconString);
+		GC.getGame().BuildYieldTimes100HelpText(tooltipSink, "TXT_KEY_YIELD_FROM_RELIGION", iTempYield, szIconString);
 
-	iTempYield = GetBaseYieldRateFromCSAlliance(eYield) + GetBaseYieldRateFromCSFriendship(eYield) + GetYieldFromMinors(eYield);
+	iTempYield = (GetBaseYieldRateFromCSAlliance(eYield) + GetBaseYieldRateFromCSFriendship(eYield) + GetYieldFromMinors(eYield)) * 100;
 	iYield += iTempYield;
 	if (tooltipSink)
-		GC.getGame().BuildProdModHelpText(tooltipSink, "TXT_KEY_YIELD_FROM_CS_ALLIANCE", iTempYield, szIconString);
+		GC.getGame().BuildYieldTimes100HelpText(tooltipSink, "TXT_KEY_YIELD_FROM_CS_ALLIANCE", iTempYield, szIconString);
 
-	iTempYield = GetYieldPerTurnFromTraits(eYield);
+	iTempYield = GetYieldPerTurnFromTraits(eYield) * 100;
 	iYield += iTempYield;
 	if (tooltipSink)
-		GC.getGame().BuildProdModHelpText(tooltipSink, "TXT_KEY_YIELD_FROM_TRAIT_BONUS", iTempYield, szIconString);
+		GC.getGame().BuildYieldTimes100HelpText(tooltipSink, "TXT_KEY_YIELD_FROM_TRAIT_BONUS", iTempYield, szIconString);
 
-	iTempYield = GetYieldChangeFromCorporationFranchises(eYield);
+	iTempYield = GetYieldChangeFromCorporationFranchises(eYield) * 100;
 	iYield += iTempYield;
 	if (tooltipSink)
-		GC.getGame().BuildProdModHelpText(tooltipSink, "TXT_KEY_YIELD_FROM_CORPORATIONS", iTempYield, szIconString);
+		GC.getGame().BuildYieldTimes100HelpText(tooltipSink, "TXT_KEY_YIELD_FROM_CORPORATIONS", iTempYield, szIconString);
 
-	iTempYield = GetEventCityYield(eYield);
+	iTempYield = GetEventCityYield(eYield) * 100;
 	iYield += iTempYield;
 	if (tooltipSink)
-		GC.getGame().BuildProdModHelpText(tooltipSink, "TXT_KEY_YIELD_FROM_EVENTS", iTempYield, szIconString);
+		GC.getGame().BuildYieldTimes100HelpText(tooltipSink, "TXT_KEY_YIELD_FROM_EVENTS", iTempYield, szIconString);
 
 	if (IsRouteToCapitalConnected())
 	{
 		int iEra = kOwner.GetCurrentEra();
 		if (iEra <= 0)
 			iEra = 1;
-		iTempYield = kOwner.GetYieldChangeTradeRoute(eYield) + kOwner.GetPlayerTraits()->GetYieldChangeTradeRoute(eYield) * iEra;
+		iTempYield = kOwner.GetYieldChangeTradeRoute(eYield) * 100 + kOwner.GetPlayerTraits()->GetYieldChangeTradeRoute(eYield) * iEra * 100;
 		iYield += iTempYield;
 		if (tooltipSink)
-			GC.getGame().BuildProdModHelpText(tooltipSink, "TXT_KEY_YIELD_FROM_CONNECTION", iTempYield, szIconString);
+			GC.getGame().BuildYieldTimes100HelpText(tooltipSink, "TXT_KEY_YIELD_FROM_CONNECTION", iTempYield, szIconString);
 	}
 
 	if (kOwner.IsLeagueArt() && eYield == YIELD_SCIENCE)
 	{
-		iTempYield = GetBaseScienceFromArt();
+		iTempYield = GetBaseScienceFromArt() * 100;
 		iYield += iTempYield;
 		if (tooltipSink)
-			GC.getGame().BuildProdModHelpText(tooltipSink, "TXT_KEY_SCIENCE_YIELD_FROM_LEAGUE_ART", iTempYield);
+			GC.getGame().BuildYieldTimes100HelpText(tooltipSink, "TXT_KEY_SCIENCE_YIELD_FROM_LEAGUE_ART", iTempYield, szIconString);
 	}
 
 	if (MOD_YIELD_MODIFIER_FROM_UNITS)
 	{
 		CvPlot* pCityPlot = plot();
+		iTempYield = 0;
 		for (int iUnitLoop = 0; iUnitLoop < pCityPlot->getNumUnits(); iUnitLoop++)
 		{
-			iTempYield = pCityPlot->getUnitByIndex(iUnitLoop)->GetYieldChange(eYield);
-			iYield += iTempYield;
-			if (tooltipSink)
-				GC.getGame().BuildProdModHelpText(tooltipSink, "TXT_KEY_YIELD_FROM_UNITS", iTempYield, szIconString);
+			iTempYield = pCityPlot->getUnitByIndex(iUnitLoop)->GetYieldChange(eYield) * 100;
 		}
+		iYield += iTempYield;
+		if (tooltipSink)
+			GC.getGame().BuildYieldTimes100HelpText(tooltipSink, "TXT_KEY_YIELD_FROM_UNITS", iTempYield, szIconString);
 	}
 
 	ReligionTypes eMajorityReligion = GetCityReligions()->GetReligiousMajority();
 	if (eMajorityReligion > RELIGION_PANTHEON && kOwner.GetReligions()->GetStateReligion() == eMajorityReligion)
 	{
-		iTempYield = kOwner.getReligionYieldRateModifier(eYield);
+		iTempYield = kOwner.getReligionYieldRateModifier(eYield) * 100;
 		iYield += iTempYield;
 		if (tooltipSink)
-			GC.getGame().BuildProdModHelpText(tooltipSink, "TXT_KEY_YIELD_FROM_PIETY", iTempYield, szIconString);
+			GC.getGame().BuildYieldTimes100HelpText(tooltipSink, "TXT_KEY_YIELD_FROM_PIETY", iTempYield, szIconString);
 	}
 
-	iTempYield = GetBaseYieldRateFromMisc(eYield) + GetYieldFromHappiness(eYield) + GetYieldFromHealth(eYield)
-		+ GetYieldFromCrime(eYield) + GetYieldFromDevelopment(eYield);
+	iTempYield = GetYieldPerPopTimes100(eYield) * getPopulation();
 	iYield += iTempYield;
 	if (tooltipSink)
-		GC.getGame().BuildProdModHelpText(tooltipSink, "TXT_KEY_YIELD_FROM_MISC", iTempYield, szIconString);
+		GC.getGame().BuildYieldTimes100HelpText(tooltipSink, "TXT_KEY_YIELD_FROM_POP", iTempYield, szIconString);
+
+	iTempYield = GetYieldPerPopInEmpireTimes100(eYield) * GET_PLAYER(m_eOwner).getTotalPopulation();
+	iYield += iTempYield;
+	if (tooltipSink)
+		GC.getGame().BuildYieldTimes100HelpText(tooltipSink, "TXT_KEY_YIELD_FROM_EMPIRE_POP", iTempYield, szIconString);
+
+	iTempYield = GetYieldFromIndustrialCityConnection(eYield);
+	iYield += iTempYield;
+	if (tooltipSink)
+		GC.getGame().BuildYieldTimes100HelpText(tooltipSink, "TXT_KEY_YIELD_FROM_INDUSTRIAL_CITY_CONNECTION", iTempYield, szIconString);
+
+	int iNonSpecialistYieldRate = GET_PLAYER(m_eOwner).getYieldFromNonSpecialistCitizensTimes100(eYield);
+	if (iNonSpecialistYieldRate != 0)
+	{
+		iTempYield = (iNonSpecialistYieldRate * (getPopulation() - GetCityCitizens()->GetTotalSpecialistCount()));
+		iYield += iTempYield;
+		if (tooltipSink)
+			GC.getGame().BuildYieldTimes100HelpText(tooltipSink, "TXT_KEY_YIELD_FROM_NON_SPECIALISTS", iTempYield, szIconString);
+	}
+
+
+	iTempYield = (GetBaseYieldRateFromMisc(eYield) + GetYieldFromHappiness(eYield) + GetYieldFromHealth(eYield)
+		+ GetYieldFromCrime(eYield) + GetYieldFromDevelopment(eYield)) * 100;
+	iYield += iTempYield;
+	if (tooltipSink)
+		GC.getGame().BuildYieldTimes100HelpText(tooltipSink, "TXT_KEY_YIELD_FROM_MISC", iTempYield, szIconString);
 
 	return iYield;
 }
 
-int CvCity::GetPostModifierYieldRate(const YieldTypes eYield, CvString* tooltipSink) const
+int CvCity::GetPostModifierYieldRateTimes100(const YieldTypes eYield, bool bIgnoreTrade, bool bIgnoreProcess, bool bIgnoreFoodConsumption, bool bAssumeFoodProduction, CvString* tooltipSink) const
 {
-	// TODO: add ASSERTS here
+	VALIDATE_OBJECT();
+	ASSERT_DEBUG(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+
 	const char* szIconString = GC.getYieldInfo(eYield)->getIconString();
 	int iYield = 0;
+	int iTempYield = 0;
 
-	int iTempYield = GetBaseYieldRateFromProcess(eYield);
+	iTempYield = GetTotalYieldFromYieldTimes100(eYield);
 	iYield += iTempYield;
 	if (tooltipSink)
-		GC.getGame().BuildProdModHelpText(tooltipSink, "TXT_KEY_YIELD_FROM_PROCESS", iTempYield, szIconString);
+		GC.getGame().BuildYieldTimes100HelpText(tooltipSink, "TXT_KEY_YIELD_FROM_CITY_YIELDS", iTempYield, szIconString);
 
-	iTempYield = GetTotalYieldFromYield(eYield);
-	iYield += iTempYield;
-	if (tooltipSink)
-		GC.getGame().BuildProdModHelpText(tooltipSink, "TXT_KEY_YIELD_FROM_CITY_YIELDS", iTempYield, szIconString);
+	// don't calculate process yields if we assume food production. foodProduction and processes cannot be active at the same time
+	// if would lead to endless recursion if both food->prod conversion from foodProduction and prod->food conversion from processes were active
+	if (!bIgnoreProcess && !bAssumeFoodProduction)
+	{
+		iTempYield = GetBaseYieldRateFromProcessTimes100(eYield);
+		iYield += iTempYield;
+		if (tooltipSink)
+			GC.getGame().BuildYieldTimes100HelpText(tooltipSink, "TXT_KEY_YIELD_FROM_PROCESS", iTempYield, szIconString);
+	}
+
+	if (!bIgnoreTrade)
+	{
+		iTempYield = GET_PLAYER(m_eOwner).GetTrade()->GetTradeValuesAtCityTimes100(this, eYield);
+		iYield += iTempYield;
+		if (tooltipSink)
+			GC.getGame().BuildYieldTimes100HelpText(tooltipSink, "TXT_KEY_YIELD_FROM_TRADE_ROUTES", iTempYield, szIconString);
+	}
+	// subtract food consumption
+	if (!bIgnoreFoodConsumption && eYield == YIELD_FOOD)
+	{
+		int iFoodConsumption = getFoodConsumptionTimes100();
+		iYield -= iFoodConsumption;
+		if (tooltipSink)
+			GC.getGame().BuildYieldTimes100HelpText(tooltipSink, "TXT_KEY_YIELD_EATEN_BY_POP", iFoodConsumption, szIconString);
+	}
+
+	if (bAssumeFoodProduction)
+	{
+		// assume that excess food is partially converted to production
+		if (eYield == YIELD_PRODUCTION)
+		{
+			// we use bIgnoreProcess=true here because food production and processes cannot be active at the same time
+			int iExcessFood = getFoodPerTurnBeforeConsumptionTimes100(true) - getFoodConsumptionTimes100(true);
+			iTempYield = GetFoodProductionTimes100(iExcessFood);
+			iYield += iTempYield;
+			if (tooltipSink)
+				GC.getGame().BuildYieldTimes100HelpText(tooltipSink, "TXT_KEY_YIELD_FROM_EXCESS_FOOD", iTempYield, szIconString);
+
+		}
+		if (eYield == YIELD_FOOD)
+		{
+			int iExcessFood = getFoodPerTurnBeforeConsumptionTimes100(true) - getFoodConsumptionTimes100(true);
+			if (iExcessFood > 0)
+			{
+				// excess food is set to 0
+				if (tooltipSink)
+					GC.getGame().BuildYieldTimes100HelpText(tooltipSink, "TXT_KEY_YIELD_CONVERTED_TO_PRODUCTION", iExcessFood, szIconString);
+				iYield -= iExcessFood;
+			}
+		}
+	}
 
 	return iYield;
 }
 
-int CvCity::GetTotalYieldFromYield(YieldTypes eYield) const
+int CvCity::GetTotalYieldFromYieldTimes100(YieldTypes eYield) const
 {
 	int iYield = 0;
 	int iNumYieldTypes = GC.getNUM_YIELD_TYPES();
 	for (int iI = 0; iI < iNumYieldTypes; iI++)
 	{
-		iYield += GetRealYieldFromYield(static_cast<YieldTypes>(iI), eYield);
+		iYield += GetRealYieldFromYieldTimes100(static_cast<YieldTypes>(iI), eYield);
 	}
 	return iYield;
 }
@@ -23960,15 +23865,19 @@ void CvCity::ChangeBaseYieldRateFromMisc(YieldTypes eIndex, int iChange)
 }
 //	--------------------------------------------------------------------------------
 //	Base yield rate from active conversion Process
-int CvCity::GetBaseYieldRateFromProcess(YieldTypes eIndex) const
+int CvCity::GetBaseYieldRateFromProcessTimes100(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT();
 	ASSERT_DEBUG(eIndex >= 0, "eIndex expected to be >= 0");
 	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	// Process production into specific yield
-	int iTradeRouteBonus = GET_PLAYER(m_eOwner).GetTrade()->GetTradeValuesAtCityTimes100(this, YIELD_PRODUCTION);
-	return ((getBasicYieldRateTimes100(YIELD_PRODUCTION) + iTradeRouteBonus) * getProductionToYieldModifier(eIndex)) / 10000;
+	int iYield = 0;
+	if (getProductionToYieldModifier(eIndex) > 0)
+	{
+		iYield = getYieldRateTimes100(YIELD_PRODUCTION, false, true) * getProductionToYieldModifier(eIndex) / 100;
+	}
+	return iYield;
 }
 
 // Base yield rate from League
@@ -24784,7 +24693,7 @@ void CvCity::ChangeYieldPerFriend(YieldTypes eIndex, int iChange)
 
 //	--------------------------------------------------------------------------------
 /// Extra yield from building
-int CvCity::GetRealYieldFromYield(YieldTypes eIndex1, YieldTypes eIndex2) const
+int CvCity::GetRealYieldFromYieldTimes100(YieldTypes eIndex1, YieldTypes eIndex2) const
 {
 	VALIDATE_OBJECT();
 	ASSERT_DEBUG(eIndex1 >= 0, "eIndex1 expected to be >= 0");
@@ -24797,7 +24706,7 @@ int CvCity::GetRealYieldFromYield(YieldTypes eIndex1, YieldTypes eIndex2) const
 
 //	--------------------------------------------------------------------------------
 /// Extra yield from building
-void CvCity::SetRealYieldFromYield(YieldTypes eIndex1, YieldTypes eIndex2, int iValue)
+void CvCity::SetRealYieldFromYieldTimes100(YieldTypes eIndex1, YieldTypes eIndex2, int iValue)
 {
 	VALIDATE_OBJECT();
 	ASSERT_DEBUG(eIndex1 >= 0, "eIndex1 expected to be >= 0");
@@ -26244,6 +26153,17 @@ void CvCity::ChangeYieldPerPopInEmpireTimes100(YieldTypes eIndex, int iChange)
 }
 #endif
 
+int CvCity::GetYieldFromIndustrialCityConnection(YieldTypes eIndex) const
+{
+	int iResult = 0;
+	if (MOD_BALANCE_VP && IsIndustrialRouteToCapitalConnected() && eIndex == YIELD_PRODUCTION)
+	{
+		// in VP, industrial city connections provide production equal to the amount of gold from city connections
+		iResult += GetConnectionGoldTimes100();
+	}
+	return iResult;
+}
+
 //	--------------------------------------------------------------------------------
 /// Extra yields when a tech is researched
 std::map<int, std::map<int, int>> CvCity::GetTechEnhancedYieldsMap() const
@@ -27017,9 +26937,8 @@ int CvCity::getProcessProductionTimes100(ProcessTypes eIndex) const
 	ASSERT_DEBUG(eIndex >= 0, "eIndex expected to be >= 0");
 	ASSERT_DEBUG(eIndex < GC.getNumProcessInfos(), "eIndex expected to be < GC.getNumProcessInfos()");
 
-	if (eIndex == GC.getInfoTypeForString("PROCESS_STOCKPILE"
-		, true)) {
-		return getBasicYieldRateTimes100(YIELD_PRODUCTION);
+	if (eIndex == GC.getInfoTypeForString("PROCESS_STOCKPILE", true)) {
+		return getYieldRateTimes100(YIELD_PRODUCTION, false, true);
 	}
 
 	return 0;
@@ -27353,7 +27272,7 @@ void CvCity::updateStrengthValue()
 		CvProcessInfo* pkProcessInfo = GC.getProcessInfo(getProductionProcess());
 		if (pkProcessInfo && pkProcessInfo->getDefenseValue() != 0)
 		{
-			iStrengthValue += (getYieldRate(YIELD_PRODUCTION, false) * pkProcessInfo->getDefenseValue());
+			iStrengthValue += (getYieldRateTimes100(YIELD_PRODUCTION, false, true) * pkProcessInfo->getDefenseValue()) / 100;
 		}
 	}
 
@@ -27536,7 +27455,7 @@ int CvCity::getStrengthValue(bool bForRangeStrike, bool bIgnoreBuildings, const 
 			CvProcessInfo* pkProcessInfo = GC.getProcessInfo(getProductionProcess());
 			if (pkProcessInfo && pkProcessInfo->getDefenseValue() != 0)
 			{
-				iValue -= (getYieldRate(YIELD_PRODUCTION, false) * pkProcessInfo->getDefenseValue());
+				iValue -= (getYieldRateTimes100(YIELD_PRODUCTION, false, true) * pkProcessInfo->getDefenseValue()) / 100;
 			}
 		}
 
@@ -29658,7 +29577,7 @@ void CvCity::produce(UnitTypes eTrainUnit, UnitAITypes eTrainAIUnit, bool bCanOv
 		{
 			// max overflow is the value of the item produced (to eliminate prebuild exploits)
 			int iOverflow = getUnitProductionTimes100(eTrainUnit) - iProductionNeeded;
-			int iMaxOverflow = std::max(iProductionNeeded, getCurrentProductionDifferenceTimes100(false, false));
+			int iMaxOverflow = std::max(iProductionNeeded, getYieldRateTimes100(YIELD_PRODUCTION));
 			int iLostProduction = std::max(0, iOverflow - iMaxOverflow);
 			iOverflow = std::min(iMaxOverflow, iOverflow);
 
@@ -29739,7 +29658,7 @@ void CvCity::produce(BuildingTypes eConstructBuilding, bool bCanOverflow)
 	{
 		// max overflow is the value of the item produced (to eliminate prebuild exploits)
 		int iOverflow = m_pCityBuildings->GetBuildingProductionTimes100(eConstructBuilding) - iProductionNeeded;
-		int iMaxOverflow = std::max(iProductionNeeded, getCurrentProductionDifferenceTimes100(false, false));
+		int iMaxOverflow = std::max(iProductionNeeded, getYieldRateTimes100(YIELD_PRODUCTION));
 		int iLostProduction = std::max(0, iOverflow - iMaxOverflow);
 		iOverflow = std::min(iMaxOverflow, iOverflow);
 		if (iOverflow > 0)
@@ -29820,7 +29739,7 @@ void CvCity::produce(ProjectTypes eCreateProject, bool bCanOverflow)
 	{
 		// max overflow is the value of the item produced (to eliminate prebuild exploits)
 		int iOverflow = getProjectProductionTimes100(eCreateProject) - iProductionNeeded;
-		int iMaxOverflow = std::max(iProductionNeeded, getCurrentProductionDifferenceTimes100(false, false));
+		int iMaxOverflow = std::max(iProductionNeeded, getYieldRateTimes100(YIELD_PRODUCTION));
 		int iLostProduction = std::max(0, iOverflow - iMaxOverflow);
 		iOverflow = std::min(iMaxOverflow, iOverflow);
 
@@ -31241,18 +31160,7 @@ void CvCity::doGrowth()
 	VALIDATE_OBJECT();
 	// here would be a good place to override this in Lua
 
-	// No growth or starvation if being razed
-	if (IsRazing())
-	{
-		return;
-	}
-	//No growth or starvation if in resistance
-	if (IsResistance())
-	{
-		return;
-	}
-
-	int iFoodPerTurn100 = foodDifferenceTimes100();
+	int iFoodPerTurn100 = getYieldRateTimes100(YIELD_FOOD);
 	int iFoodReqForGrowth = growthThreshold();
 
 	if (iFoodPerTurn100 < 0)
@@ -31662,7 +31570,7 @@ void CvCity::doProduction(bool bAllowNoProduction)
 			}
 		}
 
-		changeProductionTimes100(getCurrentProductionDifferenceTimes100(false, true));
+		changeProductionTimes100(getYieldRateTimes100(YIELD_PRODUCTION) + getTotalOverflowProductionTimes100());
 
 		if (!(MOD_PROCESS_STOCKPILE && isProductionProcess()))
 			setOverflowProduction(0);
@@ -31676,7 +31584,7 @@ void CvCity::doProduction(bool bAllowNoProduction)
 	}
 	else
 	{
-		changeOverflowProductionTimes100(getCurrentProductionDifferenceTimes100(false, false));
+		changeOverflowProductionTimes100(getYieldRateTimes100(YIELD_PRODUCTION));
 	}
 }
 
@@ -31690,7 +31598,7 @@ void CvCity::doProcess()
 #if defined(MOD_PROCESS_STOCKPILE)
 	if (MOD_PROCESS_STOCKPILE && eProcess == GC.getInfoTypeForString("PROCESS_STOCKPILE", true))
 	{
-		int iPile = getCurrentProductionDifferenceTimes100(false, false);
+		int iPile = getYieldRateTimes100(YIELD_PRODUCTION);
 		// Can't use changeOverflowProductionTimes100() here as it asserts above 250 production
 		setOverflowProductionTimes100(getOverflowProductionTimes100() + iPile);
 		CUSTOMLOG("Adding %i production to the stockpile of %s (for a total of %i)", iPile / 100, getName().c_str(), getOverflowProduction());

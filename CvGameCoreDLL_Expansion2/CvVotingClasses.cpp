@@ -8890,7 +8890,7 @@ void CvLeague::CheckProjectsProgress()
 						if (pLoopCity->getProductionProcess() != pProjectInfo->GetProcess())
 							continue;
 
-						GC.getGame().GetGameLeagues()->DoLeagueProjectContribution(eLoopPlayer, it->eType, pLoopCity->getCurrentProductionDifferenceTimes100(false, true));
+						GC.getGame().GetGameLeagues()->DoLeagueProjectContribution(eLoopPlayer, it->eType, pLoopCity->getYieldRateTimes100(YIELD_PRODUCTION) + pLoopCity->getTotalOverflowProductionTimes100());
 
 					}
 				}
