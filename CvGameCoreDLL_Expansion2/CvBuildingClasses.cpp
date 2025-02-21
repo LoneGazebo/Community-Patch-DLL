@@ -437,6 +437,8 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_ppaiTerrainYieldChange(NULL),
 	m_ppaiYieldPerXTerrain(NULL),
 	m_ppaiYieldPerXFeature(NULL),
+	m_ppYieldPerXImprovementLocal(),
+	m_ppYieldPerXImprovementGlobal(),
 	m_ppaiPlotYieldChange(NULL),
 	m_ppiBuildingClassYieldChanges(NULL),
 	m_ppiBuildingClassYieldModifiers(NULL),
@@ -602,6 +604,8 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiTerrainYieldChange);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiYieldPerXTerrain);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiYieldPerXFeature);
+	m_ppYieldPerXImprovementLocal.clear();
+	m_ppYieldPerXImprovementGlobal.clear();
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiPlotYieldChange);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiBuildingClassYieldChanges);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiBuildingClassYieldModifiers);
@@ -1514,6 +1518,58 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 
 			m_ppaiYieldPerXFeature[FeatureID][YieldID] = yield;
 		}
+	}
+	//YieldPerXImprovementLocal
+	{
+		std::string strKey("Building_YieldPerXImprovementLocal");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if (pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select Improvements.ID as ImprovementID, Yields.ID as YieldID, Yield, NumRequired from Building_YieldPerXImprovementLocal inner join Improvements on Improvements.Type = ImprovementType inner join Yields on Yields.Type = YieldType where BuildingType = ?");
+		}
+
+		pResults->Bind(1, szBuildingType);
+
+		while (pResults->Step())
+		{
+			const ImprovementTypes eImprovementType = ImprovementTypes(pResults->GetInt(0));
+			const YieldTypes eYieldType = YieldTypes(pResults->GetInt(1));
+			const int iYield = pResults->GetInt(2);
+			const int iNumReq = pResults->GetInt(3);
+
+			m_ppYieldPerXImprovementLocal[eImprovementType][eYieldType] += fraction(iYield,iNumReq);
+		}
+
+		pResults->Reset();
+
+		//Trim extra memory off container since this is mostly read-only.
+		std::map<ImprovementTypes, std::map<YieldTypes, fraction>>(m_ppYieldPerXImprovementLocal).swap(m_ppYieldPerXImprovementLocal);
+	}
+	//YieldPerXImprovementGlobal
+	{
+		std::string strKey("Building_YieldPerXImprovementGlobal");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if (pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select Improvements.ID as ImprovementID, Yields.ID as YieldID, Yield, NumRequired from Building_YieldPerXImprovementGlobal inner join Improvements on Improvements.Type = ImprovementType inner join Yields on Yields.Type = YieldType where BuildingType = ?");
+		}
+
+		pResults->Bind(1, szBuildingType);
+
+		while (pResults->Step())
+		{
+			const ImprovementTypes eImprovementType = ImprovementTypes(pResults->GetInt(0));
+			const YieldTypes eYieldType = YieldTypes(pResults->GetInt(1));
+			const int iYield = pResults->GetInt(2);
+			const int iNumReq = pResults->GetInt(3);
+
+			m_ppYieldPerXImprovementGlobal[eImprovementType][eYieldType] += fraction(iYield,iNumReq);
+		}
+
+		pResults->Reset();
+
+		//Trim extra memory off container since this is mostly read-only.
+		std::map<ImprovementTypes, std::map<YieldTypes, fraction>>(m_ppYieldPerXImprovementGlobal).swap(m_ppYieldPerXImprovementGlobal);
 	}
 	//Building_DomainFreeExperiencesGlobal
 	{
@@ -4722,6 +4778,45 @@ int* CvBuildingEntry::GetYieldPerXFeatureArray(int i) const
 	ASSERT_DEBUG(i < GC.getNumFeatureInfos(), "Index out of bounds");
 	ASSERT_DEBUG(i > -1, "Index out of bounds");
 	return m_ppaiYieldPerXFeature[i];
+}
+
+/// Change to Building Yield by Improvement Type
+fraction CvBuildingEntry::GetYieldPerXImprovementLocal(ImprovementTypes eImprovementType, YieldTypes eYieldType) const
+{
+	ASSERT_DEBUG(eImprovementType < GC.getNumImprovementInfos(), "Index out of bounds");
+	ASSERT_DEBUG(eImprovementType > -1, "Index out of bounds");
+	ASSERT_DEBUG(eYieldType < NUM_YIELD_TYPES, "Index out of bounds");
+	ASSERT_DEBUG(eYieldType > -1, "Index out of bounds");
+	std::map<ImprovementTypes, std::map<YieldTypes, fraction>>::const_iterator itImprovement = m_ppYieldPerXImprovementLocal.find(eImprovementType);
+	if (itImprovement != m_ppYieldPerXImprovementLocal.end()) // find returns the iterator to map::end if the key eImprovementType is not present in the map
+	{
+		std::map<YieldTypes, fraction>::const_iterator itYield = itImprovement->second.find(eYieldType);
+		if (itYield != itImprovement->second.end()) // find returns the iterator to map::end if the key eYieldType is not present in the map
+		{
+			return itYield->second;
+		}
+	}
+
+	return fraction(0);
+}
+/// Change to Building Yield by Improvement Type (Global)
+fraction CvBuildingEntry::GetYieldPerXImprovementGlobal(ImprovementTypes eImprovementType, YieldTypes eYieldType) const
+{
+	ASSERT_DEBUG(eImprovementType < GC.getNumImprovementInfos(), "Index out of bounds");
+	ASSERT_DEBUG(eImprovementType > -1, "Index out of bounds");
+	ASSERT_DEBUG(eYieldType < NUM_YIELD_TYPES, "Index out of bounds");
+	ASSERT_DEBUG(eYieldType > -1, "Index out of bounds");
+	std::map<ImprovementTypes, std::map<YieldTypes, fraction>>::const_iterator itImprovement = m_ppYieldPerXImprovementGlobal.find(eImprovementType);
+	if (itImprovement != m_ppYieldPerXImprovementGlobal.end()) // find returns the iterator to map::end if the key eImprovementType is not present in the map
+	{
+		std::map<YieldTypes, fraction>::const_iterator itYield = itImprovement->second.find(eYieldType);
+		if (itYield != itImprovement->second.end()) // find returns the iterator to map::end if the key eYieldType is not present in the map
+		{
+			return itYield->second;
+		}
+	}
+
+	return fraction(0);
 }
 
 /// Change to Plot yield by type
