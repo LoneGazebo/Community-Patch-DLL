@@ -6866,11 +6866,16 @@ std::vector<CvPlot*> TacticalAIHelpers::GetPlotsForRangedAttack(const CvPlot* pT
 
 		if (bOnlyInDomain)
 		{
-			//subs can only attack within their (water) area or adjacent cities
-			if (pRefPlot->getArea() != vCandidates[i]->getArea())
+			//subs can only attack within their (water) area or adjacent cities (VP only)
+			if (pRefPlot->getLandmass() != vCandidates[i]->getLandmass())
 			{
-				CvCity *pCity = vCandidates[i]->getPlotCity();
-				if (!pCity || !pCity->HasAccessToArea(pRefPlot->getArea()))
+				if (!MOD_BALANCE_VP)
+					continue;
+
+				if (!vCandidates[i]->isCity())
+					continue;
+
+				if (!vCandidates[i]->getPlotCity()->HasAccessToLandmassOrOcean(pRefPlot->getLandmass()))
 					continue;
 			}
 		}
