@@ -975,38 +975,37 @@ int CvLuaUnit::lGetPotentialRangeAttackTargetPlots(lua_State* L)
 	// Can only bombard in domain? (used for Subs' torpedo attack)
 	bool bOnlyInDomain = pUnit->getUnitInfo().IsRangeAttackOnlyInDomain();
 
-	for (int iRange=1; iRange<=pUnit->GetRange(); iRange++)
+	for (int iRange = 1; iRange <= pUnit->GetRange(); iRange++)
 	{
 		const vector<CvPlot*>& vCandidates = GC.getMap().GetPlotsAtRangeX(pOrigin, iRange, true, !bIgnoreLOS);
-
-		for (size_t i = 0; i < vCandidates.size(); i++)
+		for (vector<CvPlot*>::const_iterator it = vCandidates.begin(); it != vCandidates.end(); ++it)
 		{
-			//skip sentinels
-			if (vCandidates[i] == NULL)
+			const CvPlot* pCandidate = *it;
+			if (!pCandidate)
 				continue;
 
-			if (!vCandidates[i]->isRevealed(pUnit->getTeam()))
+			if (!pCandidate->isRevealed(pUnit->getTeam()))
 				continue;
 
-			if (!pUnit->isNativeDomain(vCandidates[i]))
+			if (!pUnit->isNativeDomain(pCandidate))
 				continue;
 
 			if (bOnlyInDomain)
 			{
-				//subs can only attack within their (water) area or adjacent cities
-				if (pOrigin->getArea() != vCandidates[i]->getArea())
-				{
-					CvCity* pCity = vCandidates[i]->getPlotCity();
-					if (!pCity || !pCity->HasAccessToArea(pOrigin->getArea()))
-						continue;
-				}
+				// Can only attack same landmass or adjacent city (VP only)
+				bool bForbidden = (pCandidate->getLandmass() != pOrigin->getLandmass());
+				if (MOD_BALANCE_VP && pCandidate->isCity() && pCandidate->getPlotCity()->HasAccessToLandmassOrOcean(pOrigin->getLandmass()))
+					bForbidden = false;
+
+				if (bForbidden)
+					continue;
 			}
 
 			lua_createtable(L, 0, 0);
 			const int t = lua_gettop(L);
-			lua_pushinteger(L, vCandidates[i]->getX());
+			lua_pushinteger(L, pCandidate->getX());
 			lua_setfield(L, t, "X");
-			lua_pushinteger(L, vCandidates[i]->getY());
+			lua_pushinteger(L, pCandidate->getY());
 			lua_setfield(L, t, "Y");
 			lua_rawseti(L, -2, iCount++);
 		}
@@ -1035,38 +1034,37 @@ int CvLuaUnit::lGetPotentialRangeAttackOriginPlots(lua_State* L)
 	for (int iRange = 1; iRange <= pUnit->GetRange(); iRange++)
 	{
 		const vector<CvPlot*>& vCandidates = GC.getMap().GetPlotsAtRangeX(pTarget, iRange, false, !bIgnoreLOS);
-
-		for (size_t i = 0; i < vCandidates.size(); i++)
+		for (vector<CvPlot*>::const_iterator it = vCandidates.begin(); it != vCandidates.end(); ++it)
 		{
-			//skip sentinels
-			if (vCandidates[i] == NULL)
+			const CvPlot* pCandidate = *it;
+			if (!pCandidate)
 				continue;
 
-			if (!vCandidates[i]->isRevealed(pUnit->getTeam()))
+			if (!pCandidate->isRevealed(pUnit->getTeam()))
 				continue;
 
-			if (!pUnit->isNativeDomain(vCandidates[i]))
+			if (!pUnit->isNativeDomain(pCandidate))
 				continue;
 
-			if (!pUnit->canEndTurnAtPlot(vCandidates[i]))
+			if (!pUnit->canEndTurnAtPlot(pCandidate))
 				continue;
 
 			if (bOnlyInDomain)
 			{
-				//subs can only attack within their (water) area or adjacent cities
-				if (pTarget->getArea() != vCandidates[i]->getArea())
-				{
-					CvCity* pCity = vCandidates[i]->getPlotCity();
-					if (!pCity || !pCity->HasAccessToArea(pTarget->getArea()))
-						continue;
-				}
+				// Can only attack same landmass or adjacent city (VP only)
+				bool bForbidden = (pCandidate->getLandmass() != pTarget->getLandmass());
+				if (MOD_BALANCE_VP && pTarget->isCity() && pTarget->getPlotCity()->HasAccessToLandmassOrOcean(pCandidate->getLandmass()))
+					bForbidden = false;
+
+				if (bForbidden)
+					continue;
 			}
 
 			lua_createtable(L, 0, 0);
 			const int t = lua_gettop(L);
-			lua_pushinteger(L, vCandidates[i]->getX());
+			lua_pushinteger(L, pCandidate->getX());
 			lua_setfield(L, t, "X");
-			lua_pushinteger(L, vCandidates[i]->getY());
+			lua_pushinteger(L, pCandidate->getY());
 			lua_setfield(L, t, "Y");
 			lua_rawseti(L, -2, iCount++);
 		}
@@ -1919,17 +1917,8 @@ int CvLuaUnit::lCanConstruct(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaUnit::lIsRangeAttackOnlyInDomain(lua_State* L)
 {
-	CvUnit* pkUnit = GetInstance(L);
-	CvUnitEntry* pkUnitInfo = GC.getUnitInfo(pkUnit->getUnitType());
-
-	if(pkUnitInfo == NULL)
-	{
-		luaL_error(L, "Could not find unit info (%d) for unit.", pkUnit->getUnitType());
-		return 0;
-	}
-
-	const bool bResult = pkUnitInfo->IsRangeAttackOnlyInDomain();
-	lua_pushboolean(L, bResult);
+	CvUnit* pUnit = GetInstance(L);
+	lua_pushboolean(L, pUnit->getUnitInfo().IsRangeAttackOnlyInDomain());
 	return 1;
 }
 

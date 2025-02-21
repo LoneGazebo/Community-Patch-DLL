@@ -28182,7 +28182,7 @@ bool CvUnit::canEverRangeStrikeAt(int iX, int iY, const CvPlot* pSourcePlot, boo
 		if (getUnitInfo().IsRangeAttackOnlyInDomain())
 		{
 			bool bForbidden = (getDomainType() != pTargetPlot->getDomain());
-			if (pTargetPlot->isCity() && pTargetPlot->isCoastalLand())
+			if (MOD_BALANCE_VP && pTargetPlot->isCity() && pTargetPlot->isCoastalLand())
 				bForbidden = false;
 
 			if (bForbidden)
