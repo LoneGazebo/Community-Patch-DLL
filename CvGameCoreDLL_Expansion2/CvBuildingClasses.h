@@ -659,6 +659,9 @@ public:
 	int GetYieldPerXFeature(int i, int j) const;
 	int* GetYieldPerXFeatureArray(int i) const;
 
+	fraction GetYieldPerXImprovementLocal(ImprovementTypes eImprovementType, YieldTypes eYieldType) const;
+	fraction GetYieldPerXImprovementGlobal(ImprovementTypes eImprovementType, YieldTypes eYieldType) const;
+
 	int GetPlotYieldChange(int i, int j) const;
 	int* GetPlotYieldChangeArray(int i) const;
 
@@ -1089,6 +1092,8 @@ private:
 	int** m_ppaiTerrainYieldChange;
 	int** m_ppaiYieldPerXTerrain;
 	int** m_ppaiYieldPerXFeature;
+	std::map<ImprovementTypes, std::map<YieldTypes, fraction>> m_ppYieldPerXImprovementLocal;
+	std::map<ImprovementTypes, std::map<YieldTypes, fraction>> m_ppYieldPerXImprovementGlobal;
 	int** m_ppaiPlotYieldChange;
 	int** m_ppiBuildingClassYieldChanges;
 	int** m_ppiBuildingClassYieldModifiers;
