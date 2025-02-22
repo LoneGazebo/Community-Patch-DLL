@@ -693,7 +693,7 @@ function RefreshDisplayOfSpecificTech( tech )
   			thisTechButton.FreeTech:SetHide( false );
  			thisTechButton.CurrentlyResearching:SetHide( true );
 			-- update number of turns to research
- 			if 	player:GetScience() > 0 and stealingTechTargetPlayerID == -1 then
+ 			if 	player:GetScienceTimes100() > 0 and stealingTechTargetPlayerID == -1 then
   				thisTechButton.FreeTurns:SetText( turnText );
   				thisTechButton.FreeTurns:SetHide( false );
   			else
@@ -705,7 +705,7 @@ function RefreshDisplayOfSpecificTech( tech )
   			thisTechButton.FreeTech:SetHide( true );
  			thisTechButton.CurrentlyResearching:SetHide( false );
 			-- update number of turns to research
- 			if 	player:GetScience() > 0 then
+ 			if 	player:GetScienceTimes100() > 0 then
   				thisTechButton.CurrentlyResearchingTurns:SetText( turnText );
   				thisTechButton.CurrentlyResearchingTurns:SetHide( false );
   			else
@@ -718,9 +718,9 @@ function RefreshDisplayOfSpecificTech( tech )
 		local researchProgressPercent = 0;
 		local researchProgressPlusThisTurnPercent = 0;
 		local researchTurnsLeft = player:GetResearchTurnsLeft(techID, true);
-		local currentResearchProgress = player:GetResearchProgress(techID);
+		local currentResearchProgress = player:GetResearchProgressTimes100(techID) / 100;
 		local researchNeeded = player:GetResearchCost(techID);
-		local researchPerTurn = player:GetScience();
+		local researchPerTurn = player:GetScienceTimes100() / 100;
 		local currentResearchPlusThisTurn = currentResearchProgress + researchPerTurn;		
 		researchProgressPercent = currentResearchProgress / researchNeeded;
 		researchProgressPlusThisTurnPercent = currentResearchPlusThisTurn / researchNeeded;		
@@ -739,7 +739,7 @@ function RefreshDisplayOfSpecificTech( tech )
  			thisTechButton.FreeTech:SetHide( false );
  			thisTechButton.Available:SetHide( true );
 			-- update number of turns to research
- 			if 	player:GetScience() > 0 and stealingTechTargetPlayerID == -1 then
+ 			if 	player:GetScienceTimes100() > 0 and stealingTechTargetPlayerID == -1 then
   				thisTechButton.FreeTurns:SetText( turnText );
   				thisTechButton.FreeTurns:SetHide( false );
   			else
@@ -752,7 +752,7 @@ function RefreshDisplayOfSpecificTech( tech )
  			thisTechButton.FreeTech:SetHide( true );
  			thisTechButton.Available:SetHide( false );
 			-- update number of turns to research
- 			if 	player:GetScience() > 0 then
+ 			if 	player:GetScienceTimes100() > 0 then
   				thisTechButton.AvailableTurns:SetText( turnText );
   				thisTechButton.AvailableTurns:SetHide( false );
   			else
@@ -794,7 +794,7 @@ function RefreshDisplayOfSpecificTech( tech )
 		thisTechButton.Locked:SetHide( true );
   		thisTechButton.FreeTech:SetHide( true );
  		-- update number of turns to research
- 		if 	player:GetScience() > 0 then
+ 		if 	player:GetScienceTimes100() > 0 then
   			thisTechButton.UnavailableTurns:SetText( turnText );
   			thisTechButton.UnavailableTurns:SetHide( false );
   		else

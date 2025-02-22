@@ -28,7 +28,7 @@ function GetHelpTextForTech(eTech, bShort, playerIDOverride)
 			-- Cost/Progress
 			strHelpText = strHelpText .. "[NEWLINE]-------------------------[NEWLINE]";
 
-			local iProgress = pActivePlayer:GetResearchProgress(eTech);
+			local iProgress = pActivePlayer:GetResearchProgressTimes100(eTech) / 100;
 
 			-- Don't show progress if we have 0 or we're done with the tech
 			if iProgress == 0 or pTeamTechs:HasTech(eTech) then
