@@ -458,13 +458,11 @@ public:
 	bool IsCityConnectionPlot(const CvPlot* pPlot, bool bIndustrial) const;
 
 	// Culture
-	int GetTotalJONSCulturePerTurn() const;
+	int GetTotalJONSCulturePerTurnTimes100(CvString* toolTipSink = NULL) const;
 
+	int GetYieldRateFromCitiesTimes100(YieldTypes eYield, bool bIgnoreTrade = false) const;
 
-	int GetJONSCulturePerTurnFromCities() const;
-	int GetJONSCultureFromCitiesTimes100(bool bIgnoreTrade) const;
-
-	int GetJONSCulturePerTurnFromExcessHappiness() const;
+	int GetJONSCulturePerTurnFromExcessHappinessTimes100() const;
 	int GetJONSCulturePerTurnFromTraits() const;
 
 #if defined(MOD_BALANCE_CORE)
@@ -477,24 +475,21 @@ public:
 	int GetCulturePerTurnFromMinorCivs() const;
 	int GetCulturePerTurnFromMinor(PlayerTypes eMinor) const;
 
-	int GetCulturePerTurnFromReligion() const;
-
-	int GetCulturePerTurnFromBonusTurns() const;
+	int GetCulturePerTurnModifierFromReligion() const;
 
 	int GetJONSCultureCityModifier() const;
 	void ChangeJONSCultureCityModifier(int iChange);
 	int GetLeagueCultureCityModifier() const;
 	void ChangeLeagueCultureCityModifier(int iChange);
 
-	int getJONSCulture() const;
-	void setJONSCulture(int iNewValue);
+	int getJONSCultureTimes100() const;
+	void setJONSCultureTimes100(int iNewValue);
 	void changeJONSCulture(int iChange);
+	void changeJONSCultureTimes100(int iChange);
 
-	int GetJONSCultureEverGenerated() const;
-	void SetJONSCultureEverGenerated(int iNewValue);
-	void ChangeJONSCultureEverGenerated(int iChange);
-
-	int GetJONSCulturePerCityPerTurn() const;
+	long long GetJONSCultureEverGeneratedTimes100() const;
+	void SetJONSCultureEverGeneratedTimes100(long long lNewValue);
+	void ChangeJONSCultureEverGeneratedTimes100(long long lChange);
 	
 	int GetWondersConstructed() const;
 	void SetWondersConstructed(int iNewValue);
@@ -2870,7 +2865,7 @@ public:
 	int GetScoreFromVassals() const;
 	int GetScoreFromVassal(PlayerTypes ePlayer) const;
 
-	int GetYieldPerTurnFromVassals(YieldTypes eYield) const;
+	int GetYieldPerTurnFromVassalsTimes100(YieldTypes eYield) const;
 
 	int GetHappinessFromVassals() const;
 	int GetHappinessFromWarsWithMajors() const;
@@ -2983,8 +2978,8 @@ protected:
 	int m_iTotalLandScored;
 	int m_iJONSCulturePerTurnForFree;
 	int m_iJONSCultureCityModifier;
-	int m_iJONSCulture;
-	int m_iJONSCultureEverGenerated;
+	int m_iJONSCultureTimes100;
+	long long m_lJONSCultureEverGeneratedTimes100;
 	int m_iWondersConstructed;
 	int m_iCulturePerWonder;
 	int m_iCultureWonderMultiplier;
@@ -3850,8 +3845,8 @@ SYNC_ARCHIVE_VAR(int, m_iTotalLand)
 SYNC_ARCHIVE_VAR(int, m_iTotalLandScored)
 SYNC_ARCHIVE_VAR(int, m_iJONSCulturePerTurnForFree)
 SYNC_ARCHIVE_VAR(int, m_iJONSCultureCityModifier)
-SYNC_ARCHIVE_VAR(int, m_iJONSCulture)
-SYNC_ARCHIVE_VAR(int, m_iJONSCultureEverGenerated)
+SYNC_ARCHIVE_VAR(int, m_iJONSCultureTimes100)
+SYNC_ARCHIVE_VAR(long long, m_lJONSCultureEverGeneratedTimes100)
 SYNC_ARCHIVE_VAR(int, m_iWondersConstructed)
 SYNC_ARCHIVE_VAR(int, m_iCulturePerWonder)
 SYNC_ARCHIVE_VAR(int, m_iCultureWonderMultiplier)

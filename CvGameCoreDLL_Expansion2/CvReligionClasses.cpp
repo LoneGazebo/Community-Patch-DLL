@@ -8854,7 +8854,7 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity) const
 	// Expansion
 	///////////////////
 
-	int iCulture = pCity->getJONSCulturePerTurn() * iIdealEmpireSize;
+	int iCulture = pCity->getYieldRateTimes100(YIELD_CULTURE) * iIdealEmpireSize / 100;
 
 	bool bIsHolyCity = pCity->GetCityReligions()->IsHolyCityForReligion(eReligion);
 	if (!bIsHolyCity)
@@ -9625,7 +9625,7 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 
 	int iCultureTemp = 0;
 
-	int iCulture = m_pPlayer->GetTotalJONSCulturePerTurn() * iIdealEmpireSize;
+	int iCulture = m_pPlayer->GetTotalJONSCulturePerTurnTimes100() * iIdealEmpireSize / 100;
 	iCulture /= 5;
 
 	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)

@@ -237,8 +237,11 @@ protected:
 
 	static int lGetBorderGrowthRateIncreaseTotal(lua_State* L);
 	static int lGetJONSCultureStored(lua_State* L);
+	static int lGetJONSCultureStoredTimes100(lua_State* L);
 	static int lSetJONSCultureStored(lua_State* L);
+	static int lSetJONSCultureStoredTimes100(lua_State* L);
 	static int lChangeJONSCultureStored(lua_State* L);
+	static int lChangeJONSCultureStoredTimes100(lua_State* L);
 	static int lGetJONSCultureLevel(lua_State* L);
 	static int lSetJONSCultureLevel(lua_State* L);
 	static int lChangeJONSCultureLevel(lua_State* L);

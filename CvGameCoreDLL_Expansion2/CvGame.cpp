@@ -10644,7 +10644,7 @@ void CvGame::updateGlobalMedians()
 			vfScienceYield.push_back(fScienceAvg);
 
 			// Boredom
-			int iCultureYield = pLoopCity->getJONSCulturePerTurn() * 100; // why is Culture different? >_>
+			int iCultureYield = pLoopCity->getYieldRateTimes100(YIELD_CULTURE, true);
 			float fCultureAvg = iCultureYield / fPopulation;
 			vfCultureYield.push_back(fCultureAvg);
 		}

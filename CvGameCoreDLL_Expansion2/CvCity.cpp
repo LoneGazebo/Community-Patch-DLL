@@ -189,12 +189,10 @@ CvCity::CvCity() :
 	, m_iGPRateModifierPerMarriage()
 	, m_iGPRateModifierPerLocalTheme()
 	, m_iGPPOnCitizenBirth()
-	, m_iJONSCultureStored()
+	, m_iJONSCultureStoredTimes100()
 	, m_iJONSCultureLevel()
-	, m_iJONSCulturePerTurnFromPolicies()
-	, m_iJONSCulturePerTurnFromSpecialists()
 	, m_iaAddedYieldPerTurnFromTraits()
-	, m_iFaithPerTurnFromPolicies()
+	, m_aiBaseYieldRateFromPolicies()
 	, m_iCultureRateModifier()
 	, m_iNumWorldWonders()
 	, m_iNumTeamWonders()
@@ -846,7 +844,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 		if (owningPlayer.GetPlayerPolicies()->HasPolicy(ePolicy) && !owningPlayer.GetPlayerPolicies()->IsPolicyBlocked(ePolicy))
 		{
 			// Free Culture-per-turn in every City from Policies
-			ChangeJONSCulturePerTurnFromPolicies(GC.getPolicyInfo(ePolicy)->GetCulturePerCity());
+			ChangeBaseYieldRateFromPolicies(YIELD_CULTURE, GC.getPolicyInfo(ePolicy)->GetCulturePerCity());
 		}
 	}
 
@@ -1205,12 +1203,10 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iGPRateModifierPerMarriage = 0;
 	m_iGPRateModifierPerLocalTheme = 0;
 	m_iGPPOnCitizenBirth = 0;
-	m_iJONSCultureStored = 0;
+	m_iJONSCultureStoredTimes100 = 0;
 	m_iJONSCultureLevel = 0;
-	m_iJONSCulturePerTurnFromPolicies = 0;
-	m_iJONSCulturePerTurnFromSpecialists = 0;
 	m_iaAddedYieldPerTurnFromTraits.resize(NUM_YIELD_TYPES);
-	m_iFaithPerTurnFromPolicies = 0;
+	m_aiBaseYieldRateFromPolicies.resize(NUM_YIELD_TYPES);
 	m_iCultureRateModifier = 0;
 	m_iNumWorldWonders = 0;
 	m_iNumTeamWonders = 0;
@@ -2595,15 +2591,13 @@ void CvCity::doTurn()
 		// Following function also looks at WLTKD stuff
 		DoTestResourceDemanded();
 
-		int iBorderGrowth = 0;
-		iBorderGrowth += getJONSCulturePerTurn();
-		iBorderGrowth += getYieldRateTimes100(YIELD_CULTURE_LOCAL) / 100;
+		int iBorderGrowth = getYieldRateTimes100(YIELD_CULTURE_LOCAL);
 		// Culture accumulation
 		if (iBorderGrowth > 0)
-			ChangeJONSCultureStored(iBorderGrowth);
+			ChangeJONSCultureStoredTimes100(iBorderGrowth);
 
 		// Enough Culture to acquire a new Plot?
-		if (GetJONSCultureStored() >= GetJONSCultureThreshold())
+		if (GetJONSCultureStoredTimes100() >= GetJONSCultureThreshold() * 100)
 		{
 			DoJONSCultureLevelIncrease();
 		}
@@ -2627,7 +2621,7 @@ void CvCity::doTurn()
 		//Check for Achievements
 		if (MOD_API_ACHIEVEMENTS && isHuman() && !GC.getGame().isGameMultiPlayer() && GET_PLAYER(GC.getGame().getActivePlayer()).isLocalPlayer())
 		{
-			if (getJONSCulturePerTurn() >= 100)
+			if ((getYieldRateTimes100(YIELD_CULTURE) / 100) >= 100)
 			{
 				gDLL->UnlockAchievement(ACHIEVEMENT_CITY_100CULTURE);
 			}
@@ -2758,11 +2752,7 @@ void CvCity::UpdateAllNonPlotYields(bool bIncludePlayerHappiness)
 
 void CvCity::UpdateCityYields(YieldTypes eYield)
 {
-	if (eYield == YIELD_CULTURE)
-	{
-		SetStaticYield(eYield, getJONSCulturePerTurn(false) * 100);
-	}
-	else if (eYield == YIELD_FAITH)
+	if (eYield == YIELD_FAITH)
 	{
 		SetStaticYield(eYield, GetFaithPerTurn(false) * 100);
 	}
@@ -4014,7 +4004,7 @@ bool CvCity::IsCityEventValid(CityEventTypes eEvent)
 			}
 			else if (eYield == YIELD_CULTURE)
 			{
-				if (iNeededYield > kPlayer.getJONSCulture())
+				if (iNeededYield > kPlayer.getJONSCultureTimes100() / 100)
 				{
 					bHas = false;
 					break;
@@ -4572,7 +4562,7 @@ bool CvCity::IsCityEventChoiceValid(CityEventChoiceTypes eChosenEventChoice, Cit
 			}
 			else if (eYield == YIELD_CULTURE)
 			{
-				if (iNeededYield > kPlayer.getJONSCulture())
+				if (iNeededYield > kPlayer.getJONSCultureTimes100() / 100)
 				{
 					bHas = false;
 					break;
@@ -6350,7 +6340,7 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice, int
 			}
 			else if (eYield == YIELD_CULTURE)
 			{
-				if (iNeededYield > kPlayer.getJONSCulture())
+				if (iNeededYield > kPlayer.getJONSCultureTimes100() / 100)
 				{
 					bHas = false;
 					break;
@@ -7802,8 +7792,8 @@ void CvCity::updateEconomicValue()
 	iYieldValue += getYieldRateTimes100(YIELD_PRODUCTION, true) * 4;
 	iYieldValue += getYieldRateTimes100(YIELD_SCIENCE, true) * 3;
 	iYieldValue += (getYieldRateTimes100(YIELD_GOLD, true) - GetCityBuildings()->GetTotalBaseBuildingMaintenance() * 100) * 1;
-	iYieldValue += getJONSCulturePerTurn() * 3;
-	iYieldValue += GetFaithPerTurn() * 3;
+	iYieldValue += getYieldRateTimes100(YIELD_CULTURE, true) * 3;
+	iYieldValue += getYieldRateTimes100(YIELD_FAITH, true) * 3;
 	iYieldValue += getYieldRateTimes100(YIELD_TOURISM, true) * 3;
 	iYieldValue += getYieldRateTimes100(YIELD_GOLDEN_AGE_POINTS, true) * 3;
 
@@ -14008,7 +13998,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 
 			if (owningPlayer.GetPlayerPolicies()->HasPolicy(ePolicy) && !owningPlayer.GetPlayerPolicies()->IsPolicyBlocked(ePolicy))
 			{
-				ChangeJONSCulturePerTurnFromPolicies(GC.getPolicyInfo(ePolicy)->GetBuildingClassCultureChange(eBuildingClass) * iChange);
+				ChangeBaseYieldRateFromPolicies(YIELD_CULTURE, GC.getPolicyInfo(ePolicy)->GetBuildingClassCultureChange(eBuildingClass) * iChange);
 				ChangeSpySecurityModifier(GC.getPolicyInfo(ePolicy)->GetBuildingClassSecurityChange(eBuildingClass) * iChange);
 				changeBuildingClassCultureChange(eBuildingClass, GC.getPolicyInfo(ePolicy)->GetBuildingClassCultureChange(eBuildingClass) * iChange);
 			}
@@ -14981,7 +14971,7 @@ void CvCity::processSpecialist(SpecialistTypes eSpecialist, int iChange, CvCity:
 
 	// Culture
 	int iCulturePerSpecialist = GetCultureFromSpecialist(eSpecialist);
-	ChangeJONSCulturePerTurnFromSpecialists(iCulturePerSpecialist * iChange);
+	ChangeBaseYieldRateFromSpecialists(YIELD_CULTURE, iCulturePerSpecialist * iChange);
 
 	for (int iI = 0; iI < NUM_DOMAIN_TYPES; iI++)
 	{
@@ -16497,7 +16487,7 @@ void CvCity::SetGarrison(CvUnit* pUnit)
 		//no previous garrison. we might earn culture / happiness from this
 		if (!bPreviousGarrison)
 		{
-			ChangeJONSCulturePerTurnFromPolicies(GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_GARRISON));
+			ChangeBaseYieldRateFromPolicies(YIELD_CULTURE, GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_GARRISON));
 
 			if (pUnit != NULL && pUnit->GetReligiousPressureModifier() != 0)
 			{
@@ -16528,7 +16518,7 @@ void CvCity::SetGarrison(CvUnit* pUnit)
 		//had a previous garrison. bonuses be gone
 		if (bPreviousGarrison)
 		{
-			ChangeJONSCulturePerTurnFromPolicies(-(GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_GARRISON)));
+			ChangeBaseYieldRateFromPolicies(YIELD_CULTURE, -GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_GARRISON));
 
 			if (pOldGarrison != NULL && pOldGarrison->GetReligiousPressureModifier() != 0)
 			{
@@ -17209,24 +17199,24 @@ void CvCity::ChangeGPPOnCitizenBirth(int iChange)
 
 //	--------------------------------------------------------------------------------
 /// Amount of Culture in this City
-int CvCity::GetJONSCultureStored() const
+int CvCity::GetJONSCultureStoredTimes100() const
 {
 	VALIDATE_OBJECT();
-	return m_iJONSCultureStored;
+	return m_iJONSCultureStoredTimes100;
 }
 
 //	--------------------------------------------------------------------------------
 /// Sets the amount of Culture in this City
-void CvCity::SetJONSCultureStored(int iValue)
+void CvCity::SetJONSCultureStoredTimes100(int iValue)
 {
 	VALIDATE_OBJECT();
 
 	if (GetID() == g_iCityToTrace)
 	{
-		OutputDebugString(CvString::format("Turn %d, culture %d, delta %d\n", GC.getGame().getGameTurn(), m_iJONSCultureStored, iValue - m_iJONSCultureStored).c_str());
+		OutputDebugString(CvString::format("Turn %d, culture %.2f, delta %.2f\n", GC.getGame().getGameTurn(), (float)m_iJONSCultureStoredTimes100/100, (float)(iValue - m_iJONSCultureStoredTimes100)/100).c_str());
 	}
 
-	m_iJONSCultureStored = max(iValue, 0);
+	m_iJONSCultureStoredTimes100 = max(iValue, 0);
 }
 
 //	--------------------------------------------------------------------------------
@@ -17234,16 +17224,15 @@ void CvCity::SetJONSCultureStored(int iValue)
 void CvCity::ChangeJONSCultureStored(int iChange)
 {
 	VALIDATE_OBJECT();
+	SetJONSCultureStoredTimes100(GetJONSCultureStoredTimes100() + iChange * 100);
+}
 
-	// Positive modifier to border growth rate?
-	int iModifier = GetBorderGrowthRateIncreaseTotal();
-	if (iChange > 0 && iModifier > 0)
-	{
-		iChange *= 100 + iModifier;
-		iChange /= 100;
-	}
-
-	SetJONSCultureStored(GetJONSCultureStored() + iChange);
+//	--------------------------------------------------------------------------------
+/// Changes the amount of Culture in this City
+void CvCity::ChangeJONSCultureStoredTimes100(int iChange)
+{
+	VALIDATE_OBJECT();
+	SetJONSCultureStoredTimes100(GetJONSCultureStoredTimes100() + iChange);
 }
 
 
@@ -17276,12 +17265,12 @@ void CvCity::ChangeJONSCultureLevel(int iChange)
 void CvCity::DoJONSCultureLevelIncrease()
 {
 	VALIDATE_OBJECT();
-	int iOverflow = GetJONSCultureStored() - GetJONSCultureThreshold();
+	int iOverflow = GetJONSCultureStoredTimes100() - GetJONSCultureThreshold() * 100;
 	bool bIsHumanControlled = (GET_PLAYER(getOwner()).isHuman() && !IsPuppet());
 	bool bSendEvent = true;
 	if (!(MOD_UI_CITY_EXPANSION && bIsHumanControlled)) {
 		// We need to defer this for humans picking their own tiles
-		SetJONSCultureStored(iOverflow);
+		SetJONSCultureStoredTimes100(iOverflow);
 		ChangeJONSCultureLevel(1);
 	}
 
@@ -17329,7 +17318,7 @@ void CvCity::DoJONSCultureLevelIncrease()
 					LuaSupport::CallHook(pkScriptSystem, "CityBoughtPlot", args.get(), bResult);
 				}
 				// and also the deferred stuff
-				SetJONSCultureStored(iOverflow);
+				SetJONSCultureStoredTimes100(iOverflow);
 				ChangeJONSCultureLevel(1);
 			}
 		}
@@ -17400,7 +17389,7 @@ void CvCity::DoJONSCultureLevelIncrease()
 		if (MOD_UI_CITY_EXPANSION && bIsHumanControlled)
 		{
 			// Do the stuff we deferred as we though we'd do it when the human bought a tile but can't as there are no tiles to buy!
-			SetJONSCultureStored(iOverflow);
+			SetJONSCultureStoredTimes100(iOverflow);
 			ChangeJONSCultureLevel(1);
 		}
 
@@ -17500,183 +17489,31 @@ int CvCity::GetJONSCultureThreshold() const
 	return iCultureThreshold;
 }
 
-
 //	--------------------------------------------------------------------------------
-int CvCity::getJONSCulturePerTurn(bool bStatic) const
+int CvCity::GetBaseYieldRateFromPolicies(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT();
-	// Anarchy, Resistance or Razing? Then no Culture is given!
-	if (GET_PLAYER(getOwner()).IsAnarchy() || IsResistance() || IsRazing())
-		return 0;
 
-	if (bStatic)
-	{
-		return (GetStaticYield(YIELD_CULTURE) / 100);
-	}
-
-	int iCulture = GetBaseJONSCulturePerTurn();
-
-	// City modifier
-	iCulture *= getBaseYieldRateModifier(YIELD_CULTURE, 0, NULL);
-	iCulture /= 100;
-
-	// Culture from having trade routes
-	iCulture += GET_PLAYER(m_eOwner).GetTrade()->GetTradeValuesAtCityTimes100(this, YIELD_CULTURE) / 100;
-
-	// Process production into culture
-	if (getProductionToYieldModifier(YIELD_CULTURE) > 0)
-	{
-		iCulture += (getYieldRateTimes100(YIELD_PRODUCTION, false, true) * getProductionToYieldModifier(YIELD_CULTURE)) / 10000;
-	}
-
-	return iCulture;
+	ASSERT_DEBUG(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	return m_aiBaseYieldRateFromPolicies[eIndex];
 }
 
 //	--------------------------------------------------------------------------------
-int CvCity::GetBaseJONSCulturePerTurn() const
+void CvCity::ChangeBaseYieldRateFromPolicies(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT();
 
-	int iCulturePerTurn = 0;
-	iCulturePerTurn += GetJONSCulturePerTurnFromBuildings();
-	iCulturePerTurn += GetJONSCulturePerTurnFromPolicies();
-	iCulturePerTurn += GetJONSCulturePerTurnFromSpecialists();
-
-	// GetJONSCulturePerTurnFromSpecialists() uses the Specialists.CulturePerTurn column,
-	// GetBaseYieldRateFromSpecialists(YIELD_CULTURE) gets everything else!
-	iCulturePerTurn += GetBaseYieldRateFromSpecialists(YIELD_CULTURE);
-	iCulturePerTurn += (GetYieldPerPopTimes100(YIELD_CULTURE) * getPopulation()) / 100;
-	iCulturePerTurn += (GetYieldPerPopInEmpireTimes100(YIELD_CULTURE) * GET_PLAYER(getOwner()).getTotalPopulation()) / 100;
-	iCulturePerTurn += (GetYieldPerBuilding(YIELD_CULTURE) * GetCityBuildings()->GetNumBuildings()).Truncate();
-
-	if (IsRouteToCapitalConnected())
-	{
-		int iEra = GET_PLAYER(getOwner()).GetCurrentEra();
-		if (iEra <= 0)
-			iEra = 1;
-		iCulturePerTurn += GET_PLAYER(getOwner()).GetYieldChangeTradeRoute(YIELD_CULTURE);
-		iCulturePerTurn += GET_PLAYER(getOwner()).GetPlayerTraits()->GetYieldChangeTradeRoute(YIELD_CULTURE) * iEra;
-	}
-
-	iCulturePerTurn += GetBaseYieldRateFromGreatWorks(YIELD_CULTURE);
-	iCulturePerTurn += GetBaseYieldRateFromTerrain(YIELD_CULTURE);
-
-	for (int iI = 0; iI < GC.getNumFeatureInfos(); iI++)
-	{
-		FeatureTypes eFeature = (FeatureTypes)iI;
-		if (eFeature != NO_FEATURE)
-		{
-			iCulturePerTurn += GetYieldPerTurnFromUnimprovedFeatures(eFeature, YIELD_CULTURE);
-		}
-	}
-
-	iCulturePerTurn += GetJONSCulturePerTurnFromTraits();
-	iCulturePerTurn += GetJONSCulturePerTurnFromReligion();
-	iCulturePerTurn += GetJONSCulturePerTurnFromLeagues();
-
-	CvPlot* pCityPlot = plot();
-	for (int iUnitLoop = 0; iUnitLoop < pCityPlot->getNumUnits(); iUnitLoop++)
-	{
-		int iTempVal = pCityPlot->getUnitByIndex(iUnitLoop)->GetYieldChange(YIELD_CULTURE);
-		if (iTempVal != 0)
-		{
-			iCulturePerTurn += iTempVal;
-		}
-	}
-
-	ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
-	if (MOD_BALANCE_CORE_POLICIES && eMajority != NO_RELIGION && eMajority > RELIGION_PANTHEON)
-	{
-		if (GET_PLAYER(getOwner()).GetReligions()->GetStateReligion() == eMajority)
-		{
-			iCulturePerTurn += GET_PLAYER(getOwner()).getReligionYieldRateModifier(YIELD_CULTURE);
-		}
-	}
-
-	iCulturePerTurn += GetBaseYieldRateFromCSAlliance(YIELD_CULTURE);
-	iCulturePerTurn += GetBaseYieldRateFromCSFriendship(YIELD_CULTURE);
-	iCulturePerTurn += GetYieldFromMinors(YIELD_CULTURE);
-	iCulturePerTurn += GetYieldPerTurnFromTraits(YIELD_CULTURE);
-	iCulturePerTurn += GetYieldChangeFromCorporationFranchises(YIELD_CULTURE);
-	iCulturePerTurn += GetEventCityYield(YIELD_CULTURE);
-	iCulturePerTurn += GetBaseYieldRateFromMisc(YIELD_CULTURE);
-
-	if (MOD_BALANCE_CORE_JFD)
-	{
-		iCulturePerTurn += GetYieldFromHappiness(YIELD_CULTURE);
-		iCulturePerTurn += GetYieldFromHealth(YIELD_CULTURE);
-
-		iCulturePerTurn += GetYieldFromCrime(YIELD_CULTURE);
-		iCulturePerTurn += GetYieldFromDevelopment(YIELD_CULTURE);
-	}
-
-	return iCulturePerTurn;
-}
-
-//	--------------------------------------------------------------------------------
-int CvCity::GetJONSCulturePerTurnFromBuildings() const
-{
-	VALIDATE_OBJECT();
-	return GetBaseYieldRateFromBuildings(YIELD_CULTURE);
-}
-
-//	--------------------------------------------------------------------------------
-int CvCity::GetJONSCulturePerTurnFromPolicies() const
-{
-	VALIDATE_OBJECT();
-
-	int iValue = 0;
-	if (MOD_BALANCE_VP && GET_PLAYER(m_eOwner).getHappinessToCulture() != 0)
-	{
-		int iFreeCulture = GetLocalHappiness() * GET_PLAYER(m_eOwner).getHappinessToCulture();
-		iFreeCulture /= 100;
-		if (iFreeCulture > 0)
-			iValue += iFreeCulture;
-	}
-
-	return (m_iJONSCulturePerTurnFromPolicies + iValue);
-}
-
-//	--------------------------------------------------------------------------------
-void CvCity::ChangeJONSCulturePerTurnFromPolicies(int iChange)
-{
-	VALIDATE_OBJECT();
+	ASSERT_DEBUG(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	if (iChange != 0)
 	{
-		m_iJONSCulturePerTurnFromPolicies += iChange;
-		UpdateCityYields(YIELD_CULTURE);
+		m_aiBaseYieldRateFromPolicies[eIndex] = m_aiBaseYieldRateFromPolicies[eIndex] + iChange;
+		ASSERT_DEBUG(GetBaseYieldRateFromPolicies(eIndex) >= 0);
+		UpdateCityYields(eIndex);
 	}
 }
 
-//	--------------------------------------------------------------------------------
-int CvCity::GetJONSCulturePerTurnFromSpecialists() const
-{
-	VALIDATE_OBJECT();
-	return m_iJONSCulturePerTurnFromSpecialists;
-}
-
-//	--------------------------------------------------------------------------------
-void CvCity::ChangeJONSCulturePerTurnFromSpecialists(int iChange)
-{
-	VALIDATE_OBJECT();
-	if (iChange != 0)
-	{
-		m_iJONSCulturePerTurnFromSpecialists = (m_iJONSCulturePerTurnFromSpecialists + iChange);
-	}
-}
-
-//	--------------------------------------------------------------------------------
-int CvCity::GetJONSCulturePerTurnFromGreatWorks() const
-{
-	return GetCityBuildings()->GetYieldFromGreatWorks(YIELD_CULTURE);
-}
-
-//	--------------------------------------------------------------------------------
-int CvCity::GetJONSCulturePerTurnFromTraits() const
-{
-	VALIDATE_OBJECT();
-	return GET_PLAYER(m_eOwner).GetPlayerTraits()->GetCityCultureBonus();
-}
 //	--------------------------------------------------------------------------------
 void CvCity::ChangeYieldFromTraits(YieldTypes eIndex, int iChange)
 {
@@ -17750,12 +17587,6 @@ int CvCity::GetYieldPerTurnFromTraits(YieldTypes eYield) const
 
 	return (iYield + m_iaAddedYieldPerTurnFromTraits[eYield]);
 }
-//	--------------------------------------------------------------------------------
-int CvCity::GetJONSCulturePerTurnFromReligion() const
-{
-	VALIDATE_OBJECT();
-	return GetBaseYieldRateFromReligion(YIELD_CULTURE);
-}
 
 //	--------------------------------------------------------------------------------
 int CvCity::GetJONSCulturePerTurnFromLeagues() const
@@ -17794,7 +17625,7 @@ int CvCity::GetFaithPerTurn(bool bStatic) const
 
 	iFaith += GetBaseYieldRateFromGreatWorks(YIELD_FAITH);
 	iFaith += GetBaseYieldRateFromTerrain(YIELD_FAITH);
-	iFaith += GetFaithPerTurnFromPolicies();
+	iFaith += GetBaseYieldRateFromPolicies(YIELD_FAITH);
 
 	for (int iI = 0; iI < GC.getNumFeatureInfos(); iI++)
 	{
@@ -17876,20 +17707,6 @@ int CvCity::GetFaithPerTurnFromBuildings() const
 {
 	VALIDATE_OBJECT();
 	return GetBaseYieldRateFromBuildings(YIELD_FAITH);
-}
-
-//	--------------------------------------------------------------------------------
-int CvCity::GetFaithPerTurnFromPolicies() const
-{
-	VALIDATE_OBJECT();
-	return m_iFaithPerTurnFromPolicies;
-}
-
-//	--------------------------------------------------------------------------------
-void CvCity::ChangeFaithPerTurnFromPolicies(int iChange)
-{
-	VALIDATE_OBJECT();
-	m_iFaithPerTurnFromPolicies += iChange;
 }
 
 //	--------------------------------------------------------------------------------
@@ -18656,7 +18473,7 @@ void CvCity::changeNumWorldWonders(int iChange)
 		ASSERT_DEBUG(getNumWorldWonders() >= 0);
 
 		// Extra culture for Wonders (Policies, etc.)
-		ChangeJONSCulturePerTurnFromPolicies(GET_PLAYER(getOwner()).GetCulturePerWonder() * iChange);
+		ChangeBaseYieldRateFromPolicies(YIELD_CULTURE, GET_PLAYER(getOwner()).GetCulturePerWonder() * iChange);
 		if (GetDefensePerWonder() > 0)
 		{
 			updateStrengthValue();
@@ -18863,7 +18680,7 @@ void CvCity::ChangeDiplomatInfluenceBoost(int iChange)
 
 //	--------------------------------------------------------------------------------
 /// Total % rate increase to border growth in this city
-int CvCity::GetBorderGrowthRateIncreaseTotal()
+int CvCity::GetBorderGrowthRateIncreaseTotal(CvString* tooltipSink) const
 {
 	int iModifier = GetBorderGrowthRateIncrease() + GET_PLAYER(getOwner()).GetBorderGrowthRateIncreaseGlobal();
 
@@ -18908,6 +18725,12 @@ int CvCity::GetBorderGrowthRateIncreaseTotal()
 	{
 		iModifier *= 2; // double the extra rate (if any)
 		iModifier += 100; // double the base rate
+	}
+
+	// todo: detailed tooltip generation
+	if (tooltipSink && iModifier != 0)
+	{
+		GC.getGame().BuildProdModHelpText(tooltipSink, "TXT_KEY_PRODMOD_YIELD", iModifier);
 	}
 
 	return iModifier;
@@ -21198,7 +21021,7 @@ CvString CvCity::GetCityUnhappinessBreakdown(bool bIncludeMedian, bool bCityBann
 		float fDeficit = 0.00f;
 		float fAmountForNextReduction = 0.00f;
 		fAmountNeeded += fCultureMedian * iPopulation;
-		fAmountHave += (float)getJONSCulturePerTurn(false);
+		fAmountHave += (float)getYieldRateTimes100(YIELD_CULTURE) / 100;
 		fDeficit += fAmountNeeded - fAmountHave;
 
 		// Increase by X for -1 Unhappiness
@@ -21212,7 +21035,7 @@ CvString CvCity::GetCityUnhappinessBreakdown(bool bIncludeMedian, bool bCityBann
 		float fAmountNeeded = 0.00f;
 		float fSurplus = 0.00f;
 		fAmountNeeded += fCultureMedian * iPopulation;
-		fSurplus += (float)getJONSCulturePerTurn(false) - fAmountNeeded;
+		fSurplus += ((float)getYieldRateTimes100(YIELD_CULTURE) / 100) - fAmountNeeded;
 
 		strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_BOREDOM_UNHAPPINESS_SURPLUS", fSurplus);
 	}
@@ -21670,7 +21493,7 @@ int CvCity::GetBoredomRaw(bool bForceRecalc, int iAssumedExtraYieldRate) const
 {
 	// First, calculate the total yield
 	// Include yields from trade routes in the yield, but not the median, to make unhappiness management easier
-	int iTotalYield = getJONSCulturePerTurn(false) * 100 + iAssumedExtraYieldRate;
+	int iTotalYield = getYieldRateTimes100(YIELD_CULTURE, false, false, !bForceRecalc) + iAssumedExtraYieldRate;
 
 	// Second, calculate the median (with need modifiers)
 	float fMedianYieldPerPop = 0.00f;
@@ -22826,6 +22649,12 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iAssumedExtraModifie
 	if (toolTipSink)
 		GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD", iTempMod);
 
+	// Special modifiers for border growth
+	if (eIndex == YIELD_CULTURE_LOCAL)
+	{
+		iModifier += GetBorderGrowthRateIncreaseTotal(toolTipSink);
+	}
+
 #if defined(MOD_YIELD_MODIFIER_FROM_UNITS)
 	if (MOD_YIELD_MODIFIER_FROM_UNITS)
 	{
@@ -23488,13 +23317,31 @@ int CvCity::getBaseYieldRateTimes100(const YieldTypes eYield, CvString* tooltipS
 	CvPlayer& kOwner = GET_PLAYER(getOwner());
 	const char* szIconString = GC.getYieldInfo(eYield)->getIconString();
 	int iYield = 0;
+	int iTempYield = 0;
 
-	int iTempYield = GetBaseYieldRateFromGreatWorks(eYield) * 100;
+	// culture generation in the city counts toward border growth
+	if (eYield == YIELD_CULTURE_LOCAL)
+	{
+		iTempYield = getYieldRateTimes100(YIELD_CULTURE); 
+		iYield += iTempYield;
+		if (tooltipSink)
+			GC.getGame().BuildYieldTimes100HelpText(tooltipSink, "TXT_KEY_YIELD_FROM_CULTURE", iTempYield, szIconString);
+	}
+
+	iTempYield = GetBaseYieldRateFromGreatWorks(eYield) * 100;
 	iYield += iTempYield;
 	if (tooltipSink)
 		GC.getGame().BuildYieldTimes100HelpText(tooltipSink, "TXT_KEY_YIELD_FROM_ART_CBP", iTempYield, szIconString);
 
 	iTempYield = GetBaseYieldRateFromTerrain(eYield) * 100;
+	for (int iI = 0; iI < GC.getNumFeatureInfos(); iI++)
+	{
+		FeatureTypes eFeature = (FeatureTypes)iI;
+		if (eFeature != NO_FEATURE)
+		{
+			iTempYield += GetYieldPerTurnFromUnimprovedFeatures(eFeature, eYield) * 100;
+		}
+	}
 	iYield += iTempYield;
 	if (tooltipSink)
 		GC.getGame().BuildYieldTimes100HelpText(tooltipSink, "TXT_KEY_YIELD_FROM_TERRAIN", iTempYield, szIconString);
@@ -23504,6 +23351,15 @@ int CvCity::getBaseYieldRateTimes100(const YieldTypes eYield, CvString* tooltipS
 	iYield += iTempYield;
 	if (tooltipSink)
 		GC.getGame().BuildYieldTimes100HelpText(tooltipSink, "TXT_KEY_YIELD_FROM_BUILDINGS", iTempYield, szIconString);
+
+	iTempYield = GetBaseYieldRateFromPolicies(eYield) * 100;
+	if (MOD_BALANCE_VP && eYield == YIELD_CULTURE && GET_PLAYER(m_eOwner).getHappinessToCulture() != 0)
+	{
+		iTempYield += max(0, GetLocalHappiness() * GET_PLAYER(m_eOwner).getHappinessToCulture());
+	}
+	iYield += iTempYield;
+	if (tooltipSink)
+		GC.getGame().BuildYieldTimes100HelpText(tooltipSink, "TXT_KEY_YIELD_FROM_POLICIES", iTempYield, szIconString);
 
 	iTempYield = GetBaseYieldRateFromSpecialists(eYield) * 100;
 	iYield += iTempYield;
@@ -23521,6 +23377,10 @@ int CvCity::getBaseYieldRateTimes100(const YieldTypes eYield, CvString* tooltipS
 		GC.getGame().BuildYieldTimes100HelpText(tooltipSink, "TXT_KEY_YIELD_FROM_CS_ALLIANCE", iTempYield, szIconString);
 
 	iTempYield = GetYieldPerTurnFromTraits(eYield) * 100;
+	if (eYield == YIELD_CULTURE)
+	{
+		iTempYield += GET_PLAYER(m_eOwner).GetPlayerTraits()->GetCityCultureBonus() * 100;
+	}
 	iYield += iTempYield;
 	if (tooltipSink)
 		GC.getGame().BuildYieldTimes100HelpText(tooltipSink, "TXT_KEY_YIELD_FROM_TRAIT_BONUS", iTempYield, szIconString);
@@ -23545,6 +23405,11 @@ int CvCity::getBaseYieldRateTimes100(const YieldTypes eYield, CvString* tooltipS
 		if (tooltipSink)
 			GC.getGame().BuildYieldTimes100HelpText(tooltipSink, "TXT_KEY_YIELD_FROM_CONNECTION", iTempYield, szIconString);
 	}
+
+	iTempYield = getNumWorldWonders() * GC.getGame().GetGameLeagues()->GetWorldWonderYieldChange(getOwner(), eYield) * 100;
+	iYield += iTempYield;
+	if (tooltipSink)
+		GC.getGame().BuildYieldTimes100HelpText(tooltipSink, "TXT_KEY_YIELD_FROM_WORLD_CONGRESS", iTempYield, szIconString);
 
 	if (kOwner.IsLeagueArt() && eYield == YIELD_SCIENCE)
 	{
@@ -28236,7 +28101,7 @@ int CvCity::GetBuyPlotCost(int iPlotX, int iPlotY) const
 #if defined(MOD_UI_CITY_EXPANSION)
 	if (MOD_UI_CITY_EXPANSION && GET_PLAYER(getOwner()).isHuman()) {
 		// If we have a culture surplus, we get a discount on the tile
-		if (GetJONSCultureStored() >= GetJONSCultureThreshold()) {
+		if (GetJONSCultureStoredTimes100() >= GetJONSCultureThreshold() * 100) {
 			iCost -= GET_PLAYER(getOwner()).GetBuyPlotCost();
 		}
 	}
@@ -28295,9 +28160,9 @@ void CvCity::BuyPlot(int iPlotX, int iPlotY, bool bAutomaticPurchaseFromBuilding
 		bWithGold = true;
 		if (MOD_UI_CITY_EXPANSION && GET_PLAYER(getOwner()).isHuman()) {
 			// If we have a culture surplus, we got a discount on the tile, so remove the surplus
-			int iOverflow = GetJONSCultureStored() - GetJONSCultureThreshold();
+			int iOverflow = GetJONSCultureStoredTimes100() - GetJONSCultureThreshold() * 100;
 			if (iOverflow >= 0) {
-				SetJONSCultureStored(iOverflow);
+				SetJONSCultureStoredTimes100(iOverflow);
 				ChangeJONSCultureLevel(1);
 				bWithGold = false;
 			}
@@ -31321,7 +31186,6 @@ bool CvCity::doCheckProduction()
 									iProductionGold *= /*25*/ GD_INT_GET(BALANCE_GA_PERCENTAGE_VALUE);
 									iProductionGold /= 100;
 									kOwner.ChangeGoldenAgeProgressMeter(iProductionGold);
-									ChangeJONSCultureStored(iProductionGold);
 									break;
 
 								case 4:
@@ -31816,12 +31680,10 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_iGPRateModifierPerMarriage);
 	visitor(city.m_iGPRateModifierPerLocalTheme);
 	visitor(city.m_iGPPOnCitizenBirth);
-	visitor(city.m_iJONSCultureStored);
+	visitor(city.m_iJONSCultureStoredTimes100);
 	visitor(city.m_iJONSCultureLevel);
-	visitor(city.m_iJONSCulturePerTurnFromPolicies);
-	visitor(city.m_iJONSCulturePerTurnFromSpecialists);
 	visitor(city.m_iaAddedYieldPerTurnFromTraits);
-	visitor(city.m_iFaithPerTurnFromPolicies);
+	visitor(city.m_aiBaseYieldRateFromPolicies);
 	visitor(city.m_iAdditionalFood);
 	visitor(city.m_iCityBuildingBombardRange);
 	visitor(city.m_iCityIndirectFire);

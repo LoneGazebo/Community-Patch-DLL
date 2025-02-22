@@ -185,7 +185,7 @@ function UpdateDisplay()
         sortEntry.Gold = pCity:GetYieldRateTimes100( YieldTypes.YIELD_GOLD ) / 100;
         instance.Gold:SetText( sortEntry.Gold );
         
-        sortEntry.Culture = pCity:GetJONSCulturePerTurn()
+        sortEntry.Culture = pCity:GetYieldRateTimes100(YieldTypes.YIELD_CULTURE) / 100;
         instance.Culture:SetText( sortEntry.Culture );
         
         if(Game.IsOption(GameOptionTypes.GAMEOPTION_NO_RELIGION)) then
