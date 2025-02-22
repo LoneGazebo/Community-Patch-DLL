@@ -3975,9 +3975,9 @@ bool CvCity::IsCityEventValid(CityEventTypes eEvent)
 				int iTech = 0;
 				if (eCurrentTech != NO_TECH)
 				{
-					iTech = kPlayer.GetPlayerTechs()->GetResearchProgress(eCurrentTech);
+					iTech = kPlayer.GetPlayerTechs()->GetResearchProgressTimes100(eCurrentTech);
 				}
-				if (iNeededYield > iTech)
+				if (iNeededYield * 100 > iTech)
 				{
 					bHas = false;
 					break;
@@ -4533,9 +4533,9 @@ bool CvCity::IsCityEventChoiceValid(CityEventChoiceTypes eChosenEventChoice, Cit
 				int iTech = 0;
 				if (eCurrentTech != NO_TECH)
 				{
-					iTech = kPlayer.GetPlayerTechs()->GetResearchProgress(eCurrentTech);
+					iTech = kPlayer.GetPlayerTechs()->GetResearchProgressTimes100(eCurrentTech);
 				}
-				if (iNeededYield > iTech)
+				if (iNeededYield * 100 > iTech)
 				{
 					bHas = false;
 					break;
@@ -6311,9 +6311,9 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice, int
 				int iTech = 0;
 				if (eCurrentTech != NO_TECH)
 				{
-					iTech = kPlayer.GetPlayerTechs()->GetResearchProgress(eCurrentTech);
+					iTech = kPlayer.GetPlayerTechs()->GetResearchProgressTimes100(eCurrentTech);
 				}
-				if (iNeededYield > iTech)
+				if (iNeededYield * 100 > iTech)
 				{
 					bHas = false;
 					break;
