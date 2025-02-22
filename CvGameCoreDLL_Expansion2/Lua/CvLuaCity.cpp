@@ -1336,7 +1336,7 @@ int CvLuaCity::lGetFaithPurchaseUnitTooltip(lua_State* L)
 #endif
 
 	// Not enough faith
-	if(pkCity->GetFaithPurchaseCost(eUnit, true) > GET_PLAYER(pkCity->getOwner()).GetFaith())
+	if((pkCity->GetFaithPurchaseCost(eUnit, true) * 100) > GET_PLAYER(pkCity->getOwner()).GetFaithTimes100())
 	{
 		Localization::String localizedText = Localization::Lookup("TXT_KEY_CANNOT_PURCHASE_NO_FAITH");
 
@@ -1433,7 +1433,7 @@ int CvLuaCity::lGetFaithPurchaseBuildingTooltip(lua_State* L)
 	pkCity->canConstruct(eBuilding, false, false, false, false, &toolTip);
 
 	// Not enough faith
-	if(pkCity->GetFaithPurchaseCost(eBuilding) > GET_PLAYER(pkCity->getOwner()).GetFaith())
+	if((pkCity->GetFaithPurchaseCost(eBuilding) * 100) > GET_PLAYER(pkCity->getOwner()).GetFaithTimes100())
 	{
 		Localization::String localizedText = Localization::Lookup("TXT_KEY_CANNOT_PURCHASE_NO_FAITH");
 
@@ -3285,15 +3285,20 @@ int CvLuaCity::lGetThemingTooltip(lua_State* L)
 }
 //------------------------------------------------------------------------------
 //int GetFaithPerTurn() const;
+//LEGACY METHOD, use getYieldRateTimes100(YIELD_FAITH) instead
 int CvLuaCity::lGetFaithPerTurn(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvCity::GetFaithPerTurn);
+	CvCity* pkCity = GetInstance(L);
+	lua_pushinteger(L, pkCity->getYieldRateTimes100(YIELD_FAITH) / 100);
+	return 1;
 }
 //------------------------------------------------------------------------------
 //int GetFaithPerTurnFromBuildings() const;
 int CvLuaCity::lGetFaithPerTurnFromBuildings(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvCity::GetFaithPerTurnFromBuildings);
+	CvCity* pkCity = GetInstance(L);
+	lua_pushinteger(L, pkCity->GetBaseYieldRateFromBuildings(YIELD_FAITH));
+	return 1;
 }
 //------------------------------------------------------------------------------
 //int GetFaithPerTurnFromPolicies() const;
@@ -3324,7 +3329,9 @@ int CvLuaCity::lGetFaithPerTurnFromTraits(lua_State* L)
 //int GetFaithPerTurnFromReligion() const;
 int CvLuaCity::lGetFaithPerTurnFromReligion(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvCity::GetFaithPerTurnFromReligion);
+	CvCity* pkCity = GetInstance(L);
+	lua_pushinteger(L, pkCity->GetBaseYieldRateFromReligion(YIELD_FAITH));
+	return 1;
 }
 //------------------------------------------------------------------------------
 //void ChangeFaithPerTurnFromReligion(int iChange);

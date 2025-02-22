@@ -191,7 +191,7 @@ function UpdateDisplay()
         if(Game.IsOption(GameOptionTypes.GAMEOPTION_NO_RELIGION)) then
 			instance.FaithBox:SetHide(true);
         else
-			sortEntry.Faith = pCity:GetFaithPerTurn();
+			sortEntry.Faith = pCity:GetYieldRateTimes100(YieldTypes.YIELD_FAITH) / 100;
 			instance.Faith:SetText(sortEntry.Faith);
 			instance.FaithBox:SetHide(false);   
         end

@@ -934,192 +934,23 @@ end
 -- FAITH
 function GetFaithTooltip(pCity)
 	
-	local faithTips = {};
+	local faithTips = "";
 	
 	if (Game.IsOption(GameOptionTypes.GAMEOPTION_NO_RELIGION)) then
-		table.insert(faithTips, Locale.ConvertTextKey("TXT_KEY_TOP_PANEL_RELIGION_OFF_TOOLTIP"));
+		faithTips = faithTips .. Locale.ConvertTextKey("TXT_KEY_TOP_PANEL_RELIGION_OFF_TOOLTIP");
 	else
 
 		if (not OptionsManager.IsNoBasicHelp()) then
-			table.insert(faithTips, Locale.ConvertTextKey("TXT_KEY_FAITH_HELP_INFO"));
-		end
-	
-		-- Faith from Buildings
-		local iFaithFromBuildings = pCity:GetFaithPerTurnFromBuildings();
-		if (iFaithFromBuildings ~= 0) then
-		
-			table.insert(faithTips, "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_FAITH_FROM_BUILDINGS", iFaithFromBuildings));
-		end
--- CBP
-
-		-- Base Yield from Pop
-		local iYieldPerPop = pCity:GetYieldPerPopTimes100(YieldTypes.YIELD_FAITH);
-		if (iYieldPerPop ~= 0) then
-			iYieldPerPop = iYieldPerPop * pCity:GetPopulation();
-			iYieldPerPop = iYieldPerPop / 100;
-			
-			table.insert(faithTips, "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_FAITH_FROM_POP", iYieldPerPop));
-		end
-		-- Base Yield from Pop in Empire
-		local iYieldPerPopInEmpire = pCity:GetYieldPerPopInEmpireTimes100(YieldTypes.YIELD_FAITH);
-		if (iYieldPerPopInEmpire ~= 0) then
-			iYieldPerPopInEmpire = iYieldPerPopInEmpire * Players[pCity:GetOwner()]:GetTotalPopulation();
-			iYieldPerPopInEmpire = iYieldPerPopInEmpire / 100;
-			
-			table.insert(faithTips, "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_FAITH_FROM_EMPIRE_POP", iYieldPerPopInEmpire));
+			faithTips = faithTips .. Locale.ConvertTextKey("TXT_KEY_FAITH_HELP_INFO");
 		end
 		
-		-- Base Yield per Building
-		local iYieldFromBuildingsExtra = pCity:GetYieldFromYieldPerBuildingTimes100(YieldTypes.YIELD_FAITH) / 100
-		if (iYieldFromBuildingsExtra ~= 0) then
-			table.insert(faithTips, "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_FROM_BUILDINGS_EXTRA", iYieldFromBuildingsExtra, GameInfo.Yields[YieldTypes.YIELD_FAITH].IconString));
-		end
-		
-		-- Faith from Specialists
-		local iYieldFromSpecialists = pCity:GetBaseYieldRateFromSpecialists(YieldTypes.YIELD_FAITH);
-		if (iYieldFromSpecialists ~= 0) then
-			table.insert(faithTips, "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_FROM_SPECIALISTS_FAITH", iYieldFromSpecialists));
-		end
--- END
-		-- Faith from Traits
-		local iFaithFromTraits = pCity:GetFaithPerTurnFromTraits();
-		iFaithFromTraits = (iFaithFromTraits + pCity:GetYieldPerTurnFromTraits(YieldTypes.YIELD_FAITH));
-		if (iFaithFromTraits ~= 0) then
-				
-			table.insert(faithTips, "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_FAITH_FROM_TRAITS", iFaithFromTraits));
-		end
-
--- CBP -- Yield Increase from Piety
-		local iYieldFromPiety = pCity:GetReligionYieldRateModifier(YieldTypes.YIELD_FAITH);
-		if (iYieldFromPiety ~= 0) then
-			table.insert(faithTips, "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_FAITH_FROM_PIETY", iYieldFromPiety));
-		end
--- END
--- CBP -- Yield Increase from CS Alliance
-		local iYieldFromCSAlliance = pCity:GetBaseYieldRateFromCSAlliance(YieldTypes.YIELD_FAITH);
-		if (iYieldFromCSAlliance ~= 0) then
-			table.insert(faithTips, "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_FAITH_FROM_CS_ALLIANCE", iYieldFromCSAlliance));
-		end
--- END		
-		-- Faith from Terrain
-		local iFaithFromTerrain = pCity:GetBaseYieldRateFromTerrain(YieldTypes.YIELD_FAITH);
-		if (iFaithFromTerrain ~= 0) then
-				
-			table.insert(faithTips, "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_FAITH_FROM_TERRAIN", iFaithFromTerrain));
-		end
-
-		-- Faith from Policies
-		local iFaithFromPolicies = pCity:GetFaithPerTurnFromPolicies();
-		if (iFaithFromPolicies ~= 0) then
-					
-			table.insert(faithTips, "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_FAITH_FROM_POLICIES", iFaithFromPolicies));
-		end
-
-		-- Faith from Religion
-		local iFaithFromReligion = pCity:GetFaithPerTurnFromReligion();
-		if (iFaithFromReligion ~= 0) then
-				
-			table.insert(faithTips, "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_FAITH_FROM_RELIGION", iFaithFromReligion));
-		end
-		-- CP Events
-		-- Faith from Events
-		local iFaithFromEvent = pCity:GetEventCityYield(YieldTypes.YIELD_FAITH);
-		if (iFaithFromEvent ~= 0) then
-			
-			table.insert(faithTips, "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_FAITH_FROM_EVENTS", iFaithFromEvent));
-		end
-
-		local iFaithFromYields = pCity:GetYieldFromCityYieldTimes100(YieldTypes.YIELD_FAITH) / 100;
-		if (iFaithFromYields ~= 0) then	
-			table.insert(faithTips, "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_FAITH_FROM_CITY_YIELDS", iFaithFromYields));
-		end
-
-		local iYieldFromCorps = pCity:GetYieldChangeFromCorporationFranchises(YieldTypes.YIELD_FAITH);
-		if(iYieldFromCorps ~= 0) then
-			table.insert(faithTips, "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_FAITH_FROM_CORPORATIONS", iYieldFromCorps));
-		end
-
-		if (pCity:GetGreatWorkYieldMod(YieldTypes.YIELD_FAITH) > 0) then
-			iAmount = pCity:GetGreatWorkYieldMod(YieldTypes.YIELD_FAITH);
-			
-			if (iAmount ~= 0) then
-				table.insert(faithTips, "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_FAITH_FROM_GWS", iAmount));
-			end
-		end
-		if (pCity:GetActiveSpyYieldMod(YieldTypes.YIELD_FAITH) > 0) then
-			iAmount = pCity:GetActiveSpyYieldMod(YieldTypes.YIELD_FAITH);
-			
-			if (iAmount ~= 0) then
-				table.insert(faithTips, "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_FAITH_FROM_SPIES", iAmount));
-			end
-		end
-		-- END 
-		-- CBP
-		local iFaithWLTKDMod = pCity:GetModFromWLTKD(YieldTypes.YIELD_FAITH);
-		if (iFaithWLTKDMod ~= 0) then
-			table.insert(faithTips, "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_FAITH_FROM_WLTKD", iFaithWLTKDMod));
-		end
-
-		local iFaithGoldenAgeMod = pCity:GetModFromGoldenAge(YieldTypes.YIELD_FAITH);
-		if (iFaithGoldenAgeMod ~= 0) then
-			table.insert(faithTips, "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_FAITH_FROM_GOLDEN_AGE", iFaithGoldenAgeMod));
-		end
-		-- END
-
--- CBP Yield from Great Works
-		local iYieldFromGreatWorks = pCity:GetBaseYieldRateFromGreatWorks(YieldTypes.YIELD_FAITH);
-		if (iYieldFromGreatWorks ~= 0) then
-			table.insert(faithTips, "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_FROM_ART_CBP_FAITH", iYieldFromGreatWorks));
-		end
--- END
-
-		-- CBP -- Resource Monopoly
-		if (pCity:GetCityYieldModFromMonopoly(YieldTypes.YIELD_FAITH) > 0) then
-			local iAmount = pCity:GetCityYieldModFromMonopoly(YieldTypes.YIELD_FAITH);
-			
-			if (iAmount ~= 0) then
-				table.insert(faithTips, "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_FAITH_FROM_RESOURCE_MONOPOLY", iAmount));
-			end
-		end
-		-- END
-
-		if (pCity:GetGreatWorkYieldMod(YieldTypes.YIELD_FAITH) > 0) then
-			local iAmount = pCity:GetGreatWorkYieldMod(YieldTypes.YIELD_FAITH);
-			
-			if (iAmount ~= 0) then
-				table.insert(faithTips, "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_FAITH_FROM_GWS", iAmount));
-			end
-		end
-		if (pCity:GetActiveSpyYieldMod(YieldTypes.YIELD_FAITH) > 0) then
-			local iAmount = pCity:GetActiveSpyYieldMod(YieldTypes.YIELD_FAITH);
-			
-			if (iAmount ~= 0) then
-				table.insert(faithTips, "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_FAITH_FROM_SPIES", iAmount));
-			end
-		end
-		
-		-- Puppet modifier
-		if (pCity:IsPuppet()) then
-			local puppetMod = Players[pCity:GetOwner()]:GetPuppetYieldPenalty(YieldTypes.YIELD_FAITH);
-		
-			if (puppetMod ~= 0) then
-				table.insert(faithTips, Locale.ConvertTextKey("TXT_KEY_PRODMOD_PUPPET", puppetMod));
-			end
-		end
-
-		local trfaith = pCity:GetYieldModifierTooltip(YieldTypes.YIELD_FAITH)
-		if(trfaith ~= "") then
-			table.insert(faithTips, trfaith);
-		end
-	
 		-- Citizens breakdown
-		table.insert(faithTips, "----------------");
+		faithTips = faithTips .. "[NEWLINE][NEWLINE]" .. pCity:GetYieldRateTooltip(YieldTypes.YIELD_FAITH);
 
-		table.insert(faithTips, GetReligionTooltip(pCity));
+		faithTips = faithTips .. "[NEWLINE]" .. GetReligionTooltip(pCity);
 	end
 	
-	local strFaithToolTip = table.concat(faithTips, "[NEWLINE]");
-	return strFaithToolTip;
+	return faithTips;
 end
 
 -- TOURISM

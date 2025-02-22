@@ -339,9 +339,11 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	// Faith
 
 	Method(GetFaith);
+	Method(GetFaithTimes100);
 	Method(SetFaith);
 	Method(ChangeFaith);
 	Method(GetTotalFaithPerTurn);
+	Method(GetTotalFaithPerTurnTimes100);
 	Method(GetFaithPerTurnFromCities);
 	Method(GetFaithPerTurnFromMinorCivs);
 	Method(GetGoldPerTurnFromMinorCivs);
@@ -4001,15 +4003,27 @@ int CvLuaPlayer::lGetNumGreatWorkSlots(lua_State* L)
 }
 //--------------------------------------------------------------------------------
 //int GetFaith();
+//LEGACY METHOD, use GetFaithTimes100 instead
 int CvLuaPlayer::lGetFaith(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::GetFaith);
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	lua_pushinteger(L, pkPlayer->GetFaithTimes100() / 100);
+	return 1;
+}
+//--------------------------------------------------------------------------------
+//int GetFaithTimes100();
+int CvLuaPlayer::lGetFaithTimes100(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::GetFaithTimes100);
 }
 //------------------------------------------------------------------------------
 //void SetFaith(int iNewValue);
 int CvLuaPlayer::lSetFaith(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::SetFaith);
+	CvPlayer* pkPlayer = GetInstance(L);
+	int iValue = lua_tointeger(L, 2);
+	pkPlayer->SetFaithTimes100(iValue * 100);
+	return 1;
 }
 //------------------------------------------------------------------------------
 //void ChangeFaith(int iNewValue);
@@ -4019,15 +4033,27 @@ int CvLuaPlayer::lChangeFaith(lua_State* L)
 }
 //------------------------------------------------------------------------------
 //int GetTotalFaithPerTurn();
+//LEGACY METHOD, use GetTotalFaithPerTurnTimes100 instead
 int CvLuaPlayer::lGetTotalFaithPerTurn(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::GetTotalFaithPerTurn);
+	CvPlayer* pkPlayer = GetInstance(L);
+	lua_pushinteger(L, pkPlayer->GetTotalFaithPerTurnTimes100() / 100);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//int GetTotalFaithPerTurn();
+int CvLuaPlayer::lGetTotalFaithPerTurnTimes100(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::GetTotalFaithPerTurnTimes100);
 }
 //------------------------------------------------------------------------------
 //int GetFaithPerTurnFromCities();
+// LEGACY METHOD, use GetYieldRateFromCitiesTimes100 instead
 int CvLuaPlayer::lGetFaithPerTurnFromCities(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::GetFaithPerTurnFromCities);
+	CvPlayer* pkPlayer = GetInstance(L);
+	lua_pushinteger(L, pkPlayer->GetYieldRateFromCitiesTimes100(YIELD_FAITH) / 100);
+	return 1;
 }
 //------------------------------------------------------------------------------
 //int GetFaithPerTurnFromMinorCivs();

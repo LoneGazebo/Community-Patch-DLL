@@ -549,9 +549,7 @@ public:
 	int GetYieldPerTurnFromTraits(YieldTypes eYield) const;
 
 	// Faith
-	int GetTotalFaithPerTurn() const;
-
-	int GetFaithPerTurnFromCities() const;
+	int GetTotalFaithPerTurnTimes100() const;
 	int GetFaithPerTurnFromMinorCivs() const;
 #if defined(MOD_BALANCE_CORE)
 	int GetGoldPerTurnFromMinorCivs() const;
@@ -565,12 +563,13 @@ public:
 #endif
 	int GetFaithPerTurnFromMinor(PlayerTypes eMinor) const;
 	int GetFaithPerTurnFromReligion() const;
-	int GetFaith() const;
-	void SetFaith(int iNewValue);
+	int GetFaithTimes100() const;
+	void SetFaithTimes100(int iNewValue);
+	void ChangeFaithTimes100(int iChange);
 	void ChangeFaith(int iChange);
-	int GetFaithEverGenerated() const;
-	void SetFaithEverGenerated(int iNewValue);
-	void ChangeFaithEverGenerated(int iChange);
+	int GetFaithEverGeneratedTimes100() const;
+	void SetFaithEverGeneratedTimes100(int iNewValue);
+	void ChangeFaithEverGeneratedTimes100(int iChange);
 
 	// Happiness
 	int DoUpdateTotalUnhappiness(CvCity* pAssumeCityAnnexed = NULL, CvCity* pAssumeCityPuppeted = NULL);
@@ -588,7 +587,7 @@ public:
 	int GetEmpireSizeModifierReductionGlobal() const;
 	void ChangeEmpireSizeModifierReductionGlobal(int iChange);
 
-	int GetEmpireYieldRate(YieldTypes eYield, bool bStatic) const;
+	int GetEmpireYieldRateTimes100(YieldTypes eYield, bool bStatic) const;
 
 	int GetDistressFlatReductionGlobal() const;
 	void ChangeDistressFlatReductionGlobal(int iChange);
@@ -2984,8 +2983,8 @@ protected:
 	int m_iCulturePerWonder;
 	int m_iCultureWonderMultiplier;
 	int m_iCulturePerTechResearched;
-	int m_iFaith;
-	int m_iFaithEverGenerated;
+	int m_iFaithTimes100;
+	int m_iFaithEverGeneratedTimes100;
 	int m_iHappiness;
 	int m_iUnhappiness;
 	int m_iHappinessTotal;
@@ -3851,8 +3850,8 @@ SYNC_ARCHIVE_VAR(int, m_iWondersConstructed)
 SYNC_ARCHIVE_VAR(int, m_iCulturePerWonder)
 SYNC_ARCHIVE_VAR(int, m_iCultureWonderMultiplier)
 SYNC_ARCHIVE_VAR(int, m_iCulturePerTechResearched)
-SYNC_ARCHIVE_VAR(int, m_iFaith)
-SYNC_ARCHIVE_VAR(int, m_iFaithEverGenerated)
+SYNC_ARCHIVE_VAR(int, m_iFaithTimes100)
+SYNC_ARCHIVE_VAR(int, m_iFaithEverGeneratedTimes100)
 SYNC_ARCHIVE_VAR(int, m_iHappiness)
 SYNC_ARCHIVE_VAR(int, m_iUnhappiness)
 SYNC_ARCHIVE_VAR(int, m_iHappinessTotal)

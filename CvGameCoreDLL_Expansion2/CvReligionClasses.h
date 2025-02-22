@@ -346,8 +346,8 @@ public:
 	ReligionTypes GetOriginalReligionCreatedByPlayer() const;
 
 	bool CanAffordNextPurchase();
-	void SetFaithAtLastNotify(int iFaith);
-	bool CanAffordFaithPurchase(int iMinimumFaith) const;
+	void SetFaithAtLastNotifyTimes100(int iFaithTimes100);
+	bool CanAffordFaithPurchase(int iMinimumFaithTimes100) const;
 	bool HasCityWithMajorityReligion(ReligionTypes eReligionToCheck) const;
 	bool HasOthersReligionInMostCities(PlayerTypes eOtherPlayer) const;
 	bool HasReligionInMostCities(ReligionTypes eReligion) const;
@@ -379,7 +379,7 @@ private:
 #endif
 	int m_iNumProphetsSpawned;
 	bool m_bFoundingReligion; //seems to be used to suppress further prophet use before the religion has been customized
-	int m_iFaithAtLastNotify;
+	int m_iFaithAtLastNotifyTimes100;
 
 	ReligionTypes m_eMajorityReligion; //this is the majority religion in at least half of our cities
 	ReligionTypes m_eStateReligion; //this is our founded religion > the religion whose holy city we control with the most domestic followers > m_eMajorityReligion
