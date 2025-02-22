@@ -735,9 +735,9 @@ void CvTeam::shareCounters(TeamTypes eTeam)
 
 	for(iI = 0; iI < GC.getNumTechInfos(); iI++)
 	{
-		if(GET_TEAM(eTeam).GetTeamTechs()->GetResearchProgress((TechTypes)iI) > GetTeamTechs()->GetResearchProgress((TechTypes)iI))
+		if(GET_TEAM(eTeam).GetTeamTechs()->GetResearchProgressTimes100((TechTypes)iI) > GetTeamTechs()->GetResearchProgressTimes100((TechTypes)iI))
 		{
-			GetTeamTechs()->SetResearchProgress(((TechTypes)iI), GET_TEAM(eTeam).GetTeamTechs()->GetResearchProgress((TechTypes)iI), getLeaderID());
+			GetTeamTechs()->SetResearchProgressTimes100(((TechTypes)iI), GET_TEAM(eTeam).GetTeamTechs()->GetResearchProgressTimes100((TechTypes)iI), getLeaderID());
 		}
 
 		if(GET_TEAM(eTeam).GetTeamTechs()->IsNoTradeTech((TechTypes)iI))

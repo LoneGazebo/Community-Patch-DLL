@@ -207,6 +207,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetResearchTurnsLeft);
 	Method(GetResearchCost);
 	Method(GetResearchProgress);
+	Method(GetResearchProgressTimes100);
 
 	Method(UnitsRequiredForGoldenAge);
 	Method(UnitsGoldenAgeCapable);
@@ -230,6 +231,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetTotalLandScored);
 
 	Method(GetGold);
+	Method(GetGoldTimes100);
 	Method(SetGold);
 	Method(ChangeGold);
 	Method(CalculateGrossGold);
@@ -3006,12 +3008,25 @@ int CvLuaPlayer::lGetResearchCost(lua_State* L)
 
 //------------------------------------------------------------------------------
 //int GetResearchProgress(TechTypes  eTech);
+//LEGACY METHOD, use GetResearchProgressTimes100 instead
 int CvLuaPlayer::lGetResearchProgress(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	const TechTypes eTech	= (TechTypes)lua_tointeger(L, 2);
 
-	const int iResult = pkPlayer->GetPlayerTechs()->GetResearchProgress(eTech);
+	const int iResult = pkPlayer->GetPlayerTechs()->GetResearchProgressTimes100(eTech) / 100;
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+
+//------------------------------------------------------------------------------
+//int GetResearchProgress(TechTypes  eTech);
+int CvLuaPlayer::lGetResearchProgressTimes100(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const TechTypes eTech	= (TechTypes)lua_tointeger(L, 2);
+
+	const int iResult = pkPlayer->GetPlayerTechs()->GetResearchProgressTimes100(eTech);
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -3138,10 +3153,19 @@ int CvLuaPlayer::lGetTotalLandScored(lua_State* L)
 }
 //------------------------------------------------------------------------------
 //int getGold();
+//LEGACY METHOD, use getGoldTimes100 instead
 int CvLuaPlayer::lGetGold(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	lua_pushinteger(L, pkPlayer->GetTreasury()->GetGold());
+	return 1;
+}
+//------------------------------------------------------------------------------
+//int getGoldTimes100();
+int CvLuaPlayer::lGetGoldTimes100(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	lua_pushinteger(L, pkPlayer->GetTreasury()->GetGoldTimes100());
 	return 1;
 }
 //------------------------------------------------------------------------------

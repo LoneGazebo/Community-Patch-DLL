@@ -275,7 +275,7 @@ public:
 	int GetNumTechsCanBeResearched() const;
 	CvTechXMLEntries* GetTechs() const;
 	int GetResearchCost(TechTypes eTech) const;
-	int GetResearchProgress(TechTypes eTech) const;
+	int GetResearchProgressTimes100(TechTypes eTech) const;
 	int GetMedianTechResearch() const;
 
 	bool HasUUTech() const;
@@ -347,13 +347,12 @@ public:
 	int GetTechCount(TechTypes eIndex) const;
 	void SetResearchProgress(TechTypes eIndex, int iNewValue, PlayerTypes ePlayer);
 	void SetResearchProgressTimes100(TechTypes eIndex, int iNewValue, PlayerTypes ePlayer, int iPlayerOverflow = 0, int iPlayerOverflowDivisorTimes100 = 100);
-	int GetResearchProgress(TechTypes eIndex) const;
 	int GetResearchProgressTimes100(TechTypes eIndex) const;
 	void ChangeResearchProgress(TechTypes eIndex, int iChange, PlayerTypes ePlayer);
 	void ChangeResearchProgressTimes100(TechTypes eIndex, int iChange, PlayerTypes ePlayer, int iPlayerOverflow = 0, int iPlayerOverflowDivisorTimes100 = 100);
 	int ChangeResearchProgressPercent(TechTypes eIndex, int iPercent, PlayerTypes ePlayer);
 	int GetResearchCost(TechTypes eTech) const;
-	int GetResearchLeft(TechTypes eTech) const;
+	int GetResearchLeftTimes100(TechTypes eTech) const;
 	CvTechXMLEntries* GetTechs() const;
 
 	set<TechTypes> GetTechsToResearchFor(TechTypes eTech, int iMaxSearchDepth) const;
@@ -374,7 +373,7 @@ private:
 
 	bool* m_pabHasTech;
 	bool* m_pabNoTradeTech;
-	int* m_paiResearchProgress;  // Stored in hundredths
+	int* m_paiResearchProgressTimes100;
 #if defined(MOD_CIV6_EUREKA)
 	int* m_paiEurekaCounter;
 #endif

@@ -196,6 +196,7 @@ protected:
 	static int lGetResearchTurnsLeft(lua_State* L);
 	static int lGetResearchCost(lua_State* L);
 	static int lGetResearchProgress(lua_State* L);
+	static int lGetResearchProgressTimes100(lua_State* L);
 
 	static int lUnitsRequiredForGoldenAge(lua_State* L);
 	static int lUnitsGoldenAgeCapable(lua_State* L);
@@ -219,6 +220,7 @@ protected:
 	static int lGetTotalLandScored(lua_State* L);
 
 	static int lGetGold(lua_State* L);
+	static int lGetGoldTimes100(lua_State* L);
 	static int lSetGold(lua_State* L);
 	static int lChangeGold(lua_State* L);
 	static int lCalculateGrossGold(lua_State* L);

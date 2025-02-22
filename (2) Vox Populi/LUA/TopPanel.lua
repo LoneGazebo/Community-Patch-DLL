@@ -37,14 +37,14 @@ function UpdateData()
 				strScienceText = Locale.ConvertTextKey("TXT_KEY_TOP_PANEL_SCIENCE_OFF");
 			else
 			
-				local sciencePerTurn = pPlayer:GetScience();
+				local sciencePerTurn = pPlayer:GetScienceTimes100() / 100;
 			
 				-- No Science
 				if (sciencePerTurn <= 0) then
 					strScienceText = string.format("[COLOR:255:60:60:255]" .. Locale.ConvertTextKey("TXT_KEY_NO_SCIENCE") .. "[/COLOR]");
 				-- We have science
 				else
-					strScienceText = string.format("+%i", sciencePerTurn);
+					strScienceText = string.format("+%s", sciencePerTurn);
 
 					local iGoldPerTurn = pPlayer:CalculateGoldRate();
 					
@@ -65,8 +65,8 @@ function UpdateData()
 			-----------------------------
 			-- Update gold stats
 			-----------------------------
-			local iTotalGold = pPlayer:GetGold();
-			local iGoldPerTurn = pPlayer:CalculateGoldRate();
+			local iTotalGold = pPlayer:GetGoldTimes100() / 100;
+			local iGoldPerTurn = pPlayer:CalculateGoldRate() / 100;
 			
 			-- Accounting for positive or negative GPT - there's obviously a better way to do this.  If you see this comment and know how, it's up to you ;)
 			-- Text is White when you can buy a Plot
@@ -442,7 +442,7 @@ function ScienceTipHandler( control )
 		local pTeam = Teams[pPlayer:GetTeam()];
 		local pCity = UI.GetHeadSelectedCity();
 	
-		local iSciencePerTurn = pPlayer:GetScience();
+		local iSciencePerTurn = pPlayer:GetScienceTimes100() / 100;
 	
 		if (pPlayer:IsAnarchy()) then
 			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_ANARCHY", pPlayer:GetAnarchyNumTurns());
