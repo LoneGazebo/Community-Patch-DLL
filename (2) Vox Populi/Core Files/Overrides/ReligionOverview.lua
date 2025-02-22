@@ -273,7 +273,7 @@ function RefreshYourReligion()
 	-- Update faith modifiers
 	g_FaithModifierManager:ResetInstances();
 	-- Faith from Cities
-	local iFaithFromCities = player:GetFaithPerTurnFromCities();
+	local iFaithFromCities = player:GetYieldRateFromCitiesTimes100(YieldTypes.YIELD_FAITH) / 100;
 	if (iFaithFromCities ~= 0) then
 		local entry = g_FaithModifierManager:GetInstance();
 		entry.FaithModifier:LocalizeAndSetText("TXT_KEY_TP_FAITH_FROM_CITIES", iFaithFromCities);

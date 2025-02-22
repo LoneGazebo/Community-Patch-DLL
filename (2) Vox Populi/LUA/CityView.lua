@@ -1952,7 +1952,7 @@ function OnCityViewUpdate()
 		if (Game.IsOption(GameOptionTypes.GAMEOPTION_NO_RELIGION)) then
 			Controls.FaithPerTurnLabel:SetText( Locale.ConvertTextKey("TXT_KEY_CITYVIEW_OFF") );
 		else
-			local iFaithPerTurn = pCity:GetFaithPerTurn();
+			local iFaithPerTurn = pCity:GetYieldRateTimes100(YieldTypes.YIELD_FAITH) / 100;
 			Controls.FaithPerTurnLabel:SetText( Locale.ConvertTextKey("TXT_KEY_CITYVIEW_PERTURN_TEXT", iFaithPerTurn) );
 		end
 		

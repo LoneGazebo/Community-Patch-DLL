@@ -2756,14 +2756,7 @@ void CvCity::UpdateAllNonPlotYields(bool bIncludePlayerHappiness)
 
 void CvCity::UpdateCityYields(YieldTypes eYield)
 {
-	if (eYield == YIELD_FAITH)
-	{
-		SetStaticYield(eYield, GetFaithPerTurn(false) * 100);
-	}
-	else
-	{
-		SetStaticYield(eYield, getYieldRateTimes100(eYield, false, false, false));
-	}
+	SetStaticYield(eYield, getYieldRateTimes100(eYield, false, false, false));
 
 	//don't forget tourism
 	if (eYield == YIELD_CULTURE || eYield == YIELD_TOURISM)
@@ -3992,7 +3985,7 @@ bool CvCity::IsCityEventValid(CityEventTypes eEvent)
 			}
 			else if (eYield == YIELD_FAITH)
 			{
-				if (iNeededYield > kPlayer.GetFaith())
+				if (iNeededYield > kPlayer.GetFaithTimes100() / 100)
 				{
 					bHas = false;
 					break;
@@ -4550,7 +4543,7 @@ bool CvCity::IsCityEventChoiceValid(CityEventChoiceTypes eChosenEventChoice, Cit
 			}
 			else if (eYield == YIELD_FAITH)
 			{
-				if (iNeededYield > kPlayer.GetFaith())
+				if (iNeededYield > kPlayer.GetFaithTimes100() / 100)
 				{
 					bHas = false;
 					break;
@@ -6328,7 +6321,7 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice, int
 			}
 			else if (eYield == YIELD_FAITH)
 			{
-				if (iNeededYield > kPlayer.GetFaith())
+				if (iNeededYield > kPlayer.GetFaithTimes100() / 100)
 				{
 					bHas = false;
 					break;
@@ -17587,120 +17580,6 @@ int CvCity::GetJONSCulturePerTurnFromLeagues() const
 }
 
 //	--------------------------------------------------------------------------------
-int CvCity::GetFaithPerTurn(bool bStatic) const
-{
-	VALIDATE_OBJECT();
-	// Anarchy, Resistance or Razing? Then no Faith is given!
-	if (GET_PLAYER(getOwner()).IsAnarchy() || IsResistance() || IsRazing())
-		return 0;
-
-	if (bStatic)
-	{
-		return (GetStaticYield(YIELD_FAITH) / 100);
-	}
-
-	int iFaith = GetFaithPerTurnFromBuildings();
-	iFaith += GetBaseYieldRateFromSpecialists(YIELD_FAITH);
-	iFaith += (GetYieldPerPopTimes100(YIELD_FAITH) * getPopulation()) / 100;
-	iFaith += (GetYieldPerPopInEmpireTimes100(YIELD_FAITH) * GET_PLAYER(getOwner()).getTotalPopulation()) / 100;
-	iFaith += (GetYieldPerBuilding(YIELD_FAITH) * GetCityBuildings()->GetNumBuildings()).Truncate();
-
-	if (IsRouteToCapitalConnected())
-	{
-		int iEra = GET_PLAYER(getOwner()).GetCurrentEra();
-		if (iEra <= 0)
-			iEra = 1;
-		iFaith += GET_PLAYER(getOwner()).GetYieldChangeTradeRoute(YIELD_FAITH);
-		iFaith += GET_PLAYER(getOwner()).GetPlayerTraits()->GetYieldChangeTradeRoute(YIELD_FAITH) * iEra;
-	}
-
-	iFaith += GetBaseYieldRateFromGreatWorks(YIELD_FAITH);
-	iFaith += GetBaseYieldRateFromTerrain(YIELD_FAITH);
-	iFaith += GetBaseYieldRateFromPolicies(YIELD_FAITH);
-
-	for (int iI = 0; iI < GC.getNumFeatureInfos(); iI++)
-	{
-		FeatureTypes eFeature = (FeatureTypes)iI;
-		if (eFeature != NO_FEATURE)
-		{
-			iFaith += GetYieldPerTurnFromUnimprovedFeatures(eFeature, YIELD_FAITH);
-		}
-	}
-
-	iFaith += GetFaithPerTurnFromReligion();
-
-	ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
-	if (MOD_BALANCE_CORE_POLICIES && eMajority != NO_RELIGION && eMajority > RELIGION_PANTHEON)
-	{
-		if (GET_PLAYER(getOwner()).GetReligions()->GetStateReligion() == eMajority)
-		{
-			iFaith += GET_PLAYER(getOwner()).getReligionYieldRateModifier(YIELD_FAITH);
-		}
-	}
-
-	iFaith += GetBaseYieldRateFromCSAlliance(YIELD_FAITH);
-	iFaith += GetBaseYieldRateFromCSFriendship(YIELD_FAITH);
-	iFaith += GetYieldFromMinors(YIELD_FAITH);
-	iFaith += GetYieldPerTurnFromTraits(YIELD_FAITH);
-	iFaith += GetYieldChangeFromCorporationFranchises(YIELD_FAITH);
-	iFaith += GetEventCityYield(YIELD_FAITH);
-
-	if (MOD_BALANCE_CORE_JFD)
-	{
-		iFaith += GetYieldFromHappiness(YIELD_FAITH);
-		iFaith += GetYieldFromHealth(YIELD_FAITH);
-		iFaith += GetYieldFromCrime(YIELD_FAITH);
-		iFaith += GetYieldFromDevelopment(YIELD_FAITH);
-	}
-
-	CvPlot* pCityPlot = plot();
-	for (int iUnitLoop = 0; iUnitLoop < pCityPlot->getNumUnits(); iUnitLoop++)
-	{
-		int iTempVal = pCityPlot->getUnitByIndex(iUnitLoop)->GetYieldChange(YIELD_FAITH);
-		if (iTempVal != 0)
-		{
-			iFaith += iTempVal;
-		}
-	}
-
-	int iModifier = 100;
-
-	// City modifier
-	iModifier = getBaseYieldRateModifier(YIELD_FAITH);
-
-	// FIXME: EUI doesn't expect `CvCity::getBaseYieldRateModifier` to populate the puppet modifier for faith.
-	// EUI should be fixed and this behavior moved to `CvCity::getBaseYieldRateModifier`.
-	if (IsPuppet())
-	{
-		int iTempMod = GET_PLAYER(getOwner()).GetPuppetYieldPenaltyMod() + GET_PLAYER(getOwner()).GetPlayerTraits()->GetPuppetPenaltyReduction() + /*0 in CP, -80 in VP*/ GD_INT_GET(PUPPET_FAITH_MODIFIER);
-		if (iTempMod > 0)
-			iTempMod = 0;
-		iModifier += iTempMod;
-	}
-
-	iFaith *= iModifier;
-	iFaith /= 100;
-
-	// Process production into faith
-	if (getProductionToYieldModifier(YIELD_FAITH) > 0)
-	{
-		iFaith += ((getYieldRateTimes100(YIELD_PRODUCTION, false, true)) * getProductionToYieldModifier(YIELD_FAITH)) / 10000;
-	}
-
-	// Faith from having trade routes
-	iFaith += GET_PLAYER(m_eOwner).GetTrade()->GetTradeValuesAtCityTimes100(this, YIELD_FAITH) / 100;
-
-	return iFaith;
-}
-
-//	--------------------------------------------------------------------------------
-int CvCity::GetFaithPerTurnFromBuildings() const
-{
-	VALIDATE_OBJECT();
-	return GetBaseYieldRateFromBuildings(YIELD_FAITH);
-}
-
-//	--------------------------------------------------------------------------------
 int CvCity::GetNumTerrainWorked(TerrainTypes eTerrain)
 {
 	ASSERT_DEBUG(eTerrain >= 0, "eTerrain is expected to be non-negative (invalid Index)");
@@ -18446,13 +18325,6 @@ void CvCity::changeSpecialistExtraYield(SpecialistTypes eIndex1, YieldTypes eInd
 	SCityExtraYields& y = m_yieldChanges[eIndex2];
 	if (ModifierUpdateInsertRemove(y.forSpecialist, eIndex1, iChange, true))
 		updateExtraSpecialistYield();
-}
-
-//	--------------------------------------------------------------------------------
-int CvCity::GetFaithPerTurnFromReligion() const
-{
-	VALIDATE_OBJECT();
-	return GetBaseYieldRateFromReligion(YIELD_FAITH);
 }
 
 //	--------------------------------------------------------------------------------
@@ -30421,7 +30293,7 @@ bool CvCity::IsCanPurchase(const std::vector<int>& vPreExistingBuildings, bool b
 								if (!bTestPurchaseCost) {
 									return true;
 								}
-								if (iFaithCost <= GET_PLAYER(getOwner()).GetFaith())
+								if (iFaithCost <= GET_PLAYER(getOwner()).GetFaithTimes100() / 100)
 								{
 									return true;
 								}
@@ -30588,7 +30460,7 @@ bool CvCity::IsCanPurchase(const std::vector<int>& vPreExistingBuildings, bool b
 				}
 #endif
 				// Trying to buy something when you don't have enough faith!!
-				if (iFaithCost > GET_PLAYER(getOwner()).GetFaith())
+				if (iFaithCost > GET_PLAYER(getOwner()).GetFaithTimes100() / 100)
 				{
 					return false;
 				}
@@ -30834,7 +30706,7 @@ CvUnit* CvCity::PurchaseUnit(UnitTypes eUnitType, YieldTypes ePurchaseYield)
 			temp.Format("%d", iFaithCost);
 			strLogMsg += temp;
 			strLogMsg += ", Faith Left: ";
-			temp.Format("%d", kPlayer.GetFaith());
+			temp.Format("%.2f", (float)kPlayer.GetFaithTimes100() / 100);
 			strLogMsg += temp;
 			GC.getGame().GetGameReligions()->LogReligionMessage(strLogMsg);
 		}
@@ -31024,7 +30896,7 @@ bool CvCity::PurchaseBuilding(BuildingTypes eBuildingType, YieldTypes ePurchaseY
 			temp.Format("%d", iFaithCost);
 			strLogMsg += temp;
 			strLogMsg += ", Faith Left: ";
-			temp.Format("%d", kPlayer.GetFaith());
+			temp.Format("%.2f", (float)kPlayer.GetFaithTimes100() / 100);
 			strLogMsg += temp;
 			GC.getGame().GetGameReligions()->LogReligionMessage(strLogMsg);
 		}

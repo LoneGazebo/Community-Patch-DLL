@@ -1238,10 +1238,10 @@ void CvEconomicAI::LogMonitor(void)
 
 	// Culture
 	AppendToLog(strHeader, strLog, "Policies", GetPlayer()->GetPlayerPolicies()->GetNumPoliciesOwned());
-	AppendToLog(strHeader, strLog, "Culture (lifetime)", (int)(GetPlayer()->GetJONSCultureEverGeneratedTimes100() / 100));
+	AppendToLog(strHeader, strLog, "Culture (lifetime)", (float)(GetPlayer()->GetJONSCultureEverGeneratedTimes100() / 100));
 
 	// Faith
-	AppendToLog(strHeader, strLog, "Faith", GetPlayer()->GetFaith());
+	AppendToLog(strHeader, strLog, "Faith Stored", (float)GetPlayer()->GetFaithTimes100() / 100);
 
 	// workers
 	int iWorkerCount = 0;

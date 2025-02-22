@@ -323,9 +323,11 @@ protected:
 	static int lGetNumGreatWorkSlots(lua_State *L);
 
 	static int lGetFaith(lua_State* L);
+	static int lGetFaithTimes100(lua_State* L);
 	static int lSetFaith(lua_State* L);
 	static int lChangeFaith(lua_State* L);
 	static int lGetTotalFaithPerTurn(lua_State* L);
+	static int lGetTotalFaithPerTurnTimes100(lua_State* L);
 	static int lGetFaithPerTurnFromCities(lua_State* L);
 	static int lGetFaithPerTurnFromMinorCivs(lua_State* L);
 #if defined(MOD_BALANCE_CORE)
