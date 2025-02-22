@@ -243,8 +243,11 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 
 	Method(GetBorderGrowthRateIncreaseTotal);
 	Method(GetJONSCultureStored);
+	Method(GetJONSCultureStoredTimes100);
 	Method(SetJONSCultureStored);
+	Method(SetJONSCultureStoredTimes100);
 	Method(ChangeJONSCultureStored);
+	Method(ChangeJONSCultureStoredTimes100);
 	Method(GetJONSCultureLevel);
 	Method(SetJONSCultureLevel);
 	Method(ChangeJONSCultureLevel);
@@ -2837,25 +2840,51 @@ int CvLuaCity::lGetReligionGreatPersonRateModifier(lua_State* L)
 //int GetBorderGrowthRateIncreaseTotal() const;
 int CvLuaCity::lGetBorderGrowthRateIncreaseTotal(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvCity::GetBorderGrowthRateIncreaseTotal);
+	CvCity* pkCity = GetInstance(L);
+	lua_pushinteger(L, pkCity->GetBorderGrowthRateIncreaseTotal());
+	return 1;
 }
 //------------------------------------------------------------------------------
 //int GetJONSCultureStored() const;
+// LEGACY METHOD, use GetJONSCultureStoredTimes100 instead
 int CvLuaCity::lGetJONSCultureStored(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvCity::GetJONSCultureStored);
+	CvCity* pkCity = GetInstance(L);
+	lua_pushinteger(L, pkCity->GetJONSCultureStoredTimes100() / 100);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//int GetJONSCultureStoredTimes100() const;
+int CvLuaCity::lGetJONSCultureStoredTimes100(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvCity::GetJONSCultureStoredTimes100);
 }
 //------------------------------------------------------------------------------
 //void SetJONSCultureStored(int iValue);
 int CvLuaCity::lSetJONSCultureStored(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvCity::SetJONSCultureStored);
+	CvCity* pkCity = GetInstance(L);
+	int iValue = lua_tointeger(L, 2);
+	pkCity->SetJONSCultureStoredTimes100(iValue * 100);
+	return 0;
+}
+//------------------------------------------------------------------------------
+//void SetJONSCultureStoredTimes100(int iValue);
+int CvLuaCity::lSetJONSCultureStoredTimes100(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvCity::SetJONSCultureStoredTimes100);
 }
 //------------------------------------------------------------------------------
 //void ChangeJONSCultureStored(int iChange);
 int CvLuaCity::lChangeJONSCultureStored(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvCity::ChangeJONSCultureStored);
+}
+//------------------------------------------------------------------------------
+//void ChangeJONSCultureStoredTimes100(int iChange);
+int CvLuaCity::lChangeJONSCultureStoredTimes100(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvCity::ChangeJONSCultureStoredTimes100);
 }
 //------------------------------------------------------------------------------
 //int GetJONSCultureLevel() const;
@@ -2890,21 +2919,29 @@ int CvLuaCity::lGetJONSCultureThreshold(lua_State* L)
 
 //------------------------------------------------------------------------------
 //int getJONSCulturePerTurn() const;
+// LEGACY METHOD, use GetYieldRateTimes100(YIELD_CULTURE) instead
 int CvLuaCity::lGetJONSCulturePerTurn(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvCity::getJONSCulturePerTurn);
+	CvCity* pkCity = GetInstance(L);
+	lua_pushinteger(L, pkCity->getYieldRateTimes100(YIELD_CULTURE) / 100);
+	return 1;
 }
 //------------------------------------------------------------------------------
 //int GetBaseJONSCulturePerTurn() const;
+//LEGACY METHOD, use GetBaseYieldRateTimes100(YIELD_CULTURE) instead
 int CvLuaCity::lGetBaseJONSCulturePerTurn(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvCity::GetBaseJONSCulturePerTurn);
+	CvCity* pkCity = GetInstance(L);
+	lua_pushinteger(L, pkCity->getBaseYieldRateTimes100(YIELD_CULTURE) / 100);
+	return 1;
 }
 //------------------------------------------------------------------------------
 //int GetJONSCulturePerTurnFromBuildings() const;
 int CvLuaCity::lGetJONSCulturePerTurnFromBuildings(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvCity::GetJONSCulturePerTurnFromBuildings);
+	CvCity* pkCity = GetInstance(L);
+	lua_pushinteger(L, pkCity->GetBaseYieldRateFromBuildings(YIELD_CULTURE));
+	return 1;
 }
 //------------------------------------------------------------------------------
 //void ChangeJONSCulturePerTurnFromBuildings(int iChange);
@@ -2919,37 +2956,53 @@ int CvLuaCity::lChangeJONSCulturePerTurnFromBuildings(lua_State* L)
 //int GetJONSCulturePerTurnFromPolicies() const;
 int CvLuaCity::lGetJONSCulturePerTurnFromPolicies(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvCity::GetJONSCulturePerTurnFromPolicies);
+	CvCity* pkCity = GetInstance(L);
+	lua_pushinteger(L, pkCity->GetBaseYieldRateFromPolicies(YIELD_CULTURE));
+	return 1;
 }
 //------------------------------------------------------------------------------
 //void ChangeJONSCulturePerTurnFromPolicies(int iChange);
 int CvLuaCity::lChangeJONSCulturePerTurnFromPolicies(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvCity::ChangeJONSCulturePerTurnFromPolicies);
+	CvCity* pkCity = GetInstance(L);
+	int iChange = lua_tointeger(L, 2);
+	pkCity->ChangeBaseYieldRateFromPolicies(YIELD_CULTURE, iChange);
+	return 0;
 }
 //------------------------------------------------------------------------------
 //int GetJONSCulturePerTurnFromSpecialists() const;
 int CvLuaCity::lGetJONSCulturePerTurnFromSpecialists(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvCity::GetJONSCulturePerTurnFromSpecialists);
+	CvCity* pkCity = GetInstance(L);
+	lua_pushinteger(L, pkCity->GetBaseYieldRateFromSpecialists(YIELD_CULTURE));
+	return 1;
 }
 //------------------------------------------------------------------------------
 //void ChangeJONSCulturePerTurnFromSpecialists(int iChange);
 int CvLuaCity::lChangeJONSCulturePerTurnFromSpecialists(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvCity::ChangeJONSCulturePerTurnFromSpecialists);
+	CvCity* pkCity = GetInstance(L);
+	int iChange = lua_tointeger(L, 2);
+	pkCity->ChangeBaseYieldRateFromSpecialists(YIELD_CULTURE, iChange);
+	return 0;
 }
 //------------------------------------------------------------------------------
 //int GetJONSCulturePerTurnFromGreatWorks() const;
+// LEGACY METHOD
 int CvLuaCity::lGetJONSCulturePerTurnFromGreatWorks(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvCity::GetJONSCulturePerTurnFromGreatWorks);
+	CvCity* pkCity = GetInstance(L);
+	lua_pushinteger(L, pkCity->GetBaseYieldRateFromGreatWorks(YIELD_CULTURE));
+	return 1;
 }
 //------------------------------------------------------------------------------
 //int GetJONSCulturePerTurnFromTraits() const;
+// LEGACY METHOD
 int CvLuaCity::lGetJONSCulturePerTurnFromTraits(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvCity::GetJONSCulturePerTurnFromTraits);
+	CvCity* pkCity = GetInstance(L);
+	lua_pushinteger(L, GET_PLAYER(pkCity->getOwner()).GetPlayerTraits()->GetCityCultureBonus());
+	return 1;
 }
 //void ChangeYieldFromTraits(YieldTypes eIndex, int iChange);
 int CvLuaCity::lChangeYieldFromTraits(lua_State* L)
@@ -2985,9 +3038,12 @@ int CvLuaCity::lGetYieldFromUnitsInCity(lua_State* L)
 }
 //------------------------------------------------------------------------------
 //int GetJONSCulturePerTurnFromReligion() const;
+// LEGACY METHOD
 int CvLuaCity::lGetJONSCulturePerTurnFromReligion(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvCity::GetJONSCulturePerTurnFromReligion);
+	CvCity* pkCity = GetInstance(L);
+	lua_pushinteger(L, pkCity->GetBaseYieldRateFromReligion(YIELD_CULTURE));
+	return 1;
 }
 //------------------------------------------------------------------------------
 //void ChangeJONSCulturePerTurnFromReligion(int iChange);
@@ -3243,7 +3299,9 @@ int CvLuaCity::lGetFaithPerTurnFromBuildings(lua_State* L)
 //int GetFaithPerTurnFromPolicies() const;
 int CvLuaCity::lGetFaithPerTurnFromPolicies(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvCity::GetFaithPerTurnFromPolicies);
+	CvCity* pkCity = GetInstance(L);
+	lua_pushinteger(L, pkCity->GetBaseYieldRateFromPolicies(YIELD_FAITH));
+	return 1;
 }
 //------------------------------------------------------------------------------
 //int GetFaithPerTurnFromTraits() const;

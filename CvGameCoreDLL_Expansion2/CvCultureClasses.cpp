@@ -892,7 +892,7 @@ void CvPlayerCulture::Init(CvPlayer* pPlayer)
 
 	ResetDigCompletePlots();
 
-	m_iLastTurnLifetimeCulture = 0;
+	m_lLastTurnLifetimeCultureTimes100 = 0;
 	m_iLastTurnCPT = 0;
 	m_iOpinionUnhappiness = 0;
 	m_iLastUpdate = 0;
@@ -3501,22 +3501,22 @@ void CvPlayerCulture::DoTurn()
 			continue;
 		}
 		
-		int iInfluenceOn = GetInfluenceOn(ePlayer);
-		int iLifetimeCulture = kOtherPlayer.GetJONSCultureEverGenerated();
+		long long lInfluenceOn = 100 * GetInfluenceOn(ePlayer);
+		long long lLifetimeCulture = kOtherPlayer.GetJONSCultureEverGeneratedTimes100();
 		int iPercent = 0;
 
-		if (iLifetimeCulture > 0)
+		if (lLifetimeCulture > 0)
 		{
-			iPercent = iInfluenceOn * 100 / iLifetimeCulture;
+			iPercent = int(lInfluenceOn * 100 / lLifetimeCulture);
 		}
 
-		int iInfluenceOnLastTurn = GetLastTurnInfluenceOn(ePlayer);
-		int iLifetimeCultureLastTurn = kOtherPlayer.GetCulture()->GetLastTurnLifetimeCulture();
+		long long lInfluenceOnLastTurn = 100 * GetLastTurnInfluenceOn(ePlayer);
+		long long lLifetimeCultureLastTurn = kOtherPlayer.GetCulture()->GetLastTurnLifetimeCultureTimes100();
 		int iPercentLastTurn = 0;
 
-		if (iLifetimeCultureLastTurn > 0)
+		if (lLifetimeCultureLastTurn > 0)
 		{
-			iPercentLastTurn = iInfluenceOnLastTurn * 100 / iLifetimeCultureLastTurn;
+			iPercentLastTurn = (int)(lInfluenceOnLastTurn * 100 / lLifetimeCultureLastTurn);
 		}
 		//Are we influential this turn, but weren't last turn? Notification!
 		if (iPercent >= /*200*/ GD_INT_GET(CULTURE_LEVEL_DOMINANT) && iPercentLastTurn < GD_INT_GET(CULTURE_LEVEL_DOMINANT))
@@ -3604,22 +3604,22 @@ void CvPlayerCulture::DoTurn()
 			continue;
 		}
 		
-		int iInfluenceOn = kOtherPlayer.GetCulture()->GetInfluenceOn(m_pPlayer->GetID());
-		int iLifetimeCulture = m_pPlayer->GetJONSCultureEverGenerated();
+		long long lInfluenceOn = 100 * kOtherPlayer.GetCulture()->GetInfluenceOn(m_pPlayer->GetID());
+		long long lLifetimeCulture = m_pPlayer->GetJONSCultureEverGeneratedTimes100();
 		int iPercent = 0;
 
-		if (iLifetimeCulture > 0)
+		if (lLifetimeCulture > 0)
 		{
-			iPercent = iInfluenceOn * 100 / iLifetimeCulture;
+			iPercent = (int)(lInfluenceOn * 100 / lLifetimeCulture);
 		}
 
-		int iInfluenceOnLastTurn = kOtherPlayer.GetCulture()->GetLastTurnInfluenceOn(m_pPlayer->GetID());
-		int iLifetimeCultureLastTurn = m_pPlayer->GetCulture()->GetLastTurnLifetimeCulture();
+		long long lInfluenceOnLastTurn = 100 * kOtherPlayer.GetCulture()->GetLastTurnInfluenceOn(m_pPlayer->GetID());
+		long long lLifetimeCultureLastTurn = m_pPlayer->GetCulture()->GetLastTurnLifetimeCultureTimes100();
 		int iPercentLastTurn = 0;
 
-		if (iLifetimeCultureLastTurn > 0)
+		if (lLifetimeCultureLastTurn > 0)
 		{
-			iPercentLastTurn = iInfluenceOnLastTurn * 100 / iLifetimeCultureLastTurn;
+			iPercentLastTurn = (int)(lInfluenceOnLastTurn * 100 / lLifetimeCultureLastTurn);
 		}
 		//Are they influential this turn, but weren't last turn? Notification!
 		if (iPercent >= /*200*/ GD_INT_GET(CULTURE_LEVEL_DOMINANT) && iPercentLastTurn < GD_INT_GET(CULTURE_LEVEL_DOMINANT))
@@ -3812,15 +3812,15 @@ int CvPlayerCulture::GetBoredomCache() const
 }
 
 /// What was our total culture generated throughout the game last turn?
-int CvPlayerCulture::GetLastTurnLifetimeCulture() const
+long long CvPlayerCulture::GetLastTurnLifetimeCultureTimes100() const
 {
-	return m_iLastTurnLifetimeCulture;
+	return m_lLastTurnLifetimeCultureTimes100;
 }
 
 /// Set our total culture generated throughout the game  - last turn's number
-void CvPlayerCulture::SetLastTurnLifetimeCulture(int iValue)
+void CvPlayerCulture::SetLastTurnLifetimeCultureTimes100(long long lValue)
 {
-	m_iLastTurnLifetimeCulture = iValue;
+	m_lLastTurnLifetimeCultureTimes100 = lValue;
 }
 
 /// What was our total culture generated throughout the game last turn?
@@ -4002,13 +4002,13 @@ InfluenceLevelTypes CvPlayerCulture::GetInfluenceLevel(PlayerTypes ePlayer) cons
 	}
 	else
 	{
-		int iInfluenceOn = GetInfluenceOn(ePlayer);
-		int iLifetimeCulture = kOtherPlayer.GetJONSCultureEverGenerated();
+		long long lInfluenceOn = 100 * GetInfluenceOn(ePlayer);
+		long long lLifetimeCulture = kOtherPlayer.GetJONSCultureEverGeneratedTimes100();
 		int iPercent = 0;
 
-		if (iLifetimeCulture > 0)
+		if (lLifetimeCulture > 0)
 		{
-			iPercent = iInfluenceOn * 100 / iLifetimeCulture;
+			iPercent = (int)(lInfluenceOn * 100 / lLifetimeCulture);
 		}
 
 		eRtnValue = INFLUENCE_LEVEL_UNKNOWN;
@@ -4049,8 +4049,8 @@ InfluenceLevelTrend CvPlayerCulture::GetInfluenceTrend(PlayerTypes ePlayer) cons
 	InfluenceLevelTrend eRtnValue = INFLUENCE_TREND_STATIC;
 	CvPlayer &kOtherPlayer = GET_PLAYER(ePlayer);
 
-	float iTheirCultureThisTurn = (float)m_pPlayer->GetCulture()->GetOtherPlayerCulturePerTurnIncludingInstant(ePlayer) + (float)kOtherPlayer.GetJONSCultureEverGenerated();
-	float iTheirCultureLastTurn = (float)kOtherPlayer.GetCulture()->GetLastTurnLifetimeCulture() + kOtherPlayer.GetCulture()->GetLastTurnCPT();
+	float iTheirCultureThisTurn = (float)(m_pPlayer->GetCulture()->GetOtherPlayerCulturePerTurnIncludingInstantTimes100(ePlayer)/100) + (float)(kOtherPlayer.GetJONSCultureEverGeneratedTimes100()/100);
+	float iTheirCultureLastTurn = (float)(kOtherPlayer.GetCulture()->GetLastTurnLifetimeCultureTimes100()/100) + kOtherPlayer.GetCulture()->GetLastTurnCPT();
 
 	float iOurTourismThisTurn = (float)GetInfluenceOn(ePlayer) + (float)m_pPlayer->GetCulture()->GetTourismPerTurnIncludingInstant(ePlayer);
 	float iOurTourismLastTurn = (float)GetLastTurnInfluenceOn(ePlayer) + (float)m_pPlayer->GetCulture()->GetLastTurnInfluenceIPT(ePlayer);
@@ -4081,13 +4081,13 @@ InfluenceLevelTrend CvPlayerCulture::GetInfluenceTrend(PlayerTypes ePlayer) cons
 	return eRtnValue;
 }
 
-int CvPlayerCulture::GetOtherPlayerCulturePerTurnIncludingInstant(PlayerTypes eOtherPlayer)
+int CvPlayerCulture::GetOtherPlayerCulturePerTurnIncludingInstantTimes100(PlayerTypes eOtherPlayer)
 {
-	int iBase = GET_PLAYER(eOtherPlayer).GetTotalJONSCulturePerTurn();
+	int iBase = GET_PLAYER(eOtherPlayer).GetTotalJONSCulturePerTurnTimes100();
 	int iEndTurn = GC.getGame().getGameTurn();
 	int iStartTurn = GC.getGame().getGameTurn() - INSTANT_YIELD_HISTORY_LENGTH;
 
-	return iBase + GET_PLAYER(eOtherPlayer).getInstantYieldAvg(YIELD_CULTURE, iStartTurn, iEndTurn);
+	return iBase + GET_PLAYER(eOtherPlayer).getInstantYieldAvg(YIELD_CULTURE, iStartTurn, iEndTurn) * 100;
 }
 
 
@@ -4118,21 +4118,21 @@ int CvPlayerCulture::GetTurnsToInfluential(PlayerTypes ePlayer)
 	}
 	else if (GetInfluenceTrend(ePlayer) == INFLUENCE_TREND_RISING)
 	{
-		int iInfluence = GetInfluenceOn(ePlayer);
-		int iInflPerTurn = GetTourismPerTurnIncludingInstant(ePlayer);
+		long long lInfluence = 100 * GetInfluenceOn(ePlayer);
+		int iInflPerTurn = GetTourismPerTurnIncludingInstant(ePlayer) * 100;
 		if (iInflPerTurn == 0)
 			return 999;
 
-		int iCulture = kOtherPlayer.GetJONSCultureEverGenerated();
-		int iCultPerTurn = GetOtherPlayerCulturePerTurnIncludingInstant(ePlayer);
+		long long lCulture = kOtherPlayer.GetJONSCultureEverGeneratedTimes100();
+		int iCultPerTurn = GetOtherPlayerCulturePerTurnIncludingInstantTimes100(ePlayer);
 
-		int iNumerator = (/*100*/ GD_INT_GET(CULTURE_LEVEL_INFLUENTIAL) * iCulture / 100) - iInfluence;
+		long long lNumerator = (/*100*/ GD_INT_GET(CULTURE_LEVEL_INFLUENTIAL) * lCulture / 100) - lInfluence;
 		int iDivisor = iInflPerTurn - (/*100*/ GD_INT_GET(CULTURE_LEVEL_INFLUENTIAL) * iCultPerTurn / 100);
 
-		iRtnValue = iNumerator / max(1, iDivisor);
+		iRtnValue = (int)(lNumerator / max(1, iDivisor));
 
 		// Round up
-		if (iNumerator % max(1, iDivisor) != 0)
+		if (lNumerator % max(1, iDivisor) != 0)
 		{
 			iRtnValue++;
 		}
@@ -4194,13 +4194,13 @@ PlayerTypes CvPlayerCulture::GetCivLowestInfluence(bool bCheckOpenBorders) const
 			if (!bCheckOpenBorders || (MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS && GET_TEAM(m_pPlayer->getTeam()).IsAllowsOpenBordersToTeam(kTeam.GetID()))
 			|| (!MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS && kTeam.IsAllowsOpenBordersToTeam(m_pPlayer->getTeam())))
 			{
-				int iInfluenceOn = GetInfluenceOn((PlayerTypes)iLoopPlayer);
-				int iLifetimeCulture = kPlayer.GetJONSCultureEverGenerated();
+				long long lInfluenceOn = 100 * GetInfluenceOn((PlayerTypes)iLoopPlayer);
+				long long lLifetimeCulture = kPlayer.GetJONSCultureEverGeneratedTimes100();
 				int iPercent = 0;
 
-				if (iLifetimeCulture > 0)
+				if (lLifetimeCulture > 0)
 				{
-					iPercent = iInfluenceOn * 100 / iLifetimeCulture;
+					iPercent = (int)(lInfluenceOn * 100 / lLifetimeCulture);
 				}
 
 				if (iPercent < iLowestPercent)
@@ -5779,7 +5779,7 @@ template<typename PlayerCulture, typename Visitor>
 void CvPlayerCulture::Serialize(PlayerCulture& playerCulture, Visitor& visitor)
 {
 	visitor(playerCulture.m_aDigCompletePlots);
-	visitor(playerCulture.m_iLastTurnLifetimeCulture);
+	visitor(playerCulture.m_lLastTurnLifetimeCultureTimes100);
 	visitor(playerCulture.m_iLastTurnCPT);
 
 	visitor(playerCulture.m_aiCulturalInfluence);
@@ -5964,7 +5964,7 @@ void CvCityCulture::CalculateBaseTourismBeforeModifiers()
 			int iPercent = kPlayer.GetPlayerTraits()->GetTourismGABonus();
 			if(iPercent != 0)
 			{
-				int iCulture = m_pCity->getJONSCulturePerTurn();
+				int iCulture = m_pCity->getYieldRateTimes100(YIELD_CULTURE) / 100;
 				iBase += ((iCulture * iPercent) / 100);
 			}
 		}
@@ -6286,7 +6286,7 @@ CvString CvCityCulture::GetTourismTooltip()
 		int iPercent = kCityPlayer.GetPlayerTraits()->GetTourismGABonus();
 		if (iPercent != 0)
 		{
-			int iCulture = m_pCity->getJONSCulturePerTurn();
+			int iCulture = m_pCity->getYieldRateTimes100(YIELD_CULTURE) / 100;
 			iGATourism = ((iCulture * iPercent) / 100);
 			if (!szRtnValue.empty())
 			{

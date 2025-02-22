@@ -13548,7 +13548,7 @@ bool CvUnit::build(BuildTypes eBuild)
 
 				if (pkBuildInfo->IsCultureBoost())
 				{
-					int iValue = kPlayer.GetTotalJONSCulturePerTurn() * 2;
+					int iValue = kPlayer.GetTotalJONSCulturePerTurnTimes100() * 2 / 100;
 					kPlayer.changeJONSCulture(iValue);
 					if (kPlayer.getCapitalCity() != NULL)
 						kPlayer.getCapitalCity()->ChangeJONSCultureStored(iValue);
@@ -33126,7 +33126,7 @@ void CvUnit::DoGreatPersonSpawnBonus(CvCity* pSpawnCity)
 		// Can't possibly have no capital when there's a spawn city
 		ASSERT_DEBUG(kPlayer.getCapitalCity());
 
-		int iValue = kPlayer.GetTotalJONSCulturePerTurn() * 4;
+		int iValue = kPlayer.GetTotalJONSCulturePerTurnTimes100() * 4 / 100;
 		kPlayer.changeJONSCulture(iValue);
 		kPlayer.getCapitalCity()->ChangeJONSCultureStored(iValue);
 

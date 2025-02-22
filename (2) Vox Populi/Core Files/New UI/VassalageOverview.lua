@@ -605,7 +605,7 @@ function DoVassalStatistics( ePlayer )
 		end
 	end
 	Controls.VassalStatsIdeology:LocalizeAndSetText( "TXT_KEY_VO_IDEOLOGY_STAT", ideologyStr );
-	Controls.VassalStatsCulture:SetText( pPlayer:GetTotalJONSCulturePerTurn() );
+	Controls.VassalStatsCulture:SetText( pPlayer:GetTotalJONSCulturePerTurnTimes100() / 100);
 	Controls.VassalStatsTourism:SetText( pPlayer:GetTourism() / 100);
 	
 	-- Religion

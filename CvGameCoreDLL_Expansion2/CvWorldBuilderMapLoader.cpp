@@ -446,7 +446,7 @@ void SetPlayerInitialItems(CvPlayer& kGameplayPlayer, const CvWorldBuilderMap::P
 	if(pkTreasury != NULL)
 		pkTreasury->SetGold(kSavedPlayer.m_uiGold);
 
-	kGameplayPlayer.setJONSCulture(kSavedPlayer.m_uiCulture);
+	kGameplayPlayer.setJONSCultureTimes100(kSavedPlayer.m_uiCulture * 100);
 
 	const int iPolicyCount = GC.getNumPolicyInfos();
 	for(int iPolicy = 0; iPolicy < iPolicyCount; ++iPolicy)

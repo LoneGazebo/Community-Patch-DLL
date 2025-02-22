@@ -2800,12 +2800,12 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_CapitalUnderThreat(CvCity* pCity)
 /// "First Culture Building" City Strategy: construct a building to get some culture going in this city
 bool CityStrategyAIHelpers::IsTestCityStrategy_FirstCultureBuilding(CvCity* pCity)
 {
-	if(pCity->GetJONSCulturePerTurnFromBuildings() <= 0)
+	if(pCity->GetBaseYieldRateFromBuildings(YIELD_CULTURE) <= 0)
 	{
 		return true;
 	}
 
-	if(pCity->isCapital() && pCity->GetJONSCulturePerTurnFromBuildings() <= 1)
+	if(pCity->isCapital() && pCity->GetBaseYieldRateFromBuildings(YIELD_CULTURE) <= 1)
 	{
 		return true;
 	}
@@ -2816,7 +2816,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_FirstCultureBuilding(CvCity* pCit
 /// "First Culture Building Emergency" City Strategy: construct a building to get some culture going in this city BECAUSE WE ARE RUNNING OUT OF ROOM!!!
 bool CityStrategyAIHelpers::IsTestCityStrategy_FirstCultureBuildingEmergency(CvCity* pCity)
 {
-	return pCity->getPopulation() >= 5 && pCity->GetJONSCulturePerTurnFromBuildings() <= 0;
+	return pCity->getPopulation() >= 5 && pCity->GetBaseYieldRateFromBuildings(YIELD_CULTURE) <= 0;
 }
 
 /// "First Science Building" City Strategy: construct a building to get some science going in this city

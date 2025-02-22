@@ -5130,7 +5130,7 @@ bool CvPlayerPolicies::CanAdoptPolicy(PolicyTypes eIndex, bool bIgnoreCost) cons
 	// Has enough culture to spend?
 	if((!bIgnoreCost) && m_pPlayer->getNextPolicyCost() > 0)
 	{
-		if(m_pPlayer->getJONSCulture() < m_pPlayer->getNextPolicyCost())
+		if(m_pPlayer->getJONSCultureTimes100() < m_pPlayer->getNextPolicyCost() * 100)
 		{
 			bool bTenet = pkPolicyEntry->GetLevel() > 0;
 			if (m_pPlayer->GetNumFreePolicies() == 0)
@@ -5375,7 +5375,7 @@ void CvPlayerPolicies::DoUnlockPolicyBranch(PolicyBranchTypes eBranchType)
 bool CvPlayerPolicies::CanUnlockPolicyBranch(PolicyBranchTypes eBranchType)
 {
 	// Must have enough culture to spend a buy opening a new branch
-	if(GetPlayer()->getJONSCulture() < GetPlayer()->getNextPolicyCost())
+	if(GetPlayer()->getJONSCultureTimes100() < GetPlayer()->getNextPolicyCost() * 100)
 	{
 		if(GetPlayer()->GetNumFreePolicies() == 0)
 			return false;
@@ -5802,7 +5802,7 @@ void CvPlayerPolicies::DoSwitchIdeologies(PolicyBranchTypes eNewBranchType)
 	SetPolicyBranchUnlocked(eNewBranchType, true, true /*bRevolution*/);
 	GetPlayer()->GetCulture()->DoPublicOpinion();
 	GetPlayer()->GetCulture()->SetTurnIdeologySwitch(GC.getGame().getGameTurn());
-	GetPlayer()->setJONSCulture(0);
+	GetPlayer()->setJONSCultureTimes100(0);
 	GetPlayer()->ChangeNumFreeTenets(iNewBranchTenets, false /*bCountAsFreePolicies*/);
 
 	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
@@ -6447,7 +6447,7 @@ void CvPlayerPolicies::DoPolicyAI()
 	if (m_pPlayer->getNextPolicyCost() > 0 || m_pPlayer->GetNumFreePolicies() > 0 || m_pPlayer->GetNumFreeTenets() > 0)
 	{
 		// Adopt new policies until we run out of freebies and culture (usually only one per turn)
-		while(m_pPlayer->getJONSCulture() >= m_pPlayer->getNextPolicyCost() || m_pPlayer->GetNumFreePolicies() > 0 || m_pPlayer->GetNumFreeTenets() > 0)
+		while(m_pPlayer->getJONSCultureTimes100() >= m_pPlayer->getNextPolicyCost() * 100 || m_pPlayer->GetNumFreePolicies() > 0 || m_pPlayer->GetNumFreeTenets() > 0)
 		{
 			// Choose the policy we want next (or a branch)
 			int iNextPolicy = m_pPolicyAI->ChooseNextPolicy(m_pPlayer);

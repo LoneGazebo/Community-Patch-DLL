@@ -12174,7 +12174,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			}
 			if (bCanSilver)
 			{
-				int iTurnsForPolicy = (GetPlayer()->getNextPolicyCost()) / (max(1, GetPlayer()->GetTotalJONSCulturePerTurn()));
+				int iTurnsForPolicy = (GetPlayer()->getNextPolicyCost() * 100) / (max(1, GetPlayer()->GetTotalJONSCulturePerTurnTimes100()));
 				iExtra += (70 * GC.getGame().getGameSpeedInfo().getCulturePercent())/(max(1, iTurnsForPolicy));
 			}
 			if (bCanBronze)
