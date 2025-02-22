@@ -17799,17 +17799,17 @@ void CvCity::ChangeNumImprovementWorked(ImprovementTypes eImprovement, int iChan
 //	--------------------------------------------------------------------------------
 int CvCity::GetImprovementCount(ImprovementTypes eImprovement)
 {
-	CvAssertMsg(eImprovement >= 0, "eImprovement is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eImprovement < GC.getNumImprovementInfos(), "eImprovement is expected to be within maxiumum bounds (invalid Index)");
+	ASSERT_DEBUG(eImprovement >= 0, "eImprovement is expected to be non-negative (invalid Index)");
+	ASSERT_DEBUG(eImprovement < GC.getNumImprovementInfos(), "eImprovement is expected to be within maxiumum bounds (invalid Index)");
 	return m_paiImprovementCount[eImprovement];
 }
 //	--------------------------------------------------------------------------------
 void CvCity::ChangeImprovementCount(ImprovementTypes eImprovement, int iChange)
 {
-	CvAssertMsg(eImprovement >= 0, "eImprovement is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eImprovement < GC.getNumImprovementInfos(), "eImprovement is expected to be within maxiumum bounds (invalid Index)");
+	ASSERT_DEBUG(eImprovement >= 0, "eImprovement is expected to be non-negative (invalid Index)");
+	ASSERT_DEBUG(eImprovement < GC.getNumImprovementInfos(), "eImprovement is expected to be within maxiumum bounds (invalid Index)");
 	m_paiImprovementCount[eImprovement] = m_paiImprovementCount[eImprovement] + iChange;
-	CvAssert(GetImprovementCount(eImprovement) >= 0);
+	ASSERT_DEBUG(GetImprovementCount(eImprovement) >= 0);
 	
 	//Update yields (needs a rewrite of SCityExtraYields in order for this to be optimized)
 	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
@@ -18288,18 +18288,18 @@ void CvCity::UpdateYieldPerXUnimprovedFeature(YieldTypes eYield, FeatureTypes eF
 //	per instance of Improvement
 fraction CvCity::GetYieldPerXImprovementLocal(ImprovementTypes eImprovement, YieldTypes eYield) const
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eImprovement > -1 && eImprovement < GC.getNumImprovementInfos(), "Invalid Improvement index.");
-	CvAssertMsg(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
+	VALIDATE_OBJECT();
+	ASSERT_DEBUG(eImprovement > -1 && eImprovement < GC.getNumImprovementInfos(), "Invalid Improvement index.");
+	ASSERT_DEBUG(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
 
 	return ModifierLookup(m_yieldChanges[eYield].fromImprovementLocal, eImprovement);
 }
 //	--------------------------------------------------------------------------------
 void CvCity::ChangeYieldPerXImprovementLocal(ImprovementTypes eImprovement, YieldTypes eYield, fraction fChange)
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eImprovement > -1 && eImprovement < GC.getNumTerrainInfos(), "Invalid Improvement index.");
-	CvAssertMsg(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
+	VALIDATE_OBJECT();
+	ASSERT_DEBUG(eImprovement > -1 && eImprovement < GC.getNumTerrainInfos(), "Invalid Improvement index.");
+	ASSERT_DEBUG(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
 
 	SCityExtraYields& y = m_yieldChanges[eYield];
 	if (ModifierUpdateInsertRemove(y.fromImprovementLocal, eImprovement, fChange, true))
@@ -18311,18 +18311,18 @@ void CvCity::ChangeYieldPerXImprovementLocal(ImprovementTypes eImprovement, Yiel
 //	--------------------------------------------------------------------------------
 fraction CvCity::GetYieldPerXImprovementGlobal(ImprovementTypes eImprovement, YieldTypes eYield) const
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eImprovement > -1 && eImprovement < GC.getNumImprovementInfos(), "Invalid Improvement index.");
-	CvAssertMsg(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
+	VALIDATE_OBJECT();
+	ASSERT_DEBUG(eImprovement > -1 && eImprovement < GC.getNumImprovementInfos(), "Invalid Improvement index.");
+	ASSERT_DEBUG(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
 
 	return ModifierLookup(m_yieldChanges[eYield].fromImprovementGlobal, eImprovement);
 }
 //	--------------------------------------------------------------------------------
 void CvCity::ChangeYieldPerXImprovementGlobal(ImprovementTypes eImprovement, YieldTypes eYield, fraction fChange)
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eImprovement > -1 && eImprovement < GC.getNumTerrainInfos(), "Invalid Improvement index.");
-	CvAssertMsg(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
+	VALIDATE_OBJECT();
+	ASSERT_DEBUG(eImprovement > -1 && eImprovement < GC.getNumTerrainInfos(), "Invalid Improvement index.");
+	ASSERT_DEBUG(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
 
 	SCityExtraYields& y = m_yieldChanges[eYield];
 	if (ModifierUpdateInsertRemove(y.fromImprovementGlobal, eImprovement, fChange, true))
@@ -18335,18 +18335,18 @@ void CvCity::ChangeYieldPerXImprovementGlobal(ImprovementTypes eImprovement, Yie
 //	total yield due to all instances of Improvement
 fraction CvCity::GetYieldPerXImprovement(ImprovementTypes eImprovement, YieldTypes eYield) const
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eImprovement > -1 && eImprovement < GC.getNumImprovementInfos(), "Invalid Improvement index.");
-	CvAssertMsg(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
+	VALIDATE_OBJECT();
+	ASSERT_DEBUG(eImprovement > -1 && eImprovement < GC.getNumImprovementInfos(), "Invalid Improvement index.");
+	ASSERT_DEBUG(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
 
 	return ModifierLookup(m_yieldChanges[eYield].fromImprovement, eImprovement);
 }
 //	--------------------------------------------------------------------------------
 void CvCity::SetYieldPerXImprovement(ImprovementTypes eImprovement, YieldTypes eYield, fraction fValue)
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eImprovement > -1 && eImprovement < GC.getNumFeatureInfos(), "Invalid Improvement index.");
-	CvAssertMsg(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
+	VALIDATE_OBJECT();
+	ASSERT_DEBUG(eImprovement > -1 && eImprovement < GC.getNumFeatureInfos(), "Invalid Improvement index.");
+	ASSERT_DEBUG(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
 
 	SCityExtraYields& y = m_yieldChanges[eYield];
 	if (ModifierUpdateInsertRemove(y.fromImprovement, eImprovement, fValue, false))
@@ -18355,7 +18355,7 @@ void CvCity::SetYieldPerXImprovement(ImprovementTypes eImprovement, YieldTypes e
 //	--------------------------------------------------------------------------------
 void CvCity::UpdateYieldPerXImprovement(YieldTypes eYield, ImprovementTypes eImprovement)
 {
-	VALIDATE_OBJECT
+	VALIDATE_OBJECT();
 	fraction fYield = 0;
 
 	fraction fBaseYieldLocal = 0;
