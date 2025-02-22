@@ -179,7 +179,7 @@ function UpdateData()
 			-- Update Tourism
 			-----------------------------
 			local strTourism;
-			strTourism = string.format("[ICON_TOURISM] +%i", pPlayer:GetTourism() / 100);
+			strTourism = string.format("[ICON_TOURISM] +%s", pPlayer:GetTourism() / 100);
 			Controls.TourismString:SetText(strTourism);
 			
 			-----------------------------
@@ -189,7 +189,7 @@ function UpdateData()
 			if (Game.IsOption(GameOptionTypes.GAMEOPTION_NO_RELIGION)) then
 				strFaithStr = Locale.ConvertTextKey("TXT_KEY_TOP_PANEL_RELIGION_OFF");
 			else
-				strFaithStr = string.format("%i (+%i)", pPlayer:GetFaith(), pPlayer:GetTotalFaithPerTurn());
+				strFaithStr = string.format("%s (+%s)", pPlayer:GetFaithTimes100() / 100, pPlayer:GetTotalFaithPerTurnTimes100() / 100);
 				strFaithStr = "[ICON_PEACE]" .. strFaithStr;
 			end
 			Controls.FaithString:SetText(strFaithStr);
@@ -1246,11 +1246,11 @@ function FaithTipHandler( control )
 			strText = strText .. "[NEWLINE]";
 		end
 	    
-		strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_FAITH_ACCUMULATED", pPlayer:GetFaith());
+		strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_FAITH_ACCUMULATED", pPlayer:GetFaithTimes100() / 100);
 		strText = strText .. "[NEWLINE]";
 	
 		-- Faith from Cities
-		local iFaithFromCities = pPlayer:GetFaithPerTurnFromCities();
+		local iFaithFromCities = pPlayer:GetYieldRateFromCitiesTimes100(YieldTypes.YIELD_FAITH) / 100;
 		if (iFaithFromCities ~= 0) then
 			strText = strText .. "[NEWLINE]";
 			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_FAITH_FROM_CITIES", iFaithFromCities);

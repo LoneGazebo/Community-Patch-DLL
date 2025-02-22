@@ -1147,7 +1147,7 @@ int CvCitySpecializationAI::AdjustValueBasedOnBuildings(CvCity* pCity, YieldType
 		break;
 
 	case YIELD_FAITH:
-		iYieldChanges = pCity->GetFaithPerTurnFromBuildings();
+		iYieldChanges = pCity->GetBaseYieldRateFromBuildings(YIELD_FAITH);
 		if(iYieldChanges > 0)
 		{
 			// +15% per point of yield change
