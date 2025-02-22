@@ -146,8 +146,8 @@ CvPlayer::CvPlayer() :
 	, m_iCulturePerWonder()
 	, m_iCultureWonderMultiplier()
 	, m_iCulturePerTechResearched()
-	, m_iFaith()
-	, m_iFaithEverGenerated()
+	, m_iFaithTimes100()
+	, m_iFaithEverGeneratedTimes100()
 	, m_iHappiness()
 	, m_iUprisingCounter()
 	, m_iExtraHappinessPerLuxury()
@@ -1252,8 +1252,8 @@ void CvPlayer::uninit()
 	m_iCulturePerWonder = 0;
 	m_iCultureWonderMultiplier = 0;
 	m_iCulturePerTechResearched = 0;
-	m_iFaith = 0;
-	m_iFaithEverGenerated = 0;
+	m_iFaithTimes100 = 0;
+	m_iFaithEverGeneratedTimes100 = 0;
 	m_iHappiness = 0;
 	m_iUnhappiness = 0;
 	m_iHappinessTotal = 0;
@@ -6108,7 +6108,7 @@ bool CvPlayer::IsEventValid(EventTypes eEvent)
 			}
 			else if(eYield == YIELD_FAITH)
 			{
-				if(iNeededYield > GetFaith())
+				if(iNeededYield > GetFaithTimes100() / 100)
 				{
 					bHas = false;
 					break;
@@ -6614,7 +6614,7 @@ bool CvPlayer::IsEventChoiceValid(EventChoiceTypes eChosenEventChoice, EventType
 			}
 			else if(eYield == YIELD_FAITH)
 			{
-				if(iNeededYield > GetFaith())
+				if(iNeededYield > GetFaithTimes100() / 100)
 				{
 					bHas = false;
 					break;
@@ -7937,7 +7937,7 @@ CvString CvPlayer::GetDisabledTooltip(EventChoiceTypes eChosenEventChoice)
 			}
 			else if(eYield == YIELD_FAITH)
 			{
-				if(iNeededYield > GetFaith())
+				if(iNeededYield > GetFaithTimes100() / 100)
 				{
 					bHas = false;
 					break;
@@ -13339,7 +13339,7 @@ void CvPlayer::foundCity(int iX, int iY, ReligionTypes eReligion, bool bForce, C
 	if (isMajorCiv() && GetNumCitiesFounded() <= 1 && GetPlayerTraits()->StartsWithPantheon())
 	{
 		int iFaith = GC.getGame().GetGameReligions()->GetMinimumFaithNextPantheon();
-		SetFaith(iFaith);
+		SetFaithTimes100(iFaith * 100);
 		if (GC.getGame().GetGameReligions()->CanCreatePantheon(GetID(), true) == 0)
 		{
 			// Create the pantheon
@@ -16145,7 +16145,7 @@ int CvPlayer::calculateTotalYield(YieldTypes eYield) const
 	}
 	else if (eYield == YIELD_FAITH)
 	{
-		return GetTotalFaithPerTurn() + m_viInstantYieldsTotal[YIELD_FAITH] / (GC.getGame().getElapsedGameTurns() + 1);
+		return GetTotalFaithPerTurnTimes100() / 100 + m_viInstantYieldsTotal[YIELD_FAITH] / (GC.getGame().getElapsedGameTurns() + 1);
 	}
 	else if (eYield == YIELD_TOURISM)
 	{
@@ -19315,7 +19315,7 @@ int CvPlayer::GetYieldPerTurnFromTraits(YieldTypes eYield) const
 }
 
 /// Total faith per turn
-int CvPlayer::GetTotalFaithPerTurn() const
+int CvPlayer::GetTotalFaithPerTurnTimes100() const
 {
 	//No barbs or minors, please!
 	if (isBarbarian() || isMinorCiv())
@@ -19326,45 +19326,30 @@ int CvPlayer::GetTotalFaithPerTurn() const
 		return 0;
 
 	// Faith per turn from Cities
-	int iFaithPerTurn = GetFaithPerTurnFromCities();
+	int iFaithPerTurn = GetYieldRateFromCitiesTimes100(YIELD_FAITH);
 
 	// Trait bonus which adds Faith for trade partners?
-	iFaithPerTurn += GetYieldPerTurnFromTraits(YIELD_FAITH);
+	iFaithPerTurn += GetYieldPerTurnFromTraits(YIELD_FAITH) * 100;
 
 	// Faith per turn from Minor Civs
-	iFaithPerTurn += GetFaithPerTurnFromMinorCivs();
+	iFaithPerTurn += GetFaithPerTurnFromMinorCivs() * 100;
 
 	// Faith per turn from Annexed City-States
-	iFaithPerTurn += GetFaithPerTurnFromAnnexedMinors();
+	iFaithPerTurn += GetFaithPerTurnFromAnnexedMinors() * 100;
 
 	// Faith from Espionage Events
-	iFaithPerTurn += GetYieldPerTurnFromEspionageEvents(YIELD_FAITH, true);
-	iFaithPerTurn -= GetYieldPerTurnFromEspionageEvents(YIELD_FAITH, false);
+	iFaithPerTurn += GetYieldPerTurnFromEspionageEvents(YIELD_FAITH, true) * 100;
+	iFaithPerTurn -= GetYieldPerTurnFromEspionageEvents(YIELD_FAITH, false) * 100;
 
 	// Faith per turn from Religion (Founder beliefs)
-	iFaithPerTurn += GetFaithPerTurnFromReligion();
+	iFaithPerTurn += GetFaithPerTurnFromReligion() * 100;
 
-	iFaithPerTurn += GetYieldPerTurnFromVassalsTimes100(YIELD_FAITH) / 100;
+	iFaithPerTurn += GetYieldPerTurnFromVassalsTimes100(YIELD_FAITH);
 
 	if (MOD_BALANCE_CORE_JFD)
-		iFaithPerTurn += GetYieldPerTurnFromMinors(YIELD_FAITH);
+		iFaithPerTurn += GetYieldPerTurnFromMinors(YIELD_FAITH) * 100;
 
 	return max(0, iFaithPerTurn);
-}
-
-/// Faith per turn from Cities
-int CvPlayer::GetFaithPerTurnFromCities() const
-{
-	int iFaithPerTurn = 0;
-
-	// Add in culture from Cities
-	int iLoop = 0;
-	for(const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-	{
-		iFaithPerTurn += pLoopCity->GetFaithPerTurn();
-	}
-
-	return iFaithPerTurn;
 }
 
 /// Faith per turn from Minor Civs
@@ -19454,27 +19439,27 @@ int CvPlayer::GetFaithPerTurnFromReligion() const
 	return GetYieldPerTurnFromReligion(YIELD_FAITH);
 }
 
-int CvPlayer::GetFaith() const
+int CvPlayer::GetFaithTimes100() const
 {
-	return m_iFaith;
+	return m_iFaithTimes100;
 }
 
-void CvPlayer::SetFaith(int iNewValue)
+void CvPlayer::SetFaithTimes100(int iNewValue)
 {
 	if(GC.getGame().isOption(GAMEOPTION_NO_RELIGION))
 	{
 		return;
 	}
 
-	if(GetFaith() != iNewValue)
+	if(GetFaithTimes100() != iNewValue)
 	{
 		// Add to the total we've ever had
-		if(iNewValue > m_iFaith)
+		if(iNewValue > m_iFaithTimes100)
 		{
-			ChangeFaithEverGenerated(iNewValue - m_iFaith);
+			ChangeFaithEverGeneratedTimes100(iNewValue - m_iFaithTimes100);
 		}
 
-		m_iFaith = max(0,iNewValue);
+		m_iFaithTimes100 = max(0,iNewValue);
 
 		if(GC.getGame().getActivePlayer() == GetID())
 		{
@@ -19483,30 +19468,35 @@ void CvPlayer::SetFaith(int iNewValue)
 	}
 }
 
-void CvPlayer::ChangeFaith(int iChange)
+void CvPlayer::ChangeFaithTimes100(int iChange)
 {
 	if(GC.getGame().isOption(GAMEOPTION_NO_RELIGION))
 	{
 		return;
 	}
 
-	SetFaith(GetFaith() + iChange);
+	SetFaithTimes100(GetFaithTimes100() + iChange);
 }
 
-int CvPlayer::GetFaithEverGenerated() const
+void CvPlayer::ChangeFaith(int iChange)
 {
-	return m_iFaithEverGenerated;
+	ChangeFaithTimes100(iChange * 100);
 }
 
-void CvPlayer::SetFaithEverGenerated(int iNewValue)
+int CvPlayer::GetFaithEverGeneratedTimes100() const
 {
-	if(m_iFaithEverGenerated != iNewValue)
-		m_iFaithEverGenerated = iNewValue;
+	return m_iFaithEverGeneratedTimes100;
 }
 
-void CvPlayer::ChangeFaithEverGenerated(int iChange)
+void CvPlayer::SetFaithEverGeneratedTimes100(int iNewValue)
 {
-	SetFaithEverGenerated(GetFaithEverGenerated() + iChange);
+	if(m_iFaithEverGeneratedTimes100 != iNewValue)
+		m_iFaithEverGeneratedTimes100 = iNewValue;
+}
+
+void CvPlayer::ChangeFaithEverGeneratedTimes100(int iChange)
+{
+	SetFaithEverGeneratedTimes100(GetFaithEverGeneratedTimes100() + iChange);
 }
 
 /// Updates how much Happiness we have
@@ -19798,23 +19788,23 @@ void CvPlayer::ChangeEmpireSizeModifierReductionGlobal(int iChange)
 	m_iEmpireSizeModifierReductionGlobal += iChange;
 }
 
-int CvPlayer::GetEmpireYieldRate(YieldTypes eYield, bool bStatic) const
+int CvPlayer::GetEmpireYieldRateTimes100(YieldTypes eYield, bool bStatic) const
 {
 	switch(eYield)
 	{
 	case YIELD_TOURISM:
-		return GetCulture()->GetTourism() / 100;
+		return GetCulture()->GetTourism();
 	case YIELD_FAITH:
-		return GetTotalFaithPerTurn();
+		return GetTotalFaithPerTurnTimes100();
 	case YIELD_CULTURE:
-		return GetTotalJONSCulturePerTurnTimes100() / 100;
+		return GetTotalJONSCulturePerTurnTimes100();
 	default:
 	{
 		int iResult = 0;
 		int iLoop = 0;
 		for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 		{
-			iResult += pLoopCity->getYieldRateTimes100(eYield, false, false, bStatic) / 100;
+			iResult += pLoopCity->getYieldRateTimes100(eYield, false, false, bStatic);
 		}
 		return iResult;
 	}
@@ -25291,15 +25281,8 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 
 						//And now on growth % bonuses.
 						int iCurrentYield = 0;
-
-						if (eYield == YIELD_FAITH)
-						{
-							iCurrentYield = pLoopCity->GetFaithPerTurn() * 100;
-						}
-						else
-						{
-							iCurrentYield = pLoopCity->getYieldRateTimes100(eYield);
-						}
+				
+						iCurrentYield = pLoopCity->getYieldRateTimes100(eYield);
 						if(iCurrentYield != 0)
 						{
 							iValue += (((iCurrentYield * pLoopCity->GetGrowthExtraYield(eYield)) / 10000) * max(1, iPassYield));
@@ -25642,7 +25625,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 						{
 							if (pLoopCity->GetYieldFromGPBirthScaledWithPerTurnYield(eGreatPerson, (YieldTypes)iI, eYield) > 0)
 							{
-								iValue += pLoopCity->GetYieldFromGPBirthScaledWithPerTurnYield(eGreatPerson, (YieldTypes)iI, eYield) * GetEmpireYieldRate((YieldTypes)iI, false) / 100;
+								iValue += pLoopCity->GetYieldFromGPBirthScaledWithPerTurnYield(eGreatPerson, (YieldTypes)iI, eYield) * GetEmpireYieldRateTimes100((YieldTypes)iI, false) / 10000;
 							}
 						}
 					}
@@ -26447,10 +26430,6 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					case YIELD_FAITH:
 					{
 						ChangeFaith(iValue);
-						if(GetFaith() <= 0)
-						{
-							SetFaith(0);
-						}
 					}
 					break;
 					case YIELD_TOURISM:
@@ -42630,8 +42609,8 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_iCulturePerWonder);
 	visitor(player.m_iCultureWonderMultiplier);
 	visitor(player.m_iCulturePerTechResearched);
-	visitor(player.m_iFaith);
-	visitor(player.m_iFaithEverGenerated);
+	visitor(player.m_iFaithTimes100);
+	visitor(player.m_iFaithEverGeneratedTimes100);
 	visitor(player.m_iHappiness);
 	visitor(player.m_iUnhappiness);
 	visitor(player.m_iHappinessTotal);
@@ -46893,7 +46872,7 @@ int CvPlayer::GetYieldPerTurnFromVassalsTimes100(YieldTypes eYield) const
 				iFreeYield /= 100;
 				break;
 			case YIELD_FAITH:
-				iFreeYield = GET_PLAYER(ePlayer).GetTotalFaithPerTurn() * 100;
+				iFreeYield = GET_PLAYER(ePlayer).GetTotalFaithPerTurnTimes100();
 				iFreeYield *= (/*20*/ GD_INT_GET(VASSALAGE_FREE_YIELD_FROM_VASSAL_PERCENT) + GetVassalYieldBonusModifier());
 				iFreeYield /= 100;
 				break;

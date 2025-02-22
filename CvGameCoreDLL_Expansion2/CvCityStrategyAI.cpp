@@ -2847,7 +2847,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_FirstFaithBuilding(CvCity* pCity)
 		return false;
 	}
 
-	if (pCity->GetFaithPerTurnFromBuildings() > 0 && kPlayer.GetReligions()->HasCreatedPantheon())
+	if (pCity->GetBaseYieldRateFromBuildings(YIELD_FAITH) > 0 && kPlayer.GetReligions()->HasCreatedPantheon())
 	{
 		return false;
 	}
@@ -3919,7 +3919,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 				std::pair<YieldTypes, YieldTypes> eYieldPair = it2->first;
 				if (eYieldPair.second == eYield)
 				{
-					iInstant += pCity->GetCityCitizens()->GetSpecialistCount(eSpecialist) * kPlayer.GetEmpireYieldRate(eYieldPair.first, true) * it2->second / 100;
+					iInstant += pCity->GetCityCitizens()->GetSpecialistCount(eSpecialist) * kPlayer.GetEmpireYieldRateTimes100(eYieldPair.first, true) * it2->second / 10000;
 				}
 			}
 		}
@@ -4360,7 +4360,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 					iFlavorReligion /= 3;
 				}
 
-				if (pCity->GetFaithPerTurnFromBuildings() <= 0 && !kPlayer.GetReligions()->HasCreatedPantheon())
+				if (pCity->GetBaseYieldRateFromBuildings(YIELD_FAITH) <= 0 && !kPlayer.GetReligions()->HasCreatedPantheon())
 				{		
 					iYieldValue += max(1, iFlavorReligion);
 				}

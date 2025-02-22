@@ -668,12 +668,6 @@ public:
 	int getTourismRateModifier() const;
 	void changeTourismRateModifier(int iChange);
 
-	int GetFaithPerTurn(bool bStatic = true) const;
-	int GetFaithPerTurnFromBuildings() const;
-
-
-	int GetFaithPerTurnFromReligion() const;
-
 	int getNumWorldWonders() const;
 	void changeNumWorldWonders(int iChange);
 
