@@ -6098,9 +6098,9 @@ bool CvPlayer::IsEventValid(EventTypes eEvent)
 				int iTech = 0;
 				if(eCurrentTech != NO_TECH)
 				{
-					iTech = GetPlayerTechs()->GetResearchProgress(eCurrentTech);
+					iTech = GetPlayerTechs()->GetResearchProgressTimes100(eCurrentTech);
 				}
-				if(iNeededYield > iTech)
+				if(iNeededYield * 100 > iTech)
 				{
 					bHas = false;
 					break;
@@ -6604,9 +6604,9 @@ bool CvPlayer::IsEventChoiceValid(EventChoiceTypes eChosenEventChoice, EventType
 				int iTech = 0;
 				if(eCurrentTech != NO_TECH)
 				{
-					iTech = GetPlayerTechs()->GetResearchProgress(eCurrentTech);
+					iTech = GetPlayerTechs()->GetResearchProgressTimes100(eCurrentTech);
 				}
-				if(iNeededYield > iTech)
+				if(iNeededYield * 100 > iTech)
 				{
 					bHas = false;
 					break;
@@ -7927,9 +7927,9 @@ CvString CvPlayer::GetDisabledTooltip(EventChoiceTypes eChosenEventChoice)
 				int iTech = 0;
 				if(eCurrentTech != NO_TECH)
 				{
-					iTech = GetPlayerTechs()->GetResearchProgress(eCurrentTech);
+					iTech = GetPlayerTechs()->GetResearchProgressTimes100(eCurrentTech);
 				}
-				if(iNeededYield > iTech)
+				if(iNeededYield * 100 > iTech)
 				{
 					bHas = false;
 					break;
@@ -25710,7 +25710,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 											iTechValue = (iTechCost * iPercent) / 100;
 
 											// Cannot be greater than the tech's cost
-											int iRemainingCost = iTechCost - GetPlayerTechs()->GetResearchProgress(ePrereq);
+											int iRemainingCost = (iTechCost * 100 - GetPlayerTechs()->GetResearchProgressTimes100(ePrereq)) / 100;
 											if (iTechValue > iRemainingCost)
 											{
 												iTechValue = iRemainingCost;
@@ -26414,7 +26414,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 						else
 						{
 							GET_TEAM(getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iValue, GetID());
-							if(GET_TEAM(getTeam()).GetTeamTechs()->GetResearchProgress(eCurrentTech) <= 0)
+							if(GET_TEAM(getTeam()).GetTeamTechs()->GetResearchProgressTimes100(eCurrentTech) <= 0)
 							{
 								GET_TEAM(getTeam()).GetTeamTechs()->SetResearchProgress(eCurrentTech, 0, GetID());
 							}
@@ -27536,7 +27536,7 @@ void CvPlayer::doPolicyGEorGM(int iPolicyGEorGM)
 					else
 					{
 						GET_TEAM(getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, (iValue / 100), GetID()); // Dividing by 100 here to minimise rounding error.
-						if (GET_TEAM(getTeam()).GetTeamTechs()->GetResearchProgress(eCurrentTech) <= 0)
+						if (GET_TEAM(getTeam()).GetTeamTechs()->GetResearchProgressTimes100(eCurrentTech) <= 0)
 						{
 							GET_TEAM(getTeam()).GetTeamTechs()->SetResearchProgress(eCurrentTech, 0, GetID());
 						}

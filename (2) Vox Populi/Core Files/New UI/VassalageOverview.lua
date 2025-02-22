@@ -644,9 +644,9 @@ function DoVassalTechUpdate( iVassalPlayer )
 	if (eCurrentTech ~= -1) then
 		
 		local iResearchTurnsLeft = pPlayer:GetResearchTurnsLeft(eCurrentTech, true);
-		local iCurrentResearchProgress = pPlayer:GetResearchProgress(eCurrentTech);
+		local iCurrentResearchProgress = pPlayer:GetResearchProgressTimes100(eCurrentTech) / 100;
 		local iResearchNeeded = pPlayer:GetResearchCost(eCurrentTech);
-		local iResearchPerTurn = pPlayer:GetScience();
+		local iResearchPerTurn = pPlayer:GetScienceTimes100() / 100;
 		local iCurrentResearchPlusThisTurn = iCurrentResearchProgress + iResearchPerTurn;
 		
 		fResearchProgressPercent = iCurrentResearchProgress / iResearchNeeded;

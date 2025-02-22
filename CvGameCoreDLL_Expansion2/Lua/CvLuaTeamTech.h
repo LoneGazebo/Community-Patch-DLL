@@ -53,6 +53,7 @@ protected:
 	static int lChangeResearchProgressPercent(lua_State* L);
 	static int lGetResearchCost(lua_State* L);
 	static int lGetResearchLeft(lua_State* L);
+	static int lGetResearchLeftTimes100(lua_State* L);
 	static int lGetPlayerResearchCost(lua_State* L);
 	static int lGetPlayerResearchLeft(lua_State* L);
 #if defined(MOD_CIV6_EUREKA)
