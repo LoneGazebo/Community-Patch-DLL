@@ -301,7 +301,7 @@ function UpdateWindow( city )
     Controls.Production:SetText( "[ICON_PRODUCTION]" .. productionYield );
     Controls.Science:SetText( "[ICON_RESEARCH]" ..  scienceYield);
     Controls.Gold:SetText( "[ICON_GOLD]" .. city:GetYieldRateTimes100( YieldTypes.YIELD_GOLD ) / 100 );
-    Controls.Culture:SetText( "[ICON_CULTURE]" .. city:GetJONSCulturePerTurn() );
+    Controls.Culture:SetText( "[ICON_CULTURE]" .. city:GetYieldRateTimes100( YieldTypes.YIELD_CULTURE ) / 100 );
 	Controls.Faith:SetText( "[ICON_PEACE]" .. city:GetFaithPerTurn() );
 	Controls.Happiness:SetText( "[ICON_HAPPINESS_1]" .. city:GetLocalHappiness() );
     Controls.CityButton:SetVoids( city:GetX(), city:GetY() );

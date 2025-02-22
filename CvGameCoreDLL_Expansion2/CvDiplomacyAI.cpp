@@ -3348,13 +3348,16 @@ int CvDiplomacyAI::GetLowestTourismInfluence() const
 
 		if (eLoopPlayer != GetID() && kPlayer.isAlive() && kPlayer.isMajorCiv())
 		{
-			int iInfluenceOn = GetPlayer()->GetCulture()->GetInfluenceOn(eLoopPlayer);
-			int iLifetimeCulture = kPlayer.GetJONSCultureEverGenerated();
+			long long lInfluenceOn = 100 * GetPlayer()->GetCulture()->GetInfluenceOn(eLoopPlayer);
+			long long lLifetimeCulture = kPlayer.GetJONSCultureEverGeneratedTimes100();
 			int iPercent = 0;
 
-			if (iInfluenceOn > 0)
+			if (lInfluenceOn > 0)
 			{
-				iPercent = (iInfluenceOn * 100) / max(1, iLifetimeCulture);
+				if (lLifetimeCulture > 0)
+				{
+					iPercent = (int)(lInfluenceOn * 100 / lLifetimeCulture);
+				}
 			}
 			if (iPercent < 0)
 			{
@@ -18572,7 +18575,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 	int iGDPEstimate = GetPlayer()->GetTreasury()->GetGoldFromCitiesTimes100(false);
 	int iScienceEstimate = GetPlayer()->GetScienceFromCitiesTimes100(false);
-	int iCultureEstimate = GetPlayer()->GetJONSCultureFromCitiesTimes100(false) + (GetPlayer()->GetJONSCulturePerTurnForFree() * 100);
+	int iCultureEstimate = GetPlayer()->GetYieldRateFromCitiesTimes100(YIELD_CULTURE) + (GetPlayer()->GetJONSCulturePerTurnForFree() * 100);
 
 	// Scale factor is hard to guess ...
 	int iGoldDelta = (5 * (iCurrentGoldIn - iCurrentGoldOut)) / max(iGDPEstimate,1);
@@ -41138,7 +41141,7 @@ const char* CvDiplomacyAI::GetInsultHumanMessage()
 		veValidInsults.push_back(DIPLO_MESSAGE_INSULT_POPULATION);
 
 	// They have less Culture than us
-	if (kPlayer.GetJONSCultureEverGenerated() * 2 <= m_pPlayer->GetJONSCultureEverGenerated())
+	if (kPlayer.GetJONSCultureEverGeneratedTimes100() * 2 <= m_pPlayer->GetJONSCultureEverGeneratedTimes100())
 		veValidInsults.push_back(DIPLO_MESSAGE_INSULT_CULTURE);
 
 	// Pick a random insult from the valid ones

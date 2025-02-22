@@ -1243,7 +1243,7 @@ int CvMinorCivQuest::GetContestValueForPlayer(PlayerTypes ePlayer) const
 	case MINOR_CIV_QUEST_CONTEST_CULTURE:
 	{
 		int iStartCulture = pMinor->GetMinorCivAI()->GetQuestData1(ePlayer, eType);
-		int iEndCulture = GET_PLAYER(ePlayer).GetJONSCultureEverGenerated();
+		int iEndCulture = (int)(GET_PLAYER(ePlayer).GetJONSCultureEverGeneratedTimes100() / 100);
 		iValue = iEndCulture - iStartCulture;
 		break;
 	}
@@ -2559,7 +2559,7 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn, PlayerTypes pCallingPlayer)
 	}
 	case MINOR_CIV_QUEST_CONTEST_CULTURE:
 	{
-		m_iData1 = pAssignedPlayer->GetJONSCultureEverGenerated();
+		m_iData1 = (int)(pAssignedPlayer->GetJONSCultureEverGeneratedTimes100() / 100);
 
 		int iTurnsRemaining = GetEndTurn() - GC.getGame().getGameTurn();
 

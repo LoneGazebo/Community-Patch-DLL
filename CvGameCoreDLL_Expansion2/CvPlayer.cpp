@@ -140,8 +140,8 @@ CvPlayer::CvPlayer() :
 	, m_iTotalLandScored()
 	, m_iJONSCulturePerTurnForFree()
 	, m_iJONSCultureCityModifier()
-	, m_iJONSCulture()
-	, m_iJONSCultureEverGenerated()
+	, m_iJONSCultureTimes100()
+	, m_lJONSCultureEverGeneratedTimes100()
 	, m_iWondersConstructed()
 	, m_iCulturePerWonder()
 	, m_iCultureWonderMultiplier()
@@ -1246,8 +1246,8 @@ void CvPlayer::uninit()
 	m_iCityConnectionHappiness = 0;
 	m_iJONSCulturePerTurnForFree = 0;
 	m_iJONSCultureCityModifier = 0;
-	m_iJONSCulture = 0;
-	m_iJONSCultureEverGenerated = 0;
+	m_iJONSCultureTimes100 = 0;
+	m_lJONSCultureEverGeneratedTimes100 = 0;
 	m_iWondersConstructed = 0;
 	m_iCulturePerWonder = 0;
 	m_iCultureWonderMultiplier = 0;
@@ -2423,8 +2423,7 @@ void CvPlayer::initFreeState(CvGameInitialItemsOverrides& kOverrides)
 			}
 
 			iInitialCulture *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-			iInitialCulture /= 100;
-			setJONSCulture(iInitialCulture);
+			setJONSCultureTimes100(iInitialCulture);
 
 			// I think policy points is a better name than Jon's Culture, don't you?
 			int iCulturePerTurnForFree = isHuman() ? kHandicapInfo.getFreeCulturePerTurn() : kHandicapInfo.getFreeCulturePerTurn() + GC.getGame().getHandicapInfo().getAIFreeCulturePerTurn();
@@ -3405,8 +3404,9 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift, bool bO
 				GetTreasury()->ChangeGold(iCaptureGold);
 
 			// Culture from plundering?
-			iCaptureCulture = pCity->getJONSCulturePerTurn();
+			iCaptureCulture = pCity->getYieldRateTimes100(YIELD_CULTURE);
 			iCaptureCulture *= GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURAL_PLUNDER_MULTIPLIER);
+			iCaptureCulture /= 100;
 
 			// Reduce reward if acquired recently by the previous owner
 			if (/*50*/ GD_INT_GET(CAPTURE_GOLD_MAX_TURNS) > 0)
@@ -6124,7 +6124,7 @@ bool CvPlayer::IsEventValid(EventTypes eEvent)
 			}
 			else if(eYield == YIELD_CULTURE)
 			{
-				if(iNeededYield > getJONSCulture())
+				if(iNeededYield > getJONSCultureTimes100() / 100)
 				{
 					bHas = false;
 					break;
@@ -6630,7 +6630,7 @@ bool CvPlayer::IsEventChoiceValid(EventChoiceTypes eChosenEventChoice, EventType
 			}
 			else if(eYield == YIELD_CULTURE)
 			{
-				if(iNeededYield > getJONSCulture())
+				if(iNeededYield > getJONSCultureTimes100() / 100)
 				{
 					bHas = false;
 					break;
@@ -7953,7 +7953,7 @@ CvString CvPlayer::GetDisabledTooltip(EventChoiceTypes eChosenEventChoice)
 			}
 			else if(eYield == YIELD_CULTURE)
 			{
-				if(iNeededYield > getJONSCulture())
+				if(iNeededYield > getJONSCultureTimes100() / 100)
 				{
 					bHas = false;
 					break;
@@ -10252,16 +10252,16 @@ void CvPlayer::doTurnPostDiplomacy()
 	// Culture
 
 	// Prevent exploits in turn timed MP games - no accumulation of culture if player hasn't picked yet
-	GetCulture()->SetLastTurnCPT(GetJONSCultureEverGenerated() - GetCulture()->GetLastTurnLifetimeCulture());
-	GetCulture()->SetLastTurnLifetimeCulture(GetJONSCultureEverGenerated());
+	GetCulture()->SetLastTurnCPT((int)(GetJONSCultureEverGeneratedTimes100() - GetCulture()->GetLastTurnLifetimeCultureTimes100()));
+	GetCulture()->SetLastTurnLifetimeCultureTimes100(GetJONSCultureEverGeneratedTimes100());
 	if (kGame.isOption(GAMEOPTION_END_TURN_TIMER_ENABLED))
 	{
-		if (getJONSCulture() < getNextPolicyCost())
-			changeJONSCulture(GetTotalJONSCulturePerTurn());
+		if (getJONSCultureTimes100() < getNextPolicyCost() * 100)
+			changeJONSCultureTimes100(GetTotalJONSCulturePerTurnTimes100());
 	}
 	else
 	{
-		changeJONSCulture(GetTotalJONSCulturePerTurn());
+		changeJONSCultureTimes100(GetTotalJONSCulturePerTurnTimes100());
 	}
 
 	// Compute the cost of policies for this turn
@@ -10292,7 +10292,7 @@ void CvPlayer::doTurnPostDiplomacy()
 		{
 			if (!GC.GetEngineUserInterface()->IsPolicyNotificationSeen())
 			{
-				if (getNextPolicyCost() <= getJONSCulture() && GetPlayerPolicies()->GetNumPoliciesCanBeAdopted() > 0)
+				if (getNextPolicyCost() * 100 <= getJONSCultureTimes100() && GetPlayerPolicies()->GetNumPoliciesCanBeAdopted() > 0)
 				{
 					CvNotifications* pNotifications = GetNotifications();
 					if (pNotifications)
@@ -16141,7 +16141,7 @@ int CvPlayer::calculateTotalYield(YieldTypes eYield) const
 	// I've added this here as a "safe guard"
 	if (eYield == YIELD_CULTURE)
 	{
-		return GetTotalJONSCulturePerTurn() + m_viInstantYieldsTotal[YIELD_CULTURE] / (GC.getGame().getElapsedGameTurns() + 1);
+		return GetTotalJONSCulturePerTurnTimes100() / 100 + m_viInstantYieldsTotal[YIELD_CULTURE] / (GC.getGame().getElapsedGameTurns() + 1);
 	}
 	else if (eYield == YIELD_FAITH)
 	{
@@ -17127,7 +17127,7 @@ void CvPlayer::changeTotalLandScored(int iChange)
 }
 
 /// Total culture per turn
-int CvPlayer::GetTotalJONSCulturePerTurn() const
+int CvPlayer::GetTotalJONSCulturePerTurnTimes100(CvString* toolTipSink) const
 {
 	if(GC.getGame().isOption(GAMEOPTION_NO_POLICIES))
 	{
@@ -17141,83 +17141,109 @@ int CvPlayer::GetTotalJONSCulturePerTurn() const
 	}
 
 	int iCulturePerTurn = 0;
+	int iTmp;
 
 	// Culture per turn from Cities
-	iCulturePerTurn += GetJONSCulturePerTurnFromCities();
+	iTmp = GetYieldRateFromCitiesTimes100(YIELD_CULTURE);
+	iCulturePerTurn += iTmp;
+	GC.getGame().BuildYieldTimes100HelpText(toolTipSink, "TXT_KEY_TP_CULTURE_FROM_CITIES", iTmp, "");
 
 	// Special bonus which adds excess Happiness to Culture?
-	iCulturePerTurn += GetJONSCulturePerTurnFromExcessHappiness();
+	iTmp = GetJONSCulturePerTurnFromExcessHappinessTimes100();
+	iCulturePerTurn += iTmp;
+	GC.getGame().BuildYieldTimes100HelpText(toolTipSink, "TXT_KEY_TP_CULTURE_FROM_HAPPINESS", iTmp, "");
 
 	// Trait bonus which adds Culture for trade partners?
-	iCulturePerTurn += GetJONSCulturePerTurnFromTraits();
+	iTmp = GetJONSCulturePerTurnFromTraits() * 100;
+	iCulturePerTurn += iTmp;
+	GC.getGame().BuildYieldTimes100HelpText(toolTipSink, "TXT_KEY_TP_CULTURE_FROM_TRAITS", iTmp, "");
 
 	// Free culture that's part of the player
-	iCulturePerTurn += GetJONSCulturePerTurnForFree();
+	iTmp = GetJONSCulturePerTurnForFree() * 100;
+	iCulturePerTurn += iTmp;
+	GC.getGame().BuildYieldTimes100HelpText(toolTipSink, "TXT_KEY_TP_CULTURE_FOR_FREE", iTmp, "");
 
 	// Culture from Minor Civs
-	iCulturePerTurn += GetCulturePerTurnFromMinorCivs();
+	iTmp = GetCulturePerTurnFromMinorCivs() * 100;
+	iTmp += MOD_BALANCE_CORE_JFD ? (GetYieldPerTurnFromMinors(YIELD_CULTURE) * 100) : 0;
+	iCulturePerTurn += iTmp;
+	GC.getGame().BuildYieldTimes100HelpText(toolTipSink, "TXT_KEY_TP_CULTURE_FROM_MINORS", iTmp, "");
 
-	// Culture from Annexed Minors
-	iCulturePerTurn += GetCulturePerTurnFromAnnexedMinors();
+	iTmp = GetCulturePerTurnFromAnnexedMinors() * 100;
+	iCulturePerTurn += iTmp;
+	GC.getGame().BuildYieldTimes100HelpText(toolTipSink, "TXT_KEY_TP_CULTURE_FROM_ANNEXED_MINORS", iTmp, "");
 
 	// Culture from Espionage Events
-	iCulturePerTurn += GetYieldPerTurnFromEspionageEvents(YIELD_CULTURE, true);
-	iCulturePerTurn -= GetYieldPerTurnFromEspionageEvents(YIELD_CULTURE, false);
+	iTmp = GetYieldPerTurnFromEspionageEvents(YIELD_CULTURE, true) * 100;
+	iCulturePerTurn += iTmp;
+	GC.getGame().BuildYieldTimes100HelpText(toolTipSink, "TXT_KEY_TP_CULTURE_FROM_ESPIONAGE_POSITIVE", iTmp, "");
 
-	// Culture from Religion
-	iCulturePerTurn += GetCulturePerTurnFromReligion();
-
-	// Temporary boost from bonus turns
-	iCulturePerTurn += GetCulturePerTurnFromBonusTurns();
+	iTmp = GetYieldPerTurnFromEspionageEvents(YIELD_CULTURE, false) * 100; // negative!
+	iCulturePerTurn -= iTmp;
+	GC.getGame().BuildYieldTimes100HelpText(toolTipSink, "TXT_KEY_TP_CULTURE_FROM_ESPIONAGE_NEGATIVE", iTmp, "");
 
 	// We have vassals, we get x% of their culture
-	iCulturePerTurn += (GetYieldPerTurnFromVassals(YIELD_CULTURE));
+	iTmp = (GetYieldPerTurnFromVassalsTimes100(YIELD_CULTURE));
+	iCulturePerTurn += iTmp;
+	GC.getGame().BuildYieldTimes100HelpText(toolTipSink, "TXT_KEY_TP_CULTURE_VASSALS", iTmp, "");
 
-	if (MOD_BALANCE_CORE_JFD)
+	// Culture from Religion. Religion can give both base culture and a modifier to culture generation, so tooltip generation is a bit more complicated and is deferred to the MODIFIERS part
+	int iCulturePerTurnFromReligion = GetYieldPerTurnFromReligion(YIELD_CULTURE) * 100;
+	iCulturePerTurn += iCulturePerTurnFromReligion;
+
+	// ---- MODIFIERS ----
+
+	int iCulturePerTurnBeforeModifiers = iCulturePerTurn;
+
+	int iExtraCultureFromReligion = iCulturePerTurnBeforeModifiers * GetCulturePerTurnModifierFromReligion() / 100;
+	iCulturePerTurn += iExtraCultureFromReligion;
+
+	GC.getGame().BuildYieldTimes100HelpText(toolTipSink, "TXT_KEY_TP_CULTURE_FROM_RELIGION", iCulturePerTurnFromReligion + iExtraCultureFromReligion, "");
+
+	// Temporary boost from bonus turns
+	int iCultureFromBonusTurns = 0;
+	if (GetCultureBonusTurns() > 0)
 	{
-		iCulturePerTurn += GetYieldPerTurnFromMinors(YIELD_CULTURE);
+		iCultureFromBonusTurns += iCulturePerTurnBeforeModifiers * /*100 in CP, 33 in VP*/ GD_INT_GET(TEMPORARY_CULTURE_BOOST_MOD) / 100;
 	}
+	if (GetCultureBonusTurnsConquest() > 0)
+	{
+		iCultureFromBonusTurns += iCulturePerTurnBeforeModifiers * GetPlayerTraits()->GetCultureBonusModifierConquest() / 100;
+	}
+
+	iCulturePerTurn += iCultureFromBonusTurns;
+	GC.getGame().BuildYieldTimes100HelpText(toolTipSink, "TXT_KEY_TP_CULTURE_FROM_BONUS_TURNS", iCultureFromBonusTurns, "");
 
 	// Golden Age bonus
 	if (isGoldenAge() && !IsGoldenAgeCultureBonusDisabled())
 	{
-		iCulturePerTurn += ((iCulturePerTurn * /*20*/ GD_INT_GET(GOLDEN_AGE_CULTURE_MODIFIER)) / 100);
+		iTmp += ((iCulturePerTurnBeforeModifiers * /*20*/ GD_INT_GET(GOLDEN_AGE_CULTURE_MODIFIER)) / 100);
+		iCulturePerTurn += iTmp;
+		GC.getGame().BuildYieldTimes100HelpText(toolTipSink, "TXT_KEY_TP_CULTURE_FROM_GOLDEN_AGE", iTmp, "");
 	}
 
 	return max(0, iCulturePerTurn);
 }
 
-/// Culture per turn from Cities
-int CvPlayer::GetJONSCulturePerTurnFromCities() const
-{
-	int iCulturePerTurn = 0;
-
-	// Add in culture from Cities
-	int iLoop = 0;
-	for(const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-	{
-		iCulturePerTurn += pLoopCity->getJONSCulturePerTurn();
-	}
-
-	return iCulturePerTurn;
-}
-
 /// Culture per turn from Cities times 100
-int CvPlayer::GetJONSCultureFromCitiesTimes100(bool bIgnoreTrade) const
+int CvPlayer::GetYieldRateFromCitiesTimes100(YieldTypes eYield, bool bIgnoreTrade) const
 {
-	int iCulture = 0;
+	ASSERT_DEBUG(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+
+	int iYield = 0;
 
 	int iLoop = 0;
 	for(const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
-		iCulture += pLoopCity->getYieldRateTimes100(YIELD_CULTURE, bIgnoreTrade);
+		iYield += pLoopCity->getYieldRateTimes100(eYield, bIgnoreTrade);
 	}
 
-	return iCulture;
+	return iYield;
 }
 
 /// Special bonus which adds excess Happiness to Culture?
-int CvPlayer::GetJONSCulturePerTurnFromExcessHappiness() const
+int CvPlayer::GetJONSCulturePerTurnFromExcessHappinessTimes100() const
 {
 	if (MOD_BALANCE_VP || GC.getGame().isOption(GAMEOPTION_NO_HAPPINESS))
 		return 0;
@@ -17227,7 +17253,7 @@ int CvPlayer::GetJONSCulturePerTurnFromExcessHappiness() const
 		if(GetExcessHappiness() > 0)
 		{
 			int iFreeCulture = GetExcessHappiness() * getHappinessToCulture();
-			iFreeCulture /= 100;
+			iFreeCulture;
 
 			return iFreeCulture;
 		}
@@ -17347,17 +17373,8 @@ int CvPlayer::GetCulturePerTurnFromMinor(PlayerTypes eMinor) const
 }
 
 /// Culture per turn from religion
-int CvPlayer::GetCulturePerTurnFromReligion() const
+int CvPlayer::GetCulturePerTurnModifierFromReligion() const
 {
-	int iOtherCulturePerTurn = 0;
-	int iReligionCulturePerTurn = 0;
-
-	// Start by seeing how much the other types are bringing in
-	iOtherCulturePerTurn += GetJONSCulturePerTurnFromCities();
-	iOtherCulturePerTurn += GetJONSCulturePerTurnFromExcessHappiness();
-	iOtherCulturePerTurn += GetJONSCulturePerTurnForFree();
-	iOtherCulturePerTurn += GetCulturePerTurnFromMinorCivs();
-
 	// Founder beliefs
 	CvGameReligions* pReligions = GC.getGame().GetGameReligions();
 	ReligionTypes eOwnedReligion = GetReligions()->GetOwnedReligion();
@@ -17366,74 +17383,13 @@ int CvPlayer::GetCulturePerTurnFromReligion() const
 		const CvReligion* pReligion = pReligions->GetReligion(eOwnedReligion, NO_PLAYER);
 		if (pReligion)
 		{
-			iReligionCulturePerTurn += GetYieldPerTurnFromReligion(YIELD_CULTURE);
-
 			bool bAtPeace = GET_TEAM(getTeam()).getAtWarCount(false) == 0;
 			CvCity* pHolyCity = pReligion->GetHolyCity();
 			int iMod = pReligion->m_Beliefs.GetPlayerCultureModifier(bAtPeace, GetID(), pHolyCity, true);
-
-			if (iMod != 0)
-			{
-				iReligionCulturePerTurn += ((iReligionCulturePerTurn + iOtherCulturePerTurn) * iMod) / 100;
-			}
-			return iReligionCulturePerTurn;
+			return iMod;
 		}
 	}
 	return 0;
-}
-
-/// Culture from Bonus Turns
-int CvPlayer::GetCulturePerTurnFromBonusTurns() const
-{
-	int iValue = 0;
-
-	int iCulturePerTurn = 0;
-	if (GetCultureBonusTurns() > 0 || GetCultureBonusTurnsConquest() > 0)
-	{
-		// Culture per turn from Cities
-		iCulturePerTurn += GetJONSCulturePerTurnFromCities();
-
-		// Special bonus which adds excess Happiness to Culture?
-		iCulturePerTurn += GetJONSCulturePerTurnFromExcessHappiness();
-
-		// Trait bonus which adds Culture for trade partners?
-		iCulturePerTurn += GetJONSCulturePerTurnFromTraits();
-
-		// Free culture that's part of the player
-		iCulturePerTurn += GetJONSCulturePerTurnForFree();
-
-		// Culture from Minor Civs
-		iCulturePerTurn += GetCulturePerTurnFromMinorCivs();
-
-		// Culture from Religion
-		iCulturePerTurn += GetCulturePerTurnFromReligion();
-
-		// We have vassals, we get x% of their culture
-		iCulturePerTurn += (GetYieldPerTurnFromVassals(YIELD_CULTURE));
-
-		if (MOD_BALANCE_CORE_JFD)
-		{
-			iCulturePerTurn += GetYieldPerTurnFromMinors(YIELD_CULTURE);
-		}
-
-		// Golden Age bonus
-		if (isGoldenAge() && !IsGoldenAgeCultureBonusDisabled())
-		{
-			iCulturePerTurn += ((iCulturePerTurn * /*20*/ GD_INT_GET(GOLDEN_AGE_CULTURE_MODIFIER)) / 100);
-		}
-	}
-
-	if (GetCultureBonusTurns() > 0)
-	{
-		iValue += ((iCulturePerTurn * /*100 in CP, 33 in VP*/ GD_INT_GET(TEMPORARY_CULTURE_BOOST_MOD)) / 100);
-	}
-
-	if (GetCultureBonusTurnsConquest() > 0)
-	{
-		iValue += ((iCulturePerTurn * GetPlayerTraits()->GetCultureBonusModifierConquest()) / 100);
-	}
-
-	return iValue;
 }
 
 /// Modifier for all Cities' culture
@@ -17476,7 +17432,7 @@ void CvPlayer::ChangeLeagueCultureCityModifier(int iChange)
 	}
 }
 
-int CvPlayer::getJONSCulture() const
+int CvPlayer::getJONSCultureTimes100() const
 {
 	// City States can't pick Policies, sorry!
 	if(isMinorCiv())
@@ -17487,20 +17443,20 @@ int CvPlayer::getJONSCulture() const
 		return 0;
 	}
 
-	return m_iJONSCulture;
+	return m_iJONSCultureTimes100;
 }
 
-void CvPlayer::setJONSCulture(int iNewValue)
+void CvPlayer::setJONSCultureTimes100(int iNewValue)
 {
-	if(getJONSCulture() != iNewValue)
+	if(getJONSCultureTimes100() != iNewValue)
 	{
 		// Add to the total we've ever had
-		if(iNewValue > m_iJONSCulture)
+		if(iNewValue > m_iJONSCultureTimes100)
 		{
-			ChangeJONSCultureEverGenerated(iNewValue - m_iJONSCulture);
+			ChangeJONSCultureEverGeneratedTimes100((long long)iNewValue - m_iJONSCultureTimes100);
 		}
 
-		m_iJONSCulture = max(0,iNewValue);
+		m_iJONSCultureTimes100 = max(0,iNewValue);
 
 		if(GC.getGame().getActivePlayer() == GetID())
 		{
@@ -17511,44 +17467,30 @@ void CvPlayer::setJONSCulture(int iNewValue)
 
 void CvPlayer::changeJONSCulture(int iChange)
 {
-	setJONSCulture(getJONSCulture() + iChange);
+	setJONSCultureTimes100(getJONSCultureTimes100() + iChange * 100);
 }
 
-int CvPlayer::GetJONSCultureEverGenerated() const
+void CvPlayer::changeJONSCultureTimes100(int iChange)
 {
-	return m_iJONSCultureEverGenerated;
+	setJONSCultureTimes100(getJONSCultureTimes100() + iChange);
 }
 
-void CvPlayer::SetJONSCultureEverGenerated(int iNewValue)
+long long CvPlayer::GetJONSCultureEverGeneratedTimes100() const
 {
-	if(GetJONSCultureEverGenerated() != iNewValue)
+	return m_lJONSCultureEverGeneratedTimes100;
+}
+
+void CvPlayer::SetJONSCultureEverGeneratedTimes100(long long lNewValue)
+{
+	if(GetJONSCultureEverGeneratedTimes100() != lNewValue)
 	{
-		m_iJONSCultureEverGenerated = iNewValue;
+		m_lJONSCultureEverGeneratedTimes100 = lNewValue;
 	}
 }
 
-void CvPlayer::ChangeJONSCultureEverGenerated(int iChange)
+void CvPlayer::ChangeJONSCultureEverGeneratedTimes100(long long lChange)
 {
-	SetJONSCultureEverGenerated(GetJONSCultureEverGenerated() + iChange);
-}
-
-int CvPlayer::GetJONSCulturePerCityPerTurn() const
-{
-	int iCulture = GetJONSCultureEverGenerated();
-	int iNumCities = getNumCities();
-
-	// Puppet Cities don't count
-	iNumCities -= GetNumPuppetCities();
-
-	int iNumTurns = GC.getGame().getElapsedGameTurns();
-
-	if(iNumTurns == 0)
-	{
-		iNumTurns = 1;
-	}
-
-	int iCulturePerCityPerTurn = 100 * iCulture / iNumCities / iNumTurns;
-	return iCulturePerCityPerTurn;
+	SetJONSCultureEverGeneratedTimes100(GetJONSCultureEverGeneratedTimes100() + lChange);
 }
 
 int CvPlayer::GetWondersConstructed() const
@@ -17584,7 +17526,7 @@ void CvPlayer::ChangeCulturePerWonder(int iChange)
 		for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 		{
 			int iTotalCultureChange = pLoopCity->getNumWorldWonders() * iChange;
-			pLoopCity->ChangeJONSCulturePerTurnFromPolicies(iTotalCultureChange);
+			pLoopCity->ChangeBaseYieldRateFromPolicies(YIELD_CULTURE, iTotalCultureChange);
 		}
 	}
 }
@@ -17637,7 +17579,7 @@ void CvPlayer::ChangeSpecialistCultureChange(int iChange)
 				iTotalCulture += (iSpecialistCount * pLoopCity->GetCultureFromSpecialist(eSpecialist));
 			}
 
-			pLoopCity->ChangeJONSCulturePerTurnFromSpecialists(-iTotalCulture);
+			pLoopCity->ChangeBaseYieldRateFromSpecialists(YIELD_CULTURE, -iTotalCulture);
 		}
 
 		// CHANGE VALUE
@@ -17655,7 +17597,7 @@ void CvPlayer::ChangeSpecialistCultureChange(int iChange)
 				iTotalCulture += (iSpecialistCount * pLoopCity->GetCultureFromSpecialist(eSpecialist));
 			}
 
-			pLoopCity->ChangeJONSCulturePerTurnFromSpecialists(iTotalCulture);
+			pLoopCity->ChangeBaseYieldRateFromSpecialists(YIELD_CULTURE, iTotalCulture);
 		}
 	}
 }
@@ -19402,7 +19344,7 @@ int CvPlayer::GetTotalFaithPerTurn() const
 	// Faith per turn from Religion (Founder beliefs)
 	iFaithPerTurn += GetFaithPerTurnFromReligion();
 
-	iFaithPerTurn += GetYieldPerTurnFromVassals(YIELD_FAITH);
+	iFaithPerTurn += GetYieldPerTurnFromVassalsTimes100(YIELD_FAITH) / 100;
 
 	if (MOD_BALANCE_CORE_JFD)
 		iFaithPerTurn += GetYieldPerTurnFromMinors(YIELD_FAITH);
@@ -19865,7 +19807,7 @@ int CvPlayer::GetEmpireYieldRate(YieldTypes eYield, bool bStatic) const
 	case YIELD_FAITH:
 		return GetTotalFaithPerTurn();
 	case YIELD_CULTURE:
-		return GetTotalJONSCulturePerTurn();
+		return GetTotalJONSCulturePerTurnTimes100() / 100;
 	default:
 	{
 		int iResult = 0;
@@ -25350,11 +25292,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 						//And now on growth % bonuses.
 						int iCurrentYield = 0;
 
-						if(eYield == YIELD_CULTURE)
-						{
-							iCurrentYield = pLoopCity->getJONSCulturePerTurn() * 100;
-						}
-						else if (eYield == YIELD_FAITH)
+						if (eYield == YIELD_FAITH)
 						{
 							iCurrentYield = pLoopCity->GetFaithPerTurn() * 100;
 						}
@@ -34974,7 +34912,7 @@ int CvPlayer::GetScienceTimes100() const
 	iValue += GetScienceFromBudgetDeficitTimes100();
 
 	// We have vassals, we get x% of their science
-	iValue += (GetYieldPerTurnFromVassals(YIELD_SCIENCE) * 100);
+	iValue += GetYieldPerTurnFromVassalsTimes100(YIELD_SCIENCE);
 
 	if (MOD_BALANCE_CORE_JFD)
 	{
@@ -40830,7 +40768,7 @@ void CvPlayer::updateYieldPerTurnHistory()
 	m_aiYieldHistory[YIELD_PRODUCTION].push_back(GetAverageProduction());
 	m_aiYieldHistory[YIELD_GOLD].push_back(GetTreasury()->CalculateGrossGold());
 	m_aiYieldHistory[YIELD_SCIENCE].push_back(GetScience());
-	m_aiYieldHistory[YIELD_CULTURE].push_back(GetTotalJONSCulturePerTurn());
+	m_aiYieldHistory[YIELD_CULTURE].push_back(GetTotalJONSCulturePerTurnTimes100() / 100);
 	m_aiYieldHistory[YIELD_TOURISM].push_back(GetCulture()->GetTourism() / 100);
 	m_aiYieldHistory[YIELD_GOLDEN_AGE_POINTS].push_back(GetGoldenAgePointsFromEmpire());
 
@@ -41797,7 +41735,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 		{
 			iCityCultureChange += pkPolicyInfo->GetCulturePerGarrisonedUnit() * iChange;
 		}
-		pLoopCity->ChangeJONSCulturePerTurnFromPolicies(iCityCultureChange);
+		pLoopCity->ChangeBaseYieldRateFromPolicies(YIELD_CULTURE, iCityCultureChange);
 
 		// Cities being razed aren't affected by below effects
 		if (pLoopCity->IsRazing())
@@ -41856,19 +41794,11 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 				pLoopCity->ChangeBaseYieldRateFromBuildings(eYield, pkPolicyInfo->GetYieldChangeWorldWonder(iJ) * iTotalWonders * iChange);
 
 				int iBuildingYieldChange = pkPolicyInfo->GetBuildingClassYieldChanges(iI, iJ);
-				switch (eYield)
+				if (eYield == YIELD_CULTURE)
 				{
-					case YIELD_CULTURE:
-						iBuildingYieldChange += pkPolicyInfo->GetBuildingClassCultureChange(iI);
-						pLoopCity->changeBuildingClassCultureChange(eBuildingClass, iBuildingYieldChange * iBuildingCount * iChange);
-						pLoopCity->ChangeJONSCulturePerTurnFromPolicies(iBuildingYieldChange * iBuildingCount * iChange);
-						break;
-					case YIELD_FAITH:
-						pLoopCity->ChangeFaithPerTurnFromPolicies(iBuildingYieldChange * iBuildingCount * iChange);
-						break;
-					default:
-						pLoopCity->ChangeBaseYieldRateFromBuildings(eYield, iBuildingYieldChange * iBuildingCount * iChange);
+					iBuildingYieldChange += pkPolicyInfo->GetBuildingClassCultureChange(iI);
 				}
+				pLoopCity->ChangeBaseYieldRateFromBuildings(eYield, iBuildingYieldChange * iBuildingCount * iChange);
 			}
 		}
 	}
@@ -42677,8 +42607,8 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_iTotalLandScored);
 	visitor(player.m_iJONSCulturePerTurnForFree);
 	visitor(player.m_iJONSCultureCityModifier);
-	visitor(player.m_iJONSCulture);
-	visitor(player.m_iJONSCultureEverGenerated);
+	visitor(player.m_iJONSCultureTimes100);
+	visitor(player.m_lJONSCultureEverGeneratedTimes100);
 	visitor(player.m_iWondersConstructed);
 	visitor(player.m_iCulturePerWonder);
 	visitor(player.m_iCultureWonderMultiplier);
@@ -46756,10 +46686,10 @@ void CvPlayer::GatherPerTurnReplayStats(int iGameTurn)
 		// antonjs: This data is also used to calculate Great Scientist and Research Agreement beaker bonuses. If replay data changes
 
 		// 	Total Culture
-		setReplayDataValue("REPLAYDATASET_TOTALCULTURE", iGameTurn, getJONSCulture());
+		setReplayDataValue("REPLAYDATASET_TOTALCULTURE", iGameTurn, getJONSCultureTimes100() / 100);
 
 		// 	Culture per turn
-		setReplayDataValue("REPLAYDATASET_CULTUREPERTURN", iGameTurn, GetTotalJONSCulturePerTurn());
+		setReplayDataValue("REPLAYDATASET_CULTUREPERTURN", iGameTurn, GetTotalJONSCulturePerTurnTimes100() / 100);
 
 		setReplayDataValue("REPLAYDATASET_TOURISMPERTURN", iGameTurn, GetCulture()->GetTourism() / 100);
 		setReplayDataValue("REPLAYDATASET_GAPPERTURN", iGameTurn, GetGoldenAgePointsFromEmpire() + GetHappinessForGAP());
@@ -46907,7 +46837,7 @@ int CvPlayer::GetHappinessFromVassal(PlayerTypes ePlayer) const
 	return std::max(0, iAmount);
 }
 /// Special bonus for having a vassal
-int CvPlayer::GetYieldPerTurnFromVassals(YieldTypes eYield) const
+int CvPlayer::GetYieldPerTurnFromVassalsTimes100(YieldTypes eYield) const
 {
 	switch (eYield)
 	{
@@ -46941,17 +46871,17 @@ int CvPlayer::GetYieldPerTurnFromVassals(YieldTypes eYield) const
 			switch (eYield)
 			{
 			case YIELD_CULTURE:
-				iFreeYield = GET_PLAYER(ePlayer).GetTotalJONSCulturePerTurn();
+				iFreeYield = GET_PLAYER(ePlayer).GetTotalJONSCulturePerTurnTimes100();
 				iFreeYield *= (/*20*/ GD_INT_GET(VASSALAGE_FREE_YIELD_FROM_VASSAL_PERCENT) + GetVassalYieldBonusModifier());
 				iFreeYield /= 100;
 				break;
 			case YIELD_FAITH:
-				iFreeYield = GET_PLAYER(ePlayer).GetTotalFaithPerTurn();
+				iFreeYield = GET_PLAYER(ePlayer).GetTotalFaithPerTurn() * 100;
 				iFreeYield *= (/*20*/ GD_INT_GET(VASSALAGE_FREE_YIELD_FROM_VASSAL_PERCENT) + GetVassalYieldBonusModifier());
 				iFreeYield /= 100;
 				break;
 			case YIELD_SCIENCE:
-				iFreeYield = GET_PLAYER(ePlayer).GetScience();
+				iFreeYield = GET_PLAYER(ePlayer).GetScienceTimes100();
 				iFreeYield *= (/*20*/ GD_INT_GET(VASSALAGE_FREE_YIELD_FROM_VASSAL_PERCENT) + GetVassalYieldBonusModifier());
 				iFreeYield /= 100;
 				break;

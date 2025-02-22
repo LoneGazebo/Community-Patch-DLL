@@ -621,9 +621,10 @@ public:
 
 	// Culture stuff
 
-	int GetJONSCultureStored() const;
-	void SetJONSCultureStored(int iValue);
+	int GetJONSCultureStoredTimes100() const;
+	void SetJONSCultureStoredTimes100(int iValue);
 	void ChangeJONSCultureStored(int iChange);
+	void ChangeJONSCultureStoredTimes100(int iChange);
 
 	int GetJONSCultureLevel() const;
 	void SetJONSCultureLevel(int iValue);
@@ -631,24 +632,11 @@ public:
 	void DoJONSCultureLevelIncrease();
 	int GetJONSCultureThreshold() const;
 
-	int getJONSCulturePerTurn(bool bStatic = true) const;
-	int GetBaseJONSCulturePerTurn() const;
+	int GetBaseYieldRateFromPolicies(YieldTypes eYield) const;
+	void ChangeBaseYieldRateFromPolicies(YieldTypes eYield, int iChange);
 
-	int GetJONSCulturePerTurnFromBuildings() const;
-
-	int GetJONSCulturePerTurnFromPolicies() const;
-	void ChangeJONSCulturePerTurnFromPolicies(int iChange);
-
-	int GetJONSCulturePerTurnFromSpecialists() const;
-	void ChangeJONSCulturePerTurnFromSpecialists(int iChange);
-
-	int GetJONSCulturePerTurnFromGreatWorks() const;
-
-	int GetJONSCulturePerTurnFromTraits() const;
 	void ChangeYieldFromTraits(YieldTypes eIndex, int iChange);
 	int GetYieldPerTurnFromTraits(YieldTypes eYield) const;
-
-	int GetJONSCulturePerTurnFromReligion() const;
 
 	int GetJONSCulturePerTurnFromLeagues() const;
 
@@ -670,9 +658,6 @@ public:
 
 	int GetFaithPerTurn(bool bStatic = true) const;
 	int GetFaithPerTurnFromBuildings() const;
-
-	int GetFaithPerTurnFromPolicies() const;
-	void ChangeFaithPerTurnFromPolicies(int iChange);
 
 	int GetYieldPerXFeature(FeatureTypes eFeature, YieldTypes eYield) const;
 	int GetYieldPerXFeatureFromReligion(FeatureTypes eFeature, YieldTypes eYield) const;
@@ -700,7 +685,7 @@ public:
 	int GetDiplomatInfluenceBoost() const;
 	void ChangeDiplomatInfluenceBoost(int iChange);
 
-	int GetBorderGrowthRateIncreaseTotal();
+	int GetBorderGrowthRateIncreaseTotal(CvString* tooltipSink = NULL) const;
 
 	int GetBorderGrowthRateIncrease() const;
 	void ChangeBorderGrowthRateIncrease(int iChange);
@@ -1888,12 +1873,10 @@ protected:
 	int m_iGPRateModifierPerMarriage;
 	int m_iGPRateModifierPerLocalTheme;
 	int m_iGPPOnCitizenBirth;
-	int m_iJONSCultureStored;
+	int m_iJONSCultureStoredTimes100;
 	int m_iJONSCultureLevel;
-	int m_iJONSCulturePerTurnFromPolicies;
-	int m_iJONSCulturePerTurnFromSpecialists;
 	std::vector<int> m_iaAddedYieldPerTurnFromTraits;
-	int m_iFaithPerTurnFromPolicies;
+	std::vector<int> m_aiBaseYieldRateFromPolicies;
 #if defined(MOD_BALANCE_CORE)
 	int m_iAdditionalFood;
 	int m_iCityBuildingBombardRange;
@@ -2318,12 +2301,10 @@ SYNC_ARCHIVE_VAR(int, m_iGreatPeopleRateModifier)
 SYNC_ARCHIVE_VAR(int, m_iGPRateModifierPerMarriage)
 SYNC_ARCHIVE_VAR(int, m_iGPRateModifierPerLocalTheme)
 SYNC_ARCHIVE_VAR(int, m_iGPPOnCitizenBirth)
-SYNC_ARCHIVE_VAR(int, m_iJONSCultureStored)
+SYNC_ARCHIVE_VAR(int, m_iJONSCultureStoredTimes100)
 SYNC_ARCHIVE_VAR(int, m_iJONSCultureLevel)
-SYNC_ARCHIVE_VAR(int, m_iJONSCulturePerTurnFromPolicies)
-SYNC_ARCHIVE_VAR(int, m_iJONSCulturePerTurnFromSpecialists)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_iaAddedYieldPerTurnFromTraits)
-SYNC_ARCHIVE_VAR(int, m_iFaithPerTurnFromPolicies)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiBaseYieldRateFromPolicies)
 SYNC_ARCHIVE_VAR(int, m_iAdditionalFood)
 SYNC_ARCHIVE_VAR(int, m_iCityBuildingBombardRange)
 SYNC_ARCHIVE_VAR(int, m_iCityIndirectFire)
