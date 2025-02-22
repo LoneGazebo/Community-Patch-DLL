@@ -175,7 +175,7 @@ int CvDllCity::GetYieldRate(int eIndex) const
 //------------------------------------------------------------------------------
 int CvDllCity::GetJONSCulturePerTurn() const
 {
-	return m_pCity->getJONSCulturePerTurn();
+	return m_pCity->getYieldRateTimes100(YIELD_CULTURE) / 100;
 }
 //------------------------------------------------------------------------------
 IDInfo CvDllCity::GetIDInfo() const

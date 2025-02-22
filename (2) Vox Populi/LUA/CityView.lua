@@ -1929,17 +1929,13 @@ function OnCityViewUpdate()
 			Controls.SciencePerTurnLabel:SetText( Locale.ConvertTextKey("TXT_KEY_CITYVIEW_PERTURN_TEXT", iSciencePerTurn) );
 		end
 		--Controls.ScienceBox:SetToolTipString(strToolTip);
-		
-		local iCulturePerTurn = pCity:GetJONSCulturePerTurn();
+		local iCulturePerTurn = pCity:GetYieldRateTimes100(YieldTypes.YIELD_CULTURE) / 100;
 		Controls.CulturePerTurnLabel:SetText( Locale.ConvertTextKey("TXT_KEY_CITYVIEW_PERTURN_TEXT", iCulturePerTurn) );
 		--Controls.CultureBox:SetToolTipString(strToolTip);
-		local cultureStored = pCity:GetJONSCultureStored();
+		local cultureStored = pCity:GetJONSCultureStoredTimes100() / 100;
 		local cultureNext = pCity:GetJONSCultureThreshold();
 		local cultureDiff = cultureNext - cultureStored;
-		local borderGrowthRate = iCulturePerTurn + pCity:GetBaseYieldRateTimes100(YieldTypes.YIELD_CULTURE_LOCAL) / 100;
-		local borderGrowthRateIncrease = pCity:GetBorderGrowthRateIncreaseTotal();
-		borderGrowthRate = math.floor(borderGrowthRate * (100 + borderGrowthRateIncrease) / 100);
-
+		local borderGrowthRate = pCity:GetYieldRateTimes100(YieldTypes.YIELD_CULTURE_LOCAL) / 100;
 		if borderGrowthRate > 0 then
 			local cultureTurns = math.ceil(cultureDiff / borderGrowthRate);
 			if (cultureTurns < 1) then

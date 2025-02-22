@@ -256,8 +256,11 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(IsDoubleBorderGrowthWLTKD);
 
 	Method(GetTotalJONSCulturePerTurn);
+	Method(GetTotalJONSCulturePerTurnTimes100);
+	Method(GetTotalCulturePerTurnTooltip);
 
 	Method(GetJONSCulturePerTurnFromCities);
+	Method(GetYieldRateFromCitiesTimes100);
 
 	Method(GetJONSCulturePerTurnFromExcessHappiness);
 	Method(GetJONSCulturePerTurnFromTraits);
@@ -275,12 +278,17 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetCultureCityModifier);
 
 	Method(GetJONSCulture);
+	Method(GetJONSCultureTimes100);
 	Method(SetJONSCulture);
+	Method(SetJONSCultureTimes100);
 	Method(ChangeJONSCulture);
+	Method(ChangeJONSCultureTimes100);
 
 	Method(GetJONSCultureEverGenerated);
+	Method(GetJONSCultureEverGeneratedTimes100);
 
 	Method(GetLastTurnLifetimeCulture);
+	Method(GetLastTurnLifetimeCultureTimes100);
 	Method(GetInfluenceOn);
 	Method(GetLastTurnInfluenceOn);
 	Method(GetInfluencePerTurn);
@@ -1265,7 +1273,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 
 	Method(IsVassalageAcceptable);
 	Method(GetVassalGoldMaintenance);
-	Method(GetYieldPerTurnFromVassals);
+	Method(GetYieldPerTurnFromVassalsTimes100);
 	Method(GetHappinessFromVassals);
 	Method(GetScoreFromVassals);
 	Method(GetMilitaryAggressivePosture);
@@ -3304,21 +3312,54 @@ int CvLuaPlayer::lIsDoubleBorderGrowthWLTKD(lua_State* L)
 }
 //------------------------------------------------------------------------------
 //int GetTotalJONSCulturePerTurn();
+// LEGACY METHOD, use GetTotalJONSCulturePerTurnTimes100 instead
 int CvLuaPlayer::lGetTotalJONSCulturePerTurn(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::GetTotalJONSCulturePerTurn);
+	CvPlayer* pkPlayer = GetInstance(L);
+	lua_pushinteger(L, pkPlayer->GetTotalJONSCulturePerTurnTimes100() / 100);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//int GetTotalJONSCulturePerTurnTimes100();
+int CvLuaPlayer::lGetTotalJONSCulturePerTurnTimes100(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	lua_pushinteger(L, pkPlayer->GetTotalJONSCulturePerTurnTimes100());
+	return 1;
+}
+//------------------------------------------------------------------------------
+//int GetTotalJONSCulturePerTurnTimes100();
+int CvLuaPlayer::lGetTotalCulturePerTurnTooltip(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	CvString tooltip;
+	pkPlayer->GetTotalJONSCulturePerTurnTimes100(&tooltip);
+	lua_pushstring(L, tooltip.c_str());
+	return 1;
 }
 //------------------------------------------------------------------------------
 //int getJONSCulturePerTurnFromCities();
+//LEGACY METHOD, use GetYieldRateFromCitiesTimes100(YIELD_CULTURE) instead
 int CvLuaPlayer::lGetJONSCulturePerTurnFromCities(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::GetJONSCulturePerTurnFromCities);
+	CvPlayer* pkPlayer= GetInstance(L);
+	lua_pushinteger(L, pkPlayer->GetYieldRateFromCitiesTimes100(YIELD_CULTURE) / 100);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//int getYieldRateFromCitiesTimes100();
+int CvLuaPlayer::lGetYieldRateFromCitiesTimes100(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::GetYieldRateFromCitiesTimes100);
 }
 //------------------------------------------------------------------------------
 //int getJONSCulturePerTurnFromExcessHappiness();
+//LEGACY METHOD, culture tooltip is now generated in the dll
 int CvLuaPlayer::lGetJONSCulturePerTurnFromExcessHappiness(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::GetJONSCulturePerTurnFromExcessHappiness);
+	CvPlayer* pkPlayer = GetInstance(L);
+	lua_pushinteger(L, pkPlayer->GetJONSCulturePerTurnFromExcessHappinessTimes100() / 100);
+	return 1;
 }
 //------------------------------------------------------------------------------
 //int getJONSCulturePerTurnFromTraits();
@@ -3358,15 +3399,20 @@ int CvLuaPlayer::lGetCulturePerTurnFromMinor(lua_State* L)
 }
 //------------------------------------------------------------------------------
 //int GetCulturePerTurnFromReligion();
+//LEGACY METHOD, culture tooltip is now generated in the dll
 int CvLuaPlayer::lGetCulturePerTurnFromReligion(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::GetCulturePerTurnFromReligion);
+	CvPlayer* pkPlayer = GetInstance(L);
+	lua_pushinteger(L, pkPlayer->GetYieldPerTurnFromReligion(YIELD_CULTURE));
+	return 1;
 }
 //------------------------------------------------------------------------------
 //int GetCulturePerTurnFromBonusTurns();
+//LEGACY METHOD, no longer used, culture tooltip is now generated in the dll
 int CvLuaPlayer::lGetCulturePerTurnFromBonusTurns(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::GetCulturePerTurnFromBonusTurns);
+	lua_pushinteger(L, 0);
+	return 1;
 }
 //------------------------------------------------------------------------------
 //int GetCultureCityModifier();
@@ -3377,34 +3423,81 @@ int CvLuaPlayer::lGetCultureCityModifier(lua_State* L)
 
 //------------------------------------------------------------------------------
 //int getJONSCulture();
+//LEGACY METHOD, use GetJONSCultureTimes100 instead
 int CvLuaPlayer::lGetJONSCulture(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::getJONSCulture);
+	CvPlayer* pkPlayer = GetInstance(L);
+	lua_pushinteger(L, (int)(pkPlayer->getJONSCultureTimes100() / 100));
+	return 1;
+}
+//------------------------------------------------------------------------------
+//int getJONSCultureTimes100();
+int CvLuaPlayer::lGetJONSCultureTimes100(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::getJONSCultureTimes100);
 }
 //------------------------------------------------------------------------------
 //void setJONSCulture(int iNewValue);
 int CvLuaPlayer::lSetJONSCulture(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::setJONSCulture);
+	CvPlayer* pkPlayer = GetInstance(L);
+	int iNewValue = lua_tointeger(L, 2);
+	pkPlayer->setJONSCultureTimes100(iNewValue * 100);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//void setJONSCultureTimes100(int iNewValue);
+int CvLuaPlayer::lSetJONSCultureTimes100(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::setJONSCultureTimes100);
 }
 //------------------------------------------------------------------------------
 //void changeJONSCulture(int iChange);
 int CvLuaPlayer::lChangeJONSCulture(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::changeJONSCulture);
+	CvPlayer* pkPlayer = GetInstance(L);
+	int iChange = lua_tointeger(L, 2);
+	pkPlayer->changeJONSCultureTimes100(iChange * 100);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//void changeJONSCultureTimes100(int iChange);
+int CvLuaPlayer::lChangeJONSCultureTimes100(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::changeJONSCultureTimes100);
 }
 //------------------------------------------------------------------------------
 //int GetJONSCultureEverGenerated();
+//LEGACY method, use GetJONSCultureEverGeneratedTimes100 instead
 int CvLuaPlayer::lGetJONSCultureEverGenerated(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::GetJONSCultureEverGenerated);
+	CvPlayer* pkPlayer = GetInstance(L);
+	lua_pushinteger(L, (int)(pkPlayer->GetJONSCultureEverGeneratedTimes100() / 100));
+	return 1;
+}
+//------------------------------------------------------------------------------
+//int GetJONSCultureEverGeneratedTimes100();
+int CvLuaPlayer::lGetJONSCultureEverGeneratedTimes100(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	lua_pushinteger(L, (int)pkPlayer->GetJONSCultureEverGeneratedTimes100());
+	return 1;
 }
 //------------------------------------------------------------------------------
 //int GetLastTurnLifetimeCulture();
 int CvLuaPlayer::lGetLastTurnLifetimeCulture(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
-	const int iResult = pkPlayer->GetCulture()->GetLastTurnLifetimeCulture();
+	const int iResult = (int)(pkPlayer->GetCulture()->GetLastTurnLifetimeCultureTimes100() / 100);
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//int GetLastTurnLifetimeCulture();
+int CvLuaPlayer::lGetLastTurnLifetimeCultureTimes100(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int iResult = (int)pkPlayer->GetCulture()->GetLastTurnLifetimeCultureTimes100();
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -16749,11 +16842,11 @@ int CvLuaPlayer::lGetHappinessFromVassals(lua_State* L)
 }
 //------------------------------------------------------------------------------
 //int GetJONSCulturePerTurnFromVassals();
-int CvLuaPlayer::lGetYieldPerTurnFromVassals(lua_State* L)
+int CvLuaPlayer::lGetYieldPerTurnFromVassalsTimes100(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	const YieldTypes eYield = (YieldTypes) lua_tointeger(L, 2);
-	const int iResult = pkPlayer->GetYieldPerTurnFromVassals(eYield);
+	const int iResult = pkPlayer->GetYieldPerTurnFromVassalsTimes100(eYield);
 	lua_pushinteger(L, iResult);
 	return 1;
 }

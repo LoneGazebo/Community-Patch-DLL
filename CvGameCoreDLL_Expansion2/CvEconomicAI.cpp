@@ -1219,10 +1219,10 @@ void CvEconomicAI::LogMonitor(void)
 			AppendToLog(strHeader, strLog, "Science", m_pPlayer->calculateTotalYield((YieldTypes)ui));
 			break;
 		case YIELD_CULTURE:
-			AppendToLog(strHeader, strLog, "Culture", m_pPlayer->GetTotalJONSCulturePerTurn());
+			AppendToLog(strHeader, strLog, "Culture", m_pPlayer->calculateTotalYield((YieldTypes)ui));
 			break;
 		case YIELD_FAITH:
-			AppendToLog(strHeader, strLog, "Faith", m_pPlayer->GetTotalFaithPerTurn());
+			AppendToLog(strHeader, strLog, "Faith", m_pPlayer->calculateTotalYield((YieldTypes)ui));
 			break;
 		case YIELD_TOURISM:
 			AppendToLog(strHeader, strLog, "Tourism", m_pPlayer->calculateTotalYield((YieldTypes)ui));
@@ -1238,7 +1238,7 @@ void CvEconomicAI::LogMonitor(void)
 
 	// Culture
 	AppendToLog(strHeader, strLog, "Policies", GetPlayer()->GetPlayerPolicies()->GetNumPoliciesOwned());
-	AppendToLog(strHeader, strLog, "Culture (lifetime)", GetPlayer()->GetJONSCultureEverGenerated());
+	AppendToLog(strHeader, strLog, "Culture (lifetime)", (int)(GetPlayer()->GetJONSCultureEverGeneratedTimes100() / 100));
 
 	// Faith
 	AppendToLog(strHeader, strLog, "Faith", GetPlayer()->GetFaith());

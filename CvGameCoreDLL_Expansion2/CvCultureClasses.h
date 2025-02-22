@@ -245,8 +245,8 @@ public:
 	void SetBoredomCache(int iValue);
 	int GetBoredomCache() const;
 #endif
-	int GetLastTurnLifetimeCulture() const;
-	void SetLastTurnLifetimeCulture(int iValue);
+	long long GetLastTurnLifetimeCultureTimes100() const;
+	void SetLastTurnLifetimeCultureTimes100(long long lValue);
 	int GetLastTurnCPT() const;
 	void SetLastTurnCPT(int iValue);
 	int GetInfluenceOn(PlayerTypes ePlayer) const;
@@ -262,7 +262,7 @@ public:
 	int GetNumCivsToBeInfluentialOn() const;
 	PlayerTypes GetCivLowestInfluence(bool bCheckOpenBorders) const;
 #if defined(MOD_BALANCE_CORE)
-	int GetOtherPlayerCulturePerTurnIncludingInstant(PlayerTypes eOtherPlayer);
+	int GetOtherPlayerCulturePerTurnIncludingInstantTimes100(PlayerTypes eOtherPlayer);
 	int GetTourismPerTurnIncludingInstant(PlayerTypes ePlayer, bool bJustInstant = false);
 	int GetInfluenceTradeRouteGoldBonus(PlayerTypes ePlayer) const;
 	int GetInfluenceTradeRouteGrowthBonus(PlayerTypes ePlayer) const;
@@ -306,7 +306,7 @@ public:
 
 	// Public data
 	vector<CvPlot*> m_aDigCompletePlots;
-	int m_iLastTurnLifetimeCulture;
+	long long m_lLastTurnLifetimeCultureTimes100;
 	int m_iLastTurnCPT;
 	int m_aiCulturalInfluence[MAX_MAJOR_CIVS];
 	int m_aiLastTurnCulturalInfluence[MAX_MAJOR_CIVS];

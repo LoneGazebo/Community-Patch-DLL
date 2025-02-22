@@ -242,8 +242,11 @@ protected:
 	static int lIsDoubleBorderGrowthWLTKD(lua_State* L);
 
 	static int lGetTotalJONSCulturePerTurn(lua_State* L);
+	static int lGetTotalJONSCulturePerTurnTimes100(lua_State* L);
+	static int lGetTotalCulturePerTurnTooltip(lua_State* L);
 
 	static int lGetJONSCulturePerTurnFromCities(lua_State* L);
+	static int lGetYieldRateFromCitiesTimes100(lua_State* L);
 
 	static int lGetJONSCulturePerTurnFromExcessHappiness(lua_State* L);
 	static int lGetJONSCulturePerTurnFromTraits(lua_State* L);
@@ -261,12 +264,17 @@ protected:
 	static int lGetCultureCityModifier(lua_State* L);
 
 	static int lGetJONSCulture(lua_State* L);
+	static int lGetJONSCultureTimes100(lua_State* L);
 	static int lSetJONSCulture(lua_State* L);
+	static int lSetJONSCultureTimes100(lua_State* L);
 	static int lChangeJONSCulture(lua_State* L);
+	static int lChangeJONSCultureTimes100(lua_State* L);
 
 	static int lGetJONSCultureEverGenerated(lua_State* L);
+	static int lGetJONSCultureEverGeneratedTimes100(lua_State* L);
 
 	static int lGetLastTurnLifetimeCulture(lua_State* L);
+	static int lGetLastTurnLifetimeCultureTimes100(lua_State* L);
 	static int lGetInfluenceOn(lua_State* L);
 	static int lGetLastTurnInfluenceOn(lua_State* L);
 	static int lGetInfluencePerTurn(lua_State* L);
@@ -1380,7 +1388,7 @@ protected:
 
 	LUAAPIEXTN(GetVassalGoldMaintenance, int);
 	LUAAPIEXTN(IsVassalageAcceptable, bool, iOtherPlayer);
-	LUAAPIEXTN(GetYieldPerTurnFromVassals, int);
+	LUAAPIEXTN(GetYieldPerTurnFromVassalsTimes100, int);
 	LUAAPIEXTN(GetHappinessFromVassals, int);
 	LUAAPIEXTN(GetScoreFromVassals, int);
 	LUAAPIEXTN(GetMilitaryAggressivePosture, int, iOtherPlayer);
