@@ -686,6 +686,7 @@ public:
 	enum eTactPlotDomain { TD_LAND, TD_SEA, TD_BOTH };
 
 	CvTacticalPlot(const CvPlot* plot=NULL, PlayerTypes ePlayer=NO_PLAYER, const vector<CvUnit*>& allOurUnits= vector<CvUnit*>());
+	bool operator!=(const CvTacticalPlot& rhs) const;
 
 	const CvPlot* getPlot() const { return pPlot; }
 	int getPlotIndex() const { return pPlot ? pPlot->GetPlotIndex() : -1; }
@@ -846,8 +847,11 @@ protected:
 
 	vector<SUnitStats> availableUnits; //units which still need an assignment
 	vector<SUnitStats> notQuiteFinishedUnits; //unit which have no moves left and we need to do a deferred check if it's ok to stay in the plot
+
+	typedef vector<pair<unsigned short, unsigned char>> TactPlotIndexByPlotIndex; //save some bits
+	TactPlotIndexByPlotIndex tactPlotLookup; //map from plot index to storage index
 	vector<CvTacticalPlot> tactPlots; //storage for tactical plots (complete, mostly redundant with parent)
-	vector<pair<int, size_t>> tactPlotLookup; //map from plot index to storage index
+
 	PlotIndexContainer enemyPlots; //plot indices for enemy units, to be checked for potential attacks
 	PlotIndexContainer freedPlots; //plot indices for killed enemy units, to be ignored for ZOC
 	UnitIdContainer killedEnemies; //enemy units which were killed, to be ignored for danger
@@ -954,7 +958,6 @@ public:
 	bool makeNextAssignments(int iMaxBranches, int iMaxChoicesPerUnit, CvTactPosStorage& storage, 
 		vector<CvTacticalPosition*>& openPositionsHeap, vector<CvTacticalPosition*>& completedPositions, const PrPositionSortHeapGeneration& heapSort);
 	void updateMovePlotsIfRequired();
-	bool findTactPlotRecursive(int iPlotIndex) const;
 	bool addTacticalPlot(const CvPlot* pPlot, const vector<CvUnit*>& allOurUnits);
 	bool addAvailableUnit(const CvUnit* pUnit);
 	const vector<SUnitStats>& getAvailableUnits() const { return availableUnits; }
@@ -981,7 +984,6 @@ public:
 
 	const CvTacticalPlot& getTactPlot(int plotindex) const; //get a reference to a local tact plot or higher up in the tree if we didn't modify it
 	CvTacticalPlot& getTactPlotMutable(int plotindex); //this is dangerous! the reference returned by one call may become invalid when calling this a second time
-	void cacheAllTactPlotsLocally();
 	int getGeneration() const { return iGeneration; }
 
 	CvPlot* getTarget() const { return pTargetPlot; }

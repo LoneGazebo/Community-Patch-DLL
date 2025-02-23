@@ -7817,6 +7817,11 @@ CvTacticalPlot::CvTacticalPlot(const CvPlot* plot, PlayerTypes ePlayer, const ve
 	}
 }
 
+bool CvTacticalPlot::operator!=(const CvTacticalPlot& rhs) const
+{
+	return memcmp(this,&rhs,sizeof(CvTacticalPlot))!=0;
+}
+
 void CvTacticalPlot::resetVolatileProperties()
 {
 	bEdgeOfTheKnownWorld = false;
@@ -8983,9 +8988,6 @@ void CvTacticalPosition::countEnemiesAndCheckVisibility()
 
 void CvTacticalPosition::refreshVolatilePlotProperties(bool bInitial)
 {
-	//important, we are going to modify them all
-	cacheAllTactPlotsLocally();
-
 	gLandEnemies.clear();
 	gSeaEnemies.clear();
 	gCitadels.clear();
@@ -9166,11 +9168,9 @@ void CvTacticalPosition::initFromParent(const CvTacticalPosition& parent)
 	//childPositions stays empty!
 	childPositions.clear();
 
-	//these are cached locally
-	tactPlotLookup.clear();
-	tactPlots.clear();
-
 	//copied from parent, modified when addAssignment is called
+	tactPlotLookup = parent.tactPlotLookup;
+	tactPlots = parent.tactPlots;
 	assignedMoves = parent.assignedMoves;
 	availableUnits = parent.availableUnits;
 	notQuiteFinishedUnits = parent.notQuiteFinishedUnits;
@@ -9187,7 +9187,7 @@ bool CvTacticalPosition::wantToFight() const
 void CvTacticalPosition::wipe()
 {
 	//make sure the capacity of these containers doesn't grow too much over time
-	vector<pair<int, size_t>>().swap(tactPlotLookup);
+	vector<pair<unsigned short, unsigned char>>().swap(tactPlotLookup);
 	vector<CvTacticalPlot>().swap(tactPlots);
 	vector<STacticalAssignment>().swap(assignedMoves);
 	vector<SUnitStats>().swap(availableUnits);
@@ -9898,47 +9898,37 @@ size_t CvTacticalPosition::getFirstInterestingAssignment() const
 
 struct PairCompareFirst
 {
-    bool operator() (const std::pair<int,size_t>& l, const std::pair<int,size_t>& r) const { return l.first < r.first; }
-    bool operator() (const std::pair<int,int>& l, const std::pair<int,int>& r) const { return l.first < r.first; }
+	bool operator() (const std::pair<unsigned short, unsigned char>& l, const std::pair<unsigned short, unsigned char>& r) const { return l.first < r.first; }
 };
 
 struct EqualRangeComparison
 {
-    bool operator() ( const pair<int,size_t> a, int b ) const { return a.first < b; }
-    bool operator() ( int a, const pair<int,size_t> b ) const { return a < b.first; }
-    bool operator() ( const pair<int,int> a, int b ) const { return a.first < b; }
-    bool operator() ( int a, const pair<int,int> b ) const { return a < b.first; }
+	bool operator() (const pair<unsigned short, unsigned char>& a, unsigned short b) const { return a.first < b; }
+	bool operator() (unsigned short a, const pair<unsigned short, unsigned char>& b) const { return a < b.first; }
 };
 
 vector<CvTacticalPlot>::iterator CvTacticalPosition::findTactPlot(int iPlotIndex)
 {
-	typedef pair<vector<pair<int, size_t>>::iterator, vector<pair<int, size_t>>::iterator>  IteratorPair;
-	IteratorPair it2 = equal_range(tactPlotLookup.begin(), tactPlotLookup.end(), iPlotIndex, EqualRangeComparison());
-	if (it2.first != tactPlotLookup.end() && it2.first != it2.second)
-		return tactPlots.begin() + it2.first->second;
+	if (iPlotIndex >= 0 && iPlotIndex < USHRT_MAX)
+	{
+		pair<TactPlotIndexByPlotIndex::iterator, TactPlotIndexByPlotIndex::iterator> it2 = equal_range(tactPlotLookup.begin(), tactPlotLookup.end(), (unsigned short)iPlotIndex, EqualRangeComparison());
+		if (it2.first != tactPlotLookup.end() && it2.first != it2.second)
+			return tactPlots.begin() + it2.first->second;
+	}
 
 	return tactPlots.end();
 }
 
 vector<CvTacticalPlot>::const_iterator CvTacticalPosition::findTactPlot(int iPlotIndex) const
 {
-	typedef pair<vector<pair<int, size_t>>::const_iterator, vector<pair<int, size_t>>::const_iterator>  IteratorPair;
-	IteratorPair it2 = equal_range(tactPlotLookup.begin(), tactPlotLookup.end(), iPlotIndex, EqualRangeComparison());
-	if (it2.first != tactPlotLookup.end() && it2.first != it2.second)
-		return tactPlots.begin() + it2.first->second;
+	if (iPlotIndex >= 0 && iPlotIndex < USHRT_MAX)
+	{
+		pair<TactPlotIndexByPlotIndex::const_iterator, TactPlotIndexByPlotIndex::const_iterator> it2 = equal_range(tactPlotLookup.begin(), tactPlotLookup.end(), (unsigned short)iPlotIndex, EqualRangeComparison());
+		if (it2.first != tactPlotLookup.end() && it2.first != it2.second)
+			return tactPlots.begin() + it2.first->second;
+	}
 
 	return tactPlots.end();
-}
-
-bool CvTacticalPosition::findTactPlotRecursive(int iPlotIndex) const
-{
-	if (findTactPlot(iPlotIndex) != tactPlots.end())
-		return true;
-
-	if (parentPosition && parentPosition->findTactPlotRecursive(iPlotIndex))
-		return true;
-
-	return false;
 }
 
 bool CvTacticalPosition::addTacticalPlot(const CvPlot* pPlot, const vector<CvUnit*>& allOurUnits)
@@ -9947,13 +9937,19 @@ bool CvTacticalPosition::addTacticalPlot(const CvPlot* pPlot, const vector<CvUni
 	if (!pPlot)
 		return false;
 
-	if (findTactPlotRecursive(pPlot->GetPlotIndex()))
-		return false; //nothing to do
+	//already added?
+	if (getTactPlot(pPlot->GetPlotIndex())!=dummyPlot)
+		return false; 
+
+	//cannot process more than this
+	if (tactPlots.size() == 255)
+		return false;
 
 	CvTacticalPlot newPlot(pPlot, ePlayer, allOurUnits);
 	if (newPlot.isValid())
 	{
-		pair<int, size_t> newEntry(pPlot->GetPlotIndex(), tactPlots.size());
+		//cast to smaller types to save memmory ...
+		TactPlotIndexByPlotIndex::value_type newEntry( (TactPlotIndexByPlotIndex::value_type::first_type)pPlot->GetPlotIndex(), (TactPlotIndexByPlotIndex::value_type::second_type)tactPlots.size());
 		tactPlotLookup.insert(upper_bound(tactPlotLookup.begin(), tactPlotLookup.end(), newEntry, PairCompareFirst()), newEntry);
 		tactPlots.push_back(newPlot);
 
@@ -10254,44 +10250,7 @@ CvTacticalPlot& CvTacticalPosition::getTactPlotMutable(int plotindex)
 	vector<CvTacticalPlot>::iterator it = findTactPlot(plotindex);
 	if (it != tactPlots.end())
 		return *it;
-
-	if (parentPosition)
-	{
-		const CvTacticalPlot& parentResult = parentPosition->getTactPlot(plotindex);
-		if (parentResult.isValid())
-		{
-			//now cache it locally so that we can modify it
-			tactPlotLookup.push_back( make_pair(plotindex, tactPlots.size()) );
-			std::stable_sort(tactPlotLookup.begin(), tactPlotLookup.end(), PairCompareFirst() );
-			//this is dangerous, may invalidate references if the vector is reallocated
-			//we should really be storing pointers to plots, not the plots themselves ...
-			tactPlots.push_back(parentResult);
-			return tactPlots.back();
-		}
-	}
-
 	return dummyPlot;
-}
-
-//make sure we have all tactical plots in our local cache
-void CvTacticalPosition::cacheAllTactPlotsLocally()
-{
-	const CvTacticalPosition* current = parentPosition;
-	while (current != NULL)
-	{
-		for (vector<CvTacticalPlot>::const_iterator it = current->tactPlots.begin(); it != current->tactPlots.end(); ++it)
-		{
-			int iIndex = it->getPlotIndex();
-			if (findTactPlot(iIndex) == tactPlots.end())
-			{
-				pair<int, size_t> newEntry(iIndex, tactPlots.size());
-				tactPlotLookup.insert(upper_bound(tactPlotLookup.begin(), tactPlotLookup.end(), newEntry, PairCompareFirst()), newEntry);
-				tactPlots.push_back(*it);
-			}
-		}
-
-		current = current->parentPosition;
-	}
 }
 
 const CvTacticalPlot& CvTacticalPosition::getTactPlot(int plotindex) const
@@ -10299,11 +10258,6 @@ const CvTacticalPlot& CvTacticalPosition::getTactPlot(int plotindex) const
 	vector<CvTacticalPlot>::const_iterator it = findTactPlot(plotindex);
 	if (it != tactPlots.end())
 		return *it;
-
-	if (parentPosition)
-		return parentPosition->getTactPlot(plotindex);
-
-	//no caching? unclear what's better
 	return dummyPlot;
 }
 
@@ -10417,9 +10371,10 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 	}
 #endif
 
-	//clean up from the last run
+	//clean up from the last run, more if the player changed to limit memory usage
 	storage.reset(eLastTactSimPlayer!=ePlayer);
 	eLastTactSimPlayer = ePlayer;
+
 	gReachablePlotsLookup.clear();
 	gRangeAttackPlotsLookup.clear();
 	gSafePlotCount.clear();
