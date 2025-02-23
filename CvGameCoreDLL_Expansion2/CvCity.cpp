@@ -3993,7 +3993,7 @@ bool CvCity::IsCityEventValid(CityEventTypes eEvent)
 			}
 			else if (eYield == YIELD_GOLDEN_AGE_POINTS)
 			{
-				if (iNeededYield > kPlayer.GetGoldenAgeProgressMeter())
+				if (iNeededYield > kPlayer.GetGoldenAgeProgressMeterTimes100() / 100)
 				{
 					bHas = false;
 					break;
@@ -4551,7 +4551,7 @@ bool CvCity::IsCityEventChoiceValid(CityEventChoiceTypes eChosenEventChoice, Cit
 			}
 			else if (eYield == YIELD_GOLDEN_AGE_POINTS)
 			{
-				if (iNeededYield > kPlayer.GetGoldenAgeProgressMeter())
+				if (iNeededYield > kPlayer.GetGoldenAgeProgressMeterTimes100() / 100)
 				{
 					bHas = false;
 					break;
@@ -6329,7 +6329,7 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice, int
 			}
 			else if (eYield == YIELD_GOLDEN_AGE_POINTS)
 			{
-				if (iNeededYield > kPlayer.GetGoldenAgeProgressMeter())
+				if (iNeededYield > kPlayer.GetGoldenAgeProgressMeterTimes100() / 100)
 				{
 					bHas = false;
 					break;

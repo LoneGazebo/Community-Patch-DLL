@@ -3847,7 +3847,7 @@ bool CvPlayerReligions::SetStateReligion(ReligionTypes eNewStateReligion, bool b
 		// Compensate zeroing of faith with golden age points
 		if (m_pPlayer->GetFaithTimes100() > 0 && !m_pPlayer->GetPlayerTraits()->IsAlwaysReligion())
 		{
-			m_pPlayer->ChangeGoldenAgeProgressMeter(m_pPlayer->GetFaithTimes100() / 100);
+			m_pPlayer->ChangeGoldenAgeProgressMeterTimes100(m_pPlayer->GetFaithTimes100());
 			m_pPlayer->changeInstantYieldValue(YIELD_GOLDEN_AGE_POINTS, m_pPlayer->GetFaithTimes100() / 100);
 			m_pPlayer->SetFaithTimes100(0);
 		}
