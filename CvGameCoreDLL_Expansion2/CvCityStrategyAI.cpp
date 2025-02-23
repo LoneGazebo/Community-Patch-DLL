@@ -3587,7 +3587,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	if (pkBuildingInfo->GetYieldFromGoldenAgeStart(eYield) > 0)
 	{
 		// estimate how often we'll start a golden age
-		iFlatYield += max(1, (3 * pkBuildingInfo->GetYieldFromGoldenAgeStart(eYield) * (kPlayer.GetHappinessForGAP() + kPlayer.GetGoldenAgePointsFromEmpire()) / max(1, kPlayer.GetGoldenAgeProgressThreshold())));
+		iFlatYield += max(1, (3 * pkBuildingInfo->GetYieldFromGoldenAgeStart(eYield) * (kPlayer.GetHappinessForGAP() + kPlayer.GetGoldenAgePointsFromEmpireTimes100() / 100) / max(1, kPlayer.GetGoldenAgeProgressThreshold())));
 	}
 	if (pkBuildingInfo->GetYieldChangePerGoldenAge(eYield) > 0)
 	{
