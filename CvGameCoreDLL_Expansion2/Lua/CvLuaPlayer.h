@@ -238,6 +238,7 @@ protected:
 	static int lGetInternalTradeRouteGoldBonus(lua_State* L);
 	static int lGetGAPFromReligion(lua_State* L);
 	static int lGetGAPFromCities(lua_State* L);
+	static int lGetGAPFromCitiesTimes100(lua_State* L);
 	static int lGetGAPFromTraits(lua_State* L);
 
 	static int lIsDoubleBorderGrowthGA(lua_State* L);
@@ -603,6 +604,7 @@ protected:
 
 	static int lGetGoldenAgeProgressThreshold(lua_State* L);
 	static int lGetGoldenAgeProgressMeter(lua_State* L);
+	static int lGetGoldenAgeProgressMeterTimes100(lua_State* L);
 	static int lSetGoldenAgeProgressMeter(lua_State* L);
 	static int lChangeGoldenAgeProgressMeter(lua_State* L);
 	static int lGetNumGoldenAges(lua_State* L);
@@ -972,10 +974,12 @@ protected:
 	static int lSetResearchingTech(lua_State* L);
 
 	static int lGetCombatExperience(lua_State* L);
+	static int lGetCombatExperienceTimes100(lua_State* L);
 	static int lChangeCombatExperience(lua_State* L);
 	static int lSetCombatExperience(lua_State* L);
 	static int lGetLifetimeCombatExperience(lua_State* L);
 	static int lGetNavalCombatExperience(lua_State* L);
+	static int lGetNavalCombatExperienceTimes100(lua_State* L);
 	static int lChangeNavalCombatExperience(lua_State* L);
 	static int lSetNavalCombatExperience(lua_State* L);
 

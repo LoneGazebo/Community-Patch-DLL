@@ -46,10 +46,10 @@ function UpdateData()
 				else
 					strScienceText = string.format("+%s", sciencePerTurn);
 
-					local iGoldPerTurn = pPlayer:CalculateGoldRate();
+					local iGoldPerTurn = pPlayer:CalculateGoldRateTimes100();
 					
 					-- Gold being deducted from our Science
-					if (pPlayer:GetGold() + iGoldPerTurn < 0) then
+					if (pPlayer:GetGoldTimes100() + iGoldPerTurn < 0) then
 						strScienceText = "[COLOR:255:60:0:255]" .. strScienceText .. "[/COLOR]";
 					-- Normal Science state
 					else
@@ -66,7 +66,7 @@ function UpdateData()
 			-- Update gold stats
 			-----------------------------
 			local iTotalGold = pPlayer:GetGoldTimes100() / 100;
-			local iGoldPerTurn = pPlayer:CalculateGoldRate() / 100;
+			local iGoldPerTurn = pPlayer:CalculateGoldRateTimes100() / 100;
 			
 			-- Accounting for positive or negative GPT - there's obviously a better way to do this.  If you see this comment and know how, it's up to you ;)
 			-- Text is White when you can buy a Plot
@@ -138,11 +138,11 @@ function UpdateData()
 						strGoldenAgeStr = string.format(Locale.ToUpper(Locale.ConvertTextKey("TXT_KEY_GOLDEN_AGE_ANNOUNCE")) .. " (%i)", pPlayer:GetGoldenAgeTurns());
 					end
 				else
-					iChange = pPlayer:GetHappinessForGAP() + pPlayer:GetGAPFromReligion() + pPlayer:GetGAPFromTraits() + pPlayer:GetGAPFromCities();
+					iChange = pPlayer:GetHappinessForGAP() + pPlayer:GetGAPFromReligion() + pPlayer:GetGAPFromTraits() + pPlayer:GetGAPFromCitiesTimes100() / 100;
 					if(iChange > 0) then
-						strGoldenAgeStr = string.format("%i/%i (+%i)", pPlayer:GetGoldenAgeProgressMeter(), pPlayer:GetGoldenAgeProgressThreshold(), iChange);
+						strGoldenAgeStr = string.format("%s/%i (+%s)", pPlayer:GetGoldenAgeProgressMeterTimes100() / 100, pPlayer:GetGoldenAgeProgressThreshold(), iChange);
 					elseif(iChange < 0) then
-						strGoldenAgeStr = string.format("%i/%i (%i)", pPlayer:GetGoldenAgeProgressMeter(), pPlayer:GetGoldenAgeProgressThreshold(), iChange);
+						strGoldenAgeStr = string.format("%s/%i (%s)", pPlayer:GetGoldenAgeProgressMeterTimes100() / 100, pPlayer:GetGoldenAgeProgressThreshold(), iChange);
 					else
 						strGoldenAgeStr = string.format("%i/%i", pPlayer:GetGoldenAgeProgressMeter(), pPlayer:GetGoldenAgeProgressThreshold());
 					end
@@ -675,7 +675,7 @@ function GoldTipHandler( control )
 	local pTeam = Teams[pPlayer:GetTeam()];
 	local pCity = UI.GetHeadSelectedCity();
 	
-	local iTotalGold = pPlayer:GetGold();
+	local iTotalGold = pPlayer:GetGoldTimes100() / 100;
 
 	local iGoldPerTurnFromOtherPlayers = pPlayer:GetGoldPerTurnFromDiplomacy();
 	local iGoldPerTurnToOtherPlayers = 0;
@@ -727,7 +727,7 @@ function GoldTipHandler( control )
 	end
 	
 	strText = strText .. "[COLOR:150:255:150:255]";
-	strText = strText .. "+" .. Locale.ConvertTextKey("TXT_KEY_TP_TOTAL_INCOME", math.floor(fTotalIncome));
+	strText = strText .. "+" .. Locale.ConvertTextKey("TXT_KEY_TP_TOTAL_INCOME", fTotalIncome);
 	strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_CITY_OUTPUT", fGoldPerTurnFromCities);
 	strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_GOLD_FROM_CITY_CONNECTIONS", math.floor(fCityConnectionGold));
 	strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_GOLD_FROM_ITR", math.floor(fTradeRouteGold));
@@ -1059,14 +1059,14 @@ function GoldenAgeTipHandler( control )
 		local iHappiness = pPlayer:GetHappinessForGAP();
 		local iGAPReligion = pPlayer:GetGAPFromReligion();
 		local iGAPTrait = pPlayer:GetGAPFromTraits();
-		local iGAPCities = pPlayer:GetGAPFromCities();
+		local iGAPCities = pPlayer:GetGAPFromCitiesTimes100() / 100;
 		local iChange = iHappiness + iGAPReligion + iGAPTrait + iGAPCities;
 	
 		if (pPlayer:GetGoldenAgeTurns() > 0) then
 			strText = Locale.ConvertTextKey("TXT_KEY_TP_GOLDEN_AGE_NOW", pPlayer:GetGoldenAgeTurns());
 		else
 			if (iChange > 0) then
-				iTurnsUntilGoldenAge = (pPlayer:GetGoldenAgeProgressThreshold() - pPlayer:GetGoldenAgeProgressMeter()) / iChange;
+				iTurnsUntilGoldenAge = (pPlayer:GetGoldenAgeProgressThreshold() - pPlayer:GetGoldenAgeProgressMeterTimes100() / 100) / iChange;
 				iTurnsUntilGoldenAge = math.max(0, math.ceil(iTurnsUntilGoldenAge));
 				strText = strText .. Locale.ConvertTextKey("TXT_KEY_TOP_PANEL_TURNS_UNTIL_GOLDEN_AGE", iTurnsUntilGoldenAge);
 			end
@@ -1077,7 +1077,7 @@ function GoldenAgeTipHandler( control )
 			strText = strText .. "[NEWLINE][NEWLINE]";
 		end
 
-		strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_GOLDEN_AGE_PROGRESS", pPlayer:GetGoldenAgeProgressMeter(), pPlayer:GetGoldenAgeProgressThreshold());
+		strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_GOLDEN_AGE_PROGRESS", pPlayer:GetGoldenAgeProgressMeterTimes100() / 100, pPlayer:GetGoldenAgeProgressThreshold());
 		strText = strText .. "[NEWLINE]";
 		
 		if (iHappiness >= 0) then

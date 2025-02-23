@@ -184,7 +184,7 @@ CvPlayer::CvPlayer() :
 	, m_iAttackBonusTurns()
 	, m_iCultureBonusTurns()
 	, m_iTourismBonusTurns()
-	, m_iGoldenAgeProgressMeter()
+	, m_iGoldenAgeProgressMeterTimes100()
 	, m_iGoldenAgeMeterMod()
 	, m_iNumGoldenAges()
 	, m_iGoldenAgeTurns()
@@ -1356,7 +1356,7 @@ void CvPlayer::uninit()
 	m_iAttackBonusTurns = 0;
 	m_iCultureBonusTurns = 0;
 	m_iTourismBonusTurns = 0;
-	m_iGoldenAgeProgressMeter = 0;
+	m_iGoldenAgeProgressMeterTimes100 = 0;
 	m_iGoldenAgeMeterMod = 0;
 	m_iNumGoldenAges = 0;
 	m_iGoldenAgeTurns = 0;
@@ -6116,7 +6116,7 @@ bool CvPlayer::IsEventValid(EventTypes eEvent)
 			}
 			else if(eYield == YIELD_GOLDEN_AGE_POINTS)
 			{
-				if(iNeededYield > GetGoldenAgeProgressMeter())
+				if(iNeededYield > GetGoldenAgeProgressMeterTimes100() / 100)
 				{
 					bHas = false;
 					break;
@@ -6622,7 +6622,7 @@ bool CvPlayer::IsEventChoiceValid(EventChoiceTypes eChosenEventChoice, EventType
 			}
 			else if(eYield == YIELD_GOLDEN_AGE_POINTS)
 			{
-				if(iNeededYield > GetGoldenAgeProgressMeter())
+				if(iNeededYield > GetGoldenAgeProgressMeterTimes100() / 100)
 				{
 					bHas = false;
 					break;
@@ -7945,7 +7945,7 @@ CvString CvPlayer::GetDisabledTooltip(EventChoiceTypes eChosenEventChoice)
 			}
 			else if(eYield == YIELD_GOLDEN_AGE_POINTS)
 			{
-				if(iNeededYield > GetGoldenAgeProgressMeter())
+				if(iNeededYield > GetGoldenAgeProgressMeterTimes100() / 100)
 				{
 					bHas = false;
 					break;
@@ -23956,7 +23956,7 @@ void CvPlayer::DoChangeGreatGeneralRate()
 {
 	//Check for buildings and beliefs that add Great General points.
 	int iLoop = 0;
-	int iGreatGeneralPoints = 0;
+	int iGreatGeneralPointsTimes100 = 0;
 
 	UnitClassTypes eUnitClassGeneral = (UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_GREAT_GENERAL");
 	GreatPersonTypes eGreatPerson = GetGreatPersonFromUnitClass(eUnitClassGeneral);
@@ -23964,7 +23964,7 @@ void CvPlayer::DoChangeGreatGeneralRate()
 	{
 		if(pLoopCity != NULL)
 		{
-			iGreatGeneralPoints += pLoopCity->getYieldRateTimes100(YIELD_GREAT_GENERAL_POINTS) / 100;
+			iGreatGeneralPointsTimes100 += pLoopCity->getYieldRateTimes100(YIELD_GREAT_GENERAL_POINTS);
 
 			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(pLoopCity->GetCityReligions()->GetReligiousMajority(), pLoopCity->getOwner());
 			BeliefTypes eSecondaryPantheon = NO_BELIEF;
@@ -23973,7 +23973,7 @@ void CvPlayer::DoChangeGreatGeneralRate()
 				int iReligionYieldChange = pReligion->m_Beliefs.GetCityYieldChange(pLoopCity->getPopulation(), YIELD_GREAT_GENERAL_POINTS, GetID(), pLoopCity);
 				if(iReligionYieldChange > 0)
 				{
-					iGreatGeneralPoints += iReligionYieldChange;
+					iGreatGeneralPointsTimes100 += iReligionYieldChange * 100;
 				}
 				eSecondaryPantheon = pLoopCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
 				if (eSecondaryPantheon != NO_BELIEF && pLoopCity->getPopulation() >= GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetMinPopulation())
@@ -23981,12 +23981,12 @@ void CvPlayer::DoChangeGreatGeneralRate()
 					iReligionYieldChange = GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetCityYieldChange(YIELD_GREAT_GENERAL_POINTS);
 					if(iReligionYieldChange > 0)
 					{
-						iGreatGeneralPoints += iReligionYieldChange;
+						iGreatGeneralPointsTimes100 += iReligionYieldChange * 100;
 					}
 				}
 				if (eGreatPerson != NO_GREATPERSON)
 				{
-					iGreatGeneralPoints += pReligion->m_Beliefs.GetGreatPersonPoints(eGreatPerson, pLoopCity->getOwner(), pLoopCity, true);
+					iGreatGeneralPointsTimes100 += pReligion->m_Beliefs.GetGreatPersonPoints(eGreatPerson, pLoopCity->getOwner(), pLoopCity, true) * 100;
 				}
 			}
 
@@ -24001,11 +24001,11 @@ void CvPlayer::DoChangeGreatGeneralRate()
 					{
 						if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheon, pLoopCity->GetCityReligions()->GetReligiousMajority(), pLoopCity->getOwner()))) // check that the our religion does not have our belief, to prevent double counting
 						{
-							iGreatGeneralPoints += MAX(0, pPantheon->m_Beliefs.GetCityYieldChange(pLoopCity->getPopulation(), YIELD_GREAT_GENERAL_POINTS, GetID(), pLoopCity));
+							iGreatGeneralPointsTimes100 += MAX(0, pPantheon->m_Beliefs.GetCityYieldChange(pLoopCity->getPopulation(), YIELD_GREAT_GENERAL_POINTS, GetID(), pLoopCity)) * 100;
 
 							if (eGreatPerson != NO_GREATPERSON)
 							{
-								iGreatGeneralPoints += pPantheon->m_Beliefs.GetGreatPersonPoints(eGreatPerson, pLoopCity->getOwner(), pLoopCity, true);
+								iGreatGeneralPointsTimes100 += pPantheon->m_Beliefs.GetGreatPersonPoints(eGreatPerson, pLoopCity->getOwner(), pLoopCity, true) * 100;
 							}
 						}
 					}
@@ -24028,20 +24028,20 @@ void CvPlayer::DoChangeGreatGeneralRate()
 			{
 				for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 				{
-					iGreatGeneralPoints += pkPolicyInfo->GetCityYieldChange(YIELD_GREAT_GENERAL_POINTS);
+					iGreatGeneralPointsTimes100 += pkPolicyInfo->GetCityYieldChange(YIELD_GREAT_GENERAL_POINTS) * 100;
 				}
 			}
 		}
 	}
 
-	changeCombatExperienceTimes100(iGreatGeneralPoints * 100);
+	changeCombatExperienceTimes100(iGreatGeneralPointsTimes100);
 }
 
 void CvPlayer::DoChangeGreatAdmiralRate()
 {
 	//Check for buildings and beliefs that add Great General points.
 	int iLoop = 0;
-	int iGreatAdmiralPoints = 0;
+	int iGreatAdmiralPointsTimes100 = 0;
 
 	UnitClassTypes eUnitClassAdmiral = (UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_GREAT_ADMIRAL");
 	GreatPersonTypes eGreatPerson = GetGreatPersonFromUnitClass(eUnitClassAdmiral);
@@ -24050,7 +24050,7 @@ void CvPlayer::DoChangeGreatAdmiralRate()
 	{
 		if(pLoopCity != NULL)
 		{
-			iGreatAdmiralPoints += pLoopCity->getYieldRateTimes100(YIELD_GREAT_ADMIRAL_POINTS) / 100;
+			iGreatAdmiralPointsTimes100 += pLoopCity->getYieldRateTimes100(YIELD_GREAT_ADMIRAL_POINTS);
 
 			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(pLoopCity->GetCityReligions()->GetReligiousMajority(), pLoopCity->getOwner());
 			BeliefTypes eSecondaryPantheon = NO_BELIEF;
@@ -24059,7 +24059,7 @@ void CvPlayer::DoChangeGreatAdmiralRate()
 				int iReligionYieldChange = pReligion->m_Beliefs.GetCityYieldChange(pLoopCity->getPopulation(), YIELD_GREAT_ADMIRAL_POINTS, GetID(), pLoopCity);
 				if(iReligionYieldChange > 0)
 				{
-					iGreatAdmiralPoints += iReligionYieldChange;
+					iGreatAdmiralPointsTimes100 += iReligionYieldChange * 100;
 				}
 				eSecondaryPantheon = pLoopCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
 				if (eSecondaryPantheon != NO_BELIEF && pLoopCity->getPopulation() >= GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetMinPopulation())
@@ -24067,13 +24067,13 @@ void CvPlayer::DoChangeGreatAdmiralRate()
 					iReligionYieldChange = GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetCityYieldChange(YIELD_GREAT_ADMIRAL_POINTS);
 					if(iReligionYieldChange > 0)
 					{
-						iGreatAdmiralPoints += iReligionYieldChange;
+						iGreatAdmiralPointsTimes100 += iReligionYieldChange * 100;
 					}
 				}
 
 				if (eGreatPerson != NO_GREATPERSON)
 				{
-					iGreatAdmiralPoints += pReligion->m_Beliefs.GetGreatPersonPoints(eGreatPerson, pLoopCity->getOwner(), pLoopCity, true);
+					iGreatAdmiralPointsTimes100 += pReligion->m_Beliefs.GetGreatPersonPoints(eGreatPerson, pLoopCity->getOwner(), pLoopCity, true) * 100;
 				}
 			}
 
@@ -24088,11 +24088,11 @@ void CvPlayer::DoChangeGreatAdmiralRate()
 					{
 						if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheon, pLoopCity->GetCityReligions()->GetReligiousMajority(), pLoopCity->getOwner()))) // check that the our religion does not have our belief, to prevent double counting
 						{
-							iGreatAdmiralPoints += MAX(0, pPantheon->m_Beliefs.GetCityYieldChange(pLoopCity->getPopulation(), YIELD_GREAT_ADMIRAL_POINTS, GetID(), pLoopCity));
+							iGreatAdmiralPointsTimes100 += MAX(0, pPantheon->m_Beliefs.GetCityYieldChange(pLoopCity->getPopulation(), YIELD_GREAT_ADMIRAL_POINTS, GetID(), pLoopCity)) * 100;
 
 							if (eGreatPerson != NO_GREATPERSON)
 							{
-								iGreatAdmiralPoints += pPantheon->m_Beliefs.GetGreatPersonPoints(eGreatPerson, pLoopCity->getOwner(), pLoopCity, true);
+								iGreatAdmiralPointsTimes100 += pPantheon->m_Beliefs.GetGreatPersonPoints(eGreatPerson, pLoopCity->getOwner(), pLoopCity, true) * 100;
 							}
 						}
 					}
@@ -24114,13 +24114,13 @@ void CvPlayer::DoChangeGreatAdmiralRate()
 			{
 				for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 				{
-					iGreatAdmiralPoints += pkPolicyInfo->GetCityYieldChange(YIELD_GREAT_ADMIRAL_POINTS);
+					iGreatAdmiralPointsTimes100 += pkPolicyInfo->GetCityYieldChange(YIELD_GREAT_ADMIRAL_POINTS) * 100;
 				}
 			}
 		}
 	}
 
-	changeNavalCombatExperienceTimes100(iGreatAdmiralPoints * 100);
+	changeNavalCombatExperienceTimes100(iGreatAdmiralPointsTimes100);
 }
 #endif
 /// Update all Golden-Age related stuff
@@ -24145,18 +24145,18 @@ void CvPlayer::DoProcessGoldenAge()
 		if (MOD_BALANCE_VP || getGoldenAgeTurns() <= 0)
 		{
 			// Note: This will actually REDUCE the GA meter if the player is running in the red
-			ChangeGoldenAgeProgressMeter(GetHappinessForGAP());
-			ChangeGoldenAgeProgressMeter(GetGoldenAgePointsFromEmpire());
+			ChangeGoldenAgeProgressMeterTimes100(GetHappinessForGAP() * 100);
+			ChangeGoldenAgeProgressMeterTimes100(GetGoldenAgePointsFromEmpireTimes100());
 		}
 
 		if(getGoldenAgeTurns() <= 0)
 		{
 			// Enough GA Progress to trigger new GA?
-			if(GetGoldenAgeProgressMeter() >= GetGoldenAgeProgressThreshold())
+			if(GetGoldenAgeProgressMeterTimes100() >= GetGoldenAgeProgressThreshold() * 100)
 			{
-				int iOverflow = GetGoldenAgeProgressMeter() - GetGoldenAgeProgressThreshold();
+				int iOverflowTimes100 = GetGoldenAgeProgressMeterTimes100() - GetGoldenAgeProgressThreshold() * 100;
 
-				SetGoldenAgeProgressMeter(iOverflow);
+				SetGoldenAgeProgressMeterTimes100(iOverflowTimes100);
 				changeGoldenAgeTurns(getGoldenAgeLength());
 
 				// If it's the active player then show the popup
@@ -24174,27 +24174,27 @@ void CvPlayer::DoProcessGoldenAge()
 	}
 }
 
-int CvPlayer::GetGoldenAgePointsFromEmpire()
+int CvPlayer::GetGoldenAgePointsFromEmpireTimes100()
 {
 	int iGAPoints = 0;
 
 	// GA points from religion
-	iGAPoints += GetYieldPerTurnFromReligion(YIELD_GOLDEN_AGE_POINTS);
+	iGAPoints += GetYieldPerTurnFromReligion(YIELD_GOLDEN_AGE_POINTS) * 100;
 
 	// Trait bonus which adds GA points for trade partners?
-	iGAPoints +=  GetYieldPerTurnFromTraits(YIELD_GOLDEN_AGE_POINTS);
+	iGAPoints +=  GetYieldPerTurnFromTraits(YIELD_GOLDEN_AGE_POINTS) * 100;
 
-	iGAPoints += GetGoldenAgePointsFromCities();
+	iGAPoints += GetGoldenAgePointsFromCitiesTimes100();
 
 	if (MOD_BALANCE_CORE_JFD)
 	{
-		iGAPoints += GetYieldPerTurnFromMinors(YIELD_GOLDEN_AGE_POINTS);
+		iGAPoints += GetYieldPerTurnFromMinors(YIELD_GOLDEN_AGE_POINTS) * 100;
 	}
 
 	return iGAPoints;
 }
 
-int CvPlayer::GetGoldenAgePointsFromCities()
+int CvPlayer::GetGoldenAgePointsFromCitiesTimes100()
 {
 	int iGAPoints = 0;
 
@@ -24203,7 +24203,7 @@ int CvPlayer::GetGoldenAgePointsFromCities()
 	int iTourismFromCities = 0;
 	for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
-		iGAPoints += pLoopCity->getYieldRateTimes100(YIELD_GOLDEN_AGE_POINTS) / 100;
+		iGAPoints += pLoopCity->getYieldRateTimes100(YIELD_GOLDEN_AGE_POINTS);
 		if (GetPlayerTraits()->GetTourismToGAP() > 0)
 		{
 			iTourismFromCities += pLoopCity->GetBaseTourism();
@@ -24213,7 +24213,6 @@ int CvPlayer::GetGoldenAgePointsFromCities()
 	// Trait which converts x% of Tourism from cities to GAP
 	if (GetPlayerTraits()->GetTourismToGAP() > 0)
 	{
-		iTourismFromCities /= 100;
 		iTourismFromCities *= GetPlayerTraits()->GetTourismToGAP();
 		iTourismFromCities /= 100;
 
@@ -24226,7 +24225,7 @@ int CvPlayer::GetGoldenAgePointsFromCities()
 	// Trait which converts x% of Gold income to GAP
 	if (GetPlayerTraits()->GetGoldToGAP() > 0)
 	{
-		iGAPoints += (GetTreasury()->CalculateGrossGold() * GetPlayerTraits()->GetGoldToGAP()) / 100;
+		iGAPoints += (GetTreasury()->CalculateGrossGold() * GetPlayerTraits()->GetGoldToGAP());
 	}
 
 	return iGAPoints;
@@ -24292,26 +24291,26 @@ int CvPlayer::GetGoldenAgeProgressThreshold() const
 }
 
 /// What is our progress towards the next GA?
-int CvPlayer::GetGoldenAgeProgressMeter() const
+int CvPlayer::GetGoldenAgeProgressMeterTimes100() const
 {
-	return m_iGoldenAgeProgressMeter;
+	return m_iGoldenAgeProgressMeterTimes100;
 }
 
 /// Sets what is our progress towards the next GA
-void CvPlayer::SetGoldenAgeProgressMeter(int iValue)
+void CvPlayer::SetGoldenAgeProgressMeterTimes100(int iValue)
 {
-	m_iGoldenAgeProgressMeter = iValue;
+	m_iGoldenAgeProgressMeterTimes100 = iValue;
 
-	if(m_iGoldenAgeProgressMeter < 0)
+	if(m_iGoldenAgeProgressMeterTimes100 < 0)
 	{
-		m_iGoldenAgeProgressMeter = 0;
+		m_iGoldenAgeProgressMeterTimes100 = 0;
 	}
 
 	GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 }
 
 /// Changes what is our progress towards the next GA
-void CvPlayer::ChangeGoldenAgeProgressMeter(int iChange)
+void CvPlayer::ChangeGoldenAgeProgressMeterTimes100(int iChange)
 {
 	if (GC.getGame().isOption(GAMEOPTION_NO_HAPPINESS))
 		return;
@@ -24320,7 +24319,7 @@ void CvPlayer::ChangeGoldenAgeProgressMeter(int iChange)
 	{
 		return;
 	}
-	SetGoldenAgeProgressMeter(GetGoldenAgeProgressMeter() + iChange);
+	SetGoldenAgeProgressMeterTimes100(GetGoldenAgeProgressMeterTimes100() + iChange);
 	if (MOD_ISKA_GOLDENAGEPOINTS_TO_PRESTIGE)
 	{
 		if (iChange > 0)
@@ -24339,6 +24338,12 @@ void CvPlayer::ChangeGoldenAgeProgressMeter(int iChange)
 			}
 		}
 	}
+}
+
+/// Changes what is our progress towards the next GA
+void CvPlayer::ChangeGoldenAgeProgressMeter(int iChange)
+{
+	ChangeGoldenAgeProgressMeterTimes100(iChange * 100);
 }
 
 /// Modifier for how big the GA meter is (-50 = 50% of normal)
@@ -26458,10 +26463,6 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					case YIELD_GOLDEN_AGE_POINTS:
 					{
 						ChangeGoldenAgeProgressMeter(iValue);
-						if(GetGoldenAgeProgressMeter() <= 0)
-						{
-							SetGoldenAgeProgressMeter(0);
-						}
 					}
 					break;
 					case YIELD_GREAT_GENERAL_POINTS:
@@ -40766,7 +40767,7 @@ void CvPlayer::updateYieldPerTurnHistory()
 	m_aiYieldHistory[YIELD_SCIENCE].push_back(GetScience());
 	m_aiYieldHistory[YIELD_CULTURE].push_back(GetTotalJONSCulturePerTurnTimes100() / 100);
 	m_aiYieldHistory[YIELD_TOURISM].push_back(GetCulture()->GetTourism() / 100);
-	m_aiYieldHistory[YIELD_GOLDEN_AGE_POINTS].push_back(GetGoldenAgePointsFromEmpire());
+	m_aiYieldHistory[YIELD_GOLDEN_AGE_POINTS].push_back(GetGoldenAgePointsFromEmpireTimes100() / 100);
 
 	m_miLocalInstantYieldsTotal[YIELD_PRODUCTION] += GetAverageInstantProduction();
 }
@@ -42711,7 +42712,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_iAttackBonusTurns);
 	visitor(player.m_iCultureBonusTurns);
 	visitor(player.m_iTourismBonusTurns);
-	visitor(player.m_iGoldenAgeProgressMeter);
+	visitor(player.m_iGoldenAgeProgressMeterTimes100);
 	visitor(player.m_iGoldenAgeMeterMod);
 	visitor(player.m_iNumGoldenAges);
 	visitor(player.m_iGoldenAgeTurns);
@@ -46688,7 +46689,7 @@ void CvPlayer::GatherPerTurnReplayStats(int iGameTurn)
 		setReplayDataValue("REPLAYDATASET_CULTUREPERTURN", iGameTurn, GetTotalJONSCulturePerTurnTimes100() / 100);
 
 		setReplayDataValue("REPLAYDATASET_TOURISMPERTURN", iGameTurn, GetCulture()->GetTourism() / 100);
-		setReplayDataValue("REPLAYDATASET_GAPPERTURN", iGameTurn, GetGoldenAgePointsFromEmpire() + GetHappinessForGAP());
+		setReplayDataValue("REPLAYDATASET_GAPPERTURN", iGameTurn, GetGoldenAgePointsFromEmpireTimes100() / 100 + GetHappinessForGAP());
 
 		// 	Happiness
 		setReplayDataValue("REPLAYDATASET_EXCESSHAPINESS", iGameTurn, GetExcessHappiness());
