@@ -251,6 +251,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	//GAP
 	Method(GetGAPFromReligion);
 	Method(GetGAPFromCities);
+	Method(GetGAPFromCitiesTimes100);
 	Method(GetGAPFromTraits);
 	// Culture
 
@@ -533,6 +534,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 
 	Method(GetGoldenAgeProgressThreshold);
 	Method(GetGoldenAgeProgressMeter);
+	Method(GetGoldenAgeProgressMeterTimes100);
 	Method(SetGoldenAgeProgressMeter);
 	Method(ChangeGoldenAgeProgressMeter);
 	Method(GetNumGoldenAges);
@@ -889,10 +891,12 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(SetResearchingTech);
 
 	Method(GetCombatExperience);
+	Method(GetCombatExperienceTimes100);
 	Method(ChangeCombatExperience);
 	Method(SetCombatExperience);
 	Method(GetLifetimeCombatExperience);
 	Method(GetNavalCombatExperience);
+	Method(GetNavalCombatExperienceTimes100);
 	Method(ChangeNavalCombatExperience);
 	Method(SetNavalCombatExperience);
 
@@ -3306,11 +3310,22 @@ int CvLuaPlayer::lGetGAPFromReligion(lua_State* L)
 }
 //------------------------------------------------------------------------------
 //int GetGAPFromCities();
+//LEGACY METHOD, use GetGAPFromCitiesTimes100 instead
 int CvLuaPlayer::lGetGAPFromCities(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	
-	const int iGAP = pkPlayer->GetGoldenAgePointsFromCities();
+	const int iGAP = pkPlayer->GetGoldenAgePointsFromCitiesTimes100() / 100;
+	lua_pushinteger(L, iGAP);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//int GetGAPFromCities();
+int CvLuaPlayer::lGetGAPFromCitiesTimes100(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	
+	const int iGAP = pkPlayer->GetGoldenAgePointsFromCitiesTimes100();
 	lua_pushinteger(L, iGAP);
 	return 1;
 }
@@ -7479,21 +7494,35 @@ int CvLuaPlayer::lGetGoldenAgeProgressThreshold(lua_State* L)
 }
 
 //------------------------------------------------------------------------------
+//LEGACY METHOD, use GetGoldenAgeProgressMeterTimes100 instead
 int CvLuaPlayer::lGetGoldenAgeProgressMeter(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::GetGoldenAgeProgressMeter);
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	lua_pushinteger(L, pkPlayer->GetGoldenAgeProgressMeterTimes100() / 100);
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetGoldenAgeProgressMeterTimes100(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::GetGoldenAgeProgressMeterTimes100);
 }
 
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lSetGoldenAgeProgressMeter(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::SetGoldenAgeProgressMeter);
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int iValue = lua_tointeger(L, 2);
+	pkPlayer->SetGoldenAgeProgressMeterTimes100(iValue * 100);
+	return 1;
 }
 
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lChangeGoldenAgeProgressMeter(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::ChangeGoldenAgeProgressMeter);
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int iValue = lua_tointeger(L, 2);
+	pkPlayer->ChangeGoldenAgeProgressMeterTimes100(iValue * 100);
+	return 1;
 }
 
 //------------------------------------------------------------------------------
@@ -10247,11 +10276,21 @@ int CvLuaPlayer::lSetResearchingTech(lua_State* L)
 
 //------------------------------------------------------------------------------
 //int getCombatExperience();
+//LEGACY METHOD, use GetCombatExperienceTimes100 instead
 int CvLuaPlayer::lGetCombatExperience(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 
 	lua_pushinteger(L, pkPlayer->getCombatExperienceTimes100() / 100);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//int getCombatExperienceTimes100();
+int CvLuaPlayer::lGetCombatExperienceTimes100(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+
+	lua_pushinteger(L, pkPlayer->getCombatExperienceTimes100());
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -10285,11 +10324,21 @@ int CvLuaPlayer::lGetLifetimeCombatExperience(lua_State* L)
 }
 //------------------------------------------------------------------------------
 //int getNavalCombatExperience();
+//LEGACY METHOD, use GetCombatExperienceTimes100 instead
 int CvLuaPlayer::lGetNavalCombatExperience(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 
 	lua_pushinteger(L, pkPlayer->getNavalCombatExperienceTimes100() / 100);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//int getNavalCombatExperienceTimes100();
+int CvLuaPlayer::lGetNavalCombatExperienceTimes100(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+
+	lua_pushinteger(L, pkPlayer->getNavalCombatExperienceTimes100());
 	return 1;
 }
 //------------------------------------------------------------------------------

@@ -940,15 +940,16 @@ public:
 	void DoChangeGreatAdmiralRate();
 #endif
 #if defined(MOD_BALANCE_CORE)
-	int GetGoldenAgePointsFromEmpire();
-	int GetGoldenAgePointsFromCities();
+	int GetGoldenAgePointsFromEmpireTimes100();
+	int GetGoldenAgePointsFromCitiesTimes100();
 #endif
 	void DoProcessGoldenAge();
 
 	int GetGoldenAgeProgressThreshold() const;
 
-	int GetGoldenAgeProgressMeter() const;
-	void SetGoldenAgeProgressMeter(int iValue);
+	int GetGoldenAgeProgressMeterTimes100() const;
+	void SetGoldenAgeProgressMeterTimes100(int iValue);
+	void ChangeGoldenAgeProgressMeterTimes100(int iChange);
 	void ChangeGoldenAgeProgressMeter(int iChange);
 
 	int GetGoldenAgeMeterMod() const;
@@ -3094,7 +3095,7 @@ protected:
 	int m_iAttackBonusTurns;
 	int m_iCultureBonusTurns;
 	int m_iTourismBonusTurns;
-	int m_iGoldenAgeProgressMeter;
+	int m_iGoldenAgeProgressMeterTimes100;
 	int m_iGoldenAgeMeterMod;
 	int m_iNumGoldenAges;
 	int m_iGoldenAgeTurns;
@@ -3953,7 +3954,7 @@ SYNC_ARCHIVE_VAR(int, m_iLeagueCultureCityModifier)
 SYNC_ARCHIVE_VAR(int, m_iAttackBonusTurns)
 SYNC_ARCHIVE_VAR(int, m_iCultureBonusTurns)
 SYNC_ARCHIVE_VAR(int, m_iTourismBonusTurns)
-SYNC_ARCHIVE_VAR(int, m_iGoldenAgeProgressMeter)
+SYNC_ARCHIVE_VAR(int, m_iGoldenAgeProgressMeterTimes100)
 SYNC_ARCHIVE_VAR(int, m_iGoldenAgeMeterMod)
 SYNC_ARCHIVE_VAR(int, m_iNumGoldenAges)
 SYNC_ARCHIVE_VAR(int, m_iGoldenAgeTurns)
