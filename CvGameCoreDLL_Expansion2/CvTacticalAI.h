@@ -773,6 +773,22 @@ protected:
 	bool bFriendlyDefenderEndTurn:1; 
 };
 
+struct SDefendStats
+{
+	int iDefenderPlot;
+	int iDefenderPrevDamage;
+	UnitIdContainer killedEnemies;
+	int iDanger;
+
+	SDefendStats(int iDefenderPlot_, int iDefenderPrevDamage_, const UnitIdContainer& killedEnemies_, int iDanger_)
+	{
+		iDefenderPlot = iDefenderPlot_;
+		iDefenderPrevDamage = iDefenderPrevDamage_;
+		killedEnemies = killedEnemies_;
+		iDanger = iDanger_;
+	}
+};
+
 struct SAttackStats
 {
 	int iAttackerPlot;
@@ -789,6 +805,16 @@ struct SAttackStats
 		iAttackerDamageDealt = iAttackerDamageDealt_;
 		iAttackerDamageTaken = iAttackerDamageTaken_;
 	}
+};
+
+class CDangerCache {
+public:
+	void clear();
+	void storeDanger(int iDefenderId, int iDefenderPlot, int iPrevDamage, const UnitIdContainer& killedEnemies, int iDanger);
+	bool findDanger(int iDefenderId, int iDefenderPlot, int iPrevDamage, const UnitIdContainer& killedEnemies, int& iDanger) const;
+protected:
+	//key is defender id
+	vector<pair<int, vector<SDefendStats>>> dangerStats;
 };
 
 class CAttackCache {
@@ -995,13 +1021,15 @@ public:
 	CvTacticalPosition* first() { return aPositions; }
 	CvTacticalPosition* peekNext() { return (iCount < iSize) ? aPositions + iCount : NULL; }
 	int consumeOne() { return iCount++; }
-	CAttackCache& getCache() { return attackCache; }
+	CAttackCache& getAttackCache() { return attackCache; }
+	CDangerCache& getDangerCache() { return dangerCache; }
 
 protected:
 	int iSize; //how many do we have
 	int iCount; //how many are currently in use
 	CvTacticalPosition* aPositions; //preallocated block of N positions
 	CAttackCache attackCache; //performance optimization, unit strength calculation takes too long
+	CDangerCache dangerCache; //performance optimization, unit strength calculation takes too long
 
 private:
 	//hide copy constructor and assignment operator

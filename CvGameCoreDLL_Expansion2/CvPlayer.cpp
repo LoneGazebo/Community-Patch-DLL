@@ -44398,11 +44398,6 @@ int CvPlayer::GetPlotDanger(const CvPlot& pPlot, bool bFixedDamageOnly)
 	return m_pDangerPlots->GetDanger(pPlot, bFixedDamageOnly);
 }
 
-void CvPlayer::ResetDangerCache(const CvPlot & Plot, int iRange)
-{
-	m_pDangerPlots->ResetDangerCache(&Plot, iRange);
-}
-
 bool CvPlayer::IsVanishedUnit(const IDInfo& id) const
 {
 	//note that we do not check for unit invisiblity here!

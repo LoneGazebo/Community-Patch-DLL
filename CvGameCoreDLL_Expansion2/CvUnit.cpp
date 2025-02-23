@@ -2770,10 +2770,6 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 					(*it)->GetCityCitizens()->OptimizeWorkedPlots(false);
 			}
 		}
-
-		// Clear cached danger in the vicinity for instant update
-		if (ePlayer!=NO_PLAYER)
-			GET_PLAYER(ePlayer).ResetDangerCache(*pPlot,3);
 	}
 
 	// Remove Resource Quantity from Used
@@ -4805,7 +4801,7 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 		{
 			if(eDomain == DOMAIN_SEA)
 			{
-				return ((iMoveFlags&CvUnit::MOVEFLAG_DESTINATION)==0) || canCrossOceans() || kPlayer.CanCrossOcean();
+				return ((iMoveFlags&CvUnit::MOVEFLAG_DESTINATION)==0) || canCrossOceans();
 			}
 			else if(eDomain == DOMAIN_LAND)
 			{
@@ -5526,8 +5522,9 @@ bool CvUnit::jumpToNearestValidPlot()
 	{
 		CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
 
-		//plot must be empty even of civilians
-		if (pLoopPlot->getNumUnits() == 0 && canMoveInto(*pLoopPlot,CvUnit::MOVEFLAG_DESTINATION))
+		//don't put combat units on top of other teams' civilians
+		bool bAvailable = (IsCivilianUnit() || !pLoopPlot->isNeutralUnit(getOwner(), false, false)) && !pLoopPlot->isEnemyUnit(getOwner(), false, false);
+		if (bAvailable && canMoveInto(*pLoopPlot,CvUnit::MOVEFLAG_DESTINATION))
 		{
 			int iValue = it->iNormalizedDistanceRaw + GET_PLAYER(getOwner()).GetCityDistanceInPlots(pLoopPlot);
 
@@ -16404,11 +16401,11 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 			iModifier += cityAttackModifier();
 
 			// City is blockaded
-			if (pToPlot->getPlotCity()->IsBlockadedWaterAndLand())
+			if (!bQuickAndDirty && pToPlot->getPlotCity()->IsBlockadedWaterAndLand())
 				iModifier += max(0, /*0 in CP, 20 in VP*/ GD_INT_GET(BLOCKADED_CITY_ATTACK_MODIFIER));
 
 			// Nearby unit sapping this city
-			iModifier += GET_PLAYER(getOwner()).GetAreaEffectModifier(AE_SAPPER, NO_DOMAIN, pToPlot);
+			iModifier += bQuickAndDirty ? 0 : GET_PLAYER(getOwner()).GetAreaEffectModifier(AE_SAPPER, NO_DOMAIN, pToPlot);
 
 			//bonus for attacking same unit over and over in a turn?
 			int iTempModifier = getMultiAttackBonus() + GET_PLAYER(getOwner()).GetPlayerTraits()->GetMultipleAttackBonus();
@@ -18239,7 +18236,7 @@ void CvUnit::changeCanCrossMountainsCount(int iValue)
 bool CvUnit::canCrossOceans() const
 {
 	VALIDATE_OBJECT();
-	return getCanCrossOceansCount() > 0;
+	return getCanCrossOceansCount() > 0 || GET_PLAYER(getOwner()).CanCrossOcean();
 }
 
 //	--------------------------------------------------------------------------------

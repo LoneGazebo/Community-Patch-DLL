@@ -128,9 +128,7 @@ void CvDangerPlots::UpdateDanger()
 	if (!bReload && !gDLL->IsGameCoreThread())
 		return;
 
-	//note 
-	// * we do not do a dirty check here, that is done in GetDanger()
-	// * if an enemy unit was killed, ResetDangerCache() makes sure we don't report old values, but no dirty flag involved
+	//note: we do not do a dirty check here, that is done in GetDanger()
 
 	//allocate on demand
 	if (m_DangerPlots.empty())
@@ -406,22 +404,6 @@ std::vector<CvUnit*> CvDangerPlots::GetPossibleAttackers(const CvPlot& Plot, Tea
 	return m_DangerPlots[Plot.GetPlotIndex()].GetPossibleAttackers(eTeamForVisibilityCheck);
 }
 
-void CvDangerPlots::ResetDangerCache(const CvPlot* pCenterPlot, int iRange)
-{
-	if (m_DangerPlots.empty())
-		return;
-
-	iRange = range(iRange, 0, 5);
-
-	// clear cached danger in the vicinity
-	for (int i = 0; i < RING_PLOTS[iRange]; i++)
-	{
-		CvPlot* pPlot = iterateRingPlots(pCenterPlot, i);
-		if (pPlot)
-			m_DangerPlots[pPlot->GetPlotIndex()].resetCache();
-	}
-}
-
 bool CvDangerPlots::IsKnownAttacker(const CvUnit* pUnit) const
 {
 	if (m_DangerPlots.empty()  || !pUnit || !pUnit->IsCanAttack())
@@ -440,7 +422,6 @@ bool CvDangerPlots::AddKnownAttacker(const CvUnit* pUnit)
 
 	UpdateDangerSingleUnit(pUnit, false, PlotIndexContainer()); //for simplicity, assume no ZOC by owned units
 	m_knownUnits.insert(std::make_pair(pUnit->getOwner(), pUnit->GetID()));
-	ResetDangerCache(pUnit->plot(), 3);
 	return true;
 }
 
@@ -782,8 +763,6 @@ int CvDangerPlotContents::GetAirUnitDamage(const CvUnit* pUnit, AirActionType iA
 	return 0;
 }
 
-#define DANGER_MAX_CACHE_SIZE 9
-
 // Get the maximum damage unit could receive at this plot in the next turn (update this with CvUnitCombat changes!)
 int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const UnitIdContainer& unitsToIgnore, int iExtraDamage, AirActionType iAirAction)
 {
@@ -856,16 +835,6 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const UnitIdContainer& 
 		}
 
 		return iPlotDamage;
-	}
-
-	//simple caching for speedup
-	//only for combat units - civilian danger depends on cover from other units, hard to cache that
-	SCachedUnitDanger unitStats(pUnit, iExtraDamage);
-	if (unitStats.addIgnoredUnits(unitsToIgnore))
-	{
-		for (size_t i = 0; i < m_lastUnitDangerResults.size(); i++)
-			if (unitStats == m_lastUnitDangerResults[i].first)
-				return m_lastUnitDangerResults[i].second;
 	}
 
 	// Capturing a city with a garrisoned unit destroys the garrisoned unit
@@ -948,11 +917,6 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const UnitIdContainer& 
 	// Damage from surrounding improvements (citadel) and the plot itself
 	iPlotDamage += m_iImprovementDamage;
 	iPlotDamage += m_bFlatPlotDamage ? m_pPlot->getTurnDamage(pUnit->ignoreTerrainDamage(), pUnit->ignoreFeatureDamage(), pUnit->extraTerrainDamage(), pUnit->extraFeatureDamage()) : 0;
-
-	//update cache
-	m_lastUnitDangerResults.push_back(std::make_pair(unitStats, iPlotDamage));
-	if (m_lastUnitDangerResults.size() == DANGER_MAX_CACHE_SIZE)
-		m_lastUnitDangerResults.pop_front();
 
 	//done
 	return iPlotDamage;

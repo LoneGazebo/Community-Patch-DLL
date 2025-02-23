@@ -61,6 +61,7 @@ PlayerTypes eLastTactSimPlayer = NO_PLAYER;
 unsigned long gMovePlotsCacheHit = 0, gMovePlotsCacheMiss = 0;
 unsigned long gAttackPlotsCacheHit = 0, gAttackPlotsCacheMiss = 0;
 unsigned long gAttackCacheHit = 0, gAttackCacheMiss = 0;
+unsigned long gDangerCacheHit = 0, gDangerCacheMiss = 0;
 unsigned long giEquivalentPos = 0, giDifferentPos = 0;
 unsigned long giValidEndPos = 0, giInvalidEndPos = 0;
 #endif
@@ -6569,6 +6570,54 @@ CvTacticalPlot::eTactPlotDomain DomainForUnit(const CvUnit* pUnit)
 	}
 }
 
+void CDangerCache::clear()
+{
+	dangerStats.clear();
+}
+
+void CDangerCache::storeDanger(int iDefenderId, int iDefenderPlot, int iPrevDamage, const UnitIdContainer& killedEnemies, int iDanger)
+{
+	//known attacker
+	for (size_t i = 0; i < dangerStats.size(); i++)
+	{
+		if (dangerStats[i].first == iDefenderId)
+		{
+			dangerStats[i].second.push_back(SDefendStats(iDefenderPlot, iPrevDamage, killedEnemies, iDanger));
+			return;
+		}
+	}
+
+	//unknown defender? add a new entry
+	vector<SDefendStats> data(1, SDefendStats(iDefenderPlot, iPrevDamage, killedEnemies, iDanger));
+	dangerStats.push_back(make_pair(iDefenderId, data));
+}
+
+bool CDangerCache::findDanger(int iDefenderId, int iDefenderPlot, int iPrevDamage, const UnitIdContainer& killedEnemies, int& iDanger) const
+{
+	for (size_t i = 0; i < dangerStats.size(); i++)
+	{
+		if (dangerStats[i].first == iDefenderId)
+		{
+			const vector<SDefendStats>& data = dangerStats[i].second;
+			for (size_t i = 0; i < data.size(); i++)
+			{
+				if (data[i].iDefenderPlot == iDefenderPlot &&
+					data[i].iDefenderPrevDamage == iPrevDamage &&
+					data[i].killedEnemies == killedEnemies)
+				{
+					iDanger = data[i].iDanger;
+					gDangerCacheHit++;
+					return true;
+				}
+			}
+		}
+	}
+
+	iDanger = 0;
+	gDangerCacheMiss++;
+	return false;
+}
+
 void CAttackCache::clear()
 {
 	attackStats.clear();
@@ -7023,7 +7072,7 @@ int ScorePlotForPotentialAttacks(const CvUnit* pUnit, const CvTacticalPlot& test
 			//note here we don't care whether it's a kill or not - don't want to double dip for the move and the kill
 			//also, if the attack would be next turn, chance is the enemy will flee, so it never happens
 			STacticalAssignment temp;
-			bool bIsKill = ScoreAttackDamage(targetPlot, pUnit, testPlot, assumedPosition.getAggressionLevel(), assumedPosition.getAggressionBias(), gTactPosStorage.getCache(), temp);
+			bool bIsKill = ScoreAttackDamage(targetPlot, pUnit, testPlot, assumedPosition.getAggressionLevel(), assumedPosition.getAggressionBias(), gTactPosStorage.getAttackCache(), temp);
 			if (bIsKill && iNumAttacks > 0 && temp.iScore > 0)
 			{
 				//if we can attack this turn
@@ -7058,7 +7107,7 @@ bool isKillAssignment(eUnitAssignmentType eAssignmentType)
 		eAssignmentType == A_RANGEKILL;
 }
 
-int ScoreCombatUnitTurnEnd(const CvUnit* pUnit, eUnitAssignmentType eLastAssignment, const CvTacticalPlot& testPlot, int iMovesLeft, 
+int ScoreCombatUnitTurnEnd(const CvUnit* pUnit, eUnitAssignmentType eLastAssignment, const CvTacticalPlot& testPlot, int iMovesLeft, int iDanger,
 							CvTacticalPlot::eTactPlotDomain eRelevantDomain, int iSelfDamage, int iAssumedExtraKill,
 							const CvTacticalPosition& assumedPosition, eUnitMoveEvalMode evalMode, bool bRelaxedCheck)
 {
@@ -7082,11 +7131,6 @@ int ScoreCombatUnitTurnEnd(const CvUnit* pUnit, eUnitAssignmentType eLastAssignm
 	if (iNumAdjEnemies > 3 || (iNumAdjEnemies == 3 && assumedPosition.getAggressionBias() < 1))
 		if (!bIsFrontlineCitadelOrCity)
 			return INT_MAX;
-
-	int	iDanger = pUnit->GetDanger(testPlot.getPlot(), gEnemiesToIgnore, iSelfDamage);
-	//can happen with garrisons, catch this case as it messes up the math
-	if (iDanger == INT_MAX)
-		iDanger = 10 * pUnit->GetMaxHitPoints();
 
 	if (!MOD_CORE_TWO_PASS_DANGER)
 	{
@@ -7281,12 +7325,24 @@ STacticalAssignment ScorePlotForCombatUnitMove(const SUnitStats& unit, const CvT
 		}
 	}
 
+	int iDanger = 0;
+	//first try the cache
+	if (!gTactPosStorage.getDangerCache().findDanger(pUnit->GetID(), testPlot.getPlotIndex(), unit.iSelfDamage, assumedPosition.getKilledEnemies(), iDanger))
+	{
+		iDanger = pUnit->GetDanger(testPlot.getPlot(), assumedPosition.getKilledEnemies(), unit.iSelfDamage);
+		//can happen with garrisons, catch this case as it messes up the math
+		if (iDanger == INT_MAX)
+			iDanger = 10 * pUnit->GetMaxHitPoints();
+
+		gTactPosStorage.getDangerCache().storeDanger(pUnit->GetID(), testPlot.getPlotIndex(), unit.iSelfDamage, assumedPosition.getKilledEnemies(), iDanger);
+	}
+
 	//many considerations are only relevant if we end the turn here (critical for skirmishers which can move after attacking ...)
 	//we only consider this when explicitly ending the turn!
 	if (evalMode != EM_INTERMEDIATE)
 	{
 		result.eAssignmentType = A_FINISH;
-		iDangerScore = ScoreCombatUnitTurnEnd(pUnit, unit.eLastAssignment, testPlot, iAssumedMovesLeft, eRelevantDomain, unit.iSelfDamage, -1, assumedPosition, evalMode, false);
+		iDangerScore = ScoreCombatUnitTurnEnd(pUnit, unit.eLastAssignment, testPlot, iAssumedMovesLeft, iDanger, eRelevantDomain, unit.iSelfDamage, -1, assumedPosition, evalMode, false);
 
 		// unit giving extra strength to an adjacent city?
 		if (pUnit->GetAdjacentCityDefenseMod() > 0 && GET_PLAYER(assumedPosition.getPlayer()).GetCityDistanceInPlots(pTestPlot)<=1)
@@ -7300,8 +7356,6 @@ STacticalAssignment ScorePlotForCombatUnitMove(const SUnitStats& unit, const CvT
 	}
 	else
 	{
-		//some indication of danger as a tiebreaker - final danger will be checked later
-		int	iDanger = pUnit->GetDanger(testPlot.getPlot(), assumedPosition.getKilledEnemies(), unit.iSelfDamage);
 		int iRemainingHP = pUnit->GetCurrHitPoints() - unit.iSelfDamage;
 		//scale it up a bit to reduce truncation error during division
 		int iOverkillPercent = (100*iDanger) / max(1, iRemainingHP);
@@ -7512,7 +7566,7 @@ STacticalAssignment ScorePlotForRangedAttack(const SUnitStats& unit, const CvTac
 	STacticalAssignment newAssignment(unit.iPlotIndex,enemyPlot.getPlotIndex(),unit.iUnitID,unit.iMovesLeft,unit.eMoveStrategy,-1,A_RANGEATTACK);
 
 	//received damage is zero here but still use the correct unit number ratio so as not to distort scores
-	bool bIsKill = ScoreAttackDamage(enemyPlot, unit.pUnit, assumedUnitPlot, assumedPosition.getAggressionLevel(), assumedPosition.getAggressionBias(), gTactPosStorage.getCache(), newAssignment);
+	bool bIsKill = ScoreAttackDamage(enemyPlot, unit.pUnit, assumedUnitPlot, assumedPosition.getAggressionLevel(), assumedPosition.getAggressionBias(), gTactPosStorage.getAttackCache(), newAssignment);
 	if (newAssignment.iScore < 0)
 		return newAssignment;
 
@@ -7574,7 +7628,7 @@ STacticalAssignment ScorePlotForMeleeAttack(const SUnitStats& unit, const CvTact
 		return result;
 
 	//check how much damage we could do
-	bool bIsKill = ScoreAttackDamage(enemyPlot, pUnit, assumedUnitPlot, assumedPosition.getAggressionLevel(), assumedPosition.getAggressionBias(), gTactPosStorage.getCache(), result);
+	bool bIsKill = ScoreAttackDamage(enemyPlot, pUnit, assumedUnitPlot, assumedPosition.getAggressionLevel(), assumedPosition.getAggressionBias(), gTactPosStorage.getAttackCache(), result);
 	if (result.iScore < 0)
 		return result;
 
@@ -10101,7 +10155,20 @@ bool CvTacticalPosition::canProbablyEndTurnAfterThisAssignment(const STacticalAs
 		//if we have nowhere to flee to, we can just as well stay?
 		if (gSafePlotCount[assignment.iUnitID] == 0)
 			return true;
-		return ScoreCombatUnitTurnEnd(pUnit, unit->eLastAssignment, assumedUnitPlot, 0, CvTacticalPlot::TD_BOTH,
+
+		int iDanger = 0;
+		//first try the cache
+		if (!gTactPosStorage.getDangerCache().findDanger(pUnit->GetID(), assumedUnitPlot.getPlotIndex(), unit->iSelfDamage, getKilledEnemies(), iDanger))
+		{
+			iDanger = pUnit->GetDanger(assumedUnitPlot.getPlot(), getKilledEnemies(), unit->iSelfDamage);
+			//can happen with garrisons, catch this case as it messes up the math
+			if (iDanger == INT_MAX)
+				iDanger = 10 * pUnit->GetMaxHitPoints();
+
+			gTactPosStorage.getDangerCache().storeDanger(pUnit->GetID(), assumedUnitPlot.getPlotIndex(), unit->iSelfDamage, getKilledEnemies(), iDanger);
+		}
+
+		return ScoreCombatUnitTurnEnd(pUnit, unit->eLastAssignment, assumedUnitPlot, 0, iDanger, CvTacticalPlot::TD_BOTH,
 			unit->iSelfDamage + assignment.iSelfDamage, assignment.iKillOrNearKillId, *this, EM_FINAL, availableUnits.size() > 1) != INT_MAX;
 	}
 	else
@@ -10332,8 +10399,7 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 #if defined(VPDEBUG)
 	if (GC.getLogging() && GC.getAILogging())
 	{
-		CvString strMsg = CvString::format("simulating assignments around %d:%d with %d units",
-			pTarget->getX(), pTarget->getY(), vUnits.size());
+		CvString strMsg = CvString::format("simulating assignments around %d:%d with %d units, agg level %d", pTarget->getX(), pTarget->getY(), vUnits.size(), eAggLvl);
 		for (size_t i = 0; i < vUnits.size(); i++)
 			strMsg += CvString::format("; %d", vUnits[i]->GetID());
 
@@ -10559,8 +10625,8 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 	{
 		if (true)
 		{
-			GET_PLAYER(ePlayer).GetTacticalAI()->LogTacticalMessage(CvString::format("tactsim around (%d:%d) finished in %d ms. started with %d units and %d enemies on %d plots. checked %d positions, %d completed.",
-				pTarget->getX(),pTarget->getY(),int(timer.GetDeltaInSeconds()*1000), initialPosition->getAvailableUnits().size(), initialPosition->getNumEnemies(), initialPosition->getNumPlots(), iUsedPositions, completedPositions.size()));
+			GET_PLAYER(ePlayer).GetTacticalAI()->LogTacticalMessage(CvString::format("tactsim around (%d:%d) with agg %d finished in %d ms. started with %d units and %d enemies on %d plots. checked %d positions, %d completed.",
+				pTarget->getX(),pTarget->getY(), eAggLvl, int(timer.GetDeltaInSeconds()*1000), initialPosition->getAvailableUnits().size(), initialPosition->getNumEnemies(), initialPosition->getNumPlots(), iUsedPositions, completedPositions.size()));
 		}
 
 		//debug dump
@@ -10757,7 +10823,9 @@ bool TacticalAIHelpers::ExecuteUnitAssignments(PlayerTypes ePlayer, const std::v
 void CvTactPosStorage::reset(bool bHard)
 { 
 	//this is normally enough
-	iCount = 0; attackCache.clear();
+	iCount = 0; 
+	attackCache.clear(); 
+	dangerCache.clear();
 
 	//in a hard reset we recreate all stl containers from scratch
 	//because their capacity tends to increase over time otherwise
