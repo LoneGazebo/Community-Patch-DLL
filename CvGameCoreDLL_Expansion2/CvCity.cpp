@@ -477,6 +477,7 @@ CvCity::CvCity() :
 	, m_paiNumFeatureWorked()
 	, m_paiNumImprovementWorked()
 	, m_paiImprovementCount()
+	, m_paiYieldFromUnimprovedFeatures()
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	, m_paiBuildingClassCulture()
@@ -910,7 +911,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 
 	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
-		UpdateYieldPerXUnimprovedFeature(((YieldTypes)iI));
+		UpdateYieldPerXUnimprovedFeature((YieldTypes)iI);
 	}
 	int iRange3 = 3;
 	int iMountain = 0;
@@ -1825,6 +1826,13 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		{
 			m_paiNumImprovementWorked[iI] = 0;
 			m_paiImprovementCount[iI] = 0;
+		}
+
+		m_paiYieldFromUnimprovedFeatures.clear();
+		m_paiYieldFromUnimprovedFeatures.resize(NUM_YIELD_TYPES);
+		for (iI = 0; iI < NUM_YIELD_TYPES; iI++)
+		{
+			m_paiYieldFromUnimprovedFeatures[iI] = 0;
 		}
 #endif
 	}
@@ -17687,6 +17695,23 @@ void CvCity::ChangeImprovementCount(ImprovementTypes eImprovement, int iChange)
 	}
 }
 
+int CvCity::GetYieldFromUnimprovedFeatures(YieldTypes eYield) const
+{
+	ASSERT_DEBUG(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
+	return m_paiYieldFromUnimprovedFeatures[eYield];
+}
+//	--------------------------------------------------------------------------------
+void CvCity::SetYieldFromUnimprovedFeatures(YieldTypes eYield, int iNewValue)
+{
+	ASSERT_DEBUG(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
+	if (iNewValue != GetYieldFromUnimprovedFeatures(eYield))
+	{
+		m_paiYieldFromUnimprovedFeatures[eYield] = iNewValue;
+		UpdateCityYields(eYield);
+	}
+	
+}
+
 //	--------------------------------------------------------------------------------
 ///Extra yield for a Terrain this city is working?
 //	--------------------------------------------------------------------------------
@@ -18027,28 +18052,7 @@ void CvCity::UpdateYieldPerXFeature(YieldTypes eYield, FeatureTypes eFeature)
 }
 
 //	--------------------------------------------------------------------------------
-/// Extra yield for an unimproved Feature this city is working?
-int CvCity::GetYieldPerTurnFromUnimprovedFeatures(FeatureTypes eFeature, YieldTypes eYield) const
-{
-	VALIDATE_OBJECT();
-	ASSERT_DEBUG(eFeature > -1 && eFeature < GC.getNumFeatureInfos(), "Invalid Feature index.");
-	ASSERT_DEBUG(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
-
-	return ModifierLookup(m_yieldChanges[eYield].forFeatureUnimproved, eFeature);
-}
-//	--------------------------------------------------------------------------------
-void CvCity::SetYieldPerXUnimprovedFeature(FeatureTypes eFeature, YieldTypes eYield, int iValue)
-{
-	VALIDATE_OBJECT();
-	ASSERT_DEBUG(eFeature > -1 && eFeature < GC.getNumFeatureInfos(), "Invalid Feature index.");
-	ASSERT_DEBUG(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
-
-	SCityExtraYields& y = m_yieldChanges[eYield];
-	if (ModifierUpdateInsertRemove(y.forFeatureUnimproved, eFeature, iValue, false))
-		updateYield(false);
-}
-//	--------------------------------------------------------------------------------
-void CvCity::UpdateYieldPerXUnimprovedFeature(YieldTypes eYield, FeatureTypes eFeature)
+void CvCity::UpdateYieldPerXUnimprovedFeature(YieldTypes eYield)
 {
 	VALIDATE_OBJECT();
 	int iYield = 0;
@@ -18070,18 +18074,9 @@ void CvCity::UpdateYieldPerXUnimprovedFeature(YieldTypes eYield, FeatureTypes eF
 		}
 	}
 
-	int iStart = 0;
-	int iEnd = GC.getNumFeatureInfos();
-	//Passed in a feature? Use that.
-	if (eFeature != NO_FEATURE)
+	for (int iI = 0; iI < GC.getNumFeatureInfos(); iI++)
 	{
-		// avoid all of the religion declarations that would be required by calling this function recursively
-		iStart = static_cast<int>(eFeature);
-		iEnd = iStart + 1;
-	}
-	for (int iI = iStart; iI < iEnd; iI++)
-	{
-		eFeature = static_cast<FeatureTypes>(iI);
+		FeatureTypes eFeature = static_cast<FeatureTypes>(iI);
 
 		if (!GC.getFeatureInfo(eFeature)->IsNaturalWonder(true))
 		{
@@ -18138,10 +18133,10 @@ void CvCity::UpdateYieldPerXUnimprovedFeature(YieldTypes eYield, FeatureTypes eF
 				{
 					iYield += iBaseYield;
 				}
-				SetYieldPerXUnimprovedFeature(eFeature, eYield, iYield);
 			}
 		}
 	}
+	SetYieldFromUnimprovedFeatures(eYield, iYield);
 }
 
 //	--------------------------------------------------------------------------------
@@ -23270,14 +23265,7 @@ int CvCity::getBaseYieldRateTimes100(const YieldTypes eYield, CvString* tooltipS
 		GC.getGame().BuildYieldTimes100HelpText(tooltipSink, "TXT_KEY_YIELD_FROM_ART_CBP", iTempYield, szIconString);
 
 	iTempYield = GetBaseYieldRateFromTerrain(eYield) * 100;
-	for (int iI = 0; iI < GC.getNumFeatureInfos(); iI++)
-	{
-		FeatureTypes eFeature = (FeatureTypes)iI;
-		if (eFeature != NO_FEATURE)
-		{
-			iTempYield += GetYieldPerTurnFromUnimprovedFeatures(eFeature, eYield) * 100;
-		}
-	}
+	iTempYield += GetYieldFromUnimprovedFeatures(eYield) * 100;
 	iYield += iTempYield;
 	if (tooltipSink)
 		GC.getGame().BuildYieldTimes100HelpText(tooltipSink, "TXT_KEY_YIELD_FROM_TERRAIN", iTempYield, szIconString);
@@ -31882,6 +31870,7 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_paiNumFeatureWorked);
 	visitor(city.m_paiNumImprovementWorked);
 	visitor(city.m_paiImprovementCount);
+	visitor(city.m_paiYieldFromUnimprovedFeatures);
 	visitor(city.m_strScriptData);
 	visitor(city.m_iDamageTakenThisTurn);
 	visitor(city.m_iDamageTakenLastTurn);
