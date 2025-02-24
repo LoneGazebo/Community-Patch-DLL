@@ -279,8 +279,11 @@ protected:
 	static int lGetLastTurnLifetimeCulture(lua_State* L);
 	static int lGetLastTurnLifetimeCultureTimes100(lua_State* L);
 	static int lGetInfluenceOn(lua_State* L);
+	static int lGetInfluenceOnTimes100(lua_State* L);
 	static int lGetLastTurnInfluenceOn(lua_State* L);
+	static int lGetLastTurnInfluenceOnTimes100(lua_State* L);
 	static int lGetInfluencePerTurn(lua_State* L);
+	static int lGetTourismPerTurnIncludingInstantTimes100(lua_State* L);
 	static int lGetInfluenceLevel(lua_State* L);
 	static int lGetInfluenceTrend(lua_State* L);
 	static int lGetTurnsToInfluential(lua_State* L);

@@ -10083,15 +10083,6 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 						}
 					}
 				}
-				if (pEntry->GetBuildingClassTourism(iI) > 0)
-				{
-					int iLoop = 0;
-					CvCity* pLoopCity = NULL;
-					for (pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
-					{
-						iBuildingTemp += max(1, (pEntry->GetBuildingClassTourism(iI) * pLoopCity->GetCityBuildings()->GetNumBuildingClass((BuildingClassTypes)iI) * 5));
-					}
-				}
 			}
 
 			if (pEntry->GetFaithBuildingTourism() > 0)

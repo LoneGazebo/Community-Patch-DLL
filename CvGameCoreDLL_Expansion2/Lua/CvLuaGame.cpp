@@ -3604,8 +3604,8 @@ int CvLuaGame::lGetTradeRoute(lua_State* L)
 		lua_setfield(L, t, "FromReligion");
 		lua_pushinteger(L, iFromPressure);
 		lua_setfield(L, t, "FromPressure");
-		int iToDelta = (pFromCity->GetBaseTourism() / 100) * pFromCity->GetCityCulture()->GetTourismMultiplier(pToPlayer->GetID(), true, true, false, true, true);
-		int iFromDelta = (pToCity->GetBaseTourism() / 100) * pToCity->GetCityCulture()->GetTourismMultiplier(pFromPlayer->GetID(), true, true, false, true, true);
+		int iToDelta = (pFromCity->getYieldRateTimes100(YIELD_TOURISM) / 100) * pFromPlayer->GetCulture()->GetTourismModifierWith(pToPlayer->GetID(), true, true, false, true, true);
+		int iFromDelta = (pToCity->getYieldRateTimes100(YIELD_TOURISM) / 100) * pToPlayer->GetCulture()->GetTourismModifierWith(pFromPlayer->GetID(), true, true, false, true, true);
 
 		lua_pushinteger(L, iFromDelta);
 		lua_setfield(L, t, "FromTourism");

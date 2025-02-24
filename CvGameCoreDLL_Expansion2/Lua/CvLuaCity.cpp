@@ -3136,7 +3136,7 @@ int CvLuaCity::lGetNumGreatWorkSlots(lua_State* L)
 int CvLuaCity::lGetBaseTourism(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	int iValue = pkCity->GetBaseTourism();
+	int iValue = pkCity->getYieldRateTimes100(YIELD_TOURISM);
 	if (!MOD_BALANCE_CORE_TOURISM_HUNDREDS)
 		iValue /= 100;
 
@@ -3147,8 +3147,7 @@ int CvLuaCity::lGetBaseTourism(lua_State* L)
 int CvLuaCity::lRefreshTourism(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	pkCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
-	pkCity->GetCityCulture()->CalculateBaseTourism();
+	pkCity->UpdateCityYields(YIELD_TOURISM);
 	return 0;
 }
 //------------------------------------------------------------------------------
@@ -3177,7 +3176,7 @@ int CvLuaCity::lGetTourismMultiplier(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
 	const PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 2);
-	lua_pushinteger(L, pkCity->GetCityCulture()->GetTourismMultiplier(ePlayer, false, false, false, false, false));
+	lua_pushinteger(L, GET_PLAYER(pkCity->getOwner()).GetCulture()->GetTourismModifierWith(ePlayer));
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -3244,7 +3243,7 @@ int CvLuaCity::lGetBuildingClassTourism(lua_State* L)
 	const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pkCity->getOwner());
 	if (pReligion)
 	{
-		iRtnValue = pReligion->m_Beliefs.GetBuildingClassTourism(iIndex, pkCity->getOwner(), pkCity);
+		iRtnValue = pReligion->m_Beliefs.GetBuildingClassYieldChange(iIndex, YIELD_TOURISM, pkCity->GetCityReligions()->GetNumFollowers(eMajority), pkCity->getOwner(), pkCity);
 	}
 	lua_pushinteger(L, iRtnValue);
 	return 1;

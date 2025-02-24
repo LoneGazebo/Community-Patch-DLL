@@ -3349,7 +3349,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NeedTourismBuilding(CvCity *pCity
 {
 	int iTourismValue = 0;
 	iTourismValue += pCity->getYieldRateTimes100(YIELD_CULTURE) / 100;
-	iTourismValue += pCity->GetBaseTourism() / 100;
+	iTourismValue += pCity->getYieldRateTimes100(YIELD_TOURISM) / 100;
 
 	return iTourismValue > 10;
 }
@@ -4459,10 +4459,6 @@ int CityStrategyAIHelpers::GetBuildingReligionValue(CvCity *pCity, BuildingTypes
 					{
 						iTempBonus += (pEntry->GetBuildingClassHappiness((int)pkBuildingInfo->GetBuildingClassType()));
 					}
-					if (pEntry->GetBuildingClassTourism((int)pkBuildingInfo->GetBuildingClassType()) > 0)
-					{
-						iTempBonus += (pEntry->GetBuildingClassTourism((int)pkBuildingInfo->GetBuildingClassType()));
-					}
 					if (pkBuildingInfo->GetGreatWorkSlotType() != NO_GREAT_WORK_SLOT)
 					{
 						if (pEntry->GetGreatWorkYieldChange(pkBuildingInfo->GetGreatWorkSlotType()) > 0)
@@ -5115,11 +5111,6 @@ int CityStrategyAIHelpers::GetBuildingPolicyValue(CvCity *pCity, BuildingTypes e
 	}
 	int iHappinessBonus = kPlayer.GetPlayerPolicies()->GetBuildingClassHappinessModifier(pkBuildingInfo->GetBuildingClassType());
 	if(iHappinessBonus > 0)
-	{
-		iValue += 5 * kPlayer.getNumCities();
-	}
-	int iTourism = kPlayer.GetPlayerPolicies()->GetBuildingClassTourismModifier(pkBuildingInfo->GetBuildingClassType());
-	if(iTourism > 0)
 	{
 		iValue += 5 * kPlayer.getNumCities();
 	}

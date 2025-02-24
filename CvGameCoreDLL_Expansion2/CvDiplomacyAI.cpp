@@ -3348,7 +3348,7 @@ int CvDiplomacyAI::GetLowestTourismInfluence() const
 
 		if (eLoopPlayer != GetID() && kPlayer.isAlive() && kPlayer.isMajorCiv())
 		{
-			long long lInfluenceOn = 100 * GetPlayer()->GetCulture()->GetInfluenceOn(eLoopPlayer);
+			long long lInfluenceOn = GetPlayer()->GetCulture()->GetInfluenceOnTimes100(eLoopPlayer);
 			long long lLifetimeCulture = kPlayer.GetJONSCultureEverGeneratedTimes100();
 			int iPercent = 0;
 

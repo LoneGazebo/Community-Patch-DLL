@@ -292,7 +292,6 @@ public:
 	int GetBuildingClassHappiness(int i) const;
 	int GetBuildingClassProductionModifier(int i) const;
 	int GetUnitClassProductionModifiers(int i) const;
-	int GetBuildingClassTourismModifier(int i) const;
 	int GetNumFreeUnitsByClass(int i) const;
 	int GetTourismByUnitClassCreated(int i) const;
 	int GetImprovementCultureChanges(int i) const;
@@ -753,7 +752,6 @@ private:
 	int* m_paiBuildingClassSecurityChanges;
 	int* m_paiBuildingClassProductionModifiers;
 	int* m_paiUnitClassProductionModifiers;
-	int* m_paiBuildingClassTourismModifiers;
 	int* m_paiBuildingClassHappiness;
 	int* m_paiFreeUnitClasses;
 	int* m_paiTourismOnUnitCreation;
@@ -1119,7 +1117,6 @@ public:
 	int GetReligionBuildingClassYieldModifier(BuildingClassTypes eBuildingClass, YieldTypes eYieldType);
 #endif
 	int GetBuildingClassProductionModifier(BuildingClassTypes eBuildingClass);
-	int GetBuildingClassTourismModifier(BuildingClassTypes eBuildingClass);
 	int GetBuildingClassHappinessModifier(BuildingClassTypes eBuildingClass);
 
 	int GetImprovementCultureChange(ImprovementTypes eImprovement);
@@ -1200,7 +1197,6 @@ private:
 
 #if defined(MOD_BALANCE_CORE)
 	void UpdateModifierCache();
-	std::vector<int> m_vBuildingClassTourismModifier;
 	std::vector<int> m_vBuildingClassHappinessModifier;
 #endif
 

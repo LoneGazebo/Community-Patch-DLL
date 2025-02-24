@@ -141,8 +141,8 @@ function OnPopup( popupInfo )
     				local pCity = pOtherPlayer:GetCityByID(cityIndex);
     				if (pCity ~= nil) then
 						pCity:RefreshTourism();
-						if(pCity:GetBaseTourism() / 100 > 0) then
-							table.insert(tCities, {iPlayerLoop, cityIndex, pCity:GetBaseTourism() / 100});
+						if(pCity:GetYieldRateTimes100(YieldTypes.YIELD_TOURISM) / 100 > 0) then
+							table.insert(tCities, {iPlayerLoop, cityIndex, pCity:GetYieldRateTimes100(YieldTypes.YIELD_TOURISM) / 100});
 						end
 					end
 				end
