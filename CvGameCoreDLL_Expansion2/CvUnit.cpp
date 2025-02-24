@@ -2612,20 +2612,6 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 
 	if (bDelay)
 	{
-		if (ePlayer == NO_PLAYER && isCultureFromExperienceDisbandUpgrade())
-		{
-			int iExperience = getExperienceTimes100() / 100;
-			if (iExperience > 0)
-			{
-				GET_PLAYER(eUnitOwner).changeJONSCulture(iExperience);
-				if (eUnitOwner == GC.getGame().getActivePlayer())
-				{
-					char text[256] = { 0 };
-					sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iExperience);
-					SHOW_PLOT_POPUP(plot(),eUnitOwner, text);
-				}
-			}
-		}
 		startDelayedDeath();
 		return;
 	}
@@ -5952,10 +5938,28 @@ void CvUnit::scrap(bool bDelay)
 		return;
 	}
 
+	CvPlayer& kOwner = GET_PLAYER(getOwner());
+
 	if(plot()->getOwner() == getOwner())
 	{
 		int iGold = GetScrapGold();
-		GET_PLAYER(getOwner()).GetTreasury()->ChangeGold(iGold);
+		kOwner.GetTreasury()->ChangeGold(iGold);
+	}
+
+	// TODO: change to instant yield
+	if (isCultureFromExperienceDisbandUpgrade())
+	{
+		int iExperience = getExperienceTimes100() / 100;
+		if (iExperience > 0)
+		{
+			kOwner.changeJONSCulture(iExperience);
+			if (getOwner() == GC.getGame().getActivePlayer())
+			{
+				char text[256] = { 0 };
+				sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iExperience);
+				SHOW_PLOT_POPUP(plot(), getOwner(), text);
+			}
+		}
 	}
 
 	kill(bDelay);
