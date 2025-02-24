@@ -3313,15 +3313,7 @@ int CvLuaCity::lGetFaithPerTurnFromTraits(lua_State* L)
 {
 	int iBonus = 0;
 	CvCity* pkCity = GetInstance(L);
-	for (int iI = 0; iI < GC.getNumFeatureInfos(); iI++)
-	{
-		FeatureTypes eFeature = (FeatureTypes) iI;
-		if(eFeature != NO_FEATURE)
-		{
-			iBonus += pkCity->GetYieldPerTurnFromUnimprovedFeatures(eFeature, YIELD_FAITH);
-		}
-	}
-	lua_pushinteger(L, iBonus);
+	lua_pushinteger(L, pkCity->GetYieldFromUnimprovedFeatures(YIELD_FAITH));
 	return 1;
 }
 //------------------------------------------------------------------------------

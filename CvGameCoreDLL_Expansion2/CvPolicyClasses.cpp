@@ -4207,7 +4207,6 @@ void CvPlayerPolicies::UpdateModifierCache()
 
 	for (int j = 0; j < GC.getNumBuildingClassInfos(); j++)
 	{
-		int iTourism = 0;
 		int iHappiness = 0;
 		for (int i = 0; i < m_pPolicies->GetNumPolicies(); i++)
 		{

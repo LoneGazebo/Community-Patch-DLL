@@ -298,8 +298,11 @@ public:
 	void ChangeNumImprovementWorked(ImprovementTypes eImprovement, int iChange);
 	int GetNumImprovementWorked(ImprovementTypes eImprovement);
 
-	void ChangeImprovementCount(ImprovementTypes eImprovement, int iChange);
+	int GetYieldFromUnimprovedFeatures(YieldTypes eYield) const;
+	void SetYieldFromUnimprovedFeatures(YieldTypes eYield, int iNewValue);
+
 	int GetImprovementCount(ImprovementTypes eImprovement);
+	void ChangeImprovementCount(ImprovementTypes eImprovement, int iChange);
 
 	int GetYieldPerXTerrainFromBuildingsTimes100(TerrainTypes eTerrain, YieldTypes eYield) const;
 	void ChangeYieldPerXTerrainFromBuildingsTimes100(TerrainTypes eTerrain, YieldTypes eYield, int iChange);
@@ -319,9 +322,7 @@ public:
 	void SetYieldPerXFeatureFromReligion(FeatureTypes eFeature, YieldTypes eYield, int iValue);
 	void UpdateYieldPerXFeature(YieldTypes eYield, FeatureTypes eFeature = NO_FEATURE);
 
-	int GetYieldPerTurnFromUnimprovedFeatures(FeatureTypes eFeature, YieldTypes eYield) const;
-	void SetYieldPerXUnimprovedFeature(FeatureTypes eFeature, YieldTypes eYield, int iValue);
-	void UpdateYieldPerXUnimprovedFeature(YieldTypes eYield, FeatureTypes eFeature = NO_FEATURE);
+	void UpdateYieldPerXUnimprovedFeature(YieldTypes eYield);
 
 	fraction GetYieldPerXImprovementLocal(ImprovementTypes eImprovement, YieldTypes eYield) const;
 	void ChangeYieldPerXImprovementLocal(ImprovementTypes eImprovement, YieldTypes eYield, fraction fChange);
@@ -2131,6 +2132,7 @@ protected:
 	std::vector<int> m_paiNumFeatureWorked;
 	std::vector<int> m_paiNumImprovementWorked;
 	std::vector<int> m_paiImprovementCount;
+	std::vector<int> m_paiYieldFromUnimprovedFeatures;
 #endif
 	CvString m_strScriptData;
 
