@@ -7453,7 +7453,7 @@ void CvPlot::setFeatureType(FeatureTypes eNewValue)
 					break;
 
 				pOwningCity->UpdateYieldPerXFeature((YieldTypes)iI, eNewValue);
-				pOwningCity->UpdateYieldPerXUnimprovedFeature((YieldTypes)iI, eNewValue);
+				pOwningCity->UpdateYieldPerXUnimprovedFeature((YieldTypes)iI);
 			}
 		}
 
