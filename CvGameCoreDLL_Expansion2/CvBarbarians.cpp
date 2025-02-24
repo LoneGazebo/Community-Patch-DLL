@@ -650,7 +650,7 @@ void CvBarbarians::DoCamps()
 	int iEra = GC.getGame().getCurrentEra();
 	std::vector<CvPlot*> vPotentialPlots,vPotentialCoastalPlots;
 	std::vector<int> MajorCapitals,BarbCamps,RecentlyClearedBarbCamps;
-	ImprovementTypes eLandmark = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_LANDMARK");
+	static ImprovementTypes eLandmark = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_LANDMARK");
 
 	// Iterate through all plots
 	for (int iI = 0; iI < iNumWorldPlots; iI++)

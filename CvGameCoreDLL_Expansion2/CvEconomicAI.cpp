@@ -1943,7 +1943,7 @@ void CvEconomicAI::DoPlotPurchases()
 	}
 
 	// No plot buying when at war and losing
-	MilitaryAIStrategyTypes eStrategyAtWar = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_AT_WAR");
+	static MilitaryAIStrategyTypes eStrategyAtWar = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_AT_WAR");
 	if (m_pPlayer->GetMilitaryAI()->IsUsingStrategy(eStrategyAtWar) && m_pPlayer->GetDiplomacyAI()->GetStateAllWars() == STATE_ALL_WARS_LOSING)
 	{
 		return;
@@ -2068,7 +2068,7 @@ void CvEconomicAI::DoReconState()
 	}
 
 	// Less desperate for explorers if we are at war
-	MilitaryAIStrategyTypes eStrategyAtWar = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_AT_WAR");
+	static MilitaryAIStrategyTypes eStrategyAtWar = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_AT_WAR");
 	bool bWar = (eStrategyAtWar != NO_MILITARYAISTRATEGY) && GetPlayer()->GetMilitaryAI()->IsUsingStrategy(eStrategyAtWar);
 
 	// RECON ON OUR HOME CONTINENT
@@ -2331,7 +2331,7 @@ void CvEconomicAI::DisbandUnitsToFreeSpaceshipResources()
 	int iNumTotalAluminumNeededForSpaceship = m_pPlayer->GetNumAluminumStillNeededForSpaceship();
 	int iNumTotalAluminumNeededForCoreCities = m_pPlayer->GetNumAluminumStillNeededForCoreCities();
 
-	ResourceTypes eAluminum = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_ALUMINUM", true);
+	static ResourceTypes eAluminum = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_ALUMINUM", true);
 	int iNumAluminumWeNeed = max(0, iNumTotalAluminumNeededForSpaceship + iNumTotalAluminumNeededForCoreCities - m_pPlayer->getNumResourceAvailable(eAluminum, true));
 
 	const vector<int>& vCoreCities = m_pPlayer->GetCoreCitiesForSpaceshipProduction();
@@ -2512,7 +2512,7 @@ void CvEconomicAI::DisbandUnitsToFreeSpaceshipResources()
 void CvEconomicAI::DisbandUselessSettlers()
 {
 	//If we want settlers, don't disband.
-	EconomicAIStrategyTypes eNoMoreSettlers = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_ENOUGH_EXPANSION");
+	static EconomicAIStrategyTypes eNoMoreSettlers = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_ENOUGH_EXPANSION");
 	int iNumSettlers = m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_SETTLE, true);
 	int iNumCities = m_pPlayer->GetNumCitiesFounded();
 
@@ -2603,7 +2603,7 @@ void CvEconomicAI::DisbandExtraWorkboats()
 		return;
 
 	//If we want workers in any city, don't disband.
-	AICityStrategyTypes eWantWorkers = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_NEED_NAVAL_TILE_IMPROVEMENT");
+	static AICityStrategyTypes eWantWorkers = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_NEED_NAVAL_TILE_IMPROVEMENT");
 	int iLoopCity = 0;
 	int iNumCitiesWithStrat = 0;
 	CvCity* pLoopCity = NULL;
@@ -2707,7 +2707,7 @@ void CvEconomicAI::DisbandExtraArchaeologists(){
 	if(iNumArchaeologists <= 0)
 		return; 
 
-	PolicyTypes eExpFinisher = (PolicyTypes) GC.getInfoTypeForString("POLICY_EXPLORATION_FINISHER", true /*bHideAssert*/);
+	static PolicyTypes eExpFinisher = (PolicyTypes) GC.getInfoTypeForString("POLICY_EXPLORATION_FINISHER", true /*bHideAssert*/);
 	if (eExpFinisher != NO_POLICY)	
 	{
 		if (m_pPlayer->GetPlayerPolicies()->HasPolicy(eExpFinisher))
@@ -2887,8 +2887,8 @@ void TestExplorationPlot(CvPlot* pPlot, CvPlayer* pPlayer, bool bAllowShallowWat
 			// add an entry for this plot
 			seaTargets.push_back(SPlotWithScore(pPlot, iScore));
 
-			// close coast is also interesting for embarked scouting
-			if (pPlot->isShallowWater() && bAllowShallowWater && pPlayer->GetCityDistancePathLength(pPlot)<12)
+			// close coast is also interesting for embarked scouting (performance: use the cheap distance check)
+			if (pPlot->isShallowWater() && bAllowShallowWater && pPlayer->GetCityDistanceInPlots(pPlot)<12)
 				landTargets.push_back(SPlotWithScore(pPlot, iScore));
 		}
 	}
@@ -3210,7 +3210,7 @@ bool EconomicAIHelpers::IsTestStrategy_NeedRecon(EconomicAIStrategyTypes eStrate
 		return false;
 	}
 	// Never desperate for explorers if we are at war
-	MilitaryAIStrategyTypes eStrategyAtWar = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_AT_WAR");
+	static MilitaryAIStrategyTypes eStrategyAtWar = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_AT_WAR");
 	if(pPlayer->GetMilitaryAI()->IsUsingStrategy(eStrategyAtWar))
 	{
 		return false;
@@ -3324,7 +3324,7 @@ bool EconomicAIHelpers::IsTestStrategy_NeedReconSea(EconomicAIStrategyTypes eStr
 		return false;
 	}
 	// Never desperate for explorers if we are at war
-	MilitaryAIStrategyTypes eStrategyAtWar = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_LOSING_WARS");
+	static MilitaryAIStrategyTypes eStrategyAtWar = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_LOSING_WARS");
 	if(pPlayer->GetMilitaryAI()->IsUsingStrategy(eStrategyAtWar))
 	{
 		return false;
@@ -3338,7 +3338,7 @@ bool EconomicAIHelpers::IsTestStrategy_EnoughReconSea(CvPlayer* pPlayer)
 {
 #if defined(MOD_BALANCE_CORE)
 	// Never desperate for explorers if we are at war
-	MilitaryAIStrategyTypes eStrategyAtWar = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_LOSING_WARS");
+	static MilitaryAIStrategyTypes eStrategyAtWar = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_LOSING_WARS");
 	if(pPlayer->GetMilitaryAI()->IsUsingStrategy(eStrategyAtWar))
 	{
 		return true;
@@ -3527,21 +3527,21 @@ bool EconomicAIHelpers::IsTestStrategy_EnoughExpansion(EconomicAIStrategyTypes e
 		return true;
 	}
 
-	MilitaryAIStrategyTypes eBuildCriticalDefenses = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_LOSING_WARS");
+	static MilitaryAIStrategyTypes eBuildCriticalDefenses = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_LOSING_WARS");
 	if(pPlayer->GetMilitaryAI()->IsUsingStrategy(eBuildCriticalDefenses))
 	{
 		return true;
 	}
 
 	// If we are running "ECONOMICAISTRATEGY_EXPAND_TO_OTHER_CONTINENTS"
-	EconomicAIStrategyTypes eExpandOther = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EXPAND_TO_OTHER_CONTINENTS");
+	static EconomicAIStrategyTypes eExpandOther = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EXPAND_TO_OTHER_CONTINENTS");
 	if (pPlayer->GetEconomicAI()->IsUsingStrategy(eExpandOther))
 	{
 		return false;
 	}
 
 	// If we are running "ECONOMICAISTRATEGY_EARLY_EXPANSION"
-	EconomicAIStrategyTypes eEarlyExpand = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EARLY_EXPANSION");
+	static EconomicAIStrategyTypes eEarlyExpand = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EARLY_EXPANSION");
 	if (pPlayer->GetEconomicAI()->IsUsingStrategy(eEarlyExpand))
 	{
 		return false;
@@ -4150,13 +4150,13 @@ bool EconomicAIHelpers::IsTestStrategy_ExpandToOtherContinents(EconomicAIStrateg
 	if(!bCoastal)
 		return false;
 
-	MilitaryAIStrategyTypes eBuildCriticalDefenses = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_LOSING_WARS");
+	static MilitaryAIStrategyTypes eBuildCriticalDefenses = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_LOSING_WARS");
 	// scale based on flavor and world size
 	if(eBuildCriticalDefenses != NO_MILITARYAISTRATEGY && pPlayer->GetMilitaryAI()->IsUsingStrategy(eBuildCriticalDefenses) && !pPlayer->IsCramped())
 		return false;
 
 	// Never run this at the same time as island start
-	EconomicAIStrategyTypes eStrategyIslandStart = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_ISLAND_START");
+	static EconomicAIStrategyTypes eStrategyIslandStart = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_ISLAND_START");
 	if(eStrategyIslandStart != NO_ECONOMICAISTRATEGY)
 	{
 		if(pPlayer->GetEconomicAI()->IsUsingStrategy(eStrategyIslandStart))
@@ -4164,7 +4164,7 @@ bool EconomicAIHelpers::IsTestStrategy_ExpandToOtherContinents(EconomicAIStrateg
 	}
 
 	// we should settle our island first
-	EconomicAIStrategyTypes eEarlyExpansion = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EARLY_EXPANSION");
+	static EconomicAIStrategyTypes eEarlyExpansion = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EARLY_EXPANSION");
 	if(eEarlyExpansion != NO_ECONOMICAISTRATEGY)
 	{
 		if(pPlayer->GetEconomicAI()->IsUsingStrategy(eEarlyExpansion))
@@ -4323,7 +4323,7 @@ bool EconomicAIHelpers::IsTestStrategy_EnoughArchaeologists(CvPlayer* pPlayer)
 /// Do we need more Diplomatic Units? Let's score it and see.
 bool EconomicAIHelpers::IsTestStrategy_NeedDiplomats(CvPlayer* pPlayer)
 {
-	EconomicAIStrategyTypes eStrategyNeedDiplomatsCritical = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_DIPLOMATS_CRITICAL");
+	static EconomicAIStrategyTypes eStrategyNeedDiplomatsCritical = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_DIPLOMATS_CRITICAL");
 
 	if(pPlayer->GetEconomicAI()->IsUsingStrategy(eStrategyNeedDiplomatsCritical))
 	{
@@ -4337,7 +4337,7 @@ bool EconomicAIHelpers::IsTestStrategy_NeedDiplomats(CvPlayer* pPlayer)
 
 bool EconomicAIHelpers::IsTestStrategy_NeedDiplomatsCritical(CvPlayer* pPlayer)
 {
-	EconomicAIStrategyTypes eStrategyNeedDiplomats = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_DIPLOMATS");
+	static EconomicAIStrategyTypes eStrategyNeedDiplomats = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_DIPLOMATS");
 
 	if(pPlayer->GetEconomicAI()->IsUsingStrategy(eStrategyNeedDiplomats))
 	{

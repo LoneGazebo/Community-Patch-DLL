@@ -22690,10 +22690,10 @@ void CvPlayer::UpdateGoldPerTurnFromAnnexedMinors()
 
 		EraTypes eCurrentEra = GET_TEAM(getTeam()).GetCurrentEra();
 
-		EraTypes eIndustrial = (EraTypes)GC.getInfoTypeForString("ERA_INDUSTRIAL", true);
-		EraTypes eRenaissance = (EraTypes)GC.getInfoTypeForString("ERA_RENAISSANCE", true);
-		EraTypes eMedieval = (EraTypes)GC.getInfoTypeForString("ERA_MEDIEVAL", true);
-		EraTypes eClassical = (EraTypes)GC.getInfoTypeForString("ERA_CLASSICAL", true);
+		static EraTypes eIndustrial = (EraTypes)GC.getInfoTypeForString("ERA_INDUSTRIAL", true);
+		static EraTypes eRenaissance = (EraTypes)GC.getInfoTypeForString("ERA_RENAISSANCE", true);
+		static EraTypes eMedieval = (EraTypes)GC.getInfoTypeForString("ERA_MEDIEVAL", true);
+		static EraTypes eClassical = (EraTypes)GC.getInfoTypeForString("ERA_CLASSICAL", true);
 
 		// Industrial era or later
 		if (eCurrentEra >= eIndustrial)
@@ -22777,10 +22777,10 @@ void CvPlayer::UpdateSciencePerTurnFromAnnexedMinors()
 		int iBonus = 0;
 
 		EraTypes eCurrentEra = GET_TEAM(getTeam()).GetCurrentEra();
-		EraTypes eIndustrial = (EraTypes)GC.getInfoTypeForString("ERA_INDUSTRIAL", true);
-		EraTypes eRenaissance = (EraTypes)GC.getInfoTypeForString("ERA_RENAISSANCE", true);
-		EraTypes eMedieval = (EraTypes)GC.getInfoTypeForString("ERA_MEDIEVAL", true);
-		EraTypes eClassical = (EraTypes)GC.getInfoTypeForString("ERA_CLASSICAL", true);
+		static EraTypes eIndustrial = (EraTypes)GC.getInfoTypeForString("ERA_INDUSTRIAL", true);
+		static EraTypes eRenaissance = (EraTypes)GC.getInfoTypeForString("ERA_RENAISSANCE", true);
+		static EraTypes eMedieval = (EraTypes)GC.getInfoTypeForString("ERA_MEDIEVAL", true);
+		static EraTypes eClassical = (EraTypes)GC.getInfoTypeForString("ERA_CLASSICAL", true);
 
 		// Industrial era or later
 		if (eCurrentEra >= eIndustrial)
@@ -22825,10 +22825,10 @@ void CvPlayer::UpdateFaithPerTurnFromAnnexedMinors()
 		int iBonus = 0;
 
 		EraTypes eCurrentEra = GET_TEAM(getTeam()).GetCurrentEra();
-		EraTypes eIndustrial = (EraTypes)GC.getInfoTypeForString("ERA_INDUSTRIAL", true);
-		EraTypes eRenaissance = (EraTypes)GC.getInfoTypeForString("ERA_RENAISSANCE", true);
-		EraTypes eMedieval = (EraTypes)GC.getInfoTypeForString("ERA_MEDIEVAL", true);
-		EraTypes eClassical = (EraTypes)GC.getInfoTypeForString("ERA_CLASSICAL", true);
+		static EraTypes eIndustrial = (EraTypes)GC.getInfoTypeForString("ERA_INDUSTRIAL", true);
+		static EraTypes eRenaissance = (EraTypes)GC.getInfoTypeForString("ERA_RENAISSANCE", true);
+		static EraTypes eMedieval = (EraTypes)GC.getInfoTypeForString("ERA_MEDIEVAL", true);
+		static EraTypes eClassical = (EraTypes)GC.getInfoTypeForString("ERA_CLASSICAL", true);
 
 		// Industrial era or later
 		if (eCurrentEra >= eIndustrial)
@@ -22872,9 +22872,9 @@ void CvPlayer::UpdateHappinessFromAnnexedMinors()
 		int iNumCityStates = m_aiNumAnnexedCityStates[MINOR_CIV_TRAIT_MERCANTILE];
 		int iBonus = 0;
 
-		EraTypes eCurrentEra = GET_TEAM(getTeam()).GetCurrentEra();
-		EraTypes eIndustrial = (EraTypes)GC.getInfoTypeForString("ERA_INDUSTRIAL", true);
-		EraTypes eMedieval = (EraTypes)GC.getInfoTypeForString("ERA_MEDIEVAL", true);
+		static EraTypes eCurrentEra = GET_TEAM(getTeam()).GetCurrentEra();
+		static EraTypes eIndustrial = (EraTypes)GC.getInfoTypeForString("ERA_INDUSTRIAL", true);
+		static EraTypes eMedieval = (EraTypes)GC.getInfoTypeForString("ERA_MEDIEVAL", true);
 
 		// Industrial era or Later
 		if (eCurrentEra >= eIndustrial)
@@ -34406,7 +34406,7 @@ void CvPlayer::DoXPopulationConscription(CvCity* pCity)
 	if (!pUnit)
 		return;
 
-	PromotionTypes ePromotionConscript = static_cast<PromotionTypes>(GC.getInfoTypeForString("PROMOTION_CONSCRIPT"));
+	static PromotionTypes ePromotionConscript = static_cast<PromotionTypes>(GC.getInfoTypeForString("PROMOTION_CONSCRIPT"));
 	changeNumUnitsSupplyFree(1);
 	pUnit->changeNoSupply(1);
 	pUnit->setHasPromotion(ePromotionConscript, true);
@@ -36469,8 +36469,8 @@ PlayerTypes CvPlayer::GetBestGiftTarget(DomainTypes eUnitDomain)
 					continue;
 				}
 
-				EconomicAIStrategyTypes eNeedHappiness = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_HAPPINESS");
-				EconomicAIStrategyTypes eNeedHappinessCritical = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_HAPPINESS_CRITICAL");
+				static EconomicAIStrategyTypes eNeedHappiness = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_HAPPINESS");
+				static EconomicAIStrategyTypes eNeedHappinessCritical = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_HAPPINESS_CRITICAL");
 				bool bNeedHappiness = (eNeedHappiness != NO_ECONOMICAISTRATEGY) ? GetEconomicAI()->IsUsingStrategy(eNeedHappiness) : false;
 				bool bNeedHappinessCritical = (eNeedHappinessCritical != NO_ECONOMICAISTRATEGY) ? GetEconomicAI()->IsUsingStrategy(eNeedHappinessCritical) : false;
 
