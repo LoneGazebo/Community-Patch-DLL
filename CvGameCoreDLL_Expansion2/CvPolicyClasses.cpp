@@ -276,7 +276,6 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_paiBuildingClassSecurityChanges(NULL),
 	m_paiBuildingClassProductionModifiers(NULL),
 	m_paiUnitClassProductionModifiers(NULL),
-	m_paiBuildingClassTourismModifiers(NULL),
 	m_paiBuildingClassHappiness(NULL),
 	m_paiFreeUnitClasses(NULL),
 	m_paiTourismOnUnitCreation(NULL),
@@ -423,7 +422,6 @@ CvPolicyEntry::~CvPolicyEntry(void)
 	SAFE_DELETE_ARRAY(m_paiBuildingClassSecurityChanges);
 	SAFE_DELETE_ARRAY(m_paiBuildingClassProductionModifiers);
 	SAFE_DELETE_ARRAY(m_paiUnitClassProductionModifiers);
-	SAFE_DELETE_ARRAY(m_paiBuildingClassTourismModifiers);
 	SAFE_DELETE_ARRAY(m_paiBuildingClassHappiness);
 	SAFE_DELETE_ARRAY(m_paiFreeUnitClasses);
 	SAFE_DELETE_ARRAY(m_paiTourismOnUnitCreation);
@@ -873,7 +871,6 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	kUtility.PopulateArrayByValue(m_paiBuildingClassSecurityChanges, "BuildingClasses", "Policy_BuildingClassSecurityChanges", "BuildingClassType", "PolicyType", szPolicyType, "SecurityChange");
 	kUtility.PopulateArrayByValue(m_paiBuildingClassProductionModifiers, "BuildingClasses", "Policy_BuildingClassProductionModifiers", "BuildingClassType", "PolicyType", szPolicyType, "ProductionModifier");
 	kUtility.PopulateArrayByValue(m_paiUnitClassProductionModifiers, "UnitClasses", "Policy_UnitClassProductionModifiers", "UnitClassType", "PolicyType", szPolicyType, "ProductionModifier");
-	kUtility.PopulateArrayByValue(m_paiBuildingClassTourismModifiers, "BuildingClasses", "Policy_BuildingClassTourismModifiers", "BuildingClassType", "PolicyType", szPolicyType, "TourismModifier");
 	kUtility.PopulateArrayByValue(m_paiBuildingClassHappiness, "BuildingClasses", "Policy_BuildingClassHappiness", "BuildingClassType", "PolicyType", szPolicyType, "Happiness");
 
 	kUtility.PopulateArrayByValue(m_paiFreeUnitClasses, "UnitClasses", "Policy_FreeUnitClasses", "UnitClassType", "PolicyType", szPolicyType, "Count");
@@ -901,6 +898,23 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 			const int iYieldMod = pResults->GetInt(2);
 
 			m_ppiBuildingClassYieldModifiers[BuildingClassID][iYieldID] = iYieldMod;
+		}
+
+		std::string strKey2("Policy_BuildingClassTourismModifiers");
+		pResults = kUtility.GetResults(strKey2);
+		if (pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey2, "select BuildingClasses.ID as BuildingClassID, TourismModifier from Policy_BuildingClassTourismModifiers inner join BuildingClasses on BuildingClasses.Type = BuildingClassType where PolicyType = ?");
+		}
+
+		pResults->Bind(1, szPolicyType);
+
+		while (pResults->Step())
+		{
+			const int BuildingClassID = pResults->GetInt(0);
+			const int iYieldMod = pResults->GetInt(1);
+
+			m_ppiBuildingClassYieldModifiers[BuildingClassID][(int)YIELD_TOURISM] = iYieldMod;
 		}
 	}
 
@@ -3630,14 +3644,6 @@ int CvPolicyEntry::GetUnitClassProductionModifiers(int i) const
 	return m_paiUnitClassProductionModifiers[i];
 }
 
-/// Tourism modifier for a specific BuildingClass
-int CvPolicyEntry::GetBuildingClassTourismModifier(int i) const
-{
-	ASSERT_DEBUG(i < GC.getNumBuildingClassInfos(), "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
-	return m_paiBuildingClassTourismModifiers[i];
-}
-
 /// Find value of flavors associated with this policy
 int CvPolicyEntry::GetFlavorValue(int i) const
 {
@@ -3987,7 +3993,6 @@ CvPlayerPolicies::CvPlayerPolicies():
 	m_pPlayer(NULL)
 {
 #if defined(MOD_BALANCE_CORE)
-	m_vBuildingClassTourismModifier.resize(GC.getNumBuildingClassInfos(), 0);
 	m_vBuildingClassHappinessModifier.resize(GC.getNumBuildingClassInfos(), 0);
 #endif
 }
@@ -4197,8 +4202,6 @@ void CvPlayerPolicies::UpdateModifierCache()
 {
 	ClearCache();
 
-	m_vBuildingClassTourismModifier.clear();
-	m_vBuildingClassTourismModifier.resize(GC.getNumBuildingClassInfos(), 0);
 	m_vBuildingClassHappinessModifier.clear();
 	m_vBuildingClassHappinessModifier.resize(GC.getNumBuildingClassInfos(), 0);
 
@@ -4211,12 +4214,10 @@ void CvPlayerPolicies::UpdateModifierCache()
 			// Do we have this policy?
 			if (m_pabHasPolicy[i] && !IsPolicyBlocked((PolicyTypes)i))
 			{
-				iTourism += m_pPolicies->GetPolicyEntry(i)->GetBuildingClassTourismModifier((BuildingClassTypes)j);
 				iHappiness += m_pPolicies->GetPolicyEntry(i)->GetBuildingClassHappiness((BuildingClassTypes)j);
 			}
 		}
 
-		m_vBuildingClassTourismModifier[j] = iTourism;
 		m_vBuildingClassHappinessModifier[j] = iHappiness;
 	}
 }
@@ -4849,16 +4850,6 @@ int CvPlayerPolicies::GetBuildingClassProductionModifier(BuildingClassTypes eBui
 	}
 
 	return rtnValue;
-}
-
-/// Get tourism modifier from policies for a specific building class
-int CvPlayerPolicies::GetBuildingClassTourismModifier(BuildingClassTypes eBuildingClass)
-{
-
-	if (eBuildingClass > NO_BUILDINGCLASS && eBuildingClass < (int)m_vBuildingClassTourismModifier.size())
-		return m_vBuildingClassTourismModifier[eBuildingClass];
-	else
-		return 0;
 }
 
 /// Get happiness modifier from policies for a specific building class

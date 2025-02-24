@@ -659,10 +659,6 @@ public:
 	void changeBuildingClassCultureChange(BuildingClassTypes eIndex, int iChange);
 #endif
 
-	void SetBaseTourism(int iValue);
-	int GetBaseTourism() const;
-	void SetBaseTourismBeforeModifiers(int iValue);
-	int GetBaseTourismBeforeModifiers() const;
 	// END Culture
 
 	int getTourismRateModifier() const;
@@ -2061,8 +2057,6 @@ protected:
 	int m_iReligiousTradeModifier;
 	int m_iCityAirStrikeDefense;
 	int m_iFreeBuildingTradeTargetCity;
-	int m_iBaseTourism;
-	int m_iBaseTourismBeforeModifiers;
 	int m_iBorderObstacleCity;
 	int m_iBorderObstacleWater;
 	int m_iDeepWaterTileDamage;
@@ -2473,8 +2467,6 @@ SYNC_ARCHIVE_VAR(int, m_iBuildingPurchaseCooldown)
 SYNC_ARCHIVE_VAR(int, m_iReligiousTradeModifier)
 SYNC_ARCHIVE_VAR(int, m_iCityAirStrikeDefense)
 SYNC_ARCHIVE_VAR(int, m_iFreeBuildingTradeTargetCity)
-SYNC_ARCHIVE_VAR(int, m_iBaseTourism)
-SYNC_ARCHIVE_VAR(int, m_iBaseTourismBeforeModifiers)
 SYNC_ARCHIVE_VAR(int, m_iBorderObstacleCity)
 SYNC_ARCHIVE_VAR(int, m_iBorderObstacleWater)
 SYNC_ARCHIVE_VAR(int, m_iDeepWaterTileDamage)

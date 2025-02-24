@@ -706,7 +706,7 @@ function PopulateCultural()
 			
 				local influencePercent = 0;
 						
-				local iInfluence = pActivePlayer:GetInfluenceOn(iPlayer);
+				local iInfluence = pActivePlayer:GetInfluenceOnTimes100(iPlayer) / 100;
 				local iCulture = pPlayer:GetJONSCultureEverGeneratedTimes100() / 100;
 				if (iCulture > 0) then
 					influencePercent = iInfluence / iCulture;

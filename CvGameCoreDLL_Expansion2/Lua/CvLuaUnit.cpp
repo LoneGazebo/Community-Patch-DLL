@@ -2184,13 +2184,10 @@ int CvLuaUnit::lGetBlastTourism(lua_State* L)
 					iResult = iResult * GC.getGame().getGameSpeedInfo().getCulturePercent() / 100;
 
 					// player to player modifier (eg religion, open borders, ideology)
-					if (kUnitOwner.getCapitalCity())
+					int iModifier = kUnitOwner.GetCulture()->GetTourismModifierWith(eOtherPlayer);
+					if (iModifier != 0)
 					{
-						int iModifier = kUnitOwner.getCapitalCity()->GetCityCulture()->GetTourismMultiplier(eOtherPlayer, false, false, false, false, false);
-						if (iModifier != 0)
-						{
-							iResult = iResult * (100 + iModifier) / 100;
-						}
+						iResult = iResult * (100 + iModifier) / 100;
 					}
 
 					// IsNoOpenTrade trait modifier (half tourism if trait owner does not send a trade route to the unit owner)

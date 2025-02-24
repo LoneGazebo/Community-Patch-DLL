@@ -13004,7 +13004,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			}
 			// Holy City Tourism
 			const CvReligion* pkTargetReligion = GC.getGame().GetGameReligions()->GetReligion(eFoundedReligion, GetPlayer()->GetID());
-			int iHolyCityTourism = pkTargetReligion->GetHolyCity() ? min(50000,pkTargetReligion->GetHolyCity()->GetBaseTourism()) : 0;
+			int iHolyCityTourism = pkTargetReligion->GetHolyCity() ? min(50000,pkTargetReligion->GetHolyCity()->getYieldRateTimes100(YIELD_TOURISM)) : 0;
 			if (!bCultureVictoryEnabled)
 			{
 				iHolyCityTourism /= 10;

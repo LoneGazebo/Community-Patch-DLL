@@ -3757,17 +3757,6 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 				yield[YIELD_PRODUCTION] += (PolicyInfo->GetBuildingClassProductionModifier(eBuildingClass) * iNumCities) / 25;
 			}
 		}
-		if (PolicyInfo->GetBuildingClassTourismModifier(eBuildingClass))
-		{
-			if (pPlayerTraits->IsTourism())
-			{
-				yield[YIELD_TOURISM] += 5 * PolicyInfo->GetBuildingClassTourismModifier(eBuildingClass) * iNumCities;
-			}
-			else
-			{
-				yield[YIELD_TOURISM] += 2 * PolicyInfo->GetBuildingClassTourismModifier(eBuildingClass) * iNumCities;
-			}
-		}
 		if (PolicyInfo->GetFreeChosenBuilding(eBuildingClass) != 0) 
 		{
 			if (pkBuildingClassInfo)

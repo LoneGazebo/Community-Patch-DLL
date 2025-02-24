@@ -1002,7 +1002,7 @@ int CvGrandStrategyAI::GetCulturePriority()
 						CvBuildingEntry* pkLoopBuilding = GC.getBuildingInfo(eBuildingLoop);
 						if(pkLoopBuilding)
 						{
-							if(pEntry->GetBuildingClassTourism(pkLoopBuilding->GetBuildingClassType()))
+							if(pEntry->GetBuildingClassYieldChange(pkLoopBuilding->GetBuildingClassType(), YIELD_TOURISM))
 							{
 								iPriorityBonus += 100;
 								break;
