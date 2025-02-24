@@ -81,7 +81,7 @@ public:
 	PlayerTypes GetGreatWorkCreator (int iIndex) const;
 	PlayerTypes GetGreatWorkController(int iIndex) const;
 	bool IsGreatWorkCreated(GreatWorkType eType) const;
-	CvCity* GetGreatWorkCity(int iIndex) const;
+	CvCity* GetGreatWorkCity(int iIndex, BuildingTypes& eBuilding) const;
 	int GetGreatWorkCurrentThemingBonus (int iIndex) const;
 
 	bool SwapGreatWorks (PlayerTypes ePlayer1, int iWork1, PlayerTypes ePlayer2, int iWork2);
@@ -249,12 +249,16 @@ public:
 	void SetLastTurnLifetimeCultureTimes100(long long lValue);
 	int GetLastTurnCPT() const;
 	void SetLastTurnCPT(int iValue);
-	int GetInfluenceOn(PlayerTypes ePlayer) const;
+	int GetInfluenceOnTimes100(PlayerTypes ePlayer) const;
+	void ChangeInfluenceOnTimes100(PlayerTypes ePlayer, int iValue);
 	void ChangeInfluenceOn(PlayerTypes ePlayer, int iValue);
+	int ChangeInfluenceOnTimes100(PlayerTypes eOtherPlayer, int iBaseInfluence, bool bApplyModifiers, bool bModifyForGameSpeed, bool bNoDecimalValues = false);
 	int ChangeInfluenceOn(PlayerTypes eOtherPlayer, int iBaseInfluence, bool bApplyModifiers, bool bModifyForGameSpeed);
-	int GetLastTurnInfluenceOn(PlayerTypes ePlayer) const;
-	int GetLastTurnInfluenceIPT(PlayerTypes ePlayer) const;
-	int GetInfluencePerTurn(PlayerTypes ePlayer) const;
+	int GetLastTurnInfluenceOnTimes100(PlayerTypes ePlayer) const;
+	void SetLastTurnInfluenceOnTimes100(PlayerTypes ePlayer, int iNewValue);
+	int GetLastTurnInfluenceIPTTimes100(PlayerTypes ePlayer) const;
+	void SetLastTurnInfluenceIPTTimes100(PlayerTypes ePlayer, int iNewValue);
+	int GetInfluencePerTurnTimes100(PlayerTypes ePlayer) const;
 	InfluenceLevelTypes GetInfluenceLevel(PlayerTypes ePlayer) const;
 	InfluenceLevelTrend GetInfluenceTrend(PlayerTypes ePlayer) const;
 	int GetTurnsToInfluential(PlayerTypes ePlayer);
@@ -263,7 +267,7 @@ public:
 	PlayerTypes GetCivLowestInfluence(bool bCheckOpenBorders) const;
 #if defined(MOD_BALANCE_CORE)
 	int GetOtherPlayerCulturePerTurnIncludingInstantTimes100(PlayerTypes eOtherPlayer);
-	int GetTourismPerTurnIncludingInstant(PlayerTypes ePlayer, bool bJustInstant = false);
+	int GetTourismPerTurnIncludingInstantTimes100(PlayerTypes ePlayer, bool bJustInstant = false);
 	int GetInfluenceTradeRouteGoldBonus(PlayerTypes ePlayer) const;
 	int GetInfluenceTradeRouteGrowthBonus(PlayerTypes ePlayer) const;
 #endif
@@ -274,7 +278,7 @@ public:
 	int GetInfluenceMajorCivSpyRankBonus(PlayerTypes ePlayer) const;
 	CvString GetInfluenceSpyRankTooltip (const CvString& szName, const CvString& szRank, PlayerTypes ePlayer);
 	int GetTourism();
-	int GetTourismModifierWith(PlayerTypes ePlayer) const;
+	int GetTourismModifierWith(PlayerTypes eTargetPlayer, bool bIgnoreReligion = false, bool bIgnoreOpenBorders = false, bool bIgnoreTrade = false, bool bIgnorePolicies = false, bool bIgnoreIdeologies = false) const;
 	CvString GetTourismModifierWithTooltip(PlayerTypes eTargetPlayer) const;
 	int GetTourismModifierSharedReligion(PlayerTypes eTargetPlayer) const;
 	int GetTourismModifierTradeRoute() const;
@@ -308,9 +312,9 @@ public:
 	vector<CvPlot*> m_aDigCompletePlots;
 	long long m_lLastTurnLifetimeCultureTimes100;
 	int m_iLastTurnCPT;
-	int m_aiCulturalInfluence[MAX_MAJOR_CIVS];
-	int m_aiLastTurnCulturalInfluence[MAX_MAJOR_CIVS];
-	int m_aiLastTurnCulturalIPT[MAX_MAJOR_CIVS];
+	int m_aiCulturalInfluenceTimes100[MAX_MAJOR_CIVS];
+	int m_aiLastTurnCulturalInfluenceTimes100[MAX_MAJOR_CIVS];
+	int m_aiLastTurnCulturalIPTTimes100[MAX_MAJOR_CIVS];
 	bool m_bReportedTwoCivsAway;
 	bool m_bReportedOneCivAway;
 	PublicOpinionTypes m_eOpinion;
@@ -377,12 +381,6 @@ public:
 	int GetNumFilledGreatWorkSlots(GreatWorkSlotType eSlotType) const;
 	void ClearGreatWorks();
 	GreatWorkSlotType GetSlotTypeFirstAvailableCultureBuilding() const;
-#if defined(MOD_BALANCE_CORE)
-	void CalculateBaseTourismBeforeModifiers();
-	void CalculateBaseTourism();
-#endif
-
-	int GetTourismMultiplier(PlayerTypes eTargetPlayer, bool bIgnoreReligion, bool bIgnoreOpenBorders, bool bIgnoreTrade, bool bIgnorePolicies, bool bIgnoreIdeologies) const;
 
 	CvString GetTourismTooltip();
 	CvString GetFilledSlotsTooltip();

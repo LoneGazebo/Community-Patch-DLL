@@ -1956,7 +1956,7 @@ function OnCityViewUpdate()
 			Controls.FaithPerTurnLabel:SetText( Locale.ConvertTextKey("TXT_KEY_CITYVIEW_PERTURN_TEXT", iFaithPerTurn) );
 		end
 		
-		local iTourismPerTurn = pCity:GetBaseTourism() / 100;
+		local iTourismPerTurn = pCity:GetYieldRateTimes100(YieldTypes.YIELD_TOURISM) / 100;
 		Controls.TourismPerTurnLabel:SetText( Locale.ConvertTextKey("TXT_KEY_CITYVIEW_PERTURN_TEXT", iTourismPerTurn) );
 	
 		-- CBP

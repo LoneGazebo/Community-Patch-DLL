@@ -26,6 +26,15 @@
 		<Row Tag="TXT_KEY_YIELD_FROM_NON_SPECIALISTS">
 			<Text>{1_Num} {2_IconString} from non-Specialist Citizens</Text>
 		</Row>
+		<Row Tag="TXT_KEY_PRODMOD_HOLY_CITY">
+			<Text>[NEWLINE][ICON_BULLET]Modifier for Holy City: {1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODMOD_TECHNOLOGIES">
+			<Text>[NEWLINE][ICON_BULLET]Internet Modifier: {1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CO_PLAYER_GREAT_FIREWALL">
+			<Text>{1_Num}% Penalty from Great Firewall[NEWLINE]</Text>
+		</Row>
 
 		<!-- Save menu -->
 		<!-- Hopefully removed if option is not needed or better solution in place -->

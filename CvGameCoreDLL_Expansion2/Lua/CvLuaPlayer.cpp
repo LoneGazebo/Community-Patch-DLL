@@ -293,8 +293,11 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetLastTurnLifetimeCulture);
 	Method(GetLastTurnLifetimeCultureTimes100);
 	Method(GetInfluenceOn);
+	Method(GetInfluenceOnTimes100);
 	Method(GetLastTurnInfluenceOn);
+	Method(GetLastTurnInfluenceOnTimes100);
 	Method(GetInfluencePerTurn);
+	Method(GetTourismPerTurnIncludingInstantTimes100);
 	Method(GetInfluenceLevel);
 	Method(GetInfluenceTrend);
 	Method(GetTurnsToInfluential);
@@ -3544,31 +3547,64 @@ int CvLuaPlayer::lGetLastTurnLifetimeCultureTimes100(lua_State* L)
 }
 //------------------------------------------------------------------------------
 //int GetInfluenceOn();
+//LEGACY METHOD, use GetInfluenceOnTimes100 instead
 int CvLuaPlayer::lGetInfluenceOn(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 2);
-	const int iResult = pkPlayer->GetCulture()->GetInfluenceOn(ePlayer);
+	const int iResult = pkPlayer->GetCulture()->GetInfluenceOnTimes100(ePlayer) / 100;
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//int GetInfluenceOnTimes100();
+int CvLuaPlayer::lGetInfluenceOnTimes100(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 2);
+	const int iResult = pkPlayer->GetCulture()->GetInfluenceOnTimes100(ePlayer);
 	lua_pushinteger(L, iResult);
 	return 1;
 }
 //------------------------------------------------------------------------------
 //int GetLastTurnInfluenceOn();
+//LEGACY METHOD, use GetLastTurnInfluenceOnTimes100 instead
 int CvLuaPlayer::lGetLastTurnInfluenceOn(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 2);
-	const int iResult = pkPlayer->GetCulture()->GetLastTurnInfluenceOn(ePlayer);
+	const int iResult = pkPlayer->GetCulture()->GetLastTurnInfluenceOnTimes100(ePlayer) / 100;
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//int GetLastTurnInfluenceOn();
+int CvLuaPlayer::lGetLastTurnInfluenceOnTimes100(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 2);
+	const int iResult = pkPlayer->GetCulture()->GetLastTurnInfluenceOnTimes100(ePlayer);
 	lua_pushinteger(L, iResult);
 	return 1;
 }
 //------------------------------------------------------------------------------
 //int GetInfluencePerTurn();
+//LEGACY FUNCTION, use GetTourismPerTurnIncludingInstantTimes100 instead
 int CvLuaPlayer::lGetInfluencePerTurn(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 2);
-	const int iResult = pkPlayer->GetCulture()->GetTourismPerTurnIncludingInstant(ePlayer);
+	const int iResult = pkPlayer->GetCulture()->GetInfluencePerTurnTimes100(ePlayer) / 100;
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//int GetInfluencePerTurn();
+int CvLuaPlayer::lGetTourismPerTurnIncludingInstantTimes100(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 2);
+	const int iResult = pkPlayer->GetCulture()->GetTourismPerTurnIncludingInstantTimes100(ePlayer);
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -6397,8 +6433,8 @@ int CvLuaPlayer::lGetTradeRoutes(lua_State* L)
 		lua_setfield(L, t, "FromReligion");
 		lua_pushinteger(L, iFromPressure);
 		lua_setfield(L, t, "FromPressure");
-		int iToDelta = (pFromCity->GetBaseTourism() / 100) * pFromCity->GetCityCulture()->GetTourismMultiplier(pToPlayer->GetID(), true, true, false, true, true);
-		int iFromDelta = (pToCity->GetBaseTourism() / 100) * pToCity->GetCityCulture()->GetTourismMultiplier(pkPlayer->GetID(), true, true, false, true, true);
+		int iToDelta = (pFromCity->getYieldRateTimes100(YIELD_TOURISM) / 100) * pkPlayer->GetCulture()->GetTourismModifierWith(pToPlayer->GetID(), true, true, false, true, true);
+		int iFromDelta = (pToCity->getYieldRateTimes100(YIELD_TOURISM) / 100) * pToPlayer->GetCulture()->GetTourismModifierWith(pkPlayer->GetID(), true, true, false, true, true);
 
 		lua_pushinteger(L, iFromDelta);
 		lua_setfield(L, t, "FromTourism");
@@ -6578,8 +6614,8 @@ int CvLuaPlayer::lGetTradeRoutesAvailable(lua_State* L)
 						lua_pushinteger(L, iFromPressure);
 						lua_setfield(L, t, "FromPressure");
 
-						int iToDelta = (pOriginCity->GetBaseTourism() / 100) * pOriginCity->GetCityCulture()->GetTourismMultiplier(eOtherPlayer, true, true, false, true, true);
-						int iFromDelta = (pDestCity->GetBaseTourism() / 100) * pDestCity->GetCityCulture()->GetTourismMultiplier(pkPlayer->GetID(), true, true, false, true, true);
+						int iToDelta = (pOriginCity->getYieldRateTimes100(YIELD_TOURISM) / 100) * pkPlayer->GetCulture()->GetTourismModifierWith(eOtherPlayer, true, true, false, true, true);
+						int iFromDelta = (pDestCity->getYieldRateTimes100(YIELD_TOURISM) / 100) * GET_PLAYER(eOtherPlayer).GetCulture()->GetTourismModifierWith(pkPlayer->GetID(), true, true, false, true, true);
 
 						lua_pushinteger(L, iFromDelta);
 						lua_setfield(L, t, "FromTourism");
@@ -6697,8 +6733,8 @@ int CvLuaPlayer::lGetTradeRoutesToYou(lua_State* L)
 		lua_pushinteger(L, iFromPressure);
 		lua_setfield(L, t, "FromPressure");
 
-		int iToDelta = (pFromCity->GetBaseTourism() / 100) * pFromCity->GetCityCulture()->GetTourismMultiplier(pToPlayer->GetID(), true, true, false, true, true);
-		int iFromDelta = (pToCity->GetBaseTourism() / 100) * pToCity->GetCityCulture()->GetTourismMultiplier(pkPlayer->GetID(), true, true, false, true, true);
+		int iToDelta = (pFromCity->getYieldRateTimes100(YIELD_TOURISM) / 100) * pFromPlayer->GetCulture()->GetTourismModifierWith(pToPlayer->GetID(), true, true, false, true, true);
+		int iFromDelta = (pToCity->getYieldRateTimes100(YIELD_TOURISM) / 100) * pToPlayer->GetCulture()->GetTourismModifierWith(pkPlayer->GetID(), true, true, false, true, true);
 
 		lua_pushinteger(L, iFromDelta);
 		lua_setfield(L, t, "FromTourism");

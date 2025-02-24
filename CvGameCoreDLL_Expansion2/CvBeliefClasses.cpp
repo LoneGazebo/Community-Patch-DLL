@@ -143,7 +143,6 @@ CvBeliefEntry::CvBeliefEntry() :
 	m_ppiImprovementYieldChanges(NULL),
 	m_ppiBuildingClassYieldChanges(NULL),
 	m_paiBuildingClassHappiness(NULL),
-	m_paiBuildingClassTourism(NULL),
 	m_ppaiFeatureYieldChange(NULL),
 	m_ppiYieldPerXTerrain(NULL),
 	m_ppiYieldPerXFeature(NULL),
@@ -943,14 +942,6 @@ int CvBeliefEntry::GetBuildingClassHappiness(int i) const
 	return m_paiBuildingClassHappiness ? m_paiBuildingClassHappiness[i] : -1;
 }
 
-/// Amount of extra Tourism per turn a BuildingClass provides
-int CvBeliefEntry::GetBuildingClassTourism(int i) const
-{
-	ASSERT_DEBUG(i < GC.getNumBuildingClassInfos(), "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
-	return m_paiBuildingClassTourism ? m_paiBuildingClassTourism[i] : -1;
-}
-
 /// Change to Feature yield by type
 int CvBeliefEntry::GetFeatureYieldChange(int i, int j) const
 {
@@ -1381,7 +1372,6 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	kUtility.PopulateArrayByValue(m_piResourceHappiness, "Resources", "Belief_ResourceHappiness", "ResourceType", "BeliefType", szBeliefType, "HappinessChange");
 	kUtility.PopulateArrayByValue(m_piResourceQuantityModifiers, "Resources", "Belief_ResourceQuantityModifiers", "ResourceType", "BeliefType", szBeliefType, "ResourceQuantityModifier");
 	kUtility.PopulateArrayByValue(m_paiBuildingClassHappiness, "BuildingClasses", "Belief_BuildingClassHappiness", "BuildingClassType", "BeliefType", szBeliefType, "Happiness");
-	kUtility.PopulateArrayByValue(m_paiBuildingClassTourism, "BuildingClasses", "Belief_BuildingClassTourism", "BuildingClassType", "BeliefType", szBeliefType, "Tourism");
 	kUtility.PopulateArrayByValue(m_paiYieldChangePerForeignCity, "Yields", "Belief_YieldChangePerForeignCity", "YieldType", "BeliefType", szBeliefType, "Yield");
 	kUtility.PopulateArrayByValue(m_paiYieldChangePerXForeignFollowers, "Yields", "Belief_YieldChangePerXForeignFollowers", "YieldType", "BeliefType", szBeliefType, "ForeignFollowers");
 	kUtility.PopulateArrayByValue(m_paiYieldChangePerXCityStateFollowers, "Yields", "Belief_YieldChangePerXCityStateFollowers", "YieldType", "BeliefType", szBeliefType, "PerXFollowers");
@@ -1486,6 +1476,24 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 			const int iYieldChange = pResults->GetInt(2);
 
 			m_ppiBuildingClassYieldChanges[BuildingClassID][iYieldID] = iYieldChange;
+		}
+
+		std::string strKey2("Belief_BuildingClassTourism");
+		pResults = kUtility.GetResults(strKey2);
+		if (pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey2, "select BuildingClasses.ID as BuildingClassID, Tourism from Belief_BuildingClassTourism inner join BuildingClasses on BuildingClasses.Type = BuildingClassType where BeliefType = ?");
+		}
+
+		pResults->Bind(1, szBeliefType);
+
+		while (pResults->Step())
+		{
+			const int BuildingClassID = pResults->GetInt(0);
+			const int iYieldID = (int)YIELD_TOURISM;
+			const int iYieldChange = pResults->GetInt(1);
+
+			m_ppiBuildingClassYieldChanges[BuildingClassID][iYieldID] += iYieldChange;
 		}
 	}
 
@@ -3266,24 +3274,6 @@ int CvReligionBeliefs::GetBuildingClassHappiness(BuildingClassTypes eBuildingCla
 		{
 			iValue = pBeliefs->GetEntry(*it)->GetBuildingClassHappiness(eBuildingClass);
 		}
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
-		{
-			rtnValue += iValue;
-		}
-	}
-
-	return rtnValue;
-}
-
-/// Get Tourism from beliefs for a specific building class
-int CvReligionBeliefs::GetBuildingClassTourism(BuildingClassTypes eBuildingClass, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
-{
-	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
-	int rtnValue = 0;
-
-	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
-	{
-		int iValue = pBeliefs->GetEntry(*it)->GetBuildingClassTourism(eBuildingClass);
 		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;

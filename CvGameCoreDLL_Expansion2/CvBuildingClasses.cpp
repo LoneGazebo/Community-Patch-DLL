@@ -6382,6 +6382,7 @@ bool CvCityBuildings::GetNextAvailableGreatWorkSlot(GreatWorkSlotType eGreatWork
 }
 
 /// Accessor: How much of this yield are we generating from Great Works in our buildings?
+/// If you change anything in the calculations here, don't forget to update CvGameCulture::GetGreatWorkTooltip
 int CvCityBuildings::GetYieldFromGreatWorks(YieldTypes eYield) const
 {
 	//Simplification - errata yields not worth considering.
@@ -6390,10 +6391,13 @@ int CvCityBuildings::GetYieldFromGreatWorks(YieldTypes eYield) const
 		return 0;
 	}
 
-	int iRealWorkCount = 0;
-	int iStandardWorkCount = 0;
+	int iNumGreatWorks = 0;
+	int iNumGreatWorksWithBaseYieldsOfThisType = 0;
 	int iThemingBonusTotal = 0;
 	int iTypeBonuses = 0;
+
+	CvPlayer& kPlayer = GET_PLAYER(m_pCity->getOwner());
+
 	
 	for(std::vector<BuildingTypes>::const_iterator iI=m_buildingsThatExistAtLeastOnce.begin(); iI!=m_buildingsThatExistAtLeastOnce.end(); ++iI)
 	{
@@ -6401,7 +6405,7 @@ int CvCityBuildings::GetYieldFromGreatWorks(YieldTypes eYield) const
 		if (pkInfo && pkInfo->GetGreatWorkCount() > 0)
 		{
 			int iThisWork = GetNumGreatWorksInBuilding(pkInfo->GetBuildingClassType());
-			iRealWorkCount += iThisWork;
+			iNumGreatWorks += iThisWork;
 
 			int iThemingBonus = m_pCity->GetCityCulture()->GetThemingBonus(pkInfo->GetBuildingClassType());
 			if (iThemingBonus > 0)
@@ -6411,7 +6415,7 @@ int CvCityBuildings::GetYieldFromGreatWorks(YieldTypes eYield) const
 			
 			if ((MOD_GLOBAL_GREATWORK_YIELDTYPES && eYield == pkInfo->GetGreatWorkYieldType()) || (!MOD_GLOBAL_GREATWORK_YIELDTYPES && eYield == YIELD_CULTURE))
 			{
-				iStandardWorkCount += iThisWork;
+				iNumGreatWorksWithBaseYieldsOfThisType += iThisWork;
 			}
 		}
 	}
@@ -6419,51 +6423,20 @@ int CvCityBuildings::GetYieldFromGreatWorks(YieldTypes eYield) const
 	iThemingBonusTotal += m_pCity->GetYieldChangesPerLocalTheme(eYield) * GetTotalNumThemedBuildings();
 	
 	//No works? Abort!
-	if(iRealWorkCount <= 0)
+	if(iNumGreatWorks <= 0)
 	{
 		return 0;
 	}
-
-	int iArt = GetNumGreatWorks(CvTypes::getGREAT_WORK_SLOT_ART_ARTIFACT(), false, true);
-	if(iArt > 0)
-	{
-		iTypeBonuses += (GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->GetArtYieldChanges(eYield) * iArt);
-		iTypeBonuses += (GET_PLAYER(m_pCity->getOwner()).getArtYieldBonus(eYield) * iArt);
-	}
-	int iArtifact = GetNumGreatWorks(CvTypes::getGREAT_WORK_SLOT_ART_ARTIFACT(), true);
-	if(iArtifact > 0)
-	{
-		iTypeBonuses += (GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->GetArtifactYieldChanges(eYield) * iArtifact);
-		iTypeBonuses += (GET_PLAYER(m_pCity->getOwner()).getArtifactYieldBonus(eYield) * iArtifact);
-	}
-	int iLit = GetNumGreatWorks(CvTypes::getGREAT_WORK_SLOT_LITERATURE());
-	if(iLit > 0)
-	{
-		iTypeBonuses += (GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->GetLitYieldChanges(eYield) * iLit);
-		iTypeBonuses += (GET_PLAYER(m_pCity->getOwner()).getLitYieldBonus(eYield) * iLit);
-	}
-	int iMusic = GetNumGreatWorks(CvTypes::getGREAT_WORK_SLOT_MUSIC());
-	if(iMusic > 0)
-	{
-		iTypeBonuses += (GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->GetMusicYieldChanges(eYield) * iMusic);
-		iTypeBonuses += (GET_PLAYER(m_pCity->getOwner()).getMusicYieldBonus(eYield) * iMusic);
-	}
-	int iFilm = GetNumGreatWorks(CvTypes::getGREAT_WORK_SLOT_FILM());
-	if (iFilm > 0)
-	{
-		iTypeBonuses += (GET_PLAYER(m_pCity->getOwner()).getFilmYieldBonus(eYield) * iFilm);
-	}
-	int iRelic = GetNumGreatWorks(CvTypes::getGREAT_WORK_SLOT_RELIC());
-	if (iRelic > 0)
-	{
-		iTypeBonuses += (GET_PLAYER(m_pCity->getOwner()).getRelicYieldBonus(eYield) * iRelic);
-	}
 	
-	//Now grab the base yields.
-	int iBaseYield = /*2 in CP, 3 in VP*/ GD_INT_GET(BASE_CULTURE_PER_GREAT_WORK);
-	int iSecondaryYield = GET_PLAYER(m_pCity->getOwner()).GetGreatWorkYieldChange(eYield);
-	iSecondaryYield += GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->GetGreatWorkYieldChanges(eYield);
-	iSecondaryYield += m_pCity->GetGreatWorkYieldChange(eYield);
+	int iYieldPerGreatWorkWithBaseYieldsOfThisType = /*2 in CP, 3 in VP*/ GD_INT_GET(BASE_CULTURE_PER_GREAT_WORK);
+
+	int iYieldPerGreatWork = kPlayer.GetGreatWorkYieldChange(eYield);
+	iYieldPerGreatWork += kPlayer.GetPlayerTraits()->GetGreatWorkYieldChanges(eYield);
+	iYieldPerGreatWork += m_pCity->GetGreatWorkYieldChange(eYield);
+	if (eYield == YIELD_TOURISM)
+	{
+		iYieldPerGreatWork += /*2*/ GD_INT_GET(BASE_TOURISM_PER_GREAT_WORK);
+	}
 
 	ReligionTypes eMajority = m_pCity->GetCityReligions()->GetReligiousMajority();
 	BeliefTypes eSecondaryPantheon = NO_BELIEF;
@@ -6472,18 +6445,12 @@ int CvCityBuildings::GetYieldFromGreatWorks(YieldTypes eYield) const
 		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, m_pCity->getOwner());
 		if (pReligion)
 		{
-			if (eYield == YIELD_CULTURE)
-				iBaseYield += pReligion->m_Beliefs.GetGreatWorkYieldChange(m_pCity->getPopulation(), eYield, m_pCity->getOwner(), m_pCity);
-			else
-				iSecondaryYield += pReligion->m_Beliefs.GetGreatWorkYieldChange(m_pCity->getPopulation(), eYield, m_pCity->getOwner(), m_pCity);
+			iYieldPerGreatWork += pReligion->m_Beliefs.GetGreatWorkYieldChange(m_pCity->getPopulation(), eYield, m_pCity->getOwner(), m_pCity);
 			
 			eSecondaryPantheon = m_pCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
 			if (eSecondaryPantheon != NO_BELIEF)
 			{
-				if (eYield == YIELD_CULTURE)
-					iBaseYield += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetGreatWorkYieldChange(eYield);
-				else
-					iSecondaryYield += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetGreatWorkYieldChange(eYield);
+				iYieldPerGreatWork += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetGreatWorkYieldChange(eYield);
 			}
 		}
 	}
@@ -6500,31 +6467,66 @@ int CvCityBuildings::GetYieldFromGreatWorks(YieldTypes eYield) const
 				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, m_pCity->getOwner());
 				if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, m_pCity->getOwner()))) // check that the our religion does not have our belief, to prevent double counting
 				{
-					if (eYield == YIELD_CULTURE)
-						iBaseYield += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetGreatWorkYieldChange(eYield);
-					else
-						iSecondaryYield += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetGreatWorkYieldChange(eYield);
+					iYieldPerGreatWork += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetGreatWorkYieldChange(eYield);
 				}
 			}
 		}
 	}
 
 	//First add up yields x works in city.
-	int iRtnValue = (iStandardWorkCount * iBaseYield);
-	iRtnValue += (iRealWorkCount * iSecondaryYield);
+	int iRtnValue = (iNumGreatWorksWithBaseYieldsOfThisType * iYieldPerGreatWorkWithBaseYieldsOfThisType);
+	iRtnValue += (iNumGreatWorks * iYieldPerGreatWork);
+
+	//Tourism modifiers
+	if (eYield == YIELD_TOURISM)
+	{
+		iRtnValue += ((m_pCity->GetCityBuildings()->GetGreatWorksTourismModifier() + kPlayer.GetGreatWorksTourismModifierGlobal()) * iRtnValue / 100);
+	}
+
+	// ---- YIELDS NOT AFFECTED BY TOURISM MODIFIER TO GREAT WORKS ----
+
 	//Then theming bonuses for the yield.
 	iRtnValue += GetCurrentThemingBonuses(eYield);
+
+	int iArt = GetNumGreatWorks(CvTypes::getGREAT_WORK_SLOT_ART_ARTIFACT(), false, true);
+	if (iArt > 0)
+	{
+		iTypeBonuses += (kPlayer.GetPlayerTraits()->GetArtYieldChanges(eYield) * iArt);
+		iTypeBonuses += (kPlayer.getArtYieldBonus(eYield) * iArt);
+	}
+	int iArtifact = GetNumGreatWorks(CvTypes::getGREAT_WORK_SLOT_ART_ARTIFACT(), true);
+	if (iArtifact > 0)
+	{
+		iTypeBonuses += (kPlayer.GetPlayerTraits()->GetArtifactYieldChanges(eYield) * iArtifact);
+		iTypeBonuses += (kPlayer.getArtifactYieldBonus(eYield) * iArtifact);
+	}
+	int iLit = GetNumGreatWorks(CvTypes::getGREAT_WORK_SLOT_LITERATURE());
+	if (iLit > 0)
+	{
+		iTypeBonuses += (kPlayer.GetPlayerTraits()->GetLitYieldChanges(eYield) * iLit);
+		iTypeBonuses += (kPlayer.getLitYieldBonus(eYield) * iLit);
+	}
+	int iMusic = GetNumGreatWorks(CvTypes::getGREAT_WORK_SLOT_MUSIC());
+	if (iMusic > 0)
+	{
+		iTypeBonuses += (kPlayer.GetPlayerTraits()->GetMusicYieldChanges(eYield) * iMusic);
+		iTypeBonuses += (kPlayer.getMusicYieldBonus(eYield) * iMusic);
+	}
+	int iFilm = GetNumGreatWorks(CvTypes::getGREAT_WORK_SLOT_FILM());
+	if (iFilm > 0)
+	{
+		iTypeBonuses += (kPlayer.getFilmYieldBonus(eYield) * iFilm);
+	}
+	int iRelic = GetNumGreatWorks(CvTypes::getGREAT_WORK_SLOT_RELIC());
+	if (iRelic > 0)
+	{
+		iTypeBonuses += (kPlayer.getRelicYieldBonus(eYield) * iRelic);
+	}
 
 	//Next add in any UA or extra theming bonuses.
 	iRtnValue += (iTypeBonuses + iThemingBonusTotal);
 
 	return iRtnValue;
-}
-
-/// Accessor: How much culture are we generating from Great Works in our buildings?
-int CvCityBuildings::GetCultureFromGreatWorks() const
-{
-	return GetYieldFromGreatWorks(YIELD_CULTURE);
 }
 
 /// Accessor: How many Great Works of specific slot type present in this city?
@@ -6649,7 +6651,7 @@ int CvCityBuildings::GetCurrentThemingBonuses(YieldTypes eYield) const
 		CvBuildingEntry *pkBuilding = GC.getBuildingInfo(*iI);
 		if (pkBuilding)
 		{
-			if (pkBuilding->GetGreatWorkYieldType() == eYield)
+			if (pkBuilding->GetGreatWorkYieldType() == eYield || eYield == YIELD_TOURISM)
 			{
 				int iIndex = GetThemingBonusIndex(*iI);
 				if (iIndex < 0)
