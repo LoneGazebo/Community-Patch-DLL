@@ -19802,6 +19802,8 @@ void CvPlayer::CalculateNetHappiness()
 			GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 		}
 	}
+
+
 }
 
 int CvPlayer::GetEmpireSizeModifierReductionGlobal() const
@@ -24232,7 +24234,7 @@ int CvPlayer::GetGoldenAgePointsFromCitiesTimes100()
 		iGAPoints += pLoopCity->getYieldRateTimes100(YIELD_GOLDEN_AGE_POINTS);
 		if (GetPlayerTraits()->GetTourismToGAP() > 0)
 		{
-			iTourismFromCities += pLoopCity->GetBaseTourism();
+			iTourismFromCities += pLoopCity->getYieldRateTimes100(YIELD_TOURISM);
 		}
 	}
 
@@ -24459,8 +24461,7 @@ void CvPlayer::changeGoldenAgeTurns(int iChange, bool bFree)
 			int iLoop = 0;
 			for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 			{
-				pLoopCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
-				pLoopCity->GetCityCulture()->CalculateBaseTourism();
+				pLoopCity->updateYield();
 			}
 			ChangeGarrisonedCityRangeStrikeModifier(GetPlayerTraits()->GetGoldenAgeGarrisonedCityRangeStrikeModifier() * -1);
 		}
@@ -24589,8 +24590,6 @@ void CvPlayer::changeGoldenAgeTurns(int iChange, bool bFree)
 				iNewValue = max(0, min(iNewValue, pLoopCity->GetExperiencePerGoldenAgeCap()));
 				pLoopCity->ChangeExperienceFromPreviousGoldenAges(iNewValue - iOldValue);
 			}
-			pLoopCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
-			pLoopCity->GetCityCulture()->CalculateBaseTourism();
 		}
 	}
 
@@ -30183,12 +30182,6 @@ void CvPlayer::ChangeNumHistoricEvents(HistoricEventTypes eHistoricEvent, int iC
 	}
 	m_iNumHistoricEvent += iChange;
 
-	int iLoop = 0;
-	for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-	{
-		pLoopCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
-		pLoopCity->GetCityCulture()->CalculateBaseTourism();
-	}
 	CvCity* pCapital = getCapitalCity();
 	int iEventGP = GetPlayerTraits()->GetEventGP();
 	if (pCapital != NULL && iEventGP > 0)

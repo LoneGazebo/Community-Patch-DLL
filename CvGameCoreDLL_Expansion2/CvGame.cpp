@@ -12326,12 +12326,11 @@ void CvGame::BuildYieldTimes100HelpText(CvString* toolTipSink, const char* strTe
 	if (toolTipSink && (iYieldTimes100 != 0 || !bIgnoreZero))
 	{
 		// add a newline for every item that's not the first one
-		/*if (!toolTipSink->IsEmpty())
+		if (!toolTipSink->IsEmpty())
 		{
 			(*toolTipSink) += CvString("[NEWLINE]");
-		}*/
+		}
 		(*toolTipSink) += CvString("[ICON_BULLET]") + GetLocalizedText(strTextKey, (float)iYieldTimes100 / 100, strYieldIcon);
-		(*toolTipSink) += CvString("[NEWLINE]");
 	}
 }
 

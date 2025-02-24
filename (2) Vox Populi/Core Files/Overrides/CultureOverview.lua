@@ -841,7 +841,7 @@ function RefreshYourCulture()
 		cityData.HealthPercent = 1 - (city:GetDamage() / city:GetMaxHitPoints());
     
 		cityData.Culture = city:GetYieldRateTimes100(YieldTypes.YIELD_CULTURE) / 100;
-		cityData.Tourism = city:GetBaseTourism() / 100;
+		cityData.Tourism = city:GetYieldRateTimes100(YieldTypes.YIELD_TOURISM) / 100;
 		cityData.TourismToolTip = city:GetTourismTooltip();
 		cityData.GreatWorks = city:GetNumGreatWorks();
 		cityData.GreatWorksToolTip = city:GetTotalSlotsTooltip();
@@ -2189,7 +2189,7 @@ function RefreshPlayerInfluence()
 					
 						
 					
-						local iInfluence = pSelectedPlayer:GetInfluenceOn(iPlayer);
+						local iInfluence = pSelectedPlayer:GetInfluenceOnTimes100(iPlayer) / 100;
 						local iCulture = pPlayer:GetJONSCultureEverGeneratedTimes100() / 100;
 						local iPercent = 0;
 						
@@ -2243,8 +2243,7 @@ function RefreshPlayerInfluence()
 						playerInfluence.Modifier = iModifiers;
 						playerInfluence.ModifierToolTip = strModifiersToolTip;
 						
-						playerInfluence.TourismPerTurn = pSelectedPlayer:GetInfluencePerTurn(iPlayer);
-						playerInfluence.TourismPerTurn = math.floor(playerInfluence.TourismPerTurn);
+						playerInfluence.TourismPerTurn = pSelectedPlayer:GetTourismPerTurnIncludingInstantTimes100(iPlayer) / 100;
 						
 						if(playerInfluence.TourismPerTurn > 0) then
 							playerInfluence.TourismPerTurnText = "+" .. tostring(playerInfluence.TourismPerTurn);
@@ -2334,7 +2333,7 @@ function RefreshPlayerInfluence()
 					
 						
 					
-						local iInfluence = pPlayer:GetInfluenceOn(g_iSelectedPlayerID);
+						local iInfluence = pPlayer:GetInfluenceOnTimes100(g_iSelectedPlayerID) / 100;
 						local iCulture = pSelectedPlayer:GetJONSCultureEverGeneratedTimes100() / 100;
 						local iPercent = 0;
 						
@@ -2388,8 +2387,7 @@ function RefreshPlayerInfluence()
 						playerInfluence.Modifier = iModifiers;
 						playerInfluence.ModifierToolTip = strModifiersToolTip;
 						
-						playerInfluence.TourismPerTurn = pPlayer:GetInfluencePerTurn(g_iSelectedPlayerID);
-						playerInfluence.TourismPerTurn = math.floor(playerInfluence.TourismPerTurn);
+						playerInfluence.TourismPerTurn = pPlayer:GetTourismPerTurnIncludingInstantTimes100(g_iSelectedPlayerID) / 100;
 						
 						if(playerInfluence.TourismPerTurn > 0) then
 							playerInfluence.TourismPerTurnText = "+" .. tostring(playerInfluence.TourismPerTurn);

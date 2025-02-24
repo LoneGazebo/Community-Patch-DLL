@@ -8562,7 +8562,7 @@ int CvEspionageAI::GetMissionScore(CvCity* pCity, CityEventChoiceTypes eMission,
 		{
 			if (GET_PLAYER(eTargetPlayer).GetDiplomacyAI()->IsCloseToCultureVictory())
 			{
-				iScore += min(pCity->GetBaseTourism() / 5, 100);
+				iScore += min(pCity->getYieldRateTimes100(YIELD_TOURISM) / 5, 100);
 			}
 		}
 		if (pkMissionInfo->getRandomBarbs() > 0)
