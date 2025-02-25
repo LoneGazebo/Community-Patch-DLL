@@ -579,7 +579,6 @@ protected:
 	LUAAPIEXTN(SetYieldPerTurnFromMinors, int);
 	LUAAPIEXTN(GetYieldPerTurnFromMinors, int);
 	LUAAPIEXTN(GetBaseYieldRateFromNonSpecialists, int);
-	LUAAPIEXTN(GetBaseYieldRateFromCSAlliance, int);
 	LUAAPIEXTN(GetBuildingYieldChangeFromCorporationFranchises, int);
 	LUAAPIEXTN(GetYieldChangeFromCorporationFranchises, int);
 	LUAAPIEXTN(GetTradeRouteCityMod, int);

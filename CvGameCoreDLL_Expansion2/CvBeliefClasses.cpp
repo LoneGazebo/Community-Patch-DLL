@@ -4507,7 +4507,7 @@ int CvReligionBeliefs::GetYieldFromFaithPurchase(YieldTypes eYieldType, PlayerTy
 }
 
 
-/// Get yield modifier from beliefs from Hosting WC
+/// Get yield per known pantheon (times100)
 int CvReligionBeliefs::GetYieldFromKnownPantheons(YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();

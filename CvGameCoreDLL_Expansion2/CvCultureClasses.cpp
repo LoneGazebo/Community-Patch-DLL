@@ -3970,20 +3970,7 @@ int CvPlayerCulture::GetInfluencePerTurnTimes100(PlayerTypes ePlayer) const
 	if ((int)ePlayer != m_pPlayer->GetID() && kOtherPlayer.isAlive() && !kOtherPlayer.isMinorCiv() && kOtherTeam.isHasMet(m_pPlayer->getTeam()))
 	{
 		int iModifier = GetTourismModifierWith(kOtherPlayer.GetID());
-
-		iRtnValue += m_pPlayer->GetYieldRateFromCitiesTimes100(YIELD_TOURISM);
-
-		// Tourism from religion
-		iRtnValue += m_pPlayer->GetYieldPerTurnFromReligion(YIELD_TOURISM) * 100;
-
-		// Trait bonus which adds Tourism for trade partners? 
-		iRtnValue += m_pPlayer->GetYieldPerTurnFromTraits(YIELD_TOURISM) * 100;
-		
-		iRtnValue += m_pPlayer->GetYieldPerTurnFromEspionageEvents(YIELD_TOURISM, true) * 100;
-		iRtnValue -= m_pPlayer->GetYieldPerTurnFromEspionageEvents(YIELD_TOURISM, false) * 100;
-		iRtnValue = max(0, iRtnValue);
-
-		iRtnValue = iRtnValue * (100 + iModifier) / 100;
+		iRtnValue = GetTourism() * (100 + iModifier) / 100;
 	}
 
 	return iRtnValue;
@@ -4481,7 +4468,7 @@ CvString CvPlayerCulture::GetInfluenceSpyRankTooltip(const CvString& szName, con
 }
 
 /// What is my total tourism per turn (before modifiers)
-int CvPlayerCulture::GetTourism()
+int CvPlayerCulture::GetTourism() const
 {
 	int iRtnValue = 0;
 	int iStartEra = /*ANCIENT*/ GD_INT_GET(TOURISM_START_ERA);

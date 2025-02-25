@@ -584,7 +584,6 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(SetYieldPerTurnFromMinors);
 #endif
 	Method(GetBaseYieldRateFromNonSpecialists);
-	Method(GetBaseYieldRateFromCSAlliance);
 	Method(GetBuildingYieldChangeFromCorporationFranchises);
 	Method(GetYieldChangeFromCorporationFranchises);
 	Method(GetTradeRouteCityMod);
@@ -2992,7 +2991,7 @@ int CvLuaCity::lChangeJONSCulturePerTurnFromSpecialists(lua_State* L)
 int CvLuaCity::lGetJONSCulturePerTurnFromGreatWorks(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	lua_pushinteger(L, pkCity->GetBaseYieldRateFromGreatWorks(YIELD_CULTURE));
+	lua_pushinteger(L, pkCity->GetBaseYieldRateFromGreatWorksTimes100(YIELD_CULTURE) / 100);
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -3042,7 +3041,7 @@ int CvLuaCity::lGetYieldFromUnitsInCity(lua_State* L)
 int CvLuaCity::lGetJONSCulturePerTurnFromReligion(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	lua_pushinteger(L, pkCity->GetBaseYieldRateFromReligion(YIELD_CULTURE));
+	lua_pushinteger(L, pkCity->GetBaseYieldRateFromReligionTimes100(YIELD_CULTURE) / 100);
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -3321,7 +3320,7 @@ int CvLuaCity::lGetFaithPerTurnFromTraits(lua_State* L)
 int CvLuaCity::lGetFaithPerTurnFromReligion(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	lua_pushinteger(L, pkCity->GetBaseYieldRateFromReligion(YIELD_FAITH));
+	lua_pushinteger(L, pkCity->GetBaseYieldRateFromReligionTimes100(YIELD_FAITH) / 100);
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -4393,9 +4392,14 @@ int CvLuaCity::lSetYieldPerTurnFromMinors(lua_State* L)
 }
 #if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
 //------------------------------------------------------------------------------
+// LEGACY METHOD
 int CvLuaCity::lGetBaseYieldRateFromGreatWorks(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvCity::GetBaseYieldRateFromGreatWorks);
+	CvCity* pkCity = GetInstance(L);
+	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 2);
+	const int iResult = pkCity->GetBaseYieldRateFromGreatWorksTimes100(eYield) / 100;
+	lua_pushinteger(L, iResult);
+	return 1;
 }
 #endif
 //------------------------------------------------------------------------------
@@ -4485,7 +4489,10 @@ int CvLuaCity::lGetYieldFromCityYieldTimes100(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaCity::lGetBaseYieldRateFromReligion(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvCity::GetBaseYieldRateFromReligion);
+	CvCity* pkCity = GetInstance(L);
+	YieldTypes eIndex = (YieldTypes)lua_tointeger(L, 2);
+	lua_pushinteger(L, pkCity->GetBaseYieldRateFromReligionTimes100(eIndex) / 100);
+	return 1;
 }
 //------------------------------------------------------------------------------
 int CvLuaCity::lChangeBaseYieldRateFromReligion(lua_State* L)
@@ -5632,16 +5639,6 @@ int CvLuaCity::lGetBaseYieldRateFromNonSpecialists(lua_State* L)
 	return 1;
 }
 
-int CvLuaCity::lGetBaseYieldRateFromCSAlliance(lua_State* L)
-{
-	CvCity* pkCity = GetInstance(L);
-	const YieldTypes eIndex = (YieldTypes)lua_tointeger(L, 2);
-	int iResult = pkCity->GetBaseYieldRateFromCSAlliance(eIndex);
-	iResult += pkCity->GetBaseYieldRateFromCSFriendship(eIndex);
-
-	lua_pushinteger(L, iResult);
-	return 1;
-}
 int CvLuaCity::lGetBuildingYieldChangeFromCorporationFranchises(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
