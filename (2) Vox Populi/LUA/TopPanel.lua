@@ -587,19 +587,6 @@ function ScienceTipHandler( control )
 			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_SCIENCE_FROM_ANNEXED_MINORS", iScienceFromAnnexedMinors);
 		end
 -- END
-		-- Science from Funding from League (CSD MOD)
-		local iScienceFromLeague = pPlayer:GetScienceRateFromLeagueAid();
-		if (iScienceFromLeague ~= 0) then
-		
-			-- Add separator for non-initial entries
-			if (bFirstEntry) then
-				bFirstEntry = false;
-			else
-				strText = strText .. "[NEWLINE]";
-			end
-	
-			strText = strText .. Locale.ConvertTextKey("TXT_KEY_SCIENCE_FUNDING_FROM_LEAGUE", iScienceFromLeague);
-		end
 
 -- CBP Science from Religion
 		local iScienceFromReligion = pPlayer:GetYieldPerTurnFromReligion(YieldTypes.YIELD_SCIENCE);

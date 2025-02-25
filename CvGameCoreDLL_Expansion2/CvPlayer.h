@@ -857,20 +857,13 @@ public:
 	bool IsLeagueAid() const;
 
 	void ProcessLeagueResolutions();
-#if defined(MOD_BALANCE_CORE)
-	PlayerTypes AidRankGeneric(int eType = 0);
+	bool IsEligibleForLeagueBonus(int eType = 0);
 	int ScoreDifferencePercent(int eType = 0);
-#endif
-	PlayerTypes AidRank();
 	int ScoreDifference();
 
 	int GetScienceRateFromMinorAllies() const;
 	void ChangeScienceRateFromMinorAllies(int iChange);
 	void SetScienceRateFromMinorAllies(int iValue);
-
-	int GetScienceRateFromLeagueAid() const;
-	void ChangeScienceRateFromLeagueAid(int iChange);
-	void SetScienceRateFromLeagueAid(int iValue);
 
 	void ChangeExtraLeagueVotes(int iChange);
 
@@ -3093,7 +3086,6 @@ protected:
 	bool m_bIsLeagueScholar;
 	bool m_bIsLeagueArt;
 	int m_iScienceRateFromLeague;
-	int m_iScienceRateFromLeagueAid;
 	int m_iAttackBonusTurns;
 	int m_iCultureBonusTurns;
 	int m_iTourismBonusTurns;
@@ -3954,7 +3946,6 @@ SYNC_ARCHIVE_VAR(int, m_iTotalArtsyAid)
 SYNC_ARCHIVE_VAR(bool, m_bIsLeagueScholar)
 SYNC_ARCHIVE_VAR(bool, m_bIsLeagueArt)
 SYNC_ARCHIVE_VAR(int, m_iScienceRateFromLeague)
-SYNC_ARCHIVE_VAR(int, m_iScienceRateFromLeagueAid)
 SYNC_ARCHIVE_VAR(int, m_iAttackBonusTurns)
 SYNC_ARCHIVE_VAR(int, m_iCultureBonusTurns)
 SYNC_ARCHIVE_VAR(int, m_iTourismBonusTurns)
