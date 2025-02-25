@@ -13208,7 +13208,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		{
 			if (iArtsMod > 0)
 			{
-				if (GetPlayer()->AidRankGeneric(1) != NO_PLAYER)
+				if (GetPlayer()->IsEligibleForLeagueBonus(1))
 				{
 					iExtra += 15 * max(0, GetPlayer()->ScoreDifferencePercent(1) - 40); 
 				}
@@ -13220,7 +13220,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 					}
 				}
 				// can't have arts and science funding
-				if (GetPlayer()->AidRankGeneric(2) != NO_PLAYER)
+				if (GetPlayer()->IsEligibleForLeagueBonus(2))
 				{
 					iExtra -= 8 * max(0, GetPlayer()->ScoreDifferencePercent(2) - 40);
 				}
@@ -13228,7 +13228,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 
 			if (iScienceMod > 0)
 			{
-				if (GetPlayer()->AidRankGeneric(2) != NO_PLAYER)
+				if (GetPlayer()->IsEligibleForLeagueBonus(2))
 				{ 
 					iExtra += 15 * max (0, GetPlayer()->ScoreDifferencePercent(2) - 40); 
 				}
@@ -13240,7 +13240,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 					}
 				}
 				// can't have arts and science funding
-				if (GetPlayer()->AidRankGeneric(1) != NO_PLAYER)
+				if (GetPlayer()->IsEligibleForLeagueBonus(1))
 				{
 					iExtra -= 8 * max(0, GetPlayer()->ScoreDifferencePercent(1) - 40);
 				}

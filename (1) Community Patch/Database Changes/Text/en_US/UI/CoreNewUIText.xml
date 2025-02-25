@@ -15,7 +15,7 @@
 			<Text>{1_Num} {2_IconString} from [ICON_CULTURE] Culture</Text>
 		</Row>
 		<Row Tag="TXT_KEY_YIELD_FROM_WORLD_CONGRESS">
-			<Text>{1_Num} {2_IconString} from World Congress</Text>
+			<Text>{1_Num} {2_IconString} from active Resolutions</Text>
 		</Row>
 		<Row Tag="TXT_KEY_YIELD_CONVERTED_TO_PRODUCTION">
 			<Text>[COLOR_NEGATIVE_TEXT]-{1_Num}[ENDCOLOR] {2_IconString} converted to [ICON_PRODUCTION] Production</Text>
