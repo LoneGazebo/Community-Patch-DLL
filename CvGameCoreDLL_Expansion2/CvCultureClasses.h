@@ -277,7 +277,7 @@ public:
 	int GetInfluenceCityStateSpyRankBonus(PlayerTypes eCityStatePlayer) const;
 	int GetInfluenceMajorCivSpyRankBonus(PlayerTypes ePlayer) const;
 	CvString GetInfluenceSpyRankTooltip (const CvString& szName, const CvString& szRank, PlayerTypes ePlayer);
-	int GetTourism();
+	int GetTourism() const;
 	int GetTourismModifierWith(PlayerTypes eTargetPlayer, bool bIgnoreReligion = false, bool bIgnoreOpenBorders = false, bool bIgnoreTrade = false, bool bIgnorePolicies = false, bool bIgnoreIdeologies = false) const;
 	CvString GetTourismModifierWithTooltip(PlayerTypes eTargetPlayer) const;
 	int GetTourismModifierSharedReligion(PlayerTypes eTargetPlayer) const;

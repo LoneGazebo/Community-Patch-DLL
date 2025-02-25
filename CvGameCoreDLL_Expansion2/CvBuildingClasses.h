@@ -1228,7 +1228,7 @@ public:
 	bool GetNextAvailableGreatWorkSlot(BuildingClassTypes& eBuildingClass, int& iSlot) const;
 	bool GetNextAvailableGreatWorkSlot(GreatWorkSlotType eGreatWorkSlot, BuildingClassTypes& eBuildingClass, int& iSlot) const;
 
-	int GetYieldFromGreatWorks(YieldTypes eYield) const;
+	int GetYieldFromGreatWorksTimes100(YieldTypes eYield) const;
 
 	int GetNumGreatWorks(bool bIgnoreYield = true) const;
 	int GetNumGreatWorks(GreatWorkSlotType eGreatWorkSlot, bool bArtifact = false, bool bArt = false) const;
