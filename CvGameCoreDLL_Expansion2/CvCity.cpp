@@ -370,8 +370,6 @@ CvCity::CvCity() :
 #endif
 	, m_aiBaseYieldRateFromLeague()
 	, m_siPlots()
-	, m_iTotalScienceyAid()
-	, m_iTotalArtsyAid()
 	, m_iEmpireSizeModifierReduction()
 	, m_iDistressFlatReduction()
 	, m_iPovertyFlatReduction()
@@ -12694,15 +12692,6 @@ int CvCity::getGeneralProductionModifiers(CvString* toolTipSink) const
 		}
 	}
 
-	if (MOD_BALANCE_VP && GetBaseYieldRateFromLeague(YIELD_PRODUCTION) > 0)
-	{
-		int iTempLeagueMod = GetBaseYieldRateFromLeague(YIELD_PRODUCTION);
-		iMultiplier += iTempLeagueMod;
-		if (toolTipSink && iTempLeagueMod)
-		{
-			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_LEAGUE", iTempLeagueMod);
-		}
-	}
 
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	if (MOD_BALANCE_CORE_POLICIES && GET_PLAYER(getOwner()).IsPuppetProdMod() && IsPuppet())
@@ -16191,13 +16180,6 @@ int CvCity::getGrowthMods(CvString* toolTipSink, int iAssumedLocalHappinessChang
 			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_WLTKD", iMod);
 	}
 
-	//Resolution League Bonus	
-	if (MOD_BALANCE_VP && GetBaseYieldRateFromLeague(YIELD_FOOD) > 0)
-	{
-		int iMod = GetBaseYieldRateFromLeague(YIELD_FOOD);
-		iTotalMod += iMod;
-		GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_LEAGUE", iMod);
-	}
 
 	return max(-100, iTotalMod);
 }
@@ -22966,13 +22948,13 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iAssumedExtraModifie
 			iModifier += iTempMod;
 			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_WONDER_POLICY", iTempMod);
 		}
+	}
 
-		if (MOD_BALANCE_VP && GET_PLAYER(getOwner()).IsLeagueAid())
-		{
-			iTempMod = GET_PLAYER(getOwner()).GetLeagueCultureCityModifier();
-			iModifier += iTempMod;
-			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_LEAGUE", iTempMod);
-		}
+	if (GET_PLAYER(getOwner()).GetYieldModifierFromLeague(eIndex) > 0)
+	{
+		iTempMod = GET_PLAYER(getOwner()).GetYieldModifierFromLeague(eIndex);
+		iModifier += iTempMod;
+		GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_LEAGUE", iTempMod);
 	}
 
 	// only used for internal calculations, so it doesn't need a tooltip
@@ -23127,8 +23109,6 @@ int CvCity::getYieldRateTimes100(YieldTypes eYield, bool bIgnoreTrade, bool bIgn
 			(*tooltipSink) += strLineDivision;
 			(*tooltipSink) += GetLocalizedText(iTotalYield >= 0 ? "TXT_KEY_YIELD_TOTAL" : "TXT_KEY_YIELD_TOTAL_NEGATIVE", (float)iTotalYield / 100, szIconString);
 		}
-
-		(*tooltipSink) += CvString("[NEWLINE][NEWLINE]DLL TOOLTIP"); /*todo: remove */
 	}
 
 
@@ -23347,13 +23327,11 @@ int CvCity::getBaseYieldRateTimes100(const YieldTypes eYield, CvString* tooltipS
 	if (tooltipSink)
 		GC.getGame().BuildYieldTimes100HelpText(tooltipSink, "TXT_KEY_YIELD_FROM_WORLD_CONGRESS", iTempYield, szIconString);
 
-	if (kOwner.IsLeagueArt() && eYield == YIELD_SCIENCE)
-	{
-		iTempYield = GetBaseScienceFromArt() * 100;
-		iYield += iTempYield;
-		if (tooltipSink)
-			GC.getGame().BuildYieldTimes100HelpText(tooltipSink, "TXT_KEY_SCIENCE_YIELD_FROM_LEAGUE_ART", iTempYield, szIconString);
-	}
+
+	iTempYield = GetBaseYieldRateFromLeague(eYield) * 100;
+	iYield += iTempYield;
+	if (tooltipSink)
+		GC.getGame().BuildYieldTimes100HelpText(tooltipSink, "TXT_KEY_SCIENCE_YIELD_FROM_LEAGUE_ART", iTempYield, szIconString);
 
 	if (eYield == YIELD_TOURISM)
 	{
@@ -23508,11 +23486,7 @@ int CvCity::GetTotalYieldFromYieldTimes100(YieldTypes eYield) const
 	return iYield;
 }
 
-/// Where is our Science coming from?
-int CvCity::GetBaseScienceFromArt() const
-{
-	return GetBaseYieldRateFromLeague(YIELD_SCIENCE);
-}
+
 
 //	--------------------------------------------------------------------------------
 /// Base yield rate from Great Works
@@ -23720,6 +23694,7 @@ void CvCity::ChangeBaseYieldRateFromLeague(YieldTypes eIndex, int iChange)
 	if (iChange != 0)
 	{
 		m_aiBaseYieldRateFromLeague[eIndex] = m_aiBaseYieldRateFromLeague[eIndex] + iChange;
+		UpdateCityYields(eIndex);
 
 		if (getTeam() == GC.getGame().getActiveTeam())
 		{
@@ -23729,39 +23704,6 @@ void CvCity::ChangeBaseYieldRateFromLeague(YieldTypes eIndex, int iChange)
 			}
 		}
 	}
-}
-//SCIENCY AID - Used for negation if cancelled
-void CvCity::ChangeTotalScienceyAid(int iChange)
-{
-	SetTotalScienceyAid(GetTotalScienceyAid() + iChange);
-}
-
-int CvCity::GetTotalScienceyAid() const
-{
-	return m_iTotalScienceyAid;
-}
-
-void CvCity::SetTotalScienceyAid(int iValue)
-{
-	if (GetTotalScienceyAid() != iValue)
-		m_iTotalScienceyAid = iValue;
-}
-
-//ARTSY AID TOTALS  - Used for negation if cancelled
-void CvCity::ChangeTotalArtsyAid(int iChange)
-{
-	SetTotalArtsyAid(GetTotalArtsyAid() + iChange);
-}
-
-int CvCity::GetTotalArtsyAid() const
-{
-	return m_iTotalArtsyAid;
-}
-
-void CvCity::SetTotalArtsyAid(int iValue)
-{
-	if (GetTotalArtsyAid() != iValue)
-		m_iTotalArtsyAid = iValue;
 }
 
 #if defined(MOD_BALANCE_CORE)

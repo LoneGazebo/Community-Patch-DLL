@@ -580,7 +580,6 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetGreatDiplomatRateModifier);
 	Method(GetScienceRateFromMinorAllies);
 	Method(GetScienceRateFromLeagueAid);
-	Method(GetLeagueCultureCityModifier);
 	Method(GetArtsyGreatPersonRateModifier);
 	Method(GetScienceyGreatPersonRateModifier);
 
@@ -7846,11 +7845,6 @@ int CvLuaPlayer::lGetScienceRateFromMinorAllies(lua_State* L)
 int CvLuaPlayer::lGetScienceRateFromLeagueAid(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlayerAI::GetScienceRateFromLeagueAid);
-}
-//int GetLeagueCultureCityModifier();
-int CvLuaPlayer::lGetLeagueCultureCityModifier(lua_State* L)
-{
-	return BasicLuaMethod(L, &CvPlayerAI::GetLeagueCultureCityModifier);
 }
 //int GetArtsyGreatPersonRateModifier();
 int CvLuaPlayer::lGetArtsyGreatPersonRateModifier(lua_State* L)
