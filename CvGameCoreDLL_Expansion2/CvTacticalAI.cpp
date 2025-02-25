@@ -7929,6 +7929,8 @@ bool CvTacticalPlot::hasCoverFromOtherUnits(const CvTacticalPosition& currentPos
 		return false;
 
 	//performance optimization
+	if (getEnemyDistance() < 2)
+		return false;
 	if (getEnemyDistance() > 3)
 		return true;
 
@@ -8228,11 +8230,11 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 				continue;
 
 			//where would we end the turn? ie are we advancing or not
-			if (attack.iRemainingMoves == 0 && !canProbablyEndTurnAfterThisAssignment(attack))
+			const CvTacticalPlot& newPlot = (attack.eAssignmentType == A_MELEEKILL) ? testPlot : assumedUnitPlot;
+			if (attack.iRemainingMoves == 0 && !canProbablyEndTurnInPlot(attack, newPlot))
 				continue;
 
-			int iNewPlot = (attack.eAssignmentType == A_MELEEKILL) ? attack.iToPlotIndex : attack.iFromPlotIndex;
-			const CvTacticalPlot& newPlot = getTactPlot(iNewPlot);
+			//also consider which plot we end up in
 			STacticalAssignment moveToPlot = ScorePlotForMove(unit, newPlot, attack.iRemainingMoves, *this, EM_INTERMEDIATE);
 			attack.iScore += moveToPlot.iScore;
 
@@ -8250,7 +8252,7 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 		{
 			//try pillaging as an intermediate step
 			STacticalAssignment pillaging = ScorePlotForPillageMove(unit, testPlot, it->iMovesLeft, *this);
-			if (pillaging.iScore > 0 && (pillaging.iRemainingMoves > 0 || canProbablyEndTurnAfterThisAssignment(pillaging)))
+			if (pillaging.iScore > 0 && (pillaging.iRemainingMoves > 0 || canProbablyEndTurnInPlot(pillaging, testPlot)))
 				//continue with the same plot, maybe in the final analysis we will skip the pillage because we need the movement points
 				gPossibleMoves.push_back(pillaging);
 
@@ -8273,7 +8275,7 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 						//this is a catch-22: we really want to allow dangerous attacks because we might be able to kill the enemy unit making it safe.
 						//experience shows this leads to a lot of "impossible" positions which have to be discarded later, killing performance.
 						//but canProbablyEndTurnAfterThisAssignment() will consider near-kills for danger estimation!
-						if (rangedAttack.iRemainingMoves == 0 && !canProbablyEndTurnAfterThisAssignment(rangedAttack))
+						if (rangedAttack.iRemainingMoves == 0 && !canProbablyEndTurnInPlot(rangedAttack, testPlot))
 							continue;
 
 						//discourage attacks on cities with non-siege units if the real target is something else
@@ -8291,7 +8293,7 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 
 			//also try just staying in place
 			//doesn't matter if we have movement left in this case
-			bool bWantToEndTurnHere = gPossibleRangedAttacks.empty() && canProbablyEndTurnAfterThisAssignment(moveToPlot);
+			bool bWantToEndTurnHere = gPossibleRangedAttacks.empty() && canProbablyEndTurnInPlot(moveToPlot, testPlot);
 			if (bWantToEndTurnHere)
 			{
 				//give a bonus for potential fortifying/healing
@@ -8337,7 +8339,7 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 			//note that "passive damage" ie covering our own units is implicit in the plot score for firstline units
 
 			//may not be able to end the turn ...
-			if ((moveToPlot.iRemainingMoves > GC.getMOVE_DENOMINATOR() && pUnit->canMoveAfterAttacking()) || canProbablyEndTurnAfterThisAssignment(moveToPlot))
+			if ((moveToPlot.iRemainingMoves > GC.getMOVE_DENOMINATOR() && pUnit->canMoveAfterAttacking()) || canProbablyEndTurnInPlot(moveToPlot, testPlot))
 			{
 				//score functions are biased so that only scores > 0 are interesting moves
 				//still allow mildly negative moves here, maybe we want to do combo moves later!
@@ -10112,35 +10114,8 @@ float CvTacticalPosition::getAggressionBias() const
 
 //this is intended to filter out the no-chance-in-hell moves
 //it's not intended to be the final check, the situation can still change as the sim progresses
-bool CvTacticalPosition::canProbablyEndTurnAfterThisAssignment(const STacticalAssignment& assignment) const
+bool CvTacticalPosition::canProbablyEndTurnInPlot(const STacticalAssignment& assignment, const CvTacticalPlot& assumedUnitPlot) const
 {
-	int iEndPlotIndex = -1;
-	switch (assignment.eAssignmentType)
-	{
-	case A_MOVE:
-	case A_MELEEKILL:
-	case A_CAPTURE:
-		//unit moves
-		iEndPlotIndex = assignment.iToPlotIndex;
-		break;
-	case A_MELEEATTACK:
-	case A_RANGEATTACK:
-	case A_RANGEKILL:
-	case A_PILLAGE:
-	case A_FINISH_TEMP:
-	case A_MELEEKILL_NO_ADVANCE:
-		//unit stays in place
-		iEndPlotIndex = assignment.iFromPlotIndex;
-		break;
-	case A_BLOCKED:	//not our problem ... fingers crossed
-	case A_USE_POWER: //consumes the unit!
-		return true;
-	default:
-		OutputDebugString("unexpected assignment type ...\n");
-		return false;
-	}
-
-	const CvTacticalPlot& assumedUnitPlot = getTactPlot(iEndPlotIndex);
 	const SUnitStats* unit = getAvailableUnitStats(assignment.iUnitID);
 	const CvUnit* pUnit = unit->pUnit;
 	if (!pUnit || !assumedUnitPlot.isValid())
