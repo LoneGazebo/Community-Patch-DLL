@@ -538,7 +538,6 @@ CvPlayer::CvPlayer() :
 	, m_bIsLeagueArt()
 	, m_iScienceRateFromLeague()
 	, m_iScienceRateFromLeagueAid()
-	, m_iLeagueCultureCityModifier()
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
 	, m_iProductionBonusTurnsConquest()
 	, m_iCultureBonusTurnsConquest()
@@ -688,6 +687,7 @@ CvPlayer::CvPlayer() :
 	, m_aiYieldFromNonSpecialistCitizensTimes100()
 	, m_aiYieldModifierFromGreatWorks()
 	, m_aiYieldModifierFromActiveSpies()
+	, m_aiYieldModifierFromLeague()
 	, m_aiYieldFromDelegateCount()
 	, m_aiYieldFromXMilitaryUnits()
 	, m_aiYieldPerCityOverStrengthThreshold()
@@ -1340,11 +1340,11 @@ void CvPlayer::uninit()
 	m_iDefensePactsToVotes = 0;
 	m_iGPExpendInfluence = 0;
 	m_bIsLeagueAid = false;
+	m_iTotalScienceyAid = 0;
 	m_bIsLeagueScholar = false;
 	m_bIsLeagueArt = false;
 	m_iScienceRateFromLeague = 0;
 	m_iScienceRateFromLeagueAid = 0;
-	m_iLeagueCultureCityModifier = 0;
 	m_iWoundedUnitDamageMod = 0;
 	m_iUnitUpgradeCostMod = 0;
 	m_iBarbarianCombatBonus = 0;
@@ -1858,6 +1858,9 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 	m_aiYieldModifierFromActiveSpies.clear();
 	m_aiYieldModifierFromActiveSpies.resize(NUM_YIELD_TYPES, 0);
+
+	m_aiYieldModifierFromLeague.clear();
+	m_aiYieldModifierFromLeague.resize(NUM_YIELD_TYPES, 0);
 
 	m_aiYieldFromDelegateCount.clear();
 	m_aiYieldFromDelegateCount.resize(NUM_YIELD_TYPES, 0);
@@ -17438,26 +17441,6 @@ void CvPlayer::ChangeJONSCultureCityModifier(int iChange)
 	}
 }
 
-/// Modifier for all Cities' culture
-int CvPlayer::GetLeagueCultureCityModifier() const
-{
-	return m_iLeagueCultureCityModifier;
-}
-
-/// Modifier for all Cities' culture
-void CvPlayer::ChangeLeagueCultureCityModifier(int iChange)
-{
-	if(iChange != 0)
-	{
-		m_iLeagueCultureCityModifier += iChange;
-
-		if(GC.getGame().getActivePlayer() == GetID())
-		{
-			GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
-		}
-	}
-}
-
 int CvPlayer::getJONSCultureTimes100() const
 {
 	// City States can't pick Policies, sorry!
@@ -23188,43 +23171,14 @@ void CvPlayer::ProcessLeagueResolutions()
 			{
 				// calculate modifier that is actually related to Resolution's ArtsyGreatPersonRateMod parameter
 				int iScoreMod = pLeague->GetArtsyGreatPersonRateModifier() * ScoreDifferencePercent(1) / 100;
-				int iLoop = 0;
-				int iAid = 0;
-				for(CvCity* pLoopCity = GET_PLAYER(GetID()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(GetID()).nextCity(&iLoop))
-				{
-					int iAid = (iScoreMod - pLoopCity->GetTotalArtsyAid());
-					if(iAid != 0)
-					{
-						pLoopCity->ChangeBaseYieldRateFromLeague(YIELD_PRODUCTION, iAid);
-
-						pLoopCity->ChangeTotalArtsyAid(iAid);
-					}
-
-				}
-				iAid = iScoreMod - GetLeagueCultureCityModifier();
-				if(iAid != 0)
-				{
-					ChangeLeagueCultureCityModifier(iAid);
-				}
+				SetYieldModifierFromLeague(YIELD_PRODUCTION, iScoreMod);
+				SetYieldModifierFromLeague(YIELD_CULTURE, iScoreMod);
 			}
 			//Remove bonuses from filty first-worlders.
 			if(AidRankGeneric(1) != GetID()) // calculate only Culture related score
 			{
-				int iLoop = 0;
-				for(CvCity* pLoopCity = GET_PLAYER(GetID()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(GetID()).nextCity(&iLoop))
-				{
-					if(pLoopCity->GetTotalArtsyAid() != 0)
-					{
-
-						pLoopCity->ChangeBaseYieldRateFromLeague(YIELD_PRODUCTION, pLoopCity->GetTotalArtsyAid() * -1);
-
-						pLoopCity->SetTotalArtsyAid(0);
-					}
-				}
-				if(GetLeagueCultureCityModifier() != 0)
-				{
-					ChangeLeagueCultureCityModifier(GetLeagueCultureCityModifier() * -1);
-				}
+				SetYieldModifierFromLeague(YIELD_PRODUCTION, 0);
+				SetYieldModifierFromLeague(YIELD_CULTURE, 0);
 			}
 		}
 		else if (pLeague && pLeague->GetScienceyGreatPersonRateModifier() > 0)
@@ -23234,73 +23188,23 @@ void CvPlayer::ProcessLeagueResolutions()
 			{
 				// calculate modifier that is actually related to Resolution's ScienceyGreatPersonRateMod parameter
 				int iScoreMod = pLeague->GetScienceyGreatPersonRateModifier() * ScoreDifferencePercent(2) / 100;
-				int iLoop = 0;
-				int iAid = 0;
-				for(CvCity* pLoopCity = GET_PLAYER(GetID()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(GetID()).nextCity(&iLoop))
-				{
-					iAid = (iScoreMod - pLoopCity->GetTotalScienceyAid());
-					if(iAid != 0)
-					{
-						pLoopCity->ChangeBaseYieldRateFromLeague(YIELD_FOOD, iAid);
-
-						pLoopCity->ChangeTotalScienceyAid(iAid);
-					}
-				}
-				//Global
-				iAid = (iScoreMod - GetScienceRateFromLeagueAid());
-				if(iAid != 0)
-				{
-					ChangeScienceRateFromLeagueAid(iAid);
-				}
+				SetYieldModifierFromLeague(YIELD_FOOD, iScoreMod);
+				SetYieldModifierFromLeague(YIELD_SCIENCE, iScoreMod);
 			}
 			//Remove bonuses from filty first-worlders.
 			if(AidRankGeneric(2) != GetID()) // calculate only Research related score
 			{
-				int iLoop = 0;
-				for(CvCity* pLoopCity = GET_PLAYER(GetID()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(GetID()).nextCity(&iLoop))
-				{
-					if(pLoopCity->GetTotalScienceyAid() != 0)
-					{
-						pLoopCity->ChangeBaseYieldRateFromLeague(YIELD_FOOD, (pLoopCity->GetTotalScienceyAid() * -1));
-
-						pLoopCity->SetTotalScienceyAid(0);
-					}
-				}
-				//Global
-				if(GetScienceRateFromLeagueAid() != 0)
-				{
-					ChangeScienceRateFromLeagueAid(GetScienceRateFromLeagueAid() * -1);
-				}
+				SetYieldModifierFromLeague(YIELD_FOOD, 0);
+				SetYieldModifierFromLeague(YIELD_SCIENCE, 0);
 			}
 		}
 	}
 	else if(!IsLeagueAid())
 	{
-		int iLoop = 0;
-		for(CvCity* pLoopCity = GET_PLAYER(GetID()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(GetID()).nextCity(&iLoop))
-		{
-			if(pLoopCity->GetTotalScienceyAid() != 0)
-			{
-				pLoopCity->ChangeBaseYieldRateFromLeague(YIELD_FOOD, (pLoopCity->GetTotalScienceyAid() * -1));
-
-				pLoopCity->SetTotalScienceyAid(0);
-			}
-			if(pLoopCity->GetTotalArtsyAid() != 0)
-			{
-				pLoopCity->ChangeBaseYieldRateFromLeague(YIELD_PRODUCTION, pLoopCity->GetTotalArtsyAid() * -1);
-
-				pLoopCity->SetTotalArtsyAid(0);
-			}
-		}
-		//Global
-		if(GetScienceRateFromLeagueAid() != 0)
-		{
-			ChangeScienceRateFromLeagueAid(GetScienceRateFromLeagueAid() * -1);
-		}
-		if(GetLeagueCultureCityModifier() != 0)
-		{
-			ChangeLeagueCultureCityModifier(GetLeagueCultureCityModifier() * -1);
-		}
+		SetYieldModifierFromLeague(YIELD_PRODUCTION, 0);
+		SetYieldModifierFromLeague(YIELD_CULTURE, 0);
+		SetYieldModifierFromLeague(YIELD_FOOD, 0);
+		SetYieldModifierFromLeague(YIELD_SCIENCE, 0);
 	}
 	if(IsLeagueArt())
 	{
@@ -34120,6 +34024,31 @@ void CvPlayer::changeYieldModifierFromActiveSpies(YieldTypes eIndex, int iChange
 	}
 }
 
+int CvPlayer::GetYieldModifierFromLeague(YieldTypes eIndex) const
+{
+	ASSERT_DEBUG(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	return m_aiYieldModifierFromLeague[eIndex];
+}
+
+void CvPlayer::SetYieldModifierFromLeague(YieldTypes eIndex, int iNewValue)
+{
+	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+
+	if (iNewValue != GetYieldModifierFromLeague(eIndex))
+	{
+		m_aiYieldModifierFromLeague[eIndex] = iNewValue;
+
+		invalidateYieldRankCache(eIndex);
+
+		if (getTeam() == GC.getGame().getActiveTeam())
+		{
+			GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
+		}
+	}
+}
+
 int CvPlayer::getYieldFromDelegateCount(YieldTypes eIndex)	const
 {
 	ASSERT_DEBUG(eIndex >= 0, "eIndex expected to be >= 0");
@@ -42723,11 +42652,12 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_iDefensePactsToVotes);
 	visitor(player.m_iGPExpendInfluence);
 	visitor(player.m_bIsLeagueAid);
+	visitor(player.m_iTotalScienceyAid);
+	visitor(player.m_iTotalArtsyAid);
 	visitor(player.m_bIsLeagueScholar);
 	visitor(player.m_bIsLeagueArt);
 	visitor(player.m_iScienceRateFromLeague);
 	visitor(player.m_iScienceRateFromLeagueAid);
-	visitor(player.m_iLeagueCultureCityModifier);
 	visitor(player.m_iAttackBonusTurns);
 	visitor(player.m_iCultureBonusTurns);
 	visitor(player.m_iTourismBonusTurns);
@@ -43098,6 +43028,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_aiYieldFromNonSpecialistCitizensTimes100);
 	visitor(player.m_aiYieldModifierFromGreatWorks);
 	visitor(player.m_aiYieldModifierFromActiveSpies);
+	visitor(player.m_aiYieldModifierFromLeague);
 	visitor(player.m_aiYieldFromDelegateCount);
 	visitor(player.m_aiYieldFromXMilitaryUnits);
 	visitor(player.m_aiYieldPerCityOverStrengthThreshold);
