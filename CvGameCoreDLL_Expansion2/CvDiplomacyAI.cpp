@@ -21186,7 +21186,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		vApproachScores[CIV_APPROACH_FRIENDLY] *= 100;
 		vApproachScores[CIV_APPROACH_FRIENDLY] /= max(100, (100 - iFriendlyMod + iOpinionWeight));	
 
-		// Decrease Neutral
+		// Decrease NEUTRAL
 		vApproachScores[CIV_APPROACH_NEUTRAL] *= 100;
 		vApproachScores[CIV_APPROACH_NEUTRAL] /= max(100, (100 - iNeutralMod + iOpinionWeight));
 	}
@@ -21249,31 +21249,35 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		iHighestBadApproach = max(iHighestBadApproach, vApproachScores[CIV_APPROACH_GUARDED]);
 		iHighestBadApproach = max(iHighestBadApproach, vApproachScores[CIV_APPROACH_AFRAID]);
 
-		// Increase NEUTRAL if it would outscore at least one bad approach, or if FRIENDLY doesn't
-		int iNeutralUp = (vApproachScores[CIV_APPROACH_NEUTRAL] * (100 + iNeutralMod + iOpinionWeight)) / 100;
-		if (iNeutralUp >= vApproachScores[CIV_APPROACH_WAR] ||
-			iNeutralUp >= vApproachScores[CIV_APPROACH_HOSTILE] ||
-			iNeutralUp >= vApproachScores[CIV_APPROACH_DECEPTIVE] ||
-			iNeutralUp >= vApproachScores[CIV_APPROACH_GUARDED] ||
-			iNeutralUp >= vApproachScores[CIV_APPROACH_AFRAID])
-		{
-			if (iNeutralUp < vApproachScores[CIV_APPROACH_FRIENDLY] || vApproachScores[CIV_APPROACH_FRIENDLY] <= iHighestBadApproach)
-				vApproachScores[CIV_APPROACH_NEUTRAL] = iNeutralUp;
-		}
+		int iLowestBadApproach = min(vApproachScores[CIV_APPROACH_WAR], vApproachScores[CIV_APPROACH_HOSTILE]);
+		iLowestBadApproach = min(iLowestBadApproach, vApproachScores[CIV_APPROACH_DECEPTIVE]);
+		iLowestBadApproach = min(iLowestBadApproach, vApproachScores[CIV_APPROACH_GUARDED]);
+		iLowestBadApproach = min(iLowestBadApproach, vApproachScores[CIV_APPROACH_AFRAID]);
 
+		// Increase NEUTRAL if FRIENDLY doesn't outscore the highest-scoring bad approach
+		int iNeutralUp = (vApproachScores[CIV_APPROACH_NEUTRAL] * (100 + iNeutralMod + iOpinionWeight)) / 100;
+		if (vApproachScores[CIV_APPROACH_FRIENDLY] <= iHighestBadApproach)
+		{
+			vApproachScores[CIV_APPROACH_NEUTRAL] = iNeutralUp;
+		}
 		// Decrease NEUTRAL if it outscores FRIENDLY, *if* FRIENDLY isn't outscored by a bad approach, and don't decrease it to the point where it scores below a bad approach
-		if (vApproachScores[CIV_APPROACH_NEUTRAL] >= vApproachScores[CIV_APPROACH_FRIENDLY] && vApproachScores[CIV_APPROACH_FRIENDLY] > iHighestBadApproach)
+		else if (vApproachScores[CIV_APPROACH_NEUTRAL] >= vApproachScores[CIV_APPROACH_FRIENDLY] && vApproachScores[CIV_APPROACH_FRIENDLY] > iHighestBadApproach)
 		{
 			int iNeutralDown = vApproachScores[CIV_APPROACH_NEUTRAL] * 100 / max(100,(100 - iNeutralMod + iOpinionWeight));
 			if (iNeutralDown > iHighestBadApproach)
 				vApproachScores[CIV_APPROACH_NEUTRAL] = iNeutralDown;
 			else
-				vApproachScores[CIV_APPROACH_NEUTRAL] = iHighestBadApproach + 1;
+				vApproachScores[CIV_APPROACH_NEUTRAL] = max(iNeutralDown, iHighestBadApproach + 1);
+		}
+		// Otherwise, increase NEUTRAL, but not to the point of going beyond FRIENDLY
+		else
+		{
+			vApproachScores[CIV_APPROACH_NEUTRAL] = min(iNeutralUp, vApproachScores[CIV_APPROACH_FRIENDLY] - 1);
 		}
 	}
 	else
 	{
-		// Increase Neutral
+		// Increase NEUTRAL
 		vApproachScores[CIV_APPROACH_NEUTRAL] *= 100 + (iNeutralMod * 2);
 		vApproachScores[CIV_APPROACH_NEUTRAL] /= 100;
 	}
