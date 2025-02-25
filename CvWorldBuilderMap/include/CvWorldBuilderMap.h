@@ -704,8 +704,8 @@ public:
 
 	CvWorldBuilderMapModData m_kModData;
 
-	FStringA m_sMapName;
-	FStringA m_sMapDescription;
+	CvString m_sMapName;
+	CvString m_sMapDescription;
 
 	CvWorldBuilderMapTypeGroup m_kVictoryTypes;
 	CvWorldBuilderMapTypeGroup m_kGameOptions;

@@ -227,7 +227,7 @@ int CvNotifications::AddByName(const char* pszNotificationName, const char* strM
 {
 	if (pszNotificationName && pszNotificationName[0] != 0)
 	{
-		return Add((NotificationTypes) FString::Hash(pszNotificationName), strMessage, strSummary, iX, iY, iGameDataIndex, iExtraGameData);
+		return Add((NotificationTypes) FStringHash(pszNotificationName), strMessage, strSummary, iX, iY, iGameDataIndex, iExtraGameData);
 	}
 	return -1;
 }

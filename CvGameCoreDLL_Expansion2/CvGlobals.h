@@ -172,7 +172,7 @@ public:
 	};
 
 	typedef stdext::hash_map<std::string /* type string */, int /* info index */> InfosMap;
-	typedef std::map<uint /* FString::HashType */, int /* info index */> InfosHashMap;
+	typedef std::map<uint /* FStringHashType */, int /* info index */> InfosHashMap;
 	typedef tr1::array<uint32, 4> GameDataHash;
 
 	// singleton accessor
@@ -3211,6 +3211,9 @@ extern CvGlobals gGlobals;
 #define DB (*GC.GetGameDatabase())
 #define DLLUI (GC.GetEngineUserInterface())
 #define DLLUIClass CvDLLInterfaceIFaceBase
+
+uint FStringHash(LPCWSTR pszStr);
+uint FStringHash(LPCSTR pszStr);
 
 inline Database::Connection* CvGlobals::GetGameDatabase()
 {

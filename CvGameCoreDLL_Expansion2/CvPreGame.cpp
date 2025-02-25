@@ -8,12 +8,11 @@
 #include "CvGameCoreDLLPCH.h"
 #include "CvGameCoreUtils.h"
 #include "CvPreGame.h"
-#include "FIGameIniParser.h"
-#include "FLua/include/FLua.h"
 #include "FStlContainerSerialization.h"
 #include "FFileStream.h"
 #include "ICvDLLDatabaseUtility.h"
 #include "CvInfosSerializationHelper.h"
+#include "FIGameIniParser.h"
 
 #include <unordered_map>
 
@@ -156,7 +155,7 @@ int CustomOption::GetValue() const
 //------------------------------------------------------------------------------
 FDataStream& operator>>(FDataStream& stream, CustomOption& option)
 {
-	FString optionName;
+	CvString optionName;
 
 	stream >> optionName;
 	stream >> option.m_iValue;
@@ -168,7 +167,7 @@ FDataStream& operator>>(FDataStream& stream, CustomOption& option)
 //------------------------------------------------------------------------------
 FDataStream& operator<<(FDataStream& stream, const CustomOption& option)
 {
-	FString optionName(option.m_szOptionName, strlen(option.m_szOptionName));
+	const CvString optionName(option.m_szOptionName);
 	stream << optionName;
 	stream << option.m_iValue;
 
@@ -1028,7 +1027,7 @@ bool SetGameOption(const char* szOptionName, int iValue)
 
 	//Didn't find the option, push it.
 	s_GameOptions.push_back(CustomOption(szOptionName, iValue));
-	s_GameOptionsHash[FString::Hash(szOptionName)] = s_GameOptions.size() - 1;
+	s_GameOptionsHash[FStringHash(szOptionName)] = s_GameOptions.size() - 1;
 	SyncGameOptionsWithEnumList();
 
 	return true;
@@ -1052,7 +1051,7 @@ bool SetGameOptions(const std::vector<CustomOption>& gameOptions)
 	for(size_t i = 0; i < s_GameOptions.size(); i++)
 	{
 		const CustomOption& kOption = s_GameOptions[i];
-		s_GameOptionsHash[FString::Hash(kOption.GetName())] = i;
+		s_GameOptionsHash[FStringHash(kOption.GetName())] = i;
 	}
 
 	SyncGameOptionsWithEnumList();
@@ -1368,7 +1367,7 @@ void loadFromIni(FIGameIniParser& iniParser)
 	setQuickCombatDefault(iHolder != 0);
 	setQuickCombat(quickCombatDefault());
 
-	FString szGameDefault = "";//FString(GC.getSetupData().getAlias().GetCString());
+	CvString szGameDefault = "";//FString(GC.getSetupData().getAlias().GetCString());
 	if (szGameDefault.IsEmpty())
 	{
 		Localization::String strGameName = Localization::Lookup("TXT_KEY_DEFAULT_GAMENAME");
@@ -1905,7 +1904,7 @@ void readArchive(FDataStream& loadFrom, bool bReadVersion)
 	for(size_t i = 0; i < s_GameOptions.size(); i++)
 	{
 		const CustomOption& kOption = s_GameOptions[i];
-		s_GameOptionsHash[FString::Hash(kOption.GetName())] = i;
+		s_GameOptionsHash[FStringHash(kOption.GetName())] = i;
 	}
 }
 
@@ -2006,7 +2005,7 @@ void ResetGameOptions()
 	for(size_t i = 0; i < s_GameOptions.size(); i++)
 	{
 		const CustomOption& kOption = s_GameOptions[i];
-		s_GameOptionsHash[FString::Hash(kOption.GetName())] = i;
+		s_GameOptionsHash[FStringHash(kOption.GetName())] = i;
 	}
 	SyncGameOptionsWithEnumList();
 }

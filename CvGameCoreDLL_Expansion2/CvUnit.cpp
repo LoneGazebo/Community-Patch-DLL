@@ -31,7 +31,6 @@
 #include "CvTypes.h"
 #include "CvUnitCombat.h"
 #include "CvUnitMission.h"
-#include "FMemoryStream.h"
 #include "ICvDLLUserInterface.h"
 #include <math.h>
 

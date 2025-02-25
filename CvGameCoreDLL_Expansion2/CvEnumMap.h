@@ -11,8 +11,6 @@
 
 #include "CvAssert.h"
 #include "CvAlignedStorage.h"
-#include "FDefNew.h"
-
 #include "CvEnumsUtil.h"
 
 #include <algorithm>

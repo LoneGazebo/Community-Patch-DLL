@@ -781,9 +781,9 @@ enum CLOSED_ENUM InterfaceMessageTypes
 
 //  !!!!!!!!!!!!!!!!!!!!!!!
 //  IMPORTANT - NotificationTypes enum contains hash values, not an index!
-//  It is not required to add a new enum for a new notification, you can just use the hash (FString::Hash) of the name
+//  It is not required to add a new enum for a new notification, you can just use the hash (FStringHash) of the name
 //	as defined in the Notifications.xml or equivalent.  The enum is just a helper so that the has generation is done
-//	at compile time.  e.g.  the enum NOTIFICATION_TECH is equivalent to FString::Hash("NOTIFICATION_TECH")
+//	at compile time.  e.g.  the enum NOTIFICATION_TECH is equivalent to FStringHash("NOTIFICATION_TECH")
 //
 //  MODDERS:
 //		If you add a new notification, you do NOT have to add it to this helper list, you can just make a define
@@ -1952,12 +1952,12 @@ enum CLOSED_ENUM AutomateTypes
 
 	// Do not add any more sequential enums, add explicit key values (hash of text key)
 
-	AUTOMATE_TRADE		= 0x4bdc68d8,	// FString::Hash("AUTOMATE_TRADE");
+	AUTOMATE_TRADE		= 0x4bdc68d8,	// FStringHash("AUTOMATE_TRADE");
 #if defined(MOD_BALANCE_CORE)
-	AUTOMATE_MISSIONARY = 0x840842ea,  //FString::Hash("AUTOMATE_MISSIONARY");
-	AUTOMATE_ARCHAEOLOGIST = 0x64f5468a,  //FString::Hash("AUTOMATE_ARCHAEOLOGIST");
+	AUTOMATE_MISSIONARY = 0x840842ea,  //FStringHash("AUTOMATE_MISSIONARY");
+	AUTOMATE_ARCHAEOLOGIST = 0x64f5468a,  //FStringHash("AUTOMATE_ARCHAEOLOGIST");
 #endif
-	AUTOMATE_DIPLOMAT = 0xd2d86d2d,  //FString::Hash("AUTOMATE_DIPLOMAT");
+	AUTOMATE_DIPLOMAT = 0xd2d86d2d,  //FStringHash("AUTOMATE_DIPLOMAT");
 
 };
 

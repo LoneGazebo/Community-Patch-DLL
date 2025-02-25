@@ -3628,7 +3628,7 @@ void CvCity::DoStartEvent(CityEventTypes eChosenEvent, bool bSendMsg)
 					{
 						CvString strBuffer = GetLocalizedText("TXT_KEY_CHOOSE_EVENT_CHOICE_CITY");
 						CvString strSummary = GetLocalizedText("TXT_KEY_CHOOSE_EVENT_CHOICE_CITY_TT");
-						pNotifications->Add((NotificationTypes)FString::Hash("NOTIFICATION_EVENT_CHOICE_CITY"), strSummary.c_str(), strBuffer.c_str(), -1, -1, eChosenEvent, GetID());
+						pNotifications->Add((NotificationTypes)FStringHash("NOTIFICATION_EVENT_CHOICE_CITY"), strSummary.c_str(), strBuffer.c_str(), -1, -1, eChosenEvent, GetID());
 					}
 				}
 				else
@@ -7294,7 +7294,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 				CvString strNotificationString = pkEventChoiceInfo->GetNotificationInfo(iI)->GetNotificationString();
 				if (strNotificationString != NULL && !strNotificationString.empty())
 				{
-					NotificationTypes eNotificationType = (NotificationTypes)FString::Hash(strNotificationString);
+					NotificationTypes eNotificationType = (NotificationTypes)FStringHash(strNotificationString);
 
 					if (eNotificationType != NO_NOTIFICATION_TYPE)
 					{
@@ -9716,7 +9716,7 @@ void CvCity::ChangeNumResourceLocal(ResourceTypes eResource, int iChange, bool b
 						CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
 						if (pNotifications)
 						{
-							pNotifications->Add((NotificationTypes)FString::Hash("NOTIFICATION_PRODUCTION_COST_MODIFIERS_FROM_RESOURCES"), strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), eResource);
+							pNotifications->Add((NotificationTypes)FStringHash("NOTIFICATION_PRODUCTION_COST_MODIFIERS_FROM_RESOURCES"), strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), eResource);
 						}
 					}
 				}

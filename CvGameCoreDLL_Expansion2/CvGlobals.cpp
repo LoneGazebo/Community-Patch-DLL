@@ -18,7 +18,6 @@
 #include "CvTeam.h"
 #include "CvInfos.h"
 #include "ICvDLLUtility.h"
-#include "CvPlayerAI.h"
 #include "CvGameTextMgr.h"
 #include "CvDiplomacyAI.h"
 #include "CvEconomicAI.h"
@@ -31,6 +30,7 @@
 #include "cvStopWatch.h"
 #include "CvReplayInfo.h"
 #include "CvTypes.h"
+#include "FCrc32.h"
 
 #include "CvDllDatabaseUtility.h"
 #include "CvDllScriptSystemUtility.h"
@@ -62,6 +62,18 @@ void deleteInfoArray(std::vector<T*>& array)
 	}
 
 	array.clear();
+}
+
+// Calculates a hash value for the string
+uint FStringHash(LPCWSTR pszStr)
+{
+	int len = (pszStr ? (int)wcslen(pszStr) : 0);
+	return (g_CRC32.Calc((void*)pszStr, len * sizeof(wchar)));
+}
+uint FStringHash(LPCSTR pszStr)
+{
+	int len = (pszStr ? (int)strlen(pszStr) : 0);
+	return (g_CRC32.Calc((void*)pszStr, len * sizeof(char)));
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -4044,7 +4056,7 @@ static void HashGameDataCombine(CvGlobals::GameDataHash& seed, std::size_t& word
 		if (*it == 0)
 			infoHash = fnv_offset_basis;
 		else
-			infoHash = FString::Hash((*it)->GetType());
+			infoHash = FStringHash((*it)->GetType());
 		seed[word] ^= (infoHash ^ fnv_offset_basis) * fnv_prime;
 		if (++word >= 4)
 			word = 0;
@@ -7492,7 +7504,7 @@ int CvGlobals::getInfoTypeForString(const char* szType, bool hideAssert) const
 void CvGlobals::setInfoTypeFromString(const char* szType, int idx)
 {
 	ASSERT_DEBUG(szType, "null info type string");
-	uint uiHash = FString::Hash(szType);
+	uint uiHash = FStringHash(szType);
 #ifdef _DEBUG
 	InfosMap::const_iterator it = m_infosMap.find(szType);
 	int iExisting = (it!=m_infosMap.end()) ? it->second : -1;

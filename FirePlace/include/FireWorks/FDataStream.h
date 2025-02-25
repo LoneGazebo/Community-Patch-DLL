@@ -20,7 +20,6 @@
 #include "FFastVector.h"
 #include "FArray.h"
 #include "FEndian.h"
-#include "FString.h"
 
 class YouMustImplementASerializeOperatorForThisTypeError;
 
@@ -87,19 +86,11 @@ public:
 protected:
 	// only access through shift operators << and >>
 	// Writing
-	unsigned int WriteString(const FStringA& szName);
-	unsigned int WriteString(int count, const FStringA values[]);
-	unsigned int WriteString(const FStringW& szName);
-	unsigned int WriteString(int count, const FStringW values[]);
 	unsigned int WriteString(const std::string& szName);
 	unsigned int WriteString(int count, const std::string values[]);
 	unsigned int WriteString(const std::wstring& szName);
 	unsigned int WriteString(int count, const std::wstring values[]);
 	void Write(const YouMustImplementASerializeOperatorForThisTypeError & szName);
-	void Write(const FStringA& szName);
-	void Write(int count, const FStringA values[]);
-	void Write(const FStringW& szName);
-	void Write(int count, const FStringW values[]);
 	void Write(const std::string& szName);
 	void Write(int count, const std::string values[]);
 	void Write(const std::wstring& szName);
@@ -144,20 +135,12 @@ protected:
 	void Write(int, const GUID values[]);
 
 		// Reading
-	unsigned int ReadString(FStringA& szName);
-	unsigned int ReadString(int count, FStringA values[]);
-	unsigned int ReadString(FStringW& szName);
-	unsigned int ReadString(int count, FStringW values[]);
 	unsigned int ReadString(std::string& szName);
 	unsigned int ReadString(int count, std::string values[]);
 	unsigned int ReadString(std::wstring& szName);
 	unsigned int ReadString(int count, std::wstring values[]);
 	
 	void Read(YouMustImplementASerializeOperatorForThisTypeError & szName);
-	void Read(FStringA& szName);
-	void Read(int count, FStringA values[]);
-	void Read(FStringW& szName);
-	void Read(int count, FStringW values[]);
 	void Read(std::string& szName);
 	void Read(int count, std::string values[]);
 	void Read(std::wstring& szName);

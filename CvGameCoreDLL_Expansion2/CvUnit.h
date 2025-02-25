@@ -15,8 +15,6 @@
 #include "CvEnumSerialization.h"
 #include "FStlContainerSerialization.h"
 #include "FAutoVariable.h"
-#include "FAutoVector.h"
-#include "FObjectHandle.h"
 #include "CvInfos.h"
 #include "CvPromotionClasses.h"
 #include "CvAStarNode.h"

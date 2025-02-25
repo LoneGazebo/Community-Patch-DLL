@@ -2,6 +2,7 @@
 #define _FIGAMEINIPARSER_H
 
 #include "FFileDefines.h"
+#include "FString.h"
 
 // Interface class to the game ini parser
 class FIGameIniParser

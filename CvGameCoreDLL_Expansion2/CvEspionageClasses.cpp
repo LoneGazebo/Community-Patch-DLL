@@ -1562,7 +1562,7 @@ bool CvPlayerEspionage::TriggerSpyFocusSetup(CvCity* pCity, int uiSpyIndex)
 			strSummary << pSpy->GetSpyName(m_pPlayer);
 			strSummary << pCity->getNameKey();
 
-			pNotifications->Add((NotificationTypes)FString::Hash("NOTIFICATION_ESPIONAGE_AA"), strSummary.toUTF8(), strBuffer.toUTF8(), pCity->plot()->getX(), pCity->plot()->getY(), eSetupEvent, uiSpyIndex);
+			pNotifications->Add((NotificationTypes)FStringHash("NOTIFICATION_ESPIONAGE_AA"), strSummary.toUTF8(), strBuffer.toUTF8(), pCity->plot()->getX(), pCity->plot()->getY(), eSetupEvent, uiSpyIndex);
 		}
 		pCity->GetCityEspionage()->ChangePendingEvents(m_pPlayer->GetID(), 1);
 	}

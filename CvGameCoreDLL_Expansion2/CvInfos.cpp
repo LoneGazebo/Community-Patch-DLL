@@ -20,7 +20,6 @@
 #include "CvGameTextMgr.h"
 #include "CvGameCoreUtils.h"
 #include "CvImprovementClasses.h"
-#include "FireWorks/FRemark.h"
 #include "CvInfosSerializationHelper.h"
 #include <FireWorks/Win32/FKBInputDevice.h>
 
@@ -29,7 +28,6 @@
 #ifdef _MSC_VER
 #pragma warning ( disable : 4505 ) // unreferenced local function has been removed.. needed by REMARK below
 #endif//_MSC_VER
-REMARK_GROUP("CvInfos");
 
 //////////////////////////////////////////////////////////////////////////
 // CvBaseInfo Members
@@ -7223,7 +7221,6 @@ bool CvFeatureInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	else
 	{
 		m_iWorldSoundscapeScriptId = -1;
-		Remark(1, "Warning: Missing soundscape definition in XML for feature: '%s'", GetType());
 	}
 
 	// Array properties
@@ -7664,7 +7661,6 @@ bool CvTerrainInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	else
 	{
 		m_iWorldSoundscapeScriptId = -1;
-		Remark(1, "Warning: Missing soundscape definition in XML for feature: '%s'", GetType());
 	}
 #if defined(MOD_BALANCE_CORE)
 	szTextVal = kResults.GetText("PassableTechTerrain");
@@ -9127,7 +9123,7 @@ bool CvEraInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUt
 	m_bVassalageEnabled			= kResults.GetBool("VassalageEnabled");
 
 	m_strCityBombardEffectTag	= kResults.GetText("CityBombardEffectTag");
-	m_uiCityBombardEffectTagHash = FString::Hash(m_strCityBombardEffectTag);
+	m_uiCityBombardEffectTagHash = FStringHash(m_strCityBombardEffectTag);
 
 	m_strAudioUnitVictoryScript	= kResults.GetText("AudioUnitVictoryScript");
 	m_strAudioUnitDefeatScript	= kResults.GetText("AudioUnitDefeatScript");

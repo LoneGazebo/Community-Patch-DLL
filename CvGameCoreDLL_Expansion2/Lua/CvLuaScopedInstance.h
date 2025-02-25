@@ -10,6 +10,7 @@
 #ifndef CVLUASCOPEDNSTANCE_H
 
 #include "CvLuaMethodWrapper.h"
+#include "FObjectHandle.h"
 
 template<class Derived, class InstanceType>
 class CvLuaScopedInstance : public CvLuaMethodWrapper<Derived, InstanceType>

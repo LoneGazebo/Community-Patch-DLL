@@ -137,7 +137,7 @@ const char* ms_V0PolicyBranchTags[10] =
 /// Helper function to read a single type ID as a string and convert it to an ID
 int Read(FDataStream& kStream, bool* bValid /*= NULL*/)
 {
-	FStringFixedBuffer(sTemp, 256);
+	CvString sTemp;
 	kStream >> sTemp;
 	if(bValid) *bValid = true;
 	if(sTemp.GetLength() > 0 && sTemp != "NO_TYPE")
@@ -190,7 +190,7 @@ int ReadHashed(FDataStream& kStream, bool* bValid /*= NULL*/)
 /// Assumes the type is in the table's field "Type"
 int ReadDBLookup(FDataStream& kStream, const char* szTable, bool* bValid /*= NULL*/)
 {
-	FStringFixedBuffer(sTemp, 256);
+	CvString sTemp;
 	kStream >> sTemp;
 	if (bValid) *bValid = true;
 	if(sTemp.GetLength() > 0 && sTemp != "NO_TYPE")
@@ -273,9 +273,8 @@ bool Write(FDataStream& kStream, const CvBaseInfo* pkInfo)
 {
 	if(pkInfo)
 	{
-		FStringFixedBuffer(sTemp, 256);
-		sTemp = pkInfo->GetType();
-		kStream << sTemp;
+		CvString temp = pkInfo->GetType();
+		kStream << temp;
 		return true;
 	}
 	else
@@ -293,7 +292,7 @@ bool WriteHashed(FDataStream& kStream, const CvBaseInfo* pkInfo)
 {
 	if(pkInfo && pkInfo->GetType() && pkInfo->GetType()[0] != 0)
 	{
-		uint uiHash = FString::Hash(pkInfo->GetType());
+		uint uiHash = FStringHash(pkInfo->GetType());
 		kStream << uiHash;
 		return true;
 	}

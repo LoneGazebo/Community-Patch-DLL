@@ -45,19 +45,16 @@
 #include "ICvDLLUserInterface.h"
 #include "CvEnumSerialization.h"
 #include "FStlContainerSerialization.h"
-#include "FAutoVariableBase.h"
 #include "CvStringUtils.h"
 #include "CvBarbarians.h"
 #include "CvGoodyHuts.h"
 
 #include <sstream>
 
-#include "FTempHeap.h"
 #include "CvDiplomacyRequests.h"
 
 #include "CvDllPlot.h"
 #include "FFileSystem.h"
-
 #include "CvInfosSerializationHelper.h"
 #include "CvCityManager.h"
 #include "CvPlayerManager.h"
@@ -6102,7 +6099,7 @@ void CvGame::sendPlayerOptions(bool bForce)
 			CvPlayerOptionInfo* pkInfo = GC.getPlayerOptionInfo(eOption);
 			if (pkInfo)
 			{
-				uint uiID = FString::Hash( pkInfo->GetType() );
+				uint uiID = FStringHash( pkInfo->GetType() );
 				gDLL->sendPlayerOption(static_cast<PlayerOptionTypes>(uiID), gDLL->getPlayerOption(static_cast<PlayerOptionTypes>(uiID)));
 			}
 		}
@@ -10427,7 +10424,7 @@ int CvGame::calculateOptionsChecksum()
 			CvPlayerOptionInfo* pkInfo = GC.getPlayerOptionInfo((PlayerOptionTypes)iJ);
 			if (pkInfo)
 			{
-				uint uiID = FString::Hash( pkInfo->GetType() );
+				uint uiID = FStringHash( pkInfo->GetType() );
 				if(kPlayer.isOption((PlayerOptionTypes)uiID))
 				{
 					iValue += (iI * 943097);
@@ -11140,7 +11137,7 @@ void CvGame::readSaveGameDB(FDataStream& kStream)
 		FIFile* pkFile = FFILESYSTEM.Create(wstrDatabasePath.c_str(), FIFile::modeWrite);
 		if (pkFile != NULL)
 		{
-			byte* szBuffer = GetTempHeap()->Allocate(sizeof(char) * lSize);
+			byte* szBuffer = new byte[sizeof(char) * lSize];
 			ZeroMemory((void*)szBuffer, lSize);
 
 			kStream.ReadIt(lSize, szBuffer);
@@ -11149,7 +11146,7 @@ void CvGame::readSaveGameDB(FDataStream& kStream)
 
 			pkFile->Close();
 
-			GetTempHeap()->DeAllocate(szBuffer);
+			free(szBuffer);
 		}
 		else
 		{
@@ -11174,7 +11171,7 @@ void CvGame::writeSaveGameDB(FDataStream& kStream) const
 		DWORD dwSize = GetFileSize(hFile, NULL);
 		if (dwSize != INVALID_FILE_SIZE)
 		{
-			byte* szBuffer = GetTempHeap()->Allocate(sizeof(char) * dwSize);
+			byte* szBuffer = new byte[sizeof(char) * dwSize];
 			ZeroMemory((void*)szBuffer, dwSize);
 
 			DWORD dwBytesRead = 0;
@@ -11185,7 +11182,7 @@ void CvGame::writeSaveGameDB(FDataStream& kStream) const
 				kStream.WriteIt(dwBytesRead, szBuffer);
 			}
 
-			GetTempHeap()->DeAllocate(szBuffer);
+			free(szBuffer);
 		}
 		else
 		{

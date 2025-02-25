@@ -5,8 +5,6 @@
 
 #if defined(MOD_BALANCE_CORE)
 
-#include "FAutoVariable.h"
-
 class CvContractEntry: public CvBaseInfo
 {
 public:

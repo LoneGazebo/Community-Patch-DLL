@@ -56,7 +56,7 @@ void LuaSupport::RegisterScriptData(lua_State* L)
 //------------------------------------------------------------------------------
 void LuaSupport::DumpCallStack(lua_State* L, FILogFile* pLog)
 {
-	FStringFixedBuffer(szTemp, 512);
+	CvString szTemp;
     lua_Debug entry;
     int depth = 0; 
 

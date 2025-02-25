@@ -8812,7 +8812,7 @@ void CvLeague::NotifyProjectComplete(LeagueProjectTypes eProject)
 					Localization::String sMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_LEAGUE_PROJECT_COMPLETE_TT");
 					sMessage << pInfo->GetDescriptionKey();
 
-					pNotifications->Add((NotificationTypes)FString::Hash("NOTIFICATION_LEAGUE_PROJECT_COMPLETE"), sMessage.toUTF8(), sSummary.toUTF8(), -1, -1, GetID(), eProject);
+					pNotifications->Add((NotificationTypes)FStringHash("NOTIFICATION_LEAGUE_PROJECT_COMPLETE"), sMessage.toUTF8(), sSummary.toUTF8(), -1, -1, GetID(), eProject);
 				}
 			}
 		}
@@ -8845,7 +8845,7 @@ void CvLeague::NotifyProjectProgress(LeagueProjectTypes eProject)
 						Localization::String sMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_LEAGUE_PROJECT_PROGRESS_TT");
 						sMessage << pInfo->GetDescriptionKey() << iPercentCompleted;
 
-						pNotifications->Add((NotificationTypes)FString::Hash("NOTIFICATION_LEAGUE_PROJECT_PROGRESS"), sMessage.toUTF8(), sSummary.toUTF8(), -1, -1, GetID(), eProject);
+						pNotifications->Add((NotificationTypes)FStringHash("NOTIFICATION_LEAGUE_PROJECT_PROGRESS"), sMessage.toUTF8(), sSummary.toUTF8(), -1, -1, GetID(), eProject);
 					}
 				}
 			}

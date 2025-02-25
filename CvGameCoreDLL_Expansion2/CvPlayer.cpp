@@ -4565,7 +4565,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift, bool bO
 
 					CvString strBuffer = GetLocalizedText("TXT_KEY_CHOOSE_CITY_CAPTURE", pNewCity->getNameKey());
 					CvString strSummary = GetLocalizedText("TXT_KEY_CHOOSE_CITY_CAPTURE_TT", pNewCity->getNameKey());
-					pNotify->Add((NotificationTypes)FString::Hash("NOTIFICATION_CITY_CAPTURE"), strSummary.c_str(), strBuffer.c_str(), pNewCity->getX(), pNewCity->getY(), -1);
+					pNotify->Add((NotificationTypes)FStringHash("NOTIFICATION_CITY_CAPTURE"), strSummary.c_str(), strBuffer.c_str(), pNewCity->getX(), pNewCity->getY(), -1);
 				}
 			}
 		}
@@ -6726,7 +6726,7 @@ void CvPlayer::DoStartEvent(EventTypes eChosenEvent, bool bSendMsg)
 					{
 						CvString strBuffer = GetLocalizedText("TXT_KEY_CHOOSE_EVENT_CHOICE");
 						CvString strSummary = GetLocalizedText("TXT_KEY_CHOOSE_EVENT_CHOICE_TT");
-						pNotifications->Add((NotificationTypes)FString::Hash("NOTIFICATION_EVENT_CHOICE"), strSummary.c_str(), strBuffer.c_str(), -1, -1, eChosenEvent);
+						pNotifications->Add((NotificationTypes)FStringHash("NOTIFICATION_EVENT_CHOICE"), strSummary.c_str(), strBuffer.c_str(), -1, -1, eChosenEvent);
 					}
 				}
 				else
@@ -8479,7 +8479,7 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent, b
 				CvString strNotificationString = pkEventChoiceInfo->GetNotificationInfo(iI)->GetNotificationString();
 				if(strNotificationString != NULL && !strNotificationString.empty())
 				{
-					NotificationTypes eNotificationType = (NotificationTypes)FString::Hash(strNotificationString);
+					NotificationTypes eNotificationType = (NotificationTypes)FStringHash(strNotificationString);
 
 					if(eNotificationType != NO_NOTIFICATION_TYPE)
 					{
@@ -10424,7 +10424,7 @@ void CvPlayer::doTurnPostDiplomacy()
 			if (pNotifications)
 			{
 				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_INSTANT_YIELD_EMPIRE");
-				pNotifications->Add((NotificationTypes)FString::Hash("NOTIFICATION_INSTANT_YIELD"), strInstantYield.toUTF8(), strSummary.toUTF8(), -1, -1, GetID());
+				pNotifications->Add((NotificationTypes)FStringHash("NOTIFICATION_INSTANT_YIELD"), strInstantYield.toUTF8(), strSummary.toUTF8(), -1, -1, GetID());
 			}
 			setInstantYieldText(eInstantYield, "");
 		}
@@ -10436,7 +10436,7 @@ void CvPlayer::doTurnPostDiplomacy()
 			if (pNotifications)
 			{
 				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_GREAT_PERSON_PROGRESS_EMPIRE");
-				pNotifications->Add((NotificationTypes)FString::Hash("NOTIFICATION_INSTANT_YIELD"), strInstantGreatPersonProgress.toUTF8(), strSummary.toUTF8(), -1, -1, GetID());
+				pNotifications->Add((NotificationTypes)FStringHash("NOTIFICATION_INSTANT_YIELD"), strInstantGreatPersonProgress.toUTF8(), strSummary.toUTF8(), -1, -1, GetID());
 			}
 			setInstantGreatPersonProgressText(eInstantYield, "");
 		}
@@ -27440,11 +27440,11 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 			}
 			if(pCity == NULL)
 			{
-				pNotifications->Add((NotificationTypes)FString::Hash("NOTIFICATION_INSTANT_YIELD"), localizedText.toUTF8(), strSummary.toUTF8(), -1, -1 ,-1);
+				pNotifications->Add((NotificationTypes)FStringHash("NOTIFICATION_INSTANT_YIELD"), localizedText.toUTF8(), strSummary.toUTF8(), -1, -1 ,-1);
 			}
 			else
 			{
-				pNotifications->Add((NotificationTypes)FString::Hash("NOTIFICATION_INSTANT_YIELD"), localizedText.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), pCity->GetID());
+				pNotifications->Add((NotificationTypes)FStringHash("NOTIFICATION_INSTANT_YIELD"), localizedText.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), pCity->GetID());
 			}
 		}
 	}
@@ -27916,12 +27916,12 @@ void CvPlayer::doInstantGreatPersonProgress(InstantYieldType iType, bool bSuppre
 			{
 				if (pCapital != NULL)
 				{
-					pNotifications->Add((NotificationTypes)FString::Hash("NOTIFICATION_INSTANT_YIELD"), localizedText.toUTF8(), strSummary.toUTF8(), pCapital->getX(), pCapital->getY(), pCapital->GetID());
+					pNotifications->Add((NotificationTypes)FStringHash("NOTIFICATION_INSTANT_YIELD"), localizedText.toUTF8(), strSummary.toUTF8(), pCapital->getX(), pCapital->getY(), pCapital->GetID());
 				}
 			}
 			else
 			{
-				pNotifications->Add((NotificationTypes)FString::Hash("NOTIFICATION_INSTANT_YIELD"), localizedText.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), pCity->GetID());
+				pNotifications->Add((NotificationTypes)FStringHash("NOTIFICATION_INSTANT_YIELD"), localizedText.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), pCity->GetID());
 			}
 		}
 	}
