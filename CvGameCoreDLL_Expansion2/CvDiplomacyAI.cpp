@@ -20828,133 +20828,6 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	}
 
 	////////////////////////////////////
-	// OPINION
-	////////////////////////////////////
-
-	int iOpinionWeight = GetCachedOpinionWeight(ePlayer);
-
-	// Using weight as +/- %: more fluid than the switch table.
-	if (iOpinionWeight > /*30*/ GD_INT_GET(OPINION_THRESHOLD_COMPETITOR))
-	{
-		// Let's also see how much we don't like this guy compared to others that we hate.
-		// If we hate a lot of people, we need to prioritize!
-		if (vValidPlayers.size() > 1)
-		{
-			int iAverage = 0;
-			int iNumBadOpinions = 0;
-
-			for (std::vector<PlayerTypes>::iterator it = vValidPlayers.begin(); it != vValidPlayers.end(); ++it)
-			{
-				if (ePlayer == *it)
-					continue;
-
-				if (GetCachedOpinionWeight(*it) > /*30*/ GD_INT_GET(OPINION_THRESHOLD_COMPETITOR))
-				{
-					iAverage += GetCachedOpinionWeight(*it);
-					iNumBadOpinions++;
-				}
-			}
-
-			iAverage /= max(iNumBadOpinions, 1);
-
-			if (iNumBadOpinions > 0)
-			{
-				int iPercentDifferenceFromAverage = ((iOpinionWeight * 100) - (iAverage * 100)) / max(iAverage, 1);
-				iOpinionWeight *= range((100 + iPercentDifferenceFromAverage), (iHostileMod + 40), max(100,(iFriendlyMod * 10)));
-				iOpinionWeight /= 100;
-			}
-		}
-
-		// Increase
-		vApproachScores[CIV_APPROACH_WAR] *= 100 + iWarMod + iOpinionWeight;
-		vApproachScores[CIV_APPROACH_WAR] /= 100;
-
-		vApproachScores[CIV_APPROACH_HOSTILE] *= 100 + iHostileMod + iOpinionWeight;
-		vApproachScores[CIV_APPROACH_HOSTILE] /= 100;
-
-		vApproachScores[CIV_APPROACH_DECEPTIVE] *= 100 + iDeceptiveMod + iOpinionWeight;
-		vApproachScores[CIV_APPROACH_DECEPTIVE] /= 100;
-
-		vApproachScores[CIV_APPROACH_GUARDED] *= 100 + iGuardedMod + iOpinionWeight;
-		vApproachScores[CIV_APPROACH_GUARDED] /= 100;
-
-		vApproachScores[CIV_APPROACH_AFRAID] *= 100 + iAfraidMod + iOpinionWeight;
-		vApproachScores[CIV_APPROACH_AFRAID] /= 100;
-
-		// Decrease
-		vApproachScores[CIV_APPROACH_FRIENDLY] *= 100;
-		vApproachScores[CIV_APPROACH_FRIENDLY] /= max(100, (100 - iFriendlyMod + iOpinionWeight));	
-
-		// Decrease Neutral
-		vApproachScores[CIV_APPROACH_NEUTRAL] *= 100;
-		vApproachScores[CIV_APPROACH_NEUTRAL] /= max(100, (100 - iNeutralMod + iOpinionWeight));
-	}
-	else if (iOpinionWeight < /*-30*/ GD_INT_GET(OPINION_THRESHOLD_FAVORABLE))
-	{
-		// Flip the sign!
-		iOpinionWeight *= -1;
-
-		// Let's also see how much we like this guy compared to others that we like.
-		// If we like a lot of people, we need to prioritize!
-		if (vValidPlayers.size() > 1)
-		{
-			int iAverage = 0;
-			int iNumGoodOpinions = 0;
-
-			for (std::vector<PlayerTypes>::iterator it = vValidPlayers.begin(); it != vValidPlayers.end(); ++it)
-			{
-				if (ePlayer == *it)
-					continue;
-
-				if (GetCachedOpinionWeight(*it) < /*-30*/ GD_INT_GET(OPINION_THRESHOLD_FAVORABLE))
-				{
-					iAverage -= GetCachedOpinionWeight(*it);
-					iNumGoodOpinions++;
-				}
-			}
-
-			iAverage /= max(iNumGoodOpinions, 1);
-
-			if (iNumGoodOpinions > 0)
-			{
-				int iPercentDifferenceFromAverage = ((iOpinionWeight * 100) - (iAverage * 100)) / max(iAverage, 1);
-				iOpinionWeight *= range((100 + iPercentDifferenceFromAverage), (iFriendlyMod + 40), max(100,(iHostileMod * 10)));
-				iOpinionWeight /= 100;
-			}
-		}
-
-		// Increase
-		vApproachScores[CIV_APPROACH_FRIENDLY] *= 100 + iFriendlyMod + iOpinionWeight;
-		vApproachScores[CIV_APPROACH_FRIENDLY] /= 100;
-
-		// Decrease
-		vApproachScores[CIV_APPROACH_WAR] *= 100;
-		vApproachScores[CIV_APPROACH_WAR] /= max(100,(100 - iWarMod + iOpinionWeight));
-
-		vApproachScores[CIV_APPROACH_HOSTILE] *= 100;
-		vApproachScores[CIV_APPROACH_HOSTILE] /= max(100,(100 - iHostileMod + iOpinionWeight));
-
-		vApproachScores[CIV_APPROACH_DECEPTIVE] *= 100;
-		vApproachScores[CIV_APPROACH_DECEPTIVE] /= max(100,(100 - iDeceptiveMod + iOpinionWeight));
-
-		vApproachScores[CIV_APPROACH_GUARDED] *= 100;
-		vApproachScores[CIV_APPROACH_GUARDED] /= max(100,(100 - iGuardedMod + iOpinionWeight));
-
-		vApproachScores[CIV_APPROACH_AFRAID] *= 100;
-		vApproachScores[CIV_APPROACH_AFRAID] /= max(100,(100 - iAfraidMod + iOpinionWeight));
-
-		// Decrease Neutral
-		vApproachScores[CIV_APPROACH_NEUTRAL] *= 100;
-		vApproachScores[CIV_APPROACH_NEUTRAL] /= max(100,(100 - iNeutralMod + iOpinionWeight));
-	}
-	else
-	{
-		// Increase Neutral
-		vApproachScores[CIV_APPROACH_NEUTRAL] *= 100 + (iNeutralMod * 2);
-		vApproachScores[CIV_APPROACH_NEUTRAL] /= 100;
-	}
-
-	////////////////////////////////////
 	// AGGRESSIVE MODE MULTIPLIER
 	////////////////////////////////////
 
@@ -21256,7 +21129,157 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	}
 
 	//--------------------------------//
-	// [PART 13: THE APPROACH CURVE]  //
+	// [PART 13: OPINION]             //
+	//--------------------------------//
+
+	// We use opinion weight as +/- %: more fluid than the switch table.
+	// Opinion is applied after every other modifier because the NEUTRAL approach has special logic to ensure that a good opinion doesn't punish the player inadvertently.
+	int iOpinionWeight = GetCachedOpinionWeight(ePlayer);
+	if (iOpinionWeight > /*30*/ GD_INT_GET(OPINION_THRESHOLD_COMPETITOR))
+	{
+		// Let's also see how much we don't like this guy compared to others that we hate.
+		// If we hate a lot of people, we need to prioritize!
+		if (vValidPlayers.size() > 1)
+		{
+			int iAverage = 0;
+			int iNumBadOpinions = 0;
+
+			for (std::vector<PlayerTypes>::iterator it = vValidPlayers.begin(); it != vValidPlayers.end(); ++it)
+			{
+				if (ePlayer == *it)
+					continue;
+
+				if (GetCachedOpinionWeight(*it) > /*30*/ GD_INT_GET(OPINION_THRESHOLD_COMPETITOR))
+				{
+					iAverage += GetCachedOpinionWeight(*it);
+					iNumBadOpinions++;
+				}
+			}
+
+			iAverage /= max(iNumBadOpinions, 1);
+
+			if (iNumBadOpinions > 0)
+			{
+				int iPercentDifferenceFromAverage = ((iOpinionWeight * 100) - (iAverage * 100)) / max(iAverage, 1);
+				iOpinionWeight *= range((100 + iPercentDifferenceFromAverage), (iHostileMod + 40), max(100,(iFriendlyMod * 10)));
+				iOpinionWeight /= 100;
+			}
+		}
+
+		// Increase
+		vApproachScores[CIV_APPROACH_WAR] *= 100 + iWarMod + iOpinionWeight;
+		vApproachScores[CIV_APPROACH_WAR] /= 100;
+
+		vApproachScores[CIV_APPROACH_HOSTILE] *= 100 + iHostileMod + iOpinionWeight;
+		vApproachScores[CIV_APPROACH_HOSTILE] /= 100;
+
+		vApproachScores[CIV_APPROACH_DECEPTIVE] *= 100 + iDeceptiveMod + iOpinionWeight;
+		vApproachScores[CIV_APPROACH_DECEPTIVE] /= 100;
+
+		vApproachScores[CIV_APPROACH_GUARDED] *= 100 + iGuardedMod + iOpinionWeight;
+		vApproachScores[CIV_APPROACH_GUARDED] /= 100;
+
+		vApproachScores[CIV_APPROACH_AFRAID] *= 100 + iAfraidMod + iOpinionWeight;
+		vApproachScores[CIV_APPROACH_AFRAID] /= 100;
+
+		// Decrease
+		vApproachScores[CIV_APPROACH_FRIENDLY] *= 100;
+		vApproachScores[CIV_APPROACH_FRIENDLY] /= max(100, (100 - iFriendlyMod + iOpinionWeight));	
+
+		// Decrease Neutral
+		vApproachScores[CIV_APPROACH_NEUTRAL] *= 100;
+		vApproachScores[CIV_APPROACH_NEUTRAL] /= max(100, (100 - iNeutralMod + iOpinionWeight));
+	}
+	else if (iOpinionWeight < /*-30*/ GD_INT_GET(OPINION_THRESHOLD_FAVORABLE))
+	{
+		// Flip the sign!
+		iOpinionWeight *= -1;
+
+		// Let's also see how much we like this guy compared to others that we like.
+		// If we like a lot of people, we need to prioritize!
+		if (vValidPlayers.size() > 1)
+		{
+			int iAverage = 0;
+			int iNumGoodOpinions = 0;
+
+			for (std::vector<PlayerTypes>::iterator it = vValidPlayers.begin(); it != vValidPlayers.end(); ++it)
+			{
+				if (ePlayer == *it)
+					continue;
+
+				if (GetCachedOpinionWeight(*it) < /*-30*/ GD_INT_GET(OPINION_THRESHOLD_FAVORABLE))
+				{
+					iAverage -= GetCachedOpinionWeight(*it);
+					iNumGoodOpinions++;
+				}
+			}
+
+			iAverage /= max(iNumGoodOpinions, 1);
+
+			if (iNumGoodOpinions > 0)
+			{
+				int iPercentDifferenceFromAverage = ((iOpinionWeight * 100) - (iAverage * 100)) / max(iAverage, 1);
+				iOpinionWeight *= range((100 + iPercentDifferenceFromAverage), (iFriendlyMod + 40), max(100,(iHostileMod * 10)));
+				iOpinionWeight /= 100;
+			}
+		}
+
+		// Increase
+		vApproachScores[CIV_APPROACH_FRIENDLY] *= 100 + iFriendlyMod + iOpinionWeight;
+		vApproachScores[CIV_APPROACH_FRIENDLY] /= 100;
+
+		// Decrease
+		vApproachScores[CIV_APPROACH_WAR] *= 100;
+		vApproachScores[CIV_APPROACH_WAR] /= max(100,(100 - iWarMod + iOpinionWeight));
+
+		vApproachScores[CIV_APPROACH_HOSTILE] *= 100;
+		vApproachScores[CIV_APPROACH_HOSTILE] /= max(100,(100 - iHostileMod + iOpinionWeight));
+
+		vApproachScores[CIV_APPROACH_DECEPTIVE] *= 100;
+		vApproachScores[CIV_APPROACH_DECEPTIVE] /= max(100,(100 - iDeceptiveMod + iOpinionWeight));
+
+		vApproachScores[CIV_APPROACH_GUARDED] *= 100;
+		vApproachScores[CIV_APPROACH_GUARDED] /= max(100,(100 - iGuardedMod + iOpinionWeight));
+
+		vApproachScores[CIV_APPROACH_AFRAID] *= 100;
+		vApproachScores[CIV_APPROACH_AFRAID] /= max(100,(100 - iAfraidMod + iOpinionWeight));
+
+		int iHighestBadApproach = max(vApproachScores[CIV_APPROACH_WAR], vApproachScores[CIV_APPROACH_HOSTILE]);
+		iHighestBadApproach = max(iHighestBadApproach, vApproachScores[CIV_APPROACH_DECEPTIVE]);
+		iHighestBadApproach = max(iHighestBadApproach, vApproachScores[CIV_APPROACH_GUARDED]);
+		iHighestBadApproach = max(iHighestBadApproach, vApproachScores[CIV_APPROACH_AFRAID]);
+
+		// Increase NEUTRAL if it would outscore at least one bad approach, or if FRIENDLY doesn't
+		int iNeutralUp = (vApproachScores[CIV_APPROACH_NEUTRAL] * (100 + iNeutralMod + iOpinionWeight)) / 100;
+		if (iNeutralUp >= vApproachScores[CIV_APPROACH_WAR] ||
+			iNeutralUp >= vApproachScores[CIV_APPROACH_HOSTILE] ||
+			iNeutralUp >= vApproachScores[CIV_APPROACH_DECEPTIVE] ||
+			iNeutralUp >= vApproachScores[CIV_APPROACH_GUARDED] ||
+			iNeutralUp >= vApproachScores[CIV_APPROACH_AFRAID])
+		{
+			if (iNeutralUp < vApproachScores[CIV_APPROACH_FRIENDLY] || vApproachScores[CIV_APPROACH_FRIENDLY] <= iHighestBadApproach)
+				vApproachScores[CIV_APPROACH_NEUTRAL] = iNeutralUp;
+		}
+
+		// Decrease NEUTRAL if it outscores FRIENDLY, *if* FRIENDLY isn't outscored by a bad approach, and don't decrease it to the point where it scores below a bad approach
+		if (vApproachScores[CIV_APPROACH_NEUTRAL] >= vApproachScores[CIV_APPROACH_FRIENDLY] && vApproachScores[CIV_APPROACH_FRIENDLY] > iHighestBadApproach)
+		{
+			int iNeutralDown = vApproachScores[CIV_APPROACH_NEUTRAL] * 100 / max(100,(100 - iNeutralMod + iOpinionWeight));
+			if (iNeutralDown > iHighestBadApproach)
+				vApproachScores[CIV_APPROACH_NEUTRAL] = iNeutralDown;
+			else
+				vApproachScores[CIV_APPROACH_NEUTRAL] = iHighestBadApproach + 1;
+		}
+	}
+	else
+	{
+		// Increase Neutral
+		vApproachScores[CIV_APPROACH_NEUTRAL] *= 100 + (iNeutralMod * 2);
+		vApproachScores[CIV_APPROACH_NEUTRAL] /= 100;
+	}
+
+	//--------------------------------//
+	// [PART 14: THE APPROACH CURVE]  //
 	//--------------------------------//
 
 	bool bAllZero = true;
@@ -21325,7 +21348,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	}
 
 	//--------------------------------//
-	// [PART 14: APPROACH SELECTION]  //
+	// [PART 15: APPROACH SELECTION]  //
 	//--------------------------------//
 
 	// This vector is what we'll use to sort
