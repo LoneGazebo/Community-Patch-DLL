@@ -6383,7 +6383,7 @@ bool CvCityBuildings::GetNextAvailableGreatWorkSlot(GreatWorkSlotType eGreatWork
 
 /// Accessor: How much of this yield are we generating from Great Works in our buildings?
 /// If you change anything in the calculations here, don't forget to update CvGameCulture::GetGreatWorkTooltip
-int CvCityBuildings::GetYieldFromGreatWorks(YieldTypes eYield) const
+int CvCityBuildings::GetYieldFromGreatWorksTimes100(YieldTypes eYield) const
 {
 	//Simplification - errata yields not worth considering.
 	if(eYield > YIELD_CULTURE_LOCAL && !MOD_BALANCE_CORE_JFD)
@@ -6474,8 +6474,8 @@ int CvCityBuildings::GetYieldFromGreatWorks(YieldTypes eYield) const
 	}
 
 	//First add up yields x works in city.
-	int iRtnValue = (iNumGreatWorksWithBaseYieldsOfThisType * iYieldPerGreatWorkWithBaseYieldsOfThisType);
-	iRtnValue += (iNumGreatWorks * iYieldPerGreatWork);
+	int iRtnValue = (iNumGreatWorksWithBaseYieldsOfThisType * iYieldPerGreatWorkWithBaseYieldsOfThisType) * 100;
+	iRtnValue += (iNumGreatWorks * iYieldPerGreatWork) * 100;
 
 	//Tourism modifiers
 	if (eYield == YIELD_TOURISM)
@@ -6486,7 +6486,7 @@ int CvCityBuildings::GetYieldFromGreatWorks(YieldTypes eYield) const
 	// ---- YIELDS NOT AFFECTED BY TOURISM MODIFIER TO GREAT WORKS ----
 
 	//Then theming bonuses for the yield.
-	iRtnValue += GetCurrentThemingBonuses(eYield);
+	iRtnValue += GetCurrentThemingBonuses(eYield) * 100;
 
 	int iArt = GetNumGreatWorks(CvTypes::getGREAT_WORK_SLOT_ART_ARTIFACT(), false, true);
 	if (iArt > 0)
@@ -6524,7 +6524,7 @@ int CvCityBuildings::GetYieldFromGreatWorks(YieldTypes eYield) const
 	}
 
 	//Next add in any UA or extra theming bonuses.
-	iRtnValue += (iTypeBonuses + iThemingBonusTotal);
+	iRtnValue += (iTypeBonuses + iThemingBonusTotal) * 100;
 
 	return iRtnValue;
 }

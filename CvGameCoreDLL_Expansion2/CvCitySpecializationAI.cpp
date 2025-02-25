@@ -1061,7 +1061,7 @@ int CvCitySpecializationAI::AdjustValueBasedOnBuildings(CvCity* pCity, YieldType
 	{
 		iRtnValue = iRtnValue * (100 + iYieldChanges * 5) / 100;
 	}
-	iYieldChanges = pCity->GetBaseYieldRateFromGreatWorks(eYield);
+	iYieldChanges = pCity->GetBaseYieldRateFromGreatWorksTimes100(eYield) / 100;
 	if(iYieldChanges > 0)
 	{
 		// +10% per point of yield change

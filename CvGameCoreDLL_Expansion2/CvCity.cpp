@@ -409,7 +409,7 @@ CvCity::CvCity() :
 	, m_aiYieldFromPillageGlobal()
 	, m_aiNumTimesAttackedThisTurn()
 	, m_aiNumProjects()
-	, m_aiYieldFromKnownPantheons()
+	, m_aiSpecialReligionYieldsTimes100()
 	, m_aiYieldFromGoldenAgeStart()
 	, m_aiYieldChangePerGoldenAge()
 	, m_aiYieldChangePerGoldenAgeCap()
@@ -1368,7 +1368,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_aiYieldFromVictoryGlobalInGoldenAgeEraScaling.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromPillage.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromPillageGlobal.resize(NUM_YIELD_TYPES);
-	m_aiYieldFromKnownPantheons.resize(NUM_YIELD_TYPES);
+	m_aiSpecialReligionYieldsTimes100.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromGoldenAgeStart.resize(NUM_YIELD_TYPES);
 	m_aiYieldChangePerGoldenAge.resize(NUM_YIELD_TYPES);
 	m_aiYieldChangePerGoldenAgeCap.resize(NUM_YIELD_TYPES);
@@ -1471,7 +1471,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		m_aiChangeGrowthExtraYield[iI] = 0;
 #if defined(MOD_BALANCE_CORE)
 		m_aiGreatWorkYieldChange[iI] = 0;
-		m_aiYieldFromKnownPantheons[iI] = 0;
+		m_aiSpecialReligionYieldsTimes100[iI] = 0;
 		m_aiYieldFromVictory[iI] = 0;
 		m_aiYieldFromVictoryGlobal[iI] = 0;
 		m_aiYieldFromVictoryGlobalEraScaling[iI] = 0;
@@ -22346,11 +22346,6 @@ void CvCity::changeSeaResourceYield(YieldTypes eIndex, int iChange)
 
 //	--------------------------------------------------------------------------------
 /// Yield per turn from Religion
-int CvCity::GetYieldPerTurnFromReligion(YieldTypes eYield) const
-{
-	return GetSpecialReligionYields(eYield);
-}
-
 void CvCity::UpdateSpecialReligionYields(YieldTypes eYield)
 {
 	int iYieldValue = 0;
@@ -22363,20 +22358,18 @@ void CvCity::UpdateSpecialReligionYields(YieldTypes eYield)
 		{
 			if (GetCityReligions()->IsHolyCityForReligion(pReligion->m_eReligion))
 			{
-				iYieldValue += pReligion->m_Beliefs.GetHolyCityYieldChange(eYield, getOwner(), this, true);
+				iYieldValue += pReligion->m_Beliefs.GetHolyCityYieldChange(eYield, getOwner(), this, true) * 100;
 			}
 
 			int iPantheon = 0;
-			int iYield = pReligion->m_Beliefs.GetYieldFromKnownPantheons(eYield, getOwner(), this, true);
-			if (iYield > 0)
+			int iYieldPerPantheonTimes100 = pReligion->m_Beliefs.GetYieldFromKnownPantheons(eYield, getOwner(), this, true);
+			if (iYieldPerPantheonTimes100 > 0)
 			{
 				iPantheon = GC.getGame().GetGameReligions()->GetNumPantheonsCreated();
 				if (iPantheon > 0)
 				{
 					iPantheon = min(iPantheon, 8);
-
-					iPantheon *= iYield;
-					iPantheon /= 100;
+					iPantheon *= iYieldPerPantheonTimes100;
 
 					iYieldValue += iPantheon;
 				}
@@ -22385,7 +22378,7 @@ void CvCity::UpdateSpecialReligionYields(YieldTypes eYield)
 			int iTemp = pReligion->m_Beliefs.GetYieldChangePerForeignCity(eYield, getOwner(), this, true);
 			if (iTemp > 0)
 			{
-				iYieldValue += (iTemp * kPlayer.GetReligions()->GetNumForeignCitiesFollowing(eReligion));
+				iYieldValue += (iTemp * kPlayer.GetReligions()->GetNumForeignCitiesFollowing(eReligion)) * 100;
 			}
 
 			iTemp = pReligion->m_Beliefs.GetYieldChangePerXForeignFollowers(eYield, getOwner(), this, true);
@@ -22394,7 +22387,7 @@ void CvCity::UpdateSpecialReligionYields(YieldTypes eYield)
 				int iFollowers = kPlayer.GetReligions()->GetNumForeignFollowers(false, eReligion);
 				if (iFollowers > 0)
 				{
-					iYieldValue += (iFollowers / iTemp);
+					iYieldValue += (100 * iFollowers / iTemp);
 				}
 			}
 
@@ -22404,22 +22397,20 @@ void CvCity::UpdateSpecialReligionYields(YieldTypes eYield)
 				int iFollowers = kPlayer.GetReligions()->GetNumCityStateFollowers(eReligion);
 				if (iFollowers > 0)
 				{
-					iYieldValue += (iFollowers / iTemp);
+					iYieldValue += (100 * iFollowers / iTemp);
 				}
 			}
 
 			int iYieldPerXNonFollowers = pReligion->m_Beliefs.GetYieldPerOtherReligionFollower(eYield, getOwner(), this, true);
 			if (iYieldPerXNonFollowers > 0)
 			{
+				int iTotalFollowersOtherReligions = 0;
 				int iLoop = 0;
 				for (const CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
 				{
-					if (pLoopCity != NULL)
-					{
-						iYieldValue += (pLoopCity->GetCityReligions()->GetFollowersOtherReligions(eReligion));
-					}
+					iTotalFollowersOtherReligions += (pLoopCity->GetCityReligions()->GetFollowersOtherReligions(eReligion));
 				}
-				iYieldValue /= iYieldPerXNonFollowers;
+				iYieldValue += (100 * iTotalFollowersOtherReligions / iYieldPerXNonFollowers);
 			}
 
 			// This came from CvTreasury::GetGoldPerTurnFromReligion()
@@ -22427,28 +22418,28 @@ void CvCity::UpdateSpecialReligionYields(YieldTypes eYield)
 			if (eYield == YIELD_GOLD)
 			{
 				if (eReligion != RELIGION_PANTHEON)
-					iYieldValue += pReligion->m_Beliefs.GetGoldPerFollowingCity(getOwner(), this, true);
+					iYieldValue += pReligion->m_Beliefs.GetGoldPerFollowingCity(getOwner(), this, true) * 100;
 
 				int iGoldPerXFollowers = pReligion->m_Beliefs.GetGoldPerXFollowers(getOwner(), this, true);
 				if (iGoldPerXFollowers > 0)
 				{
 					if (eReligion == RELIGION_PANTHEON)
-						iYieldValue += (GC.getGame().GetGameReligions()->GetNumFollowers(eReligion, getOwner()) / iGoldPerXFollowers);
+						iYieldValue += (100 * GC.getGame().GetGameReligions()->GetNumFollowers(eReligion, getOwner()) / iGoldPerXFollowers);
 					else
-						iYieldValue += (GC.getGame().GetGameReligions()->GetNumFollowers(eReligion) / iGoldPerXFollowers);
+						iYieldValue += (100 * GC.getGame().GetGameReligions()->GetNumFollowers(eReligion) / iGoldPerXFollowers);
 				}
 			}
 
 			int iYieldPerFollowingCity = pReligion->m_Beliefs.GetYieldPerFollowingCity(eYield, getOwner(), this);
 			if (iYieldPerFollowingCity > 0)
 			{
-				iYieldValue += iYieldPerFollowingCity;
+				iYieldValue += iYieldPerFollowingCity * 100;
 			}
 
 			int iYieldPerXFollowers = pReligion->m_Beliefs.GetYieldPerXFollowers(eYield, getOwner(), this, true);
 			if (iYieldPerXFollowers > 0)
 			{
-				iYieldValue += (GC.getGame().GetGameReligions()->GetNumFollowers(eReligion, getOwner()) / iYieldPerXFollowers);
+				iYieldValue += (100 * GC.getGame().GetGameReligions()->GetNumFollowers(eReligion, getOwner()) / iYieldPerXFollowers);
 			}
 
 			int iLuxYield = pReligion->m_Beliefs.GetYieldPerLux(eYield, getOwner(), this, true);
@@ -22469,32 +22460,29 @@ void CvCity::UpdateSpecialReligionYields(YieldTypes eYield)
 				if (iNumBonuses > 0)
 				{
 					iLuxYield *= iNumBonuses;
-					iYieldValue += iLuxYield;
+					iYieldValue += iLuxYield * 100;
 				}
 			}
 
 			int iYieldPerGPT = pReligion->m_Beliefs.GetYieldPerGPT(eYield, getOwner(), this);
 			if (iYieldPerGPT > 0)
 			{
-				int iNetGold = getYieldRateTimes100(YIELD_GOLD, false) / 100;
-				if (iNetGold > 0)
+				int iNetGoldTimes100 = getYieldRateTimes100(YIELD_GOLD, false);
+				if (iNetGoldTimes100 > 0)
 				{
 					int iNumFollowers = GetCityReligions()->GetNumFollowers(eReligion);
-					iNetGold = min((iNumFollowers / 2), (iNetGold / iYieldPerGPT));
-					iYieldValue += iNetGold;
+					iYieldValue += min((100 * iNumFollowers / 2), (iNetGoldTimes100 / iYieldPerGPT));
 				}
 			}
 
 			int iYieldPerScience = pReligion->m_Beliefs.GetYieldPerScience(eYield, getOwner(), this);
 			if (iYieldPerScience > 0)
 			{
-				int iNetScience = getYieldRateTimes100(YIELD_SCIENCE, false) / 100;
-				if (iNetScience > 0)
+				int iNetScienceTimes100 = getYieldRateTimes100(YIELD_SCIENCE, false);
+				if (iNetScienceTimes100 > 0)
 				{
 					int iNumFollowers = GetCityReligions()->GetNumFollowers(eReligion);
-					iNetScience = min((iNumFollowers / 2), (iNetScience / iYieldPerScience));
-
-					iYieldValue += iNetScience;
+					iYieldValue += min((100 * iNumFollowers / 2), (iNetScienceTimes100 / iYieldPerScience));
 				}
 			}
 
@@ -22511,38 +22499,38 @@ void CvCity::UpdateSpecialReligionYields(YieldTypes eYield)
 				{
 					if (pLeague->GetHostMember() == getOwner())
 					{
-						iYieldValue += iHostYield;
+						iYieldValue += iHostYield * 100;
 					}
 				}
 			}
 
-			iYieldValue += pReligion->m_Beliefs.GetYieldPerActiveTR(eYield, getOwner(), this);
+			iYieldValue += pReligion->m_Beliefs.GetYieldPerActiveTR(eYield, getOwner(), this) * 100;
 		}
 	}
-	SetSpecialReligionYields(eYield, iYieldValue);
+	SetSpecialReligionYieldsTimes100(eYield, iYieldValue);
 }
 //	--------------------------------------------------------------------------------
 /// Extra yield from building
-int CvCity::GetSpecialReligionYields(YieldTypes eIndex) const
+int CvCity::GetSpecialReligionYieldsTimes100(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT();
 	ASSERT_DEBUG(eIndex >= 0, "eIndex expected to be >= 0");
 	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
-	return m_aiYieldFromKnownPantheons[eIndex];
+	return m_aiSpecialReligionYieldsTimes100[eIndex];
 }
 
 //	--------------------------------------------------------------------------------
 /// Extra yield from building
-void CvCity::SetSpecialReligionYields(YieldTypes eIndex, int iChange)
+void CvCity::SetSpecialReligionYieldsTimes100(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT();
 	ASSERT_DEBUG(eIndex >= 0, "eIndex expected to be >= 0");
 	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
-	if (iChange != m_aiYieldFromKnownPantheons[eIndex])
+	if (iChange != m_aiSpecialReligionYieldsTimes100[eIndex])
 	{
-		m_aiYieldFromKnownPantheons[eIndex] = iChange;
-		ASSERT_DEBUG(GetSpecialReligionYields(eIndex) >= 0);
+		m_aiSpecialReligionYieldsTimes100[eIndex] = iChange;
+		ASSERT_DEBUG(GetSpecialReligionYieldsTimes100(eIndex) >= 0);
 	}
 }
 
@@ -23259,13 +23247,12 @@ int CvCity::getBaseYieldRateTimes100(const YieldTypes eYield, CvString* tooltipS
 			GC.getGame().BuildYieldTimes100HelpText(tooltipSink, "TXT_KEY_YIELD_FROM_CULTURE", iTempYield, szIconString);
 	}
 
-	iTempYield = GetBaseYieldRateFromGreatWorks(eYield) * 100;
+	iTempYield = GetBaseYieldRateFromGreatWorksTimes100(eYield);
 	iYield += iTempYield;
 	if (tooltipSink)
 		GC.getGame().BuildYieldTimes100HelpText(tooltipSink, "TXT_KEY_YIELD_FROM_ART_CBP", iTempYield, szIconString);
 
 	iTempYield = GetBaseYieldRateFromTerrain(eYield) * 100;
-	iTempYield += GetYieldFromUnimprovedFeatures(eYield) * 100;
 	iYield += iTempYield;
 	if (tooltipSink)
 		GC.getGame().BuildYieldTimes100HelpText(tooltipSink, "TXT_KEY_YIELD_FROM_TERRAIN", iTempYield, szIconString);
@@ -23303,17 +23290,18 @@ int CvCity::getBaseYieldRateTimes100(const YieldTypes eYield, CvString* tooltipS
 	if (tooltipSink)
 		GC.getGame().BuildYieldTimes100HelpText(tooltipSink, "TXT_KEY_YIELD_FROM_SPECIALISTS", iTempYield, szIconString);
 
-	iTempYield = GetBaseYieldRateFromReligion(eYield) * 100;
+	iTempYield = GetBaseYieldRateFromReligionTimes100(eYield);
 	iYield += iTempYield;
 	if (tooltipSink)
 		GC.getGame().BuildYieldTimes100HelpText(tooltipSink, "TXT_KEY_YIELD_FROM_RELIGION", iTempYield, szIconString);
 
-	iTempYield = (GetBaseYieldRateFromCSAlliance(eYield) + GetBaseYieldRateFromCSFriendship(eYield) + GetYieldFromMinors(eYield)) * 100;
+	iTempYield = (GetEffectiveYieldRateFromCSAllianceTimes100(eYield) + GetEffectiveYieldRateFromCSFriendshipTimes100(eYield) + (GetYieldFromMinors(eYield) * 100));
 	iYield += iTempYield;
 	if (tooltipSink)
 		GC.getGame().BuildYieldTimes100HelpText(tooltipSink, "TXT_KEY_YIELD_FROM_CS_ALLIANCE", iTempYield, szIconString);
 
 	iTempYield = GetYieldPerTurnFromTraits(eYield) * 100;
+	iTempYield += GetYieldFromUnimprovedFeatures(eYield) * 100; // Celts UA
 	if (eYield == YIELD_CULTURE)
 	{
 		iTempYield += kOwner.GetPlayerTraits()->GetCityCultureBonus() * 100;
@@ -23323,7 +23311,7 @@ int CvCity::getBaseYieldRateTimes100(const YieldTypes eYield, CvString* tooltipS
 		int iPercent = kOwner.GetPlayerTraits()->GetTourismGABonus();
 		if (iPercent != 0)
 		{
-			iTempYield = getYieldRateTimes100(YIELD_CULTURE) * iPercent / 100;
+			iTempYield += getYieldRateTimes100(YIELD_CULTURE) * iPercent / 100;
 		}
 	}
 	iYield += iTempYield;
@@ -23386,7 +23374,7 @@ int CvCity::getBaseYieldRateTimes100(const YieldTypes eYield, CvString* tooltipS
 		iTempYield = 0;
 		for (int iUnitLoop = 0; iUnitLoop < pCityPlot->getNumUnits(); iUnitLoop++)
 		{
-			iTempYield = pCityPlot->getUnitByIndex(iUnitLoop)->GetYieldChange(eYield) * 100;
+			iTempYield += pCityPlot->getUnitByIndex(iUnitLoop)->GetYieldChange(eYield) * 100;
 		}
 		iYield += iTempYield;
 		if (tooltipSink)
@@ -23525,14 +23513,14 @@ int CvCity::GetBaseScienceFromArt() const
 
 //	--------------------------------------------------------------------------------
 /// Base yield rate from Great Works
-int CvCity::GetBaseYieldRateFromGreatWorks(YieldTypes eIndex) const
+int CvCity::GetBaseYieldRateFromGreatWorksTimes100(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT();
 	ASSERT_DEBUG(eIndex >= 0, "eIndex expected to be >= 0");
 	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	if (m_GwYieldCache[eIndex] == -1)
-		m_GwYieldCache[eIndex] = GetCityBuildings()->GetYieldFromGreatWorks(eIndex);
+		m_GwYieldCache[eIndex] = GetCityBuildings()->GetYieldFromGreatWorksTimes100(eIndex);
 
 	return m_GwYieldCache[eIndex];
 }
@@ -23558,8 +23546,7 @@ void CvCity::ChangeBaseYieldRateFromTerrain(YieldTypes eIndex, int iChange)
 
 	if (iChange != 0)
 	{
-		if (m_aiBaseYieldRateFromTerrain[eIndex] + iChange < 0)
-			CUSTOMLOG("houston, we have a problem! inconsistent yield in %s\n", getNameKey());
+		ASSERT_DEBUG(m_aiBaseYieldRateFromTerrain[eIndex] + iChange >= 0, "houston, we have a problem! inconsistent yield in %s", getNameKey());
 
 		m_aiBaseYieldRateFromTerrain[eIndex] += iChange;
 
@@ -25183,19 +25170,19 @@ void CvCity::ChangeReligiousUnrestModifier(int iChange)
 
 //	--------------------------------------------------------------------------------
 /// Base yield rate from Religion
-int CvCity::GetBaseYieldRateFromReligion(YieldTypes eIndex) const
+int CvCity::GetBaseYieldRateFromReligionTimes100(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT();
 	ASSERT_DEBUG(eIndex >= 0, "eIndex expected to be >= 0");
 	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
-	int iBaseYield = m_aiBaseYieldRateFromReligion[eIndex];
+	int iBaseYield = m_aiBaseYieldRateFromReligion[eIndex] * 100;
 
 	const SCityExtraYields& y = GetYieldChanges(eIndex);
 	for (vector<pair<TerrainTypes, int>>::const_iterator it = y.forTerrainFromReligion.begin(); it != y.forTerrainFromReligion.end(); ++it)
-		iBaseYield += it->second;
+		iBaseYield += it->second * 100;
 	for (vector<pair<FeatureTypes, int>>::const_iterator it = y.forFeatureFromReligion.begin(); it != y.forFeatureFromReligion.end(); ++it)
-		iBaseYield += it->second;
+		iBaseYield += it->second * 100;
 
 	if (GET_PLAYER(getOwner()).GetPlayerTraits()->GetYieldFromOwnPantheon(eIndex) > 0)
 	{
@@ -25209,12 +25196,12 @@ int CvCity::GetBaseYieldRateFromReligion(YieldTypes eIndex) const
 			ReligionTypes ePlayerPantheon = GC.getGame().GetGameReligions()->GetPantheonCreatedByPlayer(getOwner());
 			if (eMajorityReligion != NO_RELIGION && (eMajorityReligion == eReligionFounded || eMajorityReligion == ePlayerPantheon))
 			{
-				iBaseYield += GET_PLAYER(getOwner()).GetPlayerTraits()->GetYieldFromOwnPantheon(eIndex);
+				iBaseYield += GET_PLAYER(getOwner()).GetPlayerTraits()->GetYieldFromOwnPantheon(eIndex) * 100;
 			}
 		}
 	}
-	// This will only return a value for food and production
-	iBaseYield += GetYieldPerTurnFromReligion(eIndex);
+
+	iBaseYield += GetSpecialReligionYieldsTimes100(eIndex);
 
 	return iBaseYield;
 }
@@ -25241,14 +25228,21 @@ void CvCity::ChangeBaseYieldRateFromReligion(YieldTypes eIndex, int iChange)
 }
 #if defined(MOD_BALANCE_CORE)
 //	--------------------------------------------------------------------------------
-/// EFFECTIVE yield rate from CS Alliances (name is misleading)
 int CvCity::GetBaseYieldRateFromCSAlliance(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT();
 	ASSERT_DEBUG(eIndex >= 0, "eIndex expected to be >= 0");
 	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
-	int iValue = m_aiBaseYieldRateFromCSAlliance[eIndex];
+	return m_aiBaseYieldRateFromCSAlliance[eIndex];
+}//	--------------------------------------------------------------------------------
+/// EFFECTIVE yield rate from CS Alliances
+int CvCity::GetEffectiveYieldRateFromCSAllianceTimes100(YieldTypes eIndex) const
+{
+	VALIDATE_OBJECT();
+	ASSERT_DEBUG(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+
 	const CvPlayer& kPlayer = GET_PLAYER(getOwner());
 	int iModifier = kPlayer.GetPlayerTraits()->GetCityStateBonusModifier();
 	//policy effects
@@ -25258,13 +25252,9 @@ int CvCity::GetBaseYieldRateFromCSAlliance(YieldTypes eIndex) const
 	if (MOD_CITY_STATE_SCALE)
 		iModifier += max(0, GetPlayer()->getNumCities() - 1) * GD_INT_GET(CITY_STATE_SCALE_PER_CITY_MOD);
 
-	if (iModifier > 0)
-	{
-		iValue *= 100 + iModifier;
-		iValue /= 100;
-	}
+	int iValue = GetBaseYieldRateFromCSAlliance(eIndex) * (100 + iModifier);
 
-	int iBonus = GetYieldPerAlly(eIndex) * GET_PLAYER(getOwner()).GetNumCSAllies();
+	int iBonus = GetYieldPerAlly(eIndex) * GET_PLAYER(getOwner()).GetNumCSAllies() * 100;
 	return iValue + iBonus;
 }
 //	--------------------------------------------------------------------------------
@@ -25296,7 +25286,16 @@ int CvCity::GetBaseYieldRateFromCSFriendship(YieldTypes eIndex) const
 	ASSERT_DEBUG(eIndex >= 0, "eIndex expected to be >= 0");
 	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
-	int iValue = m_aiBaseYieldRateFromCSFriendship[eIndex];
+	return m_aiBaseYieldRateFromCSFriendship[eIndex];
+}
+//	--------------------------------------------------------------------------------
+/// EFFECTIVE yield rate from CS Friendships (name is misleading)
+int CvCity::GetEffectiveYieldRateFromCSFriendshipTimes100(YieldTypes eIndex) const
+{
+	VALIDATE_OBJECT();
+	ASSERT_DEBUG(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+
 	const CvPlayer& kPlayer = GET_PLAYER(getOwner());
 	int iModifier = kPlayer.GetPlayerTraits()->GetCityStateBonusModifier();
 	//policy effects
@@ -25306,13 +25305,9 @@ int CvCity::GetBaseYieldRateFromCSFriendship(YieldTypes eIndex) const
 	if (MOD_CITY_STATE_SCALE)
 		iModifier += max(0, GetPlayer()->getNumCities() - 1) * GD_INT_GET(CITY_STATE_SCALE_PER_CITY_MOD);
 
-	if (iModifier > 0)
-	{
-		iValue *= 100 + iModifier;
-		iValue /= 100;
-	}
+	int iValue = GetBaseYieldRateFromCSFriendship(eIndex) * (100 + iModifier);
 
-	int iBonus = GetYieldPerFriend(eIndex) * GET_PLAYER(getOwner()).GetNumCSFriends();
+	int iBonus = GetYieldPerFriend(eIndex) * GET_PLAYER(getOwner()).GetNumCSFriends() * 100;
 	return iValue + iBonus;
 
 }
@@ -31749,7 +31744,7 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_iYieldMediansCachedTurn);
 	visitor(city.m_aiNumProjects);
 	visitor(city.m_aiNumTimesAttackedThisTurn);
-	visitor(city.m_aiYieldFromKnownPantheons);
+	visitor(city.m_aiSpecialReligionYieldsTimes100);
 	visitor(city.m_aiYieldFromVictory);
 	visitor(city.m_aiYieldFromVictoryGlobal);
 	visitor(city.m_aiYieldFromVictoryGlobalEraScaling);
