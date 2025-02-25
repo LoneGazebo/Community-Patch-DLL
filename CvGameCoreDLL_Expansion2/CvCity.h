@@ -1060,8 +1060,6 @@ public:
 	void UpdateCityYieldFromYield();
 	int GetTotalYieldFromYieldTimes100(YieldTypes eYield) const;
 
-	int GetBaseScienceFromArt() const;
-
 	int GetBaseYieldRateFromGreatWorksTimes100(YieldTypes eIndex) const;
 
 	int GetBaseYieldRateFromTerrain(YieldTypes eIndex) const;
@@ -1081,14 +1079,6 @@ public:
 
 	int GetBaseYieldRateFromLeague(YieldTypes eIndex) const;
 	void ChangeBaseYieldRateFromLeague(YieldTypes eIndex, int iChange);
-
-	void ChangeTotalArtsyAid(int iChange);
-	int GetTotalArtsyAid() const;
-	void SetTotalArtsyAid(int iValue);
-
-	void ChangeTotalScienceyAid(int iChange);
-	int GetTotalScienceyAid() const;
-	void SetTotalScienceyAid(int iValue);
 
 	int GetGrowthExtraYield(YieldTypes eIndex) const;
 	void ChangeGrowthExtraYield(YieldTypes eIndex, int iChange);
