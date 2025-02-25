@@ -21260,8 +21260,8 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		{
 			vApproachScores[CIV_APPROACH_NEUTRAL] = iNeutralUp;
 		}
-		// Decrease NEUTRAL if it outscores FRIENDLY, *if* FRIENDLY isn't outscored by a bad approach, and don't decrease it to the point where it scores below a bad approach
-		else if (vApproachScores[CIV_APPROACH_NEUTRAL] >= vApproachScores[CIV_APPROACH_FRIENDLY] && vApproachScores[CIV_APPROACH_FRIENDLY] > iHighestBadApproach)
+		// Decrease NEUTRAL if it outscores FRIENDLY, but don't decrease it to the point where it scores below a bad approach
+		else if (vApproachScores[CIV_APPROACH_NEUTRAL] >= vApproachScores[CIV_APPROACH_FRIENDLY])
 		{
 			int iNeutralDown = vApproachScores[CIV_APPROACH_NEUTRAL] * 100 / max(100,(100 - iNeutralMod + iOpinionWeight));
 			if (iNeutralDown > iHighestBadApproach)
