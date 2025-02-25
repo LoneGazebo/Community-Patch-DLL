@@ -537,7 +537,6 @@ CvPlayer::CvPlayer() :
 	, m_bIsLeagueScholar()
 	, m_bIsLeagueArt()
 	, m_iScienceRateFromLeague()
-	, m_iScienceRateFromLeagueAid()
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
 	, m_iProductionBonusTurnsConquest()
 	, m_iCultureBonusTurnsConquest()
@@ -1344,7 +1343,6 @@ void CvPlayer::uninit()
 	m_bIsLeagueScholar = false;
 	m_bIsLeagueArt = false;
 	m_iScienceRateFromLeague = 0;
-	m_iScienceRateFromLeagueAid = 0;
 	m_iWoundedUnitDamageMod = 0;
 	m_iUnitUpgradeCostMod = 0;
 	m_iBarbarianCombatBonus = 0;
@@ -23167,15 +23165,15 @@ void CvPlayer::ProcessLeagueResolutions()
 		if ( pLeague->GetArtsyGreatPersonRateModifier() > 0)
 		{
 			//Production and Culture
-			if(AidRankGeneric(1) == GetID()) // calculate only Culture related score
+			if(IsEligibleForLeagueBonus(1)) // calculate only Culture related score
 			{
 				// calculate modifier that is actually related to Resolution's ArtsyGreatPersonRateMod parameter
 				int iScoreMod = pLeague->GetArtsyGreatPersonRateModifier() * ScoreDifferencePercent(1) / 100;
 				SetYieldModifierFromLeague(YIELD_PRODUCTION, iScoreMod);
 				SetYieldModifierFromLeague(YIELD_CULTURE, iScoreMod);
 			}
-			//Remove bonuses from filty first-worlders.
-			if(AidRankGeneric(1) != GetID()) // calculate only Culture related score
+			//Remove bonuses from filthy first-worlders.
+			else
 			{
 				SetYieldModifierFromLeague(YIELD_PRODUCTION, 0);
 				SetYieldModifierFromLeague(YIELD_CULTURE, 0);
@@ -23184,15 +23182,15 @@ void CvPlayer::ProcessLeagueResolutions()
 		else if (pLeague && pLeague->GetScienceyGreatPersonRateModifier() > 0)
 		{
 			//Food and Research
-			if(AidRankGeneric(2) == GetID()) // calculate only Research related score
+			if(IsEligibleForLeagueBonus(2)) // calculate only Research related score
 			{
 				// calculate modifier that is actually related to Resolution's ScienceyGreatPersonRateMod parameter
 				int iScoreMod = pLeague->GetScienceyGreatPersonRateModifier() * ScoreDifferencePercent(2) / 100;
 				SetYieldModifierFromLeague(YIELD_FOOD, iScoreMod);
 				SetYieldModifierFromLeague(YIELD_SCIENCE, iScoreMod);
 			}
-			//Remove bonuses from filty first-worlders.
-			if(AidRankGeneric(2) != GetID()) // calculate only Research related score
+			//Remove bonuses from filthy first-worlders.
+			else
 			{
 				SetYieldModifierFromLeague(YIELD_FOOD, 0);
 				SetYieldModifierFromLeague(YIELD_SCIENCE, 0);
@@ -23237,10 +23235,10 @@ void CvPlayer::ProcessLeagueResolutions()
 	}
 }
 
-//	League Bonuses for Poor Players - modified version of CvPlayer::AidRank()
+//	Does (or would) the player get a League Bonus for Poor Players?
 //	Calculates if the player is below median score depending on type of score
 //	eType 0 total score, 1 art, 2 science
-PlayerTypes CvPlayer::AidRankGeneric(int eType)
+bool CvPlayer::IsEligibleForLeagueBonus(int eType)
 {
 	int iRank = 0;
 	int iMajorCivs = 0;
@@ -23289,18 +23287,12 @@ PlayerTypes CvPlayer::AidRankGeneric(int eType)
 				//Are we in the bottom 50% of Civs? If so, we need aid!
 				if(iRanking >= iTopTier)
 				{
-					return GetID();
+					return true;
 				}
 			}
 		}
 	}
-	return NO_PLAYER;
-}
-
-/// League Bonuses for Poor Players
-PlayerTypes CvPlayer::AidRank()
-{
-	return AidRankGeneric();
+	return false;
 }
 
 //	League Bonuses for Poor Players - modified version of CvPlayer::ScoreDifference()
@@ -23405,24 +23397,6 @@ void CvPlayer::SetScienceRateFromMinorAllies(int iValue)
 {
 	if(GetScienceRateFromMinorAllies() != iValue)
 		m_iScienceRateFromLeague = iValue;
-}
-
-/// Extra science from aid
-int CvPlayer::GetScienceRateFromLeagueAid() const
-{
-	return m_iScienceRateFromLeagueAid;
-}
-
-/// Extra science from aid
-void CvPlayer::ChangeScienceRateFromLeagueAid(int iChange)
-{
-	SetScienceRateFromLeagueAid(GetScienceRateFromLeagueAid() + iChange);
-}
-/// Extra science from aid
-void CvPlayer::SetScienceRateFromLeagueAid(int iValue)
-{
-	if(GetScienceRateFromLeagueAid() != iValue)
-		m_iScienceRateFromLeagueAid = iValue;
 }
 
 /// How much weaker do Units get when wounded?
@@ -34864,14 +34838,6 @@ int CvPlayer::GetScienceTimes100() const
 
 	iValue += GetSciencePerTurnFromPassiveSpyBonusesTimes100();
 
-	//Science Funding Rate Boost
-	if (MOD_BALANCE_VP && IsLeagueAid())
-	{
-		int iFreeScience = GetScienceFromCitiesTimes100(false) * GetScienceRateFromLeagueAid();
-		iFreeScience /= 100;
-		iValue += iFreeScience;
-	}
-
 	return max(iValue, 0);
 }
 
@@ -42661,7 +42627,6 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_bIsLeagueScholar);
 	visitor(player.m_bIsLeagueArt);
 	visitor(player.m_iScienceRateFromLeague);
-	visitor(player.m_iScienceRateFromLeagueAid);
 	visitor(player.m_iAttackBonusTurns);
 	visitor(player.m_iCultureBonusTurns);
 	visitor(player.m_iTourismBonusTurns);

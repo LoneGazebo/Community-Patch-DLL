@@ -651,7 +651,6 @@ protected:
 	static int lGetGreatEngineerRateModifier(lua_State* L);
 	LUAAPIEXTN(GetGreatDiplomatRateModifier, int);
 	LUAAPIEXTN(GetScienceRateFromMinorAllies, int);
-	LUAAPIEXTN(GetScienceRateFromLeagueAid, int);
 	LUAAPIEXTN(GetArtsyGreatPersonRateModifier, int);
 	LUAAPIEXTN(GetScienceyGreatPersonRateModifier, int);
 	static int lGetPolicyGreatPeopleRateModifier(lua_State* L);

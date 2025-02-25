@@ -23323,15 +23323,11 @@ int CvCity::getBaseYieldRateTimes100(const YieldTypes eYield, CvString* tooltipS
 	}
 
 	iTempYield = getNumWorldWonders() * GC.getGame().GetGameLeagues()->GetWorldWonderYieldChange(getOwner(), eYield) * 100;
+	iTempYield += GetBaseYieldRateFromLeague(eYield) * 100;
 	iYield += iTempYield;
 	if (tooltipSink)
 		GC.getGame().BuildYieldTimes100HelpText(tooltipSink, "TXT_KEY_YIELD_FROM_WORLD_CONGRESS", iTempYield, szIconString);
 
-
-	iTempYield = GetBaseYieldRateFromLeague(eYield) * 100;
-	iYield += iTempYield;
-	if (tooltipSink)
-		GC.getGame().BuildYieldTimes100HelpText(tooltipSink, "TXT_KEY_SCIENCE_YIELD_FROM_LEAGUE_ART", iTempYield, szIconString);
 
 	if (eYield == YIELD_TOURISM)
 	{
