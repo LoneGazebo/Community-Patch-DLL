@@ -1017,10 +1017,9 @@ public:
 	int getSeaResourceYield(YieldTypes eIndex) const;
 	void changeSeaResourceYield(YieldTypes eIndex, int iChange);
 
-	int GetYieldPerTurnFromReligion(YieldTypes eYield) const;
 	void UpdateSpecialReligionYields(YieldTypes eYield);
-	int GetSpecialReligionYields(YieldTypes eIndex) const;
-	void SetSpecialReligionYields(YieldTypes eIndex, int iChange);
+	int GetSpecialReligionYieldsTimes100(YieldTypes eIndex) const;
+	void SetSpecialReligionYieldsTimes100(YieldTypes eIndex, int iChange);
 
 #if defined(MOD_BALANCE_CORE)
 	void updateEconomicValue();
@@ -1063,7 +1062,7 @@ public:
 
 	int GetBaseScienceFromArt() const;
 
-	int GetBaseYieldRateFromGreatWorks(YieldTypes eIndex) const;
+	int GetBaseYieldRateFromGreatWorksTimes100(YieldTypes eIndex) const;
 
 	int GetBaseYieldRateFromTerrain(YieldTypes eIndex) const;
 	void ChangeBaseYieldRateFromTerrain(YieldTypes eIndex, int iChange);
@@ -1272,7 +1271,7 @@ public:
 	int GetReligiousUnrestModifier() const;
 	void ChangeReligiousUnrestModifier(int iChange);
 
-	int GetBaseYieldRateFromReligion(YieldTypes eIndex) const;
+	int GetBaseYieldRateFromReligionTimes100(YieldTypes eIndex) const;
 	void ChangeBaseYieldRateFromReligion(YieldTypes eIndex, int iChange);
 
 #if defined(MOD_BALANCE_CORE)
@@ -1280,9 +1279,13 @@ public:
 	void ChangeBaseYieldRateFromCSAlliance(YieldTypes eIndex, int iChange);
 	void SetBaseYieldRateFromCSAlliance(YieldTypes eIndex, int iValue);
 
+	int GetEffectiveYieldRateFromCSAllianceTimes100(YieldTypes eIndex) const;
+
 	int GetBaseYieldRateFromCSFriendship(YieldTypes eIndex) const;
 	void ChangeBaseYieldRateFromCSFriendship(YieldTypes eIndex, int iChange);
 	void SetBaseYieldRateFromCSFriendship(YieldTypes eIndex, int iValue);
+
+	int GetEffectiveYieldRateFromCSFriendshipTimes100(YieldTypes eIndex) const;
 
 	void SetYieldFromMinors(YieldTypes eYield, int iValue);
 	int GetYieldFromMinors(YieldTypes eYield) const;
@@ -1998,7 +2001,7 @@ protected:
 	int m_iYieldMediansCachedTurn;
 	std::vector<int> m_aiNumProjects;
 	std::vector<int> m_aiNumTimesAttackedThisTurn;
-	std::vector<int> m_aiYieldFromKnownPantheons;
+	std::vector<int> m_aiSpecialReligionYieldsTimes100;
 	std::vector<int> m_aiYieldFromVictory;
 	std::vector<int> m_aiYieldFromVictoryGlobal;
 	std::vector<int> m_aiYieldFromVictoryGlobalEraScaling;
@@ -2409,7 +2412,7 @@ SYNC_ARCHIVE_VAR(int, m_iCachedEmpireSizeModifier)
 SYNC_ARCHIVE_VAR(int, m_iYieldMediansCachedTurn)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiNumProjects)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiNumTimesAttackedThisTurn)
-SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromKnownPantheons)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiSpecialReligionYieldsTimes100)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromVictory)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromVictoryGlobal)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromVictoryGlobalEraScaling)
