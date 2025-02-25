@@ -27,7 +27,7 @@ SET Text = 'Endowment for the Arts'
 WHERE Tag = 'TXT_KEY_RESOLUTION_ARTS_FUNDING';
 
 UPDATE Language_en_US
-SET Text = 'Increases up to 33% generation of Great Writers, Artists, and Musicians. Decreases up to 33% generation of Great Scientists, Engineers, and Merchants.[NEWLINE][NEWLINE]Civilizations with Scores from Policies and Great Works [COLOR_POSITIVE_TEXT]below the global median[ENDCOLOR] will receive a boost to [ICON_PRODUCTION] Production and [ICON_CULTURE] Culture up to 30%.[NEWLINE][NEWLINE]Details: The boosts are proportional to the difference between the score of the Civilization and the leader.'
+SET Text = 'Increases up to 33% generation of Great Writers, Artists, and Musicians. Decreases up to 33% generation of Great Scientists, Engineers, and Merchants.[NEWLINE][NEWLINE]Civilizations with Scores from Policies and Great Works [COLOR_POSITIVE_TEXT]below the global median[ENDCOLOR] will receive a boost to [ICON_PRODUCTION] Production and [ICON_CULTURE] Culture up to 33%.[NEWLINE][NEWLINE]Details: The boosts are proportional to the difference between the score of the Civilization and the leader.'
 WHERE Tag = 'TXT_KEY_RESOLUTION_ARTS_FUNDING_HELP';
 
 UPDATE Language_en_US
@@ -35,7 +35,7 @@ SET Text = 'World Science Initiative'
 WHERE Tag = 'TXT_KEY_RESOLUTION_SCIENCES_FUNDING';
 
 UPDATE Language_en_US
-SET Text = 'Increases up to 33% generation of Great Scientists, Engineers, and Merchants. Decreases up to 33% generation of Great Writers, Artists, and Musicians.[NEWLINE][NEWLINE]Civilizations with Scores from Technologies and Future Tech [COLOR_POSITIVE_TEXT]below the global median[ENDCOLOR] will receive a boost to [ICON_FOOD] Food and [ICON_RESEARCH] Science up to 30%.[NEWLINE][NEWLINE]Details: The boosts are proportional to the difference between the score of the Civilization and the leader.'
+SET Text = 'Increases up to 33% generation of Great Scientists, Engineers, and Merchants. Decreases up to 33% generation of Great Writers, Artists, and Musicians.[NEWLINE][NEWLINE]Civilizations with Scores from Technologies and Future Tech [COLOR_POSITIVE_TEXT]below the global median[ENDCOLOR] will receive a boost to [ICON_FOOD] Food and [ICON_RESEARCH] Science up to 33%.[NEWLINE][NEWLINE]Details: The boosts are proportional to the difference between the score of the Civilization and the leader.'
 WHERE Tag = 'TXT_KEY_RESOLUTION_SCIENCES_FUNDING_HELP';
 
 UPDATE Language_en_US

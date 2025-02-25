@@ -479,8 +479,6 @@ public:
 
 	int GetJONSCultureCityModifier() const;
 	void ChangeJONSCultureCityModifier(int iChange);
-	int GetLeagueCultureCityModifier() const;
-	void ChangeLeagueCultureCityModifier(int iChange);
 
 	int getJONSCultureTimes100() const;
 	void setJONSCultureTimes100(int iNewValue);
@@ -1803,6 +1801,9 @@ public:
 	int getYieldModifierFromActiveSpies(YieldTypes eIndex)	const;
 	void changeYieldModifierFromActiveSpies(YieldTypes eIndex, int iChange);
 
+	int GetYieldModifierFromLeague(YieldTypes eIndex) const;
+	void SetYieldModifierFromLeague(YieldTypes eIndex, int iNewValue);
+
 	int getYieldFromDelegateCount(YieldTypes eIndex)	const;
 	void changeYieldFromDelegateCount(YieldTypes eIndex, int iChange);
 
@@ -3086,11 +3087,12 @@ protected:
 	int m_iDefensePactsToVotes;
 	int m_iGPExpendInfluence;
 	bool m_bIsLeagueAid;
+	int m_iTotalScienceyAid;
+	int m_iTotalArtsyAid;
 	bool m_bIsLeagueScholar;
 	bool m_bIsLeagueArt;
 	int m_iScienceRateFromLeague;
 	int m_iScienceRateFromLeagueAid;
-	int m_iLeagueCultureCityModifier;
 	int m_iAttackBonusTurns;
 	int m_iCultureBonusTurns;
 	int m_iTourismBonusTurns;
@@ -3514,6 +3516,7 @@ protected:
 	std::vector<int> m_aiYieldFromNonSpecialistCitizensTimes100;
 	std::vector<int> m_aiYieldModifierFromGreatWorks;
 	std::vector<int> m_aiYieldModifierFromActiveSpies;
+	std::vector<int> m_aiYieldModifierFromLeague;
 	std::vector<int> m_aiYieldFromDelegateCount;
 	std::vector<int> m_aiYieldFromXMilitaryUnits;
 	std::vector<int> m_aiYieldPerCityOverStrengthThreshold;
@@ -3945,11 +3948,12 @@ SYNC_ARCHIVE_VAR(int, m_iRAToVotes)
 SYNC_ARCHIVE_VAR(int, m_iDefensePactsToVotes)
 SYNC_ARCHIVE_VAR(int, m_iGPExpendInfluence)
 SYNC_ARCHIVE_VAR(bool, m_bIsLeagueAid)
+SYNC_ARCHIVE_VAR(int, m_iTotalScienceyAid)
+SYNC_ARCHIVE_VAR(int, m_iTotalArtsyAid)
 SYNC_ARCHIVE_VAR(bool, m_bIsLeagueScholar)
 SYNC_ARCHIVE_VAR(bool, m_bIsLeagueArt)
 SYNC_ARCHIVE_VAR(int, m_iScienceRateFromLeague)
 SYNC_ARCHIVE_VAR(int, m_iScienceRateFromLeagueAid)
-SYNC_ARCHIVE_VAR(int, m_iLeagueCultureCityModifier)
 SYNC_ARCHIVE_VAR(int, m_iAttackBonusTurns)
 SYNC_ARCHIVE_VAR(int, m_iCultureBonusTurns)
 SYNC_ARCHIVE_VAR(int, m_iTourismBonusTurns)
@@ -4320,6 +4324,7 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_aiOutgoingEspionageYields)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromNonSpecialistCitizensTimes100)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldModifierFromGreatWorks)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldModifierFromActiveSpies)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldModifierFromLeague)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromDelegateCount)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromXMilitaryUnits)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldPerCityOverStrengthThreshold)
