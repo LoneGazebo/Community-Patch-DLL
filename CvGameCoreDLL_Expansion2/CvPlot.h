@@ -336,7 +336,7 @@ public:
 	CvArea* area() const;
 	inline int getArea() const { return m_iArea; }
 	void setArea(int iNewValue);
-	std::vector<int> getAllAdjacentAreas() const;
+	const std::vector<int>& getAllAdjacentAreas() const;
 	bool hasSharedAdjacentArea(const CvPlot* pOther, bool bAllowLand, bool bAllowWater) const;
 
 	//multiple areas make up a landmass; a landmass can also be a body of water!

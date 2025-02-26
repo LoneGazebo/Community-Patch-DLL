@@ -40,7 +40,7 @@ const int TACTICAL_COMBAT_CITADEL_BONUS = 67; //larger than 60 to override first
 const int TACTICAL_COMBAT_IMPOSSIBLE_SCORE = -1000;
 const int TACTSIM_UNIQUENESS_CHECK_GENERATIONS = 3; //higher means check more siblings for permutations
 const int TACTSIM_BREADTH_FIRST_GENERATIONS = 3; //switch to depth-first later
-const int TACTSIM_MAX_UNITS = 15; //we have limited storage and time ...
+const int TACTSIM_MAX_UNITS = 13; //we have limited storage and time ...
 
 //global memory for tactical simulation
 CvTactPosStorage gTactPosStorage(6000);
@@ -770,18 +770,20 @@ void CvTacticalAI::ProcessDominanceZones()
 				PlotDefensiveAirlifts(pZone);
 			}
 
+			int iTargets = ExtractTargetsForZone(pZone);
+			if (iTargets==0)
+				continue;
+
 			if (GC.getLogging() && GC.getAILogging())
 			{
 				CvString strLogString;
 				CvCity* pZoneCity = pZone->GetZoneCity();
-				strLogString.Format("Zone %d, %s, city of %s, posture %s",  
+				strLogString.Format("Zone %d, %s, city of %s, posture %s, %d targets",  
 					pZone ? pZone->GetZoneID() : -1, pZone->IsWater() ? "water" : "land",
 					pZoneCity ? pZoneCity->getNameNoSpace().c_str() : "none", 
-					postureNames[pZone->GetPosture()]);
+					postureNames[pZone->GetPosture()], iTargets);
 				LogTacticalMessage(strLogString);
 			}
-
-			ExtractTargetsForZone(pZone);
 
 			switch (pZone->GetPosture())
 			{
@@ -2810,7 +2812,7 @@ void CvTacticalAI::ClearCurrentMoveUnits(AITacticalMove eNewMove)
 }
 
 /// Sift through the target list and find just those that apply to the dominance zone we are currently looking at
-void CvTacticalAI::ExtractTargetsForZone(CvTacticalDominanceZone* pZone /* Pass in NULL for all zones */)
+int CvTacticalAI::ExtractTargetsForZone(CvTacticalDominanceZone* pZone /* Pass in NULL for all zones */)
 {
 	int iMaxRadius = GetTacticalAnalysisMap()->GetMaxZoneRadius();
 
@@ -2838,6 +2840,8 @@ void CvTacticalAI::ExtractTargetsForZone(CvTacticalDominanceZone* pZone /* Pass 
 			m_ZoneTargets.push_back(&(*it));
 		}
 	}
+
+	return (int)m_ZoneTargets.size();
 }
 
 /// Find the first target of a requested type in current dominance zone (call after ExtractTargetsForZone())
@@ -7108,7 +7112,7 @@ bool isKillAssignment(eUnitAssignmentType eAssignmentType)
 }
 
 int ScoreCombatUnitTurnEnd(const CvUnit* pUnit, eUnitAssignmentType eLastAssignment, const CvTacticalPlot& testPlot, int iMovesLeft, int iDanger,
-							CvTacticalPlot::eTactPlotDomain eRelevantDomain, int iSelfDamage, int iAssumedExtraKill,
+							CvTacticalPlot::eTactPlotDomain eRelevantDomain, int iSelfDamage, int iAssumedExtraKill, bool bHasMoved,
 							const CvTacticalPosition& assumedPosition, eUnitMoveEvalMode evalMode, bool bRelaxedCheck)
 {
 	int iResult = 0;
@@ -7210,7 +7214,7 @@ int ScoreCombatUnitTurnEnd(const CvUnit* pUnit, eUnitAssignmentType eLastAssignm
 
 	//minor bonus for staying put and healing
 	//don't add too much else it overrides the firstline/secondline order
-	if (iMovesLeft == pUnit->maxMoves())
+	if (!bHasMoved)
 	{
 		if (pUnit->IsHurt())
 			iResult++; //cannot fortify, only heal
@@ -7231,7 +7235,7 @@ int ScoreCombatUnitTurnEnd(const CvUnit* pUnit, eUnitAssignmentType eLastAssignm
 	if (testPlot.hasAirCover())
 		iResult+=3;
 	//when in doubt, hide from the enemy
-	if (!testPlot.getPlot()->IsKnownVisibleToEnemy(pUnit->getOwner()))
+	if (!testPlot.isVisibleToEnemy())
 		iResult++;
 
 	//try to occupy enemy citadels!
@@ -7342,7 +7346,8 @@ STacticalAssignment ScorePlotForCombatUnitMove(const SUnitStats& unit, const CvT
 	if (evalMode != EM_INTERMEDIATE)
 	{
 		result.eAssignmentType = A_FINISH;
-		iDangerScore = ScoreCombatUnitTurnEnd(pUnit, unit.eLastAssignment, testPlot, iAssumedMovesLeft, iDanger, eRelevantDomain, unit.iSelfDamage, -1, assumedPosition, evalMode, false);
+		iDangerScore = ScoreCombatUnitTurnEnd(pUnit, unit.eLastAssignment, testPlot, iAssumedMovesLeft, iDanger, 
+			eRelevantDomain, unit.iSelfDamage, -1, iAssumedMovesLeft==unit.iMaxMoves, assumedPosition, evalMode, false);
 
 		// unit giving extra strength to an adjacent city?
 		if (pUnit->GetAdjacentCityDefenseMod() > 0 && GET_PLAYER(assumedPosition.getPlayer()).GetCityDistanceInPlots(pTestPlot)<=1)
@@ -8214,10 +8219,10 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 			continue;
 
 		//if there is an enemy in the plot, we want to attack
-		if (IsCombatUnit(unit) && testPlot.isEnemy())
+		if (testPlot.isEnemy())
 		{
 			//ranged attacks are handled separately below
-			if (pUnit->IsCanAttackRanged())
+			if (pUnit->IsCanAttackRanged() || !IsCombatUnit(unit))
 				continue;
 
 			//for a melee attack we need to move to a defined adjacent plot first
@@ -8298,7 +8303,7 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 			{
 				//give a bonus for potential fortifying/healing
 				//redundant with ScoreCombatUnitTurnEnd but we have to make sure we consider these moves in the first place
-				if (it->iMovesLeft == pUnit->maxMoves())
+				if (it->iMovesLeft == unit.iMaxMoves)
 				{
 					if (pUnit->getDamage() > /*10 in CP, 7 in VP*/ GD_INT_GET(FRIENDLY_HEAL_RATE) / 2)
 					{
@@ -10140,7 +10145,7 @@ bool CvTacticalPosition::canProbablyEndTurnInPlot(const STacticalAssignment& ass
 		}
 
 		return ScoreCombatUnitTurnEnd(pUnit, unit->eLastAssignment, assumedUnitPlot, 0, iDanger, CvTacticalPlot::TD_BOTH,
-			unit->iSelfDamage + assignment.iSelfDamage, assignment.iKillOrNearKillId, *this, EM_FINAL, availableUnits.size() > 1) != INT_MAX;
+			unit->iSelfDamage + assignment.iSelfDamage, assignment.iKillOrNearKillId, assignment.iRemainingMoves==unit->iMaxMoves, *this, EM_FINAL, availableUnits.size() > 1) != INT_MAX;
 	}
 	else
 		//civilians need cover. full scoring logic in ScorePlotForNonFightingUnitMove is more complex; here we just need a rule of thumb
@@ -10534,6 +10539,7 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 		}
 	}
 	timer.EndPerfTest();
+	int durationMs = int(timer.GetDeltaInSeconds() * 1000);
 
 	if (completedPositions.empty())
 	{
@@ -10556,7 +10562,7 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 		if (true)
 		{
 			GET_PLAYER(ePlayer).GetTacticalAI()->LogTacticalMessage(CvString::format("tactsim around (%d:%d) with agg %d finished in %d ms. started with %d units and %d enemies on %d plots. checked %d positions, %d completed.",
-				pTarget->getX(),pTarget->getY(), eAggLvl, int(timer.GetDeltaInSeconds()*1000), initialPosition->getAvailableUnits().size(), initialPosition->getNumEnemies(), initialPosition->getNumPlots(), iUsedPositions, completedPositions.size()));
+				pTarget->getX(),pTarget->getY(), eAggLvl, durationMs, initialPosition->getAvailableUnits().size(), initialPosition->getNumEnemies(), initialPosition->getNumPlots(), iUsedPositions, completedPositions.size()));
 		}
 
 		//debug dump

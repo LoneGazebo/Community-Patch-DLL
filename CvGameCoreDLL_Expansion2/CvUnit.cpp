@@ -14740,7 +14740,7 @@ int CvUnit::baseMoves(bool bPretendEmbarked) const
 		return max(1, /*2 in CP, 3 in VP*/ GD_INT_GET(EMBARKED_UNIT_MOVEMENT) + getExtraNavalMoves() + thisTeam.getEmbarkedExtraMoves() + thisTeam.getExtraMoves(eDomain) + pTraits->GetExtraEmbarkMoves() + pPolicies->GetNumericModifier(POLICYMOD_EMBARKED_EXTRA_MOVES));
 	}
 
-	int m_iExtraNavalMoves = 0;
+	int iExtraNavalMoves = 0;
 	if(eDomain == DOMAIN_SEA)
 	{
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
@@ -14753,7 +14753,7 @@ int CvUnit::baseMoves(bool bPretendEmbarked) const
 				CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
 				if (pInfo && pInfo->getMonopolyMovementBonus() > 0)
 				{
-					m_iExtraNavalMoves += pInfo->getMonopolyMovementBonus();
+					iExtraNavalMoves += pInfo->getMonopolyMovementBonus();
 				}
 			}
 		}
@@ -14761,7 +14761,7 @@ int CvUnit::baseMoves(bool bPretendEmbarked) const
 		// Work boats also get extra moves, and they don't have a combat class to receive a promotion from
 		if(m_iBaseCombat == 0)
 		{
-			m_iExtraNavalMoves += pTraits->GetExtraEmbarkMoves();
+			iExtraNavalMoves += pTraits->GetExtraEmbarkMoves();
 		}
 	}
 
@@ -14784,7 +14784,7 @@ int CvUnit::baseMoves(bool bPretendEmbarked) const
 	iExtraUnitCombatTypeMoves += pTraits->GetMovesChangeUnitClass((UnitClassTypes)(m_pUnitInfo->GetUnitClassType()));
 #endif
 
-	return max(1, (m_pUnitInfo->GetMoves() + getExtraMoves() + thisTeam.getExtraMoves(eDomain) + m_iExtraNavalMoves + iExtraGoldenAgeMoves + iExtraUnitCombatTypeMoves));
+	return max(1, (m_pUnitInfo->GetMoves() + getExtraMoves() + thisTeam.getExtraMoves(eDomain) + iExtraNavalMoves + iExtraGoldenAgeMoves + iExtraUnitCombatTypeMoves));
 }
 
 

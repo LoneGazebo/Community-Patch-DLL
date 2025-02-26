@@ -425,7 +425,7 @@ private:
 	void DumpTacticalTargets();
 
 	void ClearCurrentMoveUnits(AITacticalMove eNewMove);
-	void ExtractTargetsForZone(CvTacticalDominanceZone* pZone /* Pass in NULL for all zones */);
+	int ExtractTargetsForZone(CvTacticalDominanceZone* pZone /* Pass in NULL for all zones */);
 	CvTacticalTarget* GetFirstZoneTarget(AITacticalTargetType eType, eAggressionLevel threshold = AL_BRAVEHEART);
 	CvTacticalTarget* GetNextZoneTarget(eAggressionLevel threshold = AL_BRAVEHEART);
 
@@ -569,6 +569,7 @@ struct SUnitStats
 	int iMovesLeft;
 	int iImportanceScore;
 	int iSelfDamage; //melee units take damage when attacking
+	int iMaxMoves;
 	eUnitAssignmentType eLastAssignment;
 	eUnitMovementStrategy eMoveStrategy;
 	const CvUnit* pUnit;
@@ -576,10 +577,10 @@ struct SUnitStats
 	//convenience constructor - do not use pUnit here because it's initialized last! (pUnit_ is ok)
 	SUnitStats(const CvUnit* pUnit_, int iImportance, eUnitMovementStrategy eMoveStrategy_) :
 		iUnitID(pUnit_->GetID()), iPlotIndex(pUnit_->plot()->GetPlotIndex()), iAttacksLeft(pUnit_->getNumAttacks() - pUnit_->getNumAttacksMadeThisTurn()), 
-		iMovesLeft(pUnit_->getMoves()), iImportanceScore(iImportance), iSelfDamage(0), eLastAssignment(A_INITIAL), eMoveStrategy(eMoveStrategy_), pUnit(pUnit_) {}
+		iMovesLeft(pUnit_->getMoves()), iMaxMoves(pUnit_->maxMoves()), iImportanceScore(iImportance), iSelfDamage(0), eLastAssignment(A_INITIAL), eMoveStrategy(eMoveStrategy_), pUnit(pUnit_) { }
 	//use with caution, this may lead to an inconsistent state
 	SUnitStats(const CvUnit* pUnit_, int iUnit, int iPlot, int iAttacks, int iMoves, int iImportance, eUnitMovementStrategy eMoveStrategy_) :
-		iUnitID(iUnit), iPlotIndex(iPlot), iAttacksLeft(iAttacks), iMovesLeft(iMoves), iImportanceScore(iImportance), iSelfDamage(0),
+		iUnitID(iUnit), iPlotIndex(iPlot), iAttacksLeft(iAttacks), iMovesLeft(iMoves), iMaxMoves(pUnit_->maxMoves()), iImportanceScore(iImportance), iSelfDamage(0),
 		eLastAssignment(A_INITIAL), eMoveStrategy(eMoveStrategy_), pUnit(pUnit_) {}
 
 	bool operator<(const SUnitStats& rhs) const { return iImportanceScore > rhs.iImportanceScore; } //sort descending by default
