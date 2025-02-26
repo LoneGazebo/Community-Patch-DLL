@@ -9615,19 +9615,6 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 	int iCulture = m_pPlayer->GetTotalJONSCulturePerTurnTimes100() * iIdealEmpireSize / 100;
 	iCulture /= 5;
 
-	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-	{
-		if (pEntry->GetYieldFromPolicyUnlock(iI) > 0)
-		{
-			iCultureTemp += ((pEntry->GetYieldFromPolicyUnlock(iI)) / max(1, iCulture));
-
-			if ((YieldTypes)iI == YIELD_SCIENCE && m_pPlayer->GetPlayerTraits()->IsPermanentYieldsDecreaseEveryEra())
-			{
-				iCultureTemp /= 2;
-			}
-		}
-	}
-
 	////////////////////
 	// Science
 	///////////////////
@@ -9725,10 +9712,6 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 
 			iMissionary += pEntry->GetYieldFromConversionExpo(iI) / 5;
 
-			if ((YieldTypes)iI == YIELD_SCIENCE && m_pPlayer->GetPlayerTraits()->IsPermanentYieldsDecreaseEveryEra())
-			{
-				iMissionary /= 2;
-			}
 		}
 
 		//Best for high faith civs.
@@ -9757,11 +9740,6 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 				iProphet += pEntry->GetYieldFromConversion(iI) / 4;
 
 				iProphet += pEntry->GetYieldFromConversionExpo(iI) / 4;
-
-				if ((YieldTypes)iI == YIELD_SCIENCE && m_pPlayer->GetPlayerTraits()->IsPermanentYieldsDecreaseEveryEra())
-				{
-					iProphet = 0;
-				}
 			}
 
 			//Best for high faith civs.
@@ -9829,12 +9807,6 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 
 					iSpreadYieldsLocal += iVal;
 				}
-			}
-
-			if ((YieldTypes)iI == YIELD_SCIENCE && m_pPlayer->GetPlayerTraits()->IsPermanentYieldsDecreaseEveryEra())
-			{
-				iSpreadYields /= 2;
-				iSpreadYieldsLocal /= 2;
 			}
 		}
 
