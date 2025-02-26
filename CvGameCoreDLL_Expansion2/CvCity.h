@@ -1075,6 +1075,9 @@ public:
 	int GetBaseYieldRateFromMisc(YieldTypes eIndex) const;
 	void ChangeBaseYieldRateFromMisc(YieldTypes eIndex, int iChange);
 
+	int GetBaseYieldRatePermanentWLTKDTimes100(YieldTypes eIndex) const;
+	void ChangeBaseYieldRatePermanentWLTKDTimes100(YieldTypes eIndex, int iChange);
+
 	int GetBaseYieldRateFromProcessTimes100(YieldTypes eIndex) const;
 
 	int GetBaseYieldRateFromLeague(YieldTypes eIndex) const;
@@ -1974,6 +1977,7 @@ protected:
 	std::vector<int> m_aiBaseYieldRateFromBuildings;
 	std::vector<int> m_aiBaseYieldRateFromSpecialists;
 	std::vector<int> m_aiBaseYieldRateFromMisc;
+	std::vector<int> m_aiBaseYieldRatePermanentWLTKDTimes100;
 	std::vector<int> m_aiBaseYieldRateFromLeague;
 	int m_iTotalScienceyAid;
 	int m_iTotalArtsyAid;
@@ -2386,6 +2390,7 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_aiBaseYieldRateFromTerrain)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiBaseYieldRateFromBuildings)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiBaseYieldRateFromSpecialists)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiBaseYieldRateFromMisc)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiBaseYieldRatePermanentWLTKDTimes100)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiBaseYieldRateFromLeague)
 SYNC_ARCHIVE_VAR(std::set<int>, m_siPlots)
 SYNC_ARCHIVE_VAR(int, m_iTotalScienceyAid)
