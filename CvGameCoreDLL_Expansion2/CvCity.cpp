@@ -268,6 +268,7 @@ CvCity::CvCity() :
 	, m_aiBaseYieldRateFromBuildings()
 	, m_aiBaseYieldRateFromSpecialists()
 	, m_aiBaseYieldRateFromMisc()
+	, m_aiBaseYieldRatePermanentWLTKDTimes100()
 	, m_aiBaseYieldRateFromReligion()
 	, m_aiYieldRateModifier()
 	, m_aiYieldPerPop()
@@ -1304,6 +1305,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_aiBaseYieldRateFromBuildings.resize(NUM_YIELD_TYPES);
 	m_aiBaseYieldRateFromSpecialists.resize(NUM_YIELD_TYPES);
 	m_aiBaseYieldRateFromMisc.resize(NUM_YIELD_TYPES);
+	m_aiBaseYieldRatePermanentWLTKDTimes100.resize(NUM_YIELD_TYPES);
 	m_aiBaseYieldRateFromLeague.resize(NUM_YIELD_TYPES);
 	m_siPlots.clear();
 	m_iTotalScienceyAid = 0;
@@ -1465,6 +1467,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		m_aiBaseYieldRateFromBuildings[iI] = 0;
 		m_aiBaseYieldRateFromSpecialists[iI] = 0;
 		m_aiBaseYieldRateFromMisc[iI] = 0;
+		m_aiBaseYieldRatePermanentWLTKDTimes100[iI] = 0;
 		m_aiBaseYieldRateFromLeague[iI] = 0;
 		m_aiChangeGrowthExtraYield[iI] = 0;
 #if defined(MOD_BALANCE_CORE)
@@ -22054,7 +22057,7 @@ void CvCity::ChangeWeLoveTheKingDayCounter(int iChange, bool bUATrigger)
 		{
 			if (GET_PLAYER(getOwner()).GetPlayerTraits()->GetPermanentYieldChangeWLTKD((YieldTypes)iJ) > 0)
 			{
-				ChangeBaseYieldRateFromMisc((YieldTypes)iJ, GET_PLAYER(getOwner()).GetPlayerTraits()->GetPermanentYieldChangeWLTKD((YieldTypes)iJ));
+				ChangeBaseYieldRatePermanentWLTKDTimes100((YieldTypes)iJ, GET_PLAYER(getOwner()).GetPlayerTraits()->GetPermanentYieldChangeWLTKD((YieldTypes)iJ) * 100);
 			}
 		}
 	}
@@ -23294,6 +23297,7 @@ int CvCity::getBaseYieldRateTimes100(const YieldTypes eYield, CvString* tooltipS
 			iTempYield += getYieldRateTimes100(YIELD_CULTURE) * iPercent / 100;
 		}
 	}
+	iTempYield += GetBaseYieldRatePermanentWLTKDTimes100(eYield); // VP China UA
 	iYield += iTempYield;
 	if (tooltipSink)
 		GC.getGame().BuildYieldTimes100HelpText(tooltipSink, "TXT_KEY_YIELD_FROM_TRAIT_BONUS", iTempYield, szIconString);
@@ -23609,6 +23613,7 @@ void CvCity::ChangeBaseYieldRateFromSpecialists(YieldTypes eIndex, int iChange)
 
 		if (getTeam() == GC.getGame().getActiveTeam())
 		{
+			UpdateCityYields(eIndex);
 			if (isCitySelected())
 			{
 				DLLUI->setDirty(CityScreen_DIRTY_BIT, true);
@@ -23642,6 +23647,43 @@ void CvCity::ChangeBaseYieldRateFromMisc(YieldTypes eIndex, int iChange)
 
 		if (getTeam() == GC.getGame().getActiveTeam())
 		{
+			UpdateCityYields(eIndex);
+			if (isCitySelected())
+			{
+				DLLUI->setDirty(CityScreen_DIRTY_BIT, true);
+			}
+		}
+	}
+
+
+}//	--------------------------------------------------------------------------------
+/// Base yield rate from permanent WLTKD
+/// If the player has the trait "PermanentYieldsDecreaseEveryEra", these yields will decrease by 50% every era !
+int CvCity::GetBaseYieldRatePermanentWLTKDTimes100(YieldTypes eIndex) const
+{
+	VALIDATE_OBJECT();
+	ASSERT_DEBUG(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+
+	return m_aiBaseYieldRatePermanentWLTKDTimes100[eIndex];
+}
+
+//	--------------------------------------------------------------------------------
+/// Base yield rate from permanent WLTKD
+/// If the player has the trait "PermanentYieldsDecreaseEveryEra", these yields will decrease by 50% every era !
+void CvCity::ChangeBaseYieldRatePermanentWLTKDTimes100(YieldTypes eIndex, int iChange)
+{
+	VALIDATE_OBJECT();
+	ASSERT_DEBUG(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+
+	if (iChange != 0)
+	{
+		m_aiBaseYieldRatePermanentWLTKDTimes100[eIndex] = m_aiBaseYieldRatePermanentWLTKDTimes100[eIndex] + iChange;
+
+		if (getTeam() == GC.getGame().getActiveTeam())
+		{
+			UpdateCityYields(eIndex);
 			if (isCitySelected())
 			{
 				DLLUI->setDirty(CityScreen_DIRTY_BIT, true);
@@ -31666,6 +31708,7 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_aiBaseYieldRateFromBuildings);
 	visitor(city.m_aiBaseYieldRateFromSpecialists);
 	visitor(city.m_aiBaseYieldRateFromMisc);
+	visitor(city.m_aiBaseYieldRatePermanentWLTKDTimes100);
 	visitor(city.m_aiBaseYieldRateFromLeague);
 	visitor(city.m_siPlots);
 	visitor(city.m_iTotalScienceyAid);

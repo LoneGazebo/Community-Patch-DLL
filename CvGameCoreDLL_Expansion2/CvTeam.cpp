@@ -6702,28 +6702,24 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 								{
 									for (int iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
 									{
-										//We leave science alone, it's used for pop science in vanilla.
-										if ((YieldTypes)iJ == YIELD_SCIENCE)
-											continue;
-
-										if (GET_PLAYER(eLoopPlayer).GetPlayerTraits()->GetPermanentYieldChangeWLTKD((YieldTypes)iJ) <= 0)
-											continue;
-
-										int iValue = pLoopCity->GetBaseYieldRateFromMisc((YieldTypes)iJ);
-										iValue *= 50;
-										iValue /= 100;
-										pLoopCity->ChangeBaseYieldRateFromMisc((YieldTypes)iJ, -iValue);
-
-										if (pLoopCity->plot()->GetActiveFogOfWarMode() == FOGOFWARMODE_OFF)
+										int iValue = pLoopCity->GetBaseYieldRatePermanentWLTKDTimes100((YieldTypes)iJ);
+										if (iValue != 0)
 										{
-											CvYieldInfo* pYieldInfo = GC.getYieldInfo((YieldTypes)iJ);
-											if (pYieldInfo)
+											iValue *= 50; // todo: Database column?
+											iValue /= 100;
+											pLoopCity->ChangeBaseYieldRatePermanentWLTKDTimes100((YieldTypes)iJ, -iValue);
+
+											if (pLoopCity->plot()->GetActiveFogOfWarMode() == FOGOFWARMODE_OFF)
 											{
-												char text[256] = { 0 };
-												CvString yieldString = "";
-												yieldString.Format("%s+%%d[ENDCOLOR] %s", pYieldInfo->getColorString(), pYieldInfo->getIconString());
-												sprintf_s(text, yieldString, -iValue);
-												SHOW_PLOT_POPUP(pLoopCity->plot(), NO_PLAYER,  text);
+												CvYieldInfo* pYieldInfo = GC.getYieldInfo((YieldTypes)iJ);
+												if (pYieldInfo)
+												{
+													char text[256] = { 0 };
+													CvString yieldString = "";
+													yieldString.Format("%s+%%d[ENDCOLOR] %s", pYieldInfo->getColorString(), pYieldInfo->getIconString());
+													sprintf_s(text, yieldString, -iValue / 100);
+													SHOW_PLOT_POPUP(pLoopCity->plot(), NO_PLAYER, text);
+												}
 											}
 										}
 										bChange = true;
@@ -6857,28 +6853,24 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 											{
 												for (int iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
 												{
-													//We leave science alone, it's used for pop science in vanilla.
-													if ((YieldTypes)iJ == YIELD_SCIENCE)
-														continue;
-
-													if (GET_PLAYER(eLoopPlayer).GetPlayerTraits()->GetPermanentYieldChangeWLTKD((YieldTypes)iJ) <= 0)
-														continue;
-
-													int iValue = pLoopCity->GetBaseYieldRateFromMisc((YieldTypes)iJ);
-													iValue *= 50;
-													iValue /= 100;
-													pLoopCity->ChangeBaseYieldRateFromMisc((YieldTypes)iJ, -iValue);
-
-													if (pLoopCity->plot()->GetActiveFogOfWarMode() == FOGOFWARMODE_OFF)
+													int iValue = pLoopCity->GetBaseYieldRatePermanentWLTKDTimes100((YieldTypes)iJ);
+													if (iValue != 0)
 													{
-														CvYieldInfo* pYieldInfo = GC.getYieldInfo((YieldTypes)iJ);
-														if (pYieldInfo)
+														iValue *= 50;
+														iValue /= 100;
+														pLoopCity->ChangeBaseYieldRatePermanentWLTKDTimes100((YieldTypes)iJ, -iValue);
+
+														if (pLoopCity->plot()->GetActiveFogOfWarMode() == FOGOFWARMODE_OFF)
 														{
-															char text[256] = { 0 };
-															CvString yieldString = "";
-															yieldString.Format("%s+%%d[ENDCOLOR] %s", pYieldInfo->getColorString(), pYieldInfo->getIconString());
-															sprintf_s(text, yieldString, -iValue);
-															SHOW_PLOT_POPUP(pLoopCity->plot(), NO_PLAYER, text);
+															CvYieldInfo* pYieldInfo = GC.getYieldInfo((YieldTypes)iJ);
+															if (pYieldInfo)
+															{
+																char text[256] = { 0 };
+																CvString yieldString = "";
+																yieldString.Format("%s+%%d[ENDCOLOR] %s", pYieldInfo->getColorString(), pYieldInfo->getIconString());
+																sprintf_s(text, yieldString, -iValue / 100);
+																SHOW_PLOT_POPUP(pLoopCity->plot(), NO_PLAYER, text);
+															}
 														}
 													}
 													bChange = true;
