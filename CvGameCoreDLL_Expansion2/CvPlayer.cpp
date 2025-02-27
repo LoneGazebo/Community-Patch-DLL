@@ -25646,6 +25646,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					{
 						iValue += getYieldGPExpend(eYield);
 						iValue += getGreatPersonExpendedYield(eGreatPerson, eYield);
+						iValue += GetPlayerTraits()->GetGreatPersonExpendedYield(eGreatPerson, eYield);
 					}
 					if (bEraScale)
 					{
