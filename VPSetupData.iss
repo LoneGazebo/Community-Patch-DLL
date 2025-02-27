@@ -42,10 +42,7 @@ UsedUserAreasWarning=no
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
-[Messages]
-FinishedLabel=Setup has finished installing [name] on your computer. To launch the mod, open Civilization V and enable all installed mods in the MODS menu, and click 'Next.' Have fun!
-
-[Files]
+[Files]    
 Source: "Build\(1) Community Patch\*"; Excludes: "\LUA,*.civ5proj,*.civ5sln,*.civ5suo,MANUAL INSTALL.txt"; DestDir: "{app}\MODS\(1) Community Patch"; Flags: ignoreversion createallsubdirs recursesubdirs
 Source: "Build\(2) Vox Populi\*"; Excludes: "\LUA,INSTRUCTIONS.txt,Promotion Icons for VP.txt,*.civ5proj,*.civ5sln,*.civ5suo"; DestDir: "{app}\MODS\(2) Vox Populi"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullEUI FullNoEUI Civ43EUI Civ43NoEUI
 Source: "Build\(3a) VP - EUI Compatibility Files\*"; Excludes: "INSTRUCTIONS.txt,*.civ5proj,*.civ5sln,*.civ5suo"; DestDir: "{app}\MODS\(3a) VP - EUI Compatibility Files"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullEUI Civ43EUI
@@ -60,12 +57,12 @@ Source: "VPUI\*"; DestDir: "{code:GetCIVDir}\Assets\DLC\VPUI"; Flags: ignorevers
 Source: "VPUI Text\VPUI_tips_en_us.xml"; DestDir: "{app}\Text"; Flags: ignoreversion; Components: Civ43EUI Civ43NoEUI FullEUI FullNoEUI
 
 [Components]
-Name: "FullEUI"; Description: "Full Version (EUI)"; Types: FullEUI; Flags: exclusive disablenouninstallwarning
-Name: "FullNoEUI"; Description: "Full Version (No EUI)"; Types: FullNoEUI; Flags: exclusive disablenouninstallwarning
-Name: "Core"; Description: "Core Version (CP Only)"; Types: Core; Flags: exclusive disablenouninstallwarning
-Name: "Civ43CPOnly"; Description: "43 Civ Core Version (CP Only)"; Types: 43CivCPOnly; Flags: exclusive disablenouninstallwarning
-Name: "Civ43NoEUI"; Description: "43 Civ No EUI Version"; Types: 43CivNoEUI; Flags: exclusive disablenouninstallwarning
-Name: "Civ43EUI"; Description: "43 Civ EUI Version"; Types: 43CivEUI; Flags: exclusive disablenouninstallwarning
+Name: "FullEUI"; Description: "Vox Populi (with EUI)"; Types: FullEUI; Flags: exclusive disablenouninstallwarning
+Name: "FullNoEUI"; Description: "Vox Populi (no EUI)"; Types: FullNoEUI; Flags: exclusive disablenouninstallwarning
+Name: "Core"; Description: "Community Patch only"; Types: Core; Flags: exclusive disablenouninstallwarning
+Name: "Civ43CPOnly"; Description: "43 Civ Community Patch only"; Types: 43CivCPOnly; Flags: exclusive disablenouninstallwarning
+Name: "Civ43NoEUI"; Description: "43 Civ Vox Populi (no EUI)"; Types: 43CivNoEUI; Flags: exclusive disablenouninstallwarning
+Name: "Civ43EUI"; Description: "43 Civ Vox Populi (with EUI)"; Types: 43CivEUI; Flags: exclusive disablenouninstallwarning
 
 [Types]
 Name: "FullEUI"; Description: "Vox Populi (with EUI)"
@@ -107,13 +104,19 @@ Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\MODS
 var
   CIVDirPage: TInputDirWizardPage;
 
+procedure CurPageChanged(CurPageID: Integer);
+begin
+  if CurPageID = wpFinished then
+    WizardForm.FinishedLabel.Caption := 'Setup has finished installing Vox Populi on your computer. To launch the mod, open Civilization V and enable all installed mods in the MODS menu, then click ''NEXT'' (do not click on ''Back''). Have fun!';
+end;
+
 procedure InitializeWizard;
 begin
   // Create the DLC path page
 
   CIVDirPage := CreateInputDirPage(wpSelectComponents,
     'Select the Civilization V folder', 'Where should the UI files be installed?',
-    'Select the Civilization V folder in which the Setup will install the UI files, then click Next. If the installer does not select the correct folder by default, please click Browse and choose the correct folder ',
+    'Select the folder of your Civilization V installation, then click Next. If the installer does not select a folder by default, please click Browse and choose the correct folder. To find it, right-click on Civilization V in Steam and select "Show local files". ',
     False, '');
   CIVDirPage.Add('');
 
@@ -128,10 +131,29 @@ end;
  *)
 function NextButtonClick(CurPageID: Integer): Boolean;
 begin
-  // Set default folder if empty
+  // Set default folder if empty. Don't select a default folder if the game isn't installed in the default location
   if CIVDirPage.Values[0] = '' then
-     CIVDirPage.Values[0] := ExpandConstant('{reg:HKCU\SOFTWARE\Firaxis\Civilization5,LastKnownPath|{commonpf}\Steam\steamapps\common\Sid Meier''s Civilization V}');
-  Result := True;
+    if DirExists(ExpandConstant('{commonpf}\Steam\steamapps\common\Sid Meier''s Civilization V\Assets\DLC')) then
+      CIVDirPage.Values[0] := ExpandConstant('{reg:HKCU\SOFTWARE\Firaxis\Civilization5,LastKnownPath|{commonpf}\Steam\steamapps\common\Sid Meier''s Civilization V}');
+  Result := not (CurPageID = CIVDirPage.ID) or DirExists(CIVDirPage.Values[0] + '\Assets\DLC');
+  if Result = False then
+    MsgBox('You did not provide the correct path to the Civ 5 folder. To locate the folder, right-click on Civilization V in Steam and select "Show local files".', mbInformation, MB_OK)
+  else
+  begin
+    // check if all required DLC are installed
+    Result := not (CurPageID = CIVDirPage.ID) or (DirExists(CIVDirPage.Values[0] + '\Assets\DLC\DLC_01') and
+              DirExists(CIVDirPage.Values[0] + '\Assets\DLC\DLC_02') and
+              DirExists(CIVDirPage.Values[0] + '\Assets\DLC\DLC_03') and
+              DirExists(CIVDirPage.Values[0] + '\Assets\DLC\DLC_04') and
+              DirExists(CIVDirPage.Values[0] + '\Assets\DLC\DLC_05') and
+              DirExists(CIVDirPage.Values[0] + '\Assets\DLC\DLC_06') and
+              DirExists(CIVDirPage.Values[0] + '\Assets\DLC\DLC_07') and
+              DirExists(CIVDirPage.Values[0] + '\Assets\DLC\DLC_Deluxe') and
+              DirExists(CIVDirPage.Values[0] + '\Assets\DLC\Expansion') and
+              DirExists(CIVDirPage.Values[0] + '\Assets\DLC\Expansion2')); 
+    if Result = False then
+      MsgBox('You don''t have all required DLCs installed. Vox Populi can''t be installed if DLCs are missing.', mbInformation, MB_OK);
+  end;
 end;
 
 function UpdateReadyMemo(Space, NewLine, MemoUserInfoInfo, MemoDirInfo, MemoTypeInfo,
