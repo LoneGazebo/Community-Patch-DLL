@@ -20509,10 +20509,10 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	//--------------------------------//
 
 	int iWarMod = vApproachBias[CIV_APPROACH_WAR]/100 + GetBoldness();
-	int iHostileMod = vApproachBias[CIV_APPROACH_HOSTILE]/100 + GetMeanness();
-	int iDeceptiveMod = vApproachBias[CIV_APPROACH_DECEPTIVE]/100 + GetDenounceWillingness();
-	int iGuardedMod = vApproachBias[CIV_APPROACH_GUARDED]/100 + (11 - GetForgiveness());
-	int iAfraidMod = vApproachBias[CIV_APPROACH_AFRAID]/100 + (11 - GetBoldness());
+	int iHostileMod = vApproachBias[CIV_APPROACH_HOSTILE]/100 + GetDenounceWillingness();
+	int iDeceptiveMod = vApproachBias[CIV_APPROACH_DECEPTIVE]/100 + (11 - GetLoyalty());
+	int iGuardedMod = vApproachBias[CIV_APPROACH_GUARDED]/100 + (11 - GetWorkWithWillingness());
+	int iAfraidMod = vApproachBias[CIV_APPROACH_AFRAID]/100 + (11 - GetMeanness());
 	int iFriendlyMod = vApproachBias[CIV_APPROACH_FRIENDLY]/100 + GetDoFWillingness();
 	int iNeutralMod = vApproachBias[CIV_APPROACH_NEUTRAL]/100 + GetDiploBalance();
 
@@ -20604,16 +20604,16 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		}
 	}
 
-	//--------------------------------//
-	// [PART 10: MULTIPLIERS]		  //
-	//--------------------------------//
-
 	// Negative approach weights - cap at zero!
 	for (int iApproachLoop = 0; iApproachLoop < NUM_CIV_APPROACHES; iApproachLoop++)
 	{
 		if (vApproachScores[iApproachLoop] <= 0)
 			vApproachScores[iApproachLoop] = 0;
 	}
+
+	//--------------------------------//
+	// [PART 10: MULTIPLIERS]		  //
+	//--------------------------------//
 
 	////////////////////////////////////
 	// TOO MANY VASSALS MULTIPLIER
@@ -20839,12 +20839,14 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		{
 			vApproachScores[CIV_APPROACH_WAR] *= 2;
 			vApproachScores[CIV_APPROACH_HOSTILE] *= 2;
+			vApproachScores[CIV_APPROACH_DECEPTIVE] *= bApplyDeception ? 2 : 1;
 		}
 	}
 	else if (GC.getGame().IsAIAggressiveMode())
 	{
 		vApproachScores[CIV_APPROACH_WAR] *= 2;
 		vApproachScores[CIV_APPROACH_HOSTILE] *= 2;
+		vApproachScores[CIV_APPROACH_DECEPTIVE] *= bApplyDeception ? 2 : 1;
 	}
 
 	//--------------------------------//
@@ -21135,7 +21137,10 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// We use opinion weight as +/- %: more fluid than the switch table.
 	// Opinion is applied after every other modifier because the NEUTRAL approach has special logic to ensure that a good opinion doesn't punish the player inadvertently.
 	int iOpinionWeight = GetCachedOpinionWeight(ePlayer);
-	if (iOpinionWeight > /*30*/ GD_INT_GET(OPINION_THRESHOLD_COMPETITOR))
+	int iCompetitorThreshold = /*30*/ max(GD_INT_GET(OPINION_THRESHOLD_COMPETITOR), 1);
+	int iFavorableThreshold = /*-30*/ min(GD_INT_GET(OPINION_THRESHOLD_FAVORABLE), -1);
+
+	if (iOpinionWeight > iCompetitorThreshold)
 	{
 		// Let's also see how much we don't like this guy compared to others that we hate.
 		// If we hate a lot of people, we need to prioritize!
@@ -21190,7 +21195,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		vApproachScores[CIV_APPROACH_NEUTRAL] *= 100;
 		vApproachScores[CIV_APPROACH_NEUTRAL] /= max(100, (100 - iNeutralMod + iOpinionWeight));
 	}
-	else if (iOpinionWeight < /*-30*/ GD_INT_GET(OPINION_THRESHOLD_FAVORABLE))
+	else if (iOpinionWeight < iFavorableThreshold)
 	{
 		// Flip the sign!
 		iOpinionWeight *= -1;
@@ -21244,41 +21249,98 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		vApproachScores[CIV_APPROACH_AFRAID] *= 100;
 		vApproachScores[CIV_APPROACH_AFRAID] /= max(100,(100 - iAfraidMod + iOpinionWeight));
 
-		int iHighestBadApproach = max(vApproachScores[CIV_APPROACH_WAR], vApproachScores[CIV_APPROACH_HOSTILE]);
-		iHighestBadApproach = max(iHighestBadApproach, vApproachScores[CIV_APPROACH_DECEPTIVE]);
-		iHighestBadApproach = max(iHighestBadApproach, vApproachScores[CIV_APPROACH_GUARDED]);
-		iHighestBadApproach = max(iHighestBadApproach, vApproachScores[CIV_APPROACH_AFRAID]);
+		// Special logic for NEUTRAL approach!
+		// Determine the maximum amount NEUTRAL can be raised up or down based on Opinion
+		int iNeutralUpB = (vApproachScores[CIV_APPROACH_NEUTRAL] * (100 + iNeutralMod + iOpinionWeight)) / 100;
+		int iNeutralDownB = (vApproachScores[CIV_APPROACH_NEUTRAL] * 100) / max(100,(100 - iNeutralMod + iOpinionWeight));
 
-		int iLowestBadApproach = min(vApproachScores[CIV_APPROACH_WAR], vApproachScores[CIV_APPROACH_HOSTILE]);
-		iLowestBadApproach = min(iLowestBadApproach, vApproachScores[CIV_APPROACH_DECEPTIVE]);
-		iLowestBadApproach = min(iLowestBadApproach, vApproachScores[CIV_APPROACH_GUARDED]);
-		iLowestBadApproach = min(iLowestBadApproach, vApproachScores[CIV_APPROACH_AFRAID]);
+		// Jump ahead and look what all the values will be after Part 14: The Approach Curve
+		int iNeutralPostCurve = vApproachScores[CIV_APPROACH_NEUTRAL];
+		int iFriendlyPostCurve = vApproachScores[CIV_APPROACH_FRIENDLY];
+		int iHighestBadApproachPostCurve = 0;
+		if (!bStrategic)
+		{
+			for (int iApproachLoop = 0; iApproachLoop < NUM_CIV_APPROACHES; iApproachLoop++)
+			{
+				CivApproachTypes eLoopApproach = (CivApproachTypes) iApproachLoop;
 
-		// Increase NEUTRAL if FRIENDLY doesn't outscore the highest-scoring bad approach
-		int iNeutralUp = (vApproachScores[CIV_APPROACH_NEUTRAL] * (100 + iNeutralMod + iOpinionWeight)) / 100;
-		if (vApproachScores[CIV_APPROACH_FRIENDLY] <= iHighestBadApproach)
-		{
-			vApproachScores[CIV_APPROACH_NEUTRAL] = iNeutralUp;
+				int iLastTurnValue = vScratchValueOverrides[iApproachLoop] >= 0 ? vScratchValueOverrides[iApproachLoop] : GetPlayerApproachValue(ePlayer, eLoopApproach);
+				int iApproachValue = vApproachScores[iApproachLoop];
+				float fAlpha = /*0.30f*/ GD_FLOAT_GET(APPROACH_SHIFT_PERCENT);
+				int iAverage = int(0.5f + (iApproachValue * fAlpha) + (iLastTurnValue * (1 - fAlpha)));
+
+				// If the value changed, make sure it goes up/down by at least one
+				if (iAverage == iLastTurnValue && iApproachValue != iLastTurnValue)
+				{
+					iAverage += (iApproachValue > iLastTurnValue) ? 1 : -1;
+				}
+
+				switch (eLoopApproach)
+				{
+				case CIV_APPROACH_NEUTRAL:
+					iNeutralPostCurve = iAverage;
+					break;
+				case CIV_APPROACH_FRIENDLY:
+					iFriendlyPostCurve = iAverage;
+					break;
+				default:
+					iHighestBadApproachPostCurve = max(iHighestBadApproachPostCurve, iAverage);
+					break;
+				}
+			}
 		}
-		// Decrease NEUTRAL if it outscores FRIENDLY, but don't decrease it to the point where it scores below a bad approach
-		else if (vApproachScores[CIV_APPROACH_NEUTRAL] >= vApproachScores[CIV_APPROACH_FRIENDLY])
-		{
-			int iNeutralDown = vApproachScores[CIV_APPROACH_NEUTRAL] * 100 / max(100,(100 - iNeutralMod + iOpinionWeight));
-			if (iNeutralDown > iHighestBadApproach)
-				vApproachScores[CIV_APPROACH_NEUTRAL] = iNeutralDown;
-			else
-				vApproachScores[CIV_APPROACH_NEUTRAL] = max(iNeutralDown, iHighestBadApproach + 1);
-		}
-		// Otherwise, increase NEUTRAL, but not to the point of going beyond FRIENDLY
 		else
 		{
-			vApproachScores[CIV_APPROACH_NEUTRAL] = min(iNeutralUp, vApproachScores[CIV_APPROACH_FRIENDLY] - 1);
+			iHighestBadApproachPostCurve = max(vApproachScores[CIV_APPROACH_WAR], vApproachScores[CIV_APPROACH_HOSTILE]);
+			iHighestBadApproachPostCurve = max(iHighestBadApproachPostCurve, vApproachScores[CIV_APPROACH_DECEPTIVE]);
+			iHighestBadApproachPostCurve = max(iHighestBadApproachPostCurve, vApproachScores[CIV_APPROACH_GUARDED]);
+			iHighestBadApproachPostCurve = max(iHighestBadApproachPostCurve, vApproachScores[CIV_APPROACH_AFRAID]);
+		}
+
+		if (iFriendlyPostCurve > iHighestBadApproachPostCurve)
+		{
+			// We want the NEUTRAL approach score to be 1 below FRIENDLY *after* the approach curve is applied for this turn
+			int iNeutralTarget = iFriendlyPostCurve - 1;
+
+			// Unless the approach curve doesn't apply, we need to figure out what value - when combined with last turn's NEUTRAL value in the curve - will result in the target value
+			if (!bStrategic)
+			{
+				float fAlpha = /*0.30f*/ GD_FLOAT_GET(APPROACH_SHIFT_PERCENT);
+				int iLastTurnNeutralValue = vScratchValueOverrides[CIV_APPROACH_NEUTRAL] >= 0 ? vScratchValueOverrides[CIV_APPROACH_NEUTRAL] : GetPlayerApproachValue(ePlayer, CIV_APPROACH_NEUTRAL);
+				iNeutralTarget = (int) ((iNeutralTarget - ((1 - fAlpha) * iLastTurnNeutralValue)) / fAlpha);
+			}
+
+			// Change the NEUTRAL approach to match the target as much as Opinion permits, but don't go negative
+			if (iNeutralTarget > vApproachScores[CIV_APPROACH_NEUTRAL])
+			{
+				vApproachScores[CIV_APPROACH_NEUTRAL] = range(iNeutralTarget, 0, iNeutralUpB);
+			}
+			else if (iNeutralTarget < vApproachScores[CIV_APPROACH_NEUTRAL])
+			{
+				vApproachScores[CIV_APPROACH_NEUTRAL] = max(max(iNeutralDownB, iNeutralTarget), 0);
+			}
+		}
+		else
+		{
+			// FRIENDLY doesn't outscore the bad approaches, so raise NEUTRAL as much as possible
+			vApproachScores[CIV_APPROACH_NEUTRAL] = iNeutralUpB;
 		}
 	}
 	else
 	{
-		// Increase NEUTRAL
-		vApproachScores[CIV_APPROACH_NEUTRAL] *= 100 + (iNeutralMod * 2);
+		// Increase NEUTRAL if we're somewhere between the two thresholds, inclusive
+		if (iOpinionWeight >= 0)
+		{
+			iNeutralMod *= (100 + 100 * (iCompetitorThreshold - iOpinionWeight) / iCompetitorThreshold);
+			iNeutralMod /= 100;
+		}
+		else
+		{
+			iNeutralMod *= (100 + 100 * (iFavorableThreshold - iOpinionWeight) / -iFavorableThreshold);
+			iNeutralMod /= 100;
+		}
+
+		vApproachScores[CIV_APPROACH_NEUTRAL] *= 100 + iNeutralMod;
 		vApproachScores[CIV_APPROACH_NEUTRAL] /= 100;
 	}
 
