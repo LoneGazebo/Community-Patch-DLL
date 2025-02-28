@@ -21112,6 +21112,10 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	{
 		bool bOverride = false;
 
+		// If they own any of our cities, ignore this
+		if (GetPlayer()->GetNumOurCitiesOwnedBy(ePlayer) > 0)
+			bOverride = true;
+
 		// If they have original capitals and we're going for World Conquest, ignore this
 		if ((bCloseToWorldConquest || IsGoingForWorldConquest()) && (GET_PLAYER(ePlayer).GetCapitalConqueror() == NO_PLAYER || GET_PLAYER(ePlayer).GetNumCapitalCities() > 0))
 			bOverride = true;
