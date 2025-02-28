@@ -13,6 +13,13 @@
 		<Row Tag="TXT_KEY_NOTIFICATION_PANTHEON_ENHANCED_UNKNOWN">
 			<Text>An unknown civilization has enhanced their pantheon by adding a new belief.</Text>
 		</Row>
+		
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_ENDED_REVOKED_WAR">
+			<Text>Because you are at war with {1_MinorCivName:textkey}, they have revoked quests previously offered to you. The war must end before they will offer you quests again.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_ENDED_REVOKED_WAR">
+			<Text>{1_MinorCivName:textkey} revokes quests</Text>
+		</Row>
 
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_CULTURE_UNIT">
 			<Text>A {1_Resource:textkey} has brought inspiration!</Text>
