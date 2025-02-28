@@ -75,6 +75,9 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(CanJoin);
 	Method(IsBuildingLocalResourceValid);
 
+	Method(GetBuildingYieldRateTimes100)
+	Method(GetBuildingYieldModifier)
+
 	Method(GetPlotsBoostedByBuilding);
 
 	Method(SetBuildingHidden);
@@ -1466,6 +1469,160 @@ int CvLuaCity::lIsBuildingLocalResourceValid(lua_State* L)
 	CvCity* pkCity = GetInstance(L);
 
 	lua_pushboolean(L, pkCity->IsBuildingLocalResourceValid(static_cast<BuildingTypes>(lua_tointeger(L, 2)), lua_toboolean(L, 3)));
+	return 1;
+}
+
+//------------------------------------------------------------------------------
+//bool GetBuildingYieldRateTimes100(BuildingTypes eBuilding, YieldTypes eYield);
+int CvLuaCity::lGetBuildingYieldRateTimes100(lua_State* L)
+{
+	CvCity* pCity = GetInstance(L);
+	const BuildingTypes eBuilding = (BuildingTypes)lua_tointeger(L, 2);
+	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 3);
+
+	int iYieldTimes100 = 0;
+	if (pCity && eBuilding != NO_BUILDING && eBuilding < GC.getNumBuildingInfos() && eYield != NO_YIELD && eYield < NUM_YIELD_TYPES)
+	{
+		PlayerTypes ePlayer = pCity->getOwner();
+		CvPlayer* pPlayer = &GET_PLAYER(ePlayer);
+		CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(eBuilding);
+		BuildingClassTypes eBuildingClass = pBuildingInfo->GetBuildingClassType();
+		CvBuildingClassInfo* pBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
+
+		iYieldTimes100 += pBuildingInfo->GetYieldChange(eYield) * 100;
+
+		if (!pBuildingInfo->GetTechEnhancedYields().empty())
+		{
+			map<int, std::map<int, int>> mTechEnhancedYields = pBuildingInfo->GetTechEnhancedYields();
+			map<int, std::map<int, int>>::iterator it;
+			for (it = mTechEnhancedYields.begin(); it != mTechEnhancedYields.end(); it++)
+			{
+				if (GET_TEAM(pPlayer->getTeam()).GetTeamTechs()->HasTech((TechTypes)it->first))
+				{
+					std::map<int, int>::const_iterator it2 = (it->second).find(eYield);
+					if (it2 != (it->second).end())
+					{
+						iYieldTimes100 += it2->second * 100;
+					}
+				}
+			}
+		}
+
+		iYieldTimes100 += pPlayer->GetBuildingClassYieldChange(eBuildingClass, eYield) * 100;
+		iYieldTimes100 += pPlayer->GetPlayerTraits()->GetBuildingClassYieldChange(eBuildingClass, eYield) * 100;
+
+		ReligionTypes eMajority = pCity->GetCityReligions()->GetReligiousMajority();
+		BeliefTypes eSecondaryPantheon = NO_BELIEF;
+		ReligionTypes ePlayerReligion = GET_PLAYER(ePlayer).GetReligions()->GetStateReligion();
+		if (ePlayerReligion != NO_RELIGION && eMajority == ePlayerReligion)
+		{
+			iYieldTimes100 += pCity->getReligionBuildingYieldRateModifier((BuildingClassTypes)eBuildingClass, (YieldTypes)eYield) * 100;
+		}
+		if (eMajority != NO_RELIGION)
+		{
+			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, ePlayer);
+			if (pReligion)
+			{
+				if (eYield == YIELD_TOURISM)
+				{
+					int iFaithBuildingTourism = pReligion->m_Beliefs.GetFaithBuildingTourism(ePlayer, pCity);
+					if (iFaithBuildingTourism != 0 && pBuildingInfo->IsFaithPurchaseOnly())
+					{
+						iYieldTimes100 += iFaithBuildingTourism * 100;
+					}
+				}
+				int iFollowers = pCity->GetCityReligions()->GetNumFollowers(eMajority);
+				iYieldTimes100 += pReligion->m_Beliefs.GetBuildingClassYieldChange(eBuildingClass, eYield, iFollowers, ePlayer, pCity) * 100;
+				if (::isWorldWonderClass(*pBuildingClassInfo))
+				{
+					iYieldTimes100 += pReligion->m_Beliefs.GetYieldChangeWorldWonder(eYield, ePlayer, pCity) * 100;
+				}
+				eSecondaryPantheon = pCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
+				if (eSecondaryPantheon != NO_BELIEF)
+				{
+					iFollowers = pCity->GetCityReligions()->GetNumFollowers(pCity->GetCityReligions()->GetReligionByAccumulatedPressure(1));
+					if (iFollowers >= GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetMinFollowers())
+					{
+						iYieldTimes100 += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetBuildingClassYieldChange(eBuildingClass, eYield) * 100;
+					}
+				}
+			}
+		}
+		// Mod for civs keeping their pantheon belief forever
+		if (MOD_RELIGION_PERMANENT_PANTHEON)
+		{
+			if (GC.getGame().GetGameReligions()->HasCreatedPantheon(ePlayer))
+			{
+				const CvReligion* pPantheon = GC.getGame().GetGameReligions()->GetReligion(RELIGION_PANTHEON, ePlayer);
+				BeliefTypes ePantheonBelief = GC.getGame().GetGameReligions()->GetBeliefInPantheon(ePlayer);
+				if (pPantheon != NULL && ePantheonBelief != NO_BELIEF && ePantheonBelief != eSecondaryPantheon)
+				{
+					const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, ePlayer);
+					if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, ePlayer))) // check that the our religion does not have our belief, to prevent double counting
+					{
+						iYieldTimes100 += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetBuildingClassYieldChange(eBuildingClass, eYield) * 100;
+					}
+				}
+			}
+		}
+		if (::isWorldWonderClass(*pBuildingClassInfo))
+		{
+			iYieldTimes100 += GC.getGame().GetGameLeagues()->GetWorldWonderYieldChange(ePlayer, eYield) * 100;
+			iYieldTimes100 += pPlayer->GetPlayerTraits()->GetYieldChangeWorldWonder(eYield) * 100;
+			for (int iPolicyLoop = 0; iPolicyLoop < GC.getNumPolicyInfos(); iPolicyLoop++)
+			{
+				const PolicyTypes ePolicy = static_cast<PolicyTypes>(iPolicyLoop);
+				CvPolicyEntry* pkPolicyInfo = GC.getPolicyInfo(ePolicy);
+				if (pkPolicyInfo)
+				{
+					if (pPlayer->GetPlayerPolicies()->HasPolicy(ePolicy) && !pPlayer->GetPlayerPolicies()->IsPolicyBlocked(ePolicy))
+					{
+						iYieldTimes100 += pkPolicyInfo->GetYieldChangeWorldWonder(eYield) * 100;
+					}
+				}
+			}
+		}
+
+		iYieldTimes100 += pCity->getLocalBuildingClassYield(eBuildingClass, eYield) * 100;
+		iYieldTimes100 += pCity->GetBuildingYieldChangeFromCorporationFranchises(eBuildingClass, eYield) * 100;
+		iYieldTimes100 += pPlayer->GetPlayerPolicies()->GetBuildingClassYieldChange(eBuildingClass, eYield) * 100;
+
+		iYieldTimes100 += pBuildingInfo->GetYieldChangePerPop(eYield) * pCity->getPopulation();
+		iYieldTimes100 += pBuildingInfo->GetYieldChangePerPopInEmpire(eYield) * pPlayer->getTotalPopulation();
+		iYieldTimes100 += (pBuildingInfo->GetYieldChangePerBuilding(eYield) * pCity->GetCityBuildings()->GetNumBuildings() * 100).Truncate();
+		iYieldTimes100 += pCity->GetEventBuildingClassCityYield(eBuildingClass, eYield) * 100;
+
+		iYieldTimes100 += pBuildingInfo->GetYieldPerFriend(eYield) * pPlayer->GetNumCSFriends() * 100;
+		iYieldTimes100 += pBuildingInfo->GetYieldPerAlly(eYield) * pPlayer->GetNumCSAllies() * 100;
+		iYieldTimes100 += pBuildingInfo->GetYieldChangePerMonopoly(eYield) * pPlayer->GetNumGlobalMonopolies() * 100;
+	}
+
+	lua_pushinteger(L, iYieldTimes100);
+	return 1;
+}
+
+//------------------------------------------------------------------------------
+//bool GetBuildingYieldModifier(BuildingTypes eBuilding, YieldTypes eYield);
+int CvLuaCity::lGetBuildingYieldModifier(lua_State* L)
+{
+	CvCity* pCity = GetInstance(L);
+	const BuildingTypes eBuilding = (BuildingTypes)lua_tointeger(L, 2);
+	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 3);
+
+	int iModifier = 0;
+	if (pCity && eBuilding != NO_BUILDING && eBuilding < GC.getNumBuildingInfos() && eYield != NO_YIELD && eYield < NUM_YIELD_TYPES)
+	{
+		PlayerTypes ePlayer = pCity->getOwner();
+		CvPlayer* pPlayer = &GET_PLAYER(ePlayer);
+		CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(eBuilding);
+		BuildingClassTypes eBuildingClass = pBuildingInfo->GetBuildingClassType();
+
+		iModifier += pBuildingInfo->GetYieldModifier(eYield);
+		iModifier += pPlayer->GetPlayerPolicies()->GetBuildingClassYieldModifier(eBuildingClass, eYield);
+		iModifier += pCity->GetEventBuildingClassCityYieldModifier(eBuildingClass, eYield);
+	}
+
+	lua_pushinteger(L, iModifier);
 	return 1;
 }
 
