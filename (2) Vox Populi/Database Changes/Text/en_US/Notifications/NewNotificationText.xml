@@ -17,12 +17,6 @@
 		<Row Tag="TXT_KEY_NOTIFICATION_FRIENDLY_PARTISANS_NEAR_RAZING_CITY_S">
 			<Text>Friendly partisans near {1_Name}!</Text>
 		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_ENDED_REVOKED_WAR">
-			<Text>Because you are at war with {1_MinorCivName:textkey}, they have revoked quests previously offered to you. The war must end before they will offer you quests again.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_ENDED_REVOKED_WAR">
-			<Text>{1_MinorCivName:textkey} revokes quests</Text>
-		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_CONSCRIPTION_SPAWN">
 			<Text>Because the City of {1_CityName:textkey} has {2_Population} [ICON_CITIZEN] Citizens, a {3_Unit} has been conscripted!</Text>
 		</Row>
