@@ -274,6 +274,7 @@ CvCity::CvCity() :
 	, m_aiYieldPerPop()
 	, m_aiYieldRateFromBuildingsEraScalingTimes100()
 	, m_afYieldPerBuilding()
+	, m_afYieldPerTile()
 #if defined(MOD_BALANCE_CORE)
 	, m_aiYieldPerPopInEmpire()
 	, m_miTechEnhancedYields()
@@ -1446,6 +1447,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_aiYieldPerPop.resize(NUM_YIELD_TYPES);
 	m_aiYieldRateFromBuildingsEraScalingTimes100.resize(NUM_YIELD_TYPES);
 	m_afYieldPerBuilding.resize(NUM_YIELD_TYPES);
+	m_afYieldPerTile.resize(NUM_YIELD_TYPES);
 #if defined(MOD_BALANCE_CORE)
 	m_aiYieldPerPopInEmpire.clear();
 #endif
@@ -1531,6 +1533,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		m_aiYieldPerPop[iI] = 0;
 		m_aiYieldRateFromBuildingsEraScalingTimes100[iI] = 0;
 		m_afYieldPerBuilding[iI] = 0;
+		m_afYieldPerTile[iI] = 0;
 		m_aiYieldPerReligion[iI] = 0;
 		m_aiYieldRateModifier[iI] = 0;
 		m_aiPowerYieldRateModifier[iI] = 0;
@@ -9428,6 +9431,15 @@ void CvCity::AddToPlotList(CvPlot* pPlot)
 
 	ASSERT_DEBUG(m_siPlots.find(iPlotIndex) == m_siPlots.end());
 	m_siPlots.insert(iPlotIndex);
+
+	for (int iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
+	{
+		YieldTypes eYield = (YieldTypes)iJ;
+		if (GetYieldPerTile(eYield) > 0)
+		{
+			UpdateCityYields(eYield);
+		}
+	}
 }
 void CvCity::RemoveFromPlotList(CvPlot* pPlot)
 {
@@ -9437,6 +9449,15 @@ void CvCity::RemoveFromPlotList(CvPlot* pPlot)
 
 	ASSERT_DEBUG(m_siPlots.find(iPlotIndex) != m_siPlots.end());
 	m_siPlots.erase(iPlotIndex);
+
+	for (int iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
+	{
+		YieldTypes eYield = (YieldTypes)iJ;
+		if (GetYieldPerTile(eYield) > 0)
+		{
+			UpdateCityYields(eYield);
+		}
+	}
 }
 
 #if defined(MOD_BALANCE_CORE)
@@ -14686,6 +14707,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			ChangeYieldRateFromBuildingsEraScalingTimes100(eYield, pBuildingInfo->GetYieldChangeEraScalingTimes100(eYield) * iChange);
 			ChangeYieldPerPopTimes100(eYield, pBuildingInfo->GetYieldChangePerPop(eYield) * iChange);
 			ChangeYieldPerBuilding(eYield, pBuildingInfo->GetYieldChangePerBuilding(eYield) * fraction(iChange));
+			ChangeYieldPerTile(eYield, pBuildingInfo->GetYieldChangePerTile(eYield) * fraction(iChange));
 			ChangeYieldPerPopInEmpireTimes100(eYield, pBuildingInfo->GetYieldChangePerPopInEmpire(eYield) * iChange);
 			ChangeYieldPerReligionTimes100(eYield, pBuildingInfo->GetYieldChangePerReligion(eYield) * iChange);
 			changeYieldRateModifier(eYield, (pBuildingInfo->GetYieldModifier(eYield) * iChange));
@@ -23249,6 +23271,7 @@ int CvCity::getBaseYieldRateTimes100(const YieldTypes eYield, CvString* tooltipS
 	iTempYield = GetBaseYieldRateFromBuildings(eYield) * 100;
 	iTempYield += GetYieldRateFromBuildingsEraScalingTimes100(eYield) * max(1, (int)GET_PLAYER(getOwner()).GetCurrentEra());
 	iTempYield += (GetYieldPerBuilding(eYield) * GetCityBuildings()->GetNumBuildings() * 100).Truncate();
+	iTempYield += (GetYieldPerTile(eYield) * GetPlotList().size() * 100).Truncate();
 	if (eYield == YIELD_TOURISM)
 	{
 		ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
@@ -25956,6 +25979,28 @@ void CvCity::ChangeYieldPerBuilding(YieldTypes eIndex, fraction iChange)
 
 	if (iChange != 0)
 		m_afYieldPerBuilding[eIndex] = m_afYieldPerBuilding[eIndex] + iChange;
+}
+//	--------------------------------------------------------------------------------
+/// Extra yield per city tile
+fraction CvCity::GetYieldPerTile(YieldTypes eIndex) const
+{
+	VALIDATE_OBJECT();
+	ASSERT_DEBUG(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+
+	return m_afYieldPerTile[eIndex];
+}
+
+//	--------------------------------------------------------------------------------
+/// Extra yield per city tile
+void CvCity::ChangeYieldPerTile(YieldTypes eIndex, fraction iChange)
+{
+	VALIDATE_OBJECT();
+	ASSERT_DEBUG(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+
+	if (iChange != 0)
+		m_afYieldPerTile[eIndex] = m_afYieldPerTile[eIndex] + iChange;
 }
 
 #if defined(MOD_BALANCE_CORE)
@@ -31859,6 +31904,7 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_aiYieldPerPop);
 	visitor(city.m_aiYieldRateFromBuildingsEraScalingTimes100);
 	visitor(city.m_afYieldPerBuilding);
+	visitor(city.m_afYieldPerTile);
 	visitor(city.m_aiYieldPerReligion);
 	visitor(city.m_aiPowerYieldRateModifier);
 	visitor(city.m_aiResourceYieldRateModifier);
