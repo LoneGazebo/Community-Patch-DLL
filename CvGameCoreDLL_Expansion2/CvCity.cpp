@@ -272,6 +272,7 @@ CvCity::CvCity() :
 	, m_aiBaseYieldRateFromReligion()
 	, m_aiYieldRateModifier()
 	, m_aiYieldPerPop()
+	, m_aiYieldRateFromBuildingsEraScalingTimes100()
 	, m_afYieldPerBuilding()
 #if defined(MOD_BALANCE_CORE)
 	, m_aiYieldPerPopInEmpire()
@@ -1443,6 +1444,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	}
 #endif
 	m_aiYieldPerPop.resize(NUM_YIELD_TYPES);
+	m_aiYieldRateFromBuildingsEraScalingTimes100.resize(NUM_YIELD_TYPES);
 	m_afYieldPerBuilding.resize(NUM_YIELD_TYPES);
 #if defined(MOD_BALANCE_CORE)
 	m_aiYieldPerPopInEmpire.clear();
@@ -1527,6 +1529,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		m_aiStaticCityYield[iI] = 0;
 #endif
 		m_aiYieldPerPop[iI] = 0;
+		m_aiYieldRateFromBuildingsEraScalingTimes100[iI] = 0;
 		m_afYieldPerBuilding[iI] = 0;
 		m_aiYieldPerReligion[iI] = 0;
 		m_aiYieldRateModifier[iI] = 0;
@@ -14680,7 +14683,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			changeLakePlotYield(eYield, (pBuildingInfo->GetLakePlotYieldChange(eYield) * iChange));
 			changeSeaResourceYield(eYield, (pBuildingInfo->GetSeaResourceYieldChange(eYield) * iChange));
 			ChangeBaseYieldRateFromBuildings(eYield, ((pBuildingInfo->GetYieldChange(eYield) + m_pCityBuildings->GetBuildingYieldChange(eBuildingClass, eYield)) * iChange));
-			ChangeBaseYieldRateFromBuildings(eYield, pBuildingInfo->GetYieldChangeEraScalingTimes100(eYield) * max(1, (int)GET_PLAYER(getOwner()).GetCurrentEra()) * iChange / 100);
+			ChangeYieldRateFromBuildingsEraScalingTimes100(eYield, pBuildingInfo->GetYieldChangeEraScalingTimes100(eYield) * iChange);
 			ChangeYieldPerPopTimes100(eYield, pBuildingInfo->GetYieldChangePerPop(eYield) * iChange);
 			ChangeYieldPerBuilding(eYield, pBuildingInfo->GetYieldChangePerBuilding(eYield) * fraction(iChange));
 			ChangeYieldPerPopInEmpireTimes100(eYield, pBuildingInfo->GetYieldChangePerPopInEmpire(eYield) * iChange);
@@ -23244,6 +23247,7 @@ int CvCity::getBaseYieldRateTimes100(const YieldTypes eYield, CvString* tooltipS
 		GC.getGame().BuildYieldTimes100HelpText(tooltipSink, "TXT_KEY_YIELD_FROM_TERRAIN", iTempYield, szIconString);
 
 	iTempYield = GetBaseYieldRateFromBuildings(eYield) * 100;
+	iTempYield += GetYieldRateFromBuildingsEraScalingTimes100(eYield) * max(1, (int)GET_PLAYER(getOwner()).GetCurrentEra());
 	iTempYield += (GetYieldPerBuilding(eYield) * GetCityBuildings()->GetNumBuildings() * 100).Truncate();
 	if (eYield == YIELD_TOURISM)
 	{
@@ -25884,6 +25888,31 @@ bool CvCity::IsBestForWonder(BuildingClassTypes eBuildingClass)
 }
 
 #endif
+
+//	--------------------------------------------------------------------------------
+///Yields from buildings, scaling with era
+int CvCity::GetYieldRateFromBuildingsEraScalingTimes100(YieldTypes eIndex) const
+{
+	VALIDATE_OBJECT();
+	ASSERT_DEBUG(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+
+	return m_aiYieldRateFromBuildingsEraScalingTimes100[eIndex];
+}
+
+//	--------------------------------------------------------------------------------
+/// Yields from buildings, scaling with era
+void CvCity::ChangeYieldRateFromBuildingsEraScalingTimes100(YieldTypes eIndex, int iChange)
+{
+	VALIDATE_OBJECT();
+	ASSERT_DEBUG(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+
+	if (iChange != 0)
+		m_aiYieldRateFromBuildingsEraScalingTimes100[eIndex] = m_aiYieldRateFromBuildingsEraScalingTimes100[eIndex] + iChange;
+}
+
+
 //	--------------------------------------------------------------------------------
 /// Extra yield for each pop point
 int CvCity::GetYieldPerPopTimes100(YieldTypes eIndex) const
@@ -31828,6 +31857,7 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_aiDamagePermyriad);
 	visitor(city.m_aiYieldRateModifier);
 	visitor(city.m_aiYieldPerPop);
+	visitor(city.m_aiYieldRateFromBuildingsEraScalingTimes100);
 	visitor(city.m_afYieldPerBuilding);
 	visitor(city.m_aiYieldPerReligion);
 	visitor(city.m_aiPowerYieldRateModifier);
