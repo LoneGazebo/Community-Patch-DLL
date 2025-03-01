@@ -8814,18 +8814,8 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 						for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 						{
 							YieldTypes eYield = (YieldTypes)iI;
-							int iYieldChangesEraScalingTimes100 = 0;
-							for (int iJ = 0; iJ < GC.getNumBuildingInfos(); iJ++)
+							if (pLoopCity->GetYieldRateFromBuildingsEraScalingTimes100(eYield) != 0)
 							{
-								BuildingTypes eLoopBuilding = (BuildingTypes)iJ;
-								CvBuildingEntry* pkLoopBuilding = GC.getBuildingInfo(eLoopBuilding);
-								iYieldChangesEraScalingTimes100 += pLoopCity->GetCityBuildings()->GetNumRealBuilding(eLoopBuilding) * pkLoopBuilding->GetYieldChangeEraScalingTimes100(eYield);
-							}
-							// subtract the old era-scaling yields and add new ones
-							int iYieldDifference = (iYieldChangesEraScalingTimes100 * max(1, (int)eNewValue) / 100) - (iYieldChangesEraScalingTimes100 * max(1, (int)m_eCurrentEra) / 100);
-							if (iYieldDifference != 0)
-							{
-								pLoopCity->ChangeBaseYieldRateFromBuildings(eYield, iYieldDifference);
 								pLoopCity->UpdateCityYields(eYield);
 							}
 						}
