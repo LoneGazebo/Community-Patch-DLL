@@ -625,6 +625,8 @@ public:
 	int GetYieldChangeWorldWonder(int i) const;
 	int GetYieldChangeWorldWonderGlobal(int i) const;
 
+	int GetLuxuryYieldChanges(int i) const;
+
 	int GetNumFreeUnits(int i) const;
 	int GetInstantYield(int i) const;
 	int* GetInstantYieldArray() const;
@@ -1080,6 +1082,7 @@ private:
 	int* m_piYieldPerAlly;
 	int* m_piYieldChangeWorldWonder;
 	int* m_piYieldChangeWorldWonderGlobal;
+	int* m_piLuxuryYieldChanges;
 	
 	int* m_piNumFreeUnits;
 

@@ -271,6 +271,7 @@ CvCity::CvCity() :
 	, m_aiBaseYieldRatePermanentWLTKDTimes100()
 	, m_aiBaseYieldRateFromReligion()
 	, m_aiYieldRateModifier()
+	, m_aiLuxuryExtraYield()
 	, m_aiYieldPerPop()
 	, m_aiYieldRateFromBuildingsEraScalingTimes100()
 	, m_afYieldPerBuilding()
@@ -1459,6 +1460,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_miGreatPersonPointFromConstruction.clear();
 	m_aiYieldPerReligion.resize(NUM_YIELD_TYPES);
 	m_aiYieldRateModifier.resize(NUM_YIELD_TYPES);
+	m_aiLuxuryExtraYield.resize(NUM_YIELD_TYPES);
 	m_aiPowerYieldRateModifier.resize(NUM_YIELD_TYPES);
 	m_aiResourceYieldRateModifier.resize(NUM_YIELD_TYPES);
 	m_aiExtraSpecialistYield.resize(NUM_YIELD_TYPES);
@@ -1542,6 +1544,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		m_afYieldPerCityStateStrategicResource[iI] = 0;
 		m_aiYieldPerReligion[iI] = 0;
 		m_aiYieldRateModifier[iI] = 0;
+		m_aiLuxuryExtraYield[iI] = 0;
 		m_aiPowerYieldRateModifier[iI] = 0;
 		m_aiResourceYieldRateModifier[iI] = 0;
 		m_aiExtraSpecialistYield[iI] = 0;
@@ -9880,12 +9883,13 @@ void CvCity::GetPlotsBoostedByBuilding(std::vector<int>& aiPlotList, BuildingTyp
 	std::set<int> iResourceTypesBoosted;
 	for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 	{
+		CvResourceInfo* pResourceInfo = GC.getResourceInfo((ResourceTypes)iResourceLoop);
 		int* yieldsArr = pkBuildingInfo->GetResourceYieldChangeArray(iResourceLoop);
 		for (int iYieldLoop = 0; iYieldLoop < NUM_YIELD_TYPES; iYieldLoop++)
 		{
 			// We only care about it being boosted so one yield type is sufficient, 
 			// add it to the list of resources we care about and move on
-			if (yieldsArr[iYieldLoop] > 0)
+			if (yieldsArr[iYieldLoop] > 0 || (pResourceInfo->getResourceUsage() == RESOURCEUSAGE_LUXURY && pkBuildingInfo->GetLuxuryYieldChanges(iYieldLoop) > 0))
 			{
 				iResourceTypesBoosted.insert(iResourceLoop);
 				break;
@@ -14722,6 +14726,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			ChangeYieldPerPopInEmpireTimes100(eYield, pBuildingInfo->GetYieldChangePerPopInEmpire(eYield) * iChange);
 			ChangeYieldPerReligionTimes100(eYield, pBuildingInfo->GetYieldChangePerReligion(eYield) * iChange);
 			changeYieldRateModifier(eYield, (pBuildingInfo->GetYieldModifier(eYield) * iChange));
+			ChangeLuxuryExtraYield(eYield, (pBuildingInfo->GetLuxuryYieldChanges(eYield) * iChange));
 
 			CvPlayerPolicies* pPolicies = GET_PLAYER(getOwner()).GetPlayerPolicies();
 			changeYieldRateModifier(eYield, pPolicies->GetBuildingClassYieldModifier(eBuildingClass, eYield) * iChange);
@@ -26261,6 +26266,29 @@ void CvCity::changeYieldRateModifier(YieldTypes eIndex, int iChange)
 	}
 }
 
+//	--------------------------------------------------------------------------------
+int CvCity::GetLuxuryExtraYield(YieldTypes eIndex)	const
+{
+	VALIDATE_OBJECT();
+	ASSERT_DEBUG(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	return m_aiLuxuryExtraYield[eIndex];
+}
+
+
+//	--------------------------------------------------------------------------------
+void CvCity::ChangeLuxuryExtraYield(YieldTypes eIndex, int iChange)
+{
+	VALIDATE_OBJECT();
+	ASSERT_DEBUG(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	if (iChange != 0)
+	{
+		m_aiLuxuryExtraYield[eIndex] += iChange;
+		UpdateCityYields(eIndex);
+	}
+}
+
 #if defined(MOD_BALANCE_CORE_POLICIES)
 //	--------------------------------------------------------------------------------
 int CvCity::getReligionBuildingYieldRateModifier(BuildingClassTypes eBuilding, YieldTypes eYield)	const
@@ -31963,6 +31991,7 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_aiGreatWorkYieldChange);
 	visitor(city.m_aiDamagePermyriad);
 	visitor(city.m_aiYieldRateModifier);
+	visitor(city.m_aiLuxuryExtraYield);
 	visitor(city.m_aiYieldPerPop);
 	visitor(city.m_aiYieldRateFromBuildingsEraScalingTimes100);
 	visitor(city.m_afYieldPerBuilding);
