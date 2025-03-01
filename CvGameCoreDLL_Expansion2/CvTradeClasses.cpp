@@ -1188,7 +1188,7 @@ void CvGameTrade::UpdateTradePlots()
 		if(pLoopPlot == NULL)
 			continue;
 
-		pLoopPlot->SetTradeUnitRoute(false);
+		pLoopPlot->SetNumTradeUnitRoute(0);
 	}
 
 	for (uint ui = 0; ui < m_aTradeConnections.size(); ui++)
@@ -1200,7 +1200,7 @@ void CvGameTrade::UpdateTradePlots()
 		{
 			CvPlot *pPlot = GC.getMap().plot( m_aTradeConnections[ui].m_aPlotList[uiPlot].m_iX, m_aTradeConnections[ui].m_aPlotList[uiPlot].m_iY );
 			if (pPlot)
-				pPlot->SetTradeUnitRoute(true);
+				pPlot->ChangeNumTradeUnitRoute(1);
 		}
 	}
 }
@@ -6474,6 +6474,19 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& 
 	//add it all up
 	int iScore = iGoldScore + iScienceScore + iCultureScore + iReligionScore;
 
+	// yields in owned cities the trade route passes
+	for (int iLoopPlot = 0; iLoopPlot < kTradeConnection.m_aPlotList.size(); iLoopPlot++)
+	{
+		CvPlot* pLoopPlot = GC.getMap().plot(kTradeConnection.m_aPlotList[iLoopPlot].m_iX, kTradeConnection.m_aPlotList[iLoopPlot].m_iY);
+		if (pLoopPlot->isCity() && pLoopPlot->getOwner() == m_pPlayer->GetID())
+		{
+			for (int iYieldLoop = 0; iYieldLoop < NUM_YIELD_TYPES; iYieldLoop++)
+			{
+				iScore += pLoopPlot->getPlotCity()->GetYieldFromPassingTR((YieldTypes)iYieldLoop); // todo: weighting depending on yield type
+			}
+		}
+	}
+
 	if (GET_PLAYER(kTradeConnection.m_eDestOwner).isMajorCiv() && GET_PLAYER(kTradeConnection.m_eDestOwner).GetPlayerTraits()->IsCanPlunderWithoutWar())
 	{
 		iScore *= 5;
@@ -6932,6 +6945,19 @@ int CvTradeAI::ScoreInternalTR(const TradeConnection& kTradeConnection, const st
 		iScore *= 5;
 	}
 #endif
+
+	// yields in owned cities the trade route passes
+	for (int iLoopPlot = 0; iLoopPlot < kTradeConnection.m_aPlotList.size(); iLoopPlot++)
+	{
+		CvPlot* pLoopPlot = GC.getMap().plot(kTradeConnection.m_aPlotList[iLoopPlot].m_iX, kTradeConnection.m_aPlotList[iLoopPlot].m_iY);
+		if (pLoopPlot->isCity() && pLoopPlot->getOwner() == m_pPlayer->GetID())
+		{
+			for (int iYieldLoop = 0; iYieldLoop < NUM_YIELD_TYPES; iYieldLoop++)
+			{
+				iScore += pLoopPlot->getPlotCity()->GetYieldFromPassingTR((YieldTypes)iYieldLoop); // todo: weighting depending on yield type
+			}
+		}
+	}
 
 	return iScore / (iDistance + max(iDangerSum, 1));
 }

@@ -3557,6 +3557,10 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	{
 		iFlatYield += (pkBuildingInfo->GetYieldChangePerTile(eYield) * pCity->GetPlotList().size()).Truncate();
 	}
+	if (pkBuildingInfo->GetYieldChangeFromPassingTR(eYield) > 0)
+	{
+		iFlatYield += pkBuildingInfo->GetYieldChangeFromPassingTR(eYield) * pCity->plot()->GetNumTradeUnitRoute();
+	}
 	if (pkBuildingInfo->GetYieldChangePerCityStateStrategicResource(eYield) > 0)
 	{
 		iFlatYield +=  (pkBuildingInfo->GetYieldChangePerCityStateStrategicResource(eYield) * GET_PLAYER(pCity->getOwner()).GetNumStrategicResourcesFromMinors()).Truncate();
