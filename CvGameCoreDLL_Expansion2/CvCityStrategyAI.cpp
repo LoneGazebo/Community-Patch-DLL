@@ -4186,6 +4186,11 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 		iModifier += (pCity->GetEventBuildingClassCityYieldModifier(pkBuildingInfo->GetBuildingClassType(), eYield) * 2);
 	}
 
+	if (pkBuildingInfo->GetInstantYieldFromWLTKDStart(eYield) > 0)
+	{
+		iModifier += pkBuildingInfo->GetInstantYieldFromWLTKDStart(eYield) / 20;
+	}
+
 	if (pkBuildingInfo->GetYieldFromWLTKD(eYield) > 0)
 	{
 		iModifier += pkBuildingInfo->GetYieldFromWLTKD(eYield);
