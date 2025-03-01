@@ -3548,6 +3548,15 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 
 		iFlatYield += iValue;
 	}
+
+	if (pkBuildingInfo->GetYieldChangePerBuilding(eYield) > 0)
+	{
+		iFlatYield += (pkBuildingInfo->GetYieldChangePerBuilding(eYield) * pCity->GetCityBuildings()->GetNumBuildings()).Truncate();
+	}
+	if (pkBuildingInfo->GetYieldChangePerTile(eYield) > 0)
+	{
+		iFlatYield += (pkBuildingInfo->GetYieldChangePerTile(eYield) * pCity->GetPlotList().size()).Truncate();
+	}
 	if (pkBuildingInfo->GetYieldChangePerReligion(eYield) > 0)
 	{
 		int numReligions = pCity->GetCityReligions()->GetNumReligionsWithFollowers();
