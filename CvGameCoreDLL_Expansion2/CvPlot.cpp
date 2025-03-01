@@ -270,10 +270,8 @@ void CvPlot::reset()
 	m_vInvisibleVisibilityCount.clear();
 
 	m_kArchaeologyData.Reset();
-#if defined(MOD_BALANCE_CORE)
-	m_bIsTradeUnitRoute = false;
+	m_iNumTradeUnitRoute = 0;
 	m_iLastTurnBuildChanged = 0;
-#endif
 }
 
 //////////////////////////////////////
@@ -5515,16 +5513,23 @@ bool CvPlot::IsCityConnection(PlayerTypes ePlayer, bool bIndustrial) const
 
 #if defined(MOD_BALANCE_CORE)
 //	--------------------------------------------------------------------------------
-void CvPlot::SetTradeUnitRoute(bool bActive)
+void CvPlot::ChangeNumTradeUnitRoute(int iChange)
 {
-	m_bIsTradeUnitRoute = bActive;
+	m_iNumTradeUnitRoute = m_iNumTradeUnitRoute + iChange;
 }
-
+void CvPlot::SetNumTradeUnitRoute(int iNewValue)
+{
+	m_iNumTradeUnitRoute = iNewValue;
+}
+int CvPlot::GetNumTradeUnitRoute() const
+{
+	return m_iNumTradeUnitRoute;
+}
 
 //	--------------------------------------------------------------------------------
 bool CvPlot::IsTradeUnitRoute() const
 {
-	return m_bIsTradeUnitRoute;
+	return GetNumTradeUnitRoute() > 0;
 }
 #endif
 
@@ -10554,7 +10559,7 @@ int CvPlot::calculateImprovementYield(YieldTypes eYield, PlayerTypes ePlayer, Im
 	{
 		if(ePlayer != NO_PLAYER)
 		{
-			// Ignore trade routes when planning improvements (they are not static).
+			// GetRouteYieldChanges gives extra yieds if a trade route passes over the tile
 			if(IsTradeUnitRoute() && eForceCityConnection == NUM_ROUTE_TYPES)
 			{
 				if( GET_PLAYER(ePlayer).GetCurrentEra() >= 4 )
@@ -13610,7 +13615,7 @@ void CvPlot::Serialize(Plot& plot, Visitor& visitor)
 
 	visitor(plot.m_cContinentType);
 	visitor(plot.m_kArchaeologyData);
-	visitor(plot.m_bIsTradeUnitRoute);
+	visitor(plot.m_iNumTradeUnitRoute);
 	visitor(plot.m_iLastTurnBuildChanged);
 
 	visitor(plot.m_sSpawnedResourceX);

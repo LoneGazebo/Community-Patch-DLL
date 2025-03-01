@@ -403,6 +403,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iGPRateModifierPerXFranchises(0),
 	m_piResourceQuantityPerXFranchises(NULL),
 	m_piYieldChangePerMonopoly(NULL),
+	m_piYieldChangeFromPassingTR(NULL),
 	m_piYieldPerFranchise(NULL),
 #endif
 	m_piResourceQuantityFromPOP(NULL),
@@ -566,6 +567,7 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	m_viResourceMonopolyAnds.clear();
 	m_viResourceMonopolyOrs.clear();
 	SAFE_DELETE_ARRAY(m_piYieldChangePerMonopoly);
+	SAFE_DELETE_ARRAY(m_piYieldChangeFromPassingTR);
 	SAFE_DELETE_ARRAY(m_piYieldPerFranchise);
 	SAFE_DELETE_ARRAY(m_piResourceQuantityPerXFranchises);
 #endif
@@ -1145,6 +1147,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 
 	kUtility.PopulateArrayByValue(m_piResourceQuantityPerXFranchises, "Resources", "Building_ResourceQuantityPerXFranchises", "ResourceType", "BuildingType", szBuildingType, "NumFranchises");
 	kUtility.SetYields(m_piYieldChangePerMonopoly, "Building_YieldChangesPerMonopoly", "BuildingType", szBuildingType);
+	kUtility.SetYields(m_piYieldChangeFromPassingTR, "Building_YieldChangesFromPassingTR", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldPerFranchise, "Building_YieldPerFranchise", "BuildingType", szBuildingType);
 
 	kUtility.SetYields(m_piYieldPerFriend, "Building_YieldPerFriend", "BuildingType", szBuildingType);
@@ -4413,6 +4416,12 @@ int CvBuildingEntry::GetYieldChangePerMonopoly(int i) const
 	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
 	ASSERT_DEBUG(i > -1, "Index out of bounds");
 	return m_piYieldChangePerMonopoly[i];
+}
+int CvBuildingEntry::GetYieldChangeFromPassingTR(int i) const
+{
+	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
+	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	return m_piYieldChangeFromPassingTR[i];
 }
 int CvBuildingEntry::GetYieldPerFranchise(int i) const
 {

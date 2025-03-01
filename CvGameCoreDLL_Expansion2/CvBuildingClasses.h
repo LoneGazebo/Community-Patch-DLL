@@ -608,6 +608,7 @@ public:
 	int GetGPRateModifierPerXFranchises() const;
 	int GetResourceQuantityPerXFranchises(int i) const;
 	int GetYieldChangePerMonopoly(int i) const;
+	int GetYieldChangeFromPassingTR(int i) const;
 	int GetYieldPerFranchise(int i) const;
 
 	int GetResourceQuantityFromPOP(int i) const;
@@ -1061,6 +1062,7 @@ private:
 	std::vector<int> m_viResourceMonopolyAnds;
 	std::vector<int> m_viResourceMonopolyOrs;
 	int* m_piYieldChangePerMonopoly;
+	int* m_piYieldChangeFromPassingTR;
 	int* m_piYieldPerFranchise;
 	int m_iGPRateModifierPerXFranchises;
 	int* m_piResourceQuantityPerXFranchises;
