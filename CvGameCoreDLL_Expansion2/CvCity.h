@@ -1086,6 +1086,9 @@ public:
 	int GetGrowthExtraYield(YieldTypes eIndex) const;
 	void ChangeGrowthExtraYield(YieldTypes eIndex, int iChange);
 
+	int GetYieldFromPassingTR(YieldTypes eIndex) const;
+	void ChangeYieldFromPassingTR(YieldTypes eIndex, int iChange);
+
 #if defined(MOD_BALANCE_CORE)
 	int GetYieldFromVictory(YieldTypes eIndex) const;
 	void ChangeYieldFromVictory(YieldTypes eIndex, int iChange);
@@ -1991,6 +1994,7 @@ protected:
 	int m_iTotalArtsyAid;
 	std::set<int> m_siPlots;
 	std::vector<int> m_aiChangeGrowthExtraYield;
+	std::vector<int> m_aiYieldFromPassingTR;
 #if defined(MOD_BALANCE_CORE)
 	int m_iHappinessFromEmpire;
 	int m_iUnhappinessFromEmpire;
@@ -2407,6 +2411,7 @@ SYNC_ARCHIVE_VAR(std::set<int>, m_siPlots)
 SYNC_ARCHIVE_VAR(int, m_iTotalScienceyAid)
 SYNC_ARCHIVE_VAR(int, m_iTotalArtsyAid)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiChangeGrowthExtraYield)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromPassingTR)
 SYNC_ARCHIVE_VAR(int, m_iHappinessFromEmpire)
 SYNC_ARCHIVE_VAR(int, m_iUnhappinessFromEmpire)
 SYNC_ARCHIVE_VAR(int, m_iCachedBasicNeedsMedian)
