@@ -3687,16 +3687,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 		if (eResource == NO_RESOURCE)
 			continue;
 
-		if (eYield == YIELD_CULTURE && pkBuildingInfo->GetResourceCultureChange(eResource) == 0 && pkBuildingInfo->GetResourceYieldChange(eResource, eYield) == 0 && pkBuildingInfo->GetSeaResourceYieldChange(eYield) == 0)
-			continue;
-		else if (eYield == YIELD_FAITH && pkBuildingInfo->GetResourceFaithChange(eResource) == 0 && pkBuildingInfo->GetResourceYieldChange(eResource, eYield) == 0 && pkBuildingInfo->GetSeaResourceYieldChange(eYield) == 0)
-			continue;
-		else if (pkBuildingInfo->GetResourceYieldChange(eResource, eYield) == 0 && pkBuildingInfo->GetSeaResourceYieldChange(eYield) == 0)
-			continue;
-
 		const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
-		if (pkResourceInfo == NULL)
-			continue;
 
 		bool bWater = false;
 		if ( (pkResourceInfo->isTerrain(TERRAIN_COAST) || pkResourceInfo->isTerrain(TERRAIN_OCEAN)) &&
@@ -3716,32 +3707,27 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 
 		int iNumResource = plotStats.vResourceCount[iI];
 
-		if (eYield == YIELD_CULTURE && pkBuildingInfo->GetResourceCultureChange(eResource) > 0)
+
+		if (iNumResource > 0)
 		{
-			
-			if (iNumResource > 0)
+			if (eYield == YIELD_CULTURE && pkBuildingInfo->GetResourceCultureChange(eResource) > 0)
 			{
 				iFlatYield += (iNumResource * pkBuildingInfo->GetResourceCultureChange(eResource));
 			}
-		}
-		else if (eYield == YIELD_FAITH && pkBuildingInfo->GetResourceFaithChange(eResource) > 0)
-		{
-			if (iNumResource > 0)
+			else if (eYield == YIELD_FAITH && pkBuildingInfo->GetResourceFaithChange(eResource) > 0)
 			{
 				iFlatYield += (pkBuildingInfo->GetResourceFaithChange(eResource) * iNumResource);
 			}
-		}
-		if (pkBuildingInfo->GetResourceYieldChange(eResource, eYield) > 0)
-		{
-			if (iNumResource > 0)
+			if (pkBuildingInfo->GetResourceYieldChange(eResource, eYield) > 0)
 			{
 				iFlatYield += (iNumResource * pkBuildingInfo->GetResourceYieldChange(eResource, eYield));
 			}
-		}
+			if (pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_LUXURY && pkBuildingInfo->GetLuxuryYieldChanges((int)eYield) > 0)
+			{
+				iFlatYield += (iNumResource * pkBuildingInfo->GetLuxuryYieldChanges((int)eYield));
+			}
 
-		if (bWater && pkBuildingInfo->GetSeaResourceYieldChange(eYield) > 0)
-		{
-			if (iNumResource > 0)
+			if (bWater && pkBuildingInfo->GetSeaResourceYieldChange(eYield) > 0)
 			{
 				iFlatYield += (iNumResource * pkBuildingInfo->GetSeaResourceYieldChange(eYield));
 			}
