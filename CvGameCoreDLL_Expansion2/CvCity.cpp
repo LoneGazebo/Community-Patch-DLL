@@ -386,6 +386,7 @@ CvCity::CvCity() :
 	, m_iCultureMedianModifier()
 	, m_iReligiousUnrestModifier()
 	, m_aiChangeGrowthExtraYield()
+	, m_aiYieldFromPassingTR()
 #if defined(MOD_BALANCE_CORE)
 	, m_iNukeInterceptionChance()
 	, m_iTradeRouteSeaDistanceModifier()
@@ -1337,6 +1338,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iEventHappiness = 0;
 	m_iCityEventCooldown = 0;
 	m_aiChangeGrowthExtraYield.resize(NUM_YIELD_TYPES);
+	m_aiYieldFromPassingTR.resize(NUM_YIELD_TYPES);
 #if defined(MOD_BALANCE_CORE)
 	m_iBorderObstacleWater = 0;
 	m_iBorderObstacleCity = 0;
@@ -1476,6 +1478,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		m_aiBaseYieldRatePermanentWLTKDTimes100[iI] = 0;
 		m_aiBaseYieldRateFromLeague[iI] = 0;
 		m_aiChangeGrowthExtraYield[iI] = 0;
+		m_aiYieldFromPassingTR[iI] = 0;
 #if defined(MOD_BALANCE_CORE)
 		m_aiGreatWorkYieldChange[iI] = 0;
 		m_aiSpecialReligionYieldsTimes100[iI] = 0;
@@ -14470,6 +14473,10 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			{
 				ChangeBaseYieldRateFromBuildings(eYield, pBuildingInfo->GetYieldChangePerMonopoly(eYield)* GET_PLAYER(getOwner()).GetNumGlobalMonopolies() * iChange);
 			}
+			if (pBuildingInfo->GetYieldChangeFromPassingTR(eYield) > 0)
+			{
+				ChangeYieldFromPassingTR(eYield, pBuildingInfo->GetYieldChangeFromPassingTR(eYield) * iChange);
+			}
 
 			if ((pBuildingInfo->GetYieldFromVictory(eYield) > 0))
 			{
@@ -23276,6 +23283,7 @@ int CvCity::getBaseYieldRateTimes100(const YieldTypes eYield, CvString* tooltipS
 	iTempYield += GetYieldRateFromBuildingsEraScalingTimes100(eYield) * max(1, (int)GET_PLAYER(getOwner()).GetCurrentEra());
 	iTempYield += (GetYieldPerBuilding(eYield) * GetCityBuildings()->GetNumBuildings() * 100).Truncate();
 	iTempYield += (GetYieldPerTile(eYield) * GetPlotList().size() * 100).Truncate();
+	iTempYield += GetYieldFromPassingTR(eYield) * plot()->GetNumTradeUnitRoute() * 100;
 	iTempYield += (GetYieldPerCityStateStrategicResource(eYield) * GET_PLAYER(getOwner()).GetNumStrategicResourcesFromMinors() * 100).Truncate();
 	if (eYield == YIELD_TOURISM)
 	{
@@ -23802,9 +23810,34 @@ void CvCity::ChangeGrowthExtraYield(YieldTypes eIndex, int iChange)
 	}
 }
 #endif
-#if defined(MOD_BALANCE_CORE)
 //	--------------------------------------------------------------------------------
 /// Extra yield from building
+int CvCity::GetYieldFromPassingTR(YieldTypes eIndex) const
+{
+	VALIDATE_OBJECT();
+	ASSERT_DEBUG(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	return m_aiYieldFromPassingTR[eIndex];
+}
+
+//	--------------------------------------------------------------------------------
+/// Extra yield from building
+void CvCity::ChangeYieldFromPassingTR(YieldTypes eIndex, int iChange)
+{
+	VALIDATE_OBJECT();
+	ASSERT_DEBUG(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+
+	if (iChange != 0)
+	{
+		m_aiYieldFromPassingTR[eIndex] = m_aiYieldFromPassingTR[eIndex] + iChange;
+		ASSERT_DEBUG(GetYieldFromPassingTR(eIndex) >= 0);
+	}
+}
+
+#if defined(MOD_BALANCE_CORE)
+//	--------------------------------------------------------------------------------
+/// Extra yield from killing an enemy unit
 int CvCity::GetYieldFromVictory(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT();
@@ -23814,7 +23847,7 @@ int CvCity::GetYieldFromVictory(YieldTypes eIndex) const
 }
 
 //	--------------------------------------------------------------------------------
-/// Extra yield from building
+/// Extra yield from killing an enemy unit
 void CvCity::ChangeYieldFromVictory(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT();
@@ -31819,6 +31852,7 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_iTotalScienceyAid);
 	visitor(city.m_iTotalArtsyAid);
 	visitor(city.m_aiChangeGrowthExtraYield);
+	visitor(city.m_aiYieldFromPassingTR);
 	visitor(city.m_iHappinessFromEmpire);
 	visitor(city.m_iUnhappinessFromEmpire);
 	visitor(city.m_iCachedBasicNeedsMedian);
