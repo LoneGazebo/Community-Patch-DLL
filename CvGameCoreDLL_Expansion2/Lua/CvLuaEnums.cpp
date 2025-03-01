@@ -944,6 +944,7 @@ int CvLuaEnums::pRegister(lua_State* L)
 	RegisterEnum(INSTANT_YIELD_TYPE_GOLDEN_AGE_START);
 	RegisterEnum(INSTANT_YIELD_TYPE_UNIT_GIFT);
 	RegisterEnum(INSTANT_YIELD_TYPE_BAKTUN_END);
+	RegisterEnum(INSTANT_YIELD_TYPE_WLTKD_START);
 	RegisterEnum(NUM_INSTANT_YIELD_TYPES);
 	EnumEnd(L);
 

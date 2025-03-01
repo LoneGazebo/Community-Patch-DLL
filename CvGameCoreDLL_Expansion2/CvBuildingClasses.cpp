@@ -336,6 +336,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_piYieldChangesPerLocalTheme(NULL),
 	m_piYieldFromUnitGiftGlobal(NULL),
 	m_piYieldFromWLTKD(NULL),
+	m_piInstantYieldFromWLTKDStart(NULL),
 	m_piYieldFromGPExpend(NULL),
 	m_piThemingYieldBonus(NULL),
 	m_piYieldFromSpyAttack(NULL),
@@ -501,6 +502,7 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	SAFE_DELETE_ARRAY(m_piYieldChangesPerLocalTheme);
 	SAFE_DELETE_ARRAY(m_piYieldFromUnitGiftGlobal);
 	SAFE_DELETE_ARRAY(m_piYieldFromWLTKD);
+	SAFE_DELETE_ARRAY(m_piInstantYieldFromWLTKDStart);
 	SAFE_DELETE_ARRAY(m_piYieldFromGPExpend);
 	SAFE_DELETE_ARRAY(m_piThemingYieldBonus);
 	SAFE_DELETE_ARRAY(m_piYieldFromSpyAttack);
@@ -1029,6 +1031,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	kUtility.SetYields(m_piYieldChangesPerLocalTheme, "Building_YieldChangesPerLocalTheme", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromUnitGiftGlobal, "Building_YieldFromUnitGiftGlobal", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromWLTKD, "Building_WLTKDYieldMod", "BuildingType", szBuildingType);
+	kUtility.SetYields(m_piInstantYieldFromWLTKDStart, "Building_InstantYieldFromWLTKDStart", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromGPExpend, "Building_YieldFromGPExpend", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piThemingYieldBonus, "Building_ThemingYieldBonus", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromSpyAttack, "Building_YieldFromSpyAttack", "BuildingType", szBuildingType);
@@ -3613,6 +3616,14 @@ int CvBuildingEntry::GetGoldenAgeYieldMod(int i) const
 int* CvBuildingEntry::GetGoldenAgeYieldModArray() const
 {
 	return m_piGoldenAgeYieldMod;
+}
+
+/// Instant yield when WLTKD starts
+int CvBuildingEntry::GetInstantYieldFromWLTKDStart(int i) const
+{
+	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
+	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	return m_piInstantYieldFromWLTKDStart[i];
 }
 
 /// Change to yield during WLTKD
