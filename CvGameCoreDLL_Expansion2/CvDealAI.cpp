@@ -1504,6 +1504,10 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 
 					// Do we have any WLTKD modifiers at the city level?
 					int iCityModifier = pLoopCity->GetYieldFromWLTKD(eYield);
+					if (pLoopCity->GetInstantYieldFromWLTKDStart(eYield) > 0)
+					{
+						iCityModifier += pLoopCity->GetInstantYieldFromWLTKDStart(eYield) / iNumTurns;
+					}
 					if (pReligion)
 						iCityModifier += pReligion->m_Beliefs.GetYieldFromWLTKD(eYield, GetPlayer()->GetID(), pLoopCity);
 
