@@ -422,6 +422,7 @@ CvCity::CvCity() :
 	, m_aiYieldChangesPerLocalTheme()
 	, m_aiYieldFromUnitGiftGlobal()
 	, m_aiYieldFromWLTKD()
+	, m_aiInstantYieldFromWLTKDStart()
 	, m_aiYieldFromConstruction()
 	, m_aiYieldFromTech()
 	, m_aiYieldFromUnitProduction()
@@ -1383,6 +1384,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_aiYieldChangesPerLocalTheme.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromUnitGiftGlobal.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromWLTKD.resize(NUM_YIELD_TYPES);
+	m_aiInstantYieldFromWLTKDStart.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromConstruction.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromTech.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromBirth.resize(NUM_YIELD_TYPES);
@@ -1499,6 +1501,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		m_aiYieldChangesPerLocalTheme[iI] = 0;
 		m_aiYieldFromUnitGiftGlobal[iI] = 0;
 		m_aiYieldFromWLTKD[iI] = 0;
+		m_aiInstantYieldFromWLTKDStart[iI] = 0;
 		m_aiYieldFromConstruction[iI] = 0;
 		m_aiYieldFromTech[iI] = 0;
 		m_aiYieldFromBirth[iI] = 0;
@@ -14549,6 +14552,11 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 				ChangeYieldFromWLTKD(eYield, pBuildingInfo->GetYieldFromWLTKD(eYield) * iChange);
 			}
 
+			if ((pBuildingInfo->GetInstantYieldFromWLTKDStart(eYield) > 0))
+			{
+				ChangeInstantYieldFromWLTKDStart(eYield, pBuildingInfo->GetInstantYieldFromWLTKDStart(eYield) * iChange);
+			}
+
 			if ((pBuildingInfo->GetYieldFromConstruction(eYield) > 0))
 			{
 				ChangeYieldFromConstruction(eYield, pBuildingInfo->GetYieldFromConstruction(eYield) * iChange);
@@ -22075,24 +22083,25 @@ void CvCity::ChangeWeLoveTheKingDayCounter(int iChange, bool bUATrigger)
 {
 	VALIDATE_OBJECT();
 
+	if (iChange <= 0)
+		return;
+
+	GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_WLTKD_START, false, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, this);
+
 	bool bNewWLTKD = false;
-	if (m_iWeLoveTheKingDayCounter <= 0 && iChange > 0)
+	if (m_iWeLoveTheKingDayCounter <= 0)
 		bNewWLTKD = true;
 
 	SetWeLoveTheKingDayCounter(GetWeLoveTheKingDayCounter() + iChange);
 	if (bNewWLTKD)
 	{
-#if defined(MOD_BALANCE_CORE)
 		GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityBeginsWLTKD, getOwner(), getX(), getY(), iChange);
-#endif
 	}
-	else if (iChange > 0)
+	else
 	{
-#if defined(MOD_BALANCE_CORE)
 		GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityExtendsWLTKD, getOwner(), getX(), getY(), iChange);
-#endif
 	}
-	if (iChange > 0 && bUATrigger)
+	if (bUATrigger)
 	{
 		for (int iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
 		{
@@ -24188,6 +24197,29 @@ void CvCity::ChangeYieldFromUnitGiftGlobal(YieldTypes eIndex, int iChange)
 
 }
 
+
+//	--------------------------------------------------------------------------------
+int CvCity::GetInstantYieldFromWLTKDStart(YieldTypes eIndex) const
+{
+	VALIDATE_OBJECT();
+	ASSERT_DEBUG(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	return m_aiInstantYieldFromWLTKDStart[eIndex];
+}
+
+//	--------------------------------------------------------------------------------
+void CvCity::ChangeInstantYieldFromWLTKDStart(YieldTypes eIndex, int iChange)
+{
+	VALIDATE_OBJECT();
+	ASSERT_DEBUG(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+
+	if (iChange != 0)
+	{
+		m_aiInstantYieldFromWLTKDStart[eIndex] = m_aiInstantYieldFromWLTKDStart[eIndex] + iChange;
+		ASSERT_DEBUG(GetInstantYieldFromWLTKDStart(eIndex) >= 0);
+	}
+}
 
 //	--------------------------------------------------------------------------------
 /// Extra yield from building
@@ -31904,6 +31936,7 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_aiYieldChangesPerLocalTheme);
 	visitor(city.m_aiYieldFromUnitGiftGlobal);
 	visitor(city.m_aiYieldFromWLTKD);
+	visitor(city.m_aiInstantYieldFromWLTKDStart);
 	visitor(city.m_aiYieldFromConstruction);
 	visitor(city.m_aiYieldFromTech);
 	visitor(city.m_aiYieldFromBirth);

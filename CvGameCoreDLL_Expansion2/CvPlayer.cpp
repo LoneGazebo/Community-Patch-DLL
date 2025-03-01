@@ -26216,6 +26216,11 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					iValue = pLoopCity->GetYieldFromLongCount(eYield);
 					break;
 				}
+				case INSTANT_YIELD_TYPE_WLTKD_START:
+				{
+					iValue = pLoopCity->GetInstantYieldFromWLTKDStart(eYield);
+					break;
+				}
 			}
 
 			//Now, let's apply these yields here as total yields.
@@ -27220,6 +27225,24 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				else
 				{
 					localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_TYPE_BAKTUN_END");
+					localizedText << totalyieldString;
+					//We do this at the player level once per turn.
+					addInstantYieldText(iType, localizedText.toUTF8());
+				}
+				return;
+			}
+			case INSTANT_YIELD_TYPE_WLTKD_START:
+			{
+				if (getInstantYieldText(iType).empty() || getInstantYieldText(iType) == NULL)
+				{
+					localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_TYPE_WLTKD_START");
+					localizedText << totalyieldString;
+					//We do this at the player level once per turn.
+					addInstantYieldText(iType, localizedText.toUTF8());
+				}
+				else
+				{
+					localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_TYPE_WLTKD_START");
 					localizedText << totalyieldString;
 					//We do this at the player level once per turn.
 					addInstantYieldText(iType, localizedText.toUTF8());
@@ -41167,6 +41190,11 @@ void CvPlayer::LogInstantYield(YieldTypes eYield, int iValue, InstantYieldType e
 	case INSTANT_YIELD_TYPE_BAKTUN_END:
 			{
 				instantYieldName = "Maya Baktun End";
+				break;
+			}
+	case INSTANT_YIELD_TYPE_WLTKD_START:
+			{
+				instantYieldName = "WLTKD Start";
 				break;
 			}
 	}

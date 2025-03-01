@@ -463,6 +463,8 @@ public:
 	int GetGoldenAgeYieldMod(int i) const;
 	int* GetGoldenAgeYieldModArray() const;
 
+	int GetInstantYieldFromWLTKDStart(int i) const;
+
 	int GetYieldFromWLTKD(int i) const;
 	int* GetYieldFromWLTKDArray() const;
 
@@ -1004,6 +1006,7 @@ private:
 	int* m_piYieldChangesPerLocalTheme;
 	int* m_piYieldFromUnitGiftGlobal;
 	int* m_piYieldFromWLTKD;
+	int* m_piInstantYieldFromWLTKDStart;
 	int* m_piYieldFromGPExpend;
 	int* m_piThemingYieldBonus;
 	int* m_piYieldFromSpyAttack;
