@@ -551,6 +551,7 @@ public:
 	int* GetYieldChangeArray() const;
 	int GetYieldChangeEraScalingTimes100(int i) const;
 	fraction GetYieldChangePerBuilding(int i) const;
+	fraction GetYieldChangePerTile(int i) const;
 	int GetYieldChangePerPop(int i) const;
 	int* GetYieldChangePerPopArray() const;
 	int GetYieldChangePerPopInEmpire(int i) const;
@@ -1031,6 +1032,7 @@ private:
 	int* m_piYieldChange;
 	int* m_piYieldChangeEraScalingTimes100;
 	fraction* m_pfYieldChangePerBuilding;
+	fraction* m_pfYieldChangePerTile;
 	int* m_piYieldChangePerPop;
 	std::map<int, int> m_piYieldChangePerPopInEmpire;
 

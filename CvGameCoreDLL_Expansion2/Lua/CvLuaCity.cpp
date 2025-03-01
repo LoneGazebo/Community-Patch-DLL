@@ -1590,6 +1590,7 @@ int CvLuaCity::lGetBuildingYieldRateTimes100(lua_State* L)
 		iYieldTimes100 += pBuildingInfo->GetYieldChangePerPop(eYield) * pCity->getPopulation();
 		iYieldTimes100 += pBuildingInfo->GetYieldChangePerPopInEmpire(eYield) * pPlayer->getTotalPopulation();
 		iYieldTimes100 += (pBuildingInfo->GetYieldChangePerBuilding(eYield) * pCity->GetCityBuildings()->GetNumBuildings() * 100).Truncate();
+		iYieldTimes100 += (pBuildingInfo->GetYieldChangePerTile(eYield) * pCity->GetPlotList().size() * 100).Truncate();
 		iYieldTimes100 += pCity->GetEventBuildingClassCityYield(eBuildingClass, eYield) * 100;
 		iYieldTimes100 += pBuildingInfo->GetYieldChangeEraScalingTimes100(eYield) * max(1, (int)pPlayer->GetCurrentEra());
 

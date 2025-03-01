@@ -369,6 +369,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_piYieldChange(NULL),
 	m_piYieldChangeEraScalingTimes100(NULL),
 	m_pfYieldChangePerBuilding(NULL),
+	m_pfYieldChangePerTile(NULL),
 	m_piYieldChangePerPop(NULL),
 #if defined(MOD_BALANCE_CORE)
 	m_piYieldChangePerPopInEmpire(),
@@ -532,6 +533,7 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	SAFE_DELETE_ARRAY(m_piYieldChange);
 	SAFE_DELETE_ARRAY(m_piYieldChangeEraScalingTimes100);
 	SAFE_DELETE_ARRAY(m_pfYieldChangePerBuilding);
+	SAFE_DELETE_ARRAY(m_pfYieldChangePerTile);
 	SAFE_DELETE_ARRAY(m_piYieldChangePerPop);
 #if defined(MOD_BALANCE_CORE)
 	m_piYieldChangePerPopInEmpire.clear();
@@ -1080,6 +1082,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	kUtility.SetYields(m_piYieldChange, "Building_YieldChanges", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldChangeEraScalingTimes100, "Building_YieldChangesEraScalingTimes100", "BuildingType", szBuildingType);
 	kUtility.SetFractionYields(m_pfYieldChangePerBuilding, "Building_YieldChangesPerXBuilding", "BuildingType", szBuildingType, "NumRequired");
+	kUtility.SetFractionYields(m_pfYieldChangePerTile, "Building_YieldChangesPerXTiles", "BuildingType", szBuildingType, "NumRequired");
 	kUtility.SetYields(m_piYieldChangePerPop, "Building_YieldChangesPerPop", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldChangePerReligion, "Building_YieldChangesPerReligion", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldModifier, "Building_YieldModifiers", "BuildingType", szBuildingType);
@@ -4003,6 +4006,14 @@ fraction CvBuildingEntry::GetYieldChangePerBuilding(int i) const
 	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
 	ASSERT_DEBUG(i > -1, "Index out of bounds");
 	return m_pfYieldChangePerBuilding[i];
+}
+
+/// Change to yield per turn per non-dummy building in the city
+fraction CvBuildingEntry::GetYieldChangePerTile(int i) const
+{
+	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
+	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	return m_pfYieldChangePerTile[i];
 }
 
 /// Change to yield by type
