@@ -1355,6 +1355,8 @@ public:
 
 	void SetBestForWonder(BuildingClassTypes eBuildingClass, bool bValue);
 	bool IsBestForWonder(BuildingClassTypes eBuildingClass);
+	int GetYieldRateFromBuildingsEraScalingTimes100(YieldTypes eIndex) const;
+	void ChangeYieldRateFromBuildingsEraScalingTimes100(YieldTypes eIndex, int iChange);
 #endif
 	// END Base Yield
 
@@ -2101,6 +2103,7 @@ protected:
 #endif
 	std::vector<int> m_aiYieldRateModifier;
 	std::vector<int> m_aiYieldPerPop;
+	std::vector<int> m_aiYieldRateFromBuildingsEraScalingTimes100;
 	std::vector<fraction> m_afYieldPerBuilding;
 #if defined(MOD_BALANCE_CORE)
 	std::map<int, int> m_aiYieldPerPopInEmpire;
@@ -2512,6 +2515,7 @@ SYNC_ARCHIVE_VAR(SYNC_ARCHIVE_VAR_TYPE(std::map<int, std::map<int, int>>), m_miT
 SYNC_ARCHIVE_VAR(SYNC_ARCHIVE_VAR_TYPE(std::map<pair<GreatPersonTypes, EraTypes>, int>), m_miGreatPersonPointFromConstruction)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldRateModifier)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldPerPop)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldRateFromBuildingsEraScalingTimes100)
 SYNC_ARCHIVE_VAR(std::vector<fraction>, m_afYieldPerBuilding)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldPerReligion)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiPowerYieldRateModifier)

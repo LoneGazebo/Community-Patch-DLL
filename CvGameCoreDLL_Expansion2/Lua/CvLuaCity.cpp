@@ -1591,6 +1591,7 @@ int CvLuaCity::lGetBuildingYieldRateTimes100(lua_State* L)
 		iYieldTimes100 += pBuildingInfo->GetYieldChangePerPopInEmpire(eYield) * pPlayer->getTotalPopulation();
 		iYieldTimes100 += (pBuildingInfo->GetYieldChangePerBuilding(eYield) * pCity->GetCityBuildings()->GetNumBuildings() * 100).Truncate();
 		iYieldTimes100 += pCity->GetEventBuildingClassCityYield(eBuildingClass, eYield) * 100;
+		iYieldTimes100 += pBuildingInfo->GetYieldChangeEraScalingTimes100(eYield) * max(1, (int)pPlayer->GetCurrentEra());
 
 		iYieldTimes100 += pBuildingInfo->GetYieldPerFriend(eYield) * pPlayer->GetNumCSFriends() * 100;
 		iYieldTimes100 += pBuildingInfo->GetYieldPerAlly(eYield) * pPlayer->GetNumCSAllies() * 100;
