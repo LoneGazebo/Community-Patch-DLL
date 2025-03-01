@@ -407,6 +407,7 @@ CvPlayer::CvPlayer() :
 	, m_paiResourceExport()
 , m_paiResourceImportFromMajor()
 , m_paiResourceFromMinors()
+, m_iNumStrategicResourcesFromMinors()
 , m_paiResourcesSiphoned()
 , m_paiHighestResourceQuantity()
 , m_aiNumResourceFromGP()
@@ -1103,6 +1104,7 @@ void CvPlayer::uninit()
 	m_paiResourceExport.clear();
 	m_paiResourceImportFromMajor.clear();
 	m_paiResourceFromMinors.clear();
+	m_iNumStrategicResourcesFromMinors = 0;
 	m_paiResourcesSiphoned.clear();
 	m_paiHighestResourceQuantity.clear();
 	m_aiNumResourceFromGP.clear();
@@ -2027,6 +2029,8 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 		m_paiResourceFromMinors.clear();
 		m_paiResourceFromMinors.resize(GC.getNumResourceInfos(), 0);
+
+		m_iNumStrategicResourcesFromMinors = 0;
 
 		m_paiResourcesSiphoned.clear();
 		m_paiResourcesSiphoned.resize(GC.getNumResourceInfos(), 0);
@@ -38064,10 +38068,47 @@ void CvPlayer::changeResourceFromMinors(ResourceTypes eIndex, int iChange)
 		ASSERT_DEBUG(getResourceFromMinors(eIndex) >= 0);
 
 		CalculateNetHappiness();
+		UpdateNumStrategicResourcesFromMinors();
 
 		if (IsCSResourcesCountMonopolies())
 			CheckForMonopoly(eIndex);
 	}
+}
+
+int CvPlayer::GetNumStrategicResourcesFromMinors() const
+{
+	return m_iNumStrategicResourcesFromMinors;
+}
+
+void CvPlayer::UpdateNumStrategicResourcesFromMinors()
+{
+	int iNum = 0;
+	for (int i = 0; i < GC.getNumResourceInfos(); i++)
+	{
+		ResourceTypes eResource = (ResourceTypes)i;
+		CvResourceInfo* pResourceInfo = GC.getResourceInfo(eResource);
+		if (pResourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
+		{
+			iNum += getResourceFromMinors(eResource);
+		}
+	}
+	if (m_iNumStrategicResourcesFromMinors != iNum)
+	{
+		int iLoop = 0;
+		CvCity* pLoopCity = NULL;
+		for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+		{
+			for (int iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
+			{
+				YieldTypes eYield = (YieldTypes)iJ;
+				if (pLoopCity->GetYieldPerCityStateStrategicResource(eYield) != 0)
+				{
+					pLoopCity->UpdateCityYields(eYield);
+				}
+			}
+		}
+	}
+	m_iNumStrategicResourcesFromMinors = iNum;
 }
 
 int CvPlayer::getResourceSiphoned(ResourceTypes eIndex) const
@@ -43036,6 +43077,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_paiResourceExport);
 	visitor(player.m_paiResourceImportFromMajor);
 	visitor(player.m_paiResourceFromMinors);
+	visitor(player.m_iNumStrategicResourcesFromMinors);
 	visitor(player.m_paiResourcesSiphoned);
 	visitor(player.m_paiHighestResourceQuantity);
 	visitor(player.m_aiNumResourceFromGP);
