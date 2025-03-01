@@ -2163,6 +2163,9 @@ public:
 	int getResourceFromMinors(ResourceTypes eIndex) const;
 	void changeResourceFromMinors(ResourceTypes eIndex, int iChange);
 
+	int GetNumStrategicResourcesFromMinors() const;
+	void UpdateNumStrategicResourcesFromMinors();
+
 	int getResourceSiphoned(ResourceTypes eIndex) const;
 	void changeResourceSiphoned(ResourceTypes eIndex, int iChange);
 
@@ -3559,6 +3562,7 @@ protected:
 	std::vector<int> m_paiResourceExport; //always to majors
 	std::vector<int> m_paiResourceImportFromMajor;
 	std::vector<int> m_paiResourceFromMinors;
+	int m_iNumStrategicResourcesFromMinors;
 	std::vector<int> m_paiResourcesSiphoned;
 	std::vector<int> m_paiHighestResourceQuantity;
 	std::vector<byte> m_aiNumResourceFromGP;
@@ -4350,6 +4354,7 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_paiResourceGiftedToMinors)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiResourceExport)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiResourceImportFromMajor)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiResourceFromMinors)
+SYNC_ARCHIVE_VAR(int, m_iNumStrategicResourcesFromMinors)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiResourcesSiphoned)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiHighestResourceQuantity)
 SYNC_ARCHIVE_VAR(std::vector<byte>, m_aiNumResourceFromGP)
