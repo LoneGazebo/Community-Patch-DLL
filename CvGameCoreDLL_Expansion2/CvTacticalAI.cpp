@@ -632,7 +632,7 @@ void CvTacticalAI::FindTacticalTargets()
 					m_AllTargets.push_back(newTarget);
 				}
 
-				// ... trade unit
+				// ... enemy trade unit
 				if (pLoopPlot->isVisible(m_pPlayer->getTeam()) && pPlayerTrade->ContainsEnemyTradeUnit(pLoopPlot))
 				{
 					newTarget.SetTargetType( pLoopPlot->isWater() ? AI_TACTICAL_TARGET_TRADE_UNIT_SEA : AI_TACTICAL_TARGET_TRADE_UNIT_LAND);
@@ -655,16 +655,20 @@ void CvTacticalAI::FindTacticalTargets()
 					m_AllTargets.push_back(newTarget);
 				}
 
-				// ... friendly improvement?
+				// ... friendly strategic resource improvement?
 				if (m_pPlayer->GetID() == pLoopPlot->getOwner() &&
-					pLoopPlot->getImprovementType() != NO_IMPROVEMENT &&
-					!pLoopPlot->IsImprovementPillaged() && !pLoopPlot->isGoody())
+					pLoopPlot->getResourceType() != NO_RESOURCE && 
+					pLoopPlot->getImprovementType() != NO_IMPROVEMENT && !pLoopPlot->IsImprovementPillaged())
 				{
 					if (pLoopPlot->getOwningCity() != NULL && !vUnfriendlyMajors.empty() && pLoopPlot->getOwningCity()->isBorderCity(vUnfriendlyMajors))
 					{
-						newTarget.SetTargetType(AI_TACTICAL_TARGET_IMPROVEMENT_TO_DEFEND);
-						newTarget.SetAuxIntData(1);
-						m_AllTargets.push_back(newTarget);
+						CvResourceInfo* pkResourceInfo = GC.getResourceInfo(pLoopPlot->getResourceType());
+						if (pkResourceInfo && pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
+						{
+							newTarget.SetTargetType(AI_TACTICAL_TARGET_IMPROVEMENT_TO_DEFEND);
+							newTarget.SetAuxIntData(1);
+							m_AllTargets.push_back(newTarget);
+						}
 					}
 				}
 
@@ -764,11 +768,8 @@ void CvTacticalAI::ProcessDominanceZones()
 		{
 			CvTacticalDominanceZone* pZone = GetTacticalAnalysisMap()->GetZoneByIndex(iI);
 
-			if(pZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY && pZone->GetTerritoryType() == TACTICAL_TERRITORY_FRIENDLY && !pZone->IsWater())
-			{
-				PlotEmergencyPurchases(pZone);
-				PlotDefensiveAirlifts(pZone);
-			}
+			PlotEmergencyPurchases(pZone);
+			PlotDefensiveAirlifts(pZone);
 
 			int iTargets = ExtractTargetsForZone(pZone);
 			if (iTargets==0)
@@ -1717,18 +1718,14 @@ void CvTacticalAI::PlotAirPatrolMoves()
 /// Spend money to buy defenses
 void CvTacticalAI::PlotEmergencyPurchases(CvTacticalDominanceZone* pZone)
 {
-	if(m_pPlayer->isMinorCiv())
-		return;
-	if (!pZone)
+	if(!pZone || pZone->IsWater())
 		return;
 
 	CvCity* pCity = pZone->GetZoneCity();
-
-	// Only in our own cities
 	if (!pCity || pCity->getOwner() != m_pPlayer->GetID())
 		return;
 
-	// Done waste money if there's no hope
+	// Don't waste money if there's no hope
 	if (pCity->isInDangerOfFalling())
 		return;
 
@@ -1738,7 +1735,7 @@ void CvTacticalAI::PlotEmergencyPurchases(CvTacticalDominanceZone* pZone)
 		bWantUnits = false;
 
 	// If we need additional units - ignore the supply limit here, we're probably losing units anyway
-	if(pZone->GetOverallDominanceFlag()>TACTICAL_DOMINANCE_FRIENDLY)
+	if(pZone->GetOverallDominanceFlag()>TACTICAL_DOMINANCE_FRIENDLY || pCity->isUnderSiege())
 	{
 		if(!MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 			m_pPlayer->GetMilitaryAI()->BuyEmergencyBuilding(pCity);
@@ -1768,10 +1765,11 @@ void CvTacticalAI::PlotEmergencyPurchases(CvTacticalDominanceZone* pZone)
 /// Spend money to buy defenses
 void CvTacticalAI::PlotDefensiveAirlifts(CvTacticalDominanceZone* pZone)
 {
-	if(m_pPlayer->isMinorCiv())
+	if(!pZone || pZone->IsWater() || m_pPlayer->isMinorCiv())
 		return;
 
-	if (!pZone)
+	//nothing to do
+	if (pZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_FRIENDLY)
 		return;
 
 	ClearCurrentMoveUnits(AI_TACTICAL_AIRLIFT);
@@ -6982,22 +6980,18 @@ int TacticalAIHelpers::SentryScore(const CvPlot * pPlot, PlayerTypes ePlayer)
 	TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
 	int iScore = pPlot->defenseModifier(eTeam, false, false);
 
+	//basically check for plots with good visibility
 	const vector<CvPlot*>& possibleEnemyPlots = GC.getMap().GetPlotsAtRangeX(pPlot, 2, true, true);
 	for (size_t i = 0; i < possibleEnemyPlots.size(); i++)
 	{
 		//there may be a sentinel null pointer
 		if (possibleEnemyPlots[i] == NULL)
 			continue;
-
-		//don't need to cover a plot multiple times ... but don't want the sentry unit to shuffle around too much
-		if (possibleEnemyPlots[i]->getVisibilityCount(eTeam) > 1)
-			continue;
-
-		//really we should consider whether the enemy can move there, not our team
+		//really we should consider whether the enemy can move there, not our team ...
 		if (!possibleEnemyPlots[i]->isValidMovePlot(ePlayer, false))
 			continue;
 
-		iScore += 37; //less than a good defense bonus ...
+		iScore += 23; //less than a good defense bonus ...
 	}
 
 	return iScore;
@@ -7111,7 +7105,7 @@ bool isKillAssignment(eUnitAssignmentType eAssignmentType)
 		eAssignmentType == A_RANGEKILL;
 }
 
-int ScoreCombatUnitTurnEnd(const CvUnit* pUnit, eUnitAssignmentType eLastAssignment, const CvTacticalPlot& testPlot, int iMovesLeft, int iDanger,
+int ScoreCombatUnitTurnEnd(const CvUnit* pUnit, eUnitAssignmentType eLastAssignment, const CvTacticalPlot& testPlot, int iDanger,
 							CvTacticalPlot::eTactPlotDomain eRelevantDomain, int iSelfDamage, int iAssumedExtraKill, bool bHasMoved,
 							const CvTacticalPosition& assumedPosition, eUnitMoveEvalMode evalMode, bool bRelaxedCheck)
 {
@@ -7346,7 +7340,7 @@ STacticalAssignment ScorePlotForCombatUnitMove(const SUnitStats& unit, const CvT
 	if (evalMode != EM_INTERMEDIATE)
 	{
 		result.eAssignmentType = A_FINISH;
-		iDangerScore = ScoreCombatUnitTurnEnd(pUnit, unit.eLastAssignment, testPlot, iAssumedMovesLeft, iDanger, 
+		iDangerScore = ScoreCombatUnitTurnEnd(pUnit, unit.eLastAssignment, testPlot, iDanger, 
 			eRelevantDomain, unit.iSelfDamage, -1, iAssumedMovesLeft==unit.iMaxMoves, assumedPosition, evalMode, false);
 
 		// unit giving extra strength to an adjacent city?
@@ -9289,8 +9283,8 @@ void CvTacticalPosition::updateMoveAndAttackPlotsForUnit(SUnitStats unit)
 			{
 				if (wantToFight())
 				{
-					//ignore all plots where we cannot fight. allow melee ships to capture cities though!
-					if (!pUnit->isNativeDomain(pPlot) && !pPlot->isEnemyCity(*pUnit))
+					//ignore all plots where we cannot fight. allow ships to capture/garrison cities though!
+					if (!pUnit->isNativeDomain(pPlot) && !pPlot->isCoastalCityOrPassableImprovement(pUnit->getOwner(),false,false))
 						continue;
 				}
 				else
@@ -10144,7 +10138,7 @@ bool CvTacticalPosition::canProbablyEndTurnInPlot(const STacticalAssignment& ass
 			gTactPosStorage.getDangerCache().storeDanger(pUnit->GetID(), assumedUnitPlot.getPlotIndex(), unit->iSelfDamage, getKilledEnemies(), iDanger);
 		}
 
-		return ScoreCombatUnitTurnEnd(pUnit, unit->eLastAssignment, assumedUnitPlot, 0, iDanger, CvTacticalPlot::TD_BOTH,
+		return ScoreCombatUnitTurnEnd(pUnit, unit->eLastAssignment, assumedUnitPlot, iDanger, CvTacticalPlot::TD_BOTH,
 			unit->iSelfDamage + assignment.iSelfDamage, assignment.iKillOrNearKillId, assignment.iRemainingMoves==unit->iMaxMoves, *this, EM_FINAL, availableUnits.size() > 1) != INT_MAX;
 	}
 	else

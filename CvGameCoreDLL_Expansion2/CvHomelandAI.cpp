@@ -686,6 +686,14 @@ void CvHomelandAI::PlotMovesToSafety()
 		if (!pUnit)
 			continue;
 
+		//special: move siege units away from border to make space for sentries
+		//also to protect them against surprise attacks
+		if (pUnit->AI_getUnitAIType() == UNITAI_CITY_BOMBARD)
+		{
+			if (ExecuteMoveUnitAwayFromBorder(pUnit))
+				continue;
+		}
+
 		//allow some danger from fog etc
 		int iDangerLevel = pUnit->GetDanger();
 		if (iDangerLevel < pUnit->GetCurrHitPoints() / 5)
@@ -702,12 +710,9 @@ void CvHomelandAI::PlotMovesToSafety()
 		}
 		else
 		{
-			//military units flee only in mortal danger (if we even get here)
+			//military units flee only in mortal danger - if we even get here
+			//normally combat units are handled by tactical ai if there's enemies around
 			if (iDangerLevel < pUnit->GetCurrHitPoints())
-				continue;
-
-			//land barbarians don't flee
-			if (pUnit->isBarbarian() && pUnit->getDomainType() == DOMAIN_LAND)
 				continue;
 		}
 
@@ -3449,6 +3454,43 @@ void CvHomelandAI::ExecuteMovesToSafestPlot(CvUnit* pUnit)
 	}
 }
 
+
+bool CvHomelandAI::ExecuteMoveUnitAwayFromBorder(CvUnit* pUnit)
+{
+	if (!pUnit || !pUnit->canMove())
+		return false;
+
+	int iBestScore = 0;
+	CvPlot* pBestPlot = NULL;
+
+	if (pUnit->plot()->IsAdjacentOwnedByTeamOtherThan(pUnit->getTeam()))
+	{
+		ReachablePlots reachablePlots = pUnit->GetAllPlotsInReachThisTurn();
+		for (ReachablePlots::iterator it = reachablePlots.begin(); it != reachablePlots.end(); ++it)
+		{
+			CvPlot* pFleePlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
+			if (pFleePlot->IsAdjacentOwnedByTeamOtherThan(pUnit->getTeam()))
+				continue;
+
+			//todo: allow unit swap / push ...
+			if (!pUnit->canEndTurnAtPlot(pFleePlot))
+				continue;
+
+			int iScore = TacticalAIHelpers::SentryScore(pFleePlot, pUnit->getOwner());
+			if (iScore > iBestScore)
+			{
+				iBestScore = iScore;
+				pBestPlot = pFleePlot;
+			}
+		}
+
+		if (pBestPlot)
+			return ExecuteMoveToTarget(pUnit, pBestPlot, 0, true);
+	}
+	else
+		return false;
+}
+
 //	---------------------------------------------------------------------------
 /// Find one unit to move to target, starting with high priority list
 bool CvHomelandAI::ExecuteMoveToTarget(CvUnit* pUnit, CvPlot* pTarget, int iFlags, bool bEndTurn)
@@ -5668,12 +5710,10 @@ bool CvHomelandAI::FindUnitsForThisMove(AIHomelandMove eMove)
 //	---------------------------------------------------------------------------
 /// Compute the best unit to reach a target in the current normal and high priority move list
 CvUnit* CvHomelandAI::GetBestUnitToReachTarget(CvPlot* pTarget, int iMaxTurns)
-	{
-	// Get the raw distance for all units
-	int iTargetX = pTarget->getX();
-	int iTargetY = pTarget->getY();
+{
+	int iBestTurns = INT_MAX;
+	CvUnit* pBestUnit = NULL;
 
-	// first check raw distance
 	for(CHomelandUnitArray::iterator it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
 		CvUnit* pLoopUnit = m_pPlayer->getUnit(it->GetID());
@@ -5691,65 +5731,32 @@ CvUnit* CvHomelandAI::GetBestUnitToReachTarget(CvPlot* pTarget, int iMaxTurns)
 			{
 				it->SetMovesToTarget(MAX_INT);
 				continue;
-		}
+			}
 
 			if (pLoopUnit->plot() == pTarget)
-		{
+			{
 				return pLoopUnit;
 			}
 			else
 			{
-				// Make sure we can move into the destination.  The path finder will do a similar check near the beginning, but it is best to get this out of the way before then
+				// Make sure we can move into the destination.
+				// The path finder will do a similar check near the beginning, but it is best to get this out of the way before then
 				if (pLoopUnit->canMoveInto(*pTarget, CvUnit::MOVEFLAG_DESTINATION))
-					it->SetMovesToTarget(plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), iTargetX, iTargetY));
+				{
+					int iTurns = pLoopUnit->TurnsToReachTarget(pTarget, CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY, iMaxTurns);
+					it->SetMovesToTarget(iTurns);
+
+					if (iTurns < iBestTurns)
+					{
+						pBestUnit = pLoopUnit;
+						iBestTurns = iTurns;
+					}
+				}
 				else
 					it->SetMovesToTarget(MAX_INT);
 			}
 		}
 	}
-
-	// Sort by raw distance
-	std::stable_sort(m_CurrentMoveUnits.begin(), m_CurrentMoveUnits.end());
-
-	CvUnit* pBestUnit = NULL;
-	int iBestTurns = iMaxTurns;
-
-	int iFailedPaths = 0;
-	// If we see this many failed pathing attempts, we assume no unit can get to the target
-	const int MAX_FAILED_PATHS = 2;
-
-	// Now go through and figure out the actual number of turns, and as a result, even if it can get there at all.
-	// We will try and do as few as possible by stopping if we find a unit that can make it in one turn.
-	for(CHomelandUnitArray::iterator it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
-	{
-		CvUnit* pLoopUnit = m_pPlayer->getUnit(it->GetID());
-		if (pLoopUnit)
-		{
-			int iDistance = it->GetMovesToTarget();	// Raw distance
-			if (iDistance == MAX_INT)
-				continue;
-			
-			//pretent turns are "moves" here
-			int iTurns = pLoopUnit->TurnsToReachTarget(pTarget, CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY, iMaxTurns);
-			it->SetMovesToTarget(iTurns);
-
-			// Did we make it at all?
-			if (iTurns == MAX_INT)
-			{
-				++iFailedPaths;
-				if (iFailedPaths >= MAX_FAILED_PATHS)
-					break;
-				}
-
-			// Take the first one ...
-			if (iTurns < iBestTurns)
-				{
-					pBestUnit = pLoopUnit;
-				iBestTurns = iTurns;
-					break;
-			}
-			}
-		}
 
 	return pBestUnit;
 }

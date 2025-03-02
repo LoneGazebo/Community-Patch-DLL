@@ -287,6 +287,7 @@ private:
 
 	void ExecuteWorkerMoves();
 	void ExecuteMovesToSafestPlot(CvUnit* pUnit);
+	bool ExecuteMoveUnitAwayFromBorder(CvUnit* pUnit);
 	bool ExecuteMoveToTarget(CvUnit* pUnit, CvPlot* pTarget, int iFlags, bool bEndTurn = false);
 
 	void ExecuteHeals();
