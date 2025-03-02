@@ -569,6 +569,7 @@ public:
 	int GetYieldChangePerPop(int i) const;
 	int* GetYieldChangePerPopArray() const;
 	int GetYieldChangePerPopInEmpire(int i) const;
+	std::map<int, int> GetExtraPlayerInstancesFromAccomplishments() const;
 	int GetYieldChangePerReligion(int i) const;
 	int* GetYieldChangePerReligionArray() const;
 	set<int> GetUnitClassTrainingAllowed() const;
@@ -1058,7 +1059,7 @@ private:
 	fraction* m_pfYieldChangePerCityStateStrategicResource;
 	int* m_piYieldChangePerPop;
 	std::map<int, int> m_piYieldChangePerPopInEmpire;
-
+	std::map<int, int> m_miExtraPlayerInstancesFromAccomplishments;
 	set<int> m_siUnitClassTrainingAllowed;
 	set<std::pair<int,bool>> m_sibResourceClaim;
 	map<ProjectTypes, int> m_miWLTKDFromProject;
