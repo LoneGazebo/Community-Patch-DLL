@@ -4649,26 +4649,26 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift, bool bO
 
 bool CvPlayer::IsValidBuildingForPlayer(CvCity* pCity, BuildingTypes eBuilding, bool bConquest)
 {
-	CvBuildingEntry* pkLoopBuildingInfo = GC.getBuildingInfo(eBuilding);
-	if (!pkLoopBuildingInfo)
+	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+	if (!pkBuildingInfo)
 		return false;
 
 	if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_ConquerorValidBuilding, pCity->getOwner(), pCity->GetID(), GetID(), eBuilding) == GAMEEVENTRETURN_FALSE)
 		return false;
 
-	const CvBuildingClassInfo& pkClassInfo = pkLoopBuildingInfo->GetBuildingClassInfo();
+	const CvBuildingClassInfo& pkClassInfo = pkBuildingInfo->GetBuildingClassInfo();
 
 	bool bIsNationalWonder = ::isNationalWonderClass(pkClassInfo);
-	bool bProductionMaxed = isProductionMaxedBuildingClass(pkLoopBuildingInfo->GetBuildingClassType(), true);
+	bool bProductionMaxed = isProductionMaxedBuilding(eBuilding, true);
 
-	if (pkLoopBuildingInfo->IsNeverCapture() || bProductionMaxed || bIsNationalWonder)
+	if (pkBuildingInfo->IsNeverCapture() || bProductionMaxed || bIsNationalWonder)
 		return false;
 
 	if (!bConquest || GetPlayerTraits()->IsKeepConqueredBuildings() || IsKeepConqueredBuildings())
 		return true;
 
-	int iConquestRoll = GC.getGame().randRangeInclusive(1, 100, CvSeeder::fromRaw(0x11066cbd).mix(GetID()).mix(pkLoopBuildingInfo->GetID()).mix(pCity->plot()->GetPseudoRandomSeed()));
-	return iConquestRoll <= pkLoopBuildingInfo->GetConquestProbability();
+	int iConquestRoll = GC.getGame().randRangeInclusive(1, 100, CvSeeder::fromRaw(0x11066cbd).mix(GetID()).mix(pkBuildingInfo->GetID()).mix(pCity->plot()->GetPseudoRandomSeed()));
+	return iConquestRoll <= pkBuildingInfo->GetConquestProbability();
 }
 
 void CvPlayer::killCities()
@@ -13945,7 +13945,7 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, const std::vector<int>& vPr
 	if (currentTeam.isBuildingClassMaxedOut(eBuildingClass))
 		return false;
 
-	if (isBuildingClassMaxedOut(eBuildingClass))
+	if (isBuildingMaxedOut(eBuilding))
 		return false;
 
 	if (pBuildingInfo.GetNumRequiredTier3Tenets() > 0)
@@ -14046,9 +14046,9 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, const std::vector<int>& vPr
 				return false;
 		}
 
-		if(isBuildingClassMaxedOut(eBuildingClass, (getBuildingClassMaking(eBuildingClass) + ((bContinue) ? -1 : 0))))
+		if(isBuildingMaxedOut(eBuilding, (getBuildingClassMaking(eBuildingClass) + ((bContinue) ? -1 : 0))))
 		{
-			GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_PLAYER_COUNT_MAX", "", "", kBuildingClass.getMaxPlayerInstances());
+			GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_PLAYER_COUNT_MAX", "", "", getMaxPlayerInstances(eBuilding));
 			if(toolTipSink == NULL)
 				return false;
 		}
@@ -14577,7 +14577,7 @@ bool CvPlayer::isProductionMaxedUnitClass(UnitClassTypes eUnitClass) const
 void CvPlayer::changeUnitsBuiltCount(UnitTypes eUnitType, int iValue)
 {
 	VALIDATE_OBJECT();
-		ASSERT_DEBUG(eUnitType >= 0, "eUnitType expected to be >= 0");
+	ASSERT_DEBUG(eUnitType >= 0, "eUnitType expected to be >= 0");
 	ASSERT_DEBUG(eUnitType < GC.getNumUnitInfos(), "eUnitType expected to be < GC.getNumUnitInfos()");
 
 	m_aiNumUnitsBuilt[eUnitType] = m_aiNumUnitsBuilt[eUnitType] + iValue;
@@ -14586,14 +14586,19 @@ void CvPlayer::changeUnitsBuiltCount(UnitTypes eUnitType, int iValue)
 int CvPlayer::getUnitsBuiltCount(UnitTypes eUnitType) const
 {
 	VALIDATE_OBJECT();
-		ASSERT_DEBUG(eUnitType >= 0, "eUnitType expected to be >= 0");
+	ASSERT_DEBUG(eUnitType >= 0, "eUnitType expected to be >= 0");
 	ASSERT_DEBUG(eUnitType < GC.getNumUnitInfos(), "eUnitType expected to be < GC.getNumUnitInfos()");
 
 	return m_aiNumUnitsBuilt[eUnitType];
 }
 
-bool CvPlayer::isProductionMaxedBuildingClass(BuildingClassTypes eBuildingClass, bool bAcquireCity) const
+bool CvPlayer::isProductionMaxedBuilding(BuildingTypes eBuilding, bool bAcquireCity) const
 {
+	if (eBuilding == NO_BUILDING)
+		return false;
+
+	CvBuildingEntry* pkBuildingEntry = GC.getBuildingInfo(eBuilding);
+	BuildingClassTypes eBuildingClass = pkBuildingEntry->GetBuildingClassType();
 	if(eBuildingClass == NO_BUILDINGCLASS)
 	{
 		return false;
@@ -14618,7 +14623,7 @@ bool CvPlayer::isProductionMaxedBuildingClass(BuildingClassTypes eBuildingClass,
 		return true;
 	}
 
-	if(isBuildingClassMaxedOut(eBuildingClass, ((bAcquireCity) ? pkBuildingClassInfo->getExtraPlayerInstances() : 0)))
+	if(isBuildingMaxedOut(eBuilding, ((bAcquireCity) ? pkBuildingClassInfo->getExtraPlayerInstances() : 0)))
 	{
 		return true;
 	}
@@ -38639,12 +38644,45 @@ int CvPlayer::getBuildingClassCount(BuildingClassTypes eIndex) const
 	return m_paiBuildingClassCount[eIndex];
 }
 
-bool CvPlayer::isBuildingClassMaxedOut(BuildingClassTypes eIndex, int iExtra) const
+int CvPlayer::getMaxPlayerInstances(BuildingTypes eIndex) const
 {
 	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < GC.getNumBuildingClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT_DEBUG(eIndex < GC.getNumBuildingInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
-	CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eIndex);
+	CvBuildingEntry* pkBuildingEntry = GC.getBuildingInfo(eIndex);
+	BuildingClassTypes eBuildingClass = pkBuildingEntry->GetBuildingClassType();
+	CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
+	if (pkBuildingClassInfo == NULL)
+	{
+		ASSERT_DEBUG(false, "This should never happen...");
+		return -1;
+	}
+
+	if (!isNationalWonderClass(*pkBuildingClassInfo))
+	{
+		return -1;
+	}
+
+	int iMaxInstances = pkBuildingClassInfo->getMaxPlayerInstances() + pkBuildingClassInfo->getExtraPlayerInstances();
+	if (!pkBuildingEntry->GetExtraPlayerInstancesFromAccomplishments().empty())
+	{
+		std::map<int, int> m_extraInstancesAcc = pkBuildingEntry->GetExtraPlayerInstancesFromAccomplishments();
+		for (std::map<int, int>::const_iterator it = m_extraInstancesAcc.begin(); it != m_extraInstancesAcc.end(); ++it)
+		{
+			iMaxInstances += GetNumTimesAccomplishmentCompleted((AccomplishmentTypes)it->first) * it->second;
+		}
+	}
+	return iMaxInstances;
+}
+
+bool CvPlayer::isBuildingMaxedOut(BuildingTypes eIndex, int iExtra) const
+{
+	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT_DEBUG(eIndex < GC.getNumBuildingInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+
+	CvBuildingEntry* pkBuildingEntry = GC.getBuildingInfo(eIndex);
+	BuildingClassTypes eBuildingClass = pkBuildingEntry->GetBuildingClassType();
+	CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
 	if(pkBuildingClassInfo == NULL)
 	{
 		ASSERT_DEBUG(false, "This should never happen...");
@@ -38656,9 +38694,11 @@ bool CvPlayer::isBuildingClassMaxedOut(BuildingClassTypes eIndex, int iExtra) co
 		return false;
 	}
 
-	ASSERT_DEBUG(getBuildingClassCount(eIndex) <= (pkBuildingClassInfo->getMaxPlayerInstances() + pkBuildingClassInfo->getExtraPlayerInstances()), "BuildingClassCount is expected to be less than or match the number of max player instances plus extra player instances");
+	int iMaxInstances = getMaxPlayerInstances(eIndex);
 
-	return ((getBuildingClassCount(eIndex) + iExtra) >= (pkBuildingClassInfo->getMaxPlayerInstances() + pkBuildingClassInfo->getExtraPlayerInstances()));
+	ASSERT_DEBUG(getBuildingClassCount(eBuildingClass) <= iMaxInstances, "BuildingClassCount is expected to be less than or match the number of max player instances plus extra player instances");
+
+	return ((getBuildingClassCount(eBuildingClass) + iExtra) >= iMaxInstances);
 }
 
 void CvPlayer::changeBuildingClassCount(BuildingClassTypes eIndex, int iChange)

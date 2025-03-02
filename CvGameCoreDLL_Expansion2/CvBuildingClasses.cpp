@@ -374,9 +374,8 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_pfYieldChangePerTile(NULL),
 	m_pfYieldChangePerCityStateStrategicResource(NULL),
 	m_piYieldChangePerPop(NULL),
-#if defined(MOD_BALANCE_CORE)
 	m_piYieldChangePerPopInEmpire(),
-#endif
+	m_miExtraPlayerInstancesFromAccomplishments(),
 	m_siUnitClassTrainingAllowed(),
 	m_sibResourceClaim(),
 	m_miWLTKDFromProject(),
@@ -546,9 +545,8 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	SAFE_DELETE_ARRAY(m_pfYieldChangePerTile);
 	SAFE_DELETE_ARRAY(m_pfYieldChangePerCityStateStrategicResource);
 	SAFE_DELETE_ARRAY(m_piYieldChangePerPop);
-#if defined(MOD_BALANCE_CORE)
 	m_piYieldChangePerPopInEmpire.clear();
-#endif
+	m_miExtraPlayerInstancesFromAccomplishments.clear();
 	m_siUnitClassTrainingAllowed.clear();
 	m_sibResourceClaim.clear();
 	m_miWLTKDFromProject.clear();
@@ -1413,6 +1411,32 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 
 		//Trim extra memory off container since this is mostly read-only.
 		std::map<int, AccomplishmentBonusInfo>(m_miBonusFromAccomplishments).swap(m_miBonusFromAccomplishments);
+	}
+	// Building_ExtraPlayerInstancesFromAccomplishments 
+	// Table structure (BuildingType, AccomplishmentType, ExtraInstances)
+	// The building can be built more often if an accomplishment has been achieved
+	{
+		std::string strKey("Building_ExtraPlayerInstancesFromAccomplishments");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if (pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select Accomplishments.ID, ExtraInstances from Building_ExtraPlayerInstancesFromAccomplishments inner join Accomplishments on Accomplishments.Type = AccomplishmentType where BuildingType = ?");
+		}
+
+		pResults->Bind(1, szBuildingType);
+
+		while (pResults->Step())
+		{
+			const int iAccomplishment = pResults->GetInt(0);
+			const int iExtraInstances = pResults->GetInt(1);
+
+			m_miExtraPlayerInstancesFromAccomplishments[iAccomplishment] = iExtraInstances;
+		}
+
+		pResults->Reset();
+
+		//Trim extra memory off container since this is mostly read-only.
+		std::map<int, int>(m_miExtraPlayerInstancesFromAccomplishments).swap(m_miExtraPlayerInstancesFromAccomplishments);
 	}
 
 	// Building_GreatPersonPointFromConstruction
@@ -4154,7 +4178,6 @@ int* CvBuildingEntry::GetYieldChangePerPopArray() const
 	return m_piYieldChangePerPop;
 }
 
-#if defined(MOD_BALANCE_CORE)
 /// Change to yield by type
 int CvBuildingEntry::GetYieldChangePerPopInEmpire(int i) const
 {
@@ -4169,7 +4192,11 @@ int CvBuildingEntry::GetYieldChangePerPopInEmpire(int i) const
 
 	return 0;
 }
-#endif
+
+std::map<int, int> CvBuildingEntry::GetExtraPlayerInstancesFromAccomplishments() const
+{
+	return m_miExtraPlayerInstancesFromAccomplishments;
+}
 
 /// Change to yield by type
 int CvBuildingEntry::GetYieldChangePerReligion(int i) const
