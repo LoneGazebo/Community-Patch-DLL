@@ -1793,7 +1793,7 @@ function OnAIPlayerChanged(iPlayerID, szTag)
 end
 
 function OnEventActivePlayerChanged( iActivePlayer, iPrevActivePlayer )
-	g_activePlayer = iActivePlayer;
+	g_activePlayerObserver = iActivePlayer;
 end
 
 -- Register Events
