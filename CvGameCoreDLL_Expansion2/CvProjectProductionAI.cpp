@@ -230,6 +230,9 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 				if(kPlayer.GetEconomicAI()->IsUsingStrategy(eSpaceShipHomeStretch))
 					iTempWeight *= 10;
 
+			if (m_pCity->GetWLTKDFromProject(eProject) > 0)
+				iTempWeight += m_pCity->GetWLTKDFromProject(eProject);
+
 			return iTempWeight;
 		}
 	}

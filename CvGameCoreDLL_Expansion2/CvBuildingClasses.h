@@ -562,6 +562,7 @@ public:
 	int* GetYieldChangePerReligionArray() const;
 	set<int> GetUnitClassTrainingAllowed() const;
 	set<std::pair<int, bool>> GetResourceClaim() const;
+	map<ProjectTypes, int> GetWLTKDFromProject() const;
 	int GetYieldModifier(int i) const;
 	int* GetYieldModifierArray() const;
 	int GetAreaYieldModifier(int i) const;
@@ -1046,6 +1047,7 @@ private:
 
 	set<int> m_siUnitClassTrainingAllowed;
 	set<std::pair<int,bool>> m_sibResourceClaim;
+	map<ProjectTypes, int> m_miWLTKDFromProject;
 	int* m_piYieldChangePerReligion;
 	int* m_piYieldModifier;
 	int* m_piAreaYieldModifier;
