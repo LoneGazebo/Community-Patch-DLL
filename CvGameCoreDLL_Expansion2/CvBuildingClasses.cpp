@@ -378,6 +378,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 #endif
 	m_siUnitClassTrainingAllowed(),
 	m_sibResourceClaim(),
+	m_miWLTKDFromProject(),
 	m_piYieldChangePerReligion(NULL),
 	m_piYieldModifier(NULL),
 	m_piAreaYieldModifier(NULL),
@@ -546,6 +547,7 @@ CvBuildingEntry::~CvBuildingEntry(void)
 #endif
 	m_siUnitClassTrainingAllowed.clear();
 	m_sibResourceClaim.clear();
+	m_miWLTKDFromProject.clear();
 	SAFE_DELETE_ARRAY(m_piYieldChangePerReligion);
 	SAFE_DELETE_ARRAY(m_piYieldModifier);
 	SAFE_DELETE_ARRAY(m_piAreaYieldModifier);
@@ -1032,6 +1034,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	kUtility.SetYields(m_piYieldFromUnitGiftGlobal, "Building_YieldFromUnitGiftGlobal", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromWLTKD, "Building_WLTKDYieldMod", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piInstantYieldFromWLTKDStart, "Building_InstantYieldFromWLTKDStart", "BuildingType", szBuildingType);
+	kUtility.SetYields(m_piInstantYieldFromWLTKDStart, "Building_InstantYieldFromWLTKDStart", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromGPExpend, "Building_YieldFromGPExpend", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piThemingYieldBonus, "Building_ThemingYieldBonus", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromSpyAttack, "Building_YieldFromSpyAttack", "BuildingType", szBuildingType);
@@ -1075,6 +1078,26 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 
 		//Trim extra memory off container since this is mostly read-only.
 		map<GreatPersonTypes, map<pair<YieldTypes, YieldTypes>, int>>(m_miYieldFromGPBirthScaledWithPerTurnYield).swap(m_miYieldFromGPBirthScaledWithPerTurnYield);
+	}
+	{
+		std::string strKey("Building_WLTKDFromProject");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if (pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select Projects.ID as ProjectID, Turns from Building_WLTKDFromProject inner join Projects on Projects.Type = ProjectType where BuildingType = ?");
+		}
+
+		pResults->Bind(1, szBuildingType);
+
+		while (pResults->Step())
+		{
+			const int iProjectID = pResults->GetInt(0);
+			const int iTurns = pResults->GetInt(1);
+
+			m_miWLTKDFromProject[(ProjectTypes)iProjectID] += iTurns;
+		}
+
+		pResults->Reset();
 	}
 	kUtility.SetYields(m_piYieldFromBirth, "Building_YieldFromBirth", "BuildingType", szBuildingType, "(IsEraScaling='false' or IsEraScaling='0')");
 	kUtility.SetYields(m_piYieldFromBirthEraScaling, "Building_YieldFromBirth", "BuildingType", szBuildingType, "(IsEraScaling='true' or IsEraScaling='1')");
@@ -4097,6 +4120,11 @@ set<int> CvBuildingEntry::GetUnitClassTrainingAllowed() const
 set<std::pair<int, bool>> CvBuildingEntry::GetResourceClaim() const
 {
 	return m_sibResourceClaim;
+}
+
+map<ProjectTypes, int> CvBuildingEntry::GetWLTKDFromProject() const
+{
+	return m_miWLTKDFromProject;
 }
 
 /// Modifier to yield by type
