@@ -8497,6 +8497,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 							{
 								iBestCityID = pLoopCity->GetID();
 								iBestCityDistance = iDistance;
+								pOwningCity = pLoopCity;
 							}
 						}
 					}
@@ -11461,7 +11462,7 @@ PlotVisibilityChangeResult CvPlot::changeVisibilityCount(TeamTypes eTeam, int iC
 		// Update tactical AI, let it know that the tile was made visible
 		if (!bOldMaxVisibility)
 		{
-			PlayerTypes eCurrentPlayer = GetCurrentPlayer();
+			PlayerTypes eCurrentPlayer = GC.getGame().GetCurrentVisibilityPlayer();
 			if (eCurrentPlayer != NO_PLAYER && GET_PLAYER(eCurrentPlayer).getTeam() == eTeam)
 				GET_PLAYER(eCurrentPlayer).GetTacticalAI()->UpdateVisibilityFromUnits(this);
 		}
@@ -11784,10 +11785,21 @@ void CvPlot::SetPlannedRouteState(PlayerTypes ePlayer, RoutePlanTypes eRoutePlan
 
 //	--------------------------------------------------------------------------------
 /// Current player's knowledge of other players' visibility count
+/// If the current player team is the same as eTeam, return the actual visibility count
 int CvPlot::GetKnownVisibilityCount(TeamTypes eTeam) const
 {
 	ASSERT_DEBUG(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
 	ASSERT_DEBUG(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
+
+	PlayerTypes eCurrentPlayer = GC.getGame().GetCurrentVisibilityPlayer();
+	if (eCurrentPlayer != NO_PLAYER)
+	{
+		if (GET_PLAYER(eCurrentPlayer).getTeam() == eTeam)
+		{
+			return getVisibilityCount(eTeam);
+		}
+	}
+
 	return m_aiKnownVisibilityCount[eTeam];
 }
 
@@ -11795,7 +11807,7 @@ int CvPlot::GetKnownVisibilityCount(TeamTypes eTeam) const
 /// Is this plot visible to eTeam according to current player knowledge
 bool CvPlot::IsKnownVisibleToTeam(TeamTypes eTeam) const
 {
-	return m_aiKnownVisibilityCount[eTeam] > 0;
+	return GetKnownVisibilityCount(eTeam) > 0;
 }
 
 //	--------------------------------------------------------------------------------
@@ -11883,6 +11895,11 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, CvUnit* pUnit, bool bT
 		{
 			area()->changeNumRevealedTiles(eTeam, (bNewValue ? 1 : -1));
 		}
+
+		// Update tactical AI, let it know that the tile was revealed
+		PlayerTypes eCurrentPlayer = GC.getGame().GetCurrentVisibilityPlayer();
+		if (eCurrentPlayer != NO_PLAYER)
+			GET_PLAYER(eCurrentPlayer).GetTacticalAI()->UpdateVisibilityFromBorders(this);
 
 		// Natural Wonder
 		if(eTeam != BARBARIAN_TEAM && bNewValue && !GET_TEAM(eTeam).isObserver())
@@ -12140,11 +12157,6 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, CvUnit* pUnit, bool bT
 						}
 					}
 				}
-
-				// Update tactical AI, let it know that the tile was revealed
-				PlayerTypes eCurrentPlayer = GC.getGame().getActivePlayer();
-				if (eCurrentPlayer != NO_PLAYER)
-					GET_PLAYER(eCurrentPlayer).GetTacticalAI()->UpdateVisibilityFromBorders(this);
 
 				if (bEligibleForAchievement)
 				{
