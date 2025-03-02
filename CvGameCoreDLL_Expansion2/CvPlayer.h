@@ -197,6 +197,7 @@ public:
 	int GetNumUnitsWithUnitCombat(UnitCombatTypes eUnitCombat);
 	int GetNumUnitsOfType(UnitTypes eUnit, bool bIncludeBeingTrained = false);
 	int GetNumUnitPromotions(PromotionTypes ePromotion);
+	int GetNumUnitsInProduction(DomainTypes eDomain, bool bMilitaryOnly);
 	void UpdateDangerPlots();
 	void SetDangerPlotsDirty();
 
