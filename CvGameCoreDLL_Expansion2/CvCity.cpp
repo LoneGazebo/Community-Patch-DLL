@@ -435,6 +435,7 @@ CvCity::CvCity() :
 	, m_aiYieldFromPurchaseGlobal()
 	, m_aiYieldFromFaithPurchase()
 	, m_aiYieldFromUnitLevelUp()
+	, m_aiYieldFromUnitLevelUpGlobal()
 	, m_aiYieldFromCombatExperienceTimes100()
 	, m_aiYieldPerAlly()
 	, m_aiYieldPerFriend()
@@ -1397,6 +1398,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_aiYieldFromPurchaseGlobal.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromFaithPurchase.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromUnitLevelUp.resize(NUM_YIELD_TYPES);
+	m_aiYieldFromUnitLevelUpGlobal.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromCombatExperienceTimes100.resize(NUM_YIELD_TYPES);
 	m_aiYieldPerAlly.resize(NUM_YIELD_TYPES);
 	m_aiYieldPerFriend.resize(NUM_YIELD_TYPES);
@@ -1515,6 +1517,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		m_aiYieldFromPurchaseGlobal[iI] = 0;
 		m_aiYieldFromFaithPurchase[iI] = 0;
 		m_aiYieldFromUnitLevelUp[iI] = 0;
+		m_aiYieldFromUnitLevelUpGlobal[iI] = 0;
 		m_aiYieldFromCombatExperienceTimes100[iI] = 0;
 		m_aiYieldPerAlly[iI] = 0;
 		m_aiYieldPerFriend[iI] = 0;
@@ -14714,6 +14717,11 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 				ChangeYieldFromUnitLevelUp(eYield, pBuildingInfo->GetYieldFromUnitLevelUp(eYield) * iChange);
 			}
 
+			if ((pBuildingInfo->GetYieldFromUnitLevelUpGlobal(eYield) > 0))
+			{
+				ChangeYieldFromUnitLevelUpGlobal(eYield, pBuildingInfo->GetYieldFromUnitLevelUpGlobal(eYield) * iChange);
+			}
+
 			if ((pBuildingInfo->GetYieldFromCombatExperienceTimes100(eYield) > 0))
 			{
 				ChangeYieldFromCombatExperienceTimes100(eYield, pBuildingInfo->GetYieldFromCombatExperienceTimes100(eYield) * iChange);
@@ -24551,6 +24559,29 @@ void CvCity::ChangeYieldFromUnitLevelUp(YieldTypes eIndex, int iChange)
 }
 
 //	--------------------------------------------------------------------------------
+int CvCity::GetYieldFromUnitLevelUpGlobal(YieldTypes eIndex) const
+{
+	VALIDATE_OBJECT();
+	ASSERT_DEBUG(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	return m_aiYieldFromUnitLevelUpGlobal[eIndex];
+}
+
+//	--------------------------------------------------------------------------------
+void CvCity::ChangeYieldFromUnitLevelUpGlobal(YieldTypes eIndex, int iChange)
+{
+	VALIDATE_OBJECT();
+	ASSERT_DEBUG(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+
+	if (iChange != 0)
+	{
+		m_aiYieldFromUnitLevelUpGlobal[eIndex] = m_aiYieldFromUnitLevelUpGlobal[eIndex] + iChange;
+		ASSERT_DEBUG(GetYieldFromUnitLevelUp(eIndex) >= 0);
+	}
+}
+
+//	--------------------------------------------------------------------------------
 /// Extra yield from building
 int CvCity::GetYieldFromCombatExperienceTimes100(YieldTypes eIndex) const
 {
@@ -31986,6 +32017,7 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_aiYieldFromPurchase);
 	visitor(city.m_aiYieldFromFaithPurchase);
 	visitor(city.m_aiYieldFromUnitLevelUp);
+	visitor(city.m_aiYieldFromUnitLevelUpGlobal);
 	visitor(city.m_aiYieldFromCombatExperienceTimes100);
 	visitor(city.m_aiYieldPerAlly);
 	visitor(city.m_aiYieldPerFriend);
