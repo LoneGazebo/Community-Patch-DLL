@@ -37217,6 +37217,33 @@ void CvPlayer::CompleteAccomplishment(AccomplishmentTypes eAccomplishment)
 				pLoopCity->ChangeBaseYieldRateFromBuildings(((YieldTypes)iJ), pLoopCity->GetYieldsFromAccomplishments(eAccomplishment, (YieldTypes)iJ));
 			}
 		}
+		if (!pLoopCity->GetAccomplishmentsWithBonuses().empty())
+		{
+			std::set<int> mAcc = pLoopCity->GetAccomplishmentsWithBonuses();
+			if (mAcc.find((int)eAccomplishment) != mAcc.end())
+			{
+				// loop through all the city buildings to find all the bonuses
+				std::vector<BuildingTypes> vCityBuildings = pLoopCity->GetCityBuildings()->GetAllBuildingsHere();
+				for (size_t iI = 0; iI < vCityBuildings.size(); iI++)
+				{
+					CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(vCityBuildings[iI]);
+					if (pkBuildingInfo->GetBonusFromAccomplishments().count(eAccomplishment) > 0)
+					{
+						AccomplishmentBonusInfo bonusInfo = pkBuildingInfo->GetBonusFromAccomplishments()[eAccomplishment];
+						// apply the bonuses
+						pLoopCity->ChangeBaseHappinessFromBuildings(bonusInfo.iHappiness);
+						if (bonusInfo.eDomainType != NO_DOMAIN)
+						{
+							pLoopCity->changeDomainFreeExperience(bonusInfo.eDomainType, bonusInfo.iDomainXP);
+						}
+						if (bonusInfo.eUnitCombatType != NO_UNITCOMBAT)
+						{
+							pLoopCity->changeUnitCombatProductionModifier(bonusInfo.eUnitCombatType, bonusInfo.iUnitProductionModifier);
+						}
+					}
+				}
+			}
+		}
 	}
 
 	m_aiAccomplishments[(int)eAccomplishment]++;

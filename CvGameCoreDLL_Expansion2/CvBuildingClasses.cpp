@@ -433,6 +433,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 #if defined(MOD_BALANCE_CORE)
 	m_ppiResourceYieldChangeGlobal(),
 	m_miTechEnhancedYields(),
+	m_miBonusFromAccomplishments(),
 	m_miYieldChangesFromAccomplishments(),
 	m_miGreatPersonPointFromConstruction(),
 	m_ppaiImprovementYieldChange(NULL),
@@ -609,6 +610,7 @@ CvBuildingEntry::~CvBuildingEntry(void)
 #if defined(MOD_BALANCE_CORE)
 	m_ppiResourceYieldChangeGlobal.clear();
 	m_miTechEnhancedYields.clear();
+	m_miBonusFromAccomplishments.clear();
 	m_miYieldChangesFromAccomplishments.clear();
 	m_miGreatPersonPointFromConstruction.clear();
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiImprovementYieldChange);
@@ -1233,31 +1235,31 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 		int idx = 0;
 
 		std::string strResourceTypesKey = "Building_YieldFromYieldPercentGlobal";
-		Database::Results* pResourceTypes = kUtility.GetResults(strResourceTypesKey);
-		if (pResourceTypes == NULL)
+		Database::Results* pResults = kUtility.GetResults(strResourceTypesKey);
+		if (pResults == NULL)
 		{
-			pResourceTypes = kUtility.PrepareResults(strResourceTypesKey, "select YieldIn, YieldOut, Value from Building_YieldFromYieldPercentGlobal where BuildingType = ?");
+			pResults = kUtility.PrepareResults(strResourceTypesKey, "select YieldIn, YieldOut, Value from Building_YieldFromYieldPercentGlobal where BuildingType = ?");
 		}
 
 		const size_t lenBuildingType = strlen(szBuildingType);
-		pResourceTypes->Bind(1, szBuildingType, lenBuildingType, false);
+		pResults->Bind(1, szBuildingType, lenBuildingType, false);
 
-		while (pResourceTypes->Step())
+		while (pResults->Step())
 		{
 			CvDoubleYieldInfo& pDoubleYieldInfo = m_paYieldFromYieldGlobal[idx];
 
-			const char* szYield = pResourceTypes->GetText("YieldIn");
+			const char* szYield = pResults->GetText("YieldIn");
 			pDoubleYieldInfo.m_iYieldIn = (YieldTypes)GC.getInfoTypeForString(szYield, true);
 
-			szYield = pResourceTypes->GetText("YieldOut");
+			szYield = pResults->GetText("YieldOut");
 			pDoubleYieldInfo.m_iYieldOut = (YieldTypes)GC.getInfoTypeForString(szYield, true);
 
-			pDoubleYieldInfo.m_iValue = pResourceTypes->GetInt("Value");
+			pDoubleYieldInfo.m_iValue = pResults->GetInt("Value");
 
 			idx++;
 		}
 
-		pResourceTypes->Reset();
+		pResults->Reset();
 	}
 
 	//ResourceYieldChanges
@@ -1379,6 +1381,38 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 
 		//Trim extra memory off container since this is mostly read-only.
 		std::map<int, std::map<int, int>>(m_miYieldChangesFromAccomplishments).swap(m_miYieldChangesFromAccomplishments);
+	}
+	// Building_BonusFromAccomplishments
+	// Table structure (BuildingType, AccomplishmentType, Happiness, DomainType, DomainXP, UnitCombatType, UnitProductionModifier)
+	// The building gives additional bonuses once the corresponding accomplishment has been achieved
+	{
+		std::string strKey("Building_BonusFromAccomplishments");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if (pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select Accomplishments.ID, Happiness, coalesce(Domains.ID, -1), DomainXP, coalesce(UnitCombatInfos.ID, -1), UnitProductionModifier from Building_BonusFromAccomplishments inner join Accomplishments on Accomplishments.Type = AccomplishmentType left join Domains on Domains.Type = DomainType left join UnitCombatInfos on UnitCombatInfos.Type = UnitCombatType where BuildingType = ?");
+		}
+
+		pResults->Bind(1, szBuildingType);
+
+		while (pResults->Step())
+		{
+			AccomplishmentBonusInfo bonusInfo;
+
+			const int iAccomplishment = pResults->GetInt(0);
+			bonusInfo.iHappiness = pResults->GetInt(1);
+			bonusInfo.eDomainType = (DomainTypes)pResults->GetInt(2);
+			bonusInfo.iDomainXP = pResults->GetInt(3);
+			bonusInfo.eUnitCombatType = (UnitCombatTypes)pResults->GetInt(4);
+			bonusInfo.iUnitProductionModifier = pResults->GetInt(5);
+
+			m_miBonusFromAccomplishments[iAccomplishment] = bonusInfo;
+		}
+
+		pResults->Reset();
+
+		//Trim extra memory off container since this is mostly read-only.
+		std::map<int, AccomplishmentBonusInfo>(m_miBonusFromAccomplishments).swap(m_miBonusFromAccomplishments);
 	}
 
 	// Building_GreatPersonPointFromConstruction
@@ -4731,6 +4765,11 @@ int CvBuildingEntry::GetResourceYieldChangeGlobal(int iResource, int iYieldType)
 std::map<int, std::map<int, int>> CvBuildingEntry::GetTechEnhancedYields() const
 {
 	return m_miTechEnhancedYields;
+}
+
+std::map<int, AccomplishmentBonusInfo> CvBuildingEntry::GetBonusFromAccomplishments() const
+{
+	return m_miBonusFromAccomplishments;
 }
 
 std::map<int, std::map<int, int>> CvBuildingEntry::GetYieldChangesFromAccomplishments() const

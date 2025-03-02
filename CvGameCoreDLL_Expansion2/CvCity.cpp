@@ -377,6 +377,7 @@ CvCity::CvCity() :
 #endif
 	, m_aiBaseYieldRateFromLeague()
 	, m_siPlots()
+	, m_siAccomplishmentsWithBonuses()
 	, m_iEmpireSizeModifierReduction()
 	, m_iDistressFlatReduction()
 	, m_iPovertyFlatReduction()
@@ -1318,6 +1319,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_aiBaseYieldRatePermanentWLTKDTimes100.resize(NUM_YIELD_TYPES);
 	m_aiBaseYieldRateFromLeague.resize(NUM_YIELD_TYPES);
 	m_siPlots.clear();
+	m_siAccomplishmentsWithBonuses.clear();
 	m_iTotalScienceyAid = 0;
 	m_iTotalArtsyAid = 0;
 	m_iCachedTechNeedModifier = 0;
@@ -9438,6 +9440,17 @@ void CvCity::ChangePlotExtraYield(PlotTypes ePlot, YieldTypes eYield, int iChang
 		updateYield();
 }
 
+std::set<int> CvCity::GetAccomplishmentsWithBonuses() const
+{
+	VALIDATE_OBJECT();
+	return m_siAccomplishmentsWithBonuses;
+}
+
+void CvCity::AddToAccomplishmentsWithBonuses(AccomplishmentTypes eAccomplishment)
+{
+	m_siAccomplishmentsWithBonuses.insert((int)eAccomplishment);
+}
+
 std::set<int> CvCity::GetPlotList() const
 {
 	VALIDATE_OBJECT();
@@ -14881,26 +14894,39 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 				}
 			}
 
-			// Building Yield Change with Technology
-			if (!pBuildingInfo->GetYieldChangesFromAccomplishments().empty())
-			{
-				map<int, std::map<int, int>> mYiedChangesFromAccomplishments = pBuildingInfo->GetYieldChangesFromAccomplishments();
-				map<int, std::map<int, int>>::iterator it;
-				for (it = mYiedChangesFromAccomplishments.begin(); it != mYiedChangesFromAccomplishments.end(); ++it)
-				{
-					std::map<int, int>::const_iterator it2 = (it->second).find(eYield);
-					if (it2 != (it->second).end())
-					{
-						ChangeYieldsFromAccomplishments((AccomplishmentTypes)it->first, eYield, it2->second * iChange);
-					}
-				}
-			}
-
 			// Building Yield Change from other Buildings in Empire
 			int iBuildingClassBonus = owningPlayer.GetBuildingClassYieldChange(eBuildingClass, eYield);
 			if (iBuildingClassBonus > 0)
 			{
 				ChangeBaseYieldRateFromBuildings(eYield, iBuildingClassBonus * iChange);
+			}
+		}
+
+		// Building Yield Change with Technology
+		if (!pBuildingInfo->GetBonusFromAccomplishments().empty())
+		{
+			map<int, AccomplishmentBonusInfo> mBonusFromAccomplishments = pBuildingInfo->GetBonusFromAccomplishments();
+			map<int, AccomplishmentBonusInfo>::iterator it;
+			for (it = mBonusFromAccomplishments.begin(); it != mBonusFromAccomplishments.end(); ++it)
+			{
+				int iNumAccomplishmentCompleted = GET_PLAYER(getOwner()).GetNumTimesAccomplishmentCompleted((AccomplishmentTypes)it->first);
+				if (iNumAccomplishmentCompleted > 0)
+				{
+					AccomplishmentBonusInfo bonusInfo = it->second;
+					// apply bonuses for completed accomplishments
+					ChangeBaseHappinessFromBuildings(bonusInfo.iHappiness * iNumAccomplishmentCompleted * iChange);
+					if (bonusInfo.eDomainType != NO_DOMAIN)
+					{
+						changeDomainFreeExperience(bonusInfo.eDomainType, bonusInfo.iDomainXP * iNumAccomplishmentCompleted * iChange);
+					}
+					if (bonusInfo.eUnitCombatType != NO_UNITCOMBAT)
+					{
+						changeUnitCombatProductionModifier(bonusInfo.eUnitCombatType, bonusInfo.iUnitProductionModifier * iNumAccomplishmentCompleted* iChange);
+					}
+				}
+				// for future accomplishments, we store a list of the accomplishments for which bonuses are given.
+				// when one of the accomplishments is completed later, we apply the bonuses by looping through the city buildings directly
+				AddToAccomplishmentsWithBonuses((AccomplishmentTypes)it->first);
 			}
 		}
 
@@ -32048,6 +32074,7 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_aiBaseYieldRatePermanentWLTKDTimes100);
 	visitor(city.m_aiBaseYieldRateFromLeague);
 	visitor(city.m_siPlots);
+	visitor(city.m_siAccomplishmentsWithBonuses);
 	visitor(city.m_iTotalScienceyAid);
 	visitor(city.m_iTotalArtsyAid);
 	visitor(city.m_aiChangeGrowthExtraYield);
