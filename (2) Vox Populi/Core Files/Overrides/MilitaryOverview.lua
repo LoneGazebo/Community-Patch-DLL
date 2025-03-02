@@ -114,14 +114,14 @@ function UpdateScreen()
     --------------------------------------------------------
     -- Great General Progress
     local fThreshold = pPlayer:GreatGeneralThreshold();
-    local fProgress  = pPlayer:GetCombatExperience();
+    local fProgress  = pPlayer:GetCombatExperienceTimes100() / 100;
     Controls.GPMeter:SetPercent( fProgress / fThreshold );
     Controls.GPBox:LocalizeAndSetToolTip( "TXT_KEY_MO_GENERAL_TT", fProgress, fThreshold );
     
     --------------------------------------------------------
     -- Great Admiral Progress
     fThreshold = pPlayer:GreatAdmiralThreshold();
-    fProgress  = pPlayer:GetNavalCombatExperience();
+    fProgress  = pPlayer:GetNavalCombatExperienceTimes100() / 100;
     Controls.GAMeter:SetPercent( fProgress / fThreshold );
     Controls.GABox:LocalizeAndSetToolTip( "TXT_KEY_MO_ADMIRAL_TT", fProgress, fThreshold );
     

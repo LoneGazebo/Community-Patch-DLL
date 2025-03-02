@@ -8890,7 +8890,7 @@ void CvLeague::CheckProjectsProgress()
 						if (pLoopCity->getProductionProcess() != pProjectInfo->GetProcess())
 							continue;
 
-						GC.getGame().GetGameLeagues()->DoLeagueProjectContribution(eLoopPlayer, it->eType, pLoopCity->getCurrentProductionDifferenceTimes100(false, true));
+						GC.getGame().GetGameLeagues()->DoLeagueProjectContribution(eLoopPlayer, it->eType, pLoopCity->getYieldRateTimes100(YIELD_PRODUCTION) + pLoopCity->getTotalOverflowProductionTimes100());
 
 					}
 				}
@@ -12174,7 +12174,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			}
 			if (bCanSilver)
 			{
-				int iTurnsForPolicy = (GetPlayer()->getNextPolicyCost()) / (max(1, GetPlayer()->GetTotalJONSCulturePerTurn()));
+				int iTurnsForPolicy = (GetPlayer()->getNextPolicyCost() * 100) / (max(1, GetPlayer()->GetTotalJONSCulturePerTurnTimes100()));
 				iExtra += (70 * GC.getGame().getGameSpeedInfo().getCulturePercent())/(max(1, iTurnsForPolicy));
 			}
 			if (bCanBronze)
@@ -13004,7 +13004,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			}
 			// Holy City Tourism
 			const CvReligion* pkTargetReligion = GC.getGame().GetGameReligions()->GetReligion(eFoundedReligion, GetPlayer()->GetID());
-			int iHolyCityTourism = pkTargetReligion->GetHolyCity() ? min(50000,pkTargetReligion->GetHolyCity()->GetBaseTourism()) : 0;
+			int iHolyCityTourism = pkTargetReligion->GetHolyCity() ? min(50000,pkTargetReligion->GetHolyCity()->getYieldRateTimes100(YIELD_TOURISM)) : 0;
 			if (!bCultureVictoryEnabled)
 			{
 				iHolyCityTourism /= 10;
@@ -13208,7 +13208,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		{
 			if (iArtsMod > 0)
 			{
-				if (GetPlayer()->AidRankGeneric(1) != NO_PLAYER)
+				if (GetPlayer()->IsEligibleForLeagueBonus(1))
 				{
 					iExtra += 15 * max(0, GetPlayer()->ScoreDifferencePercent(1) - 40); 
 				}
@@ -13220,7 +13220,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 					}
 				}
 				// can't have arts and science funding
-				if (GetPlayer()->AidRankGeneric(2) != NO_PLAYER)
+				if (GetPlayer()->IsEligibleForLeagueBonus(2))
 				{
 					iExtra -= 8 * max(0, GetPlayer()->ScoreDifferencePercent(2) - 40);
 				}
@@ -13228,7 +13228,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 
 			if (iScienceMod > 0)
 			{
-				if (GetPlayer()->AidRankGeneric(2) != NO_PLAYER)
+				if (GetPlayer()->IsEligibleForLeagueBonus(2))
 				{ 
 					iExtra += 15 * max (0, GetPlayer()->ScoreDifferencePercent(2) - 40); 
 				}
@@ -13240,7 +13240,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 					}
 				}
 				// can't have arts and science funding
-				if (GetPlayer()->AidRankGeneric(1) != NO_PLAYER)
+				if (GetPlayer()->IsEligibleForLeagueBonus(1))
 				{
 					iExtra -= 8 * max(0, GetPlayer()->ScoreDifferencePercent(1) - 40);
 				}

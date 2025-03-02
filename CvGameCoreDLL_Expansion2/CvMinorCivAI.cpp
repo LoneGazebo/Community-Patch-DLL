@@ -1243,7 +1243,7 @@ int CvMinorCivQuest::GetContestValueForPlayer(PlayerTypes ePlayer) const
 	case MINOR_CIV_QUEST_CONTEST_CULTURE:
 	{
 		int iStartCulture = pMinor->GetMinorCivAI()->GetQuestData1(ePlayer, eType);
-		int iEndCulture = GET_PLAYER(ePlayer).GetJONSCultureEverGenerated();
+		int iEndCulture = (int)(GET_PLAYER(ePlayer).GetJONSCultureEverGeneratedTimes100() / 100);
 		iValue = iEndCulture - iStartCulture;
 		break;
 	}
@@ -1264,7 +1264,7 @@ int CvMinorCivQuest::GetContestValueForPlayer(PlayerTypes ePlayer) const
 		else
 		{
 			int iStartFaith = pMinor->GetMinorCivAI()->GetQuestData1(ePlayer, eType);
-			int iEndFaith = GET_PLAYER(ePlayer).GetFaithEverGenerated();
+			int iEndFaith = GET_PLAYER(ePlayer).GetFaithEverGeneratedTimes100();
 			iValue = iEndFaith - iStartFaith;
 		}
 		break;
@@ -2559,7 +2559,7 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn, PlayerTypes pCallingPlayer)
 	}
 	case MINOR_CIV_QUEST_CONTEST_CULTURE:
 	{
-		m_iData1 = pAssignedPlayer->GetJONSCultureEverGenerated();
+		m_iData1 = (int)(pAssignedPlayer->GetJONSCultureEverGeneratedTimes100() / 100);
 
 		int iTurnsRemaining = GetEndTurn() - GC.getGame().getGameTurn();
 
@@ -2579,7 +2579,7 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn, PlayerTypes pCallingPlayer)
 		}
 		else
 		{
-			m_iData1 = pAssignedPlayer->GetFaithEverGenerated();
+			m_iData1 = pAssignedPlayer->GetFaithEverGeneratedTimes100();
 		}
 
 		int iTurnsRemaining = GetEndTurn() - GC.getGame().getGameTurn();
@@ -9765,7 +9765,7 @@ PlayerTypes CvMinorCivAI::SpawnHorde()
 			iTarget = pCity->getPopulation();
 
 			// Gold increases proclivity.
-			iTarget += pCity->getYieldRateTimes100(YIELD_GOLD, true, false) / 100;
+			iTarget += pCity->getYieldRateTimes100(YIELD_GOLD, true) / 100;
 			iTarget += pMinorLoop->GetTrade()->GetNumDifferentTradingPartners() * 3;
 
 			// Less military units = higher score.
@@ -11270,8 +11270,8 @@ CvCity* CvMinorCivAI::GetBestSpyTarget(PlayerTypes ePlayer, bool bMinor)
 				continue;
 
 			int iValue = pLoopCity->getPopulation();
-			iValue += pLoopCity->getBaseYieldRate(YIELD_GOLD);
-			iValue += pLoopCity->getBaseYieldRate(YIELD_SCIENCE);
+			iValue += pLoopCity->getBaseYieldRateTimes100(YIELD_GOLD) / 100;
+			iValue += pLoopCity->getBaseYieldRateTimes100(YIELD_SCIENCE) / 100;
 
 			if (iValue > iBestValue)
 			{

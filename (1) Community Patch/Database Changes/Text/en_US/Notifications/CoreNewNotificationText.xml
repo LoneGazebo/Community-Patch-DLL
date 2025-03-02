@@ -420,6 +420,9 @@
 		<Row Tag="TXT_KEY_INSTANT_YIELD_TYPE_BAKTUN_END">
 			<Text>End of a B'ak'tun:[NEWLINE]{1_YieldString}</Text>
 		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TYPE_WLTKD_START">
+			<Text>Start of We Love The King Day:[NEWLINE]{1_YieldString}</Text>
+		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_BIRTH_RETROACTIVE">
 			<Text>Total Number of City [ICON_CITIZEN] Citizens:[NEWLINE]{1_YieldString}</Text>
 		</Row>

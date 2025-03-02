@@ -6,6 +6,13 @@ SET Text = 'Ranks players by the average [ICON_PRODUCTION] Production generated 
 WHERE Tag = 'TXT_KEY_PROGRESS_SCREEN_PRODUCTION_TT';
 
 ------------------------------------------------
+-- Gold TopPanel tooltip
+------------------------------------------------
+UPDATE Language_en_US
+SET Text = '[ICON_GOLD][COLOR:255:235:0:255]{1_TotalGold: number "##.##"} {2_GoldPerTurn: number "''(+''##.##'')'';''[COLOR:255:60:60:255](-''##.##'')''"}[/COLOR]'
+WHERE Tag = 'TXT_KEY_TOP_PANEL_GOLD';
+
+------------------------------------------------
 -- Advisors
 ------------------------------------------------
 UPDATE Language_en_US

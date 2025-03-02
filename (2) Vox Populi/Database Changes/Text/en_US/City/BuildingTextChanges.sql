@@ -772,7 +772,7 @@ WHERE Tag = 'TXT_KEY_WONDER_SYDNEY_OPERA_HOUSE_HELP';
 
 -- Great Firewall
 UPDATE Language_en_US
-SET Text = 'All Research Labs gain +10 [ICON_RESEARCH] Science. +50 [ICON_CITY_SECURITY] City Security. Negates the [ICON_TOURISM] Tourism bonus from the Technologies of other players.'
+SET Text = 'All Research Labs gain +10 [ICON_RESEARCH] Science. +50 [ICON_CITY_SECURITY] City Security. -50% [ICON_TOURISM] Tourism from Civilizations with the Internet technology.'
 WHERE Tag = 'TXT_KEY_BUILDING_GREAT_FIREWALL_HELP';
 
 -- United Nations

@@ -276,7 +276,6 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_paiBuildingClassSecurityChanges(NULL),
 	m_paiBuildingClassProductionModifiers(NULL),
 	m_paiUnitClassProductionModifiers(NULL),
-	m_paiBuildingClassTourismModifiers(NULL),
 	m_paiBuildingClassHappiness(NULL),
 	m_paiFreeUnitClasses(NULL),
 	m_paiTourismOnUnitCreation(NULL),
@@ -374,7 +373,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_piArtYieldChanges(NULL),
 	m_piLitYieldChanges(NULL),
 	m_piMusicYieldChanges(NULL),
-	m_piYieldFromNonSpecialistCitizens(NULL),
+	m_piYieldFromNonSpecialistCitizensTimes100(NULL),
 	m_piYieldModifierFromGreatWorks(NULL),
 	m_piYieldModifierFromActiveSpies(NULL),
 	m_piYieldFromDelegateCount(NULL),
@@ -423,7 +422,6 @@ CvPolicyEntry::~CvPolicyEntry(void)
 	SAFE_DELETE_ARRAY(m_paiBuildingClassSecurityChanges);
 	SAFE_DELETE_ARRAY(m_paiBuildingClassProductionModifiers);
 	SAFE_DELETE_ARRAY(m_paiUnitClassProductionModifiers);
-	SAFE_DELETE_ARRAY(m_paiBuildingClassTourismModifiers);
 	SAFE_DELETE_ARRAY(m_paiBuildingClassHappiness);
 	SAFE_DELETE_ARRAY(m_paiFreeUnitClasses);
 	SAFE_DELETE_ARRAY(m_paiTourismOnUnitCreation);
@@ -477,7 +475,7 @@ CvPolicyEntry::~CvPolicyEntry(void)
 	SAFE_DELETE_ARRAY(m_piArtYieldChanges);
 	SAFE_DELETE_ARRAY(m_piLitYieldChanges);
 	SAFE_DELETE_ARRAY(m_piMusicYieldChanges);
-	SAFE_DELETE_ARRAY(m_piYieldFromNonSpecialistCitizens);
+	SAFE_DELETE_ARRAY(m_piYieldFromNonSpecialistCitizensTimes100);
 	SAFE_DELETE_ARRAY(m_piYieldModifierFromGreatWorks);
 	SAFE_DELETE_ARRAY(m_piYieldModifierFromActiveSpies);
 	SAFE_DELETE_ARRAY(m_piYieldFromDelegateCount);
@@ -873,7 +871,6 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	kUtility.PopulateArrayByValue(m_paiBuildingClassSecurityChanges, "BuildingClasses", "Policy_BuildingClassSecurityChanges", "BuildingClassType", "PolicyType", szPolicyType, "SecurityChange");
 	kUtility.PopulateArrayByValue(m_paiBuildingClassProductionModifiers, "BuildingClasses", "Policy_BuildingClassProductionModifiers", "BuildingClassType", "PolicyType", szPolicyType, "ProductionModifier");
 	kUtility.PopulateArrayByValue(m_paiUnitClassProductionModifiers, "UnitClasses", "Policy_UnitClassProductionModifiers", "UnitClassType", "PolicyType", szPolicyType, "ProductionModifier");
-	kUtility.PopulateArrayByValue(m_paiBuildingClassTourismModifiers, "BuildingClasses", "Policy_BuildingClassTourismModifiers", "BuildingClassType", "PolicyType", szPolicyType, "TourismModifier");
 	kUtility.PopulateArrayByValue(m_paiBuildingClassHappiness, "BuildingClasses", "Policy_BuildingClassHappiness", "BuildingClassType", "PolicyType", szPolicyType, "Happiness");
 
 	kUtility.PopulateArrayByValue(m_paiFreeUnitClasses, "UnitClasses", "Policy_FreeUnitClasses", "UnitClassType", "PolicyType", szPolicyType, "Count");
@@ -901,6 +898,23 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 			const int iYieldMod = pResults->GetInt(2);
 
 			m_ppiBuildingClassYieldModifiers[BuildingClassID][iYieldID] = iYieldMod;
+		}
+
+		std::string strKey2("Policy_BuildingClassTourismModifiers");
+		pResults = kUtility.GetResults(strKey2);
+		if (pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey2, "select BuildingClasses.ID as BuildingClassID, TourismModifier from Policy_BuildingClassTourismModifiers inner join BuildingClasses on BuildingClasses.Type = BuildingClassType where PolicyType = ?");
+		}
+
+		pResults->Bind(1, szPolicyType);
+
+		while (pResults->Step())
+		{
+			const int BuildingClassID = pResults->GetInt(0);
+			const int iYieldMod = pResults->GetInt(1);
+
+			m_ppiBuildingClassYieldModifiers[BuildingClassID][(int)YIELD_TOURISM] = iYieldMod;
 		}
 	}
 
@@ -1196,7 +1210,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	kUtility.SetYields(m_piRelicYieldChanges, "Policy_RelicYieldChanges", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piFilmYieldChanges, "Policy_FilmYieldChanges", "PolicyType", szPolicyType);
 
-	kUtility.SetYields(m_piYieldFromNonSpecialistCitizens, "Policy_YieldFromNonSpecialistCitizens", "PolicyType", szPolicyType);
+	kUtility.SetYields(m_piYieldFromNonSpecialistCitizensTimes100, "Policy_YieldFromNonSpecialistCitizens", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piYieldModifierFromGreatWorks, "Policy_YieldModifierFromGreatWorks", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piYieldModifierFromActiveSpies, "Policy_YieldModifierFromActiveSpies", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piYieldFromDelegateCount, "Policy_YieldFromDelegateCount", "PolicyType", szPolicyType);
@@ -3488,16 +3502,16 @@ int* CvPolicyEntry::GetFilmYieldChangesArray() const
 	return m_piFilmYieldChanges;
 }
 
-int CvPolicyEntry::GetYieldFromNonSpecialistCitizens(int i) const
+int CvPolicyEntry::GetYieldFromNonSpecialistCitizensTimes100(int i) const
 {
 	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
 	ASSERT_DEBUG(i > -1, "Index out of bounds");
-	return m_piYieldFromNonSpecialistCitizens ? m_piYieldFromNonSpecialistCitizens[i] : 0;
+	return m_piYieldFromNonSpecialistCitizensTimes100 ? m_piYieldFromNonSpecialistCitizensTimes100[i] : 0;
 }
 
-int* CvPolicyEntry::GetYieldFromNonSpecialistCitizensArray() const
+int* CvPolicyEntry::GetYieldFromNonSpecialistCitizensTimes100Array() const
 {
-	return m_piYieldFromNonSpecialistCitizens;
+	return m_piYieldFromNonSpecialistCitizensTimes100;
 }
 int CvPolicyEntry::GetYieldModifierFromGreatWorks(int i) const
 {
@@ -3628,14 +3642,6 @@ int CvPolicyEntry::GetUnitClassProductionModifiers(int i) const
 	ASSERT_DEBUG(i < GC.getNumUnitClassInfos(), "Index out of bounds");
 	ASSERT_DEBUG(i > -1, "Index out of bounds");
 	return m_paiUnitClassProductionModifiers[i];
-}
-
-/// Tourism modifier for a specific BuildingClass
-int CvPolicyEntry::GetBuildingClassTourismModifier(int i) const
-{
-	ASSERT_DEBUG(i < GC.getNumBuildingClassInfos(), "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
-	return m_paiBuildingClassTourismModifiers[i];
 }
 
 /// Find value of flavors associated with this policy
@@ -3987,7 +3993,6 @@ CvPlayerPolicies::CvPlayerPolicies():
 	m_pPlayer(NULL)
 {
 #if defined(MOD_BALANCE_CORE)
-	m_vBuildingClassTourismModifier.resize(GC.getNumBuildingClassInfos(), 0);
 	m_vBuildingClassHappinessModifier.resize(GC.getNumBuildingClassInfos(), 0);
 #endif
 }
@@ -4197,26 +4202,21 @@ void CvPlayerPolicies::UpdateModifierCache()
 {
 	ClearCache();
 
-	m_vBuildingClassTourismModifier.clear();
-	m_vBuildingClassTourismModifier.resize(GC.getNumBuildingClassInfos(), 0);
 	m_vBuildingClassHappinessModifier.clear();
 	m_vBuildingClassHappinessModifier.resize(GC.getNumBuildingClassInfos(), 0);
 
 	for (int j = 0; j < GC.getNumBuildingClassInfos(); j++)
 	{
-		int iTourism = 0;
 		int iHappiness = 0;
 		for (int i = 0; i < m_pPolicies->GetNumPolicies(); i++)
 		{
 			// Do we have this policy?
 			if (m_pabHasPolicy[i] && !IsPolicyBlocked((PolicyTypes)i))
 			{
-				iTourism += m_pPolicies->GetPolicyEntry(i)->GetBuildingClassTourismModifier((BuildingClassTypes)j);
 				iHappiness += m_pPolicies->GetPolicyEntry(i)->GetBuildingClassHappiness((BuildingClassTypes)j);
 			}
 		}
 
-		m_vBuildingClassTourismModifier[j] = iTourism;
 		m_vBuildingClassHappinessModifier[j] = iHappiness;
 	}
 }
@@ -4851,16 +4851,6 @@ int CvPlayerPolicies::GetBuildingClassProductionModifier(BuildingClassTypes eBui
 	return rtnValue;
 }
 
-/// Get tourism modifier from policies for a specific building class
-int CvPlayerPolicies::GetBuildingClassTourismModifier(BuildingClassTypes eBuildingClass)
-{
-
-	if (eBuildingClass > NO_BUILDINGCLASS && eBuildingClass < (int)m_vBuildingClassTourismModifier.size())
-		return m_vBuildingClassTourismModifier[eBuildingClass];
-	else
-		return 0;
-}
-
 /// Get happiness modifier from policies for a specific building class
 int CvPlayerPolicies::GetBuildingClassHappinessModifier(BuildingClassTypes eBuildingClass)
 {
@@ -5130,7 +5120,7 @@ bool CvPlayerPolicies::CanAdoptPolicy(PolicyTypes eIndex, bool bIgnoreCost) cons
 	// Has enough culture to spend?
 	if((!bIgnoreCost) && m_pPlayer->getNextPolicyCost() > 0)
 	{
-		if(m_pPlayer->getJONSCulture() < m_pPlayer->getNextPolicyCost())
+		if(m_pPlayer->getJONSCultureTimes100() < m_pPlayer->getNextPolicyCost() * 100)
 		{
 			bool bTenet = pkPolicyEntry->GetLevel() > 0;
 			if (m_pPlayer->GetNumFreePolicies() == 0)
@@ -5375,7 +5365,7 @@ void CvPlayerPolicies::DoUnlockPolicyBranch(PolicyBranchTypes eBranchType)
 bool CvPlayerPolicies::CanUnlockPolicyBranch(PolicyBranchTypes eBranchType)
 {
 	// Must have enough culture to spend a buy opening a new branch
-	if(GetPlayer()->getJONSCulture() < GetPlayer()->getNextPolicyCost())
+	if(GetPlayer()->getJONSCultureTimes100() < GetPlayer()->getNextPolicyCost() * 100)
 	{
 		if(GetPlayer()->GetNumFreePolicies() == 0)
 			return false;
@@ -5802,7 +5792,7 @@ void CvPlayerPolicies::DoSwitchIdeologies(PolicyBranchTypes eNewBranchType)
 	SetPolicyBranchUnlocked(eNewBranchType, true, true /*bRevolution*/);
 	GetPlayer()->GetCulture()->DoPublicOpinion();
 	GetPlayer()->GetCulture()->SetTurnIdeologySwitch(GC.getGame().getGameTurn());
-	GetPlayer()->setJONSCulture(0);
+	GetPlayer()->setJONSCultureTimes100(0);
 	GetPlayer()->ChangeNumFreeTenets(iNewBranchTenets, false /*bCountAsFreePolicies*/);
 
 	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
@@ -6447,7 +6437,7 @@ void CvPlayerPolicies::DoPolicyAI()
 	if (m_pPlayer->getNextPolicyCost() > 0 || m_pPlayer->GetNumFreePolicies() > 0 || m_pPlayer->GetNumFreeTenets() > 0)
 	{
 		// Adopt new policies until we run out of freebies and culture (usually only one per turn)
-		while(m_pPlayer->getJONSCulture() >= m_pPlayer->getNextPolicyCost() || m_pPlayer->GetNumFreePolicies() > 0 || m_pPlayer->GetNumFreeTenets() > 0)
+		while(m_pPlayer->getJONSCultureTimes100() >= m_pPlayer->getNextPolicyCost() * 100 || m_pPlayer->GetNumFreePolicies() > 0 || m_pPlayer->GetNumFreeTenets() > 0)
 		{
 			// Choose the policy we want next (or a branch)
 			int iNextPolicy = m_pPolicyAI->ChooseNextPolicy(m_pPlayer);

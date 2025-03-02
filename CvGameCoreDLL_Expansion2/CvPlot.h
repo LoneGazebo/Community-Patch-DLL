@@ -315,10 +315,10 @@ public:
 	void SetCityConnection(PlayerTypes ePlayer, bool bActive, bool bIndustrial);
 	bool IsCityConnection(PlayerTypes ePlayer = NO_PLAYER, bool bIndustrial = false) const;
 
-#if defined(MOD_BALANCE_CORE)
-	void SetTradeUnitRoute(bool bActive);
+	void ChangeNumTradeUnitRoute(int iChange);
+	void SetNumTradeUnitRoute(int iNewValue);
+	int GetNumTradeUnitRoute() const;
 	bool IsTradeUnitRoute() const;
-#endif
 
 	inline int getX() const
 	{
@@ -558,7 +558,7 @@ public:
 	bool isEffectiveOwner(const CvCity* pCity) const;
 
 	CvCity* getOwningCityOverride() const;
-	void setOwningCityOverride(const CvCity* pNewValue);
+	void setOwningCityOverride(CvCity* pNewValue);
 
 	int getReconCount() const;
 	void changeReconCount(int iChange);
@@ -948,7 +948,7 @@ protected:
 #if defined(MOD_BALANCE_CORE)
 	bool* m_abStrategicRoute;
 	bool* m_abIsImpassable;
-	bool m_bIsTradeUnitRoute;
+	int m_iNumTradeUnitRoute;
 	short m_iLastTurnBuildChanged;
 #endif
 

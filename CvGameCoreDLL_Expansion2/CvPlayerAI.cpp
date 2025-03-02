@@ -767,7 +767,7 @@ void CvPlayerAI::AI_considerAnnex()
 		if (!pCity->isInDangerOfFalling() && pCity->isUnderSiege())
 			iWeight += 3;
 
-		int iScore = iWeight * pCity->getYieldRateTimes100(YIELD_PRODUCTION, false);
+		int iScore = iWeight * pCity->getRawProductionPerTurnTimes100();
 		options.push_back( OptionWithScore<CvCity*>(pCity,iScore) );
 	}
 
@@ -2182,7 +2182,7 @@ const vector<CvCity*> CvPlayerAI::GetBestCitiesForSpaceshipParts()
 		// temporarily change city focus to production before calculating unit production turns
 		CityAIFocusTypes eCurrentFocus = pLoopCity->GetCityCitizens()->GetFocusType();
 		pLoopCity->GetCityCitizens()->SetFocusType(CITY_AI_FOCUS_TYPE_PRODUCTION, true);
-		vProductionTurnsForNewSpaceshipPart[i] = pLoopCity->getUnitTotalProductionTurns(eSpaceshipUnit);
+		vProductionTurnsForNewSpaceshipPart[i] = pLoopCity->getProductionTurnsLeft(eSpaceshipUnit, 0);
 		// change city focus back to what it was before
 		pLoopCity->GetCityCitizens()->SetFocusType(eCurrentFocus, true);
 

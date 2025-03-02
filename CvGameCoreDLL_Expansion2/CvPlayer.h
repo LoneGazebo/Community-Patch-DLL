@@ -457,13 +457,11 @@ public:
 	bool IsCityConnectionPlot(const CvPlot* pPlot, bool bIndustrial) const;
 
 	// Culture
-	int GetTotalJONSCulturePerTurn() const;
+	int GetTotalJONSCulturePerTurnTimes100(CvString* toolTipSink = NULL) const;
 
+	int GetYieldRateFromCitiesTimes100(YieldTypes eYield, bool bIgnoreTrade = false) const;
 
-	int GetJONSCulturePerTurnFromCities() const;
-	int GetJONSCultureFromCitiesTimes100(bool bIgnoreTrade) const;
-
-	int GetJONSCulturePerTurnFromExcessHappiness() const;
+	int GetJONSCulturePerTurnFromExcessHappinessTimes100() const;
 	int GetJONSCulturePerTurnFromTraits() const;
 
 #if defined(MOD_BALANCE_CORE)
@@ -476,24 +474,19 @@ public:
 	int GetCulturePerTurnFromMinorCivs() const;
 	int GetCulturePerTurnFromMinor(PlayerTypes eMinor) const;
 
-	int GetCulturePerTurnFromReligion() const;
-
-	int GetCulturePerTurnFromBonusTurns() const;
+	int GetCulturePerTurnModifierFromReligion() const;
 
 	int GetJONSCultureCityModifier() const;
 	void ChangeJONSCultureCityModifier(int iChange);
-	int GetLeagueCultureCityModifier() const;
-	void ChangeLeagueCultureCityModifier(int iChange);
 
-	int getJONSCulture() const;
-	void setJONSCulture(int iNewValue);
+	int getJONSCultureTimes100() const;
+	void setJONSCultureTimes100(int iNewValue);
 	void changeJONSCulture(int iChange);
+	void changeJONSCultureTimes100(int iChange);
 
-	int GetJONSCultureEverGenerated() const;
-	void SetJONSCultureEverGenerated(int iNewValue);
-	void ChangeJONSCultureEverGenerated(int iChange);
-
-	int GetJONSCulturePerCityPerTurn() const;
+	long long GetJONSCultureEverGeneratedTimes100() const;
+	void SetJONSCultureEverGeneratedTimes100(long long lNewValue);
+	void ChangeJONSCultureEverGeneratedTimes100(long long lChange);
 	
 	int GetWondersConstructed() const;
 	void SetWondersConstructed(int iNewValue);
@@ -553,9 +546,7 @@ public:
 	int GetYieldPerTurnFromTraits(YieldTypes eYield) const;
 
 	// Faith
-	int GetTotalFaithPerTurn() const;
-
-	int GetFaithPerTurnFromCities() const;
+	int GetTotalFaithPerTurnTimes100() const;
 	int GetFaithPerTurnFromMinorCivs() const;
 #if defined(MOD_BALANCE_CORE)
 	int GetGoldPerTurnFromMinorCivs() const;
@@ -569,12 +560,13 @@ public:
 #endif
 	int GetFaithPerTurnFromMinor(PlayerTypes eMinor) const;
 	int GetFaithPerTurnFromReligion() const;
-	int GetFaith() const;
-	void SetFaith(int iNewValue);
+	int GetFaithTimes100() const;
+	void SetFaithTimes100(int iNewValue);
+	void ChangeFaithTimes100(int iChange);
 	void ChangeFaith(int iChange);
-	int GetFaithEverGenerated() const;
-	void SetFaithEverGenerated(int iNewValue);
-	void ChangeFaithEverGenerated(int iChange);
+	int GetFaithEverGeneratedTimes100() const;
+	void SetFaithEverGeneratedTimes100(int iNewValue);
+	void ChangeFaithEverGeneratedTimes100(int iChange);
 
 	// Happiness
 	int DoUpdateTotalUnhappiness(CvCity* pAssumeCityAnnexed = NULL, CvCity* pAssumeCityPuppeted = NULL);
@@ -592,7 +584,7 @@ public:
 	int GetEmpireSizeModifierReductionGlobal() const;
 	void ChangeEmpireSizeModifierReductionGlobal(int iChange);
 
-	int GetEmpireYieldRate(YieldTypes eYield, bool bStatic) const;
+	int GetEmpireYieldRateTimes100(YieldTypes eYield, bool bStatic) const;
 
 	int GetDistressFlatReductionGlobal() const;
 	void ChangeDistressFlatReductionGlobal(int iChange);
@@ -864,20 +856,13 @@ public:
 	bool IsLeagueAid() const;
 
 	void ProcessLeagueResolutions();
-#if defined(MOD_BALANCE_CORE)
-	PlayerTypes AidRankGeneric(int eType = 0);
+	bool IsEligibleForLeagueBonus(int eType = 0);
 	int ScoreDifferencePercent(int eType = 0);
-#endif
-	PlayerTypes AidRank();
 	int ScoreDifference();
 
 	int GetScienceRateFromMinorAllies() const;
 	void ChangeScienceRateFromMinorAllies(int iChange);
 	void SetScienceRateFromMinorAllies(int iValue);
-
-	int GetScienceRateFromLeagueAid() const;
-	void ChangeScienceRateFromLeagueAid(int iChange);
-	void SetScienceRateFromLeagueAid(int iValue);
 
 	void ChangeExtraLeagueVotes(int iChange);
 
@@ -945,15 +930,16 @@ public:
 	void DoChangeGreatAdmiralRate();
 #endif
 #if defined(MOD_BALANCE_CORE)
-	int GetGoldenAgePointsFromEmpire();
-	int GetGoldenAgePointsFromCities();
+	int GetGoldenAgePointsFromEmpireTimes100();
+	int GetGoldenAgePointsFromCitiesTimes100();
 #endif
 	void DoProcessGoldenAge();
 
 	int GetGoldenAgeProgressThreshold() const;
 
-	int GetGoldenAgeProgressMeter() const;
-	void SetGoldenAgeProgressMeter(int iValue);
+	int GetGoldenAgeProgressMeterTimes100() const;
+	void SetGoldenAgeProgressMeterTimes100(int iValue);
+	void ChangeGoldenAgeProgressMeterTimes100(int iChange);
 	void ChangeGoldenAgeProgressMeter(int iChange);
 
 	int GetGoldenAgeMeterMod() const;
@@ -1798,14 +1784,17 @@ public:
 	int GetNumAnnexedCityStates(MinorCivTraitTypes eIndex)	const;
 	void ChangeNumAnnexedCityStates(MinorCivTraitTypes eIndex, int iChange);
 
-	int getYieldFromNonSpecialistCitizens(YieldTypes eIndex)	const;
-	void changeYieldFromNonSpecialistCitizens(YieldTypes eIndex, int iChange);
+	int getYieldFromNonSpecialistCitizensTimes100(YieldTypes eIndex)	const;
+	void changeYieldFromNonSpecialistCitizensTimes100(YieldTypes eIndex, int iChange);
 
 	int getYieldModifierFromGreatWorks(YieldTypes eIndex)	const;
 	void changeYieldModifierFromGreatWorks(YieldTypes eIndex, int iChange);
 
 	int getYieldModifierFromActiveSpies(YieldTypes eIndex)	const;
 	void changeYieldModifierFromActiveSpies(YieldTypes eIndex, int iChange);
+
+	int GetYieldModifierFromLeague(YieldTypes eIndex) const;
+	void SetYieldModifierFromLeague(YieldTypes eIndex, int iNewValue);
 
 	int getYieldFromDelegateCount(YieldTypes eIndex)	const;
 	void changeYieldFromDelegateCount(YieldTypes eIndex, int iChange);
@@ -2173,6 +2162,9 @@ public:
 
 	int getResourceFromMinors(ResourceTypes eIndex) const;
 	void changeResourceFromMinors(ResourceTypes eIndex, int iChange);
+
+	int GetNumStrategicResourcesFromMinors() const;
+	void UpdateNumStrategicResourcesFromMinors();
 
 	int getResourceSiphoned(ResourceTypes eIndex) const;
 	void changeResourceSiphoned(ResourceTypes eIndex, int iChange);
@@ -2870,7 +2862,7 @@ public:
 	int GetScoreFromVassals() const;
 	int GetScoreFromVassal(PlayerTypes ePlayer) const;
 
-	int GetYieldPerTurnFromVassals(YieldTypes eYield) const;
+	int GetYieldPerTurnFromVassalsTimes100(YieldTypes eYield) const;
 
 	int GetHappinessFromVassals() const;
 	int GetHappinessFromWarsWithMajors() const;
@@ -2983,14 +2975,14 @@ protected:
 	int m_iTotalLandScored;
 	int m_iJONSCulturePerTurnForFree;
 	int m_iJONSCultureCityModifier;
-	int m_iJONSCulture;
-	int m_iJONSCultureEverGenerated;
+	int m_iJONSCultureTimes100;
+	long long m_lJONSCultureEverGeneratedTimes100;
 	int m_iWondersConstructed;
 	int m_iCulturePerWonder;
 	int m_iCultureWonderMultiplier;
 	int m_iCulturePerTechResearched;
-	int m_iFaith;
-	int m_iFaithEverGenerated;
+	int m_iFaithTimes100;
+	int m_iFaithEverGeneratedTimes100;
 	int m_iHappiness;
 	int m_iUnhappiness;
 	int m_iHappinessTotal;
@@ -3091,15 +3083,15 @@ protected:
 	int m_iDefensePactsToVotes;
 	int m_iGPExpendInfluence;
 	bool m_bIsLeagueAid;
+	int m_iTotalScienceyAid;
+	int m_iTotalArtsyAid;
 	bool m_bIsLeagueScholar;
 	bool m_bIsLeagueArt;
 	int m_iScienceRateFromLeague;
-	int m_iScienceRateFromLeagueAid;
-	int m_iLeagueCultureCityModifier;
 	int m_iAttackBonusTurns;
 	int m_iCultureBonusTurns;
 	int m_iTourismBonusTurns;
-	int m_iGoldenAgeProgressMeter;
+	int m_iGoldenAgeProgressMeterTimes100;
 	int m_iGoldenAgeMeterMod;
 	int m_iNumGoldenAges;
 	int m_iGoldenAgeTurns;
@@ -3516,9 +3508,10 @@ protected:
 	std::vector<SPlayerActiveEspionageEvent> m_vActiveEspionageEventsList;
 	std::vector<int> m_aiIncomingEspionageYields;
 	std::vector<int> m_aiOutgoingEspionageYields;
-	std::vector<int> m_aiYieldFromNonSpecialistCitizens;
+	std::vector<int> m_aiYieldFromNonSpecialistCitizensTimes100;
 	std::vector<int> m_aiYieldModifierFromGreatWorks;
 	std::vector<int> m_aiYieldModifierFromActiveSpies;
+	std::vector<int> m_aiYieldModifierFromLeague;
 	std::vector<int> m_aiYieldFromDelegateCount;
 	std::vector<int> m_aiYieldFromXMilitaryUnits;
 	std::vector<int> m_aiYieldPerCityOverStrengthThreshold;
@@ -3569,6 +3562,7 @@ protected:
 	std::vector<int> m_paiResourceExport; //always to majors
 	std::vector<int> m_paiResourceImportFromMajor;
 	std::vector<int> m_paiResourceFromMinors;
+	int m_iNumStrategicResourcesFromMinors;
 	std::vector<int> m_paiResourcesSiphoned;
 	std::vector<int> m_paiHighestResourceQuantity;
 	std::vector<byte> m_aiNumResourceFromGP;
@@ -3850,14 +3844,14 @@ SYNC_ARCHIVE_VAR(int, m_iTotalLand)
 SYNC_ARCHIVE_VAR(int, m_iTotalLandScored)
 SYNC_ARCHIVE_VAR(int, m_iJONSCulturePerTurnForFree)
 SYNC_ARCHIVE_VAR(int, m_iJONSCultureCityModifier)
-SYNC_ARCHIVE_VAR(int, m_iJONSCulture)
-SYNC_ARCHIVE_VAR(int, m_iJONSCultureEverGenerated)
+SYNC_ARCHIVE_VAR(int, m_iJONSCultureTimes100)
+SYNC_ARCHIVE_VAR(long long, m_lJONSCultureEverGeneratedTimes100)
 SYNC_ARCHIVE_VAR(int, m_iWondersConstructed)
 SYNC_ARCHIVE_VAR(int, m_iCulturePerWonder)
 SYNC_ARCHIVE_VAR(int, m_iCultureWonderMultiplier)
 SYNC_ARCHIVE_VAR(int, m_iCulturePerTechResearched)
-SYNC_ARCHIVE_VAR(int, m_iFaith)
-SYNC_ARCHIVE_VAR(int, m_iFaithEverGenerated)
+SYNC_ARCHIVE_VAR(int, m_iFaithTimes100)
+SYNC_ARCHIVE_VAR(int, m_iFaithEverGeneratedTimes100)
 SYNC_ARCHIVE_VAR(int, m_iHappiness)
 SYNC_ARCHIVE_VAR(int, m_iUnhappiness)
 SYNC_ARCHIVE_VAR(int, m_iHappinessTotal)
@@ -3950,15 +3944,15 @@ SYNC_ARCHIVE_VAR(int, m_iRAToVotes)
 SYNC_ARCHIVE_VAR(int, m_iDefensePactsToVotes)
 SYNC_ARCHIVE_VAR(int, m_iGPExpendInfluence)
 SYNC_ARCHIVE_VAR(bool, m_bIsLeagueAid)
+SYNC_ARCHIVE_VAR(int, m_iTotalScienceyAid)
+SYNC_ARCHIVE_VAR(int, m_iTotalArtsyAid)
 SYNC_ARCHIVE_VAR(bool, m_bIsLeagueScholar)
 SYNC_ARCHIVE_VAR(bool, m_bIsLeagueArt)
 SYNC_ARCHIVE_VAR(int, m_iScienceRateFromLeague)
-SYNC_ARCHIVE_VAR(int, m_iScienceRateFromLeagueAid)
-SYNC_ARCHIVE_VAR(int, m_iLeagueCultureCityModifier)
 SYNC_ARCHIVE_VAR(int, m_iAttackBonusTurns)
 SYNC_ARCHIVE_VAR(int, m_iCultureBonusTurns)
 SYNC_ARCHIVE_VAR(int, m_iTourismBonusTurns)
-SYNC_ARCHIVE_VAR(int, m_iGoldenAgeProgressMeter)
+SYNC_ARCHIVE_VAR(int, m_iGoldenAgeProgressMeterTimes100)
 SYNC_ARCHIVE_VAR(int, m_iGoldenAgeMeterMod)
 SYNC_ARCHIVE_VAR(int, m_iNumGoldenAges)
 SYNC_ARCHIVE_VAR(int, m_iGoldenAgeTurns)
@@ -4322,9 +4316,10 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_aiGoldenAgeYieldMod)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiNumAnnexedCityStates)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiIncomingEspionageYields)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiOutgoingEspionageYields)
-SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromNonSpecialistCitizens)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromNonSpecialistCitizensTimes100)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldModifierFromGreatWorks)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldModifierFromActiveSpies)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldModifierFromLeague)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromDelegateCount)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromXMilitaryUnits)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldPerCityOverStrengthThreshold)
@@ -4359,6 +4354,7 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_paiResourceGiftedToMinors)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiResourceExport)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiResourceImportFromMajor)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiResourceFromMinors)
+SYNC_ARCHIVE_VAR(int, m_iNumStrategicResourcesFromMinors)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiResourcesSiphoned)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiHighestResourceQuantity)
 SYNC_ARCHIVE_VAR(std::vector<byte>, m_aiNumResourceFromGP)

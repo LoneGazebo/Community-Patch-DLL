@@ -70,6 +70,9 @@ protected:
 	static int lCanJoin(lua_State* L);
 	static int lIsBuildingLocalResourceValid(lua_State* L);
 
+	static int lGetBuildingYieldRateTimes100(lua_State* L);
+	static int lGetBuildingYieldModifier(lua_State* L);
+
 	static int lGetPlotsBoostedByBuilding(lua_State* L);
 
 	static int lSetBuildingHidden(lua_State* L);
@@ -146,13 +149,13 @@ protected:
 	static int lGetProductionModifier(lua_State* L);
 	static int lGetCurrentProductionDifference(lua_State* L);
 	static int lGetRawProductionDifference(lua_State* L);
+	static int lGetYieldRateTooltip(lua_State* L);
+	static int lGetTotalOverflowProductionTimes100(lua_State* L);
 	static int lGetCurrentProductionDifferenceTimes100(lua_State* L);
 	static int lGetRawProductionDifferenceTimes100(lua_State* L);
 	static int lGetUnitProductionModifier(lua_State* L);
 	static int lGetBuildingProductionModifier(lua_State* L);
 	static int lGetProjectProductionModifier(lua_State* L);
-
-	static int lGetExtraProductionDifference(lua_State* L);
 
 	static int lGetResourceYieldRateModifier(lua_State* L);
 	static int lGetHandicapType(lua_State* L);
@@ -173,6 +176,7 @@ protected:
 	LUAAPIEXTN(IsAddsFreshWater, bool);
 	LUAAPIEXTN(FoodConsumptionSpecialistTimes100, int);
 
+	static int lGetFoodConsumptionTimes100(lua_State* L);
 	static int lFoodConsumption(lua_State* L);
 	static int lFoodDifference(lua_State* L);
 	static int lFoodDifferenceTimes100(lua_State* L);
@@ -236,8 +240,11 @@ protected:
 
 	static int lGetBorderGrowthRateIncreaseTotal(lua_State* L);
 	static int lGetJONSCultureStored(lua_State* L);
+	static int lGetJONSCultureStoredTimes100(lua_State* L);
 	static int lSetJONSCultureStored(lua_State* L);
+	static int lSetJONSCultureStoredTimes100(lua_State* L);
 	static int lChangeJONSCultureStored(lua_State* L);
+	static int lChangeJONSCultureStoredTimes100(lua_State* L);
 	static int lGetJONSCultureLevel(lua_State* L);
 	static int lSetJONSCultureLevel(lua_State* L);
 	static int lChangeJONSCultureLevel(lua_State* L);
@@ -432,6 +439,7 @@ protected:
 	static int lGetLakePlotYield(lua_State* L);
 
 	static int lGetBaseYieldRate(lua_State* L);
+	static int lGetBaseYieldRateTimes100(lua_State* L);
 
 #if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
 	LUAAPIEXTN(GetBaseYieldRateFromGreatWorks, int, iYield);
@@ -453,7 +461,7 @@ protected:
 	static int lGetBaseYieldRateFromTradeRoutes(lua_State* L);
 	LUAAPIEXTN(GetBaseYieldRateFromLeague, int, iYield);
 
-	static int lGetYieldFromCityYield(lua_State* L);
+	static int lGetYieldFromCityYieldTimes100(lua_State* L);
 	static int lGetBaseYieldRateFromReligion(lua_State* L);
 	static int lChangeBaseYieldRateFromReligion(lua_State* L);
 
@@ -574,7 +582,6 @@ protected:
 	LUAAPIEXTN(SetYieldPerTurnFromMinors, int);
 	LUAAPIEXTN(GetYieldPerTurnFromMinors, int);
 	LUAAPIEXTN(GetBaseYieldRateFromNonSpecialists, int);
-	LUAAPIEXTN(GetBaseYieldRateFromCSAlliance, int);
 	LUAAPIEXTN(GetBuildingYieldChangeFromCorporationFranchises, int);
 	LUAAPIEXTN(GetYieldChangeFromCorporationFranchises, int);
 	LUAAPIEXTN(GetTradeRouteCityMod, int);

@@ -3757,17 +3757,6 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 				yield[YIELD_PRODUCTION] += (PolicyInfo->GetBuildingClassProductionModifier(eBuildingClass) * iNumCities) / 25;
 			}
 		}
-		if (PolicyInfo->GetBuildingClassTourismModifier(eBuildingClass))
-		{
-			if (pPlayerTraits->IsTourism())
-			{
-				yield[YIELD_TOURISM] += 5 * PolicyInfo->GetBuildingClassTourismModifier(eBuildingClass) * iNumCities;
-			}
-			else
-			{
-				yield[YIELD_TOURISM] += 2 * PolicyInfo->GetBuildingClassTourismModifier(eBuildingClass) * iNumCities;
-			}
-		}
 		if (PolicyInfo->GetFreeChosenBuilding(eBuildingClass) != 0) 
 		{
 			if (pkBuildingClassInfo)
@@ -4673,15 +4662,15 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 				yield[eYield] += PolicyInfo->GetRelicYieldChanges(eYield);
 			}
 		}
-		if (PolicyInfo->GetYieldFromNonSpecialistCitizens(eYield) != 0)
+		if (PolicyInfo->GetYieldFromNonSpecialistCitizensTimes100(eYield) != 0)
 		{
 			if (pPlayerTraits->IsExpansionist())
 			{
-				yield[eYield] += PolicyInfo->GetYieldFromNonSpecialistCitizens(eYield) * 10;
+				yield[eYield] += PolicyInfo->GetYieldFromNonSpecialistCitizensTimes100(eYield) / 10;
 			}
 			else
 			{
-				yield[eYield] += PolicyInfo->GetYieldFromNonSpecialistCitizens(eYield) * 5;
+				yield[eYield] += PolicyInfo->GetYieldFromNonSpecialistCitizensTimes100(eYield) / 20;
 			}
 		}
 		if (PolicyInfo->GetYieldModifierFromGreatWorks(eYield) != 0)

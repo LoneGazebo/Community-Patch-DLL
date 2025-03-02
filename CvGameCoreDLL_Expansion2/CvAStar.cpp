@@ -3298,7 +3298,7 @@ int TradePathLandCost(const CvAStarNode* parent, const CvAStarNode* node, const 
 {
 	CvMap& kMap = GC.getMap();
 	CvPlot* pFromPlot = kMap.plotUnchecked(parent->m_iX, parent->m_iY);
-	CvPlot* pToPlot = kMap.plotUnchecked( node->m_iX,  node->m_iY);
+	CvPlot* pToPlot = kMap.plotUnchecked(node->m_iX, node->m_iY);
 
 	const TradePathCacheData* pCacheData = reinterpret_cast<const TradePathCacheData*>(finder->GetScratchBuffer());
 	FeatureTypes eFeature = pToPlot->getFeatureType();
@@ -3314,9 +3314,9 @@ int TradePathLandCost(const CvAStarNode* parent, const CvAStarNode* node, const 
 	else if (pFromPlot->getRouteType() == ROUTE_ROAD && pToPlot->isRoute())
 		iRouteDiscountTimes120 = 54; //can't get better than this even if next plot is railroad
 	// Iroquois ability
-	else if (((eFeature == FEATURE_FOREST || eFeature == FEATURE_JUNGLE) && pCacheData->IsWoodlandMovementBonus()) && 
-				(MOD_BALANCE_VP || pToPlot->getTeam() == GET_PLAYER(finder->GetData().ePlayer).getTeam()) && 
-				!(pFromPlot->isRiverCrossing(directionXY(pFromPlot, pToPlot))))
+	else if (((eFeature == FEATURE_FOREST || eFeature == FEATURE_JUNGLE) && pCacheData->IsWoodlandMovementBonus()) &&
+		(MOD_BALANCE_VP || pToPlot->getTeam() == GET_PLAYER(finder->GetData().ePlayer).getTeam()) &&
+		!(pFromPlot->isRiverCrossing(directionXY(pFromPlot, pToPlot))))
 		iRouteDiscountTimes120 = 40;
 	// ignore terrain cost for moving along rivers
 	else if (pFromPlot->IsAlongSameRiver(pToPlot))
@@ -3328,6 +3328,34 @@ int TradePathLandCost(const CvAStarNode* parent, const CvAStarNode* node, const 
 	}
 	else if (pToPlot->isCity())
 		bIgnoreTerrain = true;
+
+	// extra yields on a plot when a trade route passes over it
+	int iExtraYieldDiscount = 0;
+	if (finder->GetData().ePlayer == pToPlot->getOwner())
+	{
+		if (pToPlot->isCity())
+		{
+			for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
+			{
+				if (pToPlot->getPlotCity()->GetYieldFromPassingTR((YieldTypes)iYield) > 0)
+				{
+					iExtraYieldDiscount += pToPlot->getPlotCity()->GetYieldFromPassingTR((YieldTypes)iYield);
+					break;
+				}
+			}
+		}
+
+		// see CvPlot::calculateImprovementYield
+		if (pToPlot->getImprovementType() != NO_IMPROVEMENT)
+		{
+			RouteTypes eRouteTypeForImprovement = (GET_PLAYER(finder->GetData().ePlayer).GetCurrentEra() >= 4) ? ROUTE_RAILROAD : ROUTE_ROAD;
+			for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
+			{
+				iExtraYieldDiscount += GC.getImprovementInfo(pToPlot->getImprovementType())->GetRouteYieldChanges(ROUTE_ROAD, iYield);
+			}
+		}
+	}
+	iRouteDiscountTimes120 += min(20, iExtraYieldDiscount);
 
 	if (iRouteDiscountTimes120 > 0)
 		bIgnoreTerrain = true;

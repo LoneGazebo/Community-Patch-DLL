@@ -209,7 +209,7 @@ function UpdateDisplay()
 	end	
 
 	--add great general at the end
-	local fProgress  = pPlayer:GetCombatExperience();
+	local fProgress  = pPlayer:GetCombatExperienceTimes100() / 100;
 	local fThreshold = pPlayer:GreatGeneralThreshold();
 	local GGString = Locale.ConvertTextKey("TXT_KEY_GREAT_GENERAL_PROGRESS", fProgress, fThreshold);
 	Controls.GGMeter:SetToolTipString( GGString );
@@ -217,7 +217,7 @@ function UpdateDisplay()
 	Controls.GGMeter:SetPercent( fProgress / fThreshold );
 	
 	
-	local fProgress  = pPlayer:GetNavalCombatExperience();
+	local fProgress  = pPlayer:GetNavalCombatExperienceTimes100() / 100;
 	local fThreshold = pPlayer:GreatAdmiralThreshold();
 	local GGString = Locale.ConvertTextKey("TXT_KEY_GREAT_GENERAL_PROGRESS", fProgress, fThreshold);
 	Controls.GAMeter:SetToolTipString( GGString );

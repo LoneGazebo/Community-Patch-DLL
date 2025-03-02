@@ -255,21 +255,21 @@ function UpdateDisplay()
 		local szText = Locale.ConvertTextKey("TXT_KEY_NEXT_POLICY_COST_LABEL", player:GetNextPolicyCost());
 		Controls.NextCost:SetText(szText);
 		
-		szText = Locale.ConvertTextKey("TXT_KEY_CURRENT_CULTURE_LABEL", player:GetJONSCulture());
+		szText = Locale.ConvertTextKey("TXT_KEY_CURRENT_CULTURE_LABEL", player:GetJONSCultureTimes100() / 100);
 		Controls.CurrentCultureLabel:SetText(szText);
 		
-		szText = Locale.ConvertTextKey("TXT_KEY_CULTURE_PER_TURN_LABEL", player:GetTotalJONSCulturePerTurn());
+		szText = Locale.ConvertTextKey("TXT_KEY_CULTURE_PER_TURN_LABEL", player:GetTotalJONSCulturePerTurnTimes100() / 100);
 		Controls.CulturePerTurnLabel:SetText(szText);
 		
 		local iTurns;
-		local iCultureNeeded = player:GetNextPolicyCost() - player:GetJONSCulture();
+		local iCultureNeeded = player:GetNextPolicyCost() - (player:GetJONSCultureTimes100() / 100);
 		if (iCultureNeeded <= 0) then
 			iTurns = 0;
 		else
-			if (player:GetTotalJONSCulturePerTurn() == 0) then
+			if (player:GetTotalJONSCulturePerTurnTimes100() == 0) then
 				iTurns = "?";
 			else
-				iTurns = iCultureNeeded / player:GetTotalJONSCulturePerTurn();
+				iTurns = iCultureNeeded / (player:GetTotalJONSCulturePerTurnTimes100() / 100);
 				iTurns = iTurns + 1;
 				iTurns = math.floor(iTurns);
 			end
@@ -309,7 +309,7 @@ function UpdateDisplay()
     --Controls.ReminderText:SetText( szText );
 
 	local justLooking = true;
-	if player:GetJONSCulture() >= player:GetNextPolicyCost() and not m_CalledFromEspionage then
+	if (player:GetJONSCultureTimes100() / 100) >= player:GetNextPolicyCost() and not m_CalledFromEspionage then
 		justLooking = false;
 	end
 	
@@ -623,7 +623,7 @@ function UpdateDisplay()
 		    if (((i == 1 and iIdeology >= 0) or (i > 1 and iLevel1Tenets[i-1] >= 0)) and not m_CalledFromEspionage) then
     			labelControl:LocalizeAndSetText("TXT_KEY_POLICYSCREEN_ADD_TENET");
  				lockControl:SetHide(true);
- 				if (player:GetJONSCulture() >= player:GetNextPolicyCost() or player:GetNumFreePolicies() > 0 or player:GetNumFreeTenets() > 0) then
+ 				if ((player:GetJONSCultureTimes100() / 100) >= player:GetNextPolicyCost() or player:GetNumFreePolicies() > 0 or player:GetNumFreeTenets() > 0) then
       				buttonControl:RegisterCallback( Mouse.eLClick, function() TenetSelect(10 + i); end);	
 					buttonControl:SetDisabled(false);
  				else
@@ -656,7 +656,7 @@ function UpdateDisplay()
 		    if (iLevel1Tenets[i+1] >= 0) then
     			labelControl:LocalizeAndSetText("TXT_KEY_POLICYSCREEN_ADD_TENET");
  				lockControl:SetHide(true);
- 				if (player:GetJONSCulture() >= player:GetNextPolicyCost() or player:GetNumFreePolicies() > 0 or player:GetNumFreeTenets() > 0) then
+ 				if ((player:GetJONSCultureTimes100() / 100) >= player:GetNextPolicyCost() or player:GetNumFreePolicies() > 0 or player:GetNumFreeTenets() > 0) then
       				buttonControl:RegisterCallback( Mouse.eLClick, function() TenetSelect(20 + i); end);	
 				    buttonControl:SetDisabled(false);
  				else
@@ -693,7 +693,7 @@ function UpdateDisplay()
     			labelControl:LocalizeAndSetText("TXT_KEY_POLICYSCREEN_ADD_TENET");
  				lockControl:SetHide(true);
 				
- 				if (player:GetJONSCulture() >= player:GetNextPolicyCost() or player:GetNumFreePolicies() > 0 or player:GetNumFreeTenets() > 0) then
+ 				if ((player:GetJONSCultureTimes100() / 100) >= player:GetNextPolicyCost() or player:GetNumFreePolicies() > 0 or player:GetNumFreeTenets() > 0) then
       				buttonControl:RegisterCallback( Mouse.eLClick, function() TenetSelect(30 + i); end);	
 				    buttonControl:SetDisabled(false);
  				else

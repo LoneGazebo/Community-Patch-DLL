@@ -652,7 +652,7 @@ public:
 	// All type strings are upper case and are kept in this hash map for fast lookup
 	// The other functions are kept for convenience when enumerating, but most are not used
 	//
-	int getNUM_YIELD_TYPES() const;
+	int getNUM_YIELD_TYPES(bool bOnlyBasic = false) const;
 	int getNUM_CONTROL_TYPES() const;
 
 	// int& getNumFlavorTypes();

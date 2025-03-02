@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <GameData>
 	<Language_en_US>
+		<Row Tag="TXT_KEY_NO_TOURISM_ESPIONAGE_EVENT">
+			<Text>No tourism generated because of a recently conducted spy mission ({1_Num} more {1_Num: plural 1?turn; other?turns;})!</Text>
+		</Row>
 		<!-- Randomized victory popup -->
 		<Row Tag="TXT_KEY_POP_WORLD_VICTORY_SPLASH">
 			<Text>Victory Condition Enabled!</Text>

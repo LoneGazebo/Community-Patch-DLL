@@ -828,7 +828,7 @@ function GetFoodTooltip(pCity)
 	strFoodToolTip = strFoodToolTip .. Locale.ConvertTextKey("TXT_KEY_FOOD_PROGRESS", fFoodProgress, iFoodNeeded);
 	
 	strFoodToolTip = strFoodToolTip .. "[NEWLINE][NEWLINE]";
-	strFoodToolTip = strFoodToolTip .. GetYieldTooltipHelper(pCity, iYieldType, "[ICON_FOOD]");
+	strFoodToolTip = strFoodToolTip .. pCity:GetYieldRateTooltip(iYieldType);
 
 	
 	strFoodToolTip = strFoodToolTip .. pCity:getPotentialUnhappinessWithGrowth();
@@ -848,7 +848,7 @@ function GetGoldTooltip(pCity)
 		strGoldToolTip = strGoldToolTip .. "[NEWLINE][NEWLINE]";
 	end
 	
-	strGoldToolTip = strGoldToolTip .. GetYieldTooltipHelper(pCity, iYieldType, "[ICON_GOLD]");
+	strGoldToolTip = strGoldToolTip .. pCity:GetYieldRateTooltip(iYieldType);
 	
 	return strGoldToolTip;
 end
@@ -869,7 +869,7 @@ function GetScienceTooltip(pCity)
 			strScienceToolTip = strScienceToolTip .. "[NEWLINE][NEWLINE]";
 		end
 	
-		strScienceToolTip = strScienceToolTip .. GetYieldTooltipHelper(pCity, iYieldType, "[ICON_RESEARCH]");
+		strScienceToolTip = strScienceToolTip .. pCity:GetYieldRateTooltip(iYieldType);
 	end
 	
 	return strScienceToolTip;
@@ -877,30 +877,8 @@ end
 
 -- PRODUCTION
 function GetProductionTooltip(pCity)
-
-	local iBaseProductionPT = pCity:GetBaseYieldRate(YieldTypes.YIELD_PRODUCTION);
-	local iYieldPerPop = pCity:GetYieldPerPopTimes100(YieldTypes.YIELD_PRODUCTION);
-	if (iYieldPerPop ~= 0) then
-		iYieldPerPop = iYieldPerPop * pCity:GetPopulation();
-		iYieldPerPop = iYieldPerPop / 100;
-		
-		iBaseProductionPT = iBaseProductionPT + iYieldPerPop;
-	end
-	iBaseProductionPT = iBaseProductionPT + pCity:GetYieldFromYieldPerBuildingTimes100( YieldTypes.YIELD_PRODUCTION ) / 100;
-	local iYieldPerPopInEmpire = pCity:GetYieldPerPopInEmpireTimes100(YieldTypes.YIELD_PRODUCTION);
-	if (iYieldPerPopInEmpire ~= 0) then
-		iYieldPerPopInEmpire = iYieldPerPopInEmpire * Players[pCity:GetOwner()]:GetTotalPopulation();
-		iYieldPerPopInEmpire = iYieldPerPopInEmpire / 100;
-		
-		iBaseProductionPT = iBaseProductionPT + iYieldPerPopInEmpire;
-	end
-	if pCity:IsIndustrialConnectedToCapital() then
-		iBaseProductionPT = iBaseProductionPT + pCity:GetConnectionGoldTimes100() / 100
-	end
-	local iProductionPerTurn = pCity:GetCurrentProductionDifferenceTimes100(false, false) / 100;--pCity:GetYieldRate(YieldTypes.YIELD_PRODUCTION);
-	local strCodeToolTip = pCity:GetYieldModifierTooltip(YieldTypes.YIELD_PRODUCTION);
 	
-	local strProductionBreakdown = GetYieldTooltip(pCity, YieldTypes.YIELD_PRODUCTION, iBaseProductionPT, iProductionPerTurn, "[ICON_PRODUCTION]", strCodeToolTip);
+	local strTooltip = pCity:GetYieldRateTooltip(YieldTypes.YIELD_PRODUCTION);
 	
 	-- Basic explanation of production
 	local strProductionHelp = "";
@@ -912,14 +890,15 @@ function GetProductionTooltip(pCity)
 		--Controls.ProductionButton:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_CITYVIEW_CHANGE_PROD"));
 	end
 	
-	return strProductionHelp .. strProductionBreakdown;
+	return strProductionHelp .. strTooltip;
 end
 
 -- CULTURE
 function GetCultureTooltip(pCity)
 	
 	local strCultureToolTip = "";
-	local iCulturePerTurn = pCity:GetJONSCulturePerTurn();
+	local strTooltip = pCity:GetYieldRateTooltip(YieldTypes.YIELD_CULTURE);
+	
 	if (Game.IsOption(GameOptionTypes.GAMEOPTION_NO_POLICIES)) then
 		strCultureToolTip = Locale.ConvertTextKey("TXT_KEY_TOP_PANEL_POLICIES_OFF_TOOLTIP");
 	else
@@ -928,306 +907,18 @@ function GetCultureTooltip(pCity)
 			strCultureToolTip = strCultureToolTip .. "[NEWLINE][NEWLINE]";
 		end
 		
-		local bFirst = true;
-		
-		-- Culture from Terrain
-		local iCultureFromTerrain = pCity:GetBaseYieldRateFromTerrain(YieldTypes.YIELD_CULTURE);
-		if (iCultureFromTerrain ~= 0) then
-			
-			-- Spacing
-			if (bFirst) then
-				bFirst = false;
-			else
-				strCultureToolTip = strCultureToolTip .. "[NEWLINE]";
-			end
-			
-			strCultureToolTip = strCultureToolTip .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_FROM_TERRAIN", iCultureFromTerrain);
-		end
-		
-		-- Culture from Buildings
-		local iCultureFromBuildings = pCity:GetJONSCulturePerTurnFromBuildings();
-		if (iCultureFromBuildings ~= 0) then
-			
-			-- Spacing
-			if (bFirst) then
-				bFirst = false;
-			else
-				strCultureToolTip = strCultureToolTip .. "[NEWLINE]";
-			end
-			
-			strCultureToolTip = strCultureToolTip .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_FROM_BUILDINGS", iCultureFromBuildings);
-		end
-		
-		-- Culture from Policies
-		local iCultureFromPolicies = pCity:GetJONSCulturePerTurnFromPolicies();
-		if (iCultureFromPolicies ~= 0) then
-			
-			-- Spacing
-			if (bFirst) then
-				bFirst = false;
-			else
-				strCultureToolTip = strCultureToolTip .. "[NEWLINE]";
-			end
-			
-			strCultureToolTip = strCultureToolTip .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_FROM_POLICIES", iCultureFromPolicies);
-		end
-		
-		-- Culture from Specialists
-		local iCultureFromSpecialists = pCity:GetJONSCulturePerTurnFromSpecialists();
-		if (iCultureFromSpecialists ~= 0) then
-			--CBP
-			iCultureFromSpecialists = (iCultureFromSpecialists + pCity:GetBaseYieldRateFromSpecialists(YieldTypes.YIELD_CULTURE));
-			--END
-			-- Spacing
-			if (bFirst) then
-				bFirst = false;
-			else
-				strCultureToolTip = strCultureToolTip .. "[NEWLINE]";
-			end
-			
-			strCultureToolTip = strCultureToolTip .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_FROM_SPECIALISTS", iCultureFromSpecialists);
-		end
-		
-		-- Culture from Religion
-		local iCultureFromReligion = pCity:GetJONSCulturePerTurnFromReligion();
-		if ( iCultureFromReligion ~= 0) then
-			
-			-- Spacing
-			if (bFirst) then
-				bFirst = false;
-			else
-				strCultureToolTip = strCultureToolTip .. "[NEWLINE]";
-			end
-			
-			strCultureToolTip = strCultureToolTip .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_FROM_RELIGION", iCultureFromReligion);
-		end
-
--- CBP
-
-		-- Base Yield from Pop
-		local iYieldPerPop = pCity:GetYieldPerPopTimes100(YieldTypes.YIELD_CULTURE);
-		if (iYieldPerPop ~= 0) then
-			iYieldPerPop = iYieldPerPop * pCity:GetPopulation();
-			iYieldPerPop = iYieldPerPop / 100;
-			-- Spacing
-			if (bFirst) then
-				bFirst = false;
-			else
-				strCultureToolTip = strCultureToolTip .. "[NEWLINE]";
-			end
-			strCultureToolTip = strCultureToolTip .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_FROM_POPULATION", iYieldPerPop);
-		end
-
-		-- Base Yield from Pop in Empire
-		local iYieldPerPopInEmpire = pCity:GetYieldPerPopInEmpireTimes100(YieldTypes.YIELD_CULTURE);
-		if (iYieldPerPopInEmpire ~= 0) then
-			iYieldPerPopInEmpire = iYieldPerPopInEmpire * Players[pCity:GetOwner()]:GetTotalPopulation();
-			iYieldPerPopInEmpire = iYieldPerPopInEmpire / 100;
-			-- Spacing
-			if (bFirst) then
-				bFirst = false;
-			else
-				strCultureToolTip = strCultureToolTip .. "[NEWLINE]";
-			end
-			strCultureToolTip = strCultureToolTip .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_FROM_EMPIRE_POPULATION", iYieldPerPopInEmpire);
-		end
-		
-		-- Base Yield per Building
-		local iYieldFromBuildingsExtra = pCity:GetYieldFromYieldPerBuildingTimes100(YieldTypes.YIELD_CULTURE) / 100
-		if (iYieldFromBuildingsExtra ~= 0) then
-			-- Spacing
-			if (bFirst) then
-				bFirst = false;
-			else
-				strCultureToolTip = strCultureToolTip .. "[NEWLINE]";
-			end
-			strCultureToolTip = strCultureToolTip .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_FROM_BUILDINGS_EXTRA", iYieldFromBuildingsExtra, GameInfo.Yields[YieldTypes.YIELD_CULTURE].IconString);
-		end
-
-		-- Base Yield from Misc
-		local iYieldFromMisc = pCity:GetBaseYieldRateFromMisc(YieldTypes.YIELD_CULTURE);
-		if (iYieldFromMisc ~= 0) then
-			if (bFirst) then
-				bFirst = false;
-			else
-				strCultureToolTip = strCultureToolTip .. "[NEWLINE]";
-			end
-			strCultureToolTip = strCultureToolTip .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_FROM_MISC", iYieldFromMisc, GameInfo.Yields[YieldTypes.YIELD_CULTURE].IconString);
-		end
--- END
-
--- CBP -- Yield Increase from Piety
-		local iYieldFromPiety = pCity:GetReligionYieldRateModifier(YieldTypes.YIELD_CULTURE);
-		if ( iYieldFromPiety ~= 0) then
-			
-			-- Spacing
-			if (bFirst) then
-				bFirst = false;
-			else
-				strCultureToolTip = strCultureToolTip .. "[NEWLINE]";
-			end
-			
-			strCultureToolTip = strCultureToolTip .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_FROM_PIETY", iYieldFromPiety);
-		end
--- END
--- CBP -- Yield Increase from CS Alliance
-		local iYieldFromCSAlliance = pCity:GetBaseYieldRateFromCSAlliance(YieldTypes.YIELD_CULTURE);
-		if ( iYieldFromCSAlliance ~= 0) then
-			
-			-- Spacing
-			if (bFirst) then
-				bFirst = false;
-			else
-				strCultureToolTip = strCultureToolTip .. "[NEWLINE]";
-			end
-			
-			strCultureToolTip = strCultureToolTip .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_FROM_CS_ALLIANCE", iYieldFromCSAlliance);
-		end
--- END
--- CBP -- Culture from Great Works
-		local iYieldFromCSGreatWorks = pCity:GetJONSCulturePerTurnFromGreatWorks();
-		if ( iYieldFromCSGreatWorks ~= 0) then
-			
-			-- Spacing
-			if (bFirst) then
-				bFirst = false;
-			else
-				strCultureToolTip = strCultureToolTip .. "[NEWLINE]";
-			end
-			
-			strCultureToolTip = strCultureToolTip .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_FROM_GREAT_WORKS", iYieldFromCSGreatWorks);
-		end
--- END	
--- CBP -- Culture from Corporations
-		local iYieldFromCorporations = pCity:GetYieldChangeFromCorporationFranchises(YieldTypes.YIELD_CULTURE);
-		if ( iYieldFromCorporations ~= 0) then
-			
-			-- Spacing
-			if (bFirst) then
-				bFirst = false;
-			else
-				strCultureToolTip = strCultureToolTip .. "[NEWLINE]";
-			end
-			
-			strCultureToolTip = strCultureToolTip .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_FROM_CORPORATIONS", iYieldFromCorporations);
-		end
--- END		
-		-- Culture from Leagues
-		local iCultureFromLeagues = pCity:GetJONSCulturePerTurnFromLeagues();
-		if ( iCultureFromLeagues ~= 0) then
-			
-			-- Spacing
-			if (bFirst) then
-				bFirst = false;
-			else
-				strCultureToolTip = strCultureToolTip .. "[NEWLINE]";
-			end
-			
-			strCultureToolTip = strCultureToolTip .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_FROM_LEAGUES", iCultureFromLeagues);
-		end
-
-		-- Culture from Traits
-		local iCultureFromTraits = pCity:GetJONSCulturePerTurnFromTraits();
-		iCultureFromTraits = (iCultureFromTraits + pCity:GetYieldPerTurnFromTraits(YieldTypes.YIELD_CULTURE));
-		if (iCultureFromTraits ~= 0) then
-			
-			-- Spacing
-			if (bFirst) then
-				bFirst = false;
-			else
-				strCultureToolTip = strCultureToolTip .. "[NEWLINE]";
-			end
-			
-			strCultureToolTip = strCultureToolTip .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_FROM_TRAITS", iCultureFromTraits);
-		end
-
-		-- CP Events
-		-- Culture from Events
-		local iCultureFromEvent = pCity:GetEventCityYield(YieldTypes.YIELD_CULTURE);
-		if (iCultureFromEvent ~= 0) then
-			
-			-- Spacing
-			if (bFirst) then
-				bFirst = false;
-			else
-				strCultureToolTip = strCultureToolTip .. "[NEWLINE]";
-			end
-			
-			strCultureToolTip = strCultureToolTip .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_FROM_EVENTS", iCultureFromEvent);
-		end
-
-		local iCultureFromYields = pCity:GetYieldFromCityYield(YieldTypes.YIELD_CULTURE);
-		if (iCultureFromYields ~= 0) then
-			-- Spacing
-			if (bFirst) then
-				bFirst = false;
-			else
-				strCultureToolTip = strCultureToolTip .. "[NEWLINE]";
-			end
-			
-			strCultureToolTip = strCultureToolTip .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_FROM_CITY_YIELDS", iCultureFromYields);
-		end
-		
-		-- Base Total
-		
-		local baseCulturePerTurn = pCity:GetBaseJONSCulturePerTurn();
-		if(baseCulturePerTurn ~= iCulturePerTurn) then
-			strCultureToolTip = strCultureToolTip .. "[NEWLINE]----------------[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_BASE", baseCulturePerTurn, GameInfo.Yields[YieldTypes.YIELD_CULTURE].IconString);
-		end
-		
-		-- Yield modifiers string
-		local strCultureFromTR = pCity:GetYieldModifierTooltip(YieldTypes.YIELD_CULTURE);
-		if (strCultureFromTR ~= "") then		
-			strCultureToolTip = strCultureToolTip .. "[NEWLINE]----------------" .. strCultureFromTR;
-		end
-		-- END  
-	
-		-- Puppet modifier
-		if (pCity:IsPuppet()) then
-			local puppetMod = Players[pCity:GetOwner()]:GetPuppetYieldPenalty(YieldTypes.YIELD_CULTURE);
-			
-			if (puppetMod ~= 0) then
-				strCultureToolTip = strCultureToolTip .. "[NEWLINE]----------------" .. Locale.ConvertTextKey("TXT_KEY_PRODMOD_PUPPET", puppetMod);
-			end
-		end
-		
-		-- Trade Routes and Processes
-		local iYieldFromTrade = pCity:GetBaseYieldRateFromTradeRoutes(YieldTypes.YIELD_CULTURE)/100.0;
-		local iYieldFromProcess = pCity:GetBaseYieldRateFromProcess(YieldTypes.YIELD_CULTURE);
-		if(iYieldFromTrade ~= 0 or iYieldFromProcess ~=0) then
-			strCultureToolTip = strCultureToolTip .. "[NEWLINE]----------------";
-			if(iYieldFromTrade ~= 0) then
-				strCultureToolTip = strCultureToolTip .. "[NEWLINE][ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_FROM_TRADE_ROUTES", iYieldFromTrade, GameInfo.Yields[YieldTypes.YIELD_CULTURE].IconString);
-			end
-			if(iYieldFromProcess ~= 0) then
-				strCultureToolTip = strCultureToolTip ..  "[NEWLINE][ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_FROM_PROCESS", iYieldFromProcess, GameInfo.Yields[YieldTypes.YIELD_CULTURE].IconString);
-			end
-		end
-		
 		-- Total
-		strCultureToolTip = strCultureToolTip .. "[NEWLINE]----------------[NEWLINE]" ..
-		Locale.ConvertTextKey( "TXT_KEY_YIELD_TOTAL", iCulturePerTurn, GameInfo.Yields[YieldTypes.YIELD_CULTURE].IconString );
+		strCultureToolTip = strCultureToolTip .. strTooltip;
 	end
 	
 	-- Tile growth
-	local iCultureStored = pCity:GetJONSCultureStored();
-	local iCultureNeeded = pCity:GetJONSCultureThreshold();
-	local borderGrowthRate = iCulturePerTurn + pCity:GetBaseYieldRate(YieldTypes.YIELD_CULTURE_LOCAL);
-	local borderGrowthRateIncrease = pCity:GetBorderGrowthRateIncreaseTotal();
-	borderGrowthRate = math.floor(borderGrowthRate * (100 + borderGrowthRateIncrease) / 100);
-
-	strCultureToolTip = strCultureToolTip .. "[NEWLINE]";
-	if pCity:GetBaseYieldRate(YieldTypes.YIELD_CULTURE_LOCAL) ~= 0 then
-		strCultureToolTip = strCultureToolTip .. "[NEWLINE][ICON_BULLET]" .. pCity:GetBaseYieldRate(YieldTypes.YIELD_CULTURE_LOCAL) .. " [ICON_CULTURE_LOCAL] " .. Locale.ConvertTextKey("TXT_KEY_YIELD_CULTURE_LOCAL")
-	end
-	if pCity:GetBorderGrowthRateIncreaseTotal() ~= 0 then
-		strCultureToolTip = strCultureToolTip .. "[NEWLINE][ICON_BULLET]+" .. pCity:GetBorderGrowthRateIncreaseTotal() .. "% [ICON_CULTURE_LOCAL] " .. Locale.ConvertTextKey("TXT_KEY_YIELD_CULTURE_LOCAL")
-	end
-	if borderGrowthRate > 0 and borderGrowthRate ~= iCulturePerTurn then
-		strCultureToolTip = strCultureToolTip .. "[NEWLINE]----------------[NEWLINE]" ..
-		Locale.ConvertTextKey( "TXT_KEY_YIELD_TOTAL", borderGrowthRate, GameInfo.Yields[YieldTypes.YIELD_CULTURE_LOCAL].IconString );
-	end
 	
+	local iCultureStored = pCity:GetJONSCultureStoredTimes100() / 100;
+	local iCultureNeeded = pCity:GetJONSCultureThreshold();
+	local borderGrowthRate = pCity:GetYieldRateTimes100(YieldTypes.YIELD_CULTURE_LOCAL) / 100;
+	strCultureToolTip = strCultureToolTip .. "[NEWLINE][NEWLINE]BORDER GROWTH[NEWLINE][NEWLINE]";
+	strCultureToolTip = strCultureToolTip .. pCity:GetYieldRateTooltip(YieldTypes.YIELD_CULTURE_LOCAL);
+
 	strCultureToolTip = strCultureToolTip .. "[NEWLINE][NEWLINE]";
 	strCultureToolTip = strCultureToolTip .. Locale.ConvertTextKey("TXT_KEY_CULTURE_INFO", iCultureStored, iCultureNeeded);
 
@@ -1243,192 +934,23 @@ end
 -- FAITH
 function GetFaithTooltip(pCity)
 	
-	local faithTips = {};
+	local faithTips = "";
 	
 	if (Game.IsOption(GameOptionTypes.GAMEOPTION_NO_RELIGION)) then
-		table.insert(faithTips, Locale.ConvertTextKey("TXT_KEY_TOP_PANEL_RELIGION_OFF_TOOLTIP"));
+		faithTips = faithTips .. Locale.ConvertTextKey("TXT_KEY_TOP_PANEL_RELIGION_OFF_TOOLTIP");
 	else
 
 		if (not OptionsManager.IsNoBasicHelp()) then
-			table.insert(faithTips, Locale.ConvertTextKey("TXT_KEY_FAITH_HELP_INFO"));
-		end
-	
-		-- Faith from Buildings
-		local iFaithFromBuildings = pCity:GetFaithPerTurnFromBuildings();
-		if (iFaithFromBuildings ~= 0) then
-		
-			table.insert(faithTips, "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_FAITH_FROM_BUILDINGS", iFaithFromBuildings));
-		end
--- CBP
-
-		-- Base Yield from Pop
-		local iYieldPerPop = pCity:GetYieldPerPopTimes100(YieldTypes.YIELD_FAITH);
-		if (iYieldPerPop ~= 0) then
-			iYieldPerPop = iYieldPerPop * pCity:GetPopulation();
-			iYieldPerPop = iYieldPerPop / 100;
-			
-			table.insert(faithTips, "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_FAITH_FROM_POP", iYieldPerPop));
-		end
-		-- Base Yield from Pop in Empire
-		local iYieldPerPopInEmpire = pCity:GetYieldPerPopInEmpireTimes100(YieldTypes.YIELD_FAITH);
-		if (iYieldPerPopInEmpire ~= 0) then
-			iYieldPerPopInEmpire = iYieldPerPopInEmpire * Players[pCity:GetOwner()]:GetTotalPopulation();
-			iYieldPerPopInEmpire = iYieldPerPopInEmpire / 100;
-			
-			table.insert(faithTips, "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_FAITH_FROM_EMPIRE_POP", iYieldPerPopInEmpire));
+			faithTips = faithTips .. Locale.ConvertTextKey("TXT_KEY_FAITH_HELP_INFO");
 		end
 		
-		-- Base Yield per Building
-		local iYieldFromBuildingsExtra = pCity:GetYieldFromYieldPerBuildingTimes100(YieldTypes.YIELD_FAITH) / 100
-		if (iYieldFromBuildingsExtra ~= 0) then
-			table.insert(faithTips, "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_FROM_BUILDINGS_EXTRA", iYieldFromBuildingsExtra, GameInfo.Yields[YieldTypes.YIELD_FAITH].IconString));
-		end
-		
-		-- Faith from Specialists
-		local iYieldFromSpecialists = pCity:GetBaseYieldRateFromSpecialists(YieldTypes.YIELD_FAITH);
-		if (iYieldFromSpecialists ~= 0) then
-			table.insert(faithTips, "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_FROM_SPECIALISTS_FAITH", iYieldFromSpecialists));
-		end
--- END
-		-- Faith from Traits
-		local iFaithFromTraits = pCity:GetFaithPerTurnFromTraits();
-		iFaithFromTraits = (iFaithFromTraits + pCity:GetYieldPerTurnFromTraits(YieldTypes.YIELD_FAITH));
-		if (iFaithFromTraits ~= 0) then
-				
-			table.insert(faithTips, "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_FAITH_FROM_TRAITS", iFaithFromTraits));
-		end
-
--- CBP -- Yield Increase from Piety
-		local iYieldFromPiety = pCity:GetReligionYieldRateModifier(YieldTypes.YIELD_FAITH);
-		if (iYieldFromPiety ~= 0) then
-			table.insert(faithTips, "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_FAITH_FROM_PIETY", iYieldFromPiety));
-		end
--- END
--- CBP -- Yield Increase from CS Alliance
-		local iYieldFromCSAlliance = pCity:GetBaseYieldRateFromCSAlliance(YieldTypes.YIELD_FAITH);
-		if (iYieldFromCSAlliance ~= 0) then
-			table.insert(faithTips, "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_FAITH_FROM_CS_ALLIANCE", iYieldFromCSAlliance));
-		end
--- END		
-		-- Faith from Terrain
-		local iFaithFromTerrain = pCity:GetBaseYieldRateFromTerrain(YieldTypes.YIELD_FAITH);
-		if (iFaithFromTerrain ~= 0) then
-				
-			table.insert(faithTips, "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_FAITH_FROM_TERRAIN", iFaithFromTerrain));
-		end
-
-		-- Faith from Policies
-		local iFaithFromPolicies = pCity:GetFaithPerTurnFromPolicies();
-		if (iFaithFromPolicies ~= 0) then
-					
-			table.insert(faithTips, "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_FAITH_FROM_POLICIES", iFaithFromPolicies));
-		end
-
-		-- Faith from Religion
-		local iFaithFromReligion = pCity:GetFaithPerTurnFromReligion();
-		if (iFaithFromReligion ~= 0) then
-				
-			table.insert(faithTips, "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_FAITH_FROM_RELIGION", iFaithFromReligion));
-		end
-		-- CP Events
-		-- Faith from Events
-		local iFaithFromEvent = pCity:GetEventCityYield(YieldTypes.YIELD_FAITH);
-		if (iFaithFromEvent ~= 0) then
-			
-			table.insert(faithTips, "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_FAITH_FROM_EVENTS", iFaithFromEvent));
-		end
-
-		local iFaithFromYields = pCity:GetYieldFromCityYield(YieldTypes.YIELD_FAITH);
-		if (iFaithFromYields ~= 0) then	
-			table.insert(faithTips, "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_FAITH_FROM_CITY_YIELDS", iFaithFromYields));
-		end
-
-		local iYieldFromCorps = pCity:GetYieldChangeFromCorporationFranchises(YieldTypes.YIELD_FAITH);
-		if(iYieldFromCorps ~= 0) then
-			table.insert(faithTips, "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_FAITH_FROM_CORPORATIONS", iYieldFromCorps));
-		end
-
-		if (pCity:GetGreatWorkYieldMod(YieldTypes.YIELD_FAITH) > 0) then
-			iAmount = pCity:GetGreatWorkYieldMod(YieldTypes.YIELD_FAITH);
-			
-			if (iAmount ~= 0) then
-				table.insert(faithTips, "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_FAITH_FROM_GWS", iAmount));
-			end
-		end
-		if (pCity:GetActiveSpyYieldMod(YieldTypes.YIELD_FAITH) > 0) then
-			iAmount = pCity:GetActiveSpyYieldMod(YieldTypes.YIELD_FAITH);
-			
-			if (iAmount ~= 0) then
-				table.insert(faithTips, "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_FAITH_FROM_SPIES", iAmount));
-			end
-		end
-		-- END 
-		-- CBP
-		local iFaithWLTKDMod = pCity:GetModFromWLTKD(YieldTypes.YIELD_FAITH);
-		if (iFaithWLTKDMod ~= 0) then
-			table.insert(faithTips, "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_FAITH_FROM_WLTKD", iFaithWLTKDMod));
-		end
-
-		local iFaithGoldenAgeMod = pCity:GetModFromGoldenAge(YieldTypes.YIELD_FAITH);
-		if (iFaithGoldenAgeMod ~= 0) then
-			table.insert(faithTips, "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_FAITH_FROM_GOLDEN_AGE", iFaithGoldenAgeMod));
-		end
-		-- END
-
--- CBP Yield from Great Works
-		local iYieldFromGreatWorks = pCity:GetBaseYieldRateFromGreatWorks(YieldTypes.YIELD_FAITH);
-		if (iYieldFromGreatWorks ~= 0) then
-			table.insert(faithTips, "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_FROM_ART_CBP_FAITH", iYieldFromGreatWorks));
-		end
--- END
-
-		-- CBP -- Resource Monopoly
-		if (pCity:GetCityYieldModFromMonopoly(YieldTypes.YIELD_FAITH) > 0) then
-			local iAmount = pCity:GetCityYieldModFromMonopoly(YieldTypes.YIELD_FAITH);
-			
-			if (iAmount ~= 0) then
-				table.insert(faithTips, "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_FAITH_FROM_RESOURCE_MONOPOLY", iAmount));
-			end
-		end
-		-- END
-
-		if (pCity:GetGreatWorkYieldMod(YieldTypes.YIELD_FAITH) > 0) then
-			local iAmount = pCity:GetGreatWorkYieldMod(YieldTypes.YIELD_FAITH);
-			
-			if (iAmount ~= 0) then
-				table.insert(faithTips, "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_FAITH_FROM_GWS", iAmount));
-			end
-		end
-		if (pCity:GetActiveSpyYieldMod(YieldTypes.YIELD_FAITH) > 0) then
-			local iAmount = pCity:GetActiveSpyYieldMod(YieldTypes.YIELD_FAITH);
-			
-			if (iAmount ~= 0) then
-				table.insert(faithTips, "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_FAITH_FROM_SPIES", iAmount));
-			end
-		end
-		
-		-- Puppet modifier
-		if (pCity:IsPuppet()) then
-			local puppetMod = Players[pCity:GetOwner()]:GetPuppetYieldPenalty(YieldTypes.YIELD_FAITH);
-		
-			if (puppetMod ~= 0) then
-				table.insert(faithTips, Locale.ConvertTextKey("TXT_KEY_PRODMOD_PUPPET", puppetMod));
-			end
-		end
-
-		local trfaith = pCity:GetYieldModifierTooltip(YieldTypes.YIELD_FAITH)
-		if(trfaith ~= "") then
-			table.insert(faithTips, trfaith);
-		end
-	
 		-- Citizens breakdown
-		table.insert(faithTips, "----------------");
+		faithTips = faithTips .. "[NEWLINE][NEWLINE]" .. pCity:GetYieldRateTooltip(YieldTypes.YIELD_FAITH);
 
-		table.insert(faithTips, GetReligionTooltip(pCity));
+		faithTips = faithTips .. "[NEWLINE]" .. GetReligionTooltip(pCity);
 	end
 	
-	local strFaithToolTip = table.concat(faithTips, "[NEWLINE]");
-	return strFaithToolTip;
+	return faithTips;
 end
 
 -- TOURISM
@@ -1448,251 +970,6 @@ function GetCityUnhappinessTooltip(pCity)
 	return strUnhappinessBreakdown;
 end
 -- END
-
--- Yield Tooltip Helper
-function GetYieldTooltipHelper(pCity, iYieldType, strIcon)
-	
-	local strModifiers = "";
-	
-	-- Base Yield
-	local iBaseYield = pCity:GetBaseYieldRate(iYieldType);
-
-	local iYieldPerPop = pCity:GetYieldPerPopTimes100(iYieldType);
-	if (iYieldPerPop ~= 0) then
-		iYieldPerPop = iYieldPerPop * pCity:GetPopulation();
-		iYieldPerPop = iYieldPerPop / 100;
-		
-		iBaseYield = iBaseYield + iYieldPerPop;
-	end
-
-	iBaseYield = iBaseYield + pCity:GetYieldFromYieldPerBuildingTimes100( iYieldType ) / 100;
-	
-	local iYieldPerPopInEmpire = pCity:GetYieldPerPopInEmpireTimes100(iYieldType);
-	if (iYieldPerPopInEmpire ~= 0) then
-		iYieldPerPopInEmpire = iYieldPerPopInEmpire * Players[pCity:GetOwner()]:GetTotalPopulation();
-		iYieldPerPopInEmpire = iYieldPerPopInEmpire / 100;
-		
-		iBaseYield = iBaseYield + iYieldPerPopInEmpire;
-	end
-	
-	if iYieldType == YieldTypes.YIELD_PRODUCTION and pCity:IsIndustrialConnectedToCapital() then
-		iBaseYield = iBaseYield + pCity:GetConnectionGoldTimes100() / 100
-	end
-
-	-- Total Yield
-	local iTotalYield;
-	
-	-- Food is special
-	if (iYieldType == YieldTypes.YIELD_FOOD) then
-		iTotalYield = pCity:FoodDifferenceTimes100() / 100;
-	else
-		iTotalYield = pCity:GetYieldRateTimes100(iYieldType) / 100;
-	end
-	
-	-- Yield modifiers string
-	strModifiers = strModifiers .. pCity:GetYieldModifierTooltip(iYieldType);
-	
-	-- Build tooltip
-	local strYieldToolTip = GetYieldTooltip(pCity, iYieldType, iBaseYield, iTotalYield, strIcon, strModifiers);
-	
-	return strYieldToolTip;
-
-end
-
-
-------------------------------
--- Helper function to build yield tooltip string
-function GetYieldTooltip(pCity, iYieldType, iBase, iTotal, strIconString, strModifiersString)
-	
-	local strYieldBreakdown = "";
-	
-	-- Base Yield from terrain
-	local iYieldFromTerrain = pCity:GetBaseYieldRateFromTerrain(iYieldType);
-	if (iYieldFromTerrain ~= 0) then
-		strYieldBreakdown = strYieldBreakdown .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_FROM_TERRAIN", iYieldFromTerrain, strIconString);
-		strYieldBreakdown = strYieldBreakdown .. "[NEWLINE]";
-	end
-	
-	-- Base Yield from Buildings
-	local iYieldFromBuildings = pCity:GetBaseYieldRateFromBuildings(iYieldType);
-	if (iYieldFromBuildings ~= 0) then
-		strYieldBreakdown = strYieldBreakdown .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_FROM_BUILDINGS", iYieldFromBuildings, strIconString);
-		strYieldBreakdown = strYieldBreakdown .. "[NEWLINE]";
-	end
-	
-	-- Base Yield from Specialists
-	local iYieldFromSpecialists = pCity:GetBaseYieldRateFromSpecialists(iYieldType);
-	if (iYieldFromSpecialists ~= 0) then
-		strYieldBreakdown = strYieldBreakdown .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_FROM_SPECIALISTS", iYieldFromSpecialists, strIconString);
-		strYieldBreakdown = strYieldBreakdown .. "[NEWLINE]";
-	end
-	
-	-- Base Yield from Misc
-	local iYieldFromMisc = pCity:GetBaseYieldRateFromMisc(iYieldType);
-	if (iYieldFromMisc ~= 0) then
-		if (iYieldType == YieldTypes.YIELD_SCIENCE) then
-			strYieldBreakdown = strYieldBreakdown .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_FROM_POP", iYieldFromMisc, strIconString);
-		else
-			strYieldBreakdown = strYieldBreakdown .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_FROM_MISC", iYieldFromMisc, strIconString);
-		end
-		strYieldBreakdown = strYieldBreakdown .. "[NEWLINE]";
-	end
-
-	-- Yield Increase from City Yields
-	local iYieldFromYields = pCity:GetYieldFromCityYield(iYieldType);
-	if (iYieldFromYields ~= 0) then
-		strYieldBreakdown = strYieldBreakdown .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_FROM_CITY_YIELDS", iYieldFromYields, strIconString);
-		strYieldBreakdown = strYieldBreakdown .. "[NEWLINE]";
-	end
-
-	-- CBP -- Yield Increase from CS Alliance (Germany)
-
-	local iYieldFromCSAlliance = pCity:GetBaseYieldRateFromCSAlliance(iYieldType);
-	if (iYieldFromCSAlliance ~= 0) then
-		strYieldBreakdown = strYieldBreakdown .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_FROM_CS_ALLIANCE", iYieldFromCSAlliance, strIconString);
-		strYieldBreakdown = strYieldBreakdown .. "[NEWLINE]";
-	end
-
-	-- CBP -- Yield Increase from Corporation Franchises
-	local iYieldFromCorps = pCity:GetYieldChangeFromCorporationFranchises(iYieldType);
-	if (iYieldFromCorps ~= 0) then
-		strYieldBreakdown = strYieldBreakdown .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_FROM_CORPORATIONS", iYieldFromCorps, strIconString);
-		strYieldBreakdown = strYieldBreakdown .. "[NEWLINE]";
-	end
-
-	-- CBP -- Yield Increase from Piety
-	local iYieldFromPiety = pCity:GetReligionYieldRateModifier(iYieldType);
-	if (iYieldFromPiety ~= 0) then
-		strYieldBreakdown = strYieldBreakdown .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_FROM_PIETY", iYieldFromPiety, strIconString);
-		strYieldBreakdown = strYieldBreakdown .. "[NEWLINE]";
-	end
-	
-	-- Base Yield from Pop
-	local iYieldPerPop = pCity:GetYieldPerPopTimes100(iYieldType);
-	if (iYieldPerPop ~= 0) then
-		local iYieldFromPop = iYieldPerPop * pCity:GetPopulation();
-		iYieldFromPop = iYieldFromPop / 100;
-		
-		strYieldBreakdown = strYieldBreakdown .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_FROM_POP_EXTRA", iYieldFromPop, strIconString);
-		strYieldBreakdown = strYieldBreakdown .. "[NEWLINE]";
-	end
-
-	-- Base Yield from Pop in Empire
-	local iYieldPerPopInEmpire = pCity:GetYieldPerPopInEmpireTimes100(iYieldType);
-	if (iYieldPerPopInEmpire ~= 0) then
-		local iYieldFromPopInEmpire = iYieldPerPopInEmpire * Players[pCity:GetOwner()]:GetTotalPopulation();
-		iYieldFromPopInEmpire = iYieldFromPopInEmpire / 100;
-		
-		strYieldBreakdown = strYieldBreakdown .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_FROM_EMPIRE_POP_EXTRA", iYieldFromPopInEmpire, strIconString);
-		strYieldBreakdown = strYieldBreakdown .. "[NEWLINE]";
-	end
-	
-	-- Base Yield per Building
-	local iYieldFromBuildingsExtra = pCity:GetYieldFromYieldPerBuildingTimes100( iYieldType ) / 100;
-	if (iYieldFromBuildingsExtra ~= 0) then
-		strYieldBreakdown = strYieldBreakdown .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_FROM_BUILDINGS_EXTRA", iYieldFromBuildingsExtra, strIconString);
-		strYieldBreakdown = strYieldBreakdown .. "[NEWLINE]";
-	end
-	
-	-- Base Yield from Industrial City Connection
-	if iYieldType == YieldTypes.YIELD_PRODUCTION and pCity:IsIndustrialConnectedToCapital() then
-		local iYieldFromIndustrialCityConnection = pCity:GetConnectionGoldTimes100();
-		iYieldFromIndustrialCityConnection = iYieldFromIndustrialCityConnection / 100
-		
-		strYieldBreakdown = strYieldBreakdown .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_FROM_INDUSTRIAL_CITY_CONNECTION", iYieldFromIndustrialCityConnection, strIconString);
-		strYieldBreakdown = strYieldBreakdown .. "[NEWLINE]";
-	end
-	
-	-- Base Yield from Religion
-	local iYieldFromReligion = pCity:GetBaseYieldRateFromReligion(iYieldType);
-	if (iYieldFromReligion ~= 0) then
-		strYieldBreakdown = strYieldBreakdown .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_FROM_RELIGION", iYieldFromReligion, strIconString);
-		strYieldBreakdown = strYieldBreakdown .. "[NEWLINE]";
-	end
-
-	-- CBP Base Yield From City Connections
-	local iYieldFromConnection = pCity:GetYieldChangeTradeRoute(iYieldType);
-	if (iYieldFromConnection ~= 0) then
-		strYieldBreakdown = strYieldBreakdown .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_FROM_CONNECTION", iYieldFromConnection, strIconString);
-		strYieldBreakdown = strYieldBreakdown .. "[NEWLINE]";
-	end
-
-	-- Base Yield from League Art (CSD)
-	if (iYieldType == YieldTypes.YIELD_SCIENCE) then
-		local iYieldFromLeague = pCity:GetBaseYieldRateFromLeague(iYieldType);
-		if (iYieldFromLeague ~= 0) then
-			if (iYieldType == YieldTypes.YIELD_SCIENCE) then
-			strYieldBreakdown = strYieldBreakdown .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_SCIENCE_YIELD_FROM_LEAGUE_ART", iYieldFromLeague, strIconString);
-			strYieldBreakdown = strYieldBreakdown .. "[NEWLINE]";
-			end
-		end
-	end
-
--- CBP Yield from Great Works
-	if (iYieldType ~= YieldTypes.YIELD_CULTURE) then
-		local iYieldFromGreatWorks = pCity:GetBaseYieldRateFromGreatWorks(iYieldType);
-		if (iYieldFromGreatWorks ~= 0) then
-			strYieldBreakdown = strYieldBreakdown .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_FROM_ART_CBP", iYieldFromGreatWorks, strIconString);
-			strYieldBreakdown = strYieldBreakdown .. "[NEWLINE]";
-		end
-	end
-
-	if (iYieldType ~= YieldTypes.YIELD_CULTURE) then
-		local iYieldFromTraits = pCity:GetYieldPerTurnFromTraits(iYieldType);
-		if (iYieldFromTraits ~= 0) then
-			strYieldBreakdown = strYieldBreakdown .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_FROM_TRAIT_BONUS", iYieldFromTraits, strIconString);
-			strYieldBreakdown = strYieldBreakdown .. "[NEWLINE]";
-		end
-	end
-	
-	-- CP Events
-	-- Base Yield from Events
-	local iYieldFromEvents = pCity:GetEventCityYield(iYieldType);
-	if (iYieldFromEvents ~= 0) then
-		strYieldBreakdown = strYieldBreakdown .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_FROM_EVENTS", iYieldFromEvents, strIconString);
-		strYieldBreakdown = strYieldBreakdown .. "[NEWLINE]";
-	end
-
-	-- WLTKD MOD
--- END CBP
-
-	if(iBase ~= iTotal) then
-		strYieldBreakdown = strYieldBreakdown .. "----------------[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_BASE", iBase, strIconString) .. "[NEWLINE]";
-	end
-	
-	-- Modifiers
-	if (strModifiersString ~= "") then
-		 strYieldBreakdown = strYieldBreakdown .. "----------------" .. strModifiersString .. "[NEWLINE]";
-	end
-	
-	-- Trade Routes and Processes
-	local iYieldFromTrade = 0;
-	if (iYieldType ~= YieldTypes.YIELD_FOOD) then
-		iYieldFromTrade = pCity:GetBaseYieldRateFromTradeRoutes(iYieldType)/100.0;
-	end
-	local iYieldFromProcess = pCity:GetBaseYieldRateFromProcess(iYieldType);
-	if(iYieldFromTrade ~= 0 or iYieldFromProcess ~=0) then
-		strYieldBreakdown = strYieldBreakdown .. "----------------";
-		if(iYieldFromTrade ~= 0) then
-			strYieldBreakdown = strYieldBreakdown .. "[NEWLINE][ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_FROM_TRADE_ROUTES", iYieldFromTrade, strIconString) .. "[NEWLINE]";
-		end
-		if(iYieldFromProcess ~= 0) then
-			strYieldBreakdown = strYieldBreakdown ..  "[NEWLINE][ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_FROM_PROCESS", iYieldFromProcess, strIconString) .. "[NEWLINE]";
-		end
-	end
-	
-	-- Total
-	local strTotal;
-	if (iTotal >= 0) then
-		strTotal = Locale.ConvertTextKey("TXT_KEY_YIELD_TOTAL", iTotal, strIconString);
-	else
-		strTotal = Locale.ConvertTextKey("TXT_KEY_YIELD_TOTAL_NEGATIVE", iTotal, strIconString);
-	end
-	
-	strYieldBreakdown = strYieldBreakdown .. "----------------[NEWLINE]" .. strTotal;
-	return strYieldBreakdown;
-end
-
 
 ----------------------------------------------------------------        
 -- MOOD INFO

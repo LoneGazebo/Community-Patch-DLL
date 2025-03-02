@@ -142,7 +142,7 @@ BuildingTypes CvWonderProductionAI::ChooseWonder(int& iWonderWeight)
 	int iLoop = 0;
 	for (CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 	{
-		int iEstimatedProductionPerTurn = pLoopCity->getCurrentProductionDifference(true, false);
+		int iEstimatedProductionPerTurn = pLoopCity->getRawProductionPerTurnTimes100() / 100;
 		if (iEstimatedProductionPerTurn < 1)
 			iEstimatedProductionPerTurn = 1;
 

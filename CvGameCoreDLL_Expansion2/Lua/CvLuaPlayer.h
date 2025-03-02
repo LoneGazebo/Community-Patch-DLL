@@ -196,6 +196,7 @@ protected:
 	static int lGetResearchTurnsLeft(lua_State* L);
 	static int lGetResearchCost(lua_State* L);
 	static int lGetResearchProgress(lua_State* L);
+	static int lGetResearchProgressTimes100(lua_State* L);
 
 	static int lUnitsRequiredForGoldenAge(lua_State* L);
 	static int lUnitsGoldenAgeCapable(lua_State* L);
@@ -219,6 +220,7 @@ protected:
 	static int lGetTotalLandScored(lua_State* L);
 
 	static int lGetGold(lua_State* L);
+	static int lGetGoldTimes100(lua_State* L);
 	static int lSetGold(lua_State* L);
 	static int lChangeGold(lua_State* L);
 	static int lCalculateGrossGold(lua_State* L);
@@ -236,14 +238,18 @@ protected:
 	static int lGetInternalTradeRouteGoldBonus(lua_State* L);
 	static int lGetGAPFromReligion(lua_State* L);
 	static int lGetGAPFromCities(lua_State* L);
+	static int lGetGAPFromCitiesTimes100(lua_State* L);
 	static int lGetGAPFromTraits(lua_State* L);
 
 	static int lIsDoubleBorderGrowthGA(lua_State* L);
 	static int lIsDoubleBorderGrowthWLTKD(lua_State* L);
 
 	static int lGetTotalJONSCulturePerTurn(lua_State* L);
+	static int lGetTotalJONSCulturePerTurnTimes100(lua_State* L);
+	static int lGetTotalCulturePerTurnTooltip(lua_State* L);
 
 	static int lGetJONSCulturePerTurnFromCities(lua_State* L);
+	static int lGetYieldRateFromCitiesTimes100(lua_State* L);
 
 	static int lGetJONSCulturePerTurnFromExcessHappiness(lua_State* L);
 	static int lGetJONSCulturePerTurnFromTraits(lua_State* L);
@@ -261,15 +267,23 @@ protected:
 	static int lGetCultureCityModifier(lua_State* L);
 
 	static int lGetJONSCulture(lua_State* L);
+	static int lGetJONSCultureTimes100(lua_State* L);
 	static int lSetJONSCulture(lua_State* L);
+	static int lSetJONSCultureTimes100(lua_State* L);
 	static int lChangeJONSCulture(lua_State* L);
+	static int lChangeJONSCultureTimes100(lua_State* L);
 
 	static int lGetJONSCultureEverGenerated(lua_State* L);
+	static int lGetJONSCultureEverGeneratedTimes100(lua_State* L);
 
 	static int lGetLastTurnLifetimeCulture(lua_State* L);
+	static int lGetLastTurnLifetimeCultureTimes100(lua_State* L);
 	static int lGetInfluenceOn(lua_State* L);
+	static int lGetInfluenceOnTimes100(lua_State* L);
 	static int lGetLastTurnInfluenceOn(lua_State* L);
+	static int lGetLastTurnInfluenceOnTimes100(lua_State* L);
 	static int lGetInfluencePerTurn(lua_State* L);
+	static int lGetTourismPerTurnIncludingInstantTimes100(lua_State* L);
 	static int lGetInfluenceLevel(lua_State* L);
 	static int lGetInfluenceTrend(lua_State* L);
 	static int lGetTurnsToInfluential(lua_State* L);
@@ -315,9 +329,11 @@ protected:
 	static int lGetNumGreatWorkSlots(lua_State *L);
 
 	static int lGetFaith(lua_State* L);
+	static int lGetFaithTimes100(lua_State* L);
 	static int lSetFaith(lua_State* L);
 	static int lChangeFaith(lua_State* L);
 	static int lGetTotalFaithPerTurn(lua_State* L);
+	static int lGetTotalFaithPerTurnTimes100(lua_State* L);
 	static int lGetFaithPerTurnFromCities(lua_State* L);
 	static int lGetFaithPerTurnFromMinorCivs(lua_State* L);
 #if defined(MOD_BALANCE_CORE)
@@ -591,6 +607,7 @@ protected:
 
 	static int lGetGoldenAgeProgressThreshold(lua_State* L);
 	static int lGetGoldenAgeProgressMeter(lua_State* L);
+	static int lGetGoldenAgeProgressMeterTimes100(lua_State* L);
 	static int lSetGoldenAgeProgressMeter(lua_State* L);
 	static int lChangeGoldenAgeProgressMeter(lua_State* L);
 	static int lGetNumGoldenAges(lua_State* L);
@@ -634,8 +651,6 @@ protected:
 	static int lGetGreatEngineerRateModifier(lua_State* L);
 	LUAAPIEXTN(GetGreatDiplomatRateModifier, int);
 	LUAAPIEXTN(GetScienceRateFromMinorAllies, int);
-	LUAAPIEXTN(GetScienceRateFromLeagueAid, int);
-	LUAAPIEXTN(GetLeagueCultureCityModifier, int);
 	LUAAPIEXTN(GetArtsyGreatPersonRateModifier, int);
 	LUAAPIEXTN(GetScienceyGreatPersonRateModifier, int);
 	static int lGetPolicyGreatPeopleRateModifier(lua_State* L);
@@ -960,10 +975,12 @@ protected:
 	static int lSetResearchingTech(lua_State* L);
 
 	static int lGetCombatExperience(lua_State* L);
+	static int lGetCombatExperienceTimes100(lua_State* L);
 	static int lChangeCombatExperience(lua_State* L);
 	static int lSetCombatExperience(lua_State* L);
 	static int lGetLifetimeCombatExperience(lua_State* L);
 	static int lGetNavalCombatExperience(lua_State* L);
+	static int lGetNavalCombatExperienceTimes100(lua_State* L);
 	static int lChangeNavalCombatExperience(lua_State* L);
 	static int lSetNavalCombatExperience(lua_State* L);
 
@@ -1380,7 +1397,7 @@ protected:
 
 	LUAAPIEXTN(GetVassalGoldMaintenance, int);
 	LUAAPIEXTN(IsVassalageAcceptable, bool, iOtherPlayer);
-	LUAAPIEXTN(GetYieldPerTurnFromVassals, int);
+	LUAAPIEXTN(GetYieldPerTurnFromVassalsTimes100, int);
 	LUAAPIEXTN(GetHappinessFromVassals, int);
 	LUAAPIEXTN(GetScoreFromVassals, int);
 	LUAAPIEXTN(GetMilitaryAggressivePosture, int, iOtherPlayer);

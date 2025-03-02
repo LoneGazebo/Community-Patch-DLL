@@ -52,6 +52,7 @@ void CvLuaTeamTech::PushMethods(lua_State* L, int t)
 	Method(ChangeResearchProgressPercent);
 	Method(GetResearchCost);
 	Method(GetResearchLeft);
+	Method(GetResearchLeftTimes100);
 #if defined(MOD_CIV6_EUREKA)
 	Method(GetEurekaCounter);
 	Method(SetEurekaCounter);
@@ -156,7 +157,10 @@ int CvLuaTeamTech::lSetResearchProgressTimes100(lua_State* L)
 //int GetResearchProgress(TechTypes eIndex);
 int CvLuaTeamTech::lGetResearchProgress(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvTeamTechs::GetResearchProgress);
+	CvTeamTechs* pkTeamTech = GetInstance(L);
+	const TechTypes eTech = (TechTypes)lua_tointeger(L, 2);
+	lua_pushinteger(L, pkTeamTech->GetResearchProgressTimes100(eTech) / 100);
+	return 1;
 }
 
 //------------------------------------------------------------------------------
@@ -202,9 +206,19 @@ int CvLuaTeamTech::lGetResearchCost(lua_State* L)
 
 //------------------------------------------------------------------------------
 //int GetResearchLeft(TechTypes eTech);
+//LEGACY METHOD, use GetResearchLeftTimes100 instead
 int CvLuaTeamTech::lGetResearchLeft(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvTeamTechs::GetResearchLeft);
+	CvTeamTechs* pkTeamTech = GetInstance(L);
+	const TechTypes eTech = (TechTypes)lua_tointeger(L, 2);
+	lua_pushinteger(L, pkTeamTech->GetResearchLeftTimes100(eTech) / 100);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//int GetResearchLeft(TechTypes eTech);
+int CvLuaTeamTech::lGetResearchLeftTimes100(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvTeamTechs::GetResearchLeftTimes100);
 }
 
 #if defined(MOD_CIV6_EUREKA)

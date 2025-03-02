@@ -270,10 +270,8 @@ void CvPlot::reset()
 	m_vInvisibleVisibilityCount.clear();
 
 	m_kArchaeologyData.Reset();
-#if defined(MOD_BALANCE_CORE)
-	m_bIsTradeUnitRoute = false;
+	m_iNumTradeUnitRoute = 0;
 	m_iLastTurnBuildChanged = 0;
-#endif
 }
 
 //////////////////////////////////////
@@ -5515,16 +5513,23 @@ bool CvPlot::IsCityConnection(PlayerTypes ePlayer, bool bIndustrial) const
 
 #if defined(MOD_BALANCE_CORE)
 //	--------------------------------------------------------------------------------
-void CvPlot::SetTradeUnitRoute(bool bActive)
+void CvPlot::ChangeNumTradeUnitRoute(int iChange)
 {
-	m_bIsTradeUnitRoute = bActive;
+	m_iNumTradeUnitRoute = m_iNumTradeUnitRoute + iChange;
 }
-
+void CvPlot::SetNumTradeUnitRoute(int iNewValue)
+{
+	m_iNumTradeUnitRoute = iNewValue;
+}
+int CvPlot::GetNumTradeUnitRoute() const
+{
+	return m_iNumTradeUnitRoute;
+}
 
 //	--------------------------------------------------------------------------------
 bool CvPlot::IsTradeUnitRoute() const
 {
-	return m_bIsTradeUnitRoute;
+	return GetNumTradeUnitRoute() > 0;
 }
 #endif
 
@@ -6460,7 +6465,6 @@ void CvPlot::updatePotentialCityWork()
 //	--------------------------------------------------------------------------------
 void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUnits, bool, bool bFoundingCity)
 {
-	CvCity* pOldCity = NULL;
 	CvString strBuffer;
 	int iI = 0;
 	ImprovementTypes eLandmarkImprovement = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_LANDMARK");
@@ -6475,7 +6479,8 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 
 		GC.getGame().addReplayMessage(REPLAY_MESSAGE_PLOT_OWNER_CHANGE, eNewValue, "", getX(), getY());
 
-		pOldCity = getPlotCity();
+		CvCity* pOldCity = getPlotCity();
+		CvCity* pOldOwningCity = getEffectiveOwningCity();
 
 		{
 			setOwnershipDuration(0);
@@ -6556,6 +6561,10 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 				if (eImprovement != NO_IMPROVEMENT)
 				{
 					GET_PLAYER(eOldOwner).changeImprovementCount(eImprovement, -1, eOldOwner == eBuilder);
+					if (pOldOwningCity->GetID() != iAcquiringCityID)
+					{
+						pOldOwningCity->ChangeImprovementCount(eImprovement, -1);
+					}
 
 					// Remove siphoned resources
 					CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(eImprovement);
@@ -6624,13 +6633,14 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 				}
 			}
 
-			// This plot is ABOUT TO BE owned. Pop Goody Huts/remove barb camps, etc. Otherwise it will try to reduce the # of Improvements we have in our borders, and these guys shouldn't apply to that count
+			// This plot is ABOUT TO BE owned. Pop Goody Huts/remove barb camps, etc. Otherwise it will try to increase/reduce the # of Improvements we have in our borders, and these guys shouldn't apply to that count
 			if(eNewValue != NO_PLAYER)
 			{
 				// Pop Goody Huts here
 				if(isGoody())
 				{
 					GET_PLAYER(eNewValue).doGoody(this, NULL);
+					eImprovement = NO_IMPROVEMENT;
 				}
 
 				// If there's a camp here, clear it
@@ -6639,6 +6649,7 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 					setImprovementType(NO_IMPROVEMENT);
 					CvBarbarians::DoBarbCampCleared(this, eNewValue);
 					SetPlayerThatClearedBarbCampHere(eNewValue);
+					eImprovement = NO_IMPROVEMENT;
 				}
 
 				// Transfer responsibility of routes and improvements if the plot is now owned by someone else
@@ -6721,6 +6732,12 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 				if(eImprovement != NO_IMPROVEMENT)
 				{
 					GET_PLAYER(eNewValue).changeImprovementCount(eImprovement, 1, getOwner() == eBuilder);
+					// city owner changes hands later or maybe earlier? ugh
+					if (!pOldOwningCity || pOldOwningCity->GetID() != iAcquiringCityID)
+					{
+						CvCity* pNewOwningCity = ::GetPlayerCity(IDInfo(eNewValue, iAcquiringCityID));
+						pNewOwningCity->ChangeImprovementCount(eImprovement, 1);
+					}
 
 					// Add siphoned resources
 					CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(eImprovement);
@@ -7418,7 +7435,7 @@ void CvPlot::setFeatureType(FeatureTypes eNewValue)
 					break;
 
 				pOwningCity->UpdateYieldPerXFeature((YieldTypes)iI, eNewValue);
-				pOwningCity->UpdateYieldPerXUnimprovedFeature((YieldTypes)iI, eNewValue);
+				pOwningCity->UpdateYieldPerXUnimprovedFeature((YieldTypes)iI);
 			}
 		}
 
@@ -8091,6 +8108,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 			{
 				CvPlayer& owningPlayer = GET_PLAYER(owningPlayerID);
 				owningPlayer.changeImprovementCount(eOldImprovement, -1, eOldBuilder == owningPlayerID);
+				pOwningCity->ChangeImprovementCount(eOldImprovement, -1);
 
 				// Siphon resource changes
 				if (oldImprovementEntry.GetLuxuryCopiesSiphonedFromMinor() > 0 && eOldBuilder != NO_PLAYER)
@@ -8497,6 +8515,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 			{
 				CvPlayer& owningPlayer = GET_PLAYER(owningPlayerID);
 				owningPlayer.changeImprovementCount(eNewValue, 1, eBuilder == owningPlayerID);
+				pOwningCity->ChangeImprovementCount(eNewValue, 1);
 
 				//DLC_04 Achievement
 				if (MOD_API_ACHIEVEMENTS)
@@ -9594,6 +9613,18 @@ void CvPlot::setOwningCity(PlayerTypes ePlayer, int iCityID)
 	CvCity* pNewCity = ::GetPlayerCity(IDInfo(ePlayer, iCityID));
 
 	m_owningCity = IDInfo(ePlayer, iCityID);
+	
+	// change improvement ownership
+	ImprovementTypes eImprovement = getImprovementType();
+	if (eImprovement != NO_IMPROVEMENT)
+	{
+		// improvement counts of override city are updated in setOwningCityOverride()
+		if (!pOldCityOverride && pOldCity)
+			pOldCity->ChangeImprovementCount(eImprovement, -1);
+
+		if (pNewCity)
+			pNewCity->ChangeImprovementCount(eImprovement, 1);
+	}
 
 	// if the plot is being worked and the city is about to change then put the citizen somewhere else
 	if (pOldCityOverride && pOldCityOverride != pNewCity)
@@ -9721,7 +9752,7 @@ CvCity* CvPlot::getOwningCityOverride() const
 }
 
 //	--------------------------------------------------------------------------------
-void CvPlot::setOwningCityOverride(const CvCity* pNewValue)
+void CvPlot::setOwningCityOverride(CvCity* pNewValue)
 {
 	CvCity* pCurrentCity = getOwningCityOverride();
 	if ( pNewValue != pCurrentCity )
@@ -9733,6 +9764,15 @@ void CvPlot::setOwningCityOverride(const CvCity* pNewValue)
 		else
 		{
 			m_owningCityOverride.reset();
+		}
+
+		ImprovementTypes eImprovement = getImprovementType();
+		if (eImprovement != NO_IMPROVEMENT)
+		{
+			if (pCurrentCity != NULL)
+				pCurrentCity->ChangeImprovementCount(eImprovement, -1);
+			if (pNewValue != NULL)
+				pNewValue->ChangeImprovementCount(eImprovement, 1);
 		}
 
 		// Remove citizen from this plot if another city was using it
@@ -10519,7 +10559,7 @@ int CvPlot::calculateImprovementYield(YieldTypes eYield, PlayerTypes ePlayer, Im
 	{
 		if(ePlayer != NO_PLAYER)
 		{
-			// Ignore trade routes when planning improvements (they are not static).
+			// GetRouteYieldChanges gives extra yieds if a trade route passes over the tile
 			if(IsTradeUnitRoute() && eForceCityConnection == NUM_ROUTE_TYPES)
 			{
 				if( GET_PLAYER(ePlayer).GetCurrentEra() >= 4 )
@@ -10923,6 +10963,11 @@ int CvPlot::calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTyp
 				{
 					// Extra yield from resources
 					iYield += pOwningCity->GetResourceExtraYield(eResource, eYield);
+
+					if (pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_LUXURY)
+					{
+						iYield += pOwningCity->GetLuxuryExtraYield(eYield);
+					}
 
 					// Extra yield from Trait
 					if (pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
@@ -13575,7 +13620,7 @@ void CvPlot::Serialize(Plot& plot, Visitor& visitor)
 
 	visitor(plot.m_cContinentType);
 	visitor(plot.m_kArchaeologyData);
-	visitor(plot.m_bIsTradeUnitRoute);
+	visitor(plot.m_iNumTradeUnitRoute);
 	visitor(plot.m_iLastTurnBuildChanged);
 
 	visitor(plot.m_sSpawnedResourceX);

@@ -361,9 +361,6 @@ function ProductionDetails( city, instance )
 		local iCurrentProduction = city:GetProduction();
 		local iProductionNeeded = city:GetProductionNeeded();
 		local iProductionPerTurn = city:GetYieldRate(YieldTypes.YIELD_PRODUCTION);
-		if (city:IsFoodProduction()) then
-			iProductionPerTurn = iProductionPerTurn + city:GetYieldRate(YieldTypes.YIELD_FOOD) - city:FoodConsumption(true);
-		end
 		local iCurrentProductionPlusThisTurn = iCurrentProduction + iProductionPerTurn;
 		
 		local fProductionProgressPercent = iCurrentProduction / iProductionNeeded;
@@ -381,7 +378,7 @@ function ProductionDetails( city, instance )
 		local buildGrowth = "-";
 		
 		if (city:IsProduction() and not city:IsProductionProcess()) then
-			if (city:GetCurrentProductionDifferenceTimes100(false, false) > 0) then
+			if (city:GetYieldRateTimes100(YieldTypes.YIELD_PRODUCTION) > 0) then
 				buildGrowth = city:GetProductionTurnsLeft();
 			end
 		end

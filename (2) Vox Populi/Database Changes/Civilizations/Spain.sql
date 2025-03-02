@@ -243,7 +243,7 @@ SET
 	) + 1
 WHERE BuildingType = 'BUILDING_BULLRING';
 
-INSERT INTO Building_YieldFromWLTKD
+INSERT INTO Building_InstantYieldFromWLTKDStart
 	(BuildingType, YieldType, Yield)
 VALUES
 	('BUILDING_BULLRING', 'YIELD_GOLD', 100),

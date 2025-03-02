@@ -840,8 +840,8 @@ function RefreshYourCulture()
 		
 		cityData.HealthPercent = 1 - (city:GetDamage() / city:GetMaxHitPoints());
     
-		cityData.Culture = city:GetJONSCulturePerTurn();
-		cityData.Tourism = city:GetBaseTourism() / 100;
+		cityData.Culture = city:GetYieldRateTimes100(YieldTypes.YIELD_CULTURE) / 100;
+		cityData.Tourism = city:GetYieldRateTimes100(YieldTypes.YIELD_TOURISM) / 100;
 		cityData.TourismToolTip = city:GetTourismTooltip();
 		cityData.GreatWorks = city:GetNumGreatWorks();
 		cityData.GreatWorksToolTip = city:GetTotalSlotsTooltip();
@@ -2154,7 +2154,7 @@ function RefreshPlayerInfluence()
 		g_InfluenceByPlayer.SelectedPlayerTourism = selectedPlayer:GetTourism() / 100;
 	else
 		Controls.TabButtonPlayerInfluence:LocalizeAndSetText("TXT_KEY_CO_TAB_PLAYER_INFLUENCE2");
-		g_InfluenceByPlayer.SelectedPlayerTourism = selectedPlayer:GetTotalJONSCulturePerTurn();
+		g_InfluenceByPlayer.SelectedPlayerTourism = selectedPlayer:GetTotalJONSCulturePerTurnTimes100() / 100;
 	end
 		
 	g_InfluenceByPlayer.Players = {};
@@ -2189,8 +2189,8 @@ function RefreshPlayerInfluence()
 					
 						
 					
-						local iInfluence = pSelectedPlayer:GetInfluenceOn(iPlayer);
-						local iCulture = pPlayer:GetJONSCultureEverGenerated();
+						local iInfluence = pSelectedPlayer:GetInfluenceOnTimes100(iPlayer) / 100;
+						local iCulture = pPlayer:GetJONSCultureEverGeneratedTimes100() / 100;
 						local iPercent = 0;
 						
 						if (iCulture > 0) then
@@ -2243,8 +2243,7 @@ function RefreshPlayerInfluence()
 						playerInfluence.Modifier = iModifiers;
 						playerInfluence.ModifierToolTip = strModifiersToolTip;
 						
-						playerInfluence.TourismPerTurn = pSelectedPlayer:GetInfluencePerTurn(iPlayer);
-						playerInfluence.TourismPerTurn = math.floor(playerInfluence.TourismPerTurn);
+						playerInfluence.TourismPerTurn = pSelectedPlayer:GetTourismPerTurnIncludingInstantTimes100(iPlayer) / 100;
 						
 						if(playerInfluence.TourismPerTurn > 0) then
 							playerInfluence.TourismPerTurnText = "+" .. tostring(playerInfluence.TourismPerTurn);
@@ -2334,8 +2333,8 @@ function RefreshPlayerInfluence()
 					
 						
 					
-						local iInfluence = pPlayer:GetInfluenceOn(g_iSelectedPlayerID);
-						local iCulture = pSelectedPlayer:GetJONSCultureEverGenerated();
+						local iInfluence = pPlayer:GetInfluenceOnTimes100(g_iSelectedPlayerID) / 100;
+						local iCulture = pSelectedPlayer:GetJONSCultureEverGeneratedTimes100() / 100;
 						local iPercent = 0;
 						
 						if (iCulture > 0) then
@@ -2388,8 +2387,7 @@ function RefreshPlayerInfluence()
 						playerInfluence.Modifier = iModifiers;
 						playerInfluence.ModifierToolTip = strModifiersToolTip;
 						
-						playerInfluence.TourismPerTurn = pPlayer:GetInfluencePerTurn(g_iSelectedPlayerID);
-						playerInfluence.TourismPerTurn = math.floor(playerInfluence.TourismPerTurn);
+						playerInfluence.TourismPerTurn = pPlayer:GetTourismPerTurnIncludingInstantTimes100(g_iSelectedPlayerID) / 100;
 						
 						if(playerInfluence.TourismPerTurn > 0) then
 							playerInfluence.TourismPerTurnText = "+" .. tostring(playerInfluence.TourismPerTurn);
@@ -2618,7 +2616,7 @@ function RefreshHistoricEvents()
 	
 	g_HistoricEvents = {};
 	
-	Controls.CurrentCulturePerTurn:SetText(activePlayer:GetTotalJONSCulturePerTurn());
+	Controls.CurrentCulturePerTurn:SetText(activePlayer:GetTotalJONSCulturePerTurnTimes100() / 100);
 	Controls.CurrentCulturePerTurn:SetToolTipString(Locale.Lookup("TXT_KEY_CO_CULTURE_OUTPUT_TT"));
 	Controls.CurrentCulturePerTurn2:SetToolTipString(Locale.Lookup("TXT_KEY_CO_CULTURE_OUTPUT_TT"));
 	Controls.CurrentTourismPerTurn:SetText(activePlayer:GetTourism() / 100);
