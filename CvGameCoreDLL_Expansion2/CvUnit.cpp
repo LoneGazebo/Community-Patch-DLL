@@ -9607,40 +9607,29 @@ float CvUnit::calculateExoticGoodsDistanceFactor(const CvPlot* pPlot)
 //	--------------------------------------------------------------------------------
 bool CvUnit::canSellExoticGoods(const CvPlot* pPlot, bool bOnlyTestVisibility) const
 {
-	if (pPlot == NULL)
-	{
+	if (!pPlot)
 		return false;
-	}
 
 	if (getNumExoticGoods() <= 0)
-	{
 		return false;
-	}
 
 	if (!bOnlyTestVisibility)
 	{
-		int iNumValidPlots = 0;
 		for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 		{
-			CvPlot* pLoopPlot = plotDirection(pPlot->getX(), pPlot->getY(), ((DirectionTypes)iI));
-			if (pLoopPlot != NULL)
+			CvPlot* pLoopPlot = plotDirection(pPlot->getX(), pPlot->getY(), (DirectionTypes)iI);
+			if (!pLoopPlot)
+				continue;
+
+			PlayerTypes eLoopPlotOwner = pLoopPlot->getOwner();
+			if (eLoopPlotOwner != NO_PLAYER && GET_PLAYER(eLoopPlotOwner).getTeam() != getTeam())
 			{
-				PlayerTypes eLoopPlotOwner = pLoopPlot->getOwner();
-				if (eLoopPlotOwner != getOwner() && eLoopPlotOwner != NO_PLAYER)
-				{
-					if (!GET_TEAM(getTeam()).isAtWar(GET_PLAYER(eLoopPlotOwner).getTeam()))
-					{
-						iNumValidPlots++;
-						break;
-					}
-				}
+				if (!GET_TEAM(getTeam()).isAtWar(GET_PLAYER(eLoopPlotOwner).getTeam()))
+					return true;
 			}
 		}
 
-		if (iNumValidPlots <= 0)
-		{
-			return false;
-		}
+		return false;
 	}
 
 	return true;
@@ -9679,119 +9668,122 @@ int CvUnit::getExoticGoodsXPAmount()
 //	--------------------------------------------------------------------------------
 bool CvUnit::sellExoticGoods()
 {
-	if (canSellExoticGoods(plot()))
-	{
-		int iXP = getExoticGoodsXPAmount();
-		int iGold = getExoticGoodsGoldAmount();
-		changeExperienceTimes100(iXP * 100);
-		GET_PLAYER(getOwner()).GetTreasury()->ChangeGold(iGold);
-		char text[256] = {0};
-		sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", iGold);
-		SHOW_PLOT_POPUP(plot(), getOwner(), text);
+	if (!canSellExoticGoods(plot()))
+		return false;
 
-		changeNumExoticGoods(-1);
-#if defined(MOD_BALANCE_CORE)
-		PlayerTypes ePlotOwner = NO_PLAYER;
-		ImprovementTypes eFeitoria = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FEITORIA");
-		if (eFeitoria != NO_IMPROVEMENT)
+	// Award XP and Gold
+	int iXP = getExoticGoodsXPAmount();
+	int iGold = getExoticGoodsGoldAmount();
+	changeExperienceTimes100(iXP * 100);
+	GET_PLAYER(getOwner()).GetTreasury()->ChangeGold(iGold);
+	char text[256] = {0};
+	sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", iGold);
+	SHOW_PLOT_POPUP(plot(), getOwner(), text);
+
+	// Increment # of Exotic Goods sold
+	changeNumExoticGoods(-1);
+
+	ImprovementTypes eFeitoria = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FEITORIA");
+	if (eFeitoria == NO_IMPROVEMENT)
+		return false;
+
+	CvImprovementEntry* pFeitoriaInfo = GC.getImprovementInfo(eFeitoria);
+	if (!pFeitoriaInfo || (pFeitoriaInfo->GetRequiredCivilization() != NO_CIVILIZATION && pFeitoriaInfo->GetRequiredCivilization() != getCivilizationType()))
+		return false;
+
+	// See if there's a City-State whose territory is adjacent to this tile
+	CvPlot* pBestPlot = NULL;
+	int iOceanThreshold = /*10*/ GD_INT_GET(MIN_WATER_SIZE_FOR_OCEAN);
+	for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+	{
+		CvPlot* pLoopPlotSearch = plotDirection(plot()->getX(), plot()->getY(), (DirectionTypes)iI);
+		if (pLoopPlotSearch)
 		{
-			if (GC.getImprovementInfo(eFeitoria) != NULL && GC.getImprovementInfo(eFeitoria)->GetRequiredCivilization() == getCivilizationType())
+			PlayerTypes ePlotOwner = pLoopPlotSearch->getOwner();
+			if (ePlotOwner != NO_PLAYER && GET_PLAYER(ePlotOwner).getTeam() != getTeam() && !GET_TEAM(getTeam()).isAtWar(GET_PLAYER(ePlotOwner).getTeam()) && GET_PLAYER(ePlotOwner).isMinorCiv())
 			{
-				for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+				// We found one! Check if they already have a Feitoria, and if not, build one in their Capital.
+				// Note that it's possible a City-State could also already have a Feitoria if they conquered a City-State or Portuguese city that already has one, but that's OK. They should only have one.
+				if (GET_PLAYER(ePlotOwner).getImprovementCount(eFeitoria, false) > 0)
+					continue;
+
+				CvCity* pCapital = GET_PLAYER(ePlotOwner).getCapitalCity();
+				if (!pCapital)
+					continue;
+
+				std::set<int> siPlots = pCapital->GetPlotList();
+				for (std::set<int>::const_iterator it = siPlots.begin(); it != siPlots.end(); ++it)
 				{
-					CvPlot* pLoopPlotSearch = plotDirection(plot()->getX(), plot()->getY(), ((DirectionTypes)iI));
-					if (pLoopPlotSearch != NULL)
+					CvPlot* pLoopPlot = GC.getMap().plotByIndex(*it);
+					if (!pLoopPlot || pLoopPlot->getOwner() != ePlotOwner || pLoopPlot->isCity() || pLoopPlot->isWater())
+						continue;
+
+					if (pLoopPlot->isImpassable(BARBARIAN_TEAM) || pLoopPlot->IsNaturalWonder() || pLoopPlot->getResourceType(getTeam()) != NO_RESOURCE)
+						continue;
+
+					// Plot must be adjacent to the ocean or a large inland sea
+					if (!pLoopPlot->isCoastalLand(iOceanThreshold))
+						continue;
+
+					// If we can build on an empty spot, do so.
+					if (pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
 					{
-						PlayerTypes eLoopPlotOwner = pLoopPlotSearch->getOwner();
-						if (eLoopPlotOwner != NO_PLAYER)
+						// Prefer to build on a tile with no resource period, even ones the player can't see yet, but if there's no such option we'll build a Feitoria anyway
+						if (pLoopPlot->getResourceType(NO_TEAM) != NO_RESOURCE)
 						{
-							if (!GET_TEAM(getTeam()).isAtWar(GET_PLAYER(eLoopPlotOwner).getTeam()))
-							{
-								if(GET_PLAYER(eLoopPlotOwner).isMinorCiv())
-								{
-									ePlotOwner = eLoopPlotOwner;
-									break;
-								}
-							}
+							pBestPlot = pLoopPlot;
+							break;
+						}
+						else if (!pBestPlot || pBestPlot->getResourceType(NO_TEAM) != NO_RESOURCE)
+						{
+							pBestPlot = pLoopPlot;
 						}
 					}
-				}
-				if (ePlotOwner != NO_PLAYER)
-				{
-					bool bAlreadyHere = false;
-					CvPlot* pBestPlot = NULL;
-					CvCity* pCity = GET_PLAYER(ePlotOwner).getCapitalCity();
-					if (pCity != NULL)
+					// If not, let's clear a basic improvement off.
+					else
 					{
-						std::set<int> siPlots = pCity->GetPlotList();
-						for (std::set<int>::const_iterator it = siPlots.begin(); it != siPlots.end(); ++it)
-						{
-							CvPlot* pLoopPlot = GC.getMap().plotByIndex(*it);
-							if (!pLoopPlot->isCity() && !pLoopPlot->isWater() && !pLoopPlot->isImpassable(getTeam()) && !pLoopPlot->IsNaturalWonder() && pLoopPlot->isCoastalLand() && (pLoopPlot->getResourceType(getTeam()) == NO_RESOURCE))
-							{
-								if (pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
-								{
-									if (pLoopPlot->getImprovementType() == eFeitoria)
-									{
-										bAlreadyHere = true;
-										break;
-									}
+						// Do not replace Embassies, GPTIs, or other unique improvements
+						CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(pLoopPlot->getImprovementType());
+						if (pImprovementInfo->IsPermanent() || pImprovementInfo->IsCreatedByGreatPerson() || pImprovementInfo->GetRequiredCivilization() != NO_CIVILIZATION)
+							continue;
 
-								}
-							}
-						}
-						if (!bAlreadyHere)
+						// Prefer to build on a tile with no resource period, even ones the player can't see yet, but if there's no such option we'll build a Feitoria anyway
+						if (pLoopPlot->getResourceType(NO_TEAM) != NO_RESOURCE)
 						{
-							std::set<int> siPlots = pCity->GetPlotList();
-							for (std::set<int>::const_iterator it = siPlots.begin(); it != siPlots.end(); ++it)
-							{
-								CvPlot* pLoopPlot = GC.getMap().plotByIndex(*it);
-								if (!pLoopPlot->isCity() && !pLoopPlot->isWater() && !pLoopPlot->isImpassable(getTeam()) && !pLoopPlot->IsNaturalWonder() && pLoopPlot->isCoastalLand() && (pLoopPlot->getResourceType(getTeam()) == NO_RESOURCE))
-								{
-									//If we can build on an empty spot, do so.
-									if (pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
-									{
-										pBestPlot = pLoopPlot;
-										break;
-									}
-									//If not, let's clear a basic improvement off.
-									else
-									{
-										CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(pLoopPlot->getImprovementType());
-										if (pImprovementInfo && !pImprovementInfo->IsPermanent() && !pImprovementInfo->IsCreatedByGreatPerson())
-										{
-											pBestPlot = pLoopPlot;
-										}
-									}
-								}
-							}
+							pBestPlot = pLoopPlot;
 						}
-						if (pBestPlot != NULL && !bAlreadyHere)
+						else if (!pBestPlot || pBestPlot->getResourceType(NO_TEAM) != NO_RESOURCE)
 						{
-							pBestPlot->setImprovementType(NO_IMPROVEMENT);
-							pBestPlot->setImprovementType(eFeitoria, getOwner());
-							pBestPlot->SilentlyResetAllBuildProgress();
-
-							IDInfo* pUnitNode = NULL;
-							CvUnit* pLoopUnit = NULL;
-							pUnitNode = pBestPlot->headUnitNode();
-							while (pUnitNode != NULL)
-							{
-								pLoopUnit = ::GetPlayerUnit(*pUnitNode);
-								pUnitNode = pBestPlot->nextUnitNode(pUnitNode);
-								if (pLoopUnit != NULL && pLoopUnit->GetMissionAIType() == MISSIONAI_BUILD && pLoopUnit->GetMissionAIPlot() == pBestPlot)
-								{
-									pLoopUnit->ClearMissionQueue();
-								}
-							}
+							pBestPlot = pLoopPlot;
 						}
 					}
 				}
 			}
 		}
-		return true;
-#endif
 	}
+
+	// Place the Feitoria if we found a suitable location
+	if (pBestPlot)
+	{
+		pBestPlot->setImprovementType(NO_IMPROVEMENT);
+		pBestPlot->setImprovementType(eFeitoria, getOwner());
+		pBestPlot->SilentlyResetAllBuildProgress();
+
+		IDInfo* pUnitNode = NULL;
+		CvUnit* pLoopUnit = NULL;
+		pUnitNode = pBestPlot->headUnitNode();
+		while (pUnitNode != NULL)
+		{
+			pLoopUnit = ::GetPlayerUnit(*pUnitNode);
+			pUnitNode = pBestPlot->nextUnitNode(pUnitNode);
+			if (pLoopUnit != NULL && pLoopUnit->GetMissionAIType() == MISSIONAI_BUILD && pLoopUnit->GetMissionAIPlot() == pBestPlot)
+			{
+				pLoopUnit->ClearMissionQueue();
+			}
+		}
+		return true;
+	}
+
 	return false;
 }
 
