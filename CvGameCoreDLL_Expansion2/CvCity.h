@@ -1387,10 +1387,13 @@ public:
 	void ChangeYieldPerPopInEmpireTimes100(YieldTypes eIndex, int iChange);
 	int GetYieldFromIndustrialCityConnection(YieldTypes eIndex) const;
 
-	std::map<int, std::map<int, int>> GetTechEnhancedYieldsMap() const;
 	int GetTechEnhancedYields(TechTypes eTech, YieldTypes eYield) const;
 	bool TechEnhancesAnyYield(TechTypes eTech) const;
 	void ChangeTechEnhancedYields(TechTypes eTech, YieldTypes eYield, int iChange);
+
+	std::map<int, std::map<int, int>> GetYieldsFromAccomplishmentsMap() const;
+	int GetYieldsFromAccomplishments(AccomplishmentTypes eAccomplishment, YieldTypes eYield) const;
+	void ChangeYieldsFromAccomplishments(AccomplishmentTypes eAccomplishment, YieldTypes eYield, int iChange);
 
 	std::map<pair<GreatPersonTypes, EraTypes>, int> GetGreatPersonPointFromConstructionMap() const;
 	int GetGreatPersonPointFromConstruction(GreatPersonTypes eGreatPerson, EraTypes eEra) const;
@@ -2136,6 +2139,7 @@ protected:
 	std::map<int, int> m_aiYieldPerPopInEmpire;
 #endif
 	std::map<int, std::map<int, int>> m_miTechEnhancedYields;
+	std::map<int, std::map<int, int>> m_miYieldsFromAccomplishments;
 	std::map<pair<GreatPersonTypes, EraTypes>, int> m_miGreatPersonPointFromConstruction;
 	std::vector<int> m_aiYieldPerReligion;
 	std::vector<int> m_aiPowerYieldRateModifier;
@@ -2543,6 +2547,7 @@ SYNC_ARCHIVE_VAR(int, m_iNoUnhappfromXSpecialists)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiGreatWorkYieldChange)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiDamagePermyriad)
 SYNC_ARCHIVE_VAR(SYNC_ARCHIVE_VAR_TYPE(std::map<int, std::map<int, int>>), m_miTechEnhancedYields)
+SYNC_ARCHIVE_VAR(SYNC_ARCHIVE_VAR_TYPE(std::map<int, std::map<int, int>>), m_miYieldsFromAccomplishments)
 SYNC_ARCHIVE_VAR(SYNC_ARCHIVE_VAR_TYPE(std::map<pair<GreatPersonTypes, EraTypes>, int>), m_miGreatPersonPointFromConstruction)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldRateModifier)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiLuxuryExtraYield)
