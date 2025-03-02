@@ -12583,7 +12583,7 @@ void CvCity::changeProductionTimes100(int iChange)
 										bValid = false;
 									}
 									// cannot exceed max instance
-									else if (GC.getGame().isBuildingClassMaxedOut(eBuildingClass) || GET_TEAM(pOtherPlayer->getTeam()).isBuildingClassMaxedOut(eBuildingClass) || pOtherPlayer->isBuildingClassMaxedOut(eBuildingClass))
+									else if (GC.getGame().isBuildingClassMaxedOut(eBuildingClass) || GET_TEAM(pOtherPlayer->getTeam()).isBuildingClassMaxedOut(eBuildingClass) || pOtherPlayer->isBuildingMaxedOut(eBuilding))
 									{
 										bValid = false;
 									}
@@ -26322,7 +26322,7 @@ int CvCity::GetYieldsFromAccomplishments(AccomplishmentTypes eAccomplishment, Yi
 {
 	VALIDATE_OBJECT();
 	ASSERT_DEBUG(eAccomplishment >= 0, "eAccomplishment expected to be >= 0");
-	ASSERT_DEBUG(eAccomplishment < GC.getNumAccomplishmentInfos(), "eTech expected to be < eAccomplishment()");
+	ASSERT_DEBUG(eAccomplishment < NUM_ACCOMPLISHMENTS_TYPES, "eTech expected to be < NUM_ACCOMPLISHMENTS_TYPES");
 	ASSERT_DEBUG(eYield >= 0, "eYield expected to be >= 0");
 	ASSERT_DEBUG(eYield < NUM_YIELD_TYPES, "eYield expected to be < NUM_YIELD_TYPES");
 
@@ -26345,7 +26345,7 @@ void CvCity::ChangeYieldsFromAccomplishments(AccomplishmentTypes eAccomplishment
 	ASSERT_DEBUG(eYield >= 0, "eYield expected to be >= 0");
 	ASSERT_DEBUG(eYield < NUM_YIELD_TYPES, "eYield expected to be < NUM_YIELD_TYPES");
 	ASSERT_DEBUG(eAccomplishment >= 0, "eAccomplishment expected to be >= 0");
-	ASSERT_DEBUG(eAccomplishment < GC.getNumAccomplishmentInfos(), "eAccomplishment expected to be < getNumAccomplishmentInfos()");
+	ASSERT_DEBUG(eAccomplishment < NUM_ACCOMPLISHMENTS_TYPES, "eAccomplishment expected to be < NUM_ACCOMPLISHMENTS_TYPES");
 
 	if (iChange != 0)
 	{
@@ -30048,7 +30048,7 @@ bool CvCity::CreateBuilding(BuildingTypes eBuildingType)
 
 	CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
 
-	if (kPlayer.isBuildingClassMaxedOut(eBuildingClass, 0))
+	if (kPlayer.isBuildingMaxedOut(eBuildingType))
 	{
 		kPlayer.removeBuildingClass(eBuildingClass);
 	}
@@ -31432,7 +31432,7 @@ bool CvCity::doCheckProduction()
 		{
 			const CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 			const BuildingClassTypes eBuildingClass = pkBuildingInfo->GetBuildingClassType();
-			if (kOwner.isProductionMaxedBuildingClass(eBuildingClass))
+			if (kOwner.isProductionMaxedBuilding(eBuilding))
 			{
 				// Beaten to a world wonder by someone?
 				if (isWorldWonderClass(pkBuildingInfo->GetBuildingClassInfo()))
