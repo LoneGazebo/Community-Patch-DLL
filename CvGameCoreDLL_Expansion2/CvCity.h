@@ -910,6 +910,8 @@ public:
 	void ChangeExperiencePerGoldenAge(int iChange);
 	int GetExperiencePerGoldenAgeCap() const;
 	void ChangeExperiencePerGoldenAgeCap(int iChange);
+	int GetWLTKDFromProject(ProjectTypes eProject) const;
+	void ChangeWLTKDFromProject(ProjectTypes eProject, int iNumTurns);
 	int GetExperienceFromPreviousGoldenAges() const;
 	void ChangeExperienceFromPreviousGoldenAges(int iChange);
 
@@ -2102,6 +2104,7 @@ protected:
 	std::tr1::unordered_map<YieldTypes, int> m_miInstantYieldsTotal;
 #endif
 	map<UnitClassTypes, int> m_miUnitClassTrainingAllowed;
+	map<ProjectTypes, int> m_miWLTKDFromProject;
 	std::vector<int> m_aiBaseYieldRateFromReligion;
 #if defined(MOD_BALANCE_CORE)
 	std::vector<int> m_aiBaseYieldRateFromCSAlliance;
@@ -2518,6 +2521,7 @@ SYNC_ARCHIVE_VAR(int, m_iTradeRouteLandDistanceModifier)
 SYNC_ARCHIVE_VAR(int, m_iNukeInterceptionChance)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiEconomicValue)
 SYNC_ARCHIVE_VAR(SYNC_ARCHIVE_VAR_TYPE(map<UnitClassTypes, int>), m_miUnitClassTrainingAllowed)
+SYNC_ARCHIVE_VAR(SYNC_ARCHIVE_VAR_TYPE(map<ProjectTypes, int>), m_miWLTKDFromProject)
 SYNC_ARCHIVE_VAR(SYNC_ARCHIVE_VAR_TYPE(std::tr1::unordered_map<YieldTypes, int>), m_miInstantYieldsTotal)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiBaseYieldRateFromReligion)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiBaseYieldRateFromCSAlliance)

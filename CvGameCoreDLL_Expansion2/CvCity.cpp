@@ -294,6 +294,7 @@ CvCity::CvCity() :
 	, m_aiGreatWorkYieldChange()
 	, m_aiEconomicValue()
 	, m_miUnitClassTrainingAllowed()
+	, m_miWLTKDFromProject()
 	, m_miInstantYieldsTotal()
 	, m_aiEventChoiceDuration()
 	, m_aiEventIncrement()
@@ -1437,6 +1438,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		m_aiNumTimesAttackedThisTurn[iI] = 0;
 	}
 	m_miUnitClassTrainingAllowed.clear();
+	m_miWLTKDFromProject.clear();
 	m_miInstantYieldsTotal.clear();
 	m_aiBaseYieldRateFromReligion.resize(NUM_YIELD_TYPES);
 #if defined(MOD_BALANCE_CORE)	
@@ -13950,6 +13952,14 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 		ChangeExperiencePerGoldenAge(pBuildingInfo->GetExperiencePerGoldenAge() * iChange);
 		ChangeExperiencePerGoldenAgeCap(pBuildingInfo->GetExperiencePerGoldenAgeCap() * iChange);
 
+		map<ProjectTypes, int> miWLTKDFromProject = pBuildingInfo->GetWLTKDFromProject();
+		if (!miWLTKDFromProject.empty())
+		{
+			for (std::map<ProjectTypes, int>::const_iterator it = miWLTKDFromProject.begin(); it != miWLTKDFromProject.end(); ++it)
+			{
+				ChangeWLTKDFromProject(it->first, it->second * iChange);
+			}
+		}
 		if (pBuildingInfo->GetUnmoddedHappiness() != 0)
 		{
 			ChangeUnmoddedHappinessFromBuildings(pBuildingInfo->GetUnmoddedHappiness() * iChange);
@@ -21722,6 +21732,28 @@ void CvCity::ChangeExperiencePerGoldenAgeCap(int iChange)
 	m_iExperiencePerGoldenAgeCap += iChange;
 	ASSERT_DEBUG(m_iExperiencePerGoldenAgeCap >= 0);
 }
+
+
+void CvCity::ChangeWLTKDFromProject(ProjectTypes eProject, int iValue)
+{
+	VALIDATE_OBJECT();
+	m_miWLTKDFromProject[eProject] += iValue;
+
+	if (m_miWLTKDFromProject[eProject] == 0)
+	{
+		m_miWLTKDFromProject.erase(eProject);
+	}
+}
+
+int CvCity::GetWLTKDFromProject(ProjectTypes eProject) const
+{
+	if (m_miWLTKDFromProject.count(eProject) > 0)
+	{
+		return m_miWLTKDFromProject.find(eProject)->second;
+	}
+	return 0;
+}
+
 
 //	--------------------------------------------------------------------------------
 /// Additional XP for Units trained in this city from previous golden ages
@@ -30039,6 +30071,10 @@ bool CvCity::CreateProject(ProjectTypes eProjectType)
 		ChangeReligiousUnrestModifier(pProject->GetReligiousUnrestModifier());
 		ChangeSpySecurityModifier(pProject->GetSpySecurityModifier());
 	}
+	if (GetWLTKDFromProject(eProjectType) > 0)
+	{
+		ChangeWeLoveTheKingDayCounter(GetWLTKDFromProject(eProjectType));
+	}
 
 	GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityProjectComplete, getOwner(), GetID(), eProjectType);
 
@@ -32005,6 +32041,7 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_iNukeInterceptionChance);
 	visitor(city.m_aiEconomicValue);
 	visitor(city.m_miUnitClassTrainingAllowed);
+	visitor(city.m_miWLTKDFromProject);
 	visitor(city.m_miInstantYieldsTotal);
 	visitor(city.m_aiBaseYieldRateFromReligion);
 	visitor(city.m_aiBaseYieldRateFromCSAlliance);
