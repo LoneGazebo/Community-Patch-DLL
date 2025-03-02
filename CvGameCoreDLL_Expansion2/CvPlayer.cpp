@@ -9662,6 +9662,32 @@ int CvPlayer::GetNumUnitPromotions(PromotionTypes ePromotion)
 	return iNum;
 }
 
+int CvPlayer::GetNumUnitsInProduction(DomainTypes eDomain, bool bMilitaryOnly)
+{
+	int iNumUnits = 0;
+
+	CvCity* pLoopCity = NULL;
+	int iLoop = 0;
+
+	for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	{
+		UnitTypes eUnitType = pLoopCity->getProductionUnit();
+
+		if (eUnitType == NO_UNIT)
+			continue;
+
+		CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnitType);
+
+		if (pkUnitInfo == NULL)
+			continue;
+
+		if (pkUnitInfo->GetDomainType() == eDomain && (!bMilitaryOnly || pkUnitInfo->GetCombat() > 0))
+			iNumUnits++;
+	}
+
+	return iNumUnits;
+}
+
 //	-----------------------------------------------------------------------------------------------
 void CvPlayer::UpdateDangerPlots()
 {
