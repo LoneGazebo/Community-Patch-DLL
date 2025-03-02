@@ -1508,6 +1508,23 @@ int CvLuaCity::lGetBuildingYieldRateTimes100(lua_State* L)
 			}
 		}
 
+		if (!pBuildingInfo->GetYieldChangesFromAccomplishments().empty())
+		{
+			map<int, std::map<int, int>> mYieldsFromAccomplishments = pBuildingInfo->GetYieldChangesFromAccomplishments();
+			map<int, std::map<int, int>>::iterator it;
+			for (it = mYieldsFromAccomplishments.begin(); it != mYieldsFromAccomplishments.end(); it++)
+			{
+				if (pPlayer->GetNumTimesAccomplishmentCompleted((AccomplishmentTypes)it->first) > 0)
+				{
+					std::map<int, int>::const_iterator it2 = (it->second).find(eYield);
+					if (it2 != (it->second).end())
+					{
+						iYieldTimes100 += it2->second * pPlayer->GetNumTimesAccomplishmentCompleted((AccomplishmentTypes)it->first) * 100;
+					}
+				}
+			}
+		}
+
 		iYieldTimes100 += pPlayer->GetBuildingClassYieldChange(eBuildingClass, eYield) * 100;
 		iYieldTimes100 += pPlayer->GetPlayerTraits()->GetBuildingClassYieldChange(eBuildingClass, eYield) * 100;
 

@@ -433,6 +433,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 #if defined(MOD_BALANCE_CORE)
 	m_ppiResourceYieldChangeGlobal(),
 	m_miTechEnhancedYields(),
+	m_miYieldChangesFromAccomplishments(),
 	m_miGreatPersonPointFromConstruction(),
 	m_ppaiImprovementYieldChange(NULL),
 	m_ppaiImprovementYieldChangeGlobal(NULL),
@@ -608,6 +609,7 @@ CvBuildingEntry::~CvBuildingEntry(void)
 #if defined(MOD_BALANCE_CORE)
 	m_ppiResourceYieldChangeGlobal.clear();
 	m_miTechEnhancedYields.clear();
+	m_miYieldChangesFromAccomplishments.clear();
 	m_miGreatPersonPointFromConstruction.clear();
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiImprovementYieldChange);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiImprovementYieldChangeGlobal);
@@ -1350,6 +1352,33 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 
 		//Trim extra memory off container since this is mostly read-only.
 		std::map<int, std::map<int, int>>(m_miTechEnhancedYields).swap(m_miTechEnhancedYields);
+	}
+	// Building_YieldChangesFromAccomplishments
+	// Table structure (BuildingType, YieldType, Yield, AccomplishmentType)
+	// The building produces additional yields per turn once the corresponding accomplishment has been achieved
+	{
+		std::string strKey("Building_YieldChangesFromAccomplishments");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if (pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select Accomplishments.ID, Yields.ID as YieldID, Yield from Building_YieldChangesFromAccomplishments left join Accomplishments on Accomplishments.Type = AccomplishmentType inner join Yields on Yields.Type = YieldType where BuildingType = ?");
+		}
+
+		pResults->Bind(1, szBuildingType);
+
+		while (pResults->Step())
+		{
+			const int iAccomplishment = pResults->GetInt(0);
+			const int iYieldType = pResults->GetInt(1);
+			const int iYield = pResults->GetInt(2);
+
+			m_miYieldChangesFromAccomplishments[iAccomplishment][iYieldType] += iYield;
+		}
+
+		pResults->Reset();
+
+		//Trim extra memory off container since this is mostly read-only.
+		std::map<int, std::map<int, int>>(m_miYieldChangesFromAccomplishments).swap(m_miYieldChangesFromAccomplishments);
 	}
 
 	// Building_GreatPersonPointFromConstruction
@@ -4702,6 +4731,11 @@ int CvBuildingEntry::GetResourceYieldChangeGlobal(int iResource, int iYieldType)
 std::map<int, std::map<int, int>> CvBuildingEntry::GetTechEnhancedYields() const
 {
 	return m_miTechEnhancedYields;
+}
+
+std::map<int, std::map<int, int>> CvBuildingEntry::GetYieldChangesFromAccomplishments() const
+{
+	return m_miYieldChangesFromAccomplishments;
 }
 
 std::map<pair<GreatPersonTypes, EraTypes>, int> CvBuildingEntry::GetGreatPersonPointFromConstruction() const

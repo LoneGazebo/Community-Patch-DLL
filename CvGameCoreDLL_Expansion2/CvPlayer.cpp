@@ -37201,6 +37201,20 @@ int CvPlayer::GetNumTimesAccomplishmentCompleted(AccomplishmentTypes eAccomplish
 /// Sets that we have achieved a certain Accomplishment. One-time bonuses can be added to this function.
 void CvPlayer::CompleteAccomplishment(AccomplishmentTypes eAccomplishment)
 {
+	// update extra yields in cities
+	int iLoop = 0;
+	CvCity* pLoopCity = NULL;
+	for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	{
+		if (!pLoopCity->GetYieldsFromAccomplishmentsMap().empty())
+		{
+			for (int iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
+			{
+				pLoopCity->ChangeBaseYieldRateFromBuildings(((YieldTypes)iJ), pLoopCity->GetYieldsFromAccomplishments(eAccomplishment, (YieldTypes)iJ));
+			}
+		}
+	}
+
 	m_aiAccomplishments[(int)eAccomplishment]++;
 }
 

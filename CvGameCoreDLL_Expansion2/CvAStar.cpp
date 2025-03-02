@@ -3351,7 +3351,7 @@ int TradePathLandCost(const CvAStarNode* parent, const CvAStarNode* node, const 
 			RouteTypes eRouteTypeForImprovement = (GET_PLAYER(finder->GetData().ePlayer).GetCurrentEra() >= 4) ? ROUTE_RAILROAD : ROUTE_ROAD;
 			for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
 			{
-				iExtraYieldDiscount += GC.getImprovementInfo(pToPlot->getImprovementType())->GetRouteYieldChanges(ROUTE_ROAD, iYield);
+				iExtraYieldDiscount += GC.getImprovementInfo(pToPlot->getImprovementType())->GetRouteYieldChanges(eRouteTypeForImprovement, iYield);
 			}
 		}
 	}
