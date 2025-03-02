@@ -25992,16 +25992,26 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 						continue;
 					}
 
-					int iLevelUpYield = pLoopCity->GetYieldFromUnitLevelUp(eYield) + GetPlayerTraits()->GetYieldFromLevelUp(eYield);
-
-					if (iPassYield != 0 && iLevelUpYield > 0)
+					int iLevelUpYield = 0;
+					if (pCity == NULL)
 					{
-						int iMetric = ((((iPassYield * iPassYield) - (2 * iPassYield) + 1)) * iLevelUpYield);
-						if (iMetric <= 0)
-							iMetric = 1;
-
-						iValue += iMetric;
+						// global yields
+						iLevelUpYield = pLoopCity->GetYieldFromUnitLevelUpGlobal(eYield) * iPassYield;
 					}
+					else
+					{
+						// local yields
+						iLevelUpYield = pLoopCity->GetYieldFromUnitLevelUp(eYield) + GetPlayerTraits()->GetYieldFromLevelUp(eYield);
+						if (iPassYield != 0 && iLevelUpYield > 0)
+						{
+							iLevelUpYield *= (((iPassYield * iPassYield) - (2 * iPassYield) + 1));
+							if (iLevelUpYield <= 0)
+								iLevelUpYield = 1;
+
+						}
+					}
+					iValue += iLevelUpYield;
+					
 					break;
 				}
 				case INSTANT_YIELD_TYPE_CULTURE_BOMB:
@@ -27059,9 +27069,9 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 						localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_LEVEL_UP");
 						localizedText << totalyieldString;
 						localizedText << pkUnitInfo->GetDescriptionKey();
-						break;
 					}
 				}
+				break;
 			}
 			case INSTANT_YIELD_TYPE_CULTURE_BOMB:
 			{
