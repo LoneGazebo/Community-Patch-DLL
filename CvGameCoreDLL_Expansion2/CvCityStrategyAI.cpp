@@ -4075,6 +4075,10 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 			iInstant += pkBuildingInfo->GetYieldFromUnitLevelUp(eYield);
 		}
 	}
+	if (pkBuildingInfo->GetYieldFromUnitLevelUpGlobal(eYield) > 0)
+	{
+		iInstant += pkBuildingInfo->GetYieldFromUnitLevelUpGlobal(eYield) * iEra;
+	}
 
 	if (pkBuildingInfo->GetYieldFromCombatExperienceTimes100(eYield) > 0)
 	{
