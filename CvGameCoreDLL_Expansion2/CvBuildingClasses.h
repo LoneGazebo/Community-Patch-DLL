@@ -510,6 +510,8 @@ public:
 	int GetYieldFromFaithPurchase(int i) const;
 	int* GetYieldFromFaithPurchaseArray() const;
 
+	int GetYieldFromUnitLevelUpGlobal(int i) const;
+
 	int GetYieldFromInternationalTREnd(int i) const;
 
 	int GetYieldFromInternalTREnd(int i) const;
@@ -1029,6 +1031,7 @@ private:
 	int* m_piYieldFromPurchase;
 	int* m_piYieldFromPurchaseGlobal;
 	int* m_piYieldFromFaithPurchase;
+	int* m_piYieldFromUnitLevelUpGlobal;
 	int* m_piYieldFromInternalTREnd;
 	int* m_piYieldFromInternationalTREnd;
 	int* m_piYieldFromInternal;

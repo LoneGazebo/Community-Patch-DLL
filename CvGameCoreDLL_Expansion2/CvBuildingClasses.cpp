@@ -366,6 +366,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_piYieldFromPurchase(NULL),
 	m_piYieldFromPurchaseGlobal(NULL),
 	m_piYieldFromFaithPurchase(NULL),
+	m_piYieldFromUnitLevelUpGlobal(NULL),
 #endif
 	m_piYieldChange(NULL),
 	m_piYieldChangeEraScalingTimes100(NULL),
@@ -535,6 +536,7 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	SAFE_DELETE_ARRAY(m_piYieldFromPurchase);
 	SAFE_DELETE_ARRAY(m_piYieldFromPurchaseGlobal);
 	SAFE_DELETE_ARRAY(m_piYieldFromFaithPurchase);
+	SAFE_DELETE_ARRAY(m_piYieldFromUnitLevelUpGlobal);
 #endif
 	SAFE_DELETE_ARRAY(m_piYieldChange);
 	SAFE_DELETE_ARRAY(m_piYieldChangeEraScalingTimes100);
@@ -1110,6 +1112,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	kUtility.SetYields(m_piYieldFromPurchase, "Building_YieldFromPurchase", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromPurchaseGlobal, "Building_YieldFromPurchaseGlobal", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromFaithPurchase, "Building_YieldFromFaithPurchase", "BuildingType", szBuildingType);
+	kUtility.SetYields(m_piYieldFromUnitLevelUpGlobal, "Building_YieldFromUnitLevelUpGlobal", "BuildingType", szBuildingType);
 #endif
 	kUtility.SetYields(m_piYieldChange, "Building_YieldChanges", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldChangeEraScalingTimes100, "Building_YieldChangesEraScalingTimes100", "BuildingType", szBuildingType);
@@ -3827,6 +3830,13 @@ int CvBuildingEntry::GetYieldFromFaithPurchase(int i) const
 int* CvBuildingEntry::GetYieldFromFaithPurchaseArray() const
 {
 	return m_piYieldFromFaithPurchase;
+}
+
+int CvBuildingEntry::GetYieldFromUnitLevelUpGlobal(int i) const
+{
+	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
+	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	return m_piYieldFromUnitLevelUpGlobal[i];
 }
 
 /// Instant yield granted when an international trade route ends
