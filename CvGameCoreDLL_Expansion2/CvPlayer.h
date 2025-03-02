@@ -328,7 +328,7 @@ public:
 	bool canMaintain(ProcessTypes eProcess, bool bContinue = false) const;
 	bool IsCanPurchaseAnyCity(bool bTestPurchaseCost, bool bTestTrainable, UnitTypes eUnit, BuildingTypes eBuilding, YieldTypes ePurchaseYield);
 	bool isProductionMaxedUnitClass(UnitClassTypes eUnitClass) const;
-	bool isProductionMaxedBuildingClass(BuildingClassTypes eBuildingClass, bool bAcquireCity = false) const;
+	bool isProductionMaxedBuilding(BuildingTypes eBuilding, bool bAcquireCity = false) const;
 	bool isProductionMaxedProject(ProjectTypes eProject) const;
 	int getProductionNeeded(UnitTypes eUnit, bool bIgnoreDifficulty) const;
 	int getProductionNeeded(BuildingTypes eBuilding) const;
@@ -2215,7 +2215,8 @@ public:
 	int getUnitClassCountPlusMaking(UnitClassTypes eIndex) const;
 
 	int getBuildingClassCount(BuildingClassTypes eIndex) const;
-	bool isBuildingClassMaxedOut(BuildingClassTypes eIndex, int iExtra = 0) const;
+	int getMaxPlayerInstances(BuildingTypes eIndex) const;
+	bool isBuildingMaxedOut(BuildingTypes eIndex, int iExtra = 0) const;
 	void changeBuildingClassCount(BuildingClassTypes eIndex, int iChange);
 	int getBuildingClassMaking(BuildingClassTypes eIndex) const;
 	void changeBuildingClassMaking(BuildingClassTypes eIndex, int iChange);

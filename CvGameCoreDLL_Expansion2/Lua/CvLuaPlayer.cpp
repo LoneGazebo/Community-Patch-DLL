@@ -2597,7 +2597,13 @@ int CvLuaPlayer::lIsProductionMaxedUnitClass(lua_State* L)
 //bool isProductionMaxedBuildingClass(BuildingClassTypes  eBuildingClass, bool bAcquireCity);
 int CvLuaPlayer::lIsProductionMaxedBuildingClass(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::isProductionMaxedBuildingClass);
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const BuildingClassTypes iIndex = (BuildingClassTypes)lua_tointeger(L, 2);
+	const bool bAcquireCity = lua_toboolean(L, 3);
+
+	BuildingTypes eBuilding = (BuildingTypes)pkPlayer->getCivilizationInfo().getCivilizationBuildings(iIndex);
+	lua_pushinteger(L, pkPlayer->isProductionMaxedBuilding(eBuilding, bAcquireCity));
+	return 1;
 }
 //------------------------------------------------------------------------------
 //bool isProductionMaxedProject(ProjectTypes  eProject);
@@ -10265,7 +10271,13 @@ int CvLuaPlayer::lGetBuildingClassCount(lua_State* L)
 //bool isBuildingClassMaxedOut(BuildingClassTypes  iIndex, int iExtra);
 int CvLuaPlayer::lIsBuildingClassMaxedOut(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::isBuildingClassMaxedOut);
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const BuildingClassTypes iIndex = (BuildingClassTypes)lua_tointeger(L, 2);
+	const int iExtra = lua_tointeger(L, 3);
+
+	BuildingTypes eBuilding = (BuildingTypes)pkPlayer->getCivilizationInfo().getCivilizationBuildings(iIndex);
+	lua_pushinteger(L, pkPlayer->isBuildingMaxedOut(eBuilding, iExtra));
+	return 1;
 }
 //------------------------------------------------------------------------------
 //int getBuildingClassMaking(BuildingClassTypes  iIndex);
