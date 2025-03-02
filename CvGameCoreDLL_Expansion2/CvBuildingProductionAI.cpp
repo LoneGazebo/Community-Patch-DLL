@@ -557,6 +557,16 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		bGoodforHappiness = true;
 	}
 
+	if (!pkBuildingInfo->GetBonusFromAccomplishments().empty())
+	{
+		map<int, AccomplishmentBonusInfo> mBonusesFromAccomplishments = pkBuildingInfo->GetBonusFromAccomplishments();
+		map<int, AccomplishmentBonusInfo>::iterator it;
+		for (it = mBonusesFromAccomplishments.begin(); it != mBonusesFromAccomplishments.end(); it++)
+		{
+			iBonus += iHappinessValue + kPlayer.GetNumTimesAccomplishmentCompleted((AccomplishmentTypes)it->first) > 0 * it->second.iHappiness;
+		}
+	}
+
 	if ( pkBuildingInfo->GetHappinessPerCity() > 0)
 	{
 		iBonus += iHappinessValue * pkBuildingInfo->GetHappinessPerCity() * kPlayer.getNumCities();
@@ -970,10 +980,22 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 				int iTempBonus = 0;
 				int iTempMod = 0;
 
-				if(pkBuildingInfo->GetDomainFreeExperience(eTestDomain) > 0 || pkBuildingInfo->GetDomainFreeExperiencePerGreatWork(eTestDomain))
+				if (pkBuildingInfo->GetDomainFreeExperience(eTestDomain) > 0 || pkBuildingInfo->GetDomainFreeExperiencePerGreatWork(eTestDomain))
 				{
-					iTempBonus += (m_pCity->getDomainFreeExperience(eTestDomain) + pkBuildingInfo->GetDomainFreeExperience(eTestDomain) + pkBuildingInfo->GetDomainFreeExperiencePerGreatWork(eTestDomain));
-				}		
+					iTempBonus += (m_pCity->getDomainFreeExperience(eTestDomain) + pkBuildingInfo->GetDomainFreeExperience(eTestDomain) + (pkBuildingInfo->GetDomainFreeExperiencePerGreatWork(eTestDomain) * m_pCity->GetCityCulture()->GetNumGreatWorks()));
+				}
+				if (!pkBuildingInfo->GetBonusFromAccomplishments().empty())
+				{
+					map<int, AccomplishmentBonusInfo> mBonusesFromAccomplishments = pkBuildingInfo->GetBonusFromAccomplishments();
+					map<int, AccomplishmentBonusInfo>::iterator it;
+					for (it = mBonusesFromAccomplishments.begin(); it != mBonusesFromAccomplishments.end(); it++)
+					{
+						if (it->second.eDomainType == eTestDomain)
+						{
+							iTempBonus += m_pCity->getDomainFreeExperience(eTestDomain) + kPlayer.GetNumTimesAccomplishmentCompleted((AccomplishmentTypes)it->first) > 0 * it->second.iDomainXP;
+						}
+					}
+				}
 				if(pkBuildingInfo->GetDomainProductionModifier(eTestDomain) > 0)
 				{
 					iTempBonus += m_pCity->getDomainProductionModifier(eTestDomain) + pkBuildingInfo->GetDomainProductionModifier(eTestDomain);
@@ -1023,6 +1045,18 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 				if(pkBuildingInfo->GetUnitCombatProductionModifier(eUnitCombatClass) > 0)
 				{
 					iTempBonus += m_pCity->getUnitCombatProductionModifier(eUnitCombatClass) + pkBuildingInfo->GetUnitCombatProductionModifier(eUnitCombatClass);
+				}
+				if (!pkBuildingInfo->GetBonusFromAccomplishments().empty())
+				{
+					map<int, AccomplishmentBonusInfo> mBonusesFromAccomplishments = pkBuildingInfo->GetBonusFromAccomplishments();
+					map<int, AccomplishmentBonusInfo>::iterator it;
+					for (it = mBonusesFromAccomplishments.begin(); it != mBonusesFromAccomplishments.end(); it++)
+					{
+						if (it->second.eUnitCombatType = eUnitCombatClass)
+						{
+							iTempBonus += m_pCity->getUnitCombatProductionModifier(eUnitCombatClass) + kPlayer.GetNumTimesAccomplishmentCompleted((AccomplishmentTypes)it->first) > 0 * it->second.iUnitProductionModifier;
+						}
+					}
 				}
 				if(pkBuildingInfo->GetUnitCombatProductionModifierGlobal(eUnitCombatClass) > 0)
 				{

@@ -3541,6 +3541,8 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 			}
 		}
 	}
+
+
 	if (pkBuildingInfo->GetYieldChangePerPop(eYield) > 0)
 	{
 		//Since this is going to grow, let's boost the pop by Era (earlier more: Anc x6, Cla x3, Med x2, Ren x1.5, Mod x1.2)
