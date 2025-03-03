@@ -7550,9 +7550,26 @@ int CvUnit::GetPower() const
 	int iPowerMod = getLevel() * 125;
 	iPower = (iPower * (1000 + iPowerMod)) / 1000;
 
-	//Reduce power for damaged units
-	int iDamageMod = m_iDamage * /*33*/ GD_INT_GET(WOUNDED_DAMAGE_MULTIPLIER) / 100;
-	iPower -= (iPower * iDamageMod / GetMaxHitPoints());
+	// Reduce power for damaged units
+	int iWoundedDamageMultiplier = 33;
+	int iEliteForcesMod = GET_PLAYER(getOwner()).GetWoundedUnitDamageMod(); // +25% CS when wounded (vanilla Autocracy tenet)
+
+	// Unit is stronger when damaged (Banzai!) - apply only 1/2 of the decrease
+	if (IsStrongerDamaged())
+	{
+		iWoundedDamageMultiplier /= 2;
+	}
+	else
+	{
+		// Unit fights at full strength when damaged, or has a bonus to CS when wounded - apply only 75% of the decrease
+		int iReductionFromEliteForces = iEliteForcesMod < 0 ? 25 * iEliteForcesMod / -25 : 0;
+		int iReductionFromFightWellDamaged = (IsFightWellDamaged() || GET_PLAYER(getOwner()).GetPlayerTraits()->IsFightWellDamaged()) ? 25 : 0;
+		iWoundedDamageMultiplier *= max(100 - max(iReductionFromEliteForces, iReductionFromFightWellDamaged), 0);
+		iWoundedDamageMultiplier /= 100;
+	}
+
+	iPower *= 100 - (getDamage() * iWoundedDamageMultiplier / GetMaxHitPoints());
+	iPower /= 100;
 
 	return iPower;
 }
@@ -15612,6 +15629,9 @@ int CvUnit::workRate(bool bMax, BuildTypes /*eBuild*/) const
 	if (!bMax && !canMove())
 		return 0;
 
+	if (MOD_CIV6_WORKER)
+		return 1;
+
 	int iRate = m_pUnitInfo->GetWorkRate();
 	if (iRate <= 0)
 	{
@@ -15630,9 +15650,6 @@ int CvUnit::workRate(bool bMax, BuildTypes /*eBuild*/) const
 	// Work Rate of 1 is used for instant builds
 	if (iRate <= 1)
 		return iRate;
-
-	if (MOD_CIV6_WORKER)
-		return 1;
 
 	int Modifiers = 0;
 	if (MOD_BALANCE_CORE_BARBARIAN_THEFT && GetWorkRateMod() != 0)
@@ -16001,7 +16018,7 @@ int CvUnit::GetDamageCombatModifier(bool bForDefenseAgainstRanged, int iAssumedD
 	int iWoundedDamageMultiplier = /*33*/ GD_INT_GET(WOUNDED_DAMAGE_MULTIPLIER);
 	int iRtnValue = iDamageValueToUse > 0 ? GET_PLAYER(getOwner()).GetWoundedUnitDamageMod() * -1 : 0; // usually 0, +25% with vanilla Elite Forces if wounded
 
-	// Unit is stronger when damaged (Tenacity)
+	// Unit is stronger when damaged (Banzai!)
 	if (iDamageValueToUse > 0 && IsStrongerDamaged())
 	{
 		iRtnValue += (iDamageValueToUse * iWoundedDamageMultiplier) / 100;
@@ -16009,13 +16026,13 @@ int CvUnit::GetDamageCombatModifier(bool bForDefenseAgainstRanged, int iAssumedD
 	}
 
 	// Option: Damage modifier does not apply for defense against ranged attack (fewer targets -> harder to hit)
-	// Units that fight well damaged do not take a penalty from being wounded
 	if (bForDefenseAgainstRanged && MOD_BALANCE_CORE_RANGED_ATTACK_PENALTY)
 	{
 		return iRtnValue;
 	}
 
 	// How much does damage weaken the effectiveness of the Unit?
+	// Units that fight well damaged do not take a penalty from being wounded
 	if (iDamageValueToUse > 0 && !IsFightWellDamaged() && !GET_PLAYER(getOwner()).GetPlayerTraits()->IsFightWellDamaged())
 	{
 		iRtnValue -= (iDamageValueToUse * iWoundedDamageMultiplier) / 100;

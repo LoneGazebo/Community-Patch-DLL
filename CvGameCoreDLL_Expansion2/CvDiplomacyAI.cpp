@@ -21333,6 +21333,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	else
 	{
 		// Increase NEUTRAL if we're somewhere between the two thresholds, inclusive
+		// The closer iOpinionWeight is to 0, the stronger the boost (2x iNeutralMod when at 0, 1x iNeutralMod when at either threshold)
 		if (iOpinionWeight >= 0)
 		{
 			iNeutralMod *= (100 + 100 * (iCompetitorThreshold - iOpinionWeight) / iCompetitorThreshold);
