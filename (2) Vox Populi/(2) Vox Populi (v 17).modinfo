@@ -1330,6 +1330,8 @@
     <File md5="EBA442547685943BC6921DBD19C77F8D" import="1">LUA/DiploCorner.lua</File>
     <File md5="7B7789E13EC6018565BBEC5092F4C10E" import="1">LUA/DiploCorner.xml</File>
     <File md5="F090F96830E5AD2EDE4B644F0A7118F9" import="1">LUA/DiploList.lua</File>
+    <File md5="F9E38F7D92A8EF6E8659B0527AEA1674" import="1">LUA/GameSetupScreen.lua</File>
+    <File md5="FE31FBA4C2E0F415B11868580B2A9AA2" import="1">LUA/GameSetupScreen.xml</File>
     <File md5="67F4F6A874C0519432E97C82B8E999A0" import="1">LUA/HappinessInfo.lua</File>
     <File md5="EB1DABE644906CD1AA3312C36CE166AE" import="1">LUA/HappinessInfo.xml</File>
     <File md5="CD02D692B23BE1771758CAEC9C99FF2C" import="1">LUA/InfoTooltipInclude.lua</File>
@@ -1340,6 +1342,8 @@
     <File md5="F12FAD65FB41CF9AF19A9C4A939F8C9B" import="0">LUA/PlotHelpManager.lua</File>
     <File md5="F9E38F7D92A8EF6E8659B0527AEA1674" import="1">LUA/ProductionPopup.lua</File>
     <File md5="FE31FBA4C2E0F415B11868580B2A9AA2" import="1">LUA/ProductionPopup.xml</File>
+    <File md5="F9E38F7D92A8EF6E8659B0527AEA1674" import="1">LUA/SelectCivilization.lua</File>
+    <File md5="FE31FBA4C2E0F415B11868580B2A9AA2" import="1">LUA/SelectCivilization.xml</File>
     <File md5="384417993B195C5BACCC586EABD1910E" import="1">LUA/SocialPolicyPopup.lua</File>
     <File md5="AFDCE04CF7F4A8FD40BB08BC1103B89B" import="1">LUA/SocialPolicyPopup.xml</File>
     <File md5="A4164F47ABA8106FBBBFED1E8D6E18C6" import="1">LUA/TechButtonInclude.lua</File>
@@ -1350,6 +1354,7 @@
     <File md5="CA6428504FBE7E5D4426FF3BA1C52EED" import="1">LUA/UnitFlagManager.lua</File>
     <File md5="79EC0F518D3BE91C47CF662381D5C9FE" import="1">LUA/UnitFlagManager.xml</File>
     <File md5="52A6E6731B431A76E1BAB0DA1430F0C2" import="1">LUA/UnitPanel.lua</File>
+    <File md5="FE31FBA4C2E0F415B11868580B2A9AA2" import="1">LUA/UniqueBonuses.lua</File>
     <File md5="CDED9721A7136B8AC78BA3724E3CEAAA" import="1">LUA/YieldIconManager.lua</File>
     <File md5="BA353EE3D799C2396658056D9FB2173A" import="1">LUA/YieldIconManager.xml</File>
     <File md5="1FD115D18B1D863544BA1A0E907FA0A5" import="1">Mapscripts/Amazon_XP.lua</File>
