@@ -14894,6 +14894,21 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 				}
 			}
 
+			// Building Yield Change for Accomplishments
+			if (!pBuildingInfo->GetYieldChangesFromAccomplishments().empty())
+			{
+				map<int, std::map<int, int>> mAccomplishmentYields = pBuildingInfo->GetYieldChangesFromAccomplishments();
+				map<int, std::map<int, int>>::iterator it;
+				for (it = mAccomplishmentYields.begin(); it != mAccomplishmentYields.end(); ++it)
+				{
+					std::map<int, int>::const_iterator it2 = (it->second).find(eYield);
+					if (it2 != (it->second).end())
+					{
+						ChangeYieldsFromAccomplishments((AccomplishmentTypes)it->first, eYield, it2->second * iChange);
+					}
+				}
+			}
+
 			// Building Yield Change from other Buildings in Empire
 			int iBuildingClassBonus = owningPlayer.GetBuildingClassYieldChange(eBuildingClass, eYield);
 			if (iBuildingClassBonus > 0)
