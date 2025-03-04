@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Context  ColorSet="Beige_Black" Font="TwCenMT22" FontStyle="Shadow" >
+
+  <Instance Name="ItemInstance" >
+    <Button Anchor="L,T"  Offset="0,0"   Size="902,125" Color="255,255,255,0"  ID="Button" >
+
+      <ShowOnMouseOver>
+        <AlphaAnim Anchor="L,T" Size="922,127" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="1.5" AlphaEnd="1">
+          <Grid   Size="902,129" Offset="0,-2" Padding="0,0" Style="Grid9FrameTurnsHL" />
+        </AlphaAnim>
+      </ShowOnMouseOver>
+
+      <Image Anchor="L,C" Offset="-12,0" Size="128,128"   Texture="Assets/UI/Art/Icons/LeaderPortraits1024Frame.dds"  >
+        <Image Anchor="C,C" Offset="0,0" Size="128,128"   Texture="Assets/UI/Art/Icons/LeaderPortraits1024.dds"  ID="Portrait"/>
+      </Image>
+
+      <Stack Anchor="L,T" Size="565,128" Offset="116,4"   StackGrowth="Bottom" Padding="6" >
+        <Box Offset="-12,0"  Anchor="L,T" Size="424,28"  Color="White.0" >
+          <Label Anchor="L,T" Offset="12,4" Font="TwCenMT22" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="Title" />
+        </Box>
+        <!--<Label Anchor="L,T" Offset="0,0"  WrapWidth="565" LeadingOffset="-5" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="BonusTitle" String="[ICON_BULLET]Civ Specific Bonus 1"/>-->
+        <Label Anchor="L,T" Offset="0,0"  WrapWidth="565" LeadingOffset="-5" Font="TwCenMT18" FontStyle="Base" ID="BonusDescription" String="[ICON_BULLET]Civ Specific Bonus 2"/>
+
+      </Stack>
+
+      <!-- Civ specific bonuses -->
+      <Stack Anchor="R,C"  Size="128,128" StackGrowth="Right" Padding="-8" Offset="-45,0" >
+
+        <Image Anchor="L,B" Texture="IconFrame64.dds" Size="64.64" Hidden="0" Offset="-4,58" ID="BF1">
+          <Image Anchor="C,C" Size="64,64"   Texture="WonderAtlas512.dds" ID="B1"   />
+        </Image>
+        <Image Anchor="L,T" Texture="IconFrame64.dds" Size="64.64" Offset="-64,58"  ID="BF2">
+          <Image Anchor="C,C" Size="64,64" Texture="WonderAtlas512.dds" ID="B2"  />
+        </Image>
+		<Image Anchor="L,B" Texture="IconFrame64.dds" Size="64.64" Offset="-4,58" ID="BF3">
+          <Image Anchor="C,C" Size="64,64"   Texture="WonderAtlas512.dds" ID="B3"   />
+        </Image>
+        <Image Anchor="R,T" Texture="IconFrame64.dds" Size="64.64" Offset="-64,58" ID="BF4">
+          <Image Anchor="C,C" Size="64,64" Texture="WonderAtlas512.dds" ID="B4"  />
+        </Image>
+
+        <Image Anchor="C,C"  Offset="5,0" Texture="IconFrame64.dds" Size="64.64" Hidden="0" >
+          <Image Size="64,64" Anchor="C,C"  Texture="Assets/UI/Art/Icons/Units/CivSymbolsColor512.dds" ID="CivIcon" Hidden="0" />
+        </Image>
+
+      </Stack>
+
+      <Box Anchor="L,T" Offset="84,8"  Size="530,64" Color="255,255,255,0" >
+        <Label Anchor="L,T" Offset="0,0"  WrapWidth="520" LeadingOffset="-8" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="Description" Hidden="1"/>
+      </Box>
+      
+      <Image Anchor="C,B" Offset="0,0" Texture="bar900x2.dds" Size="900.1" />
+    </Button>
+  </Instance>
+
+
+
+  <!--=======================================================================================================================-->
+  <!-- Select Civilization   -->
+  <!--=======================================================================================================================-->
+
+
+
+  <Grid Size="960,683" Anchor="C,C" Offset="0,36" Padding="0,0" Style="Grid9DetailFive140" >
+
+
+    <ScrollPanel Anchor="L,T" Offset="20,45" Size="902,512" Vertical="1" ID="ScrollPanel" >
+
+
+        <!-- Scroll Controls -->
+        <ScrollBar Style="VertSlider" Length="475" Offset="0.18" Anchor="R,T" AnchorSide="O,I" />
+        <UpButton  Offset="0.0"  Style="ScrollBarUp"  Anchor="R,T" AnchorSide="O,I" />
+        <DownButton Offset="0.1" Style="ScrollBarDown"  Anchor="R,B" AnchorSide="O,I" />
+
+
+
+        <Stack Anchor="L,T" Offset="0,0" Size="902,128" StackGrowth="Bottom" Padding="0" ID="Stack" >
+      </Stack>
+
+    </ScrollPanel>
+
+    <Box Style="MenuLeftSideTreatment"/>
+    <Box Style="MenuRightSideTreatment"/>
+
+    <Box Style="MenuTopTreatment"/>
+    <Box Style="MenuBottomTreatment"/>
+
+    <Label Style="MenuTitleCaption" String="TXT_KEY_SELECT_CIVILIZATION" />
+
+
+    <Box Anchor="C,B" AnchorSide="I.I" Offset="0,54"   Size="910,56" Color="255,255,255,0" >
+
+
+      <!-- Back Button -->
+      <GridButton Anchor="L,B"  Style="SmallButton" Size="150,32"  Offset="14,0" StateOffsetIncrement="0,0" ID="BackButton"  >
+        <Label Anchor="C,C"  Offset="0,0"  String="TXT_KEY_BACK_BUTTON" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"  />
+      </GridButton>
+
+    </Box>
+
+    <Box Anchor="C,B" Offset="0,100"   Size="920,1" Color="255,255,200,200" />
+
+  </Grid>
+
+
+
+</Context>
