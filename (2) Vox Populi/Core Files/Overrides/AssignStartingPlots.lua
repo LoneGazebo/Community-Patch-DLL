@@ -67,9 +67,40 @@ include("NaturalWondersCustomMethods");
 -- Forcing a region to abide to area boundaries is currently too much work, unfortunately. Maybe later.
 -- Regions in Continents-styled maps will still be bounded by areas, but now isolated starts should hopefully be rarer.
 
--- azum4roll - 2024-01-14
+-- azum4roll - 2024-01-14 (completed in version 4.5)
 
--- There is a Reference section at the end of the file.
+------------------------------------------------------------------------------
+
+-- Due to how global variables work in Lua, every time this file is called, the AssignStartingPlots (ASP) table would be reset to its original state,
+-- removing all overrides that might be done in other modmods. There were two ways to successfully override ASP functions:
+-- 1. Override the entire AssignStartingPlots.lua file, using VFS (which is what this file is doing).
+--    This method cannot be used for overriding specific functions; you have to recreate the entire ASP table.
+-- 2. Override the functions in StartPlotSystem() in mapscripts, which is called after ASP is loaded.
+--    This only works in mapscripts, as they're the only files loaded after ASP is last loaded before generating a map.
+
+-- I've created a new method to override individual ASP functions.
+-- A new EntryPoint/Content type "PreMapGenScript" has been added to load arbitrary Lua files (with ImportIntoVFS=true) just before the map is generated,
+-- which you can use to modify the ASP table. See MapGenerator.lua for details.
+
+--[[Example Lua for overriding an ASP function:
+
+	-- Increase the number of natural wonders
+	function AssignStartingPlots:GetNumNaturalWondersToPlace(iWorldSize)
+		local tTarget = {
+			[GameInfo.Worlds.WORLDSIZE_DUEL.ID] = 3,
+			[GameInfo.Worlds.WORLDSIZE_TINY.ID] = 6,
+			[GameInfo.Worlds.WORLDSIZE_SMALL.ID] = 9,
+			[GameInfo.Worlds.WORLDSIZE_STANDARD.ID] = 12,
+			[GameInfo.Worlds.WORLDSIZE_LARGE.ID] = 15,
+			[GameInfo.Worlds.WORLDSIZE_HUGE.ID] = 18,
+		};
+		return tTarget[iWorldSize];
+	end
+]]
+
+-- This also works in Community Patch Only.
+
+-- azum4roll - 2025-03-07
 
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
