@@ -21314,14 +21314,14 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 				iNeutralTarget = (int) ((iNeutralTarget - ((1 - fAlpha) * iLastTurnNeutralValue)) / fAlpha);
 			}
 
-			// Change the NEUTRAL approach to match the target as much as Opinion permits, but don't go negative
+			// Change the NEUTRAL approach to match the target as much as Opinion permits
 			if (iNeutralTarget > vApproachScores[CIV_APPROACH_NEUTRAL])
 			{
-				vApproachScores[CIV_APPROACH_NEUTRAL] = range(iNeutralTarget, 0, iNeutralUpB);
+				vApproachScores[CIV_APPROACH_NEUTRAL] = min(iNeutralTarget, iNeutralUpB);
 			}
 			else if (iNeutralTarget < vApproachScores[CIV_APPROACH_NEUTRAL])
 			{
-				vApproachScores[CIV_APPROACH_NEUTRAL] = max(max(iNeutralDownB, iNeutralTarget), 0);
+				vApproachScores[CIV_APPROACH_NEUTRAL] = max(iNeutralDownB, iNeutralTarget);
 			}
 		}
 		else
