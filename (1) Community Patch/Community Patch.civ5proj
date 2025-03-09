@@ -2587,6 +2587,10 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
+    <Content Include="Core Files\Overrides\MapGenerator.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
     <Content Include="Core Files\Overrides\MPList.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
