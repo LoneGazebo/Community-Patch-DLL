@@ -2,7 +2,7 @@
 <Mod id="8411a7a8-dad3-4622-a18e-fcc18324c799" version="17">
   <Properties>
     <Name>(2) Vox Populi</Name>
-    <Teaser>(4.19.1) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
+    <Teaser>(4.20) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
     <Description>Contains balance changes, gameplay improvements, and entirely new game systems to make Civ V a more enjoyable and exciting game.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -19,7 +19,7 @@
     <ReloadUnitSystem>1</ReloadUnitSystem>
   </Properties>
   <Dependencies>
-    <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" minversion="141" maxversion="999" title="(1) Community Patch" />
+    <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" minversion="142" maxversion="999" title="(1) Community Patch" />
   </Dependencies>
   <References />
   <Blocks>
@@ -109,8 +109,8 @@
     <File md5="6B098E2E66B6F9E84E0566ECAF150010" import="1">Assets/Icons/ENW_IconAtlas128.dds</File>
     <File md5="A264042ECE62207E4D73CB4CBBE24B48" import="1">Assets/Icons/ENW_IconAtlas256.dds</File>
     <File md5="210CCFEAF9B421C589C88C6C71325284" import="1">Assets/Icons/ENW_IconAtlas45.dds</File>
-    <File md5="6E623F01A10DE3E3F82DFB2F8B9D7262" import="1">Assets/Icons/ENW_IconAtlas64.dds</File>
-    <File md5="9CA84F5EA2B6554AA51F8B7F74FF4215" import="1">Assets/Icons/ENW_IconAtlas80.dds</File>
+    <File md5="BC93ABF9F2891BD33DEFD7915F79859A" import="1">Assets/Icons/ENW_IconAtlas64.dds</File>
+    <File md5="C18A3009FD4814D3ACE2CE7C02944EE0" import="1">Assets/Icons/ENW_IconAtlas80.dds</File>
     <File md5="BD3366FE1E06E03C2C66C302C55877DB" import="1">Assets/Icons/ENW_UnitFlagAtlas.dds</File>
     <File md5="7FF88EAFDD077EFC9C064D9C25B98940" import="1">Assets/Improvements/Archaeological Dig/hidden_archaeological_dig.fxsxml</File>
     <File md5="D13A8D9E02E5D88BB7D16B143FD24177" import="1">Assets/Improvements/Archaeological Dig/hidden_archaeological_dig.gr2</File>
@@ -717,8 +717,8 @@
     <File md5="E35D47160A14C7CB836554C78D7E4C2F" import="1">Assets/Units/LandsknechtFreeCompany/Landsknecht/Musket_Landsknecht/landsknecht_musket_a.gr2</File>
     <File md5="A46ECF0ED5D09BF60FB18C2256970125" import="1">Assets/Units/LandsknechtFreeCompany/Landsknecht/Musket_Landsknecht/landsknecht_musket_b.fxsxml</File>
     <File md5="913B1B54EDD19872B5300CB364174863" import="1">Assets/Units/LandsknechtFreeCompany/Landsknecht/Musket_Landsknecht/landsknecht_musket_b.gr2</File>
-    <File md5="01C8FC51B9B8C1D09858CA6F3559177B" import="1">Assets/Units/Liburna/minoan_galea.fxsxml</File>
-    <File md5="DE6227824B6B6D423071D69780CBA6F8" import="1">Assets/Units/Liburna/minoan_galea.gr2</File>
+    <File md5="C1043D8E9004FDE73005B8A414257953" import="1">Assets/Units/Liburna/minoan_galea.fxsxml</File>
+    <File md5="83C8178F075894CC7CC29835F677F45A" import="1">Assets/Units/Liburna/minoan_galea.gr2</File>
     <File md5="1A5740CB0D32D6F378A5C32A5E0C8701" import="1">Assets/Units/Liburna/minoan_galea_diff.dds</File>
     <File md5="19163A2201643F133CA3C2485A44C93C" import="1">Assets/Units/Liburna/minoan_galea_sref.dds</File>
     <File md5="AF0C8E8F8A6780D0E3E98F7E62906597" import="1">Assets/Units/Merc/AN-94_diff.dds</File>
@@ -793,7 +793,7 @@
     <File md5="4AD80411668EC1D39FD4A69DF1118CE7" import="0">Core Files/New UI/RandomVCPopup.xml</File>
     <File md5="AEB3674F606508617BC5DE99D1FF3071" import="0">Core Files/New UI/VassalageOverview.lua</File>
     <File md5="6AEDA70A3D08A83C280329B2BCB289BE" import="0">Core Files/New UI/VassalageOverview.xml</File>
-    <File md5="0F7A82C37F3CD5CBECD334FD341DEEBA" import="1">Core Files/Overrides/AssignStartingPlots.lua</File>
+    <File md5="243325E77CDC312F4B0642CF679F8AA8" import="1">Core Files/Overrides/AssignStartingPlots.lua</File>
     <File md5="74BC578CAB9C0BF69981921D5D1655C8" import="1">Core Files/Overrides/ChooseInternationalTradeRoutePopup.lua</File>
     <File md5="2DB0554E1E472DCB81904C7B0050BD7A" import="1">Core Files/Overrides/ChooseInternationalTradeRoutePopup.xml</File>
     <File md5="8F9687C985560D7DB4A8972058E706DD" import="1">Core Files/Overrides/ChooseMayaBonus.lua</File>
@@ -1006,7 +1006,7 @@
     <File md5="D0A442F7DEB463CDCCA45E6503687C87" import="0">Database Changes/Text/en_US/Difficulty/DifficultyTextChanges.sql</File>
     <File md5="B00B2B2260EA19DC62665B151C9252F9" import="0">Database Changes/Text/en_US/Espionage/NewEspionageText.xml</File>
     <File md5="A47F4EBBF17C920BF13C334129FBAD9C" import="0">Database Changes/Text/en_US/Events/NewEventText.xml</File>
-    <File md5="E514D8A71F462333697E0EC80A27A9F3" import="0">Database Changes/Text/en_US/Notifications/NewNotificationText.xml</File>
+    <File md5="B3B57D7912113DB3BFD0A7CC72D92078" import="0">Database Changes/Text/en_US/Notifications/NewNotificationText.xml</File>
     <File md5="4D4C2FEBEB93A88404B2065A94FE698D" import="0">Database Changes/Text/en_US/Notifications/NotificationTextChanges.sql</File>
     <File md5="153F15DA834442AAE31A9E629CBE1108" import="0">Database Changes/Text/en_US/Policies/NewPolicyText.xml</File>
     <File md5="7FA633888EC15E3292661CCE45238EF3" import="0">Database Changes/Text/en_US/Policies/PolicyTextChanges.sql</File>
@@ -1105,7 +1105,7 @@
     <File md5="AFDCE04CF7F4A8FD40BB08BC1103B89B" import="1">LUA/SocialPolicyPopup.xml</File>
     <File md5="A4164F47ABA8106FBBBFED1E8D6E18C6" import="1">LUA/TechButtonInclude.lua</File>
     <File md5="19F2F965BFC116BECC3BDC097FCDDD17" import="1">LUA/TechTree.lua</File>
-    <File md5="F5E2F8B8021087168C0C025B3782BFBF" import="1">LUA/TopPanel.lua</File>
+    <File md5="2BD5827059B33E290040C58A1FA1AAC4" import="1">LUA/TopPanel.lua</File>
     <File md5="8F5C4A097A6F53AF68A73609B5EBD0FB" import="1">LUA/TopPanel.xml</File>
     <File md5="C591BA3DDFEEBE15EC61CC94594EF177" import="1">LUA/TradeLogic.lua</File>
     <File md5="CA6428504FBE7E5D4426FF3BA1C52EED" import="1">LUA/UnitFlagManager.lua</File>
