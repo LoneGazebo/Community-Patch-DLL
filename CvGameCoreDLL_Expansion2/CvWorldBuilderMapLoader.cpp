@@ -1288,8 +1288,12 @@ bool CvWorldBuilderMapLoader::Save(const wchar_t* wszFilename, const char* szMap
 	// Set map name
 	if(szMapName == NULL)
 	{
-		//todo: extract file name from path (wszFilename)
-		sg_kSave.m_sMapName = "unknown_map";
+		FStringFixedBufferW(sFilename, MAX_PATH);
+		FStringFixedBufferW(sFileTitle, MAX_PATH);
+
+		sFilename = wszFilename;
+		sFilename.ExtractFileTitle(sFileTitle);
+		sFileTitle.CopyToUTF8(&sg_kSave.m_sMapName);
 	}
 	else
 	{
