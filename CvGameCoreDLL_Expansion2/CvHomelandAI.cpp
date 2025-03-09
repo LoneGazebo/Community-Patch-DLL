@@ -3413,8 +3413,8 @@ bool CvHomelandAI::ExecuteMoveUnitAwayFromBorder(CvUnit* pUnit)
 		if (pBestPlot)
 			return ExecuteMoveToTarget(pUnit, pBestPlot, 0, true);
 	}
-	else
-		return false;
+
+	return false;
 }
 
 //	---------------------------------------------------------------------------
