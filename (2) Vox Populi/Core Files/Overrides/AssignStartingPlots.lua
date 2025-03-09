@@ -1752,6 +1752,8 @@ function AssignStartingPlots:GenerateRegions(args)
 	self.method = args.method or self.method; -- Continental method is default.
 	self.resource_setting = args.resources or 2; -- UNUSED, use the below resource settings instead
 	args.resources = args.resources or 2;
+	args.retryCount1 = args.retryCount1 or 0;
+	args.retryCount2 = args.retryCount2 or 0;
 
 	-- Custom map resource settings (Communitu_79a support)
 	if args.resources == 6 then
@@ -1792,8 +1794,6 @@ function AssignStartingPlots:GenerateRegions(args)
 		self.iNumFrontiers = self:GetRandomFromRangeInclusive(emptyRegionMinCount[self.iNumCivs], emptyRegionMaxCount[self.iNumCivs]);
 		print("Number of empty regions:", self.iNumFrontiers); print("-");
 	end
-
-	local skip = false;
 
 	if self.method == RegionDivision.BIGGEST_LANDMASS then
 		-- Identify the biggest landmass.
@@ -1896,7 +1896,7 @@ function AssignStartingPlots:GenerateRegions(args)
 		-- We do these by making a new table storing area fertilities that reach the threshold.
 		local interim_table = {};
 		local biggestLandmass = Map.FindBiggestLandmassID(false);
-		local min_landmass_fertility = landmass_fert[biggestLandmass] * 0.25;
+		local min_landmass_fertility = landmass_fert[biggestLandmass] * (0.25 - 0.025 * args.retryCount1);
 		local iNumLandmass = 0;
 		local area_landmass = {};
 		print("-"); print("Minimum landmass fertility required =", min_landmass_fertility); print("-");
@@ -1918,13 +1918,19 @@ function AssignStartingPlots:GenerateRegions(args)
 			end
 		end
 
-		-- If only one relevant landmass, we switch tracks to use biggest landmass division
+		-- If only one relevant landmass, we lower the fertility requirement for landmasses down to 12.5%,
+		-- then switch tracks to use biggest landmass division as the last resort.
 		if iNumLandmass <= 1 then
-			print("Only one landmass fertile enough for start placement. Switching to use Biggest Landmass division.");
-			args.method = RegionDivision.BIGGEST_LANDMASS;
-			self.bArea = false;
-			skip = true;
+			if args.retryCount1 < 5 then
+				print("Only one landmass fertile enough for start placement. Retry with lower fertility requirement.");
+				args.retryCount1 = args.retryCount1 + 1;
+			else
+				print("Only one landmass fertile enough for start placement. Switching to use Biggest Landmass division.");
+				args.method = RegionDivision.BIGGEST_LANDMASS;
+				self.bArea = false;
+			end
 			self:GenerateRegions(args);
+			return;
 		else
 			---[[
 			for i, fert in ipairs(interim_table) do
@@ -1996,7 +2002,7 @@ function AssignStartingPlots:GenerateRegions(args)
 
 			local inhabitedAreaIDs = {};
 			local numberOfCivsPerArea = {}; -- Indexed in synch with best_areas. Use same index to match values from each table.
-			local fertilityPerCiv = relevantFertility * 0.7 / (self.iNumCivs + self.iNumFrontiers); -- Allow some unused fertility here
+			local fertilityPerCiv = relevantFertility * (0.7 - 0.05 * args.retryCount2) / (self.iNumCivs + self.iNumFrontiers); -- Allow some unused fertility here
 			local numberOfCivsPerLandmass = {};
 			print("Expected fertility per civ =", fertilityPerCiv);
 			for loop, areaID in ipairs(best_areas) do
@@ -2022,13 +2028,18 @@ function AssignStartingPlots:GenerateRegions(args)
 			end
 
 			-- If not enough fertile areas, the continents are too small for this division method.
-			-- Switch tracks to use rectangular method instead.
+			-- We retry with a lower expected fertility per civ, then switch tracks to use rectangular method as the last resort.
 			if iTotalFertileAreas < self.iNumCivs + self.iNumFrontiers then
-				print("Landmasses aren't fertile enough for start placement. Switching to use Rectangular division.");
-				args.method = RegionDivision.RECTANGULAR;
-				self.bArea = false;
-				skip = true;
+				if args.retryCount2 < 4 then
+					print("Landmasses aren't fertile enough for start placement. Retry with lower expected fertility per civ.");
+					args.retryCount2 = args.retryCount2 + 1;
+				else
+					print("Landmasses aren't fertile enough for start placement. Switching to use Rectangular division.");
+					args.method = RegionDivision.RECTANGULAR;
+					self.bArea = false;
+				end
 				self:GenerateRegions(args);
+				return;
 			else
 				-- If enough fertile areas in fertile landmasses, disallow landmasses with only one civ
 				if iTotalFertileLandmassAreas >= self.iNumCivs + self.iNumFrontiers then
@@ -2142,31 +2153,30 @@ function AssignStartingPlots:GenerateRegions(args)
 		end
 	end
 
-	if not skip then
-		-- Entry point for easier overrides.
-		self:CustomOverride();
+	-- Entry point for easier overrides.
+	self:CustomOverride();
 
-		---[[ Printout is for debugging only. Deactivate otherwise.
-		local tempRegionData = self.regionData;
-		for i, data in ipairs(tempRegionData) do
-			print("-");
-			print("Data for Start Region #", i);
-			print("WestX:", data[1]);
-			print("SouthY:", data[2]);
-			print("Width:", data[3]);
-			print("Height:", data[4]);
-			if self.bArea then
-				print("AreaID:", data[5]);
-			else
-				print("LandmassID:", data[5]);
-			end
-			print("Fertility:", data[6]);
-			print("Plots:", data[7]);
-			print("Fert/Plot:", data[8]);
-			print("-");
+	---[[ Printout is for debugging only. Deactivate otherwise.
+	print("Region generation completed. retryCount1 = ", args.retryCount1, ", retryCount2 = ", args.retryCount2);
+	local tempRegionData = self.regionData;
+	for i, data in ipairs(tempRegionData) do
+		print("-");
+		print("Data for Start Region #", i);
+		print("WestX:", data[1]);
+		print("SouthY:", data[2]);
+		print("Width:", data[3]);
+		print("Height:", data[4]);
+		if self.bArea then
+			print("AreaID:", data[5]);
+		else
+			print("LandmassID:", data[5]);
 		end
-		--]]
+		print("Fertility:", data[6]);
+		print("Plots:", data[7]);
+		print("Fert/Plot:", data[8]);
+		print("-");
 	end
+	--]]
 end
 ------------------------------------------------------------------------------
 -- Start of functions tied to ChooseLocations()
