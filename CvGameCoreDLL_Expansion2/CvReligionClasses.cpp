@@ -793,13 +793,13 @@ void CvGameReligions::DoPlayerTurn(CvPlayer& kPlayer)
 /// Time to create a pantheon?
 CvGameReligions::FOUNDING_RESULT CvGameReligions::CanCreatePantheon(PlayerTypes ePlayer, bool bCheckFaithTotal)
 {
-	if(ePlayer == NO_PLAYER)
+	if (ePlayer == NO_PLAYER)
 		return FOUNDING_INVALID_PLAYER;
 
 	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
 	const int iFaith = kPlayer.GetFaith();
 
-	if(kPlayer.isMinorCiv())
+	if (kPlayer.isMinorCiv() || kPlayer.getCapitalCity() == NULL)
 	{
 		return FOUNDING_INVALID_PLAYER;
 	}
@@ -1346,7 +1346,7 @@ void CvGameReligions::FoundReligion(PlayerTypes ePlayer, ReligionTypes eReligion
 /// Can the supplied religion be created?
 CvGameReligions::FOUNDING_RESULT CvGameReligions::CanFoundReligion(PlayerTypes ePlayer, ReligionTypes eReligion, const char* szCustomName, BeliefTypes eBelief1, BeliefTypes eBelief2, BeliefTypes eBelief3, BeliefTypes eBelief4, CvCity* pkHolyCity)
 {
-	if (ePlayer == NO_PLAYER)
+	if (ePlayer == NO_PLAYER || GET_PLAYER(ePlayer).getCapitalCity() == NULL)
 		return FOUNDING_INVALID_PLAYER;
 
 	if (GET_PLAYER(ePlayer).GetReligions()->OwnsReligion())
