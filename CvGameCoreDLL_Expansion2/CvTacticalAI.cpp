@@ -79,54 +79,6 @@ void CheckDebugTrigger(int iUnitID)
 // CvTacticalTarget
 //=====================================
 
-bool CvTacticalTarget::IsReadyForCapture() const
-{
-	AITacticalTargetType eType = GetTargetType();
-	if(eType == AI_TACTICAL_TARGET_ENEMY_CITY)
-	{
-		CvPlot *pPlot = GC.getMap().plot(m_iTargetX, m_iTargetY);
-		CvCity *pCity = pPlot->getPlotCity();
-		if(pCity != NULL)
-		{
-			//if there's only one hitpoint left
-			int iCurHp = pCity->GetMaxHitPoints() - pCity->getDamage();
-			return iCurHp<=1;
-		}
-	}
-
-	return false;
-}
-
-/// Still a living target?
-bool CvTacticalTarget::IsTargetStillAlive(PlayerTypes eAttackingPlayer) const
-{
-	bool bRtnValue = false;
-
-	AITacticalTargetType eType = GetTargetType();
-	if(eType == AI_TACTICAL_TARGET_ENEMY_COMBAT_UNIT)
-	{
-		CvPlot* pPlot = GC.getMap().plot(m_iTargetX, m_iTargetY);
-		CvUnit* pUnit = pPlot->getVisibleEnemyDefender(eAttackingPlayer);
-		if(pUnit != NULL && !pUnit->isDelayedDeath())
-		{
-			bRtnValue = true;
-		}
-	}
-	else if(eType == AI_TACTICAL_TARGET_ENEMY_CITY)
-	{
-		CvPlot *pPlot = GC.getMap().plot(m_iTargetX, m_iTargetY);
-		CvCity *pCity = pPlot->getPlotCity();
-		if(pCity != NULL && pCity->getOwner() != eAttackingPlayer && GET_PLAYER(eAttackingPlayer).IsAtWarWith(pCity->getOwner()))
-			bRtnValue = true;
-	}
-	else
-	{
-		bRtnValue = true; //unknown type, assume still valid
-	}
-
-	return bRtnValue;
-}
-
 /// This target make sense for this domain of unit/zone?
 bool CvTacticalTarget::IsTargetValidInThisDomain(DomainTypes eDomain) const
 {
@@ -8197,6 +8149,9 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 	if (!pUnit || !assumedUnitPlot.isValid())
 		return;
 
+	//if the unit is a garrison in a citadel or city, we should not move out ...
+	bool bIsFrontlineCitadelOrCity = (TacticalAIHelpers::IsPlayerCitadel(assumedUnitPlot.getPlot(), getPlayer()) || assumedUnitPlot.getPlot()->isCity()) && assumedUnitPlot.getEnemyDistance() < 3;
+
 	//check moves and melee attacks first
 	const ReachablePlots& reachablePlots = getReachablePlotsForUnit(unit);
 	for (ReachablePlots::const_iterator it = reachablePlots.begin(); it != reachablePlots.end(); ++it)
@@ -8319,6 +8274,10 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 			//prevent two moves in a row, that is inefficient and can lead to "shuttling" behavior
 			//note: if a move increases tile visibility we change it to MOVE_FORCED so we can move again!
 			if (unit.eLastAssignment == A_MOVE || unit.eLastAssignment == A_MOVE_SWAP)
+				continue;
+
+			//don't move out of a city if there are many enemies around
+			if (bIsFrontlineCitadelOrCity && getNumEnemies()>1)
 				continue;
 
 			//make sure we have a chance to execute this move ... so skip it if there is an unmoveable block

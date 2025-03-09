@@ -246,8 +246,6 @@ public:
 		m_iZoneID = iZone;
 	};
 
-	bool IsReadyForCapture() const;
-	bool IsTargetStillAlive(PlayerTypes eAttackingPlayer) const;
 	bool IsTargetValidInThisDomain(DomainTypes eDomain) const;
 
 	//if we already tried with a high agg level, no point in trying again with a lower level
