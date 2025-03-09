@@ -2670,7 +2670,7 @@ static bool IsBestDirectiveForPlot(BuilderDirective eDirective, CvPlayer* pPlaye
 		int iOtherDirectiveScore = eOtherDirective.GetPotentialScore();
 		if (iOtherDirectiveScore > iDirectiveScore)
 		{
-			if (eOtherDirective.m_eBuild != NO_BUILD && !pPlayer->GetBuilderTaskingAI()->CanUnitPerformDirective(pUnit, eOtherDirective, true))
+			if (eOtherDirective.m_eBuild != NO_BUILD && !pPlayer->canBuild(pPlot, eOtherDirective.m_eBuild, true))
 				continue;
 
 			return false;
@@ -3487,8 +3487,8 @@ bool CvHomelandAI::ExecuteMoveUnitAwayFromBorder(CvUnit* pUnit)
 		if (pBestPlot)
 			return ExecuteMoveToTarget(pUnit, pBestPlot, 0, true);
 	}
-	else
-		return false;
+
+	return false;
 }
 
 //	---------------------------------------------------------------------------

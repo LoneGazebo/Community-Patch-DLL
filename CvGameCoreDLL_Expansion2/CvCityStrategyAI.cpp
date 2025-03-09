@@ -3399,7 +3399,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NeedDiplomats(CvCity *pCity)
 		return false;
 
 	static EconomicAIStrategyTypes eStrategyNeedDiplomats = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_DIPLOMATS");
-	if (!GET_PLAYER(ePlayer).GetEconomicAI()->IsUsingStrategy(eStrategyNeedDiplomats))
+	if (!GET_PLAYER(pCity->getOwner()).GetEconomicAI()->IsUsingStrategy(eStrategyNeedDiplomats))
 		return false;
 
 	SpecialistTypes eDiplomat = (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_CIVIL_SERVANT");
@@ -3412,10 +3412,8 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NeedDiplomatsCritical(CvCity *pCi
 	if (!MOD_BALANCE_VP)
 		return false;
 
-	PlayerTypes ePlayer = pCity->getOwner();
 	static EconomicAIStrategyTypes eStrategyNeedDiplomatsCritical = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_DIPLOMATS_CRITICAL");
-
-	if (!GET_PLAYER(ePlayer).GetEconomicAI()->IsUsingStrategy(eStrategyNeedDiplomatsCritical))
+	if (!GET_PLAYER(pCity->getOwner()).GetEconomicAI()->IsUsingStrategy(eStrategyNeedDiplomatsCritical))
 		return false;
 
 	return pCity->getPopulation() >= 5;
