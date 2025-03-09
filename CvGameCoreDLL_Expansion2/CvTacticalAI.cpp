@@ -425,15 +425,9 @@ void CvTacticalAI::UpdateVisibilityFromUnits(CvPlot* pPlot)
 			pLoopUnit = pPlot->getUnitByIndex(iI);
 			eLoopUnitTeam = pLoopUnit->getTeam();
 
-			const PlayerTypes eMinorCivAlly = GET_TEAM(eLoopUnitTeam).isMinorCiv() ? GET_PLAYER(pLoopUnit->getOwner()).GetMinorCivAI()->GetAlly() : NO_PLAYER;
-			TeamTypes eMinorCivAllyTeam = eMinorCivAlly != NO_PLAYER ? GET_PLAYER(eMinorCivAlly).getTeam() : NO_TEAM;
-
-			if (eMinorCivAllyTeam == ePlayerTeam)
-				eMinorCivAllyTeam = NO_TEAM;
-
 			if (eLoopUnitTeam != ePlayerTeam && !pLoopUnit->isInvisible(ePlayerTeam, false))
 			{
-				pPlot->ChangeKnownAdjacentSight(eLoopUnitTeam, eMinorCivAllyTeam, pLoopUnit->visibilityRange(), pLoopUnit->getFacingDirection(true));
+				pPlot->ChangeKnownAdjacentSight(eLoopUnitTeam, NO_TEAM, pLoopUnit->visibilityRange(), pLoopUnit->getFacingDirection(true));
 			}
 		}
 	}
@@ -461,7 +455,7 @@ void CvTacticalAI::UpdateVisibilityFromBorders(CvPlot* pPlot)
 	if (eMinorCivAllyTeam == ePlayerTeam)
 		eMinorCivAllyTeam = NO_TEAM;
 
-	if (ePlotTeam != NO_TEAM && ePlotTeam != ePlayerTeam && GET_TEAM(ePlayerTeam).isHasMet(ePlotTeam))
+	if (ePlotTeam != NO_TEAM && ePlotTeam != ePlayerTeam)
 	{
 		pPlot->ChangeKnownAdjacentSight(ePlotTeam, eMinorCivAllyTeam, GD_INT_GET(PLOT_VISIBILITY_RANGE), NO_DIRECTION);
 	}
@@ -7229,7 +7223,7 @@ int ScoreCombatUnitTurnEnd(const CvUnit* pUnit, eUnitAssignmentType eLastAssignm
 	if (testPlot.hasAirCover())
 		iResult+=3;
 	//when in doubt, hide from the enemy
-	if (!testPlot.isVisibleToEnemy())
+	if (!testPlot.getPlot()->IsKnownVisibleToEnemy(pUnit->getOwner()))
 		iResult++;
 
 	//try to occupy enemy citadels!

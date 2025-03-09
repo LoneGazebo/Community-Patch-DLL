@@ -11834,11 +11834,6 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, CvUnit* pUnit, bool bT
 			area()->changeNumRevealedTiles(eTeam, (bNewValue ? 1 : -1));
 		}
 
-		// Update tactical AI, let it know that the tile was revealed
-		PlayerTypes eCurrentPlayer = GetCurrentPlayer();
-		if (eCurrentPlayer != NO_PLAYER && GET_PLAYER(eCurrentPlayer).getTeam() == eTeam)
-			GET_PLAYER(eCurrentPlayer).GetTacticalAI()->UpdateVisibilityFromBorders(this);
-
 		// Natural Wonder
 		if(eTeam != BARBARIAN_TEAM && bNewValue && !GET_TEAM(eTeam).isObserver())
 		{
@@ -12095,6 +12090,11 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, CvUnit* pUnit, bool bT
 						}
 					}
 				}
+
+				// Update tactical AI, let it know that the tile was revealed
+				PlayerTypes eCurrentPlayer = GC.getGame().getActivePlayer();
+				if (eCurrentPlayer != NO_PLAYER)
+					GET_PLAYER(eCurrentPlayer).GetTacticalAI()->UpdateVisibilityFromBorders(this);
 
 				if (bEligibleForAchievement)
 				{
