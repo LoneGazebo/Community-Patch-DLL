@@ -21,6 +21,7 @@
 #include "CvWorldBuilderMapModData.h"
 #include "CvWorldBuilderMapTypeGroup.h"
 #include "FireWorks/FUncopyable.h"
+#include "FString.h"
 
 class FIFile;
 class CvWorldBuilderMapTypeDesc;
@@ -704,8 +705,8 @@ public:
 
 	CvWorldBuilderMapModData m_kModData;
 
-	CvString m_sMapName;
-	CvString m_sMapDescription;
+	FString m_sMapName;
+	FString m_sMapDescription;
 
 	CvWorldBuilderMapTypeGroup m_kVictoryTypes;
 	CvWorldBuilderMapTypeGroup m_kGameOptions;
