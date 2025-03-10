@@ -1988,7 +1988,7 @@ static void UpdateGreatPersonDirectives(vector<OptionWithScore<BuilderDirective>
 			}
 
 			int iPotentialScore = it2->option.GetPotentialScore();
-			int iOtherScore = it2->option.m_iScore + it2->option.m_iPotentialBonusScore / 3;
+			int iOtherScore = it2->option.m_iScore;
 
 			if (iPotentialScore > iBestPotentialScoreInPlot)
 			{
@@ -2180,7 +2180,7 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirective(vector<OptionWithScore<Build
 		int iPotentialScore = pScore.second;
 
 		// if we're going backward, bail out!
-		if(iScore <= 0)
+		if(iScore + iPotentialScore <= 0)
 		{
 			continue;
 		}
@@ -3942,9 +3942,8 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 
 		if (iSimplifiedYieldValue <= iWorstWorkedValue)
 		{
-			int iPenalty = iYieldScore / 2;
-			iYieldScore -= iPenalty;
-			iPotentialScore += iPenalty;
+			iPotentialScore += iYieldScore;
+			iYieldScore = 0;
 		}
 	}
 
