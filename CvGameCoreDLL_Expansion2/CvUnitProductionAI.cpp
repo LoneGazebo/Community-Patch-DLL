@@ -187,7 +187,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 	if (!pkUnitEntry)
 		return SR_IMPOSSIBLE;
 
-	bool bCombat = (pkUnitEntry->GetCombat() > 0 || pkUnitEntry->GetRangedCombat() > 0);
+	bool bCombat = (pkUnitEntry->GetCombat() > 0 || pkUnitEntry->GetRangedCombat() > 0) && pkUnitEntry->GetDefaultUnitAIType() != UNITAI_EXPLORE;
 
 	CvPlayerAI& kPlayer = GET_PLAYER(m_pCity->getOwner());
 	if (!bFree && bForPurchase && !m_pCity->IsCanPurchase(/*bTestPurchaseCost*/ true, /*bTestTrainable*/ true, eUnit, NO_BUILDING, NO_PROJECT, YIELD_GOLD))
@@ -202,6 +202,12 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 
 	bool bDesperate = m_pCity->isUnderSiege();
 	if (!bFree && bDesperate && !bCombat)
+	{
+		return SR_STRATEGY;
+	}
+
+	// Don't build units in underdeveloped cities
+	if (m_pCity->GetCityBuildings()->GetNumBuildings() < 2 && !bDesperate && !bForPurchase)
 	{
 		return SR_STRATEGY;
 	}
@@ -256,10 +262,38 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			return SR_IMPOSSIBLE;
 	}
 
+
+	int iNumExplorers = kPlayer.GetNumUnitsWithUnitAI(UNITAI_EXPLORE, true);
 	int iNumLandUnits = kPlayer.getNumMilitaryLandUnits() + kPlayer.GetNumUnitsInProduction(DOMAIN_LAND, true);
 	int iNumSeaUnits = kPlayer.getNumMilitarySeaUnits() + kPlayer.GetNumUnitsInProduction(DOMAIN_SEA, true);
+
+	UnitTypes eCurrentlyProducing = m_pCity->getProductionUnit();
+
+	if (eCurrentlyProducing != NO_UNIT)
+	{
+		CvUnitEntry* pkCurrentlyProducing = GC.getUnitInfo(eCurrentlyProducing);
+		if (pkCurrentlyProducing)
+		{
+			if (pkCurrentlyProducing->GetDomainType() == DOMAIN_LAND && pkCurrentlyProducing->GetDefaultUnitAIType() == UNITAI_EXPLORE)
+				iNumExplorers--;
+			else if (pkCurrentlyProducing->GetDomainType() == DOMAIN_LAND && (pkCurrentlyProducing->GetCombat() > 0 || pkCurrentlyProducing->GetRangedCombat() > 0))
+				iNumLandUnits--;
+			else if (pkCurrentlyProducing->GetDomainType() == DOMAIN_SEA && (pkCurrentlyProducing->GetCombat() > 0 || pkCurrentlyProducing->GetRangedCombat() > 0))
+				iNumSeaUnits--;
+		}
+	}
+
+	iNumLandUnits -= iNumExplorers;
+
 	int iNumTotalUnits = iNumLandUnits + iNumSeaUnits;
 	int iNumTotalUnitsToSupply = iNumTotalUnits - kPlayer.getNumUnitsSupplyFree();
+
+	if (bCombat && pkUnitEntry->GetDomainType() == DOMAIN_LAND && iNumLandUnits >= kPlayer.GetMilitaryAI()->GetRecommendLandArmySize())
+		return SR_UNITSUPPLY;
+	else if (bCombat && pkUnitEntry->GetDomainType() == DOMAIN_SEA && iNumSeaUnits >= kPlayer.GetMilitaryAI()->GetRecommendNavySize())
+		return SR_UNITSUPPLY;
+	else if (pkUnitEntry->GetDefaultUnitAIType() == UNITAI_EXPLORE && iNumExplorers >= kPlayer.GetEconomicAI()->GetExplorersNeeded())
+		return SR_UNITSUPPLY;
 
 	//only war with majors count
 	bool bAtWar = (kPlayer.GetMilitaryAI()->GetNumberCivsAtWarWith(false) > 0);
@@ -304,32 +338,6 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 				else
 					return SR_UNITSUPPLY;
 			}
-		}
-	}
-
-	//Let's check this against supply to keep our military numbers lean.
-	int iScale = 0;
-	if (bCombat && !bFree)
-	{
-		int iSupply = max(1, kPlayer.GetNumUnitsSupplied());
-		int iDemand = iNumTotalUnitsToSupply;
-		if (bAtWar || bForOperation)
-		{
-			//hard limit, don't go too far into negative supply
-			if (iSupply <= iDemand - 3)
-				return SR_UNITSUPPLY;
-
-			//reduce bonus once we're over the limit
-			iScale = MapToPercent(iDemand, iSupply + 3, iSupply - 1);
-		}
-		else
-		{
-			//reduce bonus once we're approaching the limit
-			iScale = MapToPercent(iDemand, iSupply, (iSupply * 2) / 3);
-
-			//don't exceed the limit
-			if (iSupply <= iDemand)
-				return SR_UNITSUPPLY;
 		}
 	}
 
@@ -522,11 +530,8 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		if (eDomain == DOMAIN_LAND && pkUnitEntry->GetDefaultUnitAIType() == UNITAI_EXPLORE)
 		{
 			int iExplorersNeeded = kPlayer.GetEconomicAI()->GetExplorersNeeded();
-			int iExplorersHave = kPlayer.GetNumUnitsWithUnitAI(UNITAI_EXPLORE, true);
-			if (m_pCity->isProductionUnit() && m_pCity->getProductionUnit() == eUnit)
-				iExplorersHave--;
 
-			int iExploreBonus = iExplorersNeeded - iExplorersHave;
+			int iExploreBonus = iExplorersNeeded - iNumExplorers;
 			if (iExploreBonus > 0)
 			{
 				iBonus += iExploreBonus * 500;
@@ -534,7 +539,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		}
 
 		//Need Sea Explorers?
-		if (EconomicAIHelpers::IsPotentialNavalExplorer(pkUnitEntry->GetDefaultUnitAIType()))
+		/*if (EconomicAIHelpers::IsPotentialNavalExplorer(pkUnitEntry->GetDefaultUnitAIType()))
 		{
 			int iExplorersNeeded = kPlayer.GetEconomicAI()->GetNavalExplorersNeeded(); //this will always return at least one!
 			int iExplorersHave = kPlayer.GetNumUnitsWithUnitAI(UNITAI_EXPLORE_SEA, true);
@@ -543,13 +548,13 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			if (iExplorersNeeded > iExplorersHave + iExplorersIdle)
 				iBonus += 500;
 
-		}
+		}*/
 		//Naval Units Critically Needed?
 		if (eDomain == DOMAIN_SEA)
 		{
 			if(bCombat)
 			{
-				int iCurrent = kPlayer.GetMilitaryAI()->GetNumNavalUnits();
+				int iCurrent = iNumSeaUnits;
 				int iDesired = kPlayer.GetMilitaryAI()->GetRecommendNavySize();
 				int iValue = iDesired - iCurrent;
 
@@ -558,9 +563,6 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 					iBonus += 75;
 
 				iValue *= max(1, (int)kPlayer.GetCurrentEra());
-
-				if (iCurrent * 2 < iDesired)
-					iValue *= 2;
 
 				if (iValue > 0 && !kPlayer.isBarbarian())
 				{
@@ -603,7 +605,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 						iValue *= iWarValue;
 					}
 				}
-				iBonus += iValue;
+				iBonus += iValue * 30;
 			}
 		}
 		//Land Units Critically Needed?
@@ -611,7 +613,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		{
 			if (bCombat)
 			{
-				int iCurrent = kPlayer.GetMilitaryAI()->GetNumLandUnits();
+				int iCurrent = iNumLandUnits;
 				int iDesired = kPlayer.GetMilitaryAI()->GetRecommendLandArmySize();
 				int iValue = iDesired - iCurrent;
 
@@ -673,7 +675,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 						iValue *= iWarValue;
 					}
 				}
-				iBonus += iValue;
+				iBonus += iValue * 30;
 			}
 		}
 
@@ -681,8 +683,8 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		{
 			//if we can build an airforce do so, independent of other players
 			//just take care that it's approximately evenly split between attack and defense
-			int ourBombers = kPlayer.GetNumUnitsWithUnitAI(UNITAI_ATTACK_AIR, false);
-			int ourFighters = kPlayer.GetNumUnitsWithUnitAI(UNITAI_DEFENSE_AIR, false);
+			int ourBombers = kPlayer.GetNumUnitsWithUnitAI(UNITAI_ATTACK_AIR, true);
+			int ourFighters = kPlayer.GetNumUnitsWithUnitAI(UNITAI_DEFENSE_AIR, true);
 			int emptySlots = m_pCity->GetMaxAirUnits() - m_pCity->plot()->countNumAirUnits(kPlayer.getTeam(), true);
 
 			switch (pkUnitEntry->GetDefaultUnitAIType())
@@ -1359,7 +1361,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 				iBonus += 200;
 			}
 
-			if (eDomain == DOMAIN_LAND && pkUnitEntry->GetDefaultUnitAIType() != UNITAI_EXPLORE)
+			if (eDomain == DOMAIN_LAND)
 			{
 				if (m_pCity->GetGarrisonedUnit() == NULL)
 				{
@@ -1368,10 +1370,25 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			}
 		}
 	}
+
 	//Tiny army? Eek!
-	if (iNumLandUnits <= (kPlayer.getNumCities() * 2) && pkUnitEntry->GetDomainType() == DOMAIN_LAND && pkUnitEntry->GetDefaultUnitAIType() != UNITAI_EXPLORE)
+	if (iNumLandUnits <= (kPlayer.getNumCities() * 2) && pkUnitEntry->GetDomainType() == DOMAIN_LAND)
 	{
 		if(bCombat)
+		{
+			iBonus += 300;
+		}
+		//Fewer civilians til we rectify this!
+		else
+		{
+			iBonus -= 300;
+		}
+	}
+
+	//Tiny navy? Eek!
+	if (iNumSeaUnits <= kPlayer.GetNumEffectiveCoastalCities() && pkUnitEntry->GetDomainType() == DOMAIN_SEA)
+	{
+		if (bCombat)
 		{
 			iBonus += 300;
 		}
@@ -1390,7 +1407,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			iBonus -= 500;
 	}
 
-	if (bCombat && pkUnitEntry->GetDomainType() == DOMAIN_LAND && pkUnitEntry->GetDefaultUnitAIType() != UNITAI_EXPLORE)
+	if (bCombat)
 	{
 		MilitaryAIStrategyTypes eStrategyBarbs = (MilitaryAIStrategyTypes)GC.getInfoTypeForString("MILITARYAISTRATEGY_ERADICATE_BARBARIANS");
 		MilitaryAIStrategyTypes eStrategyBarbsCritical = (MilitaryAIStrategyTypes)GC.getInfoTypeForString("MILITARYAISTRATEGY_ERADICATE_BARBARIANS_CRITICAL");
@@ -1456,9 +1473,34 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 
 	if (!kPlayer.isMinorCiv() && !pkUnitEntry->IsNoSupply())
 	{
-		//Let's check this against supply to keep our military numbers lean.
 		if (bCombat && !bFree)
 		{
+			//Let's check this against supply to keep our military numbers lean.
+			int iScale = 0;
+			if (bCombat && !bFree)
+			{
+				int iSupply = max(1, kPlayer.GetNumUnitsSupplied());
+				int iDemand = iNumTotalUnitsToSupply;
+				if (bAtWar || bForOperation)
+				{
+					//hard limit, don't go too far into negative supply
+					if (iSupply <= iDemand - 3)
+						return SR_UNITSUPPLY;
+
+					//reduce bonus once we're over the limit
+					iScale = MapToPercent(iDemand, iSupply + 3, iSupply - 1);
+				}
+				else
+				{
+					//reduce bonus once we're approaching the limit
+					iScale = MapToPercent(iDemand, iSupply, (iSupply * 2) / 3);
+
+					//don't exceed the limit
+					if (iSupply <= iDemand)
+						return SR_UNITSUPPLY;
+				}
+			}
+
 			iBonus *= iScale;
 			iBonus /= 100;
 		}

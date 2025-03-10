@@ -135,6 +135,7 @@ CvGame::CvGame() :
 	, m_processPlayerAutoMoves(false)
 	, m_cityDistancePathLength(NO_DOMAIN) //for now!
 	, m_cityDistancePlots()
+	, m_eCurrentVisibilityPlayer(NO_PLAYER)
 {
 	m_pSettlerSiteEvaluator = NULL;
 	m_pStartSiteEvaluator = NULL;
@@ -1127,6 +1128,7 @@ void CvGame::uninit()
 	m_bArchaeologyTriggered = false;
 	m_bIsDesynced = false;
 	m_eObserverUIOverridePlayer = NO_PLAYER;
+	m_eCurrentVisibilityPlayer = NO_PLAYER;
 
 	m_eHandicap = NO_HANDICAP;
 	m_ePausePlayer = NO_PLAYER;
@@ -9076,6 +9078,18 @@ void CvGame::updateMoves()
 
 		if(player.isAlive())
 		{
+			if (player.isHuman())
+			{
+				if (GC.getGame().getActivePlayer() == player.GetID())
+				{
+					GC.getGame().SetCurrentVisibilityPlayer(player.GetID());
+				}
+			}
+			else
+			{
+				GC.getGame().SetCurrentVisibilityPlayer(player.GetID());
+			}
+
 			bool bAutomatedUnitNeedsUpdate = player.hasUnitsThatNeedAIUpdate();
 			bool bHomelandAINeedsUpdate = player.GetHomelandAI()->NeedsUpdate();
 			if(player.isTurnActive() || bAutomatedUnitNeedsUpdate || bHomelandAINeedsUpdate)
@@ -14256,6 +14270,16 @@ bool CvGame::CreateFreeCityPlayer(CvCity* pStartingCity, bool bJustChecking, boo
 bool CvGame::isFirstActivationOfPlayersAfterLoad() const
 {
 	return m_firstActivationOfPlayersAfterLoad;
+}
+
+void CvGame::SetCurrentVisibilityPlayer(PlayerTypes ePlayer)
+{
+	m_eCurrentVisibilityPlayer = ePlayer;
+}
+
+PlayerTypes CvGame::GetCurrentVisibilityPlayer() const
+{
+	return m_eCurrentVisibilityPlayer;
 }
 
 //	--------------------------------------------------------------------------------
