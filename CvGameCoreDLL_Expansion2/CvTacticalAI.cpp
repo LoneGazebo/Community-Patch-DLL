@@ -391,7 +391,7 @@ void CvTacticalAI::UpdateVisibilityFromUnits(CvPlot* pPlot)
 		{
 			PlayerTypes eTradeUnitOwner = GC.getGame().GetGameTrade()->GetOwnerFromID(*it);
 
-			if (eTradeUnitOwner != NO_PLAYER)
+			if (eTradeUnitOwner != NO_PLAYER && GET_PLAYER(eTradeUnitOwner).getTeam() != ePlayerTeam)
 				pPlot->IncreaseKnownVisibilityCount(GET_PLAYER(eTradeUnitOwner).getTeam(), NO_TEAM);
 		}
 	}
