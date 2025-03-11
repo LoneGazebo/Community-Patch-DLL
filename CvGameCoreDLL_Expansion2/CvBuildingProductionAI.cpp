@@ -1052,7 +1052,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 					map<int, AccomplishmentBonusInfo>::iterator it;
 					for (it = mBonusesFromAccomplishments.begin(); it != mBonusesFromAccomplishments.end(); it++)
 					{
-						if (it->second.eUnitCombatType = eUnitCombatClass)
+						if (it->second.eUnitCombatType == eUnitCombatClass)
 						{
 							iTempBonus += m_pCity->getUnitCombatProductionModifier(eUnitCombatClass) + kPlayer.GetNumTimesAccomplishmentCompleted((AccomplishmentTypes)it->first) > 0 * it->second.iUnitProductionModifier;
 						}
