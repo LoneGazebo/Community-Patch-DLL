@@ -2698,13 +2698,7 @@ int CvHomelandAI::GetBuilderNumTurnsAway(CvUnit* pUnit, BuilderDirective eDirect
 		iMoveTurns = itPlot->iPathLength;
 	}
 
-	//is the unit still busy? if so, less time for movement
-	int iBuildTimeLeft = 0;
-	BuildTypes eBuild = pUnit->getBuildType();
-	if (eBuild != NO_BUILD)
-		iBuildTimeLeft = pUnit->plot()->getBuildTurnsLeft(eBuild, pUnit->getOwner(), 0, 0);
-
-	return iMoveTurns + iBuildTimeLeft;
+	return iMoveTurns;
 }
 
 // Rescale all directive weights depending on nearest usable worker
@@ -2719,7 +2713,6 @@ vector<OptionWithScore<pair<CvUnit*, BuilderDirective>>> CvHomelandAI::GetWeight
 	aWeightedDirectives.reserve(aDirectives.size());
 
 	int iBestWeightedScore = INT_MIN;
-	vector<OptionWithScore<CvUnit*>> sortedWorkers;
 
 	//this is an ugly nested loop with quadratic complexity ...
 	for (vector<BuilderDirective>::const_iterator it = aDirectives.begin(); it != aDirectives.end(); ++it)
@@ -2751,8 +2744,11 @@ vector<OptionWithScore<pair<CvUnit*, BuilderDirective>>> CvHomelandAI::GetWeight
 			continue;
 		}
 
-		//sort by turns between worker and target
-		sortedWorkers.clear();
+		int iBestBuilderWeightedScore = INT_MIN;
+		CvUnit* pBestBuilder = NULL;
+		CvBuildInfo* pkBuildInfo = GC.getBuildInfo(eDirective.m_eBuild);
+
+		// Loop over all workers to find the one closest to the directive plot (including build time)
 		for (std::list<int>::const_iterator builderIterator = allWorkers.begin(); builderIterator != allWorkers.end(); ++builderIterator)
 		{
 			int iCurrentUnitId = *builderIterator;
@@ -2773,23 +2769,6 @@ vector<OptionWithScore<pair<CvUnit*, BuilderDirective>>> CvHomelandAI::GetWeight
 					continue;
 			}
 
-			//see if we can actually go there
-			int iBuilderTurns = GetBuilderNumTurnsAway(pUnit, eDirective, allWorkersReachablePlots);
-			if (iBuilderTurns!=INT_MAX)
-				sortedWorkers.push_back(OptionWithScore<CvUnit*>(pUnit, iBuilderTurns));
-		}
-
-		//this sorts worst to best but does not matter
-		std::stable_sort(sortedWorkers.begin(), sortedWorkers.end());
-
-		int iBestBuilderWeightedScore = INT_MIN;
-		CvUnit* pBestBuilder = NULL;
-		CvBuildInfo* pkBuildInfo = GC.getBuildInfo(eDirective.m_eBuild);
-
-		// Loop over the sorted workers to find the one closest to the directive plot (including build time)
-		for (vector<OptionWithScore<CvUnit*>>::iterator it = sortedWorkers.begin(); it != sortedWorkers.end(); ++it)
-		{
-			CvUnit* pUnit = it->option;
 			//e.g., prisoners of war need longer to build ...
 			int iBuilderImprovementTime = pkBuildInfo->getRoute() == NO_ROUTE
 				? m_pPlayer->GetBuilderTaskingAI()->GetTurnsToBuild(pUnit, eDirective.m_eBuild, pDirectivePlot)
@@ -2801,7 +2780,11 @@ vector<OptionWithScore<pair<CvUnit*, BuilderDirective>>> CvHomelandAI::GetWeight
 			if (GetDirectiveWeight(eDirective, iBuilderImprovementTime, 0) <= max(iBestBuilderWeightedScore, iBestWeightedScore))
 				continue;
 
-			int iWeightedScore = GetDirectiveWeight(eDirective, iBuilderImprovementTime, it->score);
+			int iBuilderMoveTime = GetBuilderNumTurnsAway(pUnit, eDirective, allWorkersReachablePlots);
+			if (iBuilderMoveTime == INT_MAX)
+				continue;
+
+			int iWeightedScore = GetDirectiveWeight(eDirective, iBuilderImprovementTime, iBuilderMoveTime);
 			if (iWeightedScore > iBestBuilderWeightedScore)
 			{
 				iBestBuilderWeightedScore = iWeightedScore;
