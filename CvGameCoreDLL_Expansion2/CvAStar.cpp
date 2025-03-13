@@ -1029,14 +1029,6 @@ bool CvPathFinder::DestinationReached(int iToX, int iToY) const
 		if (iDistance > 2 || iDistance < 1)
 			return false;
 
-		if (HaveFlag(CvUnit::MOVEFLAG_APPROX_TARGET_SAME_OWNER))
-		{
-			CvPlot* pTargetPlot = GC.getMap().plotUnchecked(GetDestX(), GetDestY());
-			CvPlot* pThisPlot = GC.getMap().plotUnchecked(iToX, iToY);
-			if (pTargetPlot->getOwner() != pThisPlot->getOwner())
-				return false;
-		}
-
 		//need to make sure there are no mountains/ice plots in between
 		return CommonNeighborIsPassable(GetNode(iToX, iToY), GetNode(GetDestX(), GetDestY()));
 	}
@@ -1052,14 +1044,6 @@ bool CvPathFinder::DestinationReached(int iToX, int iToY) const
 		//the main check (do not allow the actual target plot! it's probably occupied by the enemy)
 		if (iDistance != 1)
 			return false;
-
-		if (HaveFlag(CvUnit::MOVEFLAG_APPROX_TARGET_SAME_OWNER))
-		{
-			CvPlot* pTargetPlot = GC.getMap().plotUnchecked(GetDestX(), GetDestY());
-			CvPlot* pThisPlot = GC.getMap().plotUnchecked(iToX, iToY);
-			if (pTargetPlot->getOwner() != pThisPlot->getOwner())
-				return false;
-		}
 
 		return true;
 	}

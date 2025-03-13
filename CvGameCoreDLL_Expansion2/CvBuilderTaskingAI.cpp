@@ -1310,6 +1310,8 @@ bool CvBuilderTaskingAI::ExecuteWorkerMove(CvUnit* pUnit, BuilderDirective aDire
 	{
 		switch (aDirective.m_eDirectiveType)
 		{
+		case BuilderDirective::KEEP_IMPROVEMENT:
+			UNREACHABLE();
 		case BuilderDirective::BUILD_IMPROVEMENT_ON_RESOURCE:
 		case BuilderDirective::BUILD_IMPROVEMENT:
 		case BuilderDirective::REPAIR:
@@ -1346,6 +1348,8 @@ bool CvBuilderTaskingAI::ExecuteWorkerMove(CvUnit* pUnit, BuilderDirective aDire
 
 				switch (aDirective.m_eDirectiveType)
 				{
+				case BuilderDirective::KEEP_IMPROVEMENT:
+					UNREACHABLE();
 				case BuilderDirective::BUILD_IMPROVEMENT_ON_RESOURCE:
 					strLog += "On resource,";
 					break;
@@ -4392,6 +4396,9 @@ void CvBuilderTaskingAI::LogDirective(BuilderDirective directive, int iWeight, b
 		break;
 	case BuilderDirective::REMOVE_ROAD:
 		strLog += "REMOVE_ROAD,";
+		break;
+	case BuilderDirective::KEEP_IMPROVEMENT:
+		strLog += "KEEP_IMPROVEMENT,";
 		break;
 	}
 
