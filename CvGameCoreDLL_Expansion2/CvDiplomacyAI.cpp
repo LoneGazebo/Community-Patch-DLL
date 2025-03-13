@@ -9896,8 +9896,8 @@ bool CvDiplomacyAI::IsSeriousAboutVictory() const
 	bool bDontCareAboutWinning = eMyGrandStrategy == NO_AIGRANDSTRATEGY;
 	bDontCareAboutWinning = bDontCareAboutWinning || GetPlayer()->GetGrandStrategyAI()->GetGrandStrategyPriority(eMyGrandStrategy) <= 500;
 	bDontCareAboutWinning = bDontCareAboutWinning || !IsCompetingForVictory();
-	bDontCareAboutWinning = bDontCareAboutWinning || (eMyGrandStrategy != eDomination && iGameEra < 3);
-	bDontCareAboutWinning = bDontCareAboutWinning || (eMyGrandStrategy == eDomination && iGameEra < 2 && GetPlayer()->GetNumCapitalCities() <= 0);
+	bDontCareAboutWinning = bDontCareAboutWinning || (eMyGrandStrategy != eDomination && iGameEra < GD_INT_GET(RENAISSANCE_ERA));
+	bDontCareAboutWinning = bDontCareAboutWinning || (eMyGrandStrategy == eDomination && iGameEra < GD_INT_GET(MEDIEVAL_ERA) && GetPlayer()->GetNumCapitalCities() <= 0);
 
 	return !bDontCareAboutWinning;
 }
@@ -13008,27 +13008,16 @@ void CvDiplomacyAI::DoUpdateLandDisputeLevels()
 			
 			// Land disputes matter more if a warmonger, or in the early game.
 			if (bBold)
-			{
-				if (iEra == 0)
-					iMultiplier += 150;
-				else if (iEra == 1)
-					iMultiplier += 100;
-				else if (iEra == 2)
-					iMultiplier += 75;
-				else
-					iMultiplier += 50;
-			}
-			else
-			{
-				if (iEra == 0)
-					iMultiplier += 100;
-				else if (iEra == 1)
-					iMultiplier += 50;
-				else if (iEra == 2)
-					iMultiplier += 25;
-			}
+				iMultiplier += 50;
 
-			iContestedScore *= (100 + iMultiplier);
+			if (iEra == GD_INT_GET(ANCIENT_ERA))
+				iMultiplier += 100;
+			else if (iEra == GD_INT_GET(CLASSICAL_ERA))
+				iMultiplier += 50;
+			else if (iEra == GD_INT_GET(MEDIEVAL_ERA))
+				iMultiplier += 25;
+
+			iContestedScore *= 100 + iMultiplier;
 			iContestedScore /= 100;
 
 			// Now see what our new Dispute Level should be
@@ -16511,7 +16500,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		}
 		else
 		{
-			bWantsOpportunityAttack = (IsGoingForWorldConquest() && iMyEra >= 2) || bEverCapturedKeyCity || bVictoryConcern || GetWarmongerThreat(ePlayer) >= THREAT_SEVERE || bCloseToWorldConquest || bTheyAreCloseToWorldConquest || IsMajorCompetitor(ePlayer) || GC.getGame().IsAIAggressiveMode();
+			bWantsOpportunityAttack = (IsGoingForWorldConquest() && iMyEra >= GD_INT_GET(MEDIEVAL_ERA)) || bEverCapturedKeyCity || bVictoryConcern || GetWarmongerThreat(ePlayer) >= THREAT_SEVERE || bCloseToWorldConquest || bTheyAreCloseToWorldConquest || IsMajorCompetitor(ePlayer) || GC.getGame().IsAIAggressiveMode();
 
 			// If they're nearby, more reasons are valid to want to attack them!
 			if (eOurProximity >= PLAYER_PROXIMITY_CLOSE)
@@ -16611,15 +16600,15 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	{
 		if (GetBiggestCompetitor() == ePlayer)
 		{
-			vApproachScores[CIV_APPROACH_WAR] += iMyEra > 1 ? vApproachBias[CIV_APPROACH_WAR] * 5 : vApproachBias[CIV_APPROACH_WAR] * 3;
-			vApproachScores[CIV_APPROACH_HOSTILE] += iMyEra > 1 ? vApproachBias[CIV_APPROACH_HOSTILE] * 5 : vApproachBias[CIV_APPROACH_HOSTILE] * 3;
-			vApproachScores[CIV_APPROACH_GUARDED] += iMyEra > 1 ? vApproachBias[CIV_APPROACH_GUARDED] * 5 : 0;
-			vApproachScores[CIV_APPROACH_DECEPTIVE] += iMyEra > 1 ? vApproachBias[CIV_APPROACH_DECEPTIVE] * 5 : 0;
+			vApproachScores[CIV_APPROACH_WAR] += iMyEra > GD_INT_GET(CLASSICAL_ERA) ? vApproachBias[CIV_APPROACH_WAR] * 5 : vApproachBias[CIV_APPROACH_WAR] * 3;
+			vApproachScores[CIV_APPROACH_HOSTILE] += iMyEra > GD_INT_GET(CLASSICAL_ERA) ? vApproachBias[CIV_APPROACH_HOSTILE] * 5 : vApproachBias[CIV_APPROACH_HOSTILE] * 3;
+			vApproachScores[CIV_APPROACH_GUARDED] += iMyEra > GD_INT_GET(CLASSICAL_ERA) ? vApproachBias[CIV_APPROACH_GUARDED] * 5 : 0;
+			vApproachScores[CIV_APPROACH_DECEPTIVE] += iMyEra > GD_INT_GET(CLASSICAL_ERA) ? vApproachBias[CIV_APPROACH_DECEPTIVE] * 5 : 0;
 
 			if (IsGoingForWorldConquest() || eOurProximity == PLAYER_PROXIMITY_NEIGHBORS || bVictoryConcern || bProvokedUs || bWantsOpportunityAttack)
 			{
 				// Easy target? Let's get 'em.
-				if (bEasyTarget && iMyEra > 0)
+				if (bEasyTarget && iMyEra > GD_INT_GET(ANCIENT_ERA))
 				{
 					vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * 5;
 					vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * 5;
@@ -16639,7 +16628,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 				vApproachScores[CIV_APPROACH_DECEPTIVE] += bApplyDeception ? vApproachBias[CIV_APPROACH_DECEPTIVE] * 2 : 0;
 
 				// Easy target? Let's get 'em.
-				if (bEasyTarget && iMyEra > 0)
+				if (bEasyTarget && iMyEra > GD_INT_GET(ANCIENT_ERA))
 				{
 					vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * 3;
 					vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * 3;
@@ -16648,7 +16637,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			}
 		}
 		// Not a major competitor in the Renaissance or later? We have bigger fish to fry.
-		else if (iMyEra >= 3 && !bVictoryConcern && IsCompetingForVictory())
+		else if (iMyEra >= GD_INT_GET(RENAISSANCE_ERA) && !bVictoryConcern && IsCompetingForVictory())
 		{
 			vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * GetVictoryCompetitiveness() / 2;
 			vApproachScores[CIV_APPROACH_NEUTRAL] += vApproachBias[CIV_APPROACH_NEUTRAL] * (11 - GetVictoryCompetitiveness()) / 2;
@@ -17131,11 +17120,11 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	{
 		iMultiplier++;
 	}
-	if (iMyEra <= 1)
+	if (iMyEra <= GD_INT_GET(CLASSICAL_ERA))
 	{
 		iMultiplier += 2;
 	}
-	if (iMyEra >= 2 && IsGoingForWorldConquest())
+	if (iMyEra >= GD_INT_GET(MEDIEVAL_ERA) && IsGoingForWorldConquest())
 	{
 		iMultiplier += 2;
 		bVictoryCompetitor = true;
@@ -17231,7 +17220,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		iMultiplier++;
 		bBonus = true;
 	}
-	if (iMyEra >= 3 && IsGoingForCultureVictory())
+	if (iMyEra >= GD_INT_GET(RENAISSANCE_ERA) && IsGoingForCultureVictory())
 	{
 		iMultiplier++;
 		bBonus = true;
@@ -17345,7 +17334,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			iMultiplier++;
 			bBonus = true;
 		}
-		if (iMyEra >= 3 && IsGoingForDiploVictory())
+		if (iMyEra >= GD_INT_GET(RENAISSANCE_ERA) && IsGoingForDiploVictory())
 		{
 			iMultiplier++;
 			bBonus = true;
@@ -17429,7 +17418,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		}
 	}
 
-	if (IsCompetingForVictory() && (iMyEra > 0 || iTheirEra > 0))
+	if (IsCompetingForVictory() && (iMyEra > GD_INT_GET(ANCIENT_ERA) || iTheirEra > GD_INT_GET(ANCIENT_ERA)))
 	{
 		int iBlockEra = max(0, max(iMyEra, iTheirEra) - 1);
 
@@ -17453,7 +17442,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			iMultiplier++;
 			bBonus = true;
 		}
-		if (iMyEra >= 3 && IsGoingForSpaceshipVictory())
+		if (iMyEra >= GD_INT_GET(RENAISSANCE_ERA) && IsGoingForSpaceshipVictory())
 		{
 			iMultiplier++;
 			bVictoryCompetitor = true;
@@ -17549,7 +17538,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			iMultiplier++;
 			bBonus = true;
 		}
-		if (iMyEra >= 3 && IsGoingForCultureVictory())
+		if (iMyEra >= GD_INT_GET(RENAISSANCE_ERA) && IsGoingForCultureVictory())
 		{
 			iMultiplier++;
 			bVictoryCompetitor = true;
@@ -17906,7 +17895,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 		iReligiosityScore += pTraits->IsReligious() ? 2 : 0;
 		iReligiosityScore *= 100;
-		if (iGameEra != 2 && iGameEra != 3)
+		if (iGameEra < GD_INT_GET(MEDIEVAL_ERA) || iGameEra > GD_INT_GET(RENAISSANCE_ERA))
 			iReligiosityScore /= 2;
 
 		// Have they been converting our cities? Grr...
@@ -18068,7 +18057,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	iIdeologueScore += IsCultural() || bCulturalTraits ? 2 : 0;
 	iIdeologueScore += IsGoingForCultureVictory() || bCloseToCultureVictory ? 2 : 0;
 	iIdeologueScore *= 100;
-	if (iGameEra >= 7)
+	if (iGameEra >= GD_INT_GET(INFORMATION_ERA))
 		iIdeologueScore /= 2;
 
 	PolicyBranchTypes eMyBranch = m_pPlayer->GetPlayerPolicies()->GetLateGamePolicyTree();
@@ -18588,7 +18577,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	iTradeDealValue /= 20;
 
 	// Trade deal value is more important in earlier eras
-	if (iMyEra <= 2)
+	if (iMyEra <= GD_INT_GET(MEDIEVAL_ERA))
 	{
 		iTradeDealValue /= 3;
 	}
@@ -18875,7 +18864,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	if (iDangerScore > 0 && eClosestProximity >= PLAYER_PROXIMITY_CLOSE)
 	{
 		// Be extremely wary of early game conquerors
-		if (iGameEra == 0)
+		if (iGameEra == GD_INT_GET(ANCIENT_ERA))
 		{
 			vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * 3 * iDangerScore;
 			vApproachScores[CIV_APPROACH_GUARDED] += vApproachBias[CIV_APPROACH_GUARDED] * 3 * iDangerScore;
@@ -18893,7 +18882,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 				}
 			}
 		}
-		else if (iGameEra == 1)
+		else if (iGameEra == GD_INT_GET(CLASSICAL_ERA))
 		{
 			vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * 2 * iDangerScore;
 			vApproachScores[CIV_APPROACH_GUARDED] += vApproachBias[CIV_APPROACH_GUARDED] * 2 * iDangerScore;
@@ -19069,7 +19058,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 							if (bOtherWarPlayerCloseToTarget && (bEarlyGameCompetitor || iDangerScore > 0))
 							{
 								// All three of us pre-Renaissance? Add a little extra punch!
-								if (iTheirEra <= 2 && GET_PLAYER(eLoopPlayer).GetCurrentEra() <= 2)
+								if (iTheirEra < GD_INT_GET(RENAISSANCE_ERA) && GET_PLAYER(eLoopPlayer).GetCurrentEra() < GD_INT_GET(RENAISSANCE_ERA))
 								{
 									iBonusMod *= 5;
 									iBonusMod /= 2;
@@ -19080,7 +19069,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 							// They're not close to the target?
 							else if (!bOtherWarPlayerCloseToTarget)
 							{
-								if (iMyEra <= 2)
+								if (iMyEra < GD_INT_GET(RENAISSANCE_ERA))
 									iBonusMod = 0;
 								else
 									iBonusMod /= 2;
@@ -19110,7 +19099,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// EARLY GAME STRATEGY - How should we approach players before the Renaissance?
 	////////////////////////////////////
 
-	if (iMyEra <= 2)
+	if (iMyEra < GD_INT_GET(RENAISSANCE_ERA))
 	{
 		// If we've been on a coop war together, let's keep this relationship going.
 		if (GetCoopWarAgreementScore(ePlayer) > 0)
@@ -19195,7 +19184,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	if (IsCompetingForVictory())
 	{
 		// Must be at least in the Medieval Era (or with few players / close to winning / already conquered a capital) to add weight for Domination Victory
-		if (iMyEra >= 2 || bCloseToWorldConquest || GC.getGame().GetNumMajorCivsAlive() <= 4 || GetPlayerNumMajorsConquered(eMyPlayer) > 0)
+		if (iMyEra >= GD_INT_GET(MEDIEVAL_ERA) || bCloseToWorldConquest || GC.getGame().GetNumMajorCivsAlive() <= 4 || GetPlayerNumMajorsConquered(eMyPlayer) > 0)
 		{
 			if (IsGoingForWorldConquest() || GetPlayerNumMajorsConquered(eMyPlayer) > 0)
 			{
@@ -19327,7 +19316,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		}
 
 		// Renaissance Era or later (or close to winning) for other victories
-		if (iMyEra >= 3 || bCloseToAnyVictory)
+		if (iMyEra >= GD_INT_GET(RENAISSANCE_ERA) || bCloseToAnyVictory)
 		{
 			if (IsGoingForDiploVictory() || bCloseToDiploVictory)
 			{
@@ -20129,7 +20118,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		iMultiplier += bEarlyGameCompetitor ? -2 : 1;
 
 		// Disincentivize early war - we want to work on our infrastructure
-		if (iMyEra <= 2)
+		if (iMyEra <= GD_INT_GET(MEDIEVAL_ERA))
 		{
 			vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * iMultiplier;
 			vApproachScores[CIV_APPROACH_NEUTRAL] += vApproachBias[CIV_APPROACH_NEUTRAL] * iMultiplier;
@@ -20167,7 +20156,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			vApproachScores[CIV_APPROACH_GUARDED] -= vApproachBias[CIV_APPROACH_GUARDED] * iMultiplier;
 		}
 		// Pre-Modern Era, let's be more intense about religious fervor
-		else if (bDifferentReligions && iMyEra <= 4)
+		else if (bDifferentReligions && iMyEra <= GD_INT_GET(INDUSTRIAL_ERA))
 		{
 			vApproachScores[CIV_APPROACH_FRIENDLY] -= vApproachBias[CIV_APPROACH_FRIENDLY] * iMultiplier;
 			vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * iMultiplier;
@@ -20678,7 +20667,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// PROXIMITY MULTIPLIER - the farther away a player is the less likely we are to care about them!
 	////////////////////////////////////
 
-	bool bCanCrossOcean = GetPlayer()->CanCrossOcean() && iMyEra >= 2;
+	bool bCanCrossOcean = GetPlayer()->CanCrossOcean() && iMyEra >= GD_INT_GET(MEDIEVAL_ERA);
 
 	if (bCanCrossOcean)
 	{
@@ -21622,7 +21611,7 @@ void CvDiplomacyAI::DoUpdateMajorCompetitors()
 
 		if (IsCompetingForVictory())
 		{
-			if (iEra >= 2 && IsGoingForWorldConquest())
+			if (iEra >= GD_INT_GET(MEDIEVAL_ERA) && IsGoingForWorldConquest())
 			{
 				if (GET_PLAYER(ePlayer).GetNumCapitalCities() > 0)
 				{
@@ -21643,7 +21632,7 @@ void CvDiplomacyAI::DoUpdateMajorCompetitors()
 				}
 			}
 
-			if ((iEra >= 3 && IsGoingForDiploVictory()) || bCloseToDiploVictory)
+			if ((iEra >= GD_INT_GET(RENAISSANCE_ERA) && IsGoingForDiploVictory()) || bCloseToDiploVictory)
 			{
 				if (IsMinorCivTroublemaker(ePlayer, true))
 				{
@@ -21670,7 +21659,7 @@ void CvDiplomacyAI::DoUpdateMajorCompetitors()
 				}
 			}
 			
-			if ((iEra >= 3 && IsGoingForCultureVictory()) || bCloseToCultureVictory)
+			if ((iEra >= GD_INT_GET(RENAISSANCE_ERA) && IsGoingForCultureVictory()) || bCloseToCultureVictory)
 			{
 				if (GetWonderDisputeLevel(ePlayer) >= DISPUTE_LEVEL_STRONG)
 				{
@@ -21699,7 +21688,7 @@ void CvDiplomacyAI::DoUpdateMajorCompetitors()
 					}
 				}
 			
-				if (iEra >= 5)
+				if (iEra >= GD_INT_GET(MODERN_ERA))
 				{
 					if (GetPlayer()->GetCulture()->GetInfluenceLevel(ePlayer) <= INFLUENCE_LEVEL_FAMILIAR || (GetPlayer()->GetCulture()->GetInfluenceLevel(ePlayer) == INFLUENCE_LEVEL_POPULAR && GetPlayer()->GetCulture()->GetInfluenceTrend(ePlayer) == INFLUENCE_TREND_FALLING))
 					{
@@ -21717,7 +21706,7 @@ void CvDiplomacyAI::DoUpdateMajorCompetitors()
 				}
 			}
 			
-			if ((iEra >= 3 && IsGoingForSpaceshipVictory()) || bCloseToScienceVictory)
+			if ((iEra >= GD_INT_GET(RENAISSANCE_ERA) && IsGoingForSpaceshipVictory()) || bCloseToScienceVictory)
 			{
 				if (GetTechBlockLevel(ePlayer) >= BLOCK_LEVEL_STRONG)
 				{
@@ -21727,7 +21716,7 @@ void CvDiplomacyAI::DoUpdateMajorCompetitors()
 
 				int iTheirTechs = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetTeamTechs()->GetNumTechsKnown();
 				
-				if (iEra >= 6 && (iTheirTechs > iOurTechs))
+				if (iEra >= GD_INT_GET(ATOMIC_ERA) && iTheirTechs > iOurTechs)
 				{
 					SetMajorCompetitor(ePlayer, true);
 					continue;
