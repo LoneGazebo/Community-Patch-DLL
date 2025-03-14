@@ -213,6 +213,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_bEmbarkedToLandFlatCost(false),
 	m_bNoHillsImprovementMaintenance(false),
 	m_bTechBoostFromCapitalScienceBuildings(false),
+	m_bArtistGoldenAgeTechBoost(false),
 	m_bStaysAliveZeroCities(false),
 	m_bFaithFromUnimprovedForest(false),
 #if defined(MOD_TRAITS_ANY_BELIEF)
@@ -1236,6 +1237,11 @@ bool CvTraitEntry::IsNoHillsImprovementMaintenance() const
 bool CvTraitEntry::IsTechBoostFromCapitalScienceBuildings() const
 {
 	return m_bTechBoostFromCapitalScienceBuildings;
+}
+/// Artists Open Golden Age to Receive Current Median One-Time Research Points in Researchable Technology
+bool CvTraitEntry::IsArtistGoldenAgeTechBoost() const
+{
+	return m_bArtistGoldenAgeTechBoost;
 }
 
 /// Accessor:: does this civ still exist with zero cities?
@@ -2597,6 +2603,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_bEmbarkedToLandFlatCost = kResults.GetBool("EmbarkedToLandFlatCost");
 	m_bNoHillsImprovementMaintenance = kResults.GetBool("NoHillsImprovementMaintenance");
 	m_bTechBoostFromCapitalScienceBuildings = kResults.GetBool("TechBoostFromCapitalScienceBuildings");
+	m_bArtistGoldenAgeTechBoost = kResults.GetBool("ArtistGoldenAgeTechBoost");
 	m_bStaysAliveZeroCities = kResults.GetBool("StaysAliveZeroCities");
 	m_bFaithFromUnimprovedForest = kResults.GetBool("FaithFromUnimprovedForest");
 #if defined(MOD_TRAITS_ANY_BELIEF)
@@ -4653,6 +4660,10 @@ void CvPlayerTraits::InitPlayerTraits()
 			if(trait->IsTechBoostFromCapitalScienceBuildings())
 			{
 				m_bTechBoostFromCapitalScienceBuildings = true;
+			}
+			if(trait->IsArtistGoldenAgeTechBoost())
+			{
+				m_bArtistGoldenAgeTechBoost = true;
 			}
 			if(trait->IsStaysAliveZeroCities())
 			{
@@ -7594,6 +7605,7 @@ void CvPlayerTraits::Serialize(PlayerTraits& playerTraits, Visitor& visitor)
 	visitor(playerTraits.m_bEmbarkedToLandFlatCost);
 	visitor(playerTraits.m_bNoHillsImprovementMaintenance);
 	visitor(playerTraits.m_bTechBoostFromCapitalScienceBuildings);
+	visitor(playerTraits.m_bArtistGoldenAgeTechBoost);
 	visitor(playerTraits.m_bStaysAliveZeroCities);
 	visitor(playerTraits.m_bFaithFromUnimprovedForest);
 	visitor(playerTraits.m_bAnyBelief);
