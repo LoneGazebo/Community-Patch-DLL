@@ -5483,6 +5483,10 @@ int  CityStrategyAIHelpers::GetBuildingTraitValue(CvCity *pCity, YieldTypes eYie
 			{
 				iBonus += 50;
 			}
+			if(kPlayer.GetPlayerTraits()->IsArtistGoldenAgeTechBoost())
+			{
+				iBonus += 50;
+			}
 			if(kPlayer.GetPlayerTraits()->IsTechFromCityConquer())
 			{
 				iBonus += 50;
