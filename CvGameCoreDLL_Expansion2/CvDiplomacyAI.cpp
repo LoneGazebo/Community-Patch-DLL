@@ -21502,7 +21502,7 @@ void CvDiplomacyAI::DoUpdateMajorCompetitors()
 			continue;
 		}
 
-		if (GET_PLAYER(ePlayer).GetFractionOriginalCapitalsUnderControl() >= iDangerThreshold)
+		if (GET_PLAYER(ePlayer).GetFractionOriginalCapitalsUnderControl() >= 33)
 		{
 			SetMajorCompetitor(ePlayer, true);
 			continue;
