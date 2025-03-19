@@ -358,6 +358,9 @@ protected:
 	static int lGetMinimumFaithNextGreatProphet(lua_State* L);
 	static int lHasReligionInMostCities(lua_State* L);
 	static int lDoesUnitPassFaithPurchaseCheck(lua_State* L);
+	LUAAPIEXTN(GetNumFollowerPrimaryReligion, int);
+	LUAAPIEXTN(GetNumGlobalFollowerPrimaryReligion, int);
+	LUAAPIEXTN(GetReformationFollowerReduction, int);
 
 	static int lGetHappiness(lua_State* L);
 	static int lSetHappiness(lua_State* L);
@@ -471,6 +474,17 @@ protected:
 	LUAAPIEXTN(GetDominationResistance, int);
 	LUAAPIEXTN(GetCivOpinion, int);
 	LUAAPIEXTN(GetMajorityReligion, int);
+
+	LUAAPIEXTN(GetCivilizationBuilding, int, BuildingClassTypes);
+
+	LUAAPIEXTN(GetTradeGold, int, UnitTypes);
+	LUAAPIEXTN(GetTradeWLTKDTurns, int, UnitTypes);
+	LUAAPIEXTN(GetDiscoverScience, int, UnitTypes);
+	LUAAPIEXTN(GetTreatiseCulture, int, UnitTypes);
+	LUAAPIEXTN(GetBlastGAP, int, UnitTypes);
+	LUAAPIEXTN(GetBlastTourism, int, UnitTypes);
+	LUAAPIEXTN(GetBlastTourismTurns, int, UnitTypes);
+
 	//JFD
 	LUAAPIEXTN(GetWLTKDResourceTT, int);
 	LUAAPIEXTN(GetNumNationalWonders, int);
@@ -715,6 +729,7 @@ protected:
 
 	static int lGetLevelExperienceModifier(lua_State* L);
 
+	LUAAPIEXTN(GetCultureBombBoost, int);
 	static int lGetCultureBombTimer(lua_State* L);
 	static int lGetConversionTimer(lua_State* L);
 
@@ -1348,6 +1363,7 @@ protected:
 #endif
 	static int lGetInternationalTradeRouteDomainModifier(lua_State* L);
 	static int lGetTradeRouteYieldModifier(lua_State* L);
+	LUAAPIEXTN(GetTradeBuildingModifier, int);
 	static int lGetInternationalTradeRouteTotal(lua_State* L);
 	static int lGetInternationalTradeRouteScience(lua_State* L);
 #if defined(MOD_BALANCE_CORE)

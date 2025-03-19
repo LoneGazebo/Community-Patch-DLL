@@ -759,6 +759,11 @@
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
+        <FileName>Database Changes\Text\en_US\WorldMap\CoreNewPlotText.xml</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
         <FileName>Database Changes\Text\en_US\WorldMap\CoreNewYieldText.xml</FileName>
       </Action>
       <Action>
@@ -820,6 +825,16 @@
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
         <FileName>Database Changes\Text\en_US\Units\CoreMissionTextChanges.sql</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Database Changes\Text\en_US\Units\CoreSpecialUnitTextChanges.sql</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Database Changes\Text\en_US\Units\CoreUnitCombatTextChanges.sql</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
@@ -3121,7 +3136,15 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
+    <Content Include="Database Changes\Text\en_US\Units\CoreSpecialUnitTextChanges.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
     <Content Include="Database Changes\Text\en_US\Units\CoreNewUnitText.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Database Changes\Text\en_US\Units\CoreUnitCombatTextChanges.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
@@ -3138,6 +3161,10 @@
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="Database Changes\Text\en_US\WorldMap\CoreNewGoodyHutText.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Database Changes\Text\en_US\WorldMap\CoreNewPlotText.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>

@@ -1138,12 +1138,6 @@ int CvCitySpecializationAI::AdjustValueBasedOnBuildings(CvCity* pCity, YieldType
 		break;
 
 	case YIELD_CULTURE:
-		iYieldChanges = pCity->getCultureRateModifier();
-		if(iYieldChanges > 0)
-		{
-			// +15% per point of yield change
-			iRtnValue = iRtnValue * (100 + (iYieldChanges * 15)) / 100;
-		}
 		break;
 
 	case YIELD_FAITH:

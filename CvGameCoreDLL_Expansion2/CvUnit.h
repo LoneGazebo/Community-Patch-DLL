@@ -501,19 +501,13 @@ public:
 	int GetScaleAmount(int iAmountToScale) const;
 
 	bool canDiscover(const CvPlot* pPlot, bool bTestVisible = false) const;
-	int getDiscoverAmount();
 	bool discover();
 
-	bool IsCanRushBuilding(CvCity* pCity, bool bTestVisible) const;
-	bool DoRushBuilding();
-
 	bool canHurry(const CvPlot* pPlot, bool bTestVisible = false) const;
-	int getMaxHurryProduction(CvCity* pCity) const;
 	int getHurryProduction(const CvPlot* pPlot) const;
 	bool hurry();
 
 	bool canTrade(const CvPlot* pPlot, bool bTestVisible = false) const;
-	int getTradeGold() const;
 	int getTradeInfluence(const CvPlot* pPlot) const;
 	bool trade();
 
@@ -534,17 +528,13 @@ public:
 	void setNumberOfCultureBombs(const int iBombs);
 
 	bool canGoldenAge(const CvPlot* pPlot, bool bTestVisible = false) const;
-	int getGAPBlast();
 	int getGoldenAgeTurns() const;
 	bool goldenAge();
 
 	bool canGivePolicies(const CvPlot* pPlot, bool bTestVisible = false) const;
-	int getGivePoliciesCulture();
 	bool givePolicies();
 
 	bool canBlastTourism(const CvPlot* pPlot, bool bTestVisible = false) const;
-	int getBlastTourism();
-	int getBlastTourismTurns();
 	bool blastTourism();
 
 	bool canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestVisible = false, bool bTestGold = true, bool bTestEra = false) const;

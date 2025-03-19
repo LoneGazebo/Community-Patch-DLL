@@ -76,8 +76,7 @@ VALUES
 DELETE FROM Policy_BuildingClassYieldChanges
 WHERE PolicyType = 'POLICY_MERCANTILISM';
 
-UPDATE Policy_HurryModifiers
-SET HurryCostModifier = 0 -- will be updated in scaler
+DELETE FROM Policy_HurryModifiers -- will be re-inserted in scaler
 WHERE PolicyType = 'POLICY_MERCANTILISM';
 
 INSERT INTO Policy_YieldFromConstruction

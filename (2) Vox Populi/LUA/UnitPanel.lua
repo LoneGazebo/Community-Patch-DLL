@@ -1280,7 +1280,7 @@ function TipHandler( control )
 			strActionHelp = strActionHelp .. "[NEWLINE]";
 		end
 		
-		local iGALength = unit:GetGoldenAgeTurns();
+		local iGALength = unit:GetGAPAmount();
 		strActionHelp = "[NEWLINE]" .. Locale.ConvertTextKey( "TXT_KEY_MISSION_START_GOLDENAGE_HELP", iGALength );
         strToolTip = strToolTip .. strActionHelp;
 		

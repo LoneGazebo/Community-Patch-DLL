@@ -585,7 +585,7 @@ local function OrderItemTooltip( city, isDisabled, purchaseYieldID, orderID, ite
 
 		elseif orderID == OrderTypes.ORDER_CREATE then
 			itemInfo = GameInfo.Projects
-			strToolTip = GetHelpTextForProject( itemID, city, true )
+			strToolTip = GetHelpTextForProject( itemID, true, city )
 			if isDisabled then
 				strDisabledInfo = city:CanCreateTooltip(itemID)
 			end

@@ -372,6 +372,9 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetMinimumFaithNextGreatProphet);
 	Method(HasReligionInMostCities);
 	Method(DoesUnitPassFaithPurchaseCheck);
+	Method(GetNumFollowerPrimaryReligion);
+	Method(GetNumGlobalFollowerPrimaryReligion);
+	Method(GetReformationFollowerReduction);
 
 	// Happiness
 
@@ -643,6 +646,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 
 	Method(GetLevelExperienceModifier);
 
+	Method(GetCultureBombBoost);
 	Method(GetCultureBombTimer);
 	Method(GetConversionTimer);
 
@@ -1237,6 +1241,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(CanCreateFranchiseInCity);
 	Method(GetInternationalTradeRouteDomainModifier);
 	Method(GetTradeRouteYieldModifier);
+	Method(GetTradeBuildingModifier);
 	Method(GetInternationalTradeRouteTotal);
 	Method(GetInternationalTradeRouteScience);
 	Method(GetInternationalTradeRouteCulture);
@@ -1350,6 +1355,17 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(DoForceDefPact);
 	Method(GetCivOpinion);
 	Method(GetMajorityReligion);
+
+	Method(GetCivilizationBuilding);
+
+	Method(GetTradeGold);
+	Method(GetTradeWLTKDTurns);
+	Method(GetDiscoverScience);
+	Method(GetTreatiseCulture);
+	Method(GetBlastGAP);
+	Method(GetBlastTourism);
+	Method(GetBlastTourismTurns);
+
 	//JFD
 	Method(GetWLTKDResourceTT);
 	Method(GetNumNationalWonders);
@@ -1858,25 +1874,14 @@ int CvLuaPlayer::lGetResourcesFromFranchises(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	const ResourceTypes eResource = (ResourceTypes)lua_tointeger(L, 2);
 
-	int iResult = 0;
-	const CvCity* pLoopCity;
-	int iLoop;
-	for (pLoopCity = pkPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = pkPlayer->nextCity(&iLoop))
+	fraction fResult = 0;
+	int iLoop = 0;
+	for (const CvCity* pLoopCity = pkPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = pkPlayer->nextCity(&iLoop))
 	{
-		if (pLoopCity != NULL)
-		{
-			if (pLoopCity->GetResourceQuantityPerXFranchises(eResource) > 0)
-			{
-				int iFranchises = pkPlayer->GetCorporations()->GetNumFranchises();
-				if (iFranchises > 0)
-				{
-					iResult += (iFranchises / pLoopCity->GetResourceQuantityPerXFranchises(eResource));
-				}
-			}
-		}
+		fResult += pLoopCity->GetResourceQuantityPerXFranchises(eResource) * pkPlayer->GetCorporations()->GetNumFranchises();
 	}
 
-	lua_pushinteger(L, iResult);
+	lua_pushinteger(L, fResult.Truncate());
 	return 1;
 }
 // -----------------------------------------------------------------------------
@@ -2070,10 +2075,21 @@ int CvLuaPlayer::lKillUnits(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lGetSpecificUnitType(lua_State* L)
 {
-	CvPlayerAI* pkPlayer = GetInstance(L);
+	CvPlayer* pPlayer = GetInstance(L);
 	CvString strType = lua_tostring(L, 2);
-	
-	const UnitTypes eUnitType = pkPlayer->GetSpecificUnitType(strType, true);
+	const bool bCivOverrideOnly = luaL_optbool(L, 3, false);
+	UnitTypes eUnitType;
+	UnitClassTypes eUnitClass = static_cast<UnitClassTypes>(GC.getInfoTypeForString(strType, true));
+	if (bCivOverrideOnly)
+	{
+		CvCivilizationInfo* pCivInfo = GC.getCivilizationInfo(pPlayer->getCivilizationType());
+		eUnitType = pCivInfo ? static_cast<UnitTypes>(pCivInfo->getCivilizationUnits(eUnitClass)) : NO_UNIT;
+	}
+	else
+	{
+		eUnitType = pPlayer->GetSpecificUnitType(eUnitClass);
+	}
+
 	lua_pushinteger(L, eUnitType);
 	return 1;
 }
@@ -3468,7 +3484,9 @@ int CvLuaPlayer::lGetCulturePerTurnFromBonusTurns(lua_State* L)
 //int GetCultureCityModifier();
 int CvLuaPlayer::lGetCultureCityModifier(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::GetJONSCultureCityModifier);
+	CvPlayer* pPlayer = GetInstance(L);
+	lua_pushinteger(L, pPlayer->getYieldRateModifier(YIELD_CULTURE));
+	return 1;
 }
 
 //------------------------------------------------------------------------------
@@ -4385,6 +4403,28 @@ int CvLuaPlayer::lDoesUnitPassFaithPurchaseCheck(lua_State* L)
 
 	return 1;
 }
+//------------------------------------------------------------------------------
+// int GetNumFollowerPrimaryReligion()
+int CvLuaPlayer::lGetNumFollowerPrimaryReligion(lua_State* L)
+{
+	CvPlayer* pPlayer = GetInstance(L);
+	ReligionTypes ePrimaryReligion = pPlayer->GetReligions()->GetOwnedReligion();
+
+	// 0 if ePrimaryReligion == NO_RELIGION
+	lua_pushinteger(L, pPlayer->GetReligions()->GetNumDomesticFollowers(ePrimaryReligion));
+	return 1;
+}
+//------------------------------------------------------------------------------
+// int GetNumGlobalFollowerPrimaryReligion()
+int CvLuaPlayer::lGetNumGlobalFollowerPrimaryReligion(lua_State* L)
+{
+	CvPlayer* pPlayer = GetInstance(L);
+	ReligionTypes ePrimaryReligion = pPlayer->GetReligions()->GetOwnedReligion();
+	lua_pushinteger(L, ePrimaryReligion != NO_RELIGION ? GC.getGame().GetGameReligions()->GetNumFollowers(ePrimaryReligion) : 0);
+	return 1;
+}
+//------------------------------------------------------------------------------
+LUAAPIIMPL(Player, GetReformationFollowerReduction)
 //------------------------------------------------------------------------------
 //int GetHappiness();
 int CvLuaPlayer::lGetHappiness(lua_State* L)
@@ -5749,6 +5789,14 @@ int CvLuaPlayer::lGetTradeRouteYieldModifier(lua_State* L)
 	}
 
 	lua_pushinteger(L, iResult);
+	return 1;
+}
+
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetTradeBuildingModifier(lua_State* L)
+{
+	CvPlayer* pPlayer = GetInstance(L);
+	lua_pushinteger(L, pPlayer->GetPlayerTraits()->GetTradeBuildingModifier());
 	return 1;
 }
 
@@ -8263,6 +8311,9 @@ int CvLuaPlayer::lGetLevelExperienceModifier(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlayerAI::getLevelExperienceModifier);
 }
+
+LUAAPIIMPL(Player, GetCultureBombBoost)
+
 //------------------------------------------------------------------------------
 //int getCultureBombTimer();
 int CvLuaPlayer::lGetCultureBombTimer(lua_State* L)
@@ -17336,6 +17387,23 @@ int CvLuaPlayer::lSetStateReligion(lua_State* L)
 	pkPlayer->GetReligions()->SetStateReligionOverride(eReligion);
 	return 1;
 }
+
+int CvLuaPlayer::lGetCivilizationBuilding(lua_State* L)
+{
+	const CvPlayer* pPlayer = GetInstance(L);
+	const int iBuildingClass = lua_tointeger(L, 2);
+	lua_pushinteger(L, pPlayer->getCivilizationInfo().getCivilizationBuildings(iBuildingClass));
+	return 1;
+}
+
+LUAAPIIMPL(Player, GetTradeGold)
+LUAAPIIMPL(Player, GetTradeWLTKDTurns)
+LUAAPIIMPL(Player, GetDiscoverScience)
+LUAAPIIMPL(Player, GetTreatiseCulture)
+LUAAPIIMPL(Player, GetBlastGAP)
+LUAAPIIMPL(Player, GetBlastTourism)
+LUAAPIIMPL(Player, GetBlastTourismTurns)
+
 int CvLuaPlayer::lGetPiety(lua_State* L)
 {
 	CvPlayer* pkPlayer = GetInstance(L);

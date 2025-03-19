@@ -1196,7 +1196,6 @@ bool CvUnitMission::CanStartMission(CvUnit* hUnit, int iMission, int iData1, int
 	}
 	else if(iMission == CvTypes::getMISSION_HURRY())
 	{
-		//if (hUnit->IsCanRushBuilding(pPlot->getPlotCity(), bTestVisible))
 		if(hUnit->canHurry(pPlot, bTestVisible))
 		{
 			return true;
@@ -1652,7 +1651,6 @@ void CvUnitMission::StartMission(CvUnit* hUnit)
 
 			else if(pkQueueData->eMissionType == CvTypes::getMISSION_HURRY())
 			{
-				//if (hUnit->DoRushBuilding())
 				if(hUnit->hurry())
 				{
 					bAction = true;

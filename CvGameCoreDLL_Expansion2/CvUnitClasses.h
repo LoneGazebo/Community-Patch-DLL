@@ -62,7 +62,6 @@ public:
 	int GetBaseWLTKDTurns() const;
 	int GetBaseHurry() const;
 	int GetHurryMultiplier() const;
-	bool IsRushBuilding() const;
 	int GetBaseGold() const;
 	int GetScaleFromNumGWs() const;
 	int GetScaleFromNumThemes() const;
@@ -230,8 +229,6 @@ public:
 	bool GetUnitAIType(int i) const;
 	bool GetNotUnitAIType(int i) const;
 	bool GetBuilds(int i) const;
-	bool GetGreatPeoples(int i) const;
-	bool GetBuildings(int i) const;
 	bool GetBuildingClassRequireds(int i) const;
 	int GetScalingFromOwnedImprovements(int i) const;
 #if defined(MOD_BALANCE_CORE)
@@ -291,7 +288,6 @@ private:
 	int m_iBaseWLTKDTurns;
 	int m_iBaseHurry;
 	int m_iHurryMultiplier;
-	bool m_bRushBuilding;
 	int m_iBaseGold;
 	int m_iScaleFromNumGWs;
 	int m_iScaleFromNumThemes;
@@ -450,8 +446,6 @@ private:
 	bool* m_pbUnitAIType;
 	bool* m_pbNotUnitAIType;
 	bool* m_pbBuilds;
-	bool* m_pbGreatPeoples;
-	bool* m_pbBuildings;
 	bool* m_pbBuildingClassRequireds;
 #if defined(MOD_BALANCE_CORE)
 	int* m_piScalingFromOwnedImprovements;

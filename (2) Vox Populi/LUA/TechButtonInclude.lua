@@ -844,7 +844,7 @@ function AdjustArtOnGrantedBuildingButton( thisButton, thisBuildingInfo, texture
 		if textureOffset == nil then
 			textureSheet = defaultErrorTextureSheet;
 			textureOffset = nullOffset;
-		end				
+		end
 		thisButton:SetTexture( textureSheet );
 		thisButton:SetTextureOffset( textureOffset );
 		thisButton:SetHide( false );
@@ -866,7 +866,7 @@ function AdjustArtOnGrantedProjectButton( thisButton, thisProjectInfo, textureSi
 		
 		-- Tooltip
 		local bIncludeRequirementsInfo = true;
-		thisButton:SetToolTipString( GetHelpTextForProject(thisProjectInfo.ID, nil, bIncludeRequirementsInfo) );
+		thisButton:SetToolTipString( GetHelpTextForProject(thisProjectInfo.ID, bIncludeRequirementsInfo) );
 
 		local textureOffset, textureSheet = IconLookup( thisProjectInfo.PortraitIndex, textureSize, thisProjectInfo.IconAtlas );				
 		if textureOffset == nil then

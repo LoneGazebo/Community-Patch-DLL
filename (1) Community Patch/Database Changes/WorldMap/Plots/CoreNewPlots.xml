@@ -19,14 +19,14 @@
 		</Row>
 		<Row>
 			<Type>PLOT_LAND</Type>
-			<Description>TXT_KEY_TERRAIN_GRASS</Description>
+			<Description>TXT_KEY_PLOT_LAND</Description>
 			<Civilopedia>TXT_KEY_CIV5_TERRAIN_GRASSLAND_TEXT</Civilopedia>
 			<PortraitIndex>4</PortraitIndex>
 			<IconAtlas>TERRAIN_ATLAS</IconAtlas>
 		</Row>
 		<Row>
 			<Type>PLOT_OCEAN</Type>
-			<Description>TXT_KEY_TERRAIN_OCEAN</Description>
+			<Description>TXT_KEY_PLOT_OCEAN</Description>
 			<Civilopedia>TXT_KEY_CIV5_TERRAIN_OCEAN_TEXT</Civilopedia>
 			<Water>true</Water>
 			<PortraitIndex>11</PortraitIndex>

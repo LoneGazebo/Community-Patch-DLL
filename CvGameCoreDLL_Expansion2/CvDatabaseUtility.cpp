@@ -379,7 +379,7 @@ bool CvDatabaseUtility::SetFractionYields(fraction*& pYieldsArray,
 
 	if (!pResults->Bind(1, szFilterValue, false))
 	{
-		ASSERT_DEBUG(false, GetErrorMessage());
+		ASSERT(false, GetErrorMessage());
 		return false;
 	}
 

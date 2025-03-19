@@ -6,13 +6,6 @@ SET Text = 'Ranks players by the average [ICON_PRODUCTION] Production generated 
 WHERE Tag = 'TXT_KEY_PROGRESS_SCREEN_PRODUCTION_TT';
 
 ------------------------------------------------
--- Gold TopPanel tooltip
-------------------------------------------------
-UPDATE Language_en_US
-SET Text = '[ICON_GOLD][COLOR:255:235:0:255]{1_TotalGold: number "##.##"} {2_GoldPerTurn: number "''(+''##.##'')'';''[COLOR:255:60:60:255](-''##.##'')''"}[/COLOR]'
-WHERE Tag = 'TXT_KEY_TOP_PANEL_GOLD';
-
-------------------------------------------------
 -- Advisors
 ------------------------------------------------
 UPDATE Language_en_US
@@ -98,6 +91,41 @@ SET Text = 'The first Mongol incursion into Kyivan territory occurred in 1223, w
 WHERE Tag = 'TXT_KEY_CIV5_RUSSIA_TEXT_5';
 
 ------------------------------------------------
+-- Info tooltip
+------------------------------------------------
+
+-- Common
+UPDATE Language_en_US
+SET Text = 'Resources Required: {1_NumResource} {2_ResIcon} {3_Res:textkey}'
+WHERE Tag = 'TXT_KEY_PRODUCTION_RESOURCES_REQUIRED';
+
+-- Building
+UPDATE Language_en_US
+SET Text = '[ICON_STRENGTH] City Strength: {2_Sign}{1_Num}'
+WHERE Tag = 'TXT_KEY_PRODUCTION_BUILDING_DEFENSE';
+
+UPDATE Language_en_US
+SET Text = '[ICON_STRENGTH] Hit Points: {2_Sign}{1_Num}'
+WHERE Tag = 'TXT_KEY_PRODUCTION_BUILDING_HITPOINTS';
+
+-- Yield
+UPDATE Language_en_US
+SET Text = '[ICON_FOOD] Food is what determines how fast your City grows to acquire new [ICON_CITIZEN] Citizens, who work the land and collect yields for the City. Bigger Cities are nearly always better, but beware of the increased [ICON_HAPPINESS_3] Unhappiness!'
+WHERE Tag = 'TXT_KEY_FOOD_HELP_INFO';
+
+UPDATE Language_en_US
+SET Text = '[ICON_PEACE] Faith is spent on founding and improving [ICON_RELIGION] Religions at the empire-level. Faith can also be expended to purchase Missionaries, Inquisitors, Religious Buildings, and Great People.'
+WHERE Tag = 'TXT_KEY_FAITH_HELP_INFO';
+
+UPDATE Language_en_US
+SET Text = '{1: number "''[COLOR_POSITIVE_TEXT]''#.##;''[COLOR_NEGATIVE_TEXT]-''#.##"} {2_IconString} Base[ENDCOLOR]'
+WHERE Tag = 'TXT_KEY_YIELD_BASE';
+
+UPDATE Language_en_US
+SET Text = '{1: number "''[COLOR_POSITIVE_TEXT]''#.##;''[COLOR_NEGATIVE_TEXT]-''#.##"} {2_IconString} Total[ENDCOLOR]'
+WHERE Tag = 'TXT_KEY_YIELD_TOTAL';
+
+------------------------------------------------
 -- City screen/banner
 ------------------------------------------------
 UPDATE Language_en_US
@@ -115,18 +143,6 @@ WHERE Tag = 'TXT_KEY_CITYVIEW_QUEUE_PROD_TT';
 UPDATE Language_en_US
 SET Text = 'Click here to stop this city from growing in [ICON_CITIZEN] Population.'
 WHERE Tag = 'TXT_KEY_CITYVIEW_FOCUS_AVOID_GROWTH_TT';
-
-UPDATE Language_en_US
-SET Text = '[NEWLINE][ICON_BULLET][ICON_CONNECTED] Empire Modifier from Policies etc: {1_Num}%'
-WHERE Tag = 'TXT_KEY_FOODMOD_PLAYER';
-
-UPDATE Language_en_US
-SET Text = '[NEWLINE][ICON_BULLET][ICON_RELIGION_PANTHEON] Religious Beliefs Modifier: {1_Num}%'
-WHERE Tag = 'TXT_KEY_FOODMOD_RELIGION';
-
-UPDATE Language_en_US
-SET Text = '[NEWLINE][ICON_BULLET][ICON_HAPPINESS_1] "We Love the King Day" Modifier: {1_Num}%'
-WHERE Tag = 'TXT_KEY_FOODMOD_WLTKD';
 
 UPDATE Language_en_US
 SET Text = '{1_Num} [ICON_CULTURE] from Great Works and Themes'

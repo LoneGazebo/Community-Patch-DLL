@@ -266,7 +266,7 @@ local AdjustArtOnGrantedBuildingButton = AdjustArtOnGrantedBuildingButton
 
 local function projectToolTip( techID, void2, button )
 
-	return button:SetToolTipString( GetHelpTextForProject( g_buttonItemInfo[tostring(button)].ID, nil, true ) )
+	return button:SetToolTipString( GetHelpTextForProject( g_buttonItemInfo[tostring(button)].ID, true ) )
 end
 
 function AdjustArtOnGrantedProjectButton( button, row, textureSize )

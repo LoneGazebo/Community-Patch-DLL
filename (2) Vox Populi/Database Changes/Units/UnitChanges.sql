@@ -563,7 +563,8 @@ UPDATE Units
 SET
 	CombatClass = 'UNITCOMBAT_SETTLER',
 	PrereqTech = 'TECH_POTTERY',
-	ObsoleteTech = 'TECH_BANKING'
+	ObsoleteTech = 'TECH_BANKING',
+	Requirements = NULL
 WHERE Class = 'UNITCLASS_SETTLER';
 
 -- Pioneer

@@ -4885,7 +4885,7 @@ CvString CvPlayerCulture::GetTourismModifierWithTooltip(PlayerTypes eTargetPlaye
 	// Technologies
 	if (m_pPlayer->GetInfluenceSpreadModifier() > 0 && kTargetPlayer.IsNullifyInfluenceModifier())
 	{
-		szRtnValue += "[COLOR_NEGATIVE_TEXT]" + GetLocalizedText("TXT_KEY_CO_PLAYER_GREAT_FIREWALL", -m_pPlayer->GetInfluenceSpreadModifier()) + "[ENDCOLOR]";
+		szRtnValue += "[COLOR_NEGATIVE_TEXT]" + GetLocalizedText("TXT_KEY_CO_PLAYER_TOURISM_THEIR_BUILDINGS", m_pPlayer->GetInfluenceSpreadModifier()) + "[ENDCOLOR]";
 	}
 
 	return szRtnValue;
@@ -6146,44 +6146,24 @@ CvString CvCityCulture::GetTotalSlotsTooltip()
 bool CvCityCulture::IsThemingBonusPossible(BuildingClassTypes eBuildingClass) const
 {
 	const BuildingTypes eBuilding = m_pCity->GetBuildingTypeFromClass(eBuildingClass, true);
-	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-	return pkBuildingInfo && pkBuildingInfo->GetThemingBonusInfo(0);
+	return eBuilding != NO_BUILDING && GC.getBuildingInfo(eBuilding)->GetThemingBonusInfo(0);
 }
 
 int CvCityCulture::GetThemingBonus(BuildingClassTypes eBuildingClass) const
 {
-	CvPlayer& kPlayer = GET_PLAYER(m_pCity->getOwner());
-	int iRtnValue = 0;
+	int iIndex = GetThemingBonusIndex(eBuildingClass);
+	if (iIndex == -1)
+		return 0;
 
-	if (IsThemingBonusPossible(eBuildingClass))
+	BuildingTypes eBuilding = m_pCity->GetBuildingTypeFromClass(eBuildingClass, true);
+	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+	int iRtnValue = pkBuildingInfo->GetThemingBonusInfo(iIndex)->GetBonus() * GetThemingBonusMultiplierTimes10000() / 10000;
+	CvPlayer* pPlayer = m_pCity->GetPlayer();
+	if (m_pCity->isCapital() && pPlayer->GetPlayerTraits()->GetCapitalThemingBonusModifier() != 0)
 	{
-		int iIndex = GetThemingBonusIndex(eBuildingClass);
-		if (iIndex >= 0)
+		if (MOD_API_ACHIEVEMENTS && pPlayer->isHuman() && !GC.getGame().isGameMultiPlayer() && iRtnValue >= 16)
 		{
-			BuildingTypes eBuilding = m_pCity->GetBuildingTypeFromClass(eBuildingClass, true);
-			if (eBuilding == NO_BUILDING)
-				return iRtnValue;
-
-			CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-			if (!pkBuildingInfo)
-				return iRtnValue;
-
-			int iBonus = pkBuildingInfo->GetThemingBonusInfo(iIndex)->GetBonus();
-			int iModifier = kPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_THEMING_BONUS);
-			iRtnValue = iBonus * (100 + iModifier) / 100;
-			if (m_pCity->isCapital())
-			{
-				iModifier = kPlayer.GetPlayerTraits()->GetCapitalThemingBonusModifier();
-				if (iModifier != 0)
-				{
-					iRtnValue = iRtnValue * (100 + iModifier) / 100;
-
-					if (MOD_API_ACHIEVEMENTS && kPlayer.isHuman() && !GC.getGame().isGameMultiPlayer() && iRtnValue >= 16)
-					{
-						gDLL->UnlockAchievement(ACHIEVEMENT_XP2_40);
-					}
-				}
-			}
+			gDLL->UnlockAchievement(ACHIEVEMENT_XP2_40);
 		}
 	}
 
@@ -6358,6 +6338,15 @@ void CvCityCulture::UpdateThemingBonusIndex(BuildingClassTypes eBuildingClass)
 
 	int iValue = CultureHelpers::GetThemingBonusIndex(m_pCity->getOwner(), pkBuildingInfo, aGreatWorkIndices);
 	m_pCity->GetCityBuildings()->SetThemingBonusIndex(eBuilding, iValue);
+}
+
+// Get the multiplier to all theming bonuses in this city, times 10000 (to avoid losing precision)
+int CvCityCulture::GetThemingBonusMultiplierTimes10000() const
+{
+	CvPlayer* pPlayer = m_pCity->GetPlayer();
+	int iMultiplier = 100 + pPlayer->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_THEMING_BONUS);
+	iMultiplier *= 100 + m_pCity->isCapital() ? pPlayer->GetPlayerTraits()->GetCapitalThemingBonusModifier() : 0;
+	return iMultiplier;
 }
 
 // HELPER FUNCTIONS

@@ -287,13 +287,13 @@ public:
 	void SetExtraBuildingMaintenance(int iChange);
 
 	void ChangeNumTerrainWorked(TerrainTypes eTerrain, int iChange);
-	int GetNumTerrainWorked(TerrainTypes eTerrain);
+	int GetNumTerrainWorked(TerrainTypes eTerrain) const;
 
 	void ChangeNumFeaturelessTerrainWorked(TerrainTypes eTerrain, int iChange);
 	int GetNumFeaturelessTerrainWorked(TerrainTypes eTerrain);
 
 	void ChangeNumFeatureWorked(FeatureTypes eFeature, int iChange);
-	int GetNumFeatureWorked(FeatureTypes eFeature);
+	int GetNumFeatureWorked(FeatureTypes eFeature) const;
 
 	void ChangeNumImprovementWorked(ImprovementTypes eImprovement, int iChange);
 	int GetNumImprovementWorked(ImprovementTypes eImprovement);
@@ -301,7 +301,7 @@ public:
 	int GetYieldFromUnimprovedFeatures(YieldTypes eYield) const;
 	void SetYieldFromUnimprovedFeatures(YieldTypes eYield, int iNewValue);
 
-	int GetImprovementCount(ImprovementTypes eImprovement);
+	int GetImprovementCount(ImprovementTypes eImprovement) const;
 	void ChangeImprovementCount(ImprovementTypes eImprovement, int iChange);
 
 	int GetYieldPerXTerrainFromBuildingsTimes100(TerrainTypes eTerrain, YieldTypes eYield) const;
@@ -659,13 +659,6 @@ public:
 	int GetYieldPerTurnFromTraits(YieldTypes eYield) const;
 
 	int GetJONSCulturePerTurnFromLeagues() const;
-
-	int getCultureRateModifier() const;
-	void changeCultureRateModifier(int iChange);
-#if defined(MOD_BALANCE_CORE_POLICIES)
-	int getBuildingClassCultureChange(BuildingClassTypes eIndex) const;
-	void changeBuildingClassCultureChange(BuildingClassTypes eIndex, int iChange);
-#endif
 
 	// END Culture
 
@@ -1327,9 +1320,8 @@ public:
 	void UpdateYieldFromCorporationFranchises(YieldTypes eIndex);
 	void SetYieldChangeFromCorporationFranchises(YieldTypes eIndex, int iTotal);
 
-	int GetResourceQuantityPerXFranchises(ResourceTypes eResource) const;
-	void ChangeResourceQuantityPerXFranchises(ResourceTypes eResource, int iChange);
-	void SetResourceQuantityPerXFranchises(ResourceTypes eResource, int iValue);
+	fraction GetResourceQuantityPerXFranchises(ResourceTypes eResource) const;
+	void ChangeResourceQuantityPerXFranchises(ResourceTypes eResource, fraction fChange);
 
 	int GetResourceQuantityFromPOP(ResourceTypes eResource) const;
 	void ChangeResourceQuantityFromPOP(ResourceTypes eResource, int iChange);
@@ -1559,7 +1551,6 @@ public:
 
 	bool canRangeStrike() const;
 	bool CanRangeStrikeNow() const;
-	bool IsHasBuildingThatAllowsRangeStrike() const;
 
 	bool canRangeStrikeAt(int iX, int iY) const;
 	CityTaskResult rangeStrike(int iX, int iY);
@@ -1879,6 +1870,8 @@ public:
 	BuildingTypes GetBuildingTypeFromClass(const BuildingClassTypes eBuildingClass, const bool bFallback = false) const;
 	void AddFreeCapitalBuildings(const bool bRemoveFromCurrent = false);
 
+	int GetHurryProduction(UnitTypes eUnit) const;
+
 	bool IsNukeKillable(int iNukeLevel);
 
 protected:
@@ -1917,7 +1910,6 @@ protected:
 	int m_iCityBuildingRangeStrikeModifier;
 	int m_iGarrisonRangedAttackModifier;
 #endif
-	int m_iCultureRateModifier;
 	int m_iNumWorldWonders;
 	int m_iNumTeamWonders;
 	int m_iNumNationalWonders;
@@ -2130,7 +2122,7 @@ protected:
 	std::vector<int> m_aiBaseYieldRateFromCSAlliance;
 	std::vector<int> m_aiBaseYieldRateFromCSFriendship;
 	std::vector<int> m_aiYieldFromMinors;
-	std::vector<int> m_aiResourceQuantityPerXFranchises;
+	std::vector<fraction> m_afResourceQuantityPerXFranchises;
 	std::vector<int> m_aiYieldChangeFromCorporationFranchises;
 	std::vector<int> m_aiResourceQuantityFromPOP;
 	int m_iLandTourismBonus;
@@ -2185,8 +2177,6 @@ protected:
 	int m_iDamageTakenLastTurn;
 #endif
 
-	std::vector<int> m_paiNoResource;
-	std::vector<int> m_paiFreeResource;
 	std::vector<int> m_paiNumResourcesLocal;
 	std::vector<int> m_paiNumUnimprovedResourcesLocal;
 	std::vector<int> m_paiProjectProduction;
@@ -2196,7 +2186,6 @@ protected:
 	std::vector<int> m_paiUnitCombatProductionModifier;
 	std::map<PromotionTypes, int> m_paiFreePromotionCount;
 #if defined(MOD_BALANCE_CORE_POLICIES)
-	std::vector<int> m_paiBuildingClassCulture;
 	std::vector<int> m_paiHurryModifier;
 #endif
 
@@ -2356,7 +2345,6 @@ SYNC_ARCHIVE_VAR(int, m_iCityBuildingBombardRange)
 SYNC_ARCHIVE_VAR(int, m_iCityIndirectFire)
 SYNC_ARCHIVE_VAR(int, m_iCityBuildingRangeStrikeModifier)
 SYNC_ARCHIVE_VAR(int, m_iGarrisonRangedAttackModifier)
-SYNC_ARCHIVE_VAR(int, m_iCultureRateModifier)
 SYNC_ARCHIVE_VAR(int, m_iNumWorldWonders)
 SYNC_ARCHIVE_VAR(int, m_iNumTeamWonders)
 SYNC_ARCHIVE_VAR(int, m_iNumNationalWonders)
@@ -2552,7 +2540,7 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_aiBaseYieldRateFromReligion)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiBaseYieldRateFromCSAlliance)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiBaseYieldRateFromCSFriendship)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromMinors)
-SYNC_ARCHIVE_VAR(std::vector<int>, m_aiResourceQuantityPerXFranchises)
+SYNC_ARCHIVE_VAR(std::vector<fraction>, m_afResourceQuantityPerXFranchises)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldChangeFromCorporationFranchises)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiResourceQuantityFromPOP)
 SYNC_ARCHIVE_VAR(int, m_iLandTourismBonus)
@@ -2595,8 +2583,6 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_paiImprovementCount)
 SYNC_ARCHIVE_VAR(CvString, m_strScriptData)
 SYNC_ARCHIVE_VAR(int, m_iDamageTakenThisTurn)
 SYNC_ARCHIVE_VAR(int, m_iDamageTakenLastTurn)
-SYNC_ARCHIVE_VAR(std::vector<int>, m_paiNoResource)
-SYNC_ARCHIVE_VAR(std::vector<int>, m_paiFreeResource)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiNumResourcesLocal)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiNumUnimprovedResourcesLocal)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiProjectProduction)
@@ -2605,7 +2591,6 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_paiUnitProductionTime)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiUnitCombatFreeExperience)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiUnitCombatProductionModifier)
 SYNC_ARCHIVE_VAR(SYNC_ARCHIVE_VAR_TYPE(std::map<PromotionTypes, int>), m_paiFreePromotionCount)
-SYNC_ARCHIVE_VAR(std::vector<int>, m_paiBuildingClassCulture)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiHurryModifier)
 SYNC_ARCHIVE_VAR(int, m_iHappinessDelta)
 SYNC_ARCHIVE_VAR(int, m_iPillagedPlots)
