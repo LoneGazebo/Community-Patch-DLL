@@ -139,7 +139,6 @@ CvPlayer::CvPlayer() :
 	, m_iTotalLand()
 	, m_iTotalLandScored()
 	, m_iJONSCulturePerTurnForFree()
-	, m_iJONSCultureCityModifier()
 	, m_iJONSCultureTimes100()
 	, m_lJONSCultureEverGeneratedTimes100()
 	, m_iWondersConstructed()
@@ -438,7 +437,6 @@ CvPlayer::CvPlayer() :
 , m_iTurnsSinceSettledLastCity()
 , m_iNumNaturalWondersDiscoveredInArea()
 , m_iStrategicResourceMod()
-, m_iSpecialistCultureChange()
 , m_iGreatPeopleSpawnCounter()
 , m_iFreeTechCount()
 , m_iMedianTechPercentage(50)
@@ -496,8 +494,8 @@ CvPlayer::CvPlayer() :
 , m_bIsReformation()
 , m_iSupplyFreeUnits()
 , m_viInstantYieldsTotal()
-, m_miLocalInstantYieldsTotal()
-, m_aiYieldHistory()
+, m_viLocalInstantYieldsTotal()
+, m_vviYieldHistory()
 #endif
 , m_sUnitClassTrainingAllowedAnywhere()
 #if defined(MOD_BALANCE_CORE_POLICIES)
@@ -699,7 +697,6 @@ CvPlayer::CvPlayer() :
 	, m_iCityCaptureHealLocal()
 	, m_aiBuildingClassInLiberatedCities()
 	, m_iUnitsInLiberatedCities()
-	, m_paiBuildingClassCulture()
 	, m_aiDomainFreeExperiencePerGreatWorkGlobal()
 	, m_iGarrisonsOccupiedUnhappinessMod()
 	, m_iXPopulationConscription()
@@ -1247,7 +1244,6 @@ void CvPlayer::uninit()
 	m_iTotalLandScored = 0;
 	m_iCityConnectionHappiness = 0;
 	m_iJONSCulturePerTurnForFree = 0;
-	m_iJONSCultureCityModifier = 0;
 	m_iJONSCultureTimes100 = 0;
 	m_lJONSCultureEverGeneratedTimes100 = 0;
 	m_iWondersConstructed = 0;
@@ -1673,7 +1669,6 @@ void CvPlayer::uninit()
 	m_iTurnsSinceSettledLastCity = -1;
 	m_iNumNaturalWondersDiscoveredInArea = 0;
 	m_iStrategicResourceMod = 0;
-	m_iSpecialistCultureChange = 0;
 	m_iGreatPeopleSpawnCounter = -1;
 	m_iFreeTechCount = 0;
 	m_iMedianTechPercentage = 50;
@@ -1933,8 +1928,11 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 	m_viInstantYieldsTotal.clear();
 	m_viInstantYieldsTotal.resize(NUM_YIELD_TYPES, 0);
 
-	m_miLocalInstantYieldsTotal.clear();
-	m_aiYieldHistory.clear();
+	m_viLocalInstantYieldsTotal.clear();
+	m_viLocalInstantYieldsTotal.resize(NUM_YIELD_TYPES, 0);
+
+	m_vviYieldHistory.clear();
+	m_vviYieldHistory.resize(NUM_YIELD_TYPES);
 
 #endif
 	m_sUnitClassTrainingAllowedAnywhere.clear();
@@ -2114,9 +2112,6 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 		m_paiNewFoundCityFreeBuilding.clear();
 		m_paiNewFoundCityFreeBuilding.resize(GC.getNumBuildingClassInfos(), 0);
-
-		m_paiBuildingClassCulture.clear();
-		m_paiBuildingClassCulture.resize(GC.getNumBuildingClassInfos(), 0);
 #endif
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 		m_pabHasGlobalMonopoly.clear();
@@ -13413,9 +13408,6 @@ void CvPlayer::foundCity(int iX, int iY, ReligionTypes eReligion, bool bForce, C
 			continue;
 
 		CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(eLoopBuilding);
-		if (!pBuildingInfo)
-			continue;
-
 		if (pBuildingInfo->GetFreeStartEra() == NO_ERA)
 			continue;
 
@@ -13913,7 +13905,7 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, const std::vector<int>& vPr
 	}
 
 	ResourceTypes eResource = (ResourceTypes)pBuildingInfo.GetResourceType();
-	if (MOD_BALANCE_CORE && eResource != NO_RESOURCE)
+	if (eResource != NO_RESOURCE)
 	{
 		if (getNumResourceTotal(eResource, true) <= 0)
 		{
@@ -13921,18 +13913,13 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, const std::vector<int>& vPr
 		}
 	}
 
-	if (!(currentTeam.GetTeamTechs()->HasTech((TechTypes)(pBuildingInfo.GetPrereqAndTech()))))
+	if (!HasTech(static_cast<TechTypes>(pBuildingInfo.GetPrereqAndTech())))
 		return false;
 
-	for(iI = 0; iI < /*3*/ GD_INT_GET(NUM_BUILDING_AND_TECH_PREREQS); iI++)
+	for (iI = 0; iI < /*3*/ GD_INT_GET(NUM_BUILDING_AND_TECH_PREREQS); iI++)
 	{
-		if(pBuildingInfo.GetPrereqAndTechs(iI) != NO_TECH)
-		{
-			if(!(currentTeam.GetTeamTechs()->HasTech((TechTypes)(pBuildingInfo.GetPrereqAndTechs(iI)))))
-			{
-				return false;
-			}
-		}
+		if (!HasTech(static_cast<TechTypes>(pBuildingInfo.GetPrereqAndTechs(iI))))
+			return false;
 	}
 
 	if (currentTeam.isObsoleteBuilding(eBuilding))
@@ -14126,7 +14113,7 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, const std::vector<int>& vPr
 						CvCity* pHolyCity = pReligion->GetHolyCity();
 						if (pHolyCity == NULL)
 						{
-							pHolyCity = GET_PLAYER(GetID()).getCapitalCity();
+							pHolyCity = getCapitalCity();
 						}
 						int iReligionPolicyReduction = pReligion->m_Beliefs.GetPolicyReductionWonderXFollowerCities(GetID(), pHolyCity);
 						if (iReligionPolicyReduction > 0)
@@ -14152,7 +14139,7 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, const std::vector<int>& vPr
 									CvCity* pHolyCity = pReligion->GetHolyCity();
 									if (pHolyCity == NULL)
 									{
-										pHolyCity = GET_PLAYER(GetID()).getCapitalCity();
+										pHolyCity = getCapitalCity();
 									}
 									iNumPoliciesNeeded -= pReligion->m_Beliefs.GetIgnorePolicyRequirementsAmount(eEra, GetID(), pHolyCity);
 								}
@@ -14188,64 +14175,51 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, const std::vector<int>& vPr
 		//Requires a certain religion follower size, either nationally or globally.
 		if (MOD_BALANCE_CORE_FOLLOWER_POP_WONDER)
 		{
-			CvGameReligions* pReligions = GC.getGame().GetGameReligions();
 			ReligionTypes eOwnedReligion = GetReligions()->GetOwnedReligion();
-			if (eOwnedReligion != NO_RELIGION)
+			if (pkBuildingInfo->GetNationalFollowerPopRequired() > 0 || pkBuildingInfo->GetGlobalFollowerPopRequired() > 0)
 			{
-				const CvReligion* pReligion = pReligions->GetReligion(eOwnedReligion, GetID());
-				if (pReligion)
+				if (eOwnedReligion == NO_RELIGION)
+				{
+					if (!toolTipSink)
+						return false;
+
+					GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_BUILDING_NEED_PRIMARY_RELIGION");
+				}
+				else
 				{
 					if (pkBuildingInfo->GetNationalFollowerPopRequired() > 0)
 					{
-						CvCity* pHolyCity = pReligion->GetHolyCity();
-						if (pHolyCity == NULL)
+						int iPopRequired = pkBuildingInfo->GetNationalFollowerPopRequired();
+						int iCurrentPop = GetReligions()->GetNumDomesticFollowers(eOwnedReligion);
+						if (iCurrentPop < iPopRequired)
 						{
-							pHolyCity = GET_PLAYER(GetID()).getCapitalCity();
-						}
-						if (pReligion->m_Beliefs.IsBuildingClassEnabled(eBuildingClass, GetID(), pHolyCity, true))
-						{
-							int iPopRequired = pkBuildingInfo->GetNationalFollowerPopRequired();
-							int iLoop = 0;
-							int iCurrentPop = 0;
-							for (CvCity* pLoopCity = GET_PLAYER(GetID()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(GetID()).nextCity(&iLoop))
-							{
-								iCurrentPop += pLoopCity->GetCityReligions()->GetNumFollowers(eOwnedReligion);
-							}
-							if (iCurrentPop < iPopRequired)
-							{
-								GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_BUILDING_NEED_FOLLOWER_POP", pkBuildingInfo->GetTextKey(), "", iPopRequired - iCurrentPop);
-								if (toolTipSink == NULL)
-									return false;
-							}
+							if (!toolTipSink)
+								return false;
+
+							GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_BUILDING_NEED_FOLLOWER_POP", "", "", iPopRequired - iCurrentPop);
 						}
 					}
-					if(pkBuildingInfo->GetGlobalFollowerPopRequired() > 0)
+
+					if (pkBuildingInfo->GetGlobalFollowerPopRequired() > 0)
 					{
-						CvCity* pHolyCity = pReligion->GetHolyCity();
-						if (pHolyCity == NULL)
+						int iPopRequiredPercent = pkBuildingInfo->GetGlobalFollowerPopRequired();
+						iPopRequiredPercent -= GetReformationFollowerReduction();
+						if (GC.getMap().getWorldInfo().getReformationPercent() > 0)
 						{
-							pHolyCity = GET_PLAYER(GetID()).getCapitalCity();
+							iPopRequiredPercent *= GC.getMap().getWorldInfo().getReformationPercent();
+							iPopRequiredPercent /= 100;
 						}
-						if (pReligion->m_Beliefs.IsBuildingClassEnabled(eBuildingClass, GetID(), pHolyCity))
+
+						int iCurrentPop = GC.getGame().GetGameReligions()->GetNumFollowers(eOwnedReligion);
+						int iCurrentPopPercent = (iCurrentPop * 100) / GC.getGame().getTotalPopulation();
+
+						if (iCurrentPopPercent < iPopRequiredPercent)
 						{
-							int iPopRequiredPercent = pkBuildingInfo->GetGlobalFollowerPopRequired();
-							iPopRequiredPercent -= GetReformationFollowerReduction();
-							if (GC.getMap().getWorldInfo().getReformationPercent() > 0)
-							{
-								iPopRequiredPercent *= GC.getMap().getWorldInfo().getReformationPercent();
-								iPopRequiredPercent /= 100;
-							}
+							if (!toolTipSink)
+								return false;
 
-							int iCurrentPop = pReligions->GetNumFollowers(eOwnedReligion);
-							int iCurrentPopPercent = (iCurrentPop * 100) / GC.getGame().getTotalPopulation();
-
-							if (iCurrentPopPercent < iPopRequiredPercent)
-							{
-								int iPercentage = iPopRequiredPercent - iCurrentPopPercent;
-								GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_BUILDING_NEED_GLOBAL_FOLLOWER_POP", pkBuildingInfo->GetTextKey(), "", iPercentage);
-								if (toolTipSink == NULL)
-									return false;
-							}
+							int iPercentage = iPopRequiredPercent - iCurrentPopPercent;
+							GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_BUILDING_NEED_GLOBAL_FOLLOWER_POP", "", "", iPercentage);
 						}
 					}
 				}
@@ -15292,14 +15266,7 @@ int CvPlayer::getBuildingClassPrereqBuilding(BuildingTypes eBuilding, BuildingCl
 		iPrereqs *= (getBuildingClassCount(eBuildingClass) + iExtra + 1);
 	}
 
-	bool OCC = GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE);
-	if (OCC && isHuman())
-	{
-		iPrereqs = std::min(1, iPrereqs);
-	}
-
-	//Poor Venice got ignored here...
-	if (OCC || GET_PLAYER(GetID()).GetPlayerTraits()->IsNoAnnexing())
+	if ((GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && isHuman()) || GET_PLAYER(GetID()).GetPlayerTraits()->IsNoAnnexing())
 	{
 		iPrereqs = std::min(1, iPrereqs);
 	}
@@ -15422,10 +15389,6 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 			ChangeStartingSpyRank(pBuildingInfo->GetSpyRankChange());
 		}
 
-		// Free Gold
-		if(pBuildingInfo->GetGold() > 0)
-			GetTreasury()->ChangeGold(pBuildingInfo->GetGold());
-
 		// Instant Friendship change with all Minors
 		int iMinorFriendshipChange = pBuildingInfo->GetMinorFriendshipChange();
 		if(isMajorCiv() && iMinorFriendshipChange != 0)
@@ -15497,7 +15460,7 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 	{
 		ChangeTRVisionBoost(pBuildingInfo->GetTRVisionBoost() * iChange);
 	}
-	if(pBuildingInfo->GetVotesPerGPT() != 0)
+	if(pBuildingInfo->GetVotesPerGPT() > 0)
 	{
 		ChangeVotesPerGPT(pBuildingInfo->GetVotesPerGPT() * iChange);
 	}
@@ -15572,9 +15535,6 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 	ChangeCityWorkingChange(pBuildingInfo->GetGlobalCityWorkingChange() * iChange);
 	ChangeCityAutomatonWorkersChange(pBuildingInfo->GetGlobalCityAutomatonWorkersChange() * iChange);
 
-	// City Culture Mod
-	ChangeJONSCultureCityModifier(pBuildingInfo->GetGlobalCultureRateModifier() * iChange);
-
 	// Trade route gold modifier
 	GetTreasury()->ChangeCityConnectionTradeRouteGoldModifier(pBuildingInfo->GetCityConnectionTradeRouteModifier() * iChange);
 
@@ -15617,7 +15577,6 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 	changeGoldenAgeModifier(pBuildingInfo->GetGoldenAgeModifier() * iChange);
 	changeFreeExperience(pBuildingInfo->GetGlobalFreeExperience() * iChange);
 	changeWorkerSpeedModifier(pBuildingInfo->GetWorkerSpeedModifier() * iChange);
-	ChangeSpecialistCultureChange(pBuildingInfo->GetSpecialistExtraCulture() * iChange);
 	changeBorderObstacleCount(pBuildingInfo->IsPlayerBorderObstacle() * iChange);
 
 	changeBorderGainlessPillageCount(pBuildingInfo->IsPlayerBorderGainlessPillage() * iChange);
@@ -15763,18 +15722,18 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 }
 
 /// Get yield change from buildings for a specific building class
-int CvPlayer::GetBuildingClassYieldChange(BuildingClassTypes eBuildingClass, YieldTypes eYieldType)
+int CvPlayer::GetBuildingClassYieldChange(const BuildingClassTypes eBuildingClass, const YieldTypes eYieldType) const
 {
 	return GetBuildingClassYieldChange(eBuildingClass, eYieldType, GetTotalBuildingCount());
 }
 
 /// Get yield change from buildings for a specific building class
-int CvPlayer::GetBuildingClassYieldModifier(BuildingClassTypes eBuildingClass, YieldTypes eYieldType)
+int CvPlayer::GetBuildingClassYieldModifier(const BuildingClassTypes eBuildingClass, const YieldTypes eYieldType) const
 {
 	return GetBuildingClassYieldModifier(eBuildingClass, eYieldType, GetTotalBuildingCount());
 }
 
-int CvPlayer::GetBuildingClassYieldChange(BuildingClassTypes eBuildingClass, YieldTypes eYieldType, const vector<int>& preexistingBuildingsCount)
+int CvPlayer::GetBuildingClassYieldChange(const BuildingClassTypes eBuildingClass, const YieldTypes eYieldType, const vector<int>& preexistingBuildingsCount) const
 {
 	int rtnValue = 0;
 
@@ -15811,7 +15770,7 @@ int CvPlayer::GetBuildingClassYieldChange(BuildingClassTypes eBuildingClass, Yie
 	return rtnValue;
 }
 
-int CvPlayer::GetBuildingClassYieldModifier(BuildingClassTypes eBuildingClass, YieldTypes eYieldType, const vector<int>& preexistingBuildingsCount)
+int CvPlayer::GetBuildingClassYieldModifier(const BuildingClassTypes eBuildingClass, const YieldTypes eYieldType, const vector<int>& preexistingBuildingsCount) const
 {
 	int rtnValue = 0;
 
@@ -17439,26 +17398,6 @@ int CvPlayer::GetCulturePerTurnModifierFromReligion() const
 	return 0;
 }
 
-/// Modifier for all Cities' culture
-int CvPlayer::GetJONSCultureCityModifier() const
-{
-	return m_iJONSCultureCityModifier;
-}
-
-/// Modifier for all Cities' culture
-void CvPlayer::ChangeJONSCultureCityModifier(int iChange)
-{
-	if(iChange != 0)
-	{
-		m_iJONSCultureCityModifier += iChange;
-
-		if(GC.getGame().getActivePlayer() == GetID())
-		{
-			GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
-		}
-	}
-}
-
 int CvPlayer::getJONSCultureTimes100() const
 {
 	// City States can't pick Policies, sorry!
@@ -17580,53 +17519,6 @@ int CvPlayer::GetCulturePerTechResearched() const
 void CvPlayer::ChangeCulturePerTechResearched(int iChange)
 {
 	m_iCulturePerTechResearched += iChange;
-}
-
-/// Specialist Culture Modifier
-int CvPlayer::GetSpecialistCultureChange() const
-{
-	return m_iSpecialistCultureChange;
-}
-
-/// Specialist Culture Modifier
-void CvPlayer::ChangeSpecialistCultureChange(int iChange)
-{
-	if(iChange != 0)
-	{
-		int iLoop = 0;
-		int iTotalCulture = 0;
-
-		// Undo old culture
-		for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-		{
-			for(int iSpecialistLoop = 0; iSpecialistLoop < GC.getNumSpecialistInfos(); iSpecialistLoop++)
-			{
-				SpecialistTypes eSpecialist = (SpecialistTypes) iSpecialistLoop;
-				int iSpecialistCount = pLoopCity->GetCityCitizens()->GetSpecialistCount(eSpecialist);
-				iTotalCulture += (iSpecialistCount * pLoopCity->GetCultureFromSpecialist(eSpecialist));
-			}
-
-			pLoopCity->ChangeBaseYieldRateFromSpecialists(YIELD_CULTURE, -iTotalCulture);
-		}
-
-		// CHANGE VALUE
-		m_iSpecialistCultureChange += iChange;
-
-		iTotalCulture = 0;
-
-		// Apply new culture
-		for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-		{
-			for(int iSpecialistLoop = 0; iSpecialistLoop < GC.getNumSpecialistInfos(); iSpecialistLoop++)
-			{
-				SpecialistTypes eSpecialist = (SpecialistTypes) iSpecialistLoop;
-				int iSpecialistCount = pLoopCity->GetCityCitizens()->GetSpecialistCount(eSpecialist);
-				iTotalCulture += (iSpecialistCount * pLoopCity->GetCultureFromSpecialist(eSpecialist));
-			}
-
-			pLoopCity->ChangeBaseYieldRateFromSpecialists(YIELD_CULTURE, iTotalCulture);
-		}
-	}
 }
 
 /// Cities remaining to get a free culture building
@@ -34608,21 +34500,6 @@ void CvPlayer::changeCityStateCombatModifier(int iChange)
 	m_iCityStateCombatModifier += iChange;
 }
 
-int CvPlayer::getBuildingClassCultureChange(BuildingClassTypes eIndex) const
-{
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < GC.getNumBuildingClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	return m_paiBuildingClassCulture[eIndex];
-}
-
-void CvPlayer::changeBuildingClassCultureChange(BuildingClassTypes eIndex, int iChange)
-{
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < GC.getNumBuildingClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	m_paiBuildingClassCulture[eIndex] = m_paiBuildingClassCulture[eIndex] + iChange;
-	ASSERT_DEBUG(getBuildingClassCultureChange(eIndex) >= 0);
-}
-
 void CvPlayer::changeMaxAirUnits(int iChange)
 {
 	m_iMaxAirUnits += iChange;
@@ -36884,24 +36761,18 @@ int CvPlayer::getNumResourcesFromOther(ResourceTypes eIndex) const
 
 	CvResourceInfo *pkResource = GC.getResourceInfo(eIndex);
 
-	// exists?
-	if (pkResource == NULL) { return 0;}
-
 	int iTotalNumResource = m_paiNumResourceFromTiles[eIndex];
-	iTotalNumResource += m_paiNumResourceFromBuildings[eIndex];
+	iTotalNumResource += getNumResourceFromBuildings(eIndex);
 
 	// Additional resources from Corporation
 	CorporationTypes eCorporation = GetCorporations()->GetFoundedCorporation();
 	if (eCorporation != NO_CORPORATION)
 	{
 		CvCorporationEntry* pkCorporationInfo = GC.getCorporationInfo(eCorporation);
-		if (pkCorporationInfo)
+		int iFreeResource = pkCorporationInfo->GetNumFreeResource(eIndex);
+		if (iFreeResource > 0)
 		{
-			int iFreeResource = pkCorporationInfo->GetNumFreeResource(eIndex);
-			if (iFreeResource > 0)
-			{
-				iTotalNumResource += iFreeResource;
-			}
+			iTotalNumResource += iFreeResource;
 		}
 	}
 
@@ -36919,49 +36790,30 @@ int CvPlayer::getNumResourcesFromOther(ResourceTypes eIndex) const
 	//GP resources? ie. Admiral, Diplomat
 	iTotalNumResource += getResourceFromGP(eIndex);
 
-	if (pkResource->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
+	int iLoop = 0;
+	int iCityPOPResource = 0;
+	fraction fCityFranchiseResource = 0;
+	for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
-		const CvCity* pLoopCity = NULL;
-		int iLoop = 0;
-		int iCityPOPResource = 0;
-		for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-		{
-			if (pLoopCity != NULL)
-			{
-				if (pLoopCity->GetResourceQuantityPerXFranchises(eIndex) > 0)
-				{
-					int iFranchises = GetCorporations()->GetNumFranchises();
-					if (iFranchises > 0)
-					{
-						iTotalNumResource += (iFranchises / pLoopCity->GetResourceQuantityPerXFranchises(eIndex));
-					}
-				}
-
-				if (pLoopCity->GetResourceQuantityFromPOP(eIndex) > 0)
-				{
-					iCityPOPResource += (pLoopCity->getPopulation() * pLoopCity->GetResourceQuantityFromPOP(eIndex));
-				}
-			}
-		}
-
-		iTotalNumResource += iCityPOPResource / 100;
-
-		if (GetStrategicResourceMod() != 0)
-		{
-			iTotalNumResource *= 100 + GetStrategicResourceMod();
-			iTotalNumResource /= 100;
-		}
+		fCityFranchiseResource += pLoopCity->GetResourceQuantityPerXFranchises(eIndex) * GetCorporations()->GetNumFranchises();
+		iCityPOPResource += pLoopCity->getPopulation() * pLoopCity->GetResourceQuantityFromPOP(eIndex);
 	}
 
-	if (MOD_BALANCE_CORE)
+	iTotalNumResource += fCityFranchiseResource.Truncate();
+	iTotalNumResource += iCityPOPResource / 100;
+
+	if (pkResource->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
 	{
-		iTotalNumResource *= 100 + getResourceModFromReligion(eIndex);
+		iTotalNumResource *= 100 + GetStrategicResourceMod();
 		iTotalNumResource /= 100;
 	}
 
+	iTotalNumResource *= 100 + getResourceModFromReligion(eIndex);
+	iTotalNumResource /= 100;
+
 	//And remove the starter. Added in beginning to factor in multiplicative modifiers.
 	iTotalNumResource -= m_paiNumResourceFromTiles[eIndex];
-	iTotalNumResource -= m_paiNumResourceFromBuildings[eIndex];
+	iTotalNumResource -= getNumResourceFromBuildings(eIndex);
 
 	return iTotalNumResource;
 }
@@ -36978,11 +36830,6 @@ int CvPlayer::getNumResourceTotal(ResourceTypes eIndex, bool bIncludeImport) con
 {
 	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	ASSERT_DEBUG(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-
-	CvResourceInfo *pkResource = GC.getResourceInfo(eIndex);
-
-	// exists?
-	if (pkResource == NULL) { return 0;}
 
 	int iTotalNumResource = m_paiNumResourceFromTiles[eIndex];
 	iTotalNumResource += m_paiNumResourceFromBuildings[eIndex];
@@ -40874,7 +40721,7 @@ void CvPlayer::setReplayDataValue(const CvString& strDataset, unsigned int uiTur
 	it->second[uiTurn] = iValue;
 }
 
-int CvPlayer::getYieldPerTurnHistory(YieldTypes eYield, int iNumTurns, bool bIgnoreInstant)
+int CvPlayer::getYieldPerTurnHistory(YieldTypes eYield, int iNumTurns, bool bIgnoreInstant) const
 {
 	if (iNumTurns == 0)
 		return 0;
@@ -40890,8 +40737,7 @@ int CvPlayer::getYieldPerTurnHistory(YieldTypes eYield, int iNumTurns, bool bIgn
 	if (!MOD_BALANCE_VP)
 		iNumHistory = iNumTurns;
 
-	std::vector<int>& viYieldHistory = m_aiYieldHistory[eYield];
-
+	const vector<int>& viYieldHistory = m_vviYieldHistory[eYield];
 	for (int i = viYieldHistory.size()-1; i >= 0; i--)
 	{
 		iYield += viYieldHistory[i];
@@ -40907,13 +40753,10 @@ int CvPlayer::getYieldPerTurnHistory(YieldTypes eYield, int iNumTurns, bool bIgn
 	{
 		switch (eYield)
 		{
-
 			case YIELD_PRODUCTION:
 			case YIELD_FOOD:
-			{
-				iYield += iNumTurns * m_miLocalInstantYieldsTotal[eYield] / (GC.getGame().getElapsedGameTurns() + 1);
+				iYield += iNumTurns * m_viLocalInstantYieldsTotal[eYield] / (GC.getGame().getElapsedGameTurns() + 1);
 				break;
-			}
 			default:
 				iYield += iNumTurns * m_viInstantYieldsTotal[eYield] / (GC.getGame().getElapsedGameTurns() + 1);
 		}
@@ -40953,14 +40796,14 @@ set<UnitClassTypes> CvPlayer::GetUnitClassTrainingAllowedAnywhere() const
 
 void CvPlayer::updateYieldPerTurnHistory()
 {
-	m_aiYieldHistory[YIELD_PRODUCTION].push_back(GetAverageProduction());
-	m_aiYieldHistory[YIELD_GOLD].push_back(GetTreasury()->CalculateGrossGold());
-	m_aiYieldHistory[YIELD_SCIENCE].push_back(GetScience());
-	m_aiYieldHistory[YIELD_CULTURE].push_back(GetTotalJONSCulturePerTurnTimes100() / 100);
-	m_aiYieldHistory[YIELD_TOURISM].push_back(GetCulture()->GetTourism() / 100);
-	m_aiYieldHistory[YIELD_GOLDEN_AGE_POINTS].push_back(GetGoldenAgePointsFromEmpireTimes100() / 100);
+	m_vviYieldHistory[YIELD_PRODUCTION].push_back(GetAverageProduction());
+	m_vviYieldHistory[YIELD_GOLD].push_back(GetTreasury()->CalculateGrossGold());
+	m_vviYieldHistory[YIELD_SCIENCE].push_back(GetScience());
+	m_vviYieldHistory[YIELD_CULTURE].push_back(GetTotalJONSCulturePerTurnTimes100() / 100);
+	m_vviYieldHistory[YIELD_TOURISM].push_back(GetCulture()->GetTourism() / 100);
+	m_vviYieldHistory[YIELD_GOLDEN_AGE_POINTS].push_back(GetGoldenAgePointsFromEmpireTimes100() / 100);
 
-	m_miLocalInstantYieldsTotal[YIELD_PRODUCTION] += GetAverageInstantProduction();
+	m_viLocalInstantYieldsTotal[YIELD_PRODUCTION] += GetAverageInstantProduction();
 }
 
 void CvPlayer::changeInstantYieldValue(YieldTypes eYield, int iValue)
@@ -41995,13 +41838,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 				pLoopCity->changeYieldRateModifier(eYield, pkPolicyInfo->GetBuildingClassYieldModifiers(iI, iJ) * iBuildingCount * iChange);
 				pLoopCity->changeReligionBuildingYieldRateModifier(eBuildingClass, eYield, pkPolicyInfo->GetReligionBuildingYieldMod(iI, iJ) * iBuildingCount * iChange);
 				pLoopCity->ChangeBaseYieldRateFromBuildings(eYield, pkPolicyInfo->GetYieldChangeWorldWonder(iJ) * iTotalWonders * iChange);
-
-				int iBuildingYieldChange = pkPolicyInfo->GetBuildingClassYieldChanges(iI, iJ);
-				if (eYield == YIELD_CULTURE)
-				{
-					iBuildingYieldChange += pkPolicyInfo->GetBuildingClassCultureChange(iI);
-				}
-				pLoopCity->ChangeBaseYieldRateFromBuildings(eYield, iBuildingYieldChange * iBuildingCount * iChange);
+				pLoopCity->ChangeBaseYieldRateFromBuildings(eYield, pkPolicyInfo->GetBuildingClassYieldChanges(iI, iJ) * iBuildingCount * iChange);
 			}
 		}
 	}
@@ -42809,7 +42646,6 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_iTotalLand);
 	visitor(player.m_iTotalLandScored);
 	visitor(player.m_iJONSCulturePerTurnForFree);
-	visitor(player.m_iJONSCultureCityModifier);
 	visitor(player.m_iJONSCultureTimes100);
 	visitor(player.m_lJONSCultureEverGeneratedTimes100);
 	visitor(player.m_iWondersConstructed);
@@ -42844,8 +42680,8 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_iReformationFollowerReduction);
 	visitor(player.m_bIsReformation);
 	visitor(player.m_viInstantYieldsTotal);
-	visitor(player.m_miLocalInstantYieldsTotal);
-	visitor(player.m_aiYieldHistory);
+	visitor(player.m_viLocalInstantYieldsTotal);
+	visitor(player.m_vviYieldHistory);
 	visitor(player.m_sUnitClassTrainingAllowedAnywhere);
 	visitor(player.m_iUprisingCounter);
 	visitor(player.m_iExtraHappinessPerLuxury);
@@ -43214,7 +43050,6 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_iTurnsSinceSettledLastCity);
 	visitor(player.m_iNumNaturalWondersDiscoveredInArea);
 	visitor(player.m_iStrategicResourceMod);
-	visitor(player.m_iSpecialistCultureChange);
 	visitor(player.m_iGreatPeopleSpawnCounter);
 	visitor(player.m_iFreeTechCount);
 	visitor(player.m_iMedianTechPercentage);
@@ -43297,7 +43132,6 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_iCityCaptureHealLocal);
 	visitor(player.m_aiBuildingClassInLiberatedCities);
 	visitor(player.m_iUnitsInLiberatedCities);
-	visitor(player.m_paiBuildingClassCulture);
 	visitor(player.m_aiDomainFreeExperiencePerGreatWorkGlobal);
 	visitor(player.m_aiCityYieldModFromMonopoly);
 	visitor(player.m_neededUnitAITypes);
@@ -47408,6 +47242,219 @@ bool CvPlayer::IsUnitValidForVassalLevy(UnitTypes eUnit, const CvTeam& kTeam, co
 		return false;
 
 	return true;
+}
+
+int CvPlayer::GetScaleAmount(const CvUnitEntry* pkUnitInfo, int iAmount) const
+{
+	int iMod = 0;
+	for (int iI = 0; iI < GC.getNumImprovementInfos(); iI++)
+	{
+		iMod += getImprovementCount(static_cast<ImprovementTypes>(iI), true) * pkUnitInfo->GetScalingFromOwnedImprovements(iI);
+	}
+	return iAmount * (100 + iMod) / 100;
+}
+
+// How much gold would eUnit generate with a trade mission for this player if it is created now?
+// Ignores promotion-based modifiers since the unit does not exist yet
+int CvPlayer::GetTradeGold(UnitTypes eUnit) const
+{
+	ASSERT(eUnit > NO_UNIT && eUnit < GC.getNumUnitInfos(), "eUnit is not a valid unit type");
+	const CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
+
+	int iGold = pkUnitInfo->GetBaseGold();
+
+	// Amount may scale/increase with era
+	int iCurrentEra = GetCurrentEra();
+	if (MOD_GP_ERA_SCALING)
+	{
+		int piEraModifiers[6] = {100, 200, 250, 400, 475, 575};
+		int iIndex = max(0, iCurrentEra - 2); // starts from renaissance
+		iGold = iGold * piEraModifiers[iIndex] / 100;
+	}
+	else
+	{
+		iGold += pkUnitInfo->GetNumGoldPerEra() * iCurrentEra;
+	}
+
+	// Amount may be based on recent gold per turn values
+	iGold += getYieldPerTurnHistory(YIELD_GOLD, pkUnitInfo->GetBaseGoldTurnsToCount());
+
+	// Shortcut to bypass non-trivial calculations below
+	if (iGold == 0)
+		return 0;
+
+	// Amount may be modified by improvements
+	if (MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
+		iGold = GetScaleAmount(pkUnitInfo, iGold);
+
+	// Modified by policies
+	iGold = iGold * (100 + GetPlayerPolicies()->GetNumericModifier(POLICYMOD_TRADE_MISSION_GOLD_MODIFIER)) / 100;
+
+	// Scale with game speed
+	iGold = iGold * GC.getGame().getGameSpeedInfo().getUnitTradePercent() / 100;
+
+	return iGold;
+}
+
+int CvPlayer::GetTradeWLTKDTurns(UnitTypes eUnit) const
+{
+	ASSERT(eUnit > NO_UNIT && eUnit < GC.getNumUnitInfos(), "eUnit is not a valid unit type");
+	const CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
+	
+	int iTurn = pkUnitInfo->GetBaseWLTKDTurns();
+
+	// Duration may be modified by improvements
+	iTurn = GetScaleAmount(pkUnitInfo, iTurn);
+
+	// Scale with game speed
+	iTurn = iTurn * GC.getGame().getGameSpeedInfo().getTrainPercent() / 100;
+
+	return iTurn;
+}
+
+// How much science would eUnit generate with a discover tech mission for this player if it is created now?
+int CvPlayer::GetDiscoverScience(UnitTypes eUnit) const
+{
+	ASSERT(eUnit > NO_UNIT && eUnit < GC.getNumUnitInfos(), "eUnit is not a valid unit type");
+	const CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
+
+	// Discover tech is only based on recent science per turn values
+	int iScience = getYieldPerTurnHistory(YIELD_SCIENCE, pkUnitInfo->GetBaseBeakersTurnsToCount());
+
+	// Shortcut to bypass non-trivial calculations below
+	if (iScience == 0)
+		return 0;
+
+	// Amount may be modified by improvements
+	if (MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
+		iScience = GetScaleAmount(pkUnitInfo, iScience);
+
+	// Modified by policies and buildings
+	iScience = iScience * (100 + GetGreatScientistBeakerMod()) / 100;
+
+	// Scale with game speed
+	iScience = iScience * GC.getGame().getGameSpeedInfo().getResearchPercent() / 100;
+
+	return iScience;
+}
+
+// How much culture would eUnit generate with a write political treatise mission for this player if it is created now?
+int CvPlayer::GetTreatiseCulture(UnitTypes eUnit) const
+{
+	ASSERT(eUnit > NO_UNIT && eUnit < GC.getNumUnitInfos(), "eUnit is not a valid unit type");
+	const CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
+
+	// Write political treatise is only based on recent culture per turn values
+	int iCulture = getYieldPerTurnHistory(YIELD_CULTURE, pkUnitInfo->GetBaseCultureTurnsToCount());
+
+	// Amount may be modified by number of owned great works
+	if (MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES && pkUnitInfo->GetScaleFromNumGWs() > 0)
+	{
+		int iMod = GetCulture()->GetNumGreatWorks() * pkUnitInfo->GetScaleFromNumGWs();
+		iCulture *= 100 + iMod;
+		iCulture /= 100;
+	}
+
+	// Scale with game speed
+	iCulture = iCulture * GC.getGame().getGameSpeedInfo().getCulturePercent() / 100;
+
+	return iCulture;
+}
+
+// How much GAP would eUnit generate with a start a golden age mission for this player if it is created now?
+int CvPlayer::GetBlastGAP(UnitTypes eUnit) const
+{
+	ASSERT(eUnit > NO_UNIT && eUnit < GC.getNumUnitInfos(), "eUnit is not a valid unit type");
+	const CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
+
+	// Start a Golden Age is based on both recent tourism and GAP per turn values
+	int iTurn = pkUnitInfo->GetBaseTurnsForGAPToCount();
+	if (iTurn == 0)
+		return 0;
+
+	int iGAP = getYieldPerTurnHistory(YIELD_TOURISM, iTurn) + getYieldPerTurnHistory(YIELD_GOLDEN_AGE_POINTS, iTurn);
+
+	// Amount may be modified by number of completed themes
+	if (MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES && pkUnitInfo->GetScaleFromNumThemes() > 0)
+	{
+		int iTotalThemes = 0;
+		int iCityLoop = 0;
+		for (const CvCity* pLoopCity = firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = nextCity(&iCityLoop))
+		{
+			iTotalThemes += pLoopCity->GetCityBuildings()->GetTotalNumThemedBuildings();
+		}
+		iGAP *= 100 + iTotalThemes * pkUnitInfo->GetScaleFromNumThemes();
+		iGAP /= 100;
+	}
+
+	// Give a minimal amount in the early game equal to half of the requirement for the first golden age
+	iGAP = max(iGAP, /*250 in CP, 200 in VP*/ GD_INT_GET(GOLDEN_AGE_BASE_THRESHOLD_HAPPINESS) / 2);
+
+	// Scale with game speed
+	iGAP = iGAP * GC.getGame().getGameSpeedInfo().getGreatPeoplePercent() / 100;
+
+	return iGAP;
+}
+
+// How much tourism would eUnit generate with a perform concert tour mission for this player if it is created now?
+int CvPlayer::GetBlastTourism(UnitTypes eUnit) const
+{
+	ASSERT(eUnit > NO_UNIT && eUnit < GC.getNumUnitInfos(), "eUnit is not a valid unit type");
+	const CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
+
+	int iTurn = pkUnitInfo->GetOneShotTourism();
+	if (iTurn == 0)
+		return 0;
+
+	int iTourism = 0;
+	if (MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
+	{
+		// Turn number is increased by the number of great works of music
+		int iLoop = 0;
+		for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+		{
+			iTurn += pLoopCity->GetCityBuildings()->GetNumGreatWorks(CvTypes::getGREAT_WORK_SLOT_MUSIC());
+		}
+
+		// Amount is based on recent tourism per turn values
+		iTourism = getYieldPerTurnHistory(YIELD_TOURISM, iTurn);
+	}
+	else
+	{
+		iTourism = iTurn * GetCulture()->GetTourism() / 100;
+	}
+
+	// Give a minimal amount in the early game
+	iTourism = max(iTourism, /*100*/ GD_INT_GET(MINIMUM_TOURISM_BLAST_STRENGTH));
+
+	// Scale with game speed
+	iTourism = iTourism * GC.getGame().getGameSpeedInfo().getCulturePercent() / 100;
+
+	return iTourism;
+}
+
+// How many turns of tourism boost would eUnit generate with a perform concert tour mission for this player if it is created now?
+int CvPlayer::GetBlastTourismTurns(UnitTypes eUnit) const
+{
+	ASSERT(eUnit > NO_UNIT && eUnit < GC.getNumUnitInfos(), "eUnit is not a valid unit type");
+	const CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
+
+	int iTurn = pkUnitInfo->GetTourismBonusTurns();
+	if (iTurn == 0)
+		return 0;
+
+	// Increased by the number of great works of music
+	int iLoop = 0;
+	for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	{
+		iTurn += pLoopCity->GetCityBuildings()->GetNumGreatWorks(CvTypes::getGREAT_WORK_SLOT_MUSIC());
+	}
+
+	// Scale with game speed
+	iTurn *= GC.getGame().getGameSpeedInfo().getGreatPeoplePercent();
+	iTurn /= 100;
+
+	return iTurn;
 }
 
 // Generate tooltip displayed for whether or not our vassal can declare independence from us

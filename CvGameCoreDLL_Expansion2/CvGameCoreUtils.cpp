@@ -724,15 +724,10 @@ bool IsPromotionValidForUnitCombatType(PromotionTypes ePromotion, UnitTypes eUni
 /// Is this a valid Promotion for this civilian?
 bool IsPromotionValidForCivilianUnitType(PromotionTypes ePromotion, UnitTypes eUnit)
 {
-	CvPromotionEntry* promotionInfo = GC.getPromotionInfo(ePromotion);
+	ASSERT(ePromotion > NO_PROMOTION && ePromotion < GC.getNumPromotionInfos(), "ePromotion is not a valid promotion type");
+	ASSERT(eUnit > NO_UNIT && eUnit < GC.getNumUnitInfos(), "eUnit is not a valid unit type");
 
-	if (!promotionInfo)
-		return false;
-
-	if (!promotionInfo->GetCivilianUnitType(eUnit))
-		return false;
-
-	return true;
+	return GC.getPromotionInfo(ePromotion)->GetCivilianUnitType(eUnit);
 }
 
 bool isPromotionValid(PromotionTypes ePromotion, UnitTypes eUnit, bool bLeader, bool bTestingPrereq)

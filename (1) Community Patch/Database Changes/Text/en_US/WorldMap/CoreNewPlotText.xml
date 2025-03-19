@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_PLOT_LAND">
+			<Text>Flat Land</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLOT_OCEAN">
+			<Text>Water</Text>
+		</Row>
+	</Language_en_US>
+</GameData>

@@ -6,7 +6,7 @@
 		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
 		<Column name="Yield" type="integer" notnull="true"/>
 	</Table>
-	<!-- Instant yields to the city that completes production or purchases this unit -->
+	<!-- Instant yields to the city that completes production of or purchases this unit -->
 	<Table name="Unit_YieldOnCompletion">
 		<Column name="UnitType" type="text" reference="Units(Type)" notnull="true"/>
 		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>

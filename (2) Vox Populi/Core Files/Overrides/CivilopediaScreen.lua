@@ -3052,7 +3052,6 @@ CivilopediaCategory[CategoryUnits].SelectArticle = function( unitID, shouldAddTo
 		AnalyzeUnit("NumFreeTechs", "");
 		AnalyzeUnit("BaseBeakersTurnsToCount", "");
 		AnalyzeUnit("BaseCultureTurnsToCount", "");
-		AnalyzeUnit("RushBuilding");
 		AnalyzeUnit("BaseHurry");
 		AnalyzeUnit("HurryMultiplier");
 		AnalyzeUnit("BaseGold", "");

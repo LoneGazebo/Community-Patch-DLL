@@ -395,6 +395,7 @@ public:
 
 #if defined(MOD_BALANCE_CORE)
 	void UpdateThemingBonusIndex(BuildingClassTypes eBuildingClass);
+	int GetThemingBonusMultiplierTimes10000() const;
 #endif
 	void LogGreatWorks (FILogFile* pLog);
 

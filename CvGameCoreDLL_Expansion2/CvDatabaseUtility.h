@@ -132,7 +132,7 @@ inline void CvDatabaseUtility::InitializeArray(int*& pArray, const size_t count,
 //------------------------------------------------------------------------------
 inline void CvDatabaseUtility::InitializeArray(fraction*& pArray, const size_t count, fraction fDefault)
 {
-	ASSERT_DEBUG(count > 0, "Initializing array to 0 or less items.");
+	PRECONDITION(count > 0, "Initializing array to 0 or less items.");
 	pArray = FNEW(fraction[count], c_eCiv5GameplayDLL, 0);
 	for (size_t i = 0; i < count; ++i)
 		pArray[i] = fDefault;

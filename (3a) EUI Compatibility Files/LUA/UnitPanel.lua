@@ -812,7 +812,7 @@ g_cities = g_RibbonManager( "CityInstance", Controls.CityStack, Controls.Scrap,
 
 			elseif orderID == OrderTypes.ORDER_CREATE then
 				itemInfo = GameInfo.Projects
-				strToolTip = GetHelpTextForProject( itemID, city, true )
+				strToolTip = GetHelpTextForProject( itemID, true, city )
 			elseif orderID == OrderTypes.ORDER_MAINTAIN then
 				itemInfo = GameInfo.Processes
 				strToolTip = GetHelpTextForProcess( itemID, true )
@@ -1786,7 +1786,7 @@ function ActionToolTipHandler( control )
 	-- Golden Age has special help text
 	elseif action.Type == "MISSION_GOLDEN_AGE" then
 
-		toolTip:insertLocalized(  "TXT_KEY_MISSION_START_GOLDENAGE_HELP", unit:GetGoldenAgeTurns() )
+		toolTip:insertLocalized(  "TXT_KEY_MISSION_START_GOLDENAGE_HELP", unit:GetGAPAmount() )
 
 	-- Spread Religion has special help text
 	elseif gk_mode and action.Type == "MISSION_SPREAD_RELIGION" then

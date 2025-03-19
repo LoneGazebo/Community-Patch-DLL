@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <GameData>
 	<Language_en_US>
-		<Row Tag="TXT_KEY_NO_TOURISM_ESPIONAGE_EVENT">
-			<Text>No tourism generated because of a recently conducted spy mission ({1_Num} more {1_Num: plural 1?turn; other?turns;})!</Text>
-		</Row>
 		<!-- Randomized victory popup -->
 		<Row Tag="TXT_KEY_POP_WORLD_VICTORY_SPLASH">
 			<Text>Victory Condition Enabled!</Text>
@@ -1100,130 +1097,38 @@
 			<Text>Allows you to make rival civilizations your vassal state.</Text>
 		</Row>
 
-		<!-- City screen/banner -->
-		<Row Tag="TXT_KEY_FOODMOD_HAPPY">
-			<Text>[NEWLINE][ICON_BULLET][ICON_HAPPINESS_1] Local Happiness Modifier: {1_Num}%</Text>
+		<!-- Info tooltip -->
+		<!-- Building -->
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_INSTANT_YIELD_ON_SPY_MISSION">
+			<Text>When completing a [COLOR_POSITIVE_TEXT]Spy Mission[ENDCOLOR]: {1_InstantYield}</Text>
 		</Row>
-		<Row Tag="TXT_KEY_FOODMOD_LEAGUE">
-			<Text>[NEWLINE][ICON_BULLET]Resolution Growth Modifier: {1_Num}%</Text>
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_INSTANT_YIELD_ON_SPY_IDENTIFICATION">
+			<Text>When identifying an enemy [ICON_SPY] Spy: {1_InstantYield}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_INSTANT_YIELD_ON_SPY_KILL_OR_IDENTIFICATION">
+			<Text>When killing or identifying an enemy [ICON_SPY] Spy: {1_InstantYield}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_INSTANT_YIELD_ON_RIG_ELECTION">
+			<Text>When successfully rigging an election: {1_InstantYield}</Text>
+		</Row>
+		<!-- Yield -->
+		<Row Tag="TXT_KEY_GROWTH_MOD_HAPPY">
+			<Text>[NEWLINE][ICON_BULLET]{1_Num}% from [ICON_HAPPINESS_1] Local Happiness</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GROWTH_MOD_OVER_SUPPLY">
+			<Text>[NEWLINE][ICON_BULLET]{1: number "'+'##;'-'##"}% from [COLOR_NEGATIVE_TEXT]Exceeding Supply Cap[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODMOD_BALANCE_HAPPINESS_MOD">
 			<Text>[NEWLINE][ICON_BULLET]Modifier for Military and Settler Units from Local Unhappiness: {1_Num}%</Text>
 		</Row>
-		<Row Tag="TXT_KEY_PRODMOD_LEAGUE">
-			<Text>[NEWLINE][ICON_BULLET]Modifier from Resolutions: {1_Num}%</Text>
-		</Row>
 		<Row Tag="TXT_KEY_PRODMOD_MILITARY_PLAYER_WAR">
 			<Text>[NEWLINE][ICON_BULLET]Modifier for Military Units from Wars: {1_Num}%</Text>
 		</Row>
-		<Row Tag="TXT_KEY_SCIENCE_YIELD_FROM_LEAGUE_ART">
-			<Text>{1_Num} [ICON_RESEARCH] added by Great Works</Text>
+		<Row Tag="TXT_KEY_NO_TOURISM_ESPIONAGE_EVENT">
+			<Text>No tourism is generated because of a recently conducted spy mission ({1_Num} more {1: plural 1?Turn; other?Turns;})!</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CULTURE_WLTKD">
-			<Text>+{1_Num}% [ICON_CULTURE] from "We Love the King Day"</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CULTURE_WLTKD_TRAIT">
-			<Text>+{1_Num}% [ICON_CULTURE] from Carnival</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CULTURE_FROM_CITY_YIELDS">
-			<Text>{1_Num} [ICON_CULTURE] from Yield Conversion</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CULTURE_FROM_PIETY">
-			<Text>{1_Num} [ICON_CULTURE] from following the [ICON_RELIGION] Majority Religion</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CULTURE_FROM_POPULATION">
-			<Text>{1_Num} [ICON_CULTURE] from [ICON_CITIZEN] Population</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CULTURE_FROM_GWS">
-			<Text>+{1_Num}% [ICON_CULTURE] from [ICON_GREAT_WORK] Great Works</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CULTURE_FROM_SPIES">
-			<Text>+{1_Num}% [ICON_CULTURE] from [ICON_SPY] Active Spies</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CULTURE_FROM_CORPORATION">
-			<Text>+{1_Num}% [ICON_CULTURE] from Corporation</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CULTURE_FROM_CORPORATIONS">
-			<Text>+{1_Num} [ICON_CULTURE] from Corporation</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CULTURE_FROM_CS_ALLIANCE">
-			<Text>{1_Num} [ICON_CULTURE] from City-States</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CULTURE_FROM_EVENTS">
-			<Text>{1_Num} [ICON_CULTURE] from Active Events</Text>
-		</Row>
-		<Row Tag="TXT_KEY_FAITH_FROM_GOLDEN_AGE">
-			<Text>+{1_Num}% [ICON_PEACE] from [ICON_GOLDEN_AGE] Golden Age</Text>
-		</Row>
-		<Row Tag="TXT_KEY_FAITH_FROM_WLTKD">
-			<Text>+{1_Num}% [ICON_PEACE] from "We Love the King Day"</Text>
-		</Row>
-		<Row Tag="TXT_KEY_FAITH_FROM_CITY_YIELDS">
-			<Text>{1_Num} [ICON_PEACE] from Yield Conversion</Text>
-		</Row>
-		<Row Tag="TXT_KEY_FAITH_FROM_PIETY">
-			<Text>{1_Num} [ICON_PEACE] from following the [ICON_RELIGION] Majority Religion</Text>
-		</Row>
-		<Row Tag="TXT_KEY_FAITH_FROM_CS_ALLIANCE">
-			<Text>{1_Num} [ICON_PEACE] from City-States</Text>
-		</Row>
-		<Row Tag="TXT_KEY_FAITH_FROM_CORPORATIONS">
-			<Text>+{1_Num} [ICON_PEACE] from Corporation</Text>
-		</Row>
-		<Row Tag="TXT_KEY_FAITH_FROM_POP">
-			<Text>{1_Num} [ICON_PEACE] from [ICON_CITIZEN] Population</Text>
-		</Row>
-		<Row Tag="TXT_KEY_FAITH_FROM_GWS">
-			<Text>+{1_Num}% [ICON_PEACE] from [ICON_GREAT_WORK] Great Works</Text>
-		</Row>
-		<Row Tag="TXT_KEY_FAITH_FROM_SPIES">
-			<Text>+{1_Num}% [ICON_PEACE] from [ICON_SPY] Active Spies</Text>
-		</Row>
-		<Row Tag="TXT_KEY_FAITH_FROM_RESOURCE_MONOPOLY">
-			<Text>+{1_Num}% [ICON_PEACE] from Resource Monopolies</Text>
-		</Row>
-		<Row Tag="TXT_KEY_YIELD_FROM_SPECIALISTS_FAITH">
-			<Text>{1_Num} [ICON_PEACE] from Specialists</Text>
-		</Row>
-		<Row Tag="TXT_KEY_FAITH_FROM_EVENTS">
-			<Text>{1_Num} [ICON_PEACE] from Active Events</Text>
-		</Row>
-		<Row Tag="TXT_KEY_YIELD_FROM_WLTKD">
-			<Text>+{1_Num}% {2_IconString} from "We Love the King Day"</Text>
-		</Row>
-		<Row Tag="TXT_KEY_YIELD_FROM_GOLDEN_AGE">
-			<Text>+{1_Num}% {2_IconString} from [ICON_GOLDEN_AGE] Golden Age</Text>
-		</Row>
-		<Row Tag="TXT_KEY_YIELD_FROM_PROCESS">
-			<Text>{1_Num} {2_IconString} from [ICON_SWAP] Process</Text>
-		</Row>
-		<Row Tag="TXT_KEY_YIELD_FROM_TRADE_ROUTES">
-			<Text>{1_Num:number "#.##"} {2_IconString} from [ICON_INTERNATIONAL_TRADE] Trade Routes</Text>
-		</Row>
-		<Row Tag="TXT_KEY_YIELD_FROM_EVENTS">
-			<Text>{1_Num} {2_IconString} from Active Events</Text>
-		</Row>
-		<Row Tag="TXT_KEY_YIELD_FROM_CITY_YIELDS">
-			<Text>{1_Num} {2_IconString} from Yield Conversion</Text>
-		</Row>
-		<Row Tag="TXT_KEY_YIELD_FROM_CORPORATIONS">
-			<Text>{1_Num} {2_IconString} from your Corporation</Text>
-		</Row>
-		<Row Tag="TXT_KEY_YIELD_FROM_PIETY">
-			<Text>{1_Num} {2_IconString} from following the [ICON_RELIGION] Majority Religion</Text>
-		</Row>
-		<Row Tag="TXT_KEY_YIELD_FROM_CS_ALLIANCE">
-			<Text>{1_Num} {2_IconString} from City-States</Text>
-		</Row>
-		<Row Tag="TXT_KEY_YIELD_FROM_BUILDINGS_EXTRA">
-			<Text>{1_Num} {2_IconString} from Number of Buildings</Text>
-		</Row>
-		<Row Tag="TXT_KEY_YIELD_FROM_CONNECTION">
-			<Text>{1_Num} {2_IconString} from [ICON_CONNECTED] City Connection</Text>
-		</Row>
-		<Row Tag="TXT_KEY_YIELD_FROM_INDUSTRIAL_CITY_CONNECTION">
-			<Text>{1_Num} {2_IconString} from [ICON_INDUSTRIAL_CONNECTED] Industrial City Connection</Text>
-		</Row>
+
+		<!-- City screen/banner -->
 		<Row Tag="TXT_KEY_MONOPOLY_GP_MOD">
 			<Text>[ICON_BULLET] Resource Monopoly Bonus: +{1_num}%</Text>
 		</Row>
@@ -1327,74 +1232,62 @@
 			<Text>This City was formerly owned by [COLOR_POSITIVE_TEXT]{@1_PlayerName}[ENDCOLOR]. [COLOR_NEGATIVE_TEXT]Because you have chosen not to liberate them, you do not have the opportunity to return this city to them.[ENDCOLOR]</Text>
 		</Row>
 		<!-- Happiness -->
+		<Row Tag="TXT_KEY_POTENTIAL_HAPPINESS_GROWTH">
+			<Text>[NEWLINE][NEWLINE]With [ICON_CITIZEN] Growth, [ICON_HAPPINESS_1] Happiness estimated to increase by: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POTENTIAL_UNHAPPINESS_GROWTH">
+			<Text>[NEWLINE][NEWLINE]With [ICON_CITIZEN] Growth, [ICON_HAPPINESS_3] Unhappiness from Needs estimated to change as follows:</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POTENTIAL_UNHAPPINESS_DEFENSE">
+			<Text>[NEWLINE]   [ICON_BULLET] [ICON_FOOD] and [ICON_PRODUCTION] Distress: {1: number "'[COLOR_NEGATIVE_TEXT]'##;'[COLOR_POSITIVE_TEXT]'##"}[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POTENTIAL_UNHAPPINESS_GOLD">
+			<Text>[NEWLINE]   [ICON_BULLET] [ICON_GOLD] Poverty: {1: number "'[COLOR_NEGATIVE_TEXT]'##;'[COLOR_POSITIVE_TEXT]'##"}[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POTENTIAL_UNHAPPINESS_SCIENCE">
+			<Text>[NEWLINE]   [ICON_BULLET] [ICON_RESEARCH] Illiteracy: {1: number "'[COLOR_NEGATIVE_TEXT]'##;'[COLOR_POSITIVE_TEXT]'##"}[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POTENTIAL_UNHAPPINESS_CULTURE">
+			<Text>[NEWLINE]   [ICON_BULLET] [ICON_CULTURE] Boredom: {1: number "'[COLOR_NEGATIVE_TEXT]'##;'[COLOR_POSITIVE_TEXT]'##"}[ENDCOLOR]</Text>
+		</Row>
 		<Row Tag="TXT_KEY_EO_CITY_LOCAL_UNHAPPINESS">
 			<Text>Cities cannot produce more [ICON_HAPPINESS_3] Unhappiness than their [ICON_CITIZEN] Population (except from [ICON_URBANIZATION] Urbanization).[NEWLINE][NEWLINE]Local [ICON_HAPPINESS_3] Unhappiness: [COLOR_NEGATIVE_TEXT]{1_NUM}[ENDCOLOR] (Turn {2_NUM})</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EO_CITY_GLOBAL_MEDIAN_MODS">
 			<Text>[COLOR_POSITIVE_TEXT]City Needs (Need Modifier %):[ENDCOLOR]</Text>
 		</Row>
-		<Row Tag="TXT_KEY_GLOBAL_MEDIAN_BASIC_NEEDS_POS">
-			<Text>[ICON_BULLET] Basics: {1_Num:number "#.##"} [ICON_FOOD]/[ICON_PRODUCTION] per [ICON_CITIZEN] (+{2_Num}%)</Text>
-		</Row>
-		<Row Tag="TXT_KEY_GLOBAL_MEDIAN_GOLD_POS">
-			<Text>[ICON_BULLET] Gold: {1_Num:number "#.##"} [ICON_GOLD] per [ICON_CITIZEN] (+{2_Num}%)</Text>
-		</Row>
-		<Row Tag="TXT_KEY_GLOBAL_MEDIAN_SCIENCE_POS">
-			<Text>[ICON_BULLET] Science: {1_Num:number "#.##"} [ICON_RESEARCH] per [ICON_CITIZEN] (+{2_Num}%)</Text>
-		</Row>
-		<Row Tag="TXT_KEY_GLOBAL_MEDIAN_CULTURE_POS">
-			<Text>[ICON_BULLET] Culture: {1_Num:number "#.##"} [ICON_CULTURE] per [ICON_CITIZEN] (+{2_Num}%)</Text>
-		</Row>
-		<Row Tag="TXT_KEY_GLOBAL_MEDIAN_RELIGIOUS_UNREST_POS">
-			<Text>[ICON_BULLET]{1_Icon} Unrest: {2_Num:number "#.##"} per Minority (+{3_Num}%)</Text>
-		</Row>
 		<Row Tag="TXT_KEY_GLOBAL_MEDIAN_BASIC_NEEDS">
-			<Text>[ICON_BULLET] Basics: {1_Num:number "#.##"} [ICON_FOOD]/[ICON_PRODUCTION] per [ICON_CITIZEN] ({2_Num}%)</Text>
+			<Text>[ICON_BULLET] Basics: {1_Num:number "#.##"} [ICON_FOOD]/[ICON_PRODUCTION] per [ICON_CITIZEN] ({2: number "'+'##;'-'##"}%)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GLOBAL_MEDIAN_GOLD">
-			<Text>[ICON_BULLET] Gold: {1_Num:number "#.##"} [ICON_GOLD] per [ICON_CITIZEN] ({2_Num}%)</Text>
+			<Text>[ICON_BULLET] Gold: {1_Num:number "#.##"} [ICON_GOLD] per [ICON_CITIZEN] ({2: number "'+'##;'-'##"}%)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GLOBAL_MEDIAN_SCIENCE">
-			<Text>[ICON_BULLET] Science: {1_Num:number "#.##"} [ICON_RESEARCH] per [ICON_CITIZEN] ({2_Num}%)</Text>
+			<Text>[ICON_BULLET] Science: {1_Num:number "#.##"} [ICON_RESEARCH] per [ICON_CITIZEN] ({2: number "'+'##;'-'##"}%)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GLOBAL_MEDIAN_CULTURE">
-			<Text>[ICON_BULLET] Culture: {1_Num:number "#.##"} [ICON_CULTURE] per [ICON_CITIZEN] ({2_Num}%)</Text>
+			<Text>[ICON_BULLET] Culture: {1_Num:number "#.##"} [ICON_CULTURE] per [ICON_CITIZEN] ({2: number "'+'##;'-'##"}%)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GLOBAL_MEDIAN_RELIGIOUS_UNREST">
-			<Text>[ICON_BULLET]{1_Icon} Unrest: {2_Num:number "#.##"} per Minority ({3_Num}%)</Text>
+			<Text>[ICON_BULLET]{1_Icon} Unrest: {2_Num:number "#.##"} per Minority ({3: number "'+'##;'-'##"}%)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EO_CITY_GLOBAL_MEDIAN_MODS_BREAKDOWN">
 			<Text>[COLOR_POSITIVE_TEXT]Need Modifier Breakdown:[ENDCOLOR]</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CAPITAL_UNHAPPINESS_MOD_POS">
-			<Text>[ICON_BULLET] [ICON_CAPITAL] Is Capital: +{1_Num}%</Text>
-		</Row>
 		<Row Tag="TXT_KEY_CAPITAL_UNHAPPINESS_MOD">
-			<Text>[ICON_BULLET] [ICON_CAPITAL] Is Capital: {1_Num}%</Text>
-		</Row>
-		<Row Tag="TXT_KEY_TECH_UNHAPPINESS_MOD_POS">
-			<Text>[ICON_BULLET] [ICON_RESEARCH] Technology: +{1_Num}%</Text>
+			<Text>[ICON_BULLET] [ICON_CAPITAL] Is Capital: {1: number "'+'##;'-'##"}%</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TECH_UNHAPPINESS_MOD">
-			<Text>[ICON_BULLET] [ICON_RESEARCH] Technology: {1_Num}%</Text>
-		</Row>
-		<Row Tag="TXT_KEY_POP_UNHAPPINESS_MOD_POS">
-			<Text>[ICON_BULLET] [ICON_CITIZEN] City Size: +{1_Num}%</Text>
+			<Text>[ICON_BULLET] [ICON_RESEARCH] Technology: {1: number "'+'##;'-'##"}%</Text>
 		</Row>
 		<Row Tag="TXT_KEY_POP_UNHAPPINESS_MOD">
-			<Text>[ICON_BULLET] [ICON_CITIZEN] City Size: {1_Num}%</Text>
-		</Row>
-		<Row Tag="TXT_KEY_EMPIRE_UNHAPPINESS_MOD_POS">
-			<Text>[ICON_BULLET] [ICON_CITY_STATE] Empire Size: +{1_Num}%</Text>
+			<Text>[ICON_BULLET] [ICON_CITIZEN] City Size: {1: number "'+'##;'-'##"}%</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EMPIRE_UNHAPPINESS_MOD">
-			<Text>[ICON_BULLET] [ICON_CITY_STATE] Empire Size: {1_Num}%</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIFFICULTY_UNHAPPINESS_MOD_POS">
-			<Text>[ICON_BULLET] [ICON_CHECKBOX] Difficulty Level: +{1_Num}%</Text>
+			<Text>[ICON_BULLET] [ICON_CITY_STATE] Empire Size: {1: number "'+'##;'-'##"}%</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIFFICULTY_UNHAPPINESS_MOD">
-			<Text>[ICON_BULLET] [ICON_CHECKBOX] Difficulty Level: {1_Num}%</Text>
+			<Text>[ICON_BULLET] [ICON_CHECKBOX] Difficulty Level: {1: number "'+'##;'-'##"}%</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CARNIVAL_UNHAPPINESS_MOD">
 			<Text>[ICON_BULLET] [ICON_HAPPINESS_1] Carnival: {1_Num}%</Text>
@@ -1417,41 +1310,23 @@
 		<Row Tag="TXT_KEY_PRAYER_UNHAPPINESS_MOD">
 			<Text>[ICON_BULLET] {1_Icon} Prayer Process: {2_Num}%</Text>
 		</Row>
-		<Row Tag="TXT_KEY_MISC_UNHAPPINESS_MOD_POS">
-			<Text>[ICON_BULLET] [ICON_SPY] Spies, Events, Other: +{1_Num}%</Text>
-		</Row>
 		<Row Tag="TXT_KEY_MISC_UNHAPPINESS_MOD">
-			<Text>[ICON_BULLET] [ICON_SPY] Spies, Events, Other: {1_Num}%</Text>
-		</Row>
-		<Row Tag="TXT_KEY_MISC_DISTRESS_UNHAPPINESS_MOD_POS">
-			<Text>[ICON_BULLET] [ICON_FOOD] and [ICON_PRODUCTION] Other: +{1_Num}%</Text>
+			<Text>[ICON_BULLET] [ICON_SPY] Spies, Events, Other: {1: number "'+'##;'-'##"}%</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MISC_DISTRESS_UNHAPPINESS_MOD">
-			<Text>[ICON_BULLET] [ICON_FOOD] and [ICON_PRODUCTION] Other: {1_Num}%</Text>
-		</Row>
-		<Row Tag="TXT_KEY_MISC_POVERTY_UNHAPPINESS_MOD_POS">
-			<Text>[ICON_BULLET] [ICON_GOLD] Other: +{1_Num}%</Text>
+			<Text>[ICON_BULLET] [ICON_FOOD] and [ICON_PRODUCTION] Other: {1: number "'+'##;'-'##"}%</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MISC_POVERTY_UNHAPPINESS_MOD">
-			<Text>[ICON_BULLET] [ICON_GOLD] Other: {1_Num}%</Text>
-		</Row>
-		<Row Tag="TXT_KEY_MISC_ILLITERACY_UNHAPPINESS_MOD_POS">
-			<Text>[ICON_BULLET] [ICON_RESEARCH] Other: +{1_Num}%</Text>
+			<Text>[ICON_BULLET] [ICON_GOLD] Other: {1: number "'+'##;'-'##"}%</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MISC_ILLITERACY_UNHAPPINESS_MOD">
-			<Text>[ICON_BULLET] [ICON_RESEARCH] Other: {1_Num}%</Text>
-		</Row>
-		<Row Tag="TXT_KEY_MISC_BOREDOM_UNHAPPINESS_MOD_POS">
-			<Text>[ICON_BULLET] [ICON_CULTURE] Other: +{1_Num}%</Text>
+			<Text>[ICON_BULLET] [ICON_RESEARCH] Other: {1: number "'+'##;'-'##"}%</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MISC_BOREDOM_UNHAPPINESS_MOD">
-			<Text>[ICON_BULLET] [ICON_CULTURE] Other: {1_Num}%</Text>
-		</Row>
-		<Row Tag="TXT_KEY_MISC_RELIGIOUS_UNREST_UNHAPPINESS_MOD_POS">
-			<Text>[ICON_BULLET] {1_Icon} Other: +{2_Num}%</Text>
+			<Text>[ICON_BULLET] [ICON_CULTURE] Other: {1: number "'+'##;'-'##"}%</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MISC_RELIGIOUS_UNREST_UNHAPPINESS_MOD">
-			<Text>[ICON_BULLET] {1_Icon} Other: {2_Num}%</Text>
+			<Text>[ICON_BULLET] {1_Icon} Other: {1: number "'+'##;'-'##"}%</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITYCOUNT_UNHAPPINESS">
 			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from Number of Cities.</Text>
@@ -1739,95 +1614,62 @@
 		</Row>
 
 		<!-- Buildings -->
-		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_FOOD_MODIFIER">
-			<Text>[ICON_FOOD] Food: +{1_Num}%</Text>
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_MEDIAN_CHANGES">
+			<Text>Projected Needs Median Changes:</Text>
 		</Row>
-		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_FAITH_MODIFIER">
-			<Text>[ICON_PEACE] Faith: +{1_Num}%</Text>
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_BASIC_NEEDS_MEDIAN_MODIFIER">
+			<Text>{2_Sign}{1_Num}% [ICON_FOOD] and [ICON_PRODUCTION] Basic Needs Median</Text>
 		</Row>
-		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_DEFENSE_MODIFIER">
-			<Text>[ICON_STRENGTH] Defense: +{1_Num}%</Text>
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_GOLD_MEDIAN_MODIFIER">
+			<Text>{2_Sign}{1_Num}% [ICON_GOLD] Gold Median</Text>
 		</Row>
-		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_CULTURE_MODIFIER">
-			<Text>[ICON_CULTURE] Culture: +{1_Num}%</Text>
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_SCIENCE_MEDIAN_MODIFIER">
+			<Text>{2_Sign}{1_Num}% [ICON_RESEARCH] Science Median</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_BASIC_NEEDS_MEDIAN_MODIFIER">
-			<Text>[ICON_FOOD] and [ICON_PRODUCTION] Basic Needs Median in this City: {1_num}%</Text>
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_CULTURE_MEDIAN_MODIFIER">
+			<Text>{2_Sign}{1_Num}% [ICON_CULTURE] Culture Median</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_GOLD_MEDIAN_MODIFIER">
-			<Text>[ICON_GOLD] Gold Median in this City: {1_num}%</Text>
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_RELIGIOUS_UNREST_MODIFIER">
+			<Text>{2_Sign}{1_Num}% [ICON_RELIGION] Religious Unrest</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_SCIENCE_MEDIAN_MODIFIER">
-			<Text>[ICON_RESEARCH] Science Median in this City: {1_num}%</Text>
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_EMPIRE_SIZE_MODIFIER">
+			<Text>{2_Sign}{1_Num}% [ICON_CITY_STATE] Empire Size Modifier</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_CULTURE_MEDIAN_MODIFIER">
-			<Text>[ICON_CULTURE] Culture Median in this City: {1_num}%</Text>
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_DISTRESS_REDUCTION">
+			<Text>{2_Sign}{1_Num} [ICON_FOOD] and [ICON_PRODUCTION] Distress Reduction</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_RELIGIOUS_UNREST_MODIFIER">
-			<Text>[ICON_RELIGION] Religious Unrest in this City: {1_num}%</Text>
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_POVERTY_REDUCTION">
+			<Text>{2_Sign}{1_Num} [ICON_GOLD] Poverty Reduction</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_BASIC_NEEDS_MEDIAN_MODIFIER_GLOBAL">
-			<Text>[ICON_FOOD] and [ICON_PRODUCTION] Basic Needs Median in all Cities: {1_num}%</Text>
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_ILLITERACY_REDUCTION">
+			<Text>{2_Sign}{1_Num} [ICON_RESEARCH] Illiteracy Reduction</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_GOLD_MEDIAN_MODIFIER_GLOBAL">
-			<Text>[ICON_GOLD] Gold Median in all Cities: {1_num}%</Text>
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_BOREDOM_REDUCTION">
+			<Text>{2_Sign}{1_Num} [ICON_CULTURE] Boredom Reduction</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_SCIENCE_MEDIAN_MODIFIER_GLOBAL">
-			<Text>[ICON_RESEARCH] Science Median in all Cities: {1_num}%</Text>
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_RELIGIOUS_UNREST_REDUCTION">
+			<Text>{2_Sign}{1_Num} [ICON_RELIGION] Religious Unrest Reduction</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_CULTURE_MEDIAN_MODIFIER_GLOBAL">
-			<Text>[ICON_CULTURE] Culture Median in all Cities: {1_num}%</Text>
-		</Row>
-		<Row Tag="TXT_KEY_BUILDING_RELIGIOUS_UNREST_MODIFIER_GLOBAL">
-			<Text>[ICON_RELIGION] Religious Unrest in all Cities: {1_num}%</Text>
-		</Row>
-		<Row Tag="TXT_KEY_BUILDING_BASIC_NEEDS_NEW_MEDIAN">
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_BASIC_NEEDS_NEW_MEDIAN">
 			<Text>[ICON_BULLET] New Median: {1_Num} [ICON_FOOD] and [ICON_PRODUCTION] per [ICON_CITIZEN][NEWLINE][ICON_BULLET] Current: {2_Num} [ICON_FOOD] and [ICON_PRODUCTION] per [ICON_CITIZEN]</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_GOLD_NEW_MEDIAN">
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_GOLD_NEW_MEDIAN">
 			<Text>[ICON_BULLET] New Median: {1_Num} [ICON_GOLD] per [ICON_CITIZEN][NEWLINE][ICON_BULLET] Current: {2_Num} [ICON_GOLD] per [ICON_CITIZEN]</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_SCIENCE_NEW_MEDIAN">
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_SCIENCE_NEW_MEDIAN">
 			<Text>[ICON_BULLET] New Median: {1_Num} [ICON_RESEARCH] per [ICON_CITIZEN][NEWLINE][ICON_BULLET] Current: {2_Num} [ICON_RESEARCH] per [ICON_CITIZEN]</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_CULTURE_NEW_MEDIAN">
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_CULTURE_NEW_MEDIAN">
 			<Text>[ICON_BULLET] New Median: {1_Num} [ICON_CULTURE] per [ICON_CITIZEN][NEWLINE][ICON_BULLET] Current: {2_Num} [ICON_CULTURE] per [ICON_CITIZEN]</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_RELIGIOUS_UNREST_NEW_THRESHOLD">
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_RELIGIOUS_UNREST_NEW_THRESHOLD">
 			<Text>[ICON_BULLET] New Religious Unrest: {1_Num} [ICON_HAPPINESS_3] per Religious Minority[NEWLINE][BULLET]Current Religious Unrest: {2_Num} [ICON_HAPPINESS_3] per Religious Minority</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PRODUCTION_AIR_STRENGTH">
-			<Text>[ICON_AIRSTRIKE_DEFENSE] Air Strike Defense</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PEDIA_DAMAGE_REDUCTION_LABEL">
 			<Text>Damage Reduction:</Text>
 		</Row>
-		<Row Tag="TXT_KEY_PEDIA_CORP_GP_CHANGE">
-			<Text>Additional +{1_Num}% [ICON_GREAT_PEOPLE] Great Person Rate from Corporation</Text>
-		</Row>
-		<Row Tag="TXT_KEY_BUILDING_EVENT_MODIFIER">
-			<Text>{1_Num}% {2_Icon} {3_Name} from Active Events</Text>
-		</Row>
 		<Row Tag="TXT_KEY_PEDIA_EXC_BLDG_LABEL">
 			<Text>Exclusive Buildings:</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PEDIA_NUM_POLICY_NEEDED_LABEL">
-			<Text>Policies Required: [COLOR_MAGENTA]{1_Num}[ENDCOLOR] (Have: {2_Num})</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PEDIA_NUM_POPULATION_NATIONAL_NEEDED_LABEL">
-			<Text>National Population Required: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR] (Have: {2_Num})</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PEDIA_NUM_POPULATION_LOCAL_NEEDED_LABEL">
-			<Text>Local Population Required: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR] (Have: {2_Num})</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PRODUCTION_INVESTMENT_BUILDING">
-			<Text>[COLOR_POSITIVE_TEXT]Investing [ICON_GOLD] Gold in a Building reduces its [ICON_PRODUCTION] Production cost by {1_Num}%, or {2_Num}% if a Wonder.[ENDCOLOR]</Text>
-		</Row>
-		<Row Tag="TXT_KEY_WONDER_COST_INCREASE_METRIC">
-			<Text>Additional [ICON_PRODUCTION] Production cost due to owned World Wonders: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR].[NEWLINE][ICON_PRODUCTION] Production cost increase metric:[NEWLINE][ICON_BULLET] Wonders from the same Era: [COLOR_POSITIVE_TEXT]25%.[ENDCOLOR][NEWLINE][ICON_BULLET] Wonders from the previous Era: [COLOR_POSITIVE_TEXT]15%[ENDCOLOR].[NEWLINE][ICON_BULLET] Wonders from two Eras earlier: [COLOR_POSITIVE_TEXT]10%.[ENDCOLOR]</Text>
-		</Row>
-		<Row Tag="TXT_KEY_INVESTED">
-			<Text>[COLOR_POSITIVE_TEXT] (INVESTED) [ENDCOLOR]</Text>
 		</Row>
 
 		<!-- Victory overview -->

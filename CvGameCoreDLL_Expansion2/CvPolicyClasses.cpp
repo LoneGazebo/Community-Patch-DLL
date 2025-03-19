@@ -1398,6 +1398,11 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	}
 #endif
 
+	for (int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
+	{
+		m_ppiBuildingClassYieldChanges[iI][YIELD_CULTURE] += m_paiBuildingClassCultureChanges[iI];
+	}
+
 	return true;
 }
 
@@ -2884,13 +2889,6 @@ int CvPolicyEntry::GetUnitCombatFreeExperiences(int i) const
 	return m_paiUnitCombatFreeExperiences ? m_paiUnitCombatFreeExperiences[i] : -1;
 }
 
-/// Amount of extra Culture per turn a BuildingClass provides
-int CvPolicyEntry::GetBuildingClassCultureChange(int i) const
-{
-	ASSERT_DEBUG(i < GC.getNumBuildingClassInfos(), "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
-	return m_paiBuildingClassCultureChanges ? m_paiBuildingClassCultureChanges[i] : -1;
-}
 /// Amount of extra Security per turn a BuildingClass provides
 int CvPolicyEntry::GetBuildingClassSecurityChange(int i) const
 {

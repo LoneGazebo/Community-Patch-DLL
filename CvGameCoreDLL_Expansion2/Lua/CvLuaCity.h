@@ -295,6 +295,7 @@ protected:
 	static int lIsThemingBonusPossible(lua_State* L);
 	static int lGetThemingBonus(lua_State* L);
 	static int lGetThemingTooltip(lua_State* L);
+	static int lGetThemingBonusMultiplier(lua_State* L);
 
 	static int lGetFaithPerTurn(lua_State* L);
 	static int lGetFaithPerTurnFromBuildings(lua_State* L);
@@ -576,7 +577,6 @@ protected:
 	static int lGetBuildingYieldChange(lua_State* L);
 	static int lSetBuildingYieldChange(lua_State* L);
 
-	LUAAPIEXTN(GetBuildingClassCultureChange, int);
 	LUAAPIEXTN(GetReligionYieldRateModifier, int);
 	LUAAPIEXTN(GetReligionBuildingYieldRateModifier, int);
 	LUAAPIEXTN(SetYieldPerTurnFromMinors, int);
@@ -704,6 +704,10 @@ protected:
 	static int lGetSappedTurns(lua_State* L);
 	static int lSetSappedTurns(lua_State* L);
 	static int lChangeSappedTurns(lua_State* L);
+
+	LUAAPIEXTN(GetBuildingTypeFromClass, int, BuildingClassTypes, bool = false);
+
+	LUAAPIEXTN(GetHurryProduction, int, UnitTypes);
 
 #if defined(MOD_BALANCE_CORE_EVENTS)
 	static int lGetDisabledTooltip(lua_State* L);

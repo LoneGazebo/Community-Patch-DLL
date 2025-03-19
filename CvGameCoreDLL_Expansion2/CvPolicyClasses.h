@@ -287,7 +287,6 @@ public:
 #endif
 	int GetUnitCombatProductionModifiers(int i) const;
 	int GetUnitCombatFreeExperiences(int i) const;
-	int GetBuildingClassCultureChange(int i) const;
 	int GetBuildingClassSecurityChange(int i) const;
 	int GetBuildingClassHappiness(int i) const;
 	int GetBuildingClassProductionModifier(int i) const;

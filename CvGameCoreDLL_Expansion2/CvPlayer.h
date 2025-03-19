@@ -347,10 +347,10 @@ public:
 	int getBuildingClassPrereqBuilding(BuildingTypes eBuilding, BuildingClassTypes ePrereqBuildingClass, int iExtra = 0) const;
 	void removeBuildingClass(BuildingClassTypes eBuildingClass);
 	void processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, CvCity* pSourceCity);
-	int GetBuildingClassYieldChange(BuildingClassTypes eBuildingClass, YieldTypes eYieldType);
-	int GetBuildingClassYieldModifier(BuildingClassTypes eBuildingClass, YieldTypes eYieldType);
-	int GetBuildingClassYieldChange(BuildingClassTypes eBuildingClass, YieldTypes eYieldType, const vector<int>& preexistingBuildingsCount);
-	int GetBuildingClassYieldModifier(BuildingClassTypes eBuildingClass, YieldTypes eYieldType, const vector<int>& preexistingBuildingsCount);
+	int GetBuildingClassYieldChange(const BuildingClassTypes eBuildingClass, const YieldTypes eYieldType) const;
+	int GetBuildingClassYieldModifier(const BuildingClassTypes eBuildingClass, const YieldTypes eYieldType) const;
+	int GetBuildingClassYieldChange(const BuildingClassTypes eBuildingClass, const YieldTypes eYieldType, const vector<int>& preexistingBuildingsCount) const;
+	int GetBuildingClassYieldModifier(const BuildingClassTypes eBuildingClass, const YieldTypes eYieldType, const vector<int>& preexistingBuildingsCount) const;
 
 	int GetWorldWonderYieldChange(int iYield);
 
@@ -477,9 +477,6 @@ public:
 
 	int GetCulturePerTurnModifierFromReligion() const;
 
-	int GetJONSCultureCityModifier() const;
-	void ChangeJONSCultureCityModifier(int iChange);
-
 	int getJONSCultureTimes100() const;
 	void setJONSCultureTimes100(int iNewValue);
 	void changeJONSCulture(int iChange);
@@ -501,9 +498,6 @@ public:
 
 	int GetCulturePerTechResearched() const;
 	void ChangeCulturePerTechResearched(int iChange);
-
-	int GetSpecialistCultureChange() const;
-	void ChangeSpecialistCultureChange(int iChange);
 
 	int GetNumCitiesFreeCultureBuilding() const;
 	void ChangeNumCitiesFreeCultureBuilding(int iChange);
@@ -1894,9 +1888,6 @@ public:
 	int GetPressureMod() const;
 	void changePressureMod(int iChange);
 
-	int getBuildingClassCultureChange(BuildingClassTypes eIndex) const;
-	void changeBuildingClassCultureChange(BuildingClassTypes eIndex, int iChange);
-
 	int GetCityStateCombatModifier() const;
 	void changeCityStateCombatModifier(int iChange);
 
@@ -2403,7 +2394,7 @@ public:
 	int getReplayDataValue(const CvString& strDataset, unsigned int uiTurn) const;
 	void setReplayDataValue(const CvString& strDataset, unsigned int uiTurn, int iValue);
 
-	int getYieldPerTurnHistory(YieldTypes eYield, int iNumTurns, bool bIgnoreInstant = false);
+	int getYieldPerTurnHistory(YieldTypes eYield, int iNumTurns, bool bIgnoreInstant = false) const;
 	void UpdateUnitClassTrainingAllowedAnywhere(UnitClassTypes eUnitClass);
 	set<UnitClassTypes> GetUnitClassTrainingAllowedAnywhere() const;
 	void updateYieldPerTurnHistory();
@@ -2881,6 +2872,15 @@ public:
 	void SetVassalLevy(bool bValue);
 	bool IsUnitValidForVassalLevy(UnitTypes eUnit, const CvTeam& kTeam, const CvCity* pMasterCity, bool bCheckMasterTech = true) const;
 
+	int GetScaleAmount(const CvUnitEntry* pkUnitInfo, int iAmount) const;
+	int GetTradeGold(UnitTypes eUnit) const;
+	int GetTradeWLTKDTurns(UnitTypes eUnit) const;
+	int GetDiscoverScience(UnitTypes eUnit) const;
+	int GetTreatiseCulture(UnitTypes eUnit) const;
+	int GetBlastGAP(UnitTypes eUnit) const;
+	int GetBlastTourism(UnitTypes eUnit) const;
+	int GetBlastTourismTurns(UnitTypes eUnit) const;
+
 	int GetCityDistancePathLength( const CvPlot* pPlot ) const;
 	CvCity* GetClosestCityByPathLength( const CvPlot* pPlot) const;
 	int GetCityDistanceInPlots(const CvPlot* pPlot) const;
@@ -2979,7 +2979,6 @@ protected:
 	int m_iTotalLand;
 	int m_iTotalLandScored;
 	int m_iJONSCulturePerTurnForFree;
-	int m_iJONSCultureCityModifier;
 	int m_iJONSCultureTimes100;
 	long long m_lJONSCultureEverGeneratedTimes100;
 	int m_iWondersConstructed;
@@ -3013,9 +3012,9 @@ protected:
 	int m_iCenterOfMassY;
 	int m_iReformationFollowerReduction;
 	bool m_bIsReformation;
-	std::vector<int> m_viInstantYieldsTotal;
-	std::tr1::unordered_map<YieldTypes, int> m_miLocalInstantYieldsTotal;
-	std::tr1::unordered_map<YieldTypes, std::vector<int>> m_aiYieldHistory;
+	vector<int> m_viInstantYieldsTotal;
+	vector<int> m_viLocalInstantYieldsTotal;
+	vector<vector<int>> m_vviYieldHistory;
 	set<UnitClassTypes> m_sUnitClassTrainingAllowedAnywhere;
 	int m_iUprisingCounter;
 	int m_iExtraHappinessPerLuxury;
@@ -3432,7 +3431,6 @@ protected:
 	int m_iTurnsSinceSettledLastCity;
 	int m_iNumNaturalWondersDiscoveredInArea;
 	int m_iStrategicResourceMod;
-	int m_iSpecialistCultureChange;
 	int m_iGreatPeopleSpawnCounter;
 
 	int m_iFreeTechCount;
@@ -3524,7 +3522,6 @@ protected:
 	std::vector<int> m_aiYieldForSpyID;
 	std::vector<int> m_aiYieldForLiberation;
 	std::vector<int> m_aiBuildingClassInLiberatedCities;
-	std::vector<int> m_paiBuildingClassCulture;
 	std::vector<int> m_aiDomainFreeExperiencePerGreatWorkGlobal;
 	std::vector<int> m_aiCityYieldModFromMonopoly;
 	std::vector<UnitAITypes> m_neededUnitAITypes;
@@ -3849,7 +3846,6 @@ SYNC_ARCHIVE_VAR(int, m_iHighestPopulation)
 SYNC_ARCHIVE_VAR(int, m_iTotalLand)
 SYNC_ARCHIVE_VAR(int, m_iTotalLandScored)
 SYNC_ARCHIVE_VAR(int, m_iJONSCulturePerTurnForFree)
-SYNC_ARCHIVE_VAR(int, m_iJONSCultureCityModifier)
 SYNC_ARCHIVE_VAR(int, m_iJONSCultureTimes100)
 SYNC_ARCHIVE_VAR(long long, m_lJONSCultureEverGeneratedTimes100)
 SYNC_ARCHIVE_VAR(int, m_iWondersConstructed)
@@ -3883,9 +3879,9 @@ SYNC_ARCHIVE_VAR(int, m_iCenterOfMassX)
 SYNC_ARCHIVE_VAR(int, m_iCenterOfMassY)
 SYNC_ARCHIVE_VAR(int, m_iReformationFollowerReduction)
 SYNC_ARCHIVE_VAR(bool, m_bIsReformation)
-SYNC_ARCHIVE_VAR(std::vector<int>, m_viInstantYieldsTotal)
-SYNC_ARCHIVE_VAR(SYNC_ARCHIVE_VAR_TYPE(std::tr1::unordered_map<YieldTypes, int>), m_miLocalInstantYieldsTotal)
-SYNC_ARCHIVE_VAR(SYNC_ARCHIVE_VAR_TYPE(std::tr1::unordered_map<YieldTypes, std::vector<int>>), m_aiYieldHistory)
+SYNC_ARCHIVE_VAR(vector<int>, m_viInstantYieldsTotal)
+SYNC_ARCHIVE_VAR(vector<int>, m_viLocalInstantYieldsTotal)
+SYNC_ARCHIVE_VAR(SYNC_ARCHIVE_VAR_TYPE(vector<vector<int>>), m_vviYieldHistory)
 SYNC_ARCHIVE_VAR(set<UnitClassTypes>, m_sUnitClassTrainingAllowedAnywhere)
 SYNC_ARCHIVE_VAR(int, m_iUprisingCounter)
 SYNC_ARCHIVE_VAR(int, m_iExtraHappinessPerLuxury)
@@ -4254,7 +4250,6 @@ SYNC_ARCHIVE_VAR(int, m_iHolyCityID)
 SYNC_ARCHIVE_VAR(int, m_iTurnsSinceSettledLastCity)
 SYNC_ARCHIVE_VAR(int, m_iNumNaturalWondersDiscoveredInArea)
 SYNC_ARCHIVE_VAR(int, m_iStrategicResourceMod)
-SYNC_ARCHIVE_VAR(int, m_iSpecialistCultureChange)
 SYNC_ARCHIVE_VAR(int, m_iGreatPeopleSpawnCounter)
 SYNC_ARCHIVE_VAR(int, m_iFreeTechCount)
 SYNC_ARCHIVE_VAR(int, m_iMedianTechPercentage)
@@ -4329,7 +4324,6 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldModifierFromLeague)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromDelegateCount)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromXMilitaryUnits)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldPerCityOverStrengthThreshold)
-SYNC_ARCHIVE_VAR(std::vector<int>, m_paiBuildingClassCulture)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiDomainFreeExperiencePerGreatWorkGlobal)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiCityYieldModFromMonopoly)
 SYNC_ARCHIVE_VAR(std::vector<UnitAITypes>, m_neededUnitAITypes)

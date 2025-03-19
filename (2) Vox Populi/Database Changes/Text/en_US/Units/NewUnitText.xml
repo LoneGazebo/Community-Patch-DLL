@@ -302,28 +302,28 @@
 
 		<!-- Unit Combats -->
 		<Row Tag="TXT_KEY_UNITCOMBAT_SETTLER">
-			<Text>Settler Units</Text>
+			<Text>Settler</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNITCOMBAT_WORKER">
-			<Text>Worker Units</Text>
+			<Text>Worker</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNITCOMBAT_WORKBOAT">
-			<Text>Workboat Units</Text>
+			<Text>Work Boat</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNITCOMBAT_CARGO">
-			<Text>Cargo Ship Units</Text>
+			<Text>Cargo</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNITCOMBAT_CARAVAN">
-			<Text>Caravan Units</Text>
+			<Text>Caravan</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNITCOMBAT_INQUISITOR">
-			<Text>Inquisitor Units</Text>
+			<Text>Inquisitor</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNITCOMBAT_MISSIONARY">
-			<Text>Missionary Units</Text>
+			<Text>Missionary</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNITCOMBAT_DIPLOMACY">
-			<Text>Diplomacy Units</Text>
+			<Text>Diplomacy</Text>
 		</Row>
 
 		<!-- Great Diplomat names -->

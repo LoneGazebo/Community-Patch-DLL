@@ -3713,17 +3713,6 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 				}
 			}
 		}
-		if (PolicyInfo->GetBuildingClassCultureChange(eBuildingClass) != 0)
-		{
-			if (pPlayerTraits->IsTourism())
-			{
-				yield[YIELD_CULTURE] += 2 * PolicyInfo->GetBuildingClassCultureChange(eBuildingClass) * iNumCities;
-			}
-			else
-			{
-				yield[YIELD_CULTURE] += PolicyInfo->GetBuildingClassCultureChange(eBuildingClass) * iNumCities;
-			}
-		}
 		if (PolicyInfo->GetBuildingClassSecurityChange(eBuildingClass) != 0)
 		{
 			if (pPlayerTraits->IsNerd())

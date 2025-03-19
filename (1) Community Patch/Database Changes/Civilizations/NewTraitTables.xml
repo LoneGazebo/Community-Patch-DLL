@@ -196,7 +196,7 @@
 		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
 		<Column name="Yield" type="integer" notnull="true"/>
 	</Table>
-	<!-- Yields in cities connected to capital, and in capital after second city is founded -->
+	<!-- Yields in cities connected to capital, and in capital after second city is founded, scaling with era -->
 	<Table name="Trait_YieldChangeTradeRoute">
 		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
 		<Column name="YieldType" type="integer" reference="Yields(Type)" notnull="true"/>

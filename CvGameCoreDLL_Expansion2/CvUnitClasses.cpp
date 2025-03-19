@@ -47,7 +47,6 @@ CvUnitEntry::CvUnitEntry(void) :
 	m_iBaseWLTKDTurns(0),
 	m_iBaseHurry(0),
 	m_iHurryMultiplier(0),
-	m_bRushBuilding(false),
 	m_iBaseGold(0),
 	m_iScaleFromNumGWs(0),
 	m_iScaleFromNumThemes(0),
@@ -158,8 +157,6 @@ CvUnitEntry::CvUnitEntry(void) :
 	m_pbUnitAIType(NULL),
 	m_pbNotUnitAIType(NULL),
 	m_pbBuilds(NULL),
-	m_pbGreatPeoples(NULL),
-	m_pbBuildings(NULL),
 	m_pbBuildingClassRequireds(NULL),
 #if defined(MOD_BALANCE_CORE)
 	m_piScalingFromOwnedImprovements(NULL),
@@ -213,8 +210,6 @@ CvUnitEntry::~CvUnitEntry(void)
 	SAFE_DELETE_ARRAY(m_pbUnitAIType);
 	SAFE_DELETE_ARRAY(m_pbNotUnitAIType);
 	SAFE_DELETE_ARRAY(m_pbBuilds);
-	SAFE_DELETE_ARRAY(m_pbGreatPeoples);
-	SAFE_DELETE_ARRAY(m_pbBuildings);
 	SAFE_DELETE_ARRAY(m_pbBuildingClassRequireds);
 #if defined(MOD_BALANCE_CORE)
 	SAFE_DELETE_ARRAY(m_piScalingFromOwnedImprovements);
@@ -290,7 +285,6 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	m_iBaseWLTKDTurns = kResults.GetInt("BaseWLTKDTurns");
 	m_iBaseHurry = kResults.GetInt("BaseHurry");
 	m_iHurryMultiplier = kResults.GetInt("HurryMultiplier");
-	m_bRushBuilding= kResults.GetInt("RushBuilding")>0;
 	m_iBaseGold = kResults.GetInt("BaseGold");
 	m_iScaleFromNumGWs = kResults.GetInt("ScaleFromNumGWs");
 	m_iScaleFromNumThemes = kResults.GetInt("ScaleFromNumThemes");
@@ -496,8 +490,6 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	kUtility.PopulateArrayByExistence(m_pbNotUnitAIType, "UnitAIInfos", "Unit_NotAITypes", "UnitAIType", "UnitType", szUnitType);
 
 	kUtility.PopulateArrayByExistence(m_pbBuilds, "Builds", "Unit_Builds", "BuildType", "UnitType", szUnitType);
-	kUtility.PopulateArrayByExistence(m_pbGreatPeoples, "Specialists", "Unit_GreatPersons", "GreatPersonType", "UnitType", szUnitType);
-	kUtility.PopulateArrayByExistence(m_pbBuildings, "Buildings", "Unit_Buildings", "BuildingType", "UnitType", szUnitType);
 	kUtility.PopulateArrayByExistence(m_pbBuildingClassRequireds, "BuildingClasses", "Unit_BuildingClassRequireds", "BuildingClassType", "UnitType", szUnitType);
 #if defined(MOD_BALANCE_CORE)
 	kUtility.PopulateArrayByValue(m_piScalingFromOwnedImprovements, "Improvements", "Unit_ScalingFromOwnedImprovements", "ImprovementType", "UnitType", szUnitType, "Amount");
@@ -888,12 +880,6 @@ int CvUnitEntry::GetBaseHurry() const
 int CvUnitEntry::GetHurryMultiplier() const
 {
 	return m_iHurryMultiplier;
-}
-
-/// Ability to complete Building immediately (should replace the next 2 entries eventually)
-bool CvUnitEntry::IsRushBuilding() const
-{
-	return m_bRushBuilding;
 }
 
 /// Base boost to gold (for great people)
@@ -1563,22 +1549,6 @@ bool CvUnitEntry::GetBuilds(int i) const
 	ASSERT_DEBUG(i < GC.getNumBuildInfos(), "Index out of bounds");
 	ASSERT_DEBUG(i > -1, "Index out of bounds");
 	return m_pbBuilds ? m_pbBuilds[i] : false;
-}
-
-/// Type(s) of great people represented by this unit
-bool CvUnitEntry::GetGreatPeoples(int i) const
-{
-	ASSERT_DEBUG(i < GC.getNumSpecialistInfos(), "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
-	return m_pbGreatPeoples ? m_pbGreatPeoples[i] : false;
-}
-
-/// Is this unit required to construct a certain building?
-bool CvUnitEntry::GetBuildings(int i) const
-{
-	ASSERT_DEBUG(i < GC.getNumBuildingInfos(), "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
-	return m_pbBuildings ? m_pbBuildings[i] : false;
 }
 
 /// Does this Unit need a certain BuildingClass in this City to train?

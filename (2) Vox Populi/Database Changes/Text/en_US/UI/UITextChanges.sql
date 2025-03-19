@@ -157,6 +157,15 @@ SET Text = 'Your empire can support {1_Num} Units. You are over that limit by {2
 WHERE Tag = 'TXT_KEY_UNIT_SUPPLY_REACHED_TOOLTIP';
 
 ------------------------------------------------
+-- Info tooltip
+------------------------------------------------
+
+-- Building
+UPDATE Language_en_US
+SET Text = '+{1_Num} [ICON_DIPLOMAT] Delegate in the World Congress for every active Defensive Pact with your Empire and every Vassal you currently have'
+WHERE Tag = 'TXT_KEY_PRODUCTION_BUILDING_EXTRA_VOTES_FROM_DP';
+
+------------------------------------------------
 -- City screen/banner
 ------------------------------------------------
 UPDATE Language_en_US
@@ -164,24 +173,8 @@ SET Text = '[ICON_CULTURE] Culture is spent as [ICON_CULTURE_LOCAL] Border Growt
 WHERE Tag = 'TXT_KEY_CULTURE_HELP_INFO';
 
 UPDATE Language_en_US
-SET Text = '{1_Num} {2_IconString} from Traits and Other Sources'
-WHERE Tag = 'TXT_KEY_YIELD_FROM_MISC';
-
-UPDATE Language_en_US
 SET Text = '{1_Num} [ICON_TOURISM] Tourism from Theming Bonuses'
 WHERE Tag = 'TXT_KEY_CO_CITY_TOURISM_THEMING_BONUSES';
-
-UPDATE Language_en_US
-SET Text = '[NEWLINE][ICON_BULLET][ICON_HAPPINESS_1] "We Love the Empress Day" Modifier: {1_Num}%'
-WHERE Tag = 'TXT_KEY_FOODMOD_WLTKD_UA';
-
-UPDATE Language_en_US
-SET Text = '[NEWLINE][ICON_BULLET][COLOR_WARNING_TEXT][ICON_HAPPINESS_3] Unhappiness Modifier: {1_Num}%[ENDCOLOR]'
-WHERE Tag = 'TXT_KEY_FOODMOD_UNHAPPY';
-
-UPDATE Language_en_US
-SET Text = '[COLOR_NEGATIVE_TEXT]-{1_Num}[ENDCOLOR] {2_IconString} eaten by [ICON_CITIZEN] Citizens'
-WHERE Tag = 'TXT_KEY_YIELD_EATEN_BY_POP';
 
 UPDATE Language_en_US
 SET Text = 'City will be [ICON_RAZING] Razed to the ground in {1_Num} {1_Num: plural 1?Turn; other?Turns;}! While the City is being Razed, 100% of its [ICON_CITIZEN] Population will produce [ICON_HAPPINESS_3] Unhappiness, but Units within its borders will heal faster!'
