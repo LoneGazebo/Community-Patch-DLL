@@ -14317,6 +14317,10 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 				{
 					str = Localization::Lookup("TXT_KEY_DIPLO_VICTORY_DISPUTE_CBP_WEAK").toUTF8();
 				}
+				else
+				{
+					str = Localization::Lookup("TXT_KEY_DIPLO_VICTORY_DISPUTE_CBP_NONE").toUTF8();
+				}
 
 				kOpinion.m_str = str;
 				aOpinions.push_back(kOpinion);	
