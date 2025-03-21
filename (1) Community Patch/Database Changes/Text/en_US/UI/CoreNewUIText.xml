@@ -933,13 +933,16 @@
 			<Text>You are not competing for the favor of the same City-States.</Text>
 		</Row>
 		<!-- Victory dispute -->
-		<Row Tag="TXT_KEY_DIPLO_VICTORY_DISPUTE_CBP_WEAK">
+		<Row Tag="TXT_KEY_DIPLO_VICTORY_DISPUTE_NONE">
+			<Text>They do not consider you a threat to their ambitions.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_VICTORY_DISPUTE_WEAK">
 			<Text>They fear you are competing with them.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_DIPLO_VICTORY_DISPUTE_CBP_STRONG">
+		<Row Tag="TXT_KEY_DIPLO_VICTORY_DISPUTE_STRONG">
 			<Text>They suspect you are competing with them.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_DIPLO_VICTORY_DISPUTE_CBP_FIERCE">
+		<Row Tag="TXT_KEY_DIPLO_VICTORY_DISPUTE_FIERCE">
 			<Text>They know you are competing with them, and they hate it!</Text>
 		</Row>
 		<!-- Victory block -->

@@ -14298,28 +14298,32 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			}
 
 			// Victory Dispute
-			iValue = (bHideDisputes || bHideNegatives) ? 0 : pDiplo->GetVictoryDisputeLevelScore(ePlayer);
+			iValue = (bHideDisputes || (pDiplo->GetVictoryDisputeLevelScore(ePlayer) > 0 && bHideNegatives)) ? 0 : pDiplo->GetVictoryDisputeLevelScore(ePlayer);
 			if (iValue != 0)
 			{
 				Opinion kOpinion;
 				kOpinion.m_iValue = iValue;
 				CvString str;
-				
+
 				if (pDiplo->GetVictoryDisputeLevel(ePlayer) == DISPUTE_LEVEL_FIERCE)
 				{
-					str = Localization::Lookup("TXT_KEY_DIPLO_VICTORY_DISPUTE_CBP_FIERCE").toUTF8();
+					str = Localization::Lookup("TXT_KEY_DIPLO_VICTORY_DISPUTE_FIERCE").toUTF8();
 				}
 				else if (pDiplo->GetVictoryDisputeLevel(ePlayer) == DISPUTE_LEVEL_STRONG)
 				{
-					str = Localization::Lookup("TXT_KEY_DIPLO_VICTORY_DISPUTE_CBP_STRONG").toUTF8();
+					str = Localization::Lookup("TXT_KEY_DIPLO_VICTORY_DISPUTE_STRONG").toUTF8();
 				}
 				else if (pDiplo->GetVictoryDisputeLevel(ePlayer) == DISPUTE_LEVEL_WEAK)
 				{
-					str = Localization::Lookup("TXT_KEY_DIPLO_VICTORY_DISPUTE_CBP_WEAK").toUTF8();
+					str = Localization::Lookup("TXT_KEY_DIPLO_VICTORY_DISPUTE_WEAK").toUTF8();
+				}
+				else
+				{
+					str = Localization::Lookup("TXT_KEY_DIPLO_VICTORY_DISPUTE_NONE").toUTF8();
 				}
 
 				kOpinion.m_str = str;
-				aOpinions.push_back(kOpinion);	
+				aOpinions.push_back(kOpinion);
 			}
 
 			// Victory Block
@@ -14329,7 +14333,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 				Opinion kOpinion;
 				kOpinion.m_iValue = iValue;
 				CvString str;
-				
+
 				if (pDiplo->GetVictoryBlockLevel(ePlayer) == BLOCK_LEVEL_FIERCE)
 				{
 					str = Localization::Lookup("TXT_KEY_DIPLO_VICTORY_BLOCK_FIERCE").toUTF8();
