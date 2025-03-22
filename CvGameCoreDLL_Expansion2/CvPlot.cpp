@@ -2575,6 +2575,14 @@ bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlay
 			return false;
 		}
 	}
+	else
+	{
+		// If the improvement requires a resource, and there is none here, then it's an automatic fail
+		if (pkImprovementInfo->IsRequiresResource())
+		{
+			return false;
+		}
+	}
 
 	if(pkImprovementInfo->IsNoAdjacentCity() && IsAdjacentCity())
 	{
