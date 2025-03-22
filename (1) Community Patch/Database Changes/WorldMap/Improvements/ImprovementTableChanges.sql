@@ -94,3 +94,6 @@ ALTER TABLE Improvements ADD MakesPassable integer DEFAULT 0;
 ALTER TABLE Improvements ADD AllowsRebaseTo integer DEFAULT 0;
 ALTER TABLE Improvements ADD AllowsAirliftFrom integer DEFAULT 0;
 ALTER TABLE Improvements ADD AllowsAirliftTo integer DEFAULT 0;
+
+-- Improvement requires a resource in the tile to be buildable
+ALTER TABLE Improvements ADD RequiresResource boolean DEFAULT 0;
