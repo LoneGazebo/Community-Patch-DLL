@@ -13010,11 +13010,11 @@ void CvDiplomacyAI::DoUpdateLandDisputeLevels()
 			if (bBold)
 				iMultiplier += 50;
 
-			if (iEra == GD_INT_GET(ANCIENT_ERA))
+			if (iEra <= GD_INT_GET(ANCIENT_ERA))
 				iMultiplier += 100;
-			else if (iEra == GD_INT_GET(CLASSICAL_ERA))
+			else if (iEra <= GD_INT_GET(CLASSICAL_ERA))
 				iMultiplier += 50;
-			else if (iEra == GD_INT_GET(MEDIEVAL_ERA))
+			else if (iEra <= GD_INT_GET(MEDIEVAL_ERA))
 				iMultiplier += 25;
 
 			iContestedScore *= 100 + iMultiplier;
@@ -18864,7 +18864,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	if (iDangerScore > 0 && eClosestProximity >= PLAYER_PROXIMITY_CLOSE)
 	{
 		// Be extremely wary of early game conquerors
-		if (iGameEra == GD_INT_GET(ANCIENT_ERA))
+		if (iGameEra <= GD_INT_GET(ANCIENT_ERA))
 		{
 			vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * 3 * iDangerScore;
 			vApproachScores[CIV_APPROACH_GUARDED] += vApproachBias[CIV_APPROACH_GUARDED] * 3 * iDangerScore;
@@ -18882,7 +18882,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 				}
 			}
 		}
-		else if (iGameEra == GD_INT_GET(CLASSICAL_ERA))
+		else if (iGameEra <= GD_INT_GET(CLASSICAL_ERA))
 		{
 			vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * 2 * iDangerScore;
 			vApproachScores[CIV_APPROACH_GUARDED] += vApproachBias[CIV_APPROACH_GUARDED] * 2 * iDangerScore;
