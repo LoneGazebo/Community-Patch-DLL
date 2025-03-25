@@ -35289,20 +35289,20 @@ void CvPlayer::ApplyWarDamage(PlayerTypes ePlayer, int iAmount, bool bNoRatingCh
 					continue;
 
 				// No common foe bonus is awarded while at war.
-				if (pDiplo->IsAtWar(ePlayer))
+				if (pDiplo->IsAtWar(GetID()))
 					continue;
 
 				// Capitulated vassals don't care, but they do get a bonus in CvDiplomacyAI::ChangeVassalProtectValue() if the damage to the foe was done near them.
-				if (!GET_PLAYER(eLoopPlayer).isHuman() && pDiplo->IsVassal(ePlayer) && !pDiplo->IsVoluntaryVassalage(ePlayer))
+				if (!GET_PLAYER(eLoopPlayer).isHuman() && pDiplo->IsVassal(GetID()) && !pDiplo->IsVoluntaryVassalage(GetID()))
 					continue;
 
 				// Are they at war with me too? Then they're happy that this player damaged us!
-				if (IsAtWarWith(eLoopPlayer))
+				if (GET_PLAYER(ePlayer).IsAtWarWith(eLoopPlayer))
 				{
 					int iBonus = iAmount;
 
 					// How much they're happy about it depends on how strong we are compared to them.
-					switch (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetMilitaryStrengthComparedToUs(GetID()))
+					switch (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetMilitaryStrengthComparedToUs(ePlayer))
 					{
 					case STRENGTH_IMMENSE:
 						iBonus *= 300;
@@ -35327,7 +35327,7 @@ void CvPlayer::ApplyWarDamage(PlayerTypes ePlayer, int iAmount, bool bNoRatingCh
 						break;
 					}
 
-					GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeCommonFoeValue(ePlayer, iBonus/100);
+					GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeCommonFoeValue(GetID(), iBonus/100);
 				}
 			}
 		}
