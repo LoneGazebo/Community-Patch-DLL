@@ -2,7 +2,7 @@
 <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" version="142">
   <Properties>
     <Name>(1) Community Patch</Name>
-    <Teaser>(4.20.1) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
+    <Teaser>(4.20.2) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
     <Description>Contains core AI improvements and bugfixes for the Civ 5 BNW DLL. Also contains support for the Vox Populi unofficial expansion and its associated mods.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -457,7 +457,7 @@
     <File md5="1D6FBE79C3778843EA7DDCE693BDD499" import="1">Core Files/Overrides/TradeRouteHelpers.lua</File>
     <File md5="A149623233865A30C77EE55F8C4CEEF9" import="1">Core Files/Overrides/WonderPopup.xml</File>
     <File md5="8F5DDB96458A46DB71C92CCB4026905E" import="1">Core Files/Overrides/WorldView.lua</File>
-    <File md5="7C5236FC9CA657833F0946E0CCF3F182" import="1">CvGameCore_Expansion2.dll</File>
+    <File md5="4D5B832792AF2BE55C28E3FBB4DC36C4" import="1">CvGameCore_Expansion2.dll</File>
     <File md5="493E50FD96DDC30C4E390B93B95A960F" import="0">Database Changes/CommunityTables.xml</File>
     <File md5="988FF9B66460D42D896502D75FCE69C2" import="0">Database Changes/CoreGameOptionChanges.sql</File>
     <File md5="FFEE301FC50B4E582AC132C881BF31A7" import="0">Database Changes/CoreGameSpeedChanges.sql</File>
@@ -511,10 +511,10 @@
     <File md5="C36218BB11511D4B8BBCBE71242994E7" import="0">Database Changes/Concepts/CoreConceptChanges.sql</File>
     <File md5="5AFB377345571BA35644B7880D3CF0BC" import="0">Database Changes/Concepts/CoreNewConcepts.xml</File>
     <File md5="38862270A17CC8A2A8339A404BBA242B" import="0">Database Changes/Corporations/NewCorporationTables.xml</File>
-    <File md5="A66757B47891D2C2E55510DBF1729CD1" import="0">Database Changes/Defines/CoreDefineChanges.sql</File>
+    <File md5="45A587C5DE44A3AB169D6B9892747E6A" import="0">Database Changes/Defines/CoreDefineChanges.sql</File>
     <File md5="148CBB2467D31B709154C87DB18515AD" import="0">Database Changes/Defines/DiploAIOptions.sql</File>
     <File md5="948C7007CD1779D44C09F02C2EE34D35" import="0">Database Changes/Defines/DiploApproachWeights.sql</File>
-    <File md5="2D59CC7B752A970E60079DE9B48A7C39" import="0">Database Changes/Defines/DiploOpinionWeights.sql</File>
+    <File md5="45323B9F1EFC39D63BC94A9D140FACD5" import="0">Database Changes/Defines/DiploOpinionWeights.sql</File>
     <File md5="90ED5D6EE6AE8620EA764EB0531CA72E" import="0">Database Changes/Difficulty/CoreDifficultyChanges.sql</File>
     <File md5="9D0ECAA5F7605AAAB93079A6316D7C3B" import="0">Database Changes/Difficulty/CoreDifficultyChanges.xml</File>
     <File md5="55B355AAC161A6CC73D3AD258CC1568F" import="0">Database Changes/Difficulty/DifficultyTableChanges.sql</File>
@@ -559,7 +559,7 @@
     <File md5="5B46785CA1C52741BD2A854A252997CB" import="0">Database Changes/Text/en_US/Notifications/CoreNewNotificationText.xml</File>
     <File md5="D815404C801F547E8157593652F66055" import="0">Database Changes/Text/en_US/Notifications/CoreNotificationTextChanges.sql</File>
     <File md5="07FA4F3EE791BC55D0F0818B8645A785" import="0">Database Changes/Text/en_US/Religions/CoreReligionTextChanges.sql</File>
-    <File md5="6FD70FC5D10A69894D93FE059640B913" import="0">Database Changes/Text/en_US/UI/CoreNewUIText.xml</File>
+    <File md5="E4E8263B6F4C947C18091D1B3321618B" import="0">Database Changes/Text/en_US/UI/CoreNewUIText.xml</File>
     <File md5="982DDDD1F191F8BFA1D4CFF66374ADFD" import="0">Database Changes/Text/en_US/UI/CoreUITextChanges.sql</File>
     <File md5="F9C0A53E9A6986F04ADADDBA2E138A10" import="0">Database Changes/Text/en_US/UnitPromotions/CoreNewPromotionText.xml</File>
     <File md5="8BDA888FE05533BBDA015FDA10D7DA2B" import="0">Database Changes/Text/en_US/UnitPromotions/CorePromotionTextChanges.sql</File>
