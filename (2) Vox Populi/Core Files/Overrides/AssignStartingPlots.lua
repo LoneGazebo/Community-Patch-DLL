@@ -1986,11 +1986,10 @@ function AssignStartingPlots:GenerateRegions(args)
 				local iNumUniqueFertValues = table.maxn(fertility_value_list);
 				for fertLoop = 1, iNumUniqueFertValues do
 					for areaID, fert in pairs(area_fert) do
-						if fert == fertility_value_list[fertLoop] then
+						if fert == fertility_value_list[fertLoop] and area_landmass[areaID] then
+							table.insert(best_areas, areaID);
 							-- Add ties only if there is room!
-							if table.maxn(best_areas) < iNumRelevantAreas then
-								table.insert(best_areas, areaID);
-							else
+							if table.maxn(best_areas) >= iNumRelevantAreas then
 								break;
 							end
 						end
