@@ -121,6 +121,7 @@ CvImprovementEntry::CvImprovementEntry(void):
 	m_bRequiresFlatlandsOrFreshWater(false),
 	m_bRequiresFeature(false),
 	m_bRequiresImprovement(false),
+	m_bRequiresResource(false),
 	m_bRemovesResource(false),
 	m_bPromptWhenComplete(false),
 	m_bWater(false),
@@ -303,6 +304,7 @@ bool CvImprovementEntry::CacheResults(Database::Results& kResults, CvDatabaseUti
 	m_bRequiresFlatlands = kResults.GetBool("RequiresFlatlands");
 	m_bRequiresFlatlandsOrFreshWater = kResults.GetBool("RequiresFlatlandsOrFreshWater");
 	m_bRequiresFeature = kResults.GetBool("RequiresFeature");
+	m_bRequiresResource = kResults.GetBool("RequiresResource");
 	m_bRequiresImprovement = kResults.GetBool("RequiresImprovement");
 	m_bRemovesResource = kResults.GetBool("RemovesResource");
 	m_bPromptWhenComplete = kResults.GetBool("PromptWhenComplete");
@@ -1216,6 +1218,11 @@ bool CvImprovementEntry::IsRequiresFeature() const
 bool CvImprovementEntry::IsRequiresImprovement() const
 {
 	return m_bRequiresImprovement;
+}
+
+bool CvImprovementEntry::IsRequiresResource() const
+{
+	return m_bRequiresResource;
 }
 
 /// Does this remove the resource underneath when built?
