@@ -1745,7 +1745,7 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 		// Calculate defense damage
 		iDefenderDamageInflicted = pCity->GetAirStrikeDefenseDamage(&kAttacker);
 
-		if(iDefenderDamageInflicted + kAttacker.getDamage() > pCity->GetMaxHitPoints())
+		if(iDefenderDamageInflicted + kAttacker.getDamage() > kAttacker.GetMaxHitPoints())
 		{
 			// Surely!!!
 			iDefenderDamageInflicted = kAttacker.GetMaxHitPoints() - kAttacker.getDamage();
