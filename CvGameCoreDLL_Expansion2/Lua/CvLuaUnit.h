@@ -485,6 +485,7 @@ protected:
 	static int lGetAdjacentTileHeal(lua_State* L);
 
 	static int lGetExtraCombatPercent(lua_State* L);
+	static int lGetBorderCombatStrengthModifier(lua_State* L);
 	static int lGetFriendlyLandsModifier(lua_State* L);
 	static int lGetFriendlyLandsAttackModifier(lua_State* L);
 	static int lGetOutsideFriendlyLandsModifier(lua_State* L);

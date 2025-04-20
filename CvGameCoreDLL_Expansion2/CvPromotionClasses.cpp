@@ -103,6 +103,7 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iNoAdjacentUnitMod(0),
 	m_iAttackMod(0),
 	m_iDefenseMod(0),
+	m_iBorderMod(0),
 	m_iGetGroundAttackDamage(0),
 	m_iDropRange(0),
 	m_iExtraNavalMoves(0),
@@ -633,6 +634,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iNoAdjacentUnitMod = kResults.GetInt("NoAdjacentUnitMod");
 	m_iAttackMod = kResults.GetInt("AttackMod");
 	m_iDefenseMod = kResults.GetInt("DefenseMod");
+	m_iBorderMod = kResults.GetInt("BorderMod");
 	m_iGetGroundAttackDamage = kResults.GetInt("GetGroundAttackDamage");
 	m_iDropRange = kResults.GetInt("DropRange");
 	m_iExtraNavalMoves = kResults.GetInt("ExtraNavalMovement");
@@ -1862,6 +1864,11 @@ int CvPromotionEntry::GetDefenseMod() const
 	return m_iDefenseMod;
 }
 
+/// Accessor: Border combat strength change
+int CvPromotionEntry::GetBorderMod() const
+{
+	return m_iBorderMod;
+}
 /// Accessor: Percent defense change
 int CvPromotionEntry::GetGroundAttackDamage() const
 {

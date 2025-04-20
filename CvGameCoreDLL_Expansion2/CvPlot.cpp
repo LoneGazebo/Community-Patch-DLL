@@ -885,6 +885,26 @@ bool CvPlot::isAdjacent(const CvPlot* pPlot) const
 }
 
 //	--------------------------------------------------------------------------------
+//! A tile is considered to be on an international border if it is adjacent to at
+//!  least one other tile with a different owner
+bool CvPlot::isInternationalBorder() const
+{
+	CvPlot** aNeighbors = GC.getMap().getNeighborsUnchecked(m_iPlotIndex);
+	for (int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+	{
+		if (aNeighbors[iI] != NULL)
+		{
+			if (getOwner() != aNeighbors[iI]->getOwner())
+			{
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
+//	--------------------------------------------------------------------------------
 bool CvPlot::isDeepWater() const
 {
 	if(isWater())
