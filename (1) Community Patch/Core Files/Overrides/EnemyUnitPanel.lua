@@ -683,6 +683,12 @@ function UpdateCombatSimulator(pMyUnit, pTheirUnit, pMyCity, pTheirCity)
 			nBonus, iMiscModifier = ProcessModifier(iModifier, "TXT_KEY_EUPANEL_FLANKING_BONUS", nBonus, iMiscModifier, true, true);
 		end
 
+		-- Fighting on an international border (for ranged units, pBattlePlot is the plot from which ranged attack is happening)
+		if pBattlePlot:IsInternationalBorder() then
+			iModifier = pMyUnit:GetBorderCombatStrengthModifier();
+			nBonus, iMiscModifier = ProcessModifier(iModifier, "TXT_KEY_EUPANEL_BONUS_BORDER", nBonus, iMiscModifier, true, true);
+		end
+
 		-- Fighting in friendly lands (technically still possible when attacking a city, if ranged)
 		if pBattlePlot:IsFriendlyTerritory(eMyPlayer) then
 			-- General modifier
@@ -1091,6 +1097,12 @@ function UpdateCombatSimulator(pMyUnit, pTheirUnit, pMyCity, pTheirCity)
 				if pMyUnit and not bRanged then
 					iModifier = pToPlot:GetEffectiveFlankingBonus(pTheirUnit, pMyUnit, pFromPlot);
 					nBonus, iMiscModifier = ProcessModifier(iModifier, "TXT_KEY_EUPANEL_FLANKING_BONUS", nBonus, iMiscModifier, false, true);
+				end
+
+				-- Defending on an international border
+				if pToPlot:IsInternationalBorder() then
+					iModifier = pTheirUnit:GetBorderCombatStrengthModifier();
+					nBonus, iMiscModifier = ProcessModifier(iModifier, "TXT_KEY_EUPANEL_BONUS_BORDER", nBonus, iMiscModifier, false, true);
 				end
 
 				-- Fighting in friendly lands

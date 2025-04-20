@@ -308,6 +308,7 @@ CvUnit::CvUnit() :
 	, m_iFriendlyLandsModifier()
 	, m_iFriendlyLandsAttackModifier()
 	, m_iOutsideFriendlyLandsModifier()
+	, m_iBorderCombatModifier()
 	, m_iNumInterceptions()
 	, m_iMadeInterceptionCount()
 	, m_iEverSelectedCount()
@@ -16167,6 +16168,13 @@ int CvUnit::GetGenericMeleeStrengthModifier(const CvUnit* pOtherUnit, const CvPl
 		else if (pBattlePlot->isRoughGround())
 			iModifier += getExtraRoughFromPercent();
 
+		// Bonus for fighting on an international border
+		if (getBorderCombatStrengthModifier() /* Don't check adjacent plots if there won't be a bonus anyway */
+			&& pBattlePlot->isInternationalBorder())
+		{
+			iModifier += getBorderCombatStrengthModifier();
+		}
+
 		// Bonuses for fighting in one's lands
 		if(pBattlePlot->IsFriendlyTerritory(getOwner()))
 		{
@@ -17170,6 +17178,13 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 	// Rough Ground
 	else if (pMyPlot->isRoughGround())
 		iModifier += getExtraRoughFromPercent();
+
+	// Bonus for ranged attacking from an international border
+	if (getBorderCombatStrengthModifier() /* Don't check adjacent plots if there won't be a bonus anyway */
+		&& pMyPlot->isInternationalBorder())
+	{
+		iModifier += getBorderCombatStrengthModifier();
+	}
 
 	// Fighting near capital
 	if (GetCapitalDefenseModifier() > 0 || GetCapitalDefenseFalloff() > 0)
@@ -24508,6 +24523,23 @@ void CvUnit::changeOutsideFriendlyLandsModifier(int iChange)
 }
 
 //	--------------------------------------------------------------------------------
+int CvUnit::getBorderCombatStrengthModifier() const
+{
+	VALIDATE_OBJECT();
+	return m_iBorderCombatModifier;
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::changeBorderCombatStrengthModifier(int iChange)
+{
+	VALIDATE_OBJECT();
+	if (iChange != 0)
+	{
+		m_iBorderCombatModifier += iChange;
+	}
+}
+
+//	--------------------------------------------------------------------------------
 int CvUnit::getPillageChange() const
 {
 	VALIDATE_OBJECT();
@@ -27189,6 +27221,7 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		changeFriendlyLandsModifier(thisPromotion.GetFriendlyLandsModifier() * iChange);
 		changeFriendlyLandsAttackModifier(thisPromotion.GetFriendlyLandsAttackModifier() * iChange);
 		changeOutsideFriendlyLandsModifier(thisPromotion.GetOutsideFriendlyLandsModifier() * iChange);
+		changeBorderCombatStrengthModifier(thisPromotion.GetBorderMod() * iChange);
 		changeUpgradeDiscount(thisPromotion.GetUpgradeDiscount() * iChange);
 		changeExperiencePercent(thisPromotion.GetExperiencePercent() * iChange);
 		changeCargoSpace(thisPromotion.GetCargoChange() * iChange);
@@ -27798,6 +27831,7 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_iFriendlyLandsModifier);
 	visitor(unit.m_iFriendlyLandsAttackModifier);
 	visitor(unit.m_iOutsideFriendlyLandsModifier);
+	visitor(unit.m_iBorderCombatModifier);
 	visitor(unit.m_iHealIfDefeatExcludeBarbariansCount);
 	visitor(unit.m_iNumInterceptions);
 	visitor(unit.m_iExtraAirInterceptRange);

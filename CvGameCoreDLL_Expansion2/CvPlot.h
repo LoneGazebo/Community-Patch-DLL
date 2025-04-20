@@ -125,6 +125,7 @@ public:
 	bool isAdjacentToLandmass(int iLandmassID) const;
 	bool shareAdjacentArea(const CvPlot* pPlot) const;
 	bool isAdjacent(const CvPlot* pPlot) const;
+	bool isInternationalBorder() const;
 	bool isDeepWater() const;
 	bool isShallowWater() const;
 	bool isAdjacentToShallowWater() const;

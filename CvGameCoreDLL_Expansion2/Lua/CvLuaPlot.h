@@ -133,6 +133,7 @@ protected:
 	static int lIsRevealedGoody(lua_State* L);
 
 	static int lIsFriendlyTerritory(lua_State* L);
+	static int lIsInternationalBorder(lua_State* L);
 
 	static int lIsCity(lua_State* L);
 	static int lIsFriendlyCity(lua_State* L);

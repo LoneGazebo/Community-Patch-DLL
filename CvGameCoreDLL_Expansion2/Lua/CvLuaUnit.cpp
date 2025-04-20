@@ -482,6 +482,7 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(GetAdjacentTileHeal);
 
 	Method(GetExtraCombatPercent);
+	Method(GetBorderCombatStrengthModifier);
 	Method(GetFriendlyLandsModifier);
 	Method(GetFriendlyLandsAttackModifier);
 	Method(GetOutsideFriendlyLandsModifier);
@@ -5232,6 +5233,12 @@ int CvLuaUnit::lGetExtraCombatPercent(lua_State* L)
 	const int iResult = pkUnit->getExtraCombatPercent();
 	lua_pushinteger(L, iResult);
 	return 1;
+}
+//------------------------------------------------------------------------------
+//int GetBorderCombatStrengthModifier();
+int CvLuaUnit::lGetBorderCombatStrengthModifier(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvUnit::getBorderCombatStrengthModifier);
 }
 //------------------------------------------------------------------------------
 //int GetFriendlyLandsModifier();

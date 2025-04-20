@@ -131,6 +131,7 @@ public:
 	int GetNoAdjacentUnitMod() const;
 	int GetAttackMod() const;
 	int GetDefenseMod() const;
+	int GetBorderMod() const;
 	int GetGroundAttackDamage() const;
 
 	int GetDropRange() const;
@@ -454,6 +455,7 @@ protected:
 	int m_iNoAdjacentUnitMod;
 	int m_iAttackMod;
 	int m_iDefenseMod;
+	int m_iBorderMod;
 	int m_iGetGroundAttackDamage;
 	int m_iDropRange;
 	int m_iExtraNavalMoves;
