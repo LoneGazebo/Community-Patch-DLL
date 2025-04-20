@@ -161,7 +161,7 @@
                 <CheckBox Anchor="L,T"  TextAnchorSide="Right" Offset="-25,0" TextOffset="40,0" IsChecked="0" ID="FlagsNumberCheckBox" String="TXT_KEY_SQUADS_OPTION_FLAGS_NUMBER" />
                 <Label Anchor="L,T"  TextAnchorSide="Right" Offset="-25,0" TextOffset="40,0" String=" " />
                 <Label Anchor="L,T"  TextAnchorSide="Right" Offset="-25,0" TextOffset="40,0" String="TXT_KEY_SQUADS_MOVEMENT_END_TYPE" />
-                <RadioButton RadioGroup="SquadsEndMoveMode" Anchor="L,T"  TextAnchorSide="Right" Offset="-25,0" TextOffset="40,0" IsChecked="1" ID="AlertOnArrivalRadioButton" String="TXT_KEY_SQUADS_MOVEMENT_END_TYPE_ALERT_ON_ARRIVAL" />
+                <RadioButton RadioGroup="SquadsEndMoveMode" Anchor="L,T"  TextAnchorSide="Right" Offset="-25,0" TextOffset="40,0" IsChecked="0" ID="AlertOnArrivalRadioButton" String="TXT_KEY_SQUADS_MOVEMENT_END_TYPE_ALERT_ON_ARRIVAL" />
                 <RadioButton RadioGroup="SquadsEndMoveMode" Anchor="L,T"  TextAnchorSide="Right" Offset="-25,0" TextOffset="40,0" IsChecked="0" ID="WakeOnUnitArrivalRadioButton" String="TXT_KEY_SQUADS_MOVEMENT_END_TYPE_WAKE_ON_UNIT_ARRIVAL" />
                 <RadioButton RadioGroup="SquadsEndMoveMode" Anchor="L,T"  TextAnchorSide="Right" Offset="-25,0" TextOffset="40,0" IsChecked="0" ID="WakeOnSquadArrivalRadioButton" String="TXT_KEY_SQUADS_MOVEMENT_END_TYPE_WAKE_ON_SQUAD_ARRIVAL" />
                 <Box Anchor="C,T" Size="210,1" Color="0,0,0,0" />
