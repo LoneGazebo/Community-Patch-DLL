@@ -2,6 +2,15 @@
 <GameData>
 	<Automates>
 		<Row>
+			<Type>AUTOMATE_TRADE</Type>
+			<OrderPriority>1</OrderPriority>
+			<Automate>AUTOMATE_TRADE</Automate>
+			<Command>COMMAND_AUTOMATE</Command>
+			<Visible>false</Visible>
+			<IconIndex>43</IconIndex>
+			<IconAtlas>UNIT_ACTION_ATLAS</IconAtlas>
+		</Row>
+		<Row>
 			<Type>AUTOMATE_MISSIONARY</Type>
 			<Description>TXT_KEY_ACTION_AUTOMATE_MISSIONARY</Description>
 			<Help>TXT_KEY_ACTION_AUTOMATE_MISSIONARY_HELP</Help>
