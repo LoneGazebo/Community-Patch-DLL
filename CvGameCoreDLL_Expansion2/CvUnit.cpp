@@ -3920,7 +3920,7 @@ void CvUnit::DoLocationPromotions(bool bSpawn, CvPlot* pOldPlot, CvPlot* pNewPlo
 					// Not using maxMoves() here since it shouldn't be affected by linked status and plot move changes (added below)
 					setMoves(baseMoves(isEmbarked()) * GD_INT_GET(MOVE_DENOMINATOR));
 				}
-				if (pNewPlot->GetPlotMovesChange() > 0)
+				if (pNewPlot->GetPlotMovesChange() != 0)
 				{
 					setMoves(movesLeft() + (pNewPlot->GetPlotMovesChange() * GD_INT_GET(MOVE_DENOMINATOR)));
 				}
