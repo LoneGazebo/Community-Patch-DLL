@@ -6606,7 +6606,7 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 					{
 						ChangeUnitPlotGAExperience(-1 * pImprovementInfo->GetGAUnitPlotExperience());
 					}
-					if (pImprovementInfo->GetMovesChange() > 0)
+					if (pImprovementInfo->GetMovesChange() != 0)
 					{
 						ChangePlotMovesChange(-1 * pImprovementInfo->GetMovesChange());
 					}
@@ -6774,7 +6774,7 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 					{
 						ChangeUnitPlotGAExperience(pImprovementInfo->GetGAUnitPlotExperience());
 					}
-					if (pImprovementInfo->GetMovesChange() > 0)
+					if (pImprovementInfo->GetMovesChange() != 0)
 					{
 						ChangePlotMovesChange(pImprovementInfo->GetMovesChange());
 					}
@@ -8137,7 +8137,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				{
 					ChangeUnitPlotGAExperience(-1 * oldImprovementEntry.GetGAUnitPlotExperience());
 				}
-				if (oldImprovementEntry.GetMovesChange() > 0)
+				if (oldImprovementEntry.GetMovesChange() != 0)
 				{
 					ChangePlotMovesChange(-1 * oldImprovementEntry.GetMovesChange());
 				}
@@ -8572,7 +8572,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				{
 					ChangeUnitPlotGAExperience(newImprovementEntry.GetGAUnitPlotExperience());
 				}
-				if (newImprovementEntry.GetMovesChange() > 0)
+				if (newImprovementEntry.GetMovesChange() != 0)
 				{
 					ChangePlotMovesChange(newImprovementEntry.GetMovesChange());
 				}
