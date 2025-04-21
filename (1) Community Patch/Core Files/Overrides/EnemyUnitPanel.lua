@@ -614,7 +614,9 @@ function UpdateCombatSimulator(pMyUnit, pTheirUnit, pMyCity, pTheirCity)
 			if pCapital then
 				local iDistance = Map.PlotDistance(pCapital:GetX(), pCapital:GetY(), pBattlePlot:GetX(), pBattlePlot:GetY());
 				iModifier = iModifier + iDistance * pMyUnit:CapitalDefenseFalloff();
-				nBonus, iMiscModifier = ProcessModifier(iModifier, "TXT_KEY_EUPANEL_CAPITAL_DEFENSE_BONUS", nBonus, iMiscModifier, true, true);
+				if (iModifier > 0) then
+					nBonus, iMiscModifier = ProcessModifier(iModifier, "TXT_KEY_EUPANEL_CAPITAL_DEFENSE_BONUS", nBonus, iMiscModifier, true, true);
+				end
 			end
 		end
 
@@ -1049,7 +1051,9 @@ function UpdateCombatSimulator(pMyUnit, pTheirUnit, pMyCity, pTheirCity)
 					if pCapital then
 						local iDistance = Map.PlotDistance(pCapital:GetX(), pCapital:GetY(), pTheirUnit:GetX(), pTheirUnit:GetY());
 						iModifier = iModifier + iDistance * pTheirUnit:CapitalDefenseFalloff();
-						nBonus, iMiscModifier = ProcessModifier(iModifier, "TXT_KEY_EUPANEL_CAPITAL_DEFENSE_BONUS", nBonus, iMiscModifier, false, true);
+						if (iModifier > 0) then
+							nBonus, iMiscModifier = ProcessModifier(iModifier, "TXT_KEY_EUPANEL_CAPITAL_DEFENSE_BONUS", nBonus, iMiscModifier, false, true);
+						end
 					end
 				end
 
