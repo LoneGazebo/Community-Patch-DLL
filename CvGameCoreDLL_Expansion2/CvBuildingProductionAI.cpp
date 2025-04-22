@@ -713,7 +713,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	}
 	if (pkBuildingInfo->GetDefensePerXWonder() > 0)
 	{
-		iDefense += (100 * m_pCity->getNumWorldWonders() / pkBuildingInfo->GetDefensePerXWonder() / 25);
+		iDefense += (100 * (m_pCity->getNumWorldWonders() + m_pCity->getNumNationalWonders()) / pkBuildingInfo->GetDefensePerXWonder() / 25);
 	}
 	if (pkBuildingInfo->CityRangedStrikeRange() > 0)
 	{

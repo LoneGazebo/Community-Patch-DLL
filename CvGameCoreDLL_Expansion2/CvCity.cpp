@@ -18527,6 +18527,11 @@ void CvCity::changeNumNationalWonders(int iChange)
 	VALIDATE_OBJECT();
 	m_iNumNationalWonders = (m_iNumNationalWonders + iChange);
 	ASSERT_DEBUG(getNumNationalWonders() >= 0);
+
+	if (GetDefensePerWonder() > 0)
+	{
+		updateStrengthValue();
+	}
 }
 
 
@@ -27458,7 +27463,7 @@ void CvCity::updateStrengthValue()
 
 	if (GetDefensePerWonder() > 0)
 	{
-		iStrengthValue += (GetDefensePerWonder() * getNumWorldWonders() * 100).Truncate();
+		iStrengthValue += (GetDefensePerWonder() * (getNumWorldWonders() + getNumNationalWonders()) * 100).Truncate();
 	}
 
 	// Player-wide strength mod (Policies, etc.)
