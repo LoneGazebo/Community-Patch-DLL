@@ -90,11 +90,6 @@ INSERT INTO Building_SeaPlotYieldChanges
 VALUES
 	('BUILDING_JELLING_STONES', 'YIELD_FOOD', 1);
 
-INSERT INTO Building_SeaResourceYieldChanges
-	(BuildingType, YieldType, Yield)
-VALUES
-	('BUILDING_JELLING_STONES', 'YIELD_PRODUCTION', 1);
-
 -- Egypt: Caravansary
 UPDATE Buildings
 SET
