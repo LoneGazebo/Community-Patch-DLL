@@ -64,6 +64,7 @@ UPDATE UnitPromotions SET AlwaysHeal = 1 WHERE RankList = 'MARCH';
 
 UPDATE UnitPromotions SET ExtraAttacks = 1, CanMoveAfterAttacking = 1 WHERE Type = 'PROMOTION_BLITZ';
 
+-- Stalwart
 UPDATE UnitPromotions SET DefenseMod = 35 WHERE Type = 'PROMOTION_DRILL_4';
 
 UPDATE UnitPromotions SET RoughAttack = 15 WHERE RankList = 'AMBUSH';
