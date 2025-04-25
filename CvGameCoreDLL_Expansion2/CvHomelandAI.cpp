@@ -680,14 +680,11 @@ void CvHomelandAI::PlotMovesToSafety()
 	ClearCurrentMoveUnits(AI_HOMELAND_MOVE_TO_SAFETY);
 
 	// Loop through all recruited units
-	for (list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end();)
+	for (list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
 		if (!pUnit)
-		{
-			++it;
 			continue;
-		}
 
 		//special: move siege units away from border to make space for sentries
 		//also to protect them against surprise attacks
@@ -698,7 +695,6 @@ void CvHomelandAI::PlotMovesToSafety()
 				// don't call UnitProcessed here as it would invalidate the iterator
 				pUnit->setHomelandMove(m_CurrentMoveUnits.getCurrentHomelandMove());
 				pUnit->SetTurnProcessed(true);
-				it = m_CurrentTurnUnits.erase(it);
 				continue;
 			}
 		}
@@ -706,10 +702,7 @@ void CvHomelandAI::PlotMovesToSafety()
 		//allow some danger from fog etc
 		int iDangerLevel = pUnit->GetDanger();
 		if (iDangerLevel < pUnit->GetCurrHitPoints() / 5)
-		{
-			++it;
 			continue;
-		}
 
 		// civilian always ready to flee
 		if (pUnit->IsCivilianUnit())
@@ -718,28 +711,33 @@ void CvHomelandAI::PlotMovesToSafety()
 			if (pUnit->plot()->getOwner() == pUnit->getOwner() &&
 				pUnit->plot()->getFeatureType() == FEATURE_FALLOUT &&
 				iDangerLevel < pUnit->GetCurrHitPoints())
-			{
-				++it;
 				continue;
-			}
 		}
 		else
 		{
 			//military units flee only in mortal danger - if we even get here
 			//normally combat units are handled by tactical ai if there's enemies around
 			if (iDangerLevel < pUnit->GetCurrHitPoints())
-			{
-				++it;
 				continue;
-			}
 		}
 
 		CvHomelandUnit unit;
 		unit.SetID(pUnit->GetID());
 		m_CurrentMoveUnits.push_back(unit);
-		++it;
 	}
 
+	for (list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); )
+	{
+		CvUnit* pUnit = m_pPlayer->getUnit(*it);
+		if (pUnit && pUnit->TurnProcessed())
+		{
+			it = m_CurrentTurnUnits.erase(it);
+		}
+		else
+		{
+			++it;
+		}
+	}
 	for (unsigned int iI = 0; iI < m_CurrentMoveUnits.size(); iI++)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[iI].GetID());
