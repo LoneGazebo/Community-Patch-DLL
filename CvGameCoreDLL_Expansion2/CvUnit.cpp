@@ -1185,14 +1185,10 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 	GreatPersonTypes eGreatPerson = GetGreatPersonFromUnitClass(getUnitClassType());
 	if (eGreatPerson != NO_GREATPERSON && bHistoric)
 	{
-		CvCity* pCity = plot()->getEffectiveOwningCity();
-		if (pCity != NULL && pCity->getOwner() == GetID())
+		CvCity* pCity = getOriginCity();
+		if (pCity != NULL)
 		{
 			GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_GP_BORN, false, eGreatPerson, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, pCity, false, true, false, NO_YIELD, this);
-		}
-		else if (GET_PLAYER(getOwner()).getCapitalCity() != NULL)
-		{
-			GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_GP_BORN, false, eGreatPerson, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, GET_PLAYER(getOwner()).getCapitalCity(), false, true, false, NO_YIELD, this);
 		}
 		GET_PLAYER(getOwner()).doInstantGWAM(eGreatPerson, getGreatName());
 	}
@@ -2914,7 +2910,7 @@ bool CvUnit::getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerT
 		return NULL;
 
 	CvPlayerAI& kCapturingPlayer = GET_PLAYER(kCaptureDef.eCapturingPlayer);
-	CvUnit* pkCapturedUnit = kCapturingPlayer.initUnit(kCaptureDef.eCaptureUnitType, kCaptureDef.iX, kCaptureDef.iY);
+	CvUnit* pkCapturedUnit = kCapturingPlayer.initUnit(kCaptureDef.eCaptureUnitType, kCaptureDef.iX, kCaptureDef.iY, NO_UNITAI, REASON_DEFAULT, false, true, 0, 0, NO_CONTRACT, false);
 
 	if (!pkCapturedUnit)
 		return NULL;
