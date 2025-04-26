@@ -726,17 +726,17 @@ void CvHomelandAI::PlotMovesToSafety()
 		m_CurrentMoveUnits.push_back(unit);
 	}
 
-	for (list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); )
+	// update m_CurrentTurnUnits
+	list<int>::iterator it = m_CurrentTurnUnits.begin();
+	while (it != m_CurrentTurnUnits.end())
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
 		if (pUnit && pUnit->TurnProcessed())
 		{
 			it = m_CurrentTurnUnits.erase(it);
+			continue;
 		}
-		else
-		{
-			++it;
-		}
+		++it;
 	}
 	for (unsigned int iI = 0; iI < m_CurrentMoveUnits.size(); iI++)
 	{
