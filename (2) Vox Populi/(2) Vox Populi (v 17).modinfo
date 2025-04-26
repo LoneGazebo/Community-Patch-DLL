@@ -2,7 +2,7 @@
 <Mod id="8411a7a8-dad3-4622-a18e-fcc18324c799" version="17">
   <Properties>
     <Name>(2) Vox Populi</Name>
-    <Teaser>(4.20.2) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
+    <Teaser>(4.21) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
     <Description>Contains balance changes, gameplay improvements, and entirely new game systems to make Civ V a more enjoyable and exciting game.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -19,7 +19,7 @@
     <ReloadUnitSystem>1</ReloadUnitSystem>
   </Properties>
   <Dependencies>
-    <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" minversion="142" maxversion="999" title="(1) Community Patch" />
+    <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" minversion="143" maxversion="999" title="(1) Community Patch" />
   </Dependencies>
   <References />
   <Blocks>
@@ -143,7 +143,7 @@
     <File md5="83E5B07AE2B6DE1AB923C202A8BE0212" import="1">Assets/Improvements/Encampment/SV_Encampment.dds</File>
     <File md5="291B5F5B68DC7663DF1F6C2DDCCD291F" import="1">Assets/Improvements/Hacienda/hacienda.fxsxml</File>
     <File md5="6D8C341DBFB38B15FE370113D8808DBF" import="1">Assets/Improvements/Hacienda/hacienda.gr2</File>
-    <File md5="1FB531E8C1AD64281C3EF98B722095A9" import="1">Assets/Improvements/Hacienda/HaciendaIcons_045.dds</File>
+    <File md5="6469870FE96276C562609C2A72E7E18A" import="1">Assets/Improvements/Hacienda/HaciendaIcons_045.dds</File>
     <File md5="20132EDFE2F128C095076BAC27646117" import="1">Assets/Improvements/Hacienda/HaciendaIcons_064.dds</File>
     <File md5="912D2BE1E90ACDECAC5CD41CC8B97E93" import="1">Assets/Improvements/Hacienda/HaciendaIcons_128.dds</File>
     <File md5="9FFBB2B1277C8A21C04A41A491785037" import="1">Assets/Improvements/Hacienda/HaciendaIcons_256.dds</File>
@@ -173,7 +173,7 @@
     <File md5="813A3A5C5EF3441C12E38216E9712AB7" import="1">Assets/Improvements/Ordo/YurtCamp_PL.dds</File>
     <File md5="224E128476E7E49E163E5EA30FCC8A85" import="1">Assets/Improvements/Ordo/YurtCamp_PL.fxsxml</File>
     <File md5="C353FFA45854F999855ABC91B01D5BDB" import="1">Assets/Improvements/Ordo/YurtCamp_PL.gr2</File>
-    <File md5="2E9DEFB3D7203FE07852CAEAABCE92AA" import="1">Assets/Improvements/Ordo/YurtIcons045.dds</File>
+    <File md5="0F8F48B67D69D3DD5C82EFB29E9DE45B" import="1">Assets/Improvements/Ordo/YurtIcons045.dds</File>
     <File md5="C2AAF8FFA39E471385C0B70450A4E82A" import="1">Assets/Improvements/Ordo/YurtIcons064.dds</File>
     <File md5="82E50FF8EC29E13B322665A4F6765F8E" import="1">Assets/Improvements/Ordo/YurtIcons256.dds</File>
     <File md5="86CC3610A917733B2289FCBFD297034F" import="1">Assets/Improvements/Ordo/Yurt_SV.dds</File>
@@ -793,7 +793,7 @@
     <File md5="4AD80411668EC1D39FD4A69DF1118CE7" import="0">Core Files/New UI/RandomVCPopup.xml</File>
     <File md5="AEB3674F606508617BC5DE99D1FF3071" import="0">Core Files/New UI/VassalageOverview.lua</File>
     <File md5="6AEDA70A3D08A83C280329B2BCB289BE" import="0">Core Files/New UI/VassalageOverview.xml</File>
-    <File md5="243325E77CDC312F4B0642CF679F8AA8" import="1">Core Files/Overrides/AssignStartingPlots.lua</File>
+    <File md5="5CFC32D21031F28A4B29DBB2D2E645CD" import="1">Core Files/Overrides/AssignStartingPlots.lua</File>
     <File md5="74BC578CAB9C0BF69981921D5D1655C8" import="1">Core Files/Overrides/ChooseInternationalTradeRoutePopup.lua</File>
     <File md5="2DB0554E1E472DCB81904C7B0050BD7A" import="1">Core Files/Overrides/ChooseInternationalTradeRoutePopup.xml</File>
     <File md5="8F9687C985560D7DB4A8972058E706DD" import="1">Core Files/Overrides/ChooseMayaBonus.lua</File>
@@ -894,7 +894,7 @@
     <File md5="5C4A69DEF5916C2E31270003330891B9" import="0">Database Changes/City/Buildings/BuildingCostSweeps.sql</File>
     <File md5="241F8E9A979D03DC7E26225697A23558" import="0">Database Changes/City/Buildings/BuildingSweeps.sql</File>
     <File md5="302FCBB95D4363F9D00D4EC09EE231A2" import="0">Database Changes/City/Buildings/NewBuildings.xml</File>
-    <File md5="5653A9A11F62F97660E534A479545B39" import="0">Database Changes/City/Buildings/PreBuildingChanges.sql</File>
+    <File md5="4DF4EBB0E8598AB5D43098C814169AFB" import="0">Database Changes/City/Buildings/PreBuildingChanges.sql</File>
     <File md5="00035FEC9B7E4D33798736A39EF20AC9" import="0">Database Changes/City/Processes/NewProcesses.xml</File>
     <File md5="D1ADDA25FC17F87EE8171FEC6C6A7A56" import="0">Database Changes/City/Processes/ProcessChanges.sql</File>
     <File md5="241C7C3A5C1172E9EE5BC429E14738B4" import="0">Database Changes/City/Projects/NewProjects.xml</File>
@@ -999,7 +999,7 @@
     <File md5="0238F4CE191069DD34CA219B95347542" import="0">Database Changes/Text/en_US/City/ProjectTextChanges.sql</File>
     <File md5="B98B12751887ADF4F191AAB5D9248321" import="0">Database Changes/Text/en_US/City/SpecialistTextChanges.sql</File>
     <File md5="F8E7DC7074B58DA7E8E8CDBBA995603D" import="0">Database Changes/Text/en_US/Civilizations/CivilizationTextChanges.sql</File>
-    <File md5="D04E59ACC5DA029CB239C9CAE527D032" import="0">Database Changes/Text/en_US/Civilizations/NewCivilizationText.xml</File>
+    <File md5="9ADADEE3F2208F156D40153B6770A730" import="0">Database Changes/Text/en_US/Civilizations/NewCivilizationText.xml</File>
     <File md5="6242A64A4216553635253631DF3402D2" import="0">Database Changes/Text/en_US/Concepts/ConceptTextChanges.sql</File>
     <File md5="88A6DC1F381DA4C735BF04687D2CAB4D" import="0">Database Changes/Text/en_US/Concepts/NewConceptText.xml</File>
     <File md5="0CE99D3EA0A49F29D3ED480E4E3585FF" import="0">Database Changes/Text/en_US/Corporations/NewCorporationText.xml</File>

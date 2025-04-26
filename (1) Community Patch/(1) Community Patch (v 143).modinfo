@@ -1,14 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" version="142">
+<Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" version="143">
   <Properties>
     <Name>(1) Community Patch</Name>
-    <Teaser>(4.20.2) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
+    <Teaser>(4.21) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
     <Description>Contains core AI improvements and bugfixes for the Civ 5 BNW DLL. Also contains support for the Vox Populi unofficial expansion and its associated mods.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
     <Homepage>https://forums.civfanatics.com/forums/community-patch-project.497/</Homepage>
     <AffectsSavedGames>1</AffectsSavedGames>
-    <MinCompatibleSaveVersion>142</MinCompatibleSaveVersion>
+    <MinCompatibleSaveVersion>143</MinCompatibleSaveVersion>
     <SupportsSinglePlayer>1</SupportsSinglePlayer>
     <SupportsMultiplayer>1</SupportsMultiplayer>
     <SupportsHotSeat>1</SupportsHotSeat>
@@ -426,7 +426,7 @@
     <File md5="7E22BB70381174FD2C246E7734E48C3F" import="1">Core Files/Overrides/DiscussionDialog.lua</File>
     <File md5="D708ADD4055DD571EDBDC2588DF0DC0E" import="1">Core Files/Overrides/DiscussionDialog.xml</File>
     <File md5="7EE75C69C82710F34BB0925EC51FD667" import="1">Core Files/Overrides/EconomicGeneralInfo.lua</File>
-    <File md5="7979880B087744CD638FFE8A26203BAC" import="1">Core Files/Overrides/EnemyUnitPanel.lua</File>
+    <File md5="FC0103235E57B56E9760590FE094C23B" import="1">Core Files/Overrides/EnemyUnitPanel.lua</File>
     <File md5="77C539014E863414A8F59B62E2CFB7BB" import="1">Core Files/Overrides/EnemyUnitPanel.xml</File>
     <File md5="F24584C3F7D166B5E799DDCEFEBBD6B5" import="1">Core Files/Overrides/EnemyUnitPanel_small.xml</File>
     <File md5="FC931E4734EB600194E5E14890E37E28" import="1">Core Files/Overrides/EspionageOverview.lua</File>
@@ -457,11 +457,11 @@
     <File md5="1D6FBE79C3778843EA7DDCE693BDD499" import="1">Core Files/Overrides/TradeRouteHelpers.lua</File>
     <File md5="A149623233865A30C77EE55F8C4CEEF9" import="1">Core Files/Overrides/WonderPopup.xml</File>
     <File md5="8F5DDB96458A46DB71C92CCB4026905E" import="1">Core Files/Overrides/WorldView.lua</File>
-    <File md5="4D5B832792AF2BE55C28E3FBB4DC36C4" import="1">CvGameCore_Expansion2.dll</File>
+    <File md5="41A99D0D9A4F650B3E984A243BA62DCC" import="1">CvGameCore_Expansion2.dll</File>
     <File md5="493E50FD96DDC30C4E390B93B95A960F" import="0">Database Changes/CommunityTables.xml</File>
     <File md5="988FF9B66460D42D896502D75FCE69C2" import="0">Database Changes/CoreGameOptionChanges.sql</File>
     <File md5="FFEE301FC50B4E582AC132C881BF31A7" import="0">Database Changes/CoreGameSpeedChanges.sql</File>
-    <File md5="A2285BA8703A8551E98AC1E7F8B5D6D1" import="0">Database Changes/CoreNewAutomates.xml</File>
+    <File md5="DA42F60E1D604165DD130DE5375A9B31" import="0">Database Changes/CoreNewAutomates.xml</File>
     <File md5="A5FB4344A8CB72305CABE032AE3B9C88" import="0">Database Changes/CoreNewControls.xml</File>
     <File md5="F576578842EBF396F29B1CAD02E34447" import="0">Database Changes/CoreNewGameOptions.xml</File>
     <File md5="6D015E47006A392888AD229120DDC86D" import="0">Database Changes/CoreNewNotifications.xml</File>
@@ -492,7 +492,7 @@
     <File md5="12E45AC23BFC0F74EFD1F434BD2BC92D" import="0">Database Changes/Art/CoreNewTerrainArts.xml</File>
     <File md5="FA079157D378FF7E6771946B18B6083C" import="0">Database Changes/Art/CoreUnitArtSweeps.sql</File>
     <File md5="7724A28713495568D82D7804DB0555BB" import="0">Database Changes/City/Buildings/BuildingTableChanges.sql</File>
-    <File md5="B3840AFEE856D53114E10981CFB9B348" import="0">Database Changes/City/Buildings/CoreBuildingChanges.sql</File>
+    <File md5="2D840574CBD95CCD362693DD6A94D319" import="0">Database Changes/City/Buildings/CoreBuildingChanges.sql</File>
     <File md5="D8667AA9BC78E36E2DAC8BCBB8280F24" import="0">Database Changes/City/Buildings/NewBuildingTables.xml</File>
     <File md5="A4D62A2E28E402C14C9ACE714087A15F" import="0">Database Changes/City/GreatWorks/CoreGreatWorkChanges.sql</File>
     <File md5="CC00B0BBC6BB8FC7DE6055F04CA8A889" import="0">Database Changes/City/GreatWorks/CoreNewGreatWorks.sql</File>
@@ -506,7 +506,7 @@
     <File md5="F84FC0C21F4A11D162F4C04948EC478F" import="0">Database Changes/Civilizations/NewCivilizationTables.xml</File>
     <File md5="BAB26A0D37492C15B82C15F3D82B6CB0" import="0">Database Changes/Civilizations/NewTraitTables.xml</File>
     <File md5="EFF22272C1297968AE58E25650491E43" import="0">Database Changes/Civilizations/TraitChanges.sql</File>
-    <File md5="BE29CF673C0E49B1A74F9790FA241EF9" import="0">Database Changes/Civilizations/TraitTableChanges.sql</File>
+    <File md5="E57C4845203659670930CAE3A513453D" import="0">Database Changes/Civilizations/TraitTableChanges.sql</File>
     <File md5="DAC8C8CD7C77EBB45FA08B9C4EC27690" import="0">Database Changes/Concepts/ConceptTableChanges.sql</File>
     <File md5="C36218BB11511D4B8BBCBE71242994E7" import="0">Database Changes/Concepts/CoreConceptChanges.sql</File>
     <File md5="5AFB377345571BA35644B7880D3CF0BC" import="0">Database Changes/Concepts/CoreNewConcepts.xml</File>
@@ -542,7 +542,7 @@
     <File md5="5823F7AEDDFB8C95A12260C464C973AC" import="0">Database Changes/Text/en_US/CoreNewAutomateText.xml</File>
     <File md5="79D913FD4E5F6212319A9AB0140D758A" import="0">Database Changes/Text/en_US/CoreNewChatMessageText.xml</File>
     <File md5="C6CB385022EED9DCF762E0F8B6FDF586" import="0">Database Changes/Text/en_US/CoreNewEnumText.xml</File>
-    <File md5="559B20E143158E09222A034B17D7B74B" import="0">Database Changes/Text/en_US/CoreNewGameOptionText.xml</File>
+    <File md5="5DDCFA48E4D4876C5344A7079B2F8D92" import="0">Database Changes/Text/en_US/CoreNewGameOptionText.xml</File>
     <File md5="9B07290761EF50F6B18D3B3C163D3F07" import="0">Database Changes/Text/en_US/CoreNewReplayDataSetText.xml</File>
     <File md5="0FE6B115634BF464D3764753F238BEC9" import="0">Database Changes/Text/en_US/AI/CoreDiplomacyResponseTextChanges.sql</File>
     <File md5="FA3B9D20AC5441FC29B5A81B60E92BAA" import="0">Database Changes/Text/en_US/AI/CoreNewDiplomacyResponseText.xml</File>
@@ -559,7 +559,7 @@
     <File md5="5B46785CA1C52741BD2A854A252997CB" import="0">Database Changes/Text/en_US/Notifications/CoreNewNotificationText.xml</File>
     <File md5="D815404C801F547E8157593652F66055" import="0">Database Changes/Text/en_US/Notifications/CoreNotificationTextChanges.sql</File>
     <File md5="07FA4F3EE791BC55D0F0818B8645A785" import="0">Database Changes/Text/en_US/Religions/CoreReligionTextChanges.sql</File>
-    <File md5="E4E8263B6F4C947C18091D1B3321618B" import="0">Database Changes/Text/en_US/UI/CoreNewUIText.xml</File>
+    <File md5="3485E35806EEF161DD85B6A1B745A146" import="0">Database Changes/Text/en_US/UI/CoreNewUIText.xml</File>
     <File md5="982DDDD1F191F8BFA1D4CFF66374ADFD" import="0">Database Changes/Text/en_US/UI/CoreUITextChanges.sql</File>
     <File md5="F9C0A53E9A6986F04ADADDBA2E138A10" import="0">Database Changes/Text/en_US/UnitPromotions/CoreNewPromotionText.xml</File>
     <File md5="8BDA888FE05533BBDA015FDA10D7DA2B" import="0">Database Changes/Text/en_US/UnitPromotions/CorePromotionTextChanges.sql</File>
@@ -597,7 +597,7 @@
     <File md5="FD834E4C28FAF16331A3CB16E0A84AE6" import="0">Database Changes/WorldMap/Improvements/CoreBuildSweeps.sql</File>
     <File md5="128BC9301595615B962744763088CE11" import="0">Database Changes/WorldMap/Improvements/CoreImprovementChanges.sql</File>
     <File md5="7CFB824A55F1E9045A67E7A3B17A1931" import="0">Database Changes/WorldMap/Improvements/CoreImprovementSweeps.sql</File>
-    <File md5="A3DE105BB8711D2B3C72EFB41075B3CB" import="0">Database Changes/WorldMap/Improvements/ImprovementTableChanges.sql</File>
+    <File md5="B5134C0609F48612FD11570F5A3F9B52" import="0">Database Changes/WorldMap/Improvements/ImprovementTableChanges.sql</File>
     <File md5="1E511F6FBDD1A275D2C8C2DC8194F478" import="0">Database Changes/WorldMap/Improvements/NewImprovementTables.xml</File>
     <File md5="B38F172361698A5566FA6AFE59787581" import="0">Database Changes/WorldMap/Plots/CoreNewPlots.xml</File>
     <File md5="5E2E4E850E0C65EA02833306DC1CE902" import="0">Database Changes/WorldMap/Plots/NewPlotTables.xml</File>

@@ -2,7 +2,7 @@
 <Mod id="3645dbca-bdfb-4d86-bdc5-46cb5a426cc2" version="1">
   <Properties>
     <Name>(4a) Squads for VP</Name>
-    <Teaser>(4.20.2) RTS Style Control Groups and Group Movement</Teaser>
+    <Teaser>(4.21) RTS Style Control Groups and Group Movement</Teaser>
     <Description>QoL mod for organizing and moving groups of units at once.
 Squads is used in two modes: [COLOR_GREEN]Management Mode[ENDCOLOR] and [COLOR_GREEN]Movement Mode[ENDCOLOR].[NEWLINE][NEWLINE]
 In [COLOR_GREEN]Management Mode[ENDCOLOR], units can be added or removed with [COLOR_YELLOW]LCLICK[ENDCOLOR] on the unit or their flag. Groups of units can be added to a squad at once by holding [COLOR_YELLOW]RCLICK[ENDCOLOR] and dragging a box over units to be added. [COLOR_GREEN]Management Mode[ENDCOLOR] can be entered for a squad by pressing the [COLOR_BLUE]Manage Squad[ENDCOLOR] button on the UI with that squad selected, or using the key combination [COLOR_YELLOW]CTRL+NUM[ENDCOLOR] where num is the squad number key.[NEWLINE][NEWLINE]
@@ -22,7 +22,7 @@ The Squads UI allows renaming of squads, removing all units from a squad, removi
     <ReloadUnitSystem>0</ReloadUnitSystem>
   </Properties>
   <Dependencies>
-    <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" minversion="142" maxversion="999" title="(1) Community Patch" />
+    <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" minversion="143" maxversion="999" title="(1) Community Patch" />
   </Dependencies>
   <References>
     <Mod id="8411a7a8-dad3-4622-a18e-fcc18324c799" minversion="17" maxversion="999" title="(2) Vox Populi" />
@@ -39,7 +39,7 @@ The Squads UI allows renaming of squads, removing all units from a squad, removi
     <File md5="E1EFB9E9E3D425990BAE95857AD9D126" import="1">ThirdParty/TableSaverLoader.lua</File>
     <File md5="389A8F7C27BE23A8362EDC3442CF5630" import="1">UI/SquadNames.lua</File>
     <File md5="CBFE72974FAAD66CDCEDFC316816DC8A" import="1">UI/Squads.lua</File>
-    <File md5="E46C74A3D50CBF157B19831748A7721C" import="0">UI/Squads.xml</File>
+    <File md5="6057F0CEA5D11CA1679AC227B6D1C2BC" import="0">UI/Squads.xml</File>
     <File md5="A6214F945C41D20D4C2833612D6B07D8" import="1">UI/SquadsOptions.lua</File>
     <File md5="F35065EBD8F9C48BA4F9F9A9F0D7F6A4" import="1">UI/SquadsUtil.lua</File>
     <File md5="EB35397F372B6055CAAEFFE4D2F63EF1" import="0">XML/Squads_EN_US.xml</File>
