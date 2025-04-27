@@ -1497,6 +1497,14 @@ public:
 	int getBorderCombatStrengthModifier() const;
 	void changeBorderCombatStrengthModifier(int iChange);
 
+	int getCombatStrengthModifierPerMarriage() const;
+	void changeCombatStrengthModifierPerMarriage(int iChange);
+
+	int getCombatStrengthModifierPerMarriageCap() const;
+	void changeCombatStrengthModifierPerMarriageCap(int iChange);
+
+	int getCSMarriageStrength() const;
+
 	int getPillageChange() const;
 	void changePillageChange(int iChange);
 
@@ -2289,6 +2297,8 @@ protected:
 	int m_iFriendlyLandsAttackModifier;
 	int m_iOutsideFriendlyLandsModifier;
 	int m_iBorderCombatModifier;
+	int m_iCombatStrengthModifierPerMarriage;
+	int m_iCombatStrengthModifierPerMarriageCap;
 	int m_iHealIfDefeatExcludeBarbariansCount;
 	int m_iNumInterceptions;
 #if defined(MOD_BALANCE_CORE)
@@ -2717,6 +2727,8 @@ SYNC_ARCHIVE_VAR(int, m_iMaxHitPointsChange)
 SYNC_ARCHIVE_VAR(int, m_iMaxHitPointsModifier)
 SYNC_ARCHIVE_VAR(int, m_iFriendlyLandsModifier)
 SYNC_ARCHIVE_VAR(int, m_iBorderCombatModifier)
+SYNC_ARCHIVE_VAR(int, m_iCombatStrengthModifierPerMarriage)
+SYNC_ARCHIVE_VAR(int, m_iCombatStrengthModifierPerMarriageCap)
 SYNC_ARCHIVE_VAR(int, m_iFriendlyLandsAttackModifier)
 SYNC_ARCHIVE_VAR(int, m_iOutsideFriendlyLandsModifier)
 SYNC_ARCHIVE_VAR(int, m_iHealIfDefeatExcludeBarbariansCount)

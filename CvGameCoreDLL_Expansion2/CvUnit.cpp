@@ -309,6 +309,8 @@ CvUnit::CvUnit() :
 	, m_iFriendlyLandsAttackModifier()
 	, m_iOutsideFriendlyLandsModifier()
 	, m_iBorderCombatModifier()
+	, m_iCombatStrengthModifierPerMarriage()
+	, m_iCombatStrengthModifierPerMarriageCap()
 	, m_iNumInterceptions()
 	, m_iMadeInterceptionCount()
 	, m_iEverSelectedCount()
@@ -16157,6 +16159,9 @@ int CvUnit::GetGenericMeleeStrengthModifier(const CvUnit* pOtherUnit, const CvPl
 	if(kPlayer.isGoldenAge())
 		iModifier += kPlayer.GetPlayerTraits()->GetGoldenAgeCombatModifier();
 
+	// Bonus from city-state marriages not at war
+	iModifier += getCSMarriageStrength();
+
 	// Anti-Warmonger Fervor
 	if (pOtherUnit != NULL)
 		iModifier += GetResistancePower(pOtherUnit);
@@ -17197,6 +17202,9 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 	{
 		iModifier += getBorderCombatStrengthModifier();
 	}
+
+	// Bonus from city-state marriages not at war
+	iModifier += getCSMarriageStrength();
 
 	// Fighting near capital
 	if (GetCapitalDefenseModifier() > 0 || GetCapitalDefenseFalloff() > 0)
@@ -24552,6 +24560,51 @@ void CvUnit::changeBorderCombatStrengthModifier(int iChange)
 }
 
 //	--------------------------------------------------------------------------------
+int CvUnit::getCombatStrengthModifierPerMarriage() const
+{
+	VALIDATE_OBJECT();
+	return m_iCombatStrengthModifierPerMarriage;
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::changeCombatStrengthModifierPerMarriage(int iChange)
+{
+	VALIDATE_OBJECT();
+	if (iChange != 0)
+	{
+		m_iCombatStrengthModifierPerMarriage += iChange;
+	}
+}
+
+//	--------------------------------------------------------------------------------
+int CvUnit::getCombatStrengthModifierPerMarriageCap() const
+{
+	VALIDATE_OBJECT();
+	return m_iCombatStrengthModifierPerMarriageCap;
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::changeCombatStrengthModifierPerMarriageCap(int iChange)
+{
+	VALIDATE_OBJECT();
+	if (iChange != 0)
+	{
+		m_iCombatStrengthModifierPerMarriageCap += iChange;
+	}
+}
+
+//	--------------------------------------------------------------------------------
+// Returns the current combat strength from marriages to city states not at war for this unit
+int CvUnit::getCSMarriageStrength() const
+{
+	VALIDATE_OBJECT();
+	return std::min(
+		getCombatStrengthModifierPerMarriage() * GET_PLAYER(getOwner()).GetNumMarriedCityStatesNotAtWar(),
+		getCombatStrengthModifierPerMarriageCap()
+	);
+}
+
+//	--------------------------------------------------------------------------------
 int CvUnit::getPillageChange() const
 {
 	VALIDATE_OBJECT();
@@ -27234,6 +27287,8 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		changeFriendlyLandsAttackModifier(thisPromotion.GetFriendlyLandsAttackModifier() * iChange);
 		changeOutsideFriendlyLandsModifier(thisPromotion.GetOutsideFriendlyLandsModifier() * iChange);
 		changeBorderCombatStrengthModifier(thisPromotion.GetBorderMod() * iChange);
+		changeCombatStrengthModifierPerMarriage(thisPromotion.GetMarriageMod()* iChange);
+		changeCombatStrengthModifierPerMarriageCap(thisPromotion.GetMarriageModCap()* iChange);
 		changeUpgradeDiscount(thisPromotion.GetUpgradeDiscount() * iChange);
 		changeExperiencePercent(thisPromotion.GetExperiencePercent() * iChange);
 		changeCargoSpace(thisPromotion.GetCargoChange() * iChange);
@@ -27844,6 +27899,8 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_iFriendlyLandsAttackModifier);
 	visitor(unit.m_iOutsideFriendlyLandsModifier);
 	visitor(unit.m_iBorderCombatModifier);
+	visitor(unit.m_iCombatStrengthModifierPerMarriage);
+	visitor(unit.m_iCombatStrengthModifierPerMarriageCap);
 	visitor(unit.m_iHealIfDefeatExcludeBarbariansCount);
 	visitor(unit.m_iNumInterceptions);
 	visitor(unit.m_iExtraAirInterceptRange);

@@ -570,6 +570,9 @@
 		<Row Tag="TXT_KEY_EUPANEL_BONUS_BORDER">
 			<Text>Bonus on Borders</Text>
 		</Row>
+		<Row Tag="TXT_KEY_EUPANEL_BONUS_MARRIAGES">
+			<Text>Bonus from Marriages</Text>
+		</Row>
 		<Row Tag="TXT_KEY_EUPANEL_MONOPOLY_POWER_ATTACK">
 			<Text>Resource Monopoly</Text>
 		</Row>
