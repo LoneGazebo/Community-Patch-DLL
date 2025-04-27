@@ -483,6 +483,9 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 
 	Method(GetExtraCombatPercent);
 	Method(GetBorderCombatStrengthModifier);
+	Method(GetCombatStrengthModifierPerMarriage);
+	Method(GetCombatStrengthModifierPerMarriageCap);
+	Method(GetCSMarriageStrength);
 	Method(GetFriendlyLandsModifier);
 	Method(GetFriendlyLandsAttackModifier);
 	Method(GetOutsideFriendlyLandsModifier);
@@ -5239,6 +5242,24 @@ int CvLuaUnit::lGetExtraCombatPercent(lua_State* L)
 int CvLuaUnit::lGetBorderCombatStrengthModifier(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvUnit::getBorderCombatStrengthModifier);
+}
+//------------------------------------------------------------------------------
+//int GetCombatStrengthModifierPerMarriage();
+int CvLuaUnit::lGetCombatStrengthModifierPerMarriage(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvUnit::getCombatStrengthModifierPerMarriage);
+}
+//------------------------------------------------------------------------------
+//int GetCombatStrengthModifierPerMarriageCap();
+int CvLuaUnit::lGetCombatStrengthModifierPerMarriageCap(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvUnit::getCombatStrengthModifierPerMarriageCap);
+}
+//------------------------------------------------------------------------------
+//int GetCSMarriageStrength();
+int CvLuaUnit::lGetCSMarriageStrength(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvUnit::getCSMarriageStrength);
 }
 //------------------------------------------------------------------------------
 //int GetFriendlyLandsModifier();
