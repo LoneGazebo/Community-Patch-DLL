@@ -1673,40 +1673,8 @@ void CvMilitaryAI::UpdateBaseData()
 ///	How many military units should we have given current threats?
 void CvMilitaryAI::SetRecommendedArmyNavySize()
 {
-	int iNumUnitsWantedDefense = /*3*/ GD_INT_GET(AI_STRATEGY_DEFEND_MY_LANDS_BASE_UNITS);
-	int	iMinNumUnits = /*3*/ GD_INT_GET(BALANCE_ARMY_NAVY_START_SIZE); //for each category
-
-	//now check how many units we want for defense
-	//these are only land units!
-	//offensive units and navy are checked later
-	int iFlavorDefense = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DEFENSE"));
-	int iModifier = 100 + iFlavorDefense*2;
-
-	// 1 Unit per City & 1 per Settler
-	iNumUnitsWantedDefense += (int)(m_pPlayer->getNumCities() * /*1.0f*/ GD_FLOAT_GET(AI_STRATEGY_DEFEND_MY_LANDS_UNITS_PER_CITY));
-	iNumUnitsWantedDefense += m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_SETTLE, true);
-
-	// tall players have few cities but many wonders
-	iNumUnitsWantedDefense += min(5, (m_pPlayer->GetNumWonders() / 3));
-
-	int iNumCoastalCities = 0;
-	int iLoop = 0;
-	for(CvCity* pCity = m_pPlayer->firstCity(&iLoop); pCity != NULL; pCity = m_pPlayer->nextCity(&iLoop))
-	{
-		//need this later
-		if (pCity->isCoastal())
-			iNumCoastalCities++;
-
-		//additional units if the enemy is likely to attack here
-		if (m_pPlayer->GetMilitaryAI()->IsExposedToEnemy(pCity,NO_PLAYER))
-			iNumUnitsWantedDefense++;
-	}
-
-	// put it together
-	m_iRecDefensiveLandUnits = max(iMinNumUnits,(iNumUnitsWantedDefense*iModifier)/100);
-
 	// how many units can we afford?
-	int iMaxOffensiveUnitsPossible = max(0, m_pPlayer->GetNumUnitsSupplied() - m_iRecDefensiveLandUnits);
+	int iMaxPossibleUnits = max(0, m_pPlayer->GetNumUnitsSupplied() + m_pPlayer->getNumUnitsSupplyFree());
 
 	// offense is simple for minors
 	if (m_pPlayer->isMinorCiv())
@@ -1715,48 +1683,99 @@ void CvMilitaryAI::SetRecommendedArmyNavySize()
 		m_iRecOffensiveNavalUnits = 0;
 		if (m_pPlayer->getCapitalCity() && m_pPlayer->getCapitalCity()->isCoastal())
 			m_iRecOffensiveNavalUnits = 2;
+		m_iRecDefensiveLandUnits = iMaxPossibleUnits - m_iRecOffensiveNavalUnits;
 		return;
 	}
 
-	int iFlavorOffense = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE"));
-	// this is the total number for offense, we split between land and sea later
-	// in practice some defensive land units can be used as offensive land units as well ...
-	int iNumUnitsWantedOffense = m_pPlayer->GetCurrentEra() + m_pPlayer->GetDiplomacyAI()->GetBoldness()/2 + iFlavorOffense/2;
+	int iNumCoastalCities = m_pPlayer->GetNumEffectiveCoastalCities();
+
+	int iLandDefenseWeight = /*3*/ GD_INT_GET(AI_STRATEGY_DEFEND_MY_LANDS_BASE_UNITS) * 10;
+	int iNavalDefenseWeight = 0;
+
+	// 1 Unit per City & 1 per Settler
+	iLandDefenseWeight += (int)(m_pPlayer->getNumCities() * 10 * /*1.0f*/ GD_FLOAT_GET(AI_STRATEGY_DEFEND_MY_LANDS_UNITS_PER_CITY));
+	iLandDefenseWeight += m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_SETTLE, true) * 10;
+
+	iNavalDefenseWeight += (int)(iNumCoastalCities * 7 * /*1.0f*/ GD_FLOAT_GET(AI_STRATEGY_DEFEND_MY_LANDS_UNITS_PER_CITY));
+
+	int iLoop = 0;
+	for(CvCity* pCity = m_pPlayer->firstCity(&iLoop); pCity != NULL; pCity = m_pPlayer->nextCity(&iLoop))
+	{
+		//additional units if the enemy is likely to attack here
+		if (m_pPlayer->GetMilitaryAI()->IsExposedToEnemy(pCity, NO_PLAYER, ARMY_TYPE_COMBINED))
+		{
+			iLandDefenseWeight += 10;
+			iNavalDefenseWeight += 10;
+		}
+		else
+		{
+			if (m_pPlayer->GetMilitaryAI()->IsExposedToEnemy(pCity, NO_PLAYER, ARMY_TYPE_LAND))
+				iLandDefenseWeight += 10;
+			if (m_pPlayer->GetMilitaryAI()->IsExposedToEnemy(pCity, NO_PLAYER, ARMY_TYPE_NAVAL))
+				iNavalDefenseWeight += 10;
+		}
+	}
+
+	int iTotalOffenseWeight = 0;
 
 	//Look at our competitors ...
-	if (m_pPlayer->isMajorCiv())
+	for (int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
 	{
-		for (int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
+		PlayerTypes eOtherPlayer = (PlayerTypes) iMajorLoop;
+		if (eOtherPlayer != m_pPlayer->GetID())
 		{
-			PlayerTypes eOtherPlayer = (PlayerTypes) iMajorLoop;
-			if (eOtherPlayer != m_pPlayer->GetID())
-			{
-				//one army per target
-				if (GetPlayer()->GetMilitaryAI()->HavePreferredAttackTarget(eOtherPlayer))
-					iNumUnitsWantedOffense += /*6*/ GD_INT_GET(BALANCE_BASIC_ATTACK_ARMY_SIZE);
-			}
+			//one army per target
+			if (GetPlayer()->GetMilitaryAI()->HavePreferredAttackTarget(eOtherPlayer))
+				iTotalOffenseWeight += /*6*/ GD_INT_GET(BALANCE_BASIC_ATTACK_ARMY_SIZE) * 10;
 		}
 	}
 
 	// if we are going for conquest we want at least one more task force, more in later eras
 	if (m_pPlayer->isMajorCiv() && m_pPlayer->GetDiplomacyAI()->IsGoingForWorldConquest())
-		iNumUnitsWantedOffense += /*6*/ GD_INT_GET(BALANCE_BASIC_ATTACK_ARMY_SIZE);
+		iTotalOffenseWeight += /*6*/ GD_INT_GET(BALANCE_BASIC_ATTACK_ARMY_SIZE) * 10;
 
 	// now how many should be naval units?
-	int iCoastalPercent = (iNumCoastalCities * 100) / max(1,m_pPlayer->getNumCities());
+	// int iCoastalPercent = (iNumCoastalCities * 100) / max(1, m_pPlayer->getNumCities());
 	int iFlavorNaval = m_pPlayer->GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_NAVAL"));
-	int iNavalPercent = range(iFlavorNaval*5,10,50) + iCoastalPercent/3;
+	int iNavalPercent = (iNumCoastalCities * iFlavorNaval * 7) / max(1, m_pPlayer->getNumCities());
 
-	//you don't always get what you want ...
-	iNumUnitsWantedOffense = min(iNumUnitsWantedOffense, iMaxOffensiveUnitsPossible);
+	// Modifiers
+	int iFlavorDefense = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DEFENSE"));
+	int iDefenseModifier = 100 + iFlavorDefense * 2;
 
-	if (iNumCoastalCities > 0)
-		m_iRecOffensiveNavalUnits = max(iMinNumUnits, (iNavalPercent*iMaxOffensiveUnitsPossible) / 100);
-	else
-		m_iRecOffensiveNavalUnits = 0;
+	int iFlavorOffense = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE"));
+	int iOffenseModifier = 100 + m_pPlayer->GetDiplomacyAI()->GetBoldness() + iFlavorOffense;
 
-	//the remainder is our offensive land army
-	m_iRecOffensiveLandUnits = max(iMinNumUnits, iMaxOffensiveUnitsPossible - m_iRecOffensiveNavalUnits);
+	iLandDefenseWeight = iLandDefenseWeight * iDefenseModifier / 100;
+	iNavalDefenseWeight = iNavalDefenseWeight * iDefenseModifier / 100;
+	iTotalOffenseWeight = iTotalOffenseWeight * iOffenseModifier / 100;
+
+	int iTotalWeight = iTotalOffenseWeight + iLandDefenseWeight + iNavalDefenseWeight;
+
+	iMaxPossibleUnits -= m_pPlayer->GetEconomicAI()->GetExplorersNeeded();
+
+	// We don't want to max out our supply cap
+	//if (iMaxPossibleUnits * 10 > iTotalWeight)
+	//	iMaxPossibleUnits = iTotalWeight / 10;
+	
+	m_iRecDefensiveLandUnits = static_cast<int>((iMaxPossibleUnits * iLandDefenseWeight / static_cast<double>(iTotalWeight)) + 0.5f);
+	m_iRecOffensiveNavalUnits = static_cast<int>((iMaxPossibleUnits * iNavalDefenseWeight / static_cast<double>(iTotalWeight)) + 0.5f);
+	m_iRecOffensiveLandUnits = static_cast<int>((iMaxPossibleUnits * iTotalOffenseWeight * (100 - iNavalPercent) / static_cast<double>(iTotalWeight * 100)) + 0.5f);
+	m_iRecOffensiveNavalUnits += static_cast<int>((iMaxPossibleUnits * iTotalOffenseWeight * iNavalPercent / static_cast<double>(iTotalWeight * 100)) + 0.5f);
+
+	// Adjust if sum exceeds iMaxPossibleUnits
+	int iTotalAssignedUnits = m_iRecDefensiveLandUnits + m_iRecOffensiveLandUnits + m_iRecOffensiveNavalUnits;
+	if (iTotalAssignedUnits > iMaxPossibleUnits)
+	{
+		int iExcess = iTotalAssignedUnits - iMaxPossibleUnits;
+
+		if (m_iRecOffensiveNavalUnits >= iExcess)
+			m_iRecOffensiveNavalUnits -= iExcess;
+		else if (m_iRecOffensiveLandUnits >= iExcess)
+			m_iRecOffensiveLandUnits -= iExcess;
+		else
+			m_iRecDefensiveLandUnits -= iExcess;
+	}
 }
 
 

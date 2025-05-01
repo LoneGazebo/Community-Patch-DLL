@@ -1251,7 +1251,7 @@ function GetMapScriptInfo()
 					"TXT_KEY_MAP_CONTINENTS_EVERYWHERE",
 				},
 				DefaultValue = 2,
-				SortPriority = 1,
+				SortPriority = -99, -- use negative values so they don't interfere with those of the standard map options
 			},
 			{
 				Name = "TXT_KEY_MAP_OCEAN_SHAPES",
@@ -1266,7 +1266,7 @@ function GetMapScriptInfo()
 					"TXT_KEY_MAP_RANDOM",
 				},
 				DefaultValue = 2,
-				SortPriority = 2,
+				SortPriority = -98,
 			},
 			{
 				Name = "TXT_KEY_MAP_RIFT_WIDTH",
@@ -1278,7 +1278,7 @@ function GetMapScriptInfo()
 					"TXT_KEY_MAP_RANDOM",
 				},
 				DefaultValue = 2,
-				SortPriority = 3,
+				SortPriority = -97,
 			},
 			{
 				Name = "TXT_KEY_MAP_CIRCUMNAVIGATION",
@@ -1288,7 +1288,7 @@ function GetMapScriptInfo()
 					"TXT_KEY_MAP_OFF",
 				},
 				DefaultValue = 2,
-				SortPriority = 4,
+				SortPriority = -96,
 			},
 			{
 				Name = "TXT_KEY_MAP_FORCE_COASTAL_START",
@@ -1299,7 +1299,7 @@ function GetMapScriptInfo()
 					"TXT_KEY_MAP_RANDOM",
 				},
 				DefaultValue = 2,
-				SortPriority = 5,
+				SortPriority = -95,
 			},
 			{
 				Name = "TXT_KEY_MAP_LAND_SHAPES",
@@ -1312,7 +1312,7 @@ function GetMapScriptInfo()
 					"TXT_KEY_MAP_RANDOM",
 				},
 				DefaultValue = 2,
-				SortPriority = 6,
+				SortPriority = -94,
 			},
 			{
 				Name = "TXT_KEY_MAP_STARTING_RESOURCES",
@@ -1324,7 +1324,7 @@ function GetMapScriptInfo()
 					"TXT_KEY_MAP_ADD_SOME_EXTRA_BONUS",
 				},
 				DefaultValue = 2,
-				SortPriority = 7,
+				SortPriority = -93,
 			},
 			{
 				Name = "TXT_KEY_MAP_STRATEGIC_DEPOSIT_SIZE",
@@ -1336,7 +1336,7 @@ function GetMapScriptInfo()
 					"TXT_KEY_MAP_RANDOM",
 				},
 				DefaultValue = 2,
-				SortPriority = 8,
+				SortPriority = -92,
 			},
 			{
 				Name = "TXT_KEY_MAP_BONUS_RESOURCE_DENSITY",
@@ -1348,7 +1348,7 @@ function GetMapScriptInfo()
 					"TXT_KEY_MAP_RANDOM",
 				},
 				DefaultValue = 2,
-				SortPriority = 9,
+				SortPriority = -91,
 			},
 			{
 				Name = "TXT_KEY_MAP_STRATEGIC_RESOURCE_DENSITY",
@@ -1360,7 +1360,7 @@ function GetMapScriptInfo()
 					"TXT_KEY_MAP_RANDOM",
 				},
 				DefaultValue = 2,
-				SortPriority = 10,
+				SortPriority = -90,
 			},
 			{
 				Name = "TXT_KEY_MAP_LUXURY_RESOURCE_DENSITY",
@@ -1372,7 +1372,7 @@ function GetMapScriptInfo()
 					"TXT_KEY_MAP_RANDOM",
 				},
 				DefaultValue = 2,
-				SortPriority = 11,
+				SortPriority = -89,
 			},
 			{
 				Name = "TXT_KEY_MAP_OVERRIDE_ASSIGN_STARTING_PLOTS",
@@ -1382,7 +1382,7 @@ function GetMapScriptInfo()
 					"TXT_KEY_MAP_YES",
 				},
 				DefaultValue = 2,
-				SortPriority = 12,
+				SortPriority = -88,
 			},
 		},
 	};

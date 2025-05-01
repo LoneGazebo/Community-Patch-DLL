@@ -885,6 +885,26 @@ bool CvPlot::isAdjacent(const CvPlot* pPlot) const
 }
 
 //	--------------------------------------------------------------------------------
+//! A tile is considered to be on an international border if it is adjacent to at
+//!  least one other tile with a different owner
+bool CvPlot::isInternationalBorder() const
+{
+	CvPlot** aNeighbors = GC.getMap().getNeighborsUnchecked(m_iPlotIndex);
+	for (int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+	{
+		if (aNeighbors[iI] != NULL)
+		{
+			if (getOwner() != aNeighbors[iI]->getOwner())
+			{
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
+//	--------------------------------------------------------------------------------
 bool CvPlot::isDeepWater() const
 {
 	if(isWater())
@@ -2571,6 +2591,14 @@ bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlay
 		}
 		// Some improvements can ignore resource requirements, but otherwise not satisfying the requirements is an automatic fail
 		else if (!pkImprovementInfo->IsBuildableOnResources())
+		{
+			return false;
+		}
+	}
+	else
+	{
+		// If the improvement requires a resource, and there is none here, then it's an automatic fail
+		if (pkImprovementInfo->IsRequiresResource())
 		{
 			return false;
 		}
@@ -6578,7 +6606,7 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 					{
 						ChangeUnitPlotGAExperience(-1 * pImprovementInfo->GetGAUnitPlotExperience());
 					}
-					if (pImprovementInfo->GetMovesChange() > 0)
+					if (pImprovementInfo->GetMovesChange() != 0)
 					{
 						ChangePlotMovesChange(-1 * pImprovementInfo->GetMovesChange());
 					}
@@ -6746,7 +6774,7 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 					{
 						ChangeUnitPlotGAExperience(pImprovementInfo->GetGAUnitPlotExperience());
 					}
-					if (pImprovementInfo->GetMovesChange() > 0)
+					if (pImprovementInfo->GetMovesChange() != 0)
 					{
 						ChangePlotMovesChange(pImprovementInfo->GetMovesChange());
 					}
@@ -8109,7 +8137,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				{
 					ChangeUnitPlotGAExperience(-1 * oldImprovementEntry.GetGAUnitPlotExperience());
 				}
-				if (oldImprovementEntry.GetMovesChange() > 0)
+				if (oldImprovementEntry.GetMovesChange() != 0)
 				{
 					ChangePlotMovesChange(-1 * oldImprovementEntry.GetMovesChange());
 				}
@@ -8474,6 +8502,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 							{
 								iBestCityID = pLoopCity->GetID();
 								iBestCityDistance = iDistance;
+								pOwningCity = pLoopCity;
 							}
 						}
 					}
@@ -8543,7 +8572,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				{
 					ChangeUnitPlotGAExperience(newImprovementEntry.GetGAUnitPlotExperience());
 				}
-				if (newImprovementEntry.GetMovesChange() > 0)
+				if (newImprovementEntry.GetMovesChange() != 0)
 				{
 					ChangePlotMovesChange(newImprovementEntry.GetMovesChange());
 				}
@@ -11411,7 +11440,7 @@ PlotVisibilityChangeResult CvPlot::changeVisibilityCount(TeamTypes eTeam, int iC
 		// Update tactical AI, let it know that the tile was made visible
 		if (!bOldMaxVisibility)
 		{
-			PlayerTypes eCurrentPlayer = GetCurrentPlayer();
+			PlayerTypes eCurrentPlayer = GC.getGame().GetCurrentVisibilityPlayer();
 			if (eCurrentPlayer != NO_PLAYER && GET_PLAYER(eCurrentPlayer).getTeam() == eTeam)
 				GET_PLAYER(eCurrentPlayer).GetTacticalAI()->UpdateVisibilityFromUnits(this);
 		}
@@ -11734,10 +11763,21 @@ void CvPlot::SetPlannedRouteState(PlayerTypes ePlayer, RoutePlanTypes eRoutePlan
 
 //	--------------------------------------------------------------------------------
 /// Current player's knowledge of other players' visibility count
+/// If the current player team is the same as eTeam, return the actual visibility count
 int CvPlot::GetKnownVisibilityCount(TeamTypes eTeam) const
 {
 	ASSERT_DEBUG(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
 	ASSERT_DEBUG(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
+
+	PlayerTypes eCurrentPlayer = GC.getGame().GetCurrentVisibilityPlayer();
+	if (eCurrentPlayer != NO_PLAYER)
+	{
+		if (GET_PLAYER(eCurrentPlayer).getTeam() == eTeam)
+		{
+			return getVisibilityCount(eTeam);
+		}
+	}
+
 	return m_aiKnownVisibilityCount[eTeam];
 }
 
@@ -11745,7 +11785,7 @@ int CvPlot::GetKnownVisibilityCount(TeamTypes eTeam) const
 /// Is this plot visible to eTeam according to current player knowledge
 bool CvPlot::IsKnownVisibleToTeam(TeamTypes eTeam) const
 {
-	return m_aiKnownVisibilityCount[eTeam] > 0;
+	return GetKnownVisibilityCount(eTeam) > 0;
 }
 
 //	--------------------------------------------------------------------------------
@@ -11833,6 +11873,11 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, CvUnit* pUnit, bool bT
 		{
 			area()->changeNumRevealedTiles(eTeam, (bNewValue ? 1 : -1));
 		}
+
+		// Update tactical AI, let it know that the tile was revealed
+		PlayerTypes eCurrentPlayer = GC.getGame().GetCurrentVisibilityPlayer();
+		if (eCurrentPlayer != NO_PLAYER)
+			GET_PLAYER(eCurrentPlayer).GetTacticalAI()->UpdateVisibilityFromBorders(this);
 
 		// Natural Wonder
 		if(eTeam != BARBARIAN_TEAM && bNewValue && !GET_TEAM(eTeam).isObserver())
@@ -12090,11 +12135,6 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, CvUnit* pUnit, bool bT
 						}
 					}
 				}
-
-				// Update tactical AI, let it know that the tile was revealed
-				PlayerTypes eCurrentPlayer = GC.getGame().getActivePlayer();
-				if (eCurrentPlayer != NO_PLAYER)
-					GET_PLAYER(eCurrentPlayer).GetTacticalAI()->UpdateVisibilityFromBorders(this);
 
 				if (bEligibleForAchievement)
 				{

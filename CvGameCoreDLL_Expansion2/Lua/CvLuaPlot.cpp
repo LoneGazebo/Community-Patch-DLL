@@ -122,6 +122,7 @@ void CvLuaPlot::PushMethods(lua_State* L, int t)
 	Method(IsRevealedGoody);
 
 	Method(IsFriendlyTerritory);
+	Method(IsInternationalBorder);
 
 	Method(IsCity);
 	Method(IsFriendlyCity);
@@ -966,6 +967,12 @@ int CvLuaPlot::lIsFriendlyTerritory(lua_State* L)
 	const bool bResult = pkPlot->IsFriendlyTerritory(ePlayer);
 	lua_pushboolean(L, bResult);
 	return 1;
+}
+//------------------------------------------------------------------------------
+//bool IsInternationalBorder();
+int CvLuaPlot::lIsInternationalBorder(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlot::isInternationalBorder);
 }
 
 //------------------------------------------------------------------------------

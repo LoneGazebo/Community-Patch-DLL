@@ -123,6 +123,7 @@ public:
 	bool IsRequiresFlatlandsOrFreshWater() const;
 	bool IsRequiresFeature() const;
 	bool IsRequiresImprovement() const;
+	bool IsRequiresResource() const;
 	bool IsRemovesResource() const;
 	bool IsPromptWhenComplete() const;
 	bool IsWater() const;
@@ -305,6 +306,7 @@ protected:
 	bool m_bRequiresFlatlandsOrFreshWater;
 	bool m_bRequiresFeature;
 	bool m_bRequiresImprovement;
+	bool m_bRequiresResource;
 	bool m_bRemovesResource;
 	bool m_bPromptWhenComplete;
 	bool m_bWater;

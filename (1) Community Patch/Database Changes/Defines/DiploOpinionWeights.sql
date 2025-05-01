@@ -66,21 +66,25 @@ VALUES
 	('OPINION_WEIGHT_POLICY_WEAK', 10),
 	('OPINION_WEIGHT_POLICY_NONE', -5), -- increases based on Neediness flavor
 
--- NOTE: This modifier scales based on the AI's VictoryCompetitiveness flavor and the player's difficulty level.
 -- They fear/suspect you are competing with them. / They know you are competing with them, and they hate it!
+-- This modifier is applied if the AI is upset about your competition with them over the same victory condition as the one they're pursuing. It doesn't apply if Victory Block is higher.
+-- If AI is not competing for victory, the modifier is not applied.
+-- NOTE: This modifier scales based on the AI's VictoryCompetitiveness flavor and the player's difficulty level.
 	('OPINION_WEIGHT_VICTORY_FIERCE', 40),
 	('OPINION_WEIGHT_VICTORY_STRONG', 30),
 	('OPINION_WEIGHT_VICTORY_WEAK', 20),
-	('OPINION_WEIGHT_VICTORY_NONE', 0),
-	('OPINION_WEIGHT_VICTORY_PER_ERA', 4), -- increase per era if > 0
+	('OPINION_WEIGHT_VICTORY_NONE', 0), -- this value is applied if both Victory Dispute AND Victory Block are at none AND the AI doesn't consider you a "major competitor"
+	('OPINION_WEIGHT_VICTORY_PER_ERA', 4), -- penalty per era if > 0
+	('OPINION_WEIGHT_VICTORY_NONE_PER_ERA', 0), -- bonus per era if < 0
 
--- NOTE: This modifier scales based on the AI's VictoryCompetitiveness flavor and the player's difficulty level.
 -- Your success worries/angers/infuriates them.
+-- This modifier is applied if the AI is upset about your competition with them over a different victory condition than the one they're pursuing. It doesn't apply if Victory Dispute is equal or higher.
+-- If AI is not competing for victory, the modifier is not applied.
+-- NOTE: This modifier scales based on the AI's VictoryCompetitiveness flavor and the player's difficulty level.
 	('OPINION_WEIGHT_VICTORY_BLOCK_FIERCE', 40),
 	('OPINION_WEIGHT_VICTORY_BLOCK_STRONG', 30),
 	('OPINION_WEIGHT_VICTORY_BLOCK_WEAK', 20),
-	('OPINION_WEIGHT_VICTORY_BLOCK_NONE', 0),
-	('OPINION_WEIGHT_VICTORY_BLOCK_PER_ERA', 4), -- increase per era if > 0
+	('OPINION_WEIGHT_VICTORY_BLOCK_PER_ERA', 4), -- penalty per era if > 0
 
 -- Reckless Expander: Too many cities/land without enough military to back it up
 -- AI only applies this if nearby, they're competing for victory, and you have more land/cities than they do

@@ -54,7 +54,7 @@
 			<Text>Hide Unmet Civs In Pregame</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GAMEOPTION_KEEP_UNMET_PLAYERS_UNKNOWN_HELP">
-			<Text>In Game Setup, do not show the leader/civ details of other human players on other teams (if they are not choosing Random Leader).[NEW_LINE]When loading a savegame, do not show the leader/civ details for players on other teams that you have not met in-game.[NEW_LINE]</Text>
+			<Text>In Game Setup, do not show the leader/civ details of other human players on other teams (if they are not choosing Random Leader).[NEWLINE]When loading a savegame, do not show the leader/civ details for players on other teams that you have not met in-game.</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

@@ -308,6 +308,7 @@ CvUnit::CvUnit() :
 	, m_iFriendlyLandsModifier()
 	, m_iFriendlyLandsAttackModifier()
 	, m_iOutsideFriendlyLandsModifier()
+	, m_iBorderCombatModifier()
 	, m_iNumInterceptions()
 	, m_iMadeInterceptionCount()
 	, m_iEverSelectedCount()
@@ -1184,14 +1185,10 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 	GreatPersonTypes eGreatPerson = GetGreatPersonFromUnitClass(getUnitClassType());
 	if (eGreatPerson != NO_GREATPERSON && bHistoric)
 	{
-		CvCity* pCity = plot()->getEffectiveOwningCity();
-		if (pCity != NULL && pCity->getOwner() == GetID())
+		CvCity* pCity = getOriginCity();
+		if (pCity != NULL)
 		{
 			GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_GP_BORN, false, eGreatPerson, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, pCity, false, true, false, NO_YIELD, this);
-		}
-		else if (GET_PLAYER(getOwner()).getCapitalCity() != NULL)
-		{
-			GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_GP_BORN, false, eGreatPerson, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, GET_PLAYER(getOwner()).getCapitalCity(), false, true, false, NO_YIELD, this);
 		}
 		GET_PLAYER(getOwner()).doInstantGWAM(eGreatPerson, getGreatName());
 	}
@@ -2913,7 +2910,7 @@ bool CvUnit::getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerT
 		return NULL;
 
 	CvPlayerAI& kCapturingPlayer = GET_PLAYER(kCaptureDef.eCapturingPlayer);
-	CvUnit* pkCapturedUnit = kCapturingPlayer.initUnit(kCaptureDef.eCaptureUnitType, kCaptureDef.iX, kCaptureDef.iY);
+	CvUnit* pkCapturedUnit = kCapturingPlayer.initUnit(kCaptureDef.eCaptureUnitType, kCaptureDef.iX, kCaptureDef.iY, NO_UNITAI, REASON_DEFAULT, false, true, 0, 0, NO_CONTRACT, false);
 
 	if (!pkCapturedUnit)
 		return NULL;
@@ -3919,7 +3916,7 @@ void CvUnit::DoLocationPromotions(bool bSpawn, CvPlot* pOldPlot, CvPlot* pNewPlo
 					// Not using maxMoves() here since it shouldn't be affected by linked status and plot move changes (added below)
 					setMoves(baseMoves(isEmbarked()) * GD_INT_GET(MOVE_DENOMINATOR));
 				}
-				if (pNewPlot->GetPlotMovesChange() > 0)
+				if (pNewPlot->GetPlotMovesChange() != 0)
 				{
 					setMoves(movesLeft() + (pNewPlot->GetPlotMovesChange() * GD_INT_GET(MOVE_DENOMINATOR)));
 				}
@@ -16181,6 +16178,13 @@ int CvUnit::GetGenericMeleeStrengthModifier(const CvUnit* pOtherUnit, const CvPl
 		else if (pBattlePlot->isRoughGround())
 			iModifier += getExtraRoughFromPercent();
 
+		// Bonus for fighting on an international border
+		if (getBorderCombatStrengthModifier() /* Don't check adjacent plots if there won't be a bonus anyway */
+			&& pBattlePlot->isInternationalBorder())
+		{
+			iModifier += getBorderCombatStrengthModifier();
+		}
+
 		// Bonuses for fighting in one's lands
 		if(pBattlePlot->IsFriendlyTerritory(getOwner()))
 		{
@@ -17184,6 +17188,13 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 	// Rough Ground
 	else if (pMyPlot->isRoughGround())
 		iModifier += getExtraRoughFromPercent();
+
+	// Bonus for ranged attacking from an international border
+	if (getBorderCombatStrengthModifier() /* Don't check adjacent plots if there won't be a bonus anyway */
+		&& pMyPlot->isInternationalBorder())
+	{
+		iModifier += getBorderCombatStrengthModifier();
+	}
 
 	// Fighting near capital
 	if (GetCapitalDefenseModifier() > 0 || GetCapitalDefenseFalloff() > 0)
@@ -24522,6 +24533,23 @@ void CvUnit::changeOutsideFriendlyLandsModifier(int iChange)
 }
 
 //	--------------------------------------------------------------------------------
+int CvUnit::getBorderCombatStrengthModifier() const
+{
+	VALIDATE_OBJECT();
+	return m_iBorderCombatModifier;
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::changeBorderCombatStrengthModifier(int iChange)
+{
+	VALIDATE_OBJECT();
+	if (iChange != 0)
+	{
+		m_iBorderCombatModifier += iChange;
+	}
+}
+
+//	--------------------------------------------------------------------------------
 int CvUnit::getPillageChange() const
 {
 	VALIDATE_OBJECT();
@@ -27203,6 +27231,7 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		changeFriendlyLandsModifier(thisPromotion.GetFriendlyLandsModifier() * iChange);
 		changeFriendlyLandsAttackModifier(thisPromotion.GetFriendlyLandsAttackModifier() * iChange);
 		changeOutsideFriendlyLandsModifier(thisPromotion.GetOutsideFriendlyLandsModifier() * iChange);
+		changeBorderCombatStrengthModifier(thisPromotion.GetBorderMod() * iChange);
 		changeUpgradeDiscount(thisPromotion.GetUpgradeDiscount() * iChange);
 		changeExperiencePercent(thisPromotion.GetExperiencePercent() * iChange);
 		changeCargoSpace(thisPromotion.GetCargoChange() * iChange);
@@ -27812,6 +27841,7 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_iFriendlyLandsModifier);
 	visitor(unit.m_iFriendlyLandsAttackModifier);
 	visitor(unit.m_iOutsideFriendlyLandsModifier);
+	visitor(unit.m_iBorderCombatModifier);
 	visitor(unit.m_iHealIfDefeatExcludeBarbariansCount);
 	visitor(unit.m_iNumInterceptions);
 	visitor(unit.m_iExtraAirInterceptRange);

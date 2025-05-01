@@ -691,7 +691,12 @@ void CvHomelandAI::PlotMovesToSafety()
 		if (pUnit->AI_getUnitAIType() == UNITAI_CITY_BOMBARD)
 		{
 			if (ExecuteMoveUnitAwayFromBorder(pUnit))
+			{
+				// don't call UnitProcessed here as it would invalidate the iterator
+				pUnit->setHomelandMove(m_CurrentMoveUnits.getCurrentHomelandMove());
+				pUnit->SetTurnProcessed(true);
 				continue;
+			}
 		}
 
 		//allow some danger from fog etc
@@ -721,6 +726,18 @@ void CvHomelandAI::PlotMovesToSafety()
 		m_CurrentMoveUnits.push_back(unit);
 	}
 
+	// update m_CurrentTurnUnits
+	list<int>::iterator it = m_CurrentTurnUnits.begin();
+	while (it != m_CurrentTurnUnits.end())
+	{
+		CvUnit* pUnit = m_pPlayer->getUnit(*it);
+		if (pUnit && pUnit->TurnProcessed())
+		{
+			it = m_CurrentTurnUnits.erase(it);
+			continue;
+		}
+		++it;
+	}
 	for (unsigned int iI = 0; iI < m_CurrentMoveUnits.size(); iI++)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[iI].GetID());
@@ -3468,7 +3485,10 @@ bool CvHomelandAI::ExecuteMoveUnitAwayFromBorder(CvUnit* pUnit)
 		}
 
 		if (pBestPlot)
-			return ExecuteMoveToTarget(pUnit, pBestPlot, 0, true);
+		{
+			// don't end the turn here, this function is called within a loop, it would invalidate the iterator
+			return ExecuteMoveToTarget(pUnit, pBestPlot, 0, false);
+		}
 	}
 
 	return false;

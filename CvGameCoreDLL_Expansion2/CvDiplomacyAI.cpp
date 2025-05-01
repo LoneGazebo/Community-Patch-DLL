@@ -13010,11 +13010,11 @@ void CvDiplomacyAI::DoUpdateLandDisputeLevels()
 			if (bBold)
 				iMultiplier += 50;
 
-			if (iEra == GD_INT_GET(ANCIENT_ERA))
+			if (iEra <= GD_INT_GET(ANCIENT_ERA))
 				iMultiplier += 100;
-			else if (iEra == GD_INT_GET(CLASSICAL_ERA))
+			else if (iEra <= GD_INT_GET(CLASSICAL_ERA))
 				iMultiplier += 50;
-			else if (iEra == GD_INT_GET(MEDIEVAL_ERA))
+			else if (iEra <= GD_INT_GET(MEDIEVAL_ERA))
 				iMultiplier += 25;
 
 			iContestedScore *= 100 + iMultiplier;
@@ -18864,7 +18864,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	if (iDangerScore > 0 && eClosestProximity >= PLAYER_PROXIMITY_CLOSE)
 	{
 		// Be extremely wary of early game conquerors
-		if (iGameEra == GD_INT_GET(ANCIENT_ERA))
+		if (iGameEra <= GD_INT_GET(ANCIENT_ERA))
 		{
 			vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * 3 * iDangerScore;
 			vApproachScores[CIV_APPROACH_GUARDED] += vApproachBias[CIV_APPROACH_GUARDED] * 3 * iDangerScore;
@@ -18882,7 +18882,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 				}
 			}
 		}
-		else if (iGameEra == GD_INT_GET(CLASSICAL_ERA))
+		else if (iGameEra <= GD_INT_GET(CLASSICAL_ERA))
 		{
 			vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * 2 * iDangerScore;
 			vApproachScores[CIV_APPROACH_GUARDED] += vApproachBias[CIV_APPROACH_GUARDED] * 2 * iDangerScore;
@@ -21502,7 +21502,7 @@ void CvDiplomacyAI::DoUpdateMajorCompetitors()
 			continue;
 		}
 
-		if (GET_PLAYER(ePlayer).GetFractionOriginalCapitalsUnderControl() >= iDangerThreshold)
+		if (GET_PLAYER(ePlayer).GetFractionOriginalCapitalsUnderControl() >= 33)
 		{
 			SetMajorCompetitor(ePlayer, true);
 			continue;
@@ -46005,25 +46005,28 @@ int CvDiplomacyAI::GetPolicyBlockLevelScore(PlayerTypes ePlayer)
 
 int CvDiplomacyAI::GetVictoryDisputeLevelScore(PlayerTypes ePlayer) const
 {
-	int iOpinionWeight = 0;
+	if (!IsCompetingForVictory())
+		return 0;
 
 	// Don't stack!
 	if ((int)GetVictoryBlockLevel(ePlayer) > (int)GetVictoryDisputeLevel(ePlayer))
 		return 0;
 
+	int iOpinionWeight = 0;
+
 	switch (GetVictoryDisputeLevel(ePlayer))
 	{
 	case DISPUTE_LEVEL_FIERCE:
-		iOpinionWeight += /*40*/ GD_INT_GET(OPINION_WEIGHT_VICTORY_FIERCE);
+		iOpinionWeight = /*40*/ GD_INT_GET(OPINION_WEIGHT_VICTORY_FIERCE);
 		break;
 	case DISPUTE_LEVEL_STRONG:
-		iOpinionWeight += /*30*/ GD_INT_GET(OPINION_WEIGHT_VICTORY_STRONG);
+		iOpinionWeight = /*30*/ GD_INT_GET(OPINION_WEIGHT_VICTORY_STRONG);
 		break;
 	case DISPUTE_LEVEL_WEAK:
-		iOpinionWeight += /*20*/ GD_INT_GET(OPINION_WEIGHT_VICTORY_WEAK);
+		iOpinionWeight = /*20*/ GD_INT_GET(OPINION_WEIGHT_VICTORY_WEAK);
 		break;
 	case DISPUTE_LEVEL_NONE:
-		iOpinionWeight = /*0*/ GD_INT_GET(OPINION_WEIGHT_VICTORY_NONE);
+		iOpinionWeight = IsMajorCompetitor(ePlayer) ? 0 : /*0*/ GD_INT_GET(OPINION_WEIGHT_VICTORY_NONE);
 		break;
 	}
 
@@ -46034,32 +46037,41 @@ int CvDiplomacyAI::GetVictoryDisputeLevelScore(PlayerTypes ePlayer) const
 		iOpinionWeight *= GET_PLAYER(ePlayer).isHuman() ? GET_PLAYER(ePlayer).getHandicapInfo().getVictoryDisputePercent() : GC.getGame().getHandicapInfo().getVictoryDisputePercent();
 		iOpinionWeight /= 500;
 	}
+	else if (!IsMajorCompetitor(ePlayer))
+	{
+		iOpinionWeight += GET_PLAYER(ePlayer).GetCurrentEra() * /*0*/ GD_INT_GET(OPINION_WEIGHT_VICTORY_NONE_PER_ERA);
+		iOpinionWeight *= GetVictoryCompetitiveness();
+		iOpinionWeight *= GET_PLAYER(ePlayer).isHuman() ? GET_PLAYER(ePlayer).getHandicapInfo().getVictoryDisputePercent() : GC.getGame().getHandicapInfo().getVictoryDisputePercent();
+		iOpinionWeight /= 500;
+	}
 
 	return iOpinionWeight;
 }
 
 int CvDiplomacyAI::GetVictoryBlockLevelScore(PlayerTypes ePlayer) const
 {
-	int iOpinionWeight = 0;
+	if (!IsCompetingForVictory())
+		return 0;
 
 	// Don't stack!
 	if ((int)GetVictoryDisputeLevel(ePlayer) >= (int)GetVictoryBlockLevel(ePlayer))
 		return 0;
 
+	int iOpinionWeight = 0;
+
 	switch (GetVictoryBlockLevel(ePlayer))
 	{
 	case BLOCK_LEVEL_FIERCE:
-		iOpinionWeight += /*40*/ GD_INT_GET(OPINION_WEIGHT_VICTORY_BLOCK_FIERCE);
+		iOpinionWeight = /*40*/ GD_INT_GET(OPINION_WEIGHT_VICTORY_BLOCK_FIERCE);
 		break;
 	case BLOCK_LEVEL_STRONG:
-		iOpinionWeight += /*30*/ GD_INT_GET(OPINION_WEIGHT_VICTORY_BLOCK_STRONG);
+		iOpinionWeight = /*30*/ GD_INT_GET(OPINION_WEIGHT_VICTORY_BLOCK_STRONG);
 		break;
 	case BLOCK_LEVEL_WEAK:
-		iOpinionWeight += /*20*/ GD_INT_GET(OPINION_WEIGHT_VICTORY_BLOCK_WEAK);
+		iOpinionWeight = /*20*/ GD_INT_GET(OPINION_WEIGHT_VICTORY_BLOCK_WEAK);
 		break;
 	case BLOCK_LEVEL_NONE:
-		iOpinionWeight = /*0*/ GD_INT_GET(OPINION_WEIGHT_VICTORY_BLOCK_NONE);
-		break;
+		UNREACHABLE();
 	}
 
 	if (iOpinionWeight > 0)

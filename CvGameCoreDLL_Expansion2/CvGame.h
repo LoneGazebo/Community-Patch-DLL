@@ -813,6 +813,9 @@ public:
 	TeamTypes GetPotentialFreeCityTeam(CvCity* pCity = NULL);
 	bool CreateFreeCityPlayer(CvCity* pStartingCity, bool bJustChecking, bool bMajorFoundingCityState);
 
+	void SetCurrentVisibilityPlayer(PlayerTypes ePlayer);
+	PlayerTypes GetCurrentVisibilityPlayer() const;
+
 	//------------------------------------------------------------
 	PlayerTypes GetAutoPlayReturnPlayer() const { return m_eAIAutoPlayReturnPlayer;	}
 	//------------------------------------------------------------
@@ -893,6 +896,7 @@ protected:
 	PlayerTypes m_eObserverUIOverridePlayer;
 	PlayerTypes m_eWaitDiploPlayer;
 	TechTypes m_eTechAstronomy;
+	PlayerTypes m_eCurrentVisibilityPlayer;
 
 	bool m_bFOW;
 
