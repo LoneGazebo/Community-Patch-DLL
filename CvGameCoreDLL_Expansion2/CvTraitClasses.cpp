@@ -361,6 +361,11 @@ int CvTraitEntry::GetLevelExperienceModifier() const
 	return m_iLevelExperienceModifier;
 }
 
+/// Accessor::The profit of others connecting your business route increases for you
+int CvTraitEntry::GetOthersTradeBonusModifier() const
+{
+	return m_iOthersTradeBonusModifier;
+}
 /// Accessor:: Great person generation rate change
 int CvTraitEntry::GetGreatPeopleRateModifier() const
 {
@@ -2355,6 +2360,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_iWonderProductionModifier				= kResults.GetInt("WonderProductionModifier");
 	m_iPlunderModifier						= kResults.GetInt("PlunderModifier");
 	m_iImprovementMaintenanceModifier       = kResults.GetInt("ImprovementMaintenanceModifier");
+	m_iOthersTradeBonusModifier             = kResults.GetInt("OthersTradeBonusModifier");
 	m_iGoldenAgeDurationModifier			= kResults.GetInt("GoldenAgeDurationModifier");
 	m_iGoldenAgeMoveChange				    = kResults.GetInt("GoldenAgeMoveChange");
 	m_iGoldenAgeCombatModifier				= kResults.GetInt("GoldenAgeCombatModifier");
@@ -4399,6 +4405,7 @@ void CvPlayerTraits::InitPlayerTraits()
 			m_iEnemyWarSawPactPromotion = trait->GetEnemyWarSawPactPromotion();
 			m_iCombatBonusVsHigherPop += trait->GetCombatBonusVsHigherPop();
 			m_iWarWearinessModifier += trait->GetWarWearinessModifier();
+			m_iOthersTradeBonusModifier = trait->GetOthersTradeBonusModifier();
 			m_iEnemyWarWearinessModifier += trait->GetEnemyWarWearinessModifier();
 			if(trait->IsBuyOwnedTiles())
 			{
@@ -5933,6 +5940,11 @@ int CvPlayerTraits::GetMaintenanceModifierUnitCombat(const int unitCombatID) con
 	return m_paiMaintenanceModifierUnitCombat[unitCombatID];
 }
 
+///The profit of others connecting your business route increases for you
+int CvPlayerTraits::GetOthersTradeBonusModifier() const
+{
+	return m_iOthersTradeBonusModifier;
+}
 /// Extra yield from this improvement
 int CvPlayerTraits::GetImprovementYieldChange(ImprovementTypes eImprovement, YieldTypes eYield) const
 {
@@ -7551,6 +7563,7 @@ void CvPlayerTraits::Serialize(PlayerTraits& playerTraits, Visitor& visitor)
 	visitor(playerTraits.m_bFreeUpgrade);
 	visitor(playerTraits.m_bWarsawPact);
 	visitor(playerTraits.m_iEnemyWarSawPactPromotion);
+	visitor(playerTraits.m_iOthersTradeBonusModifier);
 	visitor(playerTraits.m_bFreeZuluPikemanToImpi);
 	visitor(playerTraits.m_bPermanentYieldsDecreaseEveryEra);
 	visitor(playerTraits.m_bImportsCountTowardsMonopolies);

@@ -342,6 +342,7 @@ public:
 	int GetStrategicResourceQuantityModifier(int i) const;
 	int GetObsoleteTech() const;
 	int GetPrereqTech() const;
+	int GetOthersTradeBonusModifier() const;
 #if defined(MOD_TRAITS_OTHER_PREREQS)
 	int GetObsoleteBelief() const;
 	int GetPrereqBelief() const;
@@ -487,6 +488,7 @@ protected:
 	int m_iCityUnhappinessModifier;
 	int m_iPopulationUnhappinessModifier;
 	int m_iCityStateBonusModifier;
+	int m_iOthersTradeBonusModifier;
 	int m_iCityStateFriendshipModifier;
 	int m_iCityStateCombatModifier;
 	int m_iLandBarbarianConversionPercent;
@@ -1801,6 +1803,7 @@ public:
 	int GetYieldChangePerImprovementBuilt(ImprovementTypes eImprovement, YieldTypes eYield) const;
 	vector<ImprovementTypes> GetImprovementTypesWithYieldChange() const;
 	void UpdateYieldChangeImprovementTypes();
+	int GetOthersTradeBonusModifier() const;
 	int GetYieldFromBarbarianCampClear(YieldTypes eYield, bool bEraScaling) const;
 
 	bool HasYieldFromTileCultureBomb() const
@@ -2152,6 +2155,7 @@ private:
 	int m_iPopulationUnhappinessModifier;
 	int m_iCityStateBonusModifier;
 	int m_iCityStateFriendshipModifier;
+	int m_iOthersTradeBonusModifier;
 	int m_iCityStateCombatModifier;
 	int m_iLandBarbarianConversionPercent;
 	int m_iLandBarbarianConversionExtraUnits;

@@ -354,3 +354,5 @@ ALTER TABLE Traits ADD NoAvoidGrowth boolean DEFAULT 0;
 ALTER TABLE Traits ADD RevoltTimerMod integer DEFAULT 0;
 -- Artists Open Golden Age to Receive Current Median One-Time Research Points in Researchable Technology
 ALTER TABLE Traits ADD ArtistGoldenAgeTechBoost boolean DEFAULT 0;
+-- Connecting others to your business route increases your revenue
+ALTER TABLE Traits ADD OthersTradeBonusModifier integer DEFAULT 0;
