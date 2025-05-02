@@ -3780,15 +3780,15 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 							iValue /= 400;
 						}
 						iValue = max(100, iValue);
+						const CvPlayerAI &kDestPlayer = GET_PLAYER(kTradeConnection.m_eDestOwner);
+						int iDestTraitModifier = kDestPlayer.GetPlayerTraits()->GetOthersTradeBonusModifier();
+						iValue *= (100 + iDestTraitModifier);
+						iValue /= 100;
 					}
 				}
 				break;
 			default:
 				UNREACHABLE();
-				const CvPlayerAI &kDestPlayer = GET_PLAYER(kTradeConnection.m_eDestOwner);
-                int iDestTraitModifier = kDestPlayer.GetPlayerTraits()->GetOthersTradeBonusModifier();
-                iValue *= (100 + iDestTraitModifier);
-                iValue /= 100;
 			}
 		}
 		// Gold internal trade routes, note that only the origin city gets any yields
