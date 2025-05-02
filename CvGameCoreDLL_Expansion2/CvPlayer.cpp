@@ -46259,7 +46259,11 @@ int CvPlayer::GetNumFreePolicies() const
 void CvPlayer::SetNumFreePolicies(int iValue)
 {
 	// Increase count of free Policies we've ever had
-	ChangeNumFreePoliciesEver(iValue - m_iNumFreePolicies);
+	int iDifference = iValue - m_iNumFreePolicies;
+	if (iDifference > 0)
+	{
+		ChangeNumFreePoliciesEver(iDifference);
+	}
 	m_iNumFreePolicies = iValue;
 }
 
