@@ -4487,12 +4487,12 @@ void CvBuilderTaskingAI::UpdateCurrentPlotYields(const CvPlot* pPlot)
 #endif
 		m_aiCurrentPlotYields[ui] = pPlot->getYield((YieldTypes)ui);
 
-		if(m_bLogging){
+		/*if (m_bLogging) {
 			CvString strLog;
 			YieldTypes yield = (YieldTypes) ui;
 			strLog.Format("Plot Yield Update, %s, %i, %i, %i", FSerialization::toString(yield).c_str(), m_aiCurrentPlotYields[ui], pPlot->getX(), pPlot->getY());
 			LogYieldInfo(strLog, m_pPlayer);
-		}
+		}*/
 #if defined(MOD_BALANCE_CORE)
 		}
 		else
@@ -4553,12 +4553,12 @@ void CvBuilderTaskingAI::UpdateProjectedPlotYields(const CvPlot* pPlot, BuildTyp
 				}
 #endif
 
-				if (m_bLogging){
+				/*if (m_bLogging) {
 					CvString strLog;
 					YieldTypes yield = (YieldTypes)ui;
 					strLog.Format("Plot Projected Yield Update, %s, %i, %i, %i", FSerialization::toString(yield).c_str(), m_aiProjectedPlotYields[ui], pPlot->getX(), pPlot->getY());
 					LogYieldInfo(strLog, m_pPlayer);
-				}
+				}*/
 #if defined(MOD_BALANCE_CORE)
 			}
 			else
@@ -4578,12 +4578,12 @@ void CvBuilderTaskingAI::UpdateProjectedPlotYields(const CvPlot* pPlot, BuildTyp
 				m_aiProjectedPlotYields[ui] = pPlot->getYieldWithBuild(eBuild, (YieldTypes)ui, false, eForceCityConnection, m_pPlayer->GetID(), NULL, NULL, NULL);
 				m_aiProjectedPlotYields[ui] = max(m_aiProjectedPlotYields[ui], 0);
 
-				if (m_bLogging){
+				/*if (m_bLogging) {
 					CvString strLog;
 					YieldTypes yield = (YieldTypes)ui;
 					strLog.Format("Plot Projected Yield Update, %s, %i, %i, %i", FSerialization::toString(yield).c_str(), m_aiProjectedPlotYields[ui], pPlot->getX(), pPlot->getY());
 					LogYieldInfo(strLog, m_pPlayer);
-				}
+				}*/
 #if defined(MOD_BALANCE_CORE)
 			}
 			else
