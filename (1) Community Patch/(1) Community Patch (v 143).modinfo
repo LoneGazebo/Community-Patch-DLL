@@ -492,8 +492,8 @@
     <File md5="12E45AC23BFC0F74EFD1F434BD2BC92D" import="0">Database Changes/Art/CoreNewTerrainArts.xml</File>
     <File md5="FA079157D378FF7E6771946B18B6083C" import="0">Database Changes/Art/CoreUnitArtSweeps.sql</File>
     <File md5="3695E01E0FF7B53DA1762C0B7C625C58" import="0">Database Changes/City/Buildings/BuildingTableChanges.sql</File>
-    <File md5="B3840AFEE856D53114E10981CFB9B348" import="0">Database Changes/City/Buildings/CoreBuildingChanges.sql</File>
-    <File md5="87B738F4B2057BB6B47CD7B3AAFDCC52" import="0">Database Changes/City/Buildings/NewBuildingTables.xml</File>
+    <File md5="2D840574CBD95CCD362693DD6A94D319" import="0">Database Changes/City/Buildings/CoreBuildingChanges.sql</File>
+    <File md5="C448C3E5E46BF66B9CCEF7CBDC61E5E7" import="0">Database Changes/City/Buildings/NewBuildingTables.xml</File>
     <File md5="A4D62A2E28E402C14C9ACE714087A15F" import="0">Database Changes/City/GreatWorks/CoreGreatWorkChanges.sql</File>
     <File md5="CC00B0BBC6BB8FC7DE6055F04CA8A889" import="0">Database Changes/City/GreatWorks/CoreNewGreatWorks.sql</File>
     <File md5="BDA196ABEFE99BFE91550CA0D3463D82" import="0">Database Changes/City/GreatWorks/CoreNewGreatWorks.xml</File>
@@ -511,7 +511,7 @@
     <File md5="C36218BB11511D4B8BBCBE71242994E7" import="0">Database Changes/Concepts/CoreConceptChanges.sql</File>
     <File md5="5AFB377345571BA35644B7880D3CF0BC" import="0">Database Changes/Concepts/CoreNewConcepts.xml</File>
     <File md5="38862270A17CC8A2A8339A404BBA242B" import="0">Database Changes/Corporations/NewCorporationTables.xml</File>
-    <File md5="A0130E1EF12C6399ADCAD2EC9D3769FF" import="0">Database Changes/Defines/CoreDefineChanges.sql</File>
+    <File md5="C52C2DF75BEB4304EE084C46E0FFEE8C" import="0">Database Changes/Defines/CoreDefineChanges.sql</File>
     <File md5="148CBB2467D31B709154C87DB18515AD" import="0">Database Changes/Defines/DiploAIOptions.sql</File>
     <File md5="948C7007CD1779D44C09F02C2EE34D35" import="0">Database Changes/Defines/DiploApproachWeights.sql</File>
     <File md5="45323B9F1EFC39D63BC94A9D140FACD5" import="0">Database Changes/Defines/DiploOpinionWeights.sql</File>
@@ -547,7 +547,7 @@
     <File md5="0FE6B115634BF464D3764753F238BEC9" import="0">Database Changes/Text/en_US/AI/CoreDiplomacyResponseTextChanges.sql</File>
     <File md5="FA3B9D20AC5441FC29B5A81B60E92BAA" import="0">Database Changes/Text/en_US/AI/CoreNewDiplomacyResponseText.xml</File>
     <File md5="65C451A9D80617FA678FADA4BE928EC7" import="0">Database Changes/Text/en_US/AI/CoreStrategyTextChanges.sql</File>
-    <File md5="BDB51B03552F981DCFF6CAA06E3A3C70" import="0">Database Changes/Text/en_US/City/CoreBuildingTextChanges.sql</File>
+    <File md5="A1C3C5A5CE29EC4F95904F737107A087" import="0">Database Changes/Text/en_US/City/CoreBuildingTextChanges.sql</File>
     <File md5="B59F235840933ED49ABB0B1D22583765" import="0">Database Changes/Text/en_US/City/CoreNewGreatWorkText.xml</File>
     <File md5="C29F8C04F71EDFA1EF6448624C8B8FBB" import="0">Database Changes/Text/en_US/Civilizations/CoreCivilizationTextChanges.sql</File>
     <File md5="954F559D1F4893B3F83D82728CFC6C01" import="0">Database Changes/Text/en_US/Civilizations/CoreLeaderTextChanges.sql</File>
@@ -556,11 +556,11 @@
     <File md5="9D313B8578E3F39D1F1B2380BB09A8A9" import="0">Database Changes/Text/en_US/Concepts/CoreNewConceptText.xml</File>
     <File md5="F05356D5D0E61F6D8D34D00F4BA9AA35" import="0">Database Changes/Text/en_US/Espionage/CoreNewEspionageText.xml</File>
     <File md5="32C2293B6C71102C055993907F1508E0" import="0">Database Changes/Text/en_US/Minors/CoreMinorTextChanges.sql</File>
-    <File md5="5B46785CA1C52741BD2A854A252997CB" import="0">Database Changes/Text/en_US/Notifications/CoreNewNotificationText.xml</File>
+    <File md5="A0166CB7C7CB2BFC4B968B9A3C8115C4" import="0">Database Changes/Text/en_US/Notifications/CoreNewNotificationText.xml</File>
     <File md5="D815404C801F547E8157593652F66055" import="0">Database Changes/Text/en_US/Notifications/CoreNotificationTextChanges.sql</File>
     <File md5="07FA4F3EE791BC55D0F0818B8645A785" import="0">Database Changes/Text/en_US/Religions/CoreReligionTextChanges.sql</File>
-    <File md5="3485E35806EEF161DD85B6A1B745A146" import="0">Database Changes/Text/en_US/UI/CoreNewUIText.xml</File>
-    <File md5="982DDDD1F191F8BFA1D4CFF66374ADFD" import="0">Database Changes/Text/en_US/UI/CoreUITextChanges.sql</File>
+    <File md5="FD8EAC3A58492A70C02CC800BDFAC1A2" import="0">Database Changes/Text/en_US/UI/CoreNewUIText.xml</File>
+    <File md5="EB3DAA84717AC6589FADD66646BFA5F2" import="0">Database Changes/Text/en_US/UI/CoreUITextChanges.sql</File>
     <File md5="F9C0A53E9A6986F04ADADDBA2E138A10" import="0">Database Changes/Text/en_US/UnitPromotions/CoreNewPromotionText.xml</File>
     <File md5="8BDA888FE05533BBDA015FDA10D7DA2B" import="0">Database Changes/Text/en_US/UnitPromotions/CorePromotionTextChanges.sql</File>
     <File md5="C0C038A53F42B3910523E39C54AEA5BA" import="0">Database Changes/Text/en_US/Units/CoreMissionTextChanges.sql</File>
