@@ -13145,6 +13145,15 @@ void CvPlayer::doGoody(CvPlot* pPlot, CvUnit* pUnit)
 			}
 		}
 
+		if (pUnit)
+		{
+			CvCity* pCity = pUnit->getOriginCity();
+			if (pCity != NULL)
+			{
+				doInstantYield(INSTANT_YIELD_TYPE_ANCIENT_RUIN, false, NO_GREATPERSON, NO_BUILDING, 0, false, NO_PLAYER, NULL, false, pCity, false, true, false, NO_YIELD, pUnit);
+			}
+		}
+
 		pPlot->AddArchaeologicalRecord(CvTypes::getARTIFACT_ANCIENT_RUIN(), m_eID, NO_PLAYER);
 	}
 }
@@ -26013,6 +26022,14 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					iValue += (pUnit->getYieldFromScouting(eYield) * pUnit->GetNumTilesRevealedThisTurn());
 					break;
 				}
+				case INSTANT_YIELD_TYPE_ANCIENT_RUIN:
+				{
+					if(pUnit == NULL)
+						continue;
+
+					iValue += pUnit->getYieldFromAncientRuins(eYield);
+					break;
+				}
 				case INSTANT_YIELD_TYPE_LEVEL_UP:
 				{
 					if(pUnit == NULL)
@@ -27237,6 +27254,12 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 			case INSTANT_YIELD_TYPE_GOLDEN_AGE_START:
 			{
 				localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_GOLDEN_AGE_START");
+				localizedText << totalyieldString;
+				break;
+			}
+			case INSTANT_YIELD_TYPE_ANCIENT_RUIN:
+			{
+				localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_ANCIENT_RUIN");
 				localizedText << totalyieldString;
 				break;
 			}
@@ -41316,6 +41339,11 @@ void CvPlayer::LogInstantYield(YieldTypes eYield, int iValue, InstantYieldType e
 	case INSTANT_YIELD_TYPE_WLTKD_START:
 			{
 				instantYieldName = "WLTKD Start";
+				break;
+			}
+	case INSTANT_YIELD_TYPE_ANCIENT_RUIN:
+			{
+				instantYieldName = "Ancient Ruin";
 				break;
 			}
 	}

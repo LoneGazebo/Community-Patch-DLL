@@ -262,6 +262,7 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iMilitaryProductionModifier(0),
 	m_piYieldModifier(NULL),
 	m_piYieldChange(NULL),
+	m_piYieldFromAncientRuins(NULL),
 	m_iGeneralGoldenAgeExpPercent(0),
 	m_iGiveCombatMod(0),
 	m_iGiveHPHealedIfEnemyKilled(0),
@@ -340,6 +341,7 @@ CvPromotionEntry::~CvPromotionEntry(void)
 #if defined(MOD_BALANCE_CORE)
 	SAFE_DELETE_ARRAY(m_piYieldFromScouting);
 	SAFE_DELETE_ARRAY(m_piYieldModifier);
+	SAFE_DELETE_ARRAY(m_piYieldFromAncientRuins);
 	SAFE_DELETE_ARRAY(m_piYieldChange);
 #endif
 	SAFE_DELETE_ARRAY(m_piYieldFromKills);
@@ -860,6 +862,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 #if defined(MOD_BALANCE_CORE)
 	kUtility.SetYields(m_piYieldModifier, "UnitPromotions_YieldModifiers", "PromotionType", szPromotionType);
 	kUtility.SetYields(m_piYieldChange, "UnitPromotions_YieldChanges", "PromotionType", szPromotionType);
+	kUtility.SetYields(m_piYieldFromAncientRuins, "UnitPromotions_YieldFromAncientRuins", "PromotionType", szPromotionType);
 
 	//UnitPromotions_YieldFromScouting
 	{
@@ -2771,6 +2774,20 @@ int CvPromotionEntry::GetYieldChange(int i) const
 
 	return 0;
 }
+
+/// Instant yields when picking up ancient ruins
+int CvPromotionEntry::GetYieldFromAncientRuins(int i) const
+{
+	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
+	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	if (i > -1 && i < NUM_YIELD_TYPES && m_piYieldFromAncientRuins)
+	{
+		return m_piYieldFromAncientRuins[i];
+	}
+
+	return 0;
+}
+
 int CvPromotionEntry::GetYieldFromScouting(int i) const
 {
 	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");

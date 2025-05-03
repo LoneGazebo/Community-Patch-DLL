@@ -508,6 +508,7 @@ CvUnit::CvUnit() :
 #if defined(MOD_BALANCE_CORE)
 	, m_aiNumTimesAttackedThisTurn()
 	, m_yieldFromScouting()
+	, m_piYieldFromAncientRuins()
 #endif
 #if defined(MOD_CIV6_WORKER)
 	, m_iBuilderStrength()
@@ -1775,16 +1776,19 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 		m_aiNumTimesAttackedThisTurn.clear();
 		m_aiNumTimesAttackedThisTurn.resize(REALLY_MAX_PLAYERS);
 		m_yieldFromScouting.clear();
+		m_piYieldFromAncientRuins.clear();
 		
 		m_yieldFromKills.resize(NUM_YIELD_TYPES);
 		m_yieldFromBarbarianKills.resize(NUM_YIELD_TYPES);
 		m_yieldFromScouting.resize(NUM_YIELD_TYPES);
+		m_piYieldFromAncientRuins.resize(NUM_YIELD_TYPES);
 
 		for(int i = 0; i < NUM_YIELD_TYPES; i++)
 		{
 			m_yieldFromKills[i] = 0;
 			m_yieldFromBarbarianKills[i] = 0;
 			m_yieldFromScouting[i] = 0;
+			m_piYieldFromAncientRuins[i] = 0;
 		}
 
 		for (int iI = 0; iI < REALLY_MAX_PLAYERS; iI++)
@@ -1928,6 +1932,7 @@ void CvUnit::uninitInfos()
 	m_yieldFromBarbarianKills.clear();
 #if defined(MOD_BALANCE_CORE)
 	m_yieldFromScouting.clear();
+	m_piYieldFromAncientRuins.clear();
 #endif
 	m_extraUnitCombatModifier.clear();
 	m_unitClassModifier.clear();
@@ -26494,6 +26499,28 @@ void CvUnit::changeYieldFromScouting(YieldTypes eIndex, int iChange)
 		m_yieldFromScouting[eIndex] =  m_yieldFromScouting[eIndex] + iChange;
 	}
 }
+//	--------------------------------------------------------------------------------
+int CvUnit::getYieldFromAncientRuins(YieldTypes eIndex) const
+{
+	VALIDATE_OBJECT();
+	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	return m_piYieldFromAncientRuins[eIndex];
+}
+
+
+//	--------------------------------------------------------------------------------
+void CvUnit::changeYieldFromAncientRuins(YieldTypes eIndex, int iChange)
+{
+	VALIDATE_OBJECT();
+	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+
+	if (iChange != 0)
+	{
+		m_piYieldFromAncientRuins[eIndex] = m_piYieldFromAncientRuins[eIndex] + iChange;
+	}
+}
 #endif
 //	--------------------------------------------------------------------------------
 int CvUnit::getYieldFromKills(YieldTypes eIndex) const
@@ -27345,6 +27372,7 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 			changeYieldFromKills(eYield, (thisPromotion.GetYieldFromKills(iI) * iChange));
 			changeYieldFromBarbarianKills(eYield, (thisPromotion.GetYieldFromBarbarianKills(iI) * iChange));
 			changeYieldFromScouting(eYield, (thisPromotion.GetYieldFromScouting(iI) * iChange));
+			changeYieldFromAncientRuins(eYield, (thisPromotion.GetYieldFromAncientRuins(iI) * iChange));
 			{
 				std::pair<int, int> pillageYields = thisPromotion.GetYieldFromPillage(eYield);
 				pillageYields.first *= iChange;
@@ -27960,6 +27988,7 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_extraUnitClassDefenseMod);
 	visitor(unit.m_aiNumTimesAttackedThisTurn);
 	visitor(unit.m_yieldFromScouting);
+	visitor(unit.m_piYieldFromAncientRuins);
 	visitor(unit.m_yieldFromKills);
 	visitor(unit.m_yieldFromBarbarianKills);
 	visitor(unit.m_extraUnitCombatModifier);
