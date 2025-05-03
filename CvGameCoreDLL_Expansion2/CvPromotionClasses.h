@@ -315,6 +315,7 @@ public:
 	int GetFeatureAttackPercent(int i) const;
 	int GetFeatureDefensePercent(int i) const;
 #if defined(MOD_BALANCE_CORE)
+	int GetYieldFromAncientRuins(int i) const;
 	int GetYieldFromScouting(int i) const;
 	int GetYieldModifier(int i) const;
 	int GetYieldChange(int i) const;
@@ -644,6 +645,7 @@ protected:
 	int* m_piYieldFromScouting;
 	int* m_piYieldModifier;
 	int* m_piYieldChange;
+	int* m_piYieldFromAncientRuins;
 #endif
 	int* m_piYieldFromKills;
 	int* m_piYieldFromBarbarianKills;
