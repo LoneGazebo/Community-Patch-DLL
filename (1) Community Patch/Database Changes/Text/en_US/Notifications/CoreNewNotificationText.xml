@@ -430,6 +430,9 @@
 		<Row Tag="TXT_KEY_INSTANT_YIELD_ANCIENT_RUIN">
 			<Text>Ancient Ruin:[NEWLINE]{1_YieldString}</Text>
 		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_PLUNDER_TRADE_ROUTE">
+			<Text>Plundering a Trade Route:[NEWLINE]{1_YieldString}</Text>
+		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_TYPE_WLTKD_START">
 			<Text>Start of We Love The King Day:[NEWLINE]{1_YieldString}</Text>
 		</Row>

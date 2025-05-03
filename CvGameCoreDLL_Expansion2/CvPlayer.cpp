@@ -26023,6 +26023,14 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					iValue += pUnit->getYieldFromAncientRuins(eYield);
 					break;
 				}
+				case INSTANT_YIELD_TYPE_PLUNDER_TRADE_ROUTE:
+				{
+					if(pUnit == NULL)
+						continue;
+
+					iValue += pUnit->getYieldFromTRPlunder(eYield);
+					break;
+				}
 				case INSTANT_YIELD_TYPE_LEVEL_UP:
 				{
 					if(pUnit == NULL)
@@ -27253,6 +27261,12 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 			case INSTANT_YIELD_TYPE_ANCIENT_RUIN:
 			{
 				localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_ANCIENT_RUIN");
+				localizedText << totalyieldString;
+				break;
+			}
+			case INSTANT_YIELD_TYPE_PLUNDER_TRADE_ROUTE:
+			{
+				localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_PLUNDER_TRADE_ROUTE");
 				localizedText << totalyieldString;
 				break;
 			}
@@ -41337,6 +41351,11 @@ void CvPlayer::LogInstantYield(YieldTypes eYield, int iValue, InstantYieldType e
 	case INSTANT_YIELD_TYPE_ANCIENT_RUIN:
 			{
 				instantYieldName = "Ancient Ruin";
+				break;
+			}
+	case INSTANT_YIELD_TYPE_PLUNDER_TRADE_ROUTE:
+			{
+				instantYieldName = "Plunder Trade Route";
 				break;
 			}
 	}

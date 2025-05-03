@@ -263,6 +263,7 @@ CvPromotionEntry::CvPromotionEntry():
 	m_piYieldModifier(NULL),
 	m_piYieldChange(NULL),
 	m_piYieldFromAncientRuins(NULL),
+	m_piYieldFromTRPlunder(NULL),
 	m_iGeneralGoldenAgeExpPercent(0),
 	m_iGiveCombatMod(0),
 	m_iGiveHPHealedIfEnemyKilled(0),
@@ -342,6 +343,7 @@ CvPromotionEntry::~CvPromotionEntry(void)
 	SAFE_DELETE_ARRAY(m_piYieldFromScouting);
 	SAFE_DELETE_ARRAY(m_piYieldModifier);
 	SAFE_DELETE_ARRAY(m_piYieldFromAncientRuins);
+	SAFE_DELETE_ARRAY(m_piYieldFromTRPlunder);
 	SAFE_DELETE_ARRAY(m_piYieldChange);
 #endif
 	SAFE_DELETE_ARRAY(m_piYieldFromKills);
@@ -863,6 +865,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	kUtility.SetYields(m_piYieldModifier, "UnitPromotions_YieldModifiers", "PromotionType", szPromotionType);
 	kUtility.SetYields(m_piYieldChange, "UnitPromotions_YieldChanges", "PromotionType", szPromotionType);
 	kUtility.SetYields(m_piYieldFromAncientRuins, "UnitPromotions_YieldFromAncientRuins", "PromotionType", szPromotionType);
+	kUtility.SetYields(m_piYieldFromTRPlunder, "UnitPromotions_YieldFromTRPlunder", "PromotionType", szPromotionType);
 
 	//UnitPromotions_YieldFromScouting
 	{
@@ -2783,6 +2786,19 @@ int CvPromotionEntry::GetYieldFromAncientRuins(int i) const
 	if (i > -1 && i < NUM_YIELD_TYPES && m_piYieldFromAncientRuins)
 	{
 		return m_piYieldFromAncientRuins[i];
+	}
+
+	return 0;
+}
+
+/// Instant yields when plundering a trade route
+int CvPromotionEntry::GetYieldFromTRPlunder(int i) const
+{
+	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
+	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	if (i > -1 && i < NUM_YIELD_TYPES && m_piYieldFromTRPlunder)
+	{
+		return m_piYieldFromTRPlunder[i];
 	}
 
 	return 0;
