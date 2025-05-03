@@ -1758,6 +1758,8 @@ public:
 	void changeYieldFromScouting(YieldTypes eIndex, int iChange);
 	int getYieldFromAncientRuins(YieldTypes eIndex) const;
 	void changeYieldFromAncientRuins(YieldTypes eIndex, int iChange);
+	int getYieldFromTRPlunder(YieldTypes eIndex) const;
+	void changeYieldFromTRPlunder(YieldTypes eIndex, int iChange);
 	bool isCultureFromExperienceDisbandUpgrade() const;
 	bool isFreeUpgrade() const;
 	bool isUnitEraUpgrade() const;
@@ -2399,6 +2401,7 @@ protected:
 	std::vector<int> m_aiNumTimesAttackedThisTurn;
 	std::vector<int> m_yieldFromScouting;
 	std::vector<int> m_piYieldFromAncientRuins;
+	std::vector<int> m_piYieldFromTRPlunder;
 #endif
 	std::vector<int> m_yieldFromKills;
 	std::vector<int> m_yieldFromBarbarianKills;
@@ -2794,6 +2797,7 @@ SYNC_ARCHIVE_VAR(UnitClassCounter, m_extraUnitClassDefenseMod)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiNumTimesAttackedThisTurn)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_yieldFromScouting)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_piYieldFromAncientRuins)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_piYieldFromTRPlunder)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_yieldFromKills)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_yieldFromBarbarianKills)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_extraUnitCombatModifier)

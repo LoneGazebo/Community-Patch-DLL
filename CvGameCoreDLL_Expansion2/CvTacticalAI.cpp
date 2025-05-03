@@ -1146,7 +1146,7 @@ void CvTacticalAI::PlotPlunderTradeUnitMoves(DomainTypes eDomain)
 		// See what units we have who can reach target this turn
 		CvPlot* pPlot = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
 
-		if (FindUnitsForHarassing(pPlot,1,GD_INT_GET(MAX_HIT_POINTS)/2,-1,eDomain,false,false,1))
+		if (FindUnitsForHarassing(pPlot,0,GD_INT_GET(MAX_HIT_POINTS)/2,-1,eDomain,true,false,5,true))
 		{
 			// Queue best one up to capture it
 			ExecutePlunderTradeUnit(pPlot);
@@ -4716,11 +4716,11 @@ bool CvTacticalAI::FindParatroopersWithinStrikingDistance(CvPlot* pTarget, bool 
 }
 
 //find units for pillaging, plundering, blockading, etc
-bool CvTacticalAI::FindUnitsForHarassing(CvPlot* pTarget, int iNumTurnsAway, int iMinHitpoints, int iMaxHitpoints, DomainTypes eDomain, bool bMustHaveMovesLeft, bool bAllowEmbarkation, int iMaxNumUnits)
+bool CvTacticalAI::FindUnitsForHarassing(CvPlot* pTarget, int iNumTurnsAway, int iMinHitpoints, int iMaxHitpoints, DomainTypes eDomain, bool bMustHaveMovesLeft, bool bAllowEmbarkation, int iMaxNumUnits, bool bPlunderTradeRoute)
 {
 	m_CurrentMoveUnits.clear();
 	//need to convert turns to max path length here, zero turns away is also valid!
-	SPathFinderUserData data(m_pPlayer->GetID(), PT_ARMY_MIXED, NO_PLAYER, (iNumTurnsAway+1)*3);
+	SPathFinderUserData data(m_pPlayer->GetID(), PT_ARMY_MIXED, NO_PLAYER, (iNumTurnsAway+1)*(eDomain==DOMAIN_LAND ? 3 : 5));
 	ReachablePlots relevantPlots = GC.GetStepFinder().GetPlotsInReach(pTarget, data);
 
 	//plots are ordered by turns to reach!
@@ -4730,33 +4730,43 @@ bool CvTacticalAI::FindUnitsForHarassing(CvPlot* pTarget, int iNumTurnsAway, int
 		CvUnit* pLoopUnit = pPlot->getBestDefender(m_pPlayer->GetID());
 		if (pLoopUnit)
 		{
-			//these units are too fragile for the moves we have in mind
-			if (pLoopUnit->AI_getUnitAIType() == UNITAI_CITY_BOMBARD || pLoopUnit->AI_getUnitAIType() == UNITAI_CARRIER_SEA)
+			if (pLoopUnit->isDelayedDeath())
 				continue;
 
-			if (!pLoopUnit->canUseForTacticalAI())
+			if (!pLoopUnit->canMove() || pLoopUnit->TurnProcessed())
 				continue;
 
-			if (pLoopUnit->IsCoveringFriendlyCivilian())
-				continue;
+			// plundering a trade route on the current plot doesn't cost us anything, so we do it whenever possible and the following exclusions do not apply
+			if (!bPlunderTradeRoute || pPlot != pTarget)
+			{
+				if (!pLoopUnit->canUseForTacticalAI())
+					continue;
+
+				//these units are too fragile for the moves we have in mind
+				if (pLoopUnit->AI_getUnitAIType() == UNITAI_CITY_BOMBARD || pLoopUnit->AI_getUnitAIType() == UNITAI_CARRIER_SEA)
+					continue;
+
+				if (pLoopUnit->IsCoveringFriendlyCivilian())
+					continue;
+
+				if (iMinHitpoints > 0 && pLoopUnit->GetCurrHitPoints() < iMinHitpoints)
+					continue;
+
+				if (iMaxHitpoints > 0 && pLoopUnit->GetCurrHitPoints() > iMaxHitpoints)
+					continue;
+
+				if (pLoopUnit->GetDanger(pTarget) > pLoopUnit->GetCurrHitPoints())
+					continue;
+
+				//don't use garrisons if there is an enemy around. the garrison may still attack when we do garrison moves!
+				if (pLoopUnit->IsGarrisoned() && pLoopUnit->GetGarrisonedCity()->NeedsGarrison())
+					continue;
+			}
 
 			if (pLoopUnit->isBarbarian() && pLoopUnit->plot()->getImprovementType() == GD_INT_GET(BARBARIAN_CAMP_IMPROVEMENT))
 				continue;
 
 			if (eDomain != NO_DOMAIN && pLoopUnit->getDomainType() != eDomain)
-				continue;
-
-			if(iMinHitpoints>0 && pLoopUnit->GetCurrHitPoints()<iMinHitpoints)
-				continue;
-
-			if(iMaxHitpoints>0 && pLoopUnit->GetCurrHitPoints()>iMaxHitpoints)
-				continue;
-
-			if (pLoopUnit->GetDanger(pTarget) > pLoopUnit->GetCurrHitPoints())
-				continue;
-
-			//don't use garrisons if there is an enemy around. the garrison may still attack when we do garrison moves!
-			if (pLoopUnit->IsGarrisoned() && pLoopUnit->GetGarrisonedCity()->NeedsGarrison())
 				continue;
 
 			//this should be a low-risk thing so don't get our units killed
@@ -4772,7 +4782,20 @@ bool CvTacticalAI::FindUnitsForHarassing(CvPlot* pTarget, int iNumTurnsAway, int
 			if (iTurnsCalculated <= iNumTurnsAway)
 			{
 				CvTacticalUnit unit(pLoopUnit->GetID());
-				unit.SetAttackStrength(1 + iNumTurnsAway - iTurnsCalculated);
+				int iPlunderBonus = 0;
+				if (bPlunderTradeRoute)
+				{
+					if (pLoopUnit->isHighSeaRaiderUnit())
+					{
+						iPlunderBonus += 500;
+					}
+					for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+					{
+						iPlunderBonus += pLoopUnit->getYieldFromTRPlunder((YieldTypes)iI);
+					}
+				}
+				unit.SetAttackStrength(1 + iNumTurnsAway - iTurnsCalculated + iPlunderBonus);
+				unit.SetHealthPercent(1, 1);
 				m_CurrentMoveUnits.push_back(unit);
 				//pathfinding is expensive, don't return more than needed
 				if (m_CurrentMoveUnits.size() >= (size_t)iMaxNumUnits)
