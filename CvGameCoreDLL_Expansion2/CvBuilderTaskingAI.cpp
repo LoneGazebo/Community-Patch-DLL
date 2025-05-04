@@ -3684,8 +3684,10 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 	if (bNewIsDefensive)
 	{
 		int iDefenseBuildValue = pPlot->GetDefenseBuildValue(m_pPlayer->GetID(), eBuild, eImprovement, sState);
-		if (iDefenseBuildValue != 0)
+		if (iDefenseBuildValue > 0)
 			iSecondaryScore += iDefenseBuildValue;
+		else
+			iYieldScore /= 2; //de-emphasize yields if we're not close to the border
 	}
 
 	// How many tiles will be covered by an encampment bonus (or similar)
