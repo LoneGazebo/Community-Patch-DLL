@@ -357,6 +357,7 @@ CvUnit::CvUnit() :
 	, m_extraDomainDefenses()
 	, m_YieldModifier()
 	, m_YieldChange()
+	, m_aiYieldFromCombatExperienceTimes100()
 	, m_iGarrisonYieldChange()
 	, m_iFortificationYieldChange()
 	, m_strScriptData()
@@ -1685,12 +1686,14 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 
 	m_YieldModifier.clear();
 	m_YieldChange.clear();
+	m_aiYieldFromCombatExperienceTimes100.clear();
 	m_iGarrisonYieldChange.clear();
 	m_iFortificationYieldChange.clear();
 	for (iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
 		m_YieldModifier.push_back(0);
 		m_YieldChange.push_back(0);
+		m_aiYieldFromCombatExperienceTimes100.push_back(0);
 		m_iGarrisonYieldChange.push_back(0);
 		m_iFortificationYieldChange.push_back(0);
 	}
@@ -19529,6 +19532,24 @@ void CvUnit::SetYieldChange(YieldTypes eYield, int iValue)
 	ASSERT_DEBUG(eYield < NUM_YIELD_TYPES, "eYield is expected to be within maximum bounds (invalid Index)");
 	m_YieldChange[eYield] = (m_YieldChange[eYield] + iValue);
 }
+
+// Instant yields when getting experience from combat
+int CvUnit::GetYieldFromCombatExperienceTimes100(YieldTypes eYield) const
+{
+	VALIDATE_OBJECT();
+	ASSERT_DEBUG(eYield >= 0, "eYield is expected to be non-negative (invalid Index)");
+	ASSERT_DEBUG(eYield < NUM_YIELD_TYPES, "eYield is expected to be within maximum bounds (invalid Index)");
+	return m_aiYieldFromCombatExperienceTimes100[eYield];
+}
+//	--------------------------------------------------------------------------------
+void CvUnit::SetYieldFromCombatExperienceTimes100(YieldTypes eYield, int iValue)
+{
+	VALIDATE_OBJECT();
+	ASSERT_DEBUG(eYield >= 0, "eYield is expected to be non-negative (invalid Index)");
+	ASSERT_DEBUG(eYield < NUM_YIELD_TYPES, "eYield is expected to be within maximum bounds (invalid Index)");
+	m_aiYieldFromCombatExperienceTimes100[eYield] = (m_aiYieldFromCombatExperienceTimes100[eYield] + iValue);
+}
+
 // Similar to above code but is only for combat units and scales per the units combat strength : yield is placed on the plot itself
 int CvUnit::GetGarrisonYieldChange(YieldTypes eYield) const
 {
@@ -21467,14 +21488,6 @@ void CvUnit::changeExperienceTimes100(int iChangeTimes100, int iMax, bool bFromC
 		if (pOriginCity)
 		{
 			GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_COMBAT_EXPERIENCE, false, NO_GREATPERSON, NO_BUILDING, iRealExperienceTimes100, false, NO_PLAYER, NULL, false, pOriginCity, getDomainType() == DOMAIN_SEA, true, false, NO_YIELD, this);
-		}
-		else
-		{
-			CvCity* pCapital = GET_PLAYER(getOwner()).getCapitalCity();
-			if (pCapital)
-			{
-				GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_COMBAT_EXPERIENCE, false, NO_GREATPERSON, NO_BUILDING, iRealExperienceTimes100, false, NO_PLAYER, NULL, false, pCapital, getDomainType() == DOMAIN_SEA, true, false, NO_YIELD, this);
-			}
 		}
 	}
 
@@ -27398,6 +27411,7 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 			const YieldTypes eYield = static_cast<YieldTypes>(iI);
 			SetYieldModifier(eYield, (thisPromotion.GetYieldModifier(iI) * iChange));
 			SetYieldChange(eYield, (thisPromotion.GetYieldChange(iI) * iChange));
+			SetYieldFromCombatExperienceTimes100(eYield, (thisPromotion.GetYieldFromCombatExperienceTimes100(iI) * iChange));
 			SetGarrisonYieldChange(eYield, (thisPromotion.GetGarrisonYield(iI) * iChange));
 			SetFortificationYieldChange(eYield, (thisPromotion.GetFortificationYield(iI) * iChange));
 			changeYieldFromKills(eYield, (thisPromotion.GetYieldFromKills(iI) * iChange));
@@ -28082,6 +28096,7 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_extraDomainDefenses);
 	visitor(unit.m_YieldModifier);
 	visitor(unit.m_YieldChange);
+	visitor(unit.m_aiYieldFromCombatExperienceTimes100);
 	visitor(unit.m_iGarrisonYieldChange);
 	visitor(unit.m_iFortificationYieldChange);
 	visitor(unit.m_iMaxHitPointsBase);

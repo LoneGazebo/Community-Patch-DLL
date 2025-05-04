@@ -1030,6 +1030,9 @@ public:
 	int GetYieldChange(YieldTypes eYield) const;
 	void SetYieldChange(YieldTypes eYield, int iValue);
 
+	int GetYieldFromCombatExperienceTimes100(YieldTypes eYield) const;
+	void SetYieldFromCombatExperienceTimes100(YieldTypes eYield, int iValue);
+
 	int GetGarrisonYieldChange(YieldTypes eYield) const;
 	void SetGarrisonYieldChange(YieldTypes eYield, int iValue);
 
@@ -2361,6 +2364,7 @@ protected:
 	std::vector<int> m_extraDomainDefenses;
 	std::vector<int> m_YieldModifier;
 	std::vector<int> m_YieldChange;
+	std::vector<int> m_aiYieldFromCombatExperienceTimes100;
 	std::vector<int> m_iGarrisonYieldChange;
 	std::vector<int> m_iFortificationYieldChange;
 
