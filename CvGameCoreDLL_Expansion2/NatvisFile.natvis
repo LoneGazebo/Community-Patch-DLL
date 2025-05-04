@@ -30,7 +30,7 @@
 			<Item Name="m_iDamage">m_iDamage</Item>
 			<Item Name="m_iMoves">m_iMoves</Item>
 			<Item Name="m_iBaseCombat">m_iBaseCombat</Item>
-			<Item Name="m_iBaseRangedCombat">m_iBaseCombat</Item>
+			<Item Name="m_iBaseRangedCombat">m_iBaseRangedCombat</Item>
 			<Item Name="m_iArmyId">m_iArmyId</Item>
 		</Expand>
 	</Type>
