@@ -334,6 +334,7 @@ CvPromotionEntry::CvPromotionEntry():
 #endif
 	m_piYieldFromKills(NULL),
 	m_piYieldFromBarbarianKills(NULL),
+	m_piYieldFromCombatExperienceTimes100(NULL),
 	m_piGarrisonYield(NULL),
 	m_piFortificationYield(NULL),
 	m_piUnitCombatModifierPercent(NULL),
@@ -393,6 +394,7 @@ CvPromotionEntry::~CvPromotionEntry(void)
 #endif
 	SAFE_DELETE_ARRAY(m_piYieldFromKills);
 	SAFE_DELETE_ARRAY(m_piYieldFromBarbarianKills);
+	SAFE_DELETE_ARRAY(m_piYieldFromCombatExperienceTimes100);
 	SAFE_DELETE_ARRAY(m_piGarrisonYield);
 	SAFE_DELETE_ARRAY(m_piFortificationYield);
 	SAFE_DELETE_ARRAY(m_piUnitCombatModifierPercent);
@@ -962,6 +964,32 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 
 			const int iYield = pResults->GetInt("Yield");
 			m_piYieldFromKills[iYieldID] = iYield;
+		}
+	}
+	//UnitPromotions_YieldFromCombatExperienceTimes100
+	{
+		kUtility.InitializeArray(m_piYieldFromCombatExperienceTimes100, NUM_YIELD_TYPES, 0);
+
+		std::string sqlKey = "UnitPromotions_YieldFromCombatExperienceTimes100";
+		Database::Results* pResults = kUtility.GetResults(sqlKey);
+		if(pResults == NULL)
+		{
+			const char* szSQL = "select Yields.ID as YieldID, UnitPromotions_YieldFromCombatExperienceTimes100.* from UnitPromotions_YieldFromCombatExperienceTimes100 inner join Yields on YieldType = Yields.Type where PromotionType = ?";
+			pResults = kUtility.PrepareResults(sqlKey, szSQL);
+		}
+
+		ASSERT_DEBUG(pResults);
+		if(!pResults) return false;
+
+		pResults->Bind(1, szPromotionType);
+
+		while(pResults->Step())
+		{
+			const int iYieldID = pResults->GetInt("YieldID");
+			ASSERT_DEBUG(iYieldID > -1 && iYieldID < NUM_YIELD_TYPES);
+
+			const int iYield = pResults->GetInt("Yield");
+			m_piYieldFromCombatExperienceTimes100[iYieldID] = iYield;
 		}
 	}
 	//UnitPromotions_GarrisonYield
@@ -2926,6 +2954,19 @@ int CvPromotionEntry::GetYieldFromKills(int i) const
 	if(i > -1 && i < NUM_YIELD_TYPES && m_piYieldFromKills)
 	{
 		return m_piYieldFromKills[i];
+	}
+
+	return 0;
+}
+
+int CvPromotionEntry::GetYieldFromCombatExperienceTimes100(int i) const
+{
+	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
+	ASSERT_DEBUG(i > -1, "Index out of bounds");
+
+	if (i > -1 && i < NUM_YIELD_TYPES && m_piYieldFromCombatExperienceTimes100)
+	{
+		return m_piYieldFromCombatExperienceTimes100[i];
 	}
 
 	return 0;
