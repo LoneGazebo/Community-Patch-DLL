@@ -6744,6 +6744,7 @@ bool ScoreAttackDamage(const CvTacticalPlot& tactPlot, const CvUnit* pUnit, cons
 		}
 
 		iExtraScore = pUnit->GetRangeCombatSplashDamage(pTestPlot);
+		iExtraScore += pUnit->EstimatePlagueDamage(pEnemy);
 		iPrevHitPoints = pEnemy->GetCurrHitPoints() - iPrevDamage;
 
 		//should consider self-damage from previous attacks here ... blitz

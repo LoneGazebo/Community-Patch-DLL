@@ -3694,35 +3694,46 @@ int CvLuaUnit::lGetMovementRules(lua_State* L)
 	CvString text = "";
 	int iChance = -1;
 
-	if (pkUnit != NULL && pkOtherUnit != NULL && pkOtherUnit->CanPlague(pkUnit))
+	if (pkUnit != NULL && pkOtherUnit != NULL && !pkOtherUnit->isDelayedDeath())
 	{
-		vector<int> vInflictedPlagues = pkOtherUnit->GetInflictedPlagueIDs();
+		vector<PlagueInfo> vInflictedPlagues = pkOtherUnit->GetPlaguesToInflict();
 		if (vInflictedPlagues.size() > 0)
 		{
-			//FIXME: The UI currently supports only one plague being inflicted.
-			//If anyone is inclined to do so, they can write the code to make the UI support this.
-			//For now, just grab the first plague.
-			int iPlagueChance = 0;
-			PromotionTypes ePlague = pkOtherUnit->GetInflictedPlague(vInflictedPlagues[0], iPlagueChance);
-			CvPromotionEntry* pkPlaguePromotionInfo = GC.getPromotionInfo(ePlague);
-			int iPlagueID = pkPlaguePromotionInfo->GetPlagueID();
-			if (pkPlaguePromotionInfo)
+			for (std::vector<PlagueInfo>::iterator it = vInflictedPlagues.begin(); it != vInflictedPlagues.end(); it++)
 			{
-				// Already have this plague, or a stronger version of this plague?
-				if (pkUnit->HasPlague(iPlagueID, pkPlaguePromotionInfo->GetPlaguePriority()))
+				if (pkOtherUnit->getDomainType() != (*it).eDomain)
+					continue;
+
+				if (!(*it).bApplyOnAttack)
+					continue;
+
+				int iPlagueChance = 0;
+				PromotionTypes ePlague = (*it).ePlague;
+				CvPromotionEntry* pkPlaguePromotionInfo = GC.getPromotionInfo(ePlague);
+				int iPlagueID = pkPlaguePromotionInfo->GetPlagueID();
+				if (pkPlaguePromotionInfo)
 				{
-					text = GetLocalizedText("TXT_KEY_UNIT_ALREADY_PLAGUED", pkPlaguePromotionInfo->GetText());
+					// Already have this plague, or a stronger version of this plague?
+					if (pkUnit->HasPlague(iPlagueID, pkPlaguePromotionInfo->GetPlaguePriority()))
+					{
+						text = GetLocalizedText("TXT_KEY_UNIT_ALREADY_PLAGUED", pkPlaguePromotionInfo->GetText());
+					}
+					// Immune to this plague?
+					else if (pkUnit->IsPromotionBlocked(ePlague))
+					{
+						text = GetLocalizedText("TXT_KEY_UNIT_IMMUNE_PLAGUED", pkPlaguePromotionInfo->GetText());
+					}
+					else
+					{
+						text = GetLocalizedText("TXT_KEY_UNIT_PLAGUE_CHANCE", pkPlaguePromotionInfo->GetText());
+						iChance = (*it).iApplyChance;
+					}
 				}
-				// Immune to this plague?
-				else if (pkUnit->IsPromotionBlocked(ePlague))
-				{
-					text = GetLocalizedText("TXT_KEY_UNIT_IMMUNE_PLAGUED", pkPlaguePromotionInfo->GetText());
-				}
-				else
-				{
-					text = GetLocalizedText("TXT_KEY_UNIT_PLAGUE_CHANCE", pkPlaguePromotionInfo->GetText());
-					iChance = iPlagueChance;
-				}
+
+				//FIXME: The UI currently supports only one plague being inflicted.
+				//If anyone is inclined to do so, they can write the code to make the UI support this.
+				//For now, just grab the first plague.
+				break;
 			}
 		}
 	}

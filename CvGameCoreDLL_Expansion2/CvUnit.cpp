@@ -187,6 +187,7 @@ CvUnit::CvUnit() :
 	, m_iAOEDamageOnPillage()
 	, m_iAoEDamageOnMove()
 	, m_seBlockedPromotions()
+	, m_vsPlaguesToInflict()
 	, m_iPartialHealOnPillage()
 	, m_iSplashDamage()
 	, m_iMultiAttackBonus()
@@ -1422,6 +1423,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iAOEDamageOnPillage = 0;
 	m_iAoEDamageOnMove = 0;
 	m_seBlockedPromotions.clear();
+	m_vsPlaguesToInflict.clear();
 	m_iPartialHealOnPillage = 0;
 	m_iSplashDamage = 0;
 	m_iMultiAttackBonus = 0;
@@ -17483,6 +17485,38 @@ int CvUnit::GetRangeCombatSplashDamage(const CvPlot* pTargetPlot) const
 	return iTotal;
 }
 
+int CvUnit::EstimatePlagueDamage(const CvUnit* pEnemy) const
+{
+	vector<PlagueInfo> vInflictedPlagues = GetPlaguesToInflict();
+
+	// This unit does not inflict plagues.
+	if (vInflictedPlagues.size() == 0)
+		return 0;
+
+	for (std::vector<PlagueInfo>::iterator it = vInflictedPlagues.begin(); it != vInflictedPlagues.end(); it++)
+	{
+		if (pEnemy->getDomainType() != (*it).eDomain)
+			continue;
+
+		if (!(*it).bApplyOnAttack)
+			continue;
+
+
+		PromotionTypes eInflictedPlague = (*it).ePlague;
+		CvPromotionEntry* pkPlaguePromotionInfo = GC.getPromotionInfo(eInflictedPlague);
+
+		// Is the defender immune to the plague?
+		if (pEnemy->IsPromotionBlocked(eInflictedPlague))
+			continue;
+
+		// return a score based on the apply chance of the plague and its priority
+		// score only the first plague that can be applied
+		return (*it).iApplyChance * (pkPlaguePromotionInfo->GetPlaguePriority() + 1) / 10;
+	}
+	return 0;
+}
+
+
 //	--------------------------------------------------------------------------------
 int CvUnit::GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand, const CvPlot* /*pTargetPlot*/) const
 {
@@ -22214,72 +22248,6 @@ void CvUnit::changeExtraWithdrawal(int iChange)
 	ASSERT_DEBUG(getExtraWithdrawal() >= 0);
 }
 
-//	--------------------------------------------------------------------------------
-/// Returns a vector containing the plagues that a unit can attempt to inflict
-vector<int> CvUnit::GetInflictedPlagueIDs() const
-{
-	vector<int> result;
-
-	for (int iLoop = 0; iLoop < GC.getNumPromotionInfos(); iLoop++)
-	{
-		const PromotionTypes ePromotion = static_cast<PromotionTypes>(iLoop);
-		CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(ePromotion);
-		if (pkPromotionInfo && pkPromotionInfo->GetPlagueChance() > 0)
-		{
-			PromotionTypes eInflictedPlague = (PromotionTypes)pkPromotionInfo->GetPlaguePromotion();
-			if (eInflictedPlague != NO_PROMOTION && isHasPromotion(ePromotion))
-			{
-				CvPromotionEntry* pkPlaguePromotionInfo = GC.getPromotionInfo(eInflictedPlague);
-				if (pkPlaguePromotionInfo)
-				{
-					int iPlagueID = pkPlaguePromotionInfo->GetPlagueID();
-					if (std::find(result.begin(), result.end(), iPlagueID) == result.end())
-						result.push_back(iPlagueID);
-				}
-			}
-		}
-	}
-
-	return result;
-}
-
-/// What specific promotion can be inflicted by this unit with iPlagueID?
-PromotionTypes CvUnit::GetInflictedPlague(int iPlagueID, int& iPlagueChance) const
-{
-	int iHighestPriority = -1;
-	PromotionTypes eHighestPlague = NO_PROMOTION;
-
-	for (int iLoop = 0; iLoop < GC.getNumPromotionInfos(); iLoop++)
-	{
-		const PromotionTypes ePromotion = static_cast<PromotionTypes>(iLoop);
-		CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(ePromotion);
-		if (pkPromotionInfo && pkPromotionInfo->GetPlagueChance() > 0)
-		{
-			PromotionTypes eInflictedPlague = (PromotionTypes)pkPromotionInfo->GetPlaguePromotion();
-			if (eInflictedPlague != NO_PROMOTION && isHasPromotion(ePromotion))
-			{
-				CvPromotionEntry* pkPlaguePromotionInfo = GC.getPromotionInfo(eInflictedPlague);
-				if (pkPlaguePromotionInfo)
-				{
-					int iPromotionPlagueID = pkPlaguePromotionInfo->GetPlagueID();
-					if (iPlagueID == iPromotionPlagueID)
-					{
-						int iPlaguePriority = pkPlaguePromotionInfo->GetPlaguePriority();
-						if (iPlaguePriority > iHighestPriority)
-						{
-							iHighestPriority = iPlaguePriority;
-							eHighestPlague = eInflictedPlague;
-							iPlagueChance = pkPromotionInfo->GetPlagueChance();
-						}
-					}
-				}
-			}
-		}
-	}
-
-	return eHighestPlague;
-}
-
 /// Does this unit have a plague?
 /// iPlagueID = With a specific plague ID only? Defaults to -1 (any plague).
 /// iMinimumPriority = With a specific priority or higher only? Defaults to -1 (any priority). Requires iPlagueID to be specified.
@@ -22334,18 +22302,6 @@ void CvUnit::RemovePlague(int iPlagueID, int iHigherPriority)
 			}
 		}
 	}
-}
-
-
-bool CvUnit::CanPlague(CvUnit* pOtherUnit) const
-{
-	if (pOtherUnit == NULL || pOtherUnit->isDelayedDeath())
-		return false;
-
-	if (getDomainType() != pOtherUnit->getDomainType())
-		return false;
-
-	return true;
 }
 
 void CvUnit::setContractUnit(ContractTypes eContract)
@@ -26972,8 +26928,40 @@ void CvUnit::SetPromotionBlocked(PromotionTypes eIndex, bool bNewValue)
 	{
 		m_seBlockedPromotions.insert(eIndex);
 	}
-	else {
+	else
+	{
 		m_seBlockedPromotions.erase(eIndex);
+	}
+}
+
+//	--------------------------------------------------------------------------------
+std::vector<PlagueInfo> CvUnit::GetPlaguesToInflict() const
+{
+	VALIDATE_OBJECT();
+	return m_vsPlaguesToInflict;
+}
+//	--------------------------------------------------------------------------------
+void CvUnit::ModifyPlaguesToInflict(PlagueInfo sPlagueInfo, bool bAdd)
+{
+	VALIDATE_OBJECT();
+	if (bAdd)
+	{
+		m_vsPlaguesToInflict.push_back(sPlagueInfo);
+		// sort plagues by descending priority, so low-ranking plagues aren't applied before high-ranking ones that overwrite them
+		std::stable_sort(m_vsPlaguesToInflict.begin(), m_vsPlaguesToInflict.end());
+	}
+	else
+	{
+		// remove the first occurrence of this plague that we find
+		std::vector<PlagueInfo>::iterator it = std::find(m_vsPlaguesToInflict.begin(), m_vsPlaguesToInflict.end(), sPlagueInfo);
+		if (it != m_vsPlaguesToInflict.end())
+		{
+			m_vsPlaguesToInflict.erase(it);
+		}
+		else
+		{
+			UNREACHABLE();
+		}
 	}
 }
 
@@ -27009,6 +26997,22 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 
 		if (bNewValue && IsPromotionBlocked(eIndex))
 			return;
+
+		// Plague Stuff
+		int iPlagueID = thisPromotion.GetPlagueID();
+		if (iPlagueID > -1 && bNewValue)
+		{
+			//  Higher priority plagues with the same ID block lower priority plagues from being added to the inflicted unit
+			if (HasPlague(iPlagueID, thisPromotion.GetPlaguePriority() + 1))
+				return;
+
+			// If this plague applies a penalty to Work Rate modifier (Prisoners of War), the unit must have a work rate > 1 (1 is used for instant builds)
+			if (thisPromotion.GetWorkRateMod() < 0 && workRate(true) <= 1)
+				return;
+
+			// If we just got a plague, remove any weaker version of the plague
+			RemovePlague(iPlagueID, thisPromotion.GetPlaguePriority());
+		}
 
 		// Firaxis only use the CanMoveAllTerrain promotion in the Smokey Skies scenario,
 		// which doesn't have the situation where the player discovers Optics ...
@@ -27053,22 +27057,11 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 			++it;
 		}
 
-		// Plague Stuff
-		int iPlagueID = thisPromotion.GetPlagueID();
-
-
-		if (bNewValue)
+		// Plagues
+		std::vector<PlagueInfo> sPlaguesToInflict = thisPromotion.GetPlagues();
+		for (unsigned int ui = 0; ui < sPlaguesToInflict.size(); ui++)
 		{
-			if (iPlagueID > -1)
-			{
-
-				// If this plague applies a penalty to Work Rate modifier (Prisoners of War), the unit must have a work rate > 1 (1 is used for instant builds)
-				if (thisPromotion.GetWorkRateMod() < 0 && workRate(true) <= 1)
-					return;
-
-				// If we just got a plague, remove any weaker version of the plague
-				RemovePlague(iPlagueID, thisPromotion.GetPlaguePriority());
-			}
+			ModifyPlaguesToInflict(sPlaguesToInflict[ui], bNewValue);
 		}
 
 		m_Promotions.SetPromotion(eIndex, bNewValue);
@@ -27804,6 +27797,7 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_iAOEDamageOnPillage);
 	visitor(unit.m_iAoEDamageOnMove);
 	visitor(unit.m_seBlockedPromotions);
+	visitor(unit.m_vsPlaguesToInflict);
 	visitor(unit.m_iPartialHealOnPillage);
 	visitor(unit.m_iSplashDamage);
 	visitor(unit.m_iMultiAttackBonus);
@@ -30693,13 +30687,13 @@ CvUnit* CvUnit::rangeStrikeTarget(const CvPlot& targetPlot, bool bNoncombatAllow
 	return NULL;
 }
 
-void CvUnit::DoPlagueTransfer(CvUnit& defender)
+void CvUnit::DoPlagueTransfer(CvUnit& defender, bool bAttacking)
 {
 	//We got here without being able to plague someone? Abort!
-	if (!CanPlague(&defender))
+	if (defender.isDelayedDeath())
 		return;
 
-	vector<int> vInflictedPlagues = GetInflictedPlagueIDs();
+	vector<PlagueInfo> vInflictedPlagues = GetPlaguesToInflict();
 
 	// This unit does not inflict plagues.
 	if (vInflictedPlagues.size() == 0)
@@ -30707,25 +30701,36 @@ void CvUnit::DoPlagueTransfer(CvUnit& defender)
 
 	int iCount = vInflictedPlagues.size() + 1;
 
-	for (std::vector<int>::iterator it = vInflictedPlagues.begin(); it != vInflictedPlagues.end(); it++)
+	for (std::vector<PlagueInfo>::iterator it = vInflictedPlagues.begin(); it != vInflictedPlagues.end(); it++)
 	{
-		int iPlagueChance = 0;
-		PromotionTypes eInflictedPlague = GetInflictedPlague(*it, iPlagueChance);
-		CvPromotionEntry* pkPlaguePromotionInfo = GC.getPromotionInfo(eInflictedPlague);
+		if (defender.getDomainType() != (*it).eDomain)
+			continue;
 
-		// Is the plague inflicted?
-		int iRoll = GC.getGame().randRangeInclusive(1, 100, CvSeeder::fromRaw(0x09527e40).mix(GetID()).mix(defender.GetID()).mix(iCount));
-		iCount--;
-		if (iRoll > iPlagueChance)
-			return;
+		if (bAttacking && !(*it).bApplyOnAttack)
+			continue;
+
+		if (!bAttacking && !(*it).bApplyOnDefense)
+			continue;
+
+		PromotionTypes eInflictedPlague = (*it).ePlague;
+		CvPromotionEntry* pkPlaguePromotionInfo = GC.getPromotionInfo(eInflictedPlague);
 
 		// Is the defender immune to the plague?
 		if (defender.IsPromotionBlocked(eInflictedPlague))
-			return;
+			continue;
+
+		// Random chance
+		if ((*it).iApplyChance < 100)
+		{
+			int iRoll = GC.getGame().randRangeInclusive(1, 100, CvSeeder::fromRaw(0x09527e40).mix(GetID()).mix(defender.GetID()).mix(iCount));
+			iCount--;
+			if (iRoll > (*it).iApplyChance)
+				continue;
+		}
 
 		// Does the defender already have a stronger version of this plague?
-		if (defender.HasPlague(*it, pkPlaguePromotionInfo->GetPlaguePriority() + 1))
-			return;
+		if (defender.HasPlague(pkPlaguePromotionInfo->GetPlagueID(), pkPlaguePromotionInfo->GetPlaguePriority() + 1))
+			continue;
 
 		// This might kill ye a little!
 		defender.setHasPromotion(eInflictedPlague, true);
@@ -30770,7 +30775,7 @@ void CvUnit::DoPlagueTransfer(CvUnit& defender)
 		else
 		{
 			CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
-			if (pNotifications && iPlagueChance < 100)
+			if (pNotifications && (*it).iApplyChance < 100)
 			{
 				Localization::String strMessage = Localization::Lookup("TXT_KEY_UNIT_PROMOTION_TRANSFER");
 				strMessage << getUnitInfo().GetTextKey();
