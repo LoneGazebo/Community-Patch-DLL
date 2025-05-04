@@ -1255,7 +1255,6 @@ public:
 	PromotionTypes GetInflictedPlague(int iPlagueID, int& iPlagueChance) const;
 	bool HasPlague(int iPlagueID = -1, int iMinimumPriority = -1) const;
 	void RemovePlague(int iPlagueID = -1, int iHigherPriority = -1);
-	bool ImmuneToPlague(int iPlagueID = -1) const;
 	bool CanPlague(CvUnit* pOtherUnit) const;
 
 #if defined(MOD_BALANCE_CORE_JFD)
@@ -1782,6 +1781,8 @@ public:
 
 	bool canAcquirePromotion(PromotionTypes ePromotion) const;
 	bool canAcquirePromotionAny() const;
+	bool IsPromotionBlocked(PromotionTypes eIndex) const;
+	void SetPromotionBlocked(PromotionTypes eIndex, bool bNewValue);
 	bool isPromotionValid(PromotionTypes ePromotion) const;
 	bool isHasPromotion(PromotionTypes eIndex) const;
 	void setHasPromotion(PromotionTypes eIndex, bool bNewValue);
@@ -2118,6 +2119,7 @@ protected:
 	int m_iAOEDamageOnKill;
 	int m_iAOEDamageOnPillage;
 	int m_iAoEDamageOnMove;
+	std::set<PromotionTypes> m_seBlockedPromotions;
 	int m_iPartialHealOnPillage;
 	int m_iSplashDamage;
 	int m_iMultiAttackBonus;
@@ -2572,6 +2574,7 @@ SYNC_ARCHIVE_VAR(int, m_iDisembarkFlatCostCount)
 SYNC_ARCHIVE_VAR(int, m_iAOEDamageOnKill)
 SYNC_ARCHIVE_VAR(int, m_iAOEDamageOnPillage)
 SYNC_ARCHIVE_VAR(int, m_iAoEDamageOnMove)
+SYNC_ARCHIVE_VAR(SYNC_ARCHIVE_VAR_TYPE(std::set<PromotionTypes>), m_seBlockedPromotions)
 SYNC_ARCHIVE_VAR(int, m_iPartialHealOnPillage)
 SYNC_ARCHIVE_VAR(int, m_iSplashDamage)
 SYNC_ARCHIVE_VAR(int, m_iMultiAttackBonus)
