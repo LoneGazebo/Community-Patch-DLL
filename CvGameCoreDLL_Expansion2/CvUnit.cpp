@@ -186,6 +186,7 @@ CvUnit::CvUnit() :
 	, m_iAOEDamageOnKill()
 	, m_iAOEDamageOnPillage()
 	, m_iAoEDamageOnMove()
+	, m_seBlockedPromotions()
 	, m_iPartialHealOnPillage()
 	, m_iSplashDamage()
 	, m_iMultiAttackBonus()
@@ -1420,6 +1421,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iAOEDamageOnKill = 0;
 	m_iAOEDamageOnPillage = 0;
 	m_iAoEDamageOnMove = 0;
+	m_seBlockedPromotions.clear();
 	m_iPartialHealOnPillage = 0;
 	m_iSplashDamage = 0;
 	m_iMultiAttackBonus = 0;
@@ -21966,13 +21968,13 @@ void CvUnit::changeAOEDamageOnKill(int iChange)
 int CvUnit::getAOEDamageOnPillage() const
 {
 	VALIDATE_OBJECT();
-		return m_iAOEDamageOnPillage;
+	return m_iAOEDamageOnPillage;
 }
 //	--------------------------------------------------------------------------------
 void CvUnit::changeAOEDamageOnPillage(int iChange)
 {
 	VALIDATE_OBJECT();
-		m_iAOEDamageOnPillage = (m_iAOEDamageOnPillage + iChange);
+	m_iAOEDamageOnPillage = (m_iAOEDamageOnPillage + iChange);
 	ASSERT_DEBUG(getAOEDamageOnPillage() >= 0);
 }
 
@@ -21994,13 +21996,13 @@ void CvUnit::changeAoEDamageOnMove(int iChange)
 int CvUnit::getPartialHealOnPillage() const
 {
 	VALIDATE_OBJECT();
-		return m_iPartialHealOnPillage;
+	return m_iPartialHealOnPillage;
 }
 //	--------------------------------------------------------------------------------
 void CvUnit::changePartialHealOnPillage(int iChange)
 {
 	VALIDATE_OBJECT();
-		m_iPartialHealOnPillage = (m_iPartialHealOnPillage + iChange);
+	m_iPartialHealOnPillage = (m_iPartialHealOnPillage + iChange);
 	ASSERT_DEBUG(getPartialHealOnPillage() >= 0);
 }
 
@@ -22008,13 +22010,13 @@ void CvUnit::changePartialHealOnPillage(int iChange)
 int CvUnit::getSplashDamage() const
 {
 	VALIDATE_OBJECT();
-		return m_iSplashDamage;
+	return m_iSplashDamage;
 }
 //	--------------------------------------------------------------------------------
 void CvUnit::changeSplashDamage(int iChange)
 {
 	VALIDATE_OBJECT();
-		m_iSplashDamage = (m_iSplashDamage + iChange);
+	m_iSplashDamage = (m_iSplashDamage + iChange);
 	ASSERT_DEBUG(getSplashDamage() >= 0);
 }
 
@@ -22022,26 +22024,26 @@ void CvUnit::changeSplashDamage(int iChange)
 int CvUnit::getMultiAttackBonus() const
 {
 	VALIDATE_OBJECT();
-		return m_iMultiAttackBonus;
+	return m_iMultiAttackBonus;
 }
 //	--------------------------------------------------------------------------------
 void CvUnit::changeMultiAttackBonus(int iChange)
 {
 	VALIDATE_OBJECT();
-		m_iMultiAttackBonus = (m_iMultiAttackBonus + iChange);
+	m_iMultiAttackBonus = (m_iMultiAttackBonus + iChange);
 	ASSERT_DEBUG(getMultiAttackBonus() >= 0);
 }
 //	--------------------------------------------------------------------------------
 int CvUnit::getLandAirDefenseValue() const
 {
 	VALIDATE_OBJECT();
-		return m_iLandAirDefenseValue;
+	return m_iLandAirDefenseValue;
 }
 //	--------------------------------------------------------------------------------
 void CvUnit::changeLandAirDefenseValue(int iChange)
 {
 	VALIDATE_OBJECT();
-		m_iLandAirDefenseValue = (m_iLandAirDefenseValue + iChange);
+	m_iLandAirDefenseValue = (m_iLandAirDefenseValue + iChange);
 	ASSERT_DEBUG(getLandAirDefenseValue() >= 0);
 }
 
@@ -22334,27 +22336,6 @@ void CvUnit::RemovePlague(int iPlagueID, int iHigherPriority)
 	}
 }
 
-/// Is this unit immune to a plague?
-/// iPlagueID = With a specific plague ID only? Defaults to -1 (any plague).
-bool CvUnit::ImmuneToPlague(int iPlagueID) const
-{
-	for (int iLoop = 0; iLoop < GC.getNumPromotionInfos(); iLoop++)
-	{
-		const PromotionTypes ePromotion = static_cast<PromotionTypes>(iLoop);
-		CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(ePromotion);
-		if (pkPromotionInfo)
-		{
-			int iPlagueImmunityID = pkPromotionInfo->GetPlagueIDImmunity();
-			if (iPlagueImmunityID != -1 && isHasPromotion(ePromotion))
-			{
-				if (iPlagueID == -1 || iPlagueID == iPlagueImmunityID)
-					return true;
-			}
-		}
-	}
-
-	return false;
-}
 
 bool CvUnit::CanPlague(CvUnit* pOtherUnit) const
 {
@@ -26978,6 +26959,26 @@ bool CvUnit::canAcquirePromotionAny() const
 }
 
 //	--------------------------------------------------------------------------------
+bool CvUnit::IsPromotionBlocked(PromotionTypes eIndex) const
+{
+	VALIDATE_OBJECT();
+	return m_seBlockedPromotions.count(eIndex) > 0;
+}
+//	--------------------------------------------------------------------------------
+void CvUnit::SetPromotionBlocked(PromotionTypes eIndex, bool bNewValue)
+{
+	VALIDATE_OBJECT();
+	if (bNewValue)
+	{
+		m_seBlockedPromotions.insert(eIndex);
+	}
+	else {
+		m_seBlockedPromotions.erase(eIndex);
+	}
+}
+
+
+//	--------------------------------------------------------------------------------
 bool CvUnit::isHasPromotion(PromotionTypes eIndex) const
 {
 	VALIDATE_OBJECT();
@@ -27006,6 +27007,9 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 				return;
 		}
 
+		if (bNewValue && IsPromotionBlocked(eIndex))
+			return;
+
 		// Firaxis only use the CanMoveAllTerrain promotion in the Smokey Skies scenario,
 		// which doesn't have the situation where the player discovers Optics ...
 		if (bNewValue && (canMoveAllTerrain() || isConvertUnit()))
@@ -27030,21 +27034,33 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 			}
 		}
 
+		// Blocked Promotions
+		std::set<int> sBlockedPromotions = thisPromotion.GetBlockedPromotions();
+		std::set<int>::const_iterator it = sBlockedPromotions.begin();
+		while (it != sBlockedPromotions.end()) {
+			PromotionTypes eBlockedPromotion = (PromotionTypes)(*it);
+
+			// ERROR! This should not happen.
+			if (eBlockedPromotion == eIndex)
+				continue;
+
+			SetPromotionBlocked(eBlockedPromotion, bNewValue);
+			// remove existing promotion if it is now blocked
+			if (bNewValue && HasPromotion(eBlockedPromotion))
+			{
+				setHasPromotion(eBlockedPromotion, false);
+			}
+			++it;
+		}
+
 		// Plague Stuff
 		int iPlagueID = thisPromotion.GetPlagueID();
-		int iPlagueImmunityID = thisPromotion.GetPlagueIDImmunity();
 
-		// ERROR! This should not happen.
-		if (iPlagueID > -1 && iPlagueID == iPlagueImmunityID)
-			return;
 
 		if (bNewValue)
 		{
 			if (iPlagueID > -1)
 			{
-				// Is this a plague that we're immune to? Abort!
-				if (ImmuneToPlague(iPlagueID))
-					return;
 
 				// If this plague applies a penalty to Work Rate modifier (Prisoners of War), the unit must have a work rate > 1 (1 is used for instant builds)
 				if (thisPromotion.GetWorkRateMod() < 0 && workRate(true) <= 1)
@@ -27052,11 +27068,6 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 
 				// If we just got a plague, remove any weaker version of the plague
 				RemovePlague(iPlagueID, thisPromotion.GetPlaguePriority());
-			}
-			// If we just got immunity to a plague, remove the plague
-			if (iPlagueImmunityID > -1)
-			{
-				RemovePlague(iPlagueImmunityID, -1);
 			}
 		}
 
@@ -27792,6 +27803,7 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_iAOEDamageOnKill);
 	visitor(unit.m_iAOEDamageOnPillage);
 	visitor(unit.m_iAoEDamageOnMove);
+	visitor(unit.m_seBlockedPromotions);
 	visitor(unit.m_iPartialHealOnPillage);
 	visitor(unit.m_iSplashDamage);
 	visitor(unit.m_iMultiAttackBonus);
@@ -30708,7 +30720,7 @@ void CvUnit::DoPlagueTransfer(CvUnit& defender)
 			return;
 
 		// Is the defender immune to the plague?
-		if (defender.ImmuneToPlague(*it))
+		if (defender.IsPromotionBlocked(eInflictedPlague))
 			return;
 
 		// Does the defender already have a stronger version of this plague?
@@ -31584,12 +31596,12 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		iValue += iExtra;
 	}
 
-	iTemp = pkPromotionInfo->GetPlagueIDImmunity();
 	// nM: +1 Boarding Party 2. 	nR: +1 Indomidable (targeting 4).
-	if (iTemp != 0)
+	if (!pkPromotionInfo->GetBlockedPromotions().empty())
 	{
 		iExtra = (2 * iFlavorOffense + iFlavorDefense);
-		iExtra *= 8;
+		iExtra *= pkPromotionInfo->GetBlockedPromotions().size();
+		iExtra *= 4;
 		iValue += iExtra;
 	}
 	

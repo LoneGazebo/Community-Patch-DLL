@@ -3714,7 +3714,7 @@ int CvLuaUnit::lGetMovementRules(lua_State* L)
 					text = GetLocalizedText("TXT_KEY_UNIT_ALREADY_PLAGUED", pkPlaguePromotionInfo->GetText());
 				}
 				// Immune to this plague?
-				else if (pkUnit->ImmuneToPlague(iPlagueID))
+				else if (pkUnit->IsPromotionBlocked(ePlague))
 				{
 					text = GetLocalizedText("TXT_KEY_UNIT_IMMUNE_PLAGUED", pkPlaguePromotionInfo->GetText());
 				}

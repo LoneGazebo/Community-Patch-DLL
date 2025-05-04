@@ -117,7 +117,6 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iPlaguePromotion(NO_PROMOTION),
 	m_iPlagueID(NO_PROMOTION),
 	m_iPlaguePriority(0),
-	m_iPlagueIDImmunity(-1),
 #endif
 	m_iEmbarkExtraVisibility(0),
 	m_iEmbarkDefenseModifier(0),
@@ -657,7 +656,6 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 
 	m_iPlagueID = kResults.GetInt("PlagueID");
 	m_iPlaguePriority = kResults.GetInt("PlaguePriority");
-	m_iPlagueIDImmunity = kResults.GetInt("PlagueIDImmunity");
 #endif
 	m_iEmbarkExtraVisibility = kResults.GetInt("EmbarkExtraVisibility");
 	m_iEmbarkDefenseModifier = kResults.GetInt("EmbarkDefenseModifier");
@@ -1224,6 +1222,33 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 			ASSERT_DEBUG(iUnit < iNumUnitTypes);
 
 			m_pbCivilianUnitType[iUnit] = true;
+		}
+
+		pResults->Reset();
+	}
+
+	//UnitPromotions_BlockedPromotions
+	{
+		m_siBlockedPromotions.clear();
+
+		std::string sqlKey = "UnitPromotions_BlockedPromotions";
+		Database::Results* pResults = kUtility.GetResults(sqlKey);
+		if (pResults == NULL)
+		{
+			const char* szSQL = "select UnitPromotions.ID from UnitPromotions_BlockedPromotions inner join UnitPromotions On UnitPromotions.Type = BlockedPromotionType where UnitPromotions_BlockedPromotions.PromotionType = ?";
+			pResults = kUtility.PrepareResults(sqlKey, szSQL);
+		}
+
+		ASSERT_DEBUG(pResults);
+		if (!pResults) return false;
+
+		pResults->Bind(1, szPromotionType);
+
+		while (pResults->Step())
+		{
+			const int iBlockedPromotion = (UnitTypes)pResults->GetInt(0);
+
+			m_siBlockedPromotions.insert(iBlockedPromotion);
 		}
 
 		pResults->Reset();
@@ -1947,11 +1972,6 @@ int CvPromotionEntry::GetPlagueID() const
 int CvPromotionEntry::GetPlaguePriority() const
 {
 	return m_iPlaguePriority;
-}
-
-int CvPromotionEntry::GetPlagueIDImmunity() const
-{
-	return m_iPlagueIDImmunity;
 }
 #endif
 
@@ -3301,6 +3321,11 @@ std::pair<int, int> CvPromotionEntry::GetYieldFromPillage(YieldTypes eYield) con
 	}
 
 	return std::make_pair(0, 0);
+}
+
+std::set<int> CvPromotionEntry::GetBlockedPromotions() const
+{
+	return m_siBlockedPromotions;
 }
 
 #if defined(MOD_PROMOTIONS_UNIT_NAMING)

@@ -146,7 +146,6 @@ public:
 	int GetPlaguePromotion() const;
 	int GetPlagueID() const;
 	int GetPlaguePriority() const;
-	int GetPlagueIDImmunity() const;
 #endif
 	int GetEmbarkExtraVisibility() const;
 	int GetEmbarkDefenseModifier() const;
@@ -363,6 +362,7 @@ public:
 	bool GetUnitCombatClass(int i) const;
 	bool GetCivilianUnitType(int i) const;
 	std::pair<int, int> GetYieldFromPillage(YieldTypes eYield) const;
+	std::set<int> GetBlockedPromotions() const;
 #if defined(MOD_PROMOTIONS_UNIT_NAMING)
 	bool IsUnitNaming(int i) const;
 	void GetUnitName(UnitTypes eUnit, CvString& sUnitName) const;
@@ -473,7 +473,6 @@ protected:
 	int m_iPlaguePromotion; // OBSOLETE: to be removed in VP5.0
 	int m_iPlagueID;
 	int m_iPlaguePriority;
-	int m_iPlagueIDImmunity; // OBSOLETE: to be removed in VP5.0
 #endif
 	int m_iEmbarkExtraVisibility;
 	int m_iEmbarkDefenseModifier;
@@ -696,6 +695,7 @@ protected:
 #endif
 	bool* m_pbPostCombatRandomPromotion;
 	std::map<int, std::pair<int, int>> m_yieldFromPillage;
+	std::set<int> m_siBlockedPromotions;
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
