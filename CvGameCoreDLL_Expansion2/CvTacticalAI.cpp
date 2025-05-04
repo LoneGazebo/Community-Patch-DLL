@@ -784,10 +784,6 @@ void CvTacticalAI::AssignGlobalHighPrioMoves()
 	PlotHealMoves(true);
 	//move armies first
 	PlotOperationalArmyMoves();
-
-	//try to make sure our most important fortifications have units in them
-	PlotGarrisonMoves(1, true);
-	PlotBastionMoves(1, true);
 }
 
 /// Choose which tactics to run and assign units to it
@@ -804,8 +800,8 @@ void CvTacticalAI::AssignGlobalMidPrioMoves()
 
 	//make sure our frontline cities and fortresses have a garrison
 	//garrisons sometimes make a sortie so we have to get them back
-	PlotGarrisonMoves(3, false);
-	PlotBastionMoves(2, false);
+	PlotGarrisonMoves(3);
+	PlotBastionMoves(2);
 
 	//now all attacks are done, try to move any unprocessed units out of harm's way
 	PlotMovesToSafety(true);
@@ -1452,7 +1448,7 @@ void CvTacticalAI::PlotBarbarianCampDefense()
 }
 
 /// Make a defensive move to garrison a city
-void CvTacticalAI::PlotGarrisonMoves(int iNumTurnsAway, bool bEmergencyOnly)
+void CvTacticalAI::PlotGarrisonMoves(int iNumTurnsAway)
 {
 	ClearCurrentMoveUnits(AI_TACTICAL_GARRISON);
 
@@ -1463,19 +1459,15 @@ void CvTacticalAI::PlotGarrisonMoves(int iNumTurnsAway, bool bEmergencyOnly)
 		if(!pCity)
 			continue;
 
-		if (bEmergencyOnly)
-		{
-			if (!pCity->isUnderSiege())
-				continue;
-		}
-		else
-		{
-			// it's possible that the city did not perform a ranged attack this turn yet although enemies are present
-			// this depends on the tactical posture ... so let's try again here as a safety net
-			CvUnit* pEnemyPlot = pCity->getBestRangedStrikeTarget();
-			if (pEnemyPlot)
-				pCity->rangeStrike(pEnemyPlot->getX(), pEnemyPlot->getY());
-		}
+		// it's possible that the city did not perform a ranged attack this turn yet although enemies are present
+		// this depends on the tactical posture ... so let's try again here as a safety net
+		CvUnit* pEnemyPlot = pCity->getBestRangedStrikeTarget();
+		if (pEnemyPlot)
+			pCity->rangeStrike(pEnemyPlot->getX(), pEnemyPlot->getY());
+
+		// ignore core cities here (handled by homeland ai)
+		if (!pCity->isBorderCity() && !pCity->GetCityCitizens()->AnyPlotBlockaded())
+			continue;
 
 		//note that garrisons do not need to be "recruited" into tactical AI
 		CvUnit* pGarrison = pCity->GetGarrisonedUnit();
@@ -1558,14 +1550,14 @@ void CvTacticalAI::PlotGarrisonMoves(int iNumTurnsAway, bool bEmergencyOnly)
 }
 
 /// Establish a defensive bastion adjacent to a city
-void CvTacticalAI::PlotBastionMoves(int iNumTurnsAway, bool bEmergencyOnly)
+void CvTacticalAI::PlotBastionMoves(int iNumTurnsAway)
 {
 	ClearCurrentMoveUnits(AI_TACTICAL_GUARD);
 
 	for (CvTacticalTarget* pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_DEFENSIVE_BASTION); pTarget!=NULL; pTarget = GetNextZoneTarget())
 	{
 		CvPlot* pPlot = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
-		if (bEmergencyOnly && !TacticalAIHelpers::IsCloseToContestedBorder(m_pPlayer,pPlot))
+		if (!TacticalAIHelpers::IsCloseToContestedBorder(m_pPlayer,pPlot))
 			continue;
 
 		// Grab units that make sense for this move type
@@ -5986,6 +5978,11 @@ CvPlot* TacticalAIHelpers::FindClosestSafePlotForHealing(CvUnit* pUnit, bool bCo
 	if (pUnit->GetDanger() == 0 && pUnit->canHeal(pUnit->plot(), true))
 		return pUnit->plot();
 
+	//doesn't get much safer than in a city
+	//also garrisons should not run away!
+	if (pUnit->plot()->isCity())
+		return pUnit->plot();
+
 	std::vector<SPlotWithScore> vCandidates;
 	ReachablePlots eligiblePlots = pUnit->GetAllPlotsInReachThisTurn(); //embarkation allowed for now, we sort it out below
 	for (ReachablePlots::iterator it = eligiblePlots.begin(); it != eligiblePlots.end(); ++it)
@@ -7108,6 +7105,15 @@ int ScoreCombatUnitTurnEnd(const CvUnit* pUnit, eUnitAssignmentType eLastAssignm
 		{
 			int iRemainingHP = pUnit->GetCurrHitPoints() - iSelfDamage;
 
+			//extra careful with ranged / siege units / carriers
+			if (pUnit->AI_getUnitAIType() == UNITAI_RANGED || pUnit->AI_getUnitAIType() == UNITAI_CITY_BOMBARD || pUnit->AI_getUnitAIType() == UNITAI_CARRIER_SEA)
+			{
+				if (iNumAdjEnemies > 0 && iDanger > iRemainingHP)
+					return INT_MAX;
+				if (iNumAdjFriendlies == 0 && iDanger > iRemainingHP)
+					return INT_MAX;
+			}
+
 			//the minimum amount of hitpoint we want a standalone unit to have for the expected counterattacks
 			bool isForKill = (eLastAssignment == A_MELEEKILL || eLastAssignment == A_MELEEKILL_NO_ADVANCE || eLastAssignment == A_RANGEKILL);
 			bool couldFlee = (gSafePlotCount[pUnit->GetID()] > 0);
@@ -7121,15 +7127,6 @@ int ScoreCombatUnitTurnEnd(const CvUnit* pUnit, eUnitAssignmentType eLastAssignm
 			int iCover = bRelaxedCheck ? iNumAdjFriendlies+1 : max(iNumAdjFriendlies, 1);
 			if (iRemainingHP*iCover < iLowHealthThreshold)
 				return INT_MAX;
-
-			//extra careful with siege units / carriers
-			if (pUnit->AI_getUnitAIType() == UNITAI_CITY_BOMBARD || pUnit->AI_getUnitAIType() == UNITAI_CARRIER_SEA)
-			{
-				if (iNumAdjEnemies > 0 && iDanger > pUnit->GetMaxHitPoints())
-					return INT_MAX;
-				if (iNumAdjFriendlies == 0 && iDanger > pUnit->GetMaxHitPoints())
-					return INT_MAX;
-			}
 		}
 
 		//if we have friends around assume they will absorb some damage
@@ -7223,7 +7220,7 @@ STacticalAssignment ScorePlotForCombatUnitMove(const SUnitStats& unit, const CvT
 
 	//lookup desirability by unit strategy / enemy distance
 	//even for intermediate plots, so as not to bias against them
-	if (assumedPosition.wantToFight())
+	if (assumedPosition.haveEnemies())
 	{
 		//zero to TACTICAL_COMBAT_MAX_TARGET_DISTANCE
 		int iPlotScoreForEnemyDistance[5][5] = {
@@ -7735,6 +7732,9 @@ CvTacticalPlot::CvTacticalPlot(const CvPlot* plot, PlayerTypes ePlayer, const ve
 		{
 			if (pPlotUnit->IsCanDefend())
 			{
+				//mark as friendly
+				bfBlockedByNonSimCombatUnit |= 4;
+
 				if (pPlotUnit->getDomainType() == DOMAIN_LAND)
 					bfBlockedByNonSimCombatUnit |= 1;
 				else if (pPlotUnit->getDomainType() == DOMAIN_SEA)
@@ -7783,8 +7783,11 @@ void CvTacticalPlot::resetVolatileProperties()
 	aiEnemyCombatUnitsAdjacent[TD_SEA] = 0;
 }
 
-bool CvTacticalPlot::isBlockedByNonSimUnit(eTactPlotDomain eDomain) const
+bool CvTacticalPlot::isBlockedByNonSimUnit(eTactPlotDomain eDomain, bool bMustBeFriendly) const
 {
+	if (bMustBeFriendly && (bfBlockedByNonSimCombatUnit & 4) == 0)
+		return false;
+
 	if (eDomain == TD_BOTH)
 		return (bfBlockedByNonSimCombatUnit & 3) != 0;
 	else if (eDomain == TD_LAND)
@@ -8876,12 +8879,17 @@ bool CvTacticalPosition::isKillOrImprovedPosition() const
 		//note that RESTARTS are ignored here ... just hope that we still find good moves after the restart
 	}
 
-	//if we have enemies we want attacks! (kills already checked above)
-	if (wantToFight() && iAttacksNoMove == 0)
-		return false;
-	
-	//staying in place and bombarding is fine! note that retreating a damaged unit counts as positive because it should be MS_THIRDLINE
-	return (iNegative < iPositive) || (iNegative == iPositive && iAttacksNoMove>0) || (wantToFight() && iAfter<iBefore);
+	if (haveEnemies())
+	{
+		//staying in place and bombarding is fine!
+		//note that retreating a damaged unit counts as positive because it should be MS_THIRDLINE
+		return (iNegative < iPositive) || (iNegative == iPositive && iAttacksNoMove > 0);
+	}
+	else
+	{
+		//did we get closer to the target plot?
+		return iAfter < iBefore;
+	}
 }
 
 //this influences how daring we'll be
@@ -8890,7 +8898,7 @@ void CvTacticalPosition::countEnemiesAndCheckVisibility()
 	if (parentPosition != NULL)
 		CUSTOMLOG("should not happen");
 
-	//todo: should we count non-simulated friendlies as well?
+	//will add non-sim friendly units later
 	nOurOriginalUnits = availableUnits.size();
 	nOriginalEnemies = 0;
 
@@ -8901,6 +8909,10 @@ void CvTacticalPosition::countEnemiesAndCheckVisibility()
 			nOriginalEnemies++; //units and cities
 			enemyPlots.push_back(tactPlots[i].getPlotIndex());
 		}
+
+		//also count our non-sim units which are close to the front
+		if (tactPlots[i].isBlockedByNonSimUnit(CvTacticalPlot::TD_BOTH, true) && tactPlots[i].getEnemyDistance() < 3)
+			nOurOriginalUnits++;
 
 		//ignore range 1, we can always see those plots so they are boring
 		//ignore range 4+, this is too far out and we don't have those plots cached
@@ -9133,7 +9145,7 @@ void CvTacticalPosition::initFromParent(const CvTacticalPosition& parent)
 	killedEnemies = parent.killedEnemies;
 }
 
-bool CvTacticalPosition::wantToFight() const
+bool CvTacticalPosition::haveEnemies() const
 {
 	return nOriginalEnemies > 0;
 }
@@ -9234,7 +9246,7 @@ void CvTacticalPosition::updateMoveAndAttackPlotsForUnit(SUnitStats unit)
 			}
 			else
 			{
-				if (wantToFight())
+				if (haveEnemies())
 				{
 					//ignore all plots where we cannot fight. allow ships to capture/garrison cities though!
 					if (!pUnit->isNativeDomain(pPlot) && !pPlot->isCoastalCityOrPassableImprovement(pUnit->getOwner(),false,false))
@@ -9934,13 +9946,13 @@ bool CvTacticalPosition::addAvailableUnit(const CvUnit* pUnit)
 	eUnitMovementStrategy eStrategy = MS_NONE;
 
 	//ok this is a bit involved
-	//case a) we want to fight. units should stay in their native domain so they can fight.
-	//case b) we don't want to fight. units may embark if the target is not their native domain
+	//case a) we want to fight (enemies around). units should stay in their native domain so they can fight.
+	//case b) we don't want to fight (no enemies). units may embark if the target is not their native domain
 	//later in updateMoveAndAttackPlotsForUnits we try and filter the reachable plots according to unit strategy
 	//also, only land units can embark and but melee ships can move into certain land plots (cities) so it's tricky
 
 	//if were not looking to fight but about to embark then keep the unit away from enemies
-	if (!wantToFight() && !pUnit->isNativeDomain(pTargetPlot) && pUnit->CanEverEmbark())
+	if (!haveEnemies() && !pUnit->isNativeDomain(pTargetPlot) && pUnit->CanEverEmbark())
 	{
 		if (pUnit->IsCombatUnit())
 			eStrategy = MS_EMBARKED;
@@ -10014,7 +10026,7 @@ bool CvTacticalPosition::addAvailableUnit(const CvUnit* pUnit)
 	if (pUnit->isProjectedToDieNextTurn())
 	{
 		//do not use for purely defensive moves
-		if (!wantToFight())
+		if (!haveEnemies())
 			return false;
 		//pull back our melee units if they have soaked enough damage, but maybe we can still score a kill!
 		if (eStrategy == MS_FIRSTLINE)

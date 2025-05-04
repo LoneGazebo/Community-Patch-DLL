@@ -880,7 +880,8 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const UnitIdContainer& 
 			bool bOutOfRange = plotDistance(*m_pPlot, *pAttacker->plot()) > iEnemyRange;
 
 			//if the attacker is not out of range, assume they need to move for the attack, so we don't know their plot
-			int iDamage = TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(pUnit, pAttacker, m_pPlot, bOutOfRange ? pAttacker->plot() : NULL, iAttackerDamage, false, iExtraDamage, true);
+			//todo: consider whether the enemy units would block each other from attacking?
+			int iDamage = TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(pUnit, pAttacker, m_pPlot, bOutOfRange ? NULL : pAttacker->plot(), iAttackerDamage, false, iExtraDamage, true);
 
 			if (!m_pPlot->IsKnownVisibleToTeam(pAttacker->getTeam()))
 				iDamage = (iDamage * 80) / 100; //there's a chance they won't spot us
