@@ -15913,7 +15913,7 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner, BuildTypes eBuild, Improvem
 	int iMaxAdjacentThreat = 0;
 
 	int iNearestOwnedCityDistance = 0;
-
+	int iAdjacentOtherPlayerLand = 0;
 	int iAdjacentOwnedLand = 0;
 	int iNearbyDefensiveStructures = 0;
 
@@ -16000,8 +16000,10 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner, BuildTypes eBuild, Improvem
 
 				}
 			}
-			else if (pAdjacentPlot->isOwned() && pAdjacentPlot->getOwner() != eOwner && GET_PLAYER(pAdjacentPlot->getOwner()).isMajorCiv())
+			else if (pAdjacentPlot->isOwned() && pAdjacentPlot->getTeam() != eTeam && GET_PLAYER(pAdjacentPlot->getOwner()).isMajorCiv())
 			{
+				iAdjacentOtherPlayerLand++;
+
 				CivApproachTypes eApproach = pDiplomacyAI->GetCivApproach(pAdjacentPlot->getOwner());
 				StrengthTypes eStrength = pDiplomacyAI->GetMilitaryStrengthComparedToUs(pAdjacentPlot->getOwner());
 
@@ -16014,7 +16016,7 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner, BuildTypes eBuild, Improvem
 	}
 
 	// No defensive utility from building here
-	if (iMaxAdjacentThreat == 0)
+	if (iMaxAdjacentThreat == 0 || iAdjacentOtherPlayerLand<3)
 		return 0;
 
 	bool bIgnoreFeature = eBuild != NO_BUILD && getFeatureType() != NO_FEATURE && GC.getBuildInfo(eBuild)->isFeatureRemove(getFeatureType());
