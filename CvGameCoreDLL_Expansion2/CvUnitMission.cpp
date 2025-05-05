@@ -1567,11 +1567,10 @@ void CvUnitMission::StartMission(CvUnit* hUnit)
 
 			else if(pkQueueData->eMissionType == CvTypes::getMISSION_PARADROP())
 			{
-				if(hUnit->paradrop(pkQueueData->iData1, pkQueueData->iData2))
+				if(hUnit->paradrop(pkQueueData->iData1, pkQueueData->iData2, bAction))
 				{
-					bAction = true;
 					// The Paradrop needs to have GameplayUnitMissionEnd, so if no mission timer will be started, do it now.
-					if (hUnit->plot()->isActiveVisible() && (!hUnit->isHuman() || !hUnit->plot()->isVisibleToWatchingHuman() || CalculateMissionTimer(hUnit) == 0))
+					if (bAction && (!hUnit->isHuman() || !hUnit->plot()->isVisibleToWatchingHuman() || CalculateMissionTimer(hUnit) == 0))
 					{
 						CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(hUnit));
 						gDLL->GameplayUnitMissionEnd(pDllUnit.get());

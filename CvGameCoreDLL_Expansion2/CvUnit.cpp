@@ -8645,9 +8645,10 @@ bool CvUnit::canParadropAt(const CvPlot* pPlot, int iX, int iY) const
 
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::paradrop(int iX, int iY)
+bool CvUnit::paradrop(int iX, int iY, bool& bAnimationShown)
 {
 	VALIDATE_OBJECT();
+	bAnimationShown = false;
 	if(!canParadropAt(plot(), iX, iY))
 	{
 		return false;
@@ -8673,12 +8674,16 @@ bool CvUnit::paradrop(int iX, int iY)
 	//play paradrop animation
 	if(pPlot->isActiveVisible())
 	{
-		CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
-		gDLL->GameplayUnitParadrop(pDllUnit.get());
+		if (!CvPreGame::quickMovement())
+		{
+			CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
+			gDLL->GameplayUnitParadrop(pDllUnit.get());
+			bAnimationShown = true;
+		}
 	}
 
 	//more first, update movement points later
-	setXY(pPlot->getX(), pPlot->getY(), true, true, false);
+	setXY(pPlot->getX(), pPlot->getY(), true, true, !bAnimationShown);
 	setMoves(GD_INT_GET(MOVE_DENOMINATOR)); //keep one move
 	setMadeAttack(true);
 
@@ -10617,10 +10622,13 @@ bool CvUnit::foundCity()
 		CUSTOMLOG("  ... success!  They founded %s", plot()->getPlotCity()->getName().c_str());
 	}
 
-	if(pPlot->isActiveVisible())
+	if (pPlot->isActiveVisible())
 	{
-		CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
-		gDLL->GameplayUnitActivate(pDllUnit.get());
+		if (!CvPreGame::quickMovement())
+		{
+			CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
+			gDLL->GameplayUnitActivate(pDllUnit.get());
+		}
 
 		//Achievement
 		if (MOD_API_ACHIEVEMENTS && eActivePlayer == getOwner() && kActivePlayer.getNumCities() >= 2 && kActivePlayer.isHuman() && !GC.getGame().isGameMultiPlayer())
