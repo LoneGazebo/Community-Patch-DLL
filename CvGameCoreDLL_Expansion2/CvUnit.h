@@ -422,7 +422,7 @@ public:
 
 	bool canParadrop(const CvPlot* pPlot, bool bOnlyTestVisibility) const;
 	bool canParadropAt(const CvPlot* pPlot, int iX, int iY) const;
-	bool paradrop(int iX, int iY);
+	bool paradrop(int iX, int iY, bool& bAnimationShown);
 
 	bool canMakeTradeRoute(const CvPlot* pPlot) const;
 	bool canMakeTradeRouteAt(const CvPlot* pPlot, int iX, int iY, TradeConnectionType eConnectionType) const;
