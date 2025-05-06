@@ -2510,7 +2510,7 @@ bool CvHomelandAI::ExecuteExplorerMoves(CvUnit* pUnit)
 	}
 
 	//should be the same everywhere so we can reuse paths
-	int iMoveFlags = CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE | CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER;
+	int iMoveFlags = CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE | CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER | CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED;
 
 	//step 1: ignore the near target for now - if we have a leftover path to a far-away (expensive) target an it's still good, then reuse it!
 	if (pUnit->GetMissionAIType() == MISSIONAI_EXPLORE && pUnit->GetMissionAIPlot() && plotDistance(*pUnit->plot(), *pUnit->GetMissionAIPlot()) > 10)
@@ -5996,17 +5996,15 @@ bool CvHomelandAI::IsValidExplorerEndTurnPlot(const CvUnit* pUnit, CvPlot* pPlot
 			return false;
 	}
 
-	// see if we can capture a civilian?
 	int iFlags = CvUnit::MOVEFLAG_DESTINATION;
-	if (!pPlot->isVisibleEnemyDefender(pUnit) && pPlot->isVisibleEnemyUnit(pUnit))
+	if (pPlot->isVisibleEnemyDefender(pUnit))
+		// don't bump into enemies
+		return false;
+	else if (pPlot->isVisibleEnemyUnit(pUnit))
+		// but maybe capture a civilian?
 		iFlags |= CvUnit::MOVEFLAG_ATTACK;
 
-	if(!pUnit->canMoveInto(*pPlot, iFlags))
-	{
-		return false;
-	}
-
-	return true;
+	return pUnit->canMoveInto(*pPlot, iFlags);
 }
 
 /// Move an exploring unit to a designated target (special function exposed to Lua)

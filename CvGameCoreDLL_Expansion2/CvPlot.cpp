@@ -11537,9 +11537,13 @@ PlotVisibilityChangeResult CvPlot::changeVisibilityCount(TeamTypes eTeam, int iC
 					PlayerTypes ePlayer = (PlayerTypes)aePlayers[iI];
 					if (ePlayer != NO_PLAYER)
 					{
-						//todo: create a new tactical target as well? but might be too late
-						if (GET_PLAYER(ePlayer).AddKnownAttacker(loopUnit))
-							//might want to interrupt move mission ...
+						//if the attacker was not known before, it's new
+						//if we could not see the plot before, it's sure to be new
+						//need both conditions because AI sometimes infers the presence of units in invisible plots
+						//so they are already known attackers!
+						if (GET_PLAYER(ePlayer).AddKnownAttacker(loopUnit) || !bOldMaxVisibility)
+							//todo: create a new tactical target as well? but might be too late
+							//anyway might want to interrupt move mission ... depends on pathing flags
 							if (pUnit)
 								pUnit->SetSpottedEnemy(true);
 					}
