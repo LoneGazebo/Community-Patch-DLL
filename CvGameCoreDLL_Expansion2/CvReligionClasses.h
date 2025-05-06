@@ -262,7 +262,6 @@ public:
 	void LogReligionMessage(CvString& strMsg);
 
 	ReligionList m_CurrentReligions;
-	mutable vector<int> m_religionIndex; //for faster lookup, not serialized
 
 private:
 
@@ -273,6 +272,7 @@ private:
 	bool CheckSpawnGreatProphet(CvPlayer& kPlayer);
 
 	int m_iMinimumFaithForNextPantheon;
+	mutable vector<int> m_religionIndex; //for faster lookup, not serialized
 
 	friend FDataStream& operator>>(FDataStream&, CvGameReligions&);
 	friend FDataStream& operator<<(FDataStream&, const CvGameReligions&);
