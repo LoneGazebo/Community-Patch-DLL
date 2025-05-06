@@ -258,8 +258,9 @@ FDataStream& operator<<(FDataStream& saveTo, const CvReligionInCity& readFrom)
 // CvGameReligions
 //=====================================
 /// Constructor
-CvGameReligions::CvGameReligions(void):
+CvGameReligions::CvGameReligions(void) :
 	m_iMinimumFaithForNextPantheon(0)
+	, m_religionIndex(MAX_CIV_PLAYERS, -1)
 {
 }
 
@@ -1832,36 +1833,29 @@ void CvGameReligions::UpdateAllCitiesThisReligion(ReligionTypes eReligion)
 /// Return a pointer to a religion that has been founded
 const CvReligion* CvGameReligions::GetReligion(ReligionTypes eReligion, PlayerTypes ePlayer) const
 {
-	if(eReligion == NO_RELIGION)
+	if (eReligion == NO_RELIGION)
 		return NULL;
 
 	//caching for performance (but only for real religions, not pantheons)
-	size_t pos = (size_t)eReligion;
-	if (m_religionIndex.size() > pos && m_religionIndex[pos] != -1)
-		return &m_CurrentReligions[m_religionIndex[pos]];
+	if (m_religionIndex[eReligion] != -1)
+		return &m_CurrentReligions[m_religionIndex[eReligion]];
 
-	int iIndex = 0;
-	for(ReligionList::const_iterator it = m_CurrentReligions.begin(); 
-		it != m_CurrentReligions.end(); 
-		it++, iIndex++)
+	for (size_t iI = 0; iI < m_CurrentReligions.size(); iI++)
 	{
-		// If talking about a pantheon, make sure to match the player
-		if(it->m_eReligion == eReligion && it->m_eReligion == RELIGION_PANTHEON)
+		const CvReligion* pReligion = &m_CurrentReligions[iI];
+		if (pReligion->m_eReligion == eReligion)
 		{
-			if(it->m_eFounder == ePlayer)
+			if (eReligion != RELIGION_PANTHEON)
 			{
-				//do not cache pantheons, too complex
-				return &(*it);
+				// Update the cache
+				m_religionIndex[eReligion] = iI;
+				return pReligion;
 			}
-		}
-		else if(it->m_eReligion == eReligion)
-		{
-			//cache update
-			if (m_religionIndex.size() <= pos)
-				m_religionIndex.resize(pos + 1, -1);
-			m_religionIndex[pos] = iIndex;
-
-			return &(*it);
+			// If talking about a pantheon, make sure to match the player
+			else if (pReligion->m_eFounder == ePlayer)
+			{
+				return pReligion;
+			}
 		}
 	}
 
