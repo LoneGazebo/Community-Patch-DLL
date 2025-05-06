@@ -7119,6 +7119,10 @@ int ScoreCombatUnitTurnEnd(const CvUnit* pUnit, eUnitAssignmentType eLastAssignm
 			bool couldFlee = (gSafePlotCount[pUnit->GetID()] > 0);
 			int iMagicNumber = (isForKill || !couldFlee)  ? 23 : 42;
 
+			//if this is the only enemy ...
+			if (assumedPosition.getNumEnemies() == 1 && isForKill)
+				iMagicNumber = 12;
+
 			//this is a bit cryptic to avoid integer truncation. consider danger/hp is the overkill factor.
 			//if the overkill factor is high, we need more hitpoints
 			int iLowHealthThreshold = (iMagicNumber * iDanger) / max(1, iRemainingHP);
@@ -10103,7 +10107,7 @@ bool CvTacticalPosition::canProbablyEndTurnInPlot(const STacticalAssignment& ass
 			gTactPosStorage.getDangerCache().storeDanger(pUnit->GetID(), assumedUnitPlot.getPlotIndex(), unit->iSelfDamage, getKilledEnemies(), iDanger);
 		}
 
-		return ScoreCombatUnitTurnEnd(pUnit, unit->eLastAssignment, assumedUnitPlot, iDanger, CvTacticalPlot::TD_BOTH,
+		return ScoreCombatUnitTurnEnd(pUnit, assignment.eAssignmentType, assumedUnitPlot, iDanger, CvTacticalPlot::TD_BOTH,
 			unit->iSelfDamage + assignment.iSelfDamage, assignment.iKillOrNearKillId, assignment.iRemainingMoves==unit->iMaxMoves, *this, EM_FINAL, availableUnits.size() > 1) != INT_MAX;
 	}
 	else

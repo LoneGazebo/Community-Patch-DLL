@@ -10099,12 +10099,8 @@ bool CvUnit::canPillage(const CvPlot* pPlot) const
 
 	if (isBarbarian())
 	{
-		// barbarian boats not allowed to pillage, as they're too annoying :)
+		// barbarian boats not allowed to pillage, as that's too annoying :)
 		if (getDomainType() == DOMAIN_SEA)
-			return false;
-
-		// barbs can't pillage camps yo
-		if (pPlot->getImprovementType() == GD_INT_GET(BARBARIAN_CAMP_IMPROVEMENT))
 			return false;
 	}
 
@@ -10143,8 +10139,9 @@ bool CvUnit::canPillage(const CvPlot* pPlot) const
 		return false;
 	}
 
-	if(eImprovementType == (ImprovementTypes)GD_INT_GET(RUINS_IMPROVEMENT))
+	if(eImprovementType == GD_INT_GET(RUINS_IMPROVEMENT) || eImprovementType == GD_INT_GET(BARBARIAN_CAMP_IMPROVEMENT))
 	{
+		//cannot pillage these ephemeral improvements
 		return false;
 	}
 	else
