@@ -23139,7 +23139,6 @@ void CvDiplomacyAI::DoUpdatePrimeLeagueAlly()
 	int iGoodVotingHistoryThreshold = /*200*/ GD_INT_GET(VOTING_HISTORY_SCORE_MAX) / max(1, GD_INT_GET(VOTING_HISTORY_SCORE_PRIME_COMPETITOR_THRESHOLD));
 	int iBadVotingHistoryThreshold = iGoodVotingHistoryThreshold * -1;
 	int iMyVotes = pLeague->CalculateStartingVotesForMember(GetID());
-	int iPrimeScore = 0;
 	int iPrimeVotes = 0;
 	CvLeagueAI::AlignmentLevels ePrimeAlignment = CvLeagueAI::ALIGNMENT_NEUTRAL;
 
@@ -23193,7 +23192,6 @@ void CvDiplomacyAI::DoUpdatePrimeLeagueAlly()
 		if (ePrimeLeagueAlly == NO_PLAYER)
 		{
 			ePrimeLeagueAlly = ePlayer;
-			iPrimeScore = GetVotingHistoryScore(ePlayer);
 			iPrimeVotes = iVotes;
 			ePrimeAlignment = eAlignment;
 			continue;
@@ -23202,7 +23200,6 @@ void CvDiplomacyAI::DoUpdatePrimeLeagueAlly()
 		else if (GetVotingHistoryScore(ePlayer) > GetVotingHistoryScore(ePrimeLeagueAlly) && GetVotingHistoryScore(ePlayer) >= (GetVotingHistoryScore(ePrimeLeagueAlly) + iGoodVotingHistoryThreshold))
 		{
 			ePrimeLeagueAlly = ePlayer;
-			iPrimeScore = GetVotingHistoryScore(ePlayer);
 			iPrimeVotes = iVotes;
 			ePrimeAlignment = eAlignment;
 			continue;
@@ -23217,7 +23214,6 @@ void CvDiplomacyAI::DoUpdatePrimeLeagueAlly()
 		if (eAlignment > ePrimeAlignment)
 		{
 			ePrimeLeagueAlly = ePlayer;
-			iPrimeScore = GetVotingHistoryScore(ePlayer);
 			iPrimeVotes = iVotes;
 			ePrimeAlignment = eAlignment;
 		}
@@ -23227,7 +23223,6 @@ void CvDiplomacyAI::DoUpdatePrimeLeagueAlly()
 			if (iVotes > iPrimeVotes)
 			{
 				ePrimeLeagueAlly = ePlayer;
-				iPrimeScore = GetVotingHistoryScore(ePlayer);
 				iPrimeVotes = iVotes;
 				ePrimeAlignment = eAlignment;
 			}
@@ -23237,7 +23232,6 @@ void CvDiplomacyAI::DoUpdatePrimeLeagueAlly()
 				if (GetCachedOpinionWeight(ePlayer) < GetCachedOpinionWeight(ePrimeLeagueAlly))
 				{
 					ePrimeLeagueAlly = ePlayer;
-					iPrimeScore = GetVotingHistoryScore(ePlayer);
 					iPrimeVotes = iVotes;
 					ePrimeAlignment = eAlignment;
 				}
@@ -32019,7 +32013,6 @@ void CvDiplomacyAI::DoContactPlayer(PlayerTypes ePlayer)
 
 	// These can be used for info about deal items, e.g. what Minor Civ we're telling the guy to stay away from, etc.
 	int iData1 = 0;
-	int iData2 = 0;
 
 	// If this is the same turn we've met a player, don't send anything his way quite yet - wait until we've said hello at least
 	if (GET_TEAM(GetTeam()).GetTurnsSinceMeetingTeam(GET_PLAYER(ePlayer).getTeam()) == 0)
@@ -32035,7 +32028,6 @@ void CvDiplomacyAI::DoContactPlayer(PlayerTypes ePlayer)
 	SetCantMatchDeal(ePlayer, false);
 
 	iData1 = -1;
-	iData2 = -1;
 
 	pDeal->ClearItems();
 	pDeal->SetFromPlayer(GetID());
@@ -32395,7 +32387,6 @@ void CvDiplomacyAI::DoContactMinorCivs()
 		bool bWantsToConnect = false;
 		bool bWantsToGiveGoldToThisMinor = false;
 		bool bWantsToBullyUnitFromThisMinor = false;
-		bool bWantsToBullyGoldFromThisMinor = false;
 		bool bWantsToBuyoutThisMinor = false;
 		bool bWantsToMarryThisMinor = false;
 		bool bWantsToBullyAnnexThisMinor = false;
@@ -33110,7 +33101,6 @@ void CvDiplomacyAI::DoContactMinorCivs()
 						if(iValue > 100)  //antonjs: todo: XML for threshold
 						{
 							veMinorsToBullyGold.push_back(eMinor, iValue);
-							bWantsToBullyGoldFromThisMinor = true;
 						}
 					}
 				}
@@ -56333,18 +56323,12 @@ bool CvDiplomacyAI::IsVoluntaryVassalageRequestAcceptable(PlayerTypes ePlayer)
 		return false;
 
 	vector<PlayerTypes> vTheirTeam = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).getPlayers();
-	int iNumCaps = 0;
 	bool bWeLikeOneOfThem = false;
 
 	for (size_t i=0; i<vTheirTeam.size(); i++)
 	{
 		if (!GET_PLAYER(vTheirTeam[i]).isAlive() || !GET_PLAYER(vTheirTeam[i]).isMajorCiv() || GET_PLAYER(vTheirTeam[i]).getNumCities() <= 0)
 			continue;
-
-		if (!GET_PLAYER(vTheirTeam[i]).IsHasLostCapital())
-			iNumCaps++;
-
-		iNumCaps += GET_PLAYER(vTheirTeam[i]).GetNumCapitalCities();
 
 		bool bWeLikeThem = IsDoFAccepted(vTheirTeam[i]) || IsHasDefensivePact(vTheirTeam[i]) || (GetCivOpinion(vTheirTeam[i]) >= CIV_OPINION_FRIEND && GetCivApproach(vTheirTeam[i]) == CIV_APPROACH_FRIENDLY);
 
@@ -56493,7 +56477,6 @@ bool CvDiplomacyAI::IsEndVassalageAcceptable(PlayerTypes ePlayer)
 		return true;
 
 	int iOurCivs = 0;
-	int iTheirCivs = 0;
 	int iOurCapitals = 0;
 	int iTheirCapitals = 0;
 	int iMastersWantIndependenceFrom = 0;
@@ -56524,7 +56507,6 @@ bool CvDiplomacyAI::IsEndVassalageAcceptable(PlayerTypes ePlayer)
 		if (!GET_PLAYER(vTheirTeam[i]).IsHasLostCapital())
 			iTheirCapitals++;
 
-		iTheirCivs++;
 		iTheirCapitals += GET_PLAYER(vTheirTeam[i]).GetNumCapitalCities();
 
 		if (IsEndVassalageWithPlayerAcceptable(ePlayer))

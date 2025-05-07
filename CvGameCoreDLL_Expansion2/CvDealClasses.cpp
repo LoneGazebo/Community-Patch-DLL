@@ -3862,26 +3862,16 @@ bool CvDeal::IsCheckedForRenewal()
 /// Delete all items from a given player
 void CvDeal::RemoveAllPossibleItems()
 {
-	//have to do this in a nested fashion to avoid invalidating the iterator
-	bool bFound = false;
-	bool bChange = false;
-	do
+	TradedItemList::iterator it = m_TradedItems.begin();
+	while (it != m_TradedItems.end())
 	{
-		bFound = false;
-
-		TradedItemList::iterator it;
-		for (it = m_TradedItems.begin(); it != m_TradedItems.end(); ++it)
+		if (!it->m_bDoNotRemove)
 		{
-			if (!it->m_bDoNotRemove)
-			{
-				m_TradedItems.erase(it);
-				bFound = true;
-				bChange = true;
-				break;
-			}
+			it = m_TradedItems.erase(it);
+			continue;
 		}
+		++it;
 	}
-	while (bFound);
 }
 
 /// Delete a SINGLE trade item that can be identified by type alone

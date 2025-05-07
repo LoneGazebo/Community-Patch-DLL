@@ -2383,20 +2383,8 @@ int BuildRouteValid(const CvAStarNode* parent, const CvAStarNode* node, const SP
 	PlayerTypes ePlotOwnerPlayer = pNewPlot->getOwner();
 	if(ePlotOwnerPlayer != NO_PLAYER && pNewPlot->getTeam() != kPlayer.getTeam() && !GET_TEAM(pNewPlot->getTeam()).IsVassal(kPlayer.getTeam()))
 	{
-		PlayerTypes eMajorPlayer = NO_PLAYER;
-		PlayerTypes eMinorPlayer = NO_PLAYER;
 		bool bPlotOwnerIsMinor = GET_PLAYER(ePlotOwnerPlayer).isMinorCiv();
-		if(bThisPlayerIsMinor && !bPlotOwnerIsMinor)
-		{
-			eMajorPlayer = ePlotOwnerPlayer;
-			eMinorPlayer = ePlayer;
-		}
-		else if(bPlotOwnerIsMinor && !bThisPlayerIsMinor)
-		{
-			eMajorPlayer = ePlayer;
-			eMinorPlayer = ePlotOwnerPlayer;
-		}
-		else
+		if ((bThisPlayerIsMinor && bPlotOwnerIsMinor) || (!bThisPlayerIsMinor && !bPlotOwnerIsMinor))
 		{
 			return FALSE;
 		}

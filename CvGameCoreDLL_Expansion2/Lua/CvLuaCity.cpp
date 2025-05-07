@@ -2286,7 +2286,6 @@ int CvLuaCity::lGetProductionModifier(lua_State* L)
 int CvLuaCity::lGetCurrentProductionDifference(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const bool bIgnoreFood = lua_toboolean(L, 2);
 	const bool bOverflow = lua_toboolean(L, 3);
 	int iResult = pkCity->getYieldRateTimes100(YIELD_PRODUCTION) / 100;
 	if (bOverflow)
@@ -2316,7 +2315,6 @@ int CvLuaCity::lGetTotalOverflowProductionTimes100(lua_State* L)
 int CvLuaCity::lGetCurrentProductionDifferenceTimes100(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const bool bIgnoreFood = lua_toboolean(L, 2);
 	const bool bOverflow = lua_toboolean(L, 3);
 	int iResult = pkCity->getYieldRateTimes100(YIELD_PRODUCTION);
 	if (bOverflow)
@@ -3488,7 +3486,6 @@ int CvLuaCity::lGetFaithPerTurnFromPolicies(lua_State* L)
 //int GetFaithPerTurnFromTraits() const;
 int CvLuaCity::lGetFaithPerTurnFromTraits(lua_State* L)
 {
-	int iBonus = 0;
 	CvCity* pkCity = GetInstance(L);
 	lua_pushinteger(L, pkCity->GetYieldFromUnimprovedFeatures(YIELD_FAITH));
 	return 1;

@@ -1901,7 +1901,6 @@ void CvMap::DoPlaceNaturalWonders()
 	FeatureTypes featureVolcano = NO_FEATURE;
 
 	int iNumFeatureInfos = GC.getNumFeatureInfos();
-	int nwCount = 0;
 	for(int iFeatureLoop = 0; iFeatureLoop < iNumFeatureInfos; iFeatureLoop++)
 	{
 		eFeature = (FeatureTypes) iFeatureLoop;
@@ -1940,8 +1939,6 @@ void CvMap::DoPlaceNaturalWonders()
 			{
 				featureVolcano = eFeature;
 			}
-
-			nwCount++;
 		}
 	}
 

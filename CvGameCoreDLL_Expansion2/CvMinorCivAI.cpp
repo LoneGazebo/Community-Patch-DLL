@@ -11293,7 +11293,6 @@ CvPlot* CvMinorCivAI::GetTargetPlot(PlayerTypes ePlayer)
 
 	int iWorldWidth = GC.getMap().getGridWidth() / 5;
 
-	CvArea* pBestArea = NULL;
 	CvPlot* pBestPlot = NULL;
 	int iBestAreaValue = 0;
 	int iBestPlotValue = 0;
@@ -11368,7 +11367,6 @@ CvPlot* CvMinorCivAI::GetTargetPlot(PlayerTypes ePlayer)
 					if (!bAreaHasValidPlot)
 					{
 						iBestAreaValue = iValue;
-						pBestArea = pLoopArea;
 						iBestPlotValue = 0;
 						pBestPlot = NULL;
 						bAreaHasValidPlot = true;
@@ -12782,7 +12780,6 @@ void CvMinorCivAI::DoFriendshipChangeEffects(const PlayerTypes ePlayer, const in
 		else if (bWasAllies && iNewFriendshipTimes100 < iOldFriendshipTimes100 && GetPermanentAlly() != ePlayer && GetPlayer()->isAlive())
 		{
 			int iMaxFriendship = GetEffectiveFriendshipWithMajorTimes100(eOldAlly);
-			PlayerTypes eNewAlly = eOldAlly;
 			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 			{
 				PlayerTypes ePlayerLoop = (PlayerTypes)iPlayerLoop;

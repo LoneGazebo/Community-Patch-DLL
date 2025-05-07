@@ -13241,14 +13241,12 @@ void CvGame::SpawnArchaeologySitesHistorically()
 
 	CvWeightedVector<int> eEraWeights;
 	eEraWeights.clear();
-	int iMaxEraWeight = 0;
 	if (eHighestEra > 0)
 	{
 		for (int i = 0; i < static_cast<int>(eHighestEra); i++)
 		{
 			int iWeight = static_cast<int>(eHighestEra) - i;
 			eEraWeights.push_back(i, iWeight);
-			iMaxEraWeight += iWeight;
 		}
 		eEraWeights.StableSortItems();
 	}

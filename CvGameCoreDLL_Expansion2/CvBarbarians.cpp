@@ -585,7 +585,6 @@ void CvBarbarians::DoCamps()
 	CvGame& kGame = GC.getGame();
 	ImprovementTypes eCamp = (ImprovementTypes)GD_INT_GET(BARBARIAN_CAMP_IMPROVEMENT);
 	CvImprovementEntry* pkCampInfo = GC.getImprovementInfo(eCamp);
-	int iGameTurn = GC.getGame().getGameTurn();
 	int iInitialSpawnTurn = /*0 in CP, 2 in VP*/ std::max(GD_INT_GET(BARBARIAN_INITIAL_SPAWN_TURN), 0);
 	if (eCamp == NO_IMPROVEMENT || pkCampInfo == NULL)
 		return;
@@ -642,7 +641,6 @@ void CvBarbarians::DoCamps()
 
 	CvMap& theMap = GC.getMap();
 	int iNumCampsInExistence = 0;
-	int iNumCoastalCamps = 0;
 	int iNumWorldPlots = theMap.numPlots();
 	int iMajorCapitalMinDistance = /*4*/ GD_INT_GET(BARBARIAN_CAMP_MINIMUM_DISTANCE_CAPITAL);
 	int iBarbCampMinDistance = /*4*/ GD_INT_GET(BARBARIAN_CAMP_MINIMUM_DISTANCE_ANOTHER_CAMP);
@@ -681,9 +679,6 @@ void CvBarbarians::DoCamps()
 				BarbCamps.push_back(pLoopPlot->GetPlotIndex());
 
 			iNumCampsInExistence++;
-			if (pLoopPlot->isCoastalLand())
-				iNumCoastalCamps++;
-
 			continue;
 		}
 		// City here
@@ -979,8 +974,6 @@ void CvBarbarians::DoCamps()
 			break;
 
 		iNumCampsInExistence++;
-		if (pPlot->isCoastalLand())
-			iNumCoastalCamps++;
 
 		// Check to see if any plots in the list are now too close to the new camp, and remove any that are
 		vPotentialPlots = vValidPlots;

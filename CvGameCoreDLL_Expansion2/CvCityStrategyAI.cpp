@@ -3024,18 +3024,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_ManyTechsStolen(CvCity* pCity)
 	float fRatio = 0.0;
 	int iTurnsOfEspionage = GC.getGame().getGameTurn() - pEspionageAI->m_iTurnEspionageStarted;
 	if (pEspionageAI->m_iTurnEspionageStarted != 0)
-	{
-		FlavorTypes eFlavorEspionage = NO_FLAVOR;
-		for (int iFlavor = 0; iFlavor < GC.getNumFlavorTypes(); iFlavor++)
-		{
-			FlavorTypes eFlavor = (FlavorTypes)iFlavor;
-			if (GC.getFlavorTypes(eFlavor) == "FLAVOR_ESPIONAGE")
-			{
-				eFlavorEspionage = eFlavor;
-			}
-		}
-		ASSERT_DEBUG(eFlavorEspionage != NO_FLAVOR, "Could not find espionage flavor!");
-		
+	{		
 		fRatio = pCityEspionage->m_aiNumTimesCityRobbed[ePlayer] / (float)(iTurnsOfEspionage);
 	}
 
@@ -4523,7 +4512,7 @@ int CityStrategyAIHelpers::GetBuildingReligionValue(CvCity *pCity, BuildingTypes
 						iTempBonus += pEntry->GetWonderProductionModifier();
 					}
 
-					iTempBonus += iReligionBonus;
+					iReligionBonus += iTempBonus;
 				}
 			}
 		}

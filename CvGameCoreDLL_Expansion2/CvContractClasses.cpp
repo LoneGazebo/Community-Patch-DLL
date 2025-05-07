@@ -682,7 +682,6 @@ void CvGameContracts::DoUpdateContracts()
 	ContractList::iterator it;
 	for(it = m_InactiveContracts.begin(); it != m_InactiveContracts.end(); ++it)
 	{
-		CvContract kContract = (*it);
 		for(int iI = 0; iI < GC.getNumUnitInfos(); iI++)
 		{
 			UnitTypes eUnit = (UnitTypes)iI;

@@ -339,13 +339,7 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 
 	//currently just for debugging
 	int iTotalFoodValue = 0;
-	int iTotalHappinessValue = 0;
 	int iTotalProductionValue = 0;
-	int iTotalGoldValue = 0;
-	int iTotalScienceValue = 0;
-	int iTotalFaithValue = 0;
-	int iTotalTradeValue = 0;
-	int iTotalStrategicValue = 0;
 
 	//use a slightly negative base value to discourage settling in bad lands
 	int iDefaultPlotValue = -100;
@@ -421,13 +415,7 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 			}
 
 			iTotalFoodValue += iFoodValue;
-			iTotalHappinessValue += iHappinessValue;
 			iTotalProductionValue += iProductionValue;
-			iTotalGoldValue += iGoldValue;
-			iTotalScienceValue += iScienceValue;
-			iTotalFaithValue += iFaithValue;
-			iTotalTradeValue += iTradeValue;
-			iTotalStrategicValue += iStrategicValue;
 
 			//it's a bit awkward, happiness and trade value should have a higher modifier in ring 0 ...
 			iPlotValue += iRingModifier * ( iFoodValue + iProductionValue + iGoldValue + iScienceValue + iFaithValue + iTradeValue + iHappinessValue ) + iStrategicValue;

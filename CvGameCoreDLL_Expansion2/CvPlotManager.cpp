@@ -331,7 +331,6 @@ void CvPlotManager::RemoveUnit(const IDInfo& kInfo, int iX, int iY, uint uiLayer
 	}
 	else
 	{
-		int iIndex = 0;
 		for (CvSparseIDInfoGridVector::const_iterator itr = m_aLayers.begin(); itr != m_aLayers.end(); ++itr)
 		{
 			(*itr).GetGrid()->Remove(kInfo, iX, iY);

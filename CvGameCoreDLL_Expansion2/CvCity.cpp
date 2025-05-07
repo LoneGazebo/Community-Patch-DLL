@@ -2112,7 +2112,6 @@ void CvCity::PreKill()
 {
 	VALIDATE_OBJECT();
 
-	PlayerTypes eOwner;
 	if (isCitySelected())
 	{
 		DLLUI->clearSelectedCities();
@@ -2190,8 +2189,6 @@ void CvCity::PreKill()
 	GC.getGame().changeNumCities(-1);
 
 	ASSERT_DEBUG(!isProduction(), "isProduction is expected to be false");
-
-	eOwner = getOwner();
 
 	GET_PLAYER(getOwner()).GetFlavorManager()->RemoveFlavorRecipient(m_pCityStrategyAI);
 
@@ -10045,6 +10042,10 @@ void CvCity::GetPlotsBoostedByBuilding(std::vector<int>& aiPlotList, BuildingTyp
 			aiPlotList.push_back(pLoopPlot->GetPlotIndex());
 		}
 		else if (bSeaResourcesBoosted && pLoopPlot->isWater() && pLoopPlot->getResourceType(getTeam()) != NO_RESOURCE)
+		{
+			aiPlotList.push_back(pLoopPlot->GetPlotIndex());
+		}
+		else if (bLakePlotsBoosted && pLoopPlot->isLake())
 		{
 			aiPlotList.push_back(pLoopPlot->GetPlotIndex());
 		}
