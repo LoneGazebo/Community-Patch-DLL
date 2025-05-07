@@ -6652,7 +6652,6 @@ ReligionTypes CvReligionAI::GetFavoriteForeignReligion(bool bForInternalSpread) 
 	ReligionList allReligions = GC.getGame().GetGameReligions()->m_CurrentReligions;
 
 	int iBestOverallScore = 0;
-	ReligionTypes eBestOverall = NO_RELIGION;
 
 	int iBestValidScore = 0;
 	ReligionTypes eBestValid = NO_RELIGION;
@@ -6711,7 +6710,6 @@ ReligionTypes CvReligionAI::GetFavoriteForeignReligion(bool bForInternalSpread) 
 		if (iScore > iBestOverallScore)
 		{
 			iBestOverallScore = iScore;
-			eBestOverall = itR->m_eReligion;
 		}
 
 		if (m_pPlayer->GetReligions()->HasCityWithMajorityReligion(itR->m_eReligion))
@@ -7552,7 +7550,6 @@ CvWeightedVector<int> CvReligionAI::CalculatePlotWeightsForBeliefSelection(bool 
 		}
 	}
 
-	int iNumLandTiles = 0;
 	for (int y = y_max; y >= y_min; y--)
 	{
 		//CvString logStr = (y % 2 == 0) ? "" : "_";
@@ -7674,8 +7671,6 @@ CvWeightedVector<int> CvReligionAI::CalculatePlotWeightsForBeliefSelection(bool 
 				if (iPlotWeight > 0)
 				{
 					viPlotList.push_back(pPlot->GetPlotIndex(), iPlotWeight);
-					if(pPlot->getDomain() == DOMAIN_LAND)
-						iNumLandTiles++;
 				}
 			}
 			/*else
@@ -9619,8 +9614,8 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 
 	int iCultureTemp = 0;
 
-	int iCulture = m_pPlayer->GetTotalJONSCulturePerTurnTimes100() * iIdealEmpireSize / 100;
-	iCulture /= 5;
+	// int iCulture = m_pPlayer->GetTotalJONSCulturePerTurnTimes100() * iIdealEmpireSize / 100;
+	// iCulture /= 5;
 
 	////////////////////
 	// Science

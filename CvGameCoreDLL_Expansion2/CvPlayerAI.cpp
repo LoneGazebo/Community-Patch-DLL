@@ -1755,7 +1755,6 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveGeneral(CvUnit* pGreatGeneral)
 
 	// We might have multiple generals... First get an overview
 	int iCommanders = 0;
-	int iCitadels = 0;
 	int iLoop = 0;
 	for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
 	{
@@ -1765,9 +1764,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveGeneral(CvUnit* pGreatGeneral)
 			{
 			case NO_GREAT_PEOPLE_DIRECTIVE_TYPE:
 			case GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT:
-				break;
 			case GREAT_PEOPLE_DIRECTIVE_USE_POWER:
-				iCitadels++;
 				break;
 			case GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND:
 				iCommanders++;

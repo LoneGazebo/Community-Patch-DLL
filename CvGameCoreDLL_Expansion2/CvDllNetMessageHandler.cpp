@@ -108,9 +108,8 @@ void CvDllNetMessageHandler::ResponseChangeWar(PlayerTypes ePlayer, TeamTypes eR
 
 	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 	CvTeam& kTeam = GET_TEAM(kPlayer.getTeam());
-	const TeamTypes eTeam = kPlayer.getTeam();
 
-	ASSERT_DEBUG(eTeam != eRivalTeam);
+	ASSERT_DEBUG(kPlayer.getTeam() != eRivalTeam);
 
 	if(bWar)
 	{
@@ -130,8 +129,7 @@ void CvDllNetMessageHandler::ResponseIgnoreWarning(PlayerTypes ePlayer, TeamType
 
 	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 	CvTeam& kTeam = GET_TEAM(kPlayer.getTeam());
-	const TeamTypes eTeam = kPlayer.getTeam();
-	ASSERT_DEBUG(eTeam != eRivalTeam);
+	ASSERT_DEBUG(kPlayer.getTeam() != eRivalTeam);
 	
 	kTeam.PushIgnoreWarning(eRivalTeam);
 }
@@ -499,7 +497,7 @@ void CvDllNetMessageHandler::ResponseStageCoup(PlayerTypes eSpyPlayer, int iSpyI
 	ASSERT_DEBUG(pPlayerEspionage, "pPlayerEspionage is null");
 	if(pPlayerEspionage)
 	{
-		bool bCoupSuccess = pPlayerEspionage->AttemptCoup(iSpyIndex);
+		pPlayerEspionage->AttemptCoup(iSpyIndex);
 	}
 }
 //------------------------------------------------------------------------------
@@ -806,7 +804,6 @@ void CvDllNetMessageHandler::ResponsePlayerDealFinalized(PlayerTypes eFromPlayer
 		return;
 
 	CvGame& game = GC.getGame();
-	PlayerTypes eActivePlayer = game.getActivePlayer();
 	bool bIsMP = (GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY);
 
 	// is the deal valid?
@@ -818,7 +815,6 @@ void CvDllNetMessageHandler::ResponsePlayerDealFinalized(PlayerTypes eFromPlayer
 
 		CvPlayerAI& kToPlayer = GET_PLAYER(eToPlayer);
 		CvPlayerAI& kFromPlayer = GET_PLAYER(eFromPlayer);
-		CvPlayerAI& kActivePlayer = GET_PLAYER(eActivePlayer);
 
 		strMessage = Localization::Lookup("TXT_KEY_DEAL_EXPIRED_FROM_YOU");
 		strMessage << kToPlayer.getNickName();

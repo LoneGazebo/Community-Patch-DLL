@@ -1805,14 +1805,10 @@ CvString CvPlayerEspionage::GetEventHelpText(CityEventTypes eEvent, int uiSpyInd
 
 	CvPlot* pCityPlot = GC.getMap().plot(pSpy->m_iCityX, pSpy->m_iCityY);
 	CvCity* pCity = NULL;
-	CvCityEspionage* pCityEspionage = NULL;
-	PlayerTypes eCityOwner = NO_PLAYER;
 
 	if (pCityPlot)
 	{
 		pCity = pCityPlot->getPlotCity();
-		eCityOwner = pCity->getOwner();
-		pCityEspionage = pCity->GetCityEspionage();
 	}
 	CvModCityEventInfo* pkEventInfo = GC.getCityEventInfo(eEvent);
 	if (pkEventInfo == NULL || pCity == NULL)
@@ -1984,14 +1980,12 @@ void CvPlayerEspionage::UncoverIntrigue(uint uiSpyIndex)
 	CvEspionageSpy* pSpy = GetSpyByID(uiSpyIndex);
 	CvPlot* pCityPlot = GC.getMap().plot(pSpy->m_iCityX, pSpy->m_iCityY);
 	CvCity* pCity = NULL;
-	CvCityEspionage* pCityEspionage = NULL;
 	PlayerTypes ePlayer = m_pPlayer->GetID();
 	PlayerTypes eCityOwner = NO_PLAYER;
 	if(pCityPlot)
 	{
 		pCity = pCityPlot->getPlotCity();
 		eCityOwner = pCity->getOwner();
-		pCityEspionage = pCity->GetCityEspionage();
 	}
 
 	ASSERT_DEBUG(pCity, "Spy needs to be in city to uncover intrigue");
@@ -2311,7 +2305,7 @@ void CvPlayerEspionage::UncoverCityBuildingWonder(uint uiSpyIndex)
 		return;
 	}
 
-	if (!MOD_BALANCE_VP || pCity->GetCityEspionage()->GetRevealCityScreen(m_pPlayer->GetID()))
+	if (!MOD_BALANCE_VP || pCityEspionage->GetRevealCityScreen(m_pPlayer->GetID()))
 	{
 		ProjectTypes eProject = pCity->getProductionProject();
 		BuildingTypes eBuilding = pCity->getProductionBuilding();

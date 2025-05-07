@@ -101,7 +101,6 @@ void CvDllDealAI::DoAcceptedDeal(PlayerTypes eFromPlayer, ICvDeal1* pDeal, int i
 		// hack for multiplayer: we use DoAcceptedDeal with the following values to convey the information that a renew deal has been canceled
 		if (iDealValueToMe == INT_MAX && iValueImOffering == INT_MAX && iValueTheyreOffering == INT_MAX)
 		{
-			PlayerTypes eCancelingPlayer = eFromPlayer;
 			PlayerTypes eOtherPlayer = m_pDealAI->GetPlayer()->GetID();
 			// we don't want to run into an infinite loop of network messages being sent back and forth
 			GET_PLAYER(eFromPlayer).GetDiplomacyAI()->CancelRenewDeal(eOtherPlayer, NO_REASON, false, pkDeal, false, /*bSendNetworkMessage*/ false);

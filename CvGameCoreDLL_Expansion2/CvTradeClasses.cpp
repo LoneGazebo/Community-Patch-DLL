@@ -5822,8 +5822,6 @@ std::vector<CvString> CvPlayerTrade::GetPlotMouseoverToolTips (CvPlot* pPlot)
 	PlayerTypes ePlayer = m_pPlayer->GetID();
 	int iX = pPlot->getX();
 	int iY = pPlot->getY();
-	CvCity* pOriginCity = NULL;
-	CvCity* pDestCity = NULL;
 
 	Localization::String strResult;
 
@@ -5859,8 +5857,6 @@ std::vector<CvString> CvPlayerTrade::GetPlotMouseoverToolTips (CvPlot* pPlot)
 			{
 				if (pConnection->m_aPlotList[uiPlotIndex].m_iX == iX && pConnection->m_aPlotList[uiPlotIndex].m_iY == iY)
 				{
-					pOriginCity = GC.getMap().plot(pConnection->m_iOriginX, pConnection->m_iOriginY)->getPlotCity();
-					pDestCity = GC.getMap().plot(pConnection->m_iDestX, pConnection->m_iDestY)->getPlotCity();
 					if (uiPlotIndex == pConnection->m_iTradeUnitLocationIndex)
 					{
 						Localization::String strLine;

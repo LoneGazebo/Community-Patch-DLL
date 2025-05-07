@@ -2269,12 +2269,9 @@ bool CvPlot::shouldProcessDisplacementPlot(int dx, int dy, int, DirectionTypes e
 void CvPlot::updateSight(bool bIncrement)
 {
 	IDInfo* pUnitNode = NULL;
-	CvCity* pCity = NULL;
 	CvUnit* pLoopUnit = NULL;
 	int iLoop = 0;
 	int iI = 0;
-
-	pCity = getPlotCity();
 
 	// Owned
 	if(isOwned())
@@ -5650,29 +5647,23 @@ bool CvPlot::hasSharedAdjacentArea(const CvPlot* pOther, bool bAllowLand, bool b
 //	--------------------------------------------------------------------------------
 void CvPlot::setArea(int iNewValue)
 {
-	bool bOldLake = false;
-
 	if(getArea() != iNewValue)
 	{
-		bOldLake = isLake();
-
 		if(area() != NULL)
 		{
 			processArea(area(), -1);
 		}
 
-#if defined(MOD_EVENTS_TERRAFORMING)
-		if (MOD_EVENTS_TERRAFORMING) {
+		if (MOD_EVENTS_TERRAFORMING)
+		{
 			GAMEEVENTINVOKE_HOOK(GAMEEVENT_TerraformingPlot, TERRAFORMINGEVENT_AREA, m_iX, m_iY, 0, iNewValue, m_iArea, -1, -1);
 		}
-#endif
 
 		m_iArea = iNewValue;
 
 		if(area() != NULL)
 		{
 			processArea(area(), 1);
-
 			updateYield();
 		}
 	}

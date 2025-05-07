@@ -561,7 +561,6 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 {
 	VALIDATE_OBJECT();
 	CvString strBuffer;
-	int iUnitName = 0;
 	int iI = 0;
 
 	ASSERT_DEBUG(NO_UNIT != eUnit);
@@ -632,7 +631,6 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 	plot()->updateCenterUnit();
 
 	SetGreatWork(NO_GREAT_WORK);
-	iUnitName = GC.getGame().getUnitCreatedCount(getUnitType());
 	int iNumNames = getUnitInfo().GetNumUnitNames();
 	if (!bSkipNaming && iNumNames > 0)
 	{
@@ -13506,12 +13504,9 @@ bool CvUnit::build(BuildTypes eBuild)
 		if(pkBuildInfo)
 		{
 			ImprovementTypes eImprovement = NO_IMPROVEMENT;
-			RouteTypes eRoute = NO_ROUTE;
-
 			if (pkBuildInfo->getImprovement() != NO_IMPROVEMENT)
 			{
 				eImprovement = (ImprovementTypes) pkBuildInfo->getImprovement();
-
 				CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
 				if (pkImprovementInfo)
 				{
@@ -13562,12 +13557,6 @@ bool CvUnit::build(BuildTypes eBuild)
 						SHOW_PLOT_POPUP(plot(),kPlayer.GetID(), text);
 					}
 				}
-			}
-
-			// Can be both an improvement and a route
-			if (pkBuildInfo->getRoute() != NO_ROUTE)
-			{
-				eRoute = static_cast<RouteTypes>(pkBuildInfo->getRoute());
 			}
 
 			if(pkBuildInfo->isKill())
@@ -19723,11 +19712,10 @@ void CvUnit::setHotKeyNumber(int iNewValue)
 void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool bCheckPlotVisible, bool bNoMove)
 {
 	VALIDATE_OBJECT();
-	IDInfo* pUnitNode = 0;
-	CvCity* pOldCity = 0;
-	CvCity* pNewCity = 0;
-	CvUnit* pTransportUnit = 0;
-	CvUnit* pLoopUnit = 0;
+	IDInfo* pUnitNode = NULL;
+	CvCity* pNewCity = NULL;
+	CvUnit* pTransportUnit = NULL;
+	CvUnit* pLoopUnit = NULL;
 	vector<IDInfo> oldUnitList;
 	vector<CvUnitCaptureDefinition> kCaptureUnitList;
 	ActivityTypes eOldActivityType = NO_ACTIVITY;
@@ -19959,7 +19947,6 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 			if (isNativeDomain(pOldPlot))
 				pOldPlot->area()->changeUnitsPerPlayer(getOwner(), -1);
 			setLastMoveTurn(GC.getGame().getGameTurn());
-			pOldCity = pOldPlot->getPlotCity();
 		}
 	}
 
@@ -30966,7 +30953,6 @@ void CvUnit::AI_promote()
 	VALIDATE_OBJECT();
 	PromotionTypes eBestPromotion = NO_PROMOTION;
 	int iBestValue = 0;
-	int iNumValidPromotions = 0;
 	int iLevel = getLevel();
 	
 	for(int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
@@ -30980,7 +30966,6 @@ void CvUnit::AI_promote()
 
 		if(canPromote(ePromotion, -1))
 		{
-			iNumValidPromotions++;
 			int iValue = AI_promotionValue(ePromotion);
 
 			//value lower-level promotions a bit less.

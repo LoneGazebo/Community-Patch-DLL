@@ -10576,10 +10576,6 @@ void CvPlayer::SetAllUnitsUnprocessed()
 /// Units heal and then get their movement back
 void CvPlayer::DoUnitReset()
 {
-	//some statistics
-	static int tactMovesCount[NUM_AI_TACTICAL_MOVES] = { 0 };
-	static int homeMovesCount[NUM_AI_HOMELAND_MOVES] = { 0 };
-
 	int iLoop = 0;
 	for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
 	{
@@ -23346,7 +23342,6 @@ int CvPlayer::ScoreDifference()
 {
 	int iScore = 0;
 	int iBestScore = 0;
-	int iMajors = 0;
 	int iPlayerScore = 0;
 	int iDifference = 0;
 	PlayerTypes eLoopPlayer;
@@ -23358,8 +23353,6 @@ int CvPlayer::ScoreDifference()
 		if(pMajorLoop->isAlive() && !pMajorLoop->isMinorCiv())
 		{
 			iScore = pMajorLoop->GetScore();
-			iMajors++;
-
 			if(iScore > iBestScore)
 			{
 				iBestScore = iScore;

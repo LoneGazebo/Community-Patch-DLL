@@ -2972,6 +2972,7 @@ void CvMilitaryAI::LogAvailableForces()
 {
 	if(GC.getLogging() && GC.getAILogging())
 	{
+		/*
 		int iCapitalX = 0;
 		int iCapitalY = 0;
 		CvCity* pCapital = GetPlayer()->getCapitalCity();
@@ -2980,6 +2981,7 @@ void CvMilitaryAI::LogAvailableForces()
 			iCapitalX = pCapital->getX();
 			iCapitalY = pCapital->getY();
 		}
+		*/
 
 		// Open the right file
 		CvString playerName = GetPlayer()->getCivilizationShortDescription();

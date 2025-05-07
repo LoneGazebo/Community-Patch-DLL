@@ -12128,7 +12128,6 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		int iMight = 0;
 		int iOurProductionMight = GetPlayer()->GetProductionMight();
 		int iHigherProductionCivs = 0;
-		int iAliveCivs = 0;
 		int iHighestProduction = 0;
 		int iPercentofWinning = 0;
 		for (int i = 0; i < MAX_MAJOR_CIVS; i++)
@@ -12136,7 +12135,6 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			PlayerTypes e = (PlayerTypes) i;
 			if (GET_PLAYER(e).isAlive() && !GET_PLAYER(e).isMinorCiv())
 			{
-				iAliveCivs++;
 				iMight = GET_PLAYER(e).GetProductionMight();
 				if (GetPlayer()->GetID() != e)
 				{
@@ -12446,7 +12444,6 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
 
 		// Trade connections
-		int iCSDestinations = 0;
 		int iCSPartners = 0;
 		int iCivDestinations = 0;
 		for (int i = 0; i < MAX_CIV_PLAYERS; i++)
@@ -12456,7 +12453,6 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			{
 				if (GET_PLAYER(e).isMinorCiv())
 				{
-					iCSDestinations++;
 					if (GC.getGame().GetGameTrade()->IsPlayerConnectedToPlayer(GetPlayer()->GetID(), e))
 					{
 						iCSPartners++;
@@ -13153,7 +13149,6 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		int iScienceMod = pProposal->GetEffects()->iScienceyGreatPersonRateMod;
 
 		// Do we have a sciencey Great Person unique unit? (ie. Merchant of Venice)
-		bool bScienceyUniqueUnit = false;
 		UnitClassTypes eScienceyUnitClass1 = (UnitClassTypes) GC.getInfoTypeForString("UNITCLASS_SCIENTIST", true);
 		UnitClassTypes eScienceyUnitClass2 = (UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_ENGINEER", true);
 		UnitClassTypes eScienceyUnitClass3 = (UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_MERCHANT", true);
@@ -13171,7 +13166,6 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 
 		if (eScienceyUnit1 != eDefault1 || eScienceyUnit2 != eDefault2 || eScienceyUnit3 != eDefault3)
 		{
-			bScienceyUniqueUnit = true;
 			iExtra += iScienceMod * 20;
 		}
 		int iNumGPImprovements = GetPlayer()->getGreatPersonImprovementCount();
@@ -13179,7 +13173,6 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 
 
 		// Do we have a artsy Great Person unique unit?
-		bool bArtsyUniqueUnit = false;
 		UnitClassTypes eArtsyUnitClass1 = (UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_WRITER", true);
 		UnitClassTypes eArtsyUnitClass2 = (UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_ARTIST", true);
 		UnitClassTypes eArtsyUnitClass3 = (UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_MUSICIAN", true);
@@ -13197,7 +13190,6 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 
 		if (eArtsyUnit1 != eDefault1 || eArtsyUnit2 != eDefault2 || eArtsyUnit3 != eDefault3)
 		{
-			bArtsyUniqueUnit = true;
 			iExtra += iArtsMod * 20;
 		}
 

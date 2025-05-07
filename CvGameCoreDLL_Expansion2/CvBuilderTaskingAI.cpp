@@ -3476,9 +3476,6 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 				if (eBestPotentialAdjacentImprovement == NO_IMPROVEMENT)
 					continue;
 
-				fraction fBestBonusToAdjacentTile = 0;
-				fraction fBestBonusToThisTile = 0;
-
 				if (pkImprovementInfo->GetYieldPerXAdjacentImprovement(eYield, eBestPotentialAdjacentImprovement) != 0)
 				{
 					fPotentialBonusToThisTile += pkImprovementInfo->GetYieldPerXAdjacentImprovement(eYield, eBestPotentialAdjacentImprovement);
