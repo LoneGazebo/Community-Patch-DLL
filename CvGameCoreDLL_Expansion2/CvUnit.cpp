@@ -29626,16 +29626,6 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags)
 			ClearPathCache();
 			return MOVE_RESULT_CANCEL;
 		}
-		else if (!isHuman() && IsCanAttack() && !isOutOfAttacks())
-		{
-			//special - try to attack submarines - chances are we cannot run so have to preempt their attack
-			//also chances are we will lose all our movement to ZOC when trying to move past!
-			//but we cannot use PushMission here b/c we're already processing a mission
-			//finally we don't know the context of this move mission at all, so fingers crossed ...
-			//at least in tactsim context this would lead to a re-sim and hopefully correct consideration of the enemy
-			ClearPathCache();
-			return MOVE_RESULT_CANCEL;
-		}
 	}
 
 	int iETA = 0;

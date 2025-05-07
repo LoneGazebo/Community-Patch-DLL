@@ -964,7 +964,7 @@ public:
 	const vector<SUnitStats>& getAvailableUnits() const { return availableUnits; }
 	int countChildren() const;
 	float getAggressionBias() const;
-	bool canProbablyEndTurnInPlot(const STacticalAssignment& assignment, const CvTacticalPlot& endPlot) const;
+	bool canProbablyEndTurnAfterAssignment(const STacticalAssignment& assignment, const CvTacticalPlot& endPlot) const;
 	int countBlockingUnitsAtPlot(int iPlotIndex, eUnitMovementStrategy moveType) const;
 	int getFirstBlockingUnitIDAtPlot(int iPlotIndex, eUnitMovementStrategy moveType) const;
 	pair<int,int> doVisibilityUpdate(const STacticalAssignment& newAssignment);
