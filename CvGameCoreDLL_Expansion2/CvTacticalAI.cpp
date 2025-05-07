@@ -784,6 +784,9 @@ void CvTacticalAI::AssignGlobalHighPrioMoves()
 	PlotHealMoves(true);
 	//move armies first
 	PlotOperationalArmyMoves();
+
+	//garrisons sometimes make a sortie so we have to get them back
+	PlotGarrisonMoves(2);
 }
 
 /// Choose which tactics to run and assign units to it
@@ -798,9 +801,7 @@ void CvTacticalAI::AssignGlobalMidPrioMoves()
 	PlotGrabGoodyMoves();
 	PlotCivilianAttackMoves();
 
-	//make sure our frontline cities and fortresses have a garrison
-	//garrisons sometimes make a sortie so we have to get them back
-	PlotGarrisonMoves(3);
+	//make sure our frontline fortresses are occupied
 	PlotBastionMoves(2);
 
 	//now all attacks are done, try to move any unprocessed units out of harm's way
@@ -1466,7 +1467,7 @@ void CvTacticalAI::PlotGarrisonMoves(int iNumTurnsAway)
 			pCity->rangeStrike(pEnemyPlot->getX(), pEnemyPlot->getY());
 
 		// ignore core cities here (handled by homeland ai)
-		if (!pCity->isBorderCity() && !pCity->GetCityCitizens()->AnyPlotBlockaded())
+		if (!pCity->isBorderCity() && !pCity->GetCityCitizens()->AnyPlotBlockaded() && !m_pPlayer->GetMilitaryAI()->IsExposedToEnemy(pCity,NO_PLAYER))
 			continue;
 
 		//note that garrisons do not need to be "recruited" into tactical AI
@@ -3921,13 +3922,13 @@ int CvTacticalAI::ExecuteMoveToPlot(CvUnit* pUnit, CvPlot* pTarget, bool bSetPro
 			else
 				bAlreadyThere = pUnit->at(pTarget->getX(), pTarget->getY());
 
-			if (bSetProcessed && !bAlreadyThere && pUnit->canMove()) //typically because of MOVEFLAG_ABORT_IN_DANGER and newly revealed enemies ...
+			//typically because of MOVEFLAG_ABORT_IN_DANGER and newly revealed enemies ...
+			if (bSetProcessed && !bAlreadyThere && pUnit->canMove() && pUnit->getArmyID()==-1)
 			{
+				//try to go to a better place if we're sure the unit will not be moved again this turn
 				pTarget = TacticalAIHelpers::FindSafestPlotInReach(pUnit, true);
 				if (pTarget)
 					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY(), 0 /*no approximate flags*/, false, false, MISSIONAI_TACTMOVE, pTarget);
-
-				UnitProcessed(pUnit->GetID());
 			}
 		}
 		//maybe units are blocking our way? 
@@ -8186,7 +8187,7 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 
 			//where would we end the turn? ie are we advancing or not
 			const CvTacticalPlot& newPlot = (attack.eAssignmentType == A_MELEEKILL) ? testPlot : assumedUnitPlot;
-			if (attack.iRemainingMoves == 0 && !canProbablyEndTurnInPlot(attack, newPlot))
+			if (attack.iRemainingMoves == 0 && !canProbablyEndTurnAfterAssignment(attack, newPlot))
 				continue;
 
 			//also consider which plot we end up in
@@ -8207,7 +8208,7 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 		{
 			//try pillaging as an intermediate step
 			STacticalAssignment pillaging = ScorePlotForPillageMove(unit, testPlot, it->iMovesLeft, *this);
-			if (pillaging.iScore > 0 && (pillaging.iRemainingMoves > 0 || canProbablyEndTurnInPlot(pillaging, testPlot)))
+			if (pillaging.iScore > 0 && (pillaging.iRemainingMoves > 0 || canProbablyEndTurnAfterAssignment(pillaging, testPlot)))
 				//continue with the same plot, maybe in the final analysis we will skip the pillage because we need the movement points
 				gPossibleMoves.push_back(pillaging);
 
@@ -8230,7 +8231,7 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 						//this is a catch-22: we really want to allow dangerous attacks because we might be able to kill the enemy unit making it safe.
 						//experience shows this leads to a lot of "impossible" positions which have to be discarded later, killing performance.
 						//but canProbablyEndTurnAfterThisAssignment() will consider near-kills for danger estimation!
-						if (rangedAttack.iRemainingMoves == 0 && !canProbablyEndTurnInPlot(rangedAttack, testPlot))
+						if (rangedAttack.iRemainingMoves == 0 && !canProbablyEndTurnAfterAssignment(rangedAttack, testPlot))
 							continue;
 
 						//discourage attacks on cities with non-siege units if the real target is something else
@@ -8248,7 +8249,7 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 
 			//also try just staying in place
 			//doesn't matter if we have movement left in this case
-			bool bWantToEndTurnHere = gPossibleRangedAttacks.empty() && canProbablyEndTurnInPlot(moveToPlot, testPlot);
+			bool bWantToEndTurnHere = gPossibleRangedAttacks.empty() && canProbablyEndTurnAfterAssignment(moveToPlot, testPlot);
 			if (bWantToEndTurnHere)
 			{
 				//give a bonus for potential fortifying/healing
@@ -8298,7 +8299,7 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 			//note that "passive damage" ie covering our own units is implicit in the plot score for firstline units
 
 			//may not be able to end the turn ...
-			if ((moveToPlot.iRemainingMoves > GC.getMOVE_DENOMINATOR() && pUnit->canMoveAfterAttacking()) || canProbablyEndTurnInPlot(moveToPlot, testPlot))
+			if ((moveToPlot.iRemainingMoves > GC.getMOVE_DENOMINATOR() && pUnit->canMoveAfterAttacking()) || canProbablyEndTurnAfterAssignment(moveToPlot, testPlot))
 			{
 				//score functions are biased so that only scores > 0 are interesting moves
 				//still allow mildly negative moves here, maybe we want to do combo moves later!
@@ -8770,7 +8771,7 @@ bool CvTacticalPosition::addFinishMovesIfAcceptable(bool bEarlyFinish, int& iBad
 	{
 		const SUnitStats& unit = availableUnits[i];
 		if (unit.eLastAssignment == A_INITIAL)
-			iTotalScore += 30;
+			iTotalScore += isEarlyFinish() ? 123 : 45;
 	}
 
 	//scores look good and target was killed, we're done
@@ -10082,7 +10083,7 @@ float CvTacticalPosition::getAggressionBias() const
 
 //this is intended to filter out the no-chance-in-hell moves
 //it's not intended to be the final check, the situation can still change as the sim progresses
-bool CvTacticalPosition::canProbablyEndTurnInPlot(const STacticalAssignment& assignment, const CvTacticalPlot& assumedUnitPlot) const
+bool CvTacticalPosition::canProbablyEndTurnAfterAssignment(const STacticalAssignment& assignment, const CvTacticalPlot& assumedUnitPlot) const
 {
 	const SUnitStats* unit = getAvailableUnitStats(assignment.iUnitID);
 	const CvUnit* pUnit = unit->pUnit;
@@ -10570,7 +10571,8 @@ bool TacticalAIHelpers::ExecuteUnitAssignments(PlayerTypes ePlayer, const std::v
 		CvPlot* pFromPlot = GC.getMap().plotByIndexUnchecked(vAssignments[i].iFromPlotIndex);
 		CvPlot* pToPlot = GC.getMap().plotByIndexUnchecked(vAssignments[i].iToPlotIndex);
 
-		int iMoveflags = CvUnit::MOVEFLAG_IGNORE_DANGER | CvUnit::MOVEFLAG_NO_STOPNODES;
+		//abort movement and retry if we find eg an enemy submarine
+		int iMoveflags = CvUnit::MOVEFLAG_IGNORE_DANGER | CvUnit::MOVEFLAG_NO_STOPNODES | CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED;
 		bool bPrecondition = false;
 		bool bPostcondition = false;
 
