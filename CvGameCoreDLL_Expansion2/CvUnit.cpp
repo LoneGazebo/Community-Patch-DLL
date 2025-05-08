@@ -9354,14 +9354,12 @@ bool CvUnit::createGreatWork()
 #endif
 		pCity->GetCityBuildings()->SetBuildingGreatWork(eBuildingClass, iSlot, iGWindex);
 
-		if(pPlot->isActiveVisible())
+		if(pPlot->isActiveVisible() && (!UI_QUICK_ANIMATIONS || !CvPreGame::quickMovement()))
 		{
 			CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 			gDLL->GameplayUnitActivate(pDllUnit.get());
 		}
-#if defined(MOD_BALANCE_CORE)
 		pCity->UpdateAllNonPlotYields(false);
-#endif
 		if(IsGreatPerson())
 		{
 			kPlayer.DoGreatPersonExpended(getUnitType(), this);
@@ -10640,7 +10638,7 @@ bool CvUnit::foundCity()
 
 	if (pPlot->isActiveVisible())
 	{
-		if (!CvPreGame::quickMovement())
+		if (!UI_QUICK_ANIMATIONS || !CvPreGame::quickMovement())
 		{
 			CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 			gDLL->GameplayUnitActivate(pDllUnit.get());
@@ -10650,7 +10648,7 @@ bool CvUnit::foundCity()
 		if (MOD_API_ACHIEVEMENTS && eActivePlayer == getOwner() && kActivePlayer.getNumCities() >= 2 && kActivePlayer.isHuman() && !GC.getGame().isGameMultiPlayer())
 			gDLL->UnlockAchievement(ACHIEVEMENT_SECOND_CITY);
 	}
-#if defined(MOD_BALANCE_CORE)
+
 	int iMaxRange = 3;
 	for(int iDX = -iMaxRange; iDX <= iMaxRange; iDX++)
 	{
@@ -10674,7 +10672,6 @@ bool CvUnit::foundCity()
 			pNotifications->Add(NOTIFICATION_GENERIC, strBuffer, strSummary, plot()->getX(), plot()->getY(), -1, -1);
 		}
 	}
-#endif
 		
 #if defined(MOD_EVENTS_UNIT_FOUNDED)
 	if (MOD_EVENTS_UNIT_FOUNDED) {
@@ -10769,7 +10766,7 @@ bool CvUnit::construct(BuildingTypes eBuilding)
 		pCity->GetCityBuildings()->SetNumRealBuilding(eBuilding, pCity->GetCityBuildings()->GetNumRealBuilding(eBuilding) + 1);
 	}
 
-	if(plot()->isActiveVisible())
+	if(plot()->isActiveVisible() && (!UI_QUICK_ANIMATIONS || !CvPreGame::quickMovement()))
 	{
 		CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 		gDLL->GameplayUnitActivate(pDllUnit.get());
@@ -11249,7 +11246,7 @@ bool CvUnit::DoSpreadReligion()
 			}
 #endif
 
-			bool bShow = plot()->isActiveVisible();
+			bool bShow = plot()->isActiveVisible() && (!UI_QUICK_ANIMATIONS || !CvPreGame::quickMovement() || (GET_PLAYER(pCity->getOwner()).isHuman() && !GET_PLAYER(getOwner()).isHuman()));
 			if(bShow)
 			{
 				CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
@@ -11352,7 +11349,7 @@ bool CvUnit::DoRemoveHeresy()
 	{
 		if(CanRemoveHeresy(plot()))
 		{
-			bool bShow = plot()->isActiveVisible();
+			bool bShow = plot()->isActiveVisible() && (!UI_QUICK_ANIMATIONS || !CvPreGame::quickMovement());
 			if(bShow)
 			{
 				CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
@@ -11557,7 +11554,7 @@ bool CvUnit::greatperson()
 	ASSERT_DEBUG(pTeam, "Owner team of unit not expected to be NULL.");
 	if (!pTeam) return false;
 
-	if(pPlot->isActiveVisible())
+	if(pPlot->isActiveVisible() && (!UI_QUICK_ANIMATIONS || !CvPreGame::quickMovement()))
 	{
 		CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 		gDLL->GameplayUnitActivate(pDllUnit.get());
@@ -11697,7 +11694,7 @@ bool CvUnit::discover()
 		pPlayer->chooseTech(iNumFreeTechs, strBuffer.GetCString());
 	}
 
-	if(pPlot->isActiveVisible())
+	if(pPlot->isActiveVisible() && (!UI_QUICK_ANIMATIONS || !CvPreGame::quickMovement()))
 	{
 		CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 		gDLL->GameplayUnitActivate(pDllUnit.get());
@@ -11769,7 +11766,7 @@ bool CvUnit::DoRushBuilding()
 
 	pCity->setProduction(pCity->getProductionNeeded());
 
-	if(plot()->isActiveVisible())
+	if(plot()->isActiveVisible() && (!UI_QUICK_ANIMATIONS || !CvPreGame::quickMovement()))
 	{
 		CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 		gDLL->GameplayUnitActivate(pDllUnit.get());
@@ -12207,7 +12204,7 @@ bool CvUnit::trade()
 	}
 
 	//there was a strange crash here where the unit suddenly was at an invalid plot
-	if (pPlot->isActiveVisible() && plot()==pPlot)
+	if (pPlot->isActiveVisible() && plot()==pPlot && (!UI_QUICK_ANIMATIONS || !CvPreGame::quickMovement()))
 	{
 		CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 		gDLL->GameplayUnitActivate(pDllUnit.get());
@@ -12284,7 +12281,7 @@ bool CvUnit::buyCityState()
 		DLLUI->AddUnitMessage(0, GetIDInfo(), getOwner(), true, /*10*/ GD_INT_GET(EVENT_MESSAGE_TIME), GetLocalizedText("TXT_KEY_VENETIAN_MERCHANT_BOUGHT_CITY_STATE"));
 	}
 
-	if (pPlot->isActiveVisible())
+	if (pPlot->isActiveVisible() && (!UI_QUICK_ANIMATIONS || !CvPreGame::quickMovement()))
 	{
 		CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 		gDLL->GameplayUnitActivate(pDllUnit.get());
@@ -12356,7 +12353,7 @@ bool CvUnit::repairFleet()
 		}
 	}
 
-	if(pPlot->isActiveVisible())
+	if(pPlot->isActiveVisible() && (!UI_QUICK_ANIMATIONS || !CvPreGame::quickMovement()))
 	{
 		CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 		gDLL->GameplayUnitActivate(pDllUnit.get());
@@ -12525,7 +12522,7 @@ bool CvUnit::DoCultureBomb()
 
 		PerformCultureBomb(pkUnitEntry->GetCultureBombRadius() + GET_PLAYER(getOwner()).GetCultureBombBoost());
 
-		if(pThisPlot->isActiveVisible())
+		if(pThisPlot->isActiveVisible() && (!UI_QUICK_ANIMATIONS || !CvPreGame::quickMovement()))
 		{
 			CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 			gDLL->GameplayUnitActivate(pDllUnit.get());
@@ -12964,7 +12961,7 @@ bool CvUnit::goldenAge()
 		kPlayer.changeNumUnitGoldenAges(1);
 	}
 
-	if(pPlot->isActiveVisible())
+	if(pPlot->isActiveVisible() && (!UI_QUICK_ANIMATIONS || !CvPreGame::quickMovement()))
 	{
 		CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 		gDLL->GameplayUnitActivate(pDllUnit.get());
@@ -13078,7 +13075,7 @@ bool CvUnit::givePolicies()
 		kPlayer.ChangeNumFreePolicies(iFreePolicies);
 	}
 
-	if(pPlot->isActiveVisible())
+	if(pPlot->isActiveVisible() && (!UI_QUICK_ANIMATIONS || !CvPreGame::quickMovement()))
 	{
 		CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 		gDLL->GameplayUnitActivate(pDllUnit.get());
@@ -13332,7 +13329,7 @@ bool CvUnit::blastTourism()
 		}
 	}
 
-	if(pPlot->isActiveVisible())
+	if(pPlot->isActiveVisible() && (!UI_QUICK_ANIMATIONS || !CvPreGame::quickMovement()))
 	{
 		CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 		gDLL->GameplayUnitActivate(pDllUnit.get());
@@ -13591,7 +13588,7 @@ bool CvUnit::build(BuildTypes eBuild)
 
 			if(pkBuildInfo->isKill())
 			{
-				if (pPlot->isActiveVisible())
+				if (pPlot->isActiveVisible() && (!UI_QUICK_ANIMATIONS || !CvPreGame::quickMovement()))
 				{
 					CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 					gDLL->GameplayUnitActivate(pDllUnit.get());
@@ -13606,7 +13603,7 @@ bool CvUnit::build(BuildTypes eBuild)
 					if (getUnitInfo().GetReligionSpreads() > 1)
 						bIndiaException = true;
 
-					if (bIndiaException && pPlot->isActiveVisible())
+					if (bIndiaException && pPlot->isActiveVisible() && (!UI_QUICK_ANIMATIONS || !CvPreGame::quickMovement()))
 					{
 						// Because the "Activate" animation will possibly put the animation state into a end-state, we will force a reset, since the unit will still be alive
 						CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));

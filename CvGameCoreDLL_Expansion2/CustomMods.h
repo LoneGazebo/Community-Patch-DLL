@@ -114,6 +114,8 @@
 #define MOD_BALANCE_PERMANENT_VOTE_COMMITMENTS	gCustomMods.isBALANCE_PERMANENT_VOTE_COMMITMENTS()
 // Make the UI show moves remaining in the form (exact movement points / 60) for the tile currently being moused over.
 #define MOD_UI_DISPLAY_PRECISE_MOVEMENT_POINTS	gCustomMods.isUI_DISPLAY_PRECISE_MOVEMENT_POINTS()
+// Turn off animations for diplomats, missionaries, great persons etc. when playing with quick movement enabled
+#define UI_QUICK_ANIMATIONS	gCustomMods.isUI_QUICK_ANIMATIONS()
 // Changes difficulty settings and adds more difficulty options
 #define MOD_ALTERNATIVE_DIFFICULTY                  gCustomMods.isALTERNATIVE_DIFFICULTY()
 // Changes the stacking limits based on what the tile is (city, fort, plain, etc) - AFFECTS SAVE GAME DATA FORMAT
@@ -1279,6 +1281,7 @@ public:
 	MOD_OPT_DECL(BALANCE_ENCAMPMENTS_SPAWN_ON_VISIBLE_TILES);
 	MOD_OPT_DECL(BALANCE_PERMANENT_VOTE_COMMITMENTS);
 	MOD_OPT_DECL(UI_DISPLAY_PRECISE_MOVEMENT_POINTS);
+	MOD_OPT_DECL(UI_QUICK_ANIMATIONS);
 	MOD_OPT_DECL(ALTERNATIVE_DIFFICULTY);
 	MOD_OPT_DECL(GLOBAL_STACKING_RULES);
 	MOD_OPT_DECL(GLOBAL_LOCAL_GENERALS);
