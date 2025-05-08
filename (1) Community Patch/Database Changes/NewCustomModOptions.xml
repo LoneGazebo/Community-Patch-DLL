@@ -36,6 +36,9 @@
 		<!-- Vote Commitments cannot be cancelled by war. If the resolution becomes invalid, the votes are abstained instead of given back. -->
 		<Row Class="5" Name="BALANCE_PERMANENT_VOTE_COMMITMENTS" Value="0"/>
 
+		<!-- Turn off animations for diplomats, missionaries, great persons etc. when playing with quick movement enabled. -->
+		<Row Class="4" Name="UI_QUICK_ANIMATIONS" Value="0"/>
+		
 		<!-- Make the UI show moves remaining in the form (exact movement points / 60) for the tile currently being moused over. -->
 		<Row Class="2" Name="UI_DISPLAY_PRECISE_MOVEMENT_POINTS" Value="0"/>
 
