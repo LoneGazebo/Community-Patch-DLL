@@ -577,6 +577,8 @@ protected:
 	static int lGetExtraFeatureAttackPercent(lua_State* L);
 	static int lGetExtraFeatureDefensePercent(lua_State* L);
 	static int lGetExtraUnitCombatModifier(lua_State* L);
+	static int lGetExtraUnitCombatModifierAttack(lua_State* L);
+	static int lGetExtraUnitCombatModifierDefense(lua_State* L);
 	static int lGetUnitClassModifier(lua_State* L);
 
 	static int lCanAcquirePromotion(lua_State* L);
