@@ -2000,6 +2000,20 @@ void CvUnitEntry::DoUpdatePower()
 					iTemp /= 100;
 					iBonusPower += iTemp;
 				}
+
+				if (kPromotion->GetUnitCombatModifierPercentAttack(iLoop) > 0)
+				{
+					iTemp = (iBasePower * kPromotion->GetUnitCombatModifierPercentAttack(iLoop) / 8);
+					iTemp /= 100;
+					iBonusPower += iTemp;
+				}
+
+				if (kPromotion->GetUnitCombatModifierPercentDefense(iLoop) > 0)
+				{
+					iTemp = (iBasePower * kPromotion->GetUnitCombatModifierPercentDefense(iLoop) / 8);
+					iTemp /= 100;
+					iBonusPower += iTemp;
+				}
 			}
 
 			for (iLoop = 0; iLoop < GC.getNumUnitClassInfos(); iLoop++)

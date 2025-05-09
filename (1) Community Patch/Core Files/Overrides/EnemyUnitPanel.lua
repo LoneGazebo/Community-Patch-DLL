@@ -795,13 +795,13 @@ function UpdateCombatSimulator(pMyUnit, pTheirUnit, pMyCity, pTheirCity)
 			-- VS unit combat modifier
 			local eTheirUnitCombat = pTheirUnit:GetUnitCombatType();
 			if eTheirUnitCombat ~= -1 then
-				iModifier = pMyUnit:UnitCombatModifier(eTheirUnitCombat);
+				iModifier = pMyUnit:UnitCombatModifier(eTheirUnitCombat) + pMyUnit:GetExtraUnitCombatModifierAttack(eTheirUnitCombat);
 				sDescription = Locale.ConvertTextKey(GameInfo.UnitCombatInfos[eTheirUnitCombat].Description);
 				nBonus, iMiscModifier = ProcessModifier(iModifier, "TXT_KEY_EUPANEL_BONUS_VS_CLASS", nBonus, iMiscModifier, true, true, nil, sDescription);
 
 				-- Skirmishers count as both Archery and Mounted Units
 				if pTheirUnit:IsMounted() then
-					iModifier = pMyUnit:UnitCombatModifier(GameInfoTypes.UNITCOMBAT_MOUNTED);
+					iModifier = pMyUnit:UnitCombatModifier(GameInfoTypes.UNITCOMBAT_MOUNTED) + pMyUnit:GetExtraUnitCombatModifierAttack(GameInfoTypes.UNITCOMBAT_MOUNTED);
 					sDescription = Locale.ConvertTextKey(GameInfo.UnitCombatInfos.UNITCOMBAT_MOUNTED.Description);
 					nBonus, iMiscModifier = ProcessModifier(iModifier, "TXT_KEY_EUPANEL_BONUS_VS_CLASS", nBonus, iMiscModifier, true, true, nil, sDescription);
 				end
@@ -1187,13 +1187,13 @@ function UpdateCombatSimulator(pMyUnit, pTheirUnit, pMyCity, pTheirCity)
 					-- VS unit combat modifier
 					local eMyUnitCombat = pMyUnit:GetUnitCombatType();
 					if eMyUnitCombat ~= -1 then
-						iModifier = pTheirUnit:UnitCombatModifier(pMyUnit:GetUnitCombatType());
+						iModifier = pTheirUnit:UnitCombatModifier(eMyUnitCombat) + pTheirUnit:GetExtraUnitCombatModifierDefense(eMyUnitCombat);
 						sDescription = Locale.ConvertTextKey(GameInfo.UnitCombatInfos[eMyUnitCombat].Description);
 						nBonus, iMiscModifier = ProcessModifier(iModifier, "TXT_KEY_EUPANEL_BONUS_VS_CLASS", nBonus, iMiscModifier, false, true, nil, sDescription);
 
 						-- Skirmishers count as both Archery and Mounted Units
 						if pMyUnit:IsMounted() then
-							iModifier = pTheirUnit:UnitCombatModifier(GameInfoTypes.UNITCOMBAT_MOUNTED);
+							iModifier = pTheirUnit:UnitCombatModifier(GameInfoTypes.UNITCOMBAT_MOUNTED) + pTheirUnit:GetExtraUnitCombatModifierDefense(GameInfoTypes.UNITCOMBAT_MOUNTED);
 							sDescription = Locale.ConvertTextKey(GameInfo.UnitCombatInfos.UNITCOMBAT_MOUNTED.Description);
 							nBonus, iMiscModifier = ProcessModifier(iModifier, "TXT_KEY_EUPANEL_BONUS_VS_CLASS", nBonus, iMiscModifier, false, true, nil, sDescription);
 						end

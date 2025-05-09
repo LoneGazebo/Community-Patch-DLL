@@ -338,6 +338,8 @@ CvPromotionEntry::CvPromotionEntry():
 	m_piGarrisonYield(NULL),
 	m_piFortificationYield(NULL),
 	m_piUnitCombatModifierPercent(NULL),
+	m_piUnitCombatModifierPercentAttack(NULL),
+		m_piUnitCombatModifierPercentDefense(NULL),
 	m_piUnitClassModifierPercent(NULL),
 	m_piUnitClassAttackModifier(NULL),
 	m_piUnitClassDefenseModifier(NULL),
@@ -398,6 +400,8 @@ CvPromotionEntry::~CvPromotionEntry(void)
 	SAFE_DELETE_ARRAY(m_piGarrisonYield);
 	SAFE_DELETE_ARRAY(m_piFortificationYield);
 	SAFE_DELETE_ARRAY(m_piUnitCombatModifierPercent);
+	SAFE_DELETE_ARRAY(m_piUnitCombatModifierPercentAttack);
+	SAFE_DELETE_ARRAY(m_piUnitCombatModifierPercentDefense);
 	SAFE_DELETE_ARRAY(m_piUnitClassModifierPercent);
 	SAFE_DELETE_ARRAY(m_piUnitClassAttackModifier);
 	SAFE_DELETE_ARRAY(m_piUnitClassDefenseModifier);
@@ -1219,12 +1223,14 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	//UnitPromotions_UnitCombatMods
 	{
 		kUtility.InitializeArray(m_piUnitCombatModifierPercent, iNumUnitCombatClasses, 0);
+		kUtility.InitializeArray(m_piUnitCombatModifierPercentAttack, iNumUnitCombatClasses, 0);
+		kUtility.InitializeArray(m_piUnitCombatModifierPercentDefense, iNumUnitCombatClasses, 0);
 
 		std::string sqlKey = "m_piUnitCombatModifierPercent";
 		Database::Results* pResults = kUtility.GetResults(sqlKey);
 		if(pResults == NULL)
 		{
-			const char* szSQL = "select UnitCombatInfos.ID, Modifier from UnitPromotions_UnitCombatMods inner join UnitCombatInfos on UnitCombatInfos.Type = UnitCombatType where PromotionType = ?;";
+			const char* szSQL = "select UnitCombatInfos.ID, Modifier, Attack, Defense from UnitPromotions_UnitCombatMods inner join UnitCombatInfos on UnitCombatInfos.Type = UnitCombatType where PromotionType = ?;";
 			pResults = kUtility.PrepareResults(sqlKey, szSQL);
 		}
 
@@ -1240,6 +1246,12 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 
 			const int iUnitCombatMod = pResults->GetInt(1);
 			m_piUnitCombatModifierPercent[iUnitCombatID] = iUnitCombatMod;
+
+			const int iUnitCombatModAttack = pResults->GetInt(2);
+			m_piUnitCombatModifierPercentAttack[iUnitCombatID] = iUnitCombatModAttack;
+
+			const int iUnitCombatModDefense = pResults->GetInt(3);
+			m_piUnitCombatModifierPercentDefense[iUnitCombatID] = iUnitCombatModDefense;
 		}
 
 		pResults->Reset();
@@ -3020,6 +3032,34 @@ int CvPromotionEntry::GetUnitCombatModifierPercent(int i) const
 	if(i > -1 && i < GC.getNumUnitCombatClassInfos() && m_piUnitCombatModifierPercent)
 	{
 		return m_piUnitCombatModifierPercent[i];
+	}
+
+	return 0;
+}
+
+/// Percentage bonus when attacking a specific unit *combat* class
+int CvPromotionEntry::GetUnitCombatModifierPercentAttack(int i) const
+{
+	ASSERT_DEBUG(i < GC.getNumUnitCombatClassInfos(), "Index out of bounds");
+	ASSERT_DEBUG(i > -1, "Index out of bounds");
+
+	if(i > -1 && i < GC.getNumUnitCombatClassInfos() && m_piUnitCombatModifierPercentAttack)
+	{
+		return m_piUnitCombatModifierPercentAttack[i];
+	}
+
+	return 0;
+}
+
+/// Percentage bonus when defending against a specific unit *combat* class
+int CvPromotionEntry::GetUnitCombatModifierPercentDefense(int i) const
+{
+	ASSERT_DEBUG(i < GC.getNumUnitCombatClassInfos(), "Index out of bounds");
+	ASSERT_DEBUG(i > -1, "Index out of bounds");
+
+	if(i > -1 && i < GC.getNumUnitCombatClassInfos() && m_piUnitCombatModifierPercentDefense)
+	{
+		return m_piUnitCombatModifierPercentDefense[i];
 	}
 
 	return 0;

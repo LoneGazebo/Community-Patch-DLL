@@ -576,6 +576,8 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(GetExtraFeatureAttackPercent);
 	Method(GetExtraFeatureDefensePercent);
 	Method(GetExtraUnitCombatModifier);
+	Method(GetExtraUnitCombatModifierAttack);
+	Method(GetExtraUnitCombatModifierDefense);
 	Method(GetUnitClassModifier);
 
 	Method(CanAcquirePromotion);
@@ -6056,6 +6058,28 @@ int CvLuaUnit::lGetExtraUnitCombatModifier(lua_State* L)
 	const UnitCombatTypes eIndex = (UnitCombatTypes)lua_tointeger(L, 2);
 
 	const int iResult = pkUnit->getExtraUnitCombatModifier(eIndex);
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//int getExtraUnitCombatModifierAttack(int /*UnitCombatTypes*/ eIndex);
+int CvLuaUnit::lGetExtraUnitCombatModifierAttack(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	const UnitCombatTypes eIndex = (UnitCombatTypes)lua_tointeger(L, 2);
+
+	const int iResult = pkUnit->getExtraUnitCombatModifierAttack(eIndex);
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//int getExtraUnitCombatModifierDefense(int /*UnitCombatTypes*/ eIndex);
+int CvLuaUnit::lGetExtraUnitCombatModifierDefense(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	const UnitCombatTypes eIndex = (UnitCombatTypes)lua_tointeger(L, 2);
+
+	const int iResult = pkUnit->getExtraUnitCombatModifierDefense(eIndex);
 	lua_pushinteger(L, iResult);
 	return 1;
 }
