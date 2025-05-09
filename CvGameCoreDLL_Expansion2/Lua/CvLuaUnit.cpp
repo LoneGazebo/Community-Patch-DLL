@@ -376,6 +376,8 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(OpenFromModifier);
 	Method(TerrainAttackModifier);
 	Method(TerrainDefenseModifier);
+	Method(GetTerrainModifierAttack);
+	Method(GetTerrainModifierDefense);
 	Method(FeatureAttackModifier);
 	Method(FeatureDefenseModifier);
 	Method(UnitClassAttackModifier);
@@ -4236,6 +4238,28 @@ int CvLuaUnit::lTerrainDefenseModifier(lua_State* L)
 	const TerrainTypes eTerrain = (TerrainTypes)lua_tointeger(L, 2);
 
 	const int iResult = pkUnit->terrainDefenseModifier(eTerrain);
+	lua_pushinteger(L, iResult);
+	return 1;
+
+}//------------------------------------------------------------------------------
+//int GetTerrainModifierAttack(int /*TerrainTypes*/ eTerrain);
+int CvLuaUnit::lGetTerrainModifierAttack(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	const TerrainTypes eTerrain = (TerrainTypes)lua_tointeger(L, 2);
+
+	const int iResult = pkUnit->GetTerrainModifierAttack(eTerrain);
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//int GetTerrainModifierDefense(int /*TerrainTypes*/ eTerrain);
+int CvLuaUnit::lGetTerrainModifierDefense(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	const TerrainTypes eTerrain = (TerrainTypes)lua_tointeger(L, 2);
+
+	const int iResult = pkUnit->GetTerrainModifierDefense(eTerrain);
 	lua_pushinteger(L, iResult);
 	return 1;
 }

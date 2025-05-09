@@ -329,6 +329,8 @@ CvPromotionEntry::CvPromotionEntry():
 	m_piTerrainDefensePercent(NULL),
 	m_piFeatureAttackPercent(NULL),
 	m_piFeatureDefensePercent(NULL),
+	m_piTerrainModifierAttack(NULL),
+	m_piTerrainModifierDefense(NULL),
 #if defined(MOD_BALANCE_CORE)
 	m_piYieldFromScouting(NULL),
 #endif
@@ -387,6 +389,8 @@ CvPromotionEntry::~CvPromotionEntry(void)
 	SAFE_DELETE_ARRAY(m_piTerrainDefensePercent);
 	SAFE_DELETE_ARRAY(m_piFeatureAttackPercent);
 	SAFE_DELETE_ARRAY(m_piFeatureDefensePercent);
+	SAFE_DELETE_ARRAY(m_piTerrainModifierAttack);
+	SAFE_DELETE_ARRAY(m_piTerrainModifierDefense);
 #if defined(MOD_BALANCE_CORE)
 	SAFE_DELETE_ARRAY(m_piYieldFromScouting);
 	SAFE_DELETE_ARRAY(m_piYieldModifier);
@@ -776,6 +780,8 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	{
 		kUtility.InitializeArray(m_piTerrainAttackPercent, iNumTerrains, 0);
 		kUtility.InitializeArray(m_piTerrainDefensePercent, iNumTerrains, 0);
+		kUtility.InitializeArray(m_piTerrainModifierAttack, iNumTerrains, 0);
+		kUtility.InitializeArray(m_piTerrainModifierDefense, iNumTerrains, 0);
 		kUtility.InitializeArray(m_piTerrainPassableTech, iNumTerrains, NO_TECH);
 		kUtility.InitializeArray(m_pbIgnoreTerrainCostIn, iNumTerrains, false);
 		kUtility.InitializeArray(m_pbIgnoreTerrainCostFrom, iNumTerrains, false);
@@ -839,6 +845,37 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 
 			const int iPassableTechID = pResults->GetInt("PassableTechID");
 			m_piTerrainPassableTech[iTerrainID] = iPassableTechID;
+		}
+	}
+
+	//UnitPromotions_TerrainModifiers
+	{
+		kUtility.InitializeArray(m_piTerrainModifierAttack, iNumTerrains, 0);
+		kUtility.InitializeArray(m_piTerrainModifierDefense, iNumTerrains, 0);
+
+		std::string sqlKey = "UnitPromotions_TerrainModifiers";
+		Database::Results* pResults = kUtility.GetResults(sqlKey);
+		if (pResults == NULL)
+		{
+			const char* szSQL = "select Terrains.ID as TerrainID, UnitPromotions_TerrainModifiers.Attack, UnitPromotions_TerrainModifiers.Defense from UnitPromotions_TerrainModifiers inner join Terrains on TerrainType = Terrains.Type where PromotionType = ?";
+			pResults = kUtility.PrepareResults(sqlKey, szSQL);
+		}
+
+		ASSERT_DEBUG(pResults);
+		if (!pResults) return false;
+
+		pResults->Bind(1, szPromotionType);
+
+		while (pResults->Step())
+		{
+			const int iTerrainID = pResults->GetInt("TerrainID");
+			ASSERT_DEBUG(iTerrainID > -1 && iTerrainID < iNumTerrains);
+
+			const int iTerrainAttack = pResults->GetInt("Attack");
+			m_piTerrainModifierAttack[iTerrainID] = iTerrainAttack;
+
+			const int iTerrainDefense = pResults->GetInt("Defense");
+			m_piTerrainModifierDefense[iTerrainID] = iTerrainDefense;
 		}
 	}
 
@@ -2860,6 +2897,34 @@ int CvPromotionEntry::GetTerrainDefensePercent(int i) const
 	if(i > -1 && i < GC.getNumTerrainInfos() && m_piTerrainDefensePercent)
 	{
 		return m_piTerrainDefensePercent[i];
+	}
+
+	return 0;
+}
+
+/// Percentage bonus when attacking a tile of a given terrain
+int CvPromotionEntry::GetTerrainModifierAttack(int i) const
+{
+	ASSERT_DEBUG(i < GC.getNumTerrainInfos(), "Index out of bounds");
+	ASSERT_DEBUG(i > -1, "Index out of bounds");
+
+	if(i > -1 && i < GC.getNumTerrainInfos() && m_piTerrainModifierAttack)
+	{
+		return m_piTerrainModifierAttack[i];
+	}
+
+	return 0;
+}
+
+/// Percentage bonus when when defending a tile of a given terrain
+int CvPromotionEntry::GetTerrainModifierDefense(int i) const
+{
+	ASSERT_DEBUG(i < GC.getNumTerrainInfos(), "Index out of bounds");
+	ASSERT_DEBUG(i > -1, "Index out of bounds");
+
+	if(i > -1 && i < GC.getNumTerrainInfos() && m_piTerrainModifierDefense)
+	{
+		return m_piTerrainModifierDefense[i];
 	}
 
 	return 0;

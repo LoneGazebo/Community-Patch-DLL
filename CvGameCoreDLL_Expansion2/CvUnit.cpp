@@ -372,6 +372,8 @@ CvUnit::CvUnit() :
 	, m_featureImpassableCount()
 	, m_extraTerrainAttackPercent()
 	, m_extraTerrainDefensePercent()
+	, m_vTerrainModifierAttack()
+	, m_vTerrainModifierDefense()
 	, m_extraFeatureAttackPercent()
 	, m_extraFeatureDefensePercent()
 	, m_extraUnitClassAttackMod()
@@ -1761,6 +1763,8 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 		m_terrainImpassableCount.clear();
 		m_extraTerrainAttackPercent.clear();
 		m_extraTerrainDefensePercent.clear();
+		m_vTerrainModifierAttack.clear();
+		m_vTerrainModifierDefense.clear();
 
 		m_ignoreFeatureCostInCount.clear();
 		m_ignoreFeatureCostFromCount.clear();
@@ -1935,6 +1939,8 @@ void CvUnit::uninitInfos()
 	m_featureImpassableCount.clear();
 	m_extraTerrainAttackPercent.clear();
 	m_extraTerrainDefensePercent.clear();
+	m_vTerrainModifierAttack.clear();
+	m_vTerrainModifierDefense.clear();
 	m_extraFeatureAttackPercent.clear();
 	m_extraFeatureDefensePercent.clear();
 
@@ -16490,6 +16496,11 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 			}
 		}
 
+		// VP Terrain Attack Mod
+		iModifier += GetTerrainModifierAttack(pToPlot->getTerrainType());
+		if (pToPlot->isHills())
+			iModifier += GetTerrainModifierAttack(TERRAIN_HILL);
+
 		////////////////////////
 		// KNOWN ORIGIN PLOT
 		////////////////////////
@@ -16684,6 +16695,11 @@ int CvUnit::GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker
 			if(pInPlot->isHills())
 				iModifier += terrainDefenseModifier(TERRAIN_HILL);
 		}
+
+		// VP Terrain Defense Mod
+		iModifier += GetTerrainModifierDefense(pInPlot->getTerrainType());
+		if (pInPlot->isHills())
+			iModifier += GetTerrainModifierDefense(TERRAIN_HILL);
 
 		// Flanking
 		if (pFromPlot && !bFromRangedAttack && !bQuickAndDirty)
@@ -17009,6 +17025,11 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 						iModifier += terrainAttackModifier(TERRAIN_HILL);
 				}
 			}
+
+			// VP Terrain Attack Mod
+			iModifier += GetTerrainModifierAttack(pMyPlot->getTerrainType());
+			if (pMyPlot->isHills())
+				iModifier += GetTerrainModifierAttack(TERRAIN_HILL);
 		}
 		else
 		{
@@ -17042,6 +17063,11 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 				if (pMyPlot->isHills())
 					iModifier += terrainDefenseModifier(TERRAIN_HILL);
 			}
+
+			// VP Terrain Defense Mod
+			iModifier += GetTerrainModifierDefense(pMyPlot->getTerrainType());
+			if (pMyPlot->isHills())
+				iModifier += GetTerrainModifierDefense(TERRAIN_HILL);
 		}
 
 		// Bonus for fighting in one's lands
@@ -26285,6 +26311,79 @@ void CvUnit::changeExtraTerrainDefensePercent(TerrainTypes eIndex, int iChange)
 	m_extraTerrainDefensePercent.push_back(make_pair(eIndex, iChange));
 }
 
+
+//	--------------------------------------------------------------------------------
+int CvUnit::GetTerrainModifierDefense(TerrainTypes eIndex) const
+{
+	for (TerrainTypeCounter::const_iterator it = m_vTerrainModifierDefense.begin(); it != m_vTerrainModifierDefense.end(); ++it)
+	{
+		if (it->first == eIndex)
+			return it->second;
+	}
+
+	return 0;
+}
+
+
+//	--------------------------------------------------------------------------------
+void CvUnit::ChangeTerrainModifierDefense(TerrainTypes eIndex, int iChange)
+{
+	if (iChange == 0)
+		return;
+
+	TerrainTypeCounter& mVec = m_vTerrainModifierDefense;
+	for (TerrainTypeCounter::iterator it = mVec.begin(); it != mVec.end(); ++it)
+	{
+		if (it->first == eIndex)
+		{
+			it->second += iChange;
+
+			if (it->second == 0)
+				mVec.erase(it);
+
+			return;
+		}
+	}
+
+	m_vTerrainModifierDefense.push_back(make_pair(eIndex, iChange));
+}
+
+//	--------------------------------------------------------------------------------
+int CvUnit::GetTerrainModifierAttack(TerrainTypes eIndex) const
+{
+	for (TerrainTypeCounter::const_iterator it = m_vTerrainModifierAttack.begin(); it != m_vTerrainModifierAttack.end(); ++it)
+	{
+		if (it->first == eIndex)
+			return it->second;
+	}
+
+	return 0;
+}
+
+
+//	--------------------------------------------------------------------------------
+void CvUnit::ChangeTerrainModifierAttack(TerrainTypes eIndex, int iChange)
+{
+	if (iChange == 0)
+		return;
+
+	TerrainTypeCounter& mVec = m_vTerrainModifierAttack;
+	for (TerrainTypeCounter::iterator it = mVec.begin(); it != mVec.end(); ++it)
+	{
+		if (it->first == eIndex)
+		{
+			it->second += iChange;
+
+			if (it->second == 0)
+				mVec.erase(it);
+
+			return;
+		}
+	}
+
+	m_vTerrainModifierAttack.push_back(make_pair(eIndex, iChange));
+}
+
 //	--------------------------------------------------------------------------------
 int CvUnit::getExtraFeatureAttackPercent(FeatureTypes eIndex) const
 {
@@ -27469,6 +27568,8 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		{
 			changeExtraTerrainAttackPercent(((TerrainTypes)iI), (thisPromotion.GetTerrainAttackPercent(iI) * iChange));
 			changeExtraTerrainDefensePercent(((TerrainTypes)iI), (thisPromotion.GetTerrainDefensePercent(iI) * iChange));
+			ChangeTerrainModifierAttack(((TerrainTypes)iI), (thisPromotion.GetTerrainModifierAttack(iI) * iChange));
+			ChangeTerrainModifierDefense(((TerrainTypes)iI), (thisPromotion.GetTerrainModifierDefense(iI) * iChange));
 			changeIgnoreTerrainCostInCount(((TerrainTypes)iI), ((thisPromotion.GetIgnoreTerrainCostIn(iI)) ? iChange : 0));
 			changeIgnoreTerrainCostFromCount(((TerrainTypes)iI), ((thisPromotion.GetIgnoreTerrainCostFrom(iI)) ? iChange : 0));
 			changeTerrainDoubleMoveCount(((TerrainTypes)iI), ((thisPromotion.GetTerrainDoubleMove(iI)) ? iChange : 0));
@@ -28125,6 +28226,8 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_featureImpassableCount);
 	visitor(unit.m_extraTerrainAttackPercent);
 	visitor(unit.m_extraTerrainDefensePercent);
+	visitor(unit.m_vTerrainModifierAttack);
+	visitor(unit.m_vTerrainModifierDefense);
 	visitor(unit.m_extraFeatureAttackPercent);
 	visitor(unit.m_extraFeatureDefensePercent);
 	visitor(unit.m_extraUnitClassAttackMod);
@@ -32182,7 +32285,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		CvTerrainInfo* pkTerrainInfo = GC.getTerrainInfo(eTerrain);
 		if(pkTerrainInfo)
 		{
-			iTemp = pkPromotionInfo->GetTerrainAttackPercent(iI);
+			iTemp = pkPromotionInfo->GetTerrainAttackPercent(iI) + pkPromotionInfo->GetTerrainModifierAttack(iI);
 			if(iTemp != 0)
 			{
 				iExtra = getExtraTerrainAttackPercent(eTerrain);
@@ -32191,7 +32294,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 				iValue += iExtra;
 			}
 
-			iTemp = pkPromotionInfo->GetTerrainDefensePercent(iI);
+			iTemp = pkPromotionInfo->GetTerrainDefensePercent(iI) + pkPromotionInfo->GetTerrainModifierDefense(iI);
 			if(iTemp != 0)
 			{
 				iExtra = getExtraTerrainDefensePercent(eTerrain);
