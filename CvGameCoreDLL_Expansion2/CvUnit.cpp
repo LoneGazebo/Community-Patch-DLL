@@ -377,6 +377,8 @@ CvUnit::CvUnit() :
 	, m_extraUnitClassAttackMod()
 	, m_extraUnitClassDefenseMod()
 	, m_extraUnitCombatModifier()
+	, m_extraUnitCombatModifierAttack()
+	, m_extraUnitCombatModifierDefense()
 	, m_unitClassModifier()
 #if defined(MOD_BALANCE_CORE)
 	, m_iCombatModPerAdjacentUnitCombatModifier()
@@ -1810,6 +1812,10 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 		ASSERT_DEBUG((0 < GC.getNumUnitCombatClassInfos()), "GC.getNumUnitCombatClassInfos() is not greater than zero but an array is being allocated in CvUnit::reset");
 		m_extraUnitCombatModifier.clear();
 		m_extraUnitCombatModifier.resize(GC.getNumUnitCombatClassInfos());
+		m_extraUnitCombatModifierAttack.clear();
+		m_extraUnitCombatModifierAttack.resize(GC.getNumUnitCombatClassInfos());
+		m_extraUnitCombatModifierDefense.clear();
+		m_extraUnitCombatModifierDefense.resize(GC.getNumUnitCombatClassInfos());
 #if defined(MOD_BALANCE_CORE)
 		m_iCombatModPerAdjacentUnitCombatModifier.clear();
 		m_iCombatModPerAdjacentUnitCombatModifier.resize(GC.getNumUnitCombatClassInfos());
@@ -1821,6 +1827,8 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 		for(int i = 0; i < GC.getNumUnitCombatClassInfos(); i++)
 		{
 			m_extraUnitCombatModifier[i] = 0;
+			m_extraUnitCombatModifierAttack[i] = 0;
+			m_extraUnitCombatModifierDefense[i] = 0;
 #if defined(MOD_BALANCE_CORE)
 			m_iCombatModPerAdjacentUnitCombatModifier[i] = 0;
 			m_iCombatModPerAdjacentUnitCombatAttackMod[i] = 0;
@@ -1947,6 +1955,8 @@ void CvUnit::uninitInfos()
 	m_piYieldFromTRPlunder.clear();
 #endif
 	m_extraUnitCombatModifier.clear();
+	m_extraUnitCombatModifierAttack.clear();
+	m_extraUnitCombatModifierDefense.clear();
 	m_unitClassModifier.clear();
 }
 
@@ -16531,6 +16541,20 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 		// Unit Class Attack Modifier
 		iModifier += unitClassAttackModifier(pDefender->getUnitClassType());
 
+		// Unit Combat type Modifier
+		UnitCombatTypes combatType = pDefender->getUnitCombatType();
+		if (combatType != NO_UNITCOMBAT)
+		{
+			int iTempModifier = getExtraUnitCombatModifierAttack(combatType);
+
+			//hack: mounted units can have secondary combat class
+			UnitCombatTypes mountedCombat = static_cast<UnitCombatTypes>(GC.getInfoTypeForString("UNITCOMBAT_MOUNTED", true));
+			if (pDefender->getUnitInfo().IsMounted() && combatType != mountedCombat)
+				iTempModifier += getExtraUnitCombatModifierAttack(mountedCombat);
+
+			iModifier += iTempModifier;
+		}
+
 		// Domain Attack Modifier
 		iModifier += getExtraDomainAttack(pDefender->getDomainType());
 
@@ -16683,6 +16707,20 @@ int CvUnit::GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker
 	{
 		// Unit Class Defense Modifier
 		iModifier += unitClassDefenseModifier(pAttacker->getUnitClassType());
+
+		// Unit Combat type Modifier
+		UnitCombatTypes combatType = pAttacker->getUnitCombatType();
+		if (combatType != NO_UNITCOMBAT)
+		{
+			int iTempModifier = getExtraUnitCombatModifierDefense(combatType);
+
+			//hack: mounted units can have secondary combat class
+			UnitCombatTypes mountedCombat = static_cast<UnitCombatTypes>(GC.getInfoTypeForString("UNITCOMBAT_MOUNTED", true));
+			if (pAttacker->getUnitInfo().IsMounted() && combatType != mountedCombat)
+				iTempModifier += getExtraUnitCombatModifierDefense(mountedCombat);
+
+			iModifier += iTempModifier;
+		}
 
 		// Domain Defense Modifier
 		iModifier += getExtraDomainDefense(pAttacker->getDomainType());
@@ -17191,6 +17229,20 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 			// Unit Class Attack Mod
 			iModifier += unitClassAttackModifier(pOtherUnit->getUnitClassType());
 
+			// Unit Combat type Modifier
+			UnitCombatTypes combatType = pOtherUnit->getUnitCombatType();
+			if (combatType != NO_UNITCOMBAT)
+			{
+				int iTempModifier = getExtraUnitCombatModifierAttack(combatType);
+
+				//hack: mounted units can have secondary combat class
+				UnitCombatTypes mountedCombat = static_cast<UnitCombatTypes>(GC.getInfoTypeForString("UNITCOMBAT_MOUNTED", true));
+				if (pOtherUnit->getUnitInfo().IsMounted() && combatType != mountedCombat)
+					iTempModifier += getExtraUnitCombatModifierAttack(mountedCombat);
+
+				iModifier += iTempModifier;
+			}
+
 			// Domain Attack Mod
 			iModifier += getExtraDomainAttack(pOtherUnit->getDomainType());
 		}
@@ -17200,6 +17252,20 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 		{
 			// Unit Class Defense Mod
 			iModifier += unitClassDefenseModifier(pOtherUnit->getUnitClassType());
+
+			// Unit Combat type Modifier
+			UnitCombatTypes combatType = pOtherUnit->getUnitCombatType();
+			if (combatType != NO_UNITCOMBAT)
+			{
+				int iTempModifier = getExtraUnitCombatModifierDefense(combatType);
+
+				//hack: mounted units can have secondary combat class
+				UnitCombatTypes mountedCombat = static_cast<UnitCombatTypes>(GC.getInfoTypeForString("UNITCOMBAT_MOUNTED", true));
+				if (pOtherUnit->getUnitInfo().IsMounted() && combatType != mountedCombat)
+					iTempModifier += getExtraUnitCombatModifierDefense(mountedCombat);
+
+				iModifier += iTempModifier;
+			}
 
 			// Domain Defense Mod
 			iModifier += getExtraDomainDefense(pOtherUnit->getDomainType());
@@ -26564,6 +26630,44 @@ void CvUnit::changeExtraUnitCombatModifier(UnitCombatTypes eIndex, int iChange)
 	m_extraUnitCombatModifier[eIndex] =  m_extraUnitCombatModifier[eIndex] + iChange;
 }
 
+//	--------------------------------------------------------------------------------
+int CvUnit::getExtraUnitCombatModifierAttack(UnitCombatTypes eIndex) const
+{
+	VALIDATE_OBJECT();
+	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT_DEBUG(eIndex < GC.getNumUnitCombatClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	return m_extraUnitCombatModifierAttack[eIndex];
+}
+
+
+//	--------------------------------------------------------------------------------
+void CvUnit::changeExtraUnitCombatModifierAttack(UnitCombatTypes eIndex, int iChange)
+{
+	VALIDATE_OBJECT();
+	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT_DEBUG(eIndex < GC.getNumUnitCombatClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	m_extraUnitCombatModifierAttack[eIndex] = m_extraUnitCombatModifierAttack[eIndex] + iChange;
+}
+
+//	--------------------------------------------------------------------------------
+int CvUnit::getExtraUnitCombatModifierDefense(UnitCombatTypes eIndex) const
+{
+	VALIDATE_OBJECT();
+	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT_DEBUG(eIndex < GC.getNumUnitCombatClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	return m_extraUnitCombatModifierDefense[eIndex];
+}
+
+
+//	--------------------------------------------------------------------------------
+void CvUnit::changeExtraUnitCombatModifierDefense(UnitCombatTypes eIndex, int iChange)
+{
+	VALIDATE_OBJECT();
+	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT_DEBUG(eIndex < GC.getNumUnitCombatClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	m_extraUnitCombatModifierDefense[eIndex] = m_extraUnitCombatModifierDefense[eIndex] + iChange;
+}
+
 
 //	--------------------------------------------------------------------------------
 int CvUnit::getUnitClassModifier(UnitClassTypes eIndex) const
@@ -27443,6 +27547,8 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		for(iI = 0; iI < GC.getNumUnitCombatClassInfos(); iI++)
 		{
 			changeExtraUnitCombatModifier(((UnitCombatTypes)iI), (thisPromotion.GetUnitCombatModifierPercent(iI) * iChange));
+			changeExtraUnitCombatModifierAttack(((UnitCombatTypes)iI), (thisPromotion.GetUnitCombatModifierPercentAttack(iI) * iChange));
+			changeExtraUnitCombatModifierDefense(((UnitCombatTypes)iI), (thisPromotion.GetUnitCombatModifierPercentDefense(iI) * iChange));
 #if defined(MOD_BALANCE_CORE)
 			changeCombatModPerAdjacentUnitCombatModifier(((UnitCombatTypes)iI), (thisPromotion.GetCombatModPerAdjacentUnitCombatModifierPercent(iI) * iChange));
 			changeCombatModPerAdjacentUnitCombatAttackMod(((UnitCombatTypes)iI), (thisPromotion.GetCombatModPerAdjacentUnitCombatAttackModifier(iI) * iChange));
@@ -28041,6 +28147,8 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_yieldFromKills);
 	visitor(unit.m_yieldFromBarbarianKills);
 	visitor(unit.m_extraUnitCombatModifier);
+	visitor(unit.m_extraUnitCombatModifierAttack);
+	visitor(unit.m_extraUnitCombatModifierDefense);
 	visitor(unit.m_unitClassModifier);
 	visitor(unit.m_iCombatModPerAdjacentUnitCombatModifier);
 	visitor(unit.m_iCombatModPerAdjacentUnitCombatAttackMod);
@@ -32089,7 +32197,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		iValue += iExtra;
 	}
 
-			// Final Complex modifiers 
+	// Final Complex modifiers 
 
 	for(iI = 0; iI < GC.getNumTerrainInfos(); iI++)
 	{
@@ -32295,30 +32403,51 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		CvBaseInfo* pkUnitCombatInfo = GC.getUnitCombatClassInfo(eUnitCombat);
 		if(pkUnitCombatInfo)
 		{
+			// attack
 			iTemp = pkPromotionInfo->GetUnitCombatModifierPercent(iI);
 				// M: +33 vs Mounted, formation 1,2.	AA, aF: vs aF and aB: +100 Air supremacy (anti air) 2.
 									// Could this be changed to a DOMAIN_AIR combat modifier?
-			
-			iTemp += 2 * pkPromotionInfo->GetCombatModPerAdjacentUnitCombatModifierPercent(iI);
-			iTemp +=  pkPromotionInfo->GetCombatModPerAdjacentUnitCombatAttackModifier(iI);
+			iTemp += pkPromotionInfo->GetUnitCombatModifierPercentAttack(iI);
+
+			iTemp += pkPromotionInfo->GetCombatModPerAdjacentUnitCombatModifierPercent(iI);
+			iTemp += pkPromotionInfo->GetCombatModPerAdjacentUnitCombatAttackModifier(iI);
 				// nM: + 10 vs sub, nM, nR, C, encirclement.
+
+			if (iTemp > 0)
+			{
+				iExtra = iTemp * (2 * iFlavorOffense + iFlavorDefense);
+				iExtra *= 0.15;
+				if (IsCanAttackRanged())
+					iExtra *= 0.6;
+				if (getDomainType() == DOMAIN_SEA)	// required for balance
+					iExtra *= 0.8;
+				if (GetAirInterceptRange() > 0)		// Value for air supremacy will be high but that's probably correct
+					iExtra *= 1.5;
+				iValue += iExtra;
+			}
+
+			// defense
+			iTemp = pkPromotionInfo->GetUnitCombatModifierPercent(iI);
+			iTemp += pkPromotionInfo->GetUnitCombatModifierPercentDefense(iI);
+			
+			iTemp += pkPromotionInfo->GetCombatModPerAdjacentUnitCombatModifierPercent(iI);
 			iTemp +=  pkPromotionInfo->GetCombatModPerAdjacentUnitCombatDefenseModifier(iI);
 				// nM: + 10 vs sub, nM, nR, C, Breacher.
 
 			// Would probably make more sense if the adjacent modifiers were base on domain instead of combat classes as well
 
-			if (iTemp <= 0)
-				continue;
-
-			iExtra = iTemp * ( 2 * iFlavorOffense + iFlavorDefense);
-			iExtra *= 0.3;
-			if (IsCanAttackRanged())
-				iExtra *= 0.6;
-			if (getDomainType() == DOMAIN_SEA)	// required for balance
-				iExtra *= 0.8;
-			if (GetAirInterceptRange() > 0)		// Value for air supremacy will be high but that's probably correct
-				iExtra *= 1.5;
-			iValue += iExtra;
+			if (iTemp > 0)
+			{
+				iExtra = iTemp * (iFlavorOffense + 2 * iFlavorDefense);
+				iExtra *= 0.15;
+				if (IsCanAttackRanged())
+					iExtra *= 0.6;
+				if (getDomainType() == DOMAIN_SEA)	// required for balance
+					iExtra *= 0.8;
+				if (GetAirInterceptRange() > 0)		// Value for air supremacy will be high but that's probably correct
+					iExtra *= 1.5;
+				iValue += iExtra;
+			}
 
 		}
 	}

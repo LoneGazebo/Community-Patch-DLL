@@ -342,6 +342,8 @@ public:
 	int GetGarrisonYield(int i) const;
 	int GetFortificationYield(int i) const;
 	int GetUnitCombatModifierPercent(int i) const;
+	int GetUnitCombatModifierPercentAttack(int i) const;
+	int GetUnitCombatModifierPercentDefense(int i) const;
 	int GetUnitClassModifierPercent(int i) const;
 	int GetUnitClassAttackModifier(int i) const;
 	int GetUnitClassDefenseModifier(int i) const;
@@ -672,6 +674,8 @@ protected:
 	int* m_piGarrisonYield;
 	int* m_piFortificationYield;
 	int* m_piUnitCombatModifierPercent;
+	int* m_piUnitCombatModifierPercentAttack;
+	int* m_piUnitCombatModifierPercentDefense;
 	int* m_piUnitClassModifierPercent;
 	int* m_piUnitClassAttackModifier;
 	int* m_piUnitClassDefenseModifier;

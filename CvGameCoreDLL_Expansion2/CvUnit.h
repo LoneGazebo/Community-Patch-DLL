@@ -1774,6 +1774,10 @@ public:
 
 	int getExtraUnitCombatModifier(UnitCombatTypes eIndex) const;
 	void changeExtraUnitCombatModifier(UnitCombatTypes eIndex, int iChange);
+	int getExtraUnitCombatModifierAttack(UnitCombatTypes eIndex) const;
+	void changeExtraUnitCombatModifierAttack(UnitCombatTypes eIndex, int iChange);
+	int getExtraUnitCombatModifierDefense(UnitCombatTypes eIndex) const;
+	void changeExtraUnitCombatModifierDefense(UnitCombatTypes eIndex, int iChange);
 
 	int getUnitClassModifier(UnitClassTypes eIndex) const;
 	void changeUnitClassModifier(UnitClassTypes eIndex, int iChange);
@@ -2414,6 +2418,8 @@ protected:
 	std::vector<int> m_yieldFromKills;
 	std::vector<int> m_yieldFromBarbarianKills;
 	std::vector<int> m_extraUnitCombatModifier;
+	std::vector<int> m_extraUnitCombatModifierAttack;
+	std::vector<int> m_extraUnitCombatModifierDefense;
 	std::vector<int> m_unitClassModifier;
 #if defined(MOD_BALANCE_CORE)
 	std::vector<int> m_iCombatModPerAdjacentUnitCombatModifier;
@@ -2811,6 +2817,8 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_piYieldFromTRPlunder)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_yieldFromKills)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_yieldFromBarbarianKills)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_extraUnitCombatModifier)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_extraUnitCombatModifierAttack)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_extraUnitCombatModifierDefense)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_unitClassModifier)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_iCombatModPerAdjacentUnitCombatModifier)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_iCombatModPerAdjacentUnitCombatAttackMod)
