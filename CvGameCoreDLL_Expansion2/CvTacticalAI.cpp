@@ -64,6 +64,7 @@ unsigned long gAttackCacheHit = 0, gAttackCacheMiss = 0;
 unsigned long gDangerCacheHit = 0, gDangerCacheMiss = 0;
 unsigned long giEquivalentPos = 0, giDifferentPos = 0;
 unsigned long giValidEndPos = 0, giInvalidEndPos = 0;
+int gCheckedPositions = 0;
 #endif
 
 void CheckDebugTrigger(int iUnitID)
@@ -6615,8 +6616,11 @@ bool CAttackCache::findAttack(int iAttackerId, int iAttackerPlot, int iDefenderI
 }
 
 //note that the score returned from this function is not multiplied by 10 yet
-bool ScoreAttackDamage(const CvTacticalPlot& tactPlot, const CvUnit* pUnit, const CvTacticalPlot& assumedPlot, eAggressionLevel eAggLvl, float fAggBias, CAttackCache& cache, STacticalAssignment& result)
+bool ScoreAttackDamage(const CvTacticalPlot& tactPlot, const CvUnit* pUnit, const CvTacticalPlot& assumedPlot, const CvTacticalPosition& assumedPosition, CAttackCache& cache, STacticalAssignment& result)
 {
+	eAggressionLevel eAggLvl = assumedPosition.getAggressionLevel();
+	float fAggBias = assumedPosition.getAggressionBias();
+
 	bool bIsKill = false;
 	int iDamageDealt = 0;
 	int iDamageReceived = 0; //always zero for ranged attack
@@ -6629,7 +6633,6 @@ bool ScoreAttackDamage(const CvTacticalPlot& tactPlot, const CvUnit* pUnit, cons
 	const CvPlot* pUnitPlot = assumedPlot.getPlot();
 	const CvPlot* pTestPlot = tactPlot.getPlot();
 	bool bScoreReduction = false;
-	bool bBelowHpLimitAfterMeleeAttack = false;
 
 	//AL_LOW, AL_MEDIUM, AL_HIGH, AL_BRAVEHEART
 	//braveheart allows attacks for which you need luck to survive
@@ -6650,10 +6653,6 @@ bool ScoreAttackDamage(const CvTacticalPlot& tactPlot, const CvUnit* pUnit, cons
 			iDamageDealt = TacticalAIHelpers::GetSimulatedDamageFromAttackOnCity(pEnemy, pUnit, pUnitPlot, iDamageReceived, true, iPrevDamage, true);
 			cache.storeAttack(pUnit->GetID(),pUnitPlot->GetPlotIndex(), pEnemy->GetID(), iPrevDamage, iDamageDealt, iDamageReceived);
 		}
-
-		//no suicide. note: should consider self-damage from previous attacks here ... blitz
-		if (iDamageReceived>0 && pUnit->GetCurrHitPoints() - iDamageReceived < hpLimit[eAggLvl])
-			bBelowHpLimitAfterMeleeAttack = true;
 
 		iExtraScore = pUnit->GetRangeCombatSplashDamage(pTestPlot) + (pUnit->GetCityAttackPlunderModifier() / 50);
 		iPrevHitPoints = pEnemy->GetMaxHitPoints() - pEnemy->getDamage() - iPrevDamage;
@@ -6711,19 +6710,15 @@ bool ScoreAttackDamage(const CvTacticalPlot& tactPlot, const CvUnit* pUnit, cons
 		}
 
 		//first use the cache
-		if (!cache.findAttack(pUnit->GetID(),pUnitPlot->GetPlotIndex(), pEnemy->GetID(), iPrevDamage, iDamageDealt, iDamageReceived))
+		if (!cache.findAttack(pUnit->GetID(), pUnitPlot->GetPlotIndex(), pEnemy->GetID(), iPrevDamage, iDamageDealt, iDamageReceived))
 		{
 			//use the quick and dirty method ... and don't check for general bonus etc (their position isn't official yet - we handle that below)
 			iDamageDealt = TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(pEnemy, pUnit, pTestPlot, pUnitPlot, iDamageReceived, true, iPrevDamage, true);
-			cache.storeAttack(pUnit->GetID(),pUnitPlot->GetPlotIndex(), pEnemy->GetID(), iPrevDamage, iDamageDealt, iDamageReceived);
+			cache.storeAttack(pUnit->GetID(), pUnitPlot->GetPlotIndex(), pEnemy->GetID(), iPrevDamage, iDamageDealt, iDamageReceived);
 		}
 
 		iExtraScore = pUnit->GetRangeCombatSplashDamage(pTestPlot);
 		iPrevHitPoints = pEnemy->GetCurrHitPoints() - iPrevDamage;
-
-		//should consider self-damage from previous attacks here ... blitz
-		if (iDamageReceived > 0 && pUnit->GetCurrHitPoints() - iDamageReceived < hpLimit[eAggLvl])
-			bBelowHpLimitAfterMeleeAttack = true;
 
 		//problem is flanking bonus affects combat strength, not damage, so the effect is nonlinear. anyway just assume 10% per adjacent unit
 		if (!pUnit->IsCanAttackRanged()) //only for melee
@@ -6844,6 +6839,30 @@ bool ScoreAttackDamage(const CvTacticalPlot& tactPlot, const CvUnit* pUnit, cons
 			result.iScore = -INT_MAX;
 			return false;
 		}
+
+		//need to consider danger as well
+		//if there are many enemies around we need our melee units as shields, don't waste hp on attacks
+		int iDanger = 0;
+		gEnemiesToIgnore = assumedPosition.getKilledEnemies();
+		if (result.iKillOrNearKillId != -1)
+			gEnemiesToIgnore.push_back(result.iKillOrNearKillId);
+		const CvPlot* pPlotAfterAttack = result.eAssignmentType == A_MELEEKILL ? pTestPlot : pUnitPlot;
+
+		//first try the cache
+		if (!gTactPosStorage.getDangerCache().findDanger(pUnit->GetID(), pPlotAfterAttack->GetPlotIndex(), iDamageReceived, gEnemiesToIgnore, iDanger))
+		{
+			iDanger = pUnit->GetDanger(pPlotAfterAttack, gEnemiesToIgnore, iDamageReceived);
+			//can happen with garrisons, catch this case as it messes up the math
+			if (iDanger == INT_MAX)
+				iDanger = 10 * pUnit->GetMaxHitPoints();
+
+			gTactPosStorage.getDangerCache().storeDanger(pUnit->GetID(), pPlotAfterAttack->GetPlotIndex(), iDamageReceived, gEnemiesToIgnore, iDanger);
+		}
+
+		bool bBelowHpLimitAfterMeleeAttack = (iDanger>pUnit->GetMaxHitPoints());
+		//should consider self-damage from previous attacks here ... blitz
+		if (iDamageReceived > 0 && pUnit->GetCurrHitPoints() - iDamageReceived < hpLimit[eAggLvl])
+			bBelowHpLimitAfterMeleeAttack = true;
 
 		//bias depends on the ratio of friendly to enemy units
 		int iScaledDamage = int(iDamageDealt*fAggBias*fAggFactor + 0.5f);
@@ -7014,7 +7033,7 @@ int ScorePlotForPotentialAttacks(const CvUnit* pUnit, const CvTacticalPlot& test
 			//note here we don't care whether it's a kill or not - don't want to double dip for the move and the kill
 			//also, if the attack would be next turn, chance is the enemy will flee, so it never happens
 			STacticalAssignment temp;
-			bool bIsKill = ScoreAttackDamage(targetPlot, pUnit, testPlot, assumedPosition.getAggressionLevel(), assumedPosition.getAggressionBias(), gTactPosStorage.getAttackCache(), temp);
+			bool bIsKill = ScoreAttackDamage(targetPlot, pUnit, testPlot, assumedPosition, gTactPosStorage.getAttackCache(), temp);
 			if (bIsKill && iNumAttacks > 0 && temp.iScore > 0)
 			{
 				//if we can attack this turn
@@ -7129,8 +7148,7 @@ int ScoreCombatUnitTurnEnd(const CvUnit* pUnit, eUnitAssignmentType eLastAssignm
 			int iLowHealthThreshold = (iMagicNumber * iDanger) / max(1, iRemainingHP);
 
 			//if there is nothing we would cover or that covers us or we are low on health, don't do it
-			int iCover = bRelaxedCheck ? iNumAdjFriendlies+1 : max(iNumAdjFriendlies, 1);
-			if (iRemainingHP*iCover < iLowHealthThreshold)
+			if (iRemainingHP*(iNumAdjFriendlies+1) < iLowHealthThreshold)
 				return INT_MAX;
 		}
 
@@ -7513,7 +7531,7 @@ STacticalAssignment ScorePlotForRangedAttack(const SUnitStats& unit, const CvTac
 	STacticalAssignment newAssignment(unit.iPlotIndex,enemyPlot.getPlotIndex(),unit.iUnitID,unit.iMovesLeft,unit.eMoveStrategy,-1,A_RANGEATTACK);
 
 	//received damage is zero here but still use the correct unit number ratio so as not to distort scores
-	bool bIsKill = ScoreAttackDamage(enemyPlot, unit.pUnit, assumedUnitPlot, assumedPosition.getAggressionLevel(), assumedPosition.getAggressionBias(), gTactPosStorage.getAttackCache(), newAssignment);
+	bool bIsKill = ScoreAttackDamage(enemyPlot, unit.pUnit, assumedUnitPlot, assumedPosition, gTactPosStorage.getAttackCache(), newAssignment);
 	if (newAssignment.iScore < 0)
 		return newAssignment;
 
@@ -7575,7 +7593,7 @@ STacticalAssignment ScorePlotForMeleeAttack(const SUnitStats& unit, const CvTact
 		return result;
 
 	//check how much damage we could do
-	bool bIsKill = ScoreAttackDamage(enemyPlot, pUnit, assumedUnitPlot, assumedPosition.getAggressionLevel(), assumedPosition.getAggressionBias(), gTactPosStorage.getAttackCache(), result);
+	bool bIsKill = ScoreAttackDamage(enemyPlot, pUnit, assumedUnitPlot, assumedPosition, gTactPosStorage.getAttackCache(), result);
 	if (result.iScore < 0)
 		return result;
 
@@ -7600,6 +7618,7 @@ STacticalAssignment ScorePlotForMeleeAttack(const SUnitStats& unit, const CvTact
 	}
 
 	//bring it into the same range as movement (add 8 so we're always better than just finishing the turn on a frontline plot)
+	//note that we already checked whether the attack is worthwhile
 	result.iScore = (result.iScore + 8) * 10;
 
 	//small bias for staying close to our cities, to have a way to retreat if necessary
@@ -8573,6 +8592,7 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPe
 
 		//important, hook it up to the parent so we can access the history
 		addChild(pNewChild);
+		gCheckedPositions++;
 
 		AddAssignmentResult a = pNewChild->addAssignment(gMovesToAdd[i].a);
 		AddAssignmentResult b = pNewChild->addAssignment(gMovesToAdd[i].b);
@@ -10287,6 +10307,7 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 	int iMaxBranches = range(GC.getGame().getHandicapInfo().getTacticalSimMaxBranches(),2,9); //cannot do more, else our ID scheme doesn't work
 	int iMaxChoicesPerUnit = range(GC.getGame().getHandicapInfo().getTacticalSimMaxChoicesPerUnit(),2,9);
 	int iMaxCompletedPositions = range(GC.getGame().getHandicapInfo().getTacticalSimMaxCompletedPositions(), 1, 4000);
+	gCheckedPositions = 0;
 
 	PlayerTypes ePlayer = vUnits.front()->getOwner();
 	TeamTypes ourTeam = GET_PLAYER(ePlayer).getTeam();
@@ -10302,12 +10323,6 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 			strMsg += CvString::format("; %d", vUnits[i]->GetID());
 
 		GET_PLAYER(ePlayer).GetTacticalAI()->LogTacticalMessage(strMsg);
-
-		// Additional debug info
-		char szDebugInfo[256];
-		sprintf_s(szDebugInfo, "TacticalAI Debug - Target: (%d,%d), Units: %d, AggLevel: %d\n",
-			pTarget->getX(), pTarget->getY(), vUnits.size(), eAggLvl);
-		OutputDebugString(szDebugInfo);
 
 		// Assertions for critical conditions
 		ASSERT_DEBUG(iMaxBranches >= 2 && iMaxBranches <= 9 && "Invalid branch count");
@@ -10525,7 +10540,7 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 	{
 		if (true)
 		{
-			GET_PLAYER(ePlayer).GetTacticalAI()->LogTacticalMessage(CvString::format("tactsim around (%d:%d) with agg %d finished in %d ms. started with %d units and %d enemies on %d plots. checked %d positions, %d completed.",
+			GET_PLAYER(ePlayer).GetTacticalAI()->LogTacticalMessage(CvString::format("tactsim around (%d:%d) with agg %d finished in %d ms. started with %d units and %d enemies on %d plots. used %d positions, %d completed.",
 				pTarget->getX(),pTarget->getY(), eAggLvl, durationMs, initialPosition->getAvailableUnits().size(), initialPosition->getNumEnemies(), initialPosition->getNumPlots(), iUsedPositions, completedPositions.size()));
 		}
 
@@ -10548,6 +10563,15 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 		}
 #endif
 	}
+
+
+#if defined(VPDEBUG)
+	// Additional debug info
+	char szDebugInfo[256];
+	sprintf_s(szDebugInfo, "TacticalAI: Target (%d,%d), Units %d, Agg %d, Enemies %d, Checked Positions %d, Used %d, Completed %d, Bad Units %d, %d ms, Player %d\n",
+		pTarget->getX(), pTarget->getY(), vUnits.size(), eAggLvl, initialPosition->getNumEnemies(), gCheckedPositions, iUsedPositions, completedPositions.size(), unuseableUnits.size(), durationMs, ePlayer);
+	OutputDebugString(szDebugInfo);
+#endif
 
 	return result;
 }
