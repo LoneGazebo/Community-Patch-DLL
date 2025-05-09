@@ -510,6 +510,9 @@
 		<Row Tag="TXT_KEY_EUPANEL_WITHDRAW_CHANCE">
 			<Text>[COLOR_CYAN]Withdraw Chance[ENDCOLOR]</Text>
 		</Row>
+		<Row Tag="TXT_KEY_EUPANEL_RANGED_ATTACK_IN_BONUS">
+			<Text>Bonus Attacking in {1_TerrainType}</Text>
+		</Row>
 		<Row Tag="TXT_KEY_EUPANEL_WITHDRAW_CHANCE_100_PERCENT">
 			<Text>[COLOR_CYAN]Unit will withdraw from the attack[ENDCOLOR]</Text>
 		</Row>

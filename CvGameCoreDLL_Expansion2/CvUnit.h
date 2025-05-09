@@ -1738,6 +1738,10 @@ public:
 	void changeExtraTerrainAttackPercent(TerrainTypes eIndex, int iChange);
 	int getExtraTerrainDefensePercent(TerrainTypes eIndex) const;
 	void changeExtraTerrainDefensePercent(TerrainTypes eIndex, int iChange);
+	int GetTerrainModifierDefense(TerrainTypes eIndex) const;
+	void ChangeTerrainModifierDefense(TerrainTypes eIndex, int iChange);
+	int GetTerrainModifierAttack(TerrainTypes eIndex) const;
+	void ChangeTerrainModifierAttack(TerrainTypes eIndex, int iChange);
 	int getExtraFeatureAttackPercent(FeatureTypes eIndex) const;
 	void changeExtraFeatureAttackPercent(FeatureTypes eIndex, int iChange);
 	int getExtraFeatureDefensePercent(FeatureTypes eIndex) const;
@@ -2404,6 +2408,8 @@ protected:
 	FeatureTypeCounter m_featureImpassableCount;
 	TerrainTypeCounter m_extraTerrainAttackPercent;
 	TerrainTypeCounter m_extraTerrainDefensePercent;
+	TerrainTypeCounter m_vTerrainModifierAttack;
+	TerrainTypeCounter m_vTerrainModifierDefense;
 	FeatureTypeCounter m_extraFeatureAttackPercent;
 	FeatureTypeCounter m_extraFeatureDefensePercent;
 
@@ -2806,6 +2812,8 @@ SYNC_ARCHIVE_VAR(TerrainTypeCounter, m_terrainImpassableCount)
 SYNC_ARCHIVE_VAR(FeatureTypeCounter, m_featureImpassableCount)
 SYNC_ARCHIVE_VAR(TerrainTypeCounter, m_extraTerrainAttackPercent)
 SYNC_ARCHIVE_VAR(TerrainTypeCounter, m_extraTerrainDefensePercent)
+SYNC_ARCHIVE_VAR(TerrainTypeCounter, m_vTerrainModifierAttack)
+SYNC_ARCHIVE_VAR(TerrainTypeCounter, m_vTerrainModifierDefense)
 SYNC_ARCHIVE_VAR(FeatureTypeCounter, m_extraFeatureAttackPercent)
 SYNC_ARCHIVE_VAR(FeatureTypeCounter, m_extraFeatureDefensePercent)
 SYNC_ARCHIVE_VAR(UnitClassCounter, m_extraUnitClassAttackMod)

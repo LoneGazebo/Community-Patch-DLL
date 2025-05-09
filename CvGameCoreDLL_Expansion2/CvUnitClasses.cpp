@@ -1958,16 +1958,16 @@ void CvUnitEntry::DoUpdatePower()
 			for(iLoop = 0; iLoop < GC.getNumTerrainInfos(); iLoop++)
 			{
 				// Terrain Attack - add one quarter of the bonus
-				if(kPromotion->GetTerrainAttackPercent(iLoop) > 0)
+				if(kPromotion->GetTerrainAttackPercent(iLoop) + kPromotion->GetTerrainModifierAttack(iLoop) > 0)
 				{
-					iTemp = (iBasePower * kPromotion->GetTerrainAttackPercent(iLoop) / 4);
+					iTemp = (iBasePower * (kPromotion->GetTerrainAttackPercent(iLoop) + kPromotion->GetTerrainModifierAttack(iLoop)) / 4);
 					iTemp /= 100;
 					iBonusPower += iTemp;
 				}
 				// Terrain Defense - add one quarter of the bonus
-				if(kPromotion->GetTerrainDefensePercent(iLoop) > 0)
+				if(kPromotion->GetTerrainDefensePercent(iLoop) + kPromotion->GetTerrainModifierDefense(iLoop) > 0)
 				{
-					iTemp = (iBasePower * kPromotion->GetTerrainDefensePercent(iLoop) / 4);
+					iTemp = (iBasePower * (kPromotion->GetTerrainDefensePercent(iLoop) + kPromotion->GetTerrainModifierDefense(iLoop)) / 4);
 					iTemp /= 100;
 					iBonusPower += iTemp;
 				}

@@ -902,6 +902,19 @@ function UpdateCombatSimulator(pMyUnit, pTheirUnit, pMyCity, pTheirCity)
 				sDescription = Locale.ConvertTextKey(GameInfo.Terrains.TERRAIN_HILL.Description);
 				nBonus, iMiscModifier = ProcessModifier(iModifier, "TXT_KEY_EUPANEL_ATTACK_INTO_BONUS", nBonus, iMiscModifier, true, true, nil, sDescription);
 			end
+			
+			-- VP terrain attack modifier
+			local eToTerrainVP = bRanged and pFromPlot:GetTerrainType() or pToPlot:GetTerrainType();
+			iModifier = pMyUnit:GetTerrainModifierAttack(eToTerrainVP);
+			sDescription = Locale.ConvertTextKey(GameInfo.Terrains[eToTerrainVP].Description);
+			nBonus, iMiscModifier = ProcessModifier(iModifier, bRanged and "TXT_KEY_EUPANEL_RANGED_ATTACK_IN_BONUS" or "TXT_KEY_EUPANEL_ATTACK_INTO_BONUS", nBonus, iMiscModifier, true, true, nil, sDescription);
+			
+			if bRanged and pFromPlot:IsHills() or pToPlot:IsHills() then
+				iModifier = pMyUnit:GetTerrainModifierAttack(GameInfoTypes.TERRAIN_HILL);
+				sDescription = Locale.ConvertTextKey(GameInfo.Terrains.TERRAIN_HILL.Description);
+				nBonus, iMiscModifier = ProcessModifier(iModifier, bRanged and "TXT_KEY_EUPANEL_RANGED_ATTACK_IN_BONUS" or "TXT_KEY_EUPANEL_ATTACK_INTO_BONUS", nBonus, iMiscModifier, true, true, nil, sDescription);
+			end
+
 		end
 
 		-- Fighting in rough/open terrain
@@ -1247,10 +1260,23 @@ function UpdateCombatSimulator(pMyUnit, pTheirUnit, pMyCity, pTheirCity)
 					sDescription = Locale.ConvertTextKey(GameInfo.Terrains[eToTerrain].Description);
 					nBonus, iMiscModifier = ProcessModifier(iModifier, "TXT_KEY_EUPANEL_BONUS_DEFENSE_TERRAIN", nBonus, iMiscModifier, false, true, nil, sDescription);
 				end
+				
+				-- VP Defending on terrain
+				iModifier = pTheirUnit:GetTerrainModifierDefense(eToTerrain);
+				sDescription = Locale.ConvertTextKey(GameInfo.Terrains[eToTerrain].Description);
+				nBonus, iMiscModifier = ProcessModifier(iModifier, "TXT_KEY_EUPANEL_BONUS_DEFENSE_TERRAIN", nBonus, iMiscModifier, false, true, nil, sDescription);
+
 
 				-- Defending on featureless hill
 				if eToFeature == FeatureTypes.NO_FEATURE and pToPlot:IsHills() then
-					iModifier = pTheirUnit:TerrainAttackModifier(GameInfoTypes.TERRAIN_HILL);
+					iModifier = pTheirUnit:TerrainDefenseModifier(GameInfoTypes.TERRAIN_HILL);
+					sDescription = Locale.ConvertTextKey(GameInfo.Terrains.TERRAIN_HILL.Description);
+					nBonus, iMiscModifier = ProcessModifier(iModifier, "TXT_KEY_EUPANEL_BONUS_DEFENSE_TERRAIN", nBonus, iMiscModifier, false, true, nil, sDescription);
+				end
+				
+				-- VP Defending on hill
+				if pToPlot:IsHills() then
+					iModifier = pTheirUnit:GetTerrainModifierDefense(GameInfoTypes.TERRAIN_HILL);
 					sDescription = Locale.ConvertTextKey(GameInfo.Terrains.TERRAIN_HILL.Description);
 					nBonus, iMiscModifier = ProcessModifier(iModifier, "TXT_KEY_EUPANEL_BONUS_DEFENSE_TERRAIN", nBonus, iMiscModifier, false, true, nil, sDescription);
 				end

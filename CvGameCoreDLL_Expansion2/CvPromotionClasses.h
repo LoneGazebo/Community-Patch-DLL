@@ -327,6 +327,8 @@ public:
 	// Arrays
 	int GetTerrainAttackPercent(int i) const;
 	int GetTerrainDefensePercent(int i) const;
+	int GetTerrainModifierAttack(int i) const;
+	int GetTerrainModifierDefense(int i) const;
 	int GetFeatureAttackPercent(int i) const;
 	int GetFeatureDefensePercent(int i) const;
 #if defined(MOD_BALANCE_CORE)
@@ -661,6 +663,8 @@ protected:
 	int* m_piTerrainDefensePercent;
 	int* m_piFeatureAttackPercent;
 	int* m_piFeatureDefensePercent;
+	int* m_piTerrainModifierAttack;
+	int* m_piTerrainModifierDefense;
 #if defined(MOD_BALANCE_CORE)
 	int* m_piYieldFromScouting;
 	int* m_piYieldModifier;
