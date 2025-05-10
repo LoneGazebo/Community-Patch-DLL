@@ -956,6 +956,8 @@ public:
 	CvMinorCivInfo();
 	virtual ~CvMinorCivInfo();
 
+	bool IsPlayable() const;
+
 	int getDefaultPlayerColor() const;
 	int getArtStyleType() const;
 	int getNumCityNames() const;
