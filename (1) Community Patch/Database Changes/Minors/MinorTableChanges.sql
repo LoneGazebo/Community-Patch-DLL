@@ -1,3 +1,6 @@
+-- Toggles whether the minor civ can appear at all (without needing to delete it from the database)
+ALTER TABLE MinorCivilizations ADD Playable boolean DEFAULT 1;
+
 -- This minor civ always has this personality instead of picking a random one
 -- Overrides the BALANCE_CITY_STATE_PERSONALITIES option
 ALTER TABLE MinorCivilizations ADD FixedPersonality text REFERENCES MinorCivPersonalityTypes (Type);

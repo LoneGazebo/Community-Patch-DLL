@@ -2876,6 +2876,11 @@ vector<MinorCivTypes> GetAvailableMinorCivTypes(vector<MinorCivTypes>& vCultured
 		if (pkCityState == NULL)
 			continue;
 
+		// Turned off in XML?
+		if (!pkCityState->IsPlayable())
+			continue;
+
+		// Blocked by game options?
 		MinorCivTraitTypes eTrait = (MinorCivTraitTypes)pkCityState->GetMinorCivTrait();
 		if (eTrait == MINOR_CIV_TRAIT_RELIGIOUS && bNoReligion)
 			continue;

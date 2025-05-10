@@ -18968,13 +18968,12 @@ void CvMinorCivAI::SetDisableNotifications(bool bDisableNotifications)
 //					CvMinorCivInfo
 //======================================================================================================
 CvMinorCivInfo::CvMinorCivInfo() :
+	m_bPlayable(false),
 	m_iDefaultPlayerColor(NO_PLAYERCOLOR),
 	m_iArtStyleType(NO_ARTSTYLE),
 	m_iMinorCivTrait(NO_MINOR_CIV_TRAIT_TYPE),
 	m_eFixedPersonality(NO_MINOR_CIV_PERSONALITY_TYPE),
-#if defined(MOD_BALANCE_CORE)
 	m_iBullyUnit(NO_UNITCLASS),
-#endif
 	m_piFlavorValue(NULL)
 {
 }
@@ -18982,6 +18981,11 @@ CvMinorCivInfo::CvMinorCivInfo() :
 CvMinorCivInfo::~CvMinorCivInfo()
 {
 	SAFE_DELETE_ARRAY(m_piFlavorValue);
+}
+//------------------------------------------------------------------------------
+int CvMinorCivInfo::IsPlayable() const
+{
+	return m_bPlayable;
 }
 //------------------------------------------------------------------------------
 int CvMinorCivInfo::getDefaultPlayerColor() const
@@ -19102,12 +19106,10 @@ MinorCivPersonalityTypes CvMinorCivInfo::MinorCivPersonalityFromString(const cha
 	return NO_MINOR_CIV_PERSONALITY_TYPE;
 }
 //------------------------------------------------------------------------------
-#if defined(MOD_BALANCE_CORE)
 int CvMinorCivInfo::GetBullyUnit() const
 {
 	return m_iBullyUnit;
 }
-#endif
 //------------------------------------------------------------------------------
 int CvMinorCivInfo::getFlavorValue(int i) const
 {
@@ -19137,6 +19139,7 @@ bool CvMinorCivInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 		return false;
 
 	//Basic Properties
+	m_bPlayable = kResults.GetBool("Playable");
 	const char* szTextVal = NULL;
 
 	szTextVal = kResults.GetText("ShortDescription");
@@ -19167,10 +19170,8 @@ bool CvMinorCivInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	szTextVal = kResults.GetText("FixedPersonality");
 	m_eFixedPersonality = MinorCivPersonalityFromString(szTextVal);
 
-#if defined(MOD_BALANCE_CORE)
 	szTextVal = kResults.GetText("BullyUnitClass");
 	m_iBullyUnit = GC.getInfoTypeForString(szTextVal, true);
-#endif
 
 	//Arrays
 	const char* szType = GetType();
