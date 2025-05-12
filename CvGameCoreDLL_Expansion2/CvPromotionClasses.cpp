@@ -159,6 +159,7 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iGoldenAgeValueFromKills(0),
 	m_iExtraWithdrawal(0),
 	m_iCombatChange(0),
+	m_iTileDamageIfNotMoved(0),
 	m_iMinEffectiveHealth(0),
 #if defined(MOD_BALANCE_CORE_JFD)
 	m_iPlagueChance(0),
@@ -707,6 +708,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iGoldenAgeValueFromKills = kResults.GetInt("GoldenAgeValueFromKills");
 	m_iExtraWithdrawal = kResults.GetInt("ExtraWithdrawal");
 	m_iCombatChange = kResults.GetInt("CombatChange");
+	m_iTileDamageIfNotMoved = kResults.GetInt("TileDamageIfNotMoved");
 	m_iMinEffectiveHealth = kResults.GetInt("MinEffectiveHealth");
 #if defined(MOD_BALANCE_CORE_JFD)
 	m_iPlagueChance = kResults.GetInt("PlagueChance");
@@ -2119,6 +2121,12 @@ int CvPromotionEntry::GetExtraWithdrawal() const
 int CvPromotionEntry::GetCombatChange() const
 {
 	return m_iCombatChange;
+}
+
+/// Accessor: additional damage to all units on the target tile if the unit didn't move before the attack
+int CvPromotionEntry::GetTileDamageIfNotMoved() const
+{
+	return m_iTileDamageIfNotMoved;
 }
 
 /// Accessor: promotion is only active if the unit starts its turn with a minimum percentage of their maximum health

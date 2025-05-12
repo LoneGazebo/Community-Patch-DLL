@@ -345,6 +345,10 @@ public:
 	bool getInBorders(BattleUnitTypes unitType) const;
 	void setInBorders(BattleUnitTypes unitType, bool bInBorders);
 
+	bool getHasMoved(BattleUnitTypes unitType) const;
+
+	void setHasMoved(BattleUnitTypes unitType, bool bHasMoved);
+
 	bool getUpdateGlobal(BattleUnitTypes unitType) const;
 	void setUpdateGlobal(BattleUnitTypes unitType, bool bUpdateGlobal);
 
@@ -382,6 +386,7 @@ protected:
 	int			m_iExperienceChange[BATTLE_UNIT_COUNT];			//!< How much experience does this unit get from battle
 	int			m_iMaxExperienceAllowed[BATTLE_UNIT_COUNT];		//!< Maximum experience this unit is allowed
 	bool		m_bInBorders[BATTLE_UNIT_COUNT];				//!< Was this unit within its civilization borders
+	bool		m_bHasMoved[BATTLE_UNIT_COUNT];					//!< Did the unit move before the fight
 	bool		m_bUpdateGlobal[BATTLE_UNIT_COUNT];				//!< Should we update the global information
 
 	bool		m_bVisualize;									//!< The combat should be visualized
