@@ -32740,6 +32740,13 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn) // R: bDoTurn default
 			if(bDoTurn)
 			{
 				SetAllUnitsUnprocessed();
+				
+				// update conditional promotions for all units
+				int iLoop = 0;
+				for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
+				{
+					pLoopUnit->updateConditionalPromotions();
+				}
 
 				//important! this sets the city connection flag for all our plots
 				//we cannot rely on a lazy update when accessing them because we would need to do it for all players, creating overhead

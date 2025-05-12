@@ -157,6 +157,8 @@ public:
 	int GetHPHealedIfDefeatEnemy() const;
 	int GetGoldenAgeValueFromKills() const;
 	int GetExtraWithdrawal() const;
+	int GetCombatChange() const;
+	int GetMinEffectiveHealth() const;
 #if defined(MOD_BALANCE_CORE_JFD)
 	int GetPlagueChance() const;
 	int GetPlaguePromotion() const;
@@ -320,6 +322,7 @@ public:
 	bool IsCanHeavyCharge() const;
 	bool HasPostCombatPromotions() const;
 	bool ArePostCombatPromotionsExclusive() const;
+	bool IsConditionalPromotion() const;
 
 	const char* GetSound() const;
 	void SetSound(const char* szVal);
@@ -490,6 +493,8 @@ protected:
 	int m_iHPHealedIfDefeatEnemy;
 	int m_iGoldenAgeValueFromKills;
 	int m_iExtraWithdrawal;
+	int m_iCombatChange;
+	int m_iMinEffectiveHealth;
 #if defined(MOD_BALANCE_CORE_JFD)
 	int m_iPlagueChance; // OBSOLETE: to be removed in VP5.0
 	int m_iPlaguePromotion; // OBSOLETE: to be removed in VP5.0
@@ -780,6 +785,9 @@ public:
 	bool HasPromotion(PromotionTypes eIndex) const;
 	void SetPromotion(PromotionTypes eIndex, bool bValue);
 
+	bool IsPromotionActive(PromotionTypes eIndex) const;
+	void SetPromotionActive(PromotionTypes eIndex, bool bValue);
+
 	bool HasAllowFeaturePassable() const;
 	bool GetAllowFeaturePassable(FeatureTypes eFeatureType, TeamTypes eTeam) const;
 	bool HasAllowTerrainPassable() const;
@@ -802,6 +810,7 @@ private:
 	std::vector<int> m_unitClassAttackMod;
 
 	CvBitfield m_kHasPromotion;
+	CvBitfield m_kPromotionActive;
 };
 
 FDataStream& operator>>(FDataStream&, CvUnitPromotions&);
