@@ -108,6 +108,8 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 
 	pkCombatInfo->setUnit(BATTLE_UNIT_ATTACKER, &kAttacker);
 	pkCombatInfo->setUnit(BATTLE_UNIT_DEFENDER, pkDefender);
+	pkCombatInfo->setHasMoved(BATTLE_UNIT_ATTACKER, kAttacker.hasMoved());
+	pkCombatInfo->setHasMoved(BATTLE_UNIT_DEFENDER, pkDefender->hasMoved());
 	pkCombatInfo->setPlot(&plot);
 
 	// Attacking a City
@@ -709,6 +711,8 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvUnit& kAttacker, CvUnit* pkDefende
 	BATTLE_STARTED(BATTLE_TYPE_RANGED, plot);
 	pkCombatInfo->setUnit(BATTLE_UNIT_ATTACKER, &kAttacker);
 	pkCombatInfo->setUnit(BATTLE_UNIT_DEFENDER, pkDefender);
+	pkCombatInfo->setHasMoved(BATTLE_UNIT_ATTACKER, kAttacker.hasMoved());
+	pkCombatInfo->setHasMoved(BATTLE_UNIT_DEFENDER, pkDefender->hasMoved());
 	pkCombatInfo->setPlot(&plot);
 
 	//////////////////////////////////////////////////////////////////////
@@ -901,6 +905,7 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvCity& kAttacker, CvUnit* pkDefende
 	BATTLE_STARTED(BATTLE_TYPE_RANGED, plot);
 	pkCombatInfo->setCity(BATTLE_UNIT_ATTACKER, &kAttacker);
 	pkCombatInfo->setUnit(BATTLE_UNIT_DEFENDER, pkDefender);
+	pkCombatInfo->setHasMoved(BATTLE_UNIT_DEFENDER, pkDefender->hasMoved());
 	pkCombatInfo->setPlot(&plot);
 
 	//////////////////////////////////////////////////////////////////////
@@ -1036,6 +1041,10 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 						bTargetIsHuman = true;
 
 					pkAttacker->DoAdjacentPlotDamage(pkTargetPlot,min(iDamage,pkAttacker->getSplashDamage()),"TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_SPLASH");
+					if (!kCombatInfo.getHasMoved(BATTLE_UNIT_ATTACKER))
+					{
+						pkAttacker->DoExtraPlotDamage(pkTargetPlot, min(iDamage, pkAttacker->GetTileDamageIfNotMoved()), "TXT_KEY_MISC_TILE_DAMAGE_NOT_MOVED");
+					}
 					pkDefender->ChangeNumTimesAttackedThisTurn(pkAttacker->getOwner(), 1);
 
 					// Defender died
@@ -1170,6 +1179,10 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 						bTargetIsHuman = true;
 
 					pkAttacker->DoAdjacentPlotDamage(pkTargetPlot,min(iDamage,pkAttacker->getSplashDamage()),"TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_SPLASH");
+					if (!kCombatInfo.getHasMoved(BATTLE_UNIT_ATTACKER))
+					{
+						pkAttacker->DoExtraPlotDamage(pkTargetPlot, min(iDamage, pkAttacker->GetTileDamageIfNotMoved()), "TXT_KEY_MISC_TILE_DAMAGE_NOT_MOVED");
+					}
 
 					// City not already at 0 HP
 					if(pCity->getDamage() != pCity->GetMaxHitPoints())

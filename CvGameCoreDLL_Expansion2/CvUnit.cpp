@@ -451,6 +451,7 @@ CvUnit::CvUnit() :
 	, m_iStackedGreatGeneralExperience()
 	, m_iWonderProductionModifier()
 	, m_iUnitProductionModifier()
+	, m_iTileDamageIfNotMoved()
 	, m_iNearbyEnemyDamage()
 	, m_iAdjacentCityDefenseMod()
 	, m_iGGGAXPPercent()
@@ -1526,6 +1527,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iStackedGreatGeneralExperience = 0;
 	m_iWonderProductionModifier = 0;
 	m_iUnitProductionModifier = 0;
+	m_iTileDamageIfNotMoved = 0;
 	m_iNearbyEnemyDamage = 0;
 	m_iAdjacentCityDefenseMod = 0;
 	m_iGGGAXPPercent = 0;
@@ -18125,6 +18127,16 @@ void CvUnit::ChangeMilitaryProductionModifier(int iValue)
 	VALIDATE_OBJECT();
 	m_iUnitProductionModifier += iValue;
 }
+int CvUnit::GetTileDamageIfNotMoved() const
+{
+	VALIDATE_OBJECT();
+	return m_iTileDamageIfNotMoved;
+}
+void CvUnit::ChangeTileDamageIfNotMoved(int iValue)
+{
+	VALIDATE_OBJECT();
+	m_iTileDamageIfNotMoved += iValue;
+}
 int CvUnit::getNearbyEnemyDamage() const
 {
 	VALIDATE_OBJECT();
@@ -21799,6 +21811,36 @@ void CvUnit::setHasWithdrawnThisTurn(bool bNewValue)
 {
 	VALIDATE_OBJECT();
 		m_bHasWithdrawnThisTurn = bNewValue;
+}
+
+void CvUnit::DoExtraPlotDamage(CvPlot* pWhere, int iValue, const char* chTextKey)
+{
+	if (iValue < 1 || pWhere == NULL)
+		return;
+
+	for (int iJ = 0; iJ < pWhere->getNumUnits(); iJ++)
+	{
+		CvUnit* pEnemyUnit = pWhere->getUnitByIndex(iJ);
+		//logically we should damage non-enemy units as well? but that is too complex to consider ... 
+		if (pEnemyUnit != NULL && pEnemyUnit->isEnemy(getTeam()) && !pEnemyUnit->isTrade())
+		{
+			if (iValue + pEnemyUnit->getDamage() >= pEnemyUnit->GetMaxHitPoints())
+			{
+				// Earn bonuses for kills?
+				CvPlayer& kAttackingPlayer = GET_PLAYER(getOwner());
+				kAttackingPlayer.DoYieldsFromKill(this, pEnemyUnit);
+			}
+
+			if (chTextKey)
+			{
+				CvString strAppendText = GetLocalizedText(chTextKey);
+				pEnemyUnit->changeDamage(iValue, getOwner(), 0.0, &strAppendText);
+			}
+			else
+				pEnemyUnit->changeDamage(iValue, getOwner(), 0.0);
+
+		}
+	}
 }
 
 int CvUnit::DoAdjacentPlotDamage(CvPlot* pWhere, int iValue, const char* chTextKey)
@@ -27431,6 +27473,7 @@ void CvUnit::setPromotionActive(PromotionTypes eIndex, bool bNewValue)
 		SetCombatBonusFromNearbyUnitClass(thisPromotion.GetCombatBonusFromNearbyUnitClass());
 	}
 	ChangeBaseCombatStrength(thisPromotion.GetCombatChange() * iChange);
+	ChangeTileDamageIfNotMoved(thisPromotion.GetTileDamageIfNotMoved() * iChange);
 	ChangeNearbyPromotion(thisPromotion.IsNearbyPromotion() ? iChange : 0);
 	ChangeNearbyUnitPromotionRange(thisPromotion.GetNearbyRange() * iChange);
 	ChangeNearbyCityCombatMod((thisPromotion.GetNearbyCityCombatMod()) * iChange);
@@ -28184,6 +28227,7 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_iStackedGreatGeneralExperience);
 	visitor(unit.m_iWonderProductionModifier);
 	visitor(unit.m_iUnitProductionModifier);
+	visitor(unit.m_iTileDamageIfNotMoved);
 	visitor(unit.m_iNearbyEnemyDamage);
 	visitor(unit.m_iAdjacentCityDefenseMod);
 	visitor(unit.m_iGGGAXPPercent);
@@ -31966,6 +32010,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		iValue += iExtra;
 	}
 
+
 	// City modifiers
 
 	iTemp = pkPromotionInfo->GetCityAttackPercent();
@@ -32089,6 +32134,15 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		}
 		iValue += iExtra;
 			
+	}
+
+
+	iTemp = pkPromotionInfo->GetTileDamageIfNotMoved();
+	if (iTemp != 0)
+	{
+		iExtra = iTemp * (iFlavorOffense + iFlavorDefense + iFlavorCityDefense);
+		iExtra *= 1.5;
+		iValue += iExtra;
 	}
 
 		// Melee Attack Helpers
