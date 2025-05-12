@@ -158,6 +158,8 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iHPHealedIfDefeatEnemy(0),
 	m_iGoldenAgeValueFromKills(0),
 	m_iExtraWithdrawal(0),
+	m_iCombatChange(0),
+	m_iMinEffectiveHealth(0),
 #if defined(MOD_BALANCE_CORE_JFD)
 	m_iPlagueChance(0),
 	m_iPlaguePromotion(NO_PROMOTION),
@@ -704,6 +706,8 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iHPHealedIfDefeatEnemy = kResults.GetInt("HPHealedIfDestroyEnemy");
 	m_iGoldenAgeValueFromKills = kResults.GetInt("GoldenAgeValueFromKills");
 	m_iExtraWithdrawal = kResults.GetInt("ExtraWithdrawal");
+	m_iCombatChange = kResults.GetInt("CombatChange");
+	m_iMinEffectiveHealth = kResults.GetInt("MinEffectiveHealth");
 #if defined(MOD_BALANCE_CORE_JFD)
 	m_iPlagueChance = kResults.GetInt("PlagueChance");
 
@@ -2110,6 +2114,19 @@ int CvPromotionEntry::GetExtraWithdrawal() const
 {
 	return m_iExtraWithdrawal;
 }
+
+/// Accessor: added base combat strength
+int CvPromotionEntry::GetCombatChange() const
+{
+	return m_iCombatChange;
+}
+
+/// Accessor: promotion is only active if the unit starts its turn with a minimum percentage of their maximum health
+int CvPromotionEntry::GetMinEffectiveHealth() const
+{
+	return m_iMinEffectiveHealth;
+}
+
 #if defined(MOD_BALANCE_CORE_JFD)
 /// Chance to transmit a promotion on attack (heyo)
 int CvPromotionEntry::GetPlagueChance() const
@@ -2858,6 +2875,15 @@ bool CvPromotionEntry::HasPostCombatPromotions() const
 bool CvPromotionEntry::ArePostCombatPromotionsExclusive() const
 {
 	return m_bPostCombatPromotionsExclusive;
+}
+
+/// Is the promotion only active if certain conditions are fulfilled?
+bool CvPromotionEntry::IsConditionalPromotion() const
+{
+	if (GetMinEffectiveHealth() > 0)
+		return true;
+
+	return false;
 }
 
 /// Accessor: Sound to play when the promotion is gained
@@ -3665,6 +3691,7 @@ void CvUnitPromotions::Uninit()
 void CvUnitPromotions::Reset()
 {
 	m_kHasPromotion.SetSize(0);
+	m_kPromotionActive.SetSize(0);
 
 	m_unitClassDefenseMod.clear();
 	m_unitClassAttackMod.clear();
@@ -3679,6 +3706,7 @@ template<typename UnitPromotions, typename Visitor>
 void CvUnitPromotions::Serialize(UnitPromotions& unitPromotions, Visitor& visitor)
 {
 	visitor(unitPromotions.m_kHasPromotion);
+	visitor(unitPromotions.m_kPromotionActive);
 }
 
 /// Serialization read
@@ -3738,6 +3766,34 @@ void CvUnitPromotions::SetPromotion(PromotionTypes eIndex, bool bValue)
 	UpdateCache();
 }
 
+/// Accessor: Does the unit have a certain promotion
+bool CvUnitPromotions::IsPromotionActive(PromotionTypes eIndex) const
+{
+	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT_DEBUG(eIndex < GC.getNumPromotionInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+
+	if (eIndex >= 0 && eIndex < GC.getNumPromotionInfos())
+	{
+		return m_kPromotionActive.GetBit(eIndex);
+	}
+
+	return false;
+}
+
+/// Sets the promotion to a certain value
+void CvUnitPromotions::SetPromotionActive(PromotionTypes eIndex, bool bValue)
+{
+	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT_DEBUG(eIndex < GC.getNumPromotionInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+
+	if (eIndex >= 0 && eIndex < GC.getNumPromotionInfos())
+	{
+		m_kPromotionActive.SetBit(eIndex, bValue);
+	}
+	
+	UpdateCache();
+}
+
 /// determines if the terrain type is passable given the unit's current promotions
 void CvUnitPromotions::UpdateCache()
 {
@@ -3751,7 +3807,8 @@ void CvUnitPromotions::UpdateCache()
 		std::vector<TechTypes> reqTechs;
 		for(int iPromotion = 0; iPromotion < GC.getNumPromotionInfos(); iPromotion++)
 		{
-			if(m_kHasPromotion.GetBit(iPromotion))
+			PromotionTypes ePromotion = (PromotionTypes)iPromotion;
+			if (HasPromotion(ePromotion) && IsPromotionActive(ePromotion))
 			{
 				CvPromotionEntry* promotion = GC.getPromotionInfo((PromotionTypes)iPromotion);
 				if(promotion)
@@ -3774,9 +3831,10 @@ void CvUnitPromotions::UpdateCache()
 		std::vector<TechTypes> reqTechs;
 		for(int iPromotion = 0; iPromotion < GC.getNumPromotionInfos(); iPromotion++)
 		{
-			if(m_kHasPromotion.GetBit(iPromotion))
+			PromotionTypes ePromotion = (PromotionTypes)iPromotion;
+			if (HasPromotion(ePromotion) && IsPromotionActive(ePromotion))
 			{
-				CvPromotionEntry* promotion = GC.getPromotionInfo((PromotionTypes)iPromotion);
+				CvPromotionEntry* promotion = GC.getPromotionInfo(ePromotion);
 				if(promotion)
 				{
 					TechTypes eTech = (TechTypes) promotion->GetFeaturePassableTech(iFeature);

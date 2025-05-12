@@ -693,6 +693,7 @@ public:
 	int GetUnhappinessCombatPenalty() const;
 
 	void SetBaseCombatStrength(int iCombat);
+	void ChangeBaseCombatStrength(int iValue);
 	int GetBaseCombatStrength() const;
 	int GetBestAttackStrength() const; //ranged or melee, whichever is greater
 	int GetDamageCombatModifier(bool bForDefenseAgainstRanged = false, int iAssumedDamage = 0) const;
@@ -1111,6 +1112,7 @@ public:
 	int getMoves() const;
 	void changeMoves(int iChange);
 	void restoreFullMoves();
+	void updateConditionalPromotions();
 	void finishMoves();
 
 	bool IsImmobile() const;
@@ -1791,13 +1793,17 @@ public:
 
 	bool canAcquirePromotion(PromotionTypes ePromotion) const;
 	bool canAcquirePromotionAny() const;
+	std::set<PromotionTypes> GetConditionalPromotions() const;
 	bool IsPromotionBlocked(PromotionTypes eIndex) const;
 	std::vector<PlagueInfo> GetPlaguesToInflict() const;
 	void ModifyPlaguesToInflict(PlagueInfo sPlagueInfo, bool bAdd);
+	bool arePromotionConditionsFulfilled(PromotionTypes eIndex) const;
 	void SetPromotionBlocked(PromotionTypes eIndex, bool bNewValue);
 	bool isPromotionValid(PromotionTypes ePromotion) const;
 	bool isHasPromotion(PromotionTypes eIndex) const;
 	void setHasPromotion(PromotionTypes eIndex, bool bNewValue);
+	bool isPromotionActive(PromotionTypes eIndex) const;
+	void setPromotionActive(PromotionTypes eIndex, bool bNewValue);
 
 	int getSubUnitCount() const;
 	int getSubUnitsAlive() const;
@@ -1830,6 +1836,8 @@ public:
 	bool isAlwaysHostile(const CvPlot& pPlot) const;
 	void changeAlwaysHostileCount(int iValue);
 	int getAlwaysHostileCount() const;
+
+	int GetDamageAcceptableForConditionalPromotion() const;
 
 	int getArmyID() const;
 	void setArmyID(int iNewArmyID);
@@ -2132,6 +2140,7 @@ protected:
 	int m_iAOEDamageOnPillage;
 	int m_iAoEDamageOnMove;
 	std::set<PromotionTypes> m_seBlockedPromotions;
+	std::set<PromotionTypes> m_seConditionalPromotions;
 	std::vector<PlagueInfo> m_vsPlaguesToInflict;
 	int m_iPartialHealOnPillage;
 	int m_iSplashDamage;
@@ -2593,6 +2602,7 @@ SYNC_ARCHIVE_VAR(int, m_iAOEDamageOnKill)
 SYNC_ARCHIVE_VAR(int, m_iAOEDamageOnPillage)
 SYNC_ARCHIVE_VAR(int, m_iAoEDamageOnMove)
 SYNC_ARCHIVE_VAR(SYNC_ARCHIVE_VAR_TYPE(std::set<PromotionTypes>), m_seBlockedPromotions)
+SYNC_ARCHIVE_VAR(SYNC_ARCHIVE_VAR_TYPE(std::set<PromotionTypes>), m_seConditionalPromotions)
 SYNC_ARCHIVE_VAR(SYNC_ARCHIVE_VAR_TYPE(std::vector<PlagueInfo>), m_vsPlaguesToInflict)
 SYNC_ARCHIVE_VAR(int, m_iPartialHealOnPillage)
 SYNC_ARCHIVE_VAR(int, m_iSplashDamage)
