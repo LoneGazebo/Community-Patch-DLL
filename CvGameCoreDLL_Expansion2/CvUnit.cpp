@@ -21349,6 +21349,8 @@ void CvUnit::updateConditionalPromotions()
 		if (isPromotionActive(ePromotion) != bNowActive)
 		{
 			setPromotionActive(ePromotion, bNowActive);
+			// for promotions that give additional movement
+			restoreFullMoves();
 		}
 	}
 }
@@ -27271,6 +27273,12 @@ bool CvUnit::arePromotionConditionsFulfilled(PromotionTypes eIndex) const
 			return false;
 	}
 
+	if (thisPromotion.IsRequiresLeadership())
+	{
+		if (!IsNearGreatGeneral())
+			return false;
+	}
+
 	return true;
 }
 
@@ -32960,6 +32968,20 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		{
 			// if the promotion is only active when the unit has enough health, reduce its value
 			iConditionalPromotionModifier *= (100 - pkPromotionInfo->GetMinEffectiveHealth() / 2) / 100;
+		}
+		if (pkPromotionInfo->IsRequiresLeadership())
+		{
+			int iNumUnits = 0;
+			int iNumLeaders = 0;
+			int iLoop = 0;
+			for (CvUnit* pLoopUnit = GET_PLAYER(getOwner()).firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER(getOwner()).nextUnit(&iLoop))
+			{
+				if (((getDomainType() == DOMAIN_LAND && pLoopUnit->IsGreatGeneral()) || (getDomainType() == DOMAIN_SEA && pLoopUnit->IsGreatAdmiral())) && !pLoopUnit->isDelayedDeath() && !pLoopUnit->isProjectedToDieNextTurn())
+					iNumLeaders++;
+				if (pLoopUnit->IsCombatUnit() && pLoopUnit->getDomainType() == getDomainType())
+					iNumUnits++;
+			}
+			iConditionalPromotionModifier *= 5 * iNumLeaders / iNumUnits;
 		}
 	}
 
