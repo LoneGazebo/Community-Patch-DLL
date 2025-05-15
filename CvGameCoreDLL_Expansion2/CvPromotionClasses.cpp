@@ -162,6 +162,7 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iTileDamageIfNotMoved(0),
 	m_iFortifiedModifier(0),
 	m_iMinEffectiveHealth(0),
+	m_bRequiresLeadership(0),
 #if defined(MOD_BALANCE_CORE_JFD)
 	m_iPlagueChance(0),
 	m_iPlaguePromotion(NO_PROMOTION),
@@ -712,6 +713,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iTileDamageIfNotMoved = kResults.GetInt("TileDamageIfNotMoved");
 	m_iFortifiedModifier = kResults.GetInt("FortifiedModifier");
 	m_iMinEffectiveHealth = kResults.GetInt("MinEffectiveHealth");
+	m_bRequiresLeadership = kResults.GetBool("RequiresLeadership");
 #if defined(MOD_BALANCE_CORE_JFD)
 	m_iPlagueChance = kResults.GetInt("PlagueChance");
 
@@ -2143,6 +2145,12 @@ int CvPromotionEntry::GetMinEffectiveHealth() const
 	return m_iMinEffectiveHealth;
 }
 
+/// Accessor: promotion is only active if the unit starts its turn affected by the leadership aura of a great general/admiral
+bool CvPromotionEntry::IsRequiresLeadership() const
+{
+	return m_bRequiresLeadership;
+}
+
 #if defined(MOD_BALANCE_CORE_JFD)
 /// Chance to transmit a promotion on attack (heyo)
 int CvPromotionEntry::GetPlagueChance() const
@@ -2897,6 +2905,9 @@ bool CvPromotionEntry::ArePostCombatPromotionsExclusive() const
 bool CvPromotionEntry::IsConditionalPromotion() const
 {
 	if (GetMinEffectiveHealth() > 0)
+		return true;
+
+	if (IsRequiresLeadership())
 		return true;
 
 	return false;
