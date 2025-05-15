@@ -159,6 +159,7 @@ public:
 	int GetExtraWithdrawal() const;
 	int GetCombatChange() const;
 	int GetTileDamageIfNotMoved() const;
+	int GetFortifiedModifier() const;
 	int GetMinEffectiveHealth() const;
 #if defined(MOD_BALANCE_CORE_JFD)
 	int GetPlagueChance() const;
@@ -496,6 +497,7 @@ protected:
 	int m_iExtraWithdrawal;
 	int m_iCombatChange;
 	int m_iTileDamageIfNotMoved;
+	int m_iFortifiedModifier;
 	int m_iMinEffectiveHealth;
 #if defined(MOD_BALANCE_CORE_JFD)
 	int m_iPlagueChance; // OBSOLETE: to be removed in VP5.0

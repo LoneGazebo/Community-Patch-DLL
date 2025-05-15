@@ -452,6 +452,7 @@ CvUnit::CvUnit() :
 	, m_iWonderProductionModifier()
 	, m_iUnitProductionModifier()
 	, m_iTileDamageIfNotMoved()
+	, m_iFortifiedModifier()
 	, m_iNearbyEnemyDamage()
 	, m_iAdjacentCityDefenseMod()
 	, m_iGGGAXPPercent()
@@ -1526,6 +1527,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iWonderProductionModifier = 0;
 	m_iUnitProductionModifier = 0;
 	m_iTileDamageIfNotMoved = 0;
+	m_iFortifiedModifier = 0;
 	m_iNearbyEnemyDamage = 0;
 	m_iAdjacentCityDefenseMod = 0;
 	m_iGGGAXPPercent = 0;
@@ -17752,7 +17754,7 @@ int CvUnit::fortifyModifier() const
 	int iValue = 0;
 	if( IsFortified() )
 	{
-		iValue = /*20*/ GD_INT_GET(FORTIFY_MODIFIER_PER_TURN);
+		iValue = /*20*/ GD_INT_GET(FORTIFY_MODIFIER_PER_TURN) + GetFortifiedModifier();
 	
 		// Apply modifiers
 		int iMod = GET_PLAYER(getOwner()).getUnitFortificationModifier();
@@ -18127,6 +18129,16 @@ void CvUnit::ChangeTileDamageIfNotMoved(int iValue)
 {
 	VALIDATE_OBJECT();
 	m_iTileDamageIfNotMoved += iValue;
+}
+int CvUnit::GetFortifiedModifier() const
+{
+	VALIDATE_OBJECT();
+	return m_iFortifiedModifier;
+}
+void CvUnit::ChangeFortifiedModifier(int iValue)
+{
+	VALIDATE_OBJECT();
+	m_iFortifiedModifier += iValue;
 }
 int CvUnit::getNearbyEnemyDamage() const
 {
@@ -27463,6 +27475,7 @@ void CvUnit::setPromotionActive(PromotionTypes eIndex, bool bNewValue)
 	}
 	ChangeBaseCombatStrength(thisPromotion.GetCombatChange() * iChange);
 	ChangeTileDamageIfNotMoved(thisPromotion.GetTileDamageIfNotMoved() * iChange);
+	ChangeFortifiedModifier(thisPromotion.GetFortifiedModifier() * iChange);
 	ChangeNearbyPromotion(thisPromotion.IsNearbyPromotion() ? iChange : 0);
 	ChangeNearbyUnitPromotionRange(thisPromotion.GetNearbyRange() * iChange);
 	ChangeNearbyCityCombatMod((thisPromotion.GetNearbyCityCombatMod()) * iChange);
@@ -28217,6 +28230,7 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_iWonderProductionModifier);
 	visitor(unit.m_iUnitProductionModifier);
 	visitor(unit.m_iTileDamageIfNotMoved);
+	visitor(unit.m_iFortifiedModifier);
 	visitor(unit.m_iNearbyEnemyDamage);
 	visitor(unit.m_iAdjacentCityDefenseMod);
 	visitor(unit.m_iGGGAXPPercent);
@@ -32122,7 +32136,15 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		iValue += iExtra;
 	}
 
-		// Melee Attack Helpers
+	iTemp = pkPromotionInfo->GetFortifiedModifier();
+	if (iTemp != 0 && IsEverFortifyable())
+	{
+		iExtra = iTemp * (3 * iFlavorDefense);
+		iExtra *= 1.5;
+		iValue += iExtra;
+	}
+
+	// Melee Attack Helpers
 
 	iTemp = pkPromotionInfo->IsIgnoreZOC();
 	// Scout: Trailblazer (woodland trailblazer) 3.		nM: Pincer (boarding party 4).
