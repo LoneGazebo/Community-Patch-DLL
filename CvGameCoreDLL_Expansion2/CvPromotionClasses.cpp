@@ -160,6 +160,7 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iExtraWithdrawal(0),
 	m_iCombatChange(0),
 	m_iTileDamageIfNotMoved(0),
+	m_iFortifiedModifier(0),
 	m_iMinEffectiveHealth(0),
 #if defined(MOD_BALANCE_CORE_JFD)
 	m_iPlagueChance(0),
@@ -709,6 +710,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iExtraWithdrawal = kResults.GetInt("ExtraWithdrawal");
 	m_iCombatChange = kResults.GetInt("CombatChange");
 	m_iTileDamageIfNotMoved = kResults.GetInt("TileDamageIfNotMoved");
+	m_iFortifiedModifier = kResults.GetInt("FortifiedModifier");
 	m_iMinEffectiveHealth = kResults.GetInt("MinEffectiveHealth");
 #if defined(MOD_BALANCE_CORE_JFD)
 	m_iPlagueChance = kResults.GetInt("PlagueChance");
@@ -2127,6 +2129,12 @@ int CvPromotionEntry::GetCombatChange() const
 int CvPromotionEntry::GetTileDamageIfNotMoved() const
 {
 	return m_iTileDamageIfNotMoved;
+}
+
+/// Accessor: Percentage multiplier on fortify combat strength bonus
+int CvPromotionEntry::GetFortifiedModifier() const
+{
+	return m_iFortifiedModifier;
 }
 
 /// Accessor: promotion is only active if the unit starts its turn with a minimum percentage of their maximum health

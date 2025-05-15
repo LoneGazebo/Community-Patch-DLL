@@ -278,8 +278,8 @@ ALTER TABLE UnitPromotions ADD XPFromPillaging integer DEFAULT 0;
 -- Unit cannot have its HP increased by any means
 ALTER TABLE UnitPromotions ADD CannotHeal boolean DEFAULT 0;
 
--- % Multiplier on fortify combat strength bonus (FORTIFY_MODIFIER_PER_TURN)
-ALTER TABLE UnitPromotions ADD FortifyEffectiveness integer DEFAULT 100;
+-- Additional combat strength while fortified
+ALTER TABLE UnitPromotions ADD FortifiedModifier integer DEFAULT 0;
 
 -- Extra damage on all units on target tile when unit attacks without having moved this turn
 -- This damage is not affected by any damage modifying effects on the target(s), and sets off all on-kill triggers

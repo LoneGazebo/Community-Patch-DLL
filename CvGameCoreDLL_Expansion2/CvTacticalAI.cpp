@@ -7203,10 +7203,14 @@ int ScoreCombatUnitTurnEnd(const CvUnit* pUnit, eUnitAssignmentType eLastAssignm
 	//don't add too much else it overrides the firstline/secondline order
 	if (!bHasMoved)
 	{
-		if (pUnit->IsHurt())
-			iResult++; //cannot fortify, only heal
+		if (pUnit->IsHurt() && !pUnit->isAlwaysHeal())
+			iResult++;
 		if (testPlot.getEnemyDistance(eRelevantDomain) < 3 && !pUnit->noDefensiveBonus())
+		{
 			iResult++; //fortification bonus!
+			if (pUnit->GetFortifiedModifier() > 0)
+				iResult += pUnit->GetFortifiedModifier() / GD_INT_GET(FORTIFY_MODIFIER_PER_TURN);
+		}
 	}
 
 	//try to stay together, in pairs at least
@@ -8302,14 +8306,14 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 				//redundant with ScoreCombatUnitTurnEnd but we have to make sure we consider these moves in the first place
 				if (it->iMovesLeft == unit.iMaxMoves)
 				{
-					if (pUnit->getDamage() > /*10 in CP, 7 in VP*/ GD_INT_GET(FRIENDLY_HEAL_RATE) / 2)
+					if (!pUnit->isAlwaysHeal() && pUnit->getDamage() > /*10 in CP, 7 in VP*/ GD_INT_GET(FRIENDLY_HEAL_RATE) / 2)
 					{
 						//calling canHeal is too expensive, so fake it
 						if (pUnit->getDomainType() != DOMAIN_SEA || testPlot.getPlot()->IsFriendlyTerritory(pUnit->getOwner()) || pUnit->isHealOutsideFriendly())
 							moveToPlot.iScore += min(23, pUnit->getDamage());
 					}
 					if (pUnit->IsEverFortifyable())
-						moveToPlot.iScore += (pUnit->GetDamageAoEFortified() > 0) ? 37 : 23;
+						moveToPlot.iScore += (pUnit->GetDamageAoEFortified() > 0) ? 37 : 23 + pUnit->GetFortifiedModifier() / 4;
 				}
 
 				//how much damage could we do with our next moves?
