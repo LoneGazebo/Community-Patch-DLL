@@ -759,6 +759,10 @@ public:
 	int getExtraFeatureDamageCount() const;
 	void changeExtraFeatureDamageCount(int iValue);
 
+	bool IsCannotHeal() const;
+	int getCannotHealCount() const;
+	void changeCannotHealCount(int iValue);
+
 #if defined(MOD_PROMOTIONS_IMPROVEMENT_BONUS)
 	int GetNearbyImprovementCombatBonus() const;
 	void SetNearbyImprovementCombatBonus(int iCombatBonus);
@@ -2221,6 +2225,7 @@ protected:
 	int m_iIgnoreFeatureDamageCount;
 	int m_iExtraTerrainDamageCount;
 	int m_iExtraFeatureDamageCount;
+	int m_iCannotHealCount;
 #if defined(MOD_PROMOTIONS_IMPROVEMENT_BONUS)
 	int m_iNearbyImprovementCombatBonus;
 	int m_iNearbyImprovementBonusRange;
@@ -2680,6 +2685,7 @@ SYNC_ARCHIVE_VAR(int, m_iIgnoreTerrainDamageCount)
 SYNC_ARCHIVE_VAR(int, m_iIgnoreFeatureDamageCount)
 SYNC_ARCHIVE_VAR(int, m_iExtraTerrainDamageCount)
 SYNC_ARCHIVE_VAR(int, m_iExtraFeatureDamageCount)
+SYNC_ARCHIVE_VAR(int, m_iCannotHealCount)
 SYNC_ARCHIVE_VAR(int, m_iNearbyImprovementCombatBonus)
 SYNC_ARCHIVE_VAR(int, m_iNearbyImprovementBonusRange)
 SYNC_ARCHIVE_VAR(ImprovementTypes, m_eCombatBonusImprovement)

@@ -646,7 +646,7 @@ void CvHomelandAI::PlotHealMoves()
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
 		//this is very simple, we know there are no enemies around, else tactical AI would have kicked in
-		if(pUnit && !pUnit->isHuman() && pUnit->IsHurt())
+		if(pUnit && !pUnit->isHuman() && pUnit->IsHurt() && !pUnit->IsCannotHeal())
 		{
 			//workers may get hurt a bit
 			if (pUnit->GetCurrHitPoints() > pUnit->GetMaxHitPoints() / 2)
