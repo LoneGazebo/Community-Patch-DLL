@@ -433,6 +433,7 @@ CvUnit::CvUnit() :
 	, m_iIgnoreFeatureDamageCount()
 	, m_iExtraTerrainDamageCount()
 	, m_iExtraFeatureDamageCount()
+	, m_iCannotHealCount()
 #if defined(MOD_PROMOTIONS_IMPROVEMENT_BONUS)
 	, m_iNearbyImprovementCombatBonus()
 	, m_iNearbyImprovementBonusRange()
@@ -1508,6 +1509,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iIgnoreFeatureDamageCount = 0;
 	m_iExtraTerrainDamageCount = 0;
 	m_iExtraFeatureDamageCount = 0;
+	m_iCannotHealCount = 0;
 #if defined(MOD_PROMOTIONS_IMPROVEMENT_BONUS)
 	m_iNearbyImprovementCombatBonus = 0;
 	m_iNearbyImprovementBonusRange = 0;
@@ -7607,6 +7609,9 @@ bool CvUnit::canHeal(const CvPlot* pPlot, bool bCheckMovement) const
 {
 	VALIDATE_OBJECT();
 
+	if (IsCannotHeal())
+		return false;
+
 	if (isHuman() && !IsFortified())
 	{
 		if (!canEndTurnAtPlot(pPlot))
@@ -10246,6 +10251,10 @@ bool CvUnit::shouldPillage(const CvPlot* pPlot, bool bConservative) const
 	if (hasFreePillageMove() && pPlot->IsAdjacentCity())
 		return true;
 
+	int iPillageHeal = IsCannotHeal() ? 0 : min(getDamage(), (/*25*/ GD_INT_GET(PILLAGE_HEAL_AMOUNT) + getPartialHealOnPillage()));
+	if (hasHealOnPillage())
+		iPillageHeal = getDamage();
+
 	// Citadel here?
 	ImprovementTypes eImprovement = pPlot->getImprovementType();
 	if (eImprovement != NO_IMPROVEMENT)
@@ -10256,7 +10265,7 @@ bool CvUnit::shouldPillage(const CvPlot* pPlot, bool bConservative) const
 	}
 
 	//be careful "wasting" movement for slow units
-	if (GetDanger() > GetCurrHitPoints() + GD_INT_GET(PILLAGE_HEAL_AMOUNT) && getMoves() < GD_INT_GET(MOVE_DENOMINATOR) * 3 && !hasFreePillageMove())
+	if (GetDanger() > GetCurrHitPoints() + iPillageHeal && getMoves() < GD_INT_GET(MOVE_DENOMINATOR) * 3 && !hasFreePillageMove())
 		return false;
 
 	if (pPlot->getOwningCity() != NULL && pPlot->getOwner() != NO_PLAYER && pPlot->getOwner() != BARBARIAN_PLAYER)
@@ -10288,7 +10297,7 @@ bool CvUnit::shouldPillage(const CvPlot* pPlot, bool bConservative) const
 	}
 
 	if (bConservative)
-		return getDamage() > /*25*/ GD_INT_GET(PILLAGE_HEAL_AMOUNT);
+		return getDamage() >= iPillageHeal;
 
 	return getDamage() > 0;
 }
@@ -10561,22 +10570,25 @@ bool CvUnit::pillage()
 
 		DoAdjacentPlotDamage(pPlot, getAOEDamageOnPillage(), "TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_AOE_STRIKE_PILLAGE");
 
-		//if the plot isn't guarded by a gainless pillage building for this player, nor this city
-		if (!(pPlot->getOwner() != NO_PLAYER && GET_PLAYER(pPlot->getOwner()).isBorderGainlessPillage()) )
+		if (!IsCannotHeal())
 		{
-			CvCity* pCityOfThisPlot = pPlot->getEffectiveOwningCity();
-			if ( pCityOfThisPlot == NULL || !(pCityOfThisPlot->IsLocalGainlessPillage()) )
+			//if the plot isn't guarded by a gainless pillage building for this player, nor this city
+			if (!(pPlot->getOwner() != NO_PLAYER && GET_PLAYER(pPlot->getOwner()).isBorderGainlessPillage()))
 			{
-				if (hasHealOnPillage())
+				CvCity* pCityOfThisPlot = pPlot->getEffectiveOwningCity();
+				if (pCityOfThisPlot == NULL || !(pCityOfThisPlot->IsLocalGainlessPillage()))
 				{
-					// completely heal unit
-					changeDamage(-getDamage());
-				}
-				else
-				{
-					int iHealAmount = min(getDamage(), /*25*/ GD_INT_GET(PILLAGE_HEAL_AMOUNT));
-					iHealAmount += getPartialHealOnPillage();
-					changeDamage(-iHealAmount);
+					if (hasHealOnPillage())
+					{
+						// completely heal unit
+						changeDamage(-getDamage());
+					}
+					else
+					{
+						int iHealAmount = min(getDamage(), /*25*/ GD_INT_GET(PILLAGE_HEAL_AMOUNT));
+						iHealAmount += getPartialHealOnPillage();
+						changeDamage(-iHealAmount);
+					}
 				}
 			}
 		}
@@ -12352,7 +12364,7 @@ bool CvUnit::repairFleet()
 	for (iUnitLoop = 0; iUnitLoop < pPlot->getNumUnits(); iUnitLoop++)
 	{
 		CvUnit *pUnit = pPlot->getUnitByIndex(iUnitLoop);
-		if (pUnit->getOwner() == getOwner() && (pUnit->isEmbarked() || pUnit->getDomainType() == DOMAIN_SEA))
+		if (pUnit->getOwner() == getOwner() && (pUnit->isEmbarked() || pUnit->getDomainType() == DOMAIN_SEA) && !pUnit->IsCannotHeal())
 		{
 			pUnit->changeDamage(-pUnit->getDamage());
 		}
@@ -12368,7 +12380,7 @@ bool CvUnit::repairFleet()
 			for (iUnitLoop = 0; iUnitLoop < pAdjacentPlot->getNumUnits(); iUnitLoop++)
 			{	
 				CvUnit *pUnit = pAdjacentPlot->getUnitByIndex(iUnitLoop);
-				if (pUnit->getOwner() == getOwner() && (pUnit->isEmbarked() || pUnit->getDomainType() == DOMAIN_SEA))
+				if (pUnit->getOwner() == getOwner() && (pUnit->isEmbarked() || pUnit->getDomainType() == DOMAIN_SEA) && !pUnit->IsCannotHeal())
 				{
 					pUnit->changeDamage(-pUnit->getDamage());
 				}
@@ -13856,7 +13868,10 @@ void CvUnit::promote(PromotionTypes ePromotion, int iLeaderUnitId)
 	// Insta-Heal: never earned
 	if (pkPromotionInfo->IsInstaHeal())
 	{
-		changeDamage(/*-50*/ -GD_INT_GET(INSTA_HEAL_RATE));
+		if (!IsCannotHeal())
+		{
+			changeDamage(/*-50*/ -GD_INT_GET(INSTA_HEAL_RATE));
+		}
 	}
 	// Set that we have this Promotion
 	else
@@ -13865,8 +13880,11 @@ void CvUnit::promote(PromotionTypes ePromotion, int iLeaderUnitId)
 
 		if (MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
 		{
-			//Insta-heal removed, gain health with each promotion instead.
-			changeDamage(/*-10*/ -GD_INT_GET(INSTA_HEAL_RATE) / 5);
+			if (!IsCannotHeal())
+			{
+				//Insta-heal removed, gain health with each promotion instead.
+				changeDamage(/*-10*/ -GD_INT_GET(INSTA_HEAL_RATE) / 5);
+			}
 		}
 		if (getOriginCity() != NULL)
 		{
@@ -17963,6 +17981,33 @@ void CvUnit::changeExtraFeatureDamageCount(int iValue)
 		m_iExtraFeatureDamageCount += iValue;
 	}
 }
+
+
+//	--------------------------------------------------------------------------------
+bool CvUnit::IsCannotHeal() const
+{
+	VALIDATE_OBJECT();
+	return getCannotHealCount() > 0;
+}
+
+//	--------------------------------------------------------------------------------
+int CvUnit::getCannotHealCount() const
+{
+	VALIDATE_OBJECT();
+	return m_iCannotHealCount;
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::changeCannotHealCount(int iValue)
+{
+	VALIDATE_OBJECT();
+	if (iValue != 0)
+	{
+		m_iCannotHealCount += iValue;
+	}
+}
+
+
 
 #if defined(MOD_PROMOTIONS_IMPROVEMENT_BONUS)
 int CvUnit::GetNearbyImprovementCombatBonus() const
@@ -27466,6 +27511,7 @@ void CvUnit::setPromotionActive(PromotionTypes eIndex, bool bNewValue)
 	changeIgnoreFeatureDamageCount((thisPromotion.IsIgnoreFeatureDamage()) ? iChange : 0);
 	changeExtraTerrainDamageCount((thisPromotion.IsExtraTerrainDamage()) ? iChange : 0);
 	changeExtraFeatureDamageCount((thisPromotion.IsExtraFeatureDamage()) ? iChange : 0);
+	changeCannotHealCount((thisPromotion.IsCannotHeal()) ? iChange : 0);
 
 	if (MOD_PROMOTIONS_IMPROVEMENT_BONUS)
 	{
@@ -28222,6 +28268,7 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_iIgnoreFeatureDamageCount);
 	visitor(unit.m_iExtraTerrainDamageCount);
 	visitor(unit.m_iExtraFeatureDamageCount);
+	visitor(unit.m_iCannotHealCount);
 	visitor(unit.m_iNearbyImprovementCombatBonus);
 	visitor(unit.m_iNearbyImprovementBonusRange);
 	visitor(unit.m_eCombatBonusImprovement);
@@ -29106,6 +29153,9 @@ bool CvUnit::isAlwaysHostile(const CvPlot& plot) const
 bool CvUnit::shouldHeal(bool bBeforeAttacks) const
 {
 	if (isDelayedDeath() || !IsHurt())
+		return false;
+
+	if (IsCannotHeal())
 		return false;
 
 	//sometimes we should heal but we have to fight instead
@@ -31964,11 +32014,16 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	}
 	
 
-
-	iTemp = pkPromotionInfo->GetPlagueChance();
-	// nM: +100 Boarding Party 1, Boarding Party 3.
-	if (iTemp != 0)
+	// Plagues
+	// // nM: +100 Boarding Party 1, Boarding Party 3.
+	if (!pkPromotionInfo->GetPlagues().empty())
 	{
+		iTemp = 0;
+		std::vector<PlagueInfo> vPlagues = pkPromotionInfo->GetPlagues();
+		for (std::vector<PlagueInfo>::iterator it = vPlagues.begin(); it != vPlagues.end(); it++)
+		{
+			iTemp += (*it).iApplyChance;
+		}
 		iExtra = iTemp  * (iFlavorOffense + iFlavorDefense + iFlavorCityDefense);
 		iExtra *= 0.08;
 		iValue += iExtra;

@@ -163,9 +163,8 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iFortifiedModifier(0),
 	m_iMinEffectiveHealth(0),
 	m_bRequiresLeadership(0),
+	m_bCannotHeal(0),
 #if defined(MOD_BALANCE_CORE_JFD)
-	m_iPlagueChance(0),
-	m_iPlaguePromotion(NO_PROMOTION),
 	m_iPlagueID(NO_PROMOTION),
 	m_iPlaguePriority(0),
 #endif
@@ -714,11 +713,9 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iFortifiedModifier = kResults.GetInt("FortifiedModifier");
 	m_iMinEffectiveHealth = kResults.GetInt("MinEffectiveHealth");
 	m_bRequiresLeadership = kResults.GetBool("RequiresLeadership");
+	m_bCannotHeal = kResults.GetBool("CannotHeal");
 #if defined(MOD_BALANCE_CORE_JFD)
-	m_iPlagueChance = kResults.GetInt("PlagueChance");
 
-	const char* szPlaguePromotion = kResults.GetText("PlaguePromotion");
-	m_iPlaguePromotion = GC.getInfoTypeForString(szPlaguePromotion, true);
 
 	m_iPlagueID = kResults.GetInt("PlagueID");
 	m_iPlaguePriority = kResults.GetInt("PlaguePriority");
@@ -2151,17 +2148,15 @@ bool CvPromotionEntry::IsRequiresLeadership() const
 	return m_bRequiresLeadership;
 }
 
+/// Accessor: units with this promotion cannot heal
+bool CvPromotionEntry::IsCannotHeal() const
+{
+	return m_bCannotHeal;
+}
+
 #if defined(MOD_BALANCE_CORE_JFD)
-/// Chance to transmit a promotion on attack (heyo)
-int CvPromotionEntry::GetPlagueChance() const
-{
-	return m_iPlagueChance;
-}
-/// Transmittable promotions
-int CvPromotionEntry::GetPlaguePromotion() const
-{
-	return m_iPlaguePromotion;
-}
+
+
 
 int CvPromotionEntry::GetPlagueID() const
 {

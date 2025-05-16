@@ -19275,7 +19275,7 @@ void CvPlayer::DoHealGlobal(int iHealPercent)
 	{
 		if (!pLoopUnit)
 			continue;
-		if (pLoopUnit->IsCombatUnit())
+		if (pLoopUnit->IsCombatUnit() && !pLoopUnit->IsCannotHeal())
 		{
 			if (iHealPercent == 100)
 				pLoopUnit->changeDamage(-pLoopUnit->getDamage());
@@ -19304,7 +19304,7 @@ void CvPlayer::DoHealLocal(int iHealPercent, CvPlot* pPlot)
 			{
 				CvUnit* pLoopUnit = (CvUnit*)GetPlayerUnit(*itr);
 
-				if (pLoopUnit && pLoopUnit->getOwner() == GetID() && pLoopUnit->IsCombatUnit())
+				if (pLoopUnit && pLoopUnit->getOwner() == GetID() && pLoopUnit->IsCombatUnit() && !pLoopUnit->IsCannotHeal())
 				{
 					if (iHealPercent == 100)
 						pLoopUnit->changeDamage(-pLoopUnit->getDamage());
