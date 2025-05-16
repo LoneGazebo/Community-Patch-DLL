@@ -31987,11 +31987,15 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	}
 	
 
-
-	iTemp = pkPromotionInfo->GetPlagueChance();
-	// nM: +100 Boarding Party 1, Boarding Party 3.
-	if (iTemp != 0)
+	// Plagues
+	// // nM: +100 Boarding Party 1, Boarding Party 3.
+	if (!pkPromotionInfo->GetPlagues().empty())
 	{
+		iTemp = 0;
+		for (std::vector<PlagueInfo>::iterator it = pkPromotionInfo->GetPlagues().begin(); it != pkPromotionInfo->GetPlagues().end(); it++)
+		{
+			iTemp += (*it).iApplyChance;
+		}
 		iExtra = iTemp  * (iFlavorOffense + iFlavorDefense + iFlavorCityDefense);
 		iExtra *= 0.08;
 		iValue += iExtra;

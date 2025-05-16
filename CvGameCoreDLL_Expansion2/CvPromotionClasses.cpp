@@ -164,8 +164,6 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iMinEffectiveHealth(0),
 	m_bRequiresLeadership(0),
 #if defined(MOD_BALANCE_CORE_JFD)
-	m_iPlagueChance(0),
-	m_iPlaguePromotion(NO_PROMOTION),
 	m_iPlagueID(NO_PROMOTION),
 	m_iPlaguePriority(0),
 #endif
@@ -715,10 +713,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iMinEffectiveHealth = kResults.GetInt("MinEffectiveHealth");
 	m_bRequiresLeadership = kResults.GetBool("RequiresLeadership");
 #if defined(MOD_BALANCE_CORE_JFD)
-	m_iPlagueChance = kResults.GetInt("PlagueChance");
 
-	const char* szPlaguePromotion = kResults.GetText("PlaguePromotion");
-	m_iPlaguePromotion = GC.getInfoTypeForString(szPlaguePromotion, true);
 
 	m_iPlagueID = kResults.GetInt("PlagueID");
 	m_iPlaguePriority = kResults.GetInt("PlaguePriority");
@@ -2152,16 +2147,8 @@ bool CvPromotionEntry::IsRequiresLeadership() const
 }
 
 #if defined(MOD_BALANCE_CORE_JFD)
-/// Chance to transmit a promotion on attack (heyo)
-int CvPromotionEntry::GetPlagueChance() const
-{
-	return m_iPlagueChance;
-}
-/// Transmittable promotions
-int CvPromotionEntry::GetPlaguePromotion() const
-{
-	return m_iPlaguePromotion;
-}
+
+
 
 int CvPromotionEntry::GetPlagueID() const
 {

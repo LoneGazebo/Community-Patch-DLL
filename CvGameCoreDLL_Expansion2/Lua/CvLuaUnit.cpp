@@ -3711,7 +3711,6 @@ int CvLuaUnit::lGetMovementRules(lua_State* L)
 				if (!(*it).bApplyOnAttack)
 					continue;
 
-				int iPlagueChance = 0;
 				PromotionTypes ePlague = (*it).ePlague;
 				CvPromotionEntry* pkPlaguePromotionInfo = GC.getPromotionInfo(ePlague);
 				int iPlagueID = pkPlaguePromotionInfo->GetPlagueID();

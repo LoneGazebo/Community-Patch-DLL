@@ -163,8 +163,6 @@ public:
 	int GetMinEffectiveHealth() const;
 	bool IsRequiresLeadership() const;
 #if defined(MOD_BALANCE_CORE_JFD)
-	int GetPlagueChance() const;
-	int GetPlaguePromotion() const;
 	int GetPlagueID() const;
 	int GetPlaguePriority() const;
 #endif
@@ -502,8 +500,6 @@ protected:
 	int m_iMinEffectiveHealth;
 	bool m_bRequiresLeadership;
 #if defined(MOD_BALANCE_CORE_JFD)
-	int m_iPlagueChance; // OBSOLETE: to be removed in VP5.0
-	int m_iPlaguePromotion; // OBSOLETE: to be removed in VP5.0
 	int m_iPlagueID;
 	int m_iPlaguePriority;
 #endif

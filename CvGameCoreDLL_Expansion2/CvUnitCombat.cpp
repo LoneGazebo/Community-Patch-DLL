@@ -109,7 +109,6 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 	pkCombatInfo->setUnit(BATTLE_UNIT_ATTACKER, &kAttacker);
 	pkCombatInfo->setUnit(BATTLE_UNIT_DEFENDER, pkDefender);
 	pkCombatInfo->setHasMoved(BATTLE_UNIT_ATTACKER, kAttacker.hasMoved());
-	pkCombatInfo->setHasMoved(BATTLE_UNIT_DEFENDER, pkDefender->hasMoved());
 	pkCombatInfo->setPlot(&plot);
 
 	// Attacking a City
@@ -712,7 +711,6 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvUnit& kAttacker, CvUnit* pkDefende
 	pkCombatInfo->setUnit(BATTLE_UNIT_ATTACKER, &kAttacker);
 	pkCombatInfo->setUnit(BATTLE_UNIT_DEFENDER, pkDefender);
 	pkCombatInfo->setHasMoved(BATTLE_UNIT_ATTACKER, kAttacker.hasMoved());
-	pkCombatInfo->setHasMoved(BATTLE_UNIT_DEFENDER, pkDefender->hasMoved());
 	pkCombatInfo->setPlot(&plot);
 
 	//////////////////////////////////////////////////////////////////////
@@ -905,7 +903,6 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvCity& kAttacker, CvUnit* pkDefende
 	BATTLE_STARTED(BATTLE_TYPE_RANGED, plot);
 	pkCombatInfo->setCity(BATTLE_UNIT_ATTACKER, &kAttacker);
 	pkCombatInfo->setUnit(BATTLE_UNIT_DEFENDER, pkDefender);
-	pkCombatInfo->setHasMoved(BATTLE_UNIT_DEFENDER, pkDefender->hasMoved());
 	pkCombatInfo->setPlot(&plot);
 
 	//////////////////////////////////////////////////////////////////////
