@@ -162,6 +162,7 @@ public:
 	int GetFortifiedModifier() const;
 	int GetMinEffectiveHealth() const;
 	bool IsRequiresLeadership() const;
+	bool IsCannotHeal() const;
 #if defined(MOD_BALANCE_CORE_JFD)
 	int GetPlagueID() const;
 	int GetPlaguePriority() const;
@@ -499,6 +500,7 @@ protected:
 	int m_iFortifiedModifier;
 	int m_iMinEffectiveHealth;
 	bool m_bRequiresLeadership;
+	bool m_bCannotHeal;
 #if defined(MOD_BALANCE_CORE_JFD)
 	int m_iPlagueID;
 	int m_iPlaguePriority;

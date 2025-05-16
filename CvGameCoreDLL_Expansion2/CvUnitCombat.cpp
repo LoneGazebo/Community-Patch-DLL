@@ -4515,7 +4515,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackNuclear(CvUnit& kAttacker, int i
 void CvUnitCombat::ApplyPostKillTraitEffects(CvUnit* pkWinner, CvUnit* pkLoser)
 {
 	// "Heal if defeat enemy" promotion; doesn't apply if defeat a barbarian
-	if(pkWinner->getHPHealedIfDefeatEnemy() > 0 && (pkLoser->getOwner() != BARBARIAN_PLAYER || !(pkWinner->IsHealIfDefeatExcludeBarbarians())))
+	if(pkWinner->getHPHealedIfDefeatEnemy() > 0 && (pkLoser->getOwner() != BARBARIAN_PLAYER || !(pkWinner->IsHealIfDefeatExcludeBarbarians())) && !pkWinner->IsCannotHeal())
 	{
 		if(pkWinner->getHPHealedIfDefeatEnemy() > pkWinner->getDamage())
 		{
@@ -4532,7 +4532,10 @@ void CvUnitCombat::ApplyPostKillTraitEffects(CvUnit* pkWinner, CvUnit* pkLoser)
 		int iHealAmount = min(pkWinner->getDamage(), /*25*/ GD_INT_GET(PILLAGE_HEAL_AMOUNT));
 		pkWinner->changeMoves(GD_INT_GET(MOVE_DENOMINATOR));
 		pkWinner->setMadeAttack(false);
-		pkWinner->changeDamage(-iHealAmount);
+		if (!pkWinner->IsCannotHeal())
+		{
+			pkWinner->changeDamage(-iHealAmount);
+		}
 	}
 #endif
 	// If the modder wants the healing to be negative (ie additional damage), then let it be
