@@ -182,7 +182,7 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iGoodyHutYieldBonus(0),
 	m_iDiploMissionInfluence(0),
 	m_bGainsXPFromScouting(false),
-	m_bGainsXPFromPillaging(false),
+	m_iXPFromPillaging(0),
 	m_bGainsXPFromSpotting(false),
 	m_bCannotBeCaptured(false),
 	m_bIsLostOnMove(false),
@@ -463,7 +463,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iGoodyHutYieldBonus = kResults.GetInt("GoodyHutYieldBonus");
 	m_iDiploMissionInfluence = kResults.GetInt("DiploMissionInfluence");
 	m_bGainsXPFromScouting = kResults.GetBool("GainsXPFromScouting");
-	m_bGainsXPFromPillaging = kResults.GetBool("GainsXPFromPillaging");
+	m_iXPFromPillaging = kResults.GetInt("XPFromPillaging");
 	m_bGainsXPFromSpotting = kResults.GetBool("GainsXPFromSpotting");
 	m_bCannotBeCaptured = kResults.GetBool("CannotBeCaptured");
 	m_bIsLostOnMove = kResults.GetBool("IsLostOnMove");
@@ -2233,9 +2233,9 @@ bool CvPromotionEntry::IsGainsXPFromScouting() const
 }
 
 /// Accessor: Can this Promotion grant XP from pillaging?
-bool CvPromotionEntry::IsGainsXPFromPillaging() const
+int CvPromotionEntry::GetXPFromPillaging() const
 {
-	return m_bGainsXPFromPillaging;
+	return m_iXPFromPillaging;
 }
 
 /// Accessor: Can this Promotion grant XP from spotting?
