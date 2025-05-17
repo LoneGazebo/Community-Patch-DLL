@@ -162,10 +162,6 @@ ALTER TABLE UnitPromotions ADD LandAirDefenseBonus integer DEFAULT 0;
 
 ALTER TABLE UnitPromotions ADD DiploMissionInfluence integer DEFAULT 0;
 
--- OBSOLETE: to be removed in VP5.0, replaced by UnitPromotions_Plagues and UnitPromotions_BlockedPromotions tables
-ALTER TABLE UnitPromotions ADD PlagueChance integer DEFAULT 0;
-ALTER TABLE UnitPromotions ADD PlaguePromotion text REFERENCES UnitPromotions (Type);
-ALTER TABLE UnitPromotions ADD PlagueIDImmunity integer DEFAULT -1;
 
 ALTER TABLE UnitPromotions ADD PlagueID integer DEFAULT -1;
 ALTER TABLE UnitPromotions ADD PlaguePriority integer DEFAULT 0;

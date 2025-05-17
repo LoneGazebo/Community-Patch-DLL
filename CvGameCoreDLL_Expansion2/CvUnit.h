@@ -719,6 +719,8 @@ public:
 									bool bIgnoreUnitAdjacencyBoni = false, bool bQuickAndDirty = false) const;
 	int GetRangeCombatSplashDamage(const CvPlot* pTargetPlot) const;
 
+	int EstimatePlagueDamage(const CvUnit* pEnemy) const;
+
 	bool canSiege(TeamTypes eTeam) const;
 	bool canAirDefend(const CvPlot* pPlot = NULL) const;
 
@@ -1251,11 +1253,8 @@ public:
 	void changeExtraWithdrawal(int iChange);
 
 	// Plague Stuff
-	std::vector<int> GetInflictedPlagueIDs() const;
-	PromotionTypes GetInflictedPlague(int iPlagueID, int& iPlagueChance) const;
 	bool HasPlague(int iPlagueID = -1, int iMinimumPriority = -1) const;
 	void RemovePlague(int iPlagueID = -1, int iHigherPriority = -1);
-	bool CanPlague(CvUnit* pOtherUnit) const;
 
 #if defined(MOD_BALANCE_CORE_JFD)
 	void setContractUnit(ContractTypes eContract);
@@ -1782,6 +1781,8 @@ public:
 	bool canAcquirePromotion(PromotionTypes ePromotion) const;
 	bool canAcquirePromotionAny() const;
 	bool IsPromotionBlocked(PromotionTypes eIndex) const;
+	std::vector<PlagueInfo> GetPlaguesToInflict() const;
+	void ModifyPlaguesToInflict(PlagueInfo sPlagueInfo, bool bAdd);
 	void SetPromotionBlocked(PromotionTypes eIndex, bool bNewValue);
 	bool isPromotionValid(PromotionTypes ePromotion) const;
 	bool isHasPromotion(PromotionTypes eIndex) const;
@@ -2120,6 +2121,7 @@ protected:
 	int m_iAOEDamageOnPillage;
 	int m_iAoEDamageOnMove;
 	std::set<PromotionTypes> m_seBlockedPromotions;
+	std::vector<PlagueInfo> m_vsPlaguesToInflict;
 	int m_iPartialHealOnPillage;
 	int m_iSplashDamage;
 	int m_iMultiAttackBonus;
@@ -2474,7 +2476,7 @@ protected:
 	bool canAdvance(const CvPlot& pPlot, int iThreshold) const;
 
 #if defined(MOD_BALANCE_CORE)
-	void DoPlagueTransfer(CvUnit& defender);
+	void DoPlagueTransfer(CvUnit& defender, bool bAttacking);
 #endif
 #if defined(MOD_CARGO_SHIPS)
 	void DoCargoPromotions(CvUnit& cargounit);
@@ -2575,6 +2577,7 @@ SYNC_ARCHIVE_VAR(int, m_iAOEDamageOnKill)
 SYNC_ARCHIVE_VAR(int, m_iAOEDamageOnPillage)
 SYNC_ARCHIVE_VAR(int, m_iAoEDamageOnMove)
 SYNC_ARCHIVE_VAR(SYNC_ARCHIVE_VAR_TYPE(std::set<PromotionTypes>), m_seBlockedPromotions)
+SYNC_ARCHIVE_VAR(SYNC_ARCHIVE_VAR_TYPE(std::vector<PlagueInfo>), m_vsPlaguesToInflict)
 SYNC_ARCHIVE_VAR(int, m_iPartialHealOnPillage)
 SYNC_ARCHIVE_VAR(int, m_iSplashDamage)
 SYNC_ARCHIVE_VAR(int, m_iMultiAttackBonus)

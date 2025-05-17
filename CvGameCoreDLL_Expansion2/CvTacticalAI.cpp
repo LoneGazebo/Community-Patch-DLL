@@ -6740,6 +6740,7 @@ bool ScoreAttackDamage(const CvTacticalPlot& tactPlot, const CvUnit* pUnit, cons
 		}
 
 		iExtraScore = pUnit->GetRangeCombatSplashDamage(pTestPlot);
+		iExtraScore += pUnit->EstimatePlagueDamage(pEnemy);
 		iPrevHitPoints = pEnemy->GetCurrHitPoints() - iPrevDamage;
 
 		//problem is flanking bonus affects combat strength, not damage, so the effect is nonlinear. anyway just assume 10% per adjacent unit

@@ -13,6 +13,52 @@
 // include this after all other headers!
 #include "LintFree.h"
 
+//====================================
+// PlagueInfo
+//====================================
+
+/// Equals operator
+bool PlagueInfo::operator==(const PlagueInfo& rhs) const
+{
+	return (ePlague == rhs.ePlague &&
+		eDomain == rhs.eDomain &&
+		bApplyOnAttack == rhs.bApplyOnAttack &&
+		bApplyOnDefense == rhs.bApplyOnDefense &&
+		iApplyChance == rhs.iApplyChance);
+}
+
+bool PlagueInfo::operator<(const PlagueInfo& rhs) const { return GC.getPromotionInfo(ePlague)->GetPlaguePriority() > GC.getPromotionInfo(rhs.ePlague)->GetPlaguePriority(); }
+
+template<typename PlagueInfoTemplate, typename Visitor>
+void PlagueInfo::Serialize(PlagueInfoTemplate& plagueInfo, Visitor& visitor)
+{
+	visitor(plagueInfo.ePlague);
+	visitor(plagueInfo.eDomain);
+	visitor(plagueInfo.bApplyOnAttack);
+	visitor(plagueInfo.bApplyOnDefense);
+	visitor(plagueInfo.iApplyChance);
+}
+
+/// Serialization read
+FDataStream& operator>>(FDataStream& loadFrom, PlagueInfo& writeTo)
+{
+	CvStreamLoadVisitor serialVisitor(loadFrom);
+	PlagueInfo::Serialize(writeTo, serialVisitor);
+	return loadFrom;
+}
+
+/// Serialization write
+FDataStream& operator<<(FDataStream& saveTo, const PlagueInfo& readFrom)
+{
+	CvStreamSaveVisitor serialVisitor(saveTo);
+	PlagueInfo::Serialize(readFrom, serialVisitor);
+	return saveTo;
+}
+
+//====================================
+// CvPromotionEntry
+//====================================
+
 /// Constructor
 CvPromotionEntry::CvPromotionEntry():
 	m_iLayerAnimationPath(ANIMATIONPATH_NONE),
@@ -1246,13 +1292,48 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 
 		while (pResults->Step())
 		{
-			const int iBlockedPromotion = (UnitTypes)pResults->GetInt(0);
+			const int iBlockedPromotion = pResults->GetInt(0);
 
 			m_siBlockedPromotions.insert(iBlockedPromotion);
 		}
 
 		pResults->Reset();
 	}
+
+	//UnitPromotions_Plagues
+	{
+		m_vsPlagues.clear();
+
+		std::string sqlKey = "UnitPromotions_Plagues";
+		Database::Results* pResults = kUtility.GetResults(sqlKey);
+		if (pResults == NULL)
+		{
+			const char* szSQL = "select UnitPromotions.ID as PromotionID, Domains.ID as DomainID, ApplyOnAttack, ApplyOnDefense, ApplyChance from UnitPromotions_Plagues inner join UnitPromotions On UnitPromotions.Type = PlaguePromotionType inner join Domains on DomainType = Domains.Type where UnitPromotions_Plagues.PromotionType = ?";
+			pResults = kUtility.PrepareResults(sqlKey, szSQL);
+		}
+
+		ASSERT_DEBUG(pResults);
+		if (!pResults) return false;
+
+		pResults->Bind(1, szPromotionType);
+
+		while (pResults->Step())
+		{
+			PlagueInfo plagueInfo;
+
+			plagueInfo.ePlague = (PromotionTypes)pResults->GetInt(0);
+			plagueInfo.eDomain = (DomainTypes)pResults->GetInt(1);
+			plagueInfo.bApplyOnAttack = pResults->GetBool(2);
+			plagueInfo.bApplyOnDefense = pResults->GetBool(3);
+			plagueInfo.iApplyChance = pResults->GetInt(4);
+
+			m_vsPlagues.push_back(plagueInfo);
+		}
+
+		pResults->Reset();
+	}
+
+
 
 	//UnitPromotions_YieldFromPillage
 	{
@@ -3326,6 +3407,11 @@ std::pair<int, int> CvPromotionEntry::GetYieldFromPillage(YieldTypes eYield) con
 std::set<int> CvPromotionEntry::GetBlockedPromotions() const
 {
 	return m_siBlockedPromotions;
+}
+
+std::vector<PlagueInfo> CvPromotionEntry::GetPlagues() const
+{
+	return m_vsPlagues;
 }
 
 #if defined(MOD_PROMOTIONS_UNIT_NAMING)

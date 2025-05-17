@@ -12,6 +12,22 @@
 
 #include "CvBitfield.h"
 
+struct PlagueInfo
+{
+	bool operator==(const PlagueInfo& rhs) const;
+	bool operator<(const PlagueInfo& rhs) const;
+	template<typename PlagueInfoTemplate, typename Visitor>
+	static void Serialize(PlagueInfoTemplate& plagueInfo, Visitor& visitor);
+
+	PromotionTypes ePlague;
+	DomainTypes eDomain;
+	bool bApplyOnAttack;
+	bool bApplyOnDefense;
+	int iApplyChance;
+};
+FDataStream& operator>>(FDataStream&, PlagueInfo&);
+FDataStream& operator<<(FDataStream&, const PlagueInfo&);
+
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS:      CvPromotionEntry
 //!  \brief		A single promotion available in the game
@@ -363,6 +379,7 @@ public:
 	bool GetCivilianUnitType(int i) const;
 	std::pair<int, int> GetYieldFromPillage(YieldTypes eYield) const;
 	std::set<int> GetBlockedPromotions() const;
+	std::vector<PlagueInfo> GetPlagues() const;
 #if defined(MOD_PROMOTIONS_UNIT_NAMING)
 	bool IsUnitNaming(int i) const;
 	void GetUnitName(UnitTypes eUnit, CvString& sUnitName) const;
@@ -696,6 +713,7 @@ protected:
 	bool* m_pbPostCombatRandomPromotion;
 	std::map<int, std::pair<int, int>> m_yieldFromPillage;
 	std::set<int> m_siBlockedPromotions;
+	std::vector<PlagueInfo> m_vsPlagues;
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
