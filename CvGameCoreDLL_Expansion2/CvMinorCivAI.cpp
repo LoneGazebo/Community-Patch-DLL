@@ -18980,7 +18980,7 @@ CvMinorCivInfo::~CvMinorCivInfo()
 	SAFE_DELETE_ARRAY(m_piFlavorValue);
 }
 //------------------------------------------------------------------------------
-int CvMinorCivInfo::IsPlayable() const
+bool CvMinorCivInfo::IsPlayable() const
 {
 	return m_bPlayable;
 }
