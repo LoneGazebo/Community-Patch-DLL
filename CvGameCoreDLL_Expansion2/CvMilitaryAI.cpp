@@ -2448,7 +2448,7 @@ void CvMilitaryAI::DisbandObsoleteUnits()
 	int iUnitLoop = 0;
 	for (CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
 	{
-		if (pLoopUnit->IsCannotHeal() && !pLoopUnit->isDelayedDeath() && pLoopUnit->canScrap())
+		if (pLoopUnit->IsCannotHeal() && !pLoopUnit->isDelayedDeath() && pLoopUnit->canScrap() && !pLoopUnit->HasPlague())
 		{
 			if (pLoopUnit->GetCurrHitPoints() < 75 || (GetNumberCivsAtWarWith(m_pPlayer->isMinorCiv()) > 0 && pLoopUnit->GetCurrHitPoints() < 25))
 				pLoopUnit->scrap();
