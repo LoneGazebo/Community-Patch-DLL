@@ -411,7 +411,7 @@ CvUnit::CvUnit() :
 	, m_iNumTilesRevealedThisTurn()
 	, m_bSpottedEnemy()
 	, m_iGainsXPFromScouting()
-	, m_iGainsXPFromPillaging()
+	, m_iXPFromPillaging()
 	, m_iGainsXPFromSpotting()
 	, m_iCaptureDefeatedEnemyChance()
 	, m_iBarbCombatBonus()
@@ -1574,7 +1574,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_bSpottedEnemy = false;
 	m_iGainsXPFromScouting = 0;
 	m_iGainsXPFromSpotting = 0;
-	m_iGainsXPFromPillaging = 0;
+	m_iXPFromPillaging = 0;
 	m_iCaptureDefeatedEnemyChance = 0;
 	m_iBarbCombatBonus = 0;
 	m_iAdjacentEnemySapMovement = 0;
@@ -10245,6 +10245,16 @@ bool CvUnit::canPillage(const CvPlot* pPlot) const
 	return true;
 }
 
+int CvUnit::getCurrentPillageHeal() const
+{
+	int iPillageHeal = 0;
+	if (!IsCannotHeal())
+	{
+		iPillageHeal = hasHealOnPillage() ? getDamage() : min(getDamage(), (/*25*/ GD_INT_GET(PILLAGE_HEAL_AMOUNT) + getPartialHealOnPillage()));
+	}
+	return iPillageHeal;
+}
+
 bool CvUnit::shouldPillage(const CvPlot* pPlot, bool bConservative) const
 {
 	if (!canPillage(pPlot))
@@ -10253,9 +10263,7 @@ bool CvUnit::shouldPillage(const CvPlot* pPlot, bool bConservative) const
 	if (hasFreePillageMove() && pPlot->IsAdjacentCity())
 		return true;
 
-	int iPillageHeal = IsCannotHeal() ? 0 : min(getDamage(), (/*25*/ GD_INT_GET(PILLAGE_HEAL_AMOUNT) + getPartialHealOnPillage()));
-	if (hasHealOnPillage())
-		iPillageHeal = getDamage();
+	int iPillageHeal = getCurrentPillageHeal();
 
 	// Citadel here?
 	ImprovementTypes eImprovement = pPlot->getImprovementType();
@@ -10299,7 +10307,7 @@ bool CvUnit::shouldPillage(const CvPlot* pPlot, bool bConservative) const
 	}
 
 	if (bConservative)
-		return getDamage() >= iPillageHeal;
+		return getDamage() >= iPillageHeal && iPillageHeal >= GD_INT_GET(PILLAGE_HEAL_AMOUNT);
 
 	return getDamage() > 0;
 }
@@ -10558,13 +10566,14 @@ bool CvUnit::pillage()
 		changeMoves(-GD_INT_GET(MOVE_DENOMINATOR));
 	}
 
-	if (IsGainsXPFromPillaging())
-	{
-		changeExperienceTimes100(/*500*/ GD_INT_GET(BALANCE_SCOUT_XP_BASE) * 500);
-	}
 
 	if(bSuccessfulNonRoadPillage)
 	{
+		if (GetXPFromPillaging() > 0)
+		{
+			changeExperienceTimes100(GetXPFromPillaging() * 100);
+		}
+
 		if (getPillageBonusStrengthPercent() != 0)
 		{
 			SetBaseCombatStrength(getUnitInfo().GetCombat() + ((getPillageBonusStrengthPercent() * getUnitInfo().GetCombat()) / 100));			
@@ -10580,17 +10589,7 @@ bool CvUnit::pillage()
 				CvCity* pCityOfThisPlot = pPlot->getEffectiveOwningCity();
 				if (pCityOfThisPlot == NULL || !(pCityOfThisPlot->IsLocalGainlessPillage()))
 				{
-					if (hasHealOnPillage())
-					{
-						// completely heal unit
-						changeDamage(-getDamage());
-					}
-					else
-					{
-						int iHealAmount = min(getDamage(), /*25*/ GD_INT_GET(PILLAGE_HEAL_AMOUNT));
-						iHealAmount += getPartialHealOnPillage();
-						changeDamage(-iHealAmount);
-					}
+						changeDamage(-getCurrentPillageHeal());
 				}
 			}
 		}
@@ -18615,7 +18614,7 @@ void CvUnit::ChangeGainsXPFromScouting(int iValue)
 bool CvUnit::IsGainsXPFromSpotting() const
 {
 	VALIDATE_OBJECT();
-		return (GetGainsXPFromSpotting() > 0);
+	return (GetGainsXPFromSpotting() > 0);
 }
 
 
@@ -18624,43 +18623,34 @@ bool CvUnit::IsGainsXPFromSpotting() const
 int CvUnit::GetGainsXPFromSpotting() const
 {
 	VALIDATE_OBJECT();
-		return m_iGainsXPFromSpotting;
+	return m_iGainsXPFromSpotting;
 }
 
 //	--------------------------------------------------------------------------------
 void CvUnit::ChangeGainsXPFromSpotting(int iValue)
 {
 	VALIDATE_OBJECT();
-		if (iValue != 0)
-		{
-			m_iGainsXPFromSpotting += iValue;
-		}
+	if (iValue != 0)
+	{
+		m_iGainsXPFromSpotting += iValue;
+	}
 }
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::IsGainsXPFromPillaging() const
+int CvUnit::GetXPFromPillaging() const
 {
 	VALIDATE_OBJECT();
-		return (GetGainsXPFromPillaging() > 0);
-}
-
-
-
-//	--------------------------------------------------------------------------------
-int CvUnit::GetGainsXPFromPillaging() const
-{
-	VALIDATE_OBJECT();
-		return m_iGainsXPFromPillaging;
+	return m_iXPFromPillaging;
 }
 
 //	--------------------------------------------------------------------------------
-void CvUnit::ChangeGainsXPFromPillaging(int iValue)
+void CvUnit::ChangeXPFromPillaging(int iValue)
 {
 	VALIDATE_OBJECT();
-		if (iValue != 0)
-		{
-			m_iGainsXPFromPillaging += iValue;
-		}
+	if (iValue != 0)
+	{
+		m_iXPFromPillaging += iValue;
+	}
 }
 
 
@@ -27632,7 +27622,7 @@ void CvUnit::setPromotionActive(PromotionTypes eIndex, bool bNewValue)
 	ChangeBarbarianCombatBonus((thisPromotion.GetBarbarianCombatBonus()) * iChange);
 	ChangeAdjacentEnemySapMovement((thisPromotion.GetAdjacentEnemySapMovement()) * iChange);
 	ChangeGainsXPFromScouting((thisPromotion.IsGainsXPFromScouting()) ? iChange : 0);
-	ChangeGainsXPFromPillaging((thisPromotion.IsGainsXPFromPillaging()) ? iChange : 0);
+	ChangeXPFromPillaging(thisPromotion.GetXPFromPillaging() * iChange);
 	ChangeGainsXPFromSpotting((thisPromotion.IsGainsXPFromSpotting()) ? iChange : 0);
 	ChangeCannotBeCapturedCount((thisPromotion.CannotBeCaptured()) ? iChange : 0);
 	ChangeForcedDamageValue((thisPromotion.ForcedDamageValue()) * iChange);
@@ -28327,7 +28317,7 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_iNumTilesRevealedThisTurn);
 	visitor(unit.m_bSpottedEnemy);
 	visitor(unit.m_iGainsXPFromScouting);
-	visitor(unit.m_iGainsXPFromPillaging);
+	visitor(unit.m_iXPFromPillaging);
 	visitor(unit.m_iGainsXPFromSpotting);
 	visitor(unit.m_iCaptureDefeatedEnemyChance);
 	visitor(unit.m_iBarbCombatBonus);
@@ -32951,11 +32941,10 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	}
 
 
-
-	if (pkPromotionInfo->IsGainsXPFromPillaging() && !IsGainsXPFromPillaging())
+	iTemp = pkPromotionInfo->GetXPFromPillaging();
+	if (iTemp > 0)
 	{
-		iExtra = (iFlavorOffense + 2 * iFlavorMobile);
-		iExtra *= 5;
+		iExtra = iTemp * (iFlavorOffense + 2 * iFlavorMobile);
 		iExtra *= baseMoves(false);
 		if (hasFreePillageMove())
 			iExtra *= 2;

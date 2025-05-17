@@ -463,6 +463,7 @@ public:
 	bool rebase(int iX, int iY, bool bForced = false);
 
 	bool canPillage(const CvPlot* pPlot) const;
+	int getCurrentPillageHeal() const;
 	bool shouldPillage(const CvPlot* pPlot, bool bConservative = false) const;
 	bool pillage();
 
@@ -887,9 +888,8 @@ public:
 	int GetGainsXPFromSpotting() const;
 	void ChangeGainsXPFromSpotting(int iValue);
 
-	bool IsGainsXPFromPillaging() const;
-	int GetGainsXPFromPillaging() const;
-	void ChangeGainsXPFromPillaging(int iValue);
+	int GetXPFromPillaging() const;
+	void ChangeXPFromPillaging(int iValue);
 
 	bool IsGainsYieldFromScouting() const;
 
@@ -2284,7 +2284,7 @@ protected:
 	int m_iNumTilesRevealedThisTurn;
 	bool m_bSpottedEnemy;
 	int m_iGainsXPFromScouting;
-	int m_iGainsXPFromPillaging; // OBSOLETE: to be removed in VP5.0
+	int m_iXPFromPillaging;
 	int m_iGainsXPFromSpotting;
 	int m_iCaptureDefeatedEnemyChance;
 	int m_iBarbCombatBonus;
@@ -2733,7 +2733,7 @@ SYNC_ARCHIVE_VAR(int, m_iCanCrossIceCount)
 SYNC_ARCHIVE_VAR(int, m_iNumTilesRevealedThisTurn)
 SYNC_ARCHIVE_VAR(bool, m_bSpottedEnemy)
 SYNC_ARCHIVE_VAR(int, m_iGainsXPFromScouting)
-SYNC_ARCHIVE_VAR(int, m_iGainsXPFromPillaging)
+SYNC_ARCHIVE_VAR(int, m_iXPFromPillaging)
 SYNC_ARCHIVE_VAR(int, m_iGainsXPFromSpotting)
 SYNC_ARCHIVE_VAR(int, m_iCaptureDefeatedEnemyChance)
 SYNC_ARCHIVE_VAR(int, m_iBarbCombatBonus)
