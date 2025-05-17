@@ -2453,15 +2453,7 @@ bool CvHomelandAI::ExecuteExplorerMoves(CvUnit* pUnit)
 					CvCity* pCityOfThisPlot = pEvalPlot->getEffectiveOwningCity();
 					if (pCityOfThisPlot == NULL || !(pCityOfThisPlot->IsLocalGainlessPillage()))
 					{
-						if (pUnit->hasHealOnPillage())
-						{
-							// completely heal unit
-							iHealAmount = -pUnit->getDamage();
-						}
-						else
-						{
-							iHealAmount = min(pUnit->getDamage(), /*25*/ GD_INT_GET(PILLAGE_HEAL_AMOUNT) + pUnit->getPartialHealOnPillage());
-						}
+						iHealAmount = pUnit->getCurrentPillageHeal();
 					}
 				}
 				if (pUnit->GetDanger(pEvalPlot) < pUnit->GetCurrHitPoints() + iHealAmount)

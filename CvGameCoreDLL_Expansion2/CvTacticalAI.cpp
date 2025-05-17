@@ -2904,9 +2904,7 @@ bool CvTacticalAI::ExecutePillage(CvPlot* pTargetPlot)
 				CvPlot* pSafePlot = NULL;
 				if (!TacticalAIHelpers::IsOtherPlayerCitadel(pUnit->plot(), m_pPlayer->GetID(), true))
 				{
-					int iVal = pUnit->GetCurrHitPoints() + /*25*/ GD_INT_GET(PILLAGE_HEAL_AMOUNT);
-					if (pUnit->IsGainsXPFromPillaging())
-						iVal += /*25*/ GD_INT_GET(PILLAGE_HEAL_AMOUNT);
+					int iVal = pUnit->GetCurrHitPoints() + pUnit->getCurrentPillageHeal();
 
 					if ((pUnit->GetDanger() > iVal) && !pUnit->hasFreePillageMove())
 						pSafePlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit, true);
@@ -7004,11 +7002,13 @@ STacticalAssignment ScorePlotForPillageMove(const SUnitStats& unit, const CvTact
 			result.iScore = 500;
 		else if (pTestPlot->getResourceType(pUnit->getTeam()) != NO_RESOURCE && GC.getResourceInfo(pTestPlot->getResourceType(pUnit->getTeam()))->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
 			result.iScore = 200;
-		else if (pUnit->getDamage() >= /*25*/ GD_INT_GET(PILLAGE_HEAL_AMOUNT))
+		else if (pUnit->getDamage() >= pUnit->getCurrentPillageHeal() && pUnit->getCurrentPillageHeal() >= GD_INT_GET(PILLAGE_HEAL_AMOUNT))
 			result.iScore = 100;
 
-		if (pUnit->IsGainsXPFromPillaging())
-			result.iScore += 50;
+		result.iScore += pUnit->GetXPFromPillaging() * 10;
+
+		// heal more than normally?
+		result.iScore += max(0, pUnit->getCurrentPillageHeal() - GD_INT_GET(PILLAGE_HEAL_AMOUNT)) * 5;
 
 		if (!pUnit->hasFreePillageMove())
 			result.iRemainingMoves -= min(result.iRemainingMoves, GD_INT_GET(MOVE_DENOMINATOR));

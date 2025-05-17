@@ -182,7 +182,7 @@ public:
 	int GetBarbarianCombatBonus() const;
 	int GetGoodyHutYieldBonus() const;
 	bool IsGainsXPFromScouting() const;
-	bool IsGainsXPFromPillaging() const;
+	int GetXPFromPillaging() const;
 	bool IsGainsXPFromSpotting() const;
 	int NegatesPromotion() const;
 	bool CannotBeCaptured() const;
@@ -520,7 +520,7 @@ protected:
 	int m_iGoodyHutYieldBonus;
 	int m_iDiploMissionInfluence;
 	bool m_bGainsXPFromScouting;
-	bool m_bGainsXPFromPillaging; // OBSOLETE: to be removed in VP5.0
+	int m_iXPFromPillaging;
 	bool m_bGainsXPFromSpotting;
 	bool m_bCannotBeCaptured;
 	int m_iNegatesPromotion;
