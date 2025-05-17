@@ -12,6 +12,22 @@
 
 #include "CvBitfield.h"
 
+struct PlagueInfo
+{
+	bool operator==(const PlagueInfo& rhs) const;
+	bool operator<(const PlagueInfo& rhs) const;
+	template<typename PlagueInfoTemplate, typename Visitor>
+	static void Serialize(PlagueInfoTemplate& plagueInfo, Visitor& visitor);
+
+	PromotionTypes ePlague;
+	DomainTypes eDomain;
+	bool bApplyOnAttack;
+	bool bApplyOnDefense;
+	int iApplyChance;
+};
+FDataStream& operator>>(FDataStream&, PlagueInfo&);
+FDataStream& operator<<(FDataStream&, const PlagueInfo&);
+
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS:      CvPromotionEntry
 //!  \brief		A single promotion available in the game
@@ -141,12 +157,15 @@ public:
 	int GetHPHealedIfDefeatEnemy() const;
 	int GetGoldenAgeValueFromKills() const;
 	int GetExtraWithdrawal() const;
+	int GetCombatChange() const;
+	int GetTileDamageIfNotMoved() const;
+	int GetFortifiedModifier() const;
+	int GetMinEffectiveHealth() const;
+	bool IsRequiresLeadership() const;
+	bool IsCannotHeal() const;
 #if defined(MOD_BALANCE_CORE_JFD)
-	int GetPlagueChance() const;
-	int GetPlaguePromotion() const;
 	int GetPlagueID() const;
 	int GetPlaguePriority() const;
-	int GetPlagueIDImmunity() const;
 #endif
 	int GetEmbarkExtraVisibility() const;
 	int GetEmbarkDefenseModifier() const;
@@ -163,7 +182,7 @@ public:
 	int GetBarbarianCombatBonus() const;
 	int GetGoodyHutYieldBonus() const;
 	bool IsGainsXPFromScouting() const;
-	bool IsGainsXPFromPillaging() const;
+	int GetXPFromPillaging() const;
 	bool IsGainsXPFromSpotting() const;
 	int NegatesPromotion() const;
 	bool CannotBeCaptured() const;
@@ -305,6 +324,7 @@ public:
 	bool IsCanHeavyCharge() const;
 	bool HasPostCombatPromotions() const;
 	bool ArePostCombatPromotionsExclusive() const;
+	bool IsConditionalPromotion() const;
 
 	const char* GetSound() const;
 	void SetSound(const char* szVal);
@@ -312,18 +332,25 @@ public:
 	// Arrays
 	int GetTerrainAttackPercent(int i) const;
 	int GetTerrainDefensePercent(int i) const;
+	int GetTerrainModifierAttack(int i) const;
+	int GetTerrainModifierDefense(int i) const;
 	int GetFeatureAttackPercent(int i) const;
 	int GetFeatureDefensePercent(int i) const;
 #if defined(MOD_BALANCE_CORE)
+	int GetYieldFromAncientRuins(int i) const;
+	int GetYieldFromTRPlunder(int i) const;
 	int GetYieldFromScouting(int i) const;
 	int GetYieldModifier(int i) const;
 	int GetYieldChange(int i) const;
 #endif
 	int GetYieldFromKills(int i) const;
 	int GetYieldFromBarbarianKills(int i) const;
+	int GetYieldFromCombatExperienceTimes100(int i) const;
 	int GetGarrisonYield(int i) const;
 	int GetFortificationYield(int i) const;
 	int GetUnitCombatModifierPercent(int i) const;
+	int GetUnitCombatModifierPercentAttack(int i) const;
+	int GetUnitCombatModifierPercentDefense(int i) const;
 	int GetUnitClassModifierPercent(int i) const;
 	int GetUnitClassAttackModifier(int i) const;
 	int GetUnitClassDefenseModifier(int i) const;
@@ -361,6 +388,8 @@ public:
 	bool GetUnitCombatClass(int i) const;
 	bool GetCivilianUnitType(int i) const;
 	std::pair<int, int> GetYieldFromPillage(YieldTypes eYield) const;
+	std::set<int> GetBlockedPromotions() const;
+	std::vector<PlagueInfo> GetPlagues() const;
 #if defined(MOD_PROMOTIONS_UNIT_NAMING)
 	bool IsUnitNaming(int i) const;
 	void GetUnitName(UnitTypes eUnit, CvString& sUnitName) const;
@@ -466,12 +495,15 @@ protected:
 	int m_iHPHealedIfDefeatEnemy;
 	int m_iGoldenAgeValueFromKills;
 	int m_iExtraWithdrawal;
+	int m_iCombatChange;
+	int m_iTileDamageIfNotMoved;
+	int m_iFortifiedModifier;
+	int m_iMinEffectiveHealth;
+	bool m_bRequiresLeadership;
+	bool m_bCannotHeal;
 #if defined(MOD_BALANCE_CORE_JFD)
-	int m_iPlagueChance; // OBSOLETE: to be removed in VP5.0
-	int m_iPlaguePromotion; // OBSOLETE: to be removed in VP5.0
 	int m_iPlagueID;
 	int m_iPlaguePriority;
-	int m_iPlagueIDImmunity; // OBSOLETE: to be removed in VP5.0
 #endif
 	int m_iEmbarkExtraVisibility;
 	int m_iEmbarkDefenseModifier;
@@ -488,7 +520,7 @@ protected:
 	int m_iGoodyHutYieldBonus;
 	int m_iDiploMissionInfluence;
 	bool m_bGainsXPFromScouting;
-	bool m_bGainsXPFromPillaging; // OBSOLETE: to be removed in VP5.0
+	int m_iXPFromPillaging;
 	bool m_bGainsXPFromSpotting;
 	bool m_bCannotBeCaptured;
 	int m_iNegatesPromotion;
@@ -640,16 +672,23 @@ protected:
 	int* m_piTerrainDefensePercent;
 	int* m_piFeatureAttackPercent;
 	int* m_piFeatureDefensePercent;
+	int* m_piTerrainModifierAttack;
+	int* m_piTerrainModifierDefense;
 #if defined(MOD_BALANCE_CORE)
 	int* m_piYieldFromScouting;
 	int* m_piYieldModifier;
 	int* m_piYieldChange;
+	int* m_piYieldFromAncientRuins;
+	int* m_piYieldFromTRPlunder;
 #endif
 	int* m_piYieldFromKills;
 	int* m_piYieldFromBarbarianKills;
+	int* m_piYieldFromCombatExperienceTimes100;
 	int* m_piGarrisonYield;
 	int* m_piFortificationYield;
 	int* m_piUnitCombatModifierPercent;
+	int* m_piUnitCombatModifierPercentAttack;
+	int* m_piUnitCombatModifierPercentDefense;
 	int* m_piUnitClassModifierPercent;
 	int* m_piUnitClassAttackModifier;
 	int* m_piUnitClassDefenseModifier;
@@ -692,6 +731,8 @@ protected:
 #endif
 	bool* m_pbPostCombatRandomPromotion;
 	std::map<int, std::pair<int, int>> m_yieldFromPillage;
+	std::set<int> m_siBlockedPromotions;
+	std::vector<PlagueInfo> m_vsPlagues;
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -748,6 +789,9 @@ public:
 	bool HasPromotion(PromotionTypes eIndex) const;
 	void SetPromotion(PromotionTypes eIndex, bool bValue);
 
+	bool IsPromotionActive(PromotionTypes eIndex) const;
+	void SetPromotionActive(PromotionTypes eIndex, bool bValue);
+
 	bool HasAllowFeaturePassable() const;
 	bool GetAllowFeaturePassable(FeatureTypes eFeatureType, TeamTypes eTeam) const;
 	bool HasAllowTerrainPassable() const;
@@ -770,6 +814,7 @@ private:
 	std::vector<int> m_unitClassAttackMod;
 
 	CvBitfield m_kHasPromotion;
+	CvBitfield m_kPromotionActive;
 };
 
 FDataStream& operator>>(FDataStream&, CvUnitPromotions&);

@@ -1148,7 +1148,7 @@ void CvTacticalAI::PlotPlunderTradeUnitMoves(DomainTypes eDomain)
 		// See what units we have who can reach target this turn
 		CvPlot* pPlot = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
 
-		if (FindUnitsForHarassing(pPlot,1,GD_INT_GET(MAX_HIT_POINTS)/2,-1,eDomain,false,false,1))
+		if (FindUnitsForHarassing(pPlot,0,GD_INT_GET(MAX_HIT_POINTS)/2,-1,eDomain,true,false,5,true))
 		{
 			// Queue best one up to capture it
 			ExecutePlunderTradeUnit(pPlot);
@@ -2910,9 +2910,7 @@ bool CvTacticalAI::ExecutePillage(CvPlot* pTargetPlot)
 				CvPlot* pSafePlot = NULL;
 				if (!TacticalAIHelpers::IsOtherPlayerCitadel(pUnit->plot(), m_pPlayer->GetID(), true))
 				{
-					int iVal = pUnit->GetCurrHitPoints() + /*25*/ GD_INT_GET(PILLAGE_HEAL_AMOUNT);
-					if (pUnit->IsGainsXPFromPillaging())
-						iVal += /*25*/ GD_INT_GET(PILLAGE_HEAL_AMOUNT);
+					int iVal = pUnit->GetCurrHitPoints() + pUnit->getCurrentPillageHeal();
 
 					if ((pUnit->GetDanger() > iVal) && !pUnit->hasFreePillageMove())
 						pSafePlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit, true);
@@ -4722,11 +4720,11 @@ bool CvTacticalAI::FindParatroopersWithinStrikingDistance(CvPlot* pTarget, bool 
 }
 
 //find units for pillaging, plundering, blockading, etc
-bool CvTacticalAI::FindUnitsForHarassing(CvPlot* pTarget, int iNumTurnsAway, int iMinHitpoints, int iMaxHitpoints, DomainTypes eDomain, bool bMustHaveMovesLeft, bool bAllowEmbarkation, int iMaxNumUnits)
+bool CvTacticalAI::FindUnitsForHarassing(CvPlot* pTarget, int iNumTurnsAway, int iMinHitpoints, int iMaxHitpoints, DomainTypes eDomain, bool bMustHaveMovesLeft, bool bAllowEmbarkation, int iMaxNumUnits, bool bPlunderTradeRoute)
 {
 	m_CurrentMoveUnits.clear();
 	//need to convert turns to max path length here, zero turns away is also valid!
-	SPathFinderUserData data(m_pPlayer->GetID(), PT_ARMY_MIXED, NO_PLAYER, (iNumTurnsAway+1)*3);
+	SPathFinderUserData data(m_pPlayer->GetID(), PT_ARMY_MIXED, NO_PLAYER, (iNumTurnsAway+1)*(eDomain==DOMAIN_LAND ? 3 : 5));
 	ReachablePlots relevantPlots = GC.GetStepFinder().GetPlotsInReach(pTarget, data);
 
 	//plots are ordered by turns to reach!
@@ -4736,33 +4734,43 @@ bool CvTacticalAI::FindUnitsForHarassing(CvPlot* pTarget, int iNumTurnsAway, int
 		CvUnit* pLoopUnit = pPlot->getBestDefender(m_pPlayer->GetID());
 		if (pLoopUnit)
 		{
-			//these units are too fragile for the moves we have in mind
-			if (pLoopUnit->AI_getUnitAIType() == UNITAI_CITY_BOMBARD || pLoopUnit->AI_getUnitAIType() == UNITAI_CARRIER_SEA)
+			if (pLoopUnit->isDelayedDeath())
 				continue;
 
-			if (!pLoopUnit->canUseForTacticalAI())
+			if (!pLoopUnit->canMove() || pLoopUnit->TurnProcessed())
 				continue;
 
-			if (pLoopUnit->IsCoveringFriendlyCivilian())
-				continue;
+			// plundering a trade route on the current plot doesn't cost us anything, so we do it whenever possible and the following exclusions do not apply
+			if (!bPlunderTradeRoute || pPlot != pTarget)
+			{
+				if (!pLoopUnit->canUseForTacticalAI())
+					continue;
+
+				//these units are too fragile for the moves we have in mind
+				if (pLoopUnit->AI_getUnitAIType() == UNITAI_CITY_BOMBARD || pLoopUnit->AI_getUnitAIType() == UNITAI_CARRIER_SEA)
+					continue;
+
+				if (pLoopUnit->IsCoveringFriendlyCivilian())
+					continue;
+
+				if (iMinHitpoints > 0 && pLoopUnit->GetCurrHitPoints() < iMinHitpoints)
+					continue;
+
+				if (iMaxHitpoints > 0 && pLoopUnit->GetCurrHitPoints() > iMaxHitpoints)
+					continue;
+
+				if (pLoopUnit->GetDanger(pTarget) > pLoopUnit->GetCurrHitPoints())
+					continue;
+
+				//don't use garrisons if there is an enemy around. the garrison may still attack when we do garrison moves!
+				if (pLoopUnit->IsGarrisoned() && pLoopUnit->GetGarrisonedCity()->NeedsGarrison())
+					continue;
+			}
 
 			if (pLoopUnit->isBarbarian() && pLoopUnit->plot()->getImprovementType() == GD_INT_GET(BARBARIAN_CAMP_IMPROVEMENT))
 				continue;
 
 			if (eDomain != NO_DOMAIN && pLoopUnit->getDomainType() != eDomain)
-				continue;
-
-			if(iMinHitpoints>0 && pLoopUnit->GetCurrHitPoints()<iMinHitpoints)
-				continue;
-
-			if(iMaxHitpoints>0 && pLoopUnit->GetCurrHitPoints()>iMaxHitpoints)
-				continue;
-
-			if (pLoopUnit->GetDanger(pTarget) > pLoopUnit->GetCurrHitPoints())
-				continue;
-
-			//don't use garrisons if there is an enemy around. the garrison may still attack when we do garrison moves!
-			if (pLoopUnit->IsGarrisoned() && pLoopUnit->GetGarrisonedCity()->NeedsGarrison())
 				continue;
 
 			//this should be a low-risk thing so don't get our units killed
@@ -4778,7 +4786,20 @@ bool CvTacticalAI::FindUnitsForHarassing(CvPlot* pTarget, int iNumTurnsAway, int
 			if (iTurnsCalculated <= iNumTurnsAway)
 			{
 				CvTacticalUnit unit(pLoopUnit->GetID());
-				unit.SetAttackStrength(1 + iNumTurnsAway - iTurnsCalculated);
+				int iPlunderBonus = 0;
+				if (bPlunderTradeRoute)
+				{
+					if (pLoopUnit->isHighSeaRaiderUnit())
+					{
+						iPlunderBonus += 500;
+					}
+					for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+					{
+						iPlunderBonus += pLoopUnit->getYieldFromTRPlunder((YieldTypes)iI);
+					}
+				}
+				unit.SetAttackStrength(1 + iNumTurnsAway - iTurnsCalculated + iPlunderBonus);
+				unit.SetHealthPercent(1, 1);
 				m_CurrentMoveUnits.push_back(unit);
 				//pathfinding is expensive, don't return more than needed
 				if (m_CurrentMoveUnits.size() >= (size_t)iMaxNumUnits)
@@ -5679,7 +5700,7 @@ bool TacticalAIHelpers::PerformRangedOpportunityAttack(CvUnit* pUnit, bool bAllo
 			if (pOtherUnit && !pOtherUnit->isDelayedDeath())
 			{
 				int iDamage = bIsAirUnit ? pUnit->GetAirCombatDamage(pOtherUnit, NULL, false) : 
-											pUnit->GetRangeCombatDamage(pOtherUnit, NULL, false, 0) +  pUnit->GetRangeCombatSplashDamage(pOtherUnit->plot());
+											pUnit->GetRangeCombatDamage(pOtherUnit, NULL, false, 0) +  pUnit->GetRangeCombatSplashDamage(pOtherUnit->plot()) + (pUnit->hasMoved() ? 0 : pUnit->GetTileDamageIfNotMoved());
 
 				//kill bonus
 				if (iDamage >= pOtherUnit->GetCurrHitPoints())
@@ -6197,6 +6218,7 @@ int TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(const CvUnit* pDefende
 		{
 			iDamage += pAttacker->GetRangeCombatDamage(pDefender, NULL, false, iExtraDefenderDamage, 
 							pDefenderPlot, pAttackerPlot, bIgnoreUnitAdjacencyBoni, bQuickAndDirty);
+			iDamage += (pAttacker->hasMoved() || pAttacker->plot() != pAttackerPlot) ? 0 : pAttacker->GetTileDamageIfNotMoved();
 			iAttackerDamage = 0;
 		}
 	}
@@ -6226,6 +6248,8 @@ int TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(const CvUnit* pDefende
 			iDefenderStrength,
 			iAttackerStrength,
 			false, false, false);
+
+		iDamage += (pAttacker->hasMoved() || pAttacker->plot() != pAttackerPlot) ? 0 : pAttacker->GetTileDamageIfNotMoved();
 	}
 
 	return iDamage;
@@ -6658,6 +6682,8 @@ bool ScoreAttackDamage(const CvTacticalPlot& tactPlot, const CvUnit* pUnit, cons
 			bBelowHpLimitAfterMeleeAttack = true;
 
 		iExtraScore = pUnit->GetRangeCombatSplashDamage(pTestPlot) + (pUnit->GetCityAttackPlunderModifier() / 50);
+		iExtraScore += (pUnit->hasMoved() || pUnit->plot() != pUnitPlot) ? 0 : pUnit->GetTileDamageIfNotMoved() * 2; // extra damage to city garrisons is valuable
+		iExtraScore += (pUnit->IsCannotHeal() && pUnit->AI_getUnitAIType() == UNITAI_CITY_BOMBARD) ? 1000 : 0; // force the AI to use Turkish Bombard for city attacks
 		iPrevHitPoints = pEnemy->GetMaxHitPoints() - pEnemy->getDamage() - iPrevDamage;
 
 		//but we don't want our melee units to die so take into account self damage and counterattacks
@@ -6721,6 +6747,7 @@ bool ScoreAttackDamage(const CvTacticalPlot& tactPlot, const CvUnit* pUnit, cons
 		}
 
 		iExtraScore = pUnit->GetRangeCombatSplashDamage(pTestPlot);
+		iExtraScore += pUnit->EstimatePlagueDamage(pEnemy);
 		iPrevHitPoints = pEnemy->GetCurrHitPoints() - iPrevDamage;
 
 		//should consider self-damage from previous attacks here ... blitz
@@ -6960,11 +6987,13 @@ STacticalAssignment ScorePlotForPillageMove(const SUnitStats& unit, const CvTact
 			result.iScore = 500;
 		else if (pTestPlot->getResourceType(pUnit->getTeam()) != NO_RESOURCE && GC.getResourceInfo(pTestPlot->getResourceType(pUnit->getTeam()))->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
 			result.iScore = 200;
-		else if (pUnit->getDamage() >= /*25*/ GD_INT_GET(PILLAGE_HEAL_AMOUNT))
+		else if (pUnit->getDamage() >= pUnit->getCurrentPillageHeal() && pUnit->getCurrentPillageHeal() >= GD_INT_GET(PILLAGE_HEAL_AMOUNT))
 			result.iScore = 100;
 
-		if (pUnit->IsGainsXPFromPillaging())
-			result.iScore += 50;
+		result.iScore += pUnit->GetXPFromPillaging() * 10;
+
+		// heal more than normally?
+		result.iScore += max(0, pUnit->getCurrentPillageHeal() - GD_INT_GET(PILLAGE_HEAL_AMOUNT)) * 5;
 
 		if (!pUnit->hasFreePillageMove())
 			result.iRemainingMoves -= min(result.iRemainingMoves, GD_INT_GET(MOVE_DENOMINATOR));
@@ -7156,10 +7185,14 @@ int ScoreCombatUnitTurnEnd(const CvUnit* pUnit, eUnitAssignmentType eLastAssignm
 	//don't add too much else it overrides the firstline/secondline order
 	if (!bHasMoved)
 	{
-		if (pUnit->IsHurt())
-			iResult++; //cannot fortify, only heal
+		if (pUnit->IsHurt() && !pUnit->isAlwaysHeal() && !pUnit->IsCannotHeal())
+			iResult++;
 		if (testPlot.getEnemyDistance(eRelevantDomain) < 3 && !pUnit->noDefensiveBonus())
+		{
 			iResult++; //fortification bonus!
+			if (pUnit->GetFortifiedModifier() > 0)
+				iResult += pUnit->GetFortifiedModifier() / GD_INT_GET(FORTIFY_MODIFIER_PER_TURN);
+		}
 	}
 
 	//try to stay together, in pairs at least
@@ -8248,14 +8281,14 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 				//redundant with ScoreCombatUnitTurnEnd but we have to make sure we consider these moves in the first place
 				if (it->iMovesLeft == unit.iMaxMoves)
 				{
-					if (pUnit->getDamage() > /*10 in CP, 7 in VP*/ GD_INT_GET(FRIENDLY_HEAL_RATE) / 2)
+					if (!pUnit->isAlwaysHeal() && pUnit->getDamage() > /*10 in CP, 7 in VP*/ GD_INT_GET(FRIENDLY_HEAL_RATE) / 2 && !pUnit->IsCannotHeal())
 					{
 						//calling canHeal is too expensive, so fake it
 						if (pUnit->getDomainType() != DOMAIN_SEA || testPlot.getPlot()->IsFriendlyTerritory(pUnit->getOwner()) || pUnit->isHealOutsideFriendly())
 							moveToPlot.iScore += min(23, pUnit->getDamage());
 					}
 					if (pUnit->IsEverFortifyable())
-						moveToPlot.iScore += (pUnit->GetDamageAoEFortified() > 0) ? 37 : 23;
+						moveToPlot.iScore += (pUnit->GetDamageAoEFortified() > 0) ? 37 : 23 + pUnit->GetFortifiedModifier() / 4;
 				}
 
 				//how much damage could we do with our next moves?

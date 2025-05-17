@@ -1232,7 +1232,7 @@ VALUES
 	('PROMOTION_GRAPESHOT', 'UNITCOMBAT_GUN', 33);
 
 -- Yellow Brow: Big Horse Dance
-UPDATE UnitPromotions SET StrongerDamaged = 1, FortifyEffectiveness = 200 WHERE Type = 'PROMOTION_BIG_HORSE_DANCE';
+UPDATE UnitPromotions SET StrongerDamaged = 1, FortifiedModifier = 20 WHERE Type = 'PROMOTION_BIG_HORSE_DANCE';
 
 -- Suea Mop: Crouching Tiger
 UPDATE UnitPromotions SET TileDamageIfNotMoved = 15 WHERE Type = 'PROMOTION_CROUCHING_TIGER';

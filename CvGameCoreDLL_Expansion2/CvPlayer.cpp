@@ -13145,6 +13145,15 @@ void CvPlayer::doGoody(CvPlot* pPlot, CvUnit* pUnit)
 			}
 		}
 
+		if (pUnit)
+		{
+			CvCity* pCity = pUnit->getOriginCity();
+			if (pCity != NULL)
+			{
+				doInstantYield(INSTANT_YIELD_TYPE_ANCIENT_RUIN, false, NO_GREATPERSON, NO_BUILDING, 0, false, NO_PLAYER, NULL, false, pCity, false, true, false, NO_YIELD, pUnit);
+			}
+		}
+
 		pPlot->AddArchaeologicalRecord(CvTypes::getARTIFACT_ANCIENT_RUIN(), m_eID, NO_PLAYER);
 	}
 }
@@ -19270,7 +19279,7 @@ void CvPlayer::DoHealGlobal(int iHealPercent)
 	{
 		if (!pLoopUnit)
 			continue;
-		if (pLoopUnit->IsCombatUnit())
+		if (pLoopUnit->IsCombatUnit() && !pLoopUnit->IsCannotHeal())
 		{
 			if (iHealPercent == 100)
 				pLoopUnit->changeDamage(-pLoopUnit->getDamage());
@@ -19299,7 +19308,7 @@ void CvPlayer::DoHealLocal(int iHealPercent, CvPlot* pPlot)
 			{
 				CvUnit* pLoopUnit = (CvUnit*)GetPlayerUnit(*itr);
 
-				if (pLoopUnit && pLoopUnit->getOwner() == GetID() && pLoopUnit->IsCombatUnit())
+				if (pLoopUnit && pLoopUnit->getOwner() == GetID() && pLoopUnit->IsCombatUnit() && !pLoopUnit->IsCannotHeal())
 				{
 					if (iHealPercent == 100)
 						pLoopUnit->changeDamage(-pLoopUnit->getDamage());
@@ -26013,6 +26022,22 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					iValue += (pUnit->getYieldFromScouting(eYield) * pUnit->GetNumTilesRevealedThisTurn());
 					break;
 				}
+				case INSTANT_YIELD_TYPE_ANCIENT_RUIN:
+				{
+					if(pUnit == NULL)
+						continue;
+
+					iValue += pUnit->getYieldFromAncientRuins(eYield);
+					break;
+				}
+				case INSTANT_YIELD_TYPE_PLUNDER_TRADE_ROUTE:
+				{
+					if(pUnit == NULL)
+						continue;
+
+					iValue += pUnit->getYieldFromTRPlunder(eYield);
+					break;
+				}
 				case INSTANT_YIELD_TYPE_LEVEL_UP:
 				{
 					if(pUnit == NULL)
@@ -26228,7 +26253,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 
 					if (iPassYield > 0)
 					{
-						iValue = iPassYield * pLoopCity->GetYieldFromCombatExperienceTimes100(eYield);
+						iValue = iPassYield * (pLoopCity->GetYieldFromCombatExperienceTimes100(eYield) + pUnit->GetYieldFromCombatExperienceTimes100(eYield));
 						iValue /= 10000;
 					}
 					break;
@@ -27237,6 +27262,18 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 			case INSTANT_YIELD_TYPE_GOLDEN_AGE_START:
 			{
 				localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_GOLDEN_AGE_START");
+				localizedText << totalyieldString;
+				break;
+			}
+			case INSTANT_YIELD_TYPE_ANCIENT_RUIN:
+			{
+				localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_ANCIENT_RUIN");
+				localizedText << totalyieldString;
+				break;
+			}
+			case INSTANT_YIELD_TYPE_PLUNDER_TRADE_ROUTE:
+			{
+				localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_PLUNDER_TRADE_ROUTE");
 				localizedText << totalyieldString;
 				break;
 			}
@@ -32703,6 +32740,13 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn) // R: bDoTurn default
 			if(bDoTurn)
 			{
 				SetAllUnitsUnprocessed();
+				
+				// update conditional promotions for all units
+				int iLoop = 0;
+				for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
+				{
+					pLoopUnit->updateConditionalPromotions();
+				}
 
 				//important! this sets the city connection flag for all our plots
 				//we cannot rely on a lazy update when accessing them because we would need to do it for all players, creating overhead
@@ -41316,6 +41360,16 @@ void CvPlayer::LogInstantYield(YieldTypes eYield, int iValue, InstantYieldType e
 	case INSTANT_YIELD_TYPE_WLTKD_START:
 			{
 				instantYieldName = "WLTKD Start";
+				break;
+			}
+	case INSTANT_YIELD_TYPE_ANCIENT_RUIN:
+			{
+				instantYieldName = "Ancient Ruin";
+				break;
+			}
+	case INSTANT_YIELD_TYPE_PLUNDER_TRADE_ROUTE:
+			{
+				instantYieldName = "Plunder Trade Route";
 				break;
 			}
 	}

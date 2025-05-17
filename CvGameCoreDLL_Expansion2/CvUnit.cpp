@@ -186,6 +186,9 @@ CvUnit::CvUnit() :
 	, m_iAOEDamageOnKill()
 	, m_iAOEDamageOnPillage()
 	, m_iAoEDamageOnMove()
+	, m_seBlockedPromotions()
+	, m_seConditionalPromotions()
+	, m_vsPlaguesToInflict()
 	, m_iPartialHealOnPillage()
 	, m_iSplashDamage()
 	, m_iMultiAttackBonus()
@@ -355,6 +358,7 @@ CvUnit::CvUnit() :
 	, m_extraDomainDefenses()
 	, m_YieldModifier()
 	, m_YieldChange()
+	, m_aiYieldFromCombatExperienceTimes100()
 	, m_iGarrisonYieldChange()
 	, m_iFortificationYieldChange()
 	, m_strScriptData()
@@ -369,11 +373,15 @@ CvUnit::CvUnit() :
 	, m_featureImpassableCount()
 	, m_extraTerrainAttackPercent()
 	, m_extraTerrainDefensePercent()
+	, m_vTerrainModifierAttack()
+	, m_vTerrainModifierDefense()
 	, m_extraFeatureAttackPercent()
 	, m_extraFeatureDefensePercent()
 	, m_extraUnitClassAttackMod()
 	, m_extraUnitClassDefenseMod()
 	, m_extraUnitCombatModifier()
+	, m_extraUnitCombatModifierAttack()
+	, m_extraUnitCombatModifierDefense()
 	, m_unitClassModifier()
 #if defined(MOD_BALANCE_CORE)
 	, m_iCombatModPerAdjacentUnitCombatModifier()
@@ -403,7 +411,7 @@ CvUnit::CvUnit() :
 	, m_iNumTilesRevealedThisTurn()
 	, m_bSpottedEnemy()
 	, m_iGainsXPFromScouting()
-	, m_iGainsXPFromPillaging()
+	, m_iXPFromPillaging()
 	, m_iGainsXPFromSpotting()
 	, m_iCaptureDefeatedEnemyChance()
 	, m_iBarbCombatBonus()
@@ -425,6 +433,7 @@ CvUnit::CvUnit() :
 	, m_iIgnoreFeatureDamageCount()
 	, m_iExtraTerrainDamageCount()
 	, m_iExtraFeatureDamageCount()
+	, m_iCannotHealCount()
 #if defined(MOD_PROMOTIONS_IMPROVEMENT_BONUS)
 	, m_iNearbyImprovementCombatBonus()
 	, m_iNearbyImprovementBonusRange()
@@ -443,6 +452,8 @@ CvUnit::CvUnit() :
 	, m_iStackedGreatGeneralExperience()
 	, m_iWonderProductionModifier()
 	, m_iUnitProductionModifier()
+	, m_iTileDamageIfNotMoved()
+	, m_iFortifiedModifier()
 	, m_iNearbyEnemyDamage()
 	, m_iAdjacentCityDefenseMod()
 	, m_iGGGAXPPercent()
@@ -508,6 +519,8 @@ CvUnit::CvUnit() :
 #if defined(MOD_BALANCE_CORE)
 	, m_aiNumTimesAttackedThisTurn()
 	, m_yieldFromScouting()
+	, m_piYieldFromAncientRuins()
+	, m_piYieldFromTRPlunder()
 #endif
 #if defined(MOD_CIV6_WORKER)
 	, m_iBuilderStrength()
@@ -1418,6 +1431,9 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iAOEDamageOnKill = 0;
 	m_iAOEDamageOnPillage = 0;
 	m_iAoEDamageOnMove = 0;
+	m_seBlockedPromotions.clear();
+	m_seConditionalPromotions.clear();
+	m_vsPlaguesToInflict.clear();
 	m_iPartialHealOnPillage = 0;
 	m_iSplashDamage = 0;
 	m_iMultiAttackBonus = 0;
@@ -1495,6 +1511,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iIgnoreFeatureDamageCount = 0;
 	m_iExtraTerrainDamageCount = 0;
 	m_iExtraFeatureDamageCount = 0;
+	m_iCannotHealCount = 0;
 #if defined(MOD_PROMOTIONS_IMPROVEMENT_BONUS)
 	m_iNearbyImprovementCombatBonus = 0;
 	m_iNearbyImprovementBonusRange = 0;
@@ -1513,6 +1530,8 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iStackedGreatGeneralExperience = 0;
 	m_iWonderProductionModifier = 0;
 	m_iUnitProductionModifier = 0;
+	m_iTileDamageIfNotMoved = 0;
+	m_iFortifiedModifier = 0;
 	m_iNearbyEnemyDamage = 0;
 	m_iAdjacentCityDefenseMod = 0;
 	m_iGGGAXPPercent = 0;
@@ -1555,7 +1574,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_bSpottedEnemy = false;
 	m_iGainsXPFromScouting = 0;
 	m_iGainsXPFromSpotting = 0;
-	m_iGainsXPFromPillaging = 0;
+	m_iXPFromPillaging = 0;
 	m_iCaptureDefeatedEnemyChance = 0;
 	m_iBarbCombatBonus = 0;
 	m_iAdjacentEnemySapMovement = 0;
@@ -1679,12 +1698,14 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 
 	m_YieldModifier.clear();
 	m_YieldChange.clear();
+	m_aiYieldFromCombatExperienceTimes100.clear();
 	m_iGarrisonYieldChange.clear();
 	m_iFortificationYieldChange.clear();
 	for (iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
 		m_YieldModifier.push_back(0);
 		m_YieldChange.push_back(0);
+		m_aiYieldFromCombatExperienceTimes100.push_back(0);
 		m_iGarrisonYieldChange.push_back(0);
 		m_iFortificationYieldChange.push_back(0);
 	}
@@ -1752,6 +1773,8 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 		m_terrainImpassableCount.clear();
 		m_extraTerrainAttackPercent.clear();
 		m_extraTerrainDefensePercent.clear();
+		m_vTerrainModifierAttack.clear();
+		m_vTerrainModifierDefense.clear();
 
 		m_ignoreFeatureCostInCount.clear();
 		m_ignoreFeatureCostFromCount.clear();
@@ -1775,16 +1798,22 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 		m_aiNumTimesAttackedThisTurn.clear();
 		m_aiNumTimesAttackedThisTurn.resize(REALLY_MAX_PLAYERS);
 		m_yieldFromScouting.clear();
+		m_piYieldFromAncientRuins.clear();
+		m_piYieldFromTRPlunder.clear();
 		
 		m_yieldFromKills.resize(NUM_YIELD_TYPES);
 		m_yieldFromBarbarianKills.resize(NUM_YIELD_TYPES);
 		m_yieldFromScouting.resize(NUM_YIELD_TYPES);
+		m_piYieldFromAncientRuins.resize(NUM_YIELD_TYPES);
+		m_piYieldFromTRPlunder.resize(NUM_YIELD_TYPES);
 
 		for(int i = 0; i < NUM_YIELD_TYPES; i++)
 		{
 			m_yieldFromKills[i] = 0;
 			m_yieldFromBarbarianKills[i] = 0;
 			m_yieldFromScouting[i] = 0;
+			m_piYieldFromAncientRuins[i] = 0;
+			m_piYieldFromTRPlunder[i] = 0;
 		}
 
 		for (int iI = 0; iI < REALLY_MAX_PLAYERS; iI++)
@@ -1795,6 +1824,10 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 		ASSERT_DEBUG((0 < GC.getNumUnitCombatClassInfos()), "GC.getNumUnitCombatClassInfos() is not greater than zero but an array is being allocated in CvUnit::reset");
 		m_extraUnitCombatModifier.clear();
 		m_extraUnitCombatModifier.resize(GC.getNumUnitCombatClassInfos());
+		m_extraUnitCombatModifierAttack.clear();
+		m_extraUnitCombatModifierAttack.resize(GC.getNumUnitCombatClassInfos());
+		m_extraUnitCombatModifierDefense.clear();
+		m_extraUnitCombatModifierDefense.resize(GC.getNumUnitCombatClassInfos());
 #if defined(MOD_BALANCE_CORE)
 		m_iCombatModPerAdjacentUnitCombatModifier.clear();
 		m_iCombatModPerAdjacentUnitCombatModifier.resize(GC.getNumUnitCombatClassInfos());
@@ -1806,6 +1839,8 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 		for(int i = 0; i < GC.getNumUnitCombatClassInfos(); i++)
 		{
 			m_extraUnitCombatModifier[i] = 0;
+			m_extraUnitCombatModifierAttack[i] = 0;
+			m_extraUnitCombatModifierDefense[i] = 0;
 #if defined(MOD_BALANCE_CORE)
 			m_iCombatModPerAdjacentUnitCombatModifier[i] = 0;
 			m_iCombatModPerAdjacentUnitCombatAttackMod[i] = 0;
@@ -1914,6 +1949,8 @@ void CvUnit::uninitInfos()
 	m_featureImpassableCount.clear();
 	m_extraTerrainAttackPercent.clear();
 	m_extraTerrainDefensePercent.clear();
+	m_vTerrainModifierAttack.clear();
+	m_vTerrainModifierDefense.clear();
 	m_extraFeatureAttackPercent.clear();
 	m_extraFeatureDefensePercent.clear();
 
@@ -1928,8 +1965,12 @@ void CvUnit::uninitInfos()
 	m_yieldFromBarbarianKills.clear();
 #if defined(MOD_BALANCE_CORE)
 	m_yieldFromScouting.clear();
+	m_piYieldFromAncientRuins.clear();
+	m_piYieldFromTRPlunder.clear();
 #endif
 	m_extraUnitCombatModifier.clear();
+	m_extraUnitCombatModifierAttack.clear();
+	m_extraUnitCombatModifierDefense.clear();
 	m_unitClassModifier.clear();
 }
 
@@ -7570,6 +7611,9 @@ bool CvUnit::canHeal(const CvPlot* pPlot, bool bCheckMovement) const
 {
 	VALIDATE_OBJECT();
 
+	if (IsCannotHeal())
+		return false;
+
 	if (isHuman() && !IsFortified())
 	{
 		if (!canEndTurnAtPlot(pPlot))
@@ -10201,6 +10245,16 @@ bool CvUnit::canPillage(const CvPlot* pPlot) const
 	return true;
 }
 
+int CvUnit::getCurrentPillageHeal() const
+{
+	int iPillageHeal = 0;
+	if (!IsCannotHeal())
+	{
+		iPillageHeal = hasHealOnPillage() ? getDamage() : min(getDamage(), (/*25*/ GD_INT_GET(PILLAGE_HEAL_AMOUNT) + getPartialHealOnPillage()));
+	}
+	return iPillageHeal;
+}
+
 bool CvUnit::shouldPillage(const CvPlot* pPlot, bool bConservative) const
 {
 	if (!canPillage(pPlot))
@@ -10208,6 +10262,8 @@ bool CvUnit::shouldPillage(const CvPlot* pPlot, bool bConservative) const
 
 	if (hasFreePillageMove() && pPlot->IsAdjacentCity())
 		return true;
+
+	int iPillageHeal = getCurrentPillageHeal();
 
 	// Citadel here?
 	ImprovementTypes eImprovement = pPlot->getImprovementType();
@@ -10219,7 +10275,7 @@ bool CvUnit::shouldPillage(const CvPlot* pPlot, bool bConservative) const
 	}
 
 	//be careful "wasting" movement for slow units
-	if (GetDanger() > GetCurrHitPoints() + GD_INT_GET(PILLAGE_HEAL_AMOUNT) && getMoves() < GD_INT_GET(MOVE_DENOMINATOR) * 3 && !hasFreePillageMove())
+	if (GetDanger() > GetCurrHitPoints() + iPillageHeal && getMoves() < GD_INT_GET(MOVE_DENOMINATOR) * 3 && !hasFreePillageMove())
 		return false;
 
 	if (pPlot->getOwningCity() != NULL && pPlot->getOwner() != NO_PLAYER && pPlot->getOwner() != BARBARIAN_PLAYER)
@@ -10251,7 +10307,7 @@ bool CvUnit::shouldPillage(const CvPlot* pPlot, bool bConservative) const
 	}
 
 	if (bConservative)
-		return getDamage() > /*25*/ GD_INT_GET(PILLAGE_HEAL_AMOUNT);
+		return getDamage() >= iPillageHeal && iPillageHeal >= GD_INT_GET(PILLAGE_HEAL_AMOUNT);
 
 	return getDamage() > 0;
 }
@@ -10510,13 +10566,14 @@ bool CvUnit::pillage()
 		changeMoves(-GD_INT_GET(MOVE_DENOMINATOR));
 	}
 
-	if (IsGainsXPFromPillaging())
-	{
-		changeExperienceTimes100(/*500*/ GD_INT_GET(BALANCE_SCOUT_XP_BASE) * 500);
-	}
 
 	if(bSuccessfulNonRoadPillage)
 	{
+		if (GetXPFromPillaging() > 0)
+		{
+			changeExperienceTimes100(GetXPFromPillaging() * 100);
+		}
+
 		if (getPillageBonusStrengthPercent() != 0)
 		{
 			SetBaseCombatStrength(getUnitInfo().GetCombat() + ((getPillageBonusStrengthPercent() * getUnitInfo().GetCombat()) / 100));			
@@ -10524,22 +10581,15 @@ bool CvUnit::pillage()
 
 		DoAdjacentPlotDamage(pPlot, getAOEDamageOnPillage(), "TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_AOE_STRIKE_PILLAGE");
 
-		//if the plot isn't guarded by a gainless pillage building for this player, nor this city
-		if (!(pPlot->getOwner() != NO_PLAYER && GET_PLAYER(pPlot->getOwner()).isBorderGainlessPillage()) )
+		if (!IsCannotHeal())
 		{
-			CvCity* pCityOfThisPlot = pPlot->getEffectiveOwningCity();
-			if ( pCityOfThisPlot == NULL || !(pCityOfThisPlot->IsLocalGainlessPillage()) )
+			//if the plot isn't guarded by a gainless pillage building for this player, nor this city
+			if (!(pPlot->getOwner() != NO_PLAYER && GET_PLAYER(pPlot->getOwner()).isBorderGainlessPillage()))
 			{
-				if (hasHealOnPillage())
+				CvCity* pCityOfThisPlot = pPlot->getEffectiveOwningCity();
+				if (pCityOfThisPlot == NULL || !(pCityOfThisPlot->IsLocalGainlessPillage()))
 				{
-					// completely heal unit
-					changeDamage(-getDamage());
-				}
-				else
-				{
-					int iHealAmount = min(getDamage(), /*25*/ GD_INT_GET(PILLAGE_HEAL_AMOUNT));
-					iHealAmount += getPartialHealOnPillage();
-					changeDamage(-iHealAmount);
+						changeDamage(-getCurrentPillageHeal());
 				}
 			}
 		}
@@ -12313,7 +12363,7 @@ bool CvUnit::repairFleet()
 	for (iUnitLoop = 0; iUnitLoop < pPlot->getNumUnits(); iUnitLoop++)
 	{
 		CvUnit *pUnit = pPlot->getUnitByIndex(iUnitLoop);
-		if (pUnit->getOwner() == getOwner() && (pUnit->isEmbarked() || pUnit->getDomainType() == DOMAIN_SEA))
+		if (pUnit->getOwner() == getOwner() && (pUnit->isEmbarked() || pUnit->getDomainType() == DOMAIN_SEA) && !pUnit->IsCannotHeal())
 		{
 			pUnit->changeDamage(-pUnit->getDamage());
 		}
@@ -12329,7 +12379,7 @@ bool CvUnit::repairFleet()
 			for (iUnitLoop = 0; iUnitLoop < pAdjacentPlot->getNumUnits(); iUnitLoop++)
 			{	
 				CvUnit *pUnit = pAdjacentPlot->getUnitByIndex(iUnitLoop);
-				if (pUnit->getOwner() == getOwner() && (pUnit->isEmbarked() || pUnit->getDomainType() == DOMAIN_SEA))
+				if (pUnit->getOwner() == getOwner() && (pUnit->isEmbarked() || pUnit->getDomainType() == DOMAIN_SEA) && !pUnit->IsCannotHeal())
 				{
 					pUnit->changeDamage(-pUnit->getDamage());
 				}
@@ -13826,7 +13876,10 @@ void CvUnit::promote(PromotionTypes ePromotion, int iLeaderUnitId)
 	// Insta-Heal: never earned
 	if (pkPromotionInfo->IsInstaHeal())
 	{
-		changeDamage(/*-50*/ -GD_INT_GET(INSTA_HEAL_RATE));
+		if (!IsCannotHeal())
+		{
+			changeDamage(/*-50*/ -GD_INT_GET(INSTA_HEAL_RATE));
+		}
 	}
 	// Set that we have this Promotion
 	else
@@ -13835,8 +13888,11 @@ void CvUnit::promote(PromotionTypes ePromotion, int iLeaderUnitId)
 
 		if (MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
 		{
-			//Insta-heal removed, gain health with each promotion instead.
-			changeDamage(/*-10*/ -GD_INT_GET(INSTA_HEAL_RATE) / 5);
+			if (!IsCannotHeal())
+			{
+				//Insta-heal removed, gain health with each promotion instead.
+				changeDamage(/*-10*/ -GD_INT_GET(INSTA_HEAL_RATE) / 5);
+			}
 		}
 		if (getOriginCity() != NULL)
 		{
@@ -16005,6 +16061,13 @@ void CvUnit::SetBaseCombatStrength(int iCombat)
 }
 
 //	--------------------------------------------------------------------------------
+void CvUnit::ChangeBaseCombatStrength(int iValue)
+{
+	VALIDATE_OBJECT();
+	SetBaseCombatStrength(GetBaseCombatStrength() + iValue);
+}
+
+//	--------------------------------------------------------------------------------
 int CvUnit::GetBaseCombatStrength() const
 {
 	return m_iBaseCombat;
@@ -16472,6 +16535,11 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 			}
 		}
 
+		// VP Terrain Attack Mod
+		iModifier += GetTerrainModifierAttack(pToPlot->getTerrainType());
+		if (pToPlot->isHills())
+			iModifier += GetTerrainModifierAttack(TERRAIN_HILL);
+
 		////////////////////////
 		// KNOWN ORIGIN PLOT
 		////////////////////////
@@ -16513,6 +16581,20 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 
 		// Unit Class Attack Modifier
 		iModifier += unitClassAttackModifier(pDefender->getUnitClassType());
+
+		// Unit Combat type Modifier
+		UnitCombatTypes combatType = pDefender->getUnitCombatType();
+		if (combatType != NO_UNITCOMBAT)
+		{
+			int iTempModifier = getExtraUnitCombatModifierAttack(combatType);
+
+			//hack: mounted units can have secondary combat class
+			UnitCombatTypes mountedCombat = static_cast<UnitCombatTypes>(GC.getInfoTypeForString("UNITCOMBAT_MOUNTED", true));
+			if (pDefender->getUnitInfo().IsMounted() && combatType != mountedCombat)
+				iTempModifier += getExtraUnitCombatModifierAttack(mountedCombat);
+
+			iModifier += iTempModifier;
+		}
 
 		// Domain Attack Modifier
 		iModifier += getExtraDomainAttack(pDefender->getDomainType());
@@ -16653,6 +16735,11 @@ int CvUnit::GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker
 				iModifier += terrainDefenseModifier(TERRAIN_HILL);
 		}
 
+		// VP Terrain Defense Mod
+		iModifier += GetTerrainModifierDefense(pInPlot->getTerrainType());
+		if (pInPlot->isHills())
+			iModifier += GetTerrainModifierDefense(TERRAIN_HILL);
+
 		// Flanking
 		if (pFromPlot && !bFromRangedAttack && !bQuickAndDirty)
 			iModifier += pInPlot->GetEffectiveFlankingBonus(this, pAttacker, pFromPlot);
@@ -16666,6 +16753,20 @@ int CvUnit::GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker
 	{
 		// Unit Class Defense Modifier
 		iModifier += unitClassDefenseModifier(pAttacker->getUnitClassType());
+
+		// Unit Combat type Modifier
+		UnitCombatTypes combatType = pAttacker->getUnitCombatType();
+		if (combatType != NO_UNITCOMBAT)
+		{
+			int iTempModifier = getExtraUnitCombatModifierDefense(combatType);
+
+			//hack: mounted units can have secondary combat class
+			UnitCombatTypes mountedCombat = static_cast<UnitCombatTypes>(GC.getInfoTypeForString("UNITCOMBAT_MOUNTED", true));
+			if (pAttacker->getUnitInfo().IsMounted() && combatType != mountedCombat)
+				iTempModifier += getExtraUnitCombatModifierDefense(mountedCombat);
+
+			iModifier += iTempModifier;
+		}
 
 		// Domain Defense Modifier
 		iModifier += getExtraDomainDefense(pAttacker->getDomainType());
@@ -16963,6 +17064,11 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 						iModifier += terrainAttackModifier(TERRAIN_HILL);
 				}
 			}
+
+			// VP Terrain Attack Mod
+			iModifier += GetTerrainModifierAttack(pMyPlot->getTerrainType());
+			if (pMyPlot->isHills())
+				iModifier += GetTerrainModifierAttack(TERRAIN_HILL);
 		}
 		else
 		{
@@ -16996,6 +17102,11 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 				if (pMyPlot->isHills())
 					iModifier += terrainDefenseModifier(TERRAIN_HILL);
 			}
+
+			// VP Terrain Defense Mod
+			iModifier += GetTerrainModifierDefense(pMyPlot->getTerrainType());
+			if (pMyPlot->isHills())
+				iModifier += GetTerrainModifierDefense(TERRAIN_HILL);
 		}
 
 		// Bonus for fighting in one's lands
@@ -17174,6 +17285,20 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 			// Unit Class Attack Mod
 			iModifier += unitClassAttackModifier(pOtherUnit->getUnitClassType());
 
+			// Unit Combat type Modifier
+			UnitCombatTypes combatType = pOtherUnit->getUnitCombatType();
+			if (combatType != NO_UNITCOMBAT)
+			{
+				int iTempModifier = getExtraUnitCombatModifierAttack(combatType);
+
+				//hack: mounted units can have secondary combat class
+				UnitCombatTypes mountedCombat = static_cast<UnitCombatTypes>(GC.getInfoTypeForString("UNITCOMBAT_MOUNTED", true));
+				if (pOtherUnit->getUnitInfo().IsMounted() && combatType != mountedCombat)
+					iTempModifier += getExtraUnitCombatModifierAttack(mountedCombat);
+
+				iModifier += iTempModifier;
+			}
+
 			// Domain Attack Mod
 			iModifier += getExtraDomainAttack(pOtherUnit->getDomainType());
 		}
@@ -17183,6 +17308,20 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 		{
 			// Unit Class Defense Mod
 			iModifier += unitClassDefenseModifier(pOtherUnit->getUnitClassType());
+
+			// Unit Combat type Modifier
+			UnitCombatTypes combatType = pOtherUnit->getUnitCombatType();
+			if (combatType != NO_UNITCOMBAT)
+			{
+				int iTempModifier = getExtraUnitCombatModifierDefense(combatType);
+
+				//hack: mounted units can have secondary combat class
+				UnitCombatTypes mountedCombat = static_cast<UnitCombatTypes>(GC.getInfoTypeForString("UNITCOMBAT_MOUNTED", true));
+				if (pOtherUnit->getUnitInfo().IsMounted() && combatType != mountedCombat)
+					iTempModifier += getExtraUnitCombatModifierDefense(mountedCombat);
+
+				iModifier += iTempModifier;
+			}
 
 			// Domain Defense Mod
 			iModifier += getExtraDomainDefense(pOtherUnit->getDomainType());
@@ -17471,6 +17610,38 @@ int CvUnit::GetRangeCombatSplashDamage(const CvPlot* pTargetPlot) const
 	return iTotal;
 }
 
+int CvUnit::EstimatePlagueDamage(const CvUnit* pEnemy) const
+{
+	vector<PlagueInfo> vInflictedPlagues = GetPlaguesToInflict();
+
+	// This unit does not inflict plagues.
+	if (vInflictedPlagues.size() == 0)
+		return 0;
+
+	for (std::vector<PlagueInfo>::iterator it = vInflictedPlagues.begin(); it != vInflictedPlagues.end(); it++)
+	{
+		if (pEnemy->getDomainType() != (*it).eDomain)
+			continue;
+
+		if (!(*it).bApplyOnAttack)
+			continue;
+
+
+		PromotionTypes eInflictedPlague = (*it).ePlague;
+		CvPromotionEntry* pkPlaguePromotionInfo = GC.getPromotionInfo(eInflictedPlague);
+
+		// Is the defender immune to the plague?
+		if (pEnemy->IsPromotionBlocked(eInflictedPlague))
+			continue;
+
+		// return a score based on the apply chance of the plague and its priority
+		// score only the first plague that can be applied
+		return (*it).iApplyChance * (pkPlaguePromotionInfo->GetPlaguePriority() + 1) / 10;
+	}
+	return 0;
+}
+
+
 //	--------------------------------------------------------------------------------
 int CvUnit::GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand, const CvPlot* /*pTargetPlot*/) const
 {
@@ -17609,7 +17780,7 @@ int CvUnit::fortifyModifier() const
 	int iValue = 0;
 	if( IsFortified() )
 	{
-		iValue = /*20*/ GD_INT_GET(FORTIFY_MODIFIER_PER_TURN);
+		iValue = /*20*/ GD_INT_GET(FORTIFY_MODIFIER_PER_TURN) + GetFortifiedModifier();
 	
 		// Apply modifiers
 		int iMod = GET_PLAYER(getOwner()).getUnitFortificationModifier();
@@ -17819,6 +17990,33 @@ void CvUnit::changeExtraFeatureDamageCount(int iValue)
 	}
 }
 
+
+//	--------------------------------------------------------------------------------
+bool CvUnit::IsCannotHeal() const
+{
+	VALIDATE_OBJECT();
+	return getCannotHealCount() > 0;
+}
+
+//	--------------------------------------------------------------------------------
+int CvUnit::getCannotHealCount() const
+{
+	VALIDATE_OBJECT();
+	return m_iCannotHealCount;
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::changeCannotHealCount(int iValue)
+{
+	VALIDATE_OBJECT();
+	if (iValue != 0)
+	{
+		m_iCannotHealCount += iValue;
+	}
+}
+
+
+
 #if defined(MOD_PROMOTIONS_IMPROVEMENT_BONUS)
 int CvUnit::GetNearbyImprovementCombatBonus() const
 {
@@ -17974,6 +18172,26 @@ void CvUnit::ChangeMilitaryProductionModifier(int iValue)
 {
 	VALIDATE_OBJECT();
 	m_iUnitProductionModifier += iValue;
+}
+int CvUnit::GetTileDamageIfNotMoved() const
+{
+	VALIDATE_OBJECT();
+	return m_iTileDamageIfNotMoved;
+}
+void CvUnit::ChangeTileDamageIfNotMoved(int iValue)
+{
+	VALIDATE_OBJECT();
+	m_iTileDamageIfNotMoved += iValue;
+}
+int CvUnit::GetFortifiedModifier() const
+{
+	VALIDATE_OBJECT();
+	return m_iFortifiedModifier;
+}
+void CvUnit::ChangeFortifiedModifier(int iValue)
+{
+	VALIDATE_OBJECT();
+	m_iFortifiedModifier += iValue;
 }
 int CvUnit::getNearbyEnemyDamage() const
 {
@@ -18396,7 +18614,7 @@ void CvUnit::ChangeGainsXPFromScouting(int iValue)
 bool CvUnit::IsGainsXPFromSpotting() const
 {
 	VALIDATE_OBJECT();
-		return (GetGainsXPFromSpotting() > 0);
+	return (GetGainsXPFromSpotting() > 0);
 }
 
 
@@ -18405,43 +18623,34 @@ bool CvUnit::IsGainsXPFromSpotting() const
 int CvUnit::GetGainsXPFromSpotting() const
 {
 	VALIDATE_OBJECT();
-		return m_iGainsXPFromSpotting;
+	return m_iGainsXPFromSpotting;
 }
 
 //	--------------------------------------------------------------------------------
 void CvUnit::ChangeGainsXPFromSpotting(int iValue)
 {
 	VALIDATE_OBJECT();
-		if (iValue != 0)
-		{
-			m_iGainsXPFromSpotting += iValue;
-		}
+	if (iValue != 0)
+	{
+		m_iGainsXPFromSpotting += iValue;
+	}
 }
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::IsGainsXPFromPillaging() const
+int CvUnit::GetXPFromPillaging() const
 {
 	VALIDATE_OBJECT();
-		return (GetGainsXPFromPillaging() > 0);
-}
-
-
-
-//	--------------------------------------------------------------------------------
-int CvUnit::GetGainsXPFromPillaging() const
-{
-	VALIDATE_OBJECT();
-		return m_iGainsXPFromPillaging;
+	return m_iXPFromPillaging;
 }
 
 //	--------------------------------------------------------------------------------
-void CvUnit::ChangeGainsXPFromPillaging(int iValue)
+void CvUnit::ChangeXPFromPillaging(int iValue)
 {
 	VALIDATE_OBJECT();
-		if (iValue != 0)
-		{
-			m_iGainsXPFromPillaging += iValue;
-		}
+	if (iValue != 0)
+	{
+		m_iXPFromPillaging += iValue;
+	}
 }
 
 
@@ -19483,6 +19692,24 @@ void CvUnit::SetYieldChange(YieldTypes eYield, int iValue)
 	ASSERT_DEBUG(eYield < NUM_YIELD_TYPES, "eYield is expected to be within maximum bounds (invalid Index)");
 	m_YieldChange[eYield] = (m_YieldChange[eYield] + iValue);
 }
+
+// Instant yields when getting experience from combat
+int CvUnit::GetYieldFromCombatExperienceTimes100(YieldTypes eYield) const
+{
+	VALIDATE_OBJECT();
+	ASSERT_DEBUG(eYield >= 0, "eYield is expected to be non-negative (invalid Index)");
+	ASSERT_DEBUG(eYield < NUM_YIELD_TYPES, "eYield is expected to be within maximum bounds (invalid Index)");
+	return m_aiYieldFromCombatExperienceTimes100[eYield];
+}
+//	--------------------------------------------------------------------------------
+void CvUnit::SetYieldFromCombatExperienceTimes100(YieldTypes eYield, int iValue)
+{
+	VALIDATE_OBJECT();
+	ASSERT_DEBUG(eYield >= 0, "eYield is expected to be non-negative (invalid Index)");
+	ASSERT_DEBUG(eYield < NUM_YIELD_TYPES, "eYield is expected to be within maximum bounds (invalid Index)");
+	m_aiYieldFromCombatExperienceTimes100[eYield] = (m_aiYieldFromCombatExperienceTimes100[eYield] + iValue);
+}
+
 // Similar to above code but is only for combat units and scales per the units combat strength : yield is placed on the plot itself
 int CvUnit::GetGarrisonYieldChange(YieldTypes eYield) const
 {
@@ -21156,6 +21383,24 @@ void CvUnit::restoreFullMoves()
 	m_bMovedThisTurn = false;
 }
 
+// checks for all conditional promotions the unit has if they should be active this turn and applies/removes promotion effects if necessary
+void CvUnit::updateConditionalPromotions()
+{
+	VALIDATE_OBJECT();
+	std::set<PromotionTypes> seConditionalPromotions = GetConditionalPromotions();
+	for (std::set<PromotionTypes>::iterator iter = seConditionalPromotions.begin(); iter != seConditionalPromotions.end(); iter++)
+	{
+		PromotionTypes ePromotion = *iter;
+		bool bNowActive = arePromotionConditionsFulfilled(ePromotion);
+		if (isPromotionActive(ePromotion) != bNowActive)
+		{
+			setPromotionActive(ePromotion, bNowActive);
+			// for promotions that give additional movement
+			restoreFullMoves();
+		}
+	}
+}
+
 //	--------------------------------------------------------------------------------
 // do not call this to end the turn for a unit!
 // it will not heal and not receive fortification bonuses!
@@ -21422,14 +21667,6 @@ void CvUnit::changeExperienceTimes100(int iChangeTimes100, int iMax, bool bFromC
 		{
 			GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_COMBAT_EXPERIENCE, false, NO_GREATPERSON, NO_BUILDING, iRealExperienceTimes100, false, NO_PLAYER, NULL, false, pOriginCity, getDomainType() == DOMAIN_SEA, true, false, NO_YIELD, this);
 		}
-		else
-		{
-			CvCity* pCapital = GET_PLAYER(getOwner()).getCapitalCity();
-			if (pCapital)
-			{
-				GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_COMBAT_EXPERIENCE, false, NO_GREATPERSON, NO_BUILDING, iRealExperienceTimes100, false, NO_PLAYER, NULL, false, pCapital, getDomainType() == DOMAIN_SEA, true, false, NO_YIELD, this);
-			}
-		}
 	}
 
 	setExperienceTimes100((getExperienceTimes100() + iUnitExperienceTimes100), iMax);
@@ -21623,6 +21860,36 @@ void CvUnit::setHasWithdrawnThisTurn(bool bNewValue)
 {
 	VALIDATE_OBJECT();
 		m_bHasWithdrawnThisTurn = bNewValue;
+}
+
+void CvUnit::DoExtraPlotDamage(CvPlot* pWhere, int iValue, const char* chTextKey)
+{
+	if (iValue < 1 || pWhere == NULL)
+		return;
+
+	for (int iJ = 0; iJ < pWhere->getNumUnits(); iJ++)
+	{
+		CvUnit* pEnemyUnit = pWhere->getUnitByIndex(iJ);
+		//logically we should damage non-enemy units as well? but that is too complex to consider ... 
+		if (pEnemyUnit != NULL && pEnemyUnit->isEnemy(getTeam()) && !pEnemyUnit->isTrade())
+		{
+			if (iValue + pEnemyUnit->getDamage() >= pEnemyUnit->GetMaxHitPoints())
+			{
+				// Earn bonuses for kills?
+				CvPlayer& kAttackingPlayer = GET_PLAYER(getOwner());
+				kAttackingPlayer.DoYieldsFromKill(this, pEnemyUnit);
+			}
+
+			if (chTextKey)
+			{
+				CvString strAppendText = GetLocalizedText(chTextKey);
+				pEnemyUnit->changeDamage(iValue, getOwner(), 0.0, &strAppendText);
+			}
+			else
+				pEnemyUnit->changeDamage(iValue, getOwner(), 0.0);
+
+		}
+	}
 }
 
 int CvUnit::DoAdjacentPlotDamage(CvPlot* pWhere, int iValue, const char* chTextKey)
@@ -21956,13 +22223,13 @@ void CvUnit::changeAOEDamageOnKill(int iChange)
 int CvUnit::getAOEDamageOnPillage() const
 {
 	VALIDATE_OBJECT();
-		return m_iAOEDamageOnPillage;
+	return m_iAOEDamageOnPillage;
 }
 //	--------------------------------------------------------------------------------
 void CvUnit::changeAOEDamageOnPillage(int iChange)
 {
 	VALIDATE_OBJECT();
-		m_iAOEDamageOnPillage = (m_iAOEDamageOnPillage + iChange);
+	m_iAOEDamageOnPillage = (m_iAOEDamageOnPillage + iChange);
 	ASSERT_DEBUG(getAOEDamageOnPillage() >= 0);
 }
 
@@ -21984,13 +22251,13 @@ void CvUnit::changeAoEDamageOnMove(int iChange)
 int CvUnit::getPartialHealOnPillage() const
 {
 	VALIDATE_OBJECT();
-		return m_iPartialHealOnPillage;
+	return m_iPartialHealOnPillage;
 }
 //	--------------------------------------------------------------------------------
 void CvUnit::changePartialHealOnPillage(int iChange)
 {
 	VALIDATE_OBJECT();
-		m_iPartialHealOnPillage = (m_iPartialHealOnPillage + iChange);
+	m_iPartialHealOnPillage = (m_iPartialHealOnPillage + iChange);
 	ASSERT_DEBUG(getPartialHealOnPillage() >= 0);
 }
 
@@ -21998,13 +22265,13 @@ void CvUnit::changePartialHealOnPillage(int iChange)
 int CvUnit::getSplashDamage() const
 {
 	VALIDATE_OBJECT();
-		return m_iSplashDamage;
+	return m_iSplashDamage;
 }
 //	--------------------------------------------------------------------------------
 void CvUnit::changeSplashDamage(int iChange)
 {
 	VALIDATE_OBJECT();
-		m_iSplashDamage = (m_iSplashDamage + iChange);
+	m_iSplashDamage = (m_iSplashDamage + iChange);
 	ASSERT_DEBUG(getSplashDamage() >= 0);
 }
 
@@ -22012,26 +22279,26 @@ void CvUnit::changeSplashDamage(int iChange)
 int CvUnit::getMultiAttackBonus() const
 {
 	VALIDATE_OBJECT();
-		return m_iMultiAttackBonus;
+	return m_iMultiAttackBonus;
 }
 //	--------------------------------------------------------------------------------
 void CvUnit::changeMultiAttackBonus(int iChange)
 {
 	VALIDATE_OBJECT();
-		m_iMultiAttackBonus = (m_iMultiAttackBonus + iChange);
+	m_iMultiAttackBonus = (m_iMultiAttackBonus + iChange);
 	ASSERT_DEBUG(getMultiAttackBonus() >= 0);
 }
 //	--------------------------------------------------------------------------------
 int CvUnit::getLandAirDefenseValue() const
 {
 	VALIDATE_OBJECT();
-		return m_iLandAirDefenseValue;
+	return m_iLandAirDefenseValue;
 }
 //	--------------------------------------------------------------------------------
 void CvUnit::changeLandAirDefenseValue(int iChange)
 {
 	VALIDATE_OBJECT();
-		m_iLandAirDefenseValue = (m_iLandAirDefenseValue + iChange);
+	m_iLandAirDefenseValue = (m_iLandAirDefenseValue + iChange);
 	ASSERT_DEBUG(getLandAirDefenseValue() >= 0);
 }
 
@@ -22202,72 +22469,6 @@ void CvUnit::changeExtraWithdrawal(int iChange)
 	ASSERT_DEBUG(getExtraWithdrawal() >= 0);
 }
 
-//	--------------------------------------------------------------------------------
-/// Returns a vector containing the plagues that a unit can attempt to inflict
-vector<int> CvUnit::GetInflictedPlagueIDs() const
-{
-	vector<int> result;
-
-	for (int iLoop = 0; iLoop < GC.getNumPromotionInfos(); iLoop++)
-	{
-		const PromotionTypes ePromotion = static_cast<PromotionTypes>(iLoop);
-		CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(ePromotion);
-		if (pkPromotionInfo && pkPromotionInfo->GetPlagueChance() > 0)
-		{
-			PromotionTypes eInflictedPlague = (PromotionTypes)pkPromotionInfo->GetPlaguePromotion();
-			if (eInflictedPlague != NO_PROMOTION && isHasPromotion(ePromotion))
-			{
-				CvPromotionEntry* pkPlaguePromotionInfo = GC.getPromotionInfo(eInflictedPlague);
-				if (pkPlaguePromotionInfo)
-				{
-					int iPlagueID = pkPlaguePromotionInfo->GetPlagueID();
-					if (std::find(result.begin(), result.end(), iPlagueID) == result.end())
-						result.push_back(iPlagueID);
-				}
-			}
-		}
-	}
-
-	return result;
-}
-
-/// What specific promotion can be inflicted by this unit with iPlagueID?
-PromotionTypes CvUnit::GetInflictedPlague(int iPlagueID, int& iPlagueChance) const
-{
-	int iHighestPriority = -1;
-	PromotionTypes eHighestPlague = NO_PROMOTION;
-
-	for (int iLoop = 0; iLoop < GC.getNumPromotionInfos(); iLoop++)
-	{
-		const PromotionTypes ePromotion = static_cast<PromotionTypes>(iLoop);
-		CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(ePromotion);
-		if (pkPromotionInfo && pkPromotionInfo->GetPlagueChance() > 0)
-		{
-			PromotionTypes eInflictedPlague = (PromotionTypes)pkPromotionInfo->GetPlaguePromotion();
-			if (eInflictedPlague != NO_PROMOTION && isHasPromotion(ePromotion))
-			{
-				CvPromotionEntry* pkPlaguePromotionInfo = GC.getPromotionInfo(eInflictedPlague);
-				if (pkPlaguePromotionInfo)
-				{
-					int iPromotionPlagueID = pkPlaguePromotionInfo->GetPlagueID();
-					if (iPlagueID == iPromotionPlagueID)
-					{
-						int iPlaguePriority = pkPlaguePromotionInfo->GetPlaguePriority();
-						if (iPlaguePriority > iHighestPriority)
-						{
-							iHighestPriority = iPlaguePriority;
-							eHighestPlague = eInflictedPlague;
-							iPlagueChance = pkPromotionInfo->GetPlagueChance();
-						}
-					}
-				}
-			}
-		}
-	}
-
-	return eHighestPlague;
-}
-
 /// Does this unit have a plague?
 /// iPlagueID = With a specific plague ID only? Defaults to -1 (any plague).
 /// iMinimumPriority = With a specific priority or higher only? Defaults to -1 (any priority). Requires iPlagueID to be specified.
@@ -22322,39 +22523,6 @@ void CvUnit::RemovePlague(int iPlagueID, int iHigherPriority)
 			}
 		}
 	}
-}
-
-/// Is this unit immune to a plague?
-/// iPlagueID = With a specific plague ID only? Defaults to -1 (any plague).
-bool CvUnit::ImmuneToPlague(int iPlagueID) const
-{
-	for (int iLoop = 0; iLoop < GC.getNumPromotionInfos(); iLoop++)
-	{
-		const PromotionTypes ePromotion = static_cast<PromotionTypes>(iLoop);
-		CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(ePromotion);
-		if (pkPromotionInfo)
-		{
-			int iPlagueImmunityID = pkPromotionInfo->GetPlagueIDImmunity();
-			if (iPlagueImmunityID != -1 && isHasPromotion(ePromotion))
-			{
-				if (iPlagueID == -1 || iPlagueID == iPlagueImmunityID)
-					return true;
-			}
-		}
-	}
-
-	return false;
-}
-
-bool CvUnit::CanPlague(CvUnit* pOtherUnit) const
-{
-	if (pOtherUnit == NULL || pOtherUnit->isDelayedDeath())
-		return false;
-
-	if (getDomainType() != pOtherUnit->getDomainType())
-		return false;
-
-	return true;
 }
 
 void CvUnit::setContractUnit(ContractTypes eContract)
@@ -26270,6 +26438,79 @@ void CvUnit::changeExtraTerrainDefensePercent(TerrainTypes eIndex, int iChange)
 	m_extraTerrainDefensePercent.push_back(make_pair(eIndex, iChange));
 }
 
+
+//	--------------------------------------------------------------------------------
+int CvUnit::GetTerrainModifierDefense(TerrainTypes eIndex) const
+{
+	for (TerrainTypeCounter::const_iterator it = m_vTerrainModifierDefense.begin(); it != m_vTerrainModifierDefense.end(); ++it)
+	{
+		if (it->first == eIndex)
+			return it->second;
+	}
+
+	return 0;
+}
+
+
+//	--------------------------------------------------------------------------------
+void CvUnit::ChangeTerrainModifierDefense(TerrainTypes eIndex, int iChange)
+{
+	if (iChange == 0)
+		return;
+
+	TerrainTypeCounter& mVec = m_vTerrainModifierDefense;
+	for (TerrainTypeCounter::iterator it = mVec.begin(); it != mVec.end(); ++it)
+	{
+		if (it->first == eIndex)
+		{
+			it->second += iChange;
+
+			if (it->second == 0)
+				mVec.erase(it);
+
+			return;
+		}
+	}
+
+	m_vTerrainModifierDefense.push_back(make_pair(eIndex, iChange));
+}
+
+//	--------------------------------------------------------------------------------
+int CvUnit::GetTerrainModifierAttack(TerrainTypes eIndex) const
+{
+	for (TerrainTypeCounter::const_iterator it = m_vTerrainModifierAttack.begin(); it != m_vTerrainModifierAttack.end(); ++it)
+	{
+		if (it->first == eIndex)
+			return it->second;
+	}
+
+	return 0;
+}
+
+
+//	--------------------------------------------------------------------------------
+void CvUnit::ChangeTerrainModifierAttack(TerrainTypes eIndex, int iChange)
+{
+	if (iChange == 0)
+		return;
+
+	TerrainTypeCounter& mVec = m_vTerrainModifierAttack;
+	for (TerrainTypeCounter::iterator it = mVec.begin(); it != mVec.end(); ++it)
+	{
+		if (it->first == eIndex)
+		{
+			it->second += iChange;
+
+			if (it->second == 0)
+				mVec.erase(it);
+
+			return;
+		}
+	}
+
+	m_vTerrainModifierAttack.push_back(make_pair(eIndex, iChange));
+}
+
 //	--------------------------------------------------------------------------------
 int CvUnit::getExtraFeatureAttackPercent(FeatureTypes eIndex) const
 {
@@ -26494,6 +26735,50 @@ void CvUnit::changeYieldFromScouting(YieldTypes eIndex, int iChange)
 		m_yieldFromScouting[eIndex] =  m_yieldFromScouting[eIndex] + iChange;
 	}
 }
+//	--------------------------------------------------------------------------------
+int CvUnit::getYieldFromAncientRuins(YieldTypes eIndex) const
+{
+	VALIDATE_OBJECT();
+	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	return m_piYieldFromAncientRuins[eIndex];
+}
+
+
+//	--------------------------------------------------------------------------------
+void CvUnit::changeYieldFromAncientRuins(YieldTypes eIndex, int iChange)
+{
+	VALIDATE_OBJECT();
+	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+
+	if (iChange != 0)
+	{
+		m_piYieldFromAncientRuins[eIndex] = m_piYieldFromAncientRuins[eIndex] + iChange;
+	}
+}
+//	--------------------------------------------------------------------------------
+int CvUnit::getYieldFromTRPlunder(YieldTypes eIndex) const
+{
+	VALIDATE_OBJECT();
+	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	return m_piYieldFromTRPlunder[eIndex];
+}
+
+
+//	--------------------------------------------------------------------------------
+void CvUnit::changeYieldFromTRPlunder(YieldTypes eIndex, int iChange)
+{
+	VALIDATE_OBJECT();
+	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+
+	if (iChange != 0)
+	{
+		m_piYieldFromTRPlunder[eIndex] = m_piYieldFromTRPlunder[eIndex] + iChange;
+	}
+}
 #endif
 //	--------------------------------------------------------------------------------
 int CvUnit::getYieldFromKills(YieldTypes eIndex) const
@@ -26558,6 +26843,44 @@ void CvUnit::changeExtraUnitCombatModifier(UnitCombatTypes eIndex, int iChange)
 	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	ASSERT_DEBUG(eIndex < GC.getNumUnitCombatClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	m_extraUnitCombatModifier[eIndex] =  m_extraUnitCombatModifier[eIndex] + iChange;
+}
+
+//	--------------------------------------------------------------------------------
+int CvUnit::getExtraUnitCombatModifierAttack(UnitCombatTypes eIndex) const
+{
+	VALIDATE_OBJECT();
+	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT_DEBUG(eIndex < GC.getNumUnitCombatClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	return m_extraUnitCombatModifierAttack[eIndex];
+}
+
+
+//	--------------------------------------------------------------------------------
+void CvUnit::changeExtraUnitCombatModifierAttack(UnitCombatTypes eIndex, int iChange)
+{
+	VALIDATE_OBJECT();
+	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT_DEBUG(eIndex < GC.getNumUnitCombatClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	m_extraUnitCombatModifierAttack[eIndex] = m_extraUnitCombatModifierAttack[eIndex] + iChange;
+}
+
+//	--------------------------------------------------------------------------------
+int CvUnit::getExtraUnitCombatModifierDefense(UnitCombatTypes eIndex) const
+{
+	VALIDATE_OBJECT();
+	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT_DEBUG(eIndex < GC.getNumUnitCombatClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	return m_extraUnitCombatModifierDefense[eIndex];
+}
+
+
+//	--------------------------------------------------------------------------------
+void CvUnit::changeExtraUnitCombatModifierDefense(UnitCombatTypes eIndex, int iChange)
+{
+	VALIDATE_OBJECT();
+	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT_DEBUG(eIndex < GC.getNumUnitCombatClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	m_extraUnitCombatModifierDefense[eIndex] = m_extraUnitCombatModifierDefense[eIndex] + iChange;
 }
 
 
@@ -26924,6 +27247,88 @@ bool CvUnit::canAcquirePromotionAny() const
 }
 
 //	--------------------------------------------------------------------------------
+std::set<PromotionTypes> CvUnit::GetConditionalPromotions() const
+{
+	return m_seConditionalPromotions;
+}
+
+//	--------------------------------------------------------------------------------
+bool CvUnit::IsPromotionBlocked(PromotionTypes eIndex) const
+{
+	VALIDATE_OBJECT();
+	return m_seBlockedPromotions.count(eIndex) > 0;
+}
+//	--------------------------------------------------------------------------------
+void CvUnit::SetPromotionBlocked(PromotionTypes eIndex, bool bNewValue)
+{
+	VALIDATE_OBJECT();
+	if (bNewValue)
+	{
+		m_seBlockedPromotions.insert(eIndex);
+	}
+	else
+	{
+		m_seBlockedPromotions.erase(eIndex);
+	}
+}
+
+//	--------------------------------------------------------------------------------
+std::vector<PlagueInfo> CvUnit::GetPlaguesToInflict() const
+{
+	VALIDATE_OBJECT();
+	return m_vsPlaguesToInflict;
+}
+//	--------------------------------------------------------------------------------
+void CvUnit::ModifyPlaguesToInflict(PlagueInfo sPlagueInfo, bool bAdd)
+{
+	VALIDATE_OBJECT();
+	if (bAdd)
+	{
+		m_vsPlaguesToInflict.push_back(sPlagueInfo);
+		// sort plagues by descending priority, so low-ranking plagues aren't applied before high-ranking ones that overwrite them
+		std::stable_sort(m_vsPlaguesToInflict.begin(), m_vsPlaguesToInflict.end());
+	}
+	else
+	{
+		// remove the first occurrence of this plague that we find
+		std::vector<PlagueInfo>::iterator it = std::find(m_vsPlaguesToInflict.begin(), m_vsPlaguesToInflict.end(), sPlagueInfo);
+		if (it != m_vsPlaguesToInflict.end())
+		{
+			m_vsPlaguesToInflict.erase(it);
+		}
+		else
+		{
+			UNREACHABLE();
+		}
+	}
+}
+
+//	--------------------------------------------------------------------------------
+bool CvUnit::arePromotionConditionsFulfilled(PromotionTypes eIndex) const
+{
+	VALIDATE_OBJECT();
+	ASSERT_DEBUG(eIndex != NO_PROMOTION && eIndex < GC.getNumPromotionInfos());
+
+	CvPromotionEntry& thisPromotion = *GC.getPromotionInfo(eIndex);
+	ASSERT_DEBUG(thisPromotion.IsConditionalPromotion(), "Trying to check whether promotion conditions are fulfilled for a non-conditional promotion");
+
+	int iMinEffectiveHealth = thisPromotion.GetMinEffectiveHealth();
+	if (iMinEffectiveHealth > 0)
+	{
+		if (100 * getDamage() / GetMaxHitPoints() > 100 - iMinEffectiveHealth)
+			return false;
+	}
+
+	if (thisPromotion.IsRequiresLeadership())
+	{
+		if (!IsNearGreatGeneral())
+			return false;
+	}
+
+	return true;
+}
+
+//	--------------------------------------------------------------------------------
 bool CvUnit::isHasPromotion(PromotionTypes eIndex) const
 {
 	VALIDATE_OBJECT();
@@ -26935,8 +27340,6 @@ bool CvUnit::isHasPromotion(PromotionTypes eIndex) const
 void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 {
 	VALIDATE_OBJECT();
-	int iChange = 0;
-	int iI = 0;
 
 	if (eIndex == NO_PROMOTION || eIndex >= GC.getNumPromotionInfos())
 		return;
@@ -26950,6 +27353,25 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 				return;
 			else if (MOD_PROMOTIONS_DEEP_WATER_EMBARKATION && thisPromotion.IsEmbarkedDeepWater())
 				return;
+		}
+
+		if (bNewValue && IsPromotionBlocked(eIndex))
+			return;
+
+		// Plague Stuff
+		int iPlagueID = thisPromotion.GetPlagueID();
+		if (iPlagueID > -1 && bNewValue)
+		{
+			//  Higher priority plagues with the same ID block lower priority plagues from being added to the inflicted unit
+			if (HasPlague(iPlagueID, thisPromotion.GetPlaguePriority() + 1))
+				return;
+
+			// If this plague applies a penalty to Work Rate modifier (Prisoners of War), the unit must have a work rate > 1 (1 is used for instant builds)
+			if (thisPromotion.GetWorkRateMod() < 0 && workRate(true) <= 1)
+				return;
+
+			// If we just got a plague, remove any weaker version of the plague
+			RemovePlague(iPlagueID, thisPromotion.GetPlaguePriority());
 		}
 
 		// Firaxis only use the CanMoveAllTerrain promotion in the Smokey Skies scenario,
@@ -26976,468 +27398,507 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 			}
 		}
 
-		// Plague Stuff
-		int iPlagueID = thisPromotion.GetPlagueID();
-		int iPlagueImmunityID = thisPromotion.GetPlagueIDImmunity();
+		// Blocked Promotions
+		std::set<int> sBlockedPromotions = thisPromotion.GetBlockedPromotions();
+		std::set<int>::const_iterator it = sBlockedPromotions.begin();
+		while (it != sBlockedPromotions.end()) {
+			PromotionTypes eBlockedPromotion = (PromotionTypes)(*it);
 
-		// ERROR! This should not happen.
-		if (iPlagueID > -1 && iPlagueID == iPlagueImmunityID)
-			return;
+			// ERROR! This should not happen.
+			if (eBlockedPromotion == eIndex)
+				continue;
 
-		if (bNewValue)
+			SetPromotionBlocked(eBlockedPromotion, bNewValue);
+			// remove existing promotion if it is now blocked
+			if (bNewValue && HasPromotion(eBlockedPromotion))
+			{
+				setHasPromotion(eBlockedPromotion, false);
+			}
+			++it;
+		}
+
+		// Plagues
+		std::vector<PlagueInfo> sPlaguesToInflict = thisPromotion.GetPlagues();
+		for (unsigned int ui = 0; ui < sPlaguesToInflict.size(); ui++)
 		{
-			if (iPlagueID > -1)
-			{
-				// Is this a plague that we're immune to? Abort!
-				if (ImmuneToPlague(iPlagueID))
-					return;
-
-				// If this plague applies a penalty to Work Rate modifier (Prisoners of War), the unit must have a work rate > 1 (1 is used for instant builds)
-				if (thisPromotion.GetWorkRateMod() < 0 && workRate(true) <= 1)
-					return;
-
-				// If we just got a plague, remove any weaker version of the plague
-				RemovePlague(iPlagueID, thisPromotion.GetPlaguePriority());
-			}
-			// If we just got immunity to a plague, remove the plague
-			if (iPlagueImmunityID > -1)
-			{
-				RemovePlague(iPlagueImmunityID, -1);
-			}
+			ModifyPlaguesToInflict(sPlaguesToInflict[ui], bNewValue);
 		}
 
 		m_Promotions.SetPromotion(eIndex, bNewValue);
-		iChange = ((isHasPromotion(eIndex)) ? 1 : -1);
 
-		// Promotions will set Invisibility once but not change it later
-		if(getInvisibleType() == NO_INVISIBLE && thisPromotion.GetInvisibleType() != NO_INVISIBLE)
+		if (thisPromotion.IsConditionalPromotion())
 		{
-			setInvisibleType((InvisibleTypes) thisPromotion.GetInvisibleType());
-		}
-		if(getSeeInvisibleType() == NO_INVISIBLE && thisPromotion.GetSeeInvisibleType() != NO_INVISIBLE)
-		{
-			setSeeInvisibleType((InvisibleTypes) thisPromotion.GetSeeInvisibleType());
-		}
-
-		changeBlitzCount((thisPromotion.IsBlitz()) ? iChange : 0);
-		changeAmphibCount((thisPromotion.IsAmphib()) ? iChange : 0);
-		changeRiverCrossingNoPenaltyCount((thisPromotion.IsRiver()) ? iChange : 0);
-		changeEnemyRouteCount((thisPromotion.IsEnemyRoute()) ? iChange : 0);
-		changeRivalTerritoryCount((thisPromotion.IsRivalTerritory()) ? iChange : 0);
-		changeIsSlowInEnemyLandCount((thisPromotion.IsMustSetUpToRangedAttack()) ? iChange : 0); //intended. promotion purpose was redefined
-		changeRangedSupportFireCount((thisPromotion.IsRangedSupportFire()) ? iChange : 0);
-		changeAlwaysHealCount((thisPromotion.IsAlwaysHeal()) ? iChange : 0);
-		changeHealOutsideFriendlyCount((thisPromotion.IsHealOutsideFriendly()) ? iChange : 0);
-		changeHillsDoubleMoveCount((thisPromotion.IsHillsDoubleMove()) ? iChange : 0);
-		changeRiverDoubleMoveCount((thisPromotion.IsRiverDoubleMove()) ? iChange : 0);
-		changeIgnoreTerrainCostCount((thisPromotion.IsIgnoreTerrainCost()) ? iChange : 0);
-		changeIgnoreTerrainDamageCount((thisPromotion.IsIgnoreTerrainDamage()) ? iChange : 0);
-		changeIgnoreFeatureDamageCount((thisPromotion.IsIgnoreFeatureDamage()) ? iChange : 0);
-		changeExtraTerrainDamageCount((thisPromotion.IsExtraTerrainDamage()) ? iChange : 0);
-		changeExtraFeatureDamageCount((thisPromotion.IsExtraFeatureDamage()) ? iChange : 0);
-
-#if defined(MOD_PROMOTIONS_IMPROVEMENT_BONUS)
-		if (MOD_PROMOTIONS_IMPROVEMENT_BONUS) {
-			if (thisPromotion.GetNearbyImprovementCombatBonus() > 0) {
-				SetNearbyImprovementCombatBonus(thisPromotion.GetNearbyImprovementCombatBonus());
-				SetNearbyImprovementBonusRange(thisPromotion.GetNearbyImprovementBonusRange());
-				SetCombatBonusImprovement(thisPromotion.GetCombatBonusImprovement());
-			}
-		}
-#endif
-#if defined(MOD_BALANCE_CORE)
-		if (thisPromotion.GetNearbyUnitClassBonus() > 0)
-		{
-			SetNearbyUnitClassBonus(thisPromotion.GetNearbyUnitClassBonus());
-			SetNearbyUnitClassBonusRange(thisPromotion.GetNearbyUnitClassBonusRange());
-			SetCombatBonusFromNearbyUnitClass(thisPromotion.GetCombatBonusFromNearbyUnitClass());
-		}
-		ChangeNearbyPromotion(thisPromotion.IsNearbyPromotion() ? iChange : 0);
-		ChangeNearbyUnitPromotionRange(thisPromotion.GetNearbyRange() * iChange);
-		ChangeNearbyCityCombatMod((thisPromotion.GetNearbyCityCombatMod()) * iChange);
-		ChangeNearbyFriendlyCityCombatMod((thisPromotion.GetNearbyFriendlyCityCombatMod()) * iChange);
-		ChangeNearbyEnemyCityCombatMod((thisPromotion.GetNearbyEnemyCityCombatMod()) * iChange);
-		ChangePillageBonusStrengthPercent(thisPromotion.GetPillageBonusStrengthPercent() * iChange);
-		ChangeStackedGreatGeneralExperience(thisPromotion.GetStackedGreatGeneralExperience() * iChange);
-		ChangeWonderProductionModifier(thisPromotion.GetWonderProductionModifier() * iChange);
-		ChangeMilitaryProductionModifier(thisPromotion.GetMilitaryProductionModifier() * iChange);
-		ChangeNearbyEnemyDamage(thisPromotion.GetNearbyEnemyDamage() * iChange);
-		ChangeAdjacentCityDefenseMod(thisPromotion.GetAdjacentCityDefenseMod() * iChange);
-		ChangeGGGAXPPercent(thisPromotion.GetGeneralGoldenAgeExpPercent() * iChange);
-		ChangeGiveCombatMod(thisPromotion.GetGiveCombatMod() * iChange);
-		ChangeGiveHPIfEnemyKilled(thisPromotion.GetGiveHPIfEnemyKilled() * iChange);
-		ChangeGiveExperiencePercent(thisPromotion.GetGiveExperiencePercent() * iChange);
-		ChangeGiveOutsideFriendlyLandsModifier(thisPromotion.GetGiveOutsideFriendlyLandsModifier() * iChange);
-		ChangeGiveExtraAttacks(thisPromotion.GetGiveExtraAttacks() * iChange);
-		ChangeGiveDefenseMod(thisPromotion.GetGiveDefenseMod() * iChange);
-		ChangeIsGiveInvisibility((thisPromotion.IsGiveInvisibility()) ? iChange : 0);
-		ChangeNearbyHealEnemyTerritory(thisPromotion.GetNearbyHealEnemyTerritory() * iChange);
-		ChangeNearbyHealNeutralTerritory(thisPromotion.GetNearbyHealNeutralTerritory() * iChange);
-		ChangeNearbyHealFriendlyTerritory(thisPromotion.GetNearbyHealFriendlyTerritory() * iChange);
-		SetIsGiveOnlyOnStartingTurn(thisPromotion.IsGiveOnlyOnStartingTurn() ? iChange>0 : false);
-		ChangeIsConvertUnit((thisPromotion.IsConvertUnit()) ? iChange : 0);
-		ChangeIsConvertEnemyUnitToBarbarian((thisPromotion.IsConvertEnemyUnitToBarbarian()) ? iChange : 0);
-		ChangeIsConvertOnFullHP((thisPromotion.IsConvertOnFullHP()) ? iChange : 0);
-		ChangeIsConvertOnDamage((thisPromotion.IsConvertOnDamage()) ? iChange : 0);
-		ChangeDamageThreshold(thisPromotion.GetDamageThreshold() * iChange);
-		if (getConvertDamageOrFullHPUnit() == NO_UNIT && thisPromotion.GetConvertDamageOrFullHPUnit() != NO_UNIT)
-		{
-			ChangeConvertDamageOrFullHPUnit((UnitTypes)thisPromotion.GetConvertDamageOrFullHPUnit());
-		}
-#endif
-#if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
-		if (MOD_PROMOTIONS_CROSS_MOUNTAINS) {
-			changeCanCrossMountainsCount((thisPromotion.CanCrossMountains()) ? iChange : 0);
-		}
-#endif
-#if defined(MOD_PROMOTIONS_CROSS_OCEANS)
-		changeCanCrossOceansCount((thisPromotion.CanCrossOceans()) ? iChange : 0);
-#endif
-#if defined(MOD_PROMOTIONS_CROSS_ICE)
-		if (MOD_PROMOTIONS_CROSS_ICE) {
-			changeCanCrossIceCount((thisPromotion.CanCrossIce()) ? iChange : 0);
-		}
-#endif
-#if defined(MOD_PROMOTIONS_GG_FROM_BARBARIANS)
-		if (MOD_PROMOTIONS_GG_FROM_BARBARIANS) {
-			changeGGFromBarbariansCount((thisPromotion.IsGGFromBarbarians()) ? iChange : 0);
-		}
-#endif
-		ChangeRoughTerrainEndsTurnCount((thisPromotion.IsRoughTerrainEndsTurn()) ? iChange : 0);
-		ChangeCapturedUnitsConscriptedCount((thisPromotion.IsCapturedUnitsConscripted()) ? iChange : 0);
-		ChangeHoveringUnitCount((thisPromotion.IsHoveringUnit()) ? iChange : 0);
-		changeFlatMovementCostCount((thisPromotion.IsFlatMovementCost()) ? iChange : 0);
-		changeCanMoveImpassableCount((thisPromotion.IsCanMoveImpassable()) ? iChange : 0);
-		changeOnlyDefensiveCount((thisPromotion.IsOnlyDefensive()) ? iChange : 0);
-		changeNoAttackInOceanCount((thisPromotion.IsNoAttackInOcean()) ? iChange : 0);
-		changeNoDefensiveBonusCount((thisPromotion.IsNoDefensiveBonus()) ? iChange : 0);
-		changeNoCaptureCount((thisPromotion.IsNoCapture()) ? iChange : 0);
-		changeNukeImmuneCount((thisPromotion.IsNukeImmune()) ? iChange: 0);
-		changeHiddenNationalityCount((thisPromotion.IsHiddenNationality()) ? iChange: 0);
-		changeAlwaysHostileCount((thisPromotion.IsAlwaysHostile()) ? iChange: 0);
-		changeNoRevealMapCount((thisPromotion.IsNoRevealMap()) ? iChange: 0);
-		ChangeReconCount((thisPromotion.IsRecon()) ? iChange: 0);
-		changeCanMoveAllTerrainCount((thisPromotion.CanMoveAllTerrain()) ? iChange: 0);
-		changeCanMoveAfterAttackingCount((thisPromotion.IsCanMoveAfterAttacking()) ? iChange: 0);
-		ChangeAirSweepCapableCount((thisPromotion.IsAirSweepCapable()) ? iChange: 0);
-		ChangeEmbarkAbilityCount((thisPromotion.IsAllowsEmbarkation()) ? iChange: 0);
-		ChangeRangeAttackIgnoreLOSCount((thisPromotion.IsRangeAttackIgnoreLOS()) ? iChange: 0);
-		ChangeHealIfDefeatExcludeBarbariansCount((thisPromotion.IsHealIfDefeatExcludeBarbarians()) ? iChange: 0);
-		changeHealOnPillageCount((thisPromotion.IsHealOnPillage()) ? iChange : 0);
-		changeFreePillageMoveCount((thisPromotion.IsFreePillageMoves()) ? iChange: 0);
-		ChangeEmbarkAllWaterCount((thisPromotion.IsEmbarkedAllWater()) ? iChange: 0);
-#if defined(MOD_PROMOTIONS_DEEP_WATER_EMBARKATION)
-		ChangeEmbarkDeepWaterCount((thisPromotion.IsEmbarkedDeepWater()) ? iChange: 0);
-#endif
-		ChangeCityAttackOnlyCount((thisPromotion.IsCityAttackSupport()) ? iChange: 0);
-		ChangeCaptureDefeatedEnemyCount((thisPromotion.IsCaptureDefeatedEnemy()) ? iChange : 0);
-#if defined(MOD_BALANCE_CORE)
-		changeAOEDamageOnKill(thisPromotion.GetAOEDamageOnKill() *  iChange);
-		changeAOEDamageOnPillage(thisPromotion.GetAOEDamageOnPillage() * iChange);
-		changeAoEDamageOnMove(thisPromotion.GetAoEDamageOnMove() *  iChange);
-		changePartialHealOnPillage(thisPromotion.GetPartialHealOnPillage() * iChange);
-		changeSplashDamage(thisPromotion.GetSplashDamage() *  iChange);
-		changeMultiAttackBonus(thisPromotion.GetMultiAttackBonus() *  iChange);
-		changeLandAirDefenseValue(thisPromotion.GetLandAirDefenseValue() *  iChange);
-		changeMountainsDoubleMoveCount((thisPromotion.IsMountainsDoubleMove()) ? iChange : 0);
-		changeEmbarkFlatCostCount((thisPromotion.IsEmbarkFlatCost()) ? iChange : 0);
-		changeDisembarkFlatCostCount((thisPromotion.IsDisembarkFlatCost()) ? iChange : 0);
-		ChangeCaptureDefeatedEnemyChance((thisPromotion.GetCaptureDefeatedEnemyChance()) * iChange);
-		ChangeBarbarianCombatBonus((thisPromotion.GetBarbarianCombatBonus()) * iChange);
-		ChangeAdjacentEnemySapMovement((thisPromotion.GetAdjacentEnemySapMovement()) * iChange);
-		ChangeGainsXPFromScouting((thisPromotion.IsGainsXPFromScouting()) ? iChange: 0);
-		ChangeGainsXPFromPillaging((thisPromotion.IsGainsXPFromPillaging()) ? iChange : 0);
-		ChangeGainsXPFromSpotting((thisPromotion.IsGainsXPFromSpotting()) ? iChange : 0);
-		ChangeCannotBeCapturedCount((thisPromotion.CannotBeCaptured()) ? iChange: 0);
-		ChangeForcedDamageValue((thisPromotion.ForcedDamageValue()) * iChange);
-		ChangeChangeDamageValue((thisPromotion.ChangeDamageValue()) * iChange);
-		ChangeMoraleBreakChance((thisPromotion.GetMoraleBreakChance()) * iChange);
-		ChangeDamageAoEFortified((thisPromotion.GetDamageAoEFortified()) * iChange);
-		ChangeWorkRateMod((thisPromotion.GetWorkRateMod()) * iChange);
-		ChangeDamageReductionCityAssault((thisPromotion.GetDamageReductionCityAssault()) * iChange);
-		if(thisPromotion.PromotionDuration() != 0)
-		{
-			if(bNewValue)
+			if (bNewValue)
 			{
-				//SETS promotion duration, as we don't want to change it every time we get the promotion (this just stores the max length of the promotion)
-				ChangePromotionDuration(eIndex, (thisPromotion.PromotionDuration() * iChange) - getPromotionDuration(eIndex));
-				if(getPromotionDuration(eIndex) > 0)
+				// if a conditional promotion is given, check if the effects should be applied now
+				if (arePromotionConditionsFulfilled(eIndex))
 				{
-					SetTurnPromotionGained(eIndex, GC.getGame().getGameTurn());
+					setPromotionActive(eIndex, bNewValue);
 				}
+				m_seConditionalPromotions.insert(eIndex);
 			}
 			else
 			{
-				ChangePromotionDuration(NO_PROMOTION, 0);
-			}
-		}
-		if(thisPromotion.NegatesPromotion() != NO_PROMOTION)
-		{
-			if(bNewValue)
-			{
-				SetNegatorPromotion(thisPromotion.NegatesPromotion());
-			}
-			else
-			{
-				SetNegatorPromotion(-1);
-			}
-		}
-		ChangeIsStrongerDamaged(thisPromotion.IsStrongerDamaged() ? iChange : 0);
-		ChangeIsFightWellDamaged(thisPromotion.IsFightWellDamaged() ? iChange : 0);
-		ChangeGoodyHutYieldBonus(thisPromotion.GetGoodyHutYieldBonus() * iChange);
-		ChangeReligiousPressureModifier(thisPromotion.GetReligiousPressureModifier() * iChange);
-#endif
-		ChangeCanHeavyChargeCount((thisPromotion.IsCanHeavyCharge()) ? iChange : 0);
-
-		ChangeEmbarkExtraVisibility((thisPromotion.GetEmbarkExtraVisibility()) * iChange);
-		ChangeEmbarkDefensiveModifier((thisPromotion.GetEmbarkDefenseModifier()) * iChange);
-		ChangeCapitalDefenseModifier((thisPromotion.GetCapitalDefenseModifier()) * iChange);
-		ChangeCapitalDefenseFalloff((thisPromotion.GetCapitalDefenseFalloff()) * iChange);
-		ChangeCityAttackPlunderModifier((thisPromotion.GetCityAttackPlunderModifier()) *  iChange);
-		ChangeReligiousStrengthLossRivalTerritory((thisPromotion.GetReligiousStrengthLossRivalTerritory()) *  iChange);
-		ChangeTradeMissionInfluenceModifier((thisPromotion.GetTradeMissionInfluenceModifier()) * iChange);
-		ChangeTradeMissionGoldModifier((thisPromotion.GetTradeMissionGoldModifier()) * iChange);
-		ChangeDiploMissionInfluence((thisPromotion.GetDiploMissionInfluence()) * iChange);
-		changeDropRange(thisPromotion.GetDropRange() * iChange);
-		changeExtraVisibilityRange(thisPromotion.GetVisibilityChange() * iChange);
-#if defined(MOD_PROMOTIONS_VARIABLE_RECON)
-		changeExtraReconRange(thisPromotion.GetReconChange() * iChange);
-#endif
-		changeExtraMoves(thisPromotion.GetMovesChange() * iChange);
-		changeExtraMoveDiscount(thisPromotion.GetMoveDiscountChange() * iChange);
-		changeExtraNavalMoves(thisPromotion.GetExtraNavalMoves() * iChange);
-		changeHPHealedIfDefeatEnemy(thisPromotion.GetHPHealedIfDefeatEnemy() * iChange);
-		ChangeGoldenAgeValueFromKills(thisPromotion.GetGoldenAgeValueFromKills() * iChange);
-		changeExtraWithdrawal(thisPromotion.GetExtraWithdrawal() * iChange);
-		changeExtraRange(thisPromotion.GetRangeChange() * iChange);
-		ChangeRangedAttackModifier(thisPromotion.GetRangedAttackModifier() * iChange);
-		ChangeInterceptionCombatModifier(thisPromotion.GetInterceptionCombatModifier() * iChange);
-		ChangeInterceptionDefenseDamageModifier(thisPromotion.GetInterceptionDefenseDamageModifier() * iChange);
-		ChangeAirSweepCombatModifier(thisPromotion.GetAirSweepCombatModifier() * iChange);
-		changeInterceptChance(thisPromotion.GetInterceptChanceChange() * iChange);
-		changeExtraEvasion(thisPromotion.GetEvasionChange() * iChange);
-		changeExtraEnemyHeal(thisPromotion.GetEnemyHealChange() * iChange);
-		changeExtraNeutralHeal(thisPromotion.GetNeutralHealChange() * iChange);
-		changeExtraFriendlyHeal(thisPromotion.GetFriendlyHealChange() * iChange);
-		changeSameTileHeal(thisPromotion.GetSameTileHealChange() * iChange);
-		changeAdjacentTileHeal(thisPromotion.GetAdjacentTileHealChange() * iChange);
-		changeEnemyDamageChance(thisPromotion.GetEnemyDamageChance() * iChange);
-		changeNeutralDamageChance(thisPromotion.GetNeutralDamageChance() * iChange);
-		changeEnemyDamage(thisPromotion.GetEnemyDamage() * iChange);
-		changeNeutralDamage(thisPromotion.GetNeutralDamage() * iChange);
-		changeNearbyEnemyCombatMod(thisPromotion.GetNearbyEnemyCombatMod() * iChange);
-		changeNearbyEnemyCombatRange(thisPromotion.GetNearbyEnemyCombatRange() * iChange);
-		ChangeAdjacentModifier(thisPromotion.GetAdjacentMod() * iChange);
-		ChangeNoAdjacentUnitModifier(thisPromotion.GetNoAdjacentUnitMod() * iChange);
-		changeAttackModifier(thisPromotion.GetAttackMod() * iChange);
-		changeDefenseModifier(thisPromotion.GetDefenseMod() * iChange);
-		changeGroundAttackDamage(thisPromotion.GetGroundAttackDamage() * iChange);
-		changeExtraCombatPercent(thisPromotion.GetCombatPercent() * iChange);
-		changeExtraCityAttackPercent(thisPromotion.GetCityAttackPercent() * iChange);
-		changeExtraCityDefensePercent(thisPromotion.GetCityDefensePercent() * iChange);
-		changeExtraRangedDefenseModifier(thisPromotion.GetRangedDefenseMod() * iChange);
-		changeExtraHillsAttackPercent(thisPromotion.GetHillsAttackPercent() * iChange);
-		changeExtraHillsDefensePercent(thisPromotion.GetHillsDefensePercent() * iChange);
-		changeExtraOpenAttackPercent(thisPromotion.GetOpenAttackPercent() * iChange);
-		changeExtraOpenRangedAttackMod(thisPromotion.GetOpenRangedAttackMod() * iChange);
-		changeExtraRoughAttackPercent(thisPromotion.GetRoughAttackPercent() * iChange);
-		changeExtraRoughRangedAttackMod(thisPromotion.GetRoughRangedAttackMod() * iChange);
-		changeExtraAttackFortifiedMod(thisPromotion.GetAttackFortifiedMod() * iChange);
-		changeExtraAttackWoundedMod(thisPromotion.GetAttackWoundedMod() * iChange);
-		changeExtraAttackFullyHealedMod(thisPromotion.GetAttackFullyHealedMod() * iChange);
-		changeExtraAttackAboveHealthMod(thisPromotion.GetAttackAboveHealthMod() * iChange);
-		changeExtraAttackBelowHealthMod(thisPromotion.GetAttackBelowHealthMod() * iChange);
-		ChangeRangedFlankAttackCount(thisPromotion.IsRangedFlankAttack() ? iChange : 0);
-		ChangeFlankPower(thisPromotion.GetExtraFlankPower() * iChange);
-		ChangeFlankAttackModifier(thisPromotion.GetFlankAttackModifier() * iChange);
-		changeExtraOpenDefensePercent(thisPromotion.GetOpenDefensePercent() * iChange);
-		changeExtraRoughDefensePercent(thisPromotion.GetRoughDefensePercent() * iChange);
-		changeExtraOpenFromPercent(thisPromotion.GetOpenFromPercent() * iChange);
-		changeExtraRoughFromPercent(thisPromotion.GetRoughFromPercent() * iChange);
-		changeExtraAttacks(thisPromotion.GetExtraAttacks() * iChange);
-		ChangeNumInterceptions(thisPromotion.GetNumInterceptionChange() * iChange);
-
-#if defined(MOD_BALANCE_CORE) // JJ: New
-		ChangeExtraAirInterceptRange(thisPromotion.GetAirInterceptRangeChange() * iChange);
-#endif
-
-		ChangeGreatGeneralCount(thisPromotion.IsGreatGeneral() ? iChange: 0);
-		ChangeGreatAdmiralCount(thisPromotion.IsGreatAdmiral() ? iChange: 0);
-
-		ChangeAuraRangeChange(thisPromotion.GetAuraRangeChange() * iChange);
-		ChangeAuraEffectChange(thisPromotion.GetAuraEffectChange() * iChange);
-		ChangeNumRepairCharges(thisPromotion.GetNumRepairCharges() * iChange);
-		ChangeMilitaryCapChange(thisPromotion.GetMilitaryCapChange() * iChange);
-
-		changeGreatGeneralModifier(thisPromotion.GetGreatGeneralModifier() * iChange);
-		ChangeGreatGeneralReceivesMovementCount(thisPromotion.IsGreatGeneralReceivesMovement() ? iChange: 0);
-		ChangeGreatGeneralCombatModifier(thisPromotion.GetGreatGeneralCombatModifier() * iChange);
-
-		ChangeIgnoreGreatGeneralBenefitCount(thisPromotion.IsIgnoreGreatGeneralBenefit() ? iChange: 0);
-		ChangeIgnoreZOCCount(thisPromotion.IsIgnoreZOC() ? iChange: 0);
-
-		changeNoSupply(thisPromotion.IsNoSupply() ? iChange : 0);
-
-		changeMaxHitPointsChange(thisPromotion.GetMaxHitPointsChange() * iChange);
-		changeMaxHitPointsModifier(thisPromotion.GetMaxHitPointsModifier() * iChange);
-
-		ChangeSapperCount((thisPromotion.IsSapper() ? iChange: 0));
-
-		changeFriendlyLandsModifier(thisPromotion.GetFriendlyLandsModifier() * iChange);
-		changeFriendlyLandsAttackModifier(thisPromotion.GetFriendlyLandsAttackModifier() * iChange);
-		changeOutsideFriendlyLandsModifier(thisPromotion.GetOutsideFriendlyLandsModifier() * iChange);
-		changeBorderCombatStrengthModifier(thisPromotion.GetBorderMod() * iChange);
-		changeCombatStrengthModifierPerMarriage(thisPromotion.GetMarriageMod()* iChange);
-		changeCombatStrengthModifierPerMarriageCap(thisPromotion.GetMarriageModCap()* iChange);
-		changeUpgradeDiscount(thisPromotion.GetUpgradeDiscount() * iChange);
-		changeExperiencePercent(thisPromotion.GetExperiencePercent() * iChange);
-		changeCargoSpace(thisPromotion.GetCargoChange() * iChange);
-
-#if defined(MOD_PROMOTIONS_UNIT_NAMING)
-		if (MOD_PROMOTIONS_UNIT_NAMING) {
-			if (thisPromotion.IsUnitNaming(getUnitType())) {
-				thisPromotion.GetUnitName(getUnitType(), m_strUnitName);
-			}
-		}
-#endif
-
-		for(iI = 0; iI < GC.getNumTerrainInfos(); iI++)
-		{
-			changeExtraTerrainAttackPercent(((TerrainTypes)iI), (thisPromotion.GetTerrainAttackPercent(iI) * iChange));
-			changeExtraTerrainDefensePercent(((TerrainTypes)iI), (thisPromotion.GetTerrainDefensePercent(iI) * iChange));
-			changeIgnoreTerrainCostInCount(((TerrainTypes)iI), ((thisPromotion.GetIgnoreTerrainCostIn(iI)) ? iChange : 0));
-			changeIgnoreTerrainCostFromCount(((TerrainTypes)iI), ((thisPromotion.GetIgnoreTerrainCostFrom(iI)) ? iChange : 0));
-			changeTerrainDoubleMoveCount(((TerrainTypes)iI), ((thisPromotion.GetTerrainDoubleMove(iI)) ? iChange : 0));
-#if defined(MOD_PROMOTIONS_HALF_MOVE)
-			changeTerrainHalfMoveCount(((TerrainTypes)iI), ((thisPromotion.GetTerrainHalfMove(iI)) ? iChange : 0));
-			changeTerrainExtraMoveCount(((TerrainTypes)iI), ((thisPromotion.GetTerrainExtraMove(iI)) ? iChange : 0));
-#endif
-#if defined(MOD_BALANCE_CORE)
-			changeTerrainDoubleHeal(((TerrainTypes)iI), ((thisPromotion.GetTerrainDoubleHeal(iI)) ? iChange : 0));		
-#endif
-			changeTerrainImpassableCount(((TerrainTypes)iI), ((thisPromotion.GetTerrainImpassable(iI)) ? iChange : 0));
-		}
-
-		for(iI = 0; iI < GC.getNumFeatureInfos(); iI++)
-		{
-			changeExtraFeatureAttackPercent(((FeatureTypes)iI), (thisPromotion.GetFeatureAttackPercent(iI) * iChange));
-			changeExtraFeatureDefensePercent(((FeatureTypes)iI), (thisPromotion.GetFeatureDefensePercent(iI) * iChange));
-			changeIgnoreFeatureCostInCount(((FeatureTypes)iI), ((thisPromotion.GetIgnoreFeatureCostIn(iI)) ? iChange : 0));
-			changeIgnoreFeatureCostFromCount(((FeatureTypes)iI), ((thisPromotion.GetIgnoreFeatureCostFrom(iI)) ? iChange : 0));
-			changeFeatureDoubleMoveCount(((FeatureTypes)iI), ((thisPromotion.GetFeatureDoubleMove(iI)) ? iChange : 0));
-#if defined(MOD_PROMOTIONS_HALF_MOVE)
-			changeFeatureHalfMoveCount(((FeatureTypes)iI), ((thisPromotion.GetFeatureHalfMove(iI)) ? iChange : 0));
-			changeFeatureExtraMoveCount(((FeatureTypes)iI), ((thisPromotion.GetFeatureExtraMove(iI)) ? iChange : 0));
-#endif
-#if defined(MOD_BALANCE_CORE)
-			changeFeatureDoubleHeal(((FeatureTypes)iI), ((thisPromotion.GetFeatureDoubleHeal(iI)) ? iChange : 0));		
-#endif
-			changeFeatureImpassableCount(((FeatureTypes)iI), ((thisPromotion.GetFeatureImpassable(iI)) ? iChange : 0));
-		}
-
-		for(iI = 0; iI < NUM_YIELD_TYPES; iI++)
-		{
-			const YieldTypes eYield = static_cast<YieldTypes>(iI);
-			SetYieldModifier(eYield, (thisPromotion.GetYieldModifier(iI) * iChange));
-			SetYieldChange(eYield, (thisPromotion.GetYieldChange(iI) * iChange));
-			SetGarrisonYieldChange(eYield, (thisPromotion.GetGarrisonYield(iI) * iChange));
-			SetFortificationYieldChange(eYield, (thisPromotion.GetFortificationYield(iI) * iChange));
-			changeYieldFromKills(eYield, (thisPromotion.GetYieldFromKills(iI) * iChange));
-			changeYieldFromBarbarianKills(eYield, (thisPromotion.GetYieldFromBarbarianKills(iI) * iChange));
-			changeYieldFromScouting(eYield, (thisPromotion.GetYieldFromScouting(iI) * iChange));
-			{
-				std::pair<int, int> pillageYields = thisPromotion.GetYieldFromPillage(eYield);
-				pillageYields.first *= iChange;
-				pillageYields.second *= iChange;
-				changeYieldFromPillage(eYield, pillageYields);
-			}
-#if defined(MOD_BALANCE_CORE)
-			if (bNewValue && !IsPromotionEverObtained(eIndex))
-			{
-				if (thisPromotion.GetInstantYields(iI).first > 0)
+				// if a conditional promotion is removed, effect changes must only be processed if the promotion is active right now
+				if (isPromotionActive(eIndex))
 				{
-					CvCity* pCity = getOriginCity();
-					if (pCity != NULL)
-					{
-						GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_PROMOTION_OBTAINED, false, NO_GREATPERSON, NO_BUILDING, thisPromotion.GetInstantYields(iI).first, thisPromotion.GetInstantYields(iI).second, NO_PLAYER, NULL, false, pCity, false, true, false, eYield, this);
-					}
+					setPromotionActive(eIndex, bNewValue);
 				}
-			}
-#endif
-		}
-
-		for(iI = 0; iI < GC.getNumUnitCombatClassInfos(); iI++)
-		{
-			changeExtraUnitCombatModifier(((UnitCombatTypes)iI), (thisPromotion.GetUnitCombatModifierPercent(iI) * iChange));
-#if defined(MOD_BALANCE_CORE)
-			changeCombatModPerAdjacentUnitCombatModifier(((UnitCombatTypes)iI), (thisPromotion.GetCombatModPerAdjacentUnitCombatModifierPercent(iI) * iChange));
-			changeCombatModPerAdjacentUnitCombatAttackMod(((UnitCombatTypes)iI), (thisPromotion.GetCombatModPerAdjacentUnitCombatAttackModifier(iI) * iChange));
-			changeCombatModPerAdjacentUnitCombatDefenseMod(((UnitCombatTypes)iI), (thisPromotion.GetCombatModPerAdjacentUnitCombatDefenseModifier(iI) * iChange));
-#endif
-		}
-
-		for(iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
-		{
-			CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo((UnitClassTypes)iI);
-			if(!pkUnitClassInfo)
-			{
-				continue;
-			}
-
-			changeUnitClassModifier(((UnitClassTypes)iI), (thisPromotion.GetUnitClassModifierPercent(iI) * iChange));
-			changeUnitClassAttackMod(((UnitClassTypes)iI), (thisPromotion.GetUnitClassAttackModifier(iI) * iChange));
-			changeUnitClassDefenseMod(((UnitClassTypes)iI), (thisPromotion.GetUnitClassDefenseModifier(iI) * iChange));
-		}
-
-		for(iI = 0; iI < NUM_DOMAIN_TYPES; iI++)
-		{
-			changeExtraDomainModifier(((DomainTypes)iI), (thisPromotion.GetDomainModifierPercent(iI) * iChange));
-			changeExtraDomainAttack(((DomainTypes)iI), (thisPromotion.GetDomainAttackPercent(iI) * iChange));
-			changeExtraDomainDefense(((DomainTypes)iI), (thisPromotion.GetDomainDefensePercent(iI) * iChange));
-		}
-		if (getGiveDomain() == NO_DOMAIN && thisPromotion.GetGiveDomain() != NO_DOMAIN)
-		{
-			ChangeGiveDomain((DomainTypes)thisPromotion.GetGiveDomain());
-		}
-		if (getConvertDomain() == NO_DOMAIN && thisPromotion.GetConvertDomain() != NO_DOMAIN)
-		{
-			ChangeConvertDomain((DomainTypes)thisPromotion.GetConvertDomain());
-		}
-		if (getConvertDomainUnitType() == NO_UNIT && thisPromotion.GetConvertDomainUnit() != NO_UNIT)
-		{
-			ChangeConvertDomainUnit((UnitTypes)thisPromotion.GetConvertDomainUnit());
-		}
-
-		if(IsSelected())
-		{
-			DLLUI->setDirty(SelectionButtons_DIRTY_BIT, true);
-			DLLUI->setDirty(UnitInfo_DIRTY_BIT, true);
-			if (thisPromotion.GetEmbarkExtraVisibility() || thisPromotion.IsNoRevealMap() || thisPromotion.GetVisibilityChange())
-				GC.getMap().updateDeferredFog();
-		}
-
-		if (MOD_API_ACHIEVEMENTS)
-		{
-			PromotionTypes eBuffaloChest =(PromotionTypes) GC.getInfoTypeForString("PROMOTION_BUFFALO_CHEST", true /*bHideAssert*/);
-			PromotionTypes eBuffaloLoins =(PromotionTypes) GC.getInfoTypeForString("PROMOTION_BUFFALO_LOINS", true /*bHideAssert*/);
-
-			const PlayerTypes eActivePlayer = GC.getGame().getActivePlayer();
-			if (getOwner() == eActivePlayer && ((eIndex == eBuffaloChest && isHasPromotion(eBuffaloLoins)) || (eIndex == eBuffaloLoins && isHasPromotion(eBuffaloChest))))
-			{
-				gDLL->UnlockAchievement(ACHIEVEMENT_XP2_27);
+				m_seConditionalPromotions.erase(eIndex);
 			}
 		}
+		else
+		{
+			setPromotionActive(eIndex, bNewValue);
+		}
 
-#if defined(MOD_BALANCE_CORE)
 		// Set promotion IsEverObtained to true. This should be the last statement.
 		if (bNewValue && !IsPromotionEverObtained(eIndex))
 		{
 			SetPromotionEverObtained(eIndex, bNewValue);
 		}
-#endif
 
 		//promotion changes may invalidate some caches
 		GET_PLAYER(getOwner()).UpdateAreaEffectUnit(this);
+	}
+}
+
+//	--------------------------------------------------------------------------------
+bool CvUnit::isPromotionActive(PromotionTypes eIndex) const
+{
+	VALIDATE_OBJECT();
+	return m_Promotions.IsPromotionActive(eIndex);
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::setPromotionActive(PromotionTypes eIndex, bool bNewValue)
+{
+	VALIDATE_OBJECT();
+
+	if (eIndex == NO_PROMOTION || eIndex >= GC.getNumPromotionInfos())
+		return;
+
+	CvPromotionEntry& thisPromotion = *GC.getPromotionInfo(eIndex);
+
+	if (isPromotionActive(eIndex) == bNewValue)
+		return;
+
+	m_Promotions.SetPromotionActive(eIndex, bNewValue);
+	int iChange = (bNewValue ? 1 : -1);
+
+	// Promotions will set Invisibility once but not change it later
+	if (getInvisibleType() == NO_INVISIBLE && thisPromotion.GetInvisibleType() != NO_INVISIBLE)
+	{
+		setInvisibleType((InvisibleTypes)thisPromotion.GetInvisibleType());
+	}
+	if (getSeeInvisibleType() == NO_INVISIBLE && thisPromotion.GetSeeInvisibleType() != NO_INVISIBLE)
+	{
+		setSeeInvisibleType((InvisibleTypes)thisPromotion.GetSeeInvisibleType());
+	}
+
+	changeBlitzCount((thisPromotion.IsBlitz()) ? iChange : 0);
+	changeAmphibCount((thisPromotion.IsAmphib()) ? iChange : 0);
+	changeRiverCrossingNoPenaltyCount((thisPromotion.IsRiver()) ? iChange : 0);
+	changeEnemyRouteCount((thisPromotion.IsEnemyRoute()) ? iChange : 0);
+	changeRivalTerritoryCount((thisPromotion.IsRivalTerritory()) ? iChange : 0);
+	changeIsSlowInEnemyLandCount((thisPromotion.IsMustSetUpToRangedAttack()) ? iChange : 0); //intended. promotion purpose was redefined
+	changeRangedSupportFireCount((thisPromotion.IsRangedSupportFire()) ? iChange : 0);
+	changeAlwaysHealCount((thisPromotion.IsAlwaysHeal()) ? iChange : 0);
+	changeHealOutsideFriendlyCount((thisPromotion.IsHealOutsideFriendly()) ? iChange : 0);
+	changeHillsDoubleMoveCount((thisPromotion.IsHillsDoubleMove()) ? iChange : 0);
+	changeRiverDoubleMoveCount((thisPromotion.IsRiverDoubleMove()) ? iChange : 0);
+	changeIgnoreTerrainCostCount((thisPromotion.IsIgnoreTerrainCost()) ? iChange : 0);
+	changeIgnoreTerrainDamageCount((thisPromotion.IsIgnoreTerrainDamage()) ? iChange : 0);
+	changeIgnoreFeatureDamageCount((thisPromotion.IsIgnoreFeatureDamage()) ? iChange : 0);
+	changeExtraTerrainDamageCount((thisPromotion.IsExtraTerrainDamage()) ? iChange : 0);
+	changeExtraFeatureDamageCount((thisPromotion.IsExtraFeatureDamage()) ? iChange : 0);
+	changeCannotHealCount((thisPromotion.IsCannotHeal()) ? iChange : 0);
+
+	if (MOD_PROMOTIONS_IMPROVEMENT_BONUS)
+	{
+		if (thisPromotion.GetNearbyImprovementCombatBonus() > 0) {
+			SetNearbyImprovementCombatBonus(thisPromotion.GetNearbyImprovementCombatBonus());
+			SetNearbyImprovementBonusRange(thisPromotion.GetNearbyImprovementBonusRange());
+			SetCombatBonusImprovement(thisPromotion.GetCombatBonusImprovement());
+		}
+	}
+	if (thisPromotion.GetNearbyUnitClassBonus() > 0)
+	{
+		SetNearbyUnitClassBonus(thisPromotion.GetNearbyUnitClassBonus());
+		SetNearbyUnitClassBonusRange(thisPromotion.GetNearbyUnitClassBonusRange());
+		SetCombatBonusFromNearbyUnitClass(thisPromotion.GetCombatBonusFromNearbyUnitClass());
+	}
+	ChangeBaseCombatStrength(thisPromotion.GetCombatChange() * iChange);
+	ChangeTileDamageIfNotMoved(thisPromotion.GetTileDamageIfNotMoved() * iChange);
+	ChangeFortifiedModifier(thisPromotion.GetFortifiedModifier() * iChange);
+	ChangeNearbyPromotion(thisPromotion.IsNearbyPromotion() ? iChange : 0);
+	ChangeNearbyUnitPromotionRange(thisPromotion.GetNearbyRange() * iChange);
+	ChangeNearbyCityCombatMod((thisPromotion.GetNearbyCityCombatMod()) * iChange);
+	ChangeNearbyFriendlyCityCombatMod((thisPromotion.GetNearbyFriendlyCityCombatMod()) * iChange);
+	ChangeNearbyEnemyCityCombatMod((thisPromotion.GetNearbyEnemyCityCombatMod()) * iChange);
+	ChangePillageBonusStrengthPercent(thisPromotion.GetPillageBonusStrengthPercent() * iChange);
+	ChangeStackedGreatGeneralExperience(thisPromotion.GetStackedGreatGeneralExperience() * iChange);
+	ChangeWonderProductionModifier(thisPromotion.GetWonderProductionModifier() * iChange);
+	ChangeMilitaryProductionModifier(thisPromotion.GetMilitaryProductionModifier() * iChange);
+	ChangeNearbyEnemyDamage(thisPromotion.GetNearbyEnemyDamage() * iChange);
+	ChangeAdjacentCityDefenseMod(thisPromotion.GetAdjacentCityDefenseMod() * iChange);
+	ChangeGGGAXPPercent(thisPromotion.GetGeneralGoldenAgeExpPercent() * iChange);
+	ChangeGiveCombatMod(thisPromotion.GetGiveCombatMod() * iChange);
+	ChangeGiveHPIfEnemyKilled(thisPromotion.GetGiveHPIfEnemyKilled() * iChange);
+	ChangeGiveExperiencePercent(thisPromotion.GetGiveExperiencePercent() * iChange);
+	ChangeGiveOutsideFriendlyLandsModifier(thisPromotion.GetGiveOutsideFriendlyLandsModifier() * iChange);
+	ChangeGiveExtraAttacks(thisPromotion.GetGiveExtraAttacks() * iChange);
+	ChangeGiveDefenseMod(thisPromotion.GetGiveDefenseMod() * iChange);
+	ChangeIsGiveInvisibility((thisPromotion.IsGiveInvisibility()) ? iChange : 0);
+	ChangeNearbyHealEnemyTerritory(thisPromotion.GetNearbyHealEnemyTerritory() * iChange);
+	ChangeNearbyHealNeutralTerritory(thisPromotion.GetNearbyHealNeutralTerritory() * iChange);
+	ChangeNearbyHealFriendlyTerritory(thisPromotion.GetNearbyHealFriendlyTerritory() * iChange);
+	SetIsGiveOnlyOnStartingTurn(thisPromotion.IsGiveOnlyOnStartingTurn() ? iChange > 0 : false);
+	ChangeIsConvertUnit((thisPromotion.IsConvertUnit()) ? iChange : 0);
+	ChangeIsConvertEnemyUnitToBarbarian((thisPromotion.IsConvertEnemyUnitToBarbarian()) ? iChange : 0);
+	ChangeIsConvertOnFullHP((thisPromotion.IsConvertOnFullHP()) ? iChange : 0);
+	ChangeIsConvertOnDamage((thisPromotion.IsConvertOnDamage()) ? iChange : 0);
+	ChangeDamageThreshold(thisPromotion.GetDamageThreshold() * iChange);
+	if (getConvertDamageOrFullHPUnit() == NO_UNIT && thisPromotion.GetConvertDamageOrFullHPUnit() != NO_UNIT)
+	{
+		ChangeConvertDamageOrFullHPUnit((UnitTypes)thisPromotion.GetConvertDamageOrFullHPUnit());
+	}
+	if (MOD_PROMOTIONS_CROSS_MOUNTAINS)
+	{
+		changeCanCrossMountainsCount((thisPromotion.CanCrossMountains()) ? iChange : 0);
+	}
+	if (MOD_PROMOTIONS_CROSS_MOUNTAINS)
+	{
+		changeCanCrossOceansCount((thisPromotion.CanCrossOceans()) ? iChange : 0);
+	}
+	if (MOD_PROMOTIONS_CROSS_ICE)
+	{
+		changeCanCrossIceCount((thisPromotion.CanCrossIce()) ? iChange : 0);
+	}
+	if (MOD_PROMOTIONS_GG_FROM_BARBARIANS)
+	{
+		changeGGFromBarbariansCount((thisPromotion.IsGGFromBarbarians()) ? iChange : 0);
+	}
+	ChangeRoughTerrainEndsTurnCount((thisPromotion.IsRoughTerrainEndsTurn()) ? iChange : 0);
+	ChangeCapturedUnitsConscriptedCount((thisPromotion.IsCapturedUnitsConscripted()) ? iChange : 0);
+	ChangeHoveringUnitCount((thisPromotion.IsHoveringUnit()) ? iChange : 0);
+	changeFlatMovementCostCount((thisPromotion.IsFlatMovementCost()) ? iChange : 0);
+	changeCanMoveImpassableCount((thisPromotion.IsCanMoveImpassable()) ? iChange : 0);
+	changeOnlyDefensiveCount((thisPromotion.IsOnlyDefensive()) ? iChange : 0);
+	changeNoAttackInOceanCount((thisPromotion.IsNoAttackInOcean()) ? iChange : 0);
+	changeNoDefensiveBonusCount((thisPromotion.IsNoDefensiveBonus()) ? iChange : 0);
+	changeNoCaptureCount((thisPromotion.IsNoCapture()) ? iChange : 0);
+	changeNukeImmuneCount((thisPromotion.IsNukeImmune()) ? iChange : 0);
+	changeHiddenNationalityCount((thisPromotion.IsHiddenNationality()) ? iChange : 0);
+	changeAlwaysHostileCount((thisPromotion.IsAlwaysHostile()) ? iChange : 0);
+	changeNoRevealMapCount((thisPromotion.IsNoRevealMap()) ? iChange : 0);
+	ChangeReconCount((thisPromotion.IsRecon()) ? iChange : 0);
+	changeCanMoveAllTerrainCount((thisPromotion.CanMoveAllTerrain()) ? iChange : 0);
+	changeCanMoveAfterAttackingCount((thisPromotion.IsCanMoveAfterAttacking()) ? iChange : 0);
+	ChangeAirSweepCapableCount((thisPromotion.IsAirSweepCapable()) ? iChange : 0);
+	ChangeEmbarkAbilityCount((thisPromotion.IsAllowsEmbarkation()) ? iChange : 0);
+	ChangeRangeAttackIgnoreLOSCount((thisPromotion.IsRangeAttackIgnoreLOS()) ? iChange : 0);
+	ChangeHealIfDefeatExcludeBarbariansCount((thisPromotion.IsHealIfDefeatExcludeBarbarians()) ? iChange : 0);
+	changeHealOnPillageCount((thisPromotion.IsHealOnPillage()) ? iChange : 0);
+	changeFreePillageMoveCount((thisPromotion.IsFreePillageMoves()) ? iChange : 0);
+	ChangeEmbarkAllWaterCount((thisPromotion.IsEmbarkedAllWater()) ? iChange : 0);
+	if (MOD_PROMOTIONS_DEEP_WATER_EMBARKATION)
+	{
+		ChangeEmbarkDeepWaterCount((thisPromotion.IsEmbarkedDeepWater()) ? iChange : 0);
+	}
+	ChangeCityAttackOnlyCount((thisPromotion.IsCityAttackSupport()) ? iChange : 0);
+	ChangeCaptureDefeatedEnemyCount((thisPromotion.IsCaptureDefeatedEnemy()) ? iChange : 0);
+	changeAOEDamageOnKill(thisPromotion.GetAOEDamageOnKill() * iChange);
+	changeAOEDamageOnPillage(thisPromotion.GetAOEDamageOnPillage() * iChange);
+	changeAoEDamageOnMove(thisPromotion.GetAoEDamageOnMove() * iChange);
+	changePartialHealOnPillage(thisPromotion.GetPartialHealOnPillage() * iChange);
+	changeSplashDamage(thisPromotion.GetSplashDamage() * iChange);
+	changeMultiAttackBonus(thisPromotion.GetMultiAttackBonus() * iChange);
+	changeLandAirDefenseValue(thisPromotion.GetLandAirDefenseValue() * iChange);
+	changeMountainsDoubleMoveCount((thisPromotion.IsMountainsDoubleMove()) ? iChange : 0);
+	changeEmbarkFlatCostCount((thisPromotion.IsEmbarkFlatCost()) ? iChange : 0);
+	changeDisembarkFlatCostCount((thisPromotion.IsDisembarkFlatCost()) ? iChange : 0);
+	ChangeCaptureDefeatedEnemyChance((thisPromotion.GetCaptureDefeatedEnemyChance()) * iChange);
+	ChangeBarbarianCombatBonus((thisPromotion.GetBarbarianCombatBonus()) * iChange);
+	ChangeAdjacentEnemySapMovement((thisPromotion.GetAdjacentEnemySapMovement()) * iChange);
+	ChangeGainsXPFromScouting((thisPromotion.IsGainsXPFromScouting()) ? iChange : 0);
+	ChangeXPFromPillaging(thisPromotion.GetXPFromPillaging() * iChange);
+	ChangeGainsXPFromSpotting((thisPromotion.IsGainsXPFromSpotting()) ? iChange : 0);
+	ChangeCannotBeCapturedCount((thisPromotion.CannotBeCaptured()) ? iChange : 0);
+	ChangeForcedDamageValue((thisPromotion.ForcedDamageValue()) * iChange);
+	ChangeChangeDamageValue((thisPromotion.ChangeDamageValue()) * iChange);
+	ChangeMoraleBreakChance((thisPromotion.GetMoraleBreakChance()) * iChange);
+	ChangeDamageAoEFortified((thisPromotion.GetDamageAoEFortified()) * iChange);
+	ChangeWorkRateMod((thisPromotion.GetWorkRateMod()) * iChange);
+	ChangeDamageReductionCityAssault((thisPromotion.GetDamageReductionCityAssault()) * iChange);
+	if (thisPromotion.PromotionDuration() != 0)
+	{
+		if (bNewValue)
+		{
+			//SETS promotion duration, as we don't want to change it every time we get the promotion (this just stores the max length of the promotion)
+			ChangePromotionDuration(eIndex, (thisPromotion.PromotionDuration() * iChange) - getPromotionDuration(eIndex));
+			if (getPromotionDuration(eIndex) > 0)
+			{
+				SetTurnPromotionGained(eIndex, GC.getGame().getGameTurn());
+			}
+		}
+		else
+		{
+			ChangePromotionDuration(NO_PROMOTION, 0);
+		}
+	}
+	if (thisPromotion.NegatesPromotion() != NO_PROMOTION)
+	{
+		if (bNewValue)
+		{
+			SetNegatorPromotion(thisPromotion.NegatesPromotion());
+		}
+		else
+		{
+			SetNegatorPromotion(-1);
+		}
+	}
+	ChangeIsStrongerDamaged(thisPromotion.IsStrongerDamaged() ? iChange : 0);
+	ChangeIsFightWellDamaged(thisPromotion.IsFightWellDamaged() ? iChange : 0);
+	ChangeGoodyHutYieldBonus(thisPromotion.GetGoodyHutYieldBonus() * iChange);
+	ChangeReligiousPressureModifier(thisPromotion.GetReligiousPressureModifier() * iChange);
+	ChangeCanHeavyChargeCount((thisPromotion.IsCanHeavyCharge()) ? iChange : 0);
+
+	ChangeEmbarkExtraVisibility((thisPromotion.GetEmbarkExtraVisibility()) * iChange);
+	ChangeEmbarkDefensiveModifier((thisPromotion.GetEmbarkDefenseModifier()) * iChange);
+	ChangeCapitalDefenseModifier((thisPromotion.GetCapitalDefenseModifier()) * iChange);
+	ChangeCapitalDefenseFalloff((thisPromotion.GetCapitalDefenseFalloff()) * iChange);
+	ChangeCityAttackPlunderModifier((thisPromotion.GetCityAttackPlunderModifier()) * iChange);
+	ChangeReligiousStrengthLossRivalTerritory((thisPromotion.GetReligiousStrengthLossRivalTerritory()) * iChange);
+	ChangeTradeMissionInfluenceModifier((thisPromotion.GetTradeMissionInfluenceModifier()) * iChange);
+	ChangeTradeMissionGoldModifier((thisPromotion.GetTradeMissionGoldModifier()) * iChange);
+	ChangeDiploMissionInfluence((thisPromotion.GetDiploMissionInfluence()) * iChange);
+	changeDropRange(thisPromotion.GetDropRange() * iChange);
+	changeExtraVisibilityRange(thisPromotion.GetVisibilityChange() * iChange);
+	if (MOD_PROMOTIONS_VARIABLE_RECON)
+	{
+		changeExtraReconRange(thisPromotion.GetReconChange() * iChange);
+	}
+	changeExtraMoves(thisPromotion.GetMovesChange() * iChange);
+	changeExtraMoveDiscount(thisPromotion.GetMoveDiscountChange() * iChange);
+	changeExtraNavalMoves(thisPromotion.GetExtraNavalMoves() * iChange);
+	changeHPHealedIfDefeatEnemy(thisPromotion.GetHPHealedIfDefeatEnemy() * iChange);
+	ChangeGoldenAgeValueFromKills(thisPromotion.GetGoldenAgeValueFromKills() * iChange);
+	changeExtraWithdrawal(thisPromotion.GetExtraWithdrawal() * iChange);
+	changeExtraRange(thisPromotion.GetRangeChange() * iChange);
+	ChangeRangedAttackModifier(thisPromotion.GetRangedAttackModifier() * iChange);
+	ChangeInterceptionCombatModifier(thisPromotion.GetInterceptionCombatModifier() * iChange);
+	ChangeInterceptionDefenseDamageModifier(thisPromotion.GetInterceptionDefenseDamageModifier() * iChange);
+	ChangeAirSweepCombatModifier(thisPromotion.GetAirSweepCombatModifier() * iChange);
+	changeInterceptChance(thisPromotion.GetInterceptChanceChange() * iChange);
+	changeExtraEvasion(thisPromotion.GetEvasionChange() * iChange);
+	changeExtraEnemyHeal(thisPromotion.GetEnemyHealChange() * iChange);
+	changeExtraNeutralHeal(thisPromotion.GetNeutralHealChange() * iChange);
+	changeExtraFriendlyHeal(thisPromotion.GetFriendlyHealChange() * iChange);
+	changeSameTileHeal(thisPromotion.GetSameTileHealChange() * iChange);
+	changeAdjacentTileHeal(thisPromotion.GetAdjacentTileHealChange() * iChange);
+	changeEnemyDamageChance(thisPromotion.GetEnemyDamageChance() * iChange);
+	changeNeutralDamageChance(thisPromotion.GetNeutralDamageChance() * iChange);
+	changeEnemyDamage(thisPromotion.GetEnemyDamage() * iChange);
+	changeNeutralDamage(thisPromotion.GetNeutralDamage() * iChange);
+	changeNearbyEnemyCombatMod(thisPromotion.GetNearbyEnemyCombatMod() * iChange);
+	changeNearbyEnemyCombatRange(thisPromotion.GetNearbyEnemyCombatRange() * iChange);
+	ChangeAdjacentModifier(thisPromotion.GetAdjacentMod() * iChange);
+	ChangeNoAdjacentUnitModifier(thisPromotion.GetNoAdjacentUnitMod() * iChange);
+	changeAttackModifier(thisPromotion.GetAttackMod() * iChange);
+	changeDefenseModifier(thisPromotion.GetDefenseMod() * iChange);
+	changeGroundAttackDamage(thisPromotion.GetGroundAttackDamage() * iChange);
+	changeExtraCombatPercent(thisPromotion.GetCombatPercent() * iChange);
+	changeExtraCityAttackPercent(thisPromotion.GetCityAttackPercent() * iChange);
+	changeExtraCityDefensePercent(thisPromotion.GetCityDefensePercent() * iChange);
+	changeExtraRangedDefenseModifier(thisPromotion.GetRangedDefenseMod() * iChange);
+	changeExtraHillsAttackPercent(thisPromotion.GetHillsAttackPercent() * iChange);
+	changeExtraHillsDefensePercent(thisPromotion.GetHillsDefensePercent() * iChange);
+	changeExtraOpenAttackPercent(thisPromotion.GetOpenAttackPercent() * iChange);
+	changeExtraOpenRangedAttackMod(thisPromotion.GetOpenRangedAttackMod() * iChange);
+	changeExtraRoughAttackPercent(thisPromotion.GetRoughAttackPercent() * iChange);
+	changeExtraRoughRangedAttackMod(thisPromotion.GetRoughRangedAttackMod() * iChange);
+	changeExtraAttackFortifiedMod(thisPromotion.GetAttackFortifiedMod() * iChange);
+	changeExtraAttackWoundedMod(thisPromotion.GetAttackWoundedMod() * iChange);
+	changeExtraAttackFullyHealedMod(thisPromotion.GetAttackFullyHealedMod() * iChange);
+	changeExtraAttackAboveHealthMod(thisPromotion.GetAttackAboveHealthMod() * iChange);
+	changeExtraAttackBelowHealthMod(thisPromotion.GetAttackBelowHealthMod() * iChange);
+	ChangeRangedFlankAttackCount(thisPromotion.IsRangedFlankAttack() ? iChange : 0);
+	ChangeFlankPower(thisPromotion.GetExtraFlankPower() * iChange);
+	ChangeFlankAttackModifier(thisPromotion.GetFlankAttackModifier() * iChange);
+	changeExtraOpenDefensePercent(thisPromotion.GetOpenDefensePercent() * iChange);
+	changeExtraRoughDefensePercent(thisPromotion.GetRoughDefensePercent() * iChange);
+	changeExtraOpenFromPercent(thisPromotion.GetOpenFromPercent() * iChange);
+	changeExtraRoughFromPercent(thisPromotion.GetRoughFromPercent() * iChange);
+	changeExtraAttacks(thisPromotion.GetExtraAttacks() * iChange);
+	ChangeNumInterceptions(thisPromotion.GetNumInterceptionChange() * iChange);
+	ChangeExtraAirInterceptRange(thisPromotion.GetAirInterceptRangeChange() * iChange);
+	ChangeGreatGeneralCount(thisPromotion.IsGreatGeneral() ? iChange : 0);
+	ChangeGreatAdmiralCount(thisPromotion.IsGreatAdmiral() ? iChange : 0);
+
+	ChangeAuraRangeChange(thisPromotion.GetAuraRangeChange() * iChange);
+	ChangeAuraEffectChange(thisPromotion.GetAuraEffectChange() * iChange);
+	ChangeNumRepairCharges(thisPromotion.GetNumRepairCharges() * iChange);
+	ChangeMilitaryCapChange(thisPromotion.GetMilitaryCapChange() * iChange);
+
+	changeGreatGeneralModifier(thisPromotion.GetGreatGeneralModifier() * iChange);
+	ChangeGreatGeneralReceivesMovementCount(thisPromotion.IsGreatGeneralReceivesMovement() ? iChange : 0);
+	ChangeGreatGeneralCombatModifier(thisPromotion.GetGreatGeneralCombatModifier() * iChange);
+
+	ChangeIgnoreGreatGeneralBenefitCount(thisPromotion.IsIgnoreGreatGeneralBenefit() ? iChange : 0);
+	ChangeIgnoreZOCCount(thisPromotion.IsIgnoreZOC() ? iChange : 0);
+
+	changeNoSupply(thisPromotion.IsNoSupply() ? iChange : 0);
+
+	changeMaxHitPointsChange(thisPromotion.GetMaxHitPointsChange() * iChange);
+	changeMaxHitPointsModifier(thisPromotion.GetMaxHitPointsModifier() * iChange);
+
+	ChangeSapperCount((thisPromotion.IsSapper() ? iChange : 0));
+
+	changeFriendlyLandsModifier(thisPromotion.GetFriendlyLandsModifier() * iChange);
+	changeFriendlyLandsAttackModifier(thisPromotion.GetFriendlyLandsAttackModifier() * iChange);
+	changeOutsideFriendlyLandsModifier(thisPromotion.GetOutsideFriendlyLandsModifier() * iChange);
+	changeBorderCombatStrengthModifier(thisPromotion.GetBorderMod() * iChange);
+	changeCombatStrengthModifierPerMarriage(thisPromotion.GetMarriageMod() * iChange);
+	changeCombatStrengthModifierPerMarriageCap(thisPromotion.GetMarriageModCap() * iChange);
+	changeUpgradeDiscount(thisPromotion.GetUpgradeDiscount() * iChange);
+	changeExperiencePercent(thisPromotion.GetExperiencePercent() * iChange);
+	changeCargoSpace(thisPromotion.GetCargoChange() * iChange);
+
+	if (MOD_PROMOTIONS_UNIT_NAMING)
+	{
+		if (thisPromotion.IsUnitNaming(getUnitType())) {
+			thisPromotion.GetUnitName(getUnitType(), m_strUnitName);
+		}
+	}
+
+	int iI = 0;
+	for (iI = 0; iI < GC.getNumTerrainInfos(); iI++)
+	{
+		changeExtraTerrainAttackPercent(((TerrainTypes)iI), (thisPromotion.GetTerrainAttackPercent(iI) * iChange));
+		changeExtraTerrainDefensePercent(((TerrainTypes)iI), (thisPromotion.GetTerrainDefensePercent(iI) * iChange));
+		ChangeTerrainModifierAttack(((TerrainTypes)iI), (thisPromotion.GetTerrainModifierAttack(iI) * iChange));
+		ChangeTerrainModifierDefense(((TerrainTypes)iI), (thisPromotion.GetTerrainModifierDefense(iI) * iChange));
+		changeIgnoreTerrainCostInCount(((TerrainTypes)iI), ((thisPromotion.GetIgnoreTerrainCostIn(iI)) ? iChange : 0));
+		changeIgnoreTerrainCostFromCount(((TerrainTypes)iI), ((thisPromotion.GetIgnoreTerrainCostFrom(iI)) ? iChange : 0));
+		changeTerrainDoubleMoveCount(((TerrainTypes)iI), ((thisPromotion.GetTerrainDoubleMove(iI)) ? iChange : 0));
+		if (MOD_PROMOTIONS_HALF_MOVE)
+		{
+			changeTerrainHalfMoveCount(((TerrainTypes)iI), ((thisPromotion.GetTerrainHalfMove(iI)) ? iChange : 0));
+			changeTerrainExtraMoveCount(((TerrainTypes)iI), ((thisPromotion.GetTerrainExtraMove(iI)) ? iChange : 0));
+		}
+		changeTerrainDoubleHeal(((TerrainTypes)iI), ((thisPromotion.GetTerrainDoubleHeal(iI)) ? iChange : 0));
+		changeTerrainImpassableCount(((TerrainTypes)iI), ((thisPromotion.GetTerrainImpassable(iI)) ? iChange : 0));
+	}
+
+	for (iI = 0; iI < GC.getNumFeatureInfos(); iI++)
+	{
+		changeExtraFeatureAttackPercent(((FeatureTypes)iI), (thisPromotion.GetFeatureAttackPercent(iI) * iChange));
+		changeExtraFeatureDefensePercent(((FeatureTypes)iI), (thisPromotion.GetFeatureDefensePercent(iI) * iChange));
+		changeIgnoreFeatureCostInCount(((FeatureTypes)iI), ((thisPromotion.GetIgnoreFeatureCostIn(iI)) ? iChange : 0));
+		changeIgnoreFeatureCostFromCount(((FeatureTypes)iI), ((thisPromotion.GetIgnoreFeatureCostFrom(iI)) ? iChange : 0));
+		changeFeatureDoubleMoveCount(((FeatureTypes)iI), ((thisPromotion.GetFeatureDoubleMove(iI)) ? iChange : 0));
+		if (MOD_PROMOTIONS_HALF_MOVE)
+		{
+			changeFeatureHalfMoveCount(((FeatureTypes)iI), ((thisPromotion.GetFeatureHalfMove(iI)) ? iChange : 0));
+			changeFeatureExtraMoveCount(((FeatureTypes)iI), ((thisPromotion.GetFeatureExtraMove(iI)) ? iChange : 0));
+		}
+		changeFeatureDoubleHeal(((FeatureTypes)iI), ((thisPromotion.GetFeatureDoubleHeal(iI)) ? iChange : 0));
+		changeFeatureImpassableCount(((FeatureTypes)iI), ((thisPromotion.GetFeatureImpassable(iI)) ? iChange : 0));
+	}
+
+	for (iI = 0; iI < NUM_YIELD_TYPES; iI++)
+	{
+		const YieldTypes eYield = static_cast<YieldTypes>(iI);
+		SetYieldModifier(eYield, (thisPromotion.GetYieldModifier(iI) * iChange));
+		SetYieldChange(eYield, (thisPromotion.GetYieldChange(iI) * iChange));
+		SetYieldFromCombatExperienceTimes100(eYield, (thisPromotion.GetYieldFromCombatExperienceTimes100(iI) * iChange));
+		SetGarrisonYieldChange(eYield, (thisPromotion.GetGarrisonYield(iI) * iChange));
+		SetFortificationYieldChange(eYield, (thisPromotion.GetFortificationYield(iI) * iChange));
+		changeYieldFromKills(eYield, (thisPromotion.GetYieldFromKills(iI) * iChange));
+		changeYieldFromBarbarianKills(eYield, (thisPromotion.GetYieldFromBarbarianKills(iI) * iChange));
+		changeYieldFromScouting(eYield, (thisPromotion.GetYieldFromScouting(iI) * iChange));
+		changeYieldFromAncientRuins(eYield, (thisPromotion.GetYieldFromAncientRuins(iI) * iChange));
+		changeYieldFromTRPlunder(eYield, (thisPromotion.GetYieldFromTRPlunder(iI) * iChange));
+		{
+			std::pair<int, int> pillageYields = thisPromotion.GetYieldFromPillage(eYield);
+			pillageYields.first *= iChange;
+			pillageYields.second *= iChange;
+			changeYieldFromPillage(eYield, pillageYields);
+		}
+		if (bNewValue && !IsPromotionEverObtained(eIndex))
+		{
+			if (thisPromotion.GetInstantYields(iI).first > 0)
+			{
+				CvCity* pCity = getOriginCity();
+				if (pCity != NULL)
+				{
+					GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_PROMOTION_OBTAINED, false, NO_GREATPERSON, NO_BUILDING, thisPromotion.GetInstantYields(iI).first, thisPromotion.GetInstantYields(iI).second, NO_PLAYER, NULL, false, pCity, false, true, false, eYield, this);
+				}
+			}
+		}
+	}
+
+	for (iI = 0; iI < GC.getNumUnitCombatClassInfos(); iI++)
+	{
+		changeExtraUnitCombatModifier(((UnitCombatTypes)iI), (thisPromotion.GetUnitCombatModifierPercent(iI) * iChange));
+		changeExtraUnitCombatModifierAttack(((UnitCombatTypes)iI), (thisPromotion.GetUnitCombatModifierPercentAttack(iI) * iChange));
+		changeExtraUnitCombatModifierDefense(((UnitCombatTypes)iI), (thisPromotion.GetUnitCombatModifierPercentDefense(iI) * iChange));
+		changeCombatModPerAdjacentUnitCombatModifier(((UnitCombatTypes)iI), (thisPromotion.GetCombatModPerAdjacentUnitCombatModifierPercent(iI) * iChange));
+		changeCombatModPerAdjacentUnitCombatAttackMod(((UnitCombatTypes)iI), (thisPromotion.GetCombatModPerAdjacentUnitCombatAttackModifier(iI) * iChange));
+		changeCombatModPerAdjacentUnitCombatDefenseMod(((UnitCombatTypes)iI), (thisPromotion.GetCombatModPerAdjacentUnitCombatDefenseModifier(iI) * iChange));
+	}
+
+	for (iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
+	{
+		CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo((UnitClassTypes)iI);
+		if (!pkUnitClassInfo)
+		{
+			continue;
+		}
+
+		changeUnitClassModifier(((UnitClassTypes)iI), (thisPromotion.GetUnitClassModifierPercent(iI) * iChange));
+		changeUnitClassAttackMod(((UnitClassTypes)iI), (thisPromotion.GetUnitClassAttackModifier(iI) * iChange));
+		changeUnitClassDefenseMod(((UnitClassTypes)iI), (thisPromotion.GetUnitClassDefenseModifier(iI) * iChange));
+	}
+
+	for (iI = 0; iI < NUM_DOMAIN_TYPES; iI++)
+	{
+		changeExtraDomainModifier(((DomainTypes)iI), (thisPromotion.GetDomainModifierPercent(iI) * iChange));
+		changeExtraDomainAttack(((DomainTypes)iI), (thisPromotion.GetDomainAttackPercent(iI) * iChange));
+		changeExtraDomainDefense(((DomainTypes)iI), (thisPromotion.GetDomainDefensePercent(iI) * iChange));
+	}
+	if (getGiveDomain() == NO_DOMAIN && thisPromotion.GetGiveDomain() != NO_DOMAIN)
+	{
+		ChangeGiveDomain((DomainTypes)thisPromotion.GetGiveDomain());
+	}
+	if (getConvertDomain() == NO_DOMAIN && thisPromotion.GetConvertDomain() != NO_DOMAIN)
+	{
+		ChangeConvertDomain((DomainTypes)thisPromotion.GetConvertDomain());
+	}
+	if (getConvertDomainUnitType() == NO_UNIT && thisPromotion.GetConvertDomainUnit() != NO_UNIT)
+	{
+		ChangeConvertDomainUnit((UnitTypes)thisPromotion.GetConvertDomainUnit());
+	}
+
+	if (IsSelected())
+	{
+		DLLUI->setDirty(SelectionButtons_DIRTY_BIT, true);
+		DLLUI->setDirty(UnitInfo_DIRTY_BIT, true);
+		if (thisPromotion.GetEmbarkExtraVisibility() || thisPromotion.IsNoRevealMap() || thisPromotion.GetVisibilityChange())
+			GC.getMap().updateDeferredFog();
+	}
+
+	if (MOD_API_ACHIEVEMENTS)
+	{
+		PromotionTypes eBuffaloChest = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_BUFFALO_CHEST", true /*bHideAssert*/);
+		PromotionTypes eBuffaloLoins = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_BUFFALO_LOINS", true /*bHideAssert*/);
+
+		const PlayerTypes eActivePlayer = GC.getGame().getActivePlayer();
+		if (getOwner() == eActivePlayer && ((eIndex == eBuffaloChest && isHasPromotion(eBuffaloLoins)) || (eIndex == eBuffaloLoins && isHasPromotion(eBuffaloChest))))
+		{
+			gDLL->UnlockAchievement(ACHIEVEMENT_XP2_27);
+		}
 	}
 }
 
@@ -27736,6 +28197,9 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_iAOEDamageOnKill);
 	visitor(unit.m_iAOEDamageOnPillage);
 	visitor(unit.m_iAoEDamageOnMove);
+	visitor(unit.m_seBlockedPromotions);
+	visitor(unit.m_seConditionalPromotions);
+	visitor(unit.m_vsPlaguesToInflict);
 	visitor(unit.m_iPartialHealOnPillage);
 	visitor(unit.m_iSplashDamage);
 	visitor(unit.m_iMultiAttackBonus);
@@ -27805,6 +28269,7 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_iIgnoreFeatureDamageCount);
 	visitor(unit.m_iExtraTerrainDamageCount);
 	visitor(unit.m_iExtraFeatureDamageCount);
+	visitor(unit.m_iCannotHealCount);
 	visitor(unit.m_iNearbyImprovementCombatBonus);
 	visitor(unit.m_iNearbyImprovementBonusRange);
 	visitor(unit.m_eCombatBonusImprovement);
@@ -27820,6 +28285,8 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_iStackedGreatGeneralExperience);
 	visitor(unit.m_iWonderProductionModifier);
 	visitor(unit.m_iUnitProductionModifier);
+	visitor(unit.m_iTileDamageIfNotMoved);
+	visitor(unit.m_iFortifiedModifier);
 	visitor(unit.m_iNearbyEnemyDamage);
 	visitor(unit.m_iAdjacentCityDefenseMod);
 	visitor(unit.m_iGGGAXPPercent);
@@ -27850,7 +28317,7 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_iNumTilesRevealedThisTurn);
 	visitor(unit.m_bSpottedEnemy);
 	visitor(unit.m_iGainsXPFromScouting);
-	visitor(unit.m_iGainsXPFromPillaging);
+	visitor(unit.m_iXPFromPillaging);
 	visitor(unit.m_iGainsXPFromSpotting);
 	visitor(unit.m_iCaptureDefeatedEnemyChance);
 	visitor(unit.m_iBarbCombatBonus);
@@ -27954,15 +28421,21 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_featureImpassableCount);
 	visitor(unit.m_extraTerrainAttackPercent);
 	visitor(unit.m_extraTerrainDefensePercent);
+	visitor(unit.m_vTerrainModifierAttack);
+	visitor(unit.m_vTerrainModifierDefense);
 	visitor(unit.m_extraFeatureAttackPercent);
 	visitor(unit.m_extraFeatureDefensePercent);
 	visitor(unit.m_extraUnitClassAttackMod);
 	visitor(unit.m_extraUnitClassDefenseMod);
 	visitor(unit.m_aiNumTimesAttackedThisTurn);
 	visitor(unit.m_yieldFromScouting);
+	visitor(unit.m_piYieldFromAncientRuins);
+	visitor(unit.m_piYieldFromTRPlunder);
 	visitor(unit.m_yieldFromKills);
 	visitor(unit.m_yieldFromBarbarianKills);
 	visitor(unit.m_extraUnitCombatModifier);
+	visitor(unit.m_extraUnitCombatModifierAttack);
+	visitor(unit.m_extraUnitCombatModifierDefense);
 	visitor(unit.m_unitClassModifier);
 	visitor(unit.m_iCombatModPerAdjacentUnitCombatModifier);
 	visitor(unit.m_iCombatModPerAdjacentUnitCombatAttackMod);
@@ -28018,6 +28491,7 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_extraDomainDefenses);
 	visitor(unit.m_YieldModifier);
 	visitor(unit.m_YieldChange);
+	visitor(unit.m_aiYieldFromCombatExperienceTimes100);
 	visitor(unit.m_iGarrisonYieldChange);
 	visitor(unit.m_iFortificationYieldChange);
 	visitor(unit.m_iMaxHitPointsBase);
@@ -28682,6 +29156,9 @@ bool CvUnit::shouldHeal(bool bBeforeAttacks) const
 	if (isDelayedDeath() || !IsHurt())
 		return false;
 
+	if (IsCannotHeal())
+		return false;
+
 	//sometimes we should heal but we have to fight instead
 	if (bBeforeAttacks)
 	{
@@ -28713,9 +29190,32 @@ bool CvUnit::shouldHeal(bool bBeforeAttacks) const
 			if (bAllowMoreDamage || iMaxHealRate == 0)
 				iAcceptableDamage = 50;
 
+			if (!GetConditionalPromotions().empty())
+			{
+				iAcceptableDamage = min(iAcceptableDamage, GetDamageAcceptableForConditionalPromotion());
+			}
+
 			return getDamage() > iAcceptableDamage;
 		}
 	}
+}
+
+//	--------------------------------------------------------------------------------
+// how much damage are we allowed to have so our conditional promotions with GetMinEffectiveHealth() are still active?
+int CvUnit::GetDamageAcceptableForConditionalPromotion() const
+{
+	int iDamageAcceptable = GetMaxHitPoints();
+
+	std::set<PromotionTypes> seConditionalPromotions = GetConditionalPromotions();
+	for (std::set<PromotionTypes>::iterator iter = seConditionalPromotions.begin(); iter != seConditionalPromotions.end(); iter++)
+	{
+		PromotionTypes ePromotion = *iter;
+		CvPromotionEntry* pkPromotion = GC.getPromotionInfo(ePromotion);
+		if (pkPromotion->GetMinEffectiveHealth() > 0)
+			iDamageAcceptable = min(iDamageAcceptable, (100 - pkPromotion->GetMinEffectiveHealth()) * GetMaxHitPoints() / 100);
+	}
+
+	return iDamageAcceptable;
 }
 
 //	--------------------------------------------------------------------------------
@@ -30623,13 +31123,13 @@ CvUnit* CvUnit::rangeStrikeTarget(const CvPlot& targetPlot, bool bNoncombatAllow
 	return NULL;
 }
 
-void CvUnit::DoPlagueTransfer(CvUnit& defender)
+void CvUnit::DoPlagueTransfer(CvUnit& defender, bool bAttacking)
 {
 	//We got here without being able to plague someone? Abort!
-	if (!CanPlague(&defender))
+	if (defender.isDelayedDeath())
 		return;
 
-	vector<int> vInflictedPlagues = GetInflictedPlagueIDs();
+	vector<PlagueInfo> vInflictedPlagues = GetPlaguesToInflict();
 
 	// This unit does not inflict plagues.
 	if (vInflictedPlagues.size() == 0)
@@ -30637,25 +31137,36 @@ void CvUnit::DoPlagueTransfer(CvUnit& defender)
 
 	int iCount = vInflictedPlagues.size() + 1;
 
-	for (std::vector<int>::iterator it = vInflictedPlagues.begin(); it != vInflictedPlagues.end(); it++)
+	for (std::vector<PlagueInfo>::iterator it = vInflictedPlagues.begin(); it != vInflictedPlagues.end(); it++)
 	{
-		int iPlagueChance = 0;
-		PromotionTypes eInflictedPlague = GetInflictedPlague(*it, iPlagueChance);
+		if (defender.getDomainType() != (*it).eDomain)
+			continue;
+
+		if (bAttacking && !(*it).bApplyOnAttack)
+			continue;
+
+		if (!bAttacking && !(*it).bApplyOnDefense)
+			continue;
+
+		PromotionTypes eInflictedPlague = (*it).ePlague;
 		CvPromotionEntry* pkPlaguePromotionInfo = GC.getPromotionInfo(eInflictedPlague);
 
-		// Is the plague inflicted?
-		int iRoll = GC.getGame().randRangeInclusive(1, 100, CvSeeder::fromRaw(0x09527e40).mix(GetID()).mix(defender.GetID()).mix(iCount));
-		iCount--;
-		if (iRoll > iPlagueChance)
-			return;
-
 		// Is the defender immune to the plague?
-		if (defender.ImmuneToPlague(*it))
-			return;
+		if (defender.IsPromotionBlocked(eInflictedPlague))
+			continue;
+
+		// Random chance
+		if ((*it).iApplyChance < 100)
+		{
+			int iRoll = GC.getGame().randRangeInclusive(1, 100, CvSeeder::fromRaw(0x09527e40).mix(GetID()).mix(defender.GetID()).mix(iCount));
+			iCount--;
+			if (iRoll > (*it).iApplyChance)
+				continue;
+		}
 
 		// Does the defender already have a stronger version of this plague?
-		if (defender.HasPlague(*it, pkPlaguePromotionInfo->GetPlaguePriority() + 1))
-			return;
+		if (defender.HasPlague(pkPlaguePromotionInfo->GetPlagueID(), pkPlaguePromotionInfo->GetPlaguePriority() + 1))
+			continue;
 
 		// This might kill ye a little!
 		defender.setHasPromotion(eInflictedPlague, true);
@@ -30700,7 +31211,7 @@ void CvUnit::DoPlagueTransfer(CvUnit& defender)
 		else
 		{
 			CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
-			if (pNotifications && iPlagueChance < 100)
+			if (pNotifications && (*it).iApplyChance < 100)
 			{
 				Localization::String strMessage = Localization::Lookup("TXT_KEY_UNIT_PROMOTION_TRANSFER");
 				strMessage << getUnitInfo().GetTextKey();
@@ -31516,22 +32027,27 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	}
 	
 
-
-	iTemp = pkPromotionInfo->GetPlagueChance();
-	// nM: +100 Boarding Party 1, Boarding Party 3.
-	if (iTemp != 0)
+	// Plagues
+	// // nM: +100 Boarding Party 1, Boarding Party 3.
+	if (!pkPromotionInfo->GetPlagues().empty())
 	{
+		iTemp = 0;
+		std::vector<PlagueInfo> vPlagues = pkPromotionInfo->GetPlagues();
+		for (std::vector<PlagueInfo>::iterator it = vPlagues.begin(); it != vPlagues.end(); it++)
+		{
+			iTemp += (*it).iApplyChance;
+		}
 		iExtra = iTemp  * (iFlavorOffense + iFlavorDefense + iFlavorCityDefense);
 		iExtra *= 0.08;
 		iValue += iExtra;
 	}
 
-	iTemp = pkPromotionInfo->GetPlagueIDImmunity();
 	// nM: +1 Boarding Party 2. 	nR: +1 Indomidable (targeting 4).
-	if (iTemp != 0)
+	if (!pkPromotionInfo->GetBlockedPromotions().empty())
 	{
 		iExtra = (2 * iFlavorOffense + iFlavorDefense);
-		iExtra *= 8;
+		iExtra *= pkPromotionInfo->GetBlockedPromotions().size();
+		iExtra *= 4;
 		iValue += iExtra;
 	}
 	
@@ -31553,12 +32069,16 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 #endif
 
 	
+	iTemp = pkPromotionInfo->GetCombatChange();
+	if (iTemp != 0)
+	{
+		iExtra = (100 * iTemp / GetBaseCombatStrength()) * (iFlavorOffense + iFlavorDefense);
+		iExtra *= 0.5;
+		iValue += iExtra;
+	}
 
 
-			// City modifiers
-
-
-	
+	// City modifiers
 
 	iTemp = pkPromotionInfo->GetCityAttackPercent();
 	// M + mM: +25 Drill 1-3, +33 siege.	S: +15 siege 1-3, +50 Volley.	nM: +75 Naval Siege, + 100(125) Vanguard (coastal terror).
@@ -31683,7 +32203,24 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 			
 	}
 
-		// Melee Attack Helpers
+
+	iTemp = pkPromotionInfo->GetTileDamageIfNotMoved();
+	if (iTemp != 0)
+	{
+		iExtra = iTemp * (iFlavorOffense + iFlavorDefense + iFlavorCityDefense);
+		iExtra *= 1.5;
+		iValue += iExtra;
+	}
+
+	iTemp = pkPromotionInfo->GetFortifiedModifier();
+	if (iTemp != 0 && IsEverFortifyable())
+	{
+		iExtra = iTemp * (3 * iFlavorDefense);
+		iExtra *= 1.5;
+		iValue += iExtra;
+	}
+
+	// Melee Attack Helpers
 
 	iTemp = pkPromotionInfo->IsIgnoreZOC();
 	// Scout: Trailblazer (woodland trailblazer) 3.		nM: Pincer (boarding party 4).
@@ -31999,7 +32536,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		iValue += iExtra;
 	}
 
-			// Final Complex modifiers 
+	// Final Complex modifiers 
 
 	for(iI = 0; iI < GC.getNumTerrainInfos(); iI++)
 	{
@@ -32007,7 +32544,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		CvTerrainInfo* pkTerrainInfo = GC.getTerrainInfo(eTerrain);
 		if(pkTerrainInfo)
 		{
-			iTemp = pkPromotionInfo->GetTerrainAttackPercent(iI);
+			iTemp = pkPromotionInfo->GetTerrainAttackPercent(iI) + pkPromotionInfo->GetTerrainModifierAttack(iI);
 			if(iTemp != 0)
 			{
 				iExtra = getExtraTerrainAttackPercent(eTerrain);
@@ -32016,7 +32553,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 				iValue += iExtra;
 			}
 
-			iTemp = pkPromotionInfo->GetTerrainDefensePercent(iI);
+			iTemp = pkPromotionInfo->GetTerrainDefensePercent(iI) + pkPromotionInfo->GetTerrainModifierDefense(iI);
 			if(iTemp != 0)
 			{
 				iExtra = getExtraTerrainDefensePercent(eTerrain);
@@ -32205,30 +32742,51 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		CvBaseInfo* pkUnitCombatInfo = GC.getUnitCombatClassInfo(eUnitCombat);
 		if(pkUnitCombatInfo)
 		{
+			// attack
 			iTemp = pkPromotionInfo->GetUnitCombatModifierPercent(iI);
 				// M: +33 vs Mounted, formation 1,2.	AA, aF: vs aF and aB: +100 Air supremacy (anti air) 2.
 									// Could this be changed to a DOMAIN_AIR combat modifier?
-			
-			iTemp += 2 * pkPromotionInfo->GetCombatModPerAdjacentUnitCombatModifierPercent(iI);
-			iTemp +=  pkPromotionInfo->GetCombatModPerAdjacentUnitCombatAttackModifier(iI);
+			iTemp += pkPromotionInfo->GetUnitCombatModifierPercentAttack(iI);
+
+			iTemp += pkPromotionInfo->GetCombatModPerAdjacentUnitCombatModifierPercent(iI);
+			iTemp += pkPromotionInfo->GetCombatModPerAdjacentUnitCombatAttackModifier(iI);
 				// nM: + 10 vs sub, nM, nR, C, encirclement.
+
+			if (iTemp > 0)
+			{
+				iExtra = iTemp * (2 * iFlavorOffense + iFlavorDefense);
+				iExtra *= 0.15;
+				if (IsCanAttackRanged())
+					iExtra *= 0.6;
+				if (getDomainType() == DOMAIN_SEA)	// required for balance
+					iExtra *= 0.8;
+				if (GetAirInterceptRange() > 0)		// Value for air supremacy will be high but that's probably correct
+					iExtra *= 1.5;
+				iValue += iExtra;
+			}
+
+			// defense
+			iTemp = pkPromotionInfo->GetUnitCombatModifierPercent(iI);
+			iTemp += pkPromotionInfo->GetUnitCombatModifierPercentDefense(iI);
+			
+			iTemp += pkPromotionInfo->GetCombatModPerAdjacentUnitCombatModifierPercent(iI);
 			iTemp +=  pkPromotionInfo->GetCombatModPerAdjacentUnitCombatDefenseModifier(iI);
 				// nM: + 10 vs sub, nM, nR, C, Breacher.
 
 			// Would probably make more sense if the adjacent modifiers were base on domain instead of combat classes as well
 
-			if (iTemp <= 0)
-				continue;
-
-			iExtra = iTemp * ( 2 * iFlavorOffense + iFlavorDefense);
-			iExtra *= 0.3;
-			if (IsCanAttackRanged())
-				iExtra *= 0.6;
-			if (getDomainType() == DOMAIN_SEA)	// required for balance
-				iExtra *= 0.8;
-			if (GetAirInterceptRange() > 0)		// Value for air supremacy will be high but that's probably correct
-				iExtra *= 1.5;
-			iValue += iExtra;
+			if (iTemp > 0)
+			{
+				iExtra = iTemp * (iFlavorOffense + 2 * iFlavorDefense);
+				iExtra *= 0.15;
+				if (IsCanAttackRanged())
+					iExtra *= 0.6;
+				if (getDomainType() == DOMAIN_SEA)	// required for balance
+					iExtra *= 0.8;
+				if (GetAirInterceptRange() > 0)		// Value for air supremacy will be high but that's probably correct
+					iExtra *= 1.5;
+				iValue += iExtra;
+			}
 
 		}
 	}
@@ -32383,11 +32941,10 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	}
 
 
-
-	if (pkPromotionInfo->IsGainsXPFromPillaging() && !IsGainsXPFromPillaging())
+	iTemp = pkPromotionInfo->GetXPFromPillaging();
+	if (iTemp > 0)
 	{
-		iExtra = (iFlavorOffense + 2 * iFlavorMobile);
-		iExtra *= 5;
+		iExtra = iTemp * (iFlavorOffense + 2 * iFlavorMobile);
 		iExtra *= baseMoves(false);
 		if (hasFreePillageMove())
 			iExtra *= 2;
@@ -32471,7 +33028,31 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		iValue += iExtra;
 	}
 
-	return (int)iValue;
+	int iConditionalPromotionModifier = 100;
+	if (pkPromotionInfo->IsConditionalPromotion())
+	{
+		if (pkPromotionInfo->GetMinEffectiveHealth() > 0)
+		{
+			// if the promotion is only active when the unit has enough health, reduce its value
+			iConditionalPromotionModifier *= (100 - pkPromotionInfo->GetMinEffectiveHealth() / 2) / 100;
+		}
+		if (pkPromotionInfo->IsRequiresLeadership())
+		{
+			int iNumUnits = 0;
+			int iNumLeaders = 0;
+			int iLoop = 0;
+			for (CvUnit* pLoopUnit = GET_PLAYER(getOwner()).firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER(getOwner()).nextUnit(&iLoop))
+			{
+				if (((getDomainType() == DOMAIN_LAND && pLoopUnit->IsGreatGeneral()) || (getDomainType() == DOMAIN_SEA && pLoopUnit->IsGreatAdmiral())) && !pLoopUnit->isDelayedDeath() && !pLoopUnit->isProjectedToDieNextTurn())
+					iNumLeaders++;
+				if (pLoopUnit->IsCombatUnit() && pLoopUnit->getDomainType() == getDomainType())
+					iNumUnits++;
+			}
+			iConditionalPromotionModifier *= 5 * iNumLeaders / iNumUnits;
+		}
+	}
+
+	return (int)iValue * iConditionalPromotionModifier / 100;
 }
 
 

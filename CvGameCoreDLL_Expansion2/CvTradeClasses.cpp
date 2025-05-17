@@ -4979,6 +4979,12 @@ bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID, CvUnit* pUnit)
 		DLLUI->AddMessage(0, m_pPlayer->GetID(), true, /*10*/ GD_INT_GET(EVENT_MESSAGE_TIME), strBuffer);
 	}
 
+	CvCity* pCity = pUnit->getOriginCity();
+	if (pCity != NULL)
+	{
+		m_pPlayer->doInstantYield(INSTANT_YIELD_TYPE_PLUNDER_TRADE_ROUTE, false, NO_GREATPERSON, NO_BUILDING, 0, false, NO_PLAYER, NULL, false, pCity, false, true, false, NO_YIELD, pUnit);
+	}
+
 	// barbarians get a bonus unit out of the deal!
 	if (pUnit->isBarbarian())
 	{

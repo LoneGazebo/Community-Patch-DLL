@@ -510,6 +510,9 @@
 		<Row Tag="TXT_KEY_EUPANEL_WITHDRAW_CHANCE">
 			<Text>[COLOR_CYAN]Withdraw Chance[ENDCOLOR]</Text>
 		</Row>
+		<Row Tag="TXT_KEY_EUPANEL_RANGED_ATTACK_IN_BONUS">
+			<Text>Bonus Attacking in {1_TerrainType}</Text>
+		</Row>
 		<Row Tag="TXT_KEY_EUPANEL_WITHDRAW_CHANCE_100_PERCENT">
 			<Text>[COLOR_CYAN]Unit will withdraw from the attack[ENDCOLOR]</Text>
 		</Row>
@@ -1654,6 +1657,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_SPLASH">
 			<Text>Splash Damage</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISC_TILE_DAMAGE_NOT_MOVED">
+			<Text>Crouching Tiger</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MISC_YOU_ENEMY_UNITS_DEFECT">
 			<Text>Enemy Defection</Text>

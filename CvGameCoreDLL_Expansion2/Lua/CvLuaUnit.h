@@ -377,6 +377,8 @@ protected:
 
 	static int lTerrainAttackModifier(lua_State* L);
 	static int lTerrainDefenseModifier(lua_State* L);
+	static int lGetTerrainModifierAttack(lua_State* L);
+	static int lGetTerrainModifierDefense(lua_State* L);
 	static int lFeatureAttackModifier(lua_State* L);
 	static int lFeatureDefenseModifier(lua_State* L);
 	static int lUnitClassAttackModifier(lua_State* L);
@@ -577,6 +579,8 @@ protected:
 	static int lGetExtraFeatureAttackPercent(lua_State* L);
 	static int lGetExtraFeatureDefensePercent(lua_State* L);
 	static int lGetExtraUnitCombatModifier(lua_State* L);
+	static int lGetExtraUnitCombatModifierAttack(lua_State* L);
+	static int lGetExtraUnitCombatModifierDefense(lua_State* L);
 	static int lGetUnitClassModifier(lua_State* L);
 
 	static int lCanAcquirePromotion(lua_State* L);

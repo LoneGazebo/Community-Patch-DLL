@@ -463,6 +463,7 @@ public:
 	bool rebase(int iX, int iY, bool bForced = false);
 
 	bool canPillage(const CvPlot* pPlot) const;
+	int getCurrentPillageHeal() const;
 	bool shouldPillage(const CvPlot* pPlot, bool bConservative = false) const;
 	bool pillage();
 
@@ -693,6 +694,7 @@ public:
 	int GetUnhappinessCombatPenalty() const;
 
 	void SetBaseCombatStrength(int iCombat);
+	void ChangeBaseCombatStrength(int iValue);
 	int GetBaseCombatStrength() const;
 	int GetBestAttackStrength() const; //ranged or melee, whichever is greater
 	int GetDamageCombatModifier(bool bForDefenseAgainstRanged = false, int iAssumedDamage = 0) const;
@@ -718,6 +720,8 @@ public:
 									const CvPlot* pTargetPlot = NULL, const CvPlot* pFromPlot = NULL, 
 									bool bIgnoreUnitAdjacencyBoni = false, bool bQuickAndDirty = false) const;
 	int GetRangeCombatSplashDamage(const CvPlot* pTargetPlot) const;
+
+	int EstimatePlagueDamage(const CvUnit* pEnemy) const;
 
 	bool canSiege(TeamTypes eTeam) const;
 	bool canAirDefend(const CvPlot* pPlot = NULL) const;
@@ -756,6 +760,10 @@ public:
 	int getExtraFeatureDamageCount() const;
 	void changeExtraFeatureDamageCount(int iValue);
 
+	bool IsCannotHeal() const;
+	int getCannotHealCount() const;
+	void changeCannotHealCount(int iValue);
+
 #if defined(MOD_PROMOTIONS_IMPROVEMENT_BONUS)
 	int GetNearbyImprovementCombatBonus() const;
 	void SetNearbyImprovementCombatBonus(int iCombatBonus);
@@ -790,6 +798,10 @@ public:
 	void ChangeWonderProductionModifier(int iValue);
 	int getMilitaryProductionModifier() const;
 	void ChangeMilitaryProductionModifier(int iValue);
+	int GetTileDamageIfNotMoved() const;
+	void ChangeTileDamageIfNotMoved(int iValue);
+	int GetFortifiedModifier() const;
+	void ChangeFortifiedModifier(int iValue);
 	int getNearbyEnemyDamage() const;
 	void ChangeNearbyEnemyDamage(int iValue);
 	int GetAdjacentCityDefenseMod() const;
@@ -876,9 +888,8 @@ public:
 	int GetGainsXPFromSpotting() const;
 	void ChangeGainsXPFromSpotting(int iValue);
 
-	bool IsGainsXPFromPillaging() const;
-	int GetGainsXPFromPillaging() const;
-	void ChangeGainsXPFromPillaging(int iValue);
+	int GetXPFromPillaging() const;
+	void ChangeXPFromPillaging(int iValue);
 
 	bool IsGainsYieldFromScouting() const;
 
@@ -1028,6 +1039,9 @@ public:
 	int GetYieldChange(YieldTypes eYield) const;
 	void SetYieldChange(YieldTypes eYield, int iValue);
 
+	int GetYieldFromCombatExperienceTimes100(YieldTypes eYield) const;
+	void SetYieldFromCombatExperienceTimes100(YieldTypes eYield, int iValue);
+
 	int GetGarrisonYieldChange(YieldTypes eYield) const;
 	void SetGarrisonYieldChange(YieldTypes eYield, int iValue);
 
@@ -1106,6 +1120,7 @@ public:
 	int getMoves() const;
 	void changeMoves(int iChange);
 	void restoreFullMoves();
+	void updateConditionalPromotions();
 	void finishMoves();
 
 	bool IsImmobile() const;
@@ -1142,7 +1157,8 @@ public:
 	void SetFortified(bool bValue);
 	bool getHasWithdrawnThisTurn() const;
 	void setHasWithdrawnThisTurn(bool bNewValue);
-	
+
+	void DoExtraPlotDamage(CvPlot* pWhere, int iValue, const char* chTextKey);
 	int DoAdjacentPlotDamage(CvPlot* pWhere, int iValue, const char* chTextKey = NULL);
 
 	int getBlitzCount() const;
@@ -1251,12 +1267,8 @@ public:
 	void changeExtraWithdrawal(int iChange);
 
 	// Plague Stuff
-	std::vector<int> GetInflictedPlagueIDs() const;
-	PromotionTypes GetInflictedPlague(int iPlagueID, int& iPlagueChance) const;
 	bool HasPlague(int iPlagueID = -1, int iMinimumPriority = -1) const;
 	void RemovePlague(int iPlagueID = -1, int iHigherPriority = -1);
-	bool ImmuneToPlague(int iPlagueID = -1) const;
-	bool CanPlague(CvUnit* pOtherUnit) const;
 
 #if defined(MOD_BALANCE_CORE_JFD)
 	void setContractUnit(ContractTypes eContract);
@@ -1737,6 +1749,10 @@ public:
 	void changeExtraTerrainAttackPercent(TerrainTypes eIndex, int iChange);
 	int getExtraTerrainDefensePercent(TerrainTypes eIndex) const;
 	void changeExtraTerrainDefensePercent(TerrainTypes eIndex, int iChange);
+	int GetTerrainModifierDefense(TerrainTypes eIndex) const;
+	void ChangeTerrainModifierDefense(TerrainTypes eIndex, int iChange);
+	int GetTerrainModifierAttack(TerrainTypes eIndex) const;
+	void ChangeTerrainModifierAttack(TerrainTypes eIndex, int iChange);
 	int getExtraFeatureAttackPercent(FeatureTypes eIndex) const;
 	void changeExtraFeatureAttackPercent(FeatureTypes eIndex, int iChange);
 	int getExtraFeatureDefensePercent(FeatureTypes eIndex) const;
@@ -1756,6 +1772,10 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	int getYieldFromScouting(YieldTypes eIndex) const;
 	void changeYieldFromScouting(YieldTypes eIndex, int iChange);
+	int getYieldFromAncientRuins(YieldTypes eIndex) const;
+	void changeYieldFromAncientRuins(YieldTypes eIndex, int iChange);
+	int getYieldFromTRPlunder(YieldTypes eIndex) const;
+	void changeYieldFromTRPlunder(YieldTypes eIndex, int iChange);
 	bool isCultureFromExperienceDisbandUpgrade() const;
 	bool isFreeUpgrade() const;
 	bool isUnitEraUpgrade() const;
@@ -1769,6 +1789,10 @@ public:
 
 	int getExtraUnitCombatModifier(UnitCombatTypes eIndex) const;
 	void changeExtraUnitCombatModifier(UnitCombatTypes eIndex, int iChange);
+	int getExtraUnitCombatModifierAttack(UnitCombatTypes eIndex) const;
+	void changeExtraUnitCombatModifierAttack(UnitCombatTypes eIndex, int iChange);
+	int getExtraUnitCombatModifierDefense(UnitCombatTypes eIndex) const;
+	void changeExtraUnitCombatModifierDefense(UnitCombatTypes eIndex, int iChange);
 
 	int getUnitClassModifier(UnitClassTypes eIndex) const;
 	void changeUnitClassModifier(UnitClassTypes eIndex, int iChange);
@@ -1778,9 +1802,17 @@ public:
 
 	bool canAcquirePromotion(PromotionTypes ePromotion) const;
 	bool canAcquirePromotionAny() const;
+	std::set<PromotionTypes> GetConditionalPromotions() const;
+	bool IsPromotionBlocked(PromotionTypes eIndex) const;
+	std::vector<PlagueInfo> GetPlaguesToInflict() const;
+	void ModifyPlaguesToInflict(PlagueInfo sPlagueInfo, bool bAdd);
+	bool arePromotionConditionsFulfilled(PromotionTypes eIndex) const;
+	void SetPromotionBlocked(PromotionTypes eIndex, bool bNewValue);
 	bool isPromotionValid(PromotionTypes ePromotion) const;
 	bool isHasPromotion(PromotionTypes eIndex) const;
 	void setHasPromotion(PromotionTypes eIndex, bool bNewValue);
+	bool isPromotionActive(PromotionTypes eIndex) const;
+	void setPromotionActive(PromotionTypes eIndex, bool bNewValue);
 
 	int getSubUnitCount() const;
 	int getSubUnitsAlive() const;
@@ -1813,6 +1845,8 @@ public:
 	bool isAlwaysHostile(const CvPlot& pPlot) const;
 	void changeAlwaysHostileCount(int iValue);
 	int getAlwaysHostileCount() const;
+
+	int GetDamageAcceptableForConditionalPromotion() const;
 
 	int getArmyID() const;
 	void setArmyID(int iNewArmyID);
@@ -2114,6 +2148,9 @@ protected:
 	int m_iAOEDamageOnKill;
 	int m_iAOEDamageOnPillage;
 	int m_iAoEDamageOnMove;
+	std::set<PromotionTypes> m_seBlockedPromotions;
+	std::set<PromotionTypes> m_seConditionalPromotions;
+	std::vector<PlagueInfo> m_vsPlaguesToInflict;
 	int m_iPartialHealOnPillage;
 	int m_iSplashDamage;
 	int m_iMultiAttackBonus;
@@ -2188,6 +2225,7 @@ protected:
 	int m_iIgnoreFeatureDamageCount;
 	int m_iExtraTerrainDamageCount;
 	int m_iExtraFeatureDamageCount;
+	int m_iCannotHealCount;
 #if defined(MOD_PROMOTIONS_IMPROVEMENT_BONUS)
 	int m_iNearbyImprovementCombatBonus;
 	int m_iNearbyImprovementBonusRange;
@@ -2206,6 +2244,8 @@ protected:
 	int m_iStackedGreatGeneralExperience;
 	int m_iWonderProductionModifier;
 	int m_iUnitProductionModifier;
+	int m_iTileDamageIfNotMoved;
+	int m_iFortifiedModifier;
 	int m_iNearbyEnemyDamage;
 	int m_iAdjacentCityDefenseMod;
 	int m_iGGGAXPPercent;
@@ -2244,7 +2284,7 @@ protected:
 	int m_iNumTilesRevealedThisTurn;
 	bool m_bSpottedEnemy;
 	int m_iGainsXPFromScouting;
-	int m_iGainsXPFromPillaging; // OBSOLETE: to be removed in VP5.0
+	int m_iXPFromPillaging;
 	int m_iGainsXPFromSpotting;
 	int m_iCaptureDefeatedEnemyChance;
 	int m_iBarbCombatBonus;
@@ -2353,6 +2393,7 @@ protected:
 	std::vector<int> m_extraDomainDefenses;
 	std::vector<int> m_YieldModifier;
 	std::vector<int> m_YieldChange;
+	std::vector<int> m_aiYieldFromCombatExperienceTimes100;
 	std::vector<int> m_iGarrisonYieldChange;
 	std::vector<int> m_iFortificationYieldChange;
 
@@ -2388,6 +2429,8 @@ protected:
 	FeatureTypeCounter m_featureImpassableCount;
 	TerrainTypeCounter m_extraTerrainAttackPercent;
 	TerrainTypeCounter m_extraTerrainDefensePercent;
+	TerrainTypeCounter m_vTerrainModifierAttack;
+	TerrainTypeCounter m_vTerrainModifierDefense;
 	FeatureTypeCounter m_extraFeatureAttackPercent;
 	FeatureTypeCounter m_extraFeatureDefensePercent;
 
@@ -2396,10 +2439,14 @@ protected:
 #if defined(MOD_BALANCE_CORE)
 	std::vector<int> m_aiNumTimesAttackedThisTurn;
 	std::vector<int> m_yieldFromScouting;
+	std::vector<int> m_piYieldFromAncientRuins;
+	std::vector<int> m_piYieldFromTRPlunder;
 #endif
 	std::vector<int> m_yieldFromKills;
 	std::vector<int> m_yieldFromBarbarianKills;
 	std::vector<int> m_extraUnitCombatModifier;
+	std::vector<int> m_extraUnitCombatModifierAttack;
+	std::vector<int> m_extraUnitCombatModifierDefense;
 	std::vector<int> m_unitClassModifier;
 #if defined(MOD_BALANCE_CORE)
 	std::vector<int> m_iCombatModPerAdjacentUnitCombatModifier;
@@ -2466,7 +2513,7 @@ protected:
 	bool canAdvance(const CvPlot& pPlot, int iThreshold) const;
 
 #if defined(MOD_BALANCE_CORE)
-	void DoPlagueTransfer(CvUnit& defender);
+	void DoPlagueTransfer(CvUnit& defender, bool bAttacking);
 #endif
 #if defined(MOD_CARGO_SHIPS)
 	void DoCargoPromotions(CvUnit& cargounit);
@@ -2566,6 +2613,9 @@ SYNC_ARCHIVE_VAR(int, m_iDisembarkFlatCostCount)
 SYNC_ARCHIVE_VAR(int, m_iAOEDamageOnKill)
 SYNC_ARCHIVE_VAR(int, m_iAOEDamageOnPillage)
 SYNC_ARCHIVE_VAR(int, m_iAoEDamageOnMove)
+SYNC_ARCHIVE_VAR(SYNC_ARCHIVE_VAR_TYPE(std::set<PromotionTypes>), m_seBlockedPromotions)
+SYNC_ARCHIVE_VAR(SYNC_ARCHIVE_VAR_TYPE(std::set<PromotionTypes>), m_seConditionalPromotions)
+SYNC_ARCHIVE_VAR(SYNC_ARCHIVE_VAR_TYPE(std::vector<PlagueInfo>), m_vsPlaguesToInflict)
 SYNC_ARCHIVE_VAR(int, m_iPartialHealOnPillage)
 SYNC_ARCHIVE_VAR(int, m_iSplashDamage)
 SYNC_ARCHIVE_VAR(int, m_iMultiAttackBonus)
@@ -2635,6 +2685,7 @@ SYNC_ARCHIVE_VAR(int, m_iIgnoreTerrainDamageCount)
 SYNC_ARCHIVE_VAR(int, m_iIgnoreFeatureDamageCount)
 SYNC_ARCHIVE_VAR(int, m_iExtraTerrainDamageCount)
 SYNC_ARCHIVE_VAR(int, m_iExtraFeatureDamageCount)
+SYNC_ARCHIVE_VAR(int, m_iCannotHealCount)
 SYNC_ARCHIVE_VAR(int, m_iNearbyImprovementCombatBonus)
 SYNC_ARCHIVE_VAR(int, m_iNearbyImprovementBonusRange)
 SYNC_ARCHIVE_VAR(ImprovementTypes, m_eCombatBonusImprovement)
@@ -2650,6 +2701,8 @@ SYNC_ARCHIVE_VAR(int, m_iPillageBonusStrengthPercent)
 SYNC_ARCHIVE_VAR(int, m_iStackedGreatGeneralExperience)
 SYNC_ARCHIVE_VAR(int, m_iWonderProductionModifier)
 SYNC_ARCHIVE_VAR(int, m_iUnitProductionModifier)
+SYNC_ARCHIVE_VAR(int, m_iTileDamageIfNotMoved)
+SYNC_ARCHIVE_VAR(int, m_iFortifiedModifier)
 SYNC_ARCHIVE_VAR(int, m_iNearbyEnemyDamage)
 SYNC_ARCHIVE_VAR(int, m_iAdjacentCityDefenseMod)
 SYNC_ARCHIVE_VAR(int, m_iGGGAXPPercent)
@@ -2680,7 +2733,7 @@ SYNC_ARCHIVE_VAR(int, m_iCanCrossIceCount)
 SYNC_ARCHIVE_VAR(int, m_iNumTilesRevealedThisTurn)
 SYNC_ARCHIVE_VAR(bool, m_bSpottedEnemy)
 SYNC_ARCHIVE_VAR(int, m_iGainsXPFromScouting)
-SYNC_ARCHIVE_VAR(int, m_iGainsXPFromPillaging)
+SYNC_ARCHIVE_VAR(int, m_iXPFromPillaging)
 SYNC_ARCHIVE_VAR(int, m_iGainsXPFromSpotting)
 SYNC_ARCHIVE_VAR(int, m_iCaptureDefeatedEnemyChance)
 SYNC_ARCHIVE_VAR(int, m_iBarbCombatBonus)
@@ -2784,15 +2837,21 @@ SYNC_ARCHIVE_VAR(TerrainTypeCounter, m_terrainImpassableCount)
 SYNC_ARCHIVE_VAR(FeatureTypeCounter, m_featureImpassableCount)
 SYNC_ARCHIVE_VAR(TerrainTypeCounter, m_extraTerrainAttackPercent)
 SYNC_ARCHIVE_VAR(TerrainTypeCounter, m_extraTerrainDefensePercent)
+SYNC_ARCHIVE_VAR(TerrainTypeCounter, m_vTerrainModifierAttack)
+SYNC_ARCHIVE_VAR(TerrainTypeCounter, m_vTerrainModifierDefense)
 SYNC_ARCHIVE_VAR(FeatureTypeCounter, m_extraFeatureAttackPercent)
 SYNC_ARCHIVE_VAR(FeatureTypeCounter, m_extraFeatureDefensePercent)
 SYNC_ARCHIVE_VAR(UnitClassCounter, m_extraUnitClassAttackMod)
 SYNC_ARCHIVE_VAR(UnitClassCounter, m_extraUnitClassDefenseMod)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiNumTimesAttackedThisTurn)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_yieldFromScouting)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_piYieldFromAncientRuins)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_piYieldFromTRPlunder)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_yieldFromKills)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_yieldFromBarbarianKills)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_extraUnitCombatModifier)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_extraUnitCombatModifierAttack)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_extraUnitCombatModifierDefense)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_unitClassModifier)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_iCombatModPerAdjacentUnitCombatModifier)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_iCombatModPerAdjacentUnitCombatAttackMod)

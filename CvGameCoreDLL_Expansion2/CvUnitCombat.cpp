@@ -108,6 +108,7 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 
 	pkCombatInfo->setUnit(BATTLE_UNIT_ATTACKER, &kAttacker);
 	pkCombatInfo->setUnit(BATTLE_UNIT_DEFENDER, pkDefender);
+	pkCombatInfo->setHasMoved(BATTLE_UNIT_ATTACKER, kAttacker.hasMoved());
 	pkCombatInfo->setPlot(&plot);
 
 	// Attacking a City
@@ -276,9 +277,9 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 		}
 
 		//Chance to spread promotion?
-		kAttacker.DoPlagueTransfer(*pkDefender);
+		kAttacker.DoPlagueTransfer(*pkDefender, true);
 		if (!pkDefender->IsCanAttackRanged())
-			pkDefender->DoPlagueTransfer(kAttacker);
+			pkDefender->DoPlagueTransfer(kAttacker, false);
 #endif
 		int iAttackerTotalDamageInflicted = iAttackerDamageInflicted + pkDefender->getDamage();
 		int iDefenderTotalDamageInflicted = iDefenderDamageInflicted + kAttacker.getDamage();
@@ -709,6 +710,7 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvUnit& kAttacker, CvUnit* pkDefende
 	BATTLE_STARTED(BATTLE_TYPE_RANGED, plot);
 	pkCombatInfo->setUnit(BATTLE_UNIT_ATTACKER, &kAttacker);
 	pkCombatInfo->setUnit(BATTLE_UNIT_DEFENDER, pkDefender);
+	pkCombatInfo->setHasMoved(BATTLE_UNIT_ATTACKER, kAttacker.hasMoved());
 	pkCombatInfo->setPlot(&plot);
 
 	//////////////////////////////////////////////////////////////////////
@@ -755,7 +757,7 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvUnit& kAttacker, CvUnit* pkDefende
 		iTotalDamage = std::max(pkDefender->getDamage(), pkDefender->getDamage() + iDamage);
 
 		//Chance to spread promotion?
-		kAttacker.DoPlagueTransfer(*pkDefender);
+		kAttacker.DoPlagueTransfer(*pkDefender, true);
 	}
 	else
 	{
@@ -1036,6 +1038,10 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 						bTargetIsHuman = true;
 
 					pkAttacker->DoAdjacentPlotDamage(pkTargetPlot,min(iDamage,pkAttacker->getSplashDamage()),"TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_SPLASH");
+					if (!kCombatInfo.getHasMoved(BATTLE_UNIT_ATTACKER))
+					{
+						pkAttacker->DoExtraPlotDamage(pkTargetPlot, min(iDamage, pkAttacker->GetTileDamageIfNotMoved()), "TXT_KEY_MISC_TILE_DAMAGE_NOT_MOVED");
+					}
 					pkDefender->ChangeNumTimesAttackedThisTurn(pkAttacker->getOwner(), 1);
 
 					// Defender died
@@ -1170,6 +1176,10 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 						bTargetIsHuman = true;
 
 					pkAttacker->DoAdjacentPlotDamage(pkTargetPlot,min(iDamage,pkAttacker->getSplashDamage()),"TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_SPLASH");
+					if (!kCombatInfo.getHasMoved(BATTLE_UNIT_ATTACKER))
+					{
+						pkAttacker->DoExtraPlotDamage(pkTargetPlot, min(iDamage, pkAttacker->GetTileDamageIfNotMoved()), "TXT_KEY_MISC_TILE_DAMAGE_NOT_MOVED");
+					}
 
 					// City not already at 0 HP
 					if(pCity->getDamage() != pCity->GetMaxHitPoints())
@@ -4505,7 +4515,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackNuclear(CvUnit& kAttacker, int i
 void CvUnitCombat::ApplyPostKillTraitEffects(CvUnit* pkWinner, CvUnit* pkLoser)
 {
 	// "Heal if defeat enemy" promotion; doesn't apply if defeat a barbarian
-	if(pkWinner->getHPHealedIfDefeatEnemy() > 0 && (pkLoser->getOwner() != BARBARIAN_PLAYER || !(pkWinner->IsHealIfDefeatExcludeBarbarians())))
+	if(pkWinner->getHPHealedIfDefeatEnemy() > 0 && (pkLoser->getOwner() != BARBARIAN_PLAYER || !(pkWinner->IsHealIfDefeatExcludeBarbarians())) && !pkWinner->IsCannotHeal())
 	{
 		if(pkWinner->getHPHealedIfDefeatEnemy() > pkWinner->getDamage())
 		{
@@ -4522,7 +4532,10 @@ void CvUnitCombat::ApplyPostKillTraitEffects(CvUnit* pkWinner, CvUnit* pkLoser)
 		int iHealAmount = min(pkWinner->getDamage(), /*25*/ GD_INT_GET(PILLAGE_HEAL_AMOUNT));
 		pkWinner->changeMoves(GD_INT_GET(MOVE_DENOMINATOR));
 		pkWinner->setMadeAttack(false);
-		pkWinner->changeDamage(-iHealAmount);
+		if (!pkWinner->IsCannotHeal())
+		{
+			pkWinner->changeDamage(-iHealAmount);
+		}
 	}
 #endif
 	// If the modder wants the healing to be negative (ie additional damage), then let it be

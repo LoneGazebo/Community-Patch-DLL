@@ -189,6 +189,7 @@ CvCombatInfo::CvCombatInfo() :
 		m_iExperienceChange[i] = 0;
 		m_iMaxExperienceAllowed[i] = 0;
 		m_bInBorders[i] = false;
+		m_bHasMoved[i] = false;
 		m_bUpdateGlobal[i] = false;
 	}
 }
@@ -219,6 +220,7 @@ CvCombatInfo& CvCombatInfo::operator=(const CvCombatInfo& rhs)
 		m_iExperienceChange[i] = rhs.m_iExperienceChange[i];
 		m_iMaxExperienceAllowed[i] = rhs.m_iMaxExperienceAllowed[i];
 		m_bInBorders[i] = rhs.m_bInBorders[i];
+		m_bHasMoved[i] = rhs.m_bHasMoved[i];
 		m_bUpdateGlobal[i] = rhs.m_bUpdateGlobal[i];
 	}
 
@@ -447,6 +449,17 @@ void CvCombatInfo::setInBorders(BattleUnitTypes unitType, bool bInBorders)
 {
 	checkBattleUnitType(unitType);
 	m_bInBorders[unitType] = bInBorders;
+}
+
+bool CvCombatInfo::getHasMoved(BattleUnitTypes unitType) const
+{
+	checkBattleUnitType(unitType);
+	return m_bHasMoved[unitType];
+}
+void CvCombatInfo::setHasMoved(BattleUnitTypes unitType, bool bHasMoved)
+{
+	checkBattleUnitType(unitType);
+	m_bHasMoved[unitType] = bHasMoved;
 }
 
 bool CvCombatInfo::getUpdateGlobal(BattleUnitTypes unitType) const
