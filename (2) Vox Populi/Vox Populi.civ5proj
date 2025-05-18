@@ -65,6 +65,16 @@
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
+        <FileName>Database Changes/Minors/NewMinorColors.sql</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Database Changes/Minors/NewMinorCivilizations.xml</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
         <FileName>Database Changes/AI/NewStrategies.xml</FileName>
       </Action>
       <Action>
@@ -850,6 +860,11 @@
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
+        <FileName>Database Changes/Minors/MinorCivilizationChanges.sql</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
         <FileName>Database Changes/Minors/MinorClassOverrideSweeps.sql</FileName>
       </Action>
       <Action>
@@ -1086,6 +1101,11 @@
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
         <FileName>Database Changes/Text/en_US/Civilizations/CivilizationTextChanges.sql</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Database Changes/Text/en_US/Minors/MinorCivTextChanges.sql</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
@@ -1581,6 +1601,7 @@
     <Folder Include="Database Changes\Text\en_US\Difficulty\" />
     <Folder Include="Database Changes\Text\en_US\Espionage\" />
     <Folder Include="Database Changes\Text\en_US\Events\" />
+    <Folder Include="Database Changes\Text\en_US\Minors\" />
     <Folder Include="Database Changes\Text\en_US\Notifications\" />
     <Folder Include="Database Changes\Text\en_US\Policies\" />
     <Folder Include="Database Changes\Text\en_US\Tech\" />
@@ -4859,6 +4880,18 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
+    <Content Include="Database Changes\Minors\MinorCivilizationChanges.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Database Changes\Minors\NewMinorCivilizations.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Database Changes\Minors\NewMinorColors.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
     <Content Include="Database Changes\NewAutomates.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
@@ -5472,6 +5505,10 @@
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="Database Changes\Text\en_US\Events\NewEventText.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Database Changes\Text\en_US\Minors\MinorCivTextChanges.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
