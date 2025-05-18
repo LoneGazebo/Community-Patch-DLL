@@ -127,9 +127,9 @@ bool TContainer<T>::Remove(int iID)
 
 	if (it!=m_items.end())
 	{
+		m_order.erase( std::remove(m_order.begin(), m_order.end(), it->second), m_order.end() );
 		delete m_items[it->first];
 		m_items.erase(it->first);
-		m_order.erase( std::remove(m_order.begin(), m_order.end(), it->second), m_order.end() );
 		return true;
 	}
 
