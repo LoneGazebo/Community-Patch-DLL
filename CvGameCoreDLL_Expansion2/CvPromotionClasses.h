@@ -183,6 +183,7 @@ public:
 	int GetGoodyHutYieldBonus() const;
 	bool IsGainsXPFromScouting() const;
 	int GetXPFromPillaging() const;
+	int GetExtraXPOnKill() const;
 	bool IsGainsXPFromSpotting() const;
 	int NegatesPromotion() const;
 	bool CannotBeCaptured() const;
@@ -521,6 +522,7 @@ protected:
 	int m_iDiploMissionInfluence;
 	bool m_bGainsXPFromScouting;
 	int m_iXPFromPillaging;
+	int m_iExtraXPOnKill;
 	bool m_bGainsXPFromSpotting;
 	bool m_bCannotBeCaptured;
 	int m_iNegatesPromotion;

@@ -891,6 +891,9 @@ public:
 	int GetXPFromPillaging() const;
 	void ChangeXPFromPillaging(int iValue);
 
+	int GetExtraXPOnKill() const;
+	void ChangeExtraXPOnKill(int iValue);
+
 	bool IsGainsYieldFromScouting() const;
 
 	int GetCaptureDefeatedEnemyChance() const;
@@ -2285,6 +2288,7 @@ protected:
 	bool m_bSpottedEnemy;
 	int m_iGainsXPFromScouting;
 	int m_iXPFromPillaging;
+	int m_iExtraXPOnKill;
 	int m_iGainsXPFromSpotting;
 	int m_iCaptureDefeatedEnemyChance;
 	int m_iBarbCombatBonus;
@@ -2734,6 +2738,7 @@ SYNC_ARCHIVE_VAR(int, m_iNumTilesRevealedThisTurn)
 SYNC_ARCHIVE_VAR(bool, m_bSpottedEnemy)
 SYNC_ARCHIVE_VAR(int, m_iGainsXPFromScouting)
 SYNC_ARCHIVE_VAR(int, m_iXPFromPillaging)
+SYNC_ARCHIVE_VAR(int, m_iExtraXPOnKill)
 SYNC_ARCHIVE_VAR(int, m_iGainsXPFromSpotting)
 SYNC_ARCHIVE_VAR(int, m_iCaptureDefeatedEnemyChance)
 SYNC_ARCHIVE_VAR(int, m_iBarbCombatBonus)

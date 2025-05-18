@@ -183,6 +183,7 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iDiploMissionInfluence(0),
 	m_bGainsXPFromScouting(false),
 	m_iXPFromPillaging(0),
+	m_iExtraXPOnKill(0),
 	m_bGainsXPFromSpotting(false),
 	m_bCannotBeCaptured(false),
 	m_bIsLostOnMove(false),
@@ -464,6 +465,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iDiploMissionInfluence = kResults.GetInt("DiploMissionInfluence");
 	m_bGainsXPFromScouting = kResults.GetBool("GainsXPFromScouting");
 	m_iXPFromPillaging = kResults.GetInt("XPFromPillaging");
+	m_iExtraXPOnKill = kResults.GetInt("ExtraXPOnKill");
 	m_bGainsXPFromSpotting = kResults.GetBool("GainsXPFromSpotting");
 	m_bCannotBeCaptured = kResults.GetBool("CannotBeCaptured");
 	m_bIsLostOnMove = kResults.GetBool("IsLostOnMove");
@@ -2236,6 +2238,12 @@ bool CvPromotionEntry::IsGainsXPFromScouting() const
 int CvPromotionEntry::GetXPFromPillaging() const
 {
 	return m_iXPFromPillaging;
+}
+
+/// Accessor: Extra XP when killing a unit
+int CvPromotionEntry::GetExtraXPOnKill() const
+{
+	return m_iExtraXPOnKill;
 }
 
 /// Accessor: Can this Promotion grant XP from spotting?

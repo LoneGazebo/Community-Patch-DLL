@@ -17744,6 +17744,12 @@ void CvPlayer::ChangeReformationFollowerReduction(int iValue)
 /// Handle earning yields from a combat win
 void CvPlayer::DoYieldsFromKill(CvUnit* pAttackingUnit, CvUnit* pDefendingUnit, CvCity* pCity)
 {
+	//Extra XP for the attacker
+	if (pAttackingUnit && pAttackingUnit->GetExtraXPOnKill() > 0)
+	{
+		pAttackingUnit->changeExperienceTimes100(pAttackingUnit->GetExtraXPOnKill() * 100, -1, true);
+	}
+
 	//Bonus resource in a city every time you win a battle.
 	if (pDefendingUnit != NULL && pDefendingUnit->IsCombatUnit())
 	{
