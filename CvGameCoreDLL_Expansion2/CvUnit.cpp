@@ -10253,15 +10253,14 @@ int CvUnit::getCurrentPillageHeal() const
 	return iPillageHeal;
 }
 
-bool CvUnit::shouldPillage(const CvPlot* pPlot, bool bConservative) const
+bool CvUnit::shouldPillage(const CvPlot* pPlot, bool bConservative, bool bIgnoreMovement) const
 {
 	if (!canPillage(pPlot))
 		return false;
 
-	if (hasFreePillageMove() && pPlot->IsAdjacentCity())
+	if (hasFreePillageMove() && (pPlot->IsAdjacentCity() || (pPlot->getOwner() != NO_PLAYER && pPlot->getRouteType() != NO_ROUTE)))
 		return true;
 
-	int iPillageHeal = getCurrentPillageHeal();
 
 	// Citadel here?
 	ImprovementTypes eImprovement = pPlot->getImprovementType();
@@ -10272,9 +10271,18 @@ bool CvUnit::shouldPillage(const CvPlot* pPlot, bool bConservative) const
 			return true;
 	}
 
-	//be careful "wasting" movement for slow units
-	if (GetDanger() > GetCurrHitPoints() + iPillageHeal && getMoves() < GD_INT_GET(MOVE_DENOMINATOR) * 3 && !hasFreePillageMove())
-		return false;
+	int iPillageHeal = 0;
+	if (eImprovement != NO_IMPROVEMENT && !pPlot->IsImprovementPillaged() && !(pPlot->getOwner() != NO_PLAYER && GET_PLAYER(pPlot->getOwner()).isBorderGainlessPillage()))
+	{
+		iPillageHeal = getCurrentPillageHeal();
+	}
+
+	if (!bIgnoreMovement)
+	{
+		//be careful "wasting" movement for slow units
+		if (GetDanger() > GetCurrHitPoints() + iPillageHeal && getMoves() < GD_INT_GET(MOVE_DENOMINATOR) * 3 && !hasFreePillageMove())
+			return false;
+	}
 
 	if (pPlot->getOwningCity() != NULL && pPlot->getOwner() != NO_PLAYER && pPlot->getOwner() != BARBARIAN_PLAYER)
 	{
@@ -10302,6 +10310,15 @@ bool CvUnit::shouldPillage(const CvPlot* pPlot, bool bConservative) const
 		YieldTypes eYield = (YieldTypes)iI;
 		if (GET_PLAYER(getOwner()).GetYieldFromPillage(eYield) > 0 || (pOriginCity && pOriginCity->GetYieldFromPillage(eYield) > 0))
 			return true;
+	}
+
+	if (GetXPFromPillaging() > 0)
+		return true;
+
+	// route in rough terrain?
+	if (pPlot->getOwner() != NO_PLAYER && pPlot->getRouteType() != NO_ROUTE && (pPlot->isHills() || pPlot->IsTerrainDesert() || pPlot->IsFeatureMarsh() || pPlot->IsFeatureForest() || pPlot->isRiver()))
+	{
+		return true;
 	}
 
 	if (bConservative)

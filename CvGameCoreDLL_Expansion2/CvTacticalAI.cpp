@@ -2904,9 +2904,7 @@ bool CvTacticalAI::ExecutePillage(CvPlot* pTargetPlot)
 				CvPlot* pSafePlot = NULL;
 				if (!TacticalAIHelpers::IsOtherPlayerCitadel(pUnit->plot(), m_pPlayer->GetID(), true))
 				{
-					int iVal = pUnit->GetCurrHitPoints() + pUnit->getCurrentPillageHeal();
-
-					if ((pUnit->GetDanger() > iVal) && !pUnit->hasFreePillageMove())
+					if (!pUnit->shouldPillage(pUnit->plot()))
 						pSafePlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit, true);
 				}
 
@@ -3577,7 +3575,7 @@ void CvTacticalAI::ExecuteMovesToSafestPlot(CvUnit* pUnit)
 		}
 
 		//pillage before retreat, if we have movement points to spare
-		if (pUnit->getMoves()>GD_INT_GET(MOVE_DENOMINATOR) && pBestPlot->isAdjacent(pUnit->plot()) && pUnit->shouldPillage(pUnit->plot()))
+		if ((pUnit->hasFreePillageMove() || pUnit->getMoves()>GD_INT_GET(MOVE_DENOMINATOR)) && pBestPlot->isAdjacent(pUnit->plot()) && pUnit->shouldPillage(pUnit->plot()))
 			pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
 
 		//typical citadel case
@@ -3603,7 +3601,7 @@ void CvTacticalAI::ExecuteMovesToSafestPlot(CvUnit* pUnit)
 				TacticalAIHelpers::PerformRangedOpportunityAttack(pUnit, true);
 
 			//pillage after retreat, if we have movement points to spare
-			if (pUnit->shouldPillage(pUnit->plot()))
+			if (pUnit->shouldPillage(pUnit->plot(), false, true))
 				pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
 		}
 
@@ -3898,7 +3896,7 @@ int CvTacticalAI::ExecuteMoveToPlot(CvUnit* pUnit, CvPlot* pTarget, bool bSetPro
 		if (pUnit->GeneratePath(pTarget,iFlags,INT_MAX,&iTurns))
 		{
 			//pillage if it makes sense and we have movement points to spare
-			if (pUnit->shouldPillage(pUnit->plot(), true) && pUnit->GetMovementPointsAtCachedTarget()>=GD_INT_GET(MOVE_DENOMINATOR))
+			if (pUnit->shouldPillage(pUnit->plot(), true, true) && (pUnit->hasFreePillageMove() || pUnit->GetMovementPointsAtCachedTarget()>=GD_INT_GET(MOVE_DENOMINATOR)))
 			{
 				pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
 				
@@ -4053,7 +4051,7 @@ void CvTacticalAI::ExecuteNavalBlockadeMove(CvPlot* pTarget)
 
 					//see if we can harrass the enemy now
 					TacticalAIHelpers::PerformOpportunityAttack(pUnit, true);
-					if (pUnit->shouldPillage(pUnit->plot()))
+					if (pUnit->shouldPillage(pUnit->plot(), false, true))
 						pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
 
 					UnitProcessed(pUnit->GetID());
@@ -7002,13 +7000,26 @@ STacticalAssignment ScorePlotForPillageMove(const SUnitStats& unit, const CvTact
 			result.iScore = 500;
 		else if (pTestPlot->getResourceType(pUnit->getTeam()) != NO_RESOURCE && GC.getResourceInfo(pTestPlot->getResourceType(pUnit->getTeam()))->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
 			result.iScore = 200;
-		else if (pUnit->getDamage() >= pUnit->getCurrentPillageHeal() && pUnit->getCurrentPillageHeal() >= GD_INT_GET(PILLAGE_HEAL_AMOUNT))
+		else if (pTestPlot->getImprovementType() != NO_IMPROVEMENT && !pTestPlot->IsImprovementPillaged() && !(pTestPlot->getOwner() != NO_PLAYER && GET_PLAYER(pTestPlot->getOwner()).isBorderGainlessPillage()) && pUnit->getDamage() >= pUnit->getCurrentPillageHeal() && pUnit->getCurrentPillageHeal() >= GD_INT_GET(PILLAGE_HEAL_AMOUNT))
+		{
+			// heal from pillage?
 			result.iScore = 100;
+			// heal more than normally?
+			result.iScore += max(0, pUnit->getCurrentPillageHeal() - GD_INT_GET(PILLAGE_HEAL_AMOUNT)) * 5;
+		}
+		else if (pTestPlot->getOwner() != NO_PLAYER && pTestPlot->getRouteType() != NO_ROUTE && (pTestPlot->isHills() || pTestPlot->IsTerrainDesert() || pTestPlot->IsFeatureMarsh() || pTestPlot->IsFeatureForest() || pTestPlot->isRiver()))
+		{
+			// route in rough terrain?
+			result.iScore = 50;
+		}
 
-		result.iScore += pUnit->GetXPFromPillaging() * 10;
-
-		// heal more than normally?
-		result.iScore += max(0, pUnit->getCurrentPillageHeal() - GD_INT_GET(PILLAGE_HEAL_AMOUNT)) * 5;
+		if (pTestPlot->getImprovementType() != NO_IMPROVEMENT && !pTestPlot->IsImprovementPillaged())
+		{
+			result.iScore += pUnit->GetXPFromPillaging() * 5;
+		}
+		
+		if (pUnit->hasFreePillageMove())
+			result.iScore += 25;
 
 		if (!pUnit->hasFreePillageMove())
 			result.iRemainingMoves -= min(result.iRemainingMoves, GD_INT_GET(MOVE_DENOMINATOR));

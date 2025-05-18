@@ -2326,7 +2326,7 @@ bool CvHomelandAI::ExecuteExplorerMoves(CvUnit* pUnit)
 
 			ExecuteMoveToTarget(pUnit, pPlot, 0, true);
 
-			if (pUnit->canMove() && pUnit->shouldPillage(pUnit->plot()))
+			if (pUnit->shouldPillage(pUnit->plot(), false, true))
 				pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
 
 			return true; //done for this turn
@@ -3432,7 +3432,9 @@ void CvHomelandAI::ExecuteHeals()
 
 		if (pBestPlot && pBestPlot!=pUnit->plot())
 			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY());
-		if (pUnit->shouldPillage(pUnit->plot()))
+		if (pUnit->canPillage(pUnit->plot()))
+			pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
+		if (pUnit->canPillage(pUnit->plot())) // if possible, pillage both improvement and road
 			pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
 		if (pUnit->canMove())
 			pUnit->PushMission(CvTypes::getMISSION_SKIP());
