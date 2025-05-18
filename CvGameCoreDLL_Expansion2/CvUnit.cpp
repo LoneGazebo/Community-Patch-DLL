@@ -412,6 +412,7 @@ CvUnit::CvUnit() :
 	, m_bSpottedEnemy()
 	, m_iGainsXPFromScouting()
 	, m_iXPFromPillaging()
+	, m_iExtraXPOnKill()
 	, m_iGainsXPFromSpotting()
 	, m_iCaptureDefeatedEnemyChance()
 	, m_iBarbCombatBonus()
@@ -1573,6 +1574,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iGainsXPFromScouting = 0;
 	m_iGainsXPFromSpotting = 0;
 	m_iXPFromPillaging = 0;
+	m_iExtraXPOnKill = 0;
 	m_iCaptureDefeatedEnemyChance = 0;
 	m_iBarbCombatBonus = 0;
 	m_iAdjacentEnemySapMovement = 0;
@@ -18662,6 +18664,24 @@ void CvUnit::ChangeXPFromPillaging(int iValue)
 }
 
 
+//	--------------------------------------------------------------------------------
+int CvUnit::GetExtraXPOnKill() const
+{
+	VALIDATE_OBJECT();
+	return m_iExtraXPOnKill;
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::ChangeExtraXPOnKill(int iValue)
+{
+	VALIDATE_OBJECT();
+	if (iValue != 0)
+	{
+		m_iExtraXPOnKill += iValue;
+	}
+}
+
+
 
 #if defined(MOD_PROMOTIONS_GG_FROM_BARBARIANS)
 //	--------------------------------------------------------------------------------
@@ -27629,6 +27649,7 @@ void CvUnit::setPromotionActive(PromotionTypes eIndex, bool bNewValue)
 	ChangeAdjacentEnemySapMovement((thisPromotion.GetAdjacentEnemySapMovement()) * iChange);
 	ChangeGainsXPFromScouting((thisPromotion.IsGainsXPFromScouting()) ? iChange : 0);
 	ChangeXPFromPillaging(thisPromotion.GetXPFromPillaging() * iChange);
+	ChangeExtraXPOnKill(thisPromotion.GetExtraXPOnKill() * iChange);
 	ChangeGainsXPFromSpotting((thisPromotion.IsGainsXPFromSpotting()) ? iChange : 0);
 	ChangeCannotBeCapturedCount((thisPromotion.CannotBeCaptured()) ? iChange : 0);
 	ChangeForcedDamageValue((thisPromotion.ForcedDamageValue()) * iChange);
@@ -28324,6 +28345,7 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_bSpottedEnemy);
 	visitor(unit.m_iGainsXPFromScouting);
 	visitor(unit.m_iXPFromPillaging);
+	visitor(unit.m_iExtraXPOnKill);
 	visitor(unit.m_iGainsXPFromSpotting);
 	visitor(unit.m_iCaptureDefeatedEnemyChance);
 	visitor(unit.m_iBarbCombatBonus);
@@ -32942,6 +32964,14 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		iExtra *= baseMoves(false);
 		if (hasFreePillageMove())
 			iExtra *= 2;
+		iValue += iExtra;
+	}
+
+	iTemp = pkPromotionInfo->GetExtraXPOnKill();
+	if (iTemp > 0)
+	{
+		iExtra = iTemp * (iFlavorOffense + 2 * iFlavorDefense);
+		iExtra *= 0.5;
 		iValue += iExtra;
 	}
 

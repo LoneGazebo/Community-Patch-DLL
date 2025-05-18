@@ -6719,8 +6719,11 @@ bool ScoreAttackDamage(const CvTacticalPlot& tactPlot, const CvUnit* pUnit, cons
 			bScoreReduction = true;
 
 		//if there is a chance that the enemy will be killed during the sim, we want to know
-		if (iDamageDealt*3 > iPrevHitPoints*2)
+		if (iDamageDealt * 3 > iPrevHitPoints * 2)
+		{
 			result.iKillOrNearKillId = pEnemy->GetID();
+			iExtraScore += pUnit->GetExtraXPOnKill();
+		}
 	}
 	else if (tactPlot.isEnemyCombatUnit())
 	{
@@ -6771,7 +6774,10 @@ bool ScoreAttackDamage(const CvTacticalPlot& tactPlot, const CvUnit* pUnit, cons
 
 		//if there is a chance that the enemy will be killed during the sim, we want to know
 		if (iDamageDealt >= iPrevHitPoints - 10)
+		{
 			result.iKillOrNearKillId = pEnemy->GetID();
+			iExtraScore += pUnit->GetExtraXPOnKill();
+		}
 	}
 
 	//fake general bonus
