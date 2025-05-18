@@ -464,7 +464,7 @@ public:
 
 	bool canPillage(const CvPlot* pPlot) const;
 	int getCurrentPillageHeal() const;
-	bool shouldPillage(const CvPlot* pPlot, bool bConservative = false) const;
+	bool shouldPillage(const CvPlot* pPlot, bool bConservative = false, bool bIgnoreMovement = false) const;
 	bool pillage();
 
 	bool canFoundCity(const CvPlot* pPlot, bool bIgnoreDistanceToExistingCities = false, bool bIgnoreHappiness = false, bool bForAliveCheck = false) const;
