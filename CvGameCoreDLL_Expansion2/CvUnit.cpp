@@ -186,6 +186,7 @@ CvUnit::CvUnit() :
 	, m_iAOEDamageOnKill()
 	, m_iAOEDamageOnPillage()
 	, m_iAOEHealOnPillage()
+	, m_iCombatModPerCSAlliance()
 	, m_iAoEDamageOnMove()
 	, m_seBlockedPromotions()
 	, m_seConditionalPromotions()
@@ -1431,6 +1432,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iAOEDamageOnKill = 0;
 	m_iAOEDamageOnPillage = 0;
 	m_iAOEHealOnPillage = 0;
+	m_iCombatModPerCSAlliance = 0;
 	m_iAoEDamageOnMove = 0;
 	m_seBlockedPromotions.clear();
 	m_seConditionalPromotions.clear();
@@ -16151,7 +16153,6 @@ int CvUnit::GetGenericMeleeStrengthModifier(const CvUnit* pOtherUnit, const CvPl
 		iModifier += GetUnhappinessCombatPenalty();
 	}
 
-#if defined(MOD_BALANCE_CORE)
 	int iCSStrengthMod = 0;
 	if(GET_PLAYER(getOwner()).isMinorCiv())
 	{
@@ -16184,7 +16185,11 @@ int CvUnit::GetGenericMeleeStrengthModifier(const CvUnit* pOtherUnit, const CvPl
 		}
 	}
 	iModifier += iCSStrengthMod;
-#endif
+
+	if (GetCombatModPerCSAlliance() > 0 && !GET_PLAYER(getOwner()).isMinorCiv())
+	{
+		iModifier += (GetCombatModPerCSAlliance() * min(GET_PLAYER(getOwner()).GetNumCSAllies(), /*5*/ GD_INT_GET(BALANCE_MAX_CS_ALLY_STRENGTH)));
+	}
 
 	//sometimes we ignore the finer points
 	if (!bQuickAndDirty)
@@ -17024,6 +17029,11 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 		}
 	}
 	iModifier += iCSStrengthMod;
+
+	if (GetCombatModPerCSAlliance() > 0 && !GET_PLAYER(getOwner()).isMinorCiv())
+	{
+		iModifier += (GetCombatModPerCSAlliance() * min(GET_PLAYER(getOwner()).GetNumCSAllies(), /*5*/ GD_INT_GET(BALANCE_MAX_CS_ALLY_STRENGTH)));
+	}
 
 	// Stacked with Great General
 	if (GetGreatGeneralCombatModifier() != 0 && IsStackedGreatGeneral())
@@ -22313,6 +22323,20 @@ void CvUnit::changeAOEHealOnPillage(int iChange)
 	VALIDATE_OBJECT();
 	m_iAOEHealOnPillage = (m_iAOEHealOnPillage + iChange);
 	ASSERT_DEBUG(getAOEHealOnPillage() >= 0);
+}
+
+//	--------------------------------------------------------------------------------
+int CvUnit::GetCombatModPerCSAlliance() const
+{
+	VALIDATE_OBJECT();
+	return m_iCombatModPerCSAlliance;
+}
+//	--------------------------------------------------------------------------------
+void CvUnit::ChangeCombatModPerCSAlliance(int iChange)
+{
+	VALIDATE_OBJECT();
+	m_iCombatModPerCSAlliance = (m_iCombatModPerCSAlliance + iChange);
+	ASSERT_DEBUG(GetCombatModPerCSAlliance() >= 0);
 }
 
 //	--------------------------------------------------------------------------------
@@ -27693,6 +27717,7 @@ void CvUnit::setPromotionActive(PromotionTypes eIndex, bool bNewValue)
 	changeAOEDamageOnKill(thisPromotion.GetAOEDamageOnKill() * iChange);
 	changeAOEDamageOnPillage(thisPromotion.GetAOEDamageOnPillage() * iChange);
 	changeAOEHealOnPillage(thisPromotion.GetAOEHealOnPillage() * iChange);
+	ChangeCombatModPerCSAlliance(thisPromotion.GetCombatModPerCSAlliance() * iChange);
 	changeAoEDamageOnMove(thisPromotion.GetAoEDamageOnMove() * iChange);
 	changePartialHealOnPillage(thisPromotion.GetPartialHealOnPillage() * iChange);
 	changeSplashDamage(thisPromotion.GetSplashDamage() * iChange);
@@ -28281,6 +28306,7 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_iAOEDamageOnKill);
 	visitor(unit.m_iAOEDamageOnPillage);
 	visitor(unit.m_iAOEHealOnPillage);
+	visitor(unit.m_iCombatModPerCSAlliance);
 	visitor(unit.m_iAoEDamageOnMove);
 	visitor(unit.m_seBlockedPromotions);
 	visitor(unit.m_seConditionalPromotions);
@@ -31732,6 +31758,14 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		// This gives 1 Value per CombatPercent increase * 3 Flavors 
 		// Other promotions should be balanced with different flavors and by multiplying by usufulness of the promotion.
 		// Also synergistic promotions can be factored in as well as different usefulness for different units eg (melee vs range)
+	}
+
+	iTemp = pkPromotionInfo->GetCombatModPerCSAlliance();
+	// M + mM: +10 Drill 1-3,Shock 1-3. 	nM: +15 Boarding Party 1-3, +10 Dreadnought 1-3 (coastal raider).
+	if (iTemp != 0)
+	{
+		iExtra = GetCombatModPerCSAlliance() * min(GET_PLAYER(getOwner()).GetNumCSAllies(), /*5*/ GD_INT_GET(BALANCE_MAX_CS_ALLY_STRENGTH)) * (iFlavorOffense + iFlavorDefense + iFlavorCityDefense);
+		iValue += iExtra;
 	}
 
 			// General Offense

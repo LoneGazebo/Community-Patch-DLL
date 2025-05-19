@@ -1923,6 +1923,14 @@ void CvUnitEntry::DoUpdatePower()
 				iBonusPower += iTemp;
 			}
 
+			// Combat Strength per CS - add half of the maximum bonus
+			if (kPromotion->GetCombatModPerCSAlliance() > 0)
+			{
+				iTemp = (iBasePower * kPromotion->GetCombatModPerCSAlliance() * (/*5*/ GD_INT_GET(BALANCE_MAX_CS_ALLY_STRENGTH)) / 2);
+				iTemp /= 100;
+				iBonusPower += iTemp;
+			}
+
 			// Paradrop - add 25%
 			if(kPromotion->GetDropRange() > 0)
 			{
