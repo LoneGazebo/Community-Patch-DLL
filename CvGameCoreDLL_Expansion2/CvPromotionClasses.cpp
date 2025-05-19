@@ -232,6 +232,7 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iWonderProductionModifier(0),
 	m_iAOEDamageOnKill(0),
 	m_iAOEDamageOnPillage(0),
+	m_iAOEHealOnPillage(0),
 	m_iAoEDamageOnMove(0),
 	m_iPartialHealOnPillage(0),
 	m_iSplashDamage(0),
@@ -521,6 +522,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iWonderProductionModifier = kResults.GetInt("WonderProductionModifier");
 	m_iAOEDamageOnKill = kResults.GetInt("AOEDamageOnKill");
 	m_iAOEDamageOnPillage = kResults.GetInt("AOEDamageOnPillage");
+	m_iAOEHealOnPillage = kResults.GetInt("AoEHealOnPillage");
 	m_iAoEDamageOnMove = kResults.GetInt("AoEDamageOnMove");
 	m_iPartialHealOnPillage = kResults.GetInt("PartialHealOnPillage");
 	m_iSplashDamage = kResults.GetInt("SplashDamage");
@@ -2486,6 +2488,10 @@ int CvPromotionEntry::GetAOEDamageOnKill() const
 int CvPromotionEntry::GetAOEDamageOnPillage() const
 {
 	return m_iAOEDamageOnPillage;
+}
+int CvPromotionEntry::GetAOEHealOnPillage() const
+{
+	return m_iAOEHealOnPillage;
 }
 int CvPromotionEntry::GetAoEDamageOnMove() const
 {

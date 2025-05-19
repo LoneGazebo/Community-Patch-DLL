@@ -7006,12 +7006,12 @@ STacticalAssignment ScorePlotForPillageMove(const SUnitStats& unit, const CvTact
 			result.iScore = 500;
 		else if (pTestPlot->getResourceType(pUnit->getTeam()) != NO_RESOURCE && GC.getResourceInfo(pTestPlot->getResourceType(pUnit->getTeam()))->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
 			result.iScore = 200;
-		else if (pTestPlot->getImprovementType() != NO_IMPROVEMENT && !pTestPlot->IsImprovementPillaged() && !(pTestPlot->getOwner() != NO_PLAYER && GET_PLAYER(pTestPlot->getOwner()).isBorderGainlessPillage()) && pUnit->getDamage() >= pUnit->getCurrentPillageHeal() && pUnit->getCurrentPillageHeal() >= GD_INT_GET(PILLAGE_HEAL_AMOUNT))
+		else if (pUnit->getPillageHealAmount(pTestPlot) >= GD_INT_GET(PILLAGE_HEAL_AMOUNT))
 		{
 			// heal from pillage?
 			result.iScore = 100;
 			// heal more than normally?
-			result.iScore += max(0, pUnit->getCurrentPillageHeal() - GD_INT_GET(PILLAGE_HEAL_AMOUNT)) * 5;
+			result.iScore += max(0, pUnit->getPillageHealAmount(pTestPlot) - GD_INT_GET(PILLAGE_HEAL_AMOUNT)) * 5;
 		}
 		else if (pTestPlot->getOwner() != NO_PLAYER && pTestPlot->getRouteType() != NO_ROUTE && (pTestPlot->isHills() || pTestPlot->IsTerrainDesert() || pTestPlot->IsFeatureMarsh() || pTestPlot->IsFeatureForest() || pTestPlot->isRiver()))
 		{
@@ -7022,6 +7022,12 @@ STacticalAssignment ScorePlotForPillageMove(const SUnitStats& unit, const CvTact
 		if (pTestPlot->getImprovementType() != NO_IMPROVEMENT && !pTestPlot->IsImprovementPillaged())
 		{
 			result.iScore += pUnit->GetXPFromPillaging() * 5;
+
+			if (pUnit->getAOEHealOnPillage() > 0 && pUnit->getPillageHealAmount(pTestPlot, true) > 0)
+				result.iScore += pUnit->getAOEHealOnPillage() * testPlot.getNumAdjacentFriendlies(CvTacticalPlot::TD_BOTH, -1);
+
+			if (pUnit->getAOEDamageOnPillage() > 0)
+				result.iScore += pUnit->getAOEDamageOnPillage() * testPlot.getNumAdjacentEnemies(CvTacticalPlot::TD_BOTH);
 		}
 		
 		if (pUnit->hasFreePillageMove())

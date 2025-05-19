@@ -185,6 +185,7 @@ CvUnit::CvUnit() :
 	, m_iDisembarkFlatCostCount()
 	, m_iAOEDamageOnKill()
 	, m_iAOEDamageOnPillage()
+	, m_iAOEHealOnPillage()
 	, m_iAoEDamageOnMove()
 	, m_seBlockedPromotions()
 	, m_seConditionalPromotions()
@@ -1429,6 +1430,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iDisembarkFlatCostCount = 0;
 	m_iAOEDamageOnKill = 0;
 	m_iAOEDamageOnPillage = 0;
+	m_iAOEHealOnPillage = 0;
 	m_iAoEDamageOnMove = 0;
 	m_seBlockedPromotions.clear();
 	m_seConditionalPromotions.clear();
@@ -10261,13 +10263,24 @@ bool CvUnit::canPillage(const CvPlot* pPlot) const
 	return true;
 }
 
-int CvUnit::getCurrentPillageHeal() const
+int CvUnit::getPillageHealAmount(const CvPlot* pPlot, bool bPotential) const
 {
-	int iPillageHeal = 0;
-	if (!IsCannotHeal())
+	if (pPlot->getImprovementType() == NO_IMPROVEMENT || pPlot->IsImprovementPillaged() || IsCannotHeal())
+		return 0;
+
+	if (pPlot->getOwner() != NO_PLAYER && GET_PLAYER(pPlot->getOwner()).isBorderGainlessPillage())
+		return 0;
+
+	CvCity* pCityOfThisPlot = pPlot->getEffectiveOwningCity();
+	if (pCityOfThisPlot && pCityOfThisPlot->IsLocalGainlessPillage())
+		return 0;
+
+	int iPillageHeal = hasHealOnPillage() ? GetMaxHitPoints() : (/*25*/ GD_INT_GET(PILLAGE_HEAL_AMOUNT) + getPartialHealOnPillage());
+	if (!bPotential)
 	{
-		iPillageHeal = hasHealOnPillage() ? getDamage() : min(getDamage(), (/*25*/ GD_INT_GET(PILLAGE_HEAL_AMOUNT) + getPartialHealOnPillage()));
+		iPillageHeal = min(iPillageHeal, getDamage());
 	}
+
 	return iPillageHeal;
 }
 
@@ -10289,11 +10302,10 @@ bool CvUnit::shouldPillage(const CvPlot* pPlot, bool bConservative, bool bIgnore
 			return true;
 	}
 
-	int iPillageHeal = 0;
-	if (eImprovement != NO_IMPROVEMENT && !pPlot->IsImprovementPillaged() && !(pPlot->getOwner() != NO_PLAYER && GET_PLAYER(pPlot->getOwner()).isBorderGainlessPillage()))
-	{
-		iPillageHeal = getCurrentPillageHeal();
-	}
+	int iPillageHeal = getPillageHealAmount(pPlot);
+
+	if (iPillageHeal > 0 && (getAOEHealOnPillage() > 0 || getAOEDamageOnPillage() > 0))
+		return true;
 
 	if (!bIgnoreMovement)
 	{
@@ -10372,6 +10384,7 @@ bool CvUnit::pillage()
 
 	// Is an Improvement here that hasn't already been pillaged?
 	bool bSuccessfulNonRoadPillage = false;
+	int iPotentialHealFromPillage = 0;
 	if(bImprovement)
 	{
 		eTempImprovement = pPlot->getImprovementType();
@@ -10554,6 +10567,7 @@ bool CvUnit::pillage()
 
 			// Improvement that's destroyed?
 			bSuccessfulNonRoadPillage = true;
+			iPotentialHealFromPillage = getPillageHealAmount(plot(), true);
 			if(pkImprovement->IsDestroyedWhenPillaged())
 			{
 				// If this improvement auto-added a route, we also need to remove the route
@@ -10614,17 +10628,10 @@ bool CvUnit::pillage()
 
 		DoAdjacentPlotDamage(pPlot, getAOEDamageOnPillage(), "TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_AOE_STRIKE_PILLAGE");
 
-		if (!IsCannotHeal())
+		if (iPotentialHealFromPillage > 0)
 		{
-			//if the plot isn't guarded by a gainless pillage building for this player, nor this city
-			if (!(pPlot->getOwner() != NO_PLAYER && GET_PLAYER(pPlot->getOwner()).isBorderGainlessPillage()))
-			{
-				CvCity* pCityOfThisPlot = pPlot->getEffectiveOwningCity();
-				if (pCityOfThisPlot == NULL || !(pCityOfThisPlot->IsLocalGainlessPillage()))
-				{
-						changeDamage(-getCurrentPillageHeal());
-				}
-			}
+			DoAdjacentHeal(pPlot, getAOEHealOnPillage());
+			changeDamage(max(-getDamage(), -iPotentialHealFromPillage));
 		}
 	}
 
@@ -21984,6 +21991,41 @@ int CvUnit::DoAdjacentPlotDamage(CvPlot* pWhere, int iValue, const char* chTextK
 	return iCount;
 }
 
+
+void CvUnit::DoAdjacentHeal(CvPlot* pWhere, int iValue, const char* chTextKey)
+{
+	if (iValue < 1 || pWhere == NULL)
+		return;
+
+	for (int i = RING0_PLOTS; i < RING1_PLOTS; i++)
+	{
+		CvPlot* pSplashPlot = iterateRingPlots(pWhere, i);
+		if (!pSplashPlot)
+			continue;
+
+		for (int iJ = 0; iJ < pSplashPlot->getNumUnits(); iJ++)
+		{
+			CvUnit* pAdjacentUnit = pSplashPlot->getUnitByIndex(iJ);
+			if (pAdjacentUnit != NULL && pAdjacentUnit->getTeam() == getTeam() && !pAdjacentUnit->IsCannotHeal())
+			{
+				int iHealAmount = min(iValue, pAdjacentUnit->getDamage());
+				if (iHealAmount > 0)
+				{
+					if (chTextKey)
+					{
+						CvString strAppendText = GetLocalizedText(chTextKey);
+						pAdjacentUnit->changeDamage(-iHealAmount, getOwner(), 0.0, &strAppendText);
+					}
+					else
+						pAdjacentUnit->changeDamage(-iHealAmount, getOwner(), 0.0);
+				}
+			}
+		}
+	}
+
+	return;
+}
+
 //	--------------------------------------------------------------------------------
 int CvUnit::getBlitzCount() const
 {
@@ -22273,6 +22315,20 @@ void CvUnit::changeAOEDamageOnPillage(int iChange)
 	VALIDATE_OBJECT();
 	m_iAOEDamageOnPillage = (m_iAOEDamageOnPillage + iChange);
 	ASSERT_DEBUG(getAOEDamageOnPillage() >= 0);
+}
+
+//	--------------------------------------------------------------------------------
+int CvUnit::getAOEHealOnPillage() const
+{
+	VALIDATE_OBJECT();
+	return m_iAOEHealOnPillage;
+}
+//	--------------------------------------------------------------------------------
+void CvUnit::changeAOEHealOnPillage(int iChange)
+{
+	VALIDATE_OBJECT();
+	m_iAOEHealOnPillage = (m_iAOEHealOnPillage + iChange);
+	ASSERT_DEBUG(getAOEHealOnPillage() >= 0);
 }
 
 //	--------------------------------------------------------------------------------
@@ -27652,6 +27708,7 @@ void CvUnit::setPromotionActive(PromotionTypes eIndex, bool bNewValue)
 	ChangeCaptureDefeatedEnemyCount((thisPromotion.IsCaptureDefeatedEnemy()) ? iChange : 0);
 	changeAOEDamageOnKill(thisPromotion.GetAOEDamageOnKill() * iChange);
 	changeAOEDamageOnPillage(thisPromotion.GetAOEDamageOnPillage() * iChange);
+	changeAOEHealOnPillage(thisPromotion.GetAOEHealOnPillage() * iChange);
 	changeAoEDamageOnMove(thisPromotion.GetAoEDamageOnMove() * iChange);
 	changePartialHealOnPillage(thisPromotion.GetPartialHealOnPillage() * iChange);
 	changeSplashDamage(thisPromotion.GetSplashDamage() * iChange);
@@ -28239,6 +28296,7 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_iDisembarkFlatCostCount);
 	visitor(unit.m_iAOEDamageOnKill);
 	visitor(unit.m_iAOEDamageOnPillage);
+	visitor(unit.m_iAOEHealOnPillage);
 	visitor(unit.m_iAoEDamageOnMove);
 	visitor(unit.m_seBlockedPromotions);
 	visitor(unit.m_seConditionalPromotions);

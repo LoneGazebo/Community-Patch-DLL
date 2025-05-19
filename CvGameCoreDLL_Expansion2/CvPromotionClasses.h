@@ -208,6 +208,7 @@ public:
 	bool IsMountedOnly() const;
 	int GetAOEDamageOnKill() const;
 	int GetAOEDamageOnPillage() const;
+	int GetAOEHealOnPillage() const;
 	int GetAoEDamageOnMove() const;
 	int GetPartialHealOnPillage() const;
 	int GetSplashDamage() const;
@@ -571,6 +572,7 @@ protected:
 	int m_iWonderProductionModifier;
 	int m_iAOEDamageOnKill;
 	int m_iAOEDamageOnPillage;
+	int m_iAOEHealOnPillage;
 	int m_iAoEDamageOnMove;
 	int m_iPartialHealOnPillage;
 	int m_iSplashDamage;
