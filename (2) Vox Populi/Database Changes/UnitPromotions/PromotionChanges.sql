@@ -1130,7 +1130,7 @@ UPDATE UnitPromotions SET AttackModPerSamePromotionAttack = 5, AttackModPerSameP
 -- Klepht: Philhellenism
 UPDATE UnitPromotions SET CombatModPerCSAlliance = 5 WHERE Type = 'PROMOTION_PHILHELLENISM';
 
--- Horse Archer: Bellum Alet
+-- Tarkhan: Bellum Alet
 UPDATE UnitPromotions SET AoEHealOnPillage = 15 WHERE Type = 'PROMOTION_BELLUM_ALET';
 
 -- Inti Maceman: Sentinel of the Sun
