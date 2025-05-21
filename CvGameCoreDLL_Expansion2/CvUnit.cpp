@@ -5962,49 +5962,65 @@ void CvUnit::scrap(bool bDelay)
 /// How much gold do we get?
 int CvUnit::GetScrapGold() const
 {
-	int iNumGold = getUnitInfo().GetProductionCost();
-
-	if(iNumGold <= 0)
+	int iProductionCost = getUnitInfo().GetProductionCost();
+	if (iProductionCost <= 0)
 		return 0;
 
-	iNumGold *= /*25*/ GD_INT_GET(DISBAND_UNIT_REFUND_PERCENT);
-	iNumGold /= 100;
+	int iNumGold = iProductionCost * /*25*/ GD_INT_GET(DISBAND_UNIT_REFUND_PERCENT) / 100;
+
+	// Apply purchase cost reductions to scrap gold as well, otherwise it's possible to buy a unit for less than the scrap gold, which is absurd.
+	PlayerTypes eOwner = getOwner();
+	int iLowestDiscount = 0;
+	int iLoop = 0;
+	HurryTypes eHurry = static_cast<HurryTypes>(GC.getInfoTypeForString("HURRY_GOLD"));
+	if (eHurry != NO_HURRY)
+	{
+		for (CvCity* pCity = GET_PLAYER(eOwner).firstCity(&iLoop); pCity; GET_PLAYER(eOwner).nextCity(&iLoop))
+		{
+			int iDiscount = pCity->getHurryModifier(eHurry);
+			if (iDiscount < iLowestDiscount)
+				iLowestDiscount = iDiscount;
+		}
+		iLowestDiscount += GET_PLAYER(eOwner).getHurryModifier(eHurry);
+	}
+
+	if (iLowestDiscount < 0)
+	{
+		iNumGold *= max(0, 100 + iLowestDiscount);
+		iNumGold /= 100;
+	}
+
+	if (GET_PLAYER(eOwner).GetUnitPurchaseCostModifier() < 0)
+	{
+		iNumGold *= max(0, 100 + GET_PLAYER(eOwner).GetUnitPurchaseCostModifier());
+		iNumGold /= 100;
+	}
 
 	// Modify amount based on current health
 	iNumGold *= 100 * (GetMaxHitPoints() - getDamage()) / GetMaxHitPoints();
 	iNumGold /= 100;
 
-
-	// slewis - moved this out of the plot check because the game speed should effect all scrap gold calculations, not just the ones that are in the owner's plot
 	// Modify for game speed
-	iNumGold *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
+	iNumGold *= GC.getGame().getGameSpeedInfo().getHurryPercent();
 	iNumGold /= 100;
 
-#if defined(MOD_CIV6_WORKER)
 	//if we are a builder (something with builderstrength), our value decrease with our build strength
 	if (MOD_CIV6_WORKER && getBuilderStrength() > 0)
 	{
 		iNumGold *= getUnitInfo().GetBuilderStrength() - getBuilderStrength();
 		iNumGold /= getUnitInfo().GetBuilderStrength();
 	}
-#endif
 
 	// Check to see if we are transporting other units and add in their scrap value as well.
 	CvPlot* pPlot = plot();
-	if(pPlot)
+	if (pPlot)
 	{
 		const IDInfo* pUnitNode = pPlot->headUnitNode();
-		while(pUnitNode)
+		while (pUnitNode)
 		{
 			const CvUnit* pLoopUnit = ::GetPlayerUnit(*pUnitNode);
-
-			if(pLoopUnit != NULL)
-			{
-				if(pLoopUnit->getTransportUnit() == this)	// Is this the transport for the search unit?
-				{
-					iNumGold += pLoopUnit->GetScrapGold();
-				}
-			}
+			if (pLoopUnit && pLoopUnit->getTransportUnit() == this) // Is this the transport for the searched unit?
+				iNumGold += pLoopUnit->GetScrapGold();
 
 			pUnitNode = pPlot->nextUnitNode(pUnitNode);
 		}

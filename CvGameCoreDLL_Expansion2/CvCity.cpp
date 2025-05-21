@@ -11757,17 +11757,17 @@ int CvCity::GetPurchaseCost(UnitTypes eUnit)
 	}
 
 	int iCost = GetPurchaseCostFromProduction(getProductionNeeded(eUnit));
-	iCost *= (100 + iModifier);
+	iCost *= max(0, 100 + iModifier);
 	iCost /= 100;
 
 	// Cost of purchasing units modified?
-	iCost *= (100 + GET_PLAYER(getOwner()).GetUnitPurchaseCostModifier());
+	iCost *= max(0, 100 + GET_PLAYER(getOwner()).GetUnitPurchaseCostModifier());
 	iCost /= 100;
 
 	int iLimitSpaceshipPurchase = GC.getGame().GetGameLeagues()->GetSpaceShipPurchaseMod(getOwner());
 	if (bIsSpaceshipPart && iLimitSpaceshipPurchase != 0)
 	{
-		iCost *= (100 + GC.getGame().GetGameLeagues()->GetSpaceShipPurchaseMod(getOwner()));
+		iCost *= max(0, 100 + GC.getGame().GetGameLeagues()->GetSpaceShipPurchaseMod(getOwner()));
 		iCost /= 100;
 	}
 
@@ -12366,7 +12366,7 @@ int CvCity::GetPurchaseCostFromProduction(int iProduction)
 
 		if (iHurryMod != 0)
 		{
-			iPurchaseCost *= (100 + iHurryMod);
+			iPurchaseCost *= max(0, 100 + iHurryMod);
 			iPurchaseCost /= 100;
 		}
 	}
