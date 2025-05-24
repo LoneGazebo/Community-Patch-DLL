@@ -1351,7 +1351,7 @@
 			<Text>Mulalo Doyoyo</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GREAT_PERSON_E__840">
-			<Text>Shuji Nakamura</Text>
+			<Text>Nakamura Shuji</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GREAT_PERSON_E__850">
 			<Text>Antonia Terzi</Text>
@@ -1488,6 +1488,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_GREAT_PERSON_S__440">
 			<Text>Max Planck</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_S__445">
+			<Text>Fritz Haber</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GREAT_PERSON_S__450">
 			<Text>Kazimierz Funk</Text>
