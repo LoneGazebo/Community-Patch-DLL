@@ -1566,7 +1566,7 @@ void CvTacticalAI::PlotBastionMoves(int iNumTurnsAway)
 		CvUnit* pUnit = FindUnitForThisMove(AI_TACTICAL_GUARD, pPlot, iNumTurnsAway);
 
 		//move may fail if the plot is already occupied (can happen if another unit moved there during this turn)
-		if (pUnit && ExecuteMoveToPlot(pUnit, pPlot, true, CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER)==0)
+		if (pUnit && ExecuteMoveToPlot(pUnit, pPlot, true, CvUnit::MOVEFLAG_SAFE_EMBARK_ONLY)==0)
 		{
 			if (pUnit->CanUpgradeRightNow(false) && !pUnit->IsHurt())
 			{
@@ -3301,7 +3301,8 @@ bool CvTacticalAI::PositionUnitsAroundTarget(const vector<CvUnit*>& vUnits, CvPl
 	//we want to move the civilians last so they have a better chance of getting cover
 	struct PrSortCombatFirst
 	{
-		bool operator()(const CvUnit* lhs, const CvUnit* rhs) const { return (lhs->IsCombatUnit() ? 0 : 1) < (rhs->IsCombatUnit() ? 0 : 1); }
+		bool operator()(const CvUnit* lhs, const CvUnit* rhs) const 
+			{ return (lhs->IsCivilianUnit() ? 2 : lhs->AI_getUnitAIType()==UNITAI_CITY_BOMBARD ? 1 : 0) < (rhs->IsCivilianUnit() ? 2 : rhs->AI_getUnitAIType() == UNITAI_CITY_BOMBARD ? 1 : 0); }
 	};
 	std::stable_sort(farout.begin(), farout.end(), PrSortCombatFirst());
 
@@ -3324,7 +3325,7 @@ bool CvTacticalAI::PositionUnitsAroundTarget(const vector<CvUnit*>& vUnits, CvPl
 
 		//we are not here to fight or flee, let other moves take over
 		int iDanger = pUnit->GetDanger(pUnit->GetPathEndFirstTurnPlot());
-		int iDangerLimit = pUnit->IsCanAttackWithMove() ? pUnit->GetCurrHitPoints() / 2 : 0;
+		int iDangerLimit = (pUnit->IsCanAttack() && pUnit->AI_getUnitAIType()!=UNITAI_CITY_BOMBARD) ? pUnit->GetCurrHitPoints() / 2 : 0;
 		//generals and siege should not even be in fog danger
 		if (iDanger > iDangerLimit)
 			continue;
@@ -3351,6 +3352,8 @@ bool CvTacticalAI::PositionUnitsAroundTarget(const vector<CvUnit*>& vUnits, CvPl
 			//units are not typically hurt but this is convenient function to move out of danger
 			//MoveToSafestPlot() may cause units to run too far
 			CvPlot* pPlot = TacticalAIHelpers::FindClosestSafePlotForHealing(pUnit, false);
+			//second chance for emergencies
+			if (!pPlot) pPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit, false, false);
 			if (pPlot)
 				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pPlot->getX(), pPlot->getY(), 0, false, false, MISSIONAI_TACTMOVE);
 		}
@@ -4492,7 +4495,7 @@ CvUnit* CvTacticalAI::FindUnitForThisMove(AITacticalMove eMove, CvPlot* pTarget,
 			}
 
 			//otherwise collect and sort
-			int iTurns = pLoopUnit->TurnsToReachTarget(pTarget, CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER, (iNumTurnsAway == -1 ? MAX_INT : iNumTurnsAway));
+			int iTurns = pLoopUnit->TurnsToReachTarget(pTarget, CvUnit::MOVEFLAG_SAFE_EMBARK_ONLY, (iNumTurnsAway == -1 ? MAX_INT : iNumTurnsAway));
 			if(iTurns != MAX_INT)
 			{
 				//tricky to make a good score avoiding ties ...
@@ -5810,12 +5813,18 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 		//map 144 to 144, everything above is not so important
 		int iScore = (iDanger > 144) ? 12 * sqrti(iDanger) : iDanger;
 
-		//we can't heal after moving and lose fortification bonus, so the current plot gets a bonus (respectively all others a penalty)
-		if (pPlot != pUnit->plot() && iCurrentHealRate > 0)
-			iScore += iCurrentHealRate - 3; //everything else equal it looks stupid to stand around while being shot at
+		if (pPlot != pUnit->plot() && !pUnit->hasMoved())
+		{
+			//everything else equal it looks stupid to stand around while being shot at
+			iScore += max(0,iCurrentHealRate);
 
-		//heal rate is higher here and danger lower
-		if (!bIsInTerritory)
+			//we can't heal after moving and lose fortification bonus, so the current plot gets a bonus (respectively all others a penalty)
+			if (pUnit->canFortify(pUnit->plot()))
+				iScore += 3;
+		}
+
+		//safer at home ... but not if we need to embark b/c we can't fight back then
+		if (!bIsInTerritory || bWouldEmbark)
 			iScore += 12;
 
 		//try to hide - if there are few enemy units, this might be a tiebreaker
