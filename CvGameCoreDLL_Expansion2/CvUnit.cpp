@@ -185,6 +185,8 @@ CvUnit::CvUnit() :
 	, m_iDisembarkFlatCostCount()
 	, m_iAOEDamageOnKill()
 	, m_iAOEDamageOnPillage()
+	, m_iAOEHealOnPillage()
+	, m_iCombatModPerCSAlliance()
 	, m_iAoEDamageOnMove()
 	, m_seBlockedPromotions()
 	, m_seConditionalPromotions()
@@ -412,6 +414,7 @@ CvUnit::CvUnit() :
 	, m_bSpottedEnemy()
 	, m_iGainsXPFromScouting()
 	, m_iXPFromPillaging()
+	, m_iExtraXPOnKill()
 	, m_iGainsXPFromSpotting()
 	, m_iCaptureDefeatedEnemyChance()
 	, m_iBarbCombatBonus()
@@ -1428,6 +1431,8 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iDisembarkFlatCostCount = 0;
 	m_iAOEDamageOnKill = 0;
 	m_iAOEDamageOnPillage = 0;
+	m_iAOEHealOnPillage = 0;
+	m_iCombatModPerCSAlliance = 0;
 	m_iAoEDamageOnMove = 0;
 	m_seBlockedPromotions.clear();
 	m_seConditionalPromotions.clear();
@@ -1573,6 +1578,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iGainsXPFromScouting = 0;
 	m_iGainsXPFromSpotting = 0;
 	m_iXPFromPillaging = 0;
+	m_iExtraXPOnKill = 0;
 	m_iCaptureDefeatedEnemyChance = 0;
 	m_iBarbCombatBonus = 0;
 	m_iAdjacentEnemySapMovement = 0;
@@ -10259,25 +10265,35 @@ bool CvUnit::canPillage(const CvPlot* pPlot) const
 	return true;
 }
 
-int CvUnit::getCurrentPillageHeal() const
+int CvUnit::getPillageHealAmount(const CvPlot* pPlot, bool bPotential) const
 {
-	int iPillageHeal = 0;
-	if (!IsCannotHeal())
+	if (pPlot->getImprovementType() == NO_IMPROVEMENT || pPlot->IsImprovementPillaged() || IsCannotHeal())
+		return 0;
+
+	if (pPlot->getOwner() != NO_PLAYER && GET_PLAYER(pPlot->getOwner()).isBorderGainlessPillage())
+		return 0;
+
+	CvCity* pCityOfThisPlot = pPlot->getEffectiveOwningCity();
+	if (pCityOfThisPlot && pCityOfThisPlot->IsLocalGainlessPillage())
+		return 0;
+
+	int iPillageHeal = hasHealOnPillage() ? GetMaxHitPoints() : (/*25*/ GD_INT_GET(PILLAGE_HEAL_AMOUNT) + getPartialHealOnPillage());
+	if (!bPotential)
 	{
-		iPillageHeal = hasHealOnPillage() ? getDamage() : min(getDamage(), (/*25*/ GD_INT_GET(PILLAGE_HEAL_AMOUNT) + getPartialHealOnPillage()));
+		iPillageHeal = min(iPillageHeal, getDamage());
 	}
+
 	return iPillageHeal;
 }
 
-bool CvUnit::shouldPillage(const CvPlot* pPlot, bool bConservative) const
+bool CvUnit::shouldPillage(const CvPlot* pPlot, bool bConservative, bool bIgnoreMovement) const
 {
 	if (!canPillage(pPlot))
 		return false;
 
-	if (hasFreePillageMove() && pPlot->IsAdjacentCity())
+	if (hasFreePillageMove() && (pPlot->IsAdjacentCity() || (pPlot->getOwner() != NO_PLAYER && pPlot->getRouteType() != NO_ROUTE)))
 		return true;
 
-	int iPillageHeal = getCurrentPillageHeal();
 
 	// Citadel here?
 	ImprovementTypes eImprovement = pPlot->getImprovementType();
@@ -10288,9 +10304,17 @@ bool CvUnit::shouldPillage(const CvPlot* pPlot, bool bConservative) const
 			return true;
 	}
 
-	//be careful "wasting" movement for slow units
-	if (GetDanger() > GetCurrHitPoints() + iPillageHeal && getMoves() < GD_INT_GET(MOVE_DENOMINATOR) * 3 && !hasFreePillageMove())
-		return false;
+	int iPillageHeal = getPillageHealAmount(pPlot);
+
+	if (iPillageHeal > 0 && (getAOEHealOnPillage() > 0 || getAOEDamageOnPillage() > 0))
+		return true;
+
+	if (!bIgnoreMovement)
+	{
+		//be careful "wasting" movement for slow units
+		if (GetDanger() > GetCurrHitPoints() + iPillageHeal && getMoves() < GD_INT_GET(MOVE_DENOMINATOR) * 3 && !hasFreePillageMove())
+			return false;
+	}
 
 	if (pPlot->getOwningCity() != NULL && pPlot->getOwner() != NO_PLAYER && pPlot->getOwner() != BARBARIAN_PLAYER)
 	{
@@ -10318,6 +10342,15 @@ bool CvUnit::shouldPillage(const CvPlot* pPlot, bool bConservative) const
 		YieldTypes eYield = (YieldTypes)iI;
 		if (GET_PLAYER(getOwner()).GetYieldFromPillage(eYield) > 0 || (pOriginCity && pOriginCity->GetYieldFromPillage(eYield) > 0))
 			return true;
+	}
+
+	if (GetXPFromPillaging() > 0)
+		return true;
+
+	// route in rough terrain?
+	if (pPlot->getOwner() != NO_PLAYER && pPlot->getRouteType() != NO_ROUTE && (pPlot->isHills() || pPlot->IsTerrainDesert() || pPlot->IsFeatureMarsh() || pPlot->IsFeatureForest() || pPlot->isRiver()))
+	{
+		return true;
 	}
 
 	if (bConservative)
@@ -10353,6 +10386,7 @@ bool CvUnit::pillage()
 
 	// Is an Improvement here that hasn't already been pillaged?
 	bool bSuccessfulNonRoadPillage = false;
+	int iPotentialHealFromPillage = 0;
 	if(bImprovement)
 	{
 		eTempImprovement = pPlot->getImprovementType();
@@ -10535,6 +10569,7 @@ bool CvUnit::pillage()
 
 			// Improvement that's destroyed?
 			bSuccessfulNonRoadPillage = true;
+			iPotentialHealFromPillage = getPillageHealAmount(plot(), true);
 			if(pkImprovement->IsDestroyedWhenPillaged())
 			{
 				// If this improvement auto-added a route, we also need to remove the route
@@ -10595,17 +10630,10 @@ bool CvUnit::pillage()
 
 		DoAdjacentPlotDamage(pPlot, getAOEDamageOnPillage(), "TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_AOE_STRIKE_PILLAGE");
 
-		if (!IsCannotHeal())
+		if (iPotentialHealFromPillage > 0)
 		{
-			//if the plot isn't guarded by a gainless pillage building for this player, nor this city
-			if (!(pPlot->getOwner() != NO_PLAYER && GET_PLAYER(pPlot->getOwner()).isBorderGainlessPillage()))
-			{
-				CvCity* pCityOfThisPlot = pPlot->getEffectiveOwningCity();
-				if (pCityOfThisPlot == NULL || !(pCityOfThisPlot->IsLocalGainlessPillage()))
-				{
-						changeDamage(-getCurrentPillageHeal());
-				}
-			}
+			DoAdjacentHeal(pPlot, getAOEHealOnPillage());
+			changeDamage(max(-getDamage(), -iPotentialHealFromPillage));
 		}
 	}
 
@@ -16141,7 +16169,6 @@ int CvUnit::GetGenericMeleeStrengthModifier(const CvUnit* pOtherUnit, const CvPl
 		iModifier += GetUnhappinessCombatPenalty();
 	}
 
-#if defined(MOD_BALANCE_CORE)
 	int iCSStrengthMod = 0;
 	if(GET_PLAYER(getOwner()).isMinorCiv())
 	{
@@ -16174,7 +16201,11 @@ int CvUnit::GetGenericMeleeStrengthModifier(const CvUnit* pOtherUnit, const CvPl
 		}
 	}
 	iModifier += iCSStrengthMod;
-#endif
+
+	if (GetCombatModPerCSAlliance() > 0 && !GET_PLAYER(getOwner()).isMinorCiv())
+	{
+		iModifier += (GetCombatModPerCSAlliance() * min(GET_PLAYER(getOwner()).GetNumCSAllies(), /*5*/ GD_INT_GET(BALANCE_MAX_CS_ALLY_STRENGTH)));
+	}
 
 	//sometimes we ignore the finer points
 	if (!bQuickAndDirty)
@@ -17014,6 +17045,11 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 		}
 	}
 	iModifier += iCSStrengthMod;
+
+	if (GetCombatModPerCSAlliance() > 0 && !GET_PLAYER(getOwner()).isMinorCiv())
+	{
+		iModifier += (GetCombatModPerCSAlliance() * min(GET_PLAYER(getOwner()).GetNumCSAllies(), /*5*/ GD_INT_GET(BALANCE_MAX_CS_ALLY_STRENGTH)));
+	}
 
 	// Stacked with Great General
 	if (GetGreatGeneralCombatModifier() != 0 && IsStackedGreatGeneral())
@@ -18657,6 +18693,24 @@ void CvUnit::ChangeXPFromPillaging(int iValue)
 	if (iValue != 0)
 	{
 		m_iXPFromPillaging += iValue;
+	}
+}
+
+
+//	--------------------------------------------------------------------------------
+int CvUnit::GetExtraXPOnKill() const
+{
+	VALIDATE_OBJECT();
+	return m_iExtraXPOnKill;
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::ChangeExtraXPOnKill(int iValue)
+{
+	VALIDATE_OBJECT();
+	if (iValue != 0)
+	{
+		m_iExtraXPOnKill += iValue;
 	}
 }
 
@@ -21947,6 +22001,41 @@ int CvUnit::DoAdjacentPlotDamage(CvPlot* pWhere, int iValue, const char* chTextK
 	return iCount;
 }
 
+
+void CvUnit::DoAdjacentHeal(CvPlot* pWhere, int iValue, const char* chTextKey)
+{
+	if (iValue < 1 || pWhere == NULL)
+		return;
+
+	for (int i = RING0_PLOTS; i < RING1_PLOTS; i++)
+	{
+		CvPlot* pSplashPlot = iterateRingPlots(pWhere, i);
+		if (!pSplashPlot)
+			continue;
+
+		for (int iJ = 0; iJ < pSplashPlot->getNumUnits(); iJ++)
+		{
+			CvUnit* pAdjacentUnit = pSplashPlot->getUnitByIndex(iJ);
+			if (pAdjacentUnit != NULL && pAdjacentUnit->getTeam() == getTeam() && !pAdjacentUnit->IsCannotHeal())
+			{
+				int iHealAmount = min(iValue, pAdjacentUnit->getDamage());
+				if (iHealAmount > 0)
+				{
+					if (chTextKey)
+					{
+						CvString strAppendText = GetLocalizedText(chTextKey);
+						pAdjacentUnit->changeDamage(-iHealAmount, getOwner(), 0.0, &strAppendText);
+					}
+					else
+						pAdjacentUnit->changeDamage(-iHealAmount, getOwner(), 0.0);
+				}
+			}
+		}
+	}
+
+	return;
+}
+
 //	--------------------------------------------------------------------------------
 int CvUnit::getBlitzCount() const
 {
@@ -22236,6 +22325,34 @@ void CvUnit::changeAOEDamageOnPillage(int iChange)
 	VALIDATE_OBJECT();
 	m_iAOEDamageOnPillage = (m_iAOEDamageOnPillage + iChange);
 	ASSERT_DEBUG(getAOEDamageOnPillage() >= 0);
+}
+
+//	--------------------------------------------------------------------------------
+int CvUnit::getAOEHealOnPillage() const
+{
+	VALIDATE_OBJECT();
+	return m_iAOEHealOnPillage;
+}
+//	--------------------------------------------------------------------------------
+void CvUnit::changeAOEHealOnPillage(int iChange)
+{
+	VALIDATE_OBJECT();
+	m_iAOEHealOnPillage = (m_iAOEHealOnPillage + iChange);
+	ASSERT_DEBUG(getAOEHealOnPillage() >= 0);
+}
+
+//	--------------------------------------------------------------------------------
+int CvUnit::GetCombatModPerCSAlliance() const
+{
+	VALIDATE_OBJECT();
+	return m_iCombatModPerCSAlliance;
+}
+//	--------------------------------------------------------------------------------
+void CvUnit::ChangeCombatModPerCSAlliance(int iChange)
+{
+	VALIDATE_OBJECT();
+	m_iCombatModPerCSAlliance = (m_iCombatModPerCSAlliance + iChange);
+	ASSERT_DEBUG(GetCombatModPerCSAlliance() >= 0);
 }
 
 //	--------------------------------------------------------------------------------
@@ -27615,6 +27732,8 @@ void CvUnit::setPromotionActive(PromotionTypes eIndex, bool bNewValue)
 	ChangeCaptureDefeatedEnemyCount((thisPromotion.IsCaptureDefeatedEnemy()) ? iChange : 0);
 	changeAOEDamageOnKill(thisPromotion.GetAOEDamageOnKill() * iChange);
 	changeAOEDamageOnPillage(thisPromotion.GetAOEDamageOnPillage() * iChange);
+	changeAOEHealOnPillage(thisPromotion.GetAOEHealOnPillage() * iChange);
+	ChangeCombatModPerCSAlliance(thisPromotion.GetCombatModPerCSAlliance() * iChange);
 	changeAoEDamageOnMove(thisPromotion.GetAoEDamageOnMove() * iChange);
 	changePartialHealOnPillage(thisPromotion.GetPartialHealOnPillage() * iChange);
 	changeSplashDamage(thisPromotion.GetSplashDamage() * iChange);
@@ -27628,6 +27747,7 @@ void CvUnit::setPromotionActive(PromotionTypes eIndex, bool bNewValue)
 	ChangeAdjacentEnemySapMovement((thisPromotion.GetAdjacentEnemySapMovement()) * iChange);
 	ChangeGainsXPFromScouting((thisPromotion.IsGainsXPFromScouting()) ? iChange : 0);
 	ChangeXPFromPillaging(thisPromotion.GetXPFromPillaging() * iChange);
+	ChangeExtraXPOnKill(thisPromotion.GetExtraXPOnKill() * iChange);
 	ChangeGainsXPFromSpotting((thisPromotion.IsGainsXPFromSpotting()) ? iChange : 0);
 	ChangeCannotBeCapturedCount((thisPromotion.CannotBeCaptured()) ? iChange : 0);
 	ChangeForcedDamageValue((thisPromotion.ForcedDamageValue()) * iChange);
@@ -28201,6 +28321,8 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_iDisembarkFlatCostCount);
 	visitor(unit.m_iAOEDamageOnKill);
 	visitor(unit.m_iAOEDamageOnPillage);
+	visitor(unit.m_iAOEHealOnPillage);
+	visitor(unit.m_iCombatModPerCSAlliance);
 	visitor(unit.m_iAoEDamageOnMove);
 	visitor(unit.m_seBlockedPromotions);
 	visitor(unit.m_seConditionalPromotions);
@@ -28323,6 +28445,7 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_bSpottedEnemy);
 	visitor(unit.m_iGainsXPFromScouting);
 	visitor(unit.m_iXPFromPillaging);
+	visitor(unit.m_iExtraXPOnKill);
 	visitor(unit.m_iGainsXPFromSpotting);
 	visitor(unit.m_iCaptureDefeatedEnemyChance);
 	visitor(unit.m_iBarbCombatBonus);
@@ -31653,6 +31776,14 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		// Also synergistic promotions can be factored in as well as different usefulness for different units eg (melee vs range)
 	}
 
+	iTemp = pkPromotionInfo->GetCombatModPerCSAlliance();
+	// M + mM: +10 Drill 1-3,Shock 1-3. 	nM: +15 Boarding Party 1-3, +10 Dreadnought 1-3 (coastal raider).
+	if (iTemp != 0)
+	{
+		iExtra = GetCombatModPerCSAlliance() * min(GET_PLAYER(getOwner()).GetNumCSAllies(), /*5*/ GD_INT_GET(BALANCE_MAX_CS_ALLY_STRENGTH)) * (iFlavorOffense + iFlavorDefense + iFlavorCityDefense);
+		iValue += iExtra;
+	}
+
 			// General Offense
 
 
@@ -32941,6 +33072,14 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		iExtra *= baseMoves(false);
 		if (hasFreePillageMove())
 			iExtra *= 2;
+		iValue += iExtra;
+	}
+
+	iTemp = pkPromotionInfo->GetExtraXPOnKill();
+	if (iTemp > 0)
+	{
+		iExtra = iTemp * (iFlavorOffense + 2 * iFlavorDefense);
+		iExtra *= 0.5;
 		iValue += iExtra;
 	}
 

@@ -6532,29 +6532,7 @@ int CvLuaUnit::lGetAllianceCSStrength(lua_State* L)
 			int iCSBonus = GET_PLAYER(eAlly).GetPlayerTraits()->GetAllianceCSStrength();
 			if(iCSBonus > 0)
 			{
-				int iNumAllies = 0;
-				// Loop through all minors and get the total number we've met.
-				for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
-				{
-					PlayerTypes eMinor = (PlayerTypes) iPlayerLoop;
-
-					if (GET_PLAYER(eMinor).isAlive() && GET_PLAYER(eMinor).isMinorCiv())
-					{
-						if (GET_PLAYER(eMinor).GetMinorCivAI()->IsAllies(eAlly))
-						{
-							iNumAllies++;
-							if(iNumAllies >= /*5*/ GD_INT_GET(BALANCE_MAX_CS_ALLY_STRENGTH))
-							{
-								break;
-							}
-						}
-					}
-				}
-				if(iNumAllies > /*5*/ GD_INT_GET(BALANCE_MAX_CS_ALLY_STRENGTH))
-				{
-					iNumAllies = /*5*/ GD_INT_GET(BALANCE_MAX_CS_ALLY_STRENGTH);
-				}
-				iStrengthMod = (iCSBonus * iNumAllies);
+				iStrengthMod = iCSBonus * min(GET_PLAYER(eAlly).GetNumCSAllies(), /*5*/ GD_INT_GET(BALANCE_MAX_CS_ALLY_STRENGTH));
 			}
 		}
 	}
@@ -6563,31 +6541,15 @@ int CvLuaUnit::lGetAllianceCSStrength(lua_State* L)
 		int iCSBonus = GET_PLAYER(pkUnit->getOwner()).GetPlayerTraits()->GetAllianceCSStrength();
 		if(iCSBonus > 0)
 		{
-			int iNumAllies = 0;
-			// Loop through all minors and get the total number we've met.
-			for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
-			{
-				PlayerTypes eMinor = (PlayerTypes) iPlayerLoop;
-
-				if (GET_PLAYER(eMinor).isAlive() && GET_PLAYER(eMinor).isMinorCiv())
-				{
-					if (GET_PLAYER(eMinor).GetMinorCivAI()->IsAllies(pkUnit->getOwner()))
-					{
-						iNumAllies++;
-						if(iNumAllies >= /*5*/ GD_INT_GET(BALANCE_MAX_CS_ALLY_STRENGTH))
-						{
-							break;
-						}
-					}
-				}
-			}
-			if(iNumAllies > /*5*/ GD_INT_GET(BALANCE_MAX_CS_ALLY_STRENGTH))
-			{
-				iNumAllies = /*5*/ GD_INT_GET(BALANCE_MAX_CS_ALLY_STRENGTH);
-			}
-			iStrengthMod = (iCSBonus * iNumAllies);
+			iStrengthMod = iCSBonus * min(GET_PLAYER(pkUnit->getOwner()).GetNumCSAllies(), /*5*/ GD_INT_GET(BALANCE_MAX_CS_ALLY_STRENGTH));
 		}
 	}
+
+	if (pkUnit->GetCombatModPerCSAlliance() > 0 && !GET_PLAYER(pkUnit->getOwner()).isMinorCiv())
+	{
+		iStrengthMod += (pkUnit->GetCombatModPerCSAlliance() * min(GET_PLAYER(pkUnit->getOwner()).GetNumCSAllies(), /*5*/ GD_INT_GET(BALANCE_MAX_CS_ALLY_STRENGTH)));
+	}
+
 	lua_pushinteger(L, iStrengthMod);
 
 	return 1;

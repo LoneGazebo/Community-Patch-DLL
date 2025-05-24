@@ -463,8 +463,8 @@ public:
 	bool rebase(int iX, int iY, bool bForced = false);
 
 	bool canPillage(const CvPlot* pPlot) const;
-	int getCurrentPillageHeal() const;
-	bool shouldPillage(const CvPlot* pPlot, bool bConservative = false) const;
+	int getPillageHealAmount(const CvPlot* pPlot, bool bPotential = false) const;
+	bool shouldPillage(const CvPlot* pPlot, bool bConservative = false, bool bIgnoreMovement = false) const;
 	bool pillage();
 
 	bool canFoundCity(const CvPlot* pPlot, bool bIgnoreDistanceToExistingCities = false, bool bIgnoreHappiness = false, bool bForAliveCheck = false) const;
@@ -891,6 +891,9 @@ public:
 	int GetXPFromPillaging() const;
 	void ChangeXPFromPillaging(int iValue);
 
+	int GetExtraXPOnKill() const;
+	void ChangeExtraXPOnKill(int iValue);
+
 	bool IsGainsYieldFromScouting() const;
 
 	int GetCaptureDefeatedEnemyChance() const;
@@ -1160,6 +1163,7 @@ public:
 
 	void DoExtraPlotDamage(CvPlot* pWhere, int iValue, const char* chTextKey);
 	int DoAdjacentPlotDamage(CvPlot* pWhere, int iValue, const char* chTextKey = NULL);
+	void DoAdjacentHeal(CvPlot* pWhere, int iValue, const char* chTextKey = NULL);
 
 	int getBlitzCount() const;
 	bool isBlitz() const;
@@ -1211,6 +1215,12 @@ public:
 
 	int getAOEDamageOnPillage() const;
 	void changeAOEDamageOnPillage(int iChange);
+
+	int getAOEHealOnPillage() const;
+	void changeAOEHealOnPillage(int iChange);
+
+	int GetCombatModPerCSAlliance() const;
+	void ChangeCombatModPerCSAlliance(int iChange);
 
 	int getPartialHealOnPillage() const;
 	void changePartialHealOnPillage(int iChange);
@@ -2147,6 +2157,8 @@ protected:
 	int m_iDisembarkFlatCostCount;
 	int m_iAOEDamageOnKill;
 	int m_iAOEDamageOnPillage;
+	int m_iAOEHealOnPillage;
+	int m_iCombatModPerCSAlliance;
 	int m_iAoEDamageOnMove;
 	std::set<PromotionTypes> m_seBlockedPromotions;
 	std::set<PromotionTypes> m_seConditionalPromotions;
@@ -2285,6 +2297,7 @@ protected:
 	bool m_bSpottedEnemy;
 	int m_iGainsXPFromScouting;
 	int m_iXPFromPillaging;
+	int m_iExtraXPOnKill;
 	int m_iGainsXPFromSpotting;
 	int m_iCaptureDefeatedEnemyChance;
 	int m_iBarbCombatBonus;
@@ -2612,6 +2625,8 @@ SYNC_ARCHIVE_VAR(int, m_iEmbarkFlatCostCount)
 SYNC_ARCHIVE_VAR(int, m_iDisembarkFlatCostCount)
 SYNC_ARCHIVE_VAR(int, m_iAOEDamageOnKill)
 SYNC_ARCHIVE_VAR(int, m_iAOEDamageOnPillage)
+SYNC_ARCHIVE_VAR(int, m_iAOEHealOnPillage)
+SYNC_ARCHIVE_VAR(int, m_iCombatModPerCSAlliance)
 SYNC_ARCHIVE_VAR(int, m_iAoEDamageOnMove)
 SYNC_ARCHIVE_VAR(SYNC_ARCHIVE_VAR_TYPE(std::set<PromotionTypes>), m_seBlockedPromotions)
 SYNC_ARCHIVE_VAR(SYNC_ARCHIVE_VAR_TYPE(std::set<PromotionTypes>), m_seConditionalPromotions)
@@ -2734,6 +2749,7 @@ SYNC_ARCHIVE_VAR(int, m_iNumTilesRevealedThisTurn)
 SYNC_ARCHIVE_VAR(bool, m_bSpottedEnemy)
 SYNC_ARCHIVE_VAR(int, m_iGainsXPFromScouting)
 SYNC_ARCHIVE_VAR(int, m_iXPFromPillaging)
+SYNC_ARCHIVE_VAR(int, m_iExtraXPOnKill)
 SYNC_ARCHIVE_VAR(int, m_iGainsXPFromSpotting)
 SYNC_ARCHIVE_VAR(int, m_iCaptureDefeatedEnemyChance)
 SYNC_ARCHIVE_VAR(int, m_iBarbCombatBonus)

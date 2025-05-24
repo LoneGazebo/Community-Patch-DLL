@@ -67,7 +67,7 @@ DELETE FROM Unit_ResourceQuantityRequirements WHERE UnitType = 'UNIT_TARKHAN';
 INSERT INTO Unit_FreePromotions
 	(UnitType, PromotionType)
 VALUES
-	('UNIT_HUN_HORSE_ARCHER', 'PROMOTION_BELLUM_ALET');
+	('UNIT_TARKHAN', 'PROMOTION_BELLUM_ALET');
 
 ----------------------------------------------------------
 -- Unique Improvement: Eki

@@ -2326,7 +2326,7 @@ bool CvHomelandAI::ExecuteExplorerMoves(CvUnit* pUnit)
 
 			ExecuteMoveToTarget(pUnit, pPlot, 0, true);
 
-			if (pUnit->canMove() && pUnit->shouldPillage(pUnit->plot()))
+			if (pUnit->shouldPillage(pUnit->plot(), false, true))
 				pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
 
 			return true; //done for this turn
@@ -2447,15 +2447,7 @@ bool CvHomelandAI::ExecuteExplorerMoves(CvUnit* pUnit)
 				!pEvalPlot->isEnemyUnit(pUnit->getOwner(), true, true, false))
 			{
 				// do we heal when pillaging this tile?
-				int iHealAmount = 0;
-				if (pEvalPlot->getImprovementType() != NO_IMPROVEMENT && !pEvalPlot->IsImprovementPillaged() && !(pEvalPlot->getOwner() != NO_PLAYER && GET_PLAYER(pEvalPlot->getOwner()).isBorderGainlessPillage()))
-				{
-					CvCity* pCityOfThisPlot = pEvalPlot->getEffectiveOwningCity();
-					if (pCityOfThisPlot == NULL || !(pCityOfThisPlot->IsLocalGainlessPillage()))
-					{
-						iHealAmount = pUnit->getCurrentPillageHeal();
-					}
-				}
+				int iHealAmount = pUnit->getPillageHealAmount(pEvalPlot);
 				if (pUnit->GetDanger(pEvalPlot) < pUnit->GetCurrHitPoints() + iHealAmount)
 				{
 					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pEvalPlot->getX(), pEvalPlot->getY());
@@ -3432,7 +3424,9 @@ void CvHomelandAI::ExecuteHeals()
 
 		if (pBestPlot && pBestPlot!=pUnit->plot())
 			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY());
-		if (pUnit->shouldPillage(pUnit->plot()))
+		if (pUnit->canPillage(pUnit->plot()))
+			pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
+		if (pUnit->canPillage(pUnit->plot())) // if possible, pillage both improvement and road
 			pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
 		if (pUnit->canMove())
 			pUnit->PushMission(CvTypes::getMISSION_SKIP());

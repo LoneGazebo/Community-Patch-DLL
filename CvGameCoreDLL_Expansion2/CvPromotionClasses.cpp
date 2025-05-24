@@ -183,6 +183,7 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iDiploMissionInfluence(0),
 	m_bGainsXPFromScouting(false),
 	m_iXPFromPillaging(0),
+	m_iExtraXPOnKill(0),
 	m_bGainsXPFromSpotting(false),
 	m_bCannotBeCaptured(false),
 	m_bIsLostOnMove(false),
@@ -231,6 +232,8 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iWonderProductionModifier(0),
 	m_iAOEDamageOnKill(0),
 	m_iAOEDamageOnPillage(0),
+	m_iAOEHealOnPillage(0),
+	m_iCombatModPerCSAlliance(0),
 	m_iAoEDamageOnMove(0),
 	m_iPartialHealOnPillage(0),
 	m_iSplashDamage(0),
@@ -464,6 +467,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iDiploMissionInfluence = kResults.GetInt("DiploMissionInfluence");
 	m_bGainsXPFromScouting = kResults.GetBool("GainsXPFromScouting");
 	m_iXPFromPillaging = kResults.GetInt("XPFromPillaging");
+	m_iExtraXPOnKill = kResults.GetInt("ExtraXPOnKill");
 	m_bGainsXPFromSpotting = kResults.GetBool("GainsXPFromSpotting");
 	m_bCannotBeCaptured = kResults.GetBool("CannotBeCaptured");
 	m_bIsLostOnMove = kResults.GetBool("IsLostOnMove");
@@ -519,6 +523,8 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iWonderProductionModifier = kResults.GetInt("WonderProductionModifier");
 	m_iAOEDamageOnKill = kResults.GetInt("AOEDamageOnKill");
 	m_iAOEDamageOnPillage = kResults.GetInt("AOEDamageOnPillage");
+	m_iAOEHealOnPillage = kResults.GetInt("AoEHealOnPillage");
+	m_iCombatModPerCSAlliance = kResults.GetInt("CombatModPerCSAlliance");
 	m_iAoEDamageOnMove = kResults.GetInt("AoEDamageOnMove");
 	m_iPartialHealOnPillage = kResults.GetInt("PartialHealOnPillage");
 	m_iSplashDamage = kResults.GetInt("SplashDamage");
@@ -2238,6 +2244,12 @@ int CvPromotionEntry::GetXPFromPillaging() const
 	return m_iXPFromPillaging;
 }
 
+/// Accessor: Extra XP when killing a unit
+int CvPromotionEntry::GetExtraXPOnKill() const
+{
+	return m_iExtraXPOnKill;
+}
+
 /// Accessor: Can this Promotion grant XP from spotting?
 bool CvPromotionEntry::IsGainsXPFromSpotting() const
 {
@@ -2478,6 +2490,14 @@ int CvPromotionEntry::GetAOEDamageOnKill() const
 int CvPromotionEntry::GetAOEDamageOnPillage() const
 {
 	return m_iAOEDamageOnPillage;
+}
+int CvPromotionEntry::GetAOEHealOnPillage() const
+{
+	return m_iAOEHealOnPillage;
+}
+int CvPromotionEntry::GetCombatModPerCSAlliance() const
+{
+	return m_iCombatModPerCSAlliance;
 }
 int CvPromotionEntry::GetAoEDamageOnMove() const
 {
