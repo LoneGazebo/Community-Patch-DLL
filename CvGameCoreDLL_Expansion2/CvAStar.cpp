@@ -1156,11 +1156,14 @@ int PathHeuristic(int /*iCurrentX*/, int /*iCurrentY*/, int iNextX, int iNextY, 
 
 //	--------------------------------------------------------------------------------
 /// Standard path finder - cost for ending the turn on a given plot
-int PathEndTurnCost(CvPlot* pToPlot, const CvPathNodeCacheData& kToNodeCacheData, const UnitPathCacheData* pUnitDataCache, int iTurnsInFuture, bool bAbortInDanger)
+int PathEndTurnCost(CvPlot* pToPlot, const CvPathNodeCacheData& kToNodeCacheData, const UnitPathCacheData* pUnitDataCache, int iTurnsInFuture, int iFlags)
 {
 	CvUnit* pUnit = pUnitDataCache->pUnit;
 	TeamTypes eUnitTeam = pUnitDataCache->getTeam();
 	DomainTypes eUnitDomain = pUnitDataCache->getDomainType();
+
+	bool bAbortInDanger = (iFlags & CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER);
+	bool bOnlySafeEmbark = (iFlags & CvUnit::MOVEFLAG_SAFE_EMBARK_ONLY);
 
 	//human knows best, don't try to be smart, just try to keep combat units attack-ready
 	if (!pUnitDataCache->isAIControl())
@@ -1247,9 +1250,11 @@ int PathEndTurnCost(CvPlot* pToPlot, const CvPathNodeCacheData& kToNodeCacheData
 			else if (iPlotDanger*iScale > pUnit->GetCurrHitPoints()/3)
 				iCost += PATH_END_TURN_LOW_DANGER_WEIGHT*iFutureFactor;
 		}
-		else //civilian
+		else //civilian or embarked
 		{
-			if (iPlotDanger == INT_MAX && iTurnsInFuture < 2 && bAbortInDanger)
+			if (bOnlySafeEmbark && iPlotDanger>0 && !pUnit->isNativeDomain(pToPlot))
+				return -1; //don't expose ourselves
+			else if (iPlotDanger == INT_MAX && iTurnsInFuture < 2 && bAbortInDanger)
 				return -1; //don't ever do this
 			else if (iPlotDanger > pUnit->GetCurrHitPoints())
 				iCost += PATH_END_TURN_HIGH_DANGER_WEIGHT * 4 * iFutureFactor;
@@ -1376,7 +1381,7 @@ int PathCost(const CvAStarNode* parent, const CvAStarNode* node, const SPathFind
 			return -1; //forbidden
 
 		//extra cost for ending the turn on various types of undesirable plots
-		int iEndTurnCost = PathEndTurnCost(pToPlot, kToNodeCacheData, pUnitDataCache, node->m_iTurns, finder->HaveFlag(CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER));
+		int iEndTurnCost = PathEndTurnCost(pToPlot, kToNodeCacheData, pUnitDataCache, node->m_iTurns, finder->GetData().iFlags);
 		if (iEndTurnCost < 0)
 			return -1; //don't get killed
 
@@ -2654,7 +2659,7 @@ bool CvTwoLayerPathFinder::AddStopNodeIfRequired(const CvAStarNode* current, con
 	if (bBlockAhead || bTempPlotAhead || bAttrition)
 	{
 		CvPlot* pToPlot = GC.getMap().plot(current->m_iX, current->m_iY);
-		int iEndTurnCost = PathEndTurnCost(pToPlot, current->m_kCostCacheData, pUnitDataCache, current->m_iTurns, HaveFlag(CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER));
+		int iEndTurnCost = PathEndTurnCost(pToPlot, current->m_kCostCacheData, pUnitDataCache, current->m_iTurns, GetData().iFlags);
 		if (iEndTurnCost < 0)
 			return false;
 
