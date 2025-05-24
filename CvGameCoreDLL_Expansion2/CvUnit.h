@@ -194,8 +194,8 @@ public:
 	    MOVEFLAG_IGNORE_STACKING_SELF			= 0x0010, // stacking rules (with owned units) don't apply (on turn end plots)
 	    MOVEFLAG_UNUSED3						= 0x0020, //
 	    MOVEFLAG_UNUSED4						= 0x0040, // 
-	    MOVEFLAG_UNUSED5						= 0x0080, // 
 		//these values are used internally only
+		MOVEFLAG_SAFE_EMBARK_ONLY				= 0x0080, //allow embarkation only if danger is zero on turn end plots
 		MOVEFLAG_IGNORE_DANGER					= 0x0100, //do not apply a penalty for dangerous plots
 		MOVEFLAG_NO_EMBARK						= 0x0200, //do not ever embark (but move along if already embarked)
 		MOVEFLAG_NO_ENEMY_TERRITORY				= 0x0400, //don't enter enemy territory, even if we could (but can still pass through enemy *zones*!) 
@@ -211,6 +211,7 @@ public:
 		MOVEFLAG_SELECTIVE_ZOC					= 0x100000, //ignore ZOC from enemy units on given plots
 		MOVEFLAG_PRETEND_ALL_REVEALED			= 0x200000, //pretend all plots are revealed, ie territory is known. leaks information, only for AI to recognize dead ends
 		MOVEFLAG_AI_ABORT_IN_DANGER				= 0x400000, //abort movement if about to end turn on a dangerous plot (should always check if move was executed afterwards)
+															//IMPORTANT: MOVEFLAG_AI_ABORT_IN_DANGER does not prevent path *planning* for combat units! too hard to define a threshold
 		MOVEFLAG_NO_STOPNODES					= 0x800000, //if we already know we can reach the target plot, don't bother with stop nodes
 		MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED	= 0x1000000, //abort if additional enemies become visible, irrespective of danger level
 		MOVEFLAG_IGNORE_ENEMIES					= 0x2000000, //similar to IGNORE_STACKING but pretend we can pass through enemies
@@ -222,8 +223,8 @@ public:
 
 		//seems we are running out of bits, be careful when adding new flags ... maybe we can finally recycle the unused ones above?
 
-		//some flags are relevant during pathfinding, some only during execution
-		PATHFINDER_FLAG_MASK					= ~(MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED|MOVEFLAG_TURN_END_IS_NEXT_TURN),
+		//some flags are relevant during path planning, some only during execution
+		PATHFINDER_FLAG_MASK					= ~(MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED|MOVEFLAG_TURN_END_IS_NEXT_TURN|MOVEFLAG_NO_DEFENSIVE_SUPPORT),
 	};
 
 	enum MoveResult
