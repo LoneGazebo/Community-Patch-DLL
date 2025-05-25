@@ -17753,6 +17753,19 @@ void CvPlayer::DoYieldsFromKill(CvUnit* pAttackingUnit, CvUnit* pDefendingUnit, 
 		pAttackingUnit->changeExperienceTimes100(pAttackingUnit->GetExtraXPOnKill() * 100, -1, true);
 	}
 
+	if (pAttackingUnit->IsPillageFortificationsOnKill() && pDefendingUnit)
+	{
+		CvPlot* pPlot = pDefendingUnit->plot();
+		if (pPlot && IsAtWarWith(pPlot->getOwner()) && !pPlot->isCity() && pPlot->getImprovementType() != NO_IMPROVEMENT && !pPlot->IsImprovementPillaged())
+		{
+			CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(pPlot->getImprovementType());
+			if (pImprovementInfo->IsNoFollowUp())
+			{
+				pPlot->SetImprovementPillaged(true, false);
+			}
+		}
+	}
+
 	//Bonus resource in a city every time you win a battle.
 	if (pDefendingUnit != NULL && pDefendingUnit->IsCombatUnit())
 	{

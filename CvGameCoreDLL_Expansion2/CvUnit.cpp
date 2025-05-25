@@ -439,6 +439,7 @@ CvUnit::CvUnit() :
 	, m_iExtraTerrainDamageCount()
 	, m_iExtraFeatureDamageCount()
 	, m_iCannotHealCount()
+	, m_iPillageFortificationsOnKillCount()
 #if defined(MOD_PROMOTIONS_IMPROVEMENT_BONUS)
 	, m_iNearbyImprovementCombatBonus()
 	, m_iNearbyImprovementBonusRange()
@@ -1519,6 +1520,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iExtraTerrainDamageCount = 0;
 	m_iExtraFeatureDamageCount = 0;
 	m_iCannotHealCount = 0;
+	m_iPillageFortificationsOnKillCount = 0;
 #if defined(MOD_PROMOTIONS_IMPROVEMENT_BONUS)
 	m_iNearbyImprovementCombatBonus = 0;
 	m_iNearbyImprovementBonusRange = 0;
@@ -18052,7 +18054,29 @@ void CvUnit::changeCannotHealCount(int iValue)
 	}
 }
 
+//	--------------------------------------------------------------------------------
+bool CvUnit::IsPillageFortificationsOnKill() const
+{
+	VALIDATE_OBJECT();
+	return getPillageFortificationsOnKillCount() > 0;
+}
 
+//	--------------------------------------------------------------------------------
+int CvUnit::getPillageFortificationsOnKillCount() const
+{
+	VALIDATE_OBJECT();
+	return m_iPillageFortificationsOnKillCount;
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::changePillageFortificationsOnKillCount(int iValue)
+{
+	VALIDATE_OBJECT();
+	if (iValue != 0)
+	{
+		m_iPillageFortificationsOnKillCount += iValue;
+	}
+}
 
 #if defined(MOD_PROMOTIONS_IMPROVEMENT_BONUS)
 int CvUnit::GetNearbyImprovementCombatBonus() const
@@ -27674,6 +27698,7 @@ void CvUnit::setPromotionActive(PromotionTypes eIndex, bool bNewValue)
 	changeExtraTerrainDamageCount((thisPromotion.IsExtraTerrainDamage()) ? iChange : 0);
 	changeExtraFeatureDamageCount((thisPromotion.IsExtraFeatureDamage()) ? iChange : 0);
 	changeCannotHealCount((thisPromotion.IsCannotHeal()) ? iChange : 0);
+	changePillageFortificationsOnKillCount((thisPromotion.IsPillageFortificationsOnKill()) ? iChange : 0);
 
 	if (thisPromotion.GetAttackModPerSamePromotionAttack() > 0)
 	{
@@ -28445,6 +28470,7 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_iExtraTerrainDamageCount);
 	visitor(unit.m_iExtraFeatureDamageCount);
 	visitor(unit.m_iCannotHealCount);
+	visitor(unit.m_iPillageFortificationsOnKillCount);
 	visitor(unit.m_iNearbyImprovementCombatBonus);
 	visitor(unit.m_iNearbyImprovementBonusRange);
 	visitor(unit.m_eCombatBonusImprovement);
