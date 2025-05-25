@@ -492,6 +492,7 @@ protected:
 	static int lGetCombatStrengthModifierPerMarriageCap(lua_State* L);
 	static int lGetCSMarriageStrength(lua_State* L);
 	static int lGetFriendlyLandsModifier(lua_State* L);
+	static int lGetStrengthThisTurnFromPreviousSamePromotionAttacks(lua_State* L);
 	static int lGetFriendlyLandsAttackModifier(lua_State* L);
 	static int lGetOutsideFriendlyLandsModifier(lua_State* L);
 	static int lGetExtraCityAttackPercent(lua_State* L);

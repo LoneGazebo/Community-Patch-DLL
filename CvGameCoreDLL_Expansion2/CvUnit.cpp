@@ -187,6 +187,8 @@ CvUnit::CvUnit() :
 	, m_iAOEDamageOnPillage()
 	, m_iAOEHealOnPillage()
 	, m_iCombatModPerCSAlliance()
+	, m_sePromotionsWithSameAttackBonus()
+	, m_iStrengthThisTurnFromPreviousSamePromotionAttacks()
 	, m_iAoEDamageOnMove()
 	, m_seBlockedPromotions()
 	, m_seConditionalPromotions()
@@ -1433,6 +1435,8 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iAOEDamageOnPillage = 0;
 	m_iAOEHealOnPillage = 0;
 	m_iCombatModPerCSAlliance = 0;
+	m_sePromotionsWithSameAttackBonus.clear();
+	m_iStrengthThisTurnFromPreviousSamePromotionAttacks = 0;
 	m_iAoEDamageOnMove = 0;
 	m_seBlockedPromotions.clear();
 	m_seConditionalPromotions.clear();
@@ -16496,6 +16500,7 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 
 	//resource monopolies
 	iModifier += GET_PLAYER(getOwner()).GetCombatAttackBonusFromMonopolies();
+	iModifier += GetStrengthThisTurnFromPreviousSamePromotionAttacks();
 
 	// Adjacent Friendly military Unit? (attack mod only)
 	if (pFromPlot != NULL && !bIgnoreUnitAdjacencyBoni && !bQuickAndDirty && pFromPlot->IsFriendlyUnitAdjacent(getTeam(), /*bCombatUnit*/ true))
@@ -16606,6 +16611,7 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 
 			if (pFromPlot->IsFriendlyTerritory(getOwner()))
 				iModifier += getFriendlyLandsAttackModifier();
+
 		}
 	}
 
@@ -17063,6 +17069,9 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 	else
 		iModifier += GET_PLAYER(getOwner()).GetCombatDefenseBonusFromMonopolies();
 
+	if (bAttacking)
+		iModifier += GetStrengthThisTurnFromPreviousSamePromotionAttacks();
+
 	if (pTargetPlot)
 	{
 		////////////////////////
@@ -17072,6 +17081,7 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 		// ATTACKING
 		if (bAttacking)
 		{
+
 			// Flanking
 			if(IsRangedFlankAttack() && !bIgnoreUnitAdjacencyBoni && !bQuickAndDirty)
 			{
@@ -22356,6 +22366,21 @@ void CvUnit::ChangeCombatModPerCSAlliance(int iChange)
 }
 
 //	--------------------------------------------------------------------------------
+// Strength modifier from attacks by units with the same promotion in the previous turn.
+// Updated once per turn for every unit in CvPlayer::UpdatePromotionSameAttackBonuses()
+int CvUnit::GetStrengthThisTurnFromPreviousSamePromotionAttacks() const
+{
+	VALIDATE_OBJECT();
+	return m_iStrengthThisTurnFromPreviousSamePromotionAttacks;
+}
+//	--------------------------------------------------------------------------------
+void CvUnit::SetStrengthThisTurnFromPreviousSamePromotionAttacks(int iNewValue)
+{
+	VALIDATE_OBJECT();
+	m_iStrengthThisTurnFromPreviousSamePromotionAttacks = iNewValue;
+}
+
+//	--------------------------------------------------------------------------------
 int CvUnit::getAoEDamageOnMove() const
 {
 	VALIDATE_OBJECT();
@@ -22644,6 +22669,16 @@ void CvUnit::RemovePlague(int iPlagueID, int iHigherPriority)
 				}
 			}
 		}
+	}
+}
+
+void CvUnit::ProcessAttackForPromotionSameAttackBonus()
+{
+	std::set<PromotionTypes> sePromotionsWithSameAttackBonus = GetPromotionsWithSameAttackBonus();
+	for (std::set<PromotionTypes>::iterator it = sePromotionsWithSameAttackBonus.begin(); it != sePromotionsWithSameAttackBonus.end(); ++it)
+	{
+		PromotionTypes ePromotion = (*it);
+		GET_PLAYER(getOwner()).ProcessAttackForPromotionSameAttackBonus(ePromotion);
 	}
 }
 
@@ -27395,6 +27430,26 @@ void CvUnit::SetPromotionBlocked(PromotionTypes eIndex, bool bNewValue)
 }
 
 //	--------------------------------------------------------------------------------
+std::set<PromotionTypes> CvUnit::GetPromotionsWithSameAttackBonus() const
+{
+	return m_sePromotionsWithSameAttackBonus;
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::SetPromotionWithSameAttackBonus(PromotionTypes eIndex, bool bNewValue)
+{
+	VALIDATE_OBJECT();
+	if (bNewValue)
+	{
+		m_sePromotionsWithSameAttackBonus.insert(eIndex);
+	}
+	else
+	{
+		m_sePromotionsWithSameAttackBonus.erase(eIndex);
+	}
+}
+
+//	--------------------------------------------------------------------------------
 std::vector<PlagueInfo> CvUnit::GetPlaguesToInflict() const
 {
 	VALIDATE_OBJECT();
@@ -27635,6 +27690,13 @@ void CvUnit::setPromotionActive(PromotionTypes eIndex, bool bNewValue)
 	changeExtraTerrainDamageCount((thisPromotion.IsExtraTerrainDamage()) ? iChange : 0);
 	changeExtraFeatureDamageCount((thisPromotion.IsExtraFeatureDamage()) ? iChange : 0);
 	changeCannotHealCount((thisPromotion.IsCannotHeal()) ? iChange : 0);
+
+	if (thisPromotion.GetAttackModPerSamePromotionAttack() > 0)
+	{
+		// here we just store that the unit (no longer) has such a promotion.
+		// its effect will be processed when the unit makes an attack 
+		SetPromotionWithSameAttackBonus(eIndex, bNewValue);
+	}
 
 	if (MOD_PROMOTIONS_IMPROVEMENT_BONUS)
 	{
@@ -28323,6 +28385,8 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_iAOEDamageOnPillage);
 	visitor(unit.m_iAOEHealOnPillage);
 	visitor(unit.m_iCombatModPerCSAlliance);
+	visitor(unit.m_sePromotionsWithSameAttackBonus);
+	visitor(unit.m_iStrengthThisTurnFromPreviousSamePromotionAttacks);
 	visitor(unit.m_iAoEDamageOnMove);
 	visitor(unit.m_seBlockedPromotions);
 	visitor(unit.m_seConditionalPromotions);

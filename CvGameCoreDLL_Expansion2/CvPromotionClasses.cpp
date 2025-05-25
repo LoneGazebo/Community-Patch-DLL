@@ -234,6 +234,8 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iAOEDamageOnPillage(0),
 	m_iAOEHealOnPillage(0),
 	m_iCombatModPerCSAlliance(0),
+	m_iAttackModPerSamePromotionAttack(0),
+	m_iAttackModPerSamePromotionAttackCap(0),
 	m_iAoEDamageOnMove(0),
 	m_iPartialHealOnPillage(0),
 	m_iSplashDamage(0),
@@ -525,6 +527,8 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iAOEDamageOnPillage = kResults.GetInt("AOEDamageOnPillage");
 	m_iAOEHealOnPillage = kResults.GetInt("AoEHealOnPillage");
 	m_iCombatModPerCSAlliance = kResults.GetInt("CombatModPerCSAlliance");
+	m_iAttackModPerSamePromotionAttack = kResults.GetInt("AttackModPerSamePromotionAttack");
+	m_iAttackModPerSamePromotionAttackCap = kResults.GetInt("AttackModPerSamePromotionAttackCap");
 	m_iAoEDamageOnMove = kResults.GetInt("AoEDamageOnMove");
 	m_iPartialHealOnPillage = kResults.GetInt("PartialHealOnPillage");
 	m_iSplashDamage = kResults.GetInt("SplashDamage");
@@ -2498,6 +2502,14 @@ int CvPromotionEntry::GetAOEHealOnPillage() const
 int CvPromotionEntry::GetCombatModPerCSAlliance() const
 {
 	return m_iCombatModPerCSAlliance;
+}
+int CvPromotionEntry::GetAttackModPerSamePromotionAttack() const
+{
+	return m_iAttackModPerSamePromotionAttack;
+}
+int CvPromotionEntry::GetAttackModPerSamePromotionAttackCap() const
+{
+	return m_iAttackModPerSamePromotionAttackCap;
 }
 int CvPromotionEntry::GetAoEDamageOnMove() const
 {

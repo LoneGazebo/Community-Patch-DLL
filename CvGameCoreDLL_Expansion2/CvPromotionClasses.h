@@ -210,6 +210,8 @@ public:
 	int GetAOEDamageOnPillage() const;
 	int GetAOEHealOnPillage() const;
 	int GetCombatModPerCSAlliance() const;
+	int GetAttackModPerSamePromotionAttack() const;
+	int GetAttackModPerSamePromotionAttackCap() const;
 	int GetAoEDamageOnMove() const;
 	int GetPartialHealOnPillage() const;
 	int GetSplashDamage() const;
@@ -575,6 +577,8 @@ protected:
 	int m_iAOEDamageOnPillage;
 	int m_iAOEHealOnPillage;
 	int m_iCombatModPerCSAlliance;
+	int m_iAttackModPerSamePromotionAttack;
+	int m_iAttackModPerSamePromotionAttackCap;
 	int m_iAoEDamageOnMove;
 	int m_iPartialHealOnPillage;
 	int m_iSplashDamage;

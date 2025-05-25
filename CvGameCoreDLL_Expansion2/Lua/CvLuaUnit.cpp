@@ -489,6 +489,7 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(GetCombatStrengthModifierPerMarriageCap);
 	Method(GetCSMarriageStrength);
 	Method(GetFriendlyLandsModifier);
+	Method(GetStrengthThisTurnFromPreviousSamePromotionAttacks);
 	Method(GetFriendlyLandsAttackModifier);
 	Method(GetOutsideFriendlyLandsModifier);
 	Method(GetExtraCityAttackPercent);
@@ -5326,6 +5327,16 @@ int CvLuaUnit::lGetFriendlyLandsModifier(lua_State* L)
 	CvUnit* pkUnit = GetInstance(L);
 
 	const int iResult = pkUnit->getFriendlyLandsModifier();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//int GetStrengthThisTurnFromPreviousSamePromotionAttacks();
+int CvLuaUnit::lGetStrengthThisTurnFromPreviousSamePromotionAttacks(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+
+	const int iResult = pkUnit->GetStrengthThisTurnFromPreviousSamePromotionAttacks();
 	lua_pushinteger(L, iResult);
 	return 1;
 }

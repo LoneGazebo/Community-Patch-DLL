@@ -3391,7 +3391,7 @@ void CvUnitCombat::ResolveCombat(const CvCombatInfo& kInfo, uint uiParentEventID
 		CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(pDefenderSupport));
 		gDLL->GameplayUnitVisibility(pDllUnit.get(), !pDefenderSupport->isInvisible(eActiveTeam, false));
 	}
-#if defined(MOD_EVENTS_RED_COMBAT_ABORT) || defined(MOD_EVENTS_RED_COMBAT_RESULT)
+
 	bool bCanAttack = true;
 	if (MOD_EVENTS_RED_COMBAT_ABORT || MOD_EVENTS_RED_COMBAT_RESULT) {
 		// RED <<<<<
@@ -3504,72 +3504,73 @@ void CvUnitCombat::ResolveCombat(const CvCombatInfo& kInfo, uint uiParentEventID
 			}
 		}
 	}
-#endif
 	
-#if defined(MOD_EVENTS_RED_COMBAT_ABORT)
 	if (!MOD_EVENTS_RED_COMBAT_ABORT || bCanAttack)
 	{
-#endif
-	// Nuclear Mission
-	if(kInfo.getAttackIsNuclear())
-	{
-		ResolveNuclearCombat(kInfo, uiParentEventID);
-	}
-
-	// Bombing Mission
-	else if(kInfo.getAttackIsBombingMission())
-	{
-		ResolveAirUnitVsCombat(kInfo, uiParentEventID);
-	}
-
-	// Air Sweep Mission
-	else if(kInfo.getAttackIsAirSweep())
-	{
-		ResolveAirSweep(kInfo, uiParentEventID);
-	}
-
-	// Ranged Attack
-	else if(kInfo.getAttackIsRanged())
-	{
-		if(kInfo.getUnit(BATTLE_UNIT_ATTACKER))
+		// Nuclear Mission
+		if(kInfo.getAttackIsNuclear())
 		{
-			ResolveRangedUnitVsCombat(kInfo, uiParentEventID);
-			CvPlot *pPlot = kInfo.getPlot();
-			if (kInfo.getUnit(BATTLE_UNIT_ATTACKER) && kInfo.getUnit(BATTLE_UNIT_DEFENDER) && pPlot)
+			ResolveNuclearCombat(kInfo, uiParentEventID);
+		}
+
+		// Bombing Mission
+		else if(kInfo.getAttackIsBombingMission())
+		{
+			ResolveAirUnitVsCombat(kInfo, uiParentEventID);
+		}
+
+		// Air Sweep Mission
+		else if(kInfo.getAttackIsAirSweep())
+		{
+			ResolveAirSweep(kInfo, uiParentEventID);
+		}
+
+		// Ranged Attack
+		else if(kInfo.getAttackIsRanged())
+		{
+			if(kInfo.getUnit(BATTLE_UNIT_ATTACKER))
 			{
-				pPlot->AddArchaeologicalRecord(CvTypes::getARTIFACT_BATTLE_RANGED(), kInfo.getUnit(BATTLE_UNIT_ATTACKER)->getOwner(), kInfo.getUnit(BATTLE_UNIT_DEFENDER)->getOwner());
+				ResolveRangedUnitVsCombat(kInfo, uiParentEventID);
+				CvPlot *pPlot = kInfo.getPlot();
+				if (kInfo.getUnit(BATTLE_UNIT_ATTACKER) && kInfo.getUnit(BATTLE_UNIT_DEFENDER) && pPlot)
+				{
+					pPlot->AddArchaeologicalRecord(CvTypes::getARTIFACT_BATTLE_RANGED(), kInfo.getUnit(BATTLE_UNIT_ATTACKER)->getOwner(), kInfo.getUnit(BATTLE_UNIT_DEFENDER)->getOwner());
+				}
+			}
+			else
+			{
+				ResolveRangedCityVsUnitCombat(kInfo, uiParentEventID);
+				CvPlot *pPlot = kInfo.getPlot();
+				if (kInfo.getCity(BATTLE_UNIT_ATTACKER) && kInfo.getUnit(BATTLE_UNIT_DEFENDER) && pPlot)
+				{
+					pPlot->AddArchaeologicalRecord(CvTypes::getARTIFACT_BATTLE_RANGED(), kInfo.getCity(BATTLE_UNIT_ATTACKER)->getOwner(), kInfo.getUnit(BATTLE_UNIT_DEFENDER)->getOwner());
+				}
 			}
 		}
+
+		// Melee Attack
 		else
 		{
-			ResolveRangedCityVsUnitCombat(kInfo, uiParentEventID);
-			CvPlot *pPlot = kInfo.getPlot();
-			if (kInfo.getCity(BATTLE_UNIT_ATTACKER) && kInfo.getUnit(BATTLE_UNIT_DEFENDER) && pPlot)
+			if(kInfo.getCity(BATTLE_UNIT_DEFENDER))
 			{
-				pPlot->AddArchaeologicalRecord(CvTypes::getARTIFACT_BATTLE_RANGED(), kInfo.getCity(BATTLE_UNIT_ATTACKER)->getOwner(), kInfo.getUnit(BATTLE_UNIT_DEFENDER)->getOwner());
+				ResolveCityMeleeCombat(kInfo, uiParentEventID);
+			}
+			else
+			{
+				ResolveMeleeCombat(kInfo, uiParentEventID);
+				CvPlot *pPlot = kInfo.getPlot();
+				if (kInfo.getUnit(BATTLE_UNIT_ATTACKER) && kInfo.getUnit(BATTLE_UNIT_DEFENDER) && pPlot)
+				{
+					pPlot->AddArchaeologicalRecord(CvTypes::getARTIFACT_BATTLE_MELEE(), kInfo.getUnit(BATTLE_UNIT_ATTACKER)->getOwner(), kInfo.getUnit(BATTLE_UNIT_DEFENDER)->getOwner());
+				}
 			}
 		}
-	}
 
-	// Melee Attack
-	else
-	{
-		if(kInfo.getCity(BATTLE_UNIT_DEFENDER))
+		if (pAttacker)
 		{
-			ResolveCityMeleeCombat(kInfo, uiParentEventID);
+			pAttacker->ProcessAttackForPromotionSameAttackBonus();
 		}
-		else
-		{
-			ResolveMeleeCombat(kInfo, uiParentEventID);
-			CvPlot *pPlot = kInfo.getPlot();
-			if (kInfo.getUnit(BATTLE_UNIT_ATTACKER) && kInfo.getUnit(BATTLE_UNIT_DEFENDER) && pPlot)
-			{
-				pPlot->AddArchaeologicalRecord(CvTypes::getARTIFACT_BATTLE_MELEE(), kInfo.getUnit(BATTLE_UNIT_ATTACKER)->getOwner(), kInfo.getUnit(BATTLE_UNIT_DEFENDER)->getOwner());
-			}
-		}
-	}
 
-#if defined(MOD_EVENTS_RED_COMBAT_ENDED)
 		if (MOD_EVENTS_RED_COMBAT_ENDED) 
 		{
 			// RED : CombatEnded
@@ -3663,9 +3664,6 @@ void CvUnitCombat::ResolveCombat(const CvCombatInfo& kInfo, uint uiParentEventID
 				LuaSupport::CallHook(pkScriptSystem, "CombatEnded", args.get(), bResult);
 			}
 		}
-#endif
-
-#if defined(MOD_EVENTS_RED_COMBAT_ABORT)
 	}
 	else
 	// RED: Attack has been aborted, report that to tactical AI and reset attacker/defender states.
@@ -3689,7 +3687,7 @@ void CvUnitCombat::ResolveCombat(const CvCombatInfo& kInfo, uint uiParentEventID
 		}
 	}
 	// RED >>>>>
-#endif
+
 
 	// Clear popup blocking after combat resolves
 	if(eAttackingPlayer == GC.getGame().getActivePlayer())

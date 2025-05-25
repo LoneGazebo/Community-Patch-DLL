@@ -1971,6 +1971,10 @@ public:
 	void SetUnitClassReplacement(UnitClassTypes eReplacedUnitClass, UnitClassTypes eReplacementUnitClass);
 #endif
 
+	int GetPromotionSameAttackBonus(PromotionTypes ePromotion) const;
+	void ProcessAttackForPromotionSameAttackBonus(PromotionTypes ePromotion);
+	void UpdatePromotionSameAttackBonuses();
+
 	bool IsCSResourcesCountMonopolies() const;
 	void changeCSResourcesCountMonopolies(int iChange);
 
@@ -3227,6 +3231,7 @@ protected:
 #if defined(MOD_POLICIES_UNIT_CLASS_REPLACEMENTS)
 	std::map<UnitClassTypes, UnitClassTypes> m_piUnitClassReplacements;
 #endif
+	std::map<PromotionTypes, int> m_miPromotionSameAttackBonuses;
 	int m_iMaxGlobalBuildingProductionModifier;
 	int m_iMaxTeamBuildingProductionModifier;
 	int m_iMaxPlayerBuildingProductionModifier;
