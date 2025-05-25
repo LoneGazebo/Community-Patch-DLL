@@ -513,6 +513,9 @@
 		<Row Tag="TXT_KEY_EUPANEL_SAME_PROMOTION_ATTACK_BONUS">
 			<Text>Bonus from Attacks Last Turn</Text>
 		</Row>
+		<Row Tag="TXT_KEY_EUPANEL_VS_UNHAPPY_MOD">
+			<Text>Target Empire Unhappy</Text>
+		</Row>
 		<Row Tag="TXT_KEY_EUPANEL_RANGED_ATTACK_IN_BONUS">
 			<Text>Bonus Attacking in {1_TerrainType}</Text>
 		</Row>
