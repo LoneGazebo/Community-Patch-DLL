@@ -6827,6 +6827,24 @@ bool ScoreAttackDamage(const CvTacticalPlot& tactPlot, const CvUnit* pUnit, cons
 			if (pUnit->getHPHealedIfDefeatEnemy() > 0)
 				iDamageReceived = max(iDamageReceived - pUnit->getHPHealedIfDefeatEnemy(), -pUnit->getDamage()); //may turn negative, but can't heal more than current damage
 
+			// pillage fortification on kill?
+			if (pUnit->IsPillageFortificationsOnKill())
+			{
+				if (pTestPlot->getImprovementType() != NO_IMPROVEMENT && !pTestPlot->IsImprovementPillaged())
+				{
+					CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(pTestPlot->getImprovementType());
+					if (pkImprovementInfo->IsNoFollowUp() && GET_PLAYER(pUnit->getOwner()).IsAtWarWith(pTestPlot->getOwner()))
+					{
+						iExtraScore += 50;
+						// Citadel
+						if (pkImprovementInfo->GetNearbyEnemyDamage() > 0 || pkImprovementInfo->GetDefenseModifier() >= 50)
+						{
+							iExtraScore += 1000;
+						}
+					}
+				}
+			}
+
 			if (pUnit->IsCanAttackRanged())
 				result.eAssignmentType = A_RANGEKILL;
 			else

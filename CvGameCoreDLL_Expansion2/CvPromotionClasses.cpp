@@ -162,8 +162,9 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iTileDamageIfNotMoved(0),
 	m_iFortifiedModifier(0),
 	m_iMinEffectiveHealth(0),
-	m_bRequiresLeadership(0),
-	m_bCannotHeal(0),
+	m_bRequiresLeadership(false),
+	m_bCannotHeal(false),
+	m_bPillageFortificationsOnKill(false),
 #if defined(MOD_BALANCE_CORE_JFD)
 	m_iPlagueID(NO_PROMOTION),
 	m_iPlaguePriority(0),
@@ -724,6 +725,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iMinEffectiveHealth = kResults.GetInt("MinEffectiveHealth");
 	m_bRequiresLeadership = kResults.GetBool("RequiresLeadership");
 	m_bCannotHeal = kResults.GetBool("CannotHeal");
+	m_bPillageFortificationsOnKill = kResults.GetBool("PillageFortificationsOnKill");
 #if defined(MOD_BALANCE_CORE_JFD)
 
 
@@ -2162,6 +2164,11 @@ bool CvPromotionEntry::IsRequiresLeadership() const
 bool CvPromotionEntry::IsCannotHeal() const
 {
 	return m_bCannotHeal;
+}
+
+bool CvPromotionEntry::IsPillageFortificationsOnKill() const
+{
+	return m_bPillageFortificationsOnKill;
 }
 
 #if defined(MOD_BALANCE_CORE_JFD)
