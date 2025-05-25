@@ -737,6 +737,7 @@ CvPlayer::CvPlayer() :
 #if defined(MOD_POLICIES_UNIT_CLASS_REPLACEMENTS)
 	, m_piUnitClassReplacements()
 #endif
+	, m_miPromotionSameAttackBonuses()
 #if defined(MOD_BALANCE_CORE)
 	, m_paiNumCitiesFreeChosenBuilding()
 	, m_paiFreeChosenBuildingNewCity()
@@ -1608,6 +1609,7 @@ void CvPlayer::uninit()
 #if defined(MOD_POLICIES_UNIT_CLASS_REPLACEMENTS)
 	m_piUnitClassReplacements.clear();
 #endif
+	m_miPromotionSameAttackBonuses.clear();
 	m_iCultureBombTimer = 0;
 	m_iConversionTimer = 0;
 	m_iCapitalCityID = -1;
@@ -1943,6 +1945,7 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 #if defined(MOD_POLICIES_UNIT_CLASS_REPLACEMENTS)
 	m_piUnitClassReplacements.clear();
 #endif
+	m_miPromotionSameAttackBonuses.clear();
 
 	m_aiCapitalYieldRateModifier.clear();
 	m_aiCapitalYieldRateModifier.resize(NUM_YIELD_TYPES, 0);
@@ -32747,6 +32750,8 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn) // R: bDoTurn default
 					pLoopUnit->updateConditionalPromotions();
 				}
 
+				UpdatePromotionSameAttackBonuses();
+
 				//important! this sets the city connection flag for all our plots
 				//we cannot rely on a lazy update when accessing them because we would need to do it for all players, creating overhead
 				GetCityConnections()->Update();
@@ -34781,6 +34786,58 @@ void CvPlayer::SetUnitClassReplacement(UnitClassTypes eReplacedUnitClass, UnitCl
 		// erase from memory
 		m_piUnitClassReplacements.erase(eReplacedUnitClass);
 	}
+}
+
+int CvPlayer::GetPromotionSameAttackBonus(PromotionTypes ePromotion) const
+{
+	map<PromotionTypes, int>::const_iterator it = m_miPromotionSameAttackBonuses.find(ePromotion);
+	if (it != m_miPromotionSameAttackBonuses.end())
+		return it->second;
+
+	return 0;
+}
+
+// called when an attack is made by a unit that has a promotion with AttackModPerSamePromotionAttack > 0, updates the strength bonuses that will be given in the next turn
+void CvPlayer::ProcessAttackForPromotionSameAttackBonus(PromotionTypes ePromotion)
+{
+	// m_miPromotionSameAttackBonuses contains the strength bonuses that will be given in the next turn
+	// when the next turn starts, its values are used to update the unit strength values in CvPlayer::UpdatePromotionSameAttackBonuses
+
+	ASSERT_DEBUG(eIndex >= 0, "eIndex expected to be >= 0");
+	ASSERT_DEBUG(eIndex < GC.getNumPromotionInfos(), "eIndex expected to be < GC.getNumPromotionInfos()");
+
+	CvPromotionEntry* pkPromotionEntry = GC.getPromotionInfo(ePromotion);
+
+	int iSameAttackBonus = pkPromotionEntry->GetAttackModPerSamePromotionAttack();
+	int iSameAttackBonusCap = pkPromotionEntry->GetAttackModPerSamePromotionAttackCap();
+
+	ASSERT_DEBUG(iSameAttackBonus > 0, "ProcessAttackForPromotionSameAttackBonus called for a promotion with GetAttackModPerSamePromotionAttack() == 0");
+	
+	m_miPromotionSameAttackBonuses[ePromotion] = min(GetPromotionSameAttackBonus(ePromotion) + iSameAttackBonus, iSameAttackBonusCap);
+}
+
+// called once per turn, updates attack bonuses for units with AttackModPerSamePromotionAttack > 0
+void CvPlayer::UpdatePromotionSameAttackBonuses()
+{
+	// the strength bonuses that are to be applied this turn are stored in m_miPromotionSameAttackBonuses
+	// loop through all units and apply strength bonuses based on those values
+
+	int iLoop = 0;
+	for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
+	{
+		int iNewStrengthBonus = 0;
+		std::set<PromotionTypes> sePromotionsWithSameAttackBonus = pLoopUnit->GetPromotionsWithSameAttackBonus();
+		for (std::set<PromotionTypes>::iterator it = sePromotionsWithSameAttackBonus.begin(); it != sePromotionsWithSameAttackBonus.end(); ++it)
+		{
+			PromotionTypes ePromotion = (*it);
+			iNewStrengthBonus += GetPromotionSameAttackBonus(ePromotion);
+		}
+		pLoopUnit->SetStrengthThisTurnFromPreviousSamePromotionAttacks(iNewStrengthBonus);
+	}
+
+	// clear m_miPromotionSameAttackBonuses so it doesn't store old data
+	m_miPromotionSameAttackBonuses.clear();
+
 }
 
 bool CvPlayer::IsCSResourcesCountMonopolies() const
@@ -43503,6 +43560,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_piDomainFreeExperience);
 
 	visitor(player.m_piUnitClassReplacements);
+	visitor(player.m_miPromotionSameAttackBonuses);
 
 	visitor(player.m_pabHasGlobalMonopoly);
 	visitor(player.m_pabHasStrategicMonopoly);

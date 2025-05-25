@@ -1222,6 +1222,9 @@ public:
 	int GetCombatModPerCSAlliance() const;
 	void ChangeCombatModPerCSAlliance(int iChange);
 
+	int GetStrengthThisTurnFromPreviousSamePromotionAttacks() const;
+	void SetStrengthThisTurnFromPreviousSamePromotionAttacks(int iNewValue);
+
 	int getPartialHealOnPillage() const;
 	void changePartialHealOnPillage(int iChange);
 
@@ -1279,6 +1282,8 @@ public:
 	// Plague Stuff
 	bool HasPlague(int iPlagueID = -1, int iMinimumPriority = -1) const;
 	void RemovePlague(int iPlagueID = -1, int iHigherPriority = -1);
+
+	void ProcessAttackForPromotionSameAttackBonus();
 
 #if defined(MOD_BALANCE_CORE_JFD)
 	void setContractUnit(ContractTypes eContract);
@@ -1818,6 +1823,8 @@ public:
 	void ModifyPlaguesToInflict(PlagueInfo sPlagueInfo, bool bAdd);
 	bool arePromotionConditionsFulfilled(PromotionTypes eIndex) const;
 	void SetPromotionBlocked(PromotionTypes eIndex, bool bNewValue);
+	std::set<PromotionTypes> GetPromotionsWithSameAttackBonus() const;
+	void SetPromotionWithSameAttackBonus(PromotionTypes eIndex, bool bNewValue);
 	bool isPromotionValid(PromotionTypes ePromotion) const;
 	bool isHasPromotion(PromotionTypes eIndex) const;
 	void setHasPromotion(PromotionTypes eIndex, bool bNewValue);
@@ -2159,6 +2166,8 @@ protected:
 	int m_iAOEDamageOnPillage;
 	int m_iAOEHealOnPillage;
 	int m_iCombatModPerCSAlliance;
+	std::set<PromotionTypes> m_sePromotionsWithSameAttackBonus;
+	int m_iStrengthThisTurnFromPreviousSamePromotionAttacks;
 	int m_iAoEDamageOnMove;
 	std::set<PromotionTypes> m_seBlockedPromotions;
 	std::set<PromotionTypes> m_seConditionalPromotions;
@@ -2627,6 +2636,8 @@ SYNC_ARCHIVE_VAR(int, m_iAOEDamageOnKill)
 SYNC_ARCHIVE_VAR(int, m_iAOEDamageOnPillage)
 SYNC_ARCHIVE_VAR(int, m_iAOEHealOnPillage)
 SYNC_ARCHIVE_VAR(int, m_iCombatModPerCSAlliance)
+SYNC_ARCHIVE_VAR(SYNC_ARCHIVE_VAR_TYPE(std::set<PromotionTypes>), m_sePromotionsWithSameAttackBonus)
+SYNC_ARCHIVE_VAR(int, m_iStrengthThisTurnFromPreviousSamePromotionAttacks)
 SYNC_ARCHIVE_VAR(int, m_iAoEDamageOnMove)
 SYNC_ARCHIVE_VAR(SYNC_ARCHIVE_VAR_TYPE(std::set<PromotionTypes>), m_seBlockedPromotions)
 SYNC_ARCHIVE_VAR(SYNC_ARCHIVE_VAR_TYPE(std::set<PromotionTypes>), m_seConditionalPromotions)

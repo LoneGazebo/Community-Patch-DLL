@@ -696,7 +696,7 @@ function UpdateCombatSimulator(pMyUnit, pTheirUnit, pMyCity, pTheirCity)
 			-- General modifier
 			iModifier = pMyUnit:GetFriendlyLandsModifier();
 			nBonus, iMiscModifier = ProcessModifier(iModifier, "TXT_KEY_EUPANEL_FIGHT_AT_HOME_BONUS", nBonus, iMiscModifier, true, true);
-
+			
 			-- Attack modifier
 			iModifier = pMyUnit:GetFriendlyLandsAttackModifier();
 			nBonus, iMiscModifier = ProcessModifier(iModifier, "TXT_KEY_EUPANEL_ATTACK_IN_FRIEND_LANDS", nBonus, iMiscModifier, true, true);
@@ -713,6 +713,10 @@ function UpdateCombatSimulator(pMyUnit, pTheirUnit, pMyCity, pTheirCity)
 			iModifier = pMyPlayer:GetFoundedReligionEnemyCityCombatMod(pBattlePlot);
 			nBonus, iMiscModifier = ProcessModifier(iModifier, "TXT_KEY_EUPANEL_ENEMY_CITY_BELIEF_BONUS", nBonus, iMiscModifier, true, true);
 		end
+		
+		-- Bonus for attacks by units with the same promotion in the previous turn
+		iModifier = pMyUnit:GetStrengthThisTurnFromPreviousSamePromotionAttacks();
+		nBonus, iMiscModifier = ProcessModifier(iModifier, "TXT_KEY_EUPANEL_SAME_PROMOTION_ATTACK_BONUS", nBonus, iMiscModifier, true, true);
 
 		if pTheirUnit then
 			-- Target is in friendly lands (+ following a different religion)
@@ -1157,6 +1161,10 @@ function UpdateCombatSimulator(pMyUnit, pTheirUnit, pMyCity, pTheirCity)
 					nBonus, iMiscModifier = ProcessModifier(iModifier, "TXT_KEY_EUPANEL_ENEMY_CITY_BELIEF_BONUS_CBP", nBonus, iMiscModifier, false, true);
 				end
 
+				-- Bonus from marriages to city states not at war
+				iModifier = pTheirUnit:GetCSMarriageStrength()
+				nBonus, iMiscModifier = ProcessModifier(iModifier, "TXT_KEY_EUPANEL_BONUS_MARRIAGES", nBonus, iMiscModifier, false, true);
+				
 				-- Bonus from marriages to city states not at war
 				iModifier = pTheirUnit:GetCSMarriageStrength()
 				nBonus, iMiscModifier = ProcessModifier(iModifier, "TXT_KEY_EUPANEL_BONUS_MARRIAGES", nBonus, iMiscModifier, false, true);

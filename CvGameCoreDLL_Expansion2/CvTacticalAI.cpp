@@ -6780,6 +6780,9 @@ bool ScoreAttackDamage(const CvTacticalPlot& tactPlot, const CvUnit* pUnit, cons
 		}
 	}
 
+	if (!pUnit->GetPromotionsWithSameAttackBonus().empty())
+		iExtraScore += 10;
+
 	//fake general bonus
 	if (assumedPlot.hasSupportBonus(-1))
 	{
