@@ -560,6 +560,12 @@ function UpdateCombatSimulator(pMyUnit, pTheirUnit, pMyCity, pTheirCity)
 			iModifier = pMyUnit:GetResistancePower(pTheirUnit);
 			nBonus, iMiscModifier = ProcessModifier(iModifier, "TXT_KEY_EUPANEL_RESISTANCE_POWER", nBonus, iMiscModifier, true, true);
 		end
+		
+		-- They are unhappy
+		if pTheirUnit and pTheirPlayer:IsEmpireUnhappy() then
+			iModifier = pMyUnit:GetVsUnhappyMod();
+			nBonus, iMiscModifier = ProcessModifier(iModifier, "TXT_KEY_EUPANEL_VS_UNHAPPY_MOD", nBonus, iMiscModifier, true, true);
+		end
 
 		-- Lacking strategic resources
 		iModifier = pMyUnit:GetStrategicResourceCombatPenalty();
@@ -1032,6 +1038,12 @@ function UpdateCombatSimulator(pMyUnit, pTheirUnit, pMyCity, pTheirCity)
 				if pMyUnit then
 					iModifier = pTheirUnit:GetResistancePower(pMyUnit);
 					nBonus, iMiscModifier = ProcessModifier(iModifier, "TXT_KEY_EUPANEL_RESISTANCE_POWER", nBonus, iMiscModifier, false, true);
+				end
+				
+				-- We are unhappy
+				if pMyUnit and pMyPlayer:IsEmpireUnhappy() then
+					iModifier = pTheirUnit:GetVsUnhappyMod();
+					nBonus, iMiscModifier = ProcessModifier(iModifier, "TXT_KEY_EUPANEL_VS_UNHAPPY_MOD", nBonus, iMiscModifier, false, true);
 				end
 
 				-- Lacking strategic resources

@@ -143,6 +143,7 @@ CvPromotionEntry::CvPromotionEntry():
 	m_bNoSupply(false),
 	m_iMaxHitPointsChange(0),
 	m_iMaxHitPointsModifier(0),
+	m_iVsUnhappyMod(0),
 	m_iUpgradeDiscount(0),
 	m_iExperiencePercent(0),
 	m_iAdjacentMod(0),
@@ -704,6 +705,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_bNoSupply = kResults.GetBool("NoSupply");
 	m_iMaxHitPointsChange = kResults.GetInt("MaxHitPointsChange");
 	m_iMaxHitPointsModifier = kResults.GetInt("MaxHitPointsModifier");
+	m_iVsUnhappyMod = kResults.GetInt("VsUnhappyMod");
 	m_iUpgradeDiscount = kResults.GetInt("UpgradeDiscount");
 	m_iExperiencePercent = kResults.GetInt("ExperiencePercent");
 	m_iAdjacentMod = kResults.GetInt("AdjacentMod");
@@ -2038,6 +2040,12 @@ int CvPromotionEntry::GetMaxHitPointsChange() const
 int CvPromotionEntry::GetMaxHitPointsModifier() const
 {
 	return m_iMaxHitPointsModifier;
+}
+
+/// Accessor: Modifier against units of unhappy empires
+int CvPromotionEntry::GetVsUnhappyMod() const
+{
+	return m_iVsUnhappyMod;
 }
 
 /// Accessor: How much upgrading this unit is discounted

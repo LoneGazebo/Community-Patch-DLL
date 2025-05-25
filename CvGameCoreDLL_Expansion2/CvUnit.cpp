@@ -312,6 +312,7 @@ CvUnit::CvUnit() :
 	, m_iMaxHitPointsBase(GD_INT_GET(MAX_HIT_POINTS))
 	, m_iMaxHitPointsChange()
 	, m_iMaxHitPointsModifier()
+	, m_iVsUnhappyMod()
 	, m_iFriendlyLandsModifier()
 	, m_iFriendlyLandsAttackModifier()
 	, m_iOutsideFriendlyLandsModifier()
@@ -1687,6 +1688,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iMaxHitPointsBase = (NO_UNIT != m_eUnitType) ? m_pUnitInfo->GetMaxHitPoints() : GD_INT_GET(MAX_HIT_POINTS);
 	m_iMaxHitPointsChange = 0;
 	m_iMaxHitPointsModifier = 0;
+	m_iVsUnhappyMod = 0;
 	m_eLeaderUnitType = NO_UNIT;
 	m_eInvisibleType = NO_INVISIBLE;
 	m_eSeeInvisibleType = NO_INVISIBLE;
@@ -16269,9 +16271,6 @@ int CvUnit::GetGenericMeleeStrengthModifier(const CvUnit* pOtherUnit, const CvPl
 	// Bonus from city-state marriages not at war
 	iModifier += getCSMarriageStrength();
 
-	// Anti-Warmonger Fervor
-	if (pOtherUnit != NULL)
-		iModifier += GetResistancePower(pOtherUnit);
 
 	// Stacked with Great General
 	if (GetGreatGeneralCombatModifier() != 0 && IsStackedGreatGeneral())
@@ -16429,6 +16428,15 @@ int CvUnit::GetGenericMeleeStrengthModifier(const CvUnit* pOtherUnit, const CvPl
 	if(pOtherUnit != NULL)
 	{
 		ASSERT_DEBUG(pOtherUnit != this, "Compared combat strength against one's own pointer. This is weird and probably wrong.");
+
+		// Anti-Warmonger Fervor
+		iModifier += GetResistancePower(pOtherUnit);
+
+		// Enemy Unhappy
+		if (GET_PLAYER(pOtherUnit->getOwner()).IsEmpireUnhappy())
+		{
+			iModifier += GetVsUnhappyMod();
+		}
 
 		// Generic Unit Class Modifier
 		iModifier += getUnitClassModifier(pOtherUnit->getUnitClassType());
@@ -17015,10 +17023,6 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 	// Our empire fights well in Golden Ages?
 	if(kPlayer.isGoldenAge())
 		iModifier += pTraits->GetGoldenAgeCombatModifier();
-
-	// Anti-Warmonger Fervor
-	if (pOtherUnit != NULL)
-		iModifier += GetResistancePower(pOtherUnit);
 	
 	// Trait bonus when allied with City States
 	int iCSStrengthMod = 0;
@@ -17248,10 +17252,19 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 	// OTHER UNIT IS KNOWN
 	////////////////////////
 
-	if(NULL != pOtherUnit)
+	if(pOtherUnit != NULL)
 	{
+		// Anti-Warmonger Fervor
+		iModifier += GetResistancePower(pOtherUnit);
+
 		// Unit Class Mod
 		iModifier += getUnitClassModifier(pOtherUnit->getUnitClassType());
+
+		// Enemy Unhappy
+		if (GET_PLAYER(pOtherUnit->getOwner()).IsEmpireUnhappy())
+		{
+			iModifier += GetVsUnhappyMod();
+		}
 
 		// Unit combat modifier VS other unit
 		UnitCombatTypes eUnitCombat = (UnitCombatTypes) pOtherUnit->getUnitCombatType();
@@ -24696,6 +24709,17 @@ void CvUnit::changeMaxHitPointsModifier(int iChange)
 }
 
 //	--------------------------------------------------------------------------------
+int CvUnit::GetVsUnhappyMod() const
+{
+	return m_iVsUnhappyMod;
+}
+//	--------------------------------------------------------------------------------
+void CvUnit::ChangeVsUnhappyMod(int iChange)
+{
+	m_iVsUnhappyMod += iChange;
+}
+
+//	--------------------------------------------------------------------------------
 bool CvUnit::IsIgnoreZOC() const
 {
 	return m_iIgnoreZOC > 0;
@@ -27965,6 +27989,8 @@ void CvUnit::setPromotionActive(PromotionTypes eIndex, bool bNewValue)
 	changeMaxHitPointsChange(thisPromotion.GetMaxHitPointsChange() * iChange);
 	changeMaxHitPointsModifier(thisPromotion.GetMaxHitPointsModifier() * iChange);
 
+	ChangeVsUnhappyMod(thisPromotion.GetVsUnhappyMod() * iChange);
+
 	ChangeSapperCount((thisPromotion.IsSapper() ? iChange : 0));
 
 	changeFriendlyLandsModifier(thisPromotion.GetFriendlyLandsModifier() * iChange);
@@ -28580,6 +28606,7 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_iNoSupply);
 	visitor(unit.m_iMaxHitPointsChange);
 	visitor(unit.m_iMaxHitPointsModifier);
+	visitor(unit.m_iVsUnhappyMod);
 	visitor(unit.m_iFriendlyLandsModifier);
 	visitor(unit.m_iFriendlyLandsAttackModifier);
 	visitor(unit.m_iOutsideFriendlyLandsModifier);
@@ -31867,14 +31894,22 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	}
 
 	iTemp = pkPromotionInfo->GetCombatModPerCSAlliance();
-	// M + mM: +10 Drill 1-3,Shock 1-3. 	nM: +15 Boarding Party 1-3, +10 Dreadnought 1-3 (coastal raider).
 	if (iTemp != 0)
 	{
-		iExtra = GetCombatModPerCSAlliance() * min(GET_PLAYER(getOwner()).GetNumCSAllies(), /*5*/ GD_INT_GET(BALANCE_MAX_CS_ALLY_STRENGTH)) * (iFlavorOffense + iFlavorDefense + iFlavorCityDefense);
+		iExtra = iTemp * min(GET_PLAYER(getOwner()).GetNumCSAllies(), /*5*/ GD_INT_GET(BALANCE_MAX_CS_ALLY_STRENGTH)) * (iFlavorOffense + iFlavorDefense + iFlavorCityDefense);
 		iValue += iExtra;
 	}
 
-			// General Offense
+	iTemp = pkPromotionInfo->GetVsUnhappyMod();
+	if (iTemp != 0)
+	{
+		iExtra = iTemp * (2*iFlavorOffense + iFlavorRanged) / 6;
+		iValue += iExtra;
+	}
+
+			
+	
+	// General Offense
 
 
 	iTemp = pkPromotionInfo->GetAttackMod();

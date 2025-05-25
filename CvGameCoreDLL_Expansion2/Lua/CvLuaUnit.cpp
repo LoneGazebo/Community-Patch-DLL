@@ -484,6 +484,7 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(GetAdjacentTileHeal);
 
 	Method(GetExtraCombatPercent);
+	Method(GetVsUnhappyMod);
 	Method(GetBorderCombatStrengthModifier);
 	Method(GetCombatStrengthModifierPerMarriage);
 	Method(GetCombatStrengthModifierPerMarriageCap);
@@ -5293,6 +5294,16 @@ int CvLuaUnit::lGetExtraCombatPercent(lua_State* L)
 	CvUnit* pkUnit = GetInstance(L);
 
 	const int iResult = pkUnit->getExtraCombatPercent();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//int GetVsUnhappyMod();
+int CvLuaUnit::lGetVsUnhappyMod(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+
+	const int iResult = pkUnit->GetVsUnhappyMod();
 	lua_pushinteger(L, iResult);
 	return 1;
 }

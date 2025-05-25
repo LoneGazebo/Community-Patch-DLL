@@ -1467,9 +1467,11 @@ public:
 	void changeMaxHitPointsBase(int iChange);
 	
 	int getMaxHitPointsChange() const;
-	void changeMaxHitPointsChange(int iChange);
 	int getMaxHitPointsModifier() const;
 	void changeMaxHitPointsModifier(int iChange);
+	void changeMaxHitPointsChange(int iChange);
+	int GetVsUnhappyMod() const;
+	void ChangeVsUnhappyMod(int iChange);
 
 	bool IsIgnoreZOC() const;
 	void ChangeIgnoreZOCCount(int iChange);
@@ -2360,6 +2362,7 @@ protected:
 	int m_iMaxHitPointsBase;
 	int m_iMaxHitPointsChange;
 	int m_iMaxHitPointsModifier;
+	int m_iVsUnhappyMod;
 	int m_iFriendlyLandsModifier;
 	int m_iFriendlyLandsAttackModifier;
 	int m_iOutsideFriendlyLandsModifier;
@@ -2811,6 +2814,7 @@ SYNC_ARCHIVE_VAR(int, m_iIgnoreZOC)
 SYNC_ARCHIVE_VAR(int, m_iNoSupply)
 SYNC_ARCHIVE_VAR(int, m_iMaxHitPointsChange)
 SYNC_ARCHIVE_VAR(int, m_iMaxHitPointsModifier)
+SYNC_ARCHIVE_VAR(int, m_iVsUnhappyMod)
 SYNC_ARCHIVE_VAR(int, m_iFriendlyLandsModifier)
 SYNC_ARCHIVE_VAR(int, m_iBorderCombatModifier)
 SYNC_ARCHIVE_VAR(int, m_iCombatStrengthModifierPerMarriage)

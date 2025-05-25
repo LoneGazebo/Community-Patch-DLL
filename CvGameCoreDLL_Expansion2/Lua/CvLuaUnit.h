@@ -487,6 +487,7 @@ protected:
 	static int lGetAdjacentTileHeal(lua_State* L);
 
 	static int lGetExtraCombatPercent(lua_State* L);
+	static int lGetVsUnhappyMod(lua_State* L);
 	static int lGetBorderCombatStrengthModifier(lua_State* L);
 	static int lGetCombatStrengthModifierPerMarriage(lua_State* L);
 	static int lGetCombatStrengthModifierPerMarriageCap(lua_State* L);

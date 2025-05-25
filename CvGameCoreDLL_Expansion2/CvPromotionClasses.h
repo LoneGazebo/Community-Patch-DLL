@@ -140,7 +140,7 @@ public:
 
 	int GetMaxHitPointsChange() const;
 	int GetMaxHitPointsModifier() const;
-
+	int GetVsUnhappyMod() const;
 	int GetUpgradeDiscount() const;
 	int GetExperiencePercent() const;
 	int GetAdjacentMod() const;
@@ -486,6 +486,7 @@ protected:
 	bool m_bNoSupply;
 	int m_iMaxHitPointsChange;
 	int m_iMaxHitPointsModifier;
+	int m_iVsUnhappyMod;
 	int m_iUpgradeDiscount;
 	int m_iExperiencePercent;
 	int m_iAdjacentMod;
