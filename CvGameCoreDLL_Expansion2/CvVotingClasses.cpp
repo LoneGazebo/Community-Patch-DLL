@@ -14048,20 +14048,22 @@ void CvLeagueAI::AllocateProposals(CvLeague* pLeague)
 				ProposalConsideration consideration(/*bEnact*/ false, iResolutionIndex, LeagueHelpers::CHOICE_NONE);
 				int iScore = ScoreProposal(pLeague, &vActive[iResolutionIndex], GetPlayer()->GetID(), true);
 
-				for (EnactProposalList::iterator it = pLeague->m_vLastTurnEnactProposals.begin(); it != pLeague->m_vLastTurnEnactProposals.end(); ++it)
-				{
-					if (it->GetID() == vActive[iResolutionIndex].GetID())
-						iScore /= 2;
-				}
-
-				for (RepealProposalList::iterator it = pLeague->m_vLastTurnRepealProposals.begin(); it != pLeague->m_vLastTurnRepealProposals.end(); ++it)
-				{
-					if (it->GetID() == vActive[iResolutionIndex].GetID())
-						iScore /= 2;
-				}
-
 				if (iScore > 0)
+				{
+					for (EnactProposalList::iterator it = pLeague->m_vLastTurnEnactProposals.begin(); it != pLeague->m_vLastTurnEnactProposals.end(); ++it)
+					{
+						if (it->GetID() == vActive[iResolutionIndex].GetID())
+							iScore /= 2;
+					}
+
+					for (RepealProposalList::iterator it = pLeague->m_vLastTurnRepealProposals.begin(); it != pLeague->m_vLastTurnRepealProposals.end(); ++it)
+					{
+						if (it->GetID() == vActive[iResolutionIndex].GetID())
+							iScore /= 2;
+					}
+
 					vConsiderations.push_back(consideration, iScore);
+				}
 				else
 					vBadChoices.push_back(consideration, iScore * -1);
 			}
@@ -14084,20 +14086,22 @@ void CvLeagueAI::AllocateProposals(CvLeague* pLeague)
 						ProposalConsideration consideration(/*bEnact*/ true, iResolutionIndex, LeagueHelpers::CHOICE_NONE);
 						int iScore = ScoreProposal(pLeague, eResolution, LeagueHelpers::CHOICE_NONE, GetPlayer()->GetID(), true);
 
-						for (EnactProposalList::iterator it = pLeague->m_vLastTurnEnactProposals.begin(); it != pLeague->m_vLastTurnEnactProposals.end(); ++it)
-						{
-							if (it->GetID() == pkInfo->GetID())
-								iScore /= 2;
-						}
-
-						for (RepealProposalList::iterator it = pLeague->m_vLastTurnRepealProposals.begin(); it != pLeague->m_vLastTurnRepealProposals.end(); ++it)
-						{
-							if (it->GetID() == pkInfo->GetID())
-								iScore /= 2;
-						}
-
 						if (iScore > 0)
+						{
+							for (EnactProposalList::iterator it = pLeague->m_vLastTurnEnactProposals.begin(); it != pLeague->m_vLastTurnEnactProposals.end(); ++it)
+							{
+								if (it->GetID() == pkInfo->GetID())
+									iScore /= 2;
+							}
+
+							for (RepealProposalList::iterator it = pLeague->m_vLastTurnRepealProposals.begin(); it != pLeague->m_vLastTurnRepealProposals.end(); ++it)
+							{
+								if (it->GetID() == pkInfo->GetID())
+									iScore /= 2;
+							}
+
 							vConsiderations.push_back(consideration, iScore);
+						}
 						else
 							vBadChoices.push_back(consideration, iScore * -1);
 					}
@@ -14112,20 +14116,22 @@ void CvLeagueAI::AllocateProposals(CvLeague* pLeague)
 							ProposalConsideration consideration(/*bEnact*/ true, iResolutionIndex, iChoice);
 							int iScore = ScoreProposal(pLeague, eResolution, iChoice, GetPlayer()->GetID(), true);
 
-							for (EnactProposalList::iterator it = pLeague->m_vLastTurnEnactProposals.begin(); it != pLeague->m_vLastTurnEnactProposals.end(); ++it)
-							{
-								if (it->GetID() == pkInfo->GetID())
-									iScore /= 2;
-							}
-
-							for (RepealProposalList::iterator it = pLeague->m_vLastTurnRepealProposals.begin(); it != pLeague->m_vLastTurnRepealProposals.end(); ++it)
-							{
-								if (it->GetID() == pkInfo->GetID())
-									iScore /= 2;
-							}
-
 							if (iScore > 0)
+							{
+								for (EnactProposalList::iterator it = pLeague->m_vLastTurnEnactProposals.begin(); it != pLeague->m_vLastTurnEnactProposals.end(); ++it)
+								{
+									if (it->GetID() == pkInfo->GetID())
+										iScore /= 2;
+								}
+
+								for (RepealProposalList::iterator it = pLeague->m_vLastTurnRepealProposals.begin(); it != pLeague->m_vLastTurnRepealProposals.end(); ++it)
+								{
+									if (it->GetID() == pkInfo->GetID())
+										iScore /= 2;
+								}
+
 								vConsiderations.push_back(consideration, iScore);
+							}
 							else
 								vBadChoices.push_back(consideration, iScore * -1);
 						}
