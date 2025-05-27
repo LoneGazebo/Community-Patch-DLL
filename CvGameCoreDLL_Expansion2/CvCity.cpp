@@ -8035,6 +8035,9 @@ std::vector<CvPlot*> CvCity::GetPlotsClaimedByBuilding(BuildingTypes eBuilding) 
 		if (!pLoopPlot->isRevealed(getTeam()))
 			continue;
 
+		if (pLoopPlot->isCity())
+			continue;
+
 		ResourceTypes eResource = pLoopPlot->getResourceType(getTeam());
 		if (eResource == NO_RESOURCE)
 			continue;
