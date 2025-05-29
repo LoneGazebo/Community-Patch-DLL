@@ -1793,7 +1793,7 @@ void CvEconomicAI::DoHurry()
 				if (m_pPlayer->GetEconomicAI()->CanWithdrawMoneyForPurchase(PURCHASE_TYPE_UNIT, iGoldCost))
 				{
 					// Resource requirement
-					if (m_pPlayer->HasResourceForNewUnit(eUnitType, false, true))
+					if (!m_pPlayer->HasResourceForNewUnit(eUnitType, false, true))
 						continue;
 
 					//Log it
