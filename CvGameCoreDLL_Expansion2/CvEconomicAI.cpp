@@ -1700,13 +1700,27 @@ void CvEconomicAI::DoHurry()
 	int iLoop = 0;
 
 	//Let's give the AI a treasury cushion ...
-	int iTreasuryBuffer = /*150*/ GD_INT_GET(AI_GOLD_TREASURY_BUFFER);
+	int iTreasuryBuffer = /*50*/ GD_INT_GET(AI_GOLD_TREASURY_BUFFER);
 	// ... modified by gamespeed
 	iTreasuryBuffer *= GC.getGame().getGameSpeedInfo().getGoldPercent();
 	iTreasuryBuffer /= 100;
+	// ... and era
+	iTreasuryBuffer *= m_pPlayer->GetCurrentEra();
 
 	CvTreasury* pTreasury = m_pPlayer->GetTreasury();
 	int iOurGold = pTreasury->GetGold();
+
+	int iGPT = pTreasury->CalculateBaseNetGold();
+	// In debt? Be more careful
+	if (iGPT < 0)
+	{
+		iTreasuryBuffer += 10 * iGPT;
+	}
+	else
+	{
+		iTreasuryBuffer = max(0, iTreasuryBuffer - iGPT);
+	}
+
 
 	if(pTreasury->GetGold() < iTreasuryBuffer)
 		return;
@@ -1729,13 +1743,6 @@ void CvEconomicAI::DoHurry()
 
 	if(iOurGold <= iPurchaseBuffer)
 		return;
-	
-	//Let's check our average income over five-turn periods
-	int iGPT = pTreasury->CalculateBaseNetGold();
-
-	//Are we in major debt?
-	if(iGPT < -10)
-		return;
 
 	// Which city needs hurrying most?
 	vector<CvCity*> threatCities = m_pPlayer->GetThreatenedCities(false);
@@ -1747,6 +1754,9 @@ void CvEconomicAI::DoHurry()
 	m_Buildables.clear();
 	for (CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 	{
+		if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(pLoopCity))
+			continue;
+
 		//Is the city threatened - don't invest there. Always be able to hurry things in the capital.
 		if (pLoopCity == pMostThreatenedCity && !pLoopCity->isCapital())
 			continue;
@@ -1758,6 +1768,74 @@ void CvEconomicAI::DoHurry()
 		selection.m_iCityID = pLoopCity->GetID();
 		m_Buildables.push_back(selection, selection.m_iValue);
 	}
+
+
+	/* diplomats */
+	if (MOD_BALANCE_VP && m_pPlayer->HasMetValidMinorCiv() && GC.getGame().isVictoryValid((VictoryTypes)GC.getInfoTypeForString("VICTORY_DIPLOMATIC", true)))
+	{
+		ResourceTypes ePaper = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_PAPER", true);
+		if (m_pPlayer->getNumResourceAvailable(ePaper) > 0)
+		{
+			UnitTypes eDiplomatUnit = NO_UNIT;
+			int iNumPaperPerDiplomat = 0;
+			for (int iUnitLoop = 0; iUnitLoop < GC.GetGameUnits()->GetNumUnits(); iUnitLoop++)
+			{
+				UnitTypes eUnit = (UnitTypes)iUnitLoop;
+				CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eUnit);
+				if (pkUnitEntry->GetDefaultUnitAIType() != UNITAI_MESSENGER)
+					continue;
+
+				if (!m_pPlayer->canTrainUnit(eUnit))
+					continue;
+
+				// found a diplo unit we can train
+				eDiplomatUnit = eUnit;
+				iNumPaperPerDiplomat = pkUnitEntry->GetResourceQuantityRequirement(ePaper);
+				break;
+			}
+			if (eDiplomatUnit != NO_UNIT)
+			{
+				int iNumDiplomatsWeCanBuy = iNumPaperPerDiplomat > 0 ? m_pPlayer->getNumResourceAvailable(ePaper) / iNumPaperPerDiplomat : 5;
+				if (iNumDiplomatsWeCanBuy > 0)
+				{
+					// get lowest purchase cost
+					int iLowestPurchaseCost = INT_MAX;
+					for (CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
+					{
+						iLowestPurchaseCost = min(iLowestPurchaseCost, pLoopCity->GetPurchaseCost(eDiplomatUnit));
+					}
+
+					for (CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
+					{
+						if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(pLoopCity))
+							continue;
+
+						//Is the city threatened - don't invest there. Always be able to hurry things in the capital.
+						if (pLoopCity == pMostThreatenedCity && !pLoopCity->isCapital())
+							continue;
+
+						if (pLoopCity->canTrain(eDiplomatUnit, false, false, false, true))
+						{
+							CvCityBuildable selection;
+							selection.m_eBuildableType = CITY_BUILDABLE_UNIT;
+							selection.m_iIndex = (int)eDiplomatUnit;
+							selection.m_iCityID = pLoopCity->GetID();
+							selection.m_iValue = (m_pPlayer->GetDiplomacyAI()->IsGoingForDiploVictory() ? 4 : 1) * m_pPlayer->GetCurrentEra() * 200 * (100 - 100 * (pLoopCity->GetPurchaseCost(eDiplomatUnit) - iLowestPurchaseCost) / iLowestPurchaseCost) / 100;
+							if (selection.m_iValue > 0)
+							{
+								m_Buildables.push_back(selection, selection.m_iValue);
+							}
+
+							iNumDiplomatsWeCanBuy--;
+							if (iNumDiplomatsWeCanBuy == 0)
+								break;
+						}
+					}
+				}
+			}
+		}
+	}
+
 	if (m_Buildables.size() <= 0)
 		return;
 
@@ -1796,37 +1874,32 @@ void CvEconomicAI::DoHurry()
 					if (!m_pPlayer->HasResourceForNewUnit(eUnitType, false, true))
 						continue;
 
-					//Log it
-					if (GC.getLogging() && GC.getAILogging())
-					{
-						CvString strLogString;
-						if (MOD_BALANCE_CORE_UNIT_INVESTMENTS)
-						{
-							strLogString.Format("MOD - Investing in unit: %s in %s. Cost: %d, Balance (before buy): %d",
-								pkUnitInfo->GetDescription(), pSelectedCity->getName().c_str(), iGoldCost, m_pPlayer->GetTreasury()->GetGold());
-							m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
-						}
-						else
-						{
-							strLogString.Format("MOD - Buying unit: %s in %s. Cost: %d, Balance (before buy): %d",
-								pkUnitInfo->GetDescription(), pSelectedCity->getName().c_str(), iGoldCost, m_pPlayer->GetTreasury()->GetGold());
-							m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
-						}
-					}
-
-					//and train it!
 					if (MOD_BALANCE_CORE_UNIT_INVESTMENTS || (MOD_BALANCE_CORE && pkUnitInfo->GetSpaceshipProject() != NO_PROJECT))
 					{
 						const UnitClassTypes eUnitClass = (UnitClassTypes)(pkUnitInfo->GetUnitClassType());
 						pSelectedCity->SetUnitInvestment(eUnitClass, true);
-						//take the money...
 						m_pPlayer->GetTreasury()->ChangeGold(-iGoldCost);
+						if (GC.getLogging() && GC.getAILogging())
+						{
+							CvString strLogString;
+							strLogString.Format("MOD - Investing in unit: %s in %s. Cost: %d, Balance (before buy): %d",
+								pkUnitInfo->GetDescription(), pSelectedCity->getName().c_str(), iGoldCost, m_pPlayer->GetTreasury()->GetGold());
+							m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
+						}
 					}
 					else
 					{
 						CvUnit* pUnit = pSelectedCity->PurchaseUnit(eUnitType, YIELD_GOLD);
 						if (pUnit)
 						{
+							if (GC.getLogging() && GC.getAILogging())
+							{
+								CvString strLogString;
+								strLogString.Format("MOD - Buying unit: %s in %s. Cost: %d, Balance (before buy): %d",
+									pkUnitInfo->GetDescription(), pSelectedCity->getName().c_str(), iGoldCost, m_pPlayer->GetTreasury()->GetGold());
+								m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
+							}
+
 							if (pkUnitInfo->IsFound())
 								m_pPlayer->GetMilitaryAI()->ResetNumberOfTimesSettlerBuildSkippedOver();
 							if (selection.m_eBuildableType == CITY_BUILDABLE_UNIT_FOR_OPERATION)
@@ -1949,11 +2022,38 @@ void CvEconomicAI::DoPlotPurchases()
 		return;
 	}
 
+	//Let's give the AI a treasury cushion ...
+	int iTreasuryBuffer = /*50*/ GD_INT_GET(AI_GOLD_TREASURY_BUFFER);
+	// ... modified by gamespeed
+	iTreasuryBuffer *= GC.getGame().getGameSpeedInfo().getGoldPercent();
+	iTreasuryBuffer /= 100;
+	// ... and era
+	iTreasuryBuffer *= m_pPlayer->GetCurrentEra();
+
+	CvTreasury* pTreasury = m_pPlayer->GetTreasury();
+	//Let's check our average income over five-turn periods
+	int iGPT = pTreasury->CalculateBaseNetGold();
+	// In debt? Be more careful
+	if (iGPT < 0)
+	{
+		iTreasuryBuffer += 10 * iGPT;
+	}
+	else
+	{
+		iTreasuryBuffer = max(0, iTreasuryBuffer - iGPT);
+	}
+
+	iTreasuryBuffer += 200;
+
+	if (pTreasury->GetGold() < iTreasuryBuffer)
+		return;
+
+
 	// Set up the parameters
 	int iBestScore = /*150*/ GD_INT_GET(AI_GOLD_PRIORITY_MINIMUM_PLOT_BUY_VALUE);
 	int iCurrentCost = m_pPlayer->GetBuyPlotCost();
 	int iGoldForHalfCost = /*1000*/ GD_INT_GET(AI_GOLD_BALANCE_TO_HALVE_PLOT_BUY_MINIMUM);
-	int iBalance = m_pPlayer->GetTreasury()->GetGold();
+	int iBalance = m_pPlayer->GetTreasury()->GetGold() - iTreasuryBuffer;
 	int iBestCost = 0;
 	int iMultiplier = max(2, (int)GC.getGame().getCurrentEra());
 

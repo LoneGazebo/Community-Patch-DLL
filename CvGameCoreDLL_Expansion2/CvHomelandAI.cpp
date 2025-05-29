@@ -4229,7 +4229,7 @@ void CvHomelandAI::ExecuteMessengerMoves()
 				if(GC.getLogging() && GC.getAILogging())
 				{
 					CvString strLogString;
-					strLogString.Format("Diplomatic Unit moving to finish Diplomatic Mission at (%d:%d)", pTarget->getX(), pTarget->getY());
+					strLogString.Format("Diplomatic Unit moving to finish Diplomatic Mission in %s (%d:%d)", pTarget->getOwner() ? GET_PLAYER(pTarget->getOwner()).getCivilizationShortDescription() : "", pTarget->getX(), pTarget->getY());
 					LogHomelandMessage(strLogString);
 				}
 			}
