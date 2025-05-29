@@ -4375,16 +4375,15 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 					iFlavorReligion *= 2;
 					iFlavorReligion /= 3;
 				}
-
-				if (pCity->GetBaseYieldRateFromBuildings(YIELD_FAITH) <= 0 && !kPlayer.GetReligions()->HasCreatedPantheon())
-				{		
-					iYieldValue += max(1, iFlavorReligion);
-				}
 			
 				if (kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyBuildingReligion))
 				{
 					iYieldValue += max(1, iFlavorReligion);
 				}
+
+				if (GC.getGame().GetGameReligions()->GetNumReligionsStillToFound())
+					iYieldValue *= 3;
+
 				break;
 			}
 		case YIELD_FOOD:
