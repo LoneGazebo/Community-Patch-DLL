@@ -522,16 +522,18 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		}
 	}
 
-	//we would extra copies but there is nothing to copy? bad
-	if (pkBuildingInfo->IsExtraLuxuries() && iLuxuries <= 0 && !bFreeBuilding)
+	//we would get extra copies but there is nothing to copy? bad
+	if (pkBuildingInfo->IsExtraLuxuries())
 	{
-		return SR_USELESS;
+		if (iLuxuries <= 0 && !bFreeBuilding)
+		{
+			return SR_USELESS;
+		}
+		else
+		{
+			iBonus += iLuxuries * 20;
+		}
 	}
-	else
-	{
-		iBonus += iLuxuries*20;
-	}
-
 	
 	/////////
 	////Happiness (VP)
