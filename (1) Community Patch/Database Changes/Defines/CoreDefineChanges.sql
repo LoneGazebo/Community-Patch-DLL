@@ -307,7 +307,7 @@ VALUES
 -- AI World Congress logic
 	('AI_WORLD_LEADER_BASE_WEIGHT_SELF', 1000),
 -- AI purchase logic
-	('AI_GOLD_TREASURY_BUFFER', 150),
+	('AI_GOLD_TREASURY_BUFFER', 50),
 	('AI_GOLD_PRIORITY_DEFENSIVE_BUILDING', 250), -- No idea why this was so high by default, spending gold on defensive buildings seems like a waste unless it's an emergency
 	('AI_GOLD_PRIORITY_UPGRADE_BASE', 500),
 	('AI_GOLD_PRIORITY_UPGRADE_PER_FLAVOR_POINT', 100),

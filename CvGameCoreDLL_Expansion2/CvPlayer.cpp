@@ -32408,7 +32408,7 @@ bool CvPlayer::HasMetValidMinorCiv() const
 	{
 		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 
-		if (GET_TEAM(getTeam()).isHasMet(GET_PLAYER(eLoopPlayer).getTeam()) && GET_PLAYER(eLoopPlayer).isMinorCiv() && GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).getNumCities() > 0 && !IsAtWarWith(eLoopPlayer))
+		if (GET_TEAM(getTeam()).isHasMet(GET_PLAYER(eLoopPlayer).getTeam()) && GET_PLAYER(eLoopPlayer).isMinorCiv() && GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).getNumCities() > 0 && !IsAtWarWith(eLoopPlayer) && GET_PLAYER(eLoopPlayer).GetMinorCivAI()->GetPermanentAlly() == NO_PLAYER && !GET_PLAYER(eLoopPlayer).GetMinorCivAI()->IsNoAlly())
 			return true;
 	}
 
