@@ -2,7 +2,7 @@
 <Mod id="3645dbca-bdfb-4d86-bdc5-46cb5a426cc2" version="1">
   <Properties>
     <Name>(4a) Squads for VP</Name>
-    <Teaser>(4.21.1) RTS Style Control Groups and Group Movement</Teaser>
+    <Teaser>(4.22) RTS Style Control Groups and Group Movement</Teaser>
     <Description>QoL mod for organizing and moving groups of units at once.
 Squads is used in two modes: [COLOR_GREEN]Management Mode[ENDCOLOR] and [COLOR_GREEN]Movement Mode[ENDCOLOR].[NEWLINE][NEWLINE]
 In [COLOR_GREEN]Management Mode[ENDCOLOR], units can be added or removed with [COLOR_YELLOW]LCLICK[ENDCOLOR] on the unit or their flag. Groups of units can be added to a squad at once by holding [COLOR_YELLOW]RCLICK[ENDCOLOR] and dragging a box over units to be added. [COLOR_GREEN]Management Mode[ENDCOLOR] can be entered for a squad by pressing the [COLOR_BLUE]Manage Squad[ENDCOLOR] button on the UI with that squad selected, or using the key combination [COLOR_YELLOW]CTRL+NUM[ENDCOLOR] where num is the squad number key.[NEWLINE][NEWLINE]
@@ -22,7 +22,7 @@ The Squads UI allows renaming of squads, removing all units from a squad, removi
     <ReloadUnitSystem>0</ReloadUnitSystem>
   </Properties>
   <Dependencies>
-    <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" minversion="143" maxversion="999" title="(1) Community Patch" />
+    <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" minversion="144" maxversion="999" title="(1) Community Patch" />
   </Dependencies>
   <References>
     <Mod id="8411a7a8-dad3-4622-a18e-fcc18324c799" minversion="17" maxversion="999" title="(2) Vox Populi" />
