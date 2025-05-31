@@ -6001,7 +6001,7 @@ int CvUnit::GetScrapGold() const
 	iNumGold /= 100;
 
 	// Modify for game speed
-	iNumGold *= GC.getGame().getGameSpeedInfo().getHurryPercent();
+	iNumGold *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 	iNumGold /= 100;
 
 	//if we are a builder (something with builderstrength), our value decrease with our build strength

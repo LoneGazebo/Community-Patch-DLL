@@ -1162,8 +1162,8 @@ int PathEndTurnCost(CvPlot* pToPlot, const CvPathNodeCacheData& kToNodeCacheData
 	TeamTypes eUnitTeam = pUnitDataCache->getTeam();
 	DomainTypes eUnitDomain = pUnitDataCache->getDomainType();
 
-	bool bAbortInDanger = (iFlags & CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER);
-	bool bOnlySafeEmbark = (iFlags & CvUnit::MOVEFLAG_SAFE_EMBARK_ONLY);
+	bool bAbortInDanger = (iFlags & CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER) != 0;
+	bool bOnlySafeEmbark = (iFlags & CvUnit::MOVEFLAG_SAFE_EMBARK_ONLY) != 0;
 
 	//human knows best, don't try to be smart, just try to keep combat units attack-ready
 	if (!pUnitDataCache->isAIControl())
