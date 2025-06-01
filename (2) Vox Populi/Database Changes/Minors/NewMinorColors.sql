@@ -1,4 +1,4 @@
--- For all City-States added to the MajorBlocksMinor table, add a custom color wherein they use their associated major civ's background color instead of the normal CS colors.
+-- For the City-States added to the MajorBlocksMinor table, add a custom color wherein they use their associated major civ's background color instead of the normal CS colors.
 -- This is a cool way to highlight that these are special City-States while still keeping it subtle.
 CREATE TEMP TABLE NewCityStateColors (
 	CityStateColorName text,
@@ -9,7 +9,8 @@ CREATE TEMP TABLE NewCityStateColors (
 -- In most cases, this is done by taking their original RGB values, converting them to HSV, raising the value to 80% (except Korea and Rome - 90%), and then converting back to RGB.
 -- Even at 100%, Sweden's blue is too dark, so it is given pure yellow (#FFFF00) instead.
 -- Additionally, Austria and Persia's reds look too similar to Barbarians, and the same goes for brightened England, Mongolia and Morocco, so some manual adjustments were made.
--- Austria is now #FFAEFF (lavender rose), Persia is now #FF00FF (solid magenta), England is now #00C000 (green), Mongolia is now #FFA040 (yellow orange), Morocco is now #D4AF37 (saffron gold).
+-- Austria is now #FFAEFF (lavender rose), Persia is now #A75E3D (copper rose), England is now #B0706B (dusty rose), Mongolia is now #FFA040 (yellow orange), Morocco is now #D4AF37 (saffron gold).
+-- Oviedo and Veligrad also get custom colors.
 INSERT INTO Colors
 	(Type, Red, Green, Blue, Alpha)
 VALUES
@@ -27,11 +28,14 @@ VALUES
 	('COLOR_PLAYER_VENICE_MINOR_BACKGROUND', 0.5058823529, 0.168627451, 0.8039215686, 1),		-- RGB = 129/43/205, Original ≈ 102/34/162
 	-- Modified colors
 	('COLOR_PLAYER_AUSTRIA_MINOR_BACKGROUND', 1, 0.6823529412, 1, 1),							-- RGB = 255/174/255, Original ≈ 235/0/0
-	('COLOR_PLAYER_ENGLAND_MINOR_BACKGROUND', 0, 0.7529411765, 0, 1),							-- RGB = 0/192/0, Original ≈ 109/2/0
+	('COLOR_PLAYER_ENGLAND_MINOR_BACKGROUND', 0.6901960784, 0.4392156863, 0.4196078431, 1),		-- RGB = 176/112/107, Original ≈ 109/2/0
 	('COLOR_PLAYER_MONGOL_MINOR_BACKGROUND', 1, 0.6274509804, 0.2509803922, 1),					-- RGB = 255/160/64, Original ≈ 81/0/9
 	('COLOR_PLAYER_MOROCCO_MINOR_BACKGROUND', 0.8313725490, 0.6862745098, 0.2156862745, 1),		-- RGB = 212/175/55, Original ≈ 145/2/0
-	('COLOR_PLAYER_PERSIA_MINOR_BACKGROUND', 1, 0, 1, 1),										-- RGB = 255/0/255, Original ≈ 177/8/3
-	('COLOR_PLAYER_SWEDEN_MINOR_BACKGROUND', 1, 1, 0, 1);										-- RGB = 255/255/0, Original ≈ 8/8/166
+	('COLOR_PLAYER_PERSIA_MINOR_BACKGROUND', 0.6549019608, 0.368627451, 0.2392156863, 1),		-- RGB = 167/94/61, Original ≈ 177/8/3
+	('COLOR_PLAYER_SWEDEN_MINOR_BACKGROUND', 1, 1, 0, 1),										-- RGB = 255/255/0, Original ≈ 8/8/166
+	-- New colors
+	('COLOR_PLAYER_OVIEDO_BACKGROUND', 0.2745098039, 0.7647058824, 0.8313725490, 1), 			-- RGB = 70/195/212
+	('COLOR_PLAYER_VELIGRAD_BACKGROUND', 0.2235294118, 0.5019607843, 0.2039215686, 1); 			-- RGB = 57/128/52
 
 INSERT INTO NewCityStateColors
 	(CityStateColorName, CivBackgroundColor)
