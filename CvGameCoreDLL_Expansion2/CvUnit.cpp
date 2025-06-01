@@ -6030,7 +6030,7 @@ int CvUnit::GetScrapGold() const
 	HurryTypes eHurry = static_cast<HurryTypes>(GC.getInfoTypeForString("HURRY_GOLD"));
 	if (eHurry != NO_HURRY)
 	{
-		for (CvCity* pCity = GET_PLAYER(eOwner).firstCity(&iLoop); pCity; GET_PLAYER(eOwner).nextCity(&iLoop))
+		for (CvCity* pCity = GET_PLAYER(eOwner).firstCity(&iLoop); pCity; pCity = GET_PLAYER(eOwner).nextCity(&iLoop))
 		{
 			int iDiscount = pCity->getHurryModifier(eHurry);
 			if (iDiscount < iLowestDiscount)
