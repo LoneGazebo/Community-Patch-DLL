@@ -17753,7 +17753,7 @@ void CvPlayer::DoYieldsFromKill(CvUnit* pAttackingUnit, CvUnit* pDefendingUnit, 
 		pAttackingUnit->changeExperienceTimes100(pAttackingUnit->GetExtraXPOnKill() * 100, -1, true);
 	}
 
-	if (pAttackingUnit->IsPillageFortificationsOnKill() && pDefendingUnit)
+	if (pAttackingUnit && pAttackingUnit->IsPillageFortificationsOnKill() && pDefendingUnit)
 	{
 		CvPlot* pPlot = pDefendingUnit->plot();
 		if (pPlot && IsAtWarWith(pPlot->getOwner()) && !pPlot->isCity() && pPlot->getImprovementType() != NO_IMPROVEMENT && !pPlot->IsImprovementPillaged())
