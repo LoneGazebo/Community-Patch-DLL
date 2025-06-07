@@ -1623,7 +1623,7 @@
 			<Text>Triêu Thi Trinh</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GREAT_PERSON_G__070">
-			<Text>Lady Trieu</Text>
+			<Text>Yogendra Singh Yadav</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GREAT_PERSON_G__080">
 			<Text>Septimia Zenobia</Text>
@@ -1704,7 +1704,7 @@
 			<Text>Hayam Wuruk</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GREAT_PERSON_G__340">
-			<Text>Jan Žižka</Text>
+			<Text>Jan Zizka</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GREAT_PERSON_G__350">
 			<Text>Skandenberg</Text>
@@ -1945,9 +1945,6 @@
 		</Row>
 		<Row Tag="TXT_KEY_GREAT_PERSON_G__B40">
 			<Text>Melvyn Ong</Text>
-		</Row>
-		<Row Tag="TXT_KEY_GREAT_PERSON_G__B50">
-			<Text>Yogendra Singh Yadav</Text>
 		</Row>
 		<!-- Great Admiral names -->
 		<Row Tag="TXT_KEY_GREAT_PERSON_B__010">
