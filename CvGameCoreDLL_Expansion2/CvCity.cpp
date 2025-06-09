@@ -27784,7 +27784,7 @@ int CvCity::GetDamagePermyriad(PlayerTypes ePlayer) const
 {
 	VALIDATE_OBJECT();
 	ASSERT_DEBUG(ePlayer >= 0, "ePlayer expected to be >= 0");
-	ASSERT_DEBUG(ePlayer < MAX_PLAYERS, "ePlayer expected to be < MAX_PLAYERS");
+	ASSERT_DEBUG(ePlayer < MAX_CIV_PLAYERS, "ePlayer expected to be < MAX_PLAYERS");
 	return m_aiDamagePermyriad[ePlayer];
 }
 
@@ -27793,7 +27793,7 @@ void CvCity::ChangeDamagePermyriad(PlayerTypes ePlayer, int iChange)
 {
 	VALIDATE_OBJECT();
 	ASSERT_DEBUG(ePlayer >= 0, "ePlayer expected to be >= 0");
-	ASSERT_DEBUG(ePlayer < MAX_PLAYERS, "ePlayer expected to be < MAX_PLAYERS");
+	ASSERT_DEBUG(ePlayer < MAX_CIV_PLAYERS, "ePlayer expected to be < MAX_PLAYERS");
 	m_aiDamagePermyriad[ePlayer] += iChange;
 }
 
@@ -27802,7 +27802,7 @@ void CvCity::SetDamagePermyriad(PlayerTypes ePlayer, int iValue)
 {
 	VALIDATE_OBJECT();
 	ASSERT_DEBUG(ePlayer >= 0, "ePlayer expected to be >= 0");
-	ASSERT_DEBUG(ePlayer < MAX_PLAYERS, "ePlayer expected to be < MAX_PLAYERS");
+	ASSERT_DEBUG(ePlayer < MAX_CIV_PLAYERS, "ePlayer expected to be < MAX_PLAYERS");
 	m_aiDamagePermyriad[ePlayer] = iValue;
 }
 
