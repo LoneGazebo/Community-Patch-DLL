@@ -1582,7 +1582,7 @@ public:
 	void setPromotionReady(bool bNewValue);
 	void testPromotionReady();
 
-	bool isDelayedDeath() const;
+	bool isDelayedDeath(bool bCheckOnMap = true) const;
 	bool isDelayedDeathExported() const;
 	void startDelayedDeath();
 	bool doDelayedDeath();
