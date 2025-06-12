@@ -20121,7 +20121,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 			}
 		}
 
-		if(IsCombatUnit() && !isDelayedDeath())
+		if(IsCombatUnit() && !isDelayedDeath(false))
 		{
 			oldUnitList.clear();
 
@@ -25255,12 +25255,12 @@ void CvUnit::testPromotionReady()
 
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::isDelayedDeath() const
+bool CvUnit::isDelayedDeath(bool bCheckOnMap) const
 {
 	VALIDATE_OBJECT();
 
 	//some failsafes on top ...
-	if (!m_pUnitInfo || !onMap())
+	if (!m_pUnitInfo || (!onMap() && bCheckOnMap))
 		return true;
 
 	return m_bDeathDelay;
