@@ -3195,7 +3195,9 @@ void CvGame::handleAction(int iAction)
 								CvPlot* pPlot = pkHeadSelectedUnit->plot();
 								if(pPlot != NULL)
 								{
-									if(pPlot->getImprovementType() != NO_IMPROVEMENT && (pPlot->getFeatureType() != FEATURE_FALLOUT || !pBuildInfo->isFeatureRemove(FEATURE_FALLOUT)))
+									// don't ask for confirmation if the old improvement doesn't connect the resource on the plot but the new improvement does
+									ResourceTypes eResource = pPlot->getResourceType(pkHeadSelectedUnit->getTeam());
+									if(pPlot->getImprovementType() != NO_IMPROVEMENT && (pPlot->getFeatureType() != FEATURE_FALLOUT || !pBuildInfo->isFeatureRemove(FEATURE_FALLOUT)) && (eResource == NO_RESOURCE || pPlot->IsResourceImprovedForOwner() || !GC.getImprovementInfo(eImprovement)->IsConnectsResource(eResource)))
 									{
 										bShowConfirmPopup = true;
 									}
