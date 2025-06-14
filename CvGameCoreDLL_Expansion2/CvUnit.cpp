@@ -21319,7 +21319,7 @@ int CvUnit::setDamage(int iNewValue, PlayerTypes ePlayer, float fAdditionalTextD
 
 
 		// send the popup text if the player can see this plot
-		if(plot()->GetActiveFogOfWarMode() == FOGOFWARMODE_OFF && !bDontShow)
+		if(plot()->GetActiveFogOfWarMode() == FOGOFWARMODE_OFF && !bDontShow && !isInvisible(GC.getGame().getActiveTeam(), true) && !(isCargo() && getTransportUnit()->isInvisible(GC.getGame().getActiveTeam(), true)))
 		{
 			if(!IsDead())
 			{

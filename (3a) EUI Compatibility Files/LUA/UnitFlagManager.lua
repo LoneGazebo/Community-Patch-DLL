@@ -339,6 +339,20 @@ local function UpdatePlotFlags( plot )
 	flag = g_AirbaseFlags[ plotIndex ]
 	if n > 0 then
 		--print("found some airplanes to store")
+		
+		local cargoUnitInvisible = false
+		for i = 0, GetPlotNumUnits( plot ) - 1 do
+			unit = GetPlotUnit( plot, i )
+			if(unit:HasCargo())then
+				cargoUnitInvisible = unit:IsInvisible(g_activeTeam, true)
+				local cargoflag = g_UnitFlags[ unit:GetOwner() ][ unit:GetID() ]
+				if cargoflag then
+					--print("found the transport unit")
+					cargoflag.CargoBG:SetHide( true )
+				end
+			end
+		end
+		
 		if not flag then
 			flag = table_remove( g_spareAirbaseFlags )
 			if flag then
@@ -358,21 +372,12 @@ local function UpdatePlotFlags( plot )
 			flag.Anchor:SetWorldPositionVal( x, y, z + flatval ) -- World Position Offset
 			flag.Button:SetVoid1( plotIndex )
 		end
-		flag.Anchor:SetHide( not plot:IsVisible( g_activeTeamID, true ) )
+		
+		flag.m_IsInvisibleToActiveTeam = not city and cargoUnitInvisible
+		flag.Anchor:SetHide( not plot:IsVisible( g_activeTeamID, true) or flag.m_IsInvisibleToActiveTeam)
 		flag.Button:SetText( n )
 		flag.Button:SetToolTipString( plot:GetAirUnitsTooltip() )
 		
-		--print("finding cargo ship")
-		for i = 0, GetPlotNumUnits( plot ) - 1 do
-			unit = GetPlotUnit( plot, i )
-			if(unit:HasCargo())then
-				local cargoflag = g_UnitFlags[ unit:GetOwner() ][ unit:GetID() ]
-				if cargoflag then
-					--print("found the transport unit")
-					cargoflag.CargoBG:SetHide( true )
-				end
-			end
-		end
 	elseif flag then
 		--print("no airplanes here")
 		flag.Button:SetText( n )
@@ -947,7 +952,7 @@ function( playerID, unitID, isVisible, checkFlag )--, blendTime )
 		local flag = g_UnitFlags[ playerID ][ unitID ]
 		if flag then
 			flag.m_IsInvisibleToActiveTeam = not isVisible
-			flag.Anchor:SetHide( not isVisible or flag.m_IsInvisibleToActiveTeamm_IsHiddenByFog )
+			flag.Anchor:SetHide( not isVisible or flag.m_IsInvisibleToActiveTeam or flag.m_IsHiddenByFog )
 		end
 	end
 end)
@@ -1020,7 +1025,7 @@ function( hexPos, fogState, isWholeMap )
 		end
 		-- city flags
 		for plotIndex, flag in pairs( g_AirbaseFlags ) do
-			flag.Anchor:SetHide( isInvisible )
+			flag.Anchor:SetHide( isInvisible or flag.m_IsInvisibleToActiveTeam )
 		end
 	else
 		local plot = Map_GetPlot( ToGridFromHex( hexPos.x, hexPos.y ) )
@@ -1037,7 +1042,7 @@ function( hexPos, fogState, isWholeMap )
 			-- city flag
 			local flag = g_AirbaseFlags[ plot:GetPlotIndex() ]
 			if flag then
-				flag.Anchor:SetHide( isInvisible )
+				flag.Anchor:SetHide( isInvisible or flag.m_IsInvisibleToActiveTeam)
 			end
 		end
 	end
@@ -1289,7 +1294,8 @@ if ContextPtr:IsHotLoad() then
 		if player and player:IsAlive() then
 			for unit in player:Units() do
 				local plot = unit:GetPlot()
-				CreateNewFlag( playerID, unit:GetID(), unit:IsSelected(), plot and not plot:IsVisible( g_activeTeamID, true ), unit:IsInvisible( g_activeTeamID, true ) )
+				CreateNewFlag( playerID, unit:GetID(), unit:IsSelected(), plot and not plot:IsVisible( g_activeTeamID, true ),
+				unit:IsInvisible( g_activeTeamID, true ) or (unit:IsCargo() and unit:GetTransportUnit():IsInvisible(g_activeTeamID, true)))
 			end
 		end
 	end

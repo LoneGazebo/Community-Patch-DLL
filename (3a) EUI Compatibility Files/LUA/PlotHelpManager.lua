@@ -574,7 +574,7 @@ local PlotToolTips = EUI.PlotToolTips or function( plot, isExtraTips )
 				local unit = units[i]
 				local unitOwnerID = unit:GetOwner()
 
-				if unit and not unit:IsInvisible( activeTeamID, true ) then
+				if unit and not unit:IsInvisible( activeTeamID, true ) and not (unit:IsCargo() and unit:GetTransportUnit():IsInvisible(activeTeamID, true)) then
 					tips:insert( ShortUnitTip( unit ) )
 
 --debugging

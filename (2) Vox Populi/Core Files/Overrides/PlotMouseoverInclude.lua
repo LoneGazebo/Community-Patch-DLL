@@ -368,7 +368,7 @@ function GetUnitsString(plot)
 	for i = 0, numUnits - 1 do
 		
 		local unit = plot:GetUnit(i);
-		if (unit ~= nil and not unit:IsInvisible(iActiveTeam, bIsDebug)) then
+		if (unit ~= nil and not unit:IsInvisible(iActiveTeam, bIsDebug) and not (unit:IsCargo() and unit:GetTransportUnit():IsInvisible(iActiveTeam, bIsDebug))) then
 
 			if (bFirstEntry) then
 				bFirstEntry = false;
