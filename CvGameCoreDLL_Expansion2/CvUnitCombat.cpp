@@ -4621,7 +4621,7 @@ void CvUnitCombat::ApplyPostCityCombatEffects(CvUnit* pkAttacker, CvCity* pkDefe
 	kUnitOwner.doInstantYield(INSTANT_YIELD_TYPE_CITY_DAMAGE, false, NO_GREATPERSON, NO_BUILDING, iAttackerDamageInflicted, true, NO_PLAYER, NULL, false, pOriginCity, false, true, false, NO_YIELD, pkAttacker);
 
 	// Update war value
-	if (!pkDefender->isBarbarian())
+	if (!pkDefender->isBarbarian() && !pkAttacker->isBarbarian())
 	{
 		int iCityValue = pkDefender->GetWarValue();
 
