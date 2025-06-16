@@ -30224,7 +30224,10 @@ bool CvCity::CreateProject(ProjectTypes eProjectType)
 	}
 	if (GetWLTKDFromProject(eProjectType) > 0)
 	{
-		ChangeWeLoveTheKingDayCounter(GetWLTKDFromProject(eProjectType));
+		int iWLTKDTurns = GetWLTKDFromProject(eProjectType);
+		iWLTKDTurns *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iWLTKDTurns /= 100;
+		ChangeWeLoveTheKingDayCounter(max(1, iWLTKDTurns));
 	}
 
 	GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityProjectComplete, getOwner(), GetID(), eProjectType);
