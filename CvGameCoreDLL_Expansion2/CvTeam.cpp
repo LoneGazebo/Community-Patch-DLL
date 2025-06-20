@@ -6499,6 +6499,29 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 				}
 			}
 		}
+
+		if (bNewValue)
+		{
+			for (int iI = 0; iI < MAX_PLAYERS; iI++)
+			{
+				const PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iI);
+				CvPlayerAI& kPlayer = GET_PLAYER(eLoopPlayer);
+				if (kPlayer.isAlive() && kPlayer.getTeam() == GetID())
+				{
+					if (kPlayer.GetPlayerTechs()->IsResearchingTech(eIndex))
+					{
+						kPlayer.popResearch(eIndex);
+						kPlayer.GetPlayerTechs()->GetTechAI()->LogResearchCompleted(eIndex);
+					}
+
+					// notify the player they now have the tech, if they want to make immediate changes
+					//GET_PLAYER((PlayerTypes)iI).AI_nowHasTech(eIndex);
+
+					kPlayer.invalidateYieldRankCache();
+				}
+			}
+		}
+
 		processTech(eIndex, ((bNewValue) ? 1 : -1), bNoBonus);
 
 		//Antiquity site notifications.
@@ -6938,25 +6961,6 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 			//////gDLL->getEventReporterIFace()->techAcquired(eIndex, GetID(), ePlayer, bAnnounce);
 
 			bFirstResource = false;
-
-			for(int iI = 0; iI < MAX_PLAYERS; iI++)
-			{
-				const PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iI);
-				CvPlayerAI& kPlayer = GET_PLAYER(eLoopPlayer);
-				if(kPlayer.isAlive() && kPlayer.getTeam() == GetID())
-				{
-					if(kPlayer.GetPlayerTechs()->IsResearchingTech(eIndex))
-					{
-						kPlayer.popResearch(eIndex);
-						kPlayer.GetPlayerTechs()->GetTechAI()->LogResearchCompleted(eIndex);
-					}
-
-					// notify the player they now have the tech, if they want to make immediate changes
-					//GET_PLAYER((PlayerTypes)iI).AI_nowHasTech(eIndex);
-
-					kPlayer.invalidateYieldRankCache();
-				}
-			}
 
 			if (MOD_BALANCE_VP && GC.getGame().isOption(GAMEOPTION_NO_TECH_BROKERING))
 			{
