@@ -3322,7 +3322,7 @@ int CvUnitCombat::DoDamageMath(int iAttackerStrength100, int iDefenderStrength10
 	int iDamage = iDefaultDamage100;
 
 	// Don't use rand when calculating projected combat results
-	if(bIncludeRand)
+	if (bIncludeRand && iMaxRandomDamage100 > 0)
 	{
 		iDamage += GC.getGame().randRangeExclusive(0, iMaxRandomDamage100, randomSeed);
 	}
