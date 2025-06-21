@@ -24410,7 +24410,7 @@ void CvPlayer::changeGoldenAgeTurns(int iChange, bool bFree)
 		{
 			doInstantYield(INSTANT_YIELD_TYPE_INSTANT, false, NO_GREATPERSON, NO_BUILDING, iThreshold, false, NO_PLAYER, NULL, false, pCapitalCity);
 		}
-		doInstantYield(INSTANT_YIELD_TYPE_GOLDEN_AGE_START);
+		doInstantYield(INSTANT_YIELD_TYPE_GOLDEN_AGE_START, false, NO_GREATPERSON, NO_BUILDING, 0, false);
 
 		if (GetGoldenAgeTourism() > 0)
 		{
