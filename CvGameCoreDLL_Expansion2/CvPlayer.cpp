@@ -29439,7 +29439,7 @@ void CvPlayer::changeOverflowResearchTimes100(int iChange)
 	if (GC.getGame().isOption(GAMEOPTION_NO_SCIENCE))
 		return;
 
-	m_iOverflowResearch += iChange;
+	setOverflowResearchTimes100(getOverflowResearchTimes100() + iChange);
 }
 
 int CvPlayer::getExpModifier() const
