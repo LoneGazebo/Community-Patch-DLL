@@ -12070,7 +12070,7 @@ int CvDiplomacyAI::ComputeDynamicStrengthModifier(PlayerTypes ePlayer, PlayerTyp
 				// Can we actually see this Unit?
 				if (eTeam != eOurTeam)
 				{
-					if (!pUnitPlot->isVisible(eOurTeam) || pLoopUnit->isInvisible(eOurTeam, false))
+					if (!pUnitPlot->isVisible(eOurTeam) || pLoopUnit->isInvisible(eOurTeam, false) || (pLoopUnit->isCargo() && pLoopUnit->getTransportUnit()->isInvisible(eOurTeam, false)))
 						continue;
 				}
 
@@ -12665,7 +12665,7 @@ int CvDiplomacyAI::CountAggressiveMilitaryScore(PlayerTypes ePlayer, bool bHalve
 
 		CvPlot* pUnitPlot = pLoopUnit->plot();
 		// Can we actually see this Unit? No cheating!
-		if (!pUnitPlot->isVisible(eOurTeam) || pLoopUnit->isInvisible(eOurTeam, false))
+		if (!pUnitPlot->isVisible(eOurTeam) || pLoopUnit->isInvisible(eOurTeam, false) || (pLoopUnit->isCargo() && pLoopUnit->getTransportUnit()->isInvisible(eOurTeam, false)))
 			continue;
 
 		// Must be close to us
