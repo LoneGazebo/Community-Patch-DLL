@@ -10041,10 +10041,10 @@ void CvTeam::DoBecomeVassal(TeamTypes eTeam, bool bVoluntary, PlayerTypes eOrigi
 			GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoUpdatePolicyBlockLevels();
 			GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoUpdateVictoryDisputeLevels();
 			GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoUpdateVictoryBlockLevels();
-			GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoUpdateConquestStats();
 		}
 
 		// AI needs to reevaluate all players (reprioritizes friendships and prevents exceeding the Defensive Pact limit)
+		GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoUpdateConquestStats();
 		GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoReevaluateEveryone(!bVoluntary, true);
 	}
 
