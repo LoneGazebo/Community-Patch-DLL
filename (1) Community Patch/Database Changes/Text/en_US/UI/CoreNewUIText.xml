@@ -649,7 +649,7 @@
 			<Text>+{1_Num}% due to Active League Proposals[NEWLINE]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CO_PLAYER_TOURISM_LEAGUE_NEGATIVE">
-			<Text>-{1_Num}% due to Active League Proposals[NEWLINE]</Text>
+			<Text>{1_Num}% due to Active League Proposals[NEWLINE]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CO_CITY_TOURISM_CAPITAL_PENALTY">
 			<Text>-{1_Num}% from Empire Size ({2_NumCity} City Difference)[NEWLINE]</Text>
@@ -658,7 +658,7 @@
 			<Text>+{1_Num}% Bonus from Highest Warscore[NEWLINE]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CO_PLAYER_TOURISM_JAPAN_UA">
-			<Text>-{1_Num}% from lack of Trade Routes (Sakoku)[NEWLINE]</Text>
+			<Text>{1_Num}% from lack of Trade Routes (Sakoku)[NEWLINE]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CO_PLAYER_TOURISM_FRANCHISES">
 			<Text>+{1_Num}% from your Corporate Franchises in their Empire[NEWLINE]</Text>
