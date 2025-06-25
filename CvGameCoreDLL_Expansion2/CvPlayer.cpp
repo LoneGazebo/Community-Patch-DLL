@@ -34341,7 +34341,9 @@ void CvPlayer::changeXPopulationConscription(int iChange)
 
 void CvPlayer::DoXPopulationConscription(CvCity* pCity)
 {
-	UnitTypes eUnit = GetCompetitiveSpawnUnitType(true, false, false, true, pCity, true, false, true);
+	// Make sure each conscript on the same turn has a different seed
+	CvSeeder seed = CvSeeder::fromRaw(0x05182eda).mix(getNumMilitaryUnits());
+	UnitTypes eUnit = GetCompetitiveSpawnUnitType(true, false, false, true, pCity, true, false, true, &seed);
 	if (eUnit == NO_UNIT)
 		return;
 
@@ -48494,8 +48496,10 @@ UnitTypes CvPlayer::GetCompetitiveSpawnUnitType(const bool bIncludeRanged, const
 	else
 	{
 		seed = bIncludeRanged ? CvSeeder::fromRaw(0xb5272cbd) : CvSeeder::fromRaw(0xdea52530);
-		seed = seed.mix(GetMilitaryMight()).mix(GetID()).mix(GC.getGame().getGameTurn());
 	}
+	seed = seed.mix(GetMilitaryMight()).mix(GetID());
+	if (pSpawnCity)
+		seed = seed.mix(pSpawnCity->GetID());
 
 	// Choose from weighted unit types
 	return veUnitRankings.ChooseFromTopChoices(/*5*/ GD_INT_GET(UNIT_SPAWN_NUM_CHOICES), seed);

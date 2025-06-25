@@ -35432,7 +35432,8 @@ int CvCity::SpawnPlayerUnitsNearby(const PlayerTypes ePlayer, const int iNumber,
 	for (int i = 0; i < iNumber; i++)
 	{
 		// Pick a unit to spawn
-		UnitTypes eUnit = kPlayer.GetCompetitiveSpawnUnitType(bCanBeRanged, bIncludeShips, false, bIncludeUUs, this, bNoResource, false, true);
+		CvSeeder seed = CvSeeder::fromRaw(0x9c6a9f22).mix(i);
+		UnitTypes eUnit = kPlayer.GetCompetitiveSpawnUnitType(bCanBeRanged, bIncludeShips, false, bIncludeUUs, this, bNoResource, false, true, &seed);
 		bCanBeRanged = !bCanBeRanged;
 		if (eUnit == NO_UNIT)
 			continue;
