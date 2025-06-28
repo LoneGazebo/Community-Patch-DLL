@@ -3368,10 +3368,12 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 				{
 					int iAdjacentTerrainYieldChange = pkImprovementInfo ? pkImprovementInfo->GetAdjacentTerrainYieldChanges(pAdjacentPlot->getTerrainType(), eYield) : 0;
 					if (iAdjacentTerrainYieldChange != 0)
+					{
 						if (bWorkingAdjacent)
 							iNewAdjacentWorkedYield += iAdjacentTerrainYieldChange;
 						else
 							iNewAdjacentUnworkedYield += iAdjacentTerrainYieldChange;
+					}
 				}
 
 				ImprovementTypes eAdjacentImprovement = GetPlannedImprovementInPlot(pAdjacentPlot, sState);
@@ -3391,20 +3393,24 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 
 						int iDeltaTruncatedYield = (fCurrentAdjacentImprovementYield + fAdjacentImprovementYield).Truncate() - fCurrentAdjacentImprovementYield.Truncate();
 						if (iDeltaTruncatedYield != 0)
+						{
 							if (bWorkingAdjacent)
 								iNewAdjacentWorkedYield += iDeltaTruncatedYield;
 							else
 								iNewAdjacentUnworkedYield += iDeltaTruncatedYield;
+						}
 
 						// How much extra yield an adjacent improvement will get if we create a resource
 						if (eResourceFromImprovement != NO_RESOURCE)
 						{
 							int iAdjacentResourceYieldChanges = pkAdjacentImprovementInfo->GetAdjacentResourceYieldChanges(eResourceFromImprovement, eYield);
 							if (iAdjacentResourceYieldChanges != 0)
+							{
 								if (bWorkingAdjacent)
 									iNewAdjacentWorkedYield += iAdjacentResourceYieldChanges;
 								else
 									iNewAdjacentUnworkedYield += iAdjacentResourceYieldChanges;
+							}
 						}
 
 						// How much extra yield an adjacent improvement will get if we create a feature (or keep the one that's here)
@@ -3413,10 +3419,12 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 							FeatureTypes eNewFeature = eFeatureFromImprovement != NO_FEATURE ? eFeatureFromImprovement : eFeature;
 							int iAdjacentFeatureYieldChanges = pkAdjacentImprovementInfo->GetAdjacentFeatureYieldChanges(eNewFeature, eYield);
 							if (iAdjacentFeatureYieldChanges != 0)
+							{
 								if (bWorkingAdjacent)
 									iNewAdjacentWorkedYield += iAdjacentFeatureYieldChanges;
 								else
 									iNewAdjacentUnworkedYield += iAdjacentFeatureYieldChanges;
+							}
 						}
 					}
 				}
