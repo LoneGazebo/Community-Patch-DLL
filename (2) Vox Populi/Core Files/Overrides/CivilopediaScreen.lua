@@ -3581,15 +3581,33 @@ CivilopediaCategory[CategoryPromotions].SelectArticle = function( promotionID, s
 		-- Negatives at the end
 		if thisPromotion.CannotBeChosen then sText = sText.."[NEWLINE][ICON_BULLET][COLOR_NEGATIVE_TEXT]Cannot be chosen[ENDCOLOR]"; end
 		if thisPromotion.LostWithUpgrade then sText = sText.."[NEWLINE][ICON_BULLET][COLOR_NEGATIVE_TEXT]Lost with Upgrade[ENDCOLOR]"; end
+
 		-- Promo lines (Unit Combats)
-		sText = sText.."[NEWLINE][COLOR_CYAN]Combat Types[ENDCOLOR] eligible for this promotion:"; -- change to TXT_KEY_ later
+		local bShowText = false
+		local sTmpText = ""
+		sTmpText = sTmpText.."[NEWLINE][COLOR_CYAN]Combat Types[ENDCOLOR] eligible for this promotion:"; -- change to TXT_KEY_ later
 		for row in DB.Query("SELECT UnitCombatInfos.Description FROM UnitPromotions_UnitCombats INNER JOIN UnitCombatInfos ON UnitPromotions_UnitCombats.UnitCombatType = UnitCombatInfos.Type WHERE UnitPromotions_UnitCombats.PromotionType = ? ORDER BY UnitPromotions_UnitCombats.UnitCombatType", thisPromotion.Type) do
-			sText = sText.."[NEWLINE][ICON_BULLET]"..Locale.Lookup(row.Description);
+			sTmpText = sTmpText.."[NEWLINE][ICON_BULLET]"
+			for row2 in DB.Query("SELECT MountedOnly FROM UnitPromotions WHERE Type = ? and MountedOnly = 1", thisPromotion.Type) do
+				sTmpText = sTmpText.. "Mounted "
+			end
+			sTmpText = sTmpText..Locale.Lookup(row.Description);
+			bShowText = true
 		end
+		if (bShowText) then
+			sText = sText .. sTmpText
+		end
+		
 		-- Units list
-		sText = sText.."[NEWLINE][COLOR_CYAN]Units[ENDCOLOR] that are granted this promotion:"; -- change to TXT_KEY_ later
+		bShowText = false
+		sTmpText = ""
+		sTmpText = sTmpText.."[NEWLINE][COLOR_CYAN]Units[ENDCOLOR] that are granted this promotion:"; -- change to TXT_KEY_ later
 		for row in DB.Query("SELECT Units.Description FROM Unit_FreePromotions INNER JOIN Units ON Unit_FreePromotions.UnitType = Units.Type WHERE Unit_FreePromotions.PromotionType = ? ORDER BY Unit_FreePromotions.UnitType", thisPromotion.Type) do
-			sText = sText.."[NEWLINE][ICON_BULLET]"..Locale.Lookup(row.Description);
+			sTmpText = sTmpText.."[NEWLINE][ICON_BULLET]"..Locale.Lookup(row.Description);
+			bShowText = true
+		end
+		if (bShowText) then
+			sText = sText .. sTmpText
 		end
 		UpdateTextBlock( sText, Controls.ExtendedLabel,  Controls.ExtendedInnerFrame,  Controls.ExtendedFrame );
 		-- end Infixo
