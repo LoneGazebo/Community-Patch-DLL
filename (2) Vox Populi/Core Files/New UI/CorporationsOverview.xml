@@ -143,19 +143,25 @@
 	<Instance Name="WorldMonopolyResourceInstance">
 		<Box Size="958,28" Color="0,0,0,0" ID="Base">
 			<Stack StackGrowth="Right">
-				<Box Size="350,25" Color="0,0,0,0">
+				<Box Size="280,25" Color="0,0,0,0">
 					<Label ID="ResourceLabel" Anchor="L,C" Offset="42,0" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>
 				</Box>
-				<Box Size="350,25" Color="0,0,0,0">
-					<Box Size="32,32" Anchor="L,T" Offset="0,-3" Color="0,0,0,0" ID="CivIconBox">
+				<Box Size="125,25" Color="0,0,0,0">
+					<Label ID="NumInWorldLabel" Anchor="L,C" Offset="0,0" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>
+				</Box>
+				<Box Size="125,25" Color="0,0,0,0">
+					<Label ID="PercentLabel" Anchor="L,C" Offset="0,0" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>
+				</Box>
+				<Box Size="300,25" Color="0,0,0,0">
+					<Box Size="32,32" Anchor="L,T" Offset="22,-3" Color="0,0,0,0" ID="CivIconBox">
 						<Image ID="CivIconBG" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
 						<Image ID="CivIconShadow" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
 						<Image ID="CivIcon" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
 					</Box>
-					<Label ID="CivName" Anchor="L,C" Offset="32,0" TruncateWidth="300" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>
+					<Label ID="CivName" Anchor="L,C" Offset="56,0" TruncateWidth="300" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>
 				</Box>
-				<Box Size="250,25" Color="0,0,0,0">
-					<Label ID="PercentLabel" Anchor="L,C" Offset="42,0" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>
+				<Box Size="100,25" Color="0,0,0,0">
+					<Label ID="MonopolyPercentLabel" Anchor="L,C" Offset="-10,0" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>
 				</Box>
 			</Stack>
 		</Box>
@@ -448,28 +454,36 @@
 			<!-- Monopolies Content-->
 			<Box Size="956,459" Color="0,0,0,0" ID="MonopoliesPanel" Hidden="1">
 				<Box Size="956,40" Color="0,0,0,0">
-					<Label Anchor="R,T" Offset="212,10" String="TXT_KEY_CPO_MP_DROPDOWN_LABEL_SELECT_PLAYER" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"/>
-					<PullDown Offset="4,4" Anchor="R,T" Style="GenericPullDown" ScrollThreshold="200"   SpaceForScroll="0" Size="200,32" ID="MonopolyCivPulldown"/>
-					<Label Anchor="R,T" Offset="548,10" String="TXT_KEY_CPO_MP_DROPDOWN_LABEL_SELECT_TYPE" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"/>
-					<PullDown Offset="340,4" Anchor="R,T" Style="GenericPullDown" ScrollThreshold="200"   SpaceForScroll="0" Size="200,32" ID="MonopolyTypePulldown"/>
+					<Label Anchor="R,T" Offset="212,10" String="TXT_KEY_CPO_MP_DROPDOWN_LABEL_SELECT_TYPE" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"/>
+					<PullDown Offset="4,4" Anchor="R,T" Style="GenericPullDown" ScrollThreshold="200"   SpaceForScroll="0" Size="200,32" ID="MonopolyTypePulldown"/>
 				</Box>
 				<Box Size="956,419" Offset="0,40" Color="0,0,0,0">
 					<Stack Anchor="L,T" StackGrowth="Bottom">
 						<Box Anchor="L,T" Size="956,20" Color="0,0,0,0">
 							<Stack Anchor="L,T" StackGrowth="Right">
-								<Box Size="280,18" Color="0,0,0,0">
+								<Box Size="230,18" Color="0,0,0,0">
 									<TextButton Offset="0,0" Anchor="C,B" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" ToolTip="TXT_KEY_CPO_MP_RESOURCE_SORT_TT" String="TXT_KEY_CPO_MP_RESOURCE" FontStyle="Shadow" MouseOverStyle="SoftShadow" ConsumeMouse="1" ID="MPSortByResource">
 										<Image Anchor="L,C" AnchorSide="O.I" Offset="2,0" Texture="assets/UI/Art/Controls/9 Grids/SelectedUp.dds" Size="18,18" ID="MPSortByResourceImage"/>
 									</TextButton>
 								</Box>
-								<Box Size="350,18" Color="0,0,0,0">
+								<Box Size="125,18" Color="0,0,0,0">
+									<TextButton Offset="0,0" Anchor="C,B" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" ToolTip="TXT_KEY_CPO_MP_NUM_IN_WORLD_SORT_TT" String="TXT_KEY_CPO_MP_NUM_IN_WORLD" FontStyle="Shadow" MouseOverStyle="SoftShadow" ConsumeMouse="1" ID="MPSortByNumWorld">
+										<Image Anchor="L,C" AnchorSide="O.I" Offset="2,0" Texture="assets/UI/Art/Controls/9 Grids/SelectedUp.dds" Size="18,18" ID="MPSortByNumWorldImage"/>
+									</TextButton>
+								</Box>
+								<Box Size="125,18" Color="0,0,0,0">
+									<TextButton Offset="0,0" Anchor="C,B" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" ToolTip="TXT_KEY_CPO_MP_OWNED_SORT_TT" String="TXT_KEY_CPO_MP_OWNED" FontStyle="Shadow" MouseOverStyle="SoftShadow" ConsumeMouse="1" ID="MPSortByPercent">
+										<Image Anchor="L,C" AnchorSide="O.I" Offset="2,0" Texture="assets/UI/Art/Controls/9 Grids/SelectedUp.dds" Size="18,18" ID="MPSortByPercentImage"/>
+									</TextButton>
+								</Box>
+								<Box Size="300,18" Color="0,0,0,0">
 									<TextButton Offset="0,0" Anchor="C,B" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" ToolTip="TXT_KEY_CPO_MP_CIVILIZATION_SORT_TT" String="TXT_KEY_CPO_MP_CIVILIZATION" FontStyle="Shadow" MouseOverStyle="SoftShadow" ConsumeMouse="1" ID="MPSortByCivilization">
 										<Image Anchor="L,C" AnchorSide="O.I" Offset="2,0" Texture="assets/UI/Art/Controls/9 Grids/SelectedUp.dds" Size="18,18" ID="MPSortByCivilizationImage"/>
 									</TextButton>
 								</Box>
-								<Box Size="250,18" Color="0,0,0,0">
-									<TextButton Offset="0,0" Anchor="C,B" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" ToolTip="TXT_KEY_CPO_MP_MONOPOLY_SORT_TT" String="TXT_KEY_CPO_MP_MONOPOLY" FontStyle="Shadow" MouseOverStyle="SoftShadow" ConsumeMouse="1" ID="MPSortByPercent">
-										<Image Anchor="L,C" AnchorSide="O.I" Offset="2,0" Texture="assets/UI/Art/Controls/9 Grids/SelectedUp.dds" Size="18,18" ID="MPSortByPercentImage"/>
+								<Box Size="100,18" Color="0,0,0,0">
+									<TextButton Offset="0,0" Anchor="C,B" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" ToolTip="TXT_KEY_CPO_MP_MONOPOLY_SORT_TT" String="TXT_KEY_CPO_MP_MONOPOLY" FontStyle="Shadow" MouseOverStyle="SoftShadow" ConsumeMouse="1" ID="MPSortByPercentMonopoly">
+										<Image Anchor="L,C" AnchorSide="O.I" Offset="2,0" Texture="assets/UI/Art/Controls/9 Grids/SelectedUp.dds" Size="18,18" ID="MPSortByPercentMonopolyImage"/>
 									</TextButton>
 								</Box>
 							</Stack>

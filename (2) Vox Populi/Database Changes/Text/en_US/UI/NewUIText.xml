@@ -2178,10 +2178,10 @@
 			<Text>Potential Strategic and Global Monopoly Bonuses:[NEWLINE][NEWLINE]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESOURCE_BREAKDOWN">
-			<Text>Out of {2_Total} in World:[NEWLINE]Direct control: {1_Num}</Text>
+			<Text>Direct control: {1_Num}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESOURCE_BREAKDOWN_IMPORTS">
-			<Text>Out of {2_Total} in World:[NEWLINE]Direct control: {1_Num}[NEWLINE]Import: {3_Import}[NEWLINE]From City-States: {4_CS}</Text>
+			<Text>Direct control: {1_Num}[NEWLINE]Import: {3_Import}[NEWLINE]From City-States: {4_CS}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_HOVER_INFO">
 			<Text>(Hover over Corporation Icon or Name for details.)</Text>
@@ -2407,19 +2407,31 @@
 			<Text>Resource</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CPO_MP_RESOURCE_SORT_TT">
-			<Text>Name of the resource.[NEWLINE][NEWLINE]Click to sort Monopolies by their resource name.</Text>
+			<Text>Name of the resource.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CPO_MP_CIVILIZATION">
-			<Text>Civilization</Text>
+			<Text>Monopoly Owner</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CPO_MP_CIVILIZATION_SORT_TT">
-			<Text>Name of the civilization that may have the monopoly.[NEWLINE][NEWLINE]Click to sort Monopolies by civilization.</Text>
+			<Text>Name of the civilization that has the monopoly.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CPO_MP_NUM_IN_WORLD">
+			<Text>On Map</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CPO_MP_NUM_IN_WORLD_SORT_TT">
+			<Text>The number of resources on the map.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CPO_MP_OWNED">
+			<Text>You Control</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CPO_MP_OWNED_SORT_TT">
+			<Text>Percentage of the resources that you control. [NEWLINE][NEWLINE]For a [COLOR_POSITIVE_TEXT]global monopoly[ENDCOLOR], you need to control more than 50% of the resources and more than any other player. For a [COLOR_YELLOW]strategic monopoly[ENDCOLOR], you need to control more than 25% of the resources.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CPO_MP_MONOPOLY">
 			<Text>Monopoly</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CPO_MP_MONOPOLY_SORT_TT">
-			<Text>Percent of a monopoly civilization has over this resource.[NEWLINE][NEWLINE]Click to sort Monopolies by their monopoly percentage.</Text>
+			<Text>Percentage of the resources controlled by the monopoly owner.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CPO_MP_MONOPOLY_BONUS">
 			<Text>Monopoly Bonus</Text>
@@ -2430,14 +2442,8 @@
 		<Row Tag="TXT_KEY_CPO_MP_NO_CIVILIZATION">
 			<Text>No Civilization</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CPO_MP_DROPDOWN_LABEL_SELECT_PLAYER">
-			<Text>Select Player</Text>
-		</Row>
 		<Row Tag="TXT_KEY_CPO_MP_DROPDOWN_LABEL_SELECT_TYPE">
 			<Text>Select Monopoly Type</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CPO_MP_DROPDOWN_GREATEST">
-			<Text>Greatest</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CPO_MP_PULLDOWN_TYPE_ALL">
 			<Text>All</Text>
