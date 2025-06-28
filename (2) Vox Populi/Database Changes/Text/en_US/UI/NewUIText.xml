@@ -2425,7 +2425,7 @@
 			<Text>You Control</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CPO_MP_OWNED_SORT_TT">
-			<Text>Percentage of the resources that you control. [NEWLINE][NEWLINE]For a [COLOR_POSITIVE_TEXT]global monopoly[ENDCOLOR], you need to control more than 50% of the resources and more than any other player. For a [COLOR_YELLOW]strategic monopoly[ENDCOLOR], you need to control more than 25% of the resources.</Text>
+			<Text>Percentage of the resources that you control.[NEWLINE][NEWLINE]For a [COLOR_POSITIVE_TEXT]Global Monopoly[ENDCOLOR], you need to control more than 50% of the resources and more than any other player. For a [COLOR_YELLOW]Strategic Monopoly[ENDCOLOR], you need to control more than 25% of the resources.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CPO_MP_MONOPOLY">
 			<Text>Monopoly</Text>
