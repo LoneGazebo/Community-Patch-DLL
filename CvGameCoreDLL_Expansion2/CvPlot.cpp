@@ -6961,10 +6961,10 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 	{
 		// if there's a resource on this plot, we need to make sure resource counts are updated for both old and new city
 		ResourceTypes eResource = getResourceType(getTeam());
-		bool bImproved = IsResourceImprovedForOwner();
 		if (eResource != NO_RESOURCE)
 		{
-			if (bImproved)
+			bool bPreviouslyImproved = IsResourceImprovedForOwner();
+			if (bPreviouslyImproved)
 			{
 				GET_PLAYER(getOwner()).removeResourcesOnPlotFromTotal(this);
 			}
@@ -6974,7 +6974,9 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 			}
 			// chance ownership of the plot
 			setOwningCity(eNewValue, iAcquiringCityID);
-			if (bImproved)
+			// settling a city on the plot improves the resource
+			bool bNowImproved = IsResourceImprovedForOwner(false, bFoundingCity);
+			if (bNowImproved)
 			{
 				GET_PLAYER(getOwner()).addResourcesOnPlotToTotal(this);
 			}
