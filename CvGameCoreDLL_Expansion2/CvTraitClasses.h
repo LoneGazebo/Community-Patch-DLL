@@ -2350,12 +2350,9 @@ private:
 	unsigned int m_uiFreeUnitIndex;
 	TechTypes m_eFreeUnitPrereqTech;
 	ImprovementTypes m_eCombatBonusImprovement;
-	BuildingTypes m_eFreeBuilding;
 #if defined(MOD_BALANCE_CORE)
-	BuildingTypes m_eFreeCapitalBuilding;
 	UnitTypes m_eFreeUnitOnConquest;
 #endif
-	BuildingTypes m_eFreeBuildingOnConquest;
 #if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
 	bool m_bBullyAnnex;
 	int m_iBullyYieldMultiplierAnnex;

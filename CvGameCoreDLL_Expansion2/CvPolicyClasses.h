@@ -1210,8 +1210,6 @@ private:
 	bool* m_pabPolicyBranchUnlocked;
 	bool* m_pabPolicyBranchBlocked;
 	bool* m_pabPolicyBranchFinished;
-	int* m_paiPolicyBranchBlockedCount;
-	int* m_paiPolicyBlockedCount;
 	PolicyBranchTypes* m_paePolicyBlockedBranchCheck;
 	CvPolicyXMLEntries* m_pPolicies;
 	CvPolicyAI* m_pPolicyAI;
