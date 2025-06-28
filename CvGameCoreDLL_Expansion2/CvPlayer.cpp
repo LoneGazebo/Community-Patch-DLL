@@ -43401,7 +43401,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 
 	// Notifications
 	{
-		bool bHasNotifications;
+		bool bHasNotifications = false;
 		if (bSaving)
 			bHasNotifications = player.m_pNotifications != NULL;
 
