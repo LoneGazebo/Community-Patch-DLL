@@ -17297,7 +17297,6 @@ int CvPlayer::GetJONSCulturePerTurnFromExcessHappinessTimes100() const
 		if(GetExcessHappiness() > 0)
 		{
 			int iFreeCulture = GetExcessHappiness() * getHappinessToCulture();
-			iFreeCulture;
 
 			return iFreeCulture;
 		}
