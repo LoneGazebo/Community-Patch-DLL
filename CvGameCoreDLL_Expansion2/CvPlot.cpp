@@ -6974,7 +6974,8 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 			}
 			// chance ownership of the plot
 			setOwningCity(eNewValue, iAcquiringCityID);
-			if (bImproved)
+			// settling a city on the plot improves the resource
+			if (bImproved || bFoundingCity) 
 			{
 				GET_PLAYER(getOwner()).addResourcesOnPlotToTotal(this);
 			}
