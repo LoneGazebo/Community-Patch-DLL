@@ -6229,19 +6229,23 @@ int TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(const CvUnit* pDefende
 			iDamage += pAttacker->GetRangeCombatDamage(pDefender, NULL, 0, iUnusedReferenceVariable, false, iExtraDefenderDamage,
 							pDefenderPlot, pAttackerPlot, bIgnoreUnitAdjacencyBoni, bQuickAndDirty);
 
-		int iAttackerStrength = pAttacker->GetMaxAttackStrength(pAttackerPlot, pDefenderPlot, pDefender, bIgnoreUnitAdjacencyBoni, bQuickAndDirty);
-		//do not override defender flanking/general bonus (it is known during combat simulation)
-		int iDefenderStrength = pDefender->GetMaxDefenseStrength(pDefenderPlot, pAttacker, pAttackerPlot, false, bQuickAndDirty, iDamage + iExtraDefenderDamage);
+		// no melee attack if the RangedSupportFire has killed the defender
+		if (pDefender->GetCurrHitPoints() > iDamage + iExtraDefenderDamage)
+		{
+			int iAttackerStrength = pAttacker->GetMaxAttackStrength(pAttackerPlot, pDefenderPlot, pDefender, bIgnoreUnitAdjacencyBoni, bQuickAndDirty);
+			//do not override defender flanking/general bonus (it is known during combat simulation)
+			int iDefenderStrength = pDefender->GetMaxDefenseStrength(pDefenderPlot, pAttacker, pAttackerPlot, false, bQuickAndDirty, iDamage + iExtraDefenderDamage);
 
-		//just assume the unit can attack from its current location - modifiers might be different, but thats acceptable
-		iDamage += pAttacker->getMeleeCombatDamage(
-			iAttackerStrength,
-			iDefenderStrength,
-			iAttackerDamage,
-			false, pDefender,
-			iDamage + iExtraDefenderDamage);
+			//just assume the unit can attack from its current location - modifiers might be different, but thats acceptable
+			iDamage += pAttacker->getMeleeCombatDamage(
+				iAttackerStrength,
+				iDefenderStrength,
+				iAttackerDamage,
+				false, pDefender,
+				iDamage + iExtraDefenderDamage);
 
-		iDamage += (pAttacker->hasMoved() || pAttacker->plot() != pAttackerPlot) ? 0 : pAttacker->GetTileDamageIfNotMoved();
+			iDamage += (pAttacker->hasMoved() || pAttacker->plot() != pAttackerPlot) ? 0 : pAttacker->GetTileDamageIfNotMoved();
+		}
 	}
 
 	return iDamage;

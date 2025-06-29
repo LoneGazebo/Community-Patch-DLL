@@ -298,7 +298,6 @@ public:
 
 	bool IsAngerFreeUnit() const;
 
-	int getCombatDamage(int iStrength, int iOpponentStrength, bool bIncludeRand, bool bAttackerIsCity, bool bDefenderIsCity, const CvUnit* pkOtherUnit, bool bIsAirCombat) const;
 	int getMeleeCombatDamageCity(int iStrength, const CvCity* pCity, int& iSelfDamageInflicted, int iGarrisonMaxHP, int& iGarrisonDamage, bool bIncludeRand) const;
 	int getMeleeCombatDamage(int iStrength, int iOpponentStrength, int& iSelfDamageInflicted, bool bIncludeRand, const CvUnit* pkOtherUnit, int iExtraDefenderDamage = 0) const;
 	void move(CvPlot& targetPlot, bool bShow);
