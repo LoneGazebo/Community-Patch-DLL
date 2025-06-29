@@ -54,6 +54,8 @@ protected:
 	static int lJumpToNearestValidPlot(lua_State* L);
 
 	static int lGetCombatDamage(lua_State* L);
+	static int lGetMeleeCombatDamage(lua_State* L);
+	static int lGetMeleeCombatDamageCity(lua_State* L);
 	static int lGetFireSupportUnit(lua_State* L);
 
 	static int lCanAutomate(lua_State* L);

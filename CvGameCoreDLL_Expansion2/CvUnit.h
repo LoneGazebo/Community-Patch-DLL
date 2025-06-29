@@ -298,7 +298,9 @@ public:
 
 	bool IsAngerFreeUnit() const;
 
-	int getCombatDamage(int iStrength, int iOpponentStrength, bool bIncludeRand, bool bAttackerIsCity, bool bDefenderIsCity) const;
+	int getCombatDamage(int iStrength, int iOpponentStrength, bool bIncludeRand, bool bAttackerIsCity, bool bDefenderIsCity, const CvUnit* pkOtherUnit, bool bIsAirCombat) const;
+	int getMeleeCombatDamageCity(int iStrength, const CvCity* pCity, int& iSelfDamageInflicted, int iGarrisonMaxHP, int& iGarrisonDamage, bool bIncludeRand) const;
+	int getMeleeCombatDamage(int iStrength, int iOpponentStrength, int& iSelfDamageInflicted, bool bIncludeRand, const CvUnit* pkOtherUnit, int iExtraDefenderDamage = 0) const;
 	void move(CvPlot& targetPlot, bool bShow);
 	bool jumpToNearestValidPlot();
 	bool jumpToNearestValidPlotWithinRange(int iRange, CvPlot* pStartPlot=NULL);
@@ -364,10 +366,10 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	void ChangeCannotBeCapturedCount(int iChange);
 	bool GetCannotBeCaptured();
-	int getForcedDamageValue();
+	int getForcedDamageValue() const;
 	void ChangeForcedDamageValue(int iChange);
 
-	int getChangeDamageValue();
+	int getChangeDamageValue() const;
 	void ChangeChangeDamageValue(int iChange);
 
 	int getPromotionDuration(PromotionTypes eIndex) const;
@@ -715,9 +717,11 @@ public:
 	int GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* pCity, bool bAttacking, 
 									const CvPlot* pMyPlot = NULL, const CvPlot* pOtherPlot = NULL, 
 									bool bIgnoreUnitAdjacencyBoni = false, bool bQuickAndDirty = false, int iAssumeExtraDamage = 0) const;
-	int GetAirCombatDamage(const CvUnit* pDefender, const CvCity* pCity, bool bIncludeRand, int iAssumeExtraDamage = 0, 
+	int GetAirCombatDamage(const CvUnit* pDefender, const CvCity* pCity, int iGarrisonMaxHP, int& iGarrisonDamage, bool bIncludeRand,
+									int iAssumeExtraDefenderDamage = 0,
 									const CvPlot* pTargetPlot = NULL, const CvPlot* pFromPlot = NULL, bool bQuickAndDirty = false) const;
-	int GetRangeCombatDamage(const CvUnit* pDefender, const CvCity* pCity, bool bIncludeRand, int iAssumeExtraDamage = 0, 
+	int GetRangeCombatDamage(const CvUnit* pDefender, const CvCity* pCity, int iGarrisonMaxHP, int& iGarrisonDamage, bool bIncludeRand,
+									int iAssumeExtraDefenderDamage = 0,
 									const CvPlot* pTargetPlot = NULL, const CvPlot* pFromPlot = NULL, 
 									bool bIgnoreUnitAdjacencyBoni = false, bool bQuickAndDirty = false) const;
 	int GetRangeCombatSplashDamage(const CvPlot* pTargetPlot) const;

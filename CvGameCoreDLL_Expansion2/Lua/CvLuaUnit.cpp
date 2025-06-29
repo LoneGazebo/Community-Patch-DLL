@@ -60,6 +60,8 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(JumpToNearestValidPlot);
 
 	Method(GetCombatDamage);
+	Method(GetMeleeCombatDamage);
+	Method(GetMeleeCombatDamageCity);
 	Method(GetFireSupportUnit);
 
 	Method(CanAutomate);
@@ -1197,35 +1199,63 @@ int CvLuaUnit::lJumpToNearestValidPlot(lua_State* L)
 }
 //------------------------------------------------------------------------------
 // int getCombatDamage(int iStrength, int iOpponentStrength, int iCurrentDamage, bool bIncludeRand = true, bool bAttackerIsCity = false, bool bDefenderIsCity = false);
+// LEGACY FUNCTION, use GetMeleeCombatDamage and GetMeleeCombatDamageCity instead!
 int CvLuaUnit::lGetCombatDamage(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
 	const int iStrength = lua_tointeger(L, 2);
 	const int iOpponentStrength = lua_tointeger(L, 3);
-	//damage is factored into the strength values now
-	//const int iCurrentDamage = lua_tointeger(L, 4); 
+	const int iCurrentDamage = lua_tointeger(L, 4);
 	const bool bIncludeRand = lua_toboolean(L, 5);
 	const bool bAttackerIsCity = lua_toboolean(L, 6);
 	const bool bDefenderIsCity = lua_toboolean(L, 7);
 
-	int iResult = pkUnit->getCombatDamage(iStrength, iOpponentStrength, bIncludeRand, bAttackerIsCity, bDefenderIsCity);
+	const int iResult = 0;// pkUnit->getCombatDamage(iStrength, iOpponentStrength, iCurrentDamage, bIncludeRand, bAttackerIsCity, bDefenderIsCity);
+	lua_pushinteger(L, iResult);
 
-#if defined(MOD_BALANCE_CORE)
-	//for visual feedback, take care that we show the precise value
-	CvCity* pkCity = CvLuaCity::GetInstance(L, 8, false);
-	if (pkCity && pkCity->HasGarrison())
-	{
-		CvUnit* pGarrison = pkCity->GetGarrisonedUnit();
-		if (pGarrison)
-		{
-			int iGarrisonShare = (iResult*2*pGarrison->GetMaxHitPoints()) / (pkCity->GetMaxHitPoints()+2*pGarrison->GetMaxHitPoints());
-			iResult -= iGarrisonShare;
-		}
-	}
-#endif
+	return 1;
+}
+//------------------------------------------------------------------------------
+// int getMeleeCombatDamage(int iStrength, int iOpponentStrength, bool bIncludeRand = true, CvUnit* pkOtherUnit);
+int CvLuaUnit::lGetMeleeCombatDamage(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	const int iStrength = lua_tointeger(L, 2);
+	const int iOpponentStrength = lua_tointeger(L, 3);
+	const bool bIncludeRand = lua_toboolean(L, 4);
+	CvUnit* pkOtherUnit= CvLuaUnit::GetInstance(L, 5);
+	const int iExtraDefenderDamage = luaL_optint(L, 6, 0);
+
+	int iResult = 0;
+	int iAttackerDamage = 0;
+
+	iResult = pkUnit->getMeleeCombatDamage(iStrength, iOpponentStrength, iAttackerDamage, bIncludeRand, pkOtherUnit, iExtraDefenderDamage);
 
 	lua_pushinteger(L, iResult);
-	return 1;
+	lua_pushinteger(L, iAttackerDamage);
+
+	return 2;
+}
+//------------------------------------------------------------------------------
+// int getMeleeCombatDamageCity(int iStrength, CvCity* pCity, bool bIncludeRand = true);
+int CvLuaUnit::lGetMeleeCombatDamageCity(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	const int iStrength = lua_tointeger(L, 2);
+	CvCity* pCity = CvLuaCity::GetInstance(L, 3);
+	const bool bIncludeRand = lua_toboolean(L, 4);
+
+	int iResult = 0;
+	int iAttackerDamage = 0;
+
+	const CvUnit* pGarrison = pCity->GetGarrisonedUnit();
+	int iGarrisonDamage = 0;
+	iResult = pkUnit->getMeleeCombatDamageCity(iStrength, pCity, iAttackerDamage, (pGarrison ? pGarrison->GetMaxHitPoints() : 0), iGarrisonDamage, bIncludeRand);
+
+	lua_pushinteger(L, iResult);
+	lua_pushinteger(L, iAttackerDamage);
+
+	return 2;
 }
 //------------------------------------------------------------------------------
 //CvUnit* getFireSupportUnit(PlayerTypes eDefender, int iX, int iY);
@@ -3379,7 +3409,12 @@ int CvLuaUnit::lGetAirCombatDamage(lua_State* L)
 	CvCity* pkCity = CvLuaCity::GetInstance(L, 3);
 	const bool bIncludeRand = lua_toboolean(L, 4);
 
-	const int iResult = pkUnit->GetAirCombatDamage(pkDefender, pkCity, bIncludeRand);
+	int iGarrisonDamage = 0;
+	int iGarrisonMaxHP = 0;
+	if (pkCity->HasGarrison())
+		iGarrisonMaxHP = pkCity->GetGarrisonedUnit()->GetMaxHitPoints();
+
+	const int iResult = pkUnit->GetAirCombatDamage(pkDefender, pkCity, iGarrisonMaxHP, iGarrisonDamage, bIncludeRand);
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -3392,18 +3427,12 @@ int CvLuaUnit::lGetRangeCombatDamage(lua_State* L)
 	CvCity* pkCity = CvLuaCity::GetInstance(L, 3, false);
 	const bool bIncludeRand = lua_toboolean(L, 4);
 
-	int iResult = pkUnit->GetRangeCombatDamage(pkDefender, pkCity, bIncludeRand);
+	int iGarrisonMaxHP = 0;
+	if (pkCity && pkCity->GetGarrisonedUnit())
+		iGarrisonMaxHP = pkCity->GetGarrisonedUnit()->GetMaxHitPoints();
 
-	//for visual feedback, take care that we show the precise value
-	if (pkCity && pkCity->HasGarrison())
-	{
-		CvUnit* pGarrison = pkCity->GetGarrisonedUnit();
-		if (pGarrison)
-		{
-			int iGarrisonShare = (iResult*2*pGarrison->GetMaxHitPoints()) / (pkCity->GetMaxHitPoints()+2*pGarrison->GetMaxHitPoints());
-			iResult -= iGarrisonShare;
-		}
-	}
+	int iGarrisonDamage = 0;
+	int iResult = pkUnit->GetRangeCombatDamage(pkDefender, pkCity, iGarrisonMaxHP, iGarrisonDamage, bIncludeRand, 0, NULL, NULL, false, false);
 
 	lua_pushinteger(L, iResult);
 	return 1;

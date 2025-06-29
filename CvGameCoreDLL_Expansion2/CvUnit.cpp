@@ -5391,43 +5391,171 @@ bool CvUnit::IsAngerFreeUnit() const
 }
 
 //	---------------------------------------------------------------------------
-int CvUnit::getCombatDamage(int iStrength, int iOpponentStrength, bool bIncludeRand, bool bAttackerIsCity, bool bDefenderIsCity) const
+int CvUnit::getMeleeCombatDamageCity(int iStrength, const CvCity* pCity, int& iSelfDamageInflicted, int iGarrisonMaxHP, int& iGarrisonDamage, bool bIncludeRand) const
 {
-	int iModifier = 0;
-
-	// Modify damage for when a city "attacks" a unit
-	if (bAttackerIsCity)
+	if (getForcedDamageValue() != 0)
+		iSelfDamageInflicted = getForcedDamageValue();
+	else
 	{
-		//since this is melee combat, it's actually the city defending against an attack
-		iModifier += /*0*/ GD_INT_GET(CITY_ATTACKING_DAMAGE_MOD) - 100;
+		CvSeeder randomSeed;
+		if (bIncludeRand)
+		{
+			randomSeed
+				.mixAssign(plot()->GetPseudoRandomSeed())
+				.mixAssign(GetID())
+				.mixAssign(pCity->GetID())
+				.mixAssign(iStrength);
+		}
 
+		int iSelfDamageModifier = /*0*/ GD_INT_GET(CITY_ATTACKING_DAMAGE_MOD) - 100;
 		//sometimes we take even less damage from cities
-		iModifier -= GetDamageReductionCityAssault();
+		iSelfDamageModifier -= GetDamageReductionCityAssault();
+		int iExtraSelfDamage = getChangeDamageValue();
+
+		iSelfDamageInflicted = max(0, (CvUnitCombat::DoDamageMath(
+			pCity->getStrengthValue(),
+			iStrength,
+			/*2400*/ GD_INT_GET(ATTACK_SAME_STRENGTH_MIN_DAMAGE), //ignore the min part, it's misleading
+			/*1200*/ GD_INT_GET(ATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE),
+			bIncludeRand,
+			randomSeed,
+			iSelfDamageModifier) / 100) + iExtraSelfDamage);
 	}
-	// Modify damage for when unit is attacking a city
-	else if (bDefenderIsCity)
-	{
-		iModifier += /*0*/ GD_INT_GET(ATTACKING_CITY_MELEE_DAMAGE_MOD) - 100;
-	}
-	
-	CvSeeder randomSeed;
+
+	CvSeeder randomSeed2;
 	if (bIncludeRand)
 	{
-		randomSeed
+		randomSeed2
 			.mixAssign(plot()->GetPseudoRandomSeed())
 			.mixAssign(GetID())
 			.mixAssign(iStrength)
-			.mixAssign(iOpponentStrength);
+			.mixAssign(pCity->GetID());
 	}
 
-	return CvUnitCombat::DoDamageMath(
+	int iCityDamageModifier = /*0*/ GD_INT_GET(ATTACKING_CITY_MELEE_DAMAGE_MOD) - 100;
+	int iCityDamage = CvUnitCombat::DoDamageMath(
 		iStrength,
-		iOpponentStrength,
+		pCity->getStrengthValue(),
 		/*2400*/ GD_INT_GET(ATTACK_SAME_STRENGTH_MIN_DAMAGE), //ignore the min part, it's misleading
 		/*1200*/ GD_INT_GET(ATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE),
 		bIncludeRand,
-		randomSeed,
-		iModifier ) / 100;
+		randomSeed2,
+		iCityDamageModifier) / 100;
+
+	iGarrisonDamage = 0;
+	if (MOD_BALANCE_CORE_MILITARY && iGarrisonMaxHP > 0)
+	{
+		// Garrison absorbs part of the damage
+		iGarrisonDamage = (iCityDamage * 2 * iGarrisonMaxHP) / (pCity->GetMaxHitPoints() + 2 * iGarrisonMaxHP);
+		iCityDamage -= iGarrisonDamage;
+	}
+
+	// City can have flat damage reduction
+	if (pCity->getDamageReductionFlat() != 0) {
+		iCityDamage = std::max(0, iCityDamage - pCity->getDamageReductionFlat());
+	}
+
+	// Will both the attacker die, and the city fall? If so, the unit wins
+	if (iCityDamage + pCity->getDamage() >= pCity->GetMaxHitPoints() && iSelfDamageInflicted >= GetCurrHitPoints())
+	{
+		iCityDamage = pCity->GetMaxHitPoints() - pCity->getDamage();
+		iSelfDamageInflicted = GetCurrHitPoints() - 1;
+	}
+
+	return iCityDamage;
+}
+
+
+
+//	---------------------------------------------------------------------------
+int CvUnit::getMeleeCombatDamage(int iStrength, int iOpponentStrength, int& iSelfDamageInflicted, bool bIncludeRand, const CvUnit* pkOtherUnit, int iExtraDefenderDamage) const
+{
+	if (pkOtherUnit && pkOtherUnit->isEmbarked() && getDomainType() != DOMAIN_AIR)
+		iSelfDamageInflicted = 0;
+	else if (getForcedDamageValue() != 0)
+		iSelfDamageInflicted = getForcedDamageValue();
+	else
+	{
+		CvSeeder randomSeed;
+		if (bIncludeRand)
+		{
+			randomSeed
+				.mixAssign(plot()->GetPseudoRandomSeed())
+				.mixAssign(GetID())
+				.mixAssign(iStrength)
+				.mixAssign(iOpponentStrength);
+		}
+
+		int iExtraDamageSelf = getChangeDamageValue();
+
+		iSelfDamageInflicted = max(0, (CvUnitCombat::DoDamageMath(
+			iOpponentStrength,
+			iStrength,
+			/*2400*/ GD_INT_GET(ATTACK_SAME_STRENGTH_MIN_DAMAGE), //ignore the min part, it's misleading
+			/*1200*/ GD_INT_GET(ATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE),
+			bIncludeRand,
+			randomSeed,
+			0) / 100) + iExtraDamageSelf);
+	}
+
+	int iDamage = 0;
+	if (pkOtherUnit && pkOtherUnit->getForcedDamageValue() != 0)
+		iDamage = pkOtherUnit->getForcedDamageValue();
+	else
+	{
+		CvSeeder randomSeed2;
+		if (bIncludeRand)
+		{
+			randomSeed2
+				.mixAssign(plot()->GetPseudoRandomSeed())
+				.mixAssign(GetID())
+				.mixAssign(iOpponentStrength)
+				.mixAssign(iStrength);
+		}
+
+		int iExtraDamage = pkOtherUnit ? pkOtherUnit->getChangeDamageValue() : 0;
+		iDamage = max(0, (CvUnitCombat::DoDamageMath(
+			iStrength,
+			iOpponentStrength,
+			/*2400*/ GD_INT_GET(ATTACK_SAME_STRENGTH_MIN_DAMAGE), //ignore the min part, it's misleading
+			/*1200*/ GD_INT_GET(ATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE),
+			bIncludeRand,
+			randomSeed2,
+			0) / 100) + iExtraDamage);
+	}
+
+	// post calculations
+	if (pkOtherUnit)
+	{
+		// Will both units be killed by this? :o If so, take drastic corrective measures
+		if (iSelfDamageInflicted >= GetCurrHitPoints() && iDamage + iExtraDefenderDamage >= pkOtherUnit->GetCurrHitPoints())
+		{
+			// He who hath the least amount of damage survives with 1 HP left
+			if (iDamage + iExtraDefenderDamage + pkOtherUnit->getDamage() > iSelfDamageInflicted + getDamage())
+			{
+				// defender dies
+				iDamage = pkOtherUnit->GetCurrHitPoints();
+				iSelfDamageInflicted = GetCurrHitPoints() - 1;
+			}
+			else
+			{
+				// attacker dies
+				iSelfDamageInflicted = GetCurrHitPoints() ;
+				iDamage = pkOtherUnit->GetCurrHitPoints() - 1;
+			}
+		}
+		// will only the defender be killed? reduce damage taken by the attacker
+		else if (iDamage + iExtraDefenderDamage >= pkOtherUnit->GetCurrHitPoints())
+		{
+			iSelfDamageInflicted = (iSelfDamageInflicted * (pkOtherUnit->GetCurrHitPoints() - iExtraDefenderDamage)) / iDamage;
+		}
+		// will only the attacker be killed? reduce damage taken by the defender
+		else if (iSelfDamageInflicted >= GetCurrHitPoints())
+		{
+			iDamage = (iDamage * GetCurrHitPoints()) / iSelfDamageInflicted;
+		}
+	}
+	return iDamage;
 }
 
 //	--------------------------------------------------------------------------------
@@ -6864,7 +6992,7 @@ void CvUnit::ChangeForcedDamageValue(int iChange)
 	}
 }
 //	--------------------------------------------------------------------------------
-int CvUnit::getForcedDamageValue()
+int CvUnit::getForcedDamageValue() const
 {
 	VALIDATE_OBJECT();
 	return m_iForcedDamage;
@@ -6879,7 +7007,7 @@ void CvUnit::ChangeChangeDamageValue(int iChange)
 	}
 }
 //	--------------------------------------------------------------------------------
-int CvUnit::getChangeDamageValue()
+int CvUnit::getChangeDamageValue() const
 {
 	VALIDATE_OBJECT();
 	return m_iChangeDamage;
@@ -17540,18 +17668,20 @@ bool CvUnit::canAirDefend(const CvPlot* pPlot) const
 
 
 //	--------------------------------------------------------------------------------
-int CvUnit::GetAirCombatDamage(const CvUnit* pDefender, const CvCity* pCity, bool bIncludeRand, int iAssumeExtraDamage, 
+int CvUnit::GetAirCombatDamage(const CvUnit* pDefender, const CvCity* pCity, int iGarrisonMaxHP, int& iGarrisonDamage, bool bIncludeRand, int iAssumeExtraDefenderDamage,
 						const CvPlot* pTargetPlot, const CvPlot* pFromPlot, bool bQuickAndDirty) const
 {
-	return GetRangeCombatDamage(pDefender,pCity,bIncludeRand,iAssumeExtraDamage,pTargetPlot,pFromPlot,false,bQuickAndDirty);
+	return GetRangeCombatDamage(pDefender,pCity, iGarrisonMaxHP, iGarrisonDamage, bIncludeRand,iAssumeExtraDefenderDamage,pTargetPlot,pFromPlot,false,bQuickAndDirty);
 }
 
 
 //	--------------------------------------------------------------------------------
-int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, const CvCity* pCity, bool bIncludeRand, int iAssumeExtraDamage, 
+int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, const CvCity* pCity, int iGarrisonMaxHP, int& iGarrisonDamage, bool bIncludeRand, int iAssumeExtraDefenderDamage,
 	const CvPlot* pTargetPlot, const CvPlot* pFromPlot, bool bIgnoreUnitAdjacencyBoni, bool bQuickAndDirty) const
 {
 	VALIDATE_OBJECT();
+	iGarrisonDamage = 0;
+
 	if (pFromPlot == NULL)
 	{
 		pFromPlot = plot();
@@ -17602,6 +17732,11 @@ int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, const CvCity* pCity, b
 				return /*40*/ GD_INT_GET(NONCOMBAT_UNIT_RANGED_DAMAGE);
 		}
 
+		if (pDefender->getForcedDamageValue() != 0)
+		{
+			return pDefender->getForcedDamageValue();
+		}
+
 		// Use Ranged combat value for defender (except impi)
 		if (pDefender->IsCanAttackRanged() && !pDefender->isRangedSupportFire())
 		{
@@ -17610,13 +17745,13 @@ int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, const CvCity* pCity, b
 				iDefenderStrength = pDefender->GetEmbarkedUnitDefense();
 			else
 			{
-				iDefenderStrength = pDefender->GetMaxRangedCombatStrength(this, /*pCity*/ NULL, false, pTargetPlot, pFromPlot, false, bQuickAndDirty, iAssumeExtraDamage);
+				iDefenderStrength = pDefender->GetMaxRangedCombatStrength(this, /*pCity*/ NULL, false, pTargetPlot, pFromPlot, false, bQuickAndDirty, iAssumeExtraDefenderDamage);
 			}
 		}
 		else
 		{
 			//this considers embarkation implicitly
-			iDefenderStrength = pDefender->GetMaxDefenseStrength(pTargetPlot, this, pFromPlot, /*bFromRangedAttack*/ true, bQuickAndDirty, iAssumeExtraDamage);
+			iDefenderStrength = pDefender->GetMaxDefenseStrength(pTargetPlot, this, pFromPlot, /*bFromRangedAttack*/ true, bQuickAndDirty, iAssumeExtraDefenderDamage);
 		}
 	}
 	else
@@ -17644,9 +17779,30 @@ int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, const CvCity* pCity, b
 		randomSeed,
 		0 ) / 100;
 
-	//extra damage with special promotion
-	if (GetMoraleBreakChance() != 0 && pDefender && pDefender->GetNumFallBackPlotsAvailable(*this) == 0)
-		iDamage = (iDamage * 150) / 100;
+	if (pCity && AI_getUnitAIType() != UNITAI_MISSILE_AIR)
+	{
+		iGarrisonDamage = 0;
+		if (MOD_BALANCE_CORE_MILITARY && iGarrisonMaxHP > 0)
+		{
+			// Garrison absorbs part of the damage
+			iGarrisonDamage = (iDamage * 2 * iGarrisonMaxHP) / (pCity->GetMaxHitPoints() + 2 * iGarrisonMaxHP);
+			iDamage -= iGarrisonDamage;
+		}
+
+		// City can have flat damage reduction
+		if (pCity->getDamageReductionFlat() != 0) {
+			iDamage = std::max(0, iDamage - pCity->getDamageReductionFlat());
+		}
+	}
+	else if (pDefender)
+	{
+		//extra damage with special promotion
+		if (GetMoraleBreakChance() != 0 && pDefender && pDefender->GetNumFallBackPlotsAvailable(*this) == 0)
+			iDamage = (iDamage * 150) / 100;
+
+		if (pDefender)
+			iDamage = max(0, iDamage + pDefender->getChangeDamageValue());
+	}
 
 	return iDamage;
 }
@@ -17714,6 +17870,16 @@ int CvUnit::EstimatePlagueDamage(const CvUnit* pEnemy) const
 int CvUnit::GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand, const CvPlot* /*pTargetPlot*/) const
 {
 	//base value
+
+	if (pAttacker && pAttacker->getForcedDamageValue() != 0)
+		return pAttacker->getForcedDamageValue();
+
+	int iExtraDamage = 0;
+	if (pAttacker)
+	{
+		iExtraDamage += pAttacker->getChangeDamageValue();
+	}
+
 	if (MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
 	{
 		int iMaxRandom = 5;
@@ -17729,9 +17895,9 @@ int CvUnit::GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand
 		}
 
 		if (bIncludeRand)
-			return iBaseValue + GC.getGame().randRangeExclusive(0, iMaxRandom, CvSeeder(plot()->GetPseudoRandomSeed()));
+			return max(0, iBaseValue + GC.getGame().randRangeExclusive(0, iMaxRandom, CvSeeder(plot()->GetPseudoRandomSeed())) + iExtraDamage);
 		else
-			return iBaseValue;
+			return max(0, iBaseValue + iExtraDamage);
 	}
 	else
 	{
@@ -17743,9 +17909,9 @@ int CvUnit::GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand
 		}
 
 		if (bIncludeRand)
-			return iVal + GC.getGame().randRangeExclusive(0, iVal / 2, CvSeeder(plot()->GetPseudoRandomSeed()));
+			return max(0, iVal + GC.getGame().randRangeExclusive(0, iVal / 2, CvSeeder(plot()->GetPseudoRandomSeed())) + iExtraDamage);
 		else
-			return iVal+2;
+			return max(0, iVal+2 + iExtraDamage);
 	}	
 }
 

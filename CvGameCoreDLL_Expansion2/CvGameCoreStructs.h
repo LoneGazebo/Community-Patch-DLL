@@ -333,9 +333,6 @@ public:
 	int getFinalDamage(BattleUnitTypes unitType) const;
 	void setFinalDamage(BattleUnitTypes unitType, int iFinalDamage);
 
-	int getFearDamageInflicted(BattleUnitTypes unitType) const;
-	void setFearDamageInflicted(BattleUnitTypes unitType, int iDamage);
-
 	int getExperience(BattleUnitTypes unitType) const;
 	void setExperience(BattleUnitTypes unitType, int iExperience);
 
@@ -381,7 +378,6 @@ protected:
 
 	int			m_iFinalDamage[BATTLE_UNIT_COUNT];				//!< The units final damage value
 	int			m_iDamageInflicted[BATTLE_UNIT_COUNT];			//!< How much damage this unit inflicts on the opponent
-	int			m_iFearDamageInflicted[BATTLE_UNIT_COUNT];		//!< How much fear damage this unit inflicts on the opponent
 
 	int			m_iExperienceChange[BATTLE_UNIT_COUNT];			//!< How much experience does this unit get from battle
 	int			m_iMaxExperienceAllowed[BATTLE_UNIT_COUNT];		//!< Maximum experience this unit is allowed

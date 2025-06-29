@@ -33075,6 +33075,9 @@ int CvCity::rangeCombatDamage(const CvUnit* pDefender, bool bIncludeRand, const 
 	if (!pDefender->IsCanDefend())
 		return /*40*/ GD_INT_GET(NONCOMBAT_UNIT_RANGED_DAMAGE);
 
+	if (pDefender->getForcedDamageValue() != 0)
+		return pDefender->getForcedDamageValue();
+
 	if (pInPlot == NULL)
 		pInPlot = pDefender->plot();
 
@@ -33090,19 +33093,22 @@ int CvCity::rangeCombatDamage(const CvUnit* pDefender, bool bIncludeRand, const 
 			.mixAssign(iDefenderStrength);
 	}
 
-	return CvUnitCombat::DoDamageMath(
+	return max(0, CvUnitCombat::DoDamageMath(
 		iAttackerStrength,
 		iDefenderStrength,
 		/*2400*/ GD_INT_GET(RANGE_ATTACK_SAME_STRENGTH_MIN_DAMAGE), //ignore the min part, it's misleading
 		/*1200*/ GD_INT_GET(RANGE_ATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE),
 		bIncludeRand,
 		randomSeed,
-		iModifier) / 100;
+		iModifier) / 100 + pDefender->getChangeDamageValue());
 }
 
 //	--------------------------------------------------------------------------------
 int CvCity::GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand) const
 {
+	if (pAttacker && pAttacker->getForcedDamageValue() != 0)
+		return pAttacker->getForcedDamageValue();
+
 	//base value
 	int iBaseValue = 15;
 
@@ -33118,7 +33124,12 @@ int CvCity::GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand
 	}
 
 	if (bIncludeRand)
-		return iBaseValue + GC.getGame().randRangeExclusive(0, 10, plot()->GetPseudoRandomSeed().mix(GET_PLAYER(getOwner()).GetPseudoRandomSeed()));
+	{
+		if (pAttacker)
+			return iBaseValue + GC.getGame().randRangeExclusive(0, 10, plot()->GetPseudoRandomSeed().mix(GET_PLAYER(getOwner()).GetPseudoRandomSeed()));
+		else
+			return iBaseValue + GC.getGame().randRangeExclusive(0, 10, plot()->GetPseudoRandomSeed().mix(GET_PLAYER(getOwner()).GetPseudoRandomSeed()).mix(pAttacker->GetID()));
+	}
 	else
 		return iBaseValue;
 }
