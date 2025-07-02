@@ -970,7 +970,7 @@
 			<Help>TXT_KEY_BUILDING_NILOMETER_HELP</Help>
 			<Strategy>TXT_KEY_BUILDING_NILOMETER_STRATEGY</Strategy>
 			<PrereqTech>TECH_THE_WHEEL</PrereqTech>
-			<FreshWater>true</FreshWater>
+			<River>true</River>
 			<IconAtlas>BUILDING_ATLAS_VP_1</IconAtlas>
 			<PortraitIndex>18</PortraitIndex>
 		</Row>
