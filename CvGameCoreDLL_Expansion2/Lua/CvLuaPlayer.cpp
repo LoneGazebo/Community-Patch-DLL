@@ -1513,6 +1513,8 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 
 	Method(IsInstantYieldNotificationDisabled);
 	Method(SetInstantYieldNotificationDisabled);
+
+	Method(GetCompetitiveSpawnUnitType);
 }
 //------------------------------------------------------------------------------
 void CvLuaPlayer::HandleMissingInstance(lua_State* L)
@@ -18555,5 +18557,41 @@ int CvLuaPlayer::lSetInstantYieldNotificationDisabled(lua_State* L)
 	const bool bNewValue = (InstantYieldType)lua_toboolean(L, 3);
 
 	pkPlayer->SetInstantYieldNotificationDisabled(eInstantYield, bNewValue);
+	return 1;
+}
+
+int CvLuaPlayer::lGetCompetitiveSpawnUnitType(lua_State* L)
+{
+	CvPlayer* pPlayer = GetInstance(L);
+	const bool bIncludeRanged = luaL_optbool(L, 2, false);
+	const bool bIncludeShips = luaL_optbool(L, 3, false);
+	const bool bIncludeRecon = luaL_optbool(L, 4, false);
+	const bool bIncludeUUs = luaL_optbool(L, 5, false);
+	const bool bNoResource = luaL_optbool(L, 6, false);
+	const bool bMinorCivGift = luaL_optbool(L, 7, false);
+	const bool bRandom = luaL_optbool(L, 8, false);
+	vector<int> viUnitCombat;
+	if (!(lua_istable(L, 9) || lua_isnoneornil(L, 9)))
+		return luaL_error(L, "Argument must be table or nil");
+
+	const int iLength = lua_objlen(L, 9);
+	for (int i = 1; i <= iLength; i++)
+	{
+		lua_rawgeti(L, 9, i);
+		const int iUnitCombat = lua_tointeger(L, -1);
+		if (!lua_isnumber(L, -1) || lua_tonumber(L, -1) != iUnitCombat)
+			return luaL_error(L, "Table values must be integers");
+
+		viUnitCombat.push_back(iUnitCombat);
+		lua_pop(L, 1);
+	}
+
+	CvSeeder seed;
+	if (bRandom)
+	{
+		seed = CvSeeder::fromRaw(0x9e13d8cb).mix(pPlayer->getNumMilitaryUnits());
+	}
+	UnitTypes eUnit = pPlayer->GetCompetitiveSpawnUnitType(bIncludeRanged, bIncludeShips, bIncludeRecon, bIncludeUUs, NULL, bNoResource, bMinorCivGift, bRandom, &seed, viUnitCombat);
+	lua_pushinteger(L, eUnit);
 	return 1;
 }

@@ -15272,6 +15272,8 @@ CvUnit* CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor, bool bLocal, bool bExplore
 
 	if (eUnit == NO_UNIT)
 	{
+		// Ensure each CS has a different seed
+		CvSeeder seed = CvSeeder::fromRaw(0x12ba84c3).mix(GetPlayer()->GetID());
 		if (bExplore)
 		{
 			vector<int> viUnitCombat;
@@ -15281,11 +15283,11 @@ CvUnit* CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor, bool bLocal, bool bExplore
 			viUnitCombat.push_back(GC.getInfoTypeForString("UNITCOMBAT_HELICOPTER"));
 			viUnitCombat.push_back(GC.getInfoTypeForString("UNITCOMBAT_NAVALMELEE"));
 			viUnitCombat.push_back(GC.getInfoTypeForString("UNITCOMBAT_NAVALRANGED"));
-			eUnit = kMajor.GetCompetitiveSpawnUnitType(true, true, true, false, NULL, false, true, true, NULL, viUnitCombat);
+			eUnit = kMajor.GetCompetitiveSpawnUnitType(true, true, true, false, NULL, false, true, true, &seed, viUnitCombat);
 		}
 		else
 		{
-			eUnit = kMajor.GetCompetitiveSpawnUnitType(true, bBoatsAllowed, false, false, NULL, false, true, true);
+			eUnit = kMajor.GetCompetitiveSpawnUnitType(true, bBoatsAllowed, false, false, NULL, false, true, true, &seed);
 		}
 	}
 

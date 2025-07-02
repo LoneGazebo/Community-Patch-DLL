@@ -784,7 +784,7 @@ protected:
 	static int lGetYieldFromDevelopment(lua_State* L);
 	static int lSetYieldFromDevelopment(lua_State* L);
 
-	
+	LUAAPIEXTN(GetCompetitiveSpawnUnitType, int, bIncludeRanged, bIncludeShips, bIncludeRecon, bIncludeUUs, bNoResource, bMinorCivGift, bRandom, tUnitCombatIDs);
 #endif
 };
 
