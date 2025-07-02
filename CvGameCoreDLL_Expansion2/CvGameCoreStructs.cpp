@@ -185,7 +185,6 @@ CvCombatInfo::CvCombatInfo() :
 		m_pCities[i] = NULL;
 		m_iFinalDamage[i] = 0;
 		m_iDamageInflicted[i] = 0;
-		m_iFearDamageInflicted[i] = 0;
 		m_iExperienceChange[i] = 0;
 		m_iMaxExperienceAllowed[i] = 0;
 		m_bInBorders[i] = false;
@@ -215,7 +214,6 @@ CvCombatInfo& CvCombatInfo::operator=(const CvCombatInfo& rhs)
 
 		m_iFinalDamage[i] = rhs.m_iFinalDamage[i];
 		m_iDamageInflicted[i] = rhs.m_iDamageInflicted[i];
-		m_iFearDamageInflicted[i] = rhs.m_iFearDamageInflicted[i];
 
 		m_iExperienceChange[i] = rhs.m_iExperienceChange[i];
 		m_iMaxExperienceAllowed[i] = rhs.m_iMaxExperienceAllowed[i];
@@ -404,18 +402,6 @@ void CvCombatInfo::setFinalDamage(BattleUnitTypes unitType, int iFinalDamage)
 {
 	checkBattleUnitType(unitType);
 	m_iFinalDamage[unitType] = iFinalDamage;
-}
-
-
-int CvCombatInfo::getFearDamageInflicted(BattleUnitTypes unitType) const
-{
-	checkBattleUnitType(unitType);
-	return m_iFearDamageInflicted[unitType];
-}
-void CvCombatInfo::setFearDamageInflicted(BattleUnitTypes unitType, int iDamage)
-{
-	checkBattleUnitType(unitType);
-	m_iFearDamageInflicted[unitType] = iDamage;
 }
 
 int CvCombatInfo::getExperience(BattleUnitTypes unitType) const

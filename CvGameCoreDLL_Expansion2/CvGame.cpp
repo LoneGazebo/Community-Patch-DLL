@@ -13468,7 +13468,8 @@ CombatPredictionTypes CvGame::GetCombatPrediction(const CvUnit* pAttackingUnit, 
 	int iRangedSupportDamageInflicted = 0;
 	if (pAttackingUnit->isRangedSupportFire()) 
 	{
-		iRangedSupportDamageInflicted = pAttackingUnit->GetRangeCombatDamage(pDefendingUnit, NULL, false);
+		int iUnusedReferenceVariable = 0;
+		iRangedSupportDamageInflicted = pAttackingUnit->GetRangeCombatDamage(pDefendingUnit, NULL, 0, iUnusedReferenceVariable, false);
 	}
 
 	int iAttackingStrength = pAttackingUnit->GetMaxAttackStrength(pFromPlot, pToPlot, pDefendingUnit, false, false);
@@ -13479,9 +13480,8 @@ CombatPredictionTypes CvGame::GetCombatPrediction(const CvUnit* pAttackingUnit, 
 
 	int iDefenderStrength = pDefendingUnit->GetMaxDefenseStrength(pToPlot, pAttackingUnit, pFromPlot, false, false, iRangedSupportDamageInflicted);
 
-	//iMyDamageInflicted = pMyUnit:GetCombatDamage(iMyStrength, iTheirStrength, pMyUnit:GetDamage() + iTheirFireSupportCombatDamage, false, false, false);
-	int iAttackingDamageInflicted = pAttackingUnit->getCombatDamage(iAttackingStrength, iDefenderStrength, false, false, false);
-	int iDefenderDamageInflicted  = pDefendingUnit->getCombatDamage(iDefenderStrength, iAttackingStrength, false, false, false);
+	int iDefenderDamageInflicted = 0; // passed by reference
+	int iAttackingDamageInflicted = pAttackingUnit->getMeleeCombatDamage(iAttackingStrength, iDefenderStrength, iDefenderDamageInflicted, false, pDefendingUnit, iRangedSupportDamageInflicted);
 	//iTheirDamageInflicted = iTheirDamageInflicted + iTheirFireSupportCombatDamage;
 
 	int iAttackerMaxHitPoints = pAttackingUnit->GetMaxHitPoints();

@@ -403,15 +403,19 @@ function UpdateCombatSimulator(pMyUnit, pTheirUnit, pMyCity, pTheirCity)
 				iTheirStrength = pTheirUnit:GetMaxDefenseStrength(pToPlot, pMyUnit, pFromPlot, false, iMyRangedSupportDamageInflicted);
 
 				iWithdrawChance = pTheirUnit:GetWithdrawChance(pMyUnit);
+				
+				if (iMyRangedSupportDamageInflicted > pTheirUnit:GetCurrHitPoints()) then
+					-- defender killed by RangedSupportFire, no melee combat necessary
+					iMyDamageInflicted = iMyRangedSupportDamageInflicted
+				else
+					iMyDamageInflicted, iTheirDamageInflicted = pMyUnit:GetMeleeCombatDamage(iMyStrength, iTheirStrength, false, pTheirUnit, iMyRangedSupportDamageInflicted);
+					iMyDamageInflicted = iMyDamageInflicted + iMyRangedSupportDamageInflicted;
+				end
+			else
+				-- attack on city
+				iMyDamageInflicted, iTheirDamageInflicted = pMyUnit:GetMeleeCombatDamageCity(iMyStrength, pTheirCity, false);
 			end
 
-			iMyDamageInflicted = pMyUnit:GetCombatDamage(iMyStrength, iTheirStrength, nil, false, false, not not pTheirCity, pTheirCity);
-			iMyDamageInflicted = iMyDamageInflicted + iMyRangedSupportDamageInflicted;
-
-			-- Embarked unit cannot deal damage
-			if not (pTheirUnit and pTheirUnit:IsEmbarked()) then
-				iTheirDamageInflicted = pMyUnit:GetCombatDamage(iTheirStrength, iMyStrength, nil, false, not not pTheirCity, false);
-			end
 		end
 	end
 
