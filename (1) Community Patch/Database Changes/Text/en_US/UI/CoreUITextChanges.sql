@@ -185,7 +185,7 @@ SET Text = '[COLOR_CYAN]Capture chance if defeated[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_EUPANEL_CAPTURE_CHANCE';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_WARNING_TEXT]{1_Number} Interceptors![ENDCOLOR]'
+SET Text = '[COLOR_WARNING_TEXT]{1_Number} known {1_Number: plural 1?Interceptor; other?Interceptors;}![ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_EUPANEL_VISIBLE_AA_UNITS';
 
 ------------------------------------------------

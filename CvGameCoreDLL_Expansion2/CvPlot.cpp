@@ -3616,7 +3616,7 @@ CvUnit* CvPlot::GetBestInterceptor(PlayerTypes eAttackingPlayer, const CvUnit* p
 		for (std::vector<std::pair<int, int>>::const_iterator it = possibleUnits.begin(); it != possibleUnits.end(); ++it)
 		{
 			CvPlot* pInterceptorPlot = GC.getMap().plotByIndexUnchecked(it->second);
-			if (bVisibleInterceptorsOnly && !pInterceptorPlot->isVisible(getTeam()))
+			if (bVisibleInterceptorsOnly && !pInterceptorPlot->isVisible(GET_PLAYER(eAttackingPlayer).getTeam()))
 				continue;
 
 			//first a very rough distance check to avoid expensive unit lookup
