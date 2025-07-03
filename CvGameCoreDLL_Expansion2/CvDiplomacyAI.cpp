@@ -8954,8 +8954,8 @@ bool CvDiplomacyAI::IsTooSoonForMoveTroopsRequest(PlayerTypes ePlayer) const
 	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->MadeMilitaryPromise(GetID()))
 		return true;
 
-	// Can't ask this of your teammate, vassal or master
-	if (IsTeammate(ePlayer) || IsVassal(ePlayer) || IsMaster(ePlayer))
+	// Can't ask this of your teammate
+	if (IsTeammate(ePlayer))
 		return true;
 
 	// Observer can't ask this
@@ -8966,8 +8966,9 @@ bool CvDiplomacyAI::IsTooSoonForMoveTroopsRequest(PlayerTypes ePlayer) const
 	if (IsAtWar(ePlayer))
 		return true;
 
-	// Can't ask this if the AI can't declare war
-	if (!GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(ePlayer).getTeam(), GetID()))
+	// We must be able to declare war on each other - in both directions, since the promise is mutual
+	TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
+	if (!GET_TEAM(eTeam).canDeclareWar(GetTeam(), ePlayer) || !GET_TEAM(GetTeam()).canDeclareWar(eTeam, GetID()))
 		return true;
 
 	// Exploit avoidance: No giving humans indirect backstabbing penalties
@@ -33478,16 +33479,9 @@ void CvDiplomacyAI::DoAggressiveMilitaryStatement(PlayerTypes ePlayer, DiploStat
 		if (GetMilitaryPromiseState(ePlayer) > NO_PROMISE_STATE)
 			return;
 
-		// If they're our master, don't threaten
-		if (IsVassal(ePlayer))
-			return;
-
-		// If we're a vassal and the other player is an AI, don't send the statement
-		if (!GET_PLAYER(ePlayer).isHuman() && GET_TEAM(GetTeam()).IsVassalOfSomeone())
-			return;
-
-		// They must be able to declare war on us
-		if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canDeclareWar(GetTeam(), ePlayer))
+		// We must be able to declare war on each other - in both directions, since the promise is mutual
+		TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
+		if (!GET_TEAM(eTeam).canDeclareWar(GetTeam(), ePlayer) || !GET_TEAM(GetTeam()).canDeclareWar(eTeam, GetID()))
 			return;
 
 		// They're HIGH or INCREDIBLE this turn
