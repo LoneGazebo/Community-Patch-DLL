@@ -23886,7 +23886,6 @@ void CvPlayer::setHasPolicy(PolicyTypes eIndex, bool bNewValue, bool bFree)
 	{
 		m_pPlayerPolicies->SetPolicy(eIndex, bNewValue, bFree);
 		processPolicies(eIndex, bNewValue ? 1 : -1);
-		GetPlayerPolicies()->ClearCache();
 	}
 }
 
@@ -42218,6 +42217,77 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	GetCorporations()->ChangeAdditionalNumFranchises(pkPolicyInfo->GetAdditionalNumFranchises() * iChange);
 	GetCorporations()->ChangeNoForeignCorpsInCities(pkPolicyInfo->IsNoForeignCorpsInCities() * iChange);
 	GetCorporations()->ChangeNoFranchisesInForeignCities(pkPolicyInfo->IsNoForeignCorpsInCities() * iChange);
+
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_EXTRA_HAPPINESS, pkPolicyInfo->GetExtraHappiness() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_EXTRA_HAPPINESS_PER_CITY, pkPolicyInfo->GetExtraHappinessPerCity() * iChange);
+#if defined(HH_MOD_NATURAL_WONDER_MODULARITY)
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_EXTRA_NATURALWONDER_HAPPINESS, pkPolicyInfo->GetExtraNaturalWonderHappiness() * iChange);
+#endif
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_GREAT_PERSON_RATE, pkPolicyInfo->GetGreatPeopleRateModifier() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_GREAT_GENERAL_RATE, pkPolicyInfo->GetGreatGeneralRateModifier() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_GREAT_ADMIRAL_RATE, pkPolicyInfo->GetGreatAdmiralRateModifier() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_GREAT_WRITER_RATE, pkPolicyInfo->GetGreatWriterRateModifier() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_GREAT_ARTIST_RATE, pkPolicyInfo->GetGreatArtistRateModifier() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_GREAT_MUSICIAN_RATE, pkPolicyInfo->GetGreatMusicianRateModifier() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_GREAT_MERCHANT_RATE, pkPolicyInfo->GetGreatMerchantRateModifier() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_GREAT_ENGINEER_RATE, pkPolicyInfo->GetGreatEngineerRateModifier() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_STEAL_GW_SLOWER_MODIFIER, pkPolicyInfo->GetStealGWSlowerModifier() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_STEAL_GW_FASTER_MODIFIER, pkPolicyInfo->GetStealGWFasterModifier() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_CITY_DEFENSE_BOOST, pkPolicyInfo->GetDefenseBoost() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_GREAT_DIPLOMAT_RATE, pkPolicyInfo->GetGreatDiplomatRateModifier() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_GREAT_SCIENTIST_RATE, pkPolicyInfo->GetGreatScientistRateModifier() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_DOMESTIC_GREAT_GENERAL_RATE, pkPolicyInfo->GetDomesticGreatGeneralRateModifier() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_GAP_FROM_HAPPINESS_MODIFIER, pkPolicyInfo->GetGAPFromHappinessModifier() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_POLICY_COST_MODIFIER, pkPolicyInfo->GetPolicyCostModifier() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_WONDER_PRODUCTION_MODIFIER, pkPolicyInfo->GetWonderProductionModifier() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_BUILDING_PRODUCTION_MODIFIER, pkPolicyInfo->GetBuildingProductionModifier() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_FREE_EXPERIENCE, pkPolicyInfo->GetFreeExperience() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_EXTRA_CULTURE_FROM_IMPROVEMENTS, pkPolicyInfo->GetCultureImprovementChange() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_CULTURE_FROM_KILLS, pkPolicyInfo->GetCultureFromKills() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_EMBARKED_EXTRA_MOVES, pkPolicyInfo->GetEmbarkedExtraMoves() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_CULTURE_FROM_BARBARIAN_KILLS, pkPolicyInfo->GetCultureFromBarbarianKills() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_GOLD_FROM_KILLS, pkPolicyInfo->GetGoldFromKills() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_CULTURE_FROM_GARRISON, pkPolicyInfo->GetCulturePerGarrisonedUnit() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_UNIT_FREQUENCY_MODIFIER, pkPolicyInfo->GetCityStateUnitFrequencyModifier() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_TOURISM_MOD_COMMON_FOE, pkPolicyInfo->GetCommonFoeTourismModifier() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_TOURISM_MOD_LESS_HAPPY, pkPolicyInfo->GetLessHappyTourismModifier() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_TOURISM_MOD_SHARED_IDEOLOGY, pkPolicyInfo->GetSharedIdeologyTourismModifier() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_TRADE_MISSION_GOLD_MODIFIER, pkPolicyInfo->GetTradeMissionGoldModifier() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_FAITH_COST_MODIFIER, pkPolicyInfo->GetFaithCostModifier() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_CULTURAL_PLUNDER_MULTIPLIER, pkPolicyInfo->GetCulturalPlunderMultiplier() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_STEAL_TECH_SLOWER_MODIFIER, pkPolicyInfo->GetStealTechSlowerModifier() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_CATCH_SPIES_MODIFIER, pkPolicyInfo->GetCatchSpiesModifier() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_BUILDING_PURCHASE_COST_MODIFIER, pkPolicyInfo->GetBuildingPurchaseCostModifier() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_LAND_TRADE_GOLD_CHANGE, pkPolicyInfo->GetLandTradeRouteGoldChange() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_SEA_TRADE_GOLD_CHANGE, pkPolicyInfo->GetSeaTradeRouteGoldChange() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_SHARED_IDEOLOGY_TRADE_CHANGE, pkPolicyInfo->GetSharedIdeologyTradeGoldChange() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_RIGGING_ELECTION_MODIFIER, pkPolicyInfo->GetRiggingElectionModifier() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_RIG_ELECTION_INFLUENCE_MODIFIER, pkPolicyInfo->GetRigElectionInfluenceModifier() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_PASSIVE_ESPIONAGE_MODIFIER, pkPolicyInfo->GetPassiveEspionageBonusModifier() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_MILITARY_UNIT_GIFT_INFLUENCE, pkPolicyInfo->GetMilitaryUnitGiftExtraInfluence() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_PROTECTED_MINOR_INFLUENCE, pkPolicyInfo->GetProtectedMinorPerTurnInfluence() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_AFRAID_INFLUENCE, pkPolicyInfo->GetAfraidMinorPerTurnInfluence() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_MINOR_BULLY_SCORE_MODIFIER, pkPolicyInfo->GetMinorBullyScoreModifier() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_THEMING_BONUS, pkPolicyInfo->GetThemingBonusMultiplier() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_CITY_STATE_TRADE_CHANGE, pkPolicyInfo->GetCityStateTradeChange() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_INTERNAL_TRADE_MODIFIER, pkPolicyInfo->GetInternalTradeRouteYieldModifier() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_INTERNAL_TRADE_CAPITAL_MODIFIER, pkPolicyInfo->GetInternalTradeRouteYieldModifierCapital() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_TRADE_CAPITAL_MODIFIER, pkPolicyInfo->GetTradeRouteYieldModifierCapital() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_TRADE_MODIFIER, pkPolicyInfo->GetTradeRouteYieldModifier() * iChange);
+	for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
+	{
+		GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_LIBERATION_BONUS, pkPolicyInfo->GetYieldForLiberation(iYield) * iChange);
+	}
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_LIBERATION_BONUS, pkPolicyInfo->GetInfluenceForLiberation() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_LIBERATION_BONUS, pkPolicyInfo->GetExperienceForLiberation() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_PUPPET_BONUS, pkPolicyInfo->GetPuppetProdMod() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_PUPPET_BONUS, pkPolicyInfo->GetPuppetYieldPenaltyMod() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_SHARED_RELIGION_TOURISM_MODIFIER, pkPolicyInfo->GetSharedReligionTourismModifier() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_TRADE_ROUTE_TOURISM_MODIFIER, pkPolicyInfo->GetTradeRouteTourismModifier() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_OPEN_BORDERS_TOURISM_MODIFIER, pkPolicyInfo->GetOpenBordersTourismModifier() * iChange);
+#if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_CONVERSION_MODIFIER, pkPolicyInfo->GetConversionModifier() * iChange);
+#endif
 
 	// Improvements
 	for (int iI = 0; iI < GC.getNumImprovementInfos(); iI++)
