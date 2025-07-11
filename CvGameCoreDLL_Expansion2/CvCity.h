@@ -306,20 +306,24 @@ public:
 
 	int GetYieldPerXTerrainFromBuildingsTimes100(TerrainTypes eTerrain, YieldTypes eYield) const;
 	void ChangeYieldPerXTerrainFromBuildingsTimes100(TerrainTypes eTerrain, YieldTypes eYield, int iChange);
-	int GetYieldPerXTerrain(TerrainTypes eTerrain, YieldTypes eYield) const;
-	void SetYieldPerXTerrain(TerrainTypes eTerrain, YieldTypes eYield, int iValue);
+	int GetYieldPerXTerrainTimes100(TerrainTypes eTerrain, YieldTypes eYield) const;
+	void SetYieldPerXTerrainTimes100(TerrainTypes eTerrain, YieldTypes eYield, int iValue);
+	int GetTotalYieldFromTerrainsTimes100(YieldTypes eYield) const;
 	void UpdateYieldPerXTerrain(YieldTypes eYield, TerrainTypes eTerrain = NO_TERRAIN);
 
-	int GetYieldPerXTerrainFromReligion(TerrainTypes eTerrain, YieldTypes eYield) const;
-	void SetYieldPerXTerrainFromReligion(TerrainTypes eTerrain, YieldTypes eYield, int iValue);
+	int GetYieldPerXTerrainFromReligionTimes100(TerrainTypes eTerrain, YieldTypes eYield) const;
+	void SetYieldPerXTerrainFromReligionTimes100(TerrainTypes eTerrain, YieldTypes eYield, int iValue);
 	void UpdateYieldPerXTerrainFromReligion(YieldTypes eYield, TerrainTypes eTerrain = NO_TERRAIN);
+	int GetTotalYieldFromTerrainReligionTimes100(YieldTypes eYield) const;
 
 	int GetYieldPerXFeatureFromBuildingsTimes100(FeatureTypes eFeature, YieldTypes eYield) const;
 	void ChangeYieldPerXFeatureFromBuildingsTimes100(FeatureTypes eFeature, YieldTypes eYield, int iChange);
-	int GetYieldPerXFeature(FeatureTypes eFeature, YieldTypes eYield) const;
-	void SetYieldPerXFeature(FeatureTypes eFeature, YieldTypes eYield, int iValue);
-	int GetYieldPerXFeatureFromReligion(FeatureTypes eFeature, YieldTypes eYield) const;
-	void SetYieldPerXFeatureFromReligion(FeatureTypes eFeature, YieldTypes eYield, int iValue);
+	int GetYieldPerXFeatureTimes100(FeatureTypes eFeature, YieldTypes eYield) const;
+	void SetYieldPerXFeatureTimes100(FeatureTypes eFeature, YieldTypes eYield, int iValue);
+	int GetTotalYieldFromFeaturesTimes100(YieldTypes eYield) const;
+	int GetYieldPerXFeatureFromReligionTimes100(FeatureTypes eFeature, YieldTypes eYield) const;
+	void SetYieldPerXFeatureFromReligionTimes100(FeatureTypes eFeature, YieldTypes eYield, int iValue);
+	int GetTotalYieldFromFeatureReligionTimes100(YieldTypes eYield) const;
 	void UpdateYieldPerXFeature(YieldTypes eYield, FeatureTypes eFeature = NO_FEATURE);
 
 	void UpdateYieldPerXUnimprovedFeature(YieldTypes eYield);
