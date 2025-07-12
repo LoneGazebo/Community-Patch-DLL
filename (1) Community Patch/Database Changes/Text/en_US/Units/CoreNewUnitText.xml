@@ -2173,7 +2173,7 @@
 			<Text>Gulab Mohanlal Hiranandani</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GREAT_PERSON_B__760">
-			<Text>Sergei Gorshkov</Text>
+			<Text>Gladys Mbulaheni</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GREAT_PERSON_B__770">
 			<Text>Osami Nagano</Text>
@@ -2210,9 +2210,6 @@
 		</Row>
 		<Row Tag="TXT_KEY_GREAT_PERSON_B__880">
 			<Text>Bob Auchterlonie</Text>
-		</Row>
-		<Row Tag="TXT_KEY_GREAT_PERSON_B__890">
-			<Text>Gladys Mbulaheni</Text>
 		</Row>
 	</Language_en_US>
 </GameData>
