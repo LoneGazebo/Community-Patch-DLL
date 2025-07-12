@@ -34,6 +34,7 @@
 
 class CvArea;
 class CvLandmass;
+class CvContinent;
 class CvRiver;
 class CvRoute;
 
@@ -346,6 +347,10 @@ public:
 	CvLandmass* landmass() const;
 	std::vector<int> getAllAdjacentLandmasses() const;
 	bool hasSharedAdjacentLandmass(const CvPlot* pOther, bool bAllowLand, bool bAllowWater) const;
+
+	CvContinent* continent() const;
+	inline int getContinent() const { return m_iContinent; }
+	void setContinent(int iNewValue);
 
 	int GetRiverID(DirectionTypes eDirection) const;
 	void SetRiverID(DirectionTypes eDirection, int iRiverID);
@@ -966,6 +971,7 @@ protected:
 
 	short m_iArea;
 	short m_iLandmass;
+	short m_iContinent;
 	short m_iOwnershipDuration;
 	short m_iImprovementDuration;
 	short m_iUpgradeProgress;

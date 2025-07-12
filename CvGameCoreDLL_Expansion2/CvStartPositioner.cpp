@@ -54,7 +54,7 @@ void CvStartPositioner::DivideMapIntoRegions(int iNumRegions)
 	int iNumRegionsPlaced = 0;
 
 	// Initialize
-	m_ContinentVector.clear();
+	m_potentialStartingAreaVector.clear();
 	m_StartRegionVector.clear();
 
 	// Compute fertility for each plot
@@ -66,30 +66,30 @@ void CvStartPositioner::DivideMapIntoRegions(int iNumRegions)
 		// Throw out oceans and desert islands
 		if (pLoopArea->getNumTiles() >= /*4*/ GD_INT_GET(MIN_START_AREA_TILES))
 		{
-			CvContinent continent;
-			continent.SetFertility(pLoopArea->getTotalFoundValue());
-			continent.SetArea(pLoopArea->GetID());
-			m_ContinentVector.push_back(continent);
+			CvPotentialStartingArea potentialStartingArea;
+			potentialStartingArea.SetFertility(pLoopArea->getTotalFoundValue());
+			potentialStartingArea.SetArea(pLoopArea->GetID());
+			m_potentialStartingAreaVector.push_back(potentialStartingArea);
 		}
 	}
 
-	if(m_ContinentVector.size() > 0)
+	if(m_potentialStartingAreaVector.size() > 0)
 	{
 		// Assign all the regions to continents
 		while(iNumRegionsPlaced < iNumRegions)
 		{
-			std::stable_sort(m_ContinentVector.begin(), m_ContinentVector.end());
+			std::stable_sort(m_potentialStartingAreaVector.begin(), m_potentialStartingAreaVector.end());
 
 			// Add a region to the first in our list
-			m_ContinentVector[0].AddRegion();
+			m_potentialStartingAreaVector[0].AddRegion();
 			iNumRegionsPlaced++;
 		}
 	}
 
 	// Divide the continents according to our algorithm
-	for(unsigned int iI=0; iI < m_ContinentVector.size(); iI++)
+	for(unsigned int iI=0; iI < m_potentialStartingAreaVector.size(); iI++)
 	{
-		DivideContinentIntoRegions(m_ContinentVector[iI]);
+		DividePotentialStartingAreaIntoRegions(m_potentialStartingAreaVector[iI]);
 	}
 
 	// Sort the regions by fertility
@@ -321,22 +321,22 @@ int CvStartPositioner::GetRegion(int iX, int iY)
 // PRIVATE METHODS
 
 /// Compute the fertility of each tile on the map
-void CvStartPositioner::DivideContinentIntoRegions(const CvContinent& continent)
+void CvStartPositioner::DividePotentialStartingAreaIntoRegions(const CvPotentialStartingArea& potentialStartingArea)
 {
-	// Create a start region out of the entire continent
+	// Create a start region out of the entire area
 	CvStartRegion region;
-	region.m_uiFertility = continent.GetFertility();
-	region.m_iAreaID = continent.GetArea();
-	region.m_Boundaries = GC.getMap().getAreaById(continent.GetArea())->getAreaBoundaries();
+	region.m_uiFertility = potentialStartingArea.GetFertility();
+	region.m_iAreaID = potentialStartingArea.GetArea();
+	region.m_Boundaries = GC.getMap().getAreaById(potentialStartingArea.GetArea())->getAreaBoundaries();
 
-	// Make sure this is a continent that is getting a start region
-	if(continent.GetNumRegions() > 0)
+	// Make sure this is an area that is getting a start region
+	if(potentialStartingArea.GetNumRegions() > 0)
 	{
 		// If so, call recursive routine to subdivide it appropriately
-		SubdivideRegion(region, continent.GetNumRegions());
+		SubdivideRegion(region, potentialStartingArea.GetNumRegions());
 	}
 
-	// If the continent is too small for a major civ, it still could be useful for a minor
+	// If the area is too small for a major civ, it still could be useful for a minor
 	else
 	{
 		region.m_bLargeEnoughForMajorCiv = false;

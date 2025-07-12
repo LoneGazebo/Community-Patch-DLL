@@ -174,6 +174,7 @@ protected:
 	static int lGetArea(lua_State* L);
 	static int lSetArea(lua_State* L);
 	static int lGetLandmass(lua_State* L);
+	static int lGetContinent(lua_State* L);
 	static int lGetFeatureVariety(lua_State* L);
 
 	static int lGetOwnershipDuration(lua_State* L);

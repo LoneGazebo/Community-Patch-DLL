@@ -11,17 +11,17 @@
 #define CIV5_START_POSITIONER_H
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//  CLASS:      CvContinent
+//  CLASS:      CvPotentialStartingArea
 //!  \brief		A map area that might be the start area for one or more civs
 //
 //!  Key Attributes:
 //!  - Created by CvStartPositioner
 //!  - Used to decide how many civs are allocated to this continent
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-class CvContinent
+class CvPotentialStartingArea
 {
 public:
-	CvContinent()
+	CvPotentialStartingArea()
 	{
 		m_uiFertility = 0;
 		m_iRegionsAssigned = 0;
@@ -29,7 +29,7 @@ public:
 		m_iAreaID = -1;
 	}
 
-	CvContinent(const CvContinent& source)
+	CvPotentialStartingArea(const CvPotentialStartingArea& source)
 	{
 		m_uiFertility = source.m_uiFertility;
 		m_iRegionsAssigned = source.m_iRegionsAssigned;
@@ -37,9 +37,9 @@ public:
 		m_iAreaID = source.m_iAreaID;
 	}
 
-	bool operator<(const CvContinent& continent) const
+	bool operator<(const CvPotentialStartingArea& potentialStartingArea) const
 	{
-		return (m_uiFertilityNextRegion > continent.m_uiFertilityNextRegion);
+		return (m_uiFertilityNextRegion > potentialStartingArea.m_uiFertilityNextRegion);
 	}
 
 	void AddRegion()
@@ -202,7 +202,7 @@ private:
 	void AssignStartingLocations();
 	int GetRegion(int iX, int iY);
 
-	void DivideContinentIntoRegions(const CvContinent& continent);
+	void DividePotentialStartingAreaIntoRegions(const CvPotentialStartingArea& potentialStartingArea);
 	void ComputeTileFertilityValues();
 	void SubdivideRegion(CvStartRegion region, int numDivisions);
 	void ChopIntoTwoRegions(bool bTaller, CvStartRegion* region, CvStartRegion* secondRegion, int iChopPercent);
@@ -218,7 +218,7 @@ private:
 	CvCitySiteEvaluator* m_pSiteEvaluator;
 
 	// Internal data
-	vector<CvContinent> m_ContinentVector;
+	vector<CvPotentialStartingArea> m_potentialStartingAreaVector;
 	vector<CvStartRegion> m_StartRegionVector;
 	int m_iRequiredSeparation;
 	int m_iBestFoundValueOnMap;
