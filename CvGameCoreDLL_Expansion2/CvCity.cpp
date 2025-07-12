@@ -531,6 +531,8 @@ CvCity::CvCity() :
 	, m_iNoTourismTurns()
 	, m_iPlagueType()
 	, m_iLoyaltyCounter()
+	, m_bHasFreeCultureBuilding()
+	, m_bHasFreeFoodBuilding()
 	, m_iDisloyaltyCounter()
 	, m_iLoyaltyStateType()
 	, m_aiYieldModifierFromHappiness()
@@ -1729,6 +1731,8 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iNoTourismTurns = 0;
 	m_iPlagueType = -1;
 	m_iLoyaltyCounter = 0;
+	m_bHasFreeCultureBuilding = false;
+	m_bHasFreeFoodBuilding = false;
 	m_iDisloyaltyCounter = 0;
 	m_iLoyaltyStateType = 0;
 	m_bIsPendingCapture = false;
@@ -32294,6 +32298,8 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_iBuildingProductionBlockedTurns);
 	visitor(city.m_iNoTourismTurns);
 	visitor(city.m_iLoyaltyCounter);
+	visitor(city.m_bHasFreeCultureBuilding);
+	visitor(city.m_bHasFreeFoodBuilding);
 	visitor(city.m_iDisloyaltyCounter);
 	visitor(city.m_iLoyaltyStateType);
 	visitor(city.m_aiYieldModifierFromHappiness);
@@ -35522,6 +35528,23 @@ int CvCity::SpawnPlayerUnitsNearby(const PlayerTypes ePlayer, const int iNumber,
 	}
 
 	return iNumUnitSpawned;
+}
+
+bool CvCity::HasFreeCultureBuilding() const
+{
+	return m_bHasFreeCultureBuilding;
+}
+void CvCity::SetHasFreeCultureBuilding(bool bNewValue)
+{
+	m_bHasFreeCultureBuilding = bNewValue;
+}
+bool CvCity::HasFreeFoodBuilding() const
+{
+	return m_bHasFreeFoodBuilding;
+}
+void CvCity::SetHasFreeFoodBuilding(bool bNewValue)
+{
+	m_bHasFreeFoodBuilding = bNewValue;
 }
 
 // If existing number of free buildings < iValue, convert existing non-free buildings to free versions and give refund (if applicable)
