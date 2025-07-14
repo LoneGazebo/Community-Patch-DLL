@@ -13287,7 +13287,7 @@ void CvPlayer::AwardFreeBuildings(CvCity* pCity)
 	bool bRefund = MOD_BALANCE_VP;
 	bool bValidate = MOD_BALANCE_VP;
 	int iNumFreeCultureBuildings = GetNumCitiesFreeCultureBuilding();
-	if (iNumFreeCultureBuildings > 0)
+	if (iNumFreeCultureBuildings > 0 && !pCity->HasFreeCultureBuilding())
 	{
 		BuildingTypes eBuilding = pCity->ChooseFreeCultureBuilding();
 		bool bOwedBuilding = true;
@@ -13295,14 +13295,16 @@ void CvPlayer::AwardFreeBuildings(CvCity* pCity)
 		{
 			if (pCity->SetNumFreeBuilding(eBuilding, 1, bRefund, bValidate))
 				bOwedBuilding = false;
+
+			pCity->SetOwedCultureBuilding(bOwedBuilding);
+			ChangeNumCitiesFreeCultureBuilding(-1);
+			pCity->SetHasFreeCultureBuilding(true);
 		}
 
-		pCity->SetOwedCultureBuilding(bOwedBuilding);
-		ChangeNumCitiesFreeCultureBuilding(-1);
 	}
 
 	int iNumFreeFoodBuildings = GetNumCitiesFreeFoodBuilding();
-	if (iNumFreeFoodBuildings > 0)
+	if (iNumFreeFoodBuildings > 0 && !pCity->HasFreeFoodBuilding())
 	{
 		BuildingTypes eBuilding = pCity->ChooseFreeFoodBuilding();
 		bool bOwedBuilding = true;
@@ -13310,10 +13312,12 @@ void CvPlayer::AwardFreeBuildings(CvCity* pCity)
 		{
 			if (pCity->SetNumFreeBuilding(eBuilding, 1, bRefund, bValidate))
 				bOwedBuilding = false;
+
+			pCity->SetOwedFoodBuilding(bOwedBuilding);
+			ChangeNumCitiesFreeFoodBuilding(-1);
+			pCity->SetHasFreeFoodBuilding(true);
 		}
 
-		pCity->SetOwedFoodBuilding(bOwedBuilding);
-		ChangeNumCitiesFreeFoodBuilding(-1);
 	}
 }
 
