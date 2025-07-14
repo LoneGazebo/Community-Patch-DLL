@@ -3664,6 +3664,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	}
 
 	int iNumTerrainInfos = GC.getNumTerrainInfos();
+	int iFlatYieldTimes100 = 0;
 	for (int iI = 0; iI < iNumTerrainInfos; iI++)
 	{
 		TerrainTypes eTerrain = (TerrainTypes)iI;
@@ -3672,7 +3673,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 
 		int iCount = plotStats.vTerrainCount[iI];
 		iFlatYield += (iCount * pkBuildingInfo->GetTerrainYieldChange(eTerrain, eYield));
-		iFlatYield += (iCount * pkBuildingInfo->GetYieldPerXTerrain(eTerrain, eYield)) / 100;
+		iFlatYieldTimes100 += (iCount * pkBuildingInfo->GetYieldPerXTerrain(eTerrain, eYield));
 	}
 
 	int iNumFeatureInfos = GC.getNumFeatureInfos();
@@ -3684,8 +3685,9 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 		
 		int iCount = plotStats.vFeatureCount[iI];
 		iFlatYield += (iCount * pkBuildingInfo->GetFeatureYieldChange(eFeature, eYield));
-		iFlatYield += (iCount * pkBuildingInfo->GetYieldPerXFeature(eFeature, eYield)) / 100;
+		iFlatYieldTimes100 += (iCount * pkBuildingInfo->GetYieldPerXFeature(eFeature, eYield));
 	}
+	iFlatYield += iFlatYieldTimes100 / 100;
 
 	int iNumResourceInfos = GC.getNumResourceInfos();
 	for (int iI = 0; iI < iNumResourceInfos; iI++)

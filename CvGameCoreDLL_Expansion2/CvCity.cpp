@@ -17862,7 +17862,7 @@ void CvCity::ChangeYieldPerXTerrainFromBuildingsTimes100(TerrainTypes eTerrain, 
 }
 //	--------------------------------------------------------------------------------
 //	total yield due to all instances of Terrain
-int CvCity::GetYieldPerXTerrain(TerrainTypes eTerrain, YieldTypes eYield) const
+int CvCity::GetYieldPerXTerrainTimes100(TerrainTypes eTerrain, YieldTypes eYield) const
 {
 	VALIDATE_OBJECT();
 	ASSERT_DEBUG(eTerrain > -1 && eTerrain < GC.getNumTerrainInfos(), "Invalid Terrain index.");
@@ -17871,7 +17871,7 @@ int CvCity::GetYieldPerXTerrain(TerrainTypes eTerrain, YieldTypes eYield) const
 	return ModifierLookup(m_yieldChanges[eYield].forXTerrain, eTerrain);
 }
 //	--------------------------------------------------------------------------------
-void CvCity::SetYieldPerXTerrain(TerrainTypes eTerrain, YieldTypes eYield, int iValue)
+void CvCity::SetYieldPerXTerrainTimes100(TerrainTypes eTerrain, YieldTypes eYield, int iValue)
 {
 	VALIDATE_OBJECT();
 	ASSERT_DEBUG(eTerrain > -1 && eTerrain < GC.getNumTerrainInfos(), "Invalid Terrain index.");
@@ -17881,11 +17881,21 @@ void CvCity::SetYieldPerXTerrain(TerrainTypes eTerrain, YieldTypes eYield, int i
 	if (ModifierUpdateInsertRemove(y.forXTerrain, eTerrain, iValue, false))
 		updateYield(false);
 }
+int CvCity::GetTotalYieldFromTerrainsTimes100(YieldTypes eYield) const
+{
+	VALIDATE_OBJECT();
+	const SCityExtraYields& y = GetYieldChanges(eYield);
+	int iYield = 0;
+	for (vector<pair<TerrainTypes, int>>::const_iterator it = y.forXTerrain.begin(); it != y.forXTerrain.end(); ++it)
+		iYield += it->second;
+
+	return iYield;
+}
 //	--------------------------------------------------------------------------------
 void CvCity::UpdateYieldPerXTerrain(YieldTypes eYield, TerrainTypes eTerrain)
 {
 	VALIDATE_OBJECT();
-	int iYield = 0;
+	int iYieldTimes100 = 0;
 
 	int iValidTilesTerrain = 0;
 	int iBaseYieldBuildings = 0;
@@ -17909,24 +17919,11 @@ void CvCity::UpdateYieldPerXTerrain(YieldTypes eYield, TerrainTypes eTerrain)
 			{
 				iValidTilesTerrain = GetNumTerrainWorked(eTerrain);
 			}
-
-			iYield = (iValidTilesTerrain * iBaseYieldBuildings) / 100;
-
-			//iDifference determines +/- of difference of old value
-			int iDifference = iYield - GetYieldPerXTerrain(eTerrain, eYield);
-
-			//Change base rate first
-			ChangeBaseYieldRateFromBuildings(eYield, iDifference);
-
-			//then set base rate for retrieval next time.
-			SetYieldPerXTerrain(eTerrain, eYield, iYield);
 		}
-		else if (GetYieldPerXTerrain(eTerrain, eYield) > 0)
-		{
-			//No bonuses? Clear it out.
-			ChangeBaseYieldRateFromBuildings(eYield, -GetYieldPerXTerrain(eTerrain, eYield));
-			SetYieldPerXTerrain(eTerrain, eYield, 0);
-		}
+
+		iYieldTimes100 = (iValidTilesTerrain * iBaseYieldBuildings);
+		SetYieldPerXTerrainTimes100(eTerrain, eYield, iYieldTimes100);
+
 	}
 	else
 	{
@@ -17940,7 +17937,7 @@ void CvCity::UpdateYieldPerXTerrain(YieldTypes eYield, TerrainTypes eTerrain)
 
 //	--------------------------------------------------------------------------------
 //	total yield due to all instances of Terrain (base rate is stored in a religion property)
-int CvCity::GetYieldPerXTerrainFromReligion(TerrainTypes eTerrain, YieldTypes eYield) const
+int CvCity::GetYieldPerXTerrainFromReligionTimes100(TerrainTypes eTerrain, YieldTypes eYield) const
 {
 	VALIDATE_OBJECT();
 	ASSERT_DEBUG(eTerrain > -1 && eTerrain < GC.getNumTerrainInfos(), "Invalid Terrain index.");
@@ -17949,7 +17946,7 @@ int CvCity::GetYieldPerXTerrainFromReligion(TerrainTypes eTerrain, YieldTypes eY
 	return ModifierLookup(m_yieldChanges[eYield].forTerrainFromReligion, eTerrain);
 }
 //	--------------------------------------------------------------------------------
-void CvCity::SetYieldPerXTerrainFromReligion(TerrainTypes eTerrain, YieldTypes eYield, int iValue)
+void CvCity::SetYieldPerXTerrainFromReligionTimes100(TerrainTypes eTerrain, YieldTypes eYield, int iValue)
 {
 	VALIDATE_OBJECT();
 	ASSERT_DEBUG(eTerrain > -1 && eTerrain < GC.getNumTerrainInfos(), "Invalid Terrain index.");
@@ -17963,7 +17960,7 @@ void CvCity::SetYieldPerXTerrainFromReligion(TerrainTypes eTerrain, YieldTypes e
 void CvCity::UpdateYieldPerXTerrainFromReligion(YieldTypes eYield, TerrainTypes eTerrain)
 {
 	VALIDATE_OBJECT();
-	int iYield = 0;
+	int iYieldTimes100 = 0;
 
 	int iValidTilesTerrain = 0;
 	int iBaseYieldReligion = 0;
@@ -17996,23 +17993,19 @@ void CvCity::UpdateYieldPerXTerrainFromReligion(YieldTypes eYield, TerrainTypes 
 						iValidTilesTerrain = GetNumTerrainWorked(eTerrain);
 					}
 
-					iYield += ((iValidTilesTerrain * iBaseYieldReligion) / 100);
+					iYieldTimes100 += (iValidTilesTerrain * iBaseYieldReligion);
 
-					if (eTerrain == TERRAIN_MOUNTAIN && iYield > getPopulation())
+					if (eTerrain == TERRAIN_MOUNTAIN && iYieldTimes100 > getPopulation() * 100)
 					{
-						iYield = getPopulation();
+						iYieldTimes100 = getPopulation() * 100;
 					}
-					if (eTerrain == TERRAIN_SNOW && iYield > getPopulation())
+					if (eTerrain == TERRAIN_SNOW && iYieldTimes100 > getPopulation() * 100)
 					{
-						iYield = getPopulation();
+						iYieldTimes100 = getPopulation() * 100;
 					}
+				}
+				SetYieldPerXTerrainFromReligionTimes100(eTerrain, eYield, iYieldTimes100);
 
-					SetYieldPerXTerrainFromReligion(eTerrain, eYield, iYield);
-				}
-				else if (GetYieldPerXTerrainFromReligion(eTerrain, eYield) > 0)
-				{
-					SetYieldPerXTerrainFromReligion(eTerrain, eYield, 0);
-				}
 			}
 			else
 			{
@@ -18024,6 +18017,16 @@ void CvCity::UpdateYieldPerXTerrainFromReligion(YieldTypes eYield, TerrainTypes 
 			}
 		}
 	}
+}
+int CvCity::GetTotalYieldFromTerrainReligionTimes100(YieldTypes eYield) const
+{
+	VALIDATE_OBJECT();
+	const SCityExtraYields& y = GetYieldChanges(eYield);
+	int iYield = 0;
+	for (vector<pair<TerrainTypes, int>>::const_iterator it = y.forTerrainFromReligion.begin(); it != y.forTerrainFromReligion.end(); ++it)
+		iYield += it->second;
+
+	return iYield;
 }
 
 //	--------------------------------------------------------------------------------
@@ -18054,7 +18057,7 @@ void CvCity::ChangeYieldPerXFeatureFromBuildingsTimes100(FeatureTypes eFeature, 
 }
 //	--------------------------------------------------------------------------------
 //	total yield due to all instances of Feature
-int CvCity::GetYieldPerXFeature(FeatureTypes eFeature, YieldTypes eYield) const
+int CvCity::GetYieldPerXFeatureTimes100(FeatureTypes eFeature, YieldTypes eYield) const
 {
 	VALIDATE_OBJECT();
 	ASSERT_DEBUG(eFeature > -1 && eFeature < GC.getNumFeatureInfos(), "Invalid Feature index.");
@@ -18063,7 +18066,7 @@ int CvCity::GetYieldPerXFeature(FeatureTypes eFeature, YieldTypes eYield) const
 	return ModifierLookup(m_yieldChanges[eYield].forXFeature, eFeature);
 }
 //	--------------------------------------------------------------------------------
-void CvCity::SetYieldPerXFeature(FeatureTypes eFeature, YieldTypes eYield, int iValue)
+void CvCity::SetYieldPerXFeatureTimes100(FeatureTypes eFeature, YieldTypes eYield, int iValue)
 {
 	VALIDATE_OBJECT();
 	ASSERT_DEBUG(eFeature > -1 && eFeature < GC.getNumFeatureInfos(), "Invalid Feature index.");
@@ -18073,8 +18076,18 @@ void CvCity::SetYieldPerXFeature(FeatureTypes eFeature, YieldTypes eYield, int i
 	if (ModifierUpdateInsertRemove(y.forXFeature, eFeature, iValue, false))
 		updateYield(false);
 }
+int CvCity::GetTotalYieldFromFeaturesTimes100(YieldTypes eYield) const
+{
+	VALIDATE_OBJECT();
+	const SCityExtraYields& y = GetYieldChanges(eYield);
+	int iYield = 0;
+	for (vector<pair<FeatureTypes, int>>::const_iterator it = y.forXFeature.begin(); it != y.forXFeature.end(); ++it)
+		iYield += it->second;
+
+	return iYield;
+}
 //	--------------------------------------------------------------------------------
-int CvCity::GetYieldPerXFeatureFromReligion(FeatureTypes eFeature, YieldTypes eYield) const
+int CvCity::GetYieldPerXFeatureFromReligionTimes100(FeatureTypes eFeature, YieldTypes eYield) const
 {
 	VALIDATE_OBJECT();
 	ASSERT_DEBUG(eFeature > -1 && eFeature < GC.getNumFeatureInfos(), "Invalid Feature index.");
@@ -18083,7 +18096,7 @@ int CvCity::GetYieldPerXFeatureFromReligion(FeatureTypes eFeature, YieldTypes eY
 	return ModifierLookup(m_yieldChanges[eYield].forFeatureFromReligion, eFeature);
 }
 //	--------------------------------------------------------------------------------
-void CvCity::SetYieldPerXFeatureFromReligion(FeatureTypes eFeature, YieldTypes eYield, int iValue)
+void CvCity::SetYieldPerXFeatureFromReligionTimes100(FeatureTypes eFeature, YieldTypes eYield, int iValue)
 {
 	VALIDATE_OBJECT();
 	ASSERT_DEBUG(eFeature > -1 && eFeature < GC.getNumFeatureInfos(), "Invalid Feature index.");
@@ -18092,6 +18105,16 @@ void CvCity::SetYieldPerXFeatureFromReligion(FeatureTypes eFeature, YieldTypes e
 	SCityExtraYields& y = m_yieldChanges[eYield];
 	if (ModifierUpdateInsertRemove(y.forFeatureFromReligion, eFeature, iValue, false))
 		updateYield(false);
+}
+int CvCity::GetTotalYieldFromFeatureReligionTimes100(YieldTypes eYield) const
+{
+	VALIDATE_OBJECT();
+	const SCityExtraYields& y = GetYieldChanges(eYield);
+	int iYield = 0;
+	for (vector<pair<FeatureTypes, int>>::const_iterator it = y.forFeatureFromReligion.begin(); it != y.forFeatureFromReligion.end(); ++it)
+		iYield += it->second;
+
+	return iYield;
 }
 //	--------------------------------------------------------------------------------
 void CvCity::UpdateYieldPerXFeature(YieldTypes eYield, FeatureTypes eFeature)
@@ -18119,8 +18142,7 @@ void CvCity::UpdateYieldPerXFeature(YieldTypes eYield, FeatureTypes eFeature)
 		bool bTest = false;
 		if (iBaseYield <= 0)
 		{
-			ChangeBaseYieldRateFromBuildings(eYield, -GetYieldPerXFeature(eFeature, eYield));
-			SetYieldPerXFeature(eFeature, eYield, 0);
+			SetYieldPerXFeatureTimes100(eFeature, eYield, 0);
 		}
 		else
 		{
@@ -18129,7 +18151,7 @@ void CvCity::UpdateYieldPerXFeature(YieldTypes eYield, FeatureTypes eFeature)
 
 		if (iBaseYieldReligion <= 0)
 		{
-			SetYieldPerXFeatureFromReligion(eFeature, eYield, iYieldReligion);
+			SetYieldPerXFeatureFromReligionTimes100(eFeature, eYield, iYieldReligion);
 		}
 		else
 		{
@@ -18142,24 +18164,11 @@ void CvCity::UpdateYieldPerXFeature(YieldTypes eYield, FeatureTypes eFeature)
 			if (iValidTiles > 0)
 			{
 				//Gain 1 yield per x valid tiles - so if 'x' is 3, and you have 3 tiles that match, you get 1 yield
-				iYieldBase = (iValidTiles * iBaseYield) / 100;
-				iYieldReligion = (iValidTiles * iBaseYieldReligion) / 100;
+				iYieldBase = (iValidTiles * iBaseYield);
+				iYieldReligion = (iValidTiles * iBaseYieldReligion);
 
-				//iDifference determines +/- of difference of old value
-				int iBaseDifference = iYieldBase - GetYieldPerXFeature(eFeature, eYield);
-
-				//Change base rate first
-				ChangeBaseYieldRateFromBuildings(eYield, iBaseDifference);
-				SetYieldPerXFeature(eFeature, eYield, iYieldBase);
-
-				SetYieldPerXFeatureFromReligion(eFeature, eYield, iYieldReligion);
-			}
-			else
-			{
-				ChangeBaseYieldRateFromBuildings(eYield, -GetYieldPerXFeature(eFeature, eYield));
-				SetYieldPerXFeature(eFeature, eYield, 0);
-
-				SetYieldPerXFeatureFromReligion(eFeature, eYield, 0);
+				SetYieldPerXFeatureTimes100(eFeature, eYield, iYieldBase);
+				SetYieldPerXFeatureFromReligionTimes100(eFeature, eYield, iYieldReligion);
 			}
 		}
 	}
@@ -23405,6 +23414,8 @@ int CvCity::getBaseYieldRateTimes100(const YieldTypes eYield, CvString* tooltipS
 	iTempYield += (GetYieldPerBuilding(eYield) * GetCityBuildings()->GetNumBuildings() * 100).Truncate();
 	iTempYield += (GetYieldPerTile(eYield) * GetPlotList().size() * 100).Truncate();
 	iTempYield += GetYieldFromPassingTR(eYield) * plot()->GetNumTradeUnitRoute() * 100;
+	iTempYield += GetTotalYieldFromTerrainsTimes100(eYield);
+	iTempYield += GetTotalYieldFromFeaturesTimes100(eYield);
 	iTempYield += (GetYieldPerCityStateStrategicResource(eYield) * GET_PLAYER(getOwner()).GetNumStrategicResourcesFromMinors() * 100).Truncate();
 	if (eYield == YIELD_TOURISM)
 	{
@@ -25393,11 +25404,8 @@ int CvCity::GetBaseYieldRateFromReligionTimes100(YieldTypes eIndex) const
 
 	int iBaseYield = m_aiBaseYieldRateFromReligion[eIndex] * 100;
 
-	const SCityExtraYields& y = GetYieldChanges(eIndex);
-	for (vector<pair<TerrainTypes, int>>::const_iterator it = y.forTerrainFromReligion.begin(); it != y.forTerrainFromReligion.end(); ++it)
-		iBaseYield += it->second * 100;
-	for (vector<pair<FeatureTypes, int>>::const_iterator it = y.forFeatureFromReligion.begin(); it != y.forFeatureFromReligion.end(); ++it)
-		iBaseYield += it->second * 100;
+	iBaseYield += GetTotalYieldFromTerrainReligionTimes100(eIndex);
+	iBaseYield += GetTotalYieldFromFeatureReligionTimes100(eIndex);
 
 	if (GET_PLAYER(getOwner()).GetPlayerTraits()->GetYieldFromOwnPantheon(eIndex) > 0)
 	{
