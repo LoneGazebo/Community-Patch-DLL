@@ -297,6 +297,147 @@ FDataStream& operator>>(FDataStream& loadFrom, CvLandmass& writeTo)
 	return loadFrom;
 }
 
+
+//////////////////////////////////////////////////////////////////////////////
+// CvContinent
+//////////////////////////////////////////////////////////////////////////
+
+//	--------------------------------------------------------------------------------
+CvContinent::CvContinent()
+{
+	m_iID = -1;
+	m_iNumTiles = 0;
+	m_bLand = false;
+	m_iCentroidX = 0;
+	m_iCentroidY = 0;
+}
+
+//	--------------------------------------------------------------------------------
+CvContinent::~CvContinent()
+{
+
+}
+
+//	--------------------------------------------------------------------------------
+void CvContinent::init(int iID, bool bLand)
+{
+	m_iID = iID;
+	m_iNumTiles = 0;
+	m_bLand = bLand;
+	m_iCentroidX = 0;
+	m_iCentroidY = 0;
+}
+
+//	--------------------------------------------------------------------------------
+int CvContinent::GetID() const
+{
+	return m_iID;
+}
+
+//	--------------------------------------------------------------------------------
+void CvContinent::SetID(int iID)
+{
+	m_iID = iID;
+}
+
+//	--------------------------------------------------------------------------------
+int CvContinent::getNumTiles() const
+{
+	return m_iNumTiles;
+}
+
+//	--------------------------------------------------------------------------------
+void CvContinent::changeNumTiles(int iChange)
+{
+	if (iChange != 0)
+	{
+		m_iNumTiles = (m_iNumTiles + iChange);
+		ASSERT_DEBUG(m_iNumTiles >= 0);
+	}
+}
+
+//	--------------------------------------------------------------------------------
+void CvContinent::ChangeCentroidX(int iChange)
+{
+	m_iCentroidX = (m_iCentroidX + iChange);
+}
+
+//	--------------------------------------------------------------------------------
+void CvContinent::ChangeCentroidY(int iChange)
+{
+	m_iCentroidY = (m_iCentroidY + iChange);
+}
+
+//	--------------------------------------------------------------------------------
+bool CvContinent::isLand() const
+{
+	return m_bLand;
+}
+
+//	--------------------------------------------------------------------------------
+int CvContinent::GetCentroidX()
+{
+	if (m_iNumTiles > 0)
+	{
+		return m_iCentroidX / m_iNumTiles;
+
+	}
+	return -1;
+}
+
+//	--------------------------------------------------------------------------------
+int CvContinent::GetCentroidY()
+{
+	if (m_iNumTiles > 0)
+	{
+		return m_iCentroidY / m_iNumTiles;
+
+	}
+	return -1;
+}
+
+//	--------------------------------------------------------------------------------
+template<typename Continent, typename Visitor>
+void CvContinent::Serialize(Continent& landmass, Visitor& visitor)
+{
+	visitor(landmass.m_iID);
+	visitor(landmass.m_iNumTiles);
+
+	visitor(landmass.m_iCentroidX);
+	visitor(landmass.m_iCentroidY);
+
+	visitor(landmass.m_bLand);
+}
+
+//	--------------------------------------------------------------------------------
+void CvContinent::read(FDataStream& kStream)
+{
+	CvStreamLoadVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
+}
+
+//	--------------------------------------------------------------------------------
+void CvContinent::write(FDataStream& kStream) const
+{
+	CvStreamSaveVisitor serialVisitor(kStream);
+	Serialize(*this, serialVisitor);
+}
+
+//	--------------------------------------------------------------------------------
+FDataStream& operator<<(FDataStream& saveTo, const CvContinent& readFrom)
+{
+	readFrom.write(saveTo);
+	return saveTo;
+}
+
+//	--------------------------------------------------------------------------------
+FDataStream& operator>>(FDataStream& loadFrom, CvContinent& writeTo)
+{
+	writeTo.read(loadFrom);
+	return loadFrom;
+}
+
+
 //////////////////////////////////////////////////////////////////////////////
 // CvRiver
 //////////////////////////////////////////////////////////////////////////
@@ -420,6 +561,7 @@ CvMap::CvMap()
 	, m_pResourceForceReveal(NULL)
 	, m_areas()
 	, m_landmasses()
+	, m_continents()
 	, m_invisibleVisibilityCount()
 	, m_guid()
 	, m_kPlotManager()
@@ -578,6 +720,7 @@ void CvMap::init(CvMapInitData* pInitInfo/*=NULL*/)
 	// Init containers
 	m_areas.RemoveAll();
 	m_landmasses.RemoveAll();
+	m_continents.RemoveAll();
 	m_rivers.RemoveAll();
 
 	//--------------------------------
@@ -753,6 +896,7 @@ void CvMap::reset(CvMapInitData* pInitInfo)
 
 	m_areas.RemoveAll();
 	m_landmasses.RemoveAll();
+	m_continents.RemoveAll();
 	m_rivers.RemoveAll();
 
 	m_vDeferredFogPlots.clear();
@@ -1601,6 +1745,7 @@ void CvMap::recalculateAreas()
 {
 	calculateAreas();
 	recalculateLandmasses();
+	recalculateContinents();
 	RecalculateRivers();
 }
 
@@ -1653,11 +1798,9 @@ void CvMap::Serialize(Map& map, Visitor& visitor)
 
 	// call the read of the free list CvArea class allocations
 	visitor(map.m_areas);
-
 	visitor(map.m_landmasses);
-
+	visitor(map.m_continents);
 	visitor(map.m_rivers);
-
 	visitor(map.m_iAIMapHints);
 }
 
@@ -2488,6 +2631,61 @@ void CvMap::calculateLandmasses()
 	//		'lake' flag.  During recalculation, a neighboring plot's 'lake' flag may not be set yet because it is in a landmass that has yet to be calculated
 	//		resulting in the wrong yield being applied to a plot.
 	updateYield();
+}
+
+//	--------------------------------------------------------------------------------
+CvContinent* CvMap::getContinentById(int iID)
+{
+	return m_continents.Get(iID);
+}
+
+//	--------------------------------------------------------------------------------
+CvContinent* CvMap::addContinent()
+{
+	//do not use TContainer::Add here, it uses the global ID counter which we don't need here
+	CvContinent* pNew = new CvContinent();
+	pNew->SetID(m_continents.GetCount() + 1);
+	m_continents.Load(pNew);
+	return pNew;
+}
+
+//	--------------------------------------------------------------------------------
+void CvMap::recalculateContinents()
+{
+	CvPlot* pLoopPlot = NULL;
+	CvContinent* pContinent= NULL;
+	int iContinentID = 0;
+
+	for (int iI = 0; iI < numPlots(); iI++)
+	{
+		pLoopPlot = plotByIndexUnchecked(iI);
+		pLoopPlot->setContinent(-1);
+	}
+
+	m_continents.RemoveAll();
+
+	for (int iI = 0; iI < numPlots(); iI++)
+	{
+		pLoopPlot = plotByIndexUnchecked(iI);
+		if (pLoopPlot->getContinent() == -1)
+		{
+			pContinent = addContinent();
+			pContinent->init(pContinent->GetID(), !pLoopPlot->isDeepWater());
+
+			iContinentID = pContinent->GetID();
+
+			pLoopPlot->setContinent(iContinentID);
+
+			SPathFinderUserData data(NO_PLAYER, PT_CONTINENT_CONNECTION);
+			ReachablePlots result = GC.GetStepFinder().GetPlotsInReach(pLoopPlot->getX(), pLoopPlot->getY(), data);
+
+			for (ReachablePlots::iterator it = result.begin(); it != result.end(); ++it)
+			{
+				CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
+				pPlot->setContinent(iContinentID);
+			}
+		}
+	}
 }
 
 //	--------------------------------------------------------------------------------

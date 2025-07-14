@@ -164,6 +164,7 @@ void CvLuaPlot::PushMethods(lua_State* L, int t)
 	Method(GetArea);
 	Method(SetArea);
 	Method(GetLandmass);
+	Method(GetContinent);
 	Method(GetFeatureVariety);
 
 	Method(GetOwnershipDuration);
@@ -1233,6 +1234,12 @@ int CvLuaPlot::lSetArea(lua_State* L)
 int CvLuaPlot::lGetLandmass(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlot::getLandmass);
+}
+//------------------------------------------------------------------------------
+//int getContinent();
+int CvLuaPlot::lGetContinent(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlot::getContinent);
 }
 //------------------------------------------------------------------------------
 //int getFeatureVariety();

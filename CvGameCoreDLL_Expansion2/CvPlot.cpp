@@ -164,6 +164,7 @@ void CvPlot::reset()
 
 	m_iArea = -1;
 	m_iLandmass = -1;
+	m_iContinent = -1;
 	m_iOwnershipDuration = 0;
 	m_iImprovementDuration = 0;
 	m_iUpgradeProgress = 0;
@@ -5706,6 +5707,38 @@ CvLandmass * CvPlot::landmass() const
 	return GC.getMap().getLandmassById(m_iLandmass);
 }
 
+
+//	--------------------------------------------------------------------------------
+void CvPlot::setContinent(int iNewValue)
+{
+	if (m_iContinent != iNewValue)
+	{
+		// cleanup old one
+		CvContinent* pContinent = GC.getMap().getContinentById(m_iContinent);
+		if (pContinent != NULL)
+		{
+			pContinent->changeNumTiles(-1);
+			pContinent->ChangeCentroidX(-m_iX);
+			pContinent->ChangeCentroidY(-m_iY);
+		}
+
+		m_iContinent = iNewValue;
+
+		pContinent = GC.getMap().getContinentById(m_iContinent);
+		if (pContinent != NULL)
+		{
+			pContinent->changeNumTiles(1);
+			pContinent->ChangeCentroidX(m_iX);
+			pContinent->ChangeCentroidY(m_iY);
+		}
+	}
+}
+
+CvContinent* CvPlot::continent() const
+{
+	return GC.getMap().getContinentById(m_iContinent);
+}
+
 //	--------------------------------------------------------------------------------
 int CvPlot::GetRiverID(DirectionTypes eDirection) const
 {
@@ -7050,6 +7083,7 @@ void CvPlot::setPlotType(PlotTypes eNewValue, bool bRecalculate, bool bRebuildGr
 	CvArea* pLastArea = NULL;
 	CvPlot* pLoopPlot = NULL;
 	bool bWasWater = false;
+	bool bWasDeepWater = false;
 	bool bRecalculateAreas = false;
 	int iAreaCount = 0;
 	int iI = 0;
@@ -7064,6 +7098,7 @@ void CvPlot::setPlotType(PlotTypes eNewValue, bool bRecalculate, bool bRebuildGr
 		}
 
 		bWasWater = isWater();
+		bWasDeepWater = isDeepWater();
 
 		updateSeeFromSight(false,bRecalculate);
 
@@ -7103,10 +7138,16 @@ void CvPlot::setPlotType(PlotTypes eNewValue, bool bRecalculate, bool bRebuildGr
 			}
 		}
 
+		if (bWasDeepWater != isDeepWater() && bRecalculate)
+		{
+			GC.getMap().recalculateContinents();
+		}
+
 		if(bWasWater != isWater())
 		{
 			if(bRecalculate)
 			{
+
 				for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 				{
 					pLoopPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
@@ -13484,6 +13525,7 @@ void CvPlot::Serialize(Plot& plot, Visitor& visitor)
 	visitor(plot.m_iRiverCrossingCount);
 	visitor(plot.m_iResourceNum);
 	visitor(plot.m_iLandmass);
+	visitor(plot.m_iContinent);
 	visitor(plot.m_vRivers);
 
 	// Bit fields

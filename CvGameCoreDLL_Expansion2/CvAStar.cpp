@@ -2467,7 +2467,7 @@ int AreaValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFin
 }
 
 //	--------------------------------------------------------------------------------
-/// Area path finder - check validity of a coordinate
+/// Landmass path finder - check validity of a coordinate
 int LandmassValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData&, const CvAStar*)
 {
 	if(parent == NULL)
@@ -2475,6 +2475,17 @@ int LandmassValid(const CvAStarNode* parent, const CvAStarNode* node, const SPat
 
 	CvMap& kMap = GC.getMap();
 	return kMap.plotUnchecked(parent->m_iX, parent->m_iY)->isWater() == kMap.plotUnchecked(node->m_iX, node->m_iY)->isWater();
+}
+
+//	--------------------------------------------------------------------------------
+/// Continent path finder - check validity of a coordinate
+int ContinentValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData&, const CvAStar*)
+{
+	if(parent == NULL)
+		return TRUE;
+
+	CvMap& kMap = GC.getMap();
+	return kMap.plotUnchecked(parent->m_iX, parent->m_iY)->isDeepWater() == kMap.plotUnchecked(node->m_iX, node->m_iY)->isDeepWater();
 }
 
 // DERIVED CLASSES (which have more convenient ways to access our various pathfinders)
@@ -2790,6 +2801,10 @@ bool CvStepFinder::Configure(const SPathFinderUserData& config)
 		break;
 	case PT_LANDMASS_CONNECTION:
 		SetFunctionPointers(NULL, NULL, NULL, LandmassValid, NULL, NULL, NULL);
+		m_iBasicPlotCost = PATH_BASE_COST;
+		break;
+	case PT_CONTINENT_CONNECTION:
+		SetFunctionPointers(NULL, NULL, NULL, ContinentValid, NULL, NULL, NULL);
 		m_iBasicPlotCost = PATH_BASE_COST;
 		break;
 	case PT_CITY_INFLUENCE:

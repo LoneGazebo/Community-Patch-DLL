@@ -38,7 +38,7 @@ public:
 	CvLandmass();
 	virtual ~CvLandmass();
 
-	void init(int iID, bool bWater);
+	void init(int iID, bool bLand);
 	int GetID() const;
 	void SetID(int iID);
 
@@ -89,6 +89,49 @@ protected:
 
 FDataStream& operator<<(FDataStream&, const CvLandmass&);
 FDataStream& operator>>(FDataStream&, CvLandmass&);
+
+
+//////////////////////////////////////////////////////////////////////////
+// An element of CvContinent is a contiguous set of land plots (including lakes and coasts), or of deep ocean plots
+//////////////////////////////////////////////////////////////////////////
+class CvContinent
+{
+public:
+	CvContinent();
+	virtual ~CvContinent();
+
+	void init(int iID, bool bWater);
+	int GetID() const;
+	void SetID(int iID);
+
+	int getNumTiles() const;
+	void changeNumTiles(int iChange);
+
+	bool isLand() const;
+
+	void ChangeCentroidX(int iChange);
+	void ChangeCentroidY(int iChange);
+	int GetCentroidX();
+	int GetCentroidY();
+
+	// for serialization
+	template<typename Continent, typename Visitor>
+	static void Serialize(Continent& continent, Visitor& visitor);
+	virtual void read(FDataStream& kStream);
+	virtual void write(FDataStream& kStream) const;
+
+protected:
+
+	int m_iID;
+	int m_iNumTiles;
+	bool m_bLand;
+	int m_iCentroidX;
+	int m_iCentroidY;
+};
+
+FDataStream& operator<<(FDataStream&, const CvContinent&);
+FDataStream& operator>>(FDataStream&, CvContinent&);
+
 
 class CvRiver
 {
@@ -330,7 +373,7 @@ public:
 	void recalculateAreas();
 	void calculateAreas();
 
-	// Landmass
+	// Landmasses
 	int getNumLandmasses();
 	CvLandmass* getLandmassById(int iID);
 	CvLandmass* getLandmassByIndex(int iIndex);
@@ -340,6 +383,11 @@ public:
 	CvLandmass* nextLandmass(int* pIterIdx, bool bRev=false);
 	void recalculateLandmasses();
 	void calculateLandmasses();
+
+	// Continents
+	CvContinent* getContinentById(int iID);
+	CvContinent* addContinent();
+	void recalculateContinents();
 
 	// Rivers
 	int GetNumRivers();
@@ -436,6 +484,7 @@ protected:
 
 	TContainer<CvArea> m_areas;
 	TContainer<CvLandmass> m_landmasses;
+	TContainer<CvContinent> m_continents;
 	TContainer<CvRiver> m_rivers;
 
 	//store non-zero values outside of CvPlot because it will be zero almost all the time
