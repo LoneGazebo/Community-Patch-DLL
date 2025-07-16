@@ -48,6 +48,7 @@
 
 #ignore output from Visual Studio, ModBuddy, and Inno
 .vs/
+.vscode/
 BuildOutput/
 BuildTemp/
 Build/
@@ -60,3 +61,7 @@ clang-output/
 
 #ignore output from any other IDEs/tools
 .idea/
+
+#do not ignore lua-language-server configuration (LuaCATS)
+!.luacheckrc
+!.luarc.json
