@@ -147,7 +147,7 @@ SET Yield = (SELECT Yield FROM Building_YieldChangesPerPop WHERE BuildingType = 
 WHERE BuildingType = 'BUILDING_STEAM_MILL';
 
 UPDATE Building_ImprovementYieldChanges
-SET Yield = (SELECT Yield FROM Building_YieldChangesPerPop WHERE BuildingType = 'BUILDING_FACTORY') + 2
+SET Yield = (SELECT Yield FROM Building_ImprovementYieldChanges WHERE BuildingType = 'BUILDING_FACTORY') + 2
 WHERE BuildingType = 'BUILDING_STEAM_MILL';
 
 UPDATE Building_ResourceYieldChanges
