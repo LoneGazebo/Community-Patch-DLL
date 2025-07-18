@@ -1,0 +1,11 @@
+{
+  "workspace": {
+    "library": [
+      "./LuaCATS"
+    ],
+    "checkThirdParty": false
+  },
+  "runtime": {
+    "version": "Lua 5.1"
+  }
+}
