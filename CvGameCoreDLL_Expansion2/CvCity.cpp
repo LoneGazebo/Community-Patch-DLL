@@ -31935,6 +31935,13 @@ void CvCity::doUnitCompletionYields(CvUnit* pUnit, UnitCreationReason eReason)
 			case REASON_FAITH_BUY:
 				eIYieldType = INSTANT_YIELD_TYPE_FAITH_PURCHASE;
 				break;
+			case REASON_DEFAULT:
+			case REASON_UPGRADE:
+			case REASON_GIFT:
+			case REASON_CONVERT:
+			case REASON_LUA:
+				// Use default instant yield type for other creation reasons
+				break;
 			}
 
 			GET_PLAYER(getOwner()).doInstantYield(eIYieldType, false, NO_GREATPERSON, NO_BUILDING, iYieldQuantityOnCompletion, 

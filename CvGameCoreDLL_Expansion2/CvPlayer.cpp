@@ -17301,7 +17301,6 @@ int CvPlayer::GetJONSCulturePerTurnFromExcessHappinessTimes100() const
 		if(GetExcessHappiness() > 0)
 		{
 			int iFreeCulture = GetExcessHappiness() * getHappinessToCulture();
-			iFreeCulture;
 
 			return iFreeCulture;
 		}
@@ -43408,7 +43407,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 
 	// Notifications
 	{
-		bool bHasNotifications;
+		bool bHasNotifications = false;
 		if (bSaving)
 			bHasNotifications = player.m_pNotifications != NULL;
 

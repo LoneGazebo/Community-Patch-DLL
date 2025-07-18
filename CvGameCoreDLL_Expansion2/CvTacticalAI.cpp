@@ -1805,7 +1805,7 @@ void CvTacticalAI::PlotNavalEscortMoves()
 /// Win an attrition campaign with bombardments
 void CvTacticalAI::PlotAttritionAttacks(CvTacticalDominanceZone* pZone)
 {
-	pZone; //unused but can be inspected
+	(void)pZone; //unused but can be inspected
 	ClearCurrentMoveUnits(AI_TACTICAL_ATTRITION);
 
 	//todo: the targets are sorted in a very rough "how bad can they hit us" order
@@ -1819,7 +1819,7 @@ void CvTacticalAI::PlotAttritionAttacks(CvTacticalDominanceZone* pZone)
 /// Defeat enemy units by using our advantage in numbers
 void CvTacticalAI::PlotExploitFlanksMoves(CvTacticalDominanceZone* pZone)
 {
-	pZone; //unused but can be inspected
+	(void)pZone; //unused but can be inspected
 	ClearCurrentMoveUnits(AI_TACTICAL_FLANKATTACK);
 
 	for (CvTacticalTarget* pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_ENEMY_COMBAT_UNIT, AL_MEDIUM); pTarget!=NULL; pTarget = GetNextZoneTarget(AL_MEDIUM))
@@ -1832,7 +1832,7 @@ void CvTacticalAI::PlotExploitFlanksMoves(CvTacticalDominanceZone* pZone)
 /// We have more overall strength than enemy, defeat his army first
 void CvTacticalAI::PlotSteamrollMoves(CvTacticalDominanceZone* pZone)
 {
-	pZone; //unused but can be inspected
+	(void)pZone; //unused but can be inspected
 	ClearCurrentMoveUnits(AI_TACTICAL_STEAMROLL);
 
 	// See if there are any kill attacks we can make.
@@ -1846,7 +1846,7 @@ void CvTacticalAI::PlotSteamrollMoves(CvTacticalDominanceZone* pZone)
 /// We should be strong enough to take out the city before the enemy can whittle us down with ranged attacks
 void CvTacticalAI::PlotSurgicalCityStrikeMoves(CvTacticalDominanceZone* pZone)
 {
-	pZone; //unused but can be inspected
+	(void)pZone; //unused but can be inspected
 	ClearCurrentMoveUnits(AI_TACTICAL_SURGICAL_STRIKE);
 
 	// Attack the city first
@@ -1873,7 +1873,7 @@ void CvTacticalAI::PlotHedgehogMoves(CvTacticalDominanceZone* pZone)
 /// Try to push back the invader
 void CvTacticalAI::PlotCounterattackMoves(CvTacticalDominanceZone* pZone)
 {
-	pZone; //unused but can be inspected
+	(void)pZone; //unused but can be inspected
 	ClearCurrentMoveUnits(AI_TACTICAL_COUNTERATTACK);
 
 	// Attack priority unit targets

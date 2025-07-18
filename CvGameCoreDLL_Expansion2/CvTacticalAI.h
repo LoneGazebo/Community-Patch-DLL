@@ -504,7 +504,6 @@ private:
 	// Dominance zone info
 	int m_eCurrentTargetType;
 	int m_iCurrentTargetIndex;
-	int m_iCurrentUnitTargetIndex;
 
 	std::vector<CvFocusArea> m_focusAreas;
 };
