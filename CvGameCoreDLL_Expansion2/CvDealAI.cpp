@@ -851,7 +851,7 @@ bool CvDealAI::DoEqualizeDeal(CvDeal* pDeal, PlayerTypes eOtherPlayer, bool& bDe
 int CvDealAI::GetDealValue(CvDeal* pDeal)
 {
 	int iDealValue = 0;
-	if (pDeal->GetDuration() == -1)
+	if (pDeal->GetDuration() == static_cast<uint>(-1))
 		pDeal->SetDuration(GC.getGame().getGameSpeedInfo().GetDealDuration());
 
 	PlayerTypes eMyPlayer = GetPlayer()->GetID();

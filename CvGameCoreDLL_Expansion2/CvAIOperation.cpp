@@ -430,7 +430,7 @@ bool CvAIOperation::RecruitUnit(CvUnit* pUnit)
 		//stupid but true, missing units are maintained on operation level
 		for (std::deque<OperationSlot>::iterator it = m_viListOfUnitsWeStillNeedToBuild.begin(); it != m_viListOfUnitsWeStillNeedToBuild.end(); ++it)
 		{
-			if (it->m_iSlotID == freeSlotInfo[iIndex].first)
+			if (it->m_iSlotID == static_cast<int>(freeSlotInfo[iIndex].first))
 			{
 				m_viListOfUnitsWeStillNeedToBuild.erase(it);
 				break;

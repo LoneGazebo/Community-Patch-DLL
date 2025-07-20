@@ -321,7 +321,7 @@ void CvPlotManager::AddUnit(const IDInfo& kInfo, int iX, int iY, uint uiLayerID)
 //	---------------------------------------------------------------------------
 void CvPlotManager::RemoveUnit(const IDInfo& kInfo, int iX, int iY, uint uiLayerID)
 {
-	if (uiLayerID != -1)
+	if (uiLayerID != static_cast<uint>(-1))
 	{
 		CvSparseIDInfoGrid* pkLayer = FindLayer(uiLayerID);
 		if (pkLayer)

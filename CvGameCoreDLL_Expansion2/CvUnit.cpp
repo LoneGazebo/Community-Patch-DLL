@@ -31361,16 +31361,16 @@ vector<int> CvUnit::GetPlotsWithEnemyInMovementRange(bool bOnlyFortified, bool b
 // PATH-FINDING ROUTINES
 bool CvUnit::IsCachedPathValid() const
 {
-	return m_uiLastPathCacheOrigin != -1;
+	return m_uiLastPathCacheOrigin != static_cast<uint>(-1);
 }
 
 bool CvUnit::HaveCachedPathTo(const CvPlot* pToPlot, int iFlags) const
 {
 	return (
-		m_uiLastPathCacheOrigin == plot()->GetPlotIndex() &&
-		m_uiLastPathCacheDestination == pToPlot->GetPlotIndex() && 
-		m_uiLastPathFlags == (iFlags & PATHFINDER_FLAG_MASK) &&
-		m_uiLastPathTurnSlice == GC.getGame().getTurnSlice()
+		m_uiLastPathCacheOrigin == static_cast<uint>(plot()->GetPlotIndex()) &&
+		m_uiLastPathCacheDestination == static_cast<uint>(pToPlot->GetPlotIndex()) && 
+		m_uiLastPathFlags == static_cast<uint>(iFlags & PATHFINDER_FLAG_MASK) &&
+		m_uiLastPathTurnSlice == static_cast<uint>(GC.getGame().getTurnSlice())
 		);
 }
 

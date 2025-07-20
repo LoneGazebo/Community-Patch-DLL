@@ -36726,7 +36726,7 @@ bool CvPlayer::isOption(PlayerOptionTypes eID) const
 {
 	for (PlayerOptionsVector::const_iterator itr = m_aOptions.begin(); itr != m_aOptions.end(); ++itr )
 	{
-		if ((*itr).first == eID)
+		if ((*itr).first == static_cast<uint>(eID))
 			return (*itr).second != 0;
 	}
 	return false;
@@ -36737,7 +36737,7 @@ void CvPlayer::setOption(PlayerOptionTypes eID, bool bNewValue)
 	int iIndex = 0;
 	for (PlayerOptionsVector::const_iterator itr = m_aOptions.begin(); itr != m_aOptions.end(); ++itr )
 	{
-		if ((*itr).first == eID)
+		if ((*itr).first == static_cast<uint>(eID))
 		{
 			m_aOptions[iIndex] = PlayerOptionEntry((uint)eID, bNewValue ? 1 : 0);
 			return;
@@ -37425,7 +37425,7 @@ void CvPlayer::UpdateMonopolyCache()
 	}
 
 	// if the number of global monopolies has changed, update city yields
-	if (iNumGlobalMonopoliesBefore != m_vResourcesWGlobalMonopoly.size())
+	if (iNumGlobalMonopoliesBefore != static_cast<int>(m_vResourcesWGlobalMonopoly.size()))
 	{
 		int iLoop = 0;
 		for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
@@ -48347,7 +48347,7 @@ int CvPlayer::getPlotFoundValue(int iX, int iY)
 void CvPlayer::setPlotFoundValue(int iX, int iY, int iValue)
 {
 	//if setting the values manually, make sure the size is right
-	if (m_viPlotFoundValues.size() != GC.getMap().numPlots())
+	if (static_cast<int>(m_viPlotFoundValues.size()) != GC.getMap().numPlots())
 		m_viPlotFoundValues.resize(GC.getMap().numPlots(), -1);
 
 	size_t iIndex = (size_t)GC.getMap().plotNum(iX, iY);

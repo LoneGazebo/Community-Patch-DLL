@@ -1666,7 +1666,7 @@ bool CvPlayerCulture::ThemeBuilding(vector<CvGreatWorkBuildingInMyEmpire>::const
 
 			// Did we theme it properly?
 			bThemedProperly = false;
-			if (aWorksChosen.size() == iCountSlots && CultureHelpers::GetThemingBonusIndex(m_pPlayer->GetID(), pkEntry, aWorksChosen) == bestThemes.GetElement(iI))
+			if (static_cast<int>(aWorksChosen.size()) == iCountSlots && CultureHelpers::GetThemingBonusIndex(m_pPlayer->GetID(), pkEntry, aWorksChosen) == bestThemes.GetElement(iI))
 			{
 				bThemedProperly = true;
 			}
@@ -2114,7 +2114,7 @@ bool CvPlayerCulture::ThemeEqualArtArtifact(CvGreatWorkBuildingInMyEmpire kBldg,
 			}
 		}
 		// Do we have the right amount of art?
-		if (aArtifactsChosen.size() == iWorksInHalf)
+		if (static_cast<int>(aArtifactsChosen.size()) == iWorksInHalf)
 		{
 			vector<int> aWorksChosen;
 			vector<PlayerTypes> aPlayersSeen;
@@ -2164,7 +2164,7 @@ bool CvPlayerCulture::ThemeEqualArtArtifact(CvGreatWorkBuildingInMyEmpire kBldg,
 
 				// Did we theme it properly?
 				bool bThemedProperly = false;
-				if (aWorksChosen.size() == iNumSlots && CultureHelpers::GetThemingBonusIndex(m_pPlayer->GetID(), pkEntry, aWorksChosen) == iThemingBonusIndex)
+				if (static_cast<int>(aWorksChosen.size()) == iNumSlots && CultureHelpers::GetThemingBonusIndex(m_pPlayer->GetID(), pkEntry, aWorksChosen) == iThemingBonusIndex)
 				{
 					bThemedProperly = true;
 				}
@@ -6544,7 +6544,7 @@ int CultureHelpers::GetThemingBonusIndex(PlayerTypes eOwner, CvBuildingEntry *pk
 	if (pkEntry)
 	{
 		int iNumSlots = pkEntry->GetGreatWorkCount();
-		if (aGreatWorkIndices.size() != iNumSlots)
+		if (static_cast<int>(aGreatWorkIndices.size()) != iNumSlots)
 		{
 			return -1;  // No theming bonus if some slots still empty or too many entries
 		}
