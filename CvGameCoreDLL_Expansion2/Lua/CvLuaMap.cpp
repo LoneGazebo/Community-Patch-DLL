@@ -372,11 +372,13 @@ int CvLuaMap::lRand(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaMap::lCalculateAreas(lua_State* L)
 {
+	(void)L; // Suppress unused parameter warning
 	GC.getMap().calculateAreas();
 	return 0;
 }//------------------------------------------------------------------------------
 int CvLuaMap::lRecalculateAreas(lua_State* L)
 {
+	(void)L; // Suppress unused parameter warning
 	GC.getMap().recalculateAreas();
 	return 0;
 }
@@ -424,12 +426,14 @@ int CvLuaMap::lPlotDirection(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaMap::lDefaultContinentStamper(lua_State* L)
 {
+	(void)L; // Suppress unused parameter warning
 	GC.getMap().DefaultContinentStamper();
 	return 0;
 }
 //------------------------------------------------------------------------------
 int CvLuaMap::lDoPlaceNaturalWonders(lua_State* L)
 {
+	(void)L; // Suppress unused parameter warning
 	GC.getMap().DoPlaceNaturalWonders();
 	return 0;
 }
@@ -449,6 +453,7 @@ int CvLuaMap::lGetCustomOption(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaMap::lUpdateDeferredFog(lua_State* L)
 {
+	(void)L; // Suppress unused parameter warning
 	GC.getMap().updateDeferredFog();
 	return 0;
 }

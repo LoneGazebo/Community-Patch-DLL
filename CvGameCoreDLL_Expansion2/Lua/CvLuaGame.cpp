@@ -48,6 +48,7 @@ const char* CvLuaGame::GetInstanceName()
 //------------------------------------------------------------------------------
 CvGame* CvLuaGame::GetInstance(lua_State* L, int idx)
 {
+	(void)L; // Suppress unused parameter warning
 	return &GC.getGame();
 }
 //------------------------------------------------------------------------------
@@ -3686,6 +3687,7 @@ int CvLuaGame::lGetNumHiddenArchaeologySites(lua_State* L)
 
 int CvLuaGame::lExitLeaderScreen(lua_State* L)
 {
+	(void)L; // Suppress unused parameter warning
 	CvPreGame::popGameType();
 	return 0;
 }
@@ -3700,12 +3702,14 @@ int CvLuaGame::lGetDllGuid(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaGame::lReloadGameDataDefines(lua_State* L)
 {
+	(void)L; // Suppress unused parameter warning
 	GC.cacheGlobals();
 	return 0;
 }
 //------------------------------------------------------------------------------
 int CvLuaGame::lReloadCustomModOptions(lua_State* L)
 {
+	(void)L; // Suppress unused parameter warning
 	gCustomMods.reloadCache();
 	return 0;
 }
@@ -4005,6 +4009,7 @@ int CvLuaGame::lIsCorporationFounded(lua_State* L)
 
 int CvLuaGame::lDoUpdateContracts(lua_State* L)
 {
+	(void)L; // Suppress unused parameter warning
 	GC.getGame().GetGameContracts()->DoUpdateContracts();
 	return 0;
 }
