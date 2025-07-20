@@ -6663,6 +6663,15 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& 
 		{
 			iScore *= (m_pPlayer->GetEventTourismCS() + m_pPlayer->GetEventTourismCS());
 		}
+
+		int iTradeRouteMod = m_pPlayer->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_PROTECTED_MINOR_INFLUENCE);
+		if (iTradeRouteMod > 0 && !GC.getGame().GetGameTrade()->IsPlayerConnectedToPlayer(m_pPlayer->GetID(), kTradeConnection.m_eDestOwner))
+		{
+			if (GET_PLAYER(kTradeConnection.m_eDestOwner).GetMinorCivAI()->GetPermanentAlly() != NO_PLAYER && !GET_PLAYER(kTradeConnection.m_eDestOwner).GetMinorCivAI()->IsNoAlly())
+			{
+				iScore *= iTradeRouteMod * (MOD_BALANCE_CORE_MINORS ? min(m_pPlayer->GetTrade()->GetNumberOfCityStateTradeRoutes() + 1, 5) : 1) / 100;
+			}
+		}
 	}
 	if (m_pPlayer->GetCorporations()->CanCreateFranchiseInCity(pFromCity, pToCity))
 	{
