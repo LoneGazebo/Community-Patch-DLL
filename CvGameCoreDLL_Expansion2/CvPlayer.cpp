@@ -31798,7 +31798,7 @@ int CvPlayer::calculateNuclearMight(PlayerTypes ePlayer, bool bComputeShelterNum
 			}
 			iNukeModifier /= max(iNumTheirShelteredCities, 1);
 			iInterceptionChance /= max(iNumTheirShelteredCities, 1);
-			iBombShelterPercent = iNumTheirShelteredCities * 100 / iNumTheirCities;
+			iBombShelterPercent = iNumTheirShelteredCities * 100 / max(iNumTheirCities, 1);
 		}
 	}
 
