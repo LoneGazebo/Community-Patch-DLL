@@ -14536,7 +14536,7 @@ int CvUnit::upgradePrice(UnitTypes eUnit) const
 		const EraTypes eUpgradeEra = (EraTypes) pkTechInfo->GetEra();
 
 		double fMultiplier = 1.0f;
-		fMultiplier += (eUpgradeEra* /*0.0f*/ GD_FLOAT_GET(UNIT_UPGRADE_COST_MULTIPLIER_PER_ERA));
+		fMultiplier += (static_cast<float>(eUpgradeEra) * /*0.0f*/ GD_FLOAT_GET(UNIT_UPGRADE_COST_MULTIPLIER_PER_ERA));
 
 		iPrice = int(iPrice * fMultiplier);
 	}

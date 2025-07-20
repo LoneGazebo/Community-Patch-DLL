@@ -43479,7 +43479,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 
 		for (uint i = 0; i < operationCount; ++i)
 		{
-			int iOperationType;
+			int iOperationType = 0;  // Initialize to safe default (will be overwritten by visitor when loading)
 			if (bSaving)
 				iOperationType = player.m_AIOperations[i].second->GetOperationType();
 			visitor(iOperationType);
