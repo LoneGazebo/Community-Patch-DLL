@@ -97,7 +97,8 @@ namespace FLua
 		// GetAs - Interpret this value as a specific C++ type
 		template<class T>
 		T GetAs() const {
-			T ret = T(); // Don't use with reference types!!! ...EVER!!!
+			T ret = T(); // Default-initialize return value. Don't use with reference types!!! ...EVER!!!
+			(void)ret;   // Suppress static analyzer false positive about uninitialized variable
 
 			// Try pushing this value onto the lua stack
 			if( Push() ) {
