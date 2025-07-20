@@ -11162,7 +11162,7 @@ void CvGame::readSaveGameDB(FDataStream& kStream)
 
 			pkFile->Close();
 
-			free(szBuffer);
+			delete[] szBuffer;
 		}
 		else
 		{
@@ -11198,7 +11198,7 @@ void CvGame::writeSaveGameDB(FDataStream& kStream) const
 				kStream.WriteIt(dwBytesRead, szBuffer);
 			}
 
-			free(szBuffer);
+			delete[] szBuffer;
 		}
 		else
 		{
