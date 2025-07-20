@@ -2284,7 +2284,7 @@ void CvTeamTechs::Read(FDataStream& kStream)
 
 		// Next is an array of the tech IDs that were available when the save was made.
 		ASSERT_DEBUG(m_pTechs == GC.GetGameTechs());	// The hash to indices conversion will convert the hash to the index in the main game techs array, so these better be the same.
-		int* paTechIDs = (int*)_malloca(iNumSavedTechs * sizeof(int));
+		int* paTechIDs = (int*)malloc(iNumSavedTechs * sizeof(int));
 		CvInfosSerializationHelper::ReadHashedTypeArray(kStream, iNumSavedTechs, paTechIDs, iNumSavedTechs);
 
 		CvInfosSerializationHelper::ReadAndRemapDataArray(kStream, iNumSavedTechs, m_pabHasTech, iNumActiveTechs, paTechIDs);
@@ -2295,7 +2295,7 @@ void CvTeamTechs::Read(FDataStream& kStream)
 #endif
 		CvInfosSerializationHelper::ReadAndRemapDataArray(kStream, iNumSavedTechs, m_paiTechCount, iNumActiveTechs, paTechIDs);
 
-		_freea(paTechIDs);
+		free(paTechIDs);
 	}
 }
 
