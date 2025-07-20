@@ -11766,12 +11766,19 @@ int CvMinorCivAI::GetFriendshipChangePerTurnTimes100(PlayerTypes ePlayer)
 	if (GET_TEAM(kPlayer.getTeam()).isHasMet(GetPlayer()->getTeam()))
 	{
 		int iTradeRouteBonus = kPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_PROTECTED_MINOR_INFLUENCE);
-		if (MOD_BALANCE_CORE_MINORS && iTradeRouteBonus != 0)
+		if (iTradeRouteBonus != 0)
 		{
 			if (GC.getGame().GetGameTrade()->IsPlayerConnectedToPlayer(ePlayer, GetPlayer()->GetID()))
 			{
-				int iNumRoutes = min(kPlayer.GetTrade()->GetNumberOfCityStateTradeRoutes(), 5);
-				iShift = iTradeRouteBonus * iNumRoutes;
+				if (MOD_BALANCE_CORE_MINORS)
+				{
+					int iNumRoutes = min(kPlayer.GetTrade()->GetNumberOfCityStateTradeRoutes(), 5);
+					iShift = iTradeRouteBonus * iNumRoutes;
+				}
+				else
+				{
+					iShift = iTradeRouteBonus;
+				}
 			}
 		}
 
