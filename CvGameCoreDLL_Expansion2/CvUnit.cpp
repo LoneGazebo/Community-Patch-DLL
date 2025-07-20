@@ -2329,17 +2329,22 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 		if(pUnitNode)
 		{
 			pkOldUnits = (IDInfo*)_malloca(pPlot->getNumUnits() * sizeof(IDInfo));	// Allocate an array on the stack, it shouldn't be too large
-			IDInfo* pkEntry = pkOldUnits;
-			while(pUnitNode != NULL)
+			if(pkOldUnits != NULL)
 			{
-				*pkEntry++ = *pUnitNode;
-				pUnitNode = pPlot->nextUnitNode(pUnitNode);
+				IDInfo* pkEntry = pkOldUnits;
+				while(pUnitNode != NULL)
+				{
+					*pkEntry++ = *pUnitNode;
+					pUnitNode = pPlot->nextUnitNode(pUnitNode);
+				}
 			}
 		}
 
-		for(uint i = 0; i < uiOldUnitCount; i++)
+		if(pkOldUnits != NULL)
 		{
-			pLoopUnit = ::GetPlayerUnit(pkOldUnits[i]);
+			for(uint i = 0; i < uiOldUnitCount; i++)
+			{
+				pLoopUnit = ::GetPlayerUnit(pkOldUnits[i]);
 
 			if(pLoopUnit != NULL)
 			{
@@ -2357,6 +2362,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 					}
 				}
 			}
+		}
 		}
 
 		if(pkOldUnits)
