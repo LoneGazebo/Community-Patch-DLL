@@ -914,7 +914,7 @@ local g_UnitFlagClass =
         local offset = Vector2( 0, 0 );
         	            
         if pUnit:IsGarrisoned() then
-            if( Game.GetActiveTeam() == Players[ self.m_PlayerID ]:GetTeam() ) then
+            if( Game.GetActiveTeam() == Players[ self.m_PlayerID ]:GetTeam() or (PreGame.GetSlotStatus( Game:GetActivePlayer() ) == SlotStatus.SS_OBSERVER and (Game:GetObserverUIOverridePlayer() == -1 or Players[Game:GetObserverUIOverridePlayer()]:GetTeam() == Players[ self.m_PlayerID ]:GetTeam()))) then
 				offset = GarrisonOffset;
 			else
 				offset = GarrisonOtherOffset;
@@ -1738,6 +1738,15 @@ function OnActivePlayerChanged( iActivePlayer, iPrevActivePlayer )
 					pFlag.m_Instance.UnitIcon:SetToolTipString( toolTipString );			
 					pFlag:UpdateFlagOffset();
 				end
+			end
+		end
+	end
+	if (PreGame.GetSlotStatus( Game.GetActivePlayer() ) == SlotStatus.SS_OBSERVER) then
+		for playerID,playerTable in pairs( g_MasterList ) 
+		do
+			for unitID, pFlag in pairs( playerTable ) 
+				do
+				pFlag:UpdateFlagOffset();
 			end
 		end
 	end

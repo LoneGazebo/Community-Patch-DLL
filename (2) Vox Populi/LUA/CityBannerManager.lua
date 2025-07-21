@@ -95,10 +95,10 @@ function RefreshCityBanner(cityBanner, iActiveTeam, iActivePlayer)
 	local team = Players[cityBanner.playerID]:GetTeam();
 	local isActivePlayerCity = (cityBanner.playerID == iActivePlayer);
 	local isActiveTeamCity = false;
-	if (iActiveTeam == team) then
+	if (iActiveTeam == team or (PreGame.GetSlotStatus( iActivePlayer ) == SlotStatus.SS_OBSERVER and (Game:GetObserverUIOverridePlayer() == -1 or Players[Game:GetObserverUIOverridePlayer()]:GetTeam() == team))) then
 		isActiveTeamCity = true;
 	end
-
+	
 	-- grab city using playerID and cityID
 	local city = player:GetCityByID(cityBanner.cityID);
 	-- for debugging purposes, we want to be able to create a city banner without a DLL-side city
