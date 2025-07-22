@@ -139,6 +139,12 @@ end
 --------------------------------------------------------------------------------
 -- Refresh unit actions
 --------------------------------------------------------------------------------
+
+function ActionSortingFunction(action1, action2)
+	-- sort normal actions by their ID, but promotions by their OrderPriority
+	return ((action1.SubType == ActionSubTypes.ACTIONSUBTYPE_PROMOTION) and action1.OrderPriority or action1.ID) < ((action2.SubType == ActionSubTypes.ACTIONSUBTYPE_PROMOTION) and action2.OrderPriority or action2.ID);
+end
+
 function UpdateUnitActions( unit )
 
     g_PrimaryIM:ResetInstances();
@@ -149,7 +155,6 @@ function UpdateUnitActions( unit )
     Controls.WorkerActionPanel:SetHide(true);
     local pActivePlayer = Players[Game.GetActivePlayer()];
     
-    local bShowActionButton;
     local bUnitHasMovesLeft = unit:MovesLeft() > 0;
     
     -- Text that tells the player this Unit's out of moves this turn
@@ -213,93 +218,95 @@ function UpdateUnitActions( unit )
 
 
     -- loop over all the game actions
-    for iAction = 0, #GameInfoActions, 1 
+	local availableActions = {}
+	for iAction = 0, #GameInfoActions, 1 
     do
-        local action = GameInfoActions[iAction];
-        
+		local action = GameInfoActions[iAction];
+		action.ID = iAction
+		-- We hide the Action buttons when Units are out of moves so new players aren't confused
+		if (bUnitHasMovesLeft or action.Type == "COMMAND_CANCEL" or action.Type == "COMMAND_STOP_AUTOMATION" or action.SubType == ActionSubTypes.ACTIONSUBTYPE_PROMOTION) then
+			if ( action.Visible and Game.CanHandleAction( iAction, 0, 1 )) then
+				table.insert(availableActions, action)
+			end
+        end
+	end
+	table.sort(availableActions, ActionSortingFunction)
+	
+    for _, action in ipairs(availableActions)
+    do
+		iAction = action.ID
         local bBuild = false;
         local bPromotion = false;
         local bDisabled = false;
         
-        -- We hide the Action buttons when Units are out of moves so new players aren't confused
-        if (bUnitHasMovesLeft or action.Type == "COMMAND_CANCEL" or action.Type == "COMMAND_STOP_AUTOMATION" or action.SubType == ActionSubTypes.ACTIONSUBTYPE_PROMOTION) then
-			bShowActionButton = true;
-		else
-			bShowActionButton = false;
-        end
-        
-		-- test CanHandleAction w/ visible flag (ie COULD train if ... )
-        if( bShowActionButton and action.Visible and Game.CanHandleAction( iAction, 0, 1 ) ) 
-        then
-            local instance;
-            local extraXOffset = 0;
-			if (UI.IsTouchScreenEnabled()) then
-				extraXOffset = 44;
-			end
-            if( action.Type == "MISSION_FOUND" ) then
-                instance = g_BuildCityControlMap;
-                Controls.BuildCityButton:SetHide( false );
-                buildCityButtonActive = true;
-                
-            elseif( action.SubType == ActionSubTypes.ACTIONSUBTYPE_PROMOTION ) then
-				bPromotion = true;
-                instance = g_PromotionIM:GetInstance();
-                instance.UnitActionButton:SetAnchor( "L,B" );
-				instance.UnitActionButton:SetOffsetVal( (numBuildActions % numberOfButtonsPerRow) * buttonSize + buttonPadding + buttonOffsetX + extraXOffset, math.floor(numBuildActions / numberOfButtonsPerRow) * buttonSize + buttonPadding + buttonOffsetY );				
-                numBuildActions = numBuildActions + 1;
-                
-            elseif( (action.SubType == ActionSubTypes.ACTIONSUBTYPE_BUILD or action.Type == "INTERFACEMODE_ROUTE_TO") and hasPromotion == false) then
-            
-				bBuild = true;
-				iBuildID = action.MissionData;
-				instance = g_BuildIM:GetInstance();
-				instance.UnitActionButton:SetAnchor( "L,B" );
-				instance.UnitActionButton:SetOffsetVal( (numBuildActions % numberOfButtonsPerRow) * buttonSize + buttonPadding + buttonOffsetX + extraXOffset, math.floor(numBuildActions / numberOfButtonsPerRow) * buttonSize + buttonPadding + buttonOffsetY );				
-				numBuildActions = numBuildActions + 1;
-				if recommendedBuild == nil and unit:IsActionRecommended( iAction ) then
-				
-					recommendedBuild = iAction;
-					
-					local buildInfo = GameInfo.Builds[action.Type];				
-					IconHookup( buildInfo.IconIndex, actionIconSize, buildInfo.IconAtlas, Controls.RecommendedActionImage );
-					Controls.RecommendedActionButton:RegisterCallback( Mouse.eLClick, OnUnitActionClicked );
-					Controls.RecommendedActionButton:SetVoid1( iAction );
-					Controls.RecommendedActionButton:SetToolTipCallback( TipHandler );
-					local text = action.TextKey or action.Type or "Action"..(buttonIndex - 1);
-					local convertedKey = Locale.ConvertTextKey( text );
-					
-					local foo = Locale.Lookup("TXT_KEY_UPANEL_RECOMMENDED");
-					
-					Controls.RecommendedActionLabel:SetText( foo .. "[NEWLINE]" .. convertedKey );
-				end
-               
-            elseif( action.OrderPriority > 100 ) then
-                instance = g_PrimaryIM:GetInstance();
-                numPrimaryActions = numPrimaryActions + 1;
-                
-            else
-                instance = g_SecondaryIM:GetInstance();
-                numSecondaryActions = numSecondaryActions + 1;
-            end
-            
-			-- test w/o visible flag (ie can train right now)
-			if not Game.CanHandleAction( iAction ) then
-				bDisabled = true;
-				instance.UnitActionButton:SetAlpha( 0.4 );                
-				instance.UnitActionButton:SetDisabled( true );                
-			else
-				instance.UnitActionButton:SetAlpha( 1.0 );
-				instance.UnitActionButton:SetDisabled( false );                
-			end
+		local instance;
+		local extraXOffset = 0;
+		if (UI.IsTouchScreenEnabled()) then
+			extraXOffset = 44;
+		end
+		if( action.Type == "MISSION_FOUND" ) then
+			instance = g_BuildCityControlMap;
+			Controls.BuildCityButton:SetHide( false );
+			buildCityButtonActive = true;
 			
-            if(instance.UnitActionIcon ~= nil) then
-				HookupActionIcon(action, actionIconSize, instance.UnitActionIcon);	
-            end
-            instance.UnitActionButton:RegisterCallback( Mouse.eLClick, OnUnitActionClicked );
-            instance.UnitActionButton:SetVoid1( iAction );
-			instance.UnitActionButton:SetToolTipCallback( TipHandler )
-           
-        end
+		elseif( action.SubType == ActionSubTypes.ACTIONSUBTYPE_PROMOTION ) then
+			bPromotion = true;
+			instance = g_PromotionIM:GetInstance();
+			instance.UnitActionButton:SetAnchor( "L,B" );
+			instance.UnitActionButton:SetOffsetVal( (numBuildActions % numberOfButtonsPerRow) * buttonSize + buttonPadding + buttonOffsetX + extraXOffset, math.floor(numBuildActions / numberOfButtonsPerRow) * buttonSize + buttonPadding + buttonOffsetY );				
+			numBuildActions = numBuildActions + 1;
+			
+		elseif( (action.SubType == ActionSubTypes.ACTIONSUBTYPE_BUILD or action.Type == "INTERFACEMODE_ROUTE_TO") and hasPromotion == false) then
+		
+			bBuild = true;
+			iBuildID = action.MissionData;
+			instance = g_BuildIM:GetInstance();
+			instance.UnitActionButton:SetAnchor( "L,B" );
+			instance.UnitActionButton:SetOffsetVal( (numBuildActions % numberOfButtonsPerRow) * buttonSize + buttonPadding + buttonOffsetX + extraXOffset, math.floor(numBuildActions / numberOfButtonsPerRow) * buttonSize + buttonPadding + buttonOffsetY );				
+			numBuildActions = numBuildActions + 1;
+			if recommendedBuild == nil and unit:IsActionRecommended( iAction ) then
+			
+				recommendedBuild = iAction;
+				
+				local buildInfo = GameInfo.Builds[action.Type];				
+				IconHookup( buildInfo.IconIndex, actionIconSize, buildInfo.IconAtlas, Controls.RecommendedActionImage );
+				Controls.RecommendedActionButton:RegisterCallback( Mouse.eLClick, OnUnitActionClicked );
+				Controls.RecommendedActionButton:SetVoid1( iAction );
+				Controls.RecommendedActionButton:SetToolTipCallback( TipHandler );
+				local text = action.TextKey or action.Type or "Action"..(buttonIndex - 1);
+				local convertedKey = Locale.ConvertTextKey( text );
+				
+				local foo = Locale.Lookup("TXT_KEY_UPANEL_RECOMMENDED");
+				
+				Controls.RecommendedActionLabel:SetText( foo .. "[NEWLINE]" .. convertedKey );
+			end
+		   
+		elseif( action.OrderPriority > 100 ) then
+			instance = g_PrimaryIM:GetInstance();
+			numPrimaryActions = numPrimaryActions + 1;
+			
+		else
+			instance = g_SecondaryIM:GetInstance();
+			numSecondaryActions = numSecondaryActions + 1;
+		end
+		
+		-- test w/o visible flag (ie can train right now)
+		if not Game.CanHandleAction( iAction ) then
+			bDisabled = true;
+			instance.UnitActionButton:SetAlpha( 0.4 );                
+			instance.UnitActionButton:SetDisabled( true );                
+		else
+			instance.UnitActionButton:SetAlpha( 1.0 );
+			instance.UnitActionButton:SetDisabled( false );                
+		end
+		
+		if(instance.UnitActionIcon ~= nil) then
+			HookupActionIcon(action, actionIconSize, instance.UnitActionIcon);	
+		end
+		instance.UnitActionButton:RegisterCallback( Mouse.eLClick, OnUnitActionClicked );
+		instance.UnitActionButton:SetVoid1( iAction );
+		instance.UnitActionButton:SetToolTipCallback( TipHandler )
+	   
     end
 
     --if hasPromotion == true then
