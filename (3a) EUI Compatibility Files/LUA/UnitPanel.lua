@@ -1031,6 +1031,13 @@ end
 --------------------------------------------------------------------------------
 -- Refresh unit actions
 --------------------------------------------------------------------------------
+
+function ActionSortingFunction(action1, action2)
+	-- sort normal actions by their ID, but promotions by their OrderPriority
+	return ((action1.SubType == ActionSubTypes.ACTIONSUBTYPE_PROMOTION) and action1.OrderPriority or action1.ID) < ((action2.SubType == ActionSubTypes.ACTIONSUBTYPE_PROMOTION) and action2.OrderPriority or action2.ID);
+end
+
+
 local function UpdateUnitActions( unit )
 
 	g_ActionIM:ResetInstances()
@@ -1073,6 +1080,8 @@ local function UpdateUnitActions( unit )
 			end
 		end
 	end
+	
+	table.sort(actions, ActionSortingFunction)
 
 	local numBuildActions = 0
 	-- loop over all the unit actions
