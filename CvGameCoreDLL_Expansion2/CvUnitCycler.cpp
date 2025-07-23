@@ -30,8 +30,7 @@ void CvUnitCycler::Rebuild(CvUnit* pkStartUnit /* = NULL */)
 	Node* pUnitNode = HeadNode();
 	while (pUnitNode != NULL)
 	{
-		DeleteNode(pUnitNode);
-		pUnitNode = HeadNode();
+		pUnitNode = DeleteNode(pUnitNode);
 	}
 
 	if (pkStartUnit == NULL)

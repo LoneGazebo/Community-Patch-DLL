@@ -2329,17 +2329,22 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 		if(pUnitNode)
 		{
 			pkOldUnits = (IDInfo*)_malloca(pPlot->getNumUnits() * sizeof(IDInfo));	// Allocate an array on the stack, it shouldn't be too large
-			IDInfo* pkEntry = pkOldUnits;
-			while(pUnitNode != NULL)
+			if(pkOldUnits != NULL)
 			{
-				*pkEntry++ = *pUnitNode;
-				pUnitNode = pPlot->nextUnitNode(pUnitNode);
+				IDInfo* pkEntry = pkOldUnits;
+				while(pUnitNode != NULL)
+				{
+					*pkEntry++ = *pUnitNode;
+					pUnitNode = pPlot->nextUnitNode(pUnitNode);
+				}
 			}
 		}
 
-		for(uint i = 0; i < uiOldUnitCount; i++)
+		if(pkOldUnits != NULL)
 		{
-			pLoopUnit = ::GetPlayerUnit(pkOldUnits[i]);
+			for(uint i = 0; i < uiOldUnitCount; i++)
+			{
+				pLoopUnit = ::GetPlayerUnit(pkOldUnits[i]);
 
 			if(pLoopUnit != NULL)
 			{
@@ -2357,6 +2362,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 					}
 				}
 			}
+		}
 		}
 
 		if(pkOldUnits)
@@ -14536,7 +14542,7 @@ int CvUnit::upgradePrice(UnitTypes eUnit) const
 		const EraTypes eUpgradeEra = (EraTypes) pkTechInfo->GetEra();
 
 		double fMultiplier = 1.0f;
-		fMultiplier += (eUpgradeEra* /*0.0f*/ GD_FLOAT_GET(UNIT_UPGRADE_COST_MULTIPLIER_PER_ERA));
+		fMultiplier += (static_cast<float>(eUpgradeEra) * /*0.0f*/ GD_FLOAT_GET(UNIT_UPGRADE_COST_MULTIPLIER_PER_ERA));
 
 		iPrice = int(iPrice * fMultiplier);
 	}
@@ -31361,16 +31367,16 @@ vector<int> CvUnit::GetPlotsWithEnemyInMovementRange(bool bOnlyFortified, bool b
 // PATH-FINDING ROUTINES
 bool CvUnit::IsCachedPathValid() const
 {
-	return m_uiLastPathCacheOrigin != -1;
+	return m_uiLastPathCacheOrigin != static_cast<uint>(-1);
 }
 
 bool CvUnit::HaveCachedPathTo(const CvPlot* pToPlot, int iFlags) const
 {
 	return (
-		m_uiLastPathCacheOrigin == plot()->GetPlotIndex() &&
-		m_uiLastPathCacheDestination == pToPlot->GetPlotIndex() && 
-		m_uiLastPathFlags == (iFlags & PATHFINDER_FLAG_MASK) &&
-		m_uiLastPathTurnSlice == GC.getGame().getTurnSlice()
+		m_uiLastPathCacheOrigin == static_cast<uint>(plot()->GetPlotIndex()) &&
+		m_uiLastPathCacheDestination == static_cast<uint>(pToPlot->GetPlotIndex()) && 
+		m_uiLastPathFlags == static_cast<uint>(iFlags & PATHFINDER_FLAG_MASK) &&
+		m_uiLastPathTurnSlice == static_cast<uint>(GC.getGame().getTurnSlice())
 		);
 }
 

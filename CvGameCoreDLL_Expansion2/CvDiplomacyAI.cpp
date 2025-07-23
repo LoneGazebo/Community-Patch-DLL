@@ -11123,7 +11123,7 @@ void CvDiplomacyAI::DoUpdatePlayerStrengthEstimates()
 		}
 		iOurAvgNukeModifier /= max(iNumOurShelteredCities, 1);
 		iOurAvgInterceptionChance /= max(iNumOurShelteredCities, 1);
-		iOurBombShelterPercent = iNumOurShelteredCities * 100 / iNumOurCities;
+		iOurBombShelterPercent = iNumOurShelteredCities * 100 / max(iNumOurCities, 1);
 	}
 
 	PlayerTypes eOurPlayer = GetID();
@@ -11285,7 +11285,7 @@ void CvDiplomacyAI::DoUpdatePlayerStrengthEstimates()
 			}
 			iTheirAvgNukeModifier /= max(iNumTheirShelteredCities, 1);
 			iTheirAvgInterceptionChance /= max(iNumTheirShelteredCities, 1);
-			iTheirBombShelterPercent = iNumTheirShelteredCities * 100 / iNumTheirCities;
+			iTheirBombShelterPercent = iNumTheirShelteredCities * 100 / max(iNumTheirCities, 1);
 		}
 		iOurMilitaryStrength += GetPlayer()->calculateNuclearMight(ePlayer, false, iTheirBombShelterPercent, iTheirAvgNukeModifier, iTheirAvgInterceptionChance);
 		iTheirMilitaryStrength += GET_PLAYER(ePlayer).calculateNuclearMight(eOurPlayer, false, iOurBombShelterPercent, iOurAvgNukeModifier, iOurAvgInterceptionChance);

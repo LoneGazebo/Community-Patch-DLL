@@ -589,7 +589,7 @@ void CvTacticalAnalysisMap::EstablishZoneNeighborhood()
 bool CvTacticalAnalysisMap::IsUpToDate()
 {
 	//not initialized
-	if (m_vPlotZoneID.size() != GC.getMap().numPlots())
+	if (static_cast<int>(m_vPlotZoneID.size()) != GC.getMap().numPlots())
 		return false;
 	
 	//explicitly invalidated

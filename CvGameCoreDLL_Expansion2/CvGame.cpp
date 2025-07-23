@@ -4504,7 +4504,7 @@ void CvGame::UpdateGameEra()
 	{
 		if (GET_TEAM((TeamTypes)iI).isAlive() && GET_TEAM((TeamTypes)iI).isMajorCiv())
 		{
-			fEra += GET_TEAM((TeamTypes)iI).GetCurrentEra();
+			fEra += static_cast<float>(GET_TEAM((TeamTypes)iI).GetCurrentEra());
 			iCount++;
 		}
 	}
@@ -11162,7 +11162,7 @@ void CvGame::readSaveGameDB(FDataStream& kStream)
 
 			pkFile->Close();
 
-			free(szBuffer);
+			delete[] szBuffer;
 		}
 		else
 		{
@@ -11198,7 +11198,7 @@ void CvGame::writeSaveGameDB(FDataStream& kStream) const
 				kStream.WriteIt(dwBytesRead, szBuffer);
 			}
 
-			free(szBuffer);
+			delete[] szBuffer;
 		}
 		else
 		{
@@ -11213,7 +11213,7 @@ void CvGame::writeSaveGameDB(FDataStream& kStream) const
 	else
 	{
 		WIN32_FILE_ATTRIBUTE_DATA fileAttributes;
-		if (GetFileAttributesExW(savePath, GetFileExInfoStandard, &fileAttributes) != INVALID_FILE_ATTRIBUTES)
+		if (GetFileAttributesExW(savePath, GetFileExInfoStandard, &fileAttributes) != static_cast<BOOL>(INVALID_FILE_ATTRIBUTES))
 		{
 			ASSERT_DEBUG(false, "Saved game database exists, but could not open it!");
 		}

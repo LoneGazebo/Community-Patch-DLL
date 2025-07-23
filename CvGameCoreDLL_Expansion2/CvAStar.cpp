@@ -3878,7 +3878,7 @@ int SPath::getNormalizedDistanceBase()
 	return 100;
 }
 
-struct PairCompareFirst
+struct ReachablePlots_PairCompareFirst
 {
     bool operator() (const std::pair<int,size_t>& l, const std::pair<int,size_t>& r) const
     {
@@ -3892,10 +3892,10 @@ void ReachablePlots::createIndex()
 	lookup.reserve(storage.size());
 	for (size_t i = 0; i < storage.size(); i++)
 		lookup.push_back( make_pair(storage[i].iPlotIndex,i) );
-	std::stable_sort(lookup.begin(), lookup.end(), PairCompareFirst());
+	std::stable_sort(lookup.begin(), lookup.end(), ReachablePlots_PairCompareFirst());
 }
 
-struct EqualRangeComparison
+struct ReachablePlots_EqualRangeComparison
 {
     bool operator() ( const pair<int,size_t> a, int b ) const { return a.first < b; }
     bool operator() ( int a, const pair<int,size_t> b ) const { return a < b.first; }
@@ -3904,7 +3904,7 @@ struct EqualRangeComparison
 ReachablePlots::iterator ReachablePlots::find(int iPlotIndex)
 {
 	typedef pair<vector<pair<int, size_t>>::iterator, vector<pair<int, size_t>>::iterator>  IteratorPair;
-	IteratorPair it2 = equal_range(lookup.begin(), lookup.end(), iPlotIndex, EqualRangeComparison());
+	IteratorPair it2 = equal_range(lookup.begin(), lookup.end(), iPlotIndex, ReachablePlots_EqualRangeComparison());
 	if (it2.first != lookup.end() && it2.first != it2.second)
 		return storage.begin() + it2.first->second;
 
@@ -3914,7 +3914,7 @@ ReachablePlots::iterator ReachablePlots::find(int iPlotIndex)
 ReachablePlots::const_iterator ReachablePlots::find(int iPlotIndex) const
 {
 	typedef pair<vector<pair<int, size_t>>::const_iterator, vector<pair<int, size_t>>::const_iterator>  IteratorPair;
-	IteratorPair it2 = equal_range(lookup.begin(), lookup.end(), iPlotIndex, EqualRangeComparison());
+	IteratorPair it2 = equal_range(lookup.begin(), lookup.end(), iPlotIndex, ReachablePlots_EqualRangeComparison());
 	if (it2.first != lookup.end() && it2.first != it2.second)
 		return storage.begin() + it2.first->second;
 
@@ -3931,7 +3931,7 @@ void ReachablePlots::insertWithIndex(const SMovePlot& plot)
 {
 	lookup.push_back( make_pair(plot.iPlotIndex,storage.size()) );
 	storage.push_back(plot);
-	std::stable_sort(lookup.begin(), lookup.end(), PairCompareFirst());
+	std::stable_sort(lookup.begin(), lookup.end(), ReachablePlots_PairCompareFirst());
 }
 
 FDataStream & operator >> (FDataStream & kStream, CvPathNode & node)

@@ -371,7 +371,7 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 
 		//ignore some plots (typically enemy or close to enemy)
 		if (plotDistance(*pLoopPlot,*pPlot)>1) //but only if we can't instantly claim them
-			if (ignorePlots.size()==GC.getMap().numPlots() && ignorePlots[pLoopPlot->GetPlotIndex()] > 0)
+			if (static_cast<int>(ignorePlots.size())==GC.getMap().numPlots() && ignorePlots[pLoopPlot->GetPlotIndex()] > 0)
 				continue;
 
 		int iDistance = plotDistance(*pPlot,*pLoopPlot);

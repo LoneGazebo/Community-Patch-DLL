@@ -495,7 +495,7 @@ void CvDllDatabaseUtility::DatabaseRemapper()
 							bool bFirst = true;
 							for (uint ui = 0; ui < vTableIDs.size(); ui++)
 							{
-								if (vTableIDs[ui] != ui)
+								if (vTableIDs[ui] != static_cast<int>(ui))
 								{
 									if (bFirst)
 									{

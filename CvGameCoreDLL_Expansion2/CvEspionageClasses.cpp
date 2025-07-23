@@ -1832,7 +1832,7 @@ CvString CvPlayerEspionage::GetEventHelpText(CityEventTypes eEvent, int uiSpyInd
 
 CvString CvPlayerEspionage::GetSpyMissionTooltip(CvCity* pCity, uint uiSpyIndex)
 {
-	if (uiSpyIndex == -1)
+	if (uiSpyIndex == static_cast<uint>(-1))
 		return "";
 
 	CvString strSpyAtCity = "";

@@ -5770,7 +5770,7 @@ std::vector<CvString> CvPlayerTrade::GetPlotToolTips (CvPlot* pPlot)
 					// (if major to minor)
 					// Kyoto (Japan) ~~ Monaco (City-State)
 
-					if (uiPlotIndex == pConnection->m_iTradeUnitLocationIndex)
+					if (uiPlotIndex == static_cast<uint>(pConnection->m_iTradeUnitLocationIndex))
 					{
 						if (pConnection->m_eDomain == DOMAIN_LAND)
 						{
@@ -5863,7 +5863,7 @@ std::vector<CvString> CvPlayerTrade::GetPlotMouseoverToolTips (CvPlot* pPlot)
 			{
 				if (pConnection->m_aPlotList[uiPlotIndex].m_iX == iX && pConnection->m_aPlotList[uiPlotIndex].m_iY == iY)
 				{
-					if (uiPlotIndex == pConnection->m_iTradeUnitLocationIndex)
+					if (uiPlotIndex == static_cast<uint>(pConnection->m_iTradeUnitLocationIndex))
 					{
 						Localization::String strLine;
 						if(strcmp(GET_PLAYER(pConnection->m_eOriginOwner).getNickName(), "") != 0)

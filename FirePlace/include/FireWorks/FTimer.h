@@ -98,7 +98,12 @@ struct FTimer
 #endif	//	_XBOX
 
 
-__forceinline __int64 GetTicks() { __asm rdtsc }
+__forceinline __int64 GetTicks() { 
+	__asm {
+		rdtsc
+		// rdtsc returns 64-bit value in EDX:EAX, which is the return value for __int64
+	}
+}
 
 
 //---------------------------------------------------------------------------------------

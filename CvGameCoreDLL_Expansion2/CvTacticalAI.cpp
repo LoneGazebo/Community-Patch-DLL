@@ -9961,12 +9961,12 @@ size_t CvTacticalPosition::getFirstInterestingAssignment() const
 	return (size_t)nFirstInterestingAssignment;
 }
 
-struct PairCompareFirst
+struct TacticalPosition_PairCompareFirst
 {
 	bool operator() (const std::pair<unsigned short, unsigned char>& l, const std::pair<unsigned short, unsigned char>& r) const { return l.first < r.first; }
 };
 
-struct EqualRangeComparison
+struct TacticalPosition_EqualRangeComparison
 {
 	bool operator() (const pair<unsigned short, unsigned char>& a, unsigned short b) const { return a.first < b; }
 	bool operator() (unsigned short a, const pair<unsigned short, unsigned char>& b) const { return a < b.first; }
@@ -9976,7 +9976,7 @@ vector<CvTacticalPlot>::iterator CvTacticalPosition::findTactPlot(int iPlotIndex
 {
 	if (iPlotIndex >= 0 && iPlotIndex < USHRT_MAX)
 	{
-		pair<TactPlotIndexByPlotIndex::iterator, TactPlotIndexByPlotIndex::iterator> it2 = equal_range(tactPlotLookup.begin(), tactPlotLookup.end(), (unsigned short)iPlotIndex, EqualRangeComparison());
+		pair<TactPlotIndexByPlotIndex::iterator, TactPlotIndexByPlotIndex::iterator> it2 = equal_range(tactPlotLookup.begin(), tactPlotLookup.end(), (unsigned short)iPlotIndex, TacticalPosition_EqualRangeComparison());
 		if (it2.first != tactPlotLookup.end() && it2.first != it2.second)
 			return tactPlots.begin() + it2.first->second;
 	}
@@ -9988,7 +9988,7 @@ vector<CvTacticalPlot>::const_iterator CvTacticalPosition::findTactPlot(int iPlo
 {
 	if (iPlotIndex >= 0 && iPlotIndex < USHRT_MAX)
 	{
-		pair<TactPlotIndexByPlotIndex::const_iterator, TactPlotIndexByPlotIndex::const_iterator> it2 = equal_range(tactPlotLookup.begin(), tactPlotLookup.end(), (unsigned short)iPlotIndex, EqualRangeComparison());
+		pair<TactPlotIndexByPlotIndex::const_iterator, TactPlotIndexByPlotIndex::const_iterator> it2 = equal_range(tactPlotLookup.begin(), tactPlotLookup.end(), (unsigned short)iPlotIndex, TacticalPosition_EqualRangeComparison());
 		if (it2.first != tactPlotLookup.end() && it2.first != it2.second)
 			return tactPlots.begin() + it2.first->second;
 	}
@@ -10015,7 +10015,7 @@ bool CvTacticalPosition::addTacticalPlot(const CvPlot* pPlot, const vector<CvUni
 	{
 		//cast to smaller types to save memmory ...
 		TactPlotIndexByPlotIndex::value_type newEntry( (TactPlotIndexByPlotIndex::value_type::first_type)pPlot->GetPlotIndex(), (TactPlotIndexByPlotIndex::value_type::second_type)tactPlots.size());
-		tactPlotLookup.insert(upper_bound(tactPlotLookup.begin(), tactPlotLookup.end(), newEntry, PairCompareFirst()), newEntry);
+		tactPlotLookup.insert(upper_bound(tactPlotLookup.begin(), tactPlotLookup.end(), newEntry, TacticalPosition_PairCompareFirst()), newEntry);
 		tactPlots.push_back(newPlot);
 
 #if defined(MOD_CORE_DEBUGGING)
