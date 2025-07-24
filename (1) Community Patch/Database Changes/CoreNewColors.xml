@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<Colors>
+		<Row>
+			<Type>COLOR_MODERATE_POSITIVE_TEXT</Type>
+			<Red>0.3594</Red>
+			<Green>0.7392</Green>
+			<Blue>0.0559</Blue>
+			<Alpha>1</Alpha>
+		</Row>
+		<Row>
+			<Type>COLOR_MODERATE_NEGATIVE_TEXT</Type>
+			<Red>0.7617</Red>
+			<Green>0.18125</Green>
+			<Blue>0.18125</Blue>
+			<Alpha>1</Alpha>
+		</Row>
+	</Colors>
+</GameData>

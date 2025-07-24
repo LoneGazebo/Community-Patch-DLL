@@ -780,10 +780,13 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 			}
 
 			//personality also plays a role
-			if (pPlayer->GetDiplomacyAI()->GetBoldness() > 6)
-				iModifierPercent += 30;
-			if (pPlayer->GetDiplomacyAI()->GetBoldness() < 4)
-				iModifierPercent -= 30;
+			int iBoldness = pPlayer->GetDiplomacyAI()->GetBoldness();
+			if (iBoldness > 6)
+				iModifierPercent += pPlayer->GetDiplomacyAI()->AdjustConditionalModifier(20, iBoldness);
+			else if (iBoldness < 4)
+				iModifierPercent -= pPlayer->GetDiplomacyAI()->AdjustConditionalModifier(20, iBoldness, true);
+			else
+				iModifierPercent += iBoldness > 5 ? 10 : -10;
 
 			//finally
 			int iAdjustedEffect =  (/*30*/ GD_INT_GET(BALANCE_EMPIRE_BORDERLAND_STRATEGIC_VALUE) * iModifierPercent) / 100;
