@@ -4556,7 +4556,7 @@ void CvLeague::DoEnactProposalDiplomacy(ResolutionTypes eResolution, PlayerTypes
 					GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eProposer, /*30*/ GD_INT_GET(OPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL));
 					break;
 				case CvLeagueAI::DESIRE_WEAK_DISLIKE:
-					GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eProposer, /*15*/ GD_INT_GET(OPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL));
+					GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eProposer, /*15*/ GD_INT_GET(OPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL_WEAK));
 					break;
 				case CvLeagueAI::DESIRE_NEUTRAL:
 				case CvLeagueAI::DESIRE_WEAK_LIKE:
@@ -4662,7 +4662,7 @@ void CvLeague::DoRepealProposalDiplomacy(int iTargetResolutionID, PlayerTypes eP
 					GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eProposer, /*30*/ GD_INT_GET(OPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL));
 					break;
 				case CvLeagueAI::DESIRE_WEAK_DISLIKE:
-					GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eProposer, /*15*/ GD_INT_GET(OPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL));
+					GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eProposer, /*15*/ GD_INT_GET(OPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL_WEAK));
 					break;
 				case CvLeagueAI::DESIRE_NEUTRAL:
 				case CvLeagueAI::DESIRE_WEAK_LIKE:
@@ -4716,9 +4716,9 @@ void CvLeague::DoRepealSanctionsDiplomacy(PlayerTypes eTarget, PlayerTypes eObse
 		pDiplo->ChangeRecentAssistValue(eVoter, pDiplo->AdjustConditionalModifier(iValue, pDiplo->GetWorkWithWillingness()));
 	else if (bSanctionsAreBad && !bVotedToPass)
 		pDiplo->ChangeRecentAssistValue(eVoter, pDiplo->AdjustConditionalModifier(iValue * -1, pDiplo->GetWorkWithWillingness()));
-	else if (bSanctionsAreGood && bVotedToPass)
-		pDiplo->ChangeRecentAssistValue(eVoter, pDiplo->AdjustConditionalModifier(iValue, pDiplo->GetWorkAgainstWillingness()));
 	else if (bSanctionsAreGood && !bVotedToPass)
+		pDiplo->ChangeRecentAssistValue(eVoter, pDiplo->AdjustConditionalModifier(iValue, pDiplo->GetWorkAgainstWillingness()));
+	else if (bSanctionsAreGood && bVotedToPass)
 		pDiplo->ChangeRecentAssistValue(eVoter, pDiplo->AdjustConditionalModifier(iValue * -1, pDiplo->GetWorkAgainstWillingness()));
 }
 
