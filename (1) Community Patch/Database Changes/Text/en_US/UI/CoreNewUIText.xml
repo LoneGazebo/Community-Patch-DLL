@@ -49,23 +49,92 @@
 		<Row Tag="TXT_KEY_TECH_HELP_SPECIALIST_YIELDS_UNLOCKED">
 			<Text>Specialist Changes:</Text>
 		</Row>
+		<Row Tag="TXT_KEY_TECH_HELP_NUMBER_CHANGE">
+			<Text>{1: number "'+'##.##;'-'##.##"}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TECH_HELP_YIELD_CHANGE">
+			<Text>{1: number "'+'##.##;'-'##.##"} {2_YieldIcon}</Text>
+		</Row>
 		<Row Tag="TXT_KEY_TECH_HELP_BUILD_REDUCTION">
 			<Text>{1_Build}: {2_Turns} {2_Turns: plural 1?Turn; other?Turns;} Required</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TECH_HELP_CHOP_BOOST">
+			<Text>Chopping Forests/Jungles: {2_Sign}{1_Num} [ICON_PRODUCTION] Production</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TECH_HELP_BUILD_COST_REDUCTION">
+			<Text>{1: number "'+'##.##;'-'##.##"}% Turns to {2_Build}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TECH_HELP_FASTER_ROUTE_MOVEMENT">
+			<Text>{1: number "'+'##.##;'-'##.##"} Movement Cost when moving along {2_Route:textkey}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TECH_HELP_FASTER_EMBARKED_MOVEMENT">
+			<Text>{2_Sign}{1_Num} Embarked Movement</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TECH_HELP_FORTIFICATION_MODIFIER">
+			<Text>{2_Sign}{1_Num}% Combat Strength from Unit Fortification</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TECH_HELP_HEAL_MODIFIER">
+			<Text>{2_Sign}{1_Num}% base amount of HP restoration when Healing</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TECH_HELP_HAPPINESS_GLOBAL">
+			<Text>{2_Sign}{1_Num} [ICON_HAPPINESS_1] Happiness in all Cities</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TECH_HELP_EXTRA_TRADE_ROUTES">
+			<Text>{2_Sign}{1_Num} [ICON_INTERNATIONAL_TRADE] Trade {1: plural 1?Route; other?Routes;}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TECH_HELP_LAND_TRADE_ROUTE_EXTENSION">
+			<Text>{2_Sign}{1_Num} Range for [ICON_CARAVAN] Land Trade Routes</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TECH_HELP_SEA_TRADE_ROUTE_EXTENSION">
+			<Text>{2_Sign}{1_Num} Range for [ICON_CARGO_SHIP] Sea Trade Routes</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TECH_HELP_TOURISM_MODIFIER">
+			<Text>{2_Sign}{1_Num} [ICON_TOURISM] Tourism in all Cities</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TECH_HELP_BUILDING_BOOST">
+			<Text>{1_Building:textkey}: {2_YieldBoosts}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TECH_HELP_SPECIALIST_BOOST">
+			<Text>{1_Specialist:textkey}: {2_YieldBoosts}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TECH_HELP_TERRAIN_BOOST">
+			<Text>{1_Terrain:textkey}: {2_YieldBoosts}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TECH_HELP_FEATURE_BOOST">
+			<Text>{1_Feature:textkey}: {2_YieldBoosts}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TECH_HELP_IMPROVEMENT_BOOST">
+			<Text>{1_Improvement:textkey}: {2_YieldBoosts}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TECH_HELP_IMPROVEMENT_BOOST_FRESH_WATER">
+			<Text>{1_Improvement:textkey} with Fresh Water: {2_YieldBoosts}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TECH_HELP_IMPROVEMENT_BOOST_NO_FRESH_WATER">
+			<Text>{1_Improvement:textkey} without Fresh Water: {2_YieldBoosts}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TECH_HELP_DELEGATES_FROM_DIPLOMATS">
+			<Text>{2_Sign}{1_Num} [ICON_DIPLOMAT] {1: plural 1?Delegate; other?Delegates;} in the World Congress for every [ICON_DIPLOMAT] Diplomat in foreign [ICON_CAPITAL] Capitals</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ABLTY_TECH_BOOST_CHOP">
 			<Text>+{1_Num}% [ICON_PRODUCTION] Production from Chopping Forests/Jungles (+25 [ICON_PRODUCTION])</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ABLTY_ENABLES_CORPORATIONS">
-			<Text>Enables Corporations to be founded.</Text>
+			<Text>Enables Corporations to be founded</Text>
 		</Row>
-		<Row Tag="TXT_KEY_ABLTY_CITY_LESS_EMBARK_COST_STRING">
-			<Text>Embarking/disembarking in owned cities expends only 1 Movement</Text>
+		<Row Tag="TXT_KEY_TECH_HELP_REDUCED_EMBARK_COST">
+			<Text>Embarking from/Disembarking into friendly Cities or Canals expends only 1 Movement</Text>
 		</Row>
-		<Row Tag="TXT_KEY_ABLTY_CITY_NO_EMBARK_COST_STRING">
-			<Text>Embarking/disembarking in owned cities expends only 0.1 Movement</Text>
+		<Row Tag="TXT_KEY_TECH_HELP_NO_EMBARK_COST">
+			<Text>Embarking from/Disembarking into friendly Cities or Canals expends only 0.1 Movement</Text>
 		</Row>
-		<Row Tag="TXT_KEY_ABLTY_HAPPINESS_BUMP">
-			<Text>+{1_Num} [ICON_HAPPINESS_1] Happiness in all Cities.</Text>
+		<Row Tag="TXT_KEY_ALLOWS_MAP_TRADING">
+			<Text>Allows the sale of world maps to other Civilizations</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ALLOWS_TECH_TRADING">
+			<Text>Allows technology to be sold to other Civilizations</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ALLOWS_VASSALAGE">
+			<Text>Allows you to make rival Civilizations your Vassal State</Text>
 		</Row>
 		<!-- Don't work as described - see TechTableChanges.sql -->
 		<Row Tag="TXT_KEY_ABLTY_CITY_RANGE_INCREASE">

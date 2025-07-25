@@ -502,6 +502,8 @@ protected:
 
 	static int lIsExeWantForceResyncAvailable(lua_State* L);
 	static int lSetExeWantForceResyncValue(lua_State* L);
+
+	LUAAPIEXTN(GetNumYieldTypes, int);
 };
 
 #endif //CVLUAGAME_H

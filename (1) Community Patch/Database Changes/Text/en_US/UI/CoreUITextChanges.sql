@@ -20,7 +20,7 @@ SET Text = 'Allows land units to embark and cross water Tiles.'
 WHERE Tag = 'TXT_KEY_ALLOWS_EMBARKING';
 
 UPDATE Language_en_US
-SET Text = 'Allowed units receive [COLOR_POSITIVE_TEXT]{@1_PromotionName}[ENDCOLOR] Promotion: {@2_PromotionHelp}'
+SET Text = 'Eligible units receive [COLOR_POSITIVE_TEXT]{1_Promotion:textkey}[ENDCOLOR] Promotion: {2_PromotionHelp:textkey}'
 WHERE Tag = 'TXT_KEY_FREE_PROMOTION_FROM_TECH';
 
 UPDATE Language_en_US

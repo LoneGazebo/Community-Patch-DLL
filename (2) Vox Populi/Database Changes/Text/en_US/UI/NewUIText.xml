@@ -1081,20 +1081,11 @@
 		<Row Tag="TXT_KEY_ABLTY_MAP_TRADING_STRING">
 			<Text>Allows Map Trading</Text>
 		</Row>
-		<Row Tag="TXT_KEY_ALLOWS_MAP_TRADING">
-			<Text>Allows the sale of world maps to other civilizations.</Text>
-		</Row>
 		<Row Tag="TXT_KEY_ABLTY_TECH_TRADING_STRING">
 			<Text>Allows Tech Trading</Text>
 		</Row>
-		<Row Tag="TXT_KEY_ALLOWS_TECH_TRADING">
-			<Text>Allows technology to be sold to other civilizations.</Text>
-		</Row>
 		<Row Tag="TXT_KEY_ABLTY_VASSALAGE_STRING">
 			<Text>Allows Vassalage</Text>
-		</Row>
-		<Row Tag="TXT_KEY_ALLOWS_VASSALAGE">
-			<Text>Allows you to make rival civilizations your vassal state.</Text>
 		</Row>
 
 		<!-- Info tooltip -->
