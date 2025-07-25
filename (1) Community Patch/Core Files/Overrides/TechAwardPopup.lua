@@ -19,8 +19,6 @@ local activeTeam = Teams[activeTeamID];
 
 local storedPopupInfo = {};
 
-GatherInfoAboutUniqueStuff( civType );
-
 local m_PopupInfo = nil;
 
 -------------------------------------------------------------------------------
@@ -148,8 +146,6 @@ function OnTechAwardActivePlayerChanged( iActivePlayer, iPrevActivePlayer )
 	civType = GameInfo.Civilizations[player:GetCivilizationType()].Type;
 	activeTeamID = Game.GetActiveTeam();
 	activeTeam = Teams[activeTeamID];
-	
-	GatherInfoAboutUniqueStuff( civType );
 	
 	-- Make sure its closed so the next player doesn't see the previous players popup.	
 	OnClose();

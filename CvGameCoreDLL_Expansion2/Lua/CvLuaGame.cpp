@@ -517,6 +517,8 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 
 	Method(SetExeWantForceResyncValue);
 	Method(IsExeWantForceResyncAvailable);
+
+	Method(GetNumYieldTypes);
 }
 //------------------------------------------------------------------------------
 
@@ -4246,4 +4248,10 @@ int CvLuaGame::lSetExeWantForceResyncValue(lua_State* L)
 int CvLuaGame::lIsExeWantForceResyncAvailable(lua_State* L) 
 {
 	return BasicLuaMethod(L, &CvGame::IsExeWantForceResyncAvailable);
+}
+
+int CvLuaGame::lGetNumYieldTypes(lua_State* L) 
+{
+	lua_pushinteger(L, GC.getNUM_YIELD_TYPES());
+	return 1;
 }

@@ -34,11 +34,6 @@
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <FileName>ImprovedTechTree/IconChanges.sql</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
         <FileName>ImprovedTopPanel/Text.xml</FileName>
       </Action>
     </ModActions>
@@ -259,10 +254,6 @@
     <Content Include="ImprovedTopPanel/TopPanel.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="ImprovedTechTree\IconChanges.sql">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="ImprovedTechTree/TechTree.lua">
       <SubType>Lua</SubType>

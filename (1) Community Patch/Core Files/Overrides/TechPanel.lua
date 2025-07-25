@@ -229,7 +229,6 @@ function UpdatePlayerData()
 	if playerID > -1 then
 		local player = Players[playerID];
 		local civType = GameInfo.Civilizations[player:GetCivilizationType()].Type;
-		GatherInfoAboutUniqueStuff( civType );
 	end
 end
 

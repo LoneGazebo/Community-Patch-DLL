@@ -72,9 +72,6 @@ function InitialSetup()
 
 	-- make the scroll bar the correct size for the display size
 	Controls.TechTreeScrollBar:SetSizeX( Controls.TechTreeScrollPanel:GetSize().x - 150 );
-	
-	-- gather info about this player's unique units and buldings
-	GatherInfoAboutUniqueStuff( civType );
 
 	-- add the Era panels to the background
 	AddEraPanels();
@@ -546,9 +543,6 @@ function OnDisplay( popupInfo )
 	civType = GameInfo.Civilizations[player:GetCivilizationType()].Type;
 	activeTeamID = player:GetTeam();
 	activeTeam = Teams[activeTeamID];
-	if(g_NeedsFullRefresh) then
-		GatherInfoAboutUniqueStuff( civType );
-	end
     
 	Events.SerialEventGameMessagePopupShown(m_PopupInfo);
 		
@@ -874,9 +868,7 @@ function OnTechTreeActivePlayerChanged( iActivePlayer, iPrevActivePlayer )
 	player = Players[playerID];
 	civType = GameInfo.Civilizations[player:GetCivilizationType()].Type;
 	activeTeamID = Game.GetActiveTeam();
-	activeTeam = Teams[activeTeamID];	
-	-- Rebuild some tables	
-	GatherInfoAboutUniqueStuff( civType );	
+	activeTeam = Teams[activeTeamID];
 	
 	-- So some extra stuff gets re-built on the refresh call
 	if not g_isOpen then
