@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
 
 env:
-  CPPCHECK_VERSION: "2.17.1"
+  CPPCHECK_VERSION: "2.18.0"
 
 jobs:
   build_cppcheck:
@@ -37,7 +37,7 @@ jobs:
         with:
           name: cppcheck-build
           path: /tmp/cppcheck-build/
-          retention-days: 1
+          retention-days: 90
 
   analysis:
     needs: build_cppcheck
