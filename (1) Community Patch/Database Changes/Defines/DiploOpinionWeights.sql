@@ -14,10 +14,12 @@ VALUES
 	('OPINION_THRESHOLD_FRIEND', -80),
 	('OPINION_THRESHOLD_ALLY', -160),
 
--- Major Modifier Thresholds
--- Opinion modifiers with a value higher than these thresholds will display in bright red/green instead of dark red/green
-	('OPINION_THRESHOLD_MAJOR_POSITIVE', -15), -- for positive modifiers
-	('OPINION_THRESHOLD_MAJOR_NEGATIVE', 15), -- for negative modifiers
+-- Modifier Color Thresholds
+-- Opinion modifiers with a value higher than or equal to these thresholds will display in brighter red/green
+	('OPINION_THRESHOLD_MAJOR_POSITIVE', -31),
+	('OPINION_THRESHOLD_MODERATE_POSITIVE', -16),
+	('OPINION_THRESHOLD_MODERATE_NEGATIVE', 16),
+	('OPINION_THRESHOLD_MAJOR_NEGATIVE', 31),
 
 -- Opinion Modifiers
 

@@ -2423,11 +2423,10 @@ void CvDiplomacyAI::SelectDefaultVictoryPursuits()
 	VictoryScores[VICTORY_PURSUIT_DOMINATION] += static_cast<int>(GC.getGame().urandRangeInclusive(1, uRandom, CvSeeder::fromRaw(0x905ce137).mix(ID)));
 
 	// Weight for diplomacy
-	VictoryScores[VICTORY_PURSUIT_DIPLOMACY] += GetDiploBalance();
 	VictoryScores[VICTORY_PURSUIT_DIPLOMACY] += GetMinorCivCompetitiveness();
-	VictoryScores[VICTORY_PURSUIT_DIPLOMACY] += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DIPLOMACY")) / 2;
-	VictoryScores[VICTORY_PURSUIT_DIPLOMACY] += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GOLD")) / 2;
-	VictoryScores[VICTORY_PURSUIT_DIPLOMACY] += static_cast<int>(GC.getGame().urandRangeInclusive(1, uRandom, CvSeeder::fromRaw(0xea5ade8b).mix(ID)));
+	VictoryScores[VICTORY_PURSUIT_DIPLOMACY] += GetWorkWithWillingness();
+	VictoryScores[VICTORY_PURSUIT_DIPLOMACY] += GetWorkAgainstWillingness(); // Diplo Victory is heavily dependent on diplomacy flavors, so we don't use others, but this skews the mean slightly (+0.5)
+	VictoryScores[VICTORY_PURSUIT_DIPLOMACY] += static_cast<int>(GC.getGame().urandRangeInclusive(1, uRandom - 1, CvSeeder::fromRaw(0xea5ade8b).mix(ID))); // subtracting 1 here removes the skew
 
 	// Weight for culture
 	VictoryScores[VICTORY_PURSUIT_CULTURE] += GetDoFWillingness();
@@ -2714,19 +2713,19 @@ void CvDiplomacyAI::SelectDefaultVictoryPursuits()
 
 //	-----------------------------------------------------------------------------------------------
 
-/// How much does this AI leader get angry when another player is competing for Victory?
+/// How much importance does this AI leader place on competing for Victory?
 int CvDiplomacyAI::GetVictoryCompetitiveness() const
 {
 	return m_iVictoryCompetitiveness;
 }
 
-/// How much does this AI leader get angry when they're beaten to a World Wonder?
+/// How much importance does this AI leader place on obtaining World Wonders?
 int CvDiplomacyAI::GetWonderCompetitiveness() const
 {
 	return m_iWonderCompetitiveness;
 }
 
-/// How much does this AI leader get angry when another player is befriending "their" minor civs?
+/// How possessive is this AI leader's attitude towards "their" City-States?
 int CvDiplomacyAI::GetMinorCivCompetitiveness() const
 {
 	return m_iMinorCivCompetitiveness;
@@ -2744,7 +2743,7 @@ int CvDiplomacyAI::GetDiploBalance() const
 	return m_iDiploBalance;
 }
 
-/// How much does this AI leader get angry when someone's being a warmonger?
+/// How much does this AI leader value peace and hate others warmongering?
 int CvDiplomacyAI::GetWarmongerHate() const
 {
 	return m_iWarmongerHate;
@@ -2756,7 +2755,7 @@ int CvDiplomacyAI::GetDoFWillingness() const
 	return m_iDoFWillingness;
 }
 
-/// How much is this AI leader willing to badmouth other players?
+/// How much is this AI leader willing to badmouth and deceive other players?
 int CvDiplomacyAI::GetDenounceWillingness() const
 {
 	return m_iDenounceWillingness;
@@ -2792,7 +2791,7 @@ int CvDiplomacyAI::GetNeediness() const
 	return m_iNeediness;
 }
 
-/// How much does this AI leader like to talk smack / bully others?
+/// How much does this AI leader like to bully others?
 int CvDiplomacyAI::GetMeanness() const
 {
 	return m_iMeanness;
@@ -30093,7 +30092,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 					bool bValid = false;
 					if (GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(ePlayer).getTeam(), GetID()))
 					{
-						if (GC.getGame().randRangeExclusive(0, 10, CvSeeder::fromRaw(0x15c58904).mix(GetID()).mix(GET_PLAYER(ePlayer).GetID())) < GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarmongerHate())
+						if (GC.getGame().randRangeExclusive(0, 10, CvSeeder::fromRaw(0x15c58904).mix(GetID()).mix(GET_PLAYER(ePlayer).GetID())) < GetWarmongerHate())
 						{
 							bValid = true;
 						}
@@ -30147,7 +30146,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 					bool bValid = false;
 					if (GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(ePlayer).getTeam(), GetID()))
 					{
-						if (GC.getGame().randRangeExclusive(0, 10, CvSeeder::fromRaw(0x1da72213).mix(GetID()).mix(GET_PLAYER(ePlayer).GetID())) < GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarmongerHate())
+						if (GC.getGame().randRangeExclusive(0, 10, CvSeeder::fromRaw(0x1da72213).mix(GetID()).mix(GET_PLAYER(ePlayer).GetID())) < GetWarmongerHate())
 						{
 							bValid = true;
 						}
@@ -45586,6 +45585,9 @@ void CvDiplomacyAI::TestOpinionModifiers()
 			/*10*/ GD_INT_GET(OPINION_WEIGHT_SIDED_WITH_THEIR_MINOR_NUM_TURNS_UNTIL_FORGIVEN),
 			GetForgiveness(), true);
 
+		// NOTE: We intentionally omit bullying here because of the Lua method GetTurnsSincePlayerBulliedProtectedMinor().
+		// The modifier will still be cancelled out in IsAngryAboutProtectedMinorBullied(), but the last City-State bullied and the turn it was bullied on remain stored.
+
 		// Attacked our protected minor?
 		checkAndUpdateNonStackingOpinionModifier(this, ePlayer, iTurn,
 			&CvDiplomacyAI::IsAngryAboutProtectedMinorAttacked,
@@ -46843,9 +46845,6 @@ int CvDiplomacyAI::GetDemandMadeScore(PlayerTypes ePlayer)
 			iOpinionWeight += /*10*/ GD_INT_GET(OPINION_WEIGHT_MADE_DEMAND_OF_US_SUBSEQUENT) * (iNumDemands - 1);
 		}
 
-		int iDuration = AdjustModifierDuration(/*50*/ GD_INT_GET(MADE_DEMAND_TURNS_UNTIL_FORGIVEN), GetForgiveness(), true);
-		iOpinionWeight = AdjustTimedModifier(iOpinionWeight, iDuration, GetDemandMadeTurn(ePlayer), TIMED_MODIFIER_DIMINISHING, iNumDemands, GD_INT_GET(OPINION_WEIGHT_MADE_DEMAND_OF_US));
-
 		// Reduce the penalty if we're not currently giving them anything
 		if (!GET_PLAYER(ePlayer).GetDiplomacyAI()->IsRecentDemandAccepted(GetID()))
 		{
@@ -46874,6 +46873,9 @@ int CvDiplomacyAI::GetDemandMadeScore(PlayerTypes ePlayer)
 				iOpinionWeight += iExtraPenalty;
 			}
 		}
+
+		int iDuration = AdjustModifierDuration(/*50*/ GD_INT_GET(MADE_DEMAND_TURNS_UNTIL_FORGIVEN), GetForgiveness(), true);
+		iOpinionWeight = AdjustTimedModifier(iOpinionWeight, iDuration, GetDemandMadeTurn(ePlayer), TIMED_MODIFIER_DIMINISHING, iNumDemands, GD_INT_GET(OPINION_WEIGHT_MADE_DEMAND_OF_US));
 	}
 
 	return iOpinionWeight;
