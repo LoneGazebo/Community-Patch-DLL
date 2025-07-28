@@ -386,28 +386,28 @@
 			<IconSize>45</IconSize>
 			<Filename>VPBuildAtlas_045.dds</Filename>
 			<IconsPerRow>8</IconsPerRow>
-			<IconsPerColumn>2</IconsPerColumn>
+			<IconsPerColumn>3</IconsPerColumn>
 		</Row>
 		<Row>
 			<Atlas>BUILD_ATLAS_VP</Atlas>
 			<IconSize>64</IconSize>
 			<Filename>VPBuildAtlas_064.dds</Filename>
 			<IconsPerRow>8</IconsPerRow>
-			<IconsPerColumn>2</IconsPerColumn>
+			<IconsPerColumn>3</IconsPerColumn>
 		</Row>
 		<Row>
 			<Atlas>IMPROVEMENT_ATLAS_VP</Atlas>
 			<IconSize>64</IconSize>
 			<Filename>VPImprovementAtlas_064.dds</Filename>
 			<IconsPerRow>8</IconsPerRow>
-			<IconsPerColumn>2</IconsPerColumn>
+			<IconsPerColumn>3</IconsPerColumn>
 		</Row>
 		<Row>
 			<Atlas>IMPROVEMENT_ATLAS_VP</Atlas>
 			<IconSize>256</IconSize>
 			<Filename>VPImprovementAtlas_256.dds</Filename>
 			<IconsPerRow>8</IconsPerRow>
-			<IconsPerColumn>2</IconsPerColumn>
+			<IconsPerColumn>3</IconsPerColumn>
 		</Row>
 		<Row>
 			<Atlas>BUILDING_ATLAS_VP_1</Atlas>
