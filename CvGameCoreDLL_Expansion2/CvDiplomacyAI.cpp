@@ -2204,28 +2204,28 @@ void CvDiplomacyAI::SelectDefaultVictoryPursuits()
 			if (eSecondaryVictory == VICTORY_PURSUIT_SCIENCE)
 				eSecondaryVictory = NO_VICTORY_PURSUIT;
 			if (ePrimaryVictory == VICTORY_PURSUIT_SCIENCE)
-				ePrimaryVictory = eSecondaryVictory != NO_VICTORY_PURSUIT ? eSecondaryVictory : NO_VICTORY_PURSUIT;
+				ePrimaryVictory = eSecondaryVictory;
 		}
 		if (!bCanUnlockPolicies)
 		{
 			if (eSecondaryVictory == VICTORY_PURSUIT_CULTURE)
 				eSecondaryVictory = NO_VICTORY_PURSUIT;
 			if (ePrimaryVictory == VICTORY_PURSUIT_CULTURE)
-				ePrimaryVictory = eSecondaryVictory != NO_VICTORY_PURSUIT ? eSecondaryVictory : NO_VICTORY_PURSUIT;
+				ePrimaryVictory = eSecondaryVictory;
 		}
 		if (!bCanUseLeague)
 		{
 			if (eSecondaryVictory == VICTORY_PURSUIT_DIPLOMACY)
 				eSecondaryVictory = NO_VICTORY_PURSUIT;
 			if (ePrimaryVictory == VICTORY_PURSUIT_DIPLOMACY)
-				ePrimaryVictory = eSecondaryVictory != NO_VICTORY_PURSUIT ? eSecondaryVictory : NO_VICTORY_PURSUIT;
+				ePrimaryVictory = eSecondaryVictory;
 		}
 		if (!bCanConquer)
 		{
 			if (eSecondaryVictory == VICTORY_PURSUIT_DOMINATION)
 				eSecondaryVictory = NO_VICTORY_PURSUIT;
 			if (ePrimaryVictory == VICTORY_PURSUIT_DOMINATION)
-				ePrimaryVictory = eSecondaryVictory != NO_VICTORY_PURSUIT ? eSecondaryVictory : NO_VICTORY_PURSUIT;
+				ePrimaryVictory = eSecondaryVictory;
 		}
 
 		// Now if we have a victory pursuit hint, use it!
@@ -2233,7 +2233,7 @@ void CvDiplomacyAI::SelectDefaultVictoryPursuits()
 		if (ePrimaryVictory != NO_VICTORY_PURSUIT)
 		{
 			SetPrimaryVictoryPursuit(ePrimaryVictory);
-			SetSecondaryVictoryPursuit(eSecondaryVictory != NO_VICTORY_PURSUIT ? eSecondaryVictory : NO_VICTORY_PURSUIT);
+			SetSecondaryVictoryPursuit(eSecondaryVictory);
 			return;
 		}
 		else
@@ -2369,43 +2369,13 @@ void CvDiplomacyAI::SelectDefaultVictoryPursuits()
 	VictoryScores[VICTORY_PURSUIT_SCIENCE] += static_cast<int>(GC.getGame().urandRangeInclusive(1, uRandom, CvSeeder::fromRaw(0x26353d52).mix(ID)));
 
 	// Add leader bias for default primary pursuit
-	switch (ePrimaryVictory)
-	{
-	case NO_VICTORY_PURSUIT:
-		break;
-	case VICTORY_PURSUIT_DOMINATION:
-		VictoryScores[VICTORY_PURSUIT_DOMINATION] += eSecondaryVictory == NO_VICTORY_PURSUIT ? 8 : 5;
-		break;
-	case VICTORY_PURSUIT_DIPLOMACY:
-		VictoryScores[VICTORY_PURSUIT_DIPLOMACY] += eSecondaryVictory == NO_VICTORY_PURSUIT ? 8 : 5;
-		break;
-	case VICTORY_PURSUIT_CULTURE:
-		VictoryScores[VICTORY_PURSUIT_CULTURE] += eSecondaryVictory == NO_VICTORY_PURSUIT ? 8 : 5;
-		break;
-	case VICTORY_PURSUIT_SCIENCE:
-		VictoryScores[VICTORY_PURSUIT_SCIENCE] += eSecondaryVictory == NO_VICTORY_PURSUIT ? 8 : 5;
-		break;
-	}
+	if (ePrimaryVictory != NO_VICTORY_PURSUIT)
+		VictoryScores[ePrimaryVictory] += eSecondaryVictory == NO_VICTORY_PURSUIT ? 8 : 5;
 
 	// Default secondary pursuit adds a smaller amount of bias, if it exists
 	// Note: If default primary pursuit is NO_VICTORY_PURSUIT, there will also be no default secondary pursuit
-	switch (eSecondaryVictory)
-	{
-	case NO_VICTORY_PURSUIT:
-		break;
-	case VICTORY_PURSUIT_DOMINATION:
-		VictoryScores[VICTORY_PURSUIT_DOMINATION] += 3;
-		break;
-	case VICTORY_PURSUIT_DIPLOMACY:
-		VictoryScores[VICTORY_PURSUIT_DIPLOMACY] += 3;
-		break;
-	case VICTORY_PURSUIT_CULTURE:
-		VictoryScores[VICTORY_PURSUIT_CULTURE] += 3;
-		break;
-	case VICTORY_PURSUIT_SCIENCE:
-		VictoryScores[VICTORY_PURSUIT_SCIENCE] += 3;
-		break;
-	}
+	if (eSecondaryVictory != NO_VICTORY_PURSUIT)
+		VictoryScores[eSecondaryVictory] += 3;
 
 	// Not many City-States? City-States aren't 100% essential but without them a Diplomatic Victory becomes much harder.
 	int iNumMinorsEver = GC.getGame().GetNumMinorCivsEver();
