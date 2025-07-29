@@ -241,11 +241,16 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_bOneShot(false),
 	m_bIsOnlyTradeSameIdeology(false),
 	m_bIncludesOneShotFreeUnits(false),
-	m_iBasicNeedsMedianModifierGlobal(0),
-	m_iGoldMedianModifierGlobal(0),
-	m_iScienceMedianModifierGlobal(0),
-	m_iCultureMedianModifierGlobal(0),
-	m_iReligiousUnrestModifierGlobal(0),
+	m_iDistressFlatReduction(0),
+	m_iPovertyFlatReduction(0),
+	m_iIlliteracyFlatReduction(0),
+	m_iBoredomFlatReduction(0),
+	m_iReligiousUnrestFlatReduction(0),
+	m_iBasicNeedsMedianModifier(0),
+	m_iGoldMedianModifier(0),
+	m_iScienceMedianModifier(0),
+	m_iCultureMedianModifier(0),
+	m_iReligiousUnrestModifier(0),
 	m_iBasicNeedsMedianModifierCapital(0),
 	m_iGoldMedianModifierCapital(0),
 	m_iScienceMedianModifierCapital(0),
@@ -716,16 +721,16 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_bOneShot = kResults.GetBool("OneShot");
 	m_bIsOnlyTradeSameIdeology = kResults.GetBool("IsOnlyTradeSameIdeology");
 	m_bIncludesOneShotFreeUnits = kResults.GetBool("IncludesOneShotFreeUnits");
-	m_iDistressFlatReductionGlobal = kResults.GetInt("DistressFlatReductionGlobal");
-	m_iPovertyFlatReductionGlobal = kResults.GetInt("PovertyFlatReductionGlobal");
-	m_iIlliteracyFlatReductionGlobal = kResults.GetInt("IlliteracyFlatReductionGlobal");
-	m_iBoredomFlatReductionGlobal = kResults.GetInt("BoredomFlatReductionGlobal");
-	m_iReligiousUnrestFlatReductionGlobal = kResults.GetInt("ReligiousUnrestFlatReductionGlobal");
-	m_iBasicNeedsMedianModifierGlobal = kResults.GetInt("BasicNeedsMedianModifierGlobal");
-	m_iGoldMedianModifierGlobal = kResults.GetInt("GoldMedianModifierGlobal");
-	m_iScienceMedianModifierGlobal = kResults.GetInt("ScienceMedianModifierGlobal");
-	m_iCultureMedianModifierGlobal = kResults.GetInt("CultureMedianModifierGlobal");
-	m_iReligiousUnrestModifierGlobal = kResults.GetInt("ReligiousUnrestModifierGlobal");
+	m_iDistressFlatReduction = kResults.GetInt("DistressFlatReduction");
+	m_iPovertyFlatReduction = kResults.GetInt("PovertyFlatReduction");
+	m_iIlliteracyFlatReduction = kResults.GetInt("IlliteracyFlatReduction");
+	m_iBoredomFlatReduction = kResults.GetInt("BoredomFlatReduction");
+	m_iReligiousUnrestFlatReduction = kResults.GetInt("ReligiousUnrestFlatReduction");
+	m_iBasicNeedsMedianModifier = kResults.GetInt("BasicNeedsMedianModifier");
+	m_iGoldMedianModifier = kResults.GetInt("GoldMedianModifier");
+	m_iScienceMedianModifier = kResults.GetInt("ScienceMedianModifier");
+	m_iCultureMedianModifier = kResults.GetInt("CultureMedianModifier");
+	m_iReligiousUnrestModifier = kResults.GetInt("ReligiousUnrestModifier");
 	m_iBasicNeedsMedianModifierCapital = kResults.GetInt("BasicNeedsMedianModifierCapital");
 	m_iGoldMedianModifierCapital = kResults.GetInt("GoldMedianModifierCapital");
 	m_iScienceMedianModifierCapital = kResults.GetInt("ScienceMedianModifierCapital");
@@ -2523,46 +2528,46 @@ bool CvPolicyEntry::IncludesOneShotFreeUnits() const
 	return m_bIncludesOneShotFreeUnits;
 }
 
-int CvPolicyEntry::GetDistressFlatReductionGlobal() const
+int CvPolicyEntry::GetDistressFlatReduction() const
 {
-	return m_iDistressFlatReductionGlobal;
+	return m_iDistressFlatReduction;
 }
-int CvPolicyEntry::GetPovertyFlatReductionGlobal() const
+int CvPolicyEntry::GetPovertyFlatReduction() const
 {
-	return m_iPovertyFlatReductionGlobal;
+	return m_iPovertyFlatReduction;
 }
-int CvPolicyEntry::GetIlliteracyFlatReductionGlobal() const
+int CvPolicyEntry::GetIlliteracyFlatReduction() const
 {
-	return m_iIlliteracyFlatReductionGlobal;
+	return m_iIlliteracyFlatReduction;
 }
-int CvPolicyEntry::GetBoredomFlatReductionGlobal() const
+int CvPolicyEntry::GetBoredomFlatReduction() const
 {
-	return m_iBoredomFlatReductionGlobal;
+	return m_iBoredomFlatReduction;
 }
-int CvPolicyEntry::GetReligiousUnrestFlatReductionGlobal() const
+int CvPolicyEntry::GetReligiousUnrestFlatReduction() const
 {
-	return m_iReligiousUnrestFlatReductionGlobal;
+	return m_iReligiousUnrestFlatReduction;
 }
 
-int CvPolicyEntry::GetBasicNeedsMedianModifierGlobal() const
+int CvPolicyEntry::GetBasicNeedsMedianModifier() const
 {
-	return m_iBasicNeedsMedianModifierGlobal;
+	return m_iBasicNeedsMedianModifier;
 }
-int CvPolicyEntry::GetGoldMedianModifierGlobal() const
+int CvPolicyEntry::GetGoldMedianModifier() const
 {
-	return m_iGoldMedianModifierGlobal;
+	return m_iGoldMedianModifier;
 }
-int CvPolicyEntry::GetScienceMedianModifierGlobal() const
+int CvPolicyEntry::GetScienceMedianModifier() const
 {
-	return m_iScienceMedianModifierGlobal;
+	return m_iScienceMedianModifier;
 }
-int CvPolicyEntry::GetCultureMedianModifierGlobal() const
+int CvPolicyEntry::GetCultureMedianModifier() const
 {
-	return m_iCultureMedianModifierGlobal;
+	return m_iCultureMedianModifier;
 }
-int CvPolicyEntry::GetReligiousUnrestModifierGlobal() const
+int CvPolicyEntry::GetReligiousUnrestModifier() const
 {
-	return m_iReligiousUnrestModifierGlobal;
+	return m_iReligiousUnrestModifier;
 }
 
 int CvPolicyEntry::GetBasicNeedsMedianModifierCapital() const

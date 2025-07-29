@@ -104,11 +104,11 @@ ALTER TABLE Policies ADD CityCaptureHealGlobal integer DEFAULT 0;
 ALTER TABLE Policies ADD CityCaptureHealLocal integer DEFAULT 0;
 
 -- Flat reductions to Unhappiness from Needs in all Cities
-ALTER TABLE Policies ADD DistressFlatReductionGlobal integer DEFAULT 0;
-ALTER TABLE Policies ADD PovertyFlatReductionGlobal integer DEFAULT 0;
-ALTER TABLE Policies ADD IlliteracyFlatReductionGlobal integer DEFAULT 0;
-ALTER TABLE Policies ADD BoredomFlatReductionGlobal integer DEFAULT 0;
-ALTER TABLE Policies ADD ReligiousUnrestFlatReductionGlobal integer DEFAULT 0;
+ALTER TABLE Policies ADD DistressFlatReduction integer DEFAULT 0;
+ALTER TABLE Policies ADD PovertyFlatReduction integer DEFAULT 0;
+ALTER TABLE Policies ADD IlliteracyFlatReduction integer DEFAULT 0;
+ALTER TABLE Policies ADD BoredomFlatReduction integer DEFAULT 0;
+ALTER TABLE Policies ADD ReligiousUnrestFlatReduction integer DEFAULT 0;
 
 -- Changes the global median for a Need in the capital by x% - values should be negative to be good!
 ALTER TABLE Policies ADD BasicNeedsMedianModifierCapital integer DEFAULT 0;
@@ -118,11 +118,11 @@ ALTER TABLE Policies ADD CultureMedianModifierCapital integer DEFAULT 0;
 ALTER TABLE Policies ADD ReligiousUnrestModifierCapital integer DEFAULT 0;
 
 -- Changes the global median for a Need in all cities by x% - values should be negative to be good!
-ALTER TABLE Policies ADD BasicNeedsMedianModifierGlobal integer DEFAULT 0;
-ALTER TABLE Policies ADD GoldMedianModifierGlobal integer DEFAULT 0;
-ALTER TABLE Policies ADD ScienceMedianModifierGlobal integer DEFAULT 0;
-ALTER TABLE Policies ADD CultureMedianModifierGlobal integer DEFAULT 0;
-ALTER TABLE Policies ADD ReligiousUnrestModifierGlobal integer DEFAULT 0;
+ALTER TABLE Policies ADD BasicNeedsMedianModifier integer DEFAULT 0;
+ALTER TABLE Policies ADD GoldMedianModifier integer DEFAULT 0;
+ALTER TABLE Policies ADD ScienceMedianModifier integer DEFAULT 0;
+ALTER TABLE Policies ADD CultureMedianModifier integer DEFAULT 0;
+ALTER TABLE Policies ADD ReligiousUnrestModifier integer DEFAULT 0;
 
 -- Puppets and/or Occupied cities receive a % production modifier. Values should be positive to be good.
 ALTER TABLE Policies ADD PuppetProdMod integer DEFAULT 0;

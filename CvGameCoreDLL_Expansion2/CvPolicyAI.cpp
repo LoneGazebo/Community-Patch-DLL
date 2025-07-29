@@ -3044,114 +3044,114 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 			}
 		}
 	}
-	if (PolicyInfo->GetDistressFlatReductionGlobal() != 0)
+	if (PolicyInfo->GetDistressFlatReduction() != 0)
 	{
 		if (pPlayerTraits->IsExpansionist() || pPlayer->GetUnhappinessFromDistress() > 0)
 		{
-			yield[YIELD_FOOD] += PolicyInfo->GetDistressFlatReductionGlobal() * 100;
+			yield[YIELD_FOOD] += PolicyInfo->GetDistressFlatReduction() * 100;
 		}
 		else
 		{
-			yield[YIELD_FOOD] += PolicyInfo->GetDistressFlatReductionGlobal() * 50;
+			yield[YIELD_FOOD] += PolicyInfo->GetDistressFlatReduction() * 50;
 		}
 	}
-	if (PolicyInfo->GetPovertyFlatReductionGlobal() != 0)
+	if (PolicyInfo->GetPovertyFlatReduction() != 0)
 	{
 		if (pPlayerTraits->IsExpansionist() || pPlayer->GetUnhappinessFromPoverty() > 0)
 		{
-			yield[YIELD_FOOD] += PolicyInfo->GetPovertyFlatReductionGlobal() * 40;
+			yield[YIELD_FOOD] += PolicyInfo->GetPovertyFlatReduction() * 40;
 		}
 		else
 		{
-			yield[YIELD_FOOD] += PolicyInfo->GetPovertyFlatReductionGlobal() * 20;
+			yield[YIELD_FOOD] += PolicyInfo->GetPovertyFlatReduction() * 20;
 		}
 	}
-	if (PolicyInfo->GetIlliteracyFlatReductionGlobal() != 0)
+	if (PolicyInfo->GetIlliteracyFlatReduction() != 0)
 	{
 		if (pPlayerTraits->IsExpansionist() || pPlayer->GetUnhappinessFromIlliteracy() > 0)
 		{
-			yield[YIELD_FOOD] += PolicyInfo->GetIlliteracyFlatReductionGlobal() * 100;
+			yield[YIELD_FOOD] += PolicyInfo->GetIlliteracyFlatReduction() * 100;
 		}
 		else
 		{
-			yield[YIELD_FOOD] += PolicyInfo->GetIlliteracyFlatReductionGlobal() * 50;
+			yield[YIELD_FOOD] += PolicyInfo->GetIlliteracyFlatReduction() * 50;
 		}
 	}
-	if (PolicyInfo->GetBoredomFlatReductionGlobal() != 0)
+	if (PolicyInfo->GetBoredomFlatReduction() != 0)
 	{
 		if (pPlayerTraits->IsExpansionist() || pPlayer->GetUnhappinessFromBoredom() > 0)
 		{
-			yield[YIELD_FOOD] += PolicyInfo->GetBoredomFlatReductionGlobal() * 100;
+			yield[YIELD_FOOD] += PolicyInfo->GetBoredomFlatReduction() * 100;
 		}
 		else
 		{
-			yield[YIELD_FOOD] += PolicyInfo->GetBoredomFlatReductionGlobal() * 50;
+			yield[YIELD_FOOD] += PolicyInfo->GetBoredomFlatReduction() * 50;
 		}
 	}
-	if (PolicyInfo->GetReligiousUnrestFlatReductionGlobal() != 0)
+	if (PolicyInfo->GetReligiousUnrestFlatReduction() != 0)
 	{
 		if (pPlayerTraits->IsExpansionist() || pPlayer->GetUnhappinessFromReligiousUnrest() > 0)
 		{
-			yield[YIELD_FOOD] += PolicyInfo->GetReligiousUnrestFlatReductionGlobal() * 100;
+			yield[YIELD_FOOD] += PolicyInfo->GetReligiousUnrestFlatReduction() * 100;
 		}
 		else
 		{
-			yield[YIELD_FOOD] += PolicyInfo->GetReligiousUnrestFlatReductionGlobal() * 50;
+			yield[YIELD_FOOD] += PolicyInfo->GetReligiousUnrestFlatReduction() * 50;
 		}
 	}
-	if (PolicyInfo->GetBasicNeedsMedianModifierGlobal() != 0)
+	if (PolicyInfo->GetBasicNeedsMedianModifier() != 0)
 	{
 		if (pPlayerTraits->IsExpansionist() || pPlayer->GetUnhappinessFromDistress() > 0)
 		{
-			yield[YIELD_FOOD] += PolicyInfo->GetBasicNeedsMedianModifierGlobal() * -10;
+			yield[YIELD_FOOD] += PolicyInfo->GetBasicNeedsMedianModifier() * -10;
 		}
 		else
 		{
-			yield[YIELD_FOOD] += PolicyInfo->GetBasicNeedsMedianModifierGlobal() * -5;
+			yield[YIELD_FOOD] += PolicyInfo->GetBasicNeedsMedianModifier() * -5;
 		}
 	}
-	if (PolicyInfo->GetGoldMedianModifierGlobal() != 0)
+	if (PolicyInfo->GetGoldMedianModifier() != 0)
 	{
 		if (pPlayerTraits->IsExpansionist() || pPlayer->GetUnhappinessFromPoverty() > 0)
 		{
-			yield[YIELD_FOOD] += PolicyInfo->GetGoldMedianModifierGlobal() * -4;
+			yield[YIELD_FOOD] += PolicyInfo->GetGoldMedianModifier() * -4;
 		}
 		else
 		{
-			yield[YIELD_FOOD] += PolicyInfo->GetGoldMedianModifierGlobal() * -2;
+			yield[YIELD_FOOD] += PolicyInfo->GetGoldMedianModifier() * -2;
 		}
 	}
-	if (PolicyInfo->GetScienceMedianModifierGlobal() != 0)
+	if (PolicyInfo->GetScienceMedianModifier() != 0)
 	{
 		if (pPlayerTraits->IsExpansionist() || pPlayer->GetUnhappinessFromIlliteracy() > 0)
 		{
-			yield[YIELD_FOOD] += PolicyInfo->GetScienceMedianModifierGlobal() * -10;
+			yield[YIELD_FOOD] += PolicyInfo->GetScienceMedianModifier() * -10;
 		}
 		else
 		{
-			yield[YIELD_FOOD] += PolicyInfo->GetScienceMedianModifierGlobal() * -5;
+			yield[YIELD_FOOD] += PolicyInfo->GetScienceMedianModifier() * -5;
 		}
 	}
-	if (PolicyInfo->GetCultureMedianModifierGlobal() != 0)
+	if (PolicyInfo->GetCultureMedianModifier() != 0)
 	{
 		if (pPlayerTraits->IsExpansionist() || pPlayer->GetUnhappinessFromBoredom() > 0)
 		{
-			yield[YIELD_FOOD] += PolicyInfo->GetCultureMedianModifierGlobal() * -10;
+			yield[YIELD_FOOD] += PolicyInfo->GetCultureMedianModifier() * -10;
 		}
 		else
 		{
-			yield[YIELD_FOOD] += PolicyInfo->GetCultureMedianModifierGlobal() * -5;
+			yield[YIELD_FOOD] += PolicyInfo->GetCultureMedianModifier() * -5;
 		}
 	}
-	if (PolicyInfo->GetReligiousUnrestModifierGlobal() != 0)
+	if (PolicyInfo->GetReligiousUnrestModifier() != 0)
 	{
 		if (pPlayerTraits->IsExpansionist() || pPlayer->GetUnhappinessFromReligiousUnrest() > 0)
 		{
-			yield[YIELD_FOOD] += PolicyInfo->GetReligiousUnrestModifierGlobal() * -10;
+			yield[YIELD_FOOD] += PolicyInfo->GetReligiousUnrestModifier() * -10;
 		}
 		else
 		{
-			yield[YIELD_FOOD] += PolicyInfo->GetReligiousUnrestModifierGlobal() * -5;
+			yield[YIELD_FOOD] += PolicyInfo->GetReligiousUnrestModifier() * -5;
 		}
 	}
 	if (PolicyInfo->GetBasicNeedsMedianModifierCapital() != 0)
