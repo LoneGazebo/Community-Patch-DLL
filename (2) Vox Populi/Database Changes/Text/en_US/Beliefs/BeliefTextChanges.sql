@@ -12,7 +12,7 @@ SET Text = 'God of Fire'
 WHERE Tag = 'TXT_KEY_BELIEF_EARTH_MOTHER_SHORT';
 
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PEACE] Faith, [ICON_PRODUCTION] Production, and [ICON_CULTURE] Culture from Mines on improved Resources. +2 [ICON_PEACE] Faith from Forges.'
+SET Text = '+1 [ICON_PEACE] Faith, [ICON_PRODUCTION] Production, and [ICON_CULTURE] Culture from Mines on Resources. +2 [ICON_PEACE] Faith from Forges.'
 WHERE Tag = 'TXT_KEY_BELIEF_EARTH_MOTHER';
 
 UPDATE Language_en_US
@@ -20,7 +20,7 @@ SET Text = 'God of All Creation'
 WHERE Tag = 'TXT_KEY_BELIEF_TEARS_OF_GODS_SHORT';
 
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PEACE] Faith from Monuments and +1 [ICON_CULTURE] from the Palace. +1 [ICON_FOOD] Food, [ICON_PRODUCTION] Production, [ICON_GOLD] Gold, and [ICON_RESEARCH] Science in your [ICON_CAPITAL] Capital/Holy City for every two Pantheons ever founded (caps at 8 Pantheons total).'
+SET Text = '+1 [ICON_PEACE] Faith from Monuments and +1 [ICON_CULTURE] Culture from the Palace. +1 [ICON_FOOD] Food, [ICON_PRODUCTION] Production, [ICON_GOLD] Gold, and [ICON_RESEARCH] Science in your [ICON_CAPITAL] Capital/Holy City for every two Pantheons ever founded (caps at 8 Pantheons total).'
 WHERE Tag = 'TXT_KEY_BELIEF_TEARS_OF_GODS';
 
 UPDATE Language_en_US
@@ -402,7 +402,7 @@ SET Text = 'Prophecy'
 WHERE Tag = 'TXT_KEY_BELIEF_MESSIAH_SHORT';
 
 UPDATE Language_en_US
-SET Text = 'Reduces minimum Policy requirement for Wonders by 1. Prophets of this [ICON_RELIGION] Religion 25% stronger, cost 25% less [ICON_PEACE] Faith. +3 to base Holy Site yields. If this is the majority Religion, Follower reduction from rival [ICON_INQUISITOR] Inquisitors and [ICON_PROPHET] Prophets is halved.'
+SET Text = 'Reduces minimum Policy requirement for Wonders by 1. Prophets of this [ICON_RELIGION] Religion are 25% stronger and cost 25% less [ICON_PEACE] Faith. +3 to base Holy Site yields. If this is the majority Religion, Follower reduction from rival [ICON_INQUISITOR] Inquisitors and [ICON_PROPHET] Prophets is halved.'
 WHERE Tag = 'TXT_KEY_BELIEF_MESSIAH';
 
 UPDATE Language_en_US
@@ -410,7 +410,7 @@ SET Text = 'Sacred Calendar'
 WHERE Tag = 'TXT_KEY_BELIEF_MISSIONARY_ZEAL_SHORT';
 
 UPDATE Language_en_US
-SET Text = '+33% [ICON_GREAT_PEOPLE] Great Person Rate in Holy City during [ICON_GOLDEN_AGE] Golden Ages. +3 [ICON_GOLDEN_AGE] Golden Age Points and [ICON_GOLD] Gold in [ICON_RELIGION] Holy City for every Foreign City following this Religion. Missionaries of this Religion 25% stronger.'
+SET Text = '+33% [ICON_GREAT_PEOPLE] Great Person Rate in Holy City during [ICON_GOLDEN_AGE] Golden Ages. +3 [ICON_GOLDEN_AGE] Golden Age Points and [ICON_GOLD] Gold in [ICON_RELIGION] Holy City for every Foreign City following this Religion. Missionaries of this Religion are 25% stronger.'
 WHERE Tag = 'TXT_KEY_BELIEF_MISSIONARY_ZEAL';
 
 UPDATE Language_en_US
@@ -426,7 +426,7 @@ SET Text = 'Universalism'
 WHERE Tag = 'TXT_KEY_BELIEF_RELIGIOUS_UNITY_SHORT';
 
 UPDATE Language_en_US
-SET Text = '+1 [ICON_RESEARCH] Science, and [ICON_PRODUCTION] Production in Holy City for every 5 followers of other Religions in owned Cities. +1 [ICON_GOLD] Gold and [ICON_PEACE] Faith in Holy City for every 10 followers of this [ICON_RELIGION] Religion in Foreign Cities.'
+SET Text = '+1 [ICON_RESEARCH] Science and [ICON_PRODUCTION] Production in Holy City for every 5 followers of other Religions in owned Cities. +1 [ICON_GOLD] Gold and [ICON_PEACE] Faith in Holy City for every 10 followers of this [ICON_RELIGION] Religion in Foreign Cities.'
 WHERE Tag = 'TXT_KEY_BELIEF_RELIGIOUS_UNITY';
 
 UPDATE Language_en_US
@@ -495,7 +495,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_UNITY_OF_PROPHETS';
 
 -- Sacred Sites
 UPDATE Language_en_US
-SET Text = 'Hotels and buildings that can only be purchased with Faith provide +3 [ICON_TOURISM] Tourism each. World and Natural Wonders gain +4 [ICON_TOURISM] Tourism each. Royal Collection provides +10 [ICON_CULTURE] Culture and +10 [ICON_TOURISM] Tourism.'
+SET Text = 'Hotels and buildings that can only be purchased with [ICON_PEACE] Faith provide +3 [ICON_TOURISM] Tourism each. World and Natural Wonders gain +4 [ICON_TOURISM] Tourism each. Royal Collection provides +10 [ICON_CULTURE] Culture and +10 [ICON_TOURISM] Tourism.'
 WHERE Tag = 'TXT_KEY_BELIEF_SACRED_SITES';
 
 -- To the Glory of God
