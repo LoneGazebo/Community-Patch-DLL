@@ -460,17 +460,17 @@ public:
 
 	BuildingTypes GetFreeBuildingOnConquest() const;
 
-	int GetDistressFlatReductionGlobal() const;
-	int GetPovertyFlatReductionGlobal() const;
-	int GetIlliteracyFlatReductionGlobal() const;
-	int GetBoredomFlatReductionGlobal() const;
-	int GetReligiousUnrestFlatReductionGlobal() const;
+	int GetDistressFlatReduction() const;
+	int GetPovertyFlatReduction() const;
+	int GetIlliteracyFlatReduction() const;
+	int GetBoredomFlatReduction() const;
+	int GetReligiousUnrestFlatReduction() const;
 
-	int GetBasicNeedsMedianModifierGlobal() const;
-	int GetGoldMedianModifierGlobal() const;
-	int GetScienceMedianModifierGlobal() const;
-	int GetCultureMedianModifierGlobal() const;
-	int GetReligiousUnrestModifierGlobal() const;
+	int GetBasicNeedsMedianModifier() const;
+	int GetGoldMedianModifier() const;
+	int GetScienceMedianModifier() const;
+	int GetCultureMedianModifier() const;
+	int GetReligiousUnrestModifier() const;
 
 	int GetBasicNeedsMedianModifierCapital() const;
 	int GetGoldMedianModifierCapital() const;
@@ -691,17 +691,17 @@ private:
 	bool m_bOneShot;
 	bool m_bIncludesOneShotFreeUnits;
 
-	int m_iDistressFlatReductionGlobal;
-	int m_iPovertyFlatReductionGlobal;
-	int m_iIlliteracyFlatReductionGlobal;
-	int m_iBoredomFlatReductionGlobal;
-	int m_iReligiousUnrestFlatReductionGlobal;
+	int m_iDistressFlatReduction;
+	int m_iPovertyFlatReduction;
+	int m_iIlliteracyFlatReduction;
+	int m_iBoredomFlatReduction;
+	int m_iReligiousUnrestFlatReduction;
 
-	int m_iBasicNeedsMedianModifierGlobal;
-	int m_iGoldMedianModifierGlobal;
-	int m_iScienceMedianModifierGlobal;
-	int m_iCultureMedianModifierGlobal;
-	int m_iReligiousUnrestModifierGlobal;
+	int m_iBasicNeedsMedianModifier;
+	int m_iGoldMedianModifier;
+	int m_iScienceMedianModifier;
+	int m_iCultureMedianModifier;
+	int m_iReligiousUnrestModifier;
 
 	int m_iBasicNeedsMedianModifierCapital;
 	int m_iGoldMedianModifierCapital;

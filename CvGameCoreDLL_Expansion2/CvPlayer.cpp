@@ -19912,7 +19912,7 @@ void CvPlayer::ChangeReligiousUnrestFlatReductionGlobal(int iChange)
 int CvPlayer::GetBasicNeedsMedianModifierGlobal() const
 {
 	if (isMajorCiv())
-		return m_iBasicNeedsMedianModifierGlobal + GetPlayerTraits()->GetBasicNeedsMedianModifierGlobal();
+		return m_iBasicNeedsMedianModifierGlobal + GetPlayerTraits()->GetBasicNeedsMedianModifier();
 
 	return m_iBasicNeedsMedianModifierGlobal;
 }
@@ -19925,7 +19925,7 @@ void CvPlayer::ChangeBasicNeedsMedianModifierGlobal(int iChange)
 int CvPlayer::GetGoldMedianModifierGlobal() const
 {
 	if (isMajorCiv())
-		return m_iGoldMedianModifierGlobal + GetPlayerTraits()->GetGoldMedianModifierGlobal();
+		return m_iGoldMedianModifierGlobal + GetPlayerTraits()->GetGoldMedianModifier();
 
 	return m_iGoldMedianModifierGlobal;
 }
@@ -19938,7 +19938,7 @@ void CvPlayer::ChangeGoldMedianModifierGlobal(int iChange)
 int CvPlayer::GetScienceMedianModifierGlobal() const
 {
 	if (isMajorCiv())
-		return m_iScienceMedianModifierGlobal + GetPlayerTraits()->GetScienceMedianModifierGlobal();
+		return m_iScienceMedianModifierGlobal + GetPlayerTraits()->GetScienceMedianModifier();
 
 	return m_iScienceMedianModifierGlobal;
 }
@@ -19951,7 +19951,7 @@ void CvPlayer::ChangeScienceMedianModifierGlobal(int iChange)
 int CvPlayer::GetCultureMedianModifierGlobal() const
 {
 	if (isMajorCiv())
-		return m_iCultureMedianModifierGlobal + GetPlayerTraits()->GetCultureMedianModifierGlobal();
+		return m_iCultureMedianModifierGlobal + GetPlayerTraits()->GetCultureMedianModifier();
 
 	return m_iCultureMedianModifierGlobal;
 }
@@ -19964,7 +19964,7 @@ void CvPlayer::ChangeCultureMedianModifierGlobal(int iChange)
 int CvPlayer::GetReligiousUnrestModifierGlobal() const
 {
 	if (isMajorCiv())
-		return m_iReligiousUnrestModifierGlobal + GetPlayerTraits()->GetReligiousUnrestModifierGlobal();
+		return m_iReligiousUnrestModifierGlobal + GetPlayerTraits()->GetReligiousUnrestModifier();
 
 	return m_iReligiousUnrestModifierGlobal;
 }
@@ -41749,16 +41749,16 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	ChangeStrategicResourceMod(pkPolicyInfo->GetStrategicResourceMod() * iChange);
 	ChangeAbleToAnnexCityStatesCount(pkPolicyInfo->IsAbleToAnnexCityStates() * iChange);
 	ChangeOnlyTradeSameIdeology(pkPolicyInfo->IsOnlyTradeSameIdeology() * iChange);
-	ChangeDistressFlatReductionGlobal(pkPolicyInfo->GetDistressFlatReductionGlobal() * iChange);
-	ChangePovertyFlatReductionGlobal(pkPolicyInfo->GetPovertyFlatReductionGlobal() * iChange);
-	ChangeIlliteracyFlatReductionGlobal(pkPolicyInfo->GetIlliteracyFlatReductionGlobal() * iChange);
-	ChangeBoredomFlatReductionGlobal(pkPolicyInfo->GetBoredomFlatReductionGlobal() * iChange);
-	ChangeReligiousUnrestFlatReductionGlobal(pkPolicyInfo->GetReligiousUnrestFlatReductionGlobal() * iChange);
-	ChangeBasicNeedsMedianModifierGlobal(pkPolicyInfo->GetBasicNeedsMedianModifierGlobal() * iChange);
-	ChangeGoldMedianModifierGlobal(pkPolicyInfo->GetGoldMedianModifierGlobal() * iChange);
-	ChangeScienceMedianModifierGlobal(pkPolicyInfo->GetScienceMedianModifierGlobal() * iChange);
-	ChangeCultureMedianModifierGlobal(pkPolicyInfo->GetCultureMedianModifierGlobal() * iChange);
-	ChangeReligiousUnrestModifierGlobal(pkPolicyInfo->GetReligiousUnrestModifierGlobal() * iChange);
+	ChangeDistressFlatReductionGlobal(pkPolicyInfo->GetDistressFlatReduction() * iChange);
+	ChangePovertyFlatReductionGlobal(pkPolicyInfo->GetPovertyFlatReduction() * iChange);
+	ChangeIlliteracyFlatReductionGlobal(pkPolicyInfo->GetIlliteracyFlatReduction() * iChange);
+	ChangeBoredomFlatReductionGlobal(pkPolicyInfo->GetBoredomFlatReduction() * iChange);
+	ChangeReligiousUnrestFlatReductionGlobal(pkPolicyInfo->GetReligiousUnrestFlatReduction() * iChange);
+	ChangeBasicNeedsMedianModifierGlobal(pkPolicyInfo->GetBasicNeedsMedianModifier() * iChange);
+	ChangeGoldMedianModifierGlobal(pkPolicyInfo->GetGoldMedianModifier() * iChange);
+	ChangeScienceMedianModifierGlobal(pkPolicyInfo->GetScienceMedianModifier() * iChange);
+	ChangeCultureMedianModifierGlobal(pkPolicyInfo->GetCultureMedianModifier() * iChange);
+	ChangeReligiousUnrestModifierGlobal(pkPolicyInfo->GetReligiousUnrestModifier() * iChange);
 	ChangeBasicNeedsMedianModifierCapital(pkPolicyInfo->GetBasicNeedsMedianModifierCapital() * iChange);
 	ChangeGoldMedianModifierCapital(pkPolicyInfo->GetGoldMedianModifierCapital() * iChange);
 	ChangeScienceMedianModifierCapital(pkPolicyInfo->GetScienceMedianModifierCapital() * iChange);

@@ -319,11 +319,11 @@ public:
 	const char* getShortDescription() const;
 	void setShortDescription(const char* szVal);
 
-	int GetBasicNeedsMedianModifierGlobal() const;
-	int GetGoldMedianModifierGlobal() const;
-	int GetScienceMedianModifierGlobal() const;
-	int GetCultureMedianModifierGlobal() const;
-	int GetReligiousUnrestModifierGlobal() const;
+	int GetBasicNeedsMedianModifier() const;
+	int GetGoldMedianModifier() const;
+	int GetScienceMedianModifier() const;
+	int GetCultureMedianModifier() const;
+	int GetReligiousUnrestModifier() const;
 	bool IsNoConnectionUnhappiness() const;
 	bool IsNoReligiousStrife() const;
 	bool IsOddEraScaler() const;
@@ -693,11 +693,11 @@ protected:
 	bool m_bUniqueLuxuryRequiresNewArea;
 	bool m_bRiverTradeRoad;
 	bool m_bAngerFreeIntrusionOfCityStates;
-	int m_iBasicNeedsMedianModifierGlobal;
-	int m_iGoldMedianModifierGlobal;
-	int m_iScienceMedianModifierGlobal;
-	int m_iCultureMedianModifierGlobal;
-	int m_iReligiousUnrestModifierGlobal;
+	int m_iBasicNeedsMedianModifier;
+	int m_iGoldMedianModifier;
+	int m_iScienceMedianModifier;
+	int m_iCultureMedianModifier;
+	int m_iReligiousUnrestModifier;
 	bool m_bNoConnectionUnhappiness;
 	bool m_bIsNoReligiousStrife;
 	bool m_bIsOddEraScaler;
@@ -1665,25 +1665,25 @@ public:
 		return m_bAngerFreeIntrusionOfCityStates;
 	}
 
-	int GetBasicNeedsMedianModifierGlobal() const
+	int GetBasicNeedsMedianModifier() const
 	{
-		return m_iBasicNeedsMedianModifierGlobal;
+		return m_iBasicNeedsMedianModifier;
 	}
-	int GetGoldMedianModifierGlobal() const
+	int GetGoldMedianModifier() const
 	{
-		return m_iGoldMedianModifierGlobal;
+		return m_iGoldMedianModifier;
 	}
-	int GetScienceMedianModifierGlobal() const
+	int GetScienceMedianModifier() const
 	{
-		return m_iScienceMedianModifierGlobal;
+		return m_iScienceMedianModifier;
 	}
-	int GetCultureMedianModifierGlobal() const
+	int GetCultureMedianModifier() const
 	{
-		return m_iCultureMedianModifierGlobal;
+		return m_iCultureMedianModifier;
 	}
-	int GetReligiousUnrestModifierGlobal() const
+	int GetReligiousUnrestModifier() const
 	{
-		return m_iReligiousUnrestModifierGlobal;
+		return m_iReligiousUnrestModifier;
 	}
 	bool IsNoConnectionUnhappiness() const
 	{
@@ -2336,11 +2336,11 @@ private:
 	bool m_bUniqueLuxuryRequiresNewArea;
 	bool m_bRiverTradeRoad;
 	bool m_bAngerFreeIntrusionOfCityStates;
-	int m_iBasicNeedsMedianModifierGlobal;
-	int m_iGoldMedianModifierGlobal;
-	int m_iScienceMedianModifierGlobal;
-	int m_iCultureMedianModifierGlobal;
-	int m_iReligiousUnrestModifierGlobal;
+	int m_iBasicNeedsMedianModifier;
+	int m_iGoldMedianModifier;
+	int m_iScienceMedianModifier;
+	int m_iCultureMedianModifier;
+	int m_iReligiousUnrestModifier;
 	bool m_bNoConnectionUnhappiness;
 	bool m_bIsNoReligiousStrife;
 	bool m_bIsOddEraScaler;

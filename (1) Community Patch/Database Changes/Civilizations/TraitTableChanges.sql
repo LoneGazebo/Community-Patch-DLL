@@ -118,11 +118,11 @@ ALTER TABLE Traits ADD MonopolyModFlat integer DEFAULT 0;
 ALTER TABLE Traits ADD MonopolyModPercent integer DEFAULT 0;
 
 -- Changes the global median for a Need in all cities by x% - values should be negative to be good!
-ALTER TABLE Traits ADD BasicNeedsMedianModifierGlobal integer DEFAULT 0;
-ALTER TABLE Traits ADD GoldMedianModifierGlobal integer DEFAULT 0;
-ALTER TABLE Traits ADD ScienceMedianModifierGlobal integer DEFAULT 0;
-ALTER TABLE Traits ADD CultureMedianModifierGlobal integer DEFAULT 0;
-ALTER TABLE Traits ADD ReligiousUnrestModifierGlobal integer DEFAULT 0;
+ALTER TABLE Traits ADD BasicNeedsMedianModifier integer DEFAULT 0;
+ALTER TABLE Traits ADD GoldMedianModifier integer DEFAULT 0;
+ALTER TABLE Traits ADD ScienceMedianModifier integer DEFAULT 0;
+ALTER TABLE Traits ADD CultureMedianModifier integer DEFAULT 0;
+ALTER TABLE Traits ADD ReligiousUnrestModifier integer DEFAULT 0;
 
 -- Get more tenets when you adopt for first time
 ALTER TABLE Traits ADD ExtraTenetsFirstAdoption integer DEFAULT 0;

@@ -1357,25 +1357,25 @@ void CvTraitEntry::setShortDescription(const char* szVal)
 }
 
 //Traits for affecting city happiness
-int CvTraitEntry::GetBasicNeedsMedianModifierGlobal() const
+int CvTraitEntry::GetBasicNeedsMedianModifier() const
 {
-	return m_iBasicNeedsMedianModifierGlobal;
+	return m_iBasicNeedsMedianModifier;
 }
-int CvTraitEntry::GetGoldMedianModifierGlobal() const
+int CvTraitEntry::GetGoldMedianModifier() const
 {
-	return m_iGoldMedianModifierGlobal;
+	return m_iGoldMedianModifier;
 }
-int CvTraitEntry::GetScienceMedianModifierGlobal() const
+int CvTraitEntry::GetScienceMedianModifier() const
 {
-	return m_iScienceMedianModifierGlobal;
+	return m_iScienceMedianModifier;
 }
-int CvTraitEntry::GetCultureMedianModifierGlobal() const
+int CvTraitEntry::GetCultureMedianModifier() const
 {
-	return m_iCultureMedianModifierGlobal;
+	return m_iCultureMedianModifier;
 }
-int CvTraitEntry::GetReligiousUnrestModifierGlobal() const
+int CvTraitEntry::GetReligiousUnrestModifier() const
 {
-	return m_iReligiousUnrestModifierGlobal;
+	return m_iReligiousUnrestModifier;
 }
 bool CvTraitEntry::IsNoConnectionUnhappiness() const
 {
@@ -2628,11 +2628,11 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_bUniqueLuxuryRequiresNewArea = kResults.GetBool("UniqueLuxuryRequiresNewArea");
 	m_bRiverTradeRoad = kResults.GetBool("RiverTradeRoad");
 	m_bAngerFreeIntrusionOfCityStates = kResults.GetBool("AngerFreeIntrusionOfCityStates");
-	m_iBasicNeedsMedianModifierGlobal = kResults.GetInt("BasicNeedsMedianModifierGlobal");
-	m_iGoldMedianModifierGlobal = kResults.GetInt("GoldMedianModifierGlobal");
-	m_iScienceMedianModifierGlobal = kResults.GetInt("ScienceMedianModifierGlobal");
-	m_iCultureMedianModifierGlobal = kResults.GetInt("CultureMedianModifierGlobal");
-	m_iReligiousUnrestModifierGlobal = kResults.GetInt("ReligiousUnrestModifierGlobal");
+	m_iBasicNeedsMedianModifier = kResults.GetInt("BasicNeedsMedianModifier");
+	m_iGoldMedianModifier = kResults.GetInt("GoldMedianModifier");
+	m_iScienceMedianModifier = kResults.GetInt("ScienceMedianModifier");
+	m_iCultureMedianModifier = kResults.GetInt("CultureMedianModifier");
+	m_iReligiousUnrestModifier = kResults.GetInt("ReligiousUnrestModifier");
 	m_bNoConnectionUnhappiness = kResults.GetBool("NoConnectionUnhappiness");
 	m_bIsNoReligiousStrife = kResults.GetBool("IsNoReligiousStrife");
 	m_bIsOddEraScaler = kResults.GetBool("IsOddEraScaler");
@@ -4738,11 +4738,11 @@ void CvPlayerTraits::InitPlayerTraits()
 				m_bAngerFreeIntrusionOfCityStates = true;
 			}
 
-			m_iBasicNeedsMedianModifierGlobal += trait->GetBasicNeedsMedianModifierGlobal();
-			m_iGoldMedianModifierGlobal += trait->GetGoldMedianModifierGlobal();
-			m_iScienceMedianModifierGlobal += trait->GetScienceMedianModifierGlobal();
-			m_iCultureMedianModifierGlobal += trait->GetCultureMedianModifierGlobal();
-			m_iReligiousUnrestModifierGlobal += trait->GetReligiousUnrestModifierGlobal();
+			m_iBasicNeedsMedianModifier += trait->GetBasicNeedsMedianModifier();
+			m_iGoldMedianModifier += trait->GetGoldMedianModifier();
+			m_iScienceMedianModifier += trait->GetScienceMedianModifier();
+			m_iCultureMedianModifier += trait->GetCultureMedianModifier();
+			m_iReligiousUnrestModifier += trait->GetReligiousUnrestModifier();
 
 			if( trait->IsNoConnectionUnhappiness())
 			{
@@ -5471,11 +5471,11 @@ void CvPlayerTraits::Reset()
 	m_bUniqueLuxuryRequiresNewArea = false;
 	m_bRiverTradeRoad = false;
 	m_bAngerFreeIntrusionOfCityStates = false;
-	m_iBasicNeedsMedianModifierGlobal = 0;
-	m_iGoldMedianModifierGlobal = 0;
-	m_iScienceMedianModifierGlobal = 0;
-	m_iCultureMedianModifierGlobal = 0;
-	m_iReligiousUnrestModifierGlobal = 0;
+	m_iBasicNeedsMedianModifier = 0;
+	m_iGoldMedianModifier = 0;
+	m_iScienceMedianModifier = 0;
+	m_iCultureMedianModifier = 0;
+	m_iReligiousUnrestModifier = 0;
 	m_bNoConnectionUnhappiness = false;
 	m_bIsNoReligiousStrife = false;
 	m_bIsOddEraScaler = false;
@@ -7625,11 +7625,11 @@ void CvPlayerTraits::Serialize(PlayerTraits& playerTraits, Visitor& visitor)
 	visitor(playerTraits.m_bUniqueLuxuryRequiresNewArea);
 	visitor(playerTraits.m_bRiverTradeRoad);
 	visitor(playerTraits.m_bAngerFreeIntrusionOfCityStates);
-	visitor(playerTraits.m_iBasicNeedsMedianModifierGlobal);
-	visitor(playerTraits.m_iGoldMedianModifierGlobal);
-	visitor(playerTraits.m_iScienceMedianModifierGlobal);
-	visitor(playerTraits.m_iCultureMedianModifierGlobal);
-	visitor(playerTraits.m_iReligiousUnrestModifierGlobal);
+	visitor(playerTraits.m_iBasicNeedsMedianModifier);
+	visitor(playerTraits.m_iGoldMedianModifier);
+	visitor(playerTraits.m_iScienceMedianModifier);
+	visitor(playerTraits.m_iCultureMedianModifier);
+	visitor(playerTraits.m_iReligiousUnrestModifier);
 	visitor(playerTraits.m_bNoConnectionUnhappiness);
 	visitor(playerTraits.m_bIsNoReligiousStrife);
 	visitor(playerTraits.m_bIsOddEraScaler);
