@@ -18,7 +18,7 @@ SET
 	GreatMerchantRateModifier = 50,
 	LandTradeRouteGoldChange = 500,
 	SeaTradeRouteGoldChange = 500,
-	PovertyFlatReductionGlobal = 2
+	PovertyFlatReduction = 2
 WHERE Type = 'POLICY_CARAVANS';
 
 -- Mercenary Army (now Division of Labor)

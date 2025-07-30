@@ -63,7 +63,7 @@ UPDATE Policies
 SET
 	InternalTradeRouteYieldModifier = 33,
 	InternalTRTourism = 1,
-	BoredomFlatReductionGlobal = 1
+	BoredomFlatReduction = 1
 WHERE Type = 'POLICY_THEOCRACY';
 
 -- Religious Tolerance (now Serfdom)
