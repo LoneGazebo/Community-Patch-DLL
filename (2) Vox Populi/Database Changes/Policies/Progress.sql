@@ -102,10 +102,10 @@ SET
 	NumCitiesPolicyCostDiscount = 0,
 	HappinessPerXPopulationGlobal = 15,
 	ExtraHappinessPerCity = 1,
-	DistressFlatReductionGlobal = 1,
-	PovertyFlatReductionGlobal = 1,
-	IlliteracyFlatReductionGlobal = 1,
-	BoredomFlatReductionGlobal = 1
+	DistressFlatReduction = 1,
+	PovertyFlatReduction = 1,
+	IlliteracyFlatReduction = 1,
+	BoredomFlatReduction = 1
 WHERE Type = 'POLICY_REPRESENTATION';
 
 -- Meritocracy (now Fraternity)

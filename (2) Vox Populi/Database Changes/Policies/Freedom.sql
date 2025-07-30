@@ -6,7 +6,7 @@
 UPDATE Policies
 SET
 	GreatPeopleRateModifier = 33,
-	BoredomFlatReductionGlobal = 2
+	BoredomFlatReduction = 2
 WHERE Type = 'POLICY_OPEN_SOCIETY';
 
 -- Creative Expression

@@ -55,11 +55,11 @@ WHERE PolicyType = 'POLICY_SOVEREIGNTY';
 
 UPDATE Policies
 SET
-	DistressFlatReductionGlobal = 1,
-	PovertyFlatReductionGlobal = 1,
-	IlliteracyFlatReductionGlobal = 1,
-	BoredomFlatReductionGlobal = 1,
-	ReligiousUnrestFlatReductionGlobal = 1
+	DistressFlatReduction = 1,
+	PovertyFlatReduction = 1,
+	IlliteracyFlatReduction = 1,
+	BoredomFlatReduction = 1,
+	ReligiousUnrestFlatReduction = 1
 WHERE Type = 'POLICY_SOVEREIGNTY';
 
 INSERT INTO Policy_ImprovementYieldChanges
@@ -82,7 +82,7 @@ WHERE PolicyType = 'POLICY_FREE_THOUGHT';
 
 UPDATE Policies
 SET
-	ReligiousUnrestFlatReductionGlobal = 5,
+	ReligiousUnrestFlatReduction = 5,
 	GreatScientistRateModifier = 33,
 	GreatScientistBeakerModifier = 25
 WHERE Type = 'POLICY_FREE_THOUGHT';
@@ -115,11 +115,11 @@ UPDATE Policies
 SET
 	OneShot = 0,
 	NumFreeTechs = 0,
-	DistressFlatReductionGlobal = 1,
-	PovertyFlatReductionGlobal = 1,
-	IlliteracyFlatReductionGlobal = 1,
-	BoredomFlatReductionGlobal = 1,
-	ReligiousUnrestFlatReductionGlobal = 1,
+	DistressFlatReduction = 1,
+	PovertyFlatReduction = 1,
+	IlliteracyFlatReduction = 1,
+	BoredomFlatReduction = 1,
+	ReligiousUnrestFlatReduction = 1,
 	SpySecurityModifier = 12
 WHERE Type = 'POLICY_RATIONALISM_FINISHER';
 

@@ -74,7 +74,7 @@ DELETE FROM Policy_BuildingClassHappiness
 WHERE PolicyType = 'POLICY_FORTIFIED_BORDERS';
 
 UPDATE Policies
-SET DistressFlatReductionGlobal = 2
+SET DistressFlatReduction = 2
 WHERE Type = 'POLICY_FORTIFIED_BORDERS';
 
 INSERT INTO Policy_BuildingClassYieldChanges

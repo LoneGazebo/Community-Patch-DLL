@@ -91,7 +91,7 @@ SET
 	Description = 'TXT_KEY_POLICY_UNIVERSAL_HEALTHCARE_O',
 	Help = 'TXT_KEY_POLICY_UNIVERSAL_HEALTHCARE_O_HELP',
 	Civilopedia = 'TXT_KEY_POLICY_UNIVERSAL_HEALTHCARE_TEXT_O',
-	PovertyFlatReductionGlobal = 2,
+	PovertyFlatReduction = 2,
 	CityGrowthMod = 20,
 	BuildingGoldMaintenanceMod = -20
 WHERE Type = 'POLICY_UNIVERSAL_HEALTHCARE_O';
@@ -119,7 +119,7 @@ WHERE PolicyType = 'POLICY_ACADEMY_SCIENCES';
 
 UPDATE Policies
 SET
-	IlliteracyFlatReductionGlobal = 2,
+	IlliteracyFlatReduction = 2,
 	OneShot = 1
 WHERE Type = 'POLICY_ACADEMY_SCIENCES';
 
