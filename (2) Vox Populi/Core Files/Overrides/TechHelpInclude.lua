@@ -1,3 +1,7 @@
+include('CPK.lua')
+
+local AsPercentage = CPK.Util.AsPercentage
+
 -------------------------------------------------
 -- Help text for techs
 -------------------------------------------------
@@ -201,7 +205,11 @@ function GetHelpTextForTech(eTech, bShort, playerIDOverride)
 			iBuildTime = pBuildFeature.Time;
 		end
 		strBuilds = strBuilds .. " [ICON_BULLET] " ..
-			Locale.ConvertTextKey("TXT_KEY_TECH_HELP_BUILD_REDUCTION", pBuild.Description, DisplayPercentage(row.TimeChange / iBuildTime));
+			Locale.ConvertTextKey(
+				"TXT_KEY_TECH_HELP_BUILD_REDUCTION",
+				pBuild.Description,
+				AsPercentage(row.TimeChange / iBuildTime)
+			);
 		iNumBuilds = iNumBuilds + 1;
 	end
 	if iNumBuilds > 0 then
@@ -494,13 +502,4 @@ end
 -- Used in trade screen
 function GetShortHelpTextForTech(eTech)
 	return GetHelpTextForTech(eTech, true);
-end
-
--- Display percentage up to 1 decimal place
-function DisplayPercentage(fNumber)
-	if math.floor(fNumber * 1000) / 10 % 1 == 0 then
-		return math.floor(fNumber * 100);
-	else
-		return math.floor(fNumber * 1000) / 10;
-	end
 end
