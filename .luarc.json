@@ -1,7 +1,8 @@
 {
   "workspace": {
     "library": [
-      "./LuaCATS"
+      "./LuaCATS",
+      "./(1) Community Patch/Kit"
     ],
     "checkThirdParty": false
   },
