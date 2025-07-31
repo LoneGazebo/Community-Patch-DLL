@@ -1,6 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Deploy" ToolsVersion="4.0"
-  xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Deploy" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Default</Configuration>
     <ProjectGuid>{0d66d522-b624-4bc5-acfe-15a0c5b729f4}</ProjectGuid>
@@ -972,8 +971,10 @@
     <Folder Include="Database Changes\WorldMap\Resources" />
     <Folder Include="Database Changes\WorldMap\Terrains" />
     <Folder Include="Database Changes\WorldMap\Yields" />
+    <Folder Include="Kit\Util\" />
     <Folder Include="LUA" />
     <Folder Include="Mapscripts" />
+    <Folder Include="Kit" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Assets\DoMImages\dom_catherine.dds">
@@ -3295,6 +3296,22 @@
     <Content Include="Database Changes\WorldMap\Yields\YieldTableChanges.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Kit\CPK.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Kit\Util\CPK.Util.AsPercentage.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Kit\Util\CPK.Util.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Kit\Util\CPK.Util.StringBuilder.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="LUA\CityBannerManager.lua">
       <SubType>Lua</SubType>
