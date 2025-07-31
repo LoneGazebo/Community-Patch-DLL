@@ -6,3 +6,4 @@
 --- @alias PlotId integer
 --- @alias TeamId integer
 --- @alias UnitId integer
+--- @alias TechId integer

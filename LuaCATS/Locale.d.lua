@@ -7,12 +7,14 @@ Locale = {}
 
 --- @param textKey string
 --- @param ... string | number
+--- @return string
 function Locale.Lookup(textKey, ...) end
 
 --- Alias to `Locale.Lookup`
 --- @see Locale.Lookup
 --- @param textKey string
 --- @param ... string | number
+--- @return string
 function Locale.ConvertTextKey(textKey, ...) end
 
 --- ```lua
