@@ -4,7 +4,7 @@
 local City = {}
 
 --- Gets city owner player id.
---- @return PlayerID
+--- @return PlayerId
 function City:GetOwner() end
 
 ---Get the type ID of the "best" (or a weighted random one out of the "best" 5) combat unit for City owner satisfying the given conditions<br>
@@ -18,4 +18,13 @@ function City:GetOwner() end
 ---@param bRandom boolean? if true, the unit is picked from the top 5 units in the pool in random (weighted), default false
 ---@param tUnitCombatIDs integer[]? if specified, only units of these UnitCombat types can be selected
 ---@return UnitTypes
-function City:GetCompetitiveSpawnUnitType(bIncludeRanged, bIncludeShips, bIncludeRecon, bIncludeUUs, bNoResource, bMinorCivGift, bRandom, tUnitCombatIDs) end
+function City:GetCompetitiveSpawnUnitType(
+	bIncludeRanged,
+	bIncludeShips,
+	bIncludeRecon,
+	bIncludeUUs,
+	bNoResource,
+	bMinorCivGift,
+	bRandom,
+	tUnitCombatIDs
+) end
