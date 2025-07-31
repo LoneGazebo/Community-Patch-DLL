@@ -1,6 +1,10 @@
 -------------------------------------------------
 -- Include file that has handy stuff for the tech tree and other screens that need to show a tech button
 -------------------------------------------------
+include('CPK.lua')
+
+local AsPercentage = CPK.Util.AsPercentage
+
 include( "FLuaVector" ) --compatibility with Firaxis scripts
 include( "EUI_utilities" )
 IconLookup = EUI.IconLookup
@@ -597,13 +601,13 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
 				break
 			end
 			bAddedForest = true
-			if not addSmallActionButton( {IconIndex = 31, IconAtlas = "UNIT_ACTION_GOLD_ATLAS", Description = ""}, "",  "TXT_KEY_REMOVE_FOREST_JUNGLE_COST_REDUCTION", DisplayPercentage(row.TimeChange/(tempRow.Time or 100)) ) then
+			if not addSmallActionButton( {IconIndex = 31, IconAtlas = "UNIT_ACTION_GOLD_ATLAS", Description = ""}, "",  "TXT_KEY_REMOVE_FOREST_JUNGLE_COST_REDUCTION", AsPercentage(row.TimeChange/(tempRow.Time or 100)) ) then
 				break
 			end
 		end
 		if row.BuildType == "BUILD_REMOVE_MARSH" then
 			local tempRow = GameInfo.BuildFeatures{ BuildType = row.BuildType }();
-			if not addSmallActionButton( {IconIndex = 38, IconAtlas = "UNIT_ACTION_GOLD_ATLAS", Description = ""}, "",  "TXT_KEY_BUILD_COST_REDUCTION", GameInfo.Builds[row.BuildType].Description, DisplayPercentage(row.TimeChange/(tempRow.Time or 100)) ) then
+			if not addSmallActionButton( {IconIndex = 38, IconAtlas = "UNIT_ACTION_GOLD_ATLAS", Description = ""}, "",  "TXT_KEY_BUILD_COST_REDUCTION", GameInfo.Builds[row.BuildType].Description, AsPercentage(row.TimeChange/(tempRow.Time or 100)) ) then
 				break
 			end
 		end
@@ -618,7 +622,7 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
 						IconAtlas = GameInfo.Builds[row.BuildType].IconAtlas,
 						Description = "",
 					}, "", "TXT_KEY_BUILD_COST_REDUCTION", GameInfo.Builds[row.BuildType].Description,
-					DisplayPercentage(row.TimeChange/(GameInfo.Builds[row.BuildType].Time or 100))) then
+					AsPercentage(row.TimeChange/(GameInfo.Builds[row.BuildType].Time or 100))) then
 					break
 				end
 			end
@@ -887,13 +891,5 @@ function AddCallbackToSmallButtons( thisTechButtonInstance, maxSmallButtons, voi
 		else
 			break
 		end
-	end
-end
---This displays percentage in a roundup manner.
-function DisplayPercentage(firstnumber)
-	if math.floor(firstnumber*1000)/10 % 1 == 0 then
-		return math.floor(firstnumber*100)
-	else
-		return math.floor(firstnumber*1000)/10
 	end
 end
