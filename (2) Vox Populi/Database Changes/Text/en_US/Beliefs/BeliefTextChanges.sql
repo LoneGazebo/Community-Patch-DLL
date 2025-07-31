@@ -12,7 +12,7 @@ SET Text = 'God of Fire'
 WHERE Tag = 'TXT_KEY_BELIEF_EARTH_MOTHER_SHORT';
 
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PEACE] Faith, [ICON_PRODUCTION] Production, and [ICON_CULTURE] Culture from Mines on Resources. +2 [ICON_PEACE] Faith from Forges.'
+SET Text = '+1 [ICON_PEACE] Faith, [ICON_PRODUCTION] Production, and [ICON_CULTURE] Culture from Mines on improved Resources. +2 [ICON_PEACE] Faith from Forges.'
 WHERE Tag = 'TXT_KEY_BELIEF_EARTH_MOTHER';
 
 UPDATE Language_en_US
@@ -70,7 +70,7 @@ SET Text = 'God of the Sun'
 WHERE Tag = 'TXT_KEY_BELIEF_SUN_GOD_SHORT';
 
 UPDATE Language_en_US
-SET Text = '+2 [ICON_PEACE] Faith and [ICON_GOLD] Gold from Granaries. +1 [ICON_PEACE] Faith, [ICON_FOOD] Food, and [ICON_RESEARCH] Science from Farms on Resources.'
+SET Text = '+2 [ICON_PEACE] Faith and [ICON_GOLD] Gold from Granaries. +1 [ICON_PEACE] Faith, [ICON_FOOD] Food, and [ICON_RESEARCH] Science from Farms on improved Resources.'
 WHERE Tag = 'TXT_KEY_BELIEF_SUN_GOD';
 
 -- God of War
