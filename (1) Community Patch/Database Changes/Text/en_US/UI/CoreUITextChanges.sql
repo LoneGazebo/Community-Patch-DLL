@@ -62,6 +62,10 @@ UPDATE Language_en_US
 SET Text = '(Not Fresh Water)'
 WHERE Tag = 'TXT_KEY_ABLTY_NO_FRESH_WATER_STRING';
 
+UPDATE Language_en_US
+SET Text = 'Leads To:'
+WHERE Tag = 'TXT_KEY_TECH_HELP_LEADS_TO';
+
 ------------------------------------------------
 -- Civilopedia
 ------------------------------------------------

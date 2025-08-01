@@ -1079,7 +1079,6 @@
     <File md5="180D0D9007913D8483373F07C398A32B" import="1">Core Files/Overrides/ReligionOverview.xml</File>
     <File md5="5D08BC8926176FD7F7081872EBB56472" import="1">Core Files/Overrides/ResourceTooltipGenerator.lua</File>
     <File md5="70CC435D4C07712F3DFA40C00C6602F3" import="1">Core Files/Overrides/SimpleDiploTrade.xml</File>
-    <File md5="ADFD23A40E46DF6D9800ABF9CAC1C504" import="1">Core Files/Overrides/TechHelpInclude.lua</File>
     <File md5="AADB27C95BCDB004A504407B49686D9C" import="1">Core Files/Overrides/TradeRouteHelpers.lua</File>
     <File md5="721C4142F9A38E92D58532486E244098" import="1">Core Files/Overrides/TradeRouteOverview.lua</File>
     <File md5="AB738F4C7D7411D8A21F9D9EC84F7570" import="1">Core Files/Overrides/TradeRouteOverview.xml</File>

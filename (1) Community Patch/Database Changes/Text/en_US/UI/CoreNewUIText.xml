@@ -52,34 +52,37 @@
 
 		<!-- Tech tree -->
 		<Row Tag="TXT_KEY_TECH_HELP_UNITS_UNLOCKED">
-			<Text>[NEWLINE][COLOR_CYAN]Units Unlocked:[ENDCOLOR][NEWLINE]</Text>
+			<Text>Units Unlocked:</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TECH_HELP_BUILDINGS_UNLOCKED">
-			<Text>[NEWLINE][COLOR_CYAN]Buildings Unlocked:[ENDCOLOR][NEWLINE]</Text>
+			<Text>Buildings Unlocked:</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TECH_HELP_WONDERS_UNLOCKED">
-			<Text>[NEWLINE][COLOR_CYAN]Wonders Unlocked:[ENDCOLOR][NEWLINE]</Text>
+			<Text>Wonders Unlocked:</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TECH_HELP_PROJECTS_UNLOCKED">
-			<Text>[NEWLINE][COLOR_CYAN]Projects Unlocked:[ENDCOLOR][NEWLINE]</Text>
+			<Text>Projects Unlocked:</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TECH_HELP_PROCESSES_UNLOCKED">
-			<Text>[NEWLINE][COLOR_CYAN]Processes Unlocked:[ENDCOLOR][NEWLINE]</Text>
+			<Text>Processes Unlocked:</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TECH_HELP_CORPS_UNLOCKED">
-			<Text>[NEWLINE][COLOR_CYAN]Corporations Unlocked:[ENDCOLOR][NEWLINE]</Text>
+			<Text>Corporations Unlocked:</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TECH_HELP_RESOURCES_UNLOCKED">
-			<Text>[NEWLINE][COLOR_CYAN]Resources Unlocked:[ENDCOLOR][NEWLINE]</Text>
+			<Text>Resources Unlocked:</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TECH_HELP_BUILDS_UNLOCKED">
-			<Text>[NEWLINE][COLOR_CYAN]Builds Unlocked:[ENDCOLOR][NEWLINE]</Text>
+			<Text>Builds Unlocked:</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TECH_HELP_ACTIONS_UNLOCKED">
-			<Text>[NEWLINE][COLOR_CYAN]Unique Actions:[ENDCOLOR][NEWLINE]</Text>
+			<Text>Unique Actions:</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TECH_HELP_YIELDS_UNLOCKED">
-			<Text>[NEWLINE][COLOR_CYAN]Yield Changes:[ENDCOLOR][NEWLINE]</Text>
+			<Text>Yield Changes:</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TECH_HELP_SPECIALIST_YIELDS_UNLOCKED">
+			<Text>Specialist Changes:</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TECH_HELP_BUILD_REDUCTION">
 			<Text>{1_Build}: {2_Turns} {2_Turns: plural 1?Turn; other?Turns;} Required</Text>
