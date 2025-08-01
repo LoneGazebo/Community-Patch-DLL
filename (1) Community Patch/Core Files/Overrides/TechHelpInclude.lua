@@ -1,932 +1,684 @@
--------------------------------------------------
--- Help text for techs
--------------------------------------------------
+include('CPK.lua')
 
-function GetHelpTextForTech( iTechID )
-	local pTechInfo = GameInfo.Technologies[iTechID];
-	
-	local strHelpText = "";
+local StringBuilder = CPK.Util.StringBuilder
+local AsPercentage = CPK.Misc.AsPercentage
+local Memoize1 = CPK.Cache.Memoize1
 
-	if(Game ~= nil) then
-		local pActiveTeam = Teams[Game.GetActiveTeam()];
-		local pActivePlayer = Players[Game.GetActivePlayer()];
-		local pTeamTechs = pActiveTeam:GetTeamTechs();
-		local iTechCost = pActivePlayer:GetResearchCost(iTechID);
-	
-		-- Name
-		strHelpText = strHelpText .. Locale.ToUpper(Locale.ConvertTextKey( pTechInfo.Description ));
+local _lua_type = type
+local _lua_math_floor = math.floor
+local _lua_string_format = string.format
 
-		-- Do we have this tech?
-		if (pTeamTechs:HasTech(iTechID)) then
-			strHelpText = strHelpText .. " [COLOR_POSITIVE_TEXT](" .. Locale.ConvertTextKey("TXT_KEY_RESEARCHED") .. ")[ENDCOLOR]";
-		end
+local _civ_locale_lookup = Locale.Lookup
+local _civ_locale_toupper = Locale.ToUpper
+local _civ_db_create_query = DB.CreateQuery
 
-		-- Cost/Progress
-		strHelpText = strHelpText .. "[NEWLINE]-------------------------[NEWLINE]";
-	
-		local iProgress = pActivePlayer:GetResearchProgress(iTechID);
-		local bShowProgress = true;
-	
-		-- Don't show progress if we have 0 or we're done with the tech
-		if (iProgress == 0 or pTeamTechs:HasTech(iTechID)) then
-			bShowProgress = false;
-		end
-	
-		if (bShowProgress) then
-			strHelpText = strHelpText .. " " .. Locale.ConvertTextKey("TXT_KEY_TECH_HELP_COST_WITH_PROGRESS", iProgress, iTechCost);
-		else
-			strHelpText = strHelpText .. " " .. Locale.ConvertTextKey("TXT_KEY_TECH_HELP_COST", iTechCost);
-		end
-	end
-	
-	-- Leads to...
-	local strLeadsTo = "";
-	local bFirstLeadsTo = true;
-	for row in GameInfo.Technology_PrereqTechs() do
-		local pPrereqTech = GameInfo.Technologies[row.PrereqTech];
-		local pLeadsToTech = GameInfo.Technologies[row.TechType];
-		
-		if (pPrereqTech and pLeadsToTech) then
-			if (pTechInfo.ID == pPrereqTech.ID) then
-				
-				-- If this isn't the first leads-to tech, then add a comma to separate
-				if (bFirstLeadsTo) then
-					bFirstLeadsTo = false;
-				else
-					strLeadsTo = strLeadsTo .. ", ";
-				end
-				
-				strLeadsTo = strLeadsTo .. "[COLOR_POSITIVE_TEXT]" .. Locale.ConvertTextKey( pLeadsToTech.Description ) .. "[ENDCOLOR]";
-			end
-		end
-	end
-	
-	if (strLeadsTo ~= "") then
-		strHelpText = strHelpText .. "[NEWLINE]";
-		strHelpText = strHelpText .. " " .. Locale.ConvertTextKey("TXT_KEY_TECH_HELP_LEADS_TO", strLeadsTo);
-	end
+local L = _civ_locale_lookup
 
-	-- Unlocks:
-	local thisTech = GameInfo.Technologies[iTechID];
+--- @param color string
+local function PrepareColor(color)
+	color = '[COLOR_' .. color:upper() .. ']'
 
-	local UnlocksString = "";
-
-	UnlocksString = UnlocksString .. strHelpText;
-
-	local techType = thisTech.Type;
-	local condition = "TechType = '" .. techType .. "'";
-	local prereqCondition = "PrereqTech = '" .. techType .. "'";
-	local otherPrereqCondition = "TechPrereq = '" .. techType .. "'";
-	local revealCondition = "TechReveal = '" .. techType .. "'";
-
-	local UnitString = Locale.ConvertTextKey("TXT_KEY_TECH_HELP_UNITS_UNLOCKED");
-	local numUnits = 0;
-	-- update the units unlocked
-	for thisUnitInfo in GameInfo.Units( prereqCondition ) do
-		if thisUnitInfo.ShowInPedia then
-			if numUnits > 0 then
-				UnitString = UnitString .. "[NEWLINE]"
-			end
-			numUnits = numUnits + 1;
-			UnitString = UnitString .. " [ICON_BULLET] " .. Locale.ConvertTextKey(thisUnitInfo.Description);
-		end
+	--- @param str string
+	--- @return string
+	return function(str)
+		return color .. str .. '[ENDCOLOR]'
 	end
-	if numUnits > 0 then
-		UnlocksString = UnlocksString .. UnitString
-	end
-		
-	local BuildingString = Locale.ConvertTextKey("TXT_KEY_TECH_HELP_BUILDINGS_UNLOCKED");
-	local numBuildings = 0;
-	-- update the buildings unlocked
-	for thisBuildingInfo in GameInfo.Buildings( prereqCondition ) do
-		if thisBuildingInfo then
-			if thisBuildingInfo.ShowInPedia then
-				local thisBuildingClass = GameInfo.BuildingClasses[thisBuildingInfo.BuildingClass];
-				if thisBuildingClass.MaxGlobalInstances <= 0  then
-					if numBuildings > 0 then
-						BuildingString = BuildingString .. "[NEWLINE]"
-					end
-					BuildingString = BuildingString .. " [ICON_BULLET] " .. Locale.ConvertTextKey(thisBuildingInfo.Description);
-					numBuildings = numBuildings + 1;
-				end
-			end
-		end
-	end
-
-	if numBuildings > 0 then
-		UnlocksString = UnlocksString .. BuildingString
-	end
-
-	local WonderString = Locale.ConvertTextKey("TXT_KEY_TECH_HELP_WONDERS_UNLOCKED");
-	local numWonders = 0;
-	-- update the buildings unlocked
-	for thisBuildingInfo in GameInfo.Buildings( prereqCondition ) do
-		if thisBuildingInfo then
-			local thisBuildingClass = GameInfo.BuildingClasses[thisBuildingInfo.BuildingClass];
-			if thisBuildingClass.MaxGlobalInstances > 0  then
-				if numWonders > 0 then
-					WonderString = WonderString .. "[NEWLINE]"
-				end
-				WonderString = WonderString .. " [ICON_BULLET] " .. Locale.ConvertTextKey(thisBuildingInfo.Description);
-				numWonders = numWonders + 1;
-			end
-		end
-	end
-
-	if numWonders > 0 then
-		UnlocksString = UnlocksString .. WonderString
-	end
-		
-	local ProjectString = Locale.ConvertTextKey("TXT_KEY_TECH_HELP_PROJECTS_UNLOCKED");
-	local numProjects = 0;
-	-- update the projects unlocked
-	for thisProjectInfo in GameInfo.Projects( otherPrereqCondition ) do	
-		if thisProjectInfo then
-			if numProjects > 0 then
-				ProjectString = ProjectString .. "[NEWLINE]"
-			end
-			numProjects = numProjects + 1;
-			ProjectString = ProjectString .. " [ICON_BULLET] " .. Locale.ConvertTextKey(thisProjectInfo.Description);
-		end
-	end
-	if numProjects > 0 then
-		UnlocksString = UnlocksString .. ProjectString
-	end
-
-	local ProcessesString = Locale.ConvertTextKey("TXT_KEY_TECH_HELP_PROCESSES_UNLOCKED");
-	local numProcesses = 0;	
-	-- update the process actions unlocked
-	for thisProcessInfo in GameInfo.Processes( otherPrereqCondition ) do
-		if(thisProcessInfo) then
-			if numProcesses > 0 then
-				ProcessesString = ProcessesString .. "[NEWLINE]"
-			end
-			numProcesses = numProcesses + 1;
-			ProcessesString = ProcessesString .. " [ICON_BULLET] " .. Locale.ConvertTextKey(thisProcessInfo.Description);
-		end			
-	end
-	if numProcesses > 0 then
-		UnlocksString = UnlocksString .. ProcessesString
-	end
-
-	-- CORPS
-	if (thisTech.CorporationsEnabled) then
-		local CorpsString = Locale.ConvertTextKey("TXT_KEY_TECH_HELP_CORPS_UNLOCKED");
-		local numCorps = 0;	
-		-- update the process actions unlocked
-		for thisCorpInfo in GameInfo.Corporations() do
-			if(thisCorpInfo) then
-				if numCorps > 0 then
-					CorpsString = CorpsString .. "[NEWLINE]"
-				end
-				numCorps = numCorps + 1;
-				CorpsString = CorpsString .. " [ICON_BULLET] " .. Locale.ConvertTextKey(thisCorpInfo.Description);
-			end			
-		end
-		if numCorps > 0 then
-			UnlocksString = UnlocksString .. CorpsString
-		end
-	end
-	
-	local ResourceString = Locale.ConvertTextKey("TXT_KEY_TECH_HELP_RESOURCES_UNLOCKED");
-	local numResources = 0;	
-	-- update the resources revealed
-	for revealedResource in GameInfo.Resources( revealCondition ) do
-		if(revealedResource) then
-			if numResources == 0 then
-				ResourceString = ResourceString .. " [ICON_BULLET] "
-			end
-			if numResources > 0 then
-				ResourceString = ResourceString .. ", "
-			end
-			numResources = numResources + 1;
-			ResourceString = ResourceString .. Locale.ConvertTextKey(revealedResource.IconString) .. " " .. Locale.ConvertTextKey(revealedResource.Description);
-		end			
-	end
-	if numResources > 0 then
-		UnlocksString = UnlocksString .. ResourceString
-	end
-
-	local BuildString = Locale.ConvertTextKey("TXT_KEY_TECH_HELP_BUILDS_UNLOCKED");
-	local numBuilds = 0;	
-	-- update the build actions unlocked
-	for thisBuildInfo in GameInfo.Builds{ PrereqTech = techType, ShowInPedia = 1 } do
-		if(thisBuildInfo) then
-			if numBuilds > 0 then
-				BuildString = BuildString .. "[NEWLINE]"
-			end
-			numBuilds = numBuilds + 1;
-			BuildString = BuildString .. " [ICON_BULLET] " .. Locale.ConvertTextKey(thisBuildInfo.Description);
-		end			
-	end
-	for thisBuildInfo in GameInfo.Build_TechTimeChanges{ TechType = techType} do
-		if(thisBuildInfo) then
-			if numBuilds > 0 then
-				BuildString = BuildString .. "[NEWLINE]"
-			end
-			numBuilds = numBuilds + 1;
-			BuildString = BuildString .. " [ICON_BULLET] " .. Locale.ConvertTextKey("TXT_KEY_TECH_HELP_BUILD_REDUCTION", GameInfo.Builds[thisBuildInfo.BuildType].Description, thisBuildInfo.TimeChange/100);
-		end			
-	end
-	if numBuilds > 0 then
-		UnlocksString = UnlocksString .. BuildString
-	end
-
-	-- update the special abilites
-	local abilitiesString = Locale.ConvertTextKey("TXT_KEY_TECH_HELP_ACTIONS_UNLOCKED") .. " [ICON_BULLET] ";
-	local numAbilities = 0;
-
-	for row in GameInfo.Route_TechMovementChanges( condition ) do
-		if numAbilities > 0 then
-				abilitiesString = abilitiesString .. "[NEWLINE] [ICON_BULLET] ";
-		end
-		abilitiesString = abilitiesString .. Locale.ConvertTextKey("TXT_KEY_CIVILOPEDIA_SPECIALABILITIES_MOVEMENT", GameInfo.Routes[row.RouteType].Description);
-		numAbilities = numAbilities + 1;
-	end
-
-	if thisTech.EmbarkedMoveChange > 0 then
-		if numAbilities > 0 then
-				abilitiesString = abilitiesString .. "[NEWLINE] [ICON_BULLET] ";
-		end
-		abilitiesString = abilitiesString .. Locale.ConvertTextKey( "TXT_KEY_ABLTY_FAST_EMBARK_STRING" );
-		numAbilities = numAbilities + 1;
-	end
-
-	if thisTech.FeatureProductionModifier > 0 then
-		if numAbilities > 0 then
-				abilitiesString = abilitiesString .. "[NEWLINE] [ICON_BULLET] ";
-		end
-		abilitiesString = abilitiesString .. Locale.ConvertTextKey( "TXT_KEY_ABLTY_TECH_BOOST_CHOP", thisTech.FeatureProductionModifier );
-		numAbilities = numAbilities + 1;
-	end
-	
-	if thisTech.AllowsEmbarking then
-		if numAbilities > 0 then
-				abilitiesString = abilitiesString .. "[NEWLINE] [ICON_BULLET] ";
-		end
-		abilitiesString = abilitiesString .. Locale.ConvertTextKey( "TXT_KEY_ALLOWS_EMBARKING" );
-		numAbilities = numAbilities + 1;
-	end
-	
-	if thisTech.AllowsDefensiveEmbarking then
-		if numAbilities > 0 then
-				abilitiesString = abilitiesString .. "[NEWLINE] [ICON_BULLET] ";
-		end
-		abilitiesString = abilitiesString .. Locale.ConvertTextKey( "TXT_KEY_ABLTY_DEFENSIVE_EMBARK_STRING" );
-		numAbilities = numAbilities + 1;
-	end
-	
-	if thisTech.EmbarkedAllWaterPassage then
-		if numAbilities > 0 then
-				abilitiesString = abilitiesString .. "[NEWLINE] [ICON_BULLET] ";
-		end
-		abilitiesString = abilitiesString ..  Locale.ConvertTextKey( "TXT_KEY_ABLTY_OCEAN_EMBARK_STRING" );
-		numAbilities = numAbilities + 1;
-	end
-
-	if thisTech.Happiness > 0 then
-		if numAbilities > 0 then
-				abilitiesString = abilitiesString .. "[NEWLINE] [ICON_BULLET] ";
-		end
-		abilitiesString = abilitiesString ..  Locale.ConvertTextKey( "TXT_KEY_ABLTY_HAPPINESS_BUMP", thisTech.Happiness );
-		numAbilities = numAbilities + 1
-	end
-	if thisTech.BombardRange > 0 then
-		if numAbilities > 0 then
-				abilitiesString = abilitiesString .. "[NEWLINE] [ICON_BULLET] ";
-		end
-		abilitiesString = abilitiesString ..  Locale.ConvertTextKey( "TXT_KEY_ABLTY_CITY_RANGE_INCREASE" );
-		numAbilities = numAbilities + 1
-	end
-	if thisTech.BombardIndirect > 0 then
-		if numAbilities > 0 then
-				abilitiesString = abilitiesString .. "[NEWLINE] [ICON_BULLET] ";
-		end
-		abilitiesString = abilitiesString ..  Locale.ConvertTextKey( "TXT_KEY_ABLTY_CITY_INDIRECT_INCREASE" );
-		numAbilities = numAbilities + 1;
-	end
-	if thisTech.CityLessEmbarkCost then
-		if numAbilities > 0 then
-				abilitiesString = abilitiesString .. "[NEWLINE] [ICON_BULLET] ";
-		end
-		abilitiesString = abilitiesString ..  Locale.ConvertTextKey( "TXT_KEY_ABLTY_CITY_LESS_EMBARK_COST_STRING" );
-		numAbilities = numAbilities + 1;
-	end
-	if thisTech.CityNoEmbarkCost then
-		if numAbilities > 0 then
-				abilitiesString = abilitiesString .. "[NEWLINE] [ICON_BULLET] ";
-		end
-		abilitiesString = abilitiesString ..  Locale.ConvertTextKey( "TXT_KEY_ABLTY_CITY_NO_EMBARK_COST_STRING" );
-		numAbilities = numAbilities + 1;
-	end
-	
-	if thisTech.AllowEmbassyTradingAllowed then
-		if numAbilities > 0 then
-			abilitiesString = abilitiesString .. "[NEWLINE] [ICON_BULLET] ";
-		end
-		abilitiesString = abilitiesString .. Locale.ConvertTextKey( "TXT_KEY_ABLTY_ALLOW_EMBASSY_STRING" );
-		numAbilities = numAbilities + 1;
-	end
-	
-	if thisTech.OpenBordersTradingAllowed then
-		if numAbilities > 0 then
-				abilitiesString = abilitiesString .. "[NEWLINE] [ICON_BULLET] ";
-		end
-		abilitiesString = abilitiesString .. Locale.ConvertTextKey( "TXT_KEY_ABLTY_OPEN_BORDER_STRING" );
-		numAbilities = numAbilities + 1;
-	end
-	
-	if thisTech.DefensivePactTradingAllowed then
-		if numAbilities > 0 then
-				abilitiesString = abilitiesString .. "[NEWLINE] [ICON_BULLET] ";
-		end
-		abilitiesString = abilitiesString .. Locale.ConvertTextKey( "TXT_KEY_ABLTY_D_PACT_STRING" );
-		numAbilities = numAbilities + 1;
-	end
-	
-	if thisTech.BridgeBuilding then
-		if numAbilities > 0 then
-				abilitiesString = abilitiesString .. "[NEWLINE] [ICON_BULLET] ";
-		end
-		abilitiesString = abilitiesString .. Locale.ConvertTextKey( "TXT_KEY_ABLTY_BRIDGE_STRING" );
-		numAbilities = numAbilities + 1;
-	end
-
-	if thisTech.MapVisible then
-		if numAbilities > 0 then
-			abilitiesString = abilitiesString .. "[NEWLINE] [ICON_BULLET] ";
-		end
-		abilitiesString = abilitiesString .. Locale.ConvertTextKey( "TXT_KEY_REVEALS_ENTIRE_MAP");
-		numAbilities = numAbilities + 1;
-	end
-	
-	if thisTech.InternationalTradeRoutesChange > 0 then
-		if numAbilities > 0 then
-				abilitiesString = abilitiesString .. "[NEWLINE] [ICON_BULLET] ";
-		end
-		abilitiesString = abilitiesString .. "[ICON_INTERNATIONAL_TRADE] " .. Locale.ConvertTextKey( "TXT_KEY_ADDITIONAL_INTERNATIONAL_TRADE_ROUTE");
-		numAbilities = numAbilities + 1;
-	end
-
-	for row in GameInfo.Technology_TradeRouteDomainExtraRange(condition) do
-		if (row.TechType == techType and row.Range > 0) then
-			if numAbilities > 0 then
-				abilitiesString = abilitiesString .. "[NEWLINE] [ICON_BULLET] ";
-			end
-			if (GameInfo.Domains[row.DomainType].ID == DomainTypes.DOMAIN_LAND) then
-				abilitiesString = abilitiesString .. Locale.ConvertTextKey( "TXT_KEY_EXTENDS_LAND_TRADE_ROUTE_RANGE");
-			elseif (GameInfo.Domains[row.DomainType].ID == DomainTypes.DOMAIN_SEA) then
-				abilitiesString = abilitiesString .. Locale.ConvertTextKey( "TXT_KEY_EXTENDS_SEA_TRADE_ROUTE_RANGE");
-			end
-			numAbilities = numAbilities + 1;
-		end
-	end
-	
-	if thisTech.InfluenceSpreadModifier > 0 then
-		if numAbilities > 0 then
-				abilitiesString = abilitiesString .. "[NEWLINE] [ICON_BULLET] ";
-		end
-		abilitiesString = abilitiesString .. Locale.ConvertTextKey( "TXT_KEY_DOUBLE_TOURISM");
-		numAbilities = numAbilities + 1;
-	end
-	
-	if thisTech.AllowsWorldCongress then
-		if numAbilities > 0 then
-				abilitiesString = abilitiesString .. "[NEWLINE] [ICON_BULLET] ";
-		end
-		abilitiesString = abilitiesString .. Locale.ConvertTextKey( "TXT_KEY_ALLOWS_WORLD_CONGRESS");
-		numAbilities = numAbilities + 1;
-	end
-	
-	if thisTech.ExtraVotesPerDiplomat > 0 then
-		if numAbilities > 0 then
-				abilitiesString = abilitiesString .. "[NEWLINE] [ICON_BULLET] ";
-		end
-		abilitiesString = abilitiesString .. Locale.ConvertTextKey( "TXT_KEY_EXTRA_VOTES_FROM_DIPLOMATS", thisTech.ExtraVotesPerDiplomat );
-		numAbilities = numAbilities + 1;
-	end
-	
-	for row in GameInfo.Technology_FreePromotions(condition) do
-		local promotion = GameInfo.UnitPromotions[row.PromotionType];
-		if promotion then
-			if numAbilities > 0 then
-				abilitiesString = abilitiesString .. "[NEWLINE] [ICON_BULLET] ";
-			end
-			abilitiesString = abilitiesString .. Locale.ConvertTextKey( "TXT_KEY_FREE_PROMOTION_FROM_TECH", promotion.Description, promotion.Help );
-			numAbilities = numAbilities + 1;
-		end
-	end
-
-	if (thisTech.ResearchAgreementTradingAllowed) then
-		if numAbilities > 0 then
-			abilitiesString = abilitiesString .. "[NEWLINE] [ICON_BULLET] ";
-		end
-		abilitiesString = abilitiesString .. Locale.ConvertTextKey( "TXT_KEY_ABLTY_R_PACT_STRING" );
-		numAbilities = numAbilities + 1;
-	end
-
-	-- Putmalk: If this tech grants Map Trading then display it on the tech info page
-	if thisTech.MapTrading then
-		if numAbilities > 0 then
-				abilitiesString = abilitiesString .. "[NEWLINE] [ICON_BULLET] ";
-		end
-		abilitiesString = abilitiesString .. Locale.ConvertTextKey( "TXT_KEY_ABLTY_MAP_TRADING_STRING" );
-		numAbilities = numAbilities + 1;
-	end
-	
-	-- Putmalk: If this tech grants Tech Trading, and Tech trading is active, then display it on the tech info page
-	if (thisTech.TechTrading) then
-		if numAbilities > 0 then
-				abilitiesString = abilitiesString .. "[NEWLINE] [ICON_BULLET] ";
-		end
-		abilitiesString = abilitiesString .. Locale.ConvertTextKey( "TXT_KEY_ABLTY_TECH_TRADING_STRING" );
-		numAbilities = numAbilities + 1;
-	end
-	
-	-- Putmalk: If this tech grants vassalage, and vassalage isn't disabled, then display it on the tech info page
-	if (thisTech.VassalageTradingAllowed) then
-		if numAbilities > 0 then
-				abilitiesString = abilitiesString .. "[NEWLINE] [ICON_BULLET] ";
-		end
-		abilitiesString = abilitiesString .. Locale.ConvertTextKey( "TXT_KEY_ABLTY_VASSALAGE_STRING" );
-		numAbilities = numAbilities + 1;
-	end
-
-	-- CORP
-	if (thisTech.CorporationsEnabled) then
-		if numAbilities > 0 then
-				abilitiesString = abilitiesString .. "[NEWLINE] [ICON_BULLET] ";
-		end
-		abilitiesString = abilitiesString .. Locale.ConvertTextKey( "TXT_KEY_ABLTY_ENABLES_CORPORATIONS" );
-		numAbilities = numAbilities + 1;
-	end
-
-	if(numAbilities > 0) then
-		UnlocksString = UnlocksString .. abilitiesString
-	end
-
-	local yieldsString = Locale.ConvertTextKey("TXT_KEY_TECH_HELP_YIELDS_UNLOCKED") .. " [ICON_BULLET] ";
-	local numYields = 0;
-	for row in GameInfo.Tech_SpecialistYieldChanges( condition ) do
-		if numYields > 0 then
-				yieldsString = yieldsString .. "[NEWLINE] [ICON_BULLET] ";
-		end
-		yieldsString = yieldsString .. Locale.ConvertTextKey("TXT_KEY_SPECIALIST_YIELD_CHANGE", GameInfo.Specialists[row.SpecialistType].Description , GameInfo.Yields[row.YieldType].Description, row.Yield, Locale.ConvertTextKey(GameInfo.Yields[row.YieldType].IconString));
-		numYields = numYields + 1;
-	end
-
-	for row in GameInfo.Improvement_TechYieldChanges( condition ) do
-		if numYields > 0 then
-				yieldsString = yieldsString .. "[NEWLINE] [ICON_BULLET] ";
-		end
-		yieldsString = yieldsString .. Locale.ConvertTextKey("TXT_KEY_CIVILOPEDIA_SPECIALABILITIES_YIELDCHANGES", GameInfo.Improvements[row.ImprovementType].Description, GameInfo.Yields[row.YieldType].Description, row.Yield, Locale.ConvertTextKey(GameInfo.Yields[row.YieldType].IconString));
-		numYields = numYields + 1;
-	end	
-
-	for row in GameInfo.Improvement_TechNoFreshWaterYieldChanges( condition ) do
-		if numYields > 0 then
-				yieldsString = yieldsString .. "[NEWLINE] [ICON_BULLET] ";
-		end
-			
-		yieldsString = yieldsString .. Locale.ConvertTextKey("TXT_KEY_CIVILOPEDIA_SPECIALABILITIES_NOFRESHWATERYIELDCHANGES", GameInfo.Improvements[row.ImprovementType].Description, GameInfo.Yields[row.YieldType].Description, row.Yield, Locale.ConvertTextKey(GameInfo.Yields[row.YieldType].IconString));
-		numYields = numYields + 1;
-	end	
-
-	for row in GameInfo.Improvement_TechFreshWaterYieldChanges( condition ) do
-		if numYields > 0 then
-				yieldsString = yieldsString .. "[NEWLINE] [ICON_BULLET] ";
-		end
-		yieldsString = yieldsString .. Locale.ConvertTextKey("TXT_KEY_CIVILOPEDIA_SPECIALABILITIES_FRESHWATERYIELDCHANGES", GameInfo.Improvements[row.ImprovementType].Description, GameInfo.Yields[row.YieldType].Description, row.Yield, Locale.ConvertTextKey(GameInfo.Yields[row.YieldType].IconString));
-		numYields = numYields + 1;
-	end
-
-	if(numYields > 0) then
-		UnlocksString = UnlocksString .. yieldsString
-	end
-	
-	return UnlocksString;
 end
 
-function GetShortHelpTextForTech( iTechID )
-	-- Unlocks:
-	local thisTech = GameInfo.Technologies[iTechID];
+local Cyan = PrepareColor('CYAN')
+local Yellow = PrepareColor('YELLOW')
 
-	local UnlocksString = "";
+local ICON_BULLET = '[ICON_BULLET]'
 
-	local techType = thisTech.Type;
-	local condition = "TechType = '" .. techType .. "'";
-	local prereqCondition = "PrereqTech = '" .. techType .. "'";
-	local otherPrereqCondition = "TechPrereq = '" .. techType .. "'";
-	local revealCondition = "TechReveal = '" .. techType .. "'";
+--- @param row { Description: string, Adjective: string? }
+--- @return string
+local function BulletAdj(row)
+	local str = L(row.Description)
+	local adj = row.Adjective
 
-	local UnitString = Locale.ConvertTextKey("TXT_KEY_TECH_HELP_UNITS_UNLOCKED");
-	local numUnits = 0;
-	-- update the units unlocked
-	for thisUnitInfo in GameInfo.Units( prereqCondition ) do
-		if thisUnitInfo.ShowInPedia then
-			if numUnits > 0 then
-				UnitString = UnitString .. "[NEWLINE]"
-			end
-			numUnits = numUnits + 1;
-			UnitString = UnitString .. " [ICON_BULLET] " .. Locale.ConvertTextKey(thisUnitInfo.Description);
-		end
-	end
-	if numUnits > 0 then
-		UnlocksString = UnlocksString .. UnitString
-	end
-		
-	local BuildingString = Locale.ConvertTextKey("TXT_KEY_TECH_HELP_BUILDINGS_UNLOCKED");
-	local numBuildings = 0;
-	-- update the buildings unlocked
-	for thisBuildingInfo in GameInfo.Buildings( prereqCondition ) do
-		if thisBuildingInfo then
-			if thisBuildingInfo.ShowInPedia then
-				local thisBuildingClass = GameInfo.BuildingClasses[thisBuildingInfo.BuildingClass];
-				if thisBuildingClass.MaxGlobalInstances <= 0  then
-					if numBuildings > 0 then
-						BuildingString = BuildingString .. "[NEWLINE]"
-					end
-					BuildingString = BuildingString .. " [ICON_BULLET] " .. Locale.ConvertTextKey(thisBuildingInfo.Description);
-					numBuildings = numBuildings + 1;
-				end
-			end
-		end
+	if not adj then
+		return ICON_BULLET .. str
 	end
 
-	if numBuildings > 0 then
-		UnlocksString = UnlocksString .. BuildingString
-	end
-
-	local WonderString = Locale.ConvertTextKey("TXT_KEY_TECH_HELP_WONDERS_UNLOCKED");
-	local numWonders = 0;
-	-- update the buildings unlocked
-	for thisBuildingInfo in GameInfo.Buildings( prereqCondition ) do
-		if thisBuildingInfo then
-			local thisBuildingClass = GameInfo.BuildingClasses[thisBuildingInfo.BuildingClass];
-			if thisBuildingClass.MaxGlobalInstances > 0  then
-				if numWonders > 0 then
-					WonderString = WonderString .. "[NEWLINE]"
-				end
-				WonderString = WonderString .. " [ICON_BULLET] " .. Locale.ConvertTextKey(thisBuildingInfo.Description);
-				numWonders = numWonders + 1;
-			end
-		end
-	end
-
-	if numWonders > 0 then
-		UnlocksString = UnlocksString .. WonderString
-	end
-		
-	local ProjectString = Locale.ConvertTextKey("TXT_KEY_TECH_HELP_PROJECTS_UNLOCKED");
-	local numProjects = 0;
-	-- update the projects unlocked
-	for thisProjectInfo in GameInfo.Projects( otherPrereqCondition ) do	
-		if thisProjectInfo then
-			if numProjects > 0 then
-				ProjectString = ProjectString .. "[NEWLINE]"
-			end
-			numProjects = numProjects + 1;
-			ProjectString = ProjectString .. " [ICON_BULLET] " .. Locale.ConvertTextKey(thisProjectInfo.Description);
-		end
-	end
-	if numProjects > 0 then
-		UnlocksString = UnlocksString .. ProjectString
-	end
-
-	local ProcessesString = Locale.ConvertTextKey("TXT_KEY_TECH_HELP_PROCESSES_UNLOCKED");
-	local numProcesses = 0;	
-	-- update the process actions unlocked
-	for thisProcessInfo in GameInfo.Processes( otherPrereqCondition ) do
-		if(thisProcessInfo) then
-			if numProcesses > 0 then
-				ProcessesString = ProcessesString .. "[NEWLINE]"
-			end
-			numProcesses = numProcesses + 1;
-			ProcessesString = ProcessesString .. " [ICON_BULLET] " .. Locale.ConvertTextKey(thisProcessInfo.Description);
-		end			
-	end
-	if numProcesses > 0 then
-		UnlocksString = UnlocksString .. ProcessesString
-	end
-
-	-- CORPS
-	if (thisTech.CorporationsEnabled) then
-		local CorpsString = Locale.ConvertTextKey("TXT_KEY_TECH_HELP_CORPS_UNLOCKED");
-		local numCorps = 0;	
-		-- update the process actions unlocked
-		for thisCorpInfo in GameInfo.Corporations() do
-			if(thisCorpInfo) then
-				if numCorps > 0 then
-					CorpsString = CorpsString .. "[NEWLINE]"
-				end
-				numCorps = numCorps + 1;
-				CorpsString = CorpsString .. " [ICON_BULLET] " .. Locale.ConvertTextKey(thisCorpInfo.Description);
-			end			
-		end
-		if numCorps > 0 then
-			UnlocksString = UnlocksString .. CorpsString
-		end
-	end
-	
-	local ResourceString = Locale.ConvertTextKey("TXT_KEY_TECH_HELP_RESOURCES_UNLOCKED");
-	local numResources = 0;	
-	-- update the resources revealed
-	for revealedResource in GameInfo.Resources( revealCondition ) do
-		if(revealedResource) then
-			if numResources == 0 then
-				ResourceString = ResourceString .. " [ICON_BULLET] "
-			end
-			if numResources > 0 then
-				ResourceString = ResourceString .. ", "
-			end
-			numResources = numResources + 1;
-			ResourceString = ResourceString .. Locale.ConvertTextKey(revealedResource.IconString) .. " " .. Locale.ConvertTextKey(revealedResource.Description);
-		end			
-	end
-	if numResources > 0 then
-		UnlocksString = UnlocksString .. ResourceString
-	end
-
-	local BuildString = Locale.ConvertTextKey("TXT_KEY_TECH_HELP_BUILDS_UNLOCKED");
-	local numBuilds = 0;	
-	-- update the build actions unlocked
-	for thisBuildInfo in GameInfo.Builds{ PrereqTech = techType, ShowInPedia = 1 } do
-		if(thisBuildInfo) then
-			if numBuilds > 0 then
-				BuildString = BuildString .. "[NEWLINE]"
-			end
-			numBuilds = numBuilds + 1;
-			BuildString = BuildString .. " [ICON_BULLET] " .. Locale.ConvertTextKey(thisBuildInfo.Description);
-		end			
-	end
-	if numBuilds > 0 then
-		UnlocksString = UnlocksString .. BuildString
-	end
-
-	-- update the special abilites
-	local abilitiesString = Locale.ConvertTextKey("TXT_KEY_TECH_HELP_ACTIONS_UNLOCKED") .. " [ICON_BULLET] ";
-	local numAbilities = 0;
-
-	for row in GameInfo.Route_TechMovementChanges( condition ) do
-		if numAbilities > 0 then
-				abilitiesString = abilitiesString .. "[NEWLINE] [ICON_BULLET] ";
-		end
-		abilitiesString = abilitiesString .. Locale.ConvertTextKey("TXT_KEY_CIVILOPEDIA_SPECIALABILITIES_MOVEMENT", GameInfo.Routes[row.RouteType].Description);
-		numAbilities = numAbilities + 1;
-	end	
-
-	if thisTech.EmbarkedMoveChange > 0 then
-		if numAbilities > 0 then
-				abilitiesString = abilitiesString .. "[NEWLINE] [ICON_BULLET] ";
-		end
-		abilitiesString = abilitiesString .. Locale.ConvertTextKey( "TXT_KEY_ABLTY_FAST_EMBARK_STRING" );
-		numAbilities = numAbilities + 1;
-	end
-	
-	if thisTech.AllowsEmbarking then
-		if numAbilities > 0 then
-				abilitiesString = abilitiesString .. "[NEWLINE] [ICON_BULLET] ";
-		end
-		abilitiesString = abilitiesString .. Locale.ConvertTextKey( "TXT_KEY_ALLOWS_EMBARKING" );
-		numAbilities = numAbilities + 1;
-	end
-	
-	if thisTech.AllowsDefensiveEmbarking then
-		if numAbilities > 0 then
-				abilitiesString = abilitiesString .. "[NEWLINE] [ICON_BULLET] ";
-		end
-		abilitiesString = abilitiesString .. Locale.ConvertTextKey( "TXT_KEY_ABLTY_DEFENSIVE_EMBARK_STRING" );
-		numAbilities = numAbilities + 1;
-	end
-	
-	if thisTech.EmbarkedAllWaterPassage then
-		if numAbilities > 0 then
-				abilitiesString = abilitiesString .. "[NEWLINE] [ICON_BULLET] ";
-		end
-		abilitiesString = abilitiesString ..  Locale.ConvertTextKey( "TXT_KEY_ABLTY_OCEAN_EMBARK_STRING" );
-		numAbilities = numAbilities + 1;
-	end
-
-	if thisTech.Happiness > 0 then
-		if numAbilities > 0 then
-				abilitiesString = abilitiesString .. "[NEWLINE] [ICON_BULLET] ";
-		end
-		abilitiesString = abilitiesString ..  Locale.ConvertTextKey( "TXT_KEY_ABLTY_HAPPINESS_BUMP", thisTech.Happiness );
-		numAbilities = numAbilities + 1
-	end
-	if thisTech.BombardRange > 0 then
-		if numAbilities > 0 then
-				abilitiesString = abilitiesString .. "[NEWLINE] [ICON_BULLET] ";
-		end
-		abilitiesString = abilitiesString ..  Locale.ConvertTextKey( "TXT_KEY_ABLTY_CITY_RANGE_INCREASE" );
-		numAbilities = numAbilities + 1
-	end
-	if thisTech.BombardIndirect > 0 then
-		if numAbilities > 0 then
-				abilitiesString = abilitiesString .. "[NEWLINE] [ICON_BULLET] ";
-		end
-		abilitiesString = abilitiesString ..  Locale.ConvertTextKey( "TXT_KEY_ABLTY_CITY_INDIRECT_INCREASE" );
-		numAbilities = numAbilities + 1;
-	end
-	if thisTech.CityLessEmbarkCost then
-		if numAbilities > 0 then
-				abilitiesString = abilitiesString .. "[NEWLINE] [ICON_BULLET] ";
-		end
-		abilitiesString = abilitiesString ..  Locale.ConvertTextKey( "TXT_KEY_ABLTY_CITY_LESS_EMBARK_COST_STRING" );
-		numAbilities = numAbilities + 1;
-	end
-	if thisTech.CityNoEmbarkCost then
-		if numAbilities > 0 then
-				abilitiesString = abilitiesString .. "[NEWLINE] [ICON_BULLET] ";
-		end
-		abilitiesString = abilitiesString ..  Locale.ConvertTextKey( "TXT_KEY_ABLTY_CITY_NO_EMBARK_COST_STRING" );
-		numAbilities = numAbilities + 1;
-	end
-	
-	if thisTech.AllowEmbassyTradingAllowed then
-		if numAbilities > 0 then
-			abilitiesString = abilitiesString .. "[NEWLINE] [ICON_BULLET] ";
-		end
-		abilitiesString = abilitiesString .. Locale.ConvertTextKey( "TXT_KEY_ABLTY_ALLOW_EMBASSY_STRING" );
-		numAbilities = numAbilities + 1;
-	end
-	
-	if thisTech.OpenBordersTradingAllowed then
-		if numAbilities > 0 then
-				abilitiesString = abilitiesString .. "[NEWLINE] [ICON_BULLET] ";
-		end
-		abilitiesString = abilitiesString .. Locale.ConvertTextKey( "TXT_KEY_ABLTY_OPEN_BORDER_STRING" );
-		numAbilities = numAbilities + 1;
-	end
-	
-	if thisTech.DefensivePactTradingAllowed then
-		if numAbilities > 0 then
-				abilitiesString = abilitiesString .. "[NEWLINE] [ICON_BULLET] ";
-		end
-		abilitiesString = abilitiesString .. Locale.ConvertTextKey( "TXT_KEY_ABLTY_D_PACT_STRING" );
-		numAbilities = numAbilities + 1;
-	end
-	
-	if thisTech.BridgeBuilding then
-		if numAbilities > 0 then
-				abilitiesString = abilitiesString .. "[NEWLINE] [ICON_BULLET] ";
-		end
-		abilitiesString = abilitiesString .. Locale.ConvertTextKey( "TXT_KEY_ABLTY_BRIDGE_STRING" );
-		numAbilities = numAbilities + 1;
-	end
-
-	if thisTech.MapVisible then
-		if numAbilities > 0 then
-			abilitiesString = abilitiesString .. "[NEWLINE] [ICON_BULLET] ";
-		end
-		abilitiesString = abilitiesString .. Locale.ConvertTextKey( "TXT_KEY_REVEALS_ENTIRE_MAP");
-		numAbilities = numAbilities + 1;
-	end
-	
-	if thisTech.InternationalTradeRoutesChange > 0 then
-		if numAbilities > 0 then
-				abilitiesString = abilitiesString .. "[NEWLINE] [ICON_BULLET] ";
-		end
-		abilitiesString = abilitiesString .. "[ICON_INTERNATIONAL_TRADE] " .. Locale.ConvertTextKey( "TXT_KEY_ADDITIONAL_INTERNATIONAL_TRADE_ROUTE");
-		numAbilities = numAbilities + 1;
-	end
-
-	for row in GameInfo.Technology_TradeRouteDomainExtraRange(condition) do
-		if (row.TechType == techType and row.Range > 0) then
-			if numAbilities > 0 then
-				abilitiesString = abilitiesString .. "[NEWLINE] [ICON_BULLET] ";
-			end
-			if (GameInfo.Domains[row.DomainType].ID == DomainTypes.DOMAIN_LAND) then
-				abilitiesString = abilitiesString .. Locale.ConvertTextKey( "TXT_KEY_EXTENDS_LAND_TRADE_ROUTE_RANGE");
-			elseif (GameInfo.Domains[row.DomainType].ID == DomainTypes.DOMAIN_SEA) then
-				abilitiesString = abilitiesString .. Locale.ConvertTextKey( "TXT_KEY_EXTENDS_SEA_TRADE_ROUTE_RANGE");
-			end
-			numAbilities = numAbilities + 1;
-		end
-	end
-	
-	if thisTech.InfluenceSpreadModifier > 0 then
-		if numAbilities > 0 then
-				abilitiesString = abilitiesString .. "[NEWLINE] [ICON_BULLET] ";
-		end
-		abilitiesString = abilitiesString .. Locale.ConvertTextKey( "TXT_KEY_DOUBLE_TOURISM");
-		numAbilities = numAbilities + 1;
-	end
-	
-	if thisTech.AllowsWorldCongress then
-		if numAbilities > 0 then
-				abilitiesString = abilitiesString .. "[NEWLINE] [ICON_BULLET] ";
-		end
-		abilitiesString = abilitiesString .. Locale.ConvertTextKey( "TXT_KEY_ALLOWS_WORLD_CONGRESS");
-		numAbilities = numAbilities + 1;
-	end
-	
-	if thisTech.ExtraVotesPerDiplomat > 0 then
-		if numAbilities > 0 then
-				abilitiesString = abilitiesString .. "[NEWLINE] [ICON_BULLET] ";
-		end
-		abilitiesString = abilitiesString .. Locale.ConvertTextKey( "TXT_KEY_EXTRA_VOTES_FROM_DIPLOMATS", thisTech.ExtraVotesPerDiplomat );
-		numAbilities = numAbilities + 1;
-	end
-	
-	for row in GameInfo.Technology_FreePromotions(condition) do
-		local promotion = GameInfo.UnitPromotions[row.PromotionType];
-		if promotion then
-			if numAbilities > 0 then
-				abilitiesString = abilitiesString .. "[NEWLINE] [ICON_BULLET] ";
-			end
-			abilitiesString = abilitiesString .. Locale.ConvertTextKey( "TXT_KEY_FREE_PROMOTION_FROM_TECH", promotion.Description, promotion.Help );
-			numAbilities = numAbilities + 1;
-		end
-	end
-
-	if (thisTech.ResearchAgreementTradingAllowed) then
-		if numAbilities > 0 then
-			abilitiesString = abilitiesString .. "[NEWLINE] [ICON_BULLET] ";
-		end
-		abilitiesString = abilitiesString .. Locale.ConvertTextKey( "TXT_KEY_ABLTY_R_PACT_STRING" );
-		numAbilities = numAbilities + 1;
-	end
-
-	-- Putmalk: If this tech grants Map Trading then display it on the tech info page
-	if thisTech.MapTrading then
-		if numAbilities > 0 then
-				abilitiesString = abilitiesString .. "[NEWLINE] [ICON_BULLET] ";
-		end
-		abilitiesString = abilitiesString .. Locale.ConvertTextKey( "TXT_KEY_ABLTY_MAP_TRADING_STRING" );
-		numAbilities = numAbilities + 1;
-	end
-	
-	-- Putmalk: If this tech grants Tech Trading, and Tech trading is active, then display it on the tech info page
-	if (thisTech.TechTrading) then
-		if numAbilities > 0 then
-				abilitiesString = abilitiesString .. "[NEWLINE] [ICON_BULLET] ";
-		end
-		abilitiesString = abilitiesString .. Locale.ConvertTextKey( "TXT_KEY_ABLTY_TECH_TRADING_STRING" );
-		numAbilities = numAbilities + 1;
-	end
-	
-	-- Putmalk: If this tech grants vassalage, and vassalage isn't disabled, then display it on the tech info page
-	if (thisTech.VassalageTradingAllowed) then
-		if numAbilities > 0 then
-				abilitiesString = abilitiesString .. "[NEWLINE] [ICON_BULLET] ";
-		end
-		abilitiesString = abilitiesString .. Locale.ConvertTextKey( "TXT_KEY_ABLTY_VASSALAGE_STRING" );
-		numAbilities = numAbilities + 1;
-	end
-
-	-- CORP
-	if (thisTech.CorporationsEnabled) then
-		if numAbilities > 0 then
-				abilitiesString = abilitiesString .. "[NEWLINE] [ICON_BULLET] ";
-		end
-		abilitiesString = abilitiesString .. Locale.ConvertTextKey( "TXT_KEY_ABLTY_ENABLES_CORPORATIONS" );
-		numAbilities = numAbilities + 1;
-	end
-
-	if(numAbilities > 0) then
-		UnlocksString = UnlocksString .. abilitiesString
-	end
-
-	local yieldsString = Locale.ConvertTextKey("TXT_KEY_TECH_HELP_YIELDS_UNLOCKED") .. " [ICON_BULLET] ";
-	local numYields = 0;
-	for row in GameInfo.Tech_SpecialistYieldChanges( condition ) do
-		if numYields > 0 then
-				yieldsString = yieldsString .. "[NEWLINE] [ICON_BULLET] ";
-		end
-		yieldsString = yieldsString .. Locale.ConvertTextKey("TXT_KEY_SPECIALIST_YIELD_CHANGE", GameInfo.Specialists[row.SpecialistType].Description , GameInfo.Yields[row.YieldType].Description, row.Yield, Locale.ConvertTextKey(GameInfo.Yields[row.YieldType].IconString));
-		numYields = numYields + 1;
-	end
-
-	for row in GameInfo.Improvement_TechYieldChanges( condition ) do
-		if numYields > 0 then
-				yieldsString = yieldsString .. "[NEWLINE] [ICON_BULLET] ";
-		end
-		yieldsString = yieldsString .. Locale.ConvertTextKey("TXT_KEY_CIVILOPEDIA_SPECIALABILITIES_YIELDCHANGES", GameInfo.Improvements[row.ImprovementType].Description, GameInfo.Yields[row.YieldType].Description, row.Yield, Locale.ConvertTextKey(GameInfo.Yields[row.YieldType].IconString));
-		numYields = numYields + 1;
-	end	
-
-	for row in GameInfo.Improvement_TechNoFreshWaterYieldChanges( condition ) do
-		if numYields > 0 then
-				yieldsString = yieldsString .. "[NEWLINE] [ICON_BULLET] ";
-		end
-			
-		yieldsString = yieldsString .. Locale.ConvertTextKey("TXT_KEY_CIVILOPEDIA_SPECIALABILITIES_NOFRESHWATERYIELDCHANGES", GameInfo.Improvements[row.ImprovementType].Description, GameInfo.Yields[row.YieldType].Description, row.Yield, Locale.ConvertTextKey(GameInfo.Yields[row.YieldType].IconString));
-		numYields = numYields + 1;
-	end	
-
-	for row in GameInfo.Improvement_TechFreshWaterYieldChanges( condition ) do
-		if numYields > 0 then
-				yieldsString = yieldsString .. "[NEWLINE] [ICON_BULLET] ";
-		end
-		yieldsString = yieldsString .. Locale.ConvertTextKey("TXT_KEY_CIVILOPEDIA_SPECIALABILITIES_FRESHWATERYIELDCHANGES", GameInfo.Improvements[row.ImprovementType].Description, GameInfo.Yields[row.YieldType].Description, row.Yield, Locale.ConvertTextKey(GameInfo.Yields[row.YieldType].IconString));
-		numYields = numYields + 1;
-	end
-
-	if(numYields > 0) then
-		UnlocksString = UnlocksString .. yieldsString
-	end
-	
-	return UnlocksString;
+	return ICON_BULLET .. Yellow(L(adj)) .. ' ' .. str
 end
 
+--- @param row { Description: string, Civilization: string? }
+--- @return string
+local function BulletCiv(row)
+	local str = L(row.Description)
+	local civ = row.Civilization
+
+	if not civ then
+		return ICON_BULLET .. str
+	end
+
+	return ICON_BULLET .. str .. ' ' .. Yellow('(' .. L(civ) .. ')')
+end
+
+--- @param row { Description: string }
+--- @return string
+local function BulletLoc(row)
+	return ICON_BULLET .. L(row.Description)
+end
+
+--- @package
+--- @alias RowMapper<Row> fun(row: Row, type: string): string | nil
+
+--- @package
+--- @alias RowIterator<Row> fun(): Row | nil
+
+--- @package
+--- @alias Writer fun(text: StringBuilder, type: string): nil
+
+--- @generic Row : { Description: string }
+--- @param text StringBuilder
+--- @param type string # Tech type, e.g. 'TECH_COMPUTERS'
+--- @param iter RowIterator<Row>
+--- @param map RowMapper<Row>
+local function WriteContent(text, type, iter, map)
+	local str = nil
+
+	for row in iter do
+		str = map(row, type)
+
+		if str then
+			text:Append(str)
+		end
+	end
+end
+
+--- @generic Row : { Description: string }
+--- @param sql string
+--- @param map RowMapper<Row>
+--- @return Writer
+local function PrepareContent(sql, map)
+	local query = _civ_db_create_query(sql)
+
+	return function(text, type)
+		WriteContent(text, type, query(type), map)
+	end
+end
+
+--- @generic Row : { Description: string }
+--- @param name string # Section name, e.g. 'Builds Unlocked'
+--- @param text StringBuilder
+--- @param type string # Tech type, e.g. 'TECH_GUILDS'
+--- @param iter RowIterator<Row>
+--- @param map RowMapper<Row>
+local function WriteSection(name, text, type, iter, map)
+	local row
+	local str
+
+	repeat
+		row = iter()
+
+		if not row then
+			return
+		end
+
+		str = map(row, type)
+	until str
+
+	text:Append(name):Append(str --[[@as string]])
+	WriteContent(text, type, iter, map)
+end
+
+--- @generic Row : { Description: string }
+--- @param name string # Section name text key e.g. 'TXT_KEY_TECH_GUILDS'
+--- @param sql string
+--- @param map RowMapper<Row>
+--- @return Writer
+local function PrepareSection(name, sql, map)
+	local query = _civ_db_create_query(sql)
+	name = Cyan(L(name))
+
+	return function(text, type)
+		WriteSection(name, text, type, query(type), map)
+	end
+end
+
+local WriteLeadsTo = PrepareSection(
+	'TXT_KEY_TECH_HELP_LEADS_TO',
+	[[
+		SELECT t.Description
+		FROM Technologies t
+		INNER JOIN Technology_PrereqTechs p ON p.TechType = t.Type
+		WHERE p.PrereqTech = ?
+	]],
+	BulletLoc
+)
+
+local WriteUnits = PrepareSection(
+	'TXT_KEY_TECH_HELP_UNITS_UNLOCKED',
+	[[
+		SELECT u.Description, c.Adjective
+		FROM Units u
+		LEFT JOIN Civilization_UnitClassOverrides o ON o.UnitType = u.Type
+		LEFT JOIN Civilizations c ON c.Type = o.CivilizationType
+		WHERE u.ShowInPedia = 1 AND u.PrereqTech = ?
+		ORDER BY c.Adjective IS NOT NULL, o.UnitClassType, c.Adjective
+	]],
+	BulletAdj
+)
+
+local buildingsSqlTemplate = [[
+	SELECT b.Description, c.Adjective
+	FROM Buildings b
+	INNER JOIN BuildingClasses bc ON bc.Type = b.BuildingClass
+	LEFT JOIN Civilization_BuildingClassOverrides o ON o.BuildingType = b.Type
+	LEFT JOIN Civilizations c
+		ON c.Type = o.CivilizationType
+		OR c.Type = b.CivilizationRequired
+	WHERE b.ShowInPedia = 1
+		AND bc.MaxGlobalInstances %s 0
+		AND b.PrereqTech = ?
+	ORDER BY
+		c.Adjective IS NOT NULL,
+		b.Description,
+		c.Adjective
+]]
+
+local WriteWonders = PrepareSection(
+	'TXT_KEY_TECH_HELP_WONDERS_UNLOCKED',
+	_lua_string_format(buildingsSqlTemplate, '>'),
+	BulletAdj
+)
+
+local WriteBuildings = PrepareSection(
+	'TXT_KEY_TECH_HELP_BUILDINGS_UNLOCKED',
+	_lua_string_format(buildingsSqlTemplate, '<='),
+	BulletAdj
+)
+
+local WriteProjects = PrepareSection(
+	'TXT_KEY_TECH_HELP_PROJECTS_UNLOCKED',
+	[[
+		SELECT Description
+		FROM Projects
+		WHERE TechPrereq = ?
+		ORDER BY Description
+	]],
+	BulletLoc
+)
+
+local WriteProcesses = PrepareSection(
+	'TXT_KEY_TECH_HELP_PROCESSES_UNLOCKED',
+	[[
+		SELECT Description
+		FROM Processes
+		WHERE TechPrereq = ?
+		ORDER BY Description
+	]],
+	BulletLoc
+)
+
+local WriteCorporations = PrepareSection(
+	'TXT_KEY_TECH_HELP_CORPS_UNLOCKED',
+	[[ SELECT Description FROM Corporations ORDER BY Description ]],
+	BulletLoc
+)
+
+local WriteResources = PrepareSection(
+	'TXT_KEY_TECH_HELP_RESOURCES_UNLOCKED',
+	[[
+		SELECT Description, IconString
+		FROM Resources WHERE TechReveal = ?
+		ORDER BY Description
+	]],
+	function(row)
+		return ICON_BULLET .. row.IconString .. ' ' .. L(row.Description)
+	end
+)
+
+local WriteBuilds = (function()
+	local FillBuildsDefault = PrepareContent(
+		[[
+			SELECT
+				b.Description as Description,
+				c.ShortDescription as Civilization
+			FROM Builds b
+			INNER JOIN Improvements i ON i.Type = b.ImprovementType
+			LEFT JOIN Civilizations c ON c.Type = i.CivilizationType
+			WHERE ShowInPedia = 1 AND PrereqTech = ?
+			ORDER BY Civilization IS NOT NULL, Description, Civilization
+		]],
+		BulletCiv
+	)
+
+	local FillBuildsReduction = PrepareContent(
+		[[
+			SELECT
+				CASE WHEN b.Time IS NULL THEN (
+					SELECT bf.Time FROM BuildFeatures bf WHERE bf.BuildType = c.BuildType
+				) ELSE b.Time
+				END as Time,
+				c.TimeChange as Change,
+				b.Description as Description,
+				civ.ShortDescription as Civilization
+			FROM Build_TechTimeChanges c
+			INNER JOIN Builds b ON b.Type = c.BuildType
+			LEFT JOIN Improvements i ON i.Type = b.ImprovementType
+			LEFT JOIN Civilizations civ ON civ.Type = i.CivilizationType
+			WHERE c.TechType = ?
+			ORDER BY Civilization IS NOT NULL, Description, Civilization
+		]],
+		function(row)
+			local time = row.Time
+			local change = row.Change
+			local description = row.Description
+			local civilization = row.Civilization
+
+			local percent = AsPercentage(change / time)
+			local str = ICON_BULLET .. L(
+				'TXT_KEY_TECH_HELP_BUILD_REDUCTION',
+				description,
+				percent
+			)
+
+			if civilization then
+				return str .. ' ' .. Yellow('(' .. L(civilization) .. ')')
+			end
+
+			return str
+		end
+	)
+
+	--- @type Writer
+	return function(text, type)
+		local size = text:Size()
+
+		FillBuildsDefault(text, type)
+		FillBuildsReduction(text, type)
+
+		if size ~= text:Size() then
+			text:Insert(size + 1, Cyan(L('TXT_KEY_TECH_HELP_BUILDS_UNLOCKED')))
+		end
+	end
+end)()
+
+local WriteAbilities = (function()
+	--- @param text StringBuilder
+	--- @param type string
+	--- @param tech { FeatureProductionModifier: nil | number }
+	local function FillAbilityRemoveForestBonus(text, type, tech)
+		local prop = tech.FeatureProductionModifier
+
+		if _lua_type(prop) ~= 'number' then
+			return
+		end
+
+		if prop <= 0 then
+			return
+		end
+
+		local hasGame = not not Game
+		-- Take standard game speed if not game
+		local speedType = hasGame and Game.GetGameSpeedType() or 'GAMESPEED_STANDARD'
+
+		local speed = GameInfo.GameSpeeds[speedType]
+		local feature = GameInfo.BuildFeatures({
+			BuildType = 'BUILD_REMOVE_FOREST'
+		})()
+		local percent = speed.BuildPercent
+
+		local baseChopYield = feature and feature.Production or 0
+		local gameChopYield = baseChopYield * percent / 100
+
+		local bonusChopYield = _lua_math_floor(gameChopYield * prop / 100)
+
+		local str = ICON_BULLET
+				.. L('TXT_KEY_ABLTY_TECH_BOOST_CHOP', bonusChopYield)
+
+		-- If there is no Game
+		-- Indicate that bonus is on standard speed
+		if not hasGame then
+			str = str .. Yellow('(' .. L(speed.Description) .. ')')
+		end
+
+		text:Append(str)
+	end
+
+	local domainSea = DomainTypes.DOMAIN_SEA
+	local strSeaTrade = ICON_BULLET .. L('TXT_KEY_EXTENDS_SEA_TRADE_ROUTE_RANGE')
+	local strLandTrade = ICON_BULLET .. L('TXT_KEY_EXTENDS_LAND_TRADE_ROUTE_RANGE')
+
+	local FillAbilityTradeRouteRangeExtend = PrepareContent(
+		[[
+			SELECT d.ID as DomainType
+			FROM Technology_TradeRouteDomainExtraRange r
+			INNER JOIN Domains d ON d.Type = r.DomainType
+			WHERE r.DomainType IN ('DOMAIN_SEA', 'DOMAIN_LAND')
+				AND r.Range IS NOT NULL
+				AND r.Range > 0
+				AND r.TechType = ?
+		]],
+		function(row)
+			return row.DomainType == domainSea
+					and strSeaTrade
+					or strLandTrade
+		end
+	)
+
+	local function PrepareNumericAbility(key, txtKey)
+		return function(text, type, tech)
+			local prop = tech[key]
+
+			if _lua_type(prop) == 'number' and prop > 0 then
+				local str = ICON_BULLET .. L(txtKey, prop)
+				text:Append(str)
+			end
+		end
+	end
+
+	local FillAbilityFreePromotions = PrepareContent(
+		[[
+			SELECT up.Description, up.Help
+			FROM Technology_FreePromotions fp
+			INNER JOIN UnitPromotions up ON up.Type = fp.PromotionType
+			WHERE fp.TechType = ?
+			ORDER BY up.Description
+		]],
+		function(row)
+			return ICON_BULLET .. L(
+				'TXT_KEY_FREE_PROMOTION_FROM_TECH',
+				row.Description,
+				row.Help
+			)
+		end
+	)
+
+	local abilities = { -- order is important!
+		FillAbilityRemoveForestBonus,
+
+		{ 'EmbarkedMoveChange',       'TXT_KEY_ABLTY_FAST_EMBARK_STRING' },
+		{ 'AllowsEmbarking',          'TXT_KEY_ALLOWS_EMBARKING' },
+		{ 'AllowsDefensiveEmbarking', 'TXT_KEY_ABLTY_DEFENSIVE_EMBARK_STRING' },
+		{ 'EmbarkedAllWaterPassage',  'TXT_KEY_ABLTY_OCEAN_EMBARK_STRING' },
+
+		PrepareNumericAbility('Happiness', 'TXT_KEY_ABLTY_HAPPINESS_BUMP'),
+
+		{ 'BombardRange',                   'TXT_KEY_ABLTY_CITY_RANGE_INCREASE' },
+		{ 'BombardIndirect',                'TXT_KEY_ABLTY_CITY_INDIRECT_INCREASE' },
+		{ 'CityLessEmbarkCost',             'TXT_KEY_ABLTY_CITY_LESS_EMBARK_COST_STRING' },
+		{ 'CityNoEmbarkCost',               'TXT_KEY_ABLTY_CITY_NO_EMBARK_COST_STRING' },
+		{ 'AllowEmbassyTradingAllowed',     'TXT_KEY_ABLTY_ALLOW_EMBASSY_STRING' },
+		{ 'OpenBordersTradingAllowed',      'TXT_KEY_ABLTY_OPEN_BORDER_STRING' },
+		{ 'DefensivePactTradingAllowed',    'TXT_KEY_ABLTY_D_PACT_STRING' },
+		{ 'BridgeBuilding',                 'TXT_KEY_ABLTY_BRIDGE_STRING' },
+		{ 'MapVisible',                     'TXT_KEY_REVEALS_ENTIRE_MAP' },
+		{ 'InternationalTradeRoutesChange', 'TXT_KEY_ADDITIONAL_INTERNATIONAL_TRADE_ROUTE' },
+		FillAbilityTradeRouteRangeExtend,
+
+		{ 'InfluenceSpreadModifier', 'TXT_KEY_DOUBLE_TOURISM' },
+		{ 'AllowsWorldCongress',     'TXT_KEY_ALLOWS_WORLD_CONGRESS' },
+
+		PrepareNumericAbility('ExtraVotesPerDiplomat', 'TXT_KEY_EXTRA_VOTES_FROM_DIPLOMATS'),
+		FillAbilityFreePromotions,
+
+		{ 'ResearchAgreementTradingAllowed', 'TXT_KEY_ABLTY_R_PACT_STRING' },
+		{ 'MapTrading',                      'TXT_KEY_ABLTY_MAP_TRADING_STRING' },
+		{ 'TechTrading',                     'TXT_KEY_ABLTY_TECH_TRADING_STRING' },
+		{ 'VassalageTradingAllowed',         'TXT_KEY_ABLTY_VASSALAGE_STRING' },
+		{ 'CorporationsEnabled',             'TXT_KEY_ABLTY_ENABLES_CORPORATIONS' },
+	}
+
+	local len = #abilities
+
+	-- Prepare static translations
+	for i = 1, len do
+		local ability = abilities[i]
+
+		if _lua_type(ability) == 'table' then
+			local str = ability[2]
+
+			if _lua_type(str) == 'string' then
+				ability[2] = L(str)
+			end
+		end
+	end
+
+	--- @param text StringBuilder
+	--- @param type string
+	--- @param tech table
+	return function(text, type, tech)
+		local size = text:Size()
+
+		for i = 1, len do
+			local ability = abilities[i]
+
+			if _lua_type(ability) == 'function' then
+				ability(text, type, tech)
+			else
+				local prop = tech[ability[1]]
+				local str = ability[2]
+
+				local condA = _lua_type(prop) == 'boolean' and prop
+				local condB = _lua_type(prop) == 'number' and prop > 0
+
+				if condA or condB then
+					text:Append(ICON_BULLET .. str)
+				end
+			end
+		end
+
+		if size ~= text:Size() then
+			text:Insert(size + 1, Cyan(L('TXT_KEY_TECH_HELP_ACTIONS_UNLOCKED')))
+		end
+	end
+end)()
+
+
+local WriteSpecialistYieldChanges = PrepareSection(
+	'TXT_KEY_TECH_HELP_SPECIALIST_YIELDS_UNLOCKED',
+	[[
+		SELECT
+			c.Yield as Yield,
+			y.IconString as YieldIconString,
+			y.Description as YieldDescription,
+			s.Description as Description
+		FROM Tech_SpecialistYieldChanges c
+		INNER JOIN Yields y ON y.Type = c.YieldType
+		INNER JOIN Specialists s ON s.Type = c.SpecialistType
+		WHERE c.TechType = ?
+	]],
+	function(row)
+		return ICON_BULLET .. L(
+			'TXT_KEY_SPECIALIST_YIELD_CHANGE',
+			row.Description,
+			row.YieldDescription,
+			row.Yield,
+			row.YieldIconString
+		)
+	end
+)
+
+local function GetYieldChangesSql()
+	local sql = StringBuilder.New()
+
+	local template = [[
+		SELECT
+			'%s' as TxtKey,
+			t.Yield as Yield,
+			y.IconString as YieldIconString,
+			y.Description as YieldDescription,
+			s.Description as Description,
+			c.Adjective as Adjective
+		FROM %s t
+		INNER JOIN Yields y ON y.Type = t.YieldType
+		INNER JOIN Improvements s ON s.Type = t.ImprovementType
+		LEFT JOIN Civilizations c ON c.Type = s.CivilizationType
+		WHERE t.TechType = :type
+	]]
+
+	local selects = {
+		{
+			tag = 'TXT_KEY_CIVILOPEDIA_SPECIALABILITIES_YIELDCHANGES',
+			src = 'Improvement_TechYieldChanges'
+		},
+		{
+			tag = 'TXT_KEY_CIVILOPEDIA_SPECIALABILITIES_NOFRESHWATERYIELDCHANGES',
+			src = 'Improvement_TechNoFreshWaterYieldChanges',
+		},
+		{
+			tag = 'TXT_KEY_CIVILOPEDIA_SPECIALABILITIES_FRESHWATERYIELDCHANGES',
+			src = 'Improvement_TechFreshWaterYieldChanges'
+		}
+	}
+
+	for i = 1, #selects do
+		local select = selects[i]
+		local tag = select.tag
+		local src = select.src
+
+		sql:Append(_lua_string_format(template, tag, src))
+	end
+
+	return 'SELECT * FROM (' .. sql:Concat(' UNION ALL ') .. [[
+		) ORDER BY
+			Adjective IS NOT NULL,
+			Adjective
+	]]
+end
+
+local WriteYieldChanges = PrepareSection(
+	'TXT_KEY_TECH_HELP_YIELDS_UNLOCKED',
+	GetYieldChangesSql(),
+	function(row)
+		local str = L(
+			row.TxtKey,
+			row.Description,
+			row.YieldDescription,
+			row.Yield,
+			row.YieldIconString
+		)
+
+		local adj = row.Adjective
+
+		if adj then
+			return ICON_BULLET .. Yellow(L(adj)) .. ' ' .. str
+		end
+
+		return ICON_BULLET .. str
+	end
+)
+
+local NL = '[NEWLINE]'
+
+--- @param tech table
+--- @return string
+local function BuildTechHelpContent(tech)
+	local type = tech.Type
+	local text = StringBuilder.New()
+
+	WriteLeadsTo(text, type)
+	WriteUnits(text, type)
+	WriteWonders(text, type)
+	WriteBuildings(text, type)
+	WriteProjects(text, type)
+	WriteProcesses(text, type)
+
+	if tech.CorporationsEnabled then
+		WriteCorporations(text, type)
+	end
+
+	WriteResources(text, type)
+	WriteBuilds(text, type)
+	WriteAbilities(text, type, tech)
+	WriteSpecialistYieldChanges(text, type)
+	WriteYieldChanges(text, type)
+
+	local str = text:Concat(NL)
+	text:Clear()
+
+	return str
+end
+
+local GetTechById = Memoize1(function(techId)
+	return GameInfo.Technologies[techId]
+end)
+
+local GetTechNameById = Memoize1(function(techId)
+	return _civ_locale_toupper(L(GetTechById(techId).Description))
+end)
+
+GetShortHelpTextForTech = Memoize1(function(techId)
+	return BuildTechHelpContent(GetTechById(techId))
+end)
+
+local GetHelpForCompleteTech = Memoize1(function(techId)
+	local help = GetShortHelpTextForTech(techId)
+
+	return GetTechNameById(techId)
+			.. ' [COLOR_POSITIVE_TEXT](' .. L('TXT_KEY_RESEARCHED') .. ')[ENDCOLOR]'
+			.. (help == '' and '' or (NL .. help))
+end)
+
+local function GetHelpForPendingTech(techId, cost, progress)
+	local help = GetShortHelpTextForTech(techId)
+
+	return GetTechNameById(techId)
+			.. NL .. L('TXT_KEY_TECH_HELP_COST_WITH_PROGRESS', progress, cost)
+			.. (help == '' and '' or (NL .. help))
+end
+
+local function GetHelpForUnstartedTech(techId, cost)
+	local help = GetShortHelpTextForTech(techId)
+
+	return GetTechNameById(techId)
+			.. NL .. L('TXT_KEY_TECH_HELP_COST', cost)
+			.. (help == '' and '' or (NL .. help))
+end
+
+--- @param techId TechId
+--- @param player Player
+--- @return number
+local function GetTechProgressById(techId, player)
+	local progress = 0
+
+	local a = _lua_type(player.GetResearchProgressTimes100) == 'function'
+	local b = _lua_type(player.GetResearchProgress) == 'function'
+
+	if a then
+		progress = player:GetResearchProgressTimes100(techId) / 100
+	elseif b then
+		progress = player:GetResearchProgress(techId)
+	end
+
+	return progress
+end
+
+--- @param techId TechId? # Technology Id
+--- @param isShort boolean? # Shall help text be short (Without tech name and player info)
+--- @param playerId PlayerId? # Relative playerId, if none specified then active
+--- @return string
+function GetHelpTextForTech(techId, isShort, playerId)
+	if not techId then
+		return ''
+	end
+
+	if isShort or not Game then
+		return GetShortHelpTextForTech(techId)
+	end
+
+	playerId = playerId or Game.GetActivePlayer()
+	local player = Players[playerId]
+
+	if not player then
+		return GetShortHelpTextForTech(techId)
+	end
+
+	local has = player:HasTech(techId)
+	local cost = player:GetResearchCost(techId)
+	local progress = GetTechProgressById(techId, player)
+
+	if has then
+		return GetHelpForCompleteTech(techId)
+	end
+
+	if progress == 0 then
+		return GetHelpForUnstartedTech(techId, cost)
+	end
+
+	return GetHelpForPendingTech(techId, cost, progress)
+end

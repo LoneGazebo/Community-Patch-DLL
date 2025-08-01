@@ -80,7 +80,7 @@ function RefreshDisplay( pTechInfo )
 		-- if the code ever supports first place awards add a handler here
 		
 		-- Tech Info
-		Controls.TechHelp:SetText( GetShortHelpTextForTech(pTechInfo.ID) );
+		Controls.TechHelp:SetText('[NEWLINE]' .. GetShortHelpTextForTech(pTechInfo.ID) .. '[NEWLINE]');
 		
 		Controls.OuterGrid:DoAutoSize();
 	end	
