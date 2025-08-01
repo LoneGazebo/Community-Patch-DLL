@@ -5,6 +5,9 @@
 include( "IconSupport" );
 include( "InstanceManager" );
 
+include('CPK.lua')
+
+local AsPercentage = CPK.Util.AsPercentage
 -------------------------------------------------
 -- Global Constants
 -------------------------------------------------
@@ -629,8 +632,27 @@ function RefreshWorldReligions()
 				iTotalCities = iTotalCities+1;
 				iOwnedFollowers = iOwnedFollowers + pCity:GetNumFollowers(v.ReligionID);
 			end
-			entry.NumberOfCities:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_RO_WR_OWNED_CITIES", DisplayPercentage(v.NumCities,Game.GetNumCities()), v.Name, iOwnedCities, v.Name, DisplayPercentage(iOwnedCities,iTotalCities), DisplayPercentage(iOwnedCities,v.NumCities), v.Name)); --It is ok if they don't add up to 100%! We want to round down basically!
-			entry.NumberOfFollowers:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_RO_WR_OWNED_FOLLOWERS", DisplayPercentage(v.NumFollowers,Game.GetTotalPopulation()), v.Name, iOwnedFollowers, v.Name, DisplayPercentage(iOwnedFollowers,activePlayer:GetTotalPopulation()), DisplayPercentage(iOwnedFollowers,v.NumFollowers), v.Name)); --It is ok if they don't add up to 100%! We want to round down basically!
+			entry.NumberOfCities:SetToolTipSotring(Locale.ConvertTextKey(
+				"TXT_KEY_RO_WR_OWNED_CITIES", 
+				AsPercentage(v.NumCities / Game.GetNumCities()),
+				v.Name,
+				iOwnedCities,
+				v.Name,
+				AsPercentage(iOwnedCities / iTotalCities),
+				AsPercentage(iOwnedCities / v.NumCities),
+				v.Name
+			)); --It is ok if they don't add up to 100%! We want to round down basically!
+			entry.NumberOfFollowers:SetToolTipString(
+				Locale.ConvertTextKey(
+					"TXT_KEY_RO_WR_OWNED_FOLLOWERS",
+					AsPercentage(v.NumFollowers / Game.GetTotalPopulation()),
+					v.Name,
+					iOwnedFollowers,
+					v.Name,
+					AsPercentage(iOwnedFollowers / activePlayer:GetTotalPopulation()),
+					AsPercentage(iOwnedFollowers / v.NumFollowers),
+					v.Name
+				)); --It is ok if they don't add up to 100%! We want to round down basically!
 			-- Infixo: Religion Spread
 			IconHookup(v.ReligionIconIndex, 48, v.ReligionIconAtlas, entry.WorldReligionIcon);
 			CivIconHookup(v.FounderID, 45, entry.FounderIcon, entry.FounderIconBG, entry.FounderIconShadow, true, true );
@@ -1006,14 +1028,6 @@ function WorldReligionSortOptionSelected(option)
 	g_WorldReligionSortFunction = GetSortFunction(sortOptions);
 	
 	RefreshWorldReligions();
-end
-
-function DisplayPercentage(firstnumber, secondnumber)
-	if math.floor(firstnumber/secondnumber*1000)/10 % 1 == 0 then
-		return math.floor(firstnumber/secondnumber*100)
-	else
-		return math.floor(firstnumber/secondnumber*1000)/10
-	end
 end
 
 -------------------------------------------------------------------------------
