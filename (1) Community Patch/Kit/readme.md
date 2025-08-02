@@ -9,6 +9,7 @@ The core idea behind CPK is simple:
 
 - Everything is lazy-loaded — nothing gets loaded until you actually access it.
 - Each module/file is included only once, no matter how many times you use it.
+	_(Unless you're in a state where `MapModData` is not available)_
 - Accessing something won’t pull in unrelated code — only what’s needed for that specific property gets loaded.
 
 This keeps things clean, fast, and avoids cluttering memory or execution with unused stuff.
@@ -77,14 +78,15 @@ It just reuses what was already loaded.
 
 ## Debug
 
-On `include('CPK.lua')` it defines only 2 global variables
+On `include('CPK.lua')` only defines only 2 global variables
 
-- `CPK` itself
-- `CPK_VERBOSE` boolean flag that controls if CPK should print debug info.
+- `CPK` - itself
+- `include` - Emulated `include` function. (Only if include do not exist yet.)
 
 ```lua
 include('CPK.lua')
-CPK_VERBOSE = true
+
+CPK.Var.VERBOSE = true
 
 local Fn1 = CPK.Util.Fn1 -- This would print debug information
 ```
