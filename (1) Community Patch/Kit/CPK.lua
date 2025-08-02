@@ -398,6 +398,15 @@
 	kit.Import = Import
 	kit.Var = Var
 
+	local M = Module
+
+	-- kit.FP = M() -- Functional Programming
+	kit.UI = M()
+	kit.UI.Control = M()
+	kit.Util = M() -- General Purpose Utilities
+	kit.Args = M() -- Variadic Arguments
+	kit.Misc = M() -- Miscellaneous
+
 	if global then
 		global.CPK = kit
 	end

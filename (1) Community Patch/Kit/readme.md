@@ -9,7 +9,7 @@ The core idea behind CPK is simple:
 
 - Everything is lazy-loaded — nothing gets loaded until you actually access it.
 - Each module/file is included only once, no matter how many times you use it.
-	_(Unless you're in a state where `MapModData` is not available)_
+  _(Unless you're in a state where `MapModData` is not available)_
 - Accessing something won’t pull in unrelated code — only what’s needed for that specific property gets loaded.
 
 This keeps things clean, fast, and avoids cluttering memory or execution with unused stuff.
@@ -20,7 +20,7 @@ This keeps things clean, fast, and avoids cluttering memory or execution with un
 -- Include CPK Autoloader
 include('CPK.lua')
 
-local AsPercentage = CPK.Util.AsPercentage
+local AsPercentage = CPK.Misc.AsPercentage
 local StringBuilder = CPK.Util.StringBuilder
 
 local text = StringBuilder.New()

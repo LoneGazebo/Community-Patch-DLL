@@ -7,7 +7,7 @@ include( "InstanceManager" );
 
 include('CPK.lua')
 
-local AsPercentage = CPK.Util.AsPercentage
+local AsPercentage = CPK.Misc.AsPercentage
 -------------------------------------------------
 -- Global Constants
 -------------------------------------------------

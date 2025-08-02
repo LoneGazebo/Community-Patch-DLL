@@ -971,6 +971,10 @@
     <Folder Include="Database Changes\WorldMap\Resources" />
     <Folder Include="Database Changes\WorldMap\Terrains" />
     <Folder Include="Database Changes\WorldMap\Yields" />
+    <Folder Include="Kit\Misc" />
+    <Folder Include="Kit\Args" />
+    <Folder Include="Kit\UI" />
+    <Folder Include="Kit\UI\Control" />
     <Folder Include="Kit\Util\" />
     <Folder Include="LUA" />
     <Folder Include="Mapscripts" />
@@ -3297,15 +3301,39 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
+    <Content Include="Kit\Args\CPK.Args.Each.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Kit\Args\CPK.Args.Pack.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Kit\Args\CPK.Args.Unpack.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
     <Content Include="Kit\CPK.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Kit\Util\CPK.Util.AsPercentage.lua">
+    <Content Include="Kit\Misc\CPK.Misc.AsPercentage.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Kit\Util\CPK.Util.lua">
+    <Content Include="Kit\UI\Control\CPK.UI.Control.Disable.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Kit\UI\Control\CPK.UI.Control.Enable.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Kit\UI\Control\CPK.UI.Control.Hide.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Kit\UI\Control\CPK.UI.Control.Show.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>

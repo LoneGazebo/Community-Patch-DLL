@@ -6,10 +6,10 @@ local _lua_math_floor = math.floor
 ---
 --- Example:
 --- ```lua
---- AsPercent(0.3354)  --> 33.5
---- AsPercent(0.25)    --> 25
---- AsPercent(0.9999)  --> 99.9
---- AsPercent(125.789) --> 12578.9
+--- AsPercentage(0.3354)  --> 33.5
+--- AsPercentage(0.25)    --> 25
+--- AsPercentage(0.9999)  --> 99.9
+--- AsPercentage(125.789) --> 12578.9
 --- ```
 ---
 --- @param ratio number # Ratio (e.g., 0.25 = 25%)
@@ -22,4 +22,4 @@ local function AsPercentage(ratio)
 	return _lua_math_floor(ratio * 1000) / 10
 end
 
-CPK.Util.AsPercentage = AsPercentage
+CPK.Misc.AsPercentage = AsPercentage
