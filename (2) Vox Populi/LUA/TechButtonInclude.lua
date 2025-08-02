@@ -3,7 +3,7 @@
 -------------------------------------------------
 include('CPK.lua')
 
-local AsPercentage = CPK.Util.AsPercentage
+local AsPercentage = CPK.Misc.AsPercentage
 
 include( "IconSupport" );
 include( "InfoTooltipInclude" );

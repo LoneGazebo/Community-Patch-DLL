@@ -8,7 +8,7 @@ local StringBuilder = {}
 --- @param self StringBuilder
 --- @return string
 function StringBuilder.__tostring(self)
-	return self:Concat()
+	return self:Concat('\n')
 end
 
 --- @class StringBuilder
