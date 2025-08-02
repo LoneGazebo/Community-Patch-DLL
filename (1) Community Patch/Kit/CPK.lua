@@ -1,11 +1,18 @@
-do
-	if CPK ~= nil then
+(function()
+	if CPK then
 		return
 	end
 
-	--- Controls if CPK should output logs
-	--- @type boolean
-	CPK_VERBOSE = false
+	local global = MapModData or _G
+
+	if global and global.CPK then
+		CPK = global.CPK
+		return
+	end
+
+	local Var = {
+		VERBOSE = false,
+	}
 
 	local _lua_type = type
 	local _lua_next = next
@@ -19,11 +26,33 @@ do
 	local _lua_getmetatable = getmetatable
 	local _lua_setmetatable = setmetatable
 
-	local _civ_include = include or (function() -- emulates include in none civ5 environment
-		--- @param dir string
-		--- @return string[]
-		local function GetFilePaths(dir)
-			local stream = io.popen('find "' .. dir .. '" -type f')
+	local EmulateInclude = (function()
+		local function GetAvailablePaths()
+			local list = IncludeFileList --[[ @as string[] | nil ]]
+			local refresh = RefreshIncludeFileList --[[@as function | nil]]
+
+			-- We are still inside Civ5.
+			-- Somewhere like 'Main State'
+			if list then
+				if refresh then
+					refresh()
+				end
+
+				return list
+			end
+
+			-- We are not inside Civ5 Lua but somewhere else...
+			local hasOs = os and _lua_type(os.getenv) == 'function'
+
+			if not hasOs then
+				error('Error in include emulation: Cannot determine OS')
+			end
+
+			local isWindows = os.getenv('OS'):lower():match('window')
+			local windowsCmd = 'dir /s /b *.lua'
+			local linuxCmd = "find . -type f -name '*.lua'"
+
+			local stream = io.popen(isWindows and windowsCmd or linuxCmd)
 			local files = {}
 
 			if stream == nil then
@@ -37,11 +66,10 @@ do
 			return files
 		end
 
-		local paths = GetFilePaths('.')
-
-		local function GetPath(filename)
-			for _, path in _lua_next, paths, nil do
-				if string.sub(path, -string.len(filename)) == filename then
+		--- @param filename string
+		local function GetCandidatePath(filename)
+			for _, path in _lua_next, GetAvailablePaths(), nil do
+				if string.sub(path, - #filename) == filename then
 					return path
 				end
 			end
@@ -49,24 +77,39 @@ do
 			return filename
 		end
 
+		--- @param filename string
 		return function(filename)
-			local success, result = pcall(dofile, GetPath(filename))
+			if not filename:match('%.lua$') then
+				filename = filename .. '.lua'
+			end
+
+			if _lua_type(dofile) ~= 'function' then
+				error('Error in include emulation: dofile is not a function')
+			end
+
+			local success, result = pcall(dofile, GetCandidatePath(filename))
 
 			if not success then
-				print(result)
 				if result:find('^cannot open') then
 					return {}
 				end
 
-				error(result, 3)
+				error('Error in include emulation: ' .. result, 3)
 			end
 
 			return { filename }
 		end
 	end)()
 
+	local _civ_include = include or EmulateInclude
+
+	-- If include is not set, then set global emulated version of include
+	if not include then
+		include = EmulateInclude
+	end
+
 	local function Info(message)
-		if CPK_VERBOSE then
+		if Var.VERBOSE then
 			print('CPK:', message)
 		end
 	end
@@ -185,7 +228,7 @@ do
 	end
 	Node.GetInfo = GetInfo
 
-	function Node.new(name)
+	function Node.New(name)
 		local node = _lua_setmetatable({}, Node)
 
 		node.name = name
@@ -339,19 +382,25 @@ do
 	--- Creates new module. If name is specified module is considered root
 	--- @param name? string
 	--- @return table
-	function Module.new(name)
-		local module = _lua_setmetatable({}, Node.new(name))
+	function Module.New(name)
+		local module = _lua_setmetatable({}, Node.New(name))
 
 		return module
 	end
 
 	_lua_setmetatable(Module --[[@as table]], {
-		__call = Module.new
+		__call = Module.New
 	})
 
-	local kit = Module.new('CPK')
+	local kit = Module.New('CPK')
+
 	kit.Module = Module
 	kit.Import = Import
+	kit.Var = Var
+
+	if global then
+		global.CPK = kit
+	end
 
 	CPK = kit
-end
+end)()
