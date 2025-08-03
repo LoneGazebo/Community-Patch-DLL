@@ -7,19 +7,17 @@ local _lua_setmetatable = setmetatable
 --- @param cache table? # Optional table to use as cache. If omitted, a weak-valued table is used.
 --- @return Fn # A memoized version of the original function.
 local function Memoize0(fn, cache)
-	if cache == nil then
-		cache = _lua_setmetatable({}, { __mode = 'v' })
-	end
+	local c = cache or _lua_setmetatable({}, { __mode = 'v' })
 
 	return function(...)
-		local val = cache[1]
+		local val = c[1]
 
 		if val ~= nil then
 			return val
 		end
 
 		val = fn(...)
-		cache[1] = val
+		c[1] = val
 
 		return val
 	end
