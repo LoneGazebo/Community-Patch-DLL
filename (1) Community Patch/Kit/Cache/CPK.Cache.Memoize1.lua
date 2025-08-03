@@ -29,7 +29,7 @@ local function Memoize1(fn, cache, hash)
 		local val = cache[key]
 
 		if val == nil then
-			val = fn(key)
+			val = fn(arg, ...)
 
 			if val ~= nil then
 				cache[key] = val
