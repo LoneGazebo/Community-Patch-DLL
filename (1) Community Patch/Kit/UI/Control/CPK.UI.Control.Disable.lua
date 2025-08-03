@@ -5,7 +5,7 @@ local EachArgs = CPK.Args.Each
 --- @param Control
 local function ControlDisable(control)
 	if control ~= nil and _lua_type(control.SetDisabled) == 'function' then
-		control:SetDisabled(false)
+		control:SetDisabled(true)
 	end
 end
 
