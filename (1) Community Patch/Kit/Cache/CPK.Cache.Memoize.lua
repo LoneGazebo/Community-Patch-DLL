@@ -7,21 +7,21 @@
 --- @param hash fun(...: any): any # A function to provide cache keys based on the arguments
 --- @return Fn # A memoized version of the function
 local function Memoize(fn, cache, hash)
+	local c = cache
+	local h = hash
+
 	return function(...)
-		local key = hash(...)
+		local key = h(...)
 
 		if key == nil then
 			return fn(...)
 		end
 
-		local val = cache[key]
+		local val = c[key]
 
 		if val == nil then
 			val = fn(...)
-
-			if val ~= nil then
-				cache[key] = val
-			end
+			c[key] = val
 		end
 
 		return val
