@@ -40,4 +40,4 @@ local function Memoize1(fn, cache, hash)
 	end
 end
 
-CPK.FP.Memoize1 = Memoize1
+CPK.Cache.Memoize1 = Memoize1
