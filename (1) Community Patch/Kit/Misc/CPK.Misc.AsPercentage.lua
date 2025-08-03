@@ -15,11 +15,11 @@ local _lua_math_floor = math.floor
 --- @param ratio number # Ratio (e.g., 0.25 = 25%)
 --- @return number # Integer or 1-decimal-place float
 local function AsPercentage(ratio)
-	if _lua_math_floor(ratio * 1000) / 10 % 1 == 0 then
-		return _lua_math_floor(ratio * 100)
-	end
+	local num = _lua_math_floor(ratio * 1000) / 10
 
-	return _lua_math_floor(ratio * 1000) / 10
+	return num % 1 == 0
+			and _lua_math_floor(num)
+			or num
 end
 
 CPK.Misc.AsPercentage = AsPercentage
