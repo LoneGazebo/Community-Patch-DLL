@@ -973,6 +973,8 @@
     <Folder Include="Database Changes\WorldMap\Yields" />
     <Folder Include="Kit\Misc" />
     <Folder Include="Kit\Args" />
+    <Folder Include="Kit\FP" />
+    <Folder Include="Kit\Cache" />
     <Folder Include="Kit\UI" />
     <Folder Include="Kit\UI\Control" />
     <Folder Include="Kit\Util\" />
@@ -3313,7 +3315,43 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
+    <Content Include="Kit\Cache\CPK.Cache.Memoize.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Kit\Cache\CPK.Cache.Memoize0.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Kit\Cache\CPK.Cache.Memoize1.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
     <Content Include="Kit\CPK.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Kit\FP\CPK.FP.Always.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Kit\FP\CPK.FP.Compose.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Kit\FP\CPK.FP.Curry.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Kit\FP\CPK.FP.Identity.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Kit\FP\CPK.FP.Inverse.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Kit\FP\CPK.FP.Pipe.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
