@@ -361,6 +361,7 @@ UPDATE Leader_Flavors SET Flavor = 7 WHERE FlavorType = 'FLAVOR_DIPLOMACY' AND L
 
 UPDATE Leader_Flavors SET Flavor = 10 WHERE FlavorType = 'FLAVOR_MILITARY_TRAINING' AND LeaderType = 'LEADER_GENGHIS_KHAN'; -- 8, primary: dom
 UPDATE Leader_Flavors SET Flavor = 10 WHERE FlavorType = 'FLAVOR_OFFENSE' AND LeaderType = 'LEADER_GENGHIS_KHAN'; -- 8, primary: dom
+UPDATE Leader_Flavors SET Flavor = 10 WHERE FlavorType = 'FLAVOR_MOBILE' AND LeaderType = 'LEADER_GENGHIS_KHAN'; -- 7, UA and UU
 UPDATE Leader_Flavors SET Flavor = 10 WHERE FlavorType = 'FLAVOR_NUKE' AND LeaderType = 'LEADER_GENGHIS_KHAN'; -- 9, primary: dom
 UPDATE Leader_Flavors SET Flavor = 10 WHERE FlavorType = 'FLAVOR_USE_NUKE' AND LeaderType = 'LEADER_GENGHIS_KHAN'; -- 9, primary: dom
 UPDATE Leader_Flavors SET Flavor = 7 WHERE FlavorType = 'FLAVOR_TILE_IMPROVEMENT' AND LeaderType = 'LEADER_GENGHIS_KHAN'; -- 3, UB
