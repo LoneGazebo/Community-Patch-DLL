@@ -40,6 +40,11 @@ local newLine = civ5_mode and "[NEWLINE]" or "/n"
 
 local iEmbassy = GameInfoTypes.IMPROVEMENT_EMBASSY
 
+tIsEmbassyImprovement = {}
+for row in DB.Query("select ID From Improvements where IsEmbassy=1") do
+	tIsEmbassyImprovement[row.ID] = true
+end
+
 --[[
 local GetCityStateStatusRow = GetCityStateStatusRow
 local GetCityStateStatusType = GetCityStateStatusType
@@ -446,7 +451,14 @@ function GetCityStateStatusToolTip( majorPlayerID, minorPlayerID, isFullInfo )
 		-- Status
 		tip = tip .. " " .. GetCityStateStatusText( majorPlayerID, minorPlayerID )
 		table_insert( tips, tip )
-		if minorPlayer:GetImprovementCount(iEmbassy) > 0 then
+		local bIsEmbassyCheck = false
+		for k, v in pairs(tIsEmbassyImprovement) do
+			if minorPlayer:GetImprovementCount(k) > 0 then
+				bIsEmbassyCheck = true
+				break
+			end
+		end
+		if bIsEmbassyCheck then
 			table_insert( tips, L"TXT_KEY_CSTATE_CANNOT_EMBASSY")
 		else
 			table_insert( tips, L"TXT_KEY_CSTATE_CAN_EMBASSY")
