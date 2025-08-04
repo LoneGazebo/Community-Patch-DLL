@@ -1,8 +1,9 @@
 print("This is the modded InfoTooltipInclude from Community Patch");
 
+include("VPUI_core");
+
 -- Game object is not available in PreGame, so this will have to do
 local MOD_BALANCE_VP = GameInfo.CustomModOptions{Name = "BALANCE_VP"}().Value == 1;
-local MOD_BALANCE_CORE_YIELDS = GameInfo.CustomModOptions{Name = "BALANCE_CORE_YIELDS"}().Value == 1;
 local MOD_BALANCE_CORE_JFD = GameInfo.CustomModOptions{Name = "BALANCE_CORE_JFD"}().Value == 1;
 local MOD_BALANCE_CORE_BUILDING_INVESTMENTS = GameInfo.CustomModOptions{Name = "BALANCE_CORE_BUILDING_INVESTMENTS"}().Value == 1;
 local MOD_BALANCE_CORE_UNIT_INVESTMENTS = GameInfo.CustomModOptions{Name = "BALANCE_CORE_UNIT_INVESTMENTS"}().Value == 1;
@@ -18,79 +19,20 @@ local MOD_RELIGION_CONVERSION_MODIFIERS = GameInfo.CustomModOptions{Name = "RELI
 local MOD_BALANCE_CORE_WONDER_COST_INCREASE = GameInfo.CustomModOptions{Name = "BALANCE_CORE_WONDER_COST_INCREASE"}().Value == 1;
 local MOD_BALANCE_CORE_SPIES = GameInfo.CustomModOptions{Name = "BALANCE_CORE_SPIES"}().Value == 1;
 
--- GameInfoTypes and YieldTypes are also not available here
-local iNumJFDYields = GameInfo.Yields{Type = "YIELD_JFD_SOVEREIGNTY"}().ID + 1;
-local iNumCoreYields = GameInfo.Yields{Type = "YIELD_CULTURE_LOCAL"}().ID + 1;
-local iNumBaseYields = GameInfo.Yields{Type = "YIELD_GOLDEN_AGE_POINTS"}().ID + 1;
-local iNumYields = MOD_BALANCE_CORE_JFD and iNumJFDYields or (MOD_BALANCE_CORE_YIELDS and iNumCoreYields or iNumBaseYields);
-
--- Index the GreatPersonType/SpecialistType relationship
-local tSpecialistGreatPersons = {};
-for kGreatPersonInfo in GameInfo.GreatPersons() do
-	if kGreatPersonInfo.Specialist then
-		tSpecialistGreatPersons[kGreatPersonInfo.Specialist] = kGreatPersonInfo;
-	end
-end
-
--- Index the CivilizationType/TraitType relationship
-local tTraitCivsCache = {};
-local function GetCivsFromTrait(strTraitType)
-	if not tTraitCivsCache[strTraitType] then
-		for row in GameInfo.Leader_Traits{TraitType = strTraitType} do
-			for row2 in GameInfo.Civilization_Leaders{LeaderheadType = row.LeaderType} do
-				tTraitCivsCache[strTraitType] = tTraitCivsCache[strTraitType] or {};
-				table.insert(tTraitCivsCache[strTraitType], GameInfoTypes[row2.CivilizationType]);
-			end
-		end
-	end
-	return tTraitCivsCache[strTraitType];
-end
-
 -- Cache these values
 local eMerchantOfVeniceUnit;
 local iTrainPercent = Game and GameInfo.GameSpeeds[Game.GetGameSpeedType()].TrainPercent or 100;
 
--- Prefetch the types of the frequently looped tables (Not the full tables! Game doesn't have enough memory for that)
--- The ID + 1 should always match the index of these Lua tables due to the remapper in DLL
-local tGameInfoTypes = {
-	Eras = {},
-	Technologies = {},
-	Policies = {},
-	Beliefs = {},
-	UnitPromotions = {},
-	Buildings = {},
-	BuildingClasses = {},
-	Specialists = {},
-	Accomplishments = {},
-	Plots = {},
-	Terrains = {},
-	Features = {},
-	Resources = {},
-	Improvements = {},
-	Corporations = {},
-	Civilizations = {},
-};
-for strTableName, tTypes in pairs(tGameInfoTypes) do
-	for kTypeInfo in GameInfo[strTableName]() do
-		table.insert(tTypes, kTypeInfo.Type);
-	end
-end
-
--- Yields are so frequently accessed it is worth to cache the ID, Type, IconString, and Description of each
--- The ID + 1 should always match the index of this table due to the remapper in DLL
-local tYieldInfos = {};
-for eYield = 0, iNumYields - 1 do
-	local kYieldInfo = GameInfo.Yields[eYield];
-	table.insert(tYieldInfos, {
-		ID = eYield,
-		Type = kYieldInfo.Type,
-		IconString = kYieldInfo.IconString,
-		Description = kYieldInfo.Description,
-	});
-end
-
 local strSeparator = "----------------";
 local L = Locale.Lookup;
+local VP = MapModData and MapModData.VP or VP;
+local GetNumInfos = VP.GetNumInfos;
+local GetInfoFromId = VP.GetInfoFromId;
+local GetInfoFromType = VP.GetInfoFromType;
+local GameInfoCache = VP.GameInfoCache;
+local PopulateGameInfoCache = VP.PopulateGameInfoCache;
+local GetCivsFromTrait = VP.GetCivsFromTrait;
+local GetGreatPersonInfoFromSpecialist = VP.GetGreatPersonInfoFromSpecialist;
 
 -------------------------------------------------
 -- Help text for game components (Units, Buildings, etc.)
@@ -98,80 +40,80 @@ local L = Locale.Lookup;
 
 -- Helper functions
 
----@param strColor string The open tag of the color, e.g. `[COLOR_POSITIVE_TEXT]`
----@param strText string The text to be colored
----@return string
+--- @param strColor string The open tag of the color, e.g. `[COLOR_POSITIVE_TEXT]`
+--- @param strText string The text to be colored
+--- @return string
 local function TextColor(strColor, strText)
 	return strColor .. strText .."[ENDCOLOR]";
 end
 
----Surround a unit name with `[COLOR_YELLOW]`
----@param strText string
----@return string
+--- Surround a unit name with `[COLOR_YELLOW]`
+--- @param strText string
+--- @return string
 local function UnitColor(strText)
 	return TextColor("[COLOR_YELLOW]", strText);
 end
 
----Surround a building name with `[COLOR_YIELD_FOOD]`
----@param strText string
----@return string
+--- Surround a building name with `[COLOR_YIELD_FOOD]`
+--- @param strText string
+--- @return string
 local function BuildingColor(strText)
 	return TextColor("[COLOR_YIELD_FOOD]", strText);
 end
 
----Surround a project name with `[COLOR_CITY_BLUE]`
----@param strText string
----@return string
+--- Surround a project name with `[COLOR_CITY_BLUE]`
+--- @param strText string
+--- @return string
 local function ProjectColor(strText)
 	return TextColor("[COLOR_CITY_BLUE]", strText);
 end
 
----Surround a policy name with `[COLOR_MAGENTA]`
----@param strText string
----@return string
+--- Surround a policy name with `[COLOR_MAGENTA]`
+--- @param strText string
+--- @return string
 local function PolicyColor(strText)
 	return TextColor("[COLOR_MAGENTA]", strText);
 end
 
----Surround a tech name with `[COLOR_CYAN]`
----@param strText string
----@return string
+--- Surround a tech name with `[COLOR_CYAN]`
+--- @param strText string
+--- @return string
 local function TechColor(strText)
 	return TextColor("[COLOR_CYAN]", strText);
 end
 
----Surround a belief name with `[COLOR_WHITE]`
----@param strText string
----@return string
+--- Surround a belief name with `[COLOR_WHITE]`
+--- @param strText string
+--- @return string
 local function BeliefColor(strText)
 	return TextColor("[COLOR_WHITE]", strText);
 end
 
----Return something like ` (<Tech name>)`, or empty string if `kTechInfo` is `nil`
----@param kTechInfo table|nil The row in Technologies table
----@return string
+--- Return something like ` (<Tech name>)`, or empty string if `kTechInfo` is `nil`
+--- @param kTechInfo table|nil The row in Technologies table
+--- @return string
 local function AppendTech(kTechInfo)
 	return kTechInfo and TechColor(string.format(" (%s)", L(kTechInfo.Description))) or "";
 end
 
----Append `in all Cities` (or localized version) to the input string
----@param strTooltip string
----@return string
+--- Append `in all Cities` (or localized version) to the input string
+--- @param strTooltip string
+--- @return string
 local function AppendGlobal(strTooltip)
 	return string.format("%s %s", strTooltip, L("TXT_KEY_PRODUCTION_GLOBAL_SUFFIX"));
 end
 
----Append `, scaling with Era` (or localized version) to the input string
----@param strTooltip string
----@return string
+--- Append `, scaling with Era` (or localized version) to the input string
+--- @param strTooltip string
+--- @return string
 local function AppendEraScaling(strTooltip)
 	return string.format("%s, %s", strTooltip, L("TXT_KEY_PRODUCTION_BUILDING_ERA_SCALING_SUFFIX"));
 end
 
----Can the given unit gain the given promotion?
----@param kUnitInfo table
----@param strPromotionType string
----@return boolean
+--- Can the given unit gain the given promotion?
+--- @param kUnitInfo table
+--- @param strPromotionType string
+--- @return boolean
 local function CanHavePromotion(kUnitInfo, strPromotionType)
 	for _ in GameInfo.UnitPromotions_UnitCombats{PromotionType = strPromotionType, UnitCombatType = kUnitInfo.CombatClass} do
 		return true;
@@ -182,71 +124,71 @@ local function CanHavePromotion(kUnitInfo, strPromotionType)
 	return false;
 end
 
----Get the corresponding unique building of the given player/city from the given building class.<br>
----May return -1.
----@param eBuildingClass integer
----@param pPlayer table
----@param pCity table|nil
----@return integer
+--- Get the corresponding unique building of the given player/city from the given building class.<br>
+--- May return -1.
+--- @param eBuildingClass integer
+--- @param pPlayer table
+--- @param pCity table|nil
+--- @return integer
 local function GetUniqueBuildingFromBuildingClass(eBuildingClass, pPlayer, pCity)
 	local eBuilding = pCity and pCity:GetBuildingTypeFromClass(eBuildingClass, true) or pPlayer:GetCivilizationBuilding(eBuildingClass);
 	-- Use default building if active civ doesn't have access to this building class
 	if eBuilding == -1 then
-		local strDefaultBuildingType = GameInfo.BuildingClasses[eBuildingClass].DefaultBuilding;
+		local strDefaultBuildingType = GetInfoFromId("BuildingClasses", eBuildingClass).DefaultBuilding;
 		return GameInfoTypes[strDefaultBuildingType] or -1;
 	end
 	return eBuilding;
 end
 
----Get the corresponding unique unit of the given player/city from the given unit class.<br>
----May return -1.
----@param strUnitClassType string
----@param pPlayer table
----@param pCity table|nil
----@return integer
+--- Get the corresponding unique unit of the given player/city from the given unit class.<br>
+--- May return -1.
+--- @param strUnitClassType string
+--- @param pPlayer table
+--- @param pCity table|nil
+--- @return integer
 local function GetUniqueUnitFromUnitClass(strUnitClassType, pPlayer, pCity)
 	local eUnit = pPlayer:GetSpecificUnitType(strUnitClassType, not pCity);
 	-- Use default unit if active civ doesn't have access to this unit class
 	if eUnit == -1 then
-		local strDefaultUnitType = GameInfo.UnitClasses[strUnitClassType].DefaultUnit;
+		local strDefaultUnitType = GetInfoFromType("UnitClasses", strUnitClassType).DefaultUnit;
 		return GameInfoTypes[strDefaultUnitType] or -1;
 	end
 	return eUnit;
 end
 
----Short hand for building a yield boost string. Instant yield string is also in the same format.
----@param kYieldInfo table
----@param nYield number
----@return string
+--- Short hand for building a yield boost string. Instant yield string is also in the same format.
+--- @param kYieldInfo table
+--- @param nYield number
+--- @return string
 local function GetYieldBoostString(kYieldInfo, nYield)
 	return L("TXT_KEY_PRODUCTION_YIELD_BOOST", nYield, kYieldInfo.IconString);
 end
 
----Short hand for building a yield modifier string
----@param kYieldInfo table
----@param nYield number
----@return string
+--- Short hand for building a yield modifier string
+--- @param kYieldInfo table
+--- @param nYield number
+--- @return string
 local function GetYieldModifierString(kYieldInfo, nYield)
 	return L("TXT_KEY_PRODUCTION_YIELD_MODIFIER", nYield, kYieldInfo.IconString);
 end
 
----Short hand for building a fractional yield boost string
----@param kYieldInfo table
----@param iNumerator integer
----@param iDenominator integer
----@return string
+--- Short hand for building a fractional yield boost string
+--- @param kYieldInfo table
+--- @param iNumerator integer
+--- @param iDenominator integer
+--- @return string
 local function GetFractionYieldBoostString(kYieldInfo, iNumerator, iDenominator)
 	return L("TXT_KEY_PRODUCTION_YIELD_BOOST_FRACTION", iNumerator, iDenominator, kYieldInfo.IconString);
 end
 
----Add a localized text to the given table if the given conditions are met
----@param tTooltipList string[] List of tooltip strings/lines to be added to
----@param strTextKey string Text key to be added
----@param bGlobal boolean Append `in all Cities` to the added string if true
----@param bEraScaling boolean Append `, scaling with Era` to the added string if true
----@param bNotZero boolean Add the text only if the first parameter is not zero (error if first parameter is string)
----@param bPositive boolean Add the text only if the first parameter is positive (error if first parameter is string)
----@param ... number|string The parameters for the text key
+--- Add a localized text to the given table if the given conditions are met
+--- @param tTooltipList string[] List of tooltip strings/lines to be added to
+--- @param strTextKey string Text key to be added
+--- @param bGlobal boolean Append `in all Cities` to the added string if true
+--- @param bEraScaling boolean Append `, scaling with Era` to the added string if true
+--- @param bNotZero boolean Add the text only if the first parameter is not zero (error if first parameter is string)
+--- @param bPositive boolean Add the text only if the first parameter is positive (error if first parameter is string)
+--- @param ... number|string The parameters for the text key
 local function AddTooltipGeneric(tTooltipList, strTextKey, bGlobal, bEraScaling, bNotZero, bPositive, ...)
 	if bNotZero and select(1, ...) == 0 then
 		return;
@@ -268,37 +210,37 @@ local function AddTooltipGeneric(tTooltipList, strTextKey, bGlobal, bEraScaling,
 	table.insert(tTooltipList, strTooltip);
 end
 
----Add a localized text to the given table
----@param tTooltipList string[] List of tooltip strings/lines to be added to
----@param strTextKey string Text key to be added
----@param ... number|string The parameters for the text key
+--- Add a localized text to the given table
+--- @param tTooltipList string[] List of tooltip strings/lines to be added to
+--- @param strTextKey string Text key to be added
+--- @param ... number|string The parameters for the text key
 local function AddTooltip(tTooltipList, strTextKey, ...)
 	AddTooltipGeneric(tTooltipList, strTextKey, false, false, false, false, ...);
 end
 
----Add a localized text to the given table, appended with ", scaling with Era"
----@param tTooltipList string[] List of tooltip strings/lines to be added to
----@param strTextKey string Text key to be added
----@param ... number|string The parameters for the text key
+--- Add a localized text to the given table, appended with ", scaling with Era"
+--- @param tTooltipList string[] List of tooltip strings/lines to be added to
+--- @param strTextKey string Text key to be added
+--- @param ... number|string The parameters for the text key
 local function AddTooltipEraScaling(tTooltipList, strTextKey, ...)
 	AddTooltipGeneric(tTooltipList, strTextKey, false, true, false, false, ...);
 end
 
----Add a localized text to the given table only if the first parameter is not zero
----@param tTooltipList string[] List of tooltip strings/lines to be added to
----@param strTextKey string Text key to be added
----@param nFirstParameter number First parameter for the text key
----@param ... number|string The rest of the parameters for the text key
+--- Add a localized text to the given table only if the first parameter is not zero
+--- @param tTooltipList string[] List of tooltip strings/lines to be added to
+--- @param strTextKey string Text key to be added
+--- @param nFirstParameter number First parameter for the text key
+--- @param ... number|string The rest of the parameters for the text key
 local function AddTooltipNonZero(tTooltipList, strTextKey, nFirstParameter, ...)
 	AddTooltipGeneric(tTooltipList, strTextKey, false, false, true, false, nFirstParameter, ...);
 end
 
----Add a localized text to the given table only if the first parameter is not zero<br>
----The absolute value of the first parameter is passed into the localization function, and its sign ("+" or "-") is added as the second parameter
----@param tTooltipList string[] List of tooltip strings/lines to be added to
----@param strTextKey string Text key to be added
----@param nFirstParameter number First parameter for the text key
----@param ... number|string The rest of the parameters for the text key
+--- Add a localized text to the given table only if the first parameter is not zero<br>
+--- The absolute value of the first parameter is passed into the localization function, and its sign ("+" or "-") is added as the second parameter
+--- @param tTooltipList string[] List of tooltip strings/lines to be added to
+--- @param strTextKey string Text key to be added
+--- @param nFirstParameter number First parameter for the text key
+--- @param ... number|string The rest of the parameters for the text key
 local function AddTooltipNonZeroSigned(tTooltipList, strTextKey, nFirstParameter, ...)
 	local strSign = nFirstParameter > 0 and "+" or "-";
 	if not strSign then
@@ -308,46 +250,46 @@ local function AddTooltipNonZeroSigned(tTooltipList, strTextKey, nFirstParameter
 	AddTooltipGeneric(tTooltipList, strTextKey, false, false, true, false, nFirstParameter, strSign, ...);
 end
 
----Add a localized text to the given table only if the first parameter is positive
----@param tTooltipList string[] List of tooltip strings/lines to be added to
----@param strTextKey string Text key to be added
----@param nFirstParameter number First parameter for the text key
----@param ... number|string The parameters for the text key
+--- Add a localized text to the given table only if the first parameter is positive
+--- @param tTooltipList string[] List of tooltip strings/lines to be added to
+--- @param strTextKey string Text key to be added
+--- @param nFirstParameter number First parameter for the text key
+--- @param ... number|string The parameters for the text key
 local function AddTooltipPositive(tTooltipList, strTextKey, nFirstParameter, ...)
 	AddTooltipGeneric(tTooltipList, strTextKey, false, false, false, true, nFirstParameter, ...);
 end
 
----Add a localized text to the given table, appended with `in all Cities`
----@param tTooltipList string[] List of tooltip strings/lines to be added to
----@param strTextKey string Text key to be added
----@param ... number|string The parameters for the text key
+--- Add a localized text to the given table, appended with `in all Cities`
+--- @param tTooltipList string[] List of tooltip strings/lines to be added to
+--- @param strTextKey string Text key to be added
+--- @param ... number|string The parameters for the text key
 local function AddTooltipGlobal(tTooltipList, strTextKey, ...)
 	AddTooltipGeneric(tTooltipList, strTextKey, true, false, false, false, ...);
 end
 
----Add a localized text to the given table, appended with `in all Cities, scaling with Era`
----@param tTooltipList string[] List of tooltip strings/lines to be added to
----@param strTextKey string Text key to be added
----@param ... number|string The parameters for the text key
+--- Add a localized text to the given table, appended with `in all Cities, scaling with Era`
+--- @param tTooltipList string[] List of tooltip strings/lines to be added to
+--- @param strTextKey string Text key to be added
+--- @param ... number|string The parameters for the text key
 local function AddTooltipGlobalEraScaling(tTooltipList, strTextKey, ...)
 	AddTooltipGeneric(tTooltipList, strTextKey, true, true, false, false, ...);
 end
 
----Add a localized text to the given table, appended with `in all Cities`, only if the first parameter is not zero
----@param tTooltipList string[] List of tooltip strings/lines to be added to
----@param strTextKey string Text key to be added
----@param nFirstParameter number First parameter for the text key
----@param ... number|string The rest of the parameters for the text key
+--- Add a localized text to the given table, appended with `in all Cities`, only if the first parameter is not zero
+--- @param tTooltipList string[] List of tooltip strings/lines to be added to
+--- @param strTextKey string Text key to be added
+--- @param nFirstParameter number First parameter for the text key
+--- @param ... number|string The rest of the parameters for the text key
 local function AddTooltipGlobalNonZero(tTooltipList, strTextKey, nFirstParameter, ...)
 	AddTooltipGeneric(tTooltipList, strTextKey, true, false, true, false, nFirstParameter, ...);
 end
 
----Add a localized text to the given table, appended with `in all Cities`, only if the first parameter is not zero<br>
----The absolute value of the first parameter is passed into the localization function, and its sign ("+" or "-") is added as the second parameter
----@param tTooltipList string[] List of tooltip strings/lines to be added to
----@param strTextKey string Text key to be added
----@param nFirstParameter number First parameter for the text key
----@param ... number|string The rest of the parameters for the text key
+--- Add a localized text to the given table, appended with `in all Cities`, only if the first parameter is not zero<br>
+--- The absolute value of the first parameter is passed into the localization function, and its sign ("+" or "-") is added as the second parameter
+--- @param tTooltipList string[] List of tooltip strings/lines to be added to
+--- @param strTextKey string Text key to be added
+--- @param nFirstParameter number First parameter for the text key
+--- @param ... number|string The rest of the parameters for the text key
 local function AddTooltipGlobalNonZeroSigned(tTooltipList, strTextKey, nFirstParameter, ...)
 	local strSign = nFirstParameter > 0 and "+" or "-";
 	if not strSign then
@@ -357,35 +299,35 @@ local function AddTooltipGlobalNonZeroSigned(tTooltipList, strTextKey, nFirstPar
 	AddTooltipGeneric(tTooltipList, strTextKey, true, false, true, false, nFirstParameter, strSign, ...);
 end
 
----Add a localized text to the given table, appended with `in all Cities`, only if the first parameter is positive
----@param tTooltipList string[] List of tooltip strings/lines to be added to
----@param strTextKey string Text key to be added
----@param nFirstParameter number First parameter for the text key
----@param ... number|string The parameters for the text key
+--- Add a localized text to the given table, appended with `in all Cities`, only if the first parameter is positive
+--- @param tTooltipList string[] List of tooltip strings/lines to be added to
+--- @param strTextKey string Text key to be added
+--- @param nFirstParameter number First parameter for the text key
+--- @param ... number|string The parameters for the text key
 local function AddTooltipGlobalPositive(tTooltipList, strTextKey, nFirstParameter, ...)
 	AddTooltipGeneric(tTooltipList, strTextKey, true, false, false, true, nFirstParameter, ...);
 end
 
----Add a localized text to the given table if the given condition is true
----@param tTooltipList string[] List of tooltip strings/lines to be added to
----@param strTextKey string Text key to be added
----@param bCondition boolean The condition that must be satified
----@param ... number|string The parameters for the text key
+--- Add a localized text to the given table if the given condition is true
+--- @param tTooltipList string[] List of tooltip strings/lines to be added to
+--- @param strTextKey string Text key to be added
+--- @param bCondition boolean The condition that must be satified
+--- @param ... number|string The parameters for the text key
 local function AddTooltipIfTrue(tTooltipList, strTextKey, bCondition, ...)
 	if bCondition then
 		AddTooltipGeneric(tTooltipList, strTextKey, false, false, false, false, ...);
 	end
 end
 
----Generic version of the AddTooltipsYieldTable functions, not supposed to be called directly.
----@param tTooltipList string[] List of tooltip strings/lines to be added to
----@param strTextKey string Text key to be added, must have 1+ or 2+ parameters (refer to the specific functions)
----@param tYieldTable table<integer, table<integer, number?>?> The yield/modifier table to be converted into tooltip. If strOtherTypeTable is nil, the table is tYieldTable[1] and other entries are ignored.
----@param strOtherTypeTable string|nil The name of the database table used as the key of the yield/modifier table, e.g. `"Specialists"`
----@param bModifier boolean tYieldTable consists of modifiers (%) if true, flat yields otherwise
----@param bGlobal boolean Whether "in all Cities" should be appended to tooltips
----@param bEraScaling boolean Whether ", scaling with Era" should be appended to tooltips
----@param ... number|string The rest of the parameters of strTextKey
+--- Generic version of the AddTooltipsYieldTable functions, not supposed to be called directly.
+--- @param tTooltipList string[] List of tooltip strings/lines to be added to
+--- @param strTextKey string Text key to be added, must have 1+ or 2+ parameters (refer to the specific functions)
+--- @param tYieldTable table<integer, table<integer, number?>?> The yield/modifier table to be converted into tooltip. If strOtherTypeTable is nil, the table is tYieldTable[1] and other entries are ignored.
+--- @param strOtherTypeTable string|nil The name of the database table used as the key of the yield/modifier table, e.g. `"Specialists"`
+--- @param bModifier boolean tYieldTable consists of modifiers (%) if true, flat yields otherwise
+--- @param bGlobal boolean Whether "in all Cities" should be appended to tooltips
+--- @param bEraScaling boolean Whether ", scaling with Era" should be appended to tooltips
+--- @param ... number|string The rest of the parameters of strTextKey
 local function AddTooltipsYieldTableGeneric(tTooltipList, strTextKey, tYieldTable, strOtherTypeTable, bModifier, bGlobal, bEraScaling, ...)
 	if not next(tYieldTable) then
 		return;
@@ -394,23 +336,17 @@ local function AddTooltipsYieldTableGeneric(tTooltipList, strTextKey, tYieldTabl
 	local AddTooltipFunc = bGlobal and (bEraScaling and AddTooltipGlobalEraScaling or AddTooltipGlobal) or (bEraScaling and AddTooltipEraScaling or AddTooltip);
 	if strOtherTypeTable then
 		-- Add types to the cache if not already exist
-		if not tGameInfoTypes[strOtherTypeTable] then
-			tGameInfoTypes[strOtherTypeTable] = {};
-			for kOtherTypeInfo in GameInfo[strOtherTypeTable]() do
-				table.insert(tGameInfoTypes[strOtherTypeTable], kOtherTypeInfo.Type);
-			end
-		end
-		for eOtherType = 0, #tGameInfoTypes[strOtherTypeTable] - 1 do
+		PopulateGameInfoCache(strOtherTypeTable);
+		for eOtherType, kOtherTypeInfo in GameInfoCache(strOtherTypeTable) do
 			if tYieldTable[eOtherType] then
 				local tBoostStrings = {};
-				for eYield = 0, iNumYields - 1 do
+				for eYield, kYieldInfo in GameInfoCache("Yields") do
 					local nYield = tYieldTable[eOtherType][eYield];
 					if nYield and nYield ~= 0 then
-						table.insert(tBoostStrings, GetStringFunc(tYieldInfos[eYield + 1], nYield));
+						table.insert(tBoostStrings, GetStringFunc(kYieldInfo, nYield));
 					end
 				end
 				if next(tBoostStrings) then
-					local kOtherTypeInfo = GameInfo[strOtherTypeTable][eOtherType];
 					if strOtherTypeTable == "Resources" then
 						AddTooltipFunc(tTooltipList, strTextKey, kOtherTypeInfo.Description, table.concat(tBoostStrings, " "), kOtherTypeInfo.IconString, ...);
 					elseif strOtherTypeTable == "Beliefs" then
@@ -423,10 +359,10 @@ local function AddTooltipsYieldTableGeneric(tTooltipList, strTextKey, tYieldTabl
 		end
 	else
 		local tBoostStrings = {};
-		for eYield = 0, iNumYields - 1 do
+		for eYield, kYieldInfo in GameInfoCache("Yields") do
 			local nYield = tYieldTable[1][eYield];
 			if nYield and nYield ~= 0 then
-				table.insert(tBoostStrings, GetStringFunc(tYieldInfos[eYield + 1], nYield));
+				table.insert(tBoostStrings, GetStringFunc(kYieldInfo, nYield));
 			end
 		end
 		if next(tBoostStrings) then
@@ -435,125 +371,125 @@ local function AddTooltipsYieldTableGeneric(tTooltipList, strTextKey, tYieldTabl
 	end
 end
 
----Add a localized yield boost text to the given tooltip table based on the given yield table<br>
----Example lines:<br>
----`Factory: +2 [ICON_PRODUCTION] +2 [ICON_GOLD]`<br>
----`Astronomy: +3 [ICON_RESEARCH]`
----@param tTooltipList string[] List of tooltip strings/lines to be added to
----@param strTextKey string Text key to be added, must have 2+ parameters - first is the name of "other type", second is the yield boost
----@param tYieldTable table<integer, table<integer, number?>?> The yield table to be converted into tooltip
----@param strOtherTypeTable string The name of the database table used as the key of the yield table, e.g. `"Specialists"`
----@param ... number|string The rest of the parameters of strTextKey
+--- Add a localized yield boost text to the given tooltip table based on the given yield table<br>
+--- Example lines:<br>
+--- `Factory: +2 [ICON_PRODUCTION] +2 [ICON_GOLD]`<br>
+--- `Astronomy: +3 [ICON_RESEARCH]`
+--- @param tTooltipList string[] List of tooltip strings/lines to be added to
+--- @param strTextKey string Text key to be added, must have 2+ parameters - first is the name of "other type", second is the yield boost
+--- @param tYieldTable table<integer, table<integer, number?>?> The yield table to be converted into tooltip
+--- @param strOtherTypeTable string The name of the database table used as the key of the yield table, e.g. `"Specialists"`
+--- @param ... number|string The rest of the parameters of strTextKey
 local function AddTooltipsYieldBoostTable(tTooltipList, strTextKey, tYieldTable, strOtherTypeTable, ...)
 	AddTooltipsYieldTableGeneric(tTooltipList, strTextKey, tYieldTable, strOtherTypeTable, false, false, false, ...);
 end
 
----Add a localized yield boost text, appended with "in all Cities", to the given tooltip table based on the given yield table<br>
----Example lines:<br>
----`Factory: +2 [ICON_PRODUCTION] +2 [ICON_GOLD] in all Cities`<br>
----`Astronomy: +3 [ICON_RESEARCH] in all Cities`
----@param tTooltipList string[] List of tooltip strings/lines to be added to
----@param strTextKey string Text key to be added, must have 2 parameters - first is the name of "other type", second is the yield boost
----@param tYieldTable table<integer, table<integer, number?>?> The yield table to be converted into tooltip
----@param strOtherTypeTable string The name of the database table used as the key of the yield table, e.g. `"Specialists"`
----@param ... number|string The rest of the parameters of strTextKey
+--- Add a localized yield boost text, appended with "in all Cities", to the given tooltip table based on the given yield table<br>
+--- Example lines:<br>
+--- `Factory: +2 [ICON_PRODUCTION] +2 [ICON_GOLD] in all Cities`<br>
+--- `Astronomy: +3 [ICON_RESEARCH] in all Cities`
+--- @param tTooltipList string[] List of tooltip strings/lines to be added to
+--- @param strTextKey string Text key to be added, must have 2 parameters - first is the name of "other type", second is the yield boost
+--- @param tYieldTable table<integer, table<integer, number?>?> The yield table to be converted into tooltip
+--- @param strOtherTypeTable string The name of the database table used as the key of the yield table, e.g. `"Specialists"`
+--- @param ... number|string The rest of the parameters of strTextKey
 local function AddTooltipsYieldBoostTableGlobal(tTooltipList, strTextKey, tYieldTable, strOtherTypeTable, ...)
 	AddTooltipsYieldTableGeneric(tTooltipList, strTextKey, tYieldTable, strOtherTypeTable, false, true, false, ...);
 end
 
----Add a localized yield boost text to the given tooltip table based on the given yield table<br>
----Example lines:<br>
----`+2 [ICON_PRODUCTION] +2 [ICON_GOLD] during [ICON_GOLDEN_AGE] Golden Age`<br>
----`+1 [ICON_CULTURE] to Lake Tiles`
----@param tTooltipList string[] List of tooltip strings/lines to be added to
----@param strTextKey string Text key to be added, must have 1+ parameter - the yield string
----@param tYieldTable table<integer, number?> The yield table to be converted into tooltip
----@param ... number|string The rest of the parameters of strTextKey
+--- Add a localized yield boost text to the given tooltip table based on the given yield table<br>
+--- Example lines:<br>
+--- `+2 [ICON_PRODUCTION] +2 [ICON_GOLD] during [ICON_GOLDEN_AGE] Golden Age`<br>
+--- `+1 [ICON_CULTURE] to Lake Tiles`
+--- @param tTooltipList string[] List of tooltip strings/lines to be added to
+--- @param strTextKey string Text key to be added, must have 1+ parameter - the yield string
+--- @param tYieldTable table<integer, number?> The yield table to be converted into tooltip
+--- @param ... number|string The rest of the parameters of strTextKey
 local function AddTooltipSimpleYieldBoostTable(tTooltipList, strTextKey, tYieldTable, ...)
 	AddTooltipsYieldTableGeneric(tTooltipList, strTextKey, {tYieldTable}, nil, false, false, false, ...);
 end
 
----Add a localized yield boost text, appended with "in all Cities", to the given tooltip table based on the given yield table<br>
----Example lines:<br>
----`+2 [ICON_PRODUCTION] +2 [ICON_GOLD] during [ICON_GOLDEN_AGE] Golden Age in all Cities`<br>
----`+1 [ICON_RESEARCH] to Luxury Resources in all Cities`
----@param tTooltipList string[] List of tooltip strings/lines to be added to
----@param strTextKey string Text key to be added, must have 1+ parameter - the yield string
----@param tYieldTable table<integer, number?> The yield table to be converted into tooltip
----@param ... number|string The rest of the parameters of strTextKey
+--- Add a localized yield boost text, appended with "in all Cities", to the given tooltip table based on the given yield table<br>
+--- Example lines:<br>
+--- `+2 [ICON_PRODUCTION] +2 [ICON_GOLD] during [ICON_GOLDEN_AGE] Golden Age in all Cities`<br>
+--- `+1 [ICON_RESEARCH] to Luxury Resources in all Cities`
+--- @param tTooltipList string[] List of tooltip strings/lines to be added to
+--- @param strTextKey string Text key to be added, must have 1+ parameter - the yield string
+--- @param tYieldTable table<integer, number?> The yield table to be converted into tooltip
+--- @param ... number|string The rest of the parameters of strTextKey
 local function AddTooltipSimpleYieldBoostTableGlobal(tTooltipList, strTextKey, tYieldTable, ...)
 	AddTooltipsYieldTableGeneric(tTooltipList, strTextKey, {tYieldTable}, nil, false, true, false, ...);
 end
 
----Add a localized yield boost text, appended with ", scaling with Era", to the given tooltip table based on the given yield table<br>
----Example lines:<br>
----`When entering a Golden Age: +10 [ICON_PRODUCTION] +10 [ICON_GOLD], scaling with Era`<br>
----`On completion: +150 [ICON_CULTURE], scaling with Era`
----@param tTooltipList string[] List of tooltip strings/lines to be added to
----@param strTextKey string Text key to be added, must have 1+ parameter - the yield string
----@param tYieldTable table<integer, number?> The yield table to be converted into tooltip
----@param ... number|string The rest of the parameters of strTextKey
+--- Add a localized yield boost text, appended with ", scaling with Era", to the given tooltip table based on the given yield table<br>
+--- Example lines:<br>
+--- `When entering a Golden Age: +10 [ICON_PRODUCTION] +10 [ICON_GOLD], scaling with Era`<br>
+--- `On completion: +150 [ICON_CULTURE], scaling with Era`
+--- @param tTooltipList string[] List of tooltip strings/lines to be added to
+--- @param strTextKey string Text key to be added, must have 1+ parameter - the yield string
+--- @param tYieldTable table<integer, number?> The yield table to be converted into tooltip
+--- @param ... number|string The rest of the parameters of strTextKey
 local function AddTooltipSimpleYieldBoostTableEraScaling(tTooltipList, strTextKey, tYieldTable, ...)
 	AddTooltipsYieldTableGeneric(tTooltipList, strTextKey, {tYieldTable}, nil, false, false, true, ...);
 end
 
----Add a localized yield boost text, appended with "in all Cities, scaling with Era", to the given tooltip table based on the given yield table<br>
----Example lines:<br>
----`When pillaging an Improvement: +5 [ICON_GOLD] in all Cities, scaling with Era`<br>
----`When completing a Building: +3 [ICON_CULTURE] in all Cities, scaling with Era`
----@param tTooltipList string[] List of tooltip strings/lines to be added to
----@param strTextKey string Text key to be added, must have 1+ parameter - the yield string
----@param tYieldTable table<integer, number?> The yield table to be converted into tooltip
----@param ... number|string The rest of the parameters of strTextKey
+--- Add a localized yield boost text, appended with "in all Cities, scaling with Era", to the given tooltip table based on the given yield table<br>
+--- Example lines:<br>
+--- `When pillaging an Improvement: +5 [ICON_GOLD] in all Cities, scaling with Era`<br>
+--- `When completing a Building: +3 [ICON_CULTURE] in all Cities, scaling with Era`
+--- @param tTooltipList string[] List of tooltip strings/lines to be added to
+--- @param strTextKey string Text key to be added, must have 1+ parameter - the yield string
+--- @param tYieldTable table<integer, number?> The yield table to be converted into tooltip
+--- @param ... number|string The rest of the parameters of strTextKey
 local function AddTooltipSimpleYieldBoostTableGlobalEraScaling(tTooltipList, strTextKey, tYieldTable, ...)
 	AddTooltipsYieldTableGeneric(tTooltipList, strTextKey, {tYieldTable}, nil, false, true, true, ...);
 end
 
----Add a localized yield modifier text to the given tooltip table based on the given yield modifier table<br>
----Example lines:<br>
----`Windmill: +5% [ICON_PRODUCTION] +5% [ICON_GOLD]`<br>
----`Division of Labor: +3% [ICON_RESEARCH]`
----@param tTooltipList string[] List of tooltip strings/lines to be added to
----@param strTextKey string Text key to be added, must have 2 parameters - first is the name of "other type", second is the yield modifier
----@param tYieldModTable table<integer, table<integer, number?>?> The yield modifier table to be converted into tooltip
----@param strOtherTypeTable string The name of the database table used as the key of the yield modifier table, e.g. `"Technologies"`
----@param ... number|string The rest of the parameters of strTextKey
+--- Add a localized yield modifier text to the given tooltip table based on the given yield modifier table<br>
+--- Example lines:<br>
+--- `Windmill: +5% [ICON_PRODUCTION] +5% [ICON_GOLD]`<br>
+--- `Division of Labor: +3% [ICON_RESEARCH]`
+--- @param tTooltipList string[] List of tooltip strings/lines to be added to
+--- @param strTextKey string Text key to be added, must have 2 parameters - first is the name of "other type", second is the yield modifier
+--- @param tYieldModTable table<integer, table<integer, number?>?> The yield modifier table to be converted into tooltip
+--- @param strOtherTypeTable string The name of the database table used as the key of the yield modifier table, e.g. `"Technologies"`
+--- @param ... number|string The rest of the parameters of strTextKey
 local function AddTooltipsYieldModifierTable(tTooltipList, strTextKey, tYieldModTable, strOtherTypeTable, ...)
 	AddTooltipsYieldTableGeneric(tTooltipList, strTextKey, tYieldModTable, strOtherTypeTable, true, false, false, ...);
 end
 
----Add a localized yield modifier text, appended with "in all Cities", to the given tooltip table based on the given yield modifier table<br>
----Example lines:<br>
----`+5% [ICON_PRODUCTION] +5% [ICON_GOLD] to Windmill in all Cities`<br>
----`Electricity: +3% [ICON_RESEARCH] in all Cities`
----@param tTooltipList string[] List of tooltip strings/lines to be added to
----@param strTextKey string Text key to be added, must have 2 parameters - first is the name of "other type", second is the yield modifier
----@param tYieldModTable table<integer, table<integer, number?>?> The yield modifier table to be converted into tooltip
----@param strOtherTypeTable string The name of the database table used as the key of the yield modifier table, e.g. `"Technologies"`
----@param ... number|string The rest of the parameters of strTextKey
+--- Add a localized yield modifier text, appended with "in all Cities", to the given tooltip table based on the given yield modifier table<br>
+--- Example lines:<br>
+--- `+5% [ICON_PRODUCTION] +5% [ICON_GOLD] to Windmill in all Cities`<br>
+--- `Electricity: +3% [ICON_RESEARCH] in all Cities`
+--- @param tTooltipList string[] List of tooltip strings/lines to be added to
+--- @param strTextKey string Text key to be added, must have 2 parameters - first is the name of "other type", second is the yield modifier
+--- @param tYieldModTable table<integer, table<integer, number?>?> The yield modifier table to be converted into tooltip
+--- @param strOtherTypeTable string The name of the database table used as the key of the yield modifier table, e.g. `"Technologies"`
+--- @param ... number|string The rest of the parameters of strTextKey
 local function AddTooltipsYieldModifierTableGlobal(tTooltipList, strTextKey, tYieldModTable, strOtherTypeTable, ...)
 	AddTooltipsYieldTableGeneric(tTooltipList, strTextKey, tYieldModTable, strOtherTypeTable, true, true, false, ...);
 end
 
----Add a localized yield modifier text to the given tooltip table based on the given yield modifier table<br>
----Example lines:<br>
----`+15% [ICON_PRODUCTION] +15% [ICON_GOLD] during [ICON_HAPPINESS_1] "We Love the King Day"`<br>
----`+20% [ICON_RESEARCH] during [ICON_GOLDEN_AGE] Golden Age`
----@param tTooltipList string[] List of tooltip strings/lines to be added to
----@param strTextKey string Text key to be added, must have 1 parameter - the yield modifier string
----@param tYieldModTable table<integer, number?> The yield modifier table to be converted into tooltip
----@param ... number|string The rest of the parameters of strTextKey
+--- Add a localized yield modifier text to the given tooltip table based on the given yield modifier table<br>
+--- Example lines:<br>
+--- `+15% [ICON_PRODUCTION] +15% [ICON_GOLD] during [ICON_HAPPINESS_1] "We Love the King Day"`<br>
+--- `+20% [ICON_RESEARCH] during [ICON_GOLDEN_AGE] Golden Age`
+--- @param tTooltipList string[] List of tooltip strings/lines to be added to
+--- @param strTextKey string Text key to be added, must have 1 parameter - the yield modifier string
+--- @param tYieldModTable table<integer, number?> The yield modifier table to be converted into tooltip
+--- @param ... number|string The rest of the parameters of strTextKey
 local function AddTooltipSimpleYieldModifierTable(tTooltipList, strTextKey, tYieldModTable, ...)
 	AddTooltipsYieldTableGeneric(tTooltipList, strTextKey, {tYieldModTable}, nil, true, false, false, ...);
 end
 
----Generic version of the AddTooltipsYieldFractionTable functions, not supposed to be called directly.
----@param tTooltipList string[] List of tooltip strings/lines to be added to
----@param strTextKey string Text key to be added, must have 1+ or 2+ parameters (refer to the specific functions)
----@param tYieldFractionTable table<integer, table<integer, table<string, integer>?>?> The fractional yield table to be converted into tooltip. If strOtherTypeTable is nil, the table is tYieldFractionTable[1] and other entries are ignored.
----@param strOtherTypeTable string|nil The name of the database table used as the key of the yield table, e.g. `"Specialists"`
----@param bGlobal boolean Whether "in all Cities" should be appended to tooltips
----@param ... number|string The rest of the parameters of strTextKey
+--- Generic version of the AddTooltipsYieldFractionTable functions, not supposed to be called directly.
+--- @param tTooltipList string[] List of tooltip strings/lines to be added to
+--- @param strTextKey string Text key to be added, must have 1+ or 2+ parameters (refer to the specific functions)
+--- @param tYieldFractionTable table<integer, table<integer, table<string, integer>?>?> The fractional yield table to be converted into tooltip. If strOtherTypeTable is nil, the table is tYieldFractionTable[1] and other entries are ignored.
+--- @param strOtherTypeTable string|nil The name of the database table used as the key of the yield table, e.g. `"Specialists"`
+--- @param bGlobal boolean Whether "in all Cities" should be appended to tooltips
+--- @param ... number|string The rest of the parameters of strTextKey
 local function AddTooltipsYieldFractionTableGeneric(tTooltipList, strTextKey, tYieldFractionTable, strOtherTypeTable, bGlobal, ...)
 	if not next(tYieldFractionTable) then
 		return;
@@ -561,23 +497,17 @@ local function AddTooltipsYieldFractionTableGeneric(tTooltipList, strTextKey, tY
 	local AddTooltipFunc = bGlobal and AddTooltipGlobal or AddTooltip;
 	if strOtherTypeTable then
 		-- Add types to the cache if not already exist
-		if not tGameInfoTypes[strOtherTypeTable] then
-			tGameInfoTypes[strOtherTypeTable] = {};
-			for kOtherTypeInfo in GameInfo[strOtherTypeTable]() do
-				table.insert(tGameInfoTypes[strOtherTypeTable], kOtherTypeInfo.Type);
-			end
-		end
-		for eOtherType = 0, #tGameInfoTypes[strOtherTypeTable] - 1 do
+		PopulateGameInfoCache(strOtherTypeTable);
+		for eOtherType, kOtherTypeInfo in GameInfoCache(strOtherTypeTable) do
 			if tYieldFractionTable[eOtherType] then
 				local tBoostStrings = {};
-				for eYield = 0, iNumYields - 1 do
+				for eYield, kYieldInfo in GameInfoCache("Yields") do
 					local fYield = tYieldFractionTable[eOtherType][eYield];
 					if fYield and fYield.Numerator ~= 0 then
-						table.insert(tBoostStrings, GetFractionYieldBoostString(tYieldInfos[eYield + 1], fYield.Numerator, fYield.Denominator));
+						table.insert(tBoostStrings, GetFractionYieldBoostString(kYieldInfo, fYield.Numerator, fYield.Denominator));
 					end
 				end
 				if next(tBoostStrings) then
-					local kOtherTypeInfo = GameInfo[strOtherTypeTable][eOtherType];
 					if strOtherTypeTable == "Resources" then
 						AddTooltipFunc(tTooltipList, strTextKey, kOtherTypeInfo.Description, table.concat(tBoostStrings, " "), kOtherTypeInfo.IconString, ...);
 					elseif strOtherTypeTable == "Beliefs" then
@@ -590,10 +520,10 @@ local function AddTooltipsYieldFractionTableGeneric(tTooltipList, strTextKey, tY
 		end
 	else
 		local tBoostStrings = {};
-		for eYield = 0, iNumYields - 1 do
+		for eYield, kYieldInfo in GameInfoCache("Yields") do
 			local fYield = tYieldFractionTable[1][eYield];
 			if fYield and fYield.Numerator ~= 0 then
-				table.insert(tBoostStrings, GetFractionYieldBoostString(tYieldInfos[eYield + 1], fYield.Numerator, fYield.Denominator));
+				table.insert(tBoostStrings, GetFractionYieldBoostString(kYieldInfo, fYield.Numerator, fYield.Denominator));
 			end
 		end
 		if next(tBoostStrings) then
@@ -602,37 +532,37 @@ local function AddTooltipsYieldFractionTableGeneric(tTooltipList, strTextKey, tY
 	end
 end
 
----Add a localized fractional yield boost text to the given tooltip table based on the given yield table<br>
----Example lines:<br>
----`Each Plantation in this City: +1/2 [ICON_PRODUCTION] +1/2 [ICON_GOLD]`<br>
----`Each Forest in this City: +2/3 [ICON_RESEARCH]`
----@param tTooltipList string[] List of tooltip strings/lines to be added to
----@param strTextKey string Text key to be added, must have 2+ parameters - first is the name of "other type", second is the yield boost
----@param tYieldFractionTable table<integer, table<integer, table<string, integer>?>?> The yield table to be converted into tooltip
----@param strOtherTypeTable string The name of the database table used as the key of the yield table, e.g. `"Improvements"`
----@param ... number|string The rest of the parameters of strTextKey
+--- Add a localized fractional yield boost text to the given tooltip table based on the given yield table<br>
+--- Example lines:<br>
+--- `Each Plantation in this City: +1/2 [ICON_PRODUCTION] +1/2 [ICON_GOLD]`<br>
+--- `Each Forest in this City: +2/3 [ICON_RESEARCH]`
+--- @param tTooltipList string[] List of tooltip strings/lines to be added to
+--- @param strTextKey string Text key to be added, must have 2+ parameters - first is the name of "other type", second is the yield boost
+--- @param tYieldFractionTable table<integer, table<integer, table<string, integer>?>?> The yield table to be converted into tooltip
+--- @param strOtherTypeTable string The name of the database table used as the key of the yield table, e.g. `"Improvements"`
+--- @param ... number|string The rest of the parameters of strTextKey
 local function AddTooltipsYieldFractionTable(tTooltipList, strTextKey, tYieldFractionTable, strOtherTypeTable, ...)
 	AddTooltipsYieldFractionTableGeneric(tTooltipList, strTextKey, tYieldFractionTable, strOtherTypeTable, false, ...);
 end
 
----Add a localized fractional yield boost text to the given tooltip table based on the given yield table<br>
----Example lines:<br>
----`Each luxury resource connected to this City: +1/2 [ICON_CULTURE] +1/2 [ICON_PEACE]`<br>
----`Each building in this City: +1/3 [ICON_GOLD]`
----@param tTooltipList string[] List of tooltip strings/lines to be added to
----@param strTextKey string Text key to be added, must have 1+ parameter - the yield string
----@param tYieldFractionTable table<integer, table<string, integer>>?> The yield table to be converted into tooltip
----@param ... number|string The rest of the parameters of strTextKey
+--- Add a localized fractional yield boost text to the given tooltip table based on the given yield table<br>
+--- Example lines:<br>
+--- `Each luxury resource connected to this City: +1/2 [ICON_CULTURE] +1/2 [ICON_PEACE]`<br>
+--- `Each building in this City: +1/3 [ICON_GOLD]`
+--- @param tTooltipList string[] List of tooltip strings/lines to be added to
+--- @param strTextKey string Text key to be added, must have 1+ parameter - the yield string
+--- @param tYieldFractionTable table<integer, table<string, integer>>?> The yield table to be converted into tooltip
+--- @param ... number|string The rest of the parameters of strTextKey
 local function AddTooltipSimpleYieldFractionTable(tTooltipList, strTextKey, tYieldFractionTable, ...)
 	AddTooltipsYieldFractionTableGeneric(tTooltipList, strTextKey, {tYieldFractionTable}, nil, false, ...);
 end
 
----Generate the tooltip for a unit. Can be called from tech tree, city view, etc.<br>
----The city view version includes most buffs the unit has received from techs, policies, buildings, etc., to closely reflect what could be produced.
----@param eUnit integer
----@param bIncludeRequirementsInfo boolean
----@param pCity? table
----@return string
+--- Generate the tooltip for a unit. Can be called from tech tree, city view, etc.<br>
+--- The city view version includes most buffs the unit has received from techs, policies, buildings, etc., to closely reflect what could be produced.
+--- @param eUnit integer
+--- @param bIncludeRequirementsInfo boolean
+--- @param pCity? table
+--- @return string
 function GetHelpTextForUnit(eUnit, bIncludeRequirementsInfo, pCity)
 	local kUnitInfo = GameInfo.Units[eUnit];
 	local pActivePlayer = Players[Game.GetActivePlayer()];
@@ -655,6 +585,31 @@ function GetHelpTextForUnit(eUnit, bIncludeRequirementsInfo, pCity)
 	local eActiveCiv = pActivePlayer:GetCivilizationType();
 	local iInvestedCost = pCity and pCity:GetUnitInvestment(eUnit) or 0;
 
+	local function CanPlayerEverBuildImprovement(strImprovementType)
+		if not strImprovementType or not pActivePlayer then
+			return false;
+		end
+
+		local kImprovementInfo = GameInfo.Improvements[strImprovementType];
+		if kImprovementInfo.GraphicalOnly then
+			return false;
+		end
+
+		if kImprovementInfo.CivilizationType and GameInfoTypes[kImprovementInfo.CivilizationType] ~= eActiveCiv then
+			return false;
+		end
+
+		return true;
+	end
+
+	local tCanEverBuildImprovementCache = {};
+	local function CanPlayerEverBuildImprovementCached(strImprovementType)
+		if tCanEverBuildImprovementCache[strImprovementType] == nil then
+			tCanEverBuildImprovementCache[strImprovementType] = CanPlayerEverBuildImprovement(strImprovementType);
+		end
+		return tCanEverBuildImprovementCache[strImprovementType];
+	end
+
 	-- Era-based changes (done early since they'll be accessed in different areas)
 	local tEraStrengthLines = {};
 	local tEraCombatLines = {};
@@ -664,34 +619,33 @@ function GetHelpTextForUnit(eUnit, bIncludeRequirementsInfo, pCity)
 	local tAttainedEraPromotions = {};
 	if kUnitInfo.UnitEraUpgrade then
 		local eCurrentEra = pActivePlayer:GetCurrentEra();
-		for i, strEraType in ipairs(tGameInfoTypes.Eras) do
-			local eEra = i - 1;
+		for eEra, kEraInfo in GameInfoCache("Eras") do
 			local bAttained = pCity and eCurrentEra >= eEra;
 			local iEraStrength = 0;
-			for row in GameInfo.Unit_EraCombatStrength{UnitType = kUnitInfo.Type, EraType = strEraType} do
+			for row in GameInfo.Unit_EraCombatStrength{UnitType = kUnitInfo.Type, EraType = kEraInfo.Type} do
 				iEraStrength = row.CombatStrength;
 				-- Not breaking here; taking the last row value like in DLL if duplicated
 			end
 
 			local strEraCombatType;
 			-- Assume there's only one entry; otherwise it'll be more complicated than the promotions below
-			for row in GameInfo.Unit_EraCombatType{UnitType = kUnitInfo.Type, EraType = strEraType} do
+			for row in GameInfo.Unit_EraCombatType{UnitType = kUnitInfo.Type, EraType = kEraInfo.Type} do
 				if row.Value > 0 then
 					strEraCombatType = row.UnitCombatType;
 				end
 			end
 
 			local tEraPromotions = {};
-			for row in GameInfo.Unit_EraUnitPromotions{UnitType = kUnitInfo.Type, EraType = strEraType} do
+			for row in GameInfo.Unit_EraUnitPromotions{UnitType = kUnitInfo.Type, EraType = kEraInfo.Type} do
 				tEraPromotions[row.PromotionType] = row.Value;
 				if bAttained then
-					tAttainedEraPromotions[row.PromotionType] = row.Value;
+					tAttainedEraPromotions[GameInfoTypes[row.PromotionType]] = row.Value;
 				end
 			end
 			local tEraPromotionArray = {};
 			for strEraPromotionType, iValue in pairs(tEraPromotions) do
 				if iValue > 0 then
-					table.insert(tEraPromotionArray, L(GameInfo.UnitPromotions[strEraPromotionType].Description));
+					table.insert(tEraPromotionArray, L(GetInfoFromType("UnitPromotions", strEraPromotionType).Description));
 				end
 			end
 
@@ -699,10 +653,10 @@ function GetHelpTextForUnit(eUnit, bIncludeRequirementsInfo, pCity)
 				iCurrentEraStrength = iEraStrength > 0 and iEraStrength or iCurrentEraStrength;
 				strCurrentEraCombatType = strEraCombatType or strCurrentEraCombatType;
 			else
-				local kEraInfo = GameInfo.Eras[eEra];
-				AddTooltipPositive(tEraStrengthLines, "TXT_KEY_PRODUCTION_UNIT_STRENGTH_FROM_ERA", iEraStrength, kEraInfo.ShortDescription);
+				AddTooltipPositive(tEraStrengthLines, "TXT_KEY_PRODUCTION_UNIT_STRENGTH_FROM_ERA", iEraStrength, kEraInfo.Description);
 				if strEraCombatType then
-					AddTooltip(tEraCombatLines, "TXT_KEY_PRODUCTION_UNIT_COMBAT_FROM_ERA", GameInfo.UnitCombatInfos[strEraCombatType].Description, kEraInfo.ShortDescription);
+					AddTooltip(tEraCombatLines, "TXT_KEY_PRODUCTION_UNIT_COMBAT_FROM_ERA",
+						GetInfoFromType("UnitCombatInfos", strEraCombatType).Description, kEraInfo.Description);
 				end
 				if next(tEraPromotionArray) then
 					table.insert(tEraPromotionLines, L("TXT_KEY_PRODUCTION_UNIT_PROMOTION_FROM_ERA", table.concat(tEraPromotionArray, ", ")));
@@ -725,7 +679,7 @@ function GetHelpTextForUnit(eUnit, bIncludeRequirementsInfo, pCity)
 		if strUnitCombatType == "UNITCOMBAT_ARCHER" and kUnitInfo.IsMounted then
 			strName = strName .. " " .. L("TXT_KEY_PRODUCTION_UNIT_COMBAT_CLASS_SKIRMISHER");
 		else
-			strName = strName .. " " .. L("TXT_KEY_PRODUCTION_UNIT_COMBAT_CLASS", GameInfo.UnitCombatInfos[strUnitCombatType].Description);
+			strName = strName .. " " .. L("TXT_KEY_PRODUCTION_UNIT_COMBAT_CLASS", GetInfoFromType("UnitCombatInfos", strUnitCombatType).Description);
 		end
 	end
 	if kUnitInfo.SpaceshipProject then
@@ -739,11 +693,11 @@ function GetHelpTextForUnit(eUnit, bIncludeRequirementsInfo, pCity)
 	-- Unique Unit? Usually unique to one civ, but it's possible that multiple civs have access to the same unit
 	local tCivAdjectives = {};
 	for row in GameInfo.Civilization_UnitClassOverrides{UnitType = kUnitInfo.Type} do
-		table.insert(tCivAdjectives, GameInfo.Civilizations[row.CivilizationType].Adjective);
+		table.insert(tCivAdjectives, GetInfoFromType("Civilizations", row.CivilizationType).Adjective);
 	end
 	if next(tCivAdjectives) then
 		-- Get the unit it is replacing
-		local kDefaultUnitInfo = GameInfo.Units[kUnitClassInfo.DefaultUnit];
+		local kDefaultUnitInfo = GetInfoFromType("Units", kUnitClassInfo.DefaultUnit);
 		local strCivAdj = table.concat(tCivAdjectives, "/");
 		if kDefaultUnitInfo then
 			AddTooltip(tHeaderLines, "TXT_KEY_PRODUCTION_UNIQUE_UNIT", strCivAdj, kDefaultUnitInfo.Description);
@@ -765,7 +719,8 @@ function GetHelpTextForUnit(eUnit, bIncludeRequirementsInfo, pCity)
 		local tCosts = {};
 		local iProductionCost, iGoldCost, iFaithCost = 0, 0, 0;
 		if kUnitInfo.Cost > 0 then
-			iProductionCost = (iInvestedCost > 0) and iInvestedCost or (pActiveCity and pActiveCity:GetUnitProductionNeeded(eUnit) or pActivePlayer:GetUnitProductionNeeded(eUnit));
+			iProductionCost = (iInvestedCost > 0) and iInvestedCost or
+				(pActiveCity and pActiveCity:GetUnitProductionNeeded(eUnit) or pActivePlayer:GetUnitProductionNeeded(eUnit));
 			iGoldCost = pActiveCity and pActiveCity:GetUnitPurchaseCost(eUnit) or 0;
 		end
 
@@ -919,24 +874,23 @@ function GetHelpTextForUnit(eUnit, bIncludeRequirementsInfo, pCity)
 	local tPromotionKeys = {};
 	local tPromotionLines = {};
 	for row in GameInfo.Unit_FreePromotions{UnitType = kUnitInfo.Type} do
-		tPromotionKeys[row.PromotionType] = true;
-		AddTooltip(tPromotionLines, GameInfo.UnitPromotions[row.PromotionType].Description);
+		tPromotionKeys[GameInfoTypes[row.PromotionType]] = true;
+		AddTooltip(tPromotionLines, GetInfoFromType("UnitPromotions", row.PromotionType).Description);
 	end
 	-- Show these only in city view
 	if pCity then
-		for i, strPromotionType in ipairs(tGameInfoTypes.UnitPromotions) do
-			local ePromotion = i - 1;
-			if not tPromotionKeys[strPromotionType]
+		for ePromotion, kPromotionInfo in GameInfoCache("UnitPromotions") do
+			if not tPromotionKeys[ePromotion]
 			and (pActivePlayer:IsFreePromotion(ePromotion) or pCity:IsFreePromotion(ePromotion))
-			and CanHavePromotion(kUnitInfo, strPromotionType) then
-				tPromotionKeys[strPromotionType] = true;
-				AddTooltip(tPromotionLines, GameInfo.UnitPromotions[strPromotionType].Description);
+			and CanHavePromotion(kUnitInfo, kPromotionInfo.Type) then
+				tPromotionKeys[ePromotion] = true;
+				AddTooltip(tPromotionLines, kPromotionInfo.Description);
 			end
 		end
-		for strPromotionType, iValue in pairs(tAttainedEraPromotions) do
-			if iValue > 0 and not tPromotionKeys[strPromotionType] then
-				tPromotionKeys[strPromotionType] = true;
-				AddTooltip(tPromotionLines, GameInfo.UnitPromotions[strPromotionType].Description);
+		for ePromotion, iValue in pairs(tAttainedEraPromotions) do
+			if iValue > 0 and not tPromotionKeys[ePromotion] then
+				tPromotionKeys[ePromotion] = true;
+				AddTooltip(tPromotionLines, GetInfoFromId("UnitPromotions", ePromotion).Description);
 			end
 		end
 	end
@@ -947,7 +901,7 @@ function GetHelpTextForUnit(eUnit, bIncludeRequirementsInfo, pCity)
 
 	-- Free promotion in friendly lands
 	if kUnitInfo.FriendlyLandsPromotion then
-		AddTooltip(tAbilityLines, "TXT_KEY_PRODUCTION_UNIT_FREE_PROMOTIONS_FRIENDLY", GameInfo.UnitPromotions[kUnitInfo.FriendlyLandsPromotion].Description);
+		AddTooltip(tAbilityLines, "TXT_KEY_PRODUCTION_UNIT_FREE_PROMOTIONS_FRIENDLY", GetInfoFromType("UnitPromotions", kUnitInfo.FriendlyLandsPromotion).Description);
 	end
 
 	-- Builds (e.g. chop trees and build roads) and improvements
@@ -955,14 +909,11 @@ function GetHelpTextForUnit(eUnit, bIncludeRequirementsInfo, pCity)
 	local tImprovementLines = {};
 	for row in GameInfo.Unit_Builds{UnitType = kUnitInfo.Type} do
 		local kBuildInfo = GameInfo.Builds[row.BuildType];
-		local kImprovementInfo = kBuildInfo.ImprovementType and GameInfo.Improvements[kBuildInfo.ImprovementType];
-		local kPrereqTechInfo = kBuildInfo.PrereqTech and GameInfo.Technologies[kBuildInfo.PrereqTech];
-		if kImprovementInfo then
-			if not kImprovementInfo.GraphicalOnly then
-				-- Is this a unique improvement, and should it show up?
-				if not kImprovementInfo.CivilizationType or GameInfoTypes[kImprovementInfo.CivilizationType] == eActiveCiv then
-					table.insert(tImprovementLines, L(kImprovementInfo.Description) .. AppendTech(kPrereqTechInfo));
-				end
+		local kPrereqTechInfo = kBuildInfo.PrereqTech and GetInfoFromType("Technologies", kBuildInfo.PrereqTech);
+		if kBuildInfo.ImprovementType then
+			-- Only show improvements that the player can build
+			if CanPlayerEverBuildImprovementCached(kBuildInfo.ImprovementType) then
+				table.insert(tImprovementLines, L(GetInfoFromType("Improvements", kBuildInfo.ImprovementType).Description) .. AppendTech(kPrereqTechInfo));
 			end
 		elseif kBuildInfo.ShowInPedia then
 			table.insert(tBuildLines, L(kBuildInfo.Description) .. AppendTech(kPrereqTechInfo));
@@ -980,7 +931,7 @@ function GetHelpTextForUnit(eUnit, bIncludeRequirementsInfo, pCity)
 	-- Instant yield when created
 	local tInstantYields = {};
 	for row in GameInfo.Unit_YieldOnCompletion{UnitType = kUnitInfo.Type} do
-		table.insert(tInstantYields, GetYieldBoostString(tYieldInfos[GameInfoTypes[row.YieldType] + 1], row.Yield));
+		table.insert(tInstantYields, GetYieldBoostString(GetInfoFromType("Yields", row.YieldType), row.Yield));
 	end
 	if next(tInstantYields) then
 		table.insert(tAbilityLines, L("TXT_KEY_PRODUCTION_UNIT_YIELD_ON_COMPLETION", table.concat(tInstantYields, ", ")));
@@ -1016,14 +967,14 @@ function GetHelpTextForUnit(eUnit, bIncludeRequirementsInfo, pCity)
 	-- Instant yields on kill
 	tInstantYields = {};
 	for row in GameInfo.Unit_YieldFromKills{UnitType = kUnitInfo.Type} do
-		table.insert(tInstantYields, GetYieldBoostString(tYieldInfos[GameInfoTypes[row.YieldType] + 1], row.Yield / 100));
+		table.insert(tInstantYields, GetYieldBoostString(GetInfoFromType("Yields", row.YieldType), row.Yield / 100));
 	end
 	if next(tInstantYields) then
 		table.insert(tAbilityLines, L("TXT_KEY_PRODUCTION_UNIT_INSTANT_YIELD_ON_KILL", table.concat(tInstantYields, ", ")));
 	end
 	tInstantYields = {};
 	for row in GameInfo.Unit_YieldFromBarbarianKills{UnitType = kUnitInfo.Type} do
-		table.insert(tInstantYields, GetYieldBoostString(tYieldInfos[GameInfoTypes[row.YieldType] + 1], row.Yield / 100));
+		table.insert(tInstantYields, GetYieldBoostString(GetInfoFromType("Yields", row.YieldType), row.Yield / 100));
 	end
 	if next(tInstantYields) then
 		table.insert(tAbilityLines, L("TXT_KEY_PRODUCTION_UNIT_INSTANT_YIELD_ON_KILL_BARBARIAN", table.concat(tInstantYields, ", ")));
@@ -1031,7 +982,7 @@ function GetHelpTextForUnit(eUnit, bIncludeRequirementsInfo, pCity)
 
 	-- Free resource when expended
 	for row in GameInfo.Unit_ResourceQuantityExpended{UnitType = kUnitInfo.Type} do
-		local kResourceInfo = GameInfo.Resources[row.ResourceType];
+		local kResourceInfo = GetInfoFromType("Resources", row.ResourceType);
 		AddTooltip(tAbilityLines, "TXT_KEY_PRODUCTION_UNIT_FREE_RESOURCE", row.Amount, kResourceInfo.IconString, kResourceInfo.Description);
 	end
 
@@ -1121,7 +1072,7 @@ function GetHelpTextForUnit(eUnit, bIncludeRequirementsInfo, pCity)
 	-- Bounty on this unit
 	tInstantYields = {};
 	for row in GameInfo.Unit_Bounties{UnitType = kUnitInfo.Type} do
-		table.insert(tInstantYields, GetYieldBoostString(tYieldInfos[GameInfoTypes[row.YieldType] + 1], row.Yield));
+		table.insert(tInstantYields, GetYieldBoostString(GetInfoFromType("Yields", row.YieldType), row.Yield));
 	end
 	if next(tInstantYields) then
 		table.insert(tAbilityLines, L("TXT_KEY_PRODUCTION_UNIT_BOUNTY", table.concat(tInstantYields, ", ")));
@@ -1143,9 +1094,9 @@ function GetHelpTextForUnit(eUnit, bIncludeRequirementsInfo, pCity)
 		for row in GameInfo.Unit_BuildingClassRequireds{UnitType = kUnitInfo.Type} do
 			local eBuilding = GetUniqueBuildingFromBuildingClass(GameInfoTypes[row.BuildingClassType], pActivePlayer);
 			if eBuilding ~= -1 then
-				AddTooltip(tBuildings, GameInfo.Buildings[eBuilding].Description);
+				AddTooltip(tBuildings, GetInfoFromId("Buildings", eBuilding).Description);
 			else
-				AddTooltip(tBuildings, GameInfo.BuildingClasses[row.BuildingClassType].Description);
+				AddTooltip(tBuildings, GetInfoFromType("BuildingClasses", row.BuildingClassType).Description);
 			end
 		end
 		if next(tBuildings) then
@@ -1158,9 +1109,9 @@ function GetHelpTextForUnit(eUnit, bIncludeRequirementsInfo, pCity)
 	for row in GameInfo.Unit_BuildingClassPurchaseRequireds{UnitType = kUnitInfo.Type} do
 		local eBuilding = GetUniqueBuildingFromBuildingClass(GameInfoTypes[row.BuildingClassType], pActivePlayer, pCity);
 		if eBuilding ~= -1 then
-			AddTooltip(tBuildings, GameInfo.Buildings[eBuilding].Description);
+			AddTooltip(tBuildings, GetInfoFromId("Buildings", eBuilding).Description);
 		else
-			AddTooltip(tBuildings, GameInfo.BuildingClasses[row.BuildingClassType].Description);
+			AddTooltip(tBuildings, GetInfoFromType("BuildingClasses", row.BuildingClassType).Description);
 		end
 	end
 	if next(tBuildings) then
@@ -1175,7 +1126,7 @@ function GetHelpTextForUnit(eUnit, bIncludeRequirementsInfo, pCity)
 	if not pCity then
 		-- Project requirement
 		if kUnitInfo.ProjectPrereq then
-			AddTooltip(tReqLines, "TXT_KEY_PRODUCTION_REQUIRED_PROJECT", GameInfo.Projects[kUnitInfo.ProjectPrereq].Description);
+			AddTooltip(tReqLines, "TXT_KEY_PRODUCTION_REQUIRED_PROJECT", GetInfoFromType("Projects", kUnitInfo.ProjectPrereq).Description);
 		end
 
 		-- Policy requirement
@@ -1195,22 +1146,22 @@ function GetHelpTextForUnit(eUnit, bIncludeRequirementsInfo, pCity)
 				end
 			end
 			if not bOpenerOrFinisher then
-				AddTooltip(tReqLines, "TXT_KEY_PRODUCTION_REQUIRED_POLICY", GameInfo.Policies[kUnitInfo.PolicyType].Description);
+				AddTooltip(tReqLines, "TXT_KEY_PRODUCTION_REQUIRED_POLICY", GetInfoFromType("Policies", kUnitInfo.PolicyType).Description);
 			end
 		end
 
 		-- Belief requirement
 		if kUnitInfo.BeliefRequired then
-			AddTooltip(tReqLines, "TXT_KEY_PRODUCTION_REQUIRED_BELIEF", GameInfo.Beliefs[kUnitInfo.BeliefRequired].ShortDescription);
+			AddTooltip(tReqLines, "TXT_KEY_PRODUCTION_REQUIRED_BELIEF", GetInfoFromType("Beliefs", kUnitInfo.BeliefRequired).ShortDescription);
 		end
 
 		-- Prereq techs
 		local tTechs = {};
 		if kUnitInfo.PrereqTech then
-			AddTooltip(tTechs, GameInfo.Technologies[kUnitInfo.PrereqTech].Description);
+			AddTooltip(tTechs, GetInfoFromType("Technologies", kUnitInfo.PrereqTech).Description);
 		end
 		for row in GameInfo.Unit_TechTypes{UnitType = kUnitInfo.Type} do
-			AddTooltip(tTechs, GameInfo.Technologies[row.TechType].Description);
+			AddTooltip(tTechs, GetInfoFromType("Technologies", row.TechType).Description);
 		end
 		if next(tTechs) then
 			table.insert(tReqLines, L("TXT_KEY_PRODUCTION_PREREQ_TECH", table.concat(tTechs, ", ")));
@@ -1219,23 +1170,23 @@ function GetHelpTextForUnit(eUnit, bIncludeRequirementsInfo, pCity)
 
 	-- Obsolete tech
 	if kUnitInfo.ObsoleteTech then
-		AddTooltip(tReqLines, "TXT_KEY_PRODUCTION_OBSOLETE_TECH", GameInfo.Technologies[kUnitInfo.ObsoleteTech].Description);
+		AddTooltip(tReqLines, "TXT_KEY_PRODUCTION_OBSOLETE_TECH", GetInfoFromType("Technologies", kUnitInfo.ObsoleteTech).Description);
 	end
 
 	-- Resource requirements
 	for row in GameInfo.Unit_ResourceQuantityRequirements{UnitType = kUnitInfo.Type} do
-		local kResourceInfo = GameInfo.Resources[row.ResourceType];
+		local kResourceInfo = GetInfoFromType("Resources", row.ResourceType);
 		AddTooltipPositive(tReqLines, "TXT_KEY_PRODUCTION_RESOURCES_REQUIRED", row.Cost, kResourceInfo.IconString, kResourceInfo.Description);
 	end
 
 	if kUnitInfo.ResourceType then
-		local kResourceInfo = GameInfo.Resources[kUnitInfo.ResourceType];
+		local kResourceInfo = GetInfoFromType("Resources", kUnitInfo.ResourceType);
 		AddTooltip(tReqLines, "TXT_KEY_PRODUCTION_TOTAL_RESOURCES_REQUIRED", 1, kResourceInfo.IconString, kResourceInfo.Description);
 	end
 
 	if MOD_UNITS_RESOURCE_QUANTITY_TOTALS then
 		for row in GameInfo.Unit_ResourceQuantityTotals{UnitType = kUnitInfo.Type} do
-			local kResourceInfo = GameInfo.Resources[row.ResourceType];
+			local kResourceInfo = GetInfoFromType("Resources", row.ResourceType);
 			AddTooltipPositive(tReqLines, "TXT_KEY_PRODUCTION_TOTAL_RESOURCES_REQUIRED", row.Amount, kResourceInfo.IconString, kResourceInfo.Description);
 		end
 	end
@@ -1311,13 +1262,13 @@ function GetHelpTextForUnit(eUnit, bIncludeRequirementsInfo, pCity)
 	return table.concat(tLines, "[NEWLINE]" .. strSeparator .. "[NEWLINE]");
 end
 
----Generate the tooltip for a building. Can be called from tech tree, city view, etc.<br>
----The city view version includes most buffs the unit has received from techs, policies, buildings, etc., to closely reflect what could be built.
----@param eBuilding integer
----@param bExcludeName boolean
----@param bNoMaintenance boolean
----@param pCity table?
----@return string
+--- Generate the tooltip for a building. Can be called from tech tree, city view, etc.<br>
+--- The city view version includes most buffs the unit has received from techs, policies, buildings, etc., to closely reflect what could be built.
+--- @param eBuilding integer
+--- @param bExcludeName boolean
+--- @param bNoMaintenance boolean
+--- @param pCity table?
+--- @return string
 function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCity)
 	local kBuildingInfo = GameInfo.Buildings[eBuilding];
 	local pActivePlayer = Players[Game.GetActivePlayer()];
@@ -1326,6 +1277,8 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 	if pCity then
 		pActivePlayer = Players[pCity:GetOwner()];
 	end
+
+	local eActiveCiv = pActivePlayer:GetCivilizationType();
 
 	-- Sometimes a city is needed in tooltips not in city view; in that case use the capital city
 	local pActiveCity = pCity or pActivePlayer:GetCapitalCity();
@@ -1344,8 +1297,8 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 	end
 
 	local function CanPlayerEverBuild(eCheckBuilding)
-		local kCheckBuildingInfo = GameInfo.Buildings[eCheckBuilding];
-		if kCheckBuildingInfo.CivilizationRequired and kCheckBuildingInfo.CivilizationRequired ~= pActivePlayer:GetCivilizationType() then
+		local kCheckBuildingInfo = GetInfoFromId("Buildings", eCheckBuilding);
+		if kCheckBuildingInfo.CivilizationRequired and kCheckBuildingInfo.CivilizationRequired ~= eActiveCiv then
 			return false;
 		end
 
@@ -1365,13 +1318,13 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 		return tCanEverBuildCache[eCheckBuilding];
 	end
 
-	---Given a database table with BuildingType, <X>Type, YieldType and Yield, extract all entries of the given building/yield pair.
-	---Duplicate rows are overwritten.
-	---@param tYieldTable table<integer, table<integer, integer?>?> The yield table, could be empty or partially filled
-	---@param strDatabaseTable string The name of the database table to be extracted
-	---@param kYieldInfo table The yield entry
-	---@param strOtherColumn string The name of the other column (in the form of <X>Type)
-	---@param strYieldColumnName string|nil The name of the yield column (default "Yield" if nil)
+	--- Given a database table with BuildingType, <X>Type, YieldType and Yield, extract all entries of the given building/yield pair.
+	--- Duplicate rows are overwritten.
+	--- @param tYieldTable table<integer, table<integer, integer?>?> The yield table, could be empty or partially filled
+	--- @param strDatabaseTable string The name of the database table to be extracted
+	--- @param kYieldInfo table The yield entry
+	--- @param strOtherColumn string The name of the other column (in the form of <X>Type)
+	--- @param strYieldColumnName string|nil The name of the yield column (default "Yield" if nil)
 	local function ExtractYieldTable(tYieldTable, strDatabaseTable, kYieldInfo, strOtherColumn, strYieldColumnName)
 		local eYield = kYieldInfo.ID;
 		strYieldColumnName = strYieldColumnName or "Yield";
@@ -1382,12 +1335,12 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 		end
 	end
 
-	---Given a database table with BuildingType, YieldType and Yield, extract all entries of the given building/yield pair.
-	---Duplicate rows are overwritten.
-	---@param tYieldTable table<integer, integer> The yield table, could be empty or partially filled
-	---@param strDatabaseTable string The name of the database table to be extracted
-	---@param kYieldInfo table The yield entry
-	---@param strYieldColumnName string|nil The name of the yield column (default "Yield" if nil)
+	--- Given a database table with BuildingType, YieldType and Yield, extract all entries of the given building/yield pair.
+	--- Duplicate rows are overwritten.
+	--- @param tYieldTable table<integer, integer> The yield table, could be empty or partially filled
+	--- @param strDatabaseTable string The name of the database table to be extracted
+	--- @param kYieldInfo table The yield entry
+	--- @param strYieldColumnName string|nil The name of the yield column (default "Yield" if nil)
 	local function ExtractSimpleYieldTable(tYieldTable, strDatabaseTable, kYieldInfo, strYieldColumnName)
 		local eYield = kYieldInfo.ID;
 		strYieldColumnName = strYieldColumnName or "Yield";
@@ -1396,14 +1349,14 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 		end
 	end
 
-	---Given a database table with BuildingType, <X>Type, YieldType, Yield and NumRequired, extract all entries of the given building/yield pair.
-	---Duplicate rows are overwritten.
-	---@param tYieldFractionTable table<integer, table<integer, table<string, integer>?>?> The yield table, could be empty or partially filled. Each entry is a table with Numerator and Denominator keys.
-	---@param strDatabaseTable string The name of the database table to be extracted
-	---@param kYieldInfo table The yield entry
-	---@param strOtherColumn string The name of the other column (in the form of <X>Type)
-	---@param strYieldColumnName string|nil The name of the yield column (default "Yield" if nil)
-	---@param strDenominatorColumnName string|nil The name of the denominator column (default "NumRequired" if nil)
+	--- Given a database table with BuildingType, <X>Type, YieldType, Yield and NumRequired, extract all entries of the given building/yield pair.
+	--- Duplicate rows are overwritten.
+	--- @param tYieldFractionTable table<integer, table<integer, table<string, integer>?>?> The yield table, could be empty or partially filled. Each entry is a table with Numerator and Denominator keys.
+	--- @param strDatabaseTable string The name of the database table to be extracted
+	--- @param kYieldInfo table The yield entry
+	--- @param strOtherColumn string The name of the other column (in the form of <X>Type)
+	--- @param strYieldColumnName string|nil The name of the yield column (default "Yield" if nil)
+	--- @param strDenominatorColumnName string|nil The name of the denominator column (default "NumRequired" if nil)
 	local function ExtractYieldFractionTable(tYieldFractionTable, strDatabaseTable, kYieldInfo, strOtherColumn, strYieldColumnName, strDenominatorColumnName)
 		local eYield = kYieldInfo.ID;
 		strYieldColumnName = strYieldColumnName or "Yield";
@@ -1415,13 +1368,13 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 		end
 	end
 
-	---Given a database table with BuildingType, <X>Type, YieldType, Yield and NumRequired, extract all entries of the given building/yield pair.
-	---Duplicate rows are overwritten.
-	---@param tYieldFractionTable table<integer, table<string, integer>?> The yield table, could be empty or partially filled. Each entry is a table with Numerator and Denominator keys.
-	---@param strDatabaseTable string The name of the database table to be extracted
-	---@param kYieldInfo table The yield entry
-	---@param strYieldColumnName string|nil The name of the yield column (default "Yield" if nil)
-	---@param strDenominatorColumnName string|nil The name of the denominator column (default "NumRequired" if nil)
+	--- Given a database table with BuildingType, <X>Type, YieldType, Yield and NumRequired, extract all entries of the given building/yield pair.
+	--- Duplicate rows are overwritten.
+	--- @param tYieldFractionTable table<integer, table<string, integer>?> The yield table, could be empty or partially filled. Each entry is a table with Numerator and Denominator keys.
+	--- @param strDatabaseTable string The name of the database table to be extracted
+	--- @param kYieldInfo table The yield entry
+	--- @param strYieldColumnName string|nil The name of the yield column (default "Yield" if nil)
+	--- @param strDenominatorColumnName string|nil The name of the denominator column (default "NumRequired" if nil)
 	local function ExtractSimpleYieldFractionTable(tYieldFractionTable, strDatabaseTable, kYieldInfo, strYieldColumnName, strDenominatorColumnName)
 		local eYield = kYieldInfo.ID;
 		strYieldColumnName = strYieldColumnName or "Yield";
@@ -1434,8 +1387,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 	-- Extra player instances (done early since it'll be accessed in different areas)
 	local tExtraInstanceLines = {};
 	local iCurrentExtraInstances = 0;
-	for kAccomplishmentInfo in GameInfo.Accomplishments() do
-		local eAccomplishment = kAccomplishmentInfo.ID;
+	for eAccomplishment, kAccomplishmentInfo in GameInfoCache("Accomplishments") do
 		local iCompleted = pActivePlayer:GetNumTimesAccomplishmentCompleted(eAccomplishment);
 		local iNumInstance = 0;
 		for row in GameInfo.Building_ExtraPlayerInstancesFromAccomplishments{BuildingType = kBuildingInfo.Type, AccomplishmentType = kAccomplishmentInfo.Type} do
@@ -1472,17 +1424,17 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 	local bExclusive = false; -- If only one civ can build it but it is not an override of any building class, it is an exclusive building
 	if kBuildingInfo.CivilizationRequired then
 		bExclusive = true;
-		tCivAdjectives = {GameInfo.Civilizations[kBuildingInfo.CivilizationRequired].Adjective};
+		tCivAdjectives = {GetInfoFromType("Civilizations", kBuildingInfo.CivilizationRequired).Adjective};
 	end
 
 	for row in GameInfo.Civilization_BuildingClassOverrides{BuildingType = kBuildingInfo.Type} do
 		if row.CivilizationType == kBuildingInfo.CivilizationRequired then
 			-- Only this civ is allowed to build this building, regardless of overrides
-			tCivAdjectives = {GameInfo.Civilizations[row.CivilizationType].Adjective};
+			tCivAdjectives = {GetInfoFromType("Civilizations", row.CivilizationType).Adjective};
 			bExclusive = false;
 			break;
 		end
-		table.insert(tCivAdjectives, GameInfo.Civilizations[row.CivilizationType].Adjective);
+		table.insert(tCivAdjectives, GetInfoFromType("Civilizations", row.CivilizationType).Adjective);
 	end
 
 	if next(tCivAdjectives) then
@@ -1490,7 +1442,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 			AddTooltip(tHeaderLines, "TXT_KEY_PRODUCTION_EXCLUSIVE_BUILDING", tCivAdjectives[1]);
 		else
 			-- Get the building it is replacing
-			local kDefaultBuildingInfo = GameInfo.Buildings[kBuildingClassInfo.DefaultBuilding];
+			local kDefaultBuildingInfo = GetInfoFromType("Buildings", kBuildingClassInfo.DefaultBuilding);
 			local strCivAdj = table.concat(tCivAdjectives, "/");
 			if kDefaultBuildingInfo then
 				AddTooltip(tHeaderLines, "TXT_KEY_PRODUCTION_UNIQUE_BUILDING", strCivAdj, kDefaultBuildingInfo.Description);
@@ -1591,12 +1543,13 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 
 	-- Victory requirement
 	for row in GameInfo.BuildingClass_VictoryThresholds{BuildingClassType = kBuildingClassInfo.Type} do
-		AddTooltipPositive(tStatLines, "TXT_KEY_PRODUCTION_BUILDING_VICTORY_REQUIREMENT", row.Threshold, GameInfo.Victories[row.VictoryType].Description);
+		AddTooltipPositive(tStatLines, "TXT_KEY_PRODUCTION_BUILDING_VICTORY_REQUIREMENT", row.Threshold, GetInfoFromType("Victories", row.VictoryType).Description);
 	end
 
 	-- Special session requirement
 	for kSpecialSessionInfo in GameInfo.LeagueSpecialSessions{BuildingTrigger = kBuildingInfo.Type} do
-		AddTooltip(tStatLines, "TXT_KEY_PRODUCTION_BUILDING_SPECIAL_SESSION_REQUIREMENT", GameInfo.Resolutions[kSpecialSessionInfo.TriggerResolution].Description);
+		AddTooltip(tStatLines, "TXT_KEY_PRODUCTION_BUILDING_SPECIAL_SESSION_REQUIREMENT",
+			GetInfoFromType("Resolutions", kSpecialSessionInfo.TriggerResolution).Description);
 	end
 
 	if next(tStatLines) then
@@ -1619,9 +1572,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 	local bBoostedYields = false;
 	local bBoostedModifiers = false;
 	local bIsCultureBuilding = false;
-	for eYield = 0, iNumYields - 1 do
-		local kYieldInfo = tYieldInfos[eYield + 1];
-
+	for eYield, kYieldInfo in GameInfoCache("Yields") do
 		-- Only show modified numbers in city view
 		local iYield = Game.GetBuildingYieldChange(eBuilding, eYield);
 		tProjectedYields[eYield] = pCity and pCity:GetBuildingYieldRateTimes100(eBuilding, eYield) / 100 or 0;
@@ -1665,14 +1616,14 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 
 	-- Yield from % of other yield
 	for row in GameInfo.Building_YieldFromYieldPercent{BuildingType = kBuildingInfo.Type} do
-		local kYieldInInfo = tYieldInfos[GameInfoTypes[row.YieldIn] + 1];
-		local kYieldOutInfo = tYieldInfos[GameInfoTypes[row.YieldOut] + 1];
+		local kYieldInInfo = GetInfoFromType("Yields", row.YieldIn);
+		local kYieldOutInfo = GetInfoFromType("Yields", row.YieldOut);
 		AddTooltipPositive(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_FROM_OTHER_YIELD",
 		row.Value, kYieldInInfo.IconString, kYieldInInfo.Description, kYieldOutInfo.IconString, kYieldOutInfo.Description);
 	end
 	for row in GameInfo.Building_YieldFromYieldPercentGlobal{BuildingType = kBuildingInfo.Type} do
-		local kYieldInInfo = tYieldInfos[GameInfoTypes[row.YieldIn] + 1];
-		local kYieldOutInfo = tYieldInfos[GameInfoTypes[row.YieldOut] + 1];
+		local kYieldInInfo = GetInfoFromType("Yields", row.YieldIn);
+		local kYieldOutInfo = GetInfoFromType("Yields", row.YieldOut);
 		AddTooltipPositive(tGlobalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_FROM_OTHER_YIELD_GLOBAL",
 		row.Value, kYieldInInfo.IconString, kYieldInInfo.Description, kYieldOutInfo.IconString, kYieldOutInfo.Description);
 	end
@@ -1708,7 +1659,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 
 	-- Great People Points and specialist slots
 	if kBuildingInfo.SpecialistType then
-		local kSpecialistInfo = GameInfo.Specialists[kBuildingInfo.SpecialistType];
+		local kSpecialistInfo = GetInfoFromType("Specialists", kBuildingInfo.SpecialistType);
 		local iNumPoints = kBuildingInfo.GreatPeopleRateChange;
 		if iNumPoints > 0 then
 			table.insert(tYieldLines, string.format("[ICON_GREAT_PEOPLE] %s %d", L(kSpecialistInfo.GreatPeopleTitle), iNumPoints));
@@ -1726,7 +1677,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 	if kBuildingInfo.GreatWorkSlotType then
 		AddTooltipPositive(tYieldLines, GameInfo.GreatWorkSlots[kBuildingInfo.GreatWorkSlotType].SlotsToolTipText, kBuildingInfo.GreatWorkCount);
 		if MOD_GLOBAL_GREATWORK_YIELDTYPES and kBuildingInfo.GreatWorkYieldType and kBuildingInfo.GreatWorkYieldType ~= "YIELD_CULTURE" then
-			local kYieldInfo = tYieldInfos[kBuildingInfo.GreatWorkYieldType + 1];
+			local kYieldInfo = GetInfoFromType("Yields", kBuildingInfo.GreatWorkYieldType);
 			AddTooltip(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_GREAT_WORK_YIELD_TYPE", kYieldInfo.IconString, kYieldInfo.Description);
 		end
 	end
@@ -1742,8 +1693,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 
 	-- Consolidate theming bonus and theming yield bonus
 	local tThemingYields = {};
-	for eYield = 0, iNumYields - 1 do
-		local kYieldInfo = tYieldInfos[eYield + 1];
+	for eYield, kYieldInfo in GameInfoCache("Yields") do
 		ExtractSimpleYieldTable(tThemingYields, "Building_ThemingYieldBonus", kYieldInfo);
 		if kYieldInfo.Type == kBuildingInfo.GreatWorkYieldType or kYieldInfo.Type == "YIELD_TOURISM" then
 			tThemingYields[eYield] = tThemingYields[eYield] or 0;
@@ -1767,7 +1717,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 	AddTooltipNonZeroSigned(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_GPP_MODIFIER_FROM_LOCAL_THEME", kBuildingInfo.GPRateModifierPerLocalTheme);
 
 	for row in GameInfo.Building_SpecificGreatPersonRateModifier{BuildingType = kBuildingInfo.Type} do
-		local kGreatPersonInfo = tSpecialistGreatPersons[row.SpecialistType];
+		local kGreatPersonInfo = GetGreatPersonInfoFromSpecialist(row.SpecialistType);
 		AddTooltipPositive(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_SPECIFIC_GPP_MODIFIER", row.Modifier, kGreatPersonInfo.IconString, kGreatPersonInfo.Description);
 	end
 
@@ -1784,7 +1734,8 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 	AddTooltipNonZeroSigned(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_UNIT_XP_ALL", kBuildingInfo.Experience);
 	AddTooltipGlobalNonZeroSigned(tGlobalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_UNIT_XP_ALL", kBuildingInfo.GlobalExperience);
 	for row in GameInfo.Building_UnitCombatFreeExperiences{BuildingType = kBuildingInfo.Type} do
-		AddTooltipNonZeroSigned(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_UNIT_XP_COMBAT", row.Experience, GameInfo.UnitCombatInfos[row.UnitCombatType].Description);
+		AddTooltipNonZeroSigned(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_UNIT_XP_COMBAT", row.Experience,
+			GetInfoFromType("UnitCombatInfos", row.UnitCombatType).Description);
 	end
 	for row in GameInfo.Building_DomainFreeExperiences{BuildingType = kBuildingInfo.Type} do
 		AddTooltipNonZeroSigned(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_UNIT_XP_DOMAIN", row.Experience, GameInfo.Domains[row.DomainType].Description);
@@ -1796,7 +1747,8 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 		AddTooltipNonZeroSigned(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_UNIT_XP_DOMAIN_FROM_GREAT_WORK", row.Experience, GameInfo.Domains[row.DomainType].Description);
 	end
 	for row in GameInfo.Building_DomainFreeExperiencePerGreatWorkGlobal{BuildingType = kBuildingInfo.Type} do
-		AddTooltipGlobalNonZeroSigned(tGlobalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_UNIT_XP_DOMAIN_FROM_GREAT_WRITING_GLOBAL", row.Experience, GameInfo.Domains[row.DomainType].Description);
+		AddTooltipGlobalNonZeroSigned(tGlobalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_UNIT_XP_DOMAIN_FROM_GREAT_WRITING_GLOBAL",
+			row.Experience, GameInfo.Domains[row.DomainType].Description);
 	end
 	AddTooltipNonZeroSigned(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_UNIT_XP_ON_GOLDEN_AGE_START", kBuildingInfo.ExperiencePerGoldenAge, kBuildingInfo.ExperiencePerGoldenAgeCap);
 
@@ -1848,8 +1800,8 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 	AddTooltipNonZeroSigned(tGlobalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_SPREAD_STRENGTH_MODIFIER_GLOBAL", kBuildingInfo.ExtraMissionaryStrengthGlobal);
 
 	-- Pressure modifier
-	local strTextKey = kBuildingInfo.UnlockedByBelief and "TXT_KEY_PRODUCTION_BUILDING_PRESSURE_MODIFIER_IF_MAJORITY" or "TXT_KEY_PRODUCTION_BUILDING_PRESSURE_MODIFIER";
-	AddTooltipNonZeroSigned(tLocalAbilityLines, strTextKey, kBuildingInfo.ReligiousPressureModifier);
+	local strPressureModKey = kBuildingInfo.UnlockedByBelief and "TXT_KEY_PRODUCTION_BUILDING_PRESSURE_MODIFIER_IF_MAJORITY" or "TXT_KEY_PRODUCTION_BUILDING_PRESSURE_MODIFIER";
+	AddTooltipNonZeroSigned(tLocalAbilityLines, strPressureModKey, kBuildingInfo.ReligiousPressureModifier);
 	AddTooltipNonZeroSigned(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_PRESSURE_MODIFIER_IF_TRADE_ROUTE", kBuildingInfo.TradeReligionModifier);
 	AddTooltipGlobalNonZeroSigned(tGlobalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_BASE_PRESSURE_MODIFIER", kBuildingInfo.BasePressureModifierGlobal);
 	if MOD_RELIGION_CONVERSION_MODIFIERS then
@@ -1900,20 +1852,23 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 
 	-- Specific unit production modifier
 	for row in GameInfo.Unit_ProductionModifierBuildings{BuildingType = kBuildingInfo.Type} do
-		AddTooltipNonZeroSigned(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_SPECIFIC_UNIT_PRODUCTION_MODIFIER", row.ProductionModifier, GameInfo.Units[row.UnitType].Description);
+		AddTooltipNonZeroSigned(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_SPECIFIC_UNIT_PRODUCTION_MODIFIER", row.ProductionModifier,
+			GetInfoFromType("Units", row.UnitType).Description);
 	end
 
 	-- Specific unit combat production modifier
 	for row in GameInfo.Building_UnitCombatProductionModifiers{BuildingType = kBuildingInfo.Type} do
-		AddTooltipNonZeroSigned(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_SPECIFIC_UNIT_COMBAT_PRODUCTION_MODIFIER", row.Modifier, GameInfo.UnitCombatInfos[row.UnitCombatType].Description);
+		AddTooltipNonZeroSigned(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_SPECIFIC_UNIT_COMBAT_PRODUCTION_MODIFIER", row.Modifier,
+			GetInfoFromType("UnitCombatInfos", row.UnitCombatType).Description);
 	end
 	for row in GameInfo.Building_UnitCombatProductionModifiersGlobal{BuildingType = kBuildingInfo.Type} do
-		AddTooltipGlobalNonZeroSigned(tGlobalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_SPECIFIC_UNIT_COMBAT_PRODUCTION_MODIFIER", row.Modifier, GameInfo.UnitCombatInfos[row.UnitCombatType].Description);
+		AddTooltipGlobalNonZeroSigned(tGlobalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_SPECIFIC_UNIT_COMBAT_PRODUCTION_MODIFIER", row.Modifier,
+			GetInfoFromType("UnitCombatInfos", row.UnitCombatType).Description);
 	end
 
 	-- Specific domain production modifier
 	for row in GameInfo.Building_DomainProductionModifiers{BuildingType = kBuildingInfo.Type} do
-		AddTooltipNonZeroSigned(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_SPECIFIC_DOMAIN_PRODUCTION_MODIFIER", row.Modifier, GameInfo.Domains[row.DomainType].Description);
+		AddTooltipNonZeroSigned(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_SPECIFIC_DOMAIN_PRODUCTION_MODIFIER", row.Modifier, 			GameInfo.Domains[row.DomainType].Description);
 	end
 
 	-- City connection modifier
@@ -2070,8 +2025,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 		local tGoldenAgeModifiers = {};
 		local tWLTKDModifiers = {};
 		local tInternalTRBoosts = {};
-		for eYield = 0, iNumYields - 1 do
-			local kYieldInfo = tYieldInfos[eYield + 1];
+		for _, kYieldInfo in GameInfoCache("Yields") do
 			ExtractYieldTable(tSpecialistBoosts, "Building_SpecialistYieldChangesLocal", kYieldInfo, "SpecialistType");
 			ExtractYieldTable(tSpecialistBoostsGlobal, "Building_SpecialistYieldChanges", kYieldInfo, "SpecialistType");
 			ExtractYieldTable(tBuildingClassBoosts, "Building_BuildingClassLocalYieldChanges", kYieldInfo, "BuildingClassType", "YieldChange");
@@ -2107,7 +2061,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 		end
 
 		if kBuildingInfo.SpecialistExtraCulture ~= 0 then
-			for eSpecialist in 0, #tGameInfoTypes.Specialists - 1 do
+			for eSpecialist in GameInfoCache("Specialists") do
 				local eYield = YieldTypes.YIELD_CULTURE;
 				tSpecialistBoostsGlobal[eSpecialist] = tSpecialistBoostsGlobal[eSpecialist] or {};
 				tSpecialistBoostsGlobal[eSpecialist][eYield] = tSpecialistBoostsGlobal[eSpecialist][eYield] or 0;
@@ -2144,29 +2098,36 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 		-- Process boosts (both conversion rate and need modifier)
 		for row in GameInfo.Building_YieldFromProcessModifier{BuildingType = kBuildingInfo.Type} do
 			for row2 in GameInfo.Process_ProductionYields{YieldType = row.YieldType} do
-				local kProcessInfo = GameInfo.Processes[row2.ProcessType];
-				local kYieldInfo = tYieldInfos[GameInfoTypes[row.YieldType] + 1];
+				local kProcessInfo = GetInfoFromType("Processes", row2.ProcessType);
+				local kYieldInfo = GetInfoFromType("Yields", row.YieldType);
 				local strYields;
-				if row.YieldType == "YIELD_FOOD" then
-					strYields = "[ICON_FOOD]/[ICON_PRODUCTION] Basic";
-				elseif row.YieldType == "YIELD_GOLD" or row.YieldType == "YIELD_SCIENCE" or row.YieldType == "YIELD_CULTURE" then
-					strYields = string.format("%s %s", kYieldInfo.IconString, L(kYieldInfo.Description));
+				local strTextKey = "TXT_KEY_PRODUCTION_BUILDING_PROCESS_EFFICIENCY_MODIFIER";
+				if MOD_BALANCE_VP then
+					if row.YieldType == "YIELD_FOOD" then
+						strTextKey = "TXT_KEY_PRODUCTION_BUILDING_PROCESS_EFFICIENCY_MODIFIER_DISTRESS";
+					elseif row.YieldType == "YIELD_GOLD" or row.YieldType == "YIELD_SCIENCE" or row.YieldType == "YIELD_CULTURE" then
+						strYields = string.format("%s %s", kYieldInfo.IconString, L(kYieldInfo.Description));
+					elseif row.YieldType == "YIELD_FAITH" then
+						strTextKey = "TXT_KEY_PRODUCTION_BUILDING_PROCESS_EFFICIENCY_MODIFIER_RELIGIOUS_UNREST";
+					end
 				end
 				if strYields then
-					AddTooltipNonZero(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_PROCESS_EFFICIENCY_MODIFIER", row.Yield, strYields, kProcessInfo.Description);
+					AddTooltipNonZero(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_PROCESS_EFFICIENCY_MODIFIER_NEED", row.Yield, strYields, kProcessInfo.Description);
 				else
-					AddTooltipNonZero(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_PROCESS_EFFICIENCY_MODIFIER_NO_NEED", row.Yield, kProcessInfo.Description);
+					AddTooltipNonZero(tLocalAbilityLines, strTextKey, row.Yield, kProcessInfo.Description);
 				end
 			end
 		end
 
 		-- Happiness to building class
 		for row in GameInfo.Building_BuildingClassLocalHappiness{BuildingType = kBuildingInfo.Type} do
-			AddTooltipNonZeroSigned(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_BUILDING_HAPPINESS", row.Happiness, GameInfo.BuildingClasses[row.BuildingClassType].Description);
+			AddTooltipNonZeroSigned(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_BUILDING_HAPPINESS", row.Happiness,
+				GetInfoFromType("BuildingClasses", row.BuildingClassType).Description);
 		end
 
 		for row in GameInfo.Building_BuildingClassHappiness{BuildingType = kBuildingInfo.Type} do
-			AddTooltipGlobalNonZeroSigned(tGlobalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_BUILDING_HAPPINESS", row.Happiness, GameInfo.BuildingClasses[row.BuildingClassType].Description);
+			AddTooltipGlobalNonZeroSigned(tGlobalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_BUILDING_HAPPINESS", row.Happiness,
+				GetInfoFromType("BuildingClasses", row.BuildingClassType).Description);
 		end
 	end
 
@@ -2174,8 +2135,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 	do
 		local tCompleteYields = {};
 		local tCompleteYieldsFromPopulation = {};
-		for eYield = 0, iNumYields - 1 do
-			local kYieldInfo = tYieldInfos[eYield + 1];
+		for _, kYieldInfo in GameInfoCache("Yields") do
 			ExtractSimpleYieldTable(tCompleteYields, "Building_InstantYield", kYieldInfo);
 			ExtractSimpleYieldTable(tCompleteYieldsFromPopulation, "Building_YieldFromBirthRetroactive", kYieldInfo);
 		end
@@ -2195,7 +2155,8 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 	-- WLTKD on project completion
 	for row in GameInfo.Building_WLTKDFromProject{BuildingType = kBuildingInfo.Type} do
 		local iWLTKDTurn = math.floor(row.Turns * iTrainPercent / 100);
-		AddTooltipNonZeroSigned(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_WLTKD_FROM_PROJECT", iWLTKDTurn, GameInfo.Projects[row.ProjectType].Description);
+		AddTooltipNonZeroSigned(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_WLTKD_FROM_PROJECT", iWLTKDTurn,
+			GetInfoFromType("Projects", row.ProjectType).Description);
 	end
 
 	-- Instant population
@@ -2217,20 +2178,20 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 
 	-- Free resources
 	for row in GameInfo.Building_ResourceQuantity{BuildingType = kBuildingInfo.Type} do
-		local kResourceInfo = GameInfo.Resources[row.ResourceType];
+		local kResourceInfo = GetInfoFromType("Resources", row.ResourceType);
 		AddTooltipNonZeroSigned(tGlobalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_FREE_RESOURCE", row.Quantity, kResourceInfo.IconString, kResourceInfo.Description);
 	end
 
 	for row in GameInfo.Building_ResourceQuantityFromPOP{BuildingType = kBuildingInfo.Type} do
-		local kResourceInfo = GameInfo.Resources[row.ResourceType];
+		local kResourceInfo = GetInfoFromType("Resources", row.ResourceType);
 		AddTooltipPositive(tGlobalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_FREE_RESOURCE_FROM_POPULATION",
-		row.Modifier, kResourceInfo.IconString, kResourceInfo.Description);
+			row.Modifier, kResourceInfo.IconString, kResourceInfo.Description);
 	end
 
 	for row in GameInfo.Building_ResourceQuantityPerXFranchises{BuildingType = kBuildingInfo.Type} do
-		local kResourceInfo = GameInfo.Resources[row.ResourceType];
+		local kResourceInfo = GetInfoFromType("Resources", row.ResourceType);
 		AddTooltipPositive(tGlobalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_FREE_RESOURCE_FROM_FRANCHISE",
-		row.NumFranchises, kResourceInfo.IconString, kResourceInfo.Description);
+			row.NumFranchises, kResourceInfo.IconString, kResourceInfo.Description);
 	end
 
 	-- Free techs
@@ -2260,14 +2221,14 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 	-- Free units
 	for row in GameInfo.Building_FreeSpecUnits{BuildingType = kBuildingInfo.Type} do
 		if row.NumUnits > 0 then
-			AddTooltip(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_FREE_UNIT", row.NumUnits, GameInfo.Units[row.UnitType].Description);
+			AddTooltip(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_FREE_UNIT", row.NumUnits, GetInfoFromType("Units", row.UnitType).Description);
 		end
 	end
 
 	for row in GameInfo.Building_FreeUnits{BuildingType = kBuildingInfo.Type} do
 		if row.NumUnits > 0 then
 			local eUnit = -1;
-			local kUnitInfo = GameInfo.Units[row.UnitType];
+			local kUnitInfo = GetInfoFromType("Units", row.UnitType);
 
 			-- Venice gets all settler units converted into Merchant of Venice
 			if kUnitInfo.Found and pActivePlayer:MayNotAnnex() then
@@ -2282,7 +2243,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 			end
 
 			if eUnit ~= -1 then
-				AddTooltip(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_FREE_UNIT", row.NumUnits, GameInfo.Units[eUnit].Description);
+				AddTooltip(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_FREE_UNIT", row.NumUnits, GetInfoFromId("Units", eUnit).Description);
 			end
 		end
 	end
@@ -2291,19 +2252,19 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 	if kBuildingInfo.FreeBuildingThisCity then
 		local eFreeBuilding = GetUniqueBuildingFromBuildingClass(GameInfoTypes[kBuildingInfo.FreeBuildingThisCity], pActivePlayer, pCity);
 		if eFreeBuilding ~= -1 then
-			AddTooltip(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_FREE_BUILDING", GameInfo.Buildings[eFreeBuilding].Description);
+			AddTooltip(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_FREE_BUILDING", GetInfoFromId("Buildings", eFreeBuilding).Description);
 		end
 	end
 	if kBuildingInfo.FreeBuilding then
 		local eFreeBuilding = GetUniqueBuildingFromBuildingClass(GameInfoTypes[kBuildingInfo.FreeBuilding], pActivePlayer);
 		if eFreeBuilding ~= -1 then
-			AddTooltipGlobal(tGlobalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_FREE_BUILDING", GameInfo.Buildings[eFreeBuilding].Description);
+			AddTooltipGlobal(tGlobalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_FREE_BUILDING", GetInfoFromId("Buildings", eFreeBuilding).Description);
 		end
 	end
 
 	-- Free promotion
 	if kBuildingInfo.TrainedFreePromotion then
-		local kFreePromotionInfo = GameInfo.UnitPromotions[kBuildingInfo.TrainedFreePromotion];
+		local kFreePromotionInfo = GetInfoFromType("UnitPromotions", kBuildingInfo.TrainedFreePromotion);
 		if MOD_BALANCE_RETROACTIVE_PROMOS then
 			AddTooltip(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_FREE_PROMOTION_RETROACTIVE", kFreePromotionInfo.Description);
 		else
@@ -2311,7 +2272,8 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 		end
 	end
 	if kBuildingInfo.FreePromotion then
-		AddTooltip(tGlobalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_FREE_PROMOTION_GLOBAL", GameInfo.UnitPromotions[kBuildingInfo.FreePromotion].Description);
+		AddTooltip(tGlobalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_FREE_PROMOTION_GLOBAL",
+			GetInfoFromType("UnitPromotions", kBuildingInfo.FreePromotion).Description);
 	end
 
 	-- Free votes
@@ -2336,13 +2298,10 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 	-- Nearby unique luxury
 	-- This assumes Traits.UniqueLuxuryCities is set to a large value if non-zero, so that it always spawns a resource
 	if kBuildingInfo.GrantsRandomResourceTerritory > 0 then
-		local eActiveCiv = pActivePlayer:GetCivilizationType();
 		local tResources = {};
 		-- Get the list of unique luxuries for the active civ
-		for kResourceInfo in GameInfo.Resources() do
-			if GameInfoTypes[kResourceInfo.CivilizationType] == eActiveCiv then
-				table.insert(tResources, string.format("%s %s", kResourceInfo.IconString, L(kResourceInfo.Description)));
-			end
+		for kResourceInfo in GameInfo.Resources{CivilizationType = GetInfoFromId("Civilizations", eActiveCiv).Type} do
+			table.insert(tResources, string.format("%s %s", kResourceInfo.IconString, L(kResourceInfo.Description)));
 		end
 		if next(tResources) then
 			AddTooltip(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_SPAWN_NEARBY_LUXURY", kBuildingInfo.GrantsRandomResourceTerritory, table.concat(tResources, ", "));
@@ -2357,7 +2316,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 		tNearbyResources[row.ResourceType][row.ResourceQuantityToPlace] = tNearbyResources[row.ResourceType][row.ResourceQuantityToPlace] + row.NumPlots;
 	end
 	for strResourceType, tQuantityPlots in pairs(tNearbyResources) do
-		local kResourceInfo = GameInfo.Resources[strResourceType];
+		local kResourceInfo = GetInfoFromType("Resources", strResourceType);
 		for iQuantity, iNumPlots in pairs(tQuantityPlots) do
 			if iNumPlots > 0 then
 				local strTooltip = L("TXT_KEY_PRODUCTION_BUILDING_SPAWN_NEARBY_RESOURCE", iNumPlots, kResourceInfo.IconString, kResourceInfo.Description);
@@ -2396,9 +2355,9 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 	for row in GameInfo.Building_UnitClassTrainingAllowed{BuildingType = kBuildingInfo.Type} do
 		local eUnit = GetUniqueUnitFromUnitClass(row.UnitClassType, pActivePlayer, pCity);
 		if eUnit ~= -1 then
-			AddTooltip(tAllowedUnits, GameInfo.Units[eUnit].Description);
+			AddTooltip(tAllowedUnits, GetInfoFromId("Units", eUnit).Description);
 		else
-			AddTooltip(tAllowedUnits, GameInfo.UnitClasses[row.UnitClassType].Description);
+			AddTooltip(tAllowedUnits, GetInfoFromType("UnitClasses", row.UnitClassType).Description);
 		end
 	end
 	if next(tAllowedUnits) then
@@ -2409,7 +2368,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 	local tResourceClaim = {};
 	local tResourceSteal = {};
 	for row in GameInfo.Building_ResourceClaim{BuildingType = kBuildingInfo.Type} do
-		local kResourceInfo = GameInfo.Resources[row.ResourceType];
+		local kResourceInfo = GetInfoFromType("Resources", row.ResourceType);
 		table.insert(row.IncludeOwnedByOtherPlayer and tResourceSteal or tResourceClaim, string.format("%s %s", kResourceInfo.IconString, L(kResourceInfo.Description)));
 	end
 	if next(tResourceClaim) then
@@ -2507,9 +2466,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 		local tUnitKillYieldsGlobalGoldenAge = {};
 		local tUnitKillYieldsGlobalGoldenAgeEraScaling = {};
 		local tUnitKillYieldsGlobalPlayer = {};
-		for eYield = 0, iNumYields - 1 do
-			local kYieldInfo = tYieldInfos[eYield + 1];
-
+		for eYield, kYieldInfo in GameInfoCache("Yields") do
 			ExtractSimpleYieldTable(tGPExpendScalingYields, "Building_YieldFromGPExpend", kYieldInfo);
 			ExtractSimpleYieldTable(tWLTKDYields, "Building_InstantYieldFromWLTKDStart", kYieldInfo);
 			ExtractSimpleYieldTable(tBorderGrowthYields, "Building_YieldFromBorderGrowth", kYieldInfo);
@@ -2616,7 +2573,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 			tGPExpendScalingYields[YieldTypes.YIELD_GOLD] = tGPExpendScalingYields[YieldTypes.YIELD_GOLD] + kBuildingInfo.GreatPersonExpendGold;
 		elseif kBuildingInfo.GreatPersonExpendGold > 0 then
 			AddTooltip(tGlobalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_INSTANT_YIELD_ON_GP_EXPEND",
-			GetYieldBoostString(tYieldInfos[YieldTypes.YIELD_GOLD + 1], kBuildingInfo.GreatPersonExpendGold));
+			GetYieldBoostString(GetInfoFromId("Yields", YieldTypes.YIELD_GOLD), kBuildingInfo.GreatPersonExpendGold));
 		end
 
 		AddTooltipSimpleYieldBoostTable(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_INSTANT_YIELD_ON_GROWTH", tGrowthYields);
@@ -2658,12 +2615,12 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 			tGPPOnConstruction[row.EraType][row.GreatPersonType] = tGPPOnConstruction[row.EraType][row.GreatPersonType] + row.Value;
 		end
 		for strEraType, tGPPValues in pairs(tGPPOnConstruction) do
-			local kEraInfo = GameInfo.Eras[strEraType];
+			local kEraInfo = GetInfoFromType("Eras", strEraType);
 			for strGreatPersonType, iValue in pairs(tGPPValues) do
 				if iValue > 0 then
 					local kGreatPersonInfo = GameInfo.GreatPersons[strGreatPersonType];
 					AddTooltip(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_GPP_ON_CONSTRUCTION",
-					iValue, kEraInfo.Description, kGreatPersonInfo.IconString, kGreatPersonInfo.Description);
+						iValue, kEraInfo.Description, kGreatPersonInfo.IconString, kGreatPersonInfo.Description);
 				end
 			end
 		end
@@ -2675,12 +2632,12 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 			tGPPOnConstruction[row.EraType][row.GreatPersonType] = tGPPOnConstruction[row.EraType][row.GreatPersonType] + row.Value;
 		end
 		for strEraType, tGPPValues in pairs(tGPPOnConstruction) do
-			local kEraInfo = GameInfo.Eras[strEraType];
+			local kEraInfo = GetInfoFromType("Eras", strEraType);
 			for strGreatPersonType, iValue in pairs(tGPPValues) do
 				if iValue > 0 then
 					local kGreatPersonInfo = GameInfo.GreatPersons[strGreatPersonType];
 					AddTooltip(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_GP_PROGRESS_ON_CONSTRUCTION",
-					iValue, kEraInfo.Description, kGreatPersonInfo.IconString, kGreatPersonInfo.Description);
+						iValue, kEraInfo.Description, kGreatPersonInfo.IconString, kGreatPersonInfo.Description);
 				end
 			end
 		end
@@ -2699,11 +2656,11 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 			for eYieldIn, tYieldOuts in pairs(tYieldConversions) do
 				for eYieldOut, iValue in pairs(tYieldOuts) do
 					if iValue > 0 then
-						local kYieldInInfo = tYieldInfos[eYieldIn + 1];
-						local kYieldOutInfo = tYieldInfos[eYieldOut + 1];
+						local kYieldInInfo = GetInfoFromId("Yields", eYieldIn);
+						local kYieldOutInfo = GetInfoFromId("Yields", eYieldOut);
 						AddTooltip(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_INSTANT_YIELD_ON_GP_BIRTH_SCALING", iValue,
-						kGreatPersonInfo.IconString, kGreatPersonInfo.Description, kYieldInInfo.IconString, kYieldInInfo.Description,
-						kYieldOutInfo.IconString, kYieldOutInfo.Description);
+							kGreatPersonInfo.IconString, kGreatPersonInfo.Description, kYieldInInfo.IconString, kYieldInInfo.Description,
+							kYieldOutInfo.IconString, kYieldOutInfo.Description);
 					end
 				end
 			end
@@ -2768,8 +2725,8 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 	local tReqLines = {};
 
 	-- May be purchased/invested in puppets
-	strTextKey = MOD_BALANCE_CORE_BUILDING_INVESTMENTS and "TXT_KEY_PRODUCTION_PUPPET_INVESTABLE" or "TXT_KEY_PRODUCTION_PUPPET_PURCHASABLE";
-	AddTooltipIfTrue(tReqLines, strTextKey, kBuildingInfo.PuppetPurchaseOverride);
+	local strInvestKey = MOD_BALANCE_CORE_BUILDING_INVESTMENTS and "TXT_KEY_PRODUCTION_PUPPET_INVESTABLE" or "TXT_KEY_PRODUCTION_PUPPET_PURCHASABLE";
+	AddTooltipIfTrue(tReqLines, strInvestKey, kBuildingInfo.PuppetPurchaseOverride);
 
 	if not pCity then
 		-- Simple (boolean) requirements
@@ -2802,25 +2759,25 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 
 		-- Nearby terrain
 		if kBuildingInfo.NearbyTerrainRequired then
-			AddTooltip(tReqLines, "TXT_KEY_PRODUCTION_BUILDING_NEARBY_TERRAIN", GameInfo.Terrains[kBuildingInfo.NearbyTerrainRequired].Description);
+			AddTooltip(tReqLines, "TXT_KEY_PRODUCTION_BUILDING_NEARBY_TERRAIN", GetInfoFromType("Terrains", kBuildingInfo.NearbyTerrainRequired).Description);
 		end
 
 		-- Not on terrain
 		if kBuildingInfo.ProhibitedCityTerrain then
-			AddTooltip(tReqLines, "TXT_KEY_PRODUCTION_BUILDING_NO_TERRAIN", GameInfo.Terrains[kBuildingInfo.ProhibitedCityTerrain].Description);
+			AddTooltip(tReqLines, "TXT_KEY_PRODUCTION_BUILDING_NO_TERRAIN", GetInfoFromType("Terrains", kBuildingInfo.ProhibitedCityTerrain).Description);
 		end
 
 		-- Local features
 		local tReqFeatures = {};
 		for row in GameInfo.Building_LocalFeatureOrs{BuildingType = kBuildingInfo.Type} do
-			table.insert(tReqFeatures, L(GameInfo.Features[row.FeatureType].Description));
+			table.insert(tReqFeatures, L(GetInfoFromType("Features", row.FeatureType).Description));
 		end
 		if next(tReqFeatures) then
 			AddTooltip(tReqLines, "TXT_KEY_PRODUCTION_BUILDING_LOCAL_FEATURE_OR", table.concat(tReqFeatures, ", "));
 		end
 		tReqFeatures = {};
 		for row in GameInfo.Building_LocalFeatureAnds{BuildingType = kBuildingInfo.Type} do
-			table.insert(tReqFeatures, L(GameInfo.Features[row.FeatureType].Description));
+			table.insert(tReqFeatures, L(GetInfoFromType("Features", row.FeatureType).Description));
 		end
 		if next(tReqFeatures) then
 			AddTooltip(tReqLines, "TXT_KEY_PRODUCTION_BUILDING_LOCAL_FEATURE_AND", table.concat(tReqFeatures, ", "));
@@ -2829,7 +2786,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 		-- Global monopolies
 		local tReqMonopolies = {};
 		for row in GameInfo.Building_ResourceMonopolyOrs{BuildingType = kBuildingInfo.Type} do
-			local kResourceInfo = GameInfo.Resources[row.ResourceType];
+			local kResourceInfo = GetInfoFromType("Resources", row.ResourceType);
 			table.insert(tReqMonopolies, string.format("%s %s", kResourceInfo.IconString, L(kResourceInfo.Description)));
 		end
 		if next(tReqMonopolies) then
@@ -2837,7 +2794,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 		end
 		tReqMonopolies = {};
 		for row in GameInfo.Building_ResourceMonopolyAnds{BuildingType = kBuildingInfo.Type} do
-			local kResourceInfo = GameInfo.Resources[row.ResourceType];
+			local kResourceInfo = GetInfoFromType("Resources", row.ResourceType);
 			table.insert(tReqMonopolies, string.format("%s %s", kResourceInfo.IconString, L(kResourceInfo.Description)));
 		end
 		if next(tReqMonopolies) then
@@ -2847,14 +2804,14 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 		-- Prereq buildings
 		local tBuildings = {};
 		if kBuildingInfo.NeedBuildingThisCity then
-			AddTooltip(tBuildings, GameInfo.Buildings[kBuildingInfo.NeedBuildingThisCity].Description);
+			AddTooltip(tBuildings, GetInfoFromType("Buildings", kBuildingInfo.NeedBuildingThisCity).Description);
 		end
 		for row in GameInfo.Building_ClassesNeededInCity{BuildingType = kBuildingInfo.Type} do
 			local ePrereqBuilding = GetUniqueBuildingFromBuildingClass(GameInfoTypes[row.BuildingClassType], pActivePlayer);
 			if ePrereqBuilding ~= -1 then
-				AddTooltip(tBuildings, GameInfo.Buildings[ePrereqBuilding].Description);
+				AddTooltip(tBuildings, GetInfoFromId("Buildings", ePrereqBuilding).Description);
 			else
-				AddTooltip(tBuildings, GameInfo.BuildingClasses[row.BuildingClassType].Description);
+				AddTooltip(tBuildings, GetInfoFromType("BuildingClasses", row.BuildingClassType).Description);
 			end
 		end
 		if next(tBuildings) then
@@ -2865,9 +2822,9 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 		for row in GameInfo.Building_ClassNeededAnywhere{BuildingType = kBuildingInfo.Type} do
 			local ePrereqBuilding = GetUniqueBuildingFromBuildingClass(GameInfoTypes[row.BuildingClassType], pActivePlayer);
 			if ePrereqBuilding ~= -1 then
-				AddTooltip(tBuildings, GameInfo.Buildings[ePrereqBuilding].Description);
+				AddTooltip(tBuildings, GetInfoFromId("Buildings", ePrereqBuilding).Description);
 			else
-				AddTooltip(tBuildings, GameInfo.BuildingClasses[row.BuildingClassType].Description);
+				AddTooltip(tBuildings, GetInfoFromType("BuildingClasses", row.BuildingClassType).Description);
 			end
 		end
 		if next(tBuildings) then
@@ -2885,9 +2842,9 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 		for row in GameInfo.Building_LockedBuildingClasses{BuildingType = kBuildingInfo.Type} do
 			local eExclusiveBuilding = GetUniqueBuildingFromBuildingClass(GameInfoTypes[row.BuildingClassType], pActivePlayer);
 			if eExclusiveBuilding ~= -1 then
-				AddTooltip(tBuildings, GameInfo.Buildings[eExclusiveBuilding].Description);
+				AddTooltip(tBuildings, GetInfoFromId("Buildings", eExclusiveBuilding).Description);
 			else
-				AddTooltip(tBuildings, GameInfo.BuildingClasses[row.BuildingClassType].Description);
+				AddTooltip(tBuildings, GetInfoFromType("BuildingClasses", row.BuildingClassType).Description);
 			end
 		end
 		if next(tBuildings) then
@@ -2898,7 +2855,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 		for row in GameInfo.Building_ClassNeededNowhere{BuildingType = kBuildingInfo.Type} do
 			local eExclusiveBuilding = GetUniqueBuildingFromBuildingClass(GameInfoTypes[row.BuildingClassType], pActivePlayer);
 			if eExclusiveBuilding ~= -1 then
-				AddTooltip(tBuildings, GameInfo.Buildings[eExclusiveBuilding].Description);
+				AddTooltip(tBuildings, GetInfoFromId("Buildings", eExclusiveBuilding).Description);
 			end
 		end
 		if next(tBuildings) then
@@ -2908,10 +2865,10 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 		-- Prereq techs
 		local tTechs = {};
 		if kBuildingInfo.PrereqTech then
-			AddTooltip(tTechs, GameInfo.Technologies[kBuildingInfo.PrereqTech].Description);
+			AddTooltip(tTechs, GetInfoFromType("Technologies", kBuildingInfo.PrereqTech).Description);
 		end
 		for row in GameInfo.Building_TechAndPrereqs{BuildingType = kBuildingInfo.Type} do
-			AddTooltip(tTechs, GameInfo.Technologies[row.TechType].Description);
+			AddTooltip(tTechs, GetInfoFromType("Technologies", row.TechType).Description);
 		end
 		if next(tTechs) then
 			AddTooltip(tReqLines, "TXT_KEY_PRODUCTION_PREREQ_TECH", table.concat(tTechs, ", "));
@@ -2934,7 +2891,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 				end
 			end
 			if not bOpenerOrFinisher then
-				AddTooltip(tReqLines, "TXT_KEY_PRODUCTION_REQUIRED_POLICY", GameInfo.Policies[kBuildingInfo.PolicyType].Description);
+				AddTooltip(tReqLines, "TXT_KEY_PRODUCTION_REQUIRED_POLICY", GetInfoFromType("Policies", kBuildingInfo.PolicyType).Description);
 			end
 		end
 
@@ -2945,7 +2902,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 
 		-- Total resource requirements
 		if kBuildingInfo.ResourceType then
-			local kResourceInfo = GameInfo.Resources[kBuildingInfo.ResourceType];
+			local kResourceInfo = GetInfoFromType("Resources", kBuildingInfo.ResourceType);
 			AddTooltip(tReqLines, "TXT_KEY_PRODUCTION_TOTAL_RESOURCES_REQUIRED", 1, kResourceInfo.IconString, kResourceInfo.Description);
 		end
 
@@ -2993,7 +2950,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 	-- Local resources
 	local tReqResources = {};
 	for row in GameInfo.Building_LocalResourceOrs{BuildingType = kBuildingInfo.Type} do
-		local kResourceInfo = GameInfo.Resources[row.ResourceType];
+		local kResourceInfo = GetInfoFromType("Resources", row.ResourceType);
 		table.insert(tReqResources, string.format("%s %s", kResourceInfo.IconString, L(kResourceInfo.Description)));
 	end
 	if next(tReqResources) then
@@ -3001,7 +2958,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 	end
 	tReqResources = {};
 	for row in GameInfo.Building_LocalResourceAnds{BuildingType = kBuildingInfo.Type} do
-		local kResourceInfo = GameInfo.Resources[row.ResourceType];
+		local kResourceInfo = GetInfoFromType("Resources", row.ResourceType);
 		table.insert(tReqResources, string.format("%s %s", kResourceInfo.IconString, L(kResourceInfo.Description)));
 	end
 	if next(tReqResources) then
@@ -3010,7 +2967,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 
 	-- Obsolete tech
 	if kBuildingInfo.ObsoleteTech then
-		AddTooltip(tReqLines, "TXT_KEY_PRODUCTION_OBSOLETE_TECH", GameInfo.Technologies[kBuildingInfo.ObsoleteTech].Description);
+		AddTooltip(tReqLines, "TXT_KEY_PRODUCTION_OBSOLETE_TECH", GetInfoFromType("Technologies", kBuildingInfo.ObsoleteTech).Description);
 		AddTooltip(tReqLines, "TXT_KEY_PRODUCTION_BUILDING_OBSOLETE_TECH_REMARK");
 	end
 
@@ -3023,9 +2980,11 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 		if iNumNeeded > 0 then
 			local ePrereqBuilding = GetUniqueBuildingFromBuildingClass(GameInfoTypes[strBuildingClassType], pActivePlayer, pCity);
 			if ePrereqBuilding ~= -1 then
-				AddTooltip(tReqLines, "TXT_KEY_PRODUCTION_BUILDING_REQUIRED_BUILDING_COUNT_GLOBAL", iNumNeeded, GameInfo.Buildings[ePrereqBuilding].Description);
+				AddTooltip(tReqLines, "TXT_KEY_PRODUCTION_BUILDING_REQUIRED_BUILDING_COUNT_GLOBAL", iNumNeeded,
+					GetInfoFromId("Buildings", ePrereqBuilding).Description);
 			else
-				AddTooltip(tReqLines, "TXT_KEY_PRODUCTION_BUILDING_REQUIRED_BUILDING_COUNT_GLOBAL", iNumNeeded, GameInfo.BuildingClasses[strBuildingClassType].Description);
+				AddTooltip(tReqLines, "TXT_KEY_PRODUCTION_BUILDING_REQUIRED_BUILDING_COUNT_GLOBAL", iNumNeeded,
+					GetInfoFromType("BuildingClasses", strBuildingClassType).Description);
 			end
 		end
 	end
@@ -3084,7 +3043,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 
 	-- Required resources
 	for row in GameInfo.Building_ResourceQuantityRequirements{BuildingType = kBuildingInfo.Type} do
-		local kResourceInfo = GameInfo.Resources[row.ResourceType];
+		local kResourceInfo = GetInfoFromType("Resources", row.ResourceType);
 		AddTooltipPositive(tReqLines, "TXT_KEY_PRODUCTION_RESOURCES_REQUIRED", row.Cost, kResourceInfo.IconString, kResourceInfo.Description);
 	end
 
@@ -3157,9 +3116,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 		local tBeliefBoosts = {};
 		local tCorporationBoosts = {};
 		local tTraitBoosts = {};
-		for eYield = 0, iNumYields - 1 do
-			local kYieldInfo = tYieldInfos[eYield + 1];
-
+		for eYield, kYieldInfo in GameInfoCache("Yields") do
 			for row in GameInfo.Building_TechEnhancedYieldChanges{BuildingType = kBuildingInfo.Type, YieldType = kYieldInfo.Type} do
 				local strTechType = row.TechType or kBuildingInfo.EnhancedYieldTech;
 				if not strTechType then
@@ -3205,7 +3162,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 				end
 			end
 
-			if not pActivePlayer:HasReachedEra(#tGameInfoTypes.Eras - 1) then
+			if not pActivePlayer:HasReachedEra(GetNumInfos("Eras") - 1) then
 				ExtractSimpleYieldTable(tEraBoosts, "Building_YieldChangesEraScalingTimes100", kYieldInfo);
 			end
 
@@ -3230,7 +3187,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 			end
 
 			for row in GameInfo.Building_YieldChangesFromAccomplishments{BuildingType = kBuildingInfo.Type, YieldType = kYieldInfo.Type} do
-				local kAccomplishmentInfo = GameInfo.Accomplishments[row.AccomplishmentType];
+				local kAccomplishmentInfo = GetInfoFromType("Accomplishments", row.AccomplishmentType);
 				local eAccomplishment = kAccomplishmentInfo.ID;
 				local iMaxAccomplishments = kAccomplishmentInfo.MaxPossibleCompletions;
 
@@ -3462,15 +3419,15 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 			tBoostsFromResource[row.ResourceType].HAPPINESS = row.HappinessChange;
 		end
 		for strResourceType, tResourceYields in pairs(tBoostsFromResource) do
-			local kResourceInfo = GameInfo.Resources[strResourceType];
+			local kResourceInfo = GetInfoFromType("Resources", strResourceType);
 			local tBoostStrings = {};
 			local iYield = tResourceYields.YIELD_CULTURE or 0;
 			if iYield ~= 0 then
-				table.insert(tBoostStrings, GetYieldBoostString(tYieldInfos[YieldTypes.YIELD_CULTURE + 1], iYield));
+				table.insert(tBoostStrings, GetYieldBoostString(GetInfoFromId("Yields", YieldTypes.YIELD_CULTURE), iYield));
 			end
 			iYield = tResourceYields.YIELD_FAITH or 0;
 			if iYield ~= 0 then
-				table.insert(tBoostStrings, GetYieldBoostString(tYieldInfos[YieldTypes.YIELD_FAITH + 1], iYield));
+				table.insert(tBoostStrings, GetYieldBoostString(GetInfoFromId("Yields", YieldTypes.YIELD_FAITH), iYield));
 			end
 			if next(tBoostStrings) then
 				AddTooltip(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_LOCAL_RESOURCE",
@@ -3485,30 +3442,30 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 		AddTooltipsYieldModifierTable(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_LOCAL_RESOURCE", tResourceModifiers, "Resources");
 
 		for row in GameInfo.Building_BonusFromAccomplishments{BuildingType = kBuildingInfo.Type} do
-			local kAccomplishmentInfo = GameInfo.Accomplishments[row.AccomplishmentType];
+			local kAccomplishmentInfo = GetInfoFromType("Accomplishments", row.AccomplishmentType);
 			AddTooltipNonZeroSigned(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_HAPPINESS_FROM_ACCOMPLISHMENT", row.Happiness, kAccomplishmentInfo.Description);
 			if row.DomainType and row.DomainXP ~= 0 then
 				AddTooltipNonZeroSigned(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_XP_FOR_DOMAIN_FROM_ACCOMPLISHMENT", row.DomainXP,
-				kAccomplishmentInfo.Description, GameInfo.Domains[row.DomainType].Description);
+					kAccomplishmentInfo.Description, GameInfo.Domains[row.DomainType].Description);
 			end
 			if row.UnitCombatType and row.UnitProductionModifier ~= 0 then
 				AddTooltipNonZeroSigned(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_UNIT_COMBAT_PRODUCTION_MODIFIER_FROM_ACCOMPLISHMENT", row.UnitProductionModifier,
-				kAccomplishmentInfo.Description, GameInfo.UnitCombatInfos[row.UnitCombatType].Description);
+				kAccomplishmentInfo.Description, GetInfoFromType("UnitCombatInfos", row.UnitCombatType).Description);
 			end
 		end
 
 		for row in GameInfo.Building_BuildingClassLocalHappiness{BuildingClassType = kBuildingClassInfo.Type} do
 			AddTooltipNonZeroSigned(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_HAPPINESS_FROM_BUILDING",
-			row.Happiness, GameInfo.Buildings[row.BuildingType].Description);
+			row.Happiness, GetInfoFromType("Buildings", row.BuildingType).Description);
 		end
 
 		for row in GameInfo.Building_BuildingClassHappiness{BuildingClassType = kBuildingClassInfo.Type} do
 			AddTooltipNonZeroSigned(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_HAPPINESS_FROM_BUILDING_GLOBAL",
-			row.Happiness, GameInfo.Buildings[row.BuildingType].Description);
+			row.Happiness, GetInfoFromType("Buildings", row.BuildingType).Description);
 		end
 
 		for row in GameInfo.Policy_BuildingClassHappiness{BuildingClassType = kBuildingClassInfo.Type} do
-			local kPolicyInfo = GameInfo.Policies[row.PolicyType];
+			local kPolicyInfo = GetInfoFromType("Policies", row.PolicyType);
 			if tPolicyBoosts[kPolicyInfo.ID] or tPolicyModifierBoosts[kPolicyInfo.ID] or tPolicyBoostsStateReligion[kPolicyInfo.ID] or
 			not (pCity and pActivePlayer:HasPolicy(kPolicyInfo.ID)) then
 				AddTooltipNonZeroSigned(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_HAPPINESS_FROM_POLICY", row.Happiness, kPolicyInfo.Description);
@@ -3516,7 +3473,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 		end
 
 		for row in GameInfo.Policy_BuildingClassSecurityChanges{BuildingClassType = kBuildingClassInfo.Type} do
-			local kPolicyInfo = GameInfo.Policies[row.PolicyType];
+			local kPolicyInfo = GetInfoFromType("Policies", row.PolicyType);
 			if tPolicyBoosts[kPolicyInfo.ID] or tPolicyModifierBoosts[kPolicyInfo.ID] or tPolicyBoostsStateReligion[kPolicyInfo.ID] or
 			not (pCity and pActivePlayer:HasPolicy(kPolicyInfo.ID)) then
 				AddTooltipNonZeroSigned(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_CITY_SECURITY_FROM_POLICY", row.SecurityChange, kPolicyInfo.Description);
@@ -3524,7 +3481,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 		end
 
 		for row in GameInfo.Belief_BuildingClassHappiness{BuildingClassType = kBuildingClassInfo.Type} do
-			local kBeliefInfo = GameInfo.Beliefs[row.BeliefType];
+			local kBeliefInfo = GetInfoFromType("Beliefs", row.BeliefType);
 			if tBeliefBoosts[kBeliefInfo.ID] or not (pCity and Game.IsBeliefValid(kBeliefInfo.ID, pCity:GetReligiousMajority(), pCity, false)) then
 				AddTooltipNonZeroSigned(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_HAPPINESS_FROM_BELIEF", row.Happiness, kBeliefInfo.ShortDescription);
 			end
@@ -3899,8 +3856,7 @@ function GetReligionTooltip(pCity)
 	-- First, determine the list of religions in this city and the follower count of each
 	-- Religions with no followers are not shown even if there is accumulated pressure
 	-- Also add the Holy City line at the top
-	for kReligionInfo in GameInfo.Religions() do
-		local eReligion = kReligionInfo.ID;
+	for eReligion, kReligionInfo in GameInfoCache("Religions") do
 		local strReligionName = L(Game.GetReligionName(eReligion));
 		local strIconString = kReligionInfo.IconString;
 		tReligionFollowers[eReligion] = pCity:GetNumFollowers(eReligion);

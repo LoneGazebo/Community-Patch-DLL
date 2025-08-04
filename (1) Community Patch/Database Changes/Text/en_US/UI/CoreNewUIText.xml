@@ -934,9 +934,6 @@
 			<Text>{2_Sign}{1_Num}% [ICON_RESEARCH] Science from {TXT_KEY_MISSION_DISCOVER_TECH}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_PROCESS_EFFICIENCY_MODIFIER">
-			<Text>{1: number "'+'##;'-'##"}% conversion rate and {1: number "'-'##;'+'##"}% {2_Yields} Need Modifier from [COLOR_PLAYER_CYAN]{3_Process:textkey}[ENDCOLOR] Process</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_PROCESS_EFFICIENCY_MODIFIER_NO_NEED">
 			<Text>{1: number "'+'##;'-'##"}% conversion rate from [COLOR_PLAYER_CYAN]{2_Process:textkey}[ENDCOLOR] Process</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_EXTRA_VOTES">

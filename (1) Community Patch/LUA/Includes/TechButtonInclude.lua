@@ -3,6 +3,7 @@
 -------------------------------------------------
 include("IconSupport");
 include("InfoTooltipInclude");
+include("VPUI_core");
 
 -- Default icon
 local strDefaultTexture = "UnitActions360.dds";
@@ -12,14 +13,16 @@ local bResearchAgreements = Game.IsOption("GAMEOPTION_RESEARCH_AGREEMENTS");
 local bNoTechTrading = Game.IsOption("GAMEOPTION_NO_TECH_TRADING");
 local bNoVassalage = Game.IsOption("GAMEOPTION_NO_VASSALAGE");
 
-local iNumYields = Game.GetNumYieldTypes();
-
-local MOD_BALANCE_VP = Game.IsCustomModOption("BALANCE_VP");
 local MOD_EVENTS_CITY_BOMBARD = Game.IsCustomModOption("EVENTS_CITY_BOMBARD")
 	and not Game.IsCustomModOption("CORE_NO_RANGED_ATTACK_FROM_CITIES")
 	and not Game.IsCustomModOption("BALANCE_CORE_BOMBARD_RANGE_BUILDINGS");
 
 local L = Locale.Lookup;
+local VP = MapModData and MapModData.VP or VP;
+local GetInfoFromId = VP.GetInfoFromId;
+local GetInfoFromType = VP.GetInfoFromType;
+local GameInfoCache = VP.GameInfoCache;
+local GetCivsFromTrait = VP.GetCivsFromTrait;
 
 -- This has to stay until we override TechTree.lua
 techPediaSearchStrings = {};
@@ -36,19 +39,6 @@ lockedString = "[ICON_LOCKED]";
 -- Assume forest and jungle have the same base chop production
 local iBuildPercent = GameInfo.GameSpeeds[Game.GetGameSpeedType()].BuildPercent;
 local iBaseChopYield = GameInfo.BuildFeatures{BuildType = 'BUILD_REMOVE_FOREST'}().Production;
-
--- Yields are so frequently accessed it is worth to cache the ID, Type, IconString, and Description of each
--- The ID + 1 should always match the index of this table due to the remapper in DLL
-local tYieldInfos = {};
-for eYield = 0, iNumYields - 1 do
-	local kYieldInfo = GameInfo.Yields[eYield];
-	table.insert(tYieldInfos, {
-		ID = eYield,
-		Type = kYieldInfo.Type,
-		IconString = kYieldInfo.IconString,
-		Description = kYieldInfo.Description,
-	});
-end
 
 --- Remove the sign of the first parameter and append it as the second parameter<br>
 --- More flexible than using the "number" construct
@@ -77,9 +67,8 @@ end
 local function GetYieldBoostsString(tYieldBoosts)
 	local strButtonText = "";
 	local tYieldStrings = {};
-	for eYield = 0, iNumYields - 1 do
+	for eYield, kYieldInfo in GameInfoCache("Yields") do
 		if tYieldBoosts[eYield] and tYieldBoosts[eYield] ~= 0 then
-			local kYieldInfo = tYieldInfos[eYield + 1];
 			table.insert(tYieldStrings, GetYieldBoostString(kYieldInfo, tYieldBoosts[eYield]));
 			strButtonText = strButtonText .. kYieldInfo.IconString;
 		end
@@ -98,25 +87,22 @@ end
 --- @return integer # The number of small buttons on the tech **+ 1**
 function AddSmallButtonsToTechButton(buttonStack, kTechInfo, iButtonCount, iTextureSize, ePlayerOverride, bSkipTooltips)
 	-- Gather info we need
-	local tTraits = {};
 	local ePlayer = ePlayerOverride or Game.GetActivePlayer();
 	local pPlayer = Players[ePlayer];
 	local strCivType;
+	local eCiv = -1;
 	if pPlayer then
-		strCivType = GameInfo.Civilizations[pPlayer:GetCivilizationType()].Type;
-		local strLeaderType = GameInfo.Leaders[pPlayer:GetLeaderType()].Type;
-		for row in GameInfo.Leader_Traits{LeaderType = strLeaderType} do
-			table.insert(tTraits, row.TraitType);
-		end
+		eCiv = pPlayer:GetCivilizationType();
+		strCivType = GetInfoFromId("Civilizations", pPlayer:GetCivilizationType()).Type;
 	end
 
-	---Given a database table with TechType, <X>Type, YieldType and Yield, extract all entries of the given tech/yield pair.
-	---Duplicate rows are overwritten.
-	---@param tYieldTable table<integer, table<integer, integer?>?> The yield table, could be empty or partially filled
-	---@param strDatabaseTable string The name of the database table to be extracted
-	---@param kYieldInfo table The yield entry
-	---@param strOtherColumn string The name of the other column (in the form of <X>Type)
-	---@param strYieldColumnName string|nil The name of the yield column (default "Yield" if nil)
+	--- Given a database table with TechType, <X>Type, YieldType and Yield, extract all entries of the given tech/yield pair.
+	--- Duplicate rows are overwritten.
+	--- @param tYieldTable table<integer, table<integer, integer?>?> The yield table, could be empty or partially filled
+	--- @param strDatabaseTable string The name of the database table to be extracted
+	--- @param kYieldInfo table The yield entry
+	--- @param strOtherColumn string The name of the other column (in the form of <X>Type)
+	--- @param strYieldColumnName string|nil The name of the yield column (default "Yield" if nil)
 	local function ExtractYieldTable(tYieldTable, strDatabaseTable, kYieldInfo, strOtherColumn, strYieldColumnName)
 		local eYield = kYieldInfo.ID;
 		strYieldColumnName = strYieldColumnName or "Yield";
@@ -144,12 +130,20 @@ function AddSmallButtonsToTechButton(buttonStack, kTechInfo, iButtonCount, iText
 		return true;
 	end
 
+	local tCanEverBuildImprovementCache = {};
+	local function CanPlayerEverBuildImprovementCached(strImprovementType)
+		if tCanEverBuildImprovementCache[strImprovementType] == nil then
+			tCanEverBuildImprovementCache[strImprovementType] = CanPlayerEverBuildImprovement(strImprovementType);
+		end
+		return tCanEverBuildImprovementCache[strImprovementType];
+	end
+
 	local function CanPlayerEverBuild(eBuilding)
 		if not pPlayer then
 			return false;
 		end
 
-		local kBuildingInfo = GameInfo.Buildings[eBuilding];
+		local kBuildingInfo = GetInfoFromId("Buildings", eBuilding);
 		if kBuildingInfo.CivilizationRequired and kBuildingInfo.CivilizationRequired ~= strCivType then
 			return false;
 		end
@@ -233,7 +227,7 @@ function AddSmallButtonsToTechButton(buttonStack, kTechInfo, iButtonCount, iText
 		tPediaSearchStrings[tostring(button)] = L(kBuildingInfo.Description);
 		SetCommonButtonProperties(button, true, kBuildingInfo.PortraitIndex, kBuildingInfo.IconAtlas, strTooltip, strButtonText);
 		-- Dim Wonders already taken
-		if not strCustomTooltip and (Game.AnyoneHasWonder(kBuildingInfo.ID) and GameInfo.BuildingClasses[kBuildingInfo.BuildingClass].MaxGlobalInstances == 1) then
+		if not strCustomTooltip and (Game.AnyoneHasWonder(kBuildingInfo.ID) and GetInfoFromType("BuildingClasses", kBuildingInfo.BuildingClass).MaxGlobalInstances == 1) then
 			button:SetAlpha(0.33);
 		end
 	end
@@ -278,7 +272,7 @@ function AddSmallButtonsToTechButton(buttonStack, kTechInfo, iButtonCount, iText
 			strTooltip = strCustomTooltip or L(kBuildInfo.Description);
 			tPediaSearchStrings[tostring(button)] = L(GameInfo.Routes[kBuildInfo.RouteType].Description);
 		elseif kBuildInfo.ImprovementType then
-			local kImprovementInfo = GameInfo.Improvements[kBuildInfo.ImprovementType];
+			local kImprovementInfo = GetInfoFromType("Improvements", kBuildInfo.ImprovementType);
 			strTooltip = strCustomTooltip or GetHelpTextForImprovement(kImprovementInfo.ID, false, false);
 			tPediaSearchStrings[tostring(button)] = L(kImprovementInfo.Description);
 		else -- we are a choppy thing
@@ -288,13 +282,13 @@ function AddSmallButtonsToTechButton(buttonStack, kTechInfo, iButtonCount, iText
 		SetCommonButtonProperties(button, true, kBuildInfo.IconIndex, kBuildInfo.IconAtlas, strTooltip, strButtonText);
 	end
 
-	---Unlike the other setup functions, a tooltip must be provided here<br>
-	---bIconIndex must be true if kInfo is a mission (has IconIndex column instead of PortraitIndex)
-	---@param button table
-	---@param kInfo table
-	---@param strCustomTooltip string
-	---@param strButtonText string?
-	---@param bIconIndex boolean?
+	--- Unlike the other setup functions, a tooltip must be provided here<br>
+	--- bIconIndex must be true if kInfo is a mission (has IconIndex column instead of PortraitIndex)
+	--- @param button table
+	--- @param kInfo table
+	--- @param strCustomTooltip string
+	--- @param strButtonText string?
+	--- @param bIconIndex boolean?
 	local function SetupGenericButton(button, kInfo, strCustomTooltip, strButtonText, bIconIndex)
 		local iIconIndex;
 		if bIconIndex then
@@ -361,13 +355,17 @@ function AddSmallButtonsToTechButton(buttonStack, kTechInfo, iButtonCount, iText
 	for kResourceInfo in GameInfo.Resources{TechReveal = kTechInfo.Type} do
 		-- Does this player have an alternate unlock tech on this resource?
 		local bAltTech = false;
-		for _, strTraitType in pairs(tTraits) do
-			for _ in GameInfo.Trait_AlternateResourceTechs{TraitType = strTraitType, ResourceType = kResourceInfo.Type} do
-				bAltTech = true;
-				break;
-			end
-			if bAltTech then
-				break;
+		if pPlayer then
+			for row in GameInfo.Trait_AlternateResourceTechs{ResourceType = kResourceInfo.Type} do
+				for _, eCheckCiv in pairs(GetCivsFromTrait(row.TraitType)) do
+					if eCiv == eCheckCiv then
+						bAltTech = true;
+						break;
+					end
+				end
+				if bAltTech then
+					break;
+				end
 			end
 		end
 
@@ -378,10 +376,15 @@ function AddSmallButtonsToTechButton(buttonStack, kTechInfo, iButtonCount, iText
 	end
 
 	-- Is this tech an alternate unlock tech on a resource?
-	for _, strTraitType in pairs(tTraits) do
-		for kAltTechInfo in GameInfo.Trait_AlternateResourceTechs{TraitType = strTraitType, TechReveal = kTechInfo.Type} do
-			GenerateNextButtonFromInfo(SetupResourceButton, GameInfo.Resources[kAltTechInfo.ResourceType]);
-			if iButtonIndex > iButtonCount then return iButtonCount end
+	if pPlayer then
+		for row in GameInfo.Trait_AlternateResourceTechs{TechReveal = kTechInfo.Type} do
+			for _, eCheckCiv in pairs(GetCivsFromTrait(row.TraitType)) do
+				if eCiv == eCheckCiv then
+					GenerateNextButtonFromInfo(SetupResourceButton, GetInfoFromType("Resources", row.ResourceType));
+					if iButtonIndex > iButtonCount then return iButtonCount end
+					break;
+				end
+			end
 		end
 	end
 
@@ -391,7 +394,7 @@ function AddSmallButtonsToTechButton(buttonStack, kTechInfo, iButtonCount, iText
 	end
 
 	for kBuildInfo in GameInfo.Builds{PrereqTech = kTechInfo.Type, ShowInTechTree = 1} do
-		if not kBuildInfo.ImprovementType or CanPlayerEverBuildImprovement(kBuildInfo.ImprovementType) then
+		if not kBuildInfo.ImprovementType or CanPlayerEverBuildImprovementCached(kBuildInfo.ImprovementType) then
 			GenerateNextButtonFromInfo(SetupBuildButton, kBuildInfo);
 			if iButtonIndex > iButtonCount then return iButtonCount end
 		end
@@ -406,11 +409,11 @@ function AddSmallButtonsToTechButton(buttonStack, kTechInfo, iButtonCount, iText
 		GenerateNextButtonCustom(L("TXT_KEY_ABLTY_ENABLES_CORPORATIONS"), "UNIT_ACTION_BUY_CITYSTATE", 0);
 		if iButtonIndex > iButtonCount then return iButtonCount end
 
-		for kCorporationInfo in GameInfo.Corporations() do
+		for _, kCorporationInfo in GameInfoCache("Corporations") do
 			-- Get the headquarters building and check if this player can build it
 			local eHeadquarters = pPlayer:GetCivilizationBuilding(GameInfoTypes[kCorporationInfo.HeadquartersBuildingClass]);
 			if eHeadquarters ~= -1 then
-				local strRequiredCivType = GameInfo.Buildings[eHeadquarters].CivilizationRequired;
+				local strRequiredCivType = GetInfoFromId("Buildings", eHeadquarters).CivilizationRequired;
 				if not strRequiredCivType or strRequiredCivType == strCivType then
 					GenerateNextButtonFromInfo(SetupCorporationButton, kCorporationInfo);
 					if iButtonIndex > iButtonCount then return iButtonCount end
@@ -468,12 +471,12 @@ function AddSmallButtonsToTechButton(buttonStack, kTechInfo, iButtonCount, iText
 	end
 
 	if kTechInfo.AllowsEmbarking then
-		GenerateNextButtonFromInfo(SetupGenericButton, GameInfo.Missions.MISSION_EMBARK, L("TXT_KEY_ALLOWS_EMBARKING"), nil, true);
+		GenerateNextButtonFromInfo(SetupGenericButton, GetInfoFromType("Missions", "MISSION_EMBARK"), L("TXT_KEY_ALLOWS_EMBARKING"), nil, true);
 		if iButtonIndex > iButtonCount then return iButtonCount end
 	end
 
 	if kTechInfo.AllowsDefensiveEmbarking then
-		GenerateNextButtonFromInfo(SetupGenericButton, GameInfo.Missions.MISSION_EMBARK, L("TXT_KEY_ABLTY_DEFENSIVE_EMBARK_STRING"), nil, true);
+		GenerateNextButtonFromInfo(SetupGenericButton, GetInfoFromType("Missions", "MISSION_EMBARK"), L("TXT_KEY_ABLTY_DEFENSIVE_EMBARK_STRING"), nil, true);
 		if iButtonIndex > iButtonCount then return iButtonCount end
 	end
 
@@ -539,12 +542,12 @@ function AddSmallButtonsToTechButton(buttonStack, kTechInfo, iButtonCount, iText
 
 	if MOD_EVENTS_CITY_BOMBARD then
 		if kTechInfo.BombardRange > 0 then
-			GenerateNextButtonFromInfo(SetupGenericButton, GameInfo.Missions.MISSION_RANGE_ATTACK, L("TXT_KEY_ABLTY_CITY_RANGE_INCREASE"), nil, true);
+			GenerateNextButtonFromInfo(SetupGenericButton, GetInfoFromType("Missions", "MISSION_RANGE_ATTACK"), L("TXT_KEY_ABLTY_CITY_RANGE_INCREASE"), nil, true);
 			if iButtonIndex > iButtonCount then return iButtonCount end
 		end
 
 		if kTechInfo.BombardIndirect > 0 then
-			GenerateNextButtonFromInfo(SetupGenericButton, GameInfo.Missions.MISSION_RANGE_ATTACK, L("TXT_KEY_ABLTY_CITY_INDIRECT_INCREASE"), nil, true);
+			GenerateNextButtonFromInfo(SetupGenericButton, GetInfoFromType("Missions", "MISSION_RANGE_ATTACK"), L("TXT_KEY_ABLTY_CITY_INDIRECT_INCREASE"), nil, true);
 			if iButtonIndex > iButtonCount then return iButtonCount end
 		end
 	end
@@ -562,7 +565,7 @@ function AddSmallButtonsToTechButton(buttonStack, kTechInfo, iButtonCount, iText
 	if kTechInfo.InternationalTradeRoutesChange ~= 0 then
 		local strTooltip = L("TXT_KEY_TECH_HELP_EXTRA_TRADE_ROUTES", kTechInfo.InternationalTradeRoutesChange);
 		local strText = L("TXT_KEY_TECH_HELP_NUMBER_CHANGE", kTechInfo.InternationalTradeRoutesChange);
-		GenerateNextButtonFromInfo(SetupGenericButton, GameInfo.Missions.MISSION_ESTABLISH_TRADE_ROUTE, strTooltip, strText, true);
+		GenerateNextButtonFromInfo(SetupGenericButton, GetInfoFromType("Missions", "MISSION_ESTABLISH_TRADE_ROUTE"), strTooltip, strText, true);
 		if iButtonIndex > iButtonCount then return iButtonCount end
 	end
 
@@ -590,7 +593,7 @@ function AddSmallButtonsToTechButton(buttonStack, kTechInfo, iButtonCount, iText
 	end
 
 	for row in GameInfo.Technology_FreePromotions{TechType = kTechInfo.Type} do
-		local kPromotionInfo = GameInfo.UnitPromotions[row.PromotionType];
+		local kPromotionInfo = GetInfoFromType("UnitPromotions", row.PromotionType);
 		local strTooltip = L("TXT_KEY_FREE_PROMOTION_FROM_TECH", kPromotionInfo.Description, kPromotionInfo.Help);
 		GenerateNextButtonFromInfo(SetupGenericButton, kPromotionInfo, strTooltip);
 		if iButtonIndex > iButtonCount then return iButtonCount end
@@ -604,8 +607,7 @@ function AddSmallButtonsToTechButton(buttonStack, kTechInfo, iButtonCount, iText
 	local tImprovementFreshWaterBoosts = {};
 	local tImprovementNoFreshWaterBoosts = {};
 	local tBuildingBoosts = {};
-	for eYield = 0, iNumYields - 1 do
-		local kYieldInfo = tYieldInfos[eYield + 1];
+	for _, kYieldInfo in GameInfoCache("Yields") do
 		ExtractYieldTable(tSpecialistBoosts, "Tech_SpecialistYieldChanges", kYieldInfo, "SpecialistType");
 		ExtractYieldTable(tTerrainBoosts, "Terrain_TechYieldChanges", kYieldInfo, "TerrainType");
 		ExtractYieldTable(tFeatureBoosts, "Feature_TechYieldChanges", kYieldInfo, "FeatureType");
@@ -613,9 +615,6 @@ function AddSmallButtonsToTechButton(buttonStack, kTechInfo, iButtonCount, iText
 		ExtractYieldTable(tImprovementFreshWaterBoosts, "Improvement_TechFreshWaterYieldChanges", kYieldInfo, "ImprovementType");
 		ExtractYieldTable(tImprovementNoFreshWaterBoosts, "Improvement_TechNoFreshWaterYieldChanges", kYieldInfo, "ImprovementType");
 		ExtractYieldTable(tBuildingBoosts, "Building_TechEnhancedYieldChanges", kYieldInfo, "BuildingType");
-
-		-- TechType column may be NULL in Building_TechEnhancedYieldChanges
-
 	end
 
 	-- TechType column may be NULL in Building_TechEnhancedYieldChanges, in which case it takes the building's EnhancedYieldTech column
@@ -635,7 +634,7 @@ function AddSmallButtonsToTechButton(buttonStack, kTechInfo, iButtonCount, iText
 	end
 
 	for eSpecialist, tYieldBoosts in pairs(tSpecialistBoosts) do
-		local kSpecialistInfo = GameInfo.Specialists[eSpecialist];
+		local kSpecialistInfo = GetInfoFromId("Specialists", eSpecialist);
 		local strButtonText, strYieldBoosts = GetYieldBoostsString(tYieldBoosts);
 		local strTooltip = L("TXT_KEY_TECH_HELP_SPECIALIST_BOOST", kSpecialistInfo.Description, strYieldBoosts);
 		GenerateNextButtonFromInfo(SetupGenericButton, kSpecialistInfo, strTooltip, strButtonText);
@@ -643,7 +642,7 @@ function AddSmallButtonsToTechButton(buttonStack, kTechInfo, iButtonCount, iText
 	end
 
 	for eTerrain, tYieldBoosts in pairs(tTerrainBoosts) do
-		local kTerrainInfo = GameInfo.Terrains[eTerrain];
+		local kTerrainInfo = GetInfoFromId("Terrains", eTerrain);
 		local strButtonText, strYieldBoosts = GetYieldBoostsString(tYieldBoosts);
 		local strTooltip = L("TXT_KEY_TECH_HELP_TERRAIN_BOOST", kTerrainInfo.Description, strYieldBoosts);
 		GenerateNextButtonFromInfo(SetupGenericButton, kTerrainInfo, strTooltip, strButtonText);
@@ -651,7 +650,7 @@ function AddSmallButtonsToTechButton(buttonStack, kTechInfo, iButtonCount, iText
 	end
 
 	for eFeature, tYieldBoosts in pairs(tFeatureBoosts) do
-		local kFeatureInfo = GameInfo.Features[eFeature];
+		local kFeatureInfo = GetInfoFromId("Features", eFeature);
 		local strButtonText, strYieldBoosts = GetYieldBoostsString(tYieldBoosts);
 		local strTooltip = L("TXT_KEY_TECH_HELP_FEATURE_BOOST", kFeatureInfo.Description, strYieldBoosts);
 		GenerateNextButtonFromInfo(SetupGenericButton, kFeatureInfo, strTooltip, strButtonText);
@@ -659,8 +658,8 @@ function AddSmallButtonsToTechButton(buttonStack, kTechInfo, iButtonCount, iText
 	end
 
 	for eImprovement, tYieldBoosts in pairs(tImprovementBoosts) do
-		local kImprovementInfo = GameInfo.Improvements[eImprovement];
-		if not kImprovementInfo.GraphicalOnly and not (kImprovementInfo.CivilizationType and kImprovementInfo.CivilizationType ~= strCivType) then
+		local kImprovementInfo = GetInfoFromId("Improvements", eImprovement);
+		if CanPlayerEverBuildImprovementCached(eImprovement) then
 			local strButtonText, strYieldBoosts = GetYieldBoostsString(tYieldBoosts);
 			local strTooltip = L("TXT_KEY_TECH_HELP_IMPROVEMENT_BOOST", kImprovementInfo.Description, strYieldBoosts);
 			local kBuildInfo = GameInfo.Builds{ImprovementType = kImprovementInfo.Type}();
@@ -670,8 +669,8 @@ function AddSmallButtonsToTechButton(buttonStack, kTechInfo, iButtonCount, iText
 	end
 
 	for eImprovement, tYieldBoosts in pairs(tImprovementFreshWaterBoosts) do
-		local kImprovementInfo = GameInfo.Improvements[eImprovement];
-		if not kImprovementInfo.GraphicalOnly and not (kImprovementInfo.CivilizationType and kImprovementInfo.CivilizationType == strCivType) then
+		local kImprovementInfo = GetInfoFromId("Improvements", eImprovement);
+		if CanPlayerEverBuildImprovementCached(eImprovement) then
 			local strButtonText, strYieldBoosts = GetYieldBoostsString(tYieldBoosts);
 			local strTooltip = L("TXT_KEY_TECH_HELP_IMPROVEMENT_BOOST_FRESH_WATER", kImprovementInfo.Description, strYieldBoosts);
 			local kBuildInfo = GameInfo.Builds{ImprovementType = kImprovementInfo.Type}();
@@ -681,8 +680,8 @@ function AddSmallButtonsToTechButton(buttonStack, kTechInfo, iButtonCount, iText
 	end
 
 	for eImprovement, tYieldBoosts in pairs(tImprovementNoFreshWaterBoosts) do
-		local kImprovementInfo = GameInfo.Improvements[eImprovement];
-		if not kImprovementInfo.GraphicalOnly and not (kImprovementInfo.CivilizationType and kImprovementInfo.CivilizationType == strCivType) then
+		local kImprovementInfo = GetInfoFromId("Improvements", eImprovement);
+		if CanPlayerEverBuildImprovementCached(eImprovement) then
 			local strButtonText, strYieldBoosts = GetYieldBoostsString(tYieldBoosts);
 			local strTooltip = L("TXT_KEY_TECH_HELP_IMPROVEMENT_BOOST_NO_FRESH_WATER", kImprovementInfo.Description, strYieldBoosts);
 			local kBuildInfo = GameInfo.Builds{ImprovementType = kImprovementInfo.Type}();
@@ -693,7 +692,7 @@ function AddSmallButtonsToTechButton(buttonStack, kTechInfo, iButtonCount, iText
 
 	for eBuilding, tYieldBoosts in pairs(tBuildingBoosts) do
 		if CanPlayerEverBuildCached(eBuilding) then
-			local kBuildingInfo = GameInfo.Buildings[eBuilding];
+			local kBuildingInfo = GetInfoFromId("Buildings", eBuilding);
 			local strButtonText, strYieldBoosts = GetYieldBoostsString(tYieldBoosts);
 			local strTooltip = L("TXT_KEY_TECH_HELP_BUILDING_BOOST", kBuildingInfo.Description, strYieldBoosts);
 			GenerateNextButtonFromInfo(SetupGenericButton, kBuildingInfo, strTooltip, strButtonText);
