@@ -1269,6 +1269,14 @@ end
 
 Events.GameViewTypeChanged.Add(OnGameViewTypeChanged);
 
+---------------------------------------------------------------------------------------
+-- Remove the super global VP table when the game is ended (e.g. back to main menu),
+-- in case ModMapData persists across mod unloading
+---------------------------------------------------------------------------------------
+ContextPtr:SetShutdown(function ()
+	print("Shutting down InGame.lua");
+	MapModData.VP = nil;
+end);
 
 ---------------------------------------------------------------------------------------
 -- Support for Modded Add-in UI's

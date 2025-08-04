@@ -1605,6 +1605,15 @@
 		</Row>
 
 		<!-- Buildings -->
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_PROCESS_EFFICIENCY_MODIFIER_NEED">
+			<Text>{1: number "'+'##;'-'##"}% conversion rate and {1: number "'-'##;'+'##"}% {2_Yields} Median Modifier from [COLOR_PLAYER_CYAN]{3_Process:textkey}[ENDCOLOR] Process</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_PROCESS_EFFICIENCY_MODIFIER_DISTRESS">
+			<Text>{1: number "'+'##;'-'##"}% conversion rate and {1: number "'-'##;'+'##"}% [ICON_FOOD]/[ICON_PRODUCTION] Basic Needs Median Modifier from [COLOR_PLAYER_CYAN]{3_Process:textkey}[ENDCOLOR] Process</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_PROCESS_EFFICIENCY_MODIFIER_RELIGIOUS_UNREST">
+			<Text>{1: number "'+'##;'-'##"}% conversion rate and {1: number "'-'##;'+'##"}% Religious Unrest from [COLOR_PLAYER_CYAN]{3_Process:textkey}[ENDCOLOR] Process</Text>
+		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_MEDIAN_CHANGES">
 			<Text>Projected Needs Median Changes:</Text>
 		</Row>
