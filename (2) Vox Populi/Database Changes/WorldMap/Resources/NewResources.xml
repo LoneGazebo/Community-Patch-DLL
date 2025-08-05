@@ -125,6 +125,7 @@
 			<Civilopedia>TXT_KEY_CIV5_RESOURCE_GLASS_TEXT</Civilopedia>
 			<Help>TXT_KEY_RESOURCE_GLASS_HELP</Help>
 			<ResourceClassType>RESOURCECLASS_LUXURY</ResourceClassType>
+			<OnlyMinorCivs>true</OnlyMinorCivs>
 			<ArtDefineTag>ART_DEF_RESOURCE_ALL</ArtDefineTag>
 			<IconString>[ICON_RES_GLASS]</IconString>
 			<IconAtlas>RESOURCE_ATLAS_VP</IconAtlas>
