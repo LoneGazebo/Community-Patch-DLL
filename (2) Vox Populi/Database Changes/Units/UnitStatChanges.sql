@@ -71,7 +71,7 @@ VALUES
 	-- Work Boat
 	('UNITCLASS_WORKBOAT', 2),
 	-- Settler
-	('UNITCLASS_WORKBOAT', 2),
+	('UNITCLASS_SETTLER', 2),
 	('UNITCLASS_PIONEER', 3),
 	('UNITCLASS_COLONIST', 4),
 	-- Caravan
