@@ -265,7 +265,6 @@ VALUES
 	('LEADER_BARBARIAN', 'FLAVOR_ESPIONAGE', 0);
 
 -- OVERRIDES FOR UAs
-UPDATE Leader_Flavors SET Flavor = 5 WHERE FlavorType = 'FLAVOR_MOBILE' AND LeaderType = 'LEADER_AHMAD_ALMANSUR'; -- 4, Skirmishers line has both ranged and mobile
 UPDATE Leader_Flavors SET Flavor = 8 WHERE FlavorType = 'FLAVOR_TILE_IMPROVEMENT' AND LeaderType = 'LEADER_AHMAD_ALMANSUR'; -- 7, has unique improvement
 
 UPDATE Leader_Flavors SET Flavor = 8 WHERE FlavorType = 'FLAVOR_MILITARY_TRAINING' AND LeaderType = 'LEADER_ALEXANDER'; -- 5, primary: domination
@@ -354,7 +353,6 @@ UPDATE Leader_Flavors SET Flavor = 9 WHERE FlavorType = 'FLAVOR_NAVAL' AND Leade
 UPDATE Leader_Flavors SET Flavor = 8 WHERE FlavorType = 'FLAVOR_NAVAL_TILE_IMPROVEMENT' AND LeaderType = 'LEADER_GAJAH_MADA'; -- 7, UI
 UPDATE Leader_Flavors SET Flavor = 7 WHERE FlavorType = 'FLAVOR_DIPLOMACY' AND LeaderType = 'LEADER_GAJAH_MADA'; -- 6, secondary: diplo
 
-UPDATE Leader_Flavors SET Flavor = 6 WHERE FlavorType = 'FLAVOR_MOBILE' AND LeaderType = 'LEADER_GANDHI'; -- 4, skirmisher
 UPDATE Leader_Flavors SET Flavor = 9 WHERE FlavorType = 'FLAVOR_SCIENCE' AND LeaderType = 'LEADER_GANDHI'; -- 8, primary: science
 UPDATE Leader_Flavors SET Flavor = 9 WHERE FlavorType = 'FLAVOR_SPACESHIP' AND LeaderType = 'LEADER_GANDHI'; -- 8, primary: science
 UPDATE Leader_Flavors SET Flavor = 7 WHERE FlavorType = 'FLAVOR_DIPLOMACY' AND LeaderType = 'LEADER_GANDHI'; -- 
@@ -374,7 +372,6 @@ UPDATE Leader_Flavors SET Flavor = 8 WHERE FlavorType = 'FLAVOR_WATER_CONNECTION
 UPDATE Leader_Flavors SET Flavor = 7 WHERE FlavorType = 'FLAVOR_AIR_CARRIER' AND LeaderType = 'LEADER_HARALD'; -- 5, naval-ish
 
 UPDATE Leader_Flavors SET Flavor = 6 WHERE FlavorType = 'FLAVOR_OFFENSE' AND LeaderType = 'LEADER_HARUN_AL_RASHID'; -- 7, primary: culture
-UPDATE Leader_Flavors SET Flavor = 6 WHERE FlavorType = 'FLAVOR_MOBILE' AND LeaderType = 'LEADER_HARUN_AL_RASHID'; -- 4, skirmisher
 UPDATE Leader_Flavors SET Flavor = 8 WHERE FlavorType = 'FLAVOR_SCIENCE' AND LeaderType = 'LEADER_HARUN_AL_RASHID'; -- 9, primary: culture
 UPDATE Leader_Flavors SET Flavor = 9 WHERE FlavorType = 'FLAVOR_CULTURE' AND LeaderType = 'LEADER_HARUN_AL_RASHID'; -- 8, primary: culture
 UPDATE Leader_Flavors SET Flavor = 8 WHERE FlavorType = 'FLAVOR_ARCHAEOLOGY' AND LeaderType = 'LEADER_HARUN_AL_RASHID'; -- 7, primary: culture
@@ -418,7 +415,6 @@ UPDATE Leader_Flavors SET Flavor = 10 WHERE FlavorType = 'FLAVOR_TILE_IMPROVEMEN
 UPDATE Leader_Flavors SET Flavor = 8 WHERE FlavorType = 'FLAVOR_WATER_CONNECTION' AND LeaderType = 'LEADER_KAMEHAMEHA'; -- 6, naval civ
 UPDATE Leader_Flavors SET Flavor = 7 WHERE FlavorType = 'FLAVOR_WONDER' AND LeaderType = 'LEADER_KAMEHAMEHA'; -- 5, primary: culture
 
-UPDATE Leader_Flavors SET Flavor = 7 WHERE FlavorType = 'FLAVOR_MOBILE' AND LeaderType = 'LEADER_MARIA'; -- 4, skirmisher
 UPDATE Leader_Flavors SET Flavor = 8 WHERE FlavorType = 'FLAVOR_RECON' AND LeaderType = 'LEADER_MARIA'; -- 9
 UPDATE Leader_Flavors SET Flavor = 7 WHERE FlavorType = 'FLAVOR_ANTIAIR' AND LeaderType = 'LEADER_MARIA'; -- 5
 UPDATE Leader_Flavors SET Flavor = 7 WHERE FlavorType = 'FLAVOR_SPACESHIP' AND LeaderType = 'LEADER_MARIA'; -- 8, only: diplo
@@ -480,8 +476,7 @@ UPDATE Leader_Flavors SET Flavor = 7 WHERE FlavorType = 'FLAVOR_MOBILE' AND Lead
 UPDATE Leader_Flavors SET Flavor = 7 WHERE FlavorType = 'FLAVOR_ANTIAIR' AND LeaderType = 'LEADER_RAMKHAMHAENG'; -- 5
 UPDATE Leader_Flavors SET Flavor = 7 WHERE FlavorType = 'FLAVOR_SPACESHIP' AND LeaderType = 'LEADER_RAMKHAMHAENG'; -- 8, only: diplo
 UPDATE Leader_Flavors SET Flavor = 8 WHERE FlavorType = 'FLAVOR_CULTURE' AND LeaderType = 'LEADER_RAMKHAMHAENG'; -- 9
-
-UPDATE Leader_Flavors SET Flavor = 7 WHERE FlavorType = 'FLAVOR_MOBILE' AND LeaderType = 'LEADER_SEJONG'; -- 4, UU 
+ 
 UPDATE Leader_Flavors SET Flavor = 7 WHERE FlavorType = 'FLAVOR_ANTIAIR' AND LeaderType = 'LEADER_SEJONG'; -- 5
 UPDATE Leader_Flavors SET Flavor = 10 WHERE FlavorType = 'FLAVOR_SPACESHIP' AND LeaderType = 'LEADER_SEJONG'; -- 8, only: science
 UPDATE Leader_Flavors SET Flavor = 8 WHERE FlavorType = 'FLAVOR_CULTURE' AND LeaderType = 'LEADER_SEJONG'; -- 9, only: science
