@@ -1,0 +1,11 @@
+--- @meta
+
+--- @enum AdvisorTypes
+AdvisorTypes = {
+	NO_ADVISOR_TYPE = -1,
+	ADVISOR_MILITARY = 0,
+	ADVISOR_ECONOMIC = 1,
+	ADVISOR_FOREIGN = 2,
+	ADVISOR_SCIENCE = 3,
+	NUM_ADVISOR_TYPES = 4,
+}

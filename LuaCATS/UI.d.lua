@@ -139,7 +139,7 @@ function UI.GetCurrentGameState() end
 function UI.GetDllGUID() end
 
 --- TODO docs
---- @deprected # It's commented out everywhere
+--- @deprecated # It's commented out everywhere
 --- @return unknown
 function UI.GetGotoPlot() end
 

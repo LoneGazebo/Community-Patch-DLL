@@ -1,3 +1,4 @@
+---@diagnostic disable-next-line: deprecated
 local _lua_unpack = table.unpack or unpack
 
 --- Unpacks specified table using it's property `n` or length
