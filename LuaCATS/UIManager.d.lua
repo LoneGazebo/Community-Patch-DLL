@@ -4,13 +4,13 @@
 UIManager = {}
 
 --- TODO docs
---- @param context Context
-function UIManager:DequeuePopup(context) end
+--- @param control Control
+function UIManager:DequeuePopup(control) end
 
 --- TODO docs
---- @param context Context
+--- @param control Control
 --- @param popupPriority PopupPriority
-function UIManager:QueuePopup(context, popupPriority) end
+function UIManager:QueuePopup(control, popupPriority) end
 
 --- Checks if `ALT` key is being pressed.
 --- @return boolean

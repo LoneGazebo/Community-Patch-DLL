@@ -1,5 +1,9 @@
 --- @meta
 
+--- A super global table that persists across all Lua contexts, useful for sharing data between them
+--- @type table
+MapModData = {}
+
 --- Loads specified `filename` from VFS. It replaces lua's `require` function in Civ5.
 --- See [Specifics Of Lua Implementation in Civ5](http://modiki.civfanatics.com/index.php?title=Specificities_of_the_Lua_implementation_in_Civ5)
 --- for more information
