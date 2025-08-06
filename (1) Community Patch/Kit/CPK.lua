@@ -28,7 +28,7 @@
 
 	local EmulateInclude = (function()
 		local function GetAvailablePaths()
-			local list = IncludeFileList --[[ @as string[] | nil ]]
+			local list = IncludeFileList --[[@as string[] | nil]]
 			local refresh = RefreshIncludeFileList --[[@as function | nil]]
 
 			-- We are still inside Civ5.

@@ -3,16 +3,19 @@
 -- CTD means Crash To Desktop
 
 --- @class Locale
+--- @field [string] function
 Locale = {}
 
 --- @param textKey string
 --- @param ... string | number
+--- @return string
 function Locale.Lookup(textKey, ...) end
 
 --- Alias to `Locale.Lookup`
 --- @see Locale.Lookup
 --- @param textKey string
 --- @param ... string | number
+--- @return string
 function Locale.ConvertTextKey(textKey, ...) end
 
 --- ```lua
@@ -75,9 +78,10 @@ function Locale.ToUpper(str) end
 --- @param str string
 --- @param num number
 --- @param ellipsis? boolean Should add ... before maxLengthExclusive (Ellipsis is included in length)
+--- @return string
 function Locale.TruncateString(str, num, ellipsis) end
 
---- Formats num  using specified format string
+--- Formats number using specified format string
 --- ```lua
 --- -- Example
 --- Locale.ToNumber(1234567890, "#,###,###,###") -- "1,234,567,890"
@@ -89,6 +93,7 @@ function Locale.TruncateString(str, num, ellipsis) end
 --- ```
 --- @param num number
 --- @param format string
+--- @return number
 function Locale.ToNumber(num, format) end
 
 --- @class Language
@@ -192,6 +197,7 @@ function Locale.IsNilOrWhitespace(str) end
 --- @param str string
 --- @param startIndex integer
 --- @param endIndex integer
+--- @return string
 function Locale.Substring(str, startIndex, endIndex) end
 
 --- Converts `num` to curreny string depending on current language.

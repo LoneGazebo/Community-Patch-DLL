@@ -1,6 +1,5 @@
 --- @meta
 
 --- @class Unit
+--- @field [string] function
 local Unit = {}
-
----@alias UnitTypes integer

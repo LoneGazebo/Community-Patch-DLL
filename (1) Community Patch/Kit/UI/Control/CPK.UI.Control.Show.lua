@@ -2,7 +2,7 @@ local _lua_type = type
 
 local EachArgs = CPK.Args.Each
 
---- @param Control
+--- @param control Control
 local function ControlShow(control)
 	if control ~= nil and _lua_type(control.SetHide) == 'function' then
 		control:SetHide(false)
@@ -15,7 +15,7 @@ end
 --- Show(Controls.CloseButton)
 --- Show(Controls.B1, nil, Controls.B3) -- Shows B1, B3
 --- ```
---- @param Control
+--- @param control Control
 --- @param ... Control
 local function Show(control, ...)
 	ControlShow(control)

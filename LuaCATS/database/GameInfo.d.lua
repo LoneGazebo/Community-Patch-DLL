@@ -1,0 +1,92 @@
+--- @meta
+
+--- Usage:<br>
+--- `GameInfo.Units()` returns an iterator that loops through all rows in the `Units` table<br>
+--- `GameInfo.Units({Class = "UNITCLASS_WARRIOR"})` returns an iterator that loops through all rows satisfying the condition(s) specified in the table parameter<br>
+--- `GameInfo.Units("Cost > 0")` returns an iterator that loops through all rows satisfying the condition(s) specified in the string parameter<br>
+--- `GameInfo.Units[1]` returns the row with `ID` = `1`, or `nil`<br>
+--- `GameInfo.Units["UNIT_WARRIOR"]` returns the row with `Type` = `UNIT_WARRIOR`, or `nil`<br>
+--- Avoid using this in commonly called functions or nested loops, especially for tables with more columns.
+--- @class GameInfo
+--- @field Accomplishments GameInfoPrimaryTable
+--- @field Automates GameInfoPrimaryTable
+--- @field Beliefs GameInfoPrimaryTable
+--- @field BuildingClasses GameInfoPrimaryTable
+--- @field Buildings GameInfoPrimaryTable
+--- @field Builds GameInfoPrimaryTable
+--- @field Calendars GameInfoPrimaryTable
+--- @field CityEventChoices GameInfoPrimaryTable
+--- @field CityEvents GameInfoPrimaryTable
+--- @field Civilizations GameInfoPrimaryTable
+--- @field Commands GameInfoPrimaryTable
+--- @field Concepts GameInfoPrimaryTable
+--- @field Controls GameInfoPrimaryTable
+--- @field Corporations GameInfoPrimaryTable
+--- @field Domains GameInfoPrimaryTable
+--- @field Eras GameInfoPrimaryTable
+--- @field EventChoices GameInfoPrimaryTable
+--- @field Events GameInfoPrimaryTable
+--- @field FakeFeatures GameInfoPrimaryTable
+--- @field Features GameInfoPrimaryTable
+--- @field GameOptions GameInfoPrimaryTable
+--- @field GameSpeeds GameInfoPrimaryTable
+--- @field GoodyHuts GameInfoPrimaryTable
+--- @field GreatPersons GameInfoPrimaryTable
+--- @field GreatWorkArtifactClasses GameInfoPrimaryTable
+--- @field GreatWorkSlots GameInfoPrimaryTable
+--- @field GreatWorks GameInfoPrimaryTable
+--- @field HandicapInfos GameInfoPrimaryTable
+--- @field HistoricEventTypes GameInfoPrimaryTable
+--- @field HistoricRankings GameInfoPrimaryTable
+--- @field Improvements GameInfoPrimaryTable
+--- @field InterfaceModes GameInfoPrimaryTable
+--- @field Leaders GameInfoPrimaryTable
+--- @field LeagueProjectRewards GameInfoPrimaryTable
+--- @field LeagueProjects GameInfoPrimaryTable
+--- @field LeagueSpecialSessions GameInfoPrimaryTable
+--- @field MinorCivTraits GameInfoPrimaryTable
+--- @field MinorCivilizations GameInfoPrimaryTable
+--- @field Missions GameInfoPrimaryTable
+--- @field Months GameInfoPrimaryTable
+--- @field Natural_Wonder_Placement GameInfoPrimaryTable
+--- @field PlayerColors GameInfoPrimaryTable
+--- @field Plots GameInfoPrimaryTable
+--- @field Policies GameInfoPrimaryTable
+--- @field PolicyBranchTypes GameInfoPrimaryTable
+--- @field Processes GameInfoPrimaryTable
+--- @field Projects GameInfoPrimaryTable
+--- @field Regions GameInfoPrimaryTable
+--- @field Religions GameInfoPrimaryTable
+--- @field ReplayDataSets GameInfoPrimaryTable
+--- @field ResolutionDecisions GameInfoPrimaryTable
+--- @field Resolutions GameInfoPrimaryTable
+--- @field ResourceClasses GameInfoPrimaryTable
+--- @field Resources GameInfoPrimaryTable
+--- @field Routes GameInfoPrimaryTable
+--- @field Seasons GameInfoPrimaryTable
+--- @field SpecialUnits GameInfoPrimaryTable
+--- @field Specialists GameInfoPrimaryTable
+--- @field SpyPassiveBonuses GameInfoPrimaryTable
+--- @field SpyPassiveBonusesDiplomat GameInfoPrimaryTable
+--- @field Technologies GameInfoPrimaryTable
+--- @field Terrains GameInfoPrimaryTable
+--- @field Traits GameInfoPrimaryTable
+--- @field UnitClasses GameInfoPrimaryTable
+--- @field UnitCombatInfos GameInfoPrimaryTable
+--- @field UnitPromotions GameInfoPrimaryTable
+--- @field Units GameInfoPrimaryTable
+--- @field Victories GameInfoPrimaryTable
+--- @field Worlds GameInfoPrimaryTable
+--- @field Yields GameInfoPrimaryTable
+--- @field [string] GameInfoTable
+GameInfo = {}
+
+--- @class GameInfoTable: userdata
+--- @overload fun(arg1: table|string|nil): fun(): Row
+GameInfoTable = {}
+
+--- @class GameInfoPrimaryTable: userdata
+--- @field [string] Info
+--- @field [integer] Info
+--- @overload fun(arg1: table|string|nil): fun(): Info
+GameInfoPrimaryTable = {}
