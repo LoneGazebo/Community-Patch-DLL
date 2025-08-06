@@ -2860,7 +2860,10 @@ CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, bool bGameStart, UnitAITypes eUni
 		{
 			const CvUnit* pLoopUnit = ::GetPlayerUnit(*pUnitNode);
 			if (pLoopUnit->IsCanDefend())
+			{
 				bNoDefender = false;
+				break;
+			}
 
 			pUnitNode = pStartingPlot->nextUnitNode(pUnitNode);
 		}
