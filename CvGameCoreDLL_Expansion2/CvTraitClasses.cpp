@@ -304,6 +304,8 @@ CvTraitEntry::CvTraitEntry() :
 	m_piSeaPlotYieldChanges(NULL),
 	m_ppiFeatureYieldChanges(NULL),
 	m_ppiResourceYieldChanges(NULL),
+	m_miResourceYieldChangesFromGoldenAge(),
+	m_miResourceYieldChangesFromGoldenAgeCap(),
 	m_ppiTerrainYieldChanges(NULL),
 	m_piYieldFromKills(NULL),
 	m_piYieldFromBarbarianKills(NULL),
@@ -1771,6 +1773,16 @@ int CvTraitEntry::GetResourceYieldChanges(ResourceTypes eIndex1, YieldTypes eInd
 	ASSERT_DEBUG(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
 	ASSERT_DEBUG(eIndex2 > -1, "Index out of bounds");
 	return m_ppiResourceYieldChanges ? m_ppiResourceYieldChanges[eIndex1][eIndex2] : 0;
+}
+
+std::map<int, std::map<int, int>> CvTraitEntry::GetResourceYieldChangesFromGoldenAge()
+{
+	return m_miResourceYieldChangesFromGoldenAge;
+}
+
+std::map<int, std::map<int, int>> CvTraitEntry::GetResourceYieldChangesFromGoldenAgeCap()
+{
+	return m_miResourceYieldChangesFromGoldenAgeCap;
 }
 
 int CvTraitEntry::GetTerrainYieldChanges(TerrainTypes eIndex1, YieldTypes eIndex2) const
@@ -3419,6 +3431,35 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 			m_ppiResourceYieldChanges[ResourceID][YieldID] = yield;
 		}
 	}
+
+	// Trait_ResourceYieldChangesFromGoldenAge
+	{
+		std::string strKey("Trait_ResourceYieldChangesFromGoldenAge");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if (pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select Resources.ID as ResourceID, Yields.ID as YieldID, Yield, YieldCap from Trait_ResourceYieldChangesFromGoldenAge inner join Resources on Resources.Type = ResourceType inner join Yields on Yields.Type = YieldType where TraitType = ?");
+		}
+
+		pResults->Bind(1, szTraitType);
+
+		while (pResults->Step())
+		{
+			const int iResourceID = pResults->GetInt(0);
+			const int iYieldType = pResults->GetInt(1);
+			const int iYield = pResults->GetInt(2);
+			const int iYieldCap = pResults->GetInt(3);
+
+			m_miResourceYieldChangesFromGoldenAge[iResourceID][iYieldType] += iYield;
+			m_miResourceYieldChangesFromGoldenAgeCap[iResourceID][iYieldType] += iYieldCap;
+		}
+
+		pResults->Reset();
+
+		//Trim extra memory off container since this is mostly read-only.
+		std::map<int, std::map<int, int>>(m_miResourceYieldChangesFromGoldenAge).swap(m_miResourceYieldChangesFromGoldenAge);
+		std::map<int, std::map<int, int>>(m_miResourceYieldChangesFromGoldenAgeCap).swap(m_miResourceYieldChangesFromGoldenAgeCap);
+	}
 	
 	//TerrainYieldChanges
 	{
@@ -4760,6 +4801,9 @@ void CvPlayerTraits::InitPlayerTraits()
 			m_iCultureBonusModifierConquest += trait->GetCultureBonusModifierConquest();
 			m_iProductionBonusModifierConquest += trait->GetProductionBonusModifierConquest();
 
+			m_miResourceYieldChangesFromGoldenAge = trait->GetResourceYieldChangesFromGoldenAge();
+			m_miResourceYieldChangesFromGoldenAgeCap = trait->GetResourceYieldChangesFromGoldenAgeCap();
+			
 			for(int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
 			{
 				if(trait->GetExtraYieldThreshold(iYield) > m_iExtraYieldThreshold[iYield])
@@ -5518,6 +5562,8 @@ void CvPlayerTraits::Reset()
 	m_ppiFeatureYieldChange.resize(GC.getNumFeatureInfos());
 	m_ppiResourceYieldChange.clear();
 	m_ppiResourceYieldChange.resize(GC.getNumResourceInfos());
+	m_miResourceYieldChangesFromGoldenAge.clear();
+	m_miResourceYieldChangesFromGoldenAgeCap.clear();
 	m_ppiTerrainYieldChange.clear();
 	m_ppiTerrainYieldChange.resize(GC.getNumTerrainInfos());
 	m_ppiTradeRouteYieldChange.clear();
@@ -6124,6 +6170,44 @@ int CvPlayerTraits::GetResourceYieldChange(ResourceTypes eResource, YieldTypes e
 
 	return m_ppiResourceYieldChange[(int)eResource][(int)eYield];
 }
+
+
+int CvPlayerTraits::GetResourceYieldChangesFromGoldenAge(ResourceTypes eResource, YieldTypes eYield) const
+{
+	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "Index out of bounds");
+	ASSERT_DEBUG(eIndex > -1, "Index out of bounds");
+
+	std::map<int, std::map<int, int>>::const_iterator itResource = m_miResourceYieldChangesFromGoldenAge.find((int)eResource);
+	if (itResource != m_miResourceYieldChangesFromGoldenAge.end())
+	{
+		std::map<int, int>::const_iterator itYield = itResource->second.find(eYield);
+		if (itYield != itResource->second.end())
+		{
+			return itYield->second;
+		}
+	}
+
+	return 0;
+}
+
+int CvPlayerTraits::GetResourceYieldChangesFromGoldenAgeCap(ResourceTypes eResource, YieldTypes eYield) const
+{
+	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "Index out of bounds");
+	ASSERT_DEBUG(eIndex > -1, "Index out of bounds");
+
+	std::map<int, std::map<int, int>>::const_iterator itResource = m_miResourceYieldChangesFromGoldenAgeCap.find((int)eResource);
+	if (itResource != m_miResourceYieldChangesFromGoldenAgeCap.end())
+	{
+		std::map<int, int>::const_iterator itYield = itResource->second.find(eYield);
+		if (itYield != itResource->second.end())
+		{
+			return itYield->second;
+		}
+	}
+
+	return 0;
+}
+
 
 int CvPlayerTraits::GetTerrainYieldChange(TerrainTypes eTerrain, YieldTypes eYield) const
 {
@@ -7729,6 +7813,8 @@ void CvPlayerTraits::Serialize(PlayerTraits& playerTraits, Visitor& visitor)
 	visitor(playerTraits.m_iSeaPlotYieldChanges);
 	visitor(playerTraits.m_ppiFeatureYieldChange);
 	visitor(playerTraits.m_ppiResourceYieldChange);
+	visitor(playerTraits.m_miResourceYieldChangesFromGoldenAge);
+	visitor(playerTraits.m_miResourceYieldChangesFromGoldenAgeCap);
 	visitor(playerTraits.m_ppiTerrainYieldChange);
 	visitor(playerTraits.m_iYieldFromKills);
 	visitor(playerTraits.m_iYieldFromBarbarianKills);

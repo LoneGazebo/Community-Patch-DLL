@@ -11038,6 +11038,12 @@ int CvPlot::calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTyp
 				iYield += kPlayer.getResourceYieldChange(eResource, eYield);
 				iYield += pTraits->GetResourceYieldChange(eResource, eYield);
 
+				int iResourceYieldFromGoldenAge = pTraits->GetResourceYieldChangesFromGoldenAge(eResource, eYield) * kPlayer.GetNumGoldenAges();
+				if (iResourceYieldFromGoldenAge > 0)
+				{
+					iYield += min(iResourceYieldFromGoldenAge, pTraits->GetResourceYieldChangesFromGoldenAgeCap(eResource, eYield));
+				}
+				
 				if (MOD_BALANCE_CORE_RESOURCE_MONOPOLIES && kPlayer.HasGlobalMonopoly(eResource))
 				{
 					int iTemp = pkResourceInfo->getYieldChangeFromMonopoly(eYield);

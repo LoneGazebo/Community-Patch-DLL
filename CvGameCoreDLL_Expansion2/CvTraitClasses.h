@@ -418,6 +418,8 @@ public:
 	int GetSeaPlotYieldChanges(int i) const;
 	int GetFeatureYieldChanges(FeatureTypes eIndex1, YieldTypes eIndex2) const;
 	int GetResourceYieldChanges(ResourceTypes eIndex1, YieldTypes eIndex2) const;
+	std::map<int, std::map<int, int>> GetResourceYieldChangesFromGoldenAge();
+	std::map<int, std::map<int, int>> GetResourceYieldChangesFromGoldenAgeCap();
 	int GetTerrainYieldChanges(TerrainTypes eIndex1, YieldTypes eIndex2) const;
 	int GetYieldFromKills(YieldTypes eYield) const;
 	int GetYieldFromBarbarianKills(YieldTypes eYield) const;
@@ -718,7 +720,6 @@ protected:
 	int* m_piStrategicResourceQuantityModifier;
 	int* m_piResourceQuantityModifiers;
 	int* m_piMovesChangeUnitCombats;
-#if defined(MOD_BALANCE_CORE)
 	int* m_paiGAPToYield;
 	int* m_paiMountainRangeYield;
 	int* m_piMovesChangeUnitClasses;
@@ -730,11 +731,9 @@ protected:
 	int** m_ppiYieldFromTileSettle;
 	int** m_ppiYieldChangePerImprovementBuilt;
 	std::map<int, std::map<bool, int>> m_pbiYieldFromBarbarianCampClear;
-#endif
 	int* m_piMaintenanceModifierUnitCombats;
 	int** m_ppiImprovementYieldChanges;
 	int** m_ppiPlotYieldChanges;
-#if defined(MOD_BALANCE_CORE)
 	int* m_piYieldFromLevelUp;
 	int* m_piYieldFromHistoricEvent;
 	int* m_piYieldFromOwnPantheon;
@@ -769,7 +768,6 @@ protected:
 	std::map<int, int> m_piGreatPersonProgressFromKills;
 	std::map<int, int> m_piRandomGreatPersonProgressFromKills;
 	int* m_piFreeUnitClassesDOW;
-#endif
 #if defined(MOD_BALANCE_CORE) && defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
 	std::map<int, std::map<bool, int>> m_pbiYieldFromRouteMovementInForeignTerritory;
 #endif
@@ -786,6 +784,8 @@ protected:
 	int* m_piSeaPlotYieldChanges;
 	int** m_ppiFeatureYieldChanges;
 	int** m_ppiResourceYieldChanges;
+	std::map<int, std::map<int, int>> m_miResourceYieldChangesFromGoldenAge;
+	std::map<int, std::map<int, int>> m_miResourceYieldChangesFromGoldenAgeCap;
 	int** m_ppiTerrainYieldChanges;
 	int* m_piYieldFromKills;
 	int* m_piYieldFromBarbarianKills;
@@ -806,7 +806,6 @@ protected:
 	int** m_ppiUnimprovedFeatureYieldChanges;
 
 	std::multimap<int, int> m_FreePromotionUnitCombats;
-#if defined(MOD_BALANCE_CORE)
 	std::multimap<int, int> m_FreePromotionUnitClass;
 	std::multimap<int, int> m_BuildsUnitClasses;
 	std::vector<bool> m_abTerrainClaimBoost;
@@ -816,7 +815,6 @@ protected:
 	int m_iNonSpecialistFoodChange;
 	std::vector<int> m_aiNoBuilds;
 	std::map<int, int> m_piDomainProductionModifiersPerSpecialist;
-#endif
 #if defined(MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON)
 	std::map<bool, TradeRouteProductionSiphon> m_biiTradeRouteProductionSiphon;
 #endif
@@ -2002,6 +2000,8 @@ public:
 
 	int GetFeatureYieldChange(FeatureTypes eFeature, YieldTypes eYield) const;
 	int GetResourceYieldChange(ResourceTypes eResource, YieldTypes eYield) const;
+	int GetResourceYieldChangesFromGoldenAge(ResourceTypes eResource, YieldTypes eYield) const;
+	int GetResourceYieldChangesFromGoldenAgeCap(ResourceTypes eResource, YieldTypes eYield) const;
 	int GetTerrainYieldChange(TerrainTypes eTerrain, YieldTypes eYield) const;
 	int GetYieldFromKills(YieldTypes eYield) const;
 	int GetYieldFromBarbarianKills(YieldTypes eYield) const;
@@ -2463,6 +2463,8 @@ private:
 	int m_iMountainRangeYield[NUM_YIELD_TYPES];
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiFeatureYieldChange;
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiResourceYieldChange;
+	std::map<int, std::map<int, int>> m_miResourceYieldChangesFromGoldenAge;
+	std::map<int, std::map<int, int>> m_miResourceYieldChangesFromGoldenAgeCap;
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiTerrainYieldChange;
 	int m_iYieldFromKills[NUM_YIELD_TYPES];
 	int m_iYieldFromBarbarianKills[NUM_YIELD_TYPES];
