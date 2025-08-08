@@ -418,6 +418,7 @@ public:
 	int GetSeaPlotYieldChanges(int i) const;
 	int GetFeatureYieldChanges(FeatureTypes eIndex1, YieldTypes eIndex2) const;
 	int GetResourceYieldChanges(ResourceTypes eIndex1, YieldTypes eIndex2) const;
+	int GetLuxuryYieldChanges(int i) const;
 	std::map<int, std::map<int, int>> GetResourceYieldChangesFromGoldenAge();
 	std::map<int, std::map<int, int>> GetResourceYieldChangesFromGoldenAgeCap();
 	int GetTerrainYieldChanges(TerrainTypes eIndex1, YieldTypes eIndex2) const;
@@ -784,6 +785,7 @@ protected:
 	int* m_piSeaPlotYieldChanges;
 	int** m_ppiFeatureYieldChanges;
 	int** m_ppiResourceYieldChanges;
+	int* m_piLuxuryYieldChanges;
 	std::map<int, std::map<int, int>> m_miResourceYieldChangesFromGoldenAge;
 	std::map<int, std::map<int, int>> m_miResourceYieldChangesFromGoldenAgeCap;
 	int** m_ppiTerrainYieldChanges;
@@ -1952,6 +1954,10 @@ public:
 	{
 		return m_iMountainRangeYield[(int)eYield];
 	};
+	int GetLuxuryYieldChanges(YieldTypes eYield) const
+	{
+		return m_iLuxuryYieldChanges[(int)eYield];
+	};
 #endif
 #if defined(MOD_BALANCE_CORE) && defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
 	int GetYieldFromRouteMovementInForeignTerritory(YieldTypes eIndex, bool bTradePartner) const;
@@ -2461,6 +2467,7 @@ private:
 	int m_iSeaPlotYieldChanges[NUM_YIELD_TYPES];
 	int m_iGAPToYield[NUM_YIELD_TYPES];
 	int m_iMountainRangeYield[NUM_YIELD_TYPES];
+	int m_iLuxuryYieldChanges[NUM_YIELD_TYPES];
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiFeatureYieldChange;
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiResourceYieldChange;
 	std::map<int, std::map<int, int>> m_miResourceYieldChangesFromGoldenAge;

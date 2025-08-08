@@ -11025,6 +11025,7 @@ int CvPlot::calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTyp
 					if (pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 					{
 						iYield += pOwningCity->GetLuxuryExtraYield(eYield);
+						iYield += pTraits->GetLuxuryYieldChanges(eYield);
 					}
 
 					// Extra yield from Trait
