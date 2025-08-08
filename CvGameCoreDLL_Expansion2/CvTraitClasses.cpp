@@ -304,6 +304,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_piSeaPlotYieldChanges(NULL),
 	m_ppiFeatureYieldChanges(NULL),
 	m_ppiResourceYieldChanges(NULL),
+	m_piLuxuryYieldChanges(NULL),
 	m_miResourceYieldChangesFromGoldenAge(),
 	m_miResourceYieldChangesFromGoldenAgeCap(),
 	m_ppiTerrainYieldChanges(NULL),
@@ -1773,6 +1774,13 @@ int CvTraitEntry::GetResourceYieldChanges(ResourceTypes eIndex1, YieldTypes eInd
 	ASSERT_DEBUG(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
 	ASSERT_DEBUG(eIndex2 > -1, "Index out of bounds");
 	return m_ppiResourceYieldChanges ? m_ppiResourceYieldChanges[eIndex1][eIndex2] : 0;
+}
+
+int CvTraitEntry::GetLuxuryYieldChanges(int i) const
+{
+	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
+	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	return m_piLuxuryYieldChanges ? m_piLuxuryYieldChanges[i] : 0;
 }
 
 std::map<int, std::map<int, int>> CvTraitEntry::GetResourceYieldChangesFromGoldenAge()
@@ -3385,6 +3393,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	kUtility.SetYields(m_piLitYieldChanges, "Trait_LitYieldChanges", "TraitType", szTraitType);
 	kUtility.SetYields(m_piMusicYieldChanges, "Trait_MusicYieldChanges", "TraitType", szTraitType);
 	kUtility.SetYields(m_piSeaPlotYieldChanges, "Trait_SeaPlotYieldChanges", "TraitType", szTraitType);
+	kUtility.SetYields(m_piLuxuryYieldChanges, "Trait_LuxuryYieldChanges", "TraitType", szTraitType);
 
 	//FeatureYieldChanges
 	{
@@ -5039,6 +5048,7 @@ void CvPlayerTraits::InitPlayerTraits()
 				m_iSeaPlotYieldChanges[iYield] = trait->GetSeaPlotYieldChanges(iYield);
 				m_iGAPToYield[iYield] = trait->GetGAPToYield(iYield);
 				m_iMountainRangeYield[iYield] = trait->GetMountainRangeYield(iYield);
+				m_iLuxuryYieldChanges[iYield] = trait->GetLuxuryYieldChanges(iYield);
 
 				for(int iFeatureLoop = 0; iFeatureLoop < GC.getNumFeatureInfos(); iFeatureLoop++)
 				{
@@ -5658,6 +5668,7 @@ void CvPlayerTraits::Reset()
 		m_iSeaPlotYieldChanges[iYield] = 0;
 		m_iGAPToYield[iYield] = 0;
 		m_iMountainRangeYield[iYield] = 0;
+		m_iLuxuryYieldChanges[iYield] = 0;
 		for(int iFeature = 0; iFeature < GC.getNumFeatureInfos(); iFeature++)
 		{
 			m_ppiFeatureYieldChange[iFeature] = yield;
@@ -7787,6 +7798,7 @@ void CvPlayerTraits::Serialize(PlayerTraits& playerTraits, Visitor& visitor)
 	visitor(playerTraits.m_iYieldFromCSFriend);
 	visitor(playerTraits.m_iGAPToYield);
 	visitor(playerTraits.m_iMountainRangeYield);
+	visitor(playerTraits.m_iLuxuryYieldChanges);
 	visitor(playerTraits.m_bFreeGreatWorkOnConquest);
 	visitor(playerTraits.m_bPopulationBoostReligion);
 	visitor(playerTraits.m_bStartsWithPantheon);
