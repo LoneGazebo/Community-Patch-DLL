@@ -19,7 +19,10 @@ local kNegBarRange = 81;
 local kBarIconAtlas = "CITY_STATE_INFLUENCE_METER_ICON_ATLAS";
 local kBarIconNeutralIndex = 4;
 
-local iEmbassy = GameInfoTypes.IMPROVEMENT_EMBASSY
+tIsEmbassyImprovement = {}
+for row in DB.Query("select ID From Improvements where IsEmbassy=1") do
+	tIsEmbassyImprovement[row.ID] = true
+end
 
 -- The order of precedence in which the quest icons and tooltip points are displayed
 ktQuestsDisplayOrder = {
@@ -321,7 +324,14 @@ function GetCityStateStatusToolTip(iMajor, iMinor, bFullInfo)
 		strStatusTT = strStatusTT .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_NEUTRAL_CSTATE_TT", strShortDescKey);
 	end
 	-- Embassy Check
-	if pMinor:GetImprovementCount(iEmbassy) > 0 then
+	local bIsEmbassyCheck = false
+	for k, v in pairs(tIsEmbassyImprovement) do
+		if pMinor:GetImprovementCount(k) > 0 then
+			bIsEmbassyCheck = true
+			break
+		end
+	end
+	if bIsEmbassyCheck then
 		strStatusTT = strStatusTT .. Locale.ConvertTextKey("TXT_KEY_CSTATE_CANNOT_EMBASSY");
 	else
 		strStatusTT = strStatusTT .. Locale.ConvertTextKey("TXT_KEY_CSTATE_CAN_EMBASSY");
