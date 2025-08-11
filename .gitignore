@@ -40,6 +40,7 @@
 !*.sln
 !*.txt
 !*.vcxproj
+!*.yml
 
 !docs/images/*
 
