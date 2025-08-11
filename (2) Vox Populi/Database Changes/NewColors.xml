@@ -131,6 +131,21 @@
 			<Blue>0.2156862745</Blue>
 			<Alpha>1</Alpha>
 		</Row>
+		<!-- Oviedo and Veligrad also get custom colors. -->
+		<Row>
+			<Type>COLOR_PLAYER_OVIEDO_BACKGROUND</Type> <!-- RGB = 70/195/212 -->
+			<Red>0.2745098039</Red>
+			<Green>0.7647058824</Green>
+			<Blue>0.8313725490</Blue>
+			<Alpha>1</Alpha>
+		</Row>
+		<Row>
+			<Type>COLOR_PLAYER_VELIGRAD_BACKGROUND</Type> <!-- RGB = 57/128/52 -->
+			<Red>0.2235294118</Red>
+			<Green>0.5019607843</Green>
+			<Blue>0.2039215686</Blue>
+			<Alpha>1</Alpha>
+		</Row>
 	</Colors>
 	<PlayerColors>
 		<Row>
@@ -314,6 +329,12 @@
 			<TextColor>COLOR_PLAYER_PEACH_TEXT</TextColor>
 		</Row>
 		<Row>
+			<Type>PLAYERCOLOR_MINOR_OVIEDO</Type>
+			<PrimaryColor>COLOR_PLAYER_MINOR_ICON</PrimaryColor>
+			<SecondaryColor>COLOR_PLAYER_OVIEDO_BACKGROUND</SecondaryColor>
+			<TextColor>COLOR_PLAYER_PEACH_TEXT</TextColor>
+		</Row>
+		<Row>
 			<Type>PLAYERCOLOR_MINOR_PERSIA</Type>
 			<PrimaryColor>COLOR_PLAYER_MINOR_ICON</PrimaryColor>
 			<SecondaryColor>COLOR_PLAYER_PERSIA_MINOR_BACKGROUND</SecondaryColor>
@@ -379,6 +400,12 @@
 			<Type>PLAYERCOLOR_MINOR_SWEDEN</Type>
 			<PrimaryColor>COLOR_PLAYER_MINOR_ICON</PrimaryColor>
 			<SecondaryColor>COLOR_PLAYER_SWEDEN_MINOR_BACKGROUND</SecondaryColor>
+			<TextColor>COLOR_PLAYER_PEACH_TEXT</TextColor>
+		</Row>
+		<Row>
+			<Type>PLAYERCOLOR_MINOR_VELIGRAD</Type>
+			<PrimaryColor>COLOR_PLAYER_MINOR_ICON</PrimaryColor>
+			<SecondaryColor>COLOR_PLAYER_VELIGRAD_BACKGROUND</SecondaryColor>
 			<TextColor>COLOR_PLAYER_PEACH_TEXT</TextColor>
 		</Row>
 		<Row>
