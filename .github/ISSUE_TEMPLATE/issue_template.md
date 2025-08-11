@@ -1,9 +1,13 @@
+---
+name: Bug Report
+about: Bug Report
+---
 <!-- PLEASE READ CAREFULLY AND INCLUDE ALL REQUESTED INFORMATION BEFORE SUBMITTING AN ISSUE REPORT!
 If your issue lacks needed information, you will be asked to provide it and your issue will be CLOSED.
 If you are using an old version, too many additional mods, or your issue cannot be reproduced, your issue may be CLOSED.
 We recommend zipping up all attachments other than screenshots. -->
 
-_1. Mod Version (X.Y.Z). Current Version: 4.21.1_
+_1. Mod Version (X.Y.Z). Current Version: 4.22_
 <!-- Please also note if you are using the NON-EUI, 43 CIV and/or COMMUNITY PATCH ONLY versions. -->
 
 
