@@ -5,7 +5,7 @@
 
 Events = {}
 
---- @class SerialEventGameMessagePopupProcessed: Event
+--- @class SearchForPediaEntry: Event
 --- @field Add fun(EventHandler: fun(strSearch: string))
 --- @overload fun(strSearch: string)
 Events.SearchForPediaEntry = {}

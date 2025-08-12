@@ -13,7 +13,7 @@ ContextPtr = {}
 Controls = {}
 
 --- @param eMouse MouseType
---- @param Callback fun()
+--- @param Callback fun(nVoid1: number, nVoid2: number)
 function Control:RegisterCallback(eMouse, Callback) end
 
 --- @param nVoid1 number
