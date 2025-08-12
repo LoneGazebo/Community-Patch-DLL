@@ -25,3 +25,12 @@ Events.SerialEventGameMessagePopupProcessed = {}
 --- @field Add fun(EventHandler: fun(popupInfo: PopupInfo))
 --- @overload fun(popupInfo: PopupInfo)
 Events.SerialEventGameMessagePopupShown = {}
+
+--- @class OpenInfoCorner: Event
+--- @field Add fun(EventHandler: fun(eInfoCorner: InfoCornerId))
+--- @overload fun(eInfoCorner: InfoCornerId)
+Events.OpenInfoCorner = {}
+
+--- @class AIProcessingStartedForPlayer: Event
+--- @field Add fun(EventHandler: fun(ePlayer: PlayerId))
+Events.AIProcessingStartedForPlayer = {}
