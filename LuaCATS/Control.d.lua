@@ -73,3 +73,14 @@ function Control:SetTooltipString(strTooltip) end
 
 --- @return Control label # A text label at the same coordinates of the (topleft) of this control
 function Control:GetTextControl() end
+
+--- @return Vector2
+function Control:GetSize() end
+
+--- @param bHide boolean Whether the control should be hidden
+--- @see CPK.UI.Control.Hide
+--- @see CPK.UI.Control.Show
+function Control:SetHide(bHide) end
+
+--- @return boolean
+function Control:IsHidden() end
