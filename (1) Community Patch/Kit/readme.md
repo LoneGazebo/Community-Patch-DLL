@@ -69,11 +69,18 @@ It just reuses what was already loaded.
   Files are loaded only once.
 - Modules are hierarchical you can think of them like nested folders or objects
 - The loader handles nested modules, so feel free to go deep with paths like
-  e.g. `CPK.Data.Units.Military` but note that to handle such file
-  corresponding files should exist:
-  - `CPK.Data.lua` - should `CPK.Data = CPK.Module()`
-  - `CPK.Data.Units.lua` - should `CPK.Data.Units = CPK.Module()`
-  - `CPK.Data.Units.Military.lua` - should `CPK.Data.Units.Military = <non-nil>`
+  e.g. `CPK.Data.Units.Military` but note that to handle such file either
+  - corresponding files should exist:
+    - `CPK.Data.lua` - should `CPK.Data = CPK.Module()`
+    - `CPK.Data.Units.lua` - should `CPK.Data.Units = CPK.Module()`
+    - `CPK.Data.Units.Military.lua` - should `CPK.Data.Units.Military = <non-nil>`
+  - or loaded file should contain all or partial definitions that allow further loading
+    e.g. `CPK.Data.lua` contains following code
+    ```lua
+    CPK.Data = CPK.Module()
+    CPK.Data.Units = CPK.Module()
+    CPK.Data.Units.Military = CPK.Module()
+    ```
 - **A property gets auto-included only if its parent is a CPK.Module, and the property hasn’t been defined yet.**
 
 ## Debug
