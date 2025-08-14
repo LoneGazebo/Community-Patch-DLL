@@ -16,7 +16,9 @@
 	- AITrainPercent
 	- AIWorldTrainPercent
 	- AIConstructPercent
+	- AIWorldConstructPercent
 	- AICreatePercent
+	- AIWorldCreatePercent
 -->
 <GameData>
 	<HandicapInfos>
@@ -712,7 +714,9 @@
 			<AITrainPercent>100</AITrainPercent>
 			<AIWorldTrainPercent>100</AIWorldTrainPercent>
 			<AIConstructPercent>100</AIConstructPercent>
+			<AIWorldConstructPercent>100</AIWorldConstructPercent>
 			<AICreatePercent>100</AICreatePercent>
+			<AIWorldCreatePercent>100</AIWorldCreatePercent>
 		</Row>
 	</HandicapInfos>
 </GameData>
