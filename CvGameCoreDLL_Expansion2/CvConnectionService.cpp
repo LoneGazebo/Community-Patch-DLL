@@ -95,7 +95,7 @@ void CvConnectionService::Shutdown()
 void CvConnectionService::Log(LogLevel level, const char* message)
 {
 	// Only log if logging is enabled in the game
-	if (!GC.getLogging() || !GC.getAILogging())
+	if (!GC.getLogging())
 	{
 		return;
 	}
