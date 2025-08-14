@@ -32,18 +32,18 @@ if not exist "%SOURCE_DLL%" (
 
 REM Create destination directory if it doesn't exist
 if not exist "%DEST_DIR%" (
-    echo Creating directory: %DEST_DIR%
-    mkdir "%DEST_DIR%"
+    echo Creating directory: "%DEST_DIR%"
+    mkdir "%DEST_DIR%" 2>nul
 )
 
 REM Copy the DLL, overwriting if it exists
-echo Copying %SOURCE_DLL% to "%DEST_DIR%\"
-copy /Y "%SOURCE_DLL%" "%DEST_DIR%\" >nul
+echo Copying "%SOURCE_DLL%" to "%DEST_DIR%"
+copy /Y "%SOURCE_DLL%" "%DEST_DIR%" >nul
 
 if %ERRORLEVEL% equ 0 (
     echo.
     echo DLL successfully copied to Civ5 MODS folder!
-    echo Location: %DEST_DIR%\CvGameCore_Expansion2.dll
+    echo Location: "%DEST_DIR%\CvGameCore_Expansion2.dll"
 ) else (
     echo.
     echo Error: Failed to copy DLL to destination
