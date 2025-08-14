@@ -88,10 +88,17 @@ void CvConnectionService::Shutdown()
 
 	// Signal the thread to shutdown
 	m_bShutdownRequested = true;
+	
+	// Force disconnect any connected client first
+	m_bClientConnected = false;
 
 	// Close the pipe if it's open to wake up the thread
 	if (m_hPipe != INVALID_HANDLE_VALUE)
 	{
+		// Cancel any pending I/O operations
+		CancelIo(m_hPipe);
+		
+		// Disconnect and close the pipe
 		DisconnectNamedPipe(m_hPipe);
 		CloseHandle(m_hPipe);
 		m_hPipe = INVALID_HANDLE_VALUE;
@@ -181,7 +188,7 @@ DWORD WINAPI CvConnectionService::NamedPipeServerThread(LPVOID lpParam)
 	pService->Log(LOG_INFO, "NamedPipeServerThread - Thread started");
 	
 	// Define the pipe name (matching what Bridge Service expects)
-	const char* pipeName = "\\\\.\\pipe\\vox-deorum-bridge";
+	const char* pipeName = "\\\\.\\pipe\\tmp-app.vox-deorum-bridge";
 	
 	while (!pService->m_bShutdownRequested)
 	{
@@ -205,7 +212,7 @@ DWORD WINAPI CvConnectionService::NamedPipeServerThread(LPVOID lpParam)
 			std::stringstream ss;
 			ss << "NamedPipeServerThread - Failed to create Named Pipe, error: " << GetLastError();
 			pService->Log(LOG_ERROR, ss.str().c_str());
-			Sleep(1000); // Wait before retrying
+			Sleep(100); // Wait before retrying
 			continue;
 		}
 		
@@ -225,7 +232,7 @@ DWORD WINAPI CvConnectionService::NamedPipeServerThread(LPVOID lpParam)
 			
 			if (!pService->m_bShutdownRequested)
 			{
-				Sleep(1000); // Wait before retrying
+				Sleep(100); // Wait before retrying
 			}
 			continue;
 		}
@@ -263,9 +270,13 @@ void CvConnectionService::HandleClientConnection(HANDLE hPipe)
 	char buffer[4096];
 	DWORD bytesRead, bytesWritten;
 	
+	// Set pipe to non-blocking mode for periodic shutdown checks
+	DWORD pipeMode = PIPE_READMODE_MESSAGE | PIPE_NOWAIT;
+	SetNamedPipeHandleState(hPipe, &pipeMode, NULL, NULL);
+	
 	while (m_bClientConnected && !m_bShutdownRequested)
 	{
-		// Read message from client
+		// Read message from client (non-blocking)
 		BOOL success = ReadFile(
 			hPipe,
 			buffer,
@@ -273,20 +284,36 @@ void CvConnectionService::HandleClientConnection(HANDLE hPipe)
 			&bytesRead,
 			NULL);
 		
-		if (!success || bytesRead == 0)
+		if (!success)
 		{
 			DWORD error = GetLastError();
+			
+			// If no data available, wait a bit and check for shutdown
+			if (error == ERROR_NO_DATA)
+			{
+				Sleep(50); // Small delay to avoid busy waiting
+				continue;
+			}
+			
+			// Handle actual errors
 			if (error == ERROR_BROKEN_PIPE || error == ERROR_PIPE_NOT_CONNECTED)
 			{
 				Log(LOG_INFO, "HandleClientConnection - Client disconnected");
 			}
-			else if (error != ERROR_SUCCESS)
+			else
 			{
 				std::stringstream ss;
 				ss << "HandleClientConnection - ReadFile failed, error: " << error;
 				Log(LOG_ERROR, ss.str().c_str());
 			}
 			break;
+		}
+		
+		if (bytesRead == 0)
+		{
+			// No data read, continue checking
+			Sleep(50);
+			continue;
 		}
 		
 		// Null-terminate the received message
