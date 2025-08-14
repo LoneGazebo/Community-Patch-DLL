@@ -7,6 +7,7 @@
 #include "CvGlobals.h"
 #include "FireWorks/FILogFile.h"
 #include <sstream>
+#include <iomanip>
 
 // Singleton instance getter
 CvConnectionService& CvConnectionService::GetInstance()
@@ -143,6 +144,14 @@ void CvConnectionService::Log(LogLevel level, const char* message)
 	{
 		std::stringstream ss;
 		
+		// Add timestamp
+		SYSTEMTIME st;
+		GetLocalTime(&st);
+		ss << "[" << std::setfill('0') << std::setw(2) << st.wHour << ":"
+		   << std::setfill('0') << std::setw(2) << st.wMinute << ":"
+		   << std::setfill('0') << std::setw(2) << st.wSecond << "."
+		   << std::setfill('0') << std::setw(3) << st.wMilliseconds << "] ";
+		
 		// Add turn number prefix
 		ss << "[Turn " << GC.getGame().getElapsedGameTurns() << "] ";
 		
@@ -184,8 +193,6 @@ FILogFile* CvConnectionService::GetLogFile()
 DWORD WINAPI CvConnectionService::NamedPipeServerThread(LPVOID lpParam)
 {
 	CvConnectionService* pService = static_cast<CvConnectionService*>(lpParam);
-	
-	pService->Log(LOG_INFO, "NamedPipeServerThread - Thread started");
 	
 	// Define the pipe name (matching what Bridge Service expects)
 	const char* pipeName = "\\\\.\\pipe\\tmp-app.vox-deorum-bridge";
