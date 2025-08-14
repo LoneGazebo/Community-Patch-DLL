@@ -200,7 +200,7 @@ DWORD WINAPI CvConnectionService::NamedPipeServerThread(LPVOID lpParam)
 			PIPE_ACCESS_DUPLEX,        // read/write access
 			PIPE_TYPE_MESSAGE |        // message type pipe
 			PIPE_READMODE_MESSAGE |    // message-read mode
-			PIPE_WAIT,                 // blocking mode
+			PIPE_NOWAIT,               // non-blocking mode
 			1,                         // max instances (only one client - Bridge Service)
 			4096,                      // output buffer size
 			4096,                      // input buffer size
@@ -269,10 +269,6 @@ void CvConnectionService::HandleClientConnection(HANDLE hPipe)
 {
 	char buffer[4096];
 	DWORD bytesRead, bytesWritten;
-	
-	// Set pipe to non-blocking mode for periodic shutdown checks
-	DWORD pipeMode = PIPE_READMODE_MESSAGE | PIPE_NOWAIT;
-	SetNamedPipeHandleState(hPipe, &pipeMode, NULL, NULL);
 	
 	while (m_bClientConnected && !m_bShutdownRequested)
 	{
