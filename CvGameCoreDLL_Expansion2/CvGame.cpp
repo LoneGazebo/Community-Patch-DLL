@@ -62,6 +62,7 @@
 
 #include "CvSpanSerialization.h"
 #include "CvEnumMapSerialization.h"
+#include "CvConnectionService.h"
 
 //updated by pre-build hook
 #include "../commit_id.inc"
@@ -419,6 +420,9 @@ bool CvGame::init2()
 	initScoreCalculation();
 	initSpyThreshold();
 	setFinalInitialized(true);
+
+	// Initialize ConnectionService for Bridge communication
+	CvConnectionService::GetInstance().Setup();
 
 #if defined(MOD_EVENTS_TERRAFORMING)
 	if (MOD_EVENTS_TERRAFORMING) {
@@ -990,6 +994,9 @@ void CvGame::DoGameStarted()
 //	--------------------------------------------------------------------------------
 void CvGame::uninit()
 {
+	// Shutdown ConnectionService for Bridge communication
+	CvConnectionService::GetInstance().Shutdown();
+
 	CvGoodyHuts::Uninit();
 	CvBarbarians::Uninit();
 
