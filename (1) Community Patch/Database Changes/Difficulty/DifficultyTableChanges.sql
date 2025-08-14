@@ -1,12 +1,12 @@
 -- Player Bonuses
 ALTER TABLE HandicapInfos ADD MapPlacementPriority integer DEFAULT 3;
-ALTER TABLE HandicapInfos ADD StartingGold integer DEFAULT 0;
+ALTER TABLE HandicapInfos ADD StartingGold integer DEFAULT 0; -- renamed from Gold
 ALTER TABLE HandicapInfos ADD HappinessDefaultCapital integer DEFAULT 0;
 ALTER TABLE HandicapInfos ADD EmpireSizeUnhappinessMod integer DEFAULT 0;
-ALTER TABLE HandicapInfos ADD MaintenanceFreeUnits integer DEFAULT 0;
-ALTER TABLE HandicapInfos ADD UnitSupplyBase integer DEFAULT 0;
-ALTER TABLE HandicapInfos ADD UnitSupplyPerCity integer DEFAULT 0;
-ALTER TABLE HandicapInfos ADD UnitSupplyPopulationPercent integer DEFAULT 0;
+ALTER TABLE HandicapInfos ADD MaintenanceFreeUnits integer DEFAULT 0; -- renamed from GoldFreeUnits
+ALTER TABLE HandicapInfos ADD UnitSupplyBase integer DEFAULT 0; -- renamed from ProductionFreeUnits
+ALTER TABLE HandicapInfos ADD UnitSupplyPerCity integer DEFAULT 0; -- renamed from ProductionFreeUnitsPerCity
+ALTER TABLE HandicapInfos ADD UnitSupplyPopulationPercent integer DEFAULT 0; -- renamed from ProductionFreeUnitsPopulationPercent
 ALTER TABLE HandicapInfos ADD UnitSupplyPerEraFlat integer DEFAULT 0;
 ALTER TABLE HandicapInfos ADD UnitSupplyPerEraModifier integer DEFAULT 0;
 ALTER TABLE HandicapInfos ADD UnitSupplyBonusPercent integer DEFAULT 0;
@@ -62,7 +62,7 @@ ALTER TABLE HandicapInfos ADD AIUnitSupplyPerCity integer DEFAULT 0;
 ALTER TABLE HandicapInfos ADD AIUnitSupplyPopulationPercent integer DEFAULT 0;
 ALTER TABLE HandicapInfos ADD AIUnitSupplyPerEraFlat integer DEFAULT 0;
 ALTER TABLE HandicapInfos ADD AIUnitSupplyPerEraModifier integer DEFAULT 0;
-ALTER TABLE HandicapInfos ADD AIUnitSupplyBonusPercent integer DEFAULT 0;
+ALTER TABLE HandicapInfos ADD AIUnitSupplyBonusPercent integer DEFAULT 0; -- renamed from AIUnitSupplyPercent
 ALTER TABLE HandicapInfos ADD AIImprovementCostPercent integer DEFAULT 100;
 ALTER TABLE HandicapInfos ADD AIUnitUpgradePerEraModifier integer DEFAULT 0;
 ALTER TABLE HandicapInfos ADD AIGrowthPerEraModifier integer DEFAULT 0;
@@ -116,11 +116,11 @@ ALTER TABLE HandicapInfos ADD CityStateCombatBonus integer DEFAULT 0;
 ALTER TABLE HandicapInfos ADD CityStateVisionBonus integer DEFAULT 0;
 
 -- Barbarians
-ALTER TABLE HandicapInfos ADD BonusVSBarbarians integer DEFAULT 0;
-ALTER TABLE HandicapInfos ADD AIBonusVSBarbarians integer DEFAULT 0;
-ALTER TABLE HandicapInfos ADD BarbarianCampGold integer DEFAULT 0;
+ALTER TABLE HandicapInfos ADD BonusVSBarbarians integer DEFAULT 0; -- renamed from BarbarianBonus
+ALTER TABLE HandicapInfos ADD AIBonusVSBarbarians integer DEFAULT 0; -- renamed from AIBarbarianBonus
+ALTER TABLE HandicapInfos ADD BarbarianCampGold integer DEFAULT 0; -- renamed from BarbCampGold
 ALTER TABLE HandicapInfos ADD AIBarbarianCampGold integer DEFAULT 0;
-ALTER TABLE HandicapInfos ADD BarbarianSpawnDelay integer DEFAULT 0;
+ALTER TABLE HandicapInfos ADD BarbarianSpawnDelay integer DEFAULT 0; -- renamed from BarbSpawnMod
 
 -- AI Behavior Modifiers
 -- Weighted Randomized Choices
