@@ -6,7 +6,7 @@
 #ifndef CIV5_CONNECTION_SERVICE_H
 #define CIV5_CONNECTION_SERVICE_H
 
-#include <winsock2.h>
+#include <windows.h>
 #include <string>
 
 // Forward declarations
@@ -49,9 +49,21 @@ private:
 	// Get the log file for writing
 	FILogFile* GetLogFile();
 
+	// Named Pipe server thread function
+	static DWORD WINAPI NamedPipeServerThread(LPVOID lpParam);
+	
+	// Handle a single client connection
+	void HandleClientConnection(HANDLE hPipe);
+
 	// Internal state
 	bool m_bInitialized;
-	SOCKET m_socket;
+	
+	// Named Pipe server state
+	HANDLE m_hPipe;
+	HANDLE m_hThread;
+	DWORD m_dwThreadId;
+	volatile bool m_bClientConnected;
+	volatile bool m_bShutdownRequested;
 };
 
 #endif // CIV5_CONNECTION_SERVICE_H
