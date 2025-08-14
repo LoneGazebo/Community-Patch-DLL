@@ -212,27 +212,56 @@ DWORD WINAPI CvConnectionService::NamedPipeServerThread(LPVOID lpParam)
 			std::stringstream ss;
 			ss << "NamedPipeServerThread - Failed to create Named Pipe, error: " << GetLastError();
 			pService->Log(LOG_ERROR, ss.str().c_str());
-			Sleep(100); // Wait before retrying
+			Sleep(50); // Wait before retrying
 			continue;
 		}
 		
 		pService->m_hPipe = hPipe;
 		pService->Log(LOG_INFO, "NamedPipeServerThread - Named Pipe created, waiting for client connection");
 		
-		// Wait for client to connect
-		BOOL connected = ConnectNamedPipe(hPipe, NULL);
-		
-		if (!connected && GetLastError() != ERROR_PIPE_CONNECTED)
+		// Wait for client to connect (non-blocking mode)
+		BOOL waitingForClient = true;
+		while (waitingForClient && !pService->m_bShutdownRequested)
 		{
-			std::stringstream ss;
-			ss << "NamedPipeServerThread - Failed to connect to client, error: " << GetLastError();
-			pService->Log(LOG_ERROR, ss.str().c_str());
-			CloseHandle(hPipe);
-			pService->m_hPipe = INVALID_HANDLE_VALUE;
+			BOOL connected = ConnectNamedPipe(hPipe, NULL);
+			DWORD error = GetLastError();
 			
-			if (!pService->m_bShutdownRequested)
+			if (connected || error == ERROR_PIPE_CONNECTED)
 			{
-				Sleep(100); // Wait before retrying
+				// Client successfully connected
+				waitingForClient = false;
+			}
+			else if (error == ERROR_PIPE_LISTENING)
+			{
+				// Still waiting for client connection in non-blocking mode
+				Sleep(50); // Wait 50ms before checking again
+			}
+			else if (error == ERROR_NO_DATA)
+			{
+				// Pipe is in non-blocking mode and no client is ready
+				Sleep(50); // Wait 50ms before checking again
+			}
+			else
+			{
+				// Actual error occurred
+				std::stringstream ss;
+				ss << "NamedPipeServerThread - Failed to connect to client, error: " << error;
+				pService->Log(LOG_ERROR, ss.str().c_str());
+				CloseHandle(hPipe);
+				pService->m_hPipe = INVALID_HANDLE_VALUE;
+				waitingForClient = false;
+				
+				break; // Exit the inner loop to create a new pipe
+			}
+		}
+		
+		// Check if we should continue (client connected) or retry (error or shutdown)
+		if (pService->m_bShutdownRequested || pService->m_hPipe == INVALID_HANDLE_VALUE)
+		{
+			if (pService->m_hPipe != INVALID_HANDLE_VALUE)
+			{
+				CloseHandle(hPipe);
+				pService->m_hPipe = INVALID_HANDLE_VALUE;
 			}
 			continue;
 		}
@@ -256,7 +285,7 @@ DWORD WINAPI CvConnectionService::NamedPipeServerThread(LPVOID lpParam)
 		// Small delay before accepting new connection
 		if (!pService->m_bShutdownRequested)
 		{
-			Sleep(100);
+			Sleep(50);
 		}
 	}
 	
