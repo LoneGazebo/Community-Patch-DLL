@@ -327,14 +327,17 @@ void CvConnectionService::HandleClientConnection(HANDLE hPipe)
 	while (m_bClientConnected && !m_bShutdownRequested)
 	{
 		// First, check for any outgoing messages to send
-		std::string outgoingMessage;
+		json outgoingMessage;
 		if (DequeueOutgoingMessage(outgoingMessage))
 		{
+			// Serialize JSON to string
+			std::string outgoingString = outgoingMessage.dump();
+			
 			// Send the message to the Bridge Service
 			BOOL success = WriteFile(
 				hPipe,
-				outgoingMessage.c_str(),
-				(DWORD)outgoingMessage.length(),
+				outgoingString.c_str(),
+				(DWORD)outgoingString.length(),
 				&bytesWritten,
 				NULL);
 			
@@ -397,34 +400,47 @@ void CvConnectionService::HandleClientConnection(HANDLE hPipe)
 		// Null-terminate the received message
 		buffer[bytesRead] = '\0';
 		
-		// Validate that it looks like JSON (basic check for { or [)
-		std::string receivedData(buffer);
-		if (receivedData.empty() || (receivedData[0] != '{' && receivedData[0] != '['))
+		// Parse the received JSON string
+		try
+		{
+			json receivedJson = json::parse(buffer);
+			
+			// Log the received message
+			std::stringstream ss;
+			ss << "HandleClientConnection - Received JSON message (" << bytesRead << " bytes)";
+			Log(LOG_INFO, ss.str().c_str());
+			
+			// Queue the message for processing by the game thread
+			QueueIncomingMessage(receivedJson);
+		}
+		catch (const json::parse_error& e)
 		{
 			std::stringstream ss;
-			ss << "HandleClientConnection - Received non-JSON message: " << buffer;
-			Log(LOG_WARNING, ss.str().c_str());
-			continue;
+			ss << "HandleClientConnection - Failed to parse JSON: " << e.what() << ", data: " << buffer;
+			Log(LOG_ERROR, ss.str().c_str());
+			
+			// Send error response
+			json errorResponse;
+			errorResponse["type"] = "error";
+			errorResponse["error"] = "Invalid JSON";
+			errorResponse["details"] = e.what();
+			
+			// Queue the error response
+			EnterCriticalSection(&m_csOutgoing);
+			m_outgoingQueue.push(errorResponse);
+			LeaveCriticalSection(&m_csOutgoing);
 		}
-		
-		// Log the received message
-		std::stringstream ss;
-		ss << "HandleClientConnection - Received JSON message (" << bytesRead << " bytes)";
-		Log(LOG_INFO, ss.str().c_str());
-		
-		// Queue the message for processing by the game thread
-		QueueIncomingMessage(receivedData);
 	}
 }
 
 // Queue an incoming message from the Bridge Service (called from SSE thread)
-void CvConnectionService::QueueIncomingMessage(const std::string& jsonData)
+void CvConnectionService::QueueIncomingMessage(const json& messageData)
 {
 	// Lock the incoming queue critical section
 	EnterCriticalSection(&m_csIncoming);
 	
 	// Add the message to the queue
-	m_incomingQueue.push(GameMessage(jsonData));
+	m_incomingQueue.push(messageData);
 	
 	// Log the queuing action
 	std::stringstream ss;
@@ -435,8 +451,26 @@ void CvConnectionService::QueueIncomingMessage(const std::string& jsonData)
 	LeaveCriticalSection(&m_csIncoming);
 }
 
+// Queue an outgoing message to send to the Bridge Service (called from game thread)
+void CvConnectionService::QueueOutgoingMessage(const json& messageData)
+{
+	// Lock the outgoing queue critical section
+	EnterCriticalSection(&m_csOutgoing);
+	
+	// Add the message to the queue
+	m_outgoingQueue.push(messageData);
+	
+	// Log the queuing action
+	std::stringstream ss;
+	ss << "QueueOutgoingMessage - Queued message, queue size: " << m_outgoingQueue.size();
+	Log(LOG_DEBUG, ss.str().c_str());
+	
+	// Release the critical section
+	LeaveCriticalSection(&m_csOutgoing);
+}
+
 // Dequeue an outgoing message to send to the Bridge Service (called from SSE thread)
-bool CvConnectionService::DequeueOutgoingMessage(std::string& jsonData)
+bool CvConnectionService::DequeueOutgoingMessage(json& messageData)
 {
 	bool hasMessage = false;
 	
@@ -447,7 +481,7 @@ bool CvConnectionService::DequeueOutgoingMessage(std::string& jsonData)
 	if (!m_outgoingQueue.empty())
 	{
 		// Get the message from the front of the queue
-		jsonData = m_outgoingQueue.front().jsonData;
+		messageData = m_outgoingQueue.front();
 		m_outgoingQueue.pop();
 		hasMessage = true;
 		
@@ -480,28 +514,22 @@ void CvConnectionService::ProcessMessages()
 	while (!m_incomingQueue.empty())
 	{
 		// Get the message from the front of the queue
-		GameMessage msg = m_incomingQueue.front();
+		json msg = m_incomingQueue.front();
 		m_incomingQueue.pop();
 		
 		// Temporarily release the lock to process the message
 		LeaveCriticalSection(&m_csIncoming);
 		
 		// Log the message processing
-		std::stringstream ss;
-		ss << "ProcessMessages - Processing message from queue: " << msg.jsonData;
-		Log(LOG_INFO, ss.str().c_str());
+		if (msg.contains("type") && msg["type"].is_string())
+		{
+			std::stringstream ss;
+			ss << "ProcessMessages - Processing message type: " << msg["type"].get<std::string>();
+			Log(LOG_INFO, ss.str().c_str());
+		}
 		
-		// For now, just echo the message back (Stage 3 requirement)
-		// In future stages, this will parse and handle specific commands
-		
-		// Create echo response
-		std::stringstream response;
-		response << "{\"type\":\"echo\",\"original\":\"" << msg.jsonData << "\",\"timestamp\":" << msg.timestamp << "}";
-		
-		// Queue the echo response to send back
-		EnterCriticalSection(&m_csOutgoing);
-		m_outgoingQueue.push(GameMessage(response.str()));
-		LeaveCriticalSection(&m_csOutgoing);
+		// Route the message to the appropriate handler
+		RouteMessage(msg);
 		
 		processedCount++;
 		
@@ -519,4 +547,22 @@ void CvConnectionService::ProcessMessages()
 		ss << "ProcessMessages - Processed " << processedCount << " messages from queue";
 		Log(LOG_DEBUG, ss.str().c_str());
 	}
+}
+
+// Route incoming message to appropriate handler based on type
+void CvConnectionService::RouteMessage(const json& message)
+{
+	std::string messageType = message["type"];
+	
+	// Route to appropriate handler based on message type
+	
+	// Otherwise, create echo response with original message
+	json response;
+	response["type"] = "echo_response";
+	response["original"] = message;
+	response["timestamp"] = GetTickCount();
+	response["turn"] = GC.getGame().getElapsedGameTurns();
+	
+	// Queue the response using the thread-safe function
+	QueueOutgoingMessage(response);
 }

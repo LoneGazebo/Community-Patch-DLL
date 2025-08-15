@@ -10,6 +10,10 @@
 #include <string>
 #include <queue>
 #include <vector>
+#include "../../ThirdPartyLibs/json.hpp"
+
+// Use nlohmann::json
+using json = nlohmann::json;
 
 // Forward declarations
 class FILogFile;
@@ -43,14 +47,6 @@ public:
 	void ProcessMessages();
 
 private:
-	// Message structure for queuing
-	struct GameMessage
-	{
-		std::string jsonData;
-		DWORD timestamp;
-		
-		GameMessage(const std::string& data) : jsonData(data), timestamp(GetTickCount()) {}
-	};
 	// Private constructor for singleton
 	CvConnectionService();
 	~CvConnectionService();
@@ -69,9 +65,13 @@ private:
 	void HandleClientConnection(HANDLE hPipe);
 
 	// Queue management methods
-	void QueueIncomingMessage(const std::string& jsonData);
-	bool DequeueOutgoingMessage(std::string& jsonData);
-
+	void QueueIncomingMessage(const json& messageData);
+	void QueueOutgoingMessage(const json& messageData);
+	bool DequeueOutgoingMessage(json& messageData);
+	
+	// Message routing and handling
+	void RouteMessage(const json& message);
+	
 	// Internal state
 	bool m_bInitialized;
 	
@@ -83,8 +83,8 @@ private:
 	volatile bool m_bShutdownRequested;
 	
 	// Thread-safe message queues
-	std::queue<GameMessage> m_incomingQueue;  // Bridge -> Game
-	std::queue<GameMessage> m_outgoingQueue;  // Game -> Bridge
+	std::queue<json> m_incomingQueue;  // Bridge -> Game
+	std::queue<json> m_outgoingQueue;  // Game -> Bridge
 	
 	// Critical sections for thread safety
 	CRITICAL_SECTION m_csIncoming;
