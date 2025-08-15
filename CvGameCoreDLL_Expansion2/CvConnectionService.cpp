@@ -10,6 +10,8 @@
 #include "Lua/CvLuaSupport.h"
 #include <sstream>
 #include <iomanip>
+#include <cmath>
+#include <climits>
 
 // Singleton instance getter
 CvConnectionService& CvConnectionService::GetInstance()
@@ -614,13 +616,39 @@ void CvConnectionService::ProcessLuaResult(lua_State* L, int executionResult, co
 		
 		if (numResults > 0)
 		{
-			// TODO: Convert Lua value(s) to JSON string
-			// For now, just pop all return values from the stack
+			// Convert the Lua return value(s) to JSON
+			std::string jsonResult;
+			
+			if (numResults == 1)
+			{
+				// Single return value
+				jsonResult = ConvertLuaResultToJson(L, -1);
+			}
+			else
+			{
+				// Multiple return values - wrap in an array
+				std::stringstream ss;
+				ss << "[";
+				for (int i = numResults; i >= 1; i--)
+				{
+					if (i < numResults) ss << ",";
+					ss << ConvertLuaResultToJson(L, -i);
+				}
+				ss << "]";
+				jsonResult = ss.str();
+			}
+			
+			// Pop all return values from the stack
 			lua_pop(L, numResults);
+			
+			// Send success response with the JSON result
+			SendLuaSuccessResponse(id, jsonResult.c_str());
 		}
-		
-		// Send success response (for now with "null" as result)
-		SendLuaSuccessResponse(id, "null");
+		else
+		{
+			// No return value
+			SendLuaSuccessResponse(id, "null");
+		}
 	}
 	else
 	{
@@ -674,4 +702,158 @@ void CvConnectionService::SendLuaErrorResponse(const char* id, const char* error
 	std::stringstream logMsg;
 	logMsg << "SendLuaErrorResponse - Sent error response for id: " << id << ", error: " << error;
 	Log(LOG_DEBUG, logMsg.str().c_str());
+}
+
+// Convert a Lua value at the given stack index to a JSON string
+std::string CvConnectionService::ConvertLuaResultToJson(lua_State* L, int index)
+{
+	std::stringstream result;
+	
+	// Make the index absolute if it's relative
+	if (index < 0 && index > LUA_REGISTRYINDEX)
+	{
+		index = lua_gettop(L) + index + 1;
+	}
+	
+	int type = lua_type(L, index);
+	
+	switch (type)
+	{
+	case LUA_TNIL:
+		result << "null";
+		break;
+		
+	case LUA_TBOOLEAN:
+		result << (lua_toboolean(L, index) ? "true" : "false");
+		break;
+		
+	case LUA_TNUMBER:
+		{
+			double num = lua_tonumber(L, index);
+			// Check if it's an integer
+			if (num == floor(num) && num >= INT_MIN && num <= INT_MAX)
+			{
+				result << static_cast<int>(num);
+			}
+			else
+			{
+				result << num;
+			}
+		}
+		break;
+		
+	case LUA_TSTRING:
+		{
+			// Escape the string for JSON
+			const char* str = lua_tostring(L, index);
+			result << "\"";
+			if (str)
+			{
+				for (const char* p = str; *p; ++p)
+				{
+					switch (*p)
+					{
+					case '\"': result << "\\\""; break;
+					case '\\': result << "\\\\"; break;
+					case '\b': result << "\\b"; break;
+					case '\f': result << "\\f"; break;
+					case '\n': result << "\\n"; break;
+					case '\r': result << "\\r"; break;
+					case '\t': result << "\\t"; break;
+					default:
+						if (*p >= 0x20 && *p <= 0x7E)
+						{
+							result << *p;
+						}
+						else
+						{
+							// Escape non-printable characters
+							result << "\\u" << std::hex << std::setw(4) << std::setfill('0') << static_cast<int>(*p);
+						}
+					}
+				}
+			}
+			result << "\"";
+		}
+		break;
+		
+	case LUA_TTABLE:
+		{
+			// Check if it's an array or object
+			bool isArray = true;
+			int expectedIndex = 1;
+			
+			// First pass: check if it's an array
+			lua_pushnil(L);
+			while (lua_next(L, index) != 0)
+			{
+				// Check if key is a number and matches expected index
+				if (lua_type(L, -2) != LUA_TNUMBER || lua_tonumber(L, -2) != expectedIndex)
+				{
+					isArray = false;
+				}
+				lua_pop(L, 1);
+				expectedIndex++;
+			}
+			
+			if (isArray)
+			{
+				result << "[";
+				bool first = true;
+				lua_pushnil(L);
+				while (lua_next(L, index) != 0)
+				{
+					if (!first) result << ",";
+					first = false;
+					result << ConvertLuaResultToJson(L, -1);
+					lua_pop(L, 1);
+				}
+				result << "]";
+			}
+			else
+			{
+				result << "{";
+				bool first = true;
+				lua_pushnil(L);
+				while (lua_next(L, index) != 0)
+				{
+					if (!first) result << ",";
+					first = false;
+					
+					// Convert key to string
+					if (lua_type(L, -2) == LUA_TSTRING)
+					{
+						result << ConvertLuaResultToJson(L, -2);
+					}
+					else
+					{
+						// Convert non-string key to string
+						lua_pushvalue(L, -2);
+						const char* key = lua_tostring(L, -1);
+						result << "\"" << (key ? key : "") << "\"";
+						lua_pop(L, 1);
+					}
+					
+					result << ":" << ConvertLuaResultToJson(L, -1);
+					lua_pop(L, 1);
+				}
+				result << "}";
+			}
+		}
+		break;
+		
+	case LUA_TFUNCTION:
+	case LUA_TUSERDATA:
+	case LUA_TTHREAD:
+	case LUA_TLIGHTUSERDATA:
+		// These types cannot be serialized to JSON
+		result << "\"<" << lua_typename(L, type) << ">\"";
+		break;
+		
+	default:
+		result << "null";
+		break;
+	}
+	
+	return result.str();
 }
