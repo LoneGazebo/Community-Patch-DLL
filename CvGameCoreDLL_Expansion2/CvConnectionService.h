@@ -45,6 +45,9 @@ public:
 
 	// Process queued messages from the main game thread
 	void ProcessMessages();
+	
+	// Send a message to the Bridge Service (called from game code)
+	void SendMessage(const DynamicJsonDocument& message);
 
 private:
 	// Private constructor for singleton
@@ -65,12 +68,12 @@ private:
 	void HandleClientConnection(HANDLE hPipe);
 
 	// Queue management methods
-	void QueueIncomingMessage(const DynamicJsonDocument& messageData);
-	void QueueOutgoingMessage(const DynamicJsonDocument& messageData);
-	bool DequeueOutgoingMessage(DynamicJsonDocument& messageData);
+	void QueueIncomingMessage(const std::string& messageJson);
+	void QueueOutgoingMessage(const std::string& messageJson);
+	bool DequeueOutgoingMessage(std::string& messageJson);
 	
 	// Message routing and handling
-	void RouteMessage(const DynamicJsonDocument& message);
+	void RouteMessage(const std::string& messageJson);
 	
 	// Internal state
 	bool m_bInitialized;
@@ -82,9 +85,9 @@ private:
 	volatile bool m_bClientConnected;
 	volatile bool m_bShutdownRequested;
 	
-	// Thread-safe message queues
-	std::queue<DynamicJsonDocument> m_incomingQueue;  // Bridge -> Game
-	std::queue<DynamicJsonDocument> m_outgoingQueue;  // Game -> Bridge
+	// Thread-safe message queues (store serialized JSON strings)
+	std::queue<std::string> m_incomingQueue;  // Bridge -> Game (stores stripped JSON)
+	std::queue<std::string> m_outgoingQueue;  // Game -> Bridge (stores wrapped JSON)
 	
 	// Critical sections for thread safety
 	CRITICAL_SECTION m_csIncoming;
