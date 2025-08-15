@@ -416,14 +416,9 @@ void CvConnectionService::HandleClientConnection(HANDLE hPipe)
 		// Null-terminate the received message
 		buffer[bytesRead] = '\0';
 
-		// Strip the wrapper: {"type":"message","data":<actual_json>}
-		buffer[bytesRead - 1] = '\0'; // Remove the trailing }
-		char* dataStart = buffer + 25;
-		char* dataEnd = buffer + bytesRead - 2;
-		std::string strippedJson(dataStart, dataEnd);
-		
 		// Queue the incoming message
-		QueueIncomingMessage(strippedJson);
+		std::string json(buffer);
+		QueueIncomingMessage(json);
 	}
 }
 
@@ -535,11 +530,8 @@ void CvConnectionService::SendMessage(const DynamicJsonDocument& message)
 	std::string messageStr;
 	serializeJson(message, messageStr);
 	
-	// Wrap the message in the expected format
-	std::string wrappedMessage = "{\"type\":\"message\",\"data\":" + messageStr + "}";
-	
 	// Queue the wrapped message
-	QueueOutgoingMessage(wrappedMessage);
+	QueueOutgoingMessage(messageStr);
 }
 
 // Route incoming message to appropriate handler based on type
