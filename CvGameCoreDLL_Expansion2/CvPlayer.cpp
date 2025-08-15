@@ -47616,7 +47616,10 @@ int CvPlayer::GetScoreFromMinorAllies() const
 }
 int CvPlayer::GetScoreFromMilitarySize() const
 {
-	return (GetMilitaryMight() / (10 + getNumCities()));
+	int iNuclearMight = GetNuclearMight();
+	int iMilitaryMight = GetMilitaryMight() - iNuclearMight;
+	int iNumCities = getNumCities();
+	return (iMilitaryMight / (10 + iNumCities)) + (iNuclearMight / (10 + iNumCities) / 2);
 }
 #endif
 
