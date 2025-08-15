@@ -399,18 +399,12 @@ void CvConnectionService::HandleClientConnection(HANDLE hPipe)
 		buffer[bytesRead] = '\0';
 
 		// Strip the wrapper: {"type":"message","data":<actual_json>}
-		// Skip the prefix and remove the trailing }
-		char* dataStart = buffer + 25;
 		buffer[bytesRead - 1] = '\0'; // Remove the trailing }
+		char* dataStart = buffer + 25;
+		char* dataEnd = buffer + bytesRead - 2;
+		std::string strippedJson(dataStart, dataEnd);
 		
-		// Queue the stripped JSON string for processing by the game thread
-		std::string strippedJson(dataStart);
-		
-		// Log the stripped JSON for debugging
-		std::stringstream logMsg;
-		logMsg << "HandleClientConnection - Stripped JSON: " << strippedJson;
-		Log(LOG_DEBUG, logMsg.str().c_str());
-		
+		// Queue the incoming message
 		QueueIncomingMessage(strippedJson);
 	}
 }
@@ -426,7 +420,7 @@ void CvConnectionService::QueueIncomingMessage(const std::string& messageJson)
 	
 	// Log the queuing action
 	std::stringstream ss;
-	ss << "QueueIncomingMessage - Queued message, queue size: " << m_incomingQueue.size();
+	ss << "QueueIncomingMessage - " << messageJson;
 	Log(LOG_DEBUG, ss.str().c_str());
 	
 	// Release the critical section
@@ -444,7 +438,7 @@ void CvConnectionService::QueueOutgoingMessage(const std::string& messageJson)
 	
 	// Log the queuing action
 	std::stringstream ss;
-	ss << "QueueOutgoingMessage - Queued message, queue size: " << m_outgoingQueue.size();
+	ss << "QueueOutgoingMessage - " << messageJson;
 	Log(LOG_DEBUG, ss.str().c_str());
 	
 	// Release the critical section
@@ -513,14 +507,6 @@ void CvConnectionService::ProcessMessages()
 	
 	// Release the critical section
 	LeaveCriticalSection(&m_csIncoming);
-	
-	// Log if we processed any messages
-	if (processedCount > 0)
-	{
-		std::stringstream ss;
-		ss << "ProcessMessages - Processed " << processedCount << " messages from queue";
-		Log(LOG_DEBUG, ss.str().c_str());
-	}
 }
 
 // Send a message to the Bridge Service (called from game code)
@@ -541,10 +527,6 @@ void CvConnectionService::SendMessage(const DynamicJsonDocument& message)
 	
 	// Queue the wrapped message
 	QueueOutgoingMessage(wrappedMessage);
-	
-	std::stringstream ss;
-	ss << "SendMessage - Queued message for delivery (" << wrappedMessage.length() << " bytes)";
-	Log(LOG_DEBUG, ss.str().c_str());
 }
 
 // Route incoming message to appropriate handler based on type
@@ -574,11 +556,6 @@ void CvConnectionService::RouteMessage(const std::string& messageJson)
 	response["timestamp"] = GetTickCount();
 	response["turn"] = GC.getGame().getElapsedGameTurns();
 	
-	// Serialize and wrap the response
-	std::string responseStr;
-	serializeJson(response, responseStr);
-	std::string wrappedResponse = "{\"type\":\"message\",\"data\":" + responseStr + "}";
-	
-	// Queue the wrapped response using the thread-safe function
-	QueueOutgoingMessage(wrappedResponse);
+	// Send the response back to the Bridge Service
+	SendMessage(response);
 }
