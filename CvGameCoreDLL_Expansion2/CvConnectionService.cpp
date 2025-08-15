@@ -511,14 +511,6 @@ void CvConnectionService::ProcessMessages()
 		// Temporarily release the lock to process the message
 		LeaveCriticalSection(&m_csIncoming);
 		
-		// Log the message processing
-		if (msg.containsKey("type") && msg["type"].is<const char*>())
-		{
-			std::stringstream ss;
-			ss << "ProcessMessages - Processing message type: " << msg["type"].as<const char*>();
-			Log(LOG_INFO, ss.str().c_str());
-		}
-		
 		// Route the message to the appropriate handler
 		RouteMessage(msg);
 		
@@ -544,6 +536,7 @@ void CvConnectionService::ProcessMessages()
 void CvConnectionService::RouteMessage(const DynamicJsonDocument& message)
 {
 	const char* messageType = message["type"];
+	Log(LOG_DEBUG, ("Routing message of type: " + String(messageType)).c_str());
 	
 	// Route to appropriate handler based on message type
 	
