@@ -8,6 +8,8 @@
 
 #include <windows.h>
 #include <string>
+#include <queue>
+#include <vector>
 
 // Forward declarations
 class FILogFile;
@@ -37,7 +39,18 @@ public:
 	// Log a message to the connection log file
 	void Log(LogLevel level, const char* message);
 
+	// Process queued messages from the main game thread
+	void ProcessMessages();
+
 private:
+	// Message structure for queuing
+	struct GameMessage
+	{
+		std::string jsonData;
+		DWORD timestamp;
+		
+		GameMessage(const std::string& data) : jsonData(data), timestamp(GetTickCount()) {}
+	};
 	// Private constructor for singleton
 	CvConnectionService();
 	~CvConnectionService();
@@ -55,6 +68,10 @@ private:
 	// Handle a single client connection
 	void HandleClientConnection(HANDLE hPipe);
 
+	// Queue management methods
+	void QueueIncomingMessage(const std::string& jsonData);
+	bool DequeueOutgoingMessage(std::string& jsonData);
+
 	// Internal state
 	bool m_bInitialized;
 	
@@ -64,6 +81,14 @@ private:
 	DWORD m_dwThreadId;
 	volatile bool m_bClientConnected;
 	volatile bool m_bShutdownRequested;
+	
+	// Thread-safe message queues
+	std::queue<GameMessage> m_incomingQueue;  // Bridge -> Game
+	std::queue<GameMessage> m_outgoingQueue;  // Game -> Bridge
+	
+	// Critical sections for thread safety
+	CRITICAL_SECTION m_csIncoming;
+	CRITICAL_SECTION m_csOutgoing;
 };
 
 #endif // CIV5_CONNECTION_SERVICE_H

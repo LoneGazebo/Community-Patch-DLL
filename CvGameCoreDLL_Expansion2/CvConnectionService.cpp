@@ -47,6 +47,10 @@ bool CvConnectionService::Setup()
 
 	Log(LOG_INFO, "ConnectionService::Setup() - Initializing connection service");
 
+	// Initialize critical sections for thread safety
+	InitializeCriticalSection(&m_csIncoming);
+	InitializeCriticalSection(&m_csOutgoing);
+
 	// Reset shutdown flag
 	m_bShutdownRequested = false;
 	m_bClientConnected = false;
@@ -123,6 +127,20 @@ void CvConnectionService::Shutdown()
 		
 		CloseHandle(m_hThread);
 		m_hThread = NULL;
+	}
+
+	// Clean up critical sections
+	DeleteCriticalSection(&m_csIncoming);
+	DeleteCriticalSection(&m_csOutgoing);
+
+	// Clear any remaining messages in the queues
+	while (!m_incomingQueue.empty())
+	{
+		m_incomingQueue.pop();
+	}
+	while (!m_outgoingQueue.empty())
+	{
+		m_outgoingQueue.pop();
 	}
 
 	m_bInitialized = false;
@@ -308,6 +326,34 @@ void CvConnectionService::HandleClientConnection(HANDLE hPipe)
 	
 	while (m_bClientConnected && !m_bShutdownRequested)
 	{
+		// First, check for any outgoing messages to send
+		std::string outgoingMessage;
+		if (DequeueOutgoingMessage(outgoingMessage))
+		{
+			// Send the message to the Bridge Service
+			BOOL success = WriteFile(
+				hPipe,
+				outgoingMessage.c_str(),
+				(DWORD)outgoingMessage.length(),
+				&bytesWritten,
+				NULL);
+			
+			if (!success)
+			{
+				std::stringstream ss;
+				ss << "HandleClientConnection - Failed to send outgoing message, error: " << GetLastError();
+				Log(LOG_ERROR, ss.str().c_str());
+				break;
+			}
+			
+			// Flush the pipe to ensure the client receives the data
+			FlushFileBuffers(hPipe);
+			
+			std::stringstream ss;
+			ss << "HandleClientConnection - Sent outgoing message (" << bytesWritten << " bytes)";
+			Log(LOG_DEBUG, ss.str().c_str());
+		}
+		
 		// Read message from client (non-blocking)
 		BOOL success = ReadFile(
 			hPipe,
@@ -351,32 +397,126 @@ void CvConnectionService::HandleClientConnection(HANDLE hPipe)
 		// Null-terminate the received message
 		buffer[bytesRead] = '\0';
 		
-		// Log the received message
-		std::stringstream ss;
-		ss << "HandleClientConnection - Received message (" << bytesRead << " bytes): " << buffer;
-		Log(LOG_INFO, ss.str().c_str());
-		
-		// Echo the message back to the client
-		success = WriteFile(
-			hPipe,
-			buffer,
-			bytesRead,
-			&bytesWritten,
-			NULL);
-		
-		if (!success)
+		// Validate that it looks like JSON (basic check for { or [)
+		std::string receivedData(buffer);
+		if (receivedData.empty() || (receivedData[0] != '{' && receivedData[0] != '['))
 		{
 			std::stringstream ss;
-			ss << "HandleClientConnection - WriteFile failed, error: " << GetLastError();
-			Log(LOG_ERROR, ss.str().c_str());
-			break;
+			ss << "HandleClientConnection - Received non-JSON message: " << buffer;
+			Log(LOG_WARNING, ss.str().c_str());
+			continue;
 		}
 		
-		// Flush the pipe to ensure the client receives the data
-		FlushFileBuffers(hPipe);
+		// Log the received message
+		std::stringstream ss;
+		ss << "HandleClientConnection - Received JSON message (" << bytesRead << " bytes)";
+		Log(LOG_INFO, ss.str().c_str());
 		
-		std::stringstream ss2;
-		ss2 << "HandleClientConnection - Echoed message back (" << bytesWritten << " bytes)";
-		Log(LOG_DEBUG, ss2.str().c_str());
+		// Queue the message for processing by the game thread
+		QueueIncomingMessage(receivedData);
+	}
+}
+
+// Queue an incoming message from the Bridge Service (called from SSE thread)
+void CvConnectionService::QueueIncomingMessage(const std::string& jsonData)
+{
+	// Lock the incoming queue critical section
+	EnterCriticalSection(&m_csIncoming);
+	
+	// Add the message to the queue
+	m_incomingQueue.push(GameMessage(jsonData));
+	
+	// Log the queuing action
+	std::stringstream ss;
+	ss << "QueueIncomingMessage - Queued message, queue size: " << m_incomingQueue.size();
+	Log(LOG_DEBUG, ss.str().c_str());
+	
+	// Release the critical section
+	LeaveCriticalSection(&m_csIncoming);
+}
+
+// Dequeue an outgoing message to send to the Bridge Service (called from SSE thread)
+bool CvConnectionService::DequeueOutgoingMessage(std::string& jsonData)
+{
+	bool hasMessage = false;
+	
+	// Lock the outgoing queue critical section
+	EnterCriticalSection(&m_csOutgoing);
+	
+	// Check if there are messages to send
+	if (!m_outgoingQueue.empty())
+	{
+		// Get the message from the front of the queue
+		jsonData = m_outgoingQueue.front().jsonData;
+		m_outgoingQueue.pop();
+		hasMessage = true;
+		
+		// Log the dequeuing action
+		std::stringstream ss;
+		ss << "DequeueOutgoingMessage - Dequeued message, remaining: " << m_outgoingQueue.size();
+		Log(LOG_DEBUG, ss.str().c_str());
+	}
+	
+	// Release the critical section
+	LeaveCriticalSection(&m_csOutgoing);
+	
+	return hasMessage;
+}
+
+// Process queued messages from the main game thread
+void CvConnectionService::ProcessMessages()
+{
+	// Only process if we're initialized
+	if (!m_bInitialized)
+	{
+		return;
+	}
+	
+	// Lock the incoming queue critical section
+	EnterCriticalSection(&m_csIncoming);
+	
+	// Process all queued messages
+	int processedCount = 0;
+	while (!m_incomingQueue.empty())
+	{
+		// Get the message from the front of the queue
+		GameMessage msg = m_incomingQueue.front();
+		m_incomingQueue.pop();
+		
+		// Temporarily release the lock to process the message
+		LeaveCriticalSection(&m_csIncoming);
+		
+		// Log the message processing
+		std::stringstream ss;
+		ss << "ProcessMessages - Processing message from queue: " << msg.jsonData;
+		Log(LOG_INFO, ss.str().c_str());
+		
+		// For now, just echo the message back (Stage 3 requirement)
+		// In future stages, this will parse and handle specific commands
+		
+		// Create echo response
+		std::stringstream response;
+		response << "{\"type\":\"echo\",\"original\":\"" << msg.jsonData << "\",\"timestamp\":" << msg.timestamp << "}";
+		
+		// Queue the echo response to send back
+		EnterCriticalSection(&m_csOutgoing);
+		m_outgoingQueue.push(GameMessage(response.str()));
+		LeaveCriticalSection(&m_csOutgoing);
+		
+		processedCount++;
+		
+		// Re-acquire the lock for the next iteration
+		EnterCriticalSection(&m_csIncoming);
+	}
+	
+	// Release the critical section
+	LeaveCriticalSection(&m_csIncoming);
+	
+	// Log if we processed any messages
+	if (processedCount > 0)
+	{
+		std::stringstream ss;
+		ss << "ProcessMessages - Processed " << processedCount << " messages from queue";
+		Log(LOG_DEBUG, ss.str().c_str());
 	}
 }

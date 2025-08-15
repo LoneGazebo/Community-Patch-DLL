@@ -34,6 +34,7 @@
 #include "CvWorldBuilderMapLoader.h"
 #include "CvTypes.h"
 #include "CvDllNetMessageExt.h"
+#include "CvConnectionService.h"
 
 #include "cvStopWatch.h"
 #include "CvUnitMission.h"
@@ -1501,6 +1502,9 @@ bool ExternalPause()
 //	---------------------------------------------------------------------------
 void CvGame::update()
 {
+	// Process messages from the Connection Service
+	CvConnectionService::GetInstance().ProcessMessages();
+
 	if(IsWaitingForBlockingInput())
 	{
 		if(!GC.GetEngineUserInterface()->isDiploActive())
