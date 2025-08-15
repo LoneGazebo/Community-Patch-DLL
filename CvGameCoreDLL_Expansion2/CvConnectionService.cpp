@@ -593,42 +593,50 @@ void CvConnectionService::HandleLuaExecute(const char* script, const char* id)
 	// Execute the Lua script using luaL_dostring (which is luaL_loadstring + lua_pcall)
 	int result = luaL_dostring(m_pLuaState, script);
 
-	if (result == 0)
-	{
-		// Script executed successfully
-		// Get the return value(s) from the stack
-		int numResults = lua_gettop(m_pLuaState);
-		
-		if (numResults > 0)
-		{
-			// Pop all return values from the stack
-			lua_pop(m_pLuaState, numResults);
-		}
-		
-		// No return value
-		SendLuaSuccessResponse(id, "null");
-	}
-	else
-	{
-		// Script execution failed
-		const char* errorMsg = lua_tostring(m_pLuaState, -1);
-		if (!errorMsg) errorMsg = "Unknown Lua error";
-		
-		std::stringstream errorLog;
-		errorLog << "HandleLuaExecute - Lua execution error: " << errorMsg;
-		Log(LOG_ERROR, errorLog.str().c_str());
-		
-		// Pop the error message from the stack
-		lua_pop(m_pLuaState, 1);
-		
-		// Send error response
-		SendLuaErrorResponse(id, errorMsg);
-	}
+	// Process the Lua execution result
+	ProcessLuaResult(m_pLuaState, result, id);
 
 	// Restore game core lock if we had it
 	if (bHadLock)
 	{
 		gDLL->GetGameCoreLock();
+	}
+}
+
+// Process the result of a Lua script execution
+void CvConnectionService::ProcessLuaResult(lua_State* L, int executionResult, const char* id)
+{
+	if (executionResult == 0)
+	{
+		// Script executed successfully
+		// Get the return value(s) from the stack
+		int numResults = lua_gettop(L);
+		
+		if (numResults > 0)
+		{
+			// TODO: Convert Lua value(s) to JSON string
+			// For now, just pop all return values from the stack
+			lua_pop(L, numResults);
+		}
+		
+		// Send success response (for now with "null" as result)
+		SendLuaSuccessResponse(id, "null");
+	}
+	else
+	{
+		// Script execution failed
+		const char* errorMsg = lua_tostring(L, -1);
+		if (!errorMsg) errorMsg = "Unknown Lua error";
+		
+		std::stringstream errorLog;
+		errorLog << "ProcessLuaResult - Lua execution error: " << errorMsg;
+		Log(LOG_ERROR, errorLog.str().c_str());
+		
+		// Pop the error message from the stack
+		lua_pop(L, 1);
+		
+		// Send error response
+		SendLuaErrorResponse(id, errorMsg);
 	}
 }
 
