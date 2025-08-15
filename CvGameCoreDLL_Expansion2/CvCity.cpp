@@ -32832,7 +32832,7 @@ bool CvCity::IsInDanger(PlayerTypes eEnemy) const
 
 	//cannot use the tactical zone here, because it's not specific to a certain enemy
 	//but we can use the danger plots to exclude some cities
-	if (GET_PLAYER(getOwner()).GetPlotDanger(this) == 0)
+	if (getDamageTakenThisTurn() == 0 && getDamageTakenLastTurn() == 0 && GET_PLAYER(getOwner()).GetPlotDanger(this) == 0)
 		return false;
 
 	int iFriendlyLandPower = GetPower();
@@ -32855,7 +32855,10 @@ bool CvCity::IsInDanger(PlayerTypes eEnemy) const
 		for (int j = 0; j < pPlot->getNumUnits(); j++)
 		{
 			CvUnit* pUnit = pPlot->getUnitByIndex(j);
-			if (pUnit->IsCombatUnit())
+			if (pUnit->isDelayedDeath())
+				continue;
+
+			if (pUnit->IsCombatUnit() || pUnit->IsCanAttackRanged())
 			{
 				if (pUnit->getTeam() == getTeam())
 				{
@@ -32887,6 +32890,15 @@ bool CvCity::IsInDanger(PlayerTypes eEnemy) const
 						iEnemyOtherPower += pUnit->GetPower();
 					}
 				}
+			}
+			else if (pUnit->canNuke() && pUnit->getOwner() == eEnemy)
+			{
+				// Is there a high chance of total interception?
+				if (pUnit->GetNukeDamageLevel() == 1 && getNukeInterceptionChance() >= 75)
+					continue;
+
+				// Regardless of comparative unit power, a city is in danger if an enemy nuke is nearby.
+				return true;
 			}
 			if (pUnit->GetGreatGeneralCount() > 0)
 			{
@@ -32944,7 +32956,7 @@ bool CvCity::IsInDangerFromPlayers(vector<PlayerTypes>& vWarAllies) const
 
 	//cannot use the tactical zone here, because it's not specific to a certain enemy
 	//but we can use the danger plots to exclude some cities
-	if (GET_PLAYER(getOwner()).GetPlotDanger(this) == 0)
+	if (getDamageTakenThisTurn() == 0 && getDamageTakenLastTurn() == 0 && GET_PLAYER(getOwner()).GetPlotDanger(this) == 0)
 		return false;
 
 	int iFriendlyLandPower = GetPower();
@@ -32979,6 +32991,9 @@ bool CvCity::IsInDangerFromPlayers(vector<PlayerTypes>& vWarAllies) const
 		for (int j = 0; j < pPlot->getNumUnits(); j++)
 		{
 			CvUnit* pUnit = pPlot->getUnitByIndex(j);
+			if (pUnit->isDelayedDeath())
+				continue;
+
 			if (pUnit->IsCombatUnit() || pUnit->IsCanAttackRanged())
 			{
 				if (pUnit->getTeam() == getTeam())
@@ -34338,6 +34353,11 @@ int CvCity::CountNumWorkedRiverTiles(TerrainTypes eTerrain)
 
 //	--------------------------------------------------------------------------------
 #if defined(MOD_CORE_PER_TURN_DAMAGE)
+int CvCity::getDamageTakenThisTurn() const
+{
+	return m_iDamageTakenThisTurn;
+}
+
 int CvCity::addDamageReceivedThisTurn(int iDamage, CvUnit* pAttacker)
 {
 	if (pAttacker && !isHuman())

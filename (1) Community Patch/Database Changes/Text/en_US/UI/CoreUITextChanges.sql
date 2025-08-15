@@ -79,6 +79,10 @@ SET Text = 'Connected By:'
 WHERE Tag = 'TXT_KEY_PEDIA_IMPROVEMENTS_LABEL';
 
 UPDATE Language_en_US
+SET Text = 'The three nations that once comprised historical India have taken very different paths in the late 20th and early 21st centuries. Bangladesh is a parliamentary democracy, a highly-dense country much subject to floods, cyclones and famine, though life for its population has steadily improved since its independence in the ''70s.[NEWLINE][NEWLINE]Pakistan is the sixth most populous country in the world and the second most populous Muslim country. While its economy has done well in the past 25 years, it remains locationally-challenged. To the east is India, its old enemy, with whom it has an ongoing border dispute, and both sides have recently acquired nuclear weapons. To the west is Afghanistan, now under Taliban control, where open conflict has diminished but harsh rule and repression - particularly of women - have returned. Pakistan''s future will depend on managing its own political stability, curbing extremism, and redefining its relationships with both neighbors.[NEWLINE][NEWLINE]India is the world''s second most populous country and a thriving democracy. It is loud, boisterous, and has a growing and vibrant economy. It has a technological base second to none, and an education system that rivals that of the United States. It also has a large army and an arsenal of nuclear weapons, primarily aimed at deterring Pakistan, though China has become an increasing strategic concern. If it can reduce tensions with its neighbors and maintain its current economic and technological trajectory, India is well on its way to becoming one of the defining powers of the 21st century.'
+WHERE Tag = 'TXT_KEY_CIV5_INDIA_TEXT_16';
+
+UPDATE Language_en_US
 SET Text = 'Kyivan'
 WHERE Tag = 'TXT_KEY_CIV5_RUSSIA_HEADING_4';
 

@@ -15989,6 +15989,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 	size_t BeginColorPrefixFound;
 	std::string strColorSuffix = "]";
 	size_t BeginColorSuffixFound;
+	std::string strIntensePositiveColor = "[COLOR_INTENSE_POSITIVE_TEXT]";
 	std::string strFullPositiveColor = "[COLOR_POSITIVE_TEXT]";
 	std::string strModeratePositiveColor = "[COLOR_MODERATE_POSITIVE_TEXT]";
 	std::string strFadingPositiveColor = "[COLOR_FADING_POSITIVE_TEXT]";
@@ -15996,6 +15997,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 	std::string strFadingNegativeColor = "[COLOR_FADING_NEGATIVE_TEXT]";
 	std::string strModerateNegativeColor = "[COLOR_MODERATE_NEGATIVE_TEXT]";
 	std::string strFullNegativeColor = "[COLOR_NEGATIVE_TEXT]";
+	std::string strIntenseNegativeColor = "[COLOR_INTENSE_NEGATIVE_TEXT]";
 
 	for (uint ui = 0; ui < aOpinions.size(); ui++)
 	{
@@ -16017,11 +16019,15 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			}
 		}
 
-		if (aOpinions[ui].m_iValue >= /*31*/ GD_INT_GET(OPINION_THRESHOLD_MAJOR_NEGATIVE))
+		if (aOpinions[ui].m_iValue >= /*80*/ GD_INT_GET(OPINION_THRESHOLD_INTENSE_NEGATIVE))
+		{
+			strOutput.insert(0, strIntenseNegativeColor);
+		}
+		else if (aOpinions[ui].m_iValue >= /*30*/ GD_INT_GET(OPINION_THRESHOLD_MAJOR_NEGATIVE))
 		{
 			strOutput.insert(0, strFullNegativeColor);
 		}
-		else if (aOpinions[ui].m_iValue >= /*16*/ GD_INT_GET(OPINION_THRESHOLD_MODERATE_NEGATIVE))
+		else if (aOpinions[ui].m_iValue >= /*15*/ GD_INT_GET(OPINION_THRESHOLD_MODERATE_NEGATIVE))
 		{
 			strOutput.insert(0, strModerateNegativeColor);
 		}
@@ -16033,17 +16039,21 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		{
 			strOutput.insert(0, strNeutralColor);
 		}
-		else if (aOpinions[ui].m_iValue > /*-16*/ GD_INT_GET(OPINION_THRESHOLD_MODERATE_POSITIVE))
+		else if (aOpinions[ui].m_iValue > /*-15*/ GD_INT_GET(OPINION_THRESHOLD_MODERATE_POSITIVE))
 		{
 			strOutput.insert(0, strFadingPositiveColor);
 		}
-		else if (aOpinions[ui].m_iValue > /*-31*/ GD_INT_GET(OPINION_THRESHOLD_MAJOR_POSITIVE))
+		else if (aOpinions[ui].m_iValue > /*-30*/ GD_INT_GET(OPINION_THRESHOLD_MAJOR_POSITIVE))
 		{
 			strOutput.insert(0, strModeratePositiveColor);
 		}
-		else
+		else if (aOpinions[ui].m_iValue > /*-80*/ GD_INT_GET(OPINION_THRESHOLD_INTENSE_POSITIVE))
 		{
 			strOutput.insert(0, strFullPositiveColor);
+		}
+		else
+		{
+			strOutput.insert(0, strIntensePositiveColor);
 		}
 
 		// Should we display the number value of opinion modifiers?
