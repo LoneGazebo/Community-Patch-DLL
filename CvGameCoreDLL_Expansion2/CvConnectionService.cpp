@@ -6,6 +6,8 @@
 #include "CvConnectionService.h"
 #include "CvGlobals.h"
 #include "FireWorks/FILogFile.h"
+#include "ICvDLLScriptSystem.h"
+#include "Lua/CvLuaSupport.h"
 #include <sstream>
 #include <iomanip>
 
@@ -19,6 +21,7 @@ CvConnectionService& CvConnectionService::GetInstance()
 // Constructor
 CvConnectionService::CvConnectionService()
 	: m_bInitialized(false)
+	, m_pLuaState(NULL)
 	, m_hPipe(INVALID_HANDLE_VALUE)
 	, m_hThread(NULL)
 	, m_dwThreadId(0)
@@ -54,6 +57,13 @@ bool CvConnectionService::Setup()
 	// Reset shutdown flag
 	m_bShutdownRequested = false;
 	m_bClientConnected = false;
+
+	// Initialize Lua state for script execution
+	m_pLuaState = gDLL->GetScriptSystem()->CreateLuaThread("ConnectionService");
+
+	// Register game data with the Lua state
+	LuaSupport::RegisterScriptData(m_pLuaState);
+	Log(LOG_INFO, "ConnectionService::Setup() - Lua state initialized");
 
 	// Create the Named Pipe server thread
 	Log(LOG_INFO, "ConnectionService::Setup() - Creating Named Pipe server thread");
@@ -127,6 +137,14 @@ void CvConnectionService::Shutdown()
 		
 		CloseHandle(m_hThread);
 		m_hThread = NULL;
+	}
+
+	// Clean up Lua state
+	if (m_pLuaState)
+	{
+		gDLL->GetScriptSystem()->FreeLuaThread(m_pLuaState);
+		m_pLuaState = NULL;
+		Log(LOG_INFO, "ConnectionService::Shutdown() - Lua state freed");
 	}
 
 	// Clean up critical sections
@@ -548,14 +566,117 @@ void CvConnectionService::RouteMessage(const std::string& messageJson)
 	Log(LOG_DEBUG, ("Routing message of type: " + std::string(messageType)).c_str());
 	
 	// Route to appropriate handler based on message type
-	
-	// Otherwise, create echo response with original message
+	if (strcmp(messageType, "lua_execute") == 0)
+	{
+		// Extract parameters from JSON message
+		const char* script = message["script"];
+		const char* id = message["id"];
+		
+		// Call handler with extracted parameters
+		if (script && id) HandleLuaExecute(script, id);
+	}
+	else
+	{
+		// Otherwise, create echo response with original message
+		DynamicJsonDocument response(8192);
+		response["type"] = "echo_response";
+		response["original"] = message;
+		response["timestamp"] = GetTickCount();
+		response["turn"] = GC.getGame().getElapsedGameTurns();
+		
+		// Send the response back to the Bridge Service
+		SendMessage(response);
+	}
+}
+
+// Handle Lua execute command from Bridge Service
+void CvConnectionService::HandleLuaExecute(const char* script, const char* id)
+{
+	std::stringstream logMsg;
+	logMsg << "HandleLuaExecute - Executing script for id: " << id;
+	Log(LOG_DEBUG, logMsg.str().c_str());
+
+	// Handle thread locks for safe Lua execution
+	bool bHadLock = gDLL->HasGameCoreLock();
+	if (bHadLock)
+	{
+		gDLL->ReleaseGameCoreLock();
+	}
+
+	// Execute the Lua script using luaL_dostring (which is luaL_loadstring + lua_pcall)
+	int result = luaL_dostring(m_pLuaState, script);
+
+	if (result == 0)
+	{
+		// Script executed successfully
+		// Get the return value(s) from the stack
+		int numResults = lua_gettop(m_pLuaState);
+		
+		if (numResults > 0)
+		{
+			// Pop all return values from the stack
+			lua_pop(m_pLuaState, numResults);
+		}
+		
+		// No return value
+		SendLuaSuccessResponse(id, "null");
+	}
+	else
+	{
+		// Script execution failed
+		const char* errorMsg = lua_tostring(m_pLuaState, -1);
+		if (!errorMsg) errorMsg = "Unknown Lua error";
+		
+		std::stringstream errorLog;
+		errorLog << "HandleLuaExecute - Lua execution error: " << errorMsg;
+		Log(LOG_ERROR, errorLog.str().c_str());
+		
+		// Pop the error message from the stack
+		lua_pop(m_pLuaState, 1);
+		
+		// Send error response
+		SendLuaErrorResponse(id, errorMsg);
+	}
+
+	// Restore game core lock if we had it
+	if (bHadLock)
+	{
+		gDLL->GetGameCoreLock();
+	}
+}
+
+// Send a successful Lua execution response
+void CvConnectionService::SendLuaSuccessResponse(const char* id, const char* result)
+{
+	// Build success response JSON following PROTOCOL.md
 	DynamicJsonDocument response(8192);
-	response["type"] = "echo_response";
-	response["original"] = message;
-	response["timestamp"] = GetTickCount();
-	response["turn"] = GC.getGame().getElapsedGameTurns();
+	response["type"] = "lua_response";
+	response["id"] = id;
+	response["success"] = true;
+	response["result"] = result;
 	
-	// Send the response back to the Bridge Service
+	// Send the response
 	SendMessage(response);
+	
+	std::stringstream logMsg;
+	logMsg << "SendLuaSuccessResponse - Sent success response for id: " << id;
+	Log(LOG_DEBUG, logMsg.str().c_str());
+}
+
+// Send a Lua execution error response
+void CvConnectionService::SendLuaErrorResponse(const char* id, const char* error)
+{
+	// Build error response JSON following PROTOCOL.md
+	DynamicJsonDocument response(8192);
+	response["type"] = "lua_response";
+	response["id"] = id;
+	response["success"] = false;
+	response["error"] = error;
+	
+	// Send the response
+	SendMessage(response);
+	
+	std::stringstream logMsg;
+	logMsg << "SendLuaErrorResponse - Sent error response for id: " << id << ", error: " << error;
+	Log(LOG_DEBUG, logMsg.str().c_str());
 }

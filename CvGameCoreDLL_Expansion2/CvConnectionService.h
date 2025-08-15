@@ -17,6 +17,7 @@ using namespace ArduinoJson;
 
 // Forward declarations
 class FILogFile;
+struct lua_State;
 
 // Connection Service for communicating with external Bridge Service
 class CvConnectionService
@@ -75,8 +76,15 @@ private:
 	// Message routing and handling
 	void RouteMessage(const std::string& messageJson);
 	
+	// Lua execution handlers
+	void HandleLuaExecute(const char* script, const char* id);
+	void SendLuaSuccessResponse(const char* id, const char* result);
+	void SendLuaErrorResponse(const char* id, const char* error);
+	std::string ConvertLuaResultToJson(lua_State* L, int index);
+	
 	// Internal state
 	bool m_bInitialized;
+	lua_State* m_pLuaState;
 	
 	// Named Pipe server state
 	HANDLE m_hPipe;
