@@ -2,6 +2,13 @@
 <GameData>
 	<Colors>
 		<Row>
+			<Type>COLOR_INTENSE_POSITIVE_TEXT</Type>
+			<Red>0</Red>
+			<Green>1</Green>
+			<Blue>0</Blue>
+			<Alpha>1</Alpha>
+		</Row>
+		<Row>
 			<Type>COLOR_MODERATE_POSITIVE_TEXT</Type>
 			<Red>0.3594</Red>
 			<Green>0.7392</Green>
@@ -13,6 +20,13 @@
 			<Red>0.7617</Red>
 			<Green>0.18125</Green>
 			<Blue>0.18125</Blue>
+			<Alpha>1</Alpha>
+		</Row>
+		<Row>
+			<Type>COLOR_INTENSE_NEGATIVE_TEXT</Type>
+			<Red>1</Red>
+			<Green>0</Green>
+			<Blue>0</Blue>
 			<Alpha>1</Alpha>
 		</Row>
 	</Colors>

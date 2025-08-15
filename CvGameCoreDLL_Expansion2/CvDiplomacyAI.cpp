@@ -2818,16 +2818,16 @@ VictoryPursuitTypes CvDiplomacyAI::GetEternalVictoryPursuit() const
 
 			// Individual override active for this leader?
 			if (pkLeaderHeadInfo->GetBoldness() == -12 && bDominationVictoryEnabled)
-				return VICTORY_PURSUIT_DOMINATION;
+				return VICTORY_PURSUIT_DOMINATION; // Follow the white cloak.
 
 			if (pkLeaderHeadInfo->GetMinorCivCompetitiveness() == -12 && bDiploVictoryEnabled)
-				return VICTORY_PURSUIT_DIPLOMACY;
+				return VICTORY_PURSUIT_DIPLOMACY; // The benefits of being able to force a dialogue in place of a duel.
 
 			if (pkLeaderHeadInfo->GetWonderCompetitiveness() == -12 && bCultureVictoryEnabled)
-				return VICTORY_PURSUIT_CULTURE;
+				return VICTORY_PURSUIT_CULTURE; // Now, the sky had alighted in glorious colour! They were feeling nostalgic for a place they were still experiencing, and it made them happy.
 
 			if (pkLeaderHeadInfo->GetWarmongerHate() == -12 && bScienceVictoryEnabled)
-				return VICTORY_PURSUIT_SCIENCE;
+				return VICTORY_PURSUIT_SCIENCE; // It'd worked exactly as he'd thought. The scientist's brains over the god's brawn had found a way forward.
 		}
 	}
 
@@ -18174,7 +18174,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 			bool bIgnore = GET_PLAYER(eLoopPlayer).IsVassalOfSomeone() && !GetPlayer()->IsVassalOfSomeone(); // Vassals aren't important unless we're one too.
 
-			if (IsPlayerValid(eLoopPlayer, /*bMyTeamIsValid*/ true) && eTeam != GET_PLAYER(eLoopPlayer).getTeam())
+			if (IsPlayerValid(eLoopPlayer, /*bMyTeamIsValid*/ true) && eLoopPlayer != GetID() && eTeam != GET_PLAYER(eLoopPlayer).getTeam())
 			{
 				if (!IsTeammate(eLoopPlayer) && (IsAtWar(eLoopPlayer) || IsDenouncedPlayer(eLoopPlayer) || IsUntrustworthy(eLoopPlayer) || eOtherPlayerWeAreSanctioning == eLoopPlayer))
 				{
@@ -46697,6 +46697,9 @@ int CvDiplomacyAI::GetDemandMadeScore(PlayerTypes ePlayer)
 			iOpinionWeight += /*10*/ GD_INT_GET(OPINION_WEIGHT_MADE_DEMAND_OF_US_SUBSEQUENT) * (iNumDemands - 1);
 		}
 
+		int iDuration = AdjustModifierDuration(/*50*/ GD_INT_GET(MADE_DEMAND_TURNS_UNTIL_FORGIVEN), GetForgiveness(), true);
+		iOpinionWeight = AdjustTimedModifier(iOpinionWeight, iDuration, GetDemandMadeTurn(ePlayer), TIMED_MODIFIER_DIMINISHING, iNumDemands, GD_INT_GET(OPINION_WEIGHT_MADE_DEMAND_OF_US));
+
 		// Reduce the penalty if we're not currently giving them anything
 		if (!GET_PLAYER(ePlayer).GetDiplomacyAI()->IsRecentDemandAccepted(GetID()))
 		{
@@ -46725,9 +46728,6 @@ int CvDiplomacyAI::GetDemandMadeScore(PlayerTypes ePlayer)
 				iOpinionWeight += iExtraPenalty;
 			}
 		}
-
-		int iDuration = AdjustModifierDuration(/*50*/ GD_INT_GET(MADE_DEMAND_TURNS_UNTIL_FORGIVEN), GetForgiveness(), true);
-		iOpinionWeight = AdjustTimedModifier(iOpinionWeight, iDuration, GetDemandMadeTurn(ePlayer), TIMED_MODIFIER_DIMINISHING, iNumDemands, GD_INT_GET(OPINION_WEIGHT_MADE_DEMAND_OF_US));
 	}
 
 	return iOpinionWeight;
@@ -57705,7 +57705,7 @@ MoveTroopsResponseTypes CvDiplomacyAI::GetMoveTroopsRequestResponse(PlayerTypes 
 	CivApproachTypes eTrueApproach = GetCivApproach(ePlayer);
 	CivOpinionTypes eOpinion = GetCivOpinion(ePlayer);
 
-	vector<int> viMoveTroopsWeights(NUM_MOVE_TROOPS_RESPONSES,1000);
+	vector<int> viMoveTroopsWeights(NUM_MOVE_TROOPS_RESPONSES, 0);
 
 	// Initialize our parallel arrays based on various approaches
 	// i.e. more inclined to agree to leave if they like to be friendly toward civs
