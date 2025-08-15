@@ -536,7 +536,7 @@ void CvConnectionService::ProcessMessages()
 void CvConnectionService::RouteMessage(const DynamicJsonDocument& message)
 {
 	const char* messageType = message["type"];
-	Log(LOG_DEBUG, ("Routing message of type: " + String(messageType)).c_str());
+	Log(LOG_DEBUG, ("Routing message of type: " + std::string(messageType)).c_str());
 	
 	// Route to appropriate handler based on message type
 	
