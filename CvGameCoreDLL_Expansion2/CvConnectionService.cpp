@@ -369,7 +369,7 @@ void CvConnectionService::HandleClientConnection(HANDLE hPipe)
 			FlushFileBuffers(hPipe);
 			
 			std::stringstream ss;
-			ss << "HandleClientConnection - Sent outgoing message (" << bytesWritten << " bytes)";
+			ss << "HandleClientConnection - Sent outgoing message: " << outgoingMessage;
 			Log(LOG_DEBUG, ss.str().c_str());
 		}
 		
@@ -478,11 +478,6 @@ bool CvConnectionService::DequeueOutgoingMessage(std::string& messageJson)
 		messageJson = m_outgoingQueue.front();
 		m_outgoingQueue.pop();
 		hasMessage = true;
-		
-		// Log the dequeuing action
-		std::stringstream ss;
-		ss << "DequeueOutgoingMessage - Dequeued message, remaining: " << m_outgoingQueue.size();
-		Log(LOG_DEBUG, ss.str().c_str());
 	}
 	
 	// Release the critical section
