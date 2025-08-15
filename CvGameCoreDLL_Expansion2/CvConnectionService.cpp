@@ -327,11 +327,12 @@ void CvConnectionService::HandleClientConnection(HANDLE hPipe)
 	while (m_bClientConnected && !m_bShutdownRequested)
 	{
 		// First, check for any outgoing messages to send
-		json outgoingMessage;
+		DynamicJsonDocument outgoingMessage(4096);
 		if (DequeueOutgoingMessage(outgoingMessage))
 		{
 			// Serialize JSON to string
-			std::string outgoingString = outgoingMessage.dump();
+			std::string outgoingString;
+			serializeJson(outgoingMessage, outgoingString);
 			
 			// Send the message to the Bridge Service
 			BOOL success = WriteFile(
@@ -401,10 +402,17 @@ void CvConnectionService::HandleClientConnection(HANDLE hPipe)
 		buffer[bytesRead] = '\0';
 		
 		// Parse the received JSON string
-		try
+		DynamicJsonDocument receivedJson(4096);
+		DeserializationError parseError = deserializeJson(receivedJson, buffer);
+		
+		if (parseError)
 		{
-			json receivedJson = json::parse(buffer);
-			
+			std::stringstream ss;
+			ss << "HandleClientConnection - Failed to parse JSON: " << parseError.c_str() << ", data: " << buffer;
+			Log(LOG_ERROR, ss.str().c_str());
+		}
+		else
+		{
 			// Log the received message
 			std::stringstream ss;
 			ss << "HandleClientConnection - Received JSON message (" << bytesRead << " bytes)";
@@ -413,28 +421,11 @@ void CvConnectionService::HandleClientConnection(HANDLE hPipe)
 			// Queue the message for processing by the game thread
 			QueueIncomingMessage(receivedJson);
 		}
-		catch (const json::parse_error& e)
-		{
-			std::stringstream ss;
-			ss << "HandleClientConnection - Failed to parse JSON: " << e.what() << ", data: " << buffer;
-			Log(LOG_ERROR, ss.str().c_str());
-			
-			// Send error response
-			json errorResponse;
-			errorResponse["type"] = "error";
-			errorResponse["error"] = "Invalid JSON";
-			errorResponse["details"] = e.what();
-			
-			// Queue the error response
-			EnterCriticalSection(&m_csOutgoing);
-			m_outgoingQueue.push(errorResponse);
-			LeaveCriticalSection(&m_csOutgoing);
-		}
 	}
 }
 
 // Queue an incoming message from the Bridge Service (called from SSE thread)
-void CvConnectionService::QueueIncomingMessage(const json& messageData)
+void CvConnectionService::QueueIncomingMessage(const DynamicJsonDocument& messageData)
 {
 	// Lock the incoming queue critical section
 	EnterCriticalSection(&m_csIncoming);
@@ -452,7 +443,7 @@ void CvConnectionService::QueueIncomingMessage(const json& messageData)
 }
 
 // Queue an outgoing message to send to the Bridge Service (called from game thread)
-void CvConnectionService::QueueOutgoingMessage(const json& messageData)
+void CvConnectionService::QueueOutgoingMessage(const DynamicJsonDocument& messageData)
 {
 	// Lock the outgoing queue critical section
 	EnterCriticalSection(&m_csOutgoing);
@@ -470,7 +461,7 @@ void CvConnectionService::QueueOutgoingMessage(const json& messageData)
 }
 
 // Dequeue an outgoing message to send to the Bridge Service (called from SSE thread)
-bool CvConnectionService::DequeueOutgoingMessage(json& messageData)
+bool CvConnectionService::DequeueOutgoingMessage(DynamicJsonDocument& messageData)
 {
 	bool hasMessage = false;
 	
@@ -514,17 +505,17 @@ void CvConnectionService::ProcessMessages()
 	while (!m_incomingQueue.empty())
 	{
 		// Get the message from the front of the queue
-		json msg = m_incomingQueue.front();
+		DynamicJsonDocument msg = m_incomingQueue.front();
 		m_incomingQueue.pop();
 		
 		// Temporarily release the lock to process the message
 		LeaveCriticalSection(&m_csIncoming);
 		
 		// Log the message processing
-		if (msg.contains("type") && msg["type"].is_string())
+		if (msg.containsKey("type") && msg["type"].is<const char*>())
 		{
 			std::stringstream ss;
-			ss << "ProcessMessages - Processing message type: " << msg["type"].get<std::string>();
+			ss << "ProcessMessages - Processing message type: " << msg["type"].as<const char*>();
 			Log(LOG_INFO, ss.str().c_str());
 		}
 		
@@ -550,14 +541,14 @@ void CvConnectionService::ProcessMessages()
 }
 
 // Route incoming message to appropriate handler based on type
-void CvConnectionService::RouteMessage(const json& message)
+void CvConnectionService::RouteMessage(const DynamicJsonDocument& message)
 {
-	std::string messageType = message["type"];
+	const char* messageType = message["type"];
 	
 	// Route to appropriate handler based on message type
 	
 	// Otherwise, create echo response with original message
-	json response;
+	DynamicJsonDocument response(2048);
 	response["type"] = "echo_response";
 	response["original"] = message;
 	response["timestamp"] = GetTickCount();
