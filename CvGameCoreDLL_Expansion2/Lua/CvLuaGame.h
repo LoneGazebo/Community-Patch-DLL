@@ -401,6 +401,8 @@ protected:
 
 	static int lIsProcessingMessages(lua_State* L);
 
+	static int lRegisterFunction(lua_State* L);
+
 	LUAAPIEXTN(CreateGreatWork, int, iGreatWorkType, iOwningPlayer, iEra, sCreator);
 	static int lGetGreatWorkTooltip(lua_State* L);
 	static int lGetGreatWorkName(lua_State* L);

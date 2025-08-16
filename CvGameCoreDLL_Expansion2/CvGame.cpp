@@ -34,6 +34,7 @@
 #include "CvWorldBuilderMapLoader.h"
 #include "CvTypes.h"
 #include "CvDllNetMessageExt.h"
+#include "CvConnectionService.h"
 
 #include "cvStopWatch.h"
 #include "CvUnitMission.h"
@@ -62,6 +63,7 @@
 
 #include "CvSpanSerialization.h"
 #include "CvEnumMapSerialization.h"
+#include "CvConnectionService.h"
 
 //updated by pre-build hook
 #include "../commit_id.inc"
@@ -419,6 +421,9 @@ bool CvGame::init2()
 	initScoreCalculation();
 	initSpyThreshold();
 	setFinalInitialized(true);
+
+	// Initialize ConnectionService for Bridge communication
+	CvConnectionService::GetInstance().Setup();
 
 #if defined(MOD_EVENTS_TERRAFORMING)
 	if (MOD_EVENTS_TERRAFORMING) {
@@ -990,6 +995,9 @@ void CvGame::DoGameStarted()
 //	--------------------------------------------------------------------------------
 void CvGame::uninit()
 {
+	// Shutdown ConnectionService for Bridge communication
+	CvConnectionService::GetInstance().Shutdown();
+
 	CvGoodyHuts::Uninit();
 	CvBarbarians::Uninit();
 
@@ -1494,6 +1502,9 @@ bool ExternalPause()
 //	---------------------------------------------------------------------------
 void CvGame::update()
 {
+	// Process messages from the Connection Service
+	CvConnectionService::GetInstance().ProcessMessages();
+
 	if(IsWaitingForBlockingInput())
 	{
 		if(!GC.GetEngineUserInterface()->isDiploActive())
