@@ -7,8 +7,6 @@ If you installed the EUI version of the mod, you must enable (3a) VP - EUI Compa
 
 -- MANUAL INSTALLATION NOTE --
 
-Make sure to DELETE the LUA folder in the (1) Community Patch folder.
-
 If you want to play with EUI, you must also:
 a) Download the (3a) VP - EUI Compatibility Files folder, AND
-b) DELETE the LUA folder in (2) Vox Populi.
+b) DELETE the LUA folders in (1) Community Patch and (2) Vox Populi.
