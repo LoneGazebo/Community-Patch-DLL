@@ -22,6 +22,7 @@
 #include "CvLuaPlot.h"
 #include "CvLuaUnit.h"
 #include "CvLuaLeague.h"
+#include "../CvConnectionService.h"
 
 #include "../CvGame.h"
 #include "../CvGameCoreUtils.h"
@@ -505,6 +506,9 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 	Method(GetActiveContractUnitList);
 
 	Method(DoSpawnFreeCity);
+
+	//Connection Service
+	Method(RegisterFunction);
 
 #if defined(MOD_BATTLE_ROYALE)
 	Method(DeleteCSV);
@@ -4254,4 +4258,19 @@ int CvLuaGame::lGetNumYieldTypes(lua_State* L)
 {
 	lua_pushinteger(L, GC.getNUM_YIELD_TYPES());
 	return 1;
+}
+
+//------------------------------------------------------------------------------
+int CvLuaGame::lRegisterFunction(lua_State* L)
+{
+	// Get function name from first argument
+	const char* functionName = luaL_checkstring(L, 1);
+	
+	// Verify second argument is a function
+	luaL_checktype(L, 2, LUA_TFUNCTION);
+	
+	// Forward to ConnectionService with lua_State
+	CvConnectionService::GetInstance().RegisterLuaFunction(functionName, L, 2);
+	
+	return 0;  // No return values
 }

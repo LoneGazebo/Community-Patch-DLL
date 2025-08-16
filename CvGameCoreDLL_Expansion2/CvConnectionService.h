@@ -10,6 +10,7 @@
 #include <string>
 #include <queue>
 #include <vector>
+#include <map>
 #include "../../ThirdPartyLibs/ArduinoJSON.hpp"
 
 // Use ArduinoJson
@@ -50,6 +51,15 @@ public:
 	// Send a message to the Bridge Service (called from game code)
 	void SendMessage(const DynamicJsonDocument& message);
 
+	// Register a Lua function for external calling
+	void RegisterLuaFunction(const char* name, lua_State* L, int stackIndex);
+	
+	// Unregister a specific function
+	void UnregisterLuaFunction(const char* name);
+	
+	// Clear all registered functions (called on shutdown)
+	void ClearLuaFunctions();
+
 private:
 	// Private constructor for singleton
 	CvConnectionService();
@@ -81,6 +91,16 @@ private:
 	void ProcessLuaResult(lua_State* L, int executionResult, const char* id);
 	void ConvertLuaToJsonValue(lua_State* L, int index, JsonVariant dest);
 	
+	// Send registration notification to Bridge
+	void NotifyBridgeOfRegistration(const char* name, const char* description);
+	
+	// Structure to store registered Lua functions
+	struct LuaFunctionInfo {
+		lua_State* pLuaState;      // The Lua state that registered this function
+		int iRegistryRef;          // Reference in the Lua registry (LUA_REGISTRYINDEX)
+		std::string strDescription; // Optional description for documentation
+	};
+	
 	// Internal state
 	bool m_bInitialized;
 	lua_State* m_pLuaState;
@@ -99,6 +119,10 @@ private:
 	// Critical sections for thread safety
 	CRITICAL_SECTION m_csIncoming;
 	CRITICAL_SECTION m_csOutgoing;
+	CRITICAL_SECTION m_csFunctions;
+	
+	// Map of function name to function info
+	std::map<std::string, LuaFunctionInfo> m_registeredFunctions;
 };
 
 #endif // CIV5_CONNECTION_SERVICE_H

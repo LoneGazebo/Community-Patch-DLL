@@ -55,6 +55,7 @@ bool CvConnectionService::Setup()
 	// Initialize critical sections for thread safety
 	InitializeCriticalSection(&m_csIncoming);
 	InitializeCriticalSection(&m_csOutgoing);
+	InitializeCriticalSection(&m_csFunctions);
 
 	// Reset shutdown flag
 	m_bShutdownRequested = false;
@@ -149,9 +150,13 @@ void CvConnectionService::Shutdown()
 		Log(LOG_INFO, "ConnectionService::Shutdown() - Lua state freed");
 	}
 
+	// Clear all registered Lua functions
+	ClearLuaFunctions();
+
 	// Clean up critical sections
 	DeleteCriticalSection(&m_csIncoming);
 	DeleteCriticalSection(&m_csOutgoing);
+	DeleteCriticalSection(&m_csFunctions);
 
 	// Clear any remaining messages in the queues
 	while (!m_incomingQueue.empty())
@@ -793,4 +798,104 @@ void CvConnectionService::ConvertLuaToJsonValue(lua_State* L, int index, JsonVar
 		dest.set(nullptr);
 		break;
 	}
+}
+
+//------------------------------------------------------------------------------
+// Register a Lua function for external calling
+void CvConnectionService::RegisterLuaFunction(const char* name, lua_State* L, int stackIndex)
+{
+	EnterCriticalSection(&m_csFunctions);
+	
+	// Check for existing registration and clear it
+	std::map<std::string, LuaFunctionInfo>::iterator it = m_registeredFunctions.find(name);
+	if (it != m_registeredFunctions.end())
+	{
+		// Clear the old reference from the Lua registry
+		luaL_unref(it->second.pLuaState, LUA_REGISTRYINDEX, it->second.iRegistryRef);
+		
+		char buffer[512];
+		sprintf_s(buffer, sizeof(buffer), "Overwriting existing registration for function: %s", name);
+		Log(LOG_INFO, buffer);
+	}
+	
+	// Create registry reference for the function
+	lua_pushvalue(L, stackIndex);  // Push function to top of stack
+	int ref = luaL_ref(L, LUA_REGISTRYINDEX);  // Store in registry and get reference
+	
+	// Store the function info
+	LuaFunctionInfo info;
+	info.pLuaState = L;
+	info.iRegistryRef = ref;
+	info.strDescription = "Registered from Lua";  // Could be enhanced with optional description parameter
+	
+	m_registeredFunctions[name] = info;
+	
+	LeaveCriticalSection(&m_csFunctions);
+	
+	// Notify Bridge Service about the new registration
+	NotifyBridgeOfRegistration(name, info.strDescription.c_str());
+	
+	char buffer[512];
+	sprintf_s(buffer, sizeof(buffer), "Registered Lua function: %s", name);
+	Log(LOG_INFO, buffer);
+}
+
+//------------------------------------------------------------------------------
+// Unregister a specific function
+void CvConnectionService::UnregisterLuaFunction(const char* name)
+{
+	EnterCriticalSection(&m_csFunctions);
+	
+	std::map<std::string, LuaFunctionInfo>::iterator it = m_registeredFunctions.find(name);
+	if (it != m_registeredFunctions.end())
+	{
+		// Clear the Lua registry reference
+		luaL_unref(it->second.pLuaState, LUA_REGISTRYINDEX, it->second.iRegistryRef);
+		
+		// Remove from map
+		m_registeredFunctions.erase(it);
+		
+		char buffer[512];
+		sprintf_s(buffer, sizeof(buffer), "Unregistered Lua function: %s", name);
+		Log(LOG_INFO, buffer);
+	}
+	
+	LeaveCriticalSection(&m_csFunctions);
+}
+
+//------------------------------------------------------------------------------
+// Clear all registered functions (called on shutdown)
+void CvConnectionService::ClearLuaFunctions()
+{
+	EnterCriticalSection(&m_csFunctions);
+	
+	// Clear all Lua registry references
+	for (std::map<std::string, LuaFunctionInfo>::iterator it = m_registeredFunctions.begin(); 
+	     it != m_registeredFunctions.end(); ++it)
+	{
+		luaL_unref(it->second.pLuaState, LUA_REGISTRYINDEX, it->second.iRegistryRef);
+	}
+	
+	// Clear the map
+	m_registeredFunctions.clear();
+	
+	Log(LOG_INFO, "Cleared all registered Lua functions");
+	
+	LeaveCriticalSection(&m_csFunctions);
+}
+
+//------------------------------------------------------------------------------
+// Send registration notification to Bridge
+void CvConnectionService::NotifyBridgeOfRegistration(const char* name, const char* description)
+{
+	// Create notification message following PROTOCOL.md
+	DynamicJsonDocument message(512);
+	message["type"] = "lua_register";
+	message["function"] = name;
+	message["description"] = description;
+	
+	// Queue the message for Bridge
+	std::string messageStr;
+	serializeJson(message, messageStr);
+	QueueOutgoingMessage(messageStr);
 }
