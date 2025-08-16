@@ -1295,25 +1295,30 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 		}
 	}
 #endif
-#if defined(MOD_BALANCE_CORE)
-	if (IsGreatGeneral() && kPlayer.GetPlayerTraits()->GetInspirationalLeader() != 0)
+	if (IsGreatPerson() && kPlayer.GetPlayerTraits()->GetXPBonusFromGreatPersonBirth() != 0)
 	{
 		int iLoop = 0;
 		CvUnit* pLoopUnit = NULL;
 		for (pLoopUnit = kPlayer.firstUnit(&iLoop); pLoopUnit; pLoopUnit = kPlayer.nextUnit(&iLoop))
 		{
-			if (!pLoopUnit)
+			if (pLoopUnit && pLoopUnit->IsCombatUnit() && pLoopUnit->getDomainType() == DOMAIN_LAND)
 			{
-				continue;
-			}
-			if (pLoopUnit->IsCombatUnit() && pLoopUnit->getDomainType() == DOMAIN_LAND)
-			{
-				pLoopUnit->changeDamage(-pLoopUnit->getDamage());
-				pLoopUnit->changeExperienceTimes100(kPlayer.GetPlayerTraits()->GetInspirationalLeader() * 100);
+				pLoopUnit->changeExperienceTimes100(kPlayer.GetPlayerTraits()->GetXPBonusFromGreatPersonBirth() * 100);
 			}
 		}
 	}
-#endif
+	if (IsGreatPerson() && kPlayer.GetPlayerTraits()->GetUnitHealFromGreatPersonBirth() != 0)
+	{
+		int iLoop = 0;
+		CvUnit* pLoopUnit = NULL;
+		for (pLoopUnit = kPlayer.firstUnit(&iLoop); pLoopUnit; pLoopUnit = kPlayer.nextUnit(&iLoop))
+		{
+			if (pLoopUnit && pLoopUnit->IsCombatUnit() && pLoopUnit->getDomainType() == DOMAIN_LAND)
+			{
+				pLoopUnit->changeDamage(-kPlayer.GetPlayerTraits()->GetUnitHealFromGreatPersonBirth());
+			}
+		}
+	}
 	// Update Unit Production Maintenance
 	kPlayer.UpdateUnitProductionMaintenanceMod();
 

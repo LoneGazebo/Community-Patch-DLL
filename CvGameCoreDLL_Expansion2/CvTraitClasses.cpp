@@ -91,7 +91,8 @@ CvTraitEntry::CvTraitEntry() :
 	m_bBuyOwnedTiles(false),
 	m_bNewCitiesStartWithCapitalReligion(false),
 	m_bNoSpread(false),
-	m_iInspirationalLeader(0),
+	m_iXPBonusFromGreatPersonBirth(0),
+	m_iUnitHealFromGreatPersonBirth(0),
 	m_iBullyMilitaryStrengthModifier(0),
 	m_iBullyValueModifier(0),
 	m_bIgnoreBullyPenalties(false),
@@ -708,9 +709,14 @@ bool CvTraitEntry::IsForeignReligionSpreadImmune() const
 	return m_bNoSpread;
 }
 
-int CvTraitEntry::GetInspirationalLeader() const
+int CvTraitEntry::GetXPBonusFromGreatPersonBirth() const
 {
-	return m_iInspirationalLeader;
+	return m_iXPBonusFromGreatPersonBirth;
+}
+
+int CvTraitEntry::GetUnitHealFromGreatPersonBirth() const
+{
+	return m_iUnitHealFromGreatPersonBirth;
 }
 
 int CvTraitEntry::GetBullyMilitaryStrengthModifier() const
@@ -2397,7 +2403,8 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_bBuyOwnedTiles						= kResults.GetBool("BuyOwnedTiles");
 	m_bNewCitiesStartWithCapitalReligion	= kResults.GetBool("NewCitiesStartWithCapitalReligion");
 	m_bNoSpread								= kResults.GetBool("NoSpread");
-	m_iInspirationalLeader					= kResults.GetInt("XPBonusFromGGBirth");
+	m_iXPBonusFromGreatPersonBirth			= kResults.GetInt("XPBonusFromGreatPersonBirth");
+	m_iUnitHealFromGreatPersonBirth			= kResults.GetInt("UnitHealFromGreatPersonBirth");
 	m_bDiplomaticMarriage					= kResults.GetBool("DiplomaticMarriage");
 	m_iBullyMilitaryStrengthModifier		= kResults.GetInt("CSBullyMilitaryStrengthModifier");
 	m_iBullyValueModifier					= kResults.GetInt("CSBullyValueModifier");
@@ -3912,7 +3919,8 @@ void CvPlayerTraits::SetIsWarmonger()
 		GetGoldenAgeCombatModifier() > 0 ||
 		GetExtraEmbarkMoves() > 0 ||
 		GetBullyMilitaryStrengthModifier() > 0 ||
-		GetInspirationalLeader() > 0 ||
+		GetXPBonusFromGreatPersonBirth() > 0 ||
+		GetUnitHealFromGreatPersonBirth() > 0 ||
 		GetBullyValueModifier() > 0 ||
 		GetMultipleAttackBonus() > 0 ||
 		GetCityConquestGWAM() > 0 ||
@@ -4095,6 +4103,8 @@ void CvPlayerTraits::SetIsTourism()
 		GetGoldenAgeFromGreatPersonBirth(static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_ARTIST"))) > 0 ||
 		GetGoldenAgeFromGreatPersonBirth(static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_MUSICIAN"))) > 0 ||
 		GetGoldenAgeFromGreatPersonBirth(static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_WRITER"))) > 0 ||
+		GetXPBonusFromGreatPersonBirth() > 0 ||
+		GetUnitHealFromGreatPersonBirth() > 0 ||
 		GetSharedReligionTourismModifier() > 0 ||
 		GetGoldenAgeYieldModifier(YIELD_TOURISM) > 0)
 	{
@@ -4462,9 +4472,13 @@ void CvPlayerTraits::InitPlayerTraits()
 			{
 				m_bNoSpread = true;
 			}
-			if(trait->GetInspirationalLeader() != 0)
+			if(trait->GetXPBonusFromGreatPersonBirth() != 0)
 			{
-				m_iInspirationalLeader += trait->GetInspirationalLeader();
+				m_iXPBonusFromGreatPersonBirth += trait->GetXPBonusFromGreatPersonBirth();
+			}
+			if(trait->GetUnitHealFromGreatPersonBirth() != 0)
+			{
+				m_iUnitHealFromGreatPersonBirth += trait->GetUnitHealFromGreatPersonBirth();
 			}
 			if (trait->GetBullyMilitaryStrengthModifier() != 0)
 			{
@@ -5387,7 +5401,8 @@ void CvPlayerTraits::Reset()
 	m_bBuyOwnedTiles = false;
 	m_bNewCitiesStartWithCapitalReligion = false;
 	m_bNoSpread = false;
-	m_iInspirationalLeader = 0;
+	m_iXPBonusFromGreatPersonBirth = 0;
+	m_iUnitHealFromGreatPersonBirth = 0;
 	m_iBullyMilitaryStrengthModifier = 0;
 	m_iBullyValueModifier = 0;
 	m_bIgnoreBullyPenalties = false;
@@ -7595,7 +7610,8 @@ void CvPlayerTraits::Serialize(PlayerTraits& playerTraits, Visitor& visitor)
 	visitor(playerTraits.m_bBuyOwnedTiles);
 	visitor(playerTraits.m_bNewCitiesStartWithCapitalReligion);
 	visitor(playerTraits.m_bNoSpread);
-	visitor(playerTraits.m_iInspirationalLeader);
+	visitor(playerTraits.m_iXPBonusFromGreatPersonBirth);
+	visitor(playerTraits.m_iUnitHealFromGreatPersonBirth);
 	visitor(playerTraits.m_iBullyMilitaryStrengthModifier);
 	visitor(playerTraits.m_iBullyValueModifier);
 	visitor(playerTraits.m_bIgnoreBullyPenalties);

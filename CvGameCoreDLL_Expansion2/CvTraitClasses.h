@@ -167,7 +167,8 @@ public:
 	bool IsBuyOwnedTiles() const;
 	bool IsNewCitiesStartWithCapitalReligion() const;
 	bool IsForeignReligionSpreadImmune() const;
-	int GetInspirationalLeader() const;
+	int GetXPBonusFromGreatPersonBirth() const;
+	int GetUnitHealFromGreatPersonBirth() const;
 	int GetBullyMilitaryStrengthModifier() const;
 	int GetBullyValueModifier() const;
 	bool IgnoreBullyPenalties() const;
@@ -548,7 +549,8 @@ protected:
 	bool m_bBuyOwnedTiles;
 	bool m_bNewCitiesStartWithCapitalReligion;
 	bool m_bNoSpread;
-	int m_iInspirationalLeader; // OBSOLETE: to be removed in VP5.0
+	int m_iXPBonusFromGreatPersonBirth;
+	int m_iUnitHealFromGreatPersonBirth;
 	int m_iBullyMilitaryStrengthModifier;
 	int m_iBullyValueModifier;
 	bool m_bIgnoreBullyPenalties;
@@ -1154,9 +1156,13 @@ public:
 	{
 		return m_bNoSpread;
 	};
-	int GetInspirationalLeader() const
+	int GetXPBonusFromGreatPersonBirth() const
 	{
-		return m_iInspirationalLeader;
+		return m_iXPBonusFromGreatPersonBirth;
+	};
+	int GetUnitHealFromGreatPersonBirth() const
+	{
+		return m_iUnitHealFromGreatPersonBirth;
 	};
 	int GetBullyMilitaryStrengthModifier() const
 	{
@@ -2206,7 +2212,8 @@ private:
 	bool m_bBuyOwnedTiles;
 	bool m_bNewCitiesStartWithCapitalReligion;
 	bool m_bNoSpread;
-	int m_iInspirationalLeader; // OBSOLETE: to be removed in VP5.0
+	int m_iXPBonusFromGreatPersonBirth;
+	int m_iUnitHealFromGreatPersonBirth;
 	int m_iBullyMilitaryStrengthModifier;
 	int m_iBullyValueModifier;
 	bool m_bIgnoreBullyPenalties;

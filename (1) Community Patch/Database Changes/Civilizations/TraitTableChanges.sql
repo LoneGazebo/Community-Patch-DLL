@@ -148,7 +148,7 @@ ALTER TABLE Traits ADD ProphetFervor boolean DEFAULT 0;
 -- New Traits - % of capital culture converted to tourism during a GA
 ALTER TABLE Traits ADD TourismGABonus integer DEFAULT 0;
 
--- New Traits - Additioanl WC vote for every x CS Alliances
+-- New Traits - Additional WC vote for every x CS Alliances
 ALTER TABLE Traits ADD VotePerXCSAlliance integer DEFAULT 0;
 
 -- New Traits - Golden Age received from favorable peace treaty
@@ -163,8 +163,11 @@ ALTER TABLE Traits ADD NewCitiesStartWithCapitalReligion boolean DEFAULT 0;
 -- New Traits - No Foreign Religious Spread in cities or allied CSs
 ALTER TABLE Traits ADD NoSpread boolean DEFAULT 0;
 
--- OBSOLETE: to be removed in VP5.0, replaced by Trait_BonusFromGPBirth
-ALTER TABLE Traits ADD XPBonusFromGGBirth integer DEFAULT 0;
+-- New Traits: - XP Bonus to all Land Units when a Great Person is born
+ALTER TABLE Traits ADD XPBonusFromGreatPersonBirth integer DEFAULT 0;
+
+-- New Traits: - All Land Units are healed the specified amount when a Great Person is born
+ALTER TABLE Traits ADD UnitHealFromGreatPersonBirth integer DEFAULT 0;
 
 -- New Traits - Military x% better at intimidating CSs
 ALTER TABLE Traits ADD CSBullyMilitaryStrengthModifier integer DEFAULT 0;
