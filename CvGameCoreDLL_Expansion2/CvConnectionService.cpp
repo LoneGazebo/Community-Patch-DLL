@@ -627,7 +627,7 @@ void CvConnectionService::ProcessLuaResult(lua_State* L, int executionResult, co
 			if (numResults == 1)
 			{
 				// Single return value - convert directly
-				ConvertLuaToJsonValue(L, -1, response["result"]);
+				ConvertLuaToJsonValue(L, -1, response["result"].to<JsonVariant>());
 			}
 			else
 			{
@@ -641,11 +641,6 @@ void CvConnectionService::ProcessLuaResult(lua_State* L, int executionResult, co
 			
 			// Pop all return values from the stack
 			lua_pop(L, numResults);
-		}
-		else
-		{
-			// No return value
-			response["result"] = nullptr;
 		}
 
 		std::stringstream logMsg;
