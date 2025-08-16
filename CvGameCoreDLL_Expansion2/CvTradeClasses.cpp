@@ -6480,7 +6480,7 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& 
 	for (uint uiLoopPlot = 0; uiLoopPlot < kTradeConnection.m_aPlotList.size(); uiLoopPlot++)
 	{
 		CvPlot* pLoopPlot = GC.getMap().plot(kTradeConnection.m_aPlotList[uiLoopPlot].m_iX, kTradeConnection.m_aPlotList[uiLoopPlot].m_iY);
-		if (pLoopPlot->isCity() && pLoopPlot->getOwner() == m_pPlayer->GetID())
+		if (pLoopPlot->isCity() && pLoopPlot->getOwner() == m_pPlayer->GetID() && !pLoopPlot->IsTradeUnitRoute())
 		{
 			for (int iYieldLoop = 0; iYieldLoop < NUM_YIELD_TYPES; iYieldLoop++)
 			{
@@ -6961,7 +6961,7 @@ int CvTradeAI::ScoreInternalTR(const TradeConnection& kTradeConnection, const st
 	for (uint uiLoopPlot = 0; uiLoopPlot < kTradeConnection.m_aPlotList.size(); uiLoopPlot++)
 	{
 		CvPlot* pLoopPlot = GC.getMap().plot(kTradeConnection.m_aPlotList[uiLoopPlot].m_iX, kTradeConnection.m_aPlotList[uiLoopPlot].m_iY);
-		if (pLoopPlot->isCity() && pLoopPlot->getOwner() == m_pPlayer->GetID())
+		if (pLoopPlot->isCity() && pLoopPlot->getOwner() == m_pPlayer->GetID() && !pLoopPlot->IsTradeUnitRoute())
 		{
 			for (int iYieldLoop = 0; iYieldLoop < NUM_YIELD_TYPES; iYieldLoop++)
 			{

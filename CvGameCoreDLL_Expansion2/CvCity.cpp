@@ -23231,7 +23231,7 @@ int CvCity::getBaseYieldRateTimes100(const YieldTypes eYield, CvString* tooltipS
 	iTempYield += GetYieldRateFromBuildingsEraScalingTimes100(eYield) * iEraScaler;
 	iTempYield += (GetYieldPerBuilding(eYield) * GetCityBuildings()->GetNumBuildings() * 100).Truncate();
 	iTempYield += (GetYieldPerTile(eYield) * GetPlotList().size() * 100).Truncate();
-	iTempYield += GetYieldFromPassingTR(eYield) * plot()->GetNumTradeUnitRoute() * 100;
+	iTempYield += plot()->IsTradeUnitRoute() ? GetYieldFromPassingTR(eYield) * 100 : 0;
 	iTempYield += GetTotalYieldFromTerrainsTimes100(eYield);
 	iTempYield += GetTotalYieldFromFeaturesTimes100(eYield);
 	iTempYield += (GetYieldPerCityStateStrategicResource(eYield) * kOwner.GetNumStrategicResourcesFromMinors() * 100).Truncate();
