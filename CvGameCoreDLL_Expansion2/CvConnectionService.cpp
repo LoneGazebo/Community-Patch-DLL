@@ -608,107 +608,76 @@ void CvConnectionService::HandleLuaExecute(const char* script, const char* id)
 // Process the result of a Lua script execution
 void CvConnectionService::ProcessLuaResult(lua_State* L, int executionResult, const char* id)
 {
+	// Build the response JSON
+	DynamicJsonDocument response(8192);
+	response["type"] = "lua_response";
+	response["id"] = id;
+	
 	if (executionResult == 0)
 	{
 		// Script executed successfully
+		response["success"] = true;
+		
 		// Get the return value(s) from the stack
 		int numResults = lua_gettop(L);
 		
 		if (numResults > 0)
 		{
-			// Convert the Lua return value(s) to JSON
-			std::string jsonResult;
-			
+			// Create a nested JSON value for the result
 			if (numResults == 1)
 			{
-				// Single return value
-				jsonResult = ConvertLuaResultToJson(L, -1);
+				// Single return value - convert directly
+				ConvertLuaToJsonValue(L, -1, response["result"]);
 			}
 			else
 			{
-				// Multiple return values - wrap in an array
-				std::stringstream ss;
-				ss << "[";
+				// Multiple return values - create an array
+				JsonArray resultArray = response["result"].to<JsonArray>();
 				for (int i = numResults; i >= 1; i--)
 				{
-					if (i < numResults) ss << ",";
-					ss << ConvertLuaResultToJson(L, -i);
+					ConvertLuaToJsonValue(L, -i, resultArray.add());
 				}
-				ss << "]";
-				jsonResult = ss.str();
 			}
 			
 			// Pop all return values from the stack
 			lua_pop(L, numResults);
-			
-			// Send success response with the JSON result
-			SendLuaSuccessResponse(id, jsonResult.c_str());
 		}
 		else
 		{
 			// No return value
-			SendLuaSuccessResponse(id, "null");
+			response["result"] = nullptr;
 		}
+
+		std::stringstream logMsg;
+		logMsg << "ProcessLuaResult - Sent success response for id: " << id;
+		Log(LOG_DEBUG, logMsg.str().c_str());
 	}
 	else
 	{
 		// Script execution failed
+		response["success"] = false;
+		
 		const char* errorMsg = lua_tostring(L, -1);
 		if (!errorMsg) errorMsg = "Unknown Lua error";
 		
-		std::stringstream errorLog;
-		errorLog << "ProcessLuaResult - Lua execution error: " << errorMsg;
-		Log(LOG_ERROR, errorLog.str().c_str());
+		response["error"] = errorMsg;
 		
 		// Pop the error message from the stack
 		lua_pop(L, 1);
 		
-		// Send error response
-		SendLuaErrorResponse(id, errorMsg);
+		std::stringstream logMsg;
+		logMsg << "ProcessLuaResult - Sent error response for id: " << id << ", error: " << errorMsg;
+		Log(LOG_DEBUG, logMsg.str().c_str());
 	}
-}
-
-// Send a successful Lua execution response
-void CvConnectionService::SendLuaSuccessResponse(const char* id, const char* result)
-{
-	// Build success response JSON following PROTOCOL.md
-	DynamicJsonDocument response(8192);
-	response["type"] = "lua_response";
-	response["id"] = id;
-	response["success"] = true;
-	response["result"] = result;
 	
 	// Send the response
 	SendMessage(response);
-	
-	std::stringstream logMsg;
-	logMsg << "SendLuaSuccessResponse - Sent success response for id: " << id;
-	Log(LOG_DEBUG, logMsg.str().c_str());
 }
 
-// Send a Lua execution error response
-void CvConnectionService::SendLuaErrorResponse(const char* id, const char* error)
-{
-	// Build error response JSON following PROTOCOL.md
-	DynamicJsonDocument response(8192);
-	response["type"] = "lua_response";
-	response["id"] = id;
-	response["success"] = false;
-	response["error"] = error;
-	
-	// Send the response
-	SendMessage(response);
-	
-	std::stringstream logMsg;
-	logMsg << "SendLuaErrorResponse - Sent error response for id: " << id << ", error: " << error;
-	Log(LOG_DEBUG, logMsg.str().c_str());
-}
 
-// Convert a Lua value at the given stack index to a JSON string
-std::string CvConnectionService::ConvertLuaResultToJson(lua_State* L, int index)
+// Convert a Lua value at the given stack index to a JsonVariant
+void CvConnectionService::ConvertLuaToJsonValue(lua_State* L, int index, JsonVariant dest)
 {
-	std::stringstream result;
-	
 	// Make the index absolute if it's relative
 	if (index < 0 && index > LUA_REGISTRYINDEX)
 	{
@@ -720,11 +689,11 @@ std::string CvConnectionService::ConvertLuaResultToJson(lua_State* L, int index)
 	switch (type)
 	{
 	case LUA_TNIL:
-		result << "null";
+		dest.set(nullptr);
 		break;
 		
 	case LUA_TBOOLEAN:
-		result << (lua_toboolean(L, index) ? "true" : "false");
+		dest.set(lua_toboolean(L, index) != 0);
 		break;
 		
 	case LUA_TNUMBER:
@@ -733,47 +702,19 @@ std::string CvConnectionService::ConvertLuaResultToJson(lua_State* L, int index)
 			// Check if it's an integer
 			if (num == floor(num) && num >= INT_MIN && num <= INT_MAX)
 			{
-				result << static_cast<int>(num);
+				dest.set(static_cast<int>(num));
 			}
 			else
 			{
-				result << num;
+				dest.set(num);
 			}
 		}
 		break;
 		
 	case LUA_TSTRING:
 		{
-			// Escape the string for JSON
 			const char* str = lua_tostring(L, index);
-			result << "\"";
-			if (str)
-			{
-				for (const char* p = str; *p; ++p)
-				{
-					switch (*p)
-					{
-					case '\"': result << "\\\""; break;
-					case '\\': result << "\\\\"; break;
-					case '\b': result << "\\b"; break;
-					case '\f': result << "\\f"; break;
-					case '\n': result << "\\n"; break;
-					case '\r': result << "\\r"; break;
-					case '\t': result << "\\t"; break;
-					default:
-						if (*p >= 0x20 && *p <= 0x7E)
-						{
-							result << *p;
-						}
-						else
-						{
-							// Escape non-printable characters
-							result << "\\u" << std::hex << std::setw(4) << std::setfill('0') << static_cast<int>(*p);
-						}
-					}
-				}
-			}
-			result << "\"";
+			dest.set(str ? str : "");
 		}
 		break;
 		
@@ -798,46 +739,45 @@ std::string CvConnectionService::ConvertLuaResultToJson(lua_State* L, int index)
 			
 			if (isArray)
 			{
-				result << "[";
-				bool first = true;
+				// Create JSON array
+				JsonArray arr = dest.to<JsonArray>();
 				lua_pushnil(L);
 				while (lua_next(L, index) != 0)
 				{
-					if (!first) result << ",";
-					first = false;
-					result << ConvertLuaResultToJson(L, -1);
+					// Add value to array
+					ConvertLuaToJsonValue(L, -1, arr.add());
 					lua_pop(L, 1);
 				}
-				result << "]";
 			}
 			else
 			{
-				result << "{";
-				bool first = true;
+				// Create JSON object
+				JsonObject obj = dest.to<JsonObject>();
 				lua_pushnil(L);
 				while (lua_next(L, index) != 0)
 				{
-					if (!first) result << ",";
-					first = false;
-					
-					// Convert key to string
+					// Get key as string
+					const char* key = nullptr;
 					if (lua_type(L, -2) == LUA_TSTRING)
 					{
-						result << ConvertLuaResultToJson(L, -2);
+						key = lua_tostring(L, -2);
 					}
 					else
 					{
 						// Convert non-string key to string
 						lua_pushvalue(L, -2);
-						const char* key = lua_tostring(L, -1);
-						result << "\"" << (key ? key : "") << "\"";
+						key = lua_tostring(L, -1);
 						lua_pop(L, 1);
 					}
 					
-					result << ":" << ConvertLuaResultToJson(L, -1);
+					if (key)
+					{
+						// Add key-value pair to object
+						ConvertLuaToJsonValue(L, -1, obj[key]);
+					}
+					
 					lua_pop(L, 1);
 				}
-				result << "}";
 			}
 		}
 		break;
@@ -846,14 +786,16 @@ std::string CvConnectionService::ConvertLuaResultToJson(lua_State* L, int index)
 	case LUA_TUSERDATA:
 	case LUA_TTHREAD:
 	case LUA_TLIGHTUSERDATA:
-		// These types cannot be serialized to JSON
-		result << "\"<" << lua_typename(L, type) << ">\"";
+		{
+			// These types cannot be serialized to JSON - store as string description
+			std::stringstream ss;
+			ss << "<" << lua_typename(L, type) << ">";
+			dest.set(ss.str());
+		}
 		break;
 		
 	default:
-		result << "null";
+		dest.set(nullptr);
 		break;
 	}
-	
-	return result.str();
 }

@@ -79,9 +79,7 @@ private:
 	// Lua execution handlers
 	void HandleLuaExecute(const char* script, const char* id);
 	void ProcessLuaResult(lua_State* L, int executionResult, const char* id);
-	void SendLuaSuccessResponse(const char* id, const char* result);
-	void SendLuaErrorResponse(const char* id, const char* error);
-	std::string ConvertLuaResultToJson(lua_State* L, int index);
+	void ConvertLuaToJsonValue(lua_State* L, int index, JsonVariant dest);
 	
 	// Internal state
 	bool m_bInitialized;
