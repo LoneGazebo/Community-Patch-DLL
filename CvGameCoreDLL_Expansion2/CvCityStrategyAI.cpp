@@ -848,16 +848,21 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 	// Loop through adding the available projects
 	for(int iProjectLoop = 0; iProjectLoop < GC.GetGameProjects()->GetNumProjects(); iProjectLoop++)
 	{
-		if (m_pCity->canCreate((ProjectTypes)iProjectLoop, (m_pCity->isProductionProject() && (ProjectTypes)iProjectLoop == m_pCity->getProductionProject())))
+		ProjectTypes eProject = (ProjectTypes)iProjectLoop;
+		if (m_pCity->canCreate(eProject, (m_pCity->isProductionProject() && eProject == m_pCity->getProductionProject())))
 		{
-			int iTempWeight = m_pProjectProductionAI->GetWeight((ProjectTypes)iProjectLoop);
+			CvProjectEntry* pProject = GC.getProjectInfo(eProject);
+			if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(m_pCity) && (pProject->GetMaxTeamInstances() > 0 || pProject->GetMaxGlobalInstances() > 0))
+				continue;
+
+			int iTempWeight = m_pProjectProductionAI->GetWeight(eProject);
 			if(iTempWeight > 0)
 			{
 				buildable.m_eBuildableType = CITY_BUILDABLE_PROJECT;
 				buildable.m_iIndex = iProjectLoop;
-				buildable.m_iTurnsToConstruct = GetCity()->getProductionTurnsLeft((ProjectTypes)iProjectLoop, 0);
+				buildable.m_iTurnsToConstruct = GetCity()->getProductionTurnsLeft(eProject, 0);
 				buildable.m_iValue = iTempWeight;
-				m_BuildablesPrecheck.push_back(buildable, m_pProjectProductionAI->GetWeight((ProjectTypes)iProjectLoop));
+				m_BuildablesPrecheck.push_back(buildable, m_pProjectProductionAI->GetWeight(eProject));
 			}
 		}
 	}
