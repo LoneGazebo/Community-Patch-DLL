@@ -43,14 +43,14 @@ UsedUserAreasWarning=no
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Files]    
-Source: "Build\(1) Community Patch\*"; Excludes: "\LUA,*.civ5proj,*.civ5sln,*.civ5suo,MANUAL INSTALL.txt"; DestDir: "{app}\MODS\(1) Community Patch"; Flags: ignoreversion createallsubdirs recursesubdirs
+Source: "Build\(1) Community Patch\*"; Excludes: "\LUA,*.civ5proj,*.civ5sln,*.civ5suo,MANUAL INSTALL.txt"; DestDir: "{app}\MODS\(1) Community Patch"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullNoEUI FullEUI Civ43EUI Civ43NoEUI Core Civ43CPOnly
 Source: "Build\(2) Vox Populi\*"; Excludes: "\LUA,INSTRUCTIONS.txt,Promotion Icons for VP.txt,*.civ5proj,*.civ5sln,*.civ5suo"; DestDir: "{app}\MODS\(2) Vox Populi"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullEUI FullNoEUI Civ43EUI Civ43NoEUI
 Source: "Build\(3a) VP - EUI Compatibility Files\*"; Excludes: "INSTRUCTIONS.txt,*.civ5proj,*.civ5sln,*.civ5suo"; DestDir: "{app}\MODS\(3a) VP - EUI Compatibility Files"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullEUI Civ43EUI
 Source: "Build\(3b) 43 Civs Community Patch\(3b) 43 Civs Community Patch (v 1).modinfo"; DestDir: "{app}\MODS\(3b) 43 Civs Community Patch\"; DestName: "(3b) 43 Civs Community Patch (v 1).modinfo"; Flags: ignoreversion; Components: Civ43CPOnly Civ43EUI Civ43NoEUI
 Source: "Build\(3b) 43 Civs Community Patch\AdvancedSetup.lua"; DestDir: "{app}\MODS\(3b) 43 Civs Community Patch\"; DestName: "AdvancedSetup.lua"; Flags: ignoreversion; Components: Civ43CPOnly Civ43EUI Civ43NoEUI
 Source: "Build\(3b) 43 Civs Community Patch\CvGameCore_Expansion2.dll"; DestDir: "{app}\MODS\(1) Community Patch\"; DestName: "CvGameCore_Expansion2.dll"; Flags: ignoreversion; Components: Civ43CPOnly Civ43EUI Civ43NoEUI
 Source: "Build\(4a) Squads for VP\*"; Excludes: "*.civ5proj,*.civ5sln,*.civ5suo"; DestDir: "{app}\MODS\(4a) Squads for VP"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullNoEUI FullEUI Civ43EUI Civ43NoEUI
-Source: "Build\(1) Community Patch\LUA\*"; DestDir: "{app}\MODS\(1) Community Patch\LUA"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: Core Civ43CPOnly
+Source: "Build\(1) Community Patch\LUA\*"; DestDir: "{app}\MODS\(1) Community Patch\LUA"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: Core Civ43CPOnly FullNoEUI Civ43NoEUI
 Source: "Build\(2) Vox Populi\LUA\*"; DestDir: "{app}\MODS\(2) Vox Populi\LUA"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullNoEUI Civ43NoEUI
 Source: "UI_bc1\*"; DestDir: "{code:GetCIVDir}\Assets\DLC\UI_bc1"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullEUI Civ43EUI
 Source: "VPUI\*"; DestDir: "{code:GetCIVDir}\Assets\DLC\VPUI"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullEUI Civ43EUI FullNoEUI Civ43NoEUI
@@ -62,7 +62,9 @@ Name: "FullNoEUI"; Description: "Vox Populi (no EUI)"; Types: FullNoEUI; Flags: 
 Name: "Core"; Description: "Community Patch only"; Types: Core; Flags: exclusive disablenouninstallwarning
 Name: "Civ43CPOnly"; Description: "43 Civ Community Patch only"; Types: 43CivCPOnly; Flags: exclusive disablenouninstallwarning
 Name: "Civ43NoEUI"; Description: "43 Civ Vox Populi (no EUI)"; Types: 43CivNoEUI; Flags: exclusive disablenouninstallwarning
-Name: "Civ43EUI"; Description: "43 Civ Vox Populi (with EUI)"; Types: 43CivEUI; Flags: exclusive disablenouninstallwarning
+Name: "Civ43EUI"; Description: "43 Civ Vox Populi (with EUI)"; Types: 43CivEUI; Flags: exclusive disablenouninstallwarning 
+Name: "UninstallCP"; Description: "Uninstall Community Patch Only"; Types: UninstallCP; Flags: exclusive disablenouninstallwarning
+Name: "UninstallVP"; Description: "Uninstall Vox Populi"; Types: UninstallVP; Flags: exclusive disablenouninstallwarning
 
 [Types]
 Name: "FullEUI"; Description: "Vox Populi (with EUI)"
@@ -71,6 +73,8 @@ Name: "Core"; Description: "Community Patch only"
 Name: "43CivCPOnly"; Description: "43 Civ Community Patch only"
 Name: "43CivNoEUI"; Description: "43 Civ Vox Populi (no EUI)"
 Name: "43CivEUI"; Description: "43 Civ Vox Populi (with EUI)"
+Name: "UninstallCP"; Description: "Uninstall Community Patch Only"    
+Name: "UninstallVP"; Description: "Uninstall Vox Populi"
 
 [InstallDelete]
 Type: filesandordirs; Name: "{code:GetCIVDir}\Assets\DLC\UI_bc1"
@@ -107,7 +111,16 @@ var
 procedure CurPageChanged(CurPageID: Integer);
 begin
   if CurPageID = wpFinished then
-    WizardForm.FinishedLabel.Caption := 'Setup has finished installing Vox Populi on your computer. To launch the mod, open Civilization V and enable all installed mods in the MODS menu, then click ''NEXT'' (do not click on ''Back''). Have fun!';
+  begin
+    if WizardIsComponentSelected('UninstallCP') or WizardIsComponentSelected('UninstallVP') then
+    begin
+      WizardForm.FinishedLabel.Caption := 'Uninstallation complete';
+    end
+    else
+    begin
+      WizardForm.FinishedLabel.Caption := 'Setup has finished installing the mod on your computer. To launch it, open Civilization V and enable all installed mods in the MODS menu, then click ''NEXT'' (do not click on ''Back''). Have fun!';
+    end;
+  end;
 end;
 
 procedure InitializeWizard;
@@ -115,7 +128,7 @@ begin
   // Create the DLC path page
 
   CIVDirPage := CreateInputDirPage(wpSelectComponents,
-    'Select the Civilization V folder', 'Where should the UI files be installed?',
+    'Select the Civilization V folder', '',
     'Select the folder of your Civilization V installation, then click Next. If the installer does not select a folder by default, please click Browse and choose the correct folder. To find it, right-click on Civilization V in Steam and select "Show local files". ',
     False, '');
   CIVDirPage.Add('');
@@ -130,6 +143,9 @@ begin
 end;
  *)
 function NextButtonClick(CurPageID: Integer): Boolean;
+var
+  MissingFolders: TStringList;
+  BaseDir: string;
 begin
   // Set default folder if empty. Don't select a default folder if the game isn't installed in the default location
   if CIVDirPage.Values[0] = '' then
@@ -141,18 +157,41 @@ begin
   else
   begin
     // check if all required DLC are installed
-    Result := not (CurPageID = CIVDirPage.ID) or (DirExists(CIVDirPage.Values[0] + '\Assets\DLC\DLC_01') and
-              DirExists(CIVDirPage.Values[0] + '\Assets\DLC\DLC_02') and
-              DirExists(CIVDirPage.Values[0] + '\Assets\DLC\DLC_03') and
-              DirExists(CIVDirPage.Values[0] + '\Assets\DLC\DLC_04') and
-              DirExists(CIVDirPage.Values[0] + '\Assets\DLC\DLC_05') and
-              DirExists(CIVDirPage.Values[0] + '\Assets\DLC\DLC_06') and
-              DirExists(CIVDirPage.Values[0] + '\Assets\DLC\DLC_07') and
-              DirExists(CIVDirPage.Values[0] + '\Assets\DLC\DLC_Deluxe') and
-              DirExists(CIVDirPage.Values[0] + '\Assets\DLC\Expansion') and
-              DirExists(CIVDirPage.Values[0] + '\Assets\DLC\Expansion2')); 
-    if Result = False then
-      MsgBox('You don''t have all required DLCs installed. Vox Populi can''t be installed if DLCs are missing.', mbInformation, MB_OK);
+    MissingFolders := TStringList.Create;
+    BaseDir := CIVDirPage.Values[0] + '\Assets\DLC\';
+    
+    if not DirExists(BaseDir + 'DLC_01') then
+      MissingFolders.Add('Civilization and Scenario Pack: Mongols (Genghis Khan)');
+    if not DirExists(BaseDir + 'DLC_02') then
+      MissingFolders.Add('Civilization and Scenario Double Pack: Spain and Inca');
+    if not DirExists(BaseDir + 'DLC_03') then
+      MissingFolders.Add('Civilization and Scenario Pack: Polynesia');
+    if not DirExists(BaseDir + 'DLC_04') then
+      MissingFolders.Add('Civilization and Scenario Pack: Denmark (The Vikings)');
+    if not DirExists(BaseDir + 'DLC_05') then
+      MissingFolders.Add('Civilization and Scenario Pack: Korea');
+    if not DirExists(BaseDir + 'DLC_06') then
+      MissingFolders.Add('Scenario Pack: Wonders of the Ancient World');
+    if not DirExists(BaseDir + 'DLC_07') then
+      MissingFolders.Add('Scenario Pack: Conquest of the New World');
+    if not DirExists(BaseDir + 'DLC_Deluxe') then
+      MissingFolders.Add('Babylon (Nebuchadnezzar II)');
+    if not DirExists(BaseDir + 'Expansion') then
+      MissingFolders.Add('Gods & Kings');
+    if not DirExists(BaseDir + 'Expansion2') then
+      MissingFolders.Add('Brave New World');
+
+    if MissingFolders.Count > 0 then
+    begin
+      MsgBox('You don''t have all required DLCs installed. The following DLC are missing:' + #13#10 + #13#10 + MissingFolders.Text + #13#10 + #13#10 + 'Vox Populi can''t be installed if DLCs are missing.', mbInformation, MB_OK);
+      Result := False;
+    end
+    else
+    begin
+      Result := True;
+    end;
+
+    MissingFolders.Free;
   end;
 end;
 
@@ -183,7 +222,7 @@ end;
 
 function IsUI: Boolean;
 begin
-  Result := WizardIsComponentSelected('FullEUI') or WizardIsComponentSelected('Civ43EUI') or WizardIsComponentSelected('FullNoEUI') or WizardIsComponentSelected('Civ43NoEUI');
+  Result := WizardIsComponentSelected('FullEUI') or WizardIsComponentSelected('Civ43EUI') or WizardIsComponentSelected('FullNoEUI') or WizardIsComponentSelected('Civ43NoEUI') or WizardIsComponentSelected('UninstallVP');
 end;
 
 function ShouldSkipPage(CIVDirPageID: Integer): Boolean;
