@@ -91,9 +91,6 @@ private:
 	void ProcessLuaResult(lua_State* L, int executionResult, const char* id);
 	void ConvertLuaToJsonValue(lua_State* L, int index, JsonVariant dest);
 	
-	// Send registration notification to Bridge
-	void NotifyBridgeOfRegistration(const char* name, const char* description);
-	
 	// Structure to store registered Lua functions
 	struct LuaFunctionInfo {
 		lua_State* pLuaState;      // The Lua state that registered this function

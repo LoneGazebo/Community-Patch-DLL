@@ -829,11 +829,14 @@ void CvConnectionService::RegisterLuaFunction(const char* name, lua_State* L, in
 	info.strDescription = "Registered from Lua";  // Could be enhanced with optional description parameter
 	
 	m_registeredFunctions[name] = info;
-	
 	LeaveCriticalSection(&m_csFunctions);
 	
-	// Notify Bridge Service about the new registration
-	NotifyBridgeOfRegistration(name, info.strDescription.c_str());
+	// Send registration notification to Bridge
+	DynamicJsonDocument message(512);
+	message["type"] = "lua_register";
+	message["function"] = name;
+	message["description"] = info.strDescription.c_str();
+	SendMessage(message);
 	
 	char buffer[512];
 	sprintf_s(buffer, sizeof(buffer), "Registered Lua function: %s", name);
@@ -861,6 +864,12 @@ void CvConnectionService::UnregisterLuaFunction(const char* name)
 	}
 	
 	LeaveCriticalSection(&m_csFunctions);
+	
+	// Send unregistration notification to Bridge
+	DynamicJsonDocument message(512);
+	message["type"] = "lua_unregister";
+	message["function"] = name;
+	SendMessage(message);
 }
 
 //------------------------------------------------------------------------------
@@ -882,20 +891,13 @@ void CvConnectionService::ClearLuaFunctions()
 	Log(LOG_INFO, "Cleared all registered Lua functions");
 	
 	LeaveCriticalSection(&m_csFunctions);
+	
+	// Send clear notification to Bridge (only if connected)
+	if (m_bInitialized && m_bClientConnected)
+	{
+		DynamicJsonDocument message(512);
+		message["type"] = "lua_clear";
+		SendMessage(message);
+	}
 }
 
-//------------------------------------------------------------------------------
-// Send registration notification to Bridge
-void CvConnectionService::NotifyBridgeOfRegistration(const char* name, const char* description)
-{
-	// Create notification message following PROTOCOL.md
-	DynamicJsonDocument message(512);
-	message["type"] = "lua_register";
-	message["function"] = name;
-	message["description"] = description;
-	
-	// Queue the message for Bridge
-	std::string messageStr;
-	serializeJson(message, messageStr);
-	QueueOutgoingMessage(messageStr);
-}
