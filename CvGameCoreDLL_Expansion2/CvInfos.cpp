@@ -4489,6 +4489,50 @@ bool CvHandicapInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	m_iAIFriendlyApproachChangeFlat = kResults.GetInt("AIFriendlyApproachChangeFlat");
 	m_iAIFriendlyApproachChangePercent = kResults.GetInt("AIFriendlyApproachChangePercent");
 
+	// Add backwards compatibility for some renamed, previously used columns (as much as we reasonably can)
+	m_iStartingGold += kResults.GetInt("Gold");
+	m_iMaintenanceFreeUnits += kResults.GetInt("GoldFreeUnits");
+	m_iUnitSupplyBase += kResults.GetInt("ProductionFreeUnits");
+	m_iUnitSupplyPerCity += kResults.GetInt("ProductionFreeUnitsPerCity");
+	m_iUnitSupplyPopulationPercent += kResults.GetInt("ProductionFreeUnitsPopulationPercent");
+	m_iAIUnitSupplyBonusPercent += kResults.GetInt("AIUnitSupplyPercent");
+	m_iBonusVSBarbarians += kResults.GetInt("BarbarianBonus");
+	m_iAIBonusVSBarbarians += kResults.GetInt("AIBarbarianBonus");
+	m_iBarbarianCampGold += kResults.GetInt("BarbCampGold");
+	m_iBarbarianSpawnDelay += kResults.GetInt("BarbSpawnMod");
+
+	// The "per era modifier" affects a bunch of things in vanilla BNW - most of these are retained, some of the functionality is removed
+	// Omitted: production discount to World Wonders and two additional discounts the AI had to portions of unit maintenance costs
+	int iAIPerEraModifier = kResults.GetInt("AIPerEraModifier");
+	m_iAICivilianPerEraModifier += iAIPerEraModifier;
+	m_iAITrainPerEraModifier += iAIPerEraModifier;
+	m_iAIConstructPerEraModifier += iAIPerEraModifier;
+	m_iAICreatePerEraModifier += iAIPerEraModifier;
+	m_iAIGrowthPerEraModifier += iAIPerEraModifier;
+	m_iAIUnitUpgradePerEraModifier += iAIPerEraModifier;
+
+	// ... more complicated for multiplicative columns
+	int iNumCitiesUnhappinessMod = kResults.GetInt("NumCitiesUnhappinessMod");
+	if (iNumCitiesUnhappinessMod != 0)
+	{
+		m_iEmpireSizeUnhappinessMod = (iNumCitiesUnhappinessMod * (100 + m_iEmpireSizeUnhappinessMod) / 100) - 100;
+	}
+	int iRouteCostPercent = kResults.GetInt("RouteCostPercent");
+	if (iRouteCostPercent != 0)
+	{
+		// We can probably assume that if a modmod specified RouteCostPercent, they don't also have special tile improvements that cost maintenance
+		// Note that in vanilla BNW, ImprovementCostPercent is supposed to be the player version of AIWorkRateModifier - VP adds WorkRateModifier and repurposes this to be the maintenance cost
+		// A better fix here would be to separate cost from Roads and Tile Improvements
+		m_iImprovementCostPercent *= iRouteCostPercent;
+		m_iImprovementCostPercent /= 100;
+	}
+	int iAIUnhappinessPercent = kResults.GetInt("AIUnhappinessPercent");
+	if (iAIUnhappinessPercent != 0)
+	{
+		m_iAIPopulationUnhappinessMod = (iAIUnhappinessPercent * (100 + m_iAIPopulationUnhappinessMod) / 100) - 100;
+		m_iAIEmpireSizeUnhappinessMod = (iAIUnhappinessPercent * (100 + m_iAIEmpireSizeUnhappinessMod) / 100) - 100;
+	}
+
 	//Arrays
 	const char* szHandicapType = GetType();
 
