@@ -1652,7 +1652,7 @@ int CvLuaCity::lGetBuildingYieldRateTimes100(lua_State* L)
 	iYieldTimes100 += pkBuildingInfo->GetYieldChangePerPopInEmpire(eYield) * kPlayer.getTotalPopulation();
 	iYieldTimes100 += (pkBuildingInfo->GetYieldChangePerBuilding(eYield) * pCity->GetCityBuildings()->GetNumBuildings() * 100).Truncate();
 	iYieldTimes100 += (pkBuildingInfo->GetYieldChangePerTile(eYield) * pCity->GetPlotList().size() * 100).Truncate();
-	iYieldTimes100 += pkBuildingInfo->GetYieldChangeFromPassingTR(eYield) * pCity->plot()->GetNumTradeUnitRoute() * 100;
+	iYieldTimes100 += pCity->plot()->IsTradeUnitRoute() ? pkBuildingInfo->GetYieldChangeFromPassingTR(eYield) * 100 : 0;
 	iYieldTimes100 += (pkBuildingInfo->GetYieldChangePerCityStateStrategicResource(eYield) * kPlayer.GetNumStrategicResourcesFromMinors() * 100).Truncate();
 	iYieldTimes100 += pkBuildingInfo->GetYieldChangeEraScalingTimes100(eYield) * max(1, static_cast<int>(kPlayer.GetCurrentEra()));
 	iYieldTimes100 += pkBuildingInfo->GetYieldPerFriend(eYield) * kPlayer.GetNumCSFriends() * 100;
