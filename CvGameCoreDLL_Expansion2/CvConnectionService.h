@@ -60,6 +60,9 @@ public:
 	// Clear all registered functions (called on shutdown)
 	void ClearLuaFunctions();
 
+	// Forward game events to the Bridge Service
+	void ForwardGameEvent(const char* eventName, class ICvEngineScriptSystemArgs1* args);
+
 private:
 	// Private constructor for singleton
 	CvConnectionService();

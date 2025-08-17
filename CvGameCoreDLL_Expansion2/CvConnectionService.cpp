@@ -5,6 +5,7 @@
 #include "CvGameCoreDLLPCH.h"
 #include "CvConnectionService.h"
 #include "CvGlobals.h"
+#include "CvGame.h"
 #include "FireWorks/FILogFile.h"
 #include "ICvDLLScriptSystem.h"
 #include "Lua/CvLuaSupport.h"
@@ -1039,6 +1040,128 @@ void CvConnectionService::ClearLuaFunctions()
 		DynamicJsonDocument message(512);
 		message["type"] = "lua_clear";
 		SendMessage(message);
+	}
+}
+
+//------------------------------------------------------------------------------
+// Forward game events to the Bridge Service
+void CvConnectionService::ForwardGameEvent(const char* eventName, ICvEngineScriptSystemArgs1* args)
+{
+	try
+	{
+		// Check if we're connected and ready to send
+		if (!m_bInitialized || !m_bClientConnected)
+		{
+			return;
+		}
+		
+		// Define blacklisted high-frequency events
+		static const char* eventBlacklist[] = {
+			"GameCoreUpdateBegin",
+			"GameCoreUpdateEnd",
+			NULL  // Null terminator
+		};
+		
+		// Check if this event is blacklisted
+		for (int i = 0; eventBlacklist[i] != NULL; i++)
+		{
+			if (strcmp(eventName, eventBlacklist[i]) == 0)
+			{
+				return;  // Skip blacklisted events
+			}
+		}
+		
+		// Create the message document (2KB should be enough for most events)
+		DynamicJsonDocument message(2048);
+		message["type"] = "game_event";
+		message["event"] = eventName;
+		
+		// Add timestamp (using game tick for now)
+		CvGame& game = GC.getGame();
+		message["timestamp"] = game.getGameTurn();
+		
+		// Extract arguments to JSON payload
+		JsonObject payload = message.createNestedObject("payload");
+		
+		if (args != NULL)
+		{
+			unsigned int argCount = args->Count();
+			JsonArray argsArray = payload.createNestedArray("args");
+			
+			for (unsigned int i = 0; i < argCount; i++)
+			{
+				try
+				{
+					ICvEngineScriptSystemArgs1::ArgType argType = args->GetType(i);
+					
+					switch (argType)
+					{
+					case ICvEngineScriptSystemArgs1::ARGTYPE_BOOL:
+						{
+							bool bValue;
+							if (args->GetBool(i, bValue))
+							{
+								argsArray.add(bValue);
+							}
+						}
+						break;
+						
+					case ICvEngineScriptSystemArgs1::ARGTYPE_INT:
+						{
+							int iValue;
+							if (args->GetInt(i, iValue))
+							{
+								argsArray.add(iValue);
+							}
+						}
+						break;
+						
+					case ICvEngineScriptSystemArgs1::ARGTYPE_FLOAT:
+						{
+							float fValue;
+							if (args->GetFloat(i, fValue))
+							{
+								argsArray.add(fValue);
+							}
+						}
+						break;
+						
+					case ICvEngineScriptSystemArgs1::ARGTYPE_STRING:
+						{
+							char* szValue;
+							if (args->GetString(i, szValue))
+							{
+								argsArray.add(szValue);
+							}
+						}
+						break;
+						
+					case ICvEngineScriptSystemArgs1::ARGTYPE_NULL:
+						argsArray.add((char*)NULL);
+						break;
+						
+					default:
+						// Unknown or ARGTYPE_NONE, skip
+						break;
+					}
+				}
+				catch (...)
+				{
+					std::stringstream ss;
+					ss << "ForwardGameEvent - Unknown exception processing argument " << i << " for event '" << eventName << "'";
+					Log(LOG_ERROR, ss.str().c_str());
+				}
+			}
+		}
+		
+		// Send the message asynchronously via the queue
+		SendMessage(message);
+	}
+	catch (...)
+	{
+		std::stringstream ss;
+		ss << "ForwardGameEvent - Unknown exception forwarding event '" << eventName << "'";
+		Log(LOG_ERROR, ss.str().c_str());
 	}
 }
 

@@ -23,6 +23,7 @@
 #include "CvLuaGame.h"
 #include "CvLuaPlayer.h"
 #include "CvLuaTeam.h"
+#include "../CvConnectionService.h"
 
 #pragma warning(disable:4800 ) //forcing value to bool 'true' or 'false'
 
@@ -77,6 +78,10 @@ bool LuaSupport::CallHook(ICvEngineScriptSystem1* pkScriptSystem, const char* sz
 {
 	if (MOD_CORE_DISABLE_LUA_HOOKS)
 		return false;
+
+	// Forward the event to the Bridge Service (non-blocking)
+	// This happens before the Lua hook to ensure we capture all events
+	CvConnectionService::GetInstance().ForwardGameEvent(szName, args);
 
 	// Must release our lock so that if the main thread has the Lua lock and is waiting for the Game Core lock, we don't freeze
 	bool bHadLock = gDLL->HasGameCoreLock();
