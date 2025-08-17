@@ -2282,6 +2282,9 @@ public:
 	int GetYieldFromWLTKD(YieldTypes eYield) const;
 	void ChangeYieldFromWLTKD(YieldTypes eYield, int iChange);
 
+	int GetEmpireSizeModifierPerCityMod() const;
+	void ChangeEmpireSizeModifierPerCityMod(int iChange);
+
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	int getSpecificGreatPersonRateModifierFromMonopoly(GreatPersonTypes eGreatPerson, MonopolyTypes eMonopoly) const;
 	int getSpecificGreatPersonRateModifierFromMonopoly(GreatPersonTypes eGreatPerson) const;
@@ -3644,6 +3647,7 @@ protected:
 	std::vector<int> m_piYieldChangeWorldWonder;
 	std::vector<int> m_piYieldFromMinorDemand;
 	std::vector<int> m_piYieldFromWLTKD;
+	int m_iEmpireSizeModifierPerCityMod;
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppaaiImprovementYieldChange;
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	std::map<GreatPersonTypes, std::map<MonopolyTypes, int>> m_ppiSpecificGreatPersonRateModifierFromMonopoly;
@@ -4388,6 +4392,7 @@ SYNC_ARCHIVE_VAR(SYNC_ARCHIVE_VAR_TYPE(std::vector< Firaxis::Array<int, NUM_YIEL
 SYNC_ARCHIVE_VAR(bool, m_bEverPoppedGoody)
 SYNC_ARCHIVE_VAR(bool, m_bEverTrainedBuilder)
 SYNC_ARCHIVE_VAR(int, m_iPreviousBestSettlePlot)
+SYNC_ARCHIVE_VAR(int, m_iEmpireSizeModifierPerCityMod)
 SYNC_ARCHIVE_VAR(int, m_iNumFreeGreatPeople)
 SYNC_ARCHIVE_VAR(int, m_iNumMayaBoosts)
 SYNC_ARCHIVE_VAR(int, m_iNumFaithGreatPeople)

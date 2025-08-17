@@ -54,6 +54,7 @@ public:
 	bool IsRepeatable() const;
 	int GetHappiness() const;
 	int GetEmpireSizeModifierReduction() const;
+	int GetEmpireSizeModifierPerCityMod() const;
 	int GetDistressFlatReduction() const;
 	int GetPovertyFlatReduction() const;
 	int GetIlliteracyFlatReduction() const;
@@ -105,6 +106,7 @@ protected:
 	bool m_bIdeologyRequired;
 	int m_iHappiness;
 	int m_iEmpireSizeModifierReduction;
+	int m_iEmpireSizeModifierPerCityMod;
 	int m_iDistressFlatReduction;
 	int m_iPovertyFlatReduction;
 	int m_iIlliteracyFlatReduction;
