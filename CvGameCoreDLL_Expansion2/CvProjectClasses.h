@@ -55,6 +55,7 @@ public:
 	int GetHappiness() const;
 	int GetEmpireSizeModifierReduction() const;
 	int GetEmpireSizeModifierPerCityMod() const;
+	CivilizationTypes GetCivilizationType() const;
 	int GetDistressFlatReduction() const;
 	int GetPovertyFlatReduction() const;
 	int GetIlliteracyFlatReduction() const;
@@ -107,6 +108,7 @@ protected:
 	int m_iHappiness;
 	int m_iEmpireSizeModifierReduction;
 	int m_iEmpireSizeModifierPerCityMod;
+	CivilizationTypes m_eCivType;
 	int m_iDistressFlatReduction;
 	int m_iPovertyFlatReduction;
 	int m_iIlliteracyFlatReduction;

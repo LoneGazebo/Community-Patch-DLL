@@ -270,6 +270,12 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 		iTempWeight += ((m_pCity->GetReducedEmpireSizeModifier(true,false)/2) * (pkProjectInfo->GetEmpireSizeModifierReduction() * -1));
 	}
 
+	if (pkProjectInfo->GetEmpireSizeModifierPerCityMod() < 0)
+	{
+		bGoodforHappiness = true;
+		iTempWeight += GET_PLAYER(m_pCity->getOwner()).getNumCities() * (pkProjectInfo->GetEmpireSizeModifierPerCityMod() * -1) / 100;
+	}
+
 	if (pkProjectInfo->GetDistressFlatReduction() > 0)
 	{
 		bGoodforHappiness = true;
