@@ -509,6 +509,7 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 
 	//Connection Service
 	Method(RegisterFunction);
+	Method(UnregisterFunction);
 
 #if defined(MOD_BATTLE_ROYALE)
 	Method(DeleteCSV);
@@ -4271,6 +4272,17 @@ int CvLuaGame::lRegisterFunction(lua_State* L)
 	
 	// Forward to ConnectionService with lua_State
 	CvConnectionService::GetInstance().RegisterLuaFunction(functionName, L, 2);
+	
+	return 0;  // No return values
+}
+
+int CvLuaGame::lUnregisterFunction(lua_State* L)
+{
+	// Get function name from first argument
+	const char* functionName = luaL_checkstring(L, 1);
+	
+	// Forward to ConnectionService to unregister
+	CvConnectionService::GetInstance().UnregisterLuaFunction(functionName);
 	
 	return 0;  // No return values
 }
