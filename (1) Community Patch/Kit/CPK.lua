@@ -404,6 +404,7 @@
 	kit.Assert = M() -- Assertion utilities
 	kit.Cache = M() -- Caching
 	kit.Misc = M()  -- Miscellaneous
+	kit.Table = M() -- Table utilities
 	kit.Type = M()  -- Type utilities
 	kit.FP = M()    -- Functional Programming
 	kit.UI = M()

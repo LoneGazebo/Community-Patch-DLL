@@ -1,6 +1,6 @@
 local _lua_type = type
 
-local EachArgs = CPK.Args.Each
+local ArgsEach = CPK.Args.Each
 
 --- @param control Control
 local function ControlEnable(control)
@@ -19,7 +19,7 @@ end
 --- @param ... Control
 local function Enable(control, ...)
 	ControlEnable(control)
-	EachArgs(ControlEnable, ...)
+	ArgsEach(ControlEnable, ...)
 end
 
 CPK.UI.Control.Enable = Enable
