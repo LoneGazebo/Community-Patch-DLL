@@ -52,6 +52,8 @@
 			<Strategy>TXT_KEY_PROJECT_YASSA_STRATEGY</Strategy>
 			<CivilizationType>CIVILIZATION_MONGOL</CivilizationType>
 			<IconAtlas>PROCESS_PROJECT_ATLAS_VP</IconAtlas>
+			<MaxGlobalInstances>-1</MaxGlobalInstances>
+			<MaxTeamInstances>1</MaxTeamInstances>
 			<PortraitIndex>7</PortraitIndex>
 		</Row>
 	</Projects>

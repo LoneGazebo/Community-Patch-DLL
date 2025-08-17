@@ -451,6 +451,7 @@ CvPlayer::CvPlayer() :
 , m_activeWaitingForEndTurnMessage(false)
 , m_endTurnBusyUnitUpdatesLeft(0)
 , m_lastGameTurnInitialAIProcessed(-1)
+, m_iEmpireSizeModifierPerCityMod()
 , m_iNumFreeGreatPeople()
 , m_iNumMayaBoosts()
 , m_iNumFaithGreatPeople()
@@ -1679,6 +1680,7 @@ void CvPlayer::uninit()
 	m_iNumFreePolicies = 0;
 	m_iNumFreePoliciesEver = 0;
 	m_iNumFreeTenets = 0;
+	m_iEmpireSizeModifierPerCityMod = 0;
 	m_iNumFreeGreatPeople = 0;
 	m_iNumMayaBoosts = 0;
 	m_iNumFaithGreatPeople = 0;
@@ -39687,6 +39689,23 @@ void CvPlayer::ChangeYieldFromWLTKD(YieldTypes eYield, int iChange)
 	m_piYieldFromWLTKD[eYield] += iChange;
 }
 
+
+//	--------------------------------------------------------------------------------
+int CvPlayer::GetEmpireSizeModifierPerCityMod() const
+{
+	return m_iEmpireSizeModifierPerCityMod;
+}
+void CvPlayer::ChangeEmpireSizeModifierPerCityMod(int iChange)
+{
+	m_iEmpireSizeModifierPerCityMod += iChange;
+	int iLoop = 0;
+	for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	{
+		pLoopCity->SetCachedEmpireSizeModifier(pLoopCity->GetEmpireSizeModifier());
+	}
+}
+
+
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 /// Does the player get a great person rate modifier from having a monopoly?
 int CvPlayer::getSpecificGreatPersonRateModifierFromMonopoly(GreatPersonTypes eGreatPerson, MonopolyTypes eMonopoly) const
@@ -43619,6 +43638,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_bEverPoppedGoody);
 	visitor(player.m_bEverTrainedBuilder);
 	visitor(player.m_iPreviousBestSettlePlot);
+	visitor(player.m_iEmpireSizeModifierPerCityMod);
 	visitor(player.m_iNumFreeGreatPeople);
 	visitor(player.m_iNumMayaBoosts);
 	visitor(player.m_iNumFaithGreatPeople);
@@ -43709,6 +43729,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_researchQueue);
 	visitor(player.m_eEndTurnBlockingType);
 	visitor(player.m_iEndTurnBlockingNotificationIndex);
+	visitor(player.m_iEmpireSizeModifierPerCityMod);
 
 	visitor(player.m_cityNames);
 	visitor(player.m_cities);

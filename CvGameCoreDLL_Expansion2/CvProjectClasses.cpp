@@ -60,6 +60,7 @@ bool CvProjectEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	m_bIdeologyRequired = kResults.GetBool("IdeologyRequired");
 	m_iHappiness = kResults.GetInt("Happiness");
 	m_iEmpireSizeModifierReduction = kResults.GetInt("EmpireSizeModifierReduction");
+	m_iEmpireSizeModifierPerCityMod = kResults.GetInt("EmpireSizeModifierPerCityMod");
 	m_iDistressFlatReduction = kResults.GetInt("DistressFlatReduction");
 	m_iPovertyFlatReduction = kResults.GetInt("PovertyFlatReduction");
 	m_iIlliteracyFlatReduction = kResults.GetInt("IlliteracyFlatReduction");
@@ -282,6 +283,10 @@ int CvProjectEntry::GetHappiness() const
 int CvProjectEntry::GetEmpireSizeModifierReduction() const
 {
 	return m_iEmpireSizeModifierReduction;
+}
+int CvProjectEntry::GetEmpireSizeModifierPerCityMod() const
+{
+	return m_iEmpireSizeModifierPerCityMod;
 }
 int CvProjectEntry::GetDistressFlatReduction() const
 {
