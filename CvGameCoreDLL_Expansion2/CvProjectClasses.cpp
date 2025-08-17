@@ -17,10 +17,9 @@ CvProjectEntry::CvProjectEntry(void):
 	m_piVictoryThreshold(NULL),
 	m_piVictoryMinThreshold(NULL),
 	m_piProjectsNeeded(NULL),
-#if defined(MOD_BALANCE_CORE)
 	m_eFreeBuilding(NO_BUILDINGCLASS),
 	m_eFreePolicy(NO_POLICY),
-#endif
+	m_eCivType(NO_CIVILIZATION),
 	m_piFlavorValue(NULL)
 {
 }
@@ -61,6 +60,8 @@ bool CvProjectEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	m_iHappiness = kResults.GetInt("Happiness");
 	m_iEmpireSizeModifierReduction = kResults.GetInt("EmpireSizeModifierReduction");
 	m_iEmpireSizeModifierPerCityMod = kResults.GetInt("EmpireSizeModifierPerCityMod");
+	const char* szSpecificCivilizationType = kResults.GetText("CivilizationType");
+	m_eCivType = (CivilizationTypes)GC.getInfoTypeForString(szSpecificCivilizationType, true);
 	m_iDistressFlatReduction = kResults.GetInt("DistressFlatReduction");
 	m_iPovertyFlatReduction = kResults.GetInt("PovertyFlatReduction");
 	m_iIlliteracyFlatReduction = kResults.GetInt("IlliteracyFlatReduction");
@@ -287,6 +288,11 @@ int CvProjectEntry::GetEmpireSizeModifierReduction() const
 int CvProjectEntry::GetEmpireSizeModifierPerCityMod() const
 {
 	return m_iEmpireSizeModifierPerCityMod;
+}
+
+CivilizationTypes CvProjectEntry::GetCivilizationType() const
+{
+	return m_eCivType;
 }
 int CvProjectEntry::GetDistressFlatReduction() const
 {

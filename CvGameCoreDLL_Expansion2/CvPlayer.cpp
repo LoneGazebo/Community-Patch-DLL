@@ -14320,6 +14320,11 @@ bool CvPlayer::canCreate(ProjectTypes eProject, bool bContinue, bool bTestVisibl
 		return false;
 	}
 
+	if (pProjectInfo.GetCivilizationType() != NO_CIVILIZATION && getCivilizationType() != pProjectInfo.GetCivilizationType())
+	{
+		return false;
+	}
+
 	// If cost is -1 then that means it can't be built
 	if(pProjectInfo.GetProductionCost() == -1)
 	{
