@@ -569,6 +569,16 @@ void CvConnectionService::RouteMessage(const std::string& messageJson)
 		// Call handler with extracted parameters
 		if (script && id) HandleLuaExecute(script, id);
 	}
+	else if (strcmp(messageType, "lua_call") == 0)
+	{
+		// Extract parameters from JSON message
+		const char* functionName = message["function"];
+		const char* id = message["id"];
+		JsonArray args = message["args"].as<JsonArray>();
+		
+		// Call handler with extracted parameters
+		if (functionName && id) HandleLuaCall(functionName, args, id);
+	}
 	else
 	{
 		// Otherwise, create echo response with original message
@@ -603,6 +613,75 @@ void CvConnectionService::HandleLuaExecute(const char* script, const char* id)
 	// Process the Lua execution result
 	ProcessLuaResult(m_pLuaState, result, id);
 
+	// Restore game core lock if we had it
+	if (bHadLock)
+	{
+		gDLL->GetGameCoreLock();
+	}
+}
+
+// Handle Lua function call from Bridge Service
+void CvConnectionService::HandleLuaCall(const char* functionName, const JsonArray& args, const char* id)
+{
+	std::stringstream logMsg;
+	logMsg << "HandleLuaCall - Calling function '" << functionName << "' for id: " << id;
+	Log(LOG_DEBUG, logMsg.str().c_str());
+
+	// Look up the registered function
+	EnterCriticalSection(&m_csFunctions);
+	
+	std::map<std::string, LuaFunctionInfo>::iterator it = m_registeredFunctions.find(functionName);
+	if (it == m_registeredFunctions.end())
+	{
+		// Function not found
+		LeaveCriticalSection(&m_csFunctions);
+		
+		// Send error response
+		DynamicJsonDocument response(512);
+		response["type"] = "lua_response";
+		response["id"] = id;
+		response["success"] = false;
+		
+		std::stringstream errorMsg;
+		errorMsg << "Function '" << functionName << "' not found";
+		response["error"] = errorMsg.str();
+		
+		SendMessage(response);
+		
+		logMsg.str("");
+		logMsg << "HandleLuaCall - Function '" << functionName << "' not found";
+		Log(LOG_WARNING, logMsg.str().c_str());
+		return;
+	}
+	
+	// Get the function info
+	LuaFunctionInfo funcInfo = it->second;
+	LeaveCriticalSection(&m_csFunctions);
+	
+	// Handle thread locks for safe Lua execution
+	bool bHadLock = gDLL->HasGameCoreLock();
+	if (bHadLock)
+	{
+		gDLL->ReleaseGameCoreLock();
+	}
+	
+	// Push the function from the registry
+	lua_rawgeti(funcInfo.pLuaState, LUA_REGISTRYINDEX, funcInfo.iRegistryRef);
+	
+	// Push arguments onto the Lua stack
+	int argCount = 0;
+	for (JsonArray::iterator argIt = args.begin(); argIt != args.end(); ++argIt)
+	{
+		ConvertJsonToLuaValue(funcInfo.pLuaState, *argIt);
+		argCount++;
+	}
+	
+	// Call the function (argCount args, LUA_MULTRET results)
+	int result = lua_pcall(funcInfo.pLuaState, argCount, LUA_MULTRET, 0);
+	
+	// Process the result
+	ProcessLuaResult(funcInfo.pLuaState, result, id);
+	
 	// Restore game core lock if we had it
 	if (bHadLock)
 	{
@@ -797,6 +876,68 @@ void CvConnectionService::ConvertLuaToJsonValue(lua_State* L, int index, JsonVar
 	default:
 		dest.set(nullptr);
 		break;
+	}
+}
+
+// Convert a JSON value to Lua and push it onto the stack
+void CvConnectionService::ConvertJsonToLuaValue(lua_State* L, const JsonVariant& value)
+{
+	if (value.isNull())
+	{
+		lua_pushnil(L);
+	}
+	else if (value.is<bool>())
+	{
+		lua_pushboolean(L, value.as<bool>() ? 1 : 0);
+	}
+	else if (value.is<int>())
+	{
+		lua_pushnumber(L, value.as<int>());
+	}
+	else if (value.is<double>())
+	{
+		lua_pushnumber(L, value.as<double>());
+	}
+	else if (value.is<const char*>())
+	{
+		lua_pushstring(L, value.as<const char*>());
+	}
+	else if (value.is<JsonArray>())
+	{
+		JsonArray arr = value.as<JsonArray>();
+		
+		// Create a new table
+		lua_newtable(L);
+		
+		// Add array elements
+		int index = 1;
+		for (JsonArray::iterator it = arr.begin(); it != arr.end(); ++it)
+		{
+			lua_pushnumber(L, index);
+			ConvertJsonToLuaValue(L, *it);
+			lua_settable(L, -3);
+			index++;
+		}
+	}
+	else if (value.is<JsonObject>())
+	{
+		JsonObject obj = value.as<JsonObject>();
+		
+		// Create a new table
+		lua_newtable(L);
+		
+		// Add object properties
+		for (JsonObject::iterator it = obj.begin(); it != obj.end(); ++it)
+		{
+			lua_pushstring(L, it->key().c_str());
+			ConvertJsonToLuaValue(L, it->value());
+			lua_settable(L, -3);
+		}
+	}
+	else
+	{
+		// Unknown type, push nil
+		lua_pushnil(L);
 	}
 }
 

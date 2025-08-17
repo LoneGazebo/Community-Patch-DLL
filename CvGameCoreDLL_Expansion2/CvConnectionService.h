@@ -88,8 +88,10 @@ private:
 	
 	// Lua execution handlers
 	void HandleLuaExecute(const char* script, const char* id);
+	void HandleLuaCall(const char* functionName, const JsonArray& args, const char* id);
 	void ProcessLuaResult(lua_State* L, int executionResult, const char* id);
 	void ConvertLuaToJsonValue(lua_State* L, int index, JsonVariant dest);
+	void ConvertJsonToLuaValue(lua_State* L, const JsonVariant& value);
 	
 	// Structure to store registered Lua functions
 	struct LuaFunctionInfo {
