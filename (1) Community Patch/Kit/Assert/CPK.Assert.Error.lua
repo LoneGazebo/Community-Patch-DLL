@@ -1,15 +1,16 @@
 local _lua_error = error
+local _lua_tostring = tostring
 
---- Throws type assertion error.
---- @param got string # Got
---- @param exp string # Expected
---- @param mes? string # Extra Message
---- @param lvl? integer # Error level
---- @return nil
+--- Throws assertion error: `Got <got> where <exp> expected. <mes>`
+--- @param got string? # Actual type or value name.
+--- @param exp string? # Expected type or value description.
+--- @param mes string? # Extra message for context.
+--- @param lvl integer? # Error level (default 2).
 local function AssertError(got, exp, mes, lvl)
-	got = got == nil and 'unknown' or got
-	exp = exp == nil and 'unknown' or exp
-	mes = mes == nil and '' or (' ' .. mes)
+	got = got == nil and 'unknown' or _lua_tostring(got)
+	exp = exp == nil and 'unknown' or _lua_tostring(exp)
+	mes = mes == nil and '' or (' ' .. _lua_tostring(mes))
+	lvl = lvl == nil and 2 or lvl
 
 	local str = 'Got ' .. got .. ' where ' .. exp .. ' expected.' .. mes
 

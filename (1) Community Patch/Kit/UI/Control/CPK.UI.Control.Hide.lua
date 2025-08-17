@@ -1,6 +1,6 @@
 local _lua_type = type
 
-local EachArgs = CPK.Args.Each
+local ArgsEach = CPK.Args.Each
 
 --- @param control Control
 local function ControlHide(control)
@@ -19,7 +19,7 @@ end
 --- @param ... Control
 local function Hide(control, ...)
 	ControlHide(control)
-	EachArgs(ControlHide, ...)
+	ArgsEach(ControlHide, ...)
 end
 
 CPK.UI.Control.Hide = Hide

@@ -1,6 +1,6 @@
 local _lua_type = type
 
-local EachArgs = CPK.Args.Each
+local ArgsEach = CPK.Args.Each
 
 --- @param control Control
 local function ControlShow(control)
@@ -19,7 +19,7 @@ end
 --- @param ... Control
 local function Show(control, ...)
 	ControlShow(control)
-	EachArgs(ControlShow, ...)
+	ArgsEach(ControlShow, ...)
 end
 
 CPK.UI.Control.Show = Show
