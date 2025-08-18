@@ -9144,7 +9144,7 @@ bool CvCity::canCreate(ProjectTypes eProject, bool bContinue, bool bTestVisible,
 		}
 	}
 
-	if (!(GET_PLAYER(getOwner()).canCreate(eProject, bContinue, bTestVisible)))
+	if (!(GET_PLAYER(getOwner()).canCreate(eProject, bContinue, bTestVisible, toolTipSink)))
 	{
 		return false;
 	}

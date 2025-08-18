@@ -42,6 +42,7 @@ bool CvProjectEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility
 
 	m_iMaxGlobalInstances = kResults.GetInt("MaxGlobalInstances");
 	m_iMaxTeamInstances = kResults.GetInt("MaxTeamInstances");
+	m_iMaxPlayerInstances = kResults.GetInt("MaxPlayerInstances");
 	m_iProductionCost = kResults.GetInt("Cost");
 	m_iNukeInterception = kResults.GetInt("NukeInterception");
 	m_iCultureBranchesRequired = kResults.GetInt("CultureBranchesRequired");
@@ -176,6 +177,11 @@ int CvProjectEntry::GetMaxGlobalInstances() const
 int CvProjectEntry::GetMaxTeamInstances() const
 {
 	return m_iMaxTeamInstances;
+}
+
+int CvProjectEntry::GetMaxPlayerInstances() const
+{
+	return m_iMaxPlayerInstances;
 }
 
 /// Shields to construct the building
