@@ -1,10 +1,11 @@
-local _lua_type = type
+local IsTable = CPK.Type.IsTable
+local IsCallable = CPK.Type.IsCallable
 
 local ArgsEach = CPK.Args.Each
 
 --- @param control Control
-local function ControlHide(control)
-	if control ~= nil and _lua_type(control.SetHide) == 'function' then
+local function ControlHideOne(control)
+	if IsTable(control) and IsCallable(control.SetHide) then
 		control:SetHide(true)
 	end
 end
@@ -17,9 +18,9 @@ end
 --- ```
 --- @param control Control
 --- @param ... Control
-local function Hide(control, ...)
-	ControlHide(control)
-	ArgsEach(ControlHide, ...)
+local function ControlHide(control, ...)
+	ControlHideOne(control)
+	ArgsEach(ControlHideOne, ...)
 end
 
-CPK.UI.Control.Hide = Hide
+CPK.UI.Control.Hide = ControlHide

@@ -22,9 +22,8 @@ local AssertIsTable = CPK.Assert.IsTable
 --- print(t2.a) -- nil
 --- ```
 ---
---- @param keys any[] # Keys to pick from the source table
---- @param tbl table # Source table
---- @return table # New table with only the selected keys
+--- @overload fun(keys: any[], tbl: table): table
+--- @overload fun(keys: any[]): (fun(tbl: table): table)
 --- @nodiscard
 local TablePick = Curry(2, function(keys, tbl)
 	AssertIsTable(keys)
