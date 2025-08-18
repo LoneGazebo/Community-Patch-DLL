@@ -30155,6 +30155,15 @@ bool CvCity::CreateProject(ProjectTypes eProjectType)
 		ChangeReligiousUnrestModifier(pProject->GetReligiousUnrestModifier());
 		ChangeSpySecurityModifier(pProject->GetSpySecurityModifier());
 		GET_PLAYER(getOwner()).ChangeEmpireSizeModifierPerCityMod(pProject->GetEmpireSizeModifierPerCityMod());
+		
+		for (int iI = 0; iI < GC.getNumUnitCombatClassInfos(); iI++)
+		{
+			int iModifier = pProject->GetUnitCombatProductionModifiersGlobal(iI);
+			if (iModifier != 0)
+			{
+				GET_PLAYER(getOwner()).changeUnitCombatProductionModifiers((UnitCombatTypes)iI, iModifier);
+			}
+		}
 	}
 	if (GetWLTKDFromProject(eProjectType) > 0)
 	{

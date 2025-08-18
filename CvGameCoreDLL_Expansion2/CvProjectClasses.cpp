@@ -17,6 +17,7 @@ CvProjectEntry::CvProjectEntry(void):
 	m_piVictoryThreshold(NULL),
 	m_piVictoryMinThreshold(NULL),
 	m_piProjectsNeeded(NULL),
+	m_piUnitCombatProductionModifiersGlobal(NULL),
 	m_eFreeBuilding(NO_BUILDINGCLASS),
 	m_eFreePolicy(NO_POLICY),
 	m_eCivType(NO_CIVILIZATION),
@@ -31,6 +32,7 @@ CvProjectEntry::~CvProjectEntry(void)
 	SAFE_DELETE_ARRAY(m_piVictoryMinThreshold);
 	SAFE_DELETE_ARRAY(m_piProjectsNeeded);
 	SAFE_DELETE_ARRAY(m_piFlavorValue);
+	SAFE_DELETE_ARRAY(m_piUnitCombatProductionModifiersGlobal);
 }
 //------------------------------------------------------------------------------
 bool CvProjectEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
@@ -135,6 +137,7 @@ bool CvProjectEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility
 
 	kUtility.SetFlavors(m_piFlavorValue, "Project_Flavors", "ProjectType", szProjectType);
 	kUtility.PopulateArrayByValue(m_piProjectsNeeded, "Projects", "Project_Prereqs", "PrereqProjectType", "ProjectType", szProjectType, "AmountNeeded");
+	kUtility.PopulateArrayByValue(m_piUnitCombatProductionModifiersGlobal, "UnitCombatInfos", "Project_UnitCombatProductionModifiersGlobal", "UnitCombatType", "ProjectType", szProjectType, "Modifier");
 
 	return true;
 }
@@ -416,6 +419,20 @@ int CvProjectEntry::GetProjectsNeeded(int i) const
 	if(i > -1 && i < GC.getNumProjectInfos() && m_piProjectsNeeded)
 	{
 		return m_piProjectsNeeded[i];
+	}
+
+	return 0;
+}
+
+/// Unit combat production modifiers global
+int CvProjectEntry::GetUnitCombatProductionModifiersGlobal(int i) const
+{
+	ASSERT_DEBUG(i < GC.getNumUnitCombatClassInfos(), "Index out of bounds");
+	ASSERT_DEBUG(i > -1, "Index out of bounds");
+
+	if(i > -1 && i < GC.getNumUnitCombatClassInfos() && m_piUnitCombatProductionModifiersGlobal)
+	{
+		return m_piUnitCombatProductionModifiersGlobal[i];
 	}
 
 	return 0;

@@ -362,6 +362,21 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 		iTempWeight += (iEsp/2);
 	}
 
+	for (int iI = 0; iI < GC.getNumUnitCombatClassInfos(); iI++)
+	{
+		const UnitCombatTypes eUnitCombatClass = static_cast<UnitCombatTypes>(iI);
+		int iProjMod = pkProjectInfo->GetUnitCombatProductionModifiersGlobal(iI);
+		if (iProjMod > 0)
+		{
+			int iTempBonus = 0;
+			iTempBonus += GET_PLAYER(m_pCity->getOwner()).getUnitCombatProductionModifiers(eUnitCombatClass);
+			iTempBonus += m_pCity->getUnitCombatProductionModifier(eUnitCombatClass);
+			iTempBonus += iProjMod;
+			if (iTempBonus > 0)
+				iTempWeight += iTempBonus;
+		}
+	}
+
 	if (bGoodforHappiness && !GET_PLAYER(m_pCity->getOwner()).IsEmpireUnhappy())
 		iTempWeight /= 50;
 
