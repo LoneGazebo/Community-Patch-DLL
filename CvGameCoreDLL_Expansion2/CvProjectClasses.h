@@ -79,6 +79,7 @@ public:
 	int GetVictoryThreshold(int i) const;
 	int GetVictoryMinThreshold(int i) const;
 	int GetProjectsNeeded(int i) const;
+	int GetUnitCombatProductionModifiersGlobal(int i) const;
 
 protected:
 	int m_iVictoryPrereq;
@@ -131,6 +132,7 @@ protected:
 	int* m_piVictoryMinThreshold;
 	int* m_piProjectsNeeded;
 	int* m_piFlavorValue;
+	int* m_piUnitCombatProductionModifiersGlobal;
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
