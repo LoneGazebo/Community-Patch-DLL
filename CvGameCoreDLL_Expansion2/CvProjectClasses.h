@@ -33,6 +33,7 @@ public:
 	void SetAnyoneProjectPrereq(int i);
 	int GetMaxGlobalInstances() const;
 	int GetMaxTeamInstances() const;
+	int GetMaxPlayerInstances() const;
 	int GetProductionCost() const;
 	int GetNukeInterception() const;
 	int GetCultureBranchesRequired() const;
@@ -87,6 +88,7 @@ protected:
 	int m_iAnyoneProjectPrereq;
 	int m_iMaxGlobalInstances;
 	int m_iMaxTeamInstances;
+	int m_iMaxPlayerInstances;
 	int m_iProductionCost;
 	int m_iNukeInterception;
 	int m_iCultureBranchesRequired;

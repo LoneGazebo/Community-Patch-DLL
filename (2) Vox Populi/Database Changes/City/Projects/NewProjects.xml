@@ -53,7 +53,8 @@
 			<CivilizationType>CIVILIZATION_MONGOL</CivilizationType>
 			<IconAtlas>PROCESS_PROJECT_ATLAS_VP</IconAtlas>
 			<MaxGlobalInstances>-1</MaxGlobalInstances>
-			<MaxTeamInstances>1</MaxTeamInstances>
+			<MaxTeamInstances>-1</MaxTeamInstances>
+			<MaxPlayerInstances>1</MaxPlayerInstances>
 			<PortraitIndex>7</PortraitIndex>
 		</Row>
 	</Projects>

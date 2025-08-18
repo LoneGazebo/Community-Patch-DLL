@@ -14014,7 +14014,7 @@ bool CvPlayer::canTrainUnit(UnitTypes eUnit, bool bContinue, bool bTestVisible, 
 		}
 
 		// Resource Requirements
-		if (!HasResourceForNewUnit(eUnit, false, false, NO_UNIT, bContinue))
+		if (!HasResourceForNewUnit(eUnit, false, false, NO_UNIT, bContinue, toolTipSink))
 			return false;
 
 		if(GC.getGame().isUnitClassMaxedOut(eUnitClass, (GET_TEAM(getTeam()).getUnitClassMaking(eUnitClass) + ((bContinue) ? -1 : 0))))
@@ -14582,7 +14582,7 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, const std::vector<int>& vPr
 	return true;
 }
 
-bool CvPlayer::canCreate(ProjectTypes eProject, bool bContinue, bool bTestVisible) const
+bool CvPlayer::canCreate(ProjectTypes eProject, bool bContinue, bool bTestVisible, CvString* toolTipSink) const
 {
 	CvProjectEntry* pkProjectInfo = GC.getProjectInfo(eProject);
 	if(!pkProjectInfo)
@@ -14662,33 +14662,63 @@ bool CvPlayer::canCreate(ProjectTypes eProject, bool bContinue, bool bTestVisibl
 		{
 			return false;
 		}
+
+		if (isProjectMaxedOut(eProject))
+		{
+			return false;
+		}
 	}
 
-	if (pProjectInfo.GetNumRequiredTier3Tenets())
+	if (pProjectInfo.InfluenceAllRequired())
 	{
-		PolicyBranchTypes eIdeology = GetPlayerPolicies()->GetLateGamePolicyTree();
-		if (eIdeology == NO_POLICY_BRANCH_TYPE)
+		// don't show this if there are still a lot of civs we're not Influential with
+		if (GetCulture()->GetNumCivsInfluentialOn() < GC.getGame().GetGameCulture()->GetNumCivsInfluentialForWin() - 2)
+		{
 			return false;
-
-		int iNumTenets = GetPlayerPolicies()->GetNumTenetsOfLevel(eIdeology, 3);
-		if (iNumTenets < pProjectInfo.GetNumRequiredTier3Tenets())
-			return false;
+		}
 	}
 
 	if(!bTestVisible)
 	{
+		bool bResult = true;
 		if (pProjectInfo.InfluenceAllRequired())
 		{
 			if (GetCulture()->GetNumCivsInfluentialOn() < GC.getGame().GetGameCulture()->GetNumCivsInfluentialForWin())
-				return false;
+			{
+				GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_PROJECT_NEED_INFLUENTIAL_ALL_CIVS");
+				bResult = false;
+			}
+		}
+
+		if (pProjectInfo.GetNumRequiredTier3Tenets())
+		{
+			PolicyBranchTypes eIdeology = GetPlayerPolicies()->GetLateGamePolicyTree();
+			if (eIdeology == NO_POLICY_BRANCH_TYPE)
+			{
+				GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_PROJECT_IDEOLOGY_REQUIRED");
+				bResult = false;
+			}
+
+			int iNumTenets = GetPlayerPolicies()->GetNumTenetsOfLevel(eIdeology, 3);
+			if (iNumTenets < pProjectInfo.GetNumRequiredTier3Tenets())
+			{
+				GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_PROJECT_LEVEL_THREE_TENETS_REQUIRED", "", "", pProjectInfo.GetNumRequiredTier3Tenets() - iNumTenets);
+				bResult = false;
+			}
 		}
 
 		if (pProjectInfo.IdeologyRequired())
 		{
 			if (GetPlayerPolicies()->GetLateGamePolicyTree() == NO_POLICY_BRANCH_TYPE)
-				return false;
+			{
+				GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_PROJECT_IDEOLOGY_REQUIRED");
+				bResult = false;
+			}
 			else if (GetCulture()->GetPublicOpinionType() > PUBLIC_OPINION_CONTENT)
-				return false;
+			{
+				GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_PROJECT_PUBLIC_OPINION_CONTENT");
+				bResult = false;
+			}
 		}
 
 		// Resource Requirements
@@ -14703,7 +14733,9 @@ bool CvPlayer::canCreate(ProjectTypes eProject, bool bContinue, bool bTestVisibl
 			{
 				if(getNumResourceAvailable(eResource) < iNumResource)
 				{
-					return false;
+					CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
+					GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_PROJECT_LACKS_RESOURCES", pkResource->GetIconString(), pkResource->GetTextKey(), iNumResource);
+					bResult = false;
 				}
 			}
 		}
@@ -14712,12 +14744,20 @@ bool CvPlayer::canCreate(ProjectTypes eProject, bool bContinue, bool bTestVisibl
 		{
 			if (GC.getGame().isProjectMaxedOut(eProject, (GET_TEAM(getTeam()).getProjectMaking(eProject) + ((bContinue) ? -1 : 0))))
 			{
-				return false;
+				GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_GAME_COUNT_MAX", "", "", pProjectInfo.GetMaxGlobalInstances());
+				bResult = false;
 			}
 
 			if (GET_TEAM(getTeam()).isProjectMaxedOut(eProject, (GET_TEAM(getTeam()).getProjectMaking(eProject) + ((bContinue) ? -1 : 0))))
 			{
-				return false;
+				GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_TEAM_COUNT_MAX", "", "", pProjectInfo.GetMaxTeamInstances());
+				bResult = false;
+			}
+
+			if (isProjectMaxedOut(eProject, getProjectMaking(eProject) + ((bContinue) ? -1 : 0)))
+			{
+				GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_PLAYER_COUNT_MAX", "", "", pProjectInfo.GetMaxPlayerInstances());
+				bResult = false;
 			}
 		}
 
@@ -14731,7 +14771,8 @@ bool CvPlayer::canCreate(ProjectTypes eProject, bool bContinue, bool bTestVisibl
 					CvUnitEntry* pkUnitEntry = GC.getUnitInfo((UnitTypes)iI);
 					if(pkUnitEntry && pkUnitEntry->GetNukeDamageLevel() > 0)
 					{
-						return false;
+						GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_NUKES_BY_RESOLUTION");
+						bResult = false;
 					}
 				}
 			}
@@ -14741,7 +14782,9 @@ bool CvPlayer::canCreate(ProjectTypes eProject, bool bContinue, bool bTestVisibl
 		{
 			if(GC.getGame().getProjectCreatedCount((ProjectTypes)(pProjectInfo.GetAnyoneProjectPrereq())) == 0)
 			{
-				return false;
+				CvProjectEntry* pkPrereqProjectInfo = GC.getProjectInfo((ProjectTypes)(pProjectInfo.GetAnyoneProjectPrereq()));
+				GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_PROJECT_PREREQ_PROJECT_REQUIRED", pkPrereqProjectInfo->GetDescription());
+				bResult = false;
 			}
 		}
 
@@ -14749,8 +14792,14 @@ bool CvPlayer::canCreate(ProjectTypes eProject, bool bContinue, bool bTestVisibl
 		{
 			if(GET_TEAM(getTeam()).getProjectCount((ProjectTypes)iI) < pProjectInfo.GetProjectsNeeded(iI))
 			{
-				return false;
+				CvProjectEntry* pkPrereqProjectInfo = GC.getProjectInfo((ProjectTypes)iI);
+				GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_PROJECT_NEED_CREATE_MORE_PROJECTS", pkPrereqProjectInfo->GetDescription(), "", pProjectInfo.GetProjectsNeeded(iI) - GET_TEAM(getTeam()).getProjectCount((ProjectTypes)iI));
+				bResult = false;
 			}
+		}
+		if (!bResult)
+		{
+			return false;
 		}
 	}
 
@@ -38654,7 +38703,7 @@ int CvPlayer::getResourceInOwnedPlots(ResourceTypes eIndex)
 // If eUnit is upgraded from another unit, also pass in eFromUnit
 // bContinue is true if eUnit is already being trained (in production)
 // You may also use bContinue = true to check whether an existing unit has the required resources (for healing etc.)
-bool CvPlayer::HasResourceForNewUnit(const UnitTypes eUnit, const bool bNoRequirement, const bool bCheckAluminum, const UnitTypes eFromUnit, const bool bContinue) const
+bool CvPlayer::HasResourceForNewUnit(const UnitTypes eUnit, const bool bNoRequirement, const bool bCheckAluminum, const UnitTypes eFromUnit, const bool bContinue, CvString* toolTipSink) const
 {
 	CvUnitEntry* pUnitInfo = GC.getUnitInfo(eUnit);
 	if (!pUnitInfo)
@@ -38663,6 +38712,8 @@ bool CvPlayer::HasResourceForNewUnit(const UnitTypes eUnit, const bool bNoRequir
 	CvUnitEntry* pFromUnitInfo = NULL;
 	if (eFromUnit != NO_UNIT)
 		pFromUnitInfo = GC.getUnitInfo(eFromUnit);
+
+	bool bResult = true;
 
 	for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 	{
@@ -38675,7 +38726,11 @@ bool CvPlayer::HasResourceForNewUnit(const UnitTypes eUnit, const bool bNoRequir
 				return false;
 
 			if (getNumResourceTotal(eResource) < iResourceTotal || getNumResourceAvailable(eResource) < 0)
-				return false;
+			{
+				CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
+				GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_UNIT_LACKS_RESOURCES_TOTAL", pkResource->GetIconString(), pkResource->GetTextKey(), iResourceTotal);
+				bResult = false;
+			}
 		}
 
 		int iResourceRequirement = pUnitInfo->GetResourceQuantityRequirement(eResource);
@@ -38696,16 +38751,20 @@ bool CvPlayer::HasResourceForNewUnit(const UnitTypes eUnit, const bool bNoRequir
 			if (bContinue)
 				iResourceRequirement = 0;
 
-			// Don't use all of our Aluminum, keep some for spaceship parts
+			// Used only in AI evaluations: Don't use all of our Aluminum, keep some for spaceship parts
 			if (bCheckAluminum && iResourceLoop == GC.getInfoTypeForString("RESOURCE_ALUMINUM"))
 				iResourceRequirement += GetNumAluminumStillNeededForSpaceship() + GetNumAluminumStillNeededForCoreCities();
 
 			if (getNumResourceAvailable(eResource, true) + iFreedUpResource < iResourceRequirement)
-				return false;
+			{
+				CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
+				GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_UNIT_LACKS_RESOURCES", pkResource->GetIconString(), pkResource->GetTextKey(), iResourceRequirement);
+				bResult = false;
+			}
 		}
 	}
 
-	return true;
+	return bResult;
 }
 
 int CvPlayer::getTotalImprovementsBuilt() const
@@ -39119,6 +39178,33 @@ bool CvPlayer::isBuildingMaxedOut(BuildingTypes eIndex, int iExtra) const
 	ASSERT_DEBUG(getBuildingClassCount(eBuildingClass) <= iMaxInstances, "BuildingClassCount is expected to be less than or match the number of max player instances plus extra player instances");
 
 	return ((getBuildingClassCount(eBuildingClass) + iExtra) >= iMaxInstances);
+}
+
+bool CvPlayer::isProjectMaxedOut(ProjectTypes eIndex, int iExtra) const
+{
+	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT_DEBUG(eIndex < GC.getNumProjectInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+
+	CvProjectEntry* pProjectInfo = GC.getProjectInfo(eIndex);
+
+
+	// Per-player instance cap
+	if (pProjectInfo->GetMaxPlayerInstances() != -1)
+	{
+		int iPlayerCount = 0;
+		int iLoop = 0;
+		for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+		{
+			if (pLoopCity->getProjectCount(eIndex) > 0)
+				iPlayerCount++;
+		}
+
+		if (iPlayerCount + iExtra >= pProjectInfo->GetMaxPlayerInstances())
+		{
+			return true;
+		}
+	}
+	return false;
 }
 
 void CvPlayer::changeBuildingClassCount(BuildingClassTypes eIndex, int iChange)
