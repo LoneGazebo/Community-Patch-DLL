@@ -13,7 +13,6 @@ local Curry = CPK.FP.Curry
 --- local GetPropB = Prop('b')
 --- print(GetPropB(myTable))  -- Output: 2
 --- ```
---- @generic T : table
 --- @overload fun(key: any, tbl: table): any
 --- @overload fun(key: any): (fun(tbl: table): any)
 --- @nodiscard
