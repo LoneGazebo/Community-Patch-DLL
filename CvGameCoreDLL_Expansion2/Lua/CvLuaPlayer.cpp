@@ -7703,7 +7703,10 @@ int CvLuaPlayer::lGetGoldenAgeTourismModifier(lua_State* L)
 int CvLuaPlayer::lGetGoldenAgeGreatWriterRateModifier(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
-	const int iResult = pkPlayer->GetPlayerTraits()->GetGoldenAgeGreatWriterRateModifier();
+	int iResult = 0;
+	GreatPersonTypes eGreatPerson = static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_WRITER"));
+	if (eGreatPerson != NO_GREATPERSON)
+		iResult = pkPlayer->GetPlayerTraits()->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -7711,7 +7714,10 @@ int CvLuaPlayer::lGetGoldenAgeGreatWriterRateModifier(lua_State* L)
 int CvLuaPlayer::lGetGoldenAgeGreatArtistRateModifier(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
-	const int iResult = pkPlayer->GetPlayerTraits()->GetGoldenAgeGreatArtistRateModifier();
+	int iResult = 0;
+	GreatPersonTypes eGreatPerson = static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_ARTIST"));
+	if (eGreatPerson != NO_GREATPERSON)
+		iResult = pkPlayer->GetPlayerTraits()->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -7719,21 +7725,21 @@ int CvLuaPlayer::lGetGoldenAgeGreatArtistRateModifier(lua_State* L)
 int CvLuaPlayer::lGetGoldenAgeGreatMusicianRateModifier(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
-	const int iResult = pkPlayer->GetPlayerTraits()->GetGoldenAgeGreatMusicianRateModifier();
+	int iResult = 0;
+	GreatPersonTypes eGreatPerson = static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_MUSICIAN"));
+	if (eGreatPerson != NO_GREATPERSON)
+		iResult = pkPlayer->GetPlayerTraits()->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
 	lua_pushinteger(L, iResult);
 	return 1;
 }
-#if defined(MOD_BALANCE_CORE)
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lGetGoldenAgeGreatScientistRateModifier(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
-	GreatPersonTypes eGreatPerson = GetGreatPersonFromUnitClass((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_SCIENTIST"));
 	int iResult = 0;
+	GreatPersonTypes eGreatPerson = static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_SCIENTIST"));
 	if (eGreatPerson != NO_GREATPERSON)
-	{
 		iResult = pkPlayer->GetPlayerTraits()->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
-	}
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -7741,12 +7747,10 @@ int CvLuaPlayer::lGetGoldenAgeGreatScientistRateModifier(lua_State* L)
 int CvLuaPlayer::lGetGoldenAgeGreatEngineerRateModifier(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
-	GreatPersonTypes eGreatPerson = GetGreatPersonFromUnitClass((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_ENGINEER"));
 	int iResult = 0;
+	GreatPersonTypes eGreatPerson = static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_ENGINEER"));
 	if (eGreatPerson != NO_GREATPERSON)
-	{
 		iResult = pkPlayer->GetPlayerTraits()->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
-	}
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -7754,30 +7758,21 @@ int CvLuaPlayer::lGetGoldenAgeGreatEngineerRateModifier(lua_State* L)
 int CvLuaPlayer::lGetGoldenAgeGreatMerchantRateModifier(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
-	GreatPersonTypes eGreatPerson = GetGreatPersonFromUnitClass((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_MERCHANT"));
 	int iResult = 0;
+	GreatPersonTypes eGreatPerson = static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_MERCHANT"));
 	if (eGreatPerson != NO_GREATPERSON)
-	{
 		iResult = pkPlayer->GetPlayerTraits()->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
-	}
 	lua_pushinteger(L, iResult);
 	return 1;
 }
-
-#endif
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lGetGoldenAgeGreatDiplomatRateModifier(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	int iResult = 0;
-	if (MOD_BALANCE_VP)
-	{
-		GreatPersonTypes eGreatPerson = GetGreatPersonFromUnitClass((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_GREAT_DIPLOMAT"));
-		if (eGreatPerson != NO_GREATPERSON)
-		{
-			iResult = pkPlayer->GetPlayerTraits()->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
-		}
-	}
+	GreatPersonTypes eGreatPerson = static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_DIPLOMAT"));
+	if (eGreatPerson != NO_GREATPERSON)
+		iResult = pkPlayer->GetPlayerTraits()->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
 	lua_pushinteger(L, iResult);
 	return 1;
 }

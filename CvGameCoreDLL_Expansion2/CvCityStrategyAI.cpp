@@ -3209,10 +3209,6 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_GoodGPCity(CvCity* pCity)
 					else if((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_WRITER"))
 					{
 						iMod += pCity->GetPlayer()->getGreatWriterRateModifier();
-						if (pCity->GetPlayer()->isGoldenAge())
-						{
-							iMod += pCity->GetPlayer()->GetPlayerTraits()->GetGoldenAgeGreatWriterRateModifier();
-						}
 						if (pCity->GetPlayer()->GetPlayerTraits()->IsGreatWorkWLTKD())
 						{
 							iMod += 25;
@@ -3221,10 +3217,6 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_GoodGPCity(CvCity* pCity)
 					else if((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_ARTIST"))
 					{
 						iMod += pCity->GetPlayer()->getGreatArtistRateModifier();
-						if (pCity->GetPlayer()->isGoldenAge())
-						{
-							iMod += pCity->GetPlayer()->GetPlayerTraits()->GetGoldenAgeGreatArtistRateModifier();
-						}
 						if (pCity->GetPlayer()->GetPlayerTraits()->IsGreatWorkWLTKD())
 						{
 							iMod += 25;
@@ -3233,10 +3225,6 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_GoodGPCity(CvCity* pCity)
 					else if((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_MUSICIAN"))
 					{
 						iMod += pCity->GetPlayer()->getGreatMusicianRateModifier();
-						if (pCity->GetPlayer()->isGoldenAge())
-						{
-							iMod += pCity->GetPlayer()->GetPlayerTraits()->GetGoldenAgeGreatMusicianRateModifier();
-						}
 						if (pCity->GetPlayer()->GetPlayerTraits()->IsGreatWorkWLTKD())
 						{
 							iMod += 25;
@@ -4953,44 +4941,24 @@ int CityStrategyAIHelpers::GetBuildingPolicyValue(CvCity *pCity, BuildingTypes e
 			iValue += 25;
 		}
 
-		for(int iJ = 0; iJ < GC.getNumGreatPersonInfos(); iJ++)
+		for (int iJ = 0; iJ < GC.getNumGreatPersonInfos(); iJ++)
 		{
-			GreatPersonTypes eGP = (GreatPersonTypes)iJ;
-			if(eGP == NO_GREATPERSON)
-				continue;
-
-			if(kPlayer.GetPlayerTraits()->GetGoldenAgeGreatPersonRateModifier(eGP) > 0)
+			GreatPersonTypes eGP = static_cast<GreatPersonTypes>(iJ);
+			if (kPlayer.GetPlayerTraits()->GetGoldenAgeGreatPersonRateModifier(eGP) > 0)
 			{
 				iValue += kPlayer.GetPlayerTraits()->GetGoldenAgeGreatPersonRateModifier(eGP);
+				if ((iJ == GC.getInfoTypeForString("GREATPERSON_WRITER") ||
+					iJ == GC.getInfoTypeForString("GREATPERSON_ARTIST") ||
+					iJ == GC.getInfoTypeForString("GREATPERSON_MUSICIAN")) &&
+					kPlayer.GetPlayerTraits()->IsGreatWorkWLTKD())
+				{
+					iValue += 25;
+				}
 			}
 		}
 		if(kPlayer.GetPlayerTraits()->GetGoldenAgeCombatModifier() > 0)
 		{
 			iValue += kPlayer.GetPlayerTraits()->GetGoldenAgeCombatModifier();
-		}
-		if(kPlayer.GetPlayerTraits()->GetGoldenAgeGreatArtistRateModifier() > 0)
-		{
-			iValue += kPlayer.GetPlayerTraits()->GetGoldenAgeGreatArtistRateModifier();
-			if (kPlayer.GetPlayerTraits()->IsGreatWorkWLTKD())
-			{
-				iValue += 25;
-			}
-		}
-		if(kPlayer.GetPlayerTraits()->GetGoldenAgeGreatWriterRateModifier() > 0)
-		{
-			iValue += kPlayer.GetPlayerTraits()->GetGoldenAgeGreatWriterRateModifier();
-			if (kPlayer.GetPlayerTraits()->IsGreatWorkWLTKD())
-			{
-				iValue += 25;
-			}
-		}
-		if(kPlayer.GetPlayerTraits()->GetGoldenAgeGreatMusicianRateModifier() > 0)
-		{
-			iValue += kPlayer.GetPlayerTraits()->GetGoldenAgeGreatMusicianRateModifier();
-			if (kPlayer.GetPlayerTraits()->IsGreatWorkWLTKD())
-			{
-				iValue += 25;
-			}
 		}
 		if(kPlayer.GetPlayerTraits()->GetGoldenAgeTourismModifier() > 0)
 		{

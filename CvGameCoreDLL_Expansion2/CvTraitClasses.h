@@ -148,9 +148,6 @@ public:
 	int GetGoldenAgeMoveChange() const;
 	int GetGoldenAgeCombatModifier() const;
 	int GetGoldenAgeTourismModifier() const;
-	int GetGoldenAgeGreatArtistRateModifier() const;
-	int GetGoldenAgeGreatMusicianRateModifier() const;
-	int GetGoldenAgeGreatWriterRateModifier() const;
 	int GetExtraEmbarkMoves() const;
 	int GetFreeUnitClassType() const;
 	int GetNaturalWonderFirstFinderGold() const;
@@ -1082,18 +1079,6 @@ public:
 	int GetGoldenAgeTourismModifier() const
 	{
 		return m_iGoldenAgeTourismModifier;
-	};
-	int GetGoldenAgeGreatArtistRateModifier() const
-	{
-		return m_iGoldenAgeGreatArtistRateModifier;
-	};
-	int GetGoldenAgeGreatMusicianRateModifier() const
-	{
-		return m_iGoldenAgeGreatMusicianRateModifier;
-	};
-	int GetGoldenAgeGreatWriterRateModifier() const
-	{
-		return m_iGoldenAgeGreatWriterRateModifier;
 	};
 	int GetExtraEmbarkMoves() const
 	{
@@ -2188,9 +2173,6 @@ private:
 	int m_iGoldenAgeMoveChange;
 	int m_iGoldenAgeCombatModifier;
 	int m_iGoldenAgeTourismModifier;
-	int m_iGoldenAgeGreatArtistRateModifier;
-	int m_iGoldenAgeGreatMusicianRateModifier;
-	int m_iGoldenAgeGreatWriterRateModifier;
 	int m_iExtraEmbarkMoves;
 	int m_iNaturalWonderFirstFinderGold;
 	int m_iNaturalWonderSubsequentFinderGold;
