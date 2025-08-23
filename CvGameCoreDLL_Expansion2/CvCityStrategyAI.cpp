@@ -851,8 +851,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 		ProjectTypes eProject = (ProjectTypes)iProjectLoop;
 		if (m_pCity->canCreate(eProject, (m_pCity->isProductionProject() && eProject == m_pCity->getProductionProject())))
 		{
-			CvProjectEntry* pProject = GC.getProjectInfo(eProject);
-			if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(m_pCity) && (pProject->GetMaxTeamInstances() > 0 || pProject->GetMaxGlobalInstances() > 0))
+			if (m_pCity->IsPuppet() && isLimitedProject(eProject))
 				continue;
 
 			int iTempWeight = m_pProjectProductionAI->GetWeight(eProject);
