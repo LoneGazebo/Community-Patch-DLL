@@ -1858,6 +1858,14 @@ public:
 	int GetCultureBombBoost() const;
 	void changeCultureBombBoost(int iChange);
 
+	bool IsCultureBombAnywhere() const;
+	int GetCultureBombAnywhere() const;
+	void changeCultureBombAnywhere(int iChange);
+
+	bool IsRetainRazedTerritory() const;
+	int GetRetainRazedTerritory() const;
+	void changeRetainRazedTerritory(int iChange);
+
 	bool IsPuppetProdMod() const;
 	int GetPuppetProdMod() const;
 	void changePuppetProdMod(int iChange);
@@ -3198,6 +3206,8 @@ protected:
 	int m_iDoubleBorderGrowthWLTKD;
 	int m_iIncreasedQuestInfluence;
 	int m_iCultureBombBoost;
+	int m_iCultureBombAnywhere;
+	int m_iRetainRazedTerritory;
 	int m_iPuppetProdMod;
 	int m_iOccupiedProdMod;
 	int m_iGoldInternalTrade;
@@ -4046,6 +4056,8 @@ SYNC_ARCHIVE_VAR(int, m_iDoubleBorderGrowthGA)
 SYNC_ARCHIVE_VAR(int, m_iDoubleBorderGrowthWLTKD)
 SYNC_ARCHIVE_VAR(int, m_iIncreasedQuestInfluence)
 SYNC_ARCHIVE_VAR(int, m_iCultureBombBoost)
+SYNC_ARCHIVE_VAR(int, m_iCultureBombAnywhere)
+SYNC_ARCHIVE_VAR(int, m_iRetainRazedTerritory)
 SYNC_ARCHIVE_VAR(int, m_iPuppetProdMod)
 SYNC_ARCHIVE_VAR(int, m_iOccupiedProdMod)
 SYNC_ARCHIVE_VAR(int, m_iGoldInternalTrade)

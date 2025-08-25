@@ -3036,7 +3036,7 @@ priority_queue<SPlotWithScore> CvPlayerAI::GetBestCultureBombPlots(const UnitTyp
 
 			// Not if we're about to give up the city
 			CvCity* pCity = pPlot->getOwningCity();
-			if (pCity && pCity->IsRazing())
+			if (pCity && pCity->IsRazing() && !IsRetainRazedTerritory())
 				continue;
 
 			// This plot should be more defensive with the improvement
