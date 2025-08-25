@@ -1,8 +1,8 @@
 --- @meta
 
---- @alias Vector2 {x: number, y: number}
---- @alias Vector3 {x: number, y: number, z: number}
---- @alias Vector4 {x: number, y: number, z: number, w: number}
+--- @alias Vector2 {x: number, y: number, [any]: any}
+--- @alias Vector3 {x: number, y: number, z: number, [any]: any}
+--- @alias Vector4 {x: number, y: number, z: number, w: number, [any]: any}
 
 --- Constructor of Vector2
 --- @param i number

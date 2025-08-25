@@ -65,11 +65,21 @@ function Control:SetOffsetY(iY) end
 --- @param nAlpha number
 function Control:SetAlpha(nAlpha) end
 
---- @param strText string
-function Control:SetText(strText) end
+--- @param text string | number Seems to have an implicit tostring if a number is passed in
+function Control:SetText(text) end
+
+--- Equivalent to `Control:SetText(Locale.Lookup(strTextKey, ...))`
+--- @param strTextKey string
+--- @param ... string | number
+function Control:LocalizeAndSetText(strTextKey, ...) end
 
 --- @param strTooltip string
-function Control:SetTooltipString(strTooltip) end
+function Control:SetToolTipString(strTooltip) end
+
+--- Equivalent to `Control:SetToolTipString(Locale.Lookup(strTextKey, ...))`
+--- @param strTextKey string
+--- @param ... string | number
+function Control:LocalizeAndSetToolTip(strTextKey, ...) end
 
 --- @return Control label # A text label at the same coordinates of the (topleft) of this control
 function Control:GetTextControl() end

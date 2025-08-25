@@ -640,6 +640,7 @@ protected:
 	LUAAPIEXTN(GetGoldenAgeGreatEngineerRateModifier, int);
 	LUAAPIEXTN(GetGoldenAgeGreatMerchantRateModifier, int);
 	LUAAPIEXTN(GetGoldenAgeGreatDiplomatRateModifier, int);
+	LUAAPIEXTN(GetGoldenAgeGreatPersonRateModifierFromTrait, int, GreatPersonType);
 
 	static int lGetHurryModifier(lua_State* L);
 
@@ -670,6 +671,8 @@ protected:
 	static int lGetPolicyGreatMerchantRateModifier(lua_State* L);
 	static int lGetPolicyGreatEngineerRateModifier(lua_State* L);
 	LUAAPIEXTN(GetPolicyGreatDiplomatRateModifier, int);
+	LUAAPIEXTN(GetGreatPersonRateModifier, int, GreatPersonType);
+	LUAAPIEXTN(GetNextGreatPersonCost, int, iGreatPersonType);
 
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	LUAAPIEXTN(GetMonopolyGreatPersonRateModifier, int);

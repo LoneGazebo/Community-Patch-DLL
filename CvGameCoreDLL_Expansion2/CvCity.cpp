@@ -27608,6 +27608,12 @@ bool CvCity::CanBuyPlot(int iPlotX, int iPlotY, bool bIgnoreCost) const
 	if (IsResistance() || IsIgnoreCityForHappiness())
 		return false;
 
+	CvPlayer& kOwner = GET_PLAYER(getOwner());
+
+	// Only Venetian puppets may buy plots
+	if (IsPuppet() && !kOwner.GetPlayerTraits()->IsNoAnnexing())
+		return false;
+
 	CvPlot* pTargetPlot = GC.getMap().plot(iPlotX, iPlotY);
 	if (!pTargetPlot)
 		return false;
@@ -27615,7 +27621,7 @@ bool CvCity::CanBuyPlot(int iPlotX, int iPlotY, bool bIgnoreCost) const
 	// if this plot belongs to someone, bail!
 	if (pTargetPlot->getOwner() != NO_PLAYER)
 	{
-		if (!GET_PLAYER(getOwner()).GetPlayerTraits()->IsBuyOwnedTiles())
+		if (!kOwner.GetPlayerTraits()->IsBuyOwnedTiles())
 			return false;
 
 		if (pTargetPlot->getOwner() == getOwner() || pTargetPlot->isCity())
@@ -27629,9 +27635,9 @@ bool CvCity::CanBuyPlot(int iPlotX, int iPlotY, bool bIgnoreCost) const
 			return false;
 
 		// Bad idea for AI to steal?
-		if (!GET_PLAYER(getOwner()).isHuman() && GET_PLAYER(getOwner()).isMajorCiv())
+		if (!kOwner.isHuman() && kOwner.isMajorCiv())
 		{
-			CvDiplomacyAI* pDiplo = GET_PLAYER(getOwner()).GetDiplomacyAI();
+			CvDiplomacyAI* pDiplo = kOwner.GetDiplomacyAI();
 			if (pDiplo->IsBadTheftTarget(pTargetPlot->getOwner(), THEFT_TYPE_PLOT, pTargetPlot))
 				return false;
 
@@ -27673,7 +27679,7 @@ bool CvCity::CanBuyPlot(int iPlotX, int iPlotY, bool bIgnoreCost) const
 	// check money
 	if (!bIgnoreCost)
 	{
-		if (GET_PLAYER(getOwner()).GetTreasury()->GetGold() < GetBuyPlotCost(pTargetPlot->getX(), pTargetPlot->getY()))
+		if (kOwner.GetTreasury()->GetGold() < GetBuyPlotCost(pTargetPlot->getX(), pTargetPlot->getY()))
 		{
 			return false;
 		}
@@ -27682,8 +27688,7 @@ bool CvCity::CanBuyPlot(int iPlotX, int iPlotY, bool bIgnoreCost) const
 	//can only claim ocean tiles after we can cross oceans
 	if (pTargetPlot->isDeepWater())
 	{
-		CvPlayer& kPlayer = GET_PLAYER(getOwner());
-		if (!kPlayer.CanCrossOcean())
+		if (!kOwner.CanCrossOcean())
 			return false;
 	}
 
@@ -27715,10 +27720,17 @@ bool CvCity::CanBuyPlot(int iPlotX, int iPlotY, bool bIgnoreCost) const
 /// Can this city buy a plot, any plot?
 bool CvCity::CanBuyAnyPlot(void)
 {
+	VALIDATE_OBJECT();
+
 	if (IsResistance() || IsIgnoreCityForHappiness())
 		return false;
 
-	VALIDATE_OBJECT();
+	const CvPlayer& kOwner = GET_PLAYER(getOwner());
+
+	// Only Venetian puppets may buy plots
+	if (IsPuppet() && !kOwner.GetPlayerTraits()->IsNoAnnexing())
+		return false;
+
 	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
 	if (pkScriptSystem)
 	{
@@ -27736,7 +27748,6 @@ bool CvCity::CanBuyAnyPlot(void)
 			{
 				if (GC.getLogging() && GC.getAILogging())
 				{
-					const CvPlayerAI& kOwner = GET_PLAYER(getOwner());
 					CvString strPlayerName = kOwner.getCivilizationShortDescription();
 					CvString strBaseString = CvString::format("%03d, %s, %s, CanBuyAnyPlot failed in lua hook",
 						GC.getGame().getElapsedGameTurns(), strPlayerName.c_str(), getName().GetCString());
@@ -30437,6 +30448,12 @@ bool CvCity::IsCanPurchase(const std::vector<int>& vPreExistingBuildings, bool b
 
 			if (GetCityBuildings()->GetNumBuilding(eBuildingType) > 0)
 				return false;
+		}
+		// Project
+		else if (eProjectType != NO_PROJECT)
+		{
+			// No buying projects with faith
+			return false;
 		}
 
 		if (iFaithCost > 0)
