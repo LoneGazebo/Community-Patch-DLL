@@ -9323,6 +9323,7 @@ Controls.SearchEditBox:RegisterCallback( OnSearchTextEnter );
 
 function OnSearchNotFoundOK()
 	Controls.SearchFoundNothing:SetHide(true);
+	Controls.SearchEditBox:TakeFocus()
 end
 Controls.OK:RegisterCallback(Mouse.eLClick, OnSearchNotFoundOK );
 
@@ -9362,7 +9363,7 @@ function ShowHideHandler( isHide )
 				CivilopediaCategory[CategoryHomePage].DisplayHomePage();
 			end
 		end
-
+		Controls.SearchEditBox:TakeFocus()
 	end
 end
 ContextPtr:SetShowHideHandler( ShowHideHandler );
