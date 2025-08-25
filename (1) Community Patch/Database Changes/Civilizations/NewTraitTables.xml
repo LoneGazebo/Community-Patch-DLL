@@ -496,14 +496,6 @@
 		<Column name="BuildType" type="text" reference="Builds(Type)" notnull="true"/>
 	</Table>
 
-	<!-- All units gain the specified bonuses when the specified great person is born -->
-	<Table name="Trait_BonusFromGPBirth">
-		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
-		<Column name="GreatPersonType" type="text" reference="GreatPersons(Type)" notnull="true"/>
-		<Column name="Heal" type="integer" notnull="true" default="0"/>
-		<Column name="Experience" type="integer" notnull="true" default="0"/>
-	</Table>
-
 	<!-- Spawns the specified resources with ResourceQuantity on random tiles within owned territory on world wonder completion -->
 	<Table name="Trait_FreeResourceOnWonderCompletion">
 		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
