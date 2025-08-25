@@ -23,7 +23,6 @@ local MOD_BALANCE_CORE_SPIES = GameInfo.CustomModOptions{Name = "BALANCE_CORE_SP
 local eMerchantOfVeniceUnit;
 local iTrainPercent = Game and GameInfo.GameSpeeds[Game.GetGameSpeedType()].TrainPercent or 100;
 
-local strSeparator = "----------------";
 local L = Locale.Lookup;
 local VP = MapModData and MapModData.VP or VP;
 local GetNumInfos = VP.GetNumInfos;
@@ -33,6 +32,9 @@ local GameInfoCache = VP.GameInfoCache;
 local PopulateGameInfoCache = VP.PopulateGameInfoCache;
 local GetCivsFromTrait = VP.GetCivsFromTrait;
 local GetGreatPersonInfoFromSpecialist = VP.GetGreatPersonInfoFromSpecialist;
+
+local SEPARATOR_STRING = "----------------";
+local EMPTY_SLOT_STRING = L("TXT_KEY_CITYVIEW_EMPTY_SLOT");
 
 -------------------------------------------------
 -- Help text for game components (Units, Buildings, etc.)
@@ -564,7 +566,7 @@ end
 --- The city view version includes most buffs the unit has received from techs, policies, buildings, etc., to closely reflect what could be produced.
 --- @param eUnit integer
 --- @param bIncludeRequirementsInfo boolean
---- @param pCity? table
+--- @param pCity City?
 --- @return string
 function GetHelpTextForUnit(eUnit, bIncludeRequirementsInfo, pCity)
 	local kUnitInfo = GameInfo.Units[eUnit];
@@ -1262,7 +1264,7 @@ function GetHelpTextForUnit(eUnit, bIncludeRequirementsInfo, pCity)
 		table.insert(tLines, table.concat(tPreWrittenLines, "[NEWLINE][NEWLINE]"));
 	end
 
-	return table.concat(tLines, "[NEWLINE]" .. strSeparator .. "[NEWLINE]");
+	return table.concat(tLines, "[NEWLINE]" .. SEPARATOR_STRING .. "[NEWLINE]");
 end
 
 --- Generate the tooltip for a building. Can be called from tech tree, city view, etc.<br>
@@ -1270,7 +1272,7 @@ end
 --- @param eBuilding integer
 --- @param bExcludeName boolean
 --- @param bNoMaintenance boolean
---- @param pCity table?
+--- @param pCity City?
 --- @return string
 function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCity)
 	local kBuildingInfo = GameInfo.Buildings[eBuilding];
@@ -3532,7 +3534,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 		end
 	end
 
-	return table.concat(tLines, "[NEWLINE]" .. strSeparator .. "[NEWLINE]");
+	return table.concat(tLines, "[NEWLINE]" .. SEPARATOR_STRING .. "[NEWLINE]");
 end
 
 function GetHelpTextForImprovement(eImprovement, bExcludeName, bExcludeHeader)
@@ -3545,12 +3547,12 @@ function GetHelpTextForImprovement(eImprovement, bExcludeName, bExcludeHeader)
 		-- Name
 		if not bExcludeName then
 			table.insert(tLines, Locale.ToUpper(L(kImprovementInfo.Description)));
-			table.insert(tLines, strSeparator);
+			table.insert(tLines, SEPARATOR_STRING);
 		end
 	end
 
 	if bHaveHeader then
-		table.insert(tLines, strSeparator);
+		table.insert(tLines, SEPARATOR_STRING);
 	end
 
 	-- Pre-written Help text
@@ -3559,7 +3561,7 @@ function GetHelpTextForImprovement(eImprovement, bExcludeName, bExcludeHeader)
 	else
 		local strWrittenHelp = L(kImprovementInfo.Help);
 		-- Will include separator if there is extra info
-		-- table.insert(tLines, strSeparator);
+		-- table.insert(tLines, SEPARATOR_STRING);
 		table.insert(tLines, strWrittenHelp);
 	end
 
@@ -3581,7 +3583,7 @@ function GetHelpTextForProject(eProject, bIncludeRequirementsInfo, pCity)
 	else
 		iCost = pActivePlayer:GetProjectProductionNeeded(eProject);
 	end
-	table.insert(tLines, strSeparator);
+	table.insert(tLines, SEPARATOR_STRING);
 	table.insert(tLines, L("TXT_KEY_PRODUCTION_COST", iCost));
 
 	-- Pre-written Help text
@@ -3589,13 +3591,13 @@ function GetHelpTextForProject(eProject, bIncludeRequirementsInfo, pCity)
 		print("Project help is NULL:", L(kProjectInfo.Description));
 	else
 		local strWrittenHelp = L(kProjectInfo.Help);
-		table.insert(tLines, strSeparator);
+		table.insert(tLines, SEPARATOR_STRING);
 		table.insert(tLines, strWrittenHelp);
 	end
 
 	-- Hardcoded Requirements text
 	if bIncludeRequirementsInfo and kProjectInfo.Requirements then
-		table.insert(tLines, strSeparator);
+		table.insert(tLines, SEPARATOR_STRING);
 		table.insert(tLines, L(kProjectInfo.Requirements));
 	end
 
@@ -3628,7 +3630,7 @@ function GetHelpTextForProcess(eProcess)
 	end
 
 	if strWrittenHelp then
-		table.insert(tLines, strSeparator);
+		table.insert(tLines, SEPARATOR_STRING);
 		table.insert(tLines, strWrittenHelp);
 	end
 
@@ -3639,6 +3641,35 @@ function GetHelpTextForProcess(eProcess)
 	end
 
 	return table.concat(tLines, "[NEWLINE]");
+end
+
+--- Generate the tooltips for a type of specialist slot, both when filled and empty
+--- TODO: Also account for GPP modifiers
+--- @param eSpecialist SpecialistType
+--- @param pCity City
+--- @return string strTooltip # Tooltip of the specialist slot when it is filled
+--- @return string strEmptyTooltip # Tooltip of the specialist slot when it is empty
+function GetHelpTextForSpecialist(eSpecialist, pCity)
+	local kSpecialistInfo = GameInfo.Specialists[eSpecialist];
+	local kGreatPersonInfo = GetGreatPersonInfoFromSpecialist(kSpecialistInfo.Type);
+	local strTooltip = L(kSpecialistInfo.Description);
+
+	local iCultureFromSpecialist = pCity:GetCultureFromSpecialist(eSpecialist);
+	for eYield, kYieldInfo in GameInfoCache("Yields") do
+		local iYield = pCity:GetSpecialistYield(eSpecialist, eYield) + pCity:GetSpecialistYieldChange(eSpecialist, eYield);
+		if eYield == YieldTypes.YIELD_CULTURE then
+			iYield = iYield + iCultureFromSpecialist;
+		end
+		if iYield > 0 then
+			strTooltip = string.format("%s +%d%s", strTooltip, iYield, kYieldInfo.IconString);
+		end
+	end
+	local iGPP = kSpecialistInfo.GreatPeopleRateChange + pCity:GetEventGPPFromSpecialists();
+	if iGPP > 0 then
+		strTooltip = string.format("%s +%d%s", strTooltip, iGPP, kGreatPersonInfo.IconString);
+	end
+	local strEmptyTooltip = string.format("%s[NEWLINE](%s)", EMPTY_SLOT_STRING, strTooltip);
+	return strTooltip, strEmptyTooltip;
 end
 
 -------------------------------------------------
@@ -3752,7 +3783,7 @@ function GetFaithTooltip(pCity)
 	end
 
 	table.insert(tLines, pCity:GetYieldRateTooltip(YieldTypes.YIELD_FAITH));
-	table.insert(tLines, strSeparator);
+	table.insert(tLines, SEPARATOR_STRING);
 
 	-- Religion info
 	table.insert(tLines, GetReligionTooltip(pCity));

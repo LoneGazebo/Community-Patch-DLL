@@ -5,10 +5,6 @@ include("IconSupport");
 include("InfoTooltipInclude");
 include("VPUI_core");
 
--- Default icon
-local strDefaultTexture = "UnitActions360.dds";
-local vNullOffset = Vector2(0, 0);
-
 local bResearchAgreements = Game.IsOption("GAMEOPTION_RESEARCH_AGREEMENTS");
 local bNoTechTrading = Game.IsOption("GAMEOPTION_NO_TECH_TRADING");
 local bNoVassalage = Game.IsOption("GAMEOPTION_NO_VASSALAGE");
@@ -23,6 +19,7 @@ local GetInfoFromId = VP.GetInfoFromId;
 local GetInfoFromType = VP.GetInfoFromType;
 local GameInfoCache = VP.GameInfoCache;
 local GetCivsFromTrait = VP.GetCivsFromTrait;
+local IconHookupOrDefault = VP.IconHookupOrDefault;
 
 -- This has to stay until we override TechTree.lua
 techPediaSearchStrings = {};
@@ -177,10 +174,7 @@ function AddSmallButtonsToTechButton(buttonStack, kTechInfo, iButtonCount, iText
 	--- @param strButtonText string?
 	local function SetCommonButtonProperties(button, bRClick, iIconIndex, strAtlas, strTooltip, strButtonText)
 		button:SetToolTipString(strTooltip);
-		if not IconHookup(iIconIndex, iTextureSize, strAtlas, button) then
-			button:SetTexture(strDefaultTexture);
-			button:SetTextureOffset(vNullOffset);
-		end
+		IconHookupOrDefault(iIconIndex, iTextureSize, strAtlas, button);
 		if strButtonText and strButtonText ~= "" then
 			button:GetTextControl():SetOffsetY(iTextureSize / 3);
 			button:GetTextControl():SetAlpha(0.8);

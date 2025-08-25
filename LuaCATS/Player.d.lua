@@ -41,3 +41,21 @@ function Player:GetResearchCost(eTech) end
 --- @param eTech TechType
 --- @return integer
 function Player:GetResearchProgress(eTech) end
+
+--- @param eGreatPerson GreatPersonType Caller is responsible for validating this
+--- @return integer # The cost of the next great person for this player
+function Player:GetNextGreatPersonCost(eGreatPerson) end
+
+--- Fast retrieval
+--- @return integer # The modifier to great person points for all great people *in all cities* (thus not affecting Generals and Admirals), including traits, policies, and buildings
+function Player:GetGreatPeopleRateModifier() end
+
+--- Fast retrieval
+--- @param eGreatPerson GreatPersonType Caller is responsible for validating this
+--- @return integer # The modifier to great person points for this specific great person, including traits, policies, buildings, and resolutions. Does not affect Great General Point and Great Admiral Point from yields.
+function Player:GetGreatPersonRateModifier(eGreatPerson) end
+
+--- Fast retrieval
+--- @param eGreatPerson GreatPersonType Caller is responsible for validating this
+--- @return integer # The modifier to great person points for this specific great person during golden ages from traits *in all cities* (thus not affecting Generals and Admirals)
+function Player:GetGoldenAgeGreatPersonRateModifierFromTrait(eGreatPerson) end

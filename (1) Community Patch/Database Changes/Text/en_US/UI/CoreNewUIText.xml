@@ -1722,7 +1722,7 @@
 			<Text>[NEWLINE][ICON_BULLET]{1: number "'+'##;'-'##"}% from [ICON_INTERNATIONAL_TRADE] Trade Routes with [ICON_CITY_STATE] City-States</Text>
 		</Row>
 		<Row Tag="TXT_KEY_YIELD_MOD_MONOPOLY">
-			<Text>[NEWLINE][ICON_BULLET]{1: number "'+'##;'-'##"}% from [ICON_MONOPOLY] Resource Monopoly</Text>
+			<Text>[NEWLINE][ICON_BULLET]{1: number "'+'##;'-'##"}% from [ICON_MONOPOLY] Resource Monopolies</Text>
 		</Row>
 		<Row Tag="TXT_KEY_YIELD_MOD_NAVAL_BLOCKADE">
 			<Text>[NEWLINE][ICON_BULLET]{1: number "'+'##;'-'##"}% from [ICON_BLOCKADED] Naval Blockade</Text>
@@ -1790,8 +1790,105 @@
 		<Row Tag="TXT_KEY_YIELD_MULTIPLIER_POLICY">
 			<Text>[NEWLINE][ICON_BULLET]Doubled by Policies</Text>
 		</Row>
+		<!-- Great person points -->
+		<Row Tag="TXT_KEY_GPP_FROM_SPECIALIST">
+			<Text>{1: number "#.##"} {2_IconString} from Specialists</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GPP_FROM_BUILDING">
+			<Text>{1: number "#.##"} {2_IconString} from Buildings</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GPP_FROM_RELIGION">
+			<Text>{1: number "#.##"} {2_IconString} from [ICON_RELIGION] Majority Religion</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GPP_FROM_MONOPOLY">
+			<Text>{1: number "#.##"} {2_IconString} from [ICON_MONOPOLY] Monopolies</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GPP_BASE">
+			<Text>Base {1_IconString} {2_GreatPerson:textkey} Points: {3: number "#.##"}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GPP_MOD_BUILDINGS">
+			<Text>[NEWLINE][ICON_BULLET]{1: number "'+'##;'-'##"}% from Buildings</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GPP_MOD_CAPITAL">
+			<Text>[NEWLINE][ICON_BULLET]{1: number "'+'##;'-'##"}% for [ICON_CAPITAL] Capital from Diplomatic Marriages</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GPP_MOD_GA_BELIEF">
+			<Text>[NEWLINE][ICON_BULLET]{1: number "'+'##;'-'##"}% from [ICON_GOLDEN_AGE] Golden Age (Religious Beliefs)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GPP_MOD_GA_POLICY">
+			<Text>[NEWLINE][ICON_BULLET]{1: number "'+'##;'-'##"}% from [ICON_GOLDEN_AGE] Golden Age (Policies)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GPP_MOD_GA_TRAIT">
+			<Text>[NEWLINE][ICON_BULLET]{1: number "'+'##;'-'##"}% from [ICON_GOLDEN_AGE] Golden Age (Unique Ability)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GPP_MOD_IMPROVEMENT">
+			<Text>[NEWLINE][ICON_BULLET]{1: number "'+'##;'-'##"}% from Worked Improvements</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GP_MOD_LEAGUE">
+			<Text>[NEWLINE][ICON_BULLET]{1: number "'+'##;'-'##"}% from Active Resolutions</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GPP_MOD_MONOPOLY">
+			<Text>[NEWLINE][ICON_BULLET]{1: number "'+'##;'-'##"}% from [ICON_MONOPOLY] Resource Monopolies</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GPP_MOD_PLAYER">
+			<Text>[NEWLINE][ICON_BULLET]{1: number "'+'##;'-'##"}% from Empire Bonuses</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GPP_TOTAL">
+			<Text>Progress towards {1_GreatPerson:textkey}: {2_Progress}/{3_Cost} ({4_PerTurn}{5_IconString}, {6_Turns}[ICON_TURNS_REMAINING])</Text>
+		</Row>
 
 		<!-- City screen/banner -->
+		<Row Tag="TXT_KEY_CITYVIEW_CORPORATIONS_TEXT">
+			<Text>Corporations</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYVIEW_RESOURCE_DEMANDED_UNKNOWN">
+			<Text>??? (Research Required)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYVIEW_CITY_RANGED_STRENGTH_TT">
+			<Text>City Strike Strength: [ICON_RANGE_STRENGTH] {1_Num}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYVIEW_WLTKD_COUNTER_UA_1">
+			<Text>"We Love The Empress Day"! ({1_Num})</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYVIEW_RESOURCE_FULFILLED_TT_UA_1">
+			<Text>This City is in "We Love the Empress Day", which increases the City's [ICON_FOOD] Growth modifier!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYVIEW_RESOURCE_DEMANDED_TT_UA_1">
+			<Text>Connecting this Resource to your trade network will cause this City to go into "We Love the Empress Day."</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYVIEW_WLTKD_COUNTER_UA_2">
+			<Text>Carnival! ({1_Num})</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYVIEW_RESOURCE_FULFILLED_TT_UA_2">
+			<Text>This City is celebrating Carnival, which increases [ICON_FOOD] Growth and reduces [ICON_HAPPINESS_3] Unhappiness!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYVIEW_RESOURCE_DEMANDED_TT_UA_2">
+			<Text>Connecting this Resource to your trade network will cause this City to celebrate Carnival, which increases [ICON_FOOD] Growth and reduces [ICON_HAPPINESS_3] Unhappiness!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_INDUSTRIAL_CONNECTED">
+			<Text>City has an [ICON_INDUSTRIAL_CONNECTED] Industrial City Connection with the [ICON_CAPITAL] Capital!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_SAPPED">
+			<Text>Because of an enemy Spy Mission, the city is blockaded and cannot perform ranged strikes for [COLOR_POSITIVE_TEXT]{1_Turns}[ENDCOLOR] {1_Turns: plural 1?Turn; other?Turns;}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_AUTOMATE_PRODUCTION_TT">
+			<Text>Automate production for this city.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYVIEW_RESET_SPEC">
+			<Text>Reset Specialists</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYVIEW_RESET_SPEC_TT">
+			<Text>Click here to have the governor reassign specialists.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MONOPOLY_GP_MOD">
+			<Text>[ICON_BULLET] Resource Monopoly Bonus: +{1_num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_IMPROVEMENTS_GP_MOD">
+			<Text>[ICON_BULLET] Improvement Bonus: +{1_num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RELIGIONS_GP_MOD">
+			<Text>[ICON_BULLET] Religion Bonus: +{1_num}%</Text>
+		</Row>
 		<Row Tag="TXT_KEY_PRODMOD_UNIT_CLASS">
 			<Text>[NEWLINE][ICON_BULLET]Modifier for Unit Class: {1_Num}%</Text>
 		</Row>
