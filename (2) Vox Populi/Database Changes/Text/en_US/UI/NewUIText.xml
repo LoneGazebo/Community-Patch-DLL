@@ -1120,44 +1120,11 @@
 		</Row>
 
 		<!-- City screen/banner -->
-		<Row Tag="TXT_KEY_MONOPOLY_GP_MOD">
-			<Text>[ICON_BULLET] Resource Monopoly Bonus: +{1_num}%</Text>
-		</Row>
-		<Row Tag="TXT_KEY_IMPROVEMENTS_GP_MOD">
-			<Text>[ICON_BULLET] Improvement Bonus: +{1_num}%</Text>
-		</Row>
-		<Row Tag="TXT_KEY_RELIGIONS_GP_MOD">
-			<Text>[ICON_BULLET] Religion Bonus: +{1_num}%</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITYVIEW_CORPORATIONS_TEXT">
-			<Text>Corporations</Text>
-		</Row>
 		<Row Tag="TXT_KEY_CITYVIEW_FREESPECIALIST_TEXT">
 			<Text>more {1_NumSpecialists: plural 1?Specialist; other?Specialists;}: No [ICON_URBANIZATION_GREEN] Urbanization</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITYVIEW_NOFREESPECIALIST_TEXT">
 			<Text>[ICON_URBANIZATION] Urbanization per new Specialist</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITYVIEW_WLTKD_COUNTER_UA">
-			<Text>"We Love The Empress Day"! ({1_Num})</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITYVIEW_RESOURCE_FULFILLED_TT_UA">
-			<Text>This City is in "We Love the Empress Day", which increases the City's [ICON_FOOD] Growth modifier!</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITYVIEW_RESOURCE_DEMANDED_TT_UA">
-			<Text>Connecting this Resource to your trade network will cause this City to go into "We Love the Empress Day."</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITYVIEW_WLTKD_COUNTER_UA_CARNAVAL">
-			<Text>Carnival! ({1_Num})</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITYVIEW_RESOURCE_FULFILLED_TT_UA_CARNAVAL">
-			<Text>This City is celebrating Carnival, which increases [ICON_FOOD] Growth and reduces [ICON_HAPPINESS_3] Unhappiness!</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITYVIEW_RESOURCE_DEMANDED_TT_UA_CARNAVAL">
-			<Text>Connecting this Resource to your trade network will cause this City to celebrate Carnival, which increases [ICON_FOOD] Growth and reduces [ICON_HAPPINESS_3] Unhappiness!</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_SAPPED">
-			<Text>Because of an enemy Spy Mission, the city is blockaded and cannot perform ranged strikes for [COLOR_POSITIVE_TEXT]{1_Turns}[ENDCOLOR] {1_Turns: plural 1?Turn; other?Turns;}.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_MINED">
 			<Text>Enemy Naval Units and Embarked Units expend all [ICON_MOVES] Movement when entering water territory owned by this City. Units ending their turn in Ocean tiles owned by this City take [COLOR_NEGATIVE_TEXT]5 Damage[ENDCOLOR].</Text>
@@ -1170,9 +1137,6 @@
 		</Row>
 		<Row Tag="TXT_KEY_CITY_HAS_AIRPORT">
 			<Text>Allows [COLOR_POSITIVE_TEXT]Airlifts[ENDCOLOR] to or from this City. Increased Air Unit Capacity of the City. +10 [ICON_STRENGTH] Damage to Enemy Air Units during Air Strikes on the City.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_INDUSTRIAL_CONNECTED">
-			<Text>City has an [ICON_INDUSTRIAL_CONNECTED] Industrial City Connection with the [ICON_CAPITAL] Capital!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_OFFICEHQ_TT">
 			<Text>[ICON_CAPITAL] Headquarters of [COLOR_POSITIVE_TEXT]{1_Name}[ENDCOLOR]</Text>
@@ -1204,17 +1168,8 @@
 		<Row Tag="TXT_KEY_CITY_STATE_RELIGIOUS_TT_ANNEXED">
 			<Text>A conquered [COLOR_POSITIVE_TEXT]Religious[ENDCOLOR] City-State will increase your [ICON_PEACE] Faith, allowing you to empower your religion with new beliefs and units.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_AUTOMATE_PRODUCTION_TT">
-			<Text>Automate production for this city.</Text>
-		</Row>
 		<Row Tag="TXT_KEY_CITY_PRODUCTION_AUTOMATED">
 			<Text>[ICON_AUTOMATED] Production automated</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITYVIEW_RESET_SPEC">
-			<Text>Reset Specialists</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITYVIEW_RESET_SPEC_TT">
-			<Text>Click here to have the governor reassign specialists.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_POPUP_CITY_CAPTURE_INFO_LIBERATE_NO">
 			<Text>This City was formerly owned by [COLOR_POSITIVE_TEXT]{@1_PlayerName}[ENDCOLOR]. [COLOR_NEGATIVE_TEXT]Due to past hostile actions committed against them, you do not have the opportunity to return it to them.[ENDCOLOR]</Text>

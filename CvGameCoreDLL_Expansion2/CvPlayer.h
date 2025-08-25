@@ -1038,15 +1038,8 @@ public:
 	void recomputePolicyCostModifier();
 
 	int getGreatPeopleRateModifier() const;
-	int getGreatGeneralRateModifier() const;
-	int getGreatAdmiralRateModifier() const;
-	int getGreatWriterRateModifier() const;
-	int getGreatArtistRateModifier() const;
-	int getGreatMusicianRateModifier() const;
-	int getGreatMerchantRateModifier() const;
-	int getGreatScientistRateModifier() const;
-	int getGreatEngineerRateModifier() const;
-	int getGreatDiplomatRateModifier() const;
+	int GetGreatPersonRateModifier(GreatPersonTypes eGreatPerson) const;
+	void ChangeGreatPersonRateModifier(GreatPersonTypes eGreatPerson, int iChange);
 	int getDomesticGreatGeneralRateModifier() const;
 	int getArtsyGreatPersonRateModifier();
 	int getScienceyGreatPersonRateModifier();
@@ -3148,21 +3141,13 @@ protected:
 	int m_iPolicyCostModifier;
 	int m_iGreatPeopleRateModifier;
 	int m_iGreatPeopleRateModFromBldgs;
-	int m_iGreatGeneralRateModifier;
 	int m_iGreatGeneralRateModFromBldgs;
 	int m_iDomesticGreatGeneralRateModifier;
-	int m_iGreatAdmiralRateModifier;
-	int m_iGreatWriterRateModifier;
-	int m_iGreatArtistRateModifier;
-	int m_iGreatMusicianRateModifier;
-	int m_iGreatMerchantRateModifier;
-	int m_iGreatDiplomatRateModifier;
-	int m_iGreatScientistRateModifier;
+	vector<int> m_viGreatPersonRateModifier;
 	int m_iGreatScientistBeakerModifier;
 	int m_iGreatEngineerHurryMod;
 	int m_iTechCostXCitiesModifier;
 	int m_iTourismCostXCitiesMod;
-	int m_iGreatEngineerRateModifier;
 	int m_iGreatPersonExpendGold;
 	int m_iNoUnhappfromXSpecialists;
 	int m_iHappfromXSpecialists;
@@ -3992,21 +3977,13 @@ SYNC_ARCHIVE_VAR(int, m_iAnarchyNumTurns)
 SYNC_ARCHIVE_VAR(int, m_iPolicyCostModifier)
 SYNC_ARCHIVE_VAR(int, m_iGreatPeopleRateModifier)
 SYNC_ARCHIVE_VAR(int, m_iGreatPeopleRateModFromBldgs)
-SYNC_ARCHIVE_VAR(int, m_iGreatGeneralRateModifier)
+SYNC_ARCHIVE_VAR(vector<int>, m_viGreatPersonRateModifier)
 SYNC_ARCHIVE_VAR(int, m_iGreatGeneralRateModFromBldgs)
 SYNC_ARCHIVE_VAR(int, m_iDomesticGreatGeneralRateModifier)
-SYNC_ARCHIVE_VAR(int, m_iGreatAdmiralRateModifier)
-SYNC_ARCHIVE_VAR(int, m_iGreatWriterRateModifier)
-SYNC_ARCHIVE_VAR(int, m_iGreatArtistRateModifier)
-SYNC_ARCHIVE_VAR(int, m_iGreatMusicianRateModifier)
-SYNC_ARCHIVE_VAR(int, m_iGreatMerchantRateModifier)
-SYNC_ARCHIVE_VAR(int, m_iGreatDiplomatRateModifier)
-SYNC_ARCHIVE_VAR(int, m_iGreatScientistRateModifier)
 SYNC_ARCHIVE_VAR(int, m_iGreatScientistBeakerModifier)
 SYNC_ARCHIVE_VAR(int, m_iGreatEngineerHurryMod)
 SYNC_ARCHIVE_VAR(int, m_iTechCostXCitiesModifier)
 SYNC_ARCHIVE_VAR(int, m_iTourismCostXCitiesMod)
-SYNC_ARCHIVE_VAR(int, m_iGreatEngineerRateModifier)
 SYNC_ARCHIVE_VAR(int, m_iGreatPersonExpendGold)
 SYNC_ARCHIVE_VAR(int, m_iNoUnhappfromXSpecialists)
 SYNC_ARCHIVE_VAR(int, m_iHappfromXSpecialists)

@@ -21516,11 +21516,11 @@ void CvUnit::changeExperienceTimes100(int iChangeTimes100, int iMax, bool bFromC
 		int iCombatExperienceMod = 0;
 		if (getDomainType() == DOMAIN_SEA)
 		{
-			iCombatExperienceMod = 100 + kPlayer.getGreatAdmiralRateModifier();
+			iCombatExperienceMod = 100 + kPlayer.GetGreatPersonRateModifier(static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_ADMIRAL")));
 		}
 		else
 		{
-			iCombatExperienceMod = 100 + kPlayer.getGreatGeneralRateModifier();
+			iCombatExperienceMod = 100 + kPlayer.GetGreatPersonRateModifier(static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_GENERAL")));
 		}
 
 		// Unit XP mod

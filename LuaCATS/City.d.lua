@@ -20,3 +20,23 @@ function City:GetOwner() end
 --- @param tUnitCombatIDs integer[]? if specified, only units of these UnitCombat types can be selected
 --- @return UnitType
 function City:GetCompetitiveSpawnUnitType(bIncludeRanged, bIncludeShips, bIncludeRecon, bIncludeUUs, bNoResource, bMinorCivGift, bRandom, tUnitCombatIDs) end
+
+--- Get the type (unit/building/project/process) and details of an item in production queue
+--- @param iQueueIndex integer The position of the order, starting at 0
+--- @return OrderType eOrder
+--- @return integer iData1 Database ID of the item
+--- @return integer iData2 Unit AI of the item (only used for units)
+--- @return boolean bSave Whether the item is on repeat (unused)
+--- @return boolean bRush Whether the item is rushed (used by AI only to determine whether to chop trees)
+function City:GetOrderFromQueue(iQueueIndex) end
+
+--- @param eBuildingClass BuildingClassType
+--- @param iSlotId integer
+--- @return GreatWorkId eGreatWork # ID of the great work if exists, or -1 otherwise
+function City:GetBuildingGreatWork(eBuildingClass, iSlotId) end
+
+--- @param eSpecialist SpecialistType
+--- @param bTooltip boolean? Whether a tooltip should be returned, default false
+--- @return integer # The specialist rate (GPP) of the specified specialist type, **multiplied by 100**
+--- @return string # The breakdown of sources of GPP and modifiers, if `bTooltip` is true
+function City:GetSpecialistRate(eSpecialist, bTooltip) end
