@@ -3135,7 +3135,15 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 								return false;
 						}
 						else if (getTeam() != eTeam)
-							return false;
+						{
+							if (GC.getImprovementInfo(eImprovement)->GetCultureBombRadius() > 0 && GET_PLAYER(ePlayer).IsCultureBombForeignTerritory())
+							{
+								if (IsStealBlockedByImprovement() || !isAdjacentTeam(eTeam, false))
+									return false;
+							}
+							else
+								return false;
+						}
 					}
 					// Only City State Territory - Can only be built in City-State territory (not our own lands)
 					else if (GC.getImprovementInfo(eImprovement)->IsOnlyCityStateTerritory())
@@ -3232,7 +3240,8 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 
 					// Some improvements are exceptions
 					if (!GC.getImprovementInfo(eImprovement)->IsIgnoreOwnership() &&
-						!GC.getImprovementInfo(eImprovement)->IsOnlyCityStateTerritory())
+						!GC.getImprovementInfo(eImprovement)->IsOnlyCityStateTerritory() &&
+						GC.getImprovementInfo(eImprovement)->GetCultureBombRadius() <= 0)
 					{
 						return false;
 					}

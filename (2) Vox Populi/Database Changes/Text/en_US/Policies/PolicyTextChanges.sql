@@ -892,7 +892,7 @@ SET Text = 'Lebensraum'
 WHERE Tag = 'TXT_KEY_POLICY_INDUSTRIAL_ESPIONAGE';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Lebensraum[ENDCOLOR]: Receive 10 [ICON_CULTURE] Culture and [ICON_GOLDEN_AGE] Golden Age Points when your borders expand, scaling with Era. Citadel tile-acquisition radius doubled.'
+SET Text = '[COLOR_POSITIVE_TEXT]Lebensraum[ENDCOLOR]: Receive 10 [ICON_CULTURE] Culture and [ICON_GOLDEN_AGE] Golden Age Points when your borders expand, scaling with Era. Citadels may also be built in foreign territory adjacent to your borders. Retain tiles after razing Cities.'
 WHERE Tag = 'TXT_KEY_POLICY_INDUSTRIAL_ESPIONAGE_HELP';
 
 UPDATE Language_en_US

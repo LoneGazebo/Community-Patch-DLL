@@ -60,7 +60,8 @@ VALUES
 UPDATE Policies
 SET
 	StealTechFasterModifier = 0,
-	CultureBombBoost = 1
+	CultureBombForeignTerritory = 1,
+	RetainRazedTerritory = 1
 WHERE Type = 'POLICY_INDUSTRIAL_ESPIONAGE';
 
 INSERT INTO Policy_YieldFromBorderGrowth
