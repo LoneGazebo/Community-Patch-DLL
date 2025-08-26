@@ -178,6 +178,9 @@ end
 --- @param iDenominator integer
 --- @return string
 local function GetFractionYieldBoostString(kYieldInfo, iNumerator, iDenominator)
+	if iDenominator == 1 then
+		return GetYieldBoostString(kYieldInfo, iNumerator);
+	end
 	return L("TXT_KEY_PRODUCTION_YIELD_BOOST_FRACTION", iNumerator, iDenominator, kYieldInfo.IconString);
 end
 
@@ -1643,7 +1646,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 		iHappinessTotal = iHappinessTotal + pCity:GetReligionBuildingClassHappiness(eBuildingClass)
 			+ pActivePlayer:GetExtraBuildingHappinessFromPolicies(eBuilding)
 			+ pActivePlayer:GetPlayerBuildingClassHappiness(eBuildingClass);
-		AddTooltipNonZero(tYieldLines, "TXT_KEY_PRODUCTION_BUILDING_PROJECTED_HAPPINESS", iHappinessTotal);
+		AddTooltipNonZeroSigned(tYieldLines, "TXT_KEY_PRODUCTION_BUILDING_PROJECTED_HAPPINESS", iHappinessTotal);
 	end
 
 	AddTooltipNonZeroSigned(tGlobalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_HAPPINESS_GLOBAL", kBuildingInfo.HappinessPerCity);
@@ -3176,7 +3179,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 				local eBelief = GameInfoTypes[row.BeliefType];
 
 				-- Don't show if the city already benefits from the belief in city view (only call DLL once per belief)
-				if tBeliefBoosts[eBelief] or not (pCity and Game.IsBeliefValid(eBelief, pCity:GetReligiousMajority(), pCity, false)) then
+				if tBeliefBoosts[eBelief] or not (pCity and Game.IsBeliefValid(pCity:GetReligiousMajority(), eBelief, pCity, false)) then
 					tBeliefBoosts[eBelief] = tBeliefBoosts[eBelief] or {};
 					tBeliefBoosts[eBelief][eYield] = row.YieldChange;
 				end
@@ -3356,7 +3359,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 
 		for row in GameInfo.Belief_BuildingClassTourism{BuildingClassType = kBuildingClassInfo.Type} do
 			local eBelief = GameInfoTypes[row.BeliefType];
-			if tBeliefBoosts[eBelief] or not (pCity and Game.IsBeliefValid(eBelief, pCity:GetReligiousMajority(), pCity, false)) then
+			if tBeliefBoosts[eBelief] or not (pCity and Game.IsBeliefValid(pCity:GetReligiousMajority(), eBelief, pCity, false)) then
 				local eYield = YieldTypes.YIELD_TOURISM;
 				tBeliefBoosts[eBelief] = tBeliefBoosts[eBelief] or {};
 				tBeliefBoosts[eBelief][eYield] = tBeliefBoosts[eBelief][eYield] or 0;
@@ -3488,7 +3491,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 
 		for row in GameInfo.Belief_BuildingClassHappiness{BuildingClassType = kBuildingClassInfo.Type} do
 			local kBeliefInfo = GetInfoFromType("Beliefs", row.BeliefType);
-			if tBeliefBoosts[kBeliefInfo.ID] or not (pCity and Game.IsBeliefValid(kBeliefInfo.ID, pCity:GetReligiousMajority(), pCity, false)) then
+			if tBeliefBoosts[kBeliefInfo.ID] or not (pCity and Game.IsBeliefValid(pCity:GetReligiousMajority(), kBeliefInfo.ID, pCity, false)) then
 				AddTooltipNonZeroSigned(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_HAPPINESS_FROM_BELIEF", row.Happiness, kBeliefInfo.ShortDescription);
 			end
 		end
@@ -3792,7 +3795,7 @@ function GetMoodInfo(eOtherPlayer)
 	-- Get the opinion modifier table from the DLL and convert it into bullet points
 	local tOpinion = pOtherPlayer:GetOpinionTable(eActivePlayer);
 	if next(tOpinion) then
-		return "[ICON_BULLET]" + table.concat(tOpinion, "[NEWLINE][ICON_BULLET]");
+		return "[ICON_BULLET]" .. table.concat(tOpinion, "[NEWLINE][ICON_BULLET]");
 	end
 
 	-- No specific modifiers are visible, so let's see what string we should use (based on visible approach towards us)
