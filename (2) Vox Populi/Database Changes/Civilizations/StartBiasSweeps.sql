@@ -16,7 +16,8 @@ VALUES
 	('CIVILIZATION_SPAIN', '1'),       -- UA wants coast but is also heavily rewarded for expanding so doesn't need it (NOT historical)
 	('CIVILIZATION_PORTUGAL', '1'),    -- UA + Medieval UU want coast, UI needs coast (historical)
 	('CIVILIZATION_VENICE', '1'),      -- UA wants coast (historical)
-	('CIVILIZATION_NETHERLANDS', '1'); -- Renaissance UU wants coast and not rewarded for expanding (historical)
+	('CIVILIZATION_INDONESIA', '1'),   -- UI wants coast + Medieval UU needs coast (historical)
+	('CIVILIZATION_NETHERLANDS', '1'); -- UI + Renaissance UU want coast and not rewarded for expanding (historical)
 
 INSERT INTO Civilization_Start_Along_River
 	(CivilizationType, StartAlongRiver)
