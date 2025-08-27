@@ -63,6 +63,11 @@ public:
 	// Forward game events to the Bridge Service
 	void ForwardGameEvent(const char* eventName, class ICvEngineScriptSystemArgs1* args);
 
+	// External function registry management
+	void RegisterExternalFunction(const char* name, bool bAsync);
+	void UnregisterExternalFunction(const char* name);
+	bool IsExternalFunctionRegistered(const char* name) const;
+
 private:
 	// Private constructor for singleton
 	CvConnectionService();
@@ -103,6 +108,13 @@ private:
 		std::string strDescription; // Optional description for documentation
 	};
 	
+	// Structure to store external function information
+	struct ExternalFunctionInfo {
+		std::string strName;       // Function name
+		bool bAsync;               // Whether the function is async
+		bool bRegistered;          // Registration status
+	};
+	
 	// Internal state
 	bool m_bInitialized;
 	lua_State* m_pLuaState;
@@ -122,9 +134,13 @@ private:
 	CRITICAL_SECTION m_csIncoming;
 	CRITICAL_SECTION m_csOutgoing;
 	CRITICAL_SECTION m_csFunctions;
+	CRITICAL_SECTION m_csExternalFunctions;
 	
 	// Map of function name to function info
 	std::map<std::string, LuaFunctionInfo> m_registeredFunctions;
+	
+	// Map of external function name to function info
+	std::map<std::string, ExternalFunctionInfo> m_externalFunctions;
 };
 
 #endif // CIV5_CONNECTION_SERVICE_H

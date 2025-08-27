@@ -57,6 +57,7 @@ bool CvConnectionService::Setup()
 	InitializeCriticalSection(&m_csIncoming);
 	InitializeCriticalSection(&m_csOutgoing);
 	InitializeCriticalSection(&m_csFunctions);
+	InitializeCriticalSection(&m_csExternalFunctions);
 
 	// Reset shutdown flag
 	m_bShutdownRequested = false;
@@ -158,6 +159,7 @@ void CvConnectionService::Shutdown()
 	DeleteCriticalSection(&m_csIncoming);
 	DeleteCriticalSection(&m_csOutgoing);
 	DeleteCriticalSection(&m_csFunctions);
+	DeleteCriticalSection(&m_csExternalFunctions);
 
 	// Clear any remaining messages in the queues
 	while (!m_incomingQueue.empty())
@@ -579,6 +581,23 @@ void CvConnectionService::RouteMessage(const std::string& messageJson)
 		
 		// Call handler with extracted parameters
 		if (functionName && id) HandleLuaCall(functionName, args, id);
+	}
+	else if (strcmp(messageType, "external_register") == 0)
+	{
+		// Extract parameters for external function registration
+		const char* functionName = message["name"];
+		bool bAsync = message["async"] | false;
+		
+		// Register the external function
+		if (functionName) RegisterExternalFunction(functionName, bAsync);
+	}
+	else if (strcmp(messageType, "external_unregister") == 0)
+	{
+		// Extract function name for unregistration
+		const char* functionName = message["name"];
+		
+		// Unregister the external function
+		if (functionName) UnregisterExternalFunction(functionName);
 	}
 	else
 	{
@@ -1163,5 +1182,107 @@ void CvConnectionService::ForwardGameEvent(const char* eventName, ICvEngineScrip
 		ss << "ForwardGameEvent - Unknown exception forwarding event '" << eventName << "'";
 		Log(LOG_ERROR, ss.str().c_str());
 	}
+}
+
+// Register an external function that can be called from Lua
+void CvConnectionService::RegisterExternalFunction(const char* name, bool bAsync)
+{
+	if (!name || strlen(name) == 0)
+	{
+		Log(LOG_WARNING, "RegisterExternalFunction - Invalid function name");
+		return;
+	}
+
+	std::stringstream logMsg;
+	logMsg << "RegisterExternalFunction - Registering external function '" << name << "' (async: " << (bAsync ? "true" : "false") << ")";
+	Log(LOG_INFO, logMsg.str().c_str());
+
+	EnterCriticalSection(&m_csExternalFunctions);
+	
+	// Check if already registered
+	std::map<std::string, ExternalFunctionInfo>::iterator it = m_externalFunctions.find(name);
+	if (it != m_externalFunctions.end())
+	{
+		// Update existing registration
+		it->second.bAsync = bAsync;
+		it->second.bRegistered = true;
+		
+		std::stringstream ss;
+		ss << "RegisterExternalFunction - Updated existing registration for '" << name << "'";
+		Log(LOG_DEBUG, ss.str().c_str());
+	}
+	else
+	{
+		// Add new registration
+		ExternalFunctionInfo info;
+		info.strName = name;
+		info.bAsync = bAsync;
+		info.bRegistered = true;
+		
+		m_externalFunctions[name] = info;
+		
+		std::stringstream ss;
+		ss << "RegisterExternalFunction - Added new registration for '" << name << "'";
+		Log(LOG_DEBUG, ss.str().c_str());
+	}
+	
+	LeaveCriticalSection(&m_csExternalFunctions);
+}
+
+// Unregister an external function
+void CvConnectionService::UnregisterExternalFunction(const char* name)
+{
+	if (!name || strlen(name) == 0)
+	{
+		Log(LOG_WARNING, "UnregisterExternalFunction - Invalid function name");
+		return;
+	}
+
+	std::stringstream logMsg;
+	logMsg << "UnregisterExternalFunction - Unregistering external function '" << name << "'";
+	Log(LOG_INFO, logMsg.str().c_str());
+
+	EnterCriticalSection(&m_csExternalFunctions);
+	
+	std::map<std::string, ExternalFunctionInfo>::iterator it = m_externalFunctions.find(name);
+	if (it != m_externalFunctions.end())
+	{
+		// Remove the registration
+		m_externalFunctions.erase(it);
+		
+		std::stringstream ss;
+		ss << "UnregisterExternalFunction - Successfully unregistered '" << name << "'";
+		Log(LOG_DEBUG, ss.str().c_str());
+	}
+	else
+	{
+		std::stringstream ss;
+		ss << "UnregisterExternalFunction - Function '" << name << "' was not registered";
+		Log(LOG_WARNING, ss.str().c_str());
+	}
+	
+	LeaveCriticalSection(&m_csExternalFunctions);
+}
+
+// Check if an external function is registered
+bool CvConnectionService::IsExternalFunctionRegistered(const char* name) const
+{
+	if (!name || strlen(name) == 0)
+	{
+		return false;
+	}
+
+	EnterCriticalSection(const_cast<CRITICAL_SECTION*>(&m_csExternalFunctions));
+	
+	bool bRegistered = false;
+	std::map<std::string, ExternalFunctionInfo>::const_iterator it = m_externalFunctions.find(name);
+	if (it != m_externalFunctions.end())
+	{
+		bRegistered = it->second.bRegistered;
+	}
+	
+	LeaveCriticalSection(const_cast<CRITICAL_SECTION*>(&m_csExternalFunctions));
+	
+	return bRegistered;
 }
 
