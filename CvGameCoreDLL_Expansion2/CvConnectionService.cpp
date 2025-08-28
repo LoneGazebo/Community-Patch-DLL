@@ -1357,7 +1357,7 @@ void CvConnectionService::HandleExternalCallCallback(const ExternalCallResult& r
 }
 
 // Call an external function (callback extracted from Lua state if present)
-void CvConnectionService::CallExternalFunction(const char* functionName, lua_State* L, int firstArg)
+int CvConnectionService::CallExternalFunction(lua_State* L)
 {
 	ExternalCallResult result;
 	result.bSuccess = false;
@@ -1366,8 +1366,18 @@ void CvConnectionService::CallExternalFunction(const char* functionName, lua_Sta
 	if (!L)
 	{
 		Log(LOG_ERROR, "CallExternalFunction - Invalid Lua state provided");
-		return;
+		return 0;
 	}
+	
+	// Get function name from first argument
+	if (!lua_isstring(L, 1))
+	{
+		Log(LOG_ERROR, "CallExternalFunction - First argument must be a function name string");
+		lua_pushnil(L);
+		lua_pushstring(L, "First argument must be a function name string");
+		return 2;  // Pushed nil and error message
+	}
+	const char* functionName = lua_tostring(L, 1);
 	
 	// Check if last argument is a callback function
 	int numArgs = lua_gettop(L);
@@ -1376,7 +1386,7 @@ void CvConnectionService::CallExternalFunction(const char* functionName, lua_Sta
 	void* userData = NULL;
 	
 	// Check if last argument is a callback function (for async calls)
-	if (numArgs >= firstArg && lua_isfunction(L, numArgs))
+	if (numArgs >= 2 && lua_isfunction(L, numArgs))
 	{
 		hasCallback = true;
 		
@@ -1403,14 +1413,15 @@ void CvConnectionService::CallExternalFunction(const char* functionName, lua_Sta
 		if (callback)
 		{
 			callback(result, userData);
+			return 0;  // Async call, callback will handle the result
 		}
 		// For sync calls, push error to Lua stack
 		else
 		{
 			lua_pushnil(L);
 			lua_pushstring(L, result.strError.c_str());
+			return 2;  // Pushed nil and error message
 		}
-		return;
 	}
 	
 	// Generate unique call ID
@@ -1431,7 +1442,20 @@ void CvConnectionService::CallExternalFunction(const char* functionName, lua_Sta
 	
 	// Create the call request message
 	DynamicJsonDocument request(8192);
-	SetupExternalCallRequest(request, callId.c_str(), functionName, L, firstArg, !hasCallback);
+	request["type"] = "external_call";
+	request["id"] = callId;
+	request["function"] = functionName;
+	request["sync"] = !hasCallback;
+	
+	// Convert Lua arguments directly to JSON without intermediate string serialization
+	// Important: numArgs was already decremented if there was a callback, so it doesn't include the callback
+	// Arguments start at index 2 (after function name at index 1)
+	int actualArgCount = numArgs - 1;  // Exclude function name
+	if (actualArgCount > 0)
+	{
+		// Use the shared conversion function to convert Lua values directly to JsonVariant
+		ConvertLuaValuesToJsonVariant(L, 2, actualArgCount, request["args"].to<JsonVariant>());
+	}
 	
 	// Send the request
 	SendMessage(request);
@@ -1468,8 +1492,14 @@ void CvConnectionService::CallExternalFunction(const char* functionName, lua_Sta
 		// Push result to Lua stack
 		if (resultFound)
 		{
+			// Store initial stack size to count pushed values
+			int initialTop = lua_gettop(L);
+			
 			// Use shared post-processing for consistent error handling
 			ProcessExternalCallResult(L, syncResult);
+			
+			// Return the actual number of values pushed
+			return lua_gettop(L) - initialTop;
 		}
 		else
 		{
@@ -1489,8 +1519,13 @@ void CvConnectionService::CallExternalFunction(const char* functionName, lua_Sta
 			std::stringstream timeoutMsg;
 			timeoutMsg << "CallExternalFunction - Timeout waiting for response to '" << functionName << "' (ID: " << callId << ")";
 			Log(LOG_WARNING, timeoutMsg.str().c_str());
+			
+			return 2;  // Pushed nil and error message
 		}
 	}
+	
+	// Async call - no values pushed (callback will handle the result)
+	return 0;
 }
 
 // Handle external call response from the Bridge Service
@@ -1579,25 +1614,6 @@ bool CvConnectionService::ValidateExternalCall(const char* functionName, Externa
 	}
 	
 	return true;
-}
-
-// Helper function to setup external call request JSON
-void CvConnectionService::SetupExternalCallRequest(DynamicJsonDocument& request, const char* callId, const char* functionName, 
-                                                   lua_State* L, int firstArg, bool isSync)
-{
-	request["type"] = "external_call";
-	request["id"] = callId;
-	request["function"] = functionName;
-	request["sync"] = isSync;
-	
-	// Convert Lua arguments directly to JSON without intermediate string serialization
-	if (L)
-	{
-		int numArgs = lua_gettop(L) - firstArg + 1;
-		
-		// Use the shared conversion function to convert Lua values directly to JsonVariant
-		ConvertLuaValuesToJsonVariant(L, firstArg, numArgs, request["args"].to<JsonVariant>());
-	}
 }
 
 // Shared post-processing function for external call results

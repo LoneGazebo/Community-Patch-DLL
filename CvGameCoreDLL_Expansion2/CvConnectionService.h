@@ -79,8 +79,9 @@ public:
 	// Callback type for external function calls
 	typedef void (*ExternalCallCallback)(const ExternalCallResult& result, void* userData);
 	
-	// Call an external function (callback extracted from Lua state if present)
-	void CallExternalFunction(const char* functionName, lua_State* L, int firstArg);
+	// Call an external function (function name and callback extracted from Lua state)
+	// Returns the number of values pushed onto the Lua stack
+	int CallExternalFunction(lua_State* L);
 	
 	// Convert JSON to Lua value (made public for use in Lua callbacks)
 	void ConvertJsonToLuaValue(lua_State* L, const JsonVariant& value);
@@ -186,10 +187,8 @@ private:
 	// Helper to handle external call response
 	void HandleExternalCallResponse(const char* callId, bool bSuccess, const char* error, const char* data);
 	
-	// Helper functions for external call validation and setup
+	// Helper functions for external call validation
 	bool ValidateExternalCall(const char* functionName, ExternalCallResult& result);
-	void SetupExternalCallRequest(DynamicJsonDocument& request, const char* callId, const char* functionName, 
-	                              lua_State* L, int firstArg, bool isSync);
 	
 	// Shared post-processing function for external call results
 	void ProcessExternalCallResult(lua_State* L, const ExternalCallResult& result);

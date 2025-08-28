@@ -4296,13 +4296,8 @@ int CvLuaGame::lUnregisterFunction(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaGame::lCallExternal(lua_State* L)
 {
-	// Get external function name from first argument
-	const char* functionName = luaL_checkstring(L, 1);
-	
-	// Call the external function (args start at index 2)
-	CvConnectionService::GetInstance().CallExternalFunction(functionName, L, 2);
-	
-	return 0;
+	// Call the external function and return the number of values pushed onto the stack
+	return CvConnectionService::GetInstance().CallExternalFunction(L);
 }
 
 //------------------------------------------------------------------------------
