@@ -1351,39 +1351,10 @@ void HandleExternalCallCallback(const CvConnectionService::ExternalCallResult& r
 		// Push success status
 		lua_pushboolean(pData->L, result.bSuccess);
 		
-		// Push result or error
-		if (result.bSuccess)
-		{
-			// Parse JSON result and push to Lua
-			if (!result.strData.empty())
-			{
-				DynamicJsonDocument doc(8192);
-				DeserializationError error = deserializeJson(doc, result.strData);
-				
-				if (!error)
-				{
-					// Convert JSON to Lua value
-					CvConnectionService::GetInstance().ConvertJsonToLuaValue(pData->L, doc.as<JsonVariant>());
-				}
-				else
-				{
-					// Push nil on parse error
-					lua_pushnil(pData->L);
-				}
-			}
-			else
-			{
-				// No data, push nil
-				lua_pushnil(pData->L);
-			}
-		}
-		else
-		{
-			// Push error message
-			lua_pushstring(pData->L, result.strError.c_str());
-		}
+		// Use shared post-processing
+		CvConnectionService::GetInstance().ProcessExternalCallResult(pData->L, result);
 		
-		// Call the callback with 2 arguments (success, result/error)
+		// Call the callback with 2 arguments (result/nil, error)
 		if (lua_pcall(pData->L, 2, 0, 0) != 0)
 		{
 			// Log error but don't propagate
@@ -1445,10 +1416,16 @@ void CvConnectionService::CallExternalFunction(const char* functionName, lua_Sta
 	// Validate the call
 	if (!ValidateExternalCall(functionName, result))
 	{
-		// Call the callback with an error immediately
+		// For async calls, call the callback with an error immediately
 		if (callback)
 		{
 			callback(result, userData);
+		}
+		// For sync calls, push error to Lua stack
+		else
+		{
+			lua_pushnil(L);
+			lua_pushstring(L, result.strError.c_str());
 		}
 		return;
 	}
@@ -1471,7 +1448,7 @@ void CvConnectionService::CallExternalFunction(const char* functionName, lua_Sta
 	
 	// Create the call request message
 	DynamicJsonDocument request(8192);
-	SetupExternalCallRequest(request, callId.c_str(), functionName, L, firstArg, false);
+	SetupExternalCallRequest(request, callId.c_str(), functionName, L, firstArg, !hasCallback);
 	
 	// Send the request
 	SendMessage(request);
@@ -1479,6 +1456,60 @@ void CvConnectionService::CallExternalFunction(const char* functionName, lua_Sta
 	std::stringstream logMsg;
 	logMsg << "CallExternalFunction - Sent request for '" << functionName << "' with ID " << callId;
 	Log(LOG_DEBUG, logMsg.str().c_str());
+	
+	// For synchronous calls, wait for the result
+	if (!hasCallback)
+	{
+		// Wait for the result to be available in m_syncCallResults
+		const DWORD maxWaitTime = 1000; // 1 second timeout
+		const DWORD startTime = GetTickCount();
+		ExternalCallResult syncResult;
+		bool resultFound = false;
+		
+		while (!resultFound && (GetTickCount() - startTime) < maxWaitTime)
+		{
+			EnterCriticalSection(&m_csPendingCalls);
+			std::map<std::string, ExternalCallResult>::iterator resultIt = m_syncCallResults.find(callId);
+			if (resultIt != m_syncCallResults.end())
+			{
+				syncResult = resultIt->second;
+				m_syncCallResults.erase(resultIt); // Clean up the result
+				resultFound = true;
+			}
+			LeaveCriticalSection(&m_csPendingCalls);
+			
+			if (!resultFound)
+			{
+				Sleep(10); // Wait 10ms before checking again
+			}
+		}
+		
+		// Push result to Lua stack
+		if (resultFound)
+		{
+			// Use shared post-processing for consistent error handling
+			ProcessExternalCallResult(L, syncResult);
+		}
+		else
+		{
+			// Timeout occurred
+			lua_pushnil(L);
+			lua_pushstring(L, "External function call timed out");
+			
+			// Clean up the pending call since it timed out
+			EnterCriticalSection(&m_csPendingCalls);
+			std::map<std::string, PendingExternalCall>::iterator pendingIt = m_pendingExternalCalls.find(callId);
+			if (pendingIt != m_pendingExternalCalls.end())
+			{
+				m_pendingExternalCalls.erase(pendingIt);
+			}
+			LeaveCriticalSection(&m_csPendingCalls);
+			
+			std::stringstream timeoutMsg;
+			timeoutMsg << "CallExternalFunction - Timeout waiting for response to '" << functionName << "' (ID: " << callId << ")";
+			Log(LOG_WARNING, timeoutMsg.str().c_str());
+		}
+	}
 }
 
 // Handle external call response from the Bridge Service
@@ -1590,6 +1621,45 @@ void CvConnectionService::SetupExternalCallRequest(DynamicJsonDocument& request,
 	{
 		// No Lua state provided, set args as null
 		request["args"] = nullptr;
+	}
+}
+
+// Shared post-processing function for external call results
+void CvConnectionService::ProcessExternalCallResult(lua_State* L, const ExternalCallResult& result)
+{
+	if (result.bSuccess)
+	{
+		// Parse JSON result and push to Lua
+		if (!result.strData.empty())
+		{
+			DynamicJsonDocument doc(8192);
+			DeserializationError error = deserializeJson(doc, result.strData);
+			
+			if (!error)
+			{
+				// Convert JSON to Lua value
+				ConvertJsonToLuaValue(L, doc.as<JsonVariant>());
+			}
+			else
+			{
+				// JSON parsing failed - push nil and error message for consistent error handling
+				lua_pushnil(L);
+				std::stringstream errorMsg;
+				errorMsg << "Failed to parse JSON result: " << error.c_str();
+				lua_pushstring(L, errorMsg.str().c_str());
+			}
+		}
+		else
+		{
+			// No data, push nil
+			lua_pushnil(L);
+		}
+	}
+	else
+	{
+		// Call failed, push nil and error message
+		lua_pushnil(L);
+		lua_pushstring(L, result.strError.c_str());
 	}
 }
 

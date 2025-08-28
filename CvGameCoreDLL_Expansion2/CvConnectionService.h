@@ -190,6 +190,9 @@ private:
 	bool ValidateExternalCall(const char* functionName, ExternalCallResult& result);
 	void SetupExternalCallRequest(DynamicJsonDocument& request, const char* callId, const char* functionName, 
 	                              lua_State* L, int firstArg, bool isSync);
+	
+	// Shared post-processing function for external call results
+	void ProcessExternalCallResult(lua_State* L, const ExternalCallResult& result);
 };
 
 #endif // CIV5_CONNECTION_SERVICE_H
