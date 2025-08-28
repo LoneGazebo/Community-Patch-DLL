@@ -616,11 +616,11 @@ void CvConnectionService::RouteMessage(const std::string& messageJson)
 		const char* error = message["error"];
 		const char* data = nullptr;
 		
-		// Convert data to string if present
+		// Convert result to string if present (protocol uses "result" field)
 		std::string dataStr;
-		if (message.containsKey("data"))
+		if (message.containsKey("result"))
 		{
-			serializeJson(message["data"], dataStr);
+			serializeJson(message["result"], dataStr);
 			data = dataStr.c_str();
 		}
 		
@@ -1333,9 +1333,77 @@ std::string CvConnectionService::GenerateCallId()
 	return ss.str();
 }
 
-// Call an external function with callback (with Lua arguments from stack)
-void CvConnectionService::CallExternalFunction(const char* functionName, lua_State* L, int firstArg,
-                                               ExternalCallCallback callback, void* userData)
+// Callback data structure for Lua external calls
+struct LuaExternalCallbackData {
+	lua_State* L;
+	int callbackRef;
+};
+
+// Static callback function for external calls
+void HandleExternalCallCallback(const CvConnectionService::ExternalCallResult& result, void* userData)
+{
+	LuaExternalCallbackData* pData = (LuaExternalCallbackData*)userData;
+	if (pData && pData->L)
+	{
+		// Get the callback function from registry
+		lua_rawgeti(pData->L, LUA_REGISTRYINDEX, pData->callbackRef);
+		
+		// Push success status
+		lua_pushboolean(pData->L, result.bSuccess);
+		
+		// Push result or error
+		if (result.bSuccess)
+		{
+			// Parse JSON result and push to Lua
+			if (!result.strData.empty())
+			{
+				DynamicJsonDocument doc(8192);
+				DeserializationError error = deserializeJson(doc, result.strData);
+				
+				if (!error)
+				{
+					// Convert JSON to Lua value
+					CvConnectionService::GetInstance().ConvertJsonToLuaValue(pData->L, doc.as<JsonVariant>());
+				}
+				else
+				{
+					// Push nil on parse error
+					lua_pushnil(pData->L);
+				}
+			}
+			else
+			{
+				// No data, push nil
+				lua_pushnil(pData->L);
+			}
+		}
+		else
+		{
+			// Push error message
+			lua_pushstring(pData->L, result.strError.c_str());
+		}
+		
+		// Call the callback with 2 arguments (success, result/error)
+		if (lua_pcall(pData->L, 2, 0, 0) != 0)
+		{
+			// Log error but don't propagate
+			const char* error = lua_tostring(pData->L, -1);
+			std::stringstream logMsg;
+			logMsg << "Error in external call callback: " << (error ? error : "unknown");
+			CvConnectionService::GetInstance().Log(CvConnectionService::LOG_ERROR, logMsg.str().c_str());
+			lua_pop(pData->L, 1);  // Remove error from stack
+		}
+		
+		// Clean up the callback reference
+		luaL_unref(pData->L, LUA_REGISTRYINDEX, pData->callbackRef);
+		
+		// Clean up the callback data
+		delete pData;
+	}
+}
+
+// Call an external function (callback extracted from Lua state if present)
+void CvConnectionService::CallExternalFunction(const char* functionName, lua_State* L, int firstArg)
 {
 	ExternalCallResult result;
 	result.bSuccess = false;
@@ -1343,13 +1411,35 @@ void CvConnectionService::CallExternalFunction(const char* functionName, lua_Sta
 	// Validate Lua state
 	if (!L)
 	{
-		// Call the callback with an error immediately
-		if (callback)
-		{
-			result.strError = "Invalid Lua state provided";
-			callback(result, userData);
-		}
+		Log(LOG_ERROR, "CallExternalFunction - Invalid Lua state provided");
 		return;
+	}
+	
+	// Check if last argument is a callback function
+	int numArgs = lua_gettop(L);
+	bool hasCallback = false;
+	ExternalCallCallback callback = NULL;
+	void* userData = NULL;
+	
+	// Check if last argument is a callback function (for async calls)
+	if (numArgs >= firstArg && lua_isfunction(L, numArgs))
+	{
+		hasCallback = true;
+		
+		// Create callback data
+		LuaExternalCallbackData* pCallbackData = new LuaExternalCallbackData;
+		pCallbackData->L = L;
+		
+		// Create a reference to the callback function
+		lua_pushvalue(L, numArgs);  // Push callback to top
+		pCallbackData->callbackRef = luaL_ref(L, LUA_REGISTRYINDEX);
+		
+		// Set the callback function pointer
+		callback = HandleExternalCallCallback;
+		userData = pCallbackData;
+		
+		// Don't include callback in arguments count
+		numArgs--;
 	}
 	
 	// Validate the call

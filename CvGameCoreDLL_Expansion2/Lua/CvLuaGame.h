@@ -403,6 +403,9 @@ protected:
 
 	static int lRegisterFunction(lua_State* L);
 	static int lUnregisterFunction(lua_State* L);
+	
+	static int lCallExternal(lua_State* L);
+	static int lIsExternalRegistered(lua_State* L);
 
 	LUAAPIEXTN(CreateGreatWork, int, iGreatWorkType, iOwningPlayer, iEra, sCreator);
 	static int lGetGreatWorkTooltip(lua_State* L);

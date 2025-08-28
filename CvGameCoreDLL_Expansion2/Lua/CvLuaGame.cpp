@@ -23,6 +23,10 @@
 #include "CvLuaUnit.h"
 #include "CvLuaLeague.h"
 #include "../CvConnectionService.h"
+#include "../../../ThirdPartyLibs/ArduinoJSON.hpp"
+
+// Use ArduinoJson
+using namespace ArduinoJson;
 
 #include "../CvGame.h"
 #include "../CvGameCoreUtils.h"
@@ -510,6 +514,8 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 	//Connection Service
 	Method(RegisterFunction);
 	Method(UnregisterFunction);
+	Method(CallExternal);
+	Method(IsExternalRegistered);
 
 #if defined(MOD_BATTLE_ROYALE)
 	Method(DeleteCSV);
@@ -4285,4 +4291,31 @@ int CvLuaGame::lUnregisterFunction(lua_State* L)
 	CvConnectionService::GetInstance().UnregisterLuaFunction(functionName);
 	
 	return 0;  // No return values
+}
+
+//------------------------------------------------------------------------------
+int CvLuaGame::lCallExternal(lua_State* L)
+{
+	// Get external function name from first argument
+	const char* functionName = luaL_checkstring(L, 1);
+	
+	// Call the external function (args start at index 2)
+	CvConnectionService::GetInstance().CallExternalFunction(functionName, L, 2);
+	
+	return 0;
+}
+
+//------------------------------------------------------------------------------
+int CvLuaGame::lIsExternalRegistered(lua_State* L)
+{
+	// Get external function name from first argument
+	const char* functionName = luaL_checkstring(L, 1);
+	
+	// Check if the function is registered
+	bool bRegistered = CvConnectionService::GetInstance().IsExternalFunctionRegistered(functionName);
+	
+	// Return the result
+	lua_pushboolean(L, bRegistered);
+	
+	return 1;
 }

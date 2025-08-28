@@ -79,9 +79,11 @@ public:
 	// Callback type for external function calls
 	typedef void (*ExternalCallCallback)(const ExternalCallResult& result, void* userData);
 	
-	// Call an external function with callback (with Lua arguments from stack)
-	void CallExternalFunction(const char* functionName, lua_State* L, int firstArg,
-	                          ExternalCallCallback callback, void* userData);
+	// Call an external function (callback extracted from Lua state if present)
+	void CallExternalFunction(const char* functionName, lua_State* L, int firstArg);
+	
+	// Convert JSON to Lua value (made public for use in Lua callbacks)
+	void ConvertJsonToLuaValue(lua_State* L, const JsonVariant& value);
 
 private:
 	// Private constructor for singleton
@@ -114,7 +116,6 @@ private:
 	void HandleLuaCall(const char* functionName, const JsonArray& args, const char* id);
 	void ProcessLuaResult(lua_State* L, int executionResult, const char* id);
 	void ConvertLuaToJsonValue(lua_State* L, int index, JsonVariant dest);
-	void ConvertJsonToLuaValue(lua_State* L, const JsonVariant& value);
 	
 	// Shared function to convert Lua values to JsonVariant (single or array)
 	void ConvertLuaValuesToJsonVariant(lua_State* L, int firstIndex, int numValues, JsonVariant dest);
