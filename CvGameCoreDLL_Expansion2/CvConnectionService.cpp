@@ -70,10 +70,9 @@ bool CvConnectionService::Setup()
 
 	// Register game data with the Lua state
 	LuaSupport::RegisterScriptData(m_pLuaState);
-	Log(LOG_INFO, "ConnectionService::Setup() - Lua state initialized");
+	Log(LOG_INFO, "ConnectionService::Setup() - Lua state initialized, creating named pipe server");
 
 	// Create the Named Pipe server thread
-	Log(LOG_INFO, "ConnectionService::Setup() - Creating Named Pipe server thread");
 	m_hThread = CreateThread(
 		NULL,                   // default security attributes
 		0,                      // default stack size
@@ -255,8 +254,6 @@ DWORD WINAPI CvConnectionService::NamedPipeServerThread(LPVOID lpParam)
 	while (!pService->m_bShutdownRequested)
 	{
 		// Create the Named Pipe
-		pService->Log(LOG_INFO, "NamedPipeServerThread - Creating Named Pipe");
-		
 		HANDLE hPipe = CreateNamedPipeA(
 			pipeName,                  // pipe name
 			PIPE_ACCESS_DUPLEX,        // read/write access
@@ -1225,10 +1222,6 @@ void CvConnectionService::RegisterExternalFunction(const char* name, bool bAsync
 		Log(LOG_WARNING, "RegisterExternalFunction - Invalid function name");
 		return;
 	}
-
-	std::stringstream logMsg;
-	logMsg << "RegisterExternalFunction - Registering external function '" << name << "' (async: " << (bAsync ? "true" : "false") << ")";
-	Log(LOG_INFO, logMsg.str().c_str());
 
 	EnterCriticalSection(&m_csExternalFunctions);
 	
