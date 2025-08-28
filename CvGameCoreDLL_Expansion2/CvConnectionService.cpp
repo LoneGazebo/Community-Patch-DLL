@@ -1340,7 +1340,7 @@ struct LuaExternalCallbackData {
 };
 
 // Static callback function for external calls
-void HandleExternalCallCallback(const CvConnectionService::ExternalCallResult& result, void* userData)
+void CvConnectionService::HandleExternalCallCallback(const ExternalCallResult& result, void* userData)
 {
 	LuaExternalCallbackData* pData = (LuaExternalCallbackData*)userData;
 	if (pData && pData->L)

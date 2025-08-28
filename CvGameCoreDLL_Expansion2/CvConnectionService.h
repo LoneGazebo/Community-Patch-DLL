@@ -193,6 +193,9 @@ private:
 	
 	// Shared post-processing function for external call results
 	void ProcessExternalCallResult(lua_State* L, const ExternalCallResult& result);
+	
+	// Static callback handler for external function calls
+	static void HandleExternalCallCallback(const ExternalCallResult& result, void* userData);
 };
 
 #endif // CIV5_CONNECTION_SERVICE_H
