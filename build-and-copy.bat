@@ -10,7 +10,27 @@ python build_vp_clang_sdk.py %*
 REM Check if the build succeeded
 if %ERRORLEVEL% neq 0 (
     echo.
-    echo Build failed with error code %ERRORLEVEL%
+    echo ========================================
+    echo BUILD FAILED with error code %ERRORLEVEL%
+    echo ========================================
+    echo.
+    echo Check the build log at: clang-output\Debug\build.log
+    echo.
+    echo Common compilation errors to look for:
+    echo - Syntax errors in C++ code
+    echo - Missing include files
+    echo - Access to private/protected members
+    echo - Type mismatches
+    echo.
+    echo Showing compilation errors from build log:
+    echo ----------------------------------------
+    powershell -Command "if (Test-Path 'clang-output\Debug\build.log') { Select-String -Path 'clang-output\Debug\build.log' -Pattern 'error:' | Select-Object -Last 10 | ForEach-Object { $_.Line } }"
+    echo.
+    echo Showing last few lines of build log:
+    echo ----------------------------------------
+    powershell -Command "if (Test-Path 'clang-output\Debug\build.log') { Get-Content 'clang-output\Debug\build.log' | Select-Object -Last 15 }"
+    echo ----------------------------------------
+    echo.
     exit /b %ERRORLEVEL%
 )
 
