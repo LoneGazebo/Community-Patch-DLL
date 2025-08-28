@@ -1458,6 +1458,9 @@ void CvConnectionService::CallExternalFunction(const char* functionName, lua_Sta
 		
 		while (!resultFound && (GetTickCount() - startTime) < maxWaitTime)
 		{
+			ProcessMessages(); // Process any incoming messages
+			Sleep(10); // Wait 10ms before checking again
+
 			EnterCriticalSection(&m_csPendingCalls);
 			std::map<std::string, ExternalCallResult>::iterator resultIt = m_syncCallResults.find(callId);
 			if (resultIt != m_syncCallResults.end())
@@ -1467,11 +1470,6 @@ void CvConnectionService::CallExternalFunction(const char* functionName, lua_Sta
 				resultFound = true;
 			}
 			LeaveCriticalSection(&m_csPendingCalls);
-			
-			if (!resultFound)
-			{
-				Sleep(10); // Wait 10ms before checking again
-			}
 		}
 		
 		// Push result to Lua stack
