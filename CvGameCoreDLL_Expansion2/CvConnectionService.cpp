@@ -1596,12 +1596,7 @@ void CvConnectionService::SetupExternalCallRequest(DynamicJsonDocument& request,
 		int numArgs = lua_gettop(L) - firstArg + 1;
 		
 		// Use the shared conversion function to convert Lua values directly to JsonVariant
-		ConvertLuaValuesToJsonVariant(L, firstArg, numArgs, request["args"]);
-	}
-	else
-	{
-		// No Lua state provided, set args as null
-		request["args"] = nullptr;
+		ConvertLuaValuesToJsonVariant(L, firstArg, numArgs, request["args"].to<JsonVariant>());
 	}
 }
 
