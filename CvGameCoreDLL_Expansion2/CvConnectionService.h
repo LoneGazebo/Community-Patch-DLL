@@ -67,6 +67,21 @@ public:
 	void RegisterExternalFunction(const char* name, bool bAsync);
 	void UnregisterExternalFunction(const char* name);
 	bool IsExternalFunctionRegistered(const char* name) const;
+	
+	// External function call result structure
+	struct ExternalCallResult
+	{
+		bool bSuccess;           // Whether the call succeeded
+		std::string strError;    // Error message if failed
+		std::string strData;     // JSON response data as string
+	};
+	
+	// Callback type for external function calls
+	typedef void (*ExternalCallCallback)(const ExternalCallResult& result, void* userData);
+	
+	// Call an external function with callback (with Lua arguments from stack)
+	void CallExternalFunction(const char* functionName, lua_State* L, int firstArg,
+	                          ExternalCallCallback callback, void* userData);
 
 private:
 	// Private constructor for singleton
@@ -101,6 +116,9 @@ private:
 	void ConvertLuaToJsonValue(lua_State* L, int index, JsonVariant dest);
 	void ConvertJsonToLuaValue(lua_State* L, const JsonVariant& value);
 	
+	// Shared function to convert Lua values to JsonVariant (single or array)
+	void ConvertLuaValuesToJsonVariant(lua_State* L, int firstIndex, int numValues, JsonVariant dest);
+	
 	// Structure to store registered Lua functions
 	struct LuaFunctionInfo {
 		lua_State* pLuaState;      // The Lua state that registered this function
@@ -113,6 +131,15 @@ private:
 		std::string strName;       // Function name
 		bool bAsync;               // Whether the function is async
 		bool bRegistered;          // Registration status
+	};
+	
+	// Structure to store pending async external calls
+	struct PendingExternalCall {
+		std::string strCallId;              // Unique ID for this call
+		std::string strFunctionName;        // Function being called
+		ExternalCallCallback pCallback;     // Callback function
+		void* pUserData;                    // User data for callback
+		DWORD dwTimestamp;                   // When the call was made
 	};
 	
 	// Internal state
@@ -141,6 +168,27 @@ private:
 	
 	// Map of external function name to function info
 	std::map<std::string, ExternalFunctionInfo> m_externalFunctions;
+	
+	// Map of pending external calls (call ID to pending call info)
+	std::map<std::string, PendingExternalCall> m_pendingExternalCalls;
+	CRITICAL_SECTION m_csPendingCalls;
+	
+	// Map to store results for synchronous calls (call ID to result)
+	std::map<std::string, ExternalCallResult> m_syncCallResults;
+	
+	// Counter for generating unique call IDs
+	unsigned int m_uiNextCallId;
+	
+	// Helper to generate unique call ID
+	std::string GenerateCallId();
+	
+	// Helper to handle external call response
+	void HandleExternalCallResponse(const char* callId, bool bSuccess, const char* error, const char* data);
+	
+	// Helper functions for external call validation and setup
+	bool ValidateExternalCall(const char* functionName, ExternalCallResult& result);
+	void SetupExternalCallRequest(DynamicJsonDocument& request, const char* callId, const char* functionName, 
+	                              lua_State* L, int firstArg, bool isSync);
 };
 
 #endif // CIV5_CONNECTION_SERVICE_H

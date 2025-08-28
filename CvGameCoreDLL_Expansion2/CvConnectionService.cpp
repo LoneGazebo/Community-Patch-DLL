@@ -30,6 +30,7 @@ CvConnectionService::CvConnectionService()
 	, m_dwThreadId(0)
 	, m_bClientConnected(false)
 	, m_bShutdownRequested(false)
+	, m_uiNextCallId(1)
 {
 }
 
@@ -58,6 +59,7 @@ bool CvConnectionService::Setup()
 	InitializeCriticalSection(&m_csOutgoing);
 	InitializeCriticalSection(&m_csFunctions);
 	InitializeCriticalSection(&m_csExternalFunctions);
+	InitializeCriticalSection(&m_csPendingCalls);
 
 	// Reset shutdown flag
 	m_bShutdownRequested = false;
@@ -154,12 +156,19 @@ void CvConnectionService::Shutdown()
 
 	// Clear all registered Lua functions
 	ClearLuaFunctions();
+	
+	// Clear any pending external calls
+	EnterCriticalSection(&m_csPendingCalls);
+	m_pendingExternalCalls.clear();
+	m_syncCallResults.clear();
+	LeaveCriticalSection(&m_csPendingCalls);
 
 	// Clean up critical sections
 	DeleteCriticalSection(&m_csIncoming);
 	DeleteCriticalSection(&m_csOutgoing);
 	DeleteCriticalSection(&m_csFunctions);
 	DeleteCriticalSection(&m_csExternalFunctions);
+	DeleteCriticalSection(&m_csPendingCalls);
 
 	// Clear any remaining messages in the queues
 	while (!m_incomingQueue.empty())
@@ -599,6 +608,25 @@ void CvConnectionService::RouteMessage(const std::string& messageJson)
 		// Unregister the external function
 		if (functionName) UnregisterExternalFunction(functionName);
 	}
+	else if (strcmp(messageType, "external_response") == 0)
+	{
+		// Extract parameters for external call response
+		const char* callId = message["id"];
+		bool bSuccess = message["success"] | false;
+		const char* error = message["error"];
+		const char* data = nullptr;
+		
+		// Convert data to string if present
+		std::string dataStr;
+		if (message.containsKey("data"))
+		{
+			serializeJson(message["data"], dataStr);
+			data = dataStr.c_str();
+		}
+		
+		// Handle the response
+		if (callId) HandleExternalCallResponse(callId, bSuccess, error, data);
+	}
 	else
 	{
 		// Otherwise, create echo response with original message
@@ -727,21 +755,8 @@ void CvConnectionService::ProcessLuaResult(lua_State* L, int executionResult, co
 		
 		if (numResults > 0)
 		{
-			// Create a nested JSON value for the result
-			if (numResults == 1)
-			{
-				// Single return value - convert directly
-				ConvertLuaToJsonValue(L, -1, response["result"].to<JsonVariant>());
-			}
-			else
-			{
-				// Multiple return values - create an array
-				JsonArray resultArray = response["result"].to<JsonArray>();
-				for (int i = numResults; i >= 1; i--)
-				{
-					ConvertLuaToJsonValue(L, -i, resultArray.add());
-				}
-			}
+			// Use the shared conversion function (starting from stack bottom)
+			ConvertLuaValuesToJsonVariant(L, 1, numResults, response["result"].to<JsonVariant>());
 			
 			// Pop all return values from the stack
 			lua_pop(L, numResults);
@@ -773,6 +788,29 @@ void CvConnectionService::ProcessLuaResult(lua_State* L, int executionResult, co
 	SendMessage(response);
 }
 
+// Shared function to convert Lua values to JsonVariant (single or array)
+void CvConnectionService::ConvertLuaValuesToJsonVariant(lua_State* L, int firstIndex, int numValues, JsonVariant dest)
+{
+	if (numValues <= 0)
+	{
+		// No values - set to null
+		dest.set(nullptr);
+	}
+	else if (numValues == 1)
+	{
+		// Single value - convert directly
+		ConvertLuaToJsonValue(L, firstIndex, dest);
+	}
+	else
+	{
+		// Multiple values - create an array
+		JsonArray resultArray = dest.to<JsonArray>();
+		for (int i = 0; i < numValues; i++)
+		{
+			ConvertLuaToJsonValue(L, firstIndex + i, resultArray.add());
+		}
+	}
+}
 
 // Convert a Lua value at the given stack index to a JsonVariant
 void CvConnectionService::ConvertLuaToJsonValue(lua_State* L, int index, JsonVariant dest)
@@ -1284,5 +1322,184 @@ bool CvConnectionService::IsExternalFunctionRegistered(const char* name) const
 	LeaveCriticalSection(const_cast<CRITICAL_SECTION*>(&m_csExternalFunctions));
 	
 	return bRegistered;
+}
+
+// Generate a unique call ID for async external function calls
+std::string CvConnectionService::GenerateCallId()
+{
+	// Use a combination of thread ID, tick count, and counter to ensure uniqueness
+	std::stringstream ss;
+	ss << "call_" << GetCurrentThreadId() << "_" << GetTickCount() << "_" << m_uiNextCallId++;
+	return ss.str();
+}
+
+// Call an external function with callback (with Lua arguments from stack)
+void CvConnectionService::CallExternalFunction(const char* functionName, lua_State* L, int firstArg,
+                                               ExternalCallCallback callback, void* userData)
+{
+	ExternalCallResult result;
+	result.bSuccess = false;
+	
+	// Validate Lua state
+	if (!L)
+	{
+		// Call the callback with an error immediately
+		if (callback)
+		{
+			result.strError = "Invalid Lua state provided";
+			callback(result, userData);
+		}
+		return;
+	}
+	
+	// Validate the call
+	if (!ValidateExternalCall(functionName, result))
+	{
+		// Call the callback with an error immediately
+		if (callback)
+		{
+			callback(result, userData);
+		}
+		return;
+	}
+	
+	// Generate unique call ID
+	std::string callId = GenerateCallId();
+	
+	// Create a pending call entry
+	PendingExternalCall pendingCall;
+	pendingCall.strCallId = callId;
+	pendingCall.strFunctionName = functionName;
+	pendingCall.pCallback = callback;
+	pendingCall.pUserData = userData;
+	pendingCall.dwTimestamp = GetTickCount();
+	
+	// Add to pending calls map
+	EnterCriticalSection(&m_csPendingCalls);
+	m_pendingExternalCalls[callId] = pendingCall;
+	LeaveCriticalSection(&m_csPendingCalls);
+	
+	// Create the call request message
+	DynamicJsonDocument request(8192);
+	SetupExternalCallRequest(request, callId.c_str(), functionName, L, firstArg, false);
+	
+	// Send the request
+	SendMessage(request);
+	
+	std::stringstream logMsg;
+	logMsg << "CallExternalFunction - Sent request for '" << functionName << "' with ID " << callId;
+	Log(LOG_DEBUG, logMsg.str().c_str());
+}
+
+// Handle external call response from the Bridge Service
+void CvConnectionService::HandleExternalCallResponse(const char* callId, bool bSuccess, const char* error, const char* data)
+{
+	if (!callId)
+	{
+		Log(LOG_ERROR, "HandleExternalCallResponse - Invalid call ID");
+		return;
+	}
+	
+	// Look up the pending call
+	EnterCriticalSection(&m_csPendingCalls);
+	
+	std::map<std::string, PendingExternalCall>::iterator it = m_pendingExternalCalls.find(callId);
+	if (it == m_pendingExternalCalls.end())
+	{
+		LeaveCriticalSection(&m_csPendingCalls);
+		
+		std::stringstream ss;
+		ss << "HandleExternalCallResponse - No pending call found for ID: " << callId;
+		Log(LOG_WARNING, ss.str().c_str());
+		return;
+	}
+	
+	// Get the pending call info
+	PendingExternalCall pendingCall = it->second;
+	
+	// Prepare the result
+	ExternalCallResult result;
+	result.bSuccess = bSuccess;
+	result.strError = error ? error : "";
+	result.strData = data ? data : "";
+	
+	// Log the response
+	std::stringstream logMsg;
+	logMsg << "HandleExternalCallResponse - Received response for '" << pendingCall.strFunctionName 
+	       << "' (ID: " << callId << ", Success: " << (bSuccess ? "true" : "false") << ")";
+	Log(LOG_DEBUG, logMsg.str().c_str());
+	
+	// Check if this is a sync or async call
+	if (pendingCall.pCallback)
+	{
+		// Async call - remove from pending and invoke callback
+		m_pendingExternalCalls.erase(it);
+		LeaveCriticalSection(&m_csPendingCalls);
+		
+		// Call the callback outside of critical section
+		pendingCall.pCallback(result, pendingCall.pUserData);
+	}
+	else
+	{
+		// Sync call - store the result for the waiting thread
+		m_syncCallResults[callId] = result;
+		m_pendingExternalCalls.erase(it);
+		LeaveCriticalSection(&m_csPendingCalls);
+	}
+}
+
+// Helper function to validate external call parameters and state
+bool CvConnectionService::ValidateExternalCall(const char* functionName, ExternalCallResult& result)
+{
+	// Check if service is initialized and connected
+	if (!m_bInitialized || !m_bClientConnected)
+	{
+		result.bSuccess = false;
+		result.strError = "Connection service not initialized or not connected";
+		Log(LOG_WARNING, "ValidateExternalCall - Service not connected");
+		return false;
+	}
+	
+	// Check if function is registered
+	EnterCriticalSection(&m_csExternalFunctions);
+	std::map<std::string, ExternalFunctionInfo>::iterator it = m_externalFunctions.find(functionName);
+	bool bRegistered = (it != m_externalFunctions.end() && it->second.bRegistered);
+	LeaveCriticalSection(&m_csExternalFunctions);
+	
+	if (!bRegistered)
+	{
+		std::stringstream ss;
+		ss << "External function '" << functionName << "' is not registered";
+		result.bSuccess = false;
+		result.strError = ss.str();
+		Log(LOG_WARNING, result.strError.c_str());
+		return false;
+	}
+	
+	return true;
+}
+
+// Helper function to setup external call request JSON
+void CvConnectionService::SetupExternalCallRequest(DynamicJsonDocument& request, const char* callId, const char* functionName, 
+                                                   lua_State* L, int firstArg, bool isSync)
+{
+	request["type"] = "external_call";
+	request["id"] = callId;
+	request["function"] = functionName;
+	request["sync"] = isSync;
+	
+	// Convert Lua arguments directly to JSON without intermediate string serialization
+	if (L)
+	{
+		int numArgs = lua_gettop(L) - firstArg + 1;
+		
+		// Use the shared conversion function to convert Lua values directly to JsonVariant
+		ConvertLuaValuesToJsonVariant(L, firstArg, numArgs, request["args"]);
+	}
+	else
+	{
+		// No Lua state provided, set args as null
+		request["args"] = nullptr;
+	}
 }
 
