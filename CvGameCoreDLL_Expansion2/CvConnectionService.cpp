@@ -468,11 +468,6 @@ void CvConnectionService::QueueOutgoingMessage(const std::string& messageJson)
 	// Add the message to the queue
 	m_outgoingQueue.push(messageJson);
 	
-	// Log the queuing action
-	std::stringstream ss;
-	ss << "QueueOutgoingMessage - " << messageJson;
-	Log(LOG_DEBUG, ss.str().c_str());
-	
 	// Release the critical section
 	LeaveCriticalSection(&m_csOutgoing);
 }
@@ -1275,11 +1270,6 @@ void CvConnectionService::UnregisterExternalFunction(const char* name)
 		Log(LOG_WARNING, "UnregisterExternalFunction - Invalid function name");
 		return;
 	}
-
-	std::stringstream logMsg;
-	logMsg << "UnregisterExternalFunction - Unregistering external function '" << name << "'";
-	Log(LOG_INFO, logMsg.str().c_str());
-
 	EnterCriticalSection(&m_csExternalFunctions);
 	
 	std::map<std::string, ExternalFunctionInfo>::iterator it = m_externalFunctions.find(name);
