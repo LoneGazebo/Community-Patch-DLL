@@ -605,10 +605,16 @@ void CvConnectionService::RouteMessage(const std::string& messageJson)
 		// Extract parameters for external call response
 		const char* callId = message["id"];
 		bool bSuccess = message["success"] | false;
-		const char* error = message["error"];
-		const char* data = nullptr;
+		
+		// Parse error code from error object if present
+		const char* error = nullptr;
+		if (message.containsKey("error") && message["error"].containsKey("code"))
+		{
+			error = message["error"]["code"];
+		}
 		
 		// Convert result to string if present (protocol uses "result" field)
+		const char* data = nullptr;
 		std::string dataStr;
 		if (message.containsKey("result"))
 		{
@@ -1331,9 +1337,6 @@ void CvConnectionService::HandleExternalCallCallback(const ExternalCallResult& r
 		// Get the callback function from registry
 		lua_rawgeti(pData->L, LUA_REGISTRYINDEX, pData->callbackRef);
 		
-		// Push success status
-		lua_pushboolean(pData->L, result.bSuccess);
-		
 		// Use shared post-processing
 		CvConnectionService::GetInstance().ProcessExternalCallResult(pData->L, result);
 		
@@ -1505,7 +1508,7 @@ int CvConnectionService::CallExternalFunction(lua_State* L)
 		{
 			// Timeout occurred
 			lua_pushnil(L);
-			lua_pushstring(L, "External function call timed out");
+			lua_pushstring(L, "CALL_TIMEOUT");
 			
 			// Clean up the pending call since it timed out
 			EnterCriticalSection(&m_csPendingCalls);
