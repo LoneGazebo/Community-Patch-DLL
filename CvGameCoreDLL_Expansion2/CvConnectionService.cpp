@@ -1526,6 +1526,15 @@ int CvConnectionService::CallExternalFunction(lua_State* L)
 			return 2;  // Pushed nil and error message
 		}
 	}
+	else
+	{
+		// Async call - callback will handle the result later
+		// IMPORTANT: We must clean up the Lua stack since we're returning 0
+		// The original arguments are still on the stack and need to be removed
+		// We have: function_name, arg1, arg2, ..., argN (callback was already removed from count)
+		// Total items to pop: numArgs (which includes function name but excludes callback)
+		lua_pop(L, numArgs);
+	}
 	
 	// Async call - no values pushed (callback will handle the result)
 	return 0;
