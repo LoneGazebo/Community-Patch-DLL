@@ -761,7 +761,7 @@ void CvConnectionService::ProcessLuaResult(lua_State* L, int executionResult, co
 		}
 
 		std::stringstream logMsg;
-		logMsg << "ProcessLuaResult - Sent success response for id: " << id;
+		logMsg << "ProcessLuaResult - Sent success response for id: " << id << ", numResults: " << numResults;
 		Log(LOG_DEBUG, logMsg.str().c_str());
 	}
 	else
@@ -1566,7 +1566,7 @@ void CvConnectionService::HandleExternalCallResponse(const char* callId, bool bS
 	// Log the response
 	std::stringstream logMsg;
 	logMsg << "HandleExternalCallResponse - Received response for '" << pendingCall.strFunctionName 
-	       << "' (ID: " << callId << ", Success: " << (bSuccess ? "true" : "false") << ")";
+	       << "' (ID: " << callId << ", Success: " << (bSuccess ? "true" : "false") << ", Error: " << result.strError << ")";
 	Log(LOG_DEBUG, logMsg.str().c_str());
 	
 	// Check if this is a sync or async call
@@ -1595,7 +1595,7 @@ bool CvConnectionService::ValidateExternalCall(const char* functionName, Externa
 	if (!m_bInitialized || !m_bClientConnected)
 	{
 		result.bSuccess = false;
-		result.strError = "Connection service not initialized or not connected";
+		result.strError = "DLL_DISCONNECTED";
 		Log(LOG_WARNING, "ValidateExternalCall - Service not connected");
 		return false;
 	}
@@ -1609,9 +1609,9 @@ bool CvConnectionService::ValidateExternalCall(const char* functionName, Externa
 	if (!bRegistered)
 	{
 		std::stringstream ss;
-		ss << "External function '" << functionName << "' is not registered";
 		result.bSuccess = false;
-		result.strError = ss.str();
+		result.strError = "INVALID_FUNCTION";
+		ss << "External function '" << functionName << "' is not registered";
 		Log(LOG_WARNING, result.strError.c_str());
 		return false;
 	}
