@@ -1495,14 +1495,11 @@ int CvConnectionService::CallExternalFunction(lua_State* L)
 		// Push result to Lua stack
 		if (resultFound)
 		{
-			// Store initial stack size to count pushed values
-			int initialTop = lua_gettop(L);
-			
-			// Use shared post-processing for consistent error handling
+			// Use shared post-processing which always pushes 2 values (result, error)
 			ProcessExternalCallResult(L, syncResult);
 			
-			// Return the actual number of values pushed
-			return lua_gettop(L) - initialTop;
+			// Always return 2 (result and error/nil)
+			return 2;
 		}
 		else
 		{
@@ -1629,6 +1626,9 @@ bool CvConnectionService::ValidateExternalCall(const char* functionName, Externa
 }
 
 // Shared post-processing function for external call results
+// IMPORTANT: This function ALWAYS pushes exactly 2 values to the Lua stack:
+// 1. Result value (or nil on error)
+// 2. Error message (or nil on success)
 void CvConnectionService::ProcessExternalCallResult(lua_State* L, const ExternalCallResult& result)
 {
 	if (result.bSuccess)
@@ -1641,22 +1641,24 @@ void CvConnectionService::ProcessExternalCallResult(lua_State* L, const External
 			
 			if (!error)
 			{
-				// Convert JSON to Lua value
+				// Convert JSON to Lua value - push result and nil (no error)
 				ConvertJsonToLuaValue(L, doc.as<JsonVariant>());
+				lua_pushnil(L);  // No error
 			}
 			else
 			{
-				// JSON parsing failed - push nil and error message for consistent error handling
+				// JSON parsing failed - push nil and error message
 				lua_pushnil(L);
+				lua_pushstring(L, "SERIALIZATION_ERROR");
 				std::stringstream errorMsg;
 				errorMsg << "Failed to parse JSON result: " << error.c_str();
-				lua_pushstring(L, errorMsg.str().c_str());
 			}
 		}
 		else
 		{
-			// No data, push nil
+			// No data, push nil result and nil error
 			lua_pushnil(L);
+			lua_pushnil(L);  // No error
 		}
 	}
 	else
