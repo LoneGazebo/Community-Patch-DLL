@@ -248,8 +248,12 @@ DWORD WINAPI CvConnectionService::NamedPipeServerThread(LPVOID lpParam)
 {
 	CvConnectionService* pService = static_cast<CvConnectionService*>(lpParam);
 	
-	// Define the pipe name (matching what Bridge Service expects)
-	const char* pipeName = "\\\\.\\pipe\\tmp-app.vox-deorum-bridge";
+	// Get pipe name from environment variable, default to "vox-deorum-bridge"
+	char pipeNameBuffer[256];
+	const char* envPipeName = getenv("VOX_DEORUM_PIPE_NAME");
+	const char* basePipeName = envPipeName ? envPipeName : "vox-deorum-bridge";
+	sprintf_s(pipeNameBuffer, sizeof(pipeNameBuffer), "\\\\.\\pipe\\tmp-app.%s", basePipeName);
+	const char* pipeName = pipeNameBuffer;
 	
 	while (!pService->m_bShutdownRequested)
 	{
