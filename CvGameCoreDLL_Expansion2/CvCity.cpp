@@ -30164,6 +30164,15 @@ bool CvCity::CreateProject(ProjectTypes eProjectType)
 				GET_PLAYER(getOwner()).changeUnitCombatProductionModifiers((UnitCombatTypes)iI, iModifier);
 			}
 		}
+		
+		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+		{
+			int iModifier = pProject->GetYieldFromConquestAllCities(iI);
+			if (iModifier != 0)
+			{
+				GET_PLAYER(getOwner()).changeYieldFromConquestAllCities((YieldTypes)iI, iModifier);
+			}
+		}
 	}
 	if (GetWLTKDFromProject(eProjectType) > 0)
 	{

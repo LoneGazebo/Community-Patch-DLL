@@ -2210,6 +2210,8 @@ public:
 
 	int getUnitCombatProductionModifiers(UnitCombatTypes eIndex) const;
 	void changeUnitCombatProductionModifiers(UnitCombatTypes eIndex, int iChange);
+	int getYieldFromConquestAllCities(YieldTypes eIndex) const;
+	void changeYieldFromConquestAllCities(YieldTypes eIndex, int iChange);
 	int getUnitCombatFreeExperiences(UnitCombatTypes eIndex) const;
 	void changeUnitCombatFreeExperiences(UnitCombatTypes eIndex, int iChange);
 
@@ -3600,6 +3602,7 @@ protected:
 	std::vector<int> m_paiFreeBuildingCount;
 	std::vector<int> m_paiFreePromotionCount;
 	std::vector<int> m_paiUnitCombatProductionModifiers;
+	std::vector<int> m_paiYieldFromConquestAllCities;
 	std::vector<int> m_paiUnitCombatFreeExperiences;
 	std::vector<int> m_paiUnitClassCount;
 	std::vector<int> m_paiUnitClassMaking;
@@ -4385,6 +4388,7 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_paiBuildingChainSteps)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiFreeBuildingCount)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiFreePromotionCount)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiUnitCombatProductionModifiers)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_paiYieldFromConquestAllCities)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiUnitCombatFreeExperiences)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiUnitClassCount)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiUnitClassMaking)
