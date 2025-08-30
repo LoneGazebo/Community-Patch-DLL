@@ -9144,7 +9144,7 @@ bool CvCity::canCreate(ProjectTypes eProject, bool bContinue, bool bTestVisible,
 		}
 	}
 
-	if (!(GET_PLAYER(getOwner()).canCreate(eProject, bContinue, bTestVisible)))
+	if (!(GET_PLAYER(getOwner()).canCreate(eProject, bContinue, bTestVisible, toolTipSink)))
 	{
 		return false;
 	}
@@ -20445,7 +20445,10 @@ int CvCity::GetCitySizeModifier() const
 int CvCity::GetEmpireSizeModifier() const
 {
 	// x% per city, excluding puppets and the capital
-	int iNumCitiesMod = (GET_PLAYER(getOwner()).getNumCities() - GET_PLAYER(getOwner()).GetNumPuppetCities() - 1) * /*500*/ GD_INT_GET(EMPIRE_SIZE_NEED_MODIFIER_CITIES) / 100;
+	int iEmpireSizeModPerCity = /*500*/ GD_INT_GET(EMPIRE_SIZE_NEED_MODIFIER_CITIES);
+	iEmpireSizeModPerCity *= (100 + GET_PLAYER(getOwner()).GetEmpireSizeModifierPerCityMod());
+	iEmpireSizeModPerCity /= 100;
+	int iNumCitiesMod = (GET_PLAYER(getOwner()).getNumCities() - GET_PLAYER(getOwner()).GetNumPuppetCities() - 1) * iEmpireSizeModPerCity / 100;
 	if (iNumCitiesMod < 0)
 		iNumCitiesMod = 0;
 
@@ -30014,6 +30017,16 @@ bool CvCity::CreateProject(ProjectTypes eProjectType)
 		ChangeCultureMedianModifier(pProject->GetCultureMedianModifier());
 		ChangeReligiousUnrestModifier(pProject->GetReligiousUnrestModifier());
 		ChangeSpySecurityModifier(pProject->GetSpySecurityModifier());
+		GET_PLAYER(getOwner()).ChangeEmpireSizeModifierPerCityMod(pProject->GetEmpireSizeModifierPerCityMod());
+		
+		for (int iI = 0; iI < GC.getNumUnitCombatClassInfos(); iI++)
+		{
+			int iModifier = pProject->GetUnitCombatProductionModifiersGlobal(iI);
+			if (iModifier != 0)
+			{
+				GET_PLAYER(getOwner()).changeUnitCombatProductionModifiers((UnitCombatTypes)iI, iModifier);
+			}
+		}
 	}
 	if (GetWLTKDFromProject(eProjectType) > 0)
 	{

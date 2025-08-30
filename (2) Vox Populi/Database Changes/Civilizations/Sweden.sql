@@ -5,7 +5,9 @@ UPDATE Traits
 SET
 	GreatPersonGiftInfluence = 0,
 	DOFGreatPersonModifier = 0,
-	GreatGeneralExtraBonus = 15
+	GreatGeneralExtraBonus = 15,
+	XPBonusFromGreatPersonBirth = 2,
+	UnitHealFromGreatPersonBirth = 10
 WHERE Type = 'TRAIT_DIPLOMACY_GREAT_PEOPLE';
 
 INSERT INTO Trait_FreePromotionUnitCombats
@@ -19,12 +21,6 @@ INSERT INTO Trait_FreePromotionUnitCombats
 	(TraitType, UnitCombatType, PromotionType)
 VALUES
 	('TRAIT_DIPLOMACY_GREAT_PEOPLE', 'UNITCOMBAT_SIEGE', 'PROMOTION_MOBILITY');
-
-INSERT INTO Trait_BonusFromGPBirth
-	(TraitType, GreatPersonType, Heal, Experience)
-SELECT
-	'TRAIT_DIPLOMACY_GREAT_PEOPLE', Type, 10, 2
-FROM GreatPersons;
 
 ----------------------------------------------------------
 -- Unique Unit: Carolean (Fusilier)

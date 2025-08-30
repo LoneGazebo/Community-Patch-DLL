@@ -30,3 +30,6 @@ ALTER TABLE Projects ADD EmpireSizeModifierPerCityMod integer DEFAULT 0;
 
 -- The civilization that can exclusively work on this
 ALTER TABLE Projects ADD CivilizationType text REFERENCES Civilizations (Type);
+
+-- Per-player instance cap (analogous to BuildingClasses.MaxPlayerInstances)
+ALTER TABLE Projects ADD MaxPlayerInstances integer DEFAULT -1;

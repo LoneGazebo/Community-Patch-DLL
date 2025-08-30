@@ -8861,6 +8861,10 @@ UnitTypes CvGame::GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bInclude
 			if (pkUnitInfo->IsInvalidMinorCivGift())
 				continue;
 			
+			// no units that can found cities
+			if (pkUnitInfo->IsFound())
+				continue;
+			
 			// Compare to the units of other civs, of the same unitclass
 			UnitClassTypes eLoopUnitClass = (UnitClassTypes) pkUnitInfo->GetUnitClassType();
 			CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eLoopUnitClass);

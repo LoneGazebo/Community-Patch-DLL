@@ -158,6 +158,11 @@ function PopulateUniqueBonuses( controlTable, civ, _, extendedTooltip, noTooltip
 			AdjustArtOnUniqueImprovementButton( button, buttonFrame, row, textureSize, extendedTooltip, noTooltip);
  			button, buttonFrame = coroutine.yield(row.Description);
 		end
+		
+		for row in DB.Query([[SELECT ID, Description, PortraitIndex, IconAtlas from Projects where CivilizationType = ?]], civ.Type) do
+			AdjustArtOnUniqueProjectButton( button, buttonFrame, row, textureSize, extendedTooltip, noTooltip);
+ 			button, buttonFrame = coroutine.yield(row.Description);
+		end
 	end
 	
 
