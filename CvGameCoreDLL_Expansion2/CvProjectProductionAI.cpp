@@ -376,6 +376,15 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 				iTempWeight += iTempBonus;
 		}
 	}
+	
+	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+	{
+		int iProjMod = pkProjectInfo->GetYieldFromConquestAllCities(iI);
+		if (iProjMod > 0)
+		{
+			iTempWeight += iProjMod * GET_PLAYER(m_pCity->getOwner()).getNumCities() * (GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->IsWarmonger() ? 3 : 1);
+		}
+	}
 
 	if (bGoodforHappiness && !GET_PLAYER(m_pCity->getOwner()).IsEmpireUnhappy())
 		iTempWeight /= 50;

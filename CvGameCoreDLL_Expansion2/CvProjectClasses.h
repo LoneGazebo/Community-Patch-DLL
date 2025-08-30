@@ -81,6 +81,7 @@ public:
 	int GetVictoryMinThreshold(int i) const;
 	int GetProjectsNeeded(int i) const;
 	int GetUnitCombatProductionModifiersGlobal(int i) const;
+    int GetYieldFromConquestAllCities(int i) const;
 
 protected:
 	int m_iVictoryPrereq;
@@ -135,6 +136,7 @@ protected:
 	int* m_piProjectsNeeded;
 	int* m_piFlavorValue;
 	int* m_piUnitCombatProductionModifiersGlobal;
+	int* m_piYieldFromConquestAllCities;
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

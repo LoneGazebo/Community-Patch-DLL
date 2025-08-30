@@ -418,6 +418,7 @@ CvPlayer::CvPlayer() :
 , m_paiFreeBuildingCount()
 , m_paiFreePromotionCount()
 , m_paiUnitCombatProductionModifiers()
+, m_paiYieldFromConquestAllCities()
 , m_paiUnitCombatFreeExperiences()
 , m_paiUnitClassCount()
 , m_paiUnitClassMaking()
@@ -1120,6 +1121,7 @@ void CvPlayer::uninit()
 	m_paiBuildingChainSteps.clear();
 	m_paiFreePromotionCount.clear();
 	m_paiUnitCombatProductionModifiers.clear();
+	m_paiYieldFromConquestAllCities.clear();
 	m_paiUnitCombatFreeExperiences.clear();
 	m_paiUnitClassCount.clear();
 	m_paiUnitClassMaking.clear();
@@ -2059,6 +2061,9 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 		m_paiUnitCombatProductionModifiers.clear();
 		m_paiUnitCombatProductionModifiers.resize(GC.getNumUnitCombatClassInfos(), 0);
+
+		m_paiYieldFromConquestAllCities.clear();
+		m_paiYieldFromConquestAllCities.resize(GC.getNumUnitCombatClassInfos(), 0);
 
 		m_paiUnitCombatFreeExperiences.clear();
 		m_paiUnitCombatFreeExperiences.resize(GC.getNumUnitCombatClassInfos(), 0);
@@ -25569,6 +25574,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 							iValue += (iTraitValue * pOtherCity->CountAllOwnedTerrain(eTerrain));
 						}
 					}
+					iValue += getYieldFromConquestAllCities(eYield);
 					break;
 				}
 				case INSTANT_YIELD_TYPE_VICTORY:
@@ -38592,6 +38598,20 @@ void CvPlayer::changeUnitCombatProductionModifiers(UnitCombatTypes eIndex, int i
 	m_paiUnitCombatProductionModifiers[eIndex] += iChange;
 }
 
+int CvPlayer::getYieldFromConquestAllCities(YieldTypes eIndex) const
+{
+	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	return m_paiYieldFromConquestAllCities[eIndex];
+}
+
+void CvPlayer::changeYieldFromConquestAllCities(YieldTypes eIndex, int iChange)
+{
+	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	m_paiYieldFromConquestAllCities[eIndex] += iChange;
+}
+
 int CvPlayer::getUnitCombatFreeExperiences(UnitCombatTypes eIndex) const
 {
 	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
@@ -43286,6 +43306,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_paiFreeBuildingCount);
 	visitor(player.m_paiFreePromotionCount);
 	visitor(player.m_paiUnitCombatProductionModifiers);
+	visitor(player.m_paiYieldFromConquestAllCities);
 	visitor(player.m_paiUnitCombatFreeExperiences);
 	visitor(player.m_paiUnitClassCount);
 	visitor(player.m_paiUnitClassMaking);

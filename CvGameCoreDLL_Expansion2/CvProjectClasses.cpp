@@ -18,6 +18,7 @@ CvProjectEntry::CvProjectEntry(void):
 	m_piVictoryMinThreshold(NULL),
 	m_piProjectsNeeded(NULL),
 	m_piUnitCombatProductionModifiersGlobal(NULL),
+	m_piYieldFromConquestAllCities(NULL),
 	m_eFreeBuilding(NO_BUILDINGCLASS),
 	m_eFreePolicy(NO_POLICY),
 	m_eCivType(NO_CIVILIZATION),
@@ -33,6 +34,7 @@ CvProjectEntry::~CvProjectEntry(void)
 	SAFE_DELETE_ARRAY(m_piProjectsNeeded);
 	SAFE_DELETE_ARRAY(m_piFlavorValue);
 	SAFE_DELETE_ARRAY(m_piUnitCombatProductionModifiersGlobal);
+	SAFE_DELETE_ARRAY(m_piYieldFromConquestAllCities);
 }
 //------------------------------------------------------------------------------
 bool CvProjectEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
@@ -139,6 +141,7 @@ bool CvProjectEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	kUtility.SetFlavors(m_piFlavorValue, "Project_Flavors", "ProjectType", szProjectType);
 	kUtility.PopulateArrayByValue(m_piProjectsNeeded, "Projects", "Project_Prereqs", "PrereqProjectType", "ProjectType", szProjectType, "AmountNeeded");
 	kUtility.PopulateArrayByValue(m_piUnitCombatProductionModifiersGlobal, "UnitCombatInfos", "Project_UnitCombatProductionModifiersGlobal", "UnitCombatType", "ProjectType", szProjectType, "Modifier");
+	kUtility.SetYields(m_piYieldFromConquestAllCities, "Project_YieldFromConquestAllCities", "ProjectType", szProjectType);
 
 	return true;
 }
@@ -439,6 +442,20 @@ int CvProjectEntry::GetUnitCombatProductionModifiersGlobal(int i) const
 	if(i > -1 && i < GC.getNumUnitCombatClassInfos() && m_piUnitCombatProductionModifiersGlobal)
 	{
 		return m_piUnitCombatProductionModifiersGlobal[i];
+	}
+
+	return 0;
+}
+
+/// Unit combat production modifiers global
+int CvProjectEntry::GetYieldFromConquestAllCities(int i) const
+{
+	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
+	ASSERT_DEBUG(i > -1, "Index out of bounds");
+
+	if(i > -1 && i < NUM_YIELD_TYPES && m_piYieldFromConquestAllCities)
+	{
+		return m_piYieldFromConquestAllCities[i];
 	}
 
 	return 0;
