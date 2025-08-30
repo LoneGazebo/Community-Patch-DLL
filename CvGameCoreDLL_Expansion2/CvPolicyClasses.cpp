@@ -311,6 +311,8 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iTourismCostXCitiesMod(0),
 	m_iInternalTradeGold(0),
 	m_iCultureBombBoost(0),
+	m_bCultureBombForeignTerritory(false),
+	m_bRetainRazedTerritory(false),
 	m_iPuppetProdMod(0),
 	m_iOccupiedProdMod(0),
 	m_iFreeWCVotes(0),
@@ -771,6 +773,8 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iTourismCostXCitiesMod = kResults.GetInt("TourismCostXCitiesMod");
 	m_iInternalTradeGold = kResults.GetInt("InternalTradeGold");
 	m_iCultureBombBoost = kResults.GetInt("CultureBombBoost");
+	m_bCultureBombForeignTerritory = kResults.GetBool("CultureBombForeignTerritory");
+	m_bRetainRazedTerritory = kResults.GetBool("RetainRazedTerritory");
 	m_iPuppetProdMod = kResults.GetInt("PuppetProdMod");
 	m_iOccupiedProdMod = kResults.GetInt("OccupiedProdMod");
 	m_iFreeWCVotes = kResults.GetInt("FreeWCVotes");
@@ -3060,6 +3064,15 @@ int CvPolicyEntry::GetTourismCostXCitiesMod() const
 int CvPolicyEntry::GetCultureBombBoost() const
 {
 	return m_iCultureBombBoost;
+}
+bool CvPolicyEntry::GetCultureBombForeignTerritory() const
+{
+	return m_bCultureBombForeignTerritory;
+}
+/// Retain Razed Territory?
+bool CvPolicyEntry::GetRetainRazedTerritory() const
+{
+	return m_bRetainRazedTerritory;
 }
 /// Puppet Production Boost?
 int CvPolicyEntry::GetPuppetProdMod() const
