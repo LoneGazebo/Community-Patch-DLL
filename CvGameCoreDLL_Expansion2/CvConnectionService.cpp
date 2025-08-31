@@ -831,11 +831,6 @@ void CvConnectionService::ConvertLuaToJsonValue(lua_State* L, int index, JsonVar
 	
 	int type = lua_type(L, index);
 	
-	// Debug: Log the type being converted
-	std::stringstream debugMsg;
-	debugMsg << "ConvertLuaToJsonValue - Converting type: " << lua_typename(L, type) << " at index: " << index;
-	Log(LOG_DEBUG, debugMsg.str().c_str());
-	
 	switch (type)
 	{
 	case LUA_TNIL:
@@ -851,7 +846,6 @@ void CvConnectionService::ConvertLuaToJsonValue(lua_State* L, int index, JsonVar
 		{
 			parent.set(nullptr);
 		}
-		Log(LOG_DEBUG, "ConvertLuaToJsonValue - Converted nil");
 		break;
 		
 	case LUA_TBOOLEAN:
@@ -869,9 +863,6 @@ void CvConnectionService::ConvertLuaToJsonValue(lua_State* L, int index, JsonVar
 			{
 				parent.set(bValue);
 			}
-			debugMsg.str("");
-			debugMsg << "ConvertLuaToJsonValue - Converted boolean: " << (bValue ? "true" : "false");
-			Log(LOG_DEBUG, debugMsg.str().c_str());
 		}
 		break;
 		
@@ -894,9 +885,6 @@ void CvConnectionService::ConvertLuaToJsonValue(lua_State* L, int index, JsonVar
 				{
 					parent.set(intNum);
 				}
-				debugMsg.str("");
-				debugMsg << "ConvertLuaToJsonValue - Converted integer: " << intNum;
-				Log(LOG_DEBUG, debugMsg.str().c_str());
 			}
 			else
 			{
@@ -912,9 +900,6 @@ void CvConnectionService::ConvertLuaToJsonValue(lua_State* L, int index, JsonVar
 				{
 					parent.set(num);
 				}
-				debugMsg.str("");
-				debugMsg << "ConvertLuaToJsonValue - Converted float: " << num;
-				Log(LOG_DEBUG, debugMsg.str().c_str());
 			}
 		}
 		break;
@@ -934,23 +919,16 @@ void CvConnectionService::ConvertLuaToJsonValue(lua_State* L, int index, JsonVar
 			{
 				parent.set(str ? str : "");
 			}
-			debugMsg.str("");
-			debugMsg << "ConvertLuaToJsonValue - Converted string: '" << (str ? str : "<null>") << "'";
-			Log(LOG_DEBUG, debugMsg.str().c_str());
 		}
 		break;
 		
 	case LUA_TTABLE:
 		{
-			Log(LOG_DEBUG, "ConvertLuaToJsonValue - Starting table conversion");
-			
 			// Check if it's an array or object
 			bool isArray = true;
 			int maxIndex = 0;
 			bool hasNonNumericKeys = false;
 			int keyCount = 0;
-			
-			Log(LOG_DEBUG, "ConvertLuaToJsonValue - Checking if table is array or object");
 			
 			// First pass: check if it's an array (sequential numeric keys starting at 1)
 			lua_pushnil(L);
@@ -961,15 +939,11 @@ void CvConnectionService::ConvertLuaToJsonValue(lua_State* L, int index, JsonVar
 				if (lua_type(L, -2) == LUA_TNUMBER)
 				{
 					double keyNum = lua_tonumber(L, -2);
-					debugMsg.str("");
-					debugMsg << "ConvertLuaToJsonValue - Found numeric key: " << keyNum;
-					Log(LOG_DEBUG, debugMsg.str().c_str());
 					
 					// Check if it's a positive integer
 					if (keyNum != floor(keyNum) || keyNum < 1)
 					{
 						isArray = false;
-						Log(LOG_DEBUG, "ConvertLuaToJsonValue - Non-positive or non-integer numeric key, treating as object");
 					}
 					else
 					{
@@ -980,20 +954,11 @@ void CvConnectionService::ConvertLuaToJsonValue(lua_State* L, int index, JsonVar
 				else
 				{
 					// Non-numeric key found
-					const char* keyStr = lua_typename(L, lua_type(L, -2));
-					debugMsg.str("");
-					debugMsg << "ConvertLuaToJsonValue - Found non-numeric key of type: " << keyStr;
-					Log(LOG_DEBUG, debugMsg.str().c_str());
 					hasNonNumericKeys = true;
 					isArray = false;
 				}
 				lua_pop(L, 1); // Pop value, keep key for next iteration
 			}
-			
-			debugMsg.str("");
-			debugMsg << "ConvertLuaToJsonValue - Table analysis: keyCount=" << keyCount 
-			         << ", maxIndex=" << maxIndex << ", hasNonNumericKeys=" << (hasNonNumericKeys ? "true" : "false");
-			Log(LOG_DEBUG, debugMsg.str().c_str());
 			
 			// If we have numeric keys, check if they're sequential
 			if (!hasNonNumericKeys && maxIndex > 0)
@@ -1006,9 +971,6 @@ void CvConnectionService::ConvertLuaToJsonValue(lua_State* L, int index, JsonVar
 					if (lua_isnil(L, -1))
 					{
 						isArray = false;
-						debugMsg.str("");
-						debugMsg << "ConvertLuaToJsonValue - Gap found at index " << i << ", treating as object";
-						Log(LOG_DEBUG, debugMsg.str().c_str());
 					}
 					lua_pop(L, 1);
 				}
@@ -1017,8 +979,6 @@ void CvConnectionService::ConvertLuaToJsonValue(lua_State* L, int index, JsonVar
 			if (isArray && maxIndex > 0)
 			{
 				// Create JSON array
-				Log(LOG_DEBUG, "ConvertLuaToJsonValue - Creating JSON array");
-				
 				JsonArray arr;
 				if (key && parent.is<JsonObject>())
 				{
@@ -1054,10 +1014,6 @@ void CvConnectionService::ConvertLuaToJsonValue(lua_State* L, int index, JsonVar
 				// Add elements in order (1 to maxIndex)
 				for (int i = 1; i <= maxIndex; i++)
 				{
-					debugMsg.str("");
-					debugMsg << "ConvertLuaToJsonValue - Converting array element at index " << i;
-					Log(LOG_DEBUG, debugMsg.str().c_str());
-					
 					lua_pushnumber(L, i);
 					lua_gettable(L, index);
 					
@@ -1066,10 +1022,6 @@ void CvConnectionService::ConvertLuaToJsonValue(lua_State* L, int index, JsonVar
 					
 					lua_pop(L, 1);
 				}
-				
-				debugMsg.str("");
-				debugMsg << "ConvertLuaToJsonValue - Completed array conversion with " << maxIndex << " elements, actual size: " << arr.size();
-				Log(LOG_DEBUG, debugMsg.str().c_str());
 			}
 			else
 			{
@@ -1078,17 +1030,14 @@ void CvConnectionService::ConvertLuaToJsonValue(lua_State* L, int index, JsonVar
 				if (key && parent.is<JsonObject>())
 				{
 					obj = parent.as<JsonObject>().createNestedObject(key);
-					Log(LOG_DEBUG, "ConvertLuaToJsonValue - Creating nested JSON object inside parent object");
 				}
 				else if (parent.is<JsonArray>())
 				{
 					obj = parent.as<JsonArray>().createNestedObject();
-					Log(LOG_DEBUG, "ConvertLuaToJsonValue - Creating nested JSON object inside parent array");
 				}
 				else
 				{
 					obj = parent.to<JsonObject>();
-					Log(LOG_DEBUG, "ConvertLuaToJsonValue - Set parent as JSON object");
 				}
 				
 				if (!obj)
@@ -1125,9 +1074,6 @@ void CvConnectionService::ConvertLuaToJsonValue(lua_State* L, int index, JsonVar
 					if (lua_type(L, keyIndex) == LUA_TSTRING)
 					{
 						key = lua_tostring(L, keyIndex);
-						debugMsg.str("");
-						debugMsg << "ConvertLuaToJsonValue - Processing string key: '" << key << "'";
-						Log(LOG_DEBUG, debugMsg.str().c_str());
 					}
 					else if (lua_type(L, keyIndex) == LUA_TNUMBER)
 					{
@@ -1142,47 +1088,26 @@ void CvConnectionService::ConvertLuaToJsonValue(lua_State* L, int index, JsonVar
 							sprintf_s(keyBuffer, sizeof(keyBuffer), "%g", numKey);
 						}
 						key = keyBuffer;
-						debugMsg.str("");
-						debugMsg << "ConvertLuaToJsonValue - Processing numeric key: " << numKey << " -> '" << key << "'";
-						Log(LOG_DEBUG, debugMsg.str().c_str());
 					}
 					else if (lua_type(L, keyIndex) == LUA_TBOOLEAN)
 					{
 						// Convert boolean to string
 						sprintf_s(keyBuffer, sizeof(keyBuffer), "%s", lua_toboolean(L, keyIndex) ? "true" : "false");
 						key = keyBuffer;
-						debugMsg.str("");
-						debugMsg << "ConvertLuaToJsonValue - Processing boolean key: '" << key << "'";
-						Log(LOG_DEBUG, debugMsg.str().c_str());
 					}
 					else
 					{
 						// For other types, use type name as key
 						sprintf_s(keyBuffer, sizeof(keyBuffer), "<%s>", lua_typename(L, lua_type(L, keyIndex)));
 						key = keyBuffer;
-						debugMsg.str("");
-						debugMsg << "ConvertLuaToJsonValue - Processing special key type: '" << key << "'";
-						Log(LOG_DEBUG, debugMsg.str().c_str());
 					}
 					
 					if (key)
 					{
 						objectKeyCount++;
 						// Add key-value pair to object
-						debugMsg.str("");
-						debugMsg << "ConvertLuaToJsonValue - Converting value for key '" << key << "'";
-						Log(LOG_DEBUG, debugMsg.str().c_str());
-						
 						// Convert the value directly into the object with the key
 						ConvertLuaToJsonValue(L, valueIndex, obj, key);
-						
-						// Debug: Check if the value was actually set
-						if (obj[key].isNull() && lua_type(L, valueIndex) != LUA_TNIL)
-						{
-							debugMsg.str("");
-							debugMsg << "ConvertLuaToJsonValue - WARNING: Value for key '" << key << "' appears to be null after conversion!";
-							Log(LOG_WARNING, debugMsg.str().c_str());
-						}
 					}
 					else
 					{
@@ -1191,26 +1116,6 @@ void CvConnectionService::ConvertLuaToJsonValue(lua_State* L, int index, JsonVar
 					}
 					
 					lua_pop(L, 1); // Pop value, keep key for next iteration
-				}
-				
-				debugMsg.str("");
-				debugMsg << "ConvertLuaToJsonValue - Completed object conversion with " << objectKeyCount << " keys, actual size: " << obj.size();
-				Log(LOG_DEBUG, debugMsg.str().c_str());
-				
-				// Final check: verify the object isn't empty when it shouldn't be
-				if (obj.size() == 0 && objectKeyCount > 0)
-				{
-					Log(LOG_ERROR, "ConvertLuaToJsonValue - ERROR: Object has 0 size but we processed keys!");
-				}
-				
-				// Debug: Try to serialize the object to see what's in it
-				if (obj.size() > 0)
-				{
-					std::string serialized;
-					serializeJson(obj, serialized);
-					debugMsg.str("");
-					debugMsg << "ConvertLuaToJsonValue - Serialized object: " << serialized;
-					Log(LOG_DEBUG, debugMsg.str().c_str());
 				}
 			}
 		}
@@ -1236,9 +1141,6 @@ void CvConnectionService::ConvertLuaToJsonValue(lua_State* L, int index, JsonVar
 			{
 				parent.set(ss.str());
 			}
-			debugMsg.str("");
-			debugMsg << "ConvertLuaToJsonValue - Converted non-serializable type: " << ss.str();
-			Log(LOG_DEBUG, debugMsg.str().c_str());
 		}
 		break;
 		
@@ -1255,13 +1157,8 @@ void CvConnectionService::ConvertLuaToJsonValue(lua_State* L, int index, JsonVar
 		{
 			parent.set(nullptr);
 		}
-		debugMsg.str("");
-		debugMsg << "ConvertLuaToJsonValue - Unknown type " << type << ", converted to null";
-		Log(LOG_DEBUG, debugMsg.str().c_str());
 		break;
 	}
-	
-	Log(LOG_DEBUG, "ConvertLuaToJsonValue - Conversion complete");
 }
 
 // Convert a JSON value to Lua and push it onto the stack
