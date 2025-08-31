@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 2024 Vox Deorum Development Team. Connection Service for Bridge Communication.
+Opens an IPC channel that exposes the game's internal state to external services.
 	------------------------------------------------------------------------------------------------------- */
 
 #include "CvGameCoreDLLPCH.h"
@@ -759,7 +759,7 @@ void CvConnectionService::ProcessLuaResult(lua_State* L, int executionResult, co
 		if (numResults > 0)
 		{
 			// Use the shared conversion function (starting from stack bottom)
-			ConvertLuaValuesToJsonVariant(L, 1, numResults, response["result"].to<JsonVariant>());
+			ConvertLuaValuesInDocument(L, 1, numResults, response, "result");
 			
 			// Pop all return values from the stack
 			lua_pop(L, numResults);
@@ -792,32 +792,36 @@ void CvConnectionService::ProcessLuaResult(lua_State* L, int executionResult, co
 	SendMessage(response);
 }
 
-// Shared function to convert Lua values to JsonVariant (single or array)
-void CvConnectionService::ConvertLuaValuesToJsonVariant(lua_State* L, int firstIndex, int numValues, JsonVariant dest)
+// Shared function to convert Lua values to fill a key in a JsonDocument
+void CvConnectionService::ConvertLuaValuesInDocument(lua_State* L, int firstIndex, int numValues, DynamicJsonDocument& parent, const char* key)
 {
 	if (numValues <= 0)
 	{
 		// No values - set to null
-		dest.set(nullptr);
+		parent[key] = nullptr;
 	}
 	else if (numValues == 1)
 	{
 		// Single value - convert directly
-		ConvertLuaToJsonValue(L, firstIndex, dest);
+		ConvertLuaToJsonValue(L, firstIndex, parent.as<JsonObject>(), key);
 	}
 	else
 	{
 		// Multiple values - create an array
-		JsonArray resultArray = dest.to<JsonArray>();
+		JsonArray resultArray;
+		resultArray = parent.createNestedArray(key);
+		
 		for (int i = 0; i < numValues; i++)
 		{
-			ConvertLuaToJsonValue(L, firstIndex + i, resultArray.add());
+			ConvertLuaToJsonValue(L, firstIndex + i, resultArray, nullptr);
 		}
 	}
 }
 
 // Convert a Lua value at the given stack index to a JsonVariant
-void CvConnectionService::ConvertLuaToJsonValue(lua_State* L, int index, JsonVariant dest)
+// parent: The parent JsonVariant (object or array) that will contain this value
+// key: The key/index to use when adding to parent (nullptr for direct assignment)
+void CvConnectionService::ConvertLuaToJsonValue(lua_State* L, int index, JsonVariant parent, const char* key)
 {
 	// Make the index absolute if it's relative
 	if (index < 0 && index > LUA_REGISTRYINDEX)
@@ -827,14 +831,48 @@ void CvConnectionService::ConvertLuaToJsonValue(lua_State* L, int index, JsonVar
 	
 	int type = lua_type(L, index);
 	
+	// Debug: Log the type being converted
+	std::stringstream debugMsg;
+	debugMsg << "ConvertLuaToJsonValue - Converting type: " << lua_typename(L, type) << " at index: " << index;
+	Log(LOG_DEBUG, debugMsg.str().c_str());
+	
 	switch (type)
 	{
 	case LUA_TNIL:
-		dest.set(nullptr);
+		if (key && parent.is<JsonObject>())
+		{
+			parent[key] = nullptr;
+		}
+		else if (parent.is<JsonArray>())
+		{
+			parent.add(nullptr);
+		}
+		else
+		{
+			parent.set(nullptr);
+		}
+		Log(LOG_DEBUG, "ConvertLuaToJsonValue - Converted nil");
 		break;
 		
 	case LUA_TBOOLEAN:
-		dest.set(lua_toboolean(L, index) != 0);
+		{
+			bool bValue = lua_toboolean(L, index) != 0;
+			if (key && parent.is<JsonObject>())
+			{
+				parent[key] = bValue;
+			}
+			else if (parent.is<JsonArray>())
+			{
+				parent.add(bValue);
+			}
+			else
+			{
+				parent.set(bValue);
+			}
+			debugMsg.str("");
+			debugMsg << "ConvertLuaToJsonValue - Converted boolean: " << (bValue ? "true" : "false");
+			Log(LOG_DEBUG, debugMsg.str().c_str());
+		}
 		break;
 		
 	case LUA_TNUMBER:
@@ -843,11 +881,40 @@ void CvConnectionService::ConvertLuaToJsonValue(lua_State* L, int index, JsonVar
 			// Check if it's an integer
 			if (num == floor(num) && num >= INT_MIN && num <= INT_MAX)
 			{
-				dest.set(static_cast<int>(num));
+				int intNum = static_cast<int>(num);
+				if (key && parent.is<JsonObject>())
+				{
+					parent[key] = intNum;
+				}
+				else if (parent.is<JsonArray>())
+				{
+					parent.add(intNum);
+				}
+				else
+				{
+					parent.set(intNum);
+				}
+				debugMsg.str("");
+				debugMsg << "ConvertLuaToJsonValue - Converted integer: " << intNum;
+				Log(LOG_DEBUG, debugMsg.str().c_str());
 			}
 			else
 			{
-				dest.set(num);
+				if (key && parent.is<JsonObject>())
+				{
+					parent[key] = num;
+				}
+				else if (parent.is<JsonArray>())
+				{
+					parent.add(num);
+				}
+				else
+				{
+					parent.set(num);
+				}
+				debugMsg.str("");
+				debugMsg << "ConvertLuaToJsonValue - Converted float: " << num;
+				Log(LOG_DEBUG, debugMsg.str().c_str());
 			}
 		}
 		break;
@@ -855,69 +922,295 @@ void CvConnectionService::ConvertLuaToJsonValue(lua_State* L, int index, JsonVar
 	case LUA_TSTRING:
 		{
 			const char* str = lua_tostring(L, index);
-			dest.set(str ? str : "");
+			if (key && parent.is<JsonObject>())
+			{
+				parent[key] = (str ? str : "");
+			}
+			else if (parent.is<JsonArray>())
+			{
+				parent.add(str ? str : "");
+			}
+			else
+			{
+				parent.set(str ? str : "");
+			}
+			debugMsg.str("");
+			debugMsg << "ConvertLuaToJsonValue - Converted string: '" << (str ? str : "<null>") << "'";
+			Log(LOG_DEBUG, debugMsg.str().c_str());
 		}
 		break;
 		
 	case LUA_TTABLE:
 		{
+			Log(LOG_DEBUG, "ConvertLuaToJsonValue - Starting table conversion");
+			
 			// Check if it's an array or object
 			bool isArray = true;
-			int expectedIndex = 1;
+			int maxIndex = 0;
+			bool hasNonNumericKeys = false;
+			int keyCount = 0;
 			
-			// First pass: check if it's an array
+			Log(LOG_DEBUG, "ConvertLuaToJsonValue - Checking if table is array or object");
+			
+			// First pass: check if it's an array (sequential numeric keys starting at 1)
 			lua_pushnil(L);
 			while (lua_next(L, index) != 0)
 			{
-				// Check if key is a number and matches expected index
-				if (lua_type(L, -2) != LUA_TNUMBER || lua_tonumber(L, -2) != expectedIndex)
+				keyCount++;
+				// Check key type
+				if (lua_type(L, -2) == LUA_TNUMBER)
 				{
+					double keyNum = lua_tonumber(L, -2);
+					debugMsg.str("");
+					debugMsg << "ConvertLuaToJsonValue - Found numeric key: " << keyNum;
+					Log(LOG_DEBUG, debugMsg.str().c_str());
+					
+					// Check if it's a positive integer
+					if (keyNum != floor(keyNum) || keyNum < 1)
+					{
+						isArray = false;
+						Log(LOG_DEBUG, "ConvertLuaToJsonValue - Non-positive or non-integer numeric key, treating as object");
+					}
+					else
+					{
+						int keyInt = static_cast<int>(keyNum);
+						if (keyInt > maxIndex) maxIndex = keyInt;
+					}
+				}
+				else
+				{
+					// Non-numeric key found
+					const char* keyStr = lua_typename(L, lua_type(L, -2));
+					debugMsg.str("");
+					debugMsg << "ConvertLuaToJsonValue - Found non-numeric key of type: " << keyStr;
+					Log(LOG_DEBUG, debugMsg.str().c_str());
+					hasNonNumericKeys = true;
 					isArray = false;
 				}
-				lua_pop(L, 1);
-				expectedIndex++;
+				lua_pop(L, 1); // Pop value, keep key for next iteration
 			}
 			
-			if (isArray)
+			debugMsg.str("");
+			debugMsg << "ConvertLuaToJsonValue - Table analysis: keyCount=" << keyCount 
+			         << ", maxIndex=" << maxIndex << ", hasNonNumericKeys=" << (hasNonNumericKeys ? "true" : "false");
+			Log(LOG_DEBUG, debugMsg.str().c_str());
+			
+			// If we have numeric keys, check if they're sequential
+			if (!hasNonNumericKeys && maxIndex > 0)
 			{
-				// Create JSON array
-				JsonArray arr = dest.to<JsonArray>();
-				lua_pushnil(L);
-				while (lua_next(L, index) != 0)
+				// Check for gaps in array indices
+				for (int i = 1; i <= maxIndex; i++)
 				{
-					// Add value to array
-					ConvertLuaToJsonValue(L, -1, arr.add());
+					lua_pushnumber(L, i);
+					lua_gettable(L, index);
+					if (lua_isnil(L, -1))
+					{
+						isArray = false;
+						debugMsg.str("");
+						debugMsg << "ConvertLuaToJsonValue - Gap found at index " << i << ", treating as object";
+						Log(LOG_DEBUG, debugMsg.str().c_str());
+					}
 					lua_pop(L, 1);
 				}
+			}
+			
+			if (isArray && maxIndex > 0)
+			{
+				// Create JSON array
+				Log(LOG_DEBUG, "ConvertLuaToJsonValue - Creating JSON array");
+				
+				JsonArray arr;
+				if (key && parent.is<JsonObject>())
+				{
+					arr = parent.as<JsonObject>().createNestedArray(key);
+				}
+				else if (parent.is<JsonArray>())
+				{
+					arr = parent.as<JsonArray>().createNestedArray();
+				}
+				else
+				{
+					arr = parent.to<JsonArray>();
+				}
+				
+				if (!arr)
+				{
+					Log(LOG_ERROR, "ConvertLuaToJsonValue - Failed to create JSON array!");
+					if (key && parent.is<JsonObject>())
+					{
+						parent[key] = nullptr;
+					}
+					else if (parent.is<JsonArray>())
+					{
+						parent.add(nullptr);
+					}
+					else
+					{
+						parent.set(nullptr);
+					}
+					break;
+				}
+				
+				// Add elements in order (1 to maxIndex)
+				for (int i = 1; i <= maxIndex; i++)
+				{
+					debugMsg.str("");
+					debugMsg << "ConvertLuaToJsonValue - Converting array element at index " << i;
+					Log(LOG_DEBUG, debugMsg.str().c_str());
+					
+					lua_pushnumber(L, i);
+					lua_gettable(L, index);
+					
+					// Convert directly into the array (nullptr key means add to array)
+					ConvertLuaToJsonValue(L, -1, arr, nullptr);
+					
+					lua_pop(L, 1);
+				}
+				
+				debugMsg.str("");
+				debugMsg << "ConvertLuaToJsonValue - Completed array conversion with " << maxIndex << " elements, actual size: " << arr.size();
+				Log(LOG_DEBUG, debugMsg.str().c_str());
 			}
 			else
 			{
 				// Create JSON object
-				JsonObject obj = dest.to<JsonObject>();
-				lua_pushnil(L);
-				while (lua_next(L, index) != 0)
+				JsonObject obj;
+				if (key && parent.is<JsonObject>())
 				{
-					// Get key as string
-					const char* key = nullptr;
-					if (lua_type(L, -2) == LUA_TSTRING)
+					obj = parent.as<JsonObject>().createNestedObject(key);
+					Log(LOG_DEBUG, "ConvertLuaToJsonValue - Creating nested JSON object inside parent object");
+				}
+				else if (parent.is<JsonArray>())
+				{
+					obj = parent.as<JsonArray>().createNestedObject();
+					Log(LOG_DEBUG, "ConvertLuaToJsonValue - Creating nested JSON object inside parent array");
+				}
+				else
+				{
+					obj = parent.to<JsonObject>();
+					Log(LOG_DEBUG, "ConvertLuaToJsonValue - Set parent as JSON object");
+				}
+				
+				if (!obj)
+				{
+					Log(LOG_ERROR, "ConvertLuaToJsonValue - Failed to create JSON object!");
+					if (key && parent.is<JsonObject>())
 					{
-						key = lua_tostring(L, -2);
+						parent[key] = nullptr;
+					}
+					else if (parent.is<JsonArray>())
+					{
+						parent.add(nullptr);
 					}
 					else
 					{
-						// Convert non-string key to string
-						lua_pushvalue(L, -2);
-						key = lua_tostring(L, -1);
-						lua_pop(L, 1);
+						parent.set(nullptr);
+					}
+					break;
+				}
+				
+				int objectKeyCount = 0;
+				
+				lua_pushnil(L);
+				while (lua_next(L, index) != 0)
+				{
+					// Save the value index
+					int valueIndex = lua_gettop(L);
+					int keyIndex = valueIndex - 1;
+					
+					// Get key as string
+					const char* key = nullptr;
+					char keyBuffer[64]; // Buffer for numeric key conversion
+					
+					if (lua_type(L, keyIndex) == LUA_TSTRING)
+					{
+						key = lua_tostring(L, keyIndex);
+						debugMsg.str("");
+						debugMsg << "ConvertLuaToJsonValue - Processing string key: '" << key << "'";
+						Log(LOG_DEBUG, debugMsg.str().c_str());
+					}
+					else if (lua_type(L, keyIndex) == LUA_TNUMBER)
+					{
+						// Convert number to string without modifying the stack
+						double numKey = lua_tonumber(L, keyIndex);
+						if (numKey == floor(numKey))
+						{
+							sprintf_s(keyBuffer, sizeof(keyBuffer), "%d", static_cast<int>(numKey));
+						}
+						else
+						{
+							sprintf_s(keyBuffer, sizeof(keyBuffer), "%g", numKey);
+						}
+						key = keyBuffer;
+						debugMsg.str("");
+						debugMsg << "ConvertLuaToJsonValue - Processing numeric key: " << numKey << " -> '" << key << "'";
+						Log(LOG_DEBUG, debugMsg.str().c_str());
+					}
+					else if (lua_type(L, keyIndex) == LUA_TBOOLEAN)
+					{
+						// Convert boolean to string
+						sprintf_s(keyBuffer, sizeof(keyBuffer), "%s", lua_toboolean(L, keyIndex) ? "true" : "false");
+						key = keyBuffer;
+						debugMsg.str("");
+						debugMsg << "ConvertLuaToJsonValue - Processing boolean key: '" << key << "'";
+						Log(LOG_DEBUG, debugMsg.str().c_str());
+					}
+					else
+					{
+						// For other types, use type name as key
+						sprintf_s(keyBuffer, sizeof(keyBuffer), "<%s>", lua_typename(L, lua_type(L, keyIndex)));
+						key = keyBuffer;
+						debugMsg.str("");
+						debugMsg << "ConvertLuaToJsonValue - Processing special key type: '" << key << "'";
+						Log(LOG_DEBUG, debugMsg.str().c_str());
 					}
 					
 					if (key)
 					{
+						objectKeyCount++;
 						// Add key-value pair to object
-						ConvertLuaToJsonValue(L, -1, obj[key]);
+						debugMsg.str("");
+						debugMsg << "ConvertLuaToJsonValue - Converting value for key '" << key << "'";
+						Log(LOG_DEBUG, debugMsg.str().c_str());
+						
+						// Convert the value directly into the object with the key
+						ConvertLuaToJsonValue(L, valueIndex, obj, key);
+						
+						// Debug: Check if the value was actually set
+						if (obj[key].isNull() && lua_type(L, valueIndex) != LUA_TNIL)
+						{
+							debugMsg.str("");
+							debugMsg << "ConvertLuaToJsonValue - WARNING: Value for key '" << key << "' appears to be null after conversion!";
+							Log(LOG_WARNING, debugMsg.str().c_str());
+						}
+					}
+					else
+					{
+						// Log warning about skipped key
+						Log(LOG_WARNING, "ConvertLuaToJsonValue - Skipped table entry with null key");
 					}
 					
-					lua_pop(L, 1);
+					lua_pop(L, 1); // Pop value, keep key for next iteration
+				}
+				
+				debugMsg.str("");
+				debugMsg << "ConvertLuaToJsonValue - Completed object conversion with " << objectKeyCount << " keys, actual size: " << obj.size();
+				Log(LOG_DEBUG, debugMsg.str().c_str());
+				
+				// Final check: verify the object isn't empty when it shouldn't be
+				if (obj.size() == 0 && objectKeyCount > 0)
+				{
+					Log(LOG_ERROR, "ConvertLuaToJsonValue - ERROR: Object has 0 size but we processed keys!");
+				}
+				
+				// Debug: Try to serialize the object to see what's in it
+				if (obj.size() > 0)
+				{
+					std::string serialized;
+					serializeJson(obj, serialized);
+					debugMsg.str("");
+					debugMsg << "ConvertLuaToJsonValue - Serialized object: " << serialized;
+					Log(LOG_DEBUG, debugMsg.str().c_str());
 				}
 			}
 		}
@@ -931,14 +1224,44 @@ void CvConnectionService::ConvertLuaToJsonValue(lua_State* L, int index, JsonVar
 			// These types cannot be serialized to JSON - store as string description
 			std::stringstream ss;
 			ss << "<" << lua_typename(L, type) << ">";
-			dest.set(ss.str());
+			if (key && parent.is<JsonObject>())
+			{
+				parent[key] = ss.str();
+			}
+			else if (parent.is<JsonArray>())
+			{
+				parent.add(ss.str());
+			}
+			else
+			{
+				parent.set(ss.str());
+			}
+			debugMsg.str("");
+			debugMsg << "ConvertLuaToJsonValue - Converted non-serializable type: " << ss.str();
+			Log(LOG_DEBUG, debugMsg.str().c_str());
 		}
 		break;
 		
 	default:
-		dest.set(nullptr);
+		if (key && parent.is<JsonObject>())
+		{
+			parent[key] = nullptr;
+		}
+		else if (parent.is<JsonArray>())
+		{
+			parent.add(nullptr);
+		}
+		else
+		{
+			parent.set(nullptr);
+		}
+		debugMsg.str("");
+		debugMsg << "ConvertLuaToJsonValue - Unknown type " << type << ", converted to null";
+		Log(LOG_DEBUG, debugMsg.str().c_str());
 		break;
 	}
+	
+	Log(LOG_DEBUG, "ConvertLuaToJsonValue - Conversion complete");
 }
 
 // Convert a JSON value to Lua and push it onto the stack
@@ -1463,7 +1786,7 @@ int CvConnectionService::CallExternalFunction(lua_State* L)
 	if (actualArgCount > 0)
 	{
 		// Use the shared conversion function to convert Lua values directly to JsonVariant
-		ConvertLuaValuesToJsonVariant(L, 2, actualArgCount, request["args"].to<JsonVariant>());
+		ConvertLuaValuesInDocument(L, 2, actualArgCount, request, "args");
 	}
 	
 	// Send the request

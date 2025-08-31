@@ -116,10 +116,10 @@ private:
 	void HandleLuaExecute(const char* script, const char* id);
 	void HandleLuaCall(const char* functionName, const JsonArray& args, const char* id);
 	void ProcessLuaResult(lua_State* L, int executionResult, const char* id);
-	void ConvertLuaToJsonValue(lua_State* L, int index, JsonVariant dest);
+	void ConvertLuaToJsonValue(lua_State* L, int index, JsonVariant parent, const char* key);
 	
-	// Shared function to convert Lua values to JsonVariant (single or array)
-	void ConvertLuaValuesToJsonVariant(lua_State* L, int firstIndex, int numValues, JsonVariant dest);
+	// Shared function to convert Lua values to fill a key in a JsonDocument
+	void ConvertLuaValuesInDocument(lua_State* L, int firstIndex, int numValues, DynamicJsonDocument& parent, const char* key);
 	
 	// Structure to store registered Lua functions
 	struct LuaFunctionInfo {
