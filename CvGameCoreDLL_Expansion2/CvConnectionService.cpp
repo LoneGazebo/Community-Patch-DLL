@@ -691,11 +691,11 @@ void CvConnectionService::HandleLuaCall(const char* functionName, const JsonArra
 		response["type"] = "lua_response";
 		response["id"] = id;
 		response["success"] = false;
-		response["code"] = "INVALID_FUNCTION";
 		
 		std::stringstream errorMsg;
 		errorMsg << "Function '" << functionName << "' not found";
-		response["error"] = errorMsg.str();
+		response["error"]["code"] = "INVALID_FUNCTION";
+		response["error"]["message"] = errorMsg.str();
 		
 		SendMessage(response);
 		
@@ -777,7 +777,8 @@ void CvConnectionService::ProcessLuaResult(lua_State* L, int executionResult, co
 		const char* errorMsg = lua_tostring(L, -1);
 		if (!errorMsg) errorMsg = "Unknown Lua error";
 		
-		response["error"] = errorMsg;
+		response["error"]["code"] = "LUA_EXECUTION_ERROR";
+		response["error"]["message"] = errorMsg;
 		
 		// Pop the error message from the stack
 		lua_pop(L, 1);
