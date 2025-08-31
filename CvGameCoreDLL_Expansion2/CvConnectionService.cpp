@@ -691,6 +691,7 @@ void CvConnectionService::HandleLuaCall(const char* functionName, const JsonArra
 		response["type"] = "lua_response";
 		response["id"] = id;
 		response["success"] = false;
+		response["code"] = "INVALID_FUNCTION";
 		
 		std::stringstream errorMsg;
 		errorMsg << "Function '" << functionName << "' not found";
