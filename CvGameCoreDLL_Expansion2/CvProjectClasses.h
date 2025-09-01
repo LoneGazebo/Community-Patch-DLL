@@ -81,7 +81,7 @@ public:
 	int GetVictoryMinThreshold(int i) const;
 	int GetProjectsNeeded(int i) const;
 	int GetUnitCombatProductionModifiersGlobal(int i) const;
-    int GetYieldFromConquestAllCities(int i) const;
+	int GetYieldFromConquestAllCities(int i) const;
 
 protected:
 	int m_iVictoryPrereq;
