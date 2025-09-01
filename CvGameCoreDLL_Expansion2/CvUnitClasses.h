@@ -209,6 +209,7 @@ public:
 	bool IsUnitEraUpgrade() const;
 	bool IsWarOnly() const;
     bool IsCopyYieldsFromExpendTile() const;
+    int GetTileXPOnExpend() const;
     bool IsWLTKDFromBirth() const;
     bool IsGoldenAgeFromBirth() const;
 	bool IsCultureBoost() const;
@@ -392,6 +393,7 @@ private:
 	bool m_bUnitEraUpgrade;
 	bool m_bWarOnly;
 	bool m_bCopyYieldsFromExpendTile;
+	int m_iTileXPOnExpend;
 	bool m_bWLTKD;
 	bool m_bGoldenAge;
 	bool m_bCultureBoost;
