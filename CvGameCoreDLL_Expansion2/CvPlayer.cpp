@@ -27989,11 +27989,52 @@ void CvPlayer::DoGreatPersonExpended(UnitTypes eGreatPersonUnit, CvUnit* pGreatP
 		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 		{
 			YieldTypes eYield = (YieldTypes)iI;
-			this->changeYieldFromExpendTileCapital(eYield, pGreatPersonUnit->plot()->calculateYield(eYield));
+			changeYieldFromExpendTileCapital(eYield, pGreatPersonUnit->plot()->calculateYield(eYield));
 		}
 		
 	}
 	doInstantYield(INSTANT_YIELD_TYPE_GP_USE, false, eGreatPerson);
+	if (pGreatPersonUnit->getUnitInfo().GetTileXPOnExpend() > 0)
+	{
+		// give XP to the nearest eligible unit
+		// first check for units on the tile the GP was expended on
+		CvUnit* pNearestCombatUnit = NULL;
+		IDInfo* pPlotUnitNode = pGreatPersonUnit->plot()->headUnitNode();
+		while(pPlotUnitNode != NULL)
+		{
+			CvUnit* pLoopUnit = ::GetPlayerUnit(*pPlotUnitNode);
+			pPlotUnitNode = pGreatPersonUnit->plot()->nextUnitNode(pPlotUnitNode);
+
+			if(pLoopUnit->getOwner() == m_eID && pLoopUnit->IsCombatUnit())
+			{
+				pNearestCombatUnit = pLoopUnit;
+				break;
+			}
+		}
+		// if there's no eligible unit on the tile, check all units of the player
+		if (!pNearestCombatUnit)
+		{
+			int iMinDistance = INT_MAX;
+			int iUnitLoop = 0;
+			for (CvUnit* pLoopUnit = GET_PLAYER(m_eID).firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER(m_eID).nextUnit(&iUnitLoop))
+			{
+				if (pLoopUnit->IsCombatUnit())
+				{
+					int iDistance = plotDistance(pGreatPersonUnit->plot()->getX(), pGreatPersonUnit->plot()->getY(), pLoopUnit->plot()->getX(), pLoopUnit->plot()->getY());
+					if (iDistance < iMinDistance)
+					{
+						pNearestCombatUnit = pLoopUnit;
+						iMinDistance = iDistance;
+					}
+				}
+			}
+		}
+		if (pNearestCombatUnit)
+		{
+			pNearestCombatUnit->changeExperienceTimes100(pGreatPersonUnit->getUnitInfo().GetTileXPOnExpend() * 100);
+			pNearestCombatUnit->testPromotionReady();
+		}
+	}
 
 	if (MOD_EVENTS_GREAT_PEOPLE)
 	{
