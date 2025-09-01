@@ -10,6 +10,7 @@
 #include "CvInfosSerializationHelper.h"
 
 #include "LintFree.h"
+#include "CvUnitClasses.h"
 
 /// Constructor
 CvUnitEntry::CvUnitEntry(void) :
@@ -61,6 +62,7 @@ CvUnitEntry::CvUnitEntry(void) :
 	m_bFreeUpgrade(false),
 	m_bUnitEraUpgrade(false),
 	m_bWarOnly(false),
+	m_bCopyYieldsFromExpendTile(false),
 	m_bWLTKD(false),
 	m_bGoldenAge(false),
 	m_bCultureBoost(false),
@@ -417,6 +419,7 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	m_bCultureFromExperienceOnDisband = kResults.GetBool("CulExpOnDisbandUpgrade");
 	m_bUnitEraUpgrade = kResults.GetBool("UnitEraUpgrade");
 	m_bWarOnly = kResults.GetBool("WarOnly");
+	m_bCopyYieldsFromExpendTile = kResults.GetBool("CopyYieldsFromExpendTile");
 	m_bWLTKD = kResults.GetBool("WLTKDFromBirth");
 	m_bGoldenAge = kResults.GetBool("GoldenAgeFromBirth");
 	m_bCultureBoost = kResults.GetBool("CultureBoost");
@@ -1408,6 +1411,10 @@ bool CvUnitEntry::IsUnitEraUpgrade() const
 bool CvUnitEntry::IsWarOnly() const
 {
 	return m_bWarOnly;
+}
+bool CvUnitEntry::IsCopyYieldsFromExpendTile() const
+{
+	return m_bCopyYieldsFromExpendTile;
 }
 bool CvUnitEntry::IsWLTKDFromBirth() const
 {
