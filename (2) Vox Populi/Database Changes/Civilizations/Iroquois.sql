@@ -76,6 +76,12 @@ SET
 	CopyYieldsFromExpendTile = 1
 WHERE Type = 'UNIT_TADODAHO';
 
+
+INSERT INTO Unit_Builds
+	(UnitType, BuildType)
+VALUES
+	('UNIT_TADODAHO', 'BUILD_EMBASSY');
+
 ----------------------------------------------------------
 -- Unique Building: Longhouse (Herbalist)
 ----------------------------------------------------------
