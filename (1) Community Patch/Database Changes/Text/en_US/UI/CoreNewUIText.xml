@@ -1589,6 +1589,9 @@
 		<Row Tag="TXT_KEY_YIELD_FROM_NON_SPECIALISTS">
 			<Text>{1: number "#.##"} {2_IconString} from non-Specialist Citizens</Text>
 		</Row>
+		<Row Tag="TXT_KEY_YIELD_FROM_TILE_EXPEND">
+			<Text>{1: number "#.##"} {2_IconString} from Expended Units</Text>
+		</Row>
 		<Row Tag="TXT_KEY_YIELD_FROM_PIETY">
 			<Text>{1_Num} {2_IconString} from following the [ICON_RELIGION] Primary Religion</Text>
 		</Row>

@@ -23403,6 +23403,15 @@ int CvCity::getBaseYieldRateTimes100(const YieldTypes eYield, CvString* tooltipS
 	if (tooltipSink)
 		GC.getGame().BuildYieldTimes100HelpText(tooltipSink, "TXT_KEY_YIELD_FROM_MISC", iTempYield, szIconString);
 
+		
+	if (isCapital())
+	{
+		iTempYield = (GET_PLAYER(m_eOwner).getYieldFromExpendTileCapital(eYield)) * 100;
+		iYield += iTempYield;
+		if (tooltipSink)
+			GC.getGame().BuildYieldTimes100HelpText(tooltipSink, "TXT_KEY_YIELD_FROM_TILE_EXPEND", iTempYield, szIconString);
+	}
+
 	return iYield;
 }
 

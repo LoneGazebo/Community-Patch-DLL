@@ -1707,6 +1707,9 @@ public:
 
 	int getYieldRateModifier(YieldTypes eIndex) const;
 	void changeYieldRateModifier(YieldTypes eIndex, int iChange);
+
+	int getYieldFromExpendTileCapital(YieldTypes eIndex) const;
+	void changeYieldFromExpendTileCapital(YieldTypes eIndex, int iChange);
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	int GetTradeReligionModifier() const;
 	void changeTradeReligionModifier(int iChange);
@@ -3495,6 +3498,7 @@ protected:
 	std::vector<int> m_paiResourceShortageValue;
 	std::vector<int> m_aiYieldFromBirth;
 	std::vector<int> m_aiYieldFromBirthCapital;
+	std::vector<int> m_aiYieldFromExpendTileCapital;
 	std::vector<int> m_aiYieldFromDeath;
 	std::vector<int> m_aiYieldFromPillage;
 	std::vector<int> m_aiYieldFromVictory;
@@ -4304,6 +4308,7 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_paiResourceFromCSAlliances)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiResourceShortageValue)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromBirth)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromBirthCapital)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromExpendTileCapital)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromDeath)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromPillage)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromVictory)

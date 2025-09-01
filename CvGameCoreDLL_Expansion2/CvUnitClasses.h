@@ -208,8 +208,9 @@ public:
 	bool IsCultureFromExperienceDisbandUpgrade() const;
 	bool IsUnitEraUpgrade() const;
 	bool IsWarOnly() const;
-	bool IsWLTKDFromBirth() const;
-	bool IsGoldenAgeFromBirth() const;
+    bool IsCopyYieldsFromExpendTile() const;
+    bool IsWLTKDFromBirth() const;
+    bool IsGoldenAgeFromBirth() const;
 	bool IsCultureBoost() const;
 	bool IsExtraAttackHealthOnKill() const;
 	bool IsHighSeaRaider() const;
@@ -390,6 +391,7 @@ private:
 	bool m_bIsConvertUnit;
 	bool m_bUnitEraUpgrade;
 	bool m_bWarOnly;
+	bool m_bCopyYieldsFromExpendTile;
 	bool m_bWLTKD;
 	bool m_bGoldenAge;
 	bool m_bCultureBoost;

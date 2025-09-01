@@ -665,6 +665,7 @@ CvPlayer::CvPlayer() :
 	, m_aiYieldFromMinors()
 	, m_aiYieldFromBirth()
 	, m_aiYieldFromBirthCapital()
+	, m_aiYieldFromExpendTileCapital()
 	, m_aiYieldFromDeath()
 	, m_aiYieldFromPillage()
 	, m_aiYieldFromVictory()
@@ -1793,6 +1794,9 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 	m_aiYieldFromBirthCapital.clear();
 	m_aiYieldFromBirthCapital.resize(NUM_YIELD_TYPES, 0);
+
+	m_aiYieldFromExpendTileCapital.clear();
+	m_aiYieldFromExpendTileCapital.resize(NUM_YIELD_TYPES, 0);
 
 	m_aiYieldFromDeath.clear();
 	m_aiYieldFromDeath.resize(NUM_YIELD_TYPES, 0);
@@ -27980,6 +27984,15 @@ void CvPlayer::DoGreatPersonExpended(UnitTypes eGreatPersonUnit, CvUnit* pGreatP
 		}
 	}
 	GreatPersonTypes eGreatPerson = GetGreatPersonFromUnitClass(pGreatPersonUnit->getUnitClassType());
+	if (pGreatPersonUnit->getUnitInfo().IsCopyYieldsFromExpendTile())
+	{
+		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+		{
+			YieldTypes eYield = (YieldTypes)iI;
+			this->changeYieldFromExpendTileCapital(eYield, pGreatPersonUnit->plot()->calculateYield(eYield));
+		}
+		
+	}
 	doInstantYield(INSTANT_YIELD_TYPE_GP_USE, false, eGreatPerson);
 
 	if (MOD_EVENTS_GREAT_PEOPLE)
@@ -33499,6 +33512,31 @@ void CvPlayer::changeYieldRateModifier(YieldTypes eIndex, int iChange)
 	if (iChange != 0)
 	{
 		m_aiYieldRateModifier[eIndex] += iChange;
+
+		invalidateYieldRankCache(eIndex);
+
+		if (getTeam() == GC.getGame().getActiveTeam())
+		{
+			GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
+		}
+	}
+}
+
+int CvPlayer::getYieldFromExpendTileCapital(YieldTypes eIndex) const
+{
+	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	return m_aiYieldFromExpendTileCapital[eIndex];
+}
+
+void CvPlayer::changeYieldFromExpendTileCapital(YieldTypes eIndex, int iChange)
+{
+	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+
+	if (iChange != 0)
+	{
+		m_aiYieldFromExpendTileCapital[eIndex] += iChange;
 
 		invalidateYieldRankCache(eIndex);
 
@@ -43231,6 +43269,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_paiResourceShortageValue);
 	visitor(player.m_aiYieldFromBirth);
 	visitor(player.m_aiYieldFromBirthCapital);
+	visitor(player.m_aiYieldFromExpendTileCapital);
 	visitor(player.m_aiYieldFromDeath);
 	visitor(player.m_aiYieldFromPillage);
 	visitor(player.m_aiYieldFromVictory);
