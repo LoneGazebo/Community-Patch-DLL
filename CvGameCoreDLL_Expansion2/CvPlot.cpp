@@ -11138,7 +11138,7 @@ int CvPlot::calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTyp
 	return iYield;
 }
 
-int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay, const CvCity* pOwningCity)
+int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay, const CvCity* pOwningCity, bool bAssumeNoImprovement)
 {
 	if (!pOwningCity)
 	{
@@ -11170,14 +11170,14 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay, const CvCity* pOwni
 			}
 		}
 #endif
-		return calculateYieldFast(eYield, bDisplay, pOwningCity, pReligion, pBelief);
+		return calculateYieldFast(eYield, bDisplay, pOwningCity, pReligion, pBelief, NULL, bAssumeNoImprovement);
 	}
 
-	return calculateYieldFast(eYield, bDisplay, NULL, NULL, NULL);
+	return calculateYieldFast(eYield, bDisplay, NULL, NULL, NULL, NULL, bAssumeNoImprovement);
 }
 
 //	--------------------------------------------------------------------------------
-int CvPlot::calculateYieldFast(YieldTypes eYield, bool bDisplay, const CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon, const CvReligion* pPlayerPantheon)
+int CvPlot::calculateYieldFast(YieldTypes eYield, bool bDisplay, const CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon, const CvReligion* pPlayerPantheon, bool bAssumeNoImprovement)
 {
 	ImprovementTypes eImprovement = NO_IMPROVEMENT;
 	RouteTypes eRoute = NO_ROUTE;
@@ -11231,7 +11231,7 @@ int CvPlot::calculateYieldFast(YieldTypes eYield, bool bDisplay, const CvCity* p
 		}
 	}
 
-	if (IsImprovementPillaged())
+	if (IsImprovementPillaged() || bAssumeNoImprovement)
 		eImprovement = NO_IMPROVEMENT;
 	if (IsRoutePillaged())
 		eRoute = NO_ROUTE;
