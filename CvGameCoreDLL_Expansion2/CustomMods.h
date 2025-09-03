@@ -1278,6 +1278,7 @@ public:
 	int getOption(const char* szOption, int defValue = 0);
 	int getOption(const std::string& sOption, int defValue = 0);
 	int getCivOption(const char* szCiv, const char* szName, int defValue = 0);
+	void enableAllEventOptions();
 
 	MOD_OPT_DECL(BALANCE_VP);
 	MOD_OPT_DECL(CORE_DEBUGGING);

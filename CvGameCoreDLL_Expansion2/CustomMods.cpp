@@ -619,6 +619,22 @@ int CustomMods::getCivOption(const char* szCiv, const char* szName, int defValue
 	return getOption(string(szCiv) + "_" + szName, getOption(szName, defValue));
 }
 
+// Enable all mod options that start with "EVENTS_" prefix
+void CustomMods::enableAllEventOptions() {
+	const char* eventPrefix = "EVENTS_";
+	size_t prefixLen = strlen(eventPrefix);
+	
+	// Iterate through all options in the cache
+	for (auto& option : m_options) {
+		// Check if the option name starts with "EVENTS_"
+		if (option.first.compare(0, prefixLen, eventPrefix) == 0) {
+			// Enable the option
+			option.second = 1;
+			CUSTOMLOG("Enabled event option: %s", option.first.c_str());
+		}
+	}
+}
+
 void CheckSentinel(uint value)
 {
     if (value == 0xDEADBEEF)
