@@ -423,8 +423,10 @@ bool CvGame::init2()
 	setFinalInitialized(true);
 
 #if defined(MOD_IPC_CHANNEL)
-	// Initialize ConnectionService for Bridge communication
-	CvConnectionService::GetInstance().Setup();
+	if (MOD_IPC_CHANNEL) {
+		// Initialize ConnectionService for Bridge communication
+		CvConnectionService::GetInstance().Setup();
+	}
 #endif
 
 #if defined(MOD_EVENTS_TERRAFORMING)
@@ -998,8 +1000,10 @@ void CvGame::DoGameStarted()
 void CvGame::uninit()
 {
 #if defined(MOD_IPC_CHANNEL)
-	// Shutdown ConnectionService for Bridge communication
-	CvConnectionService::GetInstance().Shutdown();
+	if (MOD_IPC_CHANNEL) {
+		// Shutdown ConnectionService for Bridge communication
+		CvConnectionService::GetInstance().Shutdown();
+	}
 #endif
 
 	CvGoodyHuts::Uninit();
@@ -1507,8 +1511,10 @@ bool ExternalPause()
 void CvGame::update()
 {
 #if defined(MOD_IPC_CHANNEL)
-	// Process messages from the Connection Service
-	CvConnectionService::GetInstance().ProcessMessages();
+	if (MOD_IPC_CHANNEL) {
+		// Process messages from the Connection Service
+		CvConnectionService::GetInstance().ProcessMessages();
+	}
 #endif
 
 	if(IsWaitingForBlockingInput())

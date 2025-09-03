@@ -79,7 +79,9 @@ bool LuaSupport::CallHook(ICvEngineScriptSystem1* pkScriptSystem, const char* sz
 	// Forward the event to the Bridge Service (non-blocking)
 	// This happens before the Lua hook to ensure we capture all events
 #if defined(MOD_IPC_CHANNEL)
-	CvConnectionService::GetInstance().ForwardGameEvent(szName, args);
+	if (MOD_IPC_CHANNEL) {
+		CvConnectionService::GetInstance().ForwardGameEvent(szName, args);
+	}
 #endif
 
 	if (MOD_CORE_DISABLE_LUA_HOOKS)
