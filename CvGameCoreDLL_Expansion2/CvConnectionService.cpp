@@ -449,13 +449,39 @@ void CvConnectionService::QueueIncomingMessage(const std::string& messageJson)
 	// Lock the incoming queue critical section
 	EnterCriticalSection(&m_csIncoming);
 	
-	// Add the message to the queue
-	m_incomingQueue.push(messageJson);
+	// Split the message by delimiter "!@#$%^!" and queue each message separately
+	const std::string delimiter = "!@#$%^!";
+	std::string messages = messageJson;
+	size_t pos = 0;
 	
-	// Log the queuing action
-	std::stringstream ss;
-	ss << "QueueIncomingMessage - " << messageJson;
-	Log(LOG_DEBUG, ss.str().c_str());
+	while ((pos = messages.find(delimiter)) != std::string::npos)
+	{
+		std::string singleMessage = messages.substr(0, pos);
+		
+		// Only queue non-empty messages
+		if (!singleMessage.empty())
+		{
+			m_incomingQueue.push(singleMessage);
+			
+			// Log the queuing action
+			std::stringstream ss;
+			ss << "QueueIncomingMessage - " << singleMessage;
+			Log(LOG_DEBUG, ss.str().c_str());
+		}
+		
+		// Remove the processed message and delimiter
+		messages.erase(0, pos + delimiter.length());
+	}
+	
+	// Handle any remaining message after the last delimiter (should be empty if properly formatted)
+	// But we check anyway in case there's trailing data
+	if (!messages.empty())
+	{
+		// This shouldn't happen if messages are properly delimited, but handle it gracefully
+		std::stringstream ss;
+		ss << "QueueIncomingMessage - Warning: Found trailing data after last delimiter: " << messages;
+		Log(LOG_WARNING, ss.str().c_str());
+	}
 	
 	// Release the critical section
 	LeaveCriticalSection(&m_csIncoming);
@@ -926,12 +952,16 @@ void CvConnectionService::ConvertLuaToJsonValue(lua_State* L, int index, JsonVar
 	case LUA_TTABLE:
 		{
 			// Check if it's an array or object
-			bool isArray = true;
+			// A Lua table is considered a JSON array ONLY if:
+			// 1. It has only numeric keys
+			// 2. All keys are positive integers
+			// 3. Keys are sequential from 1 to n with no gaps
+			bool isArray = false;
 			int maxIndex = 0;
 			bool hasNonNumericKeys = false;
 			int keyCount = 0;
 			
-			// First pass: check if it's an array (sequential numeric keys starting at 1)
+			// First pass: check key types and find max index
 			lua_pushnil(L);
 			while (lua_next(L, index) != 0)
 			{
@@ -942,11 +972,7 @@ void CvConnectionService::ConvertLuaToJsonValue(lua_State* L, int index, JsonVar
 					double keyNum = lua_tonumber(L, -2);
 					
 					// Check if it's a positive integer
-					if (keyNum != floor(keyNum) || keyNum < 1)
-					{
-						isArray = false;
-					}
-					else
+					if (keyNum == floor(keyNum) && keyNum >= 1 && keyNum <= INT_MAX)
 					{
 						int keyInt = static_cast<int>(keyNum);
 						if (keyInt > maxIndex) maxIndex = keyInt;
@@ -956,15 +982,18 @@ void CvConnectionService::ConvertLuaToJsonValue(lua_State* L, int index, JsonVar
 				{
 					// Non-numeric key found
 					hasNonNumericKeys = true;
-					isArray = false;
 				}
 				lua_pop(L, 1); // Pop value, keep key for next iteration
 			}
 			
-			// If we have numeric keys, check if they're sequential
-			if (!hasNonNumericKeys && maxIndex > 0)
+			// Only consider it an array if:
+			// - No non-numeric keys
+			// - Key count matches max index (no gaps)
+			// - Max index is positive
+			if (!hasNonNumericKeys && maxIndex > 0 && keyCount == maxIndex)
 			{
-				// Check for gaps in array indices
+				// Final check: verify all indices from 1 to maxIndex exist
+				isArray = true;
 				for (int i = 1; i <= maxIndex; i++)
 				{
 					lua_pushnumber(L, i);
@@ -972,6 +1001,8 @@ void CvConnectionService::ConvertLuaToJsonValue(lua_State* L, int index, JsonVar
 					if (lua_isnil(L, -1))
 					{
 						isArray = false;
+						lua_pop(L, 1);
+						break;
 					}
 					lua_pop(L, 1);
 				}
@@ -1447,7 +1478,7 @@ void CvConnectionService::ForwardGameEvent(const char* eventName, ICvEngineScrip
 	}
 	
 	// Process messages from the Connection Service
-	CvConnectionService::GetInstance().ProcessMessages();
+	ProcessMessages();
 }
 
 // Register an external function that can be called from Lua
