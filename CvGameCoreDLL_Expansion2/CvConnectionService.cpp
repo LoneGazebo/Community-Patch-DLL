@@ -6,6 +6,7 @@ Opens an IPC channel that exposes the game's internal state to external services
 #include "CvConnectionService.h"
 #include "CvGlobals.h"
 #include "CvGame.h"
+#include "CustomMods.h"
 #include "FireWorks/FILogFile.h"
 #include "ICvDLLScriptSystem.h"
 #include "Lua/CvLuaSupport.h"
@@ -55,9 +56,10 @@ bool CvConnectionService::Setup()
 	Log(LOG_INFO, "ConnectionService::Setup() - Initializing connection service");
 
 	// Change mod settings
-#if defined(MOD_IPC_ALL_EVENTS)
-	gCustomMods.enableAllEventOptions();
-#endif
+	if (MOD_IPC_ALL_EVENTS) {
+		gCustomMods.enableAllEventOptions();
+		Log(LOG_INFO, "ConnectionService::Setup() - Enabling all event-related options");
+	}
 
 	// Initialize critical sections for thread safety
 	InitializeCriticalSection(&m_csIncoming);

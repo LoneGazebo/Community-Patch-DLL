@@ -630,7 +630,6 @@ void CustomMods::enableAllEventOptions() {
 		if (option.first.compare(0, prefixLen, eventPrefix) == 0) {
 			// Enable the option
 			option.second = 1;
-			CUSTOMLOG("Enabled event option: %s", option.first.c_str());
 		}
 	}
 }
