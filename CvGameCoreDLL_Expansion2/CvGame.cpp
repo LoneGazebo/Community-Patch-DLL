@@ -422,8 +422,10 @@ bool CvGame::init2()
 	initSpyThreshold();
 	setFinalInitialized(true);
 
+#if defined(MOD_IPC_CHANNEL)
 	// Initialize ConnectionService for Bridge communication
 	CvConnectionService::GetInstance().Setup();
+#endif
 
 #if defined(MOD_EVENTS_TERRAFORMING)
 	if (MOD_EVENTS_TERRAFORMING) {
@@ -995,8 +997,10 @@ void CvGame::DoGameStarted()
 //	--------------------------------------------------------------------------------
 void CvGame::uninit()
 {
+#if defined(MOD_IPC_CHANNEL)
 	// Shutdown ConnectionService for Bridge communication
 	CvConnectionService::GetInstance().Shutdown();
+#endif
 
 	CvGoodyHuts::Uninit();
 	CvBarbarians::Uninit();
@@ -1502,8 +1506,10 @@ bool ExternalPause()
 //	---------------------------------------------------------------------------
 void CvGame::update()
 {
+#if defined(MOD_IPC_CHANNEL)
 	// Process messages from the Connection Service
 	CvConnectionService::GetInstance().ProcessMessages();
+#endif
 
 	if(IsWaitingForBlockingInput())
 	{

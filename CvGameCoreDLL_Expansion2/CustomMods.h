@@ -821,6 +821,11 @@
 #define MOD_EVENTS_RED_COMBAT_RESULT                (MOD_EVENTS_RED_COMBAT && gCustomMods.isEVENTS_RED_COMBAT_RESULT())
 #define MOD_EVENTS_RED_COMBAT_ENDED                 (MOD_EVENTS_RED_COMBAT && gCustomMods.isEVENTS_RED_COMBAT_ENDED())
 
+// Vox Deorum modmod - opening IPC channel
+#define MOD_IPC_CHANNEL					gCustomMods.isIPC_CHANNEL()
+// Vox Deorum modmod - opening IPC channel
+#define MOD_IPC_ALL_EVENTS					gCustomMods.isIPC_ALL_EVENTS()
+
 //
 // NOTHING BELOW HERE SHOULD NEED CHANGING
 //
@@ -1582,6 +1587,9 @@ public:
 	MOD_OPT_DECL(NOTIFICATION_SETTINGS);
 	MOD_OPT_DECL(LOG_MAP_STATE);
 	MOD_OPT_DECL(ROUTE_PLANNER);
+
+	MOD_OPT_DECL(IPC_CHANNEL);
+	MOD_OPT_DECL(IPC_ALL_EVENTS);
 
 protected:
 	bool m_bInit;

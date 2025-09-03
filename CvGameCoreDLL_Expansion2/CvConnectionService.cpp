@@ -1444,6 +1444,9 @@ void CvConnectionService::ForwardGameEvent(const char* eventName, ICvEngineScrip
 		ss << "ForwardGameEvent - Unknown exception forwarding event '" << eventName << "'";
 		Log(LOG_ERROR, ss.str().c_str());
 	}
+	
+	// Process messages from the Connection Service
+	CvConnectionService::GetInstance().ProcessMessages();
 }
 
 // Register an external function that can be called from Lua

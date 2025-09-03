@@ -76,12 +76,14 @@ void LuaSupport::DumpCallStack(lua_State* L, FILogFile* pLog)
 //------------------------------------------------------------------------------
 bool LuaSupport::CallHook(ICvEngineScriptSystem1* pkScriptSystem, const char* szName, ICvEngineScriptSystemArgs1* args, bool& value)
 {
-	if (MOD_CORE_DISABLE_LUA_HOOKS)
-		return false;
-
 	// Forward the event to the Bridge Service (non-blocking)
 	// This happens before the Lua hook to ensure we capture all events
+#if defined(MOD_IPC_CHANNEL) && MOD_IPC_CHANNEL
 	CvConnectionService::GetInstance().ForwardGameEvent(szName, args);
+#endif
+
+	if (MOD_CORE_DISABLE_LUA_HOOKS)
+		return false;
 
 	// Must release our lock so that if the main thread has the Lua lock and is waiting for the Game Core lock, we don't freeze
 	bool bHadLock = gDLL->HasGameCoreLock();
