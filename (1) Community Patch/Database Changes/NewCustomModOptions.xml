@@ -1002,8 +1002,6 @@
 		
 		<!-- Enables support for Vox Deorum modmod (opening up the IPC channel) -->
 		<Row Class="3" Name="IPC_CHANNEL" Value="0"/>
-		<!-- Whether to automatically/forcibly enable ALL event-related mod options or not -->
-		<Row Class="3" Name="IPC_ALL_EVENTS" Value="0"/>
 	</CustomModOptions>
 
 	<!-- Events for JFD Piety -->

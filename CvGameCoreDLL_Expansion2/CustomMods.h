@@ -823,8 +823,6 @@
 
 // Vox Deorum modmod - opening IPC channel
 #define MOD_IPC_CHANNEL					gCustomMods.isIPC_CHANNEL()
-// Vox Deorum modmod - opening IPC channel
-#define MOD_IPC_ALL_EVENTS					gCustomMods.isIPC_ALL_EVENTS()
 
 //
 // NOTHING BELOW HERE SHOULD NEED CHANGING
@@ -1278,7 +1276,7 @@ public:
 	int getOption(const char* szOption, int defValue = 0);
 	int getOption(const std::string& sOption, int defValue = 0);
 	int getCivOption(const char* szCiv, const char* szName, int defValue = 0);
-	void enableAllEventOptions();
+	int enableAllEventOptions();
 
 	MOD_OPT_DECL(BALANCE_VP);
 	MOD_OPT_DECL(CORE_DEBUGGING);
@@ -1590,7 +1588,6 @@ public:
 	MOD_OPT_DECL(ROUTE_PLANNER);
 
 	MOD_OPT_DECL(IPC_CHANNEL);
-	MOD_OPT_DECL(IPC_ALL_EVENTS);
 
 protected:
 	bool m_bInit;

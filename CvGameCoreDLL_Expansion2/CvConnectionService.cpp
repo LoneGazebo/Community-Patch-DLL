@@ -55,12 +55,6 @@ bool CvConnectionService::Setup()
 
 	Log(LOG_INFO, "ConnectionService::Setup() - Initializing connection service");
 
-	// Change mod settings
-	if (MOD_IPC_ALL_EVENTS) {
-		gCustomMods.enableAllEventOptions();
-		Log(LOG_INFO, "ConnectionService::Setup() - Enabling all event-related options");
-	}
-
 	// Initialize critical sections for thread safety
 	InitializeCriticalSection(&m_csIncoming);
 	InitializeCriticalSection(&m_csOutgoing);
