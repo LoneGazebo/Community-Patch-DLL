@@ -7703,7 +7703,10 @@ int CvLuaPlayer::lGetGoldenAgeTourismModifier(lua_State* L)
 int CvLuaPlayer::lGetGoldenAgeGreatWriterRateModifier(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
-	const int iResult = pkPlayer->GetPlayerTraits()->GetGoldenAgeGreatWriterRateModifier();
+	int iResult = 0;
+	GreatPersonTypes eGreatPerson = static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_WRITER"));
+	if (eGreatPerson != NO_GREATPERSON)
+		iResult = pkPlayer->GetPlayerTraits()->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -7711,7 +7714,10 @@ int CvLuaPlayer::lGetGoldenAgeGreatWriterRateModifier(lua_State* L)
 int CvLuaPlayer::lGetGoldenAgeGreatArtistRateModifier(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
-	const int iResult = pkPlayer->GetPlayerTraits()->GetGoldenAgeGreatArtistRateModifier();
+	int iResult = 0;
+	GreatPersonTypes eGreatPerson = static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_ARTIST"));
+	if (eGreatPerson != NO_GREATPERSON)
+		iResult = pkPlayer->GetPlayerTraits()->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -7719,21 +7725,21 @@ int CvLuaPlayer::lGetGoldenAgeGreatArtistRateModifier(lua_State* L)
 int CvLuaPlayer::lGetGoldenAgeGreatMusicianRateModifier(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
-	const int iResult = pkPlayer->GetPlayerTraits()->GetGoldenAgeGreatMusicianRateModifier();
+	int iResult = 0;
+	GreatPersonTypes eGreatPerson = static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_MUSICIAN"));
+	if (eGreatPerson != NO_GREATPERSON)
+		iResult = pkPlayer->GetPlayerTraits()->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
 	lua_pushinteger(L, iResult);
 	return 1;
 }
-#if defined(MOD_BALANCE_CORE)
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lGetGoldenAgeGreatScientistRateModifier(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
-	GreatPersonTypes eGreatPerson = GetGreatPersonFromUnitClass((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_SCIENTIST"));
 	int iResult = 0;
+	GreatPersonTypes eGreatPerson = static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_SCIENTIST"));
 	if (eGreatPerson != NO_GREATPERSON)
-	{
 		iResult = pkPlayer->GetPlayerTraits()->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
-	}
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -7741,12 +7747,10 @@ int CvLuaPlayer::lGetGoldenAgeGreatScientistRateModifier(lua_State* L)
 int CvLuaPlayer::lGetGoldenAgeGreatEngineerRateModifier(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
-	GreatPersonTypes eGreatPerson = GetGreatPersonFromUnitClass((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_ENGINEER"));
 	int iResult = 0;
+	GreatPersonTypes eGreatPerson = static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_ENGINEER"));
 	if (eGreatPerson != NO_GREATPERSON)
-	{
 		iResult = pkPlayer->GetPlayerTraits()->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
-	}
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -7754,30 +7758,21 @@ int CvLuaPlayer::lGetGoldenAgeGreatEngineerRateModifier(lua_State* L)
 int CvLuaPlayer::lGetGoldenAgeGreatMerchantRateModifier(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
-	GreatPersonTypes eGreatPerson = GetGreatPersonFromUnitClass((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_MERCHANT"));
 	int iResult = 0;
+	GreatPersonTypes eGreatPerson = static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_MERCHANT"));
 	if (eGreatPerson != NO_GREATPERSON)
-	{
 		iResult = pkPlayer->GetPlayerTraits()->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
-	}
 	lua_pushinteger(L, iResult);
 	return 1;
 }
-
-#endif
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lGetGoldenAgeGreatDiplomatRateModifier(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	int iResult = 0;
-	if (MOD_BALANCE_VP)
-	{
-		GreatPersonTypes eGreatPerson = GetGreatPersonFromUnitClass((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_GREAT_DIPLOMAT"));
-		if (eGreatPerson != NO_GREATPERSON)
-		{
-			iResult = pkPlayer->GetPlayerTraits()->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
-		}
-	}
+	GreatPersonTypes eGreatPerson = static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_DIPLOMAT"));
+	if (eGreatPerson != NO_GREATPERSON)
+		iResult = pkPlayer->GetPlayerTraits()->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -15989,6 +15984,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 	size_t BeginColorPrefixFound;
 	std::string strColorSuffix = "]";
 	size_t BeginColorSuffixFound;
+	std::string strIntensePositiveColor = "[COLOR_INTENSE_POSITIVE_TEXT]";
 	std::string strFullPositiveColor = "[COLOR_POSITIVE_TEXT]";
 	std::string strModeratePositiveColor = "[COLOR_MODERATE_POSITIVE_TEXT]";
 	std::string strFadingPositiveColor = "[COLOR_FADING_POSITIVE_TEXT]";
@@ -15996,6 +15992,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 	std::string strFadingNegativeColor = "[COLOR_FADING_NEGATIVE_TEXT]";
 	std::string strModerateNegativeColor = "[COLOR_MODERATE_NEGATIVE_TEXT]";
 	std::string strFullNegativeColor = "[COLOR_NEGATIVE_TEXT]";
+	std::string strIntenseNegativeColor = "[COLOR_INTENSE_NEGATIVE_TEXT]";
 
 	for (uint ui = 0; ui < aOpinions.size(); ui++)
 	{
@@ -16017,11 +16014,15 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			}
 		}
 
-		if (aOpinions[ui].m_iValue >= /*31*/ GD_INT_GET(OPINION_THRESHOLD_MAJOR_NEGATIVE))
+		if (aOpinions[ui].m_iValue >= /*80*/ GD_INT_GET(OPINION_THRESHOLD_INTENSE_NEGATIVE))
+		{
+			strOutput.insert(0, strIntenseNegativeColor);
+		}
+		else if (aOpinions[ui].m_iValue >= /*30*/ GD_INT_GET(OPINION_THRESHOLD_MAJOR_NEGATIVE))
 		{
 			strOutput.insert(0, strFullNegativeColor);
 		}
-		else if (aOpinions[ui].m_iValue >= /*16*/ GD_INT_GET(OPINION_THRESHOLD_MODERATE_NEGATIVE))
+		else if (aOpinions[ui].m_iValue >= /*15*/ GD_INT_GET(OPINION_THRESHOLD_MODERATE_NEGATIVE))
 		{
 			strOutput.insert(0, strModerateNegativeColor);
 		}
@@ -16033,17 +16034,21 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		{
 			strOutput.insert(0, strNeutralColor);
 		}
-		else if (aOpinions[ui].m_iValue > /*-16*/ GD_INT_GET(OPINION_THRESHOLD_MODERATE_POSITIVE))
+		else if (aOpinions[ui].m_iValue > /*-15*/ GD_INT_GET(OPINION_THRESHOLD_MODERATE_POSITIVE))
 		{
 			strOutput.insert(0, strFadingPositiveColor);
 		}
-		else if (aOpinions[ui].m_iValue > /*-31*/ GD_INT_GET(OPINION_THRESHOLD_MAJOR_POSITIVE))
+		else if (aOpinions[ui].m_iValue > /*-30*/ GD_INT_GET(OPINION_THRESHOLD_MAJOR_POSITIVE))
 		{
 			strOutput.insert(0, strModeratePositiveColor);
 		}
-		else
+		else if (aOpinions[ui].m_iValue > /*-80*/ GD_INT_GET(OPINION_THRESHOLD_INTENSE_POSITIVE))
 		{
 			strOutput.insert(0, strFullPositiveColor);
+		}
+		else
+		{
+			strOutput.insert(0, strIntensePositiveColor);
 		}
 
 		// Should we display the number value of opinion modifiers?

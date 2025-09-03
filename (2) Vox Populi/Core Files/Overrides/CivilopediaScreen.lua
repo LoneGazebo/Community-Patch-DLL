@@ -9323,6 +9323,7 @@ Controls.SearchEditBox:RegisterCallback( OnSearchTextEnter );
 
 function OnSearchNotFoundOK()
 	Controls.SearchFoundNothing:SetHide(true);
+	Controls.SearchEditBox:TakeFocus()
 end
 Controls.OK:RegisterCallback(Mouse.eLClick, OnSearchNotFoundOK );
 
@@ -9331,9 +9332,15 @@ function InputHandler( uiMsg, wParam, lParam )
 		if(not Controls.SearchFoundNothing:IsHidden()) then
 			if(wParam == Keys.VK_ESCAPE or wParam == Keys.VK_RETURN) then
 				Controls.SearchFoundNothing:SetHide(true);
+				Controls.SearchEditBox:TakeFocus()
 				return true;
 			end
 		else
+			if wParam == Keys.F and UIManager:GetControl() then
+				Controls.SearchEditBox:TakeFocus()
+				return true
+			end
+
 			if(wParam == Keys.VK_ESCAPE) then
 				OnClose();
 				return true;
@@ -9362,7 +9369,7 @@ function ShowHideHandler( isHide )
 				CivilopediaCategory[CategoryHomePage].DisplayHomePage();
 			end
 		end
-
+		Controls.SearchEditBox:TakeFocus()
 	end
 end
 ContextPtr:SetShowHideHandler( ShowHideHandler );

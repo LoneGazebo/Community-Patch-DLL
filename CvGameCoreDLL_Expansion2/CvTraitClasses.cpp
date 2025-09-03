@@ -304,6 +304,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_piSeaPlotYieldChanges(NULL),
 	m_ppiFeatureYieldChanges(NULL),
 	m_ppiResourceYieldChanges(NULL),
+	m_piLuxuryYieldChanges(NULL),
 	m_miResourceYieldChangesFromGoldenAge(),
 	m_miResourceYieldChangesFromGoldenAgeCap(),
 	m_ppiTerrainYieldChanges(NULL),
@@ -603,24 +604,6 @@ int CvTraitEntry::GetGoldenAgeCombatModifier() const
 int CvTraitEntry::GetGoldenAgeTourismModifier() const
 {
 	return m_iGoldenAgeTourismModifier;
-}
-
-/// Accessor:: artist bonus during golden ages
-int CvTraitEntry::GetGoldenAgeGreatArtistRateModifier() const
-{
-	return m_iGoldenAgeGreatArtistRateModifier;
-}
-
-/// Accessor:: musician bonus during golden ages
-int CvTraitEntry::GetGoldenAgeGreatMusicianRateModifier() const
-{
-	return m_iGoldenAgeGreatMusicianRateModifier;
-}
-
-/// Accessor:: writer bonus during golden ages
-int CvTraitEntry::GetGoldenAgeGreatWriterRateModifier() const
-{
-	return m_iGoldenAgeGreatWriterRateModifier;
 }
 
 /// Accessor:: combat bonus during golden ages
@@ -1773,6 +1756,13 @@ int CvTraitEntry::GetResourceYieldChanges(ResourceTypes eIndex1, YieldTypes eInd
 	ASSERT_DEBUG(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
 	ASSERT_DEBUG(eIndex2 > -1, "Index out of bounds");
 	return m_ppiResourceYieldChanges ? m_ppiResourceYieldChanges[eIndex1][eIndex2] : 0;
+}
+
+int CvTraitEntry::GetLuxuryYieldChanges(int i) const
+{
+	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
+	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	return m_piLuxuryYieldChanges ? m_piLuxuryYieldChanges[i] : 0;
 }
 
 std::map<int, std::map<int, int>> CvTraitEntry::GetResourceYieldChangesFromGoldenAge()
@@ -3385,6 +3375,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	kUtility.SetYields(m_piLitYieldChanges, "Trait_LitYieldChanges", "TraitType", szTraitType);
 	kUtility.SetYields(m_piMusicYieldChanges, "Trait_MusicYieldChanges", "TraitType", szTraitType);
 	kUtility.SetYields(m_piSeaPlotYieldChanges, "Trait_SeaPlotYieldChanges", "TraitType", szTraitType);
+	kUtility.SetYields(m_piLuxuryYieldChanges, "Trait_LuxuryYieldChanges", "TraitType", szTraitType);
 
 	//FeatureYieldChanges
 	{
@@ -3796,6 +3787,9 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	}
 #endif
 
+	m_piGoldenAgeGreatPersonRateModifier[GC.getInfoTypeForString("GREATPERSON_WRITER")] += m_iGoldenAgeGreatWriterRateModifier;
+	m_piGoldenAgeGreatPersonRateModifier[GC.getInfoTypeForString("GREATPERSON_ARTIST")] += m_iGoldenAgeGreatArtistRateModifier;
+	m_piGoldenAgeGreatPersonRateModifier[GC.getInfoTypeForString("GREATPERSON_MUSICIAN")] += m_iGoldenAgeGreatMusicianRateModifier;
 
 	return true;
 }
@@ -4070,9 +4064,9 @@ void CvPlayerTraits::SetIsTourism()
 		GetPolicyCostModifier() < 0 ||
 		GetWonderProductionModifier() > 0 ||
 		GetGoldenAgeTourismModifier() > 0 ||
-		GetGoldenAgeGreatArtistRateModifier() > 0 ||
-		GetGoldenAgeGreatMusicianRateModifier() > 0 ||
-		GetGoldenAgeGreatWriterRateModifier() > 0 ||
+		GetGoldenAgeGreatPersonRateModifier(static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_ARTIST"))) > 0 ||
+		GetGoldenAgeGreatPersonRateModifier(static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_MUSICIAN"))) > 0 ||
+		GetGoldenAgeGreatPersonRateModifier(static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_WRITER"))) > 0 ||
 		GetTourismGABonus() > 0 ||
 		GetTourismToGAP() > 0 ||
 		GetGoldToGAP() > 0 ||
@@ -4425,9 +4419,6 @@ void CvPlayerTraits::InitPlayerTraits()
 			m_iGoldenAgeMoveChange += trait->GetGoldenAgeMoveChange();
 			m_iGoldenAgeCombatModifier += trait->GetGoldenAgeCombatModifier();
 			m_iGoldenAgeTourismModifier += trait->GetGoldenAgeTourismModifier();
-			m_iGoldenAgeGreatArtistRateModifier += trait->GetGoldenAgeGreatArtistRateModifier();
-			m_iGoldenAgeGreatMusicianRateModifier += trait->GetGoldenAgeGreatMusicianRateModifier();
-			m_iGoldenAgeGreatWriterRateModifier += trait->GetGoldenAgeGreatWriterRateModifier();
 			m_iExtraEmbarkMoves += trait->GetExtraEmbarkMoves();
 			m_iNaturalWonderFirstFinderGold += trait->GetNaturalWonderFirstFinderGold();
 			m_iNaturalWonderSubsequentFinderGold += trait->GetNaturalWonderSubsequentFinderGold();
@@ -5039,6 +5030,7 @@ void CvPlayerTraits::InitPlayerTraits()
 				m_iSeaPlotYieldChanges[iYield] = trait->GetSeaPlotYieldChanges(iYield);
 				m_iGAPToYield[iYield] = trait->GetGAPToYield(iYield);
 				m_iMountainRangeYield[iYield] = trait->GetMountainRangeYield(iYield);
+				m_iLuxuryYieldChanges[iYield] = trait->GetLuxuryYieldChanges(iYield);
 
 				for(int iFeatureLoop = 0; iFeatureLoop < GC.getNumFeatureInfos(); iFeatureLoop++)
 				{
@@ -5359,9 +5351,6 @@ void CvPlayerTraits::Reset()
 	m_iGoldenAgeMoveChange = 0;
 	m_iGoldenAgeCombatModifier = 0;
 	m_iGoldenAgeTourismModifier = 0;
-	m_iGoldenAgeGreatArtistRateModifier = 0;
-	m_iGoldenAgeGreatMusicianRateModifier = 0;
-	m_iGoldenAgeGreatWriterRateModifier = 0;
 	m_iExtraEmbarkMoves = 0;
 	m_iNaturalWonderFirstFinderGold = 0;
 	m_iNaturalWonderSubsequentFinderGold = 0;
@@ -5658,6 +5647,7 @@ void CvPlayerTraits::Reset()
 		m_iSeaPlotYieldChanges[iYield] = 0;
 		m_iGAPToYield[iYield] = 0;
 		m_iMountainRangeYield[iYield] = 0;
+		m_iLuxuryYieldChanges[iYield] = 0;
 		for(int iFeature = 0; iFeature < GC.getNumFeatureInfos(); iFeature++)
 		{
 			m_ppiFeatureYieldChange[iFeature] = yield;
@@ -7567,9 +7557,6 @@ void CvPlayerTraits::Serialize(PlayerTraits& playerTraits, Visitor& visitor)
 	visitor(playerTraits.m_iGoldenAgeMoveChange);
 	visitor(playerTraits.m_iGoldenAgeCombatModifier);
 	visitor(playerTraits.m_iGoldenAgeTourismModifier);
-	visitor(playerTraits.m_iGoldenAgeGreatArtistRateModifier);
-	visitor(playerTraits.m_iGoldenAgeGreatMusicianRateModifier);
-	visitor(playerTraits.m_iGoldenAgeGreatWriterRateModifier);
 	visitor(playerTraits.m_iExtraEmbarkMoves);
 	visitor(playerTraits.m_iNaturalWonderFirstFinderGold);
 	visitor(playerTraits.m_iNaturalWonderSubsequentFinderGold);
@@ -7787,6 +7774,7 @@ void CvPlayerTraits::Serialize(PlayerTraits& playerTraits, Visitor& visitor)
 	visitor(playerTraits.m_iYieldFromCSFriend);
 	visitor(playerTraits.m_iGAPToYield);
 	visitor(playerTraits.m_iMountainRangeYield);
+	visitor(playerTraits.m_iLuxuryYieldChanges);
 	visitor(playerTraits.m_bFreeGreatWorkOnConquest);
 	visitor(playerTraits.m_bPopulationBoostReligion);
 	visitor(playerTraits.m_bStartsWithPantheon);

@@ -400,10 +400,13 @@
 
 	local M = Module
 
-	kit.Args = M() -- Variadic Arguments
+	kit.Args = M()  -- Variadic Arguments
+	kit.Assert = M() -- Assertion utilities
 	kit.Cache = M() -- Caching
-	kit.FP = M() -- Functional Programming
-	kit.Misc = M() -- Miscellaneous
+	kit.Misc = M()  -- Miscellaneous
+	kit.Table = M() -- Table utilities
+	kit.Type = M()  -- Type utilities
+	kit.FP = M()    -- Functional Programming
 	kit.UI = M()
 	kit.UI.Control = M()
 	kit.Util = M() -- General Purpose Utilities	

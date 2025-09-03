@@ -148,9 +148,6 @@ public:
 	int GetGoldenAgeMoveChange() const;
 	int GetGoldenAgeCombatModifier() const;
 	int GetGoldenAgeTourismModifier() const;
-	int GetGoldenAgeGreatArtistRateModifier() const;
-	int GetGoldenAgeGreatMusicianRateModifier() const;
-	int GetGoldenAgeGreatWriterRateModifier() const;
 	int GetExtraEmbarkMoves() const;
 	int GetFreeUnitClassType() const;
 	int GetNaturalWonderFirstFinderGold() const;
@@ -418,6 +415,7 @@ public:
 	int GetSeaPlotYieldChanges(int i) const;
 	int GetFeatureYieldChanges(FeatureTypes eIndex1, YieldTypes eIndex2) const;
 	int GetResourceYieldChanges(ResourceTypes eIndex1, YieldTypes eIndex2) const;
+	int GetLuxuryYieldChanges(int i) const;
 	std::map<int, std::map<int, int>> GetResourceYieldChangesFromGoldenAge();
 	std::map<int, std::map<int, int>> GetResourceYieldChangesFromGoldenAgeCap();
 	int GetTerrainYieldChanges(TerrainTypes eIndex1, YieldTypes eIndex2) const;
@@ -784,6 +782,7 @@ protected:
 	int* m_piSeaPlotYieldChanges;
 	int** m_ppiFeatureYieldChanges;
 	int** m_ppiResourceYieldChanges;
+	int* m_piLuxuryYieldChanges;
 	std::map<int, std::map<int, int>> m_miResourceYieldChangesFromGoldenAge;
 	std::map<int, std::map<int, int>> m_miResourceYieldChangesFromGoldenAgeCap;
 	int** m_ppiTerrainYieldChanges;
@@ -1080,18 +1079,6 @@ public:
 	int GetGoldenAgeTourismModifier() const
 	{
 		return m_iGoldenAgeTourismModifier;
-	};
-	int GetGoldenAgeGreatArtistRateModifier() const
-	{
-		return m_iGoldenAgeGreatArtistRateModifier;
-	};
-	int GetGoldenAgeGreatMusicianRateModifier() const
-	{
-		return m_iGoldenAgeGreatMusicianRateModifier;
-	};
-	int GetGoldenAgeGreatWriterRateModifier() const
-	{
-		return m_iGoldenAgeGreatWriterRateModifier;
 	};
 	int GetExtraEmbarkMoves() const
 	{
@@ -1952,6 +1939,10 @@ public:
 	{
 		return m_iMountainRangeYield[(int)eYield];
 	};
+	int GetLuxuryYieldChanges(YieldTypes eYield) const
+	{
+		return m_iLuxuryYieldChanges[(int)eYield];
+	};
 #endif
 #if defined(MOD_BALANCE_CORE) && defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
 	int GetYieldFromRouteMovementInForeignTerritory(YieldTypes eIndex, bool bTradePartner) const;
@@ -2182,9 +2173,6 @@ private:
 	int m_iGoldenAgeMoveChange;
 	int m_iGoldenAgeCombatModifier;
 	int m_iGoldenAgeTourismModifier;
-	int m_iGoldenAgeGreatArtistRateModifier;
-	int m_iGoldenAgeGreatMusicianRateModifier;
-	int m_iGoldenAgeGreatWriterRateModifier;
 	int m_iExtraEmbarkMoves;
 	int m_iNaturalWonderFirstFinderGold;
 	int m_iNaturalWonderSubsequentFinderGold;
@@ -2461,6 +2449,7 @@ private:
 	int m_iSeaPlotYieldChanges[NUM_YIELD_TYPES];
 	int m_iGAPToYield[NUM_YIELD_TYPES];
 	int m_iMountainRangeYield[NUM_YIELD_TYPES];
+	int m_iLuxuryYieldChanges[NUM_YIELD_TYPES];
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiFeatureYieldChange;
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiResourceYieldChange;
 	std::map<int, std::map<int, int>> m_miResourceYieldChangesFromGoldenAge;

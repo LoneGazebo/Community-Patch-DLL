@@ -1,5 +1,5 @@
-local Pack = CPK.Args.Pack
-local Unpack = CPK.Args.Unpack
+local ArgsPack = CPK.Args.Pack
+local ArgsUnpack = CPK.Args.Unpack
 
 --- Creates a curried version of the specified function.
 --- A curried function takes a specified number of arguments. If fewer arguments are provided,
@@ -21,14 +21,14 @@ local Unpack = CPK.Args.Unpack
 --- @return function # A curried version of the specified function.
 --- @nodiscard
 local function Curry(len, fn, args)
-	local prevArgs = args or Pack()
+	local prevArgs = args or ArgsPack()
 	local prevSize = prevArgs.n or #prevArgs
 
 	return function(...)
-		local currArgs = Pack(...)
+		local currArgs = ArgsPack(...)
 		local currSize = currArgs.n
 
-		local nextArgs = { Unpack(prevArgs) }
+		local nextArgs = { ArgsUnpack(prevArgs) }
 		local nextSize = prevSize + currSize
 
 		nextArgs.n = nextSize
@@ -38,7 +38,7 @@ local function Curry(len, fn, args)
 		end
 
 		if nextSize >= len then
-			return fn(Unpack(nextArgs))
+			return fn(ArgsUnpack(nextArgs))
 		end
 
 		return Curry(len, fn, nextArgs)
