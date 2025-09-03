@@ -360,7 +360,7 @@ DWORD WINAPI CvConnectionService::NamedPipeServerThread(LPVOID lpParam)
 // Handle a single client connection
 void CvConnectionService::HandleClientConnection(HANDLE hPipe)
 {
-	char buffer[4096];
+	char buffer[32767];
 	DWORD bytesRead, bytesWritten;
 	
 	while (m_bClientConnected && !m_bShutdownRequested)
