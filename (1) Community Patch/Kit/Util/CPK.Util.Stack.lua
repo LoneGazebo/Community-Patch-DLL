@@ -58,7 +58,7 @@ StackMetatable.__index = StackPrototype
 
 --- Creates a new, empty stack.
 --- @generic T
---- @param _ `T`
+--- @param _ nil | `T`
 --- @return Stack<T>
 function StackMetatable.New(_)
 	local this = {

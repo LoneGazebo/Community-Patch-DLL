@@ -392,13 +392,13 @@
 		__call = Module.New
 	})
 
-	local kit = Module.New('CPK')
+	local M = Module.New
+
+	local kit = M('CPK')
 
 	kit.Module = Module
 	kit.Import = Import
 	kit.Var = Var
-
-	local M = Module
 
 	kit.Args = M()  -- Variadic Arguments
 	kit.Assert = M() -- Assertion utilities

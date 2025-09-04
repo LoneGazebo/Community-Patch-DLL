@@ -77,6 +77,7 @@ end
 --- @class StringBuilderMetatable
 local StringBuilderMetatable = {}
 
+--- @package
 --- @param self StringBuilder
 --- @return string
 function StringBuilderMetatable.__tostring(self)
