@@ -1,46 +1,53 @@
 local lua_setmetatable = setmetatable
 local lua_table_remove = table.remove
 
---- @class Stack
---- @field protected stack any[]
+--- @generic T
+--- @class Stack<T>
+--- @field protected items T[]
 --- @field protected count integer
 local StackPrototype = {}
 
---- @return any
+--- Removes and returns the value from the top of the stack.
+--- @return T?
 function StackPrototype:Pop()
 	if self.count == 0 then
 		return nil
 	end
 
-	local value = lua_table_remove(self.stack)
+	local value = lua_table_remove(self.items)
 	self.count = self.count - 1
 
 	return value
 end
 
---- @return any
+--- Returns the value at the top of the stack without removing it.
+--- @return T?
 function StackPrototype:Peek()
-	return self.stack[self.count]
+	return self.items[self.count]
 end
 
---- @param value any
+--- Adds one value to the top of the stack.
+--- @param value T
+--- @return self
 function StackPrototype:Push(value)
 	if value ~= nil then
 		self.count = self.count + 1
-		self.stack[self.count] = value
+		self.items[self.count] = value
 	end
 
 	return self
 end
 
---- @return integer
+--- Returns the number of items currently in the stack.
+--- @return integer # The number of items.
 function StackPrototype:Size()
 	return self.count
 end
 
+--- Checks if the stack is empty (has 0 items).
 --- @return boolean
 function StackPrototype:Empty()
-	return self.stack[1] == nil
+	return self.items[1] == nil
 end
 
 --- @class StackMetatable
@@ -49,7 +56,11 @@ local StackMetatable = {}
 --- @package
 StackMetatable.__index = StackPrototype
 
-function StackMetatable.New()
+--- Creates a new, empty stack.
+--- @generic T
+--- @param _ `T`
+--- @return Stack<T>
+function StackMetatable.New(_)
 	local this = {
 		count = 0,
 		stack = {}
