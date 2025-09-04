@@ -1,4 +1,4 @@
-local _lua_type = type
+local lua_type = type
 
 --- Checks if the type of the specified value is `"string"`.
 ---
@@ -16,7 +16,7 @@ local _lua_type = type
 --- @return boolean # `true` if the value is a string, `false` otherwise.
 --- @nodiscard
 local function IsString(val)
-	return _lua_type(val) == "string"
+	return lua_type(val) == "string"
 end
 
 CPK.Type.IsString = IsString

@@ -1,82 +1,50 @@
-local _lua_table_insert = table.insert
-local _lua_table_concat = table.concat
-local _lua_table_remove = table.remove
-local _lua_setmetatable = setmetatable
-
-local StringBuilder = {}
-
---- @param self StringBuilder
---- @return string
-function StringBuilder.__tostring(self)
-	return self:Concat('\n')
-end
+local lua_table_insert = table.insert
+local lua_table_concat = table.concat
+local lua_table_remove = table.remove
+local lua_setmetatable = setmetatable
 
 --- @class StringBuilder
---- @field _chunks string[] # Internal storage of string chunks.
-StringBuilder.__index = {}
-
---- Creates a new TextBuilder instance.
---- @return StringBuilder
-function StringBuilder.New()
-	local this = {
-		_chunks = {},
-	} --[[@as StringBuilder]]
-
-	return _lua_setmetatable(this, StringBuilder)
-end
+--- @field protected chunks string[]
+local StringBuilderPrototype = {}
 
 --- Returns string chunk at index if exists
 --- @param idx integer
 --- @return string | nil
-function StringBuilder.__index:At(idx)
-	return self._chunks[idx]
+function StringBuilderPrototype:At(idx)
+	return self.chunks[idx]
 end
 
 --- Removes all string chunks.
 --- @return StringBuilder
-function StringBuilder.__index:Clear()
-	self._chunks = {}
+function StringBuilderPrototype:Clear()
+	self.chunks = {}
 	return self
 end
 
---- Returns the number of string chunks.
+--- Returns the number of chunks.
 --- @return integer
-function StringBuilder.__index:Size()
-	return #(self._chunks)
-end
-
---- Returns the sum of lengths of all chunks.
---- @return integer
-function StringBuilder.__index:Length()
-	local len = 0
-	local chunks = self._chunks
-	local size = #(chunks)
-
-	for i = 1, size do
-		len = len + #(chunks[i])
-	end
-
-	return len
+function StringBuilderPrototype:Size()
+	return #(self.chunks)
 end
 
 --- Checks if there are no string chunks.
 --- @return boolean
-function StringBuilder.__index:IsEmpty()
-	return self._chunks[1] == nil
+function StringBuilderPrototype:Empty()
+	return self.chunks[1] == nil
 end
 
 --- Removes and returns the chunk at the given index.
 --- @param idx integer
 --- @return string | nil # String chunk that was removed or nil
-function StringBuilder.__index:Remove(idx)
-	return _lua_table_remove(self._chunks, idx)
+function StringBuilderPrototype:Remove(idx)
+	return lua_table_remove(self.chunks, idx)
 end
 
 --- Appends a chunk to the end.
 --- @param str string
 --- @return StringBuilder
-function StringBuilder.__index:Append(str)
-	_lua_table_insert(self._chunks, str)
+function StringBuilderPrototype:Append(str)
+	lua_table_insert(self.chunks, str)
 	return self
 end
 
@@ -84,15 +52,15 @@ end
 --- @param idx integer
 --- @param str string
 --- @return StringBuilder
-function StringBuilder.__index:Insert(idx, str)
-	_lua_table_insert(self._chunks, idx, str)
+function StringBuilderPrototype:Insert(idx, str)
+	lua_table_insert(self.chunks, idx, str)
 	return self
 end
 
 --- Prepends a string to the beginning.
 --- @param str string
 --- @return StringBuilder
-function StringBuilder.__index:Prepend(str)
+function StringBuilderPrototype:Prepend(str)
 	return self:Insert(1, str)
 end
 
@@ -102,8 +70,30 @@ end
 --- @param from? integer
 --- @param upto? integer
 --- @return string
-function StringBuilder.__index:Concat(separator, from, upto)
-	return _lua_table_concat(self._chunks, separator, from, upto)
+function StringBuilderPrototype:Concat(separator, from, upto)
+	return lua_table_concat(self.chunks, separator, from, upto)
 end
 
-CPK.Util.StringBuilder = StringBuilder
+--- @class StringBuilderMetatable
+local StringBuilderMetatable = {}
+
+--- @param self StringBuilder
+--- @return string
+function StringBuilderMetatable.__tostring(self)
+	return self:Concat('\n')
+end
+
+--- @package
+StringBuilderMetatable.__index = StringBuilderPrototype
+
+--- Creates a new StringBuilder instance.
+--- @return StringBuilder
+function StringBuilderMetatable.New()
+	local this = {
+		chunks = {},
+	}
+
+	return lua_setmetatable(this, StringBuilderMetatable)
+end
+
+CPK.Util.StringBuilder = StringBuilderMetatable

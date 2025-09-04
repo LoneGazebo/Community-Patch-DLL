@@ -1,4 +1,4 @@
-local _lua_setmetatable = setmetatable
+local lua_setmetatable = setmetatable
 
 local Distance = CPK.String.Distance
 

@@ -1,4 +1,4 @@
-local _lua_type = type
+local lua_type = type
 local AssertError = CPK.Assert.Error
 
 --- Creates a function that asserts the value matches the specified Lua type using a provided test function.
@@ -24,7 +24,7 @@ local function AssertPrepare(exp, tst)
 	--- @param lvl? integer # An optional level of error. For common asserts level should be 3.
 	return function(val, mes, lvl)
 		if not tst(val) then
-			AssertError(_lua_type(val), exp, mes, lvl or 3)
+			AssertError(lua_type(val), exp, mes, lvl or 3)
 		end
 	end
 end

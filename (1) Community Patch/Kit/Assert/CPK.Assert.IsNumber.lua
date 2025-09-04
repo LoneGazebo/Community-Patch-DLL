@@ -1,5 +1,4 @@
 local Prepare = CPK.Assert.Prepare
-
 local IsNumber = CPK.Type.IsNumber
 
 --- Asserts that the type of the specified value is a number.

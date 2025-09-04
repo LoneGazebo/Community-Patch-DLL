@@ -1,5 +1,5 @@
 ---@diagnostic disable-next-line: deprecated
-local _lua_unpack = table.unpack or unpack
+local lua_unpack = table.unpack or unpack
 
 --- Unpacks specified table using it's property `n` or length
 --- @generic T
@@ -9,7 +9,7 @@ local _lua_unpack = table.unpack or unpack
 --- @see unpack
 --- @see table.unpack
 local function ArgsUnpack(args)
-	return _lua_unpack(args, 1, args.n or #args)
+	return lua_unpack(args, 1, args.n or #args)
 end
 
 CPK.Args.Unpack = ArgsUnpack
