@@ -64,16 +64,16 @@ bool CvConnectionService::Setup()
 	InitializeCriticalSection(&m_csExternalFunctions);
 	InitializeCriticalSection(&m_csPendingCalls);
 
-	// Reading counters
-	m_uiCurrentTurn = GC.getGame().getGameTurn();
-	DeserializeEventSequence();
-
 	// Reset shutdown flag
 	m_bShutdownRequested = false;
 	m_bClientConnected = false;
 
 	// Initialize Lua state for script execution
 	m_pLuaState = gDLL->GetScriptSystem()->CreateLuaThread("ConnectionService");
+
+	// Reading counters
+	m_uiCurrentTurn = GC.getGame().getGameTurn();
+	DeserializeEventSequence();
 
 	// Register game data with the Lua state
 	LuaSupport::RegisterScriptData(m_pLuaState);
@@ -1672,7 +1672,6 @@ void CvConnectionService::DeserializeEventSequence()
 		ss << "DeserializeEventSequence - Failed to load: " << (errorMsg ? errorMsg : "unknown error");
 		Log(LOG_ERROR, ss.str().c_str());
 		lua_pop(m_pLuaState, 1);
-		// Keep default value of 1
 	}
 	else
 	{
@@ -1686,14 +1685,14 @@ void CvConnectionService::DeserializeEventSequence()
 				if (loadedValue > 0)
 				{
 					m_uiEventSequence = loadedValue;
-					std::stringstream ss;
-					ss << "DeserializeEventSequence - Loaded event sequence: " << m_uiEventSequence;
-					Log(LOG_DEBUG, ss.str().c_str());
 				}
 			}
 		}
 		lua_pop(m_pLuaState, 1);
 	}
+	std::stringstream ss;
+	ss << "DeserializeEventSequence - Loaded event sequence: " << m_uiEventSequence;
+	Log(LOG_DEBUG, ss.str().c_str());
 }
 
 // Callback data structure for Lua external calls

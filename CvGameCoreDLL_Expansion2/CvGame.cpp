@@ -11073,12 +11073,6 @@ void CvGame::Read(FDataStream& kStream)
 	CvStreamLoadVisitor serialVisitor(kStream);
 	Serialize(*this, serialVisitor);
 
-	// Saving the Connection Service event sequencing
-	if (MOD_IPC_CHANNEL) {
-		// Shutdown ConnectionService for Bridge communication
-		CvConnectionService::GetInstance().SerializeEventSequence();
-	}
-
 	// Save game database comes last
 	readSaveGameDB(kStream);
 
@@ -11156,6 +11150,12 @@ void CvGame::Write(FDataStream& kStream) const
 
 	CvStreamSaveVisitor serialVisitor(kStream);
 	Serialize(*this, serialVisitor);
+
+	// Saving the Connection Service event sequencing into SaveGameDB
+	if (MOD_IPC_CHANNEL) {
+		// Shutdown ConnectionService for Bridge communication
+		CvConnectionService::GetInstance().SerializeEventSequence();
+	}
 
 	// Save game database comes last
 	writeSaveGameDB(kStream);
