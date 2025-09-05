@@ -62,6 +62,12 @@ public:
 
 	// Forward game events to the Bridge Service
 	void ForwardGameEvent(const char* eventName, class ICvEngineScriptSystemArgs1* args);
+	
+	// Save state (can be called when game is being saved)
+	void SerializeEventSequence();
+	
+	// Broadcast a custom event with JSON payload
+	void BroadcastEvent(const char* eventName, const DynamicJsonDocument& payload);
 
 	// External function registry management
 	void RegisterExternalFunction(const char* name, bool bAsync);
@@ -181,8 +187,18 @@ private:
 	// Counter for generating unique call IDs
 	unsigned int m_uiNextCallId;
 	
+	// Event tracking for proper event IDs
+	unsigned int m_uiCurrentTurn;
+	unsigned int m_uiEventSequence;
+	
 	// Helper to generate unique call ID
 	std::string GenerateCallId();
+	
+	// Helper to generate event ID based on turn and sequence
+	unsigned long long GenerateEventId();
+	
+	// Serialization methods for event sequence
+	void DeserializeEventSequence();
 	
 	// Helper to handle external call response
 	void HandleExternalCallResponse(const char* callId, bool bSuccess, const char* error, const char* data);

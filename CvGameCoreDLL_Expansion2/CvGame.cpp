@@ -422,12 +422,10 @@ bool CvGame::init2()
 	initSpyThreshold();
 	setFinalInitialized(true);
 
-#if defined(MOD_IPC_CHANNEL)
 	if (MOD_IPC_CHANNEL) {
 		// Initialize ConnectionService for Bridge communication
 		CvConnectionService::GetInstance().Setup();
 	}
-#endif
 
 #if defined(MOD_EVENTS_TERRAFORMING)
 	if (MOD_EVENTS_TERRAFORMING) {
@@ -999,12 +997,10 @@ void CvGame::DoGameStarted()
 //	--------------------------------------------------------------------------------
 void CvGame::uninit()
 {
-#if defined(MOD_IPC_CHANNEL)
 	if (MOD_IPC_CHANNEL) {
 		// Shutdown ConnectionService for Bridge communication
 		CvConnectionService::GetInstance().Shutdown();
 	}
-#endif
 
 	CvGoodyHuts::Uninit();
 	CvBarbarians::Uninit();
@@ -11076,6 +11072,12 @@ void CvGame::Read(FDataStream& kStream)
 
 	CvStreamLoadVisitor serialVisitor(kStream);
 	Serialize(*this, serialVisitor);
+
+	// Saving the Connection Service event sequencing
+	if (MOD_IPC_CHANNEL) {
+		// Shutdown ConnectionService for Bridge communication
+		CvConnectionService::GetInstance().SerializeEventSequence();
+	}
 
 	// Save game database comes last
 	readSaveGameDB(kStream);

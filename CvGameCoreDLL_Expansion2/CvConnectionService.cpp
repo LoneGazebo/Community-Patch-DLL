@@ -32,6 +32,8 @@ CvConnectionService::CvConnectionService()
 	, m_bClientConnected(false)
 	, m_bShutdownRequested(false)
 	, m_uiNextCallId(1)
+	, m_uiCurrentTurn(0)
+	, m_uiEventSequence(1)
 {
 }
 
@@ -62,6 +64,10 @@ bool CvConnectionService::Setup()
 	InitializeCriticalSection(&m_csExternalFunctions);
 	InitializeCriticalSection(&m_csPendingCalls);
 
+	// Reading counters
+	m_uiCurrentTurn = GC.getGame().getGameTurn();
+	DeserializeEventSequence();
+
 	// Reset shutdown flag
 	m_bShutdownRequested = false;
 	m_bClientConnected = false;
@@ -72,7 +78,7 @@ bool CvConnectionService::Setup()
 	// Register game data with the Lua state
 	LuaSupport::RegisterScriptData(m_pLuaState);
 	Log(LOG_INFO, "ConnectionService::Setup() - Lua state initialized, creating named pipe server");
-
+	
 	// Create the Named Pipe server thread
 	m_hThread = CreateThread(
 		NULL,                   // default security attributes
@@ -107,6 +113,9 @@ void CvConnectionService::Shutdown()
 	}
 
 	Log(LOG_INFO, "ConnectionService::Shutdown() - Shutting down connection service");
+	
+	// Save event sequence before shutting down
+	SerializeEventSequence();
 
 	// Signal the thread to shutdown
 	m_bShutdownRequested = true;
@@ -1384,14 +1393,14 @@ void CvConnectionService::ForwardGameEvent(const char* eventName, ICvEngineScrip
 			}
 		}
 		
-		// Create the message document (2KB should be enough for most events)
+		// Generate event ID based on turn and sequence
+		unsigned long long eventId = GenerateEventId();
+		
+		// Create the message document following the new protocol
 		DynamicJsonDocument message(2048);
+		message["id"] = eventId;
 		message["type"] = "game_event";
 		message["event"] = eventName;
-		
-		// Add timestamp (using game tick for now)
-		CvGame& game = GC.getGame();
-		message["timestamp"] = game.getGameTurn();
 		
 		// Extract arguments to JSON payload
 		JsonObject payload = message.createNestedObject("payload");
@@ -1581,6 +1590,110 @@ std::string CvConnectionService::GenerateCallId()
 	std::stringstream ss;
 	ss << "call_" << GetCurrentThreadId() << "_" << GetTickCount() << "_" << m_uiNextCallId++;
 	return ss.str();
+}
+
+// Generate event ID based on turn and sequence
+unsigned long long CvConnectionService::GenerateEventId()
+{
+	// Get current turn from the game
+	unsigned int currentTurn = 0;
+	currentTurn = GC.getGame().getGameTurn();
+	
+	// If turn has changed, reset event sequence
+	if (currentTurn != m_uiCurrentTurn)
+	{
+		m_uiCurrentTurn = currentTurn;
+		m_uiEventSequence = 1;
+	}
+	
+	// Generate event ID: (turn * 1000000) + eventSequence
+	unsigned long long eventId = (unsigned long long)m_uiCurrentTurn * 1000000ULL + m_uiEventSequence;
+	
+	// Increment sequence for next event
+	m_uiEventSequence++;
+	
+	return eventId;
+}
+
+// Serialize m_uiEventSequence to database
+void CvConnectionService::SerializeEventSequence()
+{
+	// Build Lua script to save event sequence
+	std::stringstream script;
+	script << "local saveDB = Modding.OpenSaveData();\n";
+	script << "-- Create table if not exists\n";
+	script << "for row in saveDB.Query('CREATE TABLE IF NOT EXISTS Deorum(\"ID\" INTEGER NOT NULL PRIMARY KEY, \"Key\" TEXT, \"Value\" TEXT)') do end\n";
+	script << "-- Update or insert EventSequence value\n";
+	script << "for row in saveDB.Query(\"DELETE FROM Deorum WHERE Key == 'EventSequence'\") do end\n";
+	script << "for row in saveDB.Query(\"INSERT INTO Deorum (Key, Value) VALUES ('EventSequence', ?)\", tostring(" << m_uiEventSequence << ")) do end\n";
+	
+	// Execute the script
+	int result = luaL_dostring(m_pLuaState, script.str().c_str());
+	
+	if (result != 0)
+	{
+		const char* errorMsg = lua_tostring(m_pLuaState, -1);
+		std::stringstream ss;
+		ss << "SerializeEventSequence - Failed to save: " << (errorMsg ? errorMsg : "unknown error");
+		Log(LOG_ERROR, ss.str().c_str());
+		lua_pop(m_pLuaState, 1);
+	}
+	else
+	{
+		std::stringstream ss;
+		ss << "SerializeEventSequence - Saved event sequence: " << m_uiEventSequence;
+		Log(LOG_DEBUG, ss.str().c_str());
+	}
+}
+
+// Deserialize m_uiEventSequence from database
+void CvConnectionService::DeserializeEventSequence()
+{
+	// Build Lua script to load event sequence
+	const char* script = 
+		"local saveDB = Modding.OpenSaveData();\n"
+		"-- Create table if not exists\n"
+		"for row in saveDB.Query('CREATE TABLE IF NOT EXISTS Deorum(\"ID\" INTEGER NOT NULL PRIMARY KEY, \"Key\" TEXT, \"Value\" TEXT)') do end\n"
+		"-- Try to get existing EventSequence\n"
+		"local eventSequence = nil;\n"
+		"for row in saveDB.Query(\"SELECT Value FROM Deorum WHERE Key == 'EventSequence'\") do\n"
+		"  eventSequence = row.Value;\n"
+		"  break;\n"
+		"end\n"
+		"return eventSequence;\n";
+	
+	// Execute the script
+	int result = luaL_dostring(m_pLuaState, script);
+	
+	if (result != 0)
+	{
+		const char* errorMsg = lua_tostring(m_pLuaState, -1);
+		std::stringstream ss;
+		ss << "DeserializeEventSequence - Failed to load: " << (errorMsg ? errorMsg : "unknown error");
+		Log(LOG_ERROR, ss.str().c_str());
+		lua_pop(m_pLuaState, 1);
+		// Keep default value of 1
+	}
+	else
+	{
+		// Check if we got a result
+		if (lua_isstring(m_pLuaState, -1))
+		{
+			const char* valueStr = lua_tostring(m_pLuaState, -1);
+			if (valueStr)
+			{
+				unsigned int loadedValue = (unsigned int)atoi(valueStr);
+				if (loadedValue > 0)
+				{
+					m_uiEventSequence = loadedValue;
+					std::stringstream ss;
+					ss << "DeserializeEventSequence - Loaded event sequence: " << m_uiEventSequence;
+					Log(LOG_DEBUG, ss.str().c_str());
+				}
+			}
+		}
+		lua_pop(m_pLuaState, 1);
+	}
 }
 
 // Callback data structure for Lua external calls
