@@ -422,11 +422,6 @@ bool CvGame::init2()
 	initSpyThreshold();
 	setFinalInitialized(true);
 
-	if (MOD_IPC_CHANNEL) {
-		// Initialize ConnectionService for Bridge communication
-		CvConnectionService::GetInstance().Setup();
-	}
-
 #if defined(MOD_EVENTS_TERRAFORMING)
 	if (MOD_EVENTS_TERRAFORMING) {
 		GAMEEVENTINVOKE_HOOK(GAMEEVENT_TerraformingMap, TERRAFORMINGEVENT_LOAD, 0);
@@ -990,6 +985,11 @@ void CvGame::DoGameStarted()
 #if defined(MOD_BALANCE_CORE)
 	CvPlayerManager::Refresh(false);
 #endif
+
+	if (MOD_IPC_CHANNEL) {
+		// Initialize ConnectionService for Bridge communication
+		CvConnectionService::GetInstance().Setup();
+	}
 }
 
 
