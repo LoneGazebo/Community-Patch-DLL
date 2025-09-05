@@ -1381,6 +1381,7 @@ void CvConnectionService::ForwardGameEvent(const char* eventName, ICvEngineScrip
 		static const char* eventBlacklist[] = {
 			"GameCoreUpdateBegin",
 			"GameCoreUpdateEnd",
+			"PlayerPreAIUnitUpdate",
 			NULL  // Null terminator
 		};
 		
