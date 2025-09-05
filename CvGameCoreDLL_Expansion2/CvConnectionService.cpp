@@ -275,8 +275,8 @@ DWORD WINAPI CvConnectionService::NamedPipeServerThread(LPVOID lpParam)
 			PIPE_READMODE_MESSAGE |    // message-read mode
 			PIPE_NOWAIT,               // non-blocking mode
 			1,                         // max instances (only one client - Bridge Service)
-			4096,                      // output buffer size
-			4096,                      // input buffer size
+			8192,                      // output buffer size
+			8192,                      // input buffer size
 			0,                         // client time-out
 			NULL);                     // default security attributes
 		
@@ -369,7 +369,7 @@ DWORD WINAPI CvConnectionService::NamedPipeServerThread(LPVOID lpParam)
 // Handle a single client connection
 void CvConnectionService::HandleClientConnection(HANDLE hPipe)
 {
-	char buffer[32767];
+	char buffer[65535];
 	DWORD bytesRead, bytesWritten;
 	
 	while (m_bClientConnected && !m_bShutdownRequested)
@@ -780,7 +780,7 @@ void CvConnectionService::HandleLuaCall(const char* functionName, const JsonArra
 void CvConnectionService::ProcessLuaResult(lua_State* L, int executionResult, const char* id)
 {
 	// Build the response JSON
-	DynamicJsonDocument response(8192);
+	DynamicJsonDocument response(16384);
 	response["type"] = "lua_response";
 	response["id"] = id;
 	
@@ -813,8 +813,30 @@ void CvConnectionService::ProcessLuaResult(lua_State* L, int executionResult, co
 		const char* errorMsg = lua_tostring(L, -1);
 		if (!errorMsg) errorMsg = "Unknown Lua error";
 		
+		// Clean up error message by stripping raw scripts
+		std::string cleanedError = errorMsg;
+		size_t colonPos = cleanedError.find(':');
+		if (colonPos != std::string::npos) {
+			// Check if there's a line number after the first colon
+			size_t secondColonPos = cleanedError.find(':', colonPos + 1);
+			if (secondColonPos != std::string::npos) {
+				// Check if between colons is a number (line number)
+				bool isLineNumber = true;
+				for (size_t i = colonPos + 1; i < secondColonPos; i++) {
+					if (!isdigit(cleanedError[i])) {
+						isLineNumber = false;
+						break;
+					}
+				}
+				if (isLineNumber) {
+					// Strip everything before the first colon (the raw script)
+					cleanedError = cleanedError.substr(colonPos + 1);
+				}
+			}
+		}
+		
 		response["error"]["code"] = "LUA_EXECUTION_ERROR";
-		response["error"]["message"] = errorMsg;
+		response["error"]["message"] = cleanedError;
 		
 		// Pop the error message from the stack
 		lua_pop(L, 1);
