@@ -2009,6 +2009,9 @@
 		<Row Tag="TXT_KEY_EUPANEL_ATTACK_CS_ALLIANCE_STRENGTH">
 			<Text>Hellenic League</Text>
 		</Row>
+		<Row Tag="TXT_KEY_EUPANEL_COMBAT_MOD_FROM_UNIT_LEVEL">
+			<Text>Unit Level</Text>
+		</Row>
 		<Row Tag="TXT_KEY_EUPANEL_FROM_TERRAIN_BONUS">
 			<Text>Terrain Modifier</Text>
 		</Row>

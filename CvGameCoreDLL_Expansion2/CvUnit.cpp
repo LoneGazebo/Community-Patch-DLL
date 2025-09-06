@@ -331,6 +331,7 @@ CvUnit::CvUnit() :
 	, m_iReligiousStrengthLossRivalTerritory()
 	, m_iTradeMissionInfluenceModifier()
 	, m_iTradeMissionGoldModifier()
+	, m_iCombatModPerLevel()
 	, m_iDiploMissionInfluence()
 	, m_strName("")
 	, m_eGreatWork(NO_GREAT_WORK)
@@ -1665,6 +1666,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iReligiousStrengthLossRivalTerritory = 0;
 	m_iTradeMissionInfluenceModifier = 0;
 	m_iTradeMissionGoldModifier = 0;
+	m_iCombatModPerLevel = 0;
 	m_iDiploMissionInfluence = 0;
 
 	m_bPromotionReady = false;
@@ -7408,6 +7410,18 @@ void CvUnit::ChangeTradeMissionGoldModifier(int iValue)
 int CvUnit::GetTradeMissionGoldModifier() const
 {
 	return m_iTradeMissionGoldModifier;
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::ChangeCombatModPerLevel(int iValue)
+{
+	m_iCombatModPerLevel += iValue;
+}
+
+//	--------------------------------------------------------------------------------
+int CvUnit::GetCombatModPerLevel() const
+{
+	return m_iCombatModPerLevel;
 }
 
 //	--------------------------------------------------------------------------------
@@ -16034,6 +16048,11 @@ int CvUnit::GetGenericMeleeStrengthModifier(const CvUnit* pOtherUnit, const CvPl
 		iModifier += (GetCombatModPerCSAlliance() * min(GET_PLAYER(getOwner()).GetNumCSAllies(), /*5*/ GD_INT_GET(BALANCE_MAX_CS_ALLY_STRENGTH)));
 	}
 
+	if (GetCombatModPerLevel() > 0)
+	{
+		iModifier += GetCombatModPerLevel() * (getLevel() - 1);
+	}
+
 	//sometimes we ignore the finer points
 	if (!bQuickAndDirty)
 	{
@@ -16880,6 +16899,11 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 	if (GetCombatModPerCSAlliance() > 0 && !GET_PLAYER(getOwner()).isMinorCiv())
 	{
 		iModifier += (GetCombatModPerCSAlliance() * min(GET_PLAYER(getOwner()).GetNumCSAllies(), /*5*/ GD_INT_GET(BALANCE_MAX_CS_ALLY_STRENGTH)));
+	}
+
+	if (GetCombatModPerLevel() > 0)
+	{
+		iModifier += GetCombatModPerLevel() * (getLevel() - 1);
 	}
 
 	// Stacked with Great General
@@ -27764,6 +27788,7 @@ void CvUnit::setPromotionActive(PromotionTypes eIndex, bool bNewValue)
 	ChangeReligiousStrengthLossRivalTerritory((thisPromotion.GetReligiousStrengthLossRivalTerritory()) * iChange);
 	ChangeTradeMissionInfluenceModifier((thisPromotion.GetTradeMissionInfluenceModifier()) * iChange);
 	ChangeTradeMissionGoldModifier((thisPromotion.GetTradeMissionGoldModifier()) * iChange);
+	ChangeCombatModPerLevel((thisPromotion.GetCombatModPerLevel()) * iChange);
 	ChangeDiploMissionInfluence((thisPromotion.GetDiploMissionInfluence()) * iChange);
 	changeDropRange(thisPromotion.GetDropRange() * iChange);
 	changeExtraVisibilityRange(thisPromotion.GetVisibilityChange() * iChange);
@@ -28560,6 +28585,7 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_iReligiousStrengthLossRivalTerritory);
 	visitor(unit.m_iTradeMissionInfluenceModifier);
 	visitor(unit.m_iTradeMissionGoldModifier);
+	visitor(unit.m_iCombatModPerLevel);
 	visitor(unit.m_iDiploMissionInfluence);
 	visitor(unit.m_iMapLayer);
 	visitor(unit.m_iNumGoodyHutsPopped);
@@ -31753,6 +31779,14 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	if (iTemp != 0)
 	{
 		iExtra = iTemp * min(GET_PLAYER(getOwner()).GetNumCSAllies(), /*5*/ GD_INT_GET(BALANCE_MAX_CS_ALLY_STRENGTH)) * (iFlavorOffense + iFlavorDefense + iFlavorCityDefense);
+		iValue += iExtra;
+	}
+
+	iTemp = pkPromotionInfo->GetCombatModPerLevel();
+	if (iTemp != 0)
+	{
+		// current combat mod is iTemp * (getLevel() - 1), here we multiply with getLevel() instead to account for the unit gaining higher levels in the future 
+		iExtra = iTemp * getLevel() * (iFlavorOffense + iFlavorDefense + iFlavorCityDefense);
 		iValue += iExtra;
 	}
 

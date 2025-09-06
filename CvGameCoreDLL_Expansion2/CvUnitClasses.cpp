@@ -1914,6 +1914,14 @@ void CvUnitEntry::DoUpdatePower()
 				iBonusPower += iTemp;
 			}
 
+			/// Combat Mod per Level - add two times the bonus
+			if (kPromotion->GetCombatModPerLevel() > 0)
+			{
+				iTemp = (iBasePower * kPromotion->GetCombatModPerLevel()) * 2;
+				iTemp /= 100;
+				iBonusPower += iTemp;
+			}
+
 			// Paradrop - add 25%
 			if(kPromotion->GetDropRange() > 0)
 			{

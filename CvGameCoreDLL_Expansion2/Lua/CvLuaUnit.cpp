@@ -631,6 +631,7 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(IsHigherPopThan);
 	Method(GetResistancePower);
 	Method(GetAllianceCSStrength);
+	Method(GetCombatModFromUnitLevel);
 #endif
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	Method(GetMonopolyAttackBonus);
@@ -6547,6 +6548,19 @@ int CvLuaUnit::lGetAllianceCSStrength(lua_State* L)
 
 	lua_pushinteger(L, iStrengthMod);
 
+	return 1;
+}
+//int GetCombatModFromUnitLevel();
+int CvLuaUnit::lGetCombatModFromUnitLevel(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	int iStrengthMod = 0;
+	if (pkUnit->GetCombatModPerLevel() > 0)
+	{
+		iStrengthMod += pkUnit->GetCombatModPerLevel() * (pkUnit->getLevel() - 1);
+	}
+	lua_pushinteger(L, iStrengthMod);
+	
 	return 1;
 }
 #endif

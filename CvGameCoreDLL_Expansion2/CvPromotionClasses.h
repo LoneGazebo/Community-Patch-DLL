@@ -177,8 +177,9 @@ public:
 	
 	int GetTradeMissionInfluenceModifier() const;
 	int GetTradeMissionGoldModifier() const;
+	int GetCombatModPerLevel() const;
 #if defined(MOD_BALANCE_CORE)
-	int GetDiploMissionInfluence() const;
+    int GetDiploMissionInfluence() const;
 	int GetCaptureDefeatedEnemyChance() const;
 	int GetBarbarianCombatBonus() const;
 	int GetGoodyHutYieldBonus() const;
@@ -521,6 +522,7 @@ protected:
 	int m_iReligiousStrengthLossRivalTerritory;
 	int m_iTradeMissionInfluenceModifier;
 	int m_iTradeMissionGoldModifier;
+	int m_iCombatModPerLevel;
 
 #if defined(MOD_BALANCE_CORE)
 	int m_iCaptureDefeatedEnemyChance;
