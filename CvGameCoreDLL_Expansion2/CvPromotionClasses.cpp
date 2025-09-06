@@ -178,6 +178,7 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iReligiousStrengthLossRivalTerritory(0),
 	m_iTradeMissionInfluenceModifier(0),
 	m_iTradeMissionGoldModifier(0),
+	m_iCombatModPerLevel(0),
 #if defined(MOD_BALANCE_CORE)
 	m_iCaptureDefeatedEnemyChance(0),
 	m_iBarbarianCombatBonus(0),
@@ -742,6 +743,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iReligiousStrengthLossRivalTerritory = kResults.GetInt("ReligiousStrengthLossRivalTerritory");
 	m_iTradeMissionInfluenceModifier = kResults.GetInt("TradeMissionInfluenceModifier");
 	m_iTradeMissionGoldModifier = kResults.GetInt("TradeMissionGoldModifier");
+	m_iCombatModPerLevel = kResults.GetInt("CombatModPerLevel");
 
 	//References
 	const char* szLayerAnimationPath = kResults.GetText("LayerAnimationPath");
@@ -2240,6 +2242,12 @@ int CvPromotionEntry::GetTradeMissionInfluenceModifier() const
 int CvPromotionEntry::GetTradeMissionGoldModifier() const
 {
 	return m_iTradeMissionGoldModifier;
+}
+
+/// Accessor: Combat mod for each unit level above the first one
+int CvPromotionEntry::GetCombatModPerLevel() const
+{
+	return m_iCombatModPerLevel;
 }
 #if defined(MOD_BALANCE_CORE)
 int CvPromotionEntry::GetDiploMissionInfluence() const

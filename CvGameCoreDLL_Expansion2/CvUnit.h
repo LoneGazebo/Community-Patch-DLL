@@ -1992,7 +1992,10 @@ public:
 	void ChangeTradeMissionGoldModifier(int iValue);
 	int GetTradeMissionGoldModifier() const;
 
-	void ChangeDiploMissionInfluence(int iValue);
+	void ChangeCombatModPerLevel(int iValue);
+	int GetCombatModPerLevel() const;
+
+    void ChangeDiploMissionInfluence(int iValue);
 	int GetDiploMissionInfluence() const;
 
 	bool IsHasBeenPromotedFromGoody() const;
@@ -2503,6 +2506,7 @@ protected:
 	int m_iReligiousStrengthLossRivalTerritory;
 	int m_iTradeMissionInfluenceModifier;
 	int m_iTradeMissionGoldModifier;
+	int m_iCombatModPerLevel;
 	int m_iDiploMissionInfluence;
 	int m_iMapLayer;		// Which layer does the unit reside on for pathing/stacking/etc.
 	int m_iNumGoodyHutsPopped;
@@ -2906,6 +2910,7 @@ SYNC_ARCHIVE_VAR(int, m_iCityAttackPlunderModifier)
 SYNC_ARCHIVE_VAR(int, m_iReligiousStrengthLossRivalTerritory)
 SYNC_ARCHIVE_VAR(int, m_iTradeMissionInfluenceModifier)
 SYNC_ARCHIVE_VAR(int, m_iTradeMissionGoldModifier)
+SYNC_ARCHIVE_VAR(int, m_iCombatModPerLevel)
 SYNC_ARCHIVE_VAR(int, m_iDiploMissionInfluence)
 SYNC_ARCHIVE_VAR(int, m_iMapLayer)
 SYNC_ARCHIVE_VAR(int, m_iNumGoodyHutsPopped)
