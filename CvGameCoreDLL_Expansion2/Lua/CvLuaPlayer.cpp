@@ -28,6 +28,9 @@
 #include "../CvGameCoreUtils.h"
 #include "../CvInternalGameCoreUtils.h"
 #include "../CvGrandStrategyAI.h"
+#include "../CvEconomicAI.h"
+#include "../CvMilitaryAI.h"
+#include "../CvCitySpecializationAI.h"
 #include "ICvDLLUserInterface.h"
 #include "CvDllInterfaces.h"
 #include "CvDllNetMessageExt.h"
@@ -1535,6 +1538,10 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	
 	Method(GetGrandStrategy);
 	Method(SetGrandStrategy);
+	Method(GetEconomicStrategies);
+	Method(SetEconomicStrategies);
+	Method(GetMilitaryStrategies);
+	Method(SetMilitaryStrategies);
 }
 //------------------------------------------------------------------------------
 void CvLuaPlayer::HandleMissingInstance(lua_State* L)
@@ -18686,19 +18693,24 @@ int CvLuaPlayer::lGetCompetitiveSpawnUnitType(lua_State* L)
 // Vox Deorum added, allowing Lua scripts to change AI's grand strategies
 //------------------------------------------------------------------------------
 //int GetGrandStrategy();
+// Returns: grandStrategy, turnsSinceActive
 int CvLuaPlayer::lGetGrandStrategy(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	if (pkPlayer && pkPlayer->GetGrandStrategyAI())
 	{
 		AIGrandStrategyTypes eGrandStrategy = pkPlayer->GetGrandStrategyAI()->GetActiveGrandStrategy();
+		int iTurnsSinceActive = pkPlayer->GetGrandStrategyAI()->GetNumTurnsSinceActiveSet();
 		lua_pushinteger(L, (int)eGrandStrategy);
+		lua_pushinteger(L, iTurnsSinceActive);
+		return 2;
 	}
 	else
 	{
 		lua_pushinteger(L, NO_AIGRANDSTRATEGY);
+		lua_pushinteger(L, 0); // Return 0 turns if no grand strategy AI
+		return 2;
 	}
-	return 1;
 }
 
 //------------------------------------------------------------------------------
@@ -18712,7 +18724,162 @@ int CvLuaPlayer::lSetGrandStrategy(lua_State* L)
 		AIGrandStrategyTypes eGrandStrategy = (AIGrandStrategyTypes)iGrandStrategy;
 		// Should we refactor?
 		pkPlayer->GetGrandStrategyAI()->SetActiveGrandStrategy(eGrandStrategy);
+		pkPlayer->GetGrandStrategyAI()->SetNumTurnsSinceActiveSet(1);
 		pkPlayer->GetCitySpecializationAI()->SetSpecializationsDirty(SPECIALIZATION_UPDATE_NEW_GRAND_STRATEGY);
+	}
+	return 0;
+}
+
+//------------------------------------------------------------------------------
+//table GetEconomicStrategies();
+// Returns a table mapping strategy IDs to active turns {strategyId: activeTurns}
+int CvLuaPlayer::lGetEconomicStrategies(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	lua_newtable(L); // Create the result table
+	
+	if (pkPlayer && pkPlayer->GetEconomicAI())
+	{
+		int iCurrentTurn = GC.getGame().getGameTurn();
+		int iNumStrategies = pkPlayer->GetEconomicAI()->GetEconomicAIStrategies()->GetNumEconomicAIStrategies();
+		
+		for (int i = 0; i < iNumStrategies; i++)
+		{
+			EconomicAIStrategyTypes eStrategy = (EconomicAIStrategyTypes)i;
+			if (pkPlayer->GetEconomicAI()->IsUsingStrategy(eStrategy))
+			{
+				int iTurnAdopted = pkPlayer->GetEconomicAI()->GetTurnStrategyAdopted(eStrategy);
+				int iActiveTurns = (iTurnAdopted != -1) ? (iCurrentTurn - iTurnAdopted) : 0;
+				
+				// Set table[strategyId] = activeTurns
+				lua_pushinteger(L, i);
+				lua_pushinteger(L, iActiveTurns);
+				lua_settable(L, -3);
+			}
+		}
+	}
+	
+	return 1;
+}
+
+//------------------------------------------------------------------------------
+//void SetEconomicStrategies(array enabledStrategies);
+// Takes an array of strategy IDs to enable, all others will be disabled
+int CvLuaPlayer::lSetEconomicStrategies(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	if (pkPlayer && pkPlayer->GetEconomicAI())
+	{
+		int iNumStrategies = pkPlayer->GetEconomicAI()->GetEconomicAIStrategies()->GetNumEconomicAIStrategies();
+		
+		// First, disable all strategies
+		for (int i = 0; i < iNumStrategies; i++)
+		{
+			EconomicAIStrategyTypes eStrategy = (EconomicAIStrategyTypes)i;
+			pkPlayer->GetEconomicAI()->SetUsingStrategy(eStrategy, false);
+		}
+		
+		// Check if argument is a table (array)
+		if (lua_istable(L, 2))
+		{
+			// Get array length
+			int iLen = lua_objlen(L, 2);
+			
+			// Enable strategies specified in the array
+			for (int i = 1; i <= iLen; i++)
+			{
+				lua_rawgeti(L, 2, i);
+				if (lua_isnumber(L, -1))
+				{
+					const int iStrategy = lua_tointeger(L, -1);
+					
+					// Validate strategy ID
+					if (iStrategy >= 0 && iStrategy < iNumStrategies)
+					{
+						EconomicAIStrategyTypes eStrategy = (EconomicAIStrategyTypes)iStrategy;
+						pkPlayer->GetEconomicAI()->SetUsingStrategy(eStrategy, true);
+					}
+				}
+				lua_pop(L, 1);
+			}
+		}
+	}
+	return 0;
+}
+
+//------------------------------------------------------------------------------
+//table GetMilitaryStrategies();
+// Returns a table mapping strategy IDs to active turns {strategyId: activeTurns}
+int CvLuaPlayer::lGetMilitaryStrategies(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	lua_newtable(L); // Create the result table
+	
+	if (pkPlayer && pkPlayer->GetMilitaryAI())
+	{
+		int iCurrentTurn = GC.getGame().getGameTurn();
+		int iNumStrategies = pkPlayer->GetMilitaryAI()->GetMilitaryAIStrategies()->GetNumMilitaryAIStrategies();
+		
+		for (int i = 0; i < iNumStrategies; i++)
+		{
+			MilitaryAIStrategyTypes eStrategy = (MilitaryAIStrategyTypes)i;
+			if (pkPlayer->GetMilitaryAI()->IsUsingStrategy(eStrategy))
+			{
+				int iTurnAdopted = pkPlayer->GetMilitaryAI()->GetTurnStrategyAdopted(eStrategy);
+				int iActiveTurns = (iTurnAdopted != -1) ? (iCurrentTurn - iTurnAdopted) : 0;
+				
+				// Set table[strategyId] = activeTurns
+				lua_pushinteger(L, i);
+				lua_pushinteger(L, iActiveTurns);
+				lua_settable(L, -3);
+			}
+		}
+	}
+	
+	return 1;
+}
+
+//------------------------------------------------------------------------------
+//void SetMilitaryStrategies(array enabledStrategies);
+// Takes an array of strategy IDs to enable, all others will be disabled
+int CvLuaPlayer::lSetMilitaryStrategies(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	if (pkPlayer && pkPlayer->GetMilitaryAI())
+	{
+		int iNumStrategies = pkPlayer->GetMilitaryAI()->GetMilitaryAIStrategies()->GetNumMilitaryAIStrategies();
+		
+		// First, disable all strategies
+		for (int i = 0; i < iNumStrategies; i++)
+		{
+			MilitaryAIStrategyTypes eStrategy = (MilitaryAIStrategyTypes)i;
+			pkPlayer->GetMilitaryAI()->SetUsingStrategy(eStrategy, false);
+		}
+		
+		// Check if argument is a table (array)
+		if (lua_istable(L, 2))
+		{
+			// Get array length
+			int iLen = lua_objlen(L, 2);
+			
+			// Enable strategies specified in the array
+			for (int i = 1; i <= iLen; i++)
+			{
+				lua_rawgeti(L, 2, i);
+				if (lua_isnumber(L, -1))
+				{
+					const int iStrategy = lua_tointeger(L, -1);
+					
+					// Validate strategy ID
+					if (iStrategy >= 0 && iStrategy < iNumStrategies)
+					{
+						MilitaryAIStrategyTypes eStrategy = (MilitaryAIStrategyTypes)iStrategy;
+						pkPlayer->GetMilitaryAI()->SetUsingStrategy(eStrategy, true);
+					}
+				}
+				lua_pop(L, 1);
+			}
+		}
 	}
 	return 0;
 }

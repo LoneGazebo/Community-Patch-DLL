@@ -1565,6 +1565,10 @@ protected:
 	
 	static int lGetGrandStrategy(lua_State* L);
 	static int lSetGrandStrategy(lua_State* L);
+	static int lGetEconomicStrategies(lua_State* L);
+	static int lSetEconomicStrategies(lua_State* L);
+	static int lGetMilitaryStrategies(lua_State* L);
+	static int lSetMilitaryStrategies(lua_State* L);
 };
 
 namespace CvLuaArgs
