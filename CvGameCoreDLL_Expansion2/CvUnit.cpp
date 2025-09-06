@@ -12218,9 +12218,9 @@ bool CvUnit::trade()
 
 	GET_PLAYER(eMinor).GetMinorCivAI()->ChangeFriendshipWithMajor(getOwner(), iInfluence);
 
-	// TODO: Add code here so only a unit with the right promotion triggers the accomplishment
+	// only diplomatic units trigger the accomplishment. bonuses are given only in the origin city of the unit
 	if (iInfluence > 0)
-		kOwner.CompleteAccomplishment(ACCOMPLISHMENT_DIPLOMATIC_MISSION_BOOST);
+		kOwner.CompleteAccomplishment(ACCOMPLISHMENT_DIPLOMATIC_MISSION_BOOST, getOriginCity());
 
 	// Great Diplomat: now update the friend/ally status for the other players
 	if (bGreatDiplomat)
