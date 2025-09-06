@@ -27,6 +27,7 @@
 #include "../CvDealAI.h"
 #include "../CvGameCoreUtils.h"
 #include "../CvInternalGameCoreUtils.h"
+#include "../CvGrandStrategyAI.h"
 #include "ICvDLLUserInterface.h"
 #include "CvDllInterfaces.h"
 #include "CvDllNetMessageExt.h"
@@ -1531,6 +1532,9 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(SetInstantYieldNotificationDisabled);
 
 	Method(GetCompetitiveSpawnUnitType);
+	
+	Method(GetGrandStrategy);
+	Method(SetGrandStrategy);
 }
 //------------------------------------------------------------------------------
 void CvLuaPlayer::HandleMissingInstance(lua_State* L)
@@ -18677,4 +18681,38 @@ int CvLuaPlayer::lGetCompetitiveSpawnUnitType(lua_State* L)
 	UnitTypes eUnit = pPlayer->GetCompetitiveSpawnUnitType(bIncludeRanged, bIncludeShips, bIncludeRecon, bIncludeUUs, NULL, bNoResource, bMinorCivGift, bRandom, &seed, viUnitCombat);
 	lua_pushinteger(L, eUnit);
 	return 1;
+}
+
+// Vox Deorum added, allowing Lua scripts to change AI's grand strategies
+//------------------------------------------------------------------------------
+//int GetGrandStrategy();
+int CvLuaPlayer::lGetGrandStrategy(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	if (pkPlayer && pkPlayer->GetGrandStrategyAI())
+	{
+		AIGrandStrategyTypes eGrandStrategy = pkPlayer->GetGrandStrategyAI()->GetActiveGrandStrategy();
+		lua_pushinteger(L, (int)eGrandStrategy);
+	}
+	else
+	{
+		lua_pushinteger(L, NO_AIGRANDSTRATEGY);
+	}
+	return 1;
+}
+
+//------------------------------------------------------------------------------
+//void SetGrandStrategy(int eGrandStrategy);
+int CvLuaPlayer::lSetGrandStrategy(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	if (pkPlayer && pkPlayer->GetGrandStrategyAI())
+	{
+		const int iGrandStrategy = lua_tointeger(L, 2);
+		AIGrandStrategyTypes eGrandStrategy = (AIGrandStrategyTypes)iGrandStrategy;
+		// Should we refactor?
+		pkPlayer->GetGrandStrategyAI()->SetActiveGrandStrategy(eGrandStrategy);
+		pkPlayer->GetCitySpecializationAI()->SetSpecializationsDirty(SPECIALIZATION_UPDATE_NEW_GRAND_STRATEGY);
+	}
+	return 0;
 }

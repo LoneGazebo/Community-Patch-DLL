@@ -1562,6 +1562,9 @@ protected:
 	static int lSetInstantYieldNotificationDisabled(lua_State* L);
 
 	LUAAPIEXTN(GetCompetitiveSpawnUnitType, int, bIncludeRanged, bIncludeShips, bIncludeRecon, bIncludeUUs, bNoResource, bMinorCivGift, bRandom, tUnitCombatIDs);
+	
+	static int lGetGrandStrategy(lua_State* L);
+	static int lSetGrandStrategy(lua_State* L);
 };
 
 namespace CvLuaArgs
