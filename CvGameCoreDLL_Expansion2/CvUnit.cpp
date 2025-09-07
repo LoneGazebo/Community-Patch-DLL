@@ -412,6 +412,7 @@ CvUnit::CvUnit() :
 	, m_iCannotBeCapturedCount()
 	, m_iForcedDamage()
 	, m_iChangeDamage()
+	, m_iDamageTakenMod()
 	, m_PromotionDuration()
 	, m_TurnPromotionGained()
 	, m_iNumTilesRevealedThisTurn()
@@ -1429,6 +1430,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iCannotBeCapturedCount = 0;
 	m_iForcedDamage = 0;
 	m_iChangeDamage = 0;
+	m_iDamageTakenMod = 0;
 #endif
 	m_iRangedSupportFireCount = 0;
 	m_iAlwaysHealCount = 0;
@@ -5423,6 +5425,7 @@ int CvUnit::getMeleeCombatDamageCity(int iStrength, const CvCity* pCity, int& iS
 		int iSelfDamageModifier = /*0*/ GD_INT_GET(CITY_ATTACKING_DAMAGE_MOD) - 100;
 		//sometimes we take even less damage from cities
 		iSelfDamageModifier -= GetDamageReductionCityAssault();
+		iSelfDamageModifier += GetDamageTakenMod();
 		int iExtraSelfDamage = getChangeDamageValue();
 
 		iSelfDamageInflicted = max(0, (CvUnitCombat::DoDamageMath(
@@ -5499,6 +5502,7 @@ int CvUnit::getMeleeCombatDamage(int iStrength, int iOpponentStrength, int& iSel
 				.mixAssign(iOpponentStrength);
 		}
 
+		int iDamageTakenMod = GetDamageTakenMod();
 		int iExtraDamageSelf = getChangeDamageValue();
 
 		iSelfDamageInflicted = max(0, (CvUnitCombat::DoDamageMath(
@@ -5508,7 +5512,7 @@ int CvUnit::getMeleeCombatDamage(int iStrength, int iOpponentStrength, int& iSel
 			/*1200*/ GD_INT_GET(ATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE),
 			bIncludeRand,
 			randomSeed,
-			0) / 100) + iExtraDamageSelf);
+			iDamageTakenMod) / 100) + iExtraDamageSelf);
 	}
 
 	int iDamage = 0;
@@ -5527,6 +5531,7 @@ int CvUnit::getMeleeCombatDamage(int iStrength, int iOpponentStrength, int& iSel
 		}
 
 		int iExtraDamage = pkOtherUnit ? pkOtherUnit->getChangeDamageValue() : 0;
+		int iDamageTakenMod = pkOtherUnit ? pkOtherUnit->GetDamageTakenMod() : 0;
 		iDamage = max(0, (CvUnitCombat::DoDamageMath(
 			iStrength,
 			iOpponentStrength,
@@ -5534,7 +5539,7 @@ int CvUnit::getMeleeCombatDamage(int iStrength, int iOpponentStrength, int& iSel
 			/*1200*/ GD_INT_GET(ATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE),
 			bIncludeRand,
 			randomSeed2,
-			0) / 100) + iExtraDamage);
+			iDamageTakenMod) / 100) + iExtraDamage);
 	}
 
 	// post calculations
@@ -7025,6 +7030,23 @@ int CvUnit::getChangeDamageValue() const
 	VALIDATE_OBJECT();
 	return m_iChangeDamage;
 }
+
+//	--------------------------------------------------------------------------------
+void CvUnit::ChangeDamageTakenMod(int iChange)
+{
+	VALIDATE_OBJECT();
+	if(iChange != 0)
+	{
+		m_iDamageTakenMod += iChange;
+	}
+}
+//	--------------------------------------------------------------------------------
+int CvUnit::GetDamageTakenMod() const
+{
+	VALIDATE_OBJECT();
+	return m_iDamageTakenMod;
+}
+
 
 //	--------------------------------------------------------------------------------
 void CvUnit::SetPromotionDuration(PromotionTypes eIndex, int iValue)
@@ -17516,7 +17538,11 @@ int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, const CvCity* pCity, i
 			iDamage = (iDamage * 150) / 100;
 
 		if (pDefender)
+		{
+			iDamage *= 100 + pDefender->GetDamageTakenMod();
+			iDamage /= 100;
 			iDamage = max(0, iDamage + pDefender->getChangeDamageValue());
+		}
 	}
 
 	return iDamage;
@@ -17610,9 +17636,11 @@ int CvUnit::GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand
 		}
 
 		if (bIncludeRand)
-			return max(0, iBaseValue + GC.getGame().randRangeExclusive(0, iMaxRandom, CvSeeder(plot()->GetPseudoRandomSeed())) + iExtraDamage);
-		else
-			return max(0, iBaseValue + iExtraDamage);
+			iBaseValue += GC.getGame().randRangeExclusive(0, iMaxRandom, CvSeeder(plot()->GetPseudoRandomSeed()));
+		
+		iBaseValue *= 100 + pAttacker->GetDamageTakenMod();
+		iBaseValue /= 100;
+		return max(0, iBaseValue + iExtraDamage);
 	}
 	else
 	{
@@ -17624,9 +17652,11 @@ int CvUnit::GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand
 		}
 
 		if (bIncludeRand)
-			return max(0, iVal + GC.getGame().randRangeExclusive(0, iVal / 2, CvSeeder(plot()->GetPseudoRandomSeed())) + iExtraDamage);
-		else
-			return max(0, iVal+2 + iExtraDamage);
+			iVal += GC.getGame().randRangeExclusive(0, iVal / 2, CvSeeder(plot()->GetPseudoRandomSeed()));
+		
+		iVal *= 100 + pAttacker->GetDamageTakenMod();
+		iVal /= 100;
+		return max(0, iVal + iExtraDamage);
 	}	
 }
 
@@ -27741,8 +27771,9 @@ void CvUnit::setPromotionActive(PromotionTypes eIndex, bool bNewValue)
 	ChangeExtraXPOnKill(thisPromotion.GetExtraXPOnKill() * iChange);
 	ChangeGainsXPFromSpotting((thisPromotion.IsGainsXPFromSpotting()) ? iChange : 0);
 	ChangeCannotBeCapturedCount((thisPromotion.CannotBeCaptured()) ? iChange : 0);
-	ChangeForcedDamageValue((thisPromotion.ForcedDamageValue()) * iChange);
-	ChangeChangeDamageValue((thisPromotion.ChangeDamageValue()) * iChange);
+	ChangeForcedDamageValue((thisPromotion.GetForcedDamageValue()) * iChange);
+	ChangeChangeDamageValue((thisPromotion.GetChangeDamageValue()) * iChange);
+	ChangeDamageTakenMod((thisPromotion.GetDamageTakenMod()) * iChange);
 	ChangeMoraleBreakChance((thisPromotion.GetMoraleBreakChance()) * iChange);
 	ChangeDamageAoEFortified((thisPromotion.GetDamageAoEFortified()) * iChange);
 	ChangeWorkRateMod((thisPromotion.GetWorkRateMod()) * iChange);
@@ -28303,6 +28334,7 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_iCannotBeCapturedCount);
 	visitor(unit.m_iForcedDamage);
 	visitor(unit.m_iChangeDamage);
+	visitor(unit.m_iDamageTakenMod);
 	visitor(unit.m_PromotionDuration);
 	visitor(unit.m_TurnPromotionGained);
 	visitor(unit.m_iRangedSupportFireCount);
@@ -31847,12 +31879,20 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		iValue += iExtra;
 	}
 
-	iTemp = pkPromotionInfo->ChangeDamageValue();     // modifies damage in taken in each combat.
+	iTemp = pkPromotionInfo->GetChangeDamageValue();     // flat damage change in each combat
 	// nM: -5 Dauntless (Damage reduction).
 	if (iTemp != 0)
 	{	
 		iExtra = iTemp * ( 2 * iFlavorOffense + iFlavorDefense);
 		iExtra *= -6;    			// not sure about this
+		iValue += iExtra;
+	}
+
+	iTemp = pkPromotionInfo->GetDamageTakenMod();     // modifies damage in taken in each combat.
+	if (iTemp != 0)
+	{	
+		iExtra = iTemp * ( 2 * iFlavorOffense + iFlavorDefense);
+		iExtra *= -2;
 		iValue += iExtra;
 	}
 

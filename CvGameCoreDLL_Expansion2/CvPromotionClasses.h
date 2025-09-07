@@ -190,8 +190,9 @@ public:
 	int NegatesPromotion() const;
 	bool CannotBeCaptured() const;
 	bool IsLostOnMove() const;
-	int ForcedDamageValue() const;
-	int ChangeDamageValue() const;
+	int GetForcedDamageValue() const;
+	int GetChangeDamageValue() const;
+	int GetDamageTakenMod() const;
 	int PromotionDuration() const;
 	bool IsCityStateOnly() const;
 	bool IsBarbarianOnly() const;
@@ -537,6 +538,7 @@ protected:
 	int m_iNegatesPromotion;
 	int m_iForcedDamageValue;
 	int m_iChangeDamageValue;
+	int m_iDamageTakenMod;
 	int m_iPromotionDuration;
 	int m_iMoraleBreakChance;
 	int m_iDamageAoEFortified;
