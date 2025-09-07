@@ -122,7 +122,7 @@ private:
 	void HandleLuaExecute(const char* script, const char* id);
 	void HandleLuaCall(const char* functionName, const JsonArray& args, const char* id);
 	void ProcessLuaResult(lua_State* L, int executionResult, const char* id);
-	void ConvertLuaToJsonValue(lua_State* L, int index, JsonVariant parent, const char* key);
+	void ConvertLuaToJsonValue(lua_State* L, int index, JsonVariant parent);
 	
 	// Shared function to convert Lua values to fill a key in a JsonDocument
 	void ConvertLuaValuesInDocument(lua_State* L, int firstIndex, int numValues, DynamicJsonDocument& parent, const char* key);

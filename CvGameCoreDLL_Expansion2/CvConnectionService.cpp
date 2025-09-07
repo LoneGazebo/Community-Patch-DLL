@@ -860,8 +860,9 @@ void CvConnectionService::ConvertLuaValuesInDocument(lua_State* L, int firstInde
 	}
 	else if (numValues == 1)
 	{
-		// Single value - convert directly
-		ConvertLuaToJsonValue(L, firstIndex, parent.as<JsonObject>(), key);
+		// Single value - convert directly to parent[key]
+		JsonVariant temp = parent[key];
+		ConvertLuaToJsonValue(L, firstIndex, temp);
 	}
 	else
 	{
@@ -871,15 +872,14 @@ void CvConnectionService::ConvertLuaValuesInDocument(lua_State* L, int firstInde
 		
 		for (int i = 0; i < numValues; i++)
 		{
-			ConvertLuaToJsonValue(L, firstIndex + i, resultArray, nullptr);
+			ConvertLuaToJsonValue(L, firstIndex + i, resultArray);
 		}
 	}
 }
 
 // Convert a Lua value at the given stack index to a JsonVariant
 // parent: The parent JsonVariant (object or array) that will contain this value
-// key: The key/index to use when adding to parent (nullptr for direct assignment)
-void CvConnectionService::ConvertLuaToJsonValue(lua_State* L, int index, JsonVariant parent, const char* key)
+void CvConnectionService::ConvertLuaToJsonValue(lua_State* L, int index, JsonVariant parent)
 {
 	// Make the index absolute if it's relative
 	if (index < 0 && index > LUA_REGISTRYINDEX)
@@ -892,11 +892,7 @@ void CvConnectionService::ConvertLuaToJsonValue(lua_State* L, int index, JsonVar
 	switch (type)
 	{
 	case LUA_TNIL:
-		if (key && parent.is<JsonObject>())
-		{
-			parent[key] = nullptr;
-		}
-		else if (parent.is<JsonArray>())
+		if (parent.is<JsonArray>())
 		{
 			parent.add(nullptr);
 		}
@@ -909,11 +905,7 @@ void CvConnectionService::ConvertLuaToJsonValue(lua_State* L, int index, JsonVar
 	case LUA_TBOOLEAN:
 		{
 			bool bValue = lua_toboolean(L, index) != 0;
-			if (key && parent.is<JsonObject>())
-			{
-				parent[key] = bValue;
-			}
-			else if (parent.is<JsonArray>())
+			if (parent.is<JsonArray>())
 			{
 				parent.add(bValue);
 			}
@@ -931,11 +923,7 @@ void CvConnectionService::ConvertLuaToJsonValue(lua_State* L, int index, JsonVar
 			if (num == floor(num) && num >= INT_MIN && num <= INT_MAX)
 			{
 				int intNum = static_cast<int>(num);
-				if (key && parent.is<JsonObject>())
-				{
-					parent[key] = intNum;
-				}
-				else if (parent.is<JsonArray>())
+				if (parent.is<JsonArray>())
 				{
 					parent.add(intNum);
 				}
@@ -946,11 +934,7 @@ void CvConnectionService::ConvertLuaToJsonValue(lua_State* L, int index, JsonVar
 			}
 			else
 			{
-				if (key && parent.is<JsonObject>())
-				{
-					parent[key] = num;
-				}
-				else if (parent.is<JsonArray>())
+				if (parent.is<JsonArray>())
 				{
 					parent.add(num);
 				}
@@ -965,11 +949,7 @@ void CvConnectionService::ConvertLuaToJsonValue(lua_State* L, int index, JsonVar
 	case LUA_TSTRING:
 		{
 			const char* str = lua_tostring(L, index);
-			if (key && parent.is<JsonObject>())
-			{
-				parent[key] = (str ? str : "");
-			}
-			else if (parent.is<JsonArray>())
+			if (parent.is<JsonArray>())
 			{
 				parent.add(str ? str : "");
 			}
@@ -1043,11 +1023,7 @@ void CvConnectionService::ConvertLuaToJsonValue(lua_State* L, int index, JsonVar
 			{
 				// Create JSON array
 				JsonArray arr;
-				if (key && parent.is<JsonObject>())
-				{
-					arr = parent.as<JsonObject>().createNestedArray(key);
-				}
-				else if (parent.is<JsonArray>())
+				if (parent.is<JsonArray>())
 				{
 					arr = parent.as<JsonArray>().createNestedArray();
 				}
@@ -1059,11 +1035,7 @@ void CvConnectionService::ConvertLuaToJsonValue(lua_State* L, int index, JsonVar
 				if (!arr)
 				{
 					Log(LOG_ERROR, "ConvertLuaToJsonValue - Failed to create JSON array!");
-					if (key && parent.is<JsonObject>())
-					{
-						parent[key] = nullptr;
-					}
-					else if (parent.is<JsonArray>())
+					if (parent.is<JsonArray>())
 					{
 						parent.add(nullptr);
 					}
@@ -1080,8 +1052,8 @@ void CvConnectionService::ConvertLuaToJsonValue(lua_State* L, int index, JsonVar
 					lua_pushnumber(L, i);
 					lua_gettable(L, index);
 					
-					// Convert directly into the array (nullptr key means add to array)
-					ConvertLuaToJsonValue(L, -1, arr, nullptr);
+					// Convert directly into the array
+					ConvertLuaToJsonValue(L, -1, arr);
 					
 					lua_pop(L, 1);
 				}
@@ -1090,11 +1062,7 @@ void CvConnectionService::ConvertLuaToJsonValue(lua_State* L, int index, JsonVar
 			{
 				// Create JSON object
 				JsonObject obj;
-				if (key && parent.is<JsonObject>())
-				{
-					obj = parent.as<JsonObject>().createNestedObject(key);
-				}
-				else if (parent.is<JsonArray>())
+				if (parent.is<JsonArray>())
 				{
 					obj = parent.as<JsonArray>().createNestedObject();
 				}
@@ -1106,11 +1074,7 @@ void CvConnectionService::ConvertLuaToJsonValue(lua_State* L, int index, JsonVar
 				if (!obj)
 				{
 					Log(LOG_ERROR, "ConvertLuaToJsonValue - Failed to create JSON object!");
-					if (key && parent.is<JsonObject>())
-					{
-						parent[key] = nullptr;
-					}
-					else if (parent.is<JsonArray>())
+					if (parent.is<JsonArray>())
 					{
 						parent.add(nullptr);
 					}
@@ -1178,12 +1142,12 @@ void CvConnectionService::ConvertLuaToJsonValue(lua_State* L, int index, JsonVar
 						{
 							// Use the string directly with ArduinoJson to ensure it makes a copy
 							obj[keyStorage] = JsonVariant();
-							ConvertLuaToJsonValue(L, valueIndex, obj[keyStorage], nullptr);
+							ConvertLuaToJsonValue(L, valueIndex, obj[keyStorage]);
 						}
 						else
 						{
 							// For string literals and lua strings, use the key directly
-							ConvertLuaToJsonValue(L, valueIndex, obj, key);
+							ConvertLuaToJsonValue(L, valueIndex, obj[key]);
 						}
 					}
 					else
@@ -1206,11 +1170,7 @@ void CvConnectionService::ConvertLuaToJsonValue(lua_State* L, int index, JsonVar
 			// These types cannot be serialized to JSON - store as string description
 			std::stringstream ss;
 			ss << "<" << lua_typename(L, type) << ">";
-			if (key && parent.is<JsonObject>())
-			{
-				parent[key] = ss.str();
-			}
-			else if (parent.is<JsonArray>())
+			if (parent.is<JsonArray>())
 			{
 				parent.add(ss.str());
 			}
@@ -1222,11 +1182,7 @@ void CvConnectionService::ConvertLuaToJsonValue(lua_State* L, int index, JsonVar
 		break;
 		
 	default:
-		if (key && parent.is<JsonObject>())
-		{
-			parent[key] = nullptr;
-		}
-		else if (parent.is<JsonArray>())
+		if (parent.is<JsonArray>())
 		{
 			parent.add(nullptr);
 		}
