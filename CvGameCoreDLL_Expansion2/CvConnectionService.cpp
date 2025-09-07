@@ -1122,7 +1122,7 @@ void CvConnectionService::ConvertLuaToJsonValue(lua_State* L, int index, JsonVar
 				}
 				
 				int objectKeyCount = 0;
-				
+
 				lua_pushnil(L);
 				while (lua_next(L, index) != 0)
 				{
@@ -1132,7 +1132,7 @@ void CvConnectionService::ConvertLuaToJsonValue(lua_State* L, int index, JsonVar
 					
 					// Get key as string
 					const char* key = nullptr;
-					char keyBuffer[64]; // Buffer for numeric key conversion
+					std::string keyStorage; // Storage for dynamically created keys (per iteration)
 					
 					if (lua_type(L, keyIndex) == LUA_TSTRING)
 					{
@@ -1142,35 +1142,49 @@ void CvConnectionService::ConvertLuaToJsonValue(lua_State* L, int index, JsonVar
 					{
 						// Convert number to string without modifying the stack
 						double numKey = lua_tonumber(L, keyIndex);
+						std::stringstream ss;
 						if (numKey == floor(numKey))
 						{
-							sprintf_s(keyBuffer, sizeof(keyBuffer), "%d", static_cast<int>(numKey));
+							ss << static_cast<int>(numKey);
 						}
 						else
 						{
-							sprintf_s(keyBuffer, sizeof(keyBuffer), "%g", numKey);
+							ss << numKey;
 						}
-						key = keyBuffer;
+						keyStorage = ss.str();
+						key = keyStorage.c_str();
 					}
 					else if (lua_type(L, keyIndex) == LUA_TBOOLEAN)
 					{
 						// Convert boolean to string
-						sprintf_s(keyBuffer, sizeof(keyBuffer), "%s", lua_toboolean(L, keyIndex) ? "true" : "false");
-						key = keyBuffer;
+						key = lua_toboolean(L, keyIndex) ? "true" : "false";
 					}
 					else
 					{
 						// For other types, use type name as key
-						sprintf_s(keyBuffer, sizeof(keyBuffer), "<%s>", lua_typename(L, lua_type(L, keyIndex)));
-						key = keyBuffer;
+						std::stringstream ss;
+						ss << "<" << lua_typename(L, lua_type(L, keyIndex)) << ">";
+						keyStorage = ss.str();
+						key = keyStorage.c_str();
 					}
 					
 					if (key)
 					{
 						objectKeyCount++;
 						// Add key-value pair to object
-						// Convert the value directly into the object with the key
-						ConvertLuaToJsonValue(L, valueIndex, obj, key);
+						// For dynamic keys, we need to store them in the JSON object first
+						// to ensure the string remains valid during recursive calls
+						if (!keyStorage.empty())
+						{
+							// Use the string directly with ArduinoJson to ensure it makes a copy
+							obj[keyStorage] = JsonVariant();
+							ConvertLuaToJsonValue(L, valueIndex, obj[keyStorage], nullptr);
+						}
+						else
+						{
+							// For string literals and lua strings, use the key directly
+							ConvertLuaToJsonValue(L, valueIndex, obj, key);
+						}
 					}
 					else
 					{
