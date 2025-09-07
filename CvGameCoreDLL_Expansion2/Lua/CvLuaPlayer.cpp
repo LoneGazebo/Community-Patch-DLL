@@ -18731,17 +18731,19 @@ int CvLuaPlayer::lSetGrandStrategy(lua_State* L)
 }
 
 //------------------------------------------------------------------------------
-//table GetEconomicStrategies();
-// Returns a table mapping strategy IDs to active turns {strategyId: activeTurns}
+//array, array GetEconomicStrategies();
+// Returns two arrays: first with strategy IDs, second with corresponding active turns
 int CvLuaPlayer::lGetEconomicStrategies(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
-	lua_newtable(L); // Create the result table
+	lua_newtable(L); // Create the first array (strategy IDs)
+	lua_newtable(L); // Create the second array (active turns)
 	
 	if (pkPlayer && pkPlayer->GetEconomicAI())
 	{
 		int iCurrentTurn = GC.getGame().getGameTurn();
 		int iNumStrategies = pkPlayer->GetEconomicAI()->GetEconomicAIStrategies()->GetNumEconomicAIStrategies();
+		int iActiveCount = 0;
 		
 		for (int i = 0; i < iNumStrategies; i++)
 		{
@@ -18751,15 +18753,22 @@ int CvLuaPlayer::lGetEconomicStrategies(lua_State* L)
 				int iTurnAdopted = pkPlayer->GetEconomicAI()->GetTurnStrategyAdopted(eStrategy);
 				int iActiveTurns = (iTurnAdopted != -1) ? (iCurrentTurn - iTurnAdopted) : 0;
 				
-				// Set table[strategyId] = activeTurns
+				iActiveCount++;
+				
+				// Add to strategy IDs array
+				lua_pushinteger(L, iActiveCount);
 				lua_pushinteger(L, i);
+				lua_settable(L, -4);
+				
+				// Add to active turns array
+				lua_pushinteger(L, iActiveCount);
 				lua_pushinteger(L, iActiveTurns);
 				lua_settable(L, -3);
 			}
 		}
 	}
 	
-	return 1;
+	return 2;
 }
 
 //------------------------------------------------------------------------------
@@ -18808,17 +18817,19 @@ int CvLuaPlayer::lSetEconomicStrategies(lua_State* L)
 }
 
 //------------------------------------------------------------------------------
-//table GetMilitaryStrategies();
-// Returns a table mapping strategy IDs to active turns {strategyId: activeTurns}
+//array, array GetMilitaryStrategies();
+// Returns two arrays: first with strategy IDs, second with corresponding active turns
 int CvLuaPlayer::lGetMilitaryStrategies(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
-	lua_newtable(L); // Create the result table
+	lua_newtable(L); // Create the first array (strategy IDs)
+	lua_newtable(L); // Create the second array (active turns)
 	
 	if (pkPlayer && pkPlayer->GetMilitaryAI())
 	{
 		int iCurrentTurn = GC.getGame().getGameTurn();
 		int iNumStrategies = pkPlayer->GetMilitaryAI()->GetMilitaryAIStrategies()->GetNumMilitaryAIStrategies();
+		int iActiveCount = 0;
 		
 		for (int i = 0; i < iNumStrategies; i++)
 		{
@@ -18828,15 +18839,22 @@ int CvLuaPlayer::lGetMilitaryStrategies(lua_State* L)
 				int iTurnAdopted = pkPlayer->GetMilitaryAI()->GetTurnStrategyAdopted(eStrategy);
 				int iActiveTurns = (iTurnAdopted != -1) ? (iCurrentTurn - iTurnAdopted) : 0;
 				
-				// Set table[strategyId] = activeTurns
+				iActiveCount++;
+				
+				// Add to strategy IDs array
+				lua_pushinteger(L, iActiveCount);
 				lua_pushinteger(L, i);
+				lua_settable(L, -4);
+				
+				// Add to active turns array
+				lua_pushinteger(L, iActiveCount);
 				lua_pushinteger(L, iActiveTurns);
 				lua_settable(L, -3);
 			}
 		}
 	}
 	
-	return 1;
+	return 2;
 }
 
 //------------------------------------------------------------------------------
