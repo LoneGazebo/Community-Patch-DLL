@@ -197,6 +197,7 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iNegatesPromotion(NO_PROMOTION),
 	m_iForcedDamageValue(0),
 	m_iChangeDamageValue(0),
+	m_iDamageTakenMod(0),
 	m_iPromotionDuration(0),
 	m_iMoraleBreakChance(0),
 	m_iDamageAoEFortified(0),
@@ -484,6 +485,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iNegatesPromotion = GC.getInfoTypeForString(szNegatesPromotion, true);
 	m_iForcedDamageValue = kResults.GetInt("ForcedDamageValue");
 	m_iChangeDamageValue = kResults.GetInt("ChangeDamageValue");
+	m_iDamageTakenMod = kResults.GetInt("DamageTakenMod");
 	m_iPromotionDuration = kResults.GetInt("PromotionDuration");
 	m_iMoraleBreakChance = kResults.GetInt("MoraleBreakChance");
 	m_iDamageAoEFortified = kResults.GetInt("AoEWhileFortified");
@@ -2324,13 +2326,17 @@ int CvPromotionEntry::NegatesPromotion() const
 {
 	return m_iNegatesPromotion;
 }
-int CvPromotionEntry::ForcedDamageValue() const
+int CvPromotionEntry::GetForcedDamageValue() const
 {
 	return m_iForcedDamageValue;
 }
-int CvPromotionEntry::ChangeDamageValue() const
+int CvPromotionEntry::GetChangeDamageValue() const
 {
 	return m_iChangeDamageValue;
+}
+int CvPromotionEntry::GetDamageTakenMod() const
+{
+	return m_iDamageTakenMod;
 }
 int CvPromotionEntry::PromotionDuration() const
 {
