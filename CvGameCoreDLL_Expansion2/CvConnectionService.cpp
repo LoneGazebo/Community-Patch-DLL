@@ -815,23 +815,14 @@ void CvConnectionService::ProcessLuaResult(lua_State* L, int executionResult, co
 		
 		// Clean up error message by stripping raw scripts
 		std::string cleanedError = errorMsg;
-		size_t colonPos = cleanedError.find(':');
-		if (colonPos != std::string::npos) {
-			// Check if there's a line number after the first colon
-			size_t secondColonPos = cleanedError.find(':', colonPos + 1);
-			if (secondColonPos != std::string::npos) {
-				// Check if between colons is a number (line number)
-				bool isLineNumber = true;
-				for (size_t i = colonPos + 1; i < secondColonPos; i++) {
-					if (!isdigit(cleanedError[i])) {
-						isLineNumber = false;
-						break;
-					}
-				}
-				if (isLineNumber) {
-					// Strip everything before the first colon (the raw script)
-					cleanedError = cleanedError.substr(colonPos + 1);
-				}
+		
+		// Remove script location prefix (e.g., "summaries:" from "summaries:82:error message")
+		size_t lastColon = cleanedError.rfind(':');
+		if (lastColon != std::string::npos && lastColon > 0) {
+			size_t secondLastColon = cleanedError.rfind(':', lastColon - 1);
+			if (secondLastColon != std::string::npos) {
+				// Keep everything after the second-to-last colon
+				cleanedError = cleanedError.substr(secondLastColon + 1);
 			}
 		}
 		
