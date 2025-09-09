@@ -1871,6 +1871,9 @@
 		<Row Tag="TXT_KEY_CITY_SAPPED">
 			<Text>Because of an enemy Spy Mission, the city is blockaded and cannot perform ranged strikes for [COLOR_POSITIVE_TEXT]{1_Turns}[ENDCOLOR] {1_Turns: plural 1?Turn; other?Turns;}.</Text>
 		</Row>
+		<Row Tag="TXT_KEY_CITYVIEW_FINISHED">
+			<Text>FINISHED: {1_ItemName}</Text>
+		</Row>
 		<Row Tag="TXT_KEY_AUTOMATE_PRODUCTION_TT">
 			<Text>Automate production for this city.</Text>
 		</Row>
