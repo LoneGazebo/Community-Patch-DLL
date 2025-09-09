@@ -208,49 +208,49 @@ local tFocusButtons = {
 local tRightSideSections = {
 	WorkerHeader = {
 		Label = "WorkerHeaderLabel",
-		LabelText = "TXT_KEY_CITYVIEW_CITIZEN_ALLOCATION",
+		LabelText = L("TXT_KEY_CITYVIEW_CITIZEN_ALLOCATION"),
 		OuterStack = "WorkerManagementBox",
 		HeadingOpen = OptionsManager.IsNoCitizenWarning(),
 	},
 	SlackerHeader = {
 		Label = "SlackerHeaderLabel",
-		LabelText = "TXT_KEY_CITYVIEW_UNEMPLOYED_TEXT",
+		LabelText = L("TXT_KEY_CITYVIEW_UNEMPLOYED_TEXT"),
 		OuterStack = "BoxOSlackers",
 		HeadingOpen = true,
 	},
 	GPHeader = {
 		Label = "GPHeaderLabel",
-		LabelText = "TXT_KEY_CITYVIEW_GREAT_PEOPLE_TEXT",
+		LabelText = L("TXT_KEY_CITYVIEW_GREAT_PEOPLE_TEXT"),
 		OuterStack = "GPStack",
 		HeadingOpen = true,
 	},
 	SpecialistBuildingHeader = {
 		Label = "SpecialistBuildingHeaderLabel",
-		LabelText = "TXT_KEY_CITYVIEW_SPECIAL_TEXT",
+		LabelText = L("TXT_KEY_CITYVIEW_SPECIAL_TEXT"),
 		InnerStack = "SpecialistStack",
 		HeadingOpen = true,
 	},
 	WonderHeader = {
 		Label = "WonderHeaderLabel",
-		LabelText = "TXT_KEY_CITYVIEW_WONDERS_TEXT",
+		LabelText = L("TXT_KEY_CITYVIEW_WONDERS_TEXT"),
 		InnerStack = "WonderStack",
 		HeadingOpen = true,
 	},
 	GreatWorkBuildingHeader = {
 		Label = "GreatWorkBuildingHeaderLabel",
-		LabelText = "TXT_KEY_CITYVIEW_GREAT_WORK_BUILDINGS_TEXT",
+		LabelText = L("TXT_KEY_CITYVIEW_GREAT_WORK_BUILDINGS_TEXT"),
 		InnerStack = "GreatWorkStack",
 		HeadingOpen = true,
 	},
 	CorporationHeader = {
 		Label = "CorporationHeaderLabel",
-		LabelText = "TXT_KEY_CITYVIEW_CORPORATIONS_TEXT",
+		LabelText = L("TXT_KEY_CITYVIEW_CORPORATIONS_TEXT"),
 		InnerStack = "CorporationStack",
 		HeadingOpen = true,
 	},
 	OtherBuildingHeader = {
 		Label = "OtherBuildingHeaderLabel",
-		LabelText = "TXT_KEY_CITYVIEW_REGULARBUILDING_TEXT",
+		LabelText = L("TXT_KEY_CITYVIEW_REGULARBUILDING_TEXT"),
 		InnerStack = "OtherBuildingStack",
 		HeadingOpen = true,
 	},
@@ -1841,10 +1841,10 @@ end);
 --- @param tSection HeaderDef
 local function HandleAppearance(strSectionName, tSection)
 	if tSection.HeadingOpen then
-		Controls[tSection.Label]:SetText("[ICON_MINUS] " .. L(tSection.LabelText));
+		Controls[tSection.Label]:SetText("[ICON_MINUS] " .. tSection.LabelText);
 		Show(Controls[strSectionName]);
 	else
-		Controls[tSection.Label]:SetText("[ICON_PLUS] " .. L(tSection.LabelText));
+		Controls[tSection.Label]:SetText("[ICON_PLUS] " .. tSection.LabelText);
 		Hide(Controls[strSectionName]);
 	end
 	if tSection.OuterStack then

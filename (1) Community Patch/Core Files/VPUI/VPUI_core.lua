@@ -35,7 +35,7 @@ if not VP and not (MapModData and MapModData.VP) then
 	-- This is kept mostly private to prevent alteration
 	local tTemplates = {
 		Eras = {},
-		Technologies = {},
+		Technologies = {"GridX"},
 		Policies = {},
 		Beliefs = {"ShortDescription"},
 		Religions = {"IconString"},
@@ -45,10 +45,10 @@ if not VP and not (MapModData and MapModData.VP) then
 		UnitCombatInfos = {},
 		Units = {"Class", "PrereqTech", "Domain", "Combat", "RangedCombat"},
 		UnitClasses = {"DefaultUnit"},
-		Buildings = {"BuildingClass", "PortraitIndex", "IconAtlas", "CivilizationRequired"},
-		BuildingClasses = {"MaxGlobalInstances", "MaxTeamInstances", "DefaultBuilding"},
-		Projects = {"PortraitIndex", "IconAtlas"},
-		Processes = {"PortraitIndex", "IconAtlas"},
+		Buildings = {"BuildingClass", "PortraitIndex", "IconAtlas", "CivilizationRequired", "PrereqTech"},
+		BuildingClasses = {"MaxGlobalInstances", "MaxTeamInstances", "MaxPlayerInstances", "DefaultBuilding"},
+		Projects = {"PortraitIndex", "IconAtlas", "TechPrereq"},
+		Processes = {"PortraitIndex", "IconAtlas", "TechPrereq"},
 		Specialists = {"PortraitIndex", "IconAtlas", "GreatPeopleTitle"},
 		Accomplishments = {"MaxPossibleCompletions"},
 		Plots = {},
