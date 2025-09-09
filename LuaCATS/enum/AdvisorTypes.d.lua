@@ -1,6 +1,6 @@
 --- @meta
 
---- @enum AdvisorTypes
+--- @enum AdvisorType
 AdvisorTypes = {
 	NO_ADVISOR_TYPE = -1,
 	ADVISOR_MILITARY = 0,
