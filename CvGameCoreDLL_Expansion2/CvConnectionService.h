@@ -111,7 +111,6 @@ private:
 	void HandleClientConnection(HANDLE hPipe);
 
 	// Queue management methods
-	void QueueIncomingMessage(const std::string& messageJson);
 	void QueueOutgoingMessage(const std::string& messageJson);
 	bool DequeueOutgoingMessage(std::string& messageJson);
 	

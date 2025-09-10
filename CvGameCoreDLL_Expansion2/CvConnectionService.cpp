@@ -369,7 +369,12 @@ DWORD WINAPI CvConnectionService::NamedPipeServerThread(LPVOID lpParam)
 // Handle a single client connection
 void CvConnectionService::HandleClientConnection(HANDLE hPipe)
 {
-	char buffer[65535];
+	// Dynamic message buffer to avoid repeated allocations
+	std::string messageBuffer;
+	messageBuffer.reserve(65536); // Reserve initial capacity
+	
+	// Temporary read buffer for pipe operations
+	char readBuffer[8192];
 	DWORD bytesRead, bytesWritten;
 	
 	while (m_bClientConnected && !m_bShutdownRequested)
@@ -406,8 +411,8 @@ void CvConnectionService::HandleClientConnection(HANDLE hPipe)
 		// Read message from client (non-blocking)
 		BOOL success = ReadFile(
 			hPipe,
-			buffer,
-			sizeof(buffer) - 1,
+			readBuffer,
+			sizeof(readBuffer) - 1,
 			&bytesRead,
 			NULL);
 		
@@ -443,58 +448,61 @@ void CvConnectionService::HandleClientConnection(HANDLE hPipe)
 			continue;
 		}
 		
-		// Null-terminate the received message
-		buffer[bytesRead] = '\0';
-
-		// Queue the incoming message
-		std::string json(buffer);
-		QueueIncomingMessage(json);
-	}
-}
-
-// Queue an incoming message from the Bridge Service (called from SSE thread)
-void CvConnectionService::QueueIncomingMessage(const std::string& messageJson)
-{
-	// Lock the incoming queue critical section
-	EnterCriticalSection(&m_csIncoming);
-	
-	// Split the message by delimiter "!@#$%^!" and queue each message separately
-	const std::string delimiter = "!@#$%^!";
-	std::string messages = messageJson;
-	size_t pos = 0;
-	
-	while ((pos = messages.find(delimiter)) != std::string::npos)
-	{
-		std::string singleMessage = messages.substr(0, pos);
+		// Null-terminate the received data
+		readBuffer[bytesRead] = '\0';
 		
-		// Only queue non-empty messages
-		if (!singleMessage.empty())
+		// Append to message buffer
+		messageBuffer.append(readBuffer, bytesRead);
+		
+		// Process complete messages from the buffer
+		const std::string delimiter = "!@#$%^!";
+		size_t pos = 0;
+		
+		while ((pos = messageBuffer.find(delimiter)) != std::string::npos)
 		{
-			m_incomingQueue.push(singleMessage);
+			// Extract the message
+			std::string singleMessage = messageBuffer.substr(0, pos);
 			
-			// Log the queuing action
-			std::stringstream ss;
-			ss << "QueueIncomingMessage - " << singleMessage;
-			Log(LOG_DEBUG, ss.str().c_str());
+			// Only queue non-empty messages
+			if (!singleMessage.empty())
+			{
+				// Lock the incoming queue critical section
+				EnterCriticalSection(&m_csIncoming);
+				m_incomingQueue.push(singleMessage);
+				LeaveCriticalSection(&m_csIncoming);
+				
+				// Log the queuing action
+				std::stringstream ss;
+				ss << "HandleClientConnection - Queued message: " << singleMessage;
+				Log(LOG_DEBUG, ss.str().c_str());
+			}
+			
+			// Remove the processed message and delimiter from buffer
+			messageBuffer.erase(0, pos + delimiter.length());
 		}
 		
-		// Remove the processed message and delimiter
-		messages.erase(0, pos + delimiter.length());
+		// Check if buffer is getting too large (prevent memory issues)
+		if (messageBuffer.size() > 10485760) // 10MB limit for incomplete messages
+		{
+			std::stringstream ss;
+			ss << "HandleClientConnection - Message buffer too large (" << messageBuffer.size() 
+			   << " bytes), clearing to prevent memory issues";
+			Log(LOG_WARNING, ss.str().c_str());
+			messageBuffer.clear();
+			messageBuffer.reserve(262144); // Re-reserve standard capacity
+		}
 	}
 	
-	// Handle any remaining message after the last delimiter (should be empty if properly formatted)
-	// But we check anyway in case there's trailing data
-	if (!messages.empty())
+	// Log any remaining data in buffer when disconnecting
+	if (!messageBuffer.empty())
 	{
-		// This shouldn't happen if messages are properly delimited, but handle it gracefully
 		std::stringstream ss;
-		ss << "QueueIncomingMessage - Warning: Found trailing data after last delimiter: " << messages;
+		ss << "HandleClientConnection - Connection closed with " << messageBuffer.size() 
+		   << " bytes of incomplete data in buffer";
 		Log(LOG_WARNING, ss.str().c_str());
 	}
-	
-	// Release the critical section
-	LeaveCriticalSection(&m_csIncoming);
 }
+
 
 // Queue an outgoing message to send to the Bridge Service (called from game thread)
 void CvConnectionService::QueueOutgoingMessage(const std::string& messageJson)
