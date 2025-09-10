@@ -8,6 +8,7 @@
 -- todo: sell building button
 ------------------------------------------------------
 include( "EUI_tooltips" )
+include("InfoTooltipInclude");
 
 -------------------------------
 -- minor lua optimizations
@@ -60,20 +61,8 @@ local StackInstanceManager = StackInstanceManager
 local GameInfo = EUI.GameInfoCache -- warning! use iterator ONLY with table field conditions, NOT string SQL query
 
 --EUI_tooltips
-local GetHelpTextForUnit = EUI.GetHelpTextForUnit
-local GetHelpTextForBuilding = EUI.GetHelpTextForBuilding
 local GetHelpTextForProject = EUI.GetHelpTextForProject
 local GetHelpTextForProcess = EUI.GetHelpTextForProcess
-local GetFoodTooltip = EUI.GetFoodTooltip
-local GetGoldTooltip = civ5_mode and EUI.GetGoldTooltip or EUI.GetEnergyTooltip
-local GetScienceTooltip = EUI.GetScienceTooltip
-local GetProductionTooltip = EUI.GetProductionTooltip
-local GetCultureTooltip = EUI.GetCultureTooltip
-local GetFaithTooltip = EUI.GetFaithTooltip
-local GetTourismTooltip = EUI.GetTourismTooltip
---CBP
-local GetCityHappinessTooltip = EUI.GetCityHappinessTooltip
-local GetCityUnhappinessTooltip = EUI.GetCityUnhappinessTooltip
 
 local UpdateCityView
 --END
@@ -545,7 +534,7 @@ local function BuildingToolTip( control )
 	local city = UI_GetHeadSelectedCity()
 	if city and building then
 
-		g_rightTipControls.Text:SetText( GetHelpTextForBuilding( buildingID, false, false, city:GetNumFreeBuilding(buildingID) > 0, city ) )
+		g_rightTipControls.Text:SetText( GetHelpTextForBuilding( buildingID, false, nil, city:GetNumFreeBuilding(buildingID) > 0, city ) )
 		IconHookup( building.PortraitIndex, g_rightTipControls.Portrait:GetSizeY(), building.IconAtlas, g_rightTipControls.Portrait )
 		g_rightTipControls.Box:SetHide( false )
 		return g_rightTipControls.Box:DoAutoSize()
@@ -561,7 +550,7 @@ local function OrderItemTooltip( city, isDisabled, purchaseYieldID, orderID, ite
 		if orderID == OrderTypes.ORDER_TRAIN then
 			itemInfo = GameInfo.Units
 			portraitOffset, portraitAtlas = UI_GetUnitPortraitIcon( itemID, cityOwnerID )
-			strToolTip = GetHelpTextForUnit( itemID, true )
+			strToolTip = GetHelpTextForUnit( itemID, true, city )
 			isRealRepeat = isRepeat
 
 			if isDisabled then
@@ -576,7 +565,7 @@ local function OrderItemTooltip( city, isDisabled, purchaseYieldID, orderID, ite
 
 		elseif orderID == OrderTypes.ORDER_CONSTRUCT then
 			itemInfo = GameInfo.Buildings
-			strToolTip = GetHelpTextForBuilding( itemID, false, false, city:GetNumFreeBuilding(itemID) > 0, city )
+			strToolTip = GetHelpTextForBuilding( itemID, false, nil, city:GetNumFreeBuilding(itemID) > 0, city )
 			if isDisabled then
 				if purchaseYieldID == g_yieldCurrency then
 --					cash = cityOwner:GetGold() - city:GetBuildingPurchaseCost(itemID)
@@ -910,173 +899,37 @@ local function SetupBuildingList( city, buildings, buildingIM )
 		local maintenanceCost = tonumber(building[g_maintenanceCurrency]) or 0
 		local defenseChange = tonumber(building.Defense) or 0
 		local hitPointChange = tonumber(building.ExtraCityHitPoints) or 0
-		--CBP
-		--local buildingCultureRate = (not gk_mode and tonumber(building.Culture) or 0) + (specialist and city:GetCultureFromSpecialist( specialist.ID ) or 0) * numSpecialistsInBuilding
-		local buildingCultureRate = (not gk_mode and tonumber(building.Culture) or 0) + (specialist and (city:GetSpecialistYield( specialist.ID, YieldTypes.YIELD_CULTURE ) + city:GetCultureFromSpecialist( specialist.ID ) + city:GetSpecialistYieldChange( specialist.ID, YieldTypes.YIELD_CULTURE)) or 0) * numSpecialistsInBuilding
-		--END
-		local buildingCultureModifier = tonumber(building.CultureRateModifier) or 0
-		local cityCultureRateModifier = cityOwner:GetCultureCityModifier() + city:GetCultureRateModifier() + (city:GetNumWorldWonders() > 0 and cityOwner and cityOwner:GetCultureWonderMultiplier() or 0)
-		local cityCultureRate
-		local population = city:GetPopulation()
-		local populationEmpire = cityOwner:GetTotalPopulation()
 		local tips = table()
-		local thisBuildingAndYieldTypes = { BuildingType = building.Type }
-		if civ5_mode then
-			cityCultureRate = city:GetBaseJONSCulturePerTurn()
-			-- Happiness
-			local happinessChange = (tonumber(building.Happiness) or 0) + (tonumber(building.UnmoddedHappiness) or 0)
-						+ cityOwner:GetExtraBuildingHappinessFromPolicies( buildingID )
-						+ (cityOwner:IsHalfSpecialistUnhappiness() and GameDefines.UNHAPPINESS_PER_POPULATION * numSpecialistsInBuilding * ((city:IsCapital() and cityOwner:GetCapitalUnhappinessMod() or 0)+100) * (cityOwner:GetUnhappinessMod() + 100) * (cityOwner:GetTraitPopUnhappinessMod() + 100) / 2e6 or 0) -- missing getHandicapInfo().getPopulationUnhappinessMod()
-			-- Vox Populi fix for 3939
-			if gk_mode then
-				happinessChange = happinessChange + cityOwner:GetPlayerBuildingClassHappiness( buildingClassID )
-			end
-			if city and civ5gk_mode and buildingClassID then
-				happinessChange = happinessChange + city:GetReligionBuildingClassHappiness(buildingClassID)
-			end
-			-- Vox Populi end
-			tips:insertIf( happinessChange ~=0 and happinessChange .. "[ICON_HAPPINESS_1]" )
 
-			-- Unhappiness
-			local unhappinessChange = tonumber(building.Unhappiness) or 0
-			if (city:IsCapital() and cityOwner:GetCapitalUnhappinessMod() > 0) then
-				unhappinessChange = ApplyPercentModifier(unhappinessChange, cityOwner:GetCapitalUnhappinessMod());
-			end
-
-			if (cityOwner:GetUnhappinessMod() > 0) then
-				unhappinessChange = ApplyPercentModifier(unhappinessChange, cityOwner:GetUnhappinessMod());
-			end
-
-			tips:insertIf( unhappinessChange ~=0 and unhappinessChange .. "[ICON_HAPPINESS_4]" )
-
-		else -- civBE_mode
-			cityCultureRate = city:GetBaseCulturePerTurn()
-			-- Health
-			local healthChange = (tonumber(building.Health) or 0) + (tonumber(building.UnmoddedHealth) or 0) + cityOwner:GetExtraBuildingHealthFromPolicies( buildingID )
-			local healthModifier = tonumber(building.HealthModifier) or 0
-			-- Effect of player perks
-			for i, perkID in ipairs(cityOwnerPerks) do
-				healthChange = healthChange + Game.GetPlayerPerkBuildingClassPercentHealthChange( perkID, buildingClassID )
-				healthModifier = healthModifier + Game.GetPlayerPerkBuildingClassPercentHealthChange( perkID, buildingClassID )
-				defenseChange = defenseChange + Game.GetPlayerPerkBuildingClassCityStrengthChange( perkID, buildingClassID )
-				hitPointChange = hitPointChange + Game.GetPlayerPerkBuildingClassCityHPChange( perkID, buildingClassID )
-				maintenanceCost = maintenanceCost + Game.GetPlayerPerkBuildingClassEnergyMaintenanceChange( perkID, buildingClassID )
-			end
-			tips:insertIf( healthChange ~=0 and healthChange .. "[ICON_HEALTH_1]" )
---			tips:insertLocalizedIfNonZero( "TXT_KEY_STAT_POSITIVE_YIELD_MOD", "[ICON_HEALTH_1]", healthModifier )
+		-- Happiness
+		local happinessChange = (tonumber(building.Happiness) or 0) + (tonumber(building.UnmoddedHappiness) or 0)
+					+ cityOwner:GetExtraBuildingHappinessFromPolicies( buildingID )
+					+ (cityOwner:IsHalfSpecialistUnhappiness() and GameDefines.UNHAPPINESS_PER_POPULATION * numSpecialistsInBuilding * ((city:IsCapital() and cityOwner:GetCapitalUnhappinessMod() or 0)+100) * (cityOwner:GetUnhappinessMod() + 100) * (cityOwner:GetTraitPopUnhappinessMod() + 100) / 2e6 or 0) -- missing getHandicapInfo().getPopulationUnhappinessMod()
+		-- Vox Populi fix for 3939
+		if gk_mode then
+			happinessChange = happinessChange + cityOwner:GetPlayerBuildingClassHappiness( buildingClassID )
 		end
-		local buildingYieldRate, buildingYieldPerPop, buildingYieldPerPopInEmpire, buildingYieldModifier, cityYieldRate, cityYieldRateModifier, isProducing
+		if city and gk_mode and buildingClassID then
+			happinessChange = happinessChange + city:GetReligionBuildingClassHappiness(buildingClassID)
+		end
+		-- Vox Populi end
+		tips:insertIf( happinessChange ~=0 and happinessChange .. "[ICON_HAPPINESS_1]" )
+
+		-- Unhappiness
+		local unhappinessChange = tonumber(building.Unhappiness) or 0
+		if (city:IsCapital() and cityOwner:GetCapitalUnhappinessMod() > 0) then
+			unhappinessChange = ApplyPercentModifier(unhappinessChange, cityOwner:GetCapitalUnhappinessMod());
+		end
+
+		if (cityOwner:GetUnhappinessMod() > 0) then
+			unhappinessChange = ApplyPercentModifier(unhappinessChange, cityOwner:GetUnhappinessMod());
+		end
+
+		tips:insertIf( unhappinessChange ~=0 and unhappinessChange .. "[ICON_HAPPINESS_4]" )
+
 		for yieldID = 0, YieldTypes.NUM_YIELD_TYPES-1 do
-			isProducing = isNotResistance
-			thisBuildingAndYieldTypes.YieldType = (GameInfo.Yields[yieldID] or {}).Type or -1
-			-- Yield changes from the building
-			buildingYieldRate = Game.GetBuildingYieldChange( buildingID, yieldID )
-						+ cityOwner:GetBuildingTechEnhancedYields(buildingID, yieldID)
-						+ (gk_mode and cityOwner:GetPlayerBuildingClassYieldChange( buildingClassID, yieldID )
-						+ city:GetReligionBuildingClassYieldChange( buildingClassID, yieldID ) or 0)
-						+ (bnw_mode and city:GetLeagueBuildingClassYieldChange( buildingClassID, yieldID ) or 0)
-						+ city:GetLocalBuildingClassYield(buildingClassID, yieldID)
-						+ city:GetReligionBuildingYieldRateModifier(buildingClassID, yieldID)
-						+ city:GetBuildingYieldChangeFromCorporationFranchises(buildingClassID, yieldID)
-						+ cityOwner:GetPolicyBuildingClassYieldChange(buildingClassID, yieldID)
-
-			-- Yield modifiers from the building
-			buildingYieldModifier = Game.GetBuildingYieldModifier( buildingID, yieldID )
-						+ cityOwner:GetPolicyBuildingClassYieldModifier( buildingClassID, yieldID )
-			-- Effect of player perks
-			if civBE_mode then
-				for i, perkID in ipairs(cityOwnerPerks) do
-					buildingYieldRate = buildingYieldRate + Game.GetPlayerPerkBuildingClassFlatYieldChange( perkID, buildingClassID, yieldID )
-					buildingYieldModifier = buildingYieldModifier + Game.GetPlayerPerkBuildingClassPercentYieldChange( perkID, buildingClassID, yieldID )
-				end
-			end
-			-- Vox Populi start
-			-- Yield bonuses to World Wonders
-			if city:GetNumWorldWonders() > 0 and Game.IsWorldWonderClass(buildingClassID) then
-				buildingYieldRate = buildingYieldRate + cityOwner:GetExtraYieldWorldWonder(buildingID, yieldID)
-			end
-			-- Vox Populi end
-			-- Specialists yield
-			if specialist then
-				--CBP
-				if(yieldID ~= YieldTypes.YIELD_CULTURE) then
-					buildingYieldRate = buildingYieldRate + (numSpecialistsInBuilding * (city:GetSpecialistYield( specialist.ID, yieldID ) + city:GetSpecialistYieldChange( specialist.ID, yieldID)))
-				end
-				--END
-			end
-			cityYieldRateModifier = city:GetBaseYieldRateModifier( yieldID )
-			cityYieldRate = city:GetYieldFromYieldPerBuildingTimes100(yieldID) / 100 + city:GetYieldPerPopTimes100( yieldID ) * population / 100 + city:GetBaseYieldRate( yieldID ) + city:GetYieldPerPopInEmpireTimes100( yieldID ) * populationEmpire / 100
-			if yieldID == YieldTypes.YIELD_PRODUCTION and city:IsIndustrialConnectedToCapital() then
-				cityYieldRate = cityYieldRate + city:GetConnectionGoldTimes100() / 100
-			end
-			-- Special culture case
-			if yieldID == YieldTypes.YIELD_CULTURE then
-				buildingYieldRate = buildingYieldRate + buildingCultureRate
-				buildingYieldModifier = buildingYieldModifier + buildingCultureModifier
-				cityYieldRateModifier = cityYieldRateModifier + cityCultureRateModifier
-				cityYieldRate = cityYieldRate + cityCultureRate
-				buildingCultureRate = 0
-				buildingCultureModifier = 0
-			elseif yieldID == YieldTypes.YIELD_FOOD then
-				local foodPerPop = GameDefines.FOOD_CONSUMPTION_PER_POPULATION
-				local foodConsumed = city:FoodConsumption()
-				-- Vox Populi Comparable Yields
-				--buildingYieldRate = buildingYieldRate + (foodConsumed < foodPerPop * population and foodPerPop * numSpecialistsInBuilding / 2 or 0)
-				--buildingYieldModifier = buildingYieldModifier + (tonumber(building.FoodKept) or 0) -- FoodKept has a different meaning
-				--[[ Infixo turned off due to confusion
-				if foodConsumed < foodPerPop * population then
-					-- this only happens when specialists in the city consume less food that normal population
-					local foodPerSpec = city:FoodConsumptionSpecialistTimes100() / 100;
-					buildingYieldRate = buildingYieldRate + (foodPerPop - foodPerSpec) * numSpecialistsInBuilding;
-				end
-				--]]
-				-- Vox Populi end
-				cityYieldRate = city:FoodDifferenceTimes100() / 100 -- cityYieldRate - foodConsumed
-				cityYieldRateModifier = cityYieldRateModifier + city:GetMaxFoodKeptPercent()
-				isProducing = true
-			end
-			-- Population yield
-			buildingYieldPerPop = 0
-			for row in GameInfo.Building_YieldChangesPerPop( thisBuildingAndYieldTypes ) do
-				buildingYieldPerPop = buildingYieldPerPop + (row.Yield or 0)
-			end
-			buildingYieldRate = buildingYieldRate + buildingYieldPerPop * population / 100
-			-- Empire Population yield
-			buildingYieldPerPopInEmpire = 0
-			for row in GameInfo.Building_YieldChangesPerPopInEmpire( thisBuildingAndYieldTypes ) do
-				buildingYieldPerPopInEmpire = buildingYieldPerPopInEmpire + (row.Yield or 0)
-			end
-			buildingYieldRate = buildingYieldRate + buildingYieldPerPopInEmpire * populationEmpire / 100
-			-- Yield from buildings
-			for row in GameInfo.Building_YieldChangesPerXBuilding( thisBuildingAndYieldTypes ) do
-				buildingYieldRate = buildingYieldRate + city:GetNumBuildings() * (row.Yield or 0) / (row.NumRequired or 1);
-			end
-			buildingYieldRate = buildingYieldRate + buildingYieldPerPopInEmpire * populationEmpire / 100
-			-- Events
-			buildingYieldRate = buildingYieldRate + city:GetEventBuildingClassYield(buildingClassID, yieldID);
-			-- End
-			-- Vox Populi Comparable Yields
-			cityYieldRateModifier = 100
-			-- Vox Populi calculate impact of that single building on base yields
-			--buildingYieldRate = buildingYieldRate * cityYieldRateModifier + ( cityYieldRate - buildingYieldRate ) * buildingYieldModifier
-			--local iYieldFromBuildingModifier = city:GetBaseYieldRate(yieldID) * buildingYieldModifier / 100;
-			--buildingYieldRate = buildingYieldRate + iYieldFromBuildingModifier
-			tips:insertIf( isProducing and buildingYieldRate ~= 0 and StringFormatNeatFloat(buildingYieldRate) .. tostring(YieldIcons[ yieldID ]) )
-			-- Vox Populi end
-		end
-
-		-- Culture leftovers
-		buildingCultureRate = buildingCultureRate * (100+cityCultureRateModifier) + ( cityCultureRate - buildingCultureRate ) * buildingCultureModifier
-		tips:insertIf( isNotResistance and buildingCultureRate ~=0 and StringFormatNeatFloat(buildingCultureRate / 100) .. "[ICON_CULTURE]" )
-
--- TODO TOURISM
-		if civ5bnw_mode then
-			local tourism = ( ( (building.FaithCost or 0) > 0
-					and building.UnlockedByBelief
-					and building.Cost == -1
-					and city and city:GetFaithBuildingTourism()
-					) or 0 )
-			tips:insertIf( tourism ~= 0 and tourism.."[ICON_TOURISM]" )
+			local buildingYieldRate = city:GetBuildingYieldRateTimes100(buildingID, yieldID)
+			tips:insertIf( buildingYieldRate ~= 0 and StringFormatNeatFloat(buildingYieldRate) .. tostring(YieldIcons[ yieldID ]) )
 		end
 
 		if city:GetNumFreeBuilding( buildingID ) > 0 then
