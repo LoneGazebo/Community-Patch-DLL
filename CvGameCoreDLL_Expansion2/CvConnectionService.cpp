@@ -468,14 +468,14 @@ void CvConnectionService::HandleClientConnection(HANDLE hPipe)
 				else if (error == ERROR_BROKEN_PIPE || error == ERROR_PIPE_NOT_CONNECTED)
 				{
 					Log(LOG_INFO, "HandleClientConnection - Client disconnected");
-					break; // Break from main loop
+					return; // Break from main loop
 				}
 				else
 				{
 					std::stringstream ss;
 					ss << "HandleClientConnection - ReadFile failed, error: " << error;
 					Log(LOG_ERROR, ss.str().c_str());
-					break; // Break from main loop
+					return; // Break from main loop
 				}
 			}
 			else if (bytesRead == 0)

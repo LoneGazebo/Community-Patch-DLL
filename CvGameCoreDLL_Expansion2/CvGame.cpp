@@ -8581,6 +8581,14 @@ void CvGame::doTurn()
 		if(GET_TEAM((TeamTypes)iI).isAlive())
 		{
 			GET_TEAM((TeamTypes)iI).doTurn();
+
+#if defined(MOD_IPC_CHANNEL)
+			if (MOD_IPC_CHANNEL) {
+				// Process messages from the Connection Service
+				CvConnectionService::GetInstance().ProcessMessages();
+			}
+#endif
+
 		}
 	}
 
