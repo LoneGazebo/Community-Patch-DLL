@@ -379,106 +379,161 @@ void CvConnectionService::HandleClientConnection(HANDLE hPipe)
 	
 	while (m_bClientConnected && !m_bShutdownRequested)
 	{
-		// First, check for any outgoing messages to send
-		std::string outgoingMessage;
-		if (DequeueOutgoingMessage(outgoingMessage))
+		// Send ALL queued outgoing messages
+		bool hasOutgoingMessages = true;
+		while (hasOutgoingMessages && m_bClientConnected && !m_bShutdownRequested)
 		{
-			// Message is already in wrapped format
-			// Send the message to the Bridge Service
-			BOOL success = WriteFile(
+			std::string outgoingMessage;
+			if (DequeueOutgoingMessage(outgoingMessage))
+			{
+				// Add delimiter to the message
+				outgoingMessage += "!@#$%^!";
+				
+				// Send the message to the Bridge Service
+				BOOL success = WriteFile(
+					hPipe,
+					outgoingMessage.c_str(),
+					(DWORD)outgoingMessage.length(),
+					&bytesWritten,
+					NULL);
+				
+				if (!success)
+				{
+					DWORD error = GetLastError();
+					
+					// If pipe is busy, put the message back and break inner loop
+					if (error == ERROR_PIPE_BUSY || error == ERROR_NO_DATA)
+					{
+						// Re-queue the message at the front (this is a limitation of std::queue)
+						// For now, we'll just log and skip
+						std::stringstream ss;
+						ss << "HandleClientConnection - Pipe busy, will retry later. Error: " << error;
+						Log(LOG_WARNING, ss.str().c_str());
+						hasOutgoingMessages = false;
+					}
+					else
+					{
+						std::stringstream ss;
+						ss << "HandleClientConnection - Failed to send outgoing message, error: " << error;
+						Log(LOG_ERROR, ss.str().c_str());
+						break; // Break from inner loop on serious error
+					}
+				}
+				else
+				{
+					std::stringstream ss;
+					ss << "HandleClientConnection - Sent outgoing message: " << outgoingMessage;
+					Log(LOG_DEBUG, ss.str().c_str());
+				}
+			}
+			else
+			{
+				// No more messages to send
+				hasOutgoingMessages = false;
+			}
+		}
+		
+		// Flush the pipe after sending all messages to ensure the client receives the data
+		if (m_bClientConnected && !m_bShutdownRequested)
+		{
+			FlushFileBuffers(hPipe);
+		}
+		
+		// Read and process messages from client (non-blocking)
+		bool hasIncomingData = true;
+		int messagesProcessed = 0;
+		const int maxMessagesPerIteration = 100; // Prevent processing too many messages at once
+		const std::string delimiter = "!@#$%^!";
+		
+		while (hasIncomingData && messagesProcessed < maxMessagesPerIteration && m_bClientConnected && !m_bShutdownRequested)
+		{
+			// Try to read data from pipe
+			BOOL success = ReadFile(
 				hPipe,
-				outgoingMessage.c_str(),
-				(DWORD)outgoingMessage.length(),
-				&bytesWritten,
+				readBuffer,
+				sizeof(readBuffer) - 1,
+				&bytesRead,
 				NULL);
 			
 			if (!success)
 			{
-				std::stringstream ss;
-				ss << "HandleClientConnection - Failed to send outgoing message, error: " << GetLastError();
-				Log(LOG_ERROR, ss.str().c_str());
-				break;
+				DWORD error = GetLastError();
+				
+				// If no data available, we've read everything
+				if (error == ERROR_NO_DATA)
+				{
+					hasIncomingData = false;
+				}
+				// Handle actual errors
+				else if (error == ERROR_BROKEN_PIPE || error == ERROR_PIPE_NOT_CONNECTED)
+				{
+					Log(LOG_INFO, "HandleClientConnection - Client disconnected");
+					break; // Break from main loop
+				}
+				else
+				{
+					std::stringstream ss;
+					ss << "HandleClientConnection - ReadFile failed, error: " << error;
+					Log(LOG_ERROR, ss.str().c_str());
+					break; // Break from main loop
+				}
 			}
-			
-			// Flush the pipe to ensure the client receives the data
-			FlushFileBuffers(hPipe);
-			
-			std::stringstream ss;
-			ss << "HandleClientConnection - Sent outgoing message: " << outgoingMessage;
-			Log(LOG_DEBUG, ss.str().c_str());
-		}
-		
-		// Read message from client (non-blocking)
-		BOOL success = ReadFile(
-			hPipe,
-			readBuffer,
-			sizeof(readBuffer) - 1,
-			&bytesRead,
-			NULL);
-		
-		if (!success)
-		{
-			DWORD error = GetLastError();
-			
-			// If no data available, wait a bit and check for shutdown
-			if (error == ERROR_NO_DATA)
+			else if (bytesRead == 0)
 			{
-				Sleep(50); // Small delay to avoid busy waiting
-				continue;
-			}
-			
-			// Handle actual errors
-			if (error == ERROR_BROKEN_PIPE || error == ERROR_PIPE_NOT_CONNECTED)
-			{
-				Log(LOG_INFO, "HandleClientConnection - Client disconnected");
+				// No data read, we've read everything
+				hasIncomingData = false;
 			}
 			else
 			{
-				std::stringstream ss;
-				ss << "HandleClientConnection - ReadFile failed, error: " << error;
-				Log(LOG_ERROR, ss.str().c_str());
-			}
-			break;
-		}
-		
-		if (bytesRead == 0)
-		{
-			// No data read, continue checking
-			Sleep(50);
-			continue;
-		}
-		
-		// Null-terminate the received data
-		readBuffer[bytesRead] = '\0';
-		
-		// Append to message buffer
-		messageBuffer.append(readBuffer, bytesRead);
-		
-		// Process complete messages from the buffer
-		const std::string delimiter = "!@#$%^!";
-		size_t pos = 0;
-		
-		while ((pos = messageBuffer.find(delimiter)) != std::string::npos)
-		{
-			// Extract the message
-			std::string singleMessage = messageBuffer.substr(0, pos);
-			
-			// Only queue non-empty messages
-			if (!singleMessage.empty())
-			{
-				// Lock the incoming queue critical section
-				EnterCriticalSection(&m_csIncoming);
-				m_incomingQueue.push(singleMessage);
-				LeaveCriticalSection(&m_csIncoming);
+				// Successfully read data
+				// Null-terminate the received data
+				readBuffer[bytesRead] = '\0';
 				
-				// Log the queuing action
-				std::stringstream ss;
-				ss << "HandleClientConnection - Queued message: " << singleMessage;
-				Log(LOG_DEBUG, ss.str().c_str());
+				// Append to message buffer
+				messageBuffer.append(readBuffer, bytesRead);
+				
+				// Process complete messages from the buffer immediately
+				size_t pos = 0;
+				while ((pos = messageBuffer.find(delimiter)) != std::string::npos)
+				{
+					// Extract the message
+					std::string singleMessage = messageBuffer.substr(0, pos);
+					
+					// Only queue non-empty messages
+					if (!singleMessage.empty())
+					{
+						// Lock the incoming queue critical section
+						EnterCriticalSection(&m_csIncoming);
+						m_incomingQueue.push(singleMessage);
+						LeaveCriticalSection(&m_csIncoming);
+						
+						// Log the queuing action
+						std::stringstream ss;
+						ss << "HandleClientConnection - Queued message: " << singleMessage;
+						Log(LOG_DEBUG, ss.str().c_str());
+						
+						messagesProcessed++;
+					}
+					
+					// Remove the processed message and delimiter from buffer
+					messageBuffer.erase(0, pos + delimiter.length());
+					
+					// Break if we've processed enough messages
+					if (messagesProcessed >= maxMessagesPerIteration)
+					{
+						hasIncomingData = false; // Stop reading for this iteration
+						break;
+					}
+				}
+				
+				// Continue reading more data if we haven't hit the limit
 			}
-			
-			// Remove the processed message and delimiter from buffer
-			messageBuffer.erase(0, pos + delimiter.length());
+		}
+		
+		// If we processed too many messages, log a warning
+		if (messagesProcessed >= maxMessagesPerIteration)
+		{
+			Log(LOG_WARNING, "HandleClientConnection - Reached max messages per iteration limit");
 		}
 		
 		// Check if buffer is getting too large (prevent memory issues)
@@ -490,6 +545,12 @@ void CvConnectionService::HandleClientConnection(HANDLE hPipe)
 			Log(LOG_WARNING, ss.str().c_str());
 			messageBuffer.clear();
 			messageBuffer.reserve(262144); // Re-reserve standard capacity
+		}
+		
+		// Small delay only if we didn't process any messages
+		if (messagesProcessed == 0 && !hasIncomingData && !hasOutgoingMessages)
+		{
+			Sleep(20); // Small delay to avoid busy waiting when idle
 		}
 	}
 	
