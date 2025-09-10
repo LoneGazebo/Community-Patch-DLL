@@ -1478,6 +1478,9 @@ void CvConnectionService::ForwardGameEvent(const char* eventName, ICvEngineScrip
 			"GameCoreUpdateBegin",
 			"GameCoreUpdateEnd",
 			"PlayerPreAIUnitUpdate",
+			"BattleStarted",
+			"BattleJoined",
+			"BattleFinished",
 			NULL  // Null terminator
 		};
 		
