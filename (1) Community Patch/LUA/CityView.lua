@@ -30,6 +30,9 @@ local slackerInstanceManager = InstanceManager:new("SlackerInstance", "SlackerBu
 local plotButtonInstanceManager = InstanceManager:new("PlotButtonInstance", "PlotButtonAnchor", Controls.PlotButtonContainer);
 local buyPlotButtonInstanceManager = InstanceManager:new("BuyPlotButtonInstance", "BuyPlotButtonAnchor", Controls.PlotButtonContainer);
 
+local tooltipInstance = {};
+TTManager:GetTypeControlTable("CustomTooltip", tooltipInstance);
+
 local NORMAL_WORLD_POSITION_OFFSET = {x = 0, y = 0, z = 30};
 local NORMAL_WORLD_POSITION_OFFSET2 = {x = 0, y = 35, z = 0};
 local STRATEGIC_VIEW_WORLD_POSITION_OFFSET = {x = 0, y = 20, z = 0};
@@ -54,6 +57,15 @@ local g_pCurrentCity;
 local g_tSpecialistAssignment = {};
 
 local g_eBuildingToSell = -1;
+
+---------------------------------------------------------------
+--- Shorthand for setting a custom tooltip and adjusting its size
+--- @param tooltip TooltipInstance
+--- @param strTooltip string
+local function SetTooltip(tooltip, strTooltip)
+	tooltip.TooltipText:SetText(strTooltip);
+	tooltip.TooltipGrid:DoAutoSize();
+end
 
 ---------------------------------------------------------------
 -- Set up update triggers
@@ -471,12 +483,10 @@ local function AddBuildingButton(pCity, kBuildingInfo)
 		tSpecialistSlotControls[i]:SetHide(i > kBuildingInfo.SpecialistCount);
 	end
 
-	-- Building tooltip
-	local strBuildingTooltip = GetHelpTextForBuilding(eBuilding, false, nil, bIsBuildingFree, pCity);
-
 	-- Can we sell this thing?
+	local bSellable = false;
 	if pCity:IsBuildingSellable(eBuilding) then
-		strBuildingTooltip = string.format("%s[NEWLINE][NEWLINE]%s", strBuildingTooltip, SELL_BUILDING_STRING);
+		bSellable = true;
 		instance.BuildingButton:RegisterCallback(Mouse.eLClick, function ()
 			if not pActivePlayer:IsTurnActive() then
 				return;
@@ -494,12 +504,21 @@ local function AddBuildingButton(pCity, kBuildingInfo)
 			g_eBuildingToSell = eBuilding;
 			Show(Controls.SellBuildingConfirm);
 		end);
-	-- We have to clear the click event here or else the instance manager will recycle it in other cities!
+	-- We have to clear the click event here or the button may retain the callback from another city!
 	else
 		instance.BuildingButton:ClearCallback(Mouse.eLClick);
 	end
 
-	instance.BuildingButton:SetToolTipString(strBuildingTooltip);
+	-- Set tooltip on mouseover
+	instance.BuildingButton:SetToolTipCallback(function ()
+		-- We can't be sure that the original city pointer is still valid here
+		local pSelectedCity = UI.GetHeadSelectedCity();
+		local strBuildingTooltip = GetHelpTextForBuilding(eBuilding, false, nil, bIsBuildingFree, pSelectedCity);
+		if bSellable then
+			strBuildingTooltip = string.format("%s[NEWLINE][NEWLINE]%s", strBuildingTooltip, SELL_BUILDING_STRING);
+		end
+		SetTooltip(tooltipInstance, strBuildingTooltip);
+	end);
 
 	-- Viewing Mode only
 	instance.BuildingButton:SetDisabled(bViewingMode);
@@ -637,14 +656,14 @@ local function BuildProductionBox(pCity, ePlayer)
 		local turnsLabel = Controls[strPrefix .. "turns"];
 		local bGeneratingProduction = (pCity:GetYieldRateTimes100(YieldTypes.YIELD_PRODUCTION) > 0);
 
-		local eOrder, iData1 = pCity:GetOrderFromQueue(iQueueIndex - 1);
+		local eOrder, eItem = pCity:GetOrderFromQueue(iQueueIndex - 1);
 		local tOrder = tOrderTypeDetails[eOrder];
-		local kInfo = GetInfoFromId(tOrder.TableName, iData1);
+		local kInfo = GetInfoFromId(tOrder.TableName, eItem);
 
 		local iItemPortraitIndex = kInfo.PortraitIndex;
 		local strItemAtlas = kInfo.IconAtlas;
 		if eOrder == OrderTypes.ORDER_TRAIN then
-			iItemPortraitIndex, strItemAtlas = UI.GetUnitPortraitIcon(iData1, ePlayer);
+			iItemPortraitIndex, strItemAtlas = UI.GetUnitPortraitIcon(eItem, ePlayer);
 		end
 		IconHookupOrDefault(iItemPortraitIndex, 45, strItemAtlas, image);
 
@@ -655,13 +674,18 @@ local function BuildProductionBox(pCity, ePlayer)
 		else
 			Show(turnsLabel);
 			if bGeneratingProduction then
-				turnsLabel:LocalizeAndSetText("TXT_KEY_PRODUCTION_HELP_NUM_TURNS", tOrder.TurnsLeftFunc(iData1, pCity, iQueueIndex));
+				turnsLabel:LocalizeAndSetText("TXT_KEY_PRODUCTION_HELP_NUM_TURNS", tOrder.TurnsLeftFunc(eItem, pCity, iQueueIndex));
 			else
 				turnsLabel:LocalizeAndSetText("TXT_KEY_PRODUCTION_HELP_INFINITE_TURNS");
 			end
 		end
 
-		box:SetToolTipString(tOrder.HelpTextFunc(iData1, pCity));
+		box:SetToolTipCallback(function ()
+			-- We can't be sure that the original city pointer is still valid here
+			local pSelectedCity = UI.GetHeadSelectedCity();
+			SetTooltip(tooltipInstance, tOrder.HelpTextFunc(eItem, pSelectedCity));
+		end);
+
 		Show(box);
 		return (eOrder == OrderTypes.ORDER_MAINTAIN);
 	end

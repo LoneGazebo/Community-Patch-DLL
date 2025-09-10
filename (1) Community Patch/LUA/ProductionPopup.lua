@@ -14,6 +14,9 @@ local g_BuildingInstanceManager = InstanceManager:new("ProductionButtonInstance"
 local g_WonderInstanceManager = InstanceManager:new("ProductionButtonInstance", "ProductionButton", Controls.WonderButtonStack);
 local g_ProcessInstanceManager = InstanceManager:new("ProductionButtonInstance", "ProductionButton", Controls.OtherButtonStack);
 
+local tooltipInstance = {};
+TTManager:GetTypeControlTable("CustomTooltip", tooltipInstance);
+
 local g_popupInfo = {};
 
 local g_bHidden = true;
@@ -255,6 +258,15 @@ Controls.ScrollPanel:SetSizeY(iScreenSizeY - 396);
 Refresh(Controls.ScrollPanel);
 Controls.Backdrop:SetSizeY(iScreenSizeY - 300);
 
+---------------------------------------------------------------
+--- Shorthand for setting a custom tooltip and adjusting its size
+--- @param tooltip TooltipInstance
+--- @param strTooltip string
+local function SetTooltip(tooltip, strTooltip)
+	tooltip.TooltipText:SetText(strTooltip);
+	tooltip.TooltipGrid:DoAutoSize();
+end
+
 ----------------------------------------------------------------
 -- Close the popup
 local function Close()
@@ -361,16 +373,24 @@ local function AddProductionButton(eItem, eOrder, ePurchaseYield, strTurnsOrCost
 	IconHookupOrDefault(iPortraitIndex, 45, strAtlas, instance.ProductionButtonImage);
 
 	-- Tooltip
-	local tLines = {};
-	table.insert(tLines, tOrder.HelpTextFunc(eItem, pCity));
 	local bDisabled = g_bProductionMode and tOrder.CanProduceFunc(eItem, pCity, false) or tOrder.CanPurchaseFunc(eItem, pCity, ePurchaseYield, false);
-	if bDisabled then
-		local strDisabled = tOrder.DisabledFunc(eItem, pCity, ePurchaseYield);
-		if strDisabled ~= "" then
-			table.insert(tLines, string.format("[COLOR_WARNING_TEXT]%s[ENDCOLOR]", strDisabled));
+	instance.ProductionButton:SetToolTipCallback(function ()
+		-- We can't be sure that the original city pointer is still valid here
+		local pCurrentCity = GetCurrentCity();
+		if not pCurrentCity then
+			return;
 		end
-	end
-	instance.ProductionButton:SetToolTipString(table.concat(tLines, "[NEWLINE]"));
+
+		local tLines = {};
+		table.insert(tLines, tOrder.HelpTextFunc(eItem, pCurrentCity));
+		if bDisabled then
+			local strDisabled = tOrder.DisabledFunc(eItem, pCurrentCity, ePurchaseYield);
+			if strDisabled ~= "" then
+				table.insert(tLines, string.format("[COLOR_WARNING_TEXT]%s[ENDCOLOR]", strDisabled));
+			end
+		end
+		SetTooltip(tooltipInstance, table.concat(tLines, "[NEWLINE]"));
+	end);
 
 	-- Name
 	local strItemName = L(kInfo.Description);
@@ -486,9 +506,9 @@ local function UpdateWindow(pCity)
 			local nameLabel = Controls[strPrefix .. "name"];
 			local turnsLabel = Controls[strPrefix .. "turns"];
 
-			local eOrder, iData1 = pCity:GetOrderFromQueue(i - 1);
+			local eOrder, eItem = pCity:GetOrderFromQueue(i - 1);
 			local tOrder = tOrderTypeDetails[eOrder];
-			local kInfo = GetInfoFromId(tOrder.TableName, iData1);
+			local kInfo = GetInfoFromId(tOrder.TableName, eItem);
 
 			nameLabel:LocalizeAndSetText(kInfo.Description);
 
@@ -497,13 +517,20 @@ local function UpdateWindow(pCity)
 			else
 				Show(turnsLabel);
 				if bGeneratingProduction then
-					turnsLabel:LocalizeAndSetText("TXT_KEY_PRODUCTION_HELP_NUM_TURNS", tOrder.TurnsLeftFunc(iData1, pCity, i));
+					turnsLabel:LocalizeAndSetText("TXT_KEY_PRODUCTION_HELP_NUM_TURNS", tOrder.TurnsLeftFunc(eItem, pCity, i));
 				else
 					turnsLabel:SetText(INFINITE_TURNS_STRING);
 				end
 			end
 
-			box:SetToolTipString(tOrder.HelpTextFunc(iData1, pCity));
+			box:SetToolTipCallback(function ()
+				-- We can't be sure that the original city pointer is still valid here
+				local pCurrentCity = GetCurrentCity();
+				if not pCurrentCity then
+					return;
+				end
+				SetTooltip(tooltipInstance, tOrder.HelpTextFunc(eItem, pCurrentCity));
+			end);
 			Show(box);
 		end
 		Show(Controls.ProductionQueueBox);
@@ -564,7 +591,14 @@ local function UpdateWindow(pCity)
 					strAtlas = kInfo.IconAtlas;
 				end
 				IconHookupOrDefault(iPortraitIndex, 128, strAtlas, Controls.ProductionPortrait);
-				Controls.ProductionPortrait:SetToolTipString(string.format("%s[NEWLINE][NEWLINE]%s", tOrder.HelpTextFunc(eItem, pCity), L("TXT_KEY_CITYVIEW_PROD_METER_TT")));
+				Controls.ProductionPortrait:SetToolTipCallback(function ()
+					-- We can't be sure that the original city pointer is still valid here
+					local pCurrentCity = GetCurrentCity();
+					if not pCurrentCity then
+						return;
+					end
+					SetTooltip(tooltipInstance, string.format("%s[NEWLINE][NEWLINE]%s", tOrder.HelpTextFunc(eItem, pCurrentCity), L("TXT_KEY_CITYVIEW_PROD_METER_TT")));
+				end);
 				Controls.ProductionPortraitButton:RegisterCallback(Mouse.eRClick, GetProdHelp);
 
 				-- Production stored and needed
