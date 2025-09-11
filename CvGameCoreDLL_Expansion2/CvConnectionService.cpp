@@ -351,9 +351,11 @@ DWORD WINAPI CvConnectionService::NamedPipeServerThread(LPVOID lpParam)
 		pService->Log(LOG_INFO, "NamedPipeServerThread - Bridge Service disconnected");
 		
 		// Cleanup
-		DisconnectNamedPipe(hPipe);
-		CloseHandle(hPipe);
-		pService->m_hPipe = INVALID_HANDLE_VALUE;
+		if (pService->m_hPipe != INVALID_HANDLE_VALUE) {
+			DisconnectNamedPipe(hPipe);
+			CloseHandle(hPipe);
+			pService->m_hPipe = INVALID_HANDLE_VALUE;
+		}
 		
 		// Small delay before accepting new connection
 		if (!pService->m_bShutdownRequested)
