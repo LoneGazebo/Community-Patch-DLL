@@ -1492,6 +1492,7 @@ void CvConnectionService::ForwardGameEvent(const char* eventName, ICvEngineScrip
 			"BattleStarted",
 			"BattleJoined",
 			"BattleFinished",
+			"GameCoreTestVictory",
 			NULL  // Null terminator
 		};
 		
