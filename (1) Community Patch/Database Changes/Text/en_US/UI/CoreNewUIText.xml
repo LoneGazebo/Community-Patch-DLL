@@ -3315,7 +3315,7 @@
 		
 		<!-- New columns -->
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_UNHAPPINESS">
-			<Text>[ICON_HAPPINESS_4] Unhappiness: +{1_Num}</Text>
+			<Text>[ICON_HAPPINESS_3] Unhappiness: {2_Sign}{1_Num}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDINGS_UNHAPPINESS">
 			<Text>Buildings ({1_Num})</Text>
