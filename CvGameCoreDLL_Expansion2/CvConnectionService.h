@@ -57,9 +57,6 @@ public:
 	
 	// Unregister a specific function
 	void UnregisterLuaFunction(const char* name);
-	
-	// Clear all registered functions (called on shutdown)
-	void ClearLuaFunctions();
 
 	// Forward game events to the Bridge Service
 	void ForwardGameEvent(const char* eventName, class ICvEngineScriptSystemArgs1* args);

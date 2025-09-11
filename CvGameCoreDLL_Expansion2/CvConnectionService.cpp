@@ -164,7 +164,9 @@ void CvConnectionService::Shutdown()
 	}
 
 	// Clear all registered Lua functions
-	ClearLuaFunctions();
+	EnterCriticalSection(&m_csFunctions);
+	m_registeredFunctions.clear();
+	LeaveCriticalSection(&m_csFunctions);
 	
 	// Clear any pending external calls
 	EnterCriticalSection(&m_csPendingCalls);
@@ -1447,36 +1449,7 @@ void CvConnectionService::UnregisterLuaFunction(const char* name)
 	message["type"] = "lua_unregister";
 	message["function"] = name;
 	SendMessage(message);
-}
-
-//------------------------------------------------------------------------------
-// Clear all registered functions (called on shutdown)
-void CvConnectionService::ClearLuaFunctions()
-{
-	EnterCriticalSection(&m_csFunctions);
-	
-	// Clear all Lua registry references
-	for (std::map<std::string, LuaFunctionInfo>::iterator it = m_registeredFunctions.begin(); 
-	     it != m_registeredFunctions.end(); ++it)
-	{
-		luaL_unref(it->second.pLuaState, LUA_REGISTRYINDEX, it->second.iRegistryRef);
-	}
-	
-	// Clear the map
-	m_registeredFunctions.clear();
-	
-	Log(LOG_INFO, "Cleared all registered Lua functions");
-	
-	LeaveCriticalSection(&m_csFunctions);
-	
-	// Send clear notification to Bridge (only if connected)
-	if (m_bInitialized && m_bClientConnected)
-	{
-		DynamicJsonDocument message(512);
-		message["type"] = "lua_clear";
-		SendMessage(message);
-	}
-}
+}\
 
 //------------------------------------------------------------------------------
 // Forward game events to the Bridge Service
