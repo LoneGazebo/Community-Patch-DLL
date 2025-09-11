@@ -6899,11 +6899,11 @@ void CvGame::setWinner(TeamTypes eNewWinner, VictoryTypes eNewVictory)
 						if (pkScriptSystem)
 						{
 							CvLuaArgsHandle args;
-							args->Push(getWinner());
+							args->Push(kWinningTeamLeader.GetID());
 							args->Push(pkVictoryInfo->GetText());
 
 							bool bResult = false;
-							LuaSupport::CallHook(pkScriptSystem, "TeamVictory", args.get(), bResult);
+							LuaSupport::CallHook(pkScriptSystem, "PlayerVictory", args.get(), bResult);
 						}
 					}
 				}
