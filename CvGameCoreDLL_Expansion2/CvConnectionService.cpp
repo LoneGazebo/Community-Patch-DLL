@@ -275,8 +275,8 @@ DWORD WINAPI CvConnectionService::NamedPipeServerThread(LPVOID lpParam)
 			PIPE_READMODE_MESSAGE |    // message-read mode
 			PIPE_NOWAIT,               // non-blocking mode
 			1,                         // max instances (only one client - Bridge Service)
-			8192,                      // output buffer size
-			8192,                      // input buffer size
+			65536,                      // output buffer size
+			65536,                      // input buffer size
 			0,                         // client time-out
 			NULL);                     // default security attributes
 		
@@ -374,7 +374,7 @@ void CvConnectionService::HandleClientConnection(HANDLE hPipe)
 	messageBuffer.reserve(65536); // Reserve initial capacity
 	
 	// Temporary read buffer for pipe operations
-	char readBuffer[8192];
+	char readBuffer[65536];
 	DWORD bytesRead, bytesWritten;
 	
 	while (m_bClientConnected && !m_bShutdownRequested)
@@ -566,7 +566,8 @@ void CvConnectionService::HandleClientConnection(HANDLE hPipe)
 
 
 // Queue an outgoing message to send to the Bridge Service (called from game thread)
-void CvConnectionService::QueueOutgoingMessage(const std::string& messageJson)
+// Returns the length of the outgoing queue after adding the message
+int CvConnectionService::QueueOutgoingMessage(const std::string& messageJson)
 {
 	// Lock the outgoing queue critical section
 	EnterCriticalSection(&m_csOutgoing);
@@ -574,8 +575,13 @@ void CvConnectionService::QueueOutgoingMessage(const std::string& messageJson)
 	// Add the message to the queue
 	m_outgoingQueue.push(messageJson);
 	
+	// Get the queue size
+	int queueSize = static_cast<int>(m_outgoingQueue.size());
+	
 	// Release the critical section
 	LeaveCriticalSection(&m_csOutgoing);
+	
+	return queueSize;
 }
 
 // Dequeue an outgoing message to send to the Bridge Service (called from SSE thread)
@@ -638,20 +644,21 @@ void CvConnectionService::ProcessMessages()
 }
 
 // Send a message to the Bridge Service (called from game code)
-void CvConnectionService::SendMessage(const DynamicJsonDocument& message)
+// Returns the length of the outgoing queue after adding the message
+int CvConnectionService::SendMessage(const DynamicJsonDocument& message)
 {
 	if (!m_bInitialized || !m_bClientConnected)
 	{
 		Log(LOG_WARNING, "SendMessage - Cannot send message, service not connected");
-		return;
+		return 0;
 	}
 	
 	// Serialize the message
 	std::string messageStr;
 	serializeJson(message, messageStr);
 	
-	// Queue the wrapped message
-	QueueOutgoingMessage(messageStr);
+	// Queue the wrapped message and return the queue size
+	return QueueOutgoingMessage(messageStr);
 }
 
 // Route incoming message to appropriate handler based on type
@@ -670,7 +677,7 @@ void CvConnectionService::RouteMessage(const std::string& messageJson)
 	}
 	
 	const char* messageType = message["type"];
-	Log(LOG_DEBUG, ("Routing message of type: " + std::string(messageType)).c_str());
+	// Log(LOG_DEBUG, ("Routing message of type: " + std::string(messageType)).c_str());
 	
 	// Route to appropriate handler based on message type
 	if (strcmp(messageType, "lua_execute") == 0)
@@ -1465,13 +1472,17 @@ void CvConnectionService::ClearLuaFunctions()
 // Forward game events to the Bridge Service
 void CvConnectionService::ForwardGameEvent(const char* eventName, ICvEngineScriptSystemArgs1* args)
 {
+	// Check if we're connected and ready to send
+	if (!m_bInitialized || !m_bClientConnected)
+	{
+		return;
+	}
+	
+	// Process messages from the Connection Service
+	ProcessMessages();
+
 	try
 	{
-		// Check if we're connected and ready to send
-		if (!m_bInitialized || !m_bClientConnected)
-		{
-			return;
-		}
 		
 		// Define blacklisted high-frequency events
 		static const char* eventBlacklist[] = {
@@ -1577,7 +1588,11 @@ void CvConnectionService::ForwardGameEvent(const char* eventName, ICvEngineScrip
 		}
 		
 		// Send the message asynchronously via the queue
-		SendMessage(message);
+		if (SendMessage(message) >= 10) {
+	 		Sleep(20); // Wait 20ms to throttle the game thread
+			// This slows the game a bit, but shouldn't be a big issue other than observer mode - which is our intention
+			// Also, even when the modmod is enabled, one has to connect to the Bridge Service
+		}
 	}
 	catch (...)
 	{

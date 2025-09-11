@@ -49,7 +49,8 @@ public:
 	void ProcessMessages();
 	
 	// Send a message to the Bridge Service (called from game code)
-	void SendMessage(const DynamicJsonDocument& message);
+	// Returns the length of the outgoing queue after adding the message
+	int SendMessage(const DynamicJsonDocument& message);
 
 	// Register a Lua function for external calling
 	void RegisterLuaFunction(const char* name, lua_State* L, int stackIndex);
@@ -111,7 +112,8 @@ private:
 	void HandleClientConnection(HANDLE hPipe);
 
 	// Queue management methods
-	void QueueOutgoingMessage(const std::string& messageJson);
+	// Returns the length of the outgoing queue after adding the message
+	int QueueOutgoingMessage(const std::string& messageJson);
 	bool DequeueOutgoingMessage(std::string& messageJson);
 	
 	// Message routing and handling
