@@ -618,31 +618,39 @@ void CvConnectionService::ProcessMessages()
 		return;
 	}
 	
-	// Lock the incoming queue critical section
-	EnterCriticalSection(&m_csIncoming);
-	
-	// Process all queued messages
-	int processedCount = 0;
-	while (!m_incomingQueue.empty())
-	{
-		// Get the message from the front of the queue
-		std::string msgJson = m_incomingQueue.front();
-		m_incomingQueue.pop();
-		
-		// Temporarily release the lock to process the message
-		LeaveCriticalSection(&m_csIncoming);
-		
-		// Route the message to the appropriate handler
-		RouteMessage(msgJson);
-		
-		processedCount++;
-		
-		// Re-acquire the lock for the next iteration
+	try {
+		// Lock the incoming queue critical section
 		EnterCriticalSection(&m_csIncoming);
+		
+		// Process all queued messages
+		int processedCount = 0;
+		while (!m_incomingQueue.empty())
+		{
+			// Get the message from the front of the queue
+			std::string msgJson = m_incomingQueue.front();
+			m_incomingQueue.pop();
+			
+			// Temporarily release the lock to process the message
+			LeaveCriticalSection(&m_csIncoming);
+			
+			// Route the message to the appropriate handler
+			RouteMessage(msgJson);
+			
+			processedCount++;
+			
+			// Re-acquire the lock for the next iteration
+			EnterCriticalSection(&m_csIncoming);
+		}
+		
+		// Release the critical section
+		LeaveCriticalSection(&m_csIncoming);
 	}
-	
-	// Release the critical section
-	LeaveCriticalSection(&m_csIncoming);
+	catch (...)
+	{
+		std::stringstream ss;
+		ss << "ProcessMessages - Unknown exception processing messages";
+		Log(LOG_ERROR, ss.str().c_str());
+	}
 }
 
 // Send a message to the Bridge Service (called from game code)
