@@ -1,4 +1,4 @@
-local _lua_type = type
+local lua_type = type
 
 --- Checks if the type of the specified value is `"number"`.
 ---
@@ -16,7 +16,7 @@ local _lua_type = type
 --- @return boolean # `true` if the value is a number, `false` otherwise.
 --- @nodiscard
 local function IsNumber(val)
-	return _lua_type(val) == "number"
+	return lua_type(val) == "number"
 end
 
 CPK.Type.IsNumber = IsNumber

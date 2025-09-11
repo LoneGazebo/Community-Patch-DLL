@@ -1,4 +1,4 @@
-local _lua_setmetatable = setmetatable
+local lua_setmetatable = setmetatable
 
 --- Creates a memoized version of a nullary (zero-argument) function.
 --- <br> The result of the first call is cached and reused on subsequent calls.
@@ -7,7 +7,7 @@ local _lua_setmetatable = setmetatable
 --- @param cache table? # Optional table to use as cache. If omitted, a weak-valued table is used.
 --- @return Fn # A memoized version of the original function.
 local function Memoize0(fn, cache)
-	local c = cache or _lua_setmetatable({}, { __mode = 'v' })
+	local c = cache or lua_setmetatable({}, { __mode = 'v' })
 
 	return function(...)
 		local val = c[1]

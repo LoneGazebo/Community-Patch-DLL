@@ -1,7 +1,7 @@
-local _lua_next = next
-local _lua_type = type
-local _lua_setmetatable = setmetatable
-local _lua_getmetatable = getmetatable
+local lua_next = next
+local lua_type = type
+local lua_setmetatable = setmetatable
+local lua_getmetatable = getmetatable
 
 local IsNil = CPK.Type.IsNil
 local IsTable = CPK.Type.IsTable
@@ -51,7 +51,7 @@ local function TableCopy(tbl, meta)
 
 	local copy = {}
 
-	for key, val in _lua_next, tbl, nil do
+	for key, val in lua_next, tbl, nil do
 		copy[key] = val
 	end
 
@@ -60,16 +60,16 @@ local function TableCopy(tbl, meta)
 	end
 
 	if IsTable(meta) then
-		return _lua_setmetatable(copy, meta --[[@as metatable]])
+		return lua_setmetatable(copy, meta --[[@as metatable]])
 	end
 
 	if IsBoolean(meta) then
 		return meta
-				and _lua_setmetatable(copy, _lua_getmetatable(tbl))
+				and lua_setmetatable(copy, lua_getmetatable(tbl))
 				or copy
 	end
 
-	return AssertError(_lua_type(meta), 'boolean, table, nil')
+	return AssertError(lua_type(meta), 'boolean, table, nil')
 end
 
 CPK.Table.Copy = TableCopy
