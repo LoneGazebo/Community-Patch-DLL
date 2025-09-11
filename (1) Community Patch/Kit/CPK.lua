@@ -48,11 +48,11 @@
 				error('Error in include emulation: Cannot determine OS')
 			end
 
-			local isWindows = os.getenv('OS'):lower():match('window')
-			local windowsCmd = 'dir /s /b *.lua'
-			local linuxCmd = "find . -type f -name '*.lua'"
+			local isWin = (os.getenv('OS') or ''):lower():match('window')
+			local winCmd = 'dir /s /b *.lua'
+			local linuxCmd = 'find . -type f -name *.lua'
 
-			local stream = io.popen(isWindows and windowsCmd or linuxCmd)
+			local stream = io.popen(isWin and winCmd or linuxCmd)
 			local files = {}
 
 			if stream == nil then
@@ -404,6 +404,7 @@
 	kit.Assert = M() -- Assertion utilities
 	kit.Cache = M() -- Caching
 	kit.Misc = M()  -- Miscellaneous
+	kit.String = M() -- String utilities
 	kit.Table = M() -- Table utilities
 	kit.Type = M()  -- Type utilities
 	kit.FP = M()    -- Functional Programming
