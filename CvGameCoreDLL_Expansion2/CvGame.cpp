@@ -6891,8 +6891,22 @@ void CvGame::setWinner(TeamTypes eNewWinner, VictoryTypes eNewVictory)
 						pNotifications->Add(NOTIFICATION_VICTORY, localizedText.toUTF8(), localizedSummary.toUTF8(), -1, -1, -1);
 				}
 
-				if (pkVictoryInfo)
+				if (pkVictoryInfo) {
 					LogGameResult(pkVictoryInfo->GetText(), kWinningTeamLeader.getCivilizationShortDescription());
+					// MODMOD: log Victory as an event.
+					if (MOD_IPC_CHANNEL) {
+						ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+						if (pkScriptSystem)
+						{
+							CvLuaArgsHandle args;
+							args->Push(getWinner());
+							args->Push(pkVictoryInfo->GetText());
+
+							bool bResult = false;
+							LuaSupport::CallHook(pkScriptSystem, "TeamVictory", args.get(), bResult);
+						}
+					}
+				}
 
 				//--Start Achievements
 				//--Don't allow most in multiplayer so friends can't achieve-whore it up together
