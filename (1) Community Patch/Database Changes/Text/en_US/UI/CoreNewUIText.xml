@@ -438,7 +438,10 @@
 			<Text>When Born: Start a [ICON_GOLDEN_AGE] Golden Age ({1_NumTurn} {1: plural 1?Turn; other?Turns;})</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_UNIT_BIRTH_CULTURE">
-			<Text>When Born: {1_NumTurn} [ICON_CULTURE] Culture in [ICON_CAPITAL] Capital</Text>
+			<Text>When Born: {1_Num} [ICON_CULTURE] Culture in [ICON_CAPITAL] Capital</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_UNIT_BIRTH_CULTURE_GENERIC">
+			<Text>When Born: +4 Turns of Empire [ICON_CULTURE] Culture output in [ICON_CAPITAL] Capital</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_UNIT_FREE_RESOURCE">
 			<Text>When Expended: +{1_Num} {2_ResIcon} {3_Res:textkey}</Text>
@@ -573,8 +576,14 @@
 		<Row Tag="TXT_KEY_PRODUCTION_WORLD_CONGRESS_PROJECT_REWARD_3">
 			<Text>[ICON_TROPHY_GOLD] Reward of [COLOR_PLAYER_MIDDLE_PURPLE_TEXT]{1_Project:textkey}[ENDCOLOR]</Text>
 		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_WORLD_CONGRESS_PROJECT_COST_PER_PLAYER">
+			<Text>Cost: {1_ProductionCostPerPlayer} [ICON_PRODUCTION] per Civilization at the start of the game</Text>
+		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_FREE_ON_FOUND">
 			<Text>Automatically built when Founding City</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_FREE_ON_FOUND_GENERIC">
+			<Text>Automatically built when Founding City if the game starts in {1_Era:textkey} or later</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_COUNT">
 			<Text>{1: plural 0?None built; 1?Built in 1 City; 2?Built in {1} Cities;}{2: plural 0?; 1?, Building in 1 City; 2?, Building in {2} Cities;}</Text>
@@ -929,6 +938,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_RESEARCH_AGREEMENT_SCIENCE_MODIFIER">
 			<Text>+{1_Num}% [ICON_RESEARCH] Science from Research Agreements</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_RESEARCH_AGREEMENT_SCIENCE_MODIFIER_GENERIC">
+			<Text>+{1_Num}% [ICON_RESEARCH] Science from Research Agreements (if enabled)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_DISCOVER_TECH_SCIENCE_MODIFIER">
 			<Text>{2_Sign}{1_Num}% [ICON_RESEARCH] Science from {TXT_KEY_MISSION_DISCOVER_TECH}</Text>
@@ -1338,11 +1350,20 @@
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_NUM_UNIT_LEVEL_NEEDED">
 			<Text>Unit Level Required: [COLOR_YELLOW]{1_Num}[ENDCOLOR] (Best Unit: {2_Num})</Text>
 		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_NUM_UNIT_LEVEL_NEEDED_GENERIC">
+			<Text>Unit Level Required: [COLOR_YELLOW]{1_Num}[ENDCOLOR]</Text>
+		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_NUM_CITY_NEEDED">
 			<Text>Number of Cities Required: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR] (Have: {2_Num})</Text>
 		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_NUM_CITY_NEEDED_GENERIC">
+			<Text>Number of Cities Required: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
+		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_NUM_POLICY_NEEDED">
 			<Text>Number of Policies Required: [COLOR_MAGENTA]{1_Num}[ENDCOLOR] (Have: {2_Num})</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_NUM_POLICY_NEEDED_GENERIC">
+			<Text>Number of Policies Required: [COLOR_MAGENTA]{1_Num}[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_NUM_T3_TENET_NEEDED">
 			<Text>Number of Tier 3 Tenets Required: [COLOR_MAGENTA]{1_Num}[ENDCOLOR]</Text>
@@ -1350,17 +1371,26 @@
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_NUM_POPULATION_NATIONAL_NEEDED">
 			<Text>National Population Required: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR] (Have: {2_Num})</Text>
 		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_NUM_POPULATION_NATIONAL_NEEDED_GENERIC">
+			<Text>National Population Required: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR] (scaling with number of Cities)</Text>
+		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_NUM_POPULATION_LOCAL_NEEDED">
 			<Text>Local Population Required: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR] (Have: {2_Num})</Text>
 		</Row>
-		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_NUM_POPULATION_LOCAL_NEEDED_NOT_CITY">
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_NUM_POPULATION_LOCAL_NEEDED_GENERIC">
 			<Text>Local Population Required: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_NUM_NATIONAL_FOLLOWER_NEEDED">
 			<Text>National Followers of [ICON_RELIGION] Primary Religion Required: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR] (Have: {2_Num})</Text>
 		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_NUM_NATIONAL_FOLLOWER_NEEDED_GENERIC">
+			<Text>National Followers of [ICON_RELIGION] Primary Religion Required: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
+		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_NUM_GLOBAL_FOLLOWER_NEEDED">
 			<Text>Worldwide Followers of [ICON_RELIGION] Primary Religion Required: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR] of World Population (Currently [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR]) (Have: {3_Num})</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_NUM_GLOBAL_FOLLOWER_NEEDED_GENERIC">
+			<Text>Worldwide Followers of [ICON_RELIGION] Primary Religion Required: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR] of World Population (scaling with map size)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_HOLY_CITY_BELIEF_NEEDED">
 			<Text>Must be built in Holy City of [ICON_RELIGION] Primary Religion with one of the following Beliefs: [COLOR_WHITE]{1_Beliefs}[ENDCOLOR]</Text>

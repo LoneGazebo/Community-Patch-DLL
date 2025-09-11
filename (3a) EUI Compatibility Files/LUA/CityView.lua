@@ -565,7 +565,7 @@ local function OrderItemTooltip( city, isDisabled, purchaseYieldID, orderID, ite
 
 		elseif orderID == OrderTypes.ORDER_CONSTRUCT then
 			itemInfo = GameInfo.Buildings
-			strToolTip = GetHelpTextForBuilding( itemID, false, nil, city:GetNumFreeBuilding(itemID) > 0, city )
+			strToolTip = GetHelpTextForBuilding( itemID, false, nil, city:GetNumFreeBuilding(itemID) > 0, city, false, true )
 			if isDisabled then
 				if purchaseYieldID == g_yieldCurrency then
 --					cash = cityOwner:GetGold() - city:GetBuildingPurchaseCost(itemID)
