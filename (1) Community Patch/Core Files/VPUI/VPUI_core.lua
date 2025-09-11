@@ -6,7 +6,7 @@ if not VP and not (MapModData and MapModData.VP) then
 	local MOD_BALANCE_CORE_YIELDS = GameInfo.CustomModOptions{Name = "BALANCE_CORE_YIELDS"}().Value == 1;
 	local MOD_BALANCE_CORE_JFD = GameInfo.CustomModOptions{Name = "BALANCE_CORE_JFD"}().Value == 1;
 	local IconHookup = IconHookup;
-	local GameInfoTypes = GameInfoTypes;
+	local GameInfoTypes = GameInfoTypes or {};
 
 	local iNumYields = Game and Game.GetNumYieldTypes();
 	if not iNumYields then
@@ -71,6 +71,8 @@ if not VP and not (MapModData and MapModData.VP) then
 				Type = kInfo.Type,
 				Description = kInfo.Description,
 			};
+			-- Also populate GameInfoTypes in case it doesn't exist
+			GameInfoTypes[kInfo.Type] = kInfo.ID;
 			for _, strColumn in pairs(tTemplates[strTableName]) do
 				kInfoCopy[strColumn] = kInfo[strColumn];
 			end
@@ -201,6 +203,7 @@ if not VP and not (MapModData and MapModData.VP) then
 
 	-- Add the local functions to VP object
 	local _VP = {};
+	_VP.GameInfoTypes = GameInfoTypes;
 	_VP.GetNumInfos = GetNumInfos;
 	_VP.GetInfoFromId = GetInfoFromId;
 	_VP.GetInfoFromType = GetInfoFromType;

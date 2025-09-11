@@ -69,7 +69,7 @@ local tOrderTypeDetails = {
 			Stack = "BuildingButtonStack",
 		},
 		HelpTextFunc = function (eType, pCity)
-			return GetHelpTextForBuilding(eType, false, nil, false, pCity);
+			return GetHelpTextForBuilding(eType, false, nil, false, pCity, false, true);
 		end,
 		TurnsLeftFunc = function (eType, pCity, iQueueIndex)
 			return pCity:GetBuildingProductionTurnsLeft(eType, iQueueIndex - 1);
