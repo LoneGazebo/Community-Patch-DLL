@@ -1,4 +1,4 @@
-local _lua_select = select
+local lua_select = select
 
 --- Packs variable arguments into a table.
 --- <br> Stores arguments in numeric keys and adds field `n` with the count.
@@ -10,7 +10,7 @@ local _lua_select = select
 --- @nodiscard
 --- @see table.pack
 local function ArgsPack(...)
-	return { n = _lua_select('#', ...), ... }
+	return { n = lua_select('#', ...), ... }
 end
 
 CPK.Args.Pack = ArgsPack

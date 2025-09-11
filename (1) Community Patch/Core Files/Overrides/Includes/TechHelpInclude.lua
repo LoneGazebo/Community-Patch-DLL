@@ -4,15 +4,15 @@ local StringBuilder = CPK.Util.StringBuilder
 local AsPercentage = CPK.Misc.AsPercentage
 local Memoize1 = CPK.Cache.Memoize1
 
-local _lua_type = type
-local _lua_math_floor = math.floor
-local _lua_string_format = string.format
+local lua_type = type
+local lua_math_floor = math.floor
+local lua_string_format = string.format
 
-local _civ_locale_lookup = Locale.Lookup
-local _civ_locale_toupper = Locale.ToUpper
-local _civ_db_create_query = DB.CreateQuery
+local civ_locale_lookup = Locale.Lookup
+local civ_locale_toupper = Locale.ToUpper
+local civ_db_create_query = DB.CreateQuery
 
-local L = _civ_locale_lookup
+local L = civ_locale_lookup
 
 --- @param color string
 local function PrepareColor(color)
@@ -93,7 +93,7 @@ end
 --- @param map RowMapper<Row>
 --- @return Writer
 local function PrepareContent(sql, map)
-	local query = _civ_db_create_query(sql)
+	local query = civ_db_create_query(sql)
 
 	return function(text, type)
 		WriteContent(text, type, query(type), map)
@@ -130,7 +130,7 @@ end
 --- @param map RowMapper<Row>
 --- @return Writer
 local function PrepareSection(name, sql, map)
-	local query = _civ_db_create_query(sql)
+	local query = civ_db_create_query(sql)
 	name = Cyan(L(name))
 
 	return function(text, type)
@@ -181,13 +181,13 @@ local buildingsSqlTemplate = [[
 
 local WriteWonders = PrepareSection(
 	'TXT_KEY_TECH_HELP_WONDERS_UNLOCKED',
-	_lua_string_format(buildingsSqlTemplate, '>'),
+	lua_string_format(buildingsSqlTemplate, '>'),
 	BulletAdj
 )
 
 local WriteBuildings = PrepareSection(
 	'TXT_KEY_TECH_HELP_BUILDINGS_UNLOCKED',
-	_lua_string_format(buildingsSqlTemplate, '<='),
+	lua_string_format(buildingsSqlTemplate, '<='),
 	BulletAdj
 )
 
@@ -304,7 +304,7 @@ local WriteAbilities = (function()
 	local function FillAbilityRemoveForestBonus(text, type, tech)
 		local prop = tech.FeatureProductionModifier
 
-		if _lua_type(prop) ~= 'number' then
+		if lua_type(prop) ~= 'number' then
 			return
 		end
 
@@ -325,7 +325,7 @@ local WriteAbilities = (function()
 		local baseChopYield = feature and feature.Production or 0
 		local gameChopYield = baseChopYield * percent / 100
 
-		local bonusChopYield = _lua_math_floor(gameChopYield * prop / 100)
+		local bonusChopYield = lua_math_floor(gameChopYield * prop / 100)
 
 		local str = ICON_BULLET
 				.. L('TXT_KEY_ABLTY_TECH_BOOST_CHOP', bonusChopYield)
@@ -364,7 +364,7 @@ local WriteAbilities = (function()
 		return function(text, type, tech)
 			local prop = tech[key]
 
-			if _lua_type(prop) == 'number' and prop > 0 then
+			if lua_type(prop) == 'number' and prop > 0 then
 				local str = ICON_BULLET .. L(txtKey, prop)
 				text:Append(str)
 			end
@@ -429,10 +429,10 @@ local WriteAbilities = (function()
 	for i = 1, len do
 		local ability = abilities[i]
 
-		if _lua_type(ability) == 'table' then
+		if lua_type(ability) == 'table' then
 			local str = ability[2]
 
-			if _lua_type(str) == 'string' then
+			if lua_type(str) == 'string' then
 				ability[2] = L(str)
 			end
 		end
@@ -447,14 +447,14 @@ local WriteAbilities = (function()
 		for i = 1, len do
 			local ability = abilities[i]
 
-			if _lua_type(ability) == 'function' then
+			if lua_type(ability) == 'function' then
 				ability(text, type, tech)
 			else
 				local prop = tech[ability[1]]
 				local str = ability[2]
 
-				local condA = _lua_type(prop) == 'boolean' and prop
-				local condB = _lua_type(prop) == 'number' and prop > 0
+				local condA = lua_type(prop) == 'boolean' and prop
+				local condB = lua_type(prop) == 'number' and prop > 0
 
 				if condA or condB then
 					text:Append(ICON_BULLET .. str)
@@ -531,7 +531,7 @@ local function GetYieldChangesSql()
 		local tag = select.tag
 		local src = select.src
 
-		sql:Append(_lua_string_format(template, tag, src))
+		sql:Append(lua_string_format(template, tag, src))
 	end
 
 	return 'SELECT * FROM (' .. sql:Concat(' UNION ALL ') .. [[
@@ -599,7 +599,7 @@ local GetTechById = Memoize1(function(techId)
 end)
 
 local GetTechNameById = Memoize1(function(techId)
-	return _civ_locale_toupper(L(GetTechById(techId).Description))
+	return civ_locale_toupper(L(GetTechById(techId).Description))
 end)
 
 GetShortHelpTextForTech = Memoize1(function(techId)
@@ -630,14 +630,14 @@ local function GetHelpForUnstartedTech(techId, cost)
 			.. (help == '' and '' or (NL .. help))
 end
 
---- @param techId TechId
+--- @param techId integer
 --- @param player Player
 --- @return number
 local function GetTechProgressById(techId, player)
 	local progress = 0
 
-	local a = _lua_type(player.GetResearchProgressTimes100) == 'function'
-	local b = _lua_type(player.GetResearchProgress) == 'function'
+	local a = lua_type(player.GetResearchProgressTimes100) == 'function'
+	local b = lua_type(player.GetResearchProgress) == 'function'
 
 	if a then
 		progress = player:GetResearchProgressTimes100(techId) / 100
@@ -648,7 +648,7 @@ local function GetTechProgressById(techId, player)
 	return progress
 end
 
---- @param techId TechId? # Technology Id
+--- @param techId integer? # Technology Id
 --- @param isShort boolean? # Shall help text be short (Without tech name and player info)
 --- @param playerId PlayerId? # Relative playerId, if none specified then active
 --- @return string

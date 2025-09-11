@@ -14,17 +14,17 @@
 		VERBOSE = false,
 	}
 
-	local _lua_type = type
-	local _lua_next = next
-	local _lua_error = error
-	local _lua_tostring = tostring
+	local lua_type = type
+	local lua_next = next
+	local lua_error = error
+	local lua_tostring = tostring
 
-	local _lua_string_match = string.match
-	local _lua_table_insert = table.insert
-	local _lua_table_concat = table.concat
+	local lua_string_match = string.match
+	local lua_table_insert = table.insert
+	local lua_table_concat = table.concat
 
-	local _lua_getmetatable = getmetatable
-	local _lua_setmetatable = setmetatable
+	local lua_getmetatable = getmetatable
+	local lua_setmetatable = setmetatable
 
 	local EmulateInclude = (function()
 		local function GetAvailablePaths()
@@ -42,7 +42,7 @@
 			end
 
 			-- We are not inside Civ5 Lua but somewhere else...
-			local hasOs = os and _lua_type(os.getenv) == 'function'
+			local hasOs = os and lua_type(os.getenv) == 'function'
 
 			if not hasOs then
 				error('Error in include emulation: Cannot determine OS')
@@ -60,7 +60,7 @@
 			end
 
 			for line in stream:lines() do
-				_lua_table_insert(files, line)
+				lua_table_insert(files, line)
 			end
 
 			return files
@@ -68,7 +68,7 @@
 
 		--- @param filename string
 		local function GetCandidatePath(filename)
-			for _, path in _lua_next, GetAvailablePaths(), nil do
+			for _, path in lua_next, GetAvailablePaths(), nil do
 				if string.sub(path, - #filename) == filename then
 					return path
 				end
@@ -83,7 +83,7 @@
 				filename = filename .. '.lua'
 			end
 
-			if _lua_type(dofile) ~= 'function' then
+			if lua_type(dofile) ~= 'function' then
 				error('Error in include emulation: dofile is not a function')
 			end
 
@@ -101,7 +101,7 @@
 		end
 	end)()
 
-	local _civ_include = include or EmulateInclude
+	local civ_include = include or EmulateInclude
 
 	-- If include is not set, then set global emulated version of include
 	if not include then
@@ -121,14 +121,14 @@
 	--- @param filename string
 	--- @return nil
 	local function Import(filename)
-		local type = _lua_type(filename)
+		local type = lua_type(filename)
 
 		if type ~= 'string' then
 			local message = 'Failed to include file because filename is not string but ' .. type '.'
-			_lua_error(message)
+			lua_error(message)
 		end
 
-		local included = _civ_include(filename)
+		local included = civ_include(filename)
 
 		if #included == 1 then
 			Info('Included file "' .. filename .. '"')
@@ -142,21 +142,21 @@
 					.. '\n\t' .. 'Please verify if specified file is registered in VFS.'
 					.. '\n\t' .. 'Please verify if specified file exists.'
 
-			_lua_error(message)
+			lua_error(message)
 		end
 
 		local tokens = {}
 
-		for _, path in _lua_next, included, nil do
-			_lua_table_insert(tokens, '"' .. path .. '"')
+		for _, path in lua_next, included, nil do
+			lua_table_insert(tokens, '"' .. path .. '"')
 		end
 
 		local message = failed
 				.. ' Filename is not unique enough. Multiple candidates found: {'
-				.. '\n\t' .. _lua_table_concat(tokens, ',\n\t')
+				.. '\n\t' .. lua_table_concat(tokens, ',\n\t')
 				.. '\n}'
 
-		_lua_error(message)
+		lua_error(message)
 	end
 
 	local Node = {}
@@ -167,11 +167,11 @@
 	Module.Node = Node
 
 	local function Error(lvl, mes)
-		if _lua_type(mes) == 'table' then
-			mes = _lua_table_concat(mes, '\n\t')
+		if lua_type(mes) == 'table' then
+			mes = lua_table_concat(mes, '\n\t')
 		end
 
-		_lua_error(mes, lvl)
+		lua_error(mes, lvl)
 	end
 	Node.Error = Error
 
@@ -180,7 +180,7 @@
 	--- @param key any
 	--- @return boolean
 	local function IsValidKey(key)
-		return _lua_type(key) == 'string' and _lua_string_match(key, keyPattern)
+		return lua_type(key) == 'string' and lua_string_match(key, keyPattern)
 	end
 	Module.IsValidKey = IsValidKey
 
@@ -194,17 +194,17 @@
 	--- @param val any
 	--- @return nil
 	local function GetNode(val)
-		if _lua_type(val) ~= 'table' then
+		if lua_type(val) ~= 'table' then
 			return nil
 		end
 
-		local node = _lua_getmetatable(val)
+		local node = lua_getmetatable(val)
 
 		if node == nil then
 			return nil
 		end
 
-		local meta = _lua_getmetatable(node)
+		local meta = lua_getmetatable(node)
 
 		if meta ~= Node then
 			return nil
@@ -224,12 +224,12 @@
 	--- @param val any
 	--- @return string
 	local function GetInfo(val)
-		return '(' .. _lua_type(val) .. ') ' .. _lua_tostring(val)
+		return '(' .. lua_type(val) .. ') ' .. lua_tostring(val)
 	end
 	Node.GetInfo = GetInfo
 
 	function Node.New(name)
-		local node = _lua_setmetatable({}, Node)
+		local node = lua_setmetatable({}, Node)
 
 		node.name = name
 		node.parent = node
@@ -253,15 +253,15 @@
 		local this = self
 
 		if name ~= nil then
-			_lua_table_insert(path, name)
+			lua_table_insert(path, name)
 		end
 
 		while not this:IsRoot() do
 			this = this.parent
-			_lua_table_insert(path, 1, this.name)
+			lua_table_insert(path, 1, this.name)
 		end
 
-		return _lua_table_concat(path, '.')
+		return lua_table_concat(path, '.')
 	end
 
 	--- @param name? string
@@ -324,7 +324,7 @@
 		end
 
 		self.children[key] = val
-		Info('Assigned ' .. _lua_type(val) .. ' ' .. self:GetPath(key))
+		Info('Assigned ' .. lua_type(val) .. ' ' .. self:GetPath(key))
 	end
 
 	--- @param key string
@@ -368,7 +368,7 @@
 		child = self.children[key]
 
 		if child ~= nil then
-			Info('Resolved ' .. _lua_type(child) .. ' ' .. pathname)
+			Info('Resolved ' .. lua_type(child) .. ' ' .. pathname)
 			return child
 		end
 
@@ -383,22 +383,22 @@
 	--- @param name? string
 	--- @return table
 	function Module.New(name)
-		local module = _lua_setmetatable({}, Node.New(name))
+		local module = lua_setmetatable({}, Node.New(name))
 
 		return module
 	end
 
-	_lua_setmetatable(Module --[[@as table]], {
+	lua_setmetatable(Module --[[@as table]], {
 		__call = Module.New
 	})
 
-	local kit = Module.New('CPK')
+	local M = Module.New
+
+	local kit = M('CPK')
 
 	kit.Module = Module
 	kit.Import = Import
 	kit.Var = Var
-
-	local M = Module
 
 	kit.Args = M()  -- Variadic Arguments
 	kit.Assert = M() -- Assertion utilities

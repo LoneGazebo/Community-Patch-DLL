@@ -1,7 +1,7 @@
-local _lua_next = next
+local lua_next = next
 
 local ArgsEach = CPK.Args.Each
-local ArgsIsEmpty = CPK.Args.IsEmpty
+local ArgsEmpty = CPK.Args.Empty
 
 local AssertError = CPK.Assert.Error
 local AssertIsTable = CPK.Assert.IsTable
@@ -27,7 +27,7 @@ local AssertIsTable = CPK.Assert.IsTable
 --- @return table
 --- @nodiscard
 local function TableMerge(...)
-	if ArgsIsEmpty(...) then
+	if ArgsEmpty(...) then
 		AssertError(
 			'0 arguments',
 			'at least 1 argument of type table',
@@ -44,7 +44,7 @@ local function TableMerge(...)
 
 		AssertIsTable(tbl, 'Argument at #' .. idx .. ' is not table')
 
-		for key, val in _lua_next, tbl, nil do
+		for key, val in lua_next, tbl, nil do
 			res[key] = val
 		end
 	end, ...)

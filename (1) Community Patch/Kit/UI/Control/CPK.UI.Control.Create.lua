@@ -1,5 +1,5 @@
-local _lua_error = error
-local _lua_tostring = tostring
+local lua_error = error
+local lua_tostring = tostring
 
 local AssertIsTable = CPK.Assert.IsTable
 local AssertIsString = CPK.Assert.IsString
@@ -30,17 +30,17 @@ local function ControlCreate(name, parent)
 
 	ContextPtr:BuildInstanceForControl(name, instance, parent)
 
-	local str = _lua_tostring(instance)
+	local str = lua_tostring(instance)
 
 	--- NULL control created
 	if str:match(': 00000000$') then
 		parent:ReleaseChild(instance)
 
-		_lua_error(
+		lua_error(
 			'Failed to create ' .. name .. ' control instance.'
 			.. '\n\t<Instance Name="' .. name .. '" />'
 			.. ' was not found in related XML file.'
-			.. '\n\tPlease verify file: ' .. _lua_tostring(StateName) .. '.xml'
+			.. '\n\tPlease verify file: ' .. lua_tostring(StateName) .. '.xml'
 		)
 	end
 

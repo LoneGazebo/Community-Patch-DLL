@@ -1,4 +1,4 @@
-local _lua_getmetatable = getmetatable
+local lua_getmetatable = getmetatable
 local AssertIsTable = CPK.Assert.IsTable
 
 --- The kinds of UI controls available in the game.
@@ -51,7 +51,7 @@ local AssertIsTable = CPK.Assert.IsTable
 local function ControlKind(control)
 	AssertIsTable(control)
 
-	local meta = _lua_getmetatable(control)
+	local meta = lua_getmetatable(control)
 	return meta.CTypeName
 end
 

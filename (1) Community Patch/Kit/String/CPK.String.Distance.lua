@@ -1,27 +1,27 @@
-local _lua_math_min = math.min
-local _lua_math_huge = math.huge
-local _lua_string_len = string.len
-local _lua_string_byte = string.byte
+local lua_math_min = math.min
+local lua_math_huge = math.huge
+local lua_string_len = string.len
+local lua_string_byte = string.byte
 
-local _civ_locale_len = Locale.Length
-local _civ_locale_cmp = Locale.Compare
-local _civ_locale_sub = Locale.Substring
-local _civ_locale_isascii = Locale.IsASCII
+local civ_locale_len = Locale.Length
+local civ_locale_cmp = Locale.Compare
+local civ_locale_sub = Locale.Substring
+local civ_locale_isascii = Locale.IsASCII
 
 local AssertIsNumber = CPK.Assert.IsNumber
 local AssertIsString = CPK.Assert.IsString
 
-local LenUtf8 = _civ_locale_len
-local LenAscii = _lua_string_len
+local LenUtf8 = civ_locale_len
+local LenAscii = lua_string_len
 
 --- @type fun(charA: string, charB: string): boolean
 local function EqlUtf8(charA, charB)
-	return _civ_locale_cmp(charA, charB) == 0
+	return civ_locale_cmp(charA, charB) == 0
 end
 
 --- @type fun(str: string, i: integer): string
 local function SubUtf8(str, i)
-	return _civ_locale_sub(str, i, 1)
+	return civ_locale_sub(str, i, 1)
 end
 
 --- @type fun(charA: integer, charB: integer): boolean
@@ -32,7 +32,7 @@ end
 --- ASCII byte extraction
 --- @type fun(str: string, i: integer): integer
 local function SubAscii(str, i)
-	return _lua_string_byte(str, i)
+	return lua_string_byte(str, i)
 end
 
 --- Calculates Damerau–Levenshtein edit distance between two strings.
@@ -57,7 +57,7 @@ function CPK.String.Distance(strA, strB, max)
 	AssertIsString(strB)
 
 	if max == nil then
-		max = _lua_math_huge
+		max = lua_math_huge
 	end
 
 	AssertIsNumber(max)
@@ -70,7 +70,7 @@ function CPK.String.Distance(strA, strB, max)
 	local Eql, Sub, Len
 
 	-- Pick strategy once: ASCII uses byte ops, UTF-8 uses Locale
-	if _civ_locale_isascii(strA) and _civ_locale_isascii(strB) then
+	if civ_locale_isascii(strA) and civ_locale_isascii(strB) then
 		Eql, Sub, Len = EqlAscii, SubAscii, LenAscii
 	else
 		Eql, Sub, Len = EqlUtf8, SubUtf8, LenUtf8
@@ -113,7 +113,7 @@ function CPK.String.Distance(strA, strB, max)
 			local cost = Eql(charA, charB) and 0 or 1
 
 			-- Standard Levenshtein recurrence:
-			local dist = _lua_math_min(
+			local dist = lua_math_min(
 				currRow[iB] + 1,   -- deletion
 				nextRow[iB - 1] + 1, -- insertion
 				currRow[iB - 1] + cost -- substitution
@@ -122,7 +122,7 @@ function CPK.String.Distance(strA, strB, max)
 			-- Damerau transposition check
 			if iA > 1 and iB > 1 then
 				if Eql(charA, prevB) and Eql(prevA, charB) then
-					dist = _lua_math_min(dist, (prevRow[iB - 2] or 0) + 1)
+					dist = lua_math_min(dist, (prevRow[iB - 2] or 0) + 1)
 				end
 			end
 
