@@ -1341,8 +1341,11 @@ function OnStartClicked()
 	-- For Community Patch only, vassalage should always be disabled
 	-- Note to modders: If you want Vassalage or Tech Trading in your non-VP game, feel free to set your own game options as part of your mod startup.
 	-- You will need to make the necessary adjustments to DiploTrade.lua, TradeLogic.lua, and other places if you want this to actually work correctly.
-	PreGame.SetGameOption("GAMEOPTION_NO_VASSALAGE", true);
 	PreGame.SetGameOption("GAMEOPTION_RESEARCH_AGREEMENTS", true);
+	PreGame.SetGameOption("GAMEOPTION_NO_VASSALAGE", true);
+	PreGame.SetGameOption("GAMEOPTION_NO_TECH_BROKERING", true);
+	PreGame.SetGameOption("GAMEOPTION_TRANSPARENT_DIPLOMACY", false);
+	PreGame.SetGameOption("GAMEOPTION_NO_TECH_TRADING", true);
 	
 	Events.SerialEventStartGame();
 	UIManager:SetUICursor( 1 );
