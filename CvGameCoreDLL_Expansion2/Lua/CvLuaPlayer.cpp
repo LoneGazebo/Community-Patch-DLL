@@ -14057,31 +14057,27 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			kOpinion.m_str = str;
 			aOpinions.push_back(kOpinion);
 		}
-		// Vassalage?
-		if (MOD_BALANCE_VP)
+		if (pDiplo->IsMaster(ePlayer))
 		{
-			if (pDiplo->IsMaster(ePlayer))
-			{
-				Opinion kOpinion;
-				kOpinion.m_iValue = -99;
-				kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_WE_ARE_MASTER");
-				aOpinions.push_back(kOpinion);
-			}
-			else if (pDiplo->IsVassal(ePlayer))
-			{
-				Opinion kOpinion;
-				kOpinion.m_iValue = 0;
-				kOpinion.m_str = (pDiplo->IsVoluntaryVassalage(ePlayer)) ? Localization::Lookup("TXT_KEY_DIPLO_WE_ARE_VOLUNTARY_VASSAL") : Localization::Lookup("TXT_KEY_DIPLO_WE_ARE_VASSAL");
-				aOpinions.push_back(kOpinion);
-			}
-			int iValue = pDiplo->GetSameMasterScore(ePlayer);
-			if (iValue != 0)
-			{
-				Opinion kOpinion;
-				kOpinion.m_iValue = -31;
-				kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_SAME_MASTER");
-				aOpinions.push_back(kOpinion);
-			}
+			Opinion kOpinion;
+			kOpinion.m_iValue = -99;
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_WE_ARE_MASTER");
+			aOpinions.push_back(kOpinion);
+		}
+		else if (pDiplo->IsVassal(ePlayer))
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = 0;
+			kOpinion.m_str = (pDiplo->IsVoluntaryVassalage(ePlayer)) ? Localization::Lookup("TXT_KEY_DIPLO_WE_ARE_VOLUNTARY_VASSAL") : Localization::Lookup("TXT_KEY_DIPLO_WE_ARE_VASSAL");
+			aOpinions.push_back(kOpinion);
+		}
+		int iValue = pDiplo->GetSameMasterScore(ePlayer);
+		if (iValue != 0)
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = -31;
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_SAME_MASTER");
+			aOpinions.push_back(kOpinion);
 		}
 	}
 

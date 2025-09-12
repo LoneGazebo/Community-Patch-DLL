@@ -6962,7 +6962,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 
 			bFirstResource = false;
 
-			if (MOD_BALANCE_VP && GC.getGame().isOption(GAMEOPTION_NO_TECH_BROKERING))
+			if (GC.getGame().isOption(GAMEOPTION_NO_TECH_BROKERING))
 			{
 				SetTradeTech(eIndex, true);
 			}
@@ -7792,14 +7792,7 @@ void CvTeam::processTech(TechTypes eTech, int iChange, bool bNoBonus)
 	}
 	if(pTech->IsResearchAgreementTradingAllowed())
 	{
-		if (MOD_BALANCE_VP)
-		{
-			if (GC.getGame().isOption(GAMEOPTION_RESEARCH_AGREEMENTS))
-			{
-				ChangeResearchAgreementTradingAllowedCount(iChange);
-			}
-		}
-		else
+		if (GC.getGame().isOption(GAMEOPTION_RESEARCH_AGREEMENTS))
 		{
 			ChangeResearchAgreementTradingAllowedCount(iChange);
 		}

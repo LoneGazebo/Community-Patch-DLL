@@ -27004,7 +27004,7 @@ void CvDiplomacyAI::LogPeaceWillingnessReason(PlayerTypes ePlayer, const CvStrin
 /// Determine tax rates for all vassals, if we can
 void CvDiplomacyAI::DetermineVassalTaxRates()
 {
-	if (!MOD_BALANCE_VP || GC.getGame().isOption(GAMEOPTION_NO_VASSALAGE) || GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR) || GetPlayer()->IsAITeammateOfHuman() || GetPlayer()->GetNumVassals() <= 0)
+	if (GC.getGame().isOption(GAMEOPTION_NO_VASSALAGE) || GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR) || GetPlayer()->IsAITeammateOfHuman() || GetPlayer()->GetNumVassals() <= 0)
 		return;
 
 	vector<PlayerTypes> vMyTeam = GET_TEAM(GetTeam()).getPlayers();
@@ -39797,26 +39797,25 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			bool bHostile = IsAtWar(eFromPlayer) || IsDenouncedPlayer(eFromPlayer) || IsDenouncedByPlayer(eFromPlayer) || IsUntrustworthy(eFromPlayer) || IsActHostileTowardsHuman(eFromPlayer);
 			bool bAcceptable = !bHostile && !IsTooEarlyForShareOpinion(eFromPlayer) && GET_PLAYER(eFromPlayer).isAlive() && !GET_PLAYER(eFromPlayer).isObserver() && (GetShareOpinionResponse(eFromPlayer) == SHARE_OPINION_RESPONSE_ACCEPTED || IsShareOpinionAcceptable(eFromPlayer));
 			bool bDiplomat = false;
-			if (MOD_BALANCE_VP)
+			// Vassals always share their true feelings with their master.
+			if (IsVassal(eFromPlayer))
 			{
-				// Vassals always share their true feelings with their master.
-				if (IsVassal(eFromPlayer))
+				bAcceptable = true;
+				bDiplomat = true;
+			}
+			// Has a Diplomat collected enough network points?
+			else if (MOD_BALANCE_VP
+				&& GET_PLAYER(eFromPlayer).GetEspionage()
+				&& GET_PLAYER(eFromPlayer).GetEspionage()->IsMyDiplomatVisitingThem(m_pPlayer->GetID()))
+			{
+				CvCity* pCapital = GetPlayer()->getCapitalCity();
+				if (pCapital)
 				{
-					bAcceptable = true;
-					bDiplomat = true;
-				}
-				// Has a Diplomat collected enough network points?
-				else if (GET_PLAYER(eFromPlayer).GetEspionage() && GET_PLAYER(eFromPlayer).GetEspionage()->IsMyDiplomatVisitingThem(m_pPlayer->GetID()))
-				{
-					CvCity* pCapital = GetPlayer()->getCapitalCity();
-					if (pCapital)
+					CvCityEspionage* pCapitalEspionage = pCapital->GetCityEspionage();
+					if (pCapitalEspionage && pCapitalEspionage->IsDiplomatRevealTrueApproaches(eFromPlayer))
 					{
-						CvCityEspionage* pCapitalEspionage = pCapital->GetCityEspionage();
-						if (pCapitalEspionage && pCapitalEspionage->IsDiplomatRevealTrueApproaches(eFromPlayer))
-						{
-							bAcceptable = true;
-							bDiplomat = true;
-						}
+						bAcceptable = true;
+						bDiplomat = true;
 					}
 				}
 			}
