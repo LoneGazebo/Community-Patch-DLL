@@ -194,6 +194,7 @@ CvPromotionEntry::CvPromotionEntry():
 	m_bBarbarianOnly(false),
 	m_bStrongerDamaged(false),
 	m_bFightWellDamaged(false),
+	m_bFreeAttackMoves(false),
 	m_iNegatesPromotion(NO_PROMOTION),
 	m_iForcedDamageValue(0),
 	m_iChangeDamageValue(0),
@@ -482,6 +483,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_bBarbarianOnly = kResults.GetBool("BarbarianOnly");
 	m_bStrongerDamaged = kResults.GetBool("StrongerDamaged");
 	m_bFightWellDamaged = kResults.GetBool("FightWellDamaged");
+	m_bFreeAttackMoves = kResults.GetBool("FreeAttackMoves");
 	const char* szNegatesPromotion = kResults.GetText("NegatesPromotion");
 	m_iNegatesPromotion = GC.getInfoTypeForString(szNegatesPromotion, true);
 	m_iForcedDamageValue = kResults.GetInt("ForcedDamageValue");
@@ -2323,6 +2325,10 @@ bool CvPromotionEntry::IsStrongerDamaged() const
 bool CvPromotionEntry::IsFightWellDamaged() const
 {
 	return m_bFightWellDamaged;
+}
+bool CvPromotionEntry::IsFreeAttackMoves() const
+{
+	return m_bFreeAttackMoves;
 }
 int CvPromotionEntry::NegatesPromotion() const
 {

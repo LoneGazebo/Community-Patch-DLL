@@ -300,7 +300,7 @@ public:
 
 	int getMeleeCombatDamageCity(int iStrength, const CvCity* pCity, int& iSelfDamageInflicted, int iGarrisonMaxHP, int& iGarrisonDamage, bool bIncludeRand) const;
 	int getMeleeCombatDamage(int iStrength, int iOpponentStrength, int& iSelfDamageInflicted, bool bIncludeRand, const CvUnit* pkOtherUnit, int iExtraDefenderDamage = 0) const;
-	void move(CvPlot& targetPlot, bool bShow);
+	void move(CvPlot& targetPlot, bool bShow, bool bNoMovementCost = false);
 	bool jumpToNearestValidPlot();
 	bool jumpToNearestValidPlotWithinRange(int iRange, CvPlot* pStartPlot=NULL);
 
@@ -1485,6 +1485,8 @@ public:
 	void DoImprovementExperience(const CvPlot* pPlot = NULL);
 	bool IsStrongerDamaged() const;
 	void ChangeIsStrongerDamaged(int iChange);
+	bool IsFreeAttackMoves() const;
+	void ChangeFreeAttackMoves(int iChange);
 	bool IsFightWellDamaged() const;
 	void ChangeIsFightWellDamaged(int iChange);
 
@@ -2386,6 +2388,7 @@ protected:
 #if defined(MOD_BALANCE_CORE)
 	int m_iStrongerDamaged;
 	int m_iFightWellDamaged;
+	int m_iFreeAttackMoves;
 	int m_iCanMoraleBreak;
 	int m_iDamageAoEFortified;
 	int m_iWorkRateMod;
@@ -2838,6 +2841,7 @@ SYNC_ARCHIVE_VAR(int, m_iSapperCount)
 SYNC_ARCHIVE_VAR(int, m_iCanHeavyCharge)
 SYNC_ARCHIVE_VAR(int, m_iStrongerDamaged)
 SYNC_ARCHIVE_VAR(int, m_iFightWellDamaged)
+SYNC_ARCHIVE_VAR(int, m_iFreeAttackMoves)
 SYNC_ARCHIVE_VAR(int, m_iCanMoraleBreak)
 SYNC_ARCHIVE_VAR(int, m_iDamageAoEFortified)
 SYNC_ARCHIVE_VAR(int, m_iWorkRateMod)

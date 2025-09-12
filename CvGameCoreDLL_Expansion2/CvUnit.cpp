@@ -431,6 +431,7 @@ CvUnit::CvUnit() :
 	, m_iDamageReductionCityAssault()
 	, m_iStrongerDamaged()
 	, m_iFightWellDamaged()
+	, m_iFreeAttackMoves()
 	, m_iGoodyHutYieldBonus()
 	, m_iReligiousPressureModifier()
 #endif
@@ -1605,6 +1606,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iDamageReductionCityAssault = 0;
 	m_iStrongerDamaged = 0;
 	m_iFightWellDamaged = 0;
+	m_iFreeAttackMoves = 0;
 	m_iGoodyHutYieldBonus = 0;
 	m_iReligiousPressureModifier = 0;
 #endif
@@ -5579,7 +5581,7 @@ int CvUnit::getMeleeCombatDamage(int iStrength, int iOpponentStrength, int& iSel
 }
 
 //	--------------------------------------------------------------------------------
-void CvUnit::move(CvPlot& targetPlot, bool bShow)
+void CvUnit::move(CvPlot& targetPlot, bool bShow, bool bNoMovementCost)
 {
 	VALIDATE_OBJECT();
 	ASSERT_DEBUG(canMoveOrAttackInto(targetPlot) || isOutOfAttacks());
@@ -5591,7 +5593,7 @@ void CvUnit::move(CvPlot& targetPlot, bool bShow)
 		return;
 
 	//will never be more than we have left!
-	int iMoveCost = targetPlot.movementCost(this, plot(), getMoves());
+	int iMoveCost = bNoMovementCost ? 0 : targetPlot.movementCost(this, plot(), getMoves());
 
 	// we need to get our dis/embarking on
 	bool bChangeEmbarkedState = CanEverEmbark() && (targetPlot.needsEmbarkation(this) != pOldPlot->needsEmbarkation(this));
@@ -24736,6 +24738,18 @@ void CvUnit::ChangeIsFightWellDamaged(int iChange)
 }
 
 //	--------------------------------------------------------------------------------
+bool CvUnit::IsFreeAttackMoves() const
+{
+	return m_iFreeAttackMoves > 0;
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::ChangeFreeAttackMoves(int iChange)
+{
+	m_iFreeAttackMoves += iChange;
+}
+
+//	--------------------------------------------------------------------------------
 int CvUnit::GetGoodyHutYieldBonus() const
 {
 	return m_iGoodyHutYieldBonus;
@@ -27863,6 +27877,7 @@ void CvUnit::setPromotionActive(PromotionTypes eIndex, bool bNewValue)
 	}
 	ChangeIsStrongerDamaged(thisPromotion.IsStrongerDamaged() ? iChange : 0);
 	ChangeIsFightWellDamaged(thisPromotion.IsFightWellDamaged() ? iChange : 0);
+	ChangeFreeAttackMoves(thisPromotion.IsFreeAttackMoves() ? iChange : 0);
 	ChangeGoodyHutYieldBonus(thisPromotion.GetGoodyHutYieldBonus() * iChange);
 	ChangeReligiousPressureModifier(thisPromotion.GetReligiousPressureModifier() * iChange);
 	ChangeCanHeavyChargeCount((thisPromotion.IsCanHeavyCharge()) ? iChange : 0);
@@ -28592,6 +28607,7 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_iCanHeavyCharge);
 	visitor(unit.m_iStrongerDamaged);
 	visitor(unit.m_iFightWellDamaged);
+	visitor(unit.m_iFreeAttackMoves);
 	visitor(unit.m_iCanMoraleBreak);
 	visitor(unit.m_iDamageAoEFortified);
 	visitor(unit.m_iWorkRateMod);
@@ -30198,7 +30214,7 @@ bool CvUnit::UnitMove(CvPlot* pPlot, bool bCombat, CvUnit* pCombatUnit, bool bEn
 	{
 		// execute move
 		LOG_UNIT_MOVES_MESSAGE_OSTR(std::string("UnitMove() : player ") << GET_PLAYER(getOwner()).getName(); << std::string(" ") << getName() << std::string(" id=") << GetID() << std::string(" moving to ") << pPlot->getX() << std::string(", ") << pPlot->getY());
-		move(*pPlot, true);
+		move(*pPlot, true, bIsCombatUnit && IsFreeAttackMoves());
 	}
 	else
 	{
