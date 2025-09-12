@@ -206,6 +206,7 @@ public:
 	int GetWonderProductionModifier() const;
 	bool IsStrongerDamaged() const;
 	bool IsFightWellDamaged() const;
+	bool IsFreeAttackMoves() const;
 	bool IsMountainsDoubleMove() const;
 	bool IsEmbarkFlatCost() const;
 	bool IsDisembarkFlatCost() const;
@@ -550,6 +551,7 @@ protected:
 	bool m_bBarbarianOnly;
 	bool m_bStrongerDamaged;
 	bool m_bFightWellDamaged;
+	bool m_bFreeAttackMoves;
 #endif
 	bool m_bCannotBeChosen;
 	bool m_bLostWithUpgrade;
