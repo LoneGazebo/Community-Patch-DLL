@@ -413,6 +413,7 @@ CvUnit::CvUnit() :
 	, m_iForcedDamage()
 	, m_iChangeDamage()
 	, m_iDamageTakenMod()
+	, m_iInfluenceFromCombatXPTimes100()
 	, m_PromotionDuration()
 	, m_TurnPromotionGained()
 	, m_iNumTilesRevealedThisTurn()
@@ -1431,6 +1432,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iForcedDamage = 0;
 	m_iChangeDamage = 0;
 	m_iDamageTakenMod = 0;
+	m_iInfluenceFromCombatXPTimes100 = 0;
 #endif
 	m_iRangedSupportFireCount = 0;
 	m_iAlwaysHealCount = 0;
@@ -7045,6 +7047,22 @@ int CvUnit::GetDamageTakenMod() const
 {
 	VALIDATE_OBJECT();
 	return m_iDamageTakenMod;
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::ChangeInfluenceFromCombatXPTimes100(int iChange)
+{
+	VALIDATE_OBJECT();
+	if(iChange != 0)
+	{
+		m_iInfluenceFromCombatXPTimes100 += iChange;
+	}
+}
+//	--------------------------------------------------------------------------------
+int CvUnit::GetInfluenceFromCombatXPTimes100() const
+{
+	VALIDATE_OBJECT();
+	return m_iInfluenceFromCombatXPTimes100;
 }
 
 
@@ -21685,6 +21703,43 @@ void CvUnit::changeExperienceTimes100(int iChangeTimes100, int iMax, bool bFromC
 		}
 	}
 
+	if (GetInfluenceFromCombatXPTimes100() > 0 && iUnitExperienceTimes100 > 0 && bFromCombat && GET_PLAYER(getOwner()).isMajorCiv())
+	{
+		int iUnitX = getX();
+		int iUnitY = getY();
+		// find nearest city-state
+		int iMinDistance = INT_MAX;
+		PlayerTypes eNearestMinor = NO_PLAYER;
+		for(int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
+		{
+			PlayerTypes eMinorLoop = (PlayerTypes)iMinorLoop;
+			CvPlayer& kMinorLoop = GET_PLAYER(eMinorLoop);
+			if (!kMinorLoop.isAlive() || !kMinorLoop.isMinorCiv() )
+				continue;
+
+			if (!GET_TEAM(getTeam()).isHasMet(kMinorLoop.getTeam()))
+				continue;
+
+			if (kMinorLoop.GetMinorCivAI()->IsNoAlly() || kMinorLoop.GetMinorCivAI()->GetPermanentAlly() != NO_PLAYER || kMinorLoop.IsAtWarWith(getOwner()))
+			continue;
+
+			int iCityLoop = 0;
+			for (CvCity* pCity = kMinorLoop.firstCity(&iCityLoop); pCity != NULL; pCity = kMinorLoop.nextCity(&iCityLoop))
+			{
+				int iDistance = plotDistance(iUnitX, iUnitY, pCity->getX(), pCity->getY());
+				if (iDistance < iMinDistance)
+				{
+					iMinDistance = iDistance;
+					eNearestMinor = eMinorLoop;
+				}
+			}
+		}
+		if (eNearestMinor != NO_PLAYER)
+		{
+			GET_PLAYER(eNearestMinor).GetMinorCivAI()->ChangeFriendshipWithMajorTimes100(getOwner(), iUnitExperienceTimes100 * GetInfluenceFromCombatXPTimes100() / 100);
+		}
+	}
+
 	setExperienceTimes100((getExperienceTimes100() + iUnitExperienceTimes100), iMax);
 }
 
@@ -27774,6 +27829,7 @@ void CvUnit::setPromotionActive(PromotionTypes eIndex, bool bNewValue)
 	ChangeForcedDamageValue((thisPromotion.GetForcedDamageValue()) * iChange);
 	ChangeChangeDamageValue((thisPromotion.GetChangeDamageValue()) * iChange);
 	ChangeDamageTakenMod((thisPromotion.GetDamageTakenMod()) * iChange);
+	ChangeInfluenceFromCombatXPTimes100((thisPromotion.GetInfluenceFromCombatXPTimes100()) * iChange);
 	ChangeMoraleBreakChance((thisPromotion.GetMoraleBreakChance()) * iChange);
 	ChangeDamageAoEFortified((thisPromotion.GetDamageAoEFortified()) * iChange);
 	ChangeWorkRateMod((thisPromotion.GetWorkRateMod()) * iChange);
@@ -28335,6 +28391,7 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_iForcedDamage);
 	visitor(unit.m_iChangeDamage);
 	visitor(unit.m_iDamageTakenMod);
+	visitor(unit.m_iInfluenceFromCombatXPTimes100);
 	visitor(unit.m_PromotionDuration);
 	visitor(unit.m_TurnPromotionGained);
 	visitor(unit.m_iRangedSupportFireCount);
@@ -31893,6 +31950,14 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	{	
 		iExtra = iTemp * ( 2 * iFlavorOffense + iFlavorDefense);
 		iExtra *= -2;
+		iValue += iExtra;
+	}
+
+	iTemp = pkPromotionInfo->GetInfluenceFromCombatXPTimes100();
+	if (iTemp != 0)
+	{	
+		iExtra = iTemp * ( 2 * iFlavorOffense + iFlavorDefense);
+		iExtra /= 5;
 		iValue += iExtra;
 	}
 

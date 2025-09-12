@@ -193,6 +193,7 @@ public:
 	int GetForcedDamageValue() const;
 	int GetChangeDamageValue() const;
 	int GetDamageTakenMod() const;
+	int GetInfluenceFromCombatXPTimes100() const;
 	int PromotionDuration() const;
 	bool IsCityStateOnly() const;
 	bool IsBarbarianOnly() const;
@@ -539,6 +540,7 @@ protected:
 	int m_iForcedDamageValue;
 	int m_iChangeDamageValue;
 	int m_iDamageTakenMod;
+	int m_iInfluenceFromCombatXPTimes100;
 	int m_iPromotionDuration;
 	int m_iMoraleBreakChance;
 	int m_iDamageAoEFortified;
