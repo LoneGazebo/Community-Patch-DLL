@@ -198,6 +198,7 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iForcedDamageValue(0),
 	m_iChangeDamageValue(0),
 	m_iDamageTakenMod(0),
+	m_iInfluenceFromCombatXPTimes100(0),
 	m_iPromotionDuration(0),
 	m_iMoraleBreakChance(0),
 	m_iDamageAoEFortified(0),
@@ -486,6 +487,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iForcedDamageValue = kResults.GetInt("ForcedDamageValue");
 	m_iChangeDamageValue = kResults.GetInt("ChangeDamageValue");
 	m_iDamageTakenMod = kResults.GetInt("DamageTakenMod");
+	m_iInfluenceFromCombatXPTimes100 = kResults.GetInt("InfluenceFromCombatXpTimes100");
 	m_iPromotionDuration = kResults.GetInt("PromotionDuration");
 	m_iMoraleBreakChance = kResults.GetInt("MoraleBreakChance");
 	m_iDamageAoEFortified = kResults.GetInt("AoEWhileFortified");
@@ -2337,6 +2339,10 @@ int CvPromotionEntry::GetChangeDamageValue() const
 int CvPromotionEntry::GetDamageTakenMod() const
 {
 	return m_iDamageTakenMod;
+}
+int CvPromotionEntry::GetInfluenceFromCombatXPTimes100() const
+{
+	return m_iInfluenceFromCombatXPTimes100;
 }
 int CvPromotionEntry::PromotionDuration() const
 {

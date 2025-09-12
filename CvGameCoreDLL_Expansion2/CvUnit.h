@@ -374,6 +374,9 @@ public:
 	int GetDamageTakenMod() const;
 	void ChangeDamageTakenMod(int iChange);
 
+	int GetInfluenceFromCombatXPTimes100() const;
+	void ChangeInfluenceFromCombatXPTimes100(int iChange);
+
 	int getPromotionDuration(PromotionTypes eIndex) const;
 	void SetPromotionDuration(PromotionTypes eIndex, int iValue);
 	void ChangePromotionDuration(PromotionTypes eIndex, int iChange);
@@ -2157,6 +2160,7 @@ protected:
 	int m_iForcedDamage;
 	int m_iChangeDamage;
 	int m_iDamageTakenMod;
+	int m_iInfluenceFromCombatXPTimes100;
 	std::map<PromotionTypes, int> m_PromotionDuration;
 	std::map<PromotionTypes, int> m_TurnPromotionGained;
 #endif
@@ -2633,6 +2637,7 @@ SYNC_ARCHIVE_VAR(int, m_iCannotBeCapturedCount)
 SYNC_ARCHIVE_VAR(int, m_iForcedDamage)
 SYNC_ARCHIVE_VAR(int, m_iChangeDamage)
 SYNC_ARCHIVE_VAR(int, m_iDamageTakenMod)
+SYNC_ARCHIVE_VAR(int, m_iInfluenceFromCombatXPTimes100)
 SYNC_ARCHIVE_VAR(SYNC_ARCHIVE_VAR_TYPE(std::map<PromotionTypes, int>), m_PromotionDuration)
 SYNC_ARCHIVE_VAR(SYNC_ARCHIVE_VAR_TYPE(std::map<PromotionTypes, int>), m_TurnPromotionGained)
 SYNC_ARCHIVE_VAR(int, m_iRangedSupportFireCount)
