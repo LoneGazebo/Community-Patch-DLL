@@ -1282,7 +1282,7 @@ protected:
 	static int lWasResurrectedThisTurnBy(lua_State* L);
 
 	static int lGetOpinionTable(lua_State* L);
-	static int lGetDiplomaticEvaluation(lua_State* L);
+	static int lGetDiplomacyEvaluation(lua_State* L);
 	static int lGetDealValue(lua_State* L);
 	static int lGetDealMyValue(lua_State* L);
 	static int lGetDealTheyreValue(lua_State* L);

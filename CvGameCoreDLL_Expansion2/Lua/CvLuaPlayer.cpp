@@ -1173,7 +1173,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(WasResurrectedThisTurnBy);
 
 	Method(GetOpinionTable);
-	Method(GetDiplomaticEvaluation);
+	Method(GetDiplomacyEvaluation);
 	Method(GetDealValue);
 	Method(GetDealMyValue);
 	Method(GetDealTheyreValue);
@@ -16104,7 +16104,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 // Returns diplomatic evaluation information (top friend, ally, competitor, etc.)
 // Returns empty table if not a major civ
 //------------------------------------------------------------------------------
-int CvLuaPlayer::lGetDiplomaticEvaluation(lua_State* L)
+int CvLuaPlayer::lGetDiplomacyEvaluation(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 2);
