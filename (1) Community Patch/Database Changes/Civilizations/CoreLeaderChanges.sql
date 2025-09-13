@@ -63,3 +63,10 @@ SET
 WHERE EXISTS (SELECT 1 FROM Leader_VictoryPursuits WHERE TempLeaderType = Type);
 
 DROP TABLE Leader_VictoryPursuits;
+
+-- Reduce Gandhi's nuke flavors if the Nuclear Gandhi setting is disabled
+UPDATE Leader_Flavors
+SET Flavor = 4
+WHERE LeaderType = 'LEADER_GANDHI'
+AND FlavorType IN ('FLAVOR_NUKE', 'FLAVOR_USE_NUKE')
+AND (SELECT Value FROM Defines WHERE Name = 'DIPLOAI_ENABLE_NUCLEAR_GANDHI') < 1;

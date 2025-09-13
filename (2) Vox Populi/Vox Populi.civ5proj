@@ -1271,6 +1271,13 @@
         <MinVersion>0</MinVersion>
         <MaxVersion>999</MaxVersion>
       </Association>
+      <Association>
+        <Type>Mod</Type>
+        <Name>(over) More Unique Components for VP</Name>
+        <Id>259c3593-34dd-4fdd-bd7d-8ed67cc0797c</Id>
+        <MinVersion>0</MinVersion>
+        <MaxVersion>999</MaxVersion>
+      </Association>
     </ModBlockers>
     <SupportsHotSeat>true</SupportsHotSeat>
     <ModContent>

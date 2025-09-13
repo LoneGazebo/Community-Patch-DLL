@@ -27438,7 +27438,7 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		int iPlagueID = thisPromotion.GetPlagueID();
 		if (iPlagueID > -1 && bNewValue)
 		{
-			//  Higher priority plagues with the same ID block lower priority plagues from being added to the inflicted unit
+			// Higher priority plagues with the same ID block lower priority plagues from being added to the inflicted unit
 			if (HasPlague(iPlagueID, thisPromotion.GetPlaguePriority() + 1))
 				return;
 

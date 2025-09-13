@@ -16259,9 +16259,9 @@ int CvPlayer::GetNumUnitsSupplied(bool bCheckWarWeariness) const
 		iUnitSupply += GetNumUnitsSuppliedByPopulation();
 		iUnitSupply += GetUnitSupplyFromExpendedGreatPeople();
 
-		int iEmpireSizeReduction = getNumCities() > 0 ? max(GetNumEffectiveCities(false) * /*0 in CP, 5 in VP*/ GC.getMap().getWorldInfo().GetNumCitiesUnitSupplyMod(), 0) : 0;
+		int iCityCountReduction = getNumCities() > 0 ? max(GetNumEffectiveCities(false) * /*0 in CP, 5 in VP*/ GC.getMap().getWorldInfo().GetNumCitiesUnitSupplyMod(), 0) : 0;
 		iUnitSupply *= 100;
-		iUnitSupply /= (100 + iEmpireSizeReduction);
+		iUnitSupply /= (100 + iCityCountReduction);
 
 		if (isMajorCiv())
 		{

@@ -440,7 +440,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetUnitCostIncreaseFromWarWeariness);
 	Method(GetUnhappinessFromWarWeariness);
 	Method(GetTechSupplyReduction);
-	Method(GetEmpireSizeSupplyReduction);
+	Method(GetCityCountSupplyReduction);
 	Method(GetUnitSupplyFromExpendedGreatPeople);
 	Method(ChangeUnitSupplyFromExpendedGreatPeople);
 
@@ -4867,7 +4867,7 @@ int CvLuaPlayer::lGetTechSupplyReduction(lua_State* L)
 	return 1;
 }
 
-int CvLuaPlayer::lGetEmpireSizeSupplyReduction(lua_State* L)
+int CvLuaPlayer::lGetCityCountSupplyReduction(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	int iReductionPercent = pkPlayer->getNumCities() > 0 ? max(pkPlayer->GetNumEffectiveCities(false) * /*0 in CP, 5 in VP*/ GC.getMap().getWorldInfo().GetNumCitiesUnitSupplyMod(), 0) : 0;

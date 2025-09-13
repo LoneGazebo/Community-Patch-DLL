@@ -44,7 +44,8 @@ WHERE SpecificCivRequired = 1 OR Type IN (
 	'IMPROVEMENT_CAMP',
 	-- hidden unique improvements
 	'IMPROVEMENT_POLDER_WATER',
-	'IMPROVEMENT_ORDO'
+	'IMPROVEMENT_ORDO',
+	'IMPROVEMENT_ISIBAYA'
 );
 
 -- Volunteer Army (now Draft Registration)
