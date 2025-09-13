@@ -174,6 +174,7 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iEmbarkDefenseModifier(0),
 	m_iCapitalDefenseModifier(0),
 	m_iCapitalDefenseFalloff(0),
+	m_iCapitalDefenseLimit(0),
 	m_iCityAttackPlunderModifier(0),
 	m_iReligiousStrengthLossRivalTerritory(0),
 	m_iTradeMissionInfluenceModifier(0),
@@ -745,6 +746,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iEmbarkDefenseModifier = kResults.GetInt("EmbarkDefenseModifier");
 	m_iCapitalDefenseModifier = kResults.GetInt("CapitalDefenseModifier");
 	m_iCapitalDefenseFalloff = kResults.GetInt("CapitalDefenseFalloff");
+	m_iCapitalDefenseLimit = kResults.GetInt("CapitalDefenseLimit");
 	m_iCityAttackPlunderModifier = kResults.GetInt("CityAttackPlunderModifier");
 	m_iReligiousStrengthLossRivalTerritory = kResults.GetInt("ReligiousStrengthLossRivalTerritory");
 	m_iTradeMissionInfluenceModifier = kResults.GetInt("TradeMissionInfluenceModifier");
@@ -2224,6 +2226,11 @@ int CvPromotionEntry::GetCapitalDefenseModifier() const
 int CvPromotionEntry::GetCapitalDefenseFalloff() const
 {
 	return m_iCapitalDefenseFalloff;
+}
+
+int CvPromotionEntry::GetCapitalDefenseLimit() const
+{
+	return m_iCapitalDefenseLimit;
 }
 
 /// Accessor: gold earned from damage on an attacked city

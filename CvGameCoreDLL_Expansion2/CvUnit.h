@@ -697,6 +697,8 @@ public:
 	int GetBestAttackStrength() const; //ranged or melee, whichever is greater
 	int GetDamageCombatModifier(bool bForDefenseAgainstRanged = false, int iAssumedDamage = 0) const;
 
+	int GetCombatModifierFromCapitalDistance(const CvPlot* pBattlePlot) const;
+
 	int GetGenericMeleeStrengthModifier(const CvUnit* pOtherUnit, const CvPlot* pBattlePlot, bool bAttacking,
 									bool bIgnoreUnitAdjacencyBoni, const CvPlot* pFromPlot = NULL, bool bQuickAndDirty = false) const;
 	int GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot, const CvUnit* pDefender, 
@@ -1987,6 +1989,8 @@ public:
 	int GetCapitalDefenseModifier() const;
 	void ChangeCapitalDefenseFalloff(int iValue);
 	int GetCapitalDefenseFalloff() const;
+	void ChangeCapitalDefenseLimit(int iValue);
+	int GetCapitalDefenseLimit() const;
 
 	void ChangeCityAttackPlunderModifier(int iValue);
 	int GetCityAttackPlunderModifier() const;
@@ -2513,6 +2517,7 @@ protected:
 	int m_iEmbarkDefensiveModifier;
 	int m_iCapitalDefenseModifier;
 	int m_iCapitalDefenseFalloff;
+	int m_iCapitalDefenseLimit;
 	int m_iCityAttackPlunderModifier;
 	int m_iReligiousStrengthLossRivalTerritory;
 	int m_iTradeMissionInfluenceModifier;
@@ -2920,6 +2925,7 @@ SYNC_ARCHIVE_VAR(int, m_iEmbarkExtraVisibility)
 SYNC_ARCHIVE_VAR(int, m_iEmbarkDefensiveModifier)
 SYNC_ARCHIVE_VAR(int, m_iCapitalDefenseModifier)
 SYNC_ARCHIVE_VAR(int, m_iCapitalDefenseFalloff)
+SYNC_ARCHIVE_VAR(int, m_iCapitalDefenseLimit)
 SYNC_ARCHIVE_VAR(int, m_iCityAttackPlunderModifier)
 SYNC_ARCHIVE_VAR(int, m_iReligiousStrengthLossRivalTerritory)
 SYNC_ARCHIVE_VAR(int, m_iTradeMissionInfluenceModifier)

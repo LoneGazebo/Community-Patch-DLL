@@ -402,8 +402,7 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(GetUnhappinessCombatPenalty);
 	Method(AirSweepCombatMod);
 	Method(GetEmbarkDefensiveModifier);
-	Method(CapitalDefenseModifier);
-	Method(CapitalDefenseFalloff);
+	Method(GetCombatModifierFromCapitalDistance);
 
 	Method(SpecialCargo);
 	Method(DomainCargo);
@@ -4517,16 +4516,10 @@ int CvLuaUnit::lGetEmbarkDefensiveModifier(lua_State* L)
 	return BasicLuaMethod(L, &CvUnit::GetEmbarkDefensiveModifier);
 }
 //------------------------------------------------------------------------------
-//int CapitalDefenseModifier();
-int CvLuaUnit::lCapitalDefenseModifier(lua_State* L)
+//int GetCombatModifierFromCapitalDistance();
+int CvLuaUnit::lGetCombatModifierFromCapitalDistance(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvUnit::GetCapitalDefenseModifier);
-}
-//------------------------------------------------------------------------------
-//int CapitalDefenseFalloff();
-int CvLuaUnit::lCapitalDefenseFalloff(lua_State* L)
-{
-	return BasicLuaMethod(L, &CvUnit::GetCapitalDefenseFalloff);
+	return BasicLuaMethod(L, &CvUnit::GetCombatModifierFromCapitalDistance);
 }
 //------------------------------------------------------------------------------
 //int /*SpecialUnitTypes*/ specialCargo();

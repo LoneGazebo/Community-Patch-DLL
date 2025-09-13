@@ -172,6 +172,7 @@ public:
 	int GetEmbarkDefenseModifier() const;
 	int GetCapitalDefenseModifier() const;
 	int GetCapitalDefenseFalloff() const;
+	int GetCapitalDefenseLimit() const;
 	int GetCityAttackPlunderModifier() const;
 	int GetReligiousStrengthLossRivalTerritory() const;
 	
@@ -521,6 +522,7 @@ protected:
 	int m_iEmbarkDefenseModifier;
 	int m_iCapitalDefenseModifier;
 	int m_iCapitalDefenseFalloff;
+	int m_iCapitalDefenseLimit;
 	int m_iCityAttackPlunderModifier;
 	int m_iReligiousStrengthLossRivalTerritory;
 	int m_iTradeMissionInfluenceModifier;
