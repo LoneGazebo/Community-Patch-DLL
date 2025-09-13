@@ -32773,7 +32773,7 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn) // R: bDoTurn default
 					}
 				}
 
-				GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerDoneTurn, GetID(), eNextPlayer);
+				GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerDoneTurn, GetID(), static_cast<int>(eNextPlayer));
 			}
 
 			ASSERT_DEBUG(GetEndTurnBlockingType() == NO_ENDTURN_BLOCKING_TYPE, "Expecting the end-turn blocking to be NO_ENDTURN_BLOCKING_TYPE, got %d", GetEndTurnBlockingType());

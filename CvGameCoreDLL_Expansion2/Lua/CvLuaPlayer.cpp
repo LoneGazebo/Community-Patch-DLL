@@ -13567,7 +13567,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		}
 
 		// Special indicators
-		if (!bHuman && !bTeammate)
+		if (bForceDebugMode || (!bHuman && !bTeammate))
 		{
 			// Debug mode approach reveal
 			if (bForceDebugMode || GC.getGame().IsDiploDebugModeEnabled())
