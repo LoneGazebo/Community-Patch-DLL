@@ -58,10 +58,9 @@ SET
 			)
 		)
 	),
+	RangedCombat = (SELECT RangedCombat FROM Units WHERE Type = 'UNIT_TRIPLANE') + 1,
 	AirInterceptRange = (SELECT AirInterceptRange FROM Units WHERE Type = 'UNIT_TRIPLANE') + 1
 WHERE Type = 'UNIT_SPAD';
-
-DELETE FROM Unit_ResourceQuantityRequirements WHERE UnitType = 'UNIT_SPAD';
 
 INSERT INTO Unit_FreePromotions
 	(UnitType, PromotionType)

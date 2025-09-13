@@ -1128,11 +1128,11 @@
 			<PediaEntry>TXT_KEY_PROMOTION_MINENWERFER</PediaEntry>
 		</Row>
 		<Row>
-			<Type>PROMOTION_TROMMELFUEUR</Type>
-			<Description>TXT_KEY_PROMOTION_TROMMELFUEUR</Description>
-			<Help>TXT_KEY_PROMOTION_TROMMELFUEUR_HELP</Help>
+			<Type>PROMOTION_TROMMELFEUER</Type>
+			<Description>TXT_KEY_PROMOTION_TROMMELFEUER</Description>
+			<Help>TXT_KEY_PROMOTION_TROMMELFEUER_HELP</Help>
 			<PediaType>PEDIA_SIEGE</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_TROMMELFUEUR</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_TROMMELFEUER</PediaEntry>
 		</Row>
 		<Row>
 			<Type>PROMOTION_PHILHELLENISM</Type>
@@ -1403,11 +1403,11 @@
 			<PediaEntry>TXT_KEY_PROMOTION_MAIMED</PediaEntry>
 		</Row>
 		<Row>
-			<Type>PROMOTION_PRISONER_WAR</Type>
-			<Description>TXT_KEY_PROMOTION_PRISONER_WAR</Description>
-			<Help>TXT_KEY_PROMOTION_PRISONER_WAR_HELP</Help>
+			<Type>PROMOTION_PRISONERS_OF_WAR</Type>
+			<Description>TXT_KEY_PROMOTION_PRISONERS_OF_WAR</Description>
+			<Help>TXT_KEY_PROMOTION_PRISONERS_OF_WAR_HELP</Help>
 			<PediaType>PEDIA_CIVILIAN</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_PRISONER_WAR</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_PRISONERS_OF_WAR</PediaEntry>
 		</Row>
 		<!-- Event -->
 		<Row>

@@ -1,6 +1,14 @@
 -- Unfortunately, the <Replace> command isn't smart enough to only replace specified values instead of whole rows,
 -- so we need to redefine all existing and new promotions here.
 
+-- If a promotion should grant blanket immunity to all Plagues added by VP, insert it into this helper table
+-- If you also want compatibility with Plagues added by modmods, modify the associated trigger in (2) Vox Populi\Database Changes\Triggers.sql
+CREATE TEMP TABLE PlagueImmunePromotions (
+	PromotionType TEXT,
+	DomainType TEXT,
+	IncludeSpecial BOOLEAN DEFAULT 0 -- promotions not applied by UnitPromotions_Plagues, e.g., Prisoners of War; if set to 1, will be included regardless of domain
+);
+
 ----------------------------------------------------------------------------------------------------------------------------
 -- Land Melee promotion tree (mix of Melee/Gun/Mounted/Armor) drawn using ASCIIFlow
 --
@@ -617,7 +625,7 @@ UPDATE UnitPromotions SET CityAttack = 25 WHERE Type = 'PROMOTION_STATUE_ZEUS';
 INSERT INTO UnitPromotions_BlockedPromotions
 	(PromotionType, BlockedPromotionType)
 VALUES
-	('PROMOTION_STATUE_ZEUS', 'PROMOTION_PRISONER_WAR');
+	('PROMOTION_STATUE_ZEUS', 'PROMOTION_PRISONERS_OF_WAR');
 
 UPDATE UnitPromotions SET AttackMod = 15, ExtraWithdrawal = 100 WHERE Type = 'PROMOTION_JINETE';
 
@@ -909,7 +917,13 @@ VALUES
 UPDATE UnitPromotions SET NearbyEnemyCombatMod = -10, NearbyEnemyCombatRange = 1 WHERE Type = 'PROMOTION_FEARED_ELEPHANT';
 
 -- Maori Warrior: Haka War Dance
-UPDATE UnitPromotions SET NearbyEnemyCombatMod = -15, NearbyEnemyCombatRange = 1 WHERE Type = 'PROMOTION_HAKA_WAR_DANCE';
+UPDATE UnitPromotions
+SET
+	NearbyEnemyCombatMod = -20,
+	NearbyEnemyCombatRange = 1,
+	EmbarkFlatCost = 1,
+	DisembarkFlatCost = 1
+WHERE Type = 'PROMOTION_HAKA_WAR_DANCE';
 
 -- Khan: Khaaaan!
 UPDATE UnitPromotions SET NearbyEnemyDamage = 10 WHERE Type = 'PROMOTION_MEDIC_GENERAL';
@@ -1058,11 +1072,10 @@ UPDATE UnitPromotions SET CombatModPerLevel = 5 WHERE Type = 'PROMOTION_LEGACY';
 
 -- Amazonas: Riachuelo
 UPDATE UnitPromotions SET GoldenAgeValueFromKills = 100 WHERE Type = 'PROMOTION_RIACHUELO';
-INSERT INTO UnitPromotions_BlockedPromotions
-	(PromotionType, BlockedPromotionType)
+INSERT INTO PlagueImmunePromotions
+	(PromotionType, DomainType)
 VALUES
-	('PROMOTION_RIACHUELO', 'PROMOTION_BOARDED_1'),
-	('PROMOTION_RIACHUELO', 'PROMOTION_BOARDED_2');
+	('PROMOTION_RIACHUELO', 'DOMAIN_SEA');
 
 -- Dromon: Greek Fire
 INSERT INTO UnitPromotions_Plagues
@@ -1125,7 +1138,7 @@ UPDATE UnitPromotions SET VsUnhappyMod = 20 WHERE Type = 'PROMOTION_ZEMENE_MESAF
 UPDATE UnitPromotions SET AttackFortifiedMod = 50, PillageFortificationsOnKill = 1 WHERE Type = 'PROMOTION_MINENWERFER';
 
 -- Krupp Gun: Trommelfeuer
-UPDATE UnitPromotions SET AttackModPerSamePromotionAttack = 5, AttackModPerSamePromotionAttackCap = 50 WHERE Type = 'PROMOTION_TROMMELFUEUR';
+UPDATE UnitPromotions SET AttackModPerSamePromotionAttack = 3, AttackModPerSamePromotionAttackCap = 30 WHERE Type = 'PROMOTION_TROMMELFEUER';
 
 -- Klepht: Philhellenism
 UPDATE UnitPromotions SET CombatModPerCSAlliance = 5 WHERE Type = 'PROMOTION_PHILHELLENISM';
@@ -1276,20 +1289,6 @@ UPDATE UnitPromotions SET AdjacentTileHealChange = 5 WHERE Type = 'PROMOTION_BEN
 UPDATE UnitPromotions SET ExperiencePercent = 50 WHERE Type = 'PROMOTION_SINCERITY';
 
 --------------------------------------------
--- Plagues
---------------------------------------------
-UPDATE UnitPromotions SET PlagueID = 1, PlaguePriority = 0, PromotionDuration = 1, MovesChange = -2 WHERE Type = 'PROMOTION_BOARDED_1';
-UPDATE UnitPromotions SET PlagueID = 1, PlaguePriority = 1, PromotionDuration = 1, MovesChange = -4 WHERE Type = 'PROMOTION_BOARDED_2';
-
-UPDATE UnitPromotions SET PlagueID = 2, PromotionDuration = 5, CombatPercent = -15 WHERE Type = 'PROMOTION_DAZED';
-
-UPDATE UnitPromotions SET PlagueID = 3, PromotionDuration = 50, WorkRateMod = -50 WHERE Type = 'PROMOTION_PRISONER_WAR';
-
-UPDATE UnitPromotions SET PlagueID = 4, PromotionDuration = 1, DamageTakenMod = 20 WHERE Type = 'PROMOTION_ON_FIRE';
-
-UPDATE UnitPromotions SET PlagueID = 5, PromotionDuration = 1, MovesChange = -1 WHERE Type = 'PROMOTION_MAIMED';
-
---------------------------------------------
 -- Event free promotions
 --------------------------------------------
 UPDATE UnitPromotions SET CombatPercent = 10 WHERE Type = 'PROMOTION_FERVOR';
@@ -1325,3 +1324,49 @@ VALUES
 	('PROMOTION_HILL_WALKER', 'TERRAIN_HILL', 1),
 	('PROMOTION_WHITE_WALKER', 'TERRAIN_SNOW', 1),
 	('PROMOTION_DESERT_WALKER', 'TERRAIN_DESERT', 1);
+
+--------------------------------------------
+-- Plagues
+--------------------------------------------
+UPDATE UnitPromotions SET PlagueID = 1, PlaguePriority = 0, PromotionDuration = 1, MovesChange = -2 WHERE Type = 'PROMOTION_BOARDED_1';
+UPDATE UnitPromotions SET PlagueID = 1, PlaguePriority = 1, PromotionDuration = 1, MovesChange = -4 WHERE Type = 'PROMOTION_BOARDED_2';
+
+UPDATE UnitPromotions SET PlagueID = 2, PromotionDuration = 5, CombatPercent = -15 WHERE Type = 'PROMOTION_DAZED';
+
+UPDATE UnitPromotions SET PlagueID = 3, PromotionDuration = 50, WorkRateMod = -50 WHERE Type = 'PROMOTION_PRISONERS_OF_WAR';
+
+UPDATE UnitPromotions SET PlagueID = 4, PromotionDuration = 1, DamageTakenMod = 20 WHERE Type = 'PROMOTION_ON_FIRE';
+
+UPDATE UnitPromotions SET PlagueID = 5, PromotionDuration = 1, MovesChange = -1 WHERE Type = 'PROMOTION_MAIMED';
+
+--------------------------------------------
+-- Promotions that provide blanket immunity to all Plagues
+--------------------------------------------
+
+INSERT INTO UnitPromotions_BlockedPromotions
+    (PromotionType, BlockedPromotionType)
+SELECT
+    a.PromotionType,
+    b.PlaguePromotionType
+FROM PlagueImmunePromotions a, UnitPromotions_Plagues b
+WHERE (a.DomainType = b.DomainType OR a.DomainType IS NULL OR b.DomainType IS NULL)
+
+UNION ALL
+
+-- Special plagues = any promotion with a PlagueID != -1 that is not already in UnitPromotions_Plagues
+SELECT
+    a.PromotionType,
+    b.Type
+FROM PlagueImmunePromotions a, UnitPromotions b
+WHERE a.IncludeSpecial = 1
+AND b.PlagueID <> -1
+AND NOT EXISTS (SELECT 1 FROM UnitPromotions_Plagues WHERE PlaguePromotionType = b.Type)
+
+-- Avoid duplicates
+EXCEPT
+SELECT
+    PromotionType,
+    BlockedPromotionType
+FROM UnitPromotions_BlockedPromotions;
+
+DROP TABLE PlagueImmunePromotions;

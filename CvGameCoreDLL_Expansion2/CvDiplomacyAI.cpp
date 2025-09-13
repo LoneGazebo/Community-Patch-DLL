@@ -56787,8 +56787,7 @@ void CvDiplomacyAI::DoMapsOffer(PlayerTypes ePlayer, DiploStatementTypes& eState
 
 	//problem: on larger maps evaluating the map value every turn for every player is significant performance overhead
 	//solution: we could cache the value for the active player, saving half the effort, but it's simpler to just not even contemplate the offer every turn
-	int iRandom = GC.getGame().randRangeExclusive(0, 3, CvSeeder::fromRaw(0x7c268d7f).mix(GetID())) + 3; // either 3 or 4 or 5
-	if (GC.getGame().getGameTurn() % iRandom != 0)
+	if ((GC.getGame().getGameTurn() + GetID()) % 5 != 0)
 		return;
 
 	if(eStatement == NO_DIPLO_STATEMENT_TYPE)

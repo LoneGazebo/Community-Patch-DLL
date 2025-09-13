@@ -1066,7 +1066,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 				// Don't continue processes.
 				// Recursive has provided two reasons for this:
 				// 1) So the AI doesn't flipflop through production choices without getting anything done.
-				// 2) Because there is randomness to the AI's production choices - CityProductionNumOptionsConsidered in DifficultyMod.xml.
+				// 2) Because there is randomness to the AI's production choices - CityProductionChoiceCutoffThreshold in CvHandicapInfos.
 				break;
 			}
 		}

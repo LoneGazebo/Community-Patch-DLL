@@ -67,7 +67,7 @@ INSERT INTO Unit_FreePromotions
 	(UnitType, PromotionType)
 VALUES
 	('UNIT_KRUPP_GUN', 'PROMOTION_MINENWERFER'),
-	('UNIT_KRUPP_GUN', 'PROMOTION_TROMMELFUEUR');
+	('UNIT_KRUPP_GUN', 'PROMOTION_TROMMELFEUER');
 
 ----------------------------------------------------------
 -- Unique Building: Hanse (Customs House)
