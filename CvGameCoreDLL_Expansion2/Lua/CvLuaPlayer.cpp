@@ -1173,6 +1173,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(WasResurrectedThisTurnBy);
 
 	Method(GetOpinionTable);
+	Method(GetDiplomaticEvaluation);
 	Method(GetDealValue);
 	Method(GetDealMyValue);
 	Method(GetDealTheyreValue);
@@ -16095,6 +16096,119 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		lua_rawseti(L, -2, index);
 		index++;
 	}
+
+	return 1;
+}
+
+//------------------------------------------------------------------------------
+// Returns diplomatic evaluation information (top friend, ally, competitor, etc.)
+// Returns empty table if not a major civ
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetDiplomaticEvaluation(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 2);
+
+	lua_newtable(L);
+
+	// Return empty table if not a major civ
+	if (!pkPlayer->isMajorCiv() || !pkPlayer->isAlive())
+	{
+		return 1;
+	}
+
+	CvDiplomacyAI* pDiplo = pkPlayer->GetDiplomacyAI();
+	bool bUNActive = GC.getGame().IsUnitedNationsActive();
+
+	PlayerTypes eTopFriend = pDiplo->GetMostValuableFriend();
+	PlayerTypes eTopDP = pDiplo->GetMostValuableAlly();
+	PlayerTypes eTopCompetitor = pDiplo->GetBiggestCompetitor();
+	PlayerTypes eTopLeagueAlly = pDiplo->GetPrimeLeagueAlly();
+	PlayerTypes eTopLeagueRival = pDiplo->GetPrimeLeagueCompetitor();
+	CvString FriendStr;
+	CvString LeagueStr;
+	CvString EnemyStr;
+
+	FriendStr = Localization::Lookup("TXT_KEY_DIPLO_DEBUG_TOP_FRIEND").toUTF8();
+	FriendStr += " ";
+	if (eTopFriend == NO_PLAYER || !GET_PLAYER(eTopFriend).isAlive())
+	{
+		FriendStr += Localization::Lookup("TXT_KEY_DIPLO_DEBUG_TOP_CHOICE_NONE").toUTF8();
+	}
+	else
+	{
+		FriendStr += GET_PLAYER(eTopFriend).getCivilizationShortDescription();
+	}
+
+	if (GET_TEAM(pkPlayer->getTeam()).isDefensivePactTradingAllowed())
+	{
+		FriendStr += ", ";
+		FriendStr += Localization::Lookup("TXT_KEY_DIPLO_DEBUG_TOP_ALLY").toUTF8();
+		FriendStr += " ";
+		if (eTopDP == NO_PLAYER || !GET_PLAYER(eTopDP).isAlive())
+		{
+			FriendStr += Localization::Lookup("TXT_KEY_DIPLO_DEBUG_TOP_CHOICE_NONE").toUTF8();
+		}
+		else
+		{
+			FriendStr += GET_PLAYER(eTopDP).getCivilizationShortDescription();
+		}
+	}
+
+	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+	if (pLeague != NULL)
+	{
+		LeagueStr = bUNActive ? Localization::Lookup("TXT_KEY_DIPLO_DEBUG_TOP_LEAGUE_ALLY_UN").toUTF8() : Localization::Lookup("TXT_KEY_DIPLO_DEBUG_TOP_LEAGUE_ALLY").toUTF8();
+		LeagueStr += " ";
+		if (eTopLeagueAlly == NO_PLAYER || !GET_PLAYER(eTopLeagueAlly).isAlive())
+		{
+			LeagueStr += Localization::Lookup("TXT_KEY_DIPLO_DEBUG_TOP_CHOICE_NONE").toUTF8();
+		}
+		else
+		{
+			LeagueStr += GET_PLAYER(eTopLeagueAlly).getCivilizationShortDescription();
+		}
+		LeagueStr += ", ";
+		LeagueStr += bUNActive ? Localization::Lookup("TXT_KEY_DIPLO_DEBUG_TOP_LEAGUE_COMPETITOR_UN").toUTF8() : Localization::Lookup("TXT_KEY_DIPLO_DEBUG_TOP_LEAGUE_COMPETITOR").toUTF8();
+		LeagueStr += " ";
+		if (eTopLeagueRival == NO_PLAYER || !GET_PLAYER(eTopLeagueRival).isAlive())
+		{
+			LeagueStr += Localization::Lookup("TXT_KEY_DIPLO_DEBUG_TOP_CHOICE_NONE").toUTF8();
+		}
+		else
+		{
+			LeagueStr += GET_PLAYER(eTopLeagueRival).getCivilizationShortDescription();
+		}
+	}
+
+	EnemyStr = Localization::Lookup("TXT_KEY_DIPLO_DEBUG_TOP_COMPETITOR").toUTF8();
+	EnemyStr += " ";
+	if (eTopCompetitor == NO_PLAYER || !GET_PLAYER(eTopCompetitor).isAlive())
+	{
+		EnemyStr += Localization::Lookup("TXT_KEY_DIPLO_DEBUG_TOP_CHOICE_NONE").toUTF8();
+	}
+	else
+	{
+		EnemyStr += GET_PLAYER(eTopCompetitor).getCivilizationShortDescription();
+	}
+
+	// Push strings to table array
+	int index = 1;
+
+	lua_pushinteger(L, index++);
+	lua_pushstring(L, FriendStr.c_str());
+	lua_settable(L, -3);
+
+	if (pLeague)
+	{
+		lua_pushinteger(L, index++);
+		lua_pushstring(L, LeagueStr.c_str());
+		lua_settable(L, -3);
+	}
+
+	lua_pushinteger(L, index++);
+	lua_pushstring(L, EnemyStr.c_str());
+	lua_settable(L, -3);
 
 	return 1;
 }
