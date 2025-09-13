@@ -32762,10 +32762,10 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn) // R: bDoTurn default
 				PlayerTypes eNextPlayer = NO_PLAYER;
 				PlayerTypes eCurrentPlayer = GetID();
 
-				// Start from current player + 1 and wrap around
-				for (int i = 1; i < MAX_CIV_PLAYERS; i++)
+				// Start from current player + 1 and wrap around (including barbarian player at index 63)
+				for (int i = 1; i < MAX_PLAYERS; i++)
 				{
-					PlayerTypes eCheckPlayer = (PlayerTypes)((eCurrentPlayer + i) % MAX_CIV_PLAYERS);
+					PlayerTypes eCheckPlayer = (PlayerTypes)((eCurrentPlayer + i) % MAX_PLAYERS);
 					if (GET_PLAYER(eCheckPlayer).isAlive())
 					{
 						eNextPlayer = eCheckPlayer;
