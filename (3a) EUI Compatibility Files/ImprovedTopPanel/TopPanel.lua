@@ -1507,6 +1507,7 @@ if civ5_mode then
 			local IlliteracyUnhappiness = g_activePlayer:GetUnhappinessFromIlliteracy();
 			local BoredomUnhappiness = g_activePlayer:GetUnhappinessFromBoredom();
 			local ReligiousUnrestUnhappiness = g_activePlayer:GetUnhappinessFromReligiousUnrest();
+			local BuildingsUnhappiness = g_activePlayer:GetUnhappinessFromBuildings();
 			local UrbanizationUnhappiness = g_activePlayer:GetUnhappinessFromCitySpecialists() / 100;
 			local UrbanizationPuppetUnhappiness = g_activePlayer:GetUnhappinessFromPuppetCitySpecialists();
 
@@ -1524,6 +1525,7 @@ if civ5_mode then
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_ILLITERACY", IlliteracyUnhappiness )
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_BOREDOM", BoredomUnhappiness )
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_RELIGIOUS_UNREST", ReligiousUnrestUnhappiness )
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_BUILDINGS", BuildingsUnhappiness )
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_SPECIALISTS", UrbanizationUnhappiness )
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_PUPPET_CITIES_SPECIALISTS", UrbanizationPuppetUnhappiness )
 			tips:insert( "[ENDCOLOR]" )
