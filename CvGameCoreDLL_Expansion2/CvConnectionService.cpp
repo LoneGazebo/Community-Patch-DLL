@@ -809,16 +809,16 @@ void CvConnectionService::HandleLuaCall(const char* functionName, const JsonArra
 		// Function not found
 		LeaveCriticalSection(&m_csFunctions);
 		
+		std::stringstream errorMsg;
+		errorMsg << "Function '" << functionName << "' not found";
+		s_MainThreadMessageBuffer["error"]["code"] = "INVALID_FUNCTION";
+		s_MainThreadMessageBuffer["error"]["message"] = errorMsg.str();
+		
 		// Send error response using static buffer
 		s_MainThreadMessageBuffer.clear();
 		s_MainThreadMessageBuffer["type"] = "lua_response";
 		s_MainThreadMessageBuffer["id"] = id;
 		s_MainThreadMessageBuffer["success"] = false;
-		
-		std::stringstream errorMsg;
-		errorMsg << "Function '" << functionName << "' not found";
-		s_MainThreadMessageBuffer["error"]["code"] = "INVALID_FUNCTION";
-		s_MainThreadMessageBuffer["error"]["message"] = errorMsg.str();
 		
 		SendMessage(s_MainThreadMessageBuffer);
 		
