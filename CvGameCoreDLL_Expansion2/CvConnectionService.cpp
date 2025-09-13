@@ -375,10 +375,10 @@ void CvConnectionService::HandleClientConnection(HANDLE hPipe)
 {
 	// Dynamic message buffer to avoid repeated allocations
 	std::string messageBuffer;
-	messageBuffer.reserve(65536); // Reserve initial capacity
+	messageBuffer.reserve(262144); // Reserve initial capacity
 	
 	// Temporary read buffer for pipe operations
-	char readBuffer[65536];
+	char readBuffer[262144];
 	DWORD bytesRead, bytesWritten;
 	
 	while (m_bClientConnected && !m_bShutdownRequested)
@@ -526,18 +526,13 @@ void CvConnectionService::HandleClientConnection(HANDLE hPipe)
 					if (messagesProcessed >= maxMessagesPerIteration)
 					{
 						hasIncomingData = false; // Stop reading for this iteration
+						Log(LOG_WARNING, "HandleClientConnection - Reached max messages per iteration limit");
 						break;
 					}
 				}
 				
 				// Continue reading more data if we haven't hit the limit
 			}
-		}
-		
-		// If we processed too many messages, log a warning
-		if (messagesProcessed >= maxMessagesPerIteration)
-		{
-			Log(LOG_WARNING, "HandleClientConnection - Reached max messages per iteration limit");
 		}
 		
 		// Check if buffer is getting too large (prevent memory issues)
@@ -659,9 +654,9 @@ void CvConnectionService::ProcessMessages()
 // Returns the length of the outgoing queue after adding the message
 int CvConnectionService::SendMessage(const DynamicJsonDocument& message)
 {
-	if (!m_bInitialized || !m_bClientConnected)
+	if (!m_bInitialized)
 	{
-		Log(LOG_WARNING, "SendMessage - Cannot send message, service not connected");
+		Log(LOG_WARNING, "SendMessage - Cannot send message, service not initialized");
 		return 0;
 	}
 	
@@ -1589,7 +1584,7 @@ void CvConnectionService::ForwardGameEvent(const char* eventName, ICvEngineScrip
 		}
 		
 		// Send the message asynchronously via the queue
-		if (SendMessage(message) >= 10) {
+		if (SendMessage(message) >= 5) {
 	 		Sleep(20); // Wait 20ms to throttle the game thread
 			// This slows the game a bit, but shouldn't be a big issue other than observer mode - which is our intention
 			// Also, even when the modmod is enabled, one has to connect to the Bridge Service
