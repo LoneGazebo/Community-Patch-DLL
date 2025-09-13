@@ -2586,49 +2586,49 @@
 		</Row>
 		<!-- Debug messages -->
 		<Row Tag="TXT_KEY_DIPLO_REAL_APPROACH_WAR">
-			<Text>Real Approach is War.</Text>
+			<Text>Our real approach is War.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_REAL_APPROACH_PLANNING_WAR">
-			<Text>Real Approach is Planning War.</Text>
+			<Text>Our real approach is Planning War.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_REAL_APPROACH_HOSTILE">
-			<Text>Real Approach is Hostile.</Text>
+			<Text>Our real approach is Hostile.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_REAL_APPROACH_DECEPTIVE">
-			<Text>Real Approach is Deceptive.</Text>
+			<Text>Our real approach is Deceptive.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_REAL_APPROACH_GUARDED">
-			<Text>Real Approach is Guarded.</Text>
+			<Text>Our real approach is Guarded.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_REAL_APPROACH_AFRAID">
-			<Text>Real Approach is Afraid.</Text>
+			<Text>Our real approach is Afraid.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_REAL_APPROACH_FRIENDLY">
-			<Text>Real Approach is Friendly.</Text>
+			<Text>Our real approach is Friendly.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_REAL_APPROACH_NEUTRAL">
-			<Text>Real Approach is Neutral.</Text>
+			<Text>Our real approach is Neutral.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_DEBUG_TOP_FRIEND">
-			<Text>Top Friend:</Text>
+			<Text>Our top friend:</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_DEBUG_TOP_ALLY">
-			<Text>Top DP:</Text>
+			<Text>Our top defensive pact ally:</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_DEBUG_TOP_LEAGUE_ALLY">
-			<Text>Top WC Ally:</Text>
+			<Text>Our top World Congress ally:</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_DEBUG_TOP_LEAGUE_COMPETITOR">
-			<Text>Top WC Rival:</Text>
+			<Text>Our top World Congress rival:</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_DEBUG_TOP_LEAGUE_ALLY_UN">
-			<Text>Top UN Ally:</Text>
+			<Text>Our top United Nations ally:</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_DEBUG_TOP_LEAGUE_COMPETITOR_UN">
-			<Text>Top UN Rival:</Text>
+			<Text>Our top United Nations rival:</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_DEBUG_TOP_COMPETITOR">
-			<Text>Top Competitor:</Text>
+			<Text>Our top Competitor:</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_DEBUG_TOP_CHOICE_NONE">
 			<Text>None</Text>
