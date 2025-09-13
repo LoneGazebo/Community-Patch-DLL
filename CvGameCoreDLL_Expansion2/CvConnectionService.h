@@ -198,9 +198,10 @@ private:
 	// Serialization methods for event sequence
 	void DeserializeEventSequence();
 	
-	// Static memory buffer for main thread message processing
-	// Used to avoid repeated allocations in RouteMessage and other handlers
-	static DynamicJsonDocument s_MainThreadMessageBuffer;
+	// Static memory buffers for main thread message processing
+	// Separate buffers to prevent memory corruption during nested operations
+	static DynamicJsonDocument s_MainThreadReadBuffer;   // For deserializing incoming messages
+	static DynamicJsonDocument s_MainThreadWriteBuffer;  // For serializing outgoing messages
 	
 	// Helper to handle external call response
 	void HandleExternalCallResponse(const char* callId, bool bSuccess, const char* error, const char* data);

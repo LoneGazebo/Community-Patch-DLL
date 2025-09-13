@@ -15,8 +15,10 @@ Opens an IPC channel that exposes the game's internal state to external services
 #include <cmath>
 #include <climits>
 
-// Static member definition - allocated once with 40KB capacity
-DynamicJsonDocument CvConnectionService::s_MainThreadMessageBuffer(40960);
+// Static member definitions - allocated once with 40KB capacity each
+// Separate buffers to prevent memory corruption during nested operations
+DynamicJsonDocument CvConnectionService::s_MainThreadReadBuffer(40960);   // For deserializing incoming messages
+DynamicJsonDocument CvConnectionService::s_MainThreadWriteBuffer(40960);  // For serializing outgoing messages
 
 // Singleton instance getter
 CvConnectionService& CvConnectionService::GetInstance()
@@ -674,9 +676,9 @@ int CvConnectionService::SendMessage(const DynamicJsonDocument& message)
 // Route incoming message to appropriate handler based on type
 void CvConnectionService::RouteMessage(const std::string& messageJson)
 {
-	// Clear and reuse the static buffer for main thread message processing
-	s_MainThreadMessageBuffer.clear();
-	DeserializationError error = deserializeJson(s_MainThreadMessageBuffer, messageJson);
+	// Clear and reuse the static read buffer for main thread message processing
+	s_MainThreadReadBuffer.clear();
+	DeserializationError error = deserializeJson(s_MainThreadReadBuffer, messageJson);
 	
 	if (error)
 	{
@@ -686,15 +688,15 @@ void CvConnectionService::RouteMessage(const std::string& messageJson)
 		return;
 	}
 	
-	const char* messageType = s_MainThreadMessageBuffer["type"];
+	const char* messageType = s_MainThreadReadBuffer["type"];
 	// Log(LOG_DEBUG, ("Routing message of type: " + std::string(messageType)).c_str());
 	
 	// Route to appropriate handler based on message type
 	if (strcmp(messageType, "lua_execute") == 0)
 	{
 		// Extract parameters from JSON message
-		const char* script = s_MainThreadMessageBuffer["script"];
-		const char* id = s_MainThreadMessageBuffer["id"];
+		const char* script = s_MainThreadReadBuffer["script"];
+		const char* id = s_MainThreadReadBuffer["id"];
 		
 		// Call handler with extracted parameters
 		if (script && id) HandleLuaExecute(script, id);
@@ -702,9 +704,9 @@ void CvConnectionService::RouteMessage(const std::string& messageJson)
 	else if (strcmp(messageType, "lua_call") == 0)
 	{
 		// Extract parameters from JSON message
-		const char* functionName = s_MainThreadMessageBuffer["function"];
-		const char* id = s_MainThreadMessageBuffer["id"];
-		JsonArray args = s_MainThreadMessageBuffer["args"].as<JsonArray>();
+		const char* functionName = s_MainThreadReadBuffer["function"];
+		const char* id = s_MainThreadReadBuffer["id"];
+		JsonArray args = s_MainThreadReadBuffer["args"].as<JsonArray>();
 		
 		// Call handler with extracted parameters
 		if (functionName && id) HandleLuaCall(functionName, args, id);
@@ -712,8 +714,8 @@ void CvConnectionService::RouteMessage(const std::string& messageJson)
 	else if (strcmp(messageType, "external_register") == 0)
 	{
 		// Extract parameters for external function registration
-		const char* functionName = s_MainThreadMessageBuffer["name"];
-		bool bAsync = s_MainThreadMessageBuffer["async"] | false;
+		const char* functionName = s_MainThreadReadBuffer["name"];
+		bool bAsync = s_MainThreadReadBuffer["async"] | false;
 		
 		// Register the external function
 		if (functionName) RegisterExternalFunction(functionName, bAsync);
@@ -721,7 +723,7 @@ void CvConnectionService::RouteMessage(const std::string& messageJson)
 	else if (strcmp(messageType, "external_unregister") == 0)
 	{
 		// Extract function name for unregistration
-		const char* functionName = s_MainThreadMessageBuffer["name"];
+		const char* functionName = s_MainThreadReadBuffer["name"];
 		
 		// Unregister the external function
 		if (functionName) UnregisterExternalFunction(functionName);
@@ -729,22 +731,22 @@ void CvConnectionService::RouteMessage(const std::string& messageJson)
 	else if (strcmp(messageType, "external_response") == 0)
 	{
 		// Extract parameters for external call response
-		const char* callId = s_MainThreadMessageBuffer["id"];
-		bool bSuccess = s_MainThreadMessageBuffer["success"] | false;
+		const char* callId = s_MainThreadReadBuffer["id"];
+		bool bSuccess = s_MainThreadReadBuffer["success"] | false;
 		
 		// Parse error code from error object if present
 		const char* error = nullptr;
-		if (s_MainThreadMessageBuffer.containsKey("error") && s_MainThreadMessageBuffer["error"].containsKey("code"))
+		if (s_MainThreadReadBuffer.containsKey("error") && s_MainThreadReadBuffer["error"].containsKey("code"))
 		{
-			error = s_MainThreadMessageBuffer["error"]["code"];
+			error = s_MainThreadReadBuffer["error"]["code"];
 		}
 		
 		// Convert result to string if present (protocol uses "result" field)
 		const char* data = nullptr;
 		std::string dataStr;
-		if (s_MainThreadMessageBuffer.containsKey("result"))
+		if (s_MainThreadReadBuffer.containsKey("result"))
 		{
-			serializeJson(s_MainThreadMessageBuffer["result"], dataStr);
+			serializeJson(s_MainThreadReadBuffer["result"], dataStr);
 			data = dataStr.c_str();
 		}
 		
@@ -754,15 +756,15 @@ void CvConnectionService::RouteMessage(const std::string& messageJson)
 	else
 	{
 		// Otherwise, create echo response with original message
-		// Reuse the static buffer for the response
-		s_MainThreadMessageBuffer.clear();
-		s_MainThreadMessageBuffer["type"] = "echo_response";
-		s_MainThreadMessageBuffer["original"] = messageType;  // Include the unrecognized type
-		s_MainThreadMessageBuffer["timestamp"] = GetTickCount();
-		s_MainThreadMessageBuffer["turn"] = GC.getGame().getElapsedGameTurns();
+		// Use the write buffer for the response
+		s_MainThreadWriteBuffer.clear();
+		s_MainThreadWriteBuffer["type"] = "echo_response";
+		s_MainThreadWriteBuffer["original"] = messageType;  // Include the unrecognized type
+		s_MainThreadWriteBuffer["timestamp"] = GetTickCount();
+		s_MainThreadWriteBuffer["turn"] = GC.getGame().getElapsedGameTurns();
 		
 		// Send the response back to the Bridge Service
-		SendMessage(s_MainThreadMessageBuffer);
+		SendMessage(s_MainThreadWriteBuffer);
 	}
 }
 
@@ -809,18 +811,18 @@ void CvConnectionService::HandleLuaCall(const char* functionName, const JsonArra
 		// Function not found
 		LeaveCriticalSection(&m_csFunctions);
 		
+		// Send error response using write buffer
+		s_MainThreadWriteBuffer.clear();
+		s_MainThreadWriteBuffer["type"] = "lua_response";
+		s_MainThreadWriteBuffer["id"] = id;
+		s_MainThreadWriteBuffer["success"] = false;
+		
 		std::stringstream errorMsg;
 		errorMsg << "Function '" << functionName << "' not found";
-		s_MainThreadMessageBuffer["error"]["code"] = "INVALID_FUNCTION";
-		s_MainThreadMessageBuffer["error"]["message"] = errorMsg.str();
+		s_MainThreadWriteBuffer["error"]["code"] = "INVALID_FUNCTION";
+		s_MainThreadWriteBuffer["error"]["message"] = errorMsg.str();
 		
-		// Send error response using static buffer
-		s_MainThreadMessageBuffer.clear();
-		s_MainThreadMessageBuffer["type"] = "lua_response";
-		s_MainThreadMessageBuffer["id"] = id;
-		s_MainThreadMessageBuffer["success"] = false;
-		
-		SendMessage(s_MainThreadMessageBuffer);
+		SendMessage(s_MainThreadWriteBuffer);
 		
 		logMsg.str("");
 		logMsg << "HandleLuaCall - Function '" << functionName << "' not found";
@@ -866,15 +868,15 @@ void CvConnectionService::HandleLuaCall(const char* functionName, const JsonArra
 // Process the result of a Lua script execution
 void CvConnectionService::ProcessLuaResult(lua_State* L, int executionResult, const char* id)
 {
-	// Build the response JSON using the static buffer
-	s_MainThreadMessageBuffer.clear();
-	s_MainThreadMessageBuffer["type"] = "lua_response";
-	s_MainThreadMessageBuffer["id"] = id;
+	// Build the response JSON using the write buffer
+	s_MainThreadWriteBuffer.clear();
+	s_MainThreadWriteBuffer["type"] = "lua_response";
+	s_MainThreadWriteBuffer["id"] = id;
 	
 	if (executionResult == 0)
 	{
 		// Script executed successfully
-		s_MainThreadMessageBuffer["success"] = true;
+		s_MainThreadWriteBuffer["success"] = true;
 		
 		// Get the return value(s) from the stack
 		int numResults = lua_gettop(L);
@@ -882,7 +884,7 @@ void CvConnectionService::ProcessLuaResult(lua_State* L, int executionResult, co
 		if (numResults > 0)
 		{
 			// Use the shared conversion function (starting from stack bottom)
-			ConvertLuaValuesInDocument(L, 1, numResults, s_MainThreadMessageBuffer, "result");
+			ConvertLuaValuesInDocument(L, 1, numResults, s_MainThreadWriteBuffer, "result");
 			
 			// Pop all return values from the stack
 			lua_pop(L, numResults);
@@ -895,7 +897,7 @@ void CvConnectionService::ProcessLuaResult(lua_State* L, int executionResult, co
 	else
 	{
 		// Script execution failed
-		s_MainThreadMessageBuffer["success"] = false;
+		s_MainThreadWriteBuffer["success"] = false;
 		
 		const char* errorMsg = lua_tostring(L, -1);
 		if (!errorMsg) errorMsg = "Unknown Lua error";
@@ -913,8 +915,8 @@ void CvConnectionService::ProcessLuaResult(lua_State* L, int executionResult, co
 			}
 		}
 		
-		s_MainThreadMessageBuffer["error"]["code"] = "LUA_EXECUTION_ERROR";
-		s_MainThreadMessageBuffer["error"]["message"] = cleanedError;
+		s_MainThreadWriteBuffer["error"]["code"] = "LUA_EXECUTION_ERROR";
+		s_MainThreadWriteBuffer["error"]["message"] = cleanedError;
 		
 		// Pop the error message from the stack
 		lua_pop(L, 1);
@@ -925,7 +927,7 @@ void CvConnectionService::ProcessLuaResult(lua_State* L, int executionResult, co
 	}
 	
 	// Send the response
-	SendMessage(s_MainThreadMessageBuffer);
+	SendMessage(s_MainThreadWriteBuffer);
 }
 
 // Shared function to convert Lua values to fill a key in a JsonDocument
