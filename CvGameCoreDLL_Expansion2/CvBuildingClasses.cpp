@@ -114,10 +114,10 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iConquestProbability(0),
 	m_iHealRateChange(0),
 	m_iHappiness(0),
+	m_iUnmoddedHappiness(0),
 	m_iUnhappiness(0),
 	m_iUnhappinessModifier(0),
 #if defined(MOD_BALANCE_CORE)
-	m_iUnmoddedHappiness(0),
 	m_iLocalUnhappinessModifier(0),
 	m_iGlobalBuildingGoldMaintenanceMod(0),
 	m_iBuildingDefenseModifier(0),
@@ -753,9 +753,9 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iHealRateChange = kResults.GetInt("HealRateChange");
 	m_iHappiness = kResults.GetInt("Happiness");
 	m_iUnmoddedHappiness = kResults.GetInt("UnmoddedHappiness");
+	m_iUnhappiness = kResults.GetInt("Unhappiness");
 	m_iUnhappinessModifier = kResults.GetInt("UnhappinessModifier");
 #if defined(MOD_BALANCE_CORE)
-	m_iUnhappiness = kResults.GetInt("Unhappiness");
 	m_iLocalUnhappinessModifier = kResults.GetInt("LocalUnhappinessModifier");
 	m_iGlobalBuildingGoldMaintenanceMod = kResults.GetInt("GlobalBuildingGoldMaintenanceMod");
 	m_iBuildingDefenseModifier = kResults.GetInt("BuildingDefenseModifier");
@@ -2611,13 +2611,14 @@ int CvBuildingEntry::GetUnhappinessModifier() const
 {
 	return m_iUnhappinessModifier;
 }
-#if defined(MOD_BALANCE_CORE)
+
 /// Unhappiness caused by this building
 int CvBuildingEntry::GetUnhappiness() const
 {
 	return m_iUnhappiness;
 }
 
+#if defined(MOD_BALANCE_CORE)
 /// Get percentage modifier to overall player happiness
 int CvBuildingEntry::GetLocalUnhappinessModifier() const
 {

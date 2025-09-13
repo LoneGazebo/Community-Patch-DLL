@@ -371,6 +371,7 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(GetUnhappinessFromPillagedTiles);
 	Method(GetUnhappinessFromFamine);
 	Method(GetUnhappinessFromReligiousUnrest);
+	Method(GetUnhappinessFromBuildings);
 	Method(getPotentialUnhappinessWithGrowth);
 	Method(GetCityUnhappinessBreakdown);
 	Method(GetCityHappinessBreakdown);
@@ -4177,6 +4178,13 @@ int CvLuaCity::lGetUnhappinessFromReligiousUnrest(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
 	lua_pushinteger(L, pkCity->GetUnhappinessFromReligiousUnrest());
+	return 1;
+}
+//int GetUnhappinessFromReligiousUnrest();
+int CvLuaCity::lGetUnhappinessFromBuildings(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	lua_pushinteger(L, pkCity->GetUnhappinessFromBuildings());
 	return 1;
 }
 

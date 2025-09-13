@@ -809,7 +809,7 @@ function OnCityViewUpdate()
 		end
 		
 		-- Occupation Status
-		if (pCity:IsOccupHied() and not pCity:IsNoOccupiedUnhappiness()) then
+		if (pCity:IsOccupied() and not pCity:IsNoOccupiedUnhappiness()) then
 			Controls.OccupiedIcon:SetHide(false);
 			Controls.OccupiedIcon:LocalizeAndSetToolTip("TXT_KEY_CITY_OCCUPIED");
 		else

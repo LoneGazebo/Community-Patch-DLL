@@ -21302,6 +21302,9 @@ int CvPlayer::DoUpdateTotalUnhappiness(CvCity* pAssumeCityAnnexed, CvCity* pAssu
 		// City Population Unhappiness
 		iUnhappiness += GetUnhappinessFromCityPopulation(pAssumeCityAnnexed, pAssumeCityPuppeted);
 
+		// City Building Unhappiness
+		iUnhappiness += GetUnhappinessFromCityBuildings(pAssumeCityAnnexed, pAssumeCityPuppeted);
+		
 		// Occupied City Population Unhappiness
 		iUnhappiness += GetUnhappinessFromOccupiedCities(pAssumeCityAnnexed, pAssumeCityPuppeted);
 
@@ -21523,6 +21526,61 @@ int CvPlayer::GetUnhappinessFromCapturedCityCount(CvCity* pAssumeCityAnnexed, Cv
 	return iUnhappiness;
 }
 
+/// Unhappiness from City Buildings
+int CvPlayer::GetUnhappinessFromCityBuildings(CvCity* pAssumeCityAnnexed, CvCity* pAssumeCityPuppeted) const
+{
+	if (MOD_BALANCE_VP)
+		return 0;
+
+	float iUnhappiness = 0;
+	float iUnhappinessFromThisCity;
+
+	bool bCityValid = false;
+
+	int iLoop = 0;
+	for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	{
+		bCityValid = false;
+
+		// Assume pLoopCity is Annexed, and does NOT count
+		if (pLoopCity == pAssumeCityAnnexed)
+			bCityValid = false;
+		// Assume that pLoopCity is a Puppet and IS counted here
+		else if (pLoopCity == pAssumeCityPuppeted)
+			bCityValid = true;
+		// Assume city doesn't exist, and does NOT count
+		else if (pLoopCity->IsIgnoreCityForHappiness())
+			bCityValid = false;
+		// Occupied Cities don't get counted here (see the next function)
+		else if (!pLoopCity->IsOccupied() || pLoopCity->IsNoOccupiedUnhappiness())
+			bCityValid = true;
+
+		if (bCityValid)
+		{
+			iUnhappinessFromThisCity = pLoopCity->GetUnhappinessFromBuildings() * 100;
+
+			if (pLoopCity->isCapital() && GetCapitalUnhappinessMod() != 0)
+			{
+				iUnhappinessFromThisCity *= (100 + GetCapitalUnhappinessMod());
+				iUnhappinessFromThisCity /= 100;
+			}
+
+			if (pLoopCity->GetLocalUnhappinessMod() != 0)
+			{
+				iUnhappinessFromThisCity *= (100 + pLoopCity->GetLocalUnhappinessMod());
+				iUnhappinessFromThisCity /= 100;
+			}
+
+			iUnhappiness += iUnhappinessFromThisCity;
+		}
+	}
+
+	iUnhappiness *= (100 + GetUnhappinessMod());
+	iUnhappiness /= 100;
+
+	return (int)iUnhappiness;
+}
+
 /// Unhappiness from City Population
 int CvPlayer::GetUnhappinessFromCityPopulation(CvCity* pAssumeCityAnnexed, CvCity* pAssumeCityPuppeted) const
 {
@@ -21569,7 +21627,6 @@ int CvPlayer::GetUnhappinessFromCityPopulation(CvCity* pAssumeCityAnnexed, CvCit
 			}
 
 			iUnhappinessFromThisCity = iPopulation * iUnhappinessPerPop;
-			iUnhappinessFromThisCity += pLoopCity->GetUnhappinessFromBuildings();
 
 			if(pLoopCity->isCapital() && GetCapitalUnhappinessMod() != 0)
 			{

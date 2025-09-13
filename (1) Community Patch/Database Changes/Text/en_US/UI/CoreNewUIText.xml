@@ -3184,8 +3184,17 @@
 		</Row>
 		
 		<!-- New columns -->
-		<Row Tag="TXT_KEY_EO_CITY_BUILDINGS">
+		<Row Tag="TXT_KEY_UNHAPPINESS_REASON_CITY_BUILDINGS">
 			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN_RED]: "We just don't like it here!"</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_UNHAPPINESS">
+			<Text>[ICON_HAPPINESS_3] Unhappiness: +{1_Num}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EO_CITY_BUILDINGS_UNHAPPINESS">
+			<Text>[ICON_PLUS] Global Buildings Unhappiness</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EO_CITY_BUILDINGS_UNHAPPINESS_COLLAPSE">
+			<Text>[ICON_MINUS] Global Buildings Unhappiness</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDINGS_UNHAPPINESS">
 			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from Buildings</Text>

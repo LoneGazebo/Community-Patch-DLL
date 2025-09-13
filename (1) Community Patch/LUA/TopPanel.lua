@@ -803,7 +803,7 @@ function HappinessTipHandler( control )
 		end
 		if (iUnhappinessFromBuildings > 0) then
 			strText = strText .. "[NEWLINE]";
-			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_UNHAPPINESS_BUILDINGS", iUnhappinessPublicOpinion);
+			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_UNHAPPINESS_BUILDINGS", iUnhappinessFromBuildings);
 		end		
 		strText = strText .. "[/COLOR]";
 	
