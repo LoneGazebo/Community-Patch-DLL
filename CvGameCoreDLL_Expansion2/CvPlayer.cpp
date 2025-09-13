@@ -21569,6 +21569,7 @@ int CvPlayer::GetUnhappinessFromCityPopulation(CvCity* pAssumeCityAnnexed, CvCit
 			}
 
 			iUnhappinessFromThisCity = iPopulation * iUnhappinessPerPop;
+			iUnhappinessFromThisCity += pLoopCity->GetUnhappinessFromBuildings();
 
 			if(pLoopCity->isCapital() && GetCapitalUnhappinessMod() != 0)
 			{
@@ -21962,6 +21963,17 @@ int CvPlayer::GetUnhappinessFromCityJFDSpecial() const
 	}
 
 	iUnhappiness += (GetUnhappinessFromCitySpecialists(NULL, NULL) / 100);
+	return iUnhappiness;
+}
+
+int CvPlayer::GetUnhappinessFromBuildings() const
+{
+	int iUnhappiness = 0;
+	int iLoop = 0;
+	for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	{
+		iUnhappiness += pLoopCity->GetUnhappinessFromBuildings();
+	}
 	return iUnhappiness;
 }
 

@@ -3182,5 +3182,16 @@
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_DIPLOMATIC_REQUEST_TT">
 			<Text>A diplomatic message from another Civilization awaits your consideration.</Text>
 		</Row>
+		
+		<!-- New columns -->
+		<Row Tag="TXT_KEY_EO_CITY_BUILDINGS">
+			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN_RED]: "We just don't like it here!"</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDINGS_UNHAPPINESS">
+			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from Buildings</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TP_UNHAPPINESS_BUILDINGS">
+			<Text>{1_Num} from Buildings.</Text>
+		</Row>
 	</Language_en_US>
 </GameData>

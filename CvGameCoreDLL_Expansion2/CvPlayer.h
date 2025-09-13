@@ -727,6 +727,7 @@ public:
 	int GetUnhappinessFromPillagedTiles() const;
 	int GetUnhappinessFromFamine() const;
 	int GetUnhappinessFromReligiousUnrest() const;
+	int GetUnhappinessFromBuildings() const;
 	int GetUnhappinessFromCityJFDSpecial() const;
 
 	int GetCityCountUnhappinessMod() const;

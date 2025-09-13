@@ -801,6 +801,7 @@ protected:
 	LUAAPIEXTN(GetUnhappinessFromPillagedTiles, int);
 	LUAAPIEXTN(GetUnhappinessFromFamine, int);
 	LUAAPIEXTN(GetUnhappinessFromReligiousUnrest, int);
+	LUAAPIEXTN(GetUnhappinessFromBuildings, int);
 
 	LUAAPIEXTN(GetUnhappinessFromJFDSpecial, int);
 

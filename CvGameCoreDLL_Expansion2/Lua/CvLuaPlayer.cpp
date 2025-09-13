@@ -806,6 +806,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetUnhappinessFromPillagedTiles);
 	Method(GetUnhappinessFromFamine);
 	Method(GetUnhappinessFromReligiousUnrest);
+	Method(GetUnhappinessFromBuildings);
 
 	Method(GetUnhappinessFromJFDSpecial);
 	Method(GetScalingNationalPopulationRequired);
@@ -9833,6 +9834,15 @@ int CvLuaPlayer::lGetUnhappinessFromReligiousUnrest(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 
 	const int iResult = pkPlayer->GetUnhappinessFromReligiousUnrest();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+
+int CvLuaPlayer::lGetUnhappinessFromBuildings(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+
+	const int iResult = pkPlayer->GetUnhappinessFromBuildings();
 	lua_pushinteger(L, iResult);
 	return 1;
 }

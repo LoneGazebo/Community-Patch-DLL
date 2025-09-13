@@ -328,6 +328,7 @@ CvCity::CvCity() :
 	, m_paiFreePromotionCount()
 	, m_iBaseHappinessFromBuildings()
 	, m_iUnmoddedHappinessFromBuildings()
+	, m_iUnhappinessFromBuildings()
 	, m_bRouteToCapitalConnectedLastTurn()
 	, m_bRouteToCapitalConnectedThisTurn()
 	, m_strName()
@@ -1640,6 +1641,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iPopulationRank = -1;
 	m_iBaseHappinessFromBuildings = 0;
 	m_iUnmoddedHappinessFromBuildings = 0;
+	m_iUnhappinessFromBuildings = 0;
 	m_bRouteToCapitalConnectedLastTurn = false;
 	m_bRouteToCapitalConnectedThisTurn = false;
 
@@ -13952,6 +13954,11 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			owningPlayer.ChangeUnhappinessMod(pBuildingInfo->GetUnhappinessModifier() * iChange);
 		}
 
+		if (pBuildingInfo->GetUnhappiness() != 0)
+		{
+			ChangeUnhappinessFromBuildings(pBuildingInfo->GetUnhappiness() * iChange);
+		}
+
 		if (pBuildingInfo->GetLocalUnhappinessModifier() != 0)
 		{
 			ChangeLocalUnhappinessMod(pBuildingInfo->GetLocalUnhappinessModifier() * iChange);
@@ -20145,6 +20152,13 @@ int CvCity::GetUnhappinessAggregated() const
 
 	if (iUnhappiness < iPopulation)
 	{
+		iSource = GetUnhappinessFromBuildings();
+		if (iSource > 0)
+			iUnhappiness += iSource;
+	}
+
+	if (iUnhappiness < iPopulation)
+	{
 		iSource = GetUnhappinessFromEmpire();
 		if (iSource > 0)
 			iUnhappiness += iSource;
@@ -20653,6 +20667,13 @@ CvString CvCity::GetCityUnhappinessBreakdown(bool bIncludeMedian, bool bCityBann
 	int iTotalUnhappiness = 0;
 	int iSource = 0;
 
+	iSource = GetUnhappinessFromBuildings();
+	if (iSource > 0)
+	{
+		iTotalUnhappiness += iSource;
+		vReasons.push_back(UNHAPPY_REASON_BUILDINGS, iSource);
+	}
+
 	iSource = GetUnhappinessFromOccupation();
 	if (iSource > 0)
 	{
@@ -20795,6 +20816,8 @@ CvString CvCity::GetCityUnhappinessBreakdown(bool bIncludeMedian, bool bCityBann
 			case UNHAPPY_REASON_URBANIZATION:
 				strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_EO_CITY_SPECIALIST", iUnhappyCitizens);
 				break;
+			case UNHAPPY_REASON_BUILDINGS:
+				strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_EO_CITY_BUILDINGS", iUnhappyCitizens);
 			}
 		}
 
@@ -21001,6 +21024,8 @@ CvString CvCity::GetCityUnhappinessBreakdown(bool bIncludeMedian, bool bCityBann
 		case UNHAPPY_REASON_URBANIZATION:
 			strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_SPECIALIST_UNHAPPINESS", iUnhappyCitizens);
 			break;
+		case UNHAPPY_REASON_BUILDINGS:
+			strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_BUILDINGS_UNHAPPINESS", iUnhappyCitizens);
 		}
 	}
 
@@ -21582,6 +21607,16 @@ int CvCity::GetUnmoddedHappinessFromBuildings() const
 void CvCity::ChangeUnmoddedHappinessFromBuildings(int iChange)
 {
 	m_iUnmoddedHappinessFromBuildings += iChange;
+}
+//	--------------------------------------------------------------------------------
+int CvCity::GetUnhappinessFromBuildings() const
+{
+	return m_iUnhappinessFromBuildings;
+}
+//	--------------------------------------------------------------------------------
+void CvCity::ChangeUnhappinessFromBuildings(int iChange)
+{
+	m_iUnhappinessFromBuildings += iChange;
 }
 #if defined(MOD_BALANCE_CORE)
 //	--------------------------------------------------------------------------------
@@ -32090,6 +32125,7 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_miTechEnhancedYields);
 	visitor(city.m_miYieldsFromAccomplishments);
 	visitor(city.m_miGreatPersonPointFromConstruction);
+	visitor(city.m_iUnhappinessFromBuildings);
 }
 
 //	--------------------------------------------------------------------------------
