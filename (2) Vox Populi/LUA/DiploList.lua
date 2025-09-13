@@ -223,7 +223,7 @@ function UpdateDisplay()
 	table.insert(myScoreEntries, Locale.Lookup("TXT_KEY_DIPLO_MY_SCORE_MILITARY", g_pPlayer:GetScoreFromMilitarySize()));
 
 	-- Putmalk
-	if (not Game.IsOption(GameOptionTypes.GAMEOPTION_NO_VASSALAGE)) then
+	if (Game.IsOption(GameOptionTypes.GAMEOPTION_ENABLE_VASSALAGE)) then
 		table.insert(myScoreEntries, Locale.Lookup("TXT_KEY_DIPLO_MY_SCORE_VASSALS", g_pPlayer:GetScoreFromVassals()));
 	end
 	if (not Game.IsOption(GameOptionTypes.GAMEOPTION_NO_SCIENCE)) then
@@ -427,7 +427,7 @@ function UpdateDisplay()
 
 				end
 				-- Putmalk
-				if (not Game.IsOption(GameOptionTypes.GAMEOPTION_NO_VASSALAGE)) then
+				if (Game.IsOption(GameOptionTypes.GAMEOPTION_ENABLE_VASSALAGE)) then
 					table.insert(otherScoreEntries, Locale.Lookup("TXT_KEY_DIPLO_MY_SCORE_VASSALS", pOtherPlayer:GetScoreFromVassals()));
 				end
 				if (not Game.IsOption(GameOptionTypes.GAMEOPTION_NO_POLICIES)) then

@@ -8,18 +8,18 @@
 			<Text>One random Victory Type (Culture, Diplomatic, or Spaceship) is enabled when any player enters the Atomic Era. All other victories are disabled (note: Time and Domination Victories are always possible).</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_GAME_OPTION_NO_TECH_TRADING">
-			<Text>No Tech Trading</Text>
+		<Row Tag="TXT_KEY_GAME_OPTION_ENABLE_TECH_TRADING">
+			<Text>Enable Tech Trading</Text>
 		</Row>
-		<Row Tag="TXT_KEY_GAME_OPTION_NO_TECH_TRADING_HELP">
-			<Text>Disables technology trade between civilizations.</Text>
+		<Row Tag="TXT_KEY_GAME_OPTION_ENABLE_TECH_TRADING_HELP">
+			<Text>Enables technology trade between civilizations.</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_GAME_OPTION_RESEARCH_AGREEMENTS">
-			<Text>Enable Research Agreements</Text>
+		<Row Tag="TXT_KEY_GAME_OPTION_DISABLE_RESEARCH_AGREEMENTS">
+			<Text>Disable Research Agreements</Text>
 		</Row>
-		<Row Tag="TXT_KEY_GAME_OPTION_RESEARCH_AGREEMENTS_HELP">
-			<Text>If enabled, you can sign Research Agreements with other civilizations.</Text>
+		<Row Tag="TXT_KEY_GAME_OPTION_DISABLE_RESEARCH_AGREEMENTS_HELP">
+			<Text>If enabled, Research Agreements cannot be signed with other civilizations.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_GAME_OPTION_NO_TECH_BROKERING">
@@ -29,11 +29,11 @@
 			<Text>If enabled, you cannot sell technology to another civilization unless you have researched that technology yourself.</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_GAME_OPTION_NO_VASSALAGE">
-			<Text>No Vassalage</Text>
+		<Row Tag="TXT_KEY_GAME_OPTION_ENABLE_VASSALAGE">
+			<Text>Enable Vassalage</Text>
 		</Row>
-		<Row Tag="TXT_KEY_GAME_OPTION_NO_VASSALAGE_HELP">
-			<Text>Disables the Vassalage System. No vassals can be created.</Text>
+		<Row Tag="TXT_KEY_GAME_OPTION_ENABLE_VASSALAGE_HELP">
+			<Text>Enables the Vassalage System, allowing weaker civilizations to become the vassals of stronger civilizations.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_GAME_OPTION_TRANSPARENT_DIPLOMACY">

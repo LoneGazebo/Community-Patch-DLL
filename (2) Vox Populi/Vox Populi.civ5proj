@@ -1316,12 +1316,6 @@
         <FileName>Core Files/New UI/RandomVCPopup.xml</FileName>
       </Content>
       <Content>
-        <Type>InGameUIAddin</Type>
-        <Name>Vassalage Overview</Name>
-        <Description>Vassalage Overview</Description>
-        <FileName>Core Files/New UI/VassalageOverview.xml</FileName>
-      </Content>
-      <Content>
         <Type>MapScript</Type>
         <Name>Communitu_79a</Name>
         <Description>Communitas rewrite by tu_79 and azum4roll</Description>
@@ -5626,11 +5620,11 @@
     </Content>
     <Content Include="Core Files\New UI\VassalageOverview.lua">
       <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
+      <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="Core Files\New UI\VassalageOverview.xml">
       <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
+      <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="Core Files\Overrides\AssignStartingPlots.lua">
       <SubType>Lua</SubType>
@@ -6767,10 +6761,6 @@
     <Content Include="Database Changes\WorldMap\Resources\ResourceSweeps.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="LUA\AdvancedSetup.lua">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="LUA\CityBannerManager.lua">
       <SubType>Lua</SubType>
