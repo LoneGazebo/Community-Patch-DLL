@@ -1453,6 +1453,12 @@
         <Description>See #9302 on why this is here</Description>
         <FileName>Mapscripts/EMP/Sandstorm.lua</FileName>
       </Content>
+      <Content>
+        <Type>InGameUIAddin</Type>
+        <Name>Vassalage Overview</Name>
+        <Description>Vassalage Overview</Description>
+        <FileName>Core Files/New UI/VassalageOverview.xml</FileName>
+      </Content>
     </ModContent>
     <ReloadAudioSystem>true</ReloadAudioSystem>
   </PropertyGroup>
@@ -5620,11 +5626,11 @@
     </Content>
     <Content Include="Core Files\New UI\VassalageOverview.lua">
       <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
+      <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="Core Files\New UI\VassalageOverview.xml">
       <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
+      <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="Core Files\Overrides\AssignStartingPlots.lua">
       <SubType>Lua</SubType>
