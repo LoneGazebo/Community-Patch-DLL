@@ -32757,7 +32757,23 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn) // R: bDoTurn default
 
 			if (MOD_EVENTS_PLAYER_TURN)
 			{
-				GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerDoneTurn, GetID());
+				// Vox Deorum added a second argument: who is the next player?
+				// Find the next alive player
+				PlayerTypes eNextPlayer = NO_PLAYER;
+				PlayerTypes eCurrentPlayer = GetID();
+
+				// Start from current player + 1 and wrap around
+				for (int i = 1; i < MAX_CIV_PLAYERS; i++)
+				{
+					PlayerTypes eCheckPlayer = (PlayerTypes)((eCurrentPlayer + i) % MAX_CIV_PLAYERS);
+					if (GET_PLAYER(eCheckPlayer).isAlive())
+					{
+						eNextPlayer = eCheckPlayer;
+						break;
+					}
+				}
+
+				GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerDoneTurn, GetID(), eNextPlayer);
 			}
 
 			ASSERT_DEBUG(GetEndTurnBlockingType() == NO_ENDTURN_BLOCKING_TYPE, "Expecting the end-turn blocking to be NO_ENDTURN_BLOCKING_TYPE, got %d", GetEndTurnBlockingType());
