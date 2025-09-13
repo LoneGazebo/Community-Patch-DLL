@@ -1085,7 +1085,7 @@ enum BattleTypeTypes
 #define GAMEEVENT_PlayerCanRevoke				"PlayerCanRevoke",				"ii"
 #define GAMEEVENT_PlayerCanSpreadReligion		"PlayerCanSpreadReligion",		"iiii"
 #define GAMEEVENT_PlayerCanTransitMinorCity		"PlayerCanTransitMinorCity",	"iiiii"
-#define GAMEEVENT_PlayerDoneTurn				"PlayerDoneTurn",				"i"
+#define GAMEEVENT_PlayerDoneTurn				"PlayerDoneTurn",				"ii"
 #define GAMEEVENT_PlayerGifted					"PlayerGifted",					"iiiiii"
 #define GAMEEVENT_PlayerGoldenAge				"PlayerGoldenAge",				"ibi"
 #define GAMEEVENT_PlayerEndOfMayaLongCount		"PlayerEndOfMayaLongCount",		"iii"
