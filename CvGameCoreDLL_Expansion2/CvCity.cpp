@@ -20818,6 +20818,7 @@ CvString CvCity::GetCityUnhappinessBreakdown(bool bIncludeMedian, bool bCityBann
 				break;
 			case UNHAPPY_REASON_BUILDINGS:
 				strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_UNHAPPINESS_REASON_CITY_BUILDINGS", iUnhappyCitizens);
+				break;
 			}
 		}
 
@@ -21026,6 +21027,7 @@ CvString CvCity::GetCityUnhappinessBreakdown(bool bIncludeMedian, bool bCityBann
 			break;
 		case UNHAPPY_REASON_BUILDINGS:
 			strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_BUILDINGS_UNHAPPINESS", iUnhappyCitizens);
+			break;
 		}
 	}
 

@@ -21336,9 +21336,28 @@ int CvPlayer::GetUnhappinessFromCityForUI(CvCity* pCity) const
 	if (MOD_BALANCE_VP)
 		return 0;
 
+	if (pCity == NULL)
+		return 0;
+
+	int iUnhappinessFromBuildingsTimes100 = 100 * pCity->GetUnhappinessFromBuildings();
+	// Building mods apply irregardless of Occupation status
+	iUnhappinessFromBuildingsTimes100 *= (100 + GetUnhappinessMod());
+	iUnhappinessFromBuildingsTimes100 /= 100;
+
+	if (pCity->isCapital() && GetCapitalUnhappinessMod() != 0)
+	{
+		iUnhappinessFromBuildingsTimes100 *= (100 + GetCapitalUnhappinessMod());
+		iUnhappinessFromBuildingsTimes100 /= 100;
+	}
+
+	if (pCity->GetLocalUnhappinessMod() != 0)
+	{
+		iUnhappinessFromBuildingsTimes100 *= (100 + pCity->GetLocalUnhappinessMod());
+		iUnhappinessFromBuildingsTimes100 /= 100;
+	}
+
 	int iNumCitiesUnhappinessTimes100 = 0;
 	float iPopulationUnhappinessTimes100 = 0;
-
 	int iPopulation = pCity->getPopulation() * 100;
 
 	// No Unhappiness from Specialist Pop? (Policies, etc.)
@@ -21404,7 +21423,7 @@ int CvPlayer::GetUnhappinessFromCityForUI(CvCity* pCity) const
 	iNumCitiesUnhappinessTimes100 *= GC.getMap().getWorldInfo().getNumCitiesUnhappinessPercent();
 	iNumCitiesUnhappinessTimes100 /= 100;
 
-	return iNumCitiesUnhappinessTimes100 + (int)iPopulationUnhappinessTimes100;
+	return iNumCitiesUnhappinessTimes100 + (int)iPopulationUnhappinessTimes100 + iUnhappinessFromBuildingsTimes100;
 }
 
 /// Unhappiness from number of Cities
@@ -21532,8 +21551,8 @@ int CvPlayer::GetUnhappinessFromCityBuildings(CvCity* pAssumeCityAnnexed, CvCity
 	if (MOD_BALANCE_VP)
 		return 0;
 
-	float iUnhappiness = 0;
-	float iUnhappinessFromThisCity;
+	int iUnhappiness = 0;
+	int iUnhappinessFromThisCity;
 
 	bool bCityValid = false;
 
@@ -21551,8 +21570,7 @@ int CvPlayer::GetUnhappinessFromCityBuildings(CvCity* pAssumeCityAnnexed, CvCity
 		// Assume city doesn't exist, and does NOT count
 		else if (pLoopCity->IsIgnoreCityForHappiness())
 			bCityValid = false;
-		// Occupied Cities don't get counted here (see the next function)
-		else if (!pLoopCity->IsOccupied() || pLoopCity->IsNoOccupiedUnhappiness())
+		else
 			bCityValid = true;
 
 		if (bCityValid)
