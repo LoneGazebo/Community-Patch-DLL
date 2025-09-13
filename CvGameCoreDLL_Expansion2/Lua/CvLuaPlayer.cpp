@@ -13343,10 +13343,25 @@ struct OpinionEval
 	}
 };
 
+//------------------------------------------------------------------------------
+// Get the opinion table for a player towards another player
+// Parameters:
+//   1. Player instance (self)
+//   2. Target player ID (PlayerTypes)
+//   3. Force debug mode (boolean, optional) - if true, shows all hidden modifiers
+//------------------------------------------------------------------------------
 int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 2);
+
+	// Check for optional third parameter to force debug mode
+	bool bForceDebugMode = false;
+	if (lua_gettop(L) >= 3 && lua_isboolean(L, 3))
+	{
+		bForceDebugMode = lua_toboolean(L, 3);
+	}
+
 	CvDiplomacyAI* pDiplo = pkPlayer->GetDiplomacyAI();
 
 	// Initialize variables
@@ -13356,14 +13371,14 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 
 	bool bHuman = pkPlayer->isHuman();
 	bool bTeammate = pDiplo->IsTeammate(ePlayer);
-	bool bShowHiddenModifiers = GC.getGame().IsShowHiddenOpinionModifiers();
-	bool bShowAllValues = bHuman ? false : GC.getGame().IsShowAllOpinionValues();
+	bool bShowHiddenModifiers = bForceDebugMode || GC.getGame().IsShowHiddenOpinionModifiers();
+	bool bShowAllValues = bHuman ? false : (bForceDebugMode || GC.getGame().IsShowAllOpinionValues());
 	bool bHideDisputes = bShowHiddenModifiers ? false : pDiplo->ShouldHideDisputeMods(ePlayer);
 	bool bHideNegatives = bShowHiddenModifiers ? false : pDiplo->ShouldHideNegativeMods(ePlayer);
 	bool bPretendNoDisputes = GET_PLAYER(ePlayer).isHuman() && bHideDisputes && bHideNegatives && !GC.getGame().IsNoFakeOpinionModifiers();
 	bool bObserver = GET_PLAYER(ePlayer).isObserver() || !pkPlayer->isMajorCiv() || !GET_PLAYER(ePlayer).isMajorCiv() || !pkPlayer->isAlive() || !GET_PLAYER(ePlayer).isAlive() || GC.getGame().IsHideOpinionTable();
 	bool bUNActive = GC.getGame().IsUnitedNationsActive();
-	bool bJustMet = GC.getGame().IsDiploDebugModeEnabled() ? false : (GET_TEAM(pkPlayer->getTeam()).GetTurnsSinceMeetingTeam(GET_PLAYER(ePlayer).getTeam()) == 0); // Don't display certain modifiers if we just met them
+	bool bJustMet = (bForceDebugMode || GC.getGame().IsDiploDebugModeEnabled()) ? false : (GET_TEAM(pkPlayer->getTeam()).GetTurnsSinceMeetingTeam(GET_PLAYER(ePlayer).getTeam()) == 0); // Don't display certain modifiers if we just met them
 
 	CivApproachTypes eSurfaceApproach = pDiplo->GetSurfaceApproach(ePlayer);
 	CivApproachTypes eTrueApproach = pDiplo->GetCivApproach(ePlayer);
@@ -13530,7 +13545,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 				kOpinion.m_iValue = 0;
 				CvString str;
 
-				if (bHuman || GC.getGame().IsDiploDebugModeEnabled())
+				if (bHuman || bForceDebugMode || GC.getGame().IsDiploDebugModeEnabled())
 				{
 					str = Localization::Lookup("TXT_KEY_DIPLO_PAST_WAR_BAD").toUTF8();
 				}
@@ -13555,7 +13570,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		if (!bHuman && !bTeammate)
 		{
 			// Debug mode approach reveal
-			if (GC.getGame().IsDiploDebugModeEnabled())
+			if (bForceDebugMode || GC.getGame().IsDiploDebugModeEnabled())
 			{
 				Opinion kOpinion;
 				kOpinion.m_iValue = 0;
@@ -13650,7 +13665,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 	// [PART 2A: HUMANS]			  //
 	//--------------------------------//
 
-	if (bHuman && !bObserver)
+	if (bForceDebugMode || (bHuman && !bObserver))
 	{
 		// DoF?
 		if (pDiplo->IsDoFAccepted(ePlayer))
@@ -15940,7 +15955,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			aOpinions.push_back(kOpinion);
 		}
 		// If not at war and debug mode is not enabled, a hint explaining the AI's current approach is displayed
-		else if (!GC.getGame().IsDiploDebugModeEnabled())
+		else if (!bForceDebugMode && !GC.getGame().IsDiploDebugModeEnabled())
 		{
 			Opinion kOpinion;
 			kOpinion.m_iValue = 0;
