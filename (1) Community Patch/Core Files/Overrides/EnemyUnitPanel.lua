@@ -617,17 +617,9 @@ function UpdateCombatSimulator(pMyUnit, pTheirUnit, pMyCity, pTheirCity)
 		end
 
 		-- Near Capital
-		iModifier = pMyUnit:CapitalDefenseModifier();
-		if iModifier > 0 then
-			-- Compute distance to Capital
-			local pCapital = pMyPlayer:GetCapitalCity();
-			if pCapital then
-				local iDistance = Map.PlotDistance(pCapital:GetX(), pCapital:GetY(), pBattlePlot:GetX(), pBattlePlot:GetY());
-				iModifier = iModifier + iDistance * pMyUnit:CapitalDefenseFalloff();
-				if (iModifier > 0) then
-					nBonus, iMiscModifier = ProcessModifier(iModifier, "TXT_KEY_EUPANEL_CAPITAL_DEFENSE_BONUS", nBonus, iMiscModifier, true, true);
-				end
-			end
+		iModifier = pMyUnit:GetCombatModifierFromCapitalDistance(pBattlePlot);
+		if iModifier ~= 0 then
+			nBonus, iMiscModifier = ProcessModifier(iModifier, "TXT_KEY_EUPANEL_CAPITAL_DEFENSE_BONUS", nBonus, iMiscModifier, true, true);
 		end
 
 		-- Attack bonus against the same target
@@ -1085,17 +1077,9 @@ function UpdateCombatSimulator(pMyUnit, pTheirUnit, pMyCity, pTheirCity)
 				nBonus, iMiscModifier = ProcessModifier(iModifier, "TXT_KEY_EUPANEL_REVERSE_GG_NEAR", nBonus, iMiscModifier, false, true);
 
 				-- Near Capital
-				iModifier = pTheirUnit:CapitalDefenseModifier();
-				if iModifier > 0 then
-					-- Compute distance to Capital
-					local pCapital = pTheirPlayer:GetCapitalCity();
-					if pCapital then
-						local iDistance = Map.PlotDistance(pCapital:GetX(), pCapital:GetY(), pTheirUnit:GetX(), pTheirUnit:GetY());
-						iModifier = iModifier + iDistance * pTheirUnit:CapitalDefenseFalloff();
-						if (iModifier > 0) then
-							nBonus, iMiscModifier = ProcessModifier(iModifier, "TXT_KEY_EUPANEL_CAPITAL_DEFENSE_BONUS", nBonus, iMiscModifier, false, true);
-						end
-					end
+				iModifier = pTheirUnit:GetCombatModifierFromCapitalDistance(pTheirUnit:GetPlot());
+				if iModifier ~= 0 then
+					nBonus, iMiscModifier = ProcessModifier(iModifier, "TXT_KEY_EUPANEL_CAPITAL_DEFENSE_BONUS", nBonus, iMiscModifier, false, true);
 				end
 
 				-- Trait bonus during Golden Age

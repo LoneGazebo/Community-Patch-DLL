@@ -403,8 +403,7 @@ protected:
 	static int lGetUnhappinessCombatPenalty(lua_State* L);
 	static int lAirSweepCombatMod(lua_State* L);
 	static int lGetEmbarkDefensiveModifier(lua_State* L);
-	static int lCapitalDefenseModifier(lua_State* L);
-	static int lCapitalDefenseFalloff(lua_State* L);
+	static int lGetCombatModifierFromCapitalDistance(lua_State* L);
 
 	static int lSpecialCargo(lua_State* L);
 	static int lDomainCargo(lua_State* L);

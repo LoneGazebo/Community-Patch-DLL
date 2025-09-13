@@ -327,6 +327,7 @@ CvUnit::CvUnit() :
 	, m_iEmbarkDefensiveModifier()
 	, m_iCapitalDefenseModifier()
 	, m_iCapitalDefenseFalloff()
+	, m_iCapitalDefenseLimit()
 	, m_iCityAttackPlunderModifier()
 	, m_iReligiousStrengthLossRivalTerritory()
 	, m_iTradeMissionInfluenceModifier()
@@ -1668,6 +1669,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iEmbarkDefensiveModifier = 0;
 	m_iCapitalDefenseModifier = 0;
 	m_iCapitalDefenseFalloff = 0;
+	m_iCapitalDefenseLimit = 0;
 	m_iCityAttackPlunderModifier = 0;
 	m_iReligiousStrengthLossRivalTerritory = 0;
 	m_iTradeMissionInfluenceModifier = 0;
@@ -7404,6 +7406,18 @@ void CvUnit::ChangeCapitalDefenseFalloff(int iValue)
 int CvUnit::GetCapitalDefenseFalloff() const
 {
 	return m_iCapitalDefenseFalloff;
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::ChangeCapitalDefenseLimit(int iValue)
+{
+	m_iCapitalDefenseLimit += iValue;
+}
+
+//	--------------------------------------------------------------------------------
+int CvUnit::GetCapitalDefenseLimit() const
+{
+	return m_iCapitalDefenseLimit;
 }
 
 //	--------------------------------------------------------------------------------
@@ -16029,6 +16043,24 @@ int CvUnit::GetDamageCombatModifier(bool bForDefenseAgainstRanged, int iAssumedD
 	return iRtnValue;
 }
 
+int CvUnit::GetCombatModifierFromCapitalDistance(const CvPlot* pBattlePlot) const
+{
+	int iModifier = 0;
+	if (GetCapitalDefenseFalloff() != 0)
+	{
+		CvCity* pCapital = GET_PLAYER(getOwner()).getCapitalCity();
+		if (pCapital)
+		{
+			int iDistanceToCapital = plotDistance(pBattlePlot->getX(), pBattlePlot->getY(), pCapital->getX(), pCapital->getY());
+			if (GetCapitalDefenseFalloff() > 0)
+				iModifier = min(GetCapitalDefenseLimit(), GetCapitalDefenseModifier() + iDistanceToCapital * GetCapitalDefenseFalloff());
+			else
+				iModifier = max(GetCapitalDefenseLimit(), GetCapitalDefenseModifier() + iDistanceToCapital * GetCapitalDefenseFalloff());
+		}
+	}
+	return iModifier;
+}
+
 //	--------------------------------------------------------------------------------
 /// What are the generic strength modifiers for this Unit?
 int CvUnit::GetGenericMeleeStrengthModifier(const CvUnit* pOtherUnit, const CvPlot* pBattlePlot, bool bAttacking,
@@ -16270,19 +16302,7 @@ int CvUnit::GetGenericMeleeStrengthModifier(const CvUnit* pOtherUnit, const CvPl
 		}
 
 		// Capital Defense
-		if (GetCapitalDefenseModifier() > 0 || GetCapitalDefenseFalloff() > 0)
-		{
-			CvCity* pCapital = GET_PLAYER(getOwner()).getCapitalCity();
-			if(pCapital)
-			{
-				int iDistanceToCapital = plotDistance(pBattlePlot->getX(), pBattlePlot->getY(), pCapital->getX(), pCapital->getY());
-				int iTempModifier = GetCapitalDefenseModifier() + iDistanceToCapital * GetCapitalDefenseFalloff();
-				if (iTempModifier > 0)
-				{
-					iModifier += iTempModifier;
-				}
-			}
-		}
+		iModifier += GetCombatModifierFromCapitalDistance(pBattlePlot);
 
 		// Trait (player level) bonus against higher tech units
 		// Only applies defending friendly territory
@@ -17299,19 +17319,7 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 	iModifier += getCSMarriageStrength();
 
 	// Fighting near capital
-	if (GetCapitalDefenseModifier() > 0 || GetCapitalDefenseFalloff() > 0)
-	{
-		CvCity* pCapital = GET_PLAYER(getOwner()).getCapitalCity();
-		if (pCapital)
-		{
-			int iDistanceToCapital = plotDistance(pMyPlot->getX(), pMyPlot->getY(), pCapital->getX(), pCapital->getY());
-			int iTempModifier = GetCapitalDefenseModifier() + iDistanceToCapital * GetCapitalDefenseFalloff();
-			if (iTempModifier > 0)
-			{
-				iModifier += iTempModifier;
-			}
-		}
-	}
+	iModifier += GetCombatModifierFromCapitalDistance(pMyPlot);
 
 	////////////////////////
 	// ATTACKING A CITY
@@ -27886,6 +27894,7 @@ void CvUnit::setPromotionActive(PromotionTypes eIndex, bool bNewValue)
 	ChangeEmbarkDefensiveModifier((thisPromotion.GetEmbarkDefenseModifier()) * iChange);
 	ChangeCapitalDefenseModifier((thisPromotion.GetCapitalDefenseModifier()) * iChange);
 	ChangeCapitalDefenseFalloff((thisPromotion.GetCapitalDefenseFalloff()) * iChange);
+	ChangeCapitalDefenseLimit((thisPromotion.GetCapitalDefenseLimit()) * iChange);
 	ChangeCityAttackPlunderModifier((thisPromotion.GetCityAttackPlunderModifier()) * iChange);
 	ChangeReligiousStrengthLossRivalTerritory((thisPromotion.GetReligiousStrengthLossRivalTerritory()) * iChange);
 	ChangeTradeMissionInfluenceModifier((thisPromotion.GetTradeMissionInfluenceModifier()) * iChange);
@@ -28686,6 +28695,7 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_iEmbarkDefensiveModifier);
 	visitor(unit.m_iCapitalDefenseModifier);
 	visitor(unit.m_iCapitalDefenseFalloff);
+	visitor(unit.m_iCapitalDefenseLimit);
 	visitor(unit.m_iCityAttackPlunderModifier);
 	visitor(unit.m_iReligiousStrengthLossRivalTerritory);
 	visitor(unit.m_iTradeMissionInfluenceModifier);

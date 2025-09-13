@@ -247,8 +247,8 @@ ALTER TABLE UnitPromotions ADD InfluenceFromCombatXpTimes100 integer DEFAULT 0;
 ALTER TABLE UnitPromotions ADD FreeAttackMoves boolean DEFAULT 0;
 
 -- Used with CapitalDefenseModifier and CapitalDefenseFalloff
--- Combat strength modifier near player's capital, starting at CapitalDefenseModifier on the capital tile and decreasing by CapitalDefenseFalloff per tile away from the capital
--- Modifier is capped by CapitalDefenseLimit
+-- Combat strength modifier near player's capital, starting at CapitalDefenseModifier on the capital tile and changing by CapitalDefenseFalloff (positive or negative) per tile away from the capital
+-- CapitalDefenseLimit is the highest (if CapitalDefenseFalloff > 0) or lowest (if CapitalDefenseFalloff < 0) value the modifier can have
 ALTER TABLE UnitPromotions ADD CapitalDefenseLimit integer DEFAULT 0;
 
 -- Combat strength modifier against units from unhappy empire
