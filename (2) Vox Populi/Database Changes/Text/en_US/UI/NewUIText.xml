@@ -1406,6 +1406,9 @@
 		<Row Tag="TXT_KEY_EO_CITY_EMPIRE">
 			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN_RED]: "[ICON_WAR] War! What is it good for!?"</Text>
 		</Row>
+		<Row Tag="TXT_KEY_UNHAPPINESS_REASON_CITY_BUILDINGS">
+			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN_RED]: "We just don't like it here!"</Text>
+		</Row>
 		<Row Tag="TXT_KEY_EO_CITY_CONNECTED">
 			<Text>[COLOR_POSITIVE_TEXT]Connected[ENDCOLOR]</Text>
 		</Row>
@@ -1433,6 +1436,12 @@
 		<Row Tag="TXT_KEY_SPECIALIST_UNHAPPINESS">
 			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from [ICON_URBANIZATION] Urbanization (Specialists)</Text>
 		</Row>
+		<Update>
+			<Where Tag="TXT_KEY_BUILDINGS_UNHAPPINESS" />
+			<Set>
+				<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from Buildings</Text>
+			</Set>
+		</Update>
 		<Row Tag="TXT_KEY_EMPIRE_WIDE_UNHAPPINESS">
 			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from [ICON_WAR] War / Public Opinion</Text>
 		</Row>
