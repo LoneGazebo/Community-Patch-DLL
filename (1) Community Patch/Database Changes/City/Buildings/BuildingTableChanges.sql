@@ -325,9 +325,6 @@ ALTER TABLE Buildings ADD ConversionModifier integer DEFAULT 0;
 -- In VP, this acts as an additional source of Happiness, capped by Population in the city.
 ALTER TABLE Buildings ADD Unhappiness integer DEFAULT 0;
 
--- TESTING, please remove before merging:
-UPDATE Buildings SET Unhappiness = 2 WHERE Type = "BUILDING_MONUMENT";
-
 ALTER TABLE Building_ThemingBonuses ADD ConsecutiveEras integer DEFAULT 0;
 
 -- The tech required to boost the building
