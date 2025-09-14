@@ -21731,7 +21731,7 @@ void CvUnit::changeExperienceTimes100(int iChangeTimes100, int iMax, bool bFromC
 				continue;
 
 			if (kMinorLoop.GetMinorCivAI()->IsNoAlly() || kMinorLoop.GetMinorCivAI()->GetPermanentAlly() != NO_PLAYER || kMinorLoop.IsAtWarWith(getOwner()))
-			continue;
+				continue;
 
 			int iCityLoop = 0;
 			for (CvCity* pCity = kMinorLoop.firstCity(&iCityLoop); pCity != NULL; pCity = kMinorLoop.nextCity(&iCityLoop))
