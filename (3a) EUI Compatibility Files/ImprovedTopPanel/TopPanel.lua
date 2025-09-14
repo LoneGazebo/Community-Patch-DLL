@@ -1077,8 +1077,8 @@ g_toolTipHandler.SciencePerTurn = function()-- control )
 			tips:insertLocalizedIfNonZero( "TXT_KEY_TP_SCIENCE_FROM_HAPPINESS", g_activePlayer:GetScienceFromHappinessTimes100() / 100 )
 
 			-- Science from Vassals / Compatibility with Putmalk's Civ IV Diplomacy Features Mod
-			if g_activePlayer.GetYieldPerTurnFromVassals then
-				tips:insertLocalizedIfNonZero( "TXT_KEY_TP_SCIENCE_VASSALS", g_activePlayer:GetYieldPerTurnFromVassals(YieldTypes.YIELD_SCIENCE) )
+			if g_activePlayer.GetYieldPerTurnFromVassalsTimes100 then
+				tips:insertLocalizedIfNonZero( "TXT_KEY_TP_SCIENCE_VASSALS", g_activePlayer:GetYieldPerTurnFromVassalsTimes100(YieldTypes.YIELD_SCIENCE) / 100)
 			end
 
 			-- Compatibility with Gazebo's City-State Diplomacy Mod (CSD) for Brave New World v23
@@ -1216,7 +1216,7 @@ g_toolTipHandler.GoldPerTurn = function()-- control )
 	local cityConnectionGold = g_activePlayer:GetCityConnectionGoldTimes100() / 100;
 -- C4DF
 	-- Gold from Vassals
-	local iGoldFromVassals = g_activePlayer:GetYieldPerTurnFromVassals(YieldTypes.YIELD_GOLD);
+	local iGoldFromVassals = g_activePlayer:GetYieldPerTurnFromVassalsTimes100(YieldTypes.YIELD_GOLD) / 100;
 	local iGoldFromVassalTax = math.floor(g_activePlayer:GetMyShareOfVassalTaxes() / 100);
 	-- Gold from Espionage
 	local iGoldFromEspionageIncoming = g_activePlayer:GetYieldPerTurnFromEspionageEvents(YieldTypes.YIELD_GOLD, true);
@@ -1920,8 +1920,8 @@ g_toolTipHandler.CultureString = function()-- control )
 			-- Culture from Vassals / Compatibility with Putmalk's Civ IV Diplomacy Features Mod
 -- C4DF
 			local culturePerTurnFromVassals = 0;
-			if g_activePlayer.GetYieldPerTurnFromVassals then
-				culturePerTurnFromVassals = g_activePlayer:GetYieldPerTurnFromVassals(YieldTypes.YIELD_CULTURE)
+			if g_activePlayer.GetYieldPerTurnFromVassalsTimes100 then
+				culturePerTurnFromVassals = g_activePlayer:GetYieldPerTurnFromVassalsTimes100(YieldTypes.YIELD_CULTURE) / 100
 				tips:insertLocalizedIfNonZero( "TXT_KEY_TP_CULTURE_VASSALS", culturePerTurnFromVassals )
 			end
 -- END
@@ -1998,8 +1998,8 @@ if civ5_mode and gk_mode then
 			tips:insertLocalizedIfNonZero( "TXT_KEY_TP_FAITH_FROM_RELIGION", g_activePlayer:GetFaithPerTurnFromReligion() )
 
 -- C4DF
-			if g_activePlayer.GetYieldPerTurnFromVassals then
-				tips:insertLocalizedIfNonZero( "TXT_KEY_TP_FAITH_VASSALS", g_activePlayer:GetYieldPerTurnFromVassals(YieldTypes.YIELD_FAITH) )
+			if g_activePlayer.GetYieldPerTurnFromVassalsTimes100 then
+				tips:insertLocalizedIfNonZero( "TXT_KEY_TP_FAITH_VASSALS", g_activePlayer:GetYieldPerTurnFromVassalsTimes100(YieldTypes.YIELD_FAITH) / 100)
 			end
 
 			-- Faith from Espionage
