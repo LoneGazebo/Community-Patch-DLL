@@ -13545,6 +13545,9 @@ void CvPlayer::foundCity(int iX, int iY, ReligionTypes eReligion, bool bForce, C
 
 	AwardFreeBuildings(pCity);
 
+	// Grab any "loose" plots we own
+	pCity->AcquireWaywardPlots();
+
 	// Free resources near city? Because we have a special method of placing these, do it after we've added any free buildings (that might change the city working range).
 	for (int i = 0; i < GC.getNumResourceInfos(); i++)
 	{
@@ -35916,7 +35919,7 @@ int CvPlayer::GetHighestWarWearinessPercent() const
 }
 
 /// Returns the player with the highest war weariness to make peace with, including players whose cities were recently captured, but excluding the other two exceptions
-PlayerTypes CvPlayer::GetHighestWarWearinessPlayer() const
+PlayerTypes CvPlayer::GetHighestWarWearinessPlayer(bool bConsiderHappinessOnly) const
 {
 	if (!MOD_BALANCE_VP || !isMajorCiv())
 		return NO_PLAYER;
@@ -35933,6 +35936,10 @@ PlayerTypes CvPlayer::GetHighestWarWearinessPlayer() const
 			continue;
 
 		int iWarWeariness = GetWarWeariness(eLoopPlayer);
+
+		// If this is a happiness check, also consider how much Happiness we'd be LOSING by making peace.
+		if (bConsiderHappinessOnly)
+			iWarWeariness -= getHappinessPerMajorWar() > 0 ? getHappinessPerMajorWar() * GET_TEAM(eLoopTeam).getAliveCount() : 0;
 
 		// We're more weary of another war, or war weariness is 0. Ignore.
 		if (iWarWeariness <= iHighestWarWeariness)
@@ -35972,7 +35979,7 @@ int CvPlayer::GetUnhappinessFromWarWeariness() const
 }
 
 /// Utility function for Diplomacy AI to determine whether it'd be a good idea to make peace with a team due to war weariness
-int CvPlayer::GetUnhappinessFromWarWearinessWithTeam(TeamTypes eTeam) const
+int CvPlayer::GetUnhappinessFromWarWearinessWithTeam(TeamTypes eTeam, bool bConsiderHappinessOnly) const
 {
 	if (!MOD_BALANCE_VP || eTeam == NO_TEAM)
 		return 0;
@@ -35990,7 +35997,13 @@ int CvPlayer::GetUnhappinessFromWarWearinessWithTeam(TeamTypes eTeam) const
 			iHighestWarWearinessPercent = iWarWearinessPercent;
 	}
 
-	return iHighestWarWearinessPercent * getTotalPopulation() * /*34*/ max(GD_INT_GET(WAR_WEARINESS_POPULATION_PERCENT_CAP), 0) / 10000;
+	int iUnhappiness = iHighestWarWearinessPercent * getTotalPopulation() * /*34*/ max(GD_INT_GET(WAR_WEARINESS_POPULATION_PERCENT_CAP), 0) / 10000;
+
+	// If this is a happiness check, also consider how much Happiness we'd be LOSING by making peace.
+	if (bConsiderHappinessOnly)
+		iUnhappiness -= getHappinessPerMajorWar() > 0 ? getHappinessPerMajorWar() * GET_TEAM(eTeam).getAliveCount() : 0;
+
+	return max(iUnhappiness, 0);
 }
 
 /// Returns how "close" we are to another player (useful for diplomacy, war planning, etc.)

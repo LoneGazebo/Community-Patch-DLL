@@ -1072,10 +1072,11 @@ UPDATE UnitPromotions SET CombatModPerLevel = 5 WHERE Type = 'PROMOTION_LEGACY';
 
 -- Amazonas: Riachuelo
 UPDATE UnitPromotions SET GoldenAgeValueFromKills = 100 WHERE Type = 'PROMOTION_RIACHUELO';
-INSERT INTO PlagueImmunePromotions
-	(PromotionType, DomainType)
+INSERT INTO UnitPromotions_BlockedPromotions
+	(PromotionType, BlockedPromotionType)
 VALUES
-	('PROMOTION_RIACHUELO', 'DOMAIN_SEA');
+	('PROMOTION_RIACHUELO', 'PROMOTION_BOARDED_1'),
+	('PROMOTION_RIACHUELO', 'PROMOTION_BOARDED_2');
 
 -- Dromon: Greek Fire
 INSERT INTO UnitPromotions_Plagues

@@ -193,7 +193,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		if (isWorldWonderClass(kBuildingClassInfo))
 		{
 			// Specific check to block non-founder AIs from building Hagia Sophia, Borobudur, Cathedral of St. Basil
-			ReligionTypes eOurReligion = kPlayer.GetReligions()->GetStateReligion(false);
+			ReligionTypes eOurReligion = kPlayer.GetReligions()->GetOwnedReligion();
 			if (eOurReligion == NO_RELIGION)
 			{
 				bool bCanFoundReligion = GC.getGame().GetGameReligions()->GetNumReligionsStillToFound() > 0 || kPlayer.GetPlayerTraits()->IsAlwaysReligion();

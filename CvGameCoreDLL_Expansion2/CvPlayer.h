@@ -2022,11 +2022,11 @@ public:
 	void DoUpdateWarDamageAndWeariness(bool bDamageOnly);
 	int GetWarWearinessPercent(PlayerTypes ePlayer) const;
 	int GetHighestWarWearinessPercent() const;
-	PlayerTypes GetHighestWarWearinessPlayer() const;
+	PlayerTypes GetHighestWarWearinessPlayer(bool bConsiderHappinessOnly = false) const;
 	int GetSupplyReductionFromWarWeariness() const;
 	int GetUnitCostIncreaseFromWarWeariness() const;
 	int GetUnhappinessFromWarWeariness() const;
-	int GetUnhappinessFromWarWearinessWithTeam(TeamTypes eTeam) const;
+	int GetUnhappinessFromWarWearinessWithTeam(TeamTypes eTeam, bool bConsiderHappinessOnly = false) const;
 
 	void changeUnitsBuiltCount(UnitTypes eUnitType, int iValue);
 	int getUnitsBuiltCount(UnitTypes eUnitType) const;
