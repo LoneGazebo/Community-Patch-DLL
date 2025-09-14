@@ -1,3 +1,8 @@
-If you downloaded this mod manually on its own, just stick it in your MODS folder and it should function correctly. Note that it isn't compatible with EUI!
+If you downloaded this mod manually on its own, just stick it in your MODS folder and it should function correctly, with one exception:
+- To fix the BNW bug where Cape Town uses Almaty's audio clip upon selection, you will need to move the MinorCivSounds_VoxPopuli.xml file in the repository's main directory to Steam\steamapps\common\Sid Meier's Civilization V\Assets\DLC\Expansion2\Sounds\XML.
+- You will also need to move the Expansion2_VoxPopuli.Civ5Pkg file in the main directory to Steam\steamapps\common\Sid Meier's Civilization V\Assets\DLC\Expansion2.
+- Delete the existing Expansion2.Civ5Pkg file in that directory, and then rename Expansion2_VoxPopuli.Civ5Pkg to Expansion2.Civ5Pkg.
+
+Note that Community Patch Only isn't compatible with EUI.
 
 If you downloaded this mod manually and you are also playing with the full (2) Vox Populi mod, see INSTRUCTIONS.txt in (2) Vox Populi for instructions on how to do a correct installation.

@@ -9,6 +9,15 @@ If you installed the EUI version of the mod, you must enable (3a) VP - EUI Compa
 
 Make sure to DELETE the LUA folder in the (1) Community Patch folder.
 
-If you want to play with EUI, you must also:
-a) Download the (3a) VP - EUI Compatibility Files folder, AND
-b) DELETE the LUA folder in (2) Vox Populi.
+If you want to play with EUI, you must also download the (3a) VP - EUI Compatibility Files folder.
+
+
+-- CITY-STATE AUDIO CLIPS --
+When manually installing VP, if you want the newly-added City-States to use the correct audio clips, you will need to move the MinorCivSounds_VoxPopuli.xml file and the Expansion2.CivPkg file.
+This also fixes a BNW bug where Cape Town uses Almaty's audio clip.
+
+1. Move the MinorCivSounds_VoxPopuli.xml file in the repository's main directory to Steam\steamapps\common\Sid Meier's Civilization V\Assets\DLC\Expansion2\Sounds\XML.
+2. Move the Expansion2_VoxPopuli.Civ5Pkg file in the repository's main directory to Steam\steamapps\common\Sid Meier's Civilization V\Assets\DLC\Expansion2.
+3. Delete the existing Expansion2.Civ5Pkg file in that directory, and then rename Expansion2_VoxPopuli.Civ5Pkg to Expansion2.Civ5Pkg.
+
+Unfortunately, there is no way to modify the MinorCivsSounds table within a mod. It needs to be done by modifying the base game files.
