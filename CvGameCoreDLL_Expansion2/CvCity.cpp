@@ -795,22 +795,6 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	{
 		owningPlayer.ChangeNumCitiesFounded(1);
 
-		// Free resources under city?
-		for (int i = 0; i < GC.getNumResourceInfos(); i++)
-		{
-			ResourceTypes eResource = (ResourceTypes)i;
-			FreeResourceXCities freeResource = owningPlayer.GetPlayerTraits()->GetFreeResourceXCities(eResource);
-
-			if (freeResource.m_iResourceQuantity > 0)
-			{
-				if (owningPlayer.GetNumCitiesFounded() <= freeResource.m_iNumCities)
-				{
-					plot()->setResourceType(NO_RESOURCE, 0);
-					plot()->setResourceType(eResource, freeResource.m_iResourceQuantity);
-				}
-			}
-		}
-
 		if (MOD_BALANCE_CORE_LUXURIES_TRAIT && !owningPlayer.isMinorCiv() && (owningPlayer.GetPlayerTraits()->GetUniqueLuxuryQuantity() > 0))
 		{
 			owningPlayer.GetPlayerTraits()->AddUniqueLuxuriesAround(this, owningPlayer.GetPlayerTraits()->GetUniqueLuxuryQuantity());
@@ -13767,6 +13751,18 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			if (pBuildingInfo->IsReformation())
 			{
 				GET_PLAYER(getOwner()).SetReformation(true);
+			}
+			// Did we complete a World Wonder and get free resources out of the deal?
+			if (bIsWonder)
+			{
+				CvPlayer& kPlayer = GET_PLAYER(getOwner());
+				for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+				{
+					ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
+					int iQuantity = kPlayer.GetPlayerTraits()->GetNumFreeResourceOnWorldWonderCompletion(eResourceLoop);
+					if (iQuantity > 0)
+						kPlayer.SpawnResourceInOwnedLands(eResourceLoop, iQuantity);
+				}
 			}
 			if (pBuildingInfo->GrantsRandomResourceTerritory() > 0)
 			{

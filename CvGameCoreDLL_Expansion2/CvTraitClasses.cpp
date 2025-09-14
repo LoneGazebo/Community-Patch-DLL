@@ -243,6 +243,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_paiYieldModifier(NULL),
 	m_piStrategicResourceQuantityModifier(NULL),
 	m_piResourceQuantityModifiers(NULL),
+	m_piNumFreeResourceOnWorldWonderCompletion(NULL),
 	m_ppiImprovementYieldChanges(NULL),
 	m_ppiPlotYieldChanges(NULL),
 #if defined(MOD_BALANCE_CORE)
@@ -1441,6 +1442,14 @@ int CvTraitEntry::GetResourceQuantityModifier(int i) const
 	ASSERT_DEBUG(i < GC.getNumResourceInfos(), "Index out of bounds");
 	ASSERT_DEBUG(i > -1, "Index out of bounds");
 	return m_piResourceQuantityModifiers ? m_piResourceQuantityModifiers[i] : -1;
+}
+
+/// Accessor: Amount of a specific resource awarded on World Wonder completion
+int CvTraitEntry::GetNumFreeResourceOnWorldWonderCompletion(int i) const
+{
+	ASSERT_DEBUG(i < GC.getNumResourceInfos(), "Index out of bounds");
+	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	return m_piNumFreeResourceOnWorldWonderCompletion ? m_piNumFreeResourceOnWorldWonderCompletion[i] : 0;
 }
 
 /// Accessor:: Extra yield from an improvement
@@ -2659,6 +2668,8 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	kUtility.PopulateArrayByValue(m_piDomainFreeExperienceModifier, "Domains", "Trait_DomainFreeExperienceModifier", "DomainType", "TraitType", szTraitType, "Modifier", 0, NUM_DOMAIN_TYPES);
 	kUtility.PopulateArrayByValue(m_piFreeUnitClassesDOW, "UnitClasses", "Trait_FreeUnitClassesDOW", "UnitClassType", "TraitType", szTraitType, "Number");
 #endif
+	kUtility.PopulateArrayByValue(m_piResourceQuantityModifiers, "Resources", "Trait_ResourceQuantityModifiers", "ResourceType", "TraitType", szTraitType, "ResourceQuantityModifier");
+	kUtility.PopulateArrayByValue(m_piNumFreeResourceOnWorldWonderCompletion, "Resources", "Trait_FreeResourceOnWorldWonderCompletion", "ResourceType", "TraitType", szTraitType, "ResourceQuantity");
 
 	// Sets
 	kUtility.PopulateSetByExistence(m_siFreePromotions, "UnitPromotions", "Trait_FreePromotions", "PromotionType", "TraitType", szTraitType);
@@ -2713,8 +2724,6 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 
 		//Trim extra memory off container since this is mostly read-only.
 		std::multimap<int,int>(m_FreePromotionUnitCombats).swap(m_FreePromotionUnitCombats);
-
-		kUtility.PopulateArrayByValue(m_piResourceQuantityModifiers, "Resources", "Trait_ResourceQuantityModifiers", "ResourceType", "TraitType", szTraitType, "ResourceQuantityModifier");
 	}
 	//Populate m_piUpgradeUnitClass
 	{
@@ -5125,6 +5134,7 @@ void CvPlayerTraits::InitPlayerTraits()
 			for(int iResource = 0; iResource < GC.getNumResourceInfos(); iResource++)
 			{
 				m_aiResourceQuantityModifier[iResource] = trait->GetResourceQuantityModifier(iResource);
+				m_aiNumFreeResourceOnWorldWonderCompletion[iResource] = trait->GetNumFreeResourceOnWorldWonderCompletion(iResource);
 #if defined(MOD_BALANCE_CORE)
 				if (trait->GetAlternateResourceTechs((ResourceTypes)iResource).IsAlternateResourceTechs())
 				{
@@ -5249,6 +5259,7 @@ void CvPlayerTraits::InitPlayerTraits()
 void CvPlayerTraits::Uninit()
 {
 	m_aiResourceQuantityModifier.clear();
+	m_aiNumFreeResourceOnWorldWonderCompletion.clear();
 	m_abNoTrain.clear();
 	m_paiMovesChangeUnitCombat.clear();
 #if defined(MOD_BALANCE_CORE)
@@ -5705,10 +5716,13 @@ void CvPlayerTraits::Reset()
 	}
 	m_aiResourceQuantityModifier.clear();
 	m_aiResourceQuantityModifier.resize(GC.getNumResourceInfos());
+	m_aiNumFreeResourceOnWorldWonderCompletion.clear();
+	m_aiNumFreeResourceOnWorldWonderCompletion.resize(GC.getNumResourceInfos());
 
 	for(int iResource = 0; iResource < GC.getNumResourceInfos(); iResource++)
 	{
 		m_aiResourceQuantityModifier[iResource] = 0;
+		m_aiNumFreeResourceOnWorldWonderCompletion[iResource] = 0;
 	}
 
 	m_abNoTrain.clear();
@@ -7718,6 +7732,7 @@ void CvPlayerTraits::Serialize(PlayerTraits& playerTraits, Visitor& visitor)
 	visitor(playerTraits.m_iYieldChangeIncomingTradeRoute);
 	visitor(playerTraits.m_iStrategicResourceQuantityModifier);
 	visitor(playerTraits.m_aiResourceQuantityModifier);
+	visitor(playerTraits.m_aiNumFreeResourceOnWorldWonderCompletion);
 	visitor(playerTraits.m_abNoTrain);
 	visitor(playerTraits.m_aFreeTraitUnits);
 	visitor(playerTraits.m_aiGreatPersonCostReduction);

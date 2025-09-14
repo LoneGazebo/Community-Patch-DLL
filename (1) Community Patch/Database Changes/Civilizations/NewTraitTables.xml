@@ -485,7 +485,7 @@
 	</Table>
 
 	<!-- Spawns the specified resources with ResourceQuantity on random tiles within owned territory on world wonder completion -->
-	<Table name="Trait_FreeResourceOnWonderCompletion">
+	<Table name="Trait_FreeResourceOnWorldWonderCompletion">
 		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
 		<Column name="ResourceType" type="text" reference="Resources(Type)" notnull="true"/>
 		<Column name="ResourceQuantity" type="integer" notnull="true" default="1"/>
