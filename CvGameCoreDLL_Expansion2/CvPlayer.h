@@ -703,6 +703,7 @@ public:
 	int GetUnhappinessFromCityCount(CvCity* pAssumeCityAnnexed = NULL, CvCity* pAssumeCityPuppeted = NULL) const;
 	int GetUnhappinessFromCapturedCityCount(CvCity* pAssumeCityAnnexed = NULL, CvCity* pAssumeCityPuppeted = NULL) const;
 	int GetUnhappinessFromCityPopulation(CvCity* pAssumeCityAnnexed = NULL, CvCity* pAssumeCityPuppeted = NULL) const;
+	int GetUnhappinessFromCityBuildings(CvCity* pAssumeCityAnnexed = NULL, CvCity* pAssumeCityPuppeted = NULL) const;
 	int GetUnhappinessFromCitySpecialists(CvCity* pAssumeCityAnnexed, CvCity* pAssumeCityPuppeted) const;
 	int GetUnhappinessFromPuppetCitySpecialists() const;
 	int GetUnhappinessFromPuppetCityPopulation() const;
@@ -727,6 +728,7 @@ public:
 	int GetUnhappinessFromPillagedTiles() const;
 	int GetUnhappinessFromFamine() const;
 	int GetUnhappinessFromReligiousUnrest() const;
+	int GetUnhappinessFromBuildings() const;
 	int GetUnhappinessFromCityJFDSpecial() const;
 
 	int GetCityCountUnhappinessMod() const;

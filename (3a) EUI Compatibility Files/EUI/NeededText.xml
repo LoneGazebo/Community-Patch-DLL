@@ -59,6 +59,9 @@
 		<Row Tag="TXT_KEY_CITYVIEW_UNHIDE_BUILDINGS_TT">
 			<Text>Make hidden buildings visible again in this city's production options.</Text>
 		</Row>
+		<Row Tag="TXT_KEY_PEDIA_UNHAPPINESS_LABEL">
+			<Text>Unhappiness:</Text>
+		</Row>
 		<!-- Condensed Help Texts -->
 		<Row>
 			<Tag>TXT_KEY_CITYVIEW_PURCHASE_TT_BUILDING</Tag>

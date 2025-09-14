@@ -1406,6 +1406,9 @@
 		<Row Tag="TXT_KEY_EO_CITY_EMPIRE">
 			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN_RED]: "[ICON_WAR] War! What is it good for!?"</Text>
 		</Row>
+		<Row Tag="TXT_KEY_UNHAPPINESS_REASON_CITY_BUILDINGS">
+			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN_RED]: "We just don't like it here!"</Text>
+		</Row>
 		<Row Tag="TXT_KEY_EO_CITY_CONNECTED">
 			<Text>[COLOR_POSITIVE_TEXT]Connected[ENDCOLOR]</Text>
 		</Row>

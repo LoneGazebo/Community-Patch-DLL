@@ -580,6 +580,11 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		iBonus += iHappinessValue * pkBuildingInfo->GetUnmoddedHappiness();
 	}
 
+	if (pkBuildingInfo->GetUnhappiness() > 0)
+	{
+		iBonus -= iHappinessValue * pkBuildingInfo->GetUnhappiness();
+	}
+
 	if (pkBuildingInfo->GetGlobalHappinessPerMajorWar() > 0)
 	{
 		iBonus += iHappinessValue * pkBuildingInfo->GetGlobalHappinessPerMajorWar() * max(1, kPlayer.GetMilitaryAI()->GetNumberCivsAtWarWith(false));

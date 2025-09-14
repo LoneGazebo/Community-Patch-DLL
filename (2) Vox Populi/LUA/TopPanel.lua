@@ -1012,6 +1012,11 @@ function HappinessTipHandler( control )
 			if (UrbanizationPuppetUnhappiness ~= 0) then
 				strText = strText .. "[NEWLINE][ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_UNHAPPINESS_PUPPET_CITIES_SPECIALISTS", UrbanizationPuppetUnhappiness);
 			end
+
+			local BuildingsUnhappiness = pPlayer:GetUnhappinessFromBuildings();
+			if (BuildingsUnhappiness ~= 0) then
+				strText = strText .. "[NEWLINE][ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_UNHAPPINESS_BUILDINGS", BuildingsUnhappiness);
+			end
 		end
 
 		strText = strText .. "[/COLOR]";
