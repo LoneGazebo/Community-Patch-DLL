@@ -1,0 +1,414 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_CITYSTATE_ABERNETHY">
+			<Text>Abernethy</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_ABERNETHY_ADJ">
+			<Text>Abernethian</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_ABERNETHY_PEDIA">
+			<Text>Nestled in the heart of ancient Scotland, Abernethy was an early Pictish settlement with significant religious and political importance. Founded before the early medieval period, the settlement became a center of Christian learning and governance, eventually housing one of Scotland's oldest surviving round towers.[NEWLINE][NEWLINE]By the 11th century AD, Abernethy was an influential religious hub under Pictish and later Scottish rule, serving as a monastic center. The establishment of religious institutions solidified its prominence, with connections to the expanding Christian church across the British Isles. The area was also historically linked to Scottish royalty, with several significant treaties and power shifts occurring in its vicinity.[NEWLINE][NEWLINE]Over time, Abernethy's political influence waned, giving way to larger centers like St. Andrews. However, its religious significance endured, and the town remains an important historical and archaeological site. Today, Abernethy is a quiet Scottish village, but its well-preserved round tower and medieval heritage continue to attract scholars and visitors interested in Scotland's early history.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CITYSTATE_AKSUM">
+			<Text>Aksum</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_AKSUM_ADJ">
+			<Text>Aksumite</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_AKSUM_PEDIA">
+			<Text>Aksum, located in modern-day Ethiopia, was one of the great civilizations of the ancient world. Established around the 4th century BC, it became a major trading empire, controlling key routes between Africa, Arabia, and the Mediterranean. The city was renowned for its impressive stone obelisks and its written script known as Ge'ez.[NEWLINE][NEWLINE]By the 4th century AD, Aksum had adopted Christianity under King Ezana, making it the second ever Christian state in the world. This religious transformation led to the construction of magnificent churches and monasteries, many of which still stand today. The kingdom maintained its influence through maritime trade, minting its own coinage and maintaining diplomatic ties with the Roman and Persian Empires.[NEWLINE][NEWLINE]However, the rise of Islamic powers in the 7th century, along with environmental changes and shifting trade routes, led to Aksum's gradual decline. By the 10th century, the city had lost much of its former prestige. Today, Aksum remains a site of historical and religious significance, with its ancient stelae fields and churches attracting archaeologists and pilgrims alike.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CITYSTATE_ARGOS">
+			<Text>Argos</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_ARGOS_ADJ">
+			<Text>Argive</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_ARGOS_PEDIA">
+			<Text>Argos, one of the oldest continuously inhabited cities in Greece, has a history stretching back over 7,000 years. Situated in the northeastern Peloponnesus, it played a central role in the development of Greek culture, particularly during the Mycenaean and Classical periods. In antiquity, Argos was known for its contributions to art, theater, and politics, as well as its powerful military traditions.[NEWLINE][NEWLINE]During the Mycenaean era (1600-1100 BC), Argos was a major center of power, closely associated with legendary figures such as Perseus and Agamemnon. It remained influential into the Archaic and Classical periods, pioneering advances in sculpture and city planning. The city was a leader in the development of Greek hoplite warfare and played a key role in the Persian and Peloponnesian Wars.[NEWLINE][NEWLINE]Despite its decline in later centuries due to shifting political and military landscapes, Argos retained its cultural significance. Today, its rich archaeological heritage—including the ruins of ancient temples, theaters, and the Heraion of Argos—makes it an important site for historians and visitors alike.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CITYSTATE_ASSUR">
+			<Text>Assur</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_ASSUR_ADJ">
+			<Text>Assur</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_ASSUR_PEDIA">
+			<Text>One of the earliest and most significant cities of Mesopotamia, Assur served as the religious and political heart of the Assyrian Empire. Founded on the banks of the Tigris River around the 25th century BC, the city initially thrived as a hub of trade before rising to prominence as the center of one of history's most formidable military powers.[NEWLINE][NEWLINE]During the height of the Neo-Assyrian Empire (9th-7th centuries BC), Assur was revered as a sacred city dedicated to the god Ashur, from whom both the empire and city derived their names. The Assyrians, known for their advanced military strategies and vast conquests, used Assur as a base for expansion across the Near East. However, the city suffered devastating destruction in 614 BC when it was sacked by the Medes and Babylonians, marking the beginning of Assyria's decline.[NEWLINE][NEWLINE]Although briefly resettled in later centuries, Assur never regained its former power. Today, its ruins lie in present-day Iraq, recognized as a UNESCO World Heritage Site, though ongoing conflicts have threatened its preservation.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CITYSTATE_AZTLAN">
+			<Text>Aztlan</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_AZTLAN_ADJ">
+			<Text>Aztlan</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_AZTLAN_PEDIA">
+			<Text>Aztlan is the legendary ancestral home of the Aztec people, believed to have been located somewhere in northern Mexico or the southwestern United States. According to Aztec mythology, the Mexica people migrated south from Aztlan in the 12th century, guided by their god Huitzilopochtli, until they founded Tenochtitlan in 1325 AD. Though its precise location remains unknown, Aztlan holds a significant place in the cultural and national identity of Mexico.[NEWLINE][NEWLINE]While Aztlan itself was never an established political entity, its symbolic importance persisted throughout Aztec history. The concept of Aztlan was later revived in the 20th century by the Chicano movement as a representation of indigenous heritage and cultural pride.[NEWLINE][NEWLINE]Today, Aztlan remains an enigmatic and controversial topic among historians and archaeologists, but its legacy endures in the myths and cultural identity of the Mexican people.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CITYSTATE_BAN_CHIANG">
+			<Text>Ban Chiang</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_BAN_CHIANG_ADJ">
+			<Text>Ban Chiang</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_BAN_CHIANG_PEDIA">
+			<Text>Located in present-day Thailand, Ban Chiang is one of Southeast Asia's most significant prehistoric archaeological sites. It was inhabited as early as 1500 BC and became a center of early metalworking, with evidence of advanced bronze production dating back thousands of years. The settlement provides crucial insights into the development of early agrarian societies in the region.[NEWLINE][NEWLINE]Excavations at Ban Chiang in the 20th century uncovered a wealth of artifacts, including elaborately painted pottery, bronze tools, and burial sites that suggest a complex and sophisticated culture. The discovery revolutionized scholars' understanding of early civilization in Southeast Asia.[NEWLINE][NEWLINE]Today, Ban Chiang is a UNESCO World Heritage Site, attracting archaeologists and tourists alike. The Ban Chiang National Museum showcases many of the artifacts discovered at the site, ensuring that the legacy of this ancient civilization endures.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CITYSTATE_BRANDENBURG">
+			<Text>Brandenburg</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_BRANDENBURG_ADJ">
+			<Text>Brandenburg</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_BRANDENBURG_PEDIA">
+			<Text>Brandenburg, a medieval fortress city, played a crucial role in the history of what is now northern Germany. First established as a Slavic stronghold in the early Middle Ages, it was later conquered by Germanic forces during the eastward expansion of the Holy Roman Empire. By the 10th century, Brandenburg had become a key defensive and administrative center, overseeing trade and military operations in the region.[NEWLINE][NEWLINE]During the 12th and 13th centuries, Brandenburg flourished under German rule, developing into a prominent hub for commerce and craftsmanship. Its fortified walls, stone towers, and central keep made it a formidable stronghold against external threats, including incursions from neighboring Slavic tribes and rival feudal lords. The Teutonic Order and other Christian military groups played a role in shaping its strategic importance during the Northern Crusades.[NEWLINE][NEWLINE]However, as medieval power structures shifted and trade routes evolved, Brandenburg gradually lost its prominence. By the 16th century, much of its military significance had waned, and it transitioned into a more provincial center. Today, the ruins of Brandenburg stand as a testament to its storied past, attracting historians and tourists interested in its medieval legacy.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CITYSTATE_DJENNE">
+			<Text>Djenne</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_DJENNE_ADJ">
+			<Text>Djennean</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_DJENNE_PEDIA">
+			<Text>One of West Africa's most ancient cities, Djenne was founded around the 12th century in present-day Mali. Strategically located along trade routes connecting the Sahara to the West African interior, it became a vital hub for commerce, particularly in salt, gold, and textiles.[NEWLINE][NEWLINE]Djenne reached its peak in the Middle Ages as part of the Mali Empire, serving as a center for Islamic scholarship and culture. The city's most famous landmark, the Great Mosque of Djenne, built in the 13th century and later reconstructed in 1907, remains the largest mud-brick structure in the world.[NEWLINE][NEWLINE]Today, Djenne is a UNESCO World Heritage Site, renowned for its unique Sudano-Sahelian architecture and rich history. Though modern challenges such as climate change and urbanization threaten its preservation, efforts are ongoing to maintain its cultural and historical significance.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CITYSTATE_DORESTAD">
+			<Text>Dorestad</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_DORESTAD_ADJ">
+			<Text>Dorestad</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_DORESTAD_PEDIA">
+			<Text>Dorestad was a major trading center in the early medieval Low Countries, located in what is now the Netherlands. Flourishing between the 7th and 9th centuries, it was strategically situated along the banks of the Rhine River, making it a hub for commerce between the Frankish Empire, Scandinavia, and the British Isles.[NEWLINE][NEWLINE]The city's prosperity was built on its role as a key trading post, facilitating the exchange of goods such as textiles, wine, and luxury items. However, Dorestad's wealth also made it a target for Viking raids, which, along with shifting river courses and changing trade patterns, contributed to its decline by the late 9th century.[NEWLINE][NEWLINE]Today, little remains of Dorestad, but archaeological excavations have uncovered valuable artifacts that provide insights into its vibrant past. The site continues to be studied as an important link in the economic and political history of early medieval Europe.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CITYSTATE_ECBATANA">
+			<Text>Ecbatana</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_ECBATANA_ADJ">
+			<Text>Ecbatanan</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_ECBATANA_PEDIA">
+			<Text>Ecbatana, the ancient capital of Media, was one of the great cities of antiquity, located in present-day Iran. Founded in the late 8th century BCE, it became the political and cultural center of the Median Empire before being absorbed by the Achaemenid Persians in the 6th century BCE. Its strategic location in the Zagros Mountains made it a key administrative and military hub throughout Persian, Hellenistic, and Parthian rule.[NEWLINE][NEWLINE]Under Achaemenid and later Seleucid rule, Ecbatana remained an important city, serving as a summer residence for Persian kings due to its cooler climate. The city also played a role in the campaigns of Alexander the Great, who captured it in 330 BCE during his conquest of Persia.[NEWLINE][NEWLINE]Today, the remains of Ecbatana are located in modern-day Hamadan, Iran. While much of the ancient city lies buried, excavations have uncovered fortifications, palatial structures, and artifacts that continue to shed light on its historical significance.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CITYSTATE_ENNS">
+			<Text>Enns</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_ENNS_ADJ">
+			<Text>Enns</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_ENNS_PEDIA">
+			<Text>Located along the Danube River in modern-day Austria, Enns is one of the oldest towns in Central Europe, tracing its origins to the Roman settlement of Lauriacum in the 1st century AD. The town became a key military outpost along the northern frontier of the Roman Empire and later developed into an important medieval trading center.[NEWLINE][NEWLINE]During the Middle Ages, Enns flourished as part of the Duchy of Austria, receiving official town status in 1212. Its strategic position along trade routes allowed it to grow into a significant center of commerce and governance, with its fortified walls standing as lasting testaments to its historical importance.[NEWLINE][NEWLINE]Over the centuries, Enns endured numerous conflicts, including the Napoleonic Wars, which saw parts of the town occupied and damaged. Despite these upheavals, the town remained resilient and continued to thrive as a regional hub.[NEWLINE][NEWLINE]Today, Enns is known for its well-preserved architecture, including the landmark Enns Tower, and remains a site of cultural heritage in Austria. While no longer a major political power, it retains a distinct identity as one of Austria's most historically significant towns.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CITYSTATE_ERACLEA">
+			<Text>Eraclea</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_ERACLEA_ADJ">
+			<Text>Eraclean</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_ERACLEA_PEDIA">
+			<Text>Originally founded as Heraclea in the 6th century AD, Eraclea was established by Venetian settlers fleeing the Lombard invasions of northern Italy. Located in the Venetian Lagoon, it became an important early center of administration for the emerging Republic of Venice.[NEWLINE][NEWLINE]During the early medieval period, Eraclea played a crucial role in the region's political landscape. It was the site of power struggles among noble Venetian families, including the Partecipazio dynasty, which helped shape the republic's governance. However, as Rialto (modern Venice) gained prominence, Eraclea gradually lost its political significance.[NEWLINE][NEWLINE]Today, Eraclea is a small town known for its proximity to the Adriatic Sea and its historical remnants, including ancient ruins and the legacy of its Venetian past. It remains a reminder of the Republic of Venice's formative years and the resilience of its early settlers.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CITYSTATE_HARAPPA">
+			<Text>Harappa</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_HARAPPA_ADJ">
+			<Text>Harappan</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_HARAPPA_PEDIA">
+			<Text>Harappa, one of the principal cities of the ancient Indus Valley Civilization, thrived around 2600-1900 BC in what is now modern-day Pakistan. It was a major center of trade, craftsmanship, and administration, demonstrating one of the earliest examples of urban planning in human history. The city's well-organized grid layout, advanced drainage systems, and standardized brick construction highlight the sophistication of the Harappan people.[NEWLINE][NEWLINE]At its height, Harappa was a bustling hub, connected to other Indus Valley cities such as Mohenjo-daro through an extensive trade network. Artifacts suggest interactions with Mesopotamia, indicating a far-reaching exchange of goods and ideas. The city's economy was supported by agriculture, metallurgy, and craft production, with a script—yet to be fully deciphered—that hints at a complex administrative structure.[NEWLINE][NEWLINE]By 1900 BC, Harappa experienced decline, possibly due to climate change, shifts in trade routes, or societal disruptions. The city was eventually abandoned, but its legacy endures through ongoing archaeological discoveries that continue to shed light on one of the world's earliest civilizations.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CITYSTATE_HEIDABIR">
+			<Text>Heidabir</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_HEIDABIR_ADJ">
+			<Text>Heidabiran</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_HEIDABIR_PEDIA">
+			<Text>Heidabir, known today as Hedeby, was one of the most significant trading settlements of the Viking Age. Located in present-day northern Germany near the Danish border, it was founded in the late 8th century AD and quickly became a key center for commerce between Scandinavia, the Frankish Empire, and the Slavic regions. Positioned at the crossroads of major trade routes, Heidabir thrived as a hub for goods, culture, and ideas.[NEWLINE][NEWLINE]During its peak, Heidabir was one of the largest cities in Northern Europe, boasting defensive earthworks, a harbor bustling with merchants, and workshops producing goods such as jewelry, weapons, and textiles. It was also a cultural melting pot, with influences from Norse, Saxon, and Slavic traditions evident in its artifacts and architecture.[NEWLINE][NEWLINE]The city's prosperity, however, made it a target for rival powers. In 1050 AD, it was sacked and burned by King Harald Hardrada of Norway, marking the beginning of its decline. Over time, Heidabir was abandoned, overshadowed by the rise of nearby Schleswig. Today, the remains of Hedeby are an invaluable archaeological site, offering insights into Viking Age trade, craftsmanship, and daily life. The site has been recognized as a UNESCO World Heritage site, preserving its legacy as one of the great trading centers of medieval Europe.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CITYSTATE_HOLMUL">
+			<Text>Holmul</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_HOLMUL_ADJ">
+			<Text>Holmul</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_HOLMUL_PEDIA">
+			<Text>Holmul was an important Maya city located in present-day Guatemala, flourishing during the Classic Period (c. 250-900 AD). Positioned along key trade routes, it played a crucial role in the interaction between major Maya polities, including Tikal and Naranjo. The city's art and architecture reflect strong influences from these neighboring powers, as well as unique local traditions.[NEWLINE][NEWLINE]Archaeological discoveries at Holmul have provided significant insight into Maya civilization. Notable finds include intricately carved stelae, polychrome murals, and elaborate tombs of elite rulers. A remarkable frieze uncovered in 2013 depicted powerful rulers and deities, shedding light on the political dynamics of the Late Classic Period.[NEWLINE][NEWLINE]Today, Holmul remains an active archaeological site, with ongoing excavations continuing to uncover its past. The site's discoveries contribute to a broader understanding of Maya history, reinforcing its significance as a cultural and historical landmark.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CITYSTATE_HUARI">
+			<Text>Huari</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_HUARI_ADJ">
+			<Text>Huari</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_HUARI_PEDIA">
+			<Text>Huari was the capital of the Wari civilization, a powerful Andean empire that flourished between the 6th and 10th centuries AD in present-day Peru. Situated in the Ayacucho Valley, Huari was one of the first large urban centers in the Andes, covering an area of several square kilometers and supporting a population of tens of thousands at its peak.[NEWLINE][NEWLINE]The Wari civilization pioneered many advancements, including extensive road networks, terraced agriculture, and large-scale urban planning. Huari served as the administrative and religious heart of the empire, with well-organized infrastructure and monumental architecture that reflected the state's centralized control.[NEWLINE][NEWLINE]By the 10th century, the Wari civilization declined due to environmental changes and possible internal conflicts. Huari was gradually abandoned, though its influence persisted in later Andean cultures, including the Inca. Today, its ruins remain a crucial archaeological site, offering insight into the pre-Incan societies that shaped Andean history.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CITYSTATE_KWA_BULAWAYO">
+			<Text>Kwa-Bulawayo</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_KWA_BULAWAYO_ADJ">
+			<Text>Bulawayan</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_KWA_BULAWAYO_PEDIA">
+			<Text>Founded in the 19th century by King Mzilikazi, Kwa-Bulawayo was final capital of the Ndebele Kingdom, located in present-day Zimbabwe. Its name, meaning "the one to be killed," reflects the turbulent power struggles that shaped its early history. Serving as the political and military center of the Ndebele people, it became a stronghold against external threats, including British and Boer incursions.[NEWLINE][NEWLINE]Under Mzilikazi and his successor, Lobengula, Kwa-Bulawayo flourished as a hub of trade and governance. However, tensions with British colonial forces escalated in the late 19th century, culminating in the Anglo-Ndebele War of 1893. The British South Africa Company forces, armed with superior weaponry, overran the city, forcing the Ndebele to flee. Following the war, Kwa-Bulawayo was burned and abandoned, and a new colonial settlement was established nearby.[NEWLINE][NEWLINE]Today, modern Bulawayo stands as Zimbabwe's second-largest city and a major cultural and industrial center. While the original Kwa-Bulawayo no longer exists, its legacy endures in the Ndebele people's history and heritage, with sites such as the nearby Matobo Hills preserving the memory of their once-mighty kingdom.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CITYSTATE_LONGCHENG">
+			<Text>Longcheng</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_LONGCHENG_ADJ">
+			<Text>Longchengese</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_LONGCHENG_PEDIA">
+			<Text>Nestled in the valley of the Fen River in northern China, Longcheng—known in ancient times as Jinyang and now identified with modern-day Taiyuan—has served as a military and political stronghold for over two thousand years. Founded during the Spring and Autumn period, the city grew into a strategic hub due to its location along key mountain passes and its proximity to the northern frontier.[NEWLINE][NEWLINE]Longcheng reached prominence under the Northern Wei and Tang dynasties, when it was heavily fortified and served as a bulwark against nomadic incursions from the steppe. During the An Lushan Rebellion in the 8th century, it became a major military center, and its garrisons played decisive roles in the civil wars that followed. In later centuries, under the Ming and Qing dynasties, the city flourished as a center for coal mining and ironworking, supporting the empire's growing need for metal and energy.[NEWLINE][NEWLINE]Throughout the 20th century, Longcheng once again found itself on the front lines—first during the Second Sino-Japanese War, then as a contested site during the Chinese Civil War. Its industrial strength and location made it a key prize for rival factions vying for control over northern China.[NEWLINE][NEWLINE]Today, Longcheng remains an influential provincial capital, balancing its ancient legacy with rapid modernization. Its enduring strategic and industrial significance makes it a powerful ally—or rival—in any diplomatic struggle.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CITYSTATE_LUTETIA">
+			<Text>Lutetia</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_LUTETIA_ADJ">
+			<Text>Lutetian</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_LUTETIA_PEDIA">
+			<Text>Lutetia, the ancient precursor to modern-day Paris, was originally a settlement of the Parisii, a Celtic tribe inhabiting the banks of the Seine River. By the 1st century BC, it had become a thriving trade hub, benefiting from its strategic position along river routes. The Romans conquered Lutetia in 52 BC, incorporating it into their growing empire.[NEWLINE][NEWLINE]Under Roman rule, Lutetia saw the construction of aqueducts, baths, temples, and an amphitheater, bringing the sophistication of Roman engineering to the city. The Cardo and Decumanus streets structured the urban landscape, while the Forum became the heart of civic life. Despite these advancements, the city was sacked during the Barbarian invasions of the 3rd century AD, gradually leading to its fortification on the Île de la Cité.[NEWLINE][NEWLINE]By the early medieval period, Lutetia had evolved into the foundation of what would become Paris, gradually growing into one of Europe's most influential cities. Today, remnants of its Roman past, such as the Arènes de Lutèce and the Thermes de Cluny, serve as a reminder of the city's ancient origins.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CITYSTATE_MSOURA">
+			<Text>Msoura</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_MSOURA_ADJ">
+			<Text>Msouran</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_MSOURA_PEDIA">
+			<Text>Msoura is an ancient archaeological site located in present-day Morocco, best known for its massive stone circle, the Msoura Cromlech. Dating back to the pre-Roman period, the site is believed to be linked to the ancient Berber kingdom of Mauretania, which flourished in North Africa before becoming a client state of Rome. The cromlech consists of 167 standing stones surrounding a central tumulus, suggesting its use as a burial or ceremonial site.[NEWLINE][NEWLINE]The origins and purpose of the Msoura Cromlech remain a topic of scholarly debate. Some theories propose that it was a royal burial site, possibly for a Mauretanian king, while others suggest it had religious or astronomical significance. The construction of such a megalithic structure indicates the advanced social and engineering capabilities of the Berber people of the time.[NEWLINE][NEWLINE]Today, Msoura stands as one of Morocco's most enigmatic ancient sites. While less known compared to other North African ruins, it attracts historians and archaeologists interested in Berber heritage and early civilization in the region.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CITYSTATE_NIPPUR">
+			<Text>Nippur</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_NIPPUR_ADJ">
+			<Text>Nippurian</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_NIPPUR_PEDIA">
+			<Text>One of the most significant religious centers of ancient Mesopotamia, Nippur was located in what is now southern Iraq. It served as the spiritual heart of the Sumerian and Akkadian civilizations, revered as the city of Enlil, the supreme deity of the Sumerian pantheon. Nippur's central temple, the Ekur, was believed to be the cosmic bond between heaven and earth.[NEWLINE][NEWLINE]Despite lacking direct political power, Nippur's religious importance ensured its influence throughout multiple empires. It remained a major site of scholarship and temple activity well into the Parthian period. However, as Mesopotamia's power shifted toward Babylon and other centers, Nippur gradually declined and was abandoned.[NEWLINE][NEWLINE]Excavations in the 19th and 20th centuries uncovered vast cuneiform archives, offering invaluable insights into Sumerian and Akkadian literature, law, and administration. Today, its ruins remain an important site for archaeologists studying ancient Mesopotamian culture.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CITYSTATE_NOVGOROD">
+			<Text>Novgorod</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_NOVGOROD_ADJ">
+			<Text>Novgorodian</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_NOVGOROD_PEDIA">
+			<Text>One of Russia's oldest cities, Novgorod was founded in the 9th century and quickly became a major political and economic center. As the heart of the Novgorod Republic, it played a crucial role in trade between the Baltic and the Byzantine Empire, establishing itself as a key hub of the Hanseatic League.[NEWLINE][NEWLINE]During its golden age in the 12th and 13th centuries, Novgorod was renowned for its sophisticated governance, vibrant culture, and impressive architectural achievements, including the Saint Sophia Cathedral, which still stands today. The city successfully resisted Mongol domination, unlike much of Russia, but later fell under the control of the Grand Duchy of Moscow in the 15th century.[NEWLINE][NEWLINE]Today, Novgorod, now known as Veliky Novgorod, is celebrated for its well-preserved medieval architecture and rich historical significance. It remains a major cultural and tourist destination, offering insight into Russia's deep-rooted heritage and traditions.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CITYSTATE_OKILIS">
+			<Text>Okilis</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_OKILIS_ADJ">
+			<Text>Okilis</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_OKILIS_PEDIA">
+			<Text>Located in the Iberian Peninsula, Okilis was an ancient settlement that played an important regional role in early Spanish history. Thought to have been inhabited by the Iberians before the Roman conquest, it became an important regional center during the Roman period. Its strategic position along trade routes allowed it to flourish as a hub for commerce and administration.[NEWLINE][NEWLINE]During the Roman era, Okilis saw significant development, including the construction of roads, public buildings, and fortifications. The city became integrated into the vast Roman network, contributing to the spread of Roman culture and governance throughout the region.[NEWLINE][NEWLINE]Though the city's prominence declined with the fall of the Western Roman Empire, remnants of its past remain visible today. Archaeological excavations continue to uncover artifacts and structures that shed light on Okilis' rich history, ensuring its legacy is preserved for future generations.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CITYSTATE_ONONDAGA">
+			<Text>Onondaga</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_ONONDAGA_ADJ">
+			<Text>Onondagan</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_ONONDAGA_PEDIA">
+			<Text>Onondaga, located in present-day New York, is the historical and spiritual heart of the Haudenosaunee (Iroquois) Confederacy. Established centuries before European contact, it became the central meeting place for the Grand Council, where representatives from the five (later six) nations gathered to make decisions. Known as the "Central Fire," Onondaga played a crucial role in maintaining the unity and governance of the confederacy.[NEWLINE][NEWLINE]During the colonial period, Onondaga was a key player in diplomacy, balancing relations with European powers such as the French, British, and Dutch. However, the American Revolutionary War disrupted traditional alliances, and Onondaga settlements suffered attacks from both British and American forces. Despite these hardships, the Onondaga Nation persisted, maintaining its cultural traditions and governance.[NEWLINE][NEWLINE]Today, Onondaga remains a sovereign nation with a deep cultural legacy. It continues to be the site of the Haudenosaunee Grand Council and an important center for preserving indigenous governance, language, and traditions.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CITYSTATE_OVIEDO">
+			<Text>Oviedo</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_OVIEDO_ADJ">
+			<Text>Oviedo</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_OVIEDO_PEDIA">
+			<Text>Nestled in the mountains of northern Spain, Oviedo is the capital of the autonomous community of Asturias. Founded in the 8th century AD, it became the political and religious heart of the Kingdom of Asturias, playing a crucial role in the Christian Reconquista against the Moors. The city was home to numerous pre-Romanesque churches, some of which remain standing as UNESCO World Heritage Sites.[NEWLINE][NEWLINE]During the Middle Ages, Oviedo thrived as a center of learning and pilgrimage, with the Cathedral of San Salvador drawing thousands of devout travelers. The city suffered significant damage during the Spanish Civil War but was later rebuilt, preserving much of its historical charm.[NEWLINE][NEWLINE]Today, Oviedo is known for its rich cultural heritage, lively student population, and vibrant arts scene. It remains a major tourist destination, celebrated for its well-preserved medieval architecture, traditional Asturian cider, and scenic mountain surroundings.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CITYSTATE_PAGO_PAGO">
+			<Text>Pago Pago</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_PAGO_PAGO_ADJ">
+			<Text>Pago Pago</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_PAGO_PAGO_PEDIA">
+			<Text>Pago Pago, the capital of American Samoa, is situated on the island of Tutuila in the South Pacific. The city is known for its deep natural harbor, which has made it a strategic naval and commercial port throughout history. First settled by Polynesians over a thousand years ago, Pago Pago became an important cultural and trading hub in the region.[NEWLINE][NEWLINE]In the late 19th century, Pago Pago came under American control, becoming a crucial coaling station for the U.S. Navy. During World War II, the harbor played a significant role in the Pacific theater, serving as a naval base and logistical center. American influence has remained strong in the region, shaping its political and economic development.[NEWLINE][NEWLINE]Today, Pago Pago is a vibrant city with a unique blend of Polynesian and American influences. Tourism, fishing, and government services drive its economy, while its stunning natural beauty, including rainforests and volcanic mountains, make it a popular destination for visitors.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CITYSTATE_PALATIUM">
+			<Text>Palatium</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_PALATIUM_ADJ">
+			<Text>Palatinus</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_PALATIUM_PEDIA">
+			<Text>Palatium, modern Palatine Hill in Rome, was one of the most significant sites of the Roman Empire. Traditionally believed to be the location of Romulus' founding of Rome in 753 BC, the hill became home to emperors, aristocrats, and religious institutions throughout antiquity. The word "palace" itself derives from "Palatium," reflecting its historical importance as a seat of power.[NEWLINE][NEWLINE]During the height of the Roman Empire, the Palatine Hill was adorned with grand palaces, including the Domus Augustana and Domus Flavia, commissioned by emperor Domitian. These structures showcased Roman architectural advancements, luxurious living quarters, and extensive gardens.[NEWLINE][NEWLINE]Today, the ruins of Palatium remain one of Rome's most visited archaeological sites. Tourists and historians alike explore its remnants, offering insight into the opulence of ancient Roman civilization and its enduring legacy in Western culture.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CITYSTATE_PERGE">
+			<Text>Perge</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_PERGE_ADJ">
+			<Text>Pergean</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_PERGE_PEDIA">
+			<Text>Located in the fertile plains of southern Anatolia near the Mediterranean coast, Perge was an ancient city of Pamphylia, flourishing especially during the Hellenistic and Roman periods. Situated along the Cestrus River (now Aksu), it served as a prosperous cultural and religious center, famed for its impressive colonnaded streets, theater, and the grand Temple of Artemis Pergaia.[NEWLINE][NEWLINE]Founded as early as the Bronze Age and later colonized by Greeks, Perge rose to prominence under Alexander the Great and subsequently under Seleucid and Roman rule. Its strategic inland location protected it from pirate raids that plagued the coastline, enabling the city to develop as a stable hub of commerce and art. During the Roman era, it was embellished with monumental architecture, aqueducts, and public baths, many of which remain partially intact today.[NEWLINE][NEWLINE]One of Perge's most notable historical figures is the mathematician and astronomer Apollonius of Perga, whose work on conic sections laid important foundations for later mathematical developments. The city was also an early center of Christianity, visited by St. Paul during his missionary journeys.[NEWLINE][NEWLINE]Though it declined after Arab invasions in the 7th century, Perge's ruins remain a testament to its former grandeur. Today, it stands as a key archaeological site in modern Turkey, offering visitors a vivid glimpse into the layered history of Anatolia and the legacy of ancient urban life.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CITYSTATE_RAQMU">
+			<Text>Raqmu</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_RAQMU_ADJ">
+			<Text>Raqmu</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_RAQMU_PEDIA">
+			<Text>Known today as Petra, Raqmu was the capital of the Nabataean Kingdom, flourishing as a major trading hub in the deserts of modern-day Jordan. Established as early as the 4th century BC, it lay at the crossroads of key trade routes connecting Arabia, Egypt, and the Mediterranean. The Nabataeans, masterful engineers, carved intricate structures and water management systems into the red sandstone cliffs, making Raqmu one of the most visually striking cities of antiquity.[NEWLINE][NEWLINE]At its height in the 1st century AD, Raqmu prospered through trade in incense, spices, and textiles. However, its fortunes waned following the annexation by the Roman Empire in 106 AD and the later shift of trade routes, leading to its gradual decline. By the early Islamic period, the city had largely been abandoned.[NEWLINE][NEWLINE]Rediscovered by Swiss explorer Johann Ludwig Burckhardt in 1812, Raqmu remains one of the most iconic archaeological sites in the world. Today, it is a UNESCO World Heritage Site and one of Jordan's most visited tourist attractions, renowned for its rock-cut architecture, particularly the Al-Khazneh ("The Treasury").</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CITYSTATE_SALEM">
+			<Text>Salem</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_SALEM_ADJ">
+			<Text>Salemite</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_SALEM_PEDIA">
+			<Text>Founded in 1626 on the northeastern coast of present-day Massachusetts, Salem quickly became one of the most important ports in colonial New England. Originally settled by English Puritans seeking religious autonomy, the town was named after the Hebrew word Shalom, meaning "peace." By the late 17th century, Salem had grown into a thriving center of trade, shipbuilding, and fishing, playing a key role in early American commerce.[NEWLINE][NEWLINE]Salem is best known for the infamous Witch Trials of 1692, during which mass hysteria led to the execution of nineteen people accused of witchcraft. The trials, fueled by superstition, fear, and political tensions, left a lasting scar on the town's history and became one of the most infamous episodes of early American colonial life. Despite the turmoil, Salem recovered and continued to prosper, becoming a major hub for maritime trade during the 18th and early 19th centuries, with its merchants reaching markets as far as China and the East Indies.[NEWLINE][NEWLINE]By the mid-19th century, Salem's prominence as a trading power waned, overshadowed by the rise of larger ports like Boston and New York. However, the city adapted, developing industries such as textiles and manufacturing while preserving its rich historical legacy.[NEWLINE][NEWLINE]Today, Salem embraces its past, drawing visitors from around the world to its museums, preserved colonial architecture, and sites related to the Witch Trials. The city is a cultural and educational hub, home to the renowned Peabody Essex Museum and a vibrant tourism industry centered around its colonial and maritime history.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CITYSTATE_SHANGHAI">
+			<Text>Shanghai</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_SHANGHAI_ADJ">
+			<Text>Shanghai</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_SHANGHAI_PEDIA">
+			<Text>Perched on the estuary of the Yangtze River, Shanghai grew from a modest fishing village into one of China's most important economic and cultural centers. Though settled earlier, it was officially recognized as a market town in 1292 under the Yuan dynasty. Its strategic position on China's eastern seaboard made it an increasingly vital port, particularly under the Ming and Qing dynasties.[NEWLINE][NEWLINE]Shanghai's modern rise began in the 19th century, when it became one of the key treaty ports opened to foreign trade following the First Opium War. International settlements established by the British, French, and Americans transformed the city into a global crossroads of commerce, finance, and cosmopolitan life. The city's skyline rapidly changed, with Western-style architecture and institutions standing beside traditional Chinese quarters.[NEWLINE][NEWLINE]In the early 20th century, Shanghai earned a reputation as the "Paris of the East," a vibrant, if often tumultuous, center of industry, nightlife, and political intrigue. It played a critical role in the formation of the Chinese Communist Party in 1921 and endured brutal occupation during the Second Sino-Japanese War.[NEWLINE][NEWLINE]Today, Shanghai is one of the world's largest and most dynamic metropolises—China's financial powerhouse and a symbol of its global ambitions. Its enduring legacy as a gateway between East and West makes it a formidable force in diplomacy and trade.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CITYSTATE_SHEDET">
+			<Text>Shedet</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_SHEDET_ADJ">
+			<Text>Shedet</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_SHEDET_PEDIA">
+			<Text>Shedet, known to the Greeks as Crocodilopolis, was an important religious and administrative center in ancient Egypt. Located in the Faiyum Oasis, it was founded during the Old Kingdom (c. 2700-2200 BC) and became known for its worship of Sobek, the crocodile-headed god associated with fertility and military prowess. The city's prosperity was tied to the Faiyum region's extensive irrigation projects, which transformed the area into a thriving agricultural hub.[NEWLINE][NEWLINE]During the Ptolemaic period (305-30 BC), Shedet remained a major religious site, with its temple dedicated to Sobek attracting pilgrims from across Egypt. The Ptolemies integrated Greek elements into the city's culture while maintaining its deep-rooted Egyptian traditions. The sacred crocodiles housed in the temple, believed to be incarnations of Sobek, were cared for by priests and venerated by worshippers.[NEWLINE][NEWLINE]With the spread of Christianity and the decline of ancient Egyptian religion, Shedet lost its prominence. Over time, the city's ruins were buried beneath layers of history, though traces of its grand temple and irrigation systems remain. Today, modern Faiyum stands near the ancient site, with archaeologists uncovering new insights into the city's role in Egypt's religious and economic history.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CITYSTATE_SIGTUNA">
+			<Text>Sigtuna</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_SIGTUNA_ADJ">
+			<Text>Sigtunian</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_SIGTUNA_PEDIA">
+			<Text>Founded in the late 10th century, Sigtuna is Sweden's oldest preserved town, established during the reign of King Erik the Victorious. Located along Lake Mälaren, it quickly became a political and religious center, serving as an early hub for Christianization in Scandinavia. The town was home to Sweden's first minted coins, reflecting its role as an emerging economic power.[NEWLINE][NEWLINE]During the medieval period, Sigtuna flourished as a trading center, connecting Sweden with the rest of Europe. Numerous churches and monastic institutions were built, cementing its status as a religious stronghold. However, in the 13th century, its prominence declined as Stockholm rose to prominence.[NEWLINE][NEWLINE]Today, Sigtuna is a charming historical town, preserving its medieval heritage through well-preserved ruins, runestones, and narrow streets. It remains a key cultural site in Sweden, attracting visitors interested in its Viking and medieval history.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CITYSTATE_SOGUT">
+			<Text>Sogut</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_SOGUT_ADJ">
+			<Text>Sogutan</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_SOGUT_PEDIA">
+			<Text>Sogut, located in present-day Turkey, is a town of great historical significance as the birthplace of the Ottoman Empire. In the late 13th century, it served as the stronghold of Ertugrul Bey, leader of the Kayi tribe of Oghuz Turks. His son, Osman I, would go on to establish the Ottoman state, which grew into one of the most powerful empires in history.[NEWLINE][NEWLINE]During its early years, Sogut was a frontier settlement, strategically positioned between the weakening Byzantine Empire and emerging Turkish principalities. It became a launching point for Ottoman expansion, with Osman and his successors gradually conquering surrounding territories.[NEWLINE][NEWLINE]Today, Sogut is a small but culturally significant town. It hosts annual ceremonies commemorating the founding of the Ottoman Empire and remains a site of pilgrimage for those interested in Turkish and Ottoman history.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CITYSTATE_TROWULAN">
+			<Text>Trowulan</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_TROWULAN_ADJ">
+			<Text>Trowulani</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_TROWULAN_PEDIA">
+			<Text>Trowulan, located in East Java, Indonesia, was the capital of the Majapahit Empire, which thrived between the 13th and 15th centuries AD. As the political and cultural heart of one of Southeast Asia's greatest maritime empires, Trowulan was a bustling urban center, featuring grand palaces, temples, canals, and marketplaces that facilitated trade and governance.[NEWLINE][NEWLINE]The city played a key role in Majapahit's expansion, with its influence extending across much of present-day Indonesia, Malaysia, and beyond. It was home to a highly organized society, where art, literature, and Hindu-Buddhist traditions flourished. The Nagarakretagama, an epic poem from the era, describes the city's grandeur and its role in the empire's administration.[NEWLINE][NEWLINE]By the late 15th century, Trowulan began to decline due to internal strife and external pressures, including the rise of Islamic sultanates. Eventually abandoned, its ruins were rediscovered in the 19th century, and today, Trowulan remains an important archaeological site, offering valuable insights into Indonesia's pre-colonial history.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CITYSTATE_UTICA">
+			<Text>Utica</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_UTICA_ADJ">
+			<Text>Utican</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_UTICA_PEDIA">
+			<Text>One of the earliest Phoenician settlements in North Africa, Utica was traditionally founded around the 8th century BC, predating even Carthage. Situated near the mouth of the Medjerda River in present-day Tunisia, it quickly became an important commercial hub due to its proximity to Mediterranean trade routes. As one of the leading Phoenician colonies, Utica played a vital role in regional commerce, facilitating trade between Carthage, other Punic settlements, and the wider Mediterranean world.[NEWLINE][NEWLINE]Despite its early prominence, Utica was eventually overshadowed by the rise of Carthage. However, during the Third Punic War (149-146 BC), Utica sided with Rome against its Punic rival. As a reward for its allegiance, Rome granted Utica special status, making it the capital of the newly established Roman province of Africa. Under Roman rule, the city flourished as a center of agriculture and trade, benefitting from the fertile lands surrounding it.[NEWLINE][NEWLINE]By the late Roman period, however, Utica began to decline due to economic shifts, changing trade patterns, and the growing importance of other cities like Carthage. Eventually, the city faded into obscurity. Today, the ruins of Utica offer glimpses into its storied past, with remnants of Roman villas, mosaics, and a forum standing as a testament to its historical significance.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CITYSTATE_VELIGRAD">
+			<Text>Veligrad</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_VELIGRAD_ADJ">
+			<Text>Veligradian</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_VELIGRAD_PEDIA">
+			<Text>Veligrad, known today as Staré Mesto in the Czech Republic, was an important center of the Great Moravian Empire in the 9th century. Situated near the Morava river, it served as a political, cultural, and religious hub during the early medieval period. The city played a key role in the spread of Christianity in Central Europe, with Saints Cyril and Methodius arriving in the region to introduce the Glagolitic script and translate religious texts into Old Church Slavonic.[NEWLINE][NEWLINE]At its height, Veligrad was a fortified settlement featuring palaces, churches, and extensive trade networks. However, the Great Moravian Empire declined due to internal strife and external pressures from the invading Magyars, leading to the city's gradual abandonment by the early 10th century.[NEWLINE][NEWLINE]Today, archaeological excavations at the site have uncovered remnants of fortifications, religious structures, and everyday artifacts. The legacy of Veligrad lives on through historical reconstructions and cultural celebrations in the region.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CITYSTATE_WANGGEOM">
+			<Text>Wanggeom</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_WANGGEOM_ADJ">
+			<Text>Wanggeoman</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_WANGGEOM_PEDIA">
+			<Text>Wanggeom, also known as Wanggom-seong, was the capital of the ancient Korean kingdom of Gojoseon, traditionally founded sometime in the late 2nd millennium BC. It served as the political and cultural center of Korea's earliest known state, attributed to the legendary King Dangun. The city thrived as a hub of early civilization in Northeast Asia, developing trade networks with neighboring states in China and Manchuria.[NEWLINE][NEWLINE]During the 2nd century BC, Wanggeom faced growing pressure from the expanding Han Dynasty of China. In 108 BC, after a prolonged struggle, the Han forces captured the city, leading to the establishment of the Four Commanderies of Han, which significantly influenced Korean history. Despite this, Gojoseon's legacy persisted in later Korean kingdoms, including Goguryeo.[NEWLINE][NEWLINE]Today, the precise location of Wanggeom remains debated, with theories suggesting sites in modern Pyongyang or the Liaoning region of China. Regardless, its historical significance endures in Korean cultural identity and national history.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CITYSTATE_WINCHESTER">
+			<Text>Winchester</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_WINCHESTER_ADJ">
+			<Text>Winchesterian</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_WINCHESTER_PEDIA">
+			<Text>Situated in the rolling countryside of southern England, Winchester traces its origins to the Iron Age and Roman Britain, where it was known as Venta Belgarum. After the Roman withdrawal, the town became a prominent center of the West Saxons and was chosen as the capital of the kingdom of Wessex under King Egbert in the early 9th century.[NEWLINE][NEWLINE]Winchester flourished as a political and ecclesiastical hub during the reign of Alfred the Great, who made it the de facto capital of Anglo-Saxon England. The city's walls were rebuilt, and it became home to a major royal palace and an influential cathedral. Its scribes produced the Anglo-Saxon Chronicle, one of the most important historical records of the era.[NEWLINE][NEWLINE]Following the Norman Conquest in 1066, Winchester retained its prestige, even as power gradually shifted to London. It remained a royal and religious center well into the Middle Ages, with its cathedral—rebuilt in grand Norman style—continuing to draw pilgrims and scholars.[NEWLINE][NEWLINE]Although eclipsed by other cities in later centuries, Winchester's legacy as a cradle of English monarchy and learning remains intact. Its ancient streets, cathedral, and historic significance mark it as a city steeped in regal tradition and scholarly influence.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CITYSTATE_YAMATAI">
+			<Text>Yamatai</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_YAMATAI_ADJ">
+			<Text>Yamatai</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_YAMATAI_PEDIA">
+			<Text>Yamatai was an ancient kingdom in Japan, believed to have flourished during the late Yayoi period (c. 1st-3rd centuries AD). Ruled by the enigmatic Queen Himiko, Yamatai is described in Chinese historical records as a highly organized society with advanced political and religious structures. Himiko was recognized for uniting warring clans and maintaining peace through spiritual leadership, earning recognition from the Chinese Wei dynasty.[NEWLINE][NEWLINE]The exact location of Yamatai remains a topic of debate among historians, with theories placing it either in northern Kyushu or the Kinki region. Archaeological evidence, such as artifacts linked to early state formation, has fueled ongoing research into its whereabouts. Despite the mystery, Yamatai is seen as a precursor to Japan's classical-era Yamato state.[NEWLINE][NEWLINE]Today, the legend of Queen Himiko and the lost kingdom of Yamatai continues to capture public imagination. Historical and archaeological studies into its origins contribute to a broader understanding of Japan's early political and social development.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CITYSTATE_ZUUNMOD">
+			<Text>Zuunmod</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_ZUUNMOD_ADJ">
+			<Text>Zuunmodan</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_ZUUNMOD_PEDIA">
+			<Text>Nestled at the foot of the Bogd Khan mountain range in central Mongolia, Zuunmod has long stood as a strategic gateway to the capital heartland. Though the town itself emerged more recently, the surrounding area was the site of significant military conflict in the 17th century, most notably the Battle of Jao Modo in 1649. This clash saw the Khalkha Mongols, with the backing of the Qing dynasty, decisively defeat the westward-advancing Dzungar Khanate, halting their bid for dominance over eastern Mongolia.[NEWLINE][NEWLINE]The victory at Jao Modo proved pivotal in reshaping the political landscape of the region. It marked the beginning of Qing influence over Khalkha Mongolia and set the stage for the eventual incorporation of much of the Mongol steppe into the Qing Empire. The battle is remembered for its scale, coordination between cavalry and infantry, and its long-term impact on regional power dynamics.[NEWLINE][NEWLINE]In the centuries that followed, the area around Zuunmod retained military importance as a southern defense zone and supply route to Ikh Khüree (modern Ulaanbaatar). During the 20th century, Zuunmod developed into a modest administrative and garrison town. Today, it is a popular waypoint for tourists exploring the nearby ruins of Manzushir Monastery, or taking trails into the Bogd Khan holy mountain and UNESCO biosphere reserve.</Text>
+		</Row>
+	</Language_en_US>
+</GameData>
