@@ -765,15 +765,19 @@ public:
 	int Validate(CvMap& kParentMap);
 
 	bool MustPayMaintenanceHere(PlayerTypes ePlayer) const;
-	void SetArchaeologicalRecord(GreatWorkArtifactClass eType, PlayerTypes ePlayer1, PlayerTypes ePlayer2);
-	void SetArchaeologicalRecord(GreatWorkArtifactClass eType, EraTypes eEra, PlayerTypes ePlayer1, PlayerTypes ePlayer2);
-	void AddArchaeologicalRecord(GreatWorkArtifactClass eType, PlayerTypes ePlayer1, PlayerTypes ePlayer2);
-	void AddArchaeologicalRecord(GreatWorkArtifactClass eType, EraTypes eEra, PlayerTypes ePlayer1, PlayerTypes ePlayer2);
+	void SetArchaeologicalRecord(GreatWorkArtifactClass eType, PlayerTypes ePlayer1, PlayerTypes ePlayer2, bool bIgnoreNormalRestrictions = false);
+	void SetArchaeologicalRecord(GreatWorkArtifactClass eType, EraTypes eEra, PlayerTypes ePlayer1, PlayerTypes ePlayer2, bool bIgnoreNormalRestrictions = false);
+	void AddArchaeologicalRecord(GreatWorkArtifactClass eType, PlayerTypes ePlayer1, PlayerTypes ePlayer2, bool bIgnoreNormalRestrictions = false);
+	void AddArchaeologicalRecord(GreatWorkArtifactClass eType, EraTypes eEra, PlayerTypes ePlayer1, PlayerTypes ePlayer2, bool bIgnoreNormalRestrictions = false);
 	void ClearArchaeologicalRecord();
 	CvArchaeologyData GetArchaeologicalRecord() const;
 	void SetArtifactType(GreatWorkArtifactClass eType);
 	void SetArtifactGreatWork(GreatWorkType eWork);
 	bool HasWrittenArtifact() const;
+
+	bool IsEligibleForDigSite();
+	bool IsEligibleForNormalDigSite(bool bSkip);
+	bool IsEligibleForHiddenDigSite(bool bSkip);
 
 	int GetDamageFromAdjacentPlots(PlayerTypes ePlayer) const;
 

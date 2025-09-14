@@ -320,6 +320,9 @@ protected:
 	static int lGetArchaeologyArtifactWork(lua_State* L);
 	static int lHasWrittenArtifact(lua_State* L);
 
+	static int lIsEligibleForNormalDigSite(lua_State* L);
+	static int lIsEligibleForHiddenDigSite(lua_State* L);
+
 	static int lGetCityPurchaseID(lua_State* L);
 	static int lSetCityPurchaseID(lua_State* L);
 

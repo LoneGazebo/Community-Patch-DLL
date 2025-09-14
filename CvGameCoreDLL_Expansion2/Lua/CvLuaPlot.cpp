@@ -309,6 +309,9 @@ void CvLuaPlot::PushMethods(lua_State* L, int t)
 	Method(GetArchaeologyArtifactWork);
 	Method(HasWrittenArtifact);
 
+	Method(IsEligibleForNormalDigSite);
+	Method(IsEligibleForHiddenDigSite);
+
 	Method(GetCityPurchaseID);
 	Method(SetCityPurchaseID);
 	Method(GetAirUnitsTooltip);
@@ -2188,8 +2191,9 @@ int CvLuaPlot::lSetArchaeologicalRecord(lua_State* L)
 	EraTypes eEra = CvLuaArgs::toValue<EraTypes>(L, 3);
 	PlayerTypes ePlayer1 = CvLuaArgs::toValue<PlayerTypes>(L, 4);
 	PlayerTypes ePlayer2 = (PlayerTypes) luaL_optinteger(L, 5, NO_PLAYER);
+	const bool bIgnoreNormalRestrictions = luaL_optbool(L, 6, true);
 	
-	pPlot->SetArchaeologicalRecord(eType, eEra, ePlayer1, ePlayer2);
+	pPlot->SetArchaeologicalRecord(eType, eEra, ePlayer1, ePlayer2, bIgnoreNormalRestrictions);
 	return 0;
 }
 //------------------------------------------------------------------------------
@@ -2200,8 +2204,9 @@ int CvLuaPlot::lAddArchaeologicalRecord(lua_State* L)
 	EraTypes eEra = CvLuaArgs::toValue<EraTypes>(L, 3);
 	PlayerTypes ePlayer1 = CvLuaArgs::toValue<PlayerTypes>(L, 4);
 	PlayerTypes ePlayer2 = (PlayerTypes) luaL_optinteger(L, 5, NO_PLAYER);
+	const bool bIgnoreNormalRestrictions = luaL_optbool(L, 6, false);
 	
-	pPlot->AddArchaeologicalRecord(eType, eEra, ePlayer1, ePlayer2);
+	pPlot->AddArchaeologicalRecord(eType, eEra, ePlayer1, ePlayer2, bIgnoreNormalRestrictions);
 	return 0;
 }
 
@@ -2257,6 +2262,24 @@ int CvLuaPlot::lGetArchaeologyArtifactWork(lua_State* L)
 int CvLuaPlot::lHasWrittenArtifact(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlot::HasWrittenArtifact);
+}
+
+//------------------------------------------------------------------------------
+int CvLuaPlot::lIsEligibleForNormalDigSite(lua_State* L)
+{
+	CvPlot* kPlot = GetInstance(L);
+	bool bResult = kPlot->IsEligibleForNormalDigSite(false);
+	lua_pushboolean(L, bResult);
+	return 1;
+}
+
+//------------------------------------------------------------------------------
+int CvLuaPlot::lIsEligibleForHiddenDigSite(lua_State* L)
+{
+	CvPlot* kPlot = GetInstance(L);
+	bool bResult = kPlot->IsEligibleForHiddenDigSite(false);
+	lua_pushboolean(L, bResult);
+	return 1;
 }
 
 //------------------------------------------------------------------------------
