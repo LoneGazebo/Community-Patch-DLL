@@ -21,6 +21,14 @@ INSERT INTO MajorBlocksMinor
 VALUES
 	('CIVILIZATION_PERSIA', 'MINOR_CIV_KABUL');
 
+-- Also, Kabul should not have the Asian art style.
+UPDATE MinorCivilizations
+SET
+	ArtStyleType = 'ARTSTYLE_MIDDLE_EAST',
+	ArtStylePrefix = 'AFRICAN',
+	ArtStyleSuffix = '_AFRI'
+WHERE Type = 'MINOR_CIV_KABUL';
+
 -- Delete duplicated entry
 DELETE FROM Civilization_UnitClassOverrides
 WHERE CivilizationType = 'CIVILIZATION_BARBARIAN'

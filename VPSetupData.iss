@@ -49,12 +49,17 @@ Source: "Build\(3a) VP - EUI Compatibility Files\*"; Excludes: "INSTRUCTIONS.txt
 Source: "Build\(3b) 43 Civs Community Patch\(3b) 43 Civs Community Patch (v 1).modinfo"; DestDir: "{app}\MODS\(3b) 43 Civs Community Patch\"; DestName: "(3b) 43 Civs Community Patch (v 1).modinfo"; Flags: ignoreversion; Components: Civ43CPOnly Civ43EUI Civ43NoEUI
 Source: "Build\(3b) 43 Civs Community Patch\AdvancedSetup.lua"; DestDir: "{app}\MODS\(3b) 43 Civs Community Patch\"; DestName: "AdvancedSetup.lua"; Flags: ignoreversion; Components: Civ43CPOnly Civ43EUI Civ43NoEUI
 Source: "Build\(3b) 43 Civs Community Patch\CvGameCore_Expansion2.dll"; DestDir: "{app}\MODS\(1) Community Patch\"; DestName: "CvGameCore_Expansion2.dll"; Flags: ignoreversion; Components: Civ43CPOnly Civ43EUI Civ43NoEUI
-Source: "Build\(4a) Squads for VP\*"; Excludes: "*.civ5proj,*.civ5sln,*.civ5suo"; DestDir: "{app}\MODS\(4a) Squads for VP"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullNoEUI FullEUI Civ43EUI Civ43NoEUI
+Source: "Build\(4a) Squads for VP\*"; Excludes: "*.civ5proj,*.civ5sln,*.civ5suo"; DestDir: "{app}\MODS\(4a) Squads for VP"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullEUI FullNoEUI Civ43EUI Civ43NoEUI
 Source: "Build\(1) Community Patch\LUA\*"; DestDir: "{app}\MODS\(1) Community Patch\LUA"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: Core Civ43CPOnly
 Source: "Build\(2) Vox Populi\LUA\*"; DestDir: "{app}\MODS\(2) Vox Populi\LUA"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullNoEUI Civ43NoEUI
 Source: "UI_bc1\*"; DestDir: "{code:GetCIVDir}\Assets\DLC\UI_bc1"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullEUI Civ43EUI
-Source: "VPUI\*"; DestDir: "{code:GetCIVDir}\Assets\DLC\VPUI"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullEUI Civ43EUI FullNoEUI Civ43NoEUI
-Source: "VPUI Text\VPUI_tips_en_us.xml"; DestDir: "{app}\Text"; Flags: ignoreversion; Components: Civ43EUI Civ43NoEUI FullEUI FullNoEUI
+Source: "VPUI\*"; DestDir: "{code:GetCIVDir}\Assets\DLC\VPUI"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullEUI FullNoEUI Civ43EUI Civ43NoEUI
+Source: "VPUI Text\VPUI_tips_en_us.xml"; DestDir: "{app}\Text"; Flags: ignoreversion; Components: FullEUI FullNoEUI Civ43EUI Civ43NoEUI
+; Replacement of the base game Expansion2 files (either MinorCivSounds_Expansion2.xml or the .Civ5Pkg file) is necessary for newly-added City-States to load the correct audio clips on selection.
+; The .Civ5Pkg file is modified to add a new MinorCivSounds_VoxPopuli file because this is the least intrusive method. This also corrects a BNW bug with Cape Town's audio clip.
+; The added entries don't do anything if the new City-States don't exist, so this doesn't affect the game when not using VP.
+Source: "Expansion2_VoxPopuli.Civ5Pkg"; DestDir: "{code:GetCIVDir}\Assets\DLC\Expansion2"; DestName: "Expansion2.Civ5Pkg"; Flags: ignoreversion
+Source: "MinorCivSounds_VoxPopuli.xml"; DestDir: "{code:GetCIVDir}\Assets\DLC\Expansion2\Sounds\XML"; DestName: "MinorCivSounds_VoxPopuli.xml"; Flags: ignoreversion
 
 [Components]
 Name: "FullEUI"; Description: "Vox Populi (with EUI)"; Types: FullEUI; Flags: exclusive disablenouninstallwarning
@@ -75,6 +80,8 @@ Name: "43CivEUI"; Description: "43 Civ Vox Populi (with EUI)"
 [InstallDelete]
 Type: filesandordirs; Name: "{code:GetCIVDir}\Assets\DLC\UI_bc1"
 Type: filesandordirs; Name: "{code:GetCIVDir}\Assets\DLC\VPUI"
+Type: filesandordirs; Name: "{code:GetCIVDir}\Assets\DLC\Expansion2\Expansion2.Civ5Pkg"
+Type: filesandordirs; Name: "{code:GetCIVDir}\Assets\DLC\Expansion2\Sounds\XML\MinorCivSounds_VoxPopuli.xml"
 Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\cache"
 Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\Text\VPUI_tips_en_us.xml"
 Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\MODS\(1) Community Patch"
