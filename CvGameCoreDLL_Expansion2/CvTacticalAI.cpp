@@ -6518,7 +6518,7 @@ bool AttackEndsTurn(const CvUnit* pUnit, int iNumAttacksLeft)
 
 static int NumAttacksForUnit(int iMovesLeft, int iMaxAttacks, bool bFreeAttackMoves)
 {
-	return max(0, min( (iMovesLeft+GD_INT_GET(MOVE_DENOMINATOR)-1)/GD_INT_GET(MOVE_DENOMINATOR), iMaxAttacks ));
+	return bFreeAttackMoves ? max(0, iMaxAttacks) : max(0, min( (iMovesLeft+GD_INT_GET(MOVE_DENOMINATOR)-1)/GD_INT_GET(MOVE_DENOMINATOR), iMaxAttacks ));
 }
 
 CvTacticalPlot::eTactPlotDomain DomainForUnit(const CvUnit* pUnit)
