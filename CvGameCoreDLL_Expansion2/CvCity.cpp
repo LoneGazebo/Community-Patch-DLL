@@ -14085,11 +14085,11 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 				{
 					if (GET_PLAYER(getOwner()).GetPlayerTraits()->GetWonderProductionModifier() > 0)
 					{
-						plot()->AddArchaeologicalRecord(CvTypes::getARTIFACT_SARCOPHAGUS(), GET_PLAYER(getOwner()).GetCurrentEra(), getOwner(), NO_PLAYER);
+						plot()->AddArchaeologicalRecord(CvTypes::getARTIFACT_SARCOPHAGUS(), GET_PLAYER(getOwner()).GetCurrentEra(), getOwner(), NO_PLAYER, /*bIgnoreNormalRestrictions*/ true);
 					}
 					else
 					{
-						plot()->AddArchaeologicalRecord(CvTypes::getARTIFACT_ANCIENT_RUIN(), GET_PLAYER(getOwner()).GetCurrentEra(), getOwner(), NO_PLAYER);
+						plot()->AddArchaeologicalRecord(CvTypes::getARTIFACT_ANCIENT_RUIN(), GET_PLAYER(getOwner()).GetCurrentEra(), getOwner(), NO_PLAYER, /*bIgnoreNormalRestrictions*/ true);
 					}
 					GreatWorkType eGreatArtifact = CultureHelpers::GetArtifact(plot());
 					if (eGreatArtifact != NO_GREAT_WORK)
@@ -14104,6 +14104,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 							}
 						}
 					}
+					plot()->ClearArchaeologicalRecord();
 				}
 			}
 		}

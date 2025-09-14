@@ -7730,6 +7730,19 @@ void CvPlot::setResourceType(ResourceTypes eNewValue, int iResourceNum, bool bFo
 					}
 				}
 			}
+
+			// Has an artifact been planted after Archaeology was triggered? Probably the Egypt UA, could also be IGE or modmods.
+			if ((eNewValue == GD_INT_GET(ARTIFACT_RESOURCE) || eNewValue == GD_INT_GET(HIDDEN_ARTIFACT_RESOURCE)) && GC.getGame().IsArchaeologyTriggered())
+			{
+				// Give this new artifact some data if it doesn't have any already.
+				// Note: If there is an existing artifact, PopulateDigSite() will not overwrite it.
+				CvWeightedVector<GreatWorkArtifactClass> viArtifacts = GC.getGame().GetWeightedArchaeologyArtifactsList();
+				CvWeightedVector<EraTypes> viEras = GC.getGame().GetWeightedArchaeologyErasList();
+				int iPlotIndex = GetPlotIndex();
+				GreatWorkArtifactClass eArtifact = viArtifacts.ChooseByWeight(CvSeeder::fromRaw(0x4929078a).mix(iPlotIndex));
+				EraTypes eEra = viEras.ChooseByWeight(CvSeeder::fromRaw(0x119757d6).mix(iPlotIndex));
+				GC.getGame().PopulateDigSite(*this, eEra, eArtifact);
+			}
 		}
 
 		updateYield();
@@ -8303,11 +8316,11 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 		{
 			CvImprovementEntry& newImprovementEntry = *GC.getImprovementInfo(eNewValue);
 
-			ResourceTypes eArtifactResourceType = static_cast<ResourceTypes>(GD_INT_GET(ARTIFACT_RESOURCE));
-			ResourceTypes eHiddenArtifactResourceType = static_cast<ResourceTypes>(GD_INT_GET(HIDDEN_ARTIFACT_RESOURCE));
+			ResourceTypes eArtifact = static_cast<ResourceTypes>(GD_INT_GET(ARTIFACT_RESOURCE));
+			ResourceTypes eHiddenArtifact = static_cast<ResourceTypes>(GD_INT_GET(HIDDEN_ARTIFACT_RESOURCE));
 			if (newImprovementEntry.IsPermanent() || newImprovementEntry.IsCreatedByGreatPerson())
 			{
-				if (getOwner() != NO_PLAYER && (getResourceType(GET_PLAYER(getOwner()).getTeam()) == eArtifactResourceType || getResourceType(GET_PLAYER(getOwner()).getTeam()) == eHiddenArtifactResourceType))
+				if (getOwner() != NO_PLAYER && (getResourceType(GET_PLAYER(getOwner()).getTeam()) == eArtifact || getResourceType(GET_PLAYER(getOwner()).getTeam()) == eHiddenArtifact))
 				{
 					if (MOD_BALANCE_CORE_ARCHAEOLOGY_FROM_GP && GetArchaeologicalRecord().m_eArtifactType != NO_GREAT_WORK_ARTIFACT_CLASS)
 					{
@@ -8374,13 +8387,11 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 					}
 					else
 					{
-						setResourceType(NO_RESOURCE, 0);
 						ClearArchaeologicalRecord();
 					}
 				}
-				else if (getResourceType() == eArtifactResourceType || getResourceType() == eHiddenArtifactResourceType)
+				else if (getResourceType() == eArtifact || getResourceType() == eHiddenArtifact)
 				{
-					setResourceType(NO_RESOURCE, 0);
 					ClearArchaeologicalRecord();
 				}
 			}
@@ -14385,72 +14396,47 @@ bool CvPlot::MustPayMaintenanceHere(PlayerTypes ePlayer) const
 }
 
 //	---------------------------------------------------------------------------
-void CvPlot::SetArchaeologicalRecord(GreatWorkArtifactClass eType, PlayerTypes ePlayer1, PlayerTypes ePlayer2)
+void CvPlot::SetArchaeologicalRecord(GreatWorkArtifactClass eType, PlayerTypes ePlayer1, PlayerTypes ePlayer2, bool bIgnoreNormalRestrictions)
 {
-	if (ePlayer1 != NO_PLAYER)
-	{
-		m_kArchaeologyData.m_eArtifactType = eType;
-		m_kArchaeologyData.m_ePlayer1 = ePlayer1;
-		m_kArchaeologyData.m_ePlayer2 = ePlayer2;
-		m_kArchaeologyData.m_eEra = GET_PLAYER(ePlayer1).GetCurrentEra();
-	}
+	if (ePlayer1 == NO_PLAYER)
+		return;
+
+	SetArchaeologicalRecord(eType, GET_PLAYER(ePlayer1).GetCurrentEra(), ePlayer1, ePlayer2, bIgnoreNormalRestrictions);
 }
 
 //	---------------------------------------------------------------------------
-void CvPlot::SetArchaeologicalRecord(GreatWorkArtifactClass eType, EraTypes eEra, PlayerTypes ePlayer1, PlayerTypes ePlayer2)
+void CvPlot::SetArchaeologicalRecord(GreatWorkArtifactClass eType, EraTypes eEra, PlayerTypes ePlayer1, PlayerTypes ePlayer2, bool bIgnoreNormalRestrictions)
 {
-	if (ePlayer1 != NO_PLAYER)
-	{
-		m_kArchaeologyData.m_eArtifactType = eType;
-		m_kArchaeologyData.m_ePlayer1 = ePlayer1;
-		m_kArchaeologyData.m_ePlayer2 = ePlayer2;
-		m_kArchaeologyData.m_eEra = eEra;
-	}
+	if (ePlayer1 == NO_PLAYER)
+		return;
+
+	// Cannot normally add more dig site records after Archaeology is researched
+	if (!bIgnoreNormalRestrictions && GC.getGame().IsArchaeologyTriggered())
+		return;
+
+	m_kArchaeologyData.m_eArtifactType = eType;
+	m_kArchaeologyData.m_ePlayer1 = ePlayer1;
+	m_kArchaeologyData.m_ePlayer2 = ePlayer2;
+	m_kArchaeologyData.m_eEra = eEra;
 }
 
 //	---------------------------------------------------------------------------
-void CvPlot::AddArchaeologicalRecord(GreatWorkArtifactClass eType, PlayerTypes ePlayer1, PlayerTypes ePlayer2)
+void CvPlot::AddArchaeologicalRecord(GreatWorkArtifactClass eType, PlayerTypes ePlayer1, PlayerTypes ePlayer2, bool bIgnoreNormalRestrictions)
 {
-	ImprovementTypes eImprovement = getImprovementType();
-	if (eImprovement != NO_IMPROVEMENT && GC.getImprovementInfo(eImprovement))
-	{
-		if (GC.getImprovementInfo(eImprovement)->IsPermanent() || GC.getImprovementInfo(eImprovement)->IsCreatedByGreatPerson())
-			return;
-	}
-	// Make sure the new record is more significant
-	if (!GC.getGame().IsArchaeologyTriggered() && eType > m_kArchaeologyData.m_eArtifactType)
-	{
-		if (ePlayer1 != NO_PLAYER)
-		{
-			m_kArchaeologyData.m_eArtifactType = eType;
-			m_kArchaeologyData.m_ePlayer1 = ePlayer1;
-			m_kArchaeologyData.m_ePlayer2 = ePlayer2;
-			m_kArchaeologyData.m_eEra = GET_PLAYER(ePlayer1).GetCurrentEra();
-		}
-	}
+	if (ePlayer1 == NO_PLAYER)
+		return;
+
+	AddArchaeologicalRecord(eType, GET_PLAYER(ePlayer1).GetCurrentEra(), ePlayer1, ePlayer2, bIgnoreNormalRestrictions);
 }
 
 //	---------------------------------------------------------------------------
-void CvPlot::AddArchaeologicalRecord(GreatWorkArtifactClass eType, EraTypes eEra, PlayerTypes ePlayer1, PlayerTypes ePlayer2)
+void CvPlot::AddArchaeologicalRecord(GreatWorkArtifactClass eType, EraTypes eEra, PlayerTypes ePlayer1, PlayerTypes ePlayer2, bool bIgnoreNormalRestrictions)
 {
-	ImprovementTypes eImprovement = getImprovementType();
-	if (eImprovement != NO_IMPROVEMENT && GC.getImprovementInfo(eImprovement))
-	{
-		if (GC.getImprovementInfo(eImprovement)->IsPermanent() || GC.getImprovementInfo(eImprovement)->IsCreatedByGreatPerson())
-			return;
-	}
+	// New record must be more significant than the existing one, if present
+	if (!bIgnoreNormalRestrictions && eType <= m_kArchaeologyData.m_eArtifactType)
+		return;
 
-	// Make sure the new record is more significant
-	if (!GC.getGame().IsArchaeologyTriggered() && eType > m_kArchaeologyData.m_eArtifactType)
-	{
-		if (ePlayer1 != NO_PLAYER)
-		{
-			m_kArchaeologyData.m_eArtifactType = eType;
-			m_kArchaeologyData.m_ePlayer1 = ePlayer1;
-			m_kArchaeologyData.m_ePlayer2 = ePlayer2;
-			m_kArchaeologyData.m_eEra = eEra;
-		}
-	}
+	SetArchaeologicalRecord(eType, eEra, ePlayer1, ePlayer2, bIgnoreNormalRestrictions);
 }
 
 //	---------------------------------------------------------------------------
@@ -14460,14 +14446,10 @@ void CvPlot::ClearArchaeologicalRecord()
 	m_kArchaeologyData.m_ePlayer1 = NO_PLAYER;
 	m_kArchaeologyData.m_ePlayer2 = NO_PLAYER;
 	m_kArchaeologyData.m_eEra = NO_ERA;
-#if defined(MOD_BALANCE_CORE)
-	ResourceTypes eArtifactResourceType = static_cast<ResourceTypes>(GD_INT_GET(ARTIFACT_RESOURCE));
-	ResourceTypes eHiddenArtifactResourceType = static_cast<ResourceTypes>(GD_INT_GET(HIDDEN_ARTIFACT_RESOURCE));
-	if (getResourceType() == eArtifactResourceType || getResourceType() == eHiddenArtifactResourceType)
-	{
+	m_kArchaeologyData.m_eWork = NO_GREAT_WORK;
+	ResourceTypes eResource = getResourceType();
+	if (eResource == GD_INT_GET(ARTIFACT_RESOURCE) || eResource == GD_INT_GET(HIDDEN_ARTIFACT_RESOURCE))
 		setResourceType(NO_RESOURCE, 0);
-	}
-#endif
 }
 
 //	---------------------------------------------------------------------------
@@ -14491,13 +14473,54 @@ void CvPlot::SetArtifactGreatWork(GreatWorkType eWork)
 //	---------------------------------------------------------------------------
 bool CvPlot::HasWrittenArtifact() const
 {
-	bool bRtnValue = false;
-	GreatWorkArtifactClass eArtifactClass = m_kArchaeologyData.m_eArtifactType;
-	if (eArtifactClass == CvTypes::getARTIFACT_WRITING())
-	{
-		bRtnValue = true;
-	}
-	return bRtnValue;
+	return m_kArchaeologyData.m_eArtifactType == CvTypes::getARTIFACT_WRITING();
+}
+
+//	---------------------------------------------------------------------------
+/// Is this an eligible tile to place a dig site on?
+bool CvPlot::IsEligibleForDigSite()
+{
+	// Ensure no other resources, not a city, not water, etc.
+	if (!CanSpawnResource(BARBARIAN_PLAYER, /*bIgnoreTech*/ true, /*bIsLand*/ true))
+		return false;
+
+	// Tile must be improvable
+	FeatureTypes eFeature = getFeatureType();
+	if (eFeature == FEATURE_OASIS || (eFeature != NO_FEATURE && GC.getFeatureInfo(eFeature)->isNoImprovement()))
+		return false;
+
+	// Ancient Ruins? We can't have treasure hunters going spelunking before the surface has even been plundered yet!
+	if (isGoody())
+		return false;
+
+	// Don't put dig sites on Great Person tiles, that's mean
+	ImprovementTypes eImprovement = getImprovementType();
+	CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
+	static const ImprovementTypes eLandmark = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_LANDMARK");
+	if (eImprovement == eLandmark || pkImprovementInfo->IsPermanent() || pkImprovementInfo->IsCreatedByGreatPerson())
+		return false;
+
+	return true;
+}
+
+//	---------------------------------------------------------------------------
+/// Is this an eligible tile for a normal dig site?
+/// If bSkip = true, we have already handled the validations for all dig sites, and are only checking the normal site specific validations.
+bool CvPlot::IsEligibleForNormalDigSite(bool bSkip)
+{
+	if (!bSkip && !IsEligibleForDigSite())
+		return false;
+
+	return canHaveResource(GD_INT_GET(ARTIFACT_RESOURCE));
+}
+
+/// Same as above, but for hidden dig sites.
+bool CvPlot::IsEligibleForHiddenDigSite(bool bSkip)
+{
+	if (!bSkip && !IsEligibleForDigSite())
+		return false;
+
+	return canHaveResource(GD_INT_GET(HIDDEN_ARTIFACT_RESOURCE));
 }
 
 //	--------------------------------------------------------------------------------
