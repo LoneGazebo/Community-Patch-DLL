@@ -151,6 +151,10 @@ UPDATE Language_en_US
 SET Text = '{1_Num : number "#.##"} from [ICON_URBANIZATION] Urbanization (Specialists).'
 WHERE Tag = 'TXT_KEY_TP_UNHAPPINESS_SPECIALISTS';
 
+UPDATE Language_en_US
+SET Text = '[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from Buildings.'
+WHERE Tag = 'TXT_KEY_BUILDINGS_UNHAPPINESS';
+
 -- Supply
 UPDATE Language_en_US
 SET Text = 'Your empire can support {1_Num} Units. You are over that limit by {2_Num}, which decreases [ICON_PRODUCTION] Production and [ICON_FOOD] Growth in your Cities by {3_Num}%.'

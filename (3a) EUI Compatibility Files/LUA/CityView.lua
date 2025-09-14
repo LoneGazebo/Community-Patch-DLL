@@ -301,6 +301,14 @@ local function GetSelectedModifiableCity()
 	return not g_isViewingMode and GetSelectedCity()
 end
 
+local function ApplyPercentModifier(value, percent)
+	if (not percent or percent ~= 0) then
+		return value
+	end
+	
+	return value * (100 + percent) / 100
+end
+
 local cityIsCanPurchase
 if gk_mode then
 	function cityIsCanPurchase( city, ... )
@@ -928,6 +936,18 @@ local function SetupBuildingList( city, buildings, buildingIM )
 			end
 			-- Vox Populi end
 			tips:insertIf( happinessChange ~=0 and happinessChange .. "[ICON_HAPPINESS_1]" )
+
+			-- Unhappiness
+			local unhappinessChange = tonumber(building.Unhappiness) or 0
+			if (city:IsCapital() and cityOwner:GetCapitalUnhappinessMod() > 0) then
+				unhappinessChange = ApplyPercentModifier(unhappinessChange, cityOwner:GetCapitalUnhappinessMod());
+			end
+
+			if (cityOwner:GetUnhappinessMod() > 0) then
+				unhappinessChange = ApplyPercentModifier(unhappinessChange, cityOwner:GetUnhappinessMod());
+			end
+
+			tips:insertIf( unhappinessChange ~=0 and unhappinessChange .. "[ICON_HAPPINESS_4]" )
 
 		else -- civBE_mode
 			cityCultureRate = city:GetBaseCulturePerTurn()

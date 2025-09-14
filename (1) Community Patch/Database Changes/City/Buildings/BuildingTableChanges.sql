@@ -320,6 +320,11 @@ ALTER TABLE Buildings ADD GreatWorkYieldType text REFERENCES Yields (Type) DEFAU
 ALTER TABLE Buildings ADD GlobalConversionModifier integer DEFAULT 0;
 ALTER TABLE Buildings ADD ConversionModifier integer DEFAULT 0;
 
+-- The building provides unhappiness.
+-- In CPO, this is a flat -Happiness to the City
+-- In VP, this acts as an additional source of Happiness, capped by Population in the city.
+ALTER TABLE Buildings ADD Unhappiness integer DEFAULT 0;
+
 ALTER TABLE Building_ThemingBonuses ADD ConsecutiveEras integer DEFAULT 0;
 
 -- The tech required to boost the building

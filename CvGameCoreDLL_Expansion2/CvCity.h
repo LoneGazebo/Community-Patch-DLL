@@ -898,7 +898,9 @@ public:
 	void ChangeBaseHappinessFromBuildings(int iChange);
 	int GetUnmoddedHappinessFromBuildings() const;
 	void ChangeUnmoddedHappinessFromBuildings(int iChange);
+	int GetUnhappinessFromBuildings() const;
 #if defined(MOD_BALANCE_CORE)
+	void ChangeUnhappinessFromBuildings(int iChange);
 	void ChangeLocalUnhappinessMod(int iChange);
 	int GetLocalUnhappinessMod() const;
 #endif
@@ -2205,6 +2207,7 @@ protected:
 
 	int m_iBaseHappinessFromBuildings;
 	int m_iUnmoddedHappinessFromBuildings;
+	int m_iUnhappinessFromBuildings;
 
 	bool m_bRouteToCapitalConnectedLastTurn;
 	bool m_bRouteToCapitalConnectedThisTurn;
@@ -2604,6 +2607,7 @@ SYNC_ARCHIVE_VAR(int, m_iReligionHappiness)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_vClosestNeighbors)
 SYNC_ARCHIVE_VAR(int, m_iBaseHappinessFromBuildings)
 SYNC_ARCHIVE_VAR(int, m_iUnmoddedHappinessFromBuildings)
+SYNC_ARCHIVE_VAR(int, m_iUnhappinessFromBuildings)
 SYNC_ARCHIVE_VAR(bool, m_bRouteToCapitalConnectedLastTurn)
 SYNC_ARCHIVE_VAR(bool, m_bRouteToCapitalConnectedThisTurn)
 SYNC_ARCHIVE_VAR(CvString, m_strName)

@@ -408,6 +408,7 @@ protected:
 
 	static int lGetUnhappinessFromCityCount(lua_State* L);
 	static int lGetUnhappinessFromCapturedCityCount(lua_State* L);
+	static int lGetUnhappinessFromCityBuildings(lua_State* L);
 	static int lGetUnhappinessFromCityPopulation(lua_State* L);
 	static int lGetUnhappinessFromCitySpecialists(lua_State* L);
 	static int lGetUnhappinessFromPuppetCityPopulation(lua_State* L);
@@ -801,6 +802,7 @@ protected:
 	LUAAPIEXTN(GetUnhappinessFromPillagedTiles, int);
 	LUAAPIEXTN(GetUnhappinessFromFamine, int);
 	LUAAPIEXTN(GetUnhappinessFromReligiousUnrest, int);
+	LUAAPIEXTN(GetUnhappinessFromBuildings, int);
 
 	LUAAPIEXTN(GetUnhappinessFromJFDSpecial, int);
 

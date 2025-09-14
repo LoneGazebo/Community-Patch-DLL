@@ -1629,8 +1629,14 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 	end
 
 	-- Happiness (from all sources)
-	local iHappinessTotal = kBuildingInfo.Happiness + kBuildingInfo.UnmoddedHappiness;
-	AddTooltipNonZero(tYieldLines, "TXT_KEY_PRODUCTION_BUILDING_HAPPINESS", iHappinessTotal);
+	local iHappinessTotal = kBuildingInfo.Happiness + kBuildingInfo.UnmoddedHappiness - kBuildingInfo.Unhappiness;
+	local happinessLocaleKey = "TXT_KEY_PRODUCTION_BUILDING_HAPPINESS";
+	local displayNumber = iHappinessTotal;
+	if (iHappinessTotal < 0) then
+		happinessLocaleKey = "TXT_KEY_PRODUCTION_BUILDING_UNHAPPINESS";
+		displayNumber = -iHappinessTotal;
+	end
+	AddTooltipNonZero(tYieldLines, happinessLocaleKey, displayNumber);
 
 	-- Only show modified number in city view
 	if pCity then
