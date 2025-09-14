@@ -28496,6 +28496,10 @@ bool CvDiplomacyAI::IsWillingToGiveOpenBordersToPlayer(PlayerTypes ePlayer)
 		return false;
 	}
 
+	// Do not let them in if they think our beautiful fields are their living room!
+	if (GetNumTimesCultureBombed(ePlayer) > 0)
+		return false;
+
 	// Are they here to steal our PRICELESS ARCHAEOLOGICAL ARTIFACTS???
 	if (GetNumArtifactsEverDugUp(ePlayer) > 0)
 	{

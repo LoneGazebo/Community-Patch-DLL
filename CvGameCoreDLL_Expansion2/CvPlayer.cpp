@@ -707,6 +707,8 @@ CvPlayer::CvPlayer() :
 	, m_iDoubleBorderGrowthWLTKD()
 	, m_iIncreasedQuestInfluence()
 	, m_iCultureBombBoost()
+	, m_iCultureBombForeignTerritory()
+	, m_iRetainRazedTerritory()
 	, m_iPuppetProdMod()
 	, m_iOccupiedProdMod()
 	, m_iGoldInternalTrade()
@@ -1571,6 +1573,8 @@ void CvPlayer::uninit()
 	m_iDoubleBorderGrowthWLTKD = 0;
 	m_iIncreasedQuestInfluence = 0;
 	m_iCultureBombBoost = 0;
+	m_iCultureBombForeignTerritory = 0;
+	m_iRetainRazedTerritory = 0;
 	m_iPuppetProdMod = 0;
 	m_iOccupiedProdMod = 0;
 	m_iGoldInternalTrade = 0;
@@ -34752,6 +34756,38 @@ void CvPlayer::changeCultureBombBoost(int iChange)
 	m_iCultureBombBoost += iChange;
 }
 
+// Place Citadel anywhere
+bool CvPlayer::IsCultureBombForeignTerritory() const
+{
+	return m_iCultureBombForeignTerritory > 0;
+}
+
+int CvPlayer::GetCultureBombForeignTerritory() const
+{
+	return m_iCultureBombForeignTerritory;
+}
+
+void CvPlayer::changeCultureBombForeignTerritory(int iChange)
+{
+	m_iCultureBombForeignTerritory += iChange;
+}
+
+// Retain tiles from razed cities
+bool CvPlayer::IsRetainRazedTerritory() const
+{
+	return m_iRetainRazedTerritory > 0;
+}
+
+int CvPlayer::GetRetainRazedTerritory() const
+{
+	return m_iRetainRazedTerritory;
+}
+
+void CvPlayer::changeRetainRazedTerritory(int iChange)
+{
+	m_iRetainRazedTerritory += iChange;
+}
+
 // Puppet Prod Boost
 bool CvPlayer::IsPuppetProdMod() const
 {
@@ -42005,6 +42041,8 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	ChangeSpySecurityModifier(pkPolicyInfo->GetSpySecurityModifier() * iChange);
 	ChangeVotesPerFollowingCityTimes100(pkPolicyInfo->GetVotesPerFollowingCityTimes100() * iChange);
 	changeCultureBombBoost(pkPolicyInfo->GetCultureBombBoost() * iChange);
+	changeCultureBombForeignTerritory(pkPolicyInfo->GetCultureBombForeignTerritory() * iChange);
+	changeRetainRazedTerritory(pkPolicyInfo->GetRetainRazedTerritory() * iChange);
 	changePuppetProdMod(pkPolicyInfo->GetPuppetProdMod() * iChange);
 	changeOccupiedProdMod(pkPolicyInfo->GetOccupiedProdMod() * iChange);
 	changeGoldInternalTrade(pkPolicyInfo->GetInternalTradeGold() * iChange);
@@ -43228,6 +43266,8 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_iDoubleBorderGrowthWLTKD);
 	visitor(player.m_iIncreasedQuestInfluence);
 	visitor(player.m_iCultureBombBoost);
+	visitor(player.m_iCultureBombForeignTerritory);
+	visitor(player.m_iRetainRazedTerritory);
 	visitor(player.m_iPuppetProdMod);
 	visitor(player.m_iOccupiedProdMod);
 	visitor(player.m_iGoldInternalTrade);
