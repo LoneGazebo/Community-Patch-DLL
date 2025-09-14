@@ -12511,8 +12511,8 @@ bool CvUnit::CanCultureBomb(const CvPlot* pPlot, bool bTestVisible) const
 
 		if(pPlot != NULL)
 		{
-			// Can't be inside someone else's territory
-			if(pPlot->getOwner() != NO_PLAYER && pPlot->getOwner() != getOwner())
+			// Can't be inside someone else's territory unless we have that ability
+			if(pPlot->getOwner() != NO_PLAYER && pPlot->getOwner() != getOwner() && !GET_PLAYER(getOwner()).IsCultureBombForeignTerritory())
 				return false;
 
 			// We have to be in or next to friendly territory
