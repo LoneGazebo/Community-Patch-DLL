@@ -10505,8 +10505,8 @@ void CvDiplomacyAI::DoUpdateWarStates()
 	ReligionTypes eMyReligion = GetPlayer()->GetReligions()->GetOwnedReligion();
 	int iLoop = 0;
 
-	PlayerTypes eHighestWarWearinessPlayer = GetPlayer()->GetHighestWarWearinessPlayer();
-	int iUnhappinessFromWarWeariness = eHighestWarWearinessPlayer != NO_PLAYER ? GetPlayer()->GetUnhappinessFromWarWearinessWithTeam(GET_PLAYER(eHighestWarWearinessPlayer).getTeam()) : 0;
+	PlayerTypes eHighestWarWearinessPlayer = GetPlayer()->GetHighestWarWearinessPlayer(true);
+	int iUnhappinessFromWarWeariness = eHighestWarWearinessPlayer != NO_PLAYER ? GetPlayer()->GetUnhappinessFromWarWearinessWithTeam(GET_PLAYER(eHighestWarWearinessPlayer).getTeam(), true) : 0;
 
 	// Loop through all (known) Players
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
@@ -18569,8 +18569,8 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// AT WAR RIGHT NOW
 	////////////////////////////////////
 
-	PlayerTypes eHighestWarWearinessPlayer = GetPlayer()->GetHighestWarWearinessPlayer();
-	int iUnhappinessFromWarWeariness = eHighestWarWearinessPlayer != NO_PLAYER ? GetPlayer()->GetUnhappinessFromWarWearinessWithTeam(GET_PLAYER(eHighestWarWearinessPlayer).getTeam()) : 0;
+	PlayerTypes eHighestWarWearinessPlayer = GetPlayer()->GetHighestWarWearinessPlayer(true);
+	int iUnhappinessFromWarWeariness = eHighestWarWearinessPlayer != NO_PLAYER ? GetPlayer()->GetUnhappinessFromWarWearinessWithTeam(GET_PLAYER(eHighestWarWearinessPlayer).getTeam(), true) : 0;
 
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
@@ -25668,8 +25668,8 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 		bUABonusesFromCityConquest |= IsNuclearGandhi();
 	}
 
-	PlayerTypes eHighestWarWearinessPlayer = GetPlayer()->GetHighestWarWearinessPlayer();
-	int iUnhappinessFromWarWeariness = eHighestWarWearinessPlayer != NO_PLAYER ? GetPlayer()->GetUnhappinessFromWarWearinessWithTeam(GET_PLAYER(eHighestWarWearinessPlayer).getTeam()) : 0;
+	PlayerTypes eHighestWarWearinessPlayer = GetPlayer()->GetHighestWarWearinessPlayer(true);
+	int iUnhappinessFromWarWeariness = eHighestWarWearinessPlayer != NO_PLAYER ? GetPlayer()->GetUnhappinessFromWarWearinessWithTeam(GET_PLAYER(eHighestWarWearinessPlayer).getTeam(), true) : 0;
 	int iWarProgressUnhappyPenalty = 0;
 	int iWarProgressResourcePenalty = 0;
 	if (MOD_BALANCE_VP)
@@ -26566,8 +26566,8 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyOffers(vector<TeamTypes>& vMakePeaceTeams
 	int iUnhappinessFromWarWeariness = 0;
 	if (GetPlayer()->IsEmpireUnhappy() || GetPlayer()->IsInTerribleShapeForWar())
 	{
-		eHighestWarWearinessPlayer = GetPlayer()->GetHighestWarWearinessPlayer();
-		iUnhappinessFromWarWeariness = eHighestWarWearinessPlayer != NO_PLAYER ? GetPlayer()->GetUnhappinessFromWarWearinessWithTeam(GET_PLAYER(eHighestWarWearinessPlayer).getTeam()) : 0;
+		eHighestWarWearinessPlayer = GetPlayer()->GetHighestWarWearinessPlayer(true);
+		iUnhappinessFromWarWeariness = eHighestWarWearinessPlayer != NO_PLAYER ? GetPlayer()->GetUnhappinessFromWarWearinessWithTeam(GET_PLAYER(eHighestWarWearinessPlayer).getTeam(), true) : 0;
 	}
 
 	for (std::vector<TeamTypes>::iterator it = vMakePeaceTeams.begin(); it != vMakePeaceTeams.end(); ++it)

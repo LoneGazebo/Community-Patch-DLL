@@ -617,7 +617,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	pPlot->SetPlayerThatDestroyedCityHere(NO_PLAYER);
 
 	// Plot Ownership
-	pPlot->setOwner(getOwner(), m_iID, bBumpUnits, true, true);
+	pPlot->setOwner(eOwner, m_iID, bBumpUnits, true, true);
 
 	// Clear the improvement before the city attaches itself to the plot, else the improvement does not
 	// remove the resource allocation from the current owner.  This would result in double resource points because
@@ -638,7 +638,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 		{
 			CvPlot* pLoopPlot = plotXYWithRangeCheck(getX(), getY(), iDX, iDY, iRange);
 			if (pLoopPlot != NULL)
-				pLoopPlot->setOwner(getOwner(), m_iID, bBumpUnits);
+				pLoopPlot->setOwner(eOwner, m_iID, bBumpUnits);
 		}
 	}
 
@@ -2284,6 +2284,63 @@ void CvCity::kill()
 
 	// clean up
 	PostKill(bCapital, pPlot, iWorkPlotDistance, eOwner);
+}
+
+/// Checks if the city owner has any plots in the empire that are owned by them, but are too far from any other cities to work.
+/// If yes, and this city is closer to them, assigns those plots to this city.
+void CvCity::AcquireWaywardPlots()
+{
+	PlayerTypes eOwner = getOwner();
+	CvPlayer& kPlayer = GET_PLAYER(eOwner);
+	int iNumPlotsInEntireWorld = GC.getMap().numPlots();
+	int iX = getX();
+	int iY = getY();
+	for (int iI = 0; iI < iNumPlotsInEntireWorld; iI++)
+	{
+		CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
+		if (pLoopPlot->getOwner() != eOwner)
+			continue;
+
+		// Check whether the plot is within working radius of its owning city. If yes, leave it be.
+		CvCity* pOwningCity = pLoopPlot->getOwningCity();
+		if (pOwningCity == this)
+			continue;
+		if (pOwningCity->IsWithinWorkRange(pLoopPlot))
+			continue;
+
+		// Is it within working range of this city? Acquire it.
+		if (IsWithinWorkRange(pLoopPlot))
+		{
+			pLoopPlot->setOwner(eOwner, m_iID);
+			continue;
+		}
+
+		// Is it closer to this city than any other city?
+		int iDistanceFromThisCity = plotDistance(pLoopPlot->getX(), pLoopPlot->getY(), iX, iY);
+		int iLoop = 0;
+		bool bAnyCloserCity = false;
+		for (CvCity* pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
+		{
+			if (pLoopCity == this)
+				continue;
+
+			CvPlot* pPlot = pLoopCity->plot();
+			if (pPlot)
+			{
+				int iDistance = plotDistance(iX, iY, pLoopCity->getX(), pLoopCity->getY());
+				if (iDistance > iDistanceFromThisCity)
+					continue;
+
+				bAnyCloserCity = true;
+				break;
+			}
+			if (bAnyCloserCity)
+				break;
+		}
+
+		if (!bAnyCloserCity)
+			pLoopPlot->setOwner(eOwner, m_iID);
+	}
 }
 
 //	--------------------------------------------------------------------------------
@@ -18721,10 +18778,12 @@ void CvCity::changeCityWorkingChange(int iChange)
 		m_iCityWorkingChange = (m_iCityWorkingChange + iChange);
 		int iNewPlots = GetNumWorkablePlots();
 
-		for (int iI = std::min(iOldPlots, iNewPlots); iI < std::max(iOldPlots, iNewPlots); ++iI) {
+		for (int iI = std::min(iOldPlots, iNewPlots); iI < std::max(iOldPlots, iNewPlots); ++iI)
+		{
 			CvPlot* pLoopPlot = iterateRingPlots(getX(), getY(), iI);
 
-			if (pLoopPlot) {
+			if (pLoopPlot)
+			{
 				pLoopPlot->changeCityRadiusCount(iChange);
 				pLoopPlot->changePlayerCityRadiusCount(getOwner(), iChange);
 			}
@@ -19592,6 +19651,9 @@ void CvCity::DoCreatePuppet()
 	if (IsRazing())
 		return;
 
+	// Grab any "loose" plots we own
+	AcquireWaywardPlots();
+
 	// Turn this off - used to display info for annex/puppet/raze popup
 	SetIgnoreCityForHappiness(false);
 
@@ -19675,7 +19737,11 @@ void CvCity::DoAnnex(bool bRaze)
 		}
 	}
 
-	SetPuppet(false);
+	// If we just got this city, grab any "loose" plots we own
+	if (!IsPuppet())
+		AcquireWaywardPlots();
+	else
+		SetPuppet(false);
 
 	DoUpdateCheapestPlotInfluenceDistance(); // fix for extremely high cost of the first tile
 
