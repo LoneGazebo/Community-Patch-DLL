@@ -346,6 +346,7 @@ public:
 	int GetPrereqPolicy() const;
 #endif
 	int GetResourceQuantityModifier(int i) const;
+	int GetNumFreeResourceOnWorldWonderCompletion(int i) const;
 	int GetMovesChangeUnitCombat(const int unitCombatID) const;
 #if defined(MOD_BALANCE_CORE)
 	int GetMovesChangeUnitClass(const int unitClassID) const;
@@ -717,6 +718,7 @@ protected:
 	int* m_paiYieldModifier;
 	int* m_piStrategicResourceQuantityModifier;
 	int* m_piResourceQuantityModifiers;
+	int* m_piNumFreeResourceOnWorldWonderCompletion;
 	int* m_piMovesChangeUnitCombats;
 	int* m_paiGAPToYield;
 	int* m_paiMountainRangeYield;
@@ -1731,6 +1733,10 @@ public:
 	{
 		return ((uint)eResource < m_aiResourceQuantityModifier.size())?m_aiResourceQuantityModifier[(int)eResource]:0;
 	};
+	int GetNumFreeResourceOnWorldWonderCompletion(ResourceTypes eResource) const
+	{
+		return ((uint)eResource < m_aiNumFreeResourceOnWorldWonderCompletion.size())?m_aiNumFreeResourceOnWorldWonderCompletion[(int)eResource]:0;
+	};
 #if defined(MOD_BALANCE_CORE)
 	int GetGreatPersonCostReduction(GreatPersonTypes eGreatPerson) const
 	{
@@ -2355,6 +2361,7 @@ private:
 	int m_iYieldRateModifier[NUM_YIELD_TYPES];
 	int m_iStrategicResourceQuantityModifier[NUM_TERRAIN_TYPES];
 	std::vector<int> m_aiResourceQuantityModifier;
+	std::vector<int> m_aiNumFreeResourceOnWorldWonderCompletion;
 	std::vector<bool> m_abNoTrain;
 	vector<FreeTraitUnit> m_aFreeTraitUnits;
 	std::vector<int> m_aUniqueLuxuryAreas;
