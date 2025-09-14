@@ -13319,6 +13319,147 @@ void CvPlayer::AwardFreeBuildings(CvCity* pCity)
 	}
 }
 
+void CvPlayer::SpawnResourceInOwnedLands(ResourceTypes eResource, int iQuantity, bool bSarcophagus, CvCity* pCityToExclude)
+{
+	static const ResourceTypes eArtifact = static_cast<ResourceTypes>(GD_INT_GET(ARTIFACT_RESOURCE));
+	static const ResourceTypes eHiddenArtifact = static_cast<ResourceTypes>(GD_INT_GET(HIDDEN_ARTIFACT_RESOURCE));
+	if (eResource == eArtifact || eResource == eHiddenArtifact)
+	{
+		// Do not spawn non-sarcophagus dig sites after Archaeology is triggered.
+		if (!bSarcophagus && GC.getGame().IsArchaeologyTriggered())
+			return;
+	}
+
+	// Is this a strategic resource? We only need one tile.
+	CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+	bool bStrategicResource = pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC;
+	int iNumTilesToPlace = bStrategicResource ? 1 : iQuantity;
+	int iNumTilesPlaced = 0;
+
+	CvMap& ImTheMap = GC.getMap();
+	int iNumPlotsInTheWholeWideWorld = ImTheMap.numPlots();
+	vector<CvPlot*> vOwnedTiles;
+	vector<CvPlot*> vOwnedTilesYesArchaeology;
+	vector<CvPlot*> vOwnedTilesNoArchaeology;
+	for (int iI = 0; iI < iNumPlotsInTheWholeWideWorld; iI++)
+	{
+		CvPlot* pLoopPlot = ImTheMap.plotByIndexUnchecked(iI);
+		// Must be owned by us
+		if (pLoopPlot->getOwner() != m_eID)
+			continue;
+
+		// We've already checked this tile
+		if (pCityToExclude && pCityToExclude->IsWithinWorkRange(pLoopPlot))
+			continue;
+
+		// If we're placing a dig site, there's special validations to check
+		if (eResource == eArtifact)
+		{
+			if (!pLoopPlot->IsEligibleForNormalDigSite(false))
+				continue;
+		}
+		else if (eResource == eHiddenArtifact)
+		{
+			if (!pLoopPlot->IsEligibleForHiddenDigSite(false))
+				continue;
+		}
+		// Normal resource, check canHaveResource() validations and a few other things
+		else
+		{
+			// Only tiles without an existing resource
+			if (pLoopPlot->getResourceType() != NO_RESOURCE)
+				continue;
+
+			if (!pLoopPlot->canHaveResource(eResource))
+				continue;
+
+			if (pLoopPlot->IsNaturalWonder())
+				continue;
+
+			if (pLoopPlot->isMountain())
+				continue;
+
+			FeatureTypes eFeature = pLoopPlot->getFeatureType();
+			if (eFeature == FEATURE_OASIS || (eFeature != NO_FEATURE && GC.getFeatureInfo(eFeature)->isNoImprovement()))
+				continue;
+
+			if (!pLoopPlot->isValidMovePlot(BARBARIAN_PLAYER))
+				continue;
+		}
+		if (eResource == eArtifact || eResource == eHiddenArtifact)
+		{
+			CvArchaeology kArchaeology = pLoopPlot->GetArchaeologicalRecord();
+			if (kArchaeology.m_eArtifactType == NO_GREAT_WORK_ARTIFACT_CLASS)
+			{
+				if (bSarcophagus)
+					vOwnedTilesNoArchaeology.push_back(pLoopPlot); // Avoid existing archaeological records
+			}
+			else if (!bSarcophagus)
+				vOwnedTilesYesArchaeology.push_back(pLoopPlot); // Prefer existing archaeological records
+		}
+
+		vOwnedTiles.push_back(pLoopPlot);
+	}
+
+	// If this is a dig site and we're prioritizing or deprioritizing plots with archaeological records, let's do that now.
+	if (!vOwnedTilesNoArchaeology.empty() || !vOwnedTilesYesArchaeology.empty())
+	{
+		vector<CvPlot*> vArchaeologyTiles = bSarcophagus ? vOwnedTilesNoArchaeology : vOwnedTilesYesArchaeology;
+		CvWeightedVector<EraTypes> viEras = GC.getGame().GetWeightedArchaeologyErasList();
+
+		while (iNumTilesPlaced < iNumTilesToPlace)
+		{
+			uint uiIndex = GC.getGame().urandLimitExclusive(vArchaeologyTiles.size(), CvSeeder::fromRaw(0x96a2a8a8).mix(iNumTilesPlaced));
+			CvPlot* pLoopPlot = vArchaeologyTiles[uiIndex];
+
+			// Sarcophagus? Init it as one. Otherwise, if we got here there's already an existing archaeological record, so we don't need to do anything.
+			if (bSarcophagus)
+			{
+				EraTypes eEra = viEras.ChooseByWeight(CvSeeder::fromRaw(0x7a1d2451).mix(iNumTilesPlaced));
+				pLoopPlot->AddArchaeologicalRecord(CvTypes::getARTIFACT_SARCOPHAGUS(), eEra, m_eID, NO_PLAYER, /*bIgnoreNormalRestrictions*/ true);
+			}
+
+			pLoopPlot->setResourceType(eResource, 1);
+			vArchaeologyTiles.erase(vArchaeologyTiles.begin() + uiIndex);
+			iNumTilesPlaced++;
+
+			// Remove it from the main plot list too!
+			vector<CvPlot*>::const_iterator it = std::find(vOwnedTiles.begin(), vOwnedTiles.end(), pLoopPlot);
+			vOwnedTiles.erase(it);
+
+			if (vArchaeologyTiles.empty())
+				break;
+		}
+	}
+
+	// Are we done?
+	if (iNumTilesPlaced >= iNumTilesToPlace)
+		return;
+
+	// If not a dig site, or we're out of priority tiles, try the full set of available tiles instead.
+	if (!vOwnedTiles.empty())
+	{
+		while (iNumTilesPlaced < iNumTilesToPlace)
+		{
+			uint uiIndex = GC.getGame().urandLimitExclusive(vOwnedTiles.size(), CvSeeder::fromRaw(0x0e2a6acc).mix(iNumTilesPlaced));
+			CvPlot* pLoopPlot = vOwnedTiles[uiIndex];
+			// If this is an artifact, we need to generate data for it
+			if (eResource == eArtifact || eResource == eHiddenArtifact)
+			{
+				CvWeightedVector<EraTypes> viEras = GC.getGame().GetWeightedArchaeologyErasList();
+				EraTypes eEra = viEras.ChooseByWeight(CvSeeder::fromRaw(0x01eae4d4).mix(iNumTilesPlaced));
+				pLoopPlot->AddArchaeologicalRecord(bSarcophagus ? CvTypes::getARTIFACT_SARCOPHAGUS() : CvTypes::getARTIFACT_ANCIENT_RUIN(), eEra, m_eID, NO_PLAYER, /*bIgnoreNormalRestrictions*/ bSarcophagus);
+			}
+
+			pLoopPlot->setResourceType(eResource, bStrategicResource ? iQuantity : 1);
+			vOwnedTiles.erase(vNearbyTiles.begin() + uiIndex);
+			iNumTilesPlaced++;
+			if (vOwnedTiles.empty())
+				break;
+		}
+	}
+}
+
 bool CvPlayer::canFoundCity(int iX, int iY) const
 {
 	return canFoundCityExt(iX,iY,false,false);
@@ -13355,7 +13496,7 @@ void CvPlayer::foundCity(int iX, int iY, ReligionTypes eReligion, bool bForce, C
 	SetTurnsSinceSettledLastCity(0);
 
 	//if this is the player's first city, remember how good it is as a reference.
-	//capital founding does not depend on this score so it's fair to all players independend of order
+	//capital founding does not depend on this score so it's fair to all players independent of order
 	if (GetNumCitiesFounded() == 0 && isMajorCiv())
 		GC.getGame().NewCapitalFounded(getPlotFoundValue(iX, iY));
 
@@ -13374,32 +13515,6 @@ void CvPlayer::foundCity(int iX, int iY, ReligionTypes eReligion, bool bForce, C
 		if(pPlotToAcquire)
 		{
 			pCity->DoAcquirePlot(pPlotToAcquire->getX(), pPlotToAcquire->getY());
-		}
-	}
-
-	if (isMajorCiv() && GetNumCitiesFounded() <= 1 && GetPlayerTraits()->StartsWithPantheon())
-	{
-		int iFaith = GC.getGame().GetGameReligions()->GetMinimumFaithNextPantheon();
-		SetFaithTimes100(iFaith * 100);
-		if (GC.getGame().GetGameReligions()->CanCreatePantheon(GetID(), true) == 0)
-		{
-			// Create the pantheon
-			if (isHuman())
-			{
-				//If the player is human then a net message will be received which will pick the pantheon.
-				CvNotifications* pNotifications = GetNotifications();
-				if (pNotifications)
-				{
-					CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_ENOUGH_FAITH_FOR_PANTHEON");
-					CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_ENOUGH_FAITH_FOR_PANTHEON");
-					pNotifications->Add(NOTIFICATION_FOUND_PANTHEON, strBuffer, strSummary, -1, -1, -1);
-				}
-			}
-			else
-			{
-				const BeliefTypes eBelief = GetReligionAI()->ChoosePantheonBelief(GetID());
-				GC.getGame().GetGameReligions()->FoundPantheon(GetID(), eBelief);
-			}
 		}
 	}
 
@@ -13429,6 +13544,170 @@ void CvPlayer::foundCity(int iX, int iY, ReligionTypes eReligion, bool bForce, C
 	}
 
 	AwardFreeBuildings(pCity);
+
+	// Free resources near city? Because we have a special method of placing these, do it after we've added any free buildings (that might change the city working range).
+	for (int i = 0; i < GC.getNumResourceInfos(); i++)
+	{
+		ResourceTypes eResource = (ResourceTypes)i;
+		FreeResourceXCities freeResource = GetPlayerTraits()->GetFreeResourceXCities(eResource);
+		int iQuantity = freeResource.m_iResourceQuantity;
+		if (iQuantity <= 0 || GetNumCitiesFounded() > freeResource.m_iNumCities)
+			continue;
+
+		// Is this a strategic resource? We only need one tile.
+		CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+		bool bStrategicResource = pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC;
+		int iNumTilesToPlace = bStrategicResource ? 1 : iQuantity;
+		int iNumTilesPlaced = 0;
+
+		vector<CvPlot*> vNearbyTiles;
+		vector<CvPlot*> vNearbyTilesNoArchaeology;
+		int iCityX = pCity->getX();
+		int iCityY = pCity->getY();
+		static const ResourceTypes eArtifact = static_cast<ResourceTypes>(GD_INT_GET(ARTIFACT_RESOURCE));
+		static const ResourceTypes eHiddenArtifact = static_cast<ResourceTypes>(GD_INT_GET(HIDDEN_ARTIFACT_RESOURCE));
+		for (int iI = 0; iI < GetNumWorkablePlots(); iI++)
+		{
+			CvPlot* pLoopPlot = iterateRingPlots(iCityX, iCityY, iI);
+			if (!pLoopPlot)
+				continue;
+
+			// Can't be owned by someone else
+			if (pLoopPlot->isOwned() && pLoopPlot->getOwner() != m_eID)
+				continue;
+
+			// If we're placing a dig site, there's special validations to check
+			if (eResource == eArtifact)
+			{
+				if (!pLoopPlot->IsEligibleForNormalDigSite(false))
+					continue;
+			}
+			else if (eResource == eHiddenArtifact)
+			{
+				if (!pLoopPlot->IsEligibleForHiddenDigSite(false))
+					continue;
+			}
+			// Normal resource, check canHaveResource() validations and a few other things
+			else
+			{
+				// Only tiles without an existing resource
+				if (pLoopPlot->getResourceType() != NO_RESOURCE)
+					continue;
+
+				if (!pLoopPlot->canHaveResource(eResource))
+					continue;
+
+				if (pLoopPlot->IsNaturalWonder())
+					continue;
+
+				if (pLoopPlot->isMountain())
+					continue;
+
+				FeatureTypes eFeature = pLoopPlot->getFeatureType();
+				if (eFeature == FEATURE_OASIS || (eFeature != NO_FEATURE && GC.getFeatureInfo(eFeature)->isNoImprovement()))
+					continue;
+
+				if (!pLoopPlot->isValidMovePlot(BARBARIAN_PLAYER))
+					continue;
+			}
+			// We want to avoid placing new dig sites on tiles that have existing archaeological records, but will do so if we must.
+			if (eResource == eArtifact || eResource == eHiddenArtifact)
+			{
+				CvArchaeology kArchaeology = pLoopPlot->GetArchaeologicalRecord();
+				if (kArchaeology.m_eArtifactType == NO_GREAT_WORK_ARTIFACT_CLASS)
+					vNearbyTilesNoArchaeology.push_back(pLoopPlot);
+			}
+
+			vNearbyTiles.push_back(pLoopPlot);
+		}
+
+		// If this is a dig site, first try to pick tiles with no archaeological record.
+		if (!vNearbyTilesNoArchaeology.empty())
+		{
+			CvWeightedVector<EraTypes> viEras = GC.getGame().GetWeightedArchaeologyErasList();
+
+			while (iNumTilesPlaced < iNumTilesToPlace)
+			{
+				uint uiIndex = GC.getGame().urandLimitExclusive(vNearbyTilesNoArchaeology.size(), CvSeeder::fromRaw(0x225a3c1c).mix(iNumTilesPlaced));
+				CvPlot* pLoopPlot = vNearbyTilesNoArchaeology[uiIndex];
+
+				// This is an artifact, init it as a Sarcophagus
+				EraTypes eEra = viEras.ChooseByWeight(CvSeeder::fromRaw(0x2dfe39fb).mix(iNumTilesPlaced));
+				pLoopPlot->AddArchaeologicalRecord(CvTypes::getARTIFACT_SARCOPHAGUS(), eEra, m_eID, NO_PLAYER, /*bIgnoreNormalRestrictions*/ true);
+
+				pLoopPlot->setResourceType(eResource, 1);
+				vNearbyTilesNoArchaeology.erase(vNearbyTilesNoArchaeology.begin() + uiIndex);
+				iNumTilesPlaced++;
+
+				// Remove it from the main plot list too!
+				vector<CvPlot*>::const_iterator it = std::find(vNearbyTiles.begin(), vNearbyTiles.end(), pLoopPlot);
+				vNearbyTiles.erase(it);
+
+				if (vNearbyTilesNoArchaeology.empty())
+					break;
+			}
+		}
+
+		// Are we done?
+		if (iNumTilesPlaced >= iNumTilesToPlace)
+			continue;
+
+		// Next: for normal resources, or if all available tiles have archaeological records, try the full set of available tiles instead
+		if (!vNearbyTiles.empty())
+		{
+			while (iNumTilesPlaced < iNumTilesToPlace)
+			{
+				uint uiIndex = GC.getGame().urandLimitExclusive(vNearbyTiles.size(), CvSeeder::fromRaw(0x978a99f7).mix(iNumTilesPlaced));
+				CvPlot* pLoopPlot = vNearbyTiles[uiIndex];
+				// If this is an artifact, init it as a Sarcophagus
+				if (eResource == eArtifact || eResource == eHiddenArtifact)
+				{
+					CvWeightedVector<EraTypes> viEras = GC.getGame().GetWeightedArchaeologyErasList();
+					EraTypes eEra = viEras.ChooseByWeight(CvSeeder::fromRaw(0x13572e90).mix(iNumTilesPlaced));
+					pLoopPlot->AddArchaeologicalRecord(CvTypes::getARTIFACT_SARCOPHAGUS(), eEra, m_eID, NO_PLAYER, /*bIgnoreNormalRestrictions*/ true);
+				}
+
+				pLoopPlot->setResourceType(eResource, bStrategicResource ? iQuantity : 1);
+				vNearbyTiles.erase(vNearbyTiles.begin() + uiIndex);
+				iNumTilesPlaced++;
+				if (vNearbyTiles.empty())
+					break;
+			}
+		}
+
+		// Are we done?
+		if (iNumTilesPlaced >= iNumTilesToPlace)
+			continue;
+
+		// Still not done? Let's try placing it on another tile we own, even if another city owns it.
+		SpawnResourceInOwnedLands(eResource, bStrategicResource ? iQuantity : iNumTilesToPlace - iNumTilesPlaced, /*bSarcophagus*/ true, pCity);
+	}
+
+	if (isMajorCiv() && GetNumCitiesFounded() <= 1 && GetPlayerTraits()->StartsWithPantheon())
+	{
+		int iFaith = GC.getGame().GetGameReligions()->GetMinimumFaithNextPantheon();
+		SetFaithTimes100(iFaith * 100);
+		if (GC.getGame().GetGameReligions()->CanCreatePantheon(GetID(), true) == 0)
+		{
+			// Create the pantheon
+			if (isHuman())
+			{
+				//If the player is human then a net message will be received which will pick the pantheon.
+				CvNotifications* pNotifications = GetNotifications();
+				if (pNotifications)
+				{
+					CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_ENOUGH_FAITH_FOR_PANTHEON");
+					CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_ENOUGH_FAITH_FOR_PANTHEON");
+					pNotifications->Add(NOTIFICATION_FOUND_PANTHEON, strBuffer, strSummary, -1, -1, -1);
+				}
+			}
+			else
+			{
+				const BeliefTypes eBelief = GetReligionAI()->ChoosePantheonBelief(GetID());
+				GC.getGame().GetGameReligions()->FoundPantheon(GetID(), eBelief);
+			}
+		}
+	}
 
 	DoUpdateNextPolicyCost();
 

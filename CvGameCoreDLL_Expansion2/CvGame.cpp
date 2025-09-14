@@ -13192,6 +13192,11 @@ void CvGame::SpawnArchaeologySitesHistorically()
 			}
 
 			vExistingDigSites.push_back(pPlot);
+
+			// Don't count Sarcophagi against the total to be placed; we do still keep track of where they are to adjust where other dig sites will spawn, though
+			if (kArchaeology.m_eArtifactType == CvTypes::getARTIFACT_SARCOPHAGUS())
+				continue;
+
 			iNumExistingDigSites++;
 			iNumExistingHiddenDigSites += eResource == eHiddenArtifact ? 1 : 0;
 		}

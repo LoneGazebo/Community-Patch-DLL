@@ -794,22 +794,6 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	{
 		owningPlayer.ChangeNumCitiesFounded(1);
 
-		// Free resources under city?
-		for (int i = 0; i < GC.getNumResourceInfos(); i++)
-		{
-			ResourceTypes eResource = (ResourceTypes)i;
-			FreeResourceXCities freeResource = owningPlayer.GetPlayerTraits()->GetFreeResourceXCities(eResource);
-
-			if (freeResource.m_iResourceQuantity > 0)
-			{
-				if (owningPlayer.GetNumCitiesFounded() <= freeResource.m_iNumCities)
-				{
-					plot()->setResourceType(NO_RESOURCE, 0);
-					plot()->setResourceType(eResource, freeResource.m_iResourceQuantity);
-				}
-			}
-		}
-
 		if (MOD_BALANCE_CORE_LUXURIES_TRAIT && !owningPlayer.isMinorCiv() && (owningPlayer.GetPlayerTraits()->GetUniqueLuxuryQuantity() > 0))
 		{
 			owningPlayer.GetPlayerTraits()->AddUniqueLuxuriesAround(this, owningPlayer.GetPlayerTraits()->GetUniqueLuxuryQuantity());
