@@ -197,6 +197,7 @@ public:
 	int GetInfluenceFromCombatXPTimes100() const;
 	int PromotionDuration() const;
 	bool IsCityStateOnly() const;
+	bool IsDiplomaticMissionAccomplishment() const;
 	bool IsBarbarianOnly() const;
 	int GetMoraleBreakChance() const;
 	int GetDamageAoEFortified() const;
@@ -550,6 +551,7 @@ protected:
 	int m_iWorkRateMod;
 	bool m_bIsLostOnMove;
 	bool m_bCityStateOnly;
+	bool m_bDiplomaticMissionAccomplishment;
 	bool m_bBarbarianOnly;
 	bool m_bStrongerDamaged;
 	bool m_bFightWellDamaged;

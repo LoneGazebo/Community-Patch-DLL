@@ -2,6 +2,8 @@
 
 ALTER TABLE UnitPromotions ADD CombatChange integer DEFAULT 0;
 
+ALTER TABLE UnitPromotions ADD DiplomaticMissionAccomplishment boolean DEFAULT 0;
+
 ALTER TABLE UnitPromotions ADD IgnoreTerrainDamage boolean DEFAULT 0;
 ALTER TABLE UnitPromotions ADD IgnoreFeatureDamage boolean DEFAULT 0;
 ALTER TABLE UnitPromotions ADD ExtraTerrainDamage boolean DEFAULT 0;

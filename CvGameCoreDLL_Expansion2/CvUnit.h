@@ -1487,6 +1487,8 @@ public:
 	void DoImprovementExperience(const CvPlot* pPlot = NULL);
 	bool IsStrongerDamaged() const;
 	void ChangeIsStrongerDamaged(int iChange);
+	bool IsDiplomaticMissionAccomplishment() const;
+	void ChangeDiplomaticMissionAccomplishment(int iChange);
 	bool IsFreeAttackMoves() const;
 	void ChangeFreeAttackMoves(int iChange);
 	bool IsFightWellDamaged() const;
@@ -2391,6 +2393,7 @@ protected:
 	int m_iCanHeavyCharge;
 #if defined(MOD_BALANCE_CORE)
 	int m_iStrongerDamaged;
+	int m_iDiplomaticMissionAccomplishment;
 	int m_iFightWellDamaged;
 	int m_iFreeAttackMoves;
 	int m_iCanMoraleBreak;
@@ -2845,6 +2848,7 @@ SYNC_ARCHIVE_VAR(int, m_iEverSelectedCount)
 SYNC_ARCHIVE_VAR(int, m_iSapperCount)
 SYNC_ARCHIVE_VAR(int, m_iCanHeavyCharge)
 SYNC_ARCHIVE_VAR(int, m_iStrongerDamaged)
+SYNC_ARCHIVE_VAR(int, m_iDiplomaticMissionAccomplishment)
 SYNC_ARCHIVE_VAR(int, m_iFightWellDamaged)
 SYNC_ARCHIVE_VAR(int, m_iFreeAttackMoves)
 SYNC_ARCHIVE_VAR(int, m_iCanMoraleBreak)
