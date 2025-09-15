@@ -192,6 +192,7 @@ CvPromotionEntry::CvPromotionEntry():
 	m_bCannotBeCaptured(false),
 	m_bIsLostOnMove(false),
 	m_bCityStateOnly(false),
+	m_bDiplomaticMissionAccomplishment(false),
 	m_bBarbarianOnly(false),
 	m_bStrongerDamaged(false),
 	m_bFightWellDamaged(false),
@@ -481,6 +482,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_bCannotBeCaptured = kResults.GetBool("CannotBeCaptured");
 	m_bIsLostOnMove = kResults.GetBool("IsLostOnMove");
 	m_bCityStateOnly = kResults.GetBool("CityStateOnly");
+	m_bDiplomaticMissionAccomplishment = kResults.GetBool("DiplomaticMissionAccomplishment");
 	m_bBarbarianOnly = kResults.GetBool("BarbarianOnly");
 	m_bStrongerDamaged = kResults.GetBool("StrongerDamaged");
 	m_bFightWellDamaged = kResults.GetBool("FightWellDamaged");
@@ -2319,6 +2321,11 @@ bool CvPromotionEntry::IsLostOnMove() const
 bool CvPromotionEntry::IsCityStateOnly() const
 {
 	return m_bCityStateOnly;
+}
+//Units with this promotion trigger ACCOMPLISHMENT_DIPLOMATIC_MISSION_BOOST when finishing a diplomatic mission
+bool CvPromotionEntry::IsDiplomaticMissionAccomplishment() const
+{
+	return m_bDiplomaticMissionAccomplishment;
 }
 //Promotion for barbs only
 bool CvPromotionEntry::IsBarbarianOnly() const

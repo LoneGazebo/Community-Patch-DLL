@@ -431,6 +431,7 @@ CvUnit::CvUnit() :
 	, m_iWorkRateMod()
 	, m_iDamageReductionCityAssault()
 	, m_iStrongerDamaged()
+	, m_iDiplomaticMissionAccomplishment()
 	, m_iFightWellDamaged()
 	, m_iFreeAttackMoves()
 	, m_iGoodyHutYieldBonus()
@@ -1606,6 +1607,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iWorkRateMod = 0;
 	m_iDamageReductionCityAssault = 0;
 	m_iStrongerDamaged = 0;
+	m_iDiplomaticMissionAccomplishment = 0;
 	m_iFightWellDamaged = 0;
 	m_iFreeAttackMoves = 0;
 	m_iGoodyHutYieldBonus = 0;
@@ -12288,8 +12290,7 @@ bool CvUnit::trade()
 
 	GET_PLAYER(eMinor).GetMinorCivAI()->ChangeFriendshipWithMajor(getOwner(), iInfluence);
 
-	// only diplomatic units trigger the accomplishment. bonuses are given only in the origin city of the unit
-	if (iInfluence > 0)
+	if (iInfluence > 0 && IsDiplomaticMissionAccomplishment())
 		kOwner.CompleteAccomplishment(ACCOMPLISHMENT_DIPLOMATIC_MISSION_BOOST);
 
 	// Great Diplomat: now update the friend/ally status for the other players
@@ -24732,6 +24733,19 @@ void CvUnit::ChangeIsStrongerDamaged(int iChange)
 	m_iStrongerDamaged += iChange;
 }
 
+//Units with this promotion trigger ACCOMPLISHMENT_DIPLOMATIC_MISSION_BOOST when finishing a diplomatic mission
+//	--------------------------------------------------------------------------------
+bool CvUnit::IsDiplomaticMissionAccomplishment() const
+{
+	return m_iDiplomaticMissionAccomplishment > 0;
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::ChangeDiplomaticMissionAccomplishment(int iChange)
+{
+	m_iDiplomaticMissionAccomplishment += iChange;
+}
+
 // No penalty from being wounded, no combat bonus
 //	--------------------------------------------------------------------------------
 bool CvUnit::IsFightWellDamaged() const
@@ -27884,6 +27898,7 @@ void CvUnit::setPromotionActive(PromotionTypes eIndex, bool bNewValue)
 		}
 	}
 	ChangeIsStrongerDamaged(thisPromotion.IsStrongerDamaged() ? iChange : 0);
+	ChangeDiplomaticMissionAccomplishment(thisPromotion.IsDiplomaticMissionAccomplishment() ? iChange : 0);
 	ChangeIsFightWellDamaged(thisPromotion.IsFightWellDamaged() ? iChange : 0);
 	ChangeFreeAttackMoves(thisPromotion.IsFreeAttackMoves() ? iChange : 0);
 	ChangeGoodyHutYieldBonus(thisPromotion.GetGoodyHutYieldBonus() * iChange);
@@ -28615,6 +28630,7 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_iSapperCount);
 	visitor(unit.m_iCanHeavyCharge);
 	visitor(unit.m_iStrongerDamaged);
+	visitor(unit.m_iDiplomaticMissionAccomplishment);
 	visitor(unit.m_iFightWellDamaged);
 	visitor(unit.m_iFreeAttackMoves);
 	visitor(unit.m_iCanMoraleBreak);
