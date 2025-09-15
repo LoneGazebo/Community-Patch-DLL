@@ -28,7 +28,7 @@
 				<Label ID="FoodPerTurnLabel" Anchor="R,C" Offset="0,0" String="" Color0="Food,255" Color1="0,0,0,128" Color2="255,255,200,255" Font="TwCenMT22" FontStyle="Shadow"/>
 			</Box>
 		</Stack>
-		<Stack Anchor="L,T" Offset="37,210" Size="0,0" StackGrowth="Bottom" Padding="0">
+		<Stack Anchor="L,T" Offset="37,210" Size="0,0" StackGrowth="Bottom" Padding="0" ID="TopLeftStack">
 			<!-- Production Info -->
 			<Box Offset="0,0" Anchor="L,T" Size="240,32" Color="255,255,255,0" ID="ProdBox">
 				<Label Anchor="L,C" Offset="6,0" String="[ICON_PRODUCTION]"/>

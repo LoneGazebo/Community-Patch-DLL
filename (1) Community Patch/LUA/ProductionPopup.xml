@@ -70,7 +70,7 @@
 	<Container Size="640,205" Anchor="L,T" Offset="-42,-10" ConsumeMouse="1" ID="TopLeftContainer"/>
 	<Grid Size="640,230" Anchor="L,T" Offset="-42,-10" Padding="0,0" Style="Grid9DetailSix140" ID="TopLeftGrid">
 		<!-- City name -->
-		<Grid Anchor="L,T" Size="452,36" Color="White,150" Offset="42,44" Style="GridSquare8" ConsumeMouse="1">
+		<Grid Anchor="C,T" Size="640,36" Color="White,150" Offset="16,44" Style="GridSquare8" ConsumeMouse="1" ID="TopLeftInnerGrid">
 			<Label Offset="0,-3" Anchor="C,C" String="NAME" Font="TwCenMT22" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="CityName">
 				<Box Color="White,0" Anchor="L,C" Offset="-16,0">
 					<Image ID="CivIconBG" Size="32,32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
@@ -78,8 +78,8 @@
 					<Image ID="CivIcon" Size="24,24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
 				</Box>
 			</Label>
-			<Button Size="400,36" Anchor="C,C" ID="CityButton" ToolTip="TXT_KEY_CITY_ENTER_CITY_SCREEN"/>
-			<Image Anchor="L,B" Offset="0,0" Texture="HorizontalTrim.dds" Size="590,5" ID="CityDivider"/>
+			<Button Size="640,36" Anchor="C,C" ID="CityButton" ToolTip="TXT_KEY_CITY_ENTER_CITY_SCREEN"/>
+			<Image Anchor="L,B" Offset="0,0" Texture="HorizontalTrim.dds" Size="640,5" ID="CityDivider"/>
 		</Grid>
 		<!-- Population -->
 		<Image Anchor="L,T" Offset="44,78" Texture="NotificationFrameBase.dds" Size="80,80" ConsumeMouse="1">
@@ -117,12 +117,12 @@
 				<Grid Anchor="L,T" Size="70,24" Color="White,0" Offset="0,0" Style="GridSquare8">
 					<Label Anchor="C,C" Offset="0,-2" Color0="White,255" Color1="Black,128" Color2="Beige" Font="TwCenMT22" FontStyle="Shadow" ID="Faith"/>
 				</Grid>
-				<Image Anchor="R,T" Offset="0,0" Texture="VerticalTrim.dds" Size="5,26"/>
-				<Grid Anchor="L,T" Size="70,24" Color="White,0" Offset="0,0" Style="GridSquare8">
+				<Image Anchor="R,T" Offset="0,0" Texture="VerticalTrim.dds" Size="5,26" ID="HappinessDivider"/>
+				<Grid Anchor="L,T" Size="70,24" Color="White,0" Offset="0,0" Style="GridSquare8" ID="HappinessGrid">
 					<Label Anchor="C,C" Offset="0,-2" Color0="White,255" Color1="Black,128" Color2="Beige" Font="TwCenMT22" FontStyle="Shadow" ID="Happiness"/>
 				</Grid>
-				<Image Anchor="R,T" Offset="0,0" Texture="VerticalTrim.dds" Size="5,26"/>
-				<Grid Anchor="L,T" Size="70,24" Color="White,0" Offset="0,0" Style="GridSquare8">
+				<Image Anchor="R,T" Offset="0,0" Texture="VerticalTrim.dds" Size="5,26" ID="UnhappinessDivider"/>
+				<Grid Anchor="L,T" Size="70,24" Color="White,0" Offset="0,0" Style="GridSquare8" ID="UnhappinessGrid">
 					<Label Anchor="C,C" Offset="0,-2" Color0="White,255" Color1="Black,128" Color2="Beige" Font="TwCenMT22" FontStyle="Shadow" ID="Unhappiness"/>
 				</Grid>
 			</Stack>
@@ -194,8 +194,8 @@
 
 	<!-- Tooltip -->
 	<ToolTipType Name="CustomTooltip">
-		<Grid ID="TooltipGrid" Size="330,90" Offset="8,0" Padding="8,8" Style="GridBlack8" NoClip="1">
-			<Label ID="TooltipText" Offset="0,0" String="Brief description" LeadingOffset="-5" WrapWidth="300" Font="TwCenMT16"/>
+		<Grid ID="TooltipGrid" Size="400,90" Offset="8,0" Padding="8,8" Style="GridBlack8" NoClip="1">
+			<Label ID="TooltipText" Offset="12,12" String="Brief description" LeadingOffset="-2" WrapWidth="370" Font="TwCenMT16"/>
 		</Grid>
 	</ToolTipType>
 </Context>

@@ -695,17 +695,19 @@ local function UpdateWindow(pCity)
 		Controls.Happiness:SetToolTipString(GetCityHappinessTooltip(pCity));
 		Controls.Unhappiness:SetToolTipString(GetCityUnhappinessTooltip(pCity));
 	else
-		Hide(Controls.Happiness, Controls.Unhappiness);
+		Hide(Controls.HappinessDivider, Controls.HappinessGrid, Controls.UnhappinessDivider, Controls.UnhappinessGrid);
 	end
 
 	-- Set width of controls
 	Refresh(Controls.YieldStack);
 	local iStackWidth = Controls.YieldStack:GetSizeX();
+	Controls.TopLeftContainer:SetSizeX(iStackWidth + 52);
+	Controls.TopLeftGrid:SetSizeX(iStackWidth + 52);
 	Controls.YieldDivider:SetSizeX(iStackWidth);
 	Controls.CityDivider:SetSizeX(iStackWidth);
 	Controls.YieldBox:SetSizeX(iStackWidth);
-	Controls.TopLeftContainer:SetSizeX(iStackWidth + 42);
-	Controls.TopLeftGrid:SetSizeX(iStackWidth + 42);
+	Controls.TopLeftInnerGrid:SetSizeX(iStackWidth);
+	Controls.CityButton:SetSizeX(iStackWidth);
 
 	if pCity:IsFoodProduction() or fFoodPerTurn == 0 then
 		Controls.CityGrowthLabel:SetText(L("TXT_KEY_CITYVIEW_STAGNATION_TEXT"));
