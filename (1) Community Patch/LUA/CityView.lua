@@ -1402,6 +1402,9 @@ local function UpdateViewFull()
 		Controls.HappinessPerTurnLabel:LocalizeAndSetText("TXT_KEY_NET_HAPPINESS_TEXT", pCity:GetLocalHappiness());
 		Controls.UnhappinessBox:SetToolTipString(GetCityUnhappinessTooltip(pCity));
 		Controls.UnhappinessPerTurnLabel:LocalizeAndSetText("TXT_KEY_NET_UNHAPPINESS_TEXT", pCity:GetUnhappinessAggregated());
+	else
+		Hide(Controls.HappinessBox, Controls.UnhappinessBox);
+		Refresh(Controls.TopLeftStack);
 	end
 
 	Controls.CulturePerTurnLabel:LocalizeAndSetText("TXT_KEY_CITYVIEW_PERTURN_TEXT", pCity:GetYieldRateTimes100(YieldTypes.YIELD_CULTURE) / 100);
