@@ -279,7 +279,6 @@ CvCity::CvCity() :
 #if defined(MOD_BALANCE_CORE)
 	, m_aiYieldPerPopInEmpire()
 	, m_miTechEnhancedYields()
-	, m_miYieldsFromAccomplishments()
 	, m_miGreatPersonPointFromConstruction()
 	, m_aiDamagePermyriad()
 #endif
@@ -1152,7 +1151,6 @@ void CvCity::uninit()
 	VALIDATE_OBJECT();
 	m_aiYieldPerPopInEmpire.clear();
 	m_miTechEnhancedYields.clear();
-	m_miYieldsFromAccomplishments.clear();
 	m_miGreatPersonPointFromConstruction.clear();
 
 #if defined(MOD_BALANCE_CORE)
@@ -1464,7 +1462,6 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_aiYieldPerPopInEmpire.clear();
 #endif
 	m_miTechEnhancedYields.clear();
-	m_miYieldsFromAccomplishments.clear();
 	m_miGreatPersonPointFromConstruction.clear();
 	m_aiYieldPerReligion.resize(NUM_YIELD_TYPES);
 	m_aiYieldRateModifier.resize(NUM_YIELD_TYPES);
@@ -14834,21 +14831,6 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 				}
 			}
 
-			// Building Yield Change for Accomplishments
-			if (!pBuildingInfo->GetYieldChangesFromAccomplishments().empty())
-			{
-				map<int, std::map<int, int>> mAccomplishmentYields = pBuildingInfo->GetYieldChangesFromAccomplishments();
-				map<int, std::map<int, int>>::iterator it;
-				for (it = mAccomplishmentYields.begin(); it != mAccomplishmentYields.end(); ++it)
-				{
-					std::map<int, int>::const_iterator it2 = (it->second).find(eYield);
-					if (it2 != (it->second).end())
-					{
-						ChangeYieldsFromAccomplishments((AccomplishmentTypes)it->first, eYield, it2->second * iChange);
-					}
-				}
-			}
-
 			// Building Yield Change from other Buildings in Empire
 			int iBuildingClassBonus = owningPlayer.GetBuildingClassYieldChange(eBuildingClass, eYield);
 			if (iBuildingClassBonus > 0)
@@ -23238,6 +23220,26 @@ int CvCity::getBaseYieldRateTimes100(const YieldTypes eYield, CvString* tooltipS
 	iTempYield += GetTotalYieldFromTerrainsTimes100(eYield);
 	iTempYield += GetTotalYieldFromFeaturesTimes100(eYield);
 	iTempYield += (GetYieldPerCityStateStrategicResource(eYield) * kOwner.GetNumStrategicResourcesFromMinors() * 100).Truncate();
+	for (std::vector<BuildingTypes>::const_iterator it = GC.getBuildingsWithYieldsFromAccomplishments().begin(); it != GC.getBuildingsWithYieldsFromAccomplishments().end(); ++it)
+	{
+		if (HasBuilding(*it))
+		{
+			CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(*it);
+			std::map<int, std::map<int, int>> m_BuildingYieldsFromAccomplishments = pkBuildingInfo->GetYieldChangesFromAccomplishments();
+			for (std::map<int, std::map<int, int>>::const_iterator it2 = m_BuildingYieldsFromAccomplishments.begin(); it2 != m_BuildingYieldsFromAccomplishments.end(); ++it2)
+			{
+				int iNumTimesAccomplishmentCompleted = GET_PLAYER(getOwner()).GetNumTimesAccomplishmentCompleted((AccomplishmentTypes)(*it2).first);
+				if (iNumTimesAccomplishmentCompleted > 0)
+				{
+					std::map<int, int>::const_iterator it3 = (it2->second).find(eYield);
+					if (it3 != (it2->second).end())
+					{
+						iTempYield += GetCityBuildings()->GetNumBuilding(*it) * iNumTimesAccomplishmentCompleted * (*it3).second * 100;
+					}
+				}
+			}
+		}
+	}
 	if (eYield == YIELD_TOURISM)
 	{
 		ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
@@ -26171,63 +26173,6 @@ void CvCity::ChangeTechEnhancedYields(TechTypes eTech, YieldTypes eYield, int iC
 			}
 		}
 		std::map<int, std::map<int, int>>(m_miTechEnhancedYields).swap(m_miTechEnhancedYields);
-	}
-}
-
-//	--------------------------------------------------------------------------------
-/// Extra yields when an accomplishment is achieved
-std::map<int, std::map<int, int>> CvCity::GetYieldsFromAccomplishmentsMap() const
-{
-	return m_miYieldsFromAccomplishments;
-}
-int CvCity::GetYieldsFromAccomplishments(AccomplishmentTypes eAccomplishment, YieldTypes eYield) const
-{
-	VALIDATE_OBJECT();
-	ASSERT_DEBUG(eAccomplishment >= 0, "eAccomplishment expected to be >= 0");
-	ASSERT_DEBUG(eAccomplishment < NUM_ACCOMPLISHMENTS_TYPES, "eTech expected to be < NUM_ACCOMPLISHMENTS_TYPES");
-	ASSERT_DEBUG(eYield >= 0, "eYield expected to be >= 0");
-	ASSERT_DEBUG(eYield < NUM_YIELD_TYPES, "eYield expected to be < NUM_YIELD_TYPES");
-
-	std::map<int, std::map<int, int>>::const_iterator it = m_miYieldsFromAccomplishments.find((int)eAccomplishment);
-	if (it != m_miYieldsFromAccomplishments.end()) // find returns the iterator to map::end if the key i is not present in the map
-	{
-		std::map<int, int> miTechMap = it->second;
-		std::map<int, int>::const_iterator it2 = miTechMap.find((int)eYield);
-		if (it2 != miTechMap.end())
-		{
-			return it2->second;
-		}
-	}
-
-	return 0;
-}
-void CvCity::ChangeYieldsFromAccomplishments(AccomplishmentTypes eAccomplishment, YieldTypes eYield, int iChange)
-{
-	VALIDATE_OBJECT();
-	ASSERT_DEBUG(eYield >= 0, "eYield expected to be >= 0");
-	ASSERT_DEBUG(eYield < NUM_YIELD_TYPES, "eYield expected to be < NUM_YIELD_TYPES");
-	ASSERT_DEBUG(eAccomplishment >= 0, "eAccomplishment expected to be >= 0");
-	ASSERT_DEBUG(eAccomplishment < NUM_ACCOMPLISHMENTS_TYPES, "eAccomplishment expected to be < NUM_ACCOMPLISHMENTS_TYPES");
-
-	if (iChange != 0)
-	{
-		// if we already have the accomplishment, we need to change the yields generated in the city
-		if (GET_PLAYER(getOwner()).GetNumTimesAccomplishmentCompleted(eAccomplishment) > 0)
-		{
-			ChangeBaseYieldRateFromBuildings(eYield, iChange * GET_PLAYER(getOwner()).GetNumTimesAccomplishmentCompleted(eAccomplishment));
-		}
-
-		m_miYieldsFromAccomplishments[eAccomplishment][eYield] += iChange;
-		ASSERT_DEBUG(m_miYieldsFromAccomplishments[eAccomplishment][eYield] >= 0, "negative value in m_miYieldsFromAccomplishments");
-		if (m_miYieldsFromAccomplishments[eAccomplishment][eYield] == 0)
-		{
-			m_miYieldsFromAccomplishments[eAccomplishment].erase(eYield);
-			if (m_miYieldsFromAccomplishments[eAccomplishment].size() == 0)
-			{
-				m_miYieldsFromAccomplishments.erase(eAccomplishment);
-			}
-		}
-		std::map<int, std::map<int, int>>(m_miYieldsFromAccomplishments).swap(m_miYieldsFromAccomplishments);
 	}
 }
 
@@ -32119,7 +32064,6 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_ppiGreatPersonProgressFromConstruction);
 	visitor(city.m_aiYieldPerPopInEmpire);
 	visitor(city.m_miTechEnhancedYields);
-	visitor(city.m_miYieldsFromAccomplishments);
 	visitor(city.m_miGreatPersonPointFromConstruction);
 }
 

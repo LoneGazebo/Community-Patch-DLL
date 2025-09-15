@@ -4034,6 +4034,12 @@ void CvGlobals::GameDataPostCache()
 			if (bHasInteraction)
 				m_buildingInteractionLookup[eOuter].push_back(eInner);
 		}
+
+		// Accomplishments
+		if (!pOuter->GetYieldChangesFromAccomplishments().empty())
+		{
+			m_vBuildingsWithYieldsFromAccomplishments.push_back(eOuter);
+		}
 	}
 
 	calcGameDataHash();
@@ -4174,6 +4180,11 @@ const vector<BuildingTypes>& CvGlobals::getBuildingInteractions(BuildingTypes eR
 		return it->second;
 	else
 		return emptyResult;
+}
+
+const vector<BuildingTypes>& CvGlobals::getBuildingsWithYieldsFromAccomplishments() const
+{
+	return m_vBuildingsWithYieldsFromAccomplishments;
 }
 
 int CvGlobals::getNumUnitClassInfos()

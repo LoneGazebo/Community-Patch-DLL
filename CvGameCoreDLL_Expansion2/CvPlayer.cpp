@@ -37317,23 +37317,13 @@ int CvPlayer::GetNumTimesAccomplishmentCompleted(AccomplishmentTypes eAccomplish
 }
 
 /// Sets that we have achieved a certain Accomplishment. One-time bonuses can be added to this function.
-void CvPlayer::CompleteAccomplishment(AccomplishmentTypes eAccomplishment, CvCity* pCity)
+void CvPlayer::CompleteAccomplishment(AccomplishmentTypes eAccomplishment)
 {
 	// update extra yields in cities
 	int iLoop = 0;
 	CvCity* pLoopCity = NULL;
 	for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
-		if (pCity && pCity != pLoopCity)
-			continue;
-
-		if (!pLoopCity->GetYieldsFromAccomplishmentsMap().empty())
-		{
-			for (int iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
-			{
-				pLoopCity->ChangeBaseYieldRateFromBuildings(((YieldTypes)iJ), pLoopCity->GetYieldsFromAccomplishments(eAccomplishment, (YieldTypes)iJ));
-			}
-		}
 		if (!pLoopCity->GetAccomplishmentsWithBonuses().empty())
 		{
 			std::set<int> mAcc = pLoopCity->GetAccomplishmentsWithBonuses();
@@ -37364,6 +37354,12 @@ void CvPlayer::CompleteAccomplishment(AccomplishmentTypes eAccomplishment, CvCit
 	}
 
 	m_aiAccomplishments[(int)eAccomplishment]++;
+
+	// update city yields
+	for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	{
+		pLoopCity->UpdateAllNonPlotYields(false);
+	}
 }
 
 int CvPlayer::getResourceModFromReligion(ResourceTypes eIndex) const

@@ -2132,7 +2132,7 @@ public:
 
 	bool IsAccomplishmentCompleted(AccomplishmentTypes eAccomplishment) const;
 	int GetNumTimesAccomplishmentCompleted(AccomplishmentTypes eAccomplishment) const;
-	void CompleteAccomplishment(AccomplishmentTypes eAccomplishment, CvCity* pCity = NULL);
+	void CompleteAccomplishment(AccomplishmentTypes eAccomplishment);
 
 	bool IsResourceCityTradeable(ResourceTypes eResource, bool bCheckTeam = true) const;
 	bool IsResourceRevealed(ResourceTypes eResource, bool bCheckTeam = true) const;
