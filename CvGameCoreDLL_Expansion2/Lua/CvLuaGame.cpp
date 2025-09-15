@@ -34,6 +34,7 @@ using namespace ArduinoJson;
 #include "../CvGameTextMgr.h"
 #include "../CvReplayMessage.h"
 #include "../cvStopWatch.h"
+#include "../CvPreGame.h"
 
 #pragma warning(disable:4800 ) //forcing value to bool 'true' or 'false'
 
@@ -97,6 +98,7 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 	Method(CanTrainNukes);
 
 	Method(GetCurrentEra);
+	Method(GetMapScriptName);
 
 	Method(GetDiploResponse);
 
@@ -784,6 +786,15 @@ int CvLuaGame::lCanTrainNukes(lua_State* L)
 int CvLuaGame::lGetCurrentEra(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvGame::getCurrentEra);
+}
+//------------------------------------------------------------------------------
+//string GetMapScriptName();
+//Allow most in-game Lua scripts since they don't have access to PreGame anymore.
+int CvLuaGame::lGetMapScriptName(lua_State* L)
+{
+	const CvString& mapScriptName = CvPreGame::mapScriptName();
+	lua_pushstring(L, mapScriptName.c_str());
+	return 1;
 }
 //------------------------------------------------------------------------------
 //string GetDiploResponse(leaderType, responseType)
