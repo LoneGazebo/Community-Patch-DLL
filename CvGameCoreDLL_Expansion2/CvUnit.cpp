@@ -12290,7 +12290,7 @@ bool CvUnit::trade()
 
 	// only diplomatic units trigger the accomplishment. bonuses are given only in the origin city of the unit
 	if (iInfluence > 0)
-		kOwner.CompleteAccomplishment(ACCOMPLISHMENT_DIPLOMATIC_MISSION_BOOST, getOriginCity());
+		kOwner.CompleteAccomplishment(ACCOMPLISHMENT_DIPLOMATIC_MISSION_BOOST);
 
 	// Great Diplomat: now update the friend/ally status for the other players
 	if (bGreatDiplomat)
