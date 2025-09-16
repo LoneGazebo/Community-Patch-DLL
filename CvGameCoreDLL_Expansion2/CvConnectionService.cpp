@@ -1127,10 +1127,10 @@ void CvConnectionService::ConvertLuaToJsonValue(lua_State* L, int index, JsonVar
 					if (lua_isnil(L, -1))
 					{
 						isArray = false;
-						lua_pop(L, 1);
+						lua_pop(L, 1);  // Pop the nil value - key was consumed by lua_gettable
 						break;
 					}
-					lua_pop(L, 1);
+					lua_pop(L, 1);  // Pop the value - key was consumed by lua_gettable
 				}
 			}
 			
@@ -1772,6 +1772,8 @@ void CvConnectionService::SerializeEventSequence()
 	}
 	else
 	{
+		// luaL_dostring may leave return values on stack
+		lua_settop(m_pLuaState, originalTop);  // Clear any return values
 		std::stringstream ss;
 		ss << "SerializeEventSequence - Saved event sequence: " << m_uiEventSequence;
 		Log(LOG_DEBUG, ss.str().c_str());
@@ -1921,6 +1923,16 @@ int CvConnectionService::CallExternalFunction(lua_State* L)
 		if (callback)
 		{
 			callback(result, userData);
+			// Clean up the callback data after calling it
+			if (userData)
+			{
+				LuaExternalCallbackData* pCallbackData = static_cast<LuaExternalCallbackData*>(userData);
+				if (pCallbackData && pCallbackData->L)
+				{
+					luaL_unref(pCallbackData->L, LUA_REGISTRYINDEX, pCallbackData->callbackRef);
+					delete pCallbackData;
+				}
+			}
 			return 0;  // Async call, callback will handle the result
 		}
 		// For sync calls, push error to Lua stack
@@ -2017,6 +2029,17 @@ int CvConnectionService::CallExternalFunction(lua_State* L)
 			std::map<std::string, PendingExternalCall>::iterator pendingIt = m_pendingExternalCalls.find(callId);
 			if (pendingIt != m_pendingExternalCalls.end())
 			{
+				// Clean up callback data if present (should not happen for sync calls, but be safe)
+				if (pendingIt->second.pUserData && pendingIt->second.pCallback)
+				{
+					LuaExternalCallbackData* pCallbackData =
+						static_cast<LuaExternalCallbackData*>(pendingIt->second.pUserData);
+					if (pCallbackData && pCallbackData->L)
+					{
+						luaL_unref(pCallbackData->L, LUA_REGISTRYINDEX, pCallbackData->callbackRef);
+						delete pCallbackData;
+					}
+				}
 				m_pendingExternalCalls.erase(pendingIt);
 			}
 			LeaveCriticalSection(&m_csPendingCalls);
