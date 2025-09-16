@@ -614,11 +614,11 @@
 			<PediaEntry>TXT_KEY_PROMOTION_NOBILITY</PediaEntry>
 		</Row>
 		<Row>
-			<Type>PROMOTION_UNIT_GREECE_PROXENOS</Type>
-			<Description>TXT_KEY_PROMOTION_UNIT_GREECE_PROXENOS</Description>
-			<Help>TXT_KEY_PROMOTION_UNIT_GREECE_PROXENOS_HELP</Help>
+			<Type>PROMOTION_PROXENOS</Type>
+			<Description>TXT_KEY_PROMOTION_PROXENOS</Description>
+			<Help>TXT_KEY_PROMOTION_PROXENOS_HELP</Help>
 			<PediaType>PEDIA_DIPLO</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_UNIT_GREECE_PROXENOS</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_PROXENOS</PediaEntry>
 		</Row>
 		<Row>
 			<Type>PROMOTION_JINETE</Type>

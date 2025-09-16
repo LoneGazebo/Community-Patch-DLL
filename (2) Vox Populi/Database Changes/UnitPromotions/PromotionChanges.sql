@@ -637,7 +637,7 @@ UPDATE UnitPromotions SET CombatPercent = 10 WHERE Type = 'PROMOTION_MORALE';
 
 UPDATE UnitPromotions SET AttackMod = 10 WHERE Type = 'PROMOTION_IKLWA';
 
-UPDATE UnitPromotions SET DiplomaticMissionAccomplishment = 1 WHERE Type = 'PROMOTION_UNIT_GREECE_PROXENOS';
+UPDATE UnitPromotions SET DiplomaticMissionAccomplishment = 1 WHERE Type = 'PROMOTION_PROXENOS';
 
 -- Eight Virtues of Bushido
 UPDATE UnitPromotions SET HasPostCombatPromotions = 1 WHERE Type = 'PROMOTION_BUSHIDO';
