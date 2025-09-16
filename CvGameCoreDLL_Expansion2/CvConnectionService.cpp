@@ -672,7 +672,7 @@ void CvConnectionService::ProcessMessages()
 				(currentTime - m_dwLastGCTime) :
 				(UINT_MAX - m_dwLastGCTime + currentTime + 1); // Handle tick count wrap-around
 
-			if (timeSinceLastGC >= 60000) // 60 seconds
+			if (processedCount >= 5 || timeSinceLastGC >= 60000) // 60 seconds or 5 messages
 			{
 				int beforeKB = lua_gc(m_pLuaState, LUA_GCCOUNT, 0);
 				int result = lua_gc(m_pLuaState, LUA_GCCOLLECT, 0);
