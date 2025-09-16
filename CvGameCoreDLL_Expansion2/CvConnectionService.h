@@ -197,6 +197,9 @@ private:
 	
 	// Serialization methods for event sequence
 	void DeserializeEventSequence();
+
+	// Track last Lua GC time (for periodic garbage collection)
+	DWORD m_dwLastGCTime;
 	
 	// Dynamic memory buffers for main thread message processing
 	// Separate buffers to prevent memory corruption during nested operations

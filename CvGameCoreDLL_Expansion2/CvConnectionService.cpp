@@ -14,6 +14,7 @@ Opens an IPC channel that exposes the game's internal state to external services
 #include <iomanip>
 #include <cmath>
 #include <climits>
+#include <psapi.h>
 
 // Note: Buffer allocation moved to Setup() to avoid unnecessary memory usage when IPC is disabled
 
@@ -36,6 +37,7 @@ CvConnectionService::CvConnectionService()
 	, m_uiNextCallId(1)
 	, m_uiCurrentTurn(0)
 	, m_uiEventSequence(1)
+	, m_dwLastGCTime(0)
 	, m_pMainThreadReadBuffer(NULL)
 	, m_pMainThreadWriteBuffer(NULL)
 {
@@ -662,18 +664,38 @@ void CvConnectionService::ProcessMessages()
 		// Release the critical section
 		LeaveCriticalSection(&m_csIncoming);
 
-		// Run Lua garbage collection if we processed more than 1 message
-		if (processedCount > 1 && m_pLuaState)
+		// Run Lua garbage collection every minute (60000 milliseconds)
+		if (processedCount > 0 && m_pLuaState)
 		{
-			int beforeKB = lua_gc(m_pLuaState, LUA_GCCOUNT, 0);
-			int result = lua_gc(m_pLuaState, LUA_GCCOLLECT, 0);
-			int afterKB = lua_gc(m_pLuaState, LUA_GCCOUNT, 0);
+			DWORD currentTime = GetTickCount();
+			DWORD timeSinceLastGC = (currentTime >= m_dwLastGCTime) ?
+				(currentTime - m_dwLastGCTime) :
+				(UINT_MAX - m_dwLastGCTime + currentTime + 1); // Handle tick count wrap-around
 
-			std::stringstream ss;
-			ss << "ProcessMessages - Lua GC after processing " << processedCount
-			   << " messages. Memory: " << beforeKB << "KB -> " << afterKB
-			   << "KB (freed " << (beforeKB - afterKB) << "KB), GC result: " << result;
-			Log(LOG_DEBUG, ss.str().c_str());
+			if (timeSinceLastGC >= 60000) // 60 seconds
+			{
+				int beforeKB = lua_gc(m_pLuaState, LUA_GCCOUNT, 0);
+				int result = lua_gc(m_pLuaState, LUA_GCCOLLECT, 0);
+				int afterKB = lua_gc(m_pLuaState, LUA_GCCOUNT, 0);
+
+				// Get process memory statistics after GC
+				PROCESS_MEMORY_COUNTERS_EX pmc;
+				pmc.cb = sizeof(pmc);
+				GetProcessMemoryInfo(GetCurrentProcess(), (PROCESS_MEMORY_COUNTERS*)&pmc, sizeof(pmc));
+
+				std::stringstream ss;
+				ss << "GarbageCollection - Lua Memory: "
+				   << beforeKB << "KB -> " << afterKB
+				   << "KB (freed " << (beforeKB - afterKB) << "KB), GC result: " << result
+				   << " | Process Memory: "
+				   << "Private Bytes: " << (pmc.PrivateUsage / (1024 * 1024)) << "MB, "
+				   << "Virtual Bytes: " << (pmc.PagefileUsage / (1024 * 1024)) << "MB, "
+				   << "Working Set: " << (pmc.WorkingSetSize / (1024 * 1024)) << "MB, "
+				   << "Peak Working Set: " << (pmc.PeakWorkingSetSize / (1024 * 1024)) << "MB";
+				Log(LOG_DEBUG, ss.str().c_str());
+
+				m_dwLastGCTime = currentTime;
+			}
 		}
 	}
 	catch (...)
