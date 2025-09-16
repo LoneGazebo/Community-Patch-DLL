@@ -661,6 +661,20 @@ void CvConnectionService::ProcessMessages()
 		
 		// Release the critical section
 		LeaveCriticalSection(&m_csIncoming);
+
+		// Run Lua garbage collection if we processed more than 1 message
+		if (processedCount > 1 && m_pLuaState)
+		{
+			int beforeKB = lua_gc(m_pLuaState, LUA_GCCOUNT, 0);
+			int result = lua_gc(m_pLuaState, LUA_GCCOLLECT, 0);
+			int afterKB = lua_gc(m_pLuaState, LUA_GCCOUNT, 0);
+
+			std::stringstream ss;
+			ss << "ProcessMessages - Lua GC after processing " << processedCount
+			   << " messages. Memory: " << beforeKB << "KB -> " << afterKB
+			   << "KB (freed " << (beforeKB - afterKB) << "KB), GC result: " << result;
+			Log(LOG_DEBUG, ss.str().c_str());
+		}
 	}
 	catch (...)
 	{
@@ -1772,8 +1786,6 @@ void CvConnectionService::SerializeEventSequence()
 	}
 	else
 	{
-		// luaL_dostring may leave return values on stack
-		lua_settop(m_pLuaState, originalTop);  // Clear any return values
 		std::stringstream ss;
 		ss << "SerializeEventSequence - Saved event sequence: " << m_uiEventSequence;
 		Log(LOG_DEBUG, ss.str().c_str());
