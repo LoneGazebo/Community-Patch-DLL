@@ -1492,6 +1492,14 @@ bool ExternalPause()
 		{
 			//couldn't acquire it, we should pause
 			bPause = true;
+			
+#if defined(MOD_IPC_CHANNEL)
+			if (MOD_IPC_CHANNEL) {
+				// Process messages from the Connection Service
+				CvConnectionService::GetInstance().ProcessMessages();
+			}
+#endif
+
 			//sleep a little bit for simple rate limiting
 			Sleep(200);
 		}

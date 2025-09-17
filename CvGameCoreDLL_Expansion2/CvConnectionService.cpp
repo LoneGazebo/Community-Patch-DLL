@@ -682,7 +682,7 @@ void CvConnectionService::ProcessMessages()
 				}
 
 				int beforeKB = lua_gc(m_pLuaState, LUA_GCCOUNT, 0);
-				int result = lua_gc(m_pLuaState, LUA_GCCOLLECT, 0);
+				int result = lua_gc(m_pLuaState, LUA_GCSTEP, 0);
 				int afterKB = lua_gc(m_pLuaState, LUA_GCCOUNT, 0);
 
 				// Restore game core lock if we had it
