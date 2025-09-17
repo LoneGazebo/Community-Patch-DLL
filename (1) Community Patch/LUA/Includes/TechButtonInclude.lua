@@ -563,7 +563,7 @@ function AddSmallButtonsToTechButton(buttonStack, kTechInfo, iButtonCount, iText
 	end
 
 	if kTechInfo.InternationalTradeRoutesChange ~= 0 then
-		local strTooltip = L("TXT_KEY_TECH_HELP_EXTRA_TRADE_ROUTES", kTechInfo.InternationalTradeRoutesChange);
+		local strTooltip = GetSignedTooltip("TXT_KEY_TECH_HELP_EXTRA_TRADE_ROUTES", kTechInfo.InternationalTradeRoutesChange);
 		local strText = L("TXT_KEY_TECH_HELP_NUMBER_CHANGE", kTechInfo.InternationalTradeRoutesChange);
 		GenerateNextButtonFromInfo(SetupGenericButton, GetInfoFromType("Missions", "MISSION_ESTABLISH_TRADE_ROUTE"), strTooltip, strText, true);
 		if iButtonIndex > iButtonCount then return iButtonCount end
