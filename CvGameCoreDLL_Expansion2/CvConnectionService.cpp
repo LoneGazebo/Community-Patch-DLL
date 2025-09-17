@@ -1532,15 +1532,29 @@ void CvConnectionService::ForwardGameEvent(const char* eventName, ICvEngineScrip
 	try
 	{
 		
-		// Define blacklisted high-frequency events
+		// Define blacklisted high-frequency/useless events (for our context)
 		static const char* eventBlacklist[] = {
 			"GameCoreUpdateBegin",
 			"GameCoreUpdateEnd",
+			"GameCoreTestVictory",
 			"PlayerPreAIUnitUpdate",
 			"BattleStarted",
 			"BattleJoined",
 			"BattleFinished",
 			"GameCoreTestVictory",
+			"PlayerEndTurnInitiated",
+			"PlayerEndTurnCompleted",
+ 			"UnitPrekill",
+			"GatherPerTurnReplayStats",
+			"TestEvent",
+			"TerraformingPlot",
+			"GameSave",
+			"CityPrepared",
+			"UnitGetSpecialExploreTarget",
+			"PlayerCityFounded",
+			"TeamSetHasTech",
+			"CombatEnded",
+			"BarbariansSpawnedUnit",
 			NULL  // Null terminator
 		};
 		
