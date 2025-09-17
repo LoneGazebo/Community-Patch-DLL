@@ -740,7 +740,7 @@ UPDATE UnitPromotions SET EmbarkExtraVisibility = 1 WHERE Type = 'PROMOTION_EMBA
 -- Embarkation with Defense
 UPDATE UnitPromotions SET EmbarkDefenseModifier = 100 WHERE Type = 'PROMOTION_DEFENSIVE_EMBARKATION';
 
-UPDATE UnitPromotions SET GainsXPFromPillaging = 1 WHERE Type = 'PROMOTION_SCAVENGER';
+UPDATE UnitPromotions SET XPFromPillaging = 5 WHERE Type = 'PROMOTION_SCAVENGER';
 
 UPDATE UnitPromotions SET ExtraWithdrawal = 100 WHERE Type = 'PROMOTION_COMMANDO';
 

@@ -3470,10 +3470,9 @@ CivilopediaCategory[CategoryPromotions].SelectArticle = function( promotionID, s
 		AnalyzePromotion("GoodyHutYieldBonus");
 		--AnalyzePromotion("GainsXPFromScouting");
 		if thisPromotion.GainsXPFromScouting == 1 then sText = sText.."[NEWLINE][ICON_BULLET]Gains XP from Scouting"; end
-		--AnalyzePromotion("GainsXPFromPillaging");
-		if thisPromotion.GainsXPFromPillaging == 1 then sText = sText.."[NEWLINE][ICON_BULLET]Gains XP from Pillaging"; end
 		--AnalyzePromotion("GainsXPFromSpotting");
 		if thisPromotion.GainsXPFromSpotting == 1 then sText = sText.."[NEWLINE][ICON_BULLET]Gains XP from Spotting"; end
+		AnalyzePromotion("XPFromPillaging");
 		AnalyzePromotion("MultiAttackBonus");
 		AnalyzePromotion("DamageReductionCityAssault");
 		AnalyzePromotion("PillageBonusStrength");
