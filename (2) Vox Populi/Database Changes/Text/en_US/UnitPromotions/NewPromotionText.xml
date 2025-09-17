@@ -474,14 +474,14 @@
 			<Text>Viking (Land)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_VIKING_HELP">
-			<Text>[ICON_RAZING] Pillaging costs no [ICON_MOVES] Movement and heals an extra [COLOR_POSITIVE_TEXT]10 HP[ENDCOLOR].[NEWLINE]Deal [COLOR_POSITIVE_TEXT]10 Damage[ENDCOLOR] to all adjacent Enemy Units when [ICON_RAZING] Pillaging, and gain 30 [ICON_Gold] Gold, scaling with Era.</Text>
+			<Text>[ICON_RAZING] Pillaging costs no [ICON_MOVES] Movement and heals an extra [COLOR_POSITIVE_TEXT]10 HP[ENDCOLOR].[NEWLINE]Deal [COLOR_POSITIVE_TEXT]10 Damage[ENDCOLOR] to all adjacent Enemy Units when [ICON_RAZING] Pillaging Improvements, and gain 30 [ICON_Gold] Gold, scaling with Era.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_LONGBOAT">
 			<Text>Viking (Sea)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_LONGBOAT_HELP">
-			<Text>[ICON_RAZING] Pillaging costs no [ICON_MOVES] Movement and [COLOR_POSITIVE_TEXT]fully heals[ENDCOLOR] this Unit.[NEWLINE]Deal [COLOR_POSITIVE_TEXT]15 Damage[ENDCOLOR] to all adjacent Enemy Units when [ICON_RAZING] Pillaging, and gain 60 [ICON_Gold] Gold, scaling with Era.</Text>
+			<Text>[ICON_RAZING] Pillaging costs no [ICON_MOVES] Movement and [COLOR_POSITIVE_TEXT]fully heals[ENDCOLOR] this Unit.[NEWLINE]Deal [COLOR_POSITIVE_TEXT]15 Damage[ENDCOLOR] to all adjacent Enemy Units when [ICON_RAZING] Pillaging Improvements, and gain 60 [ICON_Gold] Gold, scaling with Era.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_FASTER_WORKER">
@@ -768,7 +768,7 @@
 			<Text>Scavenger</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SCAVENGER_HELP">
-			<Text>Gain 5 XP when [ICON_RAZING] Pillaging.</Text>
+			<Text>Gain 5 XP when [ICON_RAZING] Pillaging Improvements.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_COMMANDO">
@@ -1139,7 +1139,7 @@
 			<Text>Garland Mine</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_GARLAND_MINE_HELP">
-			<Text>No [ICON_MOVES] Movement cost to [ICON_RAZING] Pillage.[NEWLINE]Deals [COLOR_POSITIVE_TEXT]15 Damage[ENDCOLOR] to adjacent enemies on [ICON_RAZING] Pillage.[NEWLINE]This Damage ignores damage reduction, but does not affect Units in [COLOR_NEGATIVE_TEXT]Cities[ENDCOLOR] and [COLOR_NEGATIVE_TEXT]Fortifications[ENDCOLOR].</Text>
+			<Text>[ICON_RAZING] Pillaging costs no [ICON_MOVES] Movement.[NEWLINE]Deal [COLOR_POSITIVE_TEXT]15 Damage[ENDCOLOR] to adjacent Enemy Units on [ICON_RAZING] Pillaging Improvements.[NEWLINE]This Damage ignores damage reduction, but does not affect Units in [COLOR_NEGATIVE_TEXT]Cities[ENDCOLOR] and [COLOR_NEGATIVE_TEXT]Fortifications[ENDCOLOR].</Text>
 		</Row>
 		
 		<Row Tag="TXT_KEY_PROMOTION_DESERT_RAIDER">
@@ -1321,7 +1321,7 @@
 			<Text>Bellum Alet</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_BELLUM_ALET_HELP">
-			<Text>Heal all adjacent [COLOR_POSITIVE_TEXT]Friendly Units[ENDCOLOR] by 15 HP when [ICON_RAZING] Pillaging.</Text>
+			<Text>Heal all adjacent [COLOR_POSITIVE_TEXT]Friendly Units[ENDCOLOR] by 15 HP when [ICON_RAZING] Pillaging Improvements.</Text>
 		</Row>
 		
 		<Row Tag="TXT_KEY_PROMOTION_SENTINEL_OF_THE_SUN">
@@ -1377,14 +1377,14 @@
 			<Text>Mingghan</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_MINGGHAN_HELP">
-			<Text>Gain 3 XP when [ICON_RAZING] Pillaging.[NEWLINE]+20% [ICON_STRENGTH] Combat Strength in tiles with Pillaged Improvements.</Text>
+			<Text>Gain 3 XP when [ICON_RAZING] Pillaging Improvements.[NEWLINE]+20% [ICON_STRENGTH] Combat Strength in tiles with Pillaged Improvements.</Text>
 		</Row>
 		
 		<Row Tag="TXT_KEY_PROMOTION_RAZZIA">
 			<Text>Razzia</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_RAZZIA_HELP">
-			<Text>Gain 200% of the [ICON_STRENGTH] Combat Strength of defeated Enemy Units as [ICON_FOOD] Food and [ICON_PRODUCTION] Production in this unit's origin City.[NEWLINE]Gain 100 [ICON_FOOD] Food and [ICON_PRODUCTION] Production when [ICON_RAZING] Pillaging.[NEWLINE]Gain 200 [ICON_FOOD] Food and [ICON_PRODUCTION] Production when plundering [ICON_INTERNATIONAL_TRADE] Trade Routes.</Text>
+			<Text>Gain 200% of the [ICON_STRENGTH] Combat Strength of defeated Enemy Units as [ICON_FOOD] Food and [ICON_PRODUCTION] Production in this unit's origin City.[NEWLINE]Gain 100 [ICON_FOOD] Food and [ICON_PRODUCTION] Production when [ICON_RAZING] Pillaging Improvements.[NEWLINE]Gain 200 [ICON_FOOD] Food and [ICON_PRODUCTION] Production when plundering [ICON_INTERNATIONAL_TRADE] Trade Routes.</Text>
 		</Row>
 		
 		<Row Tag="TXT_KEY_PROMOTION_BURGHER">
@@ -1419,7 +1419,7 @@
 			<Text>Safavi Agitator</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SAFAVI_AGITATOR_HELP">
-			<Text>Gain 20 [ICON_GOLD] Gold, 10 [ICON_PEACE] Faith, and [ICON_GOLDEN_AGE] Golden Age Points when [ICON_RAZING] Pillaging, scaling with Era.</Text>
+			<Text>Gain 20 [ICON_GOLD] Gold, 10 [ICON_PEACE] Faith, and [ICON_GOLDEN_AGE] Golden Age Points when [ICON_RAZING] Pillaging Improvements, scaling with Era.</Text>
 		</Row>
 		
 		<Row Tag="TXT_KEY_PROMOTION_FIGHTING_COCK">
