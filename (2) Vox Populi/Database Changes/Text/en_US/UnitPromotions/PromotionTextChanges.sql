@@ -703,7 +703,7 @@ WHERE Tag = 'TXT_KEY_PROMOTION_HOMELAND_GUARDIAN_HELP';
 
 -- Full Moon Striker
 UPDATE Language_en_US
-SET Text = '+1 [ICON_MOVES] Movement.[NEWLINE]Gain 200 [ICON_RESEARCH] Science when [ICON_RAZING] Pillaging.'
+SET Text = '+1 [ICON_MOVES] Movement.[NEWLINE]Gain 200 [ICON_RESEARCH] Science when [ICON_RAZING] Pillaging Improvements.'
 WHERE Tag = 'TXT_KEY_PROMOTION_MOON_STRIKER_HELP';
 
 -- Mystic Blade
