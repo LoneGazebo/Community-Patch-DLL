@@ -674,9 +674,22 @@ void CvConnectionService::ProcessMessages()
 
 			if (processedCount >= 5 || timeSinceLastGC >= 60000) // 60 seconds or 5 messages
 			{
+				// Handle thread locks for safe Lua GC
+				bool bHadLock = gDLL->HasGameCoreLock();
+				if (bHadLock)
+				{
+					gDLL->ReleaseGameCoreLock();
+				}
+
 				int beforeKB = lua_gc(m_pLuaState, LUA_GCCOUNT, 0);
 				int result = lua_gc(m_pLuaState, LUA_GCCOLLECT, 0);
 				int afterKB = lua_gc(m_pLuaState, LUA_GCCOUNT, 0);
+
+				// Restore game core lock if we had it
+				if (bHadLock)
+				{
+					gDLL->GetGameCoreLock();
+				}
 
 				// Get process memory statistics after GC
 				PROCESS_MEMORY_COUNTERS_EX pmc;
