@@ -141,11 +141,8 @@ CvGame::CvGame() :
 	m_pGameCulture = NULL;
 	m_pGameLeagues = NULL;
 	m_pGameTrade = NULL;
-
-#if defined(MOD_BALANCE_CORE)
 	m_pGameCorporations = NULL;
 	m_pGameContracts = NULL;
-#endif
 
 	m_pAdvisorCounsel = NULL;
 	m_pAdvisorRecommender = NULL;
@@ -980,9 +977,7 @@ void CvGame::DoGameStarted()
 
 	GET_PLAYER(getActivePlayer()).GetUnitCycler().Rebuild();
 
-#if defined(MOD_BALANCE_CORE)
 	CvPlayerManager::Refresh(false);
-#endif
 }
 
 
@@ -1054,11 +1049,8 @@ void CvGame::uninit()
 	SAFE_DELETE(m_pGameCulture);
 	SAFE_DELETE(m_pGameLeagues);
 	SAFE_DELETE(m_pGameTrade);
-
-#if defined(MOD_BALANCE_CORE)
 	SAFE_DELETE(m_pGameCorporations);
 	SAFE_DELETE(m_pGameContracts);
-#endif
 
 	SAFE_DELETE(m_pAdvisorCounsel);
 	SAFE_DELETE(m_pAdvisorRecommender);
@@ -1257,7 +1249,6 @@ void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
 		m_pGameReligions = FNEW(CvGameReligions, c_eCiv5GameplayDLL, 0);
 		m_pGameReligions->Init();
 
-#if defined(MOD_BALANCE_CORE)
 		ASSERT_DEBUG(m_pGameCorporations==NULL, "about to leak memory, CvGame::m_pGameCorporations");
 		m_pGameCorporations = FNEW(CvGameCorporations, c_eCiv5GameplayDLL, 0);
 		m_pGameCorporations->Init();
@@ -1265,7 +1256,6 @@ void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
 		ASSERT_DEBUG(m_pGameContracts==NULL, "about to leak memory, CvGame::m_pGameContracts");
 		m_pGameContracts = FNEW(CvGameContracts, c_eCiv5GameplayDLL, 0);
 		m_pGameContracts->Init();
-#endif
 
 		ASSERT_DEBUG(m_pGameCulture==NULL, "about to leak memory, CvGame::m_pGameCulture");
 		m_pGameCulture = FNEW(CvGameCulture, c_eCiv5GameplayDLL, 0);
@@ -6821,7 +6811,6 @@ VictoryTypes CvGame::getVictory() const
 {
 	return m_eVictory;
 }
-#if defined(MOD_BALANCE_CORE)
 bool CvGame::isVictoryRandomizationDone() const
 {
 	return m_bVictoryRandomization;
@@ -6830,7 +6819,6 @@ void CvGame::setVictoryRandomizationDone(bool bValue)
 {
 	m_bVictoryRandomization = bValue;
 }
-#endif
 
 
 //	--------------------------------------------------------------------------------
@@ -8581,8 +8569,6 @@ void CvGame::doTurn()
 	GetGameTrade()->DoTurn();
 	GetGameLeagues()->DoTurn();
 	GetGameCulture()->DoTurn();
-
-#if defined(MOD_BALANCE_CORE)
 	GetGameCorporations()->DoTurn();
 	GetGameContracts()->DoTurn();
 
@@ -8603,7 +8589,6 @@ void CvGame::doTurn()
 		}
 	}
 	UpdateGreatestPlayerResourceMonopoly();
-#endif
 
 
 	updateGlobalMedians();
@@ -8713,12 +8698,10 @@ void CvGame::doTurn()
 		}
 	}
 
-#if defined(MOD_BALANCE_CORE)
 	if (isOption(GAMEOPTION_RANDOM_VICTORY))
 	{
 		doVictoryRandomization();
 	}
-#endif
 	// Victory stuff
 	testVictory();
 
@@ -9745,10 +9728,8 @@ void CvGame::testVictory()
 	updateScore();
 
 	bool bEndGame = false;
-#if defined(MOD_BALANCE_CORE)
 	bool bIsDomination = false;
 	bool bIsScore = false;
-#endif
 
 	std::vector<std::vector<int> > aaiGameWinners;
 	int iTeamLoop = 0;
@@ -9786,12 +9767,10 @@ void CvGame::testVictory()
 							aaiGameWinners.push_back(aWinner);
 
 							bEndGame = true;
-#if defined(MOD_BALANCE_CORE)
 							if (pkVictoryInfo->isConquest())
 							{
 								bIsDomination = true;
 							}
-#endif
 						}
 						// Non game-ending Competition winner placement
 						else
@@ -9898,9 +9877,7 @@ void CvGame::testVictory()
 					if(pkVictoryInfo->isEndScore())
 					{
 						eScoreVictory = eVictory;
-#if defined(MOD_BALANCE_CORE)
 						bIsScore = true;
-#endif
 						break;
 					}
 				}
@@ -9937,14 +9914,12 @@ void CvGame::testVictory()
 		}
 	}
 
-#if defined(MOD_BALANCE_CORE)
 	//Not already defined? Skip!
 	if (isOption(GAMEOPTION_RANDOM_VICTORY) && !isVictoryRandomizationDone() && !bIsDomination && !bIsScore)
 	{
 		aaiGameWinners.clear();
 		bEndGame = false;
 	}
-#endif
 
 	// Two things can set this to true: either someone has finished an insta-win victory, or the game-ending tech has been researched and we're now tallying VPs
 	if(bEndGame && !aaiGameWinners.empty())
@@ -9976,7 +9951,6 @@ void CvGame::testVictory()
 	}
 }
 
-#if defined(MOD_BALANCE_CORE)
 void CvGame::doVictoryRandomization()
 {
 	//Already done?
@@ -10143,7 +10117,6 @@ void CvGame::doVictoryRandomization()
 	}
 	
 }
-#endif
 
 //	--------------------------------------------------------------------------------
 CvRandom& CvGame::getMapRand()
@@ -10365,7 +10338,6 @@ int CvGame::calculateSyncChecksum()
 	return iValue & 0xFFFFFFFF;
 }
 
-#if defined(MOD_BALANCE_CORE)
 void CvGame::debugSyncChecksum()
 {
 	CvString fname = CvString::format( "AssetsTurn%03d.txt", GC.getGame().getGameTurn() );
@@ -10432,7 +10404,6 @@ void CvGame::debugSyncChecksum()
 	}
 }
 
-#endif
 
 //	--------------------------------------------------------------------------------
 int CvGame::calculateOptionsChecksum()
@@ -11639,7 +11610,6 @@ CvGameReligions* CvGame::GetGameReligions()
 	return m_pGameReligions;
 }
 
-#if defined(MOD_BALANCE_CORE)
 //	--------------------------------------------------------------------------------
 CvGameCorporations* CvGame::GetGameCorporations()
 {
@@ -11650,7 +11620,6 @@ CvGameContracts* CvGame::GetGameContracts()
 {
 	return m_pGameContracts;
 }
-#endif
 
 //	--------------------------------------------------------------------------------
 CvGameCulture* CvGame::GetGameCulture()
@@ -14126,7 +14095,6 @@ int CvGame::GetContractUnits(ContractTypes eContract, UnitTypes eUnit) const
 	return m_ppaiContractUnits[eContract][eUnit];
 }
 #endif
-#if defined(MOD_BALANCE_CORE)
 
 PlayerTypes CvGame::GetCorporationFounder(CorporationTypes eCorporation) const
 {
@@ -14376,7 +14344,7 @@ bool CvGame::CreateFreeCityPlayer(CvCity* pStartingCity, bool bJustChecking, boo
 	}
 	return true;
 }
-#endif
+
 bool CvGame::isFirstActivationOfPlayersAfterLoad() const
 {
 	return m_firstActivationOfPlayersAfterLoad;

@@ -779,13 +779,11 @@ void CvGameCulture::MoveGreatWorks(PlayerTypes ePlayer, int iCity1, int iBuildin
 	pCity1->GetCityBuildings()->SetBuildingGreatWork((BuildingClassTypes)iBuildingClass1, iWorkIndex1, workType2);
 	pCity2->GetCityBuildings()->SetBuildingGreatWork((BuildingClassTypes)iBuildingClass2, iWorkIndex2, workType1);
 
-#if defined(MOD_BALANCE_CORE)
 	pCity1->UpdateAllNonPlotYields(true);
 	if (pCity1 != pCity2)
 	{
 		pCity2->UpdateAllNonPlotYields(true);
 	}
-#endif
 }
 
 /// How many civs do we need to be influential over to win?
@@ -1100,7 +1098,6 @@ bool CvPlayerCulture::GetGreatWorkLocation(int iSearchIndex, int &iReturnCityID,
 
 	return false;
 }
-#if defined(MOD_BALANCE_CORE)
 void CvPlayerCulture::DoSwapGreatWorksHuman(bool bSwap)
 {
 	GreatWorkClass eWritingClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_LITERATURE");
@@ -1213,7 +1210,6 @@ void CvPlayerCulture::DoSwapGreatWorksHuman(bool bSwap)
 	MoveWorks(CvTypes::getGREAT_WORK_SLOT_ART_ARTIFACT(), aGreatWorkBuildingsArt, aGreatWorksArt, aGreatWorksArtifacts, YIELD_CULTURE, bSwap);
 	MoveWorks(CvTypes::getGREAT_WORK_SLOT_MUSIC(), aGreatWorkBuildingsMusic, aGreatWorksMusic, aNull, YIELD_CULTURE, bSwap);
 }
-#endif
 /// AI routine to decide what Great Work swapping should take place (including placing Great Works up for swap from another player)
 void CvPlayerCulture::DoSwapGreatWorks(YieldTypes eFocusYield)
 {
@@ -3088,7 +3084,6 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 
 		pHousingCity = m_pPlayer->GetCulture()->GetClosestAvailableGreatWorkSlot(pPlot->getX(), pPlot->getY(), eArtArtifactSlot, eBuildingToHouse, iSlot);
 		int iGWindex = pCulture->CreateGreatWork(eGreatArtifact, eClass, pPlot->GetArchaeologicalRecord().m_ePlayer1, pPlot->GetArchaeologicalRecord().m_eEra, "");
-#if defined(MOD_BALANCE_CORE)
 		if (m_pPlayer->GetPlayerTraits()->IsGreatWorkWLTKD())
 		{
 			int iWLTKD = /*6*/ GD_INT_GET(CITY_RESOURCE_WLTKD_TURNS) / 3;
@@ -3118,7 +3113,6 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 				}
 			}
 		}
-#endif
 		pHousingCity->GetCityBuildings()->SetBuildingGreatWork(eBuildingToHouse, iSlot, iGWindex);
 		if (pUnit)
 			pPlot->setImprovementType(NO_IMPROVEMENT);
@@ -3151,7 +3145,6 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 
 		pPlot->SetPlayerThatClearedDigHere(m_pPlayer->GetID());
 
-#if defined(MOD_BALANCE_CORE)
 		if (m_pPlayer->GetPlayerTraits()->IsGreatWorkWLTKD())
 		{
 			int iWLTKD = /*6*/ GD_INT_GET(CITY_RESOURCE_WLTKD_TURNS) / 3;
@@ -3181,7 +3174,6 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 				}
 			}
 		}
-#endif
 		pHousingCity->UpdateAllNonPlotYields(true);
 
 		if (pUnit)
@@ -4547,11 +4539,6 @@ int CvPlayerCulture::GetTourismModifierWith(PlayerTypes eTargetPlayer, bool bIgn
 		if (eMyIdeology != NO_POLICY_BRANCH_TYPE && eTheirIdeology != NO_POLICY_BRANCH_TYPE && eMyIdeology != eTheirIdeology)
 		{
 			iMultiplier += /*-34 in CP, -10 in VP*/ GD_INT_GET(TOURISM_MODIFIER_DIFFERENT_IDEOLOGIES);
-
-			if (!MOD_BALANCE_CORE && m_pPlayer->GetEspionage()->IsMyDiplomatVisitingThem(eTargetPlayer))
-			{
-				iMultiplier += /*25 in CP, 20 in VP*/ GD_INT_GET(TOURISM_MODIFIER_DIPLOMAT);
-			}
 		}
 	}
 	if (!bIgnorePolicies)
@@ -4598,13 +4585,11 @@ int CvPlayerCulture::GetTourismModifierWith(PlayerTypes eTargetPlayer, bool bIgn
 		iMultiplier -= m_pPlayer->GetInfluenceSpreadModifier();
 	}
 
-	if (MOD_BALANCE_CORE)
+	if (m_pPlayer->GetEspionage() && m_pPlayer->GetEspionage()->IsMyDiplomatVisitingThem(eTargetPlayer))
 	{
-		if (m_pPlayer->GetEspionage() && m_pPlayer->GetEspionage()->IsMyDiplomatVisitingThem(eTargetPlayer))
-		{
-			iMultiplier += /*25 in CP, 20 in VP*/ GD_INT_GET(TOURISM_MODIFIER_DIPLOMAT);
-		}
+		iMultiplier += /*25 in CP, 20 in VP*/ GD_INT_GET(TOURISM_MODIFIER_DIPLOMAT);
 	}
+
 	if (MOD_BALANCE_VP)
 	{
 		int iBoredom = kTargetPlayer.GetCulture()->GetBoredomCache();
@@ -4715,8 +4700,7 @@ CvString CvPlayerCulture::GetTourismModifierWithTooltip(PlayerTypes eTargetPlaye
 	}
 
 	// Diplomat in this player's Capital City
-	if (m_pPlayer->GetEspionage()->IsMyDiplomatVisitingThem(eTargetPlayer) && 
-		(MOD_BALANCE_CORE || (!MOD_BALANCE_CORE && eMyIdeology != NO_POLICY_BRANCH_TYPE && eTheirIdeology != NO_POLICY_BRANCH_TYPE && eMyIdeology != eTheirIdeology)))
+	if (m_pPlayer->GetEspionage()->IsMyDiplomatVisitingThem(eTargetPlayer))
 	{
 		szRtnValue += "[COLOR_POSITIVE_TEXT]" + GetLocalizedText("TXT_KEY_CO_PLAYER_TOURISM_PROPAGANDA", /*25 in CP, 20 in VP*/ GD_INT_GET(TOURISM_MODIFIER_DIPLOMAT)) + "[ENDCOLOR]";
 	}
@@ -5008,12 +4992,10 @@ void CvPlayerCulture::SetTurnIdeologyAdopted(int iValue)
 /// Add tourism with all known civs
 void CvPlayerCulture::AddTourismAllKnownCivs(int iTourism)
 {
-#if defined(MOD_BALANCE_CORE)
 	if(m_pPlayer->isMinorCiv() || m_pPlayer->isBarbarian())
 	{
 		return;
 	}
-#endif
 	PlayerTypes eLoopPlayer;
 	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
@@ -5021,11 +5003,7 @@ void CvPlayerCulture::AddTourismAllKnownCivs(int iTourism)
 
 		if (eLoopPlayer != m_pPlayer->GetID() && m_pPlayer->GetDiplomacyAI()->IsPlayerValid(eLoopPlayer))
 		{
-			if (MOD_BALANCE_CORE) {
-                ChangeInfluenceOn(eLoopPlayer, iTourism, true, true);
-            } else {
-                ChangeInfluenceOn(eLoopPlayer, iTourism);
-            }
+            ChangeInfluenceOn(eLoopPlayer, iTourism, true, true);
 		}
 	}
 }
@@ -5033,12 +5011,10 @@ void CvPlayerCulture::AddTourismAllKnownCivs(int iTourism)
 /// Add tourism with all known civs
 void CvPlayerCulture::AddTourismAllKnownCivsWithModifiers(int iTourism)
 {
-#if defined(MOD_BALANCE_CORE)
 	if (m_pPlayer->isMinorCiv() || m_pPlayer->isBarbarian())
 	{
 		return;
 	}
-#endif
 	PlayerTypes eLoopPlayer;
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
@@ -5054,13 +5030,11 @@ void CvPlayerCulture::AddTourismAllKnownCivsWithModifiers(int iTourism)
 /// Add tourism with all known civs
 void CvPlayerCulture::AddTourismAllKnownCivsOtherCivWithModifiers(PlayerTypes eOtherPlayer, int iTourism)
 {
-#if defined(MOD_BALANCE_CORE)
 	if (m_pPlayer->isMinorCiv() || m_pPlayer->isBarbarian())
 		return;
 	if (GET_PLAYER(eOtherPlayer).isMinorCiv() || GET_PLAYER(eOtherPlayer).isBarbarian())
 		return;
 
-#endif
 	PlayerTypes eLoopPlayer;
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
@@ -5850,7 +5824,7 @@ void CvPlayerCulture::LogThemedBuilding(int iCityID, BuildingTypes eBuilding, in
 		pLog->Msg(strLine);
 	}
 }
-#if defined(MOD_BALANCE_CORE)
+
 void CvPlayerCulture::LogSwapMultipleWorks(PlayerTypes eOtherPlayer, int iWorkDiscarded, int iWorkAcquired)
 {
 	if(!(GC.getLogging() && GC.getAILogging()))
@@ -5891,7 +5865,7 @@ void CvPlayerCulture::LogSwapMultipleArtifacts(PlayerTypes eOtherPlayer, int iWo
 
 	pLog->Msg(strLine);
 }
-#endif
+
 void CvPlayerCulture::LogSwapWorks(PlayerTypes eOtherPlayer, int iWorkDiscarded, int iWorkAcquired)
 {
 	if(!(GC.getLogging() && GC.getAILogging()))
@@ -6640,7 +6614,7 @@ int CultureHelpers::GetThemingBonusIndex(PlayerTypes eOwner, CvBuildingEntry *pk
 	}
 	return -1;
 }
-#if defined(MOD_BALANCE_CORE)
+
 bool CultureHelpers::IsValidForForeignThemingBonus(CvThemingBonusInfo *pBonusInfo, EraTypes eEra, vector<EraTypes> &aForeignErasSeen, vector<EraTypes> &aErasSeen, PlayerTypes ePlayer, vector<PlayerTypes> &aForeignPlayersSeen, vector<PlayerTypes> &aPlayersSeen, PlayerTypes eOwner)
 {
 	bool bValid = true;
@@ -6698,7 +6672,7 @@ bool CultureHelpers::IsValidForForeignThemingBonus(CvThemingBonusInfo *pBonusInf
 
 	return bValid;
 }
-#endif
+
 bool CultureHelpers::IsValidForThemingBonus(CvThemingBonusInfo *pBonusInfo, EraTypes eEra, vector<EraTypes> &aErasSeen, PlayerTypes ePlayer, vector<PlayerTypes> &aPlayersSeen, PlayerTypes eOwner)
 {
 	bool bValid = true;

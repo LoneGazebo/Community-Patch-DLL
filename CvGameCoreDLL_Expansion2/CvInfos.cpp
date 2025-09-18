@@ -1656,9 +1656,7 @@ CvUnitClassInfo::CvUnitClassInfo() :
 	m_iMaxPlayerInstances(0),
 	m_iInstanceCostModifier(0),
 	m_iDefaultUnitIndex(NO_UNIT)
-#if defined(MOD_BALANCE_CORE)
 	, m_iUnitInstancePerCity(0)
-#endif
 {
 }
 //------------------------------------------------------------------------------
@@ -1692,12 +1690,10 @@ void CvUnitClassInfo::setDefaultUnitIndex(int i)
 	m_iDefaultUnitIndex = i;
 }
 //------------------------------------------------------------------------------
-#if defined(MOD_BALANCE_CORE)
 int CvUnitClassInfo::getUnitInstancePerCity() const
 {
 	return m_iUnitInstancePerCity;
 }
-#endif
 //------------------------------------------------------------------------------
 bool CvUnitClassInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
@@ -1708,9 +1704,7 @@ bool CvUnitClassInfo::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iMaxTeamInstances = kResults.GetInt("MaxTeamInstances");
 	m_iMaxPlayerInstances = kResults.GetInt("MaxPlayerInstances");
 	m_iInstanceCostModifier = kResults.GetInt("InstanceCostModifier");
-#if defined(MOD_BALANCE_CORE)
 	m_iUnitInstancePerCity = kResults.GetInt("UnitInstancePerCity");
-#endif
 	m_iDefaultUnitIndex = GC.getInfoTypeForString(kResults.GetText("DefaultUnit"), true);
 
 	return true;
@@ -1727,12 +1721,10 @@ CvBuildingClassInfo::CvBuildingClassInfo() :
 	m_iDefaultBuildingIndex(NO_BUILDING),
 	m_bNoLimit(false),
 	m_bMonument(false),
-#if defined(MOD_BALANCE_CORE)
 	m_eCorporationType(NO_CORPORATION),
 	m_bIsHeadquarters(false),
 	m_bIsOffice(false),
 	m_bIsFranchise(false),
-#endif
 	m_piVictoryThreshold(NULL)
 {
 }
@@ -1788,7 +1780,6 @@ int CvBuildingClassInfo::getVictoryThreshold(int i) const
 	ASSERT_DEBUG(i > -1, "Index out of bounds");
 	return m_piVictoryThreshold ? m_piVictoryThreshold[i] : -1;
 }
-#if defined(MOD_BALANCE_CORE)
 //------------------------------------------------------------------------------
 CorporationTypes CvBuildingClassInfo::getCorporationType() const
 {
@@ -1806,7 +1797,6 @@ bool CvBuildingClassInfo::IsFranchise() const
 {
 	return m_bIsFranchise;
 }
-#endif
 //------------------------------------------------------------------------------
 bool CvBuildingClassInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
@@ -2744,7 +2734,6 @@ CvSmallAwardInfo::CvSmallAwardInfo() :
 	m_iNumVictoryPoints(0),
 	m_iNumCities(0),
 	m_iCityPopulation(0),
-#if defined(MOD_BALANCE_CORE)
 	m_iCSInfluence(0),
 	m_iDuration(0),
 	m_iGPPointsGlobal(0),
@@ -2763,7 +2752,6 @@ CvSmallAwardInfo::CvSmallAwardInfo() :
 	m_iAdmiralPoints(0),
 	m_iJuggernauts(0),
 	m_iRand(0)
-#endif
 {
 }
 //------------------------------------------------------------------------------
@@ -2795,7 +2783,6 @@ int CvSmallAwardInfo::GetCityPopulation() const
 {
 	return m_iCityPopulation;
 }
-#if defined(MOD_BALANCE_CORE)
 //------------------------------------------------------------------------------
 int CvSmallAwardInfo::GetInfluence() const
 {
@@ -2885,7 +2872,6 @@ int CvSmallAwardInfo::GetRandom() const
 {
 	return m_iRand;
 }
-#endif
 //------------------------------------------------------------------------------
 bool CvSmallAwardInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
@@ -2900,7 +2886,6 @@ bool CvSmallAwardInfo::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iNumCities = kResults.GetInt("NumCities");
 	m_iCityPopulation = kResults.GetInt("CityPopulation");
 
-#if defined(MOD_BALANCE_CORE)
 	m_iCSInfluence = kResults.GetInt("Influence");
 	m_iDuration = kResults.GetInt("QuestDuration");
 	m_iGPPointsGlobal = kResults.GetInt("GlobalGPPoints");
@@ -2919,7 +2904,6 @@ bool CvSmallAwardInfo::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iJuggernauts = kResults.GetInt("Juggernauts");
 	m_iTourism = kResults.GetInt("Tourism");
 	m_iRand = kResults.GetInt("RandomMod");
-#endif
 
 	return true;
 }
@@ -4640,9 +4624,7 @@ bool CvHandicapInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 //======================================================================================================
 CvGameSpeedInfo::CvGameSpeedInfo() :
 	m_iDealDuration(0),
-#if defined(MOD_BALANCE_CORE)
 	m_iStartingHappiness(0),
-#endif
 	m_iGrowthPercent(0),
 	m_iTrainPercent(0),
 	m_iInstantYieldPercent(0),
@@ -4672,10 +4654,8 @@ CvGameSpeedInfo::CvGameSpeedInfo() :
 #if defined(MOD_TRADE_ROUTE_SCALING)
 	m_iTradeRouteSpeedMod(100),
 #endif
-#if defined(MOD_BALANCE_CORE)
 	m_iPietyMax(0),
 	m_iPietyMin(0),
-#endif
 	m_iMilitaryRatingDecayPercent(0),
 	m_iTechCostPerTurnMultiplier(0),
 	m_iMinimumVoluntaryVassalTurns(15),
@@ -4698,12 +4678,10 @@ int CvGameSpeedInfo::GetDealDuration() const
 {
 	return m_iDealDuration;
 }
-#if defined(MOD_BALANCE_CORE)
 int CvGameSpeedInfo::GetStartingHappiness() const
 {
 	return m_iStartingHappiness;
 }
-#endif
 //------------------------------------------------------------------------------
 int CvGameSpeedInfo::getGrowthPercent() const
 {
@@ -4866,7 +4844,6 @@ int CvGameSpeedInfo::getMilitaryRatingDecayPercent() const
 {
 	return m_iMilitaryRatingDecayPercent;
 }
-#if defined(MOD_BALANCE_CORE)
 //------------------------------------------------------------------------------
 int CvGameSpeedInfo::getPietyMax() const
 {
@@ -4877,7 +4854,6 @@ int CvGameSpeedInfo::getPietyMin() const
 {
 	return m_iPietyMin;
 }
-#endif
 //------------------------------------------------------------------------------
 int CvGameSpeedInfo::getLeaguePercent() const
 {
@@ -4905,9 +4881,7 @@ bool CvGameSpeedInfo::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 		return false;
 
 	m_iDealDuration					= kResults.GetInt("DealDuration");
-#if defined(MOD_BALANCE_CORE)
 	m_iStartingHappiness			= kResults.GetInt("StartingHappiness");
-#endif
 	m_iGrowthPercent				= kResults.GetInt("GrowthPercent");
 	m_iTrainPercent					= kResults.GetInt("TrainPercent");
 	m_iInstantYieldPercent			= kResults.GetInt("InstantYieldPercent");
@@ -4944,10 +4918,8 @@ bool CvGameSpeedInfo::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	}
 #endif
 	m_iMilitaryRatingDecayPercent	= kResults.GetInt("MilitaryRatingDecayPercent");
-#if defined(MOD_BALANCE_CORE)
 	m_iPietyMin						= kResults.GetInt("PietyMin");
 	m_iPietyMax						= kResults.GetInt("PietyMax");
-#endif
 	m_iLeaguePercent				= kResults.GetInt("LeaguePercent");
 
 	m_iTechCostPerTurnMultiplier	= kResults.GetInt("TechCostPerTurnMultiplier");
@@ -5175,12 +5147,10 @@ CvBuildInfo::CvBuildInfo() :
 #endif
 	m_iCostIncreasePerImprovement(0),
 	m_iTechPrereq(NO_TECH),
-#if defined(MOD_BALANCE_CORE)
 	m_iTechObsolete(NO_TECH),
 	m_bKillOnlyCivilian(false),
 	m_bFreeBestDomainUnit(false),
 	m_bCultureBoost(false),
-#endif
 	m_iImprovement(NO_IMPROVEMENT),
 	m_iRoute(NO_ROUTE),
 	m_iEntityEvent(ENTITY_EVENT_NONE),
@@ -5240,7 +5210,6 @@ int CvBuildInfo::getTechPrereq() const
 	return m_iTechPrereq;
 }
 
-#if defined(MOD_BALANCE_CORE)
 bool CvBuildInfo::IsFreeBestDomainUnit() const
 {
 	return m_bFreeBestDomainUnit;
@@ -5254,7 +5223,6 @@ int CvBuildInfo::getTechObsolete() const
 {
 	return m_iTechObsolete;
 }
-#endif
 //------------------------------------------------------------------------------
 int CvBuildInfo::getImprovement() const
 {
@@ -5285,13 +5253,11 @@ bool CvBuildInfo::isKill() const
 {
 	return m_bKill;
 }
-#if defined(MOD_BALANCE_CORE)
 //------------------------------------------------------------------------------
 bool CvBuildInfo::isKillOnlyCivilian() const
 {
 	return m_bKillOnlyCivilian;
 }
-#endif
 //------------------------------------------------------------------------------
 bool CvBuildInfo::isRepair() const
 {
@@ -5392,13 +5358,11 @@ bool CvBuildInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	const char* szPrereqTech = kResults.GetText("PrereqTech");
 	m_iTechPrereq = GC.getInfoTypeForString(szPrereqTech, true);
 
-#if defined(MOD_BALANCE_CORE)
 	m_bKillOnlyCivilian = kResults.GetBool("KillOnlyCivilian");
 	const char* szObsoleteTech = kResults.GetText("ObsoleteTech");
 	m_iTechObsolete = GC.getInfoTypeForString(szObsoleteTech, true);
 	m_bFreeBestDomainUnit = kResults.GetBool("IsFreeBestDomainUnit");
 	m_bCultureBoost = kResults.GetBool("CultureBoost");
-#endif
 
 	const char* szImprovementType = kResults.GetText("ImprovementType");
 	m_iImprovement = GC.getInfoTypeForString(szImprovementType, true);
@@ -5528,7 +5492,6 @@ CvGoodyInfo::CvGoodyInfo() : CvBaseInfo()
 	, m_iHealing(0)
 	, m_iDamagePrereq(0)
 	, m_iPopulation(0)
-#if defined(MOD_BALANCE_CORE)
 	, m_iProduction(0)
 	, m_iGoldenAge(0)
 	, m_iFreeTiles(0)
@@ -5536,7 +5499,6 @@ CvGoodyInfo::CvGoodyInfo() : CvBaseInfo()
 // New Goodies modmod
 	, m_iFood(0)
 	, m_iBorderGrowth(0)
-#endif
 	, m_iCulture(0)
 	, m_iFaith(0)
 	, m_iProphetPercent(0)
@@ -5628,7 +5590,6 @@ int CvGoodyInfo::getPopulation() const
 {
 	return m_iPopulation;
 }
-#if defined(MOD_BALANCE_CORE)
 int CvGoodyInfo::getProduction() const
 {
 	return m_iProduction;
@@ -5654,7 +5615,6 @@ int CvGoodyInfo::getBorderGrowth() const
 {
 	return m_iBorderGrowth;
 }
-#endif
 //
 int CvGoodyInfo::getBarbarianUnitProb() const
 {
@@ -5746,14 +5706,12 @@ bool CvGoodyInfo::CacheResults(Database::Results& results, CvDatabaseUtility& kU
 	m_iHealing = results.GetInt("Healing");
 	m_iDamagePrereq = results.GetInt("DamagePrereq");
 	m_iPopulation = results.GetInt("Population");
-#if defined(MOD_BALANCE_CORE)
 	m_iProduction = results.GetInt("Production");
 	m_iGoldenAge = results.GetInt("GoldenAge");
 	m_iFreeTiles = results.GetInt("FreeTiles");
 	m_iScience = results.GetInt("Science");
 	m_iFood = results.GetInt("Food");
 	m_iBorderGrowth = results.GetInt("BorderGrowth");
-#endif
 	m_iCulture = results.GetInt("Culture");
 	m_iFaith = results.GetInt("Faith");
 	m_iProphetPercent = results.GetInt("ProphetPercent");
@@ -6855,13 +6813,11 @@ CvFeatureInfo::CvFeatureInfo() :
 	m_iFirstFinderGold(0),
 	m_iInBorderHappiness(0),
 	m_iAdjacentUnitFreePromotion(NO_PROMOTION),
-#if defined(MOD_BALANCE_CORE)
 	m_iPrereqTechPassable(NO_TECH),
 	m_iPromotionIfOwned(NO_PROMOTION),
 	m_iLocationUnitFreePromotion(NO_PROMOTION),
 	m_iSpawnLocationUnitFreePromotion(NO_PROMOTION),
 	m_iAdjacentSpawnLocationUnitFreePromotion(NO_PROMOTION),
-#endif
 	m_bYieldNotAdditive(false),
 	m_bNoCoast(false),
 	m_bNoRiver(false),
@@ -6978,7 +6934,6 @@ int CvFeatureInfo::getAdjacentUnitFreePromotion() const
 {
 	return m_iAdjacentUnitFreePromotion;
 }
-#if defined(MOD_BALANCE_CORE)
 int CvFeatureInfo::getPromotionIfOwned() const
 {
 	return m_iPromotionIfOwned;
@@ -6995,7 +6950,6 @@ int CvFeatureInfo::getAdjacentSpawnLocationUnitFreePromotion() const
 {
 	return m_iAdjacentSpawnLocationUnitFreePromotion;
 }
-#endif
 //------------------------------------------------------------------------------
 bool CvFeatureInfo::isYieldNotAdditive() const
 {
@@ -7036,13 +6990,11 @@ bool CvFeatureInfo::isImpassable() const
 {
 	return m_bImpassable;
 }
-#if defined(MOD_BALANCE_CORE)
 /// Techs required for this feature to become passable
 int CvFeatureInfo::GetPrereqPassable() const
 {
 	return m_iPrereqTechPassable;
 }
-#endif
 //------------------------------------------------------------------------------
 bool CvFeatureInfo::isNoCity() const
 {
@@ -7213,7 +7165,6 @@ bool CvFeatureInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	szTextVal = kResults.GetText("AdjacentUnitFreePromotion");
 	m_iAdjacentUnitFreePromotion = GC.getInfoTypeForString(szTextVal, true);
 
-#if defined(MOD_BALANCE_CORE)
 	szTextVal = kResults.GetText("PassableTechFeature");
 	m_iPrereqTechPassable = GC.getInfoTypeForString(szTextVal, true);
 
@@ -7228,7 +7179,6 @@ bool CvFeatureInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 
 	szTextVal = kResults.GetText("AdjacentSpawnLocationUnitFreePromotion");
 	m_iAdjacentSpawnLocationUnitFreePromotion = GC.getInfoTypeForString(szTextVal, true);
-#endif
 
 	const char* szTerrainType = kResults.GetText("GrowthTerrainType");
 	if(szTerrainType != NULL)
@@ -7328,14 +7278,12 @@ CvYieldInfo::CvYieldInfo() :
 	m_iPopulationChangeOffset(0),
 	m_iPopulationChangeDivisor(0),
 	m_iMinCity(0),
-#if defined(MOD_BALANCE_CORE)
 	m_iMinCityFlatFreshWater(0),
 	m_iMinCityFlatNoFreshWater(0),
 	m_iMinCityHillFreshWater(0),
 	m_iMinCityHillNoFreshWater(0),
 	m_iMinCityMountainFreshWater(0),
 	m_iMinCityMountainNoFreshWater(0),
-#endif
 	m_iGoldenAgeYield(0),
 	m_iGoldenAgeYieldThreshold(0),
 	m_iGoldenAgeYieldMod(0)
@@ -7386,7 +7334,6 @@ int CvYieldInfo::getMinCity() const
 {
 	return m_iMinCity;
 }
-#if defined (MOD_BALANCE_CORE)
 //------------------------------------------------------------------------------
 int CvYieldInfo::getMinCityFlatFreshWater() const
 {
@@ -7417,7 +7364,6 @@ int CvYieldInfo::getMinCityMountainNoFreshWater() const
 {
 	return m_iMinCityMountainNoFreshWater;
 }
-#endif
 //------------------------------------------------------------------------------
 int CvYieldInfo::getGoldenAgeYield() const
 {
@@ -7448,14 +7394,12 @@ bool CvYieldInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	kResults.GetValue("PopulationChangeOffset", m_iPopulationChangeOffset);
 	kResults.GetValue("PopulationChangeDivisor", m_iPopulationChangeDivisor);
 	kResults.GetValue("MinCity", m_iMinCity);
-#if defined(MOD_BALANCE_CORE)
 	kResults.GetValue("MinCityFlatFreshWater", m_iMinCityFlatFreshWater);
 	kResults.GetValue("MinCityFlatNoFreshWater", m_iMinCityFlatNoFreshWater);
 	kResults.GetValue("MinCityHillFreshWater", m_iMinCityHillFreshWater);
 	kResults.GetValue("MinCityHillNoFreshWater", m_iMinCityHillNoFreshWater);
 	kResults.GetValue("MinCityMountainFreshWater", m_iMinCityMountainFreshWater);
 	kResults.GetValue("MinCityMountainNoFreshWater", m_iMinCityMountainNoFreshWater);
-#endif
 	kResults.GetValue("GoldenAgeYield", m_iGoldenAgeYield);
 	kResults.GetValue("GoldenAgeYieldThreshold", m_iGoldenAgeYieldThreshold);
 	kResults.GetValue("GoldenAgeYieldMod", m_iGoldenAgeYieldMod);
@@ -7476,13 +7420,11 @@ CvTerrainInfo::CvTerrainInfo() :
 	m_iInfluenceCost(0),
 	m_iTurnDamage(0),
 	m_iExtraTurnDamage(0),
-#if defined(MOD_BALANCE_CORE)
 	m_iPrereqTechPassable(NO_TECH),
 	m_iLocationUnitFreePromotionTerrain(NO_PROMOTION),
 	m_iSpawnLocationUnitFreePromotionTerrain(NO_PROMOTION),
 	m_iAdjacentSpawnLocationUnitFreePromotionTerrain(NO_PROMOTION),
 	m_iAdjacentUnitFreePromotionTerrain(NO_PROMOTION),
-#endif
 	m_bWater(false),
 	m_bImpassable(false),
 	m_bFound(false),
@@ -7552,7 +7494,6 @@ int CvTerrainInfo::getExtraTurnDamage() const
 {
 	return m_iExtraTurnDamage;
 }
-#if defined(MOD_BALANCE_CORE)
 int CvTerrainInfo::getLocationUnitFreePromotion() const
 {
 	return m_iLocationUnitFreePromotionTerrain;
@@ -7570,7 +7511,6 @@ int CvTerrainInfo::getAdjacentUnitFreePromotion() const
 {
 	return m_iAdjacentUnitFreePromotionTerrain;
 }
-#endif
 //------------------------------------------------------------------------------
 bool CvTerrainInfo::isWater() const
 {
@@ -7581,13 +7521,11 @@ bool CvTerrainInfo::isImpassable() const
 {
 	return m_bImpassable;
 }
-#if defined(MOD_BALANCE_CORE)
 /// Techs required for this terrain to become passable
 int CvTerrainInfo::GetPrereqPassable() const
 {
 	return m_iPrereqTechPassable;
 }
-#endif
 //------------------------------------------------------------------------------
 bool CvTerrainInfo::isFound() const
 {
@@ -7706,7 +7644,6 @@ bool CvTerrainInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	{
 		m_iWorldSoundscapeScriptId = -1;
 	}
-#if defined(MOD_BALANCE_CORE)
 	szTextVal = kResults.GetText("PassableTechTerrain");
 	m_iPrereqTechPassable = GC.getInfoTypeForString(szTextVal, true);
 
@@ -7721,7 +7658,6 @@ bool CvTerrainInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 
 	szTextVal = kResults.GetText("AdjacentUnitFreePromotion");
 	m_iAdjacentUnitFreePromotionTerrain = GC.getInfoTypeForString(szTextVal, true);
-#endif
 
 	//Arrays
 	const char* szTerrainType = GetType();
@@ -8139,11 +8075,9 @@ CvWorldInfo::CvWorldInfo() :
 	m_iNumCitiesUnitSupplyMod(5),
 	m_iTradeRouteDistanceMod(100),
 #endif
-#if defined(MOD_BALANCE_CORE)
 	m_iMinDistanceCities(3),
 	m_iMinDistanceCityStates(3),
 	m_iReformationPercent(100),
-#endif
 	m_iEstimatedNumCities(0)
 {
 }
@@ -8249,7 +8183,6 @@ int CvWorldInfo::getTradeRouteDistanceMod() const
 	return m_iTradeRouteDistanceMod;
 }
 #endif
-#if defined(MOD_BALANCE_CORE)
 //------------------------------------------------------------------------------
 int CvWorldInfo::getMinDistanceCities() const
 {
@@ -8265,7 +8198,6 @@ int CvWorldInfo::getReformationPercent() const
 {
 	return m_iReformationPercent;
 }
-#endif
 //------------------------------------------------------------------------------
 int CvWorldInfo::GetEstimatedNumCities() const
 {
@@ -8319,13 +8251,11 @@ bool CvWorldInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 		m_iTradeRouteDistanceMod	= kResults.GetInt("TradeRouteDistanceMod");
 	}
 #endif
-#if defined(MOD_BALANCE_CORE)
 	m_iNumCitiesTourismCostMod = kResults.GetInt("NumCitiesTourismCostMod");
 	m_iNumCitiesUnitSupplyMod = kResults.GetInt("NumCitiesUnitSupplyMod");
 	m_iMinDistanceCities = kResults.GetInt("MinDistanceCities");
 	m_iMinDistanceCityStates = kResults.GetInt("MinDistanceCityStates");
 	m_iReformationPercent = kResults.GetInt("ReformationPercentRequired");
-#endif
 	m_iEstimatedNumCities			= kResults.GetInt("EstimatedNumCities");
 
 	return true;
@@ -8354,13 +8284,11 @@ bool CvWorldInfo::operator==(const CvWorldInfo& rhs) const
 #if defined(MOD_TRADE_ROUTE_SCALING)
 	if(m_iTradeRouteDistanceMod != rhs.m_iTradeRouteDistanceMod) return false;
 #endif
-#if defined(MOD_BALANCE_CORE)
 	if (m_iNumCitiesTourismCostMod != rhs.m_iNumCitiesTourismCostMod) return false;
 	if (m_iNumCitiesUnitSupplyMod != rhs.m_iNumCitiesUnitSupplyMod) return false;
 	if(m_iMinDistanceCities != rhs.m_iMinDistanceCities) return false;
 	if(m_iMinDistanceCityStates != rhs.m_iMinDistanceCityStates) return false;
 	if(m_iReformationPercent != rhs.m_iReformationPercent) return false;
-#endif
 	if(m_iNumCitiesTechCostMod != rhs.m_iNumCitiesTechCostMod) return false;
 	return true;
 }

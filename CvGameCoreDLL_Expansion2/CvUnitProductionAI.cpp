@@ -10,12 +10,10 @@
 #include "CvUnitProductionAI.h"
 #include "CvGameCoreUtils.h"
 #include "CvInfosSerializationHelper.h"
-#if defined(MOD_BALANCE_CORE)
 #include "CvMilitaryAI.h"
 #include "CvEconomicAI.h"
 #include "CvDiplomacyAI.h"
 #include "CvGrandStrategyAI.h"
-#endif
 // include this after all other headers
 #include "LintFree.h"
 
@@ -171,7 +169,6 @@ UnitTypes CvUnitProductionAI::RecommendUnit(UnitAITypes eUnitAIType, bool bAllow
 	}
 }
 
-#if defined(MOD_BALANCE_CORE)
 int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation, int iTempWeight, bool bForPurchase, bool bFree)
 {
 	//value to be added
@@ -1616,7 +1613,6 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 
 	return max(1,iTempWeight);
 }
-#endif
 
 
 /// Log all potential builds

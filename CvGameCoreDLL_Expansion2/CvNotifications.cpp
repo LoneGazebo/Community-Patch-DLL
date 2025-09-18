@@ -617,7 +617,6 @@ bool CvNotifications::GetEndTurnBlockedType(EndTurnBlockingTypes& eBlockingType,
 				return true;
 				break;
 
-#if defined(MOD_BALANCE_CORE)
 			case NOTIFICATION_PLAYER_DEAL_RECEIVED:
 				eBlockingType = ENDTURN_BLOCKING_PENDING_DEAL;
 				iNotificationIndex = m_aNotifications[iIndex].m_iLookupIndex;
@@ -637,7 +636,6 @@ bool CvNotifications::GetEndTurnBlockedType(EndTurnBlockingTypes& eBlockingType,
 				iNotificationIndex = m_aNotifications[iIndex].m_iLookupIndex;
 				return true;
 				break;
-#endif
 
 			default:
 				// these notifications don't block, so don't return a blocking type
@@ -1019,9 +1017,6 @@ void CvNotifications::Activate(Notification& notification)
 		break;
 
 	case NOTIFICATION_IDEOLOGY_CHOSEN:
-#if !defined(MOD_BALANCE_CORE)
-	case NOTIFICATION_CULTURE_VICTORY_SOMEONE_INFLUENTIAL:
-#endif
 	case NOTIFICATION_CULTURE_VICTORY_WITHIN_TWO:
 	case NOTIFICATION_CULTURE_VICTORY_WITHIN_TWO_ACTIVE_PLAYER:
 	case NOTIFICATION_CULTURE_VICTORY_WITHIN_ONE:
@@ -1064,7 +1059,6 @@ void CvNotifications::Activate(Notification& notification)
 			GC.GetEngineUserInterface()->AddPopup(kPopup);
 		}
 		break;
-#if defined(MOD_BALANCE_CORE)
 	case 419811917:
 		ASSERT_DEBUG(notification.m_iGameDataIndex >= 0, "notification.m_iGameDataIndex is out of bounds");
 		if (notification.m_iGameDataIndex >= 0)
@@ -1115,7 +1109,6 @@ void CvNotifications::Activate(Notification& notification)
 			}
 		}
 		break;
-#endif
 
 	default:	// Default behavior is to move the camera to the X,Y passed in
 	{
@@ -1877,7 +1870,6 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 		}
 	}
 	break;
-#if defined(MOD_BALANCE_CORE)
 	case 826076831: // City Event Notification
 	{
 		CityEventTypes eCityEvent = (CityEventTypes)m_aNotifications[iIndex].m_iGameDataIndex;
@@ -1998,7 +1990,6 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 			return true;
 	}
 	break;
-#endif
 
 	default:	// don't expire
 	{

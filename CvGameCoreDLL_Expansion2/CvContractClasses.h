@@ -3,8 +3,6 @@
 #ifndef CIV5_CONTRACT_CLASSES_H
 #define CIV5_CONTRACT_CLASSES_H
 
-#if defined(MOD_BALANCE_CORE)
-
 class CvContractEntry: public CvBaseInfo
 {
 public:
@@ -195,5 +193,4 @@ private:
 	CvPlayer* m_pPlayer;
 };
 
-#endif
 #endif

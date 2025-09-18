@@ -237,7 +237,6 @@ private:
 	void PlotOpportunisticSettlementMoves();
 
 //------------------------------------- move to tactical AI
-#if defined(MOD_BALANCE_CORE)
 	void PlotGarrisonMoves();
 	void PlotSentryMoves();
 	void PlotSentryNavalMoves();
@@ -257,7 +256,6 @@ private:
 
 	std::vector<CvHomelandTarget> m_TargetedSentryPoints;
 	std::vector<CvHomelandTarget> m_TargetedNavalSentryPoints;
-#endif
 //-------------------------------------
 
 	void PlanImprovements();

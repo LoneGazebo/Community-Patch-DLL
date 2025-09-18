@@ -1512,7 +1512,6 @@ void CvBuilderTaskingAI::UpdateRoutePlots(void)
 				continue;
 			}
 		}
-#if defined(MOD_BALANCE_CORE)
 		if(GC.getBuildInfo(eBuild)->getTechObsolete() != NO_TECH)
 		{
 			bool bHasTech = GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->HasTech((TechTypes)GC.getBuildInfo(eBuild)->getTechObsolete());
@@ -1521,7 +1520,6 @@ void CvBuilderTaskingAI::UpdateRoutePlots(void)
 				continue;
 			}
 		}
-#endif
 
 		for(std::vector<OptionWithScore<int>>::const_iterator it1 = sortedPlots.begin(); it1 != sortedPlots.end() - 1; ++it1)
 		{
@@ -2434,7 +2432,6 @@ void CvBuilderTaskingAI::AddChopDirectives(vector<OptionWithScore<BuilderDirecti
 		return;
 	}
 
-#if defined(MOD_BALANCE_CORE)
 	//Don't cut down city connections!
 	if (m_pPlayer->GetPlayerTraits()->IsWoodlandMovementBonus() && (eFeature == FEATURE_FOREST || eFeature == FEATURE_JUNGLE))
 	{
@@ -2443,7 +2440,6 @@ void CvBuilderTaskingAI::AddChopDirectives(vector<OptionWithScore<BuilderDirecti
 			return;
 		}
 	}
-#endif
 
 	BuildTypes eChopBuild = NO_BUILD;
 	for(int iBuildIndex = 0; iBuildIndex < GC.getNumBuildInfos(); iBuildIndex++)
@@ -4493,10 +4489,8 @@ void CvBuilderTaskingAI::UpdateCurrentPlotYields(const CvPlot* pPlot)
 {
 	for(uint ui = 0; ui < NUM_YIELD_TYPES; ui++)
 	{
-#if defined(MOD_BALANCE_CORE)
 		if((YieldTypes)ui <= YIELD_CULTURE_LOCAL)
 		{
-#endif
 		m_aiCurrentPlotYields[ui] = pPlot->getYield((YieldTypes)ui);
 
 		/*if (m_bLogging) {
@@ -4505,12 +4499,10 @@ void CvBuilderTaskingAI::UpdateCurrentPlotYields(const CvPlot* pPlot)
 			strLog.Format("Plot Yield Update, %s, %i, %i, %i", FSerialization::toString(yield).c_str(), m_aiCurrentPlotYields[ui], pPlot->getX(), pPlot->getY());
 			LogYieldInfo(strLog, m_pPlayer);
 		}*/
-#if defined(MOD_BALANCE_CORE)
 		}
 		else
 			//zero it
 			m_aiCurrentPlotYields[ui] = 0;
-#endif
 	}
 }
 
@@ -4541,10 +4533,8 @@ void CvBuilderTaskingAI::UpdateProjectedPlotYields(const CvPlot* pPlot, BuildTyp
 
 		for (uint ui = 0; ui < NUM_YIELD_TYPES; ui++)
 		{
-#if defined(MOD_BALANCE_CORE)
 			if ((YieldTypes)ui <= YIELD_CULTURE_LOCAL)
 			{
-#endif
 				m_aiProjectedPlotYields[ui] = pPlot->getYieldWithBuild(eBuild, (YieldTypes)ui, false, eForceCityConnection, m_pPlayer->GetID(), pOwningCity, pReligion, pBelief);
 				m_aiProjectedPlotYields[ui] = max(m_aiProjectedPlotYields[ui], 0);
 
@@ -4571,22 +4561,18 @@ void CvBuilderTaskingAI::UpdateProjectedPlotYields(const CvPlot* pPlot, BuildTyp
 					strLog.Format("Plot Projected Yield Update, %s, %i, %i, %i", FSerialization::toString(yield).c_str(), m_aiProjectedPlotYields[ui], pPlot->getX(), pPlot->getY());
 					LogYieldInfo(strLog, m_pPlayer);
 				}*/
-#if defined(MOD_BALANCE_CORE)
 			}
 			else
 				//zero it!
 				m_aiProjectedPlotYields[ui] = 0;
-#endif
 		}
 	}
 	else
 	{
 		for (uint ui = 0; ui < NUM_YIELD_TYPES; ui++)
 		{
-#if defined(MOD_BALANCE_CORE)
 			if ((YieldTypes)ui <= YIELD_CULTURE_LOCAL)
 			{
-#endif
 				m_aiProjectedPlotYields[ui] = pPlot->getYieldWithBuild(eBuild, (YieldTypes)ui, false, eForceCityConnection, m_pPlayer->GetID(), NULL, NULL, NULL);
 				m_aiProjectedPlotYields[ui] = max(m_aiProjectedPlotYields[ui], 0);
 
@@ -4596,12 +4582,10 @@ void CvBuilderTaskingAI::UpdateProjectedPlotYields(const CvPlot* pPlot, BuildTyp
 					strLog.Format("Plot Projected Yield Update, %s, %i, %i, %i", FSerialization::toString(yield).c_str(), m_aiProjectedPlotYields[ui], pPlot->getX(), pPlot->getY());
 					LogYieldInfo(strLog, m_pPlayer);
 				}*/
-#if defined(MOD_BALANCE_CORE)
 			}
 			else
 				//zero it!
 				m_aiProjectedPlotYields[ui] = 0;
-#endif
 		}
 	}
 }

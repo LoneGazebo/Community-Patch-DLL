@@ -142,12 +142,10 @@ class CvResolutionEntry;
 class CvResolutionXMLEntries;
 class CvDeal;
 class CvNetMessageHandler;
-#if defined(MOD_BALANCE_CORE)
 class CvCorporationEntry;
 class CvCorporationXMLEntries;
 class CvContractEntry;
 class CvContractXMLEntries;
-#endif
 
 class CvDLLInterfaceIFaceBase;
 class ICvDLLDatabaseUtility1;
@@ -568,7 +566,6 @@ public:
 	_Ret_maybenull_ CvReligionEntry* getReligionInfo(ReligionTypes eReligionNum);
 	CvReligionXMLEntries* GetGameReligions() const;
 
-#if defined(MOD_BALANCE_CORE)
 	int getNumCorporationInfos();
 	std::vector<CvCorporationEntry*>& getCorporationInfo();
 	_Ret_maybenull_ CvCorporationEntry* getCorporationInfo(CorporationTypes eCorporationNum);
@@ -578,7 +575,6 @@ public:
 	std::vector<CvContractEntry*>& getContractInfo();
 	_Ret_maybenull_ CvContractEntry* getContractInfo(ContractTypes eContract);
 	CvContractXMLEntries* GetGameContracts() const;
-#endif
 
 	int getNumBeliefInfos();
 	std::vector<CvBeliefEntry*>& getBeliefInfo();
@@ -3180,10 +3176,8 @@ protected:
 	CvResolutionXMLEntries* m_pResolutions;
 	CvNotificationXMLEntries* m_pNotifications;
 	CvAchievementXMLEntries* m_pAchievements;
-#if defined(MOD_BALANCE_CORE)
 	CvCorporationXMLEntries* m_pCorporations;
 	CvContractXMLEntries* m_pContracts;
-#endif
 
 	//////////////////////////////////////////////////////////////////////////
 	// GLOBAL TYPES

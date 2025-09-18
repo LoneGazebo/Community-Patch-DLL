@@ -99,7 +99,6 @@ public:
 
 	int getNumMembers() const;
 
-#if defined(MOD_BALANCE_CORE)
 	bool addPlayer(PlayerTypes eID);
 	void removePlayer(PlayerTypes eID);
 	const std::vector<PlayerTypes>& getPlayers();
@@ -110,7 +109,6 @@ public:
 	int getCorporationsEnabledCount() const;
 	bool IsCorporationsEnabled() const;
 	void changeCorporationsEnabledCount(int iChange);
-#endif
 
 	int getAliveCount() const;
 	void changeAliveCount(int iChange);
@@ -306,10 +304,8 @@ public:
 	int getRouteChange(RouteTypes eIndex) const;
 	void changeRouteChange(RouteTypes eIndex, int iChange);
 
-#if defined(MOD_BALANCE_CORE)
 	int getTradeRouteDomainExtraRange(DomainTypes eIndex) const;
 	void changeTradeRouteDomainExtraRange(DomainTypes eIndex, int iChange);
-#endif
 
 	int getBuildTimeChange(BuildTypes eIndex) const;
 	void changeBuildTimeChange(BuildTypes eIndex, int iChange);
@@ -488,14 +484,12 @@ protected:
 
 	static CvTeam* m_aTeams;
 
-#if defined(MOD_BALANCE_CORE)
 	//we care about iteration speed, so use a vector over a set
 	std::vector<PlayerTypes> m_members;
 	std::map<std::pair<TeamTypes,PlayerTypes>,bool> m_cacheCanDeclareWar;
 	bool m_bIsMinorTeam;
 	bool m_bIsObserverTeam;
 	int m_iCorporationsEnabledCount;
-#endif
 
 	int m_iAliveCount;
 	int m_iEverAliveCount;

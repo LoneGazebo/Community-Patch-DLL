@@ -8,14 +8,12 @@
 #include "CvGameCoreDLLPCH.h"
 #include "CvProcessProductionAI.h"
 #include "CvInfosSerializationHelper.h"
-#if defined(MOD_BALANCE_CORE)
 #include "CvDiplomacyAI.h"
 #include "CvMilitaryAI.h"
 #include "CvEconomicAI.h"
 #include "CvVotingClasses.h"
 #include "CvEconomicAI.h"
 #include "CvWonderProductionAI.h"
-#endif
 
 // include this after all other headers!
 #include "LintFree.h"
@@ -101,7 +99,6 @@ int CvProcessProductionAI::GetWeight(ProcessTypes eProject)
 {
 	return m_ProcessAIWeights.GetWeight(eProject);
 }
-#if defined(MOD_BALANCE_CORE)
 int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iTempWeight)
 {
 	CvProcessInfo* pProcess = GC.getProcessInfo(eProcess);
@@ -501,7 +498,6 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 
 	return max(1,iTempWeight);
 }
-#endif
 
 /// Log all potential builds
 void CvProcessProductionAI::LogPossibleBuilds()

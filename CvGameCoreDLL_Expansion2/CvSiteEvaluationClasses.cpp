@@ -12,10 +12,8 @@
 #include "CvCitySpecializationAI.h"
 #include "CvDiplomacyAI.h"
 #include "CvGrandStrategyAI.h"
-#if defined(MOD_BALANCE_CORE)
 #include "CvEconomicAI.h"
 #include "CvMilitaryAI.h"
-#endif
 
 // include this after all other headers!
 #include "LintFree.h"
@@ -154,7 +152,6 @@ bool CvCitySiteEvaluator::CanFoundCity(const CvPlot* pPlot, const CvPlayer* pPla
 		return false;
 	}
 
-#if defined(MOD_BALANCE_CORE)
 	if(!bIgnoreDistanceToExistingCities)
 	{
 		int iMinDist = /*3*/ GD_INT_GET(MIN_CITY_RANGE);
@@ -176,7 +173,6 @@ bool CvCitySiteEvaluator::CanFoundCity(const CvPlot* pPlot, const CvPlayer* pPla
 		if (iDistanceToExisting <= iMinDist)
 			return false;
 	}
-#endif
 
 	return true;
 }

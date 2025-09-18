@@ -1168,7 +1168,6 @@ int CvLuaEnums::pRegister(lua_State* L)
 	RegisterEnum(PUBLIC_OPINION_REVOLUTIONARY_WAVE);
 	EnumEnd(L);
 
-#if defined(MOD_BALANCE_CORE)
 	EnumStart(L, "StrengthTypes");
 	RegisterEnum(STRENGTH_PATHETIC);
 	RegisterEnum(STRENGTH_WEAK);
@@ -1201,7 +1200,6 @@ int CvLuaEnums::pRegister(lua_State* L)
 	RegisterEnum(CIV_OPINION_FRIEND);
 	RegisterEnum(CIV_OPINION_ALLY);
 	EnumEnd(L);
-#endif
 
 	EnumStart(L, "ControlTypes");
 	RegisterEnum(NO_CONTROL);
