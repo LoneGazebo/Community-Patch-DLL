@@ -664,7 +664,7 @@ void CvConnectionService::ProcessMessages()
 		// Release the critical section
 		LeaveCriticalSection(&m_csIncoming);
 
-		// Run Lua garbage collection every minute (60000 milliseconds)
+		// Check memory usage every 60 seconds (debug)
 		if (processedCount > 0 && m_pLuaState)
 		{
 			DWORD currentTime = GetTickCount();
@@ -672,7 +672,7 @@ void CvConnectionService::ProcessMessages()
 				(currentTime - m_dwLastGCTime) :
 				(UINT_MAX - m_dwLastGCTime + currentTime + 1); // Handle tick count wrap-around
 
-			if (processedCount >= 5 || timeSinceLastGC >= 60000) // 60 seconds or 5 messages
+			if (timeSinceLastGC >= 60000) // 60 seconds
 			{
 				// Handle thread locks for safe Lua GC
 				bool bHadLock = gDLL->HasGameCoreLock();
@@ -681,9 +681,7 @@ void CvConnectionService::ProcessMessages()
 					gDLL->ReleaseGameCoreLock();
 				}
 
-				int beforeKB = lua_gc(m_pLuaState, LUA_GCCOUNT, 0);
-				int result = lua_gc(m_pLuaState, LUA_GCSTEP, 0);
-				int afterKB = lua_gc(m_pLuaState, LUA_GCCOUNT, 0);
+				int result = lua_gc(m_pLuaState, LUA_GCCOUNT, 0);
 
 				// Restore game core lock if we had it
 				if (bHadLock)
@@ -697,9 +695,7 @@ void CvConnectionService::ProcessMessages()
 				GetProcessMemoryInfo(GetCurrentProcess(), (PROCESS_MEMORY_COUNTERS*)&pmc, sizeof(pmc));
 
 				std::stringstream ss;
-				ss << "GarbageCollection - Lua Memory: "
-				   << beforeKB << "KB -> " << afterKB
-				   << "KB (freed " << (beforeKB - afterKB) << "KB), GC result: " << result
+				ss << "GarbageCollection - Lua Memory: " << result << "KB"
 				   << " | Process Memory: "
 				   << "Private Bytes: " << (pmc.PrivateUsage / (1024 * 1024)) << "MB, "
 				   << "Virtual Bytes: " << (pmc.PagefileUsage / (1024 * 1024)) << "MB, "
@@ -992,6 +988,9 @@ void CvConnectionService::ProcessLuaResult(lua_State* L, int executionResult, co
 	
 	// Send the response
 	SendMessage(*m_pMainThreadWriteBuffer);
+
+	// Garbage collect
+	lua_gc(m_pLuaState, LUA_GCSTEP, 100);
 }
 
 // Shared function to convert Lua values to fill a key in a JsonDocument
