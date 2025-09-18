@@ -29,6 +29,7 @@ CvConnectionService& CvConnectionService::GetInstance()
 CvConnectionService::CvConnectionService()
 	: m_bInitialized(false)
 	, m_pLuaState(NULL)
+	, m_pkScriptSystem(NULL)  // VOX: Initialize cached script system
 	, m_hPipe(INVALID_HANDLE_VALUE)
 	, m_hThread(NULL)
 	, m_dwThreadId(0)
@@ -78,8 +79,9 @@ bool CvConnectionService::Setup()
 	m_bShutdownRequested = false;
 	m_bClientConnected = false;
 
-	// Initialize Lua state for script execution
-	m_pLuaState = gDLL->GetScriptSystem()->CreateLuaThread("ConnectionService");
+	// VOX: Cache the script system instance and create Lua thread
+	m_pkScriptSystem = gDLL->GetScriptSystem();
+	m_pLuaState = m_pkScriptSystem->CreateLuaThread("ConnectionService");
 
 	// Reading counters
 	m_uiCurrentTurn = GC.getGame().getGameTurn();
@@ -166,9 +168,9 @@ void CvConnectionService::Shutdown()
 	}
 
 	// Clean up Lua state
-	if (m_pLuaState)
+	if (m_pkScriptSystem && m_pLuaState)
 	{
-		gDLL->GetScriptSystem()->FreeLuaThread(m_pLuaState);
+		m_pkScriptSystem->FreeLuaThread(m_pLuaState);
 		m_pLuaState = NULL;
 		Log(LOG_INFO, "ConnectionService::Shutdown() - Lua state freed");
 	}
@@ -681,6 +683,8 @@ void CvConnectionService::ProcessMessages()
 					gDLL->ReleaseGameCoreLock();
 				}
 
+				// ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+				// pkScriptSystem->CallCFunction(m_pLuaState, pLuaGC, pkScriptSystem);
 				int result = lua_gc(m_pLuaState, LUA_GCCOUNT, 0);
 
 				// Restore game core lock if we had it
@@ -714,6 +718,12 @@ void CvConnectionService::ProcessMessages()
 		Log(LOG_ERROR, ss.str().c_str());
 	}
 }
+
+// Run LuaGC (wrapped in the engine function)
+// int CvConnectionService::pLuaGC(lua_State* L)
+// {
+	
+// }
 
 // Send a message to the Bridge Service (called from game code)
 // Returns the length of the outgoing queue after adding the message
@@ -858,6 +868,8 @@ void CvConnectionService::HandleLuaExecute(const char* script, const char* id)
 // Handle Lua function call from Bridge Service
 void CvConnectionService::HandleLuaCall(const char* functionName, const JsonArray& args, const char* id)
 {
+	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+	
 	std::stringstream logMsg;
 	logMsg << "HandleLuaCall - Calling function '" << functionName << "' for id: " << id;
 	Log(LOG_DEBUG, logMsg.str().c_str());
@@ -913,7 +925,7 @@ void CvConnectionService::HandleLuaCall(const char* functionName, const JsonArra
 	}
 	
 	// Call the function (argCount args, LUA_MULTRET results)
-	int result = lua_pcall(funcInfo.pLuaState, argCount, LUA_MULTRET, 0);
+	int result = m_pkScriptSystem->CallFunction(funcInfo.pLuaState, argCount, LUA_MULTRET);
 	
 	// Process the result
 	ProcessLuaResult(funcInfo.pLuaState, result, id);
@@ -990,7 +1002,7 @@ void CvConnectionService::ProcessLuaResult(lua_State* L, int executionResult, co
 	SendMessage(*m_pMainThreadWriteBuffer);
 
 	// Garbage collect
-	lua_gc(m_pLuaState, LUA_GCCOLLECT, 3000);
+	lua_gc(m_pLuaState, LUA_GCSTEP, 10000);
 }
 
 // Shared function to convert Lua values to fill a key in a JsonDocument
