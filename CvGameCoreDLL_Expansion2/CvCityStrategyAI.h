@@ -197,16 +197,11 @@ public:
 	CvProjectProductionAI* GetProjectProductionAI() const;
 	CvProcessProductionAI* GetProcessProductionAI() const;
 	CvString GetLogFileName(CvString& playerName, CvString& cityName) const;
-#if defined(MOD_BALANCE_CORE)
 	CvString GetProductionLogFileName(CvString& playerName, CvString& cityName) const;
 	CvString GetHurryLogFileName(CvString& playerName, CvString& cityName) const;
-#endif
-
-#if defined(MOD_BALANCE_CORE)
 	YieldTypes GetMostDeficientYield() const;
 	YieldTypes GetMostAbundantYield() const;
 	void PrecalcYieldStats();
-#endif
 
 	// City AI methods
 	void ChooseProduction(BuildingTypes eIgnoreBldg = NO_BUILDING, UnitTypes eIgnoreUnit = NO_UNIT, bool bInterruptBuildings = false, bool bInterruptWonders = false);
@@ -268,20 +263,16 @@ bool IsTestCityStrategy_SmallCity(CvCity* pCity);
 bool IsTestCityStrategy_MediumCity(CvCity* pCity);
 bool IsTestCityStrategy_LargeCity(CvCity* pCity);
 bool IsTestCityStrategy_Landlocked(CvCity* pCity);
-#if defined(MOD_BALANCE_CORE)
 bool IsTestCityStrategy_Lakebound(CvCity* pCity);
-#endif
 bool IsTestCityStrategy_NeedTileImprovers(AICityStrategyTypes eStrategy, CvCity* pCity);
 bool IsTestCityStrategy_WantTileImprovers(AICityStrategyTypes eStrategy, CvCity* pCity);
 bool IsTestCityStrategy_EnoughTileImprovers(AICityStrategyTypes eStrategy, CvCity* pCity);
 bool IsTestCityStrategy_NeedNavalGrowth(AICityStrategyTypes eStrategy, CvCity* pCity);
 bool IsTestCityStrategy_NeedNavalTileImprovement(CvCity* pCity);
 bool IsTestCityStrategy_EnoughNavalTileImprovement(CvCity* pCity);
-#if defined(MOD_BALANCE_CORE)
 bool IsTestCityStrategy_EnoughSettlers(CvCity* pCity);
 bool IsTestCityStrategy_NewContinentFeeder(AICityStrategyTypes eStrategy, CvCity* pCity);
 bool IsTestCityStrategy_PocketCity(CvCity* pCity);
-#endif
 bool IsTestCityStrategy_NeedImprovement(CvCity* pCity, YieldTypes yield);
 bool IsTestCityStrategy_HaveTrainingFacility(CvCity* pCity);
 bool IsTestCityStrategy_CapitalNeedSettler(AICityStrategyTypes eStrategy, CvCity* pCity);

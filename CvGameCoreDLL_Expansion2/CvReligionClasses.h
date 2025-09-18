@@ -100,9 +100,7 @@ public:
 	int m_iTurnFounded;
 	bool m_bPantheon;
 	bool m_bEnhanced;
-#if defined(MOD_BALANCE_CORE)
 	bool m_bReformed;
-#endif
 	char m_szCustomName[128];
 	CvReligionBeliefs m_Beliefs;
 };
@@ -417,9 +415,7 @@ public:
 	bool IsReligionInCity();
 	bool IsHolyCityForReligion(ReligionTypes eReligion);
 	bool IsHolyCityAnyReligion();
-#if defined(MOD_BALANCE_CORE)
 	ReligionTypes GetReligionForHolyCity();
-#endif
 	bool IsReligionHereOtherThan(ReligionTypes eReligion, int iMinFollowers = 0);
 	bool IsDefendedByOurInquisitor(ReligionTypes eReligion, CvUnit* pIgnoreUnit = NULL);
 	bool IsDefendedAgainstSpread(ReligionTypes eReligion);
@@ -450,10 +446,8 @@ public:
 	void SimulateProphetSpread(ReligionTypes eReligion, int iPressure);
 	void SimulateReligiousPressure(ReligionTypes eReligion, int iPressure);
 	void ConvertPercentFollowers(ReligionTypes eToReligion, ReligionTypes eFromReligion, int iPercent);
-#if defined(MOD_BALANCE_CORE)
 	void ConvertPercentAllOtherFollowers(ReligionTypes eToReligion, int iPercent);
 	void ConvertNumberAllOtherFollowers(ReligionTypes eToReligion, int iPop);
-#endif
 	void AddHolyCityPressure();
 	void AddSpyPressure(ReligionTypes eReligion, int iBasePressure);
 	void AdoptReligionFully(ReligionTypes eReligion);
@@ -538,10 +532,8 @@ public:
 	int ScoreBelief(CvBeliefEntry* pEntry, CvWeightedVector<int> viPlotWeights, bool bForBonus = false, bool bConsiderFutureTech = true) const;
 
 private:
-#if defined(MOD_BALANCE_CORE)
 	bool DoFaithPurchasesInCities(CvCity* pCity);
 	bool DoReligionDefenseInCities();
-#endif
 	int GetSpreadScore() const;
 	bool DoFaithPurchases();
 	bool BuyMissionaryOrInquisitor(ReligionTypes eReligion);

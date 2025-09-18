@@ -8,8 +8,6 @@
 // must be included after all other headers
 #include "LintFree.h"
 
-#if defined(MOD_BALANCE_CORE)
-
 CvContractEntry::CvContractEntry(void):
 	m_strCategory(""),
 	m_strAdjective(""),
@@ -870,5 +868,3 @@ FDataStream& operator<<(FDataStream& saveTo, const CvGameContracts& readFrom)
 	CvGameContracts::Serialize(readFrom, serialVisitor);
 	return saveTo;
 }
-
-#endif

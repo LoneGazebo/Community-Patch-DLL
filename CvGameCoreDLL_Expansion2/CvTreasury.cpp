@@ -27,9 +27,7 @@ CvTreasury::CvTreasury():
 	m_iBaseBuildingGoldMaintenance(0),
 	m_iBaseImprovementGoldMaintenance(0),
 	m_iLifetimeGrossGoldIncome(0),
-#if defined(MOD_BALANCE_CORE)
 	m_iInternalTradeGoldBonus(0),
-#endif
 	m_iExpensePerTurnFromVassalTax(0),
 	m_pPlayer(NULL)
 {
@@ -54,9 +52,7 @@ void CvTreasury::Init(CvPlayer* pPlayer)
 	m_iBaseBuildingGoldMaintenance = 0;
 	m_iBaseImprovementGoldMaintenance = 0;
 	m_iLifetimeGrossGoldIncome = 0;
-#if defined(MOD_BALANCE_CORE)
 	m_iInternalTradeGoldBonus = 0;
-#endif
 	m_iExpensePerTurnFromVassalTax = 0;
 
 	m_GoldBalanceForTurnTimes100.clear();
@@ -373,7 +369,6 @@ int CvTreasury::GetGoldPerTurnFromTradeRoutesTimes100() const
 /// Gold per turn from traits
 int CvTreasury::GetGoldPerTurnFromTraits() const
 {
-#if defined(MOD_BALANCE_CORE)
 	if(MOD_BALANCE_YIELD_SCALE_ERA)
 	{
 		int iEra = m_pPlayer->GetCurrentEra();
@@ -385,15 +380,8 @@ int CvTreasury::GetGoldPerTurnFromTraits() const
 	}
 	else
 	{
-#endif
-#if defined(MOD_BALANCE_CORE)
 	return ((m_pPlayer->GetPlayerTraits()->GetYieldChangePerTradePartner(YIELD_GOLD) * m_pPlayer->GetTrade()->GetNumDifferentTradingPartners()) + (m_pPlayer->GetYieldPerTurnFromResources(YIELD_GOLD, true, true)));
-#else
-	return m_pPlayer->GetPlayerTraits()->GetYieldChangePerTradePartner(YIELD_GOLD) * m_pPlayer->GetTrade()->GetNumDifferentTradingPartners();
-#endif
-#if defined(MOD_BALANCE_CORE)
 	}
-#endif
 }
 
 /// Gold Per Turn from Religion
@@ -428,14 +416,11 @@ int CvTreasury::CalculateGrossGoldTimes100()
 	// International trade
 	iNetGold += GetGoldPerTurnFromTraits() * 100;
 
-#if defined(MOD_BALANCE_CORE)
 	iNetGold += GetInternalTradeRouteGoldBonus() * 100;
-#endif
 
 	// We're a master of someone, we get gold from taxes
 	iNetGold += GetMyShareOfVassalTaxes();
 
-#if defined(MOD_BALANCE_CORE)
 	if(MOD_BALANCE_CORE_MINOR_CIV_GIFT)
 	{
 		iNetGold += m_pPlayer->GetGoldPerTurnFromMinorCivs() * 100;
@@ -444,7 +429,6 @@ int CvTreasury::CalculateGrossGoldTimes100()
 	{
 		iNetGold += m_pPlayer->GetYieldPerTurnFromMinors(YIELD_GOLD) * 100;
 	}
-#endif
 
 	// Annexed City-States (Rome UA)
 	iNetGold += m_pPlayer->GetGoldPerTurnFromAnnexedMinors() * 100;
@@ -971,13 +955,11 @@ void TreasuryHelpers::AppendToLog(CvString& strHeader, CvString& strLog, const C
 	str.Format("%.2f,", fValue);
 	strLog += str;
 }
-#if defined(MOD_BALANCE_CORE)
 int CvTreasury::GetContractGoldMaintenance()
 {
 	int iMaintenance = m_pPlayer->GetContracts()->GetContractGoldMaintenance();
 	return iMaintenance;
 }
-#endif
 
 // What are our gold maintenance costs because of Vassals?
 int CvTreasury::GetVassalGoldMaintenance(TeamTypes eTeam, bool bIncludePopulationMaintenance, bool bIncludeUnitMaintenance) const

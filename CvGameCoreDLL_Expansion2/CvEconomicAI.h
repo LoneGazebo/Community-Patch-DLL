@@ -221,7 +221,6 @@ public:
 	{
 		return m_iVisibleAntiquitySites;
 	};
-#if defined(MOD_BALANCE_CORE)
 	int GetVisibleAntiquitySitesOwnTerritory() const
 	{
 		return m_iVisibleAntiquitySitesOwn;
@@ -234,7 +233,6 @@ public:
 	{
 		return m_iVisibleAntiquitySitesNeutral;
 	};
-#endif
 	void UpdateExplorePlotsFromScratch();
 	void UpdateExplorePlotsLocally(CvPlot* pPlot);
 
@@ -281,13 +279,11 @@ private:
 	int m_iExplorersDisbanded;
 	int m_iLastTurnWorkerDisbanded;
 	int m_iVisibleAntiquitySites;
-#if defined(MOD_BALANCE_CORE)
 	int m_iExplorersNeeded;
 	int m_iNavalExplorersNeeded;
 	int m_iVisibleAntiquitySitesOwn;
 	int m_iVisibleHiddenAntiquitySitesOwn;
 	int m_iVisibleAntiquitySitesNeutral;
-#endif
 
 	std::vector<SPlotWithScore> m_vPlotsToExploreLand;
 	std::vector<SPlotWithScore> m_vPlotsToExploreSea;

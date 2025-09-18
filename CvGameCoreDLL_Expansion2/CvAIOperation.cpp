@@ -1008,7 +1008,6 @@ FDataStream& operator<<(FDataStream& stream, const CvAIOperation& aiOperation)
 	return stream;
 }
 
-#if defined(MOD_BALANCE_CORE)
 const char* CvAIOperation::GetInfoString()
 {
 	CvString strTemp0;
@@ -1055,7 +1054,6 @@ const char* CvAIOperation::GetInfoString()
 	m_strInfoString = strTemp0+strTemp1+strTemp2+strTemp3;
 	return m_strInfoString.c_str();
 }
-#endif
 
 // PRIVATE FUNCTIONS
 

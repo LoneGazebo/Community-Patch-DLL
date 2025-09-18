@@ -131,9 +131,7 @@ struct CvResolutionEffects
 	int iLimitSpaceshipPurchase;
 	int iIsWorldWar;
 	bool bEmbargoIdeology;
-#if defined(MOD_BALANCE_CORE)
 	int iChangeTourism;
-#endif
 	int iVassalMaintenanceGoldPercent;
 	bool bEndAllCurrentVassals;
 };
@@ -1395,9 +1393,7 @@ public:
 	int GetSpaceShipPurchaseMod() const;
 	int GetWorldWar() const;
 	bool IsEmbargoIdeology() const;
-#if defined(MOD_BALANCE_CORE)
 	int GetTourismMod() const;
-#endif
 	int GetVassalMaintenanceGoldPercent() const;
 	bool IsEndAllCurrentVassals() const;
 
@@ -1435,9 +1431,7 @@ protected:
 	int m_iScienceyGreatPersonRateMod;
 	int m_iGreatPersonTileImprovementCulture;
 	int m_iLandmarkCulture;
-#if defined(MOD_BALANCE_CORE)
 	int m_iTourismMod;
-#endif
 	bool m_bOpenDoor;
 	bool m_bSphereOfInfluence;
 	bool m_bDecolonization;

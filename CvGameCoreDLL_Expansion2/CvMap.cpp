@@ -623,13 +623,11 @@ void CvMap::InitPlots()
 	memset(m_pResourceForceReveal, 0, iNumTeams*iNumPlots *sizeof(bool));
 	m_pHumanPlannedRouteState = FNEW(char[iNumPlayers * iNumPlots], c_eCiv5GameplayDLL, 0);
 	memset(m_pHumanPlannedRouteState, 0, iNumPlayers * iNumPlots * sizeof(char));
-#if defined(MOD_BALANCE_CORE)
 	m_pIsImpassable = FNEW(bool[iNumTeams*iNumPlots], c_eCiv5GameplayDLL, 0);
 	memset(m_pIsImpassable, 0, iNumTeams*iNumPlots *sizeof(bool));
 
 	m_pIsStrategic = FNEW(bool[iNumTeams*iNumPlots], c_eCiv5GameplayDLL, 0);
 	memset(m_pIsStrategic, 0, iNumTeams*iNumPlots *sizeof(bool));
-#endif
 
 	uint8* pYields = m_pYields;
 	uint8* pPlayerCityRadiusCount = m_pPlayerCityRadiusCount;
@@ -641,10 +639,8 @@ void CvMap::InitPlots()
 	char* pRevealedRouteType = m_pRevealedRouteType;
 	bool* pResourceForceReveal = m_pResourceForceReveal;
 	char* pHumanPlannedRouteState = m_pHumanPlannedRouteState;
-#if defined(MOD_BALANCE_CORE)
 	bool* pIsImpassable = m_pIsImpassable;
 	bool* pIsStrategic = m_pIsStrategic;
-#endif
 
 	for(int i = 0; i < iNumPlots; i++)
 	{
@@ -658,10 +654,8 @@ void CvMap::InitPlots()
 		m_pMapPlots[i].m_aeRevealedRouteType = pRevealedRouteType;
 		m_pMapPlots[i].m_abResourceForceReveal = pResourceForceReveal;
 		m_pMapPlots[i].m_aeHumanPlannedRouteState = pHumanPlannedRouteState;
-#if defined(MOD_BALANCE_CORE)
 		m_pMapPlots[i].m_abIsImpassable = pIsImpassable;
 		m_pMapPlots[i].m_abStrategicRoute = pIsStrategic;
-#endif
 
 		pYields					+= NUM_YIELD_TYPES;
 		pPlayerCityRadiusCount  += iNumTeams;
@@ -673,16 +667,12 @@ void CvMap::InitPlots()
 		pRevealedRouteType		+= iNumTeams;
 		pResourceForceReveal	+= iNumTeams;
 		pHumanPlannedRouteState += iNumTeams;
-#if defined(MOD_BALANCE_CORE)
 		pIsImpassable			+= iNumTeams;
 		pIsStrategic			+= iNumTeams;
-#endif
-
 	}
 
 	m_kPlotManager.Init(getGridWidth(), getGridHeight());
 
-#if defined(MOD_BALANCE_CORE)
 	//this will be used for fast lookup of neighbors
 	//the trick is that NO_DIRECTION is not -1 but NUM_DIRECTION_TYPES+1
 	//therefore we need to allocate (NUM_DIRECTION_TYPES+2) pointers per plot
@@ -700,7 +690,6 @@ void CvMap::InitPlots()
 	m_vPlotsWithLineOfSightFromPlot3.clear();
 	m_vPlotsWithLineOfSightToPlot2.clear();
 	m_vPlotsWithLineOfSightToPlot3.clear();
-#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -819,11 +808,9 @@ void CvMap::uninit()
 	SAFE_DELETE_ARRAY(m_pRevealedRouteType);
 	SAFE_DELETE_ARRAY(m_pResourceForceReveal);
 
-#if defined(MOD_BALANCE_CORE)
 	SAFE_DELETE_ARRAY(m_pIsImpassable);
 	SAFE_DELETE_ARRAY(m_pPlotNeighbors);
 	SAFE_DELETE_ARRAY(m_pIsStrategic);
-#endif
 
 	m_iGridWidth = 0;
 	m_iGridHeight = 0;

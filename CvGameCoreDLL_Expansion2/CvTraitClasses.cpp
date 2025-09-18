@@ -84,7 +84,6 @@ CvTraitEntry::CvTraitEntry() :
 	m_iNearbyImprovementCombatBonus(0),
 	m_iNearbyImprovementBonusRange(0),
 	m_iCultureBuildingYieldChange(0),
-#if defined(MOD_BALANCE_CORE)
 	m_iWarWearinessModifier(0),
 	m_iEnemyWarWearinessModifier(0),
 	m_iCombatBonusVsHigherPop(0),
@@ -156,7 +155,6 @@ CvTraitEntry::CvTraitEntry() :
 	m_iExtraTradeRoutesPerXOwnedVassals(0),
 	m_iMinorInfluencePerGiftedUnit(0),
 	m_bIsCapitalOnly(false),
-#endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier(0),
 #endif
@@ -173,12 +171,10 @@ CvTraitEntry::CvTraitEntry() :
 	m_iExtraSpies(0),
 	m_iUnresearchedTechBonusFromKills(0),
 	m_iExtraFoundedCityTerritoryClaimRange(0),
-#if defined(MOD_BALANCE_CORE)
 	m_iExtraConqueredCityTerritoryClaimRange(0),
 	m_iExtraTenetsFirstAdoption(0),
 	m_iMonopolyModFlat(0),
 	m_iMonopolyModPercent(0),
-#endif
 	m_iFreeSocialPoliciesPerEra(0),
 	m_iNumTradeRoutesModifier(0),
 	m_iTradeRouteResourceModifier(0),
@@ -195,12 +191,10 @@ CvTraitEntry::CvTraitEntry() :
 
 	m_eFreeUnitPrereqTech(NO_TECH),
 	m_eFreeBuilding(NO_BUILDING),
-#if defined(MOD_BALANCE_CORE)
 	m_eFreeCapitalBuilding(NO_BUILDING),
 	m_eFreeBuildingPrereqTech(NO_TECH),
 	m_eCapitalFreeBuildingPrereqTech(NO_TECH),
 	m_eFreeUnitOnConquest(NO_UNIT),
-#endif
 	m_eFreeBuildingOnConquest(NO_BUILDING),
 #if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
 	m_bBullyAnnex(false),
@@ -247,7 +241,6 @@ CvTraitEntry::CvTraitEntry() :
 	m_piNumFreeResourceOnWorldWonderCompletion(NULL),
 	m_ppiImprovementYieldChanges(NULL),
 	m_ppiPlotYieldChanges(NULL),
-#if defined(MOD_BALANCE_CORE)
 	m_paiGAPToYield(NULL),
 	m_paiMountainRangeYield(NULL),
 	m_piYieldFromLevelUp(NULL),
@@ -289,8 +282,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_ppiYieldFromTileSettle(NULL),
 	m_ppiYieldChangePerImprovementBuilt(NULL),
 	m_pbiYieldFromBarbarianCampClear(),
-#endif
-#if defined(MOD_BALANCE_CORE) && defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
+#if defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
 	m_pbiYieldFromRouteMovementInForeignTerritory(),
 #endif
 	m_ppiBuildingClassYieldChanges(NULL),
@@ -348,7 +340,6 @@ CvTraitEntry::~CvTraitEntry()
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiGreatPersonBornYield);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiCityYieldFromUnimprovedFeature);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiUnimprovedFeatureYieldChanges);
-#if defined(MOD_BALANCE_CORE)
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiYieldFromTileEarnTerrainType);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiYieldFromTilePurchaseTerrainType);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiYieldFromTileConquest);
@@ -357,7 +348,6 @@ CvTraitEntry::~CvTraitEntry()
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiYieldFromTileSettle);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiYieldChangePerImprovementBuilt);
 	m_pbiYieldFromBarbarianCampClear.clear();
-#endif
 }
 
 /// Accessor:: Modifier to experience needed for new level
@@ -467,7 +457,6 @@ int CvTraitEntry::GetCapitalBuildingModifier() const
 {
 	return m_iCapitalBuildingModifier;
 }
-#if defined(MOD_BALANCE_CORE)
 /// Accessor:: discount when constructing a building based on Wonder Production Modifier present
 int CvTraitEntry::GetWonderProductionModifierToBuilding() const
 {
@@ -489,7 +478,6 @@ int CvTraitEntry::GetGGGARateFromDenunciationsAndWars() const
 {
 	return m_iGGGARateFromDenunciationsAndWars;
 }
-#endif
 /// Accessor:: cheaper purchase of tiles for culture border expansion
 int CvTraitEntry::GetPlotBuyCostModifier() const
 {
@@ -662,7 +650,6 @@ int CvTraitEntry::GetCultureBuildingYieldChange() const
 	return m_iCultureBuildingYieldChange;
 }
 
-#if defined(MOD_BALANCE_CORE)
 /// Accessor: combat bonus vs. civ with more citizens
 int CvTraitEntry::GetWarWearinessModifier() const
 {
@@ -944,7 +931,6 @@ bool CvTraitEntry::IsCapitalOnly() const
 {
 	return m_bIsCapitalOnly;
 }
-#endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 int CvTraitEntry::GetInvestmentModifier() const
 {
@@ -1028,7 +1014,6 @@ int CvTraitEntry::GetExtraFoundedCityTerritoryClaimRange() const
 {
 	return m_iExtraFoundedCityTerritoryClaimRange;
 }
-#if defined(MOD_BALANCE_CORE)
 int CvTraitEntry::GetExtraConqueredCityTerritoryClaimRange() const
 {
 	return m_iExtraConqueredCityTerritoryClaimRange;
@@ -1045,7 +1030,6 @@ int CvTraitEntry::GetMonopolyModPercent() const
 {
 	return m_iMonopolyModPercent;
 }
-#endif
 /// Accessor: extra social policy from advancing to the next age
 int CvTraitEntry::GetFreeSocialPoliciesPerEra() const
 {
@@ -1103,7 +1087,6 @@ int CvTraitEntry::GetTradeBuildingModifier() const
 {
 	return m_iTradeBuildingModifier;
 }
-#if defined(MOD_BALANCE_CORE)
 int CvTraitEntry::GetNumFreeBuildings() const
 {
 	return m_iNumFreeBuildings;
@@ -1137,7 +1120,6 @@ bool CvTraitEntry::IsCombatBoostNearNaturalWonder() const
 {
 	return m_bCombatBoostNearNaturalWonder;
 }
-#endif
 
 /// Accessor: tech that triggers this free unit
 TechTypes CvTraitEntry::GetFreeUnitPrereqTech() const
@@ -1156,7 +1138,6 @@ BuildingTypes CvTraitEntry::GetFreeBuilding() const
 {
 	return m_eFreeBuilding;
 }
-#if defined(MOD_BALANCE_CORE)
 /// Does the capital get a free building?
 BuildingTypes CvTraitEntry::GetFreeCapitalBuilding() const
 {
@@ -1167,7 +1148,6 @@ UnitTypes CvTraitEntry::GetFreeUnitOnConquest() const
 {
 	return m_eFreeUnitOnConquest;
 }
-#endif
 /// Accessor: free building in each city conquered
 BuildingTypes CvTraitEntry::GetFreeBuildingOnConquest() const
 {
@@ -1468,7 +1448,6 @@ int CvTraitEntry::GetImprovementYieldChanges(ImprovementTypes eIndex1, YieldType
 	return m_ppiImprovementYieldChanges ? m_ppiImprovementYieldChanges[eIndex1][eIndex2] : 0;
 }
 
-#if defined(MOD_BALANCE_CORE)
 int CvTraitEntry::GetYieldFromTileEarnTerrainType(TerrainTypes eIndex1, YieldTypes eIndex2) const
 {
 	ASSERT_DEBUG(eIndex1 < GC.getNumTerrainInfos(), "Index out of bounds");
@@ -1550,7 +1529,6 @@ int CvTraitEntry::GetYieldFromBarbarianCampClear(YieldTypes eIndex1, bool bEraSc
 
 	return 0;
 }
-#endif
 
 /// Accessor:: Extra yield from a plot
 int CvTraitEntry::GetPlotYieldChanges(PlotTypes eIndex1, YieldTypes eIndex2) const
@@ -1562,7 +1540,6 @@ int CvTraitEntry::GetPlotYieldChanges(PlotTypes eIndex1, YieldTypes eIndex2) con
 	return m_ppiPlotYieldChanges ? m_ppiPlotYieldChanges[eIndex1][eIndex2] : 0;
 }
 
-#if defined(MOD_BALANCE_CORE)
 int CvTraitEntry::GetYieldFromHistoricEvent(int i) const
 {
 	return m_piYieldFromHistoricEvent? m_piYieldFromHistoricEvent[i] : -1;
@@ -1680,8 +1657,7 @@ int CvTraitEntry::GetFreeUnitClassesDOW(UnitClassTypes eUnitClass) const
 	ASSERT_DEBUG((int)eUnitClass > -1, "Index out of bounds");
 	return m_piFreeUnitClassesDOW ? m_piFreeUnitClassesDOW[(int)eUnitClass] : 0;
 }
-#endif
-#if defined(MOD_BALANCE_CORE) && defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
+#if defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
 int CvTraitEntry::GetYieldFromRouteMovementInForeignTerritory(YieldTypes eIndex, bool bTradePartner) const
 {
 	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "Index out of bounds");
@@ -1969,7 +1945,6 @@ int CvTraitEntry::GetMovesChangeUnitCombat(const int unitCombatID) const
 
 	return m_piMovesChangeUnitCombats[unitCombatID];
 }
-#if defined(MOD_BALANCE_CORE)
 /// Accessor:: Additional moves for a class of combat unit
 int CvTraitEntry::GetMovesChangeUnitClass(const int unitClassID) const
 {
@@ -1992,7 +1967,6 @@ int CvTraitEntry::GetMountainRangeYield(int i) const
 
 	return m_paiMountainRangeYield[i];
 }
-#endif
 
 /// Accessor:: Maintenance Modifier for a class of combat unit
 int CvTraitEntry::GetMaintenanceModifierUnitCombat(const int unitCombatID) const
@@ -2067,7 +2041,6 @@ bool CvTraitEntry::IsFreePromotionUnitCombat(const int promotionID, const int un
 
 	return false;
 }
-#if defined(MOD_BALANCE_CORE)
 /// Accessor:: Do certain units have a unique upgrade path?
 bool CvTraitEntry::IsSpecialUpgradeUnitClass(const int unitClassesID, const int unitID) const
 {
@@ -2187,7 +2160,6 @@ int CvTraitEntry::GetDomainProductionModifiersPerSpecialist(DomainTypes eDomain)
 
 	return 0;
 }
-#endif
 #if defined(MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON)
 /// Accessor:: If linked with trade routes, does the origin city gain a percent of the target city's production towards that specific thing
 TradeRouteProductionSiphon CvTraitEntry::GetTradeRouteProductionSiphon(bool bInternationalOnly) const
@@ -2204,7 +2176,6 @@ TradeRouteProductionSiphon CvTraitEntry::GetTradeRouteProductionSiphon(bool bInt
 }
 #endif
 
-#if defined(MOD_BALANCE_CORE)
 /// Accessor:: Does this trait change the reveal and/or the city trade techs for resources?
 AlternateResourceTechs CvTraitEntry::GetAlternateResourceTechs(ResourceTypes eResource) const
 {
@@ -2220,7 +2191,6 @@ AlternateResourceTechs CvTraitEntry::GetAlternateResourceTechs(ResourceTypes eRe
 
 	return sDefault;
 }
-#endif
 
 /// Has this trait become obsolete?
 bool CvTraitEntry::IsObsoleteByTech(TeamTypes eTeam)
@@ -2313,7 +2283,6 @@ bool CvTraitEntry::IsEnabledByPolicy(PlayerTypes ePlayer)
 	return bEnabled;
 }
 #endif
-#if defined(MOD_BALANCE_CORE)
 bool CvTraitEntry::TerrainClaimBoost(TerrainTypes eTerrain)
 {
 	if (eTerrain != NO_TERRAIN)
@@ -2325,7 +2294,6 @@ bool CvTraitEntry::TerrainClaimBoost(TerrainTypes eTerrain)
 		return false;
 	}
 }
-#endif
 
 /// Load XML data
 bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
@@ -2387,7 +2355,6 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_iNearbyImprovementCombatBonus			= kResults.GetInt("NearbyImprovementCombatBonus");
 	m_iNearbyImprovementBonusRange			= kResults.GetInt("NearbyImprovementBonusRange");
 	m_iCultureBuildingYieldChange			= kResults.GetInt("CultureBuildingYieldChange");
-#if defined(MOD_BALANCE_CORE)
 	m_iWarWearinessModifier					= kResults.GetInt("WarWearinessModifier");
 	m_iEnemyWarWearinessModifier			= kResults.GetInt("EnemyWarWearinessModifier");
 	m_iCombatBonusVsHigherPop				= kResults.GetInt("CombatBonusVsHigherPop");
@@ -2457,7 +2424,6 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_iExtraTradeRoutesPerXOwnedVassals		= kResults.GetInt("TradeRoutesPerXOwnedVassals");
 	m_iMinorInfluencePerGiftedUnit			= kResults.GetInt("MinorInfluencePerGiftedUnit");
 	m_bIsCapitalOnly						= kResults.GetBool("IsCapitalOnly");
-#endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier					= kResults.GetInt("InvestmentModifier");
 #endif
@@ -2474,12 +2440,10 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_iExtraSpies							= kResults.GetInt("ExtraSpies");
 	m_iUnresearchedTechBonusFromKills		= kResults.GetInt("UnresearchedTechBonusFromKills");
 	m_iExtraFoundedCityTerritoryClaimRange  = kResults.GetInt("ExtraFoundedCityTerritoryClaimRange");
-#if defined(MOD_BALANCE_CORE)
 	m_iExtraConqueredCityTerritoryClaimRange = kResults.GetInt("ExtraConqueredCityTerritoryClaimRange");
 	m_iExtraTenetsFirstAdoption = kResults.GetInt("ExtraTenetsFirstAdoption");
 	m_iMonopolyModFlat = kResults.GetInt("MonopolyModFlat");
 	m_iMonopolyModPercent = kResults.GetInt("MonopolyModPercent");
-#endif
 	m_iFreeSocialPoliciesPerEra				= kResults.GetInt("FreeSocialPoliciesPerEra");
 	m_iNumTradeRoutesModifier				= kResults.GetInt("NumTradeRoutesModifier");
 	m_iTradeRouteResourceModifier			= kResults.GetInt("TradeRouteResourceModifier");
@@ -2496,10 +2460,8 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_iTradeReligionModifier				= kResults.GetInt("TradeReligionModifier");
 	m_iTradeBuildingModifier				= kResults.GetInt("TradeBuildingModifier");
 
-#if defined(MOD_BALANCE_CORE)
 	m_iNumFreeBuildings						= kResults.GetInt("NumFreeBuildings");
 	m_iNonSpecialistFoodChange				= kResults.GetInt("NonSpecialistFoodChange");
-#endif
 	const char* szTextVal = NULL;
 	szTextVal = kResults.GetText("FreeUnit");
 	if(szTextVal)
@@ -2513,7 +2475,6 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 		m_eFreeUnitPrereqTech = (TechTypes)GC.getInfoTypeForString(szTextVal, true);
 	}
 
-#if defined(MOD_BALANCE_CORE)
 	szTextVal = kResults.GetText("EnemyWarSawPactPromotion");
 	if (szTextVal)
 	{
@@ -2534,7 +2495,6 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	{
 		m_eCapitalFreeBuildingPrereqTech = (TechTypes)GC.getInfoTypeForString(szTextVal, true);
 	}
-#endif
 
 	szTextVal = kResults.GetText("CombatBonusImprovement");
 	if(szTextVal)
@@ -2590,7 +2550,6 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 		}
 	}
 #endif
-#if defined(MOD_BALANCE_CORE)
 	szTextVal = kResults.GetText("FreeCapitalBuilding");
 	if(szTextVal)
 	{
@@ -2602,7 +2561,6 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	{
 		m_eFreeUnitOnConquest = (UnitTypes)GC.getInfoTypeForString(szTextVal, true);
 	}
-#endif
 
 	szTextVal = kResults.GetText("FreeBuildingOnConquest");
 	if(szTextVal)
@@ -2668,13 +2626,11 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	kUtility.SetYields(m_paiYieldChangePerTradePartner, "Trait_YieldChangesPerTradePartner", "TraitType", szTraitType);
 	kUtility.SetYields(m_paiYieldChangeIncomingTradeRoute, "Trait_YieldChangesIncomingTradeRoute", "TraitType", szTraitType);
 	kUtility.SetYields(m_paiYieldModifier, "Trait_YieldModifiers", "TraitType", szTraitType);
-#if defined(MOD_BALANCE_CORE)
 	kUtility.SetYields(m_paiGAPToYield, "Trait_GAPToYield", "TraitType", szTraitType);
 	kUtility.SetYields(m_paiMountainRangeYield, "Trait_MountainRangeYield", "TraitType", szTraitType);
 	kUtility.PopulateArrayByValue(m_piNumPledgesDomainProdMod, "Domains", "Trait_NumPledgeDomainProdMod", "DomainType", "TraitType", szTraitType, "Modifier");
 	kUtility.PopulateArrayByValue(m_piDomainFreeExperienceModifier, "Domains", "Trait_DomainFreeExperienceModifier", "DomainType", "TraitType", szTraitType, "Modifier", 0, NUM_DOMAIN_TYPES);
 	kUtility.PopulateArrayByValue(m_piFreeUnitClassesDOW, "UnitClasses", "Trait_FreeUnitClassesDOW", "UnitClassType", "TraitType", szTraitType, "Number");
-#endif
 	kUtility.PopulateArrayByValue(m_piResourceQuantityModifiers, "Resources", "Trait_ResourceQuantityModifiers", "ResourceType", "TraitType", szTraitType, "ResourceQuantityModifier");
 	kUtility.PopulateArrayByValue(m_piNumFreeResourceOnWorldWonderCompletion, "Resources", "Trait_FreeResourceOnWorldWonderCompletion", "ResourceType", "TraitType", szTraitType, "ResourceQuantity");
 
@@ -2784,7 +2740,6 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 
 		pResults->Reset();
 	}
-#if defined(MOD_BALANCE_CORE)
 	//Populate m_ppiYieldFromTileEarnTerrainType
 	{
 		kUtility.Initialize2DArray(m_ppiYieldFromTileEarnTerrainType, "Terrains", "Yields");
@@ -3147,9 +3102,8 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 		//Trim extra memory off container since this is mostly read-only.
 		std::map<int, int>(m_piDomainProductionModifiersPerSpecialist).swap(m_piDomainProductionModifiersPerSpecialist);
 	}
-#endif
 
-#if defined(MOD_BALANCE_CORE) && defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
+#if defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
 	//Populate m_pbiYieldFromRouteMovementInForeignTerritory
 	{
 		std::string sqlKey = "Trait_YieldFromRouteMovementInForeignTerritory";
@@ -3281,7 +3235,6 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 		}
 	}
 
-#if defined(MOD_BALANCE_CORE)
 	kUtility.SetYields(m_piYieldFromLevelUp, "Trait_YieldFromLevelUp", "TraitType", szTraitType);
 	kUtility.SetYields(m_piYieldFromHistoricEvent, "Trait_YieldFromHistoricEvent", "TraitType", szTraitType);
 	kUtility.SetYields(m_piYieldFromXMilitaryUnits, "Trait_YieldFromXMilitaryUnits", "TraitType", szTraitType);
@@ -3356,7 +3309,6 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_bStartsWithPantheon = kResults.GetBool("StartsWithPantheon");
 	m_bProphetFervor = kResults.GetBool("ProphetFervor");
 	m_bCombatBoostNearNaturalWonder = kResults.GetBool("CombatBoostNearNaturalWonder");
-#endif
 
 	//BuildingClassYieldChanges
 	{
@@ -3640,7 +3592,6 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 		}
 	}
 
-#if defined(MOD_BALANCE_CORE)
 	kUtility.PopulateArrayByValue(m_piGoldenAgeFromGreatPersonBirth, "GreatPersons", "Trait_GoldenAgeFromGreatPersonBirth", "GreatPersonType", "TraitType", szTraitType, "GoldenAgeTurns");
 	kUtility.PopulateArrayByValue(m_piGreatPersonProgressFromPolicyUnlock, "GreatPersons", "Trait_GreatPersonProgressFromPolicyUnlock", "GreatPersonType", "TraitType", szTraitType, "Value");
 
@@ -3693,7 +3644,6 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 		//Trim extra memory off container since this is mostly read-only.
 		std::map<int, int>(m_piRandomGreatPersonProgressFromKills).swap(m_piRandomGreatPersonProgressFromKills);
 	}
-#endif
 
 	//UnimprovedFeatureYieldChanges
 	{
@@ -3773,7 +3723,6 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 		}
 	}
 
-#if defined(MOD_BALANCE_CORE)
 	//Populate m_piiAlternateResourceTechs
 	{
 		std::string sqlKey = "Trait_AlternateResourceTechs";
@@ -3801,7 +3750,6 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 		//Trim extra memory off container since this is mostly read-only.
 		std::map<int, AlternateResourceTechs>(m_piiAlternateResourceTechs).swap(m_piiAlternateResourceTechs);
 	}
-#endif
 
 	m_piGoldenAgeGreatPersonRateModifier[GC.getInfoTypeForString("GREATPERSON_WRITER")] += m_iGoldenAgeGreatWriterRateModifier;
 	m_piGoldenAgeGreatPersonRateModifier[GC.getInfoTypeForString("GREATPERSON_ARTIST")] += m_iGoldenAgeGreatArtistRateModifier;
@@ -3851,11 +3799,7 @@ void CvTraitXMLEntries::DeleteArray()
 /// Get a specific entry
 CvTraitEntry* CvTraitXMLEntries::GetEntry(int index)
 {
-#if defined(MOD_BALANCE_CORE)
 	return (index!=NO_TRAIT) ? m_paTraitEntries[index] : NULL;
-#else
-	return m_paTraitEntries[index];
-#endif
 }
 
 //=====================================
@@ -4446,7 +4390,6 @@ void CvPlayerTraits::InitPlayerTraits()
 			m_iNearbyImprovementCombatBonus += trait->GetNearbyImprovementCombatBonus();
 			m_iNearbyImprovementBonusRange += trait->GetNearbyImprovementBonusRange();
 			m_iCultureBuildingYieldChange += trait->GetCultureBuildingYieldChange();
-#if defined(MOD_BALANCE_CORE)
 			m_iEnemyWarSawPactPromotion = trait->GetEnemyWarSawPactPromotion();
 			m_iCombatBonusVsHigherPop += trait->GetCombatBonusVsHigherPop();
 			m_iWarWearinessModifier += trait->GetWarWearinessModifier();
@@ -4622,7 +4565,6 @@ void CvPlayerTraits::InitPlayerTraits()
 				m_bIsCapitalOnly = true;
 			}
 
-#endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 			m_iInvestmentModifier += trait->GetInvestmentModifier();
 #endif
@@ -4639,12 +4581,10 @@ void CvPlayerTraits::InitPlayerTraits()
 			m_iExtraSpies += trait->GetExtraSpies();
 			m_iUnresearchedTechBonusFromKills += trait->GetUnresearchedTechBonusFromKills();
 			m_iExtraFoundedCityTerritoryClaimRange += trait->GetExtraFoundedCityTerritoryClaimRange();
-#if defined(MOD_BALANCE_CORE)
 			m_iExtraConqueredCityTerritoryClaimRange += trait->GetExtraConqueredCityTerritoryClaimRange();
 			m_iExtraTenetsFirstAdoption += trait->GetExtraTenetsFirstAdoption();
 			m_iMonopolyModFlat += trait->GetMonopolyModFlat();
 			m_iMonopolyModPercent += trait->GetMonopolyModPercent();
-#endif
 			m_iFreeSocialPoliciesPerEra += trait->GetFreeSocialPoliciesPerEra();
 			m_iNumTradeRoutesModifier += trait->GetNumTradeRoutesModifier();
 			m_iTradeRouteResourceModifier += trait->GetTradeRouteResourceModifier();
@@ -4658,10 +4598,8 @@ void CvPlayerTraits::InitPlayerTraits()
 #endif
 			m_iTradeReligionModifier += trait->GetTradeReligionModifier();
 			m_iTradeBuildingModifier += trait->GetTradeBuildingModifier();
-#if defined(MOD_BALANCE_CORE)
 			m_iNumFreeBuildings	+= trait->GetNumFreeBuildings();
 			m_iNonSpecialistFoodChange += trait->GetNonSpecialistFoodChange();
-#endif
 #if defined(MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON)
 			if (MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON)
 			{
@@ -4859,7 +4797,6 @@ void CvPlayerTraits::InitPlayerTraits()
 						yields[iYield] = (m_ppaaiImprovementYieldChange[iImprovementLoop][iYield] + iChange);
 						m_ppaaiImprovementYieldChange[iImprovementLoop] = yields;
 					}
-#if defined(MOD_BALANCE_CORE)
 					iChange = trait->GetYieldChangePerImprovementBuilt((ImprovementTypes)iImprovementLoop, (YieldTypes)iYield);
 					if (iChange > 0)
 					{
@@ -4868,9 +4805,7 @@ void CvPlayerTraits::InitPlayerTraits()
 						m_ppaaiYieldChangePerImprovementBuilt[iImprovementLoop] = yields;
 						UpdateYieldChangeImprovementTypes();
 					}
-#endif
 				}
-#if defined(MOD_BALANCE_CORE)
 				for(int iTerrainLoop = 0; iTerrainLoop < GC.getNumTerrainInfos(); iTerrainLoop++)
 				{
 					int iChange = trait->GetYieldFromTileEarnTerrainType((TerrainTypes)iTerrainLoop, (YieldTypes)iYield);
@@ -4919,7 +4854,6 @@ void CvPlayerTraits::InitPlayerTraits()
 						m_ppiYieldFromTileSettle[iTerrainLoop] = yields;
 					}
 				}
-#endif
 				for(int iPlotLoop = 0; iPlotLoop < GC.getNumPlotInfos(); iPlotLoop++)
 				{
 					int iChange = trait->GetPlotYieldChanges((PlotTypes)iPlotLoop, (YieldTypes)iYield);
@@ -4930,7 +4864,6 @@ void CvPlayerTraits::InitPlayerTraits()
 						m_ppiPlotYieldChange[iPlotLoop] = yields;
 					}
 				}
-#if defined(MOD_BALANCE_CORE)
 				m_iYieldFromLevelUp[iYield] = trait->GetYieldFromLevelUp(iYield);
 				m_iYieldFromHistoricEvent[iYield] = trait->GetYieldFromHistoricEvent(iYield);
 				m_iYieldFromXMilitaryUnits[iYield] = trait->GetYieldFromXMilitaryUnits(iYield);
@@ -5025,8 +4958,7 @@ void CvPlayerTraits::InitPlayerTraits()
 				{
 					m_bCombatBoostNearNaturalWonder= true;
 				}
-#endif
-#if defined(MOD_BALANCE_CORE) && defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
+#if defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
 				m_pbiYieldFromRouteMovementInForeignTerritory[iYield][true] = trait->GetYieldFromRouteMovementInForeignTerritory((YieldTypes)iYield, true);
 				m_pbiYieldFromRouteMovementInForeignTerritory[iYield][false] = trait->GetYieldFromRouteMovementInForeignTerritory((YieldTypes)iYield, false);
 #endif
@@ -5140,24 +5072,19 @@ void CvPlayerTraits::InitPlayerTraits()
 			for(int iTerrain = 0; iTerrain < GC.getNumTerrainInfos(); iTerrain++)
 			{
 				m_iStrategicResourceQuantityModifier[iTerrain] = trait->GetStrategicResourceQuantityModifier(iTerrain);
-#if defined(MOD_BALANCE_CORE)
 				m_abTerrainClaimBoost[iTerrain] = trait->TerrainClaimBoost((TerrainTypes)iTerrain);			
-#endif
 			}
 
 			for(int iResource = 0; iResource < GC.getNumResourceInfos(); iResource++)
 			{
 				m_aiResourceQuantityModifier[iResource] = trait->GetResourceQuantityModifier(iResource);
 				m_aiNumFreeResourceOnWorldWonderCompletion[iResource] = trait->GetNumFreeResourceOnWorldWonderCompletion(iResource);
-#if defined(MOD_BALANCE_CORE)
 				if (trait->GetAlternateResourceTechs((ResourceTypes)iResource).IsAlternateResourceTechs())
 				{
 					m_aiiAlternateResourceTechs[iResource] = trait->GetAlternateResourceTechs((ResourceTypes)iResource);
 				}
-#endif
 			}
 
-#if defined(MOD_BALANCE_CORE)
 			for (int iGreatPersonTypes = 0; iGreatPersonTypes < GC.getNumGreatPersonInfos(); iGreatPersonTypes++)
 			{
 				m_aiGreatPersonCostReduction[iGreatPersonTypes] = trait->GetGreatPersonCostReduction((GreatPersonTypes)iGreatPersonTypes);
@@ -5185,14 +5112,11 @@ void CvPlayerTraits::InitPlayerTraits()
 					m_aiDomainProductionModifiersPerSpecialist.insert(std::make_pair(iDomain, trait->GetDomainProductionModifiersPerSpecialist((DomainTypes)iDomain)));
 				}
 			}
-#endif
 
 			for (int iUnitClass = 0; iUnitClass < GC.getNumUnitClassInfos(); iUnitClass++)
 			{
 				m_abNoTrain[iUnitClass] = trait->NoTrain((UnitClassTypes)iUnitClass);
-#if defined(MOD_BALANCE_CORE)
 				m_aiFreeUnitClassesDOW[iUnitClass] = trait->GetFreeUnitClassesDOW((UnitClassTypes)iUnitClass);
-#endif
 			}
 			FreeTraitUnit traitUnit;
 			traitUnit.m_iFreeUnit = (UnitTypes)trait->GetFreeUnitClassType();
@@ -5209,20 +5133,16 @@ void CvPlayerTraits::InitPlayerTraits()
 			{
 				m_paiMovesChangeUnitCombat[jJ] += trait->GetMovesChangeUnitCombat(jJ);
 				m_paiMaintenanceModifierUnitCombat[jJ] += trait->GetMaintenanceModifierUnitCombat(jJ);
-#if defined(MOD_BALANCE_CORE)
 				if (trait->GetUnitCombatProductionCostModifier(jJ).first != 0)
 				{
 					m_aibUnitCombatProductionCostModifier.insert(std::make_pair(jJ, trait->GetUnitCombatProductionCostModifier(jJ)));
 				}
-#endif
 			}
-#if defined(MOD_BALANCE_CORE)
 			int iNumUnitClasses = GC.getNumUnitClassInfos();
 			for(int jJ= 0; jJ < iNumUnitClasses; jJ++)
 			{
 				m_paiMovesChangeUnitClass[jJ] += trait->GetMovesChangeUnitClass(jJ);
 			}
-#endif
 
 			for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 			{
@@ -5233,7 +5153,6 @@ void CvPlayerTraits::InitPlayerTraits()
 				}
 			}
 
-#if defined(MOD_BALANCE_CORE)
 			for (int iBuildLoop = 0; iBuildLoop < GC.getNumBuildInfos(); iBuildLoop++)
 			{
 				BuildTypes eBuild = (BuildTypes)iBuildLoop;
@@ -5248,7 +5167,6 @@ void CvPlayerTraits::InitPlayerTraits()
 					}
 				}
 			}
-#endif
 
 			// Free promotions
 			set<int> siFreePromotions = trait->GetFreePromotions();
@@ -5276,7 +5194,6 @@ void CvPlayerTraits::Uninit()
 	m_aiNumFreeResourceOnWorldWonderCompletion.clear();
 	m_abNoTrain.clear();
 	m_paiMovesChangeUnitCombat.clear();
-#if defined(MOD_BALANCE_CORE)
 	m_abTerrainClaimBoost.clear();
 	m_paiMovesChangeUnitClass.clear();
 	m_ppiYieldFromTileEarnTerrainType.clear();
@@ -5288,7 +5205,6 @@ void CvPlayerTraits::Uninit()
 	m_ppaaiYieldChangePerImprovementBuilt.clear();
 	UpdateYieldChangeImprovementTypes();
 	m_pbiYieldFromBarbarianCampClear.clear();
-#endif
 	m_paiMaintenanceModifierUnitCombat.clear();
 	m_ppaaiImprovementYieldChange.clear();
 	m_ppiPlotYieldChange.clear();
@@ -5309,10 +5225,8 @@ void CvPlayerTraits::Uninit()
 	m_aiNumPledgesDomainProdMod.clear();
 	m_aiFreeUnitClassesDOW.clear();
 	m_ppaaiSpecialistYieldChange.clear();
-#if defined(MOD_BALANCE_CORE)
 	m_aiDomainFreeExperienceModifier.clear();
 	m_aiNoBuilds.clear();
-#endif
 	m_ppiGreatPersonExpendedYield.clear();
 	m_ppiGreatPersonBornYield.clear();
 	m_ppiCityYieldFromUnimprovedFeature.clear();
@@ -5384,7 +5298,6 @@ void CvPlayerTraits::Reset()
 	m_iNearbyImprovementCombatBonus = 0;
 	m_iNearbyImprovementBonusRange = 0;
 	m_iCultureBuildingYieldChange = 0;
-#if defined(MOD_BALANCE_CORE)
 	m_iWarWearinessModifier = 0;
 	m_iEnemyWarWearinessModifier = 0;
 	m_iCombatBonusVsHigherPop = 0;
@@ -5456,7 +5369,6 @@ void CvPlayerTraits::Reset()
 	m_iExtraTradeRoutesPerXOwnedVassals = 0;
 	m_iMinorInfluencePerGiftedUnit = 0;
 	m_bIsCapitalOnly = false;
-#endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier = 0;
 #endif
@@ -5473,12 +5385,10 @@ void CvPlayerTraits::Reset()
 	m_iExtraSpies = 0;
 	m_iUnresearchedTechBonusFromKills = 0;
 	m_iExtraFoundedCityTerritoryClaimRange = 0;
-#if defined(MOD_BALANCE_CORE)
 	m_iExtraConqueredCityTerritoryClaimRange = 0;
 	m_iExtraTenetsFirstAdoption = 0;
 	m_iMonopolyModFlat = 0;
 	m_iMonopolyModPercent = 0;
-#endif
 	m_iFreeSocialPoliciesPerEra = 0;
 	m_iNumTradeRoutesModifier = 0;
 	m_iTradeRouteResourceModifier = 0;
@@ -5492,11 +5402,9 @@ void CvPlayerTraits::Reset()
 #endif
 	m_iTradeReligionModifier = 0;
 	m_iTradeBuildingModifier = 0;
-#if defined(MOD_BALANCE_CORE)
 	m_iNumFreeBuildings = 0;
 	m_eFreeUnitOnConquest = NO_UNIT;
 	m_iNonSpecialistFoodChange = 0;
-#endif
 #if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
 	m_bBullyAnnex = false;
 	m_iBullyYieldMultiplierAnnex = 0;
@@ -5548,7 +5456,6 @@ void CvPlayerTraits::Reset()
 
 	m_ppaaiImprovementYieldChange.clear();
 	m_ppaaiImprovementYieldChange.resize(GC.getNumImprovementInfos());
-#if defined(MOD_BALANCE_CORE)
 	m_ppiYieldFromTileEarnTerrainType.clear();
 	m_ppiYieldFromTileEarnTerrainType.resize(GC.getNumTerrainInfos());
 	m_ppiYieldFromTilePurchaseTerrainType.clear();
@@ -5565,8 +5472,7 @@ void CvPlayerTraits::Reset()
 	m_ppaaiYieldChangePerImprovementBuilt.resize(GC.getNumImprovementInfos());
 	UpdateYieldChangeImprovementTypes();
 	m_pbiYieldFromBarbarianCampClear.clear();
-#endif
-#if defined(MOD_BALANCE_CORE) && defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
+#if defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
 	m_pbiYieldFromRouteMovementInForeignTerritory.clear();
 #endif
 	m_ppiPlotYieldChange.clear();
@@ -5616,9 +5522,7 @@ void CvPlayerTraits::Reset()
 		for(int iImprovement = 0; iImprovement < GC.getNumImprovementInfos(); iImprovement++)
 		{
 			m_ppaaiImprovementYieldChange[iImprovement] = yield;
-#if defined(MOD_BALANCE_CORE)
 			m_ppaaiYieldChangePerImprovementBuilt[iImprovement] = yield;
-#endif
 		}
 		UpdateYieldChangeImprovementTypes();
 
@@ -5627,7 +5531,6 @@ void CvPlayerTraits::Reset()
 			m_ppiPlotYieldChange[iPlot] = yield;
 		}
 
-#if defined(MOD_BALANCE_CORE)
 		m_iYieldFromLevelUp[iYield] = 0;
 		m_iYieldFromHistoricEvent[iYield] = 0;
 		m_iYieldFromXMilitaryUnits[iYield] = 0;
@@ -5656,7 +5559,6 @@ void CvPlayerTraits::Reset()
 		m_bStartsWithPantheon = false;
 		m_bProphetFervor = false;
 		m_bCombatBoostNearNaturalWonder = false;
-#endif
 		for(int iBuildingClass = 0; iBuildingClass < GC.getNumBuildingClassInfos(); iBuildingClass++)
 		{
 			m_ppiBuildingClassYieldChange[iBuildingClass] = yield;
@@ -5725,9 +5627,7 @@ void CvPlayerTraits::Reset()
 	for(int iTerrain = 0; iTerrain < GC.getNumTerrainInfos(); iTerrain++)
 	{
 		m_iStrategicResourceQuantityModifier[iTerrain] = 0;
-#if defined(MOD_BALANCE_CORE)
 		m_abTerrainClaimBoost[iTerrain] = false;
-#endif
 	}
 	m_aiResourceQuantityModifier.clear();
 	m_aiResourceQuantityModifier.resize(GC.getNumResourceInfos());
@@ -5759,11 +5659,8 @@ void CvPlayerTraits::Reset()
 	{
 		m_paiMovesChangeUnitCombat[iI] = 0;
 		m_paiMaintenanceModifierUnitCombat[iI] = 0;
-#if defined(MOD_BALANCE_CORE)
 		m_aibUnitCombatProductionCostModifier.erase(iI);
-#endif
 	}
-#if defined(MOD_BALANCE_CORE)
 	m_aiGreatPersonCostReduction.clear();
 	m_aiPerPuppetGreatPersonRateModifier.clear();
 	m_aiGreatPersonGWAM.clear();
@@ -5812,13 +5709,10 @@ void CvPlayerTraits::Reset()
 	}
 	m_aiNoBuilds.clear();
 	m_aiDomainProductionModifiersPerSpecialist.clear();
-#endif
 #if defined(MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON)
 	m_aiiTradeRouteProductionSiphon.clear();
 #endif
-#if defined(MOD_BALANCE_CORE)
 	m_aiiAlternateResourceTechs.clear();
-#endif
 	int iResourceLoop = 0;
 	for(iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 	{
@@ -5909,7 +5803,6 @@ bool CvPlayerTraits::WillGetUniqueLuxury(CvArea *pArea) const
 	return false;
 }
 
-#if defined(MOD_BALANCE_CORE)
 /// Instant great person progress when killing enemy units
 int CvPlayerTraits::GetGreatPersonProgressFromKills(GreatPersonTypes eIndex) const
 {
@@ -5956,7 +5849,6 @@ std::pair<GreatPersonTypes, int> CvPlayerTraits::GetRandomGreatPersonProgressFro
 
 	return std::make_pair(NO_GREATPERSON, 0);
 }
-#endif
 
 /// Bonus movement for this combat class
 int CvPlayerTraits::GetMovesChangeUnitCombat(const int unitCombatID) const
@@ -5970,7 +5862,6 @@ int CvPlayerTraits::GetMovesChangeUnitCombat(const int unitCombatID) const
 
 	return m_paiMovesChangeUnitCombat[unitCombatID];
 }
-#if defined(MOD_BALANCE_CORE)
 /// Bonus movement for this unit class
 int CvPlayerTraits::GetMovesChangeUnitClass(const int unitClassID) const
 {
@@ -5983,7 +5874,6 @@ int CvPlayerTraits::GetMovesChangeUnitClass(const int unitClassID) const
 
 	return m_paiMovesChangeUnitClass[unitClassID];
 }
-#endif
 
 /// Maintenance modifier for this combat class
 int CvPlayerTraits::GetMaintenanceModifierUnitCombat(const int unitCombatID) const
@@ -6022,7 +5912,6 @@ int CvPlayerTraits::GetYieldChangeFromTileEarnTerrainType(TerrainTypes eTerrain,
 	}
 	return m_ppiYieldFromTileEarnTerrainType[(int)eTerrain][(int)eYield];
 }
-#if defined(MOD_BALANCE_CORE)
 int CvPlayerTraits::GetYieldChangeFromTilePurchaseTerrainType(TerrainTypes eTerrain, YieldTypes eYield) const
 {
 	ASSERT_DEBUG(eTerrain < GC.getNumTerrainInfos(), "Invalid eTerrain parameter in call to CvPlayerTraits::GetYieldChangeFromTilePurchaseTerrainType()");
@@ -6131,8 +6020,7 @@ int CvPlayerTraits::GetYieldFromBarbarianCampClear(YieldTypes eYield, bool bEraS
 
 	return 0;
 }
-#endif
-#if defined(MOD_BALANCE_CORE) && defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
+#if defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
 int CvPlayerTraits::GetYieldFromRouteMovementInForeignTerritory(YieldTypes eIndex, bool bTradePartner) const
 {
 	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "Index out of bounds");
@@ -6288,7 +6176,6 @@ int CvPlayerTraits::GetSpecialistYieldChange(SpecialistTypes eSpecialist, YieldT
 	{
 		return 0;
 	}
-#if defined(MOD_BALANCE_CORE)
 	if(IsOddEraScaler())
 	{
 		int iYield = m_ppaaiSpecialistYieldChange[(int)eSpecialist][(int)eYield];
@@ -6309,7 +6196,6 @@ int CvPlayerTraits::GetSpecialistYieldChange(SpecialistTypes eSpecialist, YieldT
 			return iYield;
 		}
 	}
-#endif
 
 	return m_ppaaiSpecialistYieldChange[(int)eSpecialist][(int)eYield];
 }
@@ -6384,7 +6270,6 @@ bool CvPlayerTraits::HasFreePromotionUnitCombat(const int promotionID, const int
 
 	return false;
 }
-#if defined(MOD_BALANCE_CORE)
 /// Does this player have units that have a special upgrade path?
 bool CvPlayerTraits::HasSpecialUnitUpgrade(const int unitClassID, const int unitID) const
 {
@@ -6491,7 +6376,6 @@ int CvPlayerTraits::GetDomainProductionModifiersPerSpecialist(DomainTypes eDomai
 
 	return 0;
 }
-#endif
 
 #if defined(MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON)
 /// What is the percent if the origin city gains a percent of the target city's production towards that specific thing
@@ -6514,7 +6398,6 @@ bool CvPlayerTraits::IsTradeRouteProductionSiphon() const
 }
 #endif
 
-#if defined(MOD_BALANCE_CORE)
 /// What are the alternate technologies for revealing resources
 AlternateResourceTechs CvPlayerTraits::GetAlternateResourceTechs(ResourceTypes eResource) const
 {
@@ -6536,7 +6419,6 @@ bool CvPlayerTraits::IsAlternateResourceTechs() const
 {
 	return !m_aiiAlternateResourceTechs.empty();
 }
-#endif
 
 /// Does each city get a free building?
 BuildingTypes CvPlayerTraits::GetFreeBuilding() const
@@ -6555,7 +6437,6 @@ BuildingTypes CvPlayerTraits::GetFreeBuilding() const
 
 	return NO_BUILDING;
 }
-#if defined(MOD_BALANCE_CORE)
 /// Does the capital get a free building?
 BuildingTypes CvPlayerTraits::GetFreeCapitalBuilding() const
 {
@@ -6589,7 +6470,6 @@ UnitTypes CvPlayerTraits::GetFreeUnitOnConquest() const
 
 	return NO_UNIT;
 }
-#endif
 
 /// Does each conquered city get a free building?
 BuildingTypes CvPlayerTraits::GetFreeBuildingOnConquest() const
@@ -6872,7 +6752,6 @@ int CvPlayerTraits::GetCapitalBuildingDiscount(BuildingTypes eBuilding)
 	return 0;
 }
 
-#if defined(MOD_BALANCE_CORE)
 int CvPlayerTraits::GetWonderProductionToBuildingDiscount(BuildingTypes eBuilding)
 {
 	CvBuildingEntry* thisBuildingEntry = GC.getBuildingInfo(eBuilding);
@@ -6912,7 +6791,6 @@ TechTypes CvPlayerTraits::GetCapitalFreeBuildingPrereqTech() const
 
 	return NO_TECH;
 }
-#endif
 
 /// First free unit received through traits
 int CvPlayerTraits::GetFirstFreeUnit(TechTypes eTech)
@@ -6986,7 +6864,6 @@ bool CvPlayerTraits::NoTrain(UnitClassTypes eUnitClassType)
 		return false;
 	}
 }
-#if defined(MOD_BALANCE_CORE)
 bool CvPlayerTraits::TerrainClaimBoost(TerrainTypes eTerrain)
 {
 	if (eTerrain != NO_TERRAIN)
@@ -6998,7 +6875,6 @@ bool CvPlayerTraits::TerrainClaimBoost(TerrainTypes eTerrain)
 		return false;
 	}
 }
-#endif
 
 
 // MAYA TRAIT SPECIAL METHODS

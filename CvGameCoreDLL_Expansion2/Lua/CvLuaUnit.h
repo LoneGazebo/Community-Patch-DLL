@@ -232,11 +232,9 @@ protected:
 	static int lIsGoldenAge(lua_State* L);
 	static int lCanCoexistWithEnemyUnit(lua_State* L);
 
-#if defined(MOD_BALANCE_CORE)
 	static int lIsContractUnit(lua_State* L);
 	static int lIsSpecificContractUnit(lua_State* L);
 	static int lGetContractUnit(lua_State* L);
-#endif
 	static int lIsNoMaintenance(lua_State* L);
 	static int lSetNoMaintenance(lua_State* L);
 
@@ -386,7 +384,6 @@ protected:
 	static int lUnitClassAttackModifier(lua_State* L);
 	static int lUnitClassDefenseModifier(lua_State* L);
 	static int lUnitCombatModifier(lua_State* L);
-#if defined(MOD_BALANCE_CORE)
 	static int lPerAdjacentUnitCombatModifier(lua_State* L);
 	static int lPerAdjacentUnitCombatAttackMod(lua_State* L);
 	static int lPerAdjacentUnitCombatDefenseMod(lua_State* L);
@@ -395,7 +392,6 @@ protected:
 	static int lIsStrongerDamaged(lua_State* L);
 	static int lGetMultiAttackBonus(lua_State* L);
 	static int lGetMultiAttackBonusCity(lua_State* L);
-#endif
 	static int lDomainModifier(lua_State* L);
 	static int lDomainAttackPercent(lua_State* L);
 	static int lDomainDefensePercent(lua_State* L);
@@ -541,13 +537,11 @@ protected:
 	LUAAPIEXTN(GetAuraRange, int);
 	LUAAPIEXTN(GetAuraEffect, int);
 	static int lIsNearSapper(lua_State* L);
-#if defined(MOD_BALANCE_CORE)
 	static int lIsHalfNearSapper(lua_State* L);
 	static int lGetNearbyUnitClassModifierFromUnitClass(lua_State* L);
 	static int lGetSapperAreaEffectBonus(lua_State* L);
 	static int lGetGiveCombatModToUnit(lua_State* L);
 	static int lGetNearbyCityBonusCombatMod(lua_State* L);
-#endif
 	static int lGetNearbyImprovementModifier(lua_State* L);
 	static int lIsFriendlyUnitAdjacent(lua_State* L);
 	static int lIsNoFriendlyUnitAdjacent(lua_State* L);
@@ -627,12 +621,10 @@ protected:
 	static int lExecuteSpecialExploreMove(lua_State* L);
 
 	static int lSetDeployFromOperationTurn(lua_State* L);
-#if defined(MOD_BALANCE_CORE)
 	static int lIsHigherPopThan(lua_State* L);
 	static int lGetResistancePower(lua_State* L);
 	static int lGetAllianceCSStrength(lua_State* L);
 	static int lGetCombatModFromUnitLevel(lua_State* L);
-#endif
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	static int lGetMonopolyAttackBonus(lua_State* L);
 	static int lGetMonopolyDefenseBonus(lua_State* L);

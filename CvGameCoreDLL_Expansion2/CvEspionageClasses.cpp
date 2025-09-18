@@ -2338,7 +2338,7 @@ void CvPlayerEspionage::UncoverCityBuildingWonder(uint uiSpyIndex)
 		}
 	}
 }
-#if defined(MOD_BALANCE_CORE)
+
 /// UncoverIntrigue - Determine if the spy uncovers any secret information and pass it along to the player
 void CvPlayerEspionage::GetRandomIntrigue(CvCity* pCity, uint uiSpyIndex)
 {
@@ -2488,7 +2488,6 @@ void CvPlayerEspionage::GetRandomIntrigue(CvCity* pCity, uint uiSpyIndex)
 		AddIntrigueMessage(m_pPlayer->GetID(), eOtherPlayer, NO_PLAYER, NO_PLAYER, eBuilding, eProject, NO_UNIT, INTRIGUE_TYPE_CONSTRUCTING_WONDER, uiSpyIndex, pCity, true);
 	}
 }
-#endif
 
 bool isSpyNameInUse(CvPlayer* pPlayer, const char* szSpyName)
 {
@@ -6632,7 +6631,6 @@ FDataStream& operator>>(FDataStream& loadFrom, CvPlayerEspionage& writeTo)
 		loadFrom >> iNumTechsToSteal;
 		writeTo.m_aiNumTechsToStealList.push_back(iNumTechsToSteal);
 	}
-#if defined(MOD_BALANCE_CORE)
 	loadFrom >> uiNumCivs;
 	for(uint uiCiv = 0; uiCiv < uiNumCivs; uiCiv++)
 	{
@@ -6640,7 +6638,6 @@ FDataStream& operator>>(FDataStream& loadFrom, CvPlayerEspionage& writeTo)
 		loadFrom >> iNumSpyActionsDone;
 		writeTo.m_aiNumSpyActionsDone.push_back(iNumSpyActionsDone);
 	}
-#endif
 
 	int iNumMessages = 0;
 	loadFrom >> iNumMessages;
@@ -6722,15 +6719,12 @@ FDataStream& operator<<(FDataStream& saveTo, const CvPlayerEspionage& readFrom)
 	{
 		saveTo << readFrom.m_aiNumTechsToStealList[uiCiv];
 	}
-#if defined(MOD_BALANCE_CORE)
 	
 	saveTo << readFrom.m_aiNumSpyActionsDone.size();
 	for(uint uiCiv = 0; uiCiv < readFrom.m_aiNumSpyActionsDone.size(); uiCiv++)
 	{
 		saveTo << readFrom.m_aiNumSpyActionsDone[uiCiv];
 	}
-
-#endif
 
 	saveTo << readFrom.m_aSpyNotificationMessages.size();
 	for(uint ui = 0; ui < readFrom.m_aSpyNotificationMessages.size(); ui++)
@@ -7740,11 +7734,10 @@ void CvEspionageAI::DoTurn()
 	{
 		return;
 	}
-#if defined(MOD_BALANCE_CORE)
+
 	//No spies? No need!
 	if (m_pPlayer->GetEspionage()->GetNumAliveSpies() <= 0)
 		return;
-#endif
 
 	if (!MOD_BALANCE_VP)
 	{

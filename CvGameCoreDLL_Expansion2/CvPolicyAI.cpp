@@ -10,10 +10,8 @@
 #include "CvPolicyAI.h"
 #include "CvGrandStrategyAI.h"
 #include "CvInfosSerializationHelper.h"
-#if defined(MOD_BALANCE_CORE)
 #include "CvTypes.h"
 #include "CvEconomicAI.h"
-#endif
 
 // Include this after all other headers.
 #include "LintFree.h"

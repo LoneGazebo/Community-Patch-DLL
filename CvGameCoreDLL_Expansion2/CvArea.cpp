@@ -260,7 +260,6 @@ void CvArea::changeNumStartingPlots(int iChange)
 	ASSERT_DEBUG(getNumStartingPlots() >= 0);
 }
 
-#if defined(MOD_BALANCE_CORE)
 //	--------------------------------------------------------------------------------
 int CvArea::GetNumBadPlots() const
 {
@@ -401,7 +400,6 @@ void CvArea::FindBoundaries(const vector<bool>& occupiedCols, const vector<bool>
 	m_Boundaries.m_iNorthEdge = rowFall;
 	m_Boundaries.m_iSouthEdge = rowRise;
 }
-#endif
 
 //	--------------------------------------------------------------------------------
 /// How many Natural Wonders are there in the world?

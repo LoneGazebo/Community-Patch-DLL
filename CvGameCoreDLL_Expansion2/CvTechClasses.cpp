@@ -73,11 +73,9 @@ CvTechEntry::CvTechEntry(void):
 	m_piFlavorValue(NULL),
 	m_piPrereqOrTechs(NULL),
 	m_piPrereqAndTechs(NULL),
-#if defined(MOD_BALANCE_CORE)
 	m_iHappiness(0),
 	m_ppiTechYieldChanges(NULL),
 	m_bCorporationsEnabled(false),
-#endif
 #if defined(MOD_CIV6_EUREKA)
 	m_iEurekaPerMillion(0),
 #endif
@@ -95,9 +93,7 @@ CvTechEntry::~CvTechEntry(void)
 	SAFE_DELETE_ARRAY(m_piPrereqOrTechs);
 	SAFE_DELETE_ARRAY(m_piPrereqAndTechs);
 	SAFE_DELETE_ARRAY(m_pabFreePromotion);
-#if defined(MOD_BALANCE_CORE)
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiTechYieldChanges);
-#endif
 }
 
 bool CvTechEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
@@ -154,10 +150,8 @@ bool CvTechEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 
 	m_bVassalageTradingAllowed = kResults.GetBool("VassalageTradingAllowed");
 
-#if defined(MOD_BALANCE_CORE)
 	m_iHappiness = kResults.GetInt("Happiness");
 	m_bCorporationsEnabled = kResults.GetBool("CorporationsEnabled");
-#endif
 #if defined(MOD_CIV6_EUREKA)
 	m_iEurekaPerMillion = kResults.GetInt("EurekaPerMillion");
 #endif
@@ -234,7 +228,6 @@ bool CvTechEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 
 		pResults->Reset();
 	}
-#if defined(MOD_BALANCE_CORE)
 	{
 		kUtility.Initialize2DArray(m_ppiTechYieldChanges, "Specialists", "Yields");
 
@@ -256,7 +249,6 @@ bool CvTechEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 			m_ppiTechYieldChanges[SpecialistID][YieldID] = yield;
 		}
 	}
-#endif
 	return true;
 }
 
@@ -588,7 +580,6 @@ int CvTechEntry::GetPrereqAndTechs(int i) const
 {
 	return m_piPrereqAndTechs ? m_piPrereqAndTechs[i] : -1;
 }
-#if defined(MOD_BALANCE_CORE)
 //------------------------------------------------------------------------------
 int CvTechEntry::GetTechYieldChanges(int i, int j) const
 {
@@ -606,7 +597,6 @@ bool CvTechEntry::IsCorporationsEnabled() const
 {
 	return m_bCorporationsEnabled;
 }
-#endif
 
 #if defined(MOD_CIV6_EUREKA)
 int CvTechEntry::GetEurekaPerMillion() const
@@ -656,11 +646,7 @@ void CvTechXMLEntries::DeleteArray()
 /// Get a specific entry
 CvTechEntry* CvTechXMLEntries::GetEntry(int index)
 {
-#if defined(MOD_BALANCE_CORE)
 	return (index!=NO_TECH) ? m_paTechEntries[index] : NULL;
-#else
-	return m_paTechEntries[index];
-#endif
 }
 
 
@@ -672,11 +658,9 @@ CvPlayerTechs::CvPlayerTechs():
 	m_pabResearchingTech(NULL),
 	m_piCivTechPriority(NULL),
 	m_piLocaleTechPriority(NULL),
-#if defined(MOD_BALANCE_CORE)
 	m_piGSTechPriority(NULL),
 	m_bHasUUTech(false),
 	m_bWillHaveUUTechSoon(false),
-#endif
 	m_peLocaleTechResources(NULL),
 	m_peCivTechUniqueBuildings(NULL),
 	m_peCivTechUniqueUnits(NULL),
@@ -712,10 +696,8 @@ void CvPlayerTechs::Init(CvTechXMLEntries* pTechs, CvPlayer* pPlayer, bool bIsCi
 	m_piCivTechPriority = FNEW(int[iNumTechs], c_eCiv5GameplayDLL, 0);
 	ASSERT_DEBUG(m_piLocaleTechPriority==NULL, "about to leak memory, CvPlayerTechs::m_piLocaleTechPriority");
 	m_piLocaleTechPriority = FNEW(int[iNumTechs], c_eCiv5GameplayDLL, 0);
-#if defined(MOD_BALANCE_CORE)
 	ASSERT_DEBUG(m_piGSTechPriority==NULL, "about to leak memory, CvPlayerTechs::m_piGSTechPriority");
 	m_piGSTechPriority = FNEW(int[iNumTechs], c_eCiv5GameplayDLL, 0);
-#endif
 	ASSERT_DEBUG(m_peLocaleTechResources==NULL, "about to leak memory, CvPlayerTechs::m_peLocaleTechResources");
 	m_peLocaleTechResources = FNEW(ResourceTypes[iNumTechs], c_eCiv5GameplayDLL, 0);
 	ASSERT_DEBUG(m_peCivTechUniqueUnits==NULL, "about to leak memory, CvPlayerTechs::m_peCivTechUniqueUnits");
@@ -740,9 +722,7 @@ void CvPlayerTechs::Uninit()
 	SAFE_DELETE_ARRAY(m_pabResearchingTech);
 	SAFE_DELETE_ARRAY(m_piCivTechPriority);
 	SAFE_DELETE_ARRAY(m_piLocaleTechPriority);
-#if defined(MOD_BALANCE_CORE)
 	SAFE_DELETE_ARRAY(m_piGSTechPriority);
-#endif
 	SAFE_DELETE_ARRAY(m_peLocaleTechResources);
 	SAFE_DELETE_ARRAY(m_peCivTechUniqueBuildings);
 	SAFE_DELETE_ARRAY(m_peCivTechUniqueUnits);
@@ -760,9 +740,7 @@ void CvPlayerTechs::Reset()
 		m_pabResearchingTech[iI] = false;
 		m_piCivTechPriority[iI] = 1;
 		m_piLocaleTechPriority[iI] = 1;
-#if defined(MOD_BALANCE_CORE)
 		m_piGSTechPriority[iI] = 1;
-#endif
 		m_peLocaleTechResources[iI] = NO_RESOURCE;
 		m_peCivTechUniqueUnits[iI] = NO_UNIT;
 		m_peCivTechUniqueBuildings[iI] = NO_BUILDING;
@@ -1082,7 +1060,6 @@ int CvPlayerTechs::GetLocaleTechPriority(TechTypes eIndex) const
 	ASSERT_DEBUG(eIndex < GC.getNumTechInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_piLocaleTechPriority[eIndex];
 }
-#if defined(MOD_BALANCE_CORE)
 /// Accessor: get GC priority multiplier for researching techs
 int CvPlayerTechs::GetGSTechPriority(TechTypes eIndex) const
 {
@@ -1098,7 +1075,6 @@ void CvPlayerTechs::SetGSTechPriority(TechTypes eIndex, int iNewValue)
 
 	m_piGSTechPriority[eIndex] = iNewValue;
 }
-#endif
 ResourceTypes CvPlayerTechs::GetLocaleTechResource(TechTypes eIndex) const
 {
 	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
@@ -1237,7 +1213,6 @@ void CvPlayerTechs::SetLocalePriorities()
 		}
 	}
 }
-#if defined(MOD_BALANCE_CORE)
 void CvPlayerTechs::SetGSPriorities()
 {
 	if (m_pPlayer->isMinorCiv())
@@ -1396,7 +1371,6 @@ void CvPlayerTechs::SetGSPriorities()
 		}
 	}
 }
-#endif
 
 /// Accessor: Can we start research?
 bool CvPlayerTechs::IsResearch() const

@@ -234,10 +234,7 @@ bool isWorldUnitClass(UnitClassTypes eUnitClass);
 bool isTeamUnitClass(UnitClassTypes eUnitClass);
 bool isNationalUnitClass(UnitClassTypes eUnitClass);
 bool isLimitedUnitClass(UnitClassTypes eUnitClass);
-
-#if defined(MOD_BALANCE_CORE)
 bool isUnitLimitPerCity(UnitClassTypes eUnitClass);
-#endif
 
 bool isWorldProject(ProjectTypes eProject);
 bool isTeamProject(ProjectTypes eProject);
@@ -420,7 +417,6 @@ inline CvString GetLocalizedText(const char* szString, const T1& arg1, const T2&
 
 #endif
 
-#if defined(MOD_BALANCE_CORE)
 //take value and map it linearly to [0;100]. if outside of given thresholds, map to min/max. 
 int MapToPercent(int iValue, int iZeroAt, int iHundredAt);
 
@@ -504,5 +500,3 @@ public:
 
 //------------------------------------------------------------------------------
 void PrintMemoryInfo(const char* hint);
-
-#endif
