@@ -1,6 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Deploy" ToolsVersion="4.0"
-  xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Deploy" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Default</Configuration>
     <ProjectGuid>{0d66d522-b624-4bc5-acfe-15a0c5b729f4}</ProjectGuid>
@@ -1349,12 +1348,6 @@
         <FileName>Core Files/New UI/RandomVCPopup.xml</FileName>
       </Content>
       <Content>
-        <Type>InGameUIAddin</Type>
-        <Name>Vassalage Overview</Name>
-        <Description>Vassalage Overview</Description>
-        <FileName>Core Files/New UI/VassalageOverview.xml</FileName>
-      </Content>
-      <Content>
         <Type>MapScript</Type>
         <Name>Communitu_79a</Name>
         <Description>Communitas rewrite by tu_79 and azum4roll</Description>
@@ -1491,6 +1484,12 @@
         <Name>Sandstorm</Name>
         <Description>See #9302 on why this is here</Description>
         <FileName>Mapscripts/EMP/Sandstorm.lua</FileName>
+      </Content>
+      <Content>
+        <Type>InGameUIAddin</Type>
+        <Name>Vassalage Overview</Name>
+        <Description>Vassalage Overview</Description>
+        <FileName>Core Files/New UI/VassalageOverview.xml</FileName>
       </Content>
     </ModContent>
     <ReloadAudioSystem>true</ReloadAudioSystem>

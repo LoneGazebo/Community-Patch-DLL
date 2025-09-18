@@ -826,7 +826,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 				return false;
 
 			// Research agreements aren't enabled
-			if (MOD_BALANCE_VP && !GC.getGame().isOption(GAMEOPTION_RESEARCH_AGREEMENTS))
+			if (GC.getGame().isOption(GAMEOPTION_DISABLE_RESEARCH_AGREEMENTS))
 				return false;
 
 			// Neither of us yet has the Tech for RA
@@ -1191,7 +1191,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 
 	case TRADE_ITEM_MAPS:
 		{
-			if (bSameTeam || !MOD_BALANCE_VP)
+			if (bSameTeam)
 				return false;
 
 			// AI teammate of human
@@ -1222,7 +1222,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 
 	case TRADE_ITEM_TECHS:
 		{
-			if (bSameTeam || !MOD_BALANCE_VP)
+			if (bSameTeam)
 				return false;
 
 			// AI teammate of human
@@ -1230,7 +1230,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 				return false;
 
 			// Must have Science and Tech Trading enabled
-			if (GC.getGame().isOption(GAMEOPTION_NO_SCIENCE) || GC.getGame().isOption(GAMEOPTION_NO_TECH_TRADING))
+			if (GC.getGame().isOption(GAMEOPTION_NO_SCIENCE) || !GC.getGame().isOption(GAMEOPTION_ENABLE_TECH_TRADING))
 				return false;
 
 			// Mutual embassies are required (unless this is a peace deal)
@@ -1274,7 +1274,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 
 	case TRADE_ITEM_VASSALAGE:
 		{
-			if (bSameTeam || !MOD_BALANCE_VP)
+			if (bSameTeam)
 				return false;
 
 			// AI teammate of human
@@ -1282,7 +1282,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 				return false;
 
 			// Vassalage is disabled
-			if (GC.getGame().isOption(GAMEOPTION_NO_VASSALAGE))
+			if (!GC.getGame().isOption(GAMEOPTION_ENABLE_VASSALAGE))
 				return false;
 			if (!bPeaceDeal && GD_INT_GET(DIPLOAI_DISABLE_VOLUNTARY_VASSALAGE) > 0)
 				return false;
@@ -1312,11 +1312,11 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 
 	case TRADE_ITEM_VASSALAGE_REVOKE:
 		{
-			if (bSameTeam || !MOD_BALANCE_VP)
+			if (bSameTeam)
 				return false;
 
 			// Vassalage is disabled
-			if (GC.getGame().isOption(GAMEOPTION_NO_VASSALAGE))
+			if (!GC.getGame().isOption(GAMEOPTION_ENABLE_VASSALAGE))
 				return false;
 
 			// AI teammate of human
@@ -2000,7 +2000,7 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 				return strError;
 
 			// Research agreements aren't enabled
-			if (MOD_BALANCE_VP && !GC.getGame().isOption(GAMEOPTION_RESEARCH_AGREEMENTS))
+			if (GC.getGame().isOption(GAMEOPTION_DISABLE_RESEARCH_AGREEMENTS))
 				return strError;
 
 			// We already have a Research Agreement! To-do: Renew Research Agreement deals?
@@ -2105,9 +2105,6 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 
 		case TRADE_ITEM_MAPS:
 		{
-			if (!MOD_BALANCE_VP)
-				return strError;
-
 			// AI teammate of human
 			if (pFromPlayer->IsAITeammateOfHuman())
 			{
@@ -2235,7 +2232,7 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 
 		case TRADE_ITEM_VASSALAGE:
 		{
-			if (!MOD_BALANCE_VP || GC.getGame().isOption(GAMEOPTION_NO_VASSALAGE))
+			if (!GC.getGame().isOption(GAMEOPTION_ENABLE_VASSALAGE))
 				return strError;
 
 			// We are already their vassal
@@ -2442,7 +2439,7 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 
 		case TRADE_ITEM_VASSALAGE_REVOKE:
 		{
-			if (!MOD_BALANCE_VP || GC.getGame().isOption(GAMEOPTION_NO_VASSALAGE))
+			if (!GC.getGame().isOption(GAMEOPTION_ENABLE_VASSALAGE))
 				return strError;
 
 			// They have no vassals to revoke!

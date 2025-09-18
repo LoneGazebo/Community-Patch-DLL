@@ -6,32 +6,41 @@
 			<Description>TXT_KEY_GAMEOPTION_RANDOM_VICTORY</Description>
 			<Help>TXT_KEY_GAMEOPTION_RANDOM_VICTORY_HELP</Help>
 		</Row>
-		<Row>
-			<Type>GAMEOPTION_RESEARCH_AGREEMENTS</Type>
-			<Description>TXT_KEY_GAME_OPTION_RESEARCH_AGREEMENTS</Description>
-			<Help>TXT_KEY_GAME_OPTION_RESEARCH_AGREEMENTS_HELP</Help>
-		</Row>
-		<Row>
-			<Type>GAMEOPTION_NO_TECH_TRADING</Type>
-			<Description>TXT_KEY_GAME_OPTION_NO_TECH_TRADING</Description>
-			<Help>TXT_KEY_GAME_OPTION_NO_TECH_TRADING_HELP</Help>
-		</Row>
-		<Row>
-			<Type>GAMEOPTION_NO_VASSALAGE</Type>
-			<Description>TXT_KEY_GAME_OPTION_NO_VASSALAGE</Description>
-			<Help>TXT_KEY_GAME_OPTION_NO_VASSALAGE_HELP</Help>
-		</Row>
-		<Row>
+		<Replace>
+			<Type>GAMEOPTION_DISABLE_RESEARCH_AGREEMENTS</Type>
+			<Description>TXT_KEY_GAME_OPTION_DISABLE_RESEARCH_AGREEMENTS</Description>
+			<Help>TXT_KEY_GAME_OPTION_DISABLE_RESEARCH_AGREEMENTS_HELP</Help>
+			<Default>1</Default>
+			<Visible>1</Visible>
+		</Replace>
+		<Replace>
+			<Type>GAMEOPTION_ENABLE_TECH_TRADING</Type>
+			<Description>TXT_KEY_GAME_OPTION_ENABLE_TECH_TRADING</Description>
+			<Help>TXT_KEY_GAME_OPTION_ENABLE_TECH_TRADING_HELP</Help>
+			<Default>1</Default>
+			<Visible>1</Visible>
+		</Replace>
+		<Replace>
+			<Type>GAMEOPTION_ENABLE_VASSALAGE</Type>
+			<Description>TXT_KEY_GAME_OPTION_ENABLE_VASSALAGE</Description>
+			<Help>TXT_KEY_GAME_OPTION_ENABLE_VASSALAGE_HELP</Help>
+			<Default>1</Default>
+			<Visible>1</Visible>
+		</Replace>
+		<Replace>
 			<Type>GAMEOPTION_NO_TECH_BROKERING</Type>
 			<Description>TXT_KEY_GAME_OPTION_NO_TECH_BROKERING</Description>
 			<Help>TXT_KEY_GAME_OPTION_NO_TECH_BROKERING_HELP</Help>
-			<Default>true</Default>
-		</Row>
-		<Row>
+			<Default>1</Default>
+			<Visible>1</Visible>
+		</Replace>
+		<Replace>
 			<Type>GAMEOPTION_TRANSPARENT_DIPLOMACY</Type>
 			<Description>TXT_KEY_GAME_OPTION_TRANSPARENT_DIPLOMACY</Description>
 			<Help>TXT_KEY_GAME_OPTION_TRANSPARENT_DIPLOMACY_HELP</Help>
-		</Row>
+			<Default>0</Default>
+			<Visible>1</Visible>
+		</Replace>
 		<Row>
 			<Type>GAMEOPTION_DISABLE_VICTORY_COMPETITION</Type>
 			<Description>TXT_KEY_GAME_OPTION_DISABLE_VICTORY_COMPETITION</Description>

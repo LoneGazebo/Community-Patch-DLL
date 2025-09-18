@@ -20,10 +20,10 @@ local g_bAlwaysPeace = Game.IsOption( GameOptionTypes.GAMEOPTION_ALWAYS_PEACE );
 local g_bNoChangeWar = Game.IsOption( GameOptionTypes.GAMEOPTION_NO_CHANGING_WAR_PEACE );
 
 local g_PeaceDealDuration = GameInfo.GameSpeeds[PreGame.GetGameSpeed()].PeaceDealDuration;
-local g_bAllowResearchAgreements = Game.IsOption("GAMEOPTION_RESEARCH_AGREEMENTS");
+local g_bAllowResearchAgreements = not Game.IsOption("GAMEOPTION_DISABLE_RESEARCH_AGREEMENTS");
 local g_bDisableScience = Game.IsOption("GAMEOPTION_NO_SCIENCE");
-local g_bDisableTechTrading = Game.IsOption("GAMEOPTION_NO_TECH_TRADING");
-local g_bDisableVassalage = Game.IsOption("GAMEOPTION_NO_VASSALAGE");
+local g_bDisableTechTrading = not Game.IsOption("GAMEOPTION_ENABLE_TECH_TRADING");
+local g_bDisableVassalage = not Game.IsOption("GAMEOPTION_ENABLE_VASSALAGE");
 local g_bDisableLeague = Game.IsOption("GAMEOPTION_NO_LEAGUES");
 
 ----------------------------------------------------------------        
