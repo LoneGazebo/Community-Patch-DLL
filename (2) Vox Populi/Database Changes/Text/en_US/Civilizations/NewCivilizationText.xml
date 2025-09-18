@@ -703,19 +703,6 @@
 
 		<!-- Greece -->
 		<Row Tag="TXT_KEY_BUILDING_GYMNASION">
-			<Text>Acropolis</Text>
-		</Row>
-		<Row Tag="TXT_KEY_BUILDING_GYMNASION_TEXT">
-			<Text>An acropolis is a settlement, especially a citadel, built upon an area of elevated ground—frequently a hill with precipitous sides, chosen for purposes of defense. In many parts of the world, acropoleis became the nuclei of large cities of classical antiquity, such as ancient Rome, and for this reason they are sometimes prominent landmarks in modern cities with ancient pasts, such as modern Rome. The word acropolis literally means in Greek "upper city," and though associated primarily with the Greek cities Athens, Argos ( with Larissa), Thebes (with Cadmea), and Corinth (with its Acrocorinth), may be applied generically to all such citadels, including Rome, Jerusalem, Celtic Bratislava, many in Asia Minor, or even Castle Rock in Edinburgh. An example in Ireland is the Rock of Cashel. Acropolis is also the term used by archaeologists and historians for the urban Castro culture settlements located in Northwestern Iberian hilltops.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_BUILDING_GYMNASION_HELP">
-			<Text>+33% [ICON_GREAT_WRITER] Great Writer Rate in the City.[NEWLINE][NEWLINE]+5 [ICON_CULTURE_LOCAL] Border Growth when a Unit defeats an Enemy Unit in battle; also +25 [ICON_CULTURE] Culture if the Unit was [COLOR_POSITIVE_TEXT]created by this City[ENDCOLOR], both scaling with Era.[NEWLINE][NEWLINE]Nearby [ICON_RES_DYE] Dyes: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_SILK] Silk: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_LAPIS] Lapis Lazuli: +2 [ICON_CULTURE] Culture.[NEWLINE]Nearby [ICON_RES_BRAZILWOOD] Brazilwood: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]Contains 2 slots for [ICON_GW_WRITING] Great Works of Writing. +2 [ICON_CULTURE] Culture if [COLOR_POSITIVE_TEXT]Themed[ENDCOLOR].</Text>
-		</Row>
-		<Row Tag="TXT_KEY_BUILDING_GYMNASION_STRATEGY">
-			<Text>Unique Greek replacement for the {TXT_KEY_BUILDING_AMPHITHEATER}. In addition to the {TXT_KEY_BUILDING_AMPHITHEATER}'s bonuses, {TXT_KEY_BUILDING_GYMNASION} increases [ICON_STRENGTH] Defensive Strength and produces [ICON_CULTURE] Culture and [ICON_CULTURE_LOCAL] Border Growth Points when your unit defeats an enemy unit.</Text>
-		</Row>
-
-		<Row Tag="TXT_KEY_BUILDING_GYMNASION">
 			<Text>Gymnasion</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_GYMNASION_HELP">
