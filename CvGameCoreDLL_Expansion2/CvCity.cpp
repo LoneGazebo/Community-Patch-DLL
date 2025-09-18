@@ -2325,14 +2325,13 @@ void CvCity::AcquireWaywardPlots()
 			if (pPlot)
 			{
 				int iDistance = plotDistance(iX, iY, pLoopCity->getX(), pLoopCity->getY());
-				if (iDistance > iDistanceFromThisCity)
-					continue;
+				if (iDistance <= iDistanceFromThisCity)
+				{
+					bAnyCloserCity = true;
+					break;
+				}
 
-				bAnyCloserCity = true;
-				break;
 			}
-			if (bAnyCloserCity)
-				break;
 		}
 
 		if (!bAnyCloserCity)
