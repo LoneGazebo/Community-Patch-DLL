@@ -1401,13 +1401,6 @@
 			<Text>+10% [ICON_STRENGTH] Combat Strength to all adjacent [COLOR_POSITIVE_TEXT]Friendly Units[ENDCOLOR].</Text>
 		</Row>
 		
-		<Row Tag="TXT_KEY_PROMOTION_BURGHER">
-			<Text>Burgher</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_BURGHER_HELP">
-			<Text>+33% [ICON_STRENGTH] Combat Strength within 2 tiles of [COLOR_POSITIVE_TEXT]Friendly City[ENDCOLOR].</Text>
-		</Row>
-		
 		<Row Tag="TXT_KEY_PROMOTION_UNWIELDY">
 			<Text>Unwieldy</Text>
 		</Row>
