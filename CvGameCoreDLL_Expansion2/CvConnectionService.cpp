@@ -1002,7 +1002,7 @@ void CvConnectionService::ProcessLuaResult(lua_State* L, int executionResult, co
 	SendMessage(*m_pMainThreadWriteBuffer);
 
 	// Garbage collect
-	lua_gc(m_pLuaState, LUA_GCSTEP, 10000);
+	lua_gc(m_pLuaState, LUA_GCCOLLECT, 0);
 }
 
 // Shared function to convert Lua values to fill a key in a JsonDocument
