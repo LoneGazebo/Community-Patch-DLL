@@ -151,7 +151,7 @@ private:
 	// Internal state
 	bool m_bInitialized;
 	lua_State* m_pLuaState;
-	ICvEngineScriptSystem1* m_pkScriptSystem;  // VOX: Cached script system instance
+	ICvEngineScriptSystem1* m_pkScriptSystem;  // Cached script system instance
 	
 	// Named Pipe server state
 	HANDLE m_hPipe;

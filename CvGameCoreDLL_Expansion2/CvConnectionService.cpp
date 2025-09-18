@@ -29,7 +29,7 @@ CvConnectionService& CvConnectionService::GetInstance()
 CvConnectionService::CvConnectionService()
 	: m_bInitialized(false)
 	, m_pLuaState(NULL)
-	, m_pkScriptSystem(NULL)  // VOX: Initialize cached script system
+	, m_pkScriptSystem(NULL)  // Initialize cached script system
 	, m_hPipe(INVALID_HANDLE_VALUE)
 	, m_hThread(NULL)
 	, m_dwThreadId(0)
@@ -79,7 +79,7 @@ bool CvConnectionService::Setup()
 	m_bShutdownRequested = false;
 	m_bClientConnected = false;
 
-	// VOX: Cache the script system instance and create Lua thread
+	// Cache the script system instance and create Lua thread
 	m_pkScriptSystem = gDLL->GetScriptSystem();
 	m_pLuaState = m_pkScriptSystem->CreateLuaThread("ConnectionService");
 
@@ -925,7 +925,7 @@ void CvConnectionService::HandleLuaCall(const char* functionName, const JsonArra
 	}
 	
 	// Call the function (argCount args, LUA_MULTRET results)
-	int result = m_pkScriptSystem->CallFunction(funcInfo.pLuaState, argCount, LUA_MULTRET);
+	int result = lua_pcall(funcInfo.pLuaState, argCount, LUA_MULTRET, 0);
 	
 	// Process the result
 	ProcessLuaResult(funcInfo.pLuaState, result, id);
