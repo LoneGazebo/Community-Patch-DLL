@@ -10113,9 +10113,7 @@ BuildingTypes CvMinorCivAI::GetBestWorldWonderForQuest(PlayerTypes ePlayer, int 
 	std::vector<int> allBuildingCount = GET_PLAYER(ePlayer).GetTotalBuildingCount();
 	vector<BuildingTypes> veValidBuildings;
 	int iCompletionThreshold = /*25*/ max(GD_INT_GET(MINOR_CIV_QUEST_WONDER_COMPLETION_THRESHOLD), 0);
-	int iCompletionMaxTurns = /*30*/ max(GD_INT_GET(MINOR_CIV_QUEST_WONDER_COMPLETION_MAX_TURNS), 0);
-	if (iDuration > 0 && max(iDuration - 2, 1) < iCompletionMaxTurns)
-		iCompletionMaxTurns = max(iDuration - 2, 1);
+	int iCompletionMaxTurns = /*30*/ max(GD_INT_GET(MINOR_CIV_QUEST_WONDER_COMPLETION_MAX_TURNS), 5);
 
 	// Loop through all Buildings and see if they're useful
 	for (int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
@@ -10233,6 +10231,10 @@ BuildingTypes CvMinorCivAI::GetBestWorldWonderForQuest(PlayerTypes ePlayer, int 
 				iMaxTurns = 1;
 		}
 
+		// Make sure the max turns does not exceed the quest duration minus 2 turns
+		if (iDuration > 0)
+			iMaxTurns = min(iMaxTurns, iDuration - 2);
+
 		bool bNoValidCity = true;
 		int iCityLoop = 0;
 		for (CvCity* pLoopCity = GET_PLAYER(ePlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iCityLoop))
@@ -10249,7 +10251,7 @@ BuildingTypes CvMinorCivAI::GetBestWorldWonderForQuest(PlayerTypes ePlayer, int 
 				continue;
 
 			// How many turns will it take to produce the Wonder? Is it a reasonable delay?
-			if (iMaxTurns > 0 && pLoopCity->getProductionTurnsLeft(eBuilding, 0) > iMaxTurns)
+			if (pLoopCity->getProductionTurnsLeft(eBuilding, 0) > iMaxTurns)
 				continue;
 
 			bNoValidCity = false;

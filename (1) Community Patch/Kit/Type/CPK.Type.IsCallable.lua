@@ -1,5 +1,5 @@
-local _lua_type = type
-local _lua_getmetatable = getmetatable
+local lua_type = type
+local lua_getmetatable = getmetatable
 
 --- Checks if the specified value is callable.
 --- A value is considered callable if it is a function or if it is a table with a `__call` method in its metatable.
@@ -20,16 +20,16 @@ local _lua_getmetatable = getmetatable
 --- @return boolean # `true` if the value is callable, `false` otherwise.
 --- @nodiscard
 local function IsCallable(val)
-	local t = _lua_type(val)
+	local t = lua_type(val)
 
 	if t == 'function' then
 			return true
 	end
 
 	if t == 'table' then
-			local mt = _lua_getmetatable(val)
+			local mt = lua_getmetatable(val)
 
-			return _lua_type(mt) == 'table' and _lua_type(mt.__call) == 'function'
+			return lua_type(mt) == 'table' and lua_type(mt.__call) == 'function'
 	end
 
 	return false

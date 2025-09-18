@@ -144,7 +144,7 @@ VALUES
 	('BUILDING_NILOMETER', 'YIELD_CULTURE', 2);
 
 UPDATE Building_YieldChangesPerPop
-SET Yield = 40 -- 25
+SET Yield = (SELECT Yield FROM Building_YieldChangesPerPop WHERE BuildingType = 'BUILDING_WATERMILL' AND YieldType = 'YIELD_PRODUCTION') * 8 / 5
 WHERE BuildingType = 'BUILDING_NILOMETER';
 
 INSERT INTO Building_GoldenAgeYieldMod

@@ -1,4 +1,4 @@
-local _lua_select = select
+local lua_select = select
 
 --- Pipes the specified functions, creating a function that executes them in sequence.
 --- Each function's output is passed as input to the next function.
@@ -18,7 +18,7 @@ local _lua_select = select
 --- @nodiscard
 local function Pipe(...)
 	local fns = { ... }
-	local len = _lua_select('#', ...)
+	local len = lua_select('#', ...)
 
 	local function Call(i, ...)
 		local fn = fns[i]

@@ -1,4 +1,4 @@
-local _lua_getmetatable = getmetatable
+local lua_getmetatable = getmetatable
 
 local Curry = CPK.FP.Curry
 local AssertIsTable = CPK.Assert.IsTable
@@ -27,7 +27,7 @@ local ControlIsKind = Curry(2, function(kind, control)
 	AssertIsString(kind)
 	AssertIsTable(control)
 
-	local base = _lua_getmetatable(control)
+	local base = lua_getmetatable(control)
 	local name = nil
 
 	repeat

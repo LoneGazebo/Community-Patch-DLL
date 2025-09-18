@@ -2075,12 +2075,34 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 	if (bFromMe && (iNumberAvailableToUs - iResourceQuantity <= 0))
 		return INT_MAX;
 
-	// Don't sell Uranium to Nuclear Gandhi!
 	ResourceTypes eUranium = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_URANIUM", true);
-	if (eResource == eUranium)
+	ResourceTypes eAluminum = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_ALUMINUM", true);
+	if (bFromMe)
 	{
-		if (bFromMe && GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->IsNuclearGandhi(true))
-			return INT_MAX;
+		if (eResource == eUranium)
+		{
+			// Don't sell Uranium to Nuclear Gandhi!
+			if (GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->IsNuclearGandhi(true))
+				return INT_MAX;
+
+			// If WE are Nuclear Gandhi, don't sell Uranium either.
+			if (GetPlayer()->GetDiplomacyAI()->IsNuclearGandhi(true))
+				return INT_MAX;
+
+			// Don't sell Uranium if they've previously nuked us
+			if (GetPlayer()->GetDiplomacyAI()->IsNukedBy(eOtherPlayer))
+				return INT_MAX;
+
+			// Don't sell Uranium if hostilities are brewing, since we don't want to get nuked or GDR'd
+			if (!bPeaceDeal && !GetPlayer()->GetDiplomacyAI()->IsVassal(eOtherPlayer) && (GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->IsCloseToWorldConquest() || GetPlayer()->GetDiplomacyAI()->AvoidExchangesWithPlayer(eOtherPlayer)))
+				return INT_MAX;
+		}
+		else if (eResource == eAluminum)
+		{
+			// Don't sell Aluminum if they're close to Science Victory
+			if (GetPlayer()->GetDiplomacyAI()->IsCompetingForVictory() && GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->IsCloseToSpaceshipVictory())
+				return INT_MAX;
+		}
 	}
 
 	// Don't buy if we already have enough
@@ -6637,30 +6659,33 @@ int CvDealAI::GetMapValue(bool bFromMe, PlayerTypes eOtherPlayer)
 	
 	CvPlayer* pSeller = bFromMe ? GetPlayer() : &GET_PLAYER(eOtherPlayer);	// Who is selling this map?
 	CvPlayer* pBuyer = bFromMe ? &GET_PLAYER(eOtherPlayer) : GetPlayer();	// Who is buying this map?
+	TeamTypes eSellerTeam = pSeller->getTeam();
+	TeamTypes eBuyerTeam = pBuyer->getTeam();
+	bool bBuyerIsInca = pBuyer->CanCrossMountain();
+	ResourceTypes eUranium = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_URANIUM", true);
 
 	// Look at every tile on map
-	for(int iI = 0; iI < GC.getMap().numPlots(); iI++)
+	for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iI);
 
-		if(pPlot == NULL)
+		if (pPlot == NULL)
 			continue;
 
 		// Seller must have plot revealed
-		if(!pPlot->isRevealed(pSeller->getTeam()))
+		if (!pPlot->isRevealed(eSellerTeam))
 			continue;
 
 		// Buyer can't have plot revealed
-		if(pPlot->isRevealed(pBuyer->getTeam()))
+		if (pPlot->isRevealed(eBuyerTeam))
 			continue;
 
 		// Handle terrain features. A human will estimate based on map type ...
 		int iPlotValue = 1;
-		switch(pPlot->getTerrainType())
+		switch (pPlot->getTerrainType())
 		{
 			case TERRAIN_GRASS:
 			case TERRAIN_PLAINS:
-			case TERRAIN_HILL:
 			case TERRAIN_COAST:
 				iPlotValue = 5;
 				break;
@@ -6668,24 +6693,48 @@ int CvDealAI::GetMapValue(bool bFromMe, PlayerTypes eOtherPlayer)
 			case TERRAIN_TUNDRA:
 				iPlotValue = 2;
 				break;
-			case NO_TERRAIN:
-			case TERRAIN_MOUNTAIN:
-			case TERRAIN_SNOW:
-			case TERRAIN_OCEAN:
-				iPlotValue = 1;
+			default:
 				break;
+		}
+
+		// Using TERRAIN_MOUNTAIN or TERRAIN_HILL above doesn't work, the base terrain type will be returned
+		if (pPlot->isMountain())
+			iPlotValue = bBuyerIsInca ? 5 : 1;
+		else if (pPlot->isHills())
+			iPlotValue = 5;
+
+		// Cities and Natural Wonders are worth a lot more
+		if (pPlot->isCity() || pPlot->IsNaturalWonder())
+			iPlotValue = 50;
+		// Resources are worth more
+		else
+		{
+			ResourceTypes eResource = pPlot->getResourceType(bFromMe ? eSellerTeam : eBuyerTeam);
+			ResourceUsageTypes eUsage = GC.getResourceInfo(eResource)->getResourceUsage();
+			if (eUsage != RESOURCEUSAGE_BONUS)
+				iPlotValue += eResource == eUranium ? 40 : 20;
+			else
+			{
+				iPlotValue *= 3;
+				iPlotValue /= 2;
+			}
 		}
 
 		iItemValue += iPlotValue;
 	}
 
-	iItemValue /= 10;
+	// Maps are intended to begin being traded in the mid-to-late Industrial era
+	// If for whatever reason they're sold earlier than that, lower the cost
+	int iEra = max((int)m_pPlayer->GetCurrentEra(), (int)GET_PLAYER(eOtherPlayer).GetCurrentEra());
+	int iEraScaler = max(iEra, 1) + 1;
+	iItemValue *= iEraScaler;
+	iItemValue /= max(GD_INT_GET(INDUSTRIAL_ERA) + 1, iEraScaler);
 
 	//nothing to be gained
 	if (iItemValue == 0)
 		return INT_MAX;
 
-	if(bFromMe)
+	if (bFromMe)
 	{
 		//prevent AI spam
 		if (iItemValue <= 400 && !GET_PLAYER(eOtherPlayer).isHuman())
@@ -6728,7 +6777,7 @@ int CvDealAI::GetMapValue(bool bFromMe, PlayerTypes eOtherPlayer)
 			return INT_MAX;
 
 		// Approach will modify the deal
-		switch(GetPlayer()->GetDiplomacyAI()->GetSurfaceApproach(eOtherPlayer))
+		switch (GetPlayer()->GetDiplomacyAI()->GetSurfaceApproach(eOtherPlayer))
 		{
 			case CIV_APPROACH_WAR:
 				iItemValue *= 100;

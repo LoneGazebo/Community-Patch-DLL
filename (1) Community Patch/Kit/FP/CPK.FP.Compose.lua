@@ -1,4 +1,4 @@
-local _lua_select = select
+local lua_select = select
 
 --- Composes the specified functions.
 --- Creates a function that executes the specified functions from last to first,
@@ -19,7 +19,7 @@ local _lua_select = select
 --- @nodiscard
 local function Compose(...)
 	local fns = { ... }
-	local len = _lua_select('#', ...)
+	local len = lua_select('#', ...)
 
 	local function Call(i, ...)
 		local fn = fns[i]

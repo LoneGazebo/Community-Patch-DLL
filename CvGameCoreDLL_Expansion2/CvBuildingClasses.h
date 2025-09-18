@@ -249,6 +249,7 @@ public:
 	int GetHealRateChange() const;
 	int GetHappiness() const;
 	int GetUnmoddedHappiness() const;
+	int GetUnhappiness() const;
 	int GetUnhappinessModifier() const;
 	int GetLocalUnhappinessModifier() const;
 	int GetGlobalBuildingGoldMaintenanceMod() const;
@@ -798,6 +799,7 @@ private:
 	int m_iHealRateChange;
 	int m_iHappiness;
 	int m_iUnmoddedHappiness;
+	int m_iUnhappiness;
 	int m_iUnhappinessModifier;
 	int m_iLocalUnhappinessModifier;
 	int m_iGlobalBuildingGoldMaintenanceMod;

@@ -105,3 +105,24 @@ BEGIN
 	SELECT
 		'IMPROVEMENT_HACIENDA', NEW.Type, 'YIELD_GOLD', 3;
 END;
+
+---------------------------------------------------------------------------------
+-- Promotions that provide blanket immunity to all Plagues
+---------------------------------------------------------------------------------
+
+CREATE TRIGGER VP_BlanketPlagueImmunityCompatibility
+AFTER INSERT ON UnitPromotions_Plagues
+BEGIN
+  INSERT INTO UnitPromotions_BlockedPromotions
+      (PromotionType, BlockedPromotionType)
+  SELECT
+      a.PromotionType,
+      NEW.PlaguePromotionType
+  FROM (
+      SELECT 'PROMOTION_RIACHUELO' AS PromotionType, 'DOMAIN_SEA' AS DomainType
+      -- UNION ALL SELECT 'PROMOTION_TWO', 'DOMAIN_LAND'
+      -- UNION ALL SELECT 'PROMOTION_THREE', NULL
+  ) AS a
+  WHERE (a.DomainType = NEW.DomainType OR a.DomainType IS NULL OR NEW.DomainType IS NULL)
+  AND NOT EXISTS (SELECT 1 FROM UnitPromotions_BlockedPromotions WHERE PromotionType = a.PromotionType AND BlockedPromotionType = NEW.PlaguePromotionType);
+END;

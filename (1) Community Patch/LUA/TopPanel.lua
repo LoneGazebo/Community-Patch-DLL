@@ -755,13 +755,14 @@ function HappinessTipHandler( control )
 		local iUnhappinessFromCityCount = Locale.ToNumber( pPlayer:GetUnhappinessFromCityCount() / 100, "#.##" );
 		local iUnhappinessFromCapturedCityCount = Locale.ToNumber( pPlayer:GetUnhappinessFromCapturedCityCount() / 100, "#.##" );
 		
-		local iUnhappinessFromPupetCities = pPlayer:GetUnhappinessFromPuppetCityPopulation();
+		local iUnhappinessFromPuppetCities = pPlayer:GetUnhappinessFromPuppetCityPopulation();
 		local unhappinessFromSpecialists = pPlayer:GetUnhappinessFromCitySpecialists();
-		local unhappinessFromPop = pPlayer:GetUnhappinessFromCityPopulation() - unhappinessFromSpecialists - iUnhappinessFromPupetCities;
+		local unhappinessFromPop = pPlayer:GetUnhappinessFromCityPopulation() - unhappinessFromSpecialists - iUnhappinessFromPuppetCities;
 			
 		local iUnhappinessFromPop = Locale.ToNumber( unhappinessFromPop / 100, "#.##" );
 		local iUnhappinessFromOccupiedCities = Locale.ToNumber( pPlayer:GetUnhappinessFromOccupiedCities() / 100, "#.##" );
 		local iUnhappinessPublicOpinion = pPlayer:GetUnhappinessFromPublicOpinion();
+		local iUnhappinessFromBuildings = pPlayer:GetUnhappinessFromBuildings();
 		
 		strText = strText .. "[NEWLINE][NEWLINE]";
 		strText = strText .. "[COLOR:255:150:150:255]";
@@ -775,9 +776,9 @@ function HappinessTipHandler( control )
 		strText = strText .. "[NEWLINE]";
 		strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_UNHAPPINESS_POPULATION", iUnhappinessFromPop);
 		
-		if(iUnhappinessFromPupetCities > 0) then
+		if(iUnhappinessFromPuppetCities > 0) then
 			strText = strText .. "[NEWLINE]";
-			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_UNHAPPINESS_PUPPET_CITIES", iUnhappinessFromPupetCities / 100);
+			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_UNHAPPINESS_PUPPET_CITIES", iUnhappinessFromPuppetCities / 100);
 		end
 		
 		if(unhappinessFromSpecialists > 0) then
@@ -799,6 +800,10 @@ function HappinessTipHandler( control )
 		if (iUnhappinessPublicOpinion > 0) then
 			strText = strText .. "[NEWLINE]";
 			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_UNHAPPINESS_PUBLIC_OPINION", iUnhappinessPublicOpinion);
+		end
+		if (iUnhappinessFromBuildings > 0) then
+			strText = strText .. "[NEWLINE]";
+			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_UNHAPPINESS_BUILDINGS", iUnhappinessFromBuildings);
 		end		
 		strText = strText .. "[/COLOR]";
 	

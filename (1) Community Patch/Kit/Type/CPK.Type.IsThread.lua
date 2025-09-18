@@ -1,4 +1,4 @@
-local _lua_type = type
+local lua_type = type
 
 --- Checks if the type of the specified value is `"thread"`.
 ---
@@ -16,7 +16,7 @@ local _lua_type = type
 --- @return boolean # `true` if the value is a thread, `false` otherwise.
 --- @nodiscard
 local function IsThread(val)
-	return _lua_type(val) == "thread"
+	return lua_type(val) == "thread"
 end
 
 CPK.Type.IsThread = IsThread

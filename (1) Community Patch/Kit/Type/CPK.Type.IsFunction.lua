@@ -1,4 +1,4 @@
-local _lua_type = type
+local lua_type = type
 
 --- Checks if the type of the specified value is `"function"`.
 ---
@@ -16,7 +16,7 @@ local _lua_type = type
 --- @return boolean # `true` if the value is a function, `false` otherwise.
 --- @nodiscard
 local function IsFunction(val)
-	return _lua_type(val) == 'function'
+	return lua_type(val) == 'function'
 end
 
 CPK.Type.IsFunction = IsFunction

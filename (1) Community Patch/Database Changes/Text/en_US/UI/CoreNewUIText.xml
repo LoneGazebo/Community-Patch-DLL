@@ -3182,5 +3182,19 @@
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_DIPLOMATIC_REQUEST_TT">
 			<Text>A diplomatic message from another Civilization awaits your consideration.</Text>
 		</Row>
+		
+		<!-- New columns -->
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_UNHAPPINESS">
+			<Text>[ICON_HAPPINESS_4] Unhappiness: +{1_Num}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDINGS_UNHAPPINESS">
+			<Text>Buildings ({1_Num})</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDINGS_UNHAPPINESS_TT">
+			<Text>Some Buildings in Cities produce [ICON_HAPPINESS_4] Unhappiness.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TP_UNHAPPINESS_BUILDINGS">
+			<Text>{1_Num} from Buildings.</Text>
+		</Row>
 	</Language_en_US>
 </GameData>

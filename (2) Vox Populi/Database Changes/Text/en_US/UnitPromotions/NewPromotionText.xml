@@ -1057,10 +1057,10 @@
 			<Text>-15% [ICON_STRENGTH] Combat Strength.[NEWLINE]Lasts for 5 turns.</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_PROMOTION_PRISONER_WAR">
+		<Row Tag="TXT_KEY_PROMOTION_PRISONERS_OF_WAR">
 			<Text>Prisoners of War</Text>
 		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_PRISONER_WAR_HELP">
+		<Row Tag="TXT_KEY_PROMOTION_PRISONERS_OF_WAR_HELP">
 			<Text>-50% Work Rate when building or repairing Improvements or Routes.[NEWLINE]Lasts for 50 turns.</Text>
 		</Row>
 

@@ -2566,14 +2566,8 @@ void onGameStarted()
 					uint uRand = GC.getGame().urandLimitExclusive(vHumanCivsNotChosen.size(), CvSeeder::fromRaw(0x3153de36).mix(iCounter));
 					eRandomCiv = static_cast<CivilizationTypes>(vHumanCivsNotChosen[uRand]);
 					vHumanCivsNotChosen.erase(vHumanCivsNotChosen.begin() + uRand);
-					for (uint ui = 0; ui < vAICivsNotChosen.size(); ui++)
-					{
-						if (vAICivsNotChosen[ui] == eRandomCiv)
-						{
-							vAICivsNotChosen.erase(vAICivsNotChosen.begin() + ui);
-							break;
-						}
-					}
+					vector<CivilizationTypes>::const_iterator it = std::find(vAICivsNotChosen.begin(), vAICivsNotChosen.end(), eRandomCiv);
+					vAICivsNotChosen.erase(it);
 				}
 				else if (vHumanCivs.size() > 0)
 				{
@@ -2590,14 +2584,8 @@ void onGameStarted()
 					uint uRand = GC.getGame().urandLimitExclusive(vAICivsNotChosen.size(), CvSeeder::fromRaw(0x9f2b8561).mix(iCounter));
 					eRandomCiv = static_cast<CivilizationTypes>(vAICivsNotChosen[uRand]);
 					vAICivsNotChosen.erase(vAICivsNotChosen.begin() + uRand);
-					for (uint ui = 0; ui < vHumanCivsNotChosen.size(); ui++)
-					{
-						if (vHumanCivsNotChosen[ui] == eRandomCiv)
-						{
-							vHumanCivsNotChosen.erase(vHumanCivsNotChosen.begin() + ui);
-							break;
-						}
-					}
+					vector<CivilizationTypes>::const_iterator it = std::find(vHumanCivsNotChosen.begin(), vHumanCivsNotChosen.end(), eRandomCiv);
+					vHumanCivsNotChosen.erase(it);
 				}
 				else if (vAICivs.size() > 0)
 				{

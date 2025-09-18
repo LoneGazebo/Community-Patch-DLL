@@ -1,10 +1,10 @@
-local _lua_type = type
+local lua_type = type
 
 local ArgsEach = CPK.Args.Each
 
 --- @param control Control
 local function ControlDisableOne(control)
-	if control ~= nil and _lua_type(control.SetDisabled) == 'function' then
+	if control ~= nil and lua_type(control.SetDisabled) == 'function' then
 		control:SetDisabled(true)
 	end
 end

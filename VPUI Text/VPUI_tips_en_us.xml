@@ -97,7 +97,7 @@
 			<Text>Melee Units garrisoning a City, Fort, or Citadel don't exit their fortification if they kill a Unit. You can use this to keep your defenses from overextending.</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_VPUI_TIP_20">
-			<Text>In each city, Unhappiness from Needs is increased with the number of non-puppeted cities you own, via the Empire Modifier. Don't expand your empire without sizable surplus happiness.</Text>
+			<Text>In each city, Unhappiness from Needs is increased with the number of non-puppeted cities you own, via the Empire Size Modifier. Don't expand your empire without sizable surplus happiness.</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_VPUI_TIP_21">
 			<Text>Cities, Forts, and Citadels which are adjacent to water create a canal for your Naval Units and sea Trade Routes to pass through.</Text>

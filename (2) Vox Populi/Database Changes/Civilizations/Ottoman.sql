@@ -88,7 +88,7 @@ UPDATE Builds
 SET
 	Water = 1,
 	CanBeEmbarked = 1
-WHERE Type = 'BUILD_SIHEYUAN';
+WHERE Type = 'BUILD_TERSANE';
 
 INSERT INTO Unit_Builds
 	(UnitType, BuildType)

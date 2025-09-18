@@ -78,6 +78,7 @@ SET
 	MakesPassable = 1,
 	DefenseModifier = 100,
 	NoFollowUp = 1,
+	NearbyEnemyDamage = 30,
 	SpawnsAdjacentResource = 'RESOURCE_COW'
 WHERE Type = 'IMPROVEMENT_ISIBAYA';
 

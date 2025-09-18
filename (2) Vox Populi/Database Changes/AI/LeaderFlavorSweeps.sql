@@ -355,7 +355,7 @@ UPDATE Leader_Flavors SET Flavor = 7 WHERE FlavorType = 'FLAVOR_DIPLOMACY' AND L
 
 UPDATE Leader_Flavors SET Flavor = 9 WHERE FlavorType = 'FLAVOR_SCIENCE' AND LeaderType = 'LEADER_GANDHI'; -- 8, primary: science
 UPDATE Leader_Flavors SET Flavor = 9 WHERE FlavorType = 'FLAVOR_SPACESHIP' AND LeaderType = 'LEADER_GANDHI'; -- 8, primary: science
-UPDATE Leader_Flavors SET Flavor = 7 WHERE FlavorType = 'FLAVOR_DIPLOMACY' AND LeaderType = 'LEADER_GANDHI'; -- 
+UPDATE Leader_Flavors SET Flavor = 7 WHERE FlavorType = 'FLAVOR_DIPLOMACY' AND LeaderType = 'LEADER_GANDHI'; -- 8
 
 UPDATE Leader_Flavors SET Flavor = 10 WHERE FlavorType = 'FLAVOR_MILITARY_TRAINING' AND LeaderType = 'LEADER_GENGHIS_KHAN'; -- 8, primary: dom
 UPDATE Leader_Flavors SET Flavor = 10 WHERE FlavorType = 'FLAVOR_OFFENSE' AND LeaderType = 'LEADER_GENGHIS_KHAN'; -- 8, primary: dom
@@ -499,6 +499,7 @@ UPDATE Leader_Flavors SET Flavor = 7 WHERE FlavorType = 'FLAVOR_OFFENSE' AND Lea
 UPDATE Leader_Flavors SET Flavor = 7 WHERE FlavorType = 'FLAVOR_DEFENSE' AND LeaderType = 'LEADER_SULEIMAN'; -- 9, secondary: dom
 UPDATE Leader_Flavors SET Flavor = 7 WHERE FlavorType = 'FLAVOR_NUKE' AND LeaderType = 'LEADER_SULEIMAN'; -- 4, could nuke on a bad day
 UPDATE Leader_Flavors SET Flavor = 7 WHERE FlavorType = 'FLAVOR_USE_NUKE' AND LeaderType = 'LEADER_SULEIMAN'; -- 4
+UPDATE Leader_Flavors SET Flavor = 6 WHERE FlavorType = 'FLAVOR_NAVAL' AND LeaderType = 'LEADER_SULEIMAN'; -- 5, UI
 UPDATE Leader_Flavors SET Flavor = 8 WHERE FlavorType = 'FLAVOR_PRODUCTION' AND LeaderType = 'LEADER_SULEIMAN'; -- 7, UB
 UPDATE Leader_Flavors SET Flavor = 8 WHERE FlavorType = 'FLAVOR_SCIENCE' AND LeaderType = 'LEADER_SULEIMAN'; -- 7, primary: science
 UPDATE Leader_Flavors SET Flavor = 8 WHERE FlavorType = 'FLAVOR_SPACESHIP' AND LeaderType = 'LEADER_SULEIMAN'; -- 5, primary: science
@@ -538,3 +539,10 @@ UPDATE Leader_Flavors SET Flavor = 8 WHERE FlavorType = 'FLAVOR_SPACESHIP' AND L
 UPDATE Leader_Flavors SET Flavor = 7 WHERE FlavorType = 'FLAVOR_CULTURE' AND LeaderType = 'LEADER_WU_ZETIAN'; -- 10
 UPDATE Leader_Flavors SET Flavor = 7 WHERE FlavorType = 'FLAVOR_ARCHAEOLOGY' AND LeaderType = 'LEADER_WU_ZETIAN'; -- 8
 UPDATE Leader_Flavors SET Flavor = 9 WHERE FlavorType = 'FLAVOR_GREAT_PEOPLE' AND LeaderType = 'LEADER_WU_ZETIAN'; -- 8, UA
+
+-- >:)
+UPDATE Leader_Flavors
+SET Flavor = 12
+WHERE LeaderType = 'LEADER_GANDHI'
+AND FlavorType IN ('FLAVOR_NUKE', 'FLAVOR_USE_NUKE')
+AND EXISTS (SELECT 1 FROM Defines WHERE Name = 'DIPLOAI_ENABLE_NUCLEAR_GANDHI' AND Value >= 1);
