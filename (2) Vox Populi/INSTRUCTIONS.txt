@@ -7,9 +7,12 @@ If you installed the EUI version of the mod, you must enable (3a) VP - EUI Compa
 
 -- MANUAL INSTALLATION NOTE --
 
-Make sure to DELETE the LUA folder in the (1) Community Patch folder.
+To manually install the non-EUI version of Vox Populi:
+1) Copy this folder and "(1) Community Patch" to your MODS folder.
+2) Copy the folder "VPUI" to Sid Meier's Civilization V\Assets\DLC.
 
-If you want to play with EUI, you must also download the (3a) VP - EUI Compatibility Files folder.
+
+If you want to install the EUI version of Vox Populi, refer to the installation instructions in "(3a) VP - EUI Compatibility Files."
 
 
 -- CITY-STATE AUDIO CLIPS --
