@@ -6710,13 +6710,15 @@ int CvDealAI::GetMapValue(bool bFromMe, PlayerTypes eOtherPlayer)
 		else
 		{
 			ResourceTypes eResource = pPlot->getResourceType(bFromMe ? eSellerTeam : eBuyerTeam);
-			ResourceUsageTypes eUsage = GC.getResourceInfo(eResource)->getResourceUsage();
-			if (eUsage != RESOURCEUSAGE_BONUS)
-				iPlotValue += eResource == eUranium ? 40 : 20;
-			else
-			{
-				iPlotValue *= 3;
-				iPlotValue /= 2;
+			if (eResource != NO_RESOURCE) {
+				ResourceUsageTypes eUsage = GC.getResourceInfo(eResource)->getResourceUsage();
+				if (eUsage != RESOURCEUSAGE_BONUS)
+					iPlotValue += eResource == eUranium ? 40 : 20;
+				else
+				{
+					iPlotValue *= 3;
+					iPlotValue /= 2;
+				}
 			}
 		}
 
