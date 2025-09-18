@@ -489,18 +489,18 @@
 
 		<!-- Egypt -->
 		
-		<Row Tag="TXT_KEY_BUILDING_NILOMETER">
+		<Replace Tag="TXT_KEY_BUILDING_NILOMETER">
 			<Text>Nilometer</Text>
-		</Row>
-		<Row Tag="TXT_KEY_BUILDING_NILOMETER_HELP">
+		</Replace>
+		<Replace Tag="TXT_KEY_BUILDING_NILOMETER_HELP">
 			<Text></Text>
-		</Row>
-		<Row Tag="TXT_KEY_BUILDING_NILOMETER_TEXT">
+		</Replace>
+		<Replace Tag="TXT_KEY_BUILDING_NILOMETER_TEXT">
 			<Text>The Nilometer was an Egyptian measurement device designed to benchmark the water levels of the Nile River during the annual flood season. The Egyptians relied on the Nile to overrun the surrounding flood plains each year in order to deposit silt for fertilization, but too much water would destroy the harvesting infrastructure, while too little water could cause a widespread famine. The Egyptians used the Nilometer flood readings to determine the appropriate level of taxes to be levied against the farmers.[NEWLINE][NEWLINE]The Nilometer itself typically consisted of either a standing column or a descending flight of stairs leading into a well that was channeled from the river. Both configurations featured incremental markings to indicate the depth of the water, and the Egyptians kept detailed records for year-to-year comparison. One of the oldest surviving examples of the Nilometer stands today on the island of Roda in Cairo, believed to have been constructed in the 9th century AD by the Persian astronomer Alfraganus.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_BUILDING_NILOMETER_STRATEGY">
+		</Replace>
+		<Replace Tag="TXT_KEY_BUILDING_NILOMETER_STRATEGY">
 			<Text></Text>
-		</Row>
+		</Replace>
 
 		<Row Tag="TXT_KEY_UNIT_MAMLUK">
 			<Text>Mamluk</Text>

@@ -1208,7 +1208,7 @@
 		<Row Tag="TXT_KEY_PROMOTION_ELISHAS_GUILE">
 			<Text>Elisha's Guile</Text>
 		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_RIACHUELO_HELP">
+		<Row Tag="TXT_KEY_PROMOTION_ELISHAS_GUILE_HELP">
 			<Text>Can Embark.[NEWLINE]+1 [ICON_VISION] Sight and Embarked Sight.[NEWLINE]Withdraw from Melee Attack if there is an open tile behind this Unit, once per turn.</Text>
 		</Row>
 		
