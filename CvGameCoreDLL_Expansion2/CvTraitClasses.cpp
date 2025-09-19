@@ -91,7 +91,8 @@ CvTraitEntry::CvTraitEntry() :
 	m_bBuyOwnedTiles(false),
 	m_bNewCitiesStartWithCapitalReligion(false),
 	m_bNoSpread(false),
-	m_iInspirationalLeader(0),
+	m_iXPBonusFromGreatPersonBirth(0),
+	m_iUnitHealFromGreatPersonBirth(0),
 	m_iBullyMilitaryStrengthModifier(0),
 	m_iBullyValueModifier(0),
 	m_bIgnoreBullyPenalties(false),
@@ -243,6 +244,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_paiYieldModifier(NULL),
 	m_piStrategicResourceQuantityModifier(NULL),
 	m_piResourceQuantityModifiers(NULL),
+	m_piNumFreeResourceOnWorldWonderCompletion(NULL),
 	m_ppiImprovementYieldChanges(NULL),
 	m_ppiPlotYieldChanges(NULL),
 #if defined(MOD_BALANCE_CORE)
@@ -690,9 +692,14 @@ bool CvTraitEntry::IsForeignReligionSpreadImmune() const
 	return m_bNoSpread;
 }
 
-int CvTraitEntry::GetInspirationalLeader() const
+int CvTraitEntry::GetXPBonusFromGreatPersonBirth() const
 {
-	return m_iInspirationalLeader;
+	return m_iXPBonusFromGreatPersonBirth;
+}
+
+int CvTraitEntry::GetUnitHealFromGreatPersonBirth() const
+{
+	return m_iUnitHealFromGreatPersonBirth;
 }
 
 int CvTraitEntry::GetBullyMilitaryStrengthModifier() const
@@ -1441,6 +1448,14 @@ int CvTraitEntry::GetResourceQuantityModifier(int i) const
 	ASSERT_DEBUG(i < GC.getNumResourceInfos(), "Index out of bounds");
 	ASSERT_DEBUG(i > -1, "Index out of bounds");
 	return m_piResourceQuantityModifiers ? m_piResourceQuantityModifiers[i] : -1;
+}
+
+/// Accessor: Amount of a specific resource awarded on World Wonder completion
+int CvTraitEntry::GetNumFreeResourceOnWorldWonderCompletion(int i) const
+{
+	ASSERT_DEBUG(i < GC.getNumResourceInfos(), "Index out of bounds");
+	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	return m_piNumFreeResourceOnWorldWonderCompletion ? m_piNumFreeResourceOnWorldWonderCompletion[i] : 0;
 }
 
 /// Accessor:: Extra yield from an improvement
@@ -2379,7 +2394,8 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_bBuyOwnedTiles						= kResults.GetBool("BuyOwnedTiles");
 	m_bNewCitiesStartWithCapitalReligion	= kResults.GetBool("NewCitiesStartWithCapitalReligion");
 	m_bNoSpread								= kResults.GetBool("NoSpread");
-	m_iInspirationalLeader					= kResults.GetInt("XPBonusFromGGBirth");
+	m_iXPBonusFromGreatPersonBirth			= kResults.GetInt("XPBonusFromGreatPersonBirth");
+	m_iUnitHealFromGreatPersonBirth			= kResults.GetInt("UnitHealFromGreatPersonBirth");
 	m_bDiplomaticMarriage					= kResults.GetBool("DiplomaticMarriage");
 	m_iBullyMilitaryStrengthModifier		= kResults.GetInt("CSBullyMilitaryStrengthModifier");
 	m_iBullyValueModifier					= kResults.GetInt("CSBullyValueModifier");
@@ -2659,6 +2675,8 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	kUtility.PopulateArrayByValue(m_piDomainFreeExperienceModifier, "Domains", "Trait_DomainFreeExperienceModifier", "DomainType", "TraitType", szTraitType, "Modifier", 0, NUM_DOMAIN_TYPES);
 	kUtility.PopulateArrayByValue(m_piFreeUnitClassesDOW, "UnitClasses", "Trait_FreeUnitClassesDOW", "UnitClassType", "TraitType", szTraitType, "Number");
 #endif
+	kUtility.PopulateArrayByValue(m_piResourceQuantityModifiers, "Resources", "Trait_ResourceQuantityModifiers", "ResourceType", "TraitType", szTraitType, "ResourceQuantityModifier");
+	kUtility.PopulateArrayByValue(m_piNumFreeResourceOnWorldWonderCompletion, "Resources", "Trait_FreeResourceOnWorldWonderCompletion", "ResourceType", "TraitType", szTraitType, "ResourceQuantity");
 
 	// Sets
 	kUtility.PopulateSetByExistence(m_siFreePromotions, "UnitPromotions", "Trait_FreePromotions", "PromotionType", "TraitType", szTraitType);
@@ -2713,8 +2731,6 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 
 		//Trim extra memory off container since this is mostly read-only.
 		std::multimap<int,int>(m_FreePromotionUnitCombats).swap(m_FreePromotionUnitCombats);
-
-		kUtility.PopulateArrayByValue(m_piResourceQuantityModifiers, "Resources", "Trait_ResourceQuantityModifiers", "ResourceType", "TraitType", szTraitType, "ResourceQuantityModifier");
 	}
 	//Populate m_piUpgradeUnitClass
 	{
@@ -3897,7 +3913,8 @@ void CvPlayerTraits::SetIsWarmonger()
 		GetGoldenAgeCombatModifier() > 0 ||
 		GetExtraEmbarkMoves() > 0 ||
 		GetBullyMilitaryStrengthModifier() > 0 ||
-		GetInspirationalLeader() > 0 ||
+		GetXPBonusFromGreatPersonBirth() > 0 ||
+		GetUnitHealFromGreatPersonBirth() > 0 ||
 		GetBullyValueModifier() > 0 ||
 		GetMultipleAttackBonus() > 0 ||
 		GetCityConquestGWAM() > 0 ||
@@ -4080,6 +4097,8 @@ void CvPlayerTraits::SetIsTourism()
 		GetGoldenAgeFromGreatPersonBirth(static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_ARTIST"))) > 0 ||
 		GetGoldenAgeFromGreatPersonBirth(static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_MUSICIAN"))) > 0 ||
 		GetGoldenAgeFromGreatPersonBirth(static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_WRITER"))) > 0 ||
+		GetXPBonusFromGreatPersonBirth() > 0 ||
+		GetUnitHealFromGreatPersonBirth() > 0 ||
 		GetSharedReligionTourismModifier() > 0 ||
 		GetGoldenAgeYieldModifier(YIELD_TOURISM) > 0)
 	{
@@ -4444,9 +4463,13 @@ void CvPlayerTraits::InitPlayerTraits()
 			{
 				m_bNoSpread = true;
 			}
-			if(trait->GetInspirationalLeader() != 0)
+			if(trait->GetXPBonusFromGreatPersonBirth() != 0)
 			{
-				m_iInspirationalLeader += trait->GetInspirationalLeader();
+				m_iXPBonusFromGreatPersonBirth += trait->GetXPBonusFromGreatPersonBirth();
+			}
+			if(trait->GetUnitHealFromGreatPersonBirth() != 0)
+			{
+				m_iUnitHealFromGreatPersonBirth += trait->GetUnitHealFromGreatPersonBirth();
 			}
 			if (trait->GetBullyMilitaryStrengthModifier() != 0)
 			{
@@ -5125,6 +5148,7 @@ void CvPlayerTraits::InitPlayerTraits()
 			for(int iResource = 0; iResource < GC.getNumResourceInfos(); iResource++)
 			{
 				m_aiResourceQuantityModifier[iResource] = trait->GetResourceQuantityModifier(iResource);
+				m_aiNumFreeResourceOnWorldWonderCompletion[iResource] = trait->GetNumFreeResourceOnWorldWonderCompletion(iResource);
 #if defined(MOD_BALANCE_CORE)
 				if (trait->GetAlternateResourceTechs((ResourceTypes)iResource).IsAlternateResourceTechs())
 				{
@@ -5249,6 +5273,7 @@ void CvPlayerTraits::InitPlayerTraits()
 void CvPlayerTraits::Uninit()
 {
 	m_aiResourceQuantityModifier.clear();
+	m_aiNumFreeResourceOnWorldWonderCompletion.clear();
 	m_abNoTrain.clear();
 	m_paiMovesChangeUnitCombat.clear();
 #if defined(MOD_BALANCE_CORE)
@@ -5366,7 +5391,8 @@ void CvPlayerTraits::Reset()
 	m_bBuyOwnedTiles = false;
 	m_bNewCitiesStartWithCapitalReligion = false;
 	m_bNoSpread = false;
-	m_iInspirationalLeader = 0;
+	m_iXPBonusFromGreatPersonBirth = 0;
+	m_iUnitHealFromGreatPersonBirth = 0;
 	m_iBullyMilitaryStrengthModifier = 0;
 	m_iBullyValueModifier = 0;
 	m_bIgnoreBullyPenalties = false;
@@ -5705,10 +5731,13 @@ void CvPlayerTraits::Reset()
 	}
 	m_aiResourceQuantityModifier.clear();
 	m_aiResourceQuantityModifier.resize(GC.getNumResourceInfos());
+	m_aiNumFreeResourceOnWorldWonderCompletion.clear();
+	m_aiNumFreeResourceOnWorldWonderCompletion.resize(GC.getNumResourceInfos());
 
 	for(int iResource = 0; iResource < GC.getNumResourceInfos(); iResource++)
 	{
 		m_aiResourceQuantityModifier[iResource] = 0;
+		m_aiNumFreeResourceOnWorldWonderCompletion[iResource] = 0;
 	}
 
 	m_abNoTrain.clear();
@@ -7571,7 +7600,8 @@ void CvPlayerTraits::Serialize(PlayerTraits& playerTraits, Visitor& visitor)
 	visitor(playerTraits.m_bBuyOwnedTiles);
 	visitor(playerTraits.m_bNewCitiesStartWithCapitalReligion);
 	visitor(playerTraits.m_bNoSpread);
-	visitor(playerTraits.m_iInspirationalLeader);
+	visitor(playerTraits.m_iXPBonusFromGreatPersonBirth);
+	visitor(playerTraits.m_iUnitHealFromGreatPersonBirth);
 	visitor(playerTraits.m_iBullyMilitaryStrengthModifier);
 	visitor(playerTraits.m_iBullyValueModifier);
 	visitor(playerTraits.m_bIgnoreBullyPenalties);
@@ -7718,6 +7748,7 @@ void CvPlayerTraits::Serialize(PlayerTraits& playerTraits, Visitor& visitor)
 	visitor(playerTraits.m_iYieldChangeIncomingTradeRoute);
 	visitor(playerTraits.m_iStrategicResourceQuantityModifier);
 	visitor(playerTraits.m_aiResourceQuantityModifier);
+	visitor(playerTraits.m_aiNumFreeResourceOnWorldWonderCompletion);
 	visitor(playerTraits.m_abNoTrain);
 	visitor(playerTraits.m_aFreeTraitUnits);
 	visitor(playerTraits.m_aiGreatPersonCostReduction);

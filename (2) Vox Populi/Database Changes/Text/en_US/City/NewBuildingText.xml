@@ -1105,7 +1105,7 @@
 			<Text>Holy Sanctuary</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_NOTRE_DAME_THEMING_BONUS_HELP">
-			<Text>To maximize your bonus, make sure both Great Works were created by Players other than the owner.</Text>
+			<Text>To maximize your bonus, make sure the Great Works were created by different foreign Civilizations.</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

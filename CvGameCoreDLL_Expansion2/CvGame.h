@@ -759,6 +759,9 @@ public:
 	bool IsArchaeologyTriggered() const;
 	int GetNumArchaeologySites() const;
 	int GetNumHiddenArchaeologySites() const;
+	CvWeightedVector<GreatWorkArtifactClass> GetWeightedArchaeologyArtifactsList() const;
+	CvWeightedVector<EraTypes> GetWeightedArchaeologyErasList() const;
+	void PopulateDigSite(CvPlot& kPlot, EraTypes eEra, GreatWorkArtifactClass eArtifact, GreatWorkType eWrittenWork = NO_GREAT_WORK);
 
 	TeamTypes GetTeamThatCircumnavigated() const;
 	void SetTeamThatCircumnavigated(TeamTypes eNewValue);
@@ -1058,8 +1061,11 @@ protected:
 
 	void CheckPlayerTurnDeactivate();
 
-	void PopulateDigSite(CvPlot& kPlot, EraTypes eEra, GreatWorkArtifactClass eArtifact);
 	void SpawnArchaeologySitesHistorically();
+	void CalculateDigSiteScores(CvWeightedVector<CvPlot*>& viDigSiteScores);
+	void AdjustDigSiteScoresByProximity(CvWeightedVector<CvPlot*>& viDigSiteScores, vector<CvPlot*>& vExistingDigSites);
+	PlayerTypes GetRandomMajorPlayer(CvPlot* pPlot);
+	PlayerTypes GetRandomPlayer(CvPlot* pPlot);
 };
 
 extern int gTactMovesCount[NUM_AI_TACTICAL_MOVES];

@@ -33,6 +33,7 @@ public:
 	void SetAnyoneProjectPrereq(int i);
 	int GetMaxGlobalInstances() const;
 	int GetMaxTeamInstances() const;
+	int GetMaxPlayerInstances() const;
 	int GetProductionCost() const;
 	int GetNukeInterception() const;
 	int GetCultureBranchesRequired() const;
@@ -54,6 +55,8 @@ public:
 	bool IsRepeatable() const;
 	int GetHappiness() const;
 	int GetEmpireSizeModifierReduction() const;
+	int GetEmpireSizeModifierPerCityMod() const;
+	CivilizationTypes GetCivilizationType() const;
 	int GetDistressFlatReduction() const;
 	int GetPovertyFlatReduction() const;
 	int GetIlliteracyFlatReduction() const;
@@ -77,6 +80,8 @@ public:
 	int GetVictoryThreshold(int i) const;
 	int GetVictoryMinThreshold(int i) const;
 	int GetProjectsNeeded(int i) const;
+	int GetUnitCombatProductionModifiersGlobal(int i) const;
+	int GetYieldFromConquestAllCities(int i) const;
 
 protected:
 	int m_iVictoryPrereq;
@@ -84,6 +89,7 @@ protected:
 	int m_iAnyoneProjectPrereq;
 	int m_iMaxGlobalInstances;
 	int m_iMaxTeamInstances;
+	int m_iMaxPlayerInstances;
 	int m_iProductionCost;
 	int m_iNukeInterception;
 	int m_iCultureBranchesRequired;
@@ -105,6 +111,8 @@ protected:
 	bool m_bIdeologyRequired;
 	int m_iHappiness;
 	int m_iEmpireSizeModifierReduction;
+	int m_iEmpireSizeModifierPerCityMod;
+	CivilizationTypes m_eCivType;
 	int m_iDistressFlatReduction;
 	int m_iPovertyFlatReduction;
 	int m_iIlliteracyFlatReduction;
@@ -127,6 +135,8 @@ protected:
 	int* m_piVictoryMinThreshold;
 	int* m_piProjectsNeeded;
 	int* m_piFlavorValue;
+	int* m_piUnitCombatProductionModifiersGlobal;
+	int* m_piYieldFromConquestAllCities;
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

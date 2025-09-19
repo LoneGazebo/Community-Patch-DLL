@@ -2062,7 +2062,7 @@ vector<OptionWithScore<BuilderDirective>> CvBuilderTaskingAI::GetImprovementDire
 			AddScrubFalloutDirectives(aDirectives, pPlot, pWorkingCity);
 			AddRepairImprovementDirective(aDirectives, pPlot, pWorkingCity);
 		}
-		else if (!pPlot->isOwned() && pPlot->isAdjacentPlayer(m_pPlayer->GetID()))
+		else if ((!pPlot->isOwned() || m_pPlayer->IsCultureBombForeignTerritory()) && pPlot->isAdjacentPlayer(m_pPlayer->GetID()))
 		{
 			//some special improvements
 			AddImprovingPlotsDirective(aDirectives, pPlot, pWorkingCity, aPossibleBuilds);
@@ -2643,9 +2643,12 @@ bool CvBuilderTaskingAI::ShouldAnyBuilderConsiderPlot(const CvPlot* pPlot) const
 	if (!pPlot->isRevealed(m_pPlayer->getTeam()))
 		return false;
 
-	//can't build in other major player's territory (unless they are our vassal)
-	if (pPlot->isOwned() && pPlot->getOwner() != m_pPlayer->GetID() && GET_PLAYER(pPlot->getOwner()).isMajorCiv() && !GET_TEAM(pPlot->getTeam()).IsVassal(m_pPlayer->getTeam()))
-		return false;
+	//can't build in other major player's territory (unless they are our vassal or we border them)
+	if (pPlot->isOwned() && pPlot->getOwner() != m_pPlayer->GetID() && GET_PLAYER(pPlot->getOwner()).isMajorCiv())
+	{
+		if ((!m_pPlayer->IsCultureBombForeignTerritory() || !pPlot->isAdjacentTeam(m_pPlayer->getTeam())) && !GET_TEAM(pPlot->getTeam()).IsVassal(m_pPlayer->getTeam()))
+			return false;
+	}
 
 	return true;
 }

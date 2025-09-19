@@ -1589,6 +1589,9 @@
 		<Row Tag="TXT_KEY_YIELD_FROM_NON_SPECIALISTS">
 			<Text>{1: number "#.##"} {2_IconString} from non-Specialist Citizens</Text>
 		</Row>
+		<Row Tag="TXT_KEY_YIELD_FROM_TILE_EXPEND">
+			<Text>{1: number "#.##"} {2_IconString} from Expended Units</Text>
+		</Row>
 		<Row Tag="TXT_KEY_YIELD_FROM_PIETY">
 			<Text>{1_Num} {2_IconString} from following the [ICON_RELIGION] Primary Religion</Text>
 		</Row>
@@ -1892,7 +1895,31 @@
 			<Text>[NEWLINE]You need to have a [ICON_RELIGION] Primary Religion to build this.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NO_ACTION_BUILDING_NEED_POLICIES">
-			<Text>Additional Policies needed to unlock: {1_Num}</Text>
+			<Text>[NEWLINE]Additional Policies needed to unlock: {1_Num}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NO_ACTION_UNIT_LACKS_RESOURCES_TOTAL">
+			<Text>[NEWLINE]Access to {1_Num} {2_ResourceIcon} {3_ResourceName:textkey} needed to build this unit.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NO_ACTION_PROJECT_LEVEL_THREE_TENETS_REQUIRED">
+			<Text>[NEWLINE]Additional Level-3-Tenets needed: {1_Num}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NO_ACTION_PROJECT_NEED_INFLUENTIAL_ALL_CIVS">
+			<Text>[NEWLINE]You need to be Influential over all Civilizations to create this.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NO_ACTION_PROJECT_IDEOLOGY_REQUIRED">
+			<Text>[NEWLINE]You need to have an Ideology to create this.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NO_ACTION_PROJECT_PUBLIC_OPINION_CONTENT">
+			<Text>[NEWLINE]Your Population must be Content to create this.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NO_ACTION_PROJECT_LACKS_RESOURCES">
+			<Text>[NEWLINE]{1_Num} {2_ResourceIcon} {3_ResourceName:textkey} needed to create this project.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NO_ACTION_PROJECT_PREREQ_PROJECT_REQUIRED">
+			<Text>[NEWLINE]{1_PrereqProject} must have been created by any civilization.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NO_ACTION_PROJECT_NEED_CREATE_MORE_PROJECTS">
+			<Text>[NEWLINE]You need to create {1_Num} more {1_Num: plural 1?instance; other?instances;} of {2_Project} before you can create this.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ALREADY_INVESTED">
 			<Text>[NEWLINE]You have already invested [ICON_GOLD] Gold in this building. This building's [ICON_PRODUCTION] Production cost is reduced by {1_Num}%.</Text>
@@ -1981,6 +2008,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_EUPANEL_ATTACK_CS_ALLIANCE_STRENGTH">
 			<Text>Hellenic League</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EUPANEL_COMBAT_MOD_FROM_UNIT_LEVEL">
+			<Text>Unit Level</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EUPANEL_FROM_TERRAIN_BONUS">
 			<Text>Terrain Modifier</Text>

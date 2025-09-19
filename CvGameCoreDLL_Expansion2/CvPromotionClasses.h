@@ -172,13 +172,15 @@ public:
 	int GetEmbarkDefenseModifier() const;
 	int GetCapitalDefenseModifier() const;
 	int GetCapitalDefenseFalloff() const;
+	int GetCapitalDefenseLimit() const;
 	int GetCityAttackPlunderModifier() const;
 	int GetReligiousStrengthLossRivalTerritory() const;
 	
 	int GetTradeMissionInfluenceModifier() const;
 	int GetTradeMissionGoldModifier() const;
+	int GetCombatModPerLevel() const;
 #if defined(MOD_BALANCE_CORE)
-	int GetDiploMissionInfluence() const;
+    int GetDiploMissionInfluence() const;
 	int GetCaptureDefeatedEnemyChance() const;
 	int GetBarbarianCombatBonus() const;
 	int GetGoodyHutYieldBonus() const;
@@ -189,10 +191,13 @@ public:
 	int NegatesPromotion() const;
 	bool CannotBeCaptured() const;
 	bool IsLostOnMove() const;
-	int ForcedDamageValue() const;
-	int ChangeDamageValue() const;
+	int GetForcedDamageValue() const;
+	int GetChangeDamageValue() const;
+	int GetDamageTakenMod() const;
+	int GetInfluenceFromCombatXPTimes100() const;
 	int PromotionDuration() const;
 	bool IsCityStateOnly() const;
+	bool IsDiplomaticMissionAccomplishment() const;
 	bool IsBarbarianOnly() const;
 	int GetMoraleBreakChance() const;
 	int GetDamageAoEFortified() const;
@@ -203,6 +208,7 @@ public:
 	int GetWonderProductionModifier() const;
 	bool IsStrongerDamaged() const;
 	bool IsFightWellDamaged() const;
+	bool IsFreeAttackMoves() const;
 	bool IsMountainsDoubleMove() const;
 	bool IsEmbarkFlatCost() const;
 	bool IsDisembarkFlatCost() const;
@@ -517,10 +523,12 @@ protected:
 	int m_iEmbarkDefenseModifier;
 	int m_iCapitalDefenseModifier;
 	int m_iCapitalDefenseFalloff;
+	int m_iCapitalDefenseLimit;
 	int m_iCityAttackPlunderModifier;
 	int m_iReligiousStrengthLossRivalTerritory;
 	int m_iTradeMissionInfluenceModifier;
 	int m_iTradeMissionGoldModifier;
+	int m_iCombatModPerLevel;
 
 #if defined(MOD_BALANCE_CORE)
 	int m_iCaptureDefeatedEnemyChance;
@@ -535,15 +543,19 @@ protected:
 	int m_iNegatesPromotion;
 	int m_iForcedDamageValue;
 	int m_iChangeDamageValue;
+	int m_iDamageTakenMod;
+	int m_iInfluenceFromCombatXPTimes100;
 	int m_iPromotionDuration;
 	int m_iMoraleBreakChance;
 	int m_iDamageAoEFortified;
 	int m_iWorkRateMod;
 	bool m_bIsLostOnMove;
 	bool m_bCityStateOnly;
+	bool m_bDiplomaticMissionAccomplishment;
 	bool m_bBarbarianOnly;
 	bool m_bStrongerDamaged;
 	bool m_bFightWellDamaged;
+	bool m_bFreeAttackMoves;
 #endif
 	bool m_bCannotBeChosen;
 	bool m_bLostWithUpgrade;

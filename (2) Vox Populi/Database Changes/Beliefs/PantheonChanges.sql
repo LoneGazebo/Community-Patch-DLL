@@ -512,7 +512,12 @@ INSERT INTO Belief_ImprovementYieldChanges
 	(BeliefType, ImprovementType, YieldType, Yield)
 SELECT DISTINCT
 	'BELIEF_RHIANNON', a.ImprovementType, b.YieldType, 1
-FROM Improvement_ResourceTypes a, Helper b;
+FROM Improvement_ResourceTypes a, Helper b
+UNION
+SELECT
+	'BELIEF_RHIANNON', a.Type, b.YieldType, 1
+FROM Improvements a, Helper b
+WHERE a.ConnectsAllResources = 1;
 
 DROP TABLE Helper;
 

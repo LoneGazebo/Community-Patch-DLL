@@ -270,6 +270,12 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 		iTempWeight += ((m_pCity->GetReducedEmpireSizeModifier(true,false)/2) * (pkProjectInfo->GetEmpireSizeModifierReduction() * -1));
 	}
 
+	if (pkProjectInfo->GetEmpireSizeModifierPerCityMod() < 0)
+	{
+		bGoodforHappiness = true;
+		iTempWeight += GET_PLAYER(m_pCity->getOwner()).getNumCities() * (pkProjectInfo->GetEmpireSizeModifierPerCityMod() * -1) / 100;
+	}
+
 	if (pkProjectInfo->GetDistressFlatReduction() > 0)
 	{
 		bGoodforHappiness = true;
@@ -354,6 +360,30 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 	{
 		int iEsp = /*2000*/ (GD_INT_GET(ESPIONAGE_GATHERING_INTEL_COST_PERCENT) * 2);
 		iTempWeight += (iEsp/2);
+	}
+
+	for (int iI = 0; iI < GC.getNumUnitCombatClassInfos(); iI++)
+	{
+		const UnitCombatTypes eUnitCombatClass = static_cast<UnitCombatTypes>(iI);
+		int iProjMod = pkProjectInfo->GetUnitCombatProductionModifiersGlobal(iI);
+		if (iProjMod > 0)
+		{
+			int iTempBonus = 0;
+			iTempBonus += GET_PLAYER(m_pCity->getOwner()).getUnitCombatProductionModifiers(eUnitCombatClass);
+			iTempBonus += m_pCity->getUnitCombatProductionModifier(eUnitCombatClass);
+			iTempBonus += iProjMod;
+			if (iTempBonus > 0)
+				iTempWeight += iTempBonus;
+		}
+	}
+	
+	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+	{
+		int iProjMod = pkProjectInfo->GetYieldFromConquestAllCities(iI);
+		if (iProjMod > 0)
+		{
+			iTempWeight += iProjMod * GET_PLAYER(m_pCity->getOwner()).getNumCities() * (GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->IsWarmonger() ? 3 : 1);
+		}
 	}
 
 	if (bGoodforHappiness && !GET_PLAYER(m_pCity->getOwner()).IsEmpireUnhappy())

@@ -403,8 +403,7 @@ protected:
 	static int lGetUnhappinessCombatPenalty(lua_State* L);
 	static int lAirSweepCombatMod(lua_State* L);
 	static int lGetEmbarkDefensiveModifier(lua_State* L);
-	static int lCapitalDefenseModifier(lua_State* L);
-	static int lCapitalDefenseFalloff(lua_State* L);
+	static int lGetCombatModifierFromCapitalDistance(lua_State* L);
 
 	static int lSpecialCargo(lua_State* L);
 	static int lDomainCargo(lua_State* L);
@@ -632,6 +631,7 @@ protected:
 	static int lIsHigherPopThan(lua_State* L);
 	static int lGetResistancePower(lua_State* L);
 	static int lGetAllianceCSStrength(lua_State* L);
+	static int lGetCombatModFromUnitLevel(lua_State* L);
 #endif
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	static int lGetMonopolyAttackBonus(lua_State* L);
