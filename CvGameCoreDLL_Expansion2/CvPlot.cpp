@@ -14504,6 +14504,9 @@ bool CvPlot::IsEligibleForDigSite()
 
 	// Don't put dig sites on Great Person tiles, that's mean
 	ImprovementTypes eImprovement = getImprovementType();
+	if (eImprovement == NO_IMPROVEMENT)
+		return true;
+
 	CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
 	static const ImprovementTypes eLandmark = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_LANDMARK");
 	if (eImprovement == eLandmark || pkImprovementInfo->IsPermanent() || pkImprovementInfo->IsCreatedByGreatPerson())
