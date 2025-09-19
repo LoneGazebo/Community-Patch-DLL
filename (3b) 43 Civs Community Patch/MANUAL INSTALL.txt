@@ -1,2 +1,6 @@
--- MANUAL INSTALLATION NOTE -- 
-Replace the CvGameCore_Expansion2.dll file in (1) Community Patch with the version in this folder.
+-- MANUAL INSTALLATION NOTE --
+
+To manually install the 43 civ version of Community Patch/Vox Populi:
+1) Install Community Patch or Vox Populi following the instructions in "(1) Community Patch" or "(2) Vox Populi", respectively.
+2) Copy this folder to your MODS folder.
+3) Replace the CvGameCore_Expansion2.dll file in (1) Community Patch with the version in this folder.
