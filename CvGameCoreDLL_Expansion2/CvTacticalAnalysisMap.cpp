@@ -1011,7 +1011,6 @@ void CvTacticalAnalysisMap::PrioritizeZones()
 				}
 			}
 
-#if defined(MOD_BALANCE_CORE)
 			if (GET_PLAYER(m_ePlayer).IsTargetCityForOperation(pZoneCity,false) ||
 				GET_PLAYER(m_ePlayer).IsTargetCityForOperation(pZoneCity,true) ||
 				GET_PLAYER(m_ePlayer).GetMilitaryAI()->IsPreferredAttackTarget(pZoneCity))
@@ -1028,7 +1027,6 @@ void CvTacticalAnalysisMap::PrioritizeZones()
 					iBaseValue = 1;
 				}
 			}
-#endif
 		}
 
 		if (!pZone->IsWater())

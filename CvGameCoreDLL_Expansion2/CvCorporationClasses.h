@@ -3,8 +3,6 @@
 #ifndef CIV5_CORPORATION_CLASSES_H
 #define CIV5_CORPORATION_CLASSES_H
 
-#if defined(MOD_BALANCE_CORE)
-
 class CvCorporationEntry: public CvBaseInfo
 {
 public:
@@ -297,5 +295,4 @@ private:
 FDataStream& operator>>(FDataStream&, CvPlayerCorporations&);
 FDataStream& operator<<(FDataStream&, const CvPlayerCorporations&);
 
-#endif
 #endif

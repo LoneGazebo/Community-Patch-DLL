@@ -85,7 +85,6 @@ CvImprovementEntry::CvImprovementEntry(void):
 	m_iResourceExtractionMod(0),
 	m_iLuxuryCopiesSiphonedFromMinor(0),
 	m_iImprovementLeagueVotes(0),
-#if defined(MOD_BALANCE_CORE)
 	m_iHappinessOnConstruction(0),
 	m_iImprovementResource(NO_RESOURCE),
 	m_iImprovementResourceQuantity(0),
@@ -96,7 +95,6 @@ CvImprovementEntry::CvImprovementEntry(void):
 	m_eCreatesFeature(NO_FEATURE),
 	m_bNewOwner(false),
 	m_bOwnerOnly(true),
-#endif
 	m_iImprovementPillage(NO_IMPROVEMENT),
 	m_iImprovementUpgrade(NO_IMPROVEMENT),
 #if defined(MOD_GLOBAL_RELOCATION)
@@ -138,7 +136,6 @@ CvImprovementEntry::CvImprovementEntry(void):
 	m_bIgnoreOwnership(false),
 	m_bOnlyCityStateTerritory(false),
 	m_bIsEmbassy(false),
-#if defined(MOD_BALANCE_CORE)
 	m_iGetObsoleteTech(NO_TECH),
 	m_bNoAdjacentCity(false),
 	m_bAdjacentCity(false),
@@ -146,7 +143,6 @@ CvImprovementEntry::CvImprovementEntry(void):
 	m_iGrantsVision(0),
 	m_iMovesChange(0),
 	m_bRestoreMoves(false),
-#endif
 	m_bNoTwoAdjacent(false),
 	m_iXSameAdjacentMakesValid(0),
 	m_bAdjacentLuxury(false),
@@ -333,7 +329,6 @@ bool CvImprovementEntry::CacheResults(Database::Results& kResults, CvDatabaseUti
 	m_bIgnoreOwnership = kResults.GetBool("IgnoreOwnership");
 	m_bOnlyCityStateTerritory = kResults.GetBool("OnlyCityStateTerritory");
 	m_bIsEmbassy = kResults.GetBool("IsEmbassy");
-#if defined(MOD_BALANCE_CORE)
 	const char* szObsoleteTech = kResults.GetText("ObsoleteTech");
 	m_iGetObsoleteTech = GC.getInfoTypeForString(szObsoleteTech, true);
 	m_bNoAdjacentCity = kResults.GetBool("NoAdjacentCity");
@@ -350,7 +345,6 @@ bool CvImprovementEntry::CacheResults(Database::Results& kResults, CvDatabaseUti
 	m_bOwnerOnly = kResults.GetBool("OwnerOnly");
 	m_iMovesChange = kResults.GetInt("MovesChange");
 	m_bRestoreMoves = kResults.GetBool("RestoreMoves");
-#endif
 	m_bNoTwoAdjacent = kResults.GetBool("NoTwoAdjacent");
 	m_iXSameAdjacentMakesValid = kResults.GetInt("XSameAdjacentMakesValid");
 	m_bAdjacentLuxury = kResults.GetBool("AdjacentLuxury");
@@ -365,7 +359,6 @@ bool CvImprovementEntry::CacheResults(Database::Results& kResults, CvDatabaseUti
 
 	const char* szCivilizationType = kResults.GetText("CivilizationType");
 	m_eRequiredCivilization = (CivilizationTypes)GC.getInfoTypeForString(szCivilizationType, true);
-#if defined(MOD_BALANCE_CORE)
 	m_iHappinessOnConstruction = kResults.GetInt("HappinessOnConstruction");
 	const char* szImprovementResource = kResults.GetText("ImprovementResource");
 	m_iImprovementResource = (ResourceTypes)GC.getInfoTypeForString(szImprovementResource, true);
@@ -377,7 +370,6 @@ bool CvImprovementEntry::CacheResults(Database::Results& kResults, CvDatabaseUti
 		m_iUnitFreePromotionImprovement = GC.getInfoTypeForString(szTextVal, true);
 	}
 	m_iWonderProductionModifier = kResults.GetInt("WonderProductionModifier");
-#endif
 	//References
 	const char* szWorldsoundscapeAudioScript = kResults.GetText("WorldSoundscapeAudioScript");
 	if(szWorldsoundscapeAudioScript != NULL)
@@ -1314,7 +1306,6 @@ bool CvImprovementEntry::IsEmbassy() const
 {
 	return m_bIsEmbassy;
 }
-#if defined(MOD_BALANCE_CORE)
 int CvImprovementEntry::GetObsoleteTech() const
 {
 	return m_iGetObsoleteTech;
@@ -1335,7 +1326,6 @@ int CvImprovementEntry::GetGrantsVision() const
 {
 	return m_iGrantsVision;
 }
-#endif
 /// Can this improvement not be built adjacent to another one of the same type?
 bool CvImprovementEntry::IsNoTwoAdjacent() const
 {

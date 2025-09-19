@@ -9,14 +9,12 @@
 #include "CvGameCoreDLLUtil.h"
 #include "CvBuildingProductionAI.h"
 #include "CvInfosSerializationHelper.h"
-#if defined(MOD_BALANCE_CORE)
 #include "CvGameCoreUtils.h"
 #include "CvInternalGameCoreUtils.h"
 #include "CvCitySpecializationAI.h"
 #include "CvEconomicAI.h"
 #include "CvGrandStrategyAI.h"
 #include "CvMilitaryAI.h"
-#endif
 // include after all other headers
 #include "LintFree.h"
 
@@ -143,7 +141,6 @@ void CvBuildingProductionAI::LogPossibleBuilds()
 		}
 	}
 }
-#if defined(MOD_BALANCE_CORE)
 int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, int iValue,
 	bool bNoBestWonderCityCheck, bool bFreeBuilding, bool bIgnoreSituational)
 {
@@ -1366,4 +1363,3 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	//iValue is the compunded value of the items.
 	return max(1,iValue + iBonus);
 }
-#endif

@@ -231,9 +231,7 @@ protected:
 
 	static int lUpdateEmbarkGraphics(lua_State* L);
 
-#if defined(MOD_BALANCE_CORE)
 	static int lIsCorporationsEnabled(lua_State* L);
-#endif
 
 	LUAAPIEXTN(IsVassal, bool, iteam);
 	LUAAPIEXTN(CanBecomeVassal, bool, iTeam);

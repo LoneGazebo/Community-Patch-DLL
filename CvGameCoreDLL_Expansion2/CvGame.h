@@ -34,10 +34,8 @@ class CvGameTrade;
 class CvTacticalAnalysisMap;
 class CvAdvisorCounsel;
 class CvAdvisorRecommender;
-#if defined(MOD_BALANCE_CORE)
 class CvGameCorporations;
 class CvGameContracts;
-#endif
 
 class CvGameInitialItemsOverrides
 {
@@ -396,10 +394,8 @@ public:
 
 	void LogTurnScores() const;
 	void LogGameResult(const char* victoryTypeText, const char* victoryCivText) const;
-#if defined(MOD_BALANCE_CORE)
 	bool isVictoryRandomizationDone() const;
 	void setVictoryRandomizationDone(bool bValue);
-#endif
 
 	bool isVictoryAvailable(VictoryTypes eVictory) const;
 	int GetNextAvailableVictoryCompetitionRank(VictoryTypes eVictory) const;
@@ -577,7 +573,6 @@ public:
 	int calculateSyncChecksum();
 	int calculateOptionsChecksum();
 
-#if defined(MOD_BALANCE_CORE)
 	void debugSyncChecksum();
 
 	PlayerTypes GetCorporationFounder( CorporationTypes eCorporation ) const;
@@ -586,7 +581,6 @@ public:
 	void UpdateGreatestPlayerResourceMonopoly(ResourceTypes eTestResource = NO_RESOURCE);
 	int GetGreatestPlayerResourceMonopoly(ResourceTypes eResource) const;
 	int GetGreatestPlayerResourceMonopolyValue(ResourceTypes eResource) const;
-#endif
 #endif
 
 	void addReplayMessage(ReplayMessageTypes eType, PlayerTypes ePlayer, const CvString& pszText, int iPlotX = -1, int iPlotY = -1);
@@ -639,9 +633,7 @@ public:
 	void testVictory();
 	bool testVictory(VictoryTypes eVictory, TeamTypes eTeam, bool* pbEndScore = NULL) const;
 
-#if defined(MOD_BALANCE_CORE)
 	void doVictoryRandomization();
-#endif
 
 	int getPlotExtraYield(int iX, int iY, YieldTypes eYield) const;
 	void setPlotExtraYield(int iX, int iY, YieldTypes eYield, int iExtraYield);
@@ -674,10 +666,8 @@ public:
 	CvGameLeagues* GetGameLeagues();
 	CvGameTrade* GetGameTrade();
 	CvString getDllGuid() const;
-#if defined(MOD_BALANCE_CORE)
 	CvGameCorporations* GetGameCorporations();
 	CvGameContracts* GetGameContracts();
-#endif
 
 	int GetAction(int iKeyStroke, bool bAlt, bool bShift, bool bCtrl);
 	int IsAction(int iKeyStroke, bool bAlt, bool bShift, bool bCtrl);
@@ -1002,11 +992,8 @@ protected:
 	CvAdvisorRecommender*      m_pAdvisorRecommender;
 
 	CvGameDeals                m_kGameDeals;
-
-#if defined(MOD_BALANCE_CORE)
 	CvGameCorporations*		   m_pGameCorporations;
 	CvGameContracts*		   m_pGameContracts;
-#endif
 
 	//necessary because we only want to hide the mouseover of the most recently moused over unit -KS
 	int                        m_iLastMouseoverUnitID;

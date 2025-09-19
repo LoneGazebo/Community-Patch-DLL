@@ -116,9 +116,7 @@ public:
 	int GetExpensePerTurnFromVassalTaxes() const;
 	void SetExpensePerTurnFromVassalTaxesTimes100(int iValue);
 
-#if defined(MOD_BALANCE_CORE)
 	int GetContractGoldMaintenance();
-#endif
 
 protected:
 	CvPlayer* m_pPlayer;
@@ -126,9 +124,7 @@ protected:
 	int m_iGoldPerTurnFromDiplomacy;
 	int m_iExpensePerTurnUnitMaintenance;
 	int m_iCityConnectionGoldTimes100;
-#if defined(MOD_BALANCE_CORE)
 	int m_iInternalTradeGoldBonus;
-#endif
 	int m_iExpensePerTurnFromVassalTax;
 	int m_iCityConnectionTradeRouteGoldModifier;
 	int m_iCityConnectionTradeRouteGoldChange;

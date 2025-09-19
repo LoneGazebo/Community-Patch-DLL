@@ -10,9 +10,7 @@
 #include "CvTechAI.h"
 #include "CvGameCoreUtils.h"
 #include "CvInfosSerializationHelper.h"
-#if defined(MOD_BALANCE_CORE)
 #include "CvEconomicAI.h"
-#endif
 
 #include "LintFree.h"
 

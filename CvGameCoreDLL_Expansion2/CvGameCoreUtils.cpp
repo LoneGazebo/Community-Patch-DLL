@@ -1045,7 +1045,7 @@ bool isNationalUnitClass(UnitClassTypes eUnitClass)
 	}
 	return false;
 }
-#if defined(MOD_BALANCE_CORE)
+
 bool isUnitLimitPerCity(UnitClassTypes eUnitClass)
 {
 	CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
@@ -1055,7 +1055,6 @@ bool isUnitLimitPerCity(UnitClassTypes eUnitClass)
 	}
 	return false;
 }
-#endif
 
 bool isLimitedUnitClass(UnitClassTypes eUnitClass)
 {
@@ -1763,7 +1762,6 @@ bool IsGUIDEmpty(const GUID& kGUID)
 	return kGUID.Data1 == 0 && kGUID.Data2 == 0 && kGUID.Data3 == 0 && *(INT32*)&kGUID.Data4[0] == 0 && *(INT32*)&kGUID.Data4[4] == 0;
 }
 
-#if defined(MOD_BALANCE_CORE)
 //take value and map it linearly to [0;100]. if outside of given thresholds, map to min/max. 
 int MapToPercent(int iValue, int iZeroAt, int iHundredAt)
 {
@@ -1935,7 +1933,6 @@ FDataStream& operator>>(FDataStream& loadFrom, fraction& writeTo)
 	loadFrom >> writeTo.den;
 	return loadFrom;
 }
-#endif
 
 //------------------------------------------------------------------------------
 void PrintMemoryInfo(const char* hint)

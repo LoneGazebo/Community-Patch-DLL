@@ -257,9 +257,7 @@ CvResolutionEffects::CvResolutionEffects(void)
 	iLimitSpaceshipPurchase = 0;
 	iIsWorldWar = 0;
 	bEmbargoIdeology = false;
-#if defined(MOD_BALANCE_CORE)
 	iChangeTourism = 0;
-#endif
 	iVassalMaintenanceGoldPercent = 0;
 	bEndAllCurrentVassals = false;
 }
@@ -302,9 +300,7 @@ bool CvResolutionEffects::SetType(ResolutionTypes eType)
 		iLimitSpaceshipPurchase				= pInfo->GetSpaceShipPurchaseMod();
 		iIsWorldWar							= pInfo->GetWorldWar();
 		bEmbargoIdeology					= pInfo->IsEmbargoIdeology();
-#if defined(MOD_BALANCE_CORE)
 		iChangeTourism						= pInfo->GetTourismMod();
-#endif
 		iVassalMaintenanceGoldPercent		= pInfo->GetVassalMaintenanceGoldPercent();
 		bEndAllCurrentVassals				= pInfo->IsEndAllCurrentVassals();
 		return true;
@@ -396,10 +392,8 @@ bool CvResolutionEffects::HasOngoingEffects() const
 	if (bSphereOfInfluence)
 		return true;
 
-#if defined(MOD_BALANCE_CORE)
 	if(iChangeTourism != 0)
 		return true;
-#endif
 
 	return false;
 }
@@ -437,9 +431,7 @@ void CvResolutionEffects::AddOngoingEffects(const CvResolutionEffects* pOtherEff
 	bEmbargoIdeology						|= pOtherEffects->bEmbargoIdeology; // target ideology
 	bOpenDoor								|= pOtherEffects->bOpenDoor;
 	bSphereOfInfluence						|= pOtherEffects->bSphereOfInfluence;
-#if defined(MOD_BALANCE_CORE)
 	iChangeTourism							+= pOtherEffects->iChangeTourism; //Global
-#endif
 	iVassalMaintenanceGoldPercent			+= pOtherEffects->iVassalMaintenanceGoldPercent;
 }
 
@@ -1712,11 +1704,9 @@ void CvActiveResolution::DoEffects(PlayerTypes ePlayer)
 		}
 		// Refresh yield
 	}
-#if defined(MOD_BALANCE_CORE)
 	if (GetEffects()->iChangeTourism != 0)
 	{
 	}
-#endif
 
 	if (GetEffects()->iLimitSpaceshipProduction != 0)
 	{
@@ -1942,11 +1932,9 @@ void CvActiveResolution::RemoveEffects(PlayerTypes ePlayer)
 		}
 	}
 
-#if defined(MOD_BALANCE_CORE)
 	if (GetEffects()->iChangeTourism != 0)
 	{
 	}
-#endif
 
 	if (GetEffects()->iLimitSpaceshipProduction != 0)
 	{
@@ -3105,7 +3093,6 @@ bool CvLeague::CanProposeEnact(ResolutionTypes eResolution, PlayerTypes ePropose
 		}
 	}
 
-#if defined(MOD_BALANCE_CORE)
 	if (pInfo->GetTourismMod() > 0)
 	{
 		for (ActiveResolutionList::iterator it = m_vActiveResolutions.begin(); it != m_vActiveResolutions.end(); ++it)
@@ -3164,7 +3151,6 @@ bool CvLeague::CanProposeEnact(ResolutionTypes eResolution, PlayerTypes ePropose
 			}
 		}
 	}
-#endif
 
 #if defined(MOD_EVENTS_RESOLUTIONS)
 	if (MOD_EVENTS_RESOLUTIONS) {
@@ -5618,7 +5604,6 @@ bool CvLeague::IsIdeologyEmbargoed(PlayerTypes eTrader, PlayerTypes eRecipient)
 	}
 	return false;
 }
-#if defined(MOD_BALANCE_CORE)
 int CvLeague::GetTourismMod()
 {
 	int iMod = 0;
@@ -5681,7 +5666,6 @@ void CvLeague::DoRepealResolutionPublic(CvRepealProposal* pProposal)
 {
 	DoRepealResolution(pProposal);
 }
-#endif
 CvString CvLeague::GetResolutionName(ResolutionTypes eResolution, int iResolutionID, int iProposerChoice, bool bIncludePrefix)
 {
 	CvString s = "";
@@ -6926,14 +6910,12 @@ std::vector<CvString> CvLeague::GetCurrentEffectsSummary(PlayerTypes /*eObserver
 		sTemp << effects.iUnitMaintenanceGoldPercent;
 		vsEffects.push_back(sTemp.toUTF8());
 	}
-#if defined(MOD_BALANCE_CORE)
 	if(effects.iChangeTourism != 0)
 	{
 		Localization::String sTemp = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_TOURISM");
 		sTemp << effects.iChangeTourism;
 		vsEffects.push_back(sTemp.toUTF8());
 	}
-#endif
 	if (effects.iVassalMaintenanceGoldPercent != 0)
 	{
 		Localization::String sTemp = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_VASSAL_MAINTENANCE");
@@ -9782,13 +9764,8 @@ void CvGameLeagues::DoLeagueProjectContribution(PlayerTypes ePlayer, LeagueProje
 	int iMatches = 0;
 	for (LeagueList::iterator it = m_vActiveLeagues.begin(); it != m_vActiveLeagues.end(); ++it)
 	{
-#if !defined(MOD_BALANCE_CORE)
-		if (it->CanMemberContribute(ePlayer, eLeagueProject))
-#endif
-		{
-			iMatches++;
-			it->ChangeMemberContribution(ePlayer, eLeagueProject, iValue);
-		}
+		iMatches++;
+		it->ChangeMemberContribution(ePlayer, eLeagueProject, iValue);
 	}
 	ASSERT_DEBUG(iMatches == 1, "Unexpected case when contributing to a League Project.");
 }
@@ -11517,7 +11494,6 @@ CvLeagueAI::DiplomatUsefulnessLevels CvLeagueAI::GetDiplomatUsefulnessAtCiv(Play
 	{
 		iScore += 1;
 	}
-#if defined(MOD_BALANCE_CORE)
 	int iLeague = pLeague->GetPotentialVotesForMember(m_pPlayer->GetID(), ePlayer);
 	if(iLeague > pLeague->GetCoreVotesForMember(ePlayer))
 	{
@@ -11528,7 +11504,6 @@ CvLeagueAI::DiplomatUsefulnessLevels CvLeagueAI::GetDiplomatUsefulnessAtCiv(Play
 		eUsefulness = DIPLOMAT_USEFULNESS_HIGH;
 	}
 	else
-#endif
 
 	if (iScore >= 2)
 	{
@@ -14960,9 +14935,7 @@ CvResolutionEntry::CvResolutionEntry(void)
 	m_iSpaceshipPurchaseMod				= 0;
 	m_iIsWorldWar						= 0;
 	m_bEmbargoIdeology					= false;
-#if defined(MOD_BALANCE_CORE)
 	m_iTourismMod						= 0;
-#endif
 	m_iVassalMaintenanceGoldPercent		= 0;
 	m_bEndAllCurrentVassals				= false;
 }
@@ -15020,9 +14993,7 @@ bool CvResolutionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtil
 	m_bEmbargoIdeology					= kResults.GetBool("EmbargoIdeology");
 	m_iVassalMaintenanceGoldPercent		= kResults.GetInt("VassalMaintenanceGoldPercent");
 	m_bEndAllCurrentVassals				= kResults.GetInt("EndAllCurrentVassals")>0;
-#if defined(MOD_BALANCE_CORE)
 	m_iTourismMod					= kResults.GetInt("TourismMod");
-#endif
 
 	return true;
 }
@@ -15222,12 +15193,10 @@ bool CvResolutionEntry::IsEmbargoIdeology() const
 {
 	return m_bEmbargoIdeology;
 }
-#if defined(MOD_BALANCE_CORE)
 int CvResolutionEntry::GetTourismMod() const
 {
 	return m_iTourismMod;
 }
-#endif
 int CvResolutionEntry::GetVassalMaintenanceGoldPercent() const
 {
 	return m_iVassalMaintenanceGoldPercent;

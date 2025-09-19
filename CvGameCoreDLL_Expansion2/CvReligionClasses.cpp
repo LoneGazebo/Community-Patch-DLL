@@ -126,9 +126,7 @@ CvReligion::CvReligion()
 	, m_iTurnFounded(-1)
 	, m_bPantheon(false)
 	, m_bEnhanced(false)
-#if defined(MOD_BALANCE_CORE)
 	, m_bReformed(false)
-#endif
 {
 	ZeroMemory(m_szCustomName, sizeof(m_szCustomName));
 }
@@ -139,9 +137,7 @@ CvReligion::CvReligion(ReligionTypes eReligion, PlayerTypes eFounder, CvCity* pH
 	, m_eFounder(eFounder)
 	, m_bPantheon(bPantheon)
 	, m_bEnhanced(false)
-#if defined(MOD_BALANCE_CORE)
 	, m_bReformed(false)
-#endif
 {
 	if (pHolyCity)
 	{
@@ -1661,9 +1657,7 @@ void CvGameReligions::AddReformationBelief(PlayerTypes ePlayer, ReligionTypes eR
 		kPlayer.GetPlayerTraits()->InitPlayerTraits();
 	}
 #endif
-#if defined(MOD_BALANCE_CORE)
 	it->m_bReformed = true;
-#endif
 
 	// Update game systems
 	UpdateAllCitiesThisReligion(eReligion);
@@ -1913,12 +1907,10 @@ BeliefTypes CvGameReligions::GetBeliefInPantheon(PlayerTypes ePlayer) const
 		{
 			return (BeliefTypes)it->m_Beliefs.GetBelief(0);
 		}
-#if defined(MOD_BALANCE_CORE)
 		else if(!it->m_bPantheon && GET_PLAYER(ePlayer).GetReligions()->GetStateReligion() == it->m_eReligion)
 		{
 			return (BeliefTypes)it->m_Beliefs.GetBelief(0);
 		}
-#endif
 	}
 
 	return NO_BELIEF;
@@ -2059,7 +2051,6 @@ std::vector<BeliefTypes> CvGameReligions::GetAvailablePantheonBeliefs(PlayerType
 			if (pEntry && pEntry->IsPantheonBelief())
 			{
 				bool bAvailable = true;
-#if defined(MOD_BALANCE_CORE)
 				if (ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).GetPlayerTraits()->IsUniqueBeliefsOnly())
 				{
 					if (bUniqueExists)
@@ -2078,7 +2069,6 @@ std::vector<BeliefTypes> CvGameReligions::GetAvailablePantheonBeliefs(PlayerType
 						bAvailable = false;
 					}
 				}
-#endif
 				if (bAvailable)
 				{
 					availableBeliefs.push_back(eBelief);
@@ -2126,10 +2116,8 @@ int CvGameReligions::GetNumFollowers(ReligionTypes eReligion, PlayerTypes ePlaye
 		CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iI);
 		if(kPlayer.isAlive())
 		{
-#if defined(MOD_BALANCE_CORE)
 			if(ePlayer != NO_PLAYER && ePlayer != (PlayerTypes)iI)
 				continue;
-#endif
 			// Loop through each of their cities
 			int iLoop = 0;
 			CvCity* pLoopCity = NULL;
@@ -2365,7 +2353,6 @@ std::vector<BeliefTypes> CvGameReligions::GetAvailableFounderBeliefs(PlayerTypes
 
 	CvBeliefXMLEntries* pkBeliefs = GC.GetGameBeliefs();
 	const int iNumBeleifs = pkBeliefs->GetNumBeliefs();
-#if defined(MOD_BALANCE_CORE)
 	bool bUniqueExists = false;
 	if(ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).GetPlayerTraits()->IsUniqueBeliefsOnly())
 	{
@@ -2383,7 +2370,6 @@ std::vector<BeliefTypes> CvGameReligions::GetAvailableFounderBeliefs(PlayerTypes
 			}
 		}
 	}
-#endif
 	availableBeliefs.reserve(iNumBeleifs);
 	for(int iI = 0; iI < iNumBeleifs; iI++)
 	{
@@ -2401,7 +2387,6 @@ std::vector<BeliefTypes> CvGameReligions::GetAvailableFounderBeliefs(PlayerTypes
 						bAvailable = false;
 					}
 				}
-#if defined(MOD_BALANCE_CORE)
 				if(ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).GetPlayerTraits()->IsUniqueBeliefsOnly())
 				{
 					if(bUniqueExists)
@@ -2424,7 +2409,6 @@ std::vector<BeliefTypes> CvGameReligions::GetAvailableFounderBeliefs(PlayerTypes
 						bAvailable = false;
 					}
 				}
-#endif
 				if (bAvailable) {
 #endif
 					availableBeliefs.push_back(eBelief);
@@ -2445,7 +2429,6 @@ std::vector<BeliefTypes> CvGameReligions::GetAvailableFollowerBeliefs(PlayerType
 
 	CvBeliefXMLEntries* pkBeliefs = GC.GetGameBeliefs();
 	const int iNumBeleifs = pkBeliefs->GetNumBeliefs();
-#if defined(MOD_BALANCE_CORE)
 	bool bUniqueExists = false;
 	if(ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).GetPlayerTraits()->IsUniqueBeliefsOnly())
 	{
@@ -2463,7 +2446,6 @@ std::vector<BeliefTypes> CvGameReligions::GetAvailableFollowerBeliefs(PlayerType
 			}
 		}
 	}
-#endif
 	availableBeliefs.reserve(iNumBeleifs);
 	for(int iI = 0; iI < iNumBeleifs; iI++)
 	{
@@ -2481,7 +2463,6 @@ std::vector<BeliefTypes> CvGameReligions::GetAvailableFollowerBeliefs(PlayerType
 						bAvailable = false;
 					}
 				}
-#if defined(MOD_BALANCE_CORE)
 				if(ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).GetPlayerTraits()->IsUniqueBeliefsOnly())
 				{
 					if(bUniqueExists)
@@ -2504,7 +2485,6 @@ std::vector<BeliefTypes> CvGameReligions::GetAvailableFollowerBeliefs(PlayerType
 						bAvailable = false;
 					}
 				}
-#endif
 				if (bAvailable) {
 #endif
 					availableBeliefs.push_back(eBelief);
@@ -2525,7 +2505,6 @@ std::vector<BeliefTypes> CvGameReligions::GetAvailableEnhancerBeliefs(PlayerType
 
 	CvBeliefXMLEntries* pkBeliefs = GC.GetGameBeliefs();
 	const int iNumBeleifs = pkBeliefs->GetNumBeliefs();
-#if defined(MOD_BALANCE_CORE)
 	bool bUniqueExists = false;
 	if(ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).GetPlayerTraits()->IsUniqueBeliefsOnly())
 	{
@@ -2543,7 +2522,6 @@ std::vector<BeliefTypes> CvGameReligions::GetAvailableEnhancerBeliefs(PlayerType
 			}
 		}
 	}
-#endif
 	availableBeliefs.reserve(iNumBeleifs);
 	for(int iI = 0; iI < iNumBeleifs; iI++)
 	{
@@ -2561,7 +2539,6 @@ std::vector<BeliefTypes> CvGameReligions::GetAvailableEnhancerBeliefs(PlayerType
 						bAvailable = false;
 					}
 				}
-#if defined(MOD_BALANCE_CORE)
 				if(ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).GetPlayerTraits()->IsUniqueBeliefsOnly())
 				{
 					if(bUniqueExists)
@@ -2584,7 +2561,6 @@ std::vector<BeliefTypes> CvGameReligions::GetAvailableEnhancerBeliefs(PlayerType
 						bAvailable = false;
 					}
 				}
-#endif
 				if (bAvailable) {
 #endif
 					availableBeliefs.push_back(eBelief);
@@ -2605,7 +2581,6 @@ std::vector<BeliefTypes> CvGameReligions::GetAvailableBonusBeliefs(PlayerTypes e
 
 	CvBeliefXMLEntries* pkBeliefs = GC.GetGameBeliefs();
 	const int iNumBeleifs = pkBeliefs->GetNumBeliefs();
-#if defined(MOD_BALANCE_CORE)
 	bool bUniqueExists = false;
 	if(ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).GetPlayerTraits()->IsUniqueBeliefsOnly())
 	{
@@ -2623,7 +2598,6 @@ std::vector<BeliefTypes> CvGameReligions::GetAvailableBonusBeliefs(PlayerTypes e
 			}
 		}
 	}
-#endif
 	availableBeliefs.reserve(iNumBeleifs);
 	for(int iI = 0; iI < iNumBeleifs; iI++)
 	{
@@ -2641,7 +2615,6 @@ std::vector<BeliefTypes> CvGameReligions::GetAvailableBonusBeliefs(PlayerTypes e
 						bAvailable = false;
 					}
 				}
-#if defined(MOD_BALANCE_CORE)
 				if(ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).GetPlayerTraits()->IsUniqueBeliefsOnly())
 				{
 					if(bUniqueExists)
@@ -2664,7 +2637,6 @@ std::vector<BeliefTypes> CvGameReligions::GetAvailableBonusBeliefs(PlayerTypes e
 						bAvailable = false;
 					}
 				}
-#endif
 				if (bAvailable) {
 #endif
 					availableBeliefs.push_back(eBelief);
@@ -2685,7 +2657,6 @@ std::vector<BeliefTypes> CvGameReligions::GetAvailableReformationBeliefs(PlayerT
 
 	CvBeliefXMLEntries* pkBeliefs = GC.GetGameBeliefs();
 	const int iNumBeleifs = pkBeliefs->GetNumBeliefs();
-#if defined(MOD_BALANCE_CORE)
 	bool bUniqueExists = false;
 	if(ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).GetPlayerTraits()->IsUniqueBeliefsOnly())
 	{
@@ -2703,7 +2674,6 @@ std::vector<BeliefTypes> CvGameReligions::GetAvailableReformationBeliefs(PlayerT
 			}
 		}
 	}
-#endif
 	availableBeliefs.reserve(iNumBeleifs);
 	for(int iI = 0; iI < iNumBeleifs; iI++)
 	{
@@ -2721,7 +2691,6 @@ std::vector<BeliefTypes> CvGameReligions::GetAvailableReformationBeliefs(PlayerT
 						bAvailable = false;
 					}
 				}
-#if defined(MOD_BALANCE_CORE)
 				if(ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).GetPlayerTraits()->IsUniqueBeliefsOnly())
 				{
 					if(bUniqueExists)
@@ -2740,7 +2709,6 @@ std::vector<BeliefTypes> CvGameReligions::GetAvailableReformationBeliefs(PlayerT
 						bAvailable = false;
 					}
 				}
-#endif
 				if (bAvailable) {
 #endif
 					availableBeliefs.push_back(eBelief);
@@ -3910,7 +3878,6 @@ bool CvPlayerReligions::ComputeMajority(bool bNotifications)
 		ReligionTypes eReligion = (ReligionTypes)iI;
 		if (HasReligionInMostCities(eReligion))
 		{
-#if defined(MOD_BALANCE_CORE)
 			//New state faith? Let's announce this.
 			if(bNotifications && m_eMajorityReligion != eReligion && m_eMajorityReligion != NO_RELIGION)
 			{
@@ -3929,7 +3896,6 @@ bool CvPlayerReligions::ComputeMajority(bool bNotifications)
 					}
 				}
 			}
-#endif
 			m_eMajorityReligion = eReligion;
 			return true;
 		}
@@ -4144,9 +4110,7 @@ void CvCityReligions::Copy(CvCityReligions* pOldCity)
 {
 	m_ReligionStatus.clear();
 
-#if !defined(MOD_BALANCE_CORE)
-	SetPaidAdoptionBonus(pOldCity->HasPaidAdoptionBonus());
-#endif
+	//SetPaidAdoptionBonus(pOldCity->HasPaidAdoptionBonus());
 
 	ReligionInCityList::iterator religionIt;
 	for(religionIt = pOldCity->m_ReligionStatus.begin(); religionIt != pOldCity->m_ReligionStatus.end(); ++religionIt)
@@ -5062,7 +5026,6 @@ void CvCityReligions::ConvertPercentFollowers(ReligionTypes eToReligion, Religio
 	RecomputeFollowers(FOLLOWER_CHANGE_SCRIPTED_CONVERSION);
 }
 
-#if defined(MOD_BALANCE_CORE)
 /// Convert some percentage of followers from ALL religions to another
 void CvCityReligions::ConvertPercentAllOtherFollowers(ReligionTypes eToReligion, int iPercent)
 {
@@ -5095,7 +5058,6 @@ void CvCityReligions::ConvertNumberAllOtherFollowers(ReligionTypes eToReligion, 
 
 	ConvertPercentAllOtherFollowers(eToReligion, iPercent);
 }
-#endif
 
 /// Add pressure to recruit followers to a religion
 void CvCityReligions::AddHolyCityPressure()
@@ -5998,7 +5960,6 @@ void CvReligionAI::DoTurn()
 	if (m_pPlayer->isHuman())
 		return;
 
-#if defined(MOD_BALANCE_CORE)
 	//buy inquisitors in unprotected cities if an enemy prophet is near or buy missionaries to spread our faith
 	bool bSpreadingOrDefending = DoFaithPurchases() || DoReligionDefenseInCities();
 	bool bShouldSaveForFounding = GC.getGame().GetGameReligions()->GetNumReligionsStillToFound() > 0 && m_pPlayer->GetReligions()->GetOwnedReligion() <= RELIGION_PANTHEON;
@@ -6030,7 +5991,6 @@ void CvReligionAI::DoTurn()
 		for (int iLoop = 0; iLoop < m_aFaithPriorities.size(); iLoop++)
 			DoFaithPurchasesInCities(m_aFaithPriorities.GetElement(iLoop));
 	}
-#endif
 }
 
 /// Select the belief most helpful to this pantheon
@@ -6741,7 +6701,6 @@ ReligionTypes CvReligionAI::GetFavoriteForeignReligion(bool bForInternalSpread) 
 // PRIVATE METHODS
 
 /// Spend faith if already have an enhanced religion
-#if defined(MOD_BALANCE_CORE)
 bool CvReligionAI::DoFaithPurchasesInCities(CvCity* pCity)
 {
 	if(pCity == NULL)
@@ -6940,7 +6899,6 @@ bool CvReligionAI::DoReligionDefenseInCities()
 
 	return bResult;
 }
-#endif
 
 //do we even want to spread our religion?
 int CvReligionAI::GetSpreadScore() const

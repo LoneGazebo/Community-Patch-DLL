@@ -1963,7 +1963,6 @@ int CvLuaGame::lDoMinorBuyout(lua_State* L)
 
 	return 1;
 }
-#if defined(MOD_BALANCE_CORE)
 int CvLuaGame::lDoMinorMarriage(lua_State* L)
 {
 	const int iMajor = lua_tointeger(L, 1);
@@ -1972,7 +1971,6 @@ int CvLuaGame::lDoMinorMarriage(lua_State* L)
 
 	return 1;
 }
-#endif
 //------------------------------------------------------------------------------
 //void GetBestWondersPlayer();
 int CvLuaGame::lGetBestWondersPlayer(lua_State* L)
@@ -2338,7 +2336,6 @@ int CvLuaGame::lGetBuildingYieldModifier(lua_State* L)
 	lua_pushinteger(L, iYieldModifier);
 	return 1;
 }
-#if defined(MOD_BALANCE_CORE)
 //------------------------------------------------------------------------------
 int CvLuaGame::lGetBasicNeedsMedianModifierBuilding(lua_State* L)
 {
@@ -2615,7 +2612,6 @@ int CvLuaGame::lGetGreatestPlayerResourceMonopoly(lua_State* L)
 	lua_pushinteger(L, iReturn);
 	return 1;
 }
-#endif
 #endif
 //------------------------------------------------------------------------------
 int CvLuaGame::lGetWorldNumCitiesUnhappinessPercent(lua_State* L)

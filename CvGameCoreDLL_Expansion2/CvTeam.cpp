@@ -243,12 +243,10 @@ void CvTeam::uninit()
 
 	m_eID = NO_TEAM;
 
-#if defined(MOD_BALANCE_CORE)
 	m_members.clear();
 	m_bIsMinorTeam = false;
 	m_bIsObserverTeam = false;
 	m_iCorporationsEnabledCount = 0;
-#endif
 
 	m_bIsVoluntaryVassal = false;
 	m_iNumTurnsIsVassal = -1;
@@ -880,9 +878,6 @@ void CvTeam::doTurn()
 	{
 		GetTeamTechs()->SetNoTradeTech(((TechTypes)iI), false);
 	}
-#if !defined(MOD_BALANCE_CORE)
-	DoTestSmallAwards();
-#endif
 
 	testCircumnavigated();
 
@@ -1078,7 +1073,6 @@ bool CvTeam::canChangeWarPeace(TeamTypes eTeam) const
 	return true;
 }
 
-#if defined(MOD_BALANCE_CORE)
 void CvTeam::ClearWarDeclarationCache()
 {
 	m_cacheCanDeclareWar.clear();
@@ -1118,7 +1112,6 @@ void CvTeam::changeCorporationsEnabledCount(int iChange)
 	m_iCorporationsEnabledCount = m_iCorporationsEnabledCount + iChange;
 	ASSERT_DEBUG(getCorporationsEnabledCount() >= 0);
 }
-#endif
 
 //	--------------------------------------------------------------------------------
 bool CvTeam::canDeclareWar(TeamTypes eTeam, PlayerTypes eOriginatingPlayer)
@@ -2050,9 +2043,7 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 //	--------------------------------------------------------------------------------
 void CvTeam::DoNowAtWarOrPeace(TeamTypes eTeam, bool bWar)
 {
-#if defined(MOD_BALANCE_CORE)
 	ClearWarDeclarationCache();
-#endif
 
 	// Major is at war with a minor
 	if(isMinorCiv())
@@ -3156,7 +3147,6 @@ int CvTeam::getNumMembers() const
 	return int(m_members.size());
 }
 
-#if defined(MOD_BALANCE_CORE)
 bool CvTeam::addPlayer(PlayerTypes eID)
 {
 	if (eID==NO_PLAYER)
@@ -3194,7 +3184,6 @@ bool CvTeam::isMember(PlayerTypes eID) const
 	return ( pos != m_members.end() );
 }
 
-#endif
 
 //	--------------------------------------------------------------------------------
 int CvTeam::getAliveCount() const
@@ -5069,7 +5058,6 @@ void CvTeam::changeRouteChange(RouteTypes eIndex, int iChange)
 	m_paiRouteChange[eIndex] = (m_paiRouteChange[eIndex] + iChange);
 }
 
-#if defined(MOD_BALANCE_CORE)
 //	--------------------------------------------------------------------------------
 int CvTeam::getTradeRouteDomainExtraRange(DomainTypes eIndex) const
 {
@@ -5085,7 +5073,6 @@ void CvTeam::changeTradeRouteDomainExtraRange(DomainTypes eIndex, int iChange)
 	ASSERT_DEBUG(eIndex < NUM_DOMAIN_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 	m_paiTradeRouteDomainExtraRange[eIndex] = (m_paiTradeRouteDomainExtraRange[eIndex] + iChange);
 }
-#endif
 
 //	--------------------------------------------------------------------------------
 int CvTeam::getBuildTimeChange(BuildTypes eIndex) const
@@ -6167,7 +6154,6 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 			else
 				GetTeamTechs()->ChangeNumTechsKnown(-1);
 
-#if defined(MOD_BALANCE_CORE)
 			if (bNewValue)
 			{
 				for (int iI = 0; iI < MAX_PLAYERS; iI++)
@@ -6187,7 +6173,6 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 					}
 				}
 			}
-#endif
 
 			// Tech progress affects city strength, so update
 			CvCity* pLoopCity = NULL;
@@ -6202,9 +6187,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 					for(pLoopCity = kLoopPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kLoopPlayer.nextCity(&iLoop))
 					{
 						pLoopCity->updateStrengthValue();
-#if defined(MOD_BALANCE_CORE)
 						pLoopCity->GetCityCitizens()->SetDirty(true);
-#endif
 					}
 				}
 			}
@@ -6216,12 +6199,10 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 			for(int iPlotLoop = 0; iPlotLoop < iNumPlots; iPlotLoop++)
 			{
 				CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
-#if defined(MOD_BALANCE_CORE)
 				if(pLoopPlot != NULL)
 				{
 					pLoopPlot->updateImpassable(m_eID);
 				}
-#endif
 				const ResourceTypes eResource = pLoopPlot->getResourceType();
 				if(eResource != NO_RESOURCE)
 				{
@@ -7765,12 +7746,10 @@ void CvTeam::processTech(TechTypes eTech, int iChange, bool bNoBonus)
 		changeVassalageTradingAllowedCount(iChange);
 	}
 
-#if defined(MOD_BALANCE_CORE)
 	if (pTech->IsCorporationsEnabled())
 	{
 		changeCorporationsEnabledCount(iChange);
 	}
-#endif
 
 	if(pTech->IsAllowEmbassyTradingAllowed())
 	{
@@ -7859,12 +7838,10 @@ void CvTeam::processTech(TechTypes eTech, int iChange, bool bNoBonus)
 	{
 		changeRouteChange(((RouteTypes)iI), (GC.getRouteInfo((RouteTypes) iI)->getTechMovementChange(eTech) * iChange));
 	}
-#if defined(MOD_BALANCE_CORE)
 	for(iI = 0; iI < NUM_DOMAIN_TYPES; iI++)
 	{
 		changeTradeRouteDomainExtraRange((DomainTypes)iI, (pTech->GetTradeRouteDomainExtraRange((DomainTypes)iI) * iChange));
 	}
-#endif
 
 	for (int i = 0; i < GC.getNumBuildInfos(); i++)
 	{
@@ -7940,7 +7917,6 @@ void CvTeam::processTech(TechTypes eTech, int iChange, bool bNoBonus)
 			}
 		}
 	}
-#if defined(MOD_BALANCE_CORE)
 	for(iI = 0; iI < MAX_PLAYERS; iI++)
 	{
 		CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iI);
@@ -7959,7 +7935,6 @@ void CvTeam::processTech(TechTypes eTech, int iChange, bool bNoBonus)
 			}
 		}
 	}
-#endif
 
 	for(iI = 0; iI < MAX_PLAYERS; iI++)
 	{
@@ -8446,7 +8421,6 @@ bool CvTeam::IsResourceCityTradeable(ResourceTypes eResource) const
 			if (pPlayer && pPlayer->isAlive())
 			{
 				TechTypes eTech = eDefaultTech;
-#if defined(MOD_BALANCE_CORE)
 				if (pPlayer->GetPlayerTraits()->IsAlternateResourceTechs())
 				{
 					TechTypes eAltTech = pPlayer->GetPlayerTraits()->GetAlternateResourceTechs(eResource).m_eTechCityTrade;
@@ -8455,7 +8429,6 @@ bool CvTeam::IsResourceCityTradeable(ResourceTypes eResource) const
 						eTech = eAltTech;
 					}
 				}
-#endif
 
 				if (eTech == NO_TECH || GetTeamTechs()->HasTech(eTech))
 				{
@@ -8485,7 +8458,6 @@ bool CvTeam::IsResourceRevealed(ResourceTypes eResource) const
 			if (pPlayer && pPlayer->isAlive())
 			{
 				TechTypes eTech = eDefaultTech;
-#if defined(MOD_BALANCE_CORE)
 				if (pPlayer->GetPlayerTraits()->IsAlternateResourceTechs())
 				{
 					TechTypes eAltTech = pPlayer->GetPlayerTraits()->GetAlternateResourceTechs(eResource).m_eTechReveal;
@@ -8494,7 +8466,6 @@ bool CvTeam::IsResourceRevealed(ResourceTypes eResource) const
 						eTech = eAltTech;
 					}
 				}
-#endif
 
 				if ((eTech == NO_TECH || GetTeamTechs()->HasTech(eTech)) && (ePolicy == NO_POLICY || pPlayer->HasPolicy(ePolicy)))
 				{
@@ -8864,7 +8835,6 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 		{
 			DLLUI->setDirty(Soundtrack_DIRTY_BIT, true);
 		}
-#if defined(MOD_BALANCE_CORE)
 		for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 		{
 			ePlayer = (PlayerTypes) iPlayerLoop;
@@ -8907,7 +8877,6 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 
 			}
 		}
-#endif
 
 		// Update Yields from Annexed City-States (Rome UA)
 		for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
@@ -8925,7 +8894,6 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 				kPlayer.UpdateHappinessFromAnnexedMinors();
 			}
 		}
-#if defined(MOD_BALANCE_CORE)
 		updateYield();
 		for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 		{
@@ -8944,7 +8912,6 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 				}
 			}
 		}
-#endif
 #if defined(MOD_EVENTS_NEW_ERA)
 		if (MOD_EVENTS_NEW_ERA && GetCurrentEra() != GC.getGame().getStartEra()) {
 			GAMEEVENTINVOKE_HOOK(GAMEEVENT_TeamSetEra, GetID(), GetCurrentEra(), ((GetID() < MAX_MAJOR_CIVS) && !bAlreadyProvided));

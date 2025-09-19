@@ -3281,7 +3281,6 @@ int CvCityCitizens::GetSpecialistCount(SpecialistTypes eIndex) const
 	return m_aiSpecialistCounts[eIndex];
 }
 
-#if defined(MOD_BALANCE_CORE)
 int CvCityCitizens::GetSpecialistSlots(SpecialistTypes eIndex) const
 {
 	ASSERT_DEBUG(eIndex > -1);
@@ -3313,7 +3312,6 @@ int CvCityCitizens::GetSpecialistSlotsTotal() const
 
 	return iNumSpecialists;
 }
-#endif
 
 /// Count up all the Specialists we have here
 int CvCityCitizens::GetTotalSpecialistCount() const

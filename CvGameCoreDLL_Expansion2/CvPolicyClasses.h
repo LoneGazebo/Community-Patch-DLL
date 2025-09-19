@@ -188,7 +188,6 @@ public:
 	int GetMinorBullyScoreModifier() const;
 	int GetThemingBonusMultiplier() const;
 	int GetInternalTradeRouteYieldModifier() const;
-#if defined(MOD_BALANCE_CORE)
 	int GetPositiveWarScoreTourismMod() const;
 	int GetInternalTradeRouteYieldModifierCapital() const;
 	int GetTradeRouteYieldModifier() const;
@@ -202,7 +201,6 @@ public:
 	int GetMinimumAllyInfluenceIncreaseAtWar() const;
 	bool CanBullyFriendlyCS() const;
 	int GetBullyGlobalCSReduction() const;
-#endif
 	bool IsVassalsNoRebel() const;
 	int GetVassalYieldBonusModifier() const;
 	int GetCSYieldBonusModifier() const;
@@ -220,7 +218,6 @@ public:
 	int GetNumCitiesFreeFoodBuilding() const;
 	bool IsHalfSpecialistUnhappiness() const;
 	bool IsHalfSpecialistFood() const;
-#if defined(MOD_BALANCE_CORE)
 	bool IsHalfSpecialistFoodCapital() const;
 	int GetStealGWSlowerModifier() const;
 	int GetStealGWFasterModifier() const;
@@ -233,7 +230,6 @@ public:
 	int GetCityStateCombatModifier() const;
 	int GetGreatEngineerRateModifier() const;
 	int GetDefenseBoost() const;
-#endif
 	bool IsMilitaryFoodProduction() const;
 	int GetWoundedUnitDamageMod() const;
 	int GetUnitUpgradeCostMod() const;
@@ -297,9 +293,7 @@ public:
 
 	int GetHurryModifier(int i) const;
 	bool IsSpecialistValid(int i) const;
-#if defined(MOD_BALANCE_CORE)
 	int GetFreeChosenBuilding(int i) const;
-#endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	int GetResourceFromCSAlly(int i) const;
 	int GetYieldFromBirth(int i) const;
@@ -630,12 +624,10 @@ private:
 	int m_iInternalTradeRouteYieldModifierCapital;
 	int m_iTradeRouteYieldModifierCapital;
 	int m_iTradeRouteYieldModifier;
-#if defined(MOD_BALANCE_CORE)
 	BuildingClassTypes m_eNewCityFreeBuilding;
 	BuildingClassTypes m_eAllCityFreeBuilding;
 	UnitClassTypes m_eNewFoundCityFreeUnit;
 	BuildingClassTypes m_eNewFoundCityFreeBuilding;
-#endif
 	bool m_bNoCSDecayAtWar;
 	int m_iMinimumAllyInfluenceIncreaseAtWar;
 	bool m_bBullyFriendlyCS;
@@ -663,7 +655,6 @@ private:
 
 	bool m_bHalfSpecialistUnhappiness;
 	bool m_bHalfSpecialistFood;
-#if defined(MOD_BALANCE_CORE)
 	int m_iStealGWSlowerModifier;
 	int m_iStealGWFasterModifier;
 	bool m_bHalfSpecialistFoodCapital;
@@ -676,7 +667,6 @@ private:
 	int m_iCityStateCombatModifier;
 	int m_iGreatEngineerRateModifier;
 	int m_iDefenseBoost;
-#endif
 	bool m_bMilitaryFoodProduction;
 	bool m_bAlwaysSeeBarbCamps;
 	bool m_bRevealAllCapitals;
@@ -756,9 +746,7 @@ private:
 	int* m_paiBuildingClassHappiness;
 	int* m_paiFreeUnitClasses;
 	int* m_paiTourismOnUnitCreation;
-#if defined(MOD_BALANCE_CORE)
 	int* m_paiFreeChosenBuilding;
-#endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	int* m_piResourcefromCSAlly;
 	int* m_piYieldFromBirth;
@@ -931,9 +919,7 @@ public:
 	bool IsDelayWhenNoCulture() const;
 	bool IsDelayWhenNoCityStates() const;
 	bool IsDelayWhenNoScience() const;
-#if defined(MOD_BALANCE_CORE)
 	int GetNumPolicyRequirement() const;
-#endif
 
 	CvString GetIconString();
 
@@ -953,9 +939,7 @@ private:
 	bool m_bDelayWhenNoCulture;
 	bool m_bDelayWhenNoCityStates;
 	bool m_bDelayWhenNoScience;
-#if defined(MOD_BALANCE_CORE)
 	int m_iNumPolicyRequirement;
-#endif
 	CvString m_wstrIdeologyIcon;
 	// Arrays
 	int* m_piPolicyBranchDisables;
@@ -1029,12 +1013,10 @@ enum CLOSED_ENUM PolicyModifierType
 	POLICYMOD_GREAT_ARTIST_RATE,
 	POLICYMOD_GREAT_MUSICIAN_RATE,
 	POLICYMOD_GREAT_MERCHANT_RATE,
-#if defined(MOD_BALANCE_CORE)
 	POLICYMOD_STEAL_GW_SLOWER_MODIFIER,
 	POLICYMOD_STEAL_GW_FASTER_MODIFIER,
 	POLICYMOD_GREAT_ENGINEER_RATE,
 	POLICYMOD_CITY_DEFENSE_BOOST,
-#endif
 	POLICYMOD_GREAT_DIPLOMAT_RATE,
 	POLICYMOD_GREAT_SCIENTIST_RATE,
 	POLICYMOD_TOURISM_MOD_COMMON_FOE,
@@ -1055,13 +1037,11 @@ enum CLOSED_ENUM PolicyModifierType
 	POLICYMOD_THEMING_BONUS,
 	POLICYMOD_CITY_STATE_TRADE_CHANGE,
 	POLICYMOD_INTERNAL_TRADE_MODIFIER,
-#if defined(MOD_BALANCE_CORE)
 	POLICYMOD_INTERNAL_TRADE_CAPITAL_MODIFIER,
 	POLICYMOD_TRADE_CAPITAL_MODIFIER,
 	POLICYMOD_TRADE_MODIFIER,
 	POLICYMOD_LIBERATION_BONUS,
 	POLICYMOD_PUPPET_BONUS,
-#endif
     POLICYMOD_SHARED_RELIGION_TOURISM_MODIFIER,
     POLICYMOD_TRADE_ROUTE_TOURISM_MODIFIER,
 	POLICYMOD_OPEN_BORDERS_TOURISM_MODIFIER,
@@ -1105,9 +1085,7 @@ public:
 	int GetNumPoliciesOwnedInBranch(PolicyBranchTypes eBranch) const;
 	int GetNumPoliciesPurchasedInBranch(PolicyBranchTypes eBranch) const;
 	CvPolicyXMLEntries* GetPolicies() const;
-#if defined(MOD_BALANCE_CORE)
 	void ClearCache();
-#endif
 	// Functions to return benefits from policies
 	int GetNumericModifier(PolicyModifierType eType);
 	int GetYieldModifier(YieldTypes eYieldType);
@@ -1198,10 +1176,8 @@ public:
 private:
 	void AddFlavorAsStrategies(int iPropagatePercent);
 
-#if defined(MOD_BALANCE_CORE)
 	void UpdateModifierCache();
 	std::vector<int> m_vBuildingClassHappinessModifier;
-#endif
 
 	// Logging functions
 	void LogFlavorChange(FlavorTypes eFlavor, int change, const char* reason, bool start);

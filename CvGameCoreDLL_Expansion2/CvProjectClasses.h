@@ -43,7 +43,6 @@ public:
 	int GetFlavorValue(int i) const;
 	bool IsSpaceship() const;
 	bool IsAllowsNukes() const;
-#if defined(MOD_BALANCE_CORE)
 	int CostScalerNumberOfRepeats() const;
 	int GetGoldMaintenance() const;
 	int CostScalerEra() const;
@@ -68,7 +67,6 @@ public:
 	int GetCultureMedianModifier() const;
 	int GetReligiousUnrestModifier() const;
 	int GetSpySecurityModifier() const;
-#endif
 
 	const char* GetMovieArtDef() const;
 
@@ -99,7 +97,6 @@ protected:
 
 	bool m_bSpaceship;
 	bool m_bAllowsNukes;
-#if defined(MOD_BALANCE_CORE)
 	int m_iGoldMaintenance;
 	int m_iCostScalerEra;
 	int m_iCostScalerNumRepeats;
@@ -124,7 +121,6 @@ protected:
 	int m_iCultureMedianModifier;
 	int m_iReligiousUnrestModifier;
 	int m_iSpySecurityModifier;
-#endif
 
 	CvString m_strCreateSound;
 	CvString m_strMovieArtDef;

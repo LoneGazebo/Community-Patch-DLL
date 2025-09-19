@@ -18,12 +18,10 @@
 #include "CvEnumSerialization.h"
 #include "CvInfosSerializationHelper.h"
 #include "cvStopWatch.h"
-#if defined(MOD_BALANCE_CORE)
 #include "CvTypes.h"
 #include "CvWonderProductionAI.h"
 #include "CvTacticalAI.h"
 #include "CvTacticalAnalysisMap.h"
-#endif
 // must be included after all other headers
 #include "LintFree.h"
 
@@ -1507,10 +1505,8 @@ void CvCityStrategyAI::DoTurn()
 					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_LargeCity(GetCity());
 				else if(strStrategyName == "AICITYSTRATEGY_LANDLOCKED")
 					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_Landlocked(GetCity());
-#if defined(MOD_BALANCE_CORE)
 				else if(strStrategyName == "AICITYSTRATEGY_LAKEBOUND")
 					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_Lakebound(GetCity());
-#endif
 				else if(strStrategyName == "AICITYSTRATEGY_NEED_TILE_IMPROVERS")
 					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_NeedTileImprovers(eCityStrategy, GetCity());
 				else if(strStrategyName == "AICITYSTRATEGY_WANT_TILE_IMPROVERS")
@@ -1523,14 +1519,12 @@ void CvCityStrategyAI::DoTurn()
 					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_NeedNavalTileImprovement(GetCity());
 				else if(strStrategyName == "AICITYSTRATEGY_ENOUGH_NAVAL_TILE_IMPROVEMENT")
 					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_EnoughNavalTileImprovement(GetCity());
-#if defined(MOD_BALANCE_CORE)
 				else if(strStrategyName == "AICITYSTRATEGY_ENOUGH_SETTLERS")
 					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_EnoughSettlers(GetCity());
 				else if(strStrategyName == "AICITYSTRATEGY_NEW_CONTINENT_FEEDER")
 					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_NewContinentFeeder(eCityStrategy, GetCity());
 				else if(strStrategyName == "AICITYSTRATEGY_POCKET_CITY")
 					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_PocketCity(GetCity());
-#endif
 				else if(strStrategyName == "AICITYSTRATEGY_NEED_IMPROVEMENT_FOOD")
 					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_NeedImprovement(GetCity(), YIELD_FOOD);
 				else if(strStrategyName == "AICITYSTRATEGY_NEED_IMPROVEMENT_PRODUCTION")
@@ -2338,7 +2332,6 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_Landlocked(CvCity* pCity)
 	return !pCity->isCoastal();
 }
 
-#if defined(MOD_BALANCE_CORE)
 /// "Lakebound" City Strategy: If a City has no access to actual Ocean, reduce all water-based Flavors
 bool CityStrategyAIHelpers::IsTestCityStrategy_Lakebound(CvCity* pCity)
 {
@@ -2360,7 +2353,6 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_Lakebound(CvCity* pCity)
 
 	return bHaveLake && !bHaveOcean;
 }
-#endif
 
 /// "Need Tile Improvers" City Strategy: Do we REALLY need to train some Workers?
 bool CityStrategyAIHelpers::IsTestCityStrategy_NeedTileImprovers(AICityStrategyTypes eStrategy, CvCity* pCity)
@@ -2613,7 +2605,6 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_EnoughNavalTileImprovement(CvCity
 		return true;
 	}
 
-#if defined(MOD_BALANCE_CORE)
 	int iX = pCity->getX(); int iY = pCity->getY(); int iOwner = pCity->getOwner();
 
 	int iNumWorkersHere = 0;
@@ -2674,11 +2665,10 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_EnoughNavalTileImprovement(CvCity
 	{
 		return true;
 	}
-#endif
 
 	return false;
 }
-#if defined(MOD_BALANCE_CORE)
+
 // Too many settlers!
 bool CityStrategyAIHelpers::IsTestCityStrategy_EnoughSettlers(CvCity* pCity)
 {
@@ -2758,7 +2748,6 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_PocketCity(CvCity* pCity)
 	SPathFinderUserData data(pCity->getOwner(), PT_BUILD_ROUTE, NO_BUILD, ROUTE_ANY, PURPOSE_CONNECT_CAPITAL, true);
 	return !GC.GetStepFinder().DoesPathExist(pCapitalCity->getX(), pCapitalCity->getY(), pCity->getX(), pCity->getY(), data);
 }
-#endif
 
 /// "Need Improvement" City Strategy: if we need to get an improvement that increases a yield amount
 bool CityStrategyAIHelpers::IsTestCityStrategy_NeedImprovement(CvCity* pCity, YieldTypes yield)

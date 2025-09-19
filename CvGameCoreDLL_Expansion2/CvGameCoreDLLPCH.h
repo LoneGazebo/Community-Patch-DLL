@@ -246,19 +246,9 @@ typedef wchar_t          wchar;
 #include "CvAdvisorCounsel.h"
 #include "CvAdvisorRecommender.h"
 #include "CvAchievementInfo.h"
-#if defined(MOD_BALANCE_CORE)
 #include "CvCorporationClasses.h"
 #include "CvContractClasses.h"
-#endif
 
 using namespace fastdelegate;
-
-#ifdef FINAL_RELEASE
-// Undefine OutputDebugString in final release builds
-#if !defined(MOD_BALANCE_CORE)
-#undef OutputDebugString
-#define OutputDebugString(x)
-#endif
-#endif //FINAL_RELEASE
 
 #endif	// CVGAMECOREDLLPCH_H

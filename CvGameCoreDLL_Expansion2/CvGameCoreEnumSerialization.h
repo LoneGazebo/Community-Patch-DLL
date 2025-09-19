@@ -74,6 +74,9 @@ FDataStream& operator>>(FDataStream&, GreatWorkArtifactClass&);
 FDataStream& operator<<(FDataStream&, const FaithPurchaseTypes&);
 FDataStream& operator>>(FDataStream&, FaithPurchaseTypes&);
 
+FDataStream& operator<<(FDataStream&, const ContractTypes&);
+FDataStream& operator>>(FDataStream&, ContractTypes&);
+
 template<typename Enum, typename T>
 inline FDataStream& operator<<(FDataStream& saveTo, const CvEnum<Enum, T>& readFrom)
 {

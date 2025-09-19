@@ -54,7 +54,6 @@ bool CvProjectEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	m_bSpaceship = kResults.GetBool("Spaceship");
 	m_bAllowsNukes = kResults.GetBool("AllowsNukes");
 
-#if defined(MOD_BALANCE_CORE)
 	m_iGoldMaintenance = kResults.GetInt("Maintenance");
 	m_iCostScalerEra = kResults.GetInt("CostScalerEra");
 	m_iCostScalerNumRepeats = kResults.GetInt("CostScalerNumRepeats");
@@ -89,7 +88,6 @@ bool CvProjectEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	{
 		m_eFreePolicy = (PolicyTypes)GC.getInfoTypeForString(szFreePolicy, true);
 	}
-#endif
 
 	m_strMovieArtDef = kResults.GetText("MovieDefineTag");
 
@@ -248,7 +246,6 @@ bool CvProjectEntry::IsAllowsNukes() const
 {
 	return m_bAllowsNukes;
 }
-#if defined(MOD_BALANCE_CORE)
 int CvProjectEntry::CostScalerEra() const
 {
 	return m_iCostScalerEra;
@@ -350,7 +347,6 @@ int CvProjectEntry::GetSpySecurityModifier() const
 {
 	return m_iSpySecurityModifier;
 }
-#endif
 
 /// Retrieve movie file name
 const char* CvProjectEntry::GetMovieArtDef() const
@@ -502,9 +498,5 @@ void CvProjectXMLEntries::DeleteArray()
 /// Get a specific entry
 CvProjectEntry* CvProjectXMLEntries::GetEntry(int index)
 {
-#if defined(MOD_BALANCE_CORE)
 	return (index!=NO_PROJECT) ? m_paProjectEntries[index] : NULL;
-#else
-	return m_paProjectEntries[index];
-#endif
 }

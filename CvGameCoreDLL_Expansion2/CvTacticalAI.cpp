@@ -619,7 +619,6 @@ void CvTacticalAI::FindTacticalTargets()
 					}
 				}
 
-#if defined(MOD_BALANCE_CORE)
 				//Enemy water plots?
 				if (pLoopPlot->isRevealed(m_pPlayer->getTeam()) && pLoopPlot->isWater() && atWar(m_pPlayer->getTeam(), pLoopPlot->getTeam()))
 				{
@@ -649,7 +648,6 @@ void CvTacticalAI::FindTacticalTargets()
 						}
 					}
 				}
-#endif
 			}
 		}
 	}

@@ -2500,10 +2500,8 @@ CvTwoLayerPathFinder::CvTwoLayerPathFinder()
 	m_sData.ePath = PT_UNIT_MOVEMENT;
 	SetFunctionPointers(PathDestValid, PathHeuristic, PathCost, PathValid, NULL, UnitPathInitialize, UnitPathUninitialize);
 
-#if defined(MOD_BALANCE_CORE)
 	//for debugging
 	m_strName = "TwoLayerAStar";
-#endif
 }
 
 //	--------------------------------------------------------------------------------

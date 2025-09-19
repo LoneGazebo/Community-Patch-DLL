@@ -33,9 +33,7 @@
 #include "CvBarbarians.h"
 #include "CvEnumMap.h"
 
-#if defined(MOD_BALANCE_CORE)
 #include "CvDistanceMap.h"
-#endif
 
 // Include this after all other headers.
 #include "LintFree.h"
@@ -110,7 +108,6 @@ void CvPlayerAI::AI_doTurnPre()
 		return;
 	}
 
-#if defined(MOD_BALANCE_CORE)
 	//make sure we iterate our units in a sensible order
 	struct CompareUnitPowerAscending
 	{
@@ -125,7 +122,6 @@ void CvPlayerAI::AI_doTurnPre()
 
 	//this orders units by combat strength
 	m_units.OrderByContent( CompareUnitPowerAscending() );
-#endif
 
 	AI_doResearch();
 	AI_considerAnnex();
@@ -1347,7 +1343,6 @@ void CvPlayerAI::ProcessGreatPeople(void)
 	int iLoop = 0;
 	for(CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
 	{
-#if defined(MOD_BALANCE_CORE)
 		if(pLoopUnit->IsCityAttackSupport())
 		{
 			pLoopUnit->SetGreatPeopleDirective(GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND);
@@ -1365,7 +1360,6 @@ void CvPlayerAI::ProcessGreatPeople(void)
 			continue;
 		}
 		else
-#endif
 		if(pLoopUnit->getSpecialUnitType() != eSpecialUnitGreatPerson || pLoopUnit->getArmyID()!=-1)
 		{
 			continue;

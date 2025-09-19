@@ -123,9 +123,7 @@ CvBeliefEntry::CvBeliefEntry() :
 	m_iCSYieldBonus(0),
 #endif
 
-#if defined(MOD_BALANCE_CORE)
 	m_eRequiredCivilization(NO_CIVILIZATION),
-#endif
 
 	m_eObsoleteEra(NO_ERA),
 	m_eResourceRevealed(NO_RESOURCE),
@@ -811,13 +809,11 @@ bool CvBeliefEntry::IsAIGoodStartingPantheon() const
 	return m_bAIGoodStartingPantheon;
 }
 #endif
-#if defined(MOD_BALANCE_CORE)
 //------------------------------------------------------------------------------
 CivilizationTypes CvBeliefEntry::GetRequiredCivilization() const
 {
 	return m_eRequiredCivilization;
 }
-#endif
 /// Accessor: era when wonder production modifier goes obsolete
 EraTypes CvBeliefEntry::GetObsoleteEra() const
 {
@@ -847,7 +843,6 @@ void CvBeliefEntry::setShortDescription(const char* szVal)
 {
 	m_strShortDescription = szVal;
 }
-#if defined(MOD_BALANCE_CORE)
 /// Accessor:: Get brief text description
 const char* CvBeliefEntry::getTooltip() const
 {
@@ -859,7 +854,6 @@ void CvBeliefEntry::setTooltip(const char* szVal)
 {
 	m_strTooltip = szVal;
 }
-#endif
 
 /// Accessor:: Additional yield
 int CvBeliefEntry::GetCityYieldChange(int i) const
@@ -1212,7 +1206,6 @@ bool CvBeliefEntry::IsFaithUnitPurchaseEra(int i) const
 	ASSERT_DEBUG(i < GC.getNumEraInfos(), "Index out of bounds");
 	return m_pbFaithPurchaseUnitEraEnabled ? m_pbFaithPurchaseUnitEraEnabled[i] : false;
 }
-#if defined(MOD_BALANCE_CORE)
 /// Can we buy units of this type with faith?
 bool CvBeliefEntry::IsFaithUnitPurchaseSpecific(int i) const
 {
@@ -1220,7 +1213,6 @@ bool CvBeliefEntry::IsFaithUnitPurchaseSpecific(int i) const
 	ASSERT_DEBUG(i < GC.getNumUnitInfos(), "Index out of bounds");
 	return m_pbFaithPurchaseUnitSpecificEnabled ? m_pbFaithPurchaseUnitSpecificEnabled[i] : false;
 }
-#endif
 /// Can we buy units of this era with faith?
 bool CvBeliefEntry::IsBuildingClassEnabled(int i) const
 {
@@ -1237,9 +1229,7 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 
 	//Basic Properties
 	setShortDescription(kResults.GetText("ShortDescription"));
-#if defined(MOD_BALANCE_CORE)
 	setTooltip(kResults.GetText("Tooltip"));
-#endif
 
 	m_iMinPopulation                  = kResults.GetInt("MinPopulation");
 	m_iMinFollowers                   = kResults.GetInt("MinFollowers");
@@ -1312,10 +1302,8 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iPolicyReductionWonderXFollowerCities = kResults.GetInt("PolicyReductionWonderXFollowerCities");
 #endif
 	m_bAIGoodStartingPantheon = kResults.GetBool("AI_GoodStartingPantheon");
-#if defined(MOD_BALANCE_CORE)
 	const char* szCivilizationType = kResults.GetText("CivilizationType");
 	m_eRequiredCivilization = (CivilizationTypes)GC.getInfoTypeForString(szCivilizationType, true);
-#endif
 	//References
 	const char* szTextVal = NULL;
 	szTextVal						  = kResults.GetText("ObsoleteEra");
@@ -3874,7 +3862,6 @@ bool CvReligionBeliefs::IsFaithBuyingEnabled(EraTypes eEra, PlayerTypes ePlayer,
 
 	return false;
 }
-#if defined(MOD_BALANCE_CORE)
 /// Is there a belief that allows faith buying of specific units?
 bool CvReligionBeliefs::IsSpecificFaithBuyingEnabled(UnitTypes eUnit, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
@@ -3912,7 +3899,6 @@ BeliefTypes CvReligionBeliefs::GetSpecificFaithBuyingEnabledBelief(UnitTypes eUn
 
 	return NO_BELIEF;
 }
-#endif
 /// Is there a belief that allows us to convert adjacent barbarians?
 bool CvReligionBeliefs::IsConvertsBarbarians(PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {

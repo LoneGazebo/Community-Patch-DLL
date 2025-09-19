@@ -209,12 +209,10 @@ void CvPlot::reset()
 	m_ePlayerResponsibleForImprovement = NO_PLAYER;
 	m_ePlayerResponsibleForRoute = NO_PLAYER;
 	m_ePlayerThatClearedBarbCampHere = NO_PLAYER;
-#if defined(MOD_BALANCE_CORE)
 	m_iUnitPlotExperience = 0;
 	m_iUnitPlotGAExperience = 0;
 	m_iPlotChangeMoves = 0;
 	m_iRestoreMoves = 0;
-#endif
 	m_eLandmarkCreditMinor = NO_PLAYER;
 	m_ePlayerThatClearedDigHere = NO_PLAYER;
 	m_ePlayerThatDestroyedCityHere = NO_PLAYER;
@@ -261,10 +259,8 @@ void CvPlot::reset()
 		m_aeRevealedImprovementType[iI] = NO_IMPROVEMENT;
 		m_aeRevealedRouteType[iI] = NO_ROUTE;
 		m_aeHumanPlannedRouteState[iI] = NO_PLANNED_ROUTE;
-#if defined(MOD_BALANCE_CORE)
 		m_abIsImpassable[iI] = false;
 		m_abStrategicRoute[iI] = false;
-#endif
 	}
 
 	m_vInvisibleVisibilityUnitCount.clear();
@@ -2360,11 +2356,9 @@ void CvPlot::updateSeeFromSight(bool bIncrement, bool bRecalculate)
 			{
 				pLoopPlot->updateSight(bIncrement);
 
-#if defined(MOD_BALANCE_CORE)
 				//hack: don't do this during map generation
 				if (bRecalculate && GC.getGame().getElapsedGameTurns()>0)
 					GC.getMap().LineOfSightChanged(pLoopPlot);
-#endif
 			}
 		}
 	}
@@ -2625,7 +2619,7 @@ bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlay
 
 		//Polder-specific code for lakes
 		bool bLake = false;
-		if (MOD_BALANCE_CORE && pkImprovementInfo->IsAdjacentLake())
+		if (pkImprovementInfo->IsAdjacentLake())
 		{
 			for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 			{
@@ -2645,7 +2639,7 @@ bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlay
 			return false;
 	}
 
-	if (MOD_BALANCE_CORE && pkImprovementInfo->IsAdjacentLake())
+	if (pkImprovementInfo->IsAdjacentLake())
 	{
 		for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 		{
@@ -3222,13 +3216,11 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 	{
 		if(GC.getBuildInfo(eBuild)->isFeatureRemove(getFeatureType()))
 		{
-#if defined(MOD_BALANCE_CORE)
 			if(getFeatureType() == FEATURE_FALLOUT && GC.getBuildInfo(eBuild)->isFeatureRemove(FEATURE_FALLOUT))
 			{
 				bValid = true;
 			}
 			else
-#endif
 			if(bTestPlotOwner)
 			{
 				if(isOwned() && (eTeam != getTeam()) && !atWar(eTeam, getTeam()))
@@ -5007,7 +4999,6 @@ int CvPlot::getNumDefenders(PlayerTypes ePlayer) const
 
 	return 0;
 }
-#if defined(MOD_BALANCE_CORE)
 //	-----------------------------------------------------------------------------------------------
 int CvPlot::getNumNavalDefenders(PlayerTypes ePlayer) const
 {
@@ -5034,7 +5025,6 @@ int CvPlot::getNumNavalDefenders(PlayerTypes ePlayer) const
 
 	return 0;
 }
-#endif
 //	-----------------------------------------------------------------------------------------------
 int CvPlot::getNumVisibleEnemyDefenders(const CvUnit* pUnit) const
 {
@@ -5517,9 +5507,7 @@ void CvPlot::SetCityConnection(PlayerTypes ePlayer, bool bActive, bool bIndustri
 				}
 			}
 		}
-#if defined(MOD_BALANCE_CORE)
 		updateYield();
-#endif
 	}
 }
 
@@ -5537,7 +5525,6 @@ bool CvPlot::IsCityConnection(PlayerTypes ePlayer, bool bIndustrial) const
 	return GET_PLAYER(ePlayer).IsCityConnectionPlot(this, bIndustrial);
 }
 
-#if defined(MOD_BALANCE_CORE)
 //	--------------------------------------------------------------------------------
 void CvPlot::ChangeNumTradeUnitRoute(int iChange)
 {
@@ -5557,7 +5544,6 @@ bool CvPlot::IsTradeUnitRoute() const
 {
 	return GetNumTradeUnitRoute() > 0;
 }
-#endif
 
 //	--------------------------------------------------------------------------------
 bool CvPlot::at(int iX, int iY) const
@@ -7120,9 +7106,7 @@ void CvPlot::setPlotType(PlotTypes eNewValue, bool bRecalculate, bool bRebuildGr
 		m_ePlotType = eNewValue;
 
 		updateYield();
-#if defined(MOD_BALANCE_CORE)
 		updateImpassable();
-#endif
 
 		updateSeeFromSight(true,bRecalculate);
 
@@ -7372,7 +7356,6 @@ void CvPlot::setTerrainType(TerrainTypes eNewValue, bool bRecalculate, bool bReb
 		updateYield();
 		updateImpassable();
 
-#if defined(MOD_BALANCE_CORE)
 		CvCity* pOwningCity = getEffectiveOwningCity();
 
 		if(pOwningCity != NULL)
@@ -7387,7 +7370,6 @@ void CvPlot::setTerrainType(TerrainTypes eNewValue, bool bRecalculate, bool bReb
 				pOwningCity->UpdateYieldPerXTerrainFromReligion((YieldTypes)iI, getTerrainType());
 			}
 		}
-#endif
 
 		if(bUpdateSight)
 		{
@@ -7997,13 +7979,11 @@ void CvPlot::setIsCity(bool bValue, int iCityID, int iWorkRange)
 				pLoopPlot->changePlayerCityRadiusCount(getOwner(), 1);
 			}
 		}
-#if defined(MOD_BALANCE_CORE)
 		if(isMountain())
 		{
 			ImprovementTypes eMachuPichu = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_MOUNTAIN_CITY");
 			setImprovementType(eMachuPichu);
 		}
-#endif
 		// Is a route is here?  If we already own this plot, then we were paying maintenance, now we don't have to.
 		if(getRouteType() != NO_ROUTE)
 		{
@@ -11936,7 +11916,6 @@ void CvPlot::ResetKnownVisibility()
 	}
 }
 
-#if defined(MOD_BALANCE_CORE)
 //	--------------------------------------------------------------------------------
 bool CvPlot::IsTeamImpassable(TeamTypes eTeam) const
 {
@@ -11952,7 +11931,6 @@ void CvPlot::SetTeamImpassable(TeamTypes eTeam, bool bValue)
 	ASSERT_DEBUG(eTeam < REALLY_MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
 	m_abIsImpassable[eTeam] = bValue;
 }
-#endif
 //	--------------------------------------------------------------------------------
 bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, CvUnit* pUnit, bool bTerrainOnly, TeamTypes eFromTeam)
 {
@@ -13164,7 +13142,6 @@ int CvPlot::getNumUnits() const
 {
 	return m_units.getLength();
 }
-#if defined(MOD_BALANCE_CORE)
 int CvPlot::GetUnitPlotExperience() const
 {
 	VALIDATE_OBJECT();
@@ -13209,7 +13186,6 @@ void CvPlot::ChangeRestoreMovesCount(int iValue)
 	VALIDATE_OBJECT();
 	m_iRestoreMoves += iValue;
 }
-#endif
 //	--------------------------------------------------------------------------------
 int CvPlot::GetNumCombatUnits()
 {
@@ -14886,7 +14862,6 @@ bool CvPlot::IsWithinDistanceOfFeature(FeatureTypes iFeatureType, int iDistance)
 	return false;
 }
 
-#if defined(MOD_BALANCE_CORE)
 bool CvPlot::IsWithinDistanceOfUnit(PlayerTypes ePlayer, UnitTypes eOtherUnit, int iDistance, bool bIsFriendly, bool bIsEnemy) const
 {
 	int iX = getX(); int iY = getY();
@@ -15356,7 +15331,6 @@ bool CvPlot::IsAdjacentToRoute(RouteTypes eType) const
 	}
 	return false;
 }
-#endif
 
 bool CvPlot::IsAdjacentToImprovement(ImprovementTypes iImprovementType) const
 {
@@ -15714,7 +15688,6 @@ int CvPlot::GetNumFriendlyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, 
 	return iNumFriendliesAdjacent;
 }
 
-#if defined(MOD_BALANCE_CORE)
 int CvPlot::GetNumSpecificFriendlyUnitCombatsAdjacent(TeamTypes eMyTeam, UnitCombatTypes eUnitCombat, const CvUnit* pUnitToExclude) const
 {
 	int iNumber = 0;
@@ -15756,7 +15729,6 @@ int CvPlot::GetNumSpecificFriendlyUnitCombatsAdjacent(TeamTypes eMyTeam, UnitCom
 
 	return iNumber;
 }
-#endif
 
 bool CvPlot::IsFriendlyUnitAdjacent(TeamTypes eMyTeam, bool bCombatUnit) const
 {
@@ -15825,7 +15797,6 @@ int CvPlot::GetNumSpecificPlayerUnitsAdjacent(PlayerTypes ePlayer, const CvUnit*
 
 ///-------------------------------------
 
-#if defined(MOD_BALANCE_CORE)
 static int GetDefensiveApproachMultiplierTimes100(CivApproachTypes eApproach)
 {
 	switch (eApproach)
@@ -16113,7 +16084,6 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner, BuildTypes eBuild, Improvem
 	return (iDefensiveValueTimes100 * iDefensibilityTimes100) / 100;
 }
 
-#endif
 
 FDataStream& operator<<(FDataStream& saveTo, const CvPlot* const& readFrom)
 {

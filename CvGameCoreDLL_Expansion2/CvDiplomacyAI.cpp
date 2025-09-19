@@ -30967,12 +30967,10 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 
 					CvDiplomacyRequests::SendRequest(GetID(), ePlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, szText, LEADERHEAD_ANIM_POSITIVE);
 				}
-#if defined(MOD_BALANCE_CORE)
 				else
 				{
 					GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeNumTimesIntrigueSharedBy(GetID(), 1);
 				}
-#endif
 			}
 
 			// mark the messages as shared so the player isn't told the same thing repeatedly
@@ -31952,9 +31950,7 @@ void CvDiplomacyAI::DoContactPlayer(PlayerTypes ePlayer)
 			DoDenounceFriendStatement(ePlayer, eStatement);
 			DoDenounceStatement(ePlayer, eStatement);
 			DoEndDoFStatement(ePlayer, eStatement);
-#if !defined(MOD_BALANCE_CORE)
-			DoRequestFriendDenounceStatement(ePlayer, eStatement, iData1);
-#endif
+			//DoRequestFriendDenounceStatement(ePlayer, eStatement, iData1);
 
 			DoMapsOffer(ePlayer,eStatement,pDeal);
 			DoTechOffer(ePlayer,eStatement,pDeal);
@@ -36717,7 +36713,6 @@ const char* CvDiplomacyAI::GetDiploStringForMessage(DiploMessageTypes eDiploMess
 	case DIPLO_MESSAGE_WORK_WITH_US:
 		strText = GetDiploTextFromTag("RESPONSE_WORK_WITH_US");
 		break;
-#if defined(MOD_BALANCE_CORE)
 	// AI wants a Strategic Resource that someone has
 	case DIPLO_MESSAGE_STRATEGIC_TRADE:
 		strText = GetDiploTextFromTag("RESPONSE_STRATEGIC_TRADE");
@@ -36738,7 +36733,6 @@ const char* CvDiplomacyAI::GetDiploStringForMessage(DiploMessageTypes eDiploMess
 	case DIPLO_MESSAGE_DOF_BATTLE_BROTHERS:
 		strText = GetDiploTextFromTag("RESPONSE_DOF_BATTLE_BROTHERS");
 		break;
-#endif
 
 		// AI is done working with a player
 	case DIPLO_MESSAGE_END_WORK_WITH_US:
@@ -39458,10 +39452,8 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			if (!IsTeammate(eFromPlayer))
 			{
 				SetBrokeCoopWarPromise(eFromPlayer, true);
-#if defined(MOD_BALANCE_CORE)
 				ChangeRecentAssistValue(eFromPlayer, -300);
 				ChangeCoopWarAgreementScore(eFromPlayer, -2);
-#endif
 			}
 
 			if (bActivePlayer)
@@ -43844,7 +43836,6 @@ void CvDiplomacyAI::DoDenouncePlayer(PlayerTypes ePlayer)
 	DoReevaluatePlayer(ePlayer);
 
 	Localization::String someoneDenounceInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_DENOUNCE");
-#if defined(MOD_BALANCE_CORE)
 	int iMessage = GetDenounceMessage(ePlayer);
 	if (iMessage > 0 && iMessage <= 7)
 	{
@@ -43914,7 +43905,6 @@ void CvDiplomacyAI::DoDenouncePlayer(PlayerTypes ePlayer)
 	{
 		someoneDenounceInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_DENOUNCE");
 	}
-#endif
 	Localization::String someoneDenounceSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_DENOUNCE_S");
 	Localization::String youDenounceInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_YOU_DENOUNCE");
 	Localization::String youDenounceSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_YOU_DENOUNCE_S");
@@ -47627,16 +47617,13 @@ int CvDiplomacyAI::GetAngryAboutSidedWithProtectedMinorScore(PlayerTypes ePlayer
 			if (GetBoldness() > 7 || GetMeanness() > 7)
 				iOpinionWeight += /*10*/ GD_INT_GET(OPINION_WEIGHT_SIDED_WITH_THEIR_MINOR_AGGRESSIVE_MOD);
 
-			else if (MOD_BALANCE_CORE)
+			else if (GetPlayer()->GetPlayerTraits()->GetBullyMilitaryStrengthModifier() != 0 ||
+				GetPlayer()->GetPlayerTraits()->GetBullyValueModifier() != 0 ||
+				GetPlayer()->GetPlayerTraits()->GetCityStateCombatModifier() != 0 ||
+				GetPlayer()->GetPlayerTraits()->IsBullyAnnex() || GetPlayer()->GetPlayerTraits()->IgnoreBullyPenalties() ||
+				GetPlayer()->IsCanBullyFriendlyCS())
 			{
-				if (GetPlayer()->GetPlayerTraits()->GetBullyMilitaryStrengthModifier() != 0 ||
-					GetPlayer()->GetPlayerTraits()->GetBullyValueModifier() != 0 ||
-					GetPlayer()->GetPlayerTraits()->GetCityStateCombatModifier() != 0 ||
-					GetPlayer()->GetPlayerTraits()->IsBullyAnnex() || GetPlayer()->GetPlayerTraits()->IgnoreBullyPenalties() ||
-					GetPlayer()->IsCanBullyFriendlyCS())
-				{
-					iOpinionWeight += /*10*/ GD_INT_GET(OPINION_WEIGHT_SIDED_WITH_THEIR_MINOR_AGGRESSIVE_MOD);
-				}
+				iOpinionWeight += /*10*/ GD_INT_GET(OPINION_WEIGHT_SIDED_WITH_THEIR_MINOR_AGGRESSIVE_MOD);
 			}
 		}
 
@@ -51078,7 +51065,6 @@ void CvDiplomacyAI::LogWantDP(PlayerTypes ePlayer)
 	}
 }
 
-#if defined(MOD_BALANCE_CORE)
 /// Log Major Civ Approach Update
 void CvDiplomacyAI::LogApproachValueDeltas(PlayerTypes ePlayer, const int* aiApproachValues, const int* aiScratchValues)
 {
@@ -51184,7 +51170,6 @@ void CvDiplomacyAI::LogApproachValueDeltas(PlayerTypes ePlayer, const int* aiApp
 		}
 	}
 }
-#endif
 
 /// Log Major Civ Warmonger Threat update
 void CvDiplomacyAI::LogMajorCivWarmongerUpdate(PlayerTypes ePlayer, int iValue, bool bUpdateLogsSpecial)
@@ -52015,7 +52000,6 @@ void CvDiplomacyAI::LogWarStatus()
 					LogMilitaryStrength(strOutBuf, eLoopPlayer);
 					LogEconomicStrength(strOutBuf, eLoopPlayer);
 
-#if defined(MOD_BALANCE_CORE)
 					if(!GET_PLAYER(eLoopPlayer).isMinorCiv() && IsAtWar(eLoopPlayer))
 					{
 						strTemp.Format("   !!!!WAR SCORE: %d !!!! ", GetWarScore(eLoopPlayer));
@@ -52024,7 +52008,6 @@ void CvDiplomacyAI::LogWarStatus()
 
 					strTemp.Format(" ---  War Weariness: %d, Supply: %d", m_pPlayer->GetWarWearinessPercent(eLoopPlayer), m_pPlayer->GetNumUnitsSupplied());
 					strOutBuf += ", " + strTemp;
-#endif
 					pLog->Msg(strOutBuf);
 				}
 			}

@@ -2419,10 +2419,8 @@ CvGlobals::CvGlobals() :
 	m_pLeagueProjectRewards(NULL),
 	m_pResolutions(NULL),
 	m_pAchievements(NULL),
-#if defined(MOD_BALANCE_CORE)
 	m_pCorporations(NULL),
 	m_pContracts(NULL),
-#endif
 	m_pGameDatabase(NULL),
 	m_saveVersion(SAVE_VERSION_LATEST),
 	m_gameDataHash()
@@ -2750,10 +2748,8 @@ void CvGlobals::init()
 	m_pResolutions = FNEW(CvResolutionXMLEntries, c_eCiv5GameplayDLL, 0);
 	m_pNotifications = FNEW(CvNotificationXMLEntries, c_eCiv5GameplayDLL, 0);
 	m_pAchievements = FNEW(CvAchievementXMLEntries, c_eCiv5GameplayDLL, 0);
-#if defined(MOD_BALANCE_CORE)
 	m_pCorporations = FNEW(CvCorporationXMLEntries, c_eCiv5GameplayDLL, 0);
 	m_pContracts = FNEW(CvContractXMLEntries, c_eCiv5GameplayDLL, 0);
-#endif
 
 	CvPlayerAI::initStatics();
 	CvTeam::initStatics();
@@ -2799,10 +2795,8 @@ void CvGlobals::uninit()
 	SAFE_DELETE(m_pTraits);
 	SAFE_DELETE(m_pReligions);
 	SAFE_DELETE(m_pBeliefs);
-#if defined(MOD_BALANCE_CORE)
 	SAFE_DELETE(m_pCorporations);
 	SAFE_DELETE(m_pContracts);
-#endif
 	SAFE_DELETE(m_pSpyPassiveBonuses);
 	SAFE_DELETE(m_pSpyPassiveBonusesDiplomat);
 	SAFE_DELETE(m_pLeagueSpecialSessions);
@@ -4580,7 +4574,6 @@ CvBeliefXMLEntries* CvGlobals::GetGameBeliefs() const
 	return m_pBeliefs;
 }
 
-#if defined(MOD_BALANCE_CORE)
 int CvGlobals::getNumCorporationInfos()
 {
 	return (int)m_pCorporations->GetCorporationEntries().size();
@@ -4624,7 +4617,6 @@ CvContractXMLEntries* CvGlobals::GetGameContracts() const
 {
 	return m_pContracts;
 }
-#endif
 
 int CvGlobals::getNumSpyPassiveBonusInfos()
 {

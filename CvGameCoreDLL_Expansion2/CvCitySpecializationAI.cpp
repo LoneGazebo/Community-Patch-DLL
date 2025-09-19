@@ -208,10 +208,8 @@ void CvCitySpecializationXMLEntries::DeleteArray()
 CvCitySpecializationAI::CvCitySpecializationAI():
 	m_bSpecializationsDirty(false),
 	m_bInterruptWonders(false),
-#if defined(MOD_BALANCE_CORE)
 	m_bInterruptBuildings(false),
 	m_bChooseNewWonder(false),
-#endif
 	m_eNextWonderDesired(NO_BUILDING),
 	m_iWonderCityID(-1),
 	m_iNextWonderWeight(0),
@@ -244,10 +242,8 @@ void CvCitySpecializationAI::Reset()
 {
 	m_bSpecializationsDirty = false;
 	m_bInterruptWonders = false;
-#if defined(MOD_BALANCE_CORE)
 	m_bInterruptBuildings = false;
 	m_bChooseNewWonder = false;
-#endif
 	m_eNextWonderDesired = NO_BUILDING;
 	m_iWonderCityID = -1;
 	m_iNextWonderWeight = 0;
@@ -978,7 +974,6 @@ CvCity* CvCitySpecializationAI::FindBestWonderCity() const
 	return NULL;
 }
 
-#if defined(MOD_BALANCE_CORE)
 int CvCitySpecializationAI::AdjustValueBasedOnHappiness(CvCity* pCity, YieldTypes eYield, int iInitialValue)
 {
 	int iRtnValue = iInitialValue;
@@ -1027,7 +1022,7 @@ int CvCitySpecializationAI::AdjustValueBasedOnHappiness(CvCity* pCity, YieldType
 	}
 	return iRtnValue;
 }
-#endif
+
 /// Multiply city value for a yield based on buildings present
 int CvCitySpecializationAI::AdjustValueBasedOnBuildings(CvCity* pCity, YieldTypes eYield, int iInitialValue)
 {
@@ -1055,7 +1050,6 @@ int CvCitySpecializationAI::AdjustValueBasedOnBuildings(CvCity* pCity, YieldType
 		// +20% per point of yield change
 		iRtnValue = iRtnValue * (100 + (iYieldChanges * 20)) / 100;
 	}
-#if defined(MOD_BALANCE_CORE)
 	iYieldChanges = pCity->GetYieldPerPopInEmpireTimes100(eYield);
 	if (iYieldChanges > 0)
 	{
@@ -1110,7 +1104,6 @@ int CvCitySpecializationAI::AdjustValueBasedOnBuildings(CvCity* pCity, YieldType
 		// +10% per point of yield change
 		iRtnValue = iRtnValue * (100 + (iYieldChanges * 10)) / 100;
 	}
-#endif
 
 	// Other modifiers (unique by yield type)
 	switch(eYield)

@@ -667,10 +667,8 @@ public:
 	bool IsKnownVisibleToTeam(TeamTypes eTeam) const;
 	void IncreaseKnownVisibilityCount(TeamTypes eTeam, TeamTypes eTeam2=NO_TEAM);
 	void ResetKnownVisibility();
-#if defined(MOD_BALANCE_CORE)
 	bool IsTeamImpassable(TeamTypes eTeam) const;
 	void SetTeamImpassable(TeamTypes eTeam, bool bValue);
-#endif
 
 	ImprovementTypes getRevealedImprovementType(TeamTypes eTeam, bool bDebug) const;
 	ImprovementTypes getRevealedImprovementType(TeamTypes eTeam) const;
@@ -710,7 +708,6 @@ public:
 	void changeInvisibleVisibilityCount(TeamTypes eTeam, InvisibleTypes eInvisible, int iChange);
 
 	int getNumUnits() const;
-#if defined(MOD_BALANCE_CORE)
 	int GetUnitPlotExperience() const;
 	void ChangeUnitPlotExperience(int iExperience);
 	int GetUnitPlotGAExperience() const;
@@ -720,7 +717,6 @@ public:
 	void ChangePlotMovesChange(int iValue);
 	bool IsRestoreMoves() const;
 	void ChangeRestoreMovesCount(int iValue);
-#endif
 	int GetNumCombatUnits();
 	CvUnit* getUnitByIndex(int iIndex) const;
 	int getUnitIndex(CvUnit* pUnit) const;
@@ -821,7 +817,6 @@ public:
 	LUAAPIINLINE(IsTerrainHills, HasTerrain, TERRAIN_HILL)
 	bool IsAdjacentToFeature(FeatureTypes iFeatureType) const;
 	bool IsWithinDistanceOfFeature(FeatureTypes iFeatureType, int iDistance) const;
-#if defined(MOD_BALANCE_CORE)
 	bool IsWithinDistanceOfUnit(PlayerTypes ePlayer, UnitTypes eOtherUnit, int iDistance, bool bIsFriendly, bool bIsEnemy) const;
 	bool IsWithinDistanceOfUnitClass(PlayerTypes ePlayer, UnitClassTypes eUnitClass, int iDistance, bool bIsFriendly, bool bIsEnemy) const;
 	bool IsWithinDistanceOfUnitCombatType(PlayerTypes ePlayer, UnitCombatTypes eUnitCombat, int iDistance, bool bIsFriendly, bool bIsEnemy) const;
@@ -833,7 +828,6 @@ public:
 	bool IsAdjacentToUnitPromotion(PlayerTypes ePlayer, PromotionTypes eUnitPromotion, bool bIsFriendly, bool bIsEnemy) const;
 	bool IsAdjacentToTradeRoute() const;
 	bool IsAdjacentToRoute(RouteTypes eType=ROUTE_ANY) const;
-#endif
 	bool IsAdjacentToImprovement(ImprovementTypes iImprovementType) const;
 	bool IsWithinDistanceOfImprovement(ImprovementTypes iImprovementType, int iDistance) const;
 	bool IsAdjacentToPlotType(PlotTypes iPlotType) const;
@@ -845,7 +839,6 @@ public:
 
 	bool IsStealBlockedByImprovement() const;
 
-#if defined(MOD_BALANCE_CORE)
 	bool IsEnemyCityAdjacent(TeamTypes eMyTeam, const CvCity* pSpecifyCity) const;
 	bool IsEnemyUnitAdjacent(TeamTypes eMyTeam) const;
 	int GetNumEnemyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, const CvUnit* pUnitToExclude = NULL, bool bConsiderFlanking = false, TeamTypes eSpecificTeam = NO_TEAM, bool bIncludeEmbarked = false) const;
@@ -862,7 +855,6 @@ public:
 	void updateImpassable(TeamTypes eTeam = NO_TEAM);
 
 	int GetNumSpecificFriendlyUnitCombatsAdjacent(TeamTypes eMyTeam, UnitCombatTypes eUnitCombat, const CvUnit* pUnitToExclude = NULL) const;
-#endif
 
 	bool canPlaceCombatUnit(PlayerTypes ePlayer) const;
 
@@ -955,12 +947,10 @@ protected:
 	char *m_aeRevealedRouteType;
 	bool* m_abResourceForceReveal;
 	char* m_aeHumanPlannedRouteState;
-#if defined(MOD_BALANCE_CORE)
 	bool* m_abStrategicRoute;
 	bool* m_abIsImpassable;
 	int m_iNumTradeUnitRoute;
 	short m_iLastTurnBuildChanged;
-#endif
 
 	//can add extra yield from lua. no overhead if unused!
 	vector<pair<YieldTypes, int>> m_vExtraYields;
@@ -987,12 +977,10 @@ protected:
 	//why only one autovariable? probably should extend this to everything the players may change about the plot
 	//ie improvements, routes, etc
 
-#if defined(MOD_BALANCE_CORE)
 	char m_iUnitPlotExperience;
 	char m_iUnitPlotGAExperience;
 	char m_iPlotChangeMoves;
 	char m_iRestoreMoves;
-#endif
 	char /*ResourceTypes*/ m_eResourceType;
 	char /*ImprovementTypes*/ m_eImprovementType;
 	char /*PlayerTypes*/ m_ePlayerBuiltImprovement;

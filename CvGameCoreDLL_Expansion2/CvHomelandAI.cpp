@@ -800,7 +800,6 @@ void CvHomelandAI::PlotSentryMoves()
 	}
 }
 
-#if defined(MOD_BALANCE_CORE)
 void CvHomelandAI::PlotSentryNavalMoves()
 {
 	FindUnitsForThisMove(AI_HOMELAND_MOVE_SENTRY_NAVAL);
@@ -855,7 +854,6 @@ void CvHomelandAI::PlotSentryNavalMoves()
 		}
 	}
 }
-#endif
 
 void CvHomelandAI::PlotOpportunisticSettlementMoves()
 {
@@ -4031,7 +4029,6 @@ void CvHomelandAI::ExecuteEngineerMoves()
 								continue;
 							}
 						}
-#if defined(MOD_BALANCE_CORE)
 					}
 					else if(pUnit->IsCombatUnit())
 					{
@@ -4049,7 +4046,6 @@ void CvHomelandAI::ExecuteEngineerMoves()
 							continue;
 						}
 					}
-#endif
 				}
 
 				if(bForceWonderCity)
@@ -4058,10 +4054,8 @@ void CvHomelandAI::ExecuteEngineerMoves()
 
 					if(pWonderCity)
 					{
-#if defined(MOD_BALANCE_CORE)
 						if(pUnit->AI_getUnitAIType() == UNITAI_ENGINEER)
 						{
-#endif
 							iTurnsToTarget = pUnit->TurnsToReachTarget(pWonderCity->plot(), true);
 
 							// Already at target?
@@ -4113,7 +4107,6 @@ void CvHomelandAI::ExecuteEngineerMoves()
 									continue;
 								}
 							}
-#if defined(MOD_BALANCE_CORE)
 						}
 						else if(pUnit->IsCombatUnit())
 						{
@@ -4132,7 +4125,6 @@ void CvHomelandAI::ExecuteEngineerMoves()
 								continue;
 							}
 						}
-#endif
 					}
 				}
 			}
@@ -4714,7 +4706,6 @@ void CvHomelandAI::ExecuteMissionaryMoves()
 				}
 			}
 		}
-#if defined(MOD_BALANCE_CORE)
 		else
 		{
 			if(pUnit->isHuman())
@@ -4735,7 +4726,6 @@ void CvHomelandAI::ExecuteMissionaryMoves()
 			}
 
 		}
-#endif
 	}
 }
 
@@ -5186,7 +5176,6 @@ void CvHomelandAI::ExecuteAircraftMoves()
 	}
 }
 
-#if defined(MOD_BALANCE_CORE)
 bool CvHomelandAI::MoveCivilianToGarrison(CvUnit* pUnit)
 {
 	WeightedPlotVector aBestPlotList;
@@ -5281,7 +5270,6 @@ bool CvHomelandAI::MoveCivilianToGarrison(CvUnit* pUnit)
 
 	return false;
 }
-#endif
 
 /// Fleeing to safety for civilian units
 bool CvHomelandAI::MoveCivilianToSafety(CvUnit* pUnit)
@@ -6053,7 +6041,7 @@ bool CvHomelandAI::ExecuteSpecialExploreMove(CvUnit* pUnit, CvPlot* pTargetPlot)
 	}
 	return false;
 }
-#if defined(MOD_BALANCE_CORE)
+
 bool CvHomelandAI::FindTestArchaeologistPlotPrimer(CvUnit *pUnit)
 {
 	if(pUnit->AI_getUnitAIType() != UNITAI_ARCHAEOLOGIST)
@@ -6092,7 +6080,6 @@ bool CvHomelandAI::FindTestArchaeologistPlotPrimer(CvUnit *pUnit)
 	}
 	return false;
 }
-#endif
 
 /// Build log filename
 CvString CvHomelandAI::GetLogFileName(CvString& playerName) const

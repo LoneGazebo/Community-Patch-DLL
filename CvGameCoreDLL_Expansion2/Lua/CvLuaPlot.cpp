@@ -1156,15 +1156,11 @@ int CvLuaPlot::lIsCityConnection(lua_State* L)
 //bool isImpassable();
 int CvLuaPlot::lIsImpassable(lua_State* L)
 {
-#if defined(MOD_BALANCE_CORE)
 	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
 	TeamTypes eTeam = (TeamTypes) luaL_optinteger(L, 2, NO_TEAM);
 	const bool bResult = pkPlot->isImpassable(eTeam);
 	lua_pushboolean(L, bResult);
 	return 1;
-#else
-	return BasicLuaMethod(L, &CvPlot::isImpassable);
-#endif
 }
 
 //------------------------------------------------------------------------------

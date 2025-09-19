@@ -257,11 +257,9 @@ public:
 	void LogPeace(TeamTypes eOpponentTeam);
 	void LogDeficitScrapUnit(CvUnit* pUnit, bool bGifted);
 
-#if defined(MOD_BALANCE_CORE)
 	WarTypes GetWarType(PlayerTypes ePlayer = NO_PLAYER);
 	void UpdateWarType();
 	void SetupInstantDefenses(PlayerTypes ePlayer);
-#endif
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	int GetRecommendLandArmySize() const
@@ -298,13 +296,11 @@ private:
 	void UpdateDefenseState();
 	void UpdateMilitaryStrategies();
 	void UpdateOperations();
-#if defined(MOD_BALANCE_CORE)
 	void DoNuke(PlayerTypes ePlayer);
 	void CheckLandDefenses(PlayerTypes eEnemy, CvCity* pThreatenedCity);
 	void CheckSeaDefenses(PlayerTypes ePlayer, CvCity* pThreatenedCity);
 	void DoCityAttacks(PlayerTypes ePlayer);
 	void SetRecommendedArmyNavySize();
-#endif
 	void MakeEmergencyPurchases();
 	void DisbandObsoleteUnits();
 

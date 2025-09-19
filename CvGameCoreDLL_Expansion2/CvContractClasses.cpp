@@ -8,8 +8,6 @@
 // must be included after all other headers
 #include "LintFree.h"
 
-#if defined(MOD_BALANCE_CORE)
-
 CvContractEntry::CvContractEntry(void):
 	m_strCategory(""),
 	m_strAdjective(""),
@@ -63,7 +61,7 @@ EraTypes CvContractEntry::GetPrereqEra() const
 
 EraTypes CvContractEntry::GetObsoleteEra() const
 {
-	return (EraTypes)m_iPrereqEra;
+	return (EraTypes)m_iObsoleteEra;
 }
 
 ReligionTypes CvContractEntry::GetPrereqReligion() const
@@ -269,19 +267,6 @@ FDataStream& operator<<(FDataStream& saveTo, const CvContract& readFrom)
 	return saveTo;
 }
 
-// For some reason CvSerializationInfoHelpers is not working for this.
-FDataStream& operator<<(FDataStream& saveTo, const ContractTypes& readFrom)
-{
-	saveTo << static_cast<int>(readFrom);
-	return saveTo;
-}
-FDataStream& operator>>(FDataStream& loadFrom, ContractTypes& writeTo)
-{
-	int v = 0;
-	loadFrom >> v;
-	writeTo = static_cast<ContractTypes>(v);
-	return loadFrom;
-}
 
 //=====================================
 // CvPlayerContracts
@@ -870,5 +855,3 @@ FDataStream& operator<<(FDataStream& saveTo, const CvGameContracts& readFrom)
 	CvGameContracts::Serialize(readFrom, serialVisitor);
 	return saveTo;
 }
-
-#endif

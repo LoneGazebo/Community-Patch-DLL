@@ -73,7 +73,6 @@ public:
 	int GetLuxuryCopiesSiphonedFromMinor() const;
 	int GetCityStateExtraVote() const;
 	int GetHappinessOnConstruction() const;
-#if defined(MOD_BALANCE_CORE)
 	int GetResourceFromImprovement() const;
 	int GetResourceQuantityFromImprovement() const;
 	int GetUnitFreePromotion() const;
@@ -87,7 +86,6 @@ public:
 	bool IsRemovesSelf() const;
 	bool IsNewOwner() const;
 	bool IsOwnerOnly() const;
-#endif
 	int GetImprovementPillage() const;
 	void SetImprovementPillage(int i);
 	int GetImprovementUpgrade() const;
@@ -140,13 +138,11 @@ public:
 	bool IsIgnoreOwnership() const;
 	bool IsOnlyCityStateTerritory() const;
 	bool IsEmbassy() const;
-#if defined(MOD_BALANCE_CORE)
 	int GetObsoleteTech() const;
 	bool IsNoAdjacentCity() const;
 	bool IsAdjacentCity() const;
 	bool IsAdjacentLake() const;
 	int GetGrantsVision() const;
-#endif
 	bool IsNoTwoAdjacent() const;
 	int GetXSameAdjacentMakesValid() const;
 	bool IsAdjacentLuxury() const;
@@ -259,7 +255,6 @@ protected:
 	int m_iLuxuryCopiesSiphonedFromMinor;
 	int m_iImprovementLeagueVotes;
 	int m_iHappinessOnConstruction;
-#if defined(MOD_BALANCE_CORE)
 	int m_iImprovementResource;
 	int m_iImprovementResourceQuantity;
 	int m_iUnitFreePromotionImprovement;
@@ -273,7 +268,6 @@ protected:
 	bool m_bOwnerOnly;
 	int m_iMovesChange;
 	bool m_bRestoreMoves;
-#endif
 	int m_iImprovementPillage;
 	int m_iImprovementUpgrade;
 	int m_iRequiresXAdjacentLand;
@@ -323,13 +317,11 @@ protected:
 	bool m_bIgnoreOwnership;
 	bool m_bOnlyCityStateTerritory;
 	bool m_bIsEmbassy;
-#if defined(MOD_BALANCE_CORE)
 	int m_iGetObsoleteTech;
 	bool m_bNoAdjacentCity;
 	bool m_bAdjacentCity;
 	bool m_bAdjacentLake;
 	int m_iGrantsVision;
-#endif
 	bool m_bNoTwoAdjacent;
 	int m_iXSameAdjacentMakesValid;
 	bool m_bAdjacentLuxury;
