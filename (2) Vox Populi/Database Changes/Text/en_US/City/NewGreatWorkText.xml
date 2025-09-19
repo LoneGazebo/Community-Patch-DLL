@@ -14,5 +14,12 @@
 		<Row Tag="TXT_KEY_GREAT_WORK_THE_CROWN_JEWELS_QUOTE">
 			<Text>"On the contrary. Every Bison dollar will be worth[NEWLINE] five British pounds. For that is the exchange rate[NEWLINE] that the bank of England will implement after[NEWLINE] I kidnap their queen."[NEWLINE]-M. Bison</Text>
 		</Row>
+		
+		<Row Tag="TXT_KEY_GREAT_WORK_BODHISATTVA">
+			<Text>The Way of the Bodhisattva</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_BODHISATTVA_QUOTE">
+			<Text>"We are the authors of our own destiny;[NEWLINE]and being the authors, we are ultimately, perhaps frighteningly,[NEWLINE]free."[NEWLINE]-Shantideva</Text>
+		</Row>
 	</Language_en_US>
 </GameData>

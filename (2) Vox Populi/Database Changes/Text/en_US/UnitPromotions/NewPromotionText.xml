@@ -1167,7 +1167,7 @@
 			<Text>Schützenkönig</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SCHUTZENKONIG_HELP">
-			<Text>+2% [ICON_STRENGTH] Combat Strength for each non-enemy [ICON_MARRIAGE] Married City-State (max 30%).</Text>
+			<Text>+2% [ICON_STRENGTH] Combat Strength for each non-enemy [ICON_RES_MARRIAGE] Married City-State (max 30%).</Text>
 		</Row>
 		
 		<Row Tag="TXT_KEY_PROMOTION_BRUTE_STRENGTH">
@@ -1308,6 +1308,13 @@
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_TROMMELFEUER_HELP">
 			<Text>+3% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking for every Unit with this Promotion that attacked last turn (max 30%).</Text>
+		</Row>
+		
+		<Row Tag="TXT_KEY_PROMOTION_PROXENOS">
+			<Text>Proxenos</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_PROXENOS_HELP">
+			<Text>Permanently adds +2 [ICON_GOLD] Gold to your [COLOR_MAGENTA]Parthenon[ENDCOLOR] National Wonder when completing a [ICON_INFLUENCE] Diplomatic Mission.</Text>
 		</Row>
 		
 		<Row Tag="TXT_KEY_PROMOTION_PHILHELLENISM">

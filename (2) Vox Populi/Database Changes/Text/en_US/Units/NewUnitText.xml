@@ -627,5 +627,10 @@
 		<Row Tag="TXT_KEY_GREAT_PERSON_D__730">
 			<Text>Greta Thunberg</Text>
 		</Row>
+		
+		<!-- Great Artist for Art from Parthenon -->
+		<Row Tag="TXT_KEY_GREAT_PERSON_LAWRENCE_ALMA_TADEMA">
+			<Text>Lawrence Alma-Tadema</Text>
+		</Row>
 	</Language_en_US>
 </GameData>

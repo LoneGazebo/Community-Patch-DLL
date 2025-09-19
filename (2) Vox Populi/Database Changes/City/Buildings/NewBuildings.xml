@@ -1678,7 +1678,7 @@
 		<!-- Nalanda -->
 		<Row>
 			<Type>BUILDING_NALANDA</Type>
-			<BuildingClass>BUILDINGCLASS_ROMAN_FORUM</BuildingClass>
+			<BuildingClass>BUILDINGCLASS_NALANDA</BuildingClass>
 			<Description>TXT_KEY_BUILDING_NALANDA</Description>
 			<Civilopedia>TXT_KEY_BUILDING_NALANDA_TEXT</Civilopedia>
 			<Help>TXT_KEY_BUILDING_NALANDA_HELP</Help>

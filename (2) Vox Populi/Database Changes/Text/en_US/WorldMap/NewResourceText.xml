@@ -85,6 +85,15 @@
 		<Row Tag="TXT_KEY_RESOURCE_BRAZILWOOD_TEXT">
 			<Text>Brazilwood is a dense, compact dyewood from any of various tropical trees whose extracts yield bright crimson and deep purple colours. Brazilwood is also used in cabinetwork and the creation of musical instruments. In ancient and medieval times, the brazilwood imported to Europe from the Middle East was Caesalpinia braziliensis and other species of Caesalpinia. Caesalpinia echinata (called pau-brasil in Portuguese) is indigenous to the Brazilian coast and played a role in the naming of that country.</Text>
 		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_FIGS">
+			<Text>Figs</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_FIGS_HELP">
+			<Text>Bonus resource unique to Rome. Can only be acquired through the creation of Villae.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_FIGS_TEXT">
+			<Text>Native to the Middle East and western Asia, Figs have been cultivated since ancient times, being one of the oldest plants cultivated by humans. Figs were common in Ancient Greece and spread to Rome where they formed a staple fruit for the lower classes. Figs are easy to preserve and are well-suited to forming condiments due to their high sugar content. It is perhaps this very association with the simplicity and poverty of common folk which saw figs fall from fashion in later periods.</Text>
+		</Row>
 		<Row Tag="TXT_KEY_RESOURCE_PAPER">
 			<Text>Paper</Text>
 		</Row>
