@@ -51,13 +51,12 @@ local function AddTechButton(kTechInfo, iNumTech)
 		ClosePopup();
 	end
 
-	local strSearch = L(kTechInfo.Description);
-	local function GetTechPedia()
-		Events.SearchForPediaEntry(strSearch);
-	end
-
 	instance.TechButton:RegisterCallback(Mouse.eLClick, TechSelected);
-	instance.TechButton:RegisterCallback(Mouse.eRClick, GetTechPedia);
+
+	local strSearch = L(kTechInfo.Description);
+	instance.TechButton:RegisterCallback(Mouse.eRClick, function ()
+		Events.SearchForPediaEntry(strSearch);
+	end);
 
 	local strTech = L(kTechInfo.Description);
 	instance.CurrentlyResearchingTechName:SetText(strTech);
