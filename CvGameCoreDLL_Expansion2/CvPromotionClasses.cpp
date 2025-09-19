@@ -174,10 +174,12 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iEmbarkDefenseModifier(0),
 	m_iCapitalDefenseModifier(0),
 	m_iCapitalDefenseFalloff(0),
+	m_iCapitalDefenseLimit(0),
 	m_iCityAttackPlunderModifier(0),
 	m_iReligiousStrengthLossRivalTerritory(0),
 	m_iTradeMissionInfluenceModifier(0),
 	m_iTradeMissionGoldModifier(0),
+	m_iCombatModPerLevel(0),
 #if defined(MOD_BALANCE_CORE)
 	m_iCaptureDefeatedEnemyChance(0),
 	m_iBarbarianCombatBonus(0),
@@ -190,12 +192,16 @@ CvPromotionEntry::CvPromotionEntry():
 	m_bCannotBeCaptured(false),
 	m_bIsLostOnMove(false),
 	m_bCityStateOnly(false),
+	m_bDiplomaticMissionAccomplishment(false),
 	m_bBarbarianOnly(false),
 	m_bStrongerDamaged(false),
 	m_bFightWellDamaged(false),
+	m_bFreeAttackMoves(false),
 	m_iNegatesPromotion(NO_PROMOTION),
 	m_iForcedDamageValue(0),
 	m_iChangeDamageValue(0),
+	m_iDamageTakenMod(0),
+	m_iInfluenceFromCombatXPTimes100(0),
 	m_iPromotionDuration(0),
 	m_iMoraleBreakChance(0),
 	m_iDamageAoEFortified(0),
@@ -476,13 +482,17 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_bCannotBeCaptured = kResults.GetBool("CannotBeCaptured");
 	m_bIsLostOnMove = kResults.GetBool("IsLostOnMove");
 	m_bCityStateOnly = kResults.GetBool("CityStateOnly");
+	m_bDiplomaticMissionAccomplishment = kResults.GetBool("DiplomaticMissionAccomplishment");
 	m_bBarbarianOnly = kResults.GetBool("BarbarianOnly");
 	m_bStrongerDamaged = kResults.GetBool("StrongerDamaged");
 	m_bFightWellDamaged = kResults.GetBool("FightWellDamaged");
+	m_bFreeAttackMoves = kResults.GetBool("FreeAttackMoves");
 	const char* szNegatesPromotion = kResults.GetText("NegatesPromotion");
 	m_iNegatesPromotion = GC.getInfoTypeForString(szNegatesPromotion, true);
 	m_iForcedDamageValue = kResults.GetInt("ForcedDamageValue");
 	m_iChangeDamageValue = kResults.GetInt("ChangeDamageValue");
+	m_iDamageTakenMod = kResults.GetInt("DamageTakenMod");
+	m_iInfluenceFromCombatXPTimes100 = kResults.GetInt("InfluenceFromCombatXpTimes100");
 	m_iPromotionDuration = kResults.GetInt("PromotionDuration");
 	m_iMoraleBreakChance = kResults.GetInt("MoraleBreakChance");
 	m_iDamageAoEFortified = kResults.GetInt("AoEWhileFortified");
@@ -738,10 +748,12 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iEmbarkDefenseModifier = kResults.GetInt("EmbarkDefenseModifier");
 	m_iCapitalDefenseModifier = kResults.GetInt("CapitalDefenseModifier");
 	m_iCapitalDefenseFalloff = kResults.GetInt("CapitalDefenseFalloff");
+	m_iCapitalDefenseLimit = kResults.GetInt("CapitalDefenseLimit");
 	m_iCityAttackPlunderModifier = kResults.GetInt("CityAttackPlunderModifier");
 	m_iReligiousStrengthLossRivalTerritory = kResults.GetInt("ReligiousStrengthLossRivalTerritory");
 	m_iTradeMissionInfluenceModifier = kResults.GetInt("TradeMissionInfluenceModifier");
 	m_iTradeMissionGoldModifier = kResults.GetInt("TradeMissionGoldModifier");
+	m_iCombatModPerLevel = kResults.GetInt("CombatModPerLevel");
 
 	//References
 	const char* szLayerAnimationPath = kResults.GetText("LayerAnimationPath");
@@ -2218,6 +2230,11 @@ int CvPromotionEntry::GetCapitalDefenseFalloff() const
 	return m_iCapitalDefenseFalloff;
 }
 
+int CvPromotionEntry::GetCapitalDefenseLimit() const
+{
+	return m_iCapitalDefenseLimit;
+}
+
 /// Accessor: gold earned from damage on an attacked city
 int CvPromotionEntry::GetCityAttackPlunderModifier() const
 {
@@ -2240,6 +2257,12 @@ int CvPromotionEntry::GetTradeMissionInfluenceModifier() const
 int CvPromotionEntry::GetTradeMissionGoldModifier() const
 {
 	return m_iTradeMissionGoldModifier;
+}
+
+/// Accessor: Combat mod for each unit level above the first one
+int CvPromotionEntry::GetCombatModPerLevel() const
+{
+	return m_iCombatModPerLevel;
 }
 #if defined(MOD_BALANCE_CORE)
 int CvPromotionEntry::GetDiploMissionInfluence() const
@@ -2299,6 +2322,11 @@ bool CvPromotionEntry::IsCityStateOnly() const
 {
 	return m_bCityStateOnly;
 }
+//Units with this promotion trigger ACCOMPLISHMENT_DIPLOMATIC_MISSION_BOOST when finishing a diplomatic mission
+bool CvPromotionEntry::IsDiplomaticMissionAccomplishment() const
+{
+	return m_bDiplomaticMissionAccomplishment;
+}
 //Promotion for barbs only
 bool CvPromotionEntry::IsBarbarianOnly() const
 {
@@ -2312,17 +2340,29 @@ bool CvPromotionEntry::IsFightWellDamaged() const
 {
 	return m_bFightWellDamaged;
 }
+bool CvPromotionEntry::IsFreeAttackMoves() const
+{
+	return m_bFreeAttackMoves;
+}
 int CvPromotionEntry::NegatesPromotion() const
 {
 	return m_iNegatesPromotion;
 }
-int CvPromotionEntry::ForcedDamageValue() const
+int CvPromotionEntry::GetForcedDamageValue() const
 {
 	return m_iForcedDamageValue;
 }
-int CvPromotionEntry::ChangeDamageValue() const
+int CvPromotionEntry::GetChangeDamageValue() const
 {
 	return m_iChangeDamageValue;
+}
+int CvPromotionEntry::GetDamageTakenMod() const
+{
+	return m_iDamageTakenMod;
+}
+int CvPromotionEntry::GetInfluenceFromCombatXPTimes100() const
+{
+	return m_iInfluenceFromCombatXPTimes100;
 }
 int CvPromotionEntry::PromotionDuration() const
 {

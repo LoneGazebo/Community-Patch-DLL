@@ -2571,7 +2571,14 @@ int CvLuaPlayer::lCanConstruct(lua_State* L)
 //bool canCreate(ProjectTypes  eProject, bool bContinue, bool bTestVisible);
 int CvLuaPlayer::lCanCreate(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::canCreate);
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int iProject = lua_tointeger(L, 2);
+	const bool bContinue = luaL_optint(L, 3, 0);
+	const bool bTestVisible = luaL_optint(L, 4, 0);
+	const bool bResult = pkPlayer->canCreate((ProjectTypes)iProject, bContinue, bTestVisible);
+
+	lua_pushboolean(L, bResult);
+	return 1;
 }
 //------------------------------------------------------------------------------
 //bool canMaintain(ProcessTypes  eProcess, bool bContinue);

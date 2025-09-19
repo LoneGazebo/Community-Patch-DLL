@@ -1208,7 +1208,7 @@
 		<Row Tag="TXT_KEY_PROMOTION_ELISHAS_GUILE">
 			<Text>Elisha's Guile</Text>
 		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_RIACHUELO_HELP">
+		<Row Tag="TXT_KEY_PROMOTION_ELISHAS_GUILE_HELP">
 			<Text>Can Embark.[NEWLINE]+1 [ICON_VISION] Sight and Embarked Sight.[NEWLINE]Withdraw from Melee Attack if there is an open tile behind this Unit, once per turn.</Text>
 		</Row>
 		
@@ -1399,13 +1399,6 @@
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_GOEDENDAG_HELP">
 			<Text>+10% [ICON_STRENGTH] Combat Strength to all adjacent [COLOR_POSITIVE_TEXT]Friendly Units[ENDCOLOR].</Text>
-		</Row>
-		
-		<Row Tag="TXT_KEY_PROMOTION_BURGHER">
-			<Text>Burgher</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_BURGHER_HELP">
-			<Text>+33% [ICON_STRENGTH] Combat Strength within 2 tiles of [COLOR_POSITIVE_TEXT]Friendly City[ENDCOLOR].</Text>
 		</Row>
 		
 		<Row Tag="TXT_KEY_PROMOTION_UNWIELDY">

@@ -164,7 +164,8 @@ public:
 	bool IsBuyOwnedTiles() const;
 	bool IsNewCitiesStartWithCapitalReligion() const;
 	bool IsForeignReligionSpreadImmune() const;
-	int GetInspirationalLeader() const;
+	int GetXPBonusFromGreatPersonBirth() const;
+	int GetUnitHealFromGreatPersonBirth() const;
 	int GetBullyMilitaryStrengthModifier() const;
 	int GetBullyValueModifier() const;
 	bool IgnoreBullyPenalties() const;
@@ -346,6 +347,7 @@ public:
 	int GetPrereqPolicy() const;
 #endif
 	int GetResourceQuantityModifier(int i) const;
+	int GetNumFreeResourceOnWorldWonderCompletion(int i) const;
 	int GetMovesChangeUnitCombat(const int unitCombatID) const;
 #if defined(MOD_BALANCE_CORE)
 	int GetMovesChangeUnitClass(const int unitClassID) const;
@@ -545,7 +547,8 @@ protected:
 	bool m_bBuyOwnedTiles;
 	bool m_bNewCitiesStartWithCapitalReligion;
 	bool m_bNoSpread;
-	int m_iInspirationalLeader; // OBSOLETE: to be removed in VP5.0
+	int m_iXPBonusFromGreatPersonBirth;
+	int m_iUnitHealFromGreatPersonBirth;
 	int m_iBullyMilitaryStrengthModifier;
 	int m_iBullyValueModifier;
 	bool m_bIgnoreBullyPenalties;
@@ -717,6 +720,7 @@ protected:
 	int* m_paiYieldModifier;
 	int* m_piStrategicResourceQuantityModifier;
 	int* m_piResourceQuantityModifiers;
+	int* m_piNumFreeResourceOnWorldWonderCompletion;
 	int* m_piMovesChangeUnitCombats;
 	int* m_paiGAPToYield;
 	int* m_paiMountainRangeYield;
@@ -1139,9 +1143,13 @@ public:
 	{
 		return m_bNoSpread;
 	};
-	int GetInspirationalLeader() const
+	int GetXPBonusFromGreatPersonBirth() const
 	{
-		return m_iInspirationalLeader;
+		return m_iXPBonusFromGreatPersonBirth;
+	};
+	int GetUnitHealFromGreatPersonBirth() const
+	{
+		return m_iUnitHealFromGreatPersonBirth;
 	};
 	int GetBullyMilitaryStrengthModifier() const
 	{
@@ -1731,6 +1739,10 @@ public:
 	{
 		return ((uint)eResource < m_aiResourceQuantityModifier.size())?m_aiResourceQuantityModifier[(int)eResource]:0;
 	};
+	int GetNumFreeResourceOnWorldWonderCompletion(ResourceTypes eResource) const
+	{
+		return ((uint)eResource < m_aiNumFreeResourceOnWorldWonderCompletion.size())?m_aiNumFreeResourceOnWorldWonderCompletion[(int)eResource]:0;
+	};
 #if defined(MOD_BALANCE_CORE)
 	int GetGreatPersonCostReduction(GreatPersonTypes eGreatPerson) const
 	{
@@ -2188,7 +2200,8 @@ private:
 	bool m_bBuyOwnedTiles;
 	bool m_bNewCitiesStartWithCapitalReligion;
 	bool m_bNoSpread;
-	int m_iInspirationalLeader; // OBSOLETE: to be removed in VP5.0
+	int m_iXPBonusFromGreatPersonBirth;
+	int m_iUnitHealFromGreatPersonBirth;
 	int m_iBullyMilitaryStrengthModifier;
 	int m_iBullyValueModifier;
 	bool m_bIgnoreBullyPenalties;
@@ -2355,6 +2368,7 @@ private:
 	int m_iYieldRateModifier[NUM_YIELD_TYPES];
 	int m_iStrategicResourceQuantityModifier[NUM_TERRAIN_TYPES];
 	std::vector<int> m_aiResourceQuantityModifier;
+	std::vector<int> m_aiNumFreeResourceOnWorldWonderCompletion;
 	std::vector<bool> m_abNoTrain;
 	vector<FreeTraitUnit> m_aFreeTraitUnits;
 	std::vector<int> m_aUniqueLuxuryAreas;

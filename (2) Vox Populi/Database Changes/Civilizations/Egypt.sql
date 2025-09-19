@@ -15,7 +15,7 @@ INSERT INTO Trait_FreeResourceFirstXCities
 VALUES
 	('TRAIT_WONDER_BUILDER', 'RESOURCE_ARTIFACTS', 1, 9999);
 
-INSERT INTO Trait_FreeResourceOnWonderCompletion
+INSERT INTO Trait_FreeResourceOnWorldWonderCompletion
 	(TraitType, ResourceType, ResourceQuantity)
 VALUES
 	('TRAIT_WONDER_BUILDER', 'RESOURCE_ARTIFACTS', 1);

@@ -5439,10 +5439,9 @@ void CvTeam::changeProjectCount(ProjectTypes eIndex, int iChange)
 
 			if(GC.getGame().isFinalInitialized())
 			{
-#if defined(MOD_BALANCE_CORE)
-				if (!pkProject->IsRepeatable())
+				if (!pkProject->IsRepeatable() && pkProject->GetCivilizationType() == NO_CIVILIZATION)
 				{
-					if (bFirst)
+					if (bFirst && !pkProject->IsSpaceship())
 					{
 						CvString strSomeoneCompletesProject = GetLocalizedText("TXT_KEY_MISC_COMPLETES_PROJECT_FIRST", getName().GetCString(), pkProject->GetTextKey());
 						CvString strSomeoneCompletedProject = GetLocalizedText("TXT_KEY_MISC_SOMEONE_HAS_COMPLETED_FIRST", getName().GetCString(), pkProject->GetTextKey());
@@ -5485,7 +5484,6 @@ void CvTeam::changeProjectCount(ProjectTypes eIndex, int iChange)
 					}
 					else
 					{
-#endif
 						CvString strSomeoneCompletesProject = GetLocalizedText("TXT_KEY_MISC_COMPLETES_PROJECT", getName().GetCString(), pkProject->GetTextKey());
 						CvString strSomeoneCompletedProject = GetLocalizedText("TXT_KEY_MISC_SOMEONE_HAS_COMPLETED", getName().GetCString(), pkProject->GetTextKey());
 						CvString strUnknownCompletesProject = GetLocalizedText("TXT_KEY_MISC_WONDER_COMPLETED_UNKNOWN", pkProject->GetTextKey());
@@ -5526,10 +5524,8 @@ void CvTeam::changeProjectCount(ProjectTypes eIndex, int iChange)
 								}
 							}
 						}
-#if defined(MOD_BALANCE_CORE)
 					}
 				}
-#endif
 			}
 		}
 	}

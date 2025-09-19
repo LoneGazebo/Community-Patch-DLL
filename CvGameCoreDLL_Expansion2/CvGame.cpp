@@ -8909,6 +8909,10 @@ UnitTypes CvGame::GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bInclude
 			if (pkUnitInfo->IsInvalidMinorCivGift())
 				continue;
 			
+			// no units that can found cities
+			if (pkUnitInfo->IsFound())
+				continue;
+			
 			// Compare to the units of other civs, of the same unitclass
 			UnitClassTypes eLoopUnitClass = (UnitClassTypes) pkUnitInfo->GetUnitClassType();
 			CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eLoopUnitClass);
@@ -12967,136 +12971,6 @@ void CvGame::TriggerArchaeologySiteCreation(bool bCheckInitialized)
 	}
 }
 
-
-//	--------------------------------------------------------------------------------
-int CalculateDigSiteWeight(int iIndex, vector<CvArchaeologyData>& inputData, vector<CvArchaeologyData>& chosenDigSites)
-{
-	CvMap& theMap = GC.getMap();
-	int iGridWidth = theMap.getGridWidth();
-	int iBaseWeight = 0;
-	if (chosenDigSites[iIndex].m_eArtifactType == NO_GREAT_WORK_ARTIFACT_CLASS) // if we have not already chosen this spot for a dig site
-	{
-		iBaseWeight = inputData[iIndex].m_eArtifactType + 1;
-		iBaseWeight *= (10 - inputData[iIndex].m_eEra);
-
-		int iPlotX = iIndex % iGridWidth;
-		int iPlotY = iIndex / iGridWidth;
-
-		CvPlot* pPlot = theMap.plotByIndexUnchecked(iIndex);
-
-		// zero this value if this plot has a resource, water, ice, mountain, or natural wonder
-		if (pPlot->getResourceType() != NO_RESOURCE || pPlot->isWater() || !pPlot->isValidMovePlot(NO_PLAYER) || pPlot->IsNaturalWonder())
-			iBaseWeight = 0;
-
-		// if this tile cannot be improved, zero it out
-		if (iBaseWeight && pPlot->getFeatureType() != NO_FEATURE)
-		{
-			if (GC.getFeatureInfo(pPlot->getFeatureType())->isNoImprovement())
-			{
-				iBaseWeight = 0;
-			}
-		}
-
-		// if this tile has a GP improvement, zero it out
-		if (iBaseWeight && pPlot->getImprovementType() != NO_IMPROVEMENT)
-		{
-			if (GC.getImprovementInfo(pPlot->getImprovementType())->IsCreatedByGreatPerson())
-			{
-				iBaseWeight = 0;
-			}
-		}
-
-		if (iBaseWeight > 0)
-		{
-			// add a small random factor
-			iBaseWeight += 10 + GC.getGame().randRangeExclusive(0, 10, CvSeeder(iBaseWeight));
-
-			// increase the value if unowned
-			iBaseWeight *= (pPlot->getOwner() == NO_PLAYER) ? 9 : 8;
-			iBaseWeight /= 8;
-
-			// lower the value if owned by a major
-			iBaseWeight *= (pPlot->getOwner() > NO_PLAYER && pPlot->getOwner() < MAX_MAJOR_CIVS) ? 11 : 12;
-			iBaseWeight /= 12;
-
-			// lower the value if tile has been improved
-			iBaseWeight *= (pPlot->getImprovementType() != NO_IMPROVEMENT || pPlot->getRouteType() != NO_ROUTE) ? 7 : 8;
-			iBaseWeight /= 8;
-
-			// lower the value if tile has a city
-			iBaseWeight *= (pPlot->isCity()) ? 1 : 5;
-			iBaseWeight /= 5;
-
-			// increase the value if in thematic terrain (desert, jungle, or small island)
-			iBaseWeight *= (pPlot->getTerrainType() == TERRAIN_DESERT) ? 3 : 2;
-			iBaseWeight *= (pPlot->getFeatureType() == FEATURE_JUNGLE) ? 3 : 2;
-			CvArea* pArea = theMap.getAreaById(pPlot->getArea());
-			iBaseWeight *= (pArea->getNumTiles() <= 4) ? 3 : 2;
-
-			// lower the value by number of neighbors
-			int iDivisor = 1;
-			// lower the value if there is at least one nearby site (say, 3 tiles distance)
-			int iRange = 3;
-			for (int iDX = -iRange; iDX <= iRange; iDX++)
-			{
-				for (int iDY = -iRange; iDY <= iRange; iDY++)
-				{
-					CvPlot* pLoopPlot = plotXYWithRangeCheck(iPlotX, iPlotY, iDX, iDY, iRange);
-					if (pLoopPlot)
-					{
-						if (chosenDigSites[pLoopPlot->GetPlotIndex()].m_eArtifactType != NO_GREAT_WORK_ARTIFACT_CLASS)
-						{
-							iDivisor++;
-						}
-					}
-				}
-			}
-			iRange = 2;
-			for (int iDX = -iRange; iDX <= iRange; iDX++)
-			{
-				for (int iDY = -iRange; iDY <= iRange; iDY++)
-				{
-					CvPlot* pLoopPlot = plotXYWithRangeCheck(iPlotX, iPlotY, iDX, iDY, iRange);
-					if (pLoopPlot)
-					{
-						if (chosenDigSites[pLoopPlot->GetPlotIndex()].m_eArtifactType != NO_GREAT_WORK_ARTIFACT_CLASS)
-						{
-							iDivisor++;
-						}
-					}
-				}
-			}
-			iRange = 1;
-			for (int iDX = -iRange; iDX <= iRange; iDX++)
-			{
-				for (int iDY = -iRange; iDY <= iRange; iDY++)
-				{
-					CvPlot* pLoopPlot = plotXYWithRangeCheck(iPlotX, iPlotY, iDX, iDY, iRange);
-					if (pLoopPlot)
-					{
-						if (chosenDigSites[pLoopPlot->GetPlotIndex()].m_eArtifactType != NO_GREAT_WORK_ARTIFACT_CLASS)
-						{
-							iDivisor++;
-						}
-					}
-				}
-			}
-			iBaseWeight /= iDivisor;
-		}
-	}
-	return iBaseWeight;
-}
-
-
-//	--------------------------------------------------------------------------------
-void CalculateDigSiteWeights(int iGridSize, vector<CvArchaeologyData>& inputData, vector<CvArchaeologyData>& chosenDigSites, vector<int>& currentWeights)
-{
-	for (int i = 0; i < iGridSize; i++)
-	{
-		currentWeights[i] = CalculateDigSiteWeight(i, inputData, chosenDigSites);
-	}
-}
-
 //	--------------------------------------------------------------------------------
 int CvGame::GetNumArchaeologySites() const
 {
@@ -13140,8 +13014,115 @@ int CvGame::GetNumHiddenArchaeologySites() const
 	return iRtnValue;
 }
 
+CvWeightedVector<GreatWorkArtifactClass> CvGame::GetWeightedArchaeologyArtifactsList() const
+{
+	// Each number is the relative weight for this type of artifact to be randomly chosen
+	CvWeightedVector<GreatWorkArtifactClass> viArtifacts;
+	viArtifacts.push_back(CvTypes::getARTIFACT_ANCIENT_RUIN(), 2);
+	viArtifacts.push_back(CvTypes::getARTIFACT_BARBARIAN_CAMP(), 2);
+	viArtifacts.push_back(CvTypes::getARTIFACT_RAZED_CITY(), 1);
+	viArtifacts.push_back(CvTypes::getARTIFACT_BATTLE_MELEE(), 1);
+	viArtifacts.push_back(CvTypes::getARTIFACT_BATTLE_RANGED(), 1);
+	return viArtifacts;
+}
+
+CvWeightedVector<EraTypes> CvGame::GetWeightedArchaeologyErasList() const
+{
+	// Find the highest era any player has gotten to
+	EraTypes eHighestEra = NO_ERA;
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		CvPlayerAI& kPlayer = GET_PLAYER((PlayerTypes)iPlayerLoop);
+		if (!kPlayer.isEverAlive())
+			continue;
+
+		EraTypes eCurrentEra = kPlayer.GetCurrentEra();
+		if (eCurrentEra > eHighestEra)
+			eHighestEra = eCurrentEra;
+	}
+	int iHighestEra = static_cast<int>(eHighestEra);
+
+	// Highest Era weight: 0
+	// Ancient Era weight: # of highest era
+	// Add 1 weight for each era below highest era
+	// Exception: If highest era is Ancient Era, it gets 1 weight and no other eras get weight
+	CvWeightedVector<EraTypes> viEras;
+	if (iHighestEra <= 0)
+	{
+		EraTypes eAncient = static_cast<EraTypes>(0);
+		viEras.push_back(eAncient, 1);
+	}
+	else
+	{
+		for (int iEra = iHighestEra - 1; iEra >= 0; iEra--)
+		{
+			int iWeight = iHighestEra - iEra;
+			EraTypes eEra = static_cast<EraTypes>(iEra);
+			viEras.push_back(eEra, iWeight);
+		}
+		viEras.StableSortItems();
+	}
+
+	return viEras;
+}
+
+void CvGame::PopulateDigSite(CvPlot& kPlot, EraTypes eEra, GreatWorkArtifactClass eArtifact, GreatWorkType eWrittenWork)
+{
+	// Only populate sites that don't have an artifact already
+	CvArchaeologyData kArchaeology = kPlot.GetArchaeologicalRecord();
+	if (kArchaeology.m_eArtifactType != NO_GREAT_WORK_ARTIFACT_CLASS)
+		return;
+
+	CvMap& ImTheMap = GC.getMap();
+	const int iPlotX = kPlot.getX();
+	const int iPlotY = kPlot.getY();
+	PlayerTypes ePlayer1 = NO_PLAYER;
+	PlayerTypes ePlayer2 = NO_PLAYER;
+
+	// find nearest city (preferably on same area)
+	CvCity* pNearestCity = ImTheMap.findCity(iPlotX, iPlotY, NO_PLAYER, NO_TEAM, true /* bSameArea */);
+	pNearestCity = pNearestCity ? pNearestCity : ImTheMap.findCity(iPlotX, iPlotY, NO_PLAYER, NO_TEAM, false /* bSameArea */); // expand search if we need to
+	if (pNearestCity)
+	{
+		ePlayer1 = pNearestCity->getOriginalOwner();
+	}
+	else // we can't find a nearby city (likely a late era start)
+	{
+		// look for nearby units
+		CvUnit* pUnit = ImTheMap.findUnit(iPlotX, iPlotY);
+		if (pUnit)
+		{
+			ePlayer1 = pUnit->GetOriginalOwner();
+		}
+		else
+		{
+			// look for the start location if it exists
+			PlayerTypes thisPlayer;
+			if (ImTheMap.findNearestStartPlot(iPlotX, iPlotY, thisPlayer))
+			{
+				ePlayer1 = thisPlayer;
+			}
+			else // just make something up
+			{
+				ePlayer2 = GetRandomMajorPlayer(&kPlot);
+				ePlayer1 = ePlayer2 == NO_PLAYER ? BARBARIAN_PLAYER : ePlayer2;
+			}
+		}
+	}
+
+	if (eArtifact == CvTypes::getARTIFACT_BATTLE_MELEE() || eArtifact == CvTypes::getARTIFACT_BATTLE_RANGED() || eArtifact == CvTypes::getARTIFACT_RAZED_CITY())
+	{
+		ePlayer2 = GetRandomPlayer(&kPlot);
+		if (ePlayer2 == NO_PLAYER)
+			ePlayer2 = BARBARIAN_PLAYER;
+	}
+
+	kPlot.AddArchaeologicalRecord(eArtifact, eEra, ePlayer1, ePlayer2, /*bIgnoreNormalRestrictions*/ true);
+	kPlot.SetArtifactGreatWork(eWrittenWork != NO_GREAT_WORK ? eWrittenWork : NO_GREAT_WORK);
+}
+
 //	--------------------------------------------------------------------------------
-PlayerTypes GetRandomMajorPlayer(CvPlot* pPlot)
+PlayerTypes CvGame::GetRandomMajorPlayer(CvPlot* pPlot)
 {
 	std::vector<PlayerTypes>tempPlayers;
 	for (int i = 0; i < MAX_MAJOR_CIVS; i++)
@@ -13170,7 +13151,7 @@ PlayerTypes GetRandomMajorPlayer(CvPlot* pPlot)
 
 
 //	--------------------------------------------------------------------------------
-PlayerTypes GetRandomPlayer(CvPlot* pPlot)
+PlayerTypes CvGame::GetRandomPlayer(CvPlot* pPlot)
 {
 	std::vector<PlayerTypes>tempPlayers;
 	for (int i = 0; i < MAX_CIV_PLAYERS; i++)
@@ -13197,299 +13178,412 @@ PlayerTypes GetRandomPlayer(CvPlot* pPlot)
 	return ePlayer;
 }
 
-
-void CvGame::PopulateDigSite(CvPlot& kPlot, EraTypes eEra, GreatWorkArtifactClass eArtifact)
-{
-	CvMap& theMap = GC.getMap();
-	CvArchaeologyData digSite;
-
-	const int iPlotX = kPlot.getX();
-	const int iPlotY = kPlot.getY();
-
-	eEra = eEra > static_cast<EraTypes>(0) ? eEra : static_cast<EraTypes>(0);
-	digSite.m_eArtifactType = eArtifact;
-	digSite.m_eEra = eEra;
-
-	// find nearest city (preferably on same area)
-	CvCity* pNearestCity = theMap.findCity(iPlotX, iPlotY, NO_PLAYER, NO_TEAM, true /* bSameArea */);
-	pNearestCity = pNearestCity ? pNearestCity : theMap.findCity(iPlotX, iPlotY, NO_PLAYER, NO_TEAM, false /* bSameArea */); // expand search if we need to
-	if (pNearestCity)
-	{
-		digSite.m_ePlayer1 = pNearestCity->getOriginalOwner();
-	}
-	else //  we can't find a nearby city (likely a late era start)
-	{
-		// look for nearby units
-		CvUnit* pUnit = theMap.findUnit(iPlotX, iPlotY);
-		if (pUnit)
-		{
-			digSite.m_ePlayer1 = pUnit->GetOriginalOwner();
-		}
-		else
-		{
-			// look for the start location if it exists
-			PlayerTypes thisPlayer;
-			if (theMap.findNearestStartPlot(iPlotX, iPlotY, thisPlayer))
-			{
-				digSite.m_ePlayer1 = thisPlayer;
-			}
-			else // just make something up
-			{
-				PlayerTypes ePlayer2 = GetRandomMajorPlayer(&kPlot);
-				digSite.m_ePlayer1 = ePlayer2 == NO_PLAYER ? BARBARIAN_PLAYER : ePlayer2;
-			}
-		}
-	}
-
-	if (eArtifact == CvTypes::getARTIFACT_BATTLE_MELEE() || eArtifact == CvTypes::getARTIFACT_BATTLE_RANGED() || eArtifact == CvTypes::getARTIFACT_RAZED_CITY())
-	{
-		PlayerTypes ePlayer2 = GetRandomPlayer(&kPlot);
-		digSite.m_ePlayer2 = ePlayer2 == NO_PLAYER ? BARBARIAN_PLAYER : ePlayer2;
-	}
-
-	kPlot.AddArchaeologicalRecord(digSite.m_eArtifactType, digSite.m_eEra, digSite.m_ePlayer1, digSite.m_ePlayer2);
-}
-//	--------------------------------------------------------------------------------
+///	--------------------------------------------------------------------------------
+/// Spawns Antiquity Sites across the map. Triggered the first time someone researches Archaeology.
 void CvGame::SpawnArchaeologySitesHistorically()
 {
-	CvMap& theMap = GC.getMap();
-	const int iGridWidth = theMap.getGridWidth();
+	static const ResourceTypes eArtifact = static_cast<ResourceTypes>(GD_INT_GET(ARTIFACT_RESOURCE));
+	static const ResourceTypes eHiddenArtifact = static_cast<ResourceTypes>(GD_INT_GET(HIDDEN_ARTIFACT_RESOURCE));
 
-	// we should now have a map of the dig sites
-	// turn this map into set of RESOURCE_ARTIFACTS
-	const ResourceTypes eArtifactResourceType = static_cast<ResourceTypes>(GD_INT_GET(ARTIFACT_RESOURCE));
-	const ResourceTypes eHiddenArtifactResourceType = static_cast<ResourceTypes>(GD_INT_GET(HIDDEN_ARTIFACT_RESOURCE));
+	// Each artifact and era has a specific probability of being chosen
+	CvWeightedVector<GreatWorkArtifactClass> viArtifacts = GetWeightedArchaeologyArtifactsList();
+	CvWeightedVector<EraTypes> viEras = GetWeightedArchaeologyErasList();
 
-	const size_t aRandomArtifactsCount = 7;
-	GreatWorkArtifactClass aRandomArtifacts[aRandomArtifactsCount] = { 
-		CvTypes::getARTIFACT_ANCIENT_RUIN(), 
-		CvTypes::getARTIFACT_ANCIENT_RUIN(), 
-		CvTypes::getARTIFACT_RAZED_CITY(), 
-		CvTypes::getARTIFACT_BARBARIAN_CAMP(), 
-		CvTypes::getARTIFACT_BARBARIAN_CAMP(), 
-		CvTypes::getARTIFACT_BATTLE_MELEE(), 
-		CvTypes::getARTIFACT_BATTLE_RANGED() 
-	};
-
-	// find how many dig sites we need to create
-	const int iNumMajorCivs = GetNumMajorCivsEver();
-	const int iMinDigSites = iNumMajorCivs * /*5*/ GD_INT_GET(MIN_DIG_SITES_PER_MAJOR_CIV); //todo: parameterize this
-	const int iMaxDigSites = iNumMajorCivs * /*8*/ GD_INT_GET(MAX_DIG_SITES_PER_MAJOR_CIV); //todo: parameterize this
-	const int iIdealNumDigSites = iMinDigSites + getJonRandNum(iMaxDigSites - iMinDigSites, "dig sites");
-
-	// find the highest era any player has gotten to
-	EraTypes eHighestEra = NO_ERA;
-	PlayerTypes eLoopPlayer;
-	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-	{
-		eLoopPlayer = (PlayerTypes) iPlayerLoop;
-
-		// Player not ever alive
-		if(!GET_PLAYER(eLoopPlayer).isEverAlive())
-			continue;
-
-		if (GET_PLAYER(eLoopPlayer).GetCurrentEra() > eHighestEra)
-		{
-			eHighestEra = GET_PLAYER(eLoopPlayer).GetCurrentEra();
-		}
-	}
-
-
-	CvWeightedVector<int> eEraWeights;
-	eEraWeights.clear();
-	if (eHighestEra > 0)
-	{
-		for (int i = 0; i < static_cast<int>(eHighestEra); i++)
-		{
-			int iWeight = static_cast<int>(eHighestEra) - i;
-			eEraWeights.push_back(i, iWeight);
-		}
-		eEraWeights.StableSortItems();
-	}
-	else
-	{
-		// make sure this isn't empty
-		eEraWeights.push_back(0, 1);
-	}
-
-	// find out how many dig sites we have now
-	int iHowManyChosenDigSites = 0;
-
-	// fill the historical buffer with the archaeological data
-	vector<CvArchaeologyData> historicalDigSites;
-	vector<CvArchaeologyData> scratchDigSites;
-	int iGridSize = theMap.numPlots();
-	ASSERT_DEBUG(iGridSize > 0, "iGridSize is zero");
-	historicalDigSites.resize(iGridSize);
-	scratchDigSites.resize(iGridSize);
-	for (int i = 0; i < iGridSize; i++)
-	{
-		scratchDigSites[i].m_eArtifactType = NO_GREAT_WORK_ARTIFACT_CLASS;
-		scratchDigSites[i].m_eEra = NO_ERA;
-		scratchDigSites[i].m_ePlayer1 = NO_PLAYER;
-		scratchDigSites[i].m_ePlayer2 = NO_PLAYER;
-
-		CvPlot* pPlot = theMap.plotByIndexUnchecked(i);
-		const ResourceTypes eResource = pPlot->getResourceType();
-		if (pPlot->isWater() || !pPlot->isValidMovePlot(BARBARIAN_PLAYER))
-		{
-			historicalDigSites[i].m_eArtifactType = NO_GREAT_WORK_ARTIFACT_CLASS;
-			historicalDigSites[i].m_eEra = NO_ERA;
-			historicalDigSites[i].m_ePlayer1 = NO_PLAYER;
-			historicalDigSites[i].m_ePlayer2 = NO_PLAYER;
-
-			//Cannot be an antiquity site if we cannot generate an artifact.
-			if(eResource == eArtifactResourceType || eResource == eHiddenArtifactResourceType)
-			{
-				pPlot->setResourceType(NO_RESOURCE, 0, true);
-			}
-		}
-		else
-		{
-			//If this plot is already marked as an antiquity site, ensure it's populated.
-			if(eResource == eArtifactResourceType || eResource == eHiddenArtifactResourceType)
-			{
-				if(pPlot->GetArchaeologicalRecord().m_eArtifactType == NO_GREAT_WORK_ARTIFACT_CLASS)
-				{
-					// pick an era before this one
-					EraTypes eEra = static_cast<EraTypes>(eEraWeights.ChooseByWeight(CvSeeder::fromRaw(0xab7cdc61).mix(pPlot->GetPseudoRandomSeed())));
-					eEra = eEra > static_cast<EraTypes>(0) ? eEra : static_cast<EraTypes>(0);
-
-					// pick a type of artifact
-					GreatWorkArtifactClass eArtifact = aRandomArtifacts[urandLimitExclusive(aRandomArtifactsCount, pPlot->GetPseudoRandomSeed())];
-
-					PopulateDigSite(*pPlot, eEra, eArtifact);
-
-					//Record in scratch space for weights.
-					scratchDigSites[i] = pPlot->GetArchaeologicalRecord();
-				}
-
-				iHowManyChosenDigSites++;
-			}
-
-			historicalDigSites[i] = pPlot->GetArchaeologicalRecord();
-		}
-	}
-
-	// calculate initial weights
-	vector<int> digSiteWeights(iGridSize,0);
-	CalculateDigSiteWeights(iGridSize, historicalDigSites, scratchDigSites, digSiteWeights);
-
-	// build a weight vector
-	static CvWeightedVector<int> aDigSiteWeights; // size of a HUGE world
-	aDigSiteWeights.resize(iGridSize);
-
-	vector<GreatWorkType> aWorksWriting;
+	// Some Great Works of Writing are exclusively found from Hidden Sites, which is not widely known
+	// Retrieve the list of these from the database
+	vector<GreatWorkType> vScrollValidation;
 	Database::Connection* db = GC.GetGameDatabase();
-	if(db != NULL)
+	if (db != NULL)
 	{
 		Database::Results kQuery;
-		if(db->Execute(kQuery, "SELECT ID from GreatWorks WHERE ArchaeologyOnly = '1'"))
+		if (db->Execute(kQuery, "SELECT ID from GreatWorks WHERE ArchaeologyOnly = '1'"))
 		{
-			while(kQuery.Step())
+			while (kQuery.Step())
 			{
 				const GreatWorkType eWork = static_cast<GreatWorkType>(kQuery.GetInt(0));
-				aWorksWriting.push_back(eWork);
+				vScrollValidation.push_back(eWork);
 			}
 		}
 	}
 
-	int iApproxNumHiddenSites = iIdealNumDigSites * /*30*/ GD_INT_GET(PERCENT_SITES_HIDDEN) / 100;
-	int iNumDesiredWritingSites = iApproxNumHiddenSites * /*30*/ GD_INT_GET(PERCENT_HIDDEN_SITES_WRITING) / 100;
-	int iNumWritingSites = min((int)aWorksWriting.size(), iNumDesiredWritingSites);
-
-	// while we are not in the proper range of number of dig sites
-	while (iHowManyChosenDigSites < iIdealNumDigSites)
+	// Go through the entire map and grab ourselves a list of plots that can spawn dig sites
+	CvMap& ImTheMap = GC.getMap();
+	int iNumPlotsInTheWholeWideWorld = ImTheMap.numPlots();
+	int iNumExistingDigSites = 0;
+	int iNumExistingHiddenDigSites = 0;
+	int iNumExistingHiddenWritingSites = 0;
+	vector<CvPlot*> vEligiblePlots;
+	vector<CvPlot*> vEligibleNormalPlots;
+	vector<CvPlot*> vEligibleHiddenPlots;
+	vector<CvPlot*> vExistingDigSites;
+	vector<GreatWorkType> vExistingGreatWorks;
+	for (int iI = 0; iI < iNumPlotsInTheWholeWideWorld; iI++)
 	{
-		// populate a weight vector
-		aDigSiteWeights.clear();
-		for (int i = 0; i < iGridSize; i++)
+		CvPlot* pPlot = ImTheMap.plotByIndexUnchecked(iI);
+		ResourceTypes eResource = pPlot->getResourceType();
+		if (eResource == eArtifact || eResource == eHiddenArtifact)
 		{
-			if (digSiteWeights[i] > 0)
+			// Remove invalid sites
+			if ((eResource == eArtifact && !pPlot->IsEligibleForNormalDigSite(true)) || (eResource == eHiddenArtifact && !pPlot->IsEligibleForHiddenDigSite(true)) || !pPlot->IsEligibleForDigSite())
 			{
-				aDigSiteWeights.push_back(i, digSiteWeights[i]);
+				pPlot->ClearArchaeologicalRecord();
+				continue;
 			}
-		}
-
-		// Nowhere left to place a dig site!
-		if (aDigSiteWeights.empty())
-			return;
-
-		// sort the weight vector
-		aDigSiteWeights.StableSortItems();
-
-		// add the best dig site
-		int iBestSite = aDigSiteWeights.GetElement(0);
-		CvPlot* pPlot = theMap.plotByIndexUnchecked(iBestSite);
-
-		// Hidden site?
-		bool bHiddenSite = GC.getGame().randRangeInclusive(1, 100, CvSeeder::fromRaw(0x5b7e949d).mix(pPlot->GetPseudoRandomSeed())) <= /*30*/ GD_INT_GET(PERCENT_SITES_HIDDEN);
-		if (bHiddenSite)
-		{
-			pPlot->setResourceType(eHiddenArtifactResourceType, 1);
-		}
-		else
-		{
-			pPlot->setResourceType(eArtifactResourceType, 1);
-		}
-
-		// if this is not a historical dig site
-		if (scratchDigSites[iBestSite].m_eArtifactType == NO_GREAT_WORK_ARTIFACT_CLASS)
-		{
-			// fake the historical data
-			// pick an era before this one			
-			EraTypes eEra = static_cast<EraTypes>(eEraWeights.ChooseByWeight(CvSeeder::fromRaw(0x5b75b72a).mix(pPlot->GetPseudoRandomSeed())));
-			eEra = eEra > static_cast<EraTypes>(0) ? eEra : static_cast<EraTypes>(0);
-
-			// pick a type of artifact
-			GreatWorkArtifactClass eArtifact;
-			eArtifact = aRandomArtifacts[urandLimitExclusive(aRandomArtifactsCount, pPlot->GetPseudoRandomSeed())];
-
-			PopulateDigSite(*pPlot, eEra, eArtifact);
-		}
-
-		// If this is a hidden slot getting a writing, override a few things
-		if (bHiddenSite && iNumWritingSites > 0)
-		{
-			// First change the type
-			pPlot->SetArtifactType(CvTypes::getARTIFACT_WRITING());
-
-			// Then get a writing and set it
-			int iIndex = urandLimitExclusive(aWorksWriting.size(), pPlot->GetPseudoRandomSeed().mix(aWorksWriting.size()));
-			GreatWorkType eWrittenGreatWork = aWorksWriting[iIndex];
-			pPlot->SetArtifactGreatWork(eWrittenGreatWork);
-
-			// Erase that writing from future consideration
-			vector<GreatWorkType>::const_iterator it = std::find (aWorksWriting.begin(), aWorksWriting.end(), eWrittenGreatWork);
-			aWorksWriting.erase(it);
-
-			// One less writing to give out
-			iNumWritingSites--;
-		}
-
-		scratchDigSites[iBestSite] = pPlot->GetArchaeologicalRecord();
-
-		iHowManyChosenDigSites++;
-
-		// recalculate weights near the chosen dig site (the rest of the world should still be fine)
-		const int iRange = 3;
-		int iPlotX = iBestSite % iGridWidth;
-		int iPlotY = iBestSite / iGridWidth;
-		for (int iDX = -iRange; iDX <= iRange; iDX++)
-		{
-			for (int iDY = -iRange; iDY <= iRange; iDY++)
+			// Also validate writing sites to make sure they have valid Great Work data
+			CvArchaeologyData kArchaeology = pPlot->GetArchaeologicalRecord();
+			if (kArchaeology.m_eWork != NO_GREAT_WORK)
 			{
-				CvPlot* pLoopPlot = plotXYWithRangeCheck(iPlotX, iPlotY, iDX, iDY, iRange);
-				if (pLoopPlot)
+				GreatWorkType eExistingGreatWork = CultureHelpers::GetArtifact(pPlot);
+				if (std::find(vScrollValidation.begin(), vScrollValidation.end(), eExistingGreatWork) == vScrollValidation.end())
 				{
-					int iIndex = pLoopPlot->GetPlotIndex();
-					digSiteWeights[iIndex] = CalculateDigSiteWeight(iIndex, historicalDigSites, scratchDigSites);				
+					pPlot->ClearArchaeologicalRecord();
+					continue;
 				}
+				pPlot->SetArtifactType(CvTypes::getARTIFACT_WRITING());
+				vExistingGreatWorks.push_back(eExistingGreatWork);
+				iNumExistingHiddenWritingSites++;
+			}
+			else if (kArchaeology.m_eArtifactType == CvTypes::getARTIFACT_WRITING())
+			{
+				pPlot->ClearArchaeologicalRecord();
+				continue;
+			}
+
+			vExistingDigSites.push_back(pPlot);
+
+			// Don't count Sarcophagi against the total to be placed; we do still keep track of where they are to adjust where other dig sites will spawn, though
+			if (kArchaeology.m_eArtifactType == CvTypes::getARTIFACT_SARCOPHAGUS())
+				continue;
+
+			iNumExistingDigSites++;
+			iNumExistingHiddenDigSites += eResource == eHiddenArtifact ? 1 : 0;
+		}
+		else if (pPlot->IsEligibleForDigSite())
+		{
+			bool bEligibleForNormal = pPlot->IsEligibleForNormalDigSite(true);
+			bool bEligibleForHidden = pPlot->IsEligibleForHiddenDigSite(true);
+			if (bEligibleForNormal || bEligibleForHidden)
+				vEligiblePlots.push_back(pPlot);
+			if (bEligibleForNormal)
+				vEligibleNormalPlots.push_back(pPlot);
+			if (bEligibleForHidden)
+				vEligibleHiddenPlots.push_back(pPlot);
+		}
+	}
+
+	// For new writing sites, ensure that we're only picking from valid Great Works.
+	vector<GreatWorkType> vDeadSeaScrolls;
+	for (std::vector<GreatWorkType>::iterator it = vScrollValidation.begin(); it != vScrollValidation.end(); ++it)
+	{
+		GreatWorkType eGreatWork = *it;
+		if (std::find(vExistingGreatWorks.begin(), vExistingGreatWorks.end(), eGreatWork) == vExistingGreatWorks.end())
+			vDeadSeaScrolls.push_back(eGreatWork);
+	}
+	vExistingGreatWorks.clear();
+	vScrollValidation.clear();
+
+	// Fill all existing dig sites with artifacts
+	// Note: If there is an existing artifact, PopulateDigSite() will not overwrite it.
+	for (std::vector<CvPlot*>::iterator iter = vExistingDigSites.begin(); iter != vExistingDigSites.end(); ++iter)
+	{
+		CvPlot* pPlot = *iter;
+		int iPlotIndex = pPlot->GetPlotIndex();
+		GreatWorkArtifactClass eArtifact = viArtifacts.ChooseByWeight(CvSeeder::fromRaw(0x5c771ee9).mix(iPlotIndex));
+		EraTypes eEra = viEras.ChooseByWeight(CvSeeder::fromRaw(0x55b48f5f).mix(iPlotIndex));
+		PopulateDigSite(*pPlot, eEra, eArtifact);
+	}
+
+	// How many dig sites do we need to create?
+	int iNumMajorCivs = GetNumMajorCivsEver();
+	int iMinDigSites = max(iNumMajorCivs * /*5*/ GD_INT_GET(MIN_DIG_SITES_PER_MAJOR_CIV), 0);
+	int iMaxDigSites = max(iNumMajorCivs * /*8*/ GD_INT_GET(MAX_DIG_SITES_PER_MAJOR_CIV), 0);
+	int iTargetNumDigSites = randRangeInclusive(iMinDigSites, iMaxDigSites, CvSeeder::fromRaw(0x1896b189));
+
+	// Determine how many of each type of site we will create
+	// Total # of sites is heavily randomized, we don't also need to randomize what proportion of them are hidden
+	int iTargetNumHiddenSites = iTargetNumDigSites * /*30*/ GD_INT_GET(PERCENT_SITES_HIDDEN) / 100;
+	int iTargetNumHiddenWritingSites = min(iTargetNumHiddenSites * /*30*/ GD_INT_GET(PERCENT_HIDDEN_SITES_WRITING) / 100, static_cast<int>(vDeadSeaScrolls.size()));
+
+	// Go through the eligible plots and score them
+	CvWeightedVector<CvPlot*> viDigSiteScores;
+	if (iTargetNumDigSites > 0)
+	{
+		for (std::vector<CvPlot*>::iterator it = vEligiblePlots.begin(); it != vEligiblePlots.end(); ++it)
+		{
+			viDigSiteScores.push_back(*it, 0);
+		}
+
+		CalculateDigSiteScores(viDigSiteScores);
+	}
+
+	// Adjust the weights based on proximity to existing dig sites.
+	CvWeightedVector<CvPlot*> viProximityAdjustedDigSiteScores = viDigSiteScores;
+	AdjustDigSiteScoresByProximity(viProximityAdjustedDigSiteScores, vExistingDigSites);
+
+	// Now, the annoying part - actually placing the sites
+	// Place the hidden writing sites first
+	while (iNumExistingHiddenWritingSites < iTargetNumHiddenWritingSites)
+	{
+		// Out of Great Works of Writing?
+		if (vDeadSeaScrolls.empty())
+			break;
+
+		// Out of valid tiles?
+		if (viProximityAdjustedDigSiteScores.empty() || viProximityAdjustedDigSiteScores.GetWeight(0) == 0)
+			break;
+
+		// Find the valid tile with the highest score
+		CvPlot* pBestSite = NULL;
+		for (int i = 0; i < viProximityAdjustedDigSiteScores.size(); i++)
+		{
+			CvPlot* pSite = viProximityAdjustedDigSiteScores.GetElement(i);
+			if (std::find(vEligibleHiddenPlots.begin(), vEligibleHiddenPlots.end(), pSite) != vEligibleHiddenPlots.end())
+			{
+				// For the writing sites, avoid replacing existing artifacts.
+				// This is because tiles with an existing artifact score higher than those without one, but placing a writing site will overwrite what's already there.
+				CvArchaeologyData kArchaeology = pSite->GetArchaeologicalRecord();
+				if (kArchaeology.m_eArtifactType != NO_GREAT_WORK_ARTIFACT_CLASS)
+					continue;
+
+				// Because we might skip element 0, we also need to verify the positioning is valid. We might have already placed a dig site here and exhausted all options.
+				if (viProximityAdjustedDigSiteScores.GetWeight(i) == 0)
+					break;
+
+				pBestSite = pSite;
+				break;
 			}
 		}
+		if (!pBestSite)
+			break;
+
+		// Place the artifact on the #1 site
+		pBestSite->setResourceType(eHiddenArtifact, 1);
+		iNumExistingHiddenWritingSites++;
+		iNumExistingHiddenDigSites++;
+		iNumExistingDigSites++;
+		vExistingDigSites.push_back(pBestSite);
+
+		// Populate the dig site
+		GreatWorkArtifactClass eArtifact = CvTypes::getARTIFACT_WRITING();
+		EraTypes eEra = viEras.ChooseByWeight(CvSeeder::fromRaw(0xb14501cf).mix(iNumExistingHiddenWritingSites));
+		uint uiIndex = urandLimitExclusive(vDeadSeaScrolls.size(), CvSeeder::fromRaw(0x5afa8766).mix(iNumExistingHiddenWritingSites));
+		GreatWorkType eWrittenWork = vDeadSeaScrolls[uiIndex];
+		PopulateDigSite(*pBestSite, eEra, eArtifact, eWrittenWork);
+
+		// Erase that Great Work from future consideration
+		vector<GreatWorkType>::const_iterator it = std::find(vDeadSeaScrolls.begin(), vDeadSeaScrolls.end(), eWrittenWork);
+		vDeadSeaScrolls.erase(it);
+
+		// Recalculate dig site scores based on updated proximity penalties.
+		viProximityAdjustedDigSiteScores = viDigSiteScores;
+		AdjustDigSiteScoresByProximity(viProximityAdjustedDigSiteScores, vExistingDigSites);
+	}
+
+	// Next, the hidden sites
+	while (iNumExistingHiddenDigSites < iTargetNumHiddenSites)
+	{
+		// Out of valid tiles?
+		if (viProximityAdjustedDigSiteScores.empty() || viProximityAdjustedDigSiteScores.GetWeight(0) == 0)
+			break;
+
+		// Find the valid tile with the highest score
+		CvPlot* pBestSite = NULL;
+		for (int i = 0; i < viProximityAdjustedDigSiteScores.size(); i++)
+		{
+			CvPlot* pSite = viProximityAdjustedDigSiteScores.GetElement(i);
+			if (std::find(vEligibleHiddenPlots.begin(), vEligibleHiddenPlots.end(), pSite) != vEligibleHiddenPlots.end())
+			{
+				pBestSite = pSite;
+				break;
+			}
+		}
+		if (!pBestSite)
+			break;
+
+		// Place the artifact on the #1 site
+		pBestSite->setResourceType(eHiddenArtifact, 1);
+		iNumExistingHiddenDigSites++;
+		iNumExistingDigSites++;
+		vExistingDigSites.push_back(pBestSite);
+
+		// Populate the dig site
+		GreatWorkArtifactClass eArtifact = viArtifacts.ChooseByWeight(CvSeeder::fromRaw(0x21503b74).mix(iNumExistingHiddenDigSites));
+		EraTypes eEra = viEras.ChooseByWeight(CvSeeder::fromRaw(0xbf4ecc7c).mix(iNumExistingHiddenDigSites));
+		PopulateDigSite(*pBestSite, eEra, eArtifact);
+
+		// Recalculate dig site scores based on updated proximity penalties.
+		viProximityAdjustedDigSiteScores = viDigSiteScores;
+		AdjustDigSiteScoresByProximity(viProximityAdjustedDigSiteScores, vExistingDigSites);
+	}
+
+	// Last, the normal sites
+	while (iNumExistingDigSites < iTargetNumDigSites)
+	{
+		// Out of valid tiles?
+		if (viProximityAdjustedDigSiteScores.empty() || viProximityAdjustedDigSiteScores.GetWeight(0) == 0)
+			break;
+
+		// Find the valid tile with the highest score
+		CvPlot* pBestSite = NULL;
+		for (int i = 0; i < viProximityAdjustedDigSiteScores.size(); i++)
+		{
+			CvPlot* pSite = viProximityAdjustedDigSiteScores.GetElement(i);
+			if (std::find(vEligibleNormalPlots.begin(), vEligibleNormalPlots.end(), pSite) != vEligibleNormalPlots.end())
+			{
+				pBestSite = pSite;
+				break;
+			}
+		}
+		if (!pBestSite)
+			break;
+
+		// Place the artifact on the #1 site
+		pBestSite->setResourceType(eArtifact, 1);
+		iNumExistingDigSites++;
+		vExistingDigSites.push_back(pBestSite);
+
+		// Populate the dig site
+		GreatWorkArtifactClass eArtifact = viArtifacts.ChooseByWeight(CvSeeder::fromRaw(0x0f729bc9).mix(iNumExistingDigSites));
+		EraTypes eEra = viEras.ChooseByWeight(CvSeeder::fromRaw(0xd1f2ea4f).mix(iNumExistingDigSites));
+		PopulateDigSite(*pBestSite, eEra, eArtifact);
+
+		// Recalculate dig site scores based on updated proximity penalties.
+		viProximityAdjustedDigSiteScores = viDigSiteScores;
+		AdjustDigSiteScoresByProximity(viProximityAdjustedDigSiteScores, vExistingDigSites);
+	}
+
+	// Wipe out all tiles' records if they weren't selected
+	for (int iI = 0; iI < iNumPlotsInTheWholeWideWorld; iI++)
+	{
+		CvPlot* pPlot = ImTheMap.plotByIndexUnchecked(iI);
+		if (std::find(vExistingDigSites.begin(), vExistingDigSites.end(), pPlot) == vExistingDigSites.end())
+			pPlot->ClearArchaeologicalRecord();
 	}
 }
 
+/// Score all (eligible) tiles on the map to determine where the best places are for dig sites.
+void CvGame::CalculateDigSiteScores(CvWeightedVector<CvPlot*>& viDigSiteScores)
+{
+	CvMap& ImTheMap = GC.getMap();
+	for (int i = 0; i < viDigSiteScores.size(); i++)
+	{
+		CvPlot* pPlot = viDigSiteScores.GetElement(i);
+		CvArchaeologyData kArchaeology = pPlot->GetArchaeologicalRecord();
+		int iScore = 0;
+
+		// Is there an existing artifact on the prospective dig site? Start with a base weight, increasing for more significant artifacts.
+		GreatWorkArtifactClass eArtifact = kArchaeology.m_eArtifactType;
+		if (eArtifact == CvTypes::getARTIFACT_ANCIENT_RUIN())
+			iScore = 200;
+		else if (eArtifact == CvTypes::getARTIFACT_BARBARIAN_CAMP())
+			iScore = 300;
+		else if (eArtifact == CvTypes::getARTIFACT_BATTLE_RANGED())
+			iScore = 400;
+		else if (eArtifact == CvTypes::getARTIFACT_BATTLE_MELEE())
+			iScore = 500;
+		else if (eArtifact == CvTypes::getARTIFACT_RAZED_CITY())
+			iScore = 600;
+
+		// Prioritize artifacts from earlier eras.
+		int iEra = range(static_cast<int>(kArchaeology.m_eEra), 0, 10);
+		iScore *= 10 - iEra;
+
+		// Add some randomness.
+		iScore += randRangeInclusive(1000, 1900, CvSeeder::fromRaw(0xb04e03fc).mix(pPlot->GetPlotIndex()));
+
+		// Raise the value if unowned.
+		if (!pPlot->isOwned())
+		{
+			iScore *= 9;
+			iScore /= 8;
+		}
+		// Lower the value if owned by a major civ.
+		else if (GET_PLAYER(pPlot->getOwner()).isMajorCiv())
+		{
+			iScore *= 11;
+			iScore /= 12;
+		}
+
+		// Lower the value if the tile has been improved.
+		if (pPlot->getImprovementType() != NO_IMPROVEMENT || pPlot->getRouteType() != NO_ROUTE)
+		{
+			iScore *= 7;
+			iScore /= 8;
+		}
+
+		// Raise the value if in thematic terrain
+		// Is Indy searching for the Ark in the Egyptian desert?
+		if (pPlot->getTerrainType() == TERRAIN_DESERT)
+		{
+			iScore *= 3;
+			iScore /= 2;
+		}
+
+		// Is he plundering the Temple of Doom in the Indian jungle?
+		// We will not even CONSIDER the possibility of him being in the Amazon. That never happened.
+		if (pPlot->getFeatureType() == FEATURE_JUNGLE)
+		{
+			iScore *= 3;
+			iScore /= 2;
+		}
+
+		// Is he foolishly delving under a small island, perhaps one with an active volcano nearby?
+		if (pPlot->getLandmass() != -1 && ImTheMap.getLandmassById(pPlot->getLandmass())->getNumTiles() <= 4)
+		{
+			iScore *= 3;
+			iScore /= 2;
+		}
+
+		viDigSiteScores.SetWeight(i, iScore);
+	}
+}
+
+void CvGame::AdjustDigSiteScoresByProximity(CvWeightedVector<CvPlot*>& viDigSiteScores, vector<CvPlot*>& vExistingDigSites)
+{
+	for (int i = 0; i < viDigSiteScores.size(); i++)
+	{
+		CvPlot* pPlot = viDigSiteScores.GetElement(i);
+
+		// If we already placed a dig site here, set weight to 0.
+		if (std::find(vExistingDigSites.begin(), vExistingDigSites.end(), pPlot) != vExistingDigSites.end())
+		{
+			viDigSiteScores.SetWeight(i, 0);
+			continue;
+		}
+
+		// If not, go through all dig sites.
+		int iDivisor = 1;
+
+		// For each existing dig site within 1 tile, increase divisor by 3.
+		// For each existing dig site within 2 tiles, increase divisor by 2.
+		// For each existing dig site within 3 tiles, increase divisor by 1.
+		for (std::vector<CvPlot*>::iterator it = vExistingDigSites.begin(); it != vExistingDigSites.end(); ++it)
+		{
+			CvPlot* pLoopPlot = *it;
+			int iDistance = plotDistance(*pPlot, *pLoopPlot);
+			switch (iDistance)
+			{
+			case 1:
+				iDivisor += 3;
+				break;
+			case 2:
+				iDivisor += 2;
+				break;
+			case 3:
+				iDivisor += 1;
+				break;
+			default:
+				break;
+			}
+		}
+
+		// Now apply the reduction.
+		viDigSiteScores.SetWeight(i, viDigSiteScores.GetWeight(i) / iDivisor);
+	}
+
+	// Sort from highest to lowest *after* all proximity-based reductions are applied.
+	viDigSiteScores.StableSortItems();
+}
 
 //	--------------------------------------------------------------------------------
 CombatPredictionTypes CvGame::GetCombatPrediction(const CvUnit* pAttackingUnit, const CvUnit* pDefendingUnit)

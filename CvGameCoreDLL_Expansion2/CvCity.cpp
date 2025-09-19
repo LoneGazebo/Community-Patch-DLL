@@ -279,7 +279,6 @@ CvCity::CvCity() :
 #if defined(MOD_BALANCE_CORE)
 	, m_aiYieldPerPopInEmpire()
 	, m_miTechEnhancedYields()
-	, m_miYieldsFromAccomplishments()
 	, m_miGreatPersonPointFromConstruction()
 	, m_aiDamagePermyriad()
 #endif
@@ -617,7 +616,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	pPlot->SetPlayerThatDestroyedCityHere(NO_PLAYER);
 
 	// Plot Ownership
-	pPlot->setOwner(getOwner(), m_iID, bBumpUnits, true, true);
+	pPlot->setOwner(eOwner, m_iID, bBumpUnits, true, true);
 
 	// Clear the improvement before the city attaches itself to the plot, else the improvement does not
 	// remove the resource allocation from the current owner.  This would result in double resource points because
@@ -638,7 +637,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 		{
 			CvPlot* pLoopPlot = plotXYWithRangeCheck(getX(), getY(), iDX, iDY, iRange);
 			if (pLoopPlot != NULL)
-				pLoopPlot->setOwner(getOwner(), m_iID, bBumpUnits);
+				pLoopPlot->setOwner(eOwner, m_iID, bBumpUnits);
 		}
 	}
 
@@ -794,22 +793,6 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	if (bInitialFounding)
 	{
 		owningPlayer.ChangeNumCitiesFounded(1);
-
-		// Free resources under city?
-		for (int i = 0; i < GC.getNumResourceInfos(); i++)
-		{
-			ResourceTypes eResource = (ResourceTypes)i;
-			FreeResourceXCities freeResource = owningPlayer.GetPlayerTraits()->GetFreeResourceXCities(eResource);
-
-			if (freeResource.m_iResourceQuantity > 0)
-			{
-				if (owningPlayer.GetNumCitiesFounded() <= freeResource.m_iNumCities)
-				{
-					plot()->setResourceType(NO_RESOURCE, 0);
-					plot()->setResourceType(eResource, freeResource.m_iResourceQuantity);
-				}
-			}
-		}
 
 		if (MOD_BALANCE_CORE_LUXURIES_TRAIT && !owningPlayer.isMinorCiv() && (owningPlayer.GetPlayerTraits()->GetUniqueLuxuryQuantity() > 0))
 		{
@@ -1153,7 +1136,6 @@ void CvCity::uninit()
 	VALIDATE_OBJECT();
 	m_aiYieldPerPopInEmpire.clear();
 	m_miTechEnhancedYields.clear();
-	m_miYieldsFromAccomplishments.clear();
 	m_miGreatPersonPointFromConstruction.clear();
 
 #if defined(MOD_BALANCE_CORE)
@@ -1465,7 +1447,6 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_aiYieldPerPopInEmpire.clear();
 #endif
 	m_miTechEnhancedYields.clear();
-	m_miYieldsFromAccomplishments.clear();
 	m_miGreatPersonPointFromConstruction.clear();
 	m_aiYieldPerReligion.resize(NUM_YIELD_TYPES);
 	m_aiYieldRateModifier.resize(NUM_YIELD_TYPES);
@@ -2300,6 +2281,62 @@ void CvCity::kill()
 
 	// clean up
 	PostKill(bCapital, pPlot, iWorkPlotDistance, eOwner);
+}
+
+/// Checks if the city owner has any plots in the empire that are owned by them, but are too far from any other cities to work.
+/// If yes, and this city is closer to them, assigns those plots to this city.
+void CvCity::AcquireWaywardPlots()
+{
+	PlayerTypes eOwner = getOwner();
+	CvPlayer& kPlayer = GET_PLAYER(eOwner);
+	int iNumPlotsInEntireWorld = GC.getMap().numPlots();
+	int iX = getX();
+	int iY = getY();
+	for (int iI = 0; iI < iNumPlotsInEntireWorld; iI++)
+	{
+		CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
+		if (pLoopPlot->getOwner() != eOwner)
+			continue;
+
+		// Check whether the plot is within working radius of its owning city. If yes, leave it be.
+		CvCity* pOwningCity = pLoopPlot->getOwningCity();
+		if (pOwningCity == this)
+			continue;
+		if (pOwningCity->IsWithinWorkRange(pLoopPlot))
+			continue;
+
+		// Is it within working range of this city? Acquire it.
+		if (IsWithinWorkRange(pLoopPlot))
+		{
+			pLoopPlot->setOwner(eOwner, m_iID);
+			continue;
+		}
+
+		// Is it closer to this city than any other city?
+		int iDistanceFromThisCity = plotDistance(pLoopPlot->getX(), pLoopPlot->getY(), iX, iY);
+		int iLoop = 0;
+		bool bAnyCloserCity = false;
+		for (CvCity* pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
+		{
+			if (pLoopCity == this)
+				continue;
+
+			CvPlot* pPlot = pLoopCity->plot();
+			if (pPlot)
+			{
+				int iDistance = plotDistance(iX, iY, pLoopCity->getX(), pLoopCity->getY());
+				if (iDistance <= iDistanceFromThisCity)
+				{
+					bAnyCloserCity = true;
+					break;
+				}
+
+			}
+		}
+
+		if (!bAnyCloserCity)
+			pLoopPlot->setOwner(eOwner, m_iID);
+	}
 }
 
 //	--------------------------------------------------------------------------------
@@ -9146,7 +9183,7 @@ bool CvCity::canCreate(ProjectTypes eProject, bool bContinue, bool bTestVisible,
 		}
 	}
 
-	if (!(GET_PLAYER(getOwner()).canCreate(eProject, bContinue, bTestVisible)))
+	if (!(GET_PLAYER(getOwner()).canCreate(eProject, bContinue, bTestVisible, toolTipSink)))
 	{
 		return false;
 	}
@@ -13768,6 +13805,18 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			{
 				GET_PLAYER(getOwner()).SetReformation(true);
 			}
+			// Did we complete a World Wonder and get free resources out of the deal?
+			if (bIsWonder)
+			{
+				CvPlayer& kPlayer = GET_PLAYER(getOwner());
+				for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+				{
+					ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
+					int iQuantity = kPlayer.GetPlayerTraits()->GetNumFreeResourceOnWorldWonderCompletion(eResourceLoop);
+					if (iQuantity > 0)
+						kPlayer.SpawnResourceInOwnedLands(eResourceLoop, iQuantity);
+				}
+			}
 			if (pBuildingInfo->GrantsRandomResourceTerritory() > 0)
 			{
 				CvPlayer& kPlayer = GET_PLAYER(getOwner());
@@ -14092,11 +14141,11 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 				{
 					if (GET_PLAYER(getOwner()).GetPlayerTraits()->GetWonderProductionModifier() > 0)
 					{
-						plot()->AddArchaeologicalRecord(CvTypes::getARTIFACT_SARCOPHAGUS(), GET_PLAYER(getOwner()).GetCurrentEra(), getOwner(), NO_PLAYER);
+						plot()->AddArchaeologicalRecord(CvTypes::getARTIFACT_SARCOPHAGUS(), GET_PLAYER(getOwner()).GetCurrentEra(), getOwner(), NO_PLAYER, /*bIgnoreNormalRestrictions*/ true);
 					}
 					else
 					{
-						plot()->AddArchaeologicalRecord(CvTypes::getARTIFACT_ANCIENT_RUIN(), GET_PLAYER(getOwner()).GetCurrentEra(), getOwner(), NO_PLAYER);
+						plot()->AddArchaeologicalRecord(CvTypes::getARTIFACT_ANCIENT_RUIN(), GET_PLAYER(getOwner()).GetCurrentEra(), getOwner(), NO_PLAYER, /*bIgnoreNormalRestrictions*/ true);
 					}
 					GreatWorkType eGreatArtifact = CultureHelpers::GetArtifact(plot());
 					if (eGreatArtifact != NO_GREAT_WORK)
@@ -14111,6 +14160,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 							}
 						}
 					}
+					plot()->ClearArchaeologicalRecord();
 				}
 			}
 		}
@@ -14837,21 +14887,6 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 					if (it2 != (it->second).end())
 					{
 						ChangeTechEnhancedYields((TechTypes)it->first, eYield, it2->second * iChange);
-					}
-				}
-			}
-
-			// Building Yield Change for Accomplishments
-			if (!pBuildingInfo->GetYieldChangesFromAccomplishments().empty())
-			{
-				map<int, std::map<int, int>> mAccomplishmentYields = pBuildingInfo->GetYieldChangesFromAccomplishments();
-				map<int, std::map<int, int>>::iterator it;
-				for (it = mAccomplishmentYields.begin(); it != mAccomplishmentYields.end(); ++it)
-				{
-					std::map<int, int>::const_iterator it2 = (it->second).find(eYield);
-					if (it2 != (it->second).end())
-					{
-						ChangeYieldsFromAccomplishments((AccomplishmentTypes)it->first, eYield, it2->second * iChange);
 					}
 				}
 			}
@@ -18724,10 +18759,12 @@ void CvCity::changeCityWorkingChange(int iChange)
 		m_iCityWorkingChange = (m_iCityWorkingChange + iChange);
 		int iNewPlots = GetNumWorkablePlots();
 
-		for (int iI = std::min(iOldPlots, iNewPlots); iI < std::max(iOldPlots, iNewPlots); ++iI) {
+		for (int iI = std::min(iOldPlots, iNewPlots); iI < std::max(iOldPlots, iNewPlots); ++iI)
+		{
 			CvPlot* pLoopPlot = iterateRingPlots(getX(), getY(), iI);
 
-			if (pLoopPlot) {
+			if (pLoopPlot)
+			{
 				pLoopPlot->changeCityRadiusCount(iChange);
 				pLoopPlot->changePlayerCityRadiusCount(getOwner(), iChange);
 			}
@@ -19407,11 +19444,48 @@ bool CvCity::DoRazingTurn()
 		if (GetRazingTurns() <= 0 || getPopulation() <= 0)
 		{
 			CvPlot* pkPlot = plot();
-
 			pkPlot->AddArchaeologicalRecord(CvTypes::getARTIFACT_RAZED_CITY(), getOwner(), getOriginalOwner());
 
+			// If this player retains land after razing cities, remember the list of plots
+			std::set<int> siPlots;
+			if (kPlayer.IsRetainRazedTerritory())
+				siPlots = GetPlotList();
+
 			kPlayer.disband(this);
-			GC.getGame().addReplayMessage(REPLAY_MESSAGE_CITY_DESTROYED, getOwner(), "", pkPlot->getX(), pkPlot->getY());
+			GC.getGame().addReplayMessage(REPLAY_MESSAGE_CITY_DESTROYED, kPlayer.GetID(), "", pkPlot->getX(), pkPlot->getY());
+
+			// ... and reassign the plots to the nearest city, if possible
+			if (siPlots.size() > 0)
+			{
+				for (std::set<int>::const_iterator it = siPlots.begin(); it != siPlots.end(); ++it)
+				{
+					CvPlot* pLoopPlot = GC.getMap().plotByIndex(*it);
+					CvCity* pBestCity = NULL;
+					int iBestCityDistance = -1;
+					int iLoop = 0;
+					for (CvCity* pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
+					{
+						CvPlot* pPlot = pLoopCity->plot();
+						if (pPlot)
+						{
+							int iDistance = plotDistance(pLoopPlot->getX(), pLoopPlot->getY(), pPlot->getX(), pPlot->getY());
+							if (pBestCity != NULL && !pBestCity->IsWithinWorkRange(pLoopPlot) && pLoopCity->IsWithinWorkRange(pLoopPlot))
+							{
+								// Catch the Tradition capital edge case where two cities are equidistant
+								pBestCity = pLoopCity;
+								iBestCityDistance = iDistance;
+							}
+							else if (iBestCityDistance == -1 || iDistance < iBestCityDistance)
+							{
+								pBestCity = pLoopCity;
+								iBestCityDistance = iDistance;
+							}
+						}
+					}
+					if (pBestCity)
+						pLoopPlot->setOwner(kPlayer.GetID(), pBestCity->GetID());
+				}
+			}
 			return true;
 		}
 
@@ -19595,6 +19669,9 @@ void CvCity::DoCreatePuppet()
 	if (IsRazing())
 		return;
 
+	// Grab any "loose" plots we own
+	AcquireWaywardPlots();
+
 	// Turn this off - used to display info for annex/puppet/raze popup
 	SetIgnoreCityForHappiness(false);
 
@@ -19678,7 +19755,11 @@ void CvCity::DoAnnex(bool bRaze)
 		}
 	}
 
-	SetPuppet(false);
+	// If we just got this city, grab any "loose" plots we own
+	if (!IsPuppet())
+		AcquireWaywardPlots();
+	else
+		SetPuppet(false);
 
 	DoUpdateCheapestPlotInfluenceDistance(); // fix for extremely high cost of the first tile
 
@@ -20459,7 +20540,10 @@ int CvCity::GetCitySizeModifier() const
 int CvCity::GetEmpireSizeModifier() const
 {
 	// x% per city, excluding puppets and the capital
-	int iNumCitiesMod = (GET_PLAYER(getOwner()).getNumCities() - GET_PLAYER(getOwner()).GetNumPuppetCities() - 1) * /*500*/ GD_INT_GET(EMPIRE_SIZE_NEED_MODIFIER_CITIES) / 100;
+	int iEmpireSizeModPerCity = /*500*/ GD_INT_GET(EMPIRE_SIZE_NEED_MODIFIER_CITIES);
+	iEmpireSizeModPerCity *= (100 + GET_PLAYER(getOwner()).GetEmpireSizeModifierPerCityMod());
+	iEmpireSizeModPerCity /= 100;
+	int iNumCitiesMod = (GET_PLAYER(getOwner()).getNumCities() - GET_PLAYER(getOwner()).GetNumPuppetCities() - 1) * iEmpireSizeModPerCity / 100;
 	if (iNumCitiesMod < 0)
 		iNumCitiesMod = 0;
 
@@ -23272,6 +23356,26 @@ int CvCity::getBaseYieldRateTimes100(const YieldTypes eYield, CvString* tooltipS
 	iTempYield += GetTotalYieldFromTerrainsTimes100(eYield);
 	iTempYield += GetTotalYieldFromFeaturesTimes100(eYield);
 	iTempYield += (GetYieldPerCityStateStrategicResource(eYield) * kOwner.GetNumStrategicResourcesFromMinors() * 100).Truncate();
+	for (std::vector<BuildingTypes>::const_iterator it = GC.getBuildingsWithYieldsFromAccomplishments().begin(); it != GC.getBuildingsWithYieldsFromAccomplishments().end(); ++it)
+	{
+		if (HasBuilding(*it))
+		{
+			CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(*it);
+			std::map<int, std::map<int, int>> m_BuildingYieldsFromAccomplishments = pkBuildingInfo->GetYieldChangesFromAccomplishments();
+			for (std::map<int, std::map<int, int>>::const_iterator it2 = m_BuildingYieldsFromAccomplishments.begin(); it2 != m_BuildingYieldsFromAccomplishments.end(); ++it2)
+			{
+				int iNumTimesAccomplishmentCompleted = GET_PLAYER(getOwner()).GetNumTimesAccomplishmentCompleted((AccomplishmentTypes)(*it2).first);
+				if (iNumTimesAccomplishmentCompleted > 0)
+				{
+					std::map<int, int>::const_iterator it3 = (it2->second).find(eYield);
+					if (it3 != (it2->second).end())
+					{
+						iTempYield += GetCityBuildings()->GetNumBuilding(*it) * iNumTimesAccomplishmentCompleted * (*it3).second * 100;
+					}
+				}
+			}
+		}
+	}
 	if (eYield == YIELD_TOURISM)
 	{
 		ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
@@ -23436,6 +23540,15 @@ int CvCity::getBaseYieldRateTimes100(const YieldTypes eYield, CvString* tooltipS
 	iYield += iTempYield;
 	if (tooltipSink)
 		GC.getGame().BuildYieldTimes100HelpText(tooltipSink, "TXT_KEY_YIELD_FROM_MISC", iTempYield, szIconString);
+
+		
+	if (isCapital())
+	{
+		iTempYield = (GET_PLAYER(m_eOwner).getYieldFromExpendTileCapital(eYield)) * 100;
+		iYield += iTempYield;
+		if (tooltipSink)
+			GC.getGame().BuildYieldTimes100HelpText(tooltipSink, "TXT_KEY_YIELD_FROM_TILE_EXPEND", iTempYield, szIconString);
+	}
 
 	return iYield;
 }
@@ -26196,63 +26309,6 @@ void CvCity::ChangeTechEnhancedYields(TechTypes eTech, YieldTypes eYield, int iC
 			}
 		}
 		std::map<int, std::map<int, int>>(m_miTechEnhancedYields).swap(m_miTechEnhancedYields);
-	}
-}
-
-//	--------------------------------------------------------------------------------
-/// Extra yields when an accomplishment is achieved
-std::map<int, std::map<int, int>> CvCity::GetYieldsFromAccomplishmentsMap() const
-{
-	return m_miYieldsFromAccomplishments;
-}
-int CvCity::GetYieldsFromAccomplishments(AccomplishmentTypes eAccomplishment, YieldTypes eYield) const
-{
-	VALIDATE_OBJECT();
-	ASSERT_DEBUG(eAccomplishment >= 0, "eAccomplishment expected to be >= 0");
-	ASSERT_DEBUG(eAccomplishment < NUM_ACCOMPLISHMENTS_TYPES, "eTech expected to be < NUM_ACCOMPLISHMENTS_TYPES");
-	ASSERT_DEBUG(eYield >= 0, "eYield expected to be >= 0");
-	ASSERT_DEBUG(eYield < NUM_YIELD_TYPES, "eYield expected to be < NUM_YIELD_TYPES");
-
-	std::map<int, std::map<int, int>>::const_iterator it = m_miYieldsFromAccomplishments.find((int)eAccomplishment);
-	if (it != m_miYieldsFromAccomplishments.end()) // find returns the iterator to map::end if the key i is not present in the map
-	{
-		std::map<int, int> miTechMap = it->second;
-		std::map<int, int>::const_iterator it2 = miTechMap.find((int)eYield);
-		if (it2 != miTechMap.end())
-		{
-			return it2->second;
-		}
-	}
-
-	return 0;
-}
-void CvCity::ChangeYieldsFromAccomplishments(AccomplishmentTypes eAccomplishment, YieldTypes eYield, int iChange)
-{
-	VALIDATE_OBJECT();
-	ASSERT_DEBUG(eYield >= 0, "eYield expected to be >= 0");
-	ASSERT_DEBUG(eYield < NUM_YIELD_TYPES, "eYield expected to be < NUM_YIELD_TYPES");
-	ASSERT_DEBUG(eAccomplishment >= 0, "eAccomplishment expected to be >= 0");
-	ASSERT_DEBUG(eAccomplishment < NUM_ACCOMPLISHMENTS_TYPES, "eAccomplishment expected to be < NUM_ACCOMPLISHMENTS_TYPES");
-
-	if (iChange != 0)
-	{
-		// if we already have the accomplishment, we need to change the yields generated in the city
-		if (GET_PLAYER(getOwner()).GetNumTimesAccomplishmentCompleted(eAccomplishment) > 0)
-		{
-			ChangeBaseYieldRateFromBuildings(eYield, iChange * GET_PLAYER(getOwner()).GetNumTimesAccomplishmentCompleted(eAccomplishment));
-		}
-
-		m_miYieldsFromAccomplishments[eAccomplishment][eYield] += iChange;
-		ASSERT_DEBUG(m_miYieldsFromAccomplishments[eAccomplishment][eYield] >= 0, "negative value in m_miYieldsFromAccomplishments");
-		if (m_miYieldsFromAccomplishments[eAccomplishment][eYield] == 0)
-		{
-			m_miYieldsFromAccomplishments[eAccomplishment].erase(eYield);
-			if (m_miYieldsFromAccomplishments[eAccomplishment].size() == 0)
-			{
-				m_miYieldsFromAccomplishments.erase(eAccomplishment);
-			}
-		}
-		std::map<int, std::map<int, int>>(m_miYieldsFromAccomplishments).swap(m_miYieldsFromAccomplishments);
 	}
 }
 
@@ -30051,6 +30107,25 @@ bool CvCity::CreateProject(ProjectTypes eProjectType)
 		ChangeCultureMedianModifier(pProject->GetCultureMedianModifier());
 		ChangeReligiousUnrestModifier(pProject->GetReligiousUnrestModifier());
 		ChangeSpySecurityModifier(pProject->GetSpySecurityModifier());
+		GET_PLAYER(getOwner()).ChangeEmpireSizeModifierPerCityMod(pProject->GetEmpireSizeModifierPerCityMod());
+		
+		for (int iI = 0; iI < GC.getNumUnitCombatClassInfos(); iI++)
+		{
+			int iModifier = pProject->GetUnitCombatProductionModifiersGlobal(iI);
+			if (iModifier != 0)
+			{
+				GET_PLAYER(getOwner()).changeUnitCombatProductionModifiers((UnitCombatTypes)iI, iModifier);
+			}
+		}
+		
+		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+		{
+			int iModifier = pProject->GetYieldFromConquestAllCities(iI);
+			if (iModifier != 0)
+			{
+				GET_PLAYER(getOwner()).changeYieldFromConquestAllCities((YieldTypes)iI, iModifier);
+			}
+		}
 	}
 	if (GetWLTKDFromProject(eProjectType) > 0)
 	{
@@ -32125,7 +32200,6 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_ppiGreatPersonProgressFromConstruction);
 	visitor(city.m_aiYieldPerPopInEmpire);
 	visitor(city.m_miTechEnhancedYields);
-	visitor(city.m_miYieldsFromAccomplishments);
 	visitor(city.m_miGreatPersonPointFromConstruction);
 	visitor(city.m_iUnhappinessFromBuildings);
 }

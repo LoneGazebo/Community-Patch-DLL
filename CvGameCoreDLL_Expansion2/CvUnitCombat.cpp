@@ -556,7 +556,7 @@ void CvUnitCombat::ResolveMeleeCombat(const CvCombatInfo& kCombatInfo, uint uiPa
 				{
 					if(kCombatInfo.getAttackerAdvancedVisualization())
 						// The combat vis has already 'moved' the unit.  Have the game side just do its movement calculations and pop the unit to the new location.
-						pkAttacker->move(*pkTargetPlot, false);
+						pkAttacker->move(*pkTargetPlot, false, pkAttacker->IsFreeAttackMoves());
 					else
 						pkAttacker->UnitMove(pkTargetPlot, true, pkAttacker);
 
@@ -567,7 +567,8 @@ void CvUnitCombat::ResolveMeleeCombat(const CvCombatInfo& kCombatInfo, uint uiPa
 				}
 				else
 				{
-					pkAttacker->changeMoves(-1 * std::max(GD_INT_GET(MOVE_DENOMINATOR), pkTargetPlot->movementCost(pkAttacker, pkAttacker->plot(),pkAttacker->getMoves())));
+					if (!pkAttacker->IsFreeAttackMoves())
+						pkAttacker->changeMoves(-1 * std::max(GD_INT_GET(MOVE_DENOMINATOR), pkTargetPlot->movementCost(pkAttacker, pkAttacker->plot(),pkAttacker->getMoves())));
 
 					if(!pkAttacker->canMove() || !pkAttacker->isBlitz() || pkAttacker->isOutOfAttacks())
 					{
@@ -1345,7 +1346,10 @@ void CvUnitCombat::ResolveCityMeleeCombat(const CvCombatInfo& kCombatInfo, uint 
 					MILITARYLOG(pkDefender->getOwner(), strBuffer.c_str(), pkDefender->plot(), pkAttacker->getOwner());
 			}
 			ApplyPostCityCombatEffects(pkAttacker, pkDefender, iAttackerDamageInflicted);
-			pkAttacker->changeMoves(-1 * std::max(GD_INT_GET(MOVE_DENOMINATOR), pkPlot->movementCost(pkAttacker, pkAttacker->plot(), pkAttacker->getMoves())));
+
+			if (!pkAttacker->IsFreeAttackMoves())
+				pkAttacker->changeMoves(-1 * std::max(GD_INT_GET(MOVE_DENOMINATOR), pkPlot->movementCost(pkAttacker, pkAttacker->plot(), pkAttacker->getMoves())));
+
 		}
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
@@ -3580,7 +3584,8 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::Attack(CvUnit& kAttacker, CvPlot& targ
 			{
 				// Reduce moves left without playing animation
 				int iMoveCost = targetPlot.movementCost(&kAttacker, kAttacker.plot(), kAttacker.getMoves());
-				kAttacker.changeMoves(-iMoveCost);
+				if (!kAttacker.IsFreeAttackMoves())
+					kAttacker.changeMoves(-iMoveCost);
 			}
 		}
 		//		kAttacker.setMadeAttack(true);   /* EFB: Doesn't work, causes tactical AI to not dequeue this attack; but we've decided you don't lose your attack anyway */
@@ -3774,7 +3779,8 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackRanged(CvUnit& kAttacker, int iX
 		if (!kAttacker.isRangedSupportFire())
 		{
 			kAttacker.setMadeAttack(true);
-			kAttacker.changeMoves(-GD_INT_GET(MOVE_DENOMINATOR));
+			if (!kAttacker.IsFreeAttackMoves())
+				kAttacker.changeMoves(-GD_INT_GET(MOVE_DENOMINATOR));
 		}
 
 		uint uiParentEventID = 0;
@@ -3809,7 +3815,8 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackRanged(CvUnit& kAttacker, int iX
 		GenerateRangedCombatInfo(kAttacker, NULL, *pPlot, &kCombatInfo);
 		ASSERT_DEBUG(!kAttacker.isDelayedDeath(), "Trying to battle and the attacker is already dead!");
 		kAttacker.setMadeAttack(true);
-		kAttacker.changeMoves(-GD_INT_GET(MOVE_DENOMINATOR));
+		if (!kAttacker.IsFreeAttackMoves())
+			kAttacker.changeMoves(-GD_INT_GET(MOVE_DENOMINATOR));
 
 		uint uiParentEventID = 0;
 		if(!bDoImmediate)
@@ -4280,7 +4287,8 @@ void CvUnitCombat::ApplyPostKillTraitEffects(CvUnit* pkWinner, CvUnit* pkLoser)
 	if(pkWinner->isExtraAttackHealthOnKill())
 	{
 		int iHealAmount = min(pkWinner->getDamage(), /*25*/ GD_INT_GET(PILLAGE_HEAL_AMOUNT));
-		pkWinner->changeMoves(GD_INT_GET(MOVE_DENOMINATOR));
+		if (!pkWinner->IsFreeAttackMoves())
+			pkWinner->changeMoves(GD_INT_GET(MOVE_DENOMINATOR));
 		pkWinner->setMadeAttack(false);
 		if (!pkWinner->IsCannotHeal())
 		{

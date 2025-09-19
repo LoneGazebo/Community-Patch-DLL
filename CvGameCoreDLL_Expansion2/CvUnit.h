@@ -300,7 +300,7 @@ public:
 
 	int getMeleeCombatDamageCity(int iStrength, const CvCity* pCity, int& iSelfDamageInflicted, int iGarrisonMaxHP, int& iGarrisonDamage, bool bIncludeRand) const;
 	int getMeleeCombatDamage(int iStrength, int iOpponentStrength, int& iSelfDamageInflicted, bool bIncludeRand, const CvUnit* pkOtherUnit, int iExtraDefenderDamage = 0) const;
-	void move(CvPlot& targetPlot, bool bShow);
+	void move(CvPlot& targetPlot, bool bShow, bool bNoMovementCost = false);
 	bool jumpToNearestValidPlot();
 	bool jumpToNearestValidPlotWithinRange(int iRange, CvPlot* pStartPlot=NULL);
 
@@ -370,6 +370,12 @@ public:
 
 	int getChangeDamageValue() const;
 	void ChangeChangeDamageValue(int iChange);
+	
+	int GetDamageTakenMod() const;
+	void ChangeDamageTakenMod(int iChange);
+
+	int GetInfluenceFromCombatXPTimes100() const;
+	void ChangeInfluenceFromCombatXPTimes100(int iChange);
 
 	int getPromotionDuration(PromotionTypes eIndex) const;
 	void SetPromotionDuration(PromotionTypes eIndex, int iValue);
@@ -690,6 +696,8 @@ public:
 	int GetBaseCombatStrength() const;
 	int GetBestAttackStrength() const; //ranged or melee, whichever is greater
 	int GetDamageCombatModifier(bool bForDefenseAgainstRanged = false, int iAssumedDamage = 0) const;
+
+	int GetCombatModifierFromCapitalDistance(const CvPlot* pBattlePlot) const;
 
 	int GetGenericMeleeStrengthModifier(const CvUnit* pOtherUnit, const CvPlot* pBattlePlot, bool bAttacking,
 									bool bIgnoreUnitAdjacencyBoni, const CvPlot* pFromPlot = NULL, bool bQuickAndDirty = false) const;
@@ -1479,6 +1487,10 @@ public:
 	void DoImprovementExperience(const CvPlot* pPlot = NULL);
 	bool IsStrongerDamaged() const;
 	void ChangeIsStrongerDamaged(int iChange);
+	bool IsDiplomaticMissionAccomplishment() const;
+	void ChangeDiplomaticMissionAccomplishment(int iChange);
+	bool IsFreeAttackMoves() const;
+	void ChangeFreeAttackMoves(int iChange);
 	bool IsFightWellDamaged() const;
 	void ChangeIsFightWellDamaged(int iChange);
 
@@ -1979,6 +1991,8 @@ public:
 	int GetCapitalDefenseModifier() const;
 	void ChangeCapitalDefenseFalloff(int iValue);
 	int GetCapitalDefenseFalloff() const;
+	void ChangeCapitalDefenseLimit(int iValue);
+	int GetCapitalDefenseLimit() const;
 
 	void ChangeCityAttackPlunderModifier(int iValue);
 	int GetCityAttackPlunderModifier() const;
@@ -1992,7 +2006,10 @@ public:
 	void ChangeTradeMissionGoldModifier(int iValue);
 	int GetTradeMissionGoldModifier() const;
 
-	void ChangeDiploMissionInfluence(int iValue);
+	void ChangeCombatModPerLevel(int iValue);
+	int GetCombatModPerLevel() const;
+
+    void ChangeDiploMissionInfluence(int iValue);
 	int GetDiploMissionInfluence() const;
 
 	bool IsHasBeenPromotedFromGoody() const;
@@ -2150,6 +2167,8 @@ protected:
 	int m_iCannotBeCapturedCount;
 	int m_iForcedDamage;
 	int m_iChangeDamage;
+	int m_iDamageTakenMod;
+	int m_iInfluenceFromCombatXPTimes100;
 	std::map<PromotionTypes, int> m_PromotionDuration;
 	std::map<PromotionTypes, int> m_TurnPromotionGained;
 #endif
@@ -2374,7 +2393,9 @@ protected:
 	int m_iCanHeavyCharge;
 #if defined(MOD_BALANCE_CORE)
 	int m_iStrongerDamaged;
+	int m_iDiplomaticMissionAccomplishment;
 	int m_iFightWellDamaged;
+	int m_iFreeAttackMoves;
 	int m_iCanMoraleBreak;
 	int m_iDamageAoEFortified;
 	int m_iWorkRateMod;
@@ -2499,10 +2520,12 @@ protected:
 	int m_iEmbarkDefensiveModifier;
 	int m_iCapitalDefenseModifier;
 	int m_iCapitalDefenseFalloff;
+	int m_iCapitalDefenseLimit;
 	int m_iCityAttackPlunderModifier;
 	int m_iReligiousStrengthLossRivalTerritory;
 	int m_iTradeMissionInfluenceModifier;
 	int m_iTradeMissionGoldModifier;
+	int m_iCombatModPerLevel;
 	int m_iDiploMissionInfluence;
 	int m_iMapLayer;		// Which layer does the unit reside on for pathing/stacking/etc.
 	int m_iNumGoodyHutsPopped;
@@ -2624,6 +2647,8 @@ SYNC_ARCHIVE_VAR(int, m_iOriginCity)
 SYNC_ARCHIVE_VAR(int, m_iCannotBeCapturedCount)
 SYNC_ARCHIVE_VAR(int, m_iForcedDamage)
 SYNC_ARCHIVE_VAR(int, m_iChangeDamage)
+SYNC_ARCHIVE_VAR(int, m_iDamageTakenMod)
+SYNC_ARCHIVE_VAR(int, m_iInfluenceFromCombatXPTimes100)
 SYNC_ARCHIVE_VAR(SYNC_ARCHIVE_VAR_TYPE(std::map<PromotionTypes, int>), m_PromotionDuration)
 SYNC_ARCHIVE_VAR(SYNC_ARCHIVE_VAR_TYPE(std::map<PromotionTypes, int>), m_TurnPromotionGained)
 SYNC_ARCHIVE_VAR(int, m_iRangedSupportFireCount)
@@ -2823,7 +2848,9 @@ SYNC_ARCHIVE_VAR(int, m_iEverSelectedCount)
 SYNC_ARCHIVE_VAR(int, m_iSapperCount)
 SYNC_ARCHIVE_VAR(int, m_iCanHeavyCharge)
 SYNC_ARCHIVE_VAR(int, m_iStrongerDamaged)
+SYNC_ARCHIVE_VAR(int, m_iDiplomaticMissionAccomplishment)
 SYNC_ARCHIVE_VAR(int, m_iFightWellDamaged)
+SYNC_ARCHIVE_VAR(int, m_iFreeAttackMoves)
 SYNC_ARCHIVE_VAR(int, m_iCanMoraleBreak)
 SYNC_ARCHIVE_VAR(int, m_iDamageAoEFortified)
 SYNC_ARCHIVE_VAR(int, m_iWorkRateMod)
@@ -2902,10 +2929,12 @@ SYNC_ARCHIVE_VAR(int, m_iEmbarkExtraVisibility)
 SYNC_ARCHIVE_VAR(int, m_iEmbarkDefensiveModifier)
 SYNC_ARCHIVE_VAR(int, m_iCapitalDefenseModifier)
 SYNC_ARCHIVE_VAR(int, m_iCapitalDefenseFalloff)
+SYNC_ARCHIVE_VAR(int, m_iCapitalDefenseLimit)
 SYNC_ARCHIVE_VAR(int, m_iCityAttackPlunderModifier)
 SYNC_ARCHIVE_VAR(int, m_iReligiousStrengthLossRivalTerritory)
 SYNC_ARCHIVE_VAR(int, m_iTradeMissionInfluenceModifier)
 SYNC_ARCHIVE_VAR(int, m_iTradeMissionGoldModifier)
+SYNC_ARCHIVE_VAR(int, m_iCombatModPerLevel)
 SYNC_ARCHIVE_VAR(int, m_iDiploMissionInfluence)
 SYNC_ARCHIVE_VAR(int, m_iMapLayer)
 SYNC_ARCHIVE_VAR(int, m_iNumGoodyHutsPopped)

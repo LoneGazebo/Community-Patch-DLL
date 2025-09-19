@@ -3316,7 +3316,7 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 	{
 		m_pPlayer->DoDifficultyBonus(HISTORIC_EVENT_DIG);
 	}
-	pPlot->setResourceType(NO_RESOURCE, 0);
+	pPlot->ClearArchaeologicalRecord();
 }
 
 // CULTURAL INFLUENCE

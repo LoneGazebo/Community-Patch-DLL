@@ -406,6 +406,7 @@
 	kit.Misc = M()  -- Miscellaneous
 	kit.String = M() -- String utilities
 	kit.Table = M() -- Table utilities
+	kit.Text = M()  -- Text utilities
 	kit.Type = M()  -- Type utilities
 	kit.FP = M()    -- Functional Programming
 	kit.UI = M()

@@ -314,6 +314,7 @@ public:
 	int GetChainLength(BuildingTypes eBuilding);
 
 	void AwardFreeBuildings(CvCity* pCity); // slewis - broken out so that Venice can get free buildings when they purchase something
+	void SpawnResourceInOwnedLands(ResourceTypes eResource, int iQuantity, bool bSarcophagus = false, CvCity* pCityToExclude = NULL);
 
 	bool canFoundCityExt(int iX, int iY, bool bIgnoreDistanceToExistingCities, bool bIgnoreHappiness) const;
 	bool canFoundCity(int iX, int iY) const;
@@ -324,7 +325,7 @@ public:
 	bool canTrainUnit(UnitTypes eUnit, bool bContinue = false, bool bTestVisible = false, bool bIgnoreCost = false, bool bIgnoreUniqueUnitStatus = false, bool bIgnoreTechRequirements = false, CvString* toolTipSink = NULL) const;
 	bool canConstruct(BuildingTypes eBuilding, bool bContinue = false, bool bTestVisible = false, bool bIgnoreCost = false, CvString* toolTipSink = NULL) const;
 	bool canConstruct(BuildingTypes eBuilding, const std::vector<int>& vPreExistingBuildings, bool bContinue = false, bool bTestVisible = false, bool bIgnoreCost = false, CvString* toolTipSink = NULL) const;
-	bool canCreate(ProjectTypes eProject, bool bContinue = false, bool bTestVisible = false) const;
+	bool canCreate(ProjectTypes eProject, bool bContinue = false, bool bTestVisible = false, CvString* toolTipSink = NULL) const;
 	bool canMaintain(ProcessTypes eProcess, bool bContinue = false) const;
 	bool IsCanPurchaseAnyCity(bool bTestPurchaseCost, bool bTestTrainable, UnitTypes eUnit, BuildingTypes eBuilding, YieldTypes ePurchaseYield);
 	bool isProductionMaxedUnitClass(UnitClassTypes eUnitClass) const;
@@ -1709,6 +1710,9 @@ public:
 
 	int getYieldRateModifier(YieldTypes eIndex) const;
 	void changeYieldRateModifier(YieldTypes eIndex, int iChange);
+
+	int getYieldFromExpendTileCapital(YieldTypes eIndex) const;
+	void changeYieldFromExpendTileCapital(YieldTypes eIndex, int iChange);
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	int GetTradeReligionModifier() const;
 	void changeTradeReligionModifier(int iChange);
@@ -1859,6 +1863,14 @@ public:
 	bool IsCultureBombBoost() const;
 	int GetCultureBombBoost() const;
 	void changeCultureBombBoost(int iChange);
+
+	bool IsCultureBombForeignTerritory() const;
+	int GetCultureBombForeignTerritory() const;
+	void changeCultureBombForeignTerritory(int iChange);
+
+	bool IsRetainRazedTerritory() const;
+	int GetRetainRazedTerritory() const;
+	void changeRetainRazedTerritory(int iChange);
 
 	bool IsPuppetProdMod() const;
 	int GetPuppetProdMod() const;
@@ -2021,11 +2033,11 @@ public:
 	void DoUpdateWarDamageAndWeariness(bool bDamageOnly);
 	int GetWarWearinessPercent(PlayerTypes ePlayer) const;
 	int GetHighestWarWearinessPercent() const;
-	PlayerTypes GetHighestWarWearinessPlayer() const;
+	PlayerTypes GetHighestWarWearinessPlayer(bool bConsiderHappinessOnly = false) const;
 	int GetSupplyReductionFromWarWeariness() const;
 	int GetUnitCostIncreaseFromWarWeariness() const;
 	int GetUnhappinessFromWarWeariness() const;
-	int GetUnhappinessFromWarWearinessWithTeam(TeamTypes eTeam) const;
+	int GetUnhappinessFromWarWearinessWithTeam(TeamTypes eTeam, bool bConsiderHappinessOnly = false) const;
 
 	void changeUnitsBuiltCount(UnitTypes eUnitType, int iValue);
 	int getUnitsBuiltCount(UnitTypes eUnitType) const;
@@ -2169,7 +2181,7 @@ public:
 
 	int getResourceInOwnedPlots(ResourceTypes eIndex);
 
-	bool HasResourceForNewUnit(const UnitTypes eUnit, const bool bNoRequirement = false, const bool bCheckAluminum = false, const UnitTypes eFromUnit = NO_UNIT, const bool bContinue = false) const;
+	bool HasResourceForNewUnit(const UnitTypes eUnit, const bool bNoRequirement = false, const bool bCheckAluminum = false, const UnitTypes eFromUnit = NO_UNIT, const bool bContinue = false, CvString* toolTipSink = NULL) const;
 
 	int getTotalImprovementsBuilt() const;
 	void changeTotalImprovementsBuilt(int iChange);
@@ -2201,6 +2213,8 @@ public:
 
 	int getUnitCombatProductionModifiers(UnitCombatTypes eIndex) const;
 	void changeUnitCombatProductionModifiers(UnitCombatTypes eIndex, int iChange);
+	int getYieldFromConquestAllCities(YieldTypes eIndex) const;
+	void changeYieldFromConquestAllCities(YieldTypes eIndex, int iChange);
 	int getUnitCombatFreeExperiences(UnitCombatTypes eIndex) const;
 	void changeUnitCombatFreeExperiences(UnitCombatTypes eIndex, int iChange);
 
@@ -2214,6 +2228,7 @@ public:
 	int getBuildingClassCount(BuildingClassTypes eIndex) const;
 	int getMaxPlayerInstances(BuildingTypes eIndex) const;
 	bool isBuildingMaxedOut(BuildingTypes eIndex, int iExtra = 0) const;
+	bool isProjectMaxedOut(ProjectTypes eIndex, int iExtra = 0) const;
 	void changeBuildingClassCount(BuildingClassTypes eIndex, int iChange);
 	int getBuildingClassMaking(BuildingClassTypes eIndex) const;
 	void changeBuildingClassMaking(BuildingClassTypes eIndex, int iChange);
@@ -2283,6 +2298,9 @@ public:
 
 	int GetYieldFromWLTKD(YieldTypes eYield) const;
 	void ChangeYieldFromWLTKD(YieldTypes eYield, int iChange);
+
+	int GetEmpireSizeModifierPerCityMod() const;
+	void ChangeEmpireSizeModifierPerCityMod(int iChange);
 
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	int getSpecificGreatPersonRateModifierFromMonopoly(GreatPersonTypes eGreatPerson, MonopolyTypes eMonopoly) const;
@@ -3200,6 +3218,8 @@ protected:
 	int m_iDoubleBorderGrowthWLTKD;
 	int m_iIncreasedQuestInfluence;
 	int m_iCultureBombBoost;
+	int m_iCultureBombForeignTerritory;
+	int m_iRetainRazedTerritory;
 	int m_iPuppetProdMod;
 	int m_iOccupiedProdMod;
 	int m_iGoldInternalTrade;
@@ -3491,6 +3511,7 @@ protected:
 	std::vector<int> m_paiResourceShortageValue;
 	std::vector<int> m_aiYieldFromBirth;
 	std::vector<int> m_aiYieldFromBirthCapital;
+	std::vector<int> m_aiYieldFromExpendTileCapital;
 	std::vector<int> m_aiYieldFromDeath;
 	std::vector<int> m_aiYieldFromPillage;
 	std::vector<int> m_aiYieldFromVictory;
@@ -3585,6 +3606,7 @@ protected:
 	std::vector<int> m_paiFreeBuildingCount;
 	std::vector<int> m_paiFreePromotionCount;
 	std::vector<int> m_paiUnitCombatProductionModifiers;
+	std::vector<int> m_paiYieldFromConquestAllCities;
 	std::vector<int> m_paiUnitCombatFreeExperiences;
 	std::vector<int> m_paiUnitClassCount;
 	std::vector<int> m_paiUnitClassMaking;
@@ -3646,6 +3668,7 @@ protected:
 	std::vector<int> m_piYieldChangeWorldWonder;
 	std::vector<int> m_piYieldFromMinorDemand;
 	std::vector<int> m_piYieldFromWLTKD;
+	int m_iEmpireSizeModifierPerCityMod;
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppaaiImprovementYieldChange;
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	std::map<GreatPersonTypes, std::map<MonopolyTypes, int>> m_ppiSpecificGreatPersonRateModifierFromMonopoly;
@@ -4048,6 +4071,8 @@ SYNC_ARCHIVE_VAR(int, m_iDoubleBorderGrowthGA)
 SYNC_ARCHIVE_VAR(int, m_iDoubleBorderGrowthWLTKD)
 SYNC_ARCHIVE_VAR(int, m_iIncreasedQuestInfluence)
 SYNC_ARCHIVE_VAR(int, m_iCultureBombBoost)
+SYNC_ARCHIVE_VAR(int, m_iCultureBombForeignTerritory)
+SYNC_ARCHIVE_VAR(int, m_iRetainRazedTerritory)
 SYNC_ARCHIVE_VAR(int, m_iPuppetProdMod)
 SYNC_ARCHIVE_VAR(int, m_iOccupiedProdMod)
 SYNC_ARCHIVE_VAR(int, m_iGoldInternalTrade)
@@ -4298,6 +4323,7 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_paiResourceFromCSAlliances)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiResourceShortageValue)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromBirth)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromBirthCapital)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromExpendTileCapital)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromDeath)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromPillage)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromVictory)
@@ -4367,6 +4393,7 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_paiBuildingChainSteps)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiFreeBuildingCount)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiFreePromotionCount)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiUnitCombatProductionModifiers)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_paiYieldFromConquestAllCities)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiUnitCombatFreeExperiences)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiUnitClassCount)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiUnitClassMaking)
@@ -4390,6 +4417,7 @@ SYNC_ARCHIVE_VAR(SYNC_ARCHIVE_VAR_TYPE(std::vector< Firaxis::Array<int, NUM_YIEL
 SYNC_ARCHIVE_VAR(bool, m_bEverPoppedGoody)
 SYNC_ARCHIVE_VAR(bool, m_bEverTrainedBuilder)
 SYNC_ARCHIVE_VAR(int, m_iPreviousBestSettlePlot)
+SYNC_ARCHIVE_VAR(int, m_iEmpireSizeModifierPerCityMod)
 SYNC_ARCHIVE_VAR(int, m_iNumFreeGreatPeople)
 SYNC_ARCHIVE_VAR(int, m_iNumMayaBoosts)
 SYNC_ARCHIVE_VAR(int, m_iNumFaithGreatPeople)

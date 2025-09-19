@@ -193,7 +193,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		if (isWorldWonderClass(kBuildingClassInfo))
 		{
 			// Specific check to block non-founder AIs from building Hagia Sophia, Borobudur, Cathedral of St. Basil
-			ReligionTypes eOurReligion = kPlayer.GetReligions()->GetStateReligion(false);
+			ReligionTypes eOurReligion = kPlayer.GetReligions()->GetOwnedReligion();
 			if (eOurReligion == NO_RELIGION)
 			{
 				bool bCanFoundReligion = GC.getGame().GetGameReligions()->GetNumReligionsStillToFound() > 0 || kPlayer.GetPlayerTraits()->IsAlwaysReligion();
@@ -228,6 +228,23 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 					{
 						return SR_USELESS;
 					}
+				}
+			}
+
+			// Do we get free resources from completing any World Wonder? We should be more willing to build them in general.
+			for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+			{
+				ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
+				int iQuantity = kPlayer.GetPlayerTraits()->GetNumFreeResourceOnWorldWonderCompletion(eResourceLoop);
+				if (iQuantity > 0)
+				{
+					ResourceUsageTypes eUsage = GC.getResourceInfo(eResourceLoop)->getResourceUsage();
+					if (eResourceLoop == GD_INT_GET(ARTIFACT_RESOURCE) || eResourceLoop == GD_INT_GET(HIDDEN_ARTIFACT_RESOURCE) || eUsage == RESOURCEUSAGE_LUXURY)
+						iBonus += 100 * iQuantity;
+					else if (eUsage == RESOURCEUSAGE_STRATEGIC)
+						iBonus += 50 * iQuantity;
+					else
+						iBonus += 25 * iQuantity;
 				}
 			}
 		}

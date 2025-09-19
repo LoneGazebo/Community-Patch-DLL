@@ -10,6 +10,7 @@
 #include "CvInfosSerializationHelper.h"
 
 #include "LintFree.h"
+#include "CvUnitClasses.h"
 
 /// Constructor
 CvUnitEntry::CvUnitEntry(void) :
@@ -61,6 +62,8 @@ CvUnitEntry::CvUnitEntry(void) :
 	m_bFreeUpgrade(false),
 	m_bUnitEraUpgrade(false),
 	m_bWarOnly(false),
+	m_bCopyYieldsFromExpendTile(false),
+	m_iTileXPOnExpend(0),
 	m_bWLTKD(false),
 	m_bGoldenAge(false),
 	m_bCultureBoost(false),
@@ -417,6 +420,8 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	m_bCultureFromExperienceOnDisband = kResults.GetBool("CulExpOnDisbandUpgrade");
 	m_bUnitEraUpgrade = kResults.GetBool("UnitEraUpgrade");
 	m_bWarOnly = kResults.GetBool("WarOnly");
+	m_bCopyYieldsFromExpendTile = kResults.GetBool("CopyYieldsFromExpendTile");
+	m_iTileXPOnExpend = kResults.GetInt("TileXPOnExpend");
 	m_bWLTKD = kResults.GetBool("WLTKDFromBirth");
 	m_bGoldenAge = kResults.GetBool("GoldenAgeFromBirth");
 	m_bCultureBoost = kResults.GetBool("CultureBoost");
@@ -1409,6 +1414,14 @@ bool CvUnitEntry::IsWarOnly() const
 {
 	return m_bWarOnly;
 }
+bool CvUnitEntry::IsCopyYieldsFromExpendTile() const
+{
+	return m_bCopyYieldsFromExpendTile;
+}
+int CvUnitEntry::GetTileXPOnExpend() const
+{
+    return m_iTileXPOnExpend;
+}
 bool CvUnitEntry::IsWLTKDFromBirth() const
 {
 	return m_bWLTKD;
@@ -1897,6 +1910,14 @@ void CvUnitEntry::DoUpdatePower()
 			if (kPromotion->GetCombatModPerCSAlliance() > 0)
 			{
 				iTemp = (iBasePower * kPromotion->GetCombatModPerCSAlliance() * (/*5*/ GD_INT_GET(BALANCE_MAX_CS_ALLY_STRENGTH)) / 2);
+				iTemp /= 100;
+				iBonusPower += iTemp;
+			}
+
+			/// Combat Mod per Level - add two times the bonus
+			if (kPromotion->GetCombatModPerLevel() > 0)
+			{
+				iTemp = (iBasePower * kPromotion->GetCombatModPerLevel()) * 2;
 				iTemp /= 100;
 				iBonusPower += iTemp;
 			}

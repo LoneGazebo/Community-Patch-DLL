@@ -489,18 +489,18 @@
 
 		<!-- Egypt -->
 		
-		<Row Tag="TXT_KEY_BUILDING_NILOMETER">
+		<Replace Tag="TXT_KEY_BUILDING_NILOMETER">
 			<Text>Nilometer</Text>
-		</Row>
-		<Row Tag="TXT_KEY_BUILDING_NILOMETER_HELP">
+		</Replace>
+		<Replace Tag="TXT_KEY_BUILDING_NILOMETER_HELP">
 			<Text></Text>
-		</Row>
-		<Row Tag="TXT_KEY_BUILDING_NILOMETER_TEXT">
+		</Replace>
+		<Replace Tag="TXT_KEY_BUILDING_NILOMETER_TEXT">
 			<Text>The Nilometer was an Egyptian measurement device designed to benchmark the water levels of the Nile River during the annual flood season. The Egyptians relied on the Nile to overrun the surrounding flood plains each year in order to deposit silt for fertilization, but too much water would destroy the harvesting infrastructure, while too little water could cause a widespread famine. The Egyptians used the Nilometer flood readings to determine the appropriate level of taxes to be levied against the farmers.[NEWLINE][NEWLINE]The Nilometer itself typically consisted of either a standing column or a descending flight of stairs leading into a well that was channeled from the river. Both configurations featured incremental markings to indicate the depth of the water, and the Egyptians kept detailed records for year-to-year comparison. One of the oldest surviving examples of the Nilometer stands today on the island of Roda in Cairo, believed to have been constructed in the 9th century AD by the Persian astronomer Alfraganus.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_BUILDING_NILOMETER_STRATEGY">
+		</Replace>
+		<Replace Tag="TXT_KEY_BUILDING_NILOMETER_STRATEGY">
 			<Text></Text>
-		</Row>
+		</Replace>
 
 		<Row Tag="TXT_KEY_UNIT_MAMLUK">
 			<Text>Mamluk</Text>
@@ -702,19 +702,6 @@
 		</Row>
 
 		<!-- Greece -->
-		<Row Tag="TXT_KEY_BUILDING_GYMNASION">
-			<Text>Acropolis</Text>
-		</Row>
-		<Row Tag="TXT_KEY_BUILDING_GYMNASION_TEXT">
-			<Text>An acropolis is a settlement, especially a citadel, built upon an area of elevated ground—frequently a hill with precipitous sides, chosen for purposes of defense. In many parts of the world, acropoleis became the nuclei of large cities of classical antiquity, such as ancient Rome, and for this reason they are sometimes prominent landmarks in modern cities with ancient pasts, such as modern Rome. The word acropolis literally means in Greek "upper city," and though associated primarily with the Greek cities Athens, Argos ( with Larissa), Thebes (with Cadmea), and Corinth (with its Acrocorinth), may be applied generically to all such citadels, including Rome, Jerusalem, Celtic Bratislava, many in Asia Minor, or even Castle Rock in Edinburgh. An example in Ireland is the Rock of Cashel. Acropolis is also the term used by archaeologists and historians for the urban Castro culture settlements located in Northwestern Iberian hilltops.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_BUILDING_GYMNASION_HELP">
-			<Text>+33% [ICON_GREAT_WRITER] Great Writer Rate in the City.[NEWLINE][NEWLINE]+5 [ICON_CULTURE_LOCAL] Border Growth when a Unit defeats an Enemy Unit in battle; also +25 [ICON_CULTURE] Culture if the Unit was [COLOR_POSITIVE_TEXT]created by this City[ENDCOLOR], both scaling with Era.[NEWLINE][NEWLINE]Nearby [ICON_RES_DYE] Dyes: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_SILK] Silk: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_LAPIS] Lapis Lazuli: +2 [ICON_CULTURE] Culture.[NEWLINE]Nearby [ICON_RES_BRAZILWOOD] Brazilwood: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]Contains 2 slots for [ICON_GW_WRITING] Great Works of Writing. +2 [ICON_CULTURE] Culture if [COLOR_POSITIVE_TEXT]Themed[ENDCOLOR].</Text>
-		</Row>
-		<Row Tag="TXT_KEY_BUILDING_GYMNASION_STRATEGY">
-			<Text>Unique Greek replacement for the {TXT_KEY_BUILDING_AMPHITHEATER}. In addition to the {TXT_KEY_BUILDING_AMPHITHEATER}'s bonuses, {TXT_KEY_BUILDING_GYMNASION} increases [ICON_STRENGTH] Defensive Strength and produces [ICON_CULTURE] Culture and [ICON_CULTURE_LOCAL] Border Growth Points when your unit defeats an enemy unit.</Text>
-		</Row>
-
 		<Row Tag="TXT_KEY_BUILDING_GYMNASION">
 			<Text>Gymnasion</Text>
 		</Row>

@@ -6385,6 +6385,7 @@ CvPlot* HomelandAIHelpers::GetPlotForEmbassy(CvUnit* pUnit, CvCity* pCity)
 	BuildTypes eEmbassyBuild = (BuildTypes)GC.getInfoTypeForString("BUILD_EMBASSY");
 
 	std::set<int> siPlots = pCity->GetPlotList();
+	WeightedPlotVector aBestPlotList;
 	for (std::set<int>::const_iterator it = siPlots.begin(); it != siPlots.end(); ++it)
 	{
 		CvPlot* pLoopPlot = GC.getMap().plotByIndex(*it);
@@ -6392,9 +6393,47 @@ CvPlot* HomelandAIHelpers::GetPlotForEmbassy(CvUnit* pUnit, CvCity* pCity)
 		if (pUnit->GetDanger(pLoopPlot) > 10)
 			continue;
 
-		//use the first (innermost) plot we find
+		// if plot yields are copied to the capital when expending the GP, check which plot is best
+		// otherwise, use the first (innermost) plot we find
 		if (pUnit->canBuild(pLoopPlot, eEmbassyBuild))
-			return pLoopPlot;
+		{
+			if (pUnit->getUnitInfo().IsCopyYieldsFromExpendTile())
+			{
+				int iScore = 0;
+				for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+				{
+					iScore += pLoopPlot->calculateYield((YieldTypes)iI, false, NULL, true); // todo: score yields by type
+				}
+				// additional score if the tile can't be stolen with a citadel
+				bool bCitadelDanger = false;
+				CvPlot** aNeighbors = GC.getMap().getNeighborsUnchecked(pLoopPlot);
+				for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+				{
+					CvPlot* pAdjacentPlot = aNeighbors[iI];
+					if (!pAdjacentPlot || pAdjacentPlot->isImpassable())
+						continue;
+
+					// neighboring tile owned by a major civ other than us?
+					if (pAdjacentPlot->getOwner() != NO_PLAYER && pAdjacentPlot->getOwner() != pUnit->getOwner() && GET_PLAYER(pAdjacentPlot->getOwner()).isMajorCiv())
+					{
+						bCitadelDanger = true;
+						break;
+					}
+				}
+				iScore += bCitadelDanger ? 0 : 5;
+				aBestPlotList.push_back(pLoopPlot, iScore);
+			}
+			else
+			{
+				return pLoopPlot;
+			}
+		}
+	}
+
+	if (aBestPlotList.size() > 0)
+	{
+		aBestPlotList.StableSortItems(); //highest score will be first
+		return aBestPlotList.GetElement(0);
 	}
 
 	return NULL;
