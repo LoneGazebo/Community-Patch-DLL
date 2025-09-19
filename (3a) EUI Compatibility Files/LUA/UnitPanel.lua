@@ -5,6 +5,7 @@
 ------------------------------------------------------
 
 include( "EUI_tooltips" )
+include("InfoTooltipInclude")
 Events.SequenceGameInitComplete.Add(function()
 print("Loading EUI unit panel",ContextPtr,os.clock(),[[ 
  _   _       _ _   ____                  _ 
@@ -43,13 +44,8 @@ local GameInfo = EUI.GameInfoCache -- warning! use iterator ONLY with table fiel
 local table = EUI.table
 
 --EUI_tooltips
-local GetHelpTextForUnit = EUI.GetHelpTextForUnit
-local GetHelpTextForBuilding = EUI.GetHelpTextForBuilding
 local GetHelpTextForProject = EUI.GetHelpTextForProject
 local GetHelpTextForProcess = EUI.GetHelpTextForProcess
-local GetFoodTooltip = EUI.GetFoodTooltip
-local GetProductionTooltip = EUI.GetProductionTooltip
-local GetCultureTooltip = EUI.GetCultureTooltip
 
 local ActionSubTypes = ActionSubTypes
 local ActivityTypes = ActivityTypes
@@ -808,7 +804,7 @@ g_cities = g_RibbonManager( "CityInstance", Controls.CityStack, Controls.Scrap,
 
 			elseif orderID == OrderTypes.ORDER_CONSTRUCT then
 				itemInfo = GameInfo.Buildings
-				strToolTip = GetHelpTextForBuilding( itemID, false, false, city:GetNumFreeBuilding(itemID) > 0, city )
+				strToolTip = GetHelpTextForBuilding( itemID, false, nil, city:GetNumFreeBuilding(itemID) > 0, city )
 
 			elseif orderID == OrderTypes.ORDER_CREATE then
 				itemInfo = GameInfo.Projects

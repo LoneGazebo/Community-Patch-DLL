@@ -19,7 +19,7 @@ function AdjustArtOnUniqueUnitButton( thisButton, thisFrame, thisUnitInfo, textu
 	if thisButton then
 		if (noTooltip ~= true) then
 			if (extendedTooltip) then
-				thisButton:SetToolTipString( Locale.ConvertTextKey(GetHelpTextForUnit(thisUnitInfo.ID, true)));
+				thisButton:SetToolTipString( Locale.ConvertTextKey(GetHelpTextForUnit(thisUnitInfo.ID, true, nil, false, not Game)));
 			else
 				thisButton:SetToolTipString( Locale.ConvertTextKey( thisUnitInfo.Description ) );
 			end
@@ -47,7 +47,7 @@ function AdjustArtOnUniqueBuildingButton( thisButton, thisFrame, thisBuildingInf
 	if thisButton then
 		if(noTooltip ~= true) then
 			if (extendedTooltip) then
-				thisButton:SetToolTipString( Locale.ConvertTextKey(GetHelpTextForBuilding(thisBuildingInfo.ID, false, false, false)));
+				thisButton:SetToolTipString( Locale.ConvertTextKey(GetHelpTextForBuilding(thisBuildingInfo.ID, false, nil, false, nil, not Game)));
 			else
 				thisButton:SetToolTipString( Locale.ConvertTextKey( thisBuildingInfo.Description ) );
 			end

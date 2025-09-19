@@ -1,265 +1,189 @@
 -------------------------------------------------
 -- TECH PANEL
 -------------------------------------------------
-include( "InstanceManager" );
-include( "TechButtonInclude" );
-include( "TechHelpInclude" );
+include("InstanceManager");
+include("TechButtonInclude");
+include("TechHelpInclude");
+include("VPUI_core");
+include("CPK.lua");
 
-local maxSmallButtons = 5;
+local NUM_SMALL_BUTTONS = 5;
 
+local iPortraitSize = Controls.TechIcon:GetSize().x;
+
+local eActivePlayer = Game.GetActivePlayer();
 local eRecentTech = -1;
-local eCurrentTech= -1;
+local eCurrentTech = -1;
 
-local techPortraitSize = Controls.TechIcon:GetSize().x;
+local L = Locale.Lookup;
+local Hide = CPK.UI.Control.Hide;
+local Show = CPK.UI.Control.Show;
+local StringBuilder = CPK.Util.StringBuilder;
+local VP = MapModData.VP;
+local GetInfoFromId = VP.GetInfoFromId;
 
-g_activePlayerObserver = Game.GetActivePlayer();
+local strChooseResearch = L("TXT_KEY_NOTIFICATION_SUMMARY_NEW_RESEARCH");
+local strFinished = L("TXT_KEY_RESEARCH_FINISHED");
 
-
-local helpTT = Locale.ConvertTextKey( "TXT_KEY_NOTIFICATION_SUMMARY_NEW_RESEARCH" );
-
-function OnTechnologyButtonClicked()
-    if( Controls.TechPopup:IsHidden() == true ) then
-    	Events.SerialEventGameMessagePopup( { Type = ButtonPopupTypes.BUTTONPOPUP_CHOOSETECH,
-                                              Data1 = Game.GetActivePlayer(),
-                                              Data3 = -1 -- this is to tell it that a tech was not just finished
-                                            } );
-    else
-        Controls.TechPopup:SetHide( true );
-    end
-end
-Controls.TechButton:RegisterCallback( Mouse.eLClick, OnTechnologyButtonClicked );
-Controls.BigTechButton:RegisterCallback( Mouse.eLClick, OnTechnologyButtonClicked );
-
-function OnTechnologyButtonRClicked()
-
-	local tech = eCurrentTech;
-	if tech == -1 then
-		tech = eRecentTech;
+local function OnTechnologyButtonClicked()
+	if Controls.TechPopup:IsHidden() then
+		Events.SerialEventGameMessagePopup({
+			Type = ButtonPopupTypes.BUTTONPOPUP_CHOOSETECH,
+			Data1 = Game.GetActivePlayer(),
+			Data3 = -1, -- this is to tell it that a tech was not just finished
+		});
+	else
+		Hide(Controls.TechPopup);
 	end
-	
-	if tech ~= -1 then
-		local pTechInfo = GameInfo.Technologies[tech];
-		if pTechInfo then
-		
-			-- search by name
-			local searchString = Locale.ConvertTextKey( pTechInfo.Description );
-			Events.SearchForPediaEntry( searchString );			
-		end
-	end
-	
 end
-Controls.BigTechButton:RegisterCallback( Mouse.eRClick, OnTechnologyButtonRClicked );
 
+Controls.TechButton:RegisterCallback(Mouse.eLClick, OnTechnologyButtonClicked);
+Controls.BigTechButton:RegisterCallback(Mouse.eLClick, OnTechnologyButtonClicked);
+Controls.BigTechButton:RegisterCallback(Mouse.eRClick, function ()
+	local eTech = (eCurrentTech == -1) and eRecentTech or eCurrentTech;
+	if eTech ~= -1 then
+		Events.SearchForPediaEntry(L(GetInfoFromId("Technologies", eTech).Description));
+	end
+end);
 
-function OnTechPanelUpdated()
-	
-	if g_activePlayerObserver < 0 then
-		researchStatus = Locale.ConvertTextKey("TXT_KEY_NOTIFICATION_SUMMARY_NEW_RESEARCH");
-		
-		Controls.ActiveStyle:SetHide( true );
-		--Controls.ResearchLabel:SetText( Locale.ConvertTextKey( "TXT_KEY_NOTIFICATION_SUMMARY_NEW_RESEARCH" )  );
-		Controls.ActiveStyle:SetToolTipString( helpTT );
-		Controls.TechButton:SetToolTipString( helpTT );
-		Controls.BigTechButton:SetToolTipString( helpTT );
-		Controls.ResearchMeter:SetPercents( 0, 0 );
-		Controls.TechIcon:SetHide( true );
+local function OnTechPanelUpdated()
+	-- Empty the UI when there's no active player (during CS or barbarian turn)
+	if eActivePlayer < 0 then
+		Hide(Controls.ActiveStyle);
+		Controls.ActiveStyle:SetToolTipString(strChooseResearch);
+		Controls.TechButton:SetToolTipString(strChooseResearch);
+		Controls.BigTechButton:SetToolTipString(strChooseResearch);
+		Controls.ResearchMeter:SetPercents(0, 0);
+		Hide(Controls.TechIcon);
 		Controls.TechText:SetText("");
-		Controls.FinishedTechText:SetText("");
-		return
+		return;
 	end
-	
-	local pPlayer = Players[g_activePlayerObserver];
+
+	local pPlayer = Players[eActivePlayer];
 	local pTeam = Teams[pPlayer:GetTeam()];
 	local pTeamTechs = pTeam:GetTeamTechs();
-	
+
 	eCurrentTech = pPlayer:GetCurrentResearch();
 	eRecentTech = pTeamTechs:GetLastTechAcquired();
-	
+
 	local fResearchProgressPercent = 0;
 	local fResearchProgressPlusThisTurnPercent = 0;
-	
-	local researchStatus = "";
-	local szText = "";
-	
-	techPediaSearchStrings = {};
-	
+
+	local strResearchStatus;
+	local strTech;
+	local strTooltip;
+	local kTechInfo;
+
 	-- Are we researching something right now?
-	if (eCurrentTech ~= -1) then
-		
+	if eCurrentTech ~= -1 then
 		local iResearchTurnsLeft = pPlayer:GetResearchTurnsLeft(eCurrentTech, true);
-		local iCurrentResearchProgress = pPlayer:GetResearchProgress(eCurrentTech);
-		local iResearchNeeded = pPlayer:GetResearchCost(eCurrentTech);
-		local iResearchPerTurn = pPlayer:GetScience();
-		local iCurrentResearchPlusThisTurn = iCurrentResearchProgress + iResearchPerTurn;
-		
-		fResearchProgressPercent = iCurrentResearchProgress / iResearchNeeded;
-		fResearchProgressPlusThisTurnPercent = iCurrentResearchPlusThisTurn / iResearchNeeded;
-		
-		if (fResearchProgressPlusThisTurnPercent > 1) then
-			fResearchProgressPlusThisTurnPercent = 1
-		end
-		
-				
-		local pTechInfo = GameInfo.Technologies[eCurrentTech];
-		if pTechInfo then
-			szText = Locale.ConvertTextKey( pTechInfo.Description );
-			if iResearchPerTurn > 0 then
-				szText = szText .. " (" .. tostring(iResearchTurnsLeft) .. ")";
-			end		
-			local customHelpString = GetHelpTextForTech(eCurrentTech);
-			Controls.ActiveStyle:SetToolTipString( customHelpString );
-			Controls.TechButton:SetToolTipString( customHelpString );
-			Controls.BigTechButton:SetToolTipString( customHelpString );
-			-- if we have one, update the tech picture
-			if IconHookup( pTechInfo.PortraitIndex, techPortraitSize, pTechInfo.IconAtlas, Controls.TechIcon ) then
-				Controls.TechIcon:SetHide( false );
-			else
-				Controls.TechIcon:SetHide( true );
-			end
+		local iCurrentProgressTimes100 = pPlayer:GetResearchProgressTimes100(eCurrentTech);
+		local iTechCost = pPlayer:GetResearchCost(eCurrentTech);
+		local iNextTurnProgressTimes100 = iCurrentProgressTimes100 + pPlayer:GetScienceTimes100();
 
-			-- Update the little icons
-			local numButtonsAdded = AddSmallButtonsToTechButton( Controls, pTechInfo, maxSmallButtons, 64 );
-			numButtonsAdded = math.max( 0, numButtonsAdded );
-	
-			AddCallbackToSmallButtons( Controls, maxSmallButtons, -1, -1, Mouse.eLClick, OnTechnologyButtonClicked );
-			
-			if numButtonsAdded > 0 then
-				if OptionsManager.GetSmallUIAssets() then		
-					Controls.ActiveStyle:SetSizeVal( numButtonsAdded*56 + 76, 126 );
-				else
-					Controls.ActiveStyle:SetSizeVal( numButtonsAdded*56 + 130, 126 );
-				end
-				Controls.ActiveStyle:SetHide( false );
-			else
-				Controls.ActiveStyle:SetHide( true );
-			end
-			
-		end
-		--Controls.ResearchLabel:SetText( "" );-- Locale.ConvertTextKey( "TXT_KEY_RESEARCH_ONGOING" ));
-		--Controls.TechText:SetHide( false );
-		--Controls.FinishedTechText:SetHide( true );
-	elseif (eRecentTech ~= -1) then -- maybe we just finished something
-				
-		local pTechInfo = GameInfo.Technologies[eRecentTech];
-		if pTechInfo then
-			szText = Locale.ConvertTextKey( pTechInfo.Description );
-			-- if we have one, update the tech picture
-			if IconHookup( pTechInfo.PortraitIndex, techPortraitSize, pTechInfo.IconAtlas, Controls.TechIcon ) then
-				Controls.TechIcon:SetHide( false );
-			else
-				Controls.TechIcon:SetHide( true );
-			end
+		fResearchProgressPercent = iCurrentProgressTimes100 / iTechCost;
+		fResearchProgressPlusThisTurnPercent = math.min(100, iNextTurnProgressTimes100 / iTechCost);
 
-			-- Update the little icons
-			local numButtonsAdded = AddSmallButtonsToTechButton( Controls, pTechInfo, maxSmallButtons, 64 );
-			numButtonsAdded = math.max( 0, numButtonsAdded );
-			
-			AddCallbackToSmallButtons( Controls, maxSmallButtons, -1, -1, Mouse.eLClick, OnTechnologyButtonClicked );
-			
-			if numButtonsAdded > 0 then
-				Controls.ActiveStyle:SetSizeVal( numButtonsAdded*56 + 130, 126 );
-				Controls.ActiveStyle:SetHide( false );
-			else
-				Controls.ActiveStyle:SetHide( true );
-			end
-			
+		kTechInfo = GameInfo.Technologies[eCurrentTech];
+		strTech = L(kTechInfo.Description);
+		if iNextTurnProgressTimes100 > iCurrentProgressTimes100 then
+			strTech = string.format("%s (%s)", strTech, iResearchTurnsLeft);
 		end
-		researchStatus = Locale.ConvertTextKey("TXT_KEY_RESEARCH_FINISHED");
-		--Controls.ResearchLabel:SetText( Locale.ConvertTextKey( "TXT_KEY_RESEARCH_FINISHED" ) );
-		Controls.ActiveStyle:SetToolTipString( helpTT );
-		Controls.TechButton:SetToolTipString( helpTT );
-		Controls.BigTechButton:SetToolTipString( helpTT );
-		--Controls.TechText:SetHide( true );
-		--Controls.FinishedTechText:SetHide( false );
+		strTooltip = GetHelpTextForTech(eCurrentTech);
+	elseif eRecentTech ~= -1 then -- maybe we just finished something
+		kTechInfo = GameInfo.Technologies[eRecentTech];
+		strTech = L(kTechInfo.Description);
+		strResearchStatus = strFinished;
+		strTooltip = strChooseResearch;
 	else
-		researchStatus = Locale.ConvertTextKey("TXT_KEY_NOTIFICATION_SUMMARY_NEW_RESEARCH");
-		
-		Controls.ActiveStyle:SetHide( true );
-		--Controls.ResearchLabel:SetText( Locale.ConvertTextKey( "TXT_KEY_NOTIFICATION_SUMMARY_NEW_RESEARCH" )  );
-		Controls.ActiveStyle:SetToolTipString( helpTT );
-		Controls.TechButton:SetToolTipString( helpTT );
-		Controls.BigTechButton:SetToolTipString( helpTT );
-		--Controls.TechText:SetHide( false );
-		--Controls.FinishedTechText:SetHide( true );
+		strResearchStatus = strChooseResearch;
+		strTooltip = strChooseResearch;
+		Hide(Controls.ActiveStyle);
 	end
-	
-	-- Research Meter
-  	local research = pPlayer:GetCurrentResearch();
-  	if( research ~= -1 ) then
-    	Controls.ResearchMeter:SetPercents( fResearchProgressPercent, fResearchProgressPlusThisTurnPercent );
+
+	if eCurrentTech ~= -1 or eRecentTech ~= -1 then
+		-- Update the tech icon
+		if IconHookup(kTechInfo.PortraitIndex, iPortraitSize, kTechInfo.IconAtlas, Controls.TechIcon) then
+			Show(Controls.TechIcon);
+		else
+			Hide(Controls.TechIcon);
+		end
+
+		-- Update the small buttons
+		local iNumSmallButtons = AddSmallButtonsToTechButton(Controls, kTechInfo, NUM_SMALL_BUTTONS, 64);
+		AddCallbackToSmallButtons(Controls, NUM_SMALL_BUTTONS, -1, -1, Mouse.eLClick, OnTechnologyButtonClicked);
+		if iNumSmallButtons > 0 then
+			if OptionsManager.GetSmallUIAssets() then
+				Controls.ActiveStyle:SetSizeVal(434, 126);
+			else
+				Controls.ActiveStyle:SetSizeVal(460, 126);
+			end
+			Show(Controls.ActiveStyle);
+		else
+			Hide(Controls.ActiveStyle);
+		end
+	end
+
+	-- Research meter
+	if eCurrentTech ~= -1 then
+		Controls.ResearchMeter:SetPercents(fResearchProgressPercent / 100, fResearchProgressPlusThisTurnPercent / 100);
 	else
-    	Controls.ResearchMeter:SetPercents( 1, 0 );
+		Controls.ResearchMeter:SetPercents(1, 0);
 	end
-	
-	-- Tech Text
-	Controls.TechText:SetText(researchStatus .. " " .. szText);
-	Controls.FinishedTechText:SetText(researchStatus .. " " .. szText);
-	
+
+	-- Text and tooltips
+	Controls.TechText:SetText(StringBuilder.New():Append(strResearchStatus):Append(strTech):Concat(" "));
+	Controls.ActiveStyle:SetToolTipString(strTooltip);
+	Controls.TechButton:SetToolTipString(strTooltip);
+	Controls.BigTechButton:SetToolTipString(strTooltip);
 end
+
 Events.SerialEventGameDataDirty.Add(OnTechPanelUpdated);
-	
-	
--------------------------------------------------
--------------------------------------------------
-function OnOpenInfoCorner( iInfoType )
-    -- show if it's our id and we're not already visible
-    if( iInfoType == InfoCornerID.Tech ) then
-        ContextPtr:SetHide( false );
-    else
-        ContextPtr:SetHide( true );
-    end
-end
-Events.OpenInfoCorner.Add( OnOpenInfoCorner );
-
-
--------------------------------------------------------------------------------
--------------------------------------------------------------------------------
-function OnPopup( popupInfo )	
-    if( (popupInfo.Type == ButtonPopupTypes.BUTTONPOPUP_CHOOSETECH or popupInfo.Type == ButtonPopupTypes.BUTTONPOPUP_CHOOSE_TECH_TO_STEAL) and
-        ContextPtr:IsHidden() == true ) then
-        Events.OpenInfoCorner( InfoCornerID.Tech );
-    end
-end
-Events.SerialEventGameMessagePopup.Add( OnPopup );
 
 ----------------------------------------------------------------
+--- @param eInfoCorner InfoCornerId
+Events.OpenInfoCorner.Add(function (eInfoCorner)
+	-- Only show if it's our ID
+	ContextPtr:SetHide(eInfoCorner ~= InfoCornerID.Tech);
+end);
+
 ----------------------------------------------------------------
-function UpdatePlayerData()
-	local playerID = g_activePlayerObserver;
-	if playerID > -1 then
-		local player = Players[playerID];
-		local civType = GameInfo.Civilizations[player:GetCivilizationType()].Type;
+-- When a choose tech popup is triggered
+--- @param popupInfo PopupInfo
+Events.SerialEventGameMessagePopup.Add(function (popupInfo)
+	if (popupInfo.Type == ButtonPopupTypes.BUTTONPOPUP_CHOOSETECH or popupInfo.Type == ButtonPopupTypes.BUTTONPOPUP_CHOOSE_TECH_TO_STEAL) and
+	ContextPtr:IsHidden() then
+		Events.OpenInfoCorner(InfoCornerID.Tech);
 	end
-end
+end);
 
 ----------------------------------------------------------------
 -- 'Active' (local human) player has changed
-----------------------------------------------------------------
-function OnTechPanelActivePlayerChanged( iActivePlayer, iPrevActivePlayer )
-	g_activePlayerObserver = iActivePlayer;
-	UpdatePlayerData();    
+--- @param ePlayer PlayerId
+Events.GameplaySetActivePlayer.Add(function (ePlayer)
+	eActivePlayer = ePlayer;
 	OnTechPanelUpdated();
-end
+end);
 
-function OnAIPlayerChanged(iPlayerID, szTag)
-	local oldActivePlayerObserver = g_activePlayerObserver;
-	local player = Players[Game.GetActivePlayer()];
-	if player:IsObserver() then
-		if (Game:GetObserverUIOverridePlayer() > -1) then
-			g_activePlayerObserver = Game:GetObserverUIOverridePlayer()
+----------------------------------------------------------------
+-- Observer mode? Another player's tech may be showed
+--- @param ePlayer PlayerId
+Events.AIProcessingStartedForPlayer.Add(function (ePlayer)
+	local eOldActivePlayer = eActivePlayer;
+	local pActivePlayer = Players[Game.GetActivePlayer()];
+	if pActivePlayer:IsObserver() then
+		local eObserverOverridePlayer = Game:GetObserverUIOverridePlayer();
+		if eObserverOverridePlayer > -1 then
+			eActivePlayer = eObserverOverridePlayer;
 		else
-			g_activePlayerObserver = Players[iPlayerID]:IsMajorCiv() and iPlayerID or -1;
+			eActivePlayer = Players[ePlayer]:IsMajorCiv() and ePlayer or -1;
 		end
 	else
-		g_activePlayerObserver = Game.GetActivePlayer();
+		eActivePlayer = Game.GetActivePlayer();
 	end
-	if g_activePlayerObserver ~= oldActivePlayerObserver then
-		UpdatePlayerData();    
+	if eActivePlayer ~= eOldActivePlayer then
 		OnTechPanelUpdated();
 	end
-end
-Events.GameplaySetActivePlayer.Add(OnTechPanelActivePlayerChanged);
-Events.AIProcessingStartedForPlayer.Add(OnAIPlayerChanged);
+end);
 
-UpdatePlayerData();    
 OnTechPanelUpdated();

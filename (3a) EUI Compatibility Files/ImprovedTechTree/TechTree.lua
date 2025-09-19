@@ -26,10 +26,7 @@ g_UseSmallIcons = true
 
 include( "TechButtonInclude" )
 local IconHookup = IconHookup
-local GatherInfoAboutUniqueStuff = GatherInfoAboutUniqueStuff
 local AddSmallButtonsToTechButton = AddSmallButtonsToTechButton
-local freeString = freeString
-local lockedString = lockedString
 
 include( "TechHelpInclude" )
 local GetHelpTextForTech = GetHelpTextForTech
@@ -101,6 +98,9 @@ local g_branchDeltaX = g_pipeEndOffsetX - g_branchOffsetX1
 local g_coloredPipe = { x=1.0, y=1.0, z=0.0, w=0.5 }
 
 local g_maxTechNameLength = 22 - Locale.Length(L"TXT_KEY_TURNS")
+
+local freeString = L("TXT_KEY_FREE")
+local lockedString = "[ICON_LOCKED]"
 
 local CloseTechTree
 local g_queueInfo = {} --afw
@@ -262,7 +262,7 @@ local function RefreshDisplayOfSpecificTech( tech )
 	--print("RefreshDisplayOfSpecificTech afw Stuff done")
 	-- Rebuild the small buttons if needed
 	if g_NeedsFullRefresh then
-		AddSmallButtonsToTechButton( thisTechButton, tech, g_maxSmallButtons, 45, 1, g_activePlayerID)
+		AddSmallButtonsToTechButton( thisTechButton, tech, g_maxSmallButtons, 45, g_activePlayerID)
 	end
 	if g_EspionageViewMode then
 		thisTechButton.TechButton:SetDisabled(true);
@@ -612,9 +612,6 @@ local function InitActivePlayerData(OverridePlayer)
 	g_activeTeamID = g_activePlayer:GetTeam()
 	g_activeTeam = Teams[g_activeTeamID]
 	g_activeTeamTechs = g_activeTeam:GetTeamTechs()
-
-	-- gather info about this active player's unique units and buldings
-	GatherInfoAboutUniqueStuff( g_activeCivType )
 
 	g_NeedsFullRefresh = true
 	return RefreshDisplay("Init")

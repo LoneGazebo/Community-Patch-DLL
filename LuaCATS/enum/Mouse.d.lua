@@ -1,5 +1,7 @@
 --- @meta
 
+--- Unlike most other enums, this one doesn't come from the game core DLL<br>
+--- We'll have to trust modiki on the values of these
 --- @enum MouseType
 Mouse = {
 	eLClick = 0,

@@ -117,7 +117,7 @@ public:
 	void Read(FDataStream& kStream);
 	void Write(FDataStream& kStream) const;
 
-	CvCity* GetCity();
+	CvCity* GetCity() const;
 	CvPlayer* GetPlayer() const;
 	PlayerTypes GetOwner() const;
 	TeamTypes GetTeam() const;
@@ -216,7 +216,7 @@ public:
 	// Specialists
 	void DoSpecialists();
 
-	int GetSpecialistRate(SpecialistTypes eSpecialist);
+	int GetSpecialistRate(SpecialistTypes eSpecialist, CvString* tooltip = NULL) const;
 	bool IsCanAddSpecialistToBuilding(BuildingTypes eBuilding);
 	void DoAddSpecialistToBuilding(BuildingTypes eBuilding, bool bForced, CvCity::eUpdateMode updateMode);
 	void DoRemoveSpecialistFromBuilding(BuildingTypes eBuilding, bool bForced, CvCity::eUpdateMode updateMode);
