@@ -868,8 +868,6 @@ void CvConnectionService::HandleLuaExecute(const char* script, const char* id)
 // Handle Lua function call from Bridge Service
 void CvConnectionService::HandleLuaCall(const char* functionName, const JsonArray& args, const char* id)
 {
-	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-	
 	std::stringstream logMsg;
 	logMsg << "HandleLuaCall - Calling function '" << functionName << "' for id: " << id;
 	Log(LOG_DEBUG, logMsg.str().c_str());
