@@ -1,4 +1,9 @@
-print('This is SquadsOptions.lua')
+local log_level = 2	-- 1=debug, 2=info, 3=error
+local function error(msg) if log_level <= 3 then print(msg) end end
+local function info(msg) if log_level <= 2 then print(msg) end end
+local function debug(msg) if log_level <= 1 then print(msg) end end
+
+info('This is SquadsOptions.lua')
 
 local SquadsOptions = Modding.OpenUserData( "Squads Options", 1 );
 
@@ -78,7 +83,7 @@ LuaEvents.SQUADS_OPTIONS_CHANGED.Add(SquadsOptionChanged);
 
 -- Load Saved Options
 local _hsu = SquadsOptions.GetValue("HighlightSquadUnits");
-print("loaded the following value for HighlightSquadUnits", _hsu)
+debug("loaded the following value for HighlightSquadUnits", _hsu)
 if _hsu ~= nil then
     HighlightSquadUnits = _hsu == 1;
 end
@@ -97,7 +102,7 @@ if _semt ~= nil then
     SquadsEndMovementType = _semt;
 end
 LuaEvents.SQUADS_OPTIONS_CHANGED("SquadsEndMovementType", SquadsEndMovementType)
-print("loaded the following value for SquadsEndMovementType: ", SquadsEndMovementType);
+debug("loaded the following value for SquadsEndMovementType: ", SquadsEndMovementType);
 if SquadsEndMovementType == 0 then
     Controls.AlertOnArrivalRadioButton:SetCheck(true);
 elseif SquadsEndMovementType == 1 then
@@ -106,4 +111,4 @@ elseif SquadsEndMovementType == 2 then
     Controls.WakeOnSquadArrivalRadioButton:SetCheck(true);
 end
 
-print('Loaded SquadsOptions.lua')
+info('Loaded SquadsOptions.lua')
