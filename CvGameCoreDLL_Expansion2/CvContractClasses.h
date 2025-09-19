@@ -100,8 +100,6 @@ public:
 FDataStream& operator>>(FDataStream&, CvContract&);
 FDataStream& operator<<(FDataStream&, const CvContract&);
 
-FDataStream& operator>>(FDataStream&, ContractTypes&);
-FDataStream& operator<<(FDataStream&, const ContractTypes&);
 
 class CvPlayerContracts;
 
