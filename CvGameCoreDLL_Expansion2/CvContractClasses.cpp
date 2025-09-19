@@ -61,7 +61,7 @@ EraTypes CvContractEntry::GetPrereqEra() const
 
 EraTypes CvContractEntry::GetObsoleteEra() const
 {
-	return (EraTypes)m_iPrereqEra;
+	return (EraTypes)m_iObsoleteEra;
 }
 
 ReligionTypes CvContractEntry::GetPrereqReligion() const
@@ -267,19 +267,6 @@ FDataStream& operator<<(FDataStream& saveTo, const CvContract& readFrom)
 	return saveTo;
 }
 
-// For some reason CvSerializationInfoHelpers is not working for this.
-FDataStream& operator<<(FDataStream& saveTo, const ContractTypes& readFrom)
-{
-	saveTo << static_cast<int>(readFrom);
-	return saveTo;
-}
-FDataStream& operator>>(FDataStream& loadFrom, ContractTypes& writeTo)
-{
-	int v = 0;
-	loadFrom >> v;
-	writeTo = static_cast<ContractTypes>(v);
-	return loadFrom;
-}
 
 //=====================================
 // CvPlayerContracts
