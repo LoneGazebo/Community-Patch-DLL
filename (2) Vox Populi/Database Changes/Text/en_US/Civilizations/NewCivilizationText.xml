@@ -434,6 +434,22 @@
 			<Text>It will increase [ICON_PRODUCTION] Production, [ICON_GOLD] Gold, and [ICON_RESEARCH] Science. Removes any feature on the tile.[NEWLINE]Provides additional [ICON_PRODUCTION] Production, [ICON_GOLD] Gold, and [ICON_RESEARCH] Science when worked by a city during [COLOR_POSITIVE_TEXT]We Love The Empress Day[ENDCOLOR].</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_BUILDING_EXAMINATION_HALL">
+			<Text>Examination Hall</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_EXAMINATION_HALL_TEXT">
+			<Text>Perhaps the greatest legacy of Chinese culture is the Imperial Examination system with which the Son of Heaven's empire was staffed with civil servants for over two millennia. The Imperial examinations represented an attempt to create an aristocracy of learning, a remarkable advance over the warrior and hereditary aristocracies that dominated the rest of the world. Amounting to tests of rote memorization, the examinations required direct quotations of Confucian philosophy and ethics from the Five Confucian Classics. A scholar who obtained the highest degree, the jinshi, would have his memory trained to a tremendous degree.[NEWLINE][NEWLINE]
+				As Western universities began to move away from their own classical tradition to embrace economics, engineering and natural science, China's scholarly efforts languished in the ancient literary past. Under pressure to modernize, the examinations were abolished in 1890 by Dowager Empress Cixi, leaving behind a legacy as the first system of intellectual meritocracy the world had ever seen.[NEWLINE][NEWLINE]
+				“We tried an experiment which is unique in the history of the world: We sought to rule this great country not by force, but by wisdom. And for centuries we succeeded.”[NEWLINE]
+				-Anonymous Confucian Philosopher; excerpt from "On a Chinese Screen"</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_EXAMINATION_HALL_STRATEGY">
+			<Text></Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_EXAMINATION_HALL_HELP">
+			<Text></Text>
+		</Row>
+
 		<Row Tag="TXT_KEY_UNIT_TREASURE_SHIP">
 			<Text>Baochuan</Text>
 		</Row>
