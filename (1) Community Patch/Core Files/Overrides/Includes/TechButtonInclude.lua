@@ -21,17 +21,6 @@ local GameInfoCache = VP.GameInfoCache;
 local GetCivsFromTrait = VP.GetCivsFromTrait;
 local IconHookupOrDefault = VP.IconHookupOrDefault;
 
--- This has to stay until we override TechTree.lua
-techPediaSearchStrings = {};
-function GetTechPedia(_, _, button)
-	Events.SearchForPediaEntry(techPediaSearchStrings[tostring(button)]);
-end
-
--- These have to stay until we override TechPopup.lua and TechTree.lua
-turnsString = L("TXT_KEY_TURNS");
-freeString = L("TXT_KEY_FREE");
-lockedString = "[ICON_LOCKED]";
-
 -- VP/bal: gamespeed is currently only used to calculate chop yields, possibly can be applied in other places too
 -- Assume forest and jungle have the same base chop production
 local iBuildPercent = GameInfo.GameSpeeds[Game.GetGameSpeedType()].BuildPercent;
@@ -709,45 +698,4 @@ function AddCallbackToSmallButtons(buttonStack, iButtonCount, nVoid1, nVoid2, eM
 		buttonStack[strButtonName]:SetVoids(nVoid1, nVoid2);
 		buttonStack[strButtonName]:RegisterCallback(eMouse, CallbackFunc);
 	end
-end
-
-function GatherInfoAboutUniqueStuff( civType )
-
-	validUnitBuilds = {};
-	validBuildingBuilds = {};
-	validImprovementBuilds = {};
-
-	-- put in the default units for any civ
-	for thisUnitClass in GameInfo.UnitClasses() do
-		validUnitBuilds[thisUnitClass.Type]	= thisUnitClass.DefaultUnit;	
-	end
-
-	-- put in my overrides
-	for thisOverride in GameInfo.Civilization_UnitClassOverrides() do
- 		if thisOverride.CivilizationType == civType then
-			validUnitBuilds[thisOverride.UnitClassType]	= thisOverride.UnitType;
- 		end
-	end
-
-	-- put in the default buildings for any civ
-	for thisBuildingClass in GameInfo.BuildingClasses() do
-		validBuildingBuilds[thisBuildingClass.Type]	= thisBuildingClass.DefaultBuilding;	
-	end
-
-	-- put in my overrides
-	for thisOverride in GameInfo.Civilization_BuildingClassOverrides() do
- 		if thisOverride.CivilizationType == civType then
-			validBuildingBuilds[thisOverride.BuildingClassType]	= thisOverride.BuildingType;	
- 		end
-	end
-	
-	-- add in support for unique improvements
-	for thisImprovement in GameInfo.Improvements() do
-		if thisImprovement.CivilizationType == civType or thisImprovement.CivilizationType == nil then
-			validImprovementBuilds[thisImprovement.Type] = thisImprovement.Type;	
-		else
-			validImprovementBuilds[thisImprovement.Type] = nil;	
-		end
-	end
-	
 end
