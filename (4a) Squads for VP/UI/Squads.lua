@@ -1,4 +1,9 @@
-print("This is the 'Squads' mod script.")
+local log_level = 2	-- 1=debug, 2=info, 3=error
+local function error(msg) if log_level <= 3 then print(msg) end end
+local function info(msg) if log_level <= 2 then print(msg) end end
+local function debug(msg) if log_level <= 1 then print(msg) end end
+
+info("This is the 'Squads' mod script.")
 
 -- core
 include( "IconSupport" );
@@ -148,7 +153,7 @@ end
 
 -- ========== Squads Panel Handlers ==========
 function HandlePressAddToSquadButton ()
-  print("add to squad button pressed");
+  debug("add to squad button pressed");
   SetSquadsMode(SQUADS_MODE_UNIT_MANAGEMENT);
   OnClose();
 end
@@ -161,7 +166,7 @@ end
 Controls.MoveSquadButton:RegisterCallback(Mouse.eLClick, HandlePressMoveSquadButton);
 
 function HandleResetSquadButton ()
-    print("handle reset squad button clicked");
+    debug("handle reset squad button clicked");
     local iPlayer = Game.GetActivePlayer();
     local pPlayer = Players[ iPlayer ];
 
@@ -346,7 +351,7 @@ function HandleMoveSquad(wParam, lParam)
             break;
         end
 
-        if bMovedSquad == false then print("Squad is empty, nothing to move") end
+        if bMovedSquad == false then debug("Squad is empty, nothing to move") end
     end
 
     SetSquadsMode(SQUADS_MODE_NONE);
@@ -488,7 +493,6 @@ function Validate(sValue, control, bFire)
     end
 
     if bValid then
-        print(Controls.SquadNameInputBorder)
         Controls.SquadNameInputBorder:SetColor({x=0.96,y=0.96,z=0.86,w=1})
         SquadRenamed(sValue);
     else
@@ -1008,4 +1012,4 @@ Events.GameplaySetActivePlayer.Add(OnClose)
 
 -- Load last so listeners in this file are ready
 include( "SquadsOptions.lua" );
-print("Loaded Squads.lua from 'Squads for VP'")
+info("Loaded Squads.lua from 'Squads for VP'")

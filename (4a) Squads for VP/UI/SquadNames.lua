@@ -1,7 +1,12 @@
 -- third party
 include ( "TableSaverLoader.lua" )
 
-print("Assigning default names");
+local log_level = 2	-- 1=debug, 2=info, 3=error
+local function error(msg) if log_level <= 3 then print(msg) end end
+local function info(msg) if log_level <= 2 then print(msg) end end
+local function debug(msg) if log_level <= 1 then print(msg) end end
+
+debug("Assigning default names");
 squadNamesLut = {};
 
 
@@ -29,7 +34,7 @@ Events.ActivePlayerTurnEnd.Add(OnEndActivePlayerTurn)
 -- Functions modified a bit by Black.Cobra a.k.a. Logharn
 function PazyrykOnEnterGame()
     local DBQuery = Modding.OpenSaveData().Query
-    print ("Player entering game ...")
+    debug( ("Player entering game ..."))
     RegisterOnSaveCallback()
     -- we need to know if this is after a load from a saved game; use the presence of MyMod_Info table to do this
     local bNewGame = true
@@ -37,10 +42,10 @@ function PazyrykOnEnterGame()
         if row.name then bNewGame = false end
     end
     if bNewGame then
-        print("new game, saving table")
+        debug("new game, saving table")
         TableSave(squadNamesLut, "upMainsquadNamesLutStore")     --here to make sure save happens before any attempts to load
     else
-        print("not new game. loading table")
+        debug("not new game. loading table")
         TableLoad(squadNamesLut, "upMainsquadNamesLutStore")
     end
 
@@ -56,12 +61,12 @@ function SquadNamesInptHdlr(uiMsg, wParam, lParam)
 
         if wParam == Keys.VK_F11 then
             TableSave(squadNamesLut, "upMainsquadNamesLutStore")
-            print("Quicksaving...")
+            debug("Quicksaving...")
             UI.QuickSave()
             return true
 
         elseif wParam == Keys.S and UIManager:GetControl() then
-            print("ctrl-s detected")
+            debug("ctrl-s detected")
             PazyrykOnSaveClicked()
             return true
 
@@ -107,13 +112,13 @@ ContextPtr:SetInputHandler(SquadNamesInptHdlr)
 
 -- Modified by Logharn to keep the standard behaviour for Save Games
 function PazyrykOnSaveClicked()
-    print("SaveGame clicked")
+    debug("SaveGame clicked")
     TableSave(squadNamesLut, "upMainsquadNamesLutStore")
     UIManager:QueuePopup(ContextPtr:LookUpControl("/InGame/GameMenu/SaveMenu"), PopupPriority.SaveMenu)
 end
 
 function PazyrykOnQuickSaveClicked()
-    print("QuickSaveGame clicked")
+    debug("QuickSaveGame clicked")
     TableSave(squadNamesLut, "upMainsquadNamesLutStore")
     UI.QuickSave()
 end
@@ -124,5 +129,5 @@ function RegisterOnSaveCallback()
     local VupEndTurnButtonControl = ContextPtr:LookUpControl("/InGame/WorldView/ActionInfoPanel/EndTurnButton") --> Lookup the "End Turn Button"
     QuickSaveButton:RegisterCallback( Mouse.eLClick, PazyrykOnQuickSaveClicked )
     SaveCtrlButton:RegisterCallback( Mouse.eLClick, PazyrykOnSaveClicked )
-    print ("SaveGame Buttons callbacks registered...")
+    debug( ("SaveGame Buttons callbacks registered..."))
 end
