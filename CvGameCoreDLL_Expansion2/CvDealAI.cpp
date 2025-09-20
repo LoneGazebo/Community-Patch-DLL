@@ -5981,7 +5981,12 @@ bool CvDealAI::IsMakeOfferForCityExchange(PlayerTypes eOtherPlayer, CvDeal* pDea
 			int iMyPrice = GetCityValueForDeal(pTheirCity, GetPlayer()->GetID());
 			int iTheirPrice = GetCityValueForDeal(pTheirCity, eOtherPlayer);
 
-			int iBuyRatio = (iMyPrice*100)/max(1,iTheirPrice);
+			// Prevent integer overflow when multiplying by 100
+			int iBuyRatio = 0;
+			if(iMyPrice != INT_MAX && iTheirPrice != INT_MAX && iMyPrice <= INT_MAX/100)
+			{
+				iBuyRatio = (iMyPrice*100)/max(1,iTheirPrice);
+			}
 			if(iMyPrice!=INT_MAX && iTheirPrice!=INT_MAX && iBuyRatio>iBestBuyCity)
 			{
 				pBestBuyCity = pTheirCity;
@@ -6011,7 +6016,12 @@ bool CvDealAI::IsMakeOfferForCityExchange(PlayerTypes eOtherPlayer, CvDeal* pDea
 			int iMyPrice = GetCityValueForDeal(pMyCity, m_pPlayer->GetID());
 			int iTheirPrice = GetCityValueForDeal(pMyCity, eOtherPlayer);
 
-			int iSellRatio = (iTheirPrice*100)/max(1,iMyPrice);
+			// Prevent integer overflow when multiplying by 100
+			int iSellRatio = 0;
+			if(iMyPrice != INT_MAX && iTheirPrice != INT_MAX && iTheirPrice <= INT_MAX/100)
+			{
+				iSellRatio = (iTheirPrice*100)/max(1,iMyPrice);
+			}
 			if(iMyPrice!=INT_MAX && iTheirPrice!=INT_MAX && iSellRatio>iBestSellCity)
 			{
 				pBestSellCity = pMyCity;
