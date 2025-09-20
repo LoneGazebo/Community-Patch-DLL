@@ -19544,8 +19544,6 @@ void CvPlayer::DoHealGlobal(int iHealPercent)
 	CvUnit* pLoopUnit = NULL;
 	for (pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
 	{
-		if (!pLoopUnit)
-			continue;
 		if (pLoopUnit->IsCombatUnit() && !pLoopUnit->IsCannotHeal())
 		{
 			if (iHealPercent == 100)
@@ -27953,9 +27951,6 @@ void CvPlayer::doInstantGreatPersonProgress(InstantYieldType iType, bool bSuppre
 
 	for (pLoopCity = this->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = this->nextCity(&iLoop))
 	{
-		if (pLoopCity == NULL)
-			continue;
-
 		//If we passed in a city, only check that city.
 		if (pCity != NULL && pLoopCity != pCity)
 			continue;
