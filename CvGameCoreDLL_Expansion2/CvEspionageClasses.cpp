@@ -7960,6 +7960,12 @@ void CvEspionageAI::DoTurn()
 		if (pEspionage->GetSpyIndexInCity(pCity) != -1)
 			continue;
 
+		// no more spies left to assign?
+		if (uiIndex >= vRemainingSpyIDs.size())
+		{
+			break;
+		}
+
 		// this is the spy we want to assign a city to
 		uint uiSpy = vRemainingSpyIDs[uiIndex];
 
@@ -7998,12 +8004,6 @@ void CvEspionageAI::DoTurn()
 
 		// get the next spy
 		uiIndex++;
-
-		// no more spies left to assign?
-		if (uiIndex == vRemainingSpyIDs.size())
-		{
-			break;
-		}
 	}
 }
 

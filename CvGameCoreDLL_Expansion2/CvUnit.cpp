@@ -30690,7 +30690,8 @@ const char* aTrTypes[] = {
 	"Gold", 
 	"Food", 
 	"Production",
-	"Resource"
+	"Resource",
+	"Gold Internal"
 };
 
 //only for debugging, not shown in regular UI

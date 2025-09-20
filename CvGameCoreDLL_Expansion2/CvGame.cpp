@@ -5589,12 +5589,20 @@ void CvGame::DoUpdateDiploVictory()
 	// Number of delegates needed to win increases the more civs and city-states there are in the game,
 	// but these two scale differently since civs' delegates are harder to secure. These functions 
 	// are based on a logarithmic regression.
-	float fCivVotesPortion = (/*1.443f*/ GD_FLOAT_GET(DIPLO_VICTORY_CIV_DELEGATES_COEFFICIENT) * log(fCivsToCount)) + /*7.000f*/ GD_FLOAT_GET(DIPLO_VICTORY_CIV_DELEGATES_CONSTANT);
+	float fCivVotesPortion = 0.0f;
+	if (fCivsToCount > 0.0f)
+	{
+		fCivVotesPortion = (/*1.443f*/ GD_FLOAT_GET(DIPLO_VICTORY_CIV_DELEGATES_COEFFICIENT) * log(fCivsToCount)) + /*7.000f*/ GD_FLOAT_GET(DIPLO_VICTORY_CIV_DELEGATES_CONSTANT);
+	}
 	if (fCivVotesPortion < 0.0f)
 	{
 		fCivVotesPortion = 0.0f;
 	}
-	float fCityStateVotesPortion = (/*16.023f*/ GD_FLOAT_GET(DIPLO_VICTORY_CS_DELEGATES_COEFFICIENT) * log(fCityStatesToCount)) + /*-13.758f*/ GD_FLOAT_GET(DIPLO_VICTORY_CS_DELEGATES_CONSTANT);
+	float fCityStateVotesPortion = 0.0f;
+	if (fCityStatesToCount > 0.0f)
+	{
+		fCityStateVotesPortion = (/*16.023f*/ GD_FLOAT_GET(DIPLO_VICTORY_CS_DELEGATES_COEFFICIENT) * log(fCityStatesToCount)) + /*-13.758f*/ GD_FLOAT_GET(DIPLO_VICTORY_CS_DELEGATES_CONSTANT);
+	}
 	if (fCityStateVotesPortion < 0.0f)
 	{
 		fCityStateVotesPortion = 0.0f;

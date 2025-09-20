@@ -2482,7 +2482,7 @@ void CvPlayerTrade::MoveUnits (void)
 								if (!kDestPlayer.isMinorCiv())
 								{
 									Localization::String strMessage;
-									HistoricEventTypes eHistoricEvent;
+									HistoricEventTypes eHistoricEvent = HISTORIC_EVENT_TRADE_LAND; // Default to land trade
 									if (pTradeConnection->m_eDomain == DOMAIN_LAND)
 									{
 										strMessage = Localization::Lookup("TXT_KEY_TOURISM_EVENT_TRADE_LAND");
@@ -2495,7 +2495,8 @@ void CvPlayerTrade::MoveUnits (void)
 									}
 									else
 									{
-										UNREACHABLE();
+										ASSERT_DEBUG(false, "Trade connection domain should be DOMAIN_LAND or DOMAIN_SEA");
+										// Use default initialization (HISTORIC_EVENT_TRADE_LAND)
 									}
 
 									int iTourism = kOriginPlayer.GetHistoricEventTourism(eHistoricEvent, pOriginCity);

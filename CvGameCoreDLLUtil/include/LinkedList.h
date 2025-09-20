@@ -324,8 +324,17 @@ inline void CLinkList<tVARTYPE>::moveToEnd(CLLNode<tVARTYPE>* pNode)
 	}
 
 	pNode->m_pNext = NULL;
-	m_pTail->m_pNext = pNode;
-	pNode->m_pPrev = m_pTail;
+	if (m_pTail != NULL)
+	{
+		m_pTail->m_pNext = pNode;
+		pNode->m_pPrev = m_pTail;
+	}
+	else
+	{
+		// List was empty, make this node both head and tail
+		m_pHead = pNode;
+		pNode->m_pPrev = NULL;
+	}
 	m_pTail = pNode;
 }
 

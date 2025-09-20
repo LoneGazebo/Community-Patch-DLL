@@ -310,8 +310,8 @@ int CvFractal::getHeight(int iX, int iY)
 	iErrX = ((m_iXInc * iX) - (iLowX * FLOAT_PRECISION));
 	iErrY = ((m_iYInc * iY) - (iLowY * FLOAT_PRECISION));
 
-	if(iLowX < 0 || iLowX > FRACTAL_MAX_DIMS) return 0; // array is defined as FRACTAL_MAX_DIMS+1
-	if(iLowY < 0 || iLowY > FRACTAL_MAX_DIMS) return 0; // array is defined as FRACTAL_MAX_DIMS+1
+	if(iLowX < 0 || iLowX >= FRACTAL_MAX_DIMS) return 0; // array is defined as FRACTAL_MAX_DIMS+1
+	if(iLowY < 0 || iLowY >= FRACTAL_MAX_DIMS) return 0; // array is defined as FRACTAL_MAX_DIMS+1
 
 	iSum = 0;
 	iSum += ((FLOAT_PRECISION - iErrX) * (FLOAT_PRECISION - iErrY) * m_aaiFrac[iLowX    ][iLowY    ]);

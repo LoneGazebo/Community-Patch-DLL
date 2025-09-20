@@ -196,10 +196,10 @@ void CvBuilderTaskingAI::Update(void)
 //	---------------------------------------------------------------------------
 int CvBuilderTaskingAI::GetMoveCostWithRoute(const CvPlot* pFromPlot, const CvPlot* pToPlot, RouteTypes eFromPlotRoute, RouteTypes eToPlotRoute)
 {
-	if (plotDistance(pFromPlot->getX(), pFromPlot->getY(), pToPlot->getX(), pToPlot->getY()) != 1)
+	if (!pFromPlot || !pToPlot)
 		return 0;
 
-	if (!pFromPlot || !pToPlot)
+	if (plotDistance(pFromPlot->getX(), pFromPlot->getY(), pToPlot->getX(), pToPlot->getY()) != 1)
 		return 0;
 
 	int iMoveDenominator = GD_INT_GET(MOVE_DENOMINATOR);
@@ -3319,13 +3319,16 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 					{
 						CvPlot* pCityAdjacentPlot = plotDirection(pNextCity->getX(), pNextCity->getY(), ((DirectionTypes)iDirectionLoop));
 
+					if (pCityAdjacentPlot)
+					{
 						FeatureTypes eAdjacentFeature = GetPlannedFeatureInPlot(pCityAdjacentPlot, sState);
 						ImprovementTypes eAdjacentImprovement = GetPlannedImprovementInPlot(pCityAdjacentPlot, sState);
 
-						if (pCityAdjacentPlot && eAdjacentFeature == eFeature && eAdjacentImprovement == NO_IMPROVEMENT)
+						if (eAdjacentFeature == eFeature && eAdjacentImprovement == NO_IMPROVEMENT)
 						{
 							iAdjacentForests++;
 						}
+					}
 					}
 
 					if (iAdjacentForests == 3 || (iAdjacentForests == 2 && MOD_ALTERNATE_CELTS) || iAdjacentForests == 1)

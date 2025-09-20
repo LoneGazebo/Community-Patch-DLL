@@ -2310,6 +2310,11 @@ protected:
 	//we can pretend a garrison in this city, but only for limited time
 	void OverrideGarrison(const CvUnit* pUnit) const;
 	friend class CvCityGarrisonOverride;
+
+private:
+	// Prevent copying due to dynamic memory allocation
+	CvCity(const CvCity&);
+	CvCity& operator=(const CvCity&);
 };
 
 namespace FSerialization

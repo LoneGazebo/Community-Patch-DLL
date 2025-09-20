@@ -9098,8 +9098,6 @@ bool CvCity::canConstruct(BuildingTypes eBuilding, const std::vector<int>& vPreE
 			int iLoop = 0;
 			for (pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
 			{
-				if (pLoopCity == NULL)
-					continue;
 
 				if (pLoopCity->GetID() == GetID())
 					continue;
@@ -21635,8 +21633,6 @@ int CvCity::GetUnhappinessFromIsolation() const
 	int iLoop = 0;
 	for (CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
 	{
-		if (!pLoopCity)
-			continue;
 
 		if (pLoopCity->isCapital() || pLoopCity->IsRouteToCapitalConnected())
 		{

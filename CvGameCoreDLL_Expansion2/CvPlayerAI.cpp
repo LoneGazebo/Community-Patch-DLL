@@ -2038,7 +2038,17 @@ CvPlot* CvPlayerAI::FindBestMerchantTargetPlotForPuppet(CvUnit* pMerchant)
 			pMerchant->GeneratePath(pCity->plot(), CvUnit::MOVEFLAG_APPROX_TARGET_RING1, 23, &iPathTurns);
 			if (iPathTurns < INT_MAX)
 			{
-				int iScore =  (pCity->getEconomicValue(GetID())*(100+10*kPlayer.getNumMilitaryUnits())) / (1+iPathTurns*iPathTurns);
+				// Prevent integer overflow when squaring iPathTurns
+				int iDenominator = 1;
+				if (iPathTurns <= 46340) // sqrt(INT_MAX) ≈ 46340
+				{
+					iDenominator = 1 + iPathTurns*iPathTurns;
+				}
+				else
+				{
+					iDenominator = INT_MAX; // Use max value to avoid overflow
+				}
+				int iScore = (pCity->getEconomicValue(GetID())*(100+10*kPlayer.getNumMilitaryUnits())) / iDenominator;
 
 				//political fudge factor
 				iScore -= (iScore*iPoliticalReduction)/100;
