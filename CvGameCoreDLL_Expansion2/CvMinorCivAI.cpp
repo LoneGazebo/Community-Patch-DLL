@@ -11115,7 +11115,7 @@ bool CvMinorCivAI::IsCoupAttempted(PlayerTypes ePlayer)
 {
 	ASSERT_DEBUG(ePlayer >= 0, "eForPlayer is expected to be non-negative (invalid Index)");
 	ASSERT_DEBUG(ePlayer < MAX_MAJOR_CIVS, "eForPlayer is expected to be within maximum bounds (invalid Index)");
-	if(ePlayer < 0 || ePlayer >= REALLY_MAX_PLAYERS) return false;  // as defined in Reset()
+	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return false;  // as defined in Reset()
 	return m_abCoupAttempted[ePlayer];
 }
 void CvMinorCivAI::SetTargetedAreaID(PlayerTypes ePlayer, int iValue)
@@ -11131,7 +11131,7 @@ int CvMinorCivAI::GetTargetedAreaID(PlayerTypes ePlayer)
 {
 	ASSERT_DEBUG(ePlayer >= 0, "eForPlayer is expected to be non-negative (invalid Index)");
 	ASSERT_DEBUG(ePlayer < MAX_MAJOR_CIVS, "eForPlayer is expected to be within maximum bounds (invalid Index)");
-	if(ePlayer < 0 || ePlayer >= REALLY_MAX_PLAYERS) return -1;  // as defined in Reset()
+	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return -1;  // as defined in Reset()
 	return m_aiAssignedPlotAreaID[ePlayer];
 }
 void CvMinorCivAI::SetNumTurnsSincePtPWarning(PlayerTypes ePlayer, int iValue)
@@ -11147,7 +11147,7 @@ int CvMinorCivAI::GetNumTurnsSincePtPWarning(PlayerTypes ePlayer)
 {
 	ASSERT_DEBUG(ePlayer >= 0, "eForPlayer is expected to be non-negative (invalid Index)");
 	ASSERT_DEBUG(ePlayer < MAX_MAJOR_CIVS, "eForPlayer is expected to be within maximum bounds (invalid Index)");
-	if(ePlayer < 0 || ePlayer >= REALLY_MAX_PLAYERS) return -1;  // as defined in Reset()
+	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return -1;  // as defined in Reset()
 	return m_aiTurnsSincePtPWarning[ePlayer];
 }
 void CvMinorCivAI::ChangeNumTurnsSincePtPWarning(PlayerTypes ePlayer, int iValue)
@@ -18252,8 +18252,8 @@ void CvMinorCivAI::SetNoAlly(bool bValue)
 bool CvMinorCivAI::IsSiphoned(PlayerTypes ePlayer) const
 {
 	ASSERT_DEBUG(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(ePlayer < REALLY_MAX_PLAYERS, "ePlayer is expected to be within maximum bounds (invalid Index)");
-	if(ePlayer < 0 || ePlayer >= REALLY_MAX_PLAYERS)
+	ASSERT_DEBUG(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
+	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS)
 	{
 		return false;  // as defined in Reset()
 	}
@@ -18262,7 +18262,7 @@ bool CvMinorCivAI::IsSiphoned(PlayerTypes ePlayer) const
 void CvMinorCivAI::SetSiphoned(PlayerTypes ePlayer, bool bValue)
 {
 	ASSERT_DEBUG(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(ePlayer < REALLY_MAX_PLAYERS, "ePlayer is expected to be within maximum bounds (invalid Index)");
+	ASSERT_DEBUG(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
 	if(IsSiphoned(ePlayer) != bValue)
 	{
 		m_abSiphoned[ePlayer] = bValue;
