@@ -504,20 +504,6 @@
 		</Row>
 
 		<!-- Egypt -->
-		
-		<Replace Tag="TXT_KEY_BUILDING_NILOMETER">
-			<Text>Nilometer</Text>
-		</Replace>
-		<Replace Tag="TXT_KEY_BUILDING_NILOMETER_HELP">
-			<Text></Text>
-		</Replace>
-		<Replace Tag="TXT_KEY_BUILDING_NILOMETER_TEXT">
-			<Text>The Nilometer was an Egyptian measurement device designed to benchmark the water levels of the Nile River during the annual flood season. The Egyptians relied on the Nile to overrun the surrounding flood plains each year in order to deposit silt for fertilization, but too much water would destroy the harvesting infrastructure, while too little water could cause a widespread famine. The Egyptians used the Nilometer flood readings to determine the appropriate level of taxes to be levied against the farmers.[NEWLINE][NEWLINE]The Nilometer itself typically consisted of either a standing column or a descending flight of stairs leading into a well that was channeled from the river. Both configurations featured incremental markings to indicate the depth of the water, and the Egyptians kept detailed records for year-to-year comparison. One of the oldest surviving examples of the Nilometer stands today on the island of Roda in Cairo, believed to have been constructed in the 9th century AD by the Persian astronomer Alfraganus.</Text>
-		</Replace>
-		<Replace Tag="TXT_KEY_BUILDING_NILOMETER_STRATEGY">
-			<Text></Text>
-		</Replace>
-
 		<Row Tag="TXT_KEY_UNIT_MAMLUK">
 			<Text>Mamluk</Text>
 		</Row>
@@ -1364,19 +1350,6 @@ These elite shock troops posed a deadly threat to any opponent, whether in the f
 		</Row>
 
 		<!-- Rome -->
-		<Row Tag="TXT_KEY_BUILDING_FLAVIAN_COLOSSEUM">
-			<Text>Colosseum</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CIV5_BUILDING_FLAVIAN_COLOSSEUM_TEXT">
-			<Text>The Flavian Amphitheater, or Colosseum, is one of the most famous venues in all of history. Though Ancient Rome had only one Colosseum, variations on the design were reproduced throughout the empire, and to the present day. A colosseum is an outdoor venue where the public can watch sports events. Depending upon the time and place, the events might be gladiatorial contests, American football games, or soccer matches. Of the three contests mentioned, the gladiatorial battles were perhaps the hardest on the players involved, the soccer matches (occasionally) just about as dangerous for the participants.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_BUILDING_FLAVIAN_COLOSSEUM_HELP">
-			<Text>+5 [ICON_GOLDEN_AGE] Golden Age Points when a Unit defeats an Enemy Unit in battle; also +10 [ICON_GREAT_GENERAL]/[ICON_GREAT_ADMIRAL] Great General(if Land)/Admiral(if Sea) Points if the Unit was [COLOR_POSITIVE_TEXT]created by this City[ENDCOLOR], both scaling with Era.[NEWLINE][NEWLINE]+1 [ICON_TOURISM] Tourism for every 3 [ICON_CITIZEN] Citizens in the City. +2 [ICON_PRODUCTION] Production from Barracks, Forge, and Armory in this City.[NEWLINE][NEWLINE]All [ICON_CONNECTED] City Connections produce +2% more [ICON_GOLD] Gold and all [ICON_INDUSTRIAL_CONNECTED] Industrial City Connections gain +2% more [ICON_PRODUCTION] Production.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_CULTURE] Boredom.[NEWLINE][NEWLINE]Nearby [ICON_RES_PERFUME] Perfume: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_OLIVE] Olives: +1 [ICON_FOOD] Food, +1 [ICON_GOLD] Gold.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_BUILDING_FLAVIAN_COLOSSEUM_STRATEGY">
-			<Text>Unique Roman replacement for the {TXT_KEY_BUILDING_COLOSSEUM}. In addition to the {TXT_KEY_BUILDING_COLOSSEUM}'s bonuses, {TXT_KEY_BUILDING_FLAVIAN_COLOSSEUM}produces more [ICON_PRODUCTION] Production, [ICON_CULTURE] Culture, and [ICON_TOURISM] Tourism; generates [ICON_GOLDEN_AGE] Golden Age Points and [ICON_GREAT_GENERAL]/[ICON_GREAT_ADMIRAL] Great General/Admiral Points when your unit defeats an enemy unit; and globally boosts [ICON_GOLD] Gold from[ICON_CONNECTED] City Connections and [ICON_PRODUCTION] Production from [ICON_INDUSTRIAL_CONNECTED] Industrial City Connections.[NEWLINE][NEWLINE]The globally applicable abilities allow Rome to benefit from large, sprawling empires.</Text>
-		</Row>
-
 		<Row Tag="TXT_KEY_BUILDING_FORNIX">
 			<Text>Fornix</Text>
 		</Row>
@@ -1593,19 +1566,6 @@ These elite shock troops posed a deadly threat to any opponent, whether in the f
 		</Row> 
 
 		<!-- Sweden -->
-		<Row Tag="TXT_KEY_BUILDING_SKOLA">
-			<Text>Skola</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CIV5_BUILDINGS_SKOLA_TEXT">
-			<Text>Swedish state schools are funded by tax money. This goes for both primary and secondary school (Swedish: grundskola), high school (Swedish: gymnasium) and universities. When studying at a university, however, you might have to pay for accommodation and literature. There are private schools as well who also receive funding from the government, but they may charge a fee from the parents.[NEWLINE][NEWLINE]Compulsory education starts at seven years of age, with an optional year in förskola (pre-school). The Swedish primary school is split into three parts; Lågstadiet – “the low stage”, which covers grades 1 to 3. This is where you learn the basics of the three main subjects – in Swedish called kärnämnen – Swedish, English and mathematics. It also includes some natural science. Mellanstadiet – “the middle stage”, which covers grades 4 to 6, introduces the children to more detailed subjects. Woodwork and needlework, social and domestic science, and even a second, foreign language in grade 6, a B-språk (B-language). The languages available are usually French, Spanish or German depending on the school. Högstadiet, “the high stage”, is the last stage of the compulsory education, between grades 7 and 9. This is when studies get more in-depth and are taken to an international level.[NEWLINE][NEWLINE]Swedish children take national exams at grades 3, 6 and 9. Children at grade 3 take these exams in two of the three main subjects: Swedish and mathematics. In grade 5 the exams extend to the third main subject, English, and in grade 9 the exams also extend to natural science, foreign languages, and one of the four subjects in "Samhällsorientering" (geography, history, religious studies, and civics). They first receive grades in grade 6. The grading system is letter-based, ranging from A-F, where F is the lowest grade and A is the highest. F means "not approved", while all other ratings above F mean "approved". There are only objectives for E, C and A; D means the person has met most (but not all) objectives for C, while B means the person has met most objectives for A. When applying to gymnasium (high schools) or universities, a meritvärde (“meritous point value”) is calculated. E is worth 10 points, D 12.5 points, C 15 points, and so on. Children not being approved in Swedish, English and mathematics will have to study at a special high school program called the “individual program”. Once they are approved, they may apply to an ordinary high school program. Swedes study at high school for three years, between the ages of 16 and 18.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_BUILDING_SKOLA_STRATEGY">
-			<Text>Unique Swedish replacement for the {TXT_KEY_BUILDING_PUBLIC_SCHOOL}. In addition to the {TXT_KEY_BUILDING_PUBLIC_SCHOOL}'s bonuses, {TXT_KEY_BUILDING_SKOLA} produces much more [ICON_RESEARCH] Science and [ICON_CULTURE] Culture, and has two [ICON_SCIENTIST] Scientist slots instead of one. It is also cheaper and costs less [ICON_GOLD] Gold maintenance.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_BUILDING_SKOLA_HELP">
-			<Text>+3 [ICON_RESEARCH] Science and +1 [ICON_CULTURE] Culture for every 2 [ICON_CITIZEN] Citizens in the City.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_RESEARCH] Illiteracy.</Text>
-		</Row>
-
 		<Row Tag="TXT_KEY_BUILDING_BASTU">
 			<Text>Bastu</Text>
 		</Row>

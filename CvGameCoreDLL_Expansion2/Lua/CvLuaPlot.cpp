@@ -672,17 +672,38 @@ int CvLuaPlot::lSeeThroughLevel(lua_State* L)
 	return BasicLuaMethod(L, &CvPlot::seeThroughLevel);
 }
 //------------------------------------------------------------------------------
-//bool canHaveResource(ResourceTypes eResource, bool bIgnoreLatitude);
+//bool canHaveResource(ResourceTypes eResource, bool bIgnoreLatitude, bIgnoreCiv);
 int CvLuaPlot::lCanHaveResource(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlot::canHaveResource);
+	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
+	const ResourceTypes eResource = (ResourceTypes)lua_tointeger(L, 2);
+	static const ResourceTypes eArtifact = static_cast<ResourceTypes>(GD_INT_GET(ARTIFACT_RESOURCE));
+	static const ResourceTypes eHiddenArtifact = static_cast<ResourceTypes>(GD_INT_GET(HIDDEN_ARTIFACT_RESOURCE));
+	// Antiquity Sites have special validations
+	if (eResource == eArtifact)
+		lua_pushboolean(L, pkPlot->IsEligibleForNormalDigSite(false));
+	else if (eResource == eHiddenArtifact)
+		lua_pushboolean(L, pkPlot->IsEligibleForHiddenDigSite(false));
+	else
+	{
+		const bool bIgnoreLatitude = luaL_optbool(L, 3, false);
+		const bool bIgnoreCiv = luaL_optbool(L, 4, false);
+		lua_pushboolean(L, pkPlot->canHaveResource(eResource, bIgnoreLatitude, bIgnoreCiv));
+	}
+
+	return 1;
 }
 //------------------------------------------------------------------------------
-//bool canHaveImprovement(ImprovementTypes eImprovement, TeamTypes eTeam, bool bPotential);
+//bool canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlayer, bool bCheckAdjacency, bTestXAdjacent);
 int CvLuaPlot::lCanHaveImprovement(lua_State* L)
 {
-	//this is a hack, Lua uses a TeamType and we use it as a PlayerType
-	return BasicLuaMethod(L, &CvPlot::canHaveImprovement);
+	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
+	const ImprovementTypes eImprovement = (ImprovementTypes)lua_tointeger(L, 2);
+	const PlayerTypes ePlayer = (PlayerTypes)luaL_optint(L, 3, -1); // this is a hack; in vanilla BNW, Lua uses a TeamType; we use it as a PlayerType
+	const bool bCheckAdjacency = luaL_optbool(L, 4, false); // in vanilla BNW this function has parameter bOnlyTestVisible in this position, but it is never used by either the vanilla CvPlot::canHaveImprovement() or in Lua, so we just replace it
+	const bool bTestXAdjacent = luaL_optbool(L, 5, false);
+	lua_pushboolean(L, pkPlot->canHaveImprovement(eImprovement, ePlayer, bCheckAdjacency, bTestXAdjacent));
+	return 1;
 }
 //------------------------------------------------------------------------------
 //bool canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible);

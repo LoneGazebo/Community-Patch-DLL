@@ -735,26 +735,16 @@ void CvBarbarians::DoCamps()
 		if (iNumCampsToAdd <= 0)
 			continue;
 
-		// No camps on Improvements in Community Patch only, and no camps on embassies, GPTI or Landmarks
+		// No camps on Improvements in Community Patch only, and no camps on Ancient Ruins, Embassies, GPTI or Landmarks
 		if (eImprovement != NO_IMPROVEMENT)
 		{
+			if (!MOD_BALANCE_VP || eImprovement == eLandmark)
+				continue;
+
 			CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
-			if (pkImprovementInfo)
-			{
-				if (!MOD_BALANCE_VP)
-					continue;
-
-				if (eImprovement == eLandmark)
-					continue;
-
-				if (pkImprovementInfo->IsPermanent() || pkImprovementInfo->IsCreatedByGreatPerson())
-					continue;
-			}
+			if (pkImprovementInfo->IsGoody() || pkImprovementInfo->IsPermanent() || pkImprovementInfo->IsCreatedByGreatPerson())
+				continue;
 		}
-
-		// No camps on Ancient Ruins
-		if (pLoopPlot->isGoody())
-			continue;
 
 		// No camps on Natural Wonders
 		if (pLoopPlot->getFeatureType() != NO_FEATURE && GC.getFeatureInfo(pLoopPlot->getFeatureType())->isNoImprovement())

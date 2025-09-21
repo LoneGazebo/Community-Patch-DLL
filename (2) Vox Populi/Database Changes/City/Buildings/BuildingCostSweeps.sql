@@ -200,11 +200,6 @@ UPDATE Buildings
 SET Cost = 450
 WHERE Type = 'BUILDING_BARBICAN';
 
--- Skola
-UPDATE Buildings
-SET Cost = 800, GoldMaintenance = 4
-WHERE Type = 'BUILDING_SKOLA';
-
 -- Museum, Military Academy
 UPDATE Buildings
 SET GoldMaintenance = 6

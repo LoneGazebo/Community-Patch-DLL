@@ -2514,7 +2514,7 @@ bool CvPlot::CanSpawnResource(PlayerTypes ePlayer, bool bIgnoreTech, bool bIsLan
 }
 
 //	--------------------------------------------------------------------------------
-bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlayer, bool, bool bCheckAdjacency, bool bTestXAdjacent) const
+bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlayer, bool bCheckAdjacency, bool bTestXAdjacent) const
 {
 	CvPlot* pLoopPlot = NULL;
 	bool bValid = false;
@@ -2526,12 +2526,10 @@ bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlay
 		return false;
 	}
 
-#if defined(MOD_GLOBAL_ALPINE_PASSES)
 	if (MOD_GLOBAL_ALPINE_PASSES && pkImprovementInfo->IsMountainsMakesValid() && isMountain())
 	{
 		return true;
 	}
-#endif
 
 	if(getFeatureType() != NO_FEATURE)
 	{
@@ -3012,7 +3010,7 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 	if(eImprovement != NO_IMPROVEMENT)
 	{
 		// Player must be able to build this Improvement
-		if(!canHaveImprovement(eImprovement, ePlayer, bTestVisible, false, bTestXAdjacent))
+		if(!canHaveImprovement(eImprovement, ePlayer, false, bTestXAdjacent))
 		{
 			return false;
 		}
@@ -14471,21 +14469,18 @@ bool CvPlot::IsEligibleForDigSite()
 
 	// Tile must be improvable
 	FeatureTypes eFeature = getFeatureType();
-	if (eFeature == FEATURE_OASIS || (eFeature != NO_FEATURE && GC.getFeatureInfo(eFeature)->isNoImprovement()))
+	if (eFeature != NO_FEATURE && GC.getFeatureInfo(eFeature)->isNoImprovement())
 		return false;
 
-	// Ancient Ruins? We can't have treasure hunters going spelunking before the surface has even been plundered yet!
-	if (isGoody())
-		return false;
-
-	// Don't put dig sites on Great Person tiles, that's mean
 	ImprovementTypes eImprovement = getImprovementType();
 	if (eImprovement == NO_IMPROVEMENT)
 		return true;
 
+	// Don't put dig sites on Great Person tiles, that's mean
+	// Not on Ancient Ruins either, we can't have treasure hunters going spelunking before the surface has even been plundered yet!
 	CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
 	static const ImprovementTypes eLandmark = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_LANDMARK");
-	if (eImprovement == eLandmark || pkImprovementInfo->IsPermanent() || pkImprovementInfo->IsCreatedByGreatPerson())
+	if (eImprovement == eLandmark || pkImprovementInfo->IsGoody() || pkImprovementInfo->IsPermanent() || pkImprovementInfo->IsCreatedByGreatPerson())
 		return false;
 
 	return true;
