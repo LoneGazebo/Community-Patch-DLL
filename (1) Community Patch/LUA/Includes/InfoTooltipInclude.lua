@@ -3792,7 +3792,7 @@ function GetMoodInfo(eOtherPlayer)
 	-- Get the opinion modifier table from the DLL and convert it into bullet points
 	local tOpinion = pOtherPlayer:GetOpinionTable(eActivePlayer);
 	if next(tOpinion) then
-		return "[ICON_BULLET]" + table.concat(tOpinion, "[NEWLINE][ICON_BULLET]");
+		return "[ICON_BULLET]" .. table.concat(tOpinion, "[NEWLINE][ICON_BULLET]");
 	end
 
 	-- No specific modifiers are visible, so let's see what string we should use (based on visible approach towards us)
