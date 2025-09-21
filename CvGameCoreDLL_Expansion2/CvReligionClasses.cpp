@@ -7862,7 +7862,7 @@ int CvReligionAI::GetValidPlotYieldTimes100(CvBeliefEntry* pEntry, CvPlot* pPlot
 									continue;
 							}
 
-							if (pPlot->canHaveImprovement((ImprovementTypes)jJ, m_pPlayer->GetID(), false))
+							if (pPlot->canHaveImprovement((ImprovementTypes)jJ, m_pPlayer->GetID()))
 							{
 								eFutureImprovementToConnectResource = (ImprovementTypes)jJ;
 							}
@@ -7925,7 +7925,7 @@ int CvReligionAI::GetValidPlotYieldTimes100(CvBeliefEntry* pEntry, CvPlot* pPlot
 							CivilizationTypes eRequiredCiv = pkImprovementInfo->GetRequiredCivilization();
 							if (eRequiredCiv == m_pPlayer->getCivilizationType())
 							{
-								if (pPlot->canHaveImprovement((ImprovementTypes)jJ, m_pPlayer->GetID(), false))
+								if (pPlot->canHaveImprovement((ImprovementTypes)jJ, m_pPlayer->GetID()))
 								{
 									eUniqueImprovement = (ImprovementTypes)jJ;
 									break;

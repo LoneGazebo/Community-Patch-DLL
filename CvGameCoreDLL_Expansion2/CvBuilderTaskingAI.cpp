@@ -1156,7 +1156,7 @@ ImprovementTypes CvBuilderTaskingAI::SavePlotForUniqueImprovement(const CvPlot* 
 			(pkImprovementInfo->IsCoastal() && pPlot->isCoastalLand()) ||
 			(pkImprovementInfo->IsHillsMakesValid() && pPlot->isHills()))
 		{
-			if (pPlot->canHaveImprovement(eImprovement, m_pPlayer->GetID(), false, true))
+			if (pPlot->canHaveImprovement(eImprovement, m_pPlayer->GetID(), true))
 				return eImprovement;
 		}
 

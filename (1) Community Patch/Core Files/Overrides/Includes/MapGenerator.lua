@@ -599,11 +599,11 @@ end
 function CanPlaceGoodyAt(improvement, plot)
 
 	local improvementID = improvement.ID;
-	local NO_TEAM = -1;
+	local NO_PLAYER = -1;
 	local NO_RESOURCE = -1;
 	local NO_IMPROVEMENT = -1;
 
-	if (not plot:CanHaveImprovement(improvementID, NO_TEAM)) then
+	if (not plot:CanHaveImprovement(improvementID, NO_PLAYER)) then
 		return false;
 	end
 
