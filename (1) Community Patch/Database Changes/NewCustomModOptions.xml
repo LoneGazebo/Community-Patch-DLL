@@ -832,7 +832,7 @@
 		<!-- The yield sub-feature of COMMUNITY_PATCH -->
 		<Row Class="6" Name="BALANCE_CORE_YIELDS" Value="1"/>
 		<!-- Number of spies scaling with map size -->
-		<Row Class="6" Name="BALANCE_CORE_SPIES" Value="1"/>
+		<Row Class="6" Name="BALANCE_CORE_SPIES" Value="0"/>
 		<!-- The military sub-feature of COMMUNITY_PATCH -->
 		<Row Class="6" Name="BALANCE_CORE_MILITARY" Value="1"/>
 		<!-- The minors sub-feature of COMMUNITY_PATCH -->
