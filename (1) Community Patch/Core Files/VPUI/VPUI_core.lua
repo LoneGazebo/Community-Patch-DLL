@@ -10,7 +10,15 @@
 		return
 	end
 
-	print("VPUI - Populating VP core library");
+	local lua_error = error
+	local lua_print = print
+	local lua_pairs = pairs
+	local lua_table_insert = table.insert
+
+	local GameInfo = GameInfo
+	local GameInfoTypes = GameInfoTypes
+
+	lua_print("VPUI - Populating VP core library");
 	local MOD_BALANCE_CORE_YIELDS = GameInfo.CustomModOptions { Name = "BALANCE_CORE_YIELDS" } ().Value == 1;
 	local MOD_BALANCE_CORE_JFD = GameInfo.CustomModOptions { Name = "BALANCE_CORE_JFD" } ().Value == 1;
 
@@ -27,7 +35,7 @@
 	local tYieldInfos = {};
 	for eYield = 0, iNumYields - 1 do
 		local kYieldInfo = GameInfo.Yields[eYield];
-		table.insert(tYieldInfos, {
+		lua_table_insert(tYieldInfos, {
 			ID = eYield,
 			Type = kYieldInfo.Type,
 			IconString = kYieldInfo.IconString,
@@ -67,20 +75,20 @@
 		Missions = { "IconIndex", "IconAtlas" },
 	};
 	local tGameInfoCache = {};
-	for strTableName in pairs(tTemplates) do
+	for strTableName in lua_pairs(tTemplates) do
 		tGameInfoCache[strTableName] = {};
 	end
-	for strTableName, tGameInfos in pairs(tGameInfoCache) do
+	for strTableName, tGameInfos in lua_pairs(tGameInfoCache) do
 		for kInfo in GameInfo[strTableName]() do
 			local kInfoCopy = {
 				ID = kInfo.ID,
 				Type = kInfo.Type,
 				Description = kInfo.Description,
 			};
-			for _, strColumn in pairs(tTemplates[strTableName]) do
+			for _, strColumn in lua_pairs(tTemplates[strTableName]) do
 				kInfoCopy[strColumn] = kInfo[strColumn];
 			end
-			table.insert(tGameInfos, kInfoCopy);
+			lua_table_insert(tGameInfos, kInfoCopy);
 		end
 	end
 
@@ -96,7 +104,7 @@
 			for row in GameInfo.Leader_Traits { TraitType = strTraitType } do
 				for row2 in GameInfo.Civilization_Leaders { LeaderheadType = row.LeaderType } do
 					tTraitCivsCache[strTraitType] = tTraitCivsCache[strTraitType] or {};
-					table.insert(tTraitCivsCache[strTraitType], GameInfoTypes[row2.CivilizationType]);
+					lua_table_insert(tTraitCivsCache[strTraitType], GameInfoTypes[row2.CivilizationType]);
 				end
 			end
 		end
@@ -126,7 +134,7 @@
 	--- @return Info
 	local function GetInfoFromId(strTable, iId)
 		if not tGameInfoCache[strTable] then
-			error("The specified table is not cached");
+			lua_error("The specified table is not cached");
 		end
 		return tGameInfoCache[strTable][iId + 1];
 	end
@@ -138,7 +146,8 @@
 	--- @param strType string
 	--- @return Info
 	local function GetInfoFromType(strTable, strType)
-		return GameInfoTypes[strType] and GetInfoFromId(strTable, GameInfoTypes[strType]);
+		local iId = GameInfoTypes[strType]
+		return iId and GetInfoFromId(strTable, iId);
 	end
 
 	--- Get an iterator of the specified partial database table, starting from ID **0**.<br>
@@ -149,7 +158,7 @@
 	--- @return integer
 	local function GameInfoCache(strTable)
 		if not tGameInfoCache[strTable] then
-			error("The specified table " .. strTable .. " is not cached");
+			lua_error("The specified table " .. strTable .. " is not cached");
 		end
 
 		local function iter(t, i)
@@ -174,7 +183,7 @@
 
 		tGameInfoCache[strTable] = {};
 		for kInfo in GameInfo[strTable]() do
-			table.insert(tGameInfoCache[strTable], {
+			lua_table_insert(tGameInfoCache[strTable], {
 				ID = kInfo.ID,
 				Type = kInfo.Type,
 				Description = kInfo.Description,
@@ -188,7 +197,7 @@
 	--- @return integer
 	local function GetNumInfos(strTable)
 		if not tGameInfoCache[strTable] then
-			error("The specified table " .. strTable .. " is not cached");
+			lua_error("The specified table " .. strTable .. " is not cached");
 		end
 		return #tGameInfoCache[strTable];
 	end
