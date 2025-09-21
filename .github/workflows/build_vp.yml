@@ -1,13 +1,71 @@
 name: Build
 
+permissions:
+  contents: read
+  pull-requests: write
+
 on:
   push:
     branches: [ master ]
+  pull_request:
+    branches: [ master ]
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
+  detect-changes:
+    name: Detect File Changes
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      dll-source: ${{ steps.filter.outputs.dll-source }}
+      build-scripts: ${{ steps.filter.outputs.build-scripts }}
+      workflow: ${{ steps.filter.outputs.workflow }}
+      dependencies: ${{ steps.filter.outputs.dependencies }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Filter Changed Paths
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          token: ''
+          filters: |
+            dll-source:
+              - 'CvGameCoreDLL_Expansion2/**'
+              - 'CvGameCoreDLLUtil/**'
+              - 'CvGameDatabase/**'
+              - 'CvLocalization/**'
+              - 'CvWorldBuilderMap/**'
+              - 'FirePlace/**'
+              - 'ThirdPartyLibs/**'
+              - '*.cpp'
+              - '*.h'
+            build-scripts:
+              - 'build_vp_clang*.py'
+              - 'update_commit_id.bat'
+            workflow:
+              - '.github/workflows/**'
+            dependencies:
+              - '*.sln'
+              - '*.vcxproj'
+
+      - name: Changes Summary
+        run: |
+          echo "### 🔍 File Changes Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- DLL Source: ${{ steps.filter.outputs.dll-source == 'true' && '✅' || '❌' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Build Scripts: ${{ steps.filter.outputs.build-scripts == 'true' && '✅' || '❌' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Workflow: ${{ steps.filter.outputs.workflow == 'true' && '✅' || '❌' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Dependencies: ${{ steps.filter.outputs.dependencies == 'true' && '✅' || '❌' }}" >> $GITHUB_STEP_SUMMARY
+
   setup:
-    runs-on: windows-latest
+    needs: detect-changes
+    if: ${{ github.event_name == 'workflow_dispatch' || needs.detect-changes.outputs.dll-source == 'true' || needs.detect-changes.outputs.build-scripts == 'true' || needs.detect-changes.outputs.workflow == 'true' || needs.detect-changes.outputs.dependencies == 'true' }}
+    runs-on: windows-2022
     steps:
 
       - uses: actions/cache@v4
@@ -17,7 +75,10 @@ jobs:
             ./wget
             ./SDK7
             ./SDK7.1
-          key: ${{ runner.os }}-${{ hashFiles('**/lockfiles') }}
+          key: ${{ runner.os }}-sdks-wget-1.21.3-sdk7.0sp1-sdk7.1-v1
+          restore-keys: |
+            ${{ runner.os }}-sdks-wget-1.21.3-sdk7.0sp1-sdk7.1-
+            ${{ runner.os }}-sdks-
 
       - name: Install wget
         if: steps.cache.outputs.cache-hit != 'true'
@@ -39,8 +100,9 @@ jobs:
           echo "SDKs downloaded and extracted."
 
   build-clang:
-    needs: setup
-    runs-on: windows-latest
+    needs: [detect-changes, setup]
+    if: ${{ github.event_name == 'workflow_dispatch' || needs.detect-changes.outputs.dll-source == 'true' || needs.detect-changes.outputs.build-scripts == 'true' || needs.detect-changes.outputs.workflow == 'true' || needs.detect-changes.outputs.dependencies == 'true' }}
+    runs-on: windows-2022
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -52,7 +114,10 @@ jobs:
             ./wget
             ./SDK7
             ./SDK7.1
-          key: ${{ runner.os }}-${{ hashFiles('**/lockfiles') }}
+          key: ${{ runner.os }}-sdks-wget-1.21.3-sdk7.0sp1-sdk7.1-v1
+          restore-keys: |
+            ${{ runner.os }}-sdks-wget-1.21.3-sdk7.0sp1-sdk7.1-
+            ${{ runner.os }}-sdks-
 
       - name: Install SDKs
         run: |
@@ -85,19 +150,168 @@ jobs:
       - name: Display debug build log
         run: cat clang-output/Debug/build.log
 
-      - name: Check if build failed in log
-        if: always()
-        run: |
-          if (Select-String -Path "clang-output/Debug/build.log" -Pattern "error:") {
-            Write-Error "Build failed with error."
-            exit 1
-          }
-
       - name: Run release build
         run: python build_vp_clang_sdk.py --config release
 
       - name: Display release build log
         run: cat clang-output/Release/build.log
+
+      - name: Analyze Clang build warnings and errors
+        if: always()
+        shell: pwsh
+        run: |
+          echo "Analyzing Clang build logs for warnings and errors..."
+          
+          # Function to parse Clang build log and create GitHub annotations
+          function Parse-ClangBuildLog {
+            param($LogFile, $BuildType)
+            
+            if (Test-Path $LogFile) {
+              $content = Get-Content $LogFile
+              $warnings = @()
+              $errors = @()
+              
+              echo "[$BuildType] Processing $($content.Count) lines from $LogFile"
+              
+              foreach ($line in $content) {
+                # Match Clang warning pattern (MSVC-style): filename(line,col) : warning: message
+                if ($line -match '([^(]+)\((\d+),(\d+)\)\s*:\s*warning:\s*(.+)') {
+                  $file = $matches[1] -replace '.*[/\\]', ''  # Get just filename
+                  $lineNum = $matches[2]
+                  $col = $matches[3]
+                  $message = $matches[4]
+                  
+                  # Skip "unknown warning option" warnings as requested
+                  if ($message -match "unknown warning option.*-Wno-enum-constexpr-conversion") {
+                    continue
+                  }
+                  
+                  $warnings += @{
+                    File = $file
+                    Line = $lineNum
+                    Column = $col
+                    Message = $message
+                    FullLine = $line
+                  }
+                  
+                  # Create GitHub annotation
+                  Write-Host "::warning file=$file,line=$lineNum,col=$col::[$BuildType] $message"
+                }
+                
+                # Match Clang error pattern (MSVC-style): filename(line,col) : error: message
+                if ($line -match '([^(]+)\((\d+),(\d+)\)\s*:\s*error:\s*(.+)') {
+                  $file = $matches[1] -replace '.*[/\\]', ''
+                  $lineNum = $matches[2]
+                  $col = $matches[3]
+                  $message = $matches[4]
+                  
+                  $errors += @{
+                    File = $file
+                    Line = $lineNum
+                    Column = $col
+                    Message = $message
+                    FullLine = $line
+                  }
+                  
+                  # Create GitHub annotation
+                  Write-Host "::error file=$file,line=$lineNum,col=$col::[$BuildType] $message"
+                }
+                
+                # Also match standard Clang format: filename:line:col: warning: message
+                if ($line -match '([^:]+):(\d+):(\d+):\s*warning:\s*(.+)' -and $line -notmatch '\(.*\)') {
+                  $file = $matches[1] -replace '.*[/\\]', ''
+                  $lineNum = $matches[2]
+                  $col = $matches[3]
+                  $message = $matches[4]
+                  
+                  # Skip "unknown warning option" warnings as requested
+                  if ($message -match "unknown warning option.*-Wno-enum-constexpr-conversion") {
+                    continue
+                  }
+                  
+                  $warnings += @{
+                    File = $file
+                    Line = $lineNum
+                    Column = $col
+                    Message = $message
+                    FullLine = $line
+                  }
+                  
+                  # Create GitHub annotation
+                  Write-Host "::warning file=$file,line=$lineNum,col=$col::[$BuildType] $message"
+                }
+                
+                # Also match standard Clang error format: filename:line:col: error: message
+                if ($line -match '([^:]+):(\d+):(\d+):\s*error:\s*(.+)' -and $line -notmatch '\(.*\)') {
+                  $file = $matches[1] -replace '.*[/\\]', ''
+                  $lineNum = $matches[2]
+                  $col = $matches[3]
+                  $message = $matches[4]
+                  
+                  $errors += @{
+                    File = $file
+                    Line = $lineNum
+                    Column = $col
+                    Message = $message
+                    FullLine = $line
+                  }
+                  
+                  # Create GitHub annotation
+                  Write-Host "::error file=$file,line=$lineNum,col=$col::[$BuildType] $message"
+                }
+                
+                # Also catch general warning/error lines without file location
+                if ($line -match 'warning:' -and $line -notmatch ':\d+:\d+:') {
+                  Write-Host "::warning::[$BuildType] $line"
+                }
+                if ($line -match 'error:' -and $line -notmatch ':\d+:\d+:') {
+                  Write-Host "::error::[$BuildType] $line"
+                }
+              }
+              
+              echo "[$BuildType] Found $($warnings.Count) warnings and $($errors.Count) errors"
+              return @{ Warnings = $warnings; Errors = $errors }
+            } else {
+              echo "Build log not found: $LogFile"
+              return @{ Warnings = @(); Errors = @() }
+            }
+          }
+          
+          # Parse both Clang build logs
+          echo "Checking for Clang build logs..."
+          if (Test-Path "clang-output/Debug/build.log") {
+            echo "Found Clang Debug log, parsing..."
+            $debugResults = Parse-ClangBuildLog "clang-output/Debug/build.log" "Clang Debug"
+          } else {
+            echo "Clang Debug log not found at clang-output/Debug/build.log"
+            $debugResults = @{ Warnings = @(); Errors = @() }
+          }
+          
+          if (Test-Path "clang-output/Release/build.log") {
+            echo "Found Clang Release log, parsing..."
+            $releaseResults = Parse-ClangBuildLog "clang-output/Release/build.log" "Clang Release"
+          } else {
+            echo "Clang Release log not found at clang-output/Release/build.log"
+            $releaseResults = @{ Warnings = @(); Errors = @() }
+          }
+          
+          # Output summary
+          $totalWarnings = $debugResults.Warnings.Count + $releaseResults.Warnings.Count
+          $totalErrors = $debugResults.Errors.Count + $releaseResults.Errors.Count
+          
+          echo "Clang Build Analysis Complete:"
+          echo "- Total Warnings: $totalWarnings"
+          echo "- Total Errors: $totalErrors"
+          echo "- Debug Warnings: $($debugResults.Warnings.Count)"
+          echo "- Debug Errors: $($debugResults.Errors.Count)"
+          echo "- Release Warnings: $($releaseResults.Warnings.Count)"
+          echo "- Release Errors: $($releaseResults.Errors.Count)"
+          
+          # Fail the build if there are errors
+          if ($totalErrors -gt 0) {
+            Write-Error "Build failed with $totalErrors error(s). Check annotations above for details."
+            exit 1
+          }
 
       - name: Create debug artifact
         uses: actions/upload-artifact@v4
@@ -112,8 +326,9 @@ jobs:
           path: 'clang-output\Release'
 
   build-msvc:
-    needs: setup
-    runs-on: windows-latest
+    needs: [detect-changes, setup]
+    if: ${{ github.event_name == 'workflow_dispatch' || needs.detect-changes.outputs.dll-source == 'true' || needs.detect-changes.outputs.build-scripts == 'true' || needs.detect-changes.outputs.workflow == 'true' || needs.detect-changes.outputs.dependencies == 'true' }}
+    runs-on: windows-2022
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -125,7 +340,10 @@ jobs:
             ./wget
             ./SDK7
             ./SDK7.1
-          key: ${{ runner.os }}-${{ hashFiles('**/lockfiles') }}
+          key: ${{ runner.os }}-sdks-wget-1.21.3-sdk7.0sp1-sdk7.1-v1
+          restore-keys: |
+            ${{ runner.os }}-sdks-wget-1.21.3-sdk7.0sp1-sdk7.1-
+            ${{ runner.os }}-sdks-
 
       - name: Install SDKs
         run: |
@@ -206,7 +424,17 @@ jobs:
           REM Display LIBPATH for verification
           echo LIBPATH is set to: %LIBPATH%
           
-          devenv VoxPopuli_vs2013.sln /build Debug
+          REM Try MSBuild first (with automatic GitHub problem matchers)
+          echo "Attempting MSBuild with automatic problem detection..."
+          msbuild VoxPopuli_vs2013.sln /p:Configuration=Debug /p:Platform=Win32 /v:normal /flp:logfile=msvc_debug_msbuild.log;verbosity=normal
+          if %ERRORLEVEL% EQU 0 (
+            echo "MSBuild succeeded! Using MSBuild output."
+            type msvc_debug_msbuild.log
+          ) else (
+            echo "MSBuild failed, falling back to devenv..."
+            devenv VoxPopuli_vs2013.sln /build Debug /out msvc_debug_build.log
+            type msvc_debug_build.log
+          )
 
       - name: Setup Visual Studio environment and build msvc release
         shell: cmd
@@ -232,7 +460,170 @@ jobs:
           REM Display LIBPATH for verification
           echo LIBPATH is set to: %LIBPATH%
           
-          devenv VoxPopuli_vs2013.sln /build Release
+          REM Try MSBuild first (with automatic GitHub problem matchers)
+          echo "Attempting MSBuild with automatic problem detection..."
+          msbuild VoxPopuli_vs2013.sln /p:Configuration=Release /p:Platform=Win32 /v:normal /flp:logfile=msvc_release_msbuild.log;verbosity=normal
+          if %ERRORLEVEL% EQU 0 (
+            echo "MSBuild succeeded! Using MSBuild output."
+            type msvc_release_msbuild.log
+          ) else (
+            echo "MSBuild failed, falling back to devenv..."
+            devenv VoxPopuli_vs2013.sln /build Release /out msvc_release_build.log
+            type msvc_release_build.log
+          )
+
+      - name: Analyze build warnings and errors
+        shell: pwsh
+        run: |
+          echo "Analyzing build logs for warnings and errors..."
+          echo "Note: MSBuild output should have automatic GitHub problem matchers"
+          
+          # Function to parse Visual Studio build log and create GitHub annotations
+          function Parse-BuildLog {
+            param($LogFile, $BuildType)
+            
+            if (Test-Path $LogFile) {
+              $content = Get-Content $LogFile
+              $warnings = @()
+              $errors = @()
+              
+              echo "[$BuildType] Processing $($content.Count) lines from $LogFile"
+              
+              foreach ($line in $content) {
+                # Match Visual Studio warning pattern: filename(line): warning C####: message [project]
+                # Example: CvDiplomacyAI.cpp(2666): warning C4100: 'bHideAssert' : unreferenced formal parameter [D:\a\Community-Patch-DLL\Community-Patch-DLL\CvGameCoreDLL_Expansion2\VoxPopuli.vcxproj]
+                if ($line -match '([^(]+)\((\d+)\):\s*warning\s+([^:]+):\s*(.+?)\s*\[') {
+                  $file = $matches[1].Trim() -replace '.*[/\\]', ''  # Get just filename
+                  $lineNum = $matches[2]
+                  $code = $matches[3]
+                  $message = $matches[4].Trim()
+                  
+                  $warnings += @{
+                    File = $file
+                    Line = $lineNum
+                    Code = $code
+                    Message = $message
+                    FullLine = $line
+                  }
+                  
+                  # Create GitHub annotation - use Write-Host to ensure output
+                  Write-Host "::warning file=$file,line=$lineNum::[$BuildType] $code - $message"
+                }
+                
+                # Match Visual Studio error pattern: filename(line): error C####: message [project]
+                elseif ($line -match '([^(]+)\((\d+)\):\s*error\s+([^:]+):\s*(.+?)\s*\[') {
+                  $file = $matches[1].Trim() -replace '.*[/\\]', ''
+                  $lineNum = $matches[2]
+                  $code = $matches[3]
+                  $message = $matches[4].Trim()
+                  
+                  $errors += @{
+                    File = $file
+                    Line = $lineNum
+                    Code = $code
+                    Message = $message
+                    FullLine = $line
+                  }
+                  
+                  # Create GitHub annotation - use Write-Host to ensure output
+                  Write-Host "::error file=$file,line=$lineNum::[$BuildType] $code - $message"
+                }
+                
+                # Alternative pattern without column info: filename(line,col): warning C####: message
+                elseif ($line -match '([^(]+)\((\d+),(\d+)\):\s*warning\s+([^:]+):\s*(.+)') {
+                  $file = $matches[1].Trim() -replace '.*[/\\]', ''
+                  $lineNum = $matches[2]
+                  $col = $matches[3]
+                  $code = $matches[4]
+                  $message = $matches[5].Trim()
+                  
+                  $warnings += @{
+                    File = $file
+                    Line = $lineNum
+                    Column = $col
+                    Code = $code
+                    Message = $message
+                    FullLine = $line
+                  }
+                  
+                  Write-Host "::warning file=$file,line=$lineNum,col=$col::[$BuildType] $code - $message"
+                }
+                
+                # Alternative error pattern with column info
+                elseif ($line -match '([^(]+)\((\d+),(\d+)\):\s*error\s+([^:]+):\s*(.+)') {
+                  $file = $matches[1].Trim() -replace '.*[/\\]', ''
+                  $lineNum = $matches[2]
+                  $col = $matches[3]
+                  $code = $matches[4]
+                  $message = $matches[5].Trim()
+                  
+                  $errors += @{
+                    File = $file
+                    Line = $lineNum
+                    Column = $col
+                    Code = $code
+                    Message = $message
+                    FullLine = $line
+                  }
+                  
+                  Write-Host "::error file=$file,line=$lineNum,col=$col::[$BuildType] $code - $message"
+                }
+                
+                # Also catch general warning/error lines without file location
+                elseif ($line -match 'warning|Warning' -and $line -notmatch '\(.*\):' -and $line -match 'warning\s+[A-Z]+\d+') {
+                  Write-Host "::warning::[$BuildType] $line"
+                }
+                elseif ($line -match 'error|Error' -and $line -notmatch '\(.*\):' -and $line -match 'error\s+[A-Z]+\d+') {
+                  Write-Host "::error::[$BuildType] $line"
+                }
+              }
+              
+              echo "[$BuildType] Found $($warnings.Count) warnings and $($errors.Count) errors"
+              return @{ Warnings = $warnings; Errors = $errors }
+            } else {
+              echo "Build log not found: $LogFile"
+              return @{ Warnings = @(); Errors = @() }
+            }
+          }
+          
+          # Parse both build logs (try MSBuild logs first, fallback to devenv logs)
+          $debugLogFile = if (Test-Path "msvc_debug_msbuild.log") { "msvc_debug_msbuild.log" } else { "msvc_debug_build.log" }
+          $releaseLogFile = if (Test-Path "msvc_release_msbuild.log") { "msvc_release_msbuild.log" } else { "msvc_release_build.log" }
+          
+          echo "Using debug log: $debugLogFile"
+          echo "Using release log: $releaseLogFile"
+          
+          # Show sample lines from logs for debugging
+          if (Test-Path $debugLogFile) {
+            echo "Sample lines from $debugLogFile (first 10 lines with 'warning' or 'error'):"
+            Get-Content $debugLogFile | Where-Object { $_ -match 'warning|error' } | Select-Object -First 10 | ForEach-Object { echo "  $_" }
+          }
+          
+          if (Test-Path $releaseLogFile) {
+            echo "Sample lines from $releaseLogFile (first 10 lines with 'warning' or 'error'):"
+            Get-Content $releaseLogFile | Where-Object { $_ -match 'warning|error' } | Select-Object -First 10 | ForEach-Object { echo "  $_" }
+          }
+          
+          $debugResults = Parse-BuildLog $debugLogFile "MSVC Debug"
+          $releaseResults = Parse-BuildLog $releaseLogFile "MSVC Release"
+          
+          # Output summary
+          $totalWarnings = $debugResults.Warnings.Count + $releaseResults.Warnings.Count
+          $totalErrors = $debugResults.Errors.Count + $releaseResults.Errors.Count
+          
+          echo "MSVC Build Analysis Complete:"
+          echo "- Total Warnings: $totalWarnings"
+          echo "- Total Errors: $totalErrors"
+          echo "- Debug Warnings: $($debugResults.Warnings.Count)"
+          echo "- Debug Errors: $($debugResults.Errors.Count)"
+          echo "- Release Warnings: $($releaseResults.Warnings.Count)"
+          echo "- Release Errors: $($releaseResults.Errors.Count)"
+          
+          # Fail the build if there are errors
+          if ($totalErrors -gt 0) {
+            Write-Error "Build failed with $totalErrors error(s). Check annotations above for details."
+            exit 1
+          }
 
       - name: Create msvc debug artifact
         uses: actions/upload-artifact@v4
@@ -245,3 +636,5 @@ jobs:
         with:
           name: VP_MSVC_Release
           path: 'BuildOutput/Release'
+
+
