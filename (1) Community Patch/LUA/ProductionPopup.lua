@@ -373,7 +373,12 @@ local function AddProductionButton(eItem, eOrder, ePurchaseYield, strTurnsOrCost
 	IconHookupOrDefault(iPortraitIndex, 45, strAtlas, instance.ProductionButtonImage);
 
 	-- Tooltip
-	local bDisabled = g_bProductionMode and tOrder.CanProduceFunc(eItem, pCity, false) or tOrder.CanPurchaseFunc(eItem, pCity, ePurchaseYield, false);
+	local bDisabled;
+	if g_bProductionMode then
+		bDisabled = not tOrder.CanProduceFunc(eItem, pCity, false);
+	else
+		bDisabled = not tOrder.CanPurchaseFunc(eItem, pCity, ePurchaseYield, false);
+	end
 	instance.ProductionButton:SetToolTipCallback(function ()
 		-- We can't be sure that the original city pointer is still valid here
 		local pCurrentCity = GetCurrentCity();
@@ -741,9 +746,7 @@ local function UpdateWindow(pCity)
 			YieldType = eYield,
 		};
 
-		if strPrereqTechKey then
-			item.PrereqTechX = GetInfoFromType("Technologies", strPrereqTechKey).GridX;
-		end
+		item.PrereqTechX = strPrereqTechKey and GetInfoFromType("Technologies", strPrereqTechKey).GridX or -1;
 
 		if eYield == YieldTypes.NO_YIELD and bGeneratingProduction and eOrder ~= OrderTypes.ORDER_MAINTAIN then
 			item.TurnsOrCost = L("TXT_KEY_STR_TURNS", tOrder.TurnsLeftFunc(eItem, pCity, 1));

@@ -18,6 +18,7 @@ local MOD_GLOBAL_GREATWORK_YIELDTYPES = GameInfo.CustomModOptions{Name = "GLOBAL
 local MOD_RELIGION_CONVERSION_MODIFIERS = GameInfo.CustomModOptions{Name = "RELIGION_CONVERSION_MODIFIERS"}().Value == 1;
 local MOD_BALANCE_CORE_WONDER_COST_INCREASE = GameInfo.CustomModOptions{Name = "BALANCE_CORE_WONDER_COST_INCREASE"}().Value == 1;
 local MOD_BALANCE_CORE_SPIES = GameInfo.CustomModOptions{Name = "BALANCE_CORE_SPIES"}().Value == 1;
+local MOD_BALANCE_CORE_SETTLERS_CONSUME_POP = GameInfo.CustomModOptions{Name = "BALANCE_CORE_SETTLERS_CONSUME_POP"}().Value == 1;
 
 -- So is GameDefines
 local CITY_RESOURCE_WLTKD_TURNS = GameInfo.Defines{Name = "CITY_RESOURCE_WLTKD_TURNS"}().Value;
@@ -739,7 +740,9 @@ function GetHelpTextForUnit(eUnit, bIncludeRequirementsInfo, pCity, bExcludeName
 		end
 	end
 
-	table.insert(tLines, table.concat(tHeaderLines, "[NEWLINE]"));
+	if next(tHeaderLines) then
+		table.insert(tLines, table.concat(tHeaderLines, "[NEWLINE]"));
+	end
 
 	----------------------
 	-- Stats section
@@ -782,6 +785,7 @@ function GetHelpTextForUnit(eUnit, bIncludeRequirementsInfo, pCity, bExcludeName
 
 	-- Stagnation
 	AddTooltipIfTrue(tStatLines, "TXT_KEY_PRODUCTION_UNIT_STAGNATION", kUnitInfo.Food);
+	AddTooltipIfTrue(tStatLines, "TXT_KEY_PRODUCTION_UNIT_REDUCE_POPULATION", MOD_BALANCE_CORE_SETTLERS_CONSUME_POP and kUnitInfo.Food);
 
 	-- Max HP (show when non-standard only)
 	local iMaxHP = kUnitInfo.MaxHitPoints;
@@ -877,10 +881,12 @@ function GetHelpTextForUnit(eUnit, bIncludeRequirementsInfo, pCity, bExcludeName
 				strFound = L("TXT_KEY_PRODUCTION_UNIT_FOUND_CITY");
 			end
 			if kUnitInfo.FoundMid or kUnitInfo.FoundLate then
-				strFound = strFound .. " " .. L("TXT_KEY_PRODUCTION_UNIT_FOUND_CITY_ADVANCED");
+				strFound = string.format("%s %s", strFound, L("TXT_KEY_PRODUCTION_UNIT_FOUND_CITY_ADVANCED"));
 			end
 		end
 
+		-- Founding restriction
+		strFound = string.format("%s[NEWLINE]%s", strFound, L("TXT_KEY_PRODUCTION_UNIT_FOUND_CITY_RESTRICTION"));
 		table.insert(tAbilityLines, strFound);
 	end
 
