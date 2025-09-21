@@ -2767,14 +2767,14 @@ int CvCityCitizens::GetSpecialistRate(SpecialistTypes eSpecialist, CvString* too
 
 	const CvSpecialistInfo* pkSpecialistInfo = GC.getSpecialistInfo(eSpecialist);
 	const GreatPersonTypes eGreatPerson = GetGreatPersonFromSpecialist(eSpecialist);
+	if (eGreatPerson == NO_GREATPERSON)
+		return 0;
+
 	const CvGreatPersonInfo* pkGreatPersonInfo = GC.getGreatPersonInfo(eGreatPerson);
 	const char* szIconString = pkGreatPersonInfo->GetIconString();
 	const char* szGreatPerson = pkGreatPersonInfo->GetDescription();
 	const CvString strNewLine = CvString("[NEWLINE]");
 	const CvString strLineDivision = CvString("----------------");
-
-	if (eGreatPerson == NO_GREATPERSON)
-		return 0;
 
 	int iCount = GetSpecialistCount(eSpecialist);
 

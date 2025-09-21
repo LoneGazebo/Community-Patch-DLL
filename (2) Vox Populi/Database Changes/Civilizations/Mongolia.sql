@@ -163,7 +163,9 @@ VALUES
 -- Unique Project: Adopt the Yassa
 ----------------------------------------------------------
 UPDATE Projects
-SET EmpireSizeModifierPerCityMod = -40
+SET
+	Cost = 200,
+	EmpireSizeModifierPerCityMod = -40
 WHERE Type = 'PROJECT_YASSA';
 
 INSERT INTO Project_UnitCombatProductionModifiersGlobal

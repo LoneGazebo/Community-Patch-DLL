@@ -177,12 +177,12 @@ local tSpecialistTextures = {
 	},
 	[SpecialistStates.ASSIGNED] = {
 		SPECIALIST_SCIENTIST = "citizenScientist.dds",
-		SPECIALIST_ENGINEER = "citizenScientist.dds",
-		SPECIALIST_MERCHANT = "citizenScientist.dds",
-		SPECIALIST_WRITER = "citizenScientist.dds",
-		SPECIALIST_ARTIST = "citizenScientist.dds",
-		SPECIALIST_MUSICIAN = "citizenScientist.dds",
-		SPECIALIST_CIVIL_SERVANT = "citizenScientist.dds",
+		SPECIALIST_ENGINEER = "citizenEngineer.dds",
+		SPECIALIST_MERCHANT = "citizenMerchant.dds",
+		SPECIALIST_WRITER = "citizenwriter.dds",
+		SPECIALIST_ARTIST = "citizenArtist.dds",
+		SPECIALIST_MUSICIAN = "citizenmusician.dds",
+		SPECIALIST_CIVIL_SERVANT = "citizenCivilServant.dds",
 		SPECIALIST_CITIZEN = "citizenWorker.dds",
 	},
 	[SpecialistStates.LOCKED] = {
