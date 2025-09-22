@@ -203,7 +203,7 @@ function PopulateScoreBreakdown()
 			Controls.ReligionBox:SetHide(true);
 			Controls.Religion:SetHide(true);
 		end
-		if (not Game.IsOption(GameOptionTypes.GAMEOPTION_NO_VASSALAGE)) then
+		if (Game.IsOption(GameOptionTypes.GAMEOPTION_ENABLE_VASSALAGE)) then
 			Controls.Vassal:SetText(pPlayer:GetScoreFromVassals());
 			Controls.VassalLabel:SetHide(false);
 			Controls.VassalBox:SetHide(false);

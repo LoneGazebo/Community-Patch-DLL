@@ -56,5 +56,47 @@
 		<Row Tag="TXT_KEY_GAMEOPTION_KEEP_UNMET_PLAYERS_UNKNOWN_HELP">
 			<Text>In Game Setup, do not show the leader/civ details of other human players on other teams (if they are not choosing Random Leader).[NEWLINE]When loading a savegame, do not show the leader/civ details for players on other teams that you have not met in-game.</Text>
 		</Row>
+
+		<Row Tag="TXT_KEY_GAME_OPTION_DISABLE_VICTORY_COMPETITION">
+			<Text>Disable AI Victory Competition</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GAME_OPTION_DISABLE_VICTORY_COMPETITION_HELP">
+			<Text>AI leaders will not resent other players for their progress towards Victory Conditions. This makes the game significantly easier.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_GAME_OPTION_DISABLE_ENDGAME_AGGRESSION">
+			<Text>Disable AI Endgame Aggression</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GAME_OPTION_DISABLE_ENDGAME_AGGRESSION_HELP">
+			<Text>AI leaders will not receive an aggression boost towards players who are getting close to winning the game. NOTE: This option is redundant if 'Disable AI Victory Competition' is enabled.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_GAME_OPTION_TRANSPARENT_DIPLOMACY">
+			<Text>Transparent Diplomacy</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GAME_OPTION_TRANSPARENT_DIPLOMACY_HELP">
+			<Text>Display raw numbers next to diplomatic modifiers. In addition, AI leaders will never hide negative modifiers.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_GAME_OPTION_DISABLE_RESEARCH_AGREEMENTS">
+			<Text>Disable Research Agreements</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GAME_OPTION_DISABLE_RESEARCH_AGREEMENTS_HELP">
+			<Text>If enabled, Research Agreements cannot be signed with other civilizations.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_GAME_OPTION_ENABLE_TECH_TRADING">
+			<Text>Enable Tech Trading</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GAME_OPTION_ENABLE_TECH_TRADING_HELP">
+			<Text>Enables technology trade between civilizations.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_GAME_OPTION_NO_TECH_BROKERING">
+			<Text>No Tech Brokering</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GAME_OPTION_NO_TECH_BROKERING_HELP">
+			<Text>If enabled, you cannot sell technology to another civilization unless you have researched that technology yourself.</Text>
+		</Row>
 	</Language_en_US>
 </GameData>

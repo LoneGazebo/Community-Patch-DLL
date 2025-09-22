@@ -47,7 +47,7 @@ PopupLayouts[ButtonPopupTypes.BUTTONPOPUP_CITY_CAPTURED] = function(popupInfo)
 		end
 		
 		local buttonText = Locale.ConvertTextKey("TXT_KEY_POPUP_LIBERATE_CITY");
-		if (not Game.IsOption(GameOptionTypes.GAMEOPTION_NO_VASSALAGE) and not Players[iLiberatedPlayer]:IsAlive() and not Players[iLiberatedPlayer]:IsMinorCiv()) then
+		if (Game.IsOption(GameOptionTypes.GAMEOPTION_ENABLE_VASSALAGE) and not Players[iLiberatedPlayer]:IsAlive() and not Players[iLiberatedPlayer]:IsMinorCiv()) then
 			strToolTip = Locale.ConvertTextKey("TXT_KEY_POPUP_CITY_CAPTURE_INFO_LIBERATE_RESURRECT", Players[iLiberatedPlayer]:GetNameKey());
 		else
 			strToolTip = Locale.ConvertTextKey("TXT_KEY_POPUP_CITY_CAPTURE_INFO_LIBERATE", Players[iLiberatedPlayer]:GetNameKey());
