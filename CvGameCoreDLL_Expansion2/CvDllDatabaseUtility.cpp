@@ -495,7 +495,7 @@ void CvDllDatabaseUtility::DatabaseRemapper()
 								{
 									if (bFirst)
 									{
-										LogMsg("Table %s: Remapping %d incorrect IDs, starting with %d -> %d. ", szTableName, vTableIDs.size() - ui, vTableIDs[ui], ui);
+										LogMsg("Table %s: Remapping %u incorrect IDs, starting with %d -> %u. ", szTableName, vTableIDs.size() - ui, vTableIDs[ui], ui);
 										bFirst = false;
 									}
 									char szUpdate[512];
