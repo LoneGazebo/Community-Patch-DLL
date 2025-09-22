@@ -6991,7 +6991,7 @@ void CvGame::setWinner(TeamTypes eNewWinner, VictoryTypes eNewVictory)
 						OutputDebugString("\n Playing some other map. \n\n");
 
 
-					//Victory on Difficulty Levels
+					//Victory on Difficulty Levels and Victory Win Types
 					HandicapTypes winnerHandicapType = getHandicapType();
 					if(!bUsingXP2Scenario1 && !bUsingXP2Scenario2) 
 					{
@@ -7024,11 +7024,8 @@ void CvGame::setWinner(TeamTypes eNewWinner, VictoryTypes eNewVictory)
 						default:
 							OutputDebugString("Playing on some non-existant dif level.");
 						}
-					}
 
-					//Different Victory Win Types
-					if(!bUsingXP2Scenario1 && !bUsingXP2Scenario2)
-					{
+						//Different Victory Win Types
 						switch(eNewVictory)
 						{
 						case 0:

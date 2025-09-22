@@ -75,14 +75,6 @@ SET Text = '+50% rewards from [ICON_CITY_STATE] Quests. May arrange [ICON_RES_MA
 WHERE Tag = 'TXT_KEY_TRAIT_ANNEX_CITY_STATE';
 
 UPDATE Language_en_US
-SET Text = '+1 [ICON_FOOD] Food for every 5 [ICON_CITIZEN] Citizens in the City. +33% [ICON_GREAT_PEOPLE] Great People generation in this City. 15% of [ICON_FOOD] Food is carried over after a new [ICON_CITIZEN] Citizen is born.[NEWLINE][NEWLINE]10% of this City''s [ICON_CULTURE] Culture is converted into [ICON_RESEARCH] Science every turn.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_GOLD] Poverty.'
-WHERE Tag = 'TXT_KEY_BUILDING_COFFEE_HOUSE_HELP';
-
-UPDATE Language_en_US
-SET Text = 'Unique Austrian replacement for the {TXT_KEY_BUILDING_GROCER}. In addition to the {TXT_KEY_BUILDING_GROCER}''s bonuses, {TXT_KEY_BUILDING_COFFEE_HOUSE} boosts the city''s [ICON_GREAT_PEOPLE] Great People generation, and generates [ICON_RESEARCH] Science based on the city''s [ICON_CULTURE] Culture yield.'
-WHERE Tag = 'TXT_KEY_BUILDING_COFFEE_HOUSE_STRATEGY';
-
-UPDATE Language_en_US
 SET Text = 'Unique Austrian {TXT_KEY_UNIT_CUIRASSIER} that excels at scouting and flanking. Can move faster and ignore Zone of Control.'
 WHERE Tag = 'TXT_KEY_UNIT_HELP_AUSTRIAN_HUSSAR';
 
@@ -96,14 +88,6 @@ WHERE Tag = 'TXT_KEY_UNIT_AUSTRIAN_HUSSAR_STRATEGY';
 UPDATE Language_en_US
 SET Text = 'Killing enemy Units grants 150% of their [ICON_STRENGTH] Strength as [ICON_GOLD] Gold and [ICON_PEACE] Faith. When you win a war ([COLOR_POSITIVE_TEXT]War Score[ENDCOLOR] of 25+), a [ICON_GOLDEN_AGE] Golden Age begins.'
 WHERE Tag = 'TXT_KEY_TRAIT_CULTURE_FROM_KILLS';
-
-UPDATE Language_en_US
-SET Text = '+1 [ICON_FOOD] Food and [ICON_PRODUCTION] Production for every 4 [ICON_CITIZEN] Citizens in the City, and +10% [ICON_FOOD] Food during [ICON_GOLDEN_AGE] Golden Ages. +2 [ICON_FOOD] Food from Lakes and +1 [ICON_FOOD] Food from River tiles worked by this City.'
-WHERE Tag = 'TXT_KEY_BUILDING_FLOATING_GARDENS_HELP';
-
-UPDATE Language_en_US
-SET Text = 'Unique Aztec replacement for both the {TXT_KEY_BUILDING_WELL} and the {TXT_KEY_BUILDING_WATERMILL}. It further increases the City''s [ICON_FOOD] Food and [ICON_PRODUCTION] Production output, especially during Golden Ages, and boosts lakes and river tiles.'
-WHERE Tag = 'TXT_KEY_BUILDING_FOATING_GARDENS_STRATEGY';
 
 UPDATE Language_en_US
 SET Text = 'Unique Aztec {TXT_KEY_UNIT_WARRIOR} that excels at Forest and Jungle warfare and recovers HP when it kills an enemy unit. Starts with [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_WOODSMAN}[ENDCOLOR].'
@@ -254,12 +238,12 @@ SET Text = '+20% [ICON_PRODUCTION] Production towards [ICON_WONDER] Wonders (+40
 WHERE Tag = 'TXT_KEY_TRAIT_WONDER_BUILDER';
 
 UPDATE Language_en_US
-SET Text = 'Receive a free Egyptian [ICON_ARTIFACT] Artifact when constructed.[NEWLINE][NEWLINE][ICON_CARAVAN] Land Trade Routes gain +50% Range and +3 [ICON_GOLD] Gold. Completing a [ICON_CARAVAN] Land Trade Route originating here and targeting another Civilization triggers a (or strengthens an existing) [COLOR_POSITIVE_TEXT]Historic Event[ENDCOLOR].[NEWLINE][NEWLINE]+1 [ICON_GOLD] Gold and [ICON_FOOD] Food for every 1.5 Desert or 1.5 Tundra tiles worked by the City.[NEWLINE][NEWLINE]Contains 1 slot for [ICON_GREAT_WORK] Great Work of Art or Artifact.[NEWLINE][NEWLINE]Nearby [ICON_RES_TRUFFLES] Truffles: +2 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_COTTON] Cotton: +1 [ICON_PRODUCTION] Production, +1 [ICON_CULTURE] Culture.[NEWLINE]Neabry [ICON_RES_FUR] Furs: +1 [ICON_GOLD] Gold, +1 [ICON_PRODUCTION] Production.'
-WHERE Tag = 'TXT_KEY_BUILDING_BURIAL_TOMB_HELP';
+SET Text = 'Placeholder'
+WHERE Tag = 'TXT_KEY_BUILDING_NILOMETER_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Unique Egyptian replacement for the {TXT_KEY_BUILDING_CARAVANSARY}. In addition to the {TXT_KEY_BUILDING_CARAVANSARY}''s bonuses, {TXT_KEY_BUILDING_BURIAL_TOMB_DESC} produces [ICON_PEACE] Faith, comes with a free [ICON_ARTIFACT] Artifact, and generates even more [ICON_FOOD] Food and [ICON_GOLD] Gold from worked Desert and Tundra tiles.'
-WHERE Tag = 'TXT_KEY_BUILDING_BURIAL_TOMB_STRATEGY';
+SET Text = 'Placeholder'
+WHERE Tag = 'TXT_KEY_BUILDING_NILOMETER_STRATEGY';
 
 UPDATE Language_en_US
 SET Text = 'Unique Egyptian {TXT_KEY_UNIT_CHARIOT_ARCHER} that does not require [ICON_RES_HORSE] {TXT_KEY_RESOURCE_HORSES} and grants [ICON_PRODUCTION] Production when defeating enemies equal to 150% of their [ICON_STRENGTH] Combat Strength.'

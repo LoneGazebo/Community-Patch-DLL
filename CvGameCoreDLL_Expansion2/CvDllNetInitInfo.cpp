@@ -134,7 +134,7 @@ const char* CvDllNetInitInfo::GetDebugString()
 	        , CvPreGame::gameName().c_str()
 	        , CvPreGame::syncRandomSeed()
 	        , CvPreGame::mapRandomSeed()
-			, CvPreGame::GetKnownPlayersTable().size()
+			, static_cast<unsigned int>(CvPreGame::GetKnownPlayersTable().size())
 	       );
 	return m_szDebugString;
 }
