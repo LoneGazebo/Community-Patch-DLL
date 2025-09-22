@@ -1467,10 +1467,8 @@ int PathValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFin
 	CvUnit* pUnit = pCacheData->pUnit;
 	TeamTypes eUnitTeam = pCacheData->getTeam();
 
-#if defined(MOD_CORE_UNREVEALED_IMPASSABLE)
 	if (!kToNodeCacheData.bIsRevealedToTeam && !pUnit->isHuman() && !finder->HaveFlag(CvUnit::MOVEFLAG_PRETEND_ALL_REVEALED) && pUnit->AI_getUnitAIType()!=UNITAI_EXPLORE)
 		return FALSE;
-#endif
 
 	bool bNextNodeHostile = kToNodeCacheData.bIsEnemyCity || (kToNodeCacheData.bIsVisibleEnemyCombatUnit && !finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_ENEMIES));
 	bool bNextNodeVisibleToTeam = kToNodeCacheData.bPlotVisibleToTeam;
@@ -1775,10 +1773,8 @@ int StepValidGeneric(const CvAStarNode* parent, const CvAStarNode* node, const S
 	if (!pFromPlot || !pToPlot)
 		return FALSE;
 
-#if defined(MOD_CORE_UNREVEALED_IMPASSABLE)
 	if (eMyTeam!=NO_TEAM && !pToPlot->isRevealed(eMyTeam))
 		return FALSE;
-#endif
 
 	//this is the important check here - stay within the same area
 	if(!bAnyArea && pFromPlot->getLandmass() != pToPlot->getLandmass())
