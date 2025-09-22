@@ -1162,8 +1162,7 @@ VALUES
 	('B10', 'ERA_POSTMODERN'), -- 1954
 	('B20', 'ERA_POSTMODERN'), -- 1960
 	('B30', 'ERA_POSTMODERN'), -- 1971
-	('B40', 'ERA_POSTMODERN'), -- 1975
-	('B50', 'ERA_POSTMODERN'); -- 1980
+	('B40', 'ERA_POSTMODERN'); -- 1975
 
 INSERT INTO Unit_UniqueNames
 	(UnitType, UniqueName, EraType)
@@ -1270,8 +1269,7 @@ VALUES
 	('850', 'ERA_POSTMODERN'), -- 1955
 	('860', 'ERA_POSTMODERN'), -- 1962
 	('870', 'ERA_POSTMODERN'), -- 1964
-	('880', 'ERA_POSTMODERN'), -- 1969
-	('890', 'ERA_POSTMODERN'); -- 1975
+	('880', 'ERA_POSTMODERN');
 
 INSERT INTO Unit_UniqueNames
 	(UnitType, UniqueName, EraType)
