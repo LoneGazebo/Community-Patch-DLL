@@ -799,12 +799,9 @@ void CvPlayerCorporations::RecalculateNumOffices()
 	int iLoop = 0;
 	for (pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 	{
-		if (pLoopCity != NULL)
+		if (pLoopCity->IsHasOffice())
 		{
-			if (pLoopCity->IsHasOffice())
-			{
-				iOffices++;
-			}
+			iOffices++;
 		}
 	}
 
@@ -838,17 +835,14 @@ void CvPlayerCorporations::RecalculateNumFranchises()
 				int iLoop = 0;
 				for (pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
 				{
-					if (pLoopCity != NULL)
+					if (pLoopCity->IsHasFranchise(eCorporation))
 					{
-						if (pLoopCity->IsHasFranchise(eCorporation))
-						{
-							iFranchises++;
+						iFranchises++;
 
-							// Free franchise above Popular?
-							if (GetCorporationFreeFranchiseAbovePopular() != 0 && GET_PLAYER(ePlayer).isMajorCiv() && m_pPlayer->GetCulture()->GetInfluenceLevel(ePlayer) >= INFLUENCE_LEVEL_POPULAR)
-							{
-								iFreeFranchises += GetCorporationFreeFranchiseAbovePopular();
-							}
+						// Free franchise above Popular?
+						if (GetCorporationFreeFranchiseAbovePopular() != 0 && GET_PLAYER(ePlayer).isMajorCiv() && m_pPlayer->GetCulture()->GetInfluenceLevel(ePlayer) >= INFLUENCE_LEVEL_POPULAR)
+						{
+							iFreeFranchises += GetCorporationFreeFranchiseAbovePopular();
 						}
 					}
 				}
@@ -1039,38 +1033,32 @@ void CvPlayerCorporations::BuildRandomFranchiseInCity()
 		int iLoop = 0;
 		for (CvCity* pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
 		{
-			if (pLoopCity != NULL)
+			if (m_pPlayer->GetTrade()->IsCityAlreadyConnectedByTrade(pLoopCity))
+				continue;
+
+			// City can not contain our franchise already
+			if (pLoopCity->IsHasFranchise(GetFoundedCorporation()))
+				continue;
+
+			int iChance = GC.getGame().randRangeExclusive(0, 101, CvSeeder::fromRaw(0x61e74940).mix(pLoopCity->plot()->GetPseudoRandomSeed())) + GC.getGame().randRangeExclusive(0, 101, CvSeeder::fromRaw(0x533dfdcd).mix(pLoopCity->plot()->GetPseudoRandomSeed()));
+			int iScore = 500 - iChance;
+
+			int iLoop2 = 0;
+			for (CvCity* pLoopCity2 = m_pPlayer->firstCity(&iLoop2); pLoopCity2 != NULL; pLoopCity2 = m_pPlayer->nextCity(&iLoop2))
 			{
-				if (m_pPlayer->GetTrade()->IsCityAlreadyConnectedByTrade(pLoopCity))
+				if (!m_pPlayer->GetTrade()->CanCreateTradeRoute(pLoopCity2, pLoopCity, DOMAIN_LAND, TRADE_CONNECTION_INTERNATIONAL, false) && !m_pPlayer->GetTrade()->CanCreateTradeRoute(pLoopCity2, pLoopCity, DOMAIN_SEA, TRADE_CONNECTION_INTERNATIONAL, false))
 					continue;
 
-				// City can not contain our franchise already
-				if (pLoopCity->IsHasFranchise(GetFoundedCorporation()))
-					continue;
-
-				int iChance = GC.getGame().randRangeExclusive(0, 101, CvSeeder::fromRaw(0x61e74940).mix(pLoopCity->plot()->GetPseudoRandomSeed())) + GC.getGame().randRangeExclusive(0, 101, CvSeeder::fromRaw(0x533dfdcd).mix(pLoopCity->plot()->GetPseudoRandomSeed()));
-				int iScore = 500 - iChance;
-
-				int iLoop2 = 0;
-				for (CvCity* pLoopCity2 = m_pPlayer->firstCity(&iLoop2); pLoopCity2 != NULL; pLoopCity2 = m_pPlayer->nextCity(&iLoop2))
-				{
-					if (pLoopCity2 != NULL)
-					{
-						if (!m_pPlayer->GetTrade()->CanCreateTradeRoute(pLoopCity2, pLoopCity, DOMAIN_LAND, TRADE_CONNECTION_INTERNATIONAL, false) && !m_pPlayer->GetTrade()->CanCreateTradeRoute(pLoopCity2, pLoopCity, DOMAIN_SEA, TRADE_CONNECTION_INTERNATIONAL, false))
-							continue;
-
-						//Prioritize closer cities first.
-						int iDistance = plotDistance(pLoopCity->getX(), pLoopCity->getY(), pCapital->getX(), pCapital->getY());
-						iScore -= (iDistance * 5);
-						if (iScore <= 0)
-							iScore = 1;
-					}
-				}
-				if (iScore > iBestScore)
-				{
-					iBestScore = iScore;
-					pBestCity = pLoopCity;
-				}
+				//Prioritize closer cities first.
+				int iDistance = plotDistance(pLoopCity->getX(), pLoopCity->getY(), pCapital->getX(), pCapital->getY());
+				iScore -= (iDistance * 5);
+				if (iScore <= 0)
+					iScore = 1;
+			}
+			if (iScore > iBestScore)
+			{
+				iBestScore = iScore;
+				pBestCity = pLoopCity;
 			}
 		}
 	}
@@ -1088,10 +1076,7 @@ void CvPlayerCorporations::BuildRandomFranchiseInCity()
 				int iLoop = 0;
 				for (pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 				{
-					if (pLoopCity != NULL)
-					{
-						pLoopCity->UpdateYieldFromCorporationFranchises((YieldTypes)iI);
-					}
+					pLoopCity->UpdateYieldFromCorporationFranchises((YieldTypes)iI);
 				}
 			}
 
@@ -1322,12 +1307,9 @@ int CvPlayerCorporations::GetMaxNumFranchises() const
 					int iLoop = 0;
 					for (pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
 					{
-						if (pLoopCity != NULL)
+						if (pLoopCity->IsHasFranchise(GetFoundedCorporation()))
 						{
-							if (pLoopCity->IsHasFranchise(GetFoundedCorporation()))
-							{
-								iReturnValue += GetCorporationFreeFranchiseAbovePopular();
-							}
+							iReturnValue += GetCorporationFreeFranchiseAbovePopular();
 						}
 					}
 				}
@@ -1681,19 +1663,16 @@ int CvPlayerCorporations::GetFranchiseTourismMod(PlayerTypes ePlayer, bool bJust
 	int iLoop = 0;
 	for (pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
 	{
-		if (pLoopCity != NULL)
+		if (pLoopCity->IsHasFranchise(eFounded))
 		{
-			if (pLoopCity->IsHasFranchise(eFounded))
-			{
-				iNumFranchises++;
-				if (bJustCheckOne)
-					return iNumFranchises;
+			iNumFranchises++;
+			if (bJustCheckOne)
+				return iNumFranchises;
 
-				// Free franchise above Popular?
-				if (GetCorporationFreeFranchiseAbovePopular() != 0 && GET_PLAYER(ePlayer).isMajorCiv() && m_pPlayer->GetCulture()->GetInfluenceLevel(ePlayer) >= INFLUENCE_LEVEL_POPULAR)
-				{
-					iNumFranchises += GetCorporationFreeFranchiseAbovePopular();
-				}
+			// Free franchise above Popular?
+			if (GetCorporationFreeFranchiseAbovePopular() != 0 && GET_PLAYER(ePlayer).isMajorCiv() && m_pPlayer->GetCulture()->GetInfluenceLevel(ePlayer) >= INFLUENCE_LEVEL_POPULAR)
+			{
+				iNumFranchises += GetCorporationFreeFranchiseAbovePopular();
 			}
 		}
 	}

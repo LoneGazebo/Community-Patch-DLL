@@ -121,7 +121,7 @@ unsigned long CvRandom::get(unsigned long ulNum, const char* pszLog)
 				if (pLog)
 				{
 					char szOut[1024] = { 0 };
-					sprintf_s(szOut, "%s, %d, max %lu, res %lu, seed %I64u, cc %d, rc %d, %s, %s\n", m_name.c_str(), kGame.getGameTurn(),
+					sprintf_s(szOut, "%s, %d, max %lu, res %lu, seed %I64u, cc %lu, rc %lu, %s, %s\n", m_name.c_str(), kGame.getGameTurn(),
 						ulNum, ul, ullNewSeed, m_ulCallCount, m_ulResetCount, m_bSynchronous ? "sync" : "async", (pszLog != NULL) ? pszLog : "Unknown");
 					pLog->Msg(szOut);
 
@@ -129,7 +129,7 @@ unsigned long CvRandom::get(unsigned long ulNum, const char* pszLog)
 				if (m_ulResetCount > 100)  // Example check
 				{
 					char szDebugInfo[256];
-					sprintf_s(szDebugInfo, "Warning: High RNG reset count: %d\n", m_ulResetCount);
+					sprintf_s(szDebugInfo, "Warning: High RNG reset count: %lu\n", m_ulResetCount);
 					OutputDebugString(szDebugInfo);
 				}
 #endif
@@ -154,7 +154,7 @@ void CvRandom::reseed(unsigned long long ullNewValue)
 	{
 		FILogFile* pLog = LOGFILEMGR.GetLog("RandCalls.csv", FILogFile::kDontTimeStamp);
 		char szOut[1024] = { 0 };
-		sprintf_s(szOut, "%s reseeding: old seed seed %I64u, new seed %I64u, reseed count %d, call count %d\n",
+		sprintf_s(szOut, "%s reseeding: old seed seed %I64u, new seed %I64u, reseed count %lu, call count %lu\n",
 			m_name.c_str(), m_ullRandomSeed, ullNewValue, m_ulResetCount, m_ulCallCount);
 		pLog->Msg(szOut);
 	}
