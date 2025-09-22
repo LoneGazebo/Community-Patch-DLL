@@ -4886,11 +4886,8 @@ void CvMinorCivAI::DoChangeAliveStatus(bool bAlive)
 			SetFriendshipWithMajorTimes100(e, vNewInfluence.at(i));
 		}
 		SetDisableNotifications(false);
-	}
 
-	// Death - Reset the cached ally and barbarian threat counter
-	if (!bAlive)
-	{
+		// Death - Reset the cached ally and barbarian threat counter
 		bool bHasAlly = GetAlly() != NO_PLAYER;
 		ASSERT_DEBUG(!bHasAlly, "A Minor about to die still has an Ally, when it should have none.");
 		if(bHasAlly)
