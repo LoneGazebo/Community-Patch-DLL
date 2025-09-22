@@ -577,7 +577,8 @@ void CvAStar::CreateChildren(CvAStarNode* node)
 			if (isValid(x, y))
 			{
 				CvAStarNode* check = GetNodeMutable(x,y);
-				if (!check || check == node->m_pParent)
+				ASSERT_DEBUG(check != NULL, "GetNodeMutable returned null after isValid check");
+				if (check == node->m_pParent)
 					continue;
 
 				if (udFunc(udValid, node, check, m_sData))
@@ -1772,8 +1773,8 @@ int StepValidGeneric(const CvAStarNode* parent, const CvAStarNode* node, const S
 	CvPlot* pToPlot = kMap.plotUnchecked(node->m_iX, node->m_iY);
 	CvPlot* pFromPlot = kMap.plotUnchecked(parent->m_iX, parent->m_iY);
 
-	if (!pFromPlot || !pToPlot)
-		return FALSE;
+	ASSERT_DEBUG(pFromPlot != NULL, "plotUnchecked returned null - invalid parent coordinates");
+	ASSERT_DEBUG(pToPlot != NULL, "plotUnchecked returned null - invalid node coordinates");
 
 #if defined(MOD_CORE_UNREVEALED_IMPASSABLE)
 	if (eMyTeam!=NO_TEAM && !pToPlot->isRevealed(eMyTeam))
