@@ -13628,10 +13628,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 						// Loop through owner's cities.
 						for (pLoopCity = owningPlayer.firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = owningPlayer.nextCity(&iCityLoop))
 						{
-							if (pLoopCity != NULL)
-							{
-								pLoopCity->ChangeWeLoveTheKingDayCounter(iWLTKD, true);
-							}
+							pLoopCity->ChangeWeLoveTheKingDayCounter(iWLTKD, true);
 						}
 						CvNotifications* pNotifications = owningPlayer.GetNotifications();
 						if (pNotifications)
@@ -26589,10 +26586,7 @@ int CvCity::getDomainFreeExperienceFromGreatWorksGlobal(DomainTypes eIndex) cons
 	int iGreatWorks = 0;
 	for (const CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
 	{
-		if (pLoopCity != NULL)
-		{
-			iGreatWorks += pLoopCity->GetCityBuildings()->GetNumGreatWorks(CvTypes::getGREAT_WORK_SLOT_LITERATURE());
-		}
+		iGreatWorks += pLoopCity->GetCityBuildings()->GetNumGreatWorks(CvTypes::getGREAT_WORK_SLOT_LITERATURE());
 	}
 	iXP += (iGreatWorks * iMod);
 
