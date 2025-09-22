@@ -415,16 +415,15 @@ void CvPlayerEspionage::Init(CvPlayer* pPlayer)
 		m_aiSpyListNameOrder.push_back(i);
 	}
 
-#if !defined(MOD_CORE_REDUCE_RANDOMNESS)
-	for(uint ui = 0; ui < m_aiSpyListNameOrder.size(); ui++)
+	// Shuffle the list of names
+	for (uint ui = 0; ui < m_aiSpyListNameOrder.size(); ui++)
 	{
-		uint uiTempValue;
-		uint uiTargetSlot = GC.getGame().getJonRandNum(m_aiSpyListNameOrder.size(), "Randomizing m_aiSpyListNameOrder list");
-		uiTempValue = m_aiSpyListNameOrder[ui];
+		int iCounter = static_cast<int>(ui);
+		uint uiTargetSlot = GC.getGame().urandLimitExclusive(m_aiSpyListNameOrder.size(), CvSeeder::fromRaw(0xff0af677).mix(iCounter));
+		uint uiTempValue = m_aiSpyListNameOrder[ui];
 		m_aiSpyListNameOrder[ui] = m_aiSpyListNameOrder[uiTargetSlot];
 		m_aiSpyListNameOrder[uiTargetSlot] = uiTempValue;
 	}
-#endif
 
 	m_iSpyListNameOrderIndex = 0;
 
