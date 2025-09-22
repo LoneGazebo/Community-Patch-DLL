@@ -1039,10 +1039,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 				// Loop through owner's cities.
 				for (pLoopCity = owningPlayer.firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = owningPlayer.nextCity(&iCityLoop))
 				{
-					if (pLoopCity != NULL)
-					{
-						pLoopCity->ChangeWeLoveTheKingDayCounter(iWLTKD, true);
-					}
+					pLoopCity->ChangeWeLoveTheKingDayCounter(iWLTKD, true);
 				}
 				CvNotifications* pNotifications = owningPlayer.GetNotifications();
 				if (pNotifications)
