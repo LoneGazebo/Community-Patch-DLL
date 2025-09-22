@@ -9,6 +9,8 @@ CustomMods gCustomMods;
 CustomMods::CustomMods() :
 	m_bInit(false)
 {
+	// Note: MOD_OPT_DECL bit fields are initialized by preloadCache() before being accessed
+	// The cppcheck warnings about uninitialized variables are false positives
 }
 
 // This function hooks an event with a variable number of arguments.

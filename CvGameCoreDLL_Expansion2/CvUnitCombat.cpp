@@ -943,7 +943,6 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 								MILITARYLOG(pkAttacker->getOwner(), strBuffer.c_str(), pkDefender->plot(), pkDefender->getOwner());
 						}
 						strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_ARE_ATTACKED_BY_AIR", pkDefender->m_strName.IsEmpty() ? pkDefender->getNameKey() : (const char*) (pkDefender->getName()).c_str(), pkAttacker->m_strName.IsEmpty() ? pkAttacker->getNameKey() : (const char*) (pkAttacker->getName()).c_str(), iDamage);
-#if defined(MOD_BALANCE_CORE)
 						if (pkAttacker->GetMoraleBreakChance() > 0 && !pkDefender->isDelayedDeath() && pkDefender->GetNumFallBackPlotsAvailable(*pkAttacker) > 0)
 						{
 							int iRand = GC.getGame().randRangeInclusive(1, 100, CvSeeder::fromRaw(0xd7e83836).mix(pkDefender->GetID()).mix(pkDefender->plot()->GetPseudoRandomSeed()));
@@ -974,7 +973,6 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 								}
 							}
 						}
-#endif
 					}
 
 					//red icon over attacking unit
@@ -1049,14 +1047,12 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 						if (MOD_WH_MILITARY_LOG)
 							MILITARYLOG(pCity->getOwner(), strBuffer.c_str(), pCity->plot(), pkAttacker->getOwner());
 					}
-#if defined(MOD_BALANCE_CORE)
 					else if(pkAttacker->getOwner() == GC.getGame().getActivePlayer() && (pCity->getOwner() != pkAttacker->getOwner()))
 					{
 						strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_ATTACKED_CITY_CP", pCity->getNameKey(), pkAttacker->m_strName.IsEmpty() ? pkAttacker->getNameKey() : (const char*) (pkAttacker->getName()).c_str(), iDamage);
 						//red icon over attacking unit
 						pkDLLInterface->AddMessage(uiParentEventID, pkAttacker->getOwner(), false, /*10*/ GD_INT_GET(EVENT_MESSAGE_TIME), strBuffer/*, "AS2D_COMBAT", MESSAGE_TYPE_INFO, pkAttacker->m_pUnitInfo->GetButton(), (ColorTypes)GC.getInfoTypeForString("COLOR_RED"), pkAttacker->getX(), pkAttacker->getY(), true, true*/);
 					}
-#endif
 #if defined(MOD_BALANCE_CORE_MILITARY)
 
 					//apply damage to garrison
@@ -4283,7 +4279,6 @@ void CvUnitCombat::ApplyPostKillTraitEffects(CvUnit* pkWinner, CvUnit* pkLoser)
 			pkWinner->changeDamage(-pkWinner->getHPHealedIfDefeatEnemy());
 		}
 	}
-#if defined(MOD_BALANCE_CORE)
 	if(pkWinner->isExtraAttackHealthOnKill())
 	{
 		int iHealAmount = min(pkWinner->getDamage(), /*25*/ GD_INT_GET(PILLAGE_HEAL_AMOUNT));
@@ -4295,7 +4290,6 @@ void CvUnitCombat::ApplyPostKillTraitEffects(CvUnit* pkWinner, CvUnit* pkLoser)
 			pkWinner->changeDamage(-iHealAmount);
 		}
 	}
-#endif
 	// If the modder wants the healing to be negative (ie additional damage), then let it be
 	else if(pkWinner->getHPHealedIfDefeatEnemy() < 0 && (pkLoser->getOwner() != BARBARIAN_PLAYER || !(pkWinner->IsHealIfDefeatExcludeBarbarians()) || !(pkWinner->isExtraAttackHealthOnKill())))
 	{
@@ -4314,12 +4308,10 @@ void CvUnitCombat::ApplyPostKillTraitEffects(CvUnit* pkWinner, CvUnit* pkLoser)
 
 	// Earn bonuses for kills?
 	kPlayer.DoYieldsFromKill(pkWinner, pkLoser);
-#if defined(MOD_BALANCE_CORE)
 	if(pkLoser->getOwner() == BARBARIAN_PLAYER && pkLoser->plot()->getImprovementType() == GD_INT_GET(BARBARIAN_CAMP_IMPROVEMENT))
 	{
 		GET_PLAYER(pkWinner->getOwner()).GetPlayerTraits()->SetDefeatedBarbarianCampGuardType(pkLoser->getUnitType());
 	}
-#endif
 
 	//Achievements and Stats
 	if (MOD_API_ACHIEVEMENTS && pkWinner->isHuman() && !GC.getGame().isGameMultiPlayer())

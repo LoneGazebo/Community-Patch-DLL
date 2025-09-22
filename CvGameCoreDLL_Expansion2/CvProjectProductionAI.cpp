@@ -7,10 +7,8 @@
 	------------------------------------------------------------------------------------------------------- */
 #include "CvGameCoreDLLPCH.h"
 #include "CvProjectProductionAI.h"
-#if defined(MOD_BALANCE_CORE)
 #include "CvEconomicAI.h"
 #include "CvDiplomacyAI.h"
-#endif
 
 // include this after all other headers!
 #include "LintFree.h"
@@ -120,14 +118,12 @@ ProjectTypes CvProjectProductionAI::RecommendProject()
 			// Update weight based on turns to construct
 			iTurnsLeft = m_pCity->getProductionTurnsLeft((ProjectTypes) iProjectLoop, 0);
 			iWeight = CityStrategyAIHelpers::ReweightByTurnsLeft(m_ProjectAIWeights.GetWeight((ProjectTypes)iProjectLoop), iTurnsLeft);
-#if defined(MOD_BALANCE_CORE)
 			iWeight += m_ProjectAIWeights.GetWeight((ProjectTypes)iProjectLoop);
 			iWeight = CheckProjectBuildSanity((ProjectTypes)iProjectLoop, iWeight);
 			if(iWeight <= 0)
 			{
 				continue;
 			}
-#endif
 			m_Buildables.push_back(iProjectLoop, iWeight);
 		}
 	}
@@ -146,7 +142,6 @@ ProjectTypes CvProjectProductionAI::RecommendProject()
 		return NO_PROJECT;
 	}
 }
-#if defined(MOD_BALANCE_CORE)
 int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iTempWeight)
 {
 	if(eProject == NO_PROJECT)
@@ -391,7 +386,6 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 
 	return max(1,iTempWeight);
 }
-#endif
 /// Log all potential builds
 void CvProjectProductionAI::LogPossibleBuilds()
 {

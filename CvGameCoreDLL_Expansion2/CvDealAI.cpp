@@ -5973,15 +5973,18 @@ bool CvDealAI::IsMakeOfferForCityExchange(PlayerTypes eOtherPlayer, CvDeal* pDea
 	//check their cities
 	for (CvCity* pTheirCity = GET_PLAYER(eOtherPlayer).firstCity(&iCityLoop); pTheirCity != NULL; pTheirCity = GET_PLAYER(eOtherPlayer).nextCity(&iCityLoop))
 	{
-		if(!pTheirCity)
-			continue;
 
 		if(pDeal->IsPossibleToTradeItem(eOtherPlayer, m_pPlayer->GetID(), TRADE_ITEM_CITIES, pTheirCity->getX(), pTheirCity->getY()))
 		{
 			int iMyPrice = GetCityValueForDeal(pTheirCity, GetPlayer()->GetID());
 			int iTheirPrice = GetCityValueForDeal(pTheirCity, eOtherPlayer);
 
-			int iBuyRatio = (iMyPrice*100)/max(1,iTheirPrice);
+			// Prevent integer overflow when multiplying by 100
+			int iBuyRatio = 0;
+			if(iMyPrice != INT_MAX && iTheirPrice != INT_MAX && iMyPrice <= INT_MAX/100)
+			{
+				iBuyRatio = (iMyPrice*100)/max(1,iTheirPrice);
+			}
 			if(iMyPrice!=INT_MAX && iTheirPrice!=INT_MAX && iBuyRatio>iBestBuyCity)
 			{
 				pBestBuyCity = pTheirCity;
@@ -6003,15 +6006,18 @@ bool CvDealAI::IsMakeOfferForCityExchange(PlayerTypes eOtherPlayer, CvDeal* pDea
 	//check my cities
 	for(CvCity* pMyCity = GetPlayer()->firstCity(&iCityLoop); pMyCity != NULL; pMyCity = GetPlayer()->nextCity(&iCityLoop))
 	{
-		if(!pMyCity)
-			continue;
 
 		if(pDeal->IsPossibleToTradeItem(m_pPlayer->GetID(), eOtherPlayer, TRADE_ITEM_CITIES, pMyCity->getX(), pMyCity->getY()))
 		{
 			int iMyPrice = GetCityValueForDeal(pMyCity, m_pPlayer->GetID());
 			int iTheirPrice = GetCityValueForDeal(pMyCity, eOtherPlayer);
 
-			int iSellRatio = (iTheirPrice*100)/max(1,iMyPrice);
+			// Prevent integer overflow when multiplying by 100
+			int iSellRatio = 0;
+			if(iMyPrice != INT_MAX && iTheirPrice != INT_MAX && iTheirPrice <= INT_MAX/100)
+			{
+				iSellRatio = (iTheirPrice*100)/max(1,iMyPrice);
+			}
 			if(iMyPrice!=INT_MAX && iTheirPrice!=INT_MAX && iSellRatio>iBestSellCity)
 			{
 				pBestSellCity = pMyCity;

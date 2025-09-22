@@ -1294,7 +1294,7 @@ int CvLuaCity::lGetFaithPurchaseUnitTooltip(lua_State* L)
 		}
 	}
 	CvUnitEntry* pGameUnit = GC.getUnitInfo(eUnit);
-	if(MOD_BALANCE_CORE && pGameUnit && GET_PLAYER(pkCity->getOwner()).GetFaithPurchaseCooldown() > 0 && pGameUnit->GetGlobalFaithCooldown() > 0)
+	if(pGameUnit && GET_PLAYER(pkCity->getOwner()).GetFaithPurchaseCooldown() > 0 && pGameUnit->GetGlobalFaithCooldown() > 0)
 	{
 		Localization::String localizedText = Localization::Lookup("TXT_KEY_COOLDOWN_X_TURNS_REMAINING_FAITH");
 		localizedText << GET_PLAYER(pkCity->getOwner()).GetFaithPurchaseCooldown();
@@ -1308,7 +1308,6 @@ int CvLuaCity::lGetFaithPurchaseUnitTooltip(lua_State* L)
 			toolTip += localized;
 		}
 	}
-#if defined(MOD_BALANCE_CORE)
 	// Local faith purchase cooldown for combat units
 	if (GC.getUnitInfo(eUnit)->GetCombat() > 0 || GC.getUnitInfo(eUnit)->GetRangedCombat() > 0)
 	{
@@ -1342,7 +1341,6 @@ int CvLuaCity::lGetFaithPurchaseUnitTooltip(lua_State* L)
 			toolTip += localized;
 		}
 	}
-#endif
 
 	// Not enough faith
 	if((pkCity->GetFaithPurchaseCost(eUnit, true) * 100) > GET_PLAYER(pkCity->getOwner()).GetFaithTimes100())
@@ -1372,8 +1370,7 @@ int CvLuaCity::lGetPurchaseBuildingTooltip(lua_State* L)
 	// City Production Modifier
 	pkCity->canConstruct(eBuilding, false, false, false, false, &toolTip);
 
-#if defined(MOD_BALANCE_CORE)
-	if(MOD_BALANCE_CORE && pkCity->GetBuildingPurchaseCooldown() > 0)
+	if(pkCity->GetBuildingPurchaseCooldown() > 0)
 	{
 		Localization::String localizedText = Localization::Lookup("TXT_KEY_COOLDOWN_X_TURNS_REMAINING");
 		localizedText << pkCity->GetBuildingPurchaseCooldown();
@@ -1387,7 +1384,6 @@ int CvLuaCity::lGetPurchaseBuildingTooltip(lua_State* L)
 			toolTip += localized;
 		}
 	}
-#endif
 
 	if (MOD_BALANCE_CORE_BUILDING_INVESTMENTS && eBuilding != NO_BUILDING)
 	{
@@ -4785,13 +4781,11 @@ int CvLuaCity::lGetYieldPerPopTimes100(lua_State* L)
 	return BasicLuaMethod(L, &CvCity::GetYieldPerPopTimes100);
 }
 
-#if defined(MOD_BALANCE_CORE)
 //------------------------------------------------------------------------------
 int CvLuaCity::lGetYieldPerPopInEmpireTimes100(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvCity::GetYieldPerPopInEmpireTimes100);
 }
-#endif
 
 //------------------------------------------------------------------------------
 int CvLuaCity::lGetYieldFromYieldPerBuildingTimes100(lua_State* L)
@@ -5157,7 +5151,6 @@ int CvLuaCity::lGetSpecialistCount(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
-#if defined(MOD_BALANCE_CORE)
 //------------------------------------------------------------------------------
 //int GetTotalSpecialistCount();
 int CvLuaCity::lGetTotalSpecialistCount(lua_State* L)
@@ -5193,7 +5186,6 @@ int CvLuaCity::lGetSpecialistCityModifier(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
-#endif
 //------------------------------------------------------------------------------
 //int GetSpecialistGreatPersonProgress(SpecialistTypes eIndex);
 int CvLuaCity::lGetSpecialistGreatPersonProgress(lua_State* L)

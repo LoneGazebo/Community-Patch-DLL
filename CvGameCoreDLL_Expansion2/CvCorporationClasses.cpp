@@ -8,8 +8,6 @@
 // must be included after all other headers
 #include "LintFree.h"
 
-#if defined(MOD_BALANCE_CORE)
-
 CvCorporationEntry::CvCorporationEntry(void):
 	m_eHeadquartersBuildingClass(NO_BUILDINGCLASS),
 	m_eOfficeBuildingClass(NO_BUILDINGCLASS),
@@ -1985,5 +1983,3 @@ FDataStream& operator<<(FDataStream& saveTo, const CvGameCorporations& readFrom)
 	CvGameCorporations::Serialize(readFrom, serialVisitor);
 	return saveTo;
 }
-
-#endif

@@ -9122,7 +9122,6 @@ void CvMinorCivAI::EndAllActiveQuestsForPlayer(PlayerTypes ePlayer, bool bWar)
 	//antonjs: todo: instead, call for cancel quest (with flag for no notif)
 	DoObsoleteQuestsForPlayer(ePlayer, NO_MINOR_CIV_QUEST_TYPE, bWar);
 }
-#if defined(MOD_BALANCE_CORE)
 void CvMinorCivAI::DeleteQuest(PlayerTypes ePlayer, MinorCivQuestTypes eType)
 {
 	ASSERT_DEBUG(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
@@ -9141,7 +9140,6 @@ void CvMinorCivAI::DeleteQuest(PlayerTypes ePlayer, MinorCivQuestTypes eType)
 		}
 	}
 }
-#endif
 
 int CvMinorCivAI::GetNumDisplayedQuestsForPlayer(PlayerTypes ePlayer)
 {
@@ -11115,7 +11113,7 @@ bool CvMinorCivAI::IsCoupAttempted(PlayerTypes ePlayer)
 {
 	ASSERT_DEBUG(ePlayer >= 0, "eForPlayer is expected to be non-negative (invalid Index)");
 	ASSERT_DEBUG(ePlayer < MAX_MAJOR_CIVS, "eForPlayer is expected to be within maximum bounds (invalid Index)");
-	if(ePlayer < 0 || ePlayer >= REALLY_MAX_PLAYERS) return false;  // as defined in Reset()
+	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return false;  // as defined in Reset()
 	return m_abCoupAttempted[ePlayer];
 }
 void CvMinorCivAI::SetTargetedAreaID(PlayerTypes ePlayer, int iValue)
@@ -11131,7 +11129,7 @@ int CvMinorCivAI::GetTargetedAreaID(PlayerTypes ePlayer)
 {
 	ASSERT_DEBUG(ePlayer >= 0, "eForPlayer is expected to be non-negative (invalid Index)");
 	ASSERT_DEBUG(ePlayer < MAX_MAJOR_CIVS, "eForPlayer is expected to be within maximum bounds (invalid Index)");
-	if(ePlayer < 0 || ePlayer >= REALLY_MAX_PLAYERS) return -1;  // as defined in Reset()
+	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return -1;  // as defined in Reset()
 	return m_aiAssignedPlotAreaID[ePlayer];
 }
 void CvMinorCivAI::SetNumTurnsSincePtPWarning(PlayerTypes ePlayer, int iValue)
@@ -11147,7 +11145,7 @@ int CvMinorCivAI::GetNumTurnsSincePtPWarning(PlayerTypes ePlayer)
 {
 	ASSERT_DEBUG(ePlayer >= 0, "eForPlayer is expected to be non-negative (invalid Index)");
 	ASSERT_DEBUG(ePlayer < MAX_MAJOR_CIVS, "eForPlayer is expected to be within maximum bounds (invalid Index)");
-	if(ePlayer < 0 || ePlayer >= REALLY_MAX_PLAYERS) return -1;  // as defined in Reset()
+	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return -1;  // as defined in Reset()
 	return m_aiTurnsSincePtPWarning[ePlayer];
 }
 void CvMinorCivAI::ChangeNumTurnsSincePtPWarning(PlayerTypes ePlayer, int iValue)
@@ -14643,7 +14641,6 @@ int CvMinorCivAI::GetCurrentFaithBonus(PlayerTypes ePlayer)
 	return iValue;
 }
 
-#if defined(MOD_BALANCE_CORE)
 int CvMinorCivAI::GetGoldFlatFriendshipBonus(PlayerTypes ePlayer, EraTypes eAssumeEra) const
 {
 	int iGoldBonus = 0;
@@ -14923,7 +14920,6 @@ int CvMinorCivAI::GetCurrentScienceBonus(PlayerTypes ePlayer)
 
 	return iValue;
 }
-#endif
 
 // Food bonus when Friends with a minor - additive with general city bonus
 int CvMinorCivAI::GetFriendsCapitalFoodBonus(PlayerTypes ePlayer, EraTypes eAssumeEra)
@@ -16409,7 +16405,7 @@ bool CvMinorCivAI::CanMajorBullyUnit(PlayerTypes ePlayer)
 	if(!GetPlayer()->isAlive())
 		return false;
 
-	if(MOD_BALANCE_CORE && IsAtWarWithPlayersTeam(ePlayer))
+	if(IsAtWarWithPlayersTeam(ePlayer))
 		return false;
 
 	int iScore = CalculateBullyScore(ePlayer, /*bForUnit*/ true);
@@ -16427,7 +16423,7 @@ bool CvMinorCivAI::CanMajorBullyUnit(PlayerTypes ePlayer, int iSpecifiedBullyMet
 	if(!GetPlayer()->isAlive())
 		return false;
 
-	if(MOD_BALANCE_CORE && IsAtWarWithPlayersTeam(ePlayer))
+	if(IsAtWarWithPlayersTeam(ePlayer))
 		return false;
 
 	if (MOD_EVENTS_MINORS_INTERACTION) {
@@ -18252,8 +18248,8 @@ void CvMinorCivAI::SetNoAlly(bool bValue)
 bool CvMinorCivAI::IsSiphoned(PlayerTypes ePlayer) const
 {
 	ASSERT_DEBUG(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(ePlayer < REALLY_MAX_PLAYERS, "ePlayer is expected to be within maximum bounds (invalid Index)");
-	if(ePlayer < 0 || ePlayer >= REALLY_MAX_PLAYERS)
+	ASSERT_DEBUG(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
+	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS)
 	{
 		return false;  // as defined in Reset()
 	}
@@ -18262,7 +18258,7 @@ bool CvMinorCivAI::IsSiphoned(PlayerTypes ePlayer) const
 void CvMinorCivAI::SetSiphoned(PlayerTypes ePlayer, bool bValue)
 {
 	ASSERT_DEBUG(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(ePlayer < REALLY_MAX_PLAYERS, "ePlayer is expected to be within maximum bounds (invalid Index)");
+	ASSERT_DEBUG(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
 	if(IsSiphoned(ePlayer) != bValue)
 	{
 		m_abSiphoned[ePlayer] = bValue;
@@ -18598,7 +18594,6 @@ CvString CvMinorCivAI::GetStatusChangeDetails(PlayerTypes ePlayer, bool bAdd, bo
 	}
 	else if(eTrait == MINOR_CIV_TRAIT_MILITARISTIC)
 	{
-#if defined(MOD_BALANCE_CORE)
 		int iScienceBonusAmount = 0;
 		if (bFriends)
 		{
@@ -18612,39 +18607,30 @@ CvString CvMinorCivAI::GetStatusChangeDetails(PlayerTypes ePlayer, bool bAdd, bo
 		{
 			iScienceBonusAmount = -iScienceBonusAmount;
 		}
-#endif
 		if(bAllies && bAdd)		// Now Allies (includes jump from nothing through Friends to Allies)
 			strDetailedInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_NOW_ALLIES_MILITARISTIC");
-#if defined(MOD_BALANCE_CORE)
 		if(iScienceBonusAmount != 0)
 		{
 			strDetailedInfo << iScienceBonusAmount;
 		}
-#endif
 		else if(bFriends && bAdd)		// Now Friends
 			strDetailedInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_NOW_FRIENDS_MILITARISTIC");
-#if defined(MOD_BALANCE_CORE)
 			if(iScienceBonusAmount != 0)
 			{
 				strDetailedInfo << iScienceBonusAmount;
 			}
-#endif
 		else if(bFriends && !bAdd)		// No longer Friends (includes drop from Allies down to nothing) - this should be before the Allies check!
 			strDetailedInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_LOST_FRIENDS_MILITARISTIC");
-#if defined(MOD_BALANCE_CORE)
 			if(iScienceBonusAmount != 0)
 			{
 				strDetailedInfo << iScienceBonusAmount;
 			}
-#endif
 		else if(bAllies && !bAdd)		// No longer Allies
 			strDetailedInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_LOST_ALLIES_MILITARISTIC");
-#if defined(MOD_BALANCE_CORE)
 			if(iScienceBonusAmount != 0)
 			{
 				strDetailedInfo << iScienceBonusAmount;
 			}
-#endif
 	}
 	else if(eTrait == MINOR_CIV_TRAIT_MARITIME)
 	{
@@ -18693,7 +18679,6 @@ CvString CvMinorCivAI::GetStatusChangeDetails(PlayerTypes ePlayer, bool bAdd, bo
 	else if(eTrait == MINOR_CIV_TRAIT_MERCANTILE)
 	{
 		int iHappinessBonus = 0;
-#if defined(MOD_BALANCE_CORE)
 		int iGoldBonusAmount = 0;
 		if (bFriends)
 		{
@@ -18707,7 +18692,6 @@ CvString CvMinorCivAI::GetStatusChangeDetails(PlayerTypes ePlayer, bool bAdd, bo
 		{
 			iGoldBonusAmount = -iGoldBonusAmount;
 		}
-#endif
 		if(bFriends)	// Friends bonus
 		{
 			iHappinessBonus += GetHappinessFlatFriendshipBonus(ePlayer) + GetHappinessPerLuxuryFriendshipBonus(ePlayer);
@@ -18725,34 +18709,28 @@ CvString CvMinorCivAI::GetStatusChangeDetails(PlayerTypes ePlayer, bool bAdd, bo
 		{
 			strDetailedInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_NOW_ALLIES_MERCANTILE");
 			strDetailedInfo << iHappinessBonus;
-#if defined(MOD_BALANCE_CORE)
 			if(iGoldBonusAmount != 0)
 			{
 				strDetailedInfo << iGoldBonusAmount;
 			}
-#endif
 		}
 		else if(bFriends && bAdd)		// Now Friends
 		{
 			strDetailedInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_NOW_FRIENDS_MERCANTILE");
 			strDetailedInfo << iHappinessBonus;
-#if defined(MOD_BALANCE_CORE)
 			if(iGoldBonusAmount != 0)
 			{
 				strDetailedInfo << iGoldBonusAmount;
 			}
-#endif
 		}
 		else if(!bAdd)		// Bonus diminished (or removed)
 		{
 			strDetailedInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_LOST_MERCANTILE");
 			strDetailedInfo << iHappinessBonus;
-#if defined(MOD_BALANCE_CORE)
 			if(iGoldBonusAmount != 0)
 			{
 				strDetailedInfo << iGoldBonusAmount;
 			}
-#endif
 		}
 	}
 

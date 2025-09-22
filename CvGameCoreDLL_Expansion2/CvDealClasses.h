@@ -355,9 +355,7 @@ public:
 
 protected:
 	void LogDealComplete(CvDeal* pDeal);
-#if defined(MOD_BALANCE_CORE)
 	void LogDealFailed(CvDeal* pDeal, bool bNoRenew, bool bNotAccepted, bool bNotValid);
-#endif
 
 	CvDeal m_TempDeal;
 

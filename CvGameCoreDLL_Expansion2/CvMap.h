@@ -334,7 +334,6 @@ public:
 	{
 		return &(m_pMapPlots[plotNum(iX, iY)]);
 	}
-#if defined(MOD_BALANCE_CORE)
 	CvPlot** getNeighborsUnchecked(const CvPlot* pPlot) const
 	{
 		return m_pPlotNeighbors + plotNum(pPlot->getX(), pPlot->getY())*(NUM_DIRECTION_TYPES + 2);
@@ -354,7 +353,6 @@ public:
 
 	vector<int>& GetVisibilityScratchpad() { return m_vVisibilityScratchpad; }
 	vector<int>& GetKnownVisibilityScratchpad() { return m_vKnownVisibilityScratchpad; }
-#endif
 
 	CvPlotManager& plotManager() { return m_kPlotManager; }
 	DeferredFogPlots& deferredFogPlots() { return m_vDeferredFogPlots; }
@@ -459,12 +457,10 @@ protected:
 	CvEnumMap<ResourceTypes, int> m_paiNumResourceOnLand;
 
 	CvPlot* m_pMapPlots;
-#if defined(MOD_BALANCE_CORE)
 	CvPlot** m_pPlotNeighbors;			//precomputed neighbors for each plot
 	CvPlot* m_apShuffledNeighbors[6];	//scratchpad for shuffled access to neighbors
 	vector<int> m_vVisibilityScratchpad;
 	vector<int> m_vKnownVisibilityScratchpad;
-#endif
 
 	uint8* m_pYields;
 	uint8* m_pPlayerCityRadiusCount;
@@ -472,10 +468,8 @@ protected:
 	uint8* m_pVisibilityCountThisTurnMax;	//maximum vis count this turn
 	uint8* m_pKnownVisibilityCount;         //current player's known vis count
 	char*  m_pRevealedOwner;
-#if defined(MOD_BALANCE_CORE)
 	bool*  m_pIsImpassable;
 	bool* m_pIsStrategic;
-#endif
 	bool* m_pRevealed;
 	char* m_pRevealedImprovementType;
 	char* m_pRevealedRouteType;

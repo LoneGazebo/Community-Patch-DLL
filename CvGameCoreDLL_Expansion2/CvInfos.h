@@ -545,9 +545,7 @@ public:
 	int getInstanceCostModifier() const;
 	int getDefaultUnitIndex() const;
 	void setDefaultUnitIndex(int i);
-#if defined(MOD_BALANCE_CORE)
 	int getUnitInstancePerCity() const;
-#endif
 	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
 
 protected:
@@ -556,15 +554,11 @@ protected:
 	int m_iMaxPlayerInstances;
 	int m_iInstanceCostModifier;
 	int m_iDefaultUnitIndex;
-#if defined(MOD_BALANCE_CORE)
 	int m_iUnitInstancePerCity;
-#endif
 };
 
-#if defined(MOD_BALANCE_CORE)
 // Forward declaration
 class CvCorporationEntry;
-#endif
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  class : CvBuildingClassInfo
@@ -572,10 +566,8 @@ class CvCorporationEntry;
 class CvBuildingClassInfo :	public CvBaseInfo
 {
 public:
-#if defined(MOD_BALANCE_CORE)
 	// So when we load in Corporations, they can touch this
 	friend class CvCorporationEntry;
-#endif
 	CvBuildingClassInfo();
 	virtual ~CvBuildingClassInfo();
 
@@ -592,12 +584,10 @@ public:
 	// Arrays
 	int getVictoryThreshold(int i) const;
 
-#if defined(MOD_BALANCE_CORE)
 	CorporationTypes getCorporationType() const;
 	bool IsHeadquarters() const;
 	bool IsOffice() const;
 	bool IsFranchise() const;
-#endif
 
 	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
 
@@ -614,12 +604,10 @@ protected:
 	// Arrays
 	int* m_piVictoryThreshold;
 
-#if defined(MOD_BALANCE_CORE)
 	CorporationTypes m_eCorporationType;
 	bool m_bIsHeadquarters;
 	bool m_bIsOffice;
 	bool m_bIsFranchise;
-#endif
 
 private:
 	CvBuildingClassInfo(const CvBuildingClassInfo&);
@@ -859,7 +847,6 @@ public:
 
 	int GetNumCities() const;
 	int GetCityPopulation() const;
-#if defined(MOD_BALANCE_CORE)
 	int GetInfluence() const;
 	int GetDuration() const;
 	int GetGPPointsGlobal() const;
@@ -878,7 +865,6 @@ public:
 	int GetAdmiralPoints() const;
 	int GetJuggernauts() const;
 	int GetRandom() const;
-#endif
 
 	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
 
@@ -891,7 +877,6 @@ protected:
 	int m_iNumCities;
 	int m_iCityPopulation;
 
-#if defined(MOD_BALANCE_CORE)
 	int m_iCSInfluence;
 	int m_iDuration;
 	int m_iGPPoints;
@@ -910,7 +895,6 @@ protected:
 	int m_iJuggernauts;
 	int m_iTourism;
 	int m_iRand;
-#endif
 
 private:
 	CvSmallAwardInfo(const CvSmallAwardInfo&);
@@ -1408,9 +1392,7 @@ public:
 	virtual ~CvGameSpeedInfo();
 
 	int GetDealDuration() const;
-#if defined(MOD_BALANCE_CORE)
 	int GetStartingHappiness() const;
-#endif
 	int getGrowthPercent() const;
 	int getTrainPercent() const;
 	int getInstantYieldPercent() const;
@@ -1445,10 +1427,8 @@ public:
 	int getTradeRouteSpeedMod() const;
 #endif
 	int getMilitaryRatingDecayPercent() const;
-#if defined(MOD_BALANCE_CORE)
 	int getPietyMax() const;
 	int getPietyMin() const;
-#endif
 	int getLeaguePercent() const;
 	int getNumTurnIncrements() const;
 
@@ -1466,9 +1446,7 @@ public:
 
 protected:
 	int m_iDealDuration;
-#if defined(MOD_BALANCE_CORE)
 	int m_iStartingHappiness;
-#endif
 	int m_iGrowthPercent;
 	int m_iTrainPercent;
 	int m_iInstantYieldPercent;
@@ -1503,10 +1481,8 @@ protected:
 	int m_iTradeRouteSpeedMod;
 #endif
 	int m_iMilitaryRatingDecayPercent;
-#if defined(MOD_BALANCE_CORE)
 	int m_iPietyMax;
 	int m_iPietyMin;
-#endif
 	int m_iLeaguePercent;
 
 	int m_iTechCostPerTurnMultiplier;
@@ -1602,12 +1578,10 @@ public:
 #endif
 	int getCostIncreasePerImprovement() const;
 	int getTechPrereq() const;
-#if defined(MOD_BALANCE_CORE)
 	int getTechObsolete() const;
 	bool isKillOnlyCivilian() const;
 	bool IsFreeBestDomainUnit() const;
 	bool IsCultureBoost() const;
-#endif
 	int getImprovement() const;
 	int getRoute() const;
 	int getEntityEvent() const;
@@ -1641,12 +1615,10 @@ protected:
 #endif
 	int m_iCostIncreasePerImprovement;
 	int m_iTechPrereq;
-#if defined(MOD_BALANCE_CORE)
 	bool m_bKillOnlyCivilian;
 	int m_iTechObsolete;
 	bool m_bFreeBestDomainUnit;
 	bool m_bCultureBoost;
-#endif
 	int m_iImprovement;
 	int m_iRoute;
 	int m_iEntityEvent;
@@ -1700,7 +1672,6 @@ public:
 	int getHealing() const;
 	int getDamagePrereq() const;
 	int getPopulation() const;
-#if defined(MOD_BALANCE_CORE)
 	int getProduction() const;
 	int getGoldenAge() const;
 	int getFreeTiles() const;
@@ -1709,7 +1680,6 @@ public:
 	int getFood() const;
 	int getBorderGrowth() const;
 	//
-#endif
 	int getCulture() const;
 	int getFaith() const;
 	int getProphetPercent() const;
@@ -1745,14 +1715,12 @@ protected:
 	int m_iHealing;
 	int m_iDamagePrereq;
 	int m_iPopulation;
-#if defined(MOD_BALANCE_CORE)
 	int m_iProduction;
 	int m_iGoldenAge;
 	int m_iFreeTiles;
 	int m_iScience;
 	int m_iFood;
 	int m_iBorderGrowth;
-#endif
 	int m_iCulture;
 	int m_iFaith;
 	int m_iProphetPercent;
@@ -2011,12 +1979,10 @@ public:
 	int getFirstFinderGold() const;
 	int getInBorderHappiness() const;
 	int getAdjacentUnitFreePromotion() const;
-#if defined(MOD_BALANCE_CORE)
 	int getPromotionIfOwned() const;
 	int getLocationUnitFreePromotion() const;
 	int getAdjacentSpawnLocationUnitFreePromotion() const;
 	int getSpawnLocationUnitFreePromotion() const;
-#endif
 
 	bool isYieldNotAdditive() const;
 	bool isNoCoast() const;
@@ -2026,9 +1992,7 @@ public:
 	bool isRequiresRiver() const;
 	bool isAddsFreshWater() const;
 	bool isImpassable() const;
-#if defined(MOD_BALANCE_CORE)
 	int GetPrereqPassable() const;
-#endif
 	bool isNoCity() const;
 	bool isNoImprovement() const;
 	bool isVisibleAlways() const;
@@ -2081,12 +2045,10 @@ protected:
 	int m_iFirstFinderGold;
 	int m_iInBorderHappiness;
 	int m_iAdjacentUnitFreePromotion;
-#if defined(MOD_BALANCE_CORE)
 	int m_iPromotionIfOwned;
 	int m_iLocationUnitFreePromotion;
 	int m_iSpawnLocationUnitFreePromotion;
 	int m_iAdjacentSpawnLocationUnitFreePromotion;
-#endif
 
 	bool m_bYieldNotAdditive;
 	bool m_bNoCoast;
@@ -2096,9 +2058,7 @@ protected:
 	bool m_bRequiresRiver;
 	bool m_bAddsFreshWater;
 	bool m_bImpassable;
-#if defined(MOD_BALANCE_CORE)
 	int m_iPrereqTechPassable;
-#endif
 	bool m_bNoCity;
 	bool m_bNoImprovement;
 	bool m_bVisibleAlways;
@@ -2154,14 +2114,12 @@ public:
 	int getPopulationChangeOffset() const;
 	int getPopulationChangeDivisor() const;
 	int getMinCity() const;
-#if defined(MOD_BALANCE_CORE)
 	int getMinCityFlatFreshWater() const;
 	int getMinCityFlatNoFreshWater() const;
 	int getMinCityHillFreshWater() const;
 	int getMinCityHillNoFreshWater() const;
 	int getMinCityMountainFreshWater() const;
 	int getMinCityMountainNoFreshWater() const;
-#endif
 	int getGoldenAgeYield() const;
 	int getGoldenAgeYieldThreshold() const;
 	int getGoldenAgeYieldMod() const;
@@ -2178,14 +2136,12 @@ protected:
 	int m_iPopulationChangeOffset;
 	int m_iPopulationChangeDivisor;
 	int m_iMinCity;
-#if defined(MOD_BALANCE_CORE)
 	int m_iMinCityFlatFreshWater;
 	int m_iMinCityFlatNoFreshWater;
 	int m_iMinCityHillFreshWater;
 	int m_iMinCityHillNoFreshWater;
 	int m_iMinCityMountainFreshWater;
 	int m_iMinCityMountainNoFreshWater;
-#endif
 	int m_iGoldenAgeYield;
 	int m_iGoldenAgeYieldThreshold;
 	int m_iGoldenAgeYieldMod;
@@ -2210,19 +2166,15 @@ public:
 	int getInfluenceCost() const;
 	int getTurnDamage() const;
 	int getExtraTurnDamage() const;
-#if defined(MOD_BALANCE_CORE)
 	int getLocationUnitFreePromotion() const;
 	int getSpawnLocationUnitFreePromotion() const;
 	int getAdjacentSpawnLocationUnitFreePromotion() const;
 
 	int getAdjacentUnitFreePromotion() const;
-#endif
 
 	bool isWater() const;
 	bool isImpassable() const;
-#if defined(MOD_BALANCE_CORE)
 	int GetPrereqPassable() const;
-#endif
 	bool isFound() const;
 	bool isFoundCoast() const;
 	bool isFoundFreshWater() const;
@@ -2254,18 +2206,14 @@ protected:
 	int m_iInfluenceCost;
 	int m_iTurnDamage;
 	int m_iExtraTurnDamage;
-#if defined(MOD_BALANCE_CORE)
 	int m_iLocationUnitFreePromotionTerrain;
 	int m_iSpawnLocationUnitFreePromotionTerrain;
 	int m_iAdjacentSpawnLocationUnitFreePromotionTerrain;
 	int m_iAdjacentUnitFreePromotionTerrain;
-#endif
 
 	bool m_bWater;
 	bool m_bImpassable;
-#if defined(MOD_BALANCE_CORE)
 	int m_iPrereqTechPassable;
-#endif
 	bool m_bFound;
 	bool m_bFoundCoast;
 	bool m_bFoundFreshWater;
@@ -2433,11 +2381,9 @@ public:
 	int GetNumCitiesUnitSupplyMod() const;
 	int getTradeRouteDistanceMod() const;
 #endif
-#if defined(MOD_BALANCE_CORE)
 	int getMinDistanceCities() const;
 	int getMinDistanceCityStates() const;
 	int getReformationPercent() const;
-#endif
 	int GetEstimatedNumCities() const;
 
 	static CvWorldInfo CreateCustomWorldSize(const CvWorldInfo& kTemplate, int iWidth, int iHeight);
@@ -2481,11 +2427,9 @@ protected:
 	int m_iNumCitiesUnitSupplyMod;
 	int m_iTradeRouteDistanceMod;
 #endif
-#if defined(MOD_BALANCE_CORE)
 	int m_iMinDistanceCities;
 	int m_iMinDistanceCityStates;
 	int m_iReformationPercent;
-#endif
 	int m_iEstimatedNumCities;
 };
 
