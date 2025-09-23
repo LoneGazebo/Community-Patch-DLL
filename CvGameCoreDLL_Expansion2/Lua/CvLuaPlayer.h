@@ -1264,7 +1264,6 @@ protected:
 	static int lWasResurrectedThisTurnBy(lua_State* L);
 
 	static int lGetOpinionTable(lua_State* L);
-	static int lGetDiplomacyEvaluation(lua_State* L);
 	static int lGetDealValue(lua_State* L);
 	static int lGetDealMyValue(lua_State* L);
 	static int lGetDealTheyreValue(lua_State* L);
@@ -1468,6 +1467,11 @@ protected:
 	LUAAPIEXTN(CountAllTerrain, int, iTerrainType);
 	LUAAPIEXTN(CountAllWorkedTerrain, int, iTerrainType);
 
+	// Vox Deorum: Methods to get/set AI personality values
+	static int lGetPersona(lua_State* L);
+	static int lSetPersona(lua_State* L);
+	static int lGetDiplomacyEvaluation(lua_State* L);
+	
 #if defined(MOD_IMPROVEMENTS_EXTENSIONS)
 	static int lGetResponsibleForRouteCount(lua_State* L);
 	static int lGetResponsibleForImprovementCount(lua_State* L);

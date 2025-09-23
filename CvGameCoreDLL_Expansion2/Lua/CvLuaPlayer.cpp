@@ -1175,7 +1175,6 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(WasResurrectedThisTurnBy);
 
 	Method(GetOpinionTable);
-	Method(GetDiplomacyEvaluation);
 	Method(GetDealValue);
 	Method(GetDealMyValue);
 	Method(GetDealTheyreValue);
@@ -1469,6 +1468,11 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(CountAllTerrain);
 	Method(CountAllWorkedTerrain);
 
+	// Vox Deorum: Methods to get/set AI personality values
+	Method(GetPersona);
+	Method(SetPersona);
+	Method(GetDiplomacyEvaluation);
+	
 #if defined(MOD_IMPROVEMENTS_EXTENSIONS)
 	Method(GetResponsibleForRouteCount);
 	Method(GetResponsibleForImprovementCount);
@@ -16103,7 +16107,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 }
 
 //------------------------------------------------------------------------------
-// Returns diplomatic evaluation information (top friend, ally, competitor, etc.)
+// Vox Deorum: GetDiplomacyEvaluation - Returns diplomatic evaluation information (top friend, ally, competitor, etc.)
 // Returns empty table if not a major civ
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lGetDiplomacyEvaluation(lua_State* L)
@@ -16213,6 +16217,251 @@ int CvLuaPlayer::lGetDiplomacyEvaluation(lua_State* L)
 	lua_settable(L, -3);
 
 	return 1;
+}
+
+//------------------------------------------------------------------------------
+// Vox Deorum: GetPersona - Get personality values for major civs
+int CvLuaPlayer::lGetPersona(lua_State* L)
+{
+			CvPlayerAI* pkPlayer = GetInstance(L);
+			CvDiplomacyAI* pDiplo = pkPlayer->GetDiplomacyAI();
+
+			if (!pDiplo)
+			{
+							lua_pushnil(L);
+							return 1;
+			}
+
+			// Create Lua table to return personality values
+			lua_newtable(L);
+
+			// Add personality values
+			lua_pushstring(L, "VictoryCompetitiveness");
+			lua_pushinteger(L, pDiplo->m_iVictoryCompetitiveness);
+			lua_settable(L, -3);
+
+			lua_pushstring(L, "WonderCompetitiveness");
+			lua_pushinteger(L, pDiplo->m_iWonderCompetitiveness);
+			lua_settable(L, -3);
+
+			lua_pushstring(L, "MinorCivCompetitiveness");
+			lua_pushinteger(L, pDiplo->m_iMinorCivCompetitiveness);
+			lua_settable(L, -3);
+
+			lua_pushstring(L, "Boldness");
+			lua_pushinteger(L, pDiplo->m_iBoldness);
+			lua_settable(L, -3);
+
+			lua_pushstring(L, "DiplomaticBalance");
+			lua_pushinteger(L, pDiplo->m_iDiploBalance);
+			lua_settable(L, -3);
+
+			lua_pushstring(L, "WarmongerHate");
+			lua_pushinteger(L, pDiplo->m_iWarmongerHate);
+			lua_settable(L, -3);
+
+			lua_pushstring(L, "Friendliness");
+			lua_pushinteger(L, pDiplo->m_iDoFWillingness);
+			lua_settable(L, -3);
+
+			lua_pushstring(L, "DenounceWillingness");
+			lua_pushinteger(L, pDiplo->m_iDenounceWillingness);
+			lua_settable(L, -3);
+
+			lua_pushstring(L, "WorkWithWillingness");
+			lua_pushinteger(L, pDiplo->m_iWorkWithWillingness);
+			lua_settable(L, -3);
+
+			lua_pushstring(L, "WorkAgainstWillingness");
+			lua_pushinteger(L, pDiplo->m_iWorkAgainstWillingness);
+			lua_settable(L, -3);
+
+			lua_pushstring(L, "Loyalty");
+			lua_pushinteger(L, pDiplo->m_iLoyalty);
+			lua_settable(L, -3);
+
+			lua_pushstring(L, "Forgiveness");
+			lua_pushinteger(L, pDiplo->m_iForgiveness);
+			lua_settable(L, -3);
+
+			lua_pushstring(L, "Neediness");
+			lua_pushinteger(L, pDiplo->m_iNeediness);
+			lua_settable(L, -3);
+
+			lua_pushstring(L, "Meanness");
+			lua_pushinteger(L, pDiplo->m_iMeanness);
+			lua_settable(L, -3);
+
+			lua_pushstring(L, "Chattiness");
+			lua_pushinteger(L, pDiplo->m_iChattiness);
+			lua_settable(L, -3);
+
+			// Add approach biases
+			lua_pushstring(L, "WarBias");
+			lua_pushinteger(L, pDiplo->m_aiMajorCivApproachBiases[CIV_APPROACH_WAR]);
+			lua_settable(L, -3);
+
+			lua_pushstring(L, "HostileBias");
+			lua_pushinteger(L, pDiplo->m_aiMajorCivApproachBiases[CIV_APPROACH_HOSTILE]);
+			lua_settable(L, -3);
+
+			lua_pushstring(L, "DeceptiveBias");
+			lua_pushinteger(L, pDiplo->m_aiMajorCivApproachBiases[CIV_APPROACH_DECEPTIVE]);
+			lua_settable(L, -3);
+
+			lua_pushstring(L, "GuardedBias");
+			lua_pushinteger(L, pDiplo->m_aiMajorCivApproachBiases[CIV_APPROACH_GUARDED]);
+			lua_settable(L, -3);
+
+			lua_pushstring(L, "AfraidBias");
+			lua_pushinteger(L, pDiplo->m_aiMajorCivApproachBiases[CIV_APPROACH_AFRAID]);
+			lua_settable(L, -3);
+
+			lua_pushstring(L, "FriendlyBias");
+			lua_pushinteger(L, pDiplo->m_aiMajorCivApproachBiases[CIV_APPROACH_FRIENDLY]);
+			lua_settable(L, -3);
+
+			lua_pushstring(L, "NeutralBias");
+			lua_pushinteger(L, pDiplo->m_aiMajorCivApproachBiases[CIV_APPROACH_NEUTRAL]);
+			lua_settable(L, -3);
+
+			// Add minor civ approach biases
+			lua_pushstring(L, "MinorCivWarBias");
+			lua_pushinteger(L, pDiplo->m_iMinorCivWarBias);
+			lua_settable(L, -3);
+
+			lua_pushstring(L, "MinorCivHostileBias");
+			lua_pushinteger(L, pDiplo->m_iMinorCivHostileBias);
+			lua_settable(L, -3);
+
+			lua_pushstring(L, "MinorCivNeutralBias");
+			lua_pushinteger(L, pDiplo->m_iMinorCivNeutralBias);
+			lua_settable(L, -3);
+
+			lua_pushstring(L, "MinorCivFriendlyBias");
+			lua_pushinteger(L, pDiplo->m_iMinorCivFriendlyBias);
+			lua_settable(L, -3);
+
+			return 1;
+}
+
+//------------------------------------------------------------------------------
+// Vox Deorum: SetPersona - Set personality values for major civs
+int CvLuaPlayer::lSetPersona(lua_State* L)
+{
+			CvPlayerAI* pkPlayer = GetInstance(L);
+			CvDiplomacyAI* pDiplo = pkPlayer->GetDiplomacyAI();
+
+			if (!pDiplo)
+							return 0;
+
+			// Check if argument is a table
+			if (!lua_istable(L, 2))
+			{
+							luaL_error(L, "SetPersona requires a table argument");
+							return 0;
+			}
+
+			// Helper lambda to get value from table
+			auto GetTableValue = [L](const char* key) -> int {
+							lua_pushstring(L, key);
+							lua_gettable(L, 2);
+							int value = -1;
+							if (lua_isnumber(L, -1))
+							{
+											value = lua_tointeger(L, -1);
+											// Clamp to valid range (0-10)
+											if (value < 0) value = 0;
+											if (value > 10) value = 10;
+							}
+							lua_pop(L, 1);
+							return value;
+			};
+
+			// Set personality values (only if present in the table)
+			int val;
+
+			val = GetTableValue("VictoryCompetitiveness");
+			if (val >= 0) pDiplo->m_iVictoryCompetitiveness = val;
+
+			val = GetTableValue("WonderCompetitiveness");
+			if (val >= 0) pDiplo->m_iWonderCompetitiveness = val;
+
+			val = GetTableValue("MinorCivCompetitiveness");
+			if (val >= 0) pDiplo->m_iMinorCivCompetitiveness = val;
+
+			val = GetTableValue("Boldness");
+			if (val >= 0) pDiplo->m_iBoldness = val;
+
+			val = GetTableValue("DiploBalance");
+			if (val >= 0) pDiplo->m_iDiploBalance = val;
+
+			val = GetTableValue("WarmongerHate");
+			if (val >= 0) pDiplo->m_iWarmongerHate = val;
+
+			val = GetTableValue("Friendliness");
+			if (val >= 0) pDiplo->m_iDoFWillingness = val;
+
+			val = GetTableValue("DenounceWillingness");
+			if (val >= 0) pDiplo->m_iDenounceWillingness = val;
+
+			val = GetTableValue("WorkWithWillingness");
+			if (val >= 0) pDiplo->m_iWorkWithWillingness = val;
+
+			val = GetTableValue("WorkAgainstWillingness");
+			if (val >= 0) pDiplo->m_iWorkAgainstWillingness = val;
+
+			val = GetTableValue("Loyalty");
+			if (val >= 0) pDiplo->m_iLoyalty = val;
+
+			val = GetTableValue("Forgiveness");
+			if (val >= 0) pDiplo->m_iForgiveness = val;
+
+			val = GetTableValue("Neediness");
+			if (val >= 0) pDiplo->m_iNeediness = val;
+
+			val = GetTableValue("Meanness");
+			if (val >= 0) pDiplo->m_iMeanness = val;
+
+			val = GetTableValue("Chattiness");
+			if (val >= 0) pDiplo->m_iChattiness = val;
+
+			// Set approach biases
+			val = GetTableValue("WarBias");
+			if (val >= 0) pDiplo->m_aiMajorCivApproachBiases[CIV_APPROACH_WAR] = val;
+
+			val = GetTableValue("HostileBias");
+			if (val >= 0) pDiplo->m_aiMajorCivApproachBiases[CIV_APPROACH_HOSTILE] = val;
+
+			val = GetTableValue("DeceptiveBias");
+			if (val >= 0) pDiplo->m_aiMajorCivApproachBiases[CIV_APPROACH_DECEPTIVE] = val;
+
+			val = GetTableValue("GuardedBias");
+			if (val >= 0) pDiplo->m_aiMajorCivApproachBiases[CIV_APPROACH_GUARDED] = val;
+
+			val = GetTableValue("AfraidBias");
+			if (val >= 0) pDiplo->m_aiMajorCivApproachBiases[CIV_APPROACH_AFRAID] = val;
+
+			val = GetTableValue("FriendlyBias");
+			if (val >= 0) pDiplo->m_aiMajorCivApproachBiases[CIV_APPROACH_FRIENDLY] = val;
+
+			val = GetTableValue("NeutralBias");
+			if (val >= 0) pDiplo->m_aiMajorCivApproachBiases[CIV_APPROACH_NEUTRAL] = val;
+
+			// Set minor civ approach biases
+			val = GetTableValue("MinorCivWarBias");
+			if (val >= 0) pDiplo->m_iMinorCivWarBias = val;
+
+			val = GetTableValue("MinorCivHostileBias");
+			if (val >= 0) pDiplo->m_iMinorCivHostileBias = val;
+
+			val = GetTableValue("MinorCivNeutralBias");
+			if (val >= 0) pDiplo->m_iMinorCivNeutralBias = val;
+
+			val = GetTableValue("MinorCivFriendlyBias");
+			if (val >= 0) pDiplo->m_iMinorCivFriendlyBias = val;
+
+			return 0;
 }
 
 //------------------------------------------------------------------------------
