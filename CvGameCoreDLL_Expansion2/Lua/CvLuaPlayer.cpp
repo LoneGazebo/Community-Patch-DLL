@@ -18855,6 +18855,49 @@ int CvLuaPlayer::lSetGrandStrategy(lua_State* L)
 		pkPlayer->GetGrandStrategyAI()->SetActiveGrandStrategy(eGrandStrategy);
 		pkPlayer->GetGrandStrategyAI()->SetNumTurnsSinceActiveSet(1);
 		pkPlayer->GetCitySpecializationAI()->SetSpecializationsDirty(SPECIALIZATION_UPDATE_NEW_GRAND_STRATEGY);
+
+		// Vox Deorum: Also set primary victory pursuit in diplomacy AI based on grand strategy
+		CvDiplomacyAI* pDiploAI = pkPlayer->GetDiplomacyAI();
+		if (pDiploAI)
+		{
+			// Get the grand strategy types
+			AIGrandStrategyTypes eConquest = (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CONQUEST");
+			AIGrandStrategyTypes eCulture = (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CULTURE");
+			AIGrandStrategyTypes eUnitedNations = (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_UNITED_NATIONS");
+			AIGrandStrategyTypes eSpaceship = (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_SPACESHIP");
+
+			// Map grand strategy to victory pursuit
+			VictoryPursuitTypes eNewPrimaryPursuit = NO_VICTORY_PURSUIT;
+			if (eGrandStrategy == eConquest)
+				eNewPrimaryPursuit = VICTORY_PURSUIT_DOMINATION;
+			else if (eGrandStrategy == eCulture)
+				eNewPrimaryPursuit = VICTORY_PURSUIT_CULTURE;
+			else if (eGrandStrategy == eUnitedNations)
+				eNewPrimaryPursuit = VICTORY_PURSUIT_DIPLOMACY;
+			else if (eGrandStrategy == eSpaceship)
+				eNewPrimaryPursuit = VICTORY_PURSUIT_SCIENCE;
+
+			// If we have a valid new primary pursuit
+			if (eNewPrimaryPursuit != NO_VICTORY_PURSUIT)
+			{
+				// Get current primary and secondary pursuits
+				VictoryPursuitTypes eCurrentPrimary = pDiploAI->GetPrimaryVictoryPursuit();
+				VictoryPursuitTypes eCurrentSecondary = pDiploAI->GetSecondaryVictoryPursuit();
+
+				// Only update if it's different from the current primary
+				if (eCurrentPrimary != eNewPrimaryPursuit)
+				{
+					// Set the new primary pursuit
+					pDiploAI->SetPrimaryVictoryPursuit(eNewPrimaryPursuit);
+
+					// Only set secondary if the old primary is different from the existing secondary
+					if (eCurrentSecondary != eCurrentPrimary)
+					{
+						pDiploAI->SetSecondaryVictoryPursuit(eCurrentPrimary);
+					}
+				}
+			}
+		}
 	}
 	return 0;
 }
