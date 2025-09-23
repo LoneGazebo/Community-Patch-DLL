@@ -658,6 +658,7 @@
 				[NEWLINE][ICON_BULLET] +4 [ICON_CULTURE] Culture and Tourism for two French Great Works of Art from the same Era.
 				[NEWLINE][ICON_BULLET] +4 [ICON_CULTURE] Culture and Tourism for two French Great Works of Art from the same foreign Civilization.
 				[NEWLINE][ICON_BULLET] +8 [ICON_CULTURE] Culture and Tourism for two French Great Works of Art from the same foreign Civilization and the same Era.
+			</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_SALON_TEXT">
 			<Text>A salon is a gathering of people under the roof of an inspiring host, held partly to amuse one another and partly to refine the taste and increase the knowledge of the participants through conversation. These gatherings often consciously followed Horace's definition of the aims of poetry, "either to please or to educate" ("aut delectare aut prodesse est"). Salons, commonly associated with French literary and philosophical movements of the 17th and 18th centuries, were carried on until quite recently in urban settings.</Text>

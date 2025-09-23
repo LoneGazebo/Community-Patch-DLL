@@ -199,6 +199,13 @@
 			<Description>TXT_KEY_BUILDING_ROMAN_FORUM</Description>
 			<MaxGlobalInstances>1</MaxGlobalInstances>
 		</Row>
+		<!-- Nalanda -->
+		<Row>
+			<Type>BUILDINGCLASS_NALANDA</Type>
+			<DefaultBuilding>BUILDING_NALANDA</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_NALANDA</Description>
+			<MaxGlobalInstances>1</MaxGlobalInstances>
+		</Row>
 		<!-- Karlstejn -->
 		<Row>
 			<Type>BUILDINGCLASS_KARLSTEJN</Type>
