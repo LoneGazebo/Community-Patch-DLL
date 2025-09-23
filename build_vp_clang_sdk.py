@@ -325,9 +325,8 @@ def print_environment():
 def build_cl_config_args(config: Config) -> list[str]:
     args = ['-m32', '-msse3', '/c', '/MD', '/GS', '/EHsc', '/fp:precise', '/Zc:wchar_t', '/Z7', '/W1']
     if config == Config.Release:
-        args.append('/Ox')
+        args.append('/Od')
         args.append('/Ob2')
-        args.append('-flto')
     else:
         args.append('/Od')
         args.append('-g')
