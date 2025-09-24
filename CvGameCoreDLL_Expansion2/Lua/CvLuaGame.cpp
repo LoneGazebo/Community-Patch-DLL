@@ -23,10 +23,6 @@
 #include "CvLuaUnit.h"
 #include "CvLuaLeague.h"
 #include "../CvConnectionService.h"
-#include "../../../ThirdPartyLibs/ArduinoJSON.hpp"
-
-// Use ArduinoJson
-using namespace ArduinoJson;
 
 #include "../CvGame.h"
 #include "../CvGameCoreUtils.h"

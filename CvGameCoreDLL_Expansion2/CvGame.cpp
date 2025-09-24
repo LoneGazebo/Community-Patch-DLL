@@ -34,7 +34,6 @@
 #include "CvWorldBuilderMapLoader.h"
 #include "CvTypes.h"
 #include "CvDllNetMessageExt.h"
-#include "CvConnectionService.h"
 
 #include "cvStopWatch.h"
 #include "CvUnitMission.h"
