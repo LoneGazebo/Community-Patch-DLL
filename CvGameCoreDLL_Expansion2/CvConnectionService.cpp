@@ -99,13 +99,36 @@ bool CvConnectionService::Setup()
 		this,                   // parameter to thread function
 		0,                      // default creation flags
 		&m_dwThreadId);         // thread identifier
-	
+
 	if (m_hThread == NULL)
 	{
 		std::stringstream ss;
 		ss << "ConnectionService::Setup() - Failed to create thread, error: " << GetLastError();
 		Log(LOG_ERROR, ss.str().c_str());
 		return false;
+	}
+
+	if (!SetThreadPriority(m_hThread, THREAD_PRIORITY_HIGHEST))
+	{
+		std::stringstream ss;
+		ss << "ConnectionService::Setup() - Warning: Failed to set thread priority, error: " << GetLastError();
+		Log(LOG_WARNING, ss.str().c_str());
+	}
+	else
+	{
+		Log(LOG_INFO, "ConnectionService::Setup() - Thread priority set to THREAD_PRIORITY_HIGHEST");
+	}
+
+	// Vox Deorum: Also set current thread (main game thread) to high priority
+	if (!SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_ABOVE_NORMAL))
+	{
+		std::stringstream ss;
+		ss << "ConnectionService::Setup() - Warning: Failed to set current thread priority, error: " << GetLastError();
+		Log(LOG_WARNING, ss.str().c_str());
+	}
+	else
+	{
+		Log(LOG_INFO, "ConnectionService::Setup() - Current thread priority set to THREAD_PRIORITY_ABOVE_NORMAL");
 	}
 
 	m_bInitialized = true;
