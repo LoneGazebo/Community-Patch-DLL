@@ -1503,12 +1503,10 @@ bool ExternalPause()
 //	---------------------------------------------------------------------------
 void CvGame::update()
 {
-#if defined(MOD_IPC_CHANNEL)
 	if (MOD_IPC_CHANNEL) {
 		// Process messages from the Connection Service
 		CvConnectionService::GetInstance().ProcessMessages();
 	}
-#endif
 
 	if(IsWaitingForBlockingInput())
 	{
@@ -8596,12 +8594,10 @@ void CvGame::doTurn()
 		{
 			GET_TEAM((TeamTypes)iI).doTurn();
 
-#if defined(MOD_IPC_CHANNEL)
 			if (MOD_IPC_CHANNEL) {
 				// Process messages from the Connection Service
 				CvConnectionService::GetInstance().ProcessMessages();
 			}
-#endif
 
 		}
 	}

@@ -4276,7 +4276,6 @@ int CvLuaGame::lGetNumYieldTypes(lua_State* L)
 
 //------------------------------------------------------------------------------
 // Helper functions to allow Lua <=> External service communication.
-#if defined(MOD_IPC_CHANNEL)
 int CvLuaGame::lRegisterFunction(lua_State* L)
 {
 	// Get function name from first argument
@@ -4323,4 +4322,3 @@ int CvLuaGame::lIsExternalRegistered(lua_State* L)
 	
 	return 1;
 }
-#endif // defined(MOD_IPC_CHANNEL)
