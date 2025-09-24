@@ -61,6 +61,7 @@
 #if defined(MOD_GLOBAL_NO_CONQUERED_SPACESHIPS)
 #include "CvDllPlot.h"
 #endif
+#include "CvConnectionService.h"
 #include "CvGoodyHuts.h"
 
 #include "CvDllNetMessageExt.h"
@@ -9984,6 +9985,11 @@ void CvPlayer::doTurn()
 		ChangeFaithPurchaseCooldown(-1);
 	}
 
+	if (MOD_IPC_CHANNEL) {
+		// Process messages from the Connection Service
+		CvConnectionService::GetInstance().ProcessMessages();
+	}
+	
 	if (isMajorCiv())
 	{
 		CheckForLuxuryResourceGainInstantYields(NO_RESOURCE);
@@ -10108,6 +10114,11 @@ void CvPlayer::doTurn()
 		{
 			DoTradeInfluenceAP();
 		}
+
+		if (MOD_IPC_CHANNEL) {
+			// Process messages from the Connection Service
+			CvConnectionService::GetInstance().ProcessMessages();
+		}
 	}
 
 	bool bHasActiveDiploRequest = false;
@@ -10176,7 +10187,18 @@ void CvPlayer::doTurnPostDiplomacy()
 		if (!isBarbarian())
 		{
 			GetEconomicAI()->DoTurn();
+			
+			if (MOD_IPC_CHANNEL) {
+				// Process messages from the Connection Service
+				CvConnectionService::GetInstance().ProcessMessages();
+			}
+
 			GetMilitaryAI()->DoTurn();
+
+			if (MOD_IPC_CHANNEL) {
+				// Process messages from the Connection Service
+				CvConnectionService::GetInstance().ProcessMessages();
+			}
 
 			if (isMajorCiv())
 			{
@@ -10184,6 +10206,11 @@ void CvPlayer::doTurnPostDiplomacy()
 				GetTradeAI()->DoTurn();
 				GetCitySpecializationAI()->DoTurn();
 				GetLeagueAI()->DoTurn();
+				
+				if (MOD_IPC_CHANNEL) {
+					// Process messages from the Connection Service
+					CvConnectionService::GetInstance().ProcessMessages();
+				}
 			}
 		}
 		else
@@ -10424,6 +10451,11 @@ void CvPlayer::doTurnPostDiplomacy()
 		{
 			DoEvents(/*EspionageOnly*/ true);
 		}
+	}
+
+	if (MOD_IPC_CHANNEL) {
+		// Process messages from the Connection Service
+		CvConnectionService::GetInstance().ProcessMessages();
 	}
 
 	updateYieldPerTurnHistory();
