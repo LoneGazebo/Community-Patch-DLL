@@ -5588,8 +5588,10 @@ CvArea* CvPlot::area() const
 const std::vector<int>& CvPlot::getAllAdjacentAreas() const
 {
 	static std::vector<int> result;
-	//better safe than sorry
-	gDLL->GetGameCoreLock();
+	// Added a check to make sure we deal with locks properly
+	bool bHadLock = gDLL->HasGameCoreLock();
+	if (!bHadLock)
+		gDLL->GetGameCoreLock();
 	result.clear();
 
 	CvPlot** aNeighbors = GC.getMap().getNeighborsUnchecked(this);
@@ -5602,7 +5604,8 @@ const std::vector<int>& CvPlot::getAllAdjacentAreas() const
 				result.push_back(pAdjacentPlot->getArea());
 	}
 
-	gDLL->ReleaseGameCoreLock();
+	if (!bHadLock)
+		gDLL->ReleaseGameCoreLock();
 	return result;
 }
 
