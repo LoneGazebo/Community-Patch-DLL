@@ -192,4 +192,4 @@ UPDATE Units SET Cost = 500, FaithCost = 550 WHERE Type = 'UNIT_TREASURE_SHIP'; 
 UPDATE Units SET FaithCost = 450 WHERE Type = 'UNIT_QIZILBASH'; -- cheaper faith cost
 UPDATE Units SET Cost = 1300, FaithCost = 900 WHERE Type = 'UNIT_HASHEMITE_RAIDER'; -- earlier but same cost
 UPDATE Units SET Cost = 1300, FaithCost = 900 WHERE Type = 'UNIT_KRUPP_GUN'; -- earlier but same cost
-UPDATE Units SET Cost = 2000, FaithCost = 1250 WHERE Type = 'UNIT_YAMATO'; -- more expensive
+UPDATE Units SET Cost = 2000, FaithCost = 1350 WHERE Type = 'UNIT_YAMATO'; -- more expensive

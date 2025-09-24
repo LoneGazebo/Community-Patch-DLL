@@ -197,9 +197,7 @@ public:
 	int GetNumGreatWorkSlots(GreatWorkSlotType eSlotType) const;
 	bool ControlsGreatWork(int iIndex);
 	bool GetGreatWorkLocation(int iSearchIndex, int &iReturnCityID, BuildingTypes &eReturnBuilding, int &iReturnSlot);
-#if defined(MOD_BALANCE_CORE)
 	void DoSwapGreatWorksHuman(bool bSwap);
-#endif
 
 	void DoSwapGreatWorks(YieldTypes eFocusYield);
 	void MoveWorks(GreatWorkSlotType eType, vector<CvGreatWorkBuildingInMyEmpire> &buildings, vector<CvGreatWorkInMyEmpire> &works1, vector<CvGreatWorkInMyEmpire> &works2, YieldTypes eFocusYield, bool bSwap);
@@ -235,7 +233,7 @@ public:
  
 	// Cultural Influence
 	void DoTurn();
-#if defined(MOD_BALANCE_CORE)
+
 	int GetLastUpdate() const;
 	void SetLastUpdate(int iValue);
 
@@ -244,7 +242,7 @@ public:
 
 	void SetBoredomCache(int iValue);
 	int GetBoredomCache() const;
-#endif
+
 	long long GetLastTurnLifetimeCultureTimes100() const;
 	void SetLastTurnLifetimeCultureTimes100(long long lValue);
 	int GetLastTurnCPT() const;
@@ -265,12 +263,10 @@ public:
 	int GetNumCivsInfluentialOn() const;
 	int GetNumCivsToBeInfluentialOn() const;
 	PlayerTypes GetCivLowestInfluence(bool bCheckOpenBorders) const;
-#if defined(MOD_BALANCE_CORE)
 	int GetOtherPlayerCulturePerTurnIncludingInstantTimes100(PlayerTypes eOtherPlayer);
 	int GetTourismPerTurnIncludingInstantTimes100(PlayerTypes ePlayer, bool bJustInstant = false);
 	int GetInfluenceTradeRouteGoldBonus(PlayerTypes ePlayer) const;
 	int GetInfluenceTradeRouteGrowthBonus(PlayerTypes ePlayer) const;
-#endif
 	int GetInfluenceTradeRouteScienceBonus(PlayerTypes ePlayer) const;
 	int GetInfluenceCityConquestReduction(PlayerTypes ePlayer) const;
 	int GetInfluenceSurveillanceTime(PlayerTypes ePlayer) const;
@@ -341,10 +337,8 @@ private:
 	void LogCultureData();
 	void LogThemedBuilding(int iCityID, BuildingTypes eBuilding, int iBonus);
 	void LogSwapWorks(PlayerTypes eOtherPlayer, int iWorkDiscarded, int iWorkAcquired);
-#if defined(MOD_BALANCE_CORE)
 	void LogSwapMultipleWorks(PlayerTypes eOtherPlayer, int iWorkDiscarded, int iWorkAcquired);
 	void LogSwapMultipleArtifacts(PlayerTypes eOtherPlayer, int iWorkDiscarded, int iWorkAcquired);
-#endif
 	void AppendToLog(CvString& strHeader, CvString& strLog, const CvString& strHeaderValue, const CvString& strValue);
 	void AppendToLog(CvString& strHeader, CvString& strLog, const CvString& strHeaderValue, int iValue);
 	void AppendToLog(CvString& strHeader, CvString& strLog, const CvString& strHeaderValue, float fValue);
@@ -393,10 +387,9 @@ public:
 	int GetCultureFromWonders() const;
 	int GetCultureFromNaturalWonders() const;
 
-#if defined(MOD_BALANCE_CORE)
 	void UpdateThemingBonusIndex(BuildingClassTypes eBuildingClass);
 	int GetThemingBonusMultiplierTimes10000() const;
-#endif
+
 	void LogGreatWorks (FILogFile* pLog);
 
 private:
@@ -413,9 +406,7 @@ namespace CultureHelpers
 	CvString GetGreatWorkAudio(GreatWorkType eGreatWorkType);
 	int GetThemingBonusIndex(PlayerTypes eOwner, CvBuildingEntry *pkEntry, vector<int> &aGreatWorkIndices);
 	bool IsValidForThemingBonus(CvThemingBonusInfo *pBonusInfo, EraTypes eEra, vector<EraTypes> &aErasSeen, PlayerTypes ePlayer, vector<PlayerTypes> &aPlayersSeen, PlayerTypes eOwner);
-#if defined(MOD_BALANCE_CORE)
 	bool IsValidForForeignThemingBonus(CvThemingBonusInfo *pBonusInfo, EraTypes eEra, vector<EraTypes> &aForeignErasSeen, vector<EraTypes> &aErasSeen, PlayerTypes ePlayer, vector<PlayerTypes> &aForeignPlayersSeen, vector<PlayerTypes> &aPlayersSeen, PlayerTypes eOwner);
-#endif
 	int FindWorkNotChosen(vector<CvGreatWorkInMyEmpire> &aWorks, vector<int> &aWorksChosen);
 	void SendArtSwapNotification(GreatWorkSlotType eType, bool bArt, PlayerTypes eOriginator, PlayerTypes eReceipient, int iWorkFromOriginator, int iWorkFromRecipient);
 

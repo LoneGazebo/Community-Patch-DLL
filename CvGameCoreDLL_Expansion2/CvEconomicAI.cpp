@@ -330,13 +330,11 @@ void CvEconomicAI::Reset()
 	m_eNavalReconState = NO_RECON_STATE;
 	m_iLastTurnWorkerDisbanded = -1;
 	m_iVisibleAntiquitySites = 0;
-#if defined(MOD_BALANCE_CORE)
 	m_iVisibleAntiquitySitesOwn = 0;
 	m_iVisibleHiddenAntiquitySitesOwn = 0;
 	m_iVisibleAntiquitySitesNeutral = 0;
 	m_iExplorersNeeded = 0;
 	m_iNavalExplorersNeeded = 0;
-#endif
 }
 
 ///
@@ -851,7 +849,6 @@ void AppendToLog(CvString& strHeader, CvString& strLog, const CvString& strHeade
 	strLog += str;
 }
 
-#if defined(MOD_BALANCE_CORE)
 const std::vector<SPlotWithScore>& CvEconomicAI::GetExplorationPlots(DomainTypes domain)
 {
 	return (domain==DOMAIN_SEA) ? m_vPlotsToExploreSea : m_vPlotsToExploreLand;
@@ -975,7 +972,6 @@ int EconomicAIHelpers::ScoreExplorePlot(CvPlot* pPlot, CvPlayer* pPlayer, Domain
 
 	return iResultValue;
 }
-#endif
 
 /// Request that the AI set aside this much money
 void CvEconomicAI::StartSaveForPurchase(PurchaseType ePurchase, int iAmount, int iPriority)
@@ -1874,7 +1870,7 @@ void CvEconomicAI::DoHurry()
 					if (!m_pPlayer->HasResourceForNewUnit(eUnitType, false, true))
 						continue;
 
-					if (MOD_BALANCE_CORE_UNIT_INVESTMENTS || (MOD_BALANCE_CORE && pkUnitInfo->GetSpaceshipProject() != NO_PROJECT))
+					if (MOD_BALANCE_CORE_UNIT_INVESTMENTS || pkUnitInfo->GetSpaceshipProject() != NO_PROJECT)
 					{
 						const UnitClassTypes eUnitClass = (UnitClassTypes)(pkUnitInfo->GetUnitClassType());
 						pSelectedCity->SetUnitInvestment(eUnitClass, true);
@@ -2409,9 +2405,6 @@ void CvEconomicAI::DisbandMiscUnits()
 		int iUnitLoop = 0;
 		for (CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
 		{
-			if (!pLoopUnit)
-				continue;
-
 			//disband missionaries, however we got them
 			if (pLoopUnit->GetReligionData()->GetSpreadsLeft(pLoopUnit) > 0)
 			{
@@ -2464,9 +2457,6 @@ void CvEconomicAI::DisbandUnitsToFreeSpaceshipResources()
 		int iUnitLoop = 0;
 		for (CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
 		{
-			if (!pLoopUnit)
-				continue;
-
 			if (!pLoopUnit->canScrap())
 				continue;
 
@@ -2782,11 +2772,6 @@ CvUnit* CvEconomicAI::FindSeaWorkerToScrap()
 	// Look at map for loose workers
 	for(pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
 	{
-		if(!pLoopUnit)
-		{
-			continue;
-		}
-
 		if (!pLoopUnit->canScrap())
 			continue;
 
@@ -3103,11 +3088,6 @@ CvUnit* CvEconomicAI::FindWorkerToScrap()
 	// Look at map for loose workers
 	for(pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
 	{
-		if(!pLoopUnit)
-		{
-			continue;
-		}
-
 		UnitTypes eWorker = m_pPlayer->GetSpecificUnitType("UNITCLASS_WORKER");
 
 		if(pLoopUnit->getDomainType() == DOMAIN_LAND && pLoopUnit->getUnitType() == eWorker && !pLoopUnit->IsCombatUnit() && pLoopUnit->getSpecialUnitType() == NO_SPECIALUNIT)
@@ -3128,11 +3108,6 @@ CvUnit* CvEconomicAI::FindWorkerToScrap()
 	{
 		for (pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
 		{
-			if (!pLoopUnit)
-			{
-				continue;
-			}
-
 			if (!pLoopUnit->canScrap())
 				continue;
 
@@ -3156,11 +3131,6 @@ CvUnit* CvEconomicAI::FindArchaeologistToScrap()
 	// Look at map for loose archaeologists
 	for(pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
 	{
-		if(!pLoopUnit)
-		{
-			continue;
-		}
-
 		if (!pLoopUnit->canScrap())
 			continue;
 
@@ -3436,14 +3406,13 @@ bool EconomicAIHelpers::IsTestStrategy_NeedReconSea(EconomicAIStrategyTypes eStr
 /// "Enough Recon Sea" Player Strategy: chosen by the DoRecon() function
 bool EconomicAIHelpers::IsTestStrategy_EnoughReconSea(CvPlayer* pPlayer)
 {
-#if defined(MOD_BALANCE_CORE)
 	// Never desperate for explorers if we are at war
 	static MilitaryAIStrategyTypes eStrategyAtWar = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_LOSING_WARS");
 	if(pPlayer->GetMilitaryAI()->IsUsingStrategy(eStrategyAtWar))
 	{
 		return true;
 	}
-#endif
+
 	return (pPlayer->GetEconomicAI()->GetNavalReconState() == RECON_STATE_ENOUGH);
 }
 
@@ -4075,7 +4044,6 @@ bool EconomicAIHelpers::IsTestStrategy_NeedImprovement(CvPlayer* pPlayer, YieldT
 					continue;
 				}
 			}
-#if defined(MOD_BALANCE_CORE)
 			if(pkBuildInfo->getTechObsolete() != NO_TECH)
 			{
 				if((GET_TEAM(pPlayer->getTeam()).GetTeamTechs()->HasTech((TechTypes)GC.getBuildInfo(eBuild)->getTechObsolete())))
@@ -4084,7 +4052,6 @@ bool EconomicAIHelpers::IsTestStrategy_NeedImprovement(CvPlayer* pPlayer, YieldT
 					continue;
 				}
 			}
-#endif
 
 			ImprovementTypes eImprovement = (ImprovementTypes)GC.getBuildInfo(eBuild)->getImprovement();
 			if(eImprovement == NO_IMPROVEMENT)

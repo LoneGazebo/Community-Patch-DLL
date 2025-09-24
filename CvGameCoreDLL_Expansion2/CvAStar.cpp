@@ -577,7 +577,8 @@ void CvAStar::CreateChildren(CvAStarNode* node)
 			if (isValid(x, y))
 			{
 				CvAStarNode* check = GetNodeMutable(x,y);
-				if (!check || check == node->m_pParent)
+				ASSERT_DEBUG(check != NULL, "GetNodeMutable returned null after isValid check");
+				if (check == node->m_pParent)
 					continue;
 
 				if (udFunc(udValid, node, check, m_sData))
@@ -1467,10 +1468,8 @@ int PathValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFin
 	CvUnit* pUnit = pCacheData->pUnit;
 	TeamTypes eUnitTeam = pCacheData->getTeam();
 
-#if defined(MOD_CORE_UNREVEALED_IMPASSABLE)
 	if (!kToNodeCacheData.bIsRevealedToTeam && !pUnit->isHuman() && !finder->HaveFlag(CvUnit::MOVEFLAG_PRETEND_ALL_REVEALED) && pUnit->AI_getUnitAIType()!=UNITAI_EXPLORE)
 		return FALSE;
-#endif
 
 	bool bNextNodeHostile = kToNodeCacheData.bIsEnemyCity || (kToNodeCacheData.bIsVisibleEnemyCombatUnit && !finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_ENEMIES));
 	bool bNextNodeVisibleToTeam = kToNodeCacheData.bPlotVisibleToTeam;
@@ -1772,13 +1771,11 @@ int StepValidGeneric(const CvAStarNode* parent, const CvAStarNode* node, const S
 	CvPlot* pToPlot = kMap.plotUnchecked(node->m_iX, node->m_iY);
 	CvPlot* pFromPlot = kMap.plotUnchecked(parent->m_iX, parent->m_iY);
 
-	if (!pFromPlot || !pToPlot)
-		return FALSE;
+	ASSERT_DEBUG(pFromPlot != NULL, "plotUnchecked returned null - invalid parent coordinates");
+	ASSERT_DEBUG(pToPlot != NULL, "plotUnchecked returned null - invalid node coordinates");
 
-#if defined(MOD_CORE_UNREVEALED_IMPASSABLE)
 	if (eMyTeam!=NO_TEAM && !pToPlot->isRevealed(eMyTeam))
 		return FALSE;
-#endif
 
 	//this is the important check here - stay within the same area
 	if(!bAnyArea && pFromPlot->getLandmass() != pToPlot->getLandmass())
@@ -2500,10 +2497,8 @@ CvTwoLayerPathFinder::CvTwoLayerPathFinder()
 	m_sData.ePath = PT_UNIT_MOVEMENT;
 	SetFunctionPointers(PathDestValid, PathHeuristic, PathCost, PathValid, NULL, UnitPathInitialize, UnitPathUninitialize);
 
-#if defined(MOD_BALANCE_CORE)
 	//for debugging
 	m_strName = "TwoLayerAStar";
-#endif
 }
 
 //	--------------------------------------------------------------------------------

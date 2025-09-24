@@ -769,26 +769,14 @@ int CvCityCitizens::GetSpecialistGPPRate(SpecialistTypes eSpecialist, SPrecomput
 		}
 		else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_WRITER"))
 		{
-			if (GetPlayer()->isGoldenAge())
-			{
-				iGPPRateMod += GetPlayer()->GetPlayerTraits()->GetGoldenAgeGreatWriterRateModifier();
-			}
 			iGPPRateMod += GetPlayer()->getGreatWriterRateModifier();
 		}
 		else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_ARTIST"))
 		{
-			if (GetPlayer()->isGoldenAge())
-			{
-				iGPPRateMod += GetPlayer()->GetPlayerTraits()->GetGoldenAgeGreatArtistRateModifier();
-			}
 			iGPPRateMod += GetPlayer()->getGreatArtistRateModifier();
 		}
 		else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_MUSICIAN"))
 		{
-			if (GetPlayer()->isGoldenAge())
-			{
-				iGPPRateMod += GetPlayer()->GetPlayerTraits()->GetGoldenAgeGreatMusicianRateModifier();
-			}
 			iGPPRateMod += GetPlayer()->getGreatMusicianRateModifier();
 		}
 		else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_MERCHANT"))
@@ -813,6 +801,11 @@ int CvCityCitizens::GetSpecialistGPPRate(SpecialistTypes eSpecialist, SPrecomput
 			if (iNumPuppets > 0)
 			{
 				iGPPRateMod += (iNumPuppets * GetPlayer()->GetPlayerTraits()->GetPerPuppetGreatPersonRateModifier(eGreatPerson));
+			}
+
+			if (GetPlayer()->isGoldenAge())
+			{
+				iGPPRateMod += GetPlayer()->GetPlayerTraits()->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
 			}
 		}
 
@@ -2849,26 +2842,14 @@ int CvCityCitizens::GetSpecialistRate(SpecialistTypes eSpecialist)
 				}
 				else if ((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_WRITER"))
 				{
-					if (GetPlayer()->isGoldenAge())
-					{
-						iMod += GetPlayer()->GetPlayerTraits()->GetGoldenAgeGreatWriterRateModifier();
-					}
 					iMod += GetPlayer()->getGreatWriterRateModifier();
 				}
 				else if ((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_ARTIST"))
 				{
-					if (GetPlayer()->isGoldenAge())
-					{
-						iMod += GetPlayer()->GetPlayerTraits()->GetGoldenAgeGreatArtistRateModifier();
-					}
 					iMod += GetPlayer()->getGreatArtistRateModifier();
 				}
 				else if ((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_MUSICIAN"))
 				{
-					if (GetPlayer()->isGoldenAge())
-					{
-						iMod += GetPlayer()->GetPlayerTraits()->GetGoldenAgeGreatMusicianRateModifier();
-					}
 					iMod += GetPlayer()->getGreatMusicianRateModifier();
 				}
 				else if ((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_MERCHANT"))
@@ -3300,7 +3281,6 @@ int CvCityCitizens::GetSpecialistCount(SpecialistTypes eIndex) const
 	return m_aiSpecialistCounts[eIndex];
 }
 
-#if defined(MOD_BALANCE_CORE)
 int CvCityCitizens::GetSpecialistSlots(SpecialistTypes eIndex) const
 {
 	ASSERT_DEBUG(eIndex > -1);
@@ -3332,7 +3312,6 @@ int CvCityCitizens::GetSpecialistSlotsTotal() const
 
 	return iNumSpecialists;
 }
-#endif
 
 /// Count up all the Specialists we have here
 int CvCityCitizens::GetTotalSpecialistCount() const

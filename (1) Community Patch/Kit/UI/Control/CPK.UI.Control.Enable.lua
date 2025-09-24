@@ -1,10 +1,10 @@
-local _lua_type = type
+local lua_type = type
 
-local EachArgs = CPK.Args.Each
+local ArgsEach = CPK.Args.Each
 
 --- @param control Control
-local function ControlEnable(control)
-	if control ~= nil and _lua_type(control.SetDisabled) == 'function' then
+local function ControlEnableOne(control)
+	if control ~= nil and lua_type(control.SetDisabled) == 'function' then
 		control:SetDisabled(false)
 	end
 end
@@ -17,9 +17,9 @@ end
 --- ```
 --- @param control Control
 --- @param ... Control
-local function Enable(control, ...)
-	ControlEnable(control)
-	EachArgs(ControlEnable, ...)
+local function ControlEnable(control, ...)
+	ControlEnableOne(control)
+	ArgsEach(ControlEnableOne, ...)
 end
 
-CPK.UI.Control.Enable = Enable
+CPK.UI.Control.Enable = ControlEnable

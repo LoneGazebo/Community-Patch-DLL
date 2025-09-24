@@ -823,16 +823,10 @@
 		<!-- Affects savegame format! Do not change midgame! -->
 		<Row Class="2" Name="API_ACHIEVEMENTS" Value="0"/>
 
-		<!-- Changes for the Community Patch -->
-		<!-- Obsolete: this is assumed to be always on (and never really worked using #if defined); use the individual switches instead -->
-		<Row Class="6" Name="COMMUNITY_PATCH" Value="1"/>
-		<!-- The core sub-feature of COMMUNITY_PATCH -->
-		<!-- Obsolete: this is assumed to be always on (and never really worked using #if defined); use the individual switches instead -->
-		<Row Class="6" Name="BALANCE_CORE" Value="1"/>
 		<!-- The yield sub-feature of COMMUNITY_PATCH -->
 		<Row Class="6" Name="BALANCE_CORE_YIELDS" Value="1"/>
 		<!-- Number of spies scaling with map size -->
-		<Row Class="6" Name="BALANCE_CORE_SPIES" Value="1"/>
+		<Row Class="6" Name="BALANCE_CORE_SPIES" Value="0"/>
 		<!-- The military sub-feature of COMMUNITY_PATCH -->
 		<Row Class="6" Name="BALANCE_CORE_MILITARY" Value="1"/>
 		<!-- The minors sub-feature of COMMUNITY_PATCH -->

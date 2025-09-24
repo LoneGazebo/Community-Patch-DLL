@@ -79,7 +79,8 @@ VALUES
 	('UNIT_GREAT_BOMBARD', 'TXT_KEY_UNIT_GREAT_BOMBARD_1'),
 	('UNIT_GREAT_BOMBARD', 'TXT_KEY_UNIT_GREAT_BOMBARD_2'),
 	('UNIT_GREAT_BOMBARD', 'TXT_KEY_UNIT_GREAT_BOMBARD_3'),
-	('UNIT_GREAT_BOMBARD', 'TXT_KEY_UNIT_GREAT_BOMBARD_4');
+	('UNIT_GREAT_BOMBARD', 'TXT_KEY_UNIT_GREAT_BOMBARD_4'),
+	('UNIT_GREAT_BOMBARD', 'TXT_KEY_UNIT_GREAT_BOMBARD_5');
 
 ----------------------------------------------------------
 -- Unique Improvement: Tersane
@@ -88,7 +89,7 @@ UPDATE Builds
 SET
 	Water = 1,
 	CanBeEmbarked = 1
-WHERE Type = 'BUILD_SIHEYUAN';
+WHERE Type = 'BUILD_TERSANE';
 
 INSERT INTO Unit_Builds
 	(UnitType, BuildType)

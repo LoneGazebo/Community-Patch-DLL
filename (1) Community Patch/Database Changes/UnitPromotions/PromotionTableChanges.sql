@@ -2,6 +2,8 @@
 
 ALTER TABLE UnitPromotions ADD CombatChange integer DEFAULT 0;
 
+ALTER TABLE UnitPromotions ADD DiplomaticMissionAccomplishment boolean DEFAULT 0;
+
 ALTER TABLE UnitPromotions ADD IgnoreTerrainDamage boolean DEFAULT 0;
 ALTER TABLE UnitPromotions ADD IgnoreFeatureDamage boolean DEFAULT 0;
 ALTER TABLE UnitPromotions ADD ExtraTerrainDamage boolean DEFAULT 0;
@@ -178,7 +180,6 @@ ALTER TABLE UnitPromotions ADD StackedGreatGeneralXP integer DEFAULT 0;
 -- Promotions
 ALTER TABLE UnitPromotions ADD GoodyHutYieldBonus integer DEFAULT 0;
 ALTER TABLE UnitPromotions ADD GainsXPFromScouting boolean DEFAULT 0;
-ALTER TABLE UnitPromotions ADD GainsXPFromPillaging boolean DEFAULT 0; -- OBSOLETE: to be removed in VP5.0, replaced by XPFromPillaging
 ALTER TABLE UnitPromotions ADD GainsXPFromSpotting boolean DEFAULT 0;
 
 ALTER TABLE UnitPromotions ADD MultiAttackBonus integer DEFAULT 0;
@@ -248,8 +249,8 @@ ALTER TABLE UnitPromotions ADD InfluenceFromCombatXpTimes100 integer DEFAULT 0;
 ALTER TABLE UnitPromotions ADD FreeAttackMoves boolean DEFAULT 0;
 
 -- Used with CapitalDefenseModifier and CapitalDefenseFalloff
--- Combat strength modifier near player's capital, starting at CapitalDefenseModifier on the capital tile and decreasing by CapitalDefenseFalloff per tile away from the capital
--- Modifier is capped by CapitalDefenseLimit
+-- Combat strength modifier near player's capital, starting at CapitalDefenseModifier on the capital tile and changing by CapitalDefenseFalloff (positive or negative) per tile away from the capital
+-- CapitalDefenseLimit is the highest (if CapitalDefenseFalloff > 0) or lowest (if CapitalDefenseFalloff < 0) value the modifier can have
 ALTER TABLE UnitPromotions ADD CapitalDefenseLimit integer DEFAULT 0;
 
 -- Combat strength modifier against units from unhappy empire

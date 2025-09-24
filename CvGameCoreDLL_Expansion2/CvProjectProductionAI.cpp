@@ -7,10 +7,8 @@
 	------------------------------------------------------------------------------------------------------- */
 #include "CvGameCoreDLLPCH.h"
 #include "CvProjectProductionAI.h"
-#if defined(MOD_BALANCE_CORE)
 #include "CvEconomicAI.h"
 #include "CvDiplomacyAI.h"
-#endif
 
 // include this after all other headers!
 #include "LintFree.h"
@@ -120,14 +118,12 @@ ProjectTypes CvProjectProductionAI::RecommendProject()
 			// Update weight based on turns to construct
 			iTurnsLeft = m_pCity->getProductionTurnsLeft((ProjectTypes) iProjectLoop, 0);
 			iWeight = CityStrategyAIHelpers::ReweightByTurnsLeft(m_ProjectAIWeights.GetWeight((ProjectTypes)iProjectLoop), iTurnsLeft);
-#if defined(MOD_BALANCE_CORE)
 			iWeight += m_ProjectAIWeights.GetWeight((ProjectTypes)iProjectLoop);
 			iWeight = CheckProjectBuildSanity((ProjectTypes)iProjectLoop, iWeight);
 			if(iWeight <= 0)
 			{
 				continue;
 			}
-#endif
 			m_Buildables.push_back(iProjectLoop, iWeight);
 		}
 	}
@@ -146,7 +142,6 @@ ProjectTypes CvProjectProductionAI::RecommendProject()
 		return NO_PROJECT;
 	}
 }
-#if defined(MOD_BALANCE_CORE)
 int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iTempWeight)
 {
 	if(eProject == NO_PROJECT)
@@ -270,6 +265,12 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 		iTempWeight += ((m_pCity->GetReducedEmpireSizeModifier(true,false)/2) * (pkProjectInfo->GetEmpireSizeModifierReduction() * -1));
 	}
 
+	if (pkProjectInfo->GetEmpireSizeModifierPerCityMod() < 0)
+	{
+		bGoodforHappiness = true;
+		iTempWeight += GET_PLAYER(m_pCity->getOwner()).getNumCities() * (pkProjectInfo->GetEmpireSizeModifierPerCityMod() * -1) / 100;
+	}
+
 	if (pkProjectInfo->GetDistressFlatReduction() > 0)
 	{
 		bGoodforHappiness = true;
@@ -356,12 +357,35 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 		iTempWeight += (iEsp/2);
 	}
 
+	for (int iI = 0; iI < GC.getNumUnitCombatClassInfos(); iI++)
+	{
+		const UnitCombatTypes eUnitCombatClass = static_cast<UnitCombatTypes>(iI);
+		int iProjMod = pkProjectInfo->GetUnitCombatProductionModifiersGlobal(iI);
+		if (iProjMod > 0)
+		{
+			int iTempBonus = 0;
+			iTempBonus += GET_PLAYER(m_pCity->getOwner()).getUnitCombatProductionModifiers(eUnitCombatClass);
+			iTempBonus += m_pCity->getUnitCombatProductionModifier(eUnitCombatClass);
+			iTempBonus += iProjMod;
+			if (iTempBonus > 0)
+				iTempWeight += iTempBonus;
+		}
+	}
+	
+	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+	{
+		int iProjMod = pkProjectInfo->GetYieldFromConquestAllCities(iI);
+		if (iProjMod > 0)
+		{
+			iTempWeight += iProjMod * GET_PLAYER(m_pCity->getOwner()).getNumCities() * (GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->IsWarmonger() ? 3 : 1);
+		}
+	}
+
 	if (bGoodforHappiness && !GET_PLAYER(m_pCity->getOwner()).IsEmpireUnhappy())
 		iTempWeight /= 50;
 
 	return max(1,iTempWeight);
 }
-#endif
 /// Log all potential builds
 void CvProjectProductionAI::LogPossibleBuilds()
 {

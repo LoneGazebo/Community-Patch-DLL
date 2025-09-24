@@ -1,4 +1,4 @@
-local _lua_math_floor = math.floor
+local lua_math_floor = math.floor
 
 --- Converts a ratio (e.g., 0.25) into a display-friendly percentage (e.g. 25).
 --- Rounds down to whole number if no decimal part is needed,
@@ -15,10 +15,10 @@ local _lua_math_floor = math.floor
 --- @param ratio number # Ratio (e.g., 0.25 = 25%)
 --- @return number # Integer or 1-decimal-place float
 local function AsPercentage(ratio)
-	local num = _lua_math_floor(ratio * 1000) / 10
+	local num = lua_math_floor(ratio * 1000) / 10
 
 	return num % 1 == 0
-			and _lua_math_floor(num)
+			and lua_math_floor(num)
 			or num
 end
 

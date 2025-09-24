@@ -1077,8 +1077,8 @@ g_toolTipHandler.SciencePerTurn = function()-- control )
 			tips:insertLocalizedIfNonZero( "TXT_KEY_TP_SCIENCE_FROM_HAPPINESS", g_activePlayer:GetScienceFromHappinessTimes100() / 100 )
 
 			-- Science from Vassals / Compatibility with Putmalk's Civ IV Diplomacy Features Mod
-			if g_activePlayer.GetYieldPerTurnFromVassals then
-				tips:insertLocalizedIfNonZero( "TXT_KEY_TP_SCIENCE_VASSALS", g_activePlayer:GetYieldPerTurnFromVassals(YieldTypes.YIELD_SCIENCE) )
+			if g_activePlayer.GetYieldPerTurnFromVassalsTimes100 then
+				tips:insertLocalizedIfNonZero( "TXT_KEY_TP_SCIENCE_VASSALS", g_activePlayer:GetYieldPerTurnFromVassalsTimes100(YieldTypes.YIELD_SCIENCE) / 100)
 			end
 
 			-- Compatibility with Gazebo's City-State Diplomacy Mod (CSD) for Brave New World v23
@@ -1216,7 +1216,7 @@ g_toolTipHandler.GoldPerTurn = function()-- control )
 	local cityConnectionGold = g_activePlayer:GetCityConnectionGoldTimes100() / 100;
 -- C4DF
 	-- Gold from Vassals
-	local iGoldFromVassals = g_activePlayer:GetYieldPerTurnFromVassals(YieldTypes.YIELD_GOLD);
+	local iGoldFromVassals = g_activePlayer:GetYieldPerTurnFromVassalsTimes100(YieldTypes.YIELD_GOLD) / 100;
 	local iGoldFromVassalTax = math.floor(g_activePlayer:GetMyShareOfVassalTaxes() / 100);
 	-- Gold from Espionage
 	local iGoldFromEspionageIncoming = g_activePlayer:GetYieldPerTurnFromEspionageEvents(YieldTypes.YIELD_GOLD, true);
@@ -1507,6 +1507,7 @@ if civ5_mode then
 			local IlliteracyUnhappiness = g_activePlayer:GetUnhappinessFromIlliteracy();
 			local BoredomUnhappiness = g_activePlayer:GetUnhappinessFromBoredom();
 			local ReligiousUnrestUnhappiness = g_activePlayer:GetUnhappinessFromReligiousUnrest();
+			local BuildingsUnhappiness = g_activePlayer:GetUnhappinessFromBuildings();
 			local UrbanizationUnhappiness = g_activePlayer:GetUnhappinessFromCitySpecialists() / 100;
 			local UrbanizationPuppetUnhappiness = g_activePlayer:GetUnhappinessFromPuppetCitySpecialists();
 
@@ -1524,6 +1525,7 @@ if civ5_mode then
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_ILLITERACY", IlliteracyUnhappiness )
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_BOREDOM", BoredomUnhappiness )
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_RELIGIOUS_UNREST", ReligiousUnrestUnhappiness )
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_BUILDINGS", BuildingsUnhappiness )
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_SPECIALISTS", UrbanizationUnhappiness )
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_PUPPET_CITIES_SPECIALISTS", UrbanizationPuppetUnhappiness )
 			tips:insert( "[ENDCOLOR]" )
@@ -1920,8 +1922,8 @@ g_toolTipHandler.CultureString = function()-- control )
 			-- Culture from Vassals / Compatibility with Putmalk's Civ IV Diplomacy Features Mod
 -- C4DF
 			local culturePerTurnFromVassals = 0;
-			if g_activePlayer.GetYieldPerTurnFromVassals then
-				culturePerTurnFromVassals = g_activePlayer:GetYieldPerTurnFromVassals(YieldTypes.YIELD_CULTURE)
+			if g_activePlayer.GetYieldPerTurnFromVassalsTimes100 then
+				culturePerTurnFromVassals = g_activePlayer:GetYieldPerTurnFromVassalsTimes100(YieldTypes.YIELD_CULTURE) / 100
 				tips:insertLocalizedIfNonZero( "TXT_KEY_TP_CULTURE_VASSALS", culturePerTurnFromVassals )
 			end
 -- END
@@ -1998,8 +2000,8 @@ if civ5_mode and gk_mode then
 			tips:insertLocalizedIfNonZero( "TXT_KEY_TP_FAITH_FROM_RELIGION", g_activePlayer:GetFaithPerTurnFromReligion() )
 
 -- C4DF
-			if g_activePlayer.GetYieldPerTurnFromVassals then
-				tips:insertLocalizedIfNonZero( "TXT_KEY_TP_FAITH_VASSALS", g_activePlayer:GetYieldPerTurnFromVassals(YieldTypes.YIELD_FAITH) )
+			if g_activePlayer.GetYieldPerTurnFromVassalsTimes100 then
+				tips:insertLocalizedIfNonZero( "TXT_KEY_TP_FAITH_VASSALS", g_activePlayer:GetYieldPerTurnFromVassalsTimes100(YieldTypes.YIELD_FAITH) / 100)
 			end
 
 			-- Faith from Espionage
@@ -2382,7 +2384,7 @@ if civ5_mode and gk_mode then
 		local iPerHandicap = pPlayer:GetNumUnitsSuppliedByHandicap();
 		local iUnitsOver = pPlayer:GetNumUnitsOutOfSupply();
 		local iTechReduction = pPlayer:GetTechSupplyReduction();
-		local iEmpireSizeReduction = pPlayer:GetEmpireSizeSupplyReduction();
+		local iCityCountReduction = pPlayer:GetCityCountSupplyReduction();
 		local iWarWearinessPercentReduction = pPlayer:GetSupplyReductionPercentFromWarWeariness();
 		local iWarWearinessReduction = pPlayer:GetSupplyReductionFromWarWeariness();
 		local iWarWearinessCostIncrease = pPlayer:GetUnitCostIncreaseFromWarWeariness();
@@ -2393,7 +2395,7 @@ if civ5_mode and gk_mode then
 		local iTechReductionPerPop = iPercentPerPopGross - iPercentPerPop;
 		local iPerHandicapGross = pPlayer:GetNumUnitsSuppliedByHandicap(true);
 		-- Bonuses from unlisted sources are added to the handicap value
-		local iExtra = iUnitsSupplied - (iPerHandicapGross + iPerCityGross + iPercentPerPopGross + iSupplyFromGreatPeople - iTechReduction - iEmpireSizeReduction - iWarWearinessReduction);
+		local iExtra = iUnitsSupplied - (iPerHandicapGross + iPerCityGross + iPercentPerPopGross + iSupplyFromGreatPeople - iTechReduction - iCityCountReduction - iWarWearinessReduction);
 		iPerHandicap = iPerHandicap + iExtra;
 		iPerHandicapGross = iPerHandicapGross + iExtra;
 		local iTechReductionPerEra = iPerHandicapGross - iPerHandicap;
@@ -2407,10 +2409,10 @@ if civ5_mode and gk_mode then
 
 		local strUnitSupplyToolUnderTip = "";
 		if (iHighestWarWearyPlayer == -1) then
-			strUnitSupplyToolUnderTip = Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_REMAINING_TOOLTIP_NOT_WEARY", iUnitsSupplied, iUnitsTotal, iPercentPerPop, iPerCity, iPerHandicap, iWarWearinessPercentReduction, iWarWearinessReduction, iTechReduction, iEmpireSizeReduction, iWarWearinessCostIncrease, iSupplyFromGreatPeople, iUnitsTotalMilitary, iPerCityGross, iTechReductionPerCity, iPercentPerPopGross, iTechReductionPerPop, iPerHandicapGross, iTechReductionPerEra);
+			strUnitSupplyToolUnderTip = Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_REMAINING_TOOLTIP_NOT_WEARY", iUnitsSupplied, iUnitsTotal, iPercentPerPop, iPerCity, iPerHandicap, iWarWearinessPercentReduction, iWarWearinessReduction, iTechReduction, iCityCountReduction, iWarWearinessCostIncrease, iSupplyFromGreatPeople, iUnitsTotalMilitary, iPerCityGross, iTechReductionPerCity, iPercentPerPopGross, iTechReductionPerPop, iPerHandicapGross, iTechReductionPerEra);
 		else
 			local iWarWearyTargetPercent = pPlayer:GetWarWearinessPercent(iHighestWarWearyPlayer);
-			strUnitSupplyToolUnderTip = Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_REMAINING_TOOLTIP", iUnitsSupplied, iUnitsTotal, iPercentPerPop, iPerCity, iPerHandicap, iWarWearinessPercentReduction, iWarWearinessReduction, iTechReduction, iEmpireSizeReduction, iWarWearinessCostIncrease, iSupplyFromGreatPeople, iUnitsTotalMilitary, iPerCityGross, iTechReductionPerCity, iPercentPerPopGross, iTechReductionPerPop, iPerHandicapGross, iTechReductionPerEra, Players[iHighestWarWearyPlayer]:GetCivilizationShortDescription(), iWarWearyTargetPercent);
+			strUnitSupplyToolUnderTip = Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_REMAINING_TOOLTIP", iUnitsSupplied, iUnitsTotal, iPercentPerPop, iPerCity, iPerHandicap, iWarWearinessPercentReduction, iWarWearinessReduction, iTechReduction, iCityCountReduction, iWarWearinessCostIncrease, iSupplyFromGreatPeople, iUnitsTotalMilitary, iPerCityGross, iTechReductionPerCity, iPercentPerPopGross, iTechReductionPerPop, iPerHandicapGross, iTechReductionPerEra, Players[iHighestWarWearyPlayer]:GetCivilizationShortDescription(), iWarWearyTargetPercent);
 		end
 		if (strUnitSupplyToolTip ~= "") then
 			strUnitSupplyToolTip = strUnitSupplyToolTip .. "[NEWLINE][NEWLINE]" .. strUnitSupplyToolUnderTip;

@@ -556,7 +556,7 @@ void CvUnitCombat::ResolveMeleeCombat(const CvCombatInfo& kCombatInfo, uint uiPa
 				{
 					if(kCombatInfo.getAttackerAdvancedVisualization())
 						// The combat vis has already 'moved' the unit.  Have the game side just do its movement calculations and pop the unit to the new location.
-						pkAttacker->move(*pkTargetPlot, false);
+						pkAttacker->move(*pkTargetPlot, false, pkAttacker->IsFreeAttackMoves());
 					else
 						pkAttacker->UnitMove(pkTargetPlot, true, pkAttacker);
 
@@ -567,7 +567,8 @@ void CvUnitCombat::ResolveMeleeCombat(const CvCombatInfo& kCombatInfo, uint uiPa
 				}
 				else
 				{
-					pkAttacker->changeMoves(-1 * std::max(GD_INT_GET(MOVE_DENOMINATOR), pkTargetPlot->movementCost(pkAttacker, pkAttacker->plot(),pkAttacker->getMoves())));
+					if (!pkAttacker->IsFreeAttackMoves())
+						pkAttacker->changeMoves(-1 * std::max(GD_INT_GET(MOVE_DENOMINATOR), pkTargetPlot->movementCost(pkAttacker, pkAttacker->plot(),pkAttacker->getMoves())));
 
 					if(!pkAttacker->canMove() || !pkAttacker->isBlitz() || pkAttacker->isOutOfAttacks())
 					{
@@ -942,7 +943,6 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 								MILITARYLOG(pkAttacker->getOwner(), strBuffer.c_str(), pkDefender->plot(), pkDefender->getOwner());
 						}
 						strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_ARE_ATTACKED_BY_AIR", pkDefender->m_strName.IsEmpty() ? pkDefender->getNameKey() : (const char*) (pkDefender->getName()).c_str(), pkAttacker->m_strName.IsEmpty() ? pkAttacker->getNameKey() : (const char*) (pkAttacker->getName()).c_str(), iDamage);
-#if defined(MOD_BALANCE_CORE)
 						if (pkAttacker->GetMoraleBreakChance() > 0 && !pkDefender->isDelayedDeath() && pkDefender->GetNumFallBackPlotsAvailable(*pkAttacker) > 0)
 						{
 							int iRand = GC.getGame().randRangeInclusive(1, 100, CvSeeder::fromRaw(0xd7e83836).mix(pkDefender->GetID()).mix(pkDefender->plot()->GetPseudoRandomSeed()));
@@ -973,7 +973,6 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 								}
 							}
 						}
-#endif
 					}
 
 					//red icon over attacking unit
@@ -1048,14 +1047,12 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 						if (MOD_WH_MILITARY_LOG)
 							MILITARYLOG(pCity->getOwner(), strBuffer.c_str(), pCity->plot(), pkAttacker->getOwner());
 					}
-#if defined(MOD_BALANCE_CORE)
 					else if(pkAttacker->getOwner() == GC.getGame().getActivePlayer() && (pCity->getOwner() != pkAttacker->getOwner()))
 					{
 						strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_ATTACKED_CITY_CP", pCity->getNameKey(), pkAttacker->m_strName.IsEmpty() ? pkAttacker->getNameKey() : (const char*) (pkAttacker->getName()).c_str(), iDamage);
 						//red icon over attacking unit
 						pkDLLInterface->AddMessage(uiParentEventID, pkAttacker->getOwner(), false, /*10*/ GD_INT_GET(EVENT_MESSAGE_TIME), strBuffer/*, "AS2D_COMBAT", MESSAGE_TYPE_INFO, pkAttacker->m_pUnitInfo->GetButton(), (ColorTypes)GC.getInfoTypeForString("COLOR_RED"), pkAttacker->getX(), pkAttacker->getY(), true, true*/);
 					}
-#endif
 #if defined(MOD_BALANCE_CORE_MILITARY)
 
 					//apply damage to garrison
@@ -1345,7 +1342,10 @@ void CvUnitCombat::ResolveCityMeleeCombat(const CvCombatInfo& kCombatInfo, uint 
 					MILITARYLOG(pkDefender->getOwner(), strBuffer.c_str(), pkDefender->plot(), pkAttacker->getOwner());
 			}
 			ApplyPostCityCombatEffects(pkAttacker, pkDefender, iAttackerDamageInflicted);
-			pkAttacker->changeMoves(-1 * std::max(GD_INT_GET(MOVE_DENOMINATOR), pkPlot->movementCost(pkAttacker, pkAttacker->plot(), pkAttacker->getMoves())));
+
+			if (!pkAttacker->IsFreeAttackMoves())
+				pkAttacker->changeMoves(-1 * std::max(GD_INT_GET(MOVE_DENOMINATOR), pkPlot->movementCost(pkAttacker, pkAttacker->plot(), pkAttacker->getMoves())));
+
 		}
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
@@ -3580,7 +3580,8 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::Attack(CvUnit& kAttacker, CvPlot& targ
 			{
 				// Reduce moves left without playing animation
 				int iMoveCost = targetPlot.movementCost(&kAttacker, kAttacker.plot(), kAttacker.getMoves());
-				kAttacker.changeMoves(-iMoveCost);
+				if (!kAttacker.IsFreeAttackMoves())
+					kAttacker.changeMoves(-iMoveCost);
 			}
 		}
 		//		kAttacker.setMadeAttack(true);   /* EFB: Doesn't work, causes tactical AI to not dequeue this attack; but we've decided you don't lose your attack anyway */
@@ -3774,7 +3775,8 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackRanged(CvUnit& kAttacker, int iX
 		if (!kAttacker.isRangedSupportFire())
 		{
 			kAttacker.setMadeAttack(true);
-			kAttacker.changeMoves(-GD_INT_GET(MOVE_DENOMINATOR));
+			if (!kAttacker.IsFreeAttackMoves())
+				kAttacker.changeMoves(-GD_INT_GET(MOVE_DENOMINATOR));
 		}
 
 		uint uiParentEventID = 0;
@@ -3809,7 +3811,8 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackRanged(CvUnit& kAttacker, int iX
 		GenerateRangedCombatInfo(kAttacker, NULL, *pPlot, &kCombatInfo);
 		ASSERT_DEBUG(!kAttacker.isDelayedDeath(), "Trying to battle and the attacker is already dead!");
 		kAttacker.setMadeAttack(true);
-		kAttacker.changeMoves(-GD_INT_GET(MOVE_DENOMINATOR));
+		if (!kAttacker.IsFreeAttackMoves())
+			kAttacker.changeMoves(-GD_INT_GET(MOVE_DENOMINATOR));
 
 		uint uiParentEventID = 0;
 		if(!bDoImmediate)
@@ -4276,18 +4279,17 @@ void CvUnitCombat::ApplyPostKillTraitEffects(CvUnit* pkWinner, CvUnit* pkLoser)
 			pkWinner->changeDamage(-pkWinner->getHPHealedIfDefeatEnemy());
 		}
 	}
-#if defined(MOD_BALANCE_CORE)
 	if(pkWinner->isExtraAttackHealthOnKill())
 	{
 		int iHealAmount = min(pkWinner->getDamage(), /*25*/ GD_INT_GET(PILLAGE_HEAL_AMOUNT));
-		pkWinner->changeMoves(GD_INT_GET(MOVE_DENOMINATOR));
+		if (!pkWinner->IsFreeAttackMoves())
+			pkWinner->changeMoves(GD_INT_GET(MOVE_DENOMINATOR));
 		pkWinner->setMadeAttack(false);
 		if (!pkWinner->IsCannotHeal())
 		{
 			pkWinner->changeDamage(-iHealAmount);
 		}
 	}
-#endif
 	// If the modder wants the healing to be negative (ie additional damage), then let it be
 	else if(pkWinner->getHPHealedIfDefeatEnemy() < 0 && (pkLoser->getOwner() != BARBARIAN_PLAYER || !(pkWinner->IsHealIfDefeatExcludeBarbarians()) || !(pkWinner->isExtraAttackHealthOnKill())))
 	{
@@ -4306,12 +4308,10 @@ void CvUnitCombat::ApplyPostKillTraitEffects(CvUnit* pkWinner, CvUnit* pkLoser)
 
 	// Earn bonuses for kills?
 	kPlayer.DoYieldsFromKill(pkWinner, pkLoser);
-#if defined(MOD_BALANCE_CORE)
 	if(pkLoser->getOwner() == BARBARIAN_PLAYER && pkLoser->plot()->getImprovementType() == GD_INT_GET(BARBARIAN_CAMP_IMPROVEMENT))
 	{
 		GET_PLAYER(pkWinner->getOwner()).GetPlayerTraits()->SetDefeatedBarbarianCampGuardType(pkLoser->getUnitType());
 	}
-#endif
 
 	//Achievements and Stats
 	if (MOD_API_ACHIEVEMENTS && pkWinner->isHuman() && !GC.getGame().isGameMultiPlayer())

@@ -256,9 +256,7 @@ public:
 	void doTurn();
 	bool isActionRecommended(int iAction);
 
-#if defined(MOD_BALANCE_CORE)
 	void DoLocationPromotions(bool bSpawn, CvPlot* pOldPlot = NULL, CvPlot* pNewPlot = NULL);
-#endif
 
 	bool isBetterDefenderThan(const CvUnit* pDefender, const CvUnit* pAttacker) const;
 
@@ -300,7 +298,7 @@ public:
 
 	int getMeleeCombatDamageCity(int iStrength, const CvCity* pCity, int& iSelfDamageInflicted, int iGarrisonMaxHP, int& iGarrisonDamage, bool bIncludeRand) const;
 	int getMeleeCombatDamage(int iStrength, int iOpponentStrength, int& iSelfDamageInflicted, bool bIncludeRand, const CvUnit* pkOtherUnit, int iExtraDefenderDamage = 0) const;
-	void move(CvPlot& targetPlot, bool bShow);
+	void move(CvPlot& targetPlot, bool bShow, bool bNoMovementCost = false);
 	bool jumpToNearestValidPlot();
 	bool jumpToNearestValidPlotWithinRange(int iRange, CvPlot* pStartPlot=NULL);
 
@@ -362,7 +360,6 @@ public:
 	void ChangeCaptureDefeatedEnemyCount(int iChange);
 	int GetCaptureChance(CvUnit *pEnemy);
 
-#if defined(MOD_BALANCE_CORE)
 	void ChangeCannotBeCapturedCount(int iChange);
 	bool GetCannotBeCaptured();
 	int getForcedDamageValue() const;
@@ -370,6 +367,12 @@ public:
 
 	int getChangeDamageValue() const;
 	void ChangeChangeDamageValue(int iChange);
+	
+	int GetDamageTakenMod() const;
+	void ChangeDamageTakenMod(int iChange);
+
+	int GetInfluenceFromCombatXPTimes100() const;
+	void ChangeInfluenceFromCombatXPTimes100(int iChange);
 
 	int getPromotionDuration(PromotionTypes eIndex) const;
 	void SetPromotionDuration(PromotionTypes eIndex, int iValue);
@@ -380,7 +383,6 @@ public:
 
 	int getNegatorPromotion();
 	void SetNegatorPromotion(int iValue);
-#endif
 
 	bool canEmbarkAtPlot(const CvPlot* pPlot) const;
 	bool canDisembarkAtPlot(const CvPlot* pPlot) const;
@@ -443,12 +445,10 @@ public:
 	bool canCreateGreatWork(const CvPlot* pPlot, bool bOnlyTestVisibility = false) const;
 	bool createGreatWork();
 
-#if defined(MOD_BALANCE_CORE)
 	bool canGetFreeLuxury() const;
 	bool createFreeLuxury();
 	int CreateFreeLuxuryCheckCopy();
 	int CreateFreeLuxuryCheck();
-#endif
 
 	int getNumExoticGoods() const;
 	void setNumExoticGoods(int iValue);
@@ -691,6 +691,8 @@ public:
 	int GetBestAttackStrength() const; //ranged or melee, whichever is greater
 	int GetDamageCombatModifier(bool bForDefenseAgainstRanged = false, int iAssumedDamage = 0) const;
 
+	int GetCombatModifierFromCapitalDistance(const CvPlot* pBattlePlot) const;
+
 	int GetGenericMeleeStrengthModifier(const CvUnit* pOtherUnit, const CvPlot* pBattlePlot, bool bAttacking,
 									bool bIgnoreUnitAdjacencyBoni, const CvPlot* pFromPlot = NULL, bool bQuickAndDirty = false) const;
 	int GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot, const CvUnit* pDefender, 
@@ -770,7 +772,6 @@ public:
 	ImprovementTypes GetCombatBonusImprovement() const;
 	void SetCombatBonusImprovement(ImprovementTypes eImprovement);
 #endif
-#if defined(MOD_BALANCE_CORE)
 	int getNearbyUnitClassBonus() const;
 	void SetNearbyUnitClassBonus(int iCombatBonus);
 	int getNearbyUnitClassBonusRange() const;
@@ -851,7 +852,6 @@ public:
 	void ChangeConvertDamageOrFullHPUnit(UnitTypes eUnit);
 	bool canIntercept() const;
 	int GetAirInterceptRange() const;
-#endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
 	bool canCrossMountains() const;
 	int getCanCrossMountainsCount() const;
@@ -870,7 +870,6 @@ public:
 	void changeCanCrossIceCount(int iValue);
 #endif
 
-#if defined(MOD_BALANCE_CORE)
 	void ChangeNumTilesRevealedThisTurn(int iValue);
 	void SetNumTilesRevealedThisTurn(int iValue);
 	int GetNumTilesRevealedThisTurn();
@@ -903,7 +902,6 @@ public:
 	int GetAdjacentEnemySapMovement() const;
 	void ChangeAdjacentEnemySapMovement(int iValue);
 
-#endif
 
 #if defined(MOD_PROMOTIONS_GG_FROM_BARBARIANS)
 	bool isGGFromBarbarians() const;
@@ -1075,10 +1073,8 @@ public:
 	CvPlot* plot() const;
 	bool onMap() const;
 
-#if defined(MOD_BALANCE_CORE)
 	void setOriginCity(int iNewValue);
 	CvCity* getOriginCity() const;
-#endif
 
 	int getLastMoveTurn() const;
 	void setLastMoveTurn(int iNewValue);
@@ -1091,12 +1087,10 @@ public:
 	{
 		m_iDeployFromOperationTurn = iTurn;
 	};
-#if defined(MOD_BALANCE_CORE)
 	int GetDeployFromOperationTurn()
 	{
 		return m_iDeployFromOperationTurn;
 	};
-#endif
 
 	bool IsRecon() const;
 	int GetReconCount() const;
@@ -1195,7 +1189,6 @@ public:
 	bool isRiverDoubleMove() const;
 	void changeRiverDoubleMoveCount(int iChange);
 
-#if defined(MOD_BALANCE_CORE)
 	int getMountainsDoubleMoveCount() const;
 	bool isMountainsDoubleMove() const;
 	void changeMountainsDoubleMoveCount(int iChange);
@@ -1237,7 +1230,6 @@ public:
 
 	int getLandAirDefenseValue() const;
 	void changeLandAirDefenseValue(int iChange);
-#endif
 
 	int getExtraVisibilityRange() const;
 	void changeExtraVisibilityRange(int iChange);
@@ -1472,13 +1464,16 @@ public:
 
 	bool IsSapper() const;
 	void ChangeSapperCount(int iChange);
-#if defined(MOD_BALANCE_CORE)
 	int GetNearbyUnitClassModifierFromUnitClass(const CvPlot* pAtPlot = NULL) const;
 	int GetNearbyUnitClassModifier(UnitClassTypes eUnitClass, int iUnitClassRange, int iUnitClassModifier, const CvPlot* pAtPlot = NULL) const;
 	void DoNearbyUnitPromotion(const CvPlot* pPlot = NULL);
 	void DoImprovementExperience(const CvPlot* pPlot = NULL);
 	bool IsStrongerDamaged() const;
 	void ChangeIsStrongerDamaged(int iChange);
+	bool IsDiplomaticMissionAccomplishment() const;
+	void ChangeDiplomaticMissionAccomplishment(int iChange);
+	bool IsFreeAttackMoves() const;
+	void ChangeFreeAttackMoves(int iChange);
 	bool IsFightWellDamaged() const;
 	void ChangeIsFightWellDamaged(int iChange);
 
@@ -1493,12 +1488,10 @@ public:
 	void DoConvertEnemyUnitToBarbarian(const CvPlot* pPlot = NULL);
 	void DoConvertReligiousUnitsToMilitary(const CvPlot* pPlot = NULL);
 	void DoFinishBuildIfSafe();
-#endif
 
 	bool IsCanHeavyCharge() const;
 	void ChangeCanHeavyChargeCount(int iChange);
 
-#if defined(MOD_BALANCE_CORE)
 	int GetMoraleBreakChance() const;
 	void ChangeMoraleBreakChance(int iChange);
 
@@ -1510,7 +1503,6 @@ public:
 
 	int GetDamageReductionCityAssault() const;
 	void ChangeDamageReductionCityAssault(int iChange);
-#endif
 
 	int getFriendlyLandsModifier() const;
 	void changeFriendlyLandsModifier(int iChange);
@@ -1664,7 +1656,6 @@ public:
 	int GetTourismBlastLength() const;
 	void SetTourismBlastLength(int iValue);
 
-#if defined(MOD_BALANCE_CORE)
 	int GetScienceBlastStrength() const;
 	void SetScienceBlastStrength(int iValue);
 
@@ -1682,7 +1673,6 @@ public:
 
 	bool IsPromotionEverObtained(PromotionTypes eIndex) const;
 	void SetPromotionEverObtained(PromotionTypes eIndex, bool bValue);
-#endif
 
 	// Arbitrary Script Data
 	std::string getScriptData() const;
@@ -1730,7 +1720,6 @@ public:
 	inline bool isFeatureExtraMove(FeatureTypes eIndex) const { return getFeatureExtraMoveCount(eIndex) > 0; }
 	void changeFeatureExtraMoveCount(FeatureTypes eIndex, int iChange);
 
-#if defined(MOD_BALANCE_CORE)
 	int getTerrainDoubleHeal(TerrainTypes eIndex) const;
 	bool isTerrainDoubleHeal(TerrainTypes eIndex) const;
 	void changeTerrainDoubleHeal(TerrainTypes eIndex, int iChange);
@@ -1750,7 +1739,6 @@ public:
 
 	int getCombatModPerAdjacentUnitCombatDefenseMod(UnitCombatTypes eIndex) const;
 	void changeCombatModPerAdjacentUnitCombatDefenseMod(UnitCombatTypes eIndex, int iChange);
-#endif
 
 	int getTerrainImpassableCount(TerrainTypes eIndex) const;
 	bool isTerrainImpassable(TerrainTypes eIndex) const;
@@ -1784,7 +1772,6 @@ public:
 	int getYieldFromBarbarianKills(YieldTypes eIndex) const;
 	void changeYieldFromBarbarianKills(YieldTypes eIndex, int iChange);
 
-#if defined(MOD_BALANCE_CORE)
 	int getYieldFromScouting(YieldTypes eIndex) const;
 	void changeYieldFromScouting(YieldTypes eIndex, int iChange);
 	int getYieldFromAncientRuins(YieldTypes eIndex) const;
@@ -1800,7 +1787,6 @@ public:
 	bool isCultureBoost() const;
 	bool isExtraAttackHealthOnKill() const;
 	bool isHighSeaRaiderUnit() const;
-#endif
 
 	int getExtraUnitCombatModifier(UnitCombatTypes eIndex) const;
 	void changeExtraUnitCombatModifier(UnitCombatTypes eIndex, int iChange);
@@ -1979,6 +1965,8 @@ public:
 	int GetCapitalDefenseModifier() const;
 	void ChangeCapitalDefenseFalloff(int iValue);
 	int GetCapitalDefenseFalloff() const;
+	void ChangeCapitalDefenseLimit(int iValue);
+	int GetCapitalDefenseLimit() const;
 
 	void ChangeCityAttackPlunderModifier(int iValue);
 	int GetCityAttackPlunderModifier() const;
@@ -1992,15 +1980,16 @@ public:
 	void ChangeTradeMissionGoldModifier(int iValue);
 	int GetTradeMissionGoldModifier() const;
 
-	void ChangeDiploMissionInfluence(int iValue);
+	void ChangeCombatModPerLevel(int iValue);
+	int GetCombatModPerLevel() const;
+
+    void ChangeDiploMissionInfluence(int iValue);
 	int GetDiploMissionInfluence() const;
 
 	bool IsHasBeenPromotedFromGoody() const;
 	void SetBeenPromotedFromGoody(bool bBeenPromoted);
 
-#if defined(MOD_BALANCE_CORE)
 	bool IsHigherPopThan(const CvUnit* pOtherUnit) const;
-#endif
 	bool IsHigherTechThan(UnitTypes otherUnit) const;
 	bool IsLargerCivThan(const CvUnit* pOtherUnit) const;
 
@@ -2145,20 +2134,19 @@ protected:
 	int m_iRangeAttackIgnoreLOSCount;
 	int m_iCityAttackOnlyCount;
 	int m_iCaptureDefeatedEnemyCount;
-#if defined(MOD_BALANCE_CORE)
 	int m_iOriginCity;
 	int m_iCannotBeCapturedCount;
 	int m_iForcedDamage;
 	int m_iChangeDamage;
+	int m_iDamageTakenMod;
+	int m_iInfluenceFromCombatXPTimes100;
 	std::map<PromotionTypes, int> m_PromotionDuration;
 	std::map<PromotionTypes, int> m_TurnPromotionGained;
-#endif
 	int m_iRangedSupportFireCount;
 	int m_iAlwaysHealCount;
 	int m_iHealOutsideFriendlyCount;
 	int m_iHillsDoubleMoveCount;
 	int m_iRiverDoubleMoveCount;
-#if defined(MOD_BALANCE_CORE)
 	int m_iMountainsDoubleMoveCount;
 	int m_iEmbarkFlatCostCount;
 	int m_iDisembarkFlatCostCount;
@@ -2176,7 +2164,6 @@ protected:
 	int m_iSplashDamage;
 	int m_iMultiAttackBonus;
 	int m_iLandAirDefenseValue;
-#endif
 	int m_iExtraVisibilityRange;
 #if defined(MOD_PROMOTIONS_VARIABLE_RECON)
 	int m_iExtraReconRange;
@@ -2253,7 +2240,6 @@ protected:
 	int m_iNearbyImprovementBonusRange;
 	ImprovementTypes m_eCombatBonusImprovement;
 #endif
-#if defined(MOD_BALANCE_CORE)
 	int m_iNearbyUnitClassBonus;
 	int m_iNearbyUnitClassBonusRange;
 	UnitClassTypes m_iCombatBonusFromNearbyUnitClass;
@@ -2292,7 +2278,6 @@ protected:
 	int m_iNearbyHealEnemyTerritory;
 	int m_iNearbyHealNeutralTerritory;
 	int m_iNearbyHealFriendlyTerritory;
-#endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
 	int m_iCanCrossMountainsCount;
 #endif
@@ -2302,7 +2287,6 @@ protected:
 #if defined(MOD_PROMOTIONS_CROSS_ICE)
 	int m_iCanCrossIceCount;
 #endif
-#if defined(MOD_BALANCE_CORE)
 	int m_iNumTilesRevealedThisTurn;
 	bool m_bSpottedEnemy;
 	int m_iGainsXPFromScouting;
@@ -2312,7 +2296,6 @@ protected:
 	int m_iCaptureDefeatedEnemyChance;
 	int m_iBarbCombatBonus;
 	int m_iAdjacentEnemySapMovement;
-#endif
 #if defined(MOD_PROMOTIONS_GG_FROM_BARBARIANS)
 	int m_iGGFromBarbariansCount;
 #endif
@@ -2365,23 +2348,21 @@ protected:
 	int m_iCombatStrengthModifierPerMarriageCap;
 	int m_iHealIfDefeatExcludeBarbariansCount;
 	int m_iNumInterceptions;
-#if defined(MOD_BALANCE_CORE)
 	int m_iExtraAirInterceptRange;
-#endif
 	int m_iMadeInterceptionCount;
 	int m_iEverSelectedCount;
 	int m_iSapperCount;
 	int m_iCanHeavyCharge;
-#if defined(MOD_BALANCE_CORE)
 	int m_iStrongerDamaged;
+	int m_iDiplomaticMissionAccomplishment;
 	int m_iFightWellDamaged;
+	int m_iFreeAttackMoves;
 	int m_iCanMoraleBreak;
 	int m_iDamageAoEFortified;
 	int m_iWorkRateMod;
 	int m_iDamageReductionCityAssault;
 	int m_iGoodyHutYieldBonus;
 	int m_iReligiousPressureModifier;
-#endif
 	int m_iNumExoticGoods;
 	bool m_bPromotionReady;
 	bool m_bDeathDelay;
@@ -2445,10 +2426,8 @@ protected:
 	TerrainTypeCounter m_terrainExtraMoveCount;
 	FeatureTypeCounter m_featureExtraMoveCount;
 
-#if defined(MOD_BALANCE_CORE)
 	TerrainTypeCounter m_terrainDoubleHeal;
 	FeatureTypeCounter m_featureDoubleHeal;
-#endif
 	TerrainTypeCounter m_terrainImpassableCount;
 	FeatureTypeCounter m_featureImpassableCount;
 	TerrainTypeCounter m_extraTerrainAttackPercent;
@@ -2460,23 +2439,19 @@ protected:
 
 	UnitClassCounter m_extraUnitClassAttackMod;
 	UnitClassCounter m_extraUnitClassDefenseMod;
-#if defined(MOD_BALANCE_CORE)
 	std::vector<int> m_aiNumTimesAttackedThisTurn;
 	std::vector<int> m_yieldFromScouting;
 	std::vector<int> m_piYieldFromAncientRuins;
 	std::vector<int> m_piYieldFromTRPlunder;
-#endif
 	std::vector<int> m_yieldFromKills;
 	std::vector<int> m_yieldFromBarbarianKills;
 	std::vector<int> m_extraUnitCombatModifier;
 	std::vector<int> m_extraUnitCombatModifierAttack;
 	std::vector<int> m_extraUnitCombatModifierDefense;
 	std::vector<int> m_unitClassModifier;
-#if defined(MOD_BALANCE_CORE)
 	std::vector<int> m_iCombatModPerAdjacentUnitCombatModifier;
 	std::vector<int> m_iCombatModPerAdjacentUnitCombatAttackMod;
 	std::vector<int> m_iCombatModPerAdjacentUnitCombatDefenseMod;
-#endif
 	std::map<int, std::pair<int, int>> m_yieldFromPillage;
 	int m_iMissionTimer;
 	int m_iMissionAIX;
@@ -2499,23 +2474,23 @@ protected:
 	int m_iEmbarkDefensiveModifier;
 	int m_iCapitalDefenseModifier;
 	int m_iCapitalDefenseFalloff;
+	int m_iCapitalDefenseLimit;
 	int m_iCityAttackPlunderModifier;
 	int m_iReligiousStrengthLossRivalTerritory;
 	int m_iTradeMissionInfluenceModifier;
 	int m_iTradeMissionGoldModifier;
+	int m_iCombatModPerLevel;
 	int m_iDiploMissionInfluence;
 	int m_iMapLayer;		// Which layer does the unit reside on for pathing/stacking/etc.
 	int m_iNumGoodyHutsPopped;
 	int m_iTourismBlastStrength;
 	int m_iTourismBlastLength;
-#if defined(MOD_BALANCE_CORE)
 	int m_iHurryStrength;
 	int m_iGoldBlastStrength;
 	int m_iScienceBlastStrength;
 	int m_iCultureBlastStrength;
 	int m_iGAPBlastStrength;
 	std::vector<bool> m_abPromotionEverObtained;
-#endif
 		
 #if defined(MOD_PROMOTIONS_UNIT_NAMING)
 	CvString m_strUnitName;
@@ -2536,9 +2511,7 @@ protected:
 
 	bool canAdvance(const CvPlot& pPlot, int iThreshold) const;
 
-#if defined(MOD_BALANCE_CORE)
 	void DoPlagueTransfer(CvUnit& defender, bool bAttacking);
-#endif
 #if defined(MOD_CARGO_SHIPS)
 	void DoCargoPromotions(CvUnit& cargounit);
 	void RemoveCargoPromotions(CvUnit& cargounit);
@@ -2624,6 +2597,8 @@ SYNC_ARCHIVE_VAR(int, m_iOriginCity)
 SYNC_ARCHIVE_VAR(int, m_iCannotBeCapturedCount)
 SYNC_ARCHIVE_VAR(int, m_iForcedDamage)
 SYNC_ARCHIVE_VAR(int, m_iChangeDamage)
+SYNC_ARCHIVE_VAR(int, m_iDamageTakenMod)
+SYNC_ARCHIVE_VAR(int, m_iInfluenceFromCombatXPTimes100)
 SYNC_ARCHIVE_VAR(SYNC_ARCHIVE_VAR_TYPE(std::map<PromotionTypes, int>), m_PromotionDuration)
 SYNC_ARCHIVE_VAR(SYNC_ARCHIVE_VAR_TYPE(std::map<PromotionTypes, int>), m_TurnPromotionGained)
 SYNC_ARCHIVE_VAR(int, m_iRangedSupportFireCount)
@@ -2823,7 +2798,9 @@ SYNC_ARCHIVE_VAR(int, m_iEverSelectedCount)
 SYNC_ARCHIVE_VAR(int, m_iSapperCount)
 SYNC_ARCHIVE_VAR(int, m_iCanHeavyCharge)
 SYNC_ARCHIVE_VAR(int, m_iStrongerDamaged)
+SYNC_ARCHIVE_VAR(int, m_iDiplomaticMissionAccomplishment)
 SYNC_ARCHIVE_VAR(int, m_iFightWellDamaged)
+SYNC_ARCHIVE_VAR(int, m_iFreeAttackMoves)
 SYNC_ARCHIVE_VAR(int, m_iCanMoraleBreak)
 SYNC_ARCHIVE_VAR(int, m_iDamageAoEFortified)
 SYNC_ARCHIVE_VAR(int, m_iWorkRateMod)
@@ -2902,10 +2879,12 @@ SYNC_ARCHIVE_VAR(int, m_iEmbarkExtraVisibility)
 SYNC_ARCHIVE_VAR(int, m_iEmbarkDefensiveModifier)
 SYNC_ARCHIVE_VAR(int, m_iCapitalDefenseModifier)
 SYNC_ARCHIVE_VAR(int, m_iCapitalDefenseFalloff)
+SYNC_ARCHIVE_VAR(int, m_iCapitalDefenseLimit)
 SYNC_ARCHIVE_VAR(int, m_iCityAttackPlunderModifier)
 SYNC_ARCHIVE_VAR(int, m_iReligiousStrengthLossRivalTerritory)
 SYNC_ARCHIVE_VAR(int, m_iTradeMissionInfluenceModifier)
 SYNC_ARCHIVE_VAR(int, m_iTradeMissionGoldModifier)
+SYNC_ARCHIVE_VAR(int, m_iCombatModPerLevel)
 SYNC_ARCHIVE_VAR(int, m_iDiploMissionInfluence)
 SYNC_ARCHIVE_VAR(int, m_iMapLayer)
 SYNC_ARCHIVE_VAR(int, m_iNumGoodyHutsPopped)

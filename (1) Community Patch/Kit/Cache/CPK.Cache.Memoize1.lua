@@ -1,4 +1,4 @@
-local _lua_setmetatable = setmetatable
+local lua_setmetatable = setmetatable
 
 local Identity = CPK.FP.Identity
 local Memoize = CPK.Cache.Memoize
@@ -14,7 +14,7 @@ local Memoize = CPK.Cache.Memoize
 local function Memoize1(fn, cache, hash)
 	return Memoize(
 		fn,
-		cache or _lua_setmetatable({}, { __mode = 'v' }),
+		cache or lua_setmetatable({}, { __mode = 'v' }),
 		hash or Identity
 	)
 end

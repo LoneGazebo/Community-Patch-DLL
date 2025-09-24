@@ -222,6 +222,12 @@ SELECT
 FROM UnitCombatInfos
 WHERE IsMilitary = 1 OR Type = 'UNITCOMBAT_WORKER';
 
+-- Parthenon
+INSERT INTO UnitPromotions_UnitCombats
+	(PromotionType, UnitCombatType)
+VALUES
+	('PROMOTION_PROXENOS', 'UNITCOMBAT_DIPLOMACY');
+
 -- Alhambra
 INSERT INTO UnitPromotions_UnitCombats
 	(PromotionType, UnitCombatType)
@@ -535,6 +541,7 @@ OR Type IN (
 	'PROMOTION_MORALE', -- Heroic Epic, Order
 	'PROMOTION_HIMEJI_CASTLE', -- Himeji Castle
 	'PROMOTION_STATUE_ZEUS', -- Statue of Zeus
+	'PROMOTION_PROXENOS', -- Parthenon
 	'PROMOTION_BUSHIDO', -- Dojo
 	'PROMOTION_IKLWA', -- Ikanda
 	'PROMOTION_SCHUTZENKONIG', -- Schützenstand

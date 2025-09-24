@@ -742,14 +742,14 @@
 		<Row Tag="TXT_KEY_TECH_SUPPLY">
 			<Text>Tech Reduction</Text>
 		</Row>
-		<Row Tag="TXT_KEY_EMPIRE_SIZE_SUPPLY_TT">
+		<Row Tag="TXT_KEY_CITY_COUNT_SUPPLY_TT">
 			<Text>Reduced from number of Cities</Text>
 		</Row>
-		<Row Tag="TXT_KEY_EMPIRE_SIZE_SUPPLY">
-			<Text>Empire Size Reduction</Text>
+		<Row Tag="TXT_KEY_CITY_COUNT_SUPPLY">
+			<Text>City Count Reduction</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_SUPPLY_REMAINING_TOOLTIP_NOT_WEARY">
-			<Text>Number of Military Units: {12_Num} ({2_Num} Military Supply Used)[NEWLINE]Total Military Supply: {1_Num}[NEWLINE][COLOR_NEGATIVE_TEXT]War Weariness Supply Cap Reduction: {6_Num}%[ENDCOLOR][NEWLINE][NEWLINE]Military Supply Values:[NEWLINE]  [ICON_BULLET]+{4_Num} from [ICON_CITY_STATE] Cities ([ICON_WAR] {13_Num} - {14_Num} from [ICON_RESEARCH] Tech Maintenance)[NEWLINE]  [ICON_BULLET]+{3_Num} from [ICON_CITIZEN] Population ([ICON_SILVER_FIST] {15_Num} - {16_Num} from [ICON_RESEARCH] Tech Maintenance)[NEWLINE]  [ICON_BULLET]+{5_Num} from [ICON_CHECKBOX] Difficulty Level ([ICON_CAPITAL] {17_Num} - {18_Num} from [ICON_RESEARCH] Era Level)[NEWLINE]  [ICON_BULLET]+{11_Num} from [ICON_GREAT_GENERAL]/[ICON_GREAT_ADMIRAL] Great People[NEWLINE][NEWLINE][NEWLINE]Military Supply Reductions:[NEWLINE]  [ICON_BULLET] -{8_Num} from [ICON_RESEARCH] Total Tech Level[NEWLINE]  [ICON_BULLET] -{9_Num} from [ICON_CITY_STATE] Empire Size[NEWLINE]  [ICON_BULLET] -{7_Num} from [ICON_WAR] War Weariness[NEWLINE][NEWLINE]Each ([ICON_PUPPET] non-Puppet) City you own: +5% [ICON_CITY_STATE] Empire Size penalty.[NEWLINE]Military Unit [ICON_GOLD]/[ICON_PEACE] Costs increased by {10_Num}% due to [ICON_WAR] War Weariness.</Text>
+			<Text>Number of Military Units: {12_Num} ({2_Num} Military Supply Used)[NEWLINE]Total Military Supply: {1_Num}[NEWLINE][COLOR_NEGATIVE_TEXT]War Weariness Supply Cap Reduction: {6_Num}%[ENDCOLOR][NEWLINE][NEWLINE]Military Supply Values:[NEWLINE]  [ICON_BULLET]+{4_Num} from [ICON_CITY_STATE] Cities ([ICON_WAR] {13_Num} - {14_Num} from [ICON_RESEARCH] Tech Maintenance)[NEWLINE]  [ICON_BULLET]+{3_Num} from [ICON_CITIZEN] Population ([ICON_SILVER_FIST] {15_Num} - {16_Num} from [ICON_RESEARCH] Tech Maintenance)[NEWLINE]  [ICON_BULLET]+{5_Num} from [ICON_CHECKBOX] Difficulty Level ([ICON_CAPITAL] {17_Num} - {18_Num} from [ICON_RESEARCH] Era Level)[NEWLINE]  [ICON_BULLET]+{11_Num} from [ICON_GREAT_GENERAL]/[ICON_GREAT_ADMIRAL] Great People[NEWLINE][NEWLINE][NEWLINE]Military Supply Reductions:[NEWLINE]  [ICON_BULLET] -{8_Num} from [ICON_RESEARCH] Total Tech Level[NEWLINE]  [ICON_BULLET] -{9_Num} from [ICON_CITY_STATE] City Count[NEWLINE]  [ICON_BULLET] -{7_Num} from [ICON_WAR] War Weariness[NEWLINE][NEWLINE]Each ([ICON_PUPPET] non-Puppet) City you own: +5% [ICON_CITY_STATE] City Count penalty.[NEWLINE]Military Unit [ICON_GOLD]/[ICON_PEACE] Costs increased by {10_Num}% due to [ICON_WAR] War Weariness.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_SUPPLY_REMAINING_TOOLTIP">
 			<Text>{TXT_KEY_UNIT_SUPPLY_REMAINING_TOOLTIP_NOT_WEARY}[NEWLINE]Highest War Weariness: {19_CivName} {20_Num}%</Text>
@@ -1406,6 +1406,9 @@
 		<Row Tag="TXT_KEY_EO_CITY_EMPIRE">
 			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN_RED]: "[ICON_WAR] War! What is it good for!?"</Text>
 		</Row>
+		<Row Tag="TXT_KEY_UNHAPPINESS_REASON_CITY_BUILDINGS">
+			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN_RED]: "We just don't like it here!"</Text>
+		</Row>
 		<Row Tag="TXT_KEY_EO_CITY_CONNECTED">
 			<Text>[COLOR_POSITIVE_TEXT]Connected[ENDCOLOR]</Text>
 		</Row>
@@ -2023,7 +2026,7 @@
 			<Text>Direct control: {1_Num}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESOURCE_BREAKDOWN_IMPORTS">
-			<Text>Direct control: {1_Num}[NEWLINE]Import: {3_Import}[NEWLINE]From City-States: {4_CS}</Text>
+			<Text>Direct control: {1_Num}[NEWLINE]Import: {2_Import}[NEWLINE]From City-States: {3_CS}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_HOVER_INFO">
 			<Text>(Hover over Corporation Icon or Name for details.)</Text>

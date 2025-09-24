@@ -83,9 +83,10 @@ SET
 		)
 	),
 	Combat = (SELECT Combat FROM Units WHERE Type = 'UNIT_EXPLORER') + 6,
-	DefaultUnitAI = 'UNITAI_FAST_ATTACK',
+	DefaultUnitAI = 'UNITAI_EXPLORE', -- fixme: this should be changed to UNITAI_FAST_ATTACK once a solution is found for the AI spamming Conquistadors that upgrade into exploration units
 	Found = 1,
-	FoundMid = 1
+	FoundMid = 1,
+	NoMinorCivGift = 1
 WHERE Type = 'UNIT_SPANISH_CONQUISTADOR';
 
 INSERT INTO Unit_FreePromotions

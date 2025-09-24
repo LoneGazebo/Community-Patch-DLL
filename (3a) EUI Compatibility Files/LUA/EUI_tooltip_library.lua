@@ -625,6 +625,7 @@ local function GetHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 	local productionCost = tonumber(building.Cost) or 0
 	local maintenanceCost = tonumber(building[g_maintenanceCurrency]) or 0
 	local happinessChange = (tonumber(building.Happiness) or 0) + (tonumber(building.UnmoddedHappiness) or 0)
+	local unhappinessChange = tonumber(building.Unhappiness) or 0
 	local defenseChange = tonumber(building.Defense) or 0
 	local defenseModifier = tonumber(building.BuildingDefenseModifier) or 0
 	local hitPointChange = tonumber(building.ExtraCityHitPoints) or 0
@@ -806,6 +807,16 @@ local function GetHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 		end
 		if tips and tip~="" then
 			tips:insert( L"TXT_KEY_PEDIA_HAPPINESS_LABEL" .. tip )
+			tip = ""
+		end
+
+		-- Unhappiness:
+		if (unhappinessChange ~= 0) then
+			tip = S( "%s %+i[ICON_HAPPINESS_4]", tip, unhappinessChange )
+		end
+
+		if tips and tip~="" then
+			tips:insert( L"TXT_KEY_PEDIA_UNHAPPINESS_LABEL" .. tip )
 			tip = ""
 		end
 	else

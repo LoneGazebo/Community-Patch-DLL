@@ -332,12 +332,10 @@ bool CvDllDatabaseUtility::PrefetchGameData()
 	PrefetchCollection(GC.getVictoryInfo(), "Victories");
 	PrefetchCollection(GC.getVoteInfo(), "Votes");
 	PrefetchCollection(GC.getVoteSourceInfo(), "VoteSources");
-#if defined(MOD_BALANCE_CORE)
 	PrefetchCollection(GC.getEventInfo(), "Events");
 	PrefetchCollection(GC.getEventChoiceInfo(), "EventChoices");
 	PrefetchCollection(GC.getCityEventInfo(), "CityEvents");
 	PrefetchCollection(GC.getCityEventChoiceInfo(), "CityEventChoices");
-#endif
 	PrefetchCollection(GC.getUnitDomainInfo(), "Domains");
 
 #if defined(MOD_EVENTS_DIPLO_MODIFIERS)
@@ -399,11 +397,9 @@ bool CvDllDatabaseUtility::PrefetchGameData()
 	if (MOD_API_ACHIEVEMENTS)
 		PrefetchCollection(GC.getAchievementInfo(), "Achievements");
 
-#if defined(MOD_BALANCE_CORE)
 	// Must be after buildings because this calls from Buildings
 	PrefetchCollection(GC.getCorporationInfo(), "Corporations");
 	PrefetchCollection(GC.getContractInfo(), "Contracts");
-#endif
 
 	//Copy flavors into string array
 	{
@@ -499,7 +495,7 @@ void CvDllDatabaseUtility::DatabaseRemapper()
 								{
 									if (bFirst)
 									{
-										LogMsg("Table %s: Remapping %d incorrect IDs, starting with %d -> %d. ", szTableName, vTableIDs.size() - ui, vTableIDs[ui], ui);
+										LogMsg("Table %s: Remapping %u incorrect IDs, starting with %d -> %u. ", szTableName, vTableIDs.size() - ui, vTableIDs[ui], ui);
 										bFirst = false;
 									}
 									char szUpdate[512];
@@ -725,10 +721,7 @@ bool CvDllDatabaseUtility::ValidatePrefetchProcess()
 	ValidateVectorSize(getNumHurryInfos);
 	ValidateVectorSize(getNumEmphasisInfos);
 	ValidateVectorSize(getNumVictoryInfos);
-
-#if defined(MOD_BALANCE_CORE)
 	ValidateVectorSize(getNumCorporationInfos);
-#endif
 
 	// The domains are a special case in that the contents must match a populated enum exactly.
 #define ValidateDomain(domain) { CvDomainInfo* pkDomainInfo; if (GC.getNumUnitDomainInfos() <= (int)domain || (pkDomainInfo = GC.getUnitDomainInfo(domain)) == NULL || strcmp(pkDomainInfo->GetType(), #domain) != 0) bError = true; }

@@ -209,12 +209,10 @@ void CvPlot::reset()
 	m_ePlayerResponsibleForImprovement = NO_PLAYER;
 	m_ePlayerResponsibleForRoute = NO_PLAYER;
 	m_ePlayerThatClearedBarbCampHere = NO_PLAYER;
-#if defined(MOD_BALANCE_CORE)
 	m_iUnitPlotExperience = 0;
 	m_iUnitPlotGAExperience = 0;
 	m_iPlotChangeMoves = 0;
 	m_iRestoreMoves = 0;
-#endif
 	m_eLandmarkCreditMinor = NO_PLAYER;
 	m_ePlayerThatClearedDigHere = NO_PLAYER;
 	m_ePlayerThatDestroyedCityHere = NO_PLAYER;
@@ -261,10 +259,8 @@ void CvPlot::reset()
 		m_aeRevealedImprovementType[iI] = NO_IMPROVEMENT;
 		m_aeRevealedRouteType[iI] = NO_ROUTE;
 		m_aeHumanPlannedRouteState[iI] = NO_PLANNED_ROUTE;
-#if defined(MOD_BALANCE_CORE)
 		m_abIsImpassable[iI] = false;
 		m_abStrategicRoute[iI] = false;
-#endif
 	}
 
 	m_vInvisibleVisibilityUnitCount.clear();
@@ -2360,11 +2356,9 @@ void CvPlot::updateSeeFromSight(bool bIncrement, bool bRecalculate)
 			{
 				pLoopPlot->updateSight(bIncrement);
 
-#if defined(MOD_BALANCE_CORE)
 				//hack: don't do this during map generation
 				if (bRecalculate && GC.getGame().getElapsedGameTurns()>0)
 					GC.getMap().LineOfSightChanged(pLoopPlot);
-#endif
 			}
 		}
 	}
@@ -2520,7 +2514,7 @@ bool CvPlot::CanSpawnResource(PlayerTypes ePlayer, bool bIgnoreTech, bool bIsLan
 }
 
 //	--------------------------------------------------------------------------------
-bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlayer, bool, bool bCheckAdjacency, bool bTestXAdjacent) const
+bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlayer, bool bCheckAdjacency, bool bTestXAdjacent) const
 {
 	CvPlot* pLoopPlot = NULL;
 	bool bValid = false;
@@ -2532,12 +2526,10 @@ bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlay
 		return false;
 	}
 
-#if defined(MOD_GLOBAL_ALPINE_PASSES)
 	if (MOD_GLOBAL_ALPINE_PASSES && pkImprovementInfo->IsMountainsMakesValid() && isMountain())
 	{
 		return true;
 	}
-#endif
 
 	if(getFeatureType() != NO_FEATURE)
 	{
@@ -2625,7 +2617,7 @@ bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlay
 
 		//Polder-specific code for lakes
 		bool bLake = false;
-		if (MOD_BALANCE_CORE && pkImprovementInfo->IsAdjacentLake())
+		if (pkImprovementInfo->IsAdjacentLake())
 		{
 			for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 			{
@@ -2645,7 +2637,7 @@ bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlay
 			return false;
 	}
 
-	if (MOD_BALANCE_CORE && pkImprovementInfo->IsAdjacentLake())
+	if (pkImprovementInfo->IsAdjacentLake())
 	{
 		for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 		{
@@ -3018,7 +3010,7 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 	if(eImprovement != NO_IMPROVEMENT)
 	{
 		// Player must be able to build this Improvement
-		if(!canHaveImprovement(eImprovement, ePlayer, bTestVisible, false, bTestXAdjacent))
+		if(!canHaveImprovement(eImprovement, ePlayer, false, bTestXAdjacent))
 		{
 			return false;
 		}
@@ -3135,7 +3127,15 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 								return false;
 						}
 						else if (getTeam() != eTeam)
-							return false;
+						{
+							if (GC.getImprovementInfo(eImprovement)->GetCultureBombRadius() > 0 && GET_PLAYER(ePlayer).IsCultureBombForeignTerritory())
+							{
+								if (IsStealBlockedByImprovement() || !isAdjacentTeam(eTeam, false))
+									return false;
+							}
+							else
+								return false;
+						}
 					}
 					// Only City State Territory - Can only be built in City-State territory (not our own lands)
 					else if (GC.getImprovementInfo(eImprovement)->IsOnlyCityStateTerritory())
@@ -3214,13 +3214,11 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 	{
 		if(GC.getBuildInfo(eBuild)->isFeatureRemove(getFeatureType()))
 		{
-#if defined(MOD_BALANCE_CORE)
 			if(getFeatureType() == FEATURE_FALLOUT && GC.getBuildInfo(eBuild)->isFeatureRemove(FEATURE_FALLOUT))
 			{
 				bValid = true;
 			}
 			else
-#endif
 			if(bTestPlotOwner)
 			{
 				if(isOwned() && (eTeam != getTeam()) && !atWar(eTeam, getTeam()))
@@ -3232,7 +3230,8 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 
 					// Some improvements are exceptions
 					if (!GC.getImprovementInfo(eImprovement)->IsIgnoreOwnership() &&
-						!GC.getImprovementInfo(eImprovement)->IsOnlyCityStateTerritory())
+						!GC.getImprovementInfo(eImprovement)->IsOnlyCityStateTerritory() &&
+						GC.getImprovementInfo(eImprovement)->GetCultureBombRadius() <= 0)
 					{
 						return false;
 					}
@@ -4998,7 +4997,6 @@ int CvPlot::getNumDefenders(PlayerTypes ePlayer) const
 
 	return 0;
 }
-#if defined(MOD_BALANCE_CORE)
 //	-----------------------------------------------------------------------------------------------
 int CvPlot::getNumNavalDefenders(PlayerTypes ePlayer) const
 {
@@ -5025,7 +5023,6 @@ int CvPlot::getNumNavalDefenders(PlayerTypes ePlayer) const
 
 	return 0;
 }
-#endif
 //	-----------------------------------------------------------------------------------------------
 int CvPlot::getNumVisibleEnemyDefenders(const CvUnit* pUnit) const
 {
@@ -5508,9 +5505,7 @@ void CvPlot::SetCityConnection(PlayerTypes ePlayer, bool bActive, bool bIndustri
 				}
 			}
 		}
-#if defined(MOD_BALANCE_CORE)
 		updateYield();
-#endif
 	}
 }
 
@@ -5528,7 +5523,6 @@ bool CvPlot::IsCityConnection(PlayerTypes ePlayer, bool bIndustrial) const
 	return GET_PLAYER(ePlayer).IsCityConnectionPlot(this, bIndustrial);
 }
 
-#if defined(MOD_BALANCE_CORE)
 //	--------------------------------------------------------------------------------
 void CvPlot::ChangeNumTradeUnitRoute(int iChange)
 {
@@ -5548,7 +5542,6 @@ bool CvPlot::IsTradeUnitRoute() const
 {
 	return GetNumTradeUnitRoute() > 0;
 }
-#endif
 
 //	--------------------------------------------------------------------------------
 bool CvPlot::at(int iX, int iY) const
@@ -7114,9 +7107,7 @@ void CvPlot::setPlotType(PlotTypes eNewValue, bool bRecalculate, bool bRebuildGr
 		m_ePlotType = eNewValue;
 
 		updateYield();
-#if defined(MOD_BALANCE_CORE)
 		updateImpassable();
-#endif
 
 		updateSeeFromSight(true,bRecalculate);
 
@@ -7366,7 +7357,6 @@ void CvPlot::setTerrainType(TerrainTypes eNewValue, bool bRecalculate, bool bReb
 		updateYield();
 		updateImpassable();
 
-#if defined(MOD_BALANCE_CORE)
 		CvCity* pOwningCity = getEffectiveOwningCity();
 
 		if(pOwningCity != NULL)
@@ -7381,7 +7371,6 @@ void CvPlot::setTerrainType(TerrainTypes eNewValue, bool bRecalculate, bool bReb
 				pOwningCity->UpdateYieldPerXTerrainFromReligion((YieldTypes)iI, getTerrainType());
 			}
 		}
-#endif
 
 		if(bUpdateSight)
 		{
@@ -7733,6 +7722,19 @@ void CvPlot::setResourceType(ResourceTypes eNewValue, int iResourceNum, bool bFo
 					}
 				}
 			}
+
+			// Has an artifact been planted after Archaeology was triggered? Probably the Egypt UA, could also be IGE or modmods.
+			if ((eNewValue == GD_INT_GET(ARTIFACT_RESOURCE) || eNewValue == GD_INT_GET(HIDDEN_ARTIFACT_RESOURCE)) && GC.getGame().IsArchaeologyTriggered())
+			{
+				// Give this new artifact some data if it doesn't have any already.
+				// Note: If there is an existing artifact, PopulateDigSite() will not overwrite it.
+				CvWeightedVector<GreatWorkArtifactClass> viArtifacts = GC.getGame().GetWeightedArchaeologyArtifactsList();
+				CvWeightedVector<EraTypes> viEras = GC.getGame().GetWeightedArchaeologyErasList();
+				int iPlotIndex = GetPlotIndex();
+				GreatWorkArtifactClass eArtifact = viArtifacts.ChooseByWeight(CvSeeder::fromRaw(0x4929078a).mix(iPlotIndex));
+				EraTypes eEra = viEras.ChooseByWeight(CvSeeder::fromRaw(0x119757d6).mix(iPlotIndex));
+				GC.getGame().PopulateDigSite(*this, eEra, eArtifact);
+			}
 		}
 
 		updateYield();
@@ -7978,13 +7980,11 @@ void CvPlot::setIsCity(bool bValue, int iCityID, int iWorkRange)
 				pLoopPlot->changePlayerCityRadiusCount(getOwner(), 1);
 			}
 		}
-#if defined(MOD_BALANCE_CORE)
 		if(isMountain())
 		{
 			ImprovementTypes eMachuPichu = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_MOUNTAIN_CITY");
 			setImprovementType(eMachuPichu);
 		}
-#endif
 		// Is a route is here?  If we already own this plot, then we were paying maintenance, now we don't have to.
 		if(getRouteType() != NO_ROUTE)
 		{
@@ -8306,11 +8306,11 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 		{
 			CvImprovementEntry& newImprovementEntry = *GC.getImprovementInfo(eNewValue);
 
-			ResourceTypes eArtifactResourceType = static_cast<ResourceTypes>(GD_INT_GET(ARTIFACT_RESOURCE));
-			ResourceTypes eHiddenArtifactResourceType = static_cast<ResourceTypes>(GD_INT_GET(HIDDEN_ARTIFACT_RESOURCE));
+			ResourceTypes eArtifact = static_cast<ResourceTypes>(GD_INT_GET(ARTIFACT_RESOURCE));
+			ResourceTypes eHiddenArtifact = static_cast<ResourceTypes>(GD_INT_GET(HIDDEN_ARTIFACT_RESOURCE));
 			if (newImprovementEntry.IsPermanent() || newImprovementEntry.IsCreatedByGreatPerson())
 			{
-				if (getOwner() != NO_PLAYER && (getResourceType(GET_PLAYER(getOwner()).getTeam()) == eArtifactResourceType || getResourceType(GET_PLAYER(getOwner()).getTeam()) == eHiddenArtifactResourceType))
+				if (getOwner() != NO_PLAYER && (getResourceType(GET_PLAYER(getOwner()).getTeam()) == eArtifact || getResourceType(GET_PLAYER(getOwner()).getTeam()) == eHiddenArtifact))
 				{
 					if (MOD_BALANCE_CORE_ARCHAEOLOGY_FROM_GP && GetArchaeologicalRecord().m_eArtifactType != NO_GREAT_WORK_ARTIFACT_CLASS)
 					{
@@ -8377,13 +8377,11 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 					}
 					else
 					{
-						setResourceType(NO_RESOURCE, 0);
 						ClearArchaeologicalRecord();
 					}
 				}
-				else if (getResourceType() == eArtifactResourceType || getResourceType() == eHiddenArtifactResourceType)
+				else if (getResourceType() == eArtifact || getResourceType() == eHiddenArtifact)
 				{
-					setResourceType(NO_RESOURCE, 0);
 					ClearArchaeologicalRecord();
 				}
 			}
@@ -11028,6 +11026,7 @@ int CvPlot::calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTyp
 					if (pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 					{
 						iYield += pOwningCity->GetLuxuryExtraYield(eYield);
+						iYield += pTraits->GetLuxuryYieldChanges(eYield);
 					}
 
 					// Extra yield from Trait
@@ -11120,7 +11119,7 @@ int CvPlot::calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTyp
 	return iYield;
 }
 
-int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay, const CvCity* pOwningCity)
+int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay, const CvCity* pOwningCity, bool bAssumeNoImprovement)
 {
 	if (!pOwningCity)
 	{
@@ -11152,14 +11151,14 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay, const CvCity* pOwni
 			}
 		}
 #endif
-		return calculateYieldFast(eYield, bDisplay, pOwningCity, pReligion, pBelief);
+		return calculateYieldFast(eYield, bDisplay, pOwningCity, pReligion, pBelief, NULL, bAssumeNoImprovement);
 	}
 
-	return calculateYieldFast(eYield, bDisplay, NULL, NULL, NULL);
+	return calculateYieldFast(eYield, bDisplay, NULL, NULL, NULL, NULL, bAssumeNoImprovement);
 }
 
 //	--------------------------------------------------------------------------------
-int CvPlot::calculateYieldFast(YieldTypes eYield, bool bDisplay, const CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon, const CvReligion* pPlayerPantheon)
+int CvPlot::calculateYieldFast(YieldTypes eYield, bool bDisplay, const CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon, const CvReligion* pPlayerPantheon, bool bAssumeNoImprovement)
 {
 	ImprovementTypes eImprovement = NO_IMPROVEMENT;
 	RouteTypes eRoute = NO_ROUTE;
@@ -11213,7 +11212,7 @@ int CvPlot::calculateYieldFast(YieldTypes eYield, bool bDisplay, const CvCity* p
 		}
 	}
 
-	if (IsImprovementPillaged())
+	if (IsImprovementPillaged() || bAssumeNoImprovement)
 		eImprovement = NO_IMPROVEMENT;
 	if (IsRoutePillaged())
 		eRoute = NO_ROUTE;
@@ -11918,7 +11917,6 @@ void CvPlot::ResetKnownVisibility()
 	}
 }
 
-#if defined(MOD_BALANCE_CORE)
 //	--------------------------------------------------------------------------------
 bool CvPlot::IsTeamImpassable(TeamTypes eTeam) const
 {
@@ -11934,7 +11932,6 @@ void CvPlot::SetTeamImpassable(TeamTypes eTeam, bool bValue)
 	ASSERT_DEBUG(eTeam < REALLY_MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
 	m_abIsImpassable[eTeam] = bValue;
 }
-#endif
 //	--------------------------------------------------------------------------------
 bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, CvUnit* pUnit, bool bTerrainOnly, TeamTypes eFromTeam)
 {
@@ -13146,7 +13143,6 @@ int CvPlot::getNumUnits() const
 {
 	return m_units.getLength();
 }
-#if defined(MOD_BALANCE_CORE)
 int CvPlot::GetUnitPlotExperience() const
 {
 	VALIDATE_OBJECT();
@@ -13191,7 +13187,6 @@ void CvPlot::ChangeRestoreMovesCount(int iValue)
 	VALIDATE_OBJECT();
 	m_iRestoreMoves += iValue;
 }
-#endif
 //	--------------------------------------------------------------------------------
 int CvPlot::GetNumCombatUnits()
 {
@@ -14387,72 +14382,47 @@ bool CvPlot::MustPayMaintenanceHere(PlayerTypes ePlayer) const
 }
 
 //	---------------------------------------------------------------------------
-void CvPlot::SetArchaeologicalRecord(GreatWorkArtifactClass eType, PlayerTypes ePlayer1, PlayerTypes ePlayer2)
+void CvPlot::SetArchaeologicalRecord(GreatWorkArtifactClass eType, PlayerTypes ePlayer1, PlayerTypes ePlayer2, bool bIgnoreNormalRestrictions)
 {
-	if (ePlayer1 != NO_PLAYER)
-	{
-		m_kArchaeologyData.m_eArtifactType = eType;
-		m_kArchaeologyData.m_ePlayer1 = ePlayer1;
-		m_kArchaeologyData.m_ePlayer2 = ePlayer2;
-		m_kArchaeologyData.m_eEra = GET_PLAYER(ePlayer1).GetCurrentEra();
-	}
+	if (ePlayer1 == NO_PLAYER)
+		return;
+
+	SetArchaeologicalRecord(eType, GET_PLAYER(ePlayer1).GetCurrentEra(), ePlayer1, ePlayer2, bIgnoreNormalRestrictions);
 }
 
 //	---------------------------------------------------------------------------
-void CvPlot::SetArchaeologicalRecord(GreatWorkArtifactClass eType, EraTypes eEra, PlayerTypes ePlayer1, PlayerTypes ePlayer2)
+void CvPlot::SetArchaeologicalRecord(GreatWorkArtifactClass eType, EraTypes eEra, PlayerTypes ePlayer1, PlayerTypes ePlayer2, bool bIgnoreNormalRestrictions)
 {
-	if (ePlayer1 != NO_PLAYER)
-	{
-		m_kArchaeologyData.m_eArtifactType = eType;
-		m_kArchaeologyData.m_ePlayer1 = ePlayer1;
-		m_kArchaeologyData.m_ePlayer2 = ePlayer2;
-		m_kArchaeologyData.m_eEra = eEra;
-	}
+	if (ePlayer1 == NO_PLAYER)
+		return;
+
+	// Cannot normally add more dig site records after Archaeology is researched
+	if (!bIgnoreNormalRestrictions && GC.getGame().IsArchaeologyTriggered())
+		return;
+
+	m_kArchaeologyData.m_eArtifactType = eType;
+	m_kArchaeologyData.m_ePlayer1 = ePlayer1;
+	m_kArchaeologyData.m_ePlayer2 = ePlayer2;
+	m_kArchaeologyData.m_eEra = eEra;
 }
 
 //	---------------------------------------------------------------------------
-void CvPlot::AddArchaeologicalRecord(GreatWorkArtifactClass eType, PlayerTypes ePlayer1, PlayerTypes ePlayer2)
+void CvPlot::AddArchaeologicalRecord(GreatWorkArtifactClass eType, PlayerTypes ePlayer1, PlayerTypes ePlayer2, bool bIgnoreNormalRestrictions)
 {
-	ImprovementTypes eImprovement = getImprovementType();
-	if (eImprovement != NO_IMPROVEMENT && GC.getImprovementInfo(eImprovement))
-	{
-		if (GC.getImprovementInfo(eImprovement)->IsPermanent() || GC.getImprovementInfo(eImprovement)->IsCreatedByGreatPerson())
-			return;
-	}
-	// Make sure the new record is more significant
-	if (!GC.getGame().IsArchaeologyTriggered() && eType > m_kArchaeologyData.m_eArtifactType)
-	{
-		if (ePlayer1 != NO_PLAYER)
-		{
-			m_kArchaeologyData.m_eArtifactType = eType;
-			m_kArchaeologyData.m_ePlayer1 = ePlayer1;
-			m_kArchaeologyData.m_ePlayer2 = ePlayer2;
-			m_kArchaeologyData.m_eEra = GET_PLAYER(ePlayer1).GetCurrentEra();
-		}
-	}
+	if (ePlayer1 == NO_PLAYER)
+		return;
+
+	AddArchaeologicalRecord(eType, GET_PLAYER(ePlayer1).GetCurrentEra(), ePlayer1, ePlayer2, bIgnoreNormalRestrictions);
 }
 
 //	---------------------------------------------------------------------------
-void CvPlot::AddArchaeologicalRecord(GreatWorkArtifactClass eType, EraTypes eEra, PlayerTypes ePlayer1, PlayerTypes ePlayer2)
+void CvPlot::AddArchaeologicalRecord(GreatWorkArtifactClass eType, EraTypes eEra, PlayerTypes ePlayer1, PlayerTypes ePlayer2, bool bIgnoreNormalRestrictions)
 {
-	ImprovementTypes eImprovement = getImprovementType();
-	if (eImprovement != NO_IMPROVEMENT && GC.getImprovementInfo(eImprovement))
-	{
-		if (GC.getImprovementInfo(eImprovement)->IsPermanent() || GC.getImprovementInfo(eImprovement)->IsCreatedByGreatPerson())
-			return;
-	}
+	// New record must be more significant than the existing one, if present
+	if (!bIgnoreNormalRestrictions && eType <= m_kArchaeologyData.m_eArtifactType)
+		return;
 
-	// Make sure the new record is more significant
-	if (!GC.getGame().IsArchaeologyTriggered() && eType > m_kArchaeologyData.m_eArtifactType)
-	{
-		if (ePlayer1 != NO_PLAYER)
-		{
-			m_kArchaeologyData.m_eArtifactType = eType;
-			m_kArchaeologyData.m_ePlayer1 = ePlayer1;
-			m_kArchaeologyData.m_ePlayer2 = ePlayer2;
-			m_kArchaeologyData.m_eEra = eEra;
-		}
-	}
+	SetArchaeologicalRecord(eType, eEra, ePlayer1, ePlayer2, bIgnoreNormalRestrictions);
 }
 
 //	---------------------------------------------------------------------------
@@ -14462,14 +14432,10 @@ void CvPlot::ClearArchaeologicalRecord()
 	m_kArchaeologyData.m_ePlayer1 = NO_PLAYER;
 	m_kArchaeologyData.m_ePlayer2 = NO_PLAYER;
 	m_kArchaeologyData.m_eEra = NO_ERA;
-#if defined(MOD_BALANCE_CORE)
-	ResourceTypes eArtifactResourceType = static_cast<ResourceTypes>(GD_INT_GET(ARTIFACT_RESOURCE));
-	ResourceTypes eHiddenArtifactResourceType = static_cast<ResourceTypes>(GD_INT_GET(HIDDEN_ARTIFACT_RESOURCE));
-	if (getResourceType() == eArtifactResourceType || getResourceType() == eHiddenArtifactResourceType)
-	{
+	m_kArchaeologyData.m_eWork = NO_GREAT_WORK;
+	ResourceTypes eResource = getResourceType();
+	if (eResource == GD_INT_GET(ARTIFACT_RESOURCE) || eResource == GD_INT_GET(HIDDEN_ARTIFACT_RESOURCE))
 		setResourceType(NO_RESOURCE, 0);
-	}
-#endif
 }
 
 //	---------------------------------------------------------------------------
@@ -14493,13 +14459,56 @@ void CvPlot::SetArtifactGreatWork(GreatWorkType eWork)
 //	---------------------------------------------------------------------------
 bool CvPlot::HasWrittenArtifact() const
 {
-	bool bRtnValue = false;
-	GreatWorkArtifactClass eArtifactClass = m_kArchaeologyData.m_eArtifactType;
-	if (eArtifactClass == CvTypes::getARTIFACT_WRITING())
-	{
-		bRtnValue = true;
-	}
-	return bRtnValue;
+	return m_kArchaeologyData.m_eArtifactType == CvTypes::getARTIFACT_WRITING();
+}
+
+//	---------------------------------------------------------------------------
+/// Is this an eligible tile to place a dig site on?
+bool CvPlot::IsEligibleForDigSite()
+{
+	// Ensure no other resources, not a city, not water, etc.
+	if (!CanSpawnResource(BARBARIAN_PLAYER, /*bIgnoreTech*/ true, /*bIsLand*/ true))
+		return false;
+
+	// Tile must be improvable
+	FeatureTypes eFeature = getFeatureType();
+	if (eFeature != NO_FEATURE && GC.getFeatureInfo(eFeature)->isNoImprovement())
+		return false;
+
+	ImprovementTypes eImprovement = getImprovementType();
+	if (eImprovement == NO_IMPROVEMENT)
+		return true;
+
+	// Don't put dig sites on Great Person tiles, that's mean
+	// Not on Ancient Ruins either, we can't have treasure hunters going spelunking before the surface has even been plundered yet!
+	CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
+	static const ImprovementTypes eLandmark = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_LANDMARK");
+	if (eImprovement == eLandmark || pkImprovementInfo->IsGoody() || pkImprovementInfo->IsPermanent() || pkImprovementInfo->IsCreatedByGreatPerson())
+		return false;
+
+	return true;
+}
+
+//	---------------------------------------------------------------------------
+/// Is this an eligible tile for a normal dig site?
+/// If bSkip = true, we have already handled the validations for all dig sites, and are only checking the normal site specific validations.
+bool CvPlot::IsEligibleForNormalDigSite(bool bSkip)
+{
+	if (!bSkip && !IsEligibleForDigSite())
+		return false;
+
+	static const ResourceTypes eArtifact = static_cast<ResourceTypes>(GD_INT_GET(ARTIFACT_RESOURCE));
+	return canHaveResource(eArtifact);
+}
+
+/// Same as above, but for hidden dig sites.
+bool CvPlot::IsEligibleForHiddenDigSite(bool bSkip)
+{
+	if (!bSkip && !IsEligibleForDigSite())
+		return false;
+
+	static const ResourceTypes eHiddenArtifact = static_cast<ResourceTypes>(GD_INT_GET(HIDDEN_ARTIFACT_RESOURCE));
+	return canHaveResource(eHiddenArtifact);
 }
 
 //	--------------------------------------------------------------------------------
@@ -14851,7 +14860,6 @@ bool CvPlot::IsWithinDistanceOfFeature(FeatureTypes iFeatureType, int iDistance)
 	return false;
 }
 
-#if defined(MOD_BALANCE_CORE)
 bool CvPlot::IsWithinDistanceOfUnit(PlayerTypes ePlayer, UnitTypes eOtherUnit, int iDistance, bool bIsFriendly, bool bIsEnemy) const
 {
 	int iX = getX(); int iY = getY();
@@ -15321,7 +15329,6 @@ bool CvPlot::IsAdjacentToRoute(RouteTypes eType) const
 	}
 	return false;
 }
-#endif
 
 bool CvPlot::IsAdjacentToImprovement(ImprovementTypes iImprovementType) const
 {
@@ -15679,7 +15686,6 @@ int CvPlot::GetNumFriendlyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, 
 	return iNumFriendliesAdjacent;
 }
 
-#if defined(MOD_BALANCE_CORE)
 int CvPlot::GetNumSpecificFriendlyUnitCombatsAdjacent(TeamTypes eMyTeam, UnitCombatTypes eUnitCombat, const CvUnit* pUnitToExclude) const
 {
 	int iNumber = 0;
@@ -15721,7 +15727,6 @@ int CvPlot::GetNumSpecificFriendlyUnitCombatsAdjacent(TeamTypes eMyTeam, UnitCom
 
 	return iNumber;
 }
-#endif
 
 bool CvPlot::IsFriendlyUnitAdjacent(TeamTypes eMyTeam, bool bCombatUnit) const
 {
@@ -15790,7 +15795,6 @@ int CvPlot::GetNumSpecificPlayerUnitsAdjacent(PlayerTypes ePlayer, const CvUnit*
 
 ///-------------------------------------
 
-#if defined(MOD_BALANCE_CORE)
 static int GetDefensiveApproachMultiplierTimes100(CivApproachTypes eApproach)
 {
 	switch (eApproach)
@@ -16078,7 +16082,6 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner, BuildTypes eBuild, Improvem
 	return (iDefensiveValueTimes100 * iDefensibilityTimes100) / 100;
 }
 
-#endif
 
 FDataStream& operator<<(FDataStream& saveTo, const CvPlot* const& readFrom)
 {

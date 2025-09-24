@@ -10,6 +10,7 @@
 #include "CvInfosSerializationHelper.h"
 
 #include "LintFree.h"
+#include "CvUnitClasses.h"
 
 /// Constructor
 CvUnitEntry::CvUnitEntry(void) :
@@ -54,19 +55,19 @@ CvUnitEntry::CvUnitEntry(void) :
 	m_iNumInfPerEra(0),
 	m_iRestingPointChange(0),
 	m_iProductionCostPerEra(0),
-#if defined(MOD_BALANCE_CORE)
 	m_iNumFreeLux(0),
 	m_iBeliefUnlock(NO_BELIEF),
 	m_bCultureFromExperienceOnDisband(false),
 	m_bFreeUpgrade(false),
 	m_bUnitEraUpgrade(false),
 	m_bWarOnly(false),
+	m_bCopyYieldsFromExpendTile(false),
+	m_iTileXPOnExpend(0),
 	m_bWLTKD(false),
 	m_bGoldenAge(false),
 	m_bCultureBoost(false),
 	m_bExtraAttackHealthOnKill(false),
 	m_bHighSeaRaider(false),
-#endif
 	m_bSpreadReligion(false),
 	m_bRemoveHeresy(false),
 	m_iReligionSpreads(0),
@@ -130,7 +131,6 @@ CvUnitEntry::CvUnitEntry(void) :
 	m_bPillage(false),
 	m_bFound(false),
 	m_bFoundAbroad(false),
-#if defined(MOD_BALANCE_CORE)
 	m_bFoundMid(false),
 	m_bFoundLate(false),
 	m_iFoundColony(false),
@@ -138,7 +138,6 @@ CvUnitEntry::CvUnitEntry(void) :
 	m_iGPExtra(0),
 	m_iGoodyModifier(0),
 	m_iSupplyCapBoost(0),
-#endif
 	m_iCultureBombRadius(0),
 	m_iNumberOfCultureBombs(0),
 	m_iGoldenAgeTurns(0),
@@ -158,7 +157,6 @@ CvUnitEntry::CvUnitEntry(void) :
 	m_pbNotUnitAIType(NULL),
 	m_pbBuilds(NULL),
 	m_pbBuildingClassRequireds(NULL),
-#if defined(MOD_BALANCE_CORE)
 	m_piScalingFromOwnedImprovements(NULL),
 	m_pbBuildOnFound(NULL),
 	m_pbBuildingClassPurchaseRequireds(NULL),
@@ -172,7 +170,6 @@ CvUnitEntry::CvUnitEntry(void) :
 	m_iLocalFaithCooldown(0),
 	m_iFriendlyLandsPromotion(NO_PROMOTION),
 	m_iCostScalerNumBuilt(0),
-#endif
 	m_piPrereqAndTechs(NULL),
 	m_piResourceQuantityRequirements(NULL),
 	m_piResourceQuantityExpended(NULL),
@@ -184,12 +181,10 @@ CvUnitEntry::CvUnitEntry(void) :
 	m_paszMiddleArtDefineTags(NULL),
 	m_paszUnitNames(NULL),
 	m_paeGreatWorks(NULL),
-#if defined(MOD_BALANCE_CORE)
 	m_paeGreatPersonEra(NULL),
 	m_piEraCombatStrength(NULL),
 	m_ppiEraUnitCombatType(NULL),
 	m_ppiEraUnitPromotions(NULL),
-#endif
 
 	m_piResourceQuantityTotals(),
 
@@ -211,11 +206,9 @@ CvUnitEntry::~CvUnitEntry(void)
 	SAFE_DELETE_ARRAY(m_pbNotUnitAIType);
 	SAFE_DELETE_ARRAY(m_pbBuilds);
 	SAFE_DELETE_ARRAY(m_pbBuildingClassRequireds);
-#if defined(MOD_BALANCE_CORE)
 	SAFE_DELETE_ARRAY(m_piScalingFromOwnedImprovements);
 	SAFE_DELETE_ARRAY(m_pbBuildOnFound);
 	SAFE_DELETE_ARRAY(m_pbBuildingClassPurchaseRequireds);
-#endif
 	SAFE_DELETE_ARRAY(m_piPrereqAndTechs);
 	SAFE_DELETE_ARRAY(m_piResourceQuantityRequirements);
 	SAFE_DELETE_ARRAY(m_piResourceQuantityExpended);
@@ -230,7 +223,6 @@ CvUnitEntry::~CvUnitEntry(void)
 
 	m_piResourceQuantityTotals.clear();
 
-#if defined(MOD_BALANCE_CORE)
 	SAFE_DELETE_ARRAY(m_paeGreatPersonEra);
 	SAFE_DELETE_ARRAY(m_piEraCombatStrength);
 	if(m_ppiEraUnitCombatType != NULL)
@@ -241,7 +233,6 @@ CvUnitEntry::~CvUnitEntry(void)
 	{
 		CvDatabaseUtility::SafeDelete2DArray(m_ppiEraUnitPromotions);
 	}
-#endif
 
 }
 
@@ -292,10 +283,8 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	m_iNumInfPerEra = kResults.GetInt("NumInfPerEra");
 	m_iRestingPointChange = kResults.GetInt("RestingPointChange");
 	m_iProductionCostPerEra = kResults.GetInt("ProductionCostAddedPerEra");
-#if defined(MOD_BALANCE_CORE)
 	m_iNumFreeLux = kResults.GetInt("NumFreeLux");
 	m_bFreeUpgrade = kResults.GetBool("FreeUpgrade");
-#endif
 	m_bSpreadReligion = kResults.GetBool("SpreadReligion");
 	m_bRemoveHeresy = kResults.GetBool("RemoveHeresy");
 	m_iReligionSpreads = kResults.GetInt("ReligionSpreads");
@@ -329,7 +318,6 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	m_bPillage = kResults.GetBool("Pillage");
 	m_bFound = kResults.GetBool("Found");
 	m_bFoundAbroad = kResults.GetBool("FoundAbroad");
-#if defined(MOD_BALANCE_CORE)
 	m_bFoundMid = kResults.GetBool("FoundMid");
 	m_bFoundLate = kResults.GetBool("FoundLate");
 	m_iFoundColony = kResults.GetInt("FoundColony");
@@ -337,7 +325,6 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	m_iGPExtra = kResults.GetInt("GPExtra");
 	m_iGoodyModifier = kResults.GetInt("GoodyModifier");
 	m_iSupplyCapBoost = kResults.GetInt("SupplyCapBoost");
-#endif
 	m_iCultureBombRadius = kResults.GetInt("CultureBombRadius");
 	m_iNumberOfCultureBombs = kResults.GetInt("NumberOfCultureBombs");
 	m_iGoldenAgeTurns = kResults.GetInt("GoldenAgeTurns");
@@ -392,8 +379,6 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	szTextVal = kResults.GetText("SpecialUnitCargoLoad");
 	m_iSpecialUnitCargoLoad = GC.getInfoTypeForString(szTextVal, true);
 #endif
-#if defined(MOD_BALANCE_CORE)
-	
 	m_iCostScalerNumBuilt = kResults.GetInt("CostScalerNumRepeats");
 
 	szTextVal = kResults.GetText("ResourceType");
@@ -417,12 +402,13 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	m_bCultureFromExperienceOnDisband = kResults.GetBool("CulExpOnDisbandUpgrade");
 	m_bUnitEraUpgrade = kResults.GetBool("UnitEraUpgrade");
 	m_bWarOnly = kResults.GetBool("WarOnly");
+	m_bCopyYieldsFromExpendTile = kResults.GetBool("CopyYieldsFromExpendTile");
+	m_iTileXPOnExpend = kResults.GetInt("TileXPOnExpend");
 	m_bWLTKD = kResults.GetBool("WLTKDFromBirth");
 	m_bGoldenAge = kResults.GetBool("GoldenAgeFromBirth");
 	m_bCultureBoost = kResults.GetBool("CultureBoost");
 	m_bExtraAttackHealthOnKill = kResults.GetBool("ExtraAttackHealthOnKill");
 	m_bHighSeaRaider = kResults.GetBool("HighSeaRaider");
-#endif
 
 #if defined(MOD_EVENTS_CAN_MOVE_INTO)
 	m_bSendCanMoveIntoEvent = kResults.GetBool("SendCanMoveIntoEvent");
@@ -491,12 +477,10 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 
 	kUtility.PopulateArrayByExistence(m_pbBuilds, "Builds", "Unit_Builds", "BuildType", "UnitType", szUnitType);
 	kUtility.PopulateArrayByExistence(m_pbBuildingClassRequireds, "BuildingClasses", "Unit_BuildingClassRequireds", "BuildingClassType", "UnitType", szUnitType);
-#if defined(MOD_BALANCE_CORE)
 	kUtility.PopulateArrayByValue(m_piScalingFromOwnedImprovements, "Improvements", "Unit_ScalingFromOwnedImprovements", "ImprovementType", "UnitType", szUnitType, "Amount");
 	kUtility.PopulateArrayByExistence(m_pbBuildOnFound, "BuildingClasses", "Unit_BuildOnFound", "BuildingClassType", "UnitType", szUnitType);
 	kUtility.PopulateArrayByExistence(m_pbBuildingClassPurchaseRequireds, "BuildingClasses", "Unit_BuildingClassPurchaseRequireds", "BuildingClassType", "UnitType", szUnitType);
 	kUtility.PopulateArrayByValue(m_piEraCombatStrength, "Eras", "Unit_EraCombatStrength", "EraType", "UnitType", szUnitType, "CombatStrength");
-#endif
 	//TechTypes
 	{
 		//Initialize array to NO_TECH
@@ -543,9 +527,7 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 		{
 			m_paszUnitNames = FNEW(CvString[m_iNumUnitNames], c_eCiv5GameplayDLL, 0);
 			m_paeGreatWorks = FNEW(GreatWorkType[m_iNumUnitNames], c_eCiv5GameplayDLL, 0);
-#if defined(MOD_BALANCE_CORE)
 			m_paeGreatPersonEra = FNEW(EraTypes[m_iNumUnitNames], c_eCiv5GameplayDLL, 0);
-#endif
 
 			std::string strKey = "Units - UniqueNames";
 			Database::Results* pResults = kUtility.GetResults(strKey);
@@ -570,7 +552,6 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 				{
 					m_paeGreatWorks[i] = static_cast<GreatWorkType>(GC.getInfoTypeForString(szGreatWorkType, true));
 				}
-#if defined(MOD_BALANCE_CORE)
 				const char* szEraType = pResults->GetText(2);
 				if(szEraType == NULL)
 				{
@@ -580,7 +561,6 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 				{
 					m_paeGreatPersonEra[i] = static_cast<EraTypes>(GC.getInfoTypeForString(szEraType, true));
 				}
-#endif
 				i++;
 			}
 
@@ -623,7 +603,6 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 		pMovementRates->Reset();
 
 	}
-#if defined(MOD_BALANCE_CORE)
 	//Populate m_ppiEraUnitCombatType
 	{
 		const int iNumUnitCombats = kUtility.MaxRows("UnitCombatInfos");
@@ -702,7 +681,6 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 		//Trim extra memory off container since this is mostly read-only.
 		std::map<int, int>(m_piResourceQuantityTotals).swap(m_piResourceQuantityTotals);
 	}
-#endif
 	// Calculate military Power and cache it
 	DoUpdatePower();
 
@@ -922,7 +900,6 @@ int CvUnitEntry::GetProductionCostPerEra() const
 	return m_iProductionCostPerEra;
 }
 
-#if defined(MOD_BALANCE_CORE)
 /// Free Luxuries in Capital (for great people)
 int CvUnitEntry::GetNumFreeLux() const
 {
@@ -937,7 +914,6 @@ int CvUnitEntry::GetBeliefUnlock() const
 {
 	return m_iBeliefUnlock;
 }
-#endif
 /// Can this Unit Spread Religion to a City?
 bool CvUnitEntry::IsSpreadReligion() const
 {
@@ -1144,7 +1120,6 @@ int CvUnitEntry::GetObsoleteTech() const
 	return m_iObsoleteTech;
 }
 
-#if defined(MOD_BALANCE_CORE)
 /// Era this unit belongs to
 int CvUnitEntry::GetEra() const
 {
@@ -1162,7 +1137,6 @@ int CvUnitEntry::GetCostScalerNumberBuilt() const
 {
 	return m_iCostScalerNumBuilt;
 }
-#endif
 
 /// Policy required for this unit
 int CvUnitEntry::GetPolicyType() const
@@ -1409,6 +1383,14 @@ bool CvUnitEntry::IsWarOnly() const
 {
 	return m_bWarOnly;
 }
+bool CvUnitEntry::IsCopyYieldsFromExpendTile() const
+{
+	return m_bCopyYieldsFromExpendTile;
+}
+int CvUnitEntry::GetTileXPOnExpend() const
+{
+    return m_iTileXPOnExpend;
+}
 bool CvUnitEntry::IsWLTKDFromBirth() const
 {
 	return m_bWLTKD;
@@ -1567,7 +1549,6 @@ int CvUnitEntry::GetScalingFromOwnedImprovements(int i) const
 	return m_piScalingFromOwnedImprovements ? m_piScalingFromOwnedImprovements[i] : -1;
 }
 
-#if defined(MOD_BALANCE_CORE)
 /// Does this Unit create something when it founds a city?
 bool CvUnitEntry::GetBuildOnFound(int i) const
 {
@@ -1617,7 +1598,6 @@ int* CvUnitEntry::GetUnitNewEraPromotionsChangesArray(int i)
 {
 	return m_ppiEraUnitPromotions[i];
 }
-#endif
 
 /// Player must have gross number of resources to build (does not consume)
 int CvUnitEntry::GetResourceQuantityTotal(int i) const
@@ -1711,7 +1691,6 @@ bool CvUnitEntry::IsGreatWorkUnit() const
 	}
 	return false;
 }
-#if defined(MOD_BALANCE_CORE)
 /// Unique era for individual units.
 EraTypes CvUnitEntry::GetGreatPersonEra(int i) const
 {
@@ -1762,7 +1741,6 @@ PromotionTypes CvUnitEntry::GetFriendlyLandsPromotion() const
 {
 	return (PromotionTypes)m_iFriendlyLandsPromotion;
 }
-#endif
 /// What flag icon to use
 int CvUnitEntry::GetUnitFlagIconOffset() const
 {
@@ -1897,6 +1875,14 @@ void CvUnitEntry::DoUpdatePower()
 			if (kPromotion->GetCombatModPerCSAlliance() > 0)
 			{
 				iTemp = (iBasePower * kPromotion->GetCombatModPerCSAlliance() * (/*5*/ GD_INT_GET(BALANCE_MAX_CS_ALLY_STRENGTH)) / 2);
+				iTemp /= 100;
+				iBonusPower += iTemp;
+			}
+
+			/// Combat Mod per Level - add two times the bonus
+			if (kPromotion->GetCombatModPerLevel() > 0)
+			{
+				iTemp = (iBasePower * kPromotion->GetCombatModPerLevel()) * 2;
 				iTemp /= 100;
 				iBonusPower += iTemp;
 			}

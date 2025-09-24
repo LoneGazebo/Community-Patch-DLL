@@ -4886,11 +4886,8 @@ void CvMinorCivAI::DoChangeAliveStatus(bool bAlive)
 			SetFriendshipWithMajorTimes100(e, vNewInfluence.at(i));
 		}
 		SetDisableNotifications(false);
-	}
 
-	// Death - Reset the cached ally and barbarian threat counter
-	if (!bAlive)
-	{
+		// Death - Reset the cached ally and barbarian threat counter
 		bool bHasAlly = GetAlly() != NO_PLAYER;
 		ASSERT_DEBUG(!bHasAlly, "A Minor about to die still has an Ally, when it should have none.");
 		if(bHasAlly)
@@ -9122,7 +9119,6 @@ void CvMinorCivAI::EndAllActiveQuestsForPlayer(PlayerTypes ePlayer, bool bWar)
 	//antonjs: todo: instead, call for cancel quest (with flag for no notif)
 	DoObsoleteQuestsForPlayer(ePlayer, NO_MINOR_CIV_QUEST_TYPE, bWar);
 }
-#if defined(MOD_BALANCE_CORE)
 void CvMinorCivAI::DeleteQuest(PlayerTypes ePlayer, MinorCivQuestTypes eType)
 {
 	ASSERT_DEBUG(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
@@ -9141,7 +9137,6 @@ void CvMinorCivAI::DeleteQuest(PlayerTypes ePlayer, MinorCivQuestTypes eType)
 		}
 	}
 }
-#endif
 
 int CvMinorCivAI::GetNumDisplayedQuestsForPlayer(PlayerTypes ePlayer)
 {
@@ -10113,9 +10108,7 @@ BuildingTypes CvMinorCivAI::GetBestWorldWonderForQuest(PlayerTypes ePlayer, int 
 	std::vector<int> allBuildingCount = GET_PLAYER(ePlayer).GetTotalBuildingCount();
 	vector<BuildingTypes> veValidBuildings;
 	int iCompletionThreshold = /*25*/ max(GD_INT_GET(MINOR_CIV_QUEST_WONDER_COMPLETION_THRESHOLD), 0);
-	int iCompletionMaxTurns = /*30*/ max(GD_INT_GET(MINOR_CIV_QUEST_WONDER_COMPLETION_MAX_TURNS), 0);
-	if (iDuration > 0 && max(iDuration - 2, 1) < iCompletionMaxTurns)
-		iCompletionMaxTurns = max(iDuration - 2, 1);
+	int iCompletionMaxTurns = /*30*/ max(GD_INT_GET(MINOR_CIV_QUEST_WONDER_COMPLETION_MAX_TURNS), 5);
 
 	// Loop through all Buildings and see if they're useful
 	for (int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
@@ -10233,6 +10226,10 @@ BuildingTypes CvMinorCivAI::GetBestWorldWonderForQuest(PlayerTypes ePlayer, int 
 				iMaxTurns = 1;
 		}
 
+		// Make sure the max turns does not exceed the quest duration minus 2 turns
+		if (iDuration > 0)
+			iMaxTurns = min(iMaxTurns, iDuration - 2);
+
 		bool bNoValidCity = true;
 		int iCityLoop = 0;
 		for (CvCity* pLoopCity = GET_PLAYER(ePlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iCityLoop))
@@ -10249,7 +10246,7 @@ BuildingTypes CvMinorCivAI::GetBestWorldWonderForQuest(PlayerTypes ePlayer, int 
 				continue;
 
 			// How many turns will it take to produce the Wonder? Is it a reasonable delay?
-			if (iMaxTurns > 0 && pLoopCity->getProductionTurnsLeft(eBuilding, 0) > iMaxTurns)
+			if (pLoopCity->getProductionTurnsLeft(eBuilding, 0) > iMaxTurns)
 				continue;
 
 			bNoValidCity = false;
@@ -11113,7 +11110,7 @@ bool CvMinorCivAI::IsCoupAttempted(PlayerTypes ePlayer)
 {
 	ASSERT_DEBUG(ePlayer >= 0, "eForPlayer is expected to be non-negative (invalid Index)");
 	ASSERT_DEBUG(ePlayer < MAX_MAJOR_CIVS, "eForPlayer is expected to be within maximum bounds (invalid Index)");
-	if(ePlayer < 0 || ePlayer >= REALLY_MAX_PLAYERS) return false;  // as defined in Reset()
+	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return false;  // as defined in Reset()
 	return m_abCoupAttempted[ePlayer];
 }
 void CvMinorCivAI::SetTargetedAreaID(PlayerTypes ePlayer, int iValue)
@@ -11129,7 +11126,7 @@ int CvMinorCivAI::GetTargetedAreaID(PlayerTypes ePlayer)
 {
 	ASSERT_DEBUG(ePlayer >= 0, "eForPlayer is expected to be non-negative (invalid Index)");
 	ASSERT_DEBUG(ePlayer < MAX_MAJOR_CIVS, "eForPlayer is expected to be within maximum bounds (invalid Index)");
-	if(ePlayer < 0 || ePlayer >= REALLY_MAX_PLAYERS) return -1;  // as defined in Reset()
+	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return -1;  // as defined in Reset()
 	return m_aiAssignedPlotAreaID[ePlayer];
 }
 void CvMinorCivAI::SetNumTurnsSincePtPWarning(PlayerTypes ePlayer, int iValue)
@@ -11145,7 +11142,7 @@ int CvMinorCivAI::GetNumTurnsSincePtPWarning(PlayerTypes ePlayer)
 {
 	ASSERT_DEBUG(ePlayer >= 0, "eForPlayer is expected to be non-negative (invalid Index)");
 	ASSERT_DEBUG(ePlayer < MAX_MAJOR_CIVS, "eForPlayer is expected to be within maximum bounds (invalid Index)");
-	if(ePlayer < 0 || ePlayer >= REALLY_MAX_PLAYERS) return -1;  // as defined in Reset()
+	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return -1;  // as defined in Reset()
 	return m_aiTurnsSincePtPWarning[ePlayer];
 }
 void CvMinorCivAI::ChangeNumTurnsSincePtPWarning(PlayerTypes ePlayer, int iValue)
@@ -14641,7 +14638,6 @@ int CvMinorCivAI::GetCurrentFaithBonus(PlayerTypes ePlayer)
 	return iValue;
 }
 
-#if defined(MOD_BALANCE_CORE)
 int CvMinorCivAI::GetGoldFlatFriendshipBonus(PlayerTypes ePlayer, EraTypes eAssumeEra) const
 {
 	int iGoldBonus = 0;
@@ -14921,7 +14917,6 @@ int CvMinorCivAI::GetCurrentScienceBonus(PlayerTypes ePlayer)
 
 	return iValue;
 }
-#endif
 
 // Food bonus when Friends with a minor - additive with general city bonus
 int CvMinorCivAI::GetFriendsCapitalFoodBonus(PlayerTypes ePlayer, EraTypes eAssumeEra)
@@ -16407,7 +16402,7 @@ bool CvMinorCivAI::CanMajorBullyUnit(PlayerTypes ePlayer)
 	if(!GetPlayer()->isAlive())
 		return false;
 
-	if(MOD_BALANCE_CORE && IsAtWarWithPlayersTeam(ePlayer))
+	if(IsAtWarWithPlayersTeam(ePlayer))
 		return false;
 
 	int iScore = CalculateBullyScore(ePlayer, /*bForUnit*/ true);
@@ -16425,7 +16420,7 @@ bool CvMinorCivAI::CanMajorBullyUnit(PlayerTypes ePlayer, int iSpecifiedBullyMet
 	if(!GetPlayer()->isAlive())
 		return false;
 
-	if(MOD_BALANCE_CORE && IsAtWarWithPlayersTeam(ePlayer))
+	if(IsAtWarWithPlayersTeam(ePlayer))
 		return false;
 
 	if (MOD_EVENTS_MINORS_INTERACTION) {
@@ -18250,8 +18245,8 @@ void CvMinorCivAI::SetNoAlly(bool bValue)
 bool CvMinorCivAI::IsSiphoned(PlayerTypes ePlayer) const
 {
 	ASSERT_DEBUG(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(ePlayer < REALLY_MAX_PLAYERS, "ePlayer is expected to be within maximum bounds (invalid Index)");
-	if(ePlayer < 0 || ePlayer >= REALLY_MAX_PLAYERS)
+	ASSERT_DEBUG(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
+	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS)
 	{
 		return false;  // as defined in Reset()
 	}
@@ -18260,7 +18255,7 @@ bool CvMinorCivAI::IsSiphoned(PlayerTypes ePlayer) const
 void CvMinorCivAI::SetSiphoned(PlayerTypes ePlayer, bool bValue)
 {
 	ASSERT_DEBUG(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(ePlayer < REALLY_MAX_PLAYERS, "ePlayer is expected to be within maximum bounds (invalid Index)");
+	ASSERT_DEBUG(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
 	if(IsSiphoned(ePlayer) != bValue)
 	{
 		m_abSiphoned[ePlayer] = bValue;
@@ -18596,7 +18591,6 @@ CvString CvMinorCivAI::GetStatusChangeDetails(PlayerTypes ePlayer, bool bAdd, bo
 	}
 	else if(eTrait == MINOR_CIV_TRAIT_MILITARISTIC)
 	{
-#if defined(MOD_BALANCE_CORE)
 		int iScienceBonusAmount = 0;
 		if (bFriends)
 		{
@@ -18610,39 +18604,30 @@ CvString CvMinorCivAI::GetStatusChangeDetails(PlayerTypes ePlayer, bool bAdd, bo
 		{
 			iScienceBonusAmount = -iScienceBonusAmount;
 		}
-#endif
 		if(bAllies && bAdd)		// Now Allies (includes jump from nothing through Friends to Allies)
 			strDetailedInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_NOW_ALLIES_MILITARISTIC");
-#if defined(MOD_BALANCE_CORE)
 		if(iScienceBonusAmount != 0)
 		{
 			strDetailedInfo << iScienceBonusAmount;
 		}
-#endif
 		else if(bFriends && bAdd)		// Now Friends
 			strDetailedInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_NOW_FRIENDS_MILITARISTIC");
-#if defined(MOD_BALANCE_CORE)
 			if(iScienceBonusAmount != 0)
 			{
 				strDetailedInfo << iScienceBonusAmount;
 			}
-#endif
 		else if(bFriends && !bAdd)		// No longer Friends (includes drop from Allies down to nothing) - this should be before the Allies check!
 			strDetailedInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_LOST_FRIENDS_MILITARISTIC");
-#if defined(MOD_BALANCE_CORE)
 			if(iScienceBonusAmount != 0)
 			{
 				strDetailedInfo << iScienceBonusAmount;
 			}
-#endif
 		else if(bAllies && !bAdd)		// No longer Allies
 			strDetailedInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_LOST_ALLIES_MILITARISTIC");
-#if defined(MOD_BALANCE_CORE)
 			if(iScienceBonusAmount != 0)
 			{
 				strDetailedInfo << iScienceBonusAmount;
 			}
-#endif
 	}
 	else if(eTrait == MINOR_CIV_TRAIT_MARITIME)
 	{
@@ -18691,7 +18676,6 @@ CvString CvMinorCivAI::GetStatusChangeDetails(PlayerTypes ePlayer, bool bAdd, bo
 	else if(eTrait == MINOR_CIV_TRAIT_MERCANTILE)
 	{
 		int iHappinessBonus = 0;
-#if defined(MOD_BALANCE_CORE)
 		int iGoldBonusAmount = 0;
 		if (bFriends)
 		{
@@ -18705,7 +18689,6 @@ CvString CvMinorCivAI::GetStatusChangeDetails(PlayerTypes ePlayer, bool bAdd, bo
 		{
 			iGoldBonusAmount = -iGoldBonusAmount;
 		}
-#endif
 		if(bFriends)	// Friends bonus
 		{
 			iHappinessBonus += GetHappinessFlatFriendshipBonus(ePlayer) + GetHappinessPerLuxuryFriendshipBonus(ePlayer);
@@ -18723,34 +18706,28 @@ CvString CvMinorCivAI::GetStatusChangeDetails(PlayerTypes ePlayer, bool bAdd, bo
 		{
 			strDetailedInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_NOW_ALLIES_MERCANTILE");
 			strDetailedInfo << iHappinessBonus;
-#if defined(MOD_BALANCE_CORE)
 			if(iGoldBonusAmount != 0)
 			{
 				strDetailedInfo << iGoldBonusAmount;
 			}
-#endif
 		}
 		else if(bFriends && bAdd)		// Now Friends
 		{
 			strDetailedInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_NOW_FRIENDS_MERCANTILE");
 			strDetailedInfo << iHappinessBonus;
-#if defined(MOD_BALANCE_CORE)
 			if(iGoldBonusAmount != 0)
 			{
 				strDetailedInfo << iGoldBonusAmount;
 			}
-#endif
 		}
 		else if(!bAdd)		// Bonus diminished (or removed)
 		{
 			strDetailedInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_LOST_MERCANTILE");
 			strDetailedInfo << iHappinessBonus;
-#if defined(MOD_BALANCE_CORE)
 			if(iGoldBonusAmount != 0)
 			{
 				strDetailedInfo << iGoldBonusAmount;
 			}
-#endif
 		}
 	}
 

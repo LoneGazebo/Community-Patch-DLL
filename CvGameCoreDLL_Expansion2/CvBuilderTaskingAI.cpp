@@ -196,10 +196,10 @@ void CvBuilderTaskingAI::Update(void)
 //	---------------------------------------------------------------------------
 int CvBuilderTaskingAI::GetMoveCostWithRoute(const CvPlot* pFromPlot, const CvPlot* pToPlot, RouteTypes eFromPlotRoute, RouteTypes eToPlotRoute)
 {
-	if (plotDistance(pFromPlot->getX(), pFromPlot->getY(), pToPlot->getX(), pToPlot->getY()) != 1)
+	if (!pFromPlot || !pToPlot)
 		return 0;
 
-	if (!pFromPlot || !pToPlot)
+	if (plotDistance(pFromPlot->getX(), pFromPlot->getY(), pToPlot->getX(), pToPlot->getY()) != 1)
 		return 0;
 
 	int iMoveDenominator = GD_INT_GET(MOVE_DENOMINATOR);
@@ -1156,7 +1156,7 @@ ImprovementTypes CvBuilderTaskingAI::SavePlotForUniqueImprovement(const CvPlot* 
 			(pkImprovementInfo->IsCoastal() && pPlot->isCoastalLand()) ||
 			(pkImprovementInfo->IsHillsMakesValid() && pPlot->isHills()))
 		{
-			if (pPlot->canHaveImprovement(eImprovement, m_pPlayer->GetID(), false, true))
+			if (pPlot->canHaveImprovement(eImprovement, m_pPlayer->GetID(), true))
 				return eImprovement;
 		}
 
@@ -1512,7 +1512,6 @@ void CvBuilderTaskingAI::UpdateRoutePlots(void)
 				continue;
 			}
 		}
-#if defined(MOD_BALANCE_CORE)
 		if(GC.getBuildInfo(eBuild)->getTechObsolete() != NO_TECH)
 		{
 			bool bHasTech = GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->HasTech((TechTypes)GC.getBuildInfo(eBuild)->getTechObsolete());
@@ -1521,7 +1520,6 @@ void CvBuilderTaskingAI::UpdateRoutePlots(void)
 				continue;
 			}
 		}
-#endif
 
 		for(std::vector<OptionWithScore<int>>::const_iterator it1 = sortedPlots.begin(); it1 != sortedPlots.end() - 1; ++it1)
 		{
@@ -2062,7 +2060,7 @@ vector<OptionWithScore<BuilderDirective>> CvBuilderTaskingAI::GetImprovementDire
 			AddScrubFalloutDirectives(aDirectives, pPlot, pWorkingCity);
 			AddRepairImprovementDirective(aDirectives, pPlot, pWorkingCity);
 		}
-		else if (!pPlot->isOwned() && pPlot->isAdjacentPlayer(m_pPlayer->GetID()))
+		else if ((!pPlot->isOwned() || m_pPlayer->IsCultureBombForeignTerritory()) && pPlot->isAdjacentPlayer(m_pPlayer->GetID()))
 		{
 			//some special improvements
 			AddImprovingPlotsDirective(aDirectives, pPlot, pWorkingCity, aPossibleBuilds);
@@ -2434,7 +2432,6 @@ void CvBuilderTaskingAI::AddChopDirectives(vector<OptionWithScore<BuilderDirecti
 		return;
 	}
 
-#if defined(MOD_BALANCE_CORE)
 	//Don't cut down city connections!
 	if (m_pPlayer->GetPlayerTraits()->IsWoodlandMovementBonus() && (eFeature == FEATURE_FOREST || eFeature == FEATURE_JUNGLE))
 	{
@@ -2443,7 +2440,6 @@ void CvBuilderTaskingAI::AddChopDirectives(vector<OptionWithScore<BuilderDirecti
 			return;
 		}
 	}
-#endif
 
 	BuildTypes eChopBuild = NO_BUILD;
 	for(int iBuildIndex = 0; iBuildIndex < GC.getNumBuildInfos(); iBuildIndex++)
@@ -2643,9 +2639,12 @@ bool CvBuilderTaskingAI::ShouldAnyBuilderConsiderPlot(const CvPlot* pPlot) const
 	if (!pPlot->isRevealed(m_pPlayer->getTeam()))
 		return false;
 
-	//can't build in other major player's territory (unless they are our vassal)
-	if (pPlot->isOwned() && pPlot->getOwner() != m_pPlayer->GetID() && GET_PLAYER(pPlot->getOwner()).isMajorCiv() && !GET_TEAM(pPlot->getTeam()).IsVassal(m_pPlayer->getTeam()))
-		return false;
+	//can't build in other major player's territory (unless they are our vassal or we border them)
+	if (pPlot->isOwned() && pPlot->getOwner() != m_pPlayer->GetID() && GET_PLAYER(pPlot->getOwner()).isMajorCiv())
+	{
+		if ((!m_pPlayer->IsCultureBombForeignTerritory() || !pPlot->isAdjacentTeam(m_pPlayer->getTeam())) && !GET_TEAM(pPlot->getTeam()).IsVassal(m_pPlayer->getTeam()))
+			return false;
+	}
 
 	return true;
 }
@@ -3316,13 +3315,16 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 					{
 						CvPlot* pCityAdjacentPlot = plotDirection(pNextCity->getX(), pNextCity->getY(), ((DirectionTypes)iDirectionLoop));
 
+					if (pCityAdjacentPlot)
+					{
 						FeatureTypes eAdjacentFeature = GetPlannedFeatureInPlot(pCityAdjacentPlot, sState);
 						ImprovementTypes eAdjacentImprovement = GetPlannedImprovementInPlot(pCityAdjacentPlot, sState);
 
-						if (pCityAdjacentPlot && eAdjacentFeature == eFeature && eAdjacentImprovement == NO_IMPROVEMENT)
+						if (eAdjacentFeature == eFeature && eAdjacentImprovement == NO_IMPROVEMENT)
 						{
 							iAdjacentForests++;
 						}
+					}
 					}
 
 					if (iAdjacentForests == 3 || (iAdjacentForests == 2 && MOD_ALTERNATE_CELTS) || iAdjacentForests == 1)
@@ -4487,10 +4489,8 @@ void CvBuilderTaskingAI::UpdateCurrentPlotYields(const CvPlot* pPlot)
 {
 	for(uint ui = 0; ui < NUM_YIELD_TYPES; ui++)
 	{
-#if defined(MOD_BALANCE_CORE)
 		if((YieldTypes)ui <= YIELD_CULTURE_LOCAL)
 		{
-#endif
 		m_aiCurrentPlotYields[ui] = pPlot->getYield((YieldTypes)ui);
 
 		/*if (m_bLogging) {
@@ -4499,12 +4499,10 @@ void CvBuilderTaskingAI::UpdateCurrentPlotYields(const CvPlot* pPlot)
 			strLog.Format("Plot Yield Update, %s, %i, %i, %i", FSerialization::toString(yield).c_str(), m_aiCurrentPlotYields[ui], pPlot->getX(), pPlot->getY());
 			LogYieldInfo(strLog, m_pPlayer);
 		}*/
-#if defined(MOD_BALANCE_CORE)
 		}
 		else
 			//zero it
 			m_aiCurrentPlotYields[ui] = 0;
-#endif
 	}
 }
 
@@ -4535,10 +4533,8 @@ void CvBuilderTaskingAI::UpdateProjectedPlotYields(const CvPlot* pPlot, BuildTyp
 
 		for (uint ui = 0; ui < NUM_YIELD_TYPES; ui++)
 		{
-#if defined(MOD_BALANCE_CORE)
 			if ((YieldTypes)ui <= YIELD_CULTURE_LOCAL)
 			{
-#endif
 				m_aiProjectedPlotYields[ui] = pPlot->getYieldWithBuild(eBuild, (YieldTypes)ui, false, eForceCityConnection, m_pPlayer->GetID(), pOwningCity, pReligion, pBelief);
 				m_aiProjectedPlotYields[ui] = max(m_aiProjectedPlotYields[ui], 0);
 
@@ -4565,22 +4561,18 @@ void CvBuilderTaskingAI::UpdateProjectedPlotYields(const CvPlot* pPlot, BuildTyp
 					strLog.Format("Plot Projected Yield Update, %s, %i, %i, %i", FSerialization::toString(yield).c_str(), m_aiProjectedPlotYields[ui], pPlot->getX(), pPlot->getY());
 					LogYieldInfo(strLog, m_pPlayer);
 				}*/
-#if defined(MOD_BALANCE_CORE)
 			}
 			else
 				//zero it!
 				m_aiProjectedPlotYields[ui] = 0;
-#endif
 		}
 	}
 	else
 	{
 		for (uint ui = 0; ui < NUM_YIELD_TYPES; ui++)
 		{
-#if defined(MOD_BALANCE_CORE)
 			if ((YieldTypes)ui <= YIELD_CULTURE_LOCAL)
 			{
-#endif
 				m_aiProjectedPlotYields[ui] = pPlot->getYieldWithBuild(eBuild, (YieldTypes)ui, false, eForceCityConnection, m_pPlayer->GetID(), NULL, NULL, NULL);
 				m_aiProjectedPlotYields[ui] = max(m_aiProjectedPlotYields[ui], 0);
 
@@ -4590,12 +4582,10 @@ void CvBuilderTaskingAI::UpdateProjectedPlotYields(const CvPlot* pPlot, BuildTyp
 					strLog.Format("Plot Projected Yield Update, %s, %i, %i, %i", FSerialization::toString(yield).c_str(), m_aiProjectedPlotYields[ui], pPlot->getX(), pPlot->getY());
 					LogYieldInfo(strLog, m_pPlayer);
 				}*/
-#if defined(MOD_BALANCE_CORE)
 			}
 			else
 				//zero it!
 				m_aiProjectedPlotYields[ui] = 0;
-#endif
 		}
 	}
 }

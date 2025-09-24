@@ -170,7 +170,7 @@ public:
 	void updateSeeFromSight(bool bIncrement, bool bRecalculate);
 
 	bool canHaveResource(ResourceTypes eResource, bool bIgnoreLatitude = false, bool bIgnoreCiv = false) const;
-	bool canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlayer = NO_PLAYER, bool bOnlyTestVisible = false, bool bCheckAdjacency = false, bool bTestXAdjacent = false) const;
+	bool canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlayer = NO_PLAYER, bool bCheckAdjacency = false, bool bTestXAdjacent = false) const;
 	BuildTypes GetBuildTypeFromImprovement(ImprovementTypes eImprovement) const;
 
 	bool CanSpawnResource(PlayerTypes ePlayer, bool bIgnoreTech = true, bool bIsLand=true) const;
@@ -587,8 +587,8 @@ public:
 	int calculateReligionNatureYield(YieldTypes eYield, PlayerTypes ePlayer, ImprovementTypes eImprovement, FeatureTypes eFeature, ResourceTypes eResource, const CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon) const;
 	int calculateReligionImprovementYield(YieldTypes eYield, PlayerTypes ePlayer, ImprovementTypes eImprovement, ResourceTypes eResource, const CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon) const;
 
-	int calculateYield(YieldTypes eYield, bool bDisplay = false, const CvCity* pOwningCity=NULL);
-	int calculateYieldFast(YieldTypes eYield, bool bDisplay, const CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon, const CvReligion* pPlayerPantheon=NULL);
+	int calculateYield(YieldTypes eYield, bool bDisplay = false, const CvCity* pOwningCity=NULL, bool bAssumeNoImprovement = false);
+	int calculateYieldFast(YieldTypes eYield, bool bDisplay, const CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon, const CvReligion* pPlayerPantheon=NULL, bool bAssumeNoImprovement = false);
 
 	bool hasYield() const;
 
@@ -667,10 +667,8 @@ public:
 	bool IsKnownVisibleToTeam(TeamTypes eTeam) const;
 	void IncreaseKnownVisibilityCount(TeamTypes eTeam, TeamTypes eTeam2=NO_TEAM);
 	void ResetKnownVisibility();
-#if defined(MOD_BALANCE_CORE)
 	bool IsTeamImpassable(TeamTypes eTeam) const;
 	void SetTeamImpassable(TeamTypes eTeam, bool bValue);
-#endif
 
 	ImprovementTypes getRevealedImprovementType(TeamTypes eTeam, bool bDebug) const;
 	ImprovementTypes getRevealedImprovementType(TeamTypes eTeam) const;
@@ -710,7 +708,6 @@ public:
 	void changeInvisibleVisibilityCount(TeamTypes eTeam, InvisibleTypes eInvisible, int iChange);
 
 	int getNumUnits() const;
-#if defined(MOD_BALANCE_CORE)
 	int GetUnitPlotExperience() const;
 	void ChangeUnitPlotExperience(int iExperience);
 	int GetUnitPlotGAExperience() const;
@@ -720,7 +717,6 @@ public:
 	void ChangePlotMovesChange(int iValue);
 	bool IsRestoreMoves() const;
 	void ChangeRestoreMovesCount(int iValue);
-#endif
 	int GetNumCombatUnits();
 	CvUnit* getUnitByIndex(int iIndex) const;
 	int getUnitIndex(CvUnit* pUnit) const;
@@ -765,15 +761,19 @@ public:
 	int Validate(CvMap& kParentMap);
 
 	bool MustPayMaintenanceHere(PlayerTypes ePlayer) const;
-	void SetArchaeologicalRecord(GreatWorkArtifactClass eType, PlayerTypes ePlayer1, PlayerTypes ePlayer2);
-	void SetArchaeologicalRecord(GreatWorkArtifactClass eType, EraTypes eEra, PlayerTypes ePlayer1, PlayerTypes ePlayer2);
-	void AddArchaeologicalRecord(GreatWorkArtifactClass eType, PlayerTypes ePlayer1, PlayerTypes ePlayer2);
-	void AddArchaeologicalRecord(GreatWorkArtifactClass eType, EraTypes eEra, PlayerTypes ePlayer1, PlayerTypes ePlayer2);
+	void SetArchaeologicalRecord(GreatWorkArtifactClass eType, PlayerTypes ePlayer1, PlayerTypes ePlayer2, bool bIgnoreNormalRestrictions = false);
+	void SetArchaeologicalRecord(GreatWorkArtifactClass eType, EraTypes eEra, PlayerTypes ePlayer1, PlayerTypes ePlayer2, bool bIgnoreNormalRestrictions = false);
+	void AddArchaeologicalRecord(GreatWorkArtifactClass eType, PlayerTypes ePlayer1, PlayerTypes ePlayer2, bool bIgnoreNormalRestrictions = false);
+	void AddArchaeologicalRecord(GreatWorkArtifactClass eType, EraTypes eEra, PlayerTypes ePlayer1, PlayerTypes ePlayer2, bool bIgnoreNormalRestrictions = false);
 	void ClearArchaeologicalRecord();
 	CvArchaeologyData GetArchaeologicalRecord() const;
 	void SetArtifactType(GreatWorkArtifactClass eType);
 	void SetArtifactGreatWork(GreatWorkType eWork);
 	bool HasWrittenArtifact() const;
+
+	bool IsEligibleForDigSite();
+	bool IsEligibleForNormalDigSite(bool bSkip);
+	bool IsEligibleForHiddenDigSite(bool bSkip);
 
 	int GetDamageFromAdjacentPlots(PlayerTypes ePlayer) const;
 
@@ -817,7 +817,6 @@ public:
 	LUAAPIINLINE(IsTerrainHills, HasTerrain, TERRAIN_HILL)
 	bool IsAdjacentToFeature(FeatureTypes iFeatureType) const;
 	bool IsWithinDistanceOfFeature(FeatureTypes iFeatureType, int iDistance) const;
-#if defined(MOD_BALANCE_CORE)
 	bool IsWithinDistanceOfUnit(PlayerTypes ePlayer, UnitTypes eOtherUnit, int iDistance, bool bIsFriendly, bool bIsEnemy) const;
 	bool IsWithinDistanceOfUnitClass(PlayerTypes ePlayer, UnitClassTypes eUnitClass, int iDistance, bool bIsFriendly, bool bIsEnemy) const;
 	bool IsWithinDistanceOfUnitCombatType(PlayerTypes ePlayer, UnitCombatTypes eUnitCombat, int iDistance, bool bIsFriendly, bool bIsEnemy) const;
@@ -829,7 +828,6 @@ public:
 	bool IsAdjacentToUnitPromotion(PlayerTypes ePlayer, PromotionTypes eUnitPromotion, bool bIsFriendly, bool bIsEnemy) const;
 	bool IsAdjacentToTradeRoute() const;
 	bool IsAdjacentToRoute(RouteTypes eType=ROUTE_ANY) const;
-#endif
 	bool IsAdjacentToImprovement(ImprovementTypes iImprovementType) const;
 	bool IsWithinDistanceOfImprovement(ImprovementTypes iImprovementType, int iDistance) const;
 	bool IsAdjacentToPlotType(PlotTypes iPlotType) const;
@@ -841,7 +839,6 @@ public:
 
 	bool IsStealBlockedByImprovement() const;
 
-#if defined(MOD_BALANCE_CORE)
 	bool IsEnemyCityAdjacent(TeamTypes eMyTeam, const CvCity* pSpecifyCity) const;
 	bool IsEnemyUnitAdjacent(TeamTypes eMyTeam) const;
 	int GetNumEnemyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, const CvUnit* pUnitToExclude = NULL, bool bConsiderFlanking = false, TeamTypes eSpecificTeam = NO_TEAM, bool bIncludeEmbarked = false) const;
@@ -858,7 +855,6 @@ public:
 	void updateImpassable(TeamTypes eTeam = NO_TEAM);
 
 	int GetNumSpecificFriendlyUnitCombatsAdjacent(TeamTypes eMyTeam, UnitCombatTypes eUnitCombat, const CvUnit* pUnitToExclude = NULL) const;
-#endif
 
 	bool canPlaceCombatUnit(PlayerTypes ePlayer) const;
 
@@ -951,12 +947,10 @@ protected:
 	char *m_aeRevealedRouteType;
 	bool* m_abResourceForceReveal;
 	char* m_aeHumanPlannedRouteState;
-#if defined(MOD_BALANCE_CORE)
 	bool* m_abStrategicRoute;
 	bool* m_abIsImpassable;
 	int m_iNumTradeUnitRoute;
 	short m_iLastTurnBuildChanged;
-#endif
 
 	//can add extra yield from lua. no overhead if unused!
 	vector<pair<YieldTypes, int>> m_vExtraYields;
@@ -983,12 +977,10 @@ protected:
 	//why only one autovariable? probably should extend this to everything the players may change about the plot
 	//ie improvements, routes, etc
 
-#if defined(MOD_BALANCE_CORE)
 	char m_iUnitPlotExperience;
 	char m_iUnitPlotGAExperience;
 	char m_iPlotChangeMoves;
 	char m_iRestoreMoves;
-#endif
 	char /*ResourceTypes*/ m_eResourceType;
 	char /*ImprovementTypes*/ m_eImprovementType;
 	char /*PlayerTypes*/ m_ePlayerBuiltImprovement;

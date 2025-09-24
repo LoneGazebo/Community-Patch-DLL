@@ -309,6 +309,9 @@ void CvLuaPlot::PushMethods(lua_State* L, int t)
 	Method(GetArchaeologyArtifactWork);
 	Method(HasWrittenArtifact);
 
+	Method(IsEligibleForNormalDigSite);
+	Method(IsEligibleForHiddenDigSite);
+
 	Method(GetCityPurchaseID);
 	Method(SetCityPurchaseID);
 	Method(GetAirUnitsTooltip);
@@ -669,17 +672,38 @@ int CvLuaPlot::lSeeThroughLevel(lua_State* L)
 	return BasicLuaMethod(L, &CvPlot::seeThroughLevel);
 }
 //------------------------------------------------------------------------------
-//bool canHaveResource(ResourceTypes eResource, bool bIgnoreLatitude);
+//bool canHaveResource(ResourceTypes eResource, bool bIgnoreLatitude, bIgnoreCiv);
 int CvLuaPlot::lCanHaveResource(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlot::canHaveResource);
+	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
+	const ResourceTypes eResource = (ResourceTypes)lua_tointeger(L, 2);
+	static const ResourceTypes eArtifact = static_cast<ResourceTypes>(GD_INT_GET(ARTIFACT_RESOURCE));
+	static const ResourceTypes eHiddenArtifact = static_cast<ResourceTypes>(GD_INT_GET(HIDDEN_ARTIFACT_RESOURCE));
+	// Antiquity Sites have special validations
+	if (eResource == eArtifact)
+		lua_pushboolean(L, pkPlot->IsEligibleForNormalDigSite(false));
+	else if (eResource == eHiddenArtifact)
+		lua_pushboolean(L, pkPlot->IsEligibleForHiddenDigSite(false));
+	else
+	{
+		const bool bIgnoreLatitude = luaL_optbool(L, 3, false);
+		const bool bIgnoreCiv = luaL_optbool(L, 4, false);
+		lua_pushboolean(L, pkPlot->canHaveResource(eResource, bIgnoreLatitude, bIgnoreCiv));
+	}
+
+	return 1;
 }
 //------------------------------------------------------------------------------
-//bool canHaveImprovement(ImprovementTypes eImprovement, TeamTypes eTeam, bool bPotential);
+//bool canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlayer, bool bCheckAdjacency, bTestXAdjacent);
 int CvLuaPlot::lCanHaveImprovement(lua_State* L)
 {
-	//this is a hack, Lua uses a TeamType and we use it as a PlayerType
-	return BasicLuaMethod(L, &CvPlot::canHaveImprovement);
+	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
+	const ImprovementTypes eImprovement = (ImprovementTypes)lua_tointeger(L, 2);
+	const PlayerTypes ePlayer = (PlayerTypes)luaL_optint(L, 3, -1); // this is a hack; in vanilla BNW, Lua uses a TeamType; we use it as a PlayerType
+	const bool bCheckAdjacency = luaL_optbool(L, 4, false); // in vanilla BNW this function has parameter bOnlyTestVisible in this position, but it is never used by either the vanilla CvPlot::canHaveImprovement() or in Lua, so we just replace it
+	const bool bTestXAdjacent = luaL_optbool(L, 5, false);
+	lua_pushboolean(L, pkPlot->canHaveImprovement(eImprovement, ePlayer, bCheckAdjacency, bTestXAdjacent));
+	return 1;
 }
 //------------------------------------------------------------------------------
 //bool canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible);
@@ -1153,15 +1177,11 @@ int CvLuaPlot::lIsCityConnection(lua_State* L)
 //bool isImpassable();
 int CvLuaPlot::lIsImpassable(lua_State* L)
 {
-#if defined(MOD_BALANCE_CORE)
 	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
 	TeamTypes eTeam = (TeamTypes) luaL_optinteger(L, 2, NO_TEAM);
 	const bool bResult = pkPlot->isImpassable(eTeam);
 	lua_pushboolean(L, bResult);
 	return 1;
-#else
-	return BasicLuaMethod(L, &CvPlot::isImpassable);
-#endif
 }
 
 //------------------------------------------------------------------------------
@@ -2188,8 +2208,9 @@ int CvLuaPlot::lSetArchaeologicalRecord(lua_State* L)
 	EraTypes eEra = CvLuaArgs::toValue<EraTypes>(L, 3);
 	PlayerTypes ePlayer1 = CvLuaArgs::toValue<PlayerTypes>(L, 4);
 	PlayerTypes ePlayer2 = (PlayerTypes) luaL_optinteger(L, 5, NO_PLAYER);
+	const bool bIgnoreNormalRestrictions = luaL_optbool(L, 6, true);
 	
-	pPlot->SetArchaeologicalRecord(eType, eEra, ePlayer1, ePlayer2);
+	pPlot->SetArchaeologicalRecord(eType, eEra, ePlayer1, ePlayer2, bIgnoreNormalRestrictions);
 	return 0;
 }
 //------------------------------------------------------------------------------
@@ -2200,8 +2221,9 @@ int CvLuaPlot::lAddArchaeologicalRecord(lua_State* L)
 	EraTypes eEra = CvLuaArgs::toValue<EraTypes>(L, 3);
 	PlayerTypes ePlayer1 = CvLuaArgs::toValue<PlayerTypes>(L, 4);
 	PlayerTypes ePlayer2 = (PlayerTypes) luaL_optinteger(L, 5, NO_PLAYER);
+	const bool bIgnoreNormalRestrictions = luaL_optbool(L, 6, false);
 	
-	pPlot->AddArchaeologicalRecord(eType, eEra, ePlayer1, ePlayer2);
+	pPlot->AddArchaeologicalRecord(eType, eEra, ePlayer1, ePlayer2, bIgnoreNormalRestrictions);
 	return 0;
 }
 
@@ -2257,6 +2279,24 @@ int CvLuaPlot::lGetArchaeologyArtifactWork(lua_State* L)
 int CvLuaPlot::lHasWrittenArtifact(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlot::HasWrittenArtifact);
+}
+
+//------------------------------------------------------------------------------
+int CvLuaPlot::lIsEligibleForNormalDigSite(lua_State* L)
+{
+	CvPlot* kPlot = GetInstance(L);
+	bool bResult = kPlot->IsEligibleForNormalDigSite(false);
+	lua_pushboolean(L, bResult);
+	return 1;
+}
+
+//------------------------------------------------------------------------------
+int CvLuaPlot::lIsEligibleForHiddenDigSite(lua_State* L)
+{
+	CvPlot* kPlot = GetInstance(L);
+	bool bResult = kPlot->IsEligibleForHiddenDigSite(false);
+	lua_pushboolean(L, bResult);
+	return 1;
 }
 
 //------------------------------------------------------------------------------

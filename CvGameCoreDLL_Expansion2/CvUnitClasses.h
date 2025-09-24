@@ -69,11 +69,9 @@ public:
 	int GetNumInfPerEra() const;
 	int GetRestingPointChange() const;
 	int GetProductionCostPerEra() const;
-#if defined(MOD_BALANCE_CORE)
 	int GetNumFreeLux() const;
 	int GetBeliefUnlock() const;
 	bool IsFreeUpgrade() const;
-#endif
 	bool IsSpreadReligion() const;
 	int GetReligionSpreads() const;
 	int GetReligiousStrength() const;
@@ -123,10 +121,8 @@ public:
 	int GetPrereqPillageTech() const;
 	int GetPrereqAndTech() const;
 	int GetObsoleteTech() const;
-#if defined(MOD_BALANCE_CORE)
 	int GetEra() const;
 	int GetCostScalerNumberBuilt() const;
-#endif
 	int GetPolicyType() const;
 	int GetGoodyHutUpgradeUnitClass() const;
 	int GetGroupSize() const;			// the initial number of individuals in the unit group
@@ -151,11 +147,9 @@ public:
 	int GetNumColonyFound() const;
 	bool IsCityAttackSupport() const;
 #endif
-#if defined(MOD_BALANCE_CORE)
 	int IsGPExtra() const;
 	int GetGoodyModifier() const;
 	int GetSupplyCapBoost() const;
-#endif
 	int GetCultureBombRadius() const;
 	int GetNumberOfCultureBombs() const;
 	int GetGoldenAgeTurns() const;
@@ -194,7 +188,6 @@ public:
 	int GetNumberStackingUnits() const;
 #endif
 
-#if defined(MOD_BALANCE_CORE)
 	EraTypes GetGreatPersonEra(int i) const;
 	int GetResourceType() const;
 	bool IsPuppetPurchaseOverride() const;
@@ -208,12 +201,13 @@ public:
 	bool IsCultureFromExperienceDisbandUpgrade() const;
 	bool IsUnitEraUpgrade() const;
 	bool IsWarOnly() const;
-	bool IsWLTKDFromBirth() const;
-	bool IsGoldenAgeFromBirth() const;
+    bool IsCopyYieldsFromExpendTile() const;
+    int GetTileXPOnExpend() const;
+    bool IsWLTKDFromBirth() const;
+    bool IsGoldenAgeFromBirth() const;
 	bool IsCultureBoost() const;
 	bool IsExtraAttackHealthOnKill() const;
 	bool IsHighSeaRaider() const;
-#endif
 	// Accessor Functions (Arrays)
 	int GetPrereqAndTechs(int i) const;
 	int GetResourceQuantityRequirement(int i) const;
@@ -231,7 +225,6 @@ public:
 	bool GetBuilds(int i) const;
 	bool GetBuildingClassRequireds(int i) const;
 	int GetScalingFromOwnedImprovements(int i) const;
-#if defined(MOD_BALANCE_CORE)
 	bool GetBuildOnFound(int i) const;
 	bool GetBuildingClassPurchaseRequireds(int i) const;
 	int GetEraCombatStrength(int i) const;
@@ -239,7 +232,6 @@ public:
 	int* GetUnitNewEraCombatTypeChangesArray(int i);
 	int GetUnitNewEraPromotions(int i, int j) const;
 	int* GetUnitNewEraPromotionsChangesArray(int i);
-#endif
 
 	int GetResourceQuantityTotal(int i) const;
 
@@ -295,10 +287,8 @@ private:
 	int m_iNumInfPerEra;
 	int m_iRestingPointChange;
 	int m_iProductionCostPerEra;
-#if defined(MOD_BALANCE_CORE)
 	int m_iNumFreeLux;
 	bool m_bFreeUpgrade;
-#endif
 	bool m_bSpreadReligion;
 	int m_iReligionSpreads;
 	int m_iReligiousStrength;
@@ -365,7 +355,6 @@ private:
 	bool m_bPillage;
 	bool m_bFound;
 	bool m_bFoundAbroad;
-#if defined(MOD_BALANCE_CORE)
 	bool m_bFoundMid;
 	bool m_bFoundLate;
 	int m_iFoundColony;
@@ -373,8 +362,6 @@ private:
 	int m_iGPExtra;
 	int m_iGoodyModifier;
 	int m_iSupplyCapBoost;
-#endif
-#if defined(MOD_BALANCE_CORE)
 	int m_iResourceType;
 	int m_iCostScalerNumBuilt;
 	bool m_bPuppetPurchaseOverride;
@@ -390,12 +377,13 @@ private:
 	bool m_bIsConvertUnit;
 	bool m_bUnitEraUpgrade;
 	bool m_bWarOnly;
+	bool m_bCopyYieldsFromExpendTile;
+	int m_iTileXPOnExpend;
 	bool m_bWLTKD;
 	bool m_bGoldenAge;
 	bool m_bCultureBoost;
 	bool m_bExtraAttackHealthOnKill;
 	bool m_bHighSeaRaider;
-#endif
 	int m_iCultureBombRadius;
 	int m_iNumberOfCultureBombs;
 	int m_iGoldenAgeTurns;
@@ -447,14 +435,12 @@ private:
 	bool* m_pbNotUnitAIType;
 	bool* m_pbBuilds;
 	bool* m_pbBuildingClassRequireds;
-#if defined(MOD_BALANCE_CORE)
 	int* m_piScalingFromOwnedImprovements;
 	bool* m_pbBuildOnFound;
 	bool* m_pbBuildingClassPurchaseRequireds;
 	int* m_piEraCombatStrength;
 	int** m_ppiEraUnitCombatType;
 	int** m_ppiEraUnitPromotions;
-#endif
 
 	std::map<int, int> m_piResourceQuantityTotals;
 
@@ -465,9 +451,7 @@ private:
 	CvString* m_paszMiddleArtDefineTags;
 	CvString* m_paszUnitNames;
 	GreatWorkType* m_paeGreatWorks;
-#if defined(MOD_BALANCE_CORE)
 	EraTypes* m_paeGreatPersonEra;
-#endif
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

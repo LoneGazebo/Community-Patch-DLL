@@ -18,12 +18,10 @@
 #include "CvEnumSerialization.h"
 #include "CvInfosSerializationHelper.h"
 #include "cvStopWatch.h"
-#if defined(MOD_BALANCE_CORE)
 #include "CvTypes.h"
 #include "CvWonderProductionAI.h"
 #include "CvTacticalAI.h"
 #include "CvTacticalAnalysisMap.h"
-#endif
 // must be included after all other headers
 #include "LintFree.h"
 
@@ -848,16 +846,20 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 	// Loop through adding the available projects
 	for(int iProjectLoop = 0; iProjectLoop < GC.GetGameProjects()->GetNumProjects(); iProjectLoop++)
 	{
-		if (m_pCity->canCreate((ProjectTypes)iProjectLoop, (m_pCity->isProductionProject() && (ProjectTypes)iProjectLoop == m_pCity->getProductionProject())))
+		ProjectTypes eProject = (ProjectTypes)iProjectLoop;
+		if (m_pCity->canCreate(eProject, (m_pCity->isProductionProject() && eProject == m_pCity->getProductionProject())))
 		{
-			int iTempWeight = m_pProjectProductionAI->GetWeight((ProjectTypes)iProjectLoop);
+			if (m_pCity->IsPuppet() && isLimitedProject(eProject))
+				continue;
+
+			int iTempWeight = m_pProjectProductionAI->GetWeight(eProject);
 			if(iTempWeight > 0)
 			{
 				buildable.m_eBuildableType = CITY_BUILDABLE_PROJECT;
 				buildable.m_iIndex = iProjectLoop;
-				buildable.m_iTurnsToConstruct = GetCity()->getProductionTurnsLeft((ProjectTypes)iProjectLoop, 0);
+				buildable.m_iTurnsToConstruct = GetCity()->getProductionTurnsLeft(eProject, 0);
 				buildable.m_iValue = iTempWeight;
-				m_BuildablesPrecheck.push_back(buildable, m_pProjectProductionAI->GetWeight((ProjectTypes)iProjectLoop));
+				m_BuildablesPrecheck.push_back(buildable, m_pProjectProductionAI->GetWeight(eProject));
 			}
 		}
 	}
@@ -1062,7 +1064,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 				// Don't continue processes.
 				// Recursive has provided two reasons for this:
 				// 1) So the AI doesn't flipflop through production choices without getting anything done.
-				// 2) Because there is randomness to the AI's production choices - CityProductionNumOptionsConsidered in DifficultyMod.xml.
+				// 2) Because there is randomness to the AI's production choices - CityProductionChoiceCutoffThreshold in CvHandicapInfos.
 				break;
 			}
 		}
@@ -1503,10 +1505,8 @@ void CvCityStrategyAI::DoTurn()
 					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_LargeCity(GetCity());
 				else if(strStrategyName == "AICITYSTRATEGY_LANDLOCKED")
 					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_Landlocked(GetCity());
-#if defined(MOD_BALANCE_CORE)
 				else if(strStrategyName == "AICITYSTRATEGY_LAKEBOUND")
 					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_Lakebound(GetCity());
-#endif
 				else if(strStrategyName == "AICITYSTRATEGY_NEED_TILE_IMPROVERS")
 					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_NeedTileImprovers(eCityStrategy, GetCity());
 				else if(strStrategyName == "AICITYSTRATEGY_WANT_TILE_IMPROVERS")
@@ -1519,14 +1519,12 @@ void CvCityStrategyAI::DoTurn()
 					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_NeedNavalTileImprovement(GetCity());
 				else if(strStrategyName == "AICITYSTRATEGY_ENOUGH_NAVAL_TILE_IMPROVEMENT")
 					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_EnoughNavalTileImprovement(GetCity());
-#if defined(MOD_BALANCE_CORE)
 				else if(strStrategyName == "AICITYSTRATEGY_ENOUGH_SETTLERS")
 					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_EnoughSettlers(GetCity());
 				else if(strStrategyName == "AICITYSTRATEGY_NEW_CONTINENT_FEEDER")
 					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_NewContinentFeeder(eCityStrategy, GetCity());
 				else if(strStrategyName == "AICITYSTRATEGY_POCKET_CITY")
 					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_PocketCity(GetCity());
-#endif
 				else if(strStrategyName == "AICITYSTRATEGY_NEED_IMPROVEMENT_FOOD")
 					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_NeedImprovement(GetCity(), YIELD_FOOD);
 				else if(strStrategyName == "AICITYSTRATEGY_NEED_IMPROVEMENT_PRODUCTION")
@@ -2334,7 +2332,6 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_Landlocked(CvCity* pCity)
 	return !pCity->isCoastal();
 }
 
-#if defined(MOD_BALANCE_CORE)
 /// "Lakebound" City Strategy: If a City has no access to actual Ocean, reduce all water-based Flavors
 bool CityStrategyAIHelpers::IsTestCityStrategy_Lakebound(CvCity* pCity)
 {
@@ -2356,7 +2353,6 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_Lakebound(CvCity* pCity)
 
 	return bHaveLake && !bHaveOcean;
 }
-#endif
 
 /// "Need Tile Improvers" City Strategy: Do we REALLY need to train some Workers?
 bool CityStrategyAIHelpers::IsTestCityStrategy_NeedTileImprovers(AICityStrategyTypes eStrategy, CvCity* pCity)
@@ -2609,7 +2605,6 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_EnoughNavalTileImprovement(CvCity
 		return true;
 	}
 
-#if defined(MOD_BALANCE_CORE)
 	int iX = pCity->getX(); int iY = pCity->getY(); int iOwner = pCity->getOwner();
 
 	int iNumWorkersHere = 0;
@@ -2670,11 +2665,10 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_EnoughNavalTileImprovement(CvCity
 	{
 		return true;
 	}
-#endif
 
 	return false;
 }
-#if defined(MOD_BALANCE_CORE)
+
 // Too many settlers!
 bool CityStrategyAIHelpers::IsTestCityStrategy_EnoughSettlers(CvCity* pCity)
 {
@@ -2754,7 +2748,6 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_PocketCity(CvCity* pCity)
 	SPathFinderUserData data(pCity->getOwner(), PT_BUILD_ROUTE, NO_BUILD, ROUTE_ANY, PURPOSE_CONNECT_CAPITAL, true);
 	return !GC.GetStepFinder().DoesPathExist(pCapitalCity->getX(), pCapitalCity->getY(), pCity->getX(), pCity->getY(), data);
 }
-#endif
 
 /// "Need Improvement" City Strategy: if we need to get an improvement that increases a yield amount
 bool CityStrategyAIHelpers::IsTestCityStrategy_NeedImprovement(CvCity* pCity, YieldTypes yield)
@@ -3209,10 +3202,6 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_GoodGPCity(CvCity* pCity)
 					else if((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_WRITER"))
 					{
 						iMod += pCity->GetPlayer()->getGreatWriterRateModifier();
-						if (pCity->GetPlayer()->isGoldenAge())
-						{
-							iMod += pCity->GetPlayer()->GetPlayerTraits()->GetGoldenAgeGreatWriterRateModifier();
-						}
 						if (pCity->GetPlayer()->GetPlayerTraits()->IsGreatWorkWLTKD())
 						{
 							iMod += 25;
@@ -3221,10 +3210,6 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_GoodGPCity(CvCity* pCity)
 					else if((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_ARTIST"))
 					{
 						iMod += pCity->GetPlayer()->getGreatArtistRateModifier();
-						if (pCity->GetPlayer()->isGoldenAge())
-						{
-							iMod += pCity->GetPlayer()->GetPlayerTraits()->GetGoldenAgeGreatArtistRateModifier();
-						}
 						if (pCity->GetPlayer()->GetPlayerTraits()->IsGreatWorkWLTKD())
 						{
 							iMod += 25;
@@ -3233,10 +3218,6 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_GoodGPCity(CvCity* pCity)
 					else if((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_MUSICIAN"))
 					{
 						iMod += pCity->GetPlayer()->getGreatMusicianRateModifier();
-						if (pCity->GetPlayer()->isGoldenAge())
-						{
-							iMod += pCity->GetPlayer()->GetPlayerTraits()->GetGoldenAgeGreatMusicianRateModifier();
-						}
 						if (pCity->GetPlayer()->GetPlayerTraits()->IsGreatWorkWLTKD())
 						{
 							iMod += 25;
@@ -3561,9 +3542,9 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	{
 		iFlatYield += (pkBuildingInfo->GetYieldChangePerTile(eYield) * pCity->GetPlotList().size()).Truncate();
 	}
-	if (pkBuildingInfo->GetYieldChangeFromPassingTR(eYield) > 0)
+	if (pkBuildingInfo->GetYieldChangeFromPassingTR(eYield) > 0 && pCity->plot()->IsTradeUnitRoute())
 	{
-		iFlatYield += pkBuildingInfo->GetYieldChangeFromPassingTR(eYield) * pCity->plot()->GetNumTradeUnitRoute();
+		iFlatYield += pkBuildingInfo->GetYieldChangeFromPassingTR(eYield);
 	}
 	if (pkBuildingInfo->GetYieldChangePerCityStateStrategicResource(eYield) > 0)
 	{
@@ -4953,44 +4934,24 @@ int CityStrategyAIHelpers::GetBuildingPolicyValue(CvCity *pCity, BuildingTypes e
 			iValue += 25;
 		}
 
-		for(int iJ = 0; iJ < GC.getNumGreatPersonInfos(); iJ++)
+		for (int iJ = 0; iJ < GC.getNumGreatPersonInfos(); iJ++)
 		{
-			GreatPersonTypes eGP = (GreatPersonTypes)iJ;
-			if(eGP == NO_GREATPERSON)
-				continue;
-
-			if(kPlayer.GetPlayerTraits()->GetGoldenAgeGreatPersonRateModifier(eGP) > 0)
+			GreatPersonTypes eGP = static_cast<GreatPersonTypes>(iJ);
+			if (kPlayer.GetPlayerTraits()->GetGoldenAgeGreatPersonRateModifier(eGP) > 0)
 			{
 				iValue += kPlayer.GetPlayerTraits()->GetGoldenAgeGreatPersonRateModifier(eGP);
+				if ((iJ == GC.getInfoTypeForString("GREATPERSON_WRITER") ||
+					iJ == GC.getInfoTypeForString("GREATPERSON_ARTIST") ||
+					iJ == GC.getInfoTypeForString("GREATPERSON_MUSICIAN")) &&
+					kPlayer.GetPlayerTraits()->IsGreatWorkWLTKD())
+				{
+					iValue += 25;
+				}
 			}
 		}
 		if(kPlayer.GetPlayerTraits()->GetGoldenAgeCombatModifier() > 0)
 		{
 			iValue += kPlayer.GetPlayerTraits()->GetGoldenAgeCombatModifier();
-		}
-		if(kPlayer.GetPlayerTraits()->GetGoldenAgeGreatArtistRateModifier() > 0)
-		{
-			iValue += kPlayer.GetPlayerTraits()->GetGoldenAgeGreatArtistRateModifier();
-			if (kPlayer.GetPlayerTraits()->IsGreatWorkWLTKD())
-			{
-				iValue += 25;
-			}
-		}
-		if(kPlayer.GetPlayerTraits()->GetGoldenAgeGreatWriterRateModifier() > 0)
-		{
-			iValue += kPlayer.GetPlayerTraits()->GetGoldenAgeGreatWriterRateModifier();
-			if (kPlayer.GetPlayerTraits()->IsGreatWorkWLTKD())
-			{
-				iValue += 25;
-			}
-		}
-		if(kPlayer.GetPlayerTraits()->GetGoldenAgeGreatMusicianRateModifier() > 0)
-		{
-			iValue += kPlayer.GetPlayerTraits()->GetGoldenAgeGreatMusicianRateModifier();
-			if (kPlayer.GetPlayerTraits()->IsGreatWorkWLTKD())
-			{
-				iValue += 25;
-			}
 		}
 		if(kPlayer.GetPlayerTraits()->GetGoldenAgeTourismModifier() > 0)
 		{

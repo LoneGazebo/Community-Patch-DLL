@@ -88,9 +88,7 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iAirSweepCombatModifier(0),
 	m_iInterceptChanceChange(0),
 	m_iNumInterceptionChange(0),
-#if defined(MOD_BALANCE_CORE)
 	m_iAirInterceptRangeChange(0), // JJ: This is new
-#endif
 	m_iEvasionChange(0),
 	m_iCargoChange(0),
 	m_iEnemyHealChange(0),
@@ -174,11 +172,12 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iEmbarkDefenseModifier(0),
 	m_iCapitalDefenseModifier(0),
 	m_iCapitalDefenseFalloff(0),
+	m_iCapitalDefenseLimit(0),
 	m_iCityAttackPlunderModifier(0),
 	m_iReligiousStrengthLossRivalTerritory(0),
 	m_iTradeMissionInfluenceModifier(0),
 	m_iTradeMissionGoldModifier(0),
-#if defined(MOD_BALANCE_CORE)
+	m_iCombatModPerLevel(0),
 	m_iCaptureDefeatedEnemyChance(0),
 	m_iBarbarianCombatBonus(0),
 	m_iGoodyHutYieldBonus(0),
@@ -190,17 +189,20 @@ CvPromotionEntry::CvPromotionEntry():
 	m_bCannotBeCaptured(false),
 	m_bIsLostOnMove(false),
 	m_bCityStateOnly(false),
+	m_bDiplomaticMissionAccomplishment(false),
 	m_bBarbarianOnly(false),
 	m_bStrongerDamaged(false),
 	m_bFightWellDamaged(false),
+	m_bFreeAttackMoves(false),
 	m_iNegatesPromotion(NO_PROMOTION),
 	m_iForcedDamageValue(0),
 	m_iChangeDamageValue(0),
+	m_iDamageTakenMod(0),
+	m_iInfluenceFromCombatXPTimes100(0),
 	m_iPromotionDuration(0),
 	m_iMoraleBreakChance(0),
 	m_iDamageAoEFortified(0),
 	m_iWorkRateMod(0),
-#endif
 	m_bCannotBeChosen(false),
 	m_bLostWithUpgrade(false),
 	m_bNotWithUpgrade(false),
@@ -227,7 +229,6 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iNearbyImprovementBonusRange(0),
 	m_eCombatBonusImprovement(NO_IMPROVEMENT),
 #endif
-#if defined(MOD_BALANCE_CORE)
 	m_iNearbyUnitClassBonus(0),
 	m_iNearbyUnitClassBonusRange(0),
 	m_iCombatBonusFromNearbyUnitClass(NO_UNITCLASS),
@@ -250,7 +251,6 @@ CvPromotionEntry::CvPromotionEntry():
 	m_bEmbarkFlatCost(false),
 	m_bDisembarkFlatCost(false),
 	m_bMountedOnly(false),
-#endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
 	m_bCanCrossMountains(false),
 #endif
@@ -296,7 +296,6 @@ CvPromotionEntry::CvPromotionEntry():
 	m_bHasPostCombatPromotions(false),
 	m_bPostCombatPromotionsExclusive(false),
 	m_bSapper(false),
-#if defined(MOD_BALANCE_CORE)
 	m_iNearbyCityCombatMod(0),
 	m_iNearbyFriendlyCityCombatMod(0),
 	m_iNearbyEnemyCityCombatMod(0),
@@ -334,7 +333,6 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iNearbyHealNeutralTerritory(0),
 	m_iNearbyHealFriendlyTerritory(0),
 	m_iAdjacentEnemySapMovement(0),
-#endif
 	m_bCanHeavyCharge(false),
 	m_piTerrainAttackPercent(NULL),
 	m_piTerrainDefensePercent(NULL),
@@ -342,9 +340,7 @@ CvPromotionEntry::CvPromotionEntry():
 	m_piFeatureDefensePercent(NULL),
 	m_piTerrainModifierAttack(NULL),
 	m_piTerrainModifierDefense(NULL),
-#if defined(MOD_BALANCE_CORE)
 	m_piYieldFromScouting(NULL),
-#endif
 	m_piYieldFromKills(NULL),
 	m_piYieldFromBarbarianKills(NULL),
 	m_piYieldFromCombatExperienceTimes100(NULL),
@@ -360,11 +356,9 @@ CvPromotionEntry::CvPromotionEntry():
 	m_piDomainAttackPercent(NULL),
 	m_piDomainDefensePercent(NULL),
 	m_piFeaturePassableTech(NULL),
-#if defined(MOD_BALANCE_CORE)
 	m_piCombatModPerAdjacentUnitCombatModifierPercent(NULL),
 	m_piCombatModPerAdjacentUnitCombatAttackModifier(NULL),
 	m_piCombatModPerAdjacentUnitCombatDefenseModifier(NULL),
-#endif
 	m_pbIgnoreTerrainCostIn(NULL),
 	m_pbIgnoreTerrainCostFrom(NULL),
 	m_pbIgnoreFeatureCostIn(NULL),
@@ -377,10 +371,8 @@ CvPromotionEntry::CvPromotionEntry():
 	m_pbFeatureHalfMove(NULL),
 	m_pbFeatureExtraMove(NULL),
 #endif
-#if defined(MOD_BALANCE_CORE)
 	m_pbTerrainDoubleHeal(NULL),
 	m_pbFeatureDoubleHeal(NULL),
-#endif
 	m_pbTerrainImpassable(NULL),
 	m_piTerrainPassableTech(NULL),
 	m_pbFeatureImpassable(NULL),
@@ -402,13 +394,11 @@ CvPromotionEntry::~CvPromotionEntry(void)
 	SAFE_DELETE_ARRAY(m_piFeatureDefensePercent);
 	SAFE_DELETE_ARRAY(m_piTerrainModifierAttack);
 	SAFE_DELETE_ARRAY(m_piTerrainModifierDefense);
-#if defined(MOD_BALANCE_CORE)
 	SAFE_DELETE_ARRAY(m_piYieldFromScouting);
 	SAFE_DELETE_ARRAY(m_piYieldModifier);
 	SAFE_DELETE_ARRAY(m_piYieldFromAncientRuins);
 	SAFE_DELETE_ARRAY(m_piYieldFromTRPlunder);
 	SAFE_DELETE_ARRAY(m_piYieldChange);
-#endif
 	SAFE_DELETE_ARRAY(m_piYieldFromKills);
 	SAFE_DELETE_ARRAY(m_piYieldFromBarbarianKills);
 	SAFE_DELETE_ARRAY(m_piYieldFromCombatExperienceTimes100);
@@ -424,11 +414,9 @@ CvPromotionEntry::~CvPromotionEntry(void)
 	SAFE_DELETE_ARRAY(m_piDomainAttackPercent);
 	SAFE_DELETE_ARRAY(m_piDomainDefensePercent);
 	SAFE_DELETE_ARRAY(m_piFeaturePassableTech);
-#if defined(MOD_BALANCE_CORE)
 	SAFE_DELETE_ARRAY(m_piCombatModPerAdjacentUnitCombatModifierPercent);
 	SAFE_DELETE_ARRAY(m_piCombatModPerAdjacentUnitCombatAttackModifier);
 	SAFE_DELETE_ARRAY(m_piCombatModPerAdjacentUnitCombatDefenseModifier);
-#endif
 	SAFE_DELETE_ARRAY(m_pbIgnoreTerrainCostIn);
 	SAFE_DELETE_ARRAY(m_pbIgnoreTerrainCostFrom);
 	SAFE_DELETE_ARRAY(m_pbIgnoreFeatureCostIn);
@@ -441,10 +429,8 @@ CvPromotionEntry::~CvPromotionEntry(void)
 	SAFE_DELETE_ARRAY(m_pbFeatureHalfMove);
 	SAFE_DELETE_ARRAY(m_pbFeatureExtraMove);
 #endif
-#if defined(MOD_BALANCE_CORE)
 	SAFE_DELETE_ARRAY(m_pbTerrainDoubleHeal);
 	SAFE_DELETE_ARRAY(m_pbFeatureDoubleHeal);
-#endif
 	SAFE_DELETE_ARRAY(m_pbTerrainImpassable);
 	SAFE_DELETE_ARRAY(m_piTerrainPassableTech);
 	SAFE_DELETE_ARRAY(m_pbFeatureImpassable);
@@ -464,7 +450,6 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	SetSound(kResults.GetText("Sound"));
 
 	//Basic Properties
-#if defined(MOD_BALANCE_CORE)
 	m_iCaptureDefeatedEnemyChance = kResults.GetInt("CaptureDefeatedEnemyChance");
 	m_iBarbarianCombatBonus = kResults.GetInt("BarbarianCombatBonus");
 	m_iGoodyHutYieldBonus = kResults.GetInt("GoodyHutYieldBonus");
@@ -476,18 +461,21 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_bCannotBeCaptured = kResults.GetBool("CannotBeCaptured");
 	m_bIsLostOnMove = kResults.GetBool("IsLostOnMove");
 	m_bCityStateOnly = kResults.GetBool("CityStateOnly");
+	m_bDiplomaticMissionAccomplishment = kResults.GetBool("DiplomaticMissionAccomplishment");
 	m_bBarbarianOnly = kResults.GetBool("BarbarianOnly");
 	m_bStrongerDamaged = kResults.GetBool("StrongerDamaged");
 	m_bFightWellDamaged = kResults.GetBool("FightWellDamaged");
+	m_bFreeAttackMoves = kResults.GetBool("FreeAttackMoves");
 	const char* szNegatesPromotion = kResults.GetText("NegatesPromotion");
 	m_iNegatesPromotion = GC.getInfoTypeForString(szNegatesPromotion, true);
 	m_iForcedDamageValue = kResults.GetInt("ForcedDamageValue");
 	m_iChangeDamageValue = kResults.GetInt("ChangeDamageValue");
+	m_iDamageTakenMod = kResults.GetInt("DamageTakenMod");
+	m_iInfluenceFromCombatXPTimes100 = kResults.GetInt("InfluenceFromCombatXpTimes100");
 	m_iPromotionDuration = kResults.GetInt("PromotionDuration");
 	m_iMoraleBreakChance = kResults.GetInt("MoraleBreakChance");
 	m_iDamageAoEFortified = kResults.GetInt("AoEWhileFortified");
 	m_iWorkRateMod = kResults.GetInt("WorkRateMod");
-#endif
 	m_bCannotBeChosen = kResults.GetBool("CannotBeChosen");
 	m_bLostWithUpgrade = kResults.GetBool("LostWithUpgrade");
 	m_bNotWithUpgrade = kResults.GetBool("NotWithUpgrade");
@@ -519,7 +507,6 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		}
 	}
 #endif
-#if defined(MOD_BALANCE_CORE)
 	const char* szCombatBonusFromNearbyUnitClass = kResults.GetText("CombatBonusFromNearbyUnitClass");
 	m_iCombatBonusFromNearbyUnitClass = (UnitClassTypes)GC.getInfoTypeForString(szCombatBonusFromNearbyUnitClass, true);
 	m_iNearbyUnitClassBonusRange = kResults.GetInt("NearbyUnitClassBonusRange");
@@ -543,7 +530,6 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_bEmbarkFlatCost = kResults.GetBool("EmbarkFlatCost");
 	m_bDisembarkFlatCost = kResults.GetBool("DisembarkFlatCost");
 	m_bMountedOnly = kResults.GetBool("MountedOnly");
-#endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
 	if (MOD_PROMOTIONS_CROSS_MOUNTAINS)
 	{
@@ -596,7 +582,6 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_bHasPostCombatPromotions = kResults.GetBool("HasPostCombatPromotions");
 	m_bPostCombatPromotionsExclusive = kResults.GetBool("PostCombatPromotionsExclusive");
 	m_bSapper = kResults.GetBool("Sapper");
-#if defined(MOD_BALANCE_CORE)
 	m_iNearbyCityCombatMod = kResults.GetInt("NearbyCityCombatMod");
 	m_iNearbyFriendlyCityCombatMod = kResults.GetInt("NearbyFriendlyCityCombatMod");
 	m_iNearbyEnemyCityCombatMod = kResults.GetBool("NearbyEnemyCityCombatMod");
@@ -635,7 +620,6 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iNearbyHealFriendlyTerritory = kResults.GetInt("NearbyHealFriendlyTerritory");
 
 	m_iAdjacentEnemySapMovement = kResults.GetInt("AdjacentEnemySapMovement");
-#endif
 	m_bCanHeavyCharge = kResults.GetBool("HeavyCharge");
 
 	m_iVisibilityChange = kResults.GetInt("VisibilityChange");
@@ -651,9 +635,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iAirSweepCombatModifier = kResults.GetInt("AirSweepCombatModifier");
 	m_iInterceptChanceChange = kResults.GetInt("InterceptChanceChange");
 	m_iNumInterceptionChange = kResults.GetInt("NumInterceptionChange");
-#if defined(MOD_BALANCE_CORE)
 	m_iAirInterceptRangeChange = kResults.GetInt("AirInterceptRangeChange"); // JJ: This is new
-#endif
 	m_iEvasionChange = kResults.GetInt("EvasionChange");
 	m_iCargoChange = kResults.GetInt("CargoChange");
 	m_iEnemyHealChange = kResults.GetInt("EnemyHealChange");
@@ -738,10 +720,12 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iEmbarkDefenseModifier = kResults.GetInt("EmbarkDefenseModifier");
 	m_iCapitalDefenseModifier = kResults.GetInt("CapitalDefenseModifier");
 	m_iCapitalDefenseFalloff = kResults.GetInt("CapitalDefenseFalloff");
+	m_iCapitalDefenseLimit = kResults.GetInt("CapitalDefenseLimit");
 	m_iCityAttackPlunderModifier = kResults.GetInt("CityAttackPlunderModifier");
 	m_iReligiousStrengthLossRivalTerritory = kResults.GetInt("ReligiousStrengthLossRivalTerritory");
 	m_iTradeMissionInfluenceModifier = kResults.GetInt("TradeMissionInfluenceModifier");
 	m_iTradeMissionGoldModifier = kResults.GetInt("TradeMissionGoldModifier");
+	m_iCombatModPerLevel = kResults.GetInt("CombatModPerLevel");
 
 	//References
 	const char* szLayerAnimationPath = kResults.GetText("LayerAnimationPath");
@@ -811,9 +795,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		kUtility.InitializeArray(m_pbTerrainHalfMove, iNumTerrains, false);
 		kUtility.InitializeArray(m_pbTerrainExtraMove, iNumTerrains, false);
 #endif
-#if defined(MOD_BALANCE_CORE)
 		kUtility.InitializeArray(m_pbTerrainDoubleHeal, iNumTerrains, false);
-#endif
 		kUtility.InitializeArray(m_pbTerrainImpassable, iNumTerrains, false);
 
 		std::string sqlKey = "UnitPromotions_Terrains";
@@ -856,10 +838,8 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 			const bool bExtraMove = pResults->GetBool("ExtraMove");
 			m_pbTerrainExtraMove[iTerrainID] = bExtraMove;
 #endif
-#if defined(MOD_BALANCE_CORE)
 			const bool bDoubleHeal = pResults->GetBool("DoubleHeal");
 			m_pbTerrainDoubleHeal[iTerrainID] = bDoubleHeal;
-#endif
 
 			const bool bImpassable = pResults->GetBool("Impassable");
 			m_pbTerrainImpassable[iTerrainID] = bImpassable;
@@ -912,9 +892,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		kUtility.InitializeArray(m_pbFeatureHalfMove, iNumFeatures, false);
 		kUtility.InitializeArray(m_pbFeatureExtraMove, iNumFeatures, false);
 #endif
-#if defined(MOD_BALANCE_CORE)
 		kUtility.InitializeArray(m_pbFeatureDoubleHeal, iNumFeatures, false);
-#endif
 		kUtility.InitializeArray(m_pbFeatureImpassable, iNumFeatures, false);
 
 		std::string sqlKey = "UnitPromotions_Features";
@@ -957,10 +935,8 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 			const bool bExtraMove = pResults->GetBool("ExtraMove");
 			m_pbFeatureExtraMove[iFeatureID] = bExtraMove;
 #endif
-#if defined(MOD_BALANCE_CORE)
 			const bool bDoubleHeal = pResults->GetBool("DoubleHeal");
 			m_pbFeatureDoubleHeal[iFeatureID] = bDoubleHeal;
-#endif
 
 			const bool bImpassable = pResults->GetBool("Impassable");
 			m_pbFeatureImpassable[iFeatureID] = bImpassable;
@@ -969,7 +945,6 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 			m_piFeaturePassableTech[iFeatureID] = iPassableTech;
 		}
 	}
-#if defined(MOD_BALANCE_CORE)
 	kUtility.SetYields(m_piYieldModifier, "UnitPromotions_YieldModifiers", "PromotionType", szPromotionType);
 	kUtility.SetYields(m_piYieldChange, "UnitPromotions_YieldChanges", "PromotionType", szPromotionType);
 	kUtility.SetYields(m_piYieldFromAncientRuins, "UnitPromotions_YieldFromAncientRuins", "PromotionType", szPromotionType);
@@ -1001,7 +976,6 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 			m_piYieldFromScouting[iYieldID] = iYield;
 		}
 	}
-#endif
 	//UnitPromotions_YieldFromKills
 	{
 		kUtility.InitializeArray(m_piYieldFromKills, NUM_YIELD_TYPES, 0);
@@ -1172,7 +1146,6 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		pResults->Reset();
 	}
 
-#if defined(MOD_BALANCE_CORE)
 	//UnitPromotions_CombatModPerAdjacentUnitCombat
 	{
 		kUtility.InitializeArray(m_piCombatModPerAdjacentUnitCombatModifierPercent, iNumUnitCombatClasses, 0);
@@ -1236,7 +1209,6 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		//Trim extra memory off container since this is mostly read-only.
 		std::map<int, std::pair<int, bool>>(m_piInstantYields).swap(m_piInstantYields);
 	}
-#endif
 
 	//UnitPromotions_Domains
 	{
@@ -1723,13 +1695,11 @@ int CvPromotionEntry::GetNumInterceptionChange() const
 	return m_iNumInterceptionChange;
 }
 
-#if defined(MOD_BALANCE_CORE) // JJ: This is new
 /// Accessor: How much additional range this promotion allows an unit to perform interception (can be negative)
 int CvPromotionEntry::GetAirInterceptRangeChange() const
 {
 	return m_iAirInterceptRangeChange;
 }
-#endif
 
 /// Accessor: How well an air unit can evade interception
 int CvPromotionEntry::GetEvasionChange() const
@@ -2218,6 +2188,11 @@ int CvPromotionEntry::GetCapitalDefenseFalloff() const
 	return m_iCapitalDefenseFalloff;
 }
 
+int CvPromotionEntry::GetCapitalDefenseLimit() const
+{
+	return m_iCapitalDefenseLimit;
+}
+
 /// Accessor: gold earned from damage on an attacked city
 int CvPromotionEntry::GetCityAttackPlunderModifier() const
 {
@@ -2241,7 +2216,12 @@ int CvPromotionEntry::GetTradeMissionGoldModifier() const
 {
 	return m_iTradeMissionGoldModifier;
 }
-#if defined(MOD_BALANCE_CORE)
+
+/// Accessor: Combat mod for each unit level above the first one
+int CvPromotionEntry::GetCombatModPerLevel() const
+{
+	return m_iCombatModPerLevel;
+}
 int CvPromotionEntry::GetDiploMissionInfluence() const
 {
 	return m_iDiploMissionInfluence;
@@ -2299,6 +2279,11 @@ bool CvPromotionEntry::IsCityStateOnly() const
 {
 	return m_bCityStateOnly;
 }
+//Units with this promotion trigger ACCOMPLISHMENT_DIPLOMATIC_MISSION_BOOST when finishing a diplomatic mission
+bool CvPromotionEntry::IsDiplomaticMissionAccomplishment() const
+{
+	return m_bDiplomaticMissionAccomplishment;
+}
 //Promotion for barbs only
 bool CvPromotionEntry::IsBarbarianOnly() const
 {
@@ -2312,17 +2297,29 @@ bool CvPromotionEntry::IsFightWellDamaged() const
 {
 	return m_bFightWellDamaged;
 }
+bool CvPromotionEntry::IsFreeAttackMoves() const
+{
+	return m_bFreeAttackMoves;
+}
 int CvPromotionEntry::NegatesPromotion() const
 {
 	return m_iNegatesPromotion;
 }
-int CvPromotionEntry::ForcedDamageValue() const
+int CvPromotionEntry::GetForcedDamageValue() const
 {
 	return m_iForcedDamageValue;
 }
-int CvPromotionEntry::ChangeDamageValue() const
+int CvPromotionEntry::GetChangeDamageValue() const
 {
 	return m_iChangeDamageValue;
+}
+int CvPromotionEntry::GetDamageTakenMod() const
+{
+	return m_iDamageTakenMod;
+}
+int CvPromotionEntry::GetInfluenceFromCombatXPTimes100() const
+{
+	return m_iInfluenceFromCombatXPTimes100;
 }
 int CvPromotionEntry::PromotionDuration() const
 {
@@ -2340,7 +2337,6 @@ int CvPromotionEntry::GetWorkRateMod() const
 {
 	return m_iWorkRateMod;
 }
-#endif
 /// Accessor: Can this Promotion be earned through normal leveling?
 bool CvPromotionEntry::IsCannotBeChosen() const
 {
@@ -2482,7 +2478,6 @@ ImprovementTypes CvPromotionEntry::GetCombatBonusImprovement() const
 	return m_eCombatBonusImprovement;
 }
 #endif
-#if defined(MOD_BALANCE_CORE)
 /// Get the UnitClass we want to receive the bonus from.
 UnitClassTypes CvPromotionEntry::GetCombatBonusFromNearbyUnitClass() const
 {
@@ -2580,7 +2575,6 @@ bool CvPromotionEntry::IsMountedOnly() const
 }
 
 
-#endif
 
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
 /// Accessor: Can cross mountains (but we'd rather they left them nice and straight!)
@@ -2789,7 +2783,6 @@ bool CvPromotionEntry::IsSapper() const
 	return m_bSapper;
 }
 
-#if defined(MOD_BALANCE_CORE)
 int CvPromotionEntry::GetNearbyCityCombatMod() const
 {
 	return m_iNearbyCityCombatMod;
@@ -2923,7 +2916,6 @@ int CvPromotionEntry::GetAdjacentEnemySapMovement() const
 {
 	return m_iAdjacentEnemySapMovement;
 }
-#endif
 
 /// Accessor: Can this unit doa heavy charge (which either force an enemy to retreat or take extra damage)
 bool CvPromotionEntry::IsCanHeavyCharge() const
@@ -3052,7 +3044,6 @@ int CvPromotionEntry::GetFeatureDefensePercent(int i) const
 
 	return 0;
 }
-#if defined(MOD_BALANCE_CORE)
 /// Modifier to yield by type
 int CvPromotionEntry::GetYieldModifier(int i) const
 {
@@ -3117,7 +3108,6 @@ int CvPromotionEntry::GetYieldFromScouting(int i) const
 
 	return 0;
 }
-#endif
 int CvPromotionEntry::GetYieldFromKills(int i) const
 {
 	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
@@ -3310,7 +3300,6 @@ int CvPromotionEntry::GetDomainDefensePercent(int i) const
 }
 
 /// Percentage bonus when fighting next to friendly unit *combat* classes (increases with more adjacent units)
-#if defined(MOD_BALANCE_CORE)
 int CvPromotionEntry::GetCombatModPerAdjacentUnitCombatModifierPercent(int i) const
 {
 	ASSERT_DEBUG(i < GC.getNumUnitCombatClassInfos(), "Index out of bounds");
@@ -3369,7 +3358,6 @@ std::pair<int, bool> CvPromotionEntry::GetInstantYields(int i) const
 
 	return std::make_pair(0, false);
 }
-#endif
 
 /// Indicates if a feature type is traversable by the unit
 int CvPromotionEntry::GetFeaturePassableTech(int i) const
@@ -3526,7 +3514,6 @@ bool CvPromotionEntry::GetFeatureExtraMove(int i) const
 	return false;
 }
 #endif
-#if defined(MOD_BALANCE_CORE)
 /// Indicates if a unit can heal twice as fast in a type of terrain
 bool CvPromotionEntry::GetTerrainDoubleHeal(int i) const
 {
@@ -3554,7 +3541,6 @@ bool CvPromotionEntry::GetFeatureDoubleHeal(int i) const
 
 	return false;
 }
-#endif
 /// Indicates if a terrain type is impassable
 bool CvPromotionEntry::GetTerrainImpassable(int i) const
 {

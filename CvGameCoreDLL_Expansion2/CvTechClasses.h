@@ -104,11 +104,9 @@ public:
 	int GetFlavorValue(int i) const;
 	int GetPrereqOrTechs(int i) const;
 	int GetPrereqAndTechs(int i) const;
-#if defined(MOD_BALANCE_CORE)
 	int GetTechYieldChanges(int i, int j) const;
 	int GetHappiness() const;
 	bool IsCorporationsEnabled() const;
-#endif
 #if defined(MOD_CIV6_EUREKA)
 	int GetEurekaPerMillion() const;
 #endif
@@ -176,11 +174,9 @@ private:
 	int* m_piPrereqOrTechs;
 	int* m_piPrereqAndTechs;
 	bool* m_pabFreePromotion;
-#if defined(MOD_BALANCE_CORE)
 	int** m_ppiTechYieldChanges;
 	int m_iHappiness;
 	bool m_bCorporationsEnabled;
-#endif
 #if defined(MOD_CIV6_EUREKA)
 	int m_iEurekaPerMillion;
 #endif
@@ -250,18 +246,14 @@ public:
 	int GetCivTechPriority(TechTypes eIndex) const;
 	void SetLocaleTechPriority(TechTypes eIndex, int iNewValue);
 	int GetLocaleTechPriority(TechTypes eIndex) const;
-#if defined(MOD_BALANCE_CORE)
 	int GetGSTechPriority(TechTypes eIndex) const;
 	void SetGSTechPriority(TechTypes eIndex, int iNewValue);
-#endif
 	ResourceTypes GetLocaleTechResource(TechTypes eIndex) const;
 	UnitTypes GetCivTechUniqueUnit(TechTypes eIndex) const;
 	BuildingTypes GetCivTechUniqueBuilding(TechTypes eIndex) const;
 	ImprovementTypes GetCivTechUniqueImprovement(TechTypes eIndex) const;
 	void SetLocalePriorities();
-#if defined(MOD_BALANCE_CORE)
 	void SetGSPriorities();
-#endif
 	bool IsResearch() const;
 	bool CanEverResearch(TechTypes eTech) const;
 	bool CanResearch(TechTypes eTech, bool bTrade = false) const;
@@ -293,11 +285,9 @@ private:
 	bool* m_pabResearchingTech;
 	int* m_piCivTechPriority;
 	int* m_piLocaleTechPriority;
-#if defined(MOD_BALANCE_CORE)
 	int* m_piGSTechPriority;
 	bool m_bHasUUTech;
 	bool m_bWillHaveUUTechSoon;
-#endif
 	ResourceTypes* m_peLocaleTechResources;
 	UnitTypes* m_peCivTechUniqueUnits;
 	BuildingTypes* m_peCivTechUniqueBuildings;

@@ -423,6 +423,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetUnhappinessFromCityCount);
 	Method(GetUnhappinessFromCapturedCityCount);
 	Method(GetUnhappinessFromCityPopulation);
+	Method(GetUnhappinessFromCityBuildings);
 	Method(GetUnhappinessFromCitySpecialists);
 	Method(GetUnhappinessFromOccupiedCities);
 	Method(GetUnhappinessFromPuppetCityPopulation);
@@ -440,7 +441,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetUnitCostIncreaseFromWarWeariness);
 	Method(GetUnhappinessFromWarWeariness);
 	Method(GetTechSupplyReduction);
-	Method(GetEmpireSizeSupplyReduction);
+	Method(GetCityCountSupplyReduction);
 	Method(GetUnitSupplyFromExpendedGreatPeople);
 	Method(ChangeUnitSupplyFromExpendedGreatPeople);
 
@@ -806,6 +807,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetUnhappinessFromPillagedTiles);
 	Method(GetUnhappinessFromFamine);
 	Method(GetUnhappinessFromReligiousUnrest);
+	Method(GetUnhappinessFromBuildings);
 
 	Method(GetUnhappinessFromJFDSpecial);
 	Method(GetScalingNationalPopulationRequired);
@@ -2557,7 +2559,14 @@ int CvLuaPlayer::lCanConstruct(lua_State* L)
 //bool canCreate(ProjectTypes  eProject, bool bContinue, bool bTestVisible);
 int CvLuaPlayer::lCanCreate(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::canCreate);
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int iProject = lua_tointeger(L, 2);
+	const bool bContinue = luaL_optint(L, 3, 0);
+	const bool bTestVisible = luaL_optint(L, 4, 0);
+	const bool bResult = pkPlayer->canCreate((ProjectTypes)iProject, bContinue, bTestVisible);
+
+	lua_pushboolean(L, bResult);
+	return 1;
 }
 //------------------------------------------------------------------------------
 //bool canMaintain(ProcessTypes  eProcess, bool bContinue);
@@ -2814,7 +2823,6 @@ int CvLuaPlayer::lGetNumMaintenanceFreeUnits(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
-#if defined(MOD_BALANCE_CORE)
 //------------------------------------------------------------------------------
 //int GetBaseBuildingMaintenance();
 int CvLuaPlayer::lGetBaseBuildingMaintenance(lua_State* L)
@@ -2853,7 +2861,6 @@ int CvLuaPlayer::lGetBaseUnitMaintenance(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
-#endif
 //------------------------------------------------------------------------------
 //int GetBuildingGoldMaintenance();
 int CvLuaPlayer::lGetBuildingGoldMaintenance(lua_State* L)
@@ -3315,7 +3322,6 @@ int CvLuaPlayer::lGetGoldPerTurnFromTraits(lua_State* L)
 	lua_pushinteger(L, pkPlayer->GetTreasury()->GetGoldPerTurnFromTraits());
 	return 1;
 }
-#if defined(MOD_BALANCE_CORE)
 //------------------------------------------------------------------------------
 //int GetInternalTradeRouteGoldBonus();
 int CvLuaPlayer::lGetInternalTradeRouteGoldBonus(lua_State* L)
@@ -3363,7 +3369,6 @@ int CvLuaPlayer::lGetGAPFromTraits(lua_State* L)
 	lua_pushinteger(L, iGAP);
 	return 1;
 }
-#endif
 //------------------------------------------------------------------------------
 //int IsDoubleBorderGrowthGA();
 int CvLuaPlayer::lIsDoubleBorderGrowthGA(lua_State* L)
@@ -4160,7 +4165,6 @@ int CvLuaPlayer::lGetFaithPerTurnFromMinorCivs(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlayerAI::GetFaithPerTurnFromMinorCivs);
 }
-#if defined(MOD_BALANCE_CORE)
 //------------------------------------------------------------------------------
 //int GetGoldPerTurnFromMinorCivs();
 int CvLuaPlayer::lGetGoldPerTurnFromMinorCivs(lua_State* L)
@@ -4173,7 +4177,6 @@ int CvLuaPlayer::lGetSciencePerTurnFromMinorCivs(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlayerAI::GetSciencePerTurnFromMinorCivs);
 }
-#endif
 //------------------------------------------------------------------------------
 //int GetFaithPerTurnFromReligion();
 int CvLuaPlayer::lGetFaithPerTurnFromReligion(lua_State* L)
@@ -4685,6 +4688,18 @@ int CvLuaPlayer::lGetUnhappinessFromCapturedCityCount(lua_State* L)
 }
 
 //------------------------------------------------------------------------------
+//int GetUnhappinessFromCityBuildings() const;
+int CvLuaPlayer::lGetUnhappinessFromCityBuildings(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	CvCity* pAnnexedCity = CvLuaCity::GetInstance(L, 2, false);
+	CvCity* pPuppetedCity = CvLuaCity::GetInstance(L, 3, false);
+	const int iResult = pkPlayer->GetUnhappinessFromCityBuildings(pAnnexedCity, pPuppetedCity);
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+
+//------------------------------------------------------------------------------
 //int GetUnhappinessFromCityPopulation() const;
 int CvLuaPlayer::lGetUnhappinessFromCityPopulation(lua_State* L)
 {
@@ -4867,7 +4882,7 @@ int CvLuaPlayer::lGetTechSupplyReduction(lua_State* L)
 	return 1;
 }
 
-int CvLuaPlayer::lGetEmpireSizeSupplyReduction(lua_State* L)
+int CvLuaPlayer::lGetCityCountSupplyReduction(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	int iReductionPercent = pkPlayer->getNumCities() > 0 ? max(pkPlayer->GetNumEffectiveCities(false) * /*0 in CP, 5 in VP*/ GC.getMap().getWorldInfo().GetNumCitiesUnitSupplyMod(), 0) : 0;
@@ -5273,7 +5288,7 @@ int CvLuaPlayer::lGetInternationalTradeRouteBaseBonus(lua_State* L)
 	TradeConnection kTradeConnection;
 	kTradeConnection.SetCities(pOriginCity,pDestCity);
 
-#if defined(MOD_BALANCE_CORE) && defined(MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES)
+#if defined(MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES)
 	if (MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES && pOriginCity->getTeam() == pDestCity->getTeam())
 	{
 		kTradeConnection.m_eConnectionType = TRADE_CONNECTION_GOLD_INTERNAL;
@@ -5301,7 +5316,7 @@ int CvLuaPlayer::lGetInternationalTradeRouteGPTBonus(lua_State* L)
 	TradeConnection kTradeConnection;
 	kTradeConnection.SetCities(pOriginCity,pDestCity);
 
-#if defined(MOD_BALANCE_CORE) && defined(MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES)
+#if defined(MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES)
 	if (MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES && pOriginCity->getTeam() == pDestCity->getTeam())
 	{
 		kTradeConnection.m_eConnectionType = TRADE_CONNECTION_GOLD_INTERNAL;
@@ -5424,7 +5439,7 @@ int CvLuaPlayer::lGetInternationalTradeRouteYourBuildingBonus(lua_State* L)
 	kTradeConnection.SetCities(pOriginCity,pDestCity);
 	kTradeConnection.m_eDomain = eDomain;
 
-#if defined(MOD_BALANCE_CORE) && defined(MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES)
+#if defined(MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES)
 	if (MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES && pOriginCity->getTeam() == pDestCity->getTeam())
 	{
 		kTradeConnection.m_eConnectionType = TRADE_CONNECTION_GOLD_INTERNAL;
@@ -5450,7 +5465,7 @@ int CvLuaPlayer::lGetInternationalTradeRouteTheirBuildingBonus(lua_State* L)
 	kTradeConnection.SetCities(pOriginCity,pDestCity);
 	kTradeConnection.m_eDomain = eDomain;
 
-#if defined(MOD_BALANCE_CORE) && defined(MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES)
+#if defined(MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES)
 	if (MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES && pOriginCity->getTeam() == pDestCity->getTeam())
 	{
 		kTradeConnection.m_eConnectionType = TRADE_CONNECTION_GOLD_INTERNAL;
@@ -5476,7 +5491,7 @@ int CvLuaPlayer::lGetInternationalTradeRoutePolicyBonus(lua_State* L)
 	kTradeConnection.m_eDomain = eDomain;
 	kTradeConnection.m_eConnectionType = TRADE_CONNECTION_INTERNATIONAL;
 
-#if defined(MOD_BALANCE_CORE) && defined(MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES)
+#if defined(MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES)
 	if (MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES && pOriginCity->getTeam() == pDestCity->getTeam())
 	{
 		kTradeConnection.m_eConnectionType = TRADE_CONNECTION_GOLD_INTERNAL;
@@ -5503,7 +5518,7 @@ int CvLuaPlayer::lGetInternationalTradeRouteOtherTraitBonus(lua_State* L)
 	kTradeConnection.m_eDomain = eDomain;
 	kTradeConnection.m_eConnectionType = TRADE_CONNECTION_INTERNATIONAL;
 
-#if defined(MOD_BALANCE_CORE) && defined(MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES)
+#if defined(MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES)
 	if (MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES && pOriginCity->getTeam() == pDestCity->getTeam())
 	{
 		kTradeConnection.m_eConnectionType = TRADE_CONNECTION_GOLD_INTERNAL;
@@ -5550,7 +5565,6 @@ int CvLuaPlayer::lGetTradeConnectionDiplomatModifierTimes100(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;	
 }
-#if defined(MOD_BALANCE_CORE)
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lGetTradeConnectionDistanceValueModifierTimes100(lua_State* L)
 {
@@ -5565,12 +5579,11 @@ int CvLuaPlayer::lGetTradeConnectionDistanceValueModifierTimes100(lua_State* L)
 	kTradeConnection.m_eDomain = eDomain;
 	kTradeConnection.m_eConnectionType = TRADE_CONNECTION_INTERNATIONAL;
 
-#if defined(MOD_BALANCE_CORE) && defined(MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES)
+#if defined(MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES)
 	if (MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES && pOriginCity->getTeam() == pDestCity->getTeam())
 	{
 		kTradeConnection.m_eConnectionType = TRADE_CONNECTION_GOLD_INTERNAL;
 	}
-#endif
 
 	int iResult = pPlayerTrade->GetTradeConnectionDistanceValueModifierTimes100(kTradeConnection);
 	lua_pushinteger(L, iResult);
@@ -5619,7 +5632,7 @@ int CvLuaPlayer::lGetTradeConnectionOpenBordersModifierTimes100(lua_State* L)
 	TradeConnection kTradeConnection;
 	kTradeConnection.SetCities(pOriginCity,pDestCity);
 
-#if defined(MOD_BALANCE_CORE) && defined(MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES)
+#if defined(MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES)
 	if (MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES && pOriginCity->getTeam() == pDestCity->getTeam())
 	{
 		kTradeConnection.m_eConnectionType = TRADE_CONNECTION_GOLD_INTERNAL;
@@ -5658,7 +5671,7 @@ int CvLuaPlayer::lGetInternationalTradeRouteCorporationModifierScience(lua_State
 	TradeConnection kTradeConnection;
 	kTradeConnection.SetCities(pOriginCity,pDestCity);
 
-#if defined(MOD_BALANCE_CORE) && defined(MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES)
+#if defined(MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES)
 	if (MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES && pOriginCity->getTeam() == pDestCity->getTeam())
 	{
 		kTradeConnection.m_eConnectionType = TRADE_CONNECTION_GOLD_INTERNAL;
@@ -5818,7 +5831,7 @@ int CvLuaPlayer::lGetInternationalTradeRouteTotal(lua_State* L)
 	{
 		kTradeConnection.m_eConnectionType = TRADE_CONNECTION_INTERNATIONAL;
 	}
-#if defined(MOD_BALANCE_CORE) && defined(MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES)
+#if defined(MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES)
 	else if (MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES && pOriginCity->getTeam() == pDestCity->getTeam())
 	{
 		kTradeConnection.m_eConnectionType = TRADE_CONNECTION_GOLD_INTERNAL;
@@ -5849,7 +5862,7 @@ int CvLuaPlayer::lGetInternationalTradeRouteScience(lua_State* L)
 	{
 		kTradeConnection.m_eConnectionType = TRADE_CONNECTION_INTERNATIONAL;
 	}
-#if defined(MOD_BALANCE_CORE) && defined(MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES)
+#if defined(MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES)
 	else if (MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES && pOriginCity->getTeam() == pDestCity->getTeam())
 	{
 		kTradeConnection.m_eConnectionType = TRADE_CONNECTION_GOLD_INTERNAL;
@@ -5861,7 +5874,6 @@ int CvLuaPlayer::lGetInternationalTradeRouteScience(lua_State* L)
 
 	return 1;	
 }
-#if defined(MOD_BALANCE_CORE)
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lGetInternationalTradeRouteCulture(lua_State* L)
 {
@@ -5880,12 +5892,11 @@ int CvLuaPlayer::lGetInternationalTradeRouteCulture(lua_State* L)
 	{
 		kTradeConnection.m_eConnectionType = TRADE_CONNECTION_INTERNATIONAL;
 	}
-#if defined(MOD_BALANCE_CORE) && defined(MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES)
+#if defined(MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES)
 	else if (MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES && pOriginCity->getTeam() == pDestCity->getTeam())
 	{
 		kTradeConnection.m_eConnectionType = TRADE_CONNECTION_GOLD_INTERNAL;
 	}
-#endif
 
 	int iResult = pPlayerTrade->GetTradeConnectionValueTimes100(kTradeConnection, YIELD_CULTURE, bOrigin);
 	lua_pushinteger(L, iResult);
@@ -5960,7 +5971,7 @@ int CvLuaPlayer::lGetMinorCivGoldBonus(lua_State* L)
 	kTradeConnection.SetCities(pOriginCity,pDestCity);
 	kTradeConnection.m_eDomain = eDomain;
 
-#if defined(MOD_BALANCE_CORE) && defined(MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES)
+#if defined(MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES)
 	if (MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES && pOriginCity->getTeam() == pDestCity->getTeam())
 	{
 		kTradeConnection.m_eConnectionType = TRADE_CONNECTION_GOLD_INTERNAL;
@@ -6366,7 +6377,6 @@ int CvLuaPlayer::lGetTradeToYouRoutesTTString(lua_State* L)
 
 	return 1;
 }
-#if defined(MOD_BALANCE_CORE)
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lIsConnectedToPlayer(lua_State* L)
 {
@@ -6397,7 +6407,6 @@ int CvLuaPlayer::lIsConnectionBonus(lua_State* L)
 	lua_pushboolean(L, bResult);
 	return 1;
 }	
-#endif
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lGetTradeRoutes(lua_State* L)
 {
@@ -7050,7 +7059,6 @@ int CvLuaPlayer::lChangeBarbarianCombatBonus(lua_State* L)
 	return BasicLuaMethod(L, &CvPlayerAI::ChangeBarbarianCombatBonus);
 }
 //------------------------------------------------------------------------------
-#if defined(MOD_BALANCE_CORE)
 int CvLuaPlayer::lGetCombatBonusVsHigherPop(lua_State* L)
 {
 	CvPlayer* pkPlayer = GetInstance(L);
@@ -7119,7 +7127,6 @@ int CvLuaPlayer::lGetDominationResistance(lua_State* L)
 	return 1;
 }
 
-#endif
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lGetCombatBonusVsHigherTech(lua_State* L)
 {
@@ -7703,7 +7710,10 @@ int CvLuaPlayer::lGetGoldenAgeTourismModifier(lua_State* L)
 int CvLuaPlayer::lGetGoldenAgeGreatWriterRateModifier(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
-	const int iResult = pkPlayer->GetPlayerTraits()->GetGoldenAgeGreatWriterRateModifier();
+	int iResult = 0;
+	GreatPersonTypes eGreatPerson = static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_WRITER"));
+	if (eGreatPerson != NO_GREATPERSON)
+		iResult = pkPlayer->GetPlayerTraits()->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -7711,7 +7721,10 @@ int CvLuaPlayer::lGetGoldenAgeGreatWriterRateModifier(lua_State* L)
 int CvLuaPlayer::lGetGoldenAgeGreatArtistRateModifier(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
-	const int iResult = pkPlayer->GetPlayerTraits()->GetGoldenAgeGreatArtistRateModifier();
+	int iResult = 0;
+	GreatPersonTypes eGreatPerson = static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_ARTIST"));
+	if (eGreatPerson != NO_GREATPERSON)
+		iResult = pkPlayer->GetPlayerTraits()->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -7719,21 +7732,21 @@ int CvLuaPlayer::lGetGoldenAgeGreatArtistRateModifier(lua_State* L)
 int CvLuaPlayer::lGetGoldenAgeGreatMusicianRateModifier(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
-	const int iResult = pkPlayer->GetPlayerTraits()->GetGoldenAgeGreatMusicianRateModifier();
+	int iResult = 0;
+	GreatPersonTypes eGreatPerson = static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_MUSICIAN"));
+	if (eGreatPerson != NO_GREATPERSON)
+		iResult = pkPlayer->GetPlayerTraits()->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
 	lua_pushinteger(L, iResult);
 	return 1;
 }
-#if defined(MOD_BALANCE_CORE)
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lGetGoldenAgeGreatScientistRateModifier(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
-	GreatPersonTypes eGreatPerson = GetGreatPersonFromUnitClass((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_SCIENTIST"));
 	int iResult = 0;
+	GreatPersonTypes eGreatPerson = static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_SCIENTIST"));
 	if (eGreatPerson != NO_GREATPERSON)
-	{
 		iResult = pkPlayer->GetPlayerTraits()->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
-	}
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -7741,12 +7754,10 @@ int CvLuaPlayer::lGetGoldenAgeGreatScientistRateModifier(lua_State* L)
 int CvLuaPlayer::lGetGoldenAgeGreatEngineerRateModifier(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
-	GreatPersonTypes eGreatPerson = GetGreatPersonFromUnitClass((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_ENGINEER"));
 	int iResult = 0;
+	GreatPersonTypes eGreatPerson = static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_ENGINEER"));
 	if (eGreatPerson != NO_GREATPERSON)
-	{
 		iResult = pkPlayer->GetPlayerTraits()->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
-	}
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -7754,30 +7765,21 @@ int CvLuaPlayer::lGetGoldenAgeGreatEngineerRateModifier(lua_State* L)
 int CvLuaPlayer::lGetGoldenAgeGreatMerchantRateModifier(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
-	GreatPersonTypes eGreatPerson = GetGreatPersonFromUnitClass((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_MERCHANT"));
 	int iResult = 0;
+	GreatPersonTypes eGreatPerson = static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_MERCHANT"));
 	if (eGreatPerson != NO_GREATPERSON)
-	{
 		iResult = pkPlayer->GetPlayerTraits()->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
-	}
 	lua_pushinteger(L, iResult);
 	return 1;
 }
-
-#endif
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lGetGoldenAgeGreatDiplomatRateModifier(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	int iResult = 0;
-	if (MOD_BALANCE_VP)
-	{
-		GreatPersonTypes eGreatPerson = GetGreatPersonFromUnitClass((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_GREAT_DIPLOMAT"));
-		if (eGreatPerson != NO_GREATPERSON)
-		{
-			iResult = pkPlayer->GetPlayerTraits()->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
-		}
-	}
+	GreatPersonTypes eGreatPerson = static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_DIPLOMAT"));
+	if (eGreatPerson != NO_GREATPERSON)
+		iResult = pkPlayer->GetPlayerTraits()->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -8966,7 +8968,6 @@ int CvLuaPlayer::lGetQuestTurnsRemaining(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
-#if defined(MOD_BALANCE_CORE)
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lGetRewardString(lua_State* L)
 {
@@ -9034,7 +9035,6 @@ int CvLuaPlayer::lQuestSpyActionsRemaining(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
-#endif
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lIsMinorCivContestLeader(lua_State* L)
 {
@@ -9281,7 +9281,6 @@ int CvLuaPlayer::lGetMinorCivCurrentFaithBonus(lua_State* L)
 	lua_pushinteger(L, pkPlayer->GetMinorCivAI()->GetCurrentFaithBonus(ePlayer));
 	return 1;
 }
-#if defined(MOD_BALANCE_CORE)
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lIsNoAlly(lua_State* L)
 {
@@ -9315,7 +9314,6 @@ int CvLuaPlayer::lGetMinorCivCurrentScienceBonus(lua_State* L)
 	lua_pushinteger(L, pkPlayer->GetMinorCivAI()->GetCurrentScienceBonus(ePlayer));
 	return 1;
 }
-#endif
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lGetCurrentCapitalFoodBonus(lua_State* L)
 {
@@ -9438,7 +9436,6 @@ int CvLuaPlayer::lGetMinorCivBullyGoldAmount(lua_State* L)
 	lua_pushinteger(L, iValue);
 	return 1;
 }
-#if defined(MOD_BALANCE_CORE)
 //------------------------------------------------------------------------------
 //int SetBullyUnit(PlayerTypes eMajor, YieldTypes eYield);
 int CvLuaPlayer::lSetBullyUnit(lua_State* L)
@@ -9484,7 +9481,6 @@ int CvLuaPlayer::lIsCanBullyFriendlyCS(lua_State* L)
 	lua_pushboolean(L, bResult);
 	return 1;
 }
-#endif
 //------------------------------------------------------------------------------
 //bool CanMajorBullyGold(PlayerTypes eMajor);
 int CvLuaPlayer::lCanMajorBullyGold(lua_State* L)
@@ -9608,7 +9604,6 @@ int CvLuaPlayer::lCanMajorBuyout(lua_State* L)
 	lua_pushboolean(L, bResult);
 	return 1;
 }
-#if defined(MOD_BALANCE_CORE)
 //------------------------------------------------------------------------------
 //bool CanMajorMarry(PlayerTypes eMajor);
 int CvLuaPlayer::lCanMajorMarry(lua_State* L)
@@ -9652,7 +9647,6 @@ int CvLuaPlayer::lGetMarriageCost(lua_State* L)
 	lua_pushinteger(L, iCost);
 	return 1;
 }
-#endif
 //------------------------------------------------------------------------------
 //int GetBuyoutCost(PlayerTypes eMajor);
 int CvLuaPlayer::lGetBuyoutCost(lua_State* L)
@@ -9838,6 +9832,15 @@ int CvLuaPlayer::lGetUnhappinessFromReligiousUnrest(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 
 	const int iResult = pkPlayer->GetUnhappinessFromReligiousUnrest();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+
+int CvLuaPlayer::lGetUnhappinessFromBuildings(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+
+	const int iResult = pkPlayer->GetUnhappinessFromBuildings();
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -12681,7 +12684,6 @@ int CvLuaPlayer::lIsFreeMayaGreatPersonChoice(lua_State* L)
 	}
 	return 1;
 }
-#if defined(MOD_BALANCE_CORE)
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lIsProphetValid(lua_State* L)
 {
@@ -12692,7 +12694,6 @@ int CvLuaPlayer::lIsProphetValid(lua_State* L)
 	}
 	return 1;
 }
-#endif
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lHasReceivedNetTurnComplete(lua_State* L)
 {
@@ -12713,7 +12714,6 @@ int CvLuaPlayer::lGetTraitGoldenAgeCombatModifier(lua_State* L)
 	}
 	return 1;
 }
-#if defined(MOD_BALANCE_CORE)
 int CvLuaPlayer::lGetTraitConquestOfTheWorldCityAttackMod(lua_State* L)
 {
 	int iRtnValue = 0;
@@ -12737,7 +12737,6 @@ int CvLuaPlayer::lGetTraitConquestOfTheWorldCityAttackMod(lua_State* L)
 	lua_pushinteger(L, iRtnValue);
 	return 1;
 }
-#endif
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lGetTraitCityStateCombatModifier(lua_State* L)
 {
@@ -12830,7 +12829,6 @@ int CvLuaPlayer::lIsAbleToAnnexCityStates(lua_State* L)
 	}
 	return 1;
 }
-#if defined(MOD_BALANCE_CORE)
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lIsDiplomaticMarriage(lua_State* L)
 {
@@ -12875,7 +12873,6 @@ int CvLuaPlayer::lIsCarnaval(lua_State* L)
 	}
 	return 1;
 }
-#endif
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lIsAnnexedCityStatesGiveYields(lua_State* L)
 {
@@ -15989,6 +15986,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 	size_t BeginColorPrefixFound;
 	std::string strColorSuffix = "]";
 	size_t BeginColorSuffixFound;
+	std::string strIntensePositiveColor = "[COLOR_INTENSE_POSITIVE_TEXT]";
 	std::string strFullPositiveColor = "[COLOR_POSITIVE_TEXT]";
 	std::string strModeratePositiveColor = "[COLOR_MODERATE_POSITIVE_TEXT]";
 	std::string strFadingPositiveColor = "[COLOR_FADING_POSITIVE_TEXT]";
@@ -15996,6 +15994,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 	std::string strFadingNegativeColor = "[COLOR_FADING_NEGATIVE_TEXT]";
 	std::string strModerateNegativeColor = "[COLOR_MODERATE_NEGATIVE_TEXT]";
 	std::string strFullNegativeColor = "[COLOR_NEGATIVE_TEXT]";
+	std::string strIntenseNegativeColor = "[COLOR_INTENSE_NEGATIVE_TEXT]";
 
 	for (uint ui = 0; ui < aOpinions.size(); ui++)
 	{
@@ -16017,11 +16016,15 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			}
 		}
 
-		if (aOpinions[ui].m_iValue >= /*31*/ GD_INT_GET(OPINION_THRESHOLD_MAJOR_NEGATIVE))
+		if (aOpinions[ui].m_iValue >= /*80*/ GD_INT_GET(OPINION_THRESHOLD_INTENSE_NEGATIVE))
+		{
+			strOutput.insert(0, strIntenseNegativeColor);
+		}
+		else if (aOpinions[ui].m_iValue >= /*30*/ GD_INT_GET(OPINION_THRESHOLD_MAJOR_NEGATIVE))
 		{
 			strOutput.insert(0, strFullNegativeColor);
 		}
-		else if (aOpinions[ui].m_iValue >= /*16*/ GD_INT_GET(OPINION_THRESHOLD_MODERATE_NEGATIVE))
+		else if (aOpinions[ui].m_iValue >= /*15*/ GD_INT_GET(OPINION_THRESHOLD_MODERATE_NEGATIVE))
 		{
 			strOutput.insert(0, strModerateNegativeColor);
 		}
@@ -16033,17 +16036,21 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		{
 			strOutput.insert(0, strNeutralColor);
 		}
-		else if (aOpinions[ui].m_iValue > /*-16*/ GD_INT_GET(OPINION_THRESHOLD_MODERATE_POSITIVE))
+		else if (aOpinions[ui].m_iValue > /*-15*/ GD_INT_GET(OPINION_THRESHOLD_MODERATE_POSITIVE))
 		{
 			strOutput.insert(0, strFadingPositiveColor);
 		}
-		else if (aOpinions[ui].m_iValue > /*-31*/ GD_INT_GET(OPINION_THRESHOLD_MAJOR_POSITIVE))
+		else if (aOpinions[ui].m_iValue > /*-30*/ GD_INT_GET(OPINION_THRESHOLD_MAJOR_POSITIVE))
 		{
 			strOutput.insert(0, strModeratePositiveColor);
 		}
-		else
+		else if (aOpinions[ui].m_iValue > /*-80*/ GD_INT_GET(OPINION_THRESHOLD_INTENSE_POSITIVE))
 		{
 			strOutput.insert(0, strFullPositiveColor);
+		}
+		else
+		{
+			strOutput.insert(0, strIntensePositiveColor);
 		}
 
 		// Should we display the number value of opinion modifiers?
@@ -16108,7 +16115,6 @@ int CvLuaPlayer::lMayNotAnnex(lua_State* L)
 	lua_pushboolean(L, pkThisPlayer->GetPlayerTraits()->IsNoAnnexing());
 	return 1;
 }
-#if defined(MOD_BALANCE_CORE)
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lIsTradeSanctioned(lua_State* L)
 {
@@ -16271,7 +16277,6 @@ int CvLuaPlayer::lGetRandomIntrigue(lua_State* L)
 	pkPlayerEspionage->GetRandomIntrigue(pkCity, iSpyIndex);
 	return 0;
 }
-#endif
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lGetEspionageCityStatus(lua_State* L)
 {

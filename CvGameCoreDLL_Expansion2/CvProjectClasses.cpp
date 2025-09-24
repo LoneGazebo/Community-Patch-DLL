@@ -17,10 +17,11 @@ CvProjectEntry::CvProjectEntry(void):
 	m_piVictoryThreshold(NULL),
 	m_piVictoryMinThreshold(NULL),
 	m_piProjectsNeeded(NULL),
-#if defined(MOD_BALANCE_CORE)
+	m_piUnitCombatProductionModifiersGlobal(NULL),
+	m_piYieldFromConquestAllCities(NULL),
 	m_eFreeBuilding(NO_BUILDINGCLASS),
 	m_eFreePolicy(NO_POLICY),
-#endif
+	m_eCivType(NO_CIVILIZATION),
 	m_piFlavorValue(NULL)
 {
 }
@@ -32,6 +33,8 @@ CvProjectEntry::~CvProjectEntry(void)
 	SAFE_DELETE_ARRAY(m_piVictoryMinThreshold);
 	SAFE_DELETE_ARRAY(m_piProjectsNeeded);
 	SAFE_DELETE_ARRAY(m_piFlavorValue);
+	SAFE_DELETE_ARRAY(m_piUnitCombatProductionModifiersGlobal);
+	SAFE_DELETE_ARRAY(m_piYieldFromConquestAllCities);
 }
 //------------------------------------------------------------------------------
 bool CvProjectEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
@@ -41,6 +44,7 @@ bool CvProjectEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility
 
 	m_iMaxGlobalInstances = kResults.GetInt("MaxGlobalInstances");
 	m_iMaxTeamInstances = kResults.GetInt("MaxTeamInstances");
+	m_iMaxPlayerInstances = kResults.GetInt("MaxPlayerInstances");
 	m_iProductionCost = kResults.GetInt("Cost");
 	m_iNukeInterception = kResults.GetInt("NukeInterception");
 	m_iCultureBranchesRequired = kResults.GetInt("CultureBranchesRequired");
@@ -50,7 +54,6 @@ bool CvProjectEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	m_bSpaceship = kResults.GetBool("Spaceship");
 	m_bAllowsNukes = kResults.GetBool("AllowsNukes");
 
-#if defined(MOD_BALANCE_CORE)
 	m_iGoldMaintenance = kResults.GetInt("Maintenance");
 	m_iCostScalerEra = kResults.GetInt("CostScalerEra");
 	m_iCostScalerNumRepeats = kResults.GetInt("CostScalerNumRepeats");
@@ -60,6 +63,9 @@ bool CvProjectEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	m_bIdeologyRequired = kResults.GetBool("IdeologyRequired");
 	m_iHappiness = kResults.GetInt("Happiness");
 	m_iEmpireSizeModifierReduction = kResults.GetInt("EmpireSizeModifierReduction");
+	m_iEmpireSizeModifierPerCityMod = kResults.GetInt("EmpireSizeModifierPerCityMod");
+	const char* szSpecificCivilizationType = kResults.GetText("CivilizationType");
+	m_eCivType = (CivilizationTypes)GC.getInfoTypeForString(szSpecificCivilizationType, true);
 	m_iDistressFlatReduction = kResults.GetInt("DistressFlatReduction");
 	m_iPovertyFlatReduction = kResults.GetInt("PovertyFlatReduction");
 	m_iIlliteracyFlatReduction = kResults.GetInt("IlliteracyFlatReduction");
@@ -82,7 +88,6 @@ bool CvProjectEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	{
 		m_eFreePolicy = (PolicyTypes)GC.getInfoTypeForString(szFreePolicy, true);
 	}
-#endif
 
 	m_strMovieArtDef = kResults.GetText("MovieDefineTag");
 
@@ -133,6 +138,8 @@ bool CvProjectEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility
 
 	kUtility.SetFlavors(m_piFlavorValue, "Project_Flavors", "ProjectType", szProjectType);
 	kUtility.PopulateArrayByValue(m_piProjectsNeeded, "Projects", "Project_Prereqs", "PrereqProjectType", "ProjectType", szProjectType, "AmountNeeded");
+	kUtility.PopulateArrayByValue(m_piUnitCombatProductionModifiersGlobal, "UnitCombatInfos", "Project_UnitCombatProductionModifiersGlobal", "UnitCombatType", "ProjectType", szProjectType, "Modifier");
+	kUtility.SetYields(m_piYieldFromConquestAllCities, "Project_YieldFromConquestAllCities", "ProjectType", szProjectType);
 
 	return true;
 }
@@ -171,6 +178,11 @@ int CvProjectEntry::GetMaxGlobalInstances() const
 int CvProjectEntry::GetMaxTeamInstances() const
 {
 	return m_iMaxTeamInstances;
+}
+
+int CvProjectEntry::GetMaxPlayerInstances() const
+{
+	return m_iMaxPlayerInstances;
 }
 
 /// Shields to construct the building
@@ -234,7 +246,6 @@ bool CvProjectEntry::IsAllowsNukes() const
 {
 	return m_bAllowsNukes;
 }
-#if defined(MOD_BALANCE_CORE)
 int CvProjectEntry::CostScalerEra() const
 {
 	return m_iCostScalerEra;
@@ -283,6 +294,15 @@ int CvProjectEntry::GetEmpireSizeModifierReduction() const
 {
 	return m_iEmpireSizeModifierReduction;
 }
+int CvProjectEntry::GetEmpireSizeModifierPerCityMod() const
+{
+	return m_iEmpireSizeModifierPerCityMod;
+}
+
+CivilizationTypes CvProjectEntry::GetCivilizationType() const
+{
+	return m_eCivType;
+}
 int CvProjectEntry::GetDistressFlatReduction() const
 {
 	return m_iDistressFlatReduction;
@@ -327,7 +347,6 @@ int CvProjectEntry::GetSpySecurityModifier() const
 {
 	return m_iSpySecurityModifier;
 }
-#endif
 
 /// Retrieve movie file name
 const char* CvProjectEntry::GetMovieArtDef() const
@@ -410,6 +429,34 @@ int CvProjectEntry::GetProjectsNeeded(int i) const
 	return 0;
 }
 
+/// Unit combat production modifiers global
+int CvProjectEntry::GetUnitCombatProductionModifiersGlobal(int i) const
+{
+	ASSERT_DEBUG(i < GC.getNumUnitCombatClassInfos(), "Index out of bounds");
+	ASSERT_DEBUG(i > -1, "Index out of bounds");
+
+	if(i > -1 && i < GC.getNumUnitCombatClassInfos() && m_piUnitCombatProductionModifiersGlobal)
+	{
+		return m_piUnitCombatProductionModifiersGlobal[i];
+	}
+
+	return 0;
+}
+
+/// Unit combat production modifiers global
+int CvProjectEntry::GetYieldFromConquestAllCities(int i) const
+{
+	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
+	ASSERT_DEBUG(i > -1, "Index out of bounds");
+
+	if(i > -1 && i < NUM_YIELD_TYPES && m_piYieldFromConquestAllCities)
+	{
+		return m_piYieldFromConquestAllCities[i];
+	}
+
+	return 0;
+}
+
 //=====================================
 // CvProjectXMLEntries
 //=====================================
@@ -451,9 +498,5 @@ void CvProjectXMLEntries::DeleteArray()
 /// Get a specific entry
 CvProjectEntry* CvProjectXMLEntries::GetEntry(int index)
 {
-#if defined(MOD_BALANCE_CORE)
 	return (index!=NO_PROJECT) ? m_paProjectEntries[index] : NULL;
-#else
-	return m_paProjectEntries[index];
-#endif
 }

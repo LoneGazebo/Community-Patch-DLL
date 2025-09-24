@@ -284,7 +284,7 @@ SET Text = '+25% [ICON_STRENGTH] Combat Strength when defending.[NEWLINE]+5 HP w
 WHERE Tag = 'TXT_KEY_PROMOTION_SURVIVALISM_2_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Unit will [COLOR_POSITIVE_TEXT]Heal Every Turn[ENDCOLOR], even if it performs an action.[NEWLINE]Pillaging costs no [ICON_MOVES] Movement.'
+SET Text = 'Unit will [COLOR_POSITIVE_TEXT]Heal Every Turn[ENDCOLOR], even if it performs an action.[NEWLINE][ICON_RAZING] Pillaging costs no [ICON_MOVES] Movement.'
 WHERE Tag = 'TXT_KEY_PROMOTION_SURVIVALISM_3_HELP';
 
 UPDATE Language_en_US
@@ -468,7 +468,7 @@ WHERE Tag = 'TXT_KEY_PROMOTION_MORALE_HELP';
 
 -- Statue Of Zeus
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Military Units:[ENDCOLOR] +25% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].[NEWLINE][COLOR_POSITIVE_TEXT]Workers:[ENDCOLOR] Immune to the [COLOR_NEGATIVE_TEXT]{TXT_KEY_PROMOTION_PRISONER_WAR}[ENDCOLOR] status.'
+SET Text = '[COLOR_POSITIVE_TEXT]Military Units:[ENDCOLOR] +25% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].[NEWLINE][COLOR_POSITIVE_TEXT]Workers:[ENDCOLOR] Immune to the [COLOR_NEGATIVE_TEXT]{TXT_KEY_PROMOTION_PRISONERS_OF_WAR}[ENDCOLOR] status.'
 WHERE Tag = 'TXT_KEY_PROMOTION_STATUE_ZEUS_HELP';
 
 -- Himeji Castle
@@ -703,7 +703,7 @@ WHERE Tag = 'TXT_KEY_PROMOTION_HOMELAND_GUARDIAN_HELP';
 
 -- Full Moon Striker
 UPDATE Language_en_US
-SET Text = '+1 [ICON_MOVES] Movement.[NEWLINE]Gain 200 [ICON_RESEARCH] Science when [COLOR_POSITIVE_TEXT]pillaging improvements[ENDCOLOR].'
+SET Text = '+1 [ICON_MOVES] Movement.[NEWLINE]Gain 200 [ICON_RESEARCH] Science when [ICON_RAZING] Pillaging Improvements.'
 WHERE Tag = 'TXT_KEY_PROMOTION_MOON_STRIKER_HELP';
 
 -- Mystic Blade

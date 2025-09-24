@@ -415,16 +415,15 @@ void CvPlayerEspionage::Init(CvPlayer* pPlayer)
 		m_aiSpyListNameOrder.push_back(i);
 	}
 
-#if !defined(MOD_CORE_REDUCE_RANDOMNESS)
-	for(uint ui = 0; ui < m_aiSpyListNameOrder.size(); ui++)
+	// Shuffle the list of names
+	for (uint ui = 0; ui < m_aiSpyListNameOrder.size(); ui++)
 	{
-		uint uiTempValue;
-		uint uiTargetSlot = GC.getGame().getJonRandNum(m_aiSpyListNameOrder.size(), "Randomizing m_aiSpyListNameOrder list");
-		uiTempValue = m_aiSpyListNameOrder[ui];
+		int iCounter = static_cast<int>(ui);
+		uint uiTargetSlot = GC.getGame().urandLimitExclusive(m_aiSpyListNameOrder.size(), CvSeeder::fromRaw(0xff0af677).mix(iCounter));
+		uint uiTempValue = m_aiSpyListNameOrder[ui];
 		m_aiSpyListNameOrder[ui] = m_aiSpyListNameOrder[uiTargetSlot];
 		m_aiSpyListNameOrder[uiTargetSlot] = uiTempValue;
 	}
-#endif
 
 	m_iSpyListNameOrderIndex = 0;
 
@@ -2338,7 +2337,7 @@ void CvPlayerEspionage::UncoverCityBuildingWonder(uint uiSpyIndex)
 		}
 	}
 }
-#if defined(MOD_BALANCE_CORE)
+
 /// UncoverIntrigue - Determine if the spy uncovers any secret information and pass it along to the player
 void CvPlayerEspionage::GetRandomIntrigue(CvCity* pCity, uint uiSpyIndex)
 {
@@ -2488,7 +2487,6 @@ void CvPlayerEspionage::GetRandomIntrigue(CvCity* pCity, uint uiSpyIndex)
 		AddIntrigueMessage(m_pPlayer->GetID(), eOtherPlayer, NO_PLAYER, NO_PLAYER, eBuilding, eProject, NO_UNIT, INTRIGUE_TYPE_CONSTRUCTING_WONDER, uiSpyIndex, pCity, true);
 	}
 }
-#endif
 
 bool isSpyNameInUse(CvPlayer* pPlayer, const char* szSpyName)
 {
@@ -6632,7 +6630,6 @@ FDataStream& operator>>(FDataStream& loadFrom, CvPlayerEspionage& writeTo)
 		loadFrom >> iNumTechsToSteal;
 		writeTo.m_aiNumTechsToStealList.push_back(iNumTechsToSteal);
 	}
-#if defined(MOD_BALANCE_CORE)
 	loadFrom >> uiNumCivs;
 	for(uint uiCiv = 0; uiCiv < uiNumCivs; uiCiv++)
 	{
@@ -6640,7 +6637,6 @@ FDataStream& operator>>(FDataStream& loadFrom, CvPlayerEspionage& writeTo)
 		loadFrom >> iNumSpyActionsDone;
 		writeTo.m_aiNumSpyActionsDone.push_back(iNumSpyActionsDone);
 	}
-#endif
 
 	int iNumMessages = 0;
 	loadFrom >> iNumMessages;
@@ -6722,15 +6718,12 @@ FDataStream& operator<<(FDataStream& saveTo, const CvPlayerEspionage& readFrom)
 	{
 		saveTo << readFrom.m_aiNumTechsToStealList[uiCiv];
 	}
-#if defined(MOD_BALANCE_CORE)
 	
 	saveTo << readFrom.m_aiNumSpyActionsDone.size();
 	for(uint uiCiv = 0; uiCiv < readFrom.m_aiNumSpyActionsDone.size(); uiCiv++)
 	{
 		saveTo << readFrom.m_aiNumSpyActionsDone[uiCiv];
 	}
-
-#endif
 
 	saveTo << readFrom.m_aSpyNotificationMessages.size();
 	for(uint ui = 0; ui < readFrom.m_aSpyNotificationMessages.size(); ui++)
@@ -7740,11 +7733,10 @@ void CvEspionageAI::DoTurn()
 	{
 		return;
 	}
-#if defined(MOD_BALANCE_CORE)
+
 	//No spies? No need!
 	if (m_pPlayer->GetEspionage()->GetNumAliveSpies() <= 0)
 		return;
-#endif
 
 	if (!MOD_BALANCE_VP)
 	{
@@ -7960,6 +7952,12 @@ void CvEspionageAI::DoTurn()
 		if (pEspionage->GetSpyIndexInCity(pCity) != -1)
 			continue;
 
+		// no more spies left to assign?
+		if (uiIndex >= vRemainingSpyIDs.size())
+		{
+			break;
+		}
+
 		// this is the spy we want to assign a city to
 		uint uiSpy = vRemainingSpyIDs[uiIndex];
 
@@ -7998,12 +7996,6 @@ void CvEspionageAI::DoTurn()
 
 		// get the next spy
 		uiIndex++;
-
-		// no more spies left to assign?
-		if (uiIndex == vRemainingSpyIDs.size())
-		{
-			break;
-		}
 	}
 }
 

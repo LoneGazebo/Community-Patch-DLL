@@ -2818,16 +2818,16 @@ VictoryPursuitTypes CvDiplomacyAI::GetEternalVictoryPursuit() const
 
 			// Individual override active for this leader?
 			if (pkLeaderHeadInfo->GetBoldness() == -12 && bDominationVictoryEnabled)
-				return VICTORY_PURSUIT_DOMINATION;
+				return VICTORY_PURSUIT_DOMINATION; // Follow the white cloak.
 
 			if (pkLeaderHeadInfo->GetMinorCivCompetitiveness() == -12 && bDiploVictoryEnabled)
-				return VICTORY_PURSUIT_DIPLOMACY;
+				return VICTORY_PURSUIT_DIPLOMACY; // The benefits of being able to force a dialogue in place of a duel.
 
 			if (pkLeaderHeadInfo->GetWonderCompetitiveness() == -12 && bCultureVictoryEnabled)
-				return VICTORY_PURSUIT_CULTURE;
+				return VICTORY_PURSUIT_CULTURE; // Now, the sky had alighted in glorious colour! They were feeling nostalgic for a place they were still experiencing, and it made them happy.
 
 			if (pkLeaderHeadInfo->GetWarmongerHate() == -12 && bScienceVictoryEnabled)
-				return VICTORY_PURSUIT_SCIENCE;
+				return VICTORY_PURSUIT_SCIENCE; // It'd worked exactly as he'd thought. The scientist's brains over the god's brawn had found a way forward.
 		}
 	}
 
@@ -10505,8 +10505,8 @@ void CvDiplomacyAI::DoUpdateWarStates()
 	ReligionTypes eMyReligion = GetPlayer()->GetReligions()->GetOwnedReligion();
 	int iLoop = 0;
 
-	PlayerTypes eHighestWarWearinessPlayer = GetPlayer()->GetHighestWarWearinessPlayer();
-	int iUnhappinessFromWarWeariness = eHighestWarWearinessPlayer != NO_PLAYER ? GetPlayer()->GetUnhappinessFromWarWearinessWithTeam(GET_PLAYER(eHighestWarWearinessPlayer).getTeam()) : 0;
+	PlayerTypes eHighestWarWearinessPlayer = GetPlayer()->GetHighestWarWearinessPlayer(true);
+	int iUnhappinessFromWarWeariness = eHighestWarWearinessPlayer != NO_PLAYER ? GetPlayer()->GetUnhappinessFromWarWearinessWithTeam(GET_PLAYER(eHighestWarWearinessPlayer).getTeam(), true) : 0;
 
 	// Loop through all (known) Players
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
@@ -18174,7 +18174,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 			bool bIgnore = GET_PLAYER(eLoopPlayer).IsVassalOfSomeone() && !GetPlayer()->IsVassalOfSomeone(); // Vassals aren't important unless we're one too.
 
-			if (IsPlayerValid(eLoopPlayer, /*bMyTeamIsValid*/ true) && eTeam != GET_PLAYER(eLoopPlayer).getTeam())
+			if (IsPlayerValid(eLoopPlayer, /*bMyTeamIsValid*/ true) && eLoopPlayer != GetID() && eTeam != GET_PLAYER(eLoopPlayer).getTeam())
 			{
 				if (!IsTeammate(eLoopPlayer) && (IsAtWar(eLoopPlayer) || IsDenouncedPlayer(eLoopPlayer) || IsUntrustworthy(eLoopPlayer) || eOtherPlayerWeAreSanctioning == eLoopPlayer))
 				{
@@ -18569,8 +18569,8 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// AT WAR RIGHT NOW
 	////////////////////////////////////
 
-	PlayerTypes eHighestWarWearinessPlayer = GetPlayer()->GetHighestWarWearinessPlayer();
-	int iUnhappinessFromWarWeariness = eHighestWarWearinessPlayer != NO_PLAYER ? GetPlayer()->GetUnhappinessFromWarWearinessWithTeam(GET_PLAYER(eHighestWarWearinessPlayer).getTeam()) : 0;
+	PlayerTypes eHighestWarWearinessPlayer = GetPlayer()->GetHighestWarWearinessPlayer(true);
+	int iUnhappinessFromWarWeariness = eHighestWarWearinessPlayer != NO_PLAYER ? GetPlayer()->GetUnhappinessFromWarWearinessWithTeam(GET_PLAYER(eHighestWarWearinessPlayer).getTeam(), true) : 0;
 
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
@@ -25668,8 +25668,8 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 		bUABonusesFromCityConquest |= IsNuclearGandhi();
 	}
 
-	PlayerTypes eHighestWarWearinessPlayer = GetPlayer()->GetHighestWarWearinessPlayer();
-	int iUnhappinessFromWarWeariness = eHighestWarWearinessPlayer != NO_PLAYER ? GetPlayer()->GetUnhappinessFromWarWearinessWithTeam(GET_PLAYER(eHighestWarWearinessPlayer).getTeam()) : 0;
+	PlayerTypes eHighestWarWearinessPlayer = GetPlayer()->GetHighestWarWearinessPlayer(true);
+	int iUnhappinessFromWarWeariness = eHighestWarWearinessPlayer != NO_PLAYER ? GetPlayer()->GetUnhappinessFromWarWearinessWithTeam(GET_PLAYER(eHighestWarWearinessPlayer).getTeam(), true) : 0;
 	int iWarProgressUnhappyPenalty = 0;
 	int iWarProgressResourcePenalty = 0;
 	if (MOD_BALANCE_VP)
@@ -26566,8 +26566,8 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyOffers(vector<TeamTypes>& vMakePeaceTeams
 	int iUnhappinessFromWarWeariness = 0;
 	if (GetPlayer()->IsEmpireUnhappy() || GetPlayer()->IsInTerribleShapeForWar())
 	{
-		eHighestWarWearinessPlayer = GetPlayer()->GetHighestWarWearinessPlayer();
-		iUnhappinessFromWarWeariness = eHighestWarWearinessPlayer != NO_PLAYER ? GetPlayer()->GetUnhappinessFromWarWearinessWithTeam(GET_PLAYER(eHighestWarWearinessPlayer).getTeam()) : 0;
+		eHighestWarWearinessPlayer = GetPlayer()->GetHighestWarWearinessPlayer(true);
+		iUnhappinessFromWarWeariness = eHighestWarWearinessPlayer != NO_PLAYER ? GetPlayer()->GetUnhappinessFromWarWearinessWithTeam(GET_PLAYER(eHighestWarWearinessPlayer).getTeam(), true) : 0;
 	}
 
 	for (std::vector<TeamTypes>::iterator it = vMakePeaceTeams.begin(); it != vMakePeaceTeams.end(); ++it)
@@ -28495,6 +28495,10 @@ bool CvDiplomacyAI::IsWillingToGiveOpenBordersToPlayer(PlayerTypes ePlayer)
 	{
 		return false;
 	}
+
+	// Do not let them in if they think our beautiful fields are their living room!
+	if (GetNumTimesCultureBombed(ePlayer) > 0)
+		return false;
 
 	// Are they here to steal our PRICELESS ARCHAEOLOGICAL ARTIFACTS???
 	if (GetNumArtifactsEverDugUp(ePlayer) > 0)
@@ -30963,12 +30967,10 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 
 					CvDiplomacyRequests::SendRequest(GetID(), ePlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, szText, LEADERHEAD_ANIM_POSITIVE);
 				}
-#if defined(MOD_BALANCE_CORE)
 				else
 				{
 					GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeNumTimesIntrigueSharedBy(GetID(), 1);
 				}
-#endif
 			}
 
 			// mark the messages as shared so the player isn't told the same thing repeatedly
@@ -31948,9 +31950,7 @@ void CvDiplomacyAI::DoContactPlayer(PlayerTypes ePlayer)
 			DoDenounceFriendStatement(ePlayer, eStatement);
 			DoDenounceStatement(ePlayer, eStatement);
 			DoEndDoFStatement(ePlayer, eStatement);
-#if !defined(MOD_BALANCE_CORE)
-			DoRequestFriendDenounceStatement(ePlayer, eStatement, iData1);
-#endif
+			//DoRequestFriendDenounceStatement(ePlayer, eStatement, iData1);
 
 			DoMapsOffer(ePlayer,eStatement,pDeal);
 			DoTechOffer(ePlayer,eStatement,pDeal);
@@ -36713,7 +36713,6 @@ const char* CvDiplomacyAI::GetDiploStringForMessage(DiploMessageTypes eDiploMess
 	case DIPLO_MESSAGE_WORK_WITH_US:
 		strText = GetDiploTextFromTag("RESPONSE_WORK_WITH_US");
 		break;
-#if defined(MOD_BALANCE_CORE)
 	// AI wants a Strategic Resource that someone has
 	case DIPLO_MESSAGE_STRATEGIC_TRADE:
 		strText = GetDiploTextFromTag("RESPONSE_STRATEGIC_TRADE");
@@ -36734,7 +36733,6 @@ const char* CvDiplomacyAI::GetDiploStringForMessage(DiploMessageTypes eDiploMess
 	case DIPLO_MESSAGE_DOF_BATTLE_BROTHERS:
 		strText = GetDiploTextFromTag("RESPONSE_DOF_BATTLE_BROTHERS");
 		break;
-#endif
 
 		// AI is done working with a player
 	case DIPLO_MESSAGE_END_WORK_WITH_US:
@@ -39454,10 +39452,8 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			if (!IsTeammate(eFromPlayer))
 			{
 				SetBrokeCoopWarPromise(eFromPlayer, true);
-#if defined(MOD_BALANCE_CORE)
 				ChangeRecentAssistValue(eFromPlayer, -300);
 				ChangeCoopWarAgreementScore(eFromPlayer, -2);
-#endif
 			}
 
 			if (bActivePlayer)
@@ -43840,7 +43836,6 @@ void CvDiplomacyAI::DoDenouncePlayer(PlayerTypes ePlayer)
 	DoReevaluatePlayer(ePlayer);
 
 	Localization::String someoneDenounceInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_DENOUNCE");
-#if defined(MOD_BALANCE_CORE)
 	int iMessage = GetDenounceMessage(ePlayer);
 	if (iMessage > 0 && iMessage <= 7)
 	{
@@ -43910,7 +43905,6 @@ void CvDiplomacyAI::DoDenouncePlayer(PlayerTypes ePlayer)
 	{
 		someoneDenounceInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_DENOUNCE");
 	}
-#endif
 	Localization::String someoneDenounceSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_DENOUNCE_S");
 	Localization::String youDenounceInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_YOU_DENOUNCE");
 	Localization::String youDenounceSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_YOU_DENOUNCE_S");
@@ -46697,6 +46691,9 @@ int CvDiplomacyAI::GetDemandMadeScore(PlayerTypes ePlayer)
 			iOpinionWeight += /*10*/ GD_INT_GET(OPINION_WEIGHT_MADE_DEMAND_OF_US_SUBSEQUENT) * (iNumDemands - 1);
 		}
 
+		int iDuration = AdjustModifierDuration(/*50*/ GD_INT_GET(MADE_DEMAND_TURNS_UNTIL_FORGIVEN), GetForgiveness(), true);
+		iOpinionWeight = AdjustTimedModifier(iOpinionWeight, iDuration, GetDemandMadeTurn(ePlayer), TIMED_MODIFIER_DIMINISHING, iNumDemands, GD_INT_GET(OPINION_WEIGHT_MADE_DEMAND_OF_US));
+
 		// Reduce the penalty if we're not currently giving them anything
 		if (!GET_PLAYER(ePlayer).GetDiplomacyAI()->IsRecentDemandAccepted(GetID()))
 		{
@@ -46725,9 +46722,6 @@ int CvDiplomacyAI::GetDemandMadeScore(PlayerTypes ePlayer)
 				iOpinionWeight += iExtraPenalty;
 			}
 		}
-
-		int iDuration = AdjustModifierDuration(/*50*/ GD_INT_GET(MADE_DEMAND_TURNS_UNTIL_FORGIVEN), GetForgiveness(), true);
-		iOpinionWeight = AdjustTimedModifier(iOpinionWeight, iDuration, GetDemandMadeTurn(ePlayer), TIMED_MODIFIER_DIMINISHING, iNumDemands, GD_INT_GET(OPINION_WEIGHT_MADE_DEMAND_OF_US));
 	}
 
 	return iOpinionWeight;
@@ -47623,16 +47617,13 @@ int CvDiplomacyAI::GetAngryAboutSidedWithProtectedMinorScore(PlayerTypes ePlayer
 			if (GetBoldness() > 7 || GetMeanness() > 7)
 				iOpinionWeight += /*10*/ GD_INT_GET(OPINION_WEIGHT_SIDED_WITH_THEIR_MINOR_AGGRESSIVE_MOD);
 
-			else if (MOD_BALANCE_CORE)
+			else if (GetPlayer()->GetPlayerTraits()->GetBullyMilitaryStrengthModifier() != 0 ||
+				GetPlayer()->GetPlayerTraits()->GetBullyValueModifier() != 0 ||
+				GetPlayer()->GetPlayerTraits()->GetCityStateCombatModifier() != 0 ||
+				GetPlayer()->GetPlayerTraits()->IsBullyAnnex() || GetPlayer()->GetPlayerTraits()->IgnoreBullyPenalties() ||
+				GetPlayer()->IsCanBullyFriendlyCS())
 			{
-				if (GetPlayer()->GetPlayerTraits()->GetBullyMilitaryStrengthModifier() != 0 ||
-					GetPlayer()->GetPlayerTraits()->GetBullyValueModifier() != 0 ||
-					GetPlayer()->GetPlayerTraits()->GetCityStateCombatModifier() != 0 ||
-					GetPlayer()->GetPlayerTraits()->IsBullyAnnex() || GetPlayer()->GetPlayerTraits()->IgnoreBullyPenalties() ||
-					GetPlayer()->IsCanBullyFriendlyCS())
-				{
-					iOpinionWeight += /*10*/ GD_INT_GET(OPINION_WEIGHT_SIDED_WITH_THEIR_MINOR_AGGRESSIVE_MOD);
-				}
+				iOpinionWeight += /*10*/ GD_INT_GET(OPINION_WEIGHT_SIDED_WITH_THEIR_MINOR_AGGRESSIVE_MOD);
 			}
 		}
 
@@ -51074,7 +51065,6 @@ void CvDiplomacyAI::LogWantDP(PlayerTypes ePlayer)
 	}
 }
 
-#if defined(MOD_BALANCE_CORE)
 /// Log Major Civ Approach Update
 void CvDiplomacyAI::LogApproachValueDeltas(PlayerTypes ePlayer, const int* aiApproachValues, const int* aiScratchValues)
 {
@@ -51180,7 +51170,6 @@ void CvDiplomacyAI::LogApproachValueDeltas(PlayerTypes ePlayer, const int* aiApp
 		}
 	}
 }
-#endif
 
 /// Log Major Civ Warmonger Threat update
 void CvDiplomacyAI::LogMajorCivWarmongerUpdate(PlayerTypes ePlayer, int iValue, bool bUpdateLogsSpecial)
@@ -52011,7 +52000,6 @@ void CvDiplomacyAI::LogWarStatus()
 					LogMilitaryStrength(strOutBuf, eLoopPlayer);
 					LogEconomicStrength(strOutBuf, eLoopPlayer);
 
-#if defined(MOD_BALANCE_CORE)
 					if(!GET_PLAYER(eLoopPlayer).isMinorCiv() && IsAtWar(eLoopPlayer))
 					{
 						strTemp.Format("   !!!!WAR SCORE: %d !!!! ", GetWarScore(eLoopPlayer));
@@ -52020,7 +52008,6 @@ void CvDiplomacyAI::LogWarStatus()
 
 					strTemp.Format(" ---  War Weariness: %d, Supply: %d", m_pPlayer->GetWarWearinessPercent(eLoopPlayer), m_pPlayer->GetNumUnitsSupplied());
 					strOutBuf += ", " + strTemp;
-#endif
 					pLog->Msg(strOutBuf);
 				}
 			}
@@ -56787,8 +56774,7 @@ void CvDiplomacyAI::DoMapsOffer(PlayerTypes ePlayer, DiploStatementTypes& eState
 
 	//problem: on larger maps evaluating the map value every turn for every player is significant performance overhead
 	//solution: we could cache the value for the active player, saving half the effort, but it's simpler to just not even contemplate the offer every turn
-	int iRandom = GC.getGame().randRangeExclusive(0, 3, CvSeeder::fromRaw(0x7c268d7f).mix(GetID())) + 3; // either 3 or 4 or 5
-	if (GC.getGame().getGameTurn() % iRandom != 0)
+	if ((GC.getGame().getGameTurn() + GetID()) % 5 != 0)
 		return;
 
 	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
@@ -57705,7 +57691,7 @@ MoveTroopsResponseTypes CvDiplomacyAI::GetMoveTroopsRequestResponse(PlayerTypes 
 	CivApproachTypes eTrueApproach = GetCivApproach(ePlayer);
 	CivOpinionTypes eOpinion = GetCivOpinion(ePlayer);
 
-	vector<int> viMoveTroopsWeights(NUM_MOVE_TROOPS_RESPONSES,1000);
+	vector<int> viMoveTroopsWeights(NUM_MOVE_TROOPS_RESPONSES, 0);
 
 	// Initialize our parallel arrays based on various approaches
 	// i.e. more inclined to agree to leave if they like to be friendly toward civs

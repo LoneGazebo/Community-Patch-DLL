@@ -10,10 +10,8 @@
 #include "CvPolicyAI.h"
 #include "CvGrandStrategyAI.h"
 #include "CvInfosSerializationHelper.h"
-#if defined(MOD_BALANCE_CORE)
 #include "CvTypes.h"
 #include "CvEconomicAI.h"
-#endif
 
 // Include this after all other headers.
 #include "LintFree.h"
@@ -3474,6 +3472,28 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 		else
 		{
 			yield[YIELD_GREAT_GENERAL_POINTS] += PolicyInfo->GetCultureBombBoost() * 50;
+		}
+	}
+	if (PolicyInfo->GetCultureBombForeignTerritory() != 0)
+	{
+		if (pPlayerTraits->IsWarmonger())
+		{
+			yield[YIELD_GREAT_GENERAL_POINTS] += 200;
+		}
+		else
+		{
+			yield[YIELD_GREAT_GENERAL_POINTS] += 40;
+		}
+	}
+	if (PolicyInfo->GetRetainRazedTerritory() != 0)
+	{
+		if (pPlayerTraits->IsWarmonger())
+		{
+			yield[YIELD_GREAT_GENERAL_POINTS] += 50;
+		}
+		else
+		{
+			yield[YIELD_GREAT_GENERAL_POINTS] += 10;
 		}
 	}
 	if (PolicyInfo->GetPuppetProdMod() != 0)

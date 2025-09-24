@@ -39,9 +39,7 @@ public:
 	void AddFlavorWeights(FlavorTypes eFlavor, int iWeight);
 	int GetWeight(ProcessTypes eProject);
 
-#if defined(MOD_BALANCE_CORE)
 	int CheckProcessBuildSanity(ProcessTypes eProcess, int iTempWeight);
-#endif
 
 	// Logging
 	void LogPossibleBuilds();

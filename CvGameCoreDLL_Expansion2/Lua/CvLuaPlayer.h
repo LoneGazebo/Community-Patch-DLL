@@ -50,9 +50,7 @@ protected:
 
 	static int lInitUnit(lua_State* L);
 	static int lInitUnitWithNameOffset(lua_State* L);
-#if defined(MOD_BALANCE_CORE)
 	static int lInitNamedUnit(lua_State* L);
-#endif
 	static int lGetHistoricEventTourism(lua_State* L);
 	static int lGetNumHistoricEvents(lua_State* L);
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
@@ -336,10 +334,8 @@ protected:
 	static int lGetTotalFaithPerTurnTimes100(lua_State* L);
 	static int lGetFaithPerTurnFromCities(lua_State* L);
 	static int lGetFaithPerTurnFromMinorCivs(lua_State* L);
-#if defined(MOD_BALANCE_CORE)
 	static int lGetGoldPerTurnFromMinorCivs(lua_State* L);
 	static int lGetSciencePerTurnFromMinorCivs(lua_State* L);
-#endif
 	static int lGetFaithPerTurnFromReligion(lua_State* L);
 	static int lHasCreatedPantheon(lua_State* L);
 	static int lGetBeliefInPantheon(lua_State* L);
@@ -408,6 +404,7 @@ protected:
 
 	static int lGetUnhappinessFromCityCount(lua_State* L);
 	static int lGetUnhappinessFromCapturedCityCount(lua_State* L);
+	static int lGetUnhappinessFromCityBuildings(lua_State* L);
 	static int lGetUnhappinessFromCityPopulation(lua_State* L);
 	static int lGetUnhappinessFromCitySpecialists(lua_State* L);
 	static int lGetUnhappinessFromPuppetCityPopulation(lua_State* L);
@@ -426,7 +423,7 @@ protected:
 	LUAAPIEXTN(GetUnitCostIncreaseFromWarWeariness, int);
 	LUAAPIEXTN(GetUnhappinessFromWarWeariness, int);
 	LUAAPIEXTN(GetTechSupplyReduction, int);
-	LUAAPIEXTN(GetEmpireSizeSupplyReduction, int);
+	LUAAPIEXTN(GetCityCountSupplyReduction, int);
 
 	LUAAPIEXTN(GetWarDuration, int);
 	LUAAPIEXTN(GetLongestWarDuration, int);
@@ -639,11 +636,9 @@ protected:
 	static int lGetGoldenAgeGreatWriterRateModifier(lua_State* L);
 	static int lGetGoldenAgeGreatArtistRateModifier(lua_State* L);
 	static int lGetGoldenAgeGreatMusicianRateModifier(lua_State* L);
-#if defined(MOD_BALANCE_CORE)
 	LUAAPIEXTN(GetGoldenAgeGreatScientistRateModifier, int);
 	LUAAPIEXTN(GetGoldenAgeGreatEngineerRateModifier, int);
 	LUAAPIEXTN(GetGoldenAgeGreatMerchantRateModifier, int);
-#endif
 	LUAAPIEXTN(GetGoldenAgeGreatDiplomatRateModifier, int);
 
 	static int lGetHurryModifier(lua_State* L);
@@ -788,10 +783,8 @@ protected:
 #if defined(MOD_BALANCE_CORE_MINORS)
 	LUAAPIEXTN(GetJerkTurnsRemaining, int);
 #endif
-#if defined(MOD_BALANCE_CORE)
 	LUAAPIEXTN(GetNumDenouncements, int);
 	LUAAPIEXTN(GetNumDenouncementsOfPlayer, int);
-#endif
 
 	LUAAPIEXTN(GetUnhappinessFromBoredom, int);
 	LUAAPIEXTN(GetUnhappinessFromIlliteracy, int);
@@ -801,6 +794,7 @@ protected:
 	LUAAPIEXTN(GetUnhappinessFromPillagedTiles, int);
 	LUAAPIEXTN(GetUnhappinessFromFamine, int);
 	LUAAPIEXTN(GetUnhappinessFromReligiousUnrest, int);
+	LUAAPIEXTN(GetUnhappinessFromBuildings, int);
 
 	LUAAPIEXTN(GetUnhappinessFromJFDSpecial, int);
 
@@ -822,13 +816,11 @@ protected:
 	static int lGetQuestData2(lua_State* L);
 	static int lGetQuestData3(lua_State* L);
 	static int lGetQuestTurnsRemaining(lua_State* L);
-#if defined(MOD_BALANCE_CORE)
 	static int lGetRewardString(lua_State* L);
 	static int lGetTargetCityString(lua_State* L);
 	static int lGetExplorePercent(lua_State* L);
 	static int lGetXQuestBuildingRemaining(lua_State* L);
 	static int lQuestSpyActionsRemaining(lua_State* L);
-#endif
 	static int lIsMinorCivContestLeader(lua_State* L);
 	static int lGetMinorCivContestValueForLeader(lua_State* L);
 	static int lGetMinorCivContestValueForPlayer(lua_State* L);
@@ -856,12 +848,10 @@ protected:
 	static int lGetMinorCivCurrentHappinessPerLuxuryBonus(lua_State* L);
 	static int lGetMinorCivCurrentHappinessBonus(lua_State* L);
 	static int lGetMinorCivCurrentFaithBonus(lua_State* L);
-#if defined(MOD_BALANCE_CORE)
 	static int lGetMinorCivCurrentGoldBonus(lua_State* L);
 	static int lGetMinorCivCurrentScienceBonus(lua_State* L);
 	static int lGetPermanentAlly(lua_State* L);
 	static int lIsNoAlly(lua_State* L);
-#endif
 	static int lGetCurrentCapitalFoodBonus(lua_State* L);
 	static int lGetCurrentOtherCityFoodBonus(lua_State* L);
 	static int lGetCurrentSpawnEstimate(lua_State* L);
@@ -879,11 +869,9 @@ protected:
 	static int lGetTurnLastPledgedProtectionByMajor(lua_State* L);
 	static int lGetTurnLastPledgeBrokenByMajor(lua_State* L);
 	static int lGetMinorCivBullyGoldAmount(lua_State* L);
-#if defined(MOD_BALANCE_CORE)
 	static int lSetBullyUnit(lua_State* L);
 	static int lGetBullyUnit(lua_State* L);
 	static int lGetPledgeProtectionInvalidReason(lua_State* L);
-#endif
 	static int lIsCanBullyFriendlyCS(lua_State* L);
 	static int lCanMajorBullyGold(lua_State* L);
 	static int lGetMajorBullyGoldDetails(lua_State* L);
@@ -894,12 +882,10 @@ protected:
 	static int lGetUnitSpawnCounter(lua_State* L);
 	static int lSetUnitSpawnCounter(lua_State* L);
 	static int lCanMajorBuyout(lua_State* L);
-#if defined(MOD_BALANCE_CORE)
 	static int lCanMajorMarry(lua_State* L);
 	static int lDoMarriage(lua_State* L);
 	static int lIsMarried(lua_State* L);
 	static int lGetMarriageCost(lua_State* L);
-#endif
 	static int lGetBuyoutCost(lua_State* L);
 	static int lCanMajorGiftTileImprovement(lua_State* L);
 	static int lCanMajorGiftTileImprovementAtPlot(lua_State* L);
@@ -1202,9 +1188,7 @@ protected:
 	static int lChangeNumFaithGreatPeople(lua_State* L);
 	static int lGetUnitBaktun(lua_State* L);
 	static int lIsFreeMayaGreatPersonChoice(lua_State *L);
-#if defined(MOD_BALANCE_CORE)
 	static int lIsProphetValid(lua_State *L);
-#endif
 
 	static int lUnitsAux(lua_State* L);
 	static int lUnits(lua_State* L);
@@ -1230,12 +1214,10 @@ protected:
 	static int lGetHappinessFromLuxury(lua_State* L);
 	static int lGetHappinessFromWarsWithMajors(lua_State* L);
 	static int lIsAbleToAnnexCityStates(lua_State* L);
-#if defined(MOD_BALANCE_CORE)
 	static int lIsDiplomaticMarriage(lua_State* L);
 	static int lIsGPWLTKD(lua_State* L);
 	static int lIsCarnaval(lua_State* L);
 	static int lGetTraitConquestOfTheWorldCityAttackMod(lua_State* L);
-#endif
 	static int lIsAnnexedCityStatesGiveYields(lua_State* L);
 	static int lGetGoldPerTurnFromAnnexedMinors(lua_State* L);
 	static int lGetCulturePerTurnFromAnnexedMinors(lua_State* L);
@@ -1290,7 +1272,6 @@ protected:
 
 	//Espionage Methods
 	static int lGetEspionageCityStatus(lua_State* L);
-#if defined(MOD_BALANCE_CORE)
 	static int lGetRandomIntrigue(lua_State* L);
 	static int lGetCachedValueOfPeaceWithHuman(lua_State* L);
 	static int lGetTotalValueToMe(lua_State* L);
@@ -1301,7 +1282,6 @@ protected:
 	static int lGetSpyMissionTooltip(lua_State* L);
 	static int lGetCitySecurityTooltip(lua_State* L);
 	static int lGetCityWithSpy(lua_State* L);
-#endif
 	static int lGetNumSpies(lua_State* L);
 	static int lGetNumUnassignedSpies(lua_State* L);
 	static int lGetEspionageSpies(lua_State* L);
@@ -1344,7 +1324,6 @@ protected:
 	static int lGetInternationalTradeRouteOtherTraitBonus(lua_State* L);
 	static int lGetInternationalTradeRouteRiverModifier(lua_State* L);
 	static int lGetTradeConnectionDiplomatModifierTimes100(lua_State* L);
-#if defined(MOD_BALANCE_CORE)
 	static int lGetTradeRouteTurns(lua_State* L);
 	static int lGetTradeConnectionDistanceValueModifierTimes100(lua_State* L);
 	static int lGetTradeConnectionDistance(lua_State* L);
@@ -1360,20 +1339,17 @@ protected:
 	static int lGetTradeRouteBenefitHelper(lua_State* L);
 	static int lGetNumFranchisesTooltip(lua_State* L);
 	static int lCanCreateFranchiseInCity(lua_State* L);
-#endif
 	static int lGetInternationalTradeRouteDomainModifier(lua_State* L);
 	static int lGetTradeRouteYieldModifier(lua_State* L);
 	LUAAPIEXTN(GetTradeBuildingModifier, int);
 	static int lGetInternationalTradeRouteTotal(lua_State* L);
 	static int lGetInternationalTradeRouteScience(lua_State* L);
-#if defined(MOD_BALANCE_CORE)
 	static int lGetInternationalTradeRouteCulture(lua_State* L);
 	static int lGetInternationalTradeRouteProduction(lua_State* L);
 	static int lGetInternationalTradeRouteFood(lua_State* L);
 	static int lGetMinorCivGoldBonus(lua_State* L);
 	static int lIsConnectedToPlayer(lua_State* L);
 	static int lIsConnectionBonus(lua_State* L);
-#endif
 	static int lGetPotentialTradeUnitNewHomeCity(lua_State* L);
 	static int lGetPotentialAdmiralNewPort(lua_State* L);
 	static int lGetNumAvailableTradeUnits(lua_State* L);
@@ -1495,10 +1471,8 @@ protected:
 	static int lGetResponsibleForRouteCount(lua_State* L);
 	static int lGetResponsibleForImprovementCount(lua_State* L);
 #endif
-#if defined(MOD_BALANCE_CORE)
 	static int lDoInstantYield(lua_State* L);
 	static int lGetInstantYieldHistoryTooltip(lua_State* L);
-#endif
 #if defined(MOD_BALANCE_CORE_EVENTS)
 	static int lGetDisabledTooltip (lua_State* L);
 	static int lGetScaledEventChoiceValue (lua_State* L);

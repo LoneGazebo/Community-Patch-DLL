@@ -180,12 +180,10 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iMinorBullyScoreModifier(0),
 	m_iThemingBonusMultiplier(0),
 	m_iInternalTradeRouteYieldModifier(0),
-#if defined(MOD_BALANCE_CORE)
 	m_iInternalTradeRouteYieldModifierCapital(0),
 	m_iTradeRouteYieldModifierCapital(0),
 	m_iTradeRouteYieldModifier(0),
 	m_iPositiveWarScoreTourismMod(0),
-#endif
 	m_bNoCSDecayAtWar(false),
 	m_iMinimumAllyInfluenceIncreaseAtWar(0),
 	m_bBullyFriendlyCS(false),
@@ -212,7 +210,6 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iNumCitiesFreeFoodBuilding(0),
 	m_bHalfSpecialistUnhappiness(false),
 	m_bHalfSpecialistFood(false),
-#if defined(MOD_BALANCE_CORE)
 	m_bHalfSpecialistFoodCapital(false),
 	m_iStealGWSlowerModifier(0),
 	m_iStealGWFasterModifier(0),
@@ -229,7 +226,6 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_eAllCityFreeBuilding(NO_BUILDINGCLASS),
 	m_eNewFoundCityFreeUnit(NO_UNITCLASS),
 	m_eNewFoundCityFreeBuilding(NO_BUILDINGCLASS),
-#endif
 	m_bMilitaryFoodProduction(false),
 	m_iWoundedUnitDamageMod(0),
 	m_iUnitUpgradeCostMod(0),
@@ -286,9 +282,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_paiTourismOnUnitCreation(NULL),
 	m_paiHurryModifier(NULL),
 	m_pabSpecialistValid(NULL),
-#if defined(MOD_BALANCE_CORE)
 	m_paiFreeChosenBuilding(NULL),
-#endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	m_piResourcefromCSAlly(NULL),
 	m_piYieldFromBirth(NULL),
@@ -311,6 +305,8 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iTourismCostXCitiesMod(0),
 	m_iInternalTradeGold(0),
 	m_iCultureBombBoost(0),
+	m_bCultureBombForeignTerritory(false),
+	m_bRetainRazedTerritory(false),
 	m_iPuppetProdMod(0),
 	m_iOccupiedProdMod(0),
 	m_iFreeWCVotes(0),
@@ -433,9 +429,7 @@ CvPolicyEntry::~CvPolicyEntry(void)
 
 	SAFE_DELETE_ARRAY(m_paiHurryModifier);
 	SAFE_DELETE_ARRAY(m_pabSpecialistValid);
-#if defined(MOD_BALANCE_CORE)
 	SAFE_DELETE_ARRAY(m_paiFreeChosenBuilding);
-#endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	SAFE_DELETE_ARRAY(m_piResourcefromCSAlly);
 	SAFE_DELETE_ARRAY(m_piYieldFromBirth);
@@ -648,7 +642,6 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iNumCitiesFreeFoodBuilding = kResults.GetInt("NumCitiesFreeFoodBuilding");
 	m_bHalfSpecialistUnhappiness = kResults.GetBool("HalfSpecialistUnhappiness");
 	m_bHalfSpecialistFood = kResults.GetBool("HalfSpecialistFood");
-#if defined(MOD_BALANCE_CORE)
 	m_iStealGWSlowerModifier = kResults.GetInt("StealGWSlowerModifier");
 	m_iStealGWFasterModifier = kResults.GetInt("StealGWFasterModifier");
 	m_bHalfSpecialistFoodCapital = kResults.GetBool("HalfSpecialistFoodCapital");
@@ -661,7 +654,6 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iCityStateCombatModifier = kResults.GetInt("CityStateCombatModifier");
 	m_iGreatEngineerRateModifier = kResults.GetInt("GreatEngineerRateModifier");
 	m_iDefenseBoost = kResults.GetInt("DefenseBoostAllCities");
-#endif
 	m_bMilitaryFoodProduction = kResults.GetBool("MilitaryFoodProduction");
 	m_iWoundedUnitDamageMod = kResults.GetInt("WoundedUnitDamageMod");
 	m_iUnitUpgradeCostMod = kResults.GetInt("UnitUpgradeCostMod");
@@ -692,12 +684,10 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iMinorBullyScoreModifier = kResults.GetInt("MinorBullyScoreModifier");
 	m_iThemingBonusMultiplier = kResults.GetInt("ThemingBonusMultiplier");
 	m_iInternalTradeRouteYieldModifier = kResults.GetInt("InternalTradeRouteYieldModifier");
-#if defined(MOD_BALANCE_CORE)
 	m_iPositiveWarScoreTourismMod = kResults.GetInt("PositiveWarScoreTourismMod");
 	m_iInternalTradeRouteYieldModifierCapital = kResults.GetInt("InternalTradeRouteYieldModifierCapital");
 	m_iTradeRouteYieldModifierCapital = kResults.GetInt("TradeRouteYieldModifierCapital");
 	m_iTradeRouteYieldModifier = kResults.GetInt("TradeRouteYieldModifier");
-#endif
 	m_bNoCSDecayAtWar = kResults.GetBool("NoAlliedCSInfluenceDecayAtWar");
 	m_iMinimumAllyInfluenceIncreaseAtWar = kResults.GetInt("MinimumAllyInfluenceIncreaseAtWar");
 	m_bBullyFriendlyCS = kResults.GetBool("CanBullyFriendlyCS");
@@ -771,6 +761,8 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iTourismCostXCitiesMod = kResults.GetInt("TourismCostXCitiesMod");
 	m_iInternalTradeGold = kResults.GetInt("InternalTradeGold");
 	m_iCultureBombBoost = kResults.GetInt("CultureBombBoost");
+	m_bCultureBombForeignTerritory = kResults.GetBool("CultureBombForeignTerritory");
+	m_bRetainRazedTerritory = kResults.GetBool("RetainRazedTerritory");
 	m_iPuppetProdMod = kResults.GetInt("PuppetProdMod");
 	m_iOccupiedProdMod = kResults.GetInt("OccupiedProdMod");
 	m_iFreeWCVotes = kResults.GetInt("FreeWCVotes");
@@ -808,7 +800,6 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	{
 		m_eFreeBuildingOnConquest = (BuildingTypes)GC.getInfoTypeForString(szFreeBuilding, true);
 	}
-#if defined(MOD_BALANCE_CORE)
 	const char* szNewCityFreeBuilding = kResults.GetText("NewCityFreeBuilding");
 	if(szNewCityFreeBuilding)
 	{
@@ -829,7 +820,6 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	{
 		m_eNewFoundCityFreeBuilding = (BuildingClassTypes)GC.getInfoTypeForString(szNewFoundCityFreeBuilding, true);
 	}
-#endif
 	//Arrays
 	const char* szPolicyType = GetType();
 	kUtility.SetYields(m_piYieldModifier, "Policy_YieldModifiers", "PolicyType", szPolicyType);
@@ -868,9 +858,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	kUtility.PopulateArrayByValue(m_paiUnitCombatFreeExperiences, "UnitCombatInfos", "Policy_UnitCombatFreeExperiences", "UnitCombatType", "PolicyType", szPolicyType, "FreeExperience");
 	kUtility.PopulateArrayByValue(m_paiUnitCombatProductionModifiers, "UnitCombatInfos", "Policy_UnitCombatProductionModifiers", "UnitCombatType", "PolicyType", szPolicyType, "ProductionModifier");
 
-#if defined(MOD_BALANCE_CORE)
 	kUtility.PopulateArrayByValue(m_paiFreeChosenBuilding, "BuildingClasses", "Policy_FreeBuilding", "BuildingClassType", "PolicyType", szPolicyType, "Count");
-#endif
 
 	kUtility.PopulateArrayByValue(m_paiBuildingClassCultureChanges, "BuildingClasses", "Policy_BuildingClassCultureChanges", "BuildingClassType", "PolicyType", szPolicyType, "CultureChange");
 	kUtility.PopulateArrayByValue(m_paiBuildingClassSecurityChanges, "BuildingClasses", "Policy_BuildingClassSecurityChanges", "BuildingClassType", "PolicyType", szPolicyType, "SecurityChange");
@@ -2058,7 +2046,6 @@ int CvPolicyEntry::GetNewCityExtraPopulation() const
 {
 	return m_iNewCityExtraPopulation;
 }
-#if defined(MOD_BALANCE_CORE)
 BuildingClassTypes CvPolicyEntry::GetNewFoundCityFreeBuilding() const
 {
 	return m_eNewFoundCityFreeBuilding;
@@ -2075,7 +2062,6 @@ BuildingClassTypes CvPolicyEntry::GetAllCityFreeBuilding() const
 {
 	return m_eAllCityFreeBuilding;
 }
-#endif
 /// Amount of free food newly-founded Cities receive
 int CvPolicyEntry::GetFreeFoodBox() const
 {
@@ -2257,7 +2243,6 @@ int CvPolicyEntry::GetInternalTradeRouteYieldModifier() const
 {
 	return m_iInternalTradeRouteYieldModifier;
 }
-#if defined(MOD_BALANCE_CORE)
 int CvPolicyEntry::GetTradeRouteYieldModifier() const
 {
 	return m_iTradeRouteYieldModifier;
@@ -2276,7 +2261,6 @@ int CvPolicyEntry::GetPositiveWarScoreTourismMod() const
 	return m_iPositiveWarScoreTourismMod;
 }
 
-#endif
 
 bool CvPolicyEntry::IsNoCSDecayAtWar() const
 {
@@ -2390,7 +2374,6 @@ bool CvPolicyEntry::IsHalfSpecialistFood() const
 {
 	return m_bHalfSpecialistFood;
 }
-#if defined(MOD_BALANCE_CORE)
 /// Specialists don't eat food
 bool CvPolicyEntry::IsHalfSpecialistFoodCapital() const
 {
@@ -2441,7 +2424,6 @@ int CvPolicyEntry::GetDefenseBoost() const
 {
 	return m_iDefenseBoost;
 }
-#endif
 /// Military units now all produced with food
 bool CvPolicyEntry::IsMilitaryFoodProduction() const
 {
@@ -2936,7 +2918,6 @@ bool CvPolicyEntry::IsSpecialistValid(int i) const
 	ASSERT_DEBUG(i > -1, "Index out of bounds");
 	return m_pabSpecialistValid ? m_pabSpecialistValid[i] : false;
 }
-#if defined(MOD_BALANCE_CORE)
 /// Does this Policy grant a free building?
 int CvPolicyEntry::GetFreeChosenBuilding(int i) const
 {
@@ -2944,7 +2925,6 @@ int CvPolicyEntry::GetFreeChosenBuilding(int i) const
 	ASSERT_DEBUG(i > -1, "Index out of bounds");
 	return m_paiFreeChosenBuilding ? m_paiFreeChosenBuilding[i] : -1;
 }
-#endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
 int CvPolicyEntry::GetResourceFromCSAlly(int i) const
 {
@@ -3060,6 +3040,15 @@ int CvPolicyEntry::GetTourismCostXCitiesMod() const
 int CvPolicyEntry::GetCultureBombBoost() const
 {
 	return m_iCultureBombBoost;
+}
+bool CvPolicyEntry::GetCultureBombForeignTerritory() const
+{
+	return m_bCultureBombForeignTerritory;
+}
+/// Retain Razed Territory?
+bool CvPolicyEntry::GetRetainRazedTerritory() const
+{
+	return m_bRetainRazedTerritory;
 }
 /// Puppet Production Boost?
 int CvPolicyEntry::GetPuppetProdMod() const
@@ -3783,9 +3772,7 @@ bool CvPolicyBranchEntry::CacheResults(Database::Results& kResults, CvDatabaseUt
 	m_bDelayWhenNoCulture = kResults.GetBool("AIDelayNoCulture");
 	m_bDelayWhenNoCityStates = kResults.GetBool("AIDelayNoCityStates");
 	m_bDelayWhenNoScience = kResults.GetBool("AIDelayNoScience");
-#if defined(MOD_BALANCE_CORE)
 	m_iNumPolicyRequirement = kResults.GetInt("NumPolicyRequirement");
-#endif
 	m_wstrIdeologyIcon = kResults.GetText("FontIcon");
 
 	//PolicyBranch_Disables
@@ -3892,13 +3879,11 @@ bool CvPolicyBranchEntry::IsDelayWhenNoScience() const
 {
 	return m_bDelayWhenNoScience;
 }
-#if defined(MOD_BALANCE_CORE)
 /// Policies needed to unlock branch.
 int CvPolicyBranchEntry::GetNumPolicyRequirement() const
 {
 	return m_iNumPolicyRequirement;
 }
-#endif
 /// Returns the font icon for an ideology
 CvString CvPolicyBranchEntry::GetIconString()
 {
@@ -3995,9 +3980,7 @@ CvPlayerPolicies::CvPlayerPolicies():
 	m_pPolicies(NULL),
 	m_pPlayer(NULL)
 {
-#if defined(MOD_BALANCE_CORE)
 	m_vBuildingClassHappinessModifier.resize(GC.getNumBuildingClassInfos(), 0);
-#endif
 }
 
 /// Destructor
@@ -4199,7 +4182,6 @@ CvPlayer* CvPlayerPolicies::GetPlayer()
 	return m_pPlayer;
 }
 
-#if defined(MOD_BALANCE_CORE)
 //could be extended for other modifiers as well ...
 void CvPlayerPolicies::UpdateModifierCache()
 {
@@ -4223,7 +4205,6 @@ void CvPlayerPolicies::UpdateModifierCache()
 		m_vBuildingClassHappinessModifier[j] = iHappiness;
 	}
 }
-#endif
 
 
 /// Accessor: does a player have a policy
@@ -4544,7 +4525,6 @@ int CvPlayerPolicies::GetNumericModifier(PolicyModifierType eType)
 			case POLICYMOD_GREAT_MERCHANT_RATE:
 				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetGreatMerchantRateModifier();
 				break;
-#if defined(MOD_BALANCE_CORE)
 			case POLICYMOD_GREAT_ENGINEER_RATE:
 				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetGreatEngineerRateModifier();
 				break;
@@ -4557,7 +4537,6 @@ int CvPlayerPolicies::GetNumericModifier(PolicyModifierType eType)
 			case POLICYMOD_CITY_DEFENSE_BOOST:
 				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetDefenseBoost();
 				break;
-#endif
 			case POLICYMOD_GREAT_DIPLOMAT_RATE:
 				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetGreatDiplomatRateModifier();
 				break;
@@ -4672,7 +4651,6 @@ int CvPlayerPolicies::GetNumericModifier(PolicyModifierType eType)
 			case POLICYMOD_INTERNAL_TRADE_MODIFIER:
 				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetInternalTradeRouteYieldModifier();
 				break;
-#if defined(MOD_BALANCE_CORE)
 			case POLICYMOD_INTERNAL_TRADE_CAPITAL_MODIFIER:
 				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetInternalTradeRouteYieldModifierCapital();
 				break;
@@ -4695,7 +4673,6 @@ int CvPlayerPolicies::GetNumericModifier(PolicyModifierType eType)
 				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetPuppetProdMod();
 				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetPuppetYieldPenaltyMod();
 				break;
-#endif
 			case POLICYMOD_SHARED_RELIGION_TOURISM_MODIFIER:
 				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetSharedReligionTourismModifier();
 				break;
@@ -4729,14 +4706,12 @@ int CvPlayerPolicies::GetNumericModifier(PolicyModifierType eType)
 
 	return rtnValue;
 }
-#if defined(MOD_BALANCE_CORE)
 void CvPlayerPolicies::ClearCache()
 {
 	currentHappinessModifier = make_pair(0, 0);
 	currentHappinessModifierPerCity = make_pair(0, 0);
 	mModifierLookup.clear();
 }
-#endif
 
 /// Get overall modifier from policies for a type of yield
 int CvPlayerPolicies::GetYieldModifier(YieldTypes eYieldType)
@@ -5333,7 +5308,6 @@ void CvPlayerPolicies::DoUnlockPolicyBranch(PolicyBranchTypes eBranchType)
 		GC.GetEngineUserInterface()->setDirty(Policies_DIRTY_BIT, true);
 	}
 
-#if defined(MOD_BALANCE_CORE)
 	CvCity* pCapital = m_pPlayer->getCapitalCity();
 	int iPolicyGEorGM = m_pPlayer->GetPlayerTraits()->GetPolicyGEorGM();
 	if (iPolicyGEorGM > 0 && pCapital != NULL)
@@ -5348,7 +5322,6 @@ void CvPlayerPolicies::DoUnlockPolicyBranch(PolicyBranchTypes eBranchType)
 	{
 		pLoopCity->GetCityCitizens()->SetDirty(true);
 	}
-#endif
 
 	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
 	if(pkScriptSystem)
@@ -5593,11 +5566,9 @@ void CvPlayerPolicies::DoSwitchToPolicyBranch(PolicyBranchTypes eBranchType)
 		// Anarchy time!
 		int iNumTurnsAnarchy = /*2 in CP, 3 in VP*/ GD_INT_GET(SWITCH_POLICY_BRANCHES_ANARCHY_TURNS);
 		GetPlayer()->ChangeAnarchyNumTurns(iNumTurnsAnarchy);
-#if defined(MOD_BALANCE_CORE)
 		Localization::String strSummary = Localization::Lookup("TXT_KEY_ANARCHY_BEGINS_SUMMARY");
 		Localization::String strMessage = Localization::Lookup("TXT_KEY_ANARCHY_BEGINS");
 		GetPlayer()->GetNotifications()->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), GetPlayer()->GetID(), /*2 in CP, 3 in VP*/ GD_INT_GET(SWITCH_POLICY_BRANCHES_ANARCHY_TURNS), -1);
-#endif
 
 		// Turn off blocking
 		SetPolicyBranchBlocked(eBranchType, false);
@@ -6587,13 +6558,11 @@ int PolicyHelpers::GetNumFreePolicies(PolicyBranchTypes eBranch)
 			{
 				iFreePolicies = pkEntry->GetSecondAdopterFreePolicies();
 			}
-#if defined(MOD_BALANCE_CORE)
 			if (MOD_BALANCE_CORE_VICTORY_GAME_CHANGES)
 			{ 
 				if (iNumPreviousUnlockers >= 1)
 				iFreePolicies = pkEntry->GetSecondAdopterFreePolicies();
 			}
-#endif
 		}
 	}
 

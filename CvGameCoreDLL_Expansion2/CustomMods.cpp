@@ -9,6 +9,8 @@ CustomMods gCustomMods;
 CustomMods::CustomMods() :
 	m_bInit(false)
 {
+	// Note: MOD_OPT_DECL bit fields are initialized by preloadCache() before being accessed
+	// The cppcheck warnings about uninitialized variables are false positives
 }
 
 // This function hooks an event with a variable number of arguments.
@@ -355,8 +357,6 @@ int CustomMods::getOption(const string& sOption, int defValue) {
 		MOD_OPT_CACHE(DIPLOMACY_NO_LEADERHEADS);
 		MOD_OPT_CACHE(SHIPS_FIRE_IN_CITIES_IMPROVEMENTS);
 		MOD_OPT_CACHE(PSEUDO_NATURAL_WONDER);
-		MOD_OPT_CACHE(COMMUNITY_PATCH);
-		MOD_OPT_CACHE(BALANCE_CORE);
 		MOD_OPT_CACHE(BALANCE_CORE_YIELDS);
 		MOD_OPT_CACHE(BALANCE_CORE_SPIES);
 		MOD_OPT_CACHE(BALANCE_CORE_MILITARY);

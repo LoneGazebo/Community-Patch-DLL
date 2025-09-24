@@ -148,9 +148,6 @@ public:
 	int GetGoldenAgeMoveChange() const;
 	int GetGoldenAgeCombatModifier() const;
 	int GetGoldenAgeTourismModifier() const;
-	int GetGoldenAgeGreatArtistRateModifier() const;
-	int GetGoldenAgeGreatMusicianRateModifier() const;
-	int GetGoldenAgeGreatWriterRateModifier() const;
 	int GetExtraEmbarkMoves() const;
 	int GetFreeUnitClassType() const;
 	int GetNaturalWonderFirstFinderGold() const;
@@ -160,14 +157,14 @@ public:
 	int GetNearbyImprovementCombatBonus() const;
 	int GetNearbyImprovementBonusRange() const;
 	int GetCultureBuildingYieldChange() const;
-#if defined(MOD_BALANCE_CORE)
 	int GetWarWearinessModifier() const;
 	int GetEnemyWarWearinessModifier() const;
 	int GetCombatBonusVsHigherPop() const;
 	bool IsBuyOwnedTiles() const;
 	bool IsNewCitiesStartWithCapitalReligion() const;
 	bool IsForeignReligionSpreadImmune() const;
-	int GetInspirationalLeader() const;
+	int GetXPBonusFromGreatPersonBirth() const;
+	int GetUnitHealFromGreatPersonBirth() const;
 	int GetBullyMilitaryStrengthModifier() const;
 	int GetBullyValueModifier() const;
 	bool IgnoreBullyPenalties() const;
@@ -231,7 +228,6 @@ public:
 	int GetExtraTradeRoutesPerXOwnedVassals() const;
 	int GetMinorInfluencePerGiftedUnit() const;
 	bool IsCapitalOnly() const;
-#endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int GetInvestmentModifier() const;
 #endif
@@ -248,12 +244,10 @@ public:
 	int GetExtraSpies() const;
 	int GetUnresearchedTechBonusFromKills() const;
 	int GetExtraFoundedCityTerritoryClaimRange() const;
-#if defined(MOD_BALANCE_CORE)
 	int GetExtraConqueredCityTerritoryClaimRange() const;
 	int GetExtraTenetsFirstAdoption() const;
 	int GetMonopolyModFlat() const;
 	int GetMonopolyModPercent() const;
-#endif
 	int GetFreeSocialPoliciesPerEra() const;
 	int GetNumTradeRoutesModifier() const;
 	int GetTradeRouteResourceModifier() const;
@@ -267,19 +261,15 @@ public:
 #endif
 	int GetTradeReligionModifier() const;
 	int GetTradeBuildingModifier() const;
-#if defined(MOD_BALANCE_CORE)
 	int GetNumFreeBuildings() const;
 	TechTypes GetFreeBuildingPrereqTech() const;
 	TechTypes GetCapitalFreeBuildingPrereqTech() const;
-#endif
 
 	TechTypes GetFreeUnitPrereqTech() const;
 	ImprovementTypes GetCombatBonusImprovement() const;
 	BuildingTypes GetFreeBuilding() const;
-#if defined(MOD_BALANCE_CORE)
 	BuildingTypes GetFreeCapitalBuilding() const;
 	UnitTypes GetFreeUnitOnConquest() const;
-#endif
 	BuildingTypes GetFreeBuildingOnConquest() const;
 #if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
 	bool IsBullyAnnex() const;
@@ -349,8 +339,8 @@ public:
 	int GetPrereqPolicy() const;
 #endif
 	int GetResourceQuantityModifier(int i) const;
+	int GetNumFreeResourceOnWorldWonderCompletion(int i) const;
 	int GetMovesChangeUnitCombat(const int unitCombatID) const;
-#if defined(MOD_BALANCE_CORE)
 	int GetMovesChangeUnitClass(const int unitClassID) const;
 	int GetGAPToYield(int i) const;
 	int GetMountainRangeYield(int i) const;
@@ -368,11 +358,9 @@ public:
 	int GetYieldFromTileSettle(TerrainTypes eIndex1, YieldTypes eIndex2) const;
 	int GetYieldChangePerImprovementBuilt(ImprovementTypes eIndex1, YieldTypes eIndex2) const;
 	int GetYieldFromBarbarianCampClear(YieldTypes eIndex1, bool bEraScaling) const;
-#endif
 	int GetMaintenanceModifierUnitCombat(const int unitCombatID) const;
 	int GetImprovementYieldChanges(ImprovementTypes eIndex1, YieldTypes eIndex2) const;
 	int GetPlotYieldChanges(PlotTypes eIndex1, YieldTypes eIndex2) const;
-#if defined(MOD_BALANCE_CORE)
 	int GetYieldFromLevelUp(int i) const;
 	int GetYieldFromHistoricEvent(int i) const;
 	int GetYieldFromXMilitaryUnits(int i) const;
@@ -401,8 +389,7 @@ public:
 	int GetFreePolicyPerXTechs() const;
 	EraTypes GetGPFaithPurchaseEra() const;
 	int GetFaithCostModifier() const;
-#endif
-#if defined(MOD_BALANCE_CORE) && defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
+#if defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
 	int GetYieldFromRouteMovementInForeignTerritory(YieldTypes eIndex, bool bTradePartner) const;
 #endif
 	int GetBuildingClassYieldChanges(BuildingClassTypes eIndex1, YieldTypes eIndex2) const;
@@ -418,6 +405,7 @@ public:
 	int GetSeaPlotYieldChanges(int i) const;
 	int GetFeatureYieldChanges(FeatureTypes eIndex1, YieldTypes eIndex2) const;
 	int GetResourceYieldChanges(ResourceTypes eIndex1, YieldTypes eIndex2) const;
+	int GetLuxuryYieldChanges(int i) const;
 	std::map<int, std::map<int, int>> GetResourceYieldChangesFromGoldenAge();
 	std::map<int, std::map<int, int>> GetResourceYieldChangesFromGoldenAgeCap();
 	int GetTerrainYieldChanges(TerrainTypes eIndex1, YieldTypes eIndex2) const;
@@ -441,7 +429,6 @@ public:
 	FreeResourceXCities GetFreeResourceXCities(ResourceTypes eResource) const;
 
 	bool IsFreePromotionUnitCombat(const int promotionID, const int unitCombatID) const;
-#if defined(MOD_BALANCE_CORE)
 	bool IsSpecialUpgradeUnitClass(const int unitClassesID, const int unitID) const;
 	bool IsFreePromotionUnitClass(const int promotionID, const int unitClassID) const;
 	int GetGoldenAgeYieldModifier(const int iYield) const;
@@ -451,7 +438,6 @@ public:
 	int GetDomainProductionModifiersPerSpecialist(DomainTypes eDomain) const;
 	bool UnitClassCanBuild(const int buildID, const int unitClassID) const;
 	bool TerrainClaimBoost(TerrainTypes eTerrain);
-#endif
 	set<int> GetFreePromotions() const
 	{
 		return m_siFreePromotions;
@@ -459,9 +445,7 @@ public:
 #if defined(MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON)
 	TradeRouteProductionSiphon GetTradeRouteProductionSiphon(const bool bInternationalOnly) const;
 #endif
-#if defined(MOD_BALANCE_CORE)
 	AlternateResourceTechs GetAlternateResourceTechs(const ResourceTypes eResource) const;
-#endif
 	bool IsObsoleteByTech(TeamTypes eTeam);
 	bool IsEnabledByTech(TeamTypes eTeam);
 #if defined(MOD_TRAITS_OTHER_PREREQS)
@@ -540,14 +524,14 @@ protected:
 	int m_iNearbyImprovementCombatBonus;
 	int m_iNearbyImprovementBonusRange;
 	int m_iCultureBuildingYieldChange;
-#if defined(MOD_BALANCE_CORE)
 	int m_iWarWearinessModifier;
 	int m_iEnemyWarWearinessModifier;
 	int m_iCombatBonusVsHigherPop;
 	bool m_bBuyOwnedTiles;
 	bool m_bNewCitiesStartWithCapitalReligion;
 	bool m_bNoSpread;
-	int m_iInspirationalLeader; // OBSOLETE: to be removed in VP5.0
+	int m_iXPBonusFromGreatPersonBirth;
+	int m_iUnitHealFromGreatPersonBirth;
 	int m_iBullyMilitaryStrengthModifier;
 	int m_iBullyValueModifier;
 	bool m_bIgnoreBullyPenalties;
@@ -602,7 +586,6 @@ protected:
 	int m_iExtraTradeRoutesPerXOwnedVassals;
 	int m_iMinorInfluencePerGiftedUnit;
 	bool m_bIsCapitalOnly;
-#endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int m_iInvestmentModifier;
 #endif
@@ -619,12 +602,10 @@ protected:
 	int m_iExtraSpies;
 	int m_iUnresearchedTechBonusFromKills;
 	int m_iExtraFoundedCityTerritoryClaimRange;
-#if defined(MOD_BALANCE_CORE)
 	int m_iExtraConqueredCityTerritoryClaimRange;
 	int m_iExtraTenetsFirstAdoption;
 	int m_iMonopolyModFlat;
 	int m_iMonopolyModPercent;
-#endif
 	int m_iFreeSocialPoliciesPerEra;
 	int m_iNumTradeRoutesModifier;
 	int m_iTradeRouteResourceModifier;
@@ -638,7 +619,6 @@ protected:
 #endif
 	int m_iTradeReligionModifier;
 	int m_iTradeBuildingModifier;
-#if defined(MOD_BALANCE_CORE)
 	int m_iNumFreeBuildings;
 	int m_iWLTKDCulture;
 	int m_iWLTKDGATimer;
@@ -649,17 +629,14 @@ protected:
 	int m_iSpySecurityModifier;
 	int m_iSpyExtraRankBonus;
 	int m_iQuestYieldModifier;
-#endif
 
 	TechTypes m_eFreeUnitPrereqTech;
 	ImprovementTypes m_eCombatBonusImprovement;
 	BuildingTypes m_eFreeBuilding;
-#if defined(MOD_BALANCE_CORE)
 	BuildingTypes m_eFreeCapitalBuilding;
 	TechTypes m_eFreeBuildingPrereqTech;
 	TechTypes m_eCapitalFreeBuildingPrereqTech;
 	UnitTypes m_eFreeUnitOnConquest;
-#endif
 	BuildingTypes m_eFreeBuildingOnConquest;
 #if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
 	bool m_bBullyAnnex;
@@ -719,6 +696,7 @@ protected:
 	int* m_paiYieldModifier;
 	int* m_piStrategicResourceQuantityModifier;
 	int* m_piResourceQuantityModifiers;
+	int* m_piNumFreeResourceOnWorldWonderCompletion;
 	int* m_piMovesChangeUnitCombats;
 	int* m_paiGAPToYield;
 	int* m_paiMountainRangeYield;
@@ -768,7 +746,7 @@ protected:
 	std::map<int, int> m_piGreatPersonProgressFromKills;
 	std::map<int, int> m_piRandomGreatPersonProgressFromKills;
 	int* m_piFreeUnitClassesDOW;
-#if defined(MOD_BALANCE_CORE) && defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
+#if defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
 	std::map<int, std::map<bool, int>> m_pbiYieldFromRouteMovementInForeignTerritory;
 #endif
 	int** m_ppiBuildingClassYieldChanges;
@@ -784,6 +762,7 @@ protected:
 	int* m_piSeaPlotYieldChanges;
 	int** m_ppiFeatureYieldChanges;
 	int** m_ppiResourceYieldChanges;
+	int* m_piLuxuryYieldChanges;
 	std::map<int, std::map<int, int>> m_miResourceYieldChangesFromGoldenAge;
 	std::map<int, std::map<int, int>> m_miResourceYieldChangesFromGoldenAgeCap;
 	int** m_ppiTerrainYieldChanges;
@@ -818,9 +797,7 @@ protected:
 #if defined(MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON)
 	std::map<bool, TradeRouteProductionSiphon> m_biiTradeRouteProductionSiphon;
 #endif
-#if defined(MOD_BALANCE_CORE)
 	std::map<int, AlternateResourceTechs> m_piiAlternateResourceTechs;
-#endif
 	std::vector<FreeResourceXCities> m_aFreeResourceXCities;
 	std::vector<bool> m_abNoTrainUnitClass;
 
@@ -1081,18 +1058,6 @@ public:
 	{
 		return m_iGoldenAgeTourismModifier;
 	};
-	int GetGoldenAgeGreatArtistRateModifier() const
-	{
-		return m_iGoldenAgeGreatArtistRateModifier;
-	};
-	int GetGoldenAgeGreatMusicianRateModifier() const
-	{
-		return m_iGoldenAgeGreatMusicianRateModifier;
-	};
-	int GetGoldenAgeGreatWriterRateModifier() const
-	{
-		return m_iGoldenAgeGreatWriterRateModifier;
-	};
 	int GetExtraEmbarkMoves() const
 	{
 		return m_iExtraEmbarkMoves;
@@ -1127,7 +1092,6 @@ public:
 	{
 		return m_iCultureBuildingYieldChange;
 	};
-#if defined(MOD_BALANCE_CORE)
 	int GetWarWearinessModifier() const
 	{
 		return m_iWarWearinessModifier;
@@ -1152,9 +1116,13 @@ public:
 	{
 		return m_bNoSpread;
 	};
-	int GetInspirationalLeader() const
+	int GetXPBonusFromGreatPersonBirth() const
 	{
-		return m_iInspirationalLeader;
+		return m_iXPBonusFromGreatPersonBirth;
+	};
+	int GetUnitHealFromGreatPersonBirth() const
+	{
+		return m_iUnitHealFromGreatPersonBirth;
 	};
 	int GetBullyMilitaryStrengthModifier() const
 	{
@@ -1412,7 +1380,6 @@ public:
 	{
 		return m_bIsCapitalOnly;
 	};
-#endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int GetInvestmentModifier() const
 	{
@@ -1471,7 +1438,6 @@ public:
 	{
 		return m_iExtraFoundedCityTerritoryClaimRange;
 	}
-#if defined(MOD_BALANCE_CORE)
 	int GetExtraConqueredCityTerritoryClaimRange() const
 	{
 		return m_iExtraConqueredCityTerritoryClaimRange;
@@ -1488,7 +1454,6 @@ public:
 	{
 		return m_iMonopolyModPercent;
 	}
-#endif
 	int GetFreeSocialPoliciesPerEra() const
 	{
 		return m_iFreeSocialPoliciesPerEra;
@@ -1535,12 +1500,10 @@ public:
 	{
 		return m_iTradeBuildingModifier;
 	}
-#if defined(MOD_BALANCE_CORE)
 	int GetNumFreeBuildings() const
 	{
 		return m_iNumFreeBuildings;
 	}
-#endif
 #if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
 	bool IsBullyAnnex() const
 	{
@@ -1744,7 +1707,10 @@ public:
 	{
 		return ((uint)eResource < m_aiResourceQuantityModifier.size())?m_aiResourceQuantityModifier[(int)eResource]:0;
 	};
-#if defined(MOD_BALANCE_CORE)
+	int GetNumFreeResourceOnWorldWonderCompletion(ResourceTypes eResource) const
+	{
+		return ((uint)eResource < m_aiNumFreeResourceOnWorldWonderCompletion.size())?m_aiNumFreeResourceOnWorldWonderCompletion[(int)eResource]:0;
+	};
 	int GetGreatPersonCostReduction(GreatPersonTypes eGreatPerson) const
 	{
 		return ((uint)eGreatPerson < m_aiGreatPersonCostReduction.size()) ? m_aiGreatPersonCostReduction[(int)eGreatPerson] : 0;
@@ -1786,9 +1752,7 @@ public:
 	{
 		return ((uint)eUnitClass < m_aiFreeUnitClassesDOW.size()) ? m_aiFreeUnitClassesDOW[(int)eUnitClass] : 0;
 	}
-#endif
 	int GetMovesChangeUnitCombat(const int unitCombatID) const;
-#if defined(MOD_BALANCE_CORE)
 	int GetMovesChangeUnitClass(const int unitClassID) const;
 	int GetYieldChangeFromTileEarnTerrainType(TerrainTypes eTerrain, YieldTypes eYield) const;
 	int GetYieldChangeFromTilePurchaseTerrainType(TerrainTypes eTerrain, YieldTypes eYield) const;
@@ -1813,11 +1777,9 @@ public:
 	{
 		return m_bHasYieldFromTilePurchase;
 	};
-#endif
 	int GetMaintenanceModifierUnitCombat(const int unitCombatID) const;
 	int GetImprovementYieldChange(ImprovementTypes eImprovement, YieldTypes eYield) const;
 	int GetPlotYieldChange(PlotTypes ePlot, YieldTypes eYield) const;
-#if defined(MOD_BALANCE_CORE)
 	int GetYieldFromLevelUp(YieldTypes eYield) const
 	{
 		return m_iYieldFromLevelUp[(int)eYield];
@@ -1952,8 +1914,11 @@ public:
 	{
 		return m_iMountainRangeYield[(int)eYield];
 	};
-#endif
-#if defined(MOD_BALANCE_CORE) && defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
+	int GetLuxuryYieldChanges(YieldTypes eYield) const
+	{
+		return m_iLuxuryYieldChanges[(int)eYield];
+	};
+#if defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
 	int GetYieldFromRouteMovementInForeignTerritory(YieldTypes eIndex, bool bTradePartner) const;
 #endif
 	int GetBuildingClassYieldChange(BuildingClassTypes eBuildingClass, YieldTypes eYield) const;
@@ -2025,7 +1990,6 @@ public:
 	FreeResourceXCities GetFreeResourceXCities(ResourceTypes eResource) const;
 
 	bool HasFreePromotionUnitCombat(const int promotionID, const int unitCombatID) const;
-#if defined(MOD_BALANCE_CORE)
 	bool HasSpecialUnitUpgrade(const int unitClassID, const int unitID) const;
 	bool HasFreePromotionUnitClass(const int promotionID, const int unitClassID) const;
 	bool HasUnitClassCanBuild(const int buildID, const int unitClassID) const;	
@@ -2037,36 +2001,27 @@ public:
 	}
 	bool IsNoBuild(const BuildTypes eBuild) const;
 	int GetDomainProductionModifiersPerSpecialist(DomainTypes eDomain) const;
-#endif
 #if defined(MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON)
 	TradeRouteProductionSiphon GetTradeRouteProductionSiphon(bool bInternationalOnly) const;
 	bool IsTradeRouteProductionSiphon() const;
 #endif
 
-#if defined(MOD_BALANCE_CORE)
 	AlternateResourceTechs GetAlternateResourceTechs(ResourceTypes eResource) const;
 	bool IsAlternateResourceTechs() const;
-#endif
 
 	// Public functions to make trait-based game state changes
 	void AddUniqueLuxuries(CvCity *pCity);
-#if defined(MOD_BALANCE_CORE)
 	bool AddUniqueLuxuriesAround(CvCity *pCity, int iNumResource);
-#endif
 	bool CheckForBarbarianConversion(CvUnit* pByUnit, CvPlot* pPlot);
 
 	int GetCapitalBuildingDiscount(BuildingTypes eBuilding);
-#if defined(MOD_BALANCE_CORE)
 	TechTypes GetFreeBuildingPrereqTech() const;
 	TechTypes GetCapitalFreeBuildingPrereqTech() const;
 	int GetWonderProductionToBuildingDiscount(BuildingTypes eBuilding);
 	void SpawnBestUnitsOnImprovementDOW(CvCity *pCity);
-#endif
 	BuildingTypes GetFreeBuilding() const;
-#if defined(MOD_BALANCE_CORE)
 	BuildingTypes GetFreeCapitalBuilding() const;
 	UnitTypes GetFreeUnitOnConquest() const;
-#endif
 	BuildingTypes GetFreeBuildingOnConquest() const;
 	void SetDefeatedBarbarianCampGuardType(UnitTypes eType)
 	{
@@ -2182,9 +2137,6 @@ private:
 	int m_iGoldenAgeMoveChange;
 	int m_iGoldenAgeCombatModifier;
 	int m_iGoldenAgeTourismModifier;
-	int m_iGoldenAgeGreatArtistRateModifier;
-	int m_iGoldenAgeGreatMusicianRateModifier;
-	int m_iGoldenAgeGreatWriterRateModifier;
 	int m_iExtraEmbarkMoves;
 	int m_iNaturalWonderFirstFinderGold;
 	int m_iNaturalWonderSubsequentFinderGold;
@@ -2193,14 +2145,14 @@ private:
 	int m_iNearbyImprovementCombatBonus;
 	int m_iNearbyImprovementBonusRange;
 	int m_iCultureBuildingYieldChange;
-#if defined(MOD_BALANCE_CORE)
 	int m_iWarWearinessModifier;
 	int m_iEnemyWarWearinessModifier;
 	int m_iCombatBonusVsHigherPop;
 	bool m_bBuyOwnedTiles;
 	bool m_bNewCitiesStartWithCapitalReligion;
 	bool m_bNoSpread;
-	int m_iInspirationalLeader; // OBSOLETE: to be removed in VP5.0
+	int m_iXPBonusFromGreatPersonBirth;
+	int m_iUnitHealFromGreatPersonBirth;
 	int m_iBullyMilitaryStrengthModifier;
 	int m_iBullyValueModifier;
 	bool m_bIgnoreBullyPenalties;
@@ -2264,7 +2216,6 @@ private:
 	int m_iExtraTradeRoutesPerXOwnedVassals;
 	int m_iMinorInfluencePerGiftedUnit;
 	bool m_bIsCapitalOnly;
-#endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int m_iInvestmentModifier;
 #endif
@@ -2281,12 +2232,10 @@ private:
 	int m_iExtraSpies;
 	int m_iUnresearchedTechBonusFromKills;
 	int m_iExtraFoundedCityTerritoryClaimRange;
-#if defined(MOD_BALANCE_CORE)
 	int m_iExtraConqueredCityTerritoryClaimRange;
 	int m_iExtraTenetsFirstAdoption;
 	int m_iMonopolyModFlat;
 	int m_iMonopolyModPercent;
-#endif
 	int m_iFreeSocialPoliciesPerEra;
 	int m_iNumTradeRoutesModifier;
 	int m_iTradeRouteResourceModifier;
@@ -2301,9 +2250,7 @@ private:
 #endif
 	int m_iTradeReligionModifier;
 	int m_iTradeBuildingModifier;
-#if defined(MOD_BALANCE_CORE)
 	int m_iNumFreeBuildings;
-#endif
 	// Saved
 
 	bool m_bFightWellDamaged;
@@ -2350,9 +2297,7 @@ private:
 	unsigned int m_uiFreeUnitIndex;
 	TechTypes m_eFreeUnitPrereqTech;
 	ImprovementTypes m_eCombatBonusImprovement;
-#if defined(MOD_BALANCE_CORE)
 	UnitTypes m_eFreeUnitOnConquest;
-#endif
 #if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
 	bool m_bBullyAnnex;
 	int m_iBullyYieldMultiplierAnnex;
@@ -2367,6 +2312,7 @@ private:
 	int m_iYieldRateModifier[NUM_YIELD_TYPES];
 	int m_iStrategicResourceQuantityModifier[NUM_TERRAIN_TYPES];
 	std::vector<int> m_aiResourceQuantityModifier;
+	std::vector<int> m_aiNumFreeResourceOnWorldWonderCompletion;
 	std::vector<bool> m_abNoTrain;
 	vector<FreeTraitUnit> m_aFreeTraitUnits;
 	std::vector<int> m_aUniqueLuxuryAreas;
@@ -2382,7 +2328,6 @@ private:
 
 	std::vector<int> m_paiMovesChangeUnitCombat;
 	std::vector<int> m_paiMaintenanceModifierUnitCombat;
-#if defined(MOD_BALANCE_CORE)
 	std::vector<int> m_paiMovesChangeUnitClass;
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiYieldFromTileEarnTerrainType;
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiYieldFromTilePurchaseTerrainType;
@@ -2397,11 +2342,9 @@ private:
 	bool m_bHasYieldFromTileCultureBomb;
 	bool m_bHasYieldFromTileEarn;
 	bool m_bHasYieldFromTilePurchase;
-#endif
 
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppaaiImprovementYieldChange;
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiPlotYieldChange;
-#if defined(MOD_BALANCE_CORE)
 	int m_iYieldFromLevelUp[NUM_YIELD_TYPES];
 	int m_iYieldFromHistoricEvent[NUM_YIELD_TYPES];
 	int m_iYieldFromXMilitaryUnits[NUM_YIELD_TYPES];
@@ -2438,16 +2381,13 @@ private:
 	bool m_bCombatBoostNearNaturalWonder;
 	int m_iCultureBonusModifierConquest;
 	int m_iProductionBonusModifierConquest;
-#endif
-#if defined(MOD_BALANCE_CORE) && defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
+#if defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
 	std::map<int, std::map<bool, int>> m_pbiYieldFromRouteMovementInForeignTerritory;
 #endif
 #if defined(MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON)
 	std::map<bool, TradeRouteProductionSiphon> m_aiiTradeRouteProductionSiphon;
 #endif
-#if defined(MOD_BALANCE_CORE)
 	std::map<int, AlternateResourceTechs> m_aiiAlternateResourceTechs;
-#endif
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiBuildingClassYieldChange;
 	int m_iCityYieldChanges[NUM_YIELD_TYPES];
 	int m_iPermanentYieldChangeWLTKD[NUM_YIELD_TYPES];
@@ -2461,6 +2401,7 @@ private:
 	int m_iSeaPlotYieldChanges[NUM_YIELD_TYPES];
 	int m_iGAPToYield[NUM_YIELD_TYPES];
 	int m_iMountainRangeYield[NUM_YIELD_TYPES];
+	int m_iLuxuryYieldChanges[NUM_YIELD_TYPES];
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiFeatureYieldChange;
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiResourceYieldChange;
 	std::map<int, std::map<int, int>> m_miResourceYieldChangesFromGoldenAge;
@@ -2474,12 +2415,10 @@ private:
 	int m_iYieldChangeWorldWonder[NUM_YIELD_TYPES];
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiTradeRouteYieldChange;
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppaaiSpecialistYieldChange;
-#if defined(MOD_BALANCE_CORE)
 	std::vector<int> m_aiDomainFreeExperienceModifier;
 	std::vector<int> m_aiGreatPersonProgressFromPolicyUnlock;
 	std::map<int, int> m_aiGreatPersonProgressFromKills;
 	std::map<int, int> m_aiRandomGreatPersonProgressFromKills;
-#endif
 	std::vector<int> m_aiGreatPersonCostReduction;
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiGreatPersonExpendedYield;
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiGreatPersonBornYield;

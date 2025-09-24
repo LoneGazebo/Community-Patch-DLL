@@ -365,6 +365,7 @@ protected:
 	LUAAPIEXTN(GetUnhappinessFromPillagedTiles, int);
 	LUAAPIEXTN(GetUnhappinessFromFamine, int);
 	LUAAPIEXTN(GetUnhappinessFromReligiousUnrest, int);
+	LUAAPIEXTN(GetUnhappinessFromBuildings, int);
 	LUAAPIEXTN(getPotentialUnhappinessWithGrowth, int);
 	LUAAPIEXTN(GetCityUnhappinessBreakdown, int);
 	LUAAPIEXTN(GetCityHappinessBreakdown, int);

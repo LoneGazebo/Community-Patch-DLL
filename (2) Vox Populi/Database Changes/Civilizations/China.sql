@@ -5,26 +5,15 @@ UPDATE Traits
 SET
 	GreatGeneralRateModifier = 0,
 	GreatGeneralExtraBonus = 0,
-	UnhappyUnitProductionMod = 25,
-	NoAvoidGrowth = 1,
-	RevoltTimerMod = -50
+	GreatWorkWLTKD = 1,
+	ExpansionWLTKD = 1,
+	PermanentYieldsDecreaseEveryEra = 1
 WHERE Type = 'TRAIT_ART_OF_WAR';
 
-INSERT INTO Trait_YieldChangeFromCityGain
+INSERT INTO Trait_PermanentYieldChangeWLTKD
 	(TraitType, YieldType, Yield)
 VALUES
 	('TRAIT_ART_OF_WAR', 'YIELD_FOOD', 2);
-
-INSERT INTO Trait_PermanentYieldChangeGoldenAge
-	(TraitType, YieldType, Yield)
-VALUES
-	('TRAIT_ART_OF_WAR', 'YIELD_FOOD', 2);
-
-INSERT INTO Trait_UnhappyYieldModifiers
-	(TraitType, YieldType, Yield)
-VALUES
-	('TRAIT_ART_OF_WAR', 'YIELD_CULTURE', 25),
-	('TRAIT_ART_OF_WAR', 'YIELD_FAITH', 25);
 
 ----------------------------------------------------------
 -- Unique Unit: Chu-Ko-Nu (Crossbowman)

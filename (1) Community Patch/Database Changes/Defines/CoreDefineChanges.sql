@@ -332,7 +332,7 @@ VALUES
 	('MINOR_LANDMARK_RESTING_INFLUENCE', 0), -- scales with era; set to 0 to disable all effects
 	('MINOR_QUEST_ACQUIRE_CITY_BONUS_XP', 100), -- Amount of extra XP given to Juggernaut unit rewards
 	('MINOR_CIV_QUEST_ROUTE_MAXIMUM_DISTANCE', 7), -- Maximum distance from nearest city to offer the city connection quest
-	('MINOR_CIV_QUEST_WONDER_COMPLETION_MAX_TURNS', 30), -- Maximum turns the player is able to complete the wonder to receive this quest
+	('MINOR_CIV_QUEST_WONDER_COMPLETION_MAX_TURNS', 30), -- Upper bound on the number of construction turns needed to build a Wonder; if no city can build it faster than this, the Wonder won't be valid. Minimum value is 5.
 	('MINOR_CIV_QUEST_FIND_CITY_MIN_DISTANCE', 16), -- Minimum distance from target city to nearest owned city to receive the find city quest
 	('MINOR_CIV_QUEST_ARCHAEOLOGY_RANGE', 12), -- Maximum distance from archaeological site to offer the dig quest
 	('MINOR_CIV_QUEST_ACQUIRE_CITY_MINIMUM_POP', 6),

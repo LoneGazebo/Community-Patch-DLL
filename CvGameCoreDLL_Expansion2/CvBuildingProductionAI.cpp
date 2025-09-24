@@ -9,14 +9,12 @@
 #include "CvGameCoreDLLUtil.h"
 #include "CvBuildingProductionAI.h"
 #include "CvInfosSerializationHelper.h"
-#if defined(MOD_BALANCE_CORE)
 #include "CvGameCoreUtils.h"
 #include "CvInternalGameCoreUtils.h"
 #include "CvCitySpecializationAI.h"
 #include "CvEconomicAI.h"
 #include "CvGrandStrategyAI.h"
 #include "CvMilitaryAI.h"
-#endif
 // include after all other headers
 #include "LintFree.h"
 
@@ -143,7 +141,6 @@ void CvBuildingProductionAI::LogPossibleBuilds()
 		}
 	}
 }
-#if defined(MOD_BALANCE_CORE)
 int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, int iValue,
 	bool bNoBestWonderCityCheck, bool bFreeBuilding, bool bIgnoreSituational)
 {
@@ -193,7 +190,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		if (isWorldWonderClass(kBuildingClassInfo))
 		{
 			// Specific check to block non-founder AIs from building Hagia Sophia, Borobudur, Cathedral of St. Basil
-			ReligionTypes eOurReligion = kPlayer.GetReligions()->GetStateReligion(false);
+			ReligionTypes eOurReligion = kPlayer.GetReligions()->GetOwnedReligion();
 			if (eOurReligion == NO_RELIGION)
 			{
 				bool bCanFoundReligion = GC.getGame().GetGameReligions()->GetNumReligionsStillToFound() > 0 || kPlayer.GetPlayerTraits()->IsAlwaysReligion();
@@ -228,6 +225,23 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 					{
 						return SR_USELESS;
 					}
+				}
+			}
+
+			// Do we get free resources from completing any World Wonder? We should be more willing to build them in general.
+			for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+			{
+				ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
+				int iQuantity = kPlayer.GetPlayerTraits()->GetNumFreeResourceOnWorldWonderCompletion(eResourceLoop);
+				if (iQuantity > 0)
+				{
+					ResourceUsageTypes eUsage = GC.getResourceInfo(eResourceLoop)->getResourceUsage();
+					if (eResourceLoop == GD_INT_GET(ARTIFACT_RESOURCE) || eResourceLoop == GD_INT_GET(HIDDEN_ARTIFACT_RESOURCE) || eUsage == RESOURCEUSAGE_LUXURY)
+						iBonus += 100 * iQuantity;
+					else if (eUsage == RESOURCEUSAGE_STRATEGIC)
+						iBonus += 50 * iQuantity;
+					else
+						iBonus += 25 * iQuantity;
 				}
 			}
 		}
@@ -578,6 +592,11 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	if (pkBuildingInfo->GetUnmoddedHappiness() > 0)
 	{
 		iBonus += iHappinessValue * pkBuildingInfo->GetUnmoddedHappiness();
+	}
+
+	if (pkBuildingInfo->GetUnhappiness() > 0)
+	{
+		iBonus -= iHappinessValue * pkBuildingInfo->GetUnhappiness();
 	}
 
 	if (pkBuildingInfo->GetGlobalHappinessPerMajorWar() > 0)
@@ -1344,4 +1363,3 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	//iValue is the compunded value of the items.
 	return max(1,iValue + iBonus);
 }
-#endif

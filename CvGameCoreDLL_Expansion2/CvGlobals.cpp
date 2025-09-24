@@ -824,10 +824,12 @@ CvGlobals::CvGlobals() :
 	GD_INT_INIT(OPINION_THRESHOLD_FAVORABLE, -30),
 	GD_INT_INIT(OPINION_THRESHOLD_FRIEND, -80),
 	GD_INT_INIT(OPINION_THRESHOLD_ALLY, -160),
-	GD_INT_INIT(OPINION_THRESHOLD_MAJOR_POSITIVE, -31),
-	GD_INT_INIT(OPINION_THRESHOLD_MODERATE_POSITIVE, -16),
-	GD_INT_INIT(OPINION_THRESHOLD_MODERATE_NEGATIVE, 16),
-	GD_INT_INIT(OPINION_THRESHOLD_MAJOR_NEGATIVE, 31),
+	GD_INT_INIT(OPINION_THRESHOLD_INTENSE_POSITIVE, -80),
+	GD_INT_INIT(OPINION_THRESHOLD_MAJOR_POSITIVE, -30),
+	GD_INT_INIT(OPINION_THRESHOLD_MODERATE_POSITIVE, -15),
+	GD_INT_INIT(OPINION_THRESHOLD_MODERATE_NEGATIVE, 15),
+	GD_INT_INIT(OPINION_THRESHOLD_MAJOR_NEGATIVE, 30),
+	GD_INT_INIT(OPINION_THRESHOLD_INTENSE_NEGATIVE, 80),
 	GD_INT_INIT(OPINION_WEIGHT_LAND_FIERCE, 40),
 	GD_INT_INIT(OPINION_WEIGHT_LAND_STRONG, 25),
 	GD_INT_INIT(OPINION_WEIGHT_LAND_WEAK, 15),
@@ -2417,10 +2419,8 @@ CvGlobals::CvGlobals() :
 	m_pLeagueProjectRewards(NULL),
 	m_pResolutions(NULL),
 	m_pAchievements(NULL),
-#if defined(MOD_BALANCE_CORE)
 	m_pCorporations(NULL),
 	m_pContracts(NULL),
-#endif
 	m_pGameDatabase(NULL),
 	m_saveVersion(SAVE_VERSION_LATEST),
 	m_gameDataHash()
@@ -2748,10 +2748,8 @@ void CvGlobals::init()
 	m_pResolutions = FNEW(CvResolutionXMLEntries, c_eCiv5GameplayDLL, 0);
 	m_pNotifications = FNEW(CvNotificationXMLEntries, c_eCiv5GameplayDLL, 0);
 	m_pAchievements = FNEW(CvAchievementXMLEntries, c_eCiv5GameplayDLL, 0);
-#if defined(MOD_BALANCE_CORE)
 	m_pCorporations = FNEW(CvCorporationXMLEntries, c_eCiv5GameplayDLL, 0);
 	m_pContracts = FNEW(CvContractXMLEntries, c_eCiv5GameplayDLL, 0);
-#endif
 
 	CvPlayerAI::initStatics();
 	CvTeam::initStatics();
@@ -2797,10 +2795,8 @@ void CvGlobals::uninit()
 	SAFE_DELETE(m_pTraits);
 	SAFE_DELETE(m_pReligions);
 	SAFE_DELETE(m_pBeliefs);
-#if defined(MOD_BALANCE_CORE)
 	SAFE_DELETE(m_pCorporations);
 	SAFE_DELETE(m_pContracts);
-#endif
 	SAFE_DELETE(m_pSpyPassiveBonuses);
 	SAFE_DELETE(m_pSpyPassiveBonusesDiplomat);
 	SAFE_DELETE(m_pLeagueSpecialSessions);
@@ -4032,6 +4028,12 @@ void CvGlobals::GameDataPostCache()
 			if (bHasInteraction)
 				m_buildingInteractionLookup[eOuter].push_back(eInner);
 		}
+
+		// Accomplishments
+		if (!pOuter->GetYieldChangesFromAccomplishments().empty())
+		{
+			m_vBuildingsWithYieldsFromAccomplishments.push_back(eOuter);
+		}
 	}
 
 	calcGameDataHash();
@@ -4172,6 +4174,11 @@ const vector<BuildingTypes>& CvGlobals::getBuildingInteractions(BuildingTypes eR
 		return it->second;
 	else
 		return emptyResult;
+}
+
+const vector<BuildingTypes>& CvGlobals::getBuildingsWithYieldsFromAccomplishments() const
+{
+	return m_vBuildingsWithYieldsFromAccomplishments;
 }
 
 int CvGlobals::getNumUnitClassInfos()
@@ -4567,7 +4574,6 @@ CvBeliefXMLEntries* CvGlobals::GetGameBeliefs() const
 	return m_pBeliefs;
 }
 
-#if defined(MOD_BALANCE_CORE)
 int CvGlobals::getNumCorporationInfos()
 {
 	return (int)m_pCorporations->GetCorporationEntries().size();
@@ -4611,7 +4617,6 @@ CvContractXMLEntries* CvGlobals::GetGameContracts() const
 {
 	return m_pContracts;
 }
-#endif
 
 int CvGlobals::getNumSpyPassiveBonusInfos()
 {
@@ -5754,10 +5759,12 @@ void CvGlobals::cacheGlobals()
 	GD_INT_CACHE(OPINION_THRESHOLD_FAVORABLE);
 	GD_INT_CACHE(OPINION_THRESHOLD_FRIEND);
 	GD_INT_CACHE(OPINION_THRESHOLD_ALLY);
+	GD_INT_CACHE(OPINION_THRESHOLD_INTENSE_POSITIVE);
 	GD_INT_CACHE(OPINION_THRESHOLD_MAJOR_POSITIVE);
 	GD_INT_CACHE(OPINION_THRESHOLD_MODERATE_POSITIVE);
 	GD_INT_CACHE(OPINION_THRESHOLD_MODERATE_NEGATIVE);
 	GD_INT_CACHE(OPINION_THRESHOLD_MAJOR_NEGATIVE);
+	GD_INT_CACHE(OPINION_THRESHOLD_INTENSE_NEGATIVE);
 	GD_INT_CACHE(OPINION_WEIGHT_LAND_FIERCE);
 	GD_INT_CACHE(OPINION_WEIGHT_LAND_STRONG);
 	GD_INT_CACHE(OPINION_WEIGHT_LAND_WEAK);

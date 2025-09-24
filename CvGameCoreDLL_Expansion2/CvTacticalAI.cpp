@@ -619,7 +619,6 @@ void CvTacticalAI::FindTacticalTargets()
 					}
 				}
 
-#if defined(MOD_BALANCE_CORE)
 				//Enemy water plots?
 				if (pLoopPlot->isRevealed(m_pPlayer->getTeam()) && pLoopPlot->isWater() && atWar(m_pPlayer->getTeam(), pLoopPlot->getTeam()))
 				{
@@ -649,7 +648,6 @@ void CvTacticalAI::FindTacticalTargets()
 						}
 					}
 				}
-#endif
 			}
 		}
 	}
@@ -3560,7 +3558,7 @@ void CvTacticalAI::ExecuteMovesToSafestPlot(CvUnit* pUnit)
 		return;
 
 	//see if we can do damage before retreating
-	if (pUnit->canMoveAfterAttacking() && pUnit->getMoves()>GD_INT_GET(MOVE_DENOMINATOR) && pUnit->canRangeStrike())
+	if (pUnit->canMoveAfterAttacking() && (pUnit->getMoves()>GD_INT_GET(MOVE_DENOMINATOR) || pUnit->IsFreeAttackMoves()) && pUnit->canRangeStrike())
 		TacticalAIHelpers::PerformRangedOpportunityAttack(pUnit,true);
 
 	//so easy
@@ -3594,7 +3592,7 @@ void CvTacticalAI::ExecuteMovesToSafestPlot(CvUnit* pUnit)
 		else
 		{
 			//try to do some damage if we have movement points to spare
-			if (pBestPlot->isAdjacent(pUnit->plot()) && pUnit->getMoves() > GD_INT_GET(MOVE_DENOMINATOR) && pUnit->canRangeStrike() && pUnit->canMoveAfterAttacking())
+			if (pBestPlot->isAdjacent(pUnit->plot()) && (pUnit->getMoves() > GD_INT_GET(MOVE_DENOMINATOR) || pUnit->IsFreeAttackMoves()) && pUnit->canRangeStrike() && pUnit->canMoveAfterAttacking())
 				TacticalAIHelpers::PerformRangedOpportunityAttack(pUnit, true);
 
 			// Move to the lowest danger value found
@@ -3674,7 +3672,7 @@ void CvTacticalAI::ExecuteHeals(bool bFirstPass)
 		}
 
 		//ranged attack before fleeing for fast units
-		if (pUnit->canMoveAfterAttacking() && pUnit->getMoves() > 3*GD_INT_GET(MOVE_DENOMINATOR) && pUnit->canRangeStrike())
+		if (pUnit->canMoveAfterAttacking() && (pUnit->getMoves() > 3*GD_INT_GET(MOVE_DENOMINATOR) || pUnit->IsFreeAttackMoves()) && pUnit->canRangeStrike())
 			TacticalAIHelpers::PerformRangedOpportunityAttack(pUnit);
 
 		//find a suitable spot for healing
@@ -6516,9 +6514,9 @@ bool AttackEndsTurn(const CvUnit* pUnit, int iNumAttacksLeft)
 	return !pUnit->canMoveAfterAttacking() && !pUnit->isRangedSupportFire() && iNumAttacksLeft<2;
 }
 
-int NumAttacksForUnit(int iMovesLeft, int iMaxAttacks)
+static int NumAttacksForUnit(int iMovesLeft, int iMaxAttacks, bool bFreeAttackMoves)
 {
-	return max(0, min( (iMovesLeft+GD_INT_GET(MOVE_DENOMINATOR)-1)/GD_INT_GET(MOVE_DENOMINATOR), iMaxAttacks ));
+	return bFreeAttackMoves ? max(0, iMaxAttacks) : max(0, min( (iMovesLeft+GD_INT_GET(MOVE_DENOMINATOR)-1)/GD_INT_GET(MOVE_DENOMINATOR), iMaxAttacks ));
 }
 
 CvTacticalPlot::eTactPlotDomain DomainForUnit(const CvUnit* pUnit)
@@ -7516,7 +7514,7 @@ STacticalAssignment ScorePlotForNonFightingUnitMove(const SUnitStats& unit, cons
 		if (evalMode == EM_INTERMEDIATE)
 		{
 			//don't do it if we don't have enough movement to move to a safe plot later
-			if (iAssumedMovesLeft<=GD_INT_GET(MOVE_DENOMINATOR) && !bHaveSimCover && !bHaveRealCover)
+			if ((iAssumedMovesLeft<=GD_INT_GET(MOVE_DENOMINATOR) && !pUnit->IsFreeAttackMoves()) && !bHaveSimCover && !bHaveRealCover)
 				return result;
 		}
 		else
@@ -7627,7 +7625,8 @@ STacticalAssignment ScorePlotForRangedAttack(const SUnitStats& unit, const CvTac
 	}
 	else
 	{
-		newAssignment.iRemainingMoves -= min(newAssignment.iRemainingMoves, GD_INT_GET(MOVE_DENOMINATOR));
+		if (!unit.pUnit->IsFreeAttackMoves())
+			newAssignment.iRemainingMoves -= min(newAssignment.iRemainingMoves, GD_INT_GET(MOVE_DENOMINATOR));
 
 		//a bonus the further we can disengage after attacking
 		newAssignment.iScore += (newAssignment.iRemainingMoves * 2) / GD_INT_GET(MOVE_DENOMINATOR);
@@ -7662,8 +7661,9 @@ STacticalAssignment ScorePlotForMeleeAttack(const SUnitStats& unit, const CvTact
 		return result;
 
 	//how often can we attack this turn (depending on moves left on the unit)
-	int iMaxAttacks = min(unit.iAttacksLeft, (unit.iMovesLeft + GD_INT_GET(MOVE_DENOMINATOR) - 1) / GD_INT_GET(MOVE_DENOMINATOR));
-	if (iMaxAttacks <= 0)
+	int iMaxAttacks = NumAttacksForUnit(unit.iMovesLeft, unit.iAttacksLeft, pUnit->IsFreeAttackMoves());
+
+	if (iMaxAttacks == 0)
 		return result;
 
 	//check how much damage we could do
@@ -7680,7 +7680,7 @@ STacticalAssignment ScorePlotForMeleeAttack(const SUnitStats& unit, const CvTact
 	else
 	{
 		int iMoveCost = unit.iMovesLeft - iAssumedMovesLeft;
-		int iAttackCost = max(iMoveCost, GD_INT_GET(MOVE_DENOMINATOR));
+		int iAttackCost = pUnit->IsFreeAttackMoves() ? 0 : max(iMoveCost, GD_INT_GET(MOVE_DENOMINATOR));
 		result.iRemainingMoves = max(0,unit.iMovesLeft - iAttackCost);
 	}
 
@@ -8387,7 +8387,7 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 
 			//how much damage could we do with our next moves?
 			//check this only during simulation; don't use it for initial/final score as it decreases with enemies killed!
-			int iMaxAttacks = NumAttacksForUnit(it->iMovesLeft, unit.iAttacksLeft);
+			int iMaxAttacks = NumAttacksForUnit(it->iMovesLeft, unit.iAttacksLeft, pUnit->IsFreeAttackMoves());
 			int iDamageScore = ScorePlotForPotentialAttacks(pUnit, testPlot, eRelevantDomain, iMaxAttacks, *this, moveToPlot.iKillOrNearKillId);
 			//note that "passive damage" ie covering our own units is implicit in the plot score for firstline units
 
@@ -10642,7 +10642,7 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 #if defined(VPDEBUG)
 	// Additional debug info
 	char szDebugInfo[256];
-	sprintf_s(szDebugInfo, "TacticalAI: Target (%d,%d), Units %d, Agg %d, Enemies %d, Checked Positions %d, Used %d, Completed %d, Bad Units %d, %d ms, Player %d\n",
+	sprintf_s(szDebugInfo, "TacticalAI: Target (%d,%d), Units %lu, Agg %d, Enemies %d, Checked Positions %d, Used %d, Completed %lu, Bad Units %lu, %d ms, Player %d\n",
 		pTarget->getX(), pTarget->getY(), vUnits.size(), eAggLvl, initialPosition->getNumEnemies(), gCheckedPositions, iUsedPositions, completedPositions.size(), unuseableUnits.size(), durationMs, ePlayer);
 	OutputDebugString(szDebugInfo);
 #endif

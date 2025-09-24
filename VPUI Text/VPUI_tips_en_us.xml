@@ -97,7 +97,7 @@
 			<Text>Melee Units garrisoning a City, Fort, or Citadel don't exit their fortification if they kill a Unit. You can use this to keep your defenses from overextending.</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_VPUI_TIP_20">
-			<Text>In each city, Unhappiness from Needs is increased with the number of non-puppeted cities you own, via the Empire Modifier. Don't expand your empire without sizable surplus happiness.</Text>
+			<Text>In each city, Unhappiness from Needs is increased with the number of non-puppeted cities you own, via the Empire Size Modifier. Don't expand your empire without sizable surplus happiness.</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_VPUI_TIP_21">
 			<Text>Cities, Forts, and Citadels which are adjacent to water create a canal for your Naval Units and sea Trade Routes to pass through.</Text>
@@ -127,7 +127,7 @@
 			<Text>Farms, Lumber Mills, and the Hunnic Eki gain additional yields when adjacent to two of themselves. Build them in triangle formations to maximize their output.</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_VPUI_TIP_30">
-			<Text>Landmarks you build give you Happiness, no matter where you build them. Building a landmark for another civ will give you happiness and a nice relationship boost.</Text>
+			<Text>Landmarks you build give you Happiness, no matter where you build them. Building a Landmark for another Civilization or City-State will also give you a nice relationship boost.</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_VPUI_TIP_31">
 			<Text>If all units are given orders, you can press W to deselect the currently selected unit. This will keep you from accidentally issuing a move order while browsing the map.</Text>

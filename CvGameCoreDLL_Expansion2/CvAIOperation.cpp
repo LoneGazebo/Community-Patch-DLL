@@ -516,8 +516,7 @@ int CvAIOperation::GrabUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTarget
 	for (size_t iI = 0; iI < pArmy->GetNumFormationEntries(); iI++)
 	{
 		CvArmyFormationSlot* pSlot = pArmy->GetSlotStatus(iI);
-		if (!pSlot)
-			return false;
+		ASSERT_DEBUG(pSlot != NULL, "GetSlotStatus returned null - array bounds issue");
 
 		if (pSlot->IsFree())
 		{
@@ -1008,7 +1007,6 @@ FDataStream& operator<<(FDataStream& stream, const CvAIOperation& aiOperation)
 	return stream;
 }
 
-#if defined(MOD_BALANCE_CORE)
 const char* CvAIOperation::GetInfoString()
 {
 	CvString strTemp0;
@@ -1055,7 +1053,6 @@ const char* CvAIOperation::GetInfoString()
 	m_strInfoString = strTemp0+strTemp1+strTemp2+strTemp3;
 	return m_strInfoString.c_str();
 }
-#endif
 
 // PRIVATE FUNCTIONS
 
@@ -1352,8 +1349,7 @@ bool CvAIOperation::FindBestFitReserveUnit(OperationSlot thisOperationSlot, vect
 		return false;
 
 	CvArmyFormationSlot* pSlot = pThisArmy->GetSlotStatus(thisOperationSlot.m_iSlotID);
-	if (!pSlot)
-		return false;
+	ASSERT_DEBUG(pSlot != NULL, "GetSlotStatus returned null - slot ID out of bounds");
 
 	if (pSlot->IsUsed())
 	{
@@ -1741,11 +1737,11 @@ CvPlot* CvAIOperationPillageEnemy::FindBestTarget(CvPlot** ppMuster) const
 
 	if (ppMuster)
 	{
-		CvCity *pClosest = pBestTargetCity ? kPlayer.GetClosestCityByPathLength(pBestTargetCity->plot()) : NULL;
+		CvCity *pClosest = kPlayer.GetClosestCityByPathLength(pBestTargetCity->plot());
 		*ppMuster = pClosest ? pClosest->plot() : NULL;
 	}
 
-	return pBestTargetCity ? pBestTargetCity->plot() : NULL;
+	return pBestTargetCity->plot();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

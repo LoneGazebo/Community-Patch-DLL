@@ -199,6 +199,13 @@
 			<Description>TXT_KEY_BUILDING_ROMAN_FORUM</Description>
 			<MaxGlobalInstances>1</MaxGlobalInstances>
 		</Row>
+		<!-- Nalanda -->
+		<Row>
+			<Type>BUILDINGCLASS_NALANDA</Type>
+			<DefaultBuilding>BUILDING_NALANDA</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_NALANDA</Description>
+			<MaxGlobalInstances>1</MaxGlobalInstances>
+		</Row>
 		<!-- Karlstejn -->
 		<Row>
 			<Type>BUILDINGCLASS_KARLSTEJN</Type>
@@ -966,7 +973,7 @@
 			<Type>BUILDING_NILOMETER</Type>
 			<BuildingClass>BUILDINGCLASS_WATERMILL</BuildingClass>
 			<Description>TXT_KEY_BUILDING_NILOMETER</Description>
-			<Civilopedia>TXT_KEY_BUILDING_NILOMETER_TEXT</Civilopedia>
+			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_NILOMETER_TEXT</Civilopedia>
 			<Help>TXT_KEY_BUILDING_NILOMETER_HELP</Help>
 			<Strategy>TXT_KEY_BUILDING_NILOMETER_STRATEGY</Strategy>
 			<PrereqTech>TECH_THE_WHEEL</PrereqTech>
@@ -1678,7 +1685,7 @@
 		<!-- Nalanda -->
 		<Row>
 			<Type>BUILDING_NALANDA</Type>
-			<BuildingClass>BUILDINGCLASS_ROMAN_FORUM</BuildingClass>
+			<BuildingClass>BUILDINGCLASS_NALANDA</BuildingClass>
 			<Description>TXT_KEY_BUILDING_NALANDA</Description>
 			<Civilopedia>TXT_KEY_BUILDING_NALANDA_TEXT</Civilopedia>
 			<Help>TXT_KEY_BUILDING_NALANDA_HELP</Help>

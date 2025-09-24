@@ -800,7 +800,6 @@ void CvHomelandAI::PlotSentryMoves()
 	}
 }
 
-#if defined(MOD_BALANCE_CORE)
 void CvHomelandAI::PlotSentryNavalMoves()
 {
 	FindUnitsForThisMove(AI_HOMELAND_MOVE_SENTRY_NAVAL);
@@ -855,7 +854,6 @@ void CvHomelandAI::PlotSentryNavalMoves()
 		}
 	}
 }
-#endif
 
 void CvHomelandAI::PlotOpportunisticSettlementMoves()
 {
@@ -4031,7 +4029,6 @@ void CvHomelandAI::ExecuteEngineerMoves()
 								continue;
 							}
 						}
-#if defined(MOD_BALANCE_CORE)
 					}
 					else if(pUnit->IsCombatUnit())
 					{
@@ -4049,7 +4046,6 @@ void CvHomelandAI::ExecuteEngineerMoves()
 							continue;
 						}
 					}
-#endif
 				}
 
 				if(bForceWonderCity)
@@ -4058,10 +4054,8 @@ void CvHomelandAI::ExecuteEngineerMoves()
 
 					if(pWonderCity)
 					{
-#if defined(MOD_BALANCE_CORE)
 						if(pUnit->AI_getUnitAIType() == UNITAI_ENGINEER)
 						{
-#endif
 							iTurnsToTarget = pUnit->TurnsToReachTarget(pWonderCity->plot(), true);
 
 							// Already at target?
@@ -4113,7 +4107,6 @@ void CvHomelandAI::ExecuteEngineerMoves()
 									continue;
 								}
 							}
-#if defined(MOD_BALANCE_CORE)
 						}
 						else if(pUnit->IsCombatUnit())
 						{
@@ -4132,7 +4125,6 @@ void CvHomelandAI::ExecuteEngineerMoves()
 								continue;
 							}
 						}
-#endif
 					}
 				}
 			}
@@ -4714,7 +4706,6 @@ void CvHomelandAI::ExecuteMissionaryMoves()
 				}
 			}
 		}
-#if defined(MOD_BALANCE_CORE)
 		else
 		{
 			if(pUnit->isHuman())
@@ -4735,7 +4726,6 @@ void CvHomelandAI::ExecuteMissionaryMoves()
 			}
 
 		}
-#endif
 	}
 }
 
@@ -5186,7 +5176,6 @@ void CvHomelandAI::ExecuteAircraftMoves()
 	}
 }
 
-#if defined(MOD_BALANCE_CORE)
 bool CvHomelandAI::MoveCivilianToGarrison(CvUnit* pUnit)
 {
 	WeightedPlotVector aBestPlotList;
@@ -5281,7 +5270,6 @@ bool CvHomelandAI::MoveCivilianToGarrison(CvUnit* pUnit)
 
 	return false;
 }
-#endif
 
 /// Fleeing to safety for civilian units
 bool CvHomelandAI::MoveCivilianToSafety(CvUnit* pUnit)
@@ -6053,7 +6041,7 @@ bool CvHomelandAI::ExecuteSpecialExploreMove(CvUnit* pUnit, CvPlot* pTargetPlot)
 	}
 	return false;
 }
-#if defined(MOD_BALANCE_CORE)
+
 bool CvHomelandAI::FindTestArchaeologistPlotPrimer(CvUnit *pUnit)
 {
 	if(pUnit->AI_getUnitAIType() != UNITAI_ARCHAEOLOGIST)
@@ -6092,7 +6080,6 @@ bool CvHomelandAI::FindTestArchaeologistPlotPrimer(CvUnit *pUnit)
 	}
 	return false;
 }
-#endif
 
 /// Build log filename
 CvString CvHomelandAI::GetLogFileName(CvString& playerName) const
@@ -6385,6 +6372,7 @@ CvPlot* HomelandAIHelpers::GetPlotForEmbassy(CvUnit* pUnit, CvCity* pCity)
 	BuildTypes eEmbassyBuild = (BuildTypes)GC.getInfoTypeForString("BUILD_EMBASSY");
 
 	std::set<int> siPlots = pCity->GetPlotList();
+	WeightedPlotVector aBestPlotList;
 	for (std::set<int>::const_iterator it = siPlots.begin(); it != siPlots.end(); ++it)
 	{
 		CvPlot* pLoopPlot = GC.getMap().plotByIndex(*it);
@@ -6392,9 +6380,47 @@ CvPlot* HomelandAIHelpers::GetPlotForEmbassy(CvUnit* pUnit, CvCity* pCity)
 		if (pUnit->GetDanger(pLoopPlot) > 10)
 			continue;
 
-		//use the first (innermost) plot we find
+		// if plot yields are copied to the capital when expending the GP, check which plot is best
+		// otherwise, use the first (innermost) plot we find
 		if (pUnit->canBuild(pLoopPlot, eEmbassyBuild))
-			return pLoopPlot;
+		{
+			if (pUnit->getUnitInfo().IsCopyYieldsFromExpendTile())
+			{
+				int iScore = 0;
+				for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+				{
+					iScore += pLoopPlot->calculateYield((YieldTypes)iI, false, NULL, true); // todo: score yields by type
+				}
+				// additional score if the tile can't be stolen with a citadel
+				bool bCitadelDanger = false;
+				CvPlot** aNeighbors = GC.getMap().getNeighborsUnchecked(pLoopPlot);
+				for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+				{
+					CvPlot* pAdjacentPlot = aNeighbors[iI];
+					if (!pAdjacentPlot || pAdjacentPlot->isImpassable())
+						continue;
+
+					// neighboring tile owned by a major civ other than us?
+					if (pAdjacentPlot->getOwner() != NO_PLAYER && pAdjacentPlot->getOwner() != pUnit->getOwner() && GET_PLAYER(pAdjacentPlot->getOwner()).isMajorCiv())
+					{
+						bCitadelDanger = true;
+						break;
+					}
+				}
+				iScore += bCitadelDanger ? 0 : 5;
+				aBestPlotList.push_back(pLoopPlot, iScore);
+			}
+			else
+			{
+				return pLoopPlot;
+			}
+		}
+	}
+
+	if (aBestPlotList.size() > 0)
+	{
+		aBestPlotList.StableSortItems(); //highest score will be first
+		return aBestPlotList.GetElement(0);
 	}
 
 	return NULL;

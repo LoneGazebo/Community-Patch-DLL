@@ -215,6 +215,12 @@ ALTER TABLE Policies ADD InternalTradeGold integer DEFAULT 0;
 -- Boost Culture Bomb from Citadel
 ALTER TABLE Policies ADD CultureBombBoost integer DEFAULT 0;
 
+-- Allows you to plant Citadels in other teams' lands, provided other requirements are met (including adjacency to own territory)
+ALTER TABLE Policies ADD CultureBombForeignTerritory boolean DEFAULT 0;
+
+-- Retain tiles owned by cities that you raze
+ALTER TABLE Policies ADD RetainRazedTerritory boolean DEFAULT 0;
+
 -- Unlock Era for Policy (Unlocks later eras earlier than normal)
 ALTER TABLE Policies ADD UnlocksPolicyBranchEra text REFERENCES Eras (Type);
 

@@ -236,11 +236,9 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(IsWork);
 	Method(IsGoldenAge);
 	Method(CanCoexistWithEnemyUnit);
-#if defined(MOD_BALANCE_CORE)
 	Method(IsContractUnit);
 	Method(IsSpecificContractUnit);
 	Method(GetContractUnit);
-#endif
 	Method(IsNoMaintenance);
 	Method(SetNoMaintenance);
 
@@ -385,7 +383,6 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(UnitClassAttackModifier);
 	Method(UnitClassDefenseModifier);
 	Method(UnitCombatModifier);
-#if defined(MOD_BALANCE_CORE)
 	Method(PerAdjacentUnitCombatModifier);
 	Method(PerAdjacentUnitCombatAttackMod);
 	Method(PerAdjacentUnitCombatDefenseMod);
@@ -394,7 +391,6 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(GetMultiAttackBonus);
 	Method(GetMultiAttackBonusCity);
 	Method(BarbarianCombatBonus);
-#endif
 	Method(DomainModifier);
 	Method(DomainAttackPercent);
 	Method(DomainDefensePercent);
@@ -402,8 +398,7 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(GetUnhappinessCombatPenalty);
 	Method(AirSweepCombatMod);
 	Method(GetEmbarkDefensiveModifier);
-	Method(CapitalDefenseModifier);
-	Method(CapitalDefenseFalloff);
+	Method(GetCombatModifierFromCapitalDistance);
 
 	Method(SpecialCargo);
 	Method(DomainCargo);
@@ -541,13 +536,11 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(GetAuraRange);
 	Method(GetAuraEffect);
 	Method(IsNearSapper);
-#if defined(MOD_BALANCE_CORE)
 	Method(IsHalfNearSapper);
 	Method(GetNearbyUnitClassModifierFromUnitClass);
 	Method(GetSapperAreaEffectBonus);
 	Method(GetGiveCombatModToUnit);
 	Method(GetNearbyCityBonusCombatMod);
-#endif
 	Method(GetNearbyImprovementModifier);
 	Method(IsFriendlyUnitAdjacent);
 	Method(IsNoFriendlyUnitAdjacent);
@@ -627,11 +620,10 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(ExecuteSpecialExploreMove);
 
 	Method(SetDeployFromOperationTurn);
-#if defined(MOD_BALANCE_CORE)
 	Method(IsHigherPopThan);
 	Method(GetResistancePower);
 	Method(GetAllianceCSStrength);
-#endif
+	Method(GetCombatModFromUnitLevel);
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	Method(GetMonopolyAttackBonus);
 	Method(GetMonopolyDefenseBonus);
@@ -2886,7 +2878,6 @@ int CvLuaUnit::lCanCoexistWithEnemyUnit(lua_State* L)
 	lua_pushboolean(L, bResult);
 	return 1;
 }
-#if defined(MOD_BALANCE_CORE)
 //------------------------------------------------------------------------------
 //bool IsContractUnit
 int CvLuaUnit::lIsContractUnit(lua_State* L)
@@ -2916,7 +2907,6 @@ int CvLuaUnit::lGetContractUnit(lua_State* L)
 	lua_pushinteger(L, eResult);
 	return 1;
 }
-#endif
 // bool IsNoMaintenance()
 int CvLuaUnit::lIsNoMaintenance(lua_State* L)
 {
@@ -4293,7 +4283,6 @@ int CvLuaUnit::lUnitCombatModifier(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
-#if defined(MOD_BALANCE_CORE)
 //------------------------------------------------------------------------------
 //int getCombatModPerAdjacentUnitCombatModifier(int /*UnitCombatTypes*/ eUnitCombat);
 int CvLuaUnit::lPerAdjacentUnitCombatModifier(lua_State* L)
@@ -4453,7 +4442,6 @@ int CvLuaUnit::lGetMultiAttackBonusCity(lua_State* L)
 	return 1;
 }
 
-#endif
 //------------------------------------------------------------------------------
 //int domainModifier(int /*DomainTypes*/ eDomain);
 int CvLuaUnit::lDomainModifier(lua_State* L)
@@ -4516,16 +4504,10 @@ int CvLuaUnit::lGetEmbarkDefensiveModifier(lua_State* L)
 	return BasicLuaMethod(L, &CvUnit::GetEmbarkDefensiveModifier);
 }
 //------------------------------------------------------------------------------
-//int CapitalDefenseModifier();
-int CvLuaUnit::lCapitalDefenseModifier(lua_State* L)
+//int GetCombatModifierFromCapitalDistance();
+int CvLuaUnit::lGetCombatModifierFromCapitalDistance(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvUnit::GetCapitalDefenseModifier);
-}
-//------------------------------------------------------------------------------
-//int CapitalDefenseFalloff();
-int CvLuaUnit::lCapitalDefenseFalloff(lua_State* L)
-{
-	return BasicLuaMethod(L, &CvUnit::GetCapitalDefenseFalloff);
+	return BasicLuaMethod(L, &CvUnit::GetCombatModifierFromCapitalDistance);
 }
 //------------------------------------------------------------------------------
 //int /*SpecialUnitTypes*/ specialCargo();
@@ -5743,7 +5725,6 @@ int CvLuaUnit::lIsNearSapper(lua_State* L)
 	return 1;
 }
 
-#if defined(MOD_BALANCE_CORE)
 int CvLuaUnit::lIsHalfNearSapper(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
@@ -5805,7 +5786,6 @@ int CvLuaUnit::lGetNearbyUnitClassModifierFromUnitClass(lua_State* L)
 	lua_pushinteger(L, bResult);
 	return 1;
 }
-#endif
 //------------------------------------------------------------------------------
 //bool GetNearbyImprovementModifier();
 int CvLuaUnit::lGetNearbyImprovementModifier(lua_State* L)
@@ -6492,7 +6472,6 @@ int CvLuaUnit::lSetDeployFromOperationTurn(lua_State* L)
 	pkUnit->SetDeployFromOperationTurn(iTurn);
 	return 0;
 }
-#if defined(MOD_BALANCE_CORE)
 //------------------------------------------------------------------------------
 //bool IsHigherPopThan(CvUnit *pOtherUnit);
 int CvLuaUnit::lIsHigherPopThan(lua_State* L)
@@ -6549,7 +6528,19 @@ int CvLuaUnit::lGetAllianceCSStrength(lua_State* L)
 
 	return 1;
 }
-#endif
+//int GetCombatModFromUnitLevel();
+int CvLuaUnit::lGetCombatModFromUnitLevel(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	int iStrengthMod = 0;
+	if (pkUnit->GetCombatModPerLevel() > 0)
+	{
+		iStrengthMod += pkUnit->GetCombatModPerLevel() * (pkUnit->getLevel() - 1);
+	}
+	lua_pushinteger(L, iStrengthMod);
+	
+	return 1;
+}
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 //int GetMonopolyAttackBonus();
 int CvLuaUnit::lGetMonopolyAttackBonus(lua_State* L)
