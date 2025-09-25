@@ -16,6 +16,7 @@
 #include "CvCitySpecializationAI.h"
 #include "cvStopWatch.h"
 #include "CvSpanSerialization.h"
+#include "CvConnectionService.h"
 
 // must be included after all other headers
 #include "LintFree.h"
@@ -2394,6 +2395,11 @@ void CvMilitaryAI::UpdateOperations()
 				//finally offense
 				DoNuke(eLoopPlayer);
 				DoCityAttacks(eLoopPlayer);
+			}
+			
+			if (MOD_IPC_CHANNEL) {
+				// Process messages from the Connection Service
+				CvConnectionService::GetInstance().ProcessMessages();
 			}
 		}
 	}

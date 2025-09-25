@@ -10192,11 +10192,6 @@ void CvPlayer::doTurnPostDiplomacy()
 				GetTradeAI()->DoTurn();
 				GetCitySpecializationAI()->DoTurn();
 				GetLeagueAI()->DoTurn();
-				
-				if (MOD_IPC_CHANNEL) {
-					// Process messages from the Connection Service
-					CvConnectionService::GetInstance().ProcessMessages();
-				}
 			}
 		}
 		else
@@ -10207,6 +10202,11 @@ void CvPlayer::doTurnPostDiplomacy()
 		if(isMinorCiv())
 		{
 			GetMinorCivAI()->DoTurn();
+		}
+
+		if (MOD_IPC_CHANNEL) {
+			// Process messages from the Connection Service
+			CvConnectionService::GetInstance().ProcessMessages();
 		}
 	}
 
@@ -10392,6 +10392,11 @@ void CvPlayer::doTurnPostDiplomacy()
 			// Force an ideology update for human vassals, if applicable
 			GetPlayerPolicies()->DoPolicyAI();
 		}
+	}
+	
+	if (MOD_IPC_CHANNEL) {
+		// Process messages from the Connection Service
+		CvConnectionService::GetInstance().ProcessMessages();
 	}
 
 	// Science
