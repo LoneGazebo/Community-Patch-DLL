@@ -6,9 +6,9 @@ permissions:
 
 on:
   push:
-    branches: [ master ]
+    branches: [ vox-deorum ]
   pull_request:
-    branches: [ master ]
+    branches: [ vox-deorum ]
   workflow_dispatch:
 
 concurrency:

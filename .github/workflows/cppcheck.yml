@@ -1,7 +1,7 @@
 name: cppcheck
 on:
   push:
-    branches: [ master ]
+    branches: [ vox-deorum ]
   workflow_dispatch:
 
 env:
