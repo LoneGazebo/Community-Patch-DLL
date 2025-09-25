@@ -1557,62 +1557,61 @@ void CvConnectionService::ForwardGameEvent(const char* eventName, ICvEngineScrip
 	{
 		return;
 	}
+
+	// Define blacklisted high-frequency/useless events (for our context)
+	static const char* eventBlacklist[] = {
+		"GameCoreUpdateBegin",
+		"GameCoreUpdateEnd",
+		"GameCoreTestVictory",
+		"PlayerPreAIUnitUpdate",
+		"BattleStarted",
+		"BattleJoined",
+		"BattleFinished",
+		"GameCoreTestVictory",
+		"PlayerEndTurnInitiated",
+		"PlayerEndTurnCompleted",
+		"UnitPrekill",
+		"GatherPerTurnReplayStats",
+		"TestEvent",
+		"TerraformingPlot",
+		"GameSave",
+		"CityPrepared",
+		"UnitGetSpecialExploreTarget",
+		"PlayerCityFounded",
+		"TeamSetHasTech",
+		"CombatEnded",
+		"BarbariansSpawnedUnit",
+		NULL  // Null terminator
+	};
 	
-	try
+	// Check if this event is blacklisted
+	for (int i = 0; eventBlacklist[i] != NULL; i++)
 	{
-		
-		// Define blacklisted high-frequency/useless events (for our context)
-		static const char* eventBlacklist[] = {
-			"GameCoreUpdateBegin",
-			"GameCoreUpdateEnd",
-			"GameCoreTestVictory",
-			"PlayerPreAIUnitUpdate",
-			"BattleStarted",
-			"BattleJoined",
-			"BattleFinished",
-			"GameCoreTestVictory",
-			"PlayerEndTurnInitiated",
-			"PlayerEndTurnCompleted",
- 			"UnitPrekill",
-			"GatherPerTurnReplayStats",
-			"TestEvent",
-			"TerraformingPlot",
-			"GameSave",
-			"CityPrepared",
-			"UnitGetSpecialExploreTarget",
-			"PlayerCityFounded",
-			"TeamSetHasTech",
-			"CombatEnded",
-			"BarbariansSpawnedUnit",
-			NULL  // Null terminator
-		};
-		
-		// Check if this event is blacklisted
-		for (int i = 0; eventBlacklist[i] != NULL; i++)
+		if (strcmp(eventName, eventBlacklist[i]) == 0)
 		{
-			if (strcmp(eventName, eventBlacklist[i]) == 0)
-			{
-				return;  // Skip blacklisted events
-			}
+			// Process messages from the Connection Service
+			ProcessMessages();
+
+			// Skip blacklisted events
+			return;
 		}
-		
-		// Special handling for TileRevealed event - skip if from non-major civ
-		if (strcmp(eventName, "TileRevealed") == 0 && args && args->Count() >= 6)
+	}
+	
+	// Special handling for TileRevealed event - skip if from non-major civ
+	if (strcmp(eventName, "TileRevealed") == 0 && args && args->Count() >= 6)
+	{
+		// TileRevealed parameters: (iPlotX, iPlotY, iTeam, iFromTeam, bFirst, iUnitOwner, iUnit)
+		// The 6th parameter (index 5) is the unit owner (player ID)
+		int iUnitOwner = -1;
+		if (args->GetInt(5, iUnitOwner) && iUnitOwner >= MAX_MAJOR_CIVS)
 		{
-			// TileRevealed parameters: (iPlotX, iPlotY, iTeam, iFromTeam, bFirst, iUnitOwner, iUnit)
-			// The 6th parameter (index 5) is the unit owner (player ID)
-			int iUnitOwner = -1;
-			if (args->GetInt(5, iUnitOwner) && iUnitOwner >= 0 && iUnitOwner < MAX_CIV_PLAYERS)
-			{
-				CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iUnitOwner);
-				if (!kPlayer.isMajorCiv())
-				{
-					// Skip TileRevealed events from non-major civs
-					return;
-				}
-			}
+			// Skip TileRevealed events from non-major civs
+			return;
 		}
-		
+	}
+
+	try
+	{	
 		// Generate event ID based on turn and sequence
 		unsigned long long eventId = GenerateEventId();
 		
@@ -1695,11 +1694,11 @@ void CvConnectionService::ForwardGameEvent(const char* eventName, ICvEngineScrip
 				}
 			}
 		}
-		
+
 		std::stringstream ss;
-		ss << "ForwardGameEvent - Forwarding event '" << eventName << "'";
-		Log(LOG_INFO, ss.str().c_str());
-		
+		ss << "ForwardGameEvent - Forwarding event '" << eventName << "' with arguments " << argCount;
+		Log(LOG_DEBUG, ss.str().c_str());
+
 		// Send the message asynchronously via the queue
 		if (SendMessage(message) >= 5) {
 	 		Sleep(20); // Wait 20ms to throttle the game thread
