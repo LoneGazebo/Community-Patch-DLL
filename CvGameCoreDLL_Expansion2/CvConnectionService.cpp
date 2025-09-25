@@ -1558,9 +1558,6 @@ void CvConnectionService::ForwardGameEvent(const char* eventName, ICvEngineScrip
 		return;
 	}
 	
-	// Process messages from the Connection Service
-	ProcessMessages();
-
 	try
 	{
 		
@@ -1698,6 +1695,10 @@ void CvConnectionService::ForwardGameEvent(const char* eventName, ICvEngineScrip
 				}
 			}
 		}
+		
+		std::stringstream ss;
+		ss << "ForwardGameEvent - Forwarding event '" << eventName << "'";
+		Log(LOG_INFO, ss.str().c_str());
 		
 		// Send the message asynchronously via the queue
 		if (SendMessage(message) >= 5) {
