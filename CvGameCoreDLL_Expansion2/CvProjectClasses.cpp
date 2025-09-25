@@ -224,8 +224,8 @@ int CvProjectEntry::GetVictoryDelayPercent() const
 /// Find value of flavors associated with this building
 int CvProjectEntry::GetFlavorValue(int i) const
 {
-	ASSERT_DEBUG(i < GC.getNumFlavorTypes(), "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumFlavorTypes(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 
 	if(i > -1 && i < GC.getNumFlavorTypes() && m_piFlavorValue)
 	{
@@ -371,8 +371,8 @@ void CvProjectEntry::SetCreateSound(const char* szVal)
 /// Resources consumed to construct
 int CvProjectEntry::GetResourceQuantityRequirement(int i) const
 {
-	ASSERT_DEBUG(i < GC.getNumResourceInfos(), "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumResourceInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 
 	if(i > -1 && i < GC.getNumResourceInfos() && m_piResourceQuantityRequirements)
 	{
@@ -385,8 +385,8 @@ int CvProjectEntry::GetResourceQuantityRequirement(int i) const
 /// Maximum number of these needed for victory condition
 int CvProjectEntry::GetVictoryThreshold(int i) const
 {
-	ASSERT_DEBUG(i < GC.getNumVictoryInfos(), "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumVictoryInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 
 	if(i > -1 && i < GC.getNumVictoryInfos() && m_piVictoryThreshold)
 	{
@@ -399,8 +399,8 @@ int CvProjectEntry::GetVictoryThreshold(int i) const
 /// Minimum number of these needed for victory condition
 int CvProjectEntry::GetVictoryMinThreshold(int i) const
 {
-	ASSERT_DEBUG(i < GC.getNumVictoryInfos(), "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumVictoryInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 
 	if(i > -1 && i < GC.getNumVictoryInfos())
 	{
@@ -418,8 +418,8 @@ int CvProjectEntry::GetVictoryMinThreshold(int i) const
 /// Other projects required before this one can be built
 int CvProjectEntry::GetProjectsNeeded(int i) const
 {
-	ASSERT_DEBUG(i < GC.getNumProjectInfos(), "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumProjectInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 
 	if(i > -1 && i < GC.getNumProjectInfos() && m_piProjectsNeeded)
 	{
@@ -432,8 +432,8 @@ int CvProjectEntry::GetProjectsNeeded(int i) const
 /// Unit combat production modifiers global
 int CvProjectEntry::GetUnitCombatProductionModifiersGlobal(int i) const
 {
-	ASSERT_DEBUG(i < GC.getNumUnitCombatClassInfos(), "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumUnitCombatClassInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 
 	if(i > -1 && i < GC.getNumUnitCombatClassInfos() && m_piUnitCombatProductionModifiersGlobal)
 	{
@@ -446,8 +446,8 @@ int CvProjectEntry::GetUnitCombatProductionModifiersGlobal(int i) const
 /// Unit combat production modifiers global
 int CvProjectEntry::GetYieldFromConquestAllCities(int i) const
 {
-	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 
 	if(i > -1 && i < NUM_YIELD_TYPES && m_piYieldFromConquestAllCities)
 	{

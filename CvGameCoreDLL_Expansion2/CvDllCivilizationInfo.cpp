@@ -13,7 +13,7 @@ CvDllCivilizationInfo::CvDllCivilizationInfo(CvCivilizationInfo* pCivilizationIn
 	: m_pCivilizationInfo(pCivilizationInfo)
 	, m_uiRefCount(1)
 {
-	ASSERT_DEBUG(pCivilizationInfo != NULL, "SHOULD NOT HAPPEN");
+	ASSERT(pCivilizationInfo != NULL, "SHOULD NOT HAPPEN");
 }
 //------------------------------------------------------------------------------
 CvDllCivilizationInfo::~CvDllCivilizationInfo()

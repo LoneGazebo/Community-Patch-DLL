@@ -972,7 +972,7 @@ void CvNotifications::Activate(Notification& notification)
 	case NOTIFICATION_TECH_STOLEN_SPY_IDENTIFIED:
 	case NOTIFICATION_SPY_KILLED_A_SPY:
 	{
-		ASSERT_DEBUG(notification.m_iGameDataIndex >= -1, "notification.m_iGameDataIndex is out of bounds");
+		PRECONDITION(notification.m_iGameDataIndex >= -1, "notification.m_iGameDataIndex is out of bounds");
 		if(notification.m_iGameDataIndex >= 0 && notification.m_iExtraGameData == -1)
 		{
 			PlayerTypes eTargetPlayer = (PlayerTypes)notification.m_iGameDataIndex;
@@ -992,7 +992,7 @@ void CvNotifications::Activate(Notification& notification)
 	case NOTIFICATION_INTRIGUE_SNEAK_ATTACK_ARMY_AGAINST_KNOWN_CITY_UNKNOWN:
 	case NOTIFICATION_INTRIGUE_SNEAK_ATTACK_AMPHIB_AGAINST_KNOWN_CITY_UNKNOWN:
 	case NOTIFICATION_INTRIGUE_SNEAK_ATTACK_AMPHIB_AGAINST_KNOWN_CITY_KNOWN:
-		ASSERT_DEBUG(notification.m_iGameDataIndex >= 0, "notification.m_iGameDataIndex is out of bounds");
+		PRECONDITION(notification.m_iGameDataIndex >= 0, "notification.m_iGameDataIndex is out of bounds");
 		if(notification.m_iGameDataIndex >= 0)
 		{
 			PlayerTypes ePlayerToContact = (PlayerTypes)notification.m_iGameDataIndex;
@@ -1007,7 +1007,7 @@ void CvNotifications::Activate(Notification& notification)
 	case NOTIFICATION_LEAGUE_CALL_FOR_VOTES:
 	case NOTIFICATION_LEAGUE_VOTING_DONE:
 	case NOTIFICATION_LEAGUE_VOTING_SOON:
-		ASSERT_DEBUG(notification.m_iGameDataIndex >= 0, "notification.m_iGameDataIndex is out of bounds");
+		PRECONDITION(notification.m_iGameDataIndex >= 0, "notification.m_iGameDataIndex is out of bounds");
 		if (notification.m_iGameDataIndex >= 0)
 		{
 			LeagueTypes eLeague = (LeagueTypes) notification.m_iGameDataIndex;
@@ -1022,7 +1022,7 @@ void CvNotifications::Activate(Notification& notification)
 	case NOTIFICATION_CULTURE_VICTORY_WITHIN_ONE:
 	case NOTIFICATION_CULTURE_VICTORY_WITHIN_ONE_ACTIVE_PLAYER:
 	case NOTIFICATION_CULTURE_VICTORY_NO_LONGER_INFLUENTIAL:
-		ASSERT_DEBUG(notification.m_iGameDataIndex >= 0, "notification.m_iGameDataIndex is out of bounds");
+		PRECONDITION(notification.m_iGameDataIndex >= 0, "notification.m_iGameDataIndex is out of bounds");
 		if (notification.m_iGameDataIndex >= 0)
 		{
 			CvPopupInfo kPopup(BUTTONPOPUP_CULTURE_OVERVIEW);
@@ -1032,7 +1032,7 @@ void CvNotifications::Activate(Notification& notification)
 		break;
 
 	case NOTIFICATION_CHOOSE_ARCHAEOLOGY:
-		ASSERT_DEBUG(notification.m_iGameDataIndex >= 0, "notification.m_iGameDataIndex is out of bounds");
+		PRECONDITION(notification.m_iGameDataIndex >= 0, "notification.m_iGameDataIndex is out of bounds");
 		if (notification.m_iGameDataIndex >= 0)
 		{
 			CvPopupInfo kPopup(BUTTONPOPUP_CHOOSE_ARCHAEOLOGY, m_ePlayer);
@@ -1041,7 +1041,7 @@ void CvNotifications::Activate(Notification& notification)
 		break;
 
 	case NOTIFICATION_CHOOSE_IDEOLOGY:
-		ASSERT_DEBUG(notification.m_iGameDataIndex >= 0, "notification.m_iGameDataIndex is out of bounds");
+		PRECONDITION(notification.m_iGameDataIndex >= 0, "notification.m_iGameDataIndex is out of bounds");
 		if (notification.m_iGameDataIndex >= 0)
 		{
 			CvPopupInfo kPopup(BUTTONPOPUP_CHOOSE_IDEOLOGY, m_ePlayer);
@@ -1050,7 +1050,7 @@ void CvNotifications::Activate(Notification& notification)
 		break;
 
 	case NOTIFICATION_LEAGUE_PROJECT_COMPLETE:
-		ASSERT_DEBUG(notification.m_iGameDataIndex >= 0, "notification.m_iGameDataIndex is out of bounds");
+		PRECONDITION(notification.m_iGameDataIndex >= 0, "notification.m_iGameDataIndex is out of bounds");
 		if (notification.m_iGameDataIndex >= 0)
 		{
 			LeagueTypes eLeague = (LeagueTypes) notification.m_iGameDataIndex;
@@ -1060,7 +1060,7 @@ void CvNotifications::Activate(Notification& notification)
 		}
 		break;
 	case 419811917:
-		ASSERT_DEBUG(notification.m_iGameDataIndex >= 0, "notification.m_iGameDataIndex is out of bounds");
+		PRECONDITION(notification.m_iGameDataIndex >= 0, "notification.m_iGameDataIndex is out of bounds");
 		if (notification.m_iGameDataIndex >= 0)
 		{
 			EventTypes eEvent = (EventTypes)notification.m_iGameDataIndex;
@@ -1069,7 +1069,7 @@ void CvNotifications::Activate(Notification& notification)
 		}
 		break;
 	case 826076831:
-		ASSERT_DEBUG(notification.m_iGameDataIndex >= 0, "notification.m_iGameDataIndex is out of bounds");
+		PRECONDITION(notification.m_iGameDataIndex >= 0, "notification.m_iGameDataIndex is out of bounds");
 		if (notification.m_iGameDataIndex >= 0)
 		{
 			CityEventTypes eEvent = (CityEventTypes)notification.m_iGameDataIndex;
@@ -1079,7 +1079,7 @@ void CvNotifications::Activate(Notification& notification)
 		}
 		break;
 	case -1608954742:
-		ASSERT_DEBUG(notification.m_iGameDataIndex >= 0, "notification.m_iGameDataIndex is out of bounds");
+		PRECONDITION(notification.m_iGameDataIndex >= 0, "notification.m_iGameDataIndex is out of bounds");
 		if (notification.m_iGameDataIndex >= 0)
 		{
 			CityEventTypes eEvent = (CityEventTypes)notification.m_iGameDataIndex;

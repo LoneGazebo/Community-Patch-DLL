@@ -22,7 +22,7 @@ class CvString : public std::string
 public:
 	CvString() {}
 	CvString(int iLen) { reserve(iLen); }
-	CvString(const char* s) : std::string(s ? s : "") {ASSERT_DEBUG(s != NULL, "Passing NULL to std::string; possible heap corruption!");}
+	CvString(const char* s) : std::string(s ? s : "") {ASSERT(s != NULL, "Passing NULL to std::string; possible heap corruption!");}
 	CvString(const std::string& s): std::string(s) {}
 
 	~CvString() {}

@@ -86,22 +86,22 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 		bool bSuccess = false;
 		strLoc = Localization::Lookup("TXT_KEY_BUILD_A_CITY_MCFLY_ECONOMIC");
 		bSuccess = SetCounselEntry(uiCounselIndex, ADVISOR_ECONOMIC, strLoc.toUTF8(), 99);
-		ASSERT_DEBUG(bSuccess, "Unable to add counsel to list. Too many strategies running at once");
+		ASSERT(bSuccess, "Unable to add counsel to list. Too many strategies running at once");
 		uiCounselIndex++;
 
 		strLoc = Localization::Lookup("TXT_KEY_BUILD_A_CITY_MCFLY_MILITARY");
 		bSuccess = SetCounselEntry(uiCounselIndex, ADVISOR_MILITARY, strLoc.toUTF8(), 99);
-		ASSERT_DEBUG(bSuccess, "Unable to add counsel to list. Too many strategies running at once");
+		ASSERT(bSuccess, "Unable to add counsel to list. Too many strategies running at once");
 		uiCounselIndex++;
 
 		strLoc = Localization::Lookup("TXT_KEY_BUILD_A_CITY_MCFLY_SCIENCE");
 		bSuccess = SetCounselEntry(uiCounselIndex, ADVISOR_SCIENCE, strLoc.toUTF8(), 99);
-		ASSERT_DEBUG(bSuccess, "Unable to add counsel to list. Too many strategies running at once");
+		ASSERT(bSuccess, "Unable to add counsel to list. Too many strategies running at once");
 		uiCounselIndex++;
 
 		strLoc = Localization::Lookup("TXT_KEY_BUILD_A_CITY_MCFLY_FOREIGN");
 		bSuccess = SetCounselEntry(uiCounselIndex, ADVISOR_FOREIGN, strLoc.toUTF8(), 99);
-		ASSERT_DEBUG(bSuccess, "Unable to add counsel to list. Too many strategies running at once");
+		ASSERT(bSuccess, "Unable to add counsel to list. Too many strategies running at once");
 		uiCounselIndex++;
 
 		std::stable_sort(&m_aCounsel[0], &m_aCounsel[0] + m_aCounsel.size(), CounselSort);
@@ -123,7 +123,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 			{
 				strLoc = Localization::Lookup(pStrategy->GetAdvisorCounselText());
 				bool bSuccess = SetCounselEntry(uiCounselIndex, pStrategy->GetAdvisor(), strLoc.toUTF8(), pStrategy->GetAdvisorCounselImportance());
-				ASSERT_DEBUG(bSuccess, "Unable to add counsel to list. Too many strategies running at once");
+				ASSERT(bSuccess, "Unable to add counsel to list. Too many strategies running at once");
 				if(!bSuccess)
 				{
 					break;
@@ -143,7 +143,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 		if(pMilitaryAI->IsUsingStrategy(eStrategy))
 		{
 			CvMilitaryAIStrategyXMLEntry* pStrategy = pMilitaryAI->GetMilitaryAIStrategies()->GetEntry(iStrategiesLoop);
-			ASSERT_DEBUG(pStrategy != NULL);
+			ASSERT(pStrategy != NULL);
 			if(pStrategy)
 			{
 				// if this strategy has an advisor set, then try to add it to the list
@@ -151,7 +151,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 				{
 					strLoc = Localization::Lookup(pStrategy->GetAdvisorCounselText());
 					bool bSuccess = SetCounselEntry(uiCounselIndex, pStrategy->GetAdvisor(), strLoc.toUTF8(), pStrategy->GetAdvisorCounselImportance());
-					ASSERT_DEBUG(bSuccess, "Unable to add counsel to list. Too many strategies running at once");
+					ASSERT(bSuccess, "Unable to add counsel to list. Too many strategies running at once");
 					if(!bSuccess)
 					{
 						break;
@@ -181,7 +181,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 					strLoc = Localization::Lookup(pStrategy->GetAdvisorCounselText());
 					strLoc << pLoopCity->getNameKey();
 					bool bSuccess = SetCounselEntry(uiCounselIndex, pStrategy->GetAdvisor(), strLoc.toUTF8(), pStrategy->GetAdvisorCounselImportance());
-					ASSERT_DEBUG(bSuccess, "Unable to add counsel to list. Too many strategies running at once");
+					ASSERT(bSuccess, "Unable to add counsel to list. Too many strategies running at once");
 					if(!bSuccess)
 					{
 						break;
@@ -228,7 +228,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 					strLoc << GET_PLAYER(ePlayer).getCivilizationInfo().getAdjectiveKey();
 
 					bool bSuccess = SetCounselEntry(uiCounselIndex, ADVISOR_SCIENCE, strLoc.toUTF8(), 2);
-					ASSERT_DEBUG(bSuccess, "Unable to add counsel to list. Too many strategies running at once");
+					ASSERT(bSuccess, "Unable to add counsel to list. Too many strategies running at once");
 					if(!bSuccess)
 					{
 						break;
@@ -244,7 +244,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 					strLoc << GC.getBuildingInfo(pPlayerTechs->GetCivTechUniqueBuilding(eTech))->GetTextKey();
 					strLoc << GET_PLAYER(ePlayer).getCivilizationInfo().getAdjectiveKey();
 					bool bSuccess = SetCounselEntry(uiCounselIndex, ADVISOR_SCIENCE, strLoc.toUTF8(), 2);
-					ASSERT_DEBUG(bSuccess, "Unable to add counsel to list. Too many strategies running at once");
+					ASSERT(bSuccess, "Unable to add counsel to list. Too many strategies running at once");
 					if(!bSuccess)
 					{
 						break;
@@ -260,7 +260,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 					strLoc << GC.getImprovementInfo(pPlayerTechs->GetCivTechUniqueImprovement(eTech))->GetTextKey();
 					strLoc << GET_PLAYER(ePlayer).getCivilizationInfo().getAdjectiveKey();
 					bool bSuccess = SetCounselEntry(uiCounselIndex, ADVISOR_SCIENCE, strLoc.toUTF8(), 2);
-					ASSERT_DEBUG(bSuccess, "Unable to add counsel to list. Too many strategies running at once");
+					ASSERT(bSuccess, "Unable to add counsel to list. Too many strategies running at once");
 					if(!bSuccess)
 					{
 						break;
@@ -276,7 +276,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 					strLoc << pPlayerTechs->GetTechs()->GetEntry(eTech)->GetTextKey();
 					strLoc << GET_PLAYER(ePlayer).getCivilizationInfo().getAdjectiveKey();
 					bool bSuccess = SetCounselEntry(uiCounselIndex, ADVISOR_SCIENCE, strLoc.toUTF8(), 2);
-					ASSERT_DEBUG(bSuccess, "Unable to add counsel to list. Too many strategies running at once");
+					ASSERT(bSuccess, "Unable to add counsel to list. Too many strategies running at once");
 					if(!bSuccess)
 					{
 						break;
@@ -300,7 +300,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 					strLoc << pPlayerTechs->GetTechs()->GetEntry(eTech)->GetTextKey();
 					strLoc << GC.getResourceInfo(eResource)->GetTextKey();
 					bool bSuccess = SetCounselEntry(uiCounselIndex, ADVISOR_SCIENCE, strLoc.toUTF8(), 60);
-					ASSERT_DEBUG(bSuccess, "Unable to add counsel to list. Too many strategies running at once");
+					ASSERT(bSuccess, "Unable to add counsel to list. Too many strategies running at once");
 					if (!bSuccess)
 					{
 						break;
@@ -368,7 +368,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 				}
 
 				bool bSuccess = SetCounselEntry(uiCounselIndex, ADVISOR_SCIENCE, strLoc.toUTF8(), 15);
-				ASSERT_DEBUG(bSuccess, "Unable to add counsel to list. Too many strategies running at once");
+				ASSERT(bSuccess, "Unable to add counsel to list. Too many strategies running at once");
 				if(!bSuccess)
 				{
 					break;
@@ -443,7 +443,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 
 			bool bSuccess = SetCounselEntry(uiCounselIndex, ADVISOR_MILITARY, strLoc.toUTF8(), 15);
 			DEBUG_VARIABLE(bSuccess);
-			ASSERT_DEBUG(bSuccess, "Unable to add counsel to list. Too many strategies running at once");
+			ASSERT(bSuccess, "Unable to add counsel to list. Too many strategies running at once");
 			uiCounselIndex++;
 		}
 	}
@@ -459,7 +459,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 
 			bool bSuccess = SetCounselEntry(uiCounselIndex, ADVISOR_MILITARY, strLoc.toUTF8(), 15);
 			DEBUG_VARIABLE(bSuccess);
-			ASSERT_DEBUG(bSuccess, "Unable to add counsel to list. Too many strategies running at once");
+			ASSERT(bSuccess, "Unable to add counsel to list. Too many strategies running at once");
 			uiCounselIndex++;
 		}
 	}
@@ -512,7 +512,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 
 		bool bSuccess = SetCounselEntry(uiCounselIndex, ADVISOR_SCIENCE, strLoc.toUTF8(), iRating);
 		DEBUG_VARIABLE(bSuccess);
-		ASSERT_DEBUG(bSuccess, "Unable to add counsel to list. Too many strategies running at once");
+		ASSERT(bSuccess, "Unable to add counsel to list. Too many strategies running at once");
 		uiCounselIndex++;
 	}
 
@@ -974,7 +974,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 		if(eAdvisor != NO_ADVISOR_TYPE)
 		{
 			bool bSuccess = SetCounselEntry(uiCounselIndex, eAdvisor, strLoc.toUTF8(), iMessageRating);
-			ASSERT_DEBUG(bSuccess, "Unable to add counsel to list. Too many strategies running at once");
+			ASSERT(bSuccess, "Unable to add counsel to list. Too many strategies running at once");
 			if(!bSuccess)
 			{
 				break;
@@ -1096,7 +1096,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 		if(eAdvisor != NO_ADVISOR_TYPE)
 		{
 			bool bSuccess = SetCounselEntry(uiCounselIndex, eAdvisor, strLoc.toUTF8(), iMessageRating);
-			ASSERT_DEBUG(bSuccess, "Unable to add counsel to list. Too many strategies running at once");
+			ASSERT(bSuccess, "Unable to add counsel to list. Too many strategies running at once");
 			if(!bSuccess)
 			{
 				break;
@@ -1308,7 +1308,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 		{
 			bool bSuccess = SetCounselEntry(uiCounselIndex, eAdvisor, strLoc.toUTF8(), iMessageRating);
 			DEBUG_VARIABLE(bSuccess);
-			ASSERT_DEBUG(bSuccess, "Unable to add counsel to list. Too many strategies running at once");
+			ASSERT(bSuccess, "Unable to add counsel to list. Too many strategies running at once");
 			uiCounselIndex++;
 		}
 	}
@@ -1380,7 +1380,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 				strLoc << GC.getMinorCivInfo(pMinorCivAI->GetMinorCivType())->GetTextKey();
 
 				bool bSuccess = SetCounselEntry(uiCounselIndex, eAdvisor, strLoc.toUTF8(), iMessageRating);
-				ASSERT_DEBUG(bSuccess, "Unable to add counsel to list. Too many strategies running at once");
+				ASSERT(bSuccess, "Unable to add counsel to list. Too many strategies running at once");
 				if(!bSuccess)
 				{
 					break;
@@ -1449,7 +1449,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 					strLoc << GC.getMinorCivInfo(pMinorCivAI->GetMinorCivType())->GetTextKey();
 					break;
 				default:
-					ASSERT_DEBUG(false, "No entry for this quest type!");
+					ASSERT(false, "No entry for this quest type!");
 					break;
 				}
 			}
@@ -1520,7 +1520,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 					strLoc << GC.getMinorCivInfo(pMinorCivAI->GetMinorCivType())->GetTextKey();
 					break;
 				default:
-					ASSERT_DEBUG(false, "No entry for this quest type!");
+					ASSERT(false, "No entry for this quest type!");
 					break;
 				}
 			}
@@ -1590,7 +1590,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 					strLoc << GC.getMinorCivInfo(pMinorCivAI->GetMinorCivType())->GetTextKey();
 					break;
 				default:
-					ASSERT_DEBUG(false, "No entry for this quest type!");
+					ASSERT(false, "No entry for this quest type!");
 					break;
 				}
 			}
@@ -1614,7 +1614,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 		if(iMessageRating > 0)
 		{
 			bool bSuccess = SetCounselEntry(uiCounselIndex, eAdvisor, strLoc.toUTF8(), iMessageRating);
-			ASSERT_DEBUG(bSuccess, "Unable to add counsel to list. Too many strategies running at once");
+			ASSERT(bSuccess, "Unable to add counsel to list. Too many strategies running at once");
 			if(!bSuccess)
 			{
 				break;
@@ -1706,7 +1706,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 				strLoc << GC.getBuildingInfo(eRecommendedResearchBuilding)->GetTextKey();
 
 				bool bSuccess = SetCounselEntry(uiCounselIndex, ADVISOR_SCIENCE, strLoc.toUTF8(), 20);
-				ASSERT_DEBUG(bSuccess, "Unable to add counsel to list. Too many strategies running at once");
+				ASSERT(bSuccess, "Unable to add counsel to list. Too many strategies running at once");
 				if(!bSuccess)
 				{
 					break;
@@ -1832,7 +1832,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 
 		bool bSuccess = SetCounselEntry(uiCounselIndex, ADVISOR_ECONOMIC, strLoc.toUTF8(), 20);
 		DEBUG_VARIABLE(bSuccess);
-		ASSERT_DEBUG(bSuccess, "Unable to add counsel to list. Too many strategies running at once");
+		ASSERT(bSuccess, "Unable to add counsel to list. Too many strategies running at once");
 		uiCounselIndex++;
 	}
 
@@ -1934,7 +1934,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 		}
 		else
 		{
-			ASSERT_DEBUG(false, "Can't trade a bonus resource");
+			ASSERT(false, "Can't trade a bonus resource");
 		}
 
 		strLoc << GC.getResourceInfo(eTradableResource)->GetTextKey();
@@ -1942,7 +1942,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 
 		bool bSuccess = SetCounselEntry(uiCounselIndex, ADVISOR_FOREIGN, strLoc.toUTF8(), 20);
 		DEBUG_VARIABLE(bSuccess);
-		ASSERT_DEBUG(bSuccess, "Unable to add counsel to list. Too many strategies running at once");
+		ASSERT(bSuccess, "Unable to add counsel to list. Too many strategies running at once");
 		uiCounselIndex++;
 	}
 
@@ -1987,7 +1987,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 
 			bool bSuccess = SetCounselEntry(uiCounselIndex, eAdvisorTypes, strLoc.toUTF8(), 0);
 			DEBUG_VARIABLE(bSuccess);
-			ASSERT_DEBUG(bSuccess, "Unable to add counsel to list. Too many strategies running at once");
+			ASSERT(bSuccess, "Unable to add counsel to list. Too many strategies running at once");
 			uiCounselIndex++;
 		}
 	}

@@ -24,7 +24,7 @@ inline int sqrti(int input)
 
 inline int range(int iNum, int iLow, int iHigh)
 {
-	ASSERT_DEBUG(iHigh >= iLow, "High should be higher than low");
+	ASSERT(iHigh >= iLow, "High should be higher than low");
 
 	if(iNum < iLow)
 	{
@@ -42,7 +42,7 @@ inline int range(int iNum, int iLow, int iHigh)
 
 inline float range(float fNum, float fLow, float fHigh)
 {
-	ASSERT_DEBUG(fHigh >= fLow, "High should be higher than low");
+	ASSERT(fHigh >= fLow, "High should be higher than low");
 
 	if(fNum < fLow)
 	{

@@ -277,8 +277,8 @@ void CvDiplomacyRequests::ActivateNext()
 	if (m_eRequestActiveFromPlayer == NO_PLAYER)
 		return;
 
-	ASSERT_DEBUG(GC.getGame().getActivePlayer() == m_ePlayer);
-	ASSERT_DEBUG(GET_PLAYER(m_ePlayer).isTurnActive());
+	ASSERT(GC.getGame().getActivePlayer() == m_ePlayer);
+	ASSERT(GET_PLAYER(m_ePlayer).isTurnActive());
 
 	RequestList::iterator requestIter;
 	for (requestIter = m_aRequests.begin(); requestIter != m_aRequests.end(); ++requestIter)
@@ -414,7 +414,7 @@ foundRequest:
 //	----------------------------------------------------------------------------
 void CvDiplomacyRequests::ActivateAllFrom(PlayerTypes eFromPlayer)
 {
-	ASSERT_DEBUG(!HasActiveRequest(), "There should not be any active requests, if the player was able to start Diplomacy with AI ...");
+	ASSERT(!HasActiveRequest(), "There should not be any active requests, if the player was able to start Diplomacy with AI ...");
 	m_eRequestActiveFromPlayer = eFromPlayer;
 	Update();
 }
@@ -546,15 +546,15 @@ void CvDiplomacyRequests::SendDealRequest(PlayerTypes eFromPlayer, PlayerTypes e
 
 	if(GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
 	{
-		ASSERT_DEBUG(eFromPlayer != NO_PLAYER);
-		ASSERT_DEBUG(!GET_PLAYER(eFromPlayer).isHuman(), "CvDiplomacyRequests::SendDealRequest must not be used by a human player!");
+		PRECONDITION(eFromPlayer != NO_PLAYER);
+		ASSERT(!GET_PLAYER(eFromPlayer).isHuman(), "CvDiplomacyRequests::SendDealRequest must not be used by a human player!");
 
 		CvPlayer& kTo = GET_PLAYER(eToPlayer);
 		CvDiplomacyRequests* pDiploRequests = kTo.GetDiplomacyRequests();
 		if (pDiploRequests && pkDeal)
 		{
-			ASSERT_DEBUG(pkDeal->GetFromPlayer() == eFromPlayer);
-			ASSERT_DEBUG(pkDeal->GetToPlayer() == eToPlayer);
+			ASSERT(pkDeal->GetFromPlayer() == eFromPlayer);
+			ASSERT(pkDeal->GetToPlayer() == eToPlayer);
 			GC.getGame().GetGameDeals().AddProposedDeal(*pkDeal); // propose the deal (needed for activation...)
 			pDiploRequests->Add(eFromPlayer, eDiploType, pszMessage, eAnimationType, -1);
 		}
@@ -574,8 +574,8 @@ void CvDiplomacyRequests::SendDealRequest(PlayerTypes eFromPlayer, PlayerTypes e
 			CvDiplomacyRequests* pDiploRequests = kTo.GetDiplomacyRequests();
 			if (pDiploRequests && pkDeal && pkDeal->m_bConsideringForRenewal)
 			{
-				ASSERT_DEBUG(pkDeal->GetFromPlayer() == eFromPlayer);
-				ASSERT_DEBUG(pkDeal->GetToPlayer() == eToPlayer);
+				ASSERT(pkDeal->GetFromPlayer() == eFromPlayer);
+				ASSERT(pkDeal->GetToPlayer() == eToPlayer);
 				CvGameDeals::PrepareRenewDeal(pkDeal);
 				pDiploRequests->Add(eFromPlayer, eDiploType, pszMessage, eAnimationType, -1);
 			}
@@ -593,7 +593,7 @@ void CvDiplomacyRequests::DoAIDiplomacy(PlayerTypes eTargetPlayer)
 	{
 		ICvUserInterface2* pkIFace = GC.GetEngineUserInterface();
 		// WARNING: Processing depends on the state of the interface!
-		ASSERT_DEBUG(!CvPreGame::isNetworkMultiplayerGame());
+		ASSERT(!CvPreGame::isNetworkMultiplayerGame());
 
 		// Don't process while a modal dialog is up or another diplo or popup is up.
 		if(pkIFace->IsModalStackEmpty() && !pkIFace->isDiploOrPopupWaiting() && !pkIFace->isCityScreenUp())

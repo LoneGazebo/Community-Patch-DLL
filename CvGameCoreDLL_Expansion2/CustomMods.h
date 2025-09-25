@@ -1204,11 +1204,11 @@ void CheckSentinel(uint);
 
 #define MOD_SERIALIZE_INIT_WRITE_NO_SENTINEL(stream) uint uiDllSaveVersion = MOD_DLL_VERSION_NUMBER; (stream) << uiDllSaveVersion;
 #define MOD_SERIALIZE_INIT_WRITE(stream) uint uiDllSaveVersion = MOD_DLL_VERSION_NUMBER; (stream) << uiDllSaveVersion; (stream) << 0xDEADBEEF;
-#define MOD_SERIALIZE_WRITE(stream, member) ASSERT_DEBUG(uiDllSaveVersion == MOD_DLL_VERSION_NUMBER); (stream) << member
-#define MOD_SERIALIZE_WRITE_AUTO(stream, member) ASSERT_DEBUG(uiDllSaveVersion == MOD_DLL_VERSION_NUMBER); (stream) << member
-#define MOD_SERIALIZE_WRITE_ARRAY(stream, member, type, size) ASSERT_DEBUG(uiDllSaveVersion == MOD_DLL_VERSION_NUMBER); (stream) << ArrayWrapper<type>(size, member)
-#define MOD_SERIALIZE_WRITE_CONSTARRAY(stream, member, type, size) ASSERT_DEBUG(uiDllSaveVersion == MOD_DLL_VERSION_NUMBER); (stream) << ArrayWrapperConst<type>(size, member)
-#define MOD_SERIALIZE_WRITE_HASH(stream, member, type, size, obj) ASSERT_DEBUG(uiDllSaveVersion == MOD_DLL_VERSION_NUMBER); CvInfosSerializationHelper::WriteHashedDataArray<obj, type>(stream, member, size)
+#define MOD_SERIALIZE_WRITE(stream, member) ASSERT(uiDllSaveVersion == MOD_DLL_VERSION_NUMBER); (stream) << member
+#define MOD_SERIALIZE_WRITE_AUTO(stream, member) ASSERT(uiDllSaveVersion == MOD_DLL_VERSION_NUMBER); (stream) << member
+#define MOD_SERIALIZE_WRITE_ARRAY(stream, member, type, size) ASSERT(uiDllSaveVersion == MOD_DLL_VERSION_NUMBER); (stream) << ArrayWrapper<type>(size, member)
+#define MOD_SERIALIZE_WRITE_CONSTARRAY(stream, member, type, size) ASSERT(uiDllSaveVersion == MOD_DLL_VERSION_NUMBER); (stream) << ArrayWrapperConst<type>(size, member)
+#define MOD_SERIALIZE_WRITE_HASH(stream, member, type, size, obj) ASSERT(uiDllSaveVersion == MOD_DLL_VERSION_NUMBER); CvInfosSerializationHelper::WriteHashedDataArray<obj, type>(stream, member, size)
 #else
 #define MOD_SERIALIZE_INIT_READ(stream) __noop
 #define MOD_SERIALIZE_READ(version, stream, member, def) __noop
