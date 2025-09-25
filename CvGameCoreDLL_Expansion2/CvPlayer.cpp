@@ -526,7 +526,6 @@ CvPlayer::CvPlayer() :
 	, m_bIsLeagueScholar()
 	, m_bIsLeagueArt()
 	, m_iScienceRateFromLeague()
-#if defined(MOD_GLOBAL_TRULY_FREE_GP)
 	, m_iProductionBonusTurnsConquest()
 	, m_iCultureBonusTurnsConquest()
 	, m_iFreeGreatPeopleCreated()
@@ -541,7 +540,6 @@ CvPlayer::CvPlayer() :
 	, m_iFreeGreatArtistsCreated()
 	, m_iFreeGreatMusiciansCreated()
 	, m_iFreeGreatDiplomatsCreated()
-#endif
 #if defined(MOD_GLOBAL_SEPARATE_GP_COUNTERS)
 	, m_iGPExtra1Created()
 	, m_iGPExtra2Created()
@@ -1336,7 +1334,6 @@ void CvPlayer::uninit()
 	m_iNumUnitGoldenAges = 0;
 	m_iStrikeTurns = 0;
 	m_iGoldenAgeModifier = 0;
-#if defined(MOD_GLOBAL_TRULY_FREE_GP)
 	m_iProductionBonusTurnsConquest = 0;
 	m_iCultureBonusTurnsConquest = 0;
 	m_iFreeGreatPeopleCreated = 0;
@@ -1351,7 +1348,6 @@ void CvPlayer::uninit()
 	m_iFreeGreatArtistsCreated = 0;
 	m_iFreeGreatMusiciansCreated = 0;
 	m_iFreeGreatDiplomatsCreated = 0;
-#endif
 	m_iGreatPeopleCreated = 0;
 	m_iGreatGeneralsCreated = 0;
 	m_iGreatAdmiralsCreated = 0;
@@ -9168,11 +9164,7 @@ CvUnit* CvPlayer::initNamedUnit(UnitTypes eUnit, const char* strKey, int iX, int
 			pUnit->setName(strName);
 			pUnit->SetGreatWork(pkUnitInfo->GetGreatWorks(iI));
 			GC.getGame().addGreatPersonBornName(strName);
-			if (MOD_GLOBAL_NO_LOST_GREATWORKS)
-			{
-				// setName strips undesirable characters, but we stored those into the list of GPs born, so we need to keep the original name
-				pUnit->setGreatName(strName);
-			}
+			pUnit->setGreatName(strName); // setName strips undesirable characters, but we stored those into the list of GPs born, so we need to keep the original name
 			break;
 		}
 	}

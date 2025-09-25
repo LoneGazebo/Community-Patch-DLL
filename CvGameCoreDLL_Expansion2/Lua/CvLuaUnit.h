@@ -159,9 +159,7 @@ protected:
 	static int lUpgradePrice(lua_State* L);
 	static int lCanUpgradeRightNow(lua_State* L);
 	LUAAPIEXTN(CanUpgradeTo, bool, iUpgradeUnitType, bTestVisible);
-#if defined(MOD_GLOBAL_CS_UPGRADES)
 	LUAAPIEXTN(CanUpgradeInTerritory, bool, bTestVisible);
-#endif
 	static int lGetNumResourceNeededToUpgrade(lua_State* L);
 	static int lGetNumResourceTotalNeededToUpgrade(lua_State* L);
 

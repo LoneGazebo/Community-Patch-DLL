@@ -513,7 +513,7 @@ SET Text = 'Sumpah Palapa'
 WHERE Tag = 'TXT_KEY_TRAIT_SPICE_SHORT';
 
 UPDATE Language_en_US
-SET Text = 'When you gain a City, one of 3 unique Luxuries ([ICON_RES_CLOVES]/[ICON_RES_PEPPER]/[ICON_RES_NUTMEG]) will appear nearby. +5% to Yield and [ICON_GOLDEN_AGE] Golden Age duration modifiers from [ICON_MONOPOLY] Global Monopolies; +2 to Yields and [ICON_HAPPINESS_1] Happiness from [ICON_MONOPOLY] Global Monopolies.'
+SET Text = 'When you gain a City, one of 3 unique Luxuries ([ICON_RES_CLOVES]/[ICON_RES_PEPPER]/[ICON_RES_NUTMEG]) will appear nearby. +5% to unique Yield and [ICON_GOLDEN_AGE] Golden Age duration modifiers from [ICON_MONOPOLY] Global Monopolies; +2 to Yields and [ICON_HAPPINESS_1] Happiness from [ICON_MONOPOLY] Global Monopolies.'
 WHERE Tag = 'TXT_KEY_TRAIT_SPICE';
 
 UPDATE Language_en_US

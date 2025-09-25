@@ -372,9 +372,7 @@ private:
 	bool SetStateReligion(ReligionTypes eReligion, bool bOwnsReligion);
 	CvPlayer* m_pPlayer;
 
-#if defined(MOD_GLOBAL_TRULY_FREE_GP)
 	int m_iNumFreeProphetsSpawned;
-#endif
 	int m_iNumProphetsSpawned;
 	bool m_bFoundingReligion; //seems to be used to suppress further prophet use before the religion has been customized
 	int m_iFaithAtLastNotifyTimes100;

@@ -84,19 +84,15 @@ WHERE Name = 'TRADE_ROUTE_SCALING';
 
 UPDATE CustomModOptions
 SET Value = 1
-WHERE Name = 'GLOBAL_CS_UPGRADES';
-
-UPDATE CustomModOptions
-SET Value = 1
 WHERE Name = 'GLOBAL_CS_GIFTS_LOCAL_XP';
 
 UPDATE CustomModOptions
 SET Value = 1
-WHERE Name = 'GLOBAL_TRULY_FREE_GP';
+WHERE Name = 'GLOBAL_CITY_FOREST_BONUS';
 
 UPDATE CustomModOptions
 SET Value = 1
-WHERE Name = 'GLOBAL_CITY_FOREST_BONUS';
+WHERE Name = 'GLOBAL_CITY_JUNGLE_BONUS';
 
 UPDATE CustomModOptions
 SET Value = 1

@@ -672,12 +672,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 			setName(strName);
 			SetGreatWork(getUnitInfo().GetGreatWorks(vfPossibleUnits[uRoll]));
 			GC.getGame().addGreatPersonBornName(strName);
-
-			if (MOD_GLOBAL_NO_LOST_GREATWORKS)
-			{
-				// setName strips undesirable characters, but we stored those into the list of GPs born, so we need to keep the original name
-				setGreatName(strName);
-			}
+			setGreatName(strName); // setName strips undesirable characters, but we stored those into the list of GPs born, so we need to keep the original name
 		}
 		//None? Let's look to the next era.
 		else
@@ -701,12 +696,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 				setName(strName);
 				SetGreatWork(getUnitInfo().GetGreatWorks(vfPossibleUnits[uRoll]));
 				GC.getGame().addGreatPersonBornName(strName);
-
-				if (MOD_GLOBAL_NO_LOST_GREATWORKS)
-				{
-					// setName strips undesirable characters, but we stored those into the list of GPs born, so we need to keep the original name
-					setGreatName(strName);
-				}
+				setGreatName(strName); // setName strips undesirable characters, but we stored those into the list of GPs born, so we need to keep the original name
 			}
 		}
 		//If still no valid GPs, do the old random method.
@@ -738,13 +728,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 					setName(strName);
 					SetGreatWork(getUnitInfo().GetGreatWorks(iIndex));
 					GC.getGame().addGreatPersonBornName(strName);
-
-					if (MOD_GLOBAL_NO_LOST_GREATWORKS)
-					{
-						// setName strips undesirable characters, but we stored those into the list of GPs born, so we need to keep the original name
-						setGreatName(strName);
-					}
-
+					setGreatName(strName); // setName strips undesirable characters, but we stored those into the list of GPs born, so we need to keep the original name
 					break;
 				}
 			}
@@ -1709,9 +1693,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_strUnitName = "";
 #endif
 	m_strName = "";
-#if defined(MOD_GLOBAL_NO_LOST_GREATWORKS)
 	m_strGreatName = "";
-#endif
 	m_eGreatWork = NO_GREAT_WORK;
 	m_iTourismBlastStrength = 0;
 	m_iTourismBlastLength = 0;
@@ -6168,48 +6150,31 @@ int CvUnit::GetScrapGold() const
 bool CvUnit::canGift(bool bTestVisible, bool bTestTransport) const
 {
 	VALIDATE_OBJECT();
+
+	// No zombies or damaged units
+	if (isDelayedDeath() || getDamage() > 0)
+		return false;
+
+	// Must be a valid tile to gift from
 	const CvPlot* pPlot = plot();
+	if (!pPlot->isOwned())
+		return false;
+
+	PlayerTypes ePlotOwner = pPlot->getOwner();
+	if (ePlotOwner == getOwner())
+		return false;
+
 	const CvUnit* pTransport = getTransportUnit();
-
-	if(isDelayedDeath())
+	if (!isNativeDomain(pPlot) && pTransport == NULL)
 		return false;
 
-	if(!(pPlot->isOwned()))
-	{
-		return false;
-	}
-
-	if(pPlot->getOwner() == getOwner())
-	{
-		return false;
-	}
-
-	if(pPlot->isVisibleEnemyUnit(this))
-	{
-		return false;
-	}
-
-	if(pPlot->isVisibleEnemyUnit(pPlot->getOwner()))
-	{
-		return false;
-	}
-
-	if(!isNativeDomain(pPlot) && NULL == pTransport)
-	{
-		return false;
-	}
-
-	if (getDamage() > 0)
+	if (bTestTransport && pTransport && pTransport->getTeam() != pPlot->getTeam())
 		return false;
 
-	if (GetDanger() > 0)
-		return false;
-
-	// Minors
-	if (GET_PLAYER(pPlot->getOwner()).isMinorCiv())
+	if (GET_PLAYER(ePlotOwner).isMinorCiv())
 	{
 		// No settlers
-		if(isFound() || IsFoundAbroad())
+		if (isFound() || IsFoundAbroad())
 			return false;
 
 		// No scouts
@@ -6220,59 +6185,45 @@ bool CvUnit::canGift(bool bTestVisible, bool bTestTransport) const
 		if (eScoutClass != NO_UNITCLASS && eScoutClass == getUnitClassType())
 			return false;
 
-		CvPlayer& kPlayer = GET_PLAYER(m_eOwner);
-
 		// No non-combat units
 		if (!IsCombatUnit())
 		{
 			// Unless okay by trait
-			if (kPlayer.GetPlayerTraits()->GetGreatPersonGiftInfluence() == 0 || !IsGreatPerson())
-			{
+			if (GET_PLAYER(m_eOwner).GetPlayerTraits()->GetGreatPersonGiftInfluence() <= 0 || !IsGreatPerson())
 				return false;
-			}
 		}
 	}
-	else if (MOD_NO_MAJORCIV_GIFTING)
-	{
+	else if (MOD_CORE_NO_INTERMAJOR_UNIT_GIFTING || !GET_PLAYER(ePlotOwner).isMajorCiv())
 		return false;
-	}
+
+	// Must be at peace
+	if (atWar(pPlot->getTeam(), getTeam()))
+		return false;
+
+	// Danger considerations
+	if (pPlot->isVisibleEnemyUnit(this) || pPlot->isVisibleEnemyUnit(ePlotOwner))
+		return false;
+
+	if (GetDanger() > 0)
+		return false;
 
 	// No for religious units
 	if (getUnitInfo().IsSpreadReligion() || getUnitInfo().IsRemoveHeresy())
-	{
 		return false;
-	}
 
-	if(bTestTransport)
+	if (!bTestVisible)
 	{
-		if(pTransport && pTransport->getTeam() != pPlot->getTeam())
-		{
+		if (GET_TEAM(pPlot->getTeam()).isUnitClassMaxedOut(getUnitClassType(), GET_TEAM(pPlot->getTeam()).getUnitClassMaking(getUnitClassType())))
 			return false;
-		}
+
+		if (GET_PLAYER(ePlotOwner).isUnitClassMaxedOut(getUnitClassType(), GET_PLAYER(ePlotOwner).getUnitClassMaking(getUnitClassType())))
+			return false;
 	}
-
-	if(!bTestVisible)
-	{
-		if(GET_TEAM(pPlot->getTeam()).isUnitClassMaxedOut(getUnitClassType(), GET_TEAM(pPlot->getTeam()).getUnitClassMaking(getUnitClassType())))
-		{
-			return false;
-		}
-
-		if(GET_PLAYER(pPlot->getOwner()).isUnitClassMaxedOut(getUnitClassType(), GET_PLAYER(pPlot->getOwner()).getUnitClassMaking(getUnitClassType())))
-		{
-			return false;
-		}
-	}
-
-	if (atWar(pPlot->getTeam(), getTeam()))
-		return false;
 
 	if (MOD_EVENTS_MINORS_INTERACTION)
 	{
 		if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlayerCanGiftUnit, getOwner(), pPlot->getOwner(), GetID()) == GAMEEVENTRETURN_FALSE)
-		{
 			return false;
-		}
 	}
 
 	return true;
@@ -7805,27 +7756,21 @@ bool CvUnit::canHeal(const CvPlot* pPlot, bool bCheckMovement) const
 	{
 		// No healing if lacking required resources
 		if (!kPlayer.HasResourceForNewUnit(getUnitType(), false, false, NO_UNIT, /*bContinue*/ true))
-		{
 			return false;
-		}
 	}
 
 	if (MOD_UNITS_HOVERING_LAND_ONLY_HEAL)
 	{
 		// Hovering units can only heal over land
 		if (IsHoveringUnit() && pPlot->isWater())
-		{
 			return false;
-		}
 	}
 
-	if (MOD_NO_HEALING_ON_MOUNTAINS)
+	if (MOD_CORE_NO_HEALING_ON_MOUNTAINS)
 	{
 		// No healing on mountains outside of cities
 		if (pPlot->isMountain() && !pPlot->isCity())
-		{
 			return false;
-		}
 	}
 
 	// Embarked Units can't heal
@@ -9539,7 +9484,7 @@ bool CvUnit::createGreatWork()
 		}
 		pCity->GetCityBuildings()->SetBuildingGreatWork(eBuildingClass, iSlot, iGWindex);
 
-		if(pPlot->isActiveVisible() && (!UI_QUICK_ANIMATIONS || !CvPreGame::quickMovement()))
+		if(pPlot->isActiveVisible() && (!MOD_UI_QUICK_ANIMATIONS || !CvPreGame::quickMovement()))
 		{
 			CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 			gDLL->GameplayUnitActivate(pDllUnit.get());
@@ -10847,7 +10792,7 @@ bool CvUnit::foundCity()
 
 	if (pPlot->isActiveVisible())
 	{
-		if (!UI_QUICK_ANIMATIONS || !CvPreGame::quickMovement())
+		if (!MOD_UI_QUICK_ANIMATIONS || !CvPreGame::quickMovement())
 		{
 			CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 			gDLL->GameplayUnitActivate(pDllUnit.get());
@@ -10975,7 +10920,7 @@ bool CvUnit::construct(BuildingTypes eBuilding)
 		pCity->GetCityBuildings()->SetNumRealBuilding(eBuilding, pCity->GetCityBuildings()->GetNumRealBuilding(eBuilding) + 1);
 	}
 
-	if(plot()->isActiveVisible() && (!UI_QUICK_ANIMATIONS || !CvPreGame::quickMovement()))
+	if(plot()->isActiveVisible() && (!MOD_UI_QUICK_ANIMATIONS || !CvPreGame::quickMovement()))
 	{
 		CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 		gDLL->GameplayUnitActivate(pDllUnit.get());
@@ -11455,7 +11400,7 @@ bool CvUnit::DoSpreadReligion()
 			}
 #endif
 
-			bool bShow = plot()->isActiveVisible() && (!UI_QUICK_ANIMATIONS || !CvPreGame::quickMovement() || (GET_PLAYER(pCity->getOwner()).isHuman() && !GET_PLAYER(getOwner()).isHuman()));
+			bool bShow = plot()->isActiveVisible() && (!MOD_UI_QUICK_ANIMATIONS || !CvPreGame::quickMovement() || (GET_PLAYER(pCity->getOwner()).isHuman() && !GET_PLAYER(getOwner()).isHuman()));
 			if(bShow)
 			{
 				CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
@@ -11476,7 +11421,7 @@ bool CvUnit::DoSpreadReligion()
 			{
 				if(bShow)
 				{
-					// Because the "Activate" animation will possibly put the animation state into a end-state, we will force a reset, since the unit will still be alive
+					// Because the "Activate" animation will possibly put the animation state into an end-state, we will force a reset, since the unit will still be alive
 					CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 					gDLL->GameplayUnitResetAnimationState(pDllUnit.get());
 				}
@@ -11558,7 +11503,7 @@ bool CvUnit::DoRemoveHeresy()
 	{
 		if(CanRemoveHeresy(plot()))
 		{
-			bool bShow = plot()->isActiveVisible() && (!UI_QUICK_ANIMATIONS || !CvPreGame::quickMovement());
+			bool bShow = plot()->isActiveVisible() && (!MOD_UI_QUICK_ANIMATIONS || !CvPreGame::quickMovement());
 			if(bShow)
 			{
 				CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
@@ -11763,7 +11708,7 @@ bool CvUnit::greatperson()
 	ASSERT_DEBUG(pTeam, "Owner team of unit not expected to be NULL.");
 	if (!pTeam) return false;
 
-	if(pPlot->isActiveVisible() && (!UI_QUICK_ANIMATIONS || !CvPreGame::quickMovement()))
+	if(pPlot->isActiveVisible() && (!MOD_UI_QUICK_ANIMATIONS || !CvPreGame::quickMovement()))
 	{
 		CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 		gDLL->GameplayUnitActivate(pDllUnit.get());
@@ -11876,7 +11821,7 @@ bool CvUnit::discover()
 		pPlayer->chooseTech(iNumFreeTechs, strBuffer.GetCString());
 	}
 
-	if(pPlot->isActiveVisible() && (!UI_QUICK_ANIMATIONS || !CvPreGame::quickMovement()))
+	if(pPlot->isActiveVisible() && (!MOD_UI_QUICK_ANIMATIONS || !CvPreGame::quickMovement()))
 	{
 		CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 		gDLL->GameplayUnitActivate(pDllUnit.get());
@@ -11981,7 +11926,7 @@ bool CvUnit::hurry()
 	{
 		pCity->changeProduction(iHurryValue);
 
-		if (MOD_BALANCE_CORE_ENGINEER_HURRY && pCity->getProductionBuilding() != NO_BUILDING)
+		if (MOD_CORE_ENGINEER_HURRY && pCity->getProductionBuilding() != NO_BUILDING)
 		{
 			if (pCity->getProduction() >= pCity->getProductionNeeded())
 			{
@@ -12235,7 +12180,7 @@ bool CvUnit::trade()
 	}
 
 	//there was a strange crash here where the unit suddenly was at an invalid plot
-	if (pPlot->isActiveVisible() && plot()==pPlot && (!UI_QUICK_ANIMATIONS || !CvPreGame::quickMovement()))
+	if (pPlot->isActiveVisible() && plot()==pPlot && (!MOD_UI_QUICK_ANIMATIONS || !CvPreGame::quickMovement()))
 	{
 		CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 		gDLL->GameplayUnitActivate(pDllUnit.get());
@@ -12311,7 +12256,7 @@ bool CvUnit::buyCityState()
 		DLLUI->AddUnitMessage(0, GetIDInfo(), getOwner(), true, /*10*/ GD_INT_GET(EVENT_MESSAGE_TIME), GetLocalizedText("TXT_KEY_VENETIAN_MERCHANT_BOUGHT_CITY_STATE"));
 	}
 
-	if (pPlot->isActiveVisible() && (!UI_QUICK_ANIMATIONS || !CvPreGame::quickMovement()))
+	if (pPlot->isActiveVisible() && (!MOD_UI_QUICK_ANIMATIONS || !CvPreGame::quickMovement()))
 	{
 		CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 		gDLL->GameplayUnitActivate(pDllUnit.get());
@@ -12383,7 +12328,7 @@ bool CvUnit::repairFleet()
 		}
 	}
 
-	if(pPlot->isActiveVisible() && (!UI_QUICK_ANIMATIONS || !CvPreGame::quickMovement()))
+	if(pPlot->isActiveVisible() && (!MOD_UI_QUICK_ANIMATIONS || !CvPreGame::quickMovement()))
 	{
 		CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 		gDLL->GameplayUnitActivate(pDllUnit.get());
@@ -12552,7 +12497,7 @@ bool CvUnit::DoCultureBomb()
 
 		PerformCultureBomb(pkUnitEntry->GetCultureBombRadius() + GET_PLAYER(getOwner()).GetCultureBombBoost());
 
-		if(pThisPlot->isActiveVisible() && (!UI_QUICK_ANIMATIONS || !CvPreGame::quickMovement()))
+		if(pThisPlot->isActiveVisible() && (!MOD_UI_QUICK_ANIMATIONS || !CvPreGame::quickMovement()))
 		{
 			CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 			gDLL->GameplayUnitActivate(pDllUnit.get());
@@ -12947,7 +12892,7 @@ bool CvUnit::goldenAge()
 		kPlayer.changeNumUnitGoldenAges(1);
 	}
 
-	if(pPlot->isActiveVisible() && (!UI_QUICK_ANIMATIONS || !CvPreGame::quickMovement()))
+	if(pPlot->isActiveVisible() && (!MOD_UI_QUICK_ANIMATIONS || !CvPreGame::quickMovement()))
 	{
 		CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 		gDLL->GameplayUnitActivate(pDllUnit.get());
@@ -13027,7 +12972,7 @@ bool CvUnit::givePolicies()
 		kPlayer.ChangeNumFreePolicies(iFreePolicies);
 	}
 
-	if(pPlot->isActiveVisible() && (!UI_QUICK_ANIMATIONS || !CvPreGame::quickMovement()))
+	if(pPlot->isActiveVisible() && (!MOD_UI_QUICK_ANIMATIONS || !CvPreGame::quickMovement()))
 	{
 		CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 		gDLL->GameplayUnitActivate(pDllUnit.get());
@@ -13215,7 +13160,7 @@ bool CvUnit::blastTourism()
 		}
 	}
 
-	if(pPlot->isActiveVisible() && (!UI_QUICK_ANIMATIONS || !CvPreGame::quickMovement()))
+	if(pPlot->isActiveVisible() && (!MOD_UI_QUICK_ANIMATIONS || !CvPreGame::quickMovement()))
 	{
 		CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 		gDLL->GameplayUnitActivate(pDllUnit.get());
@@ -13465,7 +13410,7 @@ bool CvUnit::build(BuildTypes eBuild)
 
 			if(pkBuildInfo->isKill())
 			{
-				if (pPlot->isActiveVisible() && (!UI_QUICK_ANIMATIONS || !CvPreGame::quickMovement()))
+				if (pPlot->isActiveVisible() && (!MOD_UI_QUICK_ANIMATIONS || !CvPreGame::quickMovement()))
 				{
 					CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 					gDLL->GameplayUnitActivate(pDllUnit.get());
@@ -13480,9 +13425,9 @@ bool CvUnit::build(BuildTypes eBuild)
 					if (getUnitInfo().GetReligionSpreads() > 1)
 						bIndiaException = true;
 
-					if (bIndiaException && pPlot->isActiveVisible() && (!UI_QUICK_ANIMATIONS || !CvPreGame::quickMovement()))
+					if (bIndiaException && pPlot->isActiveVisible() && (!MOD_UI_QUICK_ANIMATIONS || !CvPreGame::quickMovement()))
 					{
-						// Because the "Activate" animation will possibly put the animation state into a end-state, we will force a reset, since the unit will still be alive
+						// Because the "Activate" animation will possibly put the animation state into an end-state, we will force a reset, since the unit will still be alive
 						CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 						gDLL->GameplayUnitResetAnimationState(pDllUnit.get());
 					}
@@ -14061,47 +14006,47 @@ bool CvUnit::CanUpgradeTo(UnitTypes eUpgradeUnitType, bool bOnlyTestVisible) con
 	return true;
 }
 
-#if defined(MOD_GLOBAL_CS_UPGRADES)
 /// Can this Unit upgrade with anything right now?
 bool CvUnit::CanUpgradeInTerritory(bool bOnlyTestVisible) const
 {
 	VALIDATE_OBJECT();
 
 	// Show the upgrade, but don't actually allow it
-	if(!bOnlyTestVisible)
+	if (!bOnlyTestVisible)
 	{
 		CvPlot* pPlot = plot();
-		const PlayerTypes kPlotOwner = pPlot->getOwner();
+		const PlayerTypes ePlotOwner = pPlot->getOwner();
+		if (ePlotOwner == NO_PLAYER)
+			return false;
 
-		// Must be in territory owned by the player or by a friendly City State
-		if (kPlotOwner != getOwner()) 
+		// Must be in territory owned by the player
+		if (ePlotOwner != getOwner()) 
 		{
-			if(MOD_GLOBAL_CS_UPGRADES && kPlotOwner != NO_PLAYER && GET_PLAYER(getOwner()).CanUpgradeCSVassalTerritory()) 
+			CvPlayer& kPlotOwner = GET_PLAYER(ePlotOwner);
+			// Or by a vassal or friendly City-State, if we have that ability
+			if (GET_PLAYER(getOwner()).CanUpgradeCSVassalTerritory())
 			{
-				const CvPlayer& pPlotOwner = GET_PLAYER(kPlotOwner);
-				if (!pPlotOwner.isMinorCiv())
+				if (kPlotOwner.isMajorCiv())
 				{
-					if (!GET_TEAM(GET_PLAYER(kPlotOwner).getTeam()).IsVassal(getTeam()))
+					if (!GET_TEAM(kPlotOwner.getTeam()).IsVassal(getTeam()))
 						return false;
 				}
-				else
+				else if (kPlotOwner.isMinorCiv())
 				{
-					if(!pPlotOwner.GetMinorCivAI()->IsFriends(getOwner()) || pPlotOwner.IsAtWarWith(getOwner()))
-					{
+					if (kPlotOwner.IsAtWarWith(getOwner()) || (!kPlotOwner.GetMinorCivAI()->IsFriends(getOwner()) && !kPlotOwner.GetMinorCivAI()->IsPlayerHasOpenBordersAutomatically(getOwner())))
 						return false;
-					}
 				}
 			}
-			else 
-			{
+			// Or by an allied militaristic City-State, if the CustomModOption is active
+			else if (MOD_GLOBAL_CS_UPGRADES && kPlotOwner.isMinorCiv() && kPlotOwner.GetMinorCivAI()->GetAlly() == getOwner() && kPlotOwner.GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_MILITARISTIC)
+				return true;
+			else
 				return false;
-			}
 		}
 	}
 
 	return true;
 }
-#endif
 
 //	--------------------------------------------------------------------------------
 /// What UnitType does this Unit upgrade into?
@@ -14262,6 +14207,7 @@ CvUnit* CvUnit::DoUpgradeTo(UnitTypes eUnitType, bool bFree)
 	// Gold Cost
 	int iUpgradeCost = upgradePrice(eUnitType);
 	CvPlayerAI& thisPlayer = GET_PLAYER(getOwner());
+	CvPlot* pPlot = plot();
 
 	if (!bFree)
 	{
@@ -14278,6 +14224,22 @@ CvUnit* CvUnit::DoUpgradeTo(UnitTypes eUnitType, bool bFree)
 		{
 			CvInterfacePtr<ICvUnit1> pDllNewUnit = GC.WrapUnitPointer(pNewUnit);
 			DLLUI->selectUnit(pDllNewUnit.get(), true, false, false);
+		}
+
+		if (MOD_GLOBAL_CS_UPGRADES && thisPlayer.isMajorCiv() && !thisPlayer.CanUpgradeCSVassalTerritory() && pPlot->getOwner() != NO_PLAYER && GET_PLAYER(pPlot->getOwner()).isMinorCiv())
+		{
+			CvMinorCivAI* kMinor = GET_PLAYER(pPlot->getOwner()).GetMinorCivAI();
+			if (kMinor->GetTrait() == MINOR_CIV_TRAIT_MILITARISTIC && kMinor->GetAlly() == thisPlayer.GetID())
+			{
+				// Push the unit spawn counter back as a penalty for upgrading one of our own units
+				int iNumTurns = /*3*/ GD_INT_GET(UPGRADE_EXTRA_TURNS_UNIT_SPAWN);
+
+				// Modify for Game Speed
+				iNumTurns *= GC.getGame().getGameSpeedInfo().getGreatPeoplePercent();
+				iNumTurns /= 100;
+
+				kMinor->ChangeUnitSpawnCounter(thisPlayer.GetID(), iNumTurns);
+			}
 		}
 
 		// MUST call the event before convert() as that kills the old unit
@@ -25752,7 +25714,6 @@ void CvUnit::setName(CvString strNewValue)
 	m_strName = strNewValue;
 	DLLUI->setDirty(UnitInfo_DIRTY_BIT, true);
 }
-#if defined(MOD_GLOBAL_NO_LOST_GREATWORKS)
 //	--------------------------------------------------------------------------------
 const CvString CvUnit::getGreatName() const
 {
@@ -25766,7 +25727,6 @@ void CvUnit::setGreatName(const CvString& strName)
 	VALIDATE_OBJECT();
 	m_strGreatName = strName;
 }
-#endif
 //	--------------------------------------------------------------------------------
 GreatWorkType CvUnit::GetGreatWork() const
 {
@@ -31449,7 +31409,7 @@ bool CvUnit::DoFallBack(const CvUnit& attacker, bool bWithdraw, bool bCaptured)
 	std::vector<CvPlot*> aValidPlotList;
 
 	// Store escorted units for later
-	if (MOD_CIVILIANS_RETREAT_WITH_MILITARY || bCaptured)
+	if (MOD_CORE_CIVILIANS_RETREAT_WITH_MILITARY || bCaptured)
 	{
 		CvPlot* pUnitPlot = plot();
 		IDInfoVector currentUnits;

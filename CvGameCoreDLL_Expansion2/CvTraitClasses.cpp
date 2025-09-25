@@ -6838,11 +6838,7 @@ FreeResourceXCities CvPlayerTraits::GetFreeResourceXCities(ResourceTypes eResour
 /// Is this civ currently able to cross mountains with combat units?
 bool CvPlayerTraits::IsAbleToCrossMountainsWithGreatGeneral() const
 {
-#if defined(MOD_GLOBAL_TRULY_FREE_GP)
 	return (m_bCrossesMountainsAfterGreatGeneral && m_pPlayer->getGreatGeneralsCreated(false) > 0);
-#else
-	return (m_bCrossesMountainsAfterGreatGeneral && m_pPlayer->getGreatGeneralsCreated() > 0);
-#endif
 }
 
 #if defined(MOD_TRAITS_CROSSES_ICE)

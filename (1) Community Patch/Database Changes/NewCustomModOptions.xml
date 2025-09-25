@@ -1,28 +1,111 @@
 <?xml version="1.0" encoding="utf-8"?>
 <GameData>
 	<CustomModOptions>
-		<!-- V19 was the first version for BNW - all options prior to this are flagged as being for v19 -->
+		<!-- Class - Data=0, Bugfix=1, API=2, Events=3, Minor=4, Moderate=5, Major=6 -->
+		<!-- 0=Data   	- Data used by other components -->
+		<!-- 1=Bugfix   - Bugfixes, usually wanted; this class is not used by CP or VP since all bugfixes are perma-enabled, but the functionality is retained -->
+		<!-- 2=API    	- API options or extensions, no effect and very minor overhead unless used by another mod -->
+		<!-- 3=Events 	- Events, significant overhead even if not used by another mod; these run triggers from the gamecore whenever specified things happen ingame -->
+		<!-- 4=Minor  	- Minor enhancements, limited gameplay changes -->
+		<!-- 5=Moderate - Moderate enhancements, obvious gameplay changes -->
+		<!-- 6=Major  	- Major enhancements, massive gameplay changes -->
+
+		<!-- DbUpdates - indicates if the DLL code requires associated database changes -->
+		<!--         0 (default) 	- no associated database updates, or only unimportant ones (usually TXT_KEY_s that if deleted won't cause serious problems -->
+		<!--         1				- required database updates -->
+		<!--	The files which make the database changes need to set the CustomModOption's value to 1 in the table CustomModDbUpdates -->
+		<!--	If the files have been deleted, e.g., for compatibility with other mods, the option will be forced off -->
 
 		<!-- "See also: Mod Name" refers to mods on www.picknmixmods.com -->
 		<!-- Any option with a "See also" and a default value of 0 should not be enabled directly in this file but only via a mod -->
 
-		<!-- Class - Data=0, BugFix=1, API=2, Events=3, Minor=4, Common=5, Major=6 -->
-		<!-- 0=Data   - Data used by other components -->
-		<!-- 1=BugFix - Bug fixes, usually wanted -->
-		<!-- 2=API    - API, no effect and very minor overhead unless used by another mod -->
-		<!-- 3=Events - Events, overhead even if not used by another mod -->
-		<!-- 4=Minor  - Minor enhancements, limited game play changes -->
-		<!-- 5=Common - Common enhancements, obvious game play changes -->
-		<!-- 6=Major  - Major enhancements, massive game play changes -->
+		<!-- KEYSTONE OPTIONS -->
 
-		<!-- DbUpdates - indicates if the DLL code requires associated database changes -->
-		<!--   Missing - no associated database updates -->
-		<!--         0 - unimportant database updates (usually TXT_KEY_s that if deleted won't cause serious problems -->
-		<!--         1 - required database updates -->
-		<!--   If these file(s) have been deleted, eg for compatibility with other mods, the option will be forced off -->
-
-		<!-- All changes added by VP that aren't covered by another CustomModOption. -->
+		<!-- All changes added by VP that aren't covered by another CustomModOption -->
 		<Row Class="6" Name="BALANCE_VP" Value="0"/>
+
+		<!-- Activates functions which depend on working with closed .exe code -->
+		<Row Class="5" Name="EXE_HACKING" Value="1"/>
+
+		<!-- This adds the ability for AI players to contact human players in multiplayer with trade deals -->
+		<Row Class="6" Name="ACTIVE_DIPLOMACY" Value="1"/>
+
+
+		<!-- CORE BALANCE CHANGES -->
+		<!-- Enabled in Community Patch Only, but can be disabled -->
+		<!-- This is not a complete list of core balance changes - many more are integrated with no option to disable them -->
+		<!-- Core Pick 'N' Mix Mods that are enabled in the Community Patch have their own section just below this one -->
+
+		<!-- Visible tiles stay visible until the end of the turn -->
+		<Row Class="6" Name="CORE_DELAYED_VISIBILITY" Value="1"/>
+
+		<!-- When a military unit retreats, civilian and embarked units on the same tile also retreat -->
+		<Row Class="5" Name="CORE_CIVILIANS_RETREAT_WITH_MILITARY" Value="1"/>
+
+		<!-- Great Engineers' Hurry Production produces completed buildings on the same turn as the Great Engineer is expended -->
+		<Row Class="5" Name="CORE_ENGINEER_HURRY" Value="1"/>
+
+		<!-- Prevents repairing improvements in foreign lands with Workers, blocking the pillage-repair loop exploit -->
+		<Row Class="4" Name="CORE_NO_REPAIR_FOREIGN_LANDS" Value="1"/>
+
+		<!-- Disallows gifting units to major civs, since the AI cannot use this -->
+		<Row Class="4" Name="CORE_NO_INTERMAJOR_UNIT_GIFTING" Value="1"/>
+
+		<!-- Disallows healing on Mountain tiles, except in Cities -->
+		<Row Class="4" Name="CORE_NO_HEALING_ON_MOUNTAINS" Value="1"/>
+
+		<!-- Tiles with Ice do not directly give any yields, even if one would be granted by Improvements, Policies, etc. -->
+		<Row Class="4" Name="CORE_NO_YIELD_ICE" Value="1"/>
+
+
+		<!-- CORE GLOBAL PICK'N'MIX MODS -->
+		<!-- Enabled in Community Patch Only, but can be disabled -->
+		<!-- Other supported Pick'N'Mix mods are listed in separate sections below -->
+		<!-- There are a number of integrated Pick'N'Mix mods that are perma-enabled and thus will not show up in any section -->
+
+		<!-- Removes free Great People (from buildings, policies, traits, etc.) from the Great People counters -->
+		<Row Class="6" Name="GLOBAL_TRULY_FREE_GP" Value="1"/>
+
+		<!-- City States can be liberated after they have been "bought" (Austria's or Venice's UA) -->
+		<Row Class="5" Name="GLOBAL_CS_LIBERATE_AFTER_BUYOUT" Value="1"/>
+
+		<!-- Great Artists, Writers and Musicians that do NOT create Great Works can be "reborn" -->
+		<Row Class="4" Name="GLOBAL_NO_LOST_GREATWORKS" Value="1"/>
+
+
+		<!-- ENABLED GLOBAL PICK'N'MIX MODS -->
+		<!-- Enabled in Vox Populi, disabled in Community Patch Only -->
+
+		<!-- Separates the Great People counters for Engineers, Scientists, and Merchants -->
+		<Row Class="6" Name="GLOBAL_SEPARATE_GP_COUNTERS" Value="0"/>
+
+		<!-- Units gifted by City-States receive XP from their spawning city, not the City-State's capital -->
+		<Row Class="5" Name="GLOBAL_CS_GIFTS_LOCAL_XP" Value="0"/>
+
+		<!-- Give initial production boost for cities founded on forests, as if the forest had been chopped down by a worker -->
+		<Row Class="5" Name="GLOBAL_CITY_FOREST_BONUS" Value="0"/>
+		<Row Class="0" Name="GLOBAL_CITY_FOREST_BONUS_PERCENT" Value="50"/> <!-- Percentage of "ring-1 chop" -->
+		<!-- Also GLOBAL_CITY_FOREST_BONUS_TECH (optional) in CustomModPostDefines -->
+
+		<!-- Give initial production boost for cities founded on jungles, as if the jungle had been chopped down by a worker -->
+		<Row Class="5" Name="GLOBAL_CITY_JUNGLE_BONUS" Value="0"/>
+		<Row Class="0" Name="GLOBAL_CITY_JUNGLE_BONUS_PERCENT" Value="50"/> <!-- Percentage of "ring-1 chop" -->
+		<!-- Also GLOBAL_CITY_JUNGLE_BONUS_TECH (optional) in CustomModPostDefines -->
+
+
+		<!-- DISABLED GLOBAL PICK'N'MIX MODS -->
+		<!-- These can be enabled by players and modders -->
+
+		<!-- Permits units to upgrade in allied militaristic City-States, but increases the # of turns until the next free unit spawns by UPGRADE_EXTRA_TURNS_UNIT_SPAWN, scaling with game speed -->
+		<Row Class="5" Name="GLOBAL_CS_UPGRADES" Value="0"/>
+
+
+		<!-- OPTIONAL UI & QUALITY OF LIFE IMPROVEMENTS -->
+
+		<!-- Turn off animations for Diplomats, Missionaries, Great Persons, etc. when playing with the Quick Movement game option enabled -->
+		<Row Class="4" Name="UI_QUICK_ANIMATIONS" Value="0"/>
+
+
 
 		<!-- Balance the number of City-States with each trait evenly. -->
 		<Row Class="6" Name="BALANCE_CITY_STATE_TRAITS" Value="0"/>
@@ -35,9 +118,6 @@
 
 		<!-- Vote Commitments cannot be cancelled by war. If the resolution becomes invalid, the votes are abstained instead of given back. -->
 		<Row Class="5" Name="BALANCE_PERMANENT_VOTE_COMMITMENTS" Value="0"/>
-
-		<!-- Turn off animations for diplomats, missionaries, great persons etc. when playing with quick movement enabled. -->
-		<Row Class="4" Name="UI_QUICK_ANIMATIONS" Value="0"/>
 		
 		<!-- Make the UI show moves remaining in the form (exact movement points / 60) for the tile currently being moused over. -->
 		<Row Class="2" Name="UI_DISPLAY_PRECISE_MOVEMENT_POINTS" Value="0"/>
@@ -80,13 +160,6 @@
 		<!-- See also: "Goody Huts - No Auto-Mapping" -->
 		<Row Class="6" Name="GLOBAL_ANYTIME_GOODY_GOLD" Value="0"/>
 
-		<!-- Give initial production boost for cities founded on forests, as if the forest had been chopped down by a worker (v19) -->
-		<!-- See also: "Global - City Forest Bonus" -->
-		<Row Class="6" Name="GLOBAL_CITY_FOREST_BONUS" Value="0"/>
-		<Row Class="0" Name="GLOBAL_CITY_FOREST_BONUS_PERCENT" Value="50"/>
-		<!-- Percentage of "ring-1 chop" (v47) -->
-		<!-- Also GLOBAL_CITY_FOREST_BONUS_TECH in CustomModPostDefines -->
-
 		<!-- Permit cities to work tiles up to MAXIMUM_ACQUIRE_PLOT_DISTANCE - WARNING! Cities take 2.5 times as much memory/file space (v19) -->
 		<!-- See also: "Global - City Working Distance" -->
 		<Row Class="6" Name="GLOBAL_CITY_WORKING" Value="0"/>
@@ -107,33 +180,13 @@
 		<!-- See also: "Global - City States Gifts" -->
 		<Row Class="5" Name="GLOBAL_CS_GIFT_SHIPS" Value="0"/>
 
-		<!-- Units in allied militaristic City States can upgrade - requires a (cosmetic) patch to UnitPanel.lua to fix the incorrect message about being in friendly territory (v19) -->
-		<!-- See also: "in Global - CS Unit Upgrades" -->
-		<Row Class="5" Name="GLOBAL_CS_UPGRADES" Value="0"/>
-
-		<!-- City States can be liberated after they have been "bought" (Austria's or Venice's UA) (v19) -->
-		<!-- See also: "Global - CS Liberate After Buyout" -->
-		<Row Class="5" Name="GLOBAL_CS_LIBERATE_AFTER_BUYOUT" Value="1"/>
-
 		<!-- City States give different gifts depending on their type (cultural, religious, maritime, etc) (v19) -->
 		<!-- See also: "Global - City States Gifts" -->
 		<Row Class="6" Name="GLOBAL_CS_GIFTS" Value="0"/>
 
-		<!-- Units gifted from City States receive XP from their spawning city, not the CS capital (v84) -->
-		<!-- See also: "Global - City States Gifts" -->
-		<Row Class="4" Name="GLOBAL_CS_GIFTS_LOCAL_XP" Value="0"/>
-
 		<!-- City States allied to a major behave as an overseas territory of that major (v39) -->
 		<!-- See also: "Global - City States Overseas Territory" -->
 		<Row Class="6" Name="GLOBAL_CS_OVERSEAS_TERRITORY" Value="0"/>
-
-		<!-- Units attacking from cities, forts or citadels will not follow-up if they kill the defender (v19) -->
-		<!-- See also: "Global - No Followup From Cities" -->
-		<Row Class="6" Name="GLOBAL_NO_FOLLOWUP_FROM_CITIES" Value="1"/>
-
-		<!-- Units that can move after attacking can also capture civilian units (eg workers in empty barbarian camps) (v32) -->
-		<!-- See also: "Global - No Followup From Cities" -->
-		<Row Class="5" Name="GLOBAL_CAPTURE_AFTER_ATTACKING" Value="1"/>
 
 		<!-- Trade routes can't be plundered on ocean tiles - too much sea to hide in, too many directions to escape in (v39) -->
 		<!-- See also: "Global - No Ocean Plundering" -->
@@ -182,10 +235,6 @@
 		<!-- See also: "Global - Great Work Vaults" -->
 		<Row Class="6" Name="GLOBAL_GREATWORK_YIELDTYPES" Value="0"/>
 
-		<!-- Great Artists, Writers and Musicians that do NOT create Great Works can be "reborn" (v84) -->
-		<!-- See also: "Global - No Lost Greatworks" -->
-		<Row Class="4" Name="GLOBAL_NO_LOST_GREATWORKS" Value="1"/>
-
 		<!-- Units of this type will not be gifted by City States (v46) -->
 		<!-- See also: "Civilization - Morindim" -->
 		<Row Class="4" Name="GLOBAL_EXCLUDE_FROM_GIFTS" Value="0"/>
@@ -197,12 +246,6 @@
 		<!-- Units of this type may never embark (v46) -->
 		<!-- See also: "Civilization - Morindim" -->
 		<Row Class="5" Name="GLOBAL_CANNOT_EMBARK" Value="0"/>
-
-		<!-- Separates the Engineer, Scientist and Merchant GP counters (v52) -->
-		<Row Class="6" Name="GLOBAL_SEPARATE_GP_COUNTERS" Value="0"/>
-
-		<!-- Removes free GP (from buildings, policies, traits, etc) from the GP counters (v61) -->
-		<Row Class="6" Name="GLOBAL_TRULY_FREE_GP" Value="0"/>
 
 		<!-- Allows faith purchase of buildings in puppets -->
 		<Row Class="6" Name="GLOBAL_PURCHASE_FAITH_BUILDINGS_IN_PUPPETS" Value="0"/>
@@ -243,20 +286,8 @@
 		<Row Class="5" Name="ALTERNATE_ASSYRIA_TRAIT" Value="0"/>
 		<!-- Alters Siam's trait. Now affects all Yields, Resources, Happiness and Unit Gift frequency from City-States, and does not give bonus XP. -->
 		<Row Class="5" Name="ALTERNATE_SIAM_TRAIT" Value="0"/>
-		<!-- No exploit to pillage and repair in foreign lands during war -->
-		<Row Class="5" Name="NO_REPAIR_FOREIGN_LANDS" Value="1"/>
-		<!-- Ice Features are prevented from having a yield -->
-		<Row Class="5" Name="NO_YIELD_ICE" Value="1"/>
-		<!-- Fixes an exploit of gifting to Major Civs -->
-		<Row Class="5" Name="NO_MAJORCIV_GIFTING" Value="1"/>
-		<!-- No healing on mountains if not a city plot -->
-		<Row Class="5" Name="NO_HEALING_ON_MOUNTAINS" Value="1"/>
 		<!-- Players can pillage permanent improvements if at war -->
 		<Row Class="4" Name="PILLAGE_PERMANENT_IMPROVEMENTS" Value="0"/>
-		<!-- This adds the ability for AI players to contact human players in multiplayer with trade deals -->
-		<Row Class="5" Name="ACTIVE_DIPLOMACY" Value="1"/>
-		<!-- Activates functions which depend on working with closed .exe code -->
-		<Row Class="5" Name="EXE_HACKING" Value="1"/>
 		<!-- Grants Celts maximum up to 3 unimproved adjacent forests for faith -->
 		<Row Class="4" Name="ALTERNATE_CELTS" Value="0"/>
 		<!-- Restricts a Team from passing into the next era before they have found all techs of their current era -->
@@ -463,8 +494,6 @@
 		<Row Class="4" Name="ADJACENT_BLOCKADE" Value="0"/>
 		<!-- Units take damage when moving through enemy lands -->
 		<Row Class="4" Name="ATTRITION" Value="0"/>
-		<!-- When a military unit retreats, civilian and embarked units on the same tile also retreat -->
-		<Row Class="4" Name="CIVILIANS_RETREAT_WITH_MILITARY" Value="1"/>
 		<!-- Linked & group movement -->
 		<Row Class="4" Name="LINKED_MOVEMENT" Value="0"/>
 		<!-- Era scaling for GE & GM yields -->
@@ -891,8 +920,6 @@
 		<Row Class="6" Name="BALANCE_CORE_BUILDING_INVESTMENTS" Value="0"/>
 		<!-- Units are invested at 50% (see define) of their production cost, instead of being built outright. -->
 		<Row Class="6" Name="BALANCE_CORE_UNIT_INVESTMENTS" Value="0"/>
-		<!-- Great Engineers' Hurry Production produces completed buildings on the same turn as the Great Engineer is expended -->
-		<Row Class="6" Name="BALANCE_CORE_ENGINEER_HURRY" Value="1"/>
 		<!-- Maya cannot buy a prophet without a religion -->
 		<Row Class="6" Name="BALANCE_CORE_MAYA_CHANGE" Value="0"/>
 		<!-- Portugal can only sell exotic goods to CSs -->
@@ -981,8 +1008,6 @@
 		<Row Class="5" Name="CORE_RESILIENT_PANTHEONS" Value="0"/>
 		<!-- Enables hovercraft. -->
 		<Row Class="5" Name="CORE_HOVERING_UNITS" Value="0"/>
-		<!-- Visible tiles stay visible until the end of the turn. -->
-		<Row Class="6" Name="CORE_DELAYED_VISIBILITY" Value="1"/>
 		<!-- Danger plot valuation: ignore ZOC only for those units which are likely to be killed by the enemy (alternatively ignore ZOC for all owned units) -->
 		<Row Class="1" Name="CORE_TWO_PASS_DANGER" Value="0"/>
 
@@ -1018,8 +1043,8 @@
 	<!-- GameEvents.EventActivated(iPlayer, iEvent, iChoice)-->
 
 	<CustomModPostDefines>
-		<!-- Give initial production boost for cities founded on forests, as if the forest had been chopped down by a worker (v19) -->
-		<!-- See also: "Global - City Forest Bonus" -->
-		<!-- Row Name="GLOBAL_CITY_FOREST_BONUS_TECH" Table="Technologies" Type="TECH_MINING"/ -->		<!-- Required tech (v47) -->
+		<!-- We can optionally add tech gates for Forest/Jungle chopping bonuses here, but Community Patch and Vox Populi use Technologies.FeatureProductionModifier instead -->
+		<!-- Row Name="GLOBAL_CITY_FOREST_BONUS_TECH" Table="Technologies" Type="TECH_MINING"/ -->		<!-- Required tech (GLOBAL_CITY_FOREST_BONUS) -->
+		<!-- Row Name="GLOBAL_CITY_JUNGLE_BONUS_TECH" Table="Technologies" Type="TECH_MINING"/ -->		<!-- Required tech (GLOBAL_CITY_JUNGLE_BONUS) -->
 	</CustomModPostDefines>
 </GameData>

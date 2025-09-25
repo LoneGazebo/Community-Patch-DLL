@@ -558,10 +558,7 @@ public:
 	bool isReadyForUpgrade() const;
 	bool CanUpgradeRightNow(bool bOnlyTestVisible) const;
 	bool CanUpgradeTo(UnitTypes eUpgradeUnitType, bool bOnlyTestVisible) const;
-
-#if defined(MOD_GLOBAL_CS_UPGRADES)
 	bool CanUpgradeInTerritory(bool bOnlyTestVisible) const;
-#endif
 	UnitTypes GetUpgradeUnitType() const;
 	int upgradePrice(UnitTypes eUnit) const;
 	CvUnit* DoUpgrade(bool bFree = false);
@@ -1642,10 +1639,8 @@ public:
 #endif
 	const CvString getNameNoDesc() const;
 	void setName(const CvString strNewValue);
-#if defined(MOD_GLOBAL_NO_LOST_GREATWORKS)
 	const CvString getGreatName() const;
 	void setGreatName(const CvString& strName);
-#endif
 	GreatWorkType GetGreatWork() const;
 	void SetGreatWork(GreatWorkType eGreatWork);
 	bool HasGreatWork() const;
@@ -2496,9 +2491,7 @@ protected:
 	CvString m_strUnitName;
 #endif
 	CvString m_strName;
-#if defined(MOD_GLOBAL_NO_LOST_GREATWORKS)
 	CvString m_strGreatName;
-#endif
 	GreatWorkType m_eGreatWork;
 
 	//this is always stored with the zero-counting convention

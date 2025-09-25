@@ -3081,7 +3081,6 @@ protected:
 	int m_iNumUnitGoldenAges;
 	int m_iStrikeTurns;
 	int m_iGoldenAgeModifier;
-#if defined(MOD_GLOBAL_TRULY_FREE_GP)
 	int m_iProductionBonusTurnsConquest;
 	int m_iCultureBonusTurnsConquest;
 	int m_iFreeGreatPeopleCreated;
@@ -3106,7 +3105,6 @@ protected:
 	int m_iFreeGPExtra3Created;
 	int m_iFreeGPExtra4Created;
 	int m_iFreeGPExtra5Created;
-#endif
 	int m_iGreatPeopleCreated;
 	int m_iGreatGeneralsCreated;
 	int m_iGreatAdmiralsCreated;

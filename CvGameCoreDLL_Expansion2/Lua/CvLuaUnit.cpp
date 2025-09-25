@@ -163,9 +163,7 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(UpgradePrice);
 	Method(CanUpgradeRightNow);
 	Method(CanUpgradeTo);
-#if defined(MOD_GLOBAL_CS_UPGRADES)
 	Method(CanUpgradeInTerritory);
-#endif
 	Method(GetNumResourceNeededToUpgrade);
 	Method(GetNumResourceTotalNeededToUpgrade);
 
@@ -2291,18 +2289,16 @@ int CvLuaUnit::lCanUpgradeTo(lua_State* L)
 	lua_pushboolean(L, bResult);
 	return 1;
 }
-#if defined(MOD_GLOBAL_CS_UPGRADES)
 //------------------------------------------------------------------------------
 int CvLuaUnit::lCanUpgradeInTerritory(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	const bool bTestVisible = luaL_optint(L, 2, 0);
+	const bool bTestVisible = luaL_optbool(L, 2, false);
 	const bool bResult = pkUnit->CanUpgradeInTerritory(bTestVisible);
 
 	lua_pushboolean(L, bResult);
 	return 1;
 }
-#endif
 //------------------------------------------------------------------------------
 int CvLuaUnit::lGetNumResourceNeededToUpgrade(lua_State* L)
 {

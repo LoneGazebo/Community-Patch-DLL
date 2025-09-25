@@ -638,17 +638,16 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	if (pPlot->getFeatureType() != NO_FEATURE)
 	{
 		// Only for major civs building on a forest
-		if (MOD_GLOBAL_CITY_FOREST_BONUS && eBuildRemoveForest != -1 && !owningPlayer.isMinorCiv() && (eFeature == FEATURE_FOREST))
+		if (MOD_GLOBAL_CITY_FOREST_BONUS && eFeature == FEATURE_FOREST && eBuildRemoveForest != -1 && owningPlayer.isMajorCiv())
 		{
-			// Don't do this for the AI capitals - it's just too much of an initial boost!
-			TechTypes iRequiredTech = (TechTypes)gCustomMods.getOption("GLOBAL_CITY_FOREST_BONUS_TECH", -1);
-			bClearedForest = (iRequiredTech == -1 || GET_TEAM(owningPlayer.getTeam()).GetTeamTechs()->HasTech(iRequiredTech));
+			TechTypes eRequiredTech = (TechTypes)gCustomMods.getOption("GLOBAL_CITY_FOREST_BONUS_TECH", -1);
+			bClearedForest = (eRequiredTech == NO_TECH || GET_TEAM(owningPlayer.getTeam()).GetTeamTechs()->HasTech(eRequiredTech));
 		}
 		// OR only for major civs building on a jungle
-		else if (MOD_GLOBAL_CITY_FOREST_BONUS && (eBuildRemoveJungle != -1) && (!owningPlayer.isMinorCiv()) && (eFeature == FEATURE_JUNGLE))
+		else if (MOD_GLOBAL_CITY_JUNGLE_BONUS && eFeature == FEATURE_JUNGLE && eBuildRemoveJungle != -1 && owningPlayer.isMajorCiv())
 		{
-			TechTypes iRequiredTech = (TechTypes)gCustomMods.getOption("GLOBAL_CITY_FOREST_BONUS_TECH", -1);
-			bClearedJungle = (iRequiredTech == -1 || GET_TEAM(owningPlayer.getTeam()).GetTeamTechs()->HasTech(iRequiredTech));
+			TechTypes eRequiredTech = (TechTypes)gCustomMods.getOption("GLOBAL_CITY_JUNGLE_BONUS_TECH", -1);
+			bClearedJungle = (eRequiredTech == NO_TECH || GET_TEAM(owningPlayer.getTeam()).GetTeamTechs()->HasTech(eRequiredTech));
 		}
 
 		pPlot->setFeatureType(NO_FEATURE);
@@ -964,35 +963,26 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 			iProduction = GC.getBuildInfo(eBuildRemoveJungle)->getFeatureProduction(FEATURE_JUNGLE);
 		}
 
-		if (MOD_BALANCE_CORE_SETTLER_ADVANCED)
-		{
-			iProduction *= std::max(0, (GET_PLAYER(getOwner()).getFeatureProductionModifier()));
-			iProduction /= 100;
-		}
-		else
-		{
-			iProduction *= std::max(0, (GET_PLAYER(getOwner()).getFeatureProductionModifier() + 100));
-			iProduction /= 100;
-		}
+		iProduction *= std::max(0, GET_PLAYER(getOwner()).getFeatureProductionModifier());
+		iProduction /= 100;
 
 		iProduction *= GC.getGame().getGameSpeedInfo().getFeatureProductionPercent();
 		iProduction /= 100;
 
 		if (iProduction > 0)
 		{
-			// Make the production higher than a "ring-1 chop"
-			iProduction *= gCustomMods.getOption("GLOBAL_CITY_FOREST_BONUS_PERCENT", 125);
-			iProduction /= 100;
-
-			changeFeatureProduction(iProduction);
 			if (bClearedForest)
 			{
-				//CUSTOMLOG("Founding of %s on a forest created %d initial production", getName().GetCString(), iProduction);
+				iProduction *= gCustomMods.getOption("GLOBAL_CITY_FOREST_BONUS_PERCENT", 50);
+				iProduction /= 100;
 			}
 			else if (bClearedJungle)
 			{
-				//CUSTOMLOG("Founding of %s on a jungle created %d initial production", getName().GetCString(), iProduction);
+				iProduction *= gCustomMods.getOption("GLOBAL_CITY_JUNGLE_BONUS_PERCENT", 50);
+				iProduction /= 100;
 			}
+
+			changeFeatureProduction(iProduction);
 
 			if (getOwner() == GC.getGame().getActivePlayer())
 			{

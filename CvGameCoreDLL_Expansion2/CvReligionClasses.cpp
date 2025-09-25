@@ -3375,9 +3375,7 @@ FDataStream& operator<<(FDataStream& saveTo, const CvGameReligions& readFrom)
 CvPlayerReligions::CvPlayerReligions(void):
 	m_pPlayer(NULL),
 	m_iFaithAtLastNotifyTimes100(0),
-#if defined(MOD_GLOBAL_TRULY_FREE_GP)
 	m_iNumFreeProphetsSpawned(0),
-#endif
 	m_eMajorityReligion(NO_RELIGION),
 	m_eStateReligionOverride(NO_RELIGION),
 	m_eStateReligion(NO_RELIGION),
@@ -3411,9 +3409,7 @@ void CvPlayerReligions::Uninit()
 void CvPlayerReligions::Reset()
 {
 	m_bFoundingReligion = false;
-#if defined(MOD_GLOBAL_TRULY_FREE_GP)
 	m_iNumFreeProphetsSpawned = 0;
-#endif
 	m_iNumProphetsSpawned = 0;
 	m_iFaithAtLastNotifyTimes100 = 0;
 	m_eMajorityReligion = NO_RELIGION;

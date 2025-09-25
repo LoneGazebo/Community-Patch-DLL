@@ -27,22 +27,187 @@
 #define MOD_DLL_VERSION_STATUS ""			// a (alpha), b (beta) or blank (released)
 #define MOD_DLL_CUSTOM_BUILD_NAME ""
 
-// All changes added by VP that aren't covered by another CustomModOption.
-#define MOD_BALANCE_VP	gCustomMods.isBALANCE_VP()
+/// IMPORTANT NOTES: Do NOT disable CustomModOptions by commenting out the defines in this file. This could cause the DLL to break. Instead, switch off the CustomModOption in the database by setting it to 0.
+/// Do not use #if defined(MOD_OPTION) to selectively enable code elsewhere in the DLL. Use if (MOD_OPTION) instead - this will cause the code to only run if the associated option is set to 1 in the database.
 
-//////////////////////////
-//MULTIPLAYER INSTRUCTIONS:
+/////////////////////////////////////////
+// KEYSTONE OPTIONS
 /////////////////////////////////////////
 
-//adds active diplomacy to Multiplayer games
-#define MOD_ACTIVE_DIPLOMACY			 gCustomMods.isACTIVE_DIPLOMACY()
-
-/////////////////////////////////
-//END MULTIPLAYER INSTRUCTIONS
-////////////////////////////////////////
+// All changes added by VP that aren't covered by another CustomModOption
+#define MOD_BALANCE_VP									gCustomMods.isBALANCE_VP()
 
 // Activates functions which depend on working with closed .exe code
-#define MOD_EXE_HACKING					 gCustomMods.isEXE_HACKING()
+#define MOD_EXE_HACKING									gCustomMods.isEXE_HACKING()
+
+// This adds the ability for AI players to contact human players in multiplayer with trade deals
+#define MOD_ACTIVE_DIPLOMACY							gCustomMods.isACTIVE_DIPLOMACY()
+
+// Comment out this line to remove minidumps - see http://forums.civfanatics.com/showthread.php?t=498919
+// If minidumps are enabled, do NOT set GenerateDebugInfo=No (Props -> Config Props -> Linker -> Debugging)
+#define MOD_DEBUG_MINIDUMP
+
+
+/////////////////////////////////////////
+// CORE BALANCE CHANGES
+// Enabled in Community Patch Only, but can be disabled
+// This is not a complete list of core balance changes - many more are integrated with no option to disable them
+// Core Pick 'N' Mix Mods that are enabled in the Community Patch have their own section just below this one
+/////////////////////////////////////////
+
+// Visible tiles stay visible until the end of the turn
+#define MOD_CORE_DELAYED_VISIBILITY						gCustomMods.isCORE_DELAYED_VISIBILITY()
+
+// When a military unit retreats, civilian and embarked units on the same tile also retreat
+#define MOD_CORE_CIVILIANS_RETREAT_WITH_MILITARY		gCustomMods.isCORE_CIVILIANS_RETREAT_WITH_MILITARY()
+
+// Great Engineers' Hurry Production produces completed buildings on the same turn as the Great Engineer is expended
+#define MOD_CORE_ENGINEER_HURRY							gCustomMods.isCORE_ENGINEER_HURRY()
+
+// Prevents repairing improvements in foreign lands with Workers, blocking the pillage-repair loop exploit
+#define MOD_CORE_NO_REPAIR_FOREIGN_LANDS				gCustomMods.isCORE_NO_REPAIR_FOREIGN_LANDS()
+
+// Disallows gifting units to major civs, since the AI cannot use this
+#define MOD_CORE_NO_INTERMAJOR_UNIT_GIFTING				gCustomMods.isCORE_NO_INTERMAJOR_UNIT_GIFTING()
+
+// Disallows healing on Mountain tiles, except in Cities
+#define MOD_CORE_NO_HEALING_ON_MOUNTAINS				gCustomMods.isCORE_NO_HEALING_ON_MOUNTAINS()
+
+// Tiles with Ice do not directly give any yields, even if one would be granted by Improvements, Policies, etc.
+#define MOD_CORE_NO_YIELD_ICE							gCustomMods.isCORE_NO_YIELD_ICE()
+
+
+/////////////////////////////////////////
+// CORE GLOBAL PICK'N'MIX MODS
+// Enabled in Community Patch Only, but can be disabled
+// Other supported Pick'N'Mix mods are listed in separate sections below
+// There are a number of integrated Pick'N'Mix mods that are perma-enabled and thus will not show up in any section
+/////////////////////////////////////////
+
+// Removes free Great People (from buildings, policies, traits, etc.) from the Great People counters
+#define MOD_GLOBAL_TRULY_FREE_GP						gCustomMods.isGLOBAL_TRULY_FREE_GP()
+
+// Separates the Great People counters for Engineers, Scientists, and Merchants
+#define MOD_GLOBAL_SEPARATE_GP_COUNTERS					gCustomMods.isGLOBAL_SEPARATE_GP_COUNTERS()
+
+// City States can be liberated after they have been "bought" (Austria's or Venice's UA)
+#define MOD_GLOBAL_CS_LIBERATE_AFTER_BUYOUT				gCustomMods.isGLOBAL_CS_LIBERATE_AFTER_BUYOUT()
+
+// Great Artists, Writers and Musicians that do NOT create Great Works can be "reborn"
+#define MOD_GLOBAL_NO_LOST_GREATWORKS					gCustomMods.isGLOBAL_NO_LOST_GREATWORKS()
+
+
+/////////////////////////////////////////
+// ENABLED GLOBAL PICK'N'MIX MODS
+// Enabled in Vox Populi, disabled in Community Patch Only
+/////////////////////////////////////////
+
+// Units gifted by City-States receive XP from their spawning city, not the City-State's capital
+#define MOD_GLOBAL_CS_GIFTS_LOCAL_XP					gCustomMods.isGLOBAL_CS_GIFTS_LOCAL_XP()
+
+// Give initial production boost for cities founded on forests, as if the forest had been chopped down by a worker
+#define MOD_GLOBAL_CITY_FOREST_BONUS					gCustomMods.isGLOBAL_CITY_FOREST_BONUS()
+
+// Give initial production boost for cities founded on jungles, as if the jungle had been chopped down by a worker
+#define MOD_GLOBAL_CITY_JUNGLE_BONUS					gCustomMods.isGLOBAL_CITY_JUNGLE_BONUS()
+
+// Permits ships to enter coastal forts/citadels in friendly lands
+#define MOD_GLOBAL_PASSABLE_FORTS						gCustomMods.isGLOBAL_PASSABLE_FORTS()
+
+// Paratroops take AA damage from hostile units
+#define MOD_GLOBAL_PARATROOPS_AA_DAMAGE					gCustomMods.isGLOBAL_PARATROOPS_AA_DAMAGE()
+
+// Permits City States to gift ships
+#define MOD_GLOBAL_CS_GIFT_SHIPS						gCustomMods.isGLOBAL_CS_GIFT_SHIPS()
+
+// City States give different gifts depending on their type (cultural, religious, maritime, etc)
+#define MOD_GLOBAL_CS_GIFTS								gCustomMods.isGLOBAL_CS_GIFTS()
+
+
+/////////////////////////////////////////
+// DISABLED GLOBAL PICK'N'MIX MODS
+// These can be enabled by players and modders
+/////////////////////////////////////////
+
+// Permits units to upgrade in allied militaristic City-States, but increases the # of turns until the next free unit spawns by UPGRADE_EXTRA_TURNS_UNIT_SPAWN, scaling with game speed
+#define MOD_GLOBAL_CS_UPGRADES						gCustomMods.isGLOBAL_CS_UPGRADES()
+
+// Changes the stacking limits based on what the tile is (city, fort, plain, etc) - AFFECTS SAVE GAME DATA FORMAT
+#define MOD_GLOBAL_STACKING_RULES                   gCustomMods.isGLOBAL_STACKING_RULES()
+
+// Great Generals and Admirals gained from combat experience spawn in the war-zone and not in a distant city
+#define MOD_GLOBAL_LOCAL_GENERALS                   gCustomMods.isGLOBAL_LOCAL_GENERALS()
+
+// Permits units to have promotion trees different from their assigned CombatClass
+#define MOD_GLOBAL_PROMOTION_CLASSES                gCustomMods.isGLOBAL_PROMOTION_CLASSES()
+
+// Goody Huts can always give gold, stops the late-game issue where entering a goody hut can result in nothing being awarded (v22)
+#define MOD_GLOBAL_ANYTIME_GOODY_GOLD               gCustomMods.isGLOBAL_ANYTIME_GOODY_GOLD()
+
+// Permit cities to have automaton workers (v89)
+#define MOD_GLOBAL_CITY_AUTOMATON_WORKERS           gCustomMods.isGLOBAL_CITY_AUTOMATON_WORKERS()
+
+// Enables rebasing to and airlifting to/from improvements (v74)
+#define MOD_GLOBAL_RELOCATION                       gCustomMods.isGLOBAL_RELOCATION()
+
+// Mountain plots return their terrain as TERRAIN_MOUNTAIN and any land unit may enter a mountain that has a road/rail route
+#define MOD_GLOBAL_ALPINE_PASSES                    gCustomMods.isGLOBAL_ALPINE_PASSES()
+
+// Trade routes can't be plundered on ocean tiles - too much sea to hide in, too many directions to escape in (v39)
+#define MOD_GLOBAL_NO_OCEAN_PLUNDERING              gCustomMods.isGLOBAL_NO_OCEAN_PLUNDERING()
+
+// Remove assembled spaceship parts from conquered capitals
+#define MOD_GLOBAL_NO_CONQUERED_SPACESHIPS          gCustomMods.isGLOBAL_NO_CONQUERED_SPACESHIPS()
+
+// Other player's settlers captured from Barbarians will sometimes remain as settlers
+#define MOD_GLOBAL_GRATEFUL_SETTLERS                gCustomMods.isGLOBAL_GRATEFUL_SETTLERS()
+
+// Units that can found a city take their religion with them (v34)
+#define MOD_GLOBAL_RELIGIOUS_SETTLERS               gCustomMods.isGLOBAL_RELIGIOUS_SETTLERS()
+
+// Route To will only build roads, or upgrade road to rail, for human players (v44)
+#define MOD_GLOBAL_QUICK_ROUTES                     gCustomMods.isGLOBAL_QUICK_ROUTES()
+
+// Subs under ice are immune to all attacks except from other subs
+#define MOD_GLOBAL_SUBS_UNDER_ICE_IMMUNITY          gCustomMods.isGLOBAL_SUBS_UNDER_ICE_IMMUNITY()
+
+// Nukes will melt ice
+#define MOD_GLOBAL_NUKES_MELT_ICE                   gCustomMods.isGLOBAL_NUKES_MELT_ICE() 
+
+// Great Works can generate different yields than just culture (v25)
+#define MOD_GLOBAL_GREATWORK_YIELDTYPES             gCustomMods.isGLOBAL_GREATWORK_YIELDTYPES()
+
+// Units of this type will not be gifted by City States (v46)
+#define MOD_GLOBAL_EXCLUDE_FROM_GIFTS               gCustomMods.isGLOBAL_EXCLUDE_FROM_GIFTS()
+
+// Units of this type may move after being upgraded (v46)
+#define MOD_GLOBAL_MOVE_AFTER_UPGRADE               gCustomMods.isGLOBAL_MOVE_AFTER_UPGRADE()
+
+// Units of this type may never embark (v46)
+#define MOD_GLOBAL_CANNOT_EMBARK                    gCustomMods.isGLOBAL_CANNOT_EMBARK()
+
+// Allows faith purchase of buildings in puppets
+#define MOD_GLOBAL_PURCHASE_FAITH_BUILDINGS_IN_PUPPETS	gCustomMods.isGLOBAL_PURCHASE_FAITH_BUILDINGS_IN_PUPPETS()
+
+// Separates out the repair fleet and change port abilities of the Great Admiral (v61)
+#define MOD_GLOBAL_SEPARATE_GREAT_ADMIRAL           gCustomMods.isGLOBAL_SEPARATE_GREAT_ADMIRAL()
+
+
+/////////////////////////////////////////
+// VOX POPULI BALANCE CHANGES
+// Enabled by default
+/////////////////////////////////////////
+
+
+/////////////////////////////////////////
+// OPTIONAL UI & QUALITY OF LIFE IMPROVEMENTS
+/////////////////////////////////////////
+
+// Turn off animations for Diplomats, Missionaries, Great Persons, etc. when playing with the Quick Movement game option enabled
+#define MOD_UI_QUICK_ANIMATIONS							gCustomMods.isUI_QUICK_ANIMATIONS()
+
+
+
 
 ///////////////////////
 // BATTLE ROYALE CODE
@@ -60,8 +225,7 @@
 // for debugging only
 #define MOD_UNIT_KILL_STATS gCustomMods.isUNIT_KILL_STATS()
 
-/// visible tiles stay visible until the end of the turn
-#define MOD_CORE_DELAYED_VISIBILITY gCustomMods.isCORE_DELAYED_VISIBILITY()
+
 
 /// ignore ZOC for those units which are likely to be killed by the enemy (alternatively ignore ZOC for all owned units)
 #define MOD_CORE_TWO_PASS_DANGER gCustomMods.isCORE_TWO_PASS_DANGER()
@@ -84,10 +248,6 @@
 // Comment out this line to switch off all unified yield logging
 // #define UNIFIEDLOGDEBUG "UnifiedYields.log"
 
-// Comment out this line to remove minidumps - see http://forums.civfanatics.com/showthread.php?t=498919
-// If minidumps are enabled, do NOT set GenerateDebugInfo=No (Props -> Config Props -> Linker -> Debugging)
-#define MOD_DEBUG_MINIDUMP
-
 // Comment these lines out to remove the associated code from the DLL,
 // Alternatively, set the associated entries in the CustomModOptions table to disable(0) or enable(1) at load-time
 
@@ -105,82 +265,12 @@
 #define MOD_BALANCE_PERMANENT_VOTE_COMMITMENTS	gCustomMods.isBALANCE_PERMANENT_VOTE_COMMITMENTS()
 // Make the UI show moves remaining in the form (exact movement points / 60) for the tile currently being moused over.
 #define MOD_UI_DISPLAY_PRECISE_MOVEMENT_POINTS	gCustomMods.isUI_DISPLAY_PRECISE_MOVEMENT_POINTS()
-// Turn off animations for diplomats, missionaries, great persons etc. when playing with quick movement enabled
-#define UI_QUICK_ANIMATIONS	gCustomMods.isUI_QUICK_ANIMATIONS()
 // Changes difficulty settings and adds more difficulty options
 #define MOD_ALTERNATIVE_DIFFICULTY                  gCustomMods.isALTERNATIVE_DIFFICULTY()
-// Changes the stacking limits based on what the tile is (city, fort, plain, etc) - AFFECTS SAVE GAME DATA FORMAT
-#define MOD_GLOBAL_STACKING_RULES                   gCustomMods.isGLOBAL_STACKING_RULES()
-// Great Generals and Admirals gained from combat experience spawn in the war-zone and not in a distant city
-#define MOD_GLOBAL_LOCAL_GENERALS                   gCustomMods.isGLOBAL_LOCAL_GENERALS()
 // Modifies Local Generals to spawn the units in the city closest to the warzone
 #define MOD_LOCAL_GENERALS_NEAREST_CITY             gCustomMods.isLOCAL_GENERALS_NEAREST_CITY()
-// Separates out the repair fleet and change port abilities of the Great Admiral (v61)
-#define MOD_GLOBAL_SEPARATE_GREAT_ADMIRAL           gCustomMods.isGLOBAL_SEPARATE_GREAT_ADMIRAL()
 // Lets all Civs get trade routes along rivers.
 #define MOD_RIVER_CITY_CONNECTIONS                      gCustomMods.isRIVER_CITY_CONNECTIONS()
-// Permits units to have promotion trees different from their assigned CombatClass
-#define MOD_GLOBAL_PROMOTION_CLASSES                gCustomMods.isGLOBAL_PROMOTION_CLASSES()
-// Permits ships to enter coastal forts/citadels in friendly lands
-#define MOD_GLOBAL_PASSABLE_FORTS                   gCustomMods.isGLOBAL_PASSABLE_FORTS()
-// Goody Huts can always give gold, stops the late-game issue where entering a goody hut can result in nothing being awarded (v22)
-#define MOD_GLOBAL_ANYTIME_GOODY_GOLD               gCustomMods.isGLOBAL_ANYTIME_GOODY_GOLD()
-// Give initial production boost for cities founded on forests, as if the forest had been chopped down by a worker
-#define MOD_GLOBAL_CITY_FOREST_BONUS                gCustomMods.isGLOBAL_CITY_FOREST_BONUS()
-// Give initial production boost for cities founded on jungle, as if the jungle had been chopped down by a worker (v72)
-#define MOD_GLOBAL_CITY_JUNGLE_BONUS                gCustomMods.isGLOBAL_CITY_JUNGLE_BONUS()
-// Permit cities to have automaton workers (v89)
-#define MOD_GLOBAL_CITY_AUTOMATON_WORKERS           gCustomMods.isGLOBAL_CITY_AUTOMATON_WORKERS()
-// Enables rebasing to and airlifting to/from improvements (v74)
-#define MOD_GLOBAL_RELOCATION                       gCustomMods.isGLOBAL_RELOCATION()
-// Mountain plots return their terrain as TERRAIN_MOUNTAIN and any land unit may enter a mountain that has a road/rail route
-#define MOD_GLOBAL_ALPINE_PASSES                    gCustomMods.isGLOBAL_ALPINE_PASSES()
-// Permits City States to gift ships
-#define MOD_GLOBAL_CS_GIFT_SHIPS                    gCustomMods.isGLOBAL_CS_GIFT_SHIPS()
-// Permits units to upgrade in allied militaristic City States
-#define MOD_GLOBAL_CS_UPGRADES                      gCustomMods.isGLOBAL_CS_UPGRADES()
-// City States can be liberated after they have been "bought" (Austria's or Venice's UA)
-#define MOD_GLOBAL_CS_LIBERATE_AFTER_BUYOUT         gCustomMods.isGLOBAL_CS_LIBERATE_AFTER_BUYOUT()
-// City States give different gifts depending on their type (cultural, religious, maritime, etc)
-#define MOD_GLOBAL_CS_GIFTS                         gCustomMods.isGLOBAL_CS_GIFTS()
-// Units gifted from City States receive XP from their spawning city, not the CS capital (v84)
-#define MOD_GLOBAL_CS_GIFTS_LOCAL_XP                gCustomMods.isGLOBAL_CS_GIFTS_LOCAL_XP()
-// Units attacking from cities, forts or citadels will not follow-up if they kill the defender
-#define MOD_GLOBAL_NO_FOLLOWUP_FROM_CITIES          gCustomMods.isGLOBAL_NO_FOLLOWUP_FROM_CITIES()
-// Units that can move after attacking can also capture civilian units (eg workers in empty barbarian camps) (v32)
-#define MOD_GLOBAL_CAPTURE_AFTER_ATTACKING          gCustomMods.isGLOBAL_CAPTURE_AFTER_ATTACKING()
-// Trade routes can't be plundered on ocean tiles - too much sea to hide in, too many directions to escape in (v39)
-#define MOD_GLOBAL_NO_OCEAN_PLUNDERING              gCustomMods.isGLOBAL_NO_OCEAN_PLUNDERING()
-// Remove assembled spaceship parts from conquered capitals
-#define MOD_GLOBAL_NO_CONQUERED_SPACESHIPS          gCustomMods.isGLOBAL_NO_CONQUERED_SPACESHIPS()
-// Other player's settlers captured from Barbarians will sometimes remain as settlers
-#define MOD_GLOBAL_GRATEFUL_SETTLERS                gCustomMods.isGLOBAL_GRATEFUL_SETTLERS()
-// Units that can found a city take their religion with them (v34)
-#define MOD_GLOBAL_RELIGIOUS_SETTLERS               gCustomMods.isGLOBAL_RELIGIOUS_SETTLERS()
-// Route To will only build roads, or upgrade road to rail, for human players (v44)
-#define MOD_GLOBAL_QUICK_ROUTES                     gCustomMods.isGLOBAL_QUICK_ROUTES()
-// Subs under ice are immune to all attacks except from other subs
-#define MOD_GLOBAL_SUBS_UNDER_ICE_IMMUNITY          gCustomMods.isGLOBAL_SUBS_UNDER_ICE_IMMUNITY()
-// Paratroops take AA damage from hostile units
-#define MOD_GLOBAL_PARATROOPS_AA_DAMAGE             gCustomMods.isGLOBAL_PARATROOPS_AA_DAMAGE()
-// Nukes will melt ice
-#define MOD_GLOBAL_NUKES_MELT_ICE                   gCustomMods.isGLOBAL_NUKES_MELT_ICE() 
-// Great Works can generate different yields than just culture (v25)
-#define MOD_GLOBAL_GREATWORK_YIELDTYPES             gCustomMods.isGLOBAL_GREATWORK_YIELDTYPES() 
-// Great Artists, Writers and Musicians that do NOT create Great Works can be "reborn" (v84)
-#define MOD_GLOBAL_NO_LOST_GREATWORKS               gCustomMods.isGLOBAL_NO_LOST_GREATWORKS() 
-// Units of this type will not be gifted by City States (v46)
-#define MOD_GLOBAL_EXCLUDE_FROM_GIFTS               gCustomMods.isGLOBAL_EXCLUDE_FROM_GIFTS()
-// Units of this type may move after being upgraded (v46)
-#define MOD_GLOBAL_MOVE_AFTER_UPGRADE               gCustomMods.isGLOBAL_MOVE_AFTER_UPGRADE()
-// Units of this type may never embark (v46)
-#define MOD_GLOBAL_CANNOT_EMBARK                    gCustomMods.isGLOBAL_CANNOT_EMBARK()
-// Separates the Engineer, Scientist and Merchant GP counters (v52)
-#define MOD_GLOBAL_SEPARATE_GP_COUNTERS             gCustomMods.isGLOBAL_SEPARATE_GP_COUNTERS()
-// Removes free GP (from buildings, policies, traits, etc) from the GP counters (v61)
-#define MOD_GLOBAL_TRULY_FREE_GP                    gCustomMods.isGLOBAL_TRULY_FREE_GP()
-// Allows faith purchase of buildings in puppets
-#define MOD_GLOBAL_PURCHASE_FAITH_BUILDINGS_IN_PUPPETS	gCustomMods.isGLOBAL_PURCHASE_FAITH_BUILDINGS_IN_PUPPETS()
 // Various new tables and logics for improvements
 #define MOD_IMPROVEMENTS_EXTENSIONS					gCustomMods.isIMPROVEMENTS_EXTENSIONS()
 // Various new tables and logics for plots
@@ -191,14 +281,6 @@
 #define MOD_ALTERNATE_ASSYRIA_TRAIT					gCustomMods.isALTERNATE_ASSYRIA_TRAIT()
 // Alters Siam's trait. Now affects all Yields, Resources, Happiness and Unit Gift frequency from City-States, and does not give bonus XP.
 #define MOD_ALTERNATE_SIAM_TRAIT					gCustomMods.isALTERNATE_SIAM_TRAIT()
-// No repairing tiles in foreign lands -- prevents an exploit where a human player can pillage and repair
-#define MOD_NO_REPAIR_FOREIGN_LANDS					gCustomMods.isNO_REPAIR_FOREIGN_LANDS()
-// No yield from Ice Features
-#define MOD_NO_YIELD_ICE							gCustomMods.isNO_YIELD_ICE()
-// No major civ gifting exploit
-#define MOD_NO_MAJORCIV_GIFTING						gCustomMods.isNO_MAJORCIV_GIFTING()
-// no healing on mountains if not a city plot
-#define MOD_NO_HEALING_ON_MOUNTAINS					gCustomMods.isNO_HEALING_ON_MOUNTAINS()
 // Allows pillaging of permanent improvements if at war
 #define MOD_PILLAGE_PERMANENT_IMPROVEMENTS			gCustomMods.isPILLAGE_PERMANENT_IMPROVEMENTS()
 // Tech bonuses from other teams require an embassy or spy in their capital and not from just having met them (v30)
@@ -261,7 +343,6 @@
 #define MOD_BALANCE_CORE_BUILDING_INVESTMENTS		gCustomMods.isBALANCE_CORE_BUILDING_INVESTMENTS()
 #define MOD_BALANCE_CORE_UNIT_INVESTMENTS			gCustomMods.isBALANCE_CORE_UNIT_INVESTMENTS()
 #define MOD_BALANCE_CORE_BUILDING_RESOURCE_MAINTENANCE		gCustomMods.isBALANCE_CORE_BUILDING_RESOURCE_MAINTENANCE()
-#define MOD_BALANCE_CORE_ENGINEER_HURRY				gCustomMods.isBALANCE_CORE_ENGINEER_HURRY()
 #define MOD_BALANCE_CORE_MAYA_CHANGE				gCustomMods.isBALANCE_CORE_MAYA_CHANGE()
 #define MOD_BALANCE_CORE_PORTUGAL_CHANGE			gCustomMods.isBALANCE_CORE_PORTUGAL_CHANGE()
 #define MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING	gCustomMods.isBALANCE_CORE_MINOR_VARIABLE_BULLYING()
@@ -462,8 +543,6 @@
 #define MOD_ADJACENT_BLOCKADE						gCustomMods.isADJACENT_BLOCKADE()
 // Units take damage in enemy lands
 #define MOD_ATTRITION								gCustomMods.isATTRITION()
-// When a military unit retreats, civilians units on the same tile also retreat
-#define MOD_CIVILIANS_RETREAT_WITH_MILITARY			gCustomMods.isCIVILIANS_RETREAT_WITH_MILITARY()
 // Linked&Group Movement
 #define MOD_LINKED_MOVEMENT							gCustomMods.isLINKED_MOVEMENT()
 // Era scaling for GE & GM yields
@@ -1261,14 +1340,38 @@ public:
 	int getOption(const std::string& sOption, int defValue = 0);
 	int getCivOption(const char* szCiv, const char* szName, int defValue = 0);
 
+	// Keystone Options
 	MOD_OPT_DECL(BALANCE_VP);
+	MOD_OPT_DECL(EXE_HACKING);
+	MOD_OPT_DECL(ACTIVE_DIPLOMACY);
+
+	// Core Balance Changes
+	MOD_OPT_DECL(CORE_DELAYED_VISIBILITY);
+	MOD_OPT_DECL(CORE_CIVILIANS_RETREAT_WITH_MILITARY);
+	MOD_OPT_DECL(CORE_ENGINEER_HURRY);
+	MOD_OPT_DECL(CORE_NO_REPAIR_FOREIGN_LANDS);
+	MOD_OPT_DECL(CORE_NO_INTERMAJOR_UNIT_GIFTING);
+	MOD_OPT_DECL(CORE_NO_HEALING_ON_MOUNTAINS);
+	MOD_OPT_DECL(CORE_NO_YIELD_ICE);
+
+	// Core Global Pick'N'Mix Mods
+	MOD_OPT_DECL(GLOBAL_TRULY_FREE_GP);
+	MOD_OPT_DECL(GLOBAL_CS_LIBERATE_AFTER_BUYOUT);
+	MOD_OPT_DECL(GLOBAL_NO_LOST_GREATWORKS);
+
+	// Enabled Global Pick'N'Mix Mods
+	MOD_OPT_DECL(GLOBAL_SEPARATE_GP_COUNTERS);
+
+	// Optional UI & Quality of Life Improvements
+	MOD_OPT_DECL(UI_QUICK_ANIMATIONS);
+
+
 	MOD_OPT_DECL(CORE_DEBUGGING);
 	MOD_OPT_DECL(BALANCE_CITY_STATE_TRAITS);
 	MOD_OPT_DECL(BALANCE_CITY_STATE_PERSONALITIES);
 	MOD_OPT_DECL(BALANCE_ENCAMPMENTS_SPAWN_ON_VISIBLE_TILES);
 	MOD_OPT_DECL(BALANCE_PERMANENT_VOTE_COMMITMENTS);
 	MOD_OPT_DECL(UI_DISPLAY_PRECISE_MOVEMENT_POINTS);
-	MOD_OPT_DECL(UI_QUICK_ANIMATIONS);
 	MOD_OPT_DECL(ALTERNATIVE_DIFFICULTY);
 	MOD_OPT_DECL(GLOBAL_STACKING_RULES);
 	MOD_OPT_DECL(GLOBAL_LOCAL_GENERALS);
@@ -1286,12 +1389,9 @@ public:
 	MOD_OPT_DECL(GLOBAL_ALPINE_PASSES);
 	MOD_OPT_DECL(GLOBAL_CS_GIFT_SHIPS);
 	MOD_OPT_DECL(GLOBAL_CS_UPGRADES);
-	MOD_OPT_DECL(GLOBAL_CS_LIBERATE_AFTER_BUYOUT);
 	MOD_OPT_DECL(GLOBAL_CS_GIFTS);
 	MOD_OPT_DECL(GLOBAL_CS_GIFTS_LOCAL_XP);
 	MOD_OPT_DECL(GLOBAL_CS_OVERSEAS_TERRITORY);
-	MOD_OPT_DECL(GLOBAL_NO_FOLLOWUP_FROM_CITIES);
-	MOD_OPT_DECL(GLOBAL_CAPTURE_AFTER_ATTACKING);
 	MOD_OPT_DECL(GLOBAL_NO_OCEAN_PLUNDERING);
 	MOD_OPT_DECL(GLOBAL_NO_CONQUERED_SPACESHIPS);
 	MOD_OPT_DECL(GLOBAL_GRATEFUL_SETTLERS);
@@ -1299,24 +1399,17 @@ public:
 	MOD_OPT_DECL(GLOBAL_QUICK_ROUTES);
 	MOD_OPT_DECL(GLOBAL_SUBS_UNDER_ICE_IMMUNITY);
 	MOD_OPT_DECL(GLOBAL_PARATROOPS_AA_DAMAGE);
-	MOD_OPT_DECL(GLOBAL_NUKES_MELT_ICE); 
-	MOD_OPT_DECL(GLOBAL_GREATWORK_YIELDTYPES); 
-	MOD_OPT_DECL(GLOBAL_NO_LOST_GREATWORKS); 
+	MOD_OPT_DECL(GLOBAL_NUKES_MELT_ICE);
+	MOD_OPT_DECL(GLOBAL_GREATWORK_YIELDTYPES);
 	MOD_OPT_DECL(GLOBAL_EXCLUDE_FROM_GIFTS);
 	MOD_OPT_DECL(GLOBAL_MOVE_AFTER_UPGRADE);
 	MOD_OPT_DECL(GLOBAL_CANNOT_EMBARK);
-	MOD_OPT_DECL(GLOBAL_SEPARATE_GP_COUNTERS);
-	MOD_OPT_DECL(GLOBAL_TRULY_FREE_GP);
 	MOD_OPT_DECL(GLOBAL_PURCHASE_FAITH_BUILDINGS_IN_PUPPETS);
 	MOD_OPT_DECL(IMPROVEMENTS_EXTENSIONS);
 	MOD_OPT_DECL(PLOTS_EXTENSIONS);
 	MOD_OPT_DECL(NO_AUTO_SPAWN_PROPHET);
 	MOD_OPT_DECL(ALTERNATE_ASSYRIA_TRAIT);
 	MOD_OPT_DECL(ALTERNATE_SIAM_TRAIT);
-	MOD_OPT_DECL(NO_REPAIR_FOREIGN_LANDS);
-	MOD_OPT_DECL(NO_YIELD_ICE);
-	MOD_OPT_DECL(NO_MAJORCIV_GIFTING);
-	MOD_OPT_DECL(NO_HEALING_ON_MOUNTAINS);
 	MOD_OPT_DECL(PILLAGE_PERMANENT_IMPROVEMENTS);
 	MOD_OPT_DECL(DIPLOMACY_TECH_BONUSES);
 	MOD_OPT_DECL(DIPLOMACY_NO_LEADERHEADS);
@@ -1358,7 +1451,6 @@ public:
 	MOD_OPT_DECL(BALANCE_CORE_BUILDING_INVESTMENTS);
 	MOD_OPT_DECL(BALANCE_CORE_UNIT_INVESTMENTS);
 	MOD_OPT_DECL(BALANCE_CORE_BUILDING_RESOURCE_MAINTENANCE);
-	MOD_OPT_DECL(BALANCE_CORE_ENGINEER_HURRY);
 	MOD_OPT_DECL(BALANCE_CORE_MAYA_CHANGE);
 	MOD_OPT_DECL(BALANCE_CORE_PORTUGAL_CHANGE);
 	MOD_OPT_DECL(BALANCE_CORE_MINOR_VARIABLE_BULLYING);
@@ -1538,8 +1630,6 @@ public:
 	MOD_OPT_DECL(EVENTS_RED_COMBAT_ABORT);
 	MOD_OPT_DECL(EVENTS_RED_COMBAT_RESULT);
 	MOD_OPT_DECL(EVENTS_RED_COMBAT_ENDED);
-	MOD_OPT_DECL(ACTIVE_DIPLOMACY);
-	MOD_OPT_DECL(EXE_HACKING);
 	MOD_OPT_DECL(API_ACHIEVEMENTS);
 
 	MOD_OPT_DECL(ISKA_HERITAGE);
@@ -1552,14 +1642,12 @@ public:
 	MOD_OPT_DECL(UNIT_KILL_STATS);
 
 	MOD_OPT_DECL(CORE_TWO_PASS_DANGER);
-	MOD_OPT_DECL(CORE_DELAYED_VISIBILITY);
 	MOD_OPT_DECL(CORE_HOVERING_UNITS);
 	MOD_OPT_DECL(CORE_RESILIENT_PANTHEONS);
 
 	MOD_OPT_DECL(AI_UNIT_PRODUCTION);
 	MOD_OPT_DECL(ADJACENT_BLOCKADE);
 	MOD_OPT_DECL(ATTRITION);
-	MOD_OPT_DECL(CIVILIANS_RETREAT_WITH_MILITARY);
 	MOD_OPT_DECL(LINKED_MOVEMENT);
 	MOD_OPT_DECL(GP_ERA_SCALING);
 	MOD_OPT_DECL(SQUADS);

@@ -2941,19 +2941,15 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 
 	// Repairing an Improvement that's been pillaged
 	CvBuildInfo& thisBuildInfo = *GC.getBuildInfo(eBuild);
-	if(thisBuildInfo.isRepair())
+	if (thisBuildInfo.isRepair())
 	{
-#if defined(MOD_NO_REPAIR_FOREIGN_LANDS)
-		if(MOD_NO_REPAIR_FOREIGN_LANDS)
+		if (MOD_CORE_NO_REPAIR_FOREIGN_LANDS)
 		{
-			//Can't repair outside of owned territory.
-			if(ePlayer != NO_PLAYER && getOwner() != NO_PLAYER && getOwner() != ePlayer)
-			{
+			// Can't repair outside of owned territory.
+			if (ePlayer != NO_PLAYER && getOwner() != NO_PLAYER && getOwner() != ePlayer)
 				return false;
-			}
 		}
-#endif
-		if(IsImprovementPillaged() || IsRoutePillaged())
+		if (IsImprovementPillaged() || IsRoutePillaged())
 		{
 			bValid = true;
 		}
@@ -3449,16 +3445,8 @@ int CvPlot::getFeatureProduction(BuildTypes eBuild, PlayerTypes ePlayer, CvCity*
 		iProduction = GC.getBuildInfo(eBuild)->getFeatureProduction(getFeatureType());
 	}
 
-	if (MOD_BALANCE_CORE_SETTLER_ADVANCED)
-	{
-		iProduction *= std::max(0, (GET_PLAYER(ePlayer).getFeatureProductionModifier()));
-		iProduction /= 100;
-	}
-	else
-	{
-		iProduction *= std::max(0, (GET_PLAYER(ePlayer).getFeatureProductionModifier() + 100));
-		iProduction /= 100;
-	}
+	iProduction *= std::max(0, GET_PLAYER(ePlayer).getFeatureProductionModifier());
+	iProduction /= 100;
 
 	iProduction *= GC.getGame().getGameSpeedInfo().getFeatureProductionPercent();
 	iProduction /= 100;
@@ -4782,16 +4770,13 @@ bool CvPlot::isFortification(TeamTypes eOccupyingTeam) const
 	if (isCity())
 		return true;
 
-	if (MOD_GLOBAL_NO_FOLLOWUP_FROM_CITIES)
+	// If the attacker is in a fort or citadel or other improvement with NoFollowUp, don't advance
+	TeamTypes eOwnerTeam = getTeam();
+	if ((eOwnerTeam == NO_TEAM || eOwnerTeam == eOccupyingTeam) && getImprovementType() != NO_IMPROVEMENT && !IsImprovementPillaged())
 	{
-		// If the attacker is in a fort or citadel or other improvement with NoFollowUp, don't advance
-		TeamTypes eOwnerTeam = getTeam();
-		if ((eOwnerTeam == NO_TEAM || eOwnerTeam == eOccupyingTeam) && getImprovementType() != NO_IMPROVEMENT && !IsImprovementPillaged())
-		{
-			CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(getImprovementType());
-			if (pImprovementInfo && pImprovementInfo->IsNoFollowUp())
-				return true;
-		}
+		CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(getImprovementType());
+		if (pImprovementInfo && pImprovementInfo->IsNoFollowUp())
+			return true;
 	}
 
 	return false;
@@ -8081,13 +8066,13 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 			CvImprovementEntry& oldImprovementEntry = *GC.getImprovementInfo(eOldImprovement);
 
 			DomainTypes eTradeRouteDomain = NO_DOMAIN;
-			if (oldImprovementEntry.IsAllowsWalkWater()) {
+			if (oldImprovementEntry.IsAllowsWalkWater())
+			{
 				eTradeRouteDomain = DOMAIN_LAND;
-#if defined(MOD_GLOBAL_PASSABLE_FORTS)
 			}
-			else if (oldImprovementEntry.IsMakesPassable()) {
+			else if (oldImprovementEntry.IsMakesPassable())
+			{
 				eTradeRouteDomain = DOMAIN_SEA;
-#endif
 			}
 
 
@@ -11164,40 +11149,26 @@ int CvPlot::calculateYieldFast(YieldTypes eYield, bool bDisplay, const CvCity* p
 	RouteTypes eRoute = NO_ROUTE;
 	PlayerTypes ePlayer = NO_PLAYER;
 
-	if(bDisplay && GC.getGame().isDebugMode())
-	{
-		return getYield(eYield);
-	}
-
-	if(getTerrainType() == NO_TERRAIN)
-	{
+	if (getTerrainType() == NO_TERRAIN)
 		return 0;
-	}
-#if defined(MOD_NO_YIELD_ICE)
-	if(MOD_NO_YIELD_ICE)
-	{
-		if(isIce())
-		{
-			return 0;
-		}
-	}
-#endif
 
-	if(!isPotentialCityWork())
-	{
+	if (MOD_CORE_NO_YIELD_ICE && isIce())
 		return 0;
-	}
 
-	if(bDisplay)
+	if (!isPotentialCityWork())
+		return 0;
+
+	if (bDisplay)
 	{
+		if (GC.getGame().isDebugMode())
+			return getYield(eYield);
+
 		ePlayer = getRevealedOwner(GC.getGame().getActiveTeam());
 		eImprovement = getRevealedImprovementType(GC.getGame().getActiveTeam());
 		eRoute = getRevealedRouteType(GC.getGame().getActiveTeam());
 
-		if(ePlayer == NO_PLAYER)
-		{
+		if (ePlayer == NO_PLAYER)
 			ePlayer = GC.getGame().getActivePlayer();
-		}
 	}
 	else
 	{
@@ -11207,9 +11178,7 @@ int CvPlot::calculateYieldFast(YieldTypes eYield, bool bDisplay, const CvCity* p
 
 		// For tile picker
 		if (ePlayer == NO_PLAYER && pOwningCity)
-		{
 			ePlayer = pOwningCity->getOwner();
-		}
 	}
 
 	if (IsImprovementPillaged() || bAssumeNoImprovement)
@@ -11598,7 +11567,7 @@ PlotVisibilityChangeResult CvPlot::changeVisibilityCount(TeamTypes eTeam, int iC
 		}
 	}
 
-	// We could se the plot before but not anymore
+	// We could see the plot before but not anymore
 	// With delayed visibility we do this in setTurnActive()
 	if (!MOD_CORE_DELAYED_VISIBILITY && bOldVisibility && !isVisible(eTeam))
 	{
