@@ -808,7 +808,7 @@ void CvConnectionService::RouteMessage(const std::string& messageJson)
 	{
 		// Extract parameters for external function registration
 		const char* functionName = (*m_pMainThreadReadBuffer)["name"];
-		bool bAsync = (*m_pMainThreadReadBuffer)["async"] | false;
+		bool bAsync = (*m_pMainThreadReadBuffer)["async"];
 		
 		// Register the external function
 		if (functionName) RegisterExternalFunction(functionName, bAsync);
@@ -825,7 +825,7 @@ void CvConnectionService::RouteMessage(const std::string& messageJson)
 	{
 		// Extract parameters for external call response
 		const char* callId = (*m_pMainThreadReadBuffer)["id"];
-		bool bSuccess = (*m_pMainThreadReadBuffer)["success"] | false;
+		bool bSuccess = (*m_pMainThreadReadBuffer)["success"];
 		
 		// Parse error code from error object if present
 		const char* error = nullptr;

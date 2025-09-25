@@ -2347,6 +2347,8 @@ CompareResult compare(JsonVariantConst lhs,
 struct VariantOperatorTag {};
 template <typename TVariant>
 struct VariantOperators : VariantOperatorTag {
+// Vox Deorum: Disable operator| for MSVC 2008 due to template friend function bugs
+#if !defined(_MSC_VER) || _MSC_VER >= 1600
   template <typename T>
   friend
       typename enable_if<!IsVariant<T>::value && !is_array<T>::value, T>::type
@@ -2371,6 +2373,7 @@ struct VariantOperators : VariantOperatorTag {
     else
       return defaultValue;
   }
+#endif // !defined(_MSC_VER) || _MSC_VER >= 1600
   template <typename T>
   friend bool operator==(T* lhs, TVariant rhs) {
     return compare(rhs, lhs) == COMPARE_RESULT_EQUAL;

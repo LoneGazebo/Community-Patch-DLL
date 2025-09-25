@@ -16406,104 +16406,56 @@ int CvLuaPlayer::lSetPersona(lua_State* L)
 							return 0;
 			}
 
-			// Helper lambda to get value from table
-			auto GetTableValue = [L](const char* key) -> int {
-							lua_pushstring(L, key);
-							lua_gettable(L, 2);
-							int value = -1;
-							if (lua_isnumber(L, -1))
-							{
-											value = lua_tointeger(L, -1);
-											// Clamp to valid range (0-10)
-											if (value < 0) value = 0;
-											if (value > 10) value = 10;
-							}
-							lua_pop(L, 1);
-							return value;
-			};
+			// Helper macro to get value from table
+#define GET_TABLE_VALUE(key, var) \
+			{ \
+							lua_pushstring(L, key); \
+							lua_gettable(L, 2); \
+							if (lua_isnumber(L, -1)) \
+							{ \
+											int value = lua_tointeger(L, -1); \
+											if (value < 1) value = 1; \
+											if (value > 10) value = 10; \
+											if (value >= 0) var = value; \
+							} \
+							lua_pop(L, 1); \
+			}
 
 			// Set personality values (only if present in the table)
-			int val;
+			GET_TABLE_VALUE("VictoryCompetitiveness", pDiplo->m_iVictoryCompetitiveness);
+			GET_TABLE_VALUE("WonderCompetitiveness", pDiplo->m_iWonderCompetitiveness);
+			GET_TABLE_VALUE("MinorCivCompetitiveness", pDiplo->m_iMinorCivCompetitiveness);
+			GET_TABLE_VALUE("Boldness", pDiplo->m_iBoldness);
 
-			val = GetTableValue("VictoryCompetitiveness");
-			if (val >= 0) pDiplo->m_iVictoryCompetitiveness = val;
+			GET_TABLE_VALUE("DiploBalance", pDiplo->m_iDiploBalance);
+			GET_TABLE_VALUE("WarmongerHate", pDiplo->m_iWarmongerHate);
+			GET_TABLE_VALUE("Friendliness", pDiplo->m_iDoFWillingness);
+			GET_TABLE_VALUE("DenounceWillingness", pDiplo->m_iDenounceWillingness);
+			GET_TABLE_VALUE("WorkWithWillingness", pDiplo->m_iWorkWithWillingness);
+			GET_TABLE_VALUE("WorkAgainstWillingness", pDiplo->m_iWorkAgainstWillingness);
+			GET_TABLE_VALUE("Loyalty", pDiplo->m_iLoyalty);
+			GET_TABLE_VALUE("Forgiveness", pDiplo->m_iForgiveness);
+			GET_TABLE_VALUE("Neediness", pDiplo->m_iNeediness);
+			GET_TABLE_VALUE("Meanness", pDiplo->m_iMeanness);
 
-			val = GetTableValue("WonderCompetitiveness");
-			if (val >= 0) pDiplo->m_iWonderCompetitiveness = val;
-
-			val = GetTableValue("MinorCivCompetitiveness");
-			if (val >= 0) pDiplo->m_iMinorCivCompetitiveness = val;
-
-			val = GetTableValue("Boldness");
-			if (val >= 0) pDiplo->m_iBoldness = val;
-
-			val = GetTableValue("DiploBalance");
-			if (val >= 0) pDiplo->m_iDiploBalance = val;
-
-			val = GetTableValue("WarmongerHate");
-			if (val >= 0) pDiplo->m_iWarmongerHate = val;
-
-			val = GetTableValue("Friendliness");
-			if (val >= 0) pDiplo->m_iDoFWillingness = val;
-
-			val = GetTableValue("DenounceWillingness");
-			if (val >= 0) pDiplo->m_iDenounceWillingness = val;
-
-			val = GetTableValue("WorkWithWillingness");
-			if (val >= 0) pDiplo->m_iWorkWithWillingness = val;
-
-			val = GetTableValue("WorkAgainstWillingness");
-			if (val >= 0) pDiplo->m_iWorkAgainstWillingness = val;
-
-			val = GetTableValue("Loyalty");
-			if (val >= 0) pDiplo->m_iLoyalty = val;
-
-			val = GetTableValue("Forgiveness");
-			if (val >= 0) pDiplo->m_iForgiveness = val;
-
-			val = GetTableValue("Neediness");
-			if (val >= 0) pDiplo->m_iNeediness = val;
-
-			val = GetTableValue("Meanness");
-			if (val >= 0) pDiplo->m_iMeanness = val;
-
-			val = GetTableValue("Chattiness");
-			if (val >= 0) pDiplo->m_iChattiness = val;
+			GET_TABLE_VALUE("Chattiness", pDiplo->m_iChattiness);
 
 			// Set approach biases
-			val = GetTableValue("WarBias");
-			if (val >= 0) pDiplo->m_aiMajorCivApproachBiases[CIV_APPROACH_WAR] = val;
-
-			val = GetTableValue("HostileBias");
-			if (val >= 0) pDiplo->m_aiMajorCivApproachBiases[CIV_APPROACH_HOSTILE] = val;
-
-			val = GetTableValue("DeceptiveBias");
-			if (val >= 0) pDiplo->m_aiMajorCivApproachBiases[CIV_APPROACH_DECEPTIVE] = val;
-
-			val = GetTableValue("GuardedBias");
-			if (val >= 0) pDiplo->m_aiMajorCivApproachBiases[CIV_APPROACH_GUARDED] = val;
-
-			val = GetTableValue("AfraidBias");
-			if (val >= 0) pDiplo->m_aiMajorCivApproachBiases[CIV_APPROACH_AFRAID] = val;
-
-			val = GetTableValue("FriendlyBias");
-			if (val >= 0) pDiplo->m_aiMajorCivApproachBiases[CIV_APPROACH_FRIENDLY] = val;
-
-			val = GetTableValue("NeutralBias");
-			if (val >= 0) pDiplo->m_aiMajorCivApproachBiases[CIV_APPROACH_NEUTRAL] = val;
+			GET_TABLE_VALUE("WarBias", pDiplo->m_aiMajorCivApproachBiases[CIV_APPROACH_WAR]);
+			GET_TABLE_VALUE("HostileBias", pDiplo->m_aiMajorCivApproachBiases[CIV_APPROACH_HOSTILE]);
+			GET_TABLE_VALUE("DeceptiveBias", pDiplo->m_aiMajorCivApproachBiases[CIV_APPROACH_DECEPTIVE]);
+			GET_TABLE_VALUE("GuardedBias", pDiplo->m_aiMajorCivApproachBiases[CIV_APPROACH_GUARDED]);
+			GET_TABLE_VALUE("AfraidBias", pDiplo->m_aiMajorCivApproachBiases[CIV_APPROACH_AFRAID]);
+			GET_TABLE_VALUE("FriendlyBias", pDiplo->m_aiMajorCivApproachBiases[CIV_APPROACH_FRIENDLY]);
+			GET_TABLE_VALUE("NeutralBias", pDiplo->m_aiMajorCivApproachBiases[CIV_APPROACH_NEUTRAL]);
 
 			// Set minor civ approach biases
-			val = GetTableValue("MinorCivWarBias");
-			if (val >= 0) pDiplo->m_iMinorCivWarBias = val;
+			GET_TABLE_VALUE("MinorCivWarBias", pDiplo->m_iMinorCivWarBias);
+			GET_TABLE_VALUE("MinorCivHostileBias", pDiplo->m_iMinorCivHostileBias);
+			GET_TABLE_VALUE("MinorCivNeutralBias", pDiplo->m_iMinorCivNeutralBias);
+			GET_TABLE_VALUE("MinorCivFriendlyBias", pDiplo->m_iMinorCivFriendlyBias);
 
-			val = GetTableValue("MinorCivHostileBias");
-			if (val >= 0) pDiplo->m_iMinorCivHostileBias = val;
-
-			val = GetTableValue("MinorCivNeutralBias");
-			if (val >= 0) pDiplo->m_iMinorCivNeutralBias = val;
-
-			val = GetTableValue("MinorCivFriendlyBias");
-			if (val >= 0) pDiplo->m_iMinorCivFriendlyBias = val;
+#undef GET_TABLE_VALUE
 
 			return 0;
 }
