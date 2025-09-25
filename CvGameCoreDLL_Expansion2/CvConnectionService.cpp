@@ -1623,10 +1623,11 @@ void CvConnectionService::ForwardGameEvent(const char* eventName, ICvEngineScrip
 		
 		// Extract arguments to JSON payload
 		JsonObject payload = message.createNestedObject("payload");
+		unsigned int argCount = -1;
 		
 		if (args != NULL)
 		{
-			unsigned int argCount = args->Count();
+			argCount = args->Count();
 			JsonArray argsArray = payload.createNestedArray("args");
 			
 			for (unsigned int i = 0; i < argCount; i++)
