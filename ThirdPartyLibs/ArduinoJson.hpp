@@ -244,7 +244,13 @@ template <typename T>
 struct ConverterNeedsWriteableRef;
 }  // namespace ARDUINOJSON_NAMESPACE
 #include <stddef.h>
-#include <stdint.h>
+#if defined(_MSC_VER) && _MSC_VER < 1600
+    // MSVC 2008 and older don't have stdint.h
+    #include "msinttypes/stdint.h"
+#else
+    // Modern compilers (including clang/LLVM) have these headers
+    #include <stdint.h>
+#endif
 namespace ARDUINOJSON_NAMESPACE {
 #if ARDUINOJSON_ENABLE_ALIGNMENT
 inline bool isAligned(size_t value) {
