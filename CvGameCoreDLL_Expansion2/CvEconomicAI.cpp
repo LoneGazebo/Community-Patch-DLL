@@ -133,16 +133,16 @@ bool CvEconomicAIStrategyXMLEntry::CacheResults(Database::Results& kResults, CvD
 /// What player flavors will be added by adopting this Strategy?
 int CvEconomicAIStrategyXMLEntry::GetPlayerFlavorValue(int i) const
 {
-	ASSERT_DEBUG(i < GC.getNumFlavorTypes(), "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumFlavorTypes(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piPlayerFlavorValue ? m_piPlayerFlavorValue[i] : -1;
 }
 
 /// What city flavors will be added by adopting this Strategy?
 int CvEconomicAIStrategyXMLEntry::GetCityFlavorValue(int i) const
 {
-	ASSERT_DEBUG(i < GC.getNumFlavorTypes(), "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumFlavorTypes(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piCityFlavorValue ? m_piCityFlavorValue[i] : -1;
 }
 
@@ -155,8 +155,8 @@ int CvEconomicAIStrategyXMLEntry::GetWeightThreshold() const
 /// How do a player's Personality Flavors affect the Threshold for adopting a Strategy? (if applicable)
 int CvEconomicAIStrategyXMLEntry::GetPersonalityFlavorThresholdMod(int i) const
 {
-	ASSERT_DEBUG(i < GC.getNumFlavorTypes(), "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumFlavorTypes(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piPersonalityFlavorThresholdMod ? m_piPersonalityFlavorThresholdMod[i] : -1;
 }
 
@@ -281,10 +281,10 @@ void CvEconomicAI::Init(CvEconomicAIStrategyXMLEntries* pAIStrategies, CvPlayer*
 	m_pPlayer = pPlayer;
 
 	// Initialize arrays
-	ASSERT_DEBUG(m_pabUsingStrategy==NULL, "about to leak memory, CvStrategyAI::m_pabUsingStrategy");
+	ASSERT(m_pabUsingStrategy==NULL, "about to leak memory, CvStrategyAI::m_pabUsingStrategy");
 	m_pabUsingStrategy = FNEW(bool[m_pAIStrategies->GetNumEconomicAIStrategies()], c_eCiv5GameplayDLL, 0);
 
-	ASSERT_DEBUG(m_paiTurnStrategyAdopted==NULL, "about to leak memory, CvStrategyAI::m_paiTurnStrategyAdopted");
+	ASSERT(m_paiTurnStrategyAdopted==NULL, "about to leak memory, CvStrategyAI::m_paiTurnStrategyAdopted");
 	m_paiTurnStrategyAdopted = FNEW(int[m_pAIStrategies->GetNumEconomicAIStrategies()], c_eCiv5GameplayDLL, 0);
 
 	m_aiTempFlavors.init();
@@ -341,9 +341,9 @@ void CvEconomicAI::Reset()
 template<typename EconomicAI, typename Visitor>
 void CvEconomicAI::Serialize(EconomicAI& economicAI, Visitor& visitor)
 {
-	ASSERT_DEBUG(economicAI.m_pAIStrategies != NULL);
+	ASSERT(economicAI.m_pAIStrategies != NULL);
 	const int iNumStrategies = economicAI.m_pAIStrategies->GetNumEconomicAIStrategies();
-	ASSERT_DEBUG(iNumStrategies > 0, "Number of AIStrategies to serialize is expected to greater than 0");
+	ASSERT(iNumStrategies > 0, "Number of AIStrategies to serialize is expected to greater than 0");
 	visitor(MakeConstSpan(economicAI.m_pabUsingStrategy, iNumStrategies));
 	visitor(MakeConstSpan(economicAI.m_paiTurnStrategyAdopted, iNumStrategies));
 
@@ -3493,7 +3493,7 @@ bool EconomicAIHelpers::IsTestStrategy_TechLeader(CvPlayer* pPlayer)
 				eFlavorEspionage = eFlavor;
 			}
 		}
-		ASSERT_DEBUG(eFlavorEspionage != NO_FLAVOR, "Could not find espionage flavor!");
+		PRECONDITION(eFlavorEspionage != NO_FLAVOR, "Could not find espionage flavor!");
 
 		float fRatio = iNumPlayersAheadInTech / (float)iNumOtherPlayers;
 		float fCutOff = (0.05f * pPlayer->GetFlavorManager()->GetPersonalityIndividualFlavor(eFlavorEspionage));
@@ -3973,7 +3973,7 @@ bool EconomicAIHelpers::IsTestStrategy_NeedImprovement(CvPlayer* pPlayer, YieldT
 		UNREACHABLE(); // Only YIELD_FOOD & YIELD_PRODUCTION supported.
 	}
 
-	ASSERT_DEBUG(eCityStrategy != NO_AICITYSTRATEGY, "No strategy found. What?");
+	PRECONDITION(eCityStrategy != NO_AICITYSTRATEGY, "No strategy found. What?");
 	if(eCityStrategy == NO_AICITYSTRATEGY)
 	{
 		return false;

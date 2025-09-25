@@ -516,7 +516,7 @@ int CvAIOperation::GrabUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTarget
 	for (size_t iI = 0; iI < pArmy->GetNumFormationEntries(); iI++)
 	{
 		CvArmyFormationSlot* pSlot = pArmy->GetSlotStatus(iI);
-		ASSERT_DEBUG(pSlot != NULL, "GetSlotStatus returned null - array bounds issue");
+		ASSERT(pSlot != NULL, "GetSlotStatus returned null - array bounds issue");
 
 		if (pSlot->IsFree())
 		{
@@ -1349,7 +1349,7 @@ bool CvAIOperation::FindBestFitReserveUnit(OperationSlot thisOperationSlot, vect
 		return false;
 
 	CvArmyFormationSlot* pSlot = pThisArmy->GetSlotStatus(thisOperationSlot.m_iSlotID);
-	ASSERT_DEBUG(pSlot != NULL, "GetSlotStatus returned null - slot ID out of bounds");
+	PRECONDITION(pSlot != NULL, "GetSlotStatus returned null - slot ID out of bounds");
 
 	if (pSlot->IsUsed())
 	{

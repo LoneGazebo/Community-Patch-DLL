@@ -48,7 +48,7 @@ bool CvFlavorRecipient::IsCity() const
 /// Public function that other classes can call to set/reset this recipient's flavors
 void CvFlavorRecipient::SetFlavors(const CvEnumMap<FlavorTypes, int>& piUpdatedFlavorValues, const char* reason)
 {
-	ASSERT_DEBUG(piUpdatedFlavorValues.valid(), "Invalid map of flavor deltas passed to flavor recipient");
+	ASSERT(piUpdatedFlavorValues.valid(), "Invalid map of flavor deltas passed to flavor recipient");
 
 	if(!piUpdatedFlavorValues.valid()) return;
 
@@ -65,7 +65,7 @@ void CvFlavorRecipient::SetFlavors(const CvEnumMap<FlavorTypes, int>& piUpdatedF
 /// Public function that other classes can call to change this recipient's flavors
 void CvFlavorRecipient::ChangeFlavors(const CvEnumMap<FlavorTypes, int>& piDeltaFlavorValues, const char* reason, bool effectstart)
 {
-	ASSERT_DEBUG(piDeltaFlavorValues.valid(), "Invalid map of flavor deltas passed to flavor recipient");
+	ASSERT(piDeltaFlavorValues.valid(), "Invalid map of flavor deltas passed to flavor recipient");
 
 	if(!piDeltaFlavorValues.valid()) return;
 
@@ -86,8 +86,8 @@ void CvFlavorRecipient::ChangeFlavors(const CvEnumMap<FlavorTypes, int>& piDelta
 /// LatestFlavorValue Accessor Function
 int CvFlavorRecipient::GetLatestFlavorValue(FlavorTypes eFlavor, bool bAllowNegative)
 {
-	ASSERT_DEBUG(eFlavor > -1, "Out of bounds.");
-	ASSERT_DEBUG(eFlavor < GC.getNumFlavorTypes(), "Out of bounds.");
+	PRECONDITION(eFlavor > -1, "Out of bounds.");
+	PRECONDITION(eFlavor < GC.getNumFlavorTypes(), "Out of bounds.");
 
 	if(m_piLatestFlavorValues[eFlavor] < 0 && !bAllowNegative)
 	{
@@ -289,7 +289,7 @@ void CvFlavorManager::ChangeLeader(LeaderHeadTypes eOldLeader, LeaderHeadTypes e
 /// Update to a new set of flavors
 void CvFlavorManager::ChangeActivePersonalityFlavors(const CvEnumMap<FlavorTypes, int>& piDeltaFlavorValues, const char* reason, bool effectstart)
 {
-	ASSERT_DEBUG(piDeltaFlavorValues.valid(), "Invalid map of flavor deltas passed to flavor manager");
+	ASSERT(piDeltaFlavorValues.valid(), "Invalid map of flavor deltas passed to flavor manager");
 
 	if(!piDeltaFlavorValues.valid()) return;
 
@@ -362,7 +362,7 @@ void CvFlavorManager::AdjustWeightsForMap()
 		int iGrowthIndex = GC.getInfoTypeForString("FLAVOR_GROWTH");
 
 		// Boost expansion
-		ASSERT_DEBUG(iExpansionIndex >= 0 && iExpansionIndex < iNumFlavorTypes);
+		ASSERT(iExpansionIndex >= 0 && iExpansionIndex < iNumFlavorTypes);
 		if (iExpansionIndex >= 0 && iExpansionIndex < iNumFlavorTypes)
 		{
 			m_piPersonalityFlavor[iExpansionIndex] += iAdjust;
@@ -373,7 +373,7 @@ void CvFlavorManager::AdjustWeightsForMap()
 		}
 
 		// Reduce growth
-		ASSERT_DEBUG(iGrowthIndex >= 0 && iGrowthIndex < iNumFlavorTypes);
+		ASSERT(iGrowthIndex >= 0 && iGrowthIndex < iNumFlavorTypes);
 		if (iGrowthIndex >= 0 && iGrowthIndex < iNumFlavorTypes)
 		{
 			m_piPersonalityFlavor[iGrowthIndex] -= iAdjust;

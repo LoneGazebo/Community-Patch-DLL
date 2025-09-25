@@ -33,7 +33,7 @@ CvUnitProductionAI::~CvUnitProductionAI(void)
 /// Clear out AI local variables
 void CvUnitProductionAI::Reset()
 {
-	ASSERT_DEBUG(m_pUnits != NULL, "Unit Production AI init failure: unit entries are NULL");
+	ASSERT(m_pUnits != NULL, "Unit Production AI init failure: unit entries are NULL");
 
 	m_UnitAIWeights.clear();
 

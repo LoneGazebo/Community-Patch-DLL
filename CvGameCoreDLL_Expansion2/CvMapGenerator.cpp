@@ -36,7 +36,7 @@ CvMapGenerator::CvMapGenerator(const char* szMapScriptName)
 	m_pkLuaState = pkScriptSystem->CreateLuaThread("Map Script");
 	const bool bLoaded = pkScriptSystem->LoadFile(m_pkLuaState, szMapScriptName);
 	DEBUG_VARIABLE(bLoaded);
-	ASSERT_DEBUG(bLoaded, "Cannot load mapscript.");
+	ASSERT(bLoaded, "Cannot load mapscript.");
 }
 //------------------------------------------------------------------------------
 CvMapGenerator::~CvMapGenerator()
@@ -61,7 +61,7 @@ bool CvMapGenerator::GetMapInitData(CvMapInitData& kData, WorldSizeTypes eWorldS
 	}
 	else
 	{
-		ASSERT_DEBUG(false, "Could not find world size entry.")
+		ASSERT(false, "Could not find world size entry.")
 	}
 
 	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();

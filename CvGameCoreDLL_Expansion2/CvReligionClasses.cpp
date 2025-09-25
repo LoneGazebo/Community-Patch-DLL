@@ -184,7 +184,7 @@ FDataStream& operator<<(FDataStream& saveTo, const CvReligion& readFrom)
 CvString CvReligion::GetName() const
 {
 	CvReligionEntry* pEntry = GC.getReligionInfo(m_eReligion);
-	ASSERT_DEBUG(pEntry, "pEntry for religion not expected to be NULL.");
+	PRECONDITION(pEntry, "pEntry for religion not expected to be NULL.");
 	if (pEntry)
 	{
 		CvString szReligionName = strlen(m_szCustomName) == 0 ? pEntry->GetDescriptionKey() : m_szCustomName;
@@ -1451,7 +1451,7 @@ void CvGameReligions::EnhanceReligion(PlayerTypes ePlayer, ReligionTypes eReligi
 	}
 	if (!bFoundIt)
 	{
-		ASSERT_DEBUG(false, "Internal error in religion code.");
+		ASSERT(false, "Internal error in religion code.");
 		CUSTOMLOG("Trying to enhance a religion/pantheon that doesn't exist!!!");
 		return;
 	}
@@ -1634,7 +1634,7 @@ void CvGameReligions::AddReformationBelief(PlayerTypes ePlayer, ReligionTypes eR
 	}
 	if(!bFoundIt)
 	{
-		ASSERT_DEBUG(false, "Internal error in religion code.");
+		ASSERT(false, "Internal error in religion code.");
 		return;
 	}
 
@@ -5296,7 +5296,7 @@ void CvCityReligions::RecomputeFollowers(CvReligiousFollowChangeReason eReason, 
 	// Safety check to avoid divide by zero
 	if (iUnassignedFollowers < 1)
 	{
-		ASSERT_DEBUG(false, "Invalid city population when recomputing followers");
+		ASSERT(false, "Invalid city population when recomputing followers");
 		return;
 	}
 
@@ -5396,7 +5396,7 @@ void CvCityReligions::SimulateFollowers()
 	// safety check
 	if (iTotalPressure == 0 || iUnassignedFollowers == 0)
 	{
-		ASSERT_DEBUG(false, "Internal religion data error. Send save to Ed");
+		ASSERT(false, "Internal religion data error. Send save to Ed");
 		return;
 	}
 

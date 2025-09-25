@@ -13,7 +13,7 @@ CvDllMissionInfo::CvDllMissionInfo(CvMissionInfo* pMissionInfo)
 	: m_pMissionInfo(pMissionInfo)
 	, m_uiRefCount(1)
 {
-	ASSERT_DEBUG(pMissionInfo != NULL, "SHOULD NOT HAPPEN");
+	ASSERT(pMissionInfo != NULL, "SHOULD NOT HAPPEN");
 }
 //------------------------------------------------------------------------------
 CvDllMissionInfo::~CvDllMissionInfo()

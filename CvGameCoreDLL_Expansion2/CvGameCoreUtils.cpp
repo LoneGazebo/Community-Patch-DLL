@@ -29,7 +29,7 @@
 #include "LintFree.h"
 
 // CvAssertDlg and CvPreconditionDlg implementation
-#ifdef CVASSERT_DEBUG_ENABLE
+#ifdef CVASSERT_ENABLE
 #ifdef WIN32
 
 // MessageBox constants
@@ -270,12 +270,12 @@ bool CvAssertDlg(const char* expr, const char* szFile, unsigned int uiLine, bool
 }
 
 #endif // WIN32
-#endif // CVASSERT_DEBUG_ENABLE
+#endif // CVASSERT_ENABLE
 
 void CvPreconditionDlg(const char* expr, const char* szFile, unsigned int uiLine, const char* msg)
 {
 	if (!expr) return;
-#ifdef CVASSERT_DEBUG_ENABLE
+#ifdef CVASSERT_ENABLE
 #ifdef WIN32
 #if defined(VPRELEASE_ERRORMSG)
 	bool bMsg = msg && msg[0] != '\0';
@@ -303,7 +303,7 @@ void CvPreconditionDlg(const char* expr, const char* szFile, unsigned int uiLine
 	CvAssertDlg(expr, szFile, uiLine, bIgnoreAlways, msg);
 #endif
 #endif // WIN32
-#endif // CVASSERT_DEBUG_ENABLE
+#endif // CVASSERT_ENABLE
 }
 
 
@@ -661,9 +661,9 @@ CvUnit* GetPlayerUnit(const IDInfo& unit)
 
 bool isBeforeUnitCycle(const CvUnit* pFirstUnit, const CvUnit* pSecondUnit)
 {
-	ASSERT_DEBUG(pFirstUnit != NULL);
-	ASSERT_DEBUG(pSecondUnit != NULL);
-	ASSERT_DEBUG(pFirstUnit != pSecondUnit);
+	ASSERT(pFirstUnit != NULL);
+	ASSERT(pSecondUnit != NULL);
+	ASSERT(pFirstUnit != pSecondUnit);
 
 	if(!pFirstUnit || !pSecondUnit)
 		return false;
@@ -939,7 +939,7 @@ int getWonderScore(BuildingClassTypes eWonderClass)
 
 ImprovementTypes finalImprovementUpgrade(ImprovementTypes eImprovement, int iCount)
 {
-	ASSERT_DEBUG(eImprovement != NO_IMPROVEMENT, "Improvement is not assigned a valid value");
+	PRECONDITION(eImprovement != NO_IMPROVEMENT, "Improvement is not assigned a valid value");
 
 	if(iCount > GC.getNumImprovementInfos())
 	{
@@ -1126,33 +1126,33 @@ TechTypes getDiscoveryTech(UnitTypes eUnit, PlayerTypes ePlayer)
 
 bool PUF_isPlayer(const CvUnit* pUnit, int iData1, int)
 {
-	ASSERT_DEBUG(iData1 != -1, "Invalid data argument, should be >= 0");
+	ASSERT(iData1 != -1, "Invalid data argument, should be >= 0");
 	return (pUnit->getOwner() == iData1);
 }
 
 bool PUF_isTeam(const CvUnit* pUnit, int iData1, int)
 {
-	ASSERT_DEBUG(iData1 != -1, "Invalid data argument, should be >= 0");
+	ASSERT(iData1 != -1, "Invalid data argument, should be >= 0");
 	return (pUnit->getTeam() == iData1);
 }
 
 bool PUF_isCombatTeam(const CvUnit* pUnit, int iData1, int iData2)
 {
-	ASSERT_DEBUG(iData1 != -1, "Invalid data argument, should be >= 0");
-	ASSERT_DEBUG(iData2 != -1, "Invalid data argument, should be >= 0");
+	ASSERT(iData1 != -1, "Invalid data argument, should be >= 0");
+	ASSERT(iData2 != -1, "Invalid data argument, should be >= 0");
 
 	return (GET_PLAYER(pUnit->getCombatOwner((TeamTypes)iData2, *(pUnit->plot()))).getTeam() == iData1 && !pUnit->isInvisible((TeamTypes)iData2, false, false));
 }
 
 bool PUF_isOtherPlayer(const CvUnit* pUnit, int iData1, int)
 {
-	ASSERT_DEBUG(iData1 != -1, "Invalid data argument, should be >= 0");
+	ASSERT(iData1 != -1, "Invalid data argument, should be >= 0");
 	return (pUnit->getOwner() != iData1);
 }
 
 bool PUF_isOtherTeam(const CvUnit* pUnit, int iData1, int)
 {
-	ASSERT_DEBUG(iData1 != -1, "Invalid data argument, should be >= 0");
+	ASSERT(iData1 != -1, "Invalid data argument, should be >= 0");
 	TeamTypes eTeam = GET_PLAYER((PlayerTypes)iData1).getTeam();
 	if(pUnit->canCoexistWithEnemyUnit(eTeam))
 	{
@@ -1164,8 +1164,8 @@ bool PUF_isOtherTeam(const CvUnit* pUnit, int iData1, int)
 
 bool PUF_isEnemy(const CvUnit* pUnit, int iData1, int iData2)
 {
-	ASSERT_DEBUG(iData1 != -1, "Invalid data argument, should be >= 0");
-	ASSERT_DEBUG(iData2 != -1, "Invalid data argument, should be >= 0");
+	ASSERT(iData1 != -1, "Invalid data argument, should be >= 0");
+	ASSERT(iData2 != -1, "Invalid data argument, should be >= 0");
 
 	TeamTypes eOtherTeam = GET_PLAYER((PlayerTypes)iData1).getTeam();
 	TeamTypes eOurTeam = GET_PLAYER(pUnit->getCombatOwner(eOtherTeam, *(pUnit->plot()))).getTeam();
@@ -1180,26 +1180,26 @@ bool PUF_isEnemy(const CvUnit* pUnit, int iData1, int iData2)
 
 bool PUF_isVisible(const CvUnit* pUnit, int iData1, int)
 {
-	ASSERT_DEBUG(iData1 != -1, "Invalid data argument, should be >= 0");
+	ASSERT(iData1 != -1, "Invalid data argument, should be >= 0");
 	return !(pUnit->isInvisible(GET_PLAYER((PlayerTypes)iData1).getTeam(), false));
 }
 
 bool PUF_isVisibleDebug(const CvUnit* pUnit, int iData1, int)
 {
-	ASSERT_DEBUG(iData1 != -1, "Invalid data argument, should be >= 0");
+	ASSERT(iData1 != -1, "Invalid data argument, should be >= 0");
 	return !(pUnit->isInvisible(GET_PLAYER((PlayerTypes)iData1).getTeam(), true));
 }
 
 bool PUF_canSiege(const CvUnit* pUnit, int iData1, int)
 {
-	ASSERT_DEBUG(iData1 != -1, "Invalid data argument, should be >= 0");
+	ASSERT(iData1 != -1, "Invalid data argument, should be >= 0");
 	return pUnit->canSiege(GET_PLAYER((PlayerTypes)iData1).getTeam());
 }
 
 bool PUF_canDeclareWar(const CvUnit* pUnit, int iData1, int iData2)
 {
-	ASSERT_DEBUG(iData1 != -1, "Invalid data argument, should be >= 0");
-	ASSERT_DEBUG(iData2 != -1, "Invalid data argument, should be >= 0");
+	ASSERT(iData1 != -1, "Invalid data argument, should be >= 0");
+	ASSERT(iData2 != -1, "Invalid data argument, should be >= 0");
 
 	TeamTypes eOtherTeam = GET_PLAYER((PlayerTypes)iData1).getTeam();
 	TeamTypes eOurTeam = GET_PLAYER(pUnit->getCombatOwner(eOtherTeam, *(pUnit->plot()))).getTeam();
@@ -1224,8 +1224,8 @@ bool PUF_cannotDefend(const CvUnit* pUnit, int, int)
 
 bool PUF_canDefendEnemy(const CvUnit* pUnit, int iData1, int iData2)
 {
-	ASSERT_DEBUG(iData1 != -1, "Invalid data argument, should be >= 0");
-	ASSERT_DEBUG(iData2 != -1, "Invalid data argument, should be >= 0");
+	ASSERT(iData1 != -1, "Invalid data argument, should be >= 0");
+	ASSERT(iData2 != -1, "Invalid data argument, should be >= 0");
 	return (PUF_canDefend(pUnit, iData1, iData2) && PUF_isEnemy(pUnit, iData1, iData2));
 }
 
@@ -1236,19 +1236,19 @@ bool PUF_isFighting(const CvUnit* pUnit, int, int)
 
 bool PUF_isDomainType(const CvUnit* pUnit, int iData1, int)
 {
-	ASSERT_DEBUG(iData1 != -1, "Invalid data argument, should be >= 0");
+	ASSERT(iData1 != -1, "Invalid data argument, should be >= 0");
 	return (pUnit->getDomainType() == iData1);
 }
 
 bool PUF_isUnitType(const CvUnit* pUnit, int iData1, int)
 {
-	ASSERT_DEBUG(iData1 != -1, "Invalid data argument, should be >= 0");
+	ASSERT(iData1 != -1, "Invalid data argument, should be >= 0");
 	return (pUnit->getUnitType() == iData1);
 }
 
 bool PUF_isUnitAIType(const CvUnit* pUnit, int iData1, int)
 {
-	ASSERT_DEBUG(iData1 != -1, "Invalid data argument, should be >= 0");
+	ASSERT(iData1 != -1, "Invalid data argument, should be >= 0");
 	return (pUnit->AI_getUnitAIType() == iData1);
 }
 
@@ -1304,7 +1304,7 @@ int getTurnMonthForGame(int iGameTurn, int iStartYear, CalendarTypes eCalendar, 
 	if(pkGameSpeedInfo == NULL)
 	{
 		//This function requires a valid game speed type!
-		ASSERT_DEBUG(pkGameSpeedInfo);
+		ASSERT(pkGameSpeedInfo);
 		return 0;
 	}
 
@@ -1365,7 +1365,7 @@ int getTurnMonthForGame(int iGameTurn, int iStartYear, CalendarTypes eCalendar, 
 		break;
 
 	default:
-		ASSERT_DEBUG(false);
+		ASSERT(false);
 	}
 
 	return iTurnMonth;
@@ -1387,7 +1387,7 @@ void boolsToString(const bool* pBools, int iNumBools, CvString* szOut)
 //
 void stringToBools(const char* szString, int* iNumBools, bool** ppBools)
 {
-	ASSERT_DEBUG(szString, "null string");
+	ASSERT(szString, "null string");
 	if(szString)
 	{
 		*iNumBools = strlen(szString);
@@ -1812,7 +1812,7 @@ fraction& fraction::operator/=(const fraction &rhs)
 {
 	// N / D = nA/dA / nB/dB
 	//       = (nA*dB) / (dA*nB)
-	ASSERT_DEBUG(rhs.num != 0);
+	ASSERT(rhs.num != 0);
 	num *= rhs.den;
 	den *= rhs.num;
 	return *this;

@@ -13,7 +13,7 @@ CvDllLeaderHeadInfo::CvDllLeaderHeadInfo(CvLeaderHeadInfo* pLeaderHeadInfo)
 	: m_pLeaderHeadInfo(pLeaderHeadInfo)
 	, m_uiRefCount(1)
 {
-	ASSERT_DEBUG(pLeaderHeadInfo != NULL, "SHOULD NOT HAPPEN");
+	ASSERT(pLeaderHeadInfo != NULL, "SHOULD NOT HAPPEN");
 }
 //------------------------------------------------------------------------------
 CvDllLeaderHeadInfo::~CvDllLeaderHeadInfo()

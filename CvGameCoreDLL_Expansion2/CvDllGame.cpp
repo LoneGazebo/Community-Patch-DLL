@@ -278,7 +278,7 @@ void CvDllGame::HandleAction(int iAction)
 //------------------------------------------------------------------------------
 bool CvDllGame::HasTurnTimerExpired()
 {
-	ASSERT_DEBUG(0, "Obsolete");
+	ASSERT(0, "Obsolete");
 	return false;
 }
 //------------------------------------------------------------------------------

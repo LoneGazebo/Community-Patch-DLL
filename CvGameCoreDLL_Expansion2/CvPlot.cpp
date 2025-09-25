@@ -372,7 +372,7 @@ void CvPlot::doTurn()
 
 			if(pLoopUnit)
 			{
-				ASSERT_DEBUG(pLoopUnit->atPlot(*this), "pLoopUnit is expected to be at the current plot instance");
+				PRECONDITION(pLoopUnit->atPlot(*this), "pLoopUnit is expected to be at the current plot instance");
 				if(!pLoopUnit->atPlot(*this))
 				{
 					removeUnit(pLoopUnit, true);
@@ -394,13 +394,13 @@ void CvPlot::doImprovement()
 	int iResourceNum = 0;
 	CvTeam& thisTeam = GET_TEAM(getTeam());
 
-	ASSERT_DEBUG(isBeingWorked() && isOwned());
+	ASSERT(isBeingWorked() && isOwned());
 
 	if(m_eImprovementType != NO_IMPROVEMENT)
 	{
 		if(m_eResourceType == NO_RESOURCE)
 		{
-			ASSERT_DEBUG((0 < GC.getNumResourceInfos()), "GC.getNumResourceInfos() is not greater than zero but an array is being allocated in CvPlot::doImprovement");
+			PRECONDITION((0 < GC.getNumResourceInfos()), "GC.getNumResourceInfos() is not greater than zero but an array is being allocated in CvPlot::doImprovement");
 			int iNumResourceInfos = GC.getNumResourceInfos();
 			CvImprovementEntry* thisImprovementInfo = GC.getImprovementInfo((ImprovementTypes)m_eImprovementType);
 			for(iI = 0; iI < iNumResourceInfos; ++iI)
@@ -476,7 +476,7 @@ FogOfWarModeTypes CvPlot::GetActiveFogOfWarMode() const
 {
 	CvGame& Game = GC.getGame();
 	const TeamTypes activeTeam = Game.getActiveTeam();
-	ASSERT_DEBUG(activeTeam != NO_TEAM);
+	PRECONDITION(activeTeam != NO_TEAM);
 
 	FogOfWarModeTypes eFOWMode = FOGOFWARMODE_UNEXPLORED;
 
@@ -526,7 +526,7 @@ void CvPlot::updateVisibility()
 
 	// Any unit that has visibility rules (it can become invisible to another player) needs to update itself.
 	const TeamTypes eActiveTeam = GC.getGame().getActiveTeam();
-	ASSERT_DEBUG(eActiveTeam != NO_TEAM);
+	PRECONDITION(eActiveTeam != NO_TEAM);
 	if (eActiveTeam != NO_TEAM)
 	{
 		IDInfo* pUnitNode = headUnitNode();
@@ -1322,7 +1322,7 @@ bool CvPlot::isRiverCrossingFlowClockwise(DirectionTypes eDirection) const
 		}
 		break;
 	default:
-		ASSERT_DEBUG(false);
+		ASSERT(false);
 		break;
 	}
 
@@ -1385,7 +1385,7 @@ bool CvPlot::isRiverConnection(DirectionTypes eDirection) const
 		break;
 
 	default:
-		ASSERT_DEBUG(false);
+		ASSERT(false);
 		break;
 	}
 
@@ -1402,7 +1402,7 @@ CvPlot* CvPlot::getNeighboringPlot(DirectionTypes eDirection) const
 /// Is there a river on this side of the plot?
 bool CvPlot::IsRiverSide(DirectionTypes eDirection) const
 {
-	ASSERT_DEBUG(eDirection != NO_DIRECTION, "eDirection is not assigned a valid value");
+	PRECONDITION(eDirection != NO_DIRECTION, "eDirection is not assigned a valid value");
 	CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), eDirection);
 	switch (eDirection)
 	{
@@ -1439,7 +1439,7 @@ bool CvPlot::IsRiverSide(DirectionTypes eDirection) const
 /// Is there a river on this side of the plot?
 bool CvPlot::IsLakeSide(DirectionTypes eDirection) const
 {
-	ASSERT_DEBUG(eDirection != NO_DIRECTION, "eDirection is not assigned a valid value");
+	PRECONDITION(eDirection != NO_DIRECTION, "eDirection is not assigned a valid value");
 	CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), eDirection);
 	return pAdjacentPlot && pAdjacentPlot->isLake();
 }
@@ -1449,7 +1449,7 @@ bool CvPlot::IsLakeSide(DirectionTypes eDirection) const
 /// As long as both plots are on the same side of a river system, it counts.
 bool CvPlot::IsAlongSameRiver(const CvPlot* pToPlot) const
 {
-	ASSERT_DEBUG(pToPlot);
+	ASSERT(pToPlot);
 	DirectionTypes eDirection = directionXY(this, pToPlot);
 	DirectionTypes eNextDirection = static_cast<DirectionTypes>((eDirection + 1) % 6);
 	DirectionTypes ePrevDirection = static_cast<DirectionTypes>((eDirection + 5) % 6);
@@ -1509,7 +1509,7 @@ int CvPlot::seeFromLevel(TeamTypes eTeam) const
 {
 	int iLevel = 0;
 
-	ASSERT_DEBUG(getTerrainType() != NO_TERRAIN, "TerrainType is not assigned a valid value");
+	PRECONDITION(getTerrainType() != NO_TERRAIN, "TerrainType is not assigned a valid value");
 
 	// Plot recon-ed?
 	if(getReconCount() > 0)
@@ -2368,7 +2368,7 @@ void CvPlot::updateSeeFromSight(bool bIncrement, bool bRecalculate)
 //	--------------------------------------------------------------------------------
 bool CvPlot::canHaveResource(ResourceTypes eResource, bool bIgnoreLatitude, bool bIgnoreCiv) const
 {
-	ASSERT_DEBUG(getTerrainType() != NO_TERRAIN, "TerrainType is not assigned a valid value");
+	PRECONDITION(getTerrainType() != NO_TERRAIN, "TerrainType is not assigned a valid value");
 
 	if(eResource == NO_RESOURCE)
 	{
@@ -3254,7 +3254,7 @@ int CvPlot::getBuildTime(BuildTypes eBuild, PlayerTypes ePlayer) const
 		return 0;
 	}
 
-	ASSERT_DEBUG(getTerrainType() != NO_TERRAIN, "TerrainType is not assigned a valid value");
+	PRECONDITION(getTerrainType() != NO_TERRAIN, "TerrainType is not assigned a valid value");
 
 	CvBuildInfo* pkBuildInfo = GC.getBuildInfo(eBuild);
 	int iTime = pkBuildInfo->getTime();
@@ -4914,7 +4914,7 @@ bool CvPlot::isVisibleEnemyDefender(const CvUnit* pUnit) const
 	if (!isVisible(eTeam))
 		return false;
 
-	ASSERT_DEBUG(pUnit, "Source unit must be valid");
+	ASSERT(pUnit, "Source unit must be valid");
 	const IDInfo* pUnitNode = m_units.head();
 	if(pUnit && pUnitNode)
 	{
@@ -5031,7 +5031,7 @@ int CvPlot::getNumVisibleEnemyDefenders(const CvUnit* pUnit) const
 	if (!isVisible(eTeam))
 		return 0;
 
-	ASSERT_DEBUG(pUnit, "Source unit must be valid");
+	ASSERT(pUnit, "Source unit must be valid");
 	const IDInfo* pUnitNode = m_units.head();
 	if(pUnit && pUnitNode)
 	{
@@ -5116,7 +5116,7 @@ bool CvPlot::isVisibleEnemyUnit(PlayerTypes ePlayer) const
 	if (!isVisible(eTeam))
 		return false;
 
-	ASSERT_DEBUG(ePlayer != NO_PLAYER, "Source player must be valid");
+	PRECONDITION(ePlayer != NO_PLAYER, "Source player must be valid");
 	const IDInfo* pUnitNode = m_units.head();
 	if(pUnitNode)
 	{
@@ -5154,7 +5154,7 @@ bool CvPlot::isVisibleEnemyUnit(const CvUnit* pUnit) const
 	if (!isVisible(eTeam))
 		return false;
 
-	ASSERT_DEBUG(pUnit, "Source unit must be valid");
+	ASSERT(pUnit, "Source unit must be valid");
 	const IDInfo* pUnitNode = m_units.head();
 	if(pUnit && pUnitNode)
 	{
@@ -5194,7 +5194,7 @@ bool CvPlot::isVisibleOtherUnit(PlayerTypes ePlayer) const
 	if (!isVisible(eTeam))
 		return false;
 
-	ASSERT_DEBUG(ePlayer != NO_PLAYER, "Source player must be valid");
+	PRECONDITION(ePlayer != NO_PLAYER, "Source player must be valid");
 	const IDInfo* pUnitNode = m_units.head();
 	if(pUnitNode)
 	{
@@ -5224,7 +5224,7 @@ bool CvPlot::isEnemyUnit(PlayerTypes ePlayer, bool bCombatOnly, bool bCheckVisib
 	if (bCheckVisibility && !isVisible(eTeam))
 		return false;
 
-	ASSERT_DEBUG(ePlayer != NO_PLAYER, "Source player must be valid");
+	PRECONDITION(ePlayer != NO_PLAYER, "Source player must be valid");
 	const IDInfo* pUnitNode = m_units.head();
 	if(pUnitNode)
 	{
@@ -5270,7 +5270,7 @@ bool CvPlot::isNeutralUnit(PlayerTypes ePlayer, bool bCombat, bool bCheckVisibil
 	if (bCheckVisibility && !isVisible(eTeam))
 		return false;
 
-	ASSERT_DEBUG(ePlayer != NO_PLAYER, "Source player must be valid");
+	PRECONDITION(ePlayer != NO_PLAYER, "Source player must be valid");
 	const IDInfo* pUnitNode = m_units.head();
 	if(pUnitNode)
 	{
@@ -5320,7 +5320,7 @@ bool CvPlot::isFriendlyUnit(PlayerTypes ePlayer, bool bCombatOnly, bool bSamePla
 	if (!isVisible(eTeam))
 		return false;
 
-	ASSERT_DEBUG(ePlayer != NO_PLAYER, "Source player must be valid");
+	PRECONDITION(ePlayer != NO_PLAYER, "Source player must be valid");
 	const IDInfo* pUnitNode = m_units.head();
 	if(pUnitNode)
 	{
@@ -5392,7 +5392,7 @@ bool CvPlot::isCityFighting() const
 //	---------------------------------------------------------------------------
 bool CvPlot::canHaveFeature(FeatureTypes eFeature) const
 {
-	ASSERT_DEBUG(getTerrainType() != NO_TERRAIN, "TerrainType is not assigned a valid value");
+	PRECONDITION(getTerrainType() != NO_TERRAIN, "TerrainType is not assigned a valid value");
 
 	if(eFeature == NO_FEATURE)
 	{
@@ -5854,7 +5854,7 @@ void CvPlot::setOwnershipDuration(int iNewValue)
 		bOldOwnershipScore = isOwnershipScore();
 
 		m_iOwnershipDuration = iNewValue;
-		ASSERT_DEBUG(getOwnershipDuration() >= 0);
+		ASSERT(getOwnershipDuration() >= 0);
 
 		if(bOldOwnershipScore != isOwnershipScore())
 		{
@@ -5888,7 +5888,7 @@ int CvPlot::getImprovementDuration() const
 void CvPlot::setImprovementDuration(int iNewValue)
 {
 	m_iImprovementDuration = iNewValue;
-	ASSERT_DEBUG(getImprovementDuration() >= 0);
+	ASSERT(getImprovementDuration() >= 0);
 }
 
 
@@ -5944,7 +5944,7 @@ int CvPlot::getUpgradeTimeLeft(ImprovementTypes eImprovement, PlayerTypes ePlaye
 void CvPlot::setUpgradeProgress(int iNewValue)
 {
 	m_iUpgradeProgress = iNewValue;
-	ASSERT_DEBUG(getUpgradeProgress() >= 0);
+	ASSERT(getUpgradeProgress() >= 0);
 }
 
 
@@ -6145,7 +6145,7 @@ int CvPlot::getNumMajorCivsRevealed() const
 void CvPlot::setNumMajorCivsRevealed(int iNewValue)
 {
 	m_iNumMajorCivsRevealed = iNewValue;
-	ASSERT_DEBUG(getNumMajorCivsRevealed() >= 0);
+	ASSERT(getNumMajorCivsRevealed() >= 0);
 }
 
 
@@ -6174,7 +6174,7 @@ int CvPlot::isCityRadius() const
 void CvPlot::changeCityRadiusCount(int iChange)
 {
 	m_iCityRadiusCount = (m_iCityRadiusCount + iChange);
-	ASSERT_DEBUG(getCityRadiusCount() >= 0);
+	ASSERT(getCityRadiusCount() >= 0);
 }
 
 
@@ -6206,7 +6206,7 @@ void CvPlot::setNEOfRiver(bool bNewValue, FlowDirectionTypes eRiverDir)
 	if (isNEOfRiver() == bNewValue && eRiverDir == getRiverSWFlowDirection())
 		return;
 
-	ASSERT_DEBUG(eRiverDir == FLOWDIRECTION_SOUTHEAST || eRiverDir == FLOWDIRECTION_NORTHWEST || eRiverDir == NO_FLOWDIRECTION, "setting invalid flow direction");
+	ASSERT(eRiverDir == FLOWDIRECTION_SOUTHEAST || eRiverDir == FLOWDIRECTION_NORTHWEST || eRiverDir == NO_FLOWDIRECTION, "setting invalid flow direction");
 
 	// This adds or removes a river segment
 	if (isNEOfRiver() != bNewValue)
@@ -6254,7 +6254,7 @@ void CvPlot::setWOfRiver(bool bNewValue, FlowDirectionTypes eRiverDir)
 	if (isWOfRiver() == bNewValue && eRiverDir == getRiverEFlowDirection())
 		return;
 
-	ASSERT_DEBUG(eRiverDir == FLOWDIRECTION_NORTH || eRiverDir == FLOWDIRECTION_SOUTH || eRiverDir == NO_FLOWDIRECTION, "setting invalid flow direction");
+	ASSERT(eRiverDir == FLOWDIRECTION_NORTH || eRiverDir == FLOWDIRECTION_SOUTH || eRiverDir == NO_FLOWDIRECTION, "setting invalid flow direction");
 
 	// This adds or removes a river segment
 	if (isWOfRiver() != bNewValue)
@@ -6302,7 +6302,7 @@ void CvPlot::setNWOfRiver(bool bNewValue, FlowDirectionTypes eRiverDir)
 	if (isNWOfRiver() == bNewValue && eRiverDir == getRiverSEFlowDirection())
 		return;
 
-	ASSERT_DEBUG(eRiverDir == FLOWDIRECTION_NORTHEAST || eRiverDir == FLOWDIRECTION_SOUTHWEST || eRiverDir == NO_FLOWDIRECTION, "setting invalid flow direction");
+	ASSERT(eRiverDir == FLOWDIRECTION_NORTHEAST || eRiverDir == FLOWDIRECTION_SOUTHWEST || eRiverDir == NO_FLOWDIRECTION, "setting invalid flow direction");
 
 	// This adds or removes a river segment
 	if (isNWOfRiver() != bNewValue)
@@ -7604,7 +7604,7 @@ ResourceTypes CvPlot::getNonObsoleteResourceType(TeamTypes eTeam) const
 {
 	ResourceTypes eResource;
 
-	ASSERT_DEBUG(eTeam != NO_TEAM);
+	PRECONDITION(eTeam != NO_TEAM);
 
 	eResource = getResourceType(eTeam);
 
@@ -7638,7 +7638,7 @@ void CvPlot::setResourceType(ResourceTypes eNewValue, int iResourceNum, bool bFo
 				{
 					if (!bForMinorCivPlot)
 					{
-						ASSERT_DEBUG(false, "Tried to place a city-state unique luxury when not allowed.");
+						ASSERT(false, "Tried to place a city-state unique luxury when not allowed.");
 						return;
 					}
 				}
@@ -7757,15 +7757,15 @@ int CvPlot::getNumResource() const
 void CvPlot::setNumResource(int iNum)
 {
 	m_iResourceNum = iNum;
-	ASSERT_DEBUG(getNumResource() >= 0);
-	ASSERT_DEBUG(getResourceType() == NO_RESOURCE || m_iResourceNum > 0, "If a plot contains a Resource it should always have a quantity of at least 1.");
+	ASSERT(getNumResource() >= 0);
+	ASSERT(getResourceType() == NO_RESOURCE || m_iResourceNum > 0, "If a plot contains a Resource it should always have a quantity of at least 1.");
 }
 
 //	--------------------------------------------------------------------------------
 void CvPlot::changeNumResource(int iChange)
 {
 	setNumResource(getNumResource() + iChange);
-	ASSERT_DEBUG(getNumResource() >= 0);
+	ASSERT(getNumResource() >= 0);
 }
 
 //	--------------------------------------------------------------------------------
@@ -7845,8 +7845,8 @@ ImprovementTypes CvPlot::getImprovementType() const
 //	--------------------------------------------------------------------------------
 ImprovementTypes CvPlot::getImprovementTypeNeededToImproveResource(PlayerTypes ePlayer, bool bTestPlotOwner, bool bIgnoreSpecialImprovements)
 {
-	ASSERT_DEBUG(ePlayer == NO_PLAYER || ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(ePlayer == NO_PLAYER || ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(ePlayer == NO_PLAYER || ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
+	PRECONDITION(ePlayer == NO_PLAYER || ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
 
 	ResourceTypes eResource = NO_RESOURCE;
 	if(ePlayer != NO_PLAYER)
@@ -7964,7 +7964,7 @@ void CvPlot::setIsCity(bool bValue, int iCityID, int iWorkRange)
 	{
 		//sanity check
 		CvCity* pCity = GET_PLAYER(getOwner()).getCity(iCityID);
-		ASSERT_DEBUG(pCity && pCity->plot() == this && m_owningCity == IDInfo(getOwner(), iCityID))
+		ASSERT(pCity && pCity->plot() == this && m_owningCity == IDInfo(getOwner(), iCityID))
 
 		//make sure this is correct
 		m_owningCityOverride.reset();
@@ -8500,7 +8500,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 									{
 										CvString strBuffer;
 										CvResourceInfo* pSelectedResourceInfo = GC.getResourceInfo(eSelectedResource);
-										ASSERT_DEBUG(pSelectedResourceInfo);
+										ASSERT(pSelectedResourceInfo);
 										NotificationTypes eNotificationType = NO_NOTIFICATION_TYPE;
 										strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_FOUND_RESOURCE", pSelectedResourceInfo->GetTextKey());
 
@@ -9319,7 +9319,7 @@ void CvPlot::updateCityRoute()
 
 	if(isCity())
 	{
-		ASSERT_DEBUG(isOwned(), "isOwned is expected to be true");
+		PRECONDITION(isOwned(), "isOwned is expected to be true");
 
 		eCityRoute = GET_PLAYER(getOwner()).getBestRoute();
 
@@ -9619,7 +9619,7 @@ void CvPlot::SetResourceLinkedCity(const CvCity* pCity)
 		
 		if (pCity != NULL)
 		{
-			ASSERT_DEBUG(pCity->getOwner() == getOwner(), "Argument city pNewValue's owner is expected to be the same as the current instance");
+			PRECONDITION(pCity->getOwner() == getOwner(), "Argument city pNewValue's owner is expected to be the same as the current instance");
 			m_ResourceLinkedCity = pCity->GetIDInfo();
 			GetResourceLinkedCity()->ChangeNumResourceLocal(getResourceType(), iResourceChange, true);
 			ImprovementTypes eImprovement = getImprovementType();
@@ -9863,7 +9863,7 @@ int CvPlot::getReconCount() const
 void CvPlot::changeReconCount(int iChange)
 {
 	m_iReconCount = (m_iReconCount + iChange);
-	ASSERT_DEBUG(getReconCount() >= 0);
+	ASSERT(getReconCount() >= 0);
 }
 
 
@@ -9878,14 +9878,14 @@ int CvPlot::getRiverCrossingCount() const
 void CvPlot::changeRiverCrossingCount(int iChange)
 {
 	m_iRiverCrossingCount = (m_iRiverCrossingCount + iChange);
-	ASSERT_DEBUG(getRiverCrossingCount() >= 0);
+	ASSERT(getRiverCrossingCount() >= 0);
 }
 
 //	--------------------------------------------------------------------------------
 int CvPlot::getYield(YieldTypes eIndex) const
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 	return (int)(m_aiYield[eIndex]);
 }
 
@@ -10150,7 +10150,7 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, Feature
 	if (eImprovement != NO_IMPROVEMENT)
 	{
 		CvImprovementEntry* pkImprovementEntry = GC.getImprovementInfo(eImprovement);
-		ASSERT_DEBUG(pkImprovementEntry);
+		ASSERT(pkImprovementEntry);
 
 		if (pkImprovementEntry->IsNoFollowUp() && !IsImprovementPillaged())
 		{
@@ -11416,8 +11416,8 @@ void CvPlot::setFoundValue(PlayerTypes eIndex, int iNewValue)
 //	--------------------------------------------------------------------------------
 int CvPlot::getPlayerCityRadiusCount(PlayerTypes eIndex) const
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < MAX_PLAYERS, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < MAX_PLAYERS, "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	return m_aiPlayerCityRadiusCount[eIndex];
 }
@@ -11433,13 +11433,13 @@ bool CvPlot::isPlayerCityRadius(PlayerTypes eIndex) const
 //	--------------------------------------------------------------------------------
 void CvPlot::changePlayerCityRadiusCount(PlayerTypes eIndex, int iChange)
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < MAX_PLAYERS, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < MAX_PLAYERS, "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	if(0 != iChange)
 	{
 		m_aiPlayerCityRadiusCount[eIndex] += iChange;
-		ASSERT_DEBUG(getPlayerCityRadiusCount(eIndex) >= 0);
+		ASSERT(getPlayerCityRadiusCount(eIndex) >= 0);
 	}
 }
 
@@ -11464,8 +11464,8 @@ int CvPlot::getVisiblityCount(TeamTypes eTeam)
 //	--------------------------------------------------------------------------------
 PlotVisibilityChangeResult CvPlot::changeVisibilityCount(TeamTypes eTeam, int iChange, InvisibleTypes eSeeInvisible, bool bInformExplorationTracking, bool bAlwaysSeeInvisible, CvUnit* pUnit)
 {
-	ASSERT_DEBUG(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
+	PRECONDITION(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
 
 	PlotVisibilityChangeResult eResult = VISIBILTY_CHANGE_NONE;
 	if (iChange == 0)
@@ -11629,8 +11629,8 @@ PlayerTypes CvPlot::getRevealedOwner(TeamTypes eTeam, bool bDebug) const
 	}
 	else
 	{
-		ASSERT_DEBUG(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
-		ASSERT_DEBUG(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
+		PRECONDITION(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
+		PRECONDITION(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
 
 		return (PlayerTypes)m_aiRevealedOwner[eTeam];
 	}
@@ -11640,8 +11640,8 @@ PlayerTypes CvPlot::getRevealedOwner(TeamTypes eTeam, bool bDebug) const
 //	--------------------------------------------------------------------------------
 TeamTypes CvPlot::getRevealedTeam(TeamTypes eTeam, bool bDebug) const
 {
-	ASSERT_DEBUG(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
+	PRECONDITION(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
 
 	PlayerTypes eRevealedOwner = getRevealedOwner(eTeam, bDebug);
 
@@ -11658,8 +11658,8 @@ TeamTypes CvPlot::getRevealedTeam(TeamTypes eTeam, bool bDebug) const
 //	--------------------------------------------------------------------------------
 PlayerTypes CvPlot::getRevealedOwner(TeamTypes eTeam) const
 {
-	ASSERT_DEBUG(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
+	PRECONDITION(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
 
 	return (PlayerTypes)m_aiRevealedOwner[eTeam];
 }
@@ -11668,8 +11668,8 @@ PlayerTypes CvPlot::getRevealedOwner(TeamTypes eTeam) const
 //	--------------------------------------------------------------------------------
 TeamTypes CvPlot::getRevealedTeam(TeamTypes eTeam) const
 {
-	ASSERT_DEBUG(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
+	PRECONDITION(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
 
 	PlayerTypes eRevealedOwner = getRevealedOwner(eTeam);
 
@@ -11687,8 +11687,8 @@ TeamTypes CvPlot::getRevealedTeam(TeamTypes eTeam) const
 //	--------------------------------------------------------------------------------
 bool CvPlot::setRevealedOwner(TeamTypes eTeam, PlayerTypes eNewValue)
 {
-	ASSERT_DEBUG(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
+	PRECONDITION(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
 
 	if(getRevealedOwner(eTeam, false) != eNewValue)
 	{
@@ -11702,7 +11702,7 @@ bool CvPlot::setRevealedOwner(TeamTypes eTeam, PlayerTypes eNewValue)
 		return true;
 	}
 
-	ASSERT_DEBUG(m_aiRevealedOwner[eTeam] == eNewValue);
+	ASSERT(m_aiRevealedOwner[eTeam] == eNewValue);
 	return false;
 }
 
@@ -11710,8 +11710,8 @@ bool CvPlot::setRevealedOwner(TeamTypes eTeam, PlayerTypes eNewValue)
 //	--------------------------------------------------------------------------------
 void CvPlot::updateRevealedOwner(TeamTypes eTeam)
 {
-	ASSERT_DEBUG(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
+	PRECONDITION(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
 
 	//we change the revealed owner when the plot or a neighbor is visible (not revealed)
 	bool bRevealed = isVisible(eTeam);
@@ -11742,7 +11742,7 @@ void CvPlot::updateRevealedOwner(TeamTypes eTeam)
 //	--------------------------------------------------------------------------------
 bool CvPlot::isRiverCrossing(DirectionTypes eIndex) const
 {
-	ASSERT_DEBUG(eIndex < NUM_DIRECTION_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex < NUM_DIRECTION_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	if(eIndex == NO_DIRECTION)
 	{
@@ -11758,8 +11758,8 @@ bool CvPlot::isRiverCrossing(DirectionTypes eIndex) const
 //	--------------------------------------------------------------------------------
 void CvPlot::updateRiverCrossing(DirectionTypes eIndex)
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < NUM_DIRECTION_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < NUM_DIRECTION_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	bool bValid = false;
 	CvPlot* pPlot = plotDirection(getX(), getY(), eIndex);
@@ -11835,8 +11835,8 @@ bool CvPlot::IsResourceForceReveal(TeamTypes eTeam) const
 /// Set force reveal a Resource for a team (for Goody Huts)
 void CvPlot::SetResourceForceReveal(TeamTypes eTeam, bool bValue)
 {
-	ASSERT_DEBUG(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
+	PRECONDITION(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
 	m_abResourceForceReveal[eTeam] = bValue;
 }
 
@@ -11847,8 +11847,8 @@ RoutePlanTypes CvPlot::GetPlannedRouteState(PlayerTypes ePlayer) const
 
 void CvPlot::SetPlannedRouteState(PlayerTypes ePlayer, RoutePlanTypes eRoutePlanType)
 {
-	ASSERT_DEBUG(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(ePlayer < MAX_PLAYERS, "ePlayer is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
+	PRECONDITION(ePlayer < MAX_PLAYERS, "ePlayer is expected to be within maximum bounds (invalid Index)");
 	m_aeHumanPlannedRouteState[ePlayer] = eRoutePlanType;
 }
 
@@ -11857,8 +11857,8 @@ void CvPlot::SetPlannedRouteState(PlayerTypes ePlayer, RoutePlanTypes eRoutePlan
 /// If the current player team is the same as eTeam, return the actual visibility count
 int CvPlot::GetKnownVisibilityCount(TeamTypes eTeam) const
 {
-	ASSERT_DEBUG(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
+	PRECONDITION(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
 
 	PlayerTypes eCurrentPlayer = GC.getGame().GetCurrentVisibilityPlayer();
 	if (eCurrentPlayer != NO_PLAYER)
@@ -11902,8 +11902,8 @@ bool CvPlot::IsKnownVisibleToEnemy(PlayerTypes ePlayer) const
 
 void CvPlot::IncreaseKnownVisibilityCount(TeamTypes eTeam, TeamTypes eTeam2)
 {
-	ASSERT_DEBUG(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
+	PRECONDITION(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
 	m_aiKnownVisibilityCount[eTeam]++;
 	if (eTeam2 != NO_TEAM)
 		m_aiKnownVisibilityCount[eTeam2]++;
@@ -11920,16 +11920,16 @@ void CvPlot::ResetKnownVisibility()
 //	--------------------------------------------------------------------------------
 bool CvPlot::IsTeamImpassable(TeamTypes eTeam) const
 {
-	ASSERT_DEBUG(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eTeam < REALLY_MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
+	PRECONDITION(eTeam < REALLY_MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
 	return m_abIsImpassable[eTeam];
 }
 //	--------------------------------------------------------------------------------
 /// Set force reveal a Resource for a team (for Goody Huts)
 void CvPlot::SetTeamImpassable(TeamTypes eTeam, bool bValue)
 {
-	ASSERT_DEBUG(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eTeam < REALLY_MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
+	PRECONDITION(eTeam < REALLY_MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
 	m_abIsImpassable[eTeam] = bValue;
 }
 //	--------------------------------------------------------------------------------
@@ -11942,8 +11942,8 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, CvUnit* pUnit, bool bT
 	int iRevealedMajors = getNumMajorCivsRevealed();
 #endif
 
-	ASSERT_DEBUG(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
+	PRECONDITION(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
 
 	TeamTypes eActiveTeam = GC.getGame().getActiveTeam();
 	ICvUserInterface2* pInterface =  GC.GetEngineUserInterface();
@@ -12414,8 +12414,8 @@ ImprovementTypes CvPlot::getRevealedImprovementType(TeamTypes eTeam, bool bDebug
 	}
 	else
 	{
-		ASSERT_DEBUG(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
-		ASSERT_DEBUG(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
+		PRECONDITION(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
+		PRECONDITION(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
 
 		return (ImprovementTypes)m_aeRevealedImprovementType[eTeam];
 	}
@@ -12424,8 +12424,8 @@ ImprovementTypes CvPlot::getRevealedImprovementType(TeamTypes eTeam, bool bDebug
 //	--------------------------------------------------------------------------------
 ImprovementTypes CvPlot::getRevealedImprovementType(TeamTypes eTeam) const
 {
-	ASSERT_DEBUG(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
+	PRECONDITION(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
 
 	return (ImprovementTypes)m_aeRevealedImprovementType[eTeam];
 }
@@ -12433,8 +12433,8 @@ ImprovementTypes CvPlot::getRevealedImprovementType(TeamTypes eTeam) const
 //	--------------------------------------------------------------------------------
 bool CvPlot::setRevealedImprovementType(TeamTypes eTeam, ImprovementTypes eNewValue)
 {
-	ASSERT_DEBUG(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
+	PRECONDITION(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
 
 	if (eNewValue < NO_IMPROVEMENT) return false;
 	if (eNewValue > NO_IMPROVEMENT && GC.getImprovementInfo(eNewValue) == NULL) return false;
@@ -12470,8 +12470,8 @@ RouteTypes CvPlot::getRevealedRouteType(TeamTypes eTeam, bool bDebug) const
 	}
 	else
 	{
-		ASSERT_DEBUG(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
-		ASSERT_DEBUG(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
+		PRECONDITION(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
+		PRECONDITION(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
 
 		return (RouteTypes)m_aeRevealedRouteType[eTeam];
 	}
@@ -12480,8 +12480,8 @@ RouteTypes CvPlot::getRevealedRouteType(TeamTypes eTeam, bool bDebug) const
 //	--------------------------------------------------------------------------------
 RouteTypes CvPlot::getRevealedRouteType(TeamTypes eTeam) const
 {
-	ASSERT_DEBUG(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
+	PRECONDITION(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
 
 	return (RouteTypes)m_aeRevealedRouteType[eTeam];
 }
@@ -12489,8 +12489,8 @@ RouteTypes CvPlot::getRevealedRouteType(TeamTypes eTeam) const
 //	--------------------------------------------------------------------------------
 bool CvPlot::setRevealedRouteType(TeamTypes eTeam, RouteTypes eNewValue)
 {
-	ASSERT_DEBUG(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
+	PRECONDITION(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
 
 	if (eNewValue < NO_ROUTE) return false;
 	if (eNewValue > NO_ROUTE && GC.getRouteInfo(eNewValue) == NULL) return false;
@@ -12602,7 +12602,7 @@ int CvPlot::GetStealPlotValue(PlayerTypes eStealingPlayer, bool& bStoleHighValue
 		if (eImprovement != NO_IMPROVEMENT)
 		{
 			CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
-			ASSERT_DEBUG(pkImprovementInfo);
+			ASSERT(pkImprovementInfo);
 
 			if (bChokePoint)
 			{
@@ -12660,7 +12660,7 @@ bool CvPlot::changeBuildProgress(BuildTypes eBuild, int iChange, PlayerTypes ePl
 	CvPlayer &kPlayer = GET_PLAYER(ePlayer);
 
 	CvBuildInfo* pkBuildInfo = GC.getBuildInfo(eBuild);
-	ASSERT_DEBUG(pkBuildInfo);
+	ASSERT(pkBuildInfo);
 
 	//This shouldn't happen.
 	if(pkBuildInfo == NULL)
@@ -12681,7 +12681,7 @@ bool CvPlot::changeBuildProgress(BuildTypes eBuild, int iChange, PlayerTypes ePl
 		m_iLastTurnBuildChanged = GC.getGame().getGameTurn();
 
 		m_buildProgress[eBuild] += iChange;
-		ASSERT_DEBUG(getBuildProgress(eBuild) >= 0);
+		ASSERT(getBuildProgress(eBuild) >= 0);
 
 		if(getBuildProgress(eBuild) >= getBuildTime(eBuild, ePlayer))
 		{
@@ -12787,7 +12787,7 @@ bool CvPlot::changeBuildProgress(BuildTypes eBuild, int iChange, PlayerTypes ePl
 			{
 				if(pkBuildInfo->isFeatureRemove(getFeatureType()))
 				{
-					ASSERT_DEBUG(ePlayer != NO_PLAYER, "ePlayer should be valid");
+					PRECONDITION(ePlayer != NO_PLAYER, "ePlayer should be valid");
 
 					iProduction = getFeatureProduction(eBuild, ePlayer, &pCity);
 
@@ -12895,8 +12895,8 @@ void CvPlot::setCenterUnit(CvUnit* pNewValue)
 }
 int CvPlot::getInvisibleVisibilityCountUnit(TeamTypes eTeam) const
 {
-	ASSERT_DEBUG(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
+	PRECONDITION(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
 	for (size_t i = 0; i < m_vInvisibleVisibilityUnitCount.size(); i++)
 		if (m_vInvisibleVisibilityUnitCount[i].first == eTeam)
 			return m_vInvisibleVisibilityUnitCount[i].second;
@@ -12914,8 +12914,8 @@ void CvPlot::changeInvisibleVisibilityCountUnit(TeamTypes eTeam, int iChange)
 	bool bOldInvisibleVisible = false;
 	bool bNewInvisibleVisible = false;
 
-	ASSERT_DEBUG(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
+	PRECONDITION(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
 	if (eTeam < 0 || eTeam >= MAX_TEAMS) return;
 
 	if (iChange != 0)
@@ -12973,10 +12973,10 @@ void CvPlot::changeInvisibleVisibilityCountUnit(TeamTypes eTeam, int iChange)
 //	--------------------------------------------------------------------------------
 int CvPlot::getInvisibleVisibilityCount(TeamTypes eTeam, InvisibleTypes eInvisible) const
 {
-	ASSERT_DEBUG(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
-	ASSERT_DEBUG(eInvisible >= 0, "eInvisible is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eInvisible < NUM_INVISIBLE_TYPES, "eInvisible is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
+	PRECONDITION(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eInvisible >= 0, "eInvisible is expected to be non-negative (invalid Index)");
+	PRECONDITION(eInvisible < NUM_INVISIBLE_TYPES, "eInvisible is expected to be within maximum bounds (invalid Index)");
 	if (eTeam < 0 || eTeam >= MAX_TEAMS) return 0;
 	if (eInvisible < 0 || eInvisible >= NUM_INVISIBLE_TYPES) return 0;
 
@@ -13001,10 +13001,10 @@ void CvPlot::changeInvisibleVisibilityCount(TeamTypes eTeam, InvisibleTypes eInv
 	bool bOldInvisibleVisible = false;
 	bool bNewInvisibleVisible = false;
 
-	ASSERT_DEBUG(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
-	ASSERT_DEBUG(eInvisible >= 0, "eInvisible is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eInvisible < NUM_INVISIBLE_TYPES, "eInvisible is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
+	PRECONDITION(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eInvisible >= 0, "eInvisible is expected to be non-negative (invalid Index)");
+	PRECONDITION(eInvisible < NUM_INVISIBLE_TYPES, "eInvisible is expected to be within maximum bounds (invalid Index)");
 	if (eTeam < 0 || eTeam >= MAX_TEAMS) return;
 	if (eInvisible < 0 || eInvisible >= NUM_INVISIBLE_TYPES) return;
 
@@ -13254,11 +13254,11 @@ int CvPlot::getUnitIndex(CvUnit* pUnit) const
 //	---------------------------------------------------------------------------
 void CvPlot::addUnit(CvUnit* pUnit, bool bUpdate)
 {
-	ASSERT_DEBUG(pUnit, "pUnit is expected to be non-NULL");
+	PRECONDITION(pUnit, "pUnit is expected to be non-NULL");
 	if(pUnit == NULL)
 		return;
 
-	ASSERT_DEBUG(pUnit->at(getX(), getY()), "pUnit is expected to be at getX_INLINE and getY_INLINE");
+	PRECONDITION(pUnit->at(getX(), getY()), "pUnit is expected to be at getX_INLINE and getY_INLINE");
 
 	IDInfo* pUnitNode = headUnitNode();
 	while(pUnitNode != NULL)
@@ -13299,7 +13299,7 @@ void CvPlot::removeUnit(CvUnit* pUnit, bool bUpdate)
 	{
 		if(GetPlayerUnit(*pUnitNode) == pUnit)
 		{
-			ASSERT_DEBUG(GetPlayerUnit(*pUnitNode)->at(getX(), getY()), "The current unit instance is expected to be at getX_INLINE and getY_INLINE");
+			PRECONDITION(GetPlayerUnit(*pUnitNode)->at(getX(), getY()), "The current unit instance is expected to be at getX_INLINE and getY_INLINE");
 			m_units.deleteNode(pUnitNode);
 			break;
 		}
@@ -16089,7 +16089,7 @@ FDataStream& operator<<(FDataStream& saveTo, const CvPlot* const& readFrom)
 	if (readFrom != NULL)
 	{
 		idx = readFrom->GetPlotIndex();
-		ASSERT_DEBUG(GC.getMap().plotByIndex(idx) == readFrom, "Saving plot pointer that is not member of map");
+		ASSERT(GC.getMap().plotByIndex(idx) == readFrom, "Saving plot pointer that is not member of map");
 	}
 	saveTo << idx;
 	return saveTo;
@@ -16105,7 +16105,7 @@ FDataStream& operator>>(FDataStream& loadFrom, const CvPlot*& writeTo)
 	if (idx != -1)
 	{
 		writeTo = GC.getMap().plotByIndex(idx);
-		ASSERT_DEBUG(writeTo != NULL, "Read plot pointer index that is out of bounds");
+		PRECONDITION(writeTo != NULL, "Read plot pointer index that is out of bounds");
 	}
 	else
 	{
