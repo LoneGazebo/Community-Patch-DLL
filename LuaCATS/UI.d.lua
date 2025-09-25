@@ -366,7 +366,7 @@ function UI.LookAt(plot, zoom) end
 
 --- Focuses camera on currently selected plot.
 --- For example focuses plot with unit that is currently selected.
---- @param arg0 integer # TODO doesn't seem to do anything
+--- @param arg0 integer? Doesn't seem to do anything. May be calling ICvUserInterface1::lookAtSelectionPlot() in the UI DLL?
 function UI.LookAtSelectionPlot(arg0) end
 
 --- TODO docs
@@ -382,10 +382,10 @@ function UI.OnHumanDemand(playerId) end
 --- @param playerId PlayerId
 function UI.OnHumanOpenedTradeScreen(playerId) end
 
---- Simulates keyboard key presses using ASCII codes.
---- Can be used in touchscreen environment, or to programatically press keyboard keys.
+--- Simulates keyboard key presses using ASCII codes.<br>
+--- Can be used in touchscreen environment, or to programatically press keyboard keys.<br>
+--- See https://www.ascii-code.com/
 --- @param asciiCharIdx integer # `8` is `BACKSPACE`, `13` is `ENTER`, `49` is `1` and etc.
---- @see https://www.ascii-code.com/
 function UI.PostKeyMessage(asciiCharIdx) end
 
 --- Checks if proposal exists between specified players by player ids.
@@ -445,8 +445,8 @@ function UI.ScrollLeaderboardUp() end
 --- @param city City
 function UI.SelectCity(city) end
 
---- Selects and focuses specified unit.
---- @param unit Unit
+--- Selects and focuses specified unit. Likely does nothing if unit is nil.
+--- @param unit Unit?
 function UI.SelectUnit(unit) end
 
 --- TODO docs

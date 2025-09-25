@@ -630,7 +630,7 @@ local function GetHelpForUnstartedTech(techId, cost)
 			.. (help == '' and '' or (NL .. help))
 end
 
---- @param techId integer
+--- @param techId TechType
 --- @param player Player
 --- @return number
 local function GetTechProgressById(techId, player)
@@ -648,7 +648,7 @@ local function GetTechProgressById(techId, player)
 	return progress
 end
 
---- @param techId integer? # Technology Id
+--- @param techId TechType? # Technology Id
 --- @param isShort boolean? # Shall help text be short (Without tech name and player info)
 --- @param playerId PlayerId? # Relative playerId, if none specified then active
 --- @return string

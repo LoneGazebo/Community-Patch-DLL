@@ -1,24 +1,25 @@
-(function()
-	if VP then
-		return
-	end
+-- Check both context global and MapModData for VP object
+if not VP and not (MapModData and MapModData.VP) then
+	-- Need to localize all globals to circumvent their disappearance when entering leader screen
+	local GameInfo = GameInfo;
+	local GameInfoTypes = GameInfoTypes or {};
+	local table = table;
 
-	local global = MapModData or _G
-
-	if global and global.VP then
-		VP = global.VP
-		return
-	end
+	local pairs = pairs;
+	local print = print;
+	local error = error;
+	local table_insert = table.insert;
 
 	print("VPUI - Populating VP core library");
-	local MOD_BALANCE_CORE_YIELDS = GameInfo.CustomModOptions { Name = "BALANCE_CORE_YIELDS" } ().Value == 1;
-	local MOD_BALANCE_CORE_JFD = GameInfo.CustomModOptions { Name = "BALANCE_CORE_JFD" } ().Value == 1;
 
-	local iNumYields = Game and Game.GetNumYieldTypes and Game.GetNumYieldTypes();
+	local MOD_BALANCE_CORE_YIELDS = GameInfo.CustomModOptions{Name = "BALANCE_CORE_YIELDS"}().Value == 1;
+	local MOD_BALANCE_CORE_JFD = GameInfo.CustomModOptions{Name = "BALANCE_CORE_JFD"}().Value == 1;
+
+	local iNumYields = Game and Game.GetNumYieldTypes();
 	if not iNumYields then
-		local iNumJFDYields = GameInfo.Yields { Type = "YIELD_JFD_SOVEREIGNTY" } ().ID + 1;
-		local iNumCoreYields = GameInfo.Yields { Type = "YIELD_CULTURE_LOCAL" } ().ID + 1;
-		local iNumBaseYields = GameInfo.Yields { Type = "YIELD_GOLDEN_AGE_POINTS" } ().ID + 1;
+		local iNumJFDYields = GameInfo.Yields{Type = "YIELD_JFD_SOVEREIGNTY"}().ID + 1;
+		local iNumCoreYields = GameInfo.Yields{Type = "YIELD_CULTURE_LOCAL"}().ID + 1;
+		local iNumBaseYields = GameInfo.Yields{Type = "YIELD_GOLDEN_AGE_POINTS"}().ID + 1;
 		iNumYields = MOD_BALANCE_CORE_JFD and iNumJFDYields or (MOD_BALANCE_CORE_YIELDS and iNumCoreYields or iNumBaseYields);
 	end
 
@@ -27,7 +28,7 @@
 	local tYieldInfos = {};
 	for eYield = 0, iNumYields - 1 do
 		local kYieldInfo = GameInfo.Yields[eYield];
-		table.insert(tYieldInfos, {
+		table_insert(tYieldInfos, {
 			ID = eYield,
 			Type = kYieldInfo.Type,
 			IconString = kYieldInfo.IconString,
@@ -41,30 +42,30 @@
 	-- This is kept mostly private to prevent alteration
 	local tTemplates = {
 		Eras = {},
-		Technologies = {},
+		Technologies = {"GridX"},
 		Policies = {},
-		Beliefs = { "ShortDescription" },
-		Religions = { "IconString" },
+		Beliefs = {"ShortDescription"},
+		Religions = {"IconString"},
 		Resolutions = {},
 		Victories = {},
-		UnitPromotions = { "PortraitIndex", "IconAtlas", "Help" },
+		UnitPromotions = {"PortraitIndex", "IconAtlas", "Help"},
 		UnitCombatInfos = {},
-		Units = { "Class" },
-		UnitClasses = { "DefaultUnit" },
-		Buildings = { "BuildingClass", "PortraitIndex", "IconAtlas", "CivilizationRequired" },
-		BuildingClasses = { "MaxGlobalInstances", "DefaultBuilding" },
-		Projects = {},
-		Processes = {},
-		Specialists = { "PortraitIndex", "IconAtlas", "GreatPeopleTitle" },
-		Accomplishments = { "MaxPossibleCompletions" },
+		Units = {"Class", "PrereqTech", "Domain", "Combat", "RangedCombat"},
+		UnitClasses = {"DefaultUnit"},
+		Buildings = {"BuildingClass", "PortraitIndex", "IconAtlas", "CivilizationRequired", "PrereqTech"},
+		BuildingClasses = {"MaxGlobalInstances", "MaxTeamInstances", "MaxPlayerInstances", "DefaultBuilding"},
+		Projects = {"PortraitIndex", "IconAtlas", "TechPrereq"},
+		Processes = {"PortraitIndex", "IconAtlas", "TechPrereq"},
+		Specialists = {"PortraitIndex", "IconAtlas", "GreatPeopleTitle"},
+		Accomplishments = {"MaxPossibleCompletions"},
 		Plots = {},
-		Terrains = { "PortraitIndex", "IconAtlas" },
-		Features = { "PortraitIndex", "IconAtlas" },
-		Resources = { "PortraitIndex", "IconAtlas", "IconString", "CivilizationType" },
-		Improvements = { "PortraitIndex", "IconAtlas" },
-		Corporations = { "PortraitIndex", "IconAtlas", "Help" },
-		Civilizations = { "Adjective" },
-		Missions = { "IconIndex", "IconAtlas" },
+		Terrains = {"PortraitIndex", "IconAtlas"},
+		Features = {"PortraitIndex", "IconAtlas"},
+		Resources = {"PortraitIndex", "IconAtlas", "IconString", "CivilizationType"},
+		Improvements = {"PortraitIndex", "IconAtlas"},
+		Corporations = {"PortraitIndex", "IconAtlas", "Help"},
+		Civilizations = {"PortraitIndex", "IconAtlas", "Adjective"},
+		Missions = {"IconIndex", "IconAtlas"},
 	};
 	local tGameInfoCache = {};
 	for strTableName in pairs(tTemplates) do
@@ -77,10 +78,12 @@
 				Type = kInfo.Type,
 				Description = kInfo.Description,
 			};
+			-- Also populate GameInfoTypes in case it doesn't exist
+			GameInfoTypes[kInfo.Type] = kInfo.ID;
 			for _, strColumn in pairs(tTemplates[strTableName]) do
 				kInfoCopy[strColumn] = kInfo[strColumn];
 			end
-			table.insert(tGameInfos, kInfoCopy);
+			table_insert(tGameInfos, kInfoCopy);
 		end
 	end
 
@@ -93,10 +96,10 @@
 	--- @return integer[]
 	local function GetCivsFromTrait(strTraitType)
 		if not tTraitCivsCache[strTraitType] then
-			for row in GameInfo.Leader_Traits { TraitType = strTraitType } do
-				for row2 in GameInfo.Civilization_Leaders { LeaderheadType = row.LeaderType } do
+			for row in GameInfo.Leader_Traits{TraitType = strTraitType} do
+				for row2 in GameInfo.Civilization_Leaders{LeaderheadType = row.LeaderType} do
 					tTraitCivsCache[strTraitType] = tTraitCivsCache[strTraitType] or {};
-					table.insert(tTraitCivsCache[strTraitType], GameInfoTypes[row2.CivilizationType]);
+					table_insert(tTraitCivsCache[strTraitType], GameInfoTypes[row2.CivilizationType]);
 				end
 			end
 		end
@@ -113,7 +116,7 @@
 
 	--- Get the great person database entry corresponding to the specified specialist type
 	--- @param strSpecialistType string
-	--- @return table
+	--- @return Info
 	local function GetGreatPersonInfoFromSpecialist(strSpecialistType)
 		return tSpecialistGreatPersons[strSpecialistType];
 	end
@@ -174,7 +177,7 @@
 
 		tGameInfoCache[strTable] = {};
 		for kInfo in GameInfo[strTable]() do
-			table.insert(tGameInfoCache[strTable], {
+			table_insert(tGameInfoCache[strTable], {
 				ID = kInfo.ID,
 				Type = kInfo.Type,
 				Description = kInfo.Description,
@@ -193,8 +196,25 @@
 		return #tGameInfoCache[strTable];
 	end
 
+	--- IconHookup, but set the control texture to the random civ icon if it fails (instead of retaining the previous texture)
+	--- @param iPortraitIndex integer
+	--- @param iIconSize integer
+	--- @param strAtlas string
+	--- @param imageControl Control
+	local function IconHookupOrDefault(iPortraitIndex, iIconSize, strAtlas, imageControl)
+		-- When first called, and when global env is corrupted
+		if not IconHookup then
+			include("IconSupport");
+		end
+		if not IconHookup(iPortraitIndex, iIconSize, strAtlas, imageControl) then
+			print("Failed to find icon, using default instead");
+			IconHookup(23, iIconSize, "CIV_COLOR_ATLAS", imageControl);
+		end
+	end
+
 	-- Add the local functions to VP object
 	local _VP = {};
+	_VP.GameInfoTypes = GameInfoTypes;
 	_VP.GetNumInfos = GetNumInfos;
 	_VP.GetInfoFromId = GetInfoFromId;
 	_VP.GetInfoFromType = GetInfoFromType;
@@ -202,11 +222,12 @@
 	_VP.PopulateGameInfoCache = PopulateGameInfoCache;
 	_VP.GetCivsFromTrait = GetCivsFromTrait;
 	_VP.GetGreatPersonInfoFromSpecialist = GetGreatPersonInfoFromSpecialist;
+	_VP.IconHookupOrDefault = IconHookupOrDefault;
 
 	-- MapModData may not always exist. While it doesn't, we have no choice but to save the VP object under the context global.
-	if global then
-		global.VP = _VP
+	if MapModData then
+		MapModData.VP = _VP;
+	else
+		VP = _VP;
 	end
-
-	VP = _VP
-end)()
+end

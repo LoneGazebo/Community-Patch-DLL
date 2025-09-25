@@ -632,7 +632,7 @@ function RefreshWorldReligions()
 				iTotalCities = iTotalCities+1;
 				iOwnedFollowers = iOwnedFollowers + pCity:GetNumFollowers(v.ReligionID);
 			end
-			entry.NumberOfCities:SetToolTipSotring(Locale.ConvertTextKey(
+			entry.NumberOfCities:SetToolTipString(Locale.ConvertTextKey(
 				"TXT_KEY_RO_WR_OWNED_CITIES", 
 				AsPercentage(v.NumCities / Game.GetNumCities()),
 				v.Name,

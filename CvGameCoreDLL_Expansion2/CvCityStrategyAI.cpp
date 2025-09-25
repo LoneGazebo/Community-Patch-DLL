@@ -3132,47 +3132,44 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_GoodGPCity(CvCity* pCity)
 					GreatPersonTypes eGreatPerson = GetGreatPersonFromSpecialist(eSpecialist);
 					if(eGreatPerson != NO_GREATPERSON)
 					{
+						iMod += pCity->GetPlayer()->GetGreatPersonRateModifier(eGreatPerson);
 						iMod += pCity->GetPlayer()->getSpecificGreatPersonRateModifierFromMonopoly(eGreatPerson);
 						if(pCity->GetPlayer()->isGoldenAge())
 						{
-							GreatPersonTypes eGreatPerson = GetGreatPersonFromSpecialist(eSpecialist);
-							if(eGreatPerson != NO_GREATPERSON)
+							iMod += pCity->GetPlayer()->getGoldenAgeGreatPersonRateModifier(eGreatPerson);
+							iMod += pCity->GetPlayer()->GetPlayerTraits()->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
+
+							iMod += pCity->GetPlayer()->GetPlayerTraits()->GetWLTKDGPImprovementModifier() * 10;
+
+							ReligionTypes eMajority = pCity->GetCityReligions()->GetReligiousMajority();
+							BeliefTypes eSecondaryPantheon = NO_BELIEF;
+							if(eMajority != NO_RELIGION)
 							{
-								iMod += pCity->GetPlayer()->getGoldenAgeGreatPersonRateModifier(eGreatPerson);
-								iMod += pCity->GetPlayer()->GetPlayerTraits()->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
-
-								iMod += pCity->GetPlayer()->GetPlayerTraits()->GetWLTKDGPImprovementModifier() * 10;
-
-								ReligionTypes eMajority = pCity->GetCityReligions()->GetReligiousMajority();
-								BeliefTypes eSecondaryPantheon = NO_BELIEF;
-								if(eMajority != NO_RELIGION)
+								const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pCity->getOwner());
+								if(pReligion)
 								{
-									const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pCity->getOwner());
-									if(pReligion)
+									iMod += pReligion->m_Beliefs.GetGoldenAgeGreatPersonRateModifier(eGreatPerson, pCity->getOwner(), pCity);
+									eSecondaryPantheon = pCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
+									if (eSecondaryPantheon != NO_BELIEF)
 									{
-										iMod += pReligion->m_Beliefs.GetGoldenAgeGreatPersonRateModifier(eGreatPerson, pCity->getOwner(), pCity);
-										eSecondaryPantheon = pCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
-										if (eSecondaryPantheon != NO_BELIEF)
-										{
-											iMod += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
-										}
+										iMod += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
 									}
 								}
+							}
 
-								// Mod for civs keeping their pantheon belief forever
-								if (MOD_RELIGION_PERMANENT_PANTHEON)
+							// Mod for civs keeping their pantheon belief forever
+							if (MOD_RELIGION_PERMANENT_PANTHEON)
+							{
+								if (GC.getGame().GetGameReligions()->HasCreatedPantheon(pCity->getOwner()))
 								{
-									if (GC.getGame().GetGameReligions()->HasCreatedPantheon(pCity->getOwner()))
+									const CvReligion* pPantheon = GC.getGame().GetGameReligions()->GetReligion(RELIGION_PANTHEON, pCity->getOwner());
+									BeliefTypes ePantheonBelief = GC.getGame().GetGameReligions()->GetBeliefInPantheon(pCity->getOwner());
+									if (pPantheon != NULL && ePantheonBelief != NO_BELIEF && ePantheonBelief != eSecondaryPantheon)
 									{
-										const CvReligion* pPantheon = GC.getGame().GetGameReligions()->GetReligion(RELIGION_PANTHEON, pCity->getOwner());
-										BeliefTypes ePantheonBelief = GC.getGame().GetGameReligions()->GetBeliefInPantheon(pCity->getOwner());
-										if (pPantheon != NULL && ePantheonBelief != NO_BELIEF && ePantheonBelief != eSecondaryPantheon)
+										const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pCity->getOwner());
+										if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, pReligion->m_eReligion, pCity->getOwner()))) // check that the our religion does not have our belief, to prevent double counting
 										{
-											const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pCity->getOwner());
-											if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, pReligion->m_eReligion, pCity->getOwner()))) // check that the our religion does not have our belief, to prevent double counting
-											{
-												iMod += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
-											}
+											iMod += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
 										}
 									}
 								}
@@ -3191,49 +3188,14 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_GoodGPCity(CvCity* pCity)
 						{
 							iMod += (iNumPuppets * pCity->GetPlayer()->GetPlayerTraits()->GetPerPuppetGreatPersonRateModifier(eGreatPerson));			
 						}
-					}
 
-					// Trait mod to this specific class
-					if ((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_SCIENTIST"))
-					{
-						iMod += pCity->GetPlayer()->GetPlayerTraits()->GetGreatScientistRateModifier();
-						iMod += pCity->GetPlayer()->getGreatScientistRateModifier();
-					}
-					else if((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_WRITER"))
-					{
-						iMod += pCity->GetPlayer()->getGreatWriterRateModifier();
-						if (pCity->GetPlayer()->GetPlayerTraits()->IsGreatWorkWLTKD())
+						if ((eGreatPerson == GC.getInfoTypeForString("GREATPERSON_WRITER") ||
+							eGreatPerson == GC.getInfoTypeForString("GREATPERSON_ARTIST") ||
+							eGreatPerson == GC.getInfoTypeForString("GREATPERSON_MUSICIAN")) &&
+							pCity->GetPlayer()->GetPlayerTraits()->IsGreatWorkWLTKD())
 						{
 							iMod += 25;
 						}
-					}
-					else if((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_ARTIST"))
-					{
-						iMod += pCity->GetPlayer()->getGreatArtistRateModifier();
-						if (pCity->GetPlayer()->GetPlayerTraits()->IsGreatWorkWLTKD())
-						{
-							iMod += 25;
-						}
-					}
-					else if((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_MUSICIAN"))
-					{
-						iMod += pCity->GetPlayer()->getGreatMusicianRateModifier();
-						if (pCity->GetPlayer()->GetPlayerTraits()->IsGreatWorkWLTKD())
-						{
-							iMod += 25;
-						}
-					}
-					else if((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_MERCHANT"))
-					{
-						iMod += pCity->GetPlayer()->getGreatMerchantRateModifier();
-					}
-					else if((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_ENGINEER"))
-					{
-						iMod += pCity->GetPlayer()->getGreatEngineerRateModifier();
-					}
-					else if(MOD_BALANCE_VP && (UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_GREAT_DIPLOMAT"))
-					{
-						iMod += pCity->GetPlayer()->getGreatDiplomatRateModifier();
 					}
 
 					iGPPChange *= (100 + iMod);

@@ -213,21 +213,13 @@ CvPlayer::CvPlayer() :
 	, m_iPolicyCostModifier()
 	, m_iGreatPeopleRateModifier()
 	, m_iGreatPeopleRateModFromBldgs()
-	, m_iGreatGeneralRateModifier()
 	, m_iGreatGeneralRateModFromBldgs()
 	, m_iDomesticGreatGeneralRateModifier()
-	, m_iGreatAdmiralRateModifier()
-	, m_iGreatWriterRateModifier()
-	, m_iGreatArtistRateModifier()
-	, m_iGreatMusicianRateModifier()
-	, m_iGreatMerchantRateModifier()
-	, m_iGreatDiplomatRateModifier()
-	, m_iGreatScientistRateModifier()
+	, m_viGreatPersonRateModifier()
 	, m_iGreatScientistBeakerModifier()
 	, m_iGreatEngineerHurryMod()
 	, m_iTechCostXCitiesModifier()
 	, m_iTourismCostXCitiesMod()
-	, m_iGreatEngineerRateModifier()
 	, m_iGreatPersonExpendGold()
 	, m_iMaxGlobalBuildingProductionModifier()
 	, m_iMaxTeamBuildingProductionModifier()
@@ -1405,21 +1397,12 @@ void CvPlayer::uninit()
 	m_iPolicyCostModifier = 0;
 	m_iGreatPeopleRateModifier = 0;
 	m_iGreatPeopleRateModFromBldgs = 0;
-	m_iGreatGeneralRateModifier = 0;
 	m_iGreatGeneralRateModFromBldgs = 0;
 	m_iDomesticGreatGeneralRateModifier = 0;
-	m_iGreatAdmiralRateModifier = 0;
-	m_iGreatWriterRateModifier = 0;
-	m_iGreatArtistRateModifier = 0;
-	m_iGreatMusicianRateModifier = 0;
-	m_iGreatMerchantRateModifier = 0;
-	m_iGreatDiplomatRateModifier = 0;
-	m_iGreatScientistRateModifier = 0;
 	m_iGreatScientistBeakerModifier = 0;
 	m_iGreatEngineerHurryMod = 0;
 	m_iTechCostXCitiesModifier = 0;
 	m_iTourismCostXCitiesMod = 0;
-	m_iGreatEngineerRateModifier = 0;
 	m_iGreatPersonExpendGold = 0;
 	m_iMaxGlobalBuildingProductionModifier = 0;
 	m_iMaxTeamBuildingProductionModifier = 0;
@@ -1860,6 +1843,9 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 	m_aiYieldForLiberation.clear();
 	m_aiYieldForLiberation.resize(NUM_YIELD_TYPES, 0);
+
+	m_viGreatPersonRateModifier.clear();
+	m_viGreatPersonRateModifier.resize(GC.getNumGreatPersonInfos(), 0);
 
 	m_aiBuildingClassInLiberatedCities.clear();
 	m_aiBuildingClassInLiberatedCities.resize(GC.getNumBuildingClassInfos(), 0);
@@ -23918,7 +23904,6 @@ void CvPlayer::setHasPolicy(PolicyTypes eIndex, bool bNewValue, bool bFree)
 	{
 		m_pPlayerPolicies->SetPolicy(eIndex, bNewValue, bFree);
 		processPolicies(eIndex, bNewValue ? 1 : -1);
-		GetPlayerPolicies()->ClearCache();
 	}
 }
 
@@ -25374,49 +25359,18 @@ int CvPlayer::getGreatPeopleRateModifier() const
 	return m_iGreatPeopleRateModifier;
 }
 
-int CvPlayer::getGreatGeneralRateModifier() const
+int CvPlayer::GetGreatPersonRateModifier(GreatPersonTypes eGreatPerson) const
 {
-	return m_iGreatGeneralRateModifier;
+	ASSERT_DEBUG(eGreatPerson > NO_GREATPERSON, "eGreatPerson expected to be non-negative");
+	ASSERT_DEBUG(eGreatPerson < GC.getNumGreatPersonInfos(), "eGreatPerson expected to be within maximum bounds (invalid Index)");
+	return m_viGreatPersonRateModifier[eGreatPerson];
 }
 
-int CvPlayer::getGreatAdmiralRateModifier() const
+void CvPlayer::ChangeGreatPersonRateModifier(GreatPersonTypes eGreatPerson, int iChange)
 {
-	return m_iGreatAdmiralRateModifier;
-}
-
-int CvPlayer::getGreatWriterRateModifier() const
-{
-	return m_iGreatWriterRateModifier;
-}
-
-int CvPlayer::getGreatArtistRateModifier() const
-{
-	return m_iGreatArtistRateModifier;
-}
-
-int CvPlayer::getGreatMusicianRateModifier() const
-{
-	return m_iGreatMusicianRateModifier;
-}
-
-int CvPlayer::getGreatMerchantRateModifier() const
-{
-	return m_iGreatMerchantRateModifier;
-}
-
-int CvPlayer::getGreatScientistRateModifier() const
-{
-	return m_iGreatScientistRateModifier;
-}
-
-int CvPlayer::getGreatEngineerRateModifier() const
-{
-	return m_iGreatEngineerRateModifier;
-}
-
-int CvPlayer::getGreatDiplomatRateModifier() const
-{
-	return m_iGreatDiplomatRateModifier;
+	ASSERT_DEBUG(eGreatPerson > NO_GREATPERSON, "eGreatPerson expected to be non-negative");
+	ASSERT_DEBUG(eGreatPerson < GC.getNumGreatPersonInfos(), "eGreatPerson expected to be within maximum bounds (invalid Index)");
+	m_viGreatPersonRateModifier[eGreatPerson] += iChange;
 }
 
 int CvPlayer::getDomesticGreatGeneralRateModifier() const
@@ -28436,40 +28390,46 @@ void CvPlayer::recomputeGreatPeopleModifiers()
 	// Initialize
 	//=============
 	m_iGreatPeopleRateModifier = 0;
-	m_iGreatGeneralRateModifier = 0;
-	m_iGreatAdmiralRateModifier = 0;
-	m_iGreatWriterRateModifier = 0;
-	m_iGreatArtistRateModifier = 0;
-	m_iGreatMusicianRateModifier = 0;
-	m_iGreatMerchantRateModifier = 0;
-	m_iGreatDiplomatRateModifier = 0;
-	m_iGreatScientistRateModifier = 0;
-	m_iGreatEngineerRateModifier = 0;
+	fill(m_viGreatPersonRateModifier.begin(), m_viGreatPersonRateModifier.end(), 0);
 	m_iDomesticGreatGeneralRateModifier = 0;
+
+	const GreatPersonTypes eGeneral = static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_GENERAL"));
+	const GreatPersonTypes eAdmiral = static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_ADMIRAL"));
+	const GreatPersonTypes eEngineer = static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_ENGINEER"));
+	const GreatPersonTypes eScientist = static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_SCIENTIST"));
+	const GreatPersonTypes eMerchant = static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_MERCHANT"));
+	const GreatPersonTypes eArtist = static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_ARTIST"));
+	const GreatPersonTypes eMusician = static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_MUSICIAN"));
+	const GreatPersonTypes eWriter = static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_WRITER"));
+	const GreatPersonTypes eDiplomat = static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_DIPLOMAT"));
+
+	CvTeam& kTeam = GET_TEAM(getTeam());
 
 	// Get from traits first
 	m_iGreatPeopleRateModifier += m_pTraits->GetGreatPeopleRateModifier();
-	m_iGreatGeneralRateModifier += m_pTraits->GetGreatGeneralRateModifier();
-	m_iGreatScientistRateModifier += m_pTraits->GetGreatScientistRateModifier();
-	m_iGreatGeneralRateModifier += (m_pTraits->GetGGGARateFromDenunciationsAndWars()) * (GetDiplomacyAI()->GetNumDenouncements() + GET_TEAM(getTeam()).getAtWarCount(true));
-	m_iGreatAdmiralRateModifier += (m_pTraits->GetGGGARateFromDenunciationsAndWars()) * (GetDiplomacyAI()->GetNumDenouncements() + GET_TEAM(getTeam()).getAtWarCount(true));
+	ChangeGreatPersonRateModifier(eGeneral, m_pTraits->GetGreatGeneralRateModifier());
+	ChangeGreatPersonRateModifier(eScientist, m_pTraits->GetGreatScientistRateModifier());
+
+	int iGGGARateFromDenunciationsAndWars = m_pTraits->GetGGGARateFromDenunciationsAndWars() * (GetDiplomacyAI()->GetNumDenouncements() + kTeam.getAtWarCount(true));
+	ChangeGreatPersonRateModifier(eGeneral, iGGGARateFromDenunciationsAndWars);
+	ChangeGreatPersonRateModifier(eAdmiral, iGGGARateFromDenunciationsAndWars);
 
 	// Then get from current policies
 	m_iGreatPeopleRateModifier += m_pPlayerPolicies->GetNumericModifier(POLICYMOD_GREAT_PERSON_RATE);
-	m_iGreatGeneralRateModifier += m_pPlayerPolicies->GetNumericModifier(POLICYMOD_GREAT_GENERAL_RATE);
-	m_iGreatAdmiralRateModifier += m_pPlayerPolicies->GetNumericModifier(POLICYMOD_GREAT_ADMIRAL_RATE);
-	m_iGreatWriterRateModifier += m_pPlayerPolicies->GetNumericModifier(POLICYMOD_GREAT_WRITER_RATE);
-	m_iGreatArtistRateModifier += m_pPlayerPolicies->GetNumericModifier(POLICYMOD_GREAT_ARTIST_RATE);
-	m_iGreatMusicianRateModifier += m_pPlayerPolicies->GetNumericModifier(POLICYMOD_GREAT_MUSICIAN_RATE);
-	m_iGreatMerchantRateModifier += m_pPlayerPolicies->GetNumericModifier(POLICYMOD_GREAT_MERCHANT_RATE);
-	m_iGreatEngineerRateModifier += m_pPlayerPolicies->GetNumericModifier(POLICYMOD_GREAT_ENGINEER_RATE);
-	m_iGreatDiplomatRateModifier += m_pPlayerPolicies->GetNumericModifier(POLICYMOD_GREAT_DIPLOMAT_RATE);
-	m_iGreatScientistRateModifier += m_pPlayerPolicies->GetNumericModifier(POLICYMOD_GREAT_SCIENTIST_RATE);
 	m_iDomesticGreatGeneralRateModifier += m_pPlayerPolicies->GetNumericModifier(POLICYMOD_DOMESTIC_GREAT_GENERAL_RATE);
+	ChangeGreatPersonRateModifier(eGeneral, m_pPlayerPolicies->GetNumericModifier(POLICYMOD_GREAT_GENERAL_RATE));
+	ChangeGreatPersonRateModifier(eAdmiral, m_pPlayerPolicies->GetNumericModifier(POLICYMOD_GREAT_ADMIRAL_RATE));
+	ChangeGreatPersonRateModifier(eWriter, m_pPlayerPolicies->GetNumericModifier(POLICYMOD_GREAT_WRITER_RATE));
+	ChangeGreatPersonRateModifier(eArtist, m_pPlayerPolicies->GetNumericModifier(POLICYMOD_GREAT_ARTIST_RATE));
+	ChangeGreatPersonRateModifier(eMusician, m_pPlayerPolicies->GetNumericModifier(POLICYMOD_GREAT_MUSICIAN_RATE));
+	ChangeGreatPersonRateModifier(eMerchant, m_pPlayerPolicies->GetNumericModifier(POLICYMOD_GREAT_MERCHANT_RATE));
+	ChangeGreatPersonRateModifier(eEngineer, m_pPlayerPolicies->GetNumericModifier(POLICYMOD_GREAT_ENGINEER_RATE));
+	ChangeGreatPersonRateModifier(eDiplomat, m_pPlayerPolicies->GetNumericModifier(POLICYMOD_GREAT_DIPLOMAT_RATE));
+	ChangeGreatPersonRateModifier(eScientist, m_pPlayerPolicies->GetNumericModifier(POLICYMOD_GREAT_SCIENTIST_RATE));
 
 	// Next add in buildings
 	m_iGreatPeopleRateModifier += m_iGreatPeopleRateModFromBldgs;
-	m_iGreatGeneralRateModifier += m_iGreatGeneralRateModFromBldgs;
+	ChangeGreatPersonRateModifier(eGeneral, m_iGreatGeneralRateModFromBldgs);
 
 	// Finally anything from friendships
 	m_iGreatPeopleRateModifier += GetGreatPeopleRateModFromFriendships();
@@ -28479,15 +28439,15 @@ void CvPlayer::recomputeGreatPeopleModifiers()
 	int iScienceyMod = GC.getGame().GetGameLeagues()->GetScienceyGreatPersonRateModifier(GetID());
 	if (iArtsyMod != 0)
 	{
-		m_iGreatWriterRateModifier += iArtsyMod;
-		m_iGreatArtistRateModifier += iArtsyMod;
-		m_iGreatMusicianRateModifier += iArtsyMod;
+		ChangeGreatPersonRateModifier(eWriter, iArtsyMod);
+		ChangeGreatPersonRateModifier(eArtist, iArtsyMod);
+		ChangeGreatPersonRateModifier(eMusician, iArtsyMod);
 	}
 	if (iScienceyMod != 0)
 	{
-		m_iGreatScientistRateModifier += iScienceyMod;
-		m_iGreatEngineerRateModifier += iScienceyMod;
-		m_iGreatMerchantRateModifier += iScienceyMod;
+		ChangeGreatPersonRateModifier(eMerchant, iScienceyMod);
+		ChangeGreatPersonRateModifier(eEngineer, iScienceyMod);
+		ChangeGreatPersonRateModifier(eScientist, iScienceyMod);
 	}
 
 	// Finally boost domestic general from combat experience
@@ -39716,15 +39676,15 @@ void CvPlayer::changeGreatPersonExpendedYield(GreatPersonTypes eIndex1, YieldTyp
 
 int CvPlayer::getGoldenAgeGreatPersonRateModifier(GreatPersonTypes eGreatPerson) const
 {
-	ASSERT_DEBUG(eGreatPerson >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eGreatPerson < GC.getNumGreatPersonInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT_DEBUG(eGreatPerson >= 0, "eGreatPerson is expected to be non-negative (invalid Index)");
+	ASSERT_DEBUG(eGreatPerson < GC.getNumGreatPersonInfos(), "eGreatPerson is expected to be within maximum bounds (invalid Index)");
 	return m_piGoldenAgeGreatPersonRateModifier[eGreatPerson];
 }
 
 void CvPlayer::changeGoldenAgeGreatPersonRateModifier(GreatPersonTypes eGreatPerson, int iChange)
 {
-	ASSERT_DEBUG(eGreatPerson >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eGreatPerson < GC.getNumGreatPersonInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT_DEBUG(eGreatPerson >= 0, "eGreatPerson is expected to be non-negative (invalid Index)");
+	ASSERT_DEBUG(eGreatPerson < GC.getNumGreatPersonInfos(), "eGreatPerson is expected to be within maximum bounds (invalid Index)");
 	m_piGoldenAgeGreatPersonRateModifier[eGreatPerson] += iChange;
 }
 
@@ -42267,6 +42227,77 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	GetCorporations()->ChangeNoForeignCorpsInCities(pkPolicyInfo->IsNoForeignCorpsInCities() * iChange);
 	GetCorporations()->ChangeNoFranchisesInForeignCities(pkPolicyInfo->IsNoForeignCorpsInCities() * iChange);
 
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_EXTRA_HAPPINESS, pkPolicyInfo->GetExtraHappiness() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_EXTRA_HAPPINESS_PER_CITY, pkPolicyInfo->GetExtraHappinessPerCity() * iChange);
+#if defined(HH_MOD_NATURAL_WONDER_MODULARITY)
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_EXTRA_NATURALWONDER_HAPPINESS, pkPolicyInfo->GetExtraNaturalWonderHappiness() * iChange);
+#endif
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_GREAT_PERSON_RATE, pkPolicyInfo->GetGreatPeopleRateModifier() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_GREAT_GENERAL_RATE, pkPolicyInfo->GetGreatGeneralRateModifier() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_GREAT_ADMIRAL_RATE, pkPolicyInfo->GetGreatAdmiralRateModifier() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_GREAT_WRITER_RATE, pkPolicyInfo->GetGreatWriterRateModifier() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_GREAT_ARTIST_RATE, pkPolicyInfo->GetGreatArtistRateModifier() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_GREAT_MUSICIAN_RATE, pkPolicyInfo->GetGreatMusicianRateModifier() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_GREAT_MERCHANT_RATE, pkPolicyInfo->GetGreatMerchantRateModifier() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_GREAT_ENGINEER_RATE, pkPolicyInfo->GetGreatEngineerRateModifier() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_STEAL_GW_SLOWER_MODIFIER, pkPolicyInfo->GetStealGWSlowerModifier() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_STEAL_GW_FASTER_MODIFIER, pkPolicyInfo->GetStealGWFasterModifier() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_CITY_DEFENSE_BOOST, pkPolicyInfo->GetDefenseBoost() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_GREAT_DIPLOMAT_RATE, pkPolicyInfo->GetGreatDiplomatRateModifier() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_GREAT_SCIENTIST_RATE, pkPolicyInfo->GetGreatScientistRateModifier() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_DOMESTIC_GREAT_GENERAL_RATE, pkPolicyInfo->GetDomesticGreatGeneralRateModifier() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_GAP_FROM_HAPPINESS_MODIFIER, pkPolicyInfo->GetGAPFromHappinessModifier() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_POLICY_COST_MODIFIER, pkPolicyInfo->GetPolicyCostModifier() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_WONDER_PRODUCTION_MODIFIER, pkPolicyInfo->GetWonderProductionModifier() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_BUILDING_PRODUCTION_MODIFIER, pkPolicyInfo->GetBuildingProductionModifier() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_FREE_EXPERIENCE, pkPolicyInfo->GetFreeExperience() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_EXTRA_CULTURE_FROM_IMPROVEMENTS, pkPolicyInfo->GetCultureImprovementChange() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_CULTURE_FROM_KILLS, pkPolicyInfo->GetCultureFromKills() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_EMBARKED_EXTRA_MOVES, pkPolicyInfo->GetEmbarkedExtraMoves() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_CULTURE_FROM_BARBARIAN_KILLS, pkPolicyInfo->GetCultureFromBarbarianKills() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_GOLD_FROM_KILLS, pkPolicyInfo->GetGoldFromKills() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_CULTURE_FROM_GARRISON, pkPolicyInfo->GetCulturePerGarrisonedUnit() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_UNIT_FREQUENCY_MODIFIER, pkPolicyInfo->GetCityStateUnitFrequencyModifier() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_TOURISM_MOD_COMMON_FOE, pkPolicyInfo->GetCommonFoeTourismModifier() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_TOURISM_MOD_LESS_HAPPY, pkPolicyInfo->GetLessHappyTourismModifier() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_TOURISM_MOD_SHARED_IDEOLOGY, pkPolicyInfo->GetSharedIdeologyTourismModifier() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_TRADE_MISSION_GOLD_MODIFIER, pkPolicyInfo->GetTradeMissionGoldModifier() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_FAITH_COST_MODIFIER, pkPolicyInfo->GetFaithCostModifier() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_CULTURAL_PLUNDER_MULTIPLIER, pkPolicyInfo->GetCulturalPlunderMultiplier() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_STEAL_TECH_SLOWER_MODIFIER, pkPolicyInfo->GetStealTechSlowerModifier() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_CATCH_SPIES_MODIFIER, pkPolicyInfo->GetCatchSpiesModifier() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_BUILDING_PURCHASE_COST_MODIFIER, pkPolicyInfo->GetBuildingPurchaseCostModifier() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_LAND_TRADE_GOLD_CHANGE, pkPolicyInfo->GetLandTradeRouteGoldChange() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_SEA_TRADE_GOLD_CHANGE, pkPolicyInfo->GetSeaTradeRouteGoldChange() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_SHARED_IDEOLOGY_TRADE_CHANGE, pkPolicyInfo->GetSharedIdeologyTradeGoldChange() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_RIGGING_ELECTION_MODIFIER, pkPolicyInfo->GetRiggingElectionModifier() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_RIG_ELECTION_INFLUENCE_MODIFIER, pkPolicyInfo->GetRigElectionInfluenceModifier() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_PASSIVE_ESPIONAGE_MODIFIER, pkPolicyInfo->GetPassiveEspionageBonusModifier() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_MILITARY_UNIT_GIFT_INFLUENCE, pkPolicyInfo->GetMilitaryUnitGiftExtraInfluence() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_PROTECTED_MINOR_INFLUENCE, pkPolicyInfo->GetProtectedMinorPerTurnInfluence() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_AFRAID_INFLUENCE, pkPolicyInfo->GetAfraidMinorPerTurnInfluence() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_MINOR_BULLY_SCORE_MODIFIER, pkPolicyInfo->GetMinorBullyScoreModifier() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_THEMING_BONUS, pkPolicyInfo->GetThemingBonusMultiplier() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_CITY_STATE_TRADE_CHANGE, pkPolicyInfo->GetCityStateTradeChange() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_INTERNAL_TRADE_MODIFIER, pkPolicyInfo->GetInternalTradeRouteYieldModifier() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_INTERNAL_TRADE_CAPITAL_MODIFIER, pkPolicyInfo->GetInternalTradeRouteYieldModifierCapital() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_TRADE_CAPITAL_MODIFIER, pkPolicyInfo->GetTradeRouteYieldModifierCapital() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_TRADE_MODIFIER, pkPolicyInfo->GetTradeRouteYieldModifier() * iChange);
+	for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
+	{
+		GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_LIBERATION_BONUS, pkPolicyInfo->GetYieldForLiberation(iYield) * iChange);
+	}
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_LIBERATION_BONUS, pkPolicyInfo->GetInfluenceForLiberation() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_LIBERATION_BONUS, pkPolicyInfo->GetExperienceForLiberation() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_PUPPET_BONUS, pkPolicyInfo->GetPuppetProdMod() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_PUPPET_BONUS, pkPolicyInfo->GetPuppetYieldPenaltyMod() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_SHARED_RELIGION_TOURISM_MODIFIER, pkPolicyInfo->GetSharedReligionTourismModifier() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_TRADE_ROUTE_TOURISM_MODIFIER, pkPolicyInfo->GetTradeRouteTourismModifier() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_OPEN_BORDERS_TOURISM_MODIFIER, pkPolicyInfo->GetOpenBordersTourismModifier() * iChange);
+#if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_CONVERSION_MODIFIER, pkPolicyInfo->GetConversionModifier() * iChange);
+#endif
+
 	// Improvements
 	for (int iI = 0; iI < GC.getNumImprovementInfos(); iI++)
 	{
@@ -43420,21 +43451,13 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_iPolicyCostModifier);
 	visitor(player.m_iGreatPeopleRateModifier);
 	visitor(player.m_iGreatPeopleRateModFromBldgs);
-	visitor(player.m_iGreatGeneralRateModifier);
 	visitor(player.m_iGreatGeneralRateModFromBldgs);
 	visitor(player.m_iDomesticGreatGeneralRateModifier);
-	visitor(player.m_iGreatAdmiralRateModifier);
-	visitor(player.m_iGreatWriterRateModifier);
-	visitor(player.m_iGreatArtistRateModifier);
-	visitor(player.m_iGreatMusicianRateModifier);
-	visitor(player.m_iGreatMerchantRateModifier);
-	visitor(player.m_iGreatDiplomatRateModifier);
-	visitor(player.m_iGreatScientistRateModifier);
+	visitor(player.m_viGreatPersonRateModifier);
 	visitor(player.m_iGreatScientistBeakerModifier);
 	visitor(player.m_iGreatEngineerHurryMod);
 	visitor(player.m_iTechCostXCitiesModifier);
 	visitor(player.m_iTourismCostXCitiesMod);
-	visitor(player.m_iGreatEngineerRateModifier);
 	visitor(player.m_iGreatPersonExpendGold);
 	visitor(player.m_iNoUnhappfromXSpecialists);
 	visitor(player.m_iHappfromXSpecialists);

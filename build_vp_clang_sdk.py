@@ -15,7 +15,7 @@ class Config(Enum):
 
 CORE_DLL = 'CvGameCore_Expansion2'
 PROJECT_DIR = Path().resolve()
-SDK_VERSION = '7.0'  # Change this to the appropriate SDK version if different
+SDK_VERSION = '7.0'  # Change this to the appropriate SDK version if different, e.g. 7.0A
 INCLUDE_PATHS = [
     rf'C:\Program Files (x86)\Microsoft SDKs\Windows\v{SDK_VERSION}\Include',
     rf'C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\include'
@@ -88,7 +88,7 @@ CL_SUPPRESS = [
     'invalid-offsetof',
     'tautological-constant-out-of-range-compare',
     'comment',
-    'enum-constexpr-conversion', # TODO: #9786
+    # 'enum-constexpr-conversion', # TODO: #9786
     'c++11-narrowing',
 ]
 PCH_CPP = 'CvGameCoreDLL_Expansion2\\_precompile.cpp'
@@ -323,7 +323,7 @@ def print_environment():
     print("PATH:", os.environ.get('PATH', 'Not Set'))
 
 def build_cl_config_args(config: Config) -> list[str]:
-    args = ['-m32', '-msse3', '/c', '/MD', '/GS', '/EHsc', '/fp:precise', '/Zc:wchar_t', '/Z7', '/W1']
+    args = ['-m32', '-msse3', '/c', '/MD', '/GS', '/EHsc', '/fp:precise', '/Zc:wchar_t', '/Z7']
     if config == Config.Release:
         args.append('/Od')
         args.append('/Ob2')
