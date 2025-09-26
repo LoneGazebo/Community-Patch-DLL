@@ -1458,37 +1458,34 @@ int CvGrandStrategyAI::GetSpaceshipPriority()
 	int iLoop = 0;
 	for (CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop)) 
 	{
-		if(pLoopCity != NULL)
+		int iNumBuildingInfos = GC.getNumBuildingInfos();
+		for(int iI = 0; iI < iNumBuildingInfos; iI++)
 		{
-			int iNumBuildingInfos = GC.getNumBuildingInfos();
-			for(int iI = 0; iI < iNumBuildingInfos; iI++)
+			const BuildingTypes eBuildingLoop = static_cast<BuildingTypes>(iI);
+			if(eBuildingLoop == NO_BUILDING)
+				continue;
+			if(pLoopCity->GetCityBuildings()->GetNumBuilding(eBuildingLoop) > 0)
 			{
-				const BuildingTypes eBuildingLoop = static_cast<BuildingTypes>(iI);
-				if(eBuildingLoop == NO_BUILDING)
-					continue;
-				if(pLoopCity->GetCityBuildings()->GetNumBuilding(eBuildingLoop) > 0)
+				CvBuildingEntry* pkLoopBuilding = GC.getBuildingInfo(eBuildingLoop);
+				if(pkLoopBuilding)
 				{
-					CvBuildingEntry* pkLoopBuilding = GC.getBuildingInfo(eBuildingLoop);
-					if(pkLoopBuilding)
+					for(int iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes(); iFlavorLoop++)
 					{
-						for(int iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes(); iFlavorLoop++)
+						if(GC.getFlavorTypes((FlavorTypes) iFlavorLoop) == "FLAVOR_SPACESHIP")
 						{
-							if(GC.getFlavorTypes((FlavorTypes) iFlavorLoop) == "FLAVOR_SPACESHIP")
-							{
-								iPriorityBonus += pkLoopBuilding->GetFlavorValue(iFlavorLoop);
-							}
-							else if(GC.getFlavorTypes((FlavorTypes) iFlavorLoop) == "FLAVOR_SCIENCE")
-							{
-								iPriorityBonus += pkLoopBuilding->GetFlavorValue(iFlavorLoop);
-							}
-							else if(GC.getFlavorTypes((FlavorTypes) iFlavorLoop) == "FLAVOR_GROWTH")
-							{
-								iPriorityBonus += pkLoopBuilding->GetFlavorValue(iFlavorLoop);
-							}
-							else if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_TILE_IMPROVEMENT")
-							{
-								iPriorityBonus += pkLoopBuilding->GetFlavorValue(iFlavorLoop);
-							}
+							iPriorityBonus += pkLoopBuilding->GetFlavorValue(iFlavorLoop);
+						}
+						else if(GC.getFlavorTypes((FlavorTypes) iFlavorLoop) == "FLAVOR_SCIENCE")
+						{
+							iPriorityBonus += pkLoopBuilding->GetFlavorValue(iFlavorLoop);
+						}
+						else if(GC.getFlavorTypes((FlavorTypes) iFlavorLoop) == "FLAVOR_GROWTH")
+						{
+							iPriorityBonus += pkLoopBuilding->GetFlavorValue(iFlavorLoop);
+						}
+						else if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_TILE_IMPROVEMENT")
+						{
+							iPriorityBonus += pkLoopBuilding->GetFlavorValue(iFlavorLoop);
 						}
 					}
 				}

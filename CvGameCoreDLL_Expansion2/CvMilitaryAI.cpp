@@ -3296,7 +3296,7 @@ void CvMilitaryAI::UpdateWarType()
 
 	for (CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoop))
 	{
-		if (pLoopUnit != NULL && pLoopUnit->IsCombatUnit())
+		if (pLoopUnit->IsCombatUnit())
 		{
 			if (pLoopUnit->getDomainType() == DOMAIN_SEA)
 			{
@@ -3325,14 +3325,22 @@ void CvMilitaryAI::UpdateWarType()
 
 	for (CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 	{
-		if (pLoopCity != NULL)
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 		{
-			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+			PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+			if (eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).isAlive() && eLoopPlayer != m_pPlayer->GetID() && !GET_PLAYER(eLoopPlayer).isMinorCiv())
 			{
-				PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
-				if (eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).isAlive() && eLoopPlayer != m_pPlayer->GetID() && !GET_PLAYER(eLoopPlayer).isMinorCiv())
+				if (GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).isAtWar(m_pPlayer->getTeam()) || m_pPlayer->GetDiplomacyAI()->GetCivApproach(eLoopPlayer) == CIV_APPROACH_WAR)
 				{
-					if (GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).isAtWar(m_pPlayer->getTeam()) || m_pPlayer->GetDiplomacyAI()->GetCivApproach(eLoopPlayer) == CIV_APPROACH_WAR)
+					if (pLoopCity->isCoastal())
+					{
+						iFriendlySeaCities += 50;
+					}
+					else
+					{
+						iFriendlyLandCities += 50;
+					}
+					if (pLoopCity->IsInDanger(eLoopPlayer))
 					{
 						if (pLoopCity->isCoastal())
 						{
@@ -3341,17 +3349,6 @@ void CvMilitaryAI::UpdateWarType()
 						else
 						{
 							iFriendlyLandCities += 50;
-						}
-						if (pLoopCity->IsInDanger(eLoopPlayer))
-						{
-							if (pLoopCity->isCoastal())
-							{
-								iFriendlySeaCities += 50;
-							}
-							else
-							{
-								iFriendlyLandCities += 50;
-							}
 						}
 					}
 				}
@@ -3369,7 +3366,7 @@ void CvMilitaryAI::UpdateWarType()
 			{
 				for(CvUnit* pLoopUnit = GET_PLAYER(eLoopPlayer).firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER(eLoopPlayer).nextUnit(&iLoop))
 				{
-					if (pLoopUnit != NULL && pLoopUnit->IsCombatUnit())
+					if (pLoopUnit->IsCombatUnit())
 					{
 						if(pLoopUnit->getDomainType() == DOMAIN_SEA)
 						{
