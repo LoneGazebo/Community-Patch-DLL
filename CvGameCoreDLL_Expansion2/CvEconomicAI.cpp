@@ -2699,14 +2699,11 @@ void CvEconomicAI::DisbandExtraWorkboats()
 	CvCity* pLoopCity = NULL;
 	for(pLoopCity = m_pPlayer->firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoopCity))
 	{
-		if(pLoopCity != NULL)
+		if(eWantWorkers != NO_AICITYSTRATEGY)
 		{
-			if(eWantWorkers != NO_AICITYSTRATEGY)
+			if(pLoopCity->GetCityStrategyAI()->IsUsingCityStrategy(eWantWorkers))
 			{
-				if(pLoopCity->GetCityStrategyAI()->IsUsingCityStrategy(eWantWorkers))
-				{
-					iNumCitiesWithStrat++;
-				}
+				iNumCitiesWithStrat++;
 			}
 		}
 	}
@@ -3848,14 +3845,11 @@ bool EconomicAIHelpers::IsTestStrategy_TradeWithCityState(EconomicAIStrategyType
 	int iUnitLoop = 0;
 	for(CvUnit* pLoopUnit = pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = pPlayer->nextUnit(&iUnitLoop))
 	{
-		if(pLoopUnit != NULL)
+		if(pLoopUnit->AI_getUnitAIType() == UNITAI_MERCHANT && pLoopUnit->GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_USE_POWER)
 		{
-			if(pLoopUnit->AI_getUnitAIType() == UNITAI_MERCHANT && pLoopUnit->GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_USE_POWER)
+			if(pLoopUnit->getArmyID() == -1)
 			{
-				if(pLoopUnit->getArmyID() == -1)
-				{
-					iLooseMerchant++;
-				}
+				iLooseMerchant++;
 			}
 		}
 	}
@@ -3888,14 +3882,11 @@ bool EconomicAIHelpers::IsTestStrategy_InfluenceCityState(EconomicAIStrategyType
 		// Look at map for loose diplomats
 		for(pLoopUnit = pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = pPlayer->nextUnit(&iUnitLoop))
 		{
-			if(pLoopUnit != NULL)
+			if((pLoopUnit->AI_getUnitAIType() == UNITAI_DIPLOMAT) && (pLoopUnit->GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_USE_POWER))
 			{
-				if((pLoopUnit->AI_getUnitAIType() == UNITAI_DIPLOMAT) && (pLoopUnit->GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_USE_POWER))
+				if(pLoopUnit->getArmyID() == -1)
 				{
-					if(pLoopUnit->getArmyID() == -1)
-					{
-						iLooseDiplomat++;
-					}
+					iLooseDiplomat++;
 				}
 			}
 		}
@@ -3929,14 +3920,11 @@ bool EconomicAIHelpers::IsTestStrategy_ConcertTour(EconomicAIStrategyTypes eStra
 		// Look at map for loose merchants
 		for(pLoopUnit = pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = pPlayer->nextUnit(&iUnitLoop))
 		{
-			if(pLoopUnit != NULL)
+			if(pLoopUnit->AI_getUnitAIType() == UNITAI_MUSICIAN && pLoopUnit->GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_TOURISM_BLAST)
 			{
-				if(pLoopUnit->AI_getUnitAIType() == UNITAI_MUSICIAN && pLoopUnit->GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_TOURISM_BLAST)
+				if(pLoopUnit->getArmyID() == -1)
 				{
-					if(pLoopUnit->getArmyID() == -1)
-					{
-						iLooseMusician++;
-					}
+					iLooseMusician++;
 				}
 			}
 		}

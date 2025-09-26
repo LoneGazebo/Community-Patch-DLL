@@ -10554,15 +10554,12 @@ void CvGame::updateEconomicTotal()
 		{
 			for (pLoopCity = GET_PLAYER(eLoopPlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eLoopPlayer).nextCity(&iCityLoop))
 			{
-				if (pLoopCity != NULL)
-				{
-					int iVal = pLoopCity->getEconomicValue(pLoopCity->getOwner());
-					if (iVal > iHighestVal)
-						iHighestVal = iVal;
+				int iVal = pLoopCity->getEconomicValue(pLoopCity->getOwner());
+				if (iVal > iHighestVal)
+					iHighestVal = iVal;
 
-					iTotalEconomicValue += iVal;
-					viEconValues.push_back(iVal);
-				}
+				iTotalEconomicValue += iVal;
+				viEconValues.push_back(iVal);
 			}
 		}
 	}
