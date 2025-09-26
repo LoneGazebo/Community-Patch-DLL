@@ -17739,10 +17739,7 @@ long long CvPlayer::GetJONSCultureEverGeneratedTimes100() const
 
 void CvPlayer::SetJONSCultureEverGeneratedTimes100(long long lNewValue)
 {
-	if(GetJONSCultureEverGeneratedTimes100() != lNewValue)
-	{
-		m_lJONSCultureEverGeneratedTimes100 = lNewValue;
-	}
+	m_lJONSCultureEverGeneratedTimes100 = lNewValue;
 }
 
 void CvPlayer::ChangeJONSCultureEverGeneratedTimes100(long long lChange)
@@ -17909,10 +17906,7 @@ void CvPlayer::ChangeAllCityFreeBuilding(BuildingClassTypes eBuildingClass, int 
 /// Reformation Unlock
 void CvPlayer::SetReformation(bool bValue)
 {
-	if(m_bIsReformation != bValue)
-	{
-		m_bIsReformation = bValue;
-	}
+	m_bIsReformation = bValue;
 }
 
 bool CvPlayer::IsReformation() const

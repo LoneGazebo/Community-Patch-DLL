@@ -5842,10 +5842,7 @@ bool CvTeam::isVictoryAchieved(VictoryTypes eVictory) const
 //	--------------------------------------------------------------------------------
 void CvTeam::setVictoryAchieved(VictoryTypes eVictory, bool bValue)
 {
-	if(m_abVictoryAchieved[eVictory] != bValue)
-	{
-		m_abVictoryAchieved[eVictory] = bValue;
-	}
+	m_abVictoryAchieved[eVictory] = bValue;
 }
 
 //	--------------------------------------------------------------------------------

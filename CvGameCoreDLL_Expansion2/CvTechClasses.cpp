@@ -1021,10 +1021,7 @@ void CvPlayerTechs::SetResearchingTech(TechTypes eIndex, bool bNewValue)
 	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	ASSERT_DEBUG(eIndex < GC.getNumTechInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
-	if(m_pabResearchingTech[eIndex] != bNewValue)
-	{
-		m_pabResearchingTech[eIndex] = bNewValue;
-	}
+	m_pabResearchingTech[eIndex] = bNewValue;
 }
 
 /// Accessor: set Civ's priority multiplier for researching techs (for instance techs that unlock civ unique bonuses)
@@ -2403,10 +2400,7 @@ void CvTeamTechs::SetNoTradeTech(TechTypes eIndex, bool bNewValue)
 	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	ASSERT_DEBUG(eIndex < GC.getNumTechInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
-	if(m_pabNoTradeTech[eIndex] != bNewValue)
-	{
-		m_pabNoTradeTech[eIndex] = bNewValue;
-	}
+	m_pabNoTradeTech[eIndex] = bNewValue;
 }
 
 /// Accessor: does team have a tech?
