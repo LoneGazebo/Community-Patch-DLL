@@ -439,10 +439,7 @@ int CvEconomicAI::GetTurnStrategyAdopted(EconomicAIStrategyTypes eStrategy)
 /// Sets the turn number eStrategy was most recently adopted
 void CvEconomicAI::SetTurnStrategyAdopted(EconomicAIStrategyTypes eStrategy, int iValue)
 {
-	if(m_paiTurnStrategyAdopted[(int) eStrategy] != iValue)
-	{
-		m_paiTurnStrategyAdopted[(int) eStrategy] = iValue;
-	}
+	m_paiTurnStrategyAdopted[(int) eStrategy] = iValue;
 }
 
 /// Build log filename

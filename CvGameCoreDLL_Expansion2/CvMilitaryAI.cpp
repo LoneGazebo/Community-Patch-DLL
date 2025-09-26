@@ -442,10 +442,7 @@ int CvMilitaryAI::GetTurnStrategyAdopted(MilitaryAIStrategyTypes eStrategy)
 /// Sets the turn number eStrategy was most recently adopted
 void CvMilitaryAI::SetTurnStrategyAdopted(MilitaryAIStrategyTypes eStrategy, int iValue)
 {
-	if(m_paiTurnStrategyAdopted[(int) eStrategy] != iValue)
-	{
-		m_paiTurnStrategyAdopted[(int) eStrategy] = iValue;
-	}
+	m_paiTurnStrategyAdopted[(int) eStrategy] = iValue;
 }
 
 /// Process through all the military activities for a player's turn

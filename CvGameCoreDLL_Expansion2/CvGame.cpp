@@ -14075,10 +14075,7 @@ void CvGame::SetContractUnits(ContractTypes eContract, UnitTypes eUnit, int iVal
 	ASSERT_DEBUG(eContract > -1 && eContract < GC.getNumContractInfos(), "Invalid eContract index.");
 	ASSERT_DEBUG(eUnit > -1 && eUnit < GC.getNumUnitInfos(), "Invalid eUnit index.");
 
-	if(m_ppaiContractUnits[eContract][eUnit] != iValue)
-	{
-		m_ppaiContractUnits[eContract][eUnit] = iValue;
-	}
+	m_ppaiContractUnits[eContract][eUnit] = iValue;
 }
 int CvGame::GetContractUnits(ContractTypes eContract, UnitTypes eUnit) const
 {

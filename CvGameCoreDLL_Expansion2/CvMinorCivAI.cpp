@@ -9540,10 +9540,7 @@ void CvMinorCivAI::SetRouteConnectionEstablished(PlayerTypes eMajor, bool bValue
 	ASSERT_DEBUG(eMajor < MAX_MAJOR_CIVS, "eMajor is expected to be within maximum bounds (invalid Index)");
 	if(eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return;
 
-	if(m_abRouteConnectionEstablished[eMajor] != bValue)
-	{
-		m_abRouteConnectionEstablished[eMajor] = bValue;
-	}
+	m_abRouteConnectionEstablished[eMajor] = bValue;
 }
 
 /// Any Camps near us?
