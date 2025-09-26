@@ -38415,10 +38415,6 @@ void CvPlayer::DoTestOverResourceNotification(ResourceTypes eIndex)
 		bool bTest = false;
 		for(pLoopUnit = firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iUnitLoop))
 		{
-			if(!pLoopUnit)
-			{
-				continue;
-			}
 			CvUnitEntry* pkUnitInfo = GC.getUnitInfo(pLoopUnit->getUnitType());
 			if(pkUnitInfo)
 			{
@@ -46698,10 +46694,6 @@ CvPlot* CvPlayer::GetClosestGoodyPlot(bool bStopAfterFindingFirst)
 		// Setup m_units
 		for(pLoopUnit = firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iUnitLoop))
 		{
-			if(!pLoopUnit)
-			{
-				continue;
-			}
 
 			if(pPlot->getArea() != pLoopUnit->plot()->getArea() && !pLoopUnit->CanEverEmbark())
 			{

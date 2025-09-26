@@ -499,7 +499,7 @@ void CvDllDatabaseUtility::DatabaseRemapper()
 										bFirst = false;
 									}
 									char szUpdate[512];
-									sprintf_s(szUpdate, "UPDATE %s SET ID = %d WHERE ID = %d;", szTableName, ui, vTableIDs[ui]);
+									sprintf_s(szUpdate, "UPDATE %s SET ID = %d WHERE ID = %d;", szTableName, (int)ui, vTableIDs[ui]);
 									DB.Execute(szUpdate);
 								}
 							}
