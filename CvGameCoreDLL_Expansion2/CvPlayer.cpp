@@ -7005,29 +7005,26 @@ void CvPlayer::DoCancelEventChoice(EventChoiceTypes eChosenEventChoice)
 			int iLoop = 0;
 			for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 			{
-				if(pLoopCity != NULL)
+				if(pkEventChoiceInfo->isCoastalOnly() && !pLoopCity->isCoastal())
 				{
-					if(pkEventChoiceInfo->isCoastalOnly() && !pLoopCity->isCoastal())
-					{
-						continue;
-					}
-					if(pkEventChoiceInfo->isCapitalEffectOnly() && !pLoopCity->isCapital())
-					{
-						continue;
-					}
-
-					pLoopCity->UpdateReligion(pLoopCity->GetCityReligions()->GetReligiousMajority());
-					for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-					{
-						YieldTypes eYield = (YieldTypes) iI;
-						if(eYield == NO_YIELD)
-							continue;
-
-						pLoopCity->UpdateSpecialReligionYields(eYield);
-						pLoopCity->UpdateCityYields(eYield);
-					}
-					CalculateNetHappiness();
+					continue;
 				}
+				if(pkEventChoiceInfo->isCapitalEffectOnly() && !pLoopCity->isCapital())
+				{
+					continue;
+				}
+
+				pLoopCity->UpdateReligion(pLoopCity->GetCityReligions()->GetReligiousMajority());
+				for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+				{
+					YieldTypes eYield = (YieldTypes) iI;
+					if(eYield == NO_YIELD)
+						continue;
+
+					pLoopCity->UpdateSpecialReligionYields(eYield);
+					pLoopCity->UpdateCityYields(eYield);
+				}
+				CalculateNetHappiness();
 			}
 		}
 		if (!pkEventChoiceInfo->isOneShot())
@@ -8218,18 +8215,15 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent, b
 				for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 				{
 					// Found a place to set up an uprising?
-					if(pLoopCity != NULL)
+					if(pkEventChoiceInfo->isCoastalOnly() && !pLoopCity->isCoastal())
 					{
-						if(pkEventChoiceInfo->isCoastalOnly() && !pLoopCity->isCoastal())
-						{
-							continue;
-						}
-						if(pkEventChoiceInfo->isCapitalEffectOnly() && !pLoopCity->isCapital())
-						{
-							continue;
-						}
-						CvBarbarians::SpawnBarbarianUnits(pLoopCity->plot(), iNumRebels, BARB_SPAWN_EVENT);
+						continue;
 					}
+					if(pkEventChoiceInfo->isCapitalEffectOnly() && !pLoopCity->isCapital())
+					{
+						continue;
+					}
+					CvBarbarians::SpawnBarbarianUnits(pLoopCity->plot(), iNumRebels, BARB_SPAWN_EVENT);
 				}
 			}
 			if(pkEventChoiceInfo->getFreeScaledUnits() > 0)
@@ -8241,19 +8235,16 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent, b
 				for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 				{
 					// Found a place to set up an uprising?
-					if(pLoopCity != NULL)
+					if(pkEventChoiceInfo->isCoastalOnly() && !pLoopCity->isCoastal())
 					{
-						if(pkEventChoiceInfo->isCoastalOnly() && !pLoopCity->isCoastal())
-						{
-							continue;
-						}
-						if(pkEventChoiceInfo->isCapitalEffectOnly() && !pLoopCity->isCapital())
-						{
-							continue;
-						}
-
-						pLoopCity->SpawnPlayerUnitsNearby(GetID(), iNumRecruits, true, pLoopCity->isCoastal());
+						continue;
 					}
+					if(pkEventChoiceInfo->isCapitalEffectOnly() && !pLoopCity->isCapital())
+					{
+						continue;
+					}
+
+					pLoopCity->SpawnPlayerUnitsNearby(GetID(), iNumRecruits, true, pLoopCity->isCoastal());
 				}
 			}
 			if (pkEventChoiceInfo->getSpecialistsGreatPersonPointsPerTurn() != 0)
@@ -8263,16 +8254,13 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent, b
 				int iLoop = 0;
 				for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 				{
-					if (pLoopCity != NULL)
+					if (pkEventChoiceInfo->isCapitalEffectOnly() && !pLoopCity->isCapital())
 					{
-						if (pkEventChoiceInfo->isCapitalEffectOnly() && !pLoopCity->isCapital())
-						{
-							continue;
-						}
-
-						// this event is caused by an espionage mission, so we can have more than one of it active at the same time
-						pLoopCity->AddEventGPPFromSpecialistsCounter(pkEventChoiceInfo->getEventDuration(), iChange);
+						continue;
 					}
+
+					// this event is caused by an espionage mission, so we can have more than one of it active at the same time
+					pLoopCity->AddEventGPPFromSpecialistsCounter(pkEventChoiceInfo->getEventDuration(), iChange);
 				}
 			}
 			for(int iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
@@ -8333,27 +8321,24 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent, b
 						int iLoop = 0;
 						for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 						{
-							if (pLoopCity != NULL)
+							if (pkEventChoiceInfo->isCoastalOnly() && !pLoopCity->isCoastal())
+								continue;
+
+							if (pkEventChoiceInfo->isCapitalEffectOnly() && !pLoopCity->isCapital())
+								continue;
+
+							CvUnit* pUnit = pLoopCity->CreateUnit(eUnit, eUnitAI, REASON_GIFT);
+							if (pUnit)
 							{
-								if (pkEventChoiceInfo->isCoastalOnly() && !pLoopCity->isCoastal())
-									continue;
-
-								if (pkEventChoiceInfo->isCapitalEffectOnly() && !pLoopCity->isCapital())
-									continue;
-
-								CvUnit* pUnit = pLoopCity->CreateUnit(eUnit, eUnitAI, REASON_GIFT);
-								if (pUnit)
+								if (!pUnit->IsCivilianUnit() && !pUnit->jumpToNearestValidPlot())
 								{
-									if (!pUnit->IsCivilianUnit() && !pUnit->jumpToNearestValidPlot())
-									{
-										pUnit->kill(false);	// Could not find a valid spot!
-									}
-									else
-									{
-										pUnit->finishMoves();
-										//Lua Hook
-										GAMEEVENTINVOKE_HOOK(GAMEEVENT_EventUnitCreated, GetID(), eEventChoice, pUnit);
-									}
+									pUnit->kill(false);	// Could not find a valid spot!
+								}
+								else
+								{
+									pUnit->finishMoves();
+									//Lua Hook
+									GAMEEVENTINVOKE_HOOK(GAMEEVENT_EventUnitCreated, GetID(), eEventChoice, pUnit);
 								}
 							}
 						}
@@ -24180,51 +24165,48 @@ void CvPlayer::DoChangeGreatGeneralRate()
 	GreatPersonTypes eGreatPerson = GetGreatPersonFromUnitClass(eUnitClassGeneral);
 	for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
-		if(pLoopCity != NULL)
-		{
-			iGreatGeneralPointsTimes100 += pLoopCity->getYieldRateTimes100(YIELD_GREAT_GENERAL_POINTS);
+		iGreatGeneralPointsTimes100 += pLoopCity->getYieldRateTimes100(YIELD_GREAT_GENERAL_POINTS);
 
-			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(pLoopCity->GetCityReligions()->GetReligiousMajority(), pLoopCity->getOwner());
-			BeliefTypes eSecondaryPantheon = NO_BELIEF;
-			if(pReligion)
+		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(pLoopCity->GetCityReligions()->GetReligiousMajority(), pLoopCity->getOwner());
+		BeliefTypes eSecondaryPantheon = NO_BELIEF;
+		if(pReligion)
+		{
+			int iReligionYieldChange = pReligion->m_Beliefs.GetCityYieldChange(pLoopCity->getPopulation(), YIELD_GREAT_GENERAL_POINTS, GetID(), pLoopCity);
+			if(iReligionYieldChange > 0)
 			{
-				int iReligionYieldChange = pReligion->m_Beliefs.GetCityYieldChange(pLoopCity->getPopulation(), YIELD_GREAT_GENERAL_POINTS, GetID(), pLoopCity);
+				iGreatGeneralPointsTimes100 += iReligionYieldChange * 100;
+			}
+			eSecondaryPantheon = pLoopCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
+			if (eSecondaryPantheon != NO_BELIEF && pLoopCity->getPopulation() >= GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetMinPopulation())
+			{
+				iReligionYieldChange = GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetCityYieldChange(YIELD_GREAT_GENERAL_POINTS);
 				if(iReligionYieldChange > 0)
 				{
 					iGreatGeneralPointsTimes100 += iReligionYieldChange * 100;
 				}
-				eSecondaryPantheon = pLoopCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
-				if (eSecondaryPantheon != NO_BELIEF && pLoopCity->getPopulation() >= GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetMinPopulation())
-				{
-					iReligionYieldChange = GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetCityYieldChange(YIELD_GREAT_GENERAL_POINTS);
-					if(iReligionYieldChange > 0)
-					{
-						iGreatGeneralPointsTimes100 += iReligionYieldChange * 100;
-					}
-				}
-				if (eGreatPerson != NO_GREATPERSON)
-				{
-					iGreatGeneralPointsTimes100 += pReligion->m_Beliefs.GetGreatPersonPoints(eGreatPerson, pLoopCity->getOwner(), pLoopCity, true) * 100;
-				}
 			}
-
-			// mod for civs keeping their pantheon belief forever
-			if (MOD_RELIGION_PERMANENT_PANTHEON)
+			if (eGreatPerson != NO_GREATPERSON)
 			{
-				if (GC.getGame().GetGameReligions()->HasCreatedPantheon(pLoopCity->getOwner()))
-				{
-					const CvReligion* pPantheon = GC.getGame().GetGameReligions()->GetReligion(RELIGION_PANTHEON, pLoopCity->getOwner());
-					BeliefTypes ePantheon = GC.getGame().GetGameReligions()->GetBeliefInPantheon(pLoopCity->getOwner());
-					if (pPantheon != NULL && ePantheon != NO_BELIEF && ePantheon != eSecondaryPantheon)
-					{
-						if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheon, pLoopCity->GetCityReligions()->GetReligiousMajority(), pLoopCity->getOwner()))) // check that the our religion does not have our belief, to prevent double counting
-						{
-							iGreatGeneralPointsTimes100 += MAX(0, pPantheon->m_Beliefs.GetCityYieldChange(pLoopCity->getPopulation(), YIELD_GREAT_GENERAL_POINTS, GetID(), pLoopCity)) * 100;
+				iGreatGeneralPointsTimes100 += pReligion->m_Beliefs.GetGreatPersonPoints(eGreatPerson, pLoopCity->getOwner(), pLoopCity, true) * 100;
+			}
+		}
 
-							if (eGreatPerson != NO_GREATPERSON)
-							{
-								iGreatGeneralPointsTimes100 += pPantheon->m_Beliefs.GetGreatPersonPoints(eGreatPerson, pLoopCity->getOwner(), pLoopCity, true) * 100;
-							}
+		// mod for civs keeping their pantheon belief forever
+		if (MOD_RELIGION_PERMANENT_PANTHEON)
+		{
+			if (GC.getGame().GetGameReligions()->HasCreatedPantheon(pLoopCity->getOwner()))
+			{
+				const CvReligion* pPantheon = GC.getGame().GetGameReligions()->GetReligion(RELIGION_PANTHEON, pLoopCity->getOwner());
+				BeliefTypes ePantheon = GC.getGame().GetGameReligions()->GetBeliefInPantheon(pLoopCity->getOwner());
+				if (pPantheon != NULL && ePantheon != NO_BELIEF && ePantheon != eSecondaryPantheon)
+				{
+					if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheon, pLoopCity->GetCityReligions()->GetReligiousMajority(), pLoopCity->getOwner()))) // check that the our religion does not have our belief, to prevent double counting
+					{
+						iGreatGeneralPointsTimes100 += MAX(0, pPantheon->m_Beliefs.GetCityYieldChange(pLoopCity->getPopulation(), YIELD_GREAT_GENERAL_POINTS, GetID(), pLoopCity)) * 100;
+
+						if (eGreatPerson != NO_GREATPERSON)
+						{
+							iGreatGeneralPointsTimes100 += pPantheon->m_Beliefs.GetGreatPersonPoints(eGreatPerson, pLoopCity->getOwner(), pLoopCity, true) * 100;
 						}
 					}
 				}
@@ -24266,52 +24248,49 @@ void CvPlayer::DoChangeGreatAdmiralRate()
 
 	for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
-		if(pLoopCity != NULL)
-		{
-			iGreatAdmiralPointsTimes100 += pLoopCity->getYieldRateTimes100(YIELD_GREAT_ADMIRAL_POINTS);
+		iGreatAdmiralPointsTimes100 += pLoopCity->getYieldRateTimes100(YIELD_GREAT_ADMIRAL_POINTS);
 
-			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(pLoopCity->GetCityReligions()->GetReligiousMajority(), pLoopCity->getOwner());
-			BeliefTypes eSecondaryPantheon = NO_BELIEF;
-			if(pReligion)
+		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(pLoopCity->GetCityReligions()->GetReligiousMajority(), pLoopCity->getOwner());
+		BeliefTypes eSecondaryPantheon = NO_BELIEF;
+		if(pReligion)
+		{
+			int iReligionYieldChange = pReligion->m_Beliefs.GetCityYieldChange(pLoopCity->getPopulation(), YIELD_GREAT_ADMIRAL_POINTS, GetID(), pLoopCity);
+			if(iReligionYieldChange > 0)
 			{
-				int iReligionYieldChange = pReligion->m_Beliefs.GetCityYieldChange(pLoopCity->getPopulation(), YIELD_GREAT_ADMIRAL_POINTS, GetID(), pLoopCity);
+				iGreatAdmiralPointsTimes100 += iReligionYieldChange * 100;
+			}
+			eSecondaryPantheon = pLoopCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
+			if (eSecondaryPantheon != NO_BELIEF && pLoopCity->getPopulation() >= GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetMinPopulation())
+			{
+				iReligionYieldChange = GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetCityYieldChange(YIELD_GREAT_ADMIRAL_POINTS);
 				if(iReligionYieldChange > 0)
 				{
 					iGreatAdmiralPointsTimes100 += iReligionYieldChange * 100;
 				}
-				eSecondaryPantheon = pLoopCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
-				if (eSecondaryPantheon != NO_BELIEF && pLoopCity->getPopulation() >= GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetMinPopulation())
-				{
-					iReligionYieldChange = GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetCityYieldChange(YIELD_GREAT_ADMIRAL_POINTS);
-					if(iReligionYieldChange > 0)
-					{
-						iGreatAdmiralPointsTimes100 += iReligionYieldChange * 100;
-					}
-				}
-
-				if (eGreatPerson != NO_GREATPERSON)
-				{
-					iGreatAdmiralPointsTimes100 += pReligion->m_Beliefs.GetGreatPersonPoints(eGreatPerson, pLoopCity->getOwner(), pLoopCity, true) * 100;
-				}
 			}
 
-			// mod for civs keeping their pantheon belief forever
-			if (MOD_RELIGION_PERMANENT_PANTHEON)
+			if (eGreatPerson != NO_GREATPERSON)
 			{
-				if (GC.getGame().GetGameReligions()->HasCreatedPantheon(pLoopCity->getOwner()))
-				{
-					const CvReligion* pPantheon = GC.getGame().GetGameReligions()->GetReligion(RELIGION_PANTHEON, pLoopCity->getOwner());
-					BeliefTypes ePantheon = GC.getGame().GetGameReligions()->GetBeliefInPantheon(pLoopCity->getOwner());
-					if (pPantheon != NULL && ePantheon != NO_BELIEF && ePantheon != eSecondaryPantheon)
-					{
-						if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheon, pLoopCity->GetCityReligions()->GetReligiousMajority(), pLoopCity->getOwner()))) // check that the our religion does not have our belief, to prevent double counting
-						{
-							iGreatAdmiralPointsTimes100 += MAX(0, pPantheon->m_Beliefs.GetCityYieldChange(pLoopCity->getPopulation(), YIELD_GREAT_ADMIRAL_POINTS, GetID(), pLoopCity)) * 100;
+				iGreatAdmiralPointsTimes100 += pReligion->m_Beliefs.GetGreatPersonPoints(eGreatPerson, pLoopCity->getOwner(), pLoopCity, true) * 100;
+			}
+		}
 
-							if (eGreatPerson != NO_GREATPERSON)
-							{
-								iGreatAdmiralPointsTimes100 += pPantheon->m_Beliefs.GetGreatPersonPoints(eGreatPerson, pLoopCity->getOwner(), pLoopCity, true) * 100;
-							}
+		// mod for civs keeping their pantheon belief forever
+		if (MOD_RELIGION_PERMANENT_PANTHEON)
+		{
+			if (GC.getGame().GetGameReligions()->HasCreatedPantheon(pLoopCity->getOwner()))
+			{
+				const CvReligion* pPantheon = GC.getGame().GetGameReligions()->GetReligion(RELIGION_PANTHEON, pLoopCity->getOwner());
+				BeliefTypes ePantheon = GC.getGame().GetGameReligions()->GetBeliefInPantheon(pLoopCity->getOwner());
+				if (pPantheon != NULL && ePantheon != NO_BELIEF && ePantheon != eSecondaryPantheon)
+				{
+					if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheon, pLoopCity->GetCityReligions()->GetReligiousMajority(), pLoopCity->getOwner()))) // check that the our religion does not have our belief, to prevent double counting
+					{
+						iGreatAdmiralPointsTimes100 += MAX(0, pPantheon->m_Beliefs.GetCityYieldChange(pLoopCity->getPopulation(), YIELD_GREAT_ADMIRAL_POINTS, GetID(), pLoopCity)) * 100;
+
+						if (eGreatPerson != NO_GREATPERSON)
+						{
+							iGreatAdmiralPointsTimes100 += pPantheon->m_Beliefs.GetGreatPersonPoints(eGreatPerson, pLoopCity->getOwner(), pLoopCity, true) * 100;
 						}
 					}
 				}
@@ -36883,17 +36862,14 @@ PlayerTypes CvPlayer::GetBestGiftTarget(DomainTypes eUnitDomain)
 				int iCityLoop = 0;
 				for (CvCity* pLoopCity = GET_PLAYER(GetID()).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(GetID()).nextCity(&iCityLoop))
 				{
-					if (pLoopCity != NULL)
+					ResourceTypes eResourceDemanded = pLoopCity->GetResourceDemanded();
+					if (eResourceDemanded != NO_RESOURCE)
 					{
-						ResourceTypes eResourceDemanded = pLoopCity->GetResourceDemanded();
-						if (eResourceDemanded != NO_RESOURCE)
+						//Will we get a WLTKD from this? We want it a bit more, please.
+						if (eMinor->getResourceInOwnedPlots(eResourceDemanded) > 0)
 						{
-							//Will we get a WLTKD from this? We want it a bit more, please.
-							if (eMinor->getResourceInOwnedPlots(eResourceDemanded) > 0)
-							{
-								iScore *= 3;
-								iScore /= 2;
-							}
+							iScore *= 3;
+							iScore /= 2;
 						}
 					}
 				}
