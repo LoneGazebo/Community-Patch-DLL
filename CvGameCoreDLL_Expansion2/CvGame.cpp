@@ -8612,6 +8612,11 @@ void CvGame::doTurn()
 	GetGameCorporations()->DoTurn();
 	GetGameContracts()->DoTurn();
 
+	if (MOD_IPC_CHANNEL) {
+		// Process messages from the Connection Service
+		CvConnectionService::GetInstance().ProcessMessages();
+	}
+
 	for (int iLoop = 0; iLoop < GC.getNumResourceInfos(); iLoop++)
 	{
 		const ResourceTypes eResource = static_cast<ResourceTypes>(iLoop);
