@@ -544,10 +544,7 @@ int CvCityStrategyAI::GetTurnCityStrategyAdopted(AICityStrategyTypes eStrategy)
 /// Sets the turn number eStrategy was most recently adopted
 void CvCityStrategyAI::SetTurnCityStrategyAdopted(AICityStrategyTypes eStrategy, int iValue)
 {
-	if(m_paiTurnCityStrategyAdopted[(int) eStrategy] != iValue)
-	{
-		m_paiTurnCityStrategyAdopted[(int) eStrategy] = iValue;
-	}
+	m_paiTurnCityStrategyAdopted[(int) eStrategy] = iValue;
 }
 
 /// Get the sub-object tracking building production
