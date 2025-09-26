@@ -2534,10 +2534,7 @@ bool CvLeague::IsUnitedNations() const
 
 void CvLeague::SetUnitedNations(bool bValue)
 {
-	if (m_bUnitedNations != bValue)
-	{
-		m_bUnitedNations = bValue;
-	}
+	m_bUnitedNations = bValue;
 }
 
 void CvLeague::DoVoteEnact(int iID, PlayerTypes eVoter, int iNumVotes, int iChoice)

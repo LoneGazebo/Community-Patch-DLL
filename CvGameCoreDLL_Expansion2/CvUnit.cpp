@@ -7207,10 +7207,7 @@ void CvUnit::disembark(CvPlot* pPlot)
 void CvUnit::setEmbarked(bool bValue)
 {
 	VALIDATE_OBJECT();
-	if(m_bEmbarked != bValue)
-	{
-		m_bEmbarked = bValue;
-	}
+	m_bEmbarked = bValue;
 }
 
 //	--------------------------------------------------------------------------------
