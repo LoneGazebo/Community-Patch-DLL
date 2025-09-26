@@ -38977,13 +38977,10 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			int iLoop = 0;
 			for (CvCity* pLoopCity = GetPlayer()->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GetPlayer()->nextCity(&iLoop))
 			{
-				if (pLoopCity != NULL)
+				int iTilesBought = pLoopCity->AI_GetNumPlotsAcquiredByOtherPlayer(eFromPlayer);
+				if (iTilesBought > 0)
 				{
-					int iTilesBought = pLoopCity->AI_GetNumPlotsAcquiredByOtherPlayer(eFromPlayer);
-					if (iTilesBought > 0)
-					{
-						pLoopCity->AI_ChangeNumPlotsAcquiredByOtherPlayer(eFromPlayer, -iTilesBought);
-					}
+					pLoopCity->AI_ChangeNumPlotsAcquiredByOtherPlayer(eFromPlayer, -iTilesBought);
 				}
 			}
 
