@@ -25794,25 +25794,31 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				}
 				case INSTANT_YIELD_TYPE_GP_BORN:
 				{
-					if(eGreatPerson != NO_GREATPERSON)
+					if (bEraScale)
 					{
-						iValue += GetPlayerTraits()->GetGreatPersonBornYield(eGreatPerson, eYield);
-					}
-					if (pUnit->GetCultureBlastStrength() > 0)
-					{
-						iValue += pUnit->GetCultureBlastStrength() * pLoopCity->GetYieldFromGPBirthScaledWithWriterBulb(eYield) / 100;
-					}
-					if (pUnit->GetGAPBlastStrength() > 0)
-					{
-						iValue += pUnit->GetGAPBlastStrength() * pLoopCity->GetYieldFromGPBirthScaledWithArtistBulb(eYield) / 100;
-					}
-					if (!pLoopCity->GetYieldFromGPBirthScaledWithPerTurnYieldMap().empty())
-					{
-						for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+						if (eGreatPerson != NO_GREATPERSON)
 						{
-							if (pLoopCity->GetYieldFromGPBirthScaledWithPerTurnYield(eGreatPerson, (YieldTypes)iI, eYield) > 0)
+							iValue += GetPlayerTraits()->GetGreatPersonBornYield(eGreatPerson, eYield);
+						}
+					}
+					else
+					{
+						if (pUnit->GetCultureBlastStrength() > 0)
+						{
+							iValue += pUnit->GetCultureBlastStrength() * pLoopCity->GetYieldFromGPBirthScaledWithWriterBulb(eYield) / 100;
+						}
+						if (pUnit->GetGAPBlastStrength() > 0)
+						{
+							iValue += pUnit->GetGAPBlastStrength() * pLoopCity->GetYieldFromGPBirthScaledWithArtistBulb(eYield) / 100;
+						}
+						if (!pLoopCity->GetYieldFromGPBirthScaledWithPerTurnYieldMap().empty())
+						{
+							for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 							{
-								iValue += pLoopCity->GetYieldFromGPBirthScaledWithPerTurnYield(eGreatPerson, (YieldTypes)iI, eYield) * GetEmpireYieldRateTimes100((YieldTypes)iI, false) / 10000;
+								if (pLoopCity->GetYieldFromGPBirthScaledWithPerTurnYield(eGreatPerson, (YieldTypes)iI, eYield) > 0)
+								{
+									iValue += pLoopCity->GetYieldFromGPBirthScaledWithPerTurnYield(eGreatPerson, (YieldTypes)iI, eYield) * GetEmpireYieldRateTimes100((YieldTypes)iI, false) / 10000;
+								}
 							}
 						}
 					}
