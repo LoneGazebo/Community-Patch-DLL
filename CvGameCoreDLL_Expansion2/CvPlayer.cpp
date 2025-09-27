@@ -19707,8 +19707,7 @@ int CvPlayer::GetFaithEverGeneratedTimes100() const
 
 void CvPlayer::SetFaithEverGeneratedTimes100(int iNewValue)
 {
-	if(m_iFaithEverGeneratedTimes100 != iNewValue)
-		m_iFaithEverGeneratedTimes100 = iNewValue;
+	m_iFaithEverGeneratedTimes100 = iNewValue;
 }
 
 void CvPlayer::ChangeFaithEverGeneratedTimes100(int iChange)
@@ -23410,10 +23409,7 @@ void CvPlayer::ChangeImprovementLeagueVotes(int iChange)
 /// League Bonuses for Poor Players
 void CvPlayer::SetLeagueArt(bool bValue)
 {
-	if(m_bIsLeagueArt != bValue)
-	{
-		m_bIsLeagueArt = bValue;
-	}
+	m_bIsLeagueArt = bValue;
 }
 
 bool CvPlayer::IsLeagueArt() const
@@ -23424,10 +23420,7 @@ bool CvPlayer::IsLeagueArt() const
 /// League Bonuses for Poor Players
 void CvPlayer::SetLeagueScholar(bool bValue)
 {
-	if(m_bIsLeagueScholar != bValue)
-	{
-		m_bIsLeagueScholar = bValue;
-	}
+	m_bIsLeagueScholar = bValue;
 }
 
 bool CvPlayer::IsLeagueScholar() const
@@ -23438,10 +23431,7 @@ bool CvPlayer::IsLeagueScholar() const
 /// League Bonuses for Poor Players
 void CvPlayer::SetLeagueAid(bool bValue)
 {
-	if(m_bIsLeagueAid != bValue)
-	{
-		m_bIsLeagueAid = bValue;
-	}
+	m_bIsLeagueAid = bValue;
 }
 
 bool CvPlayer::IsLeagueAid() const
@@ -29828,10 +29818,7 @@ bool CvPlayer::IsAbleToAnnexCityStates() const
 void CvPlayer::SetPiety(int iValue)
 {
 	GAMEEVENTINVOKE_HOOK(GAMEEVENT_PietyChanged, GetID(), GetPiety(), iValue);
-	if(m_iJFDPiety != iValue)
-	{
-		m_iJFDPiety = iValue;
-	}
+	m_iJFDPiety = iValue;
 }
 void CvPlayer::ChangePiety(int iValue)
 {
@@ -29857,10 +29844,7 @@ int CvPlayer::GetPietyRate() const
 void CvPlayer::SetPietyRate(int iValue)
 {
 	GAMEEVENTINVOKE_HOOK(GAMEEVENT_PietyRateChanged, GetID(), GetPietyRate(), iValue);
-	if(m_iJFDPietyRate != iValue)
-	{
-		m_iJFDPietyRate = iValue;
-	}
+	m_iJFDPietyRate = iValue;
 }
 void CvPlayer::ChangePietyRate(int iValue)
 {
@@ -29873,10 +29857,7 @@ int CvPlayer::GetTurnsSinceConversion() const
 }
 void CvPlayer::SetTurnsSinceConversion(int iValue)
 {
-	if(m_iJFDConversionTurn != iValue)
-	{
-		m_iJFDConversionTurn = iValue;
-	}
+	m_iJFDConversionTurn = iValue;
 }
 void CvPlayer::DoPiety()
 {
@@ -29922,10 +29903,7 @@ int CvPlayer::GetSovereignty() const
 }
 void CvPlayer::SetSovereignty(int iValue)
 {
-	if(m_iJFDSovereignty != iValue)
-	{
-		m_iJFDSovereignty = iValue;
-	}
+	m_iJFDSovereignty = iValue;
 }
 
 void CvPlayer::SetGovernment(int iValue)
@@ -29995,10 +29973,7 @@ int CvPlayer::GetGovernmentCooldown() const
 }
 void CvPlayer::SetGovernmentCooldown(int iValue, bool bNoEvent)
 {
-	if(m_iJFDGovernmentCooldown != iValue)
-	{
-		m_iJFDGovernmentCooldown = iValue;
-	}
+	m_iJFDGovernmentCooldown = iValue;
 	if(!bNoEvent)
 	{
 		GAMEEVENTINVOKE_HOOK(GAMEEVENT_GovernmentCooldownChanges, GetID(), GetGovernmentCooldown());
@@ -30017,10 +29992,7 @@ int CvPlayer::GetGovernmentCooldownRate() const
 void CvPlayer::SetGovernmentCooldownRate(int iValue)
 {
 	GAMEEVENTINVOKE_HOOK(GAMEEVENT_GovernmentCooldownRateChanges, GetID(), iValue);
-	if(m_iJFDGovernmentCooldownRate != iValue)
-	{
-		m_iJFDGovernmentCooldownRate = iValue;
-	}
+	m_iJFDGovernmentCooldownRate = iValue;
 }
 
 int CvPlayer::GetPoliticLeader() const
@@ -30148,10 +30120,7 @@ void CvPlayer::SetActiveContract(ContractTypes eContract, bool bValue)
 	VALIDATE_OBJECT();
 	ASSERT_DEBUG(eContract >= 0, "eContract expected to be >= 0");
 	ASSERT_DEBUG(eContract < GC.getNumContractInfos(), "eContract expected to be < GC.GetNumContractInfos()");
-	if (m_abActiveContract[eContract] != bValue)
-	{
-		m_abActiveContract[eContract] = bValue;
-	}
+	m_abActiveContract[eContract] = bValue;
 }
 
 void CvPlayer::DoUnitDiversity()
@@ -30768,10 +30737,7 @@ int CvPlayer::GetNumCSAllies() const
 }
 void CvPlayer::SetNumCSAllies(int iChange)
 {
-	if (m_iCSAllies != iChange)
-	{
-		m_iCSAllies = iChange;
-	}
+	m_iCSAllies = iChange;
 }
 
 // misleading name: this actually means "number of CS friends that are not allies"
@@ -30782,10 +30748,7 @@ int CvPlayer::GetNumCSFriends() const
 // misleading name: this actually means "number of CS friends that are not allies"
 void CvPlayer::SetNumCSFriends(int iChange)
 {
-	if (m_iCSFriends != iChange)
-	{
-		m_iCSFriends = iChange;
-	}
+	m_iCSFriends = iChange;
 }
 
 void CvPlayer::RefreshCSAlliesFriends()
