@@ -29909,10 +29909,7 @@ void CvPlayer::SetSovereignty(int iValue)
 void CvPlayer::SetGovernment(int iValue)
 {
 	GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerAdoptsGovernment, GetID(), iValue);
-	if(m_iJFDGovernment != iValue)
-	{
-		m_iJFDGovernment = iValue;
-	}
+	m_iJFDGovernment = iValue;
 }
 int CvPlayer::GetGovernment() const
 {
@@ -29934,10 +29931,7 @@ int CvPlayer::GetReformCooldown() const
 }
 void CvPlayer::SetReformCooldown(int iValue, bool bNoEvent)
 {
-	if(m_iJFDReformCooldown != iValue)
-	{
-		m_iJFDReformCooldown = iValue;
-	}
+	m_iJFDReformCooldown = iValue;
 	if(!bNoEvent)
 	{
 		GAMEEVENTINVOKE_HOOK(GAMEEVENT_ReformCooldownChanges, GetID(), GetReformCooldown());
@@ -30073,10 +30067,7 @@ void CvPlayer::SetCurrency(int iValue)
 	{
 		GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerAdoptsCurrency, GetID(), iValue, GetCurrency());
 	}
-	if(m_iJFDCurrency != iValue)
-	{
-		m_iJFDCurrency = iValue;
-	}
+	m_iJFDCurrency = iValue;
 }
 int CvPlayer::GetCurrency() const
 {
@@ -30098,10 +30089,7 @@ void CvPlayer::SetCurrencyName(const char* strKey)
 
 void CvPlayer::SetProsperityScore(int iValue)
 {
-	if(m_iJFDProsperity != iValue)
-	{
-		m_iJFDProsperity = iValue;
-	}
+	m_iJFDProsperity = iValue;
 }
 int CvPlayer::GetProsperityScore() const
 {
@@ -30885,10 +30873,7 @@ void CvPlayer::ChangeWarScoreModifier(int iChange)
 
 void CvPlayer::SetProductionRoutesAllCities(bool bValue)
 {
-	if (m_bAllowsProductionTradeRoutesGlobal != bValue)
-	{
-		m_bAllowsProductionTradeRoutesGlobal = bValue;
-	}
+	m_bAllowsProductionTradeRoutesGlobal = bValue;
 }
 bool CvPlayer::IsProductionRoutesAllCities() const
 {
@@ -30897,10 +30882,7 @@ bool CvPlayer::IsProductionRoutesAllCities() const
 
 void CvPlayer::SetFoodRoutesAllCities(bool bValue)
 {
-	if (m_bAllowsFoodTradeRoutesGlobal != bValue)
-	{
-		m_bAllowsFoodTradeRoutesGlobal = bValue;
-	}
+	m_bAllowsFoodTradeRoutesGlobal = bValue;
 }
 bool CvPlayer::IsFoodRoutesAllCities() const
 {
@@ -46202,10 +46184,7 @@ bool CvPlayer::IsHasAdoptedStateReligion() const
 /// Sets this player picked up a Religion yet
 void CvPlayer::SetHasAdoptedStateReligion(bool bValue)
 {
-	if(m_bHasAdoptedStateReligion != bValue)
-	{
-		m_bHasAdoptedStateReligion = bValue;
-	}
+	m_bHasAdoptedStateReligion = bValue;
 }
 
 bool CvPlayer::IsWorkersIgnoreImpassable() const

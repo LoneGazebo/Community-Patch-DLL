@@ -25371,10 +25371,7 @@ const UnitTypes CvUnit::getLeaderUnitType() const
 void CvUnit::setLeaderUnitType(UnitTypes leaderUnitType)
 {
 	VALIDATE_OBJECT();
-	if(m_eLeaderUnitType != leaderUnitType)
-	{
-		m_eLeaderUnitType = leaderUnitType;
-	}
+	m_eLeaderUnitType = leaderUnitType;
 }
 
 //	--------------------------------------------------------------------------------
@@ -25388,10 +25385,7 @@ const InvisibleTypes CvUnit::getInvisibleType() const
 void CvUnit::setInvisibleType(InvisibleTypes InvisibleType)
 {
 	VALIDATE_OBJECT();
-	if(m_eInvisibleType != InvisibleType)
-	{
-		m_eInvisibleType = InvisibleType;
-	}
+	m_eInvisibleType = InvisibleType;
 }
 
 //	--------------------------------------------------------------------------------
