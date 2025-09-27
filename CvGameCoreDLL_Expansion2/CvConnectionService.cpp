@@ -4,6 +4,7 @@ Opens an IPC channel that exposes the game's internal state to external services
 
 #include "CvGameCoreDLLPCH.h"
 #include "CvConnectionService.h"
+#include "CvConnectionSchema.h"
 #include "CvGlobals.h"
 #include "CvGame.h"
 #include "CustomMods.h"
@@ -1558,7 +1559,8 @@ void CvConnectionService::ForwardGameEvent(const char* eventName, ICvEngineScrip
 		return;
 	}
 
-	// Define blacklisted high-frequency/useless events (for our context)
+	// Define blacklisted high-frequency/useless events
+	// Since the goal here is to forward event - not to interfere with the game execution - for many kinds of events we only need one
 	static const char* eventBlacklist[] = {
 		"GameCoreUpdateBegin",
 		"GameCoreUpdateEnd",
@@ -1623,88 +1625,260 @@ void CvConnectionService::ForwardGameEvent(const char* eventName, ICvEngineScrip
 		
 		// Extract arguments to JSON payload
 		JsonObject payload = message.createNestedObject("payload");
-		unsigned int argCount = -1;
-		
+		unsigned int argCount = 0;
+
+		// Try to parse the event using the schema
+		std::map<std::string, const char**> eventSchemas = GetEventSchemas();
+		std::map<std::string, const char**>::iterator schemaIt = eventSchemas.find(eventName);
+
+		// Check if we have both a schema and arguments to process
+		bool hasSchema = (schemaIt != eventSchemas.end());
+
 		if (args != NULL)
 		{
 			argCount = args->Count();
-			JsonArray argsArray = payload.createNestedArray("args");
-			
-			for (unsigned int i = 0; i < argCount; i++)
+
+			if (hasSchema && argCount > 0)
 			{
-				try
+				// We have a schema - parse arguments directly into named properties
+				const char** propertyNames = schemaIt->second;
+				unsigned int propIndex = 0;
+				unsigned int argIndex = 0;
+
+				while (propertyNames[propIndex] != NULL && argIndex < argCount)
 				{
-					ICvEngineScriptSystemArgs1::ArgType argType = args->GetType(i);
-					
-					switch (argType)
+					const char* propName = propertyNames[propIndex];
+
+					// Skip type prefixes (* for array, ! for boolean) when creating JSON keys
+					if (*propName == '*' || *propName == '!') propName++;
+
+					// Arrays are represented by a count followed by items
+					if (propertyNames[propIndex][0] == '*')
 					{
-					case ICvEngineScriptSystemArgs1::ARGTYPE_BOOL:
+						// This is an array property - first arg is the count
+						int itemCount = 0;
+						if (args->GetInt(argIndex, itemCount))
 						{
-							bool bValue;
-							if (args->GetBool(i, bValue))
+							argIndex++;
+							JsonArray arr = payload.createNestedArray(propName);
+
+							// Check if we have object properties following the array property
+							// The schema continues after the array property to define object fields
+							propIndex++;
+							bool hasObjectSchema = (propertyNames[propIndex] != NULL);
+
+							if (hasObjectSchema)
 							{
-								argsArray.add(bValue);
+								// Count how many properties the object has
+								int objectPropCount = 0;
+								int tempPropIndex = propIndex;
+								while (propertyNames[tempPropIndex] != NULL)
+								{
+									objectPropCount++;
+									tempPropIndex++;
+								}
+
+								// Read array items as objects
+								for (int i = 0; i < itemCount && argIndex < argCount; i++)
+								{
+									JsonObject obj = arr.createNestedObject();
+
+									// For each property in the object schema
+									for (int objProp = 0; objProp < objectPropCount && argIndex < argCount; objProp++)
+									{
+										const char* objPropName = propertyNames[propIndex + objProp];
+
+										// Skip type prefixes when creating JSON keys
+										if (*objPropName == '!' || *objPropName == '*') objPropName++;
+
+										// Check if this is a boolean property
+										bool isBoolProp = (propertyNames[propIndex + objProp][0] == '!');
+
+										ICvEngineScriptSystemArgs1::ArgType argType = args->GetType(argIndex);
+
+										switch (argType)
+										{
+										case ICvEngineScriptSystemArgs1::ARGTYPE_BOOL:
+											{
+												bool bValue;
+												if (args->GetBool(argIndex, bValue))
+													obj[objPropName] = bValue;
+											}
+											break;
+										case ICvEngineScriptSystemArgs1::ARGTYPE_INT:
+											{
+												int iValue;
+												if (args->GetInt(argIndex, iValue))
+												{
+													// If schema marks this as boolean but we got int, convert
+													if (isBoolProp)
+														obj[objPropName] = (iValue != 0);
+													else
+														obj[objPropName] = iValue;
+												}
+											}
+											break;
+										case ICvEngineScriptSystemArgs1::ARGTYPE_FLOAT:
+											{
+												float fValue;
+												if (args->GetFloat(argIndex, fValue))
+													obj[objPropName] = fValue;
+											}
+											break;
+										case ICvEngineScriptSystemArgs1::ARGTYPE_STRING:
+											{
+												char* szValue;
+												if (args->GetString(argIndex, szValue))
+													obj[objPropName] = szValue;
+											}
+											break;
+										case ICvEngineScriptSystemArgs1::ARGTYPE_NULL:
+											obj[objPropName] = (char*)NULL;
+											break;
+										}
+										argIndex++;
+									}
+								}
+
+								// Skip past the object properties in the schema
+								propIndex += objectPropCount - 1; // -1 because propIndex will be incremented at end of loop
+							}
+							else
+							{
+								// No object schema - read as simple array of values
+								for (int i = 0; i < itemCount && argIndex < argCount; i++)
+								{
+									// Add values based on their type
+									ICvEngineScriptSystemArgs1::ArgType argType = args->GetType(argIndex);
+
+									switch (argType)
+									{
+									case ICvEngineScriptSystemArgs1::ARGTYPE_BOOL:
+										{
+											bool bValue;
+											if (args->GetBool(argIndex, bValue))
+												arr.add(bValue);
+										}
+										break;
+									case ICvEngineScriptSystemArgs1::ARGTYPE_INT:
+										{
+											int iValue;
+											if (args->GetInt(argIndex, iValue))
+												arr.add(iValue);
+										}
+										break;
+									case ICvEngineScriptSystemArgs1::ARGTYPE_FLOAT:
+										{
+											float fValue;
+											if (args->GetFloat(argIndex, fValue))
+												arr.add(fValue);
+										}
+										break;
+									case ICvEngineScriptSystemArgs1::ARGTYPE_STRING:
+										{
+											char* szValue;
+											if (args->GetString(argIndex, szValue))
+												arr.add(szValue);
+										}
+										break;
+									case ICvEngineScriptSystemArgs1::ARGTYPE_NULL:
+										arr.add((char*)NULL);
+										break;
+									}
+									argIndex++;
+								}
 							}
 						}
-						break;
-						
-					case ICvEngineScriptSystemArgs1::ARGTYPE_INT:
-						{
-							int iValue;
-							if (args->GetInt(i, iValue))
-							{
-								argsArray.add(iValue);
-							}
-						}
-						break;
-						
-					case ICvEngineScriptSystemArgs1::ARGTYPE_FLOAT:
-						{
-							float fValue;
-							if (args->GetFloat(i, fValue))
-							{
-								argsArray.add(fValue);
-							}
-						}
-						break;
-						
-					case ICvEngineScriptSystemArgs1::ARGTYPE_STRING:
-						{
-							char* szValue;
-							if (args->GetString(i, szValue))
-							{
-								argsArray.add(szValue);
-							}
-						}
-						break;
-						
-					case ICvEngineScriptSystemArgs1::ARGTYPE_NULL:
-						argsArray.add((char*)NULL);
-						break;
-						
-					default:
-						// Unknown or ARGTYPE_NONE, skip
-						break;
 					}
+					else
+					{
+						// Check if this is a boolean property (! prefix in schema)
+						bool isBooleanProperty = (propertyNames[propIndex][0] == '!');
+
+						ICvEngineScriptSystemArgs1::ArgType argType = args->GetType(argIndex);
+
+						switch (argType)
+						{
+						case ICvEngineScriptSystemArgs1::ARGTYPE_BOOL:
+							{
+								bool bValue;
+								if (args->GetBool(argIndex, bValue))
+									payload[propName] = bValue;
+							}
+							break;
+						case ICvEngineScriptSystemArgs1::ARGTYPE_INT:
+							{
+								int iValue;
+								if (args->GetInt(argIndex, iValue))
+								{
+									// Convert integer to boolean if schema indicates boolean property
+									if (isBooleanProperty)
+									{
+										payload[propName] = (iValue != 0);
+									}
+									else
+									{
+										payload[propName] = iValue;
+									}
+								}
+							}
+							break;
+						case ICvEngineScriptSystemArgs1::ARGTYPE_FLOAT:
+							{
+								float fValue;
+								if (args->GetFloat(argIndex, fValue))
+									payload[propName] = fValue;
+							}
+							break;
+						case ICvEngineScriptSystemArgs1::ARGTYPE_STRING:
+							{
+								char* szValue;
+								if (args->GetString(argIndex, szValue))
+									payload[propName] = szValue;
+							}
+							break;
+						case ICvEngineScriptSystemArgs1::ARGTYPE_NULL:
+							payload[propName] = (char*)NULL;
+							break;
+						}
+						argIndex++;
+					}
+
+					propIndex++;
 				}
-				catch (...)
+
+				// If there are remaining arguments that weren't in the schema, log a warning
+				if (argIndex < argCount)
 				{
 					std::stringstream ss;
-					ss << "ForwardGameEvent - Unknown exception processing argument " << i << " for event '" << eventName << "'";
-					Log(LOG_ERROR, ss.str().c_str());
+					ss << "ForwardGameEvent - Warning: Event '" << eventName << "' has "
+					   << (argCount - argIndex) << " extra arguments not defined in schema (total: "
+					   << argCount << ", processed: " << argIndex << ")";
+					Log(LOG_WARNING, ss.str().c_str());
 				}
 			}
 		}
 
-		std::stringstream ss;
-		ss << "ForwardGameEvent - Forwarding event '" << eventName << "' with arguments " << argCount;
-		Log(LOG_DEBUG, ss.str().c_str());
+		if (hasSchema && argCount > 0)
+		{
 
-		// Send the message asynchronously via the queue
-		if (SendMessage(message) >= 5) {
-	 		Sleep(20); // Wait 20ms to throttle the game thread
-			// This slows the game a bit, but shouldn't be a big issue other than observer mode - which is our intention
-			// Also, even when the modmod is enabled, one has to connect to the Bridge Service
+			std::stringstream ss;
+			ss << "ForwardGameEvent - Forwarding event '" << eventName << "' with arguments " << argCount;
+			Log(LOG_DEBUG, ss.str().c_str());
+
+			// Send the message asynchronously via the queue
+			if (SendMessage(message) >= 5) {
+				Sleep(20); // Wait 20ms to throttle the game thread
+				// This slows the game a bit, but shouldn't be a big issue other than observer mode - which is our intention
+				// Also, even when the modmod is enabled, one has to connect to the Bridge Service
+			}
+		}
+		else
+		{
+			// No schema found or no args - skip it
+			std::stringstream ss;
+			ss << "ForwardGameEvent - Skipping event '" << eventName << "' with arguments " << argCount;
+			Log(LOG_DEBUG, ss.str().c_str());
 		}
 	}
 	catch (...)
@@ -2059,7 +2233,7 @@ int CvConnectionService::CallExternalFunction(lua_State* L)
 	request["type"] = "external_call";
 	request["id"] = callId;
 	request["function"] = functionName;
-	request["sync"] = !hasCallback;
+	request["async"] = hasCallback;
 	
 	// Convert Lua arguments directly to JSON without intermediate string serialization
 	// Important: numArgs was already decremented if there was a callback, so it doesn't include the callback
