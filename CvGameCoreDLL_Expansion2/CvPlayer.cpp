@@ -24194,7 +24194,7 @@ void CvPlayer::DoChangeGreatGeneralRate()
 				BeliefTypes ePantheon = GC.getGame().GetGameReligions()->GetBeliefInPantheon(pLoopCity->getOwner());
 				if (pPantheon != NULL && ePantheon != NO_BELIEF && ePantheon != eSecondaryPantheon)
 				{
-					if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheon, pLoopCity->GetCityReligions()->GetReligiousMajority(), pLoopCity->getOwner()))) // check that the our religion does not have our belief, to prevent double counting
+					if (pReligion == NULL || !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheon, pLoopCity->GetCityReligions()->GetReligiousMajority(), pLoopCity->getOwner())) // check that the our religion does not have our belief, to prevent double counting
 					{
 						iGreatGeneralPointsTimes100 += MAX(0, pPantheon->m_Beliefs.GetCityYieldChange(pLoopCity->getPopulation(), YIELD_GREAT_GENERAL_POINTS, GetID(), pLoopCity)) * 100;
 
@@ -24278,7 +24278,7 @@ void CvPlayer::DoChangeGreatAdmiralRate()
 				BeliefTypes ePantheon = GC.getGame().GetGameReligions()->GetBeliefInPantheon(pLoopCity->getOwner());
 				if (pPantheon != NULL && ePantheon != NO_BELIEF && ePantheon != eSecondaryPantheon)
 				{
-					if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheon, pLoopCity->GetCityReligions()->GetReligiousMajority(), pLoopCity->getOwner()))) // check that the our religion does not have our belief, to prevent double counting
+					if (pReligion == NULL || !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheon, pLoopCity->GetCityReligions()->GetReligiousMajority(), pLoopCity->getOwner())) // check that the our religion does not have our belief, to prevent double counting
 					{
 						iGreatAdmiralPointsTimes100 += MAX(0, pPantheon->m_Beliefs.GetCityYieldChange(pLoopCity->getPopulation(), YIELD_GREAT_ADMIRAL_POINTS, GetID(), pLoopCity)) * 100;
 

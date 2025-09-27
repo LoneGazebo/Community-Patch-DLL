@@ -9410,7 +9410,7 @@ void CvGameLeagues::DoTurn()
 
 					if (eGameEra > GetLastEraTrigger() && eEraTrigger <= eGameEra && eEraTrigger > GetLastEraTrigger())
 					{
-						if (eBuildingTrigger == NO_BUILDING || (eBuildingTrigger != NO_BUILDING && LeagueHelpers::IsBuildingForTriggerBuiltAnywhere(eBuildingTrigger)))
+						if (eBuildingTrigger == NO_BUILDING || LeagueHelpers::IsBuildingForTriggerBuiltAnywhere(eBuildingTrigger))
 						{
 							eSpecialSession = (LeagueSpecialSessionTypes)i;
 							break;

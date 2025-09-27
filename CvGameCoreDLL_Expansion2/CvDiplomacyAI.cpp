@@ -3394,7 +3394,8 @@ void CvDiplomacyAI::SetCivApproach(PlayerTypes ePlayer, CivApproachTypes eApproa
 			// If we were just denounced or they ended our friendship, can't be better than GUARDED
 			if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDenouncingPlayer(GetID()) || (IsDoFBroken(ePlayer) && GetTurnsSinceDoFBroken(ePlayer) <= 1))
 			{
-				if (eSurfaceApproach > CIV_APPROACH_GUARDED || eSurfaceApproach == CIV_APPROACH_FRIENDLY || eSurfaceApproach == CIV_APPROACH_DECEPTIVE)
+				// Reset to GUARDED if approach is FRIENDLY, DECEPTIVE, or higher than GUARDED
+					if (eSurfaceApproach > CIV_APPROACH_GUARDED || eSurfaceApproach == CIV_APPROACH_DECEPTIVE)
 				{
 					eSurfaceApproach = CIV_APPROACH_GUARDED;
 				}
