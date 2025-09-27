@@ -236,7 +236,7 @@ CvString CvGameCulture::GetGreatWorkTooltip(int iIndex, PlayerTypes eOwner) cons
 					if (pPantheon != NULL && ePantheonBelief != NO_BELIEF && ePantheonBelief != eSecondaryPantheon)
 					{
 						const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, eOwner);
-						if (pReligion == NULL || !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, eOwner))) // check that the our religion does not have our belief, to prevent double counting
+						if (pReligion == NULL || !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, eOwner)) // check that the our religion does not have our belief, to prevent double counting
 						{
 							iBaseValueTimes100 += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetGreatWorkYieldChange(eYield) * 100;
 					}
