@@ -19112,10 +19112,7 @@ void CvCity::changeDamageReductionFlat(int iChange)
 
 void CvCity::SetProductionRoutes(bool bValue)
 {
-	if (m_bAllowsProductionTradeRoutes != bValue)
-	{
-		m_bAllowsProductionTradeRoutes = bValue;
-	}
+	m_bAllowsProductionTradeRoutes = bValue;
 }
 bool CvCity::IsProductionRoutes() const
 {
@@ -19124,10 +19121,7 @@ bool CvCity::IsProductionRoutes() const
 
 void CvCity::SetFoodRoutes(bool bValue)
 {
-	if (m_bAllowsFoodTradeRoutes != bValue)
-	{
-		m_bAllowsFoodTradeRoutes = bValue;
-	}
+	m_bAllowsFoodTradeRoutes = bValue;
 }
 bool CvCity::IsFoodRoutes() const
 {
@@ -19136,10 +19130,7 @@ bool CvCity::IsFoodRoutes() const
 
 void CvCity::SetAllowPuppetPurchase(bool bValue)
 {
-	if (m_bAllowPuppetPurchase != bValue)
-	{
-		m_bAllowPuppetPurchase = bValue;
-	}
+	m_bAllowPuppetPurchase = bValue;
 }
 bool CvCity::IsAllowPuppetPurchase() const
 {
@@ -20337,10 +20328,7 @@ int CvCity::GetGrowthFromTourism() const
 }
 void CvCity::SetGrowthFromTourism(int iValue)
 {
-	if (m_iGrowthFromTourism != iValue)
-	{
-		m_iGrowthFromTourism = iValue;
-	}
+	m_iGrowthFromTourism = iValue;
 }
 void CvCity::ChangeGrowthFromTourism(int iValue)
 {
@@ -28772,8 +28760,7 @@ int CvCity::GetCheapestPlotInfluenceDistance() const
 /// What is the cheapest plot we can get
 void CvCity::SetCheapestPlotInfluenceDistance(int iValue)
 {
-	if (m_iCheapestPlotInfluenceDistance != iValue)
-		m_iCheapestPlotInfluenceDistance = iValue;
+	m_iCheapestPlotInfluenceDistance = iValue;
 
 	ASSERT_DEBUG(m_iCheapestPlotInfluenceDistance > 0, "Cheapest plot influence should never be 0 or less.");
 }
@@ -34661,10 +34648,7 @@ bool CvCity::IsColony() const
 }
 void CvCity::SetColony(bool bValue)
 {
-	if (m_bIsColony != bValue)
-	{
-		m_bIsColony = bValue;
-	}
+	m_bIsColony = bValue;
 }
 int CvCity::GetProvinceLevel() const
 {
@@ -34686,10 +34670,7 @@ int CvCity::GetOrganizedCrime() const
 }
 void CvCity::SetOrganizedCrime(int iValue)
 {
-	if (m_iOrganizedCrime != iValue)
-	{
-		m_iOrganizedCrime = iValue;
-	}
+	m_iOrganizedCrime = iValue;
 }
 bool CvCity::HasOrganizedCrime()
 {
