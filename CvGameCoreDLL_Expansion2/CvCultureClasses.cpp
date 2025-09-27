@@ -222,7 +222,7 @@ CvString CvGameCulture::GetGreatWorkTooltip(int iIndex, PlayerTypes eOwner) cons
 					if (eSecondaryPantheon != NO_BELIEF)
 					{
 						iBaseValueTimes100 += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetGreatWorkYieldChange(eYield) * 100;
-				}
+					}
 				}
 			}
 
@@ -239,8 +239,8 @@ CvString CvGameCulture::GetGreatWorkTooltip(int iIndex, PlayerTypes eOwner) cons
 						if (pReligion == NULL || !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, eOwner)) // check that the our religion does not have our belief, to prevent double counting
 						{
 							iBaseValueTimes100 += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetGreatWorkYieldChange(eYield) * 100;
+						}
 					}
-				}
 				}
 			}
 		}
