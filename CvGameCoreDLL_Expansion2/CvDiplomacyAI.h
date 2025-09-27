@@ -1758,6 +1758,30 @@ public:
 
 	void LogOpenEmbassy(PlayerTypes ePlayer);
 	void LogCloseEmbassy(PlayerTypes ePlayer);
+
+	// Vox Deorum: Personality values made public for Lua access via GetPersona/SetPersona
+	// These control the AI's diplomatic behavior and approach tendencies
+	unsigned char m_iVictoryCompetitiveness;
+	unsigned char m_iWonderCompetitiveness;
+	unsigned char m_iMinorCivCompetitiveness;
+	unsigned char m_iBoldness;
+	unsigned char m_iDiploBalance;
+	unsigned char m_iWarmongerHate;
+	unsigned char m_iDoFWillingness;
+	unsigned char m_iDenounceWillingness;
+	unsigned char m_iWorkWithWillingness;
+	unsigned char m_iWorkAgainstWillingness;
+	unsigned char m_iLoyalty;
+	unsigned char m_iForgiveness;
+	unsigned char m_iNeediness;
+	unsigned char m_iMeanness;
+	unsigned char m_iChattiness;
+	unsigned char m_aiMajorCivApproachBiases[NUM_CIV_APPROACHES];
+	unsigned char m_iMinorCivWarBias;
+	unsigned char m_iMinorCivHostileBias;
+	unsigned char m_iMinorCivNeutralBias;
+	unsigned char m_iMinorCivFriendlyBias;
+
 private:
 	/// Helper functions to return the Player and Team IDs more conveniently
 	inline PlayerTypes GetID() const { return (PlayerTypes)m_eID; }
@@ -1840,28 +1864,6 @@ private:
 
 	// Need a string member so that it doesn't go out of scope after translation
 	Localization::String m_strDiploText;
-
-	// Personality Values
-	unsigned char m_iVictoryCompetitiveness;
-	unsigned char m_iWonderCompetitiveness;
-	unsigned char m_iMinorCivCompetitiveness;
-	unsigned char m_iBoldness;
-	unsigned char m_iDiploBalance;
-	unsigned char m_iWarmongerHate;
-	unsigned char m_iDoFWillingness;
-	unsigned char m_iDenounceWillingness;
-	unsigned char m_iWorkWithWillingness;
-	unsigned char m_iWorkAgainstWillingness;
-	unsigned char m_iLoyalty;
-	unsigned char m_iForgiveness;
-	unsigned char m_iNeediness;
-	unsigned char m_iMeanness;
-	unsigned char m_iChattiness;
-	unsigned char m_aiMajorCivApproachBiases[NUM_CIV_APPROACHES];
-	unsigned char m_iMinorCivWarBias;
-	unsigned char m_iMinorCivHostileBias;
-	unsigned char m_iMinorCivNeutralBias;
-	unsigned char m_iMinorCivFriendlyBias;
 
 	// Key Players
 	PlayerTypes m_eMostValuableFriend;
