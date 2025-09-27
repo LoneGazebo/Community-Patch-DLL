@@ -9983,7 +9983,7 @@ bool CvUnit::sellExoticGoods()
 		{
 			pLoopUnit = ::GetPlayerUnit(*pUnitNode);
 			pUnitNode = pBestPlot->nextUnitNode(pUnitNode);
-			if (pLoopUnit != NULL && pLoopUnit->GetMissionAIType() == MISSIONAI_BUILD && pLoopUnit->GetMissionAIPlot() == pBestPlot)
+			if (pLoopUnit->GetMissionAIType() == MISSIONAI_BUILD && pLoopUnit->GetMissionAIPlot() == pBestPlot)
 			{
 				pLoopUnit->ClearMissionQueue();
 			}
@@ -14895,7 +14895,7 @@ bool CvUnit::CanLinkUnits()
 		pLoopUnit = ::GetPlayerUnit(*pUnitNode);
 		pUnitNode = pCurrentPlot->nextUnitNode(pUnitNode);
 
-		if (pLoopUnit != NULL && pLoopUnit->getOwner() == getOwner() && !pLoopUnit->isDelayedDeath() && !pLoopUnit->isTrade() && pLoopUnit->getDomainType() != DOMAIN_AIR)
+		if (pLoopUnit->getOwner() == getOwner() && !pLoopUnit->isDelayedDeath() && !pLoopUnit->isTrade() && pLoopUnit->getDomainType() != DOMAIN_AIR)
 		{
 			if (pLoopUnit != this)
 			{
@@ -14934,7 +14934,7 @@ void CvUnit::LinkUnits()
 		pLoopUnit = ::GetPlayerUnit(*pUnitNode);
 		pUnitNode = pCurrentPlot->nextUnitNode(pUnitNode);
 
-		if (pLoopUnit != NULL && pLoopUnit->getOwner() == getOwner() && !pLoopUnit->isDelayedDeath() && !pLoopUnit->isTrade() && pLoopUnit->getDomainType() != DOMAIN_AIR)
+		if (pLoopUnit->getOwner() == getOwner() && !pLoopUnit->isDelayedDeath() && !pLoopUnit->isTrade() && pLoopUnit->getDomainType() != DOMAIN_AIR)
 		{
 			if ((bIsOnSea && (pLoopUnit->getDomainType() == DOMAIN_SEA || pLoopUnit->isEmbarked())) || (!bIsOnSea && (pLoopUnit->getDomainType() == DOMAIN_LAND && !pLoopUnit->isEmbarked())))
 			{
@@ -15044,7 +15044,7 @@ void CvUnit::DoGroupMovement(CvPlot* pDestPlot)
 			{
 				pLoopUnit = ::GetPlayerUnit(*pUnitNode);
 				pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
-				if ( pLoopUnit != NULL && pLoopUnit->getOwner() == getOwner() && !pLoopUnit->isDelayedDeath() && 
+				if ( pLoopUnit->getOwner() == getOwner() && !pLoopUnit->isDelayedDeath() && 
 					( !pLoopUnit->IsCivilianUnit() || pLoopUnit->IsGreatAdmiral() || pLoopUnit->IsGreatGeneral() ) 
 					&&
 					( ( bIsOnSea && (pLoopUnit->getDomainType() == DOMAIN_SEA || pLoopUnit->isEmbarked()) ) || 

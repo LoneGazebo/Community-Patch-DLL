@@ -5816,7 +5816,7 @@ bool CvPlayer::IsEventValid(EventTypes eEvent)
 		int iLoop = 0;
 		for(pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
 		{
-			if(pLoopUnit != NULL && pLoopUnit->getUnitClassType() == (UnitClassTypes)pkEventInfo->getUnitTypeRequired())
+			if(pLoopUnit->getUnitClassType() == (UnitClassTypes)pkEventInfo->getUnitTypeRequired())
 			{
 				bHas = true;
 				break;
@@ -6316,7 +6316,7 @@ bool CvPlayer::IsEventChoiceValid(EventChoiceTypes eChosenEventChoice, EventType
 		int iLoop = 0;
 		for(pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
 		{
-			if(pLoopUnit != NULL && pLoopUnit->getUnitClassType() == (UnitClassTypes)pkEventInfo->getUnitTypeRequired())
+			if(pLoopUnit->getUnitClassType() == (UnitClassTypes)pkEventInfo->getUnitTypeRequired())
 			{
 				bHas = true;
 				break;
@@ -7595,7 +7595,7 @@ CvString CvPlayer::GetDisabledTooltip(EventChoiceTypes eChosenEventChoice)
 		int iLoop = 0;
 		for(pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
 		{
-			if(pLoopUnit != NULL && pLoopUnit->getUnitClassType() == (UnitClassTypes)pkEventInfo->getUnitTypeRequired())
+			if(pLoopUnit->getUnitClassType() == (UnitClassTypes)pkEventInfo->getUnitTypeRequired())
 			{
 				bHas = true;
 				break;
