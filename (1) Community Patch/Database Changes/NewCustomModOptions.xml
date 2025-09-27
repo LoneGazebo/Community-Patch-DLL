@@ -993,6 +993,9 @@
 		<Row Class="6" Name="BATTLE_ROYALE" Value="0"/>
 
 		<Row Class="0" Name="UNIT_KILL_STATS" Value="0"/>
+		
+		<!-- Enables support for Vox Deorum modmod (opening up the IPC channel) -->
+		<Row Class="3" Name="IPC_CHANNEL" Value="0"/>
 	</CustomModOptions>
 
 	<!-- Events for JFD Piety -->

@@ -62,6 +62,7 @@
 
 #include "CvSpanSerialization.h"
 #include "CvEnumMapSerialization.h"
+#include "CvConnectionService.h"
 
 //updated by pre-build hook
 #include "../commit_id.inc"
@@ -978,6 +979,11 @@ void CvGame::DoGameStarted()
 	GET_PLAYER(getActivePlayer()).GetUnitCycler().Rebuild();
 
 	CvPlayerManager::Refresh(false);
+
+	if (MOD_IPC_CHANNEL) {
+		// Initialize ConnectionService for Bridge communication
+		CvConnectionService::GetInstance().Setup();
+	}
 }
 
 
@@ -985,6 +991,11 @@ void CvGame::DoGameStarted()
 //	--------------------------------------------------------------------------------
 void CvGame::uninit()
 {
+	if (MOD_IPC_CHANNEL) {
+		// Shutdown ConnectionService for Bridge communication
+		CvConnectionService::GetInstance().Shutdown();
+	}
+
 	CvGoodyHuts::Uninit();
 	CvBarbarians::Uninit();
 
@@ -1470,8 +1481,15 @@ bool ExternalPause()
 		{
 			//couldn't acquire it, we should pause
 			bPause = true;
-			//sleep a little bit for simple rate limiting
-			Sleep(200);
+			
+			if (MOD_IPC_CHANNEL) {
+				// Process messages from the Connection Service
+				CvConnectionService::GetInstance().ProcessMessages();
+				Sleep(20);
+			} else {
+				//sleep a little bit for simple rate limiting
+				Sleep(200);
+			}
 		}
 		//close the handle in any case
 		CloseHandle(hMutex);
@@ -1484,6 +1502,11 @@ bool ExternalPause()
 //	---------------------------------------------------------------------------
 void CvGame::update()
 {
+	if (MOD_IPC_CHANNEL) {
+		// Process messages from the Connection Service
+		CvConnectionService::GetInstance().ProcessMessages();
+	}
+
 	if(IsWaitingForBlockingInput())
 	{
 		if(!GC.GetEngineUserInterface()->isDiploActive())
@@ -6868,8 +6891,22 @@ void CvGame::setWinner(TeamTypes eNewWinner, VictoryTypes eNewVictory)
 						pNotifications->Add(NOTIFICATION_VICTORY, localizedText.toUTF8(), localizedSummary.toUTF8(), -1, -1, -1);
 				}
 
-				if (pkVictoryInfo)
+				if (pkVictoryInfo) {
 					LogGameResult(pkVictoryInfo->GetText(), kWinningTeamLeader.getCivilizationShortDescription());
+					// MODMOD: log Victory as an event.
+					if (MOD_IPC_CHANNEL) {
+						ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+						if (pkScriptSystem)
+						{
+							CvLuaArgsHandle args;
+							args->Push(kWinningTeamLeader.GetID());
+							args->Push(getVictory());
+
+							bool bResult = false;
+							LuaSupport::CallHook(pkScriptSystem, "PlayerVictory", args.get(), bResult);
+						}
+					}
+				}
 
 				//--Start Achievements
 				//--Don't allow most in multiplayer so friends can't achieve-whore it up together
@@ -8555,6 +8592,12 @@ void CvGame::doTurn()
 		if(GET_TEAM((TeamTypes)iI).isAlive())
 		{
 			GET_TEAM((TeamTypes)iI).doTurn();
+
+			if (MOD_IPC_CHANNEL) {
+				// Process messages from the Connection Service
+				CvConnectionService::GetInstance().ProcessMessages();
+			}
+
 		}
 	}
 
@@ -8568,6 +8611,11 @@ void CvGame::doTurn()
 	GetGameCulture()->DoTurn();
 	GetGameCorporations()->DoTurn();
 	GetGameContracts()->DoTurn();
+
+	if (MOD_IPC_CHANNEL) {
+		// Process messages from the Connection Service
+		CvConnectionService::GetInstance().ProcessMessages();
+	}
 
 	for (int iLoop = 0; iLoop < GC.getNumResourceInfos(); iLoop++)
 	{
@@ -11111,6 +11159,12 @@ void CvGame::Write(FDataStream& kStream) const
 
 	CvStreamSaveVisitor serialVisitor(kStream);
 	Serialize(*this, serialVisitor);
+
+	// Saving the Connection Service event sequencing into SaveGameDB
+	if (MOD_IPC_CHANNEL) {
+		// Shutdown ConnectionService for Bridge communication
+		CvConnectionService::GetInstance().SerializeEventSequence();
+	}
 
 	// Save game database comes last
 	writeSaveGameDB(kStream);

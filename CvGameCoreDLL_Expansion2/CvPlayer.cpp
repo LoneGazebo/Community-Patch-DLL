@@ -61,6 +61,7 @@
 #if defined(MOD_GLOBAL_NO_CONQUERED_SPACESHIPS)
 #include "CvDllPlot.h"
 #endif
+#include "CvConnectionService.h"
 #include "CvGoodyHuts.h"
 
 #include "CvDllNetMessageExt.h"
@@ -9970,6 +9971,11 @@ void CvPlayer::doTurn()
 		ChangeFaithPurchaseCooldown(-1);
 	}
 
+	if (MOD_IPC_CHANNEL) {
+		// Process messages from the Connection Service
+		CvConnectionService::GetInstance().ProcessMessages();
+	}
+	
 	if (isMajorCiv())
 	{
 		CheckForLuxuryResourceGainInstantYields(NO_RESOURCE);
@@ -10094,6 +10100,11 @@ void CvPlayer::doTurn()
 		{
 			DoTradeInfluenceAP();
 		}
+
+		if (MOD_IPC_CHANNEL) {
+			// Process messages from the Connection Service
+			CvConnectionService::GetInstance().ProcessMessages();
+		}
 	}
 
 	bool bHasActiveDiploRequest = false;
@@ -10162,7 +10173,18 @@ void CvPlayer::doTurnPostDiplomacy()
 		if (!isBarbarian())
 		{
 			GetEconomicAI()->DoTurn();
+			
+			if (MOD_IPC_CHANNEL) {
+				// Process messages from the Connection Service
+				CvConnectionService::GetInstance().ProcessMessages();
+			}
+
 			GetMilitaryAI()->DoTurn();
+
+			if (MOD_IPC_CHANNEL) {
+				// Process messages from the Connection Service
+				CvConnectionService::GetInstance().ProcessMessages();
+			}
 
 			if (isMajorCiv())
 			{
@@ -10180,6 +10202,11 @@ void CvPlayer::doTurnPostDiplomacy()
 		if(isMinorCiv())
 		{
 			GetMinorCivAI()->DoTurn();
+		}
+
+		if (MOD_IPC_CHANNEL) {
+			// Process messages from the Connection Service
+			CvConnectionService::GetInstance().ProcessMessages();
 		}
 	}
 
@@ -10366,6 +10393,11 @@ void CvPlayer::doTurnPostDiplomacy()
 			GetPlayerPolicies()->DoPolicyAI();
 		}
 	}
+	
+	if (MOD_IPC_CHANNEL) {
+		// Process messages from the Connection Service
+		CvConnectionService::GetInstance().ProcessMessages();
+	}
 
 	// Science
 	doResearch();
@@ -10410,6 +10442,11 @@ void CvPlayer::doTurnPostDiplomacy()
 		{
 			DoEvents(/*EspionageOnly*/ true);
 		}
+	}
+
+	if (MOD_IPC_CHANNEL) {
+		// Process messages from the Connection Service
+		CvConnectionService::GetInstance().ProcessMessages();
 	}
 
 	updateYieldPerTurnHistory();
@@ -33145,7 +33182,23 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn) // R: bDoTurn default
 
 			if (MOD_EVENTS_PLAYER_TURN)
 			{
-				GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerDoneTurn, GetID());
+				// Vox Deorum added a second argument: who is the next player?
+				// Find the next alive player
+				PlayerTypes eNextPlayer = NO_PLAYER;
+				PlayerTypes eCurrentPlayer = GetID();
+
+				// Start from current player + 1 and wrap around (including barbarian player at index 63)
+				for (int i = 1; i < MAX_PLAYERS; i++)
+				{
+					PlayerTypes eCheckPlayer = (PlayerTypes)((eCurrentPlayer + i) % MAX_PLAYERS);
+					if (GET_PLAYER(eCheckPlayer).isAlive())
+					{
+						eNextPlayer = eCheckPlayer;
+						break;
+					}
+				}
+
+				GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerDoneTurn, GetID(), static_cast<int>(eNextPlayer));
 			}
 
 			ASSERT_DEBUG(GetEndTurnBlockingType() == NO_ENDTURN_BLOCKING_TYPE, "Expecting the end-turn blocking to be NO_ENDTURN_BLOCKING_TYPE, got %d", GetEndTurnBlockingType());

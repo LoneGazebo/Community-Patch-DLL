@@ -23,6 +23,7 @@
 #include "CvLuaGame.h"
 #include "CvLuaPlayer.h"
 #include "CvLuaTeam.h"
+#include "../CvConnectionService.h"
 
 #pragma warning(disable:4800 ) //forcing value to bool 'true' or 'false'
 
@@ -75,6 +76,12 @@ void LuaSupport::DumpCallStack(lua_State* L, FILogFile* pLog)
 //------------------------------------------------------------------------------
 bool LuaSupport::CallHook(ICvEngineScriptSystem1* pkScriptSystem, const char* szName, ICvEngineScriptSystemArgs1* args, bool& value)
 {
+	// Forward the event to the Bridge Service (non-blocking)
+	// This happens before the Lua hook to ensure we capture all events
+	if (MOD_IPC_CHANNEL) {
+		CvConnectionService::GetInstance().ForwardGameEvent(szName, args);
+	}
+
 	if (MOD_CORE_DISABLE_LUA_HOOKS)
 		return false;
 
