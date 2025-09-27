@@ -2534,10 +2534,7 @@ bool CvLeague::IsUnitedNations() const
 
 void CvLeague::SetUnitedNations(bool bValue)
 {
-	if (m_bUnitedNations != bValue)
-	{
-		m_bUnitedNations = bValue;
-	}
+	m_bUnitedNations = bValue;
 }
 
 void CvLeague::DoVoteEnact(int iID, PlayerTypes eVoter, int iNumVotes, int iChoice)
@@ -9413,7 +9410,7 @@ void CvGameLeagues::DoTurn()
 
 					if (eGameEra > GetLastEraTrigger() && eEraTrigger <= eGameEra && eEraTrigger > GetLastEraTrigger())
 					{
-						if (eBuildingTrigger == NO_BUILDING || (eBuildingTrigger != NO_BUILDING && LeagueHelpers::IsBuildingForTriggerBuiltAnywhere(eBuildingTrigger)))
+						if (eBuildingTrigger == NO_BUILDING || LeagueHelpers::IsBuildingForTriggerBuiltAnywhere(eBuildingTrigger))
 						{
 							eSpecialSession = (LeagueSpecialSessionTypes)i;
 							break;

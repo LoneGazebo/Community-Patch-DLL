@@ -432,10 +432,7 @@ bool CvArea::IsMountains() const
 //	--------------------------------------------------------------------------------
 void CvArea::SetMountains(bool bValue)
 {
-	if(m_bMountains != bValue)
-	{
-		m_bMountains = bValue;
-	}
+	m_bMountains = bValue;
 }
 
 

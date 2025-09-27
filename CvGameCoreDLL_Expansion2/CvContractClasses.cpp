@@ -541,7 +541,7 @@ void CvPlayerContracts::DisbandContractUnits(ContractTypes eContract)
 
 	for(pLoopUnit = m_pPlayer->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoop))
 	{
-		if(pLoopUnit != NULL && pLoopUnit->getContract() == eContract)
+		if(pLoopUnit->getContract() == eContract)
 		{
 			pLoopUnit->kill(true);
 		}

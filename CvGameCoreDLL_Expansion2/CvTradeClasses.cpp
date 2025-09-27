@@ -3102,7 +3102,7 @@ int CvPlayerTrade::GetTradeConnectionPolicyValueTimes100(const TradeConnection& 
 			if (pPantheon != NULL && ePantheonBelief != NO_BELIEF && ePantheonBelief != eSecondaryPantheon)
 			{
 				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pCity->getOwner());
-				if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, kTradeConnection.m_eOriginOwner))) // check that the our religion does not have our belief, to prevent double counting
+				if (pReligion == NULL || !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, kTradeConnection.m_eOriginOwner)) // check that the our religion does not have our belief, to prevent double counting
 				{
 					iValue += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetTradeRouteYieldChange(kTradeConnection.m_eDomain, eYield) * 100 * MAX(1, (int)m_pPlayer->GetCurrentEra());
 				}

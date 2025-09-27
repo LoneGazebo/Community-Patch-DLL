@@ -3093,10 +3093,7 @@ void setLoadFileName(const CvString& f)
 
 void setLoadFileName(const CvString& f, StorageLocation eStorage)
 {
-	if(s_loadFileName != f)
-	{
-		s_loadFileName = f;
-	}
+	s_loadFileName = f;
 
 	s_loadFileStorage = eStorage;
 }

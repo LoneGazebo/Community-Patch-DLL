@@ -1131,11 +1131,8 @@ void CvBarbarians::SpawnBarbarianUnits(CvPlot* pPlot, int iNumUnits, BarbSpawnRe
 		for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 		{
 			ResourceTypes eResource = (ResourceTypes)iResourceLoop;
-			if (eResource != NO_RESOURCE)
-			{
-				if (GET_PLAYER(eMajor).getNumResourceTotal(eResource) > 0)
-					vValidResources.push_back(eResource);
-			}
+			if (GET_PLAYER(eMajor).getNumResourceTotal(eResource) > 0)
+				vValidResources.push_back(eResource);
 		}
 	}
 	else if (eReason == BARB_SPAWN_HORDE_QUEST || eReason == BARB_SPAWN_CITY_STATE_CAPTURE)

@@ -1459,11 +1459,8 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 				strLoc << GC.getMinorCivInfo(pMinorCivAI->GetMinorCivType())->GetTextKey();
 			}
 			*/
-			else
-			{
-				strLoc = Localization::Lookup("TXT_KEY_DIPLOSTRATEGY_ALMOST_LOST_CITY_STATE_ALLY");
-				strLoc << GC.getMinorCivInfo(pMinorCivAI->GetMinorCivType())->GetTextKey();
-			}
+			strLoc = Localization::Lookup("TXT_KEY_DIPLOSTRATEGY_ALMOST_LOST_CITY_STATE_ALLY");
+			strLoc << GC.getMinorCivInfo(pMinorCivAI->GetMinorCivType())->GetTextKey();
 		}
 		else if(pMinorCivAI->IsFriends(ePlayer) && pMinorCivAI->IsCloseToNotBeingFriends(ePlayer))
 		{
@@ -1530,11 +1527,8 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 				strLoc << GC.getMinorCivInfo(pMinorCivAI->GetMinorCivType())->GetTextKey();
 			}
 			*/
-			else
-			{
-				strLoc = Localization::Lookup("TXT_KEY_DIPLOSTRATEGY_ALMOST_LOST_CITY_STATE_FRIENDSHIP");
-				strLoc << GC.getMinorCivInfo(pMinorCivAI->GetMinorCivType())->GetTextKey();
-			}
+			strLoc = Localization::Lookup("TXT_KEY_DIPLOSTRATEGY_ALMOST_LOST_CITY_STATE_FRIENDSHIP");
+			strLoc << GC.getMinorCivInfo(pMinorCivAI->GetMinorCivType())->GetTextKey();
 		}
 		else
 		{
@@ -1600,10 +1594,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 				strLoc << GC.getMinorCivInfo(pMinorCivAI->GetMinorCivType())->GetTextKey();
 			}
 			*/
-			else
-			{
-				iMessageRating = 0;
-			}
+			iMessageRating = 0;
 			//else
 			//{
 			//	strLoc = Localization::Lookup("TXT_KEY_DIPLOSTRATEGY_BEFRIEND_CITY_STATE");

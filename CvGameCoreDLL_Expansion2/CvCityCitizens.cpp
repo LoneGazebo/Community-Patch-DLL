@@ -2166,10 +2166,7 @@ bool CvCityCitizens::NeedReworkCitizens()
 /// Optimize our Citizen Placement
 void CvCityCitizens::SetDirty(bool bValue)
 {
-	if (m_bIsDirty != bValue)
-	{
-		m_bIsDirty = bValue;
-	}
+	m_bIsDirty = bValue;
 }
 
 bool CvCityCitizens::IsDirty() const
