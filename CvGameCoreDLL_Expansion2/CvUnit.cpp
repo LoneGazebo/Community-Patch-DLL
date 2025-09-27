@@ -14847,10 +14847,7 @@ int CvUnit::GetLinkedMaxMoves()	const
 void CvUnit::SetLinkedMaxMoves(int iValue)
 {
 	VALIDATE_OBJECT();
-		if (m_iLinkedMaxMoves != iValue)
-		{
-			m_iLinkedMaxMoves = iValue;
-		}
+	m_iLinkedMaxMoves = iValue;
 }
 
 //	--------------------------------------------------------------------------------
@@ -14864,10 +14861,7 @@ int CvUnit::GetLinkedLeaderID()	const
 void CvUnit::SetLinkedLeaderID(int iLinkedLeaderID)
 {
 	VALIDATE_OBJECT();
-		if (m_iLinkedLeaderID != iLinkedLeaderID)
-		{
-			m_iLinkedLeaderID = iLinkedLeaderID;
-		}
+	m_iLinkedLeaderID = iLinkedLeaderID;
 }
 
 
