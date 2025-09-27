@@ -9929,10 +9929,7 @@ bool CvMinorCivAI::IsRebellionActive() const
 
 void CvMinorCivAI::SetRebellionActive(bool bValue)
 {
-	if(m_bIsRebellionActive != bValue)
-	{
-		m_bIsRebellionActive = bValue;
-	}
+	m_bIsRebellionActive = bValue;
 }
 
 bool CvMinorCivAI::IsHordeActive() const
@@ -9942,10 +9939,7 @@ bool CvMinorCivAI::IsHordeActive() const
 
 void CvMinorCivAI::SetHordeActive(bool bValue)
 {
-	if(m_bIsHordeActive != bValue)
-	{
-		m_bIsHordeActive = bValue;
-	}
+	m_bIsHordeActive = bValue;
 }
 
 //Cooldown
@@ -18938,10 +18932,7 @@ bool CvMinorCivAI::IsDisableNotifications() const
 /// Disable notifications for minor civs for now
 void CvMinorCivAI::SetDisableNotifications(bool bDisableNotifications)
 {
-	if (m_bDisableNotifications != bDisableNotifications)
-	{
-		m_bDisableNotifications = bDisableNotifications;
-	}
+	m_bDisableNotifications = bDisableNotifications;
 }
 
 //======================================================================================================
