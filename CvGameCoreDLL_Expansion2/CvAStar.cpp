@@ -2191,7 +2191,7 @@ int CityConnectionWaterValid(const CvAStarNode* parent, const CvAStarNode* node,
 	CvPlot* pNewPlot = GC.getMap().plotUnchecked(node->m_iX, node->m_iY);
 	ASSERT_DEBUG(pNewPlot != NULL);
 
-	if(!pNewPlot || !pNewPlot->isRevealed(eTeam))
+	if(!pNewPlot->isRevealed(eTeam))
 		return FALSE;
 
 	if (!pNewPlot->isWater() && !pNewPlot->isCoastalCityOrPassableImprovement(ePlayer,true,true))
@@ -2427,7 +2427,7 @@ int AreaValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFin
 	ASSERT_DEBUG(pToPlot != NULL && pFromPlot != NULL);
 
 	//ignore plots which already have their area set!
-	if (!pFromPlot || !pToPlot || pToPlot->getArea()!=-1)
+	if (pToPlot->getArea()!=-1)
 		return FALSE;
 
 	//small misuse ...

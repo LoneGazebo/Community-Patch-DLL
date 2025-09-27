@@ -5568,8 +5568,7 @@ bool CvCityBuildings::IsBuildingSellable(const CvBuildingEntry& kBuilding) const
 
 	for (int iYieldLoop = 0; iYieldLoop < NUM_YIELD_TYPES; iYieldLoop++)
 	{
-		if ((YieldTypes)iYieldLoop == NO_YIELD)
-			continue;
+
 
 		if (kBuilding.GetInstantYield((YieldTypes)iYieldLoop) > 0)
 			return false;
