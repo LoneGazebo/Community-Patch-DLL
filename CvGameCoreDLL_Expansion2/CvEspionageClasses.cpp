@@ -232,7 +232,7 @@ CvSpyPassiveBonusDiplomatEntry* CvSpyPassiveBonusDiplomatXMLEntries::GetEntry(in
 /// Default Constructor
 CvEspionageSpy::CvEspionageSpy()
 	: m_iName(-1)
-	, m_sName(NULL)
+	, m_sName("")
 	, m_eRank(SPY_RANK_RECRUIT)
 	, m_iExperience(0)
 	, m_iCityX(-1)
@@ -250,15 +250,7 @@ CvEspionageSpy::CvEspionageSpy()
 }
 
 const char* CvEspionageSpy::GetSpyName(CvPlayer* pPlayer)
-{
-	if (m_sName == NULL) {
-		if (m_iName != -1) {
-			m_sName = pPlayer->getCivilizationInfo().getSpyNames(m_iName);
-		} else {
-			return "TXT_KEY_SPY_NAME_UNKNOWN";
-		}
-	}
-	
+{	
 	return m_sName.c_str();
 }
 

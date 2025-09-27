@@ -6604,10 +6604,7 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 				if (eImprovement != NO_IMPROVEMENT)
 				{
 					GET_PLAYER(eOldOwner).changeImprovementCount(eImprovement, -1, eOldOwner == eBuilder);
-					if (pOldOwningCity->GetID() != iAcquiringCityID)
-					{
-						pOldOwningCity->ChangeImprovementCount(eImprovement, -1);
-					}
+					// Note: City improvement count is handled in setOwningCity()
 
 					// Remove siphoned resources
 					CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(eImprovement);
@@ -6775,12 +6772,7 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 				if(eImprovement != NO_IMPROVEMENT)
 				{
 					GET_PLAYER(eNewValue).changeImprovementCount(eImprovement, 1, getOwner() == eBuilder);
-					// city owner changes hands later or maybe earlier? ugh
-					if (!pOldOwningCity || pOldOwningCity->GetID() != iAcquiringCityID)
-					{
-						CvCity* pNewOwningCity = ::GetPlayerCity(IDInfo(eNewValue, iAcquiringCityID));
-						pNewOwningCity->ChangeImprovementCount(eImprovement, 1);
-					}
+					// Note: City improvement count is handled in setOwningCity()
 
 					// Add siphoned resources
 					CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(eImprovement);

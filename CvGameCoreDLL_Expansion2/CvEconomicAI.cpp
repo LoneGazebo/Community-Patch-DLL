@@ -2418,6 +2418,15 @@ void CvEconomicAI::DisbandMiscUnits()
 /// Disband units that require aluminum if we want to build spaceship parts and don't have enough aluminum to do so
 void CvEconomicAI::DisbandUnitsToFreeSpaceshipResources()
 {
+	// spaceship victory turned off?
+	if (!GC.getGame().isVictoryValid((VictoryTypes)GC.getInfoTypeForString("VICTORY_SPACE_RACE", true)))
+		return;
+
+	// don't have apollo program yet?
+	ProjectTypes eApolloProgram = (ProjectTypes)GC.getInfoTypeForString("PROJECT_APOLLO_PROGRAM", true);
+	if (eApolloProgram == NO_PROJECT || GET_TEAM(m_pPlayer->getTeam()).getProjectCount(eApolloProgram) == 0)
+		return;
+
 	if (!m_pPlayer->GetDiplomacyAI()->IsGoingForSpaceshipVictory())
 		return;
 
@@ -2528,7 +2537,7 @@ void CvEconomicAI::DisbandUnitsToFreeSpaceshipResources()
 					// make sure the core cities for spaceship production have the highest score
 					iWeight *= 10;
 				}
-				vCityEconomicWeights.push_back(pLoopCity, iWeight);
+				vCityEconomicWeights.push_back(pLoopCity, max(0, iWeight));
 			}
 			if (vCityEconomicWeights.size() > 0)
 			{
