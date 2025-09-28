@@ -178,6 +178,6 @@ void CvGameTextMgr::setDateStr(CvString& strString, int iGameTurn, bool bSave, C
 	break;
 
 	default:
-		ASSERT_DEBUG(false);
+		ASSERT(false);
 	}
 }

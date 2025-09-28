@@ -27,6 +27,10 @@
 #include "../CvDealAI.h"
 #include "../CvGameCoreUtils.h"
 #include "../CvInternalGameCoreUtils.h"
+#include "../CvGrandStrategyAI.h"
+#include "../CvEconomicAI.h"
+#include "../CvMilitaryAI.h"
+#include "../CvCitySpecializationAI.h"
 #include "ICvDLLUserInterface.h"
 #include "CvDllInterfaces.h"
 #include "CvDllNetMessageExt.h"
@@ -563,6 +567,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetGoldenAgeGreatEngineerRateModifier);
 	Method(GetGoldenAgeGreatMerchantRateModifier);
 	Method(GetGoldenAgeGreatDiplomatRateModifier);
+	Method(GetGoldenAgeGreatPersonRateModifierFromTrait);
 
 	Method(GetHurryModifier);
 
@@ -585,6 +590,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetScienceRateFromMinorAllies);
 	Method(GetArtsyGreatPersonRateModifier);
 	Method(GetScienceyGreatPersonRateModifier);
+	Method(GetGreatPersonRateModifier);
 
 	Method(GetPolicyGreatPeopleRateModifier);
 	Method(GetPolicyGreatWriterRateModifier);
@@ -594,6 +600,8 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetPolicyGreatMerchantRateModifier);
 	Method(GetPolicyGreatEngineerRateModifier);
 	Method(GetPolicyGreatDiplomatRateModifier);
+
+	Method(GetNextGreatPersonCost);
 
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	Method(GetMonopolyGreatPersonRateModifier);
@@ -1464,6 +1472,11 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(CountAllTerrain);
 	Method(CountAllWorkedTerrain);
 
+	// Vox Deorum: Methods to get/set AI personality values
+	Method(GetPersona);
+	Method(SetPersona);
+	Method(GetDiplomacyEvaluation);
+	
 #if defined(MOD_IMPROVEMENTS_EXTENSIONS)
 	Method(GetResponsibleForRouteCount);
 	Method(GetResponsibleForImprovementCount);
@@ -1533,6 +1546,13 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(SetInstantYieldNotificationDisabled);
 
 	Method(GetCompetitiveSpawnUnitType);
+	
+	Method(GetGrandStrategy);
+	Method(SetGrandStrategy);
+	Method(GetEconomicStrategies);
+	Method(SetEconomicStrategies);
+	Method(GetMilitaryStrategies);
+	Method(SetMilitaryStrategies);
 }
 //------------------------------------------------------------------------------
 void CvLuaPlayer::HandleMissingInstance(lua_State* L)
@@ -4976,7 +4996,7 @@ int CvLuaPlayer::lGetPuppetYieldPenalty(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 2);
-	ASSERT_DEBUG(eYield > NO_YIELD && eYield < NUM_YIELD_TYPES, "Unexpected yield in lGetPuppetYieldPenalty");
+	PRECONDITION(eYield > NO_YIELD && eYield < NUM_YIELD_TYPES, "Unexpected yield in lGetPuppetYieldPenalty");
 
 	int iResult = pkPlayer->GetPlayerTraits()->GetPuppetPenaltyReduction() + pkPlayer->GetPuppetYieldPenaltyMod();
 	switch (eYield)
@@ -7305,11 +7325,11 @@ int CvLuaPlayer::lCanAdoptPolicy(lua_State* L)
 	bool bIgnoreCost = luaL_optbool(L, 3, false);
 
 	CvPlayerAI* pkPlayer = GetInstance(L);
-	ASSERT_DEBUG(pkPlayer != NULL);
+	ASSERT(pkPlayer != NULL);
 	if(pkPlayer != NULL)
 	{
 		CvPlayerPolicies* pkPolicies = pkPlayer->GetPlayerPolicies();
-		ASSERT_DEBUG(pkPolicies != NULL);
+		ASSERT(pkPolicies != NULL);
 		if(pkPolicies != NULL)
 		{
 			bool bResult = pkPolicies->CanAdoptPolicy(ePolicy, bIgnoreCost);
@@ -7451,7 +7471,7 @@ int CvLuaPlayer::lCanAdoptTenet(lua_State* L)
 	bool bResult = false;
 
 	CvPlayerPolicies* pkPolicies = pkPlayer->GetPlayerPolicies();
-	ASSERT_DEBUG(pkPolicies != NULL);
+	ASSERT(pkPolicies != NULL);
 	if(pkPolicies != NULL)
 	{
 		bResult = pkPolicies->CanAdoptPolicy(ePolicy, bIgnoreCost);
@@ -7707,82 +7727,79 @@ int CvLuaPlayer::lGetGoldenAgeTourismModifier(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
+// DEPRECATED: Use player:GetGoldenAgeGreatPersonRateModifierFromTrait(GameInfoTypes.GREATPERSON_WRITER) instead
 int CvLuaPlayer::lGetGoldenAgeGreatWriterRateModifier(lua_State* L)
 {
-	CvPlayerAI* pkPlayer = GetInstance(L);
-	int iResult = 0;
+	CvPlayer* pPlayer = GetInstance(L);
 	GreatPersonTypes eGreatPerson = static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_WRITER"));
-	if (eGreatPerson != NO_GREATPERSON)
-		iResult = pkPlayer->GetPlayerTraits()->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
-	lua_pushinteger(L, iResult);
+	lua_pushinteger(L, pPlayer->GetPlayerTraits()->GetGoldenAgeGreatPersonRateModifier(eGreatPerson));
 	return 1;
 }
 //------------------------------------------------------------------------------
+// DEPRECATED: Use player:GetGoldenAgeGreatPersonRateModifierFromTrait(GameInfoTypes.GREATPERSON_ARTIST) instead
 int CvLuaPlayer::lGetGoldenAgeGreatArtistRateModifier(lua_State* L)
 {
-	CvPlayerAI* pkPlayer = GetInstance(L);
-	int iResult = 0;
+	CvPlayer* pPlayer = GetInstance(L);
 	GreatPersonTypes eGreatPerson = static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_ARTIST"));
-	if (eGreatPerson != NO_GREATPERSON)
-		iResult = pkPlayer->GetPlayerTraits()->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
-	lua_pushinteger(L, iResult);
+	lua_pushinteger(L, pPlayer->GetPlayerTraits()->GetGoldenAgeGreatPersonRateModifier(eGreatPerson));
 	return 1;
 }
 //------------------------------------------------------------------------------
+// DEPRECATED: Use player:GetGoldenAgeGreatPersonRateModifierFromTrait(GameInfoTypes.GREATPERSON_MUSICIAN) instead
 int CvLuaPlayer::lGetGoldenAgeGreatMusicianRateModifier(lua_State* L)
 {
-	CvPlayerAI* pkPlayer = GetInstance(L);
-	int iResult = 0;
+	CvPlayer* pPlayer = GetInstance(L);
 	GreatPersonTypes eGreatPerson = static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_MUSICIAN"));
-	if (eGreatPerson != NO_GREATPERSON)
-		iResult = pkPlayer->GetPlayerTraits()->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
-	lua_pushinteger(L, iResult);
+	lua_pushinteger(L, pPlayer->GetPlayerTraits()->GetGoldenAgeGreatPersonRateModifier(eGreatPerson));
 	return 1;
 }
 //------------------------------------------------------------------------------
+// DEPRECATED: Use player:GetGoldenAgeGreatPersonRateModifierFromTrait(GameInfoTypes.GREATPERSON_SCIENTIST) instead
 int CvLuaPlayer::lGetGoldenAgeGreatScientistRateModifier(lua_State* L)
 {
-	CvPlayerAI* pkPlayer = GetInstance(L);
-	int iResult = 0;
+	CvPlayer* pPlayer = GetInstance(L);
 	GreatPersonTypes eGreatPerson = static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_SCIENTIST"));
-	if (eGreatPerson != NO_GREATPERSON)
-		iResult = pkPlayer->GetPlayerTraits()->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
-	lua_pushinteger(L, iResult);
+	lua_pushinteger(L, pPlayer->GetPlayerTraits()->GetGoldenAgeGreatPersonRateModifier(eGreatPerson));
 	return 1;
 }
 //------------------------------------------------------------------------------
+// DEPRECATED: Use player:GetGoldenAgeGreatPersonRateModifierFromTrait(GameInfoTypes.GREATPERSON_ENGINEER) instead
 int CvLuaPlayer::lGetGoldenAgeGreatEngineerRateModifier(lua_State* L)
 {
-	CvPlayerAI* pkPlayer = GetInstance(L);
-	int iResult = 0;
+	CvPlayer* pPlayer = GetInstance(L);
 	GreatPersonTypes eGreatPerson = static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_ENGINEER"));
-	if (eGreatPerson != NO_GREATPERSON)
-		iResult = pkPlayer->GetPlayerTraits()->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
-	lua_pushinteger(L, iResult);
+	lua_pushinteger(L, pPlayer->GetPlayerTraits()->GetGoldenAgeGreatPersonRateModifier(eGreatPerson));
 	return 1;
 }
 //------------------------------------------------------------------------------
+// DEPRECATED: Use player:GetGoldenAgeGreatPersonRateModifierFromTrait(GameInfoTypes.GREATPERSON_MERCHANT) instead
 int CvLuaPlayer::lGetGoldenAgeGreatMerchantRateModifier(lua_State* L)
 {
-	CvPlayerAI* pkPlayer = GetInstance(L);
-	int iResult = 0;
+	CvPlayer* pPlayer = GetInstance(L);
 	GreatPersonTypes eGreatPerson = static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_MERCHANT"));
-	if (eGreatPerson != NO_GREATPERSON)
-		iResult = pkPlayer->GetPlayerTraits()->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
-	lua_pushinteger(L, iResult);
+	lua_pushinteger(L, pPlayer->GetPlayerTraits()->GetGoldenAgeGreatPersonRateModifier(eGreatPerson));
 	return 1;
 }
 //------------------------------------------------------------------------------
+// DEPRECATED: Use player:GetGoldenAgeGreatPersonRateModifierFromTrait(GameInfoTypes.GREATPERSON_DIPLOMAT) instead
 int CvLuaPlayer::lGetGoldenAgeGreatDiplomatRateModifier(lua_State* L)
 {
-	CvPlayerAI* pkPlayer = GetInstance(L);
-	int iResult = 0;
+	CvPlayer* pPlayer = GetInstance(L);
 	GreatPersonTypes eGreatPerson = static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_DIPLOMAT"));
-	if (eGreatPerson != NO_GREATPERSON)
-		iResult = pkPlayer->GetPlayerTraits()->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
-	lua_pushinteger(L, iResult);
+	lua_pushinteger(L, pPlayer->GetPlayerTraits()->GetGoldenAgeGreatPersonRateModifier(eGreatPerson));
 	return 1;
 }
+
+//------------------------------------------------------------------------------
+// Caller is responsible for validating the existence of the great person type
+int CvLuaPlayer::lGetGoldenAgeGreatPersonRateModifierFromTrait(lua_State* L)
+{
+	CvPlayer* pPlayer = GetInstance(L);
+	GreatPersonTypes eGreatPerson = static_cast<GreatPersonTypes>(lua_tointeger(L, 2));
+	lua_pushinteger(L, pPlayer->GetPlayerTraits()->GetGoldenAgeGreatPersonRateModifier(eGreatPerson));
+	return 1;
+}
+
 //------------------------------------------------------------------------------
 //int getHurryModifier(HurryTypes  eHurry);
 int CvLuaPlayer::lGetHurryModifier(lua_State* L)
@@ -7838,10 +7855,13 @@ int CvLuaPlayer::lGetGreatPeopleRateModifier(lua_State* L)
 	return BasicLuaMethod(L, &CvPlayerAI::getGreatPeopleRateModifier);
 }
 //------------------------------------------------------------------------------
+// DEPRECATED: Use player:GetGreatPersonRateModifier(GameInfoTypes.GREATPERSON_GENERAL) instead
 //int getGreatGeneralRateModifier();
 int CvLuaPlayer::lGetGreatGeneralRateModifier(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::getGreatGeneralRateModifier);
+	CvPlayer* pPlayer = GetInstance(L);
+	lua_pushinteger(L, pPlayer->GetGreatPersonRateModifier(static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_GENERAL"))));
+	return 1;
 }
 //------------------------------------------------------------------------------
 //int getDomesticGreatGeneralRateModifier();
@@ -7851,45 +7871,63 @@ int CvLuaPlayer::lGetDomesticGreatGeneralRateModifier(lua_State* L)
 }
 
 //------------------------------------------------------------------------------
+// DEPRECATED: Use player:GetGreatPersonRateModifier(GameInfoTypes.GREATPERSON_WRITER) instead
 //int getGreatWriterRateModifier();
 int CvLuaPlayer::lGetGreatWriterRateModifier(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::getGreatWriterRateModifier);
+	CvPlayer* pPlayer = GetInstance(L);
+	lua_pushinteger(L, pPlayer->GetGreatPersonRateModifier(static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_WRITER"))));
+	return 1;
 }
 
 //------------------------------------------------------------------------------
+// DEPRECATED: Use player:GetGreatPersonRateModifier(GameInfoTypes.GREATPERSON_ARTIST) instead
 //int getGreatArtistRateModifier();
 int CvLuaPlayer::lGetGreatArtistRateModifier(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::getGreatArtistRateModifier);
+	CvPlayer* pPlayer = GetInstance(L);
+	lua_pushinteger(L, pPlayer->GetGreatPersonRateModifier(static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_ARTIST"))));
+	return 1;
 }
 
 //------------------------------------------------------------------------------
+// DEPRECATED: Use player:GetGreatPersonRateModifier(GameInfoTypes.GREATPERSON_MUSICIAN) instead
 //int getGreatMusicianRateModifier();
 int CvLuaPlayer::lGetGreatMusicianRateModifier(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::getGreatMusicianRateModifier);
+	CvPlayer* pPlayer = GetInstance(L);
+	lua_pushinteger(L, pPlayer->GetGreatPersonRateModifier(static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_MUSICIAN"))));
+	return 1;
 }
 
 //------------------------------------------------------------------------------
+// DEPRECATED: Use player:GetGreatPersonRateModifier(GameInfoTypes.GREATPERSON_SCIENTIST) instead
 //int getGreatScientistRateModifier();
 int CvLuaPlayer::lGetGreatScientistRateModifier(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::getGreatScientistRateModifier);
+	CvPlayer* pPlayer = GetInstance(L);
+	lua_pushinteger(L, pPlayer->GetGreatPersonRateModifier(static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_SCIENTIST"))));
+	return 1;
 }
 
 //------------------------------------------------------------------------------
+// DEPRECATED: Use player:GetGreatPersonRateModifier(GameInfoTypes.GREATPERSON_MERCHANT) instead
 //int getGreatMerchantRateModifier();
 int CvLuaPlayer::lGetGreatMerchantRateModifier(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::getGreatMerchantRateModifier);
+	CvPlayer* pPlayer = GetInstance(L);
+	lua_pushinteger(L, pPlayer->GetGreatPersonRateModifier(static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_MERCHANT"))));
+	return 1;
 }
 
 //------------------------------------------------------------------------------
+// DEPRECATED: Use player:GetGreatPersonRateModifier(GameInfoTypes.GREATPERSON_DIPLOMAT) instead
 //int getGreatDiplomatRateModifier();
 int CvLuaPlayer::lGetGreatDiplomatRateModifier(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::getGreatDiplomatRateModifier);
+	CvPlayer* pPlayer = GetInstance(L);
+	lua_pushinteger(L, pPlayer->GetGreatPersonRateModifier(static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_DIPLOMAT"))));
+	return 1;
 }
 //------------------------------------------------------------------------------
 //int GetScienceRateFromMinorAllies();
@@ -7908,11 +7946,17 @@ int CvLuaPlayer::lGetScienceyGreatPersonRateModifier(lua_State* L)
 	return BasicLuaMethod(L, &CvPlayerAI::getScienceyGreatPersonRateModifier);
 }
 //------------------------------------------------------------------------------
+// DEPRECATED: Use player:GetGreatPersonRateModifier(GameInfoTypes.GREATPERSON_ENGINEER) instead
 //int getGreatEngineerRateModifier();
 int CvLuaPlayer::lGetGreatEngineerRateModifier(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::getGreatEngineerRateModifier);
+	CvPlayer* pPlayer = GetInstance(L);
+	lua_pushinteger(L, pPlayer->GetGreatPersonRateModifier(static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_ENGINEER"))));
+	return 1;
 }
+
+// Caller is responsible for validating the existence of the great person type
+LUAAPIIMPL(Player, GetGreatPersonRateModifier)
 
 //------------------------------------------------------------------------------
 //int GetPolicyGreatPeopleRateModifier();
@@ -7991,6 +8035,22 @@ int CvLuaPlayer::lGetPolicyGreatDiplomatRateModifier(lua_State* L)
 {
 	CvPlayer* pkPlayer = GetInstance(L);
 	lua_pushinteger(L, pkPlayer->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_GREAT_DIPLOMAT_RATE));
+	return 1;
+}
+
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetNextGreatPersonCost(lua_State* L)
+{
+	CvPlayer* pPlayer = GetInstance(L);
+	CvCity* pCity = pPlayer->getCapitalCity();
+	int iResult = -1;
+	if (pCity)
+	{
+		const GreatPersonTypes eGreatPerson = static_cast<GreatPersonTypes>(lua_tointeger(L, 2));
+		const UnitClassTypes eUnitClassType = static_cast<UnitClassTypes>(GC.getGreatPersonInfo(eGreatPerson)->GetUnitClassType());
+		iResult = pCity->GetCityCitizens()->GetSpecialistUpgradeThreshold(eUnitClassType);
+	}
+	lua_pushinteger(L, iResult);
 	return 1;
 }
 
@@ -10136,7 +10196,7 @@ int CvLuaPlayer::lGetIncomingUnitType(lua_State* L)
 	if (pkPlayer->isMinorCiv())
 	{
 		const CvMinorCivAI* pMinorCivAI = pkPlayer->GetMinorCivAI();
-		ASSERT_DEBUG(pMinorCivAI);
+		ASSERT(pMinorCivAI);
 		if (pMinorCivAI)
 		{
 			const PlayerTypes eFromPlayer = static_cast<PlayerTypes>(lua_tointeger(L, 2));
@@ -10164,7 +10224,7 @@ int CvLuaPlayer::lGetIncomingUnitCountdown(lua_State* L)
 	if (pkPlayer->isMinorCiv())
 	{
 		const CvMinorCivAI* pMinorCivAI = pkPlayer->GetMinorCivAI();
-		ASSERT_DEBUG(pMinorCivAI);
+		ASSERT(pMinorCivAI);
 		if (pMinorCivAI)
 		{
 			const PlayerTypes eFromPlayer = static_cast<PlayerTypes>(lua_tointeger(L, 2));
@@ -13212,7 +13272,7 @@ int CvLuaPlayer::lGetPolicyEspionageModifier(lua_State* L)
 {
 	const PolicyTypes iIndex = (PolicyTypes)lua_tointeger(L, 2);
 	CvPolicyEntry* pkPolicyInfo = GC.getPolicyInfo(iIndex);
-	ASSERT_DEBUG(pkPolicyInfo, "pkPolicyInfo is null!");
+	ASSERT(pkPolicyInfo, "pkPolicyInfo is null!");
 	if (!pkPolicyInfo)
 	{
 		return 0;
@@ -13227,7 +13287,7 @@ int CvLuaPlayer::lGetPolicyEspionageCatchSpiesModifier(lua_State* L)
 {
 	const PolicyTypes iIndex = (PolicyTypes)lua_tointeger(L, 2);
 	CvPolicyEntry* pkPolicyInfo = GC.getPolicyInfo(iIndex);
-	ASSERT_DEBUG(pkPolicyInfo, "pkPolicyInfo is null!");
+	ASSERT(pkPolicyInfo, "pkPolicyInfo is null!");
 	if (!pkPolicyInfo)
 	{
 		return 0;
@@ -13243,7 +13303,7 @@ int CvLuaPlayer::lGetPolicyConversionModifier(lua_State* L)
 {
 	const PolicyTypes iIndex = (PolicyTypes)lua_tointeger(L, 2);
 	CvPolicyEntry* pkPolicyInfo = GC.getPolicyInfo(iIndex);
-	ASSERT_DEBUG(pkPolicyInfo, "pkPolicyInfo is null!");
+	ASSERT(pkPolicyInfo, "pkPolicyInfo is null!");
 	if (!pkPolicyInfo)
 	{
 		return 0;
@@ -13334,10 +13394,25 @@ struct OpinionEval
 	}
 };
 
+//------------------------------------------------------------------------------
+// Get the opinion table for a player towards another player
+// Parameters:
+//   1. Player instance (self)
+//   2. Target player ID (PlayerTypes)
+//   3. Force debug mode (boolean, optional) - if true, shows all hidden modifiers
+//------------------------------------------------------------------------------
 int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 2);
+
+	// Check for optional third parameter to force debug mode
+	bool bForceDebugMode = false;
+	if (lua_gettop(L) >= 3 && lua_isboolean(L, 3))
+	{
+		bForceDebugMode = lua_toboolean(L, 3);
+	}
+
 	CvDiplomacyAI* pDiplo = pkPlayer->GetDiplomacyAI();
 
 	// Initialize variables
@@ -13347,14 +13422,14 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 
 	bool bHuman = pkPlayer->isHuman();
 	bool bTeammate = pDiplo->IsTeammate(ePlayer);
-	bool bShowHiddenModifiers = GC.getGame().IsShowHiddenOpinionModifiers();
-	bool bShowAllValues = bHuman ? false : GC.getGame().IsShowAllOpinionValues();
+	bool bShowHiddenModifiers = bForceDebugMode || GC.getGame().IsShowHiddenOpinionModifiers();
+	bool bShowAllValues = bHuman ? false : (bForceDebugMode || GC.getGame().IsShowAllOpinionValues());
 	bool bHideDisputes = bShowHiddenModifiers ? false : pDiplo->ShouldHideDisputeMods(ePlayer);
 	bool bHideNegatives = bShowHiddenModifiers ? false : pDiplo->ShouldHideNegativeMods(ePlayer);
 	bool bPretendNoDisputes = GET_PLAYER(ePlayer).isHuman() && bHideDisputes && bHideNegatives && !GC.getGame().IsNoFakeOpinionModifiers();
 	bool bObserver = GET_PLAYER(ePlayer).isObserver() || !pkPlayer->isMajorCiv() || !GET_PLAYER(ePlayer).isMajorCiv() || !pkPlayer->isAlive() || !GET_PLAYER(ePlayer).isAlive() || GC.getGame().IsHideOpinionTable();
 	bool bUNActive = GC.getGame().IsUnitedNationsActive();
-	bool bJustMet = GC.getGame().IsDiploDebugModeEnabled() ? false : (GET_TEAM(pkPlayer->getTeam()).GetTurnsSinceMeetingTeam(GET_PLAYER(ePlayer).getTeam()) == 0); // Don't display certain modifiers if we just met them
+	bool bJustMet = (bForceDebugMode || GC.getGame().IsDiploDebugModeEnabled()) ? false : (GET_TEAM(pkPlayer->getTeam()).GetTurnsSinceMeetingTeam(GET_PLAYER(ePlayer).getTeam()) == 0); // Don't display certain modifiers if we just met them
 
 	CivApproachTypes eSurfaceApproach = pDiplo->GetSurfaceApproach(ePlayer);
 	CivApproachTypes eTrueApproach = pDiplo->GetCivApproach(ePlayer);
@@ -13521,7 +13596,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 				kOpinion.m_iValue = 0;
 				CvString str;
 
-				if (bHuman || GC.getGame().IsDiploDebugModeEnabled())
+				if (bHuman || bForceDebugMode || GC.getGame().IsDiploDebugModeEnabled())
 				{
 					str = Localization::Lookup("TXT_KEY_DIPLO_PAST_WAR_BAD").toUTF8();
 				}
@@ -13543,10 +13618,10 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		}
 
 		// Special indicators
-		if (!bHuman && !bTeammate)
+		if (bForceDebugMode || (!bHuman && !bTeammate))
 		{
 			// Debug mode approach reveal
-			if (GC.getGame().IsDiploDebugModeEnabled())
+			if (bForceDebugMode || GC.getGame().IsDiploDebugModeEnabled())
 			{
 				Opinion kOpinion;
 				kOpinion.m_iValue = 0;
@@ -13641,7 +13716,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 	// [PART 2A: HUMANS]			  //
 	//--------------------------------//
 
-	if (bHuman && !bObserver)
+	if (bForceDebugMode || (bHuman && !bObserver))
 	{
 		// DoF?
 		if (pDiplo->IsDoFAccepted(ePlayer))
@@ -14946,7 +15021,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 					str = Localization::Lookup("TXT_KEY_DIPLO_VASSAL_TREATMENT_ENSLAVED").toUTF8();
 					break;
 				case NO_VASSAL_TREATMENT:
-					ASSERT_DEBUG(false, "eTreatmentLevel is not expected to be NO_VASSAL_TREATMENT");
+					PRECONDITION(false, "eTreatmentLevel is not expected to be NO_VASSAL_TREATMENT");
 					break;
 				}
 
@@ -15931,7 +16006,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			aOpinions.push_back(kOpinion);
 		}
 		// If not at war and debug mode is not enabled, a hint explaining the AI's current approach is displayed
-		else if (!GC.getGame().IsDiploDebugModeEnabled())
+		else if (!bForceDebugMode && !GC.getGame().IsDiploDebugModeEnabled())
 		{
 			Opinion kOpinion;
 			kOpinion.m_iValue = 0;
@@ -16073,6 +16148,316 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 	}
 
 	return 1;
+}
+
+//------------------------------------------------------------------------------
+// Vox Deorum: GetDiplomacyEvaluation - Returns diplomatic evaluation information (top friend, ally, competitor, etc.)
+// Returns empty table if not a major civ
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetDiplomacyEvaluation(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 2);
+
+	lua_newtable(L);
+
+	// Return empty table if not a major civ
+	if (!pkPlayer->isMajorCiv() || !pkPlayer->isAlive())
+	{
+		return 1;
+	}
+
+	CvDiplomacyAI* pDiplo = pkPlayer->GetDiplomacyAI();
+	bool bUNActive = GC.getGame().IsUnitedNationsActive();
+
+	PlayerTypes eTopFriend = pDiplo->GetMostValuableFriend();
+	PlayerTypes eTopDP = pDiplo->GetMostValuableAlly();
+	PlayerTypes eTopCompetitor = pDiplo->GetBiggestCompetitor();
+	PlayerTypes eTopLeagueAlly = pDiplo->GetPrimeLeagueAlly();
+	PlayerTypes eTopLeagueRival = pDiplo->GetPrimeLeagueCompetitor();
+	CvString FriendStr;
+	CvString LeagueStr;
+	CvString EnemyStr;
+
+	FriendStr = Localization::Lookup("TXT_KEY_DIPLO_DEBUG_TOP_FRIEND").toUTF8();
+	FriendStr += " ";
+	if (eTopFriend == NO_PLAYER || !GET_PLAYER(eTopFriend).isAlive())
+	{
+		FriendStr += Localization::Lookup("TXT_KEY_DIPLO_DEBUG_TOP_CHOICE_NONE").toUTF8();
+	}
+	else
+	{
+		FriendStr += GET_PLAYER(eTopFriend).getCivilizationShortDescription();
+	}
+
+	if (GET_TEAM(pkPlayer->getTeam()).isDefensivePactTradingAllowed())
+	{
+		FriendStr += ", ";
+		FriendStr += Localization::Lookup("TXT_KEY_DIPLO_DEBUG_TOP_ALLY").toUTF8();
+		FriendStr += " ";
+		if (eTopDP == NO_PLAYER || !GET_PLAYER(eTopDP).isAlive())
+		{
+			FriendStr += Localization::Lookup("TXT_KEY_DIPLO_DEBUG_TOP_CHOICE_NONE").toUTF8();
+		}
+		else
+		{
+			FriendStr += GET_PLAYER(eTopDP).getCivilizationShortDescription();
+		}
+	}
+
+	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+	if (pLeague != NULL)
+	{
+		LeagueStr = bUNActive ? Localization::Lookup("TXT_KEY_DIPLO_DEBUG_TOP_LEAGUE_ALLY_UN").toUTF8() : Localization::Lookup("TXT_KEY_DIPLO_DEBUG_TOP_LEAGUE_ALLY").toUTF8();
+		LeagueStr += " ";
+		if (eTopLeagueAlly == NO_PLAYER || !GET_PLAYER(eTopLeagueAlly).isAlive())
+		{
+			LeagueStr += Localization::Lookup("TXT_KEY_DIPLO_DEBUG_TOP_CHOICE_NONE").toUTF8();
+		}
+		else
+		{
+			LeagueStr += GET_PLAYER(eTopLeagueAlly).getCivilizationShortDescription();
+		}
+		LeagueStr += ", ";
+		LeagueStr += bUNActive ? Localization::Lookup("TXT_KEY_DIPLO_DEBUG_TOP_LEAGUE_COMPETITOR_UN").toUTF8() : Localization::Lookup("TXT_KEY_DIPLO_DEBUG_TOP_LEAGUE_COMPETITOR").toUTF8();
+		LeagueStr += " ";
+		if (eTopLeagueRival == NO_PLAYER || !GET_PLAYER(eTopLeagueRival).isAlive())
+		{
+			LeagueStr += Localization::Lookup("TXT_KEY_DIPLO_DEBUG_TOP_CHOICE_NONE").toUTF8();
+		}
+		else
+		{
+			LeagueStr += GET_PLAYER(eTopLeagueRival).getCivilizationShortDescription();
+		}
+	}
+
+	EnemyStr = Localization::Lookup("TXT_KEY_DIPLO_DEBUG_TOP_COMPETITOR").toUTF8();
+	EnemyStr += " ";
+	if (eTopCompetitor == NO_PLAYER || !GET_PLAYER(eTopCompetitor).isAlive())
+	{
+		EnemyStr += Localization::Lookup("TXT_KEY_DIPLO_DEBUG_TOP_CHOICE_NONE").toUTF8();
+	}
+	else
+	{
+		EnemyStr += GET_PLAYER(eTopCompetitor).getCivilizationShortDescription();
+	}
+
+	// Push strings to table array
+	int index = 1;
+
+	lua_pushinteger(L, index++);
+	lua_pushstring(L, FriendStr.c_str());
+	lua_settable(L, -3);
+
+	if (pLeague)
+	{
+		lua_pushinteger(L, index++);
+		lua_pushstring(L, LeagueStr.c_str());
+		lua_settable(L, -3);
+	}
+
+	lua_pushinteger(L, index++);
+	lua_pushstring(L, EnemyStr.c_str());
+	lua_settable(L, -3);
+
+	return 1;
+}
+
+//------------------------------------------------------------------------------
+// Vox Deorum: GetPersona - Get personality values for major civs
+int CvLuaPlayer::lGetPersona(lua_State* L)
+{
+			CvPlayerAI* pkPlayer = GetInstance(L);
+			CvDiplomacyAI* pDiplo = pkPlayer->GetDiplomacyAI();
+
+			if (!pDiplo)
+			{
+							lua_pushnil(L);
+							return 1;
+			}
+
+			// Create Lua table to return personality values
+			lua_newtable(L);
+
+			// Add personality values
+			lua_pushstring(L, "VictoryCompetitiveness");
+			lua_pushinteger(L, pDiplo->m_iVictoryCompetitiveness);
+			lua_settable(L, -3);
+
+			lua_pushstring(L, "WonderCompetitiveness");
+			lua_pushinteger(L, pDiplo->m_iWonderCompetitiveness);
+			lua_settable(L, -3);
+
+			lua_pushstring(L, "MinorCivCompetitiveness");
+			lua_pushinteger(L, pDiplo->m_iMinorCivCompetitiveness);
+			lua_settable(L, -3);
+
+			lua_pushstring(L, "Boldness");
+			lua_pushinteger(L, pDiplo->m_iBoldness);
+			lua_settable(L, -3);
+
+			lua_pushstring(L, "DiplomaticBalance");
+			lua_pushinteger(L, pDiplo->m_iDiploBalance);
+			lua_settable(L, -3);
+
+			lua_pushstring(L, "WarmongerHate");
+			lua_pushinteger(L, pDiplo->m_iWarmongerHate);
+			lua_settable(L, -3);
+
+			lua_pushstring(L, "Friendliness");
+			lua_pushinteger(L, pDiplo->m_iDoFWillingness);
+			lua_settable(L, -3);
+
+			lua_pushstring(L, "DenounceWillingness");
+			lua_pushinteger(L, pDiplo->m_iDenounceWillingness);
+			lua_settable(L, -3);
+
+			lua_pushstring(L, "WorkWithWillingness");
+			lua_pushinteger(L, pDiplo->m_iWorkWithWillingness);
+			lua_settable(L, -3);
+
+			lua_pushstring(L, "WorkAgainstWillingness");
+			lua_pushinteger(L, pDiplo->m_iWorkAgainstWillingness);
+			lua_settable(L, -3);
+
+			lua_pushstring(L, "Loyalty");
+			lua_pushinteger(L, pDiplo->m_iLoyalty);
+			lua_settable(L, -3);
+
+			lua_pushstring(L, "Forgiveness");
+			lua_pushinteger(L, pDiplo->m_iForgiveness);
+			lua_settable(L, -3);
+
+			lua_pushstring(L, "Neediness");
+			lua_pushinteger(L, pDiplo->m_iNeediness);
+			lua_settable(L, -3);
+
+			lua_pushstring(L, "Meanness");
+			lua_pushinteger(L, pDiplo->m_iMeanness);
+			lua_settable(L, -3);
+
+			lua_pushstring(L, "Chattiness");
+			lua_pushinteger(L, pDiplo->m_iChattiness);
+			lua_settable(L, -3);
+
+			// Add approach biases
+			lua_pushstring(L, "WarBias");
+			lua_pushinteger(L, pDiplo->m_aiMajorCivApproachBiases[CIV_APPROACH_WAR]);
+			lua_settable(L, -3);
+
+			lua_pushstring(L, "HostileBias");
+			lua_pushinteger(L, pDiplo->m_aiMajorCivApproachBiases[CIV_APPROACH_HOSTILE]);
+			lua_settable(L, -3);
+
+			lua_pushstring(L, "DeceptiveBias");
+			lua_pushinteger(L, pDiplo->m_aiMajorCivApproachBiases[CIV_APPROACH_DECEPTIVE]);
+			lua_settable(L, -3);
+
+			lua_pushstring(L, "GuardedBias");
+			lua_pushinteger(L, pDiplo->m_aiMajorCivApproachBiases[CIV_APPROACH_GUARDED]);
+			lua_settable(L, -3);
+
+			lua_pushstring(L, "AfraidBias");
+			lua_pushinteger(L, pDiplo->m_aiMajorCivApproachBiases[CIV_APPROACH_AFRAID]);
+			lua_settable(L, -3);
+
+			lua_pushstring(L, "FriendlyBias");
+			lua_pushinteger(L, pDiplo->m_aiMajorCivApproachBiases[CIV_APPROACH_FRIENDLY]);
+			lua_settable(L, -3);
+
+			lua_pushstring(L, "NeutralBias");
+			lua_pushinteger(L, pDiplo->m_aiMajorCivApproachBiases[CIV_APPROACH_NEUTRAL]);
+			lua_settable(L, -3);
+
+			// Add minor civ approach biases
+			lua_pushstring(L, "MinorCivWarBias");
+			lua_pushinteger(L, pDiplo->m_iMinorCivWarBias);
+			lua_settable(L, -3);
+
+			lua_pushstring(L, "MinorCivHostileBias");
+			lua_pushinteger(L, pDiplo->m_iMinorCivHostileBias);
+			lua_settable(L, -3);
+
+			lua_pushstring(L, "MinorCivNeutralBias");
+			lua_pushinteger(L, pDiplo->m_iMinorCivNeutralBias);
+			lua_settable(L, -3);
+
+			lua_pushstring(L, "MinorCivFriendlyBias");
+			lua_pushinteger(L, pDiplo->m_iMinorCivFriendlyBias);
+			lua_settable(L, -3);
+
+			return 1;
+}
+
+//------------------------------------------------------------------------------
+// Vox Deorum: SetPersona - Set personality values for major civs
+int CvLuaPlayer::lSetPersona(lua_State* L)
+{
+			CvPlayerAI* pkPlayer = GetInstance(L);
+			CvDiplomacyAI* pDiplo = pkPlayer->GetDiplomacyAI();
+
+			if (!pDiplo)
+							return 0;
+
+			// Check if argument is a table
+			if (!lua_istable(L, 2))
+			{
+							luaL_error(L, "SetPersona requires a table argument");
+							return 0;
+			}
+
+			// Helper macro to get value from table
+#define GET_TABLE_VALUE(key, var) \
+			{ \
+							lua_pushstring(L, key); \
+							lua_gettable(L, 2); \
+							if (lua_isnumber(L, -1)) \
+							{ \
+											int value = lua_tointeger(L, -1); \
+											if (value < 1) value = 1; \
+											if (value > 10) value = 10; \
+											if (value >= 0) var = value; \
+							} \
+							lua_pop(L, 1); \
+			}
+
+			// Set personality values (only if present in the table)
+			GET_TABLE_VALUE("VictoryCompetitiveness", pDiplo->m_iVictoryCompetitiveness);
+			GET_TABLE_VALUE("WonderCompetitiveness", pDiplo->m_iWonderCompetitiveness);
+			GET_TABLE_VALUE("MinorCivCompetitiveness", pDiplo->m_iMinorCivCompetitiveness);
+			GET_TABLE_VALUE("Boldness", pDiplo->m_iBoldness);
+
+			GET_TABLE_VALUE("DiploBalance", pDiplo->m_iDiploBalance);
+			GET_TABLE_VALUE("WarmongerHate", pDiplo->m_iWarmongerHate);
+			GET_TABLE_VALUE("Friendliness", pDiplo->m_iDoFWillingness);
+			GET_TABLE_VALUE("DenounceWillingness", pDiplo->m_iDenounceWillingness);
+			GET_TABLE_VALUE("WorkWithWillingness", pDiplo->m_iWorkWithWillingness);
+			GET_TABLE_VALUE("WorkAgainstWillingness", pDiplo->m_iWorkAgainstWillingness);
+			GET_TABLE_VALUE("Loyalty", pDiplo->m_iLoyalty);
+			GET_TABLE_VALUE("Forgiveness", pDiplo->m_iForgiveness);
+			GET_TABLE_VALUE("Neediness", pDiplo->m_iNeediness);
+			GET_TABLE_VALUE("Meanness", pDiplo->m_iMeanness);
+
+			GET_TABLE_VALUE("Chattiness", pDiplo->m_iChattiness);
+
+			// Set approach biases
+			GET_TABLE_VALUE("WarBias", pDiplo->m_aiMajorCivApproachBiases[CIV_APPROACH_WAR]);
+			GET_TABLE_VALUE("HostileBias", pDiplo->m_aiMajorCivApproachBiases[CIV_APPROACH_HOSTILE]);
+			GET_TABLE_VALUE("DeceptiveBias", pDiplo->m_aiMajorCivApproachBiases[CIV_APPROACH_DECEPTIVE]);
+			GET_TABLE_VALUE("GuardedBias", pDiplo->m_aiMajorCivApproachBiases[CIV_APPROACH_GUARDED]);
+			GET_TABLE_VALUE("AfraidBias", pDiplo->m_aiMajorCivApproachBiases[CIV_APPROACH_AFRAID]);
+			GET_TABLE_VALUE("FriendlyBias", pDiplo->m_aiMajorCivApproachBiases[CIV_APPROACH_FRIENDLY]);
+			GET_TABLE_VALUE("NeutralBias", pDiplo->m_aiMajorCivApproachBiases[CIV_APPROACH_NEUTRAL]);
+
+			// Set minor civ approach biases
+			GET_TABLE_VALUE("MinorCivWarBias", pDiplo->m_iMinorCivWarBias);
+			GET_TABLE_VALUE("MinorCivHostileBias", pDiplo->m_iMinorCivHostileBias);
+			GET_TABLE_VALUE("MinorCivNeutralBias", pDiplo->m_iMinorCivNeutralBias);
+			GET_TABLE_VALUE("MinorCivFriendlyBias", pDiplo->m_iMinorCivFriendlyBias);
+
+#undef GET_TABLE_VALUE
+
+			return 0;
 }
 
 //------------------------------------------------------------------------------
@@ -16745,7 +17130,7 @@ int CvLuaPlayer::lGetNumTechsToSteal(lua_State* L)
 	CvPlayerEspionage* pkPlayerEspionage = pkThisPlayer->GetEspionage();
 
 	int iPlayer = lua_tointeger(L, 2);
-	ASSERT_DEBUG(iPlayer >= 0 && iPlayer < MAX_MAJOR_CIVS, "iPlayer out of bounds");
+	PRECONDITION(iPlayer >= 0 && iPlayer < MAX_MAJOR_CIVS, "iPlayer out of bounds");
 	PlayerTypes ePlayer = (PlayerTypes)iPlayer;
 	lua_pushinteger(L, pkPlayerEspionage->GetNumTechsToSteal(ePlayer));
 	return 1;
@@ -16788,7 +17173,7 @@ int CvLuaPlayer::lHasRecentIntrigueAbout(lua_State* L)
 	CvPlayerEspionage* pkPlayerEspionage = pkThisPlayer->GetEspionage();
 
 	int iPlayer = lua_tointeger(L, 2);
-	ASSERT_DEBUG(iPlayer >= 0 && iPlayer < MAX_MAJOR_CIVS, "iPlayer out of bounds");
+	PRECONDITION(iPlayer >= 0 && iPlayer < MAX_MAJOR_CIVS, "iPlayer out of bounds");
 	PlayerTypes ePlayer = (PlayerTypes)iPlayer;
 	lua_pushboolean(L, pkPlayerEspionage->HasRecentIntrigueAbout(ePlayer));
 
@@ -16801,7 +17186,7 @@ int CvLuaPlayer::lGetRecentIntrigueInfo(lua_State* L)
 	CvPlayerEspionage* pkPlayerEspionage = pkThisPlayer->GetEspionage();
 
 	int iPlayer = lua_tointeger(L, 2);
-	ASSERT_DEBUG(iPlayer >= 0 && iPlayer < MAX_MAJOR_CIVS, "iPlayer out of bounds");
+	PRECONDITION(iPlayer >= 0 && iPlayer < MAX_MAJOR_CIVS, "iPlayer out of bounds");
 	PlayerTypes eTargetPlayer = (PlayerTypes)iPlayer;
 	IntrigueNotificationMessage* pNotificationMessage = pkPlayerEspionage->GetRecentIntrigueInfo(eTargetPlayer);
 
@@ -16827,7 +17212,7 @@ int CvLuaPlayer::lGetCoupChanceOfSuccess(lua_State* L)
 	bool bIgnoreEnemySpies = luaL_optbool(L, 3, false);
 
 	int iSpyIndex = pkPlayerEspionage->GetSpyIndexInCity(pkCity);
-	ASSERT_DEBUG(iSpyIndex >= 0, "iSpyIndex out of bounds");
+	PRECONDITION(iSpyIndex >= 0, "iSpyIndex out of bounds");
 	if(iSpyIndex < 0)
 	{
 		lua_pushinteger(L, 0);
@@ -18677,4 +19062,259 @@ int CvLuaPlayer::lGetCompetitiveSpawnUnitType(lua_State* L)
 	UnitTypes eUnit = pPlayer->GetCompetitiveSpawnUnitType(bIncludeRanged, bIncludeShips, bIncludeRecon, bIncludeUUs, NULL, bNoResource, bMinorCivGift, bRandom, &seed, viUnitCombat);
 	lua_pushinteger(L, eUnit);
 	return 1;
+}
+
+// Vox Deorum added, allowing Lua scripts to change AI's grand strategies
+//------------------------------------------------------------------------------
+//int GetGrandStrategy();
+// Returns: grandStrategy, turnsSinceActive
+int CvLuaPlayer::lGetGrandStrategy(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	if (pkPlayer && pkPlayer->GetGrandStrategyAI())
+	{
+		AIGrandStrategyTypes eGrandStrategy = pkPlayer->GetGrandStrategyAI()->GetActiveGrandStrategy();
+		int iTurnsSinceActive = pkPlayer->GetGrandStrategyAI()->GetNumTurnsSinceActiveSet();
+		lua_pushinteger(L, (int)eGrandStrategy);
+		lua_pushinteger(L, iTurnsSinceActive);
+		return 2;
+	}
+	else
+	{
+		lua_pushinteger(L, NO_AIGRANDSTRATEGY);
+		lua_pushinteger(L, 0); // Return 0 turns if no grand strategy AI
+		return 2;
+	}
+}
+
+//------------------------------------------------------------------------------
+//void SetGrandStrategy(int eGrandStrategy);
+int CvLuaPlayer::lSetGrandStrategy(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	if (pkPlayer && pkPlayer->GetGrandStrategyAI())
+	{
+		const int iGrandStrategy = lua_tointeger(L, 2);
+		AIGrandStrategyTypes eGrandStrategy = (AIGrandStrategyTypes)iGrandStrategy;
+		// Should we refactor?
+		pkPlayer->GetGrandStrategyAI()->SetActiveGrandStrategy(eGrandStrategy);
+		pkPlayer->GetGrandStrategyAI()->SetNumTurnsSinceActiveSet(1);
+		pkPlayer->GetCitySpecializationAI()->SetSpecializationsDirty(SPECIALIZATION_UPDATE_NEW_GRAND_STRATEGY);
+
+		// Vox Deorum: Also set primary victory pursuit in diplomacy AI based on grand strategy
+		CvDiplomacyAI* pDiploAI = pkPlayer->GetDiplomacyAI();
+		if (pDiploAI)
+		{
+			// Get the grand strategy types
+			AIGrandStrategyTypes eConquest = (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CONQUEST");
+			AIGrandStrategyTypes eCulture = (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CULTURE");
+			AIGrandStrategyTypes eUnitedNations = (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_UNITED_NATIONS");
+			AIGrandStrategyTypes eSpaceship = (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_SPACESHIP");
+
+			// Map grand strategy to victory pursuit
+			VictoryPursuitTypes eNewPrimaryPursuit = NO_VICTORY_PURSUIT;
+			if (eGrandStrategy == eConquest)
+				eNewPrimaryPursuit = VICTORY_PURSUIT_DOMINATION;
+			else if (eGrandStrategy == eCulture)
+				eNewPrimaryPursuit = VICTORY_PURSUIT_CULTURE;
+			else if (eGrandStrategy == eUnitedNations)
+				eNewPrimaryPursuit = VICTORY_PURSUIT_DIPLOMACY;
+			else if (eGrandStrategy == eSpaceship)
+				eNewPrimaryPursuit = VICTORY_PURSUIT_SCIENCE;
+
+			// If we have a valid new primary pursuit
+			if (eNewPrimaryPursuit != NO_VICTORY_PURSUIT)
+			{
+				// Get current primary and secondary pursuits
+				VictoryPursuitTypes eCurrentPrimary = pDiploAI->GetPrimaryVictoryPursuit();
+				VictoryPursuitTypes eCurrentSecondary = pDiploAI->GetSecondaryVictoryPursuit();
+
+				// Only update if it's different from the current primary
+				if (eCurrentPrimary != eNewPrimaryPursuit)
+				{
+					// Set the new primary pursuit
+					pDiploAI->SetPrimaryVictoryPursuit(eNewPrimaryPursuit);
+
+					// Only set secondary if the old primary is different from the existing secondary
+					if (eCurrentSecondary != eCurrentPrimary)
+					{
+						pDiploAI->SetSecondaryVictoryPursuit(eCurrentPrimary);
+					}
+				}
+			}
+		}
+	}
+	return 0;
+}
+
+//------------------------------------------------------------------------------
+//array, array GetEconomicStrategies();
+// Returns two arrays: first with strategy IDs, second with corresponding active turns
+int CvLuaPlayer::lGetEconomicStrategies(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	lua_newtable(L); // Create the first array (strategy IDs)
+	lua_newtable(L); // Create the second array (active turns)
+	
+	if (pkPlayer && pkPlayer->GetEconomicAI())
+	{
+		int iCurrentTurn = GC.getGame().getGameTurn();
+		int iNumStrategies = pkPlayer->GetEconomicAI()->GetEconomicAIStrategies()->GetNumEconomicAIStrategies();
+		int iActiveCount = 0;
+		
+		for (int i = 0; i < iNumStrategies; i++)
+		{
+			EconomicAIStrategyTypes eStrategy = (EconomicAIStrategyTypes)i;
+			if (pkPlayer->GetEconomicAI()->IsUsingStrategy(eStrategy))
+			{
+				int iTurnAdopted = pkPlayer->GetEconomicAI()->GetTurnStrategyAdopted(eStrategy);
+				int iActiveTurns = (iTurnAdopted != -1) ? (iCurrentTurn - iTurnAdopted) : 0;
+				
+				iActiveCount++;
+				
+				// Add to strategy IDs array
+				lua_pushinteger(L, iActiveCount);
+				lua_pushinteger(L, i);
+				lua_settable(L, -4);
+				
+				// Add to active turns array
+				lua_pushinteger(L, iActiveCount);
+				lua_pushinteger(L, iActiveTurns);
+				lua_settable(L, -3);
+			}
+		}
+	}
+	
+	return 2;
+}
+
+//------------------------------------------------------------------------------
+//void SetEconomicStrategies(array enabledStrategies);
+// Takes an array of strategy IDs to enable, all others will be disabled
+int CvLuaPlayer::lSetEconomicStrategies(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	if (pkPlayer && pkPlayer->GetEconomicAI())
+	{
+		int iNumStrategies = pkPlayer->GetEconomicAI()->GetEconomicAIStrategies()->GetNumEconomicAIStrategies();
+		
+		// First, disable all strategies
+		for (int i = 0; i < iNumStrategies; i++)
+		{
+			EconomicAIStrategyTypes eStrategy = (EconomicAIStrategyTypes)i;
+			pkPlayer->GetEconomicAI()->SetUsingStrategy(eStrategy, false);
+		}
+		
+		// Check if argument is a table (array)
+		if (lua_istable(L, 2))
+		{
+			// Get array length
+			int iLen = lua_objlen(L, 2);
+			
+			// Enable strategies specified in the array
+			for (int i = 1; i <= iLen; i++)
+			{
+				lua_rawgeti(L, 2, i);
+				if (lua_isnumber(L, -1))
+				{
+					const int iStrategy = lua_tointeger(L, -1);
+					
+					// Validate strategy ID
+					if (iStrategy >= 0 && iStrategy < iNumStrategies)
+					{
+						EconomicAIStrategyTypes eStrategy = (EconomicAIStrategyTypes)iStrategy;
+						pkPlayer->GetEconomicAI()->SetUsingStrategy(eStrategy, true);
+					}
+				}
+				lua_pop(L, 1);
+			}
+		}
+	}
+	return 0;
+}
+
+//------------------------------------------------------------------------------
+//array, array GetMilitaryStrategies();
+// Returns two arrays: first with strategy IDs, second with corresponding active turns
+int CvLuaPlayer::lGetMilitaryStrategies(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	lua_newtable(L); // Create the first array (strategy IDs)
+	lua_newtable(L); // Create the second array (active turns)
+	
+	if (pkPlayer && pkPlayer->GetMilitaryAI())
+	{
+		int iCurrentTurn = GC.getGame().getGameTurn();
+		int iNumStrategies = pkPlayer->GetMilitaryAI()->GetMilitaryAIStrategies()->GetNumMilitaryAIStrategies();
+		int iActiveCount = 0;
+		
+		for (int i = 0; i < iNumStrategies; i++)
+		{
+			MilitaryAIStrategyTypes eStrategy = (MilitaryAIStrategyTypes)i;
+			if (pkPlayer->GetMilitaryAI()->IsUsingStrategy(eStrategy))
+			{
+				int iTurnAdopted = pkPlayer->GetMilitaryAI()->GetTurnStrategyAdopted(eStrategy);
+				int iActiveTurns = (iTurnAdopted != -1) ? (iCurrentTurn - iTurnAdopted) : 0;
+				
+				iActiveCount++;
+				
+				// Add to strategy IDs array
+				lua_pushinteger(L, iActiveCount);
+				lua_pushinteger(L, i);
+				lua_settable(L, -4);
+				
+				// Add to active turns array
+				lua_pushinteger(L, iActiveCount);
+				lua_pushinteger(L, iActiveTurns);
+				lua_settable(L, -3);
+			}
+		}
+	}
+	
+	return 2;
+}
+
+//------------------------------------------------------------------------------
+//void SetMilitaryStrategies(array enabledStrategies);
+// Takes an array of strategy IDs to enable, all others will be disabled
+int CvLuaPlayer::lSetMilitaryStrategies(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	if (pkPlayer && pkPlayer->GetMilitaryAI())
+	{
+		int iNumStrategies = pkPlayer->GetMilitaryAI()->GetMilitaryAIStrategies()->GetNumMilitaryAIStrategies();
+		
+		// First, disable all strategies
+		for (int i = 0; i < iNumStrategies; i++)
+		{
+			MilitaryAIStrategyTypes eStrategy = (MilitaryAIStrategyTypes)i;
+			pkPlayer->GetMilitaryAI()->SetUsingStrategy(eStrategy, false);
+		}
+		
+		// Check if argument is a table (array)
+		if (lua_istable(L, 2))
+		{
+			// Get array length
+			int iLen = lua_objlen(L, 2);
+			
+			// Enable strategies specified in the array
+			for (int i = 1; i <= iLen; i++)
+			{
+				lua_rawgeti(L, 2, i);
+				if (lua_isnumber(L, -1))
+				{
+					const int iStrategy = lua_tointeger(L, -1);
+					
+					// Validate strategy ID
+					if (iStrategy >= 0 && iStrategy < iNumStrategies)
+					{
+						MilitaryAIStrategyTypes eStrategy = (MilitaryAIStrategyTypes)iStrategy;
+						pkPlayer->GetMilitaryAI()->SetUsingStrategy(eStrategy, true);
+					}
+				}
+				lua_pop(L, 1);
+			}
+		}
+	}
+	return 0;
 }

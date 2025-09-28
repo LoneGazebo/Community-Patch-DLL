@@ -16,7 +16,7 @@ CvDllRandom::CvDllRandom(CvRandom* pRandom)
 	: m_pRandom(pRandom)
 	, m_uiRefCount(1)
 {
-	ASSERT_DEBUG(pRandom != NULL, "SHOULD NOT HAPPEN");
+	ASSERT(pRandom != NULL, "SHOULD NOT HAPPEN");
 }
 //------------------------------------------------------------------------------
 CvDllRandom::~CvDllRandom()

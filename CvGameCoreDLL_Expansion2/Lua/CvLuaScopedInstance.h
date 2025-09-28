@@ -166,10 +166,10 @@ InstanceType* CvLuaScopedInstance<Derived, InstanceType>::GetInstance(lua_State*
 #endif
 	}
 #if defined(VPDEBUG)
-	else
+	else if (bErrorOnFail  || (lua_type(L, idx) != LUA_TNIL && lua_type(L, idx) != LUA_TNONE))
 	{
 		char szWarning[256];
-		sprintf_s(szWarning, "Warning: Expected table at index %d, got %s\n",
+		sprintf_s(szWarning, "Warning: Expected table or no value at index %d, got %s\n",
 			idx, lua_typename(L, lua_type(L, idx)));
 		OutputDebugString(szWarning);
 	}

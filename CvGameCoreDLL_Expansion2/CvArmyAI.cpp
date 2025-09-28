@@ -71,8 +71,8 @@ void CvArmyAI::Reset(int iID, PlayerTypes eOwner, int iOperationID)
 /// Delete the army
 void CvArmyAI::Kill()
 {
-	ASSERT_DEBUG(GetOwner() != NO_PLAYER);
-	ASSERT_DEBUG(GetID() != -1, "GetID() is not expected to be equal with -1");
+	PRECONDITION(GetOwner() != NO_PLAYER);
+	PRECONDITION(GetID() != -1, "GetID() is not expected to be equal with -1");
 
 	ReleaseAllUnits();
 
@@ -550,7 +550,7 @@ CvPlot* CvArmyAI::GetGoalPlot() const
 /// Set target plot for army movement
 void CvArmyAI::SetGoalPlot(CvPlot* pGoalPlot)
 {
-	ASSERT_DEBUG(pGoalPlot, "Setting army goal to a NULL plot.");
+	ASSERT(pGoalPlot, "Setting army goal to a NULL plot.");
 
 	if(pGoalPlot)
 	{

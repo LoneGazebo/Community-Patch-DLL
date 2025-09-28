@@ -48,7 +48,7 @@ public:
 	template<typename T>
 	inline CvStreamSaveVisitor& operator>>(const T& value)
 	{
-		ASSERT_DEBUG(false, "CvStreamSaveVisitor is not meant for loading");
+		ASSERT(false, "CvStreamSaveVisitor is not meant for loading");
 		return *this;
 	}
 
@@ -74,13 +74,13 @@ public:
 	template<typename Dst, typename Src>
 	inline void loadAssign(Dst& dst, const Src& src)
 	{
-		ASSERT_DEBUG(false, "CvStreamSaveVisitor is not meant for loading");
+		ASSERT(false, "CvStreamSaveVisitor is not meant for loading");
 	}
 
 	template<typename T>
 	void loadIgnore()
 	{
-		ASSERT_DEBUG(false, "CvStreamSaveVisitor is not meant for loading");
+		ASSERT(false, "CvStreamSaveVisitor is not meant for loading");
 	}
 
 private:
@@ -112,7 +112,7 @@ public:
 	template<typename T>
 	inline CvStreamLoadVisitor& operator<<(const T& value)
 	{
-		ASSERT_DEBUG(false, "CvStreamLoadVisitor is not meant for saving");
+		ASSERT(false, "CvStreamLoadVisitor is not meant for saving");
 		return *this;
 	}
 
@@ -340,7 +340,7 @@ public:
 	// Call once at initialization in multiplayer
 	inline void initSyncVars(SyncVars& syncVars)
 	{
-		ASSERT_DEBUG(m_syncVarsStorage == NULL);
+		ASSERT(m_syncVarsStorage == NULL);
 		m_syncVarsStorage = &syncVars;
 	}
 	inline void destroySyncVars()

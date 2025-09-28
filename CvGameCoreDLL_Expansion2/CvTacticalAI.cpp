@@ -9466,7 +9466,7 @@ pair<int,int> CvTacticalPosition::doVisibilityUpdate(const STacticalAssignment& 
 						{
 							const vector<STacticalUnit>& units = neighborPlot.getUnitsAtPlot();
 							for (size_t j = 0; j < units.size(); j++)
-								ASSERT_DEBUG(!isCombatUnit(units[j].eMoveType));
+								ASSERT(!isCombatUnit(units[j].eMoveType));
 						}
 					}
 				}
@@ -10399,8 +10399,8 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 		GET_PLAYER(ePlayer).GetTacticalAI()->LogTacticalMessage(strMsg);
 
 		// Assertions for critical conditions
-		ASSERT_DEBUG(iMaxBranches >= 2 && iMaxBranches <= 9 && "Invalid branch count");
-		ASSERT_DEBUG(iMaxChoicesPerUnit >= 2 && iMaxChoicesPerUnit <= 9 && "Invalid choices per unit");
+		ASSERT(iMaxBranches >= 2 && iMaxBranches <= 9 && "Invalid branch count");
+		ASSERT(iMaxChoicesPerUnit >= 2 && iMaxChoicesPerUnit <= 9 && "Invalid choices per unit");
 	}
 #endif
 

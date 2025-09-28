@@ -238,7 +238,7 @@ void CvStartPositioner::AssignStartingLocations()
 		}
 	}
 
-	ASSERT_DEBUG(iPlayersPlaced == iMajorCivs, "AssignStartingLocations() can't find enough starting locations for major civs");
+	ASSERT(iPlayersPlaced == iMajorCivs, "AssignStartingLocations() can't find enough starting locations for major civs");
 
 	// MINOR CIVS
 	m_iRequiredSeparation = StartingPlotRange();
@@ -369,7 +369,7 @@ void CvStartPositioner::ComputeTileFertilityValues()
 		{
 			// Add to total for area
 			CvArea* pArea = GC.getMap().getAreaById(pLoopPlot->getArea());
-			ASSERT_DEBUG(pArea);
+			ASSERT(pArea);
 			if(!pArea) 
 				continue;
 			pArea->setTotalFoundValue(pArea->getTotalFoundValue() + iFertility);
@@ -493,7 +493,7 @@ void CvStartPositioner::SubdivideRegion(CvStartRegion region, int iNumDivisions)
 			iLaterSubdivisions = 8;
 			break;
 		default:
-			ASSERT_DEBUG(false, "Trying to create regions for more than 18 major civs.");
+			ASSERT(false, "Trying to create regions for more than 18 major civs.");
 		}
 #endif
 		// CUSTOMLOG(" divide now %i, divide later %i", iNumDivides, iLaterSubdivisions);
@@ -520,9 +520,9 @@ void CvStartPositioner::SubdivideRegion(CvStartRegion region, int iNumDivisions)
 /// Performs the mechanics of dividing a region into two equal fertility subregions
 void CvStartPositioner::ChopIntoTwoRegions(bool bTaller, CvStartRegion* region, CvStartRegion* secondRegion, int iChopPercent)
 {
-	ASSERT_DEBUG(region);
+	ASSERT(region);
 	if(!region) return;
-	ASSERT_DEBUG(secondRegion);
+	ASSERT(secondRegion);
 	if(!secondRegion) return;
 
 	int uiTargetFertility = 0;
@@ -588,11 +588,11 @@ void CvStartPositioner::ChopIntoTwoRegions(bool bTaller, CvStartRegion* region, 
 /// Performs the mechanics of dividing a region into three equal fertility subregions
 void CvStartPositioner::ChopIntoThreeRegions(bool bTaller, CvStartRegion* region, CvStartRegion* secondRegion, CvStartRegion* thirdRegion)
 {
-	ASSERT_DEBUG(region);
+	ASSERT(region);
 	if(!region) return;
-	ASSERT_DEBUG(secondRegion);
+	ASSERT(secondRegion);
 	if(!secondRegion) return;
-	ASSERT_DEBUG(thirdRegion);
+	ASSERT(thirdRegion);
 	if(!thirdRegion) return;
 
 	// Chop off the first third
@@ -729,7 +729,7 @@ bool PlotTooCloseToAnotherCiv(CvPlot* pPlot, int iRequiredSeparation)
 {
 	bool rtnValue = false;
 
-	ASSERT_DEBUG(pPlot);
+	ASSERT(pPlot);
 	if(!pPlot)
 		return rtnValue;
 
@@ -772,7 +772,7 @@ bool PlotMeetsFoodRequirement(CvPlot* pPlot, PlayerTypes ePlayer, int iFoodRequi
 {
 	bool bFoundFoodPlot = false;
 
-	ASSERT_DEBUG(pPlot);
+	ASSERT(pPlot);
 	if(!pPlot)
 		return bFoundFoodPlot;
 

@@ -7,12 +7,14 @@
 --- @alias PlotId integer
 --- @alias TeamId integer
 --- @alias UnitId integer
+--- @alias GreatWorkId integer
 
 --- Below refer to the database row IDs
 --- @alias UnitType integer
 --- @alias TechType integer
 --- @alias YieldType integer
 --- @alias BuildingType integer
+--- @alias BuildingClassType integer
 --- @alias PlotType integer
 --- @alias ResourceType integer
 --- @alias TerrainType integer
@@ -28,6 +30,11 @@
 --- @alias BeliefType integer
 --- @alias ReligionType integer
 --- @alias PolicyType integer
+--- @alias ProjectType integer
+--- @alias ProcessType integer
+--- @alias GreatWorkType integer
+--- @alias SpecialistType integer
+--- @alias GreatPersonType integer
 
 --- Pseudo tables
 

@@ -15,7 +15,7 @@ CvDllMinorCivInfo::CvDllMinorCivInfo(CvMinorCivInfo* pMinorCivInfo)
 	: m_pMinorCivInfo(pMinorCivInfo)
 	, m_uiRefCount(1)
 {
-	ASSERT_DEBUG(pMinorCivInfo != NULL, "SHOULD NOT HAPPEN");
+	ASSERT(pMinorCivInfo != NULL, "SHOULD NOT HAPPEN");
 }
 //------------------------------------------------------------------------------
 CvDllMinorCivInfo::~CvDllMinorCivInfo()

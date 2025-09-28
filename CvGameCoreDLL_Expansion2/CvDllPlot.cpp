@@ -16,7 +16,7 @@ CvDllPlot::CvDllPlot(CvPlot* pPlot)
 	: m_pPlot(pPlot)
 	, m_uiRefCount(1)
 {
-	ASSERT_DEBUG(pPlot != NULL, "SHOULD NOT HAPPEN");
+	ASSERT(pPlot != NULL, "SHOULD NOT HAPPEN");
 }
 //------------------------------------------------------------------------------
 CvDllPlot::~CvDllPlot()

@@ -838,7 +838,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 
 	//This may need to be deferred to a routine that is called AFTER pre-fetch has been called for all infos.
 	m_pkBuildingClassInfo = GC.getBuildingClassInfo(static_cast<BuildingClassTypes>(m_iBuildingClassType));
-	ASSERT_DEBUG(m_pkBuildingClassInfo, "Could not find BuildingClassInfo for BuildingType. Have BuildingClasses been prefetched yet?");
+	ASSERT(m_pkBuildingClassInfo, "Could not find BuildingClassInfo for BuildingType. Have BuildingClasses been prefetched yet?");
 
 	szTextVal = kResults.GetText("ArtDefineTag");
 	SetArtDefineTag(szTextVal);
@@ -1970,7 +1970,7 @@ const CvBuildingClassInfo& CvBuildingEntry::GetBuildingClassInfo() const
 	{
 		const char* szError = "ERROR: Building does not contain valid BuildingClass type!!";
 		GC.LogMessage(szError);
-		ASSERT_DEBUG(false, szError);
+		ASSERT(false, szError);
 		return emptyResult;
 	}
 	else
@@ -3027,8 +3027,8 @@ bool CvBuildingEntry::IsSecondaryPantheon() const
 /// Change to Great Work yield by type
 int CvBuildingEntry::GetGreatWorkYieldChange(int i) const
 {
-	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piGreatWorkYieldChange ? m_piGreatWorkYieldChange[i] : -1;
 }
 /// Array of yield changes to Great Works
@@ -3040,8 +3040,8 @@ int* CvBuildingEntry::GetGreatWorkYieldChangeArray() const
 /// Change to Great Work yield by type
 int CvBuildingEntry::GetGreatWorkYieldChangeLocal(int i) const
 {
-	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piGreatWorkYieldChangeLocal ? m_piGreatWorkYieldChangeLocal[i] : -1;
 }
 /// Array of yield changes to Great Works
@@ -3420,8 +3420,8 @@ int CvBuildingEntry::GetBasePressureModGlobal() const
 /// Change to yield by type
 int CvBuildingEntry::GetGrowthExtraYield(int i) const
 {
-	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piGrowthExtraYield ? m_piGrowthExtraYield[i] : -1;
 }
 
@@ -3441,8 +3441,8 @@ int CvBuildingEntry::GetNeedBuildingThisCity() const
 /// Change to yield by type if unit defeated in battle
 int CvBuildingEntry::GetYieldFromDeath(int i) const
 {
-	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piYieldFromDeath ? m_piYieldFromDeath[i] : -1;
 }
 /// Array of yield changes
@@ -3454,8 +3454,8 @@ int* CvBuildingEntry::GetYieldFromDeathArray() const
 /// Change to yield if victorious in battle.
 int CvBuildingEntry::GetYieldFromVictory(int i) const
 {
-	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piYieldFromVictory ? m_piYieldFromVictory[i] : -1;
 }
 /// Array of yield changes
@@ -3467,8 +3467,8 @@ int* CvBuildingEntry::GetYieldFromVictoryArray() const
 /// Change to yield if victorious in battle.
 int CvBuildingEntry::GetYieldFromVictoryGlobal(int i) const
 {
-	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piYieldFromVictoryGlobal ? m_piYieldFromVictoryGlobal[i] : -1;
 }
 /// Array of yield changes
@@ -3480,8 +3480,8 @@ int* CvBuildingEntry::GetYieldFromVictoryGlobalArray() const
 /// Change to yield if victorious in battle, scaling with era.
 int CvBuildingEntry::GetYieldFromVictoryGlobalEraScaling(int i) const
 {
-	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piYieldFromVictoryGlobalEraScaling ? m_piYieldFromVictoryGlobalEraScaling[i] : -1;
 }
 /// Array of yield changes
@@ -3493,8 +3493,8 @@ int* CvBuildingEntry::GetYieldFromVictoryGlobalEraScalingArray() const
 /// Change to yield if victorious in battle while in a golden age
 int CvBuildingEntry::GetYieldFromVictoryGlobalInGoldenAge(int i) const
 {
-	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piYieldFromVictoryGlobalInGoldenAge ? m_piYieldFromVictoryGlobalInGoldenAge[i] : -1;
 }
 /// Array of yield changes
@@ -3506,8 +3506,8 @@ int* CvBuildingEntry::GetYieldFromVictoryGlobalInGoldenAgeArray() const
 /// Change to yield if victorious in battle while in a golden age, scaling with era.
 int CvBuildingEntry::GetYieldFromVictoryGlobalInGoldenAgeEraScaling(int i) const
 {
-	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piYieldFromVictoryGlobalInGoldenAgeEraScaling ? m_piYieldFromVictoryGlobalInGoldenAgeEraScaling[i] : -1;
 }
 /// Array of yield changes
@@ -3521,8 +3521,8 @@ int* CvBuildingEntry::GetYieldFromVictoryGlobalInGoldenAgeEraScalingArray() cons
 /// Change to yield if victorious in battle.
 int CvBuildingEntry::GetYieldFromVictoryGlobalPlayer(int i) const
 {
-	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piYieldFromVictoryGlobalPlayer ? m_piYieldFromVictoryGlobalPlayer[i] : -1;
 }
 /// Array of yield changes
@@ -3534,8 +3534,8 @@ int* CvBuildingEntry::GetYieldFromVictoryGlobalPlayerArray() const
 /// Change to yield if pillaging
 int CvBuildingEntry::GetYieldFromPillage(int i) const
 {
-	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piYieldFromPillage ? m_piYieldFromPillage[i] : -1;
 }
 /// Array of yield changes
@@ -3547,8 +3547,8 @@ int* CvBuildingEntry::GetYieldFromPillageArray() const
 /// Change to yield if pillaging
 int CvBuildingEntry::GetYieldFromPillageGlobal(int i) const
 {
-	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piYieldFromPillageGlobal ? m_piYieldFromPillageGlobal[i] : -1;
 }
 /// Array of yield changes
@@ -3560,8 +3560,8 @@ int* CvBuildingEntry::GetYieldFromPillageGlobalArray() const
 /// Change to yield if pillaging
 int CvBuildingEntry::GetYieldFromPillageGlobalPlayer(int i) const
 {
-	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piYieldFromPillageGlobalPlayer ? m_piYieldFromPillageGlobalPlayer[i] : -1;
 }
 /// Array of yield changes
@@ -3574,8 +3574,8 @@ int* CvBuildingEntry::GetYieldFromPillageGlobalPlayerArray() const
 /// Instant yield when starting a golden age
 int CvBuildingEntry::GetYieldFromGoldenAgeStart(int i) const
 {
-	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piYieldFromGoldenAgeStart ? m_piYieldFromGoldenAgeStart[i] : -1;
 }
 /// Array of yield changes
@@ -3587,8 +3587,8 @@ int* CvBuildingEntry::GetYieldFromGoldenAgeStartArray() const
 /// Yields permamently added whenever a golden age starts
 int CvBuildingEntry::GetYieldChangePerGoldenAge(int i) const
 {
-	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piYieldChangePerGoldenAge ? m_piYieldChangePerGoldenAge[i] : -1;
 }
 /// Array of yield changes
@@ -3600,8 +3600,8 @@ int* CvBuildingEntry::GetYieldChangePerGoldenAgeArray() const
 /// cap to the values in GetYieldChangesPerGoldenAge
 int CvBuildingEntry::GetYieldChangePerGoldenAgeCap(int i) const
 {
-	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piYieldChangePerGoldenAgeCap ? m_piYieldChangePerGoldenAgeCap[i] : -1;
 }
 /// Array of yield changes
@@ -3613,24 +3613,24 @@ int* CvBuildingEntry::GetYieldChangePerGoldenAgeCapArray() const
 /// Change to yield during golden ages
 int CvBuildingEntry::GetYieldChangesPerLocalTheme(int i) const
 {
-	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piYieldChangesPerLocalTheme ? m_piYieldChangesPerLocalTheme[i] : -1;
 }
 
 /// Instant yields from gifting a unit
 int CvBuildingEntry::GetYieldFromUnitGiftGlobal(int i) const
 {
-	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piYieldFromUnitGiftGlobal ? m_piYieldFromUnitGiftGlobal[i] : -1;
 }
 
 /// Change to yield during golden ages
 int CvBuildingEntry::GetGoldenAgeYieldMod(int i) const
 {
-	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piGoldenAgeYieldMod ? m_piGoldenAgeYieldMod[i] : -1;
 }
 /// Array of yield changes
@@ -3642,16 +3642,16 @@ int* CvBuildingEntry::GetGoldenAgeYieldModArray() const
 /// Instant yield when WLTKD starts
 int CvBuildingEntry::GetInstantYieldFromWLTKDStart(int i) const
 {
-	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piInstantYieldFromWLTKDStart[i];
 }
 
 /// Change to yield during WLTKD
 int CvBuildingEntry::GetYieldFromWLTKD(int i) const
 {
-	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piYieldFromWLTKD ? m_piYieldFromWLTKD[i] : -1;
 }
 /// Array of yield changes
@@ -3663,8 +3663,8 @@ int* CvBuildingEntry::GetYieldFromWLTKDArray() const
 /// Free Yield from GP Expend
 int CvBuildingEntry::GetYieldFromGPExpend(int i) const
 {
-	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piYieldFromGPExpend ? m_piYieldFromGPExpend[i] : -1;
 }
 /// Array of yield changes
@@ -3675,8 +3675,8 @@ int* CvBuildingEntry::GetYieldFromGPExpendArray() const
 /// Free Yield from Tech unlocked
 int CvBuildingEntry::GetYieldFromTech(int i) const
 {
-	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piYieldFromTech ? m_piYieldFromTech[i] : -1;
 }
 /// Array of yield changes
@@ -3687,8 +3687,8 @@ int* CvBuildingEntry::GetYieldFromTechArray() const
 /// Does this Policy grant yields from constructing buildings?
 int CvBuildingEntry::GetYieldFromConstruction(int i) const
 {
-	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piYieldFromConstruction[i];
 }
 /// Array of yield changes
@@ -3699,8 +3699,8 @@ int* CvBuildingEntry::GetYieldFromConstructionArray() const
 
 int CvBuildingEntry::GetYieldFromBirth(int i) const
 {
-	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piYieldFromBirth[i];
 }
 /// Array of yield changes
@@ -3710,8 +3710,8 @@ int* CvBuildingEntry::GetYieldFromBirthArray() const
 }
 int CvBuildingEntry::GetYieldFromBirthEraScaling(int i) const
 {
-	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piYieldFromBirthEraScaling[i];
 }
 /// Array of yield changes
@@ -3721,8 +3721,8 @@ int* CvBuildingEntry::GetYieldFromBirthEraScalingArray() const
 }
 int CvBuildingEntry::GetYieldFromBirthRetroactive(int i) const
 {
-	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piYieldFromBirthRetroactive[i];
 }
 /// Array of yield changes
@@ -3732,8 +3732,8 @@ int* CvBuildingEntry::GetYieldFromBirthRetroactiveArray() const
 }
 int CvBuildingEntry::GetYieldFromUnitProduction(int i) const
 {
-	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piYieldFromUnitProduction[i];
 }
 /// Array of yield changes
@@ -3744,8 +3744,8 @@ int* CvBuildingEntry::GetYieldFromUnitProductionArray() const
 
 int CvBuildingEntry::GetYieldFromBorderGrowth(int i) const
 {
-	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piYieldFromBorderGrowth[i];
 }
 /// Array of yield changes
@@ -3756,8 +3756,8 @@ int* CvBuildingEntry::GetYieldFromBorderGrowthArray() const
 
 int CvBuildingEntry::GetYieldFromPolicyUnlock(int i) const
 {
-	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piYieldFromPolicyUnlock[i];
 }
 /// Array of yield changes
@@ -3768,8 +3768,8 @@ int* CvBuildingEntry::GetYieldFromPolicyUnlockArray() const
 
 int CvBuildingEntry::GetYieldFromUnitLevelUp(int i) const
 {
-	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piYieldFromUnitLevelUp[i];
 }
 /// Array of yield changes
@@ -3780,8 +3780,8 @@ int* CvBuildingEntry::GetYieldFromUnitLevelUpArray() const
 
 int CvBuildingEntry::GetYieldFromCombatExperienceTimes100(int i) const
 {
-	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piYieldFromCombatExperienceTimes100[i];
 }
 /// Array of yield changes
@@ -3793,8 +3793,8 @@ int* CvBuildingEntry::GetYieldFromCombatExperienceTimes100Array() const
 
 int CvBuildingEntry::GetYieldFromPurchase(int i) const
 {
-	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piYieldFromPurchase[i];
 }
 /// Array of yield changes
@@ -3805,8 +3805,8 @@ int* CvBuildingEntry::GetYieldFromPurchaseArray() const
 
 int CvBuildingEntry::GetYieldFromPurchaseGlobal(int i) const
 {
-	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piYieldFromPurchaseGlobal[i];
 }
 /// Array of yield changes
@@ -3817,8 +3817,8 @@ int* CvBuildingEntry::GetYieldFromPurchaseGlobalArray() const
 
 int CvBuildingEntry::GetYieldFromFaithPurchase(int i) const
 {
-	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piYieldFromFaithPurchase[i];
 }
 /// Array of yield changes
@@ -3829,24 +3829,24 @@ int* CvBuildingEntry::GetYieldFromFaithPurchaseArray() const
 
 int CvBuildingEntry::GetYieldFromUnitLevelUpGlobal(int i) const
 {
-	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piYieldFromUnitLevelUpGlobal[i];
 }
 
 /// Instant yield granted when an international trade route ends
 int CvBuildingEntry::GetYieldFromInternationalTREnd(int i) const
 {
-	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piYieldFromInternationalTREnd[i];
 }
 
 /// Instant yield granted when an international trade route ends
 int CvBuildingEntry::GetYieldFromInternalTREnd(int i) const
 {
-	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piYieldFromInternalTREnd[i];
 }
 /// Array of yield changes
@@ -3859,8 +3859,8 @@ int* CvBuildingEntry::GetYieldFromInternalTREndArray() const
 /// Does this Policy grant yields from constructing buildings?
 int CvBuildingEntry::GetYieldFromInternal(int i) const
 {
-	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piYieldFromInternal[i];
 }
 /// Array of yield changes
@@ -3873,24 +3873,24 @@ int* CvBuildingEntry::GetYieldFromInternalArray() const
 /// Does this Building grant yields when a b'ak'tun ends?
 int CvBuildingEntry::GetYieldFromLongCount(int i) const
 {
-	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piYieldFromLongCount[i];
 }
 
 /// Does this Building grant yields when a Great Writer is born?
 int CvBuildingEntry::GetYieldFromGPBirthScaledWithWriterBulb(int i) const
 {
-	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piYieldFromGPBirthScaledWithWriterBulb[i];
 }
 
 /// Does this Building grant yields when a Great Artist is born?
 int CvBuildingEntry::GetYieldFromGPBirthScaledWithArtistBulb(int i) const
 {
-	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piYieldFromGPBirthScaledWithArtistBulb[i];
 }
 
@@ -3904,12 +3904,12 @@ map<GreatPersonTypes, map<pair<YieldTypes, YieldTypes>, int>> CvBuildingEntry::G
 int CvBuildingEntry::GetYieldFromGPBirthScaledWithPerTurnYield(GreatPersonTypes eGreatPerson, YieldTypes eYieldIn, YieldTypes eYieldOut) const
 {
 	VALIDATE_OBJECT();
-	ASSERT_DEBUG(eGreatPerson >= 0, "eYieldIn expected to be >= 0");
-	ASSERT_DEBUG(eGreatPerson < GC.getNumGreatPersonInfos(), "eYieldIn expected to be < getNumGreatPersonInfos()");
-	ASSERT_DEBUG(eYieldIn >= 0, "eYieldIn expected to be >= 0");
-	ASSERT_DEBUG(eYieldIn < NUM_YIELD_TYPES, "eYieldIn expected to be < NUM_YIELD_TYPES");
-	ASSERT_DEBUG(eYieldOut >= 0, "eYieldOut expected to be >= 0");
-	ASSERT_DEBUG(eYieldOut < NUM_YIELD_TYPES, "eYieldOut expected to be < NUM_YIELD_TYPES");
+	PRECONDITION(eGreatPerson >= 0, "eYieldIn expected to be >= 0");
+	PRECONDITION(eGreatPerson < GC.getNumGreatPersonInfos(), "eYieldIn expected to be < getNumGreatPersonInfos()");
+	PRECONDITION(eYieldIn >= 0, "eYieldIn expected to be >= 0");
+	PRECONDITION(eYieldIn < NUM_YIELD_TYPES, "eYieldIn expected to be < NUM_YIELD_TYPES");
+	PRECONDITION(eYieldOut >= 0, "eYieldOut expected to be >= 0");
+	PRECONDITION(eYieldOut < NUM_YIELD_TYPES, "eYieldOut expected to be < NUM_YIELD_TYPES");
 
 	map<GreatPersonTypes, map<std::pair<YieldTypes, YieldTypes>, int>>::const_iterator it = m_miYieldFromGPBirthScaledWithPerTurnYield.find(eGreatPerson);
 	if (it != m_miYieldFromGPBirthScaledWithPerTurnYield.end()) // find returns the iterator to map::end if the key i is not present in the map
@@ -3928,8 +3928,8 @@ int CvBuildingEntry::GetYieldFromGPBirthScaledWithPerTurnYield(GreatPersonTypes 
 /// Does this Building grant yields from constructing buildings?
 int CvBuildingEntry::GetYieldFromProcessModifier(int i) const
 {
-	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piYieldFromProcessModifier[i];
 }
 /// Array of yield changes
@@ -3941,8 +3941,8 @@ int* CvBuildingEntry::GetYieldFromProcessModifierArray() const
 /// Array of yield changes
 int CvBuildingEntry::GetThemingYieldBonus(int i) const
 {
-	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piThemingYieldBonus ? m_piThemingYieldBonus[i] : -1;
 }
 /// Array of yield changes
@@ -3954,8 +3954,8 @@ int* CvBuildingEntry::GetThemingYieldBonusArray() const
 /// Array of yield changes
 int CvBuildingEntry::GetYieldFromSpyAttack(int i) const
 {
-	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piYieldFromSpyAttack ? m_piYieldFromSpyAttack[i] : -1;
 }
 /// Array of yield changes
@@ -3967,8 +3967,8 @@ int* CvBuildingEntry::GetYieldFromSpyAttackArray() const
 /// Array of yield changes
 int CvBuildingEntry::GetYieldFromSpyDefense(int i) const
 {
-	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piYieldFromSpyDefense ? m_piYieldFromSpyDefense[i] : -1;
 }
 /// Array of yield changes
@@ -3980,8 +3980,8 @@ int* CvBuildingEntry::GetYieldFromSpyDefenseArray() const
 /// Array of yield changes
 int CvBuildingEntry::GetYieldFromSpyIdentify(int i) const
 {
-	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piYieldFromSpyIdentify ? m_piYieldFromSpyIdentify[i] : -1;
 }
 /// Array of yield changes
@@ -3993,8 +3993,8 @@ int* CvBuildingEntry::GetYieldFromSpyIdentifyArray() const
 /// Array of yield changes
 int CvBuildingEntry::GetYieldFromSpyDefenseOrID(int i) const
 {
-	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piYieldFromSpyDefenseOrID ? m_piYieldFromSpyDefenseOrID[i] : -1;
 }
 /// Array of yield changes
@@ -4005,16 +4005,16 @@ int* CvBuildingEntry::GetYieldFromSpyDefenseOrIDArray() const
 
 int CvBuildingEntry::GetYieldChangesPerCityStrengthTimes100(int i) const
 {
-	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piYieldChangesPerCityStrengthTimes100 ? m_piYieldChangesPerCityStrengthTimes100[i] : -1;
 }
 
 /// Array of yield changes
 int CvBuildingEntry::GetYieldFromSpyRigElection(int i) const
 {
-	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piYieldFromSpyRigElection ? m_piYieldFromSpyRigElection[i] : -1;
 }
 
@@ -4028,8 +4028,8 @@ int* CvBuildingEntry::GetYieldFromSpyRigElectionArray() const
 /// Change to yield by type
 int CvBuildingEntry::GetYieldChange(int i) const
 {
-	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piYieldChange ? m_piYieldChange[i] : -1;
 }
 
@@ -4058,24 +4058,24 @@ fraction CvBuildingEntry::GetYieldChangePerBuilding(int i) const
 /// Change to yield per turn per city tile
 fraction CvBuildingEntry::GetYieldChangePerTile(int i) const
 {
-	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_pfYieldChangePerTile[i];
 }
 
 /// Change to yield per turn per strategic resource from city-states
 fraction CvBuildingEntry::GetYieldChangePerCityStateStrategicResource(int i) const
 {
-	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_pfYieldChangePerCityStateStrategicResource[i];
 }
 
 /// Change to yield by type
 int CvBuildingEntry::GetYieldChangePerPop(int i) const
 {
-	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piYieldChangePerPop ? m_piYieldChangePerPop[i] : -1;
 }
 
@@ -4088,8 +4088,8 @@ int* CvBuildingEntry::GetYieldChangePerPopArray() const
 /// Change to yield by type
 int CvBuildingEntry::GetYieldChangePerPopInEmpire(int i) const
 {
-	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 
 	std::map<int, int>::const_iterator it = m_piYieldChangePerPopInEmpire.find(i);
 	if (it != m_piYieldChangePerPopInEmpire.end()) // find returns the iterator to map::end if the key i is not present in the map
@@ -4108,8 +4108,8 @@ std::map<int, int> CvBuildingEntry::GetExtraPlayerInstancesFromAccomplishments()
 /// Change to yield by type
 int CvBuildingEntry::GetYieldChangePerReligion(int i) const
 {
-	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piYieldChangePerReligion ? m_piYieldChangePerReligion[i] : -1;
 }
 
@@ -4137,8 +4137,8 @@ map<ProjectTypes, int> CvBuildingEntry::GetWLTKDFromProject() const
 /// Modifier to yield by type
 int CvBuildingEntry::GetYieldModifier(int i) const
 {
-	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piYieldModifier ? m_piYieldModifier[i] : -1;
 }
 
@@ -4151,8 +4151,8 @@ int* CvBuildingEntry::GetYieldModifierArray() const
 /// Modifier to yield by type in area
 int CvBuildingEntry::GetAreaYieldModifier(int i) const
 {
-	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piAreaYieldModifier ? m_piAreaYieldModifier[i] : -1;
 }
 
@@ -4165,8 +4165,8 @@ int* CvBuildingEntry::GetAreaYieldModifierArray() const
 /// Global modifier to yield by type
 int CvBuildingEntry::GetGlobalYieldModifier(int i) const
 {
-	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piGlobalYieldModifier ? m_piGlobalYieldModifier[i] : -1;
 }
 
@@ -4179,8 +4179,8 @@ int* CvBuildingEntry::GetGlobalYieldModifierArray() const
 /// Sea plot yield changes by type
 int CvBuildingEntry::GetSeaPlotYieldChange(int i) const
 {
-	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piSeaPlotYieldChange ? m_piSeaPlotYieldChange[i] : -1;
 }
 
@@ -4193,8 +4193,8 @@ int* CvBuildingEntry::GetSeaPlotYieldChangeArray() const
 /// River plot yield changes by type
 int CvBuildingEntry::GetRiverPlotYieldChange(int i) const
 {
-	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piRiverPlotYieldChange ? m_piRiverPlotYieldChange[i] : -1;
 }
 
@@ -4207,8 +4207,8 @@ int* CvBuildingEntry::GetRiverPlotYieldChangeArray() const
 /// Lake plot yield changes by type
 int CvBuildingEntry::GetLakePlotYieldChange(int i) const
 {
-	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piLakePlotYieldChange ? m_piLakePlotYieldChange[i] : -1;
 }
 
@@ -4221,8 +4221,8 @@ int* CvBuildingEntry::GetLakePlotYieldChangeArray() const
 /// Global lake plot yield changes by type
 int CvBuildingEntry::GetLakePlotYieldChangeGlobal(int i) const
 {
-	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piLakePlotYieldChangeGlobal ? m_piLakePlotYieldChangeGlobal[i] : -1;
 }
 
@@ -4235,8 +4235,8 @@ int* CvBuildingEntry::GetLakePlotYieldChangeGlobalArray() const
 /// Sea resource yield changes by type
 int CvBuildingEntry::GetSeaResourceYieldChange(int i) const
 {
-	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piSeaResourceYieldChange ? m_piSeaResourceYieldChange[i] : -1;
 }
 
@@ -4249,55 +4249,55 @@ int* CvBuildingEntry::GetSeaResourceYieldChangeArray() const
 /// Free combat experience by unit combat type
 int CvBuildingEntry::GetUnitCombatFreeExperience(int i) const
 {
-	ASSERT_DEBUG(i < GC.getNumUnitCombatClassInfos(), "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumUnitCombatClassInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piUnitCombatFreeExperience ? m_piUnitCombatFreeExperience[i] : -1;
 }
 
 /// Extra Production towards a unit combat type in this city
 int CvBuildingEntry::GetUnitCombatProductionModifier(int i) const
 {
-	ASSERT_DEBUG(i < GC.getNumUnitCombatClassInfos(), "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumUnitCombatClassInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piUnitCombatProductionModifiers ? m_piUnitCombatProductionModifiers[i] : -1;
 }
 
 /// Extra Production towards a unit combat type in all cities
 int CvBuildingEntry::GetUnitCombatProductionModifierGlobal(int i) const
 {
-	ASSERT_DEBUG(i < GC.getNumUnitCombatClassInfos(), "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumUnitCombatClassInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piUnitCombatProductionModifiersGlobal ? m_piUnitCombatProductionModifiersGlobal[i] : -1;
 }
 
 /// Free experience gained for units in this domain
 int CvBuildingEntry::GetDomainFreeExperience(int i) const
 {
-	ASSERT_DEBUG(i < NUM_DOMAIN_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_DOMAIN_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piDomainFreeExperience ? m_piDomainFreeExperience[i] : -1;
 }
 
 /// Free experience gained for units in this domain for each Great Work in this building
 int CvBuildingEntry::GetDomainFreeExperiencePerGreatWork(int i) const
 {
-	ASSERT_DEBUG(i < NUM_DOMAIN_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_DOMAIN_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piDomainFreeExperiencePerGreatWork ? m_piDomainFreeExperiencePerGreatWork[i] : -1;
 }
 /// Free experience gained for units in this domain for each Great Work in this building
 int CvBuildingEntry::GetDomainFreeExperiencePerGreatWorkGlobal(int i) const
 {
-	ASSERT_DEBUG(i < NUM_DOMAIN_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_DOMAIN_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piDomainFreeExperiencePerGreatWorkGlobal ? m_piDomainFreeExperiencePerGreatWorkGlobal[i] : -1;
 }
 
 /// Free experience gained for units in this domain (global)
 int CvBuildingEntry::GetDomainFreeExperienceGlobal(int i) const
 {
-	ASSERT_DEBUG(i < NUM_DOMAIN_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_DOMAIN_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	
 	std::map<int, int>::const_iterator it = m_piDomainFreeExperienceGlobal.find(i);
 	if (it != m_piDomainFreeExperienceGlobal.end()) // find returns the iterator to map::end if the key i is not present in the map
@@ -4311,80 +4311,80 @@ int CvBuildingEntry::GetDomainFreeExperienceGlobal(int i) const
 /// Production modifier in this domain
 int CvBuildingEntry::GetDomainProductionModifier(int i) const
 {
-	ASSERT_DEBUG(i < NUM_DOMAIN_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_DOMAIN_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piDomainProductionModifier ? m_piDomainProductionModifier[i] : -1;
 }
 
 /// BuildingClasses that block the construction of this Building if built in a City
 int CvBuildingEntry::GetLockedBuildingClasses(int i) const
 {
-	ASSERT_DEBUG(i < GC.getNumBuildingClassInfos(), "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumBuildingClassInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piLockedBuildingClasses ? m_piLockedBuildingClasses[i] : -1;
 }
 
 /// Prerequisite techs with AND
 int CvBuildingEntry::GetPrereqAndTechs(int i) const
 {
-	ASSERT_DEBUG(i < /*3*/ GD_INT_GET(NUM_BUILDING_AND_TECH_PREREQS), "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < /*3*/ GD_INT_GET(NUM_BUILDING_AND_TECH_PREREQS), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piPrereqAndTechs ? m_piPrereqAndTechs[i] : -1;
 }
 
 /// Resources consumed to construct
 int CvBuildingEntry::GetResourceQuantityRequirement(int i) const
 {
-	ASSERT_DEBUG(i < GC.getNumResourceInfos(), "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumResourceInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piResourceQuantityRequirements ? m_piResourceQuantityRequirements[i] : -1;
 }
 
 /// Resources provided once constructed
 int CvBuildingEntry::GetResourceQuantity(int i) const
 {
-	ASSERT_DEBUG(i < GC.getNumResourceInfos(), "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumResourceInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piResourceQuantity ? m_piResourceQuantity[i] : -1;
 }
 
 /// Boost in Culture for each of these Resources
 int CvBuildingEntry::GetResourceCultureChange(int i) const
 {
-	ASSERT_DEBUG(i < GC.getNumResourceInfos(), "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumResourceInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piResourceCultureChanges ? m_piResourceCultureChanges[i] : -1;
 }
 
 /// Boost in Faith for each of these Resources
 int CvBuildingEntry::GetResourceFaithChange(int i) const
 {
-	ASSERT_DEBUG(i < GC.getNumResourceInfos(), "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumResourceInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piResourceFaithChanges ? m_piResourceFaithChanges[i] : -1;
 }
 
 /// Boost in production for leader with this trait
 int CvBuildingEntry::GetProductionTraits(int i) const
 {
-	ASSERT_DEBUG(i < GC.getNumTraitInfos(), "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumTraitInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piProductionTraits ? m_piProductionTraits[i] : 0;
 }
 
 /// Number of prerequisite buildings of a particular class
 int CvBuildingEntry::GetPrereqNumOfBuildingClass(int i) const
 {
-	ASSERT_DEBUG(i < GC.getNumBuildingClassInfos(), "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumBuildingClassInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piPrereqNumOfBuildingClass ? m_piPrereqNumOfBuildingClass[i] : -1;
 }
 
 /// Find value of flavors associated with this building
 int CvBuildingEntry::GetFlavorValue(int i) const
 {
-	ASSERT_DEBUG(i < GC.getNumFlavorTypes(), "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumFlavorTypes(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piFlavorValue ? m_piFlavorValue[i] : 0;
 }
 
@@ -4395,7 +4395,7 @@ uint CvBuildingEntry::GetLocalResourceAndSize() const
 }
 int CvBuildingEntry::GetLocalResourceAnd(uint ui) const
 {
-	ASSERT_DEBUG(ui < m_viLocalResourceAnds.size(), "Index out of bounds");
+	PRECONDITION(ui < m_viLocalResourceAnds.size(), "Index out of bounds");
 	return m_viLocalResourceAnds[ui];
 }
 
@@ -4406,7 +4406,7 @@ uint CvBuildingEntry::GetLocalResourceOrSize() const
 }
 int CvBuildingEntry::GetLocalResourceOr(uint ui) const
 {
-	ASSERT_DEBUG(ui < m_viLocalResourceOrs.size(), "Index out of bounds");
+	PRECONDITION(ui < m_viLocalResourceOrs.size(), "Index out of bounds");
 	return m_viLocalResourceOrs[ui];
 }
 
@@ -4414,15 +4414,15 @@ int CvBuildingEntry::GetLocalResourceOr(uint ui) const
 /// Prerequisite resources with AND
 int CvBuildingEntry::GetFeatureAnd(int i) const
 {
-	ASSERT_DEBUG(i < GC.getNumFeatureInfos(), "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumFeatureInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piLocalFeatureAnds ? m_piLocalFeatureAnds[i] : -1;
 }
 /// Prerequisite resources with AND
 int CvBuildingEntry::GetFeatureOr(int i) const
 {
-	ASSERT_DEBUG(i < GC.getNumFeatureInfos(), "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumFeatureInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piLocalFeatureOrs ? m_piLocalFeatureOrs[i] : -1;
 }
 /// Prerequisite resources with AND
@@ -4432,7 +4432,7 @@ uint CvBuildingEntry::GetResourceMonopolyAndSize() const
 }
 int CvBuildingEntry::GetResourceMonopolyAnd(uint ui) const
 {
-	ASSERT_DEBUG(ui < m_viResourceMonopolyAnds.size(), "Index out of bounds");
+	PRECONDITION(ui < m_viResourceMonopolyAnds.size(), "Index out of bounds");
 	return m_viResourceMonopolyAnds[ui];
 }
 
@@ -4443,7 +4443,7 @@ uint CvBuildingEntry::GetResourceMonopolyOrSize() const
 }
 int CvBuildingEntry::GetResourceMonopolyOr(uint ui) const
 {
-	ASSERT_DEBUG(ui < m_viResourceMonopolyOrs.size(), "Index out of bounds");
+	PRECONDITION(ui < m_viResourceMonopolyOrs.size(), "Index out of bounds");
 	return m_viResourceMonopolyOrs[ui];
 }
 //Coroporation Stuff
@@ -4454,8 +4454,8 @@ int CvBuildingEntry::GetGPRateModifierPerXFranchises() const
 /// Resources provided once constructed
 int CvBuildingEntry::GetResourceQuantityPerXFranchises(int i) const
 {
-	ASSERT_DEBUG(i < GC.getNumResourceInfos(), "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumResourceInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piResourceQuantityPerXFranchises ? m_piResourceQuantityPerXFranchises[i] : -1;
 }
 int CvBuildingEntry::GetYieldChangePerMonopoly(int i) const
@@ -4466,72 +4466,72 @@ int CvBuildingEntry::GetYieldChangePerMonopoly(int i) const
 }
 int CvBuildingEntry::GetYieldChangeFromPassingTR(int i) const
 {
-	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piYieldChangeFromPassingTR[i];
 }
 int CvBuildingEntry::GetYieldPerFranchise(int i) const
 {
-	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piYieldPerFranchise ? m_piYieldPerFranchise[i] : -1;
 }
 #endif
 // Resource provided by Population
 int CvBuildingEntry::GetResourceQuantityFromPOP(int i) const
 {
-	ASSERT_DEBUG(i < GC.getNumResourceInfos(), "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumResourceInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piResourceQuantityFromPOP ? m_piResourceQuantityFromPOP[i] : -1;
 }
 /// Modifier to Hurry cost
 int CvBuildingEntry::GetHurryModifier(int i) const
 {
-	ASSERT_DEBUG(i < GC.getNumHurryInfos(), "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumHurryInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_paiHurryModifier ? m_paiHurryModifier[i] : -1;
 }
 /// Local Modifier to Hurry cost
 int CvBuildingEntry::GetHurryModifierLocal(int i) const
 {
-	ASSERT_DEBUG(i < GC.getNumHurryInfos(), "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumHurryInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_paiHurryModifierLocal ? m_paiHurryModifierLocal[i] : -1;
 }
 
 /// Can it only built if there is a building of this class in the city?
 bool CvBuildingEntry::IsBuildingClassNeededInCity(int i) const
 {
-	ASSERT_DEBUG(i < GC.getNumBuildingClassInfos(), "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumBuildingClassInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_pbBuildingClassNeededInCity ? m_pbBuildingClassNeededInCity[i] : false;
 }
 /// Can it only built if there is a building of this class in any owned city?
 bool CvBuildingEntry::IsBuildingClassNeededAnywhere(int i) const
 {
-	ASSERT_DEBUG(i < GC.getNumBuildingClassInfos(), "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumBuildingClassInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_pbBuildingClassNeededAnywhere ? m_pbBuildingClassNeededAnywhere[i] : false;
 }
 /// Can it only built if there is NOT a building of this class in any owned city?
 bool CvBuildingEntry::IsBuildingClassNeededNowhere(int i) const
 {
-	ASSERT_DEBUG(i < GC.getNumBuildingClassInfos(), "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumBuildingClassInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_pbBuildingClassNeededNowhere ? m_pbBuildingClassNeededNowhere[i] : false;
 }
 // Free units which appear near the capital, can be any UnitType of other civs or not
 int CvBuildingEntry::GetNumFreeSpecialUnits(int i) const
 {
-	ASSERT_DEBUG(i < GC.getNumUnitInfos(), "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumUnitInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piNumSpecFreeUnits ? m_piNumSpecFreeUnits[i] : -1;
 }
 /// Building grants resource plots when built
 std::map<int, int> CvBuildingEntry::GetResourcePlotsToPlace(int i) const
 {
-	ASSERT_DEBUG(i < GC.getNumResourceInfos(), "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumResourceInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 
 	std::map<int, std::map<int, int>>::const_iterator it = m_ppiResourcePlotsToPlace.find(i);
 	if (it != m_ppiResourcePlotsToPlace.end()) // find returns the iterator to map::end if the key bInternationalOnly is not present
@@ -4550,51 +4550,51 @@ bool CvBuildingEntry::IsResourcePlotsToPlace() const
 }
 int CvBuildingEntry::GetYieldPerFriend(int i) const
 {
-	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piYieldPerFriend ? m_piYieldPerFriend[i] : -1;
 }
 
 int CvBuildingEntry::GetYieldPerAlly(int i) const
 {
-	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piYieldPerAlly ? m_piYieldPerAlly[i] : -1;
 }
 
 int CvBuildingEntry::GetYieldChangeWorldWonder(int i) const
 {
-	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piYieldChangeWorldWonder ? m_piYieldChangeWorldWonder[i] : 0;
 }
 int CvBuildingEntry::GetYieldChangeWorldWonderGlobal(int i) const
 {
-	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piYieldChangeWorldWonderGlobal ? m_piYieldChangeWorldWonderGlobal[i] : 0;
 }
 int CvBuildingEntry::GetLuxuryYieldChanges(int i) const
 {
-	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piLuxuryYieldChanges ? m_piLuxuryYieldChanges[i] : 0;
 }
 /// Free units which appear near the capital
 int CvBuildingEntry::GetNumFreeUnits(int i) const
 {
-	ASSERT_DEBUG(i < GC.getNumUnitInfos(), "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumUnitInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piNumFreeUnits ? m_piNumFreeUnits[i] : -1;
 }
 
 /// Does this building generate yields from other yields?
 int CvBuildingEntry::GetYieldFromYield(int i, int j) const
 {
-	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
-	ASSERT_DEBUG(j < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(j > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
+	PRECONDITION(j < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(j > -1, "Index out of bounds");
 
 	if (m_paYieldFromYield == NULL || m_paYieldFromYield[0].GetValue() == 0)
 	{
@@ -4622,10 +4622,10 @@ int CvBuildingEntry::GetYieldFromYield(int i, int j) const
 /// Does this building generate yields from other yields globally?
 int CvBuildingEntry::GetYieldFromYieldGlobal(int i, int j) const
 {
-	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
-	ASSERT_DEBUG(j < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(j > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
+	PRECONDITION(j < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(j > -1, "Index out of bounds");
 
 	if (m_paYieldFromYieldGlobal == NULL || m_paYieldFromYieldGlobal[0].GetValue() == 0)
 	{
@@ -4653,28 +4653,28 @@ int CvBuildingEntry::GetYieldFromYieldGlobal(int i, int j) const
 /// Change to Resource yield by type
 int CvBuildingEntry::GetResourceYieldChange(int i, int j) const
 {
-	ASSERT_DEBUG(i < GC.getNumResourceInfos(), "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
-	ASSERT_DEBUG(j < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(j > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumResourceInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
+	PRECONDITION(j < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(j > -1, "Index out of bounds");
 	return m_ppaiResourceYieldChange ? m_ppaiResourceYieldChange[i][j] : -1;
 }
 
 /// Array of changes to Resource yield
 int* CvBuildingEntry::GetResourceYieldChangeArray(int i) const
 {
-	ASSERT_DEBUG(i < GC.getNumResourceInfos(), "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumResourceInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_ppaiResourceYieldChange[i];
 }
 
 /// Change to Resource yield by type
 int CvBuildingEntry::GetResourceYieldChangeGlobal(int iResource, int iYieldType) const
 {
-	ASSERT_DEBUG(iResource < GC.getNumResourceInfos(), "Index out of bounds");
-	ASSERT_DEBUG(iResource > -1, "Index out of bounds");
-	ASSERT_DEBUG(iYieldType < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(iYieldType > -1, "Index out of bounds");
+	PRECONDITION(iResource < GC.getNumResourceInfos(), "Index out of bounds");
+	PRECONDITION(iResource > -1, "Index out of bounds");
+	PRECONDITION(iYieldType < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(iYieldType > -1, "Index out of bounds");
 	std::map<int, std::map<int, int>>::const_iterator itResource = m_ppiResourceYieldChangeGlobal.find(iResource);
 	if (itResource != m_ppiResourceYieldChangeGlobal.end()) // find returns the iterator to map::end if the key iResource is not present in the map
 	{
@@ -4711,168 +4711,168 @@ std::map<pair<GreatPersonTypes, EraTypes>, int> CvBuildingEntry::GetGreatPersonP
 /// Change to Feature yield by type
 int CvBuildingEntry::GetFeatureYieldChange(int i, int j) const
 {
-	ASSERT_DEBUG(i < GC.getNumFeatureInfos(), "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
-	ASSERT_DEBUG(j < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(j > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumFeatureInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
+	PRECONDITION(j < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(j > -1, "Index out of bounds");
 	return m_ppaiFeatureYieldChange ? m_ppaiFeatureYieldChange[i][j] : -1;
 }
 
 /// Array of changes to Feature yield
 int* CvBuildingEntry::GetFeatureYieldChangeArray(int i) const
 {
-	ASSERT_DEBUG(i < GC.getNumFeatureInfos(), "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumFeatureInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_ppaiFeatureYieldChange[i];
 }
 
 /// Change to Improvement yield by type
 int CvBuildingEntry::GetImprovementYieldChange(int i, int j) const
 {
-	ASSERT_DEBUG(i < GC.getNumImprovementInfos(), "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
-	ASSERT_DEBUG(j < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(j > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumImprovementInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
+	PRECONDITION(j < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(j > -1, "Index out of bounds");
 	return m_ppaiImprovementYieldChange ? m_ppaiImprovementYieldChange[i][j] : -1;
 }
 
 /// Array of changes to Improvement yield
 int* CvBuildingEntry::GetImprovementYieldChangeArray(int i) const
 {
-	ASSERT_DEBUG(i < GC.getNumImprovementInfos(), "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumImprovementInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_ppaiImprovementYieldChange[i];
 }
 /// Change to Improvement yield by type
 int CvBuildingEntry::GetImprovementYieldChangeGlobal(int i, int j) const
 {
-	ASSERT_DEBUG(i < GC.getNumImprovementInfos(), "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
-	ASSERT_DEBUG(j < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(j > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumImprovementInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
+	PRECONDITION(j < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(j > -1, "Index out of bounds");
 	return m_ppaiImprovementYieldChangeGlobal ? m_ppaiImprovementYieldChangeGlobal[i][j] : -1;
 }
 
 /// Array of changes to Improvement yield
 int* CvBuildingEntry::GetImprovementYieldChangeGlobalArray(int i) const
 {
-	ASSERT_DEBUG(i < GC.getNumFeatureInfos(), "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumFeatureInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_ppaiImprovementYieldChangeGlobal[i];
 }
 /// Change to specialist yield by type
 int CvBuildingEntry::GetSpecialistYieldChangeLocal(int i, int j) const
 {
-	ASSERT_DEBUG(i < GC.getNumSpecialistInfos(), "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
-	ASSERT_DEBUG(j < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(j > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumSpecialistInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
+	PRECONDITION(j < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(j > -1, "Index out of bounds");
 	return m_ppaiSpecialistYieldChangeLocal ? m_ppaiSpecialistYieldChangeLocal[i][j] : -1;
 }
 /// Array of changes to specialist yield
 int* CvBuildingEntry::GetSpecialistYieldChangeLocalArray(int i) const
 {
-	ASSERT_DEBUG(i < GC.getNumSpecialistInfos(), "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumSpecialistInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_ppaiSpecialistYieldChangeLocal[i];
 }
 
 /// Change to specialist yield by type
 int CvBuildingEntry::GetSpecialistYieldChange(int i, int j) const
 {
-	ASSERT_DEBUG(i < GC.getNumSpecialistInfos(), "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
-	ASSERT_DEBUG(j < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(j > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumSpecialistInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
+	PRECONDITION(j < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(j > -1, "Index out of bounds");
 	return m_ppaiSpecialistYieldChange ? m_ppaiSpecialistYieldChange[i][j] : -1;
 }
 
 /// Array of changes to specialist yield
 int* CvBuildingEntry::GetSpecialistYieldChangeArray(int i) const
 {
-	ASSERT_DEBUG(i < GC.getNumSpecialistInfos(), "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumSpecialistInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_ppaiSpecialistYieldChange[i];
 }
 
 /// Modifier to resource yield
 int CvBuildingEntry::GetResourceYieldModifier(int i, int j) const
 {
-	ASSERT_DEBUG(i < GC.getNumResourceInfos(), "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
-	ASSERT_DEBUG(j < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(j > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumResourceInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
+	PRECONDITION(j < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(j > -1, "Index out of bounds");
 	return m_ppaiResourceYieldModifier ? m_ppaiResourceYieldModifier[i][j] : -1;
 }
 
 /// Array of modifiers to resource yield
 int* CvBuildingEntry::GetResourceYieldModifierArray(int i) const
 {
-	ASSERT_DEBUG(i < GC.getNumResourceInfos(), "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumResourceInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_ppaiResourceYieldModifier[i];
 }
 
 /// Change to Terrain yield by type
 int CvBuildingEntry::GetTerrainYieldChange(int i, int j) const
 {
-	ASSERT_DEBUG(i < GC.getNumTerrainInfos(), "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
-	ASSERT_DEBUG(j < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(j > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumTerrainInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
+	PRECONDITION(j < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(j > -1, "Index out of bounds");
 	return m_ppaiTerrainYieldChange ? m_ppaiTerrainYieldChange[i][j] : -1;
 }
 
 /// Array of changes to Feature yield
 int* CvBuildingEntry::GetTerrainYieldChangeArray(int i) const
 {
-	ASSERT_DEBUG(i < GC.getNumTerrainInfos(), "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumTerrainInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_ppaiTerrainYieldChange[i];
 }
 
 /// Change to Terrain yield by type
 int CvBuildingEntry::GetYieldPerXTerrain(int i, int j) const
 {
-	ASSERT_DEBUG(i < GC.getNumTerrainInfos(), "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
-	ASSERT_DEBUG(j < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(j > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumTerrainInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
+	PRECONDITION(j < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(j > -1, "Index out of bounds");
 	return m_ppaiYieldPerXTerrain ? m_ppaiYieldPerXTerrain[i][j] : -1;
 }
 
 /// Array of changes to Feature yield
 int* CvBuildingEntry::GetYieldPerXTerrainArray(int i) const
 {
-	ASSERT_DEBUG(i < GC.getNumTerrainInfos(), "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumTerrainInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_ppaiYieldPerXTerrain[i];
 }
 
 int CvBuildingEntry::GetYieldPerXFeature(int i, int j) const
 {
-	ASSERT_DEBUG(i < GC.getNumFeatureInfos(), "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
-	ASSERT_DEBUG(j < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(j > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumFeatureInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
+	PRECONDITION(j < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(j > -1, "Index out of bounds");
 	return m_ppaiYieldPerXFeature ? m_ppaiYieldPerXFeature[i][j] : -1;
 }
 
 /// Array of changes to Feature yield
 int* CvBuildingEntry::GetYieldPerXFeatureArray(int i) const
 {
-	ASSERT_DEBUG(i < GC.getNumFeatureInfos(), "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumFeatureInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_ppaiYieldPerXFeature[i];
 }
 
 /// Change to Building Yield by Improvement Type
 fraction CvBuildingEntry::GetYieldPerXImprovementLocal(ImprovementTypes eImprovementType, YieldTypes eYieldType) const
 {
-	ASSERT_DEBUG(eImprovementType < GC.getNumImprovementInfos(), "Index out of bounds");
-	ASSERT_DEBUG(eImprovementType > -1, "Index out of bounds");
-	ASSERT_DEBUG(eYieldType < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(eYieldType > -1, "Index out of bounds");
+	PRECONDITION(eImprovementType < GC.getNumImprovementInfos(), "Index out of bounds");
+	PRECONDITION(eImprovementType > -1, "Index out of bounds");
+	PRECONDITION(eYieldType < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(eYieldType > -1, "Index out of bounds");
 	std::map<ImprovementTypes, std::map<YieldTypes, fraction>>::const_iterator itImprovement = m_ppYieldPerXImprovementLocal.find(eImprovementType);
 	if (itImprovement != m_ppYieldPerXImprovementLocal.end()) // find returns the iterator to map::end if the key eImprovementType is not present in the map
 	{
@@ -4888,10 +4888,10 @@ fraction CvBuildingEntry::GetYieldPerXImprovementLocal(ImprovementTypes eImprove
 /// Change to Building Yield by Improvement Type (Global)
 fraction CvBuildingEntry::GetYieldPerXImprovementGlobal(ImprovementTypes eImprovementType, YieldTypes eYieldType) const
 {
-	ASSERT_DEBUG(eImprovementType < GC.getNumImprovementInfos(), "Index out of bounds");
-	ASSERT_DEBUG(eImprovementType > -1, "Index out of bounds");
-	ASSERT_DEBUG(eYieldType < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(eYieldType > -1, "Index out of bounds");
+	PRECONDITION(eImprovementType < GC.getNumImprovementInfos(), "Index out of bounds");
+	PRECONDITION(eImprovementType > -1, "Index out of bounds");
+	PRECONDITION(eYieldType < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(eYieldType > -1, "Index out of bounds");
 	std::map<ImprovementTypes, std::map<YieldTypes, fraction>>::const_iterator itImprovement = m_ppYieldPerXImprovementGlobal.find(eImprovementType);
 	if (itImprovement != m_ppYieldPerXImprovementGlobal.end()) // find returns the iterator to map::end if the key eImprovementType is not present in the map
 	{
@@ -4908,74 +4908,74 @@ fraction CvBuildingEntry::GetYieldPerXImprovementGlobal(ImprovementTypes eImprov
 /// Change to Plot yield by type
 int CvBuildingEntry::GetPlotYieldChange(int i, int j) const
 {
-	ASSERT_DEBUG(i < GC.getNumPlotInfos(), "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
-	ASSERT_DEBUG(j < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(j > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumPlotInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
+	PRECONDITION(j < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(j > -1, "Index out of bounds");
 	return m_ppaiPlotYieldChange ? m_ppaiPlotYieldChange[i][j] : -1;
 }
 
 /// Array of changes to Plot yield
 int* CvBuildingEntry::GetPlotYieldChangeArray(int i) const
 {
-	ASSERT_DEBUG(i < GC.getNumPlotInfos(), "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumPlotInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_ppaiPlotYieldChange[i];
 }
 
 /// Yield change for a specific BuildingClass by yield type
 int CvBuildingEntry::GetBuildingClassYieldChange(int i, int j) const
 {
-	ASSERT_DEBUG(i < GC.getNumBuildingClassInfos(), "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
-	ASSERT_DEBUG(j < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(j > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumBuildingClassInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
+	PRECONDITION(j < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(j > -1, "Index out of bounds");
 	return m_ppiBuildingClassYieldChanges[i][j];
 }
 
 /// Yield change for a specific BuildingClass by yield type
 int CvBuildingEntry::GetBuildingClassYieldModifier(int i, int j) const
 {
-	ASSERT_DEBUG(i < GC.getNumBuildingClassInfos(), "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
-	ASSERT_DEBUG(j < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(j > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumBuildingClassInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
+	PRECONDITION(j < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(j > -1, "Index out of bounds");
 	return m_ppiBuildingClassYieldModifiers[i][j];
 }
 /// Yield change for a specific BuildingClass by yield type
 int CvBuildingEntry::GetBuildingClassLocalYieldChange(int i, int j) const
 {
-	ASSERT_DEBUG(i < GC.getNumBuildingClassInfos(), "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
-	ASSERT_DEBUG(j < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(j > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumBuildingClassInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
+	PRECONDITION(j < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(j > -1, "Index out of bounds");
 	return m_ppiBuildingClassLocalYieldChanges[i][j];
 }
 /// Amount of extra Happiness per turn a BuildingClass provides
 int CvBuildingEntry::GetBuildingClassLocalHappiness(int i) const
 {
-	ASSERT_DEBUG(i < GC.getNumBuildingClassInfos(), "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumBuildingClassInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_paiBuildingClassLocalHappiness ? m_paiBuildingClassLocalHappiness[i] : -1;
 }
 
 int CvBuildingEntry::GetSpecificGreatPersonRateModifier(int i) const
 {
-	ASSERT_DEBUG(i < GC.getNumSpecialistInfos(), "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumSpecialistInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_paiSpecificGreatPersonRateModifier ? m_paiSpecificGreatPersonRateModifier[i] : -1;
 }
 int CvBuildingEntry::GetResourceHappiness(int i) const
 {
-	ASSERT_DEBUG(i < GC.getNumResourceInfos(), "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumResourceInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_paiResourceHappinessChange ? m_paiResourceHappinessChange[i] : -1;
 }
 /// Amount of extra Happiness per turn a BuildingClass provides
 int CvBuildingEntry::GetBuildingClassHappiness(int i) const
 {
-	ASSERT_DEBUG(i < GC.getNumBuildingClassInfos(), "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumBuildingClassInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_paiBuildingClassHappiness ? m_paiBuildingClassHappiness[i] : -1;
 }
 std::multimap<int, std::pair<int, int>> CvBuildingEntry::GetGreatPersonProgressFromConstructionArray() const
@@ -5084,8 +5084,8 @@ int CvBuildingEntry::GetGlobalFollowerPopRequired() const
 /// Instant yield
 int CvBuildingEntry::GetInstantYield(int i) const
 {
-	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piInstantYield ? m_piInstantYield[i] : -1;
 }
 
@@ -5098,8 +5098,8 @@ int* CvBuildingEntry::GetInstantYieldArray() const
 
 CvThemingBonusInfo *CvBuildingEntry::GetThemingBonusInfo(int i) const
 {
-	ASSERT_DEBUG(i < MAX_THEMING_BONUSES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < MAX_THEMING_BONUSES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 
 	if (m_paThemingBonusInfo[0].m_iBonus == 0)
 	{
@@ -5221,30 +5221,30 @@ void CvCityBuildings::Init(CvBuildingXMLEntries* pPossibleBuildings, CvCity* pCi
 
 	int iNumBuildings = pPossibleBuildings->GetNumBuildings();
 
-	ASSERT_DEBUG((0 < iNumBuildings),  "m_pBuildings->GetNumBuildings() is not greater than zero but an array is being allocated in CvCityBuildings::Init");
+	ASSERT((0 < iNumBuildings),  "m_pBuildings->GetNumBuildings() is not greater than zero but an array is being allocated in CvCityBuildings::Init");
 
-	ASSERT_DEBUG(m_paiBuildingProduction==NULL, "about to leak memory, CvCityBuildings::m_paiBuildingProduction");
+	ASSERT(m_paiBuildingProduction==NULL, "about to leak memory, CvCityBuildings::m_paiBuildingProduction");
 	m_paiBuildingProduction = FNEW(int[iNumBuildings], c_eCiv5GameplayDLL, 0);
 
-	ASSERT_DEBUG(m_paiBuildingProductionTime==NULL, "about to leak memory, CvCityBuildings::m_paiBuildingProductionTime");
+	ASSERT(m_paiBuildingProductionTime==NULL, "about to leak memory, CvCityBuildings::m_paiBuildingProductionTime");
 	m_paiBuildingProductionTime = FNEW(int[iNumBuildings], c_eCiv5GameplayDLL, 0);
 
-	ASSERT_DEBUG(m_paiBuildingOriginalOwner==NULL, "about to leak memory, CvCityBuildings::m_paiBuildingOriginalOwner");
+	ASSERT(m_paiBuildingOriginalOwner==NULL, "about to leak memory, CvCityBuildings::m_paiBuildingOriginalOwner");
 	m_paiBuildingOriginalOwner = FNEW(int[iNumBuildings], c_eCiv5GameplayDLL, 0);
 
-	ASSERT_DEBUG(m_paiBuildingOriginalTime==NULL, "about to leak memory, CvCityBuildings::m_paiBuildingOriginalTime");
+	ASSERT(m_paiBuildingOriginalTime==NULL, "about to leak memory, CvCityBuildings::m_paiBuildingOriginalTime");
 	m_paiBuildingOriginalTime = FNEW(int[iNumBuildings], c_eCiv5GameplayDLL, 0);
 
-	ASSERT_DEBUG(m_paiNumRealBuilding==NULL, "about to leak memory, CvCityBuildings::m_paiNumRealBuilding");
+	ASSERT(m_paiNumRealBuilding==NULL, "about to leak memory, CvCityBuildings::m_paiNumRealBuilding");
 	m_paiNumRealBuilding = FNEW(int[iNumBuildings], c_eCiv5GameplayDLL, 0);
 
-	ASSERT_DEBUG(m_paiNumFreeBuilding==NULL, "about to leak memory, CvCityBuildings::m_paiNumFreeBuilding");
+	ASSERT(m_paiNumFreeBuilding==NULL, "about to leak memory, CvCityBuildings::m_paiNumFreeBuilding");
 	m_paiNumFreeBuilding = FNEW(int[iNumBuildings], c_eCiv5GameplayDLL, 0);
 
-	ASSERT_DEBUG(m_paiFirstTimeBuilding==NULL, "about to leak memory, CvCityBuildings::m_paiFirstTimeBuilding");
+	ASSERT(m_paiFirstTimeBuilding==NULL, "about to leak memory, CvCityBuildings::m_paiFirstTimeBuilding");
 	m_paiFirstTimeBuilding = FNEW(int[iNumBuildings], c_eCiv5GameplayDLL, 0);
 
-	ASSERT_DEBUG(m_paiThemingBonusIndex == NULL, "about to leak memory, CvCityBuildings::m_paiThemingBonusIndex");
+	ASSERT(m_paiThemingBonusIndex == NULL, "about to leak memory, CvCityBuildings::m_paiThemingBonusIndex");
 	m_paiThemingBonusIndex = FNEW(int[iNumBuildings], c_eCiv5GameplayDLL, 0);
 
 	m_aBuildingYieldChange.clear();
@@ -5358,7 +5358,7 @@ void CvCityBuildings::Serialize(CityBuildings& cityBuildings, Visitor& visitor)
 /// Serialization read
 void CvCityBuildings::Read(FDataStream& kStream)
 {
-	ASSERT_DEBUG(GC.getNumBuildingInfos() > 0, "Number of buildings to serialize is expected to greater than 0");
+	ASSERT(GC.getNumBuildingInfos() > 0, "Number of buildings to serialize is expected to greater than 0");
 
 	CvStreamLoadVisitor serialVisitor(kStream);
 	Serialize(*this, serialVisitor);
@@ -5373,7 +5373,7 @@ void CvCityBuildings::Read(FDataStream& kStream)
 /// Serialization write
 void CvCityBuildings::Write(FDataStream& kStream) const
 {
-	ASSERT_DEBUG(GC.getNumBuildingInfos() > 0, "Number of buildings to serialize is expected to greater than 0");
+	ASSERT(GC.getNumBuildingInfos() > 0, "Number of buildings to serialize is expected to greater than 0");
 
 	CvStreamSaveVisitor serialVisitor(kStream);
 	Serialize(*this, serialVisitor);
@@ -5406,7 +5406,7 @@ int CvCityBuildings::GetNumBuildings() const
 void CvCityBuildings::ChangeNumBuildings(int iChange)
 {
 	m_iNumBuildings = (m_iNumBuildings + iChange);
-	ASSERT_DEBUG(GetNumBuildings() >= 0);
+	ASSERT(GetNumBuildings() >= 0);
 
 //	GET_PLAYER(m_pCity->getOwner()).updateNumResourceUsed();
 }
@@ -5414,7 +5414,7 @@ void CvCityBuildings::ChangeNumBuildings(int iChange)
 /// Accessor: How many of these buildings in the city?
 int CvCityBuildings::GetNumBuilding(BuildingTypes eIndex) const
 {
-	ASSERT_DEBUG(eIndex != NO_BUILDING, "BuildingType eIndex is expected to not be NO_BUILDING");
+	PRECONDITION(eIndex != NO_BUILDING, "BuildingType eIndex is expected to not be NO_BUILDING");
 
 	if (/*1*/ GD_INT_GET(CITY_MAX_NUM_BUILDINGS) <= 1)
 	{
@@ -5429,7 +5429,7 @@ int CvCityBuildings::GetNumBuilding(BuildingTypes eIndex) const
 /// Accessor: How many of these building classes in the city?
 int CvCityBuildings::GetNumBuildingClass(BuildingClassTypes eIndex) const
 {
-	ASSERT_DEBUG(eIndex != NO_BUILDINGCLASS, "BuildingClassTypes eIndex is expected to not be NO_BUILDINGCLASS");
+	PRECONDITION(eIndex != NO_BUILDINGCLASS, "BuildingClassTypes eIndex is expected to not be NO_BUILDINGCLASS");
 
 	int iValue = 0;
 	for (std::vector<BuildingTypes>::const_iterator iI=m_buildingsThatExistAtLeastOnce.begin(); iI!=m_buildingsThatExistAtLeastOnce.end(); ++iI)
@@ -5447,7 +5447,7 @@ int CvCityBuildings::GetNumBuildingClass(BuildingClassTypes eIndex) const
 /// Accessor: Is there at least one building of the class in the city? Potentially faster function than the above.
 bool CvCityBuildings::HasBuildingClass(BuildingClassTypes eIndex) const
 {
-	ASSERT_DEBUG(eIndex != NO_BUILDINGCLASS, "BuildingClassTypes eIndex is expected to not be NO_BUILDINGCLASS");
+	PRECONDITION(eIndex != NO_BUILDINGCLASS, "BuildingClassTypes eIndex is expected to not be NO_BUILDINGCLASS");
 
 	for (std::vector<BuildingTypes>::const_iterator iI = m_buildingsThatExistAtLeastOnce.begin(); iI != m_buildingsThatExistAtLeastOnce.end(); ++iI)
 	{
@@ -5463,7 +5463,7 @@ bool CvCityBuildings::HasBuildingClass(BuildingClassTypes eIndex) const
 /// Accessor: What BuildingType do we have in our city for the specified class? This function assumes at most 1 building type will exist in a city for each class.
 BuildingTypes CvCityBuildings::GetBuildingTypeFromClass(BuildingClassTypes eIndex) const
 {
-	ASSERT_DEBUG(eIndex != NO_BUILDINGCLASS, "BuildingClassTypes eIndex is expected to not be NO_BUILDINGCLASS");
+	PRECONDITION(eIndex != NO_BUILDINGCLASS, "BuildingClassTypes eIndex is expected to not be NO_BUILDINGCLASS");
 
 	CacheBuildingTypeByClass();
 	std::map<BuildingClassTypes, BuildingTypes>::iterator it = m_buildingTypeByClass.find(eIndex);
@@ -5478,7 +5478,7 @@ BuildingTypes CvCityBuildings::GetBuildingTypeFromClass(BuildingClassTypes eInde
 /// Accessor: Removes all real buildings which belong to the specified building class.
 void CvCityBuildings::RemoveAllRealBuildingsOfClass(BuildingClassTypes eIndex)
 {
-	ASSERT_DEBUG(eIndex != NO_BUILDINGCLASS, "BuildingClassTypes eIndex is expected to not be NO_BUILDINGCLASS");
+	PRECONDITION(eIndex != NO_BUILDINGCLASS, "BuildingClassTypes eIndex is expected to not be NO_BUILDINGCLASS");
 
 	// Shortcut
 	if (!MOD_BUILDINGS_THOROUGH_PREREQUISITES)
@@ -5509,7 +5509,7 @@ void CvCityBuildings::RemoveAllRealBuildingsOfClass(BuildingClassTypes eIndex)
 /// Accessor: How many of these buildings are not obsolete?
 int CvCityBuildings::GetNumActiveBuilding(BuildingTypes eIndex) const
 {
-	ASSERT_DEBUG(eIndex != NO_BUILDING, "BuildingType eIndex is expected to not be NO_BUILDING");
+	PRECONDITION(eIndex != NO_BUILDING, "BuildingType eIndex is expected to not be NO_BUILDING");
 
 	if(GET_TEAM(m_pCity->getTeam()).isObsoleteBuilding(eIndex))
 	{
@@ -5617,8 +5617,8 @@ bool CvCityBuildings::IsBuildingSellable(const CvBuildingEntry& kBuilding) const
 /// Sell eIndex~!
 void CvCityBuildings::DoSellBuilding(BuildingTypes eIndex)
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex expected to be >= 0");
-	ASSERT_DEBUG(eIndex < GC.getNumBuildingInfos(),  "eIndex expected to be < getNumBuildingInfos()");
+	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eIndex < GC.getNumBuildingInfos(),  "eIndex expected to be < getNumBuildingInfos()");
 
 	CvBuildingEntry* pkBuildingEntry = GC.getBuildingInfo(eIndex);
 	if(!pkBuildingEntry)
@@ -5643,8 +5643,8 @@ void CvCityBuildings::DoSellBuilding(BuildingTypes eIndex)
 /// How much of a refund will the player get from selling eIndex?
 int CvCityBuildings::GetSellBuildingRefund(BuildingTypes eIndex) const
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex expected to be >= 0");
-	ASSERT_DEBUG(eIndex < GC.getNumBuildingInfos(),  "eIndex expected to be < getNumBuildingInfos()");
+	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eIndex < GC.getNumBuildingInfos(),  "eIndex expected to be < getNumBuildingInfos()");
 
 	int iRefund = GET_PLAYER(m_pCity->getOwner()).getProductionNeeded(eIndex);
 	iRefund /= /*4*/ GD_INT_GET(BUILDING_SALE_DIVISOR);
@@ -5699,16 +5699,16 @@ int CvCityBuildings::GetTotalBaseBuildingMaintenance() const
 /// Accessor: How far is construction of this building?
 int CvCityBuildings::GetBuildingProduction(BuildingTypes eIndex)	const
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex expected to be >= 0");
-	ASSERT_DEBUG(eIndex < GC.getNumBuildingInfos(),  "eIndex expected to be < getNumBuildingInfos()");
+	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eIndex < GC.getNumBuildingInfos(),  "eIndex expected to be < getNumBuildingInfos()");
 	return m_paiBuildingProduction[eIndex] / 100;
 }
 
 /// Accessor: How far is construction of this building? (in hundredths)
 int CvCityBuildings::GetBuildingProductionTimes100(BuildingTypes eIndex)	const
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex expected to be >= 0");
-	ASSERT_DEBUG(eIndex < GC.getNumBuildingInfos(),  "eIndex expected to be < getNumBuildingInfos()");
+	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eIndex < GC.getNumBuildingInfos(),  "eIndex expected to be < getNumBuildingInfos()");
 	return m_paiBuildingProduction[eIndex];
 }
 
@@ -5721,8 +5721,8 @@ void CvCityBuildings::SetBuildingProduction(BuildingTypes eIndex, int iNewValue)
 /// Accessor: Set how much construction is complete for this building (in hundredths)
 void CvCityBuildings::SetBuildingProductionTimes100(BuildingTypes eIndex, int iNewValue)
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex expected to be >= 0");
-	ASSERT_DEBUG(eIndex < GC.getNumBuildingInfos(), "eIndex expected to be < getNumBuildingInfos())");
+	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eIndex < GC.getNumBuildingInfos(), "eIndex expected to be < getNumBuildingInfos())");
 
 	if(GetBuildingProductionTimes100(eIndex) != iNewValue)
 	{
@@ -5732,7 +5732,7 @@ void CvCityBuildings::SetBuildingProductionTimes100(BuildingTypes eIndex, int iN
 		}
 
 		m_paiBuildingProduction[eIndex] = max(0,iNewValue);
-		ASSERT_DEBUG(GetBuildingProductionTimes100(eIndex) >= 0);
+		ASSERT(GetBuildingProductionTimes100(eIndex) >= 0);
 
 		if((m_pCity->getOwner() == GC.getGame().getActivePlayer()) && m_pCity->isCitySelected())
 		{
@@ -5760,18 +5760,18 @@ void CvCityBuildings::ChangeBuildingProductionTimes100(BuildingTypes eIndex, int
 /// Accessor: How many turns has this building been under production?
 int CvCityBuildings::GetBuildingProductionTime(BuildingTypes eIndex)	const
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex expected to be >= 0");
-	ASSERT_DEBUG(eIndex < GC.getNumBuildingInfos(),  "eIndex expected to be < getNumBuildingInfos()");
+	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eIndex < GC.getNumBuildingInfos(),  "eIndex expected to be < getNumBuildingInfos()");
 	return m_paiBuildingProductionTime[eIndex];
 }
 
 /// Accessor: Set number of turns this building been under production
 void CvCityBuildings::SetBuildingProductionTime(BuildingTypes eIndex, int iNewValue)
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex expected to be >= 0");
-	ASSERT_DEBUG(eIndex < GC.getNumBuildingInfos(),  "eIndex expected to be < getNumBuildingInfos()");
+	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eIndex < GC.getNumBuildingInfos(),  "eIndex expected to be < getNumBuildingInfos()");
 	m_paiBuildingProductionTime[eIndex] = iNewValue;
-	ASSERT_DEBUG(GetBuildingProductionTime(eIndex) >= 0);
+	ASSERT(GetBuildingProductionTime(eIndex) >= 0);
 }
 
 /// Accessor: Change number of turns this building been under production
@@ -5783,40 +5783,40 @@ void CvCityBuildings::ChangeBuildingProductionTime(BuildingTypes eIndex, int iCh
 /// Accessor: Who owned the city when this building was built?
 int CvCityBuildings::GetBuildingOriginalOwner(BuildingTypes eIndex) const
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex expected to be >= 0");
-	ASSERT_DEBUG(eIndex < GC.getNumBuildingInfos(),  "eIndex expected to be < getNumBuildingInfos()");
+	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eIndex < GC.getNumBuildingInfos(),  "eIndex expected to be < getNumBuildingInfos()");
 	return m_paiBuildingOriginalOwner[eIndex];
 }
 
 /// Accessor: Set who owned the city when this building was built
 void CvCityBuildings::SetBuildingOriginalOwner(BuildingTypes eIndex, int iNewValue)
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex expected to be >= 0");
-	ASSERT_DEBUG(eIndex < GC.getNumBuildingInfos(),  "eIndex expected to be < getNumBuildingInfos()");
+	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eIndex < GC.getNumBuildingInfos(),  "eIndex expected to be < getNumBuildingInfos()");
 	m_paiBuildingOriginalOwner[eIndex] = iNewValue;
 }
 
 /// Accessor: What year was this building built?
 int CvCityBuildings::GetBuildingOriginalTime(BuildingTypes eIndex) const
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex expected to be >= 0");
-	ASSERT_DEBUG(eIndex < GC.getNumBuildingInfos(),  "eIndex expected to be < getNumBuildingInfos()");
+	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eIndex < GC.getNumBuildingInfos(),  "eIndex expected to be < getNumBuildingInfos()");
 	return m_paiBuildingOriginalTime[eIndex];
 }
 
 /// Accessor: Set year building was built
 void CvCityBuildings::SetBuildingOriginalTime(BuildingTypes eIndex, int iNewValue)
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex expected to be >= 0");
-	ASSERT_DEBUG(eIndex < GC.getNumBuildingInfos(),  "eIndex expected to be < getNumBuildingInfos()");
+	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eIndex < GC.getNumBuildingInfos(),  "eIndex expected to be < getNumBuildingInfos()");
 	m_paiBuildingOriginalTime[eIndex] = iNewValue;
 }
 
 /// Accessor: How many of these buildings have been constructed in the city?
 int CvCityBuildings::GetNumRealBuilding(BuildingTypes eIndex) const
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex expected to be >= 0");
-	ASSERT_DEBUG(eIndex < GC.getNumBuildingInfos(),  "eIndex expected to be < getNumBuildingInfos()");
+	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eIndex < GC.getNumBuildingInfos(),  "eIndex expected to be < getNumBuildingInfos()");
 	return m_paiNumRealBuilding[eIndex];
 }
 
@@ -5829,8 +5829,8 @@ void CvCityBuildings::SetNumRealBuilding(BuildingTypes eIndex, int iNewValue, bo
 /// Accessor: Set number of these buildings that have been constructed in the city (with date)
 void CvCityBuildings::SetNumRealBuildingTimed(BuildingTypes eIndex, int iNewValue, bool bFirst, PlayerTypes eOriginalOwner, int iOriginalTime, bool bNoBonus)
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex expected to be >= 0");
-	ASSERT_DEBUG(eIndex < GC.getNumBuildingInfos(),  "eIndex expected to be < getNumBuildingInfos()");
+	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eIndex < GC.getNumBuildingInfos(),  "eIndex expected to be < getNumBuildingInfos()");
 
 	CvPlayer& kPlayer = GET_PLAYER(m_pCity->getOwner());
 
@@ -6087,16 +6087,16 @@ void CvCityBuildings::SetNumRealBuildingTimed(BuildingTypes eIndex, int iNewValu
 /// Accessor: Get number of free buildings of this type in city
 int CvCityBuildings::GetNumFreeBuilding(BuildingTypes eIndex) const
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex expected to be >= 0");
-	ASSERT_DEBUG(eIndex < GC.getNumBuildingInfos(),  "eIndex expected to be < getNumBuildingInfos()");
+	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eIndex < GC.getNumBuildingInfos(),  "eIndex expected to be < getNumBuildingInfos()");
 	return m_paiNumFreeBuilding[eIndex];
 }
 
 /// Accessor: Set number of free buildings of this type in city
 void CvCityBuildings::SetNumFreeBuilding(BuildingTypes eIndex, int iNewValue)
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex expected to be >= 0");
-	ASSERT_DEBUG(eIndex < GC.getNumBuildingInfos(),  "eIndex expected to be < getNumBuildingInfos()");
+	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eIndex < GC.getNumBuildingInfos(),  "eIndex expected to be < getNumBuildingInfos()");
 
 	if(GetNumFreeBuilding(eIndex) != iNewValue)
 	{
@@ -6141,14 +6141,14 @@ void CvCityBuildings::SetNumFreeBuilding(BuildingTypes eIndex, int iNewValue)
 }
 int CvCityBuildings::IsFirstTimeBuilding(BuildingTypes eBuilding)
 {
-	ASSERT_DEBUG(eBuilding >= 0, "eIndex expected to be >= 0");
-	ASSERT_DEBUG(eBuilding < GC.getNumBuildingInfos(), "eIndex expected to be < getNumBuildingInfos()");
+	PRECONDITION(eBuilding >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eBuilding < GC.getNumBuildingInfos(), "eIndex expected to be < getNumBuildingInfos()");
 	return m_paiFirstTimeBuilding[eBuilding];
 }
 void CvCityBuildings::SetFirstTimeBuilding(BuildingTypes eBuilding, int iValue)
 {
-	ASSERT_DEBUG(eBuilding >= 0, "eIndex expected to be >= 0");
-	ASSERT_DEBUG(eBuilding < GC.getNumBuildingInfos(), "eIndex expected to be < getNumBuildingInfos()");
+	PRECONDITION(eBuilding >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eBuilding < GC.getNumBuildingInfos(), "eIndex expected to be < getNumBuildingInfos()");
 	if(IsFirstTimeBuilding(eBuilding) != iValue)
 	{
 		m_paiFirstTimeBuilding[eBuilding] = iValue;
@@ -6671,8 +6671,8 @@ int CvCityBuildings::GetThemingBonusIndex(BuildingTypes eBuilding) const
 
 void CvCityBuildings::SetThemingBonusIndex(BuildingTypes eBuilding, int iIndex)
 {
-	ASSERT_DEBUG(eBuilding >= 0, "eBuilding expected to be >= 0");
-	ASSERT_DEBUG(eBuilding < GC.getNumBuildingInfos(), "eIndex expected to be < getNumBuildingInfos()");
+	PRECONDITION(eBuilding >= 0, "eBuilding expected to be >= 0");
+	PRECONDITION(eBuilding < GC.getNumBuildingInfos(), "eIndex expected to be < getNumBuildingInfos()");
 	m_paiThemingBonusIndex[eBuilding] = iIndex;
 }
 
@@ -6688,7 +6688,7 @@ void CvCityBuildings::ChangeLandmarksTourismPercent(int iChange)
 	if(iChange != 0)
 	{
 		m_iLandmarksTourismPercent = (m_iLandmarksTourismPercent + iChange);
-		ASSERT_DEBUG(m_iLandmarksTourismPercent >= 0);
+		ASSERT(m_iLandmarksTourismPercent >= 0);
 	}
 }
 
@@ -6704,7 +6704,7 @@ void CvCityBuildings::ChangeGreatWorksTourismModifier(int iChange)
 	if(iChange != 0)
 	{
 		m_iGreatWorksTourismModifier = (m_iGreatWorksTourismModifier + iChange);
-		ASSERT_DEBUG(m_iGreatWorksTourismModifier >= 0);
+		ASSERT(m_iGreatWorksTourismModifier >= 0);
 	}
 }
 
@@ -6715,7 +6715,7 @@ int CvCityBuildings::GetCurrentThemingBonuses(YieldTypes eYield) const
 	for (std::vector<BuildingTypes>::const_iterator it = m_buildingsThatExistAtLeastOnce.begin(); it != m_buildingsThatExistAtLeastOnce.end(); ++it)
 	{
 		CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(*it);
-		ASSERT_DEBUG(pkBuildingInfo);
+		ASSERT(pkBuildingInfo);
 		if (eYield == pkBuildingInfo->GetGreatWorkYieldType() || eYield == YIELD_TOURISM)
 		{
 			int iIndex = GetThemingBonusIndex(*it);
@@ -6723,7 +6723,7 @@ int CvCityBuildings::GetCurrentThemingBonuses(YieldTypes eYield) const
 				continue;
 			
 			CvThemingBonusInfo* pkThemingBonus = pkBuildingInfo->GetThemingBonusInfo(iIndex);
-			ASSERT_DEBUG(pkThemingBonus);
+			ASSERT(pkThemingBonus);
 			iTotal += pkThemingBonus->GetBonus() * m_pCity->GetCityCulture()->GetThemingBonusMultiplierTimes10000() / 10000;
 		}
 	}
@@ -6797,7 +6797,7 @@ int CvCityBuildings::GetBuildingProductionModifier() const
 void CvCityBuildings::ChangeBuildingProductionModifier(int iChange)
 {
 	m_iBuildingProductionModifier += iChange;
-	ASSERT_DEBUG(GetBuildingProductionModifier() >= 0);
+	ASSERT(GetBuildingProductionModifier() >= 0);
 }
 
 /// Accessor: Get current defense boost from buildings
@@ -6812,7 +6812,7 @@ void CvCityBuildings::ChangeBuildingDefense(int iChange)
 	if(iChange != 0)
 	{
 		m_iBuildingDefense = (m_iBuildingDefense + iChange);
-		ASSERT_DEBUG(GetBuildingDefense() >= 0);
+		ASSERT(GetBuildingDefense() >= 0);
 
 		m_pCity->plot()->plotAction(PUF_makeInfoBarDirty);
 	}
@@ -6830,7 +6830,7 @@ void CvCityBuildings::ChangeBuildingDefenseMod(int iChange)
 	if(iChange != 0)
 	{
 		m_iBuildingDefenseMod = (m_iBuildingDefenseMod + iChange);
-		ASSERT_DEBUG(m_iBuildingDefenseMod >= 0);
+		ASSERT(m_iBuildingDefenseMod >= 0);
 
 		m_pCity->plot()->plotAction(PUF_makeInfoBarDirty);
 	}
@@ -7162,7 +7162,7 @@ void BuildingArrayHelpers::Read(FDataStream& kStream, int* paiBuildingArray)
 				CvString szError;
 				szError.Format("LOAD ERROR: Building Type not found");
 				GC.LogMessage(szError.GetCString());
-				ASSERT_DEBUG(false, szError);
+				ASSERT(false, szError);
 				int iDummy = 0;
 				kStream >> iDummy; // Skip it.
 			}

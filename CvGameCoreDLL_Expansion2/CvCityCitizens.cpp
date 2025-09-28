@@ -84,7 +84,7 @@ void CvCityCitizens::Reset()
 	int iI = 0;
 
 	m_vWorkedPlots.clear();
-	ASSERT_DEBUG((0 < MAX_CITY_PLOTS), "MAX_CITY_PLOTS is not greater than zero but an array is being allocated in CvCityCitizens::reset");
+	PRECONDITION((0 < MAX_CITY_PLOTS), "MAX_CITY_PLOTS is not greater than zero but an array is being allocated in CvCityCitizens::reset");
 	for (iI = 0; iI < MAX_CITY_PLOTS; iI++)
 	{
 		m_pabWorkingPlot[iI] = false;
@@ -175,7 +175,7 @@ FDataStream& operator<<(FDataStream& stream, const CvCityCitizens& cityCitizens)
 }
 
 /// Returns the City object this set of Citizens is associated with
-CvCity* CvCityCitizens::GetCity()
+CvCity* CvCityCitizens::GetCity() const
 {
 	return m_pCity;
 }
@@ -383,14 +383,14 @@ void CvCityCitizens::DoTurn()
 			}
 		}
 
-		ASSERT_DEBUG((GetNumCitizensWorkingPlots() + GetTotalSpecialistCount() + GetNumUnassignedCitizens()) <= GetCity()->getPopulation(true), "Gameplay: More workers than population in the city.");
+		ASSERT((GetNumCitizensWorkingPlots() + GetTotalSpecialistCount() + GetNumUnassignedCitizens()) <= GetCity()->getPopulation(true), "Gameplay: More workers than population in the city.");
 		DoReallocateCitizens(bForceCheck);
 	}
 
-	ASSERT_DEBUG((GetNumCitizensWorkingPlots() + GetTotalSpecialistCount() + GetNumUnassignedCitizens()) <= GetCity()->getPopulation(true), "Gameplay: More workers than population in the city.");
+	ASSERT((GetNumCitizensWorkingPlots() + GetTotalSpecialistCount() + GetNumUnassignedCitizens()) <= GetCity()->getPopulation(true), "Gameplay: More workers than population in the city.");
 	DoSpecialists();
 
-	ASSERT_DEBUG((GetNumCitizensWorkingPlots() + GetTotalSpecialistCount() + GetNumUnassignedCitizens()) <= GetCity()->getPopulation(true), "Gameplay: More workers than population in the city.");
+	ASSERT((GetNumCitizensWorkingPlots() + GetTotalSpecialistCount() + GetNumUnassignedCitizens()) <= GetCity()->getPopulation(true), "Gameplay: More workers than population in the city.");
 }
 
 int CvCityCitizens::GetBonusPlotValue(CvPlot* pPlot, YieldTypes eYield, SPrecomputedExpensiveNumbers& cache)
@@ -625,8 +625,8 @@ CityAIFocusTypes CvCityCitizens::GetFocusType() const
 /// What is this city focusing on?
 bool CvCityCitizens::SetFocusType(CityAIFocusTypes eFocus, bool bReallocate)
 {
-	ASSERT_DEBUG(eFocus >= NO_CITY_AI_FOCUS_TYPE);
-	ASSERT_DEBUG(eFocus < NUM_CITY_AI_FOCUS_TYPES);
+	ASSERT(eFocus >= NO_CITY_AI_FOCUS_TYPE);
+	PRECONDITION(eFocus < NUM_CITY_AI_FOCUS_TYPES);
 
 	if (eFocus != m_eCityAIFocusTypes)
 	{
@@ -758,43 +758,13 @@ int CvCityCitizens::GetSpecialistGPPRate(SpecialistTypes eSpecialist, SPrecomput
 	if (cache.iSpecialistGPPRates[eSpecialist] == INT_MAX)
 	{
 		CvSpecialistInfo* pSpecialistInfo = GC.getSpecialistInfo(eSpecialist);
-		UnitClassTypes eUnitClass = (UnitClassTypes)pSpecialistInfo->getGreatPeopleUnitClass();
+		GreatPersonTypes eGreatPerson = GetGreatPersonFromSpecialist(eSpecialist);
 		int iGPPRate = (pSpecialistInfo->getGreatPeopleRateChange() + m_pCity->GetEventGPPFromSpecialists()) * 100;
 		int iGPPRateMod = m_pCity->getGreatPeopleRateModifier() + GetPlayer()->getGreatPeopleRateModifier() + m_pCity->GetSpecialistRateModifierFromBuildings(eSpecialist);
 
-		// Player and Golden Age mods to this specific class
-		if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_SCIENTIST"))
-		{
-			iGPPRateMod += GetPlayer()->getGreatScientistRateModifier();
-		}
-		else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_WRITER"))
-		{
-			iGPPRateMod += GetPlayer()->getGreatWriterRateModifier();
-		}
-		else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_ARTIST"))
-		{
-			iGPPRateMod += GetPlayer()->getGreatArtistRateModifier();
-		}
-		else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_MUSICIAN"))
-		{
-			iGPPRateMod += GetPlayer()->getGreatMusicianRateModifier();
-		}
-		else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_MERCHANT"))
-		{
-			iGPPRateMod += GetPlayer()->getGreatMerchantRateModifier();
-		}
-		else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_ENGINEER"))
-		{
-			iGPPRateMod += GetPlayer()->getGreatEngineerRateModifier();
-		}
-		else if (MOD_BALANCE_VP && eUnitClass == GC.getInfoTypeForString("UNITCLASS_GREAT_DIPLOMAT"))
-		{
-			iGPPRateMod += GetPlayer()->getGreatDiplomatRateModifier();
-		}
-
-		GreatPersonTypes eGreatPerson = GetGreatPersonFromSpecialist(eSpecialist);
 		if (eGreatPerson != NO_GREATPERSON)
 		{
+			iGPPRateMod += GetPlayer()->GetGreatPersonRateModifier(eGreatPerson);
 			iGPPRateMod += GetPlayer()->getSpecificGreatPersonRateModifierFromMonopoly(eGreatPerson);
 			iGPPRateMod += GetCity()->GetReligionGreatPersonRateModifier(eGreatPerson);
 			int iNumPuppets = GetPlayer()->GetNumPuppetCities();
@@ -1411,7 +1381,7 @@ int CvCityCitizens::GetNumUnassignedCitizens() const
 void CvCityCitizens::ChangeNumUnassignedCitizens(int iChange)
 {
 	m_iNumUnassignedCitizens += iChange;
-	ASSERT_DEBUG(m_iNumUnassignedCitizens >= 0, "invalid number of unassigned citizens in CvCityCitizens::ChangeNumUnassignedCitizens!");
+	ASSERT(m_iNumUnassignedCitizens >= 0, "invalid number of unassigned citizens in CvCityCitizens::ChangeNumUnassignedCitizens!");
 }
 
 /// How many Citizens are working Plots?
@@ -2296,7 +2266,7 @@ void CvCityCitizens::SetWorkingPlot(CvPlot* pPlot, bool bNewValue, CvCity::eUpda
 
 	int iIndex = GetCityIndexFromPlot(pPlot);
 
-	ASSERT_DEBUG(iIndex >= 0, "iIndex expected to be >= 0");
+	PRECONDITION(iIndex >= 0, "iIndex expected to be >= 0");
 
 	int iPlotNum = GC.getMap().plotNum(pPlot->getX(), pPlot->getY());
 	std::vector<int>::iterator it = std::find(m_vWorkedPlots.begin(), m_vWorkedPlots.end(), iPlotNum);
@@ -2312,7 +2282,7 @@ void CvCityCitizens::SetWorkingPlot(CvPlot* pPlot, bool bNewValue, CvCity::eUpda
 			m_vWorkedPlots.erase(it);
 	}
 
-	ASSERT_DEBUG(iIndex < GetCity()->GetNumWorkablePlots(), "iIndex expected to be < NUM_CITY_PLOTS");
+	PRECONDITION(iIndex < GetCity()->GetNumWorkablePlots(), "iIndex expected to be < NUM_CITY_PLOTS");
 
 	if (IsWorkingPlot(pPlot) != bNewValue && iIndex >= 0 && iIndex < GetCity()->GetNumWorkablePlots())
 	{
@@ -2551,8 +2521,8 @@ void CvCityCitizens::SetForcedWorkingPlot(CvPlot* pPlot, bool bNewValue)
 {
 	int iIndex = GetCityIndexFromPlot(pPlot);
 
-	ASSERT_DEBUG(iIndex >= 0, "iIndex expected to be >= 0");
-	ASSERT_DEBUG(iIndex < GetCity()->GetNumWorkablePlots(), "iIndex expected to be < NUM_CITY_PLOTS");
+	PRECONDITION(iIndex >= 0, "iIndex expected to be >= 0");
+	PRECONDITION(iIndex < GetCity()->GetNumWorkablePlots(), "iIndex expected to be < NUM_CITY_PLOTS");
 
 	if (IsForcedWorkingPlot(pPlot) != bNewValue && iIndex >= 0 && iIndex < GetCity()->GetNumWorkablePlots())
 	{
@@ -2787,140 +2757,132 @@ CvPlot* CvCityCitizens::GetCityPlotFromIndex(int iIndex) const
 ///////////////////////////////////////////////////
 // Specialists
 ///////////////////////////////////////////////////
-int CvCityCitizens::GetSpecialistRate(SpecialistTypes eSpecialist)
+int CvCityCitizens::GetSpecialistRate(SpecialistTypes eSpecialist, CvString* tooltip) const
 {
-	if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(m_pCity))
+	PRECONDITION(eSpecialist >= 0, "eSpecialist is expected to be non-negative (invalid Index)");
+	PRECONDITION(eSpecialist < GC.getNumSpecialistInfos(), "eSpecialist is expected to be within maximum bounds (invalid Index)");
+
+	if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(GetCity()))
 		return 0;
 
-	int iGPPChange = 0;
-	CvSpecialistInfo* pkSpecialistInfo = GC.getSpecialistInfo(eSpecialist);
-	if (pkSpecialistInfo)
+	const CvSpecialistInfo* pkSpecialistInfo = GC.getSpecialistInfo(eSpecialist);
+	const GreatPersonTypes eGreatPerson = GetGreatPersonFromSpecialist(eSpecialist);
+	if (eGreatPerson == NO_GREATPERSON)
+		return 0;
+
+	const CvGreatPersonInfo* pkGreatPersonInfo = GC.getGreatPersonInfo(eGreatPerson);
+	const char* szIconString = pkGreatPersonInfo->GetIconString();
+	const char* szGreatPerson = pkGreatPersonInfo->GetDescription();
+	const CvString strNewLine = CvString("[NEWLINE]");
+	const CvString strLineDivision = CvString("----------------");
+
+	int iCount = GetSpecialistCount(eSpecialist);
+
+	int iGPPFromSpecialists = (pkSpecialistInfo->getGreatPeopleRateChange() + GetCity()->GetEventGPPFromSpecialists()) * iCount * 100;
+	int iGPPFromBuildings = GetBuildingGreatPeopleRateChanges(eSpecialist) * 100;
+
+	int iGPPFromReligion = 0;
+	const CvReligion* pReligion = GetCity()->GetCityReligions()->GetMajorityReligion();
+	if (pReligion)
 	{
-		// Does this Specialist spawn a GP?
-		if (pkSpecialistInfo->getGreatPeopleUnitClass() != NO_UNITCLASS)
-		{
-			int iCount = GetSpecialistCount(eSpecialist);
-
-			// GPP from Specialists
-			iGPPChange = (pkSpecialistInfo->getGreatPeopleRateChange() + m_pCity->GetEventGPPFromSpecialists()) * iCount * 100;
-
-			// GPP from Buildings
-			iGPPChange += GetBuildingGreatPeopleRateChanges(eSpecialist) * 100;
-
-			const CvReligion* pReligion = m_pCity->GetCityReligions()->GetMajorityReligion();
-			if (pReligion)
-			{
-				iGPPChange += pReligion->m_Beliefs.GetGreatPersonPoints(GetGreatPersonFromSpecialist(eSpecialist), m_pCity->getOwner(), m_pCity, true) * 100;
-			}
-
-			if (MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-			{
-				// GPP from resource monopolies
-				GreatPersonTypes eGreatPerson = GetGreatPersonFromSpecialist(eSpecialist);
-				if (eGreatPerson != NO_GREATPERSON)
-				{
-					iGPPChange += GetPlayer()->getSpecificGreatPersonRateChangeFromMonopoly(eGreatPerson) * 100;
-				}
-			}
-
-			if (iGPPChange > 0)
-			{
-				int iMod = 0;
-
-				// City mod
-				iMod += GetCity()->getGreatPeopleRateModifier();
-
-				// Player mod
-				iMod += GetPlayer()->getGreatPeopleRateModifier();
-
-				iMod += GetCity()->GetSpecialistRateModifierFromBuildings(eSpecialist);
-
-				// Player and Golden Age mods to this specific class
-				if ((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_SCIENTIST"))
-				{
-					iMod += GetPlayer()->getGreatScientistRateModifier();
-				}
-				else if ((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_WRITER"))
-				{
-					iMod += GetPlayer()->getGreatWriterRateModifier();
-				}
-				else if ((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_ARTIST"))
-				{
-					iMod += GetPlayer()->getGreatArtistRateModifier();
-				}
-				else if ((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_MUSICIAN"))
-				{
-					iMod += GetPlayer()->getGreatMusicianRateModifier();
-				}
-				else if ((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_MERCHANT"))
-				{
-					iMod += GetPlayer()->getGreatMerchantRateModifier();
-				}
-				else if ((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_ENGINEER"))
-				{
-					iMod += GetPlayer()->getGreatEngineerRateModifier();
-				}
-				else if (MOD_BALANCE_VP && (UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_GREAT_DIPLOMAT"))
-				{
-					iMod += GetPlayer()->getGreatDiplomatRateModifier();
-				}
-
-				GreatPersonTypes eGreatPerson = GetGreatPersonFromSpecialist(eSpecialist);
-				if (eGreatPerson != NO_GREATPERSON)
-				{
-					iMod += GetPlayer()->getSpecificGreatPersonRateModifierFromMonopoly(eGreatPerson);
-					if (GetPlayer()->isGoldenAge())
-					{
-						iMod += GetPlayer()->getGoldenAgeGreatPersonRateModifier(eGreatPerson);
-						iMod += GetPlayer()->GetPlayerTraits()->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
-
-						const CvReligion* pReligion = m_pCity->GetCityReligions()->GetMajorityReligion();
-						BeliefTypes eSecondaryPantheon = NO_BELIEF;
-						if (pReligion)
-						{
-							iMod += pReligion->m_Beliefs.GetGoldenAgeGreatPersonRateModifier(eGreatPerson, GetCity()->getOwner(), m_pCity);
-							eSecondaryPantheon = GetCity()->GetCityReligions()->GetSecondaryReligionPantheonBelief();
-							if (eSecondaryPantheon != NO_BELIEF)
-							{
-								iMod += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
-							}
-						}
-
-						// Mod for civs keeping their pantheon belief forever
-						if (MOD_RELIGION_PERMANENT_PANTHEON)
-						{
-							if (GC.getGame().GetGameReligions()->HasCreatedPantheon(GetOwner()))
-							{
-								const CvReligion* pPantheon = GC.getGame().GetGameReligions()->GetReligion(RELIGION_PANTHEON, GetOwner());
-								BeliefTypes ePantheonBelief = GC.getGame().GetGameReligions()->GetBeliefInPantheon(GetOwner());
-								if (pPantheon != NULL && ePantheonBelief != NO_BELIEF && ePantheonBelief != eSecondaryPantheon)
-								{
-									if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, pReligion->m_eReligion, GetOwner()))) // check that the our religion does not have our belief, to prevent double counting
-									{
-										iMod += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
-									}
-								}
-							}
-						}
-					}
-				}
-				int iNumPuppets = GetPlayer()->GetNumPuppetCities();
-				if (iNumPuppets > 0)
-				{
-					GreatPersonTypes eGreatPerson = GetGreatPersonFromSpecialist(eSpecialist);
-					if (eGreatPerson != NO_GREATPERSON)
-					{
-						iMod += (iNumPuppets * GetPlayer()->GetPlayerTraits()->GetPerPuppetGreatPersonRateModifier(eGreatPerson));
-					}
-				}
-
-				// Apply mod
-				iGPPChange *= (100 + iMod);
-				iGPPChange /= 100;
-			}
-		}
+		iGPPFromReligion = pReligion->m_Beliefs.GetGreatPersonPoints(eGreatPerson, GetOwner(), GetCity(), true) * 100;
 	}
-	return iGPPChange;
+
+	int iGPPFromMonopolies = 0;
+	if (MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	{
+		iGPPFromMonopolies = GetPlayer()->getSpecificGreatPersonRateChangeFromMonopoly(eGreatPerson) * 100;
+	}
+
+	if (tooltip)
+	{
+		GC.getGame().BuildYieldTimes100HelpText(tooltip, "TXT_KEY_GPP_FROM_SPECIALIST", iGPPFromSpecialists, szIconString);
+		GC.getGame().BuildYieldTimes100HelpText(tooltip, "TXT_KEY_GPP_FROM_BUILDING", iGPPFromBuildings, szIconString);
+		GC.getGame().BuildYieldTimes100HelpText(tooltip, "TXT_KEY_GPP_FROM_RELIGION", iGPPFromReligion, szIconString);
+		GC.getGame().BuildYieldTimes100HelpText(tooltip, "TXT_KEY_GPP_FROM_MONOPOLY", iGPPFromMonopolies, szIconString);
+	}
+
+	int iBaseGPP = iGPPFromSpecialists + iGPPFromBuildings + iGPPFromReligion + iGPPFromMonopolies;
+	if (iBaseGPP > 0)
+	{
+		int iPlayerMod = GetPlayer()->getGreatPeopleRateModifier() + GetPlayer()->GetGreatPersonRateModifier(eGreatPerson);
+		int iNumPuppets = GetPlayer()->GetNumPuppetCities();
+		if (iNumPuppets > 0)
+		{
+			iPlayerMod += iNumPuppets * GetPlayer()->GetPlayerTraits()->GetPerPuppetGreatPersonRateModifier(eGreatPerson);
+		}
+
+		int iMonopolyMod = GetPlayer()->getSpecificGreatPersonRateModifierFromMonopoly(eGreatPerson);
+
+		int iCityMod = GetCity()->getGreatPeopleRateModifier() + GetCity()->GetSpecialistRateModifierFromBuildings(eSpecialist);
+
+		int iGoldenAgePolicyMod = 0;
+		int iGoldenAgeTraitMod = 0;
+		int iGoldenAgeReligionMod = GetCity()->GetReligionGreatPersonRateModifier(eGreatPerson);
+		if (GetPlayer()->isGoldenAge())
+		{
+			iGoldenAgePolicyMod += GetPlayer()->getGoldenAgeGreatPersonRateModifier(eGreatPerson);
+			iGoldenAgeTraitMod += GetPlayer()->GetPlayerTraits()->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
+		}
+
+		// Apply mod
+		int iGPP = iBaseGPP * (100 + iPlayerMod + iMonopolyMod + iCityMod + iGoldenAgePolicyMod + iGoldenAgeTraitMod + iGoldenAgeReligionMod) / 100;
+
+		if (tooltip)
+		{
+			*tooltip += strNewLine + strLineDivision + strNewLine;
+			*tooltip += GetLocalizedText("TXT_KEY_GPP_BASE", szIconString, szGreatPerson, static_cast<float>(iBaseGPP) / 100);
+
+			// Player mod already includes league mod, so we separate them
+			// Unfortunately, this is still hardcoded
+			const GreatPersonTypes eEngineer = static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_ENGINEER"));
+			const GreatPersonTypes eScientist = static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_SCIENTIST"));
+			const GreatPersonTypes eMerchant = static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_MERCHANT"));
+			const GreatPersonTypes eArtist = static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_ARTIST"));
+			const GreatPersonTypes eMusician = static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_MUSICIAN"));
+			const GreatPersonTypes eWriter = static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_WRITER"));
+
+			int iLeagueMod = 0;
+			if (eGreatPerson == eEngineer || eGreatPerson == eScientist || eGreatPerson == eMerchant)
+			{
+				iLeagueMod += GC.getGame().GetGameLeagues()->GetScienceyGreatPersonRateModifier(GetOwner());
+			}
+			else if (eGreatPerson == eArtist || eGreatPerson == eMusician || eGreatPerson == eWriter)
+			{
+				iLeagueMod += GC.getGame().GetGameLeagues()->GetArtsyGreatPersonRateModifier(GetOwner());
+			}
+			iPlayerMod -= iLeagueMod;
+
+			// City mod can be further divided into buildings and others
+			int iImprovementMod = GetCity()->GetImprovementGreatPersonRateModifier();
+			int iCapitalMod = GetPlayer()->GetNumMarriedCityStatesNotAtWar() * /*15*/ GD_INT_GET(BALANCE_GPP_RATE_IN_CAPITAL_PER_MARRIAGE);
+			iCityMod -= iImprovementMod + iCapitalMod;
+
+			GC.getGame().BuildProdModHelpText(tooltip, "TXT_KEY_GPP_MOD_PLAYER", iPlayerMod);
+			GC.getGame().BuildProdModHelpText(tooltip, "TXT_KEY_GPP_MOD_MONOPOLY", iMonopolyMod);
+			GC.getGame().BuildProdModHelpText(tooltip, "TXT_KEY_GPP_MOD_CAPITAL", iCapitalMod);
+			GC.getGame().BuildProdModHelpText(tooltip, "TXT_KEY_GPP_MOD_BUILDINGS", iCityMod);
+			GC.getGame().BuildProdModHelpText(tooltip, "TXT_KEY_GPP_MOD_GA_TRAIT", iGoldenAgeTraitMod);
+			GC.getGame().BuildProdModHelpText(tooltip, "TXT_KEY_GPP_MOD_GA_POLICY", iGoldenAgePolicyMod);
+			GC.getGame().BuildProdModHelpText(tooltip, "TXT_KEY_GPP_MOD_GA_BELIEF", iGoldenAgeReligionMod);
+			GC.getGame().BuildProdModHelpText(tooltip, "TXT_KEY_GPP_MOD_IMPROVEMENT", iImprovementMod);
+			GC.getGame().BuildProdModHelpText(tooltip, "TXT_KEY_GPP_MOD_LEAGUE", iLeagueMod);
+			*tooltip += strNewLine + strLineDivision + strNewLine;
+
+			Localization::String localized = Localization::Lookup("TXT_KEY_GPP_TOTAL");
+			int iProgressTimes100 = GetSpecialistGreatPersonProgressTimes100(eSpecialist);
+			int iNextGPCost = GetSpecialistUpgradeThreshold(static_cast<UnitClassTypes>(pkGreatPersonInfo->GetUnitClassType()));
+			int iTurnsRemaining = (iNextGPCost * 100 - iProgressTimes100 - 1) / iGPP + 1; // rounded up
+			localized << szGreatPerson << static_cast<float>(iProgressTimes100) / 100 << iNextGPCost << static_cast<float>(iGPP) / 100 << szIconString << iTurnsRemaining;
+			const char* szLocalized = localized.toUTF8();
+			if (szLocalized)
+				*tooltip += szLocalized;
+		}
+
+		return iGPP;
+	}
+
+	return 0;
 }
 
 
@@ -2972,8 +2934,8 @@ int CvCityCitizens::GetNumSpecialistsAllowedByBuilding(const CvBuildingEntry& kB
 /// Are we in the position to add another Specialist to eBuilding?
 bool CvCityCitizens::IsCanAddSpecialistToBuilding(BuildingTypes eBuilding)
 {
-	ASSERT_DEBUG(eBuilding > -1);
-	ASSERT_DEBUG(eBuilding < GC.getNumBuildingInfos());
+	PRECONDITION(eBuilding > -1);
+	PRECONDITION(eBuilding < GC.getNumBuildingInfos());
 
 	if (m_pCity->IsResistance() || m_pCity->IsRazing())
 		return false;
@@ -2993,8 +2955,8 @@ bool CvCityCitizens::IsCanAddSpecialistToBuilding(BuildingTypes eBuilding)
 /// Adds and initializes a Specialist for this building
 void CvCityCitizens::DoAddSpecialistToBuilding(BuildingTypes eBuilding, bool bForced, CvCity::eUpdateMode updateMode)
 {
-	ASSERT_DEBUG(eBuilding > -1);
-	ASSERT_DEBUG(eBuilding < GC.getNumBuildingInfos());
+	PRECONDITION(eBuilding > -1);
+	PRECONDITION(eBuilding < GC.getNumBuildingInfos());
 
 	//no building means laborer
 	if (eBuilding == NO_BUILDING)
@@ -3070,8 +3032,8 @@ void CvCityCitizens::DoAddSpecialistToBuilding(BuildingTypes eBuilding, bool bFo
 /// Removes and uninitializes a Specialist for this building
 void CvCityCitizens::DoRemoveSpecialistFromBuilding(BuildingTypes eBuilding, bool bForced, CvCity::eUpdateMode updateMode)
 {
-	ASSERT_DEBUG(eBuilding > -1);
-	ASSERT_DEBUG(eBuilding < GC.getNumBuildingInfos());
+	PRECONDITION(eBuilding > -1);
+	PRECONDITION(eBuilding < GC.getNumBuildingInfos());
 
 	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 	if (pkBuildingInfo == NULL)
@@ -3135,8 +3097,8 @@ void CvCityCitizens::DoRemoveSpecialistFromBuilding(BuildingTypes eBuilding, boo
 /// It is up to the caller to reassign population.
 void CvCityCitizens::DoRemoveAllSpecialistsFromBuilding(BuildingTypes eBuilding, CvCity::eUpdateMode updateMode)
 {
-	ASSERT_DEBUG(eBuilding > -1);
-	ASSERT_DEBUG(eBuilding < GC.getNumBuildingInfos());
+	PRECONDITION(eBuilding > -1);
+	PRECONDITION(eBuilding < GC.getNumBuildingInfos());
 
 	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 	if (pkBuildingInfo == NULL)
@@ -3275,23 +3237,23 @@ void CvCityCitizens::ChangeNumForcedDefaultSpecialists(int iChange)
 /// How many Specialists do we have assigned of this type in our City?
 int CvCityCitizens::GetSpecialistCount(SpecialistTypes eIndex) const
 {
-	ASSERT_DEBUG(eIndex > -1);
-	ASSERT_DEBUG(eIndex < GC.getNumSpecialistInfos());
+	PRECONDITION(eIndex > -1);
+	PRECONDITION(eIndex < GC.getNumSpecialistInfos());
 
 	return m_aiSpecialistCounts[eIndex];
 }
 
 int CvCityCitizens::GetSpecialistSlots(SpecialistTypes eIndex) const
 {
-	ASSERT_DEBUG(eIndex > -1);
-	ASSERT_DEBUG(eIndex < GC.getNumSpecialistInfos());
+	PRECONDITION(eIndex > -1);
+	PRECONDITION(eIndex < GC.getNumSpecialistInfos());
 
 	return m_aiSpecialistSlots[eIndex];
 }
 void CvCityCitizens::ChangeNumSpecialistSlots(SpecialistTypes eIndex, int iValue)
 {
-	ASSERT_DEBUG(eIndex > -1);
-	ASSERT_DEBUG(eIndex < GC.getNumSpecialistInfos());
+	PRECONDITION(eIndex > -1);
+	PRECONDITION(eIndex < GC.getNumSpecialistInfos());
 
 	m_aiSpecialistSlots[eIndex] += iValue;
 }
@@ -3338,8 +3300,8 @@ int CvCityCitizens::GetTotalSpecialistCount() const
 /// GPP changes from Buildings
 int CvCityCitizens::GetBuildingGreatPeopleRateChanges(SpecialistTypes eSpecialist) const
 {
-	ASSERT_DEBUG(eSpecialist > -1);
-	ASSERT_DEBUG(eSpecialist < GC.getNumSpecialistInfos());
+	PRECONDITION(eSpecialist > -1);
+	PRECONDITION(eSpecialist < GC.getNumSpecialistInfos());
 
 	return m_piBuildingGreatPeopleRateChanges[eSpecialist];
 }
@@ -3347,8 +3309,8 @@ int CvCityCitizens::GetBuildingGreatPeopleRateChanges(SpecialistTypes eSpecialis
 /// Change GPP from Buildings
 void CvCityCitizens::ChangeBuildingGreatPeopleRateChanges(SpecialistTypes eSpecialist, int iChange)
 {
-	ASSERT_DEBUG(eSpecialist > -1);
-	ASSERT_DEBUG(eSpecialist < GC.getNumSpecialistInfos());
+	PRECONDITION(eSpecialist > -1);
+	PRECONDITION(eSpecialist < GC.getNumSpecialistInfos());
 
 	m_piBuildingGreatPeopleRateChanges[eSpecialist] += iChange;
 }
@@ -3356,8 +3318,8 @@ void CvCityCitizens::ChangeBuildingGreatPeopleRateChanges(SpecialistTypes eSpeci
 /// How much progress does this City have towards a Great Person from eIndex?
 int CvCityCitizens::GetSpecialistGreatPersonProgress(SpecialistTypes eIndex) const
 {
-	ASSERT_DEBUG(eIndex > -1);
-	ASSERT_DEBUG(eIndex < GC.getNumSpecialistInfos());
+	PRECONDITION(eIndex > -1);
+	PRECONDITION(eIndex < GC.getNumSpecialistInfos());
 
 	return GetSpecialistGreatPersonProgressTimes100(eIndex) / 100;
 }
@@ -3365,8 +3327,8 @@ int CvCityCitizens::GetSpecialistGreatPersonProgress(SpecialistTypes eIndex) con
 /// How much progress does this City have towards a Great Person from eIndex? (in hundreds)
 int CvCityCitizens::GetSpecialistGreatPersonProgressTimes100(SpecialistTypes eIndex) const
 {
-	ASSERT_DEBUG(eIndex > -1);
-	ASSERT_DEBUG(eIndex < GC.getNumSpecialistInfos());
+	PRECONDITION(eIndex > -1);
+	PRECONDITION(eIndex < GC.getNumSpecialistInfos());
 
 	return m_aiSpecialistGreatPersonProgressTimes100[eIndex];
 }
@@ -3374,8 +3336,8 @@ int CvCityCitizens::GetSpecialistGreatPersonProgressTimes100(SpecialistTypes eIn
 /// Change progress for this City towards a Great Person
 void CvCityCitizens::ChangeSpecialistGreatPersonProgressTimes100(SpecialistTypes eIndex, int iChange, bool bCheckForSpawn)
 {
-	ASSERT_DEBUG(eIndex > -1);
-	ASSERT_DEBUG(eIndex < GC.getNumSpecialistInfos());
+	PRECONDITION(eIndex > -1);
+	PRECONDITION(eIndex < GC.getNumSpecialistInfos());
 
 	m_aiSpecialistGreatPersonProgressTimes100[eIndex] += iChange;
 
@@ -3410,16 +3372,16 @@ void CvCityCitizens::ChangeSpecialistGreatPersonProgressTimes100(SpecialistTypes
 /// Reset Specialist progress
 void CvCityCitizens::DoResetSpecialistGreatPersonProgressTimes100(SpecialistTypes eIndex, int iAmountToRemove)
 {
-	ASSERT_DEBUG(eIndex > -1);
-	ASSERT_DEBUG(eIndex < GC.getNumSpecialistInfos());
+	PRECONDITION(eIndex > -1);
+	PRECONDITION(eIndex < GC.getNumSpecialistInfos());
 	m_aiSpecialistGreatPersonProgressTimes100[eIndex] -= iAmountToRemove;
 }
 
 /// How many Specialists are assigned to eBuilding?
 int CvCityCitizens::GetNumSpecialistsInBuilding(BuildingTypes eBuilding) const
 {
-	ASSERT_DEBUG(eBuilding > -1);
-	ASSERT_DEBUG(eBuilding < GC.getNumBuildingInfos());
+	PRECONDITION(eBuilding > -1);
+	PRECONDITION(eBuilding < GC.getNumBuildingInfos());
 
 	return m_aiNumSpecialistsInBuilding[eBuilding];
 }
@@ -3427,8 +3389,8 @@ int CvCityCitizens::GetNumSpecialistsInBuilding(BuildingTypes eBuilding) const
 /// How many Forced Specialists are assigned to eBuilding?
 int CvCityCitizens::GetNumForcedSpecialistsInBuilding(BuildingTypes eBuilding) const
 {
-	ASSERT_DEBUG(eBuilding > -1);
-	ASSERT_DEBUG(eBuilding < GC.getNumBuildingInfos());
+	PRECONDITION(eBuilding > -1);
+	PRECONDITION(eBuilding < GC.getNumBuildingInfos());
 
 	return m_aiNumForcedSpecialistsInBuilding[eBuilding];
 }
@@ -3451,6 +3413,7 @@ void CvCityCitizens::DoClearForcedSpecialists()
 }
 
 /// What upgrade progress does a Specialist need to level up?
+// TODO: move this to CvPlayer and take GreatPersonTypes as the parameter - this has nothing to do with the city and only a bit with unit class
 int CvCityCitizens::GetSpecialistUpgradeThreshold(UnitClassTypes eUnitClass) const
 {
 	int iThreshold = /*100 in CP, 150 in VP*/ GD_INT_GET(GREAT_PERSON_THRESHOLD_BASE);
@@ -3565,7 +3528,7 @@ int CvCityCitizens::GetSpecialistUpgradeThreshold(UnitClassTypes eUnitClass) con
 /// Create a GP!
 void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, bool bCountAsProphet, bool bIsFree)
 {
-	ASSERT_DEBUG(eUnit != NO_UNIT);
+	PRECONDITION(eUnit != NO_UNIT);
 
 	if (GC.getUnitInfo(eUnit)->IsFoundReligion() && GC.getGame().isOption(GAMEOPTION_NO_RELIGION))
 		return;

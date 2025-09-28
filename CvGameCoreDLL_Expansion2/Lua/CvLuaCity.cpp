@@ -2959,7 +2959,7 @@ int CvLuaCity::lSetPopulation(lua_State* L)
 	CvCity* pkCity = GetInstance(L);
 	int iValue = lua_tointeger(L, 2);
 	bool bReassignPop = lua_isboolean(L, 3) ? lua_toboolean(L, 3) : true;
-	ASSERT_DEBUG(bReassignPop, "It is super dangerous to set this to false.  Ken would love to see why you are doing this.");
+	ASSERT(bReassignPop, "It is super dangerous to set this to false.  Ken would love to see why you are doing this.");
 	pkCity->setPopulation(iValue, bReassignPop);
 
 	return 1;
@@ -2972,7 +2972,7 @@ int CvLuaCity::lChangePopulation(lua_State* L)
 	CvCity* pkCity = GetInstance(L);
 	int iChange = lua_tointeger(L, 2);
 	bool bReassignPop = lua_isboolean(L, 3) ? lua_toboolean(L, 3) : true;
-	ASSERT_DEBUG(bReassignPop, "It is super dangerous to set this to false.  Ken would love to see why you are doing this.");
+	ASSERT(bReassignPop, "It is super dangerous to set this to false.  Ken would love to see why you are doing this.");
 	pkCity->changePopulation(iChange, bReassignPop);
 
 	return 1;
@@ -3043,14 +3043,21 @@ int CvLuaCity::lGetEventGPPFromSpecialists(lua_State* L)
 
 int CvLuaCity::lGetSpecialistRate(lua_State* L)
 {
-	CvCity* pkCity = GetInstance(L);
-	const SpecialistTypes eSpecialist = (SpecialistTypes)lua_tointeger(L, 2);
-	int Rate = 0;
-	if (eSpecialist != NO_SPECIALIST)
+	CvCity* pCity = GetInstance(L);
+	const SpecialistTypes eSpecialist = toValue<SpecialistTypes>(L, 2);
+	if (eSpecialist <= NO_SPECIALIST || eSpecialist >= GC.getNumSpecialistInfos())
+		return luaL_error(L, "Invalid specialist ID %d", eSpecialist);
+
+	const bool bTooltip = luaL_optbool(L, 3, false);
+	if (bTooltip)
 	{
-		Rate = pkCity->GetCityCitizens()->GetSpecialistRate(eSpecialist);
+		CvString tooltip;
+		lua_pushinteger(L, pCity->GetCityCitizens()->GetSpecialistRate(eSpecialist, &tooltip));
+		lua_pushstring(L, tooltip.c_str());
+		return 2;
 	}
-	lua_pushinteger(L, Rate);
+
+	lua_pushinteger(L, pCity->GetCityCitizens()->GetSpecialistRate(eSpecialist));
 	return 1;
 }
 
@@ -5806,19 +5813,16 @@ int CvLuaCity::lGetOrderQueueLength(lua_State* L)
 int CvLuaCity::lGetOrderFromQueue(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	if(pkCity)
+	const int iNum = lua_tointeger(L, 2);
+	OrderData* pkOrder = pkCity->getOrderFromQueue(iNum);
+	if (pkOrder)
 	{
-		const int iNum = lua_tointeger(L, 2);
-		OrderData* pkOrder = pkCity->getOrderFromQueue(iNum);
-		if(pkOrder)
-		{
-			lua_pushinteger(L, pkOrder->eOrderType);
-			lua_pushinteger(L, pkOrder->iData1);
-			lua_pushinteger(L, pkOrder->iData2);
-			lua_pushboolean(L, pkOrder->bSave);
-			lua_pushboolean(L, pkOrder->bRush);
-			return 5;
-		}
+		lua_pushinteger(L, pkOrder->eOrderType);
+		lua_pushinteger(L, pkOrder->iData1);
+		lua_pushinteger(L, pkOrder->iData2);
+		lua_pushboolean(L, pkOrder->bSave);
+		lua_pushboolean(L, pkOrder->bRush);
+		return 5;
 	}
 	lua_pushinteger(L, -1);
 	lua_pushinteger(L, 0);
@@ -6106,7 +6110,7 @@ int CvLuaCity::lGetBuildingEspionageModifier(lua_State* L)
 	//CvCity* pkCity = GetInstance(L);
 	const BuildingTypes eBuilding = (BuildingTypes) lua_tointeger(L, 2);
 	CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(eBuilding);
-	ASSERT_DEBUG(pBuildingInfo, "pBuildingInfo is null!");
+	ASSERT(pBuildingInfo, "pBuildingInfo is null!");
 	if (pBuildingInfo)
 	{
 		lua_pushinteger(L, pBuildingInfo->GetEspionageModifier());
@@ -6123,7 +6127,7 @@ int CvLuaCity::lGetBuildingGlobalEspionageModifier(lua_State* L)
 {
 	const BuildingTypes eBuilding = (BuildingTypes)lua_tointeger(L, 2);
 	CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(eBuilding);
-	ASSERT_DEBUG(pBuildingInfo, "pBuildingInfo is null!");
+	ASSERT(pBuildingInfo, "pBuildingInfo is null!");
 	if (pBuildingInfo)
 	{
 		lua_pushinteger(L, pBuildingInfo->GetGlobalEspionageModifier());
@@ -6187,7 +6191,7 @@ int CvLuaCity::lGetBuildingConversionModifier(lua_State* L)
 	//CvCity* pkCity = GetInstance(L);
 	const BuildingTypes eBuilding = (BuildingTypes) lua_tointeger(L, 2);
 	CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(eBuilding);
-	ASSERT_DEBUG(pBuildingInfo, "pBuildingInfo is null!");
+	ASSERT(pBuildingInfo, "pBuildingInfo is null!");
 	if (pBuildingInfo)
 	{
 		lua_pushinteger(L, pBuildingInfo->GetConversionModifier());
@@ -6204,7 +6208,7 @@ int CvLuaCity::lGetBuildingGlobalConversionModifier(lua_State* L)
 {
 	const BuildingTypes eBuilding = (BuildingTypes)lua_tointeger(L, 2);
 	CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(eBuilding);
-	ASSERT_DEBUG(pBuildingInfo, "pBuildingInfo is null!");
+	ASSERT(pBuildingInfo, "pBuildingInfo is null!");
 	if (pBuildingInfo)
 	{
 		lua_pushinteger(L, pBuildingInfo->GetGlobalConversionModifier());

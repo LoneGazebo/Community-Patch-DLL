@@ -1048,6 +1048,7 @@ enum CLOSED_ENUM PolicyModifierType
 #if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
     POLICYMOD_CONVERSION_MODIFIER,
 #endif
+	NUM_POLICY_MODIFIER_TYPE
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -1085,9 +1086,9 @@ public:
 	int GetNumPoliciesOwnedInBranch(PolicyBranchTypes eBranch) const;
 	int GetNumPoliciesPurchasedInBranch(PolicyBranchTypes eBranch) const;
 	CvPolicyXMLEntries* GetPolicies() const;
-	void ClearCache();
 	// Functions to return benefits from policies
 	int GetNumericModifier(PolicyModifierType eType);
+	void ChangesNumericModifier(PolicyModifierType eType, int iChange);
 	int GetYieldModifier(YieldTypes eYieldType);
 	int GetBuildingClassYieldModifier(BuildingClassTypes eBuildingClass, YieldTypes eYieldType);
 	int GetBuildingClassYieldChange(BuildingClassTypes eBuildingClass, YieldTypes eYieldType);
@@ -1199,12 +1200,7 @@ private:
 	PolicyBranchTypes m_eBranchPicked3;
 
 	//cache for repeated calls
-	typedef std::map<PolicyModifierType,std::pair<int,int>> ModifierMap;
-	ModifierMap mModifierLookup;
-
-	//these are used so often, make an even faster cache
-	pair<int, int> currentHappinessModifier;
-	pair<int, int> currentHappinessModifierPerCity;
+	std::vector<int> m_aiPolicyModifiers;
 };
 
 FDataStream& operator>>(FDataStream&, CvPlayerPolicies&);

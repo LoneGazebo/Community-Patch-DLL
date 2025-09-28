@@ -121,7 +121,7 @@ void CvFractal::fracInitInternal(int iNewXs, int iNewYs, int iGrain, CvRandom& r
 	int iHintsHeight = (1 << (m_iFracYExp - iSmooth)) + ((m_iFlags & FRAC_WRAP_Y) ? 0 : 1);
 	if(pbyHints != NULL)
 	{
-		ASSERT_DEBUG(iHintsLength == iHintsWidth*iHintsHeight, "pbyHints is the wrong size!")
+		ASSERT(iHintsLength == iHintsWidth*iHintsHeight, "pbyHints is the wrong size!")
 	}
 
 	for(iPass = iSmooth; iPass >= 0; iPass--)
@@ -209,7 +209,7 @@ void CvFractal::fracInitInternal(int iNewXs, int iNewYs, int iGrain, CvRandom& r
 						int iHintsI = iYY*iHintsWidth + iXX;
 
 						DEBUG_VARIABLE(iHintsLength);
-						ASSERT_DEBUG(iHintsI < iHintsLength, "iHintsI out of range");
+						ASSERT(iHintsI < iHintsLength, "iHintsI out of range");
 						m_aaiFrac[iX << iPass][iY << iPass] = pbyHints[iHintsI];
 					}
 				}
@@ -290,10 +290,10 @@ int CvFractal::getHeight(int iX, int iY)
 	int iLowX = 0;
 	int iLowY = 0;
 
-	ASSERT_DEBUG(0 <= iX && iX < m_iXs, "iX out of range");
+	ASSERT(0 <= iX && iX < m_iXs, "iX out of range");
 	if(0 > iX || iX >= m_iXs) return 0;
 
-	ASSERT_DEBUG(0 <= iY && iY < m_iYs, "iY out of range");
+	ASSERT(0 <= iY && iY < m_iYs, "iY out of range");
 	if(0 > iY || iY >= m_iYs) return 0;
 
 	iLowX = ((m_iXInc * iX) / FLOAT_PRECISION);
