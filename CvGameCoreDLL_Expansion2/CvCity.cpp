@@ -18134,7 +18134,7 @@ fraction CvCity::GetYieldPerXImprovementLocal(ImprovementTypes eImprovement, Yie
 void CvCity::ChangeYieldPerXImprovementLocal(ImprovementTypes eImprovement, YieldTypes eYield, fraction fChange)
 {
 	VALIDATE_OBJECT();
-	PRECONDITION(eImprovement > -1 && eImprovement < GC.getNumTerrainInfos(), "Invalid Improvement index.");
+	PRECONDITION(eImprovement > -1 && eImprovement < GC.getNumImprovementInfos(), "Invalid Improvement index.");
 	PRECONDITION(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
 
 	SCityExtraYields& y = m_yieldChanges[eYield];
@@ -18181,7 +18181,7 @@ fraction CvCity::GetYieldPerXImprovement(ImprovementTypes eImprovement, YieldTyp
 void CvCity::SetYieldPerXImprovement(ImprovementTypes eImprovement, YieldTypes eYield, fraction fValue)
 {
 	VALIDATE_OBJECT();
-	PRECONDITION(eImprovement > -1 && eImprovement < GC.getNumFeatureInfos(), "Invalid Improvement index.");
+	PRECONDITION(eImprovement > -1 && eImprovement < GC.getNumImprovementInfos(), "Invalid Improvement index.");
 	PRECONDITION(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
 
 	SCityExtraYields& y = m_yieldChanges[eYield];
