@@ -19,6 +19,8 @@ local g_WorldCorporationsIM = InstanceManager:new( "WorldCorporationInstance", "
 local g_WorldFranchisesIM = InstanceManager:new( "WorldFranchiseInstance", "Base", Controls.WorldFranchisesStack );
 local g_WorldMonopolyResourcesIM = InstanceManager:new( "WorldMonopolyResourceInstance", "Base", Controls.MonopolyResourcesStack );
 
+local g_MonopolyResourcePlayer = Game.GetActivePlayer();
+
 local pediaSearchStrings = {};
 
 g_Tabs = {
@@ -168,21 +170,6 @@ g_MonopolyResourcesSortOptions = {
 		CurrentDirection = nil,
 	},
 	{
-		Button = Controls.MPSortByNumWorld,
-		ImageControl = Controls.MPSortByNumWorldImage,
-		Column = "NumInWorld",
-		DefaultDirection = "desc",
-		SortType = "numeric",
-		CurrentDirection = nil,
-	},
-	{
-		Button = Controls.MPSortByCivilization,
-		ImageControl = Controls.MPSortByCivilizationImage,
-		Column = "CivName",
-		DefaultDirection = "asc",
-		CurrentDirection = nil,
-	},
-	{
 		Button = Controls.MPSortByPercent,
 		ImageControl = Controls.MPSortByPercentImage,
 		Column = "OwnedPercent",
@@ -191,11 +178,10 @@ g_MonopolyResourcesSortOptions = {
 		CurrentDirection = "desc",
 	},
 	{
-		Button = Controls.MPSortByPercentMonopoly,
-		ImageControl = Controls.MPSortByPercentMonopolyImage,
-		Column = "MonopolyPercent",
+		Button = Controls.MPSortByCivilization,
+		ImageControl = Controls.MPSortByCivilizationImage,
+		Column = "CivName",
 		DefaultDirection = "desc",
-		SortType = "numeric",
 		CurrentDirection = nil,
 	},
 }
@@ -396,6 +382,8 @@ end
 function RefreshMonopolies()
 	--print("RefreshMonopolies()");
 
+	local g_MonopolyPlayer = Players[g_MonopolyResourcePlayer];
+
 	g_WorldMonopolyResourcesIM:ResetInstances();
 	
 	local resources = {};
@@ -408,7 +396,7 @@ function RefreshMonopolies()
 			local szResourceName = Locale.ConvertTextKey( pResource.Description );
 			local szCivName = 0;
 			local bValid = IsResourceValid(eResource);
-			local iPercentOwned = g_pPlayer:GetMonopolyPercent(eResource);
+			local iPercentOwned = g_MonopolyPlayer:GetMonopolyPercent(eResource);
 
 			if( ePlayer ~= -1 ) then
 				iMonopolyPercent = Players[ePlayer]:GetMonopolyPercent(eResource);
@@ -425,6 +413,7 @@ function RefreshMonopolies()
 					CivName = szCivName,
 					PlayerID = ePlayer,
 					OwnedPercent = iPercentOwned,
+					NumInWorld = Map.GetNumResources(eResource),
 					MonopolyPercent = iMonopolyPercent,
 				};
 				table.insert(resources, info);
@@ -450,21 +439,23 @@ function IsResourceValid(eResource)
 	if(iTotal <= 0) then
 		return false;
 	end
-	
-	--if (not g_pPlayer:IsResourceRevealed(eResource)) then
+
+	local selectedPlayer = Players[g_MonopolyResourcePlayer];
+
+	--if (not selectedPlayer:IsResourceRevealed(eResource)) then
 	--	return false;
 	--end
 
 	if(g_MonopolyResourceType == "Global") then
-		return g_pPlayer:HasGlobalMonopoly(eResource);
+		return selectedPlayer:HasGlobalMonopoly(eResource);
 	elseif(g_MonopolyResourceType == "Strategic") then
-		return g_pPlayer:HasStrategicMonopoly(eResource);
+		return selectedPlayer:HasStrategicMonopoly(eResource);
 	elseif(g_MonopolyResourceType == "Potential") then
-		return (g_pPlayer:GetMonopolyPercent(eResource) > 0
-			and not g_pPlayer:HasGlobalMonopoly(eResource)
-			and not g_pPlayer:HasStrategicMonopoly(eResource))
+		return (selectedPlayer:GetMonopolyPercent(eResource) > 0
+			and not selectedPlayer:HasGlobalMonopoly(eResource)
+			and not selectedPlayer:HasStrategicMonopoly(eResource))
 	end
-	
+
 	-- g_MonopolyResourceType == "All"
 	return true;
 end
@@ -496,52 +487,40 @@ function HookupResourceInstance(info)
 	if(info.PlayerID == -1) then
 		instance.CivName:LocalizeAndSetText( "TXT_KEY_CPO_MP_NO_CIVILIZATION" );
 	else
-		instance.CivName:SetText(info.CivName);
 		HookupCivControl( info.PlayerID, 32, instance.CivName, instance.CivIcon, instance.CivIconBG, instance.CivIconShadow );
+		instance.CivName:LocalizeAndSetText("TXT_KEY_CPO_MONOPOLY_OWNER_INFO", instance.CivName:GetText() ,info.MonopolyPercent);
 	end
 
 	
 	local iNumResources = 0;
-	
-	local iNumTotal = Map.GetNumResources(info.ResourceID);
-	instance.NumInWorldLabel:SetText(iNumTotal);
+	local iNumImports = 0;
+	local iNumMinors = 0;
 
-	if(g_pPlayer:IsShowImports()) then
-		iNumResources = g_pPlayer:GetNumResourceTotal(info.ResourceID, false, false) + g_pPlayer:GetResourceExport(info.ResourceID);
-		iNumImports = g_pPlayer:GetResourceImport(info.ResourceID);
-		iNumMinors = g_pPlayer:GetResourceFromMinors(info.ResourceID);
+	local selectedPlayer = Players[g_MonopolyResourcePlayer];
+	if(selectedPlayer:IsShowImports()) then
+		iNumResources = selectedPlayer:GetNumResourceTotal(info.ResourceID, false, false) + selectedPlayer:GetResourceExport(info.ResourceID);
+		iNumImports = selectedPlayer:GetResourceImport(info.ResourceID);
+		iNumMinors = selectedPlayer:GetResourceFromMinors(info.ResourceID);
 		instance.PercentLabel:LocalizeAndSetToolTip("TXT_KEY_RESOURCE_BREAKDOWN_IMPORTS", iNumResources, iNumImports, iNumMinors);
+		instance.PercentLabel2:LocalizeAndSetToolTip("TXT_KEY_RESOURCE_BREAKDOWN_IMPORTS", iNumResources, iNumImports, iNumMinors);
 	else
-		iNumResources = g_pPlayer:GetNumResourceTotal(info.ResourceID, false, false) + g_pPlayer:GetResourceExport(info.ResourceID);
+		iNumResources = selectedPlayer:GetNumResourceTotal(info.ResourceID, false, false) + selectedPlayer:GetResourceExport(info.ResourceID);
 		instance.PercentLabel:LocalizeAndSetToolTip("TXT_KEY_RESOURCE_BREAKDOWN", iNumResources);
+		instance.PercentLabel2:LocalizeAndSetToolTip("TXT_KEY_RESOURCE_BREAKDOWN", iNumResources);
 	end
 	local strPercent = Locale.ConvertTextKey( "TXT_KEY_CPO_MP_MONOPOLY_PERCENT", info.OwnedPercent );
+	local strNumOnMap = Locale.ConvertTextKey( "TXT_KEY_CPO_MP_MONOPOLY_NUM_ON_MAP", iNumResources + iNumImports + iNumMinors, info.NumInWorld );
 	
 	local colorLabel = "";
-	if g_pPlayer:HasGlobalMonopoly(info.ResourceID) then
+	if selectedPlayer:HasGlobalMonopoly(info.ResourceID) then
 		colorLabel = "[COLOR_POSITIVE_TEXT]";
-	elseif g_pPlayer:HasStrategicMonopoly(info.ResourceID) then
+	elseif selectedPlayer:HasStrategicMonopoly(info.ResourceID) then
 		colorLabel = "[COLOR_YELLOW]";
-	elseif iNumResources > 0 then
+	elseif info.OwnedPercent > 0 then
 		colorLabel = "[COLOR_NEGATIVE_TEXT]";
 	end
 	instance.PercentLabel:SetText(colorLabel .. strPercent .. "[ENDCOLOR]");
-	
-	if(info.PlayerID ~= -1) then
-		if(Players[info.PlayerID]:IsShowImports()) then
-			iNumResources = Players[info.PlayerID]:GetNumResourceTotal(info.ResourceID, false, false) + Players[info.PlayerID]:GetResourceExport(info.ResourceID);
-			iNumImports = Players[info.PlayerID]:GetResourceImport(info.ResourceID);
-			iNumMinors = Players[info.PlayerID]:GetResourceFromMinors(info.ResourceID);
-			instance.MonopolyPercentLabel:LocalizeAndSetToolTip("TXT_KEY_RESOURCE_BREAKDOWN_IMPORTS", iNumResources, iNumImports, iNumMinors);
-		else
-			iNumResources = Players[info.PlayerID]:GetNumResourceTotal(info.ResourceID, false, false) + Players[info.PlayerID]:GetResourceExport(info.ResourceID);
-			instance.MonopolyPercentLabel:LocalizeAndSetToolTip("TXT_KEY_RESOURCE_BREAKDOWN", iNumResources);
-		end
-		instance.MonopolyPercentLabel:LocalizeAndSetText("TXT_KEY_CPO_MP_MONOPOLY_PERCENT", info.MonopolyPercent);
-	else
-		instance.MonopolyPercentLabel:SetText("");
-		instance.MonopolyPercentLabel:LocalizeAndSetToolTip("");
-	end
+	instance.PercentLabel2:SetText(colorLabel .. strNumOnMap .. "[ENDCOLOR]");
 
 end
 
@@ -1032,6 +1011,26 @@ function BuildWorldCorporationPulldown()
     Controls.WorldCorporationsPulldown:CalculateInternals();
 end
 
+function BuildMonopolyCivPulldown()
+	local pullDown = Controls.MonopolyCivPulldown;
+
+	for iPlayerLoop=0, GameDefines.MAX_MAJOR_CIVS-1,1 do
+		local pLoopPlayer = Players[iPlayerLoop];
+		if(pLoopPlayer:IsAlive()) then
+			local eTeam = pLoopPlayer:GetTeam();
+			if(g_pTeam:IsHasMet(eTeam)) then
+				local instance = {};
+				pullDown:BuildEntry( "InstanceOne", instance );
+				instance.Button:LocalizeAndSetText( GetPlayerCiv(iPlayerLoop).ShortDescription );
+				instance.Button:SetVoid1( iPlayerLoop );
+			end
+		end
+	end
+
+	pullDown:CalculateInternals();
+	pullDown:RegisterSelectionCallback( OnMonopolyCivPulldown );
+end
+
 function BuildMonopolyTypePulldown()
 	local pullDown = Controls.MonopolyTypePulldown;
 
@@ -1050,16 +1049,18 @@ function BuildPulldowns()
 	BuildYourCorporationPulldown();
 	BuildWorldCorporationPulldown();
 	BuildMonopolyTypePulldown();
-	
+	BuildMonopolyCivPulldown();
 	OnYourCorporationPulldown( 1 );
 	OnWorldCorporationsPulldown( 1 );
 	OnMonopolyTypePulldown( 1 );
+	OnMonopolyCivPulldown( Game.GetActivePlayer() );
 end
 
 function RefreshMonopolyPulldowns()
 	Controls.MonopolyTypePulldown:ClearEntries();
-
+	Controls.MonopolyCivPulldown:ClearEntries();
 	BuildMonopolyTypePulldown();
+	BuildMonopolyCivPulldown();
 end
 
 function OnYourCorporationPulldown( index )
@@ -1090,6 +1091,14 @@ function OnWorldCorporationsPulldown( index )
 end
 Controls.WorldCorporationsPulldown:RegisterSelectionCallback( OnWorldCorporationsPulldown );
 
+function OnMonopolyCivPulldown( ePlayer )
+	--print("OnMonopolyCivPulldown()=" .. ePlayer);
+
+	g_MonopolyResourcePlayer = ePlayer;
+	Controls.MonopolyCivPulldown:GetButton():LocalizeAndSetText( GetPlayerCiv(ePlayer).ShortDescription );
+
+	RefreshMonopolies();
+end
 
 function OnMonopolyTypePulldown( index )
 	--print("OnMonopolyTypePulldown()=" .. index);

@@ -2215,23 +2215,11 @@
 		<Row Tag="TXT_KEY_CPO_MP_CIVILIZATION_SORT_TT">
 			<Text>Name of the civilization that has the monopoly.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CPO_MP_NUM_IN_WORLD">
-			<Text>On Map</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CPO_MP_NUM_IN_WORLD_SORT_TT">
-			<Text>The number of resources on the map.</Text>
-		</Row>
 		<Row Tag="TXT_KEY_CPO_MP_OWNED">
-			<Text>You Control</Text>
+			<Text>Controlled</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CPO_MP_OWNED_SORT_TT">
-			<Text>Percentage of the resources that you control.[NEWLINE][NEWLINE]For a [COLOR_POSITIVE_TEXT]Global Monopoly[ENDCOLOR], you need to control more than 50% of the resources and more than any other player. For a [COLOR_YELLOW]Strategic Monopoly[ENDCOLOR], you need to control more than 25% of the resources.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CPO_MP_MONOPOLY">
-			<Text>Monopoly</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CPO_MP_MONOPOLY_SORT_TT">
-			<Text>Percentage of the resources controlled by the monopoly owner.</Text>
+			<Text>Percentage of the resources controlled by the selected player.[NEWLINE][NEWLINE]For a [COLOR_POSITIVE_TEXT]Global Monopoly[ENDCOLOR], you need to control more than 50% of the resources and more than any other player. For a [COLOR_YELLOW]Strategic Monopoly[ENDCOLOR], you need to control more than 25% of the resources.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CPO_MP_MONOPOLY_BONUS">
 			<Text>Monopoly Bonus</Text>
@@ -2239,11 +2227,20 @@
 		<Row Tag="TXT_KEY_CPO_MP_MONOPOLY_PERCENT">
 			<Text>{1_Num}%</Text>
 		</Row>
+		<Row Tag="TXT_KEY_CPO_MP_MONOPOLY_NUM_ON_MAP">
+			<Text>({1_NumOwned}/{2_NumOnMap})</Text>
+		</Row>
 		<Row Tag="TXT_KEY_CPO_MP_NO_CIVILIZATION">
 			<Text>No Civilization</Text>
 		</Row>
+		<Row Tag="TXT_KEY_CPO_MONOPOLY_OWNER_INFO">
+			<Text>{1_Civilization} ({2_Percent}%)</Text>
+		</Row>
 		<Row Tag="TXT_KEY_CPO_MP_DROPDOWN_LABEL_SELECT_TYPE">
 			<Text>Select Monopoly Type</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CPO_MP_DROPDOWN_LABEL_SELECT_PLAYER">
+			<Text>Select Player</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CPO_MP_PULLDOWN_TYPE_ALL">
 			<Text>All</Text>
