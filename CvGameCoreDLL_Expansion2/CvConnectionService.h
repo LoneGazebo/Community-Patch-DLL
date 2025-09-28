@@ -196,6 +196,9 @@ private:
 	// Helper to generate event ID based on turn and sequence
 	unsigned long long GenerateEventId();
 	
+	// Helper to clean Lua error messages
+	std::string CleanLuaErrorMessage(const char* errorMsg);
+
 	// Serialization methods for event sequence
 	void DeserializeEventSequence();
 
