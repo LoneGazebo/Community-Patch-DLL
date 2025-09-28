@@ -210,6 +210,7 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(RemoveFromSquad);
 	Method(DoSquadMovement);
 	Method(SetSquadEndMovementType);
+	Method(GetSquadMovementPreview);
 
 	Method(Range);
 	Method(NukeDamageLevel);
@@ -2663,13 +2664,14 @@ int CvLuaUnit::lRemoveFromSquad(lua_State* L)
 	return 0;
 }
 //------------------------------------------------------------------------------
-// void DoSquadMovement(CvPlot* pDestPlot)
+// void DoSquadMovement(CvPlot* pDestPlot, bool escort)
 int CvLuaUnit::lDoSquadMovement(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
 	CvPlot* pkDestPlot = CvLuaPlot::GetInstance(L, 2);
+	const int bEscort = lua_toboolean(L, 3);
 
-	pkUnit->DoSquadMovement(pkDestPlot);
+	pkUnit->DoSquadMovement(pkDestPlot, bEscort);
 	return 0;
 }
 //------------------------------------------------------------------------------
@@ -2681,6 +2683,30 @@ int CvLuaUnit::lSetSquadEndMovementType(lua_State* L)
 
 	pkUnit->SetSquadEndMovementType(iNewValue);
 	return 0;
+}
+//------------------------------------------------------------------------------
+// GetSquadMovementPreview(CvPlot* pDestPlot)
+int CvLuaUnit::lGetSquadMovementPreview(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+    CvPlot* pkDestPlot = CvLuaPlot::GetInstance(L, 2);
+
+    std::vector<CvPlot*> pPlotList;
+    pkUnit->GetSquadMovementPreview(pPlotList, pkDestPlot);
+
+    int iReturnValues = 0;
+
+	for (std::vector<CvPlot*>::iterator it = pPlotList.begin(); it != pPlotList.end(); ++it)
+	{
+		CvPlot* pkPlot = *it;
+		if (pkPlot)
+		{
+			CvLuaPlot::Push(L, pkPlot);
+			iReturnValues++;
+		}
+	}
+
+    return iReturnValues;
 }
 //------------------------------------------------------------------------------
 //int GetRange();

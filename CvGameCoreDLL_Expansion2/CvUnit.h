@@ -220,6 +220,7 @@ public:
 		MOVEFLAG_PRETEND_CANALS					= 0x10000000, //pretend ships can move one tile inland to see if a canal would make sense
 	    MOVEFLAG_IGNORE_STACKING_NEUTRAL		= 0x20000000, // stacking rules (with neutral units) don't apply (on turn end plots)
 		MOVEFLAG_CONTINUE_TO_CLOSEST_PLOT		= 0x40000000, //if the target plot is occupied go to the closest available plot instead
+		MOVEFLAG_KEEP_LINK                      = 0x80000000, //if flag is present, will not break unit link upon issuance of a new move mission
 
 		//seems we are running out of bits, be careful when adding new flags ... maybe we can finally recycle the unused ones above?
 
@@ -628,9 +629,13 @@ public:
 	int  GetSquadNumber() const;
 	void AssignToSquad(int iNewSquadNumber);
 	void RemoveFromSquad();
-	void DoSquadMovement(CvPlot* pDestPlot);
+	CvPlot* GetSquadCenterOfMass();
+	std::map<CvUnit*, CvPlot*> CvUnit::DoSquadPlotAssignments(CvPlot* pDestPlot, bool escort, bool computeOnly);
+	void DoSquadMovement(CvPlot* pDestPlot, bool escort);
+	void GetSquadMovementPreview(std::vector<CvPlot*>& pPlotList, CvPlot* pDestPlot);
 	bool IsUnitInActiveMoveMission();
 	bool IsSquadMoving();
+	bool SquadHasLink();
 	void TryEndSquadMovement();
 	void SetSquadDestination(CvPlot* pDestPlot = NULL);
 	bool HasSquadDestination();

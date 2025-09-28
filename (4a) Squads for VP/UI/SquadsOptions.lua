@@ -10,6 +10,7 @@ local SquadsOptions = Modding.OpenUserData( "Squads Options", 1 );
 -- Defaults
 local HighlightSquadUnits = true;
 local ShowSquadNumberUnderFlag = true;
+local EscortNonCombatUnits = true;
 local SquadsEndMovementType = 0;
 
 -- UI handlers
@@ -44,6 +45,12 @@ function HandleHighlightSquadUnitsCheckbox()
     LuaEvents.SQUADS_OPTIONS_CHANGED("HighlightSquadUnits", HighlightSquadUnits)
 end
 Controls.HighlightSquadUnitsCheckBox:RegisterCheckHandler(HandleHighlightSquadUnitsCheckbox);
+
+function HandleEscortNonCombatUnitsCheckbox()
+    EscortNonCombatUnits = not EscortNonCombatUnits;
+    LuaEvents.SQUADS_OPTIONS_CHANGED("EscortNonCombatUnits", EscortNonCombatUnits)
+end
+Controls.EscortCheckBox:RegisterCheckHandler(HandleEscortNonCombatUnitsCheckbox);
 
 function HandleFlagsNumberCheckBox()
     ShowSquadNumberUnderFlag = not ShowSquadNumberUnderFlag;
@@ -89,6 +96,13 @@ if _hsu ~= nil then
 end
 LuaEvents.SQUADS_OPTIONS_CHANGED("HighlightSquadUnits", HighlightSquadUnits)
 Controls.HighlightSquadUnitsCheckBox:SetCheck(HighlightSquadUnits);
+
+local _encu = SquadsOptions.GetValue("EscortNonCombatUnits");
+if _encu ~= nil then
+    EscortNonCombatUnits = _encu == 1;
+end
+LuaEvents.SQUADS_OPTIONS_CHANGED("EscortNonCombatUnits", EscortNonCombatUnits)
+Controls.EscortCheckBox:SetCheck(EscortNonCombatUnits);
 
 local _ssnuf = SquadsOptions.GetValue("ShowSquadNumberUnderFlag");
 if _ssnuf ~= nil then
