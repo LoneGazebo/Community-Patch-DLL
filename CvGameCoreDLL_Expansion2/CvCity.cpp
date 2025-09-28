@@ -11456,7 +11456,7 @@ int CvCity::getProductionTurnsLeft(ProjectTypes eProject, int iNum) const
 int CvCity::getProductionNeeded(ProcessTypes eProcess) const
 {
 	VALIDATE_OBJECT();
-	static ProcessTypes stockpile = (ProcessTypes)GC.getInfoTypeForString("PROCESS_STOCKPILE");
+	static ProcessTypes stockpile = (ProcessTypes)GC.getInfoTypeForString("PROCESS_STOCKPILE", true);
 	if (eProcess == stockpile)
 	{
 		return GET_PLAYER(getOwner()).getMaxStockpile();
@@ -11469,7 +11469,7 @@ int CvCity::getProductionNeeded(ProcessTypes eProcess) const
 int CvCity::getProductionTurnsLeft(ProcessTypes eProcess, int) const
 {
 	VALIDATE_OBJECT();
-	static ProcessTypes stockpile = (ProcessTypes)GC.getInfoTypeForString("PROCESS_STOCKPILE");
+	static ProcessTypes stockpile = (ProcessTypes)GC.getInfoTypeForString("PROCESS_STOCKPILE", true);
 	if (eProcess == stockpile)
 	{
 		int iProductionStored = getOverflowProduction() * 100;
