@@ -426,7 +426,7 @@ bool CvAStar::FindPathWithCurrentConfiguration(int iXstart, int iYstart, int iXd
 		{
 			// Add debug breakpoint here for investigation during development
 			OutputDebugString("Repeated pathfinding start\n");
-			ASSERT_DEBUG(false, "Repeated pathfinding detected - investigate call path");
+			ASSERT(false, "Repeated pathfinding detected - investigate call path");
 		}
 		giLastStartIndex = iStartIndex;
 		giLastDestIndex = iDestIndex;
@@ -577,7 +577,7 @@ void CvAStar::CreateChildren(CvAStarNode* node)
 			if (isValid(x, y))
 			{
 				CvAStarNode* check = GetNodeMutable(x,y);
-				ASSERT_DEBUG(check != NULL, "GetNodeMutable returned null after isValid check");
+				ASSERT(check != NULL, "GetNodeMutable returned null after isValid check");
 				if (check == node->m_pParent)
 					continue;
 
@@ -1771,8 +1771,8 @@ int StepValidGeneric(const CvAStarNode* parent, const CvAStarNode* node, const S
 	CvPlot* pToPlot = kMap.plotUnchecked(node->m_iX, node->m_iY);
 	CvPlot* pFromPlot = kMap.plotUnchecked(parent->m_iX, parent->m_iY);
 
-	ASSERT_DEBUG(pFromPlot != NULL, "plotUnchecked returned null - invalid parent coordinates");
-	ASSERT_DEBUG(pToPlot != NULL, "plotUnchecked returned null - invalid node coordinates");
+	ASSERT(pFromPlot != NULL, "plotUnchecked returned null - invalid parent coordinates");
+	ASSERT(pToPlot != NULL, "plotUnchecked returned null - invalid node coordinates");
 
 	if (eMyTeam!=NO_TEAM && !pToPlot->isRevealed(eMyTeam))
 		return FALSE;

@@ -85,7 +85,7 @@ bool CvDatabaseUtility::Initialize2DArray(int**& ppArray, const char* szTable1Na
 	if(iCount1 <= 0 || iCount2 <= 0)
 	{
 		ppArray = NULL;
-		ASSERT_DEBUG(false, "Cannot initialize array to 0 size.");
+		ASSERT(false, "Cannot initialize array to 0 size.");
 		return false;
 	}
 
@@ -113,7 +113,7 @@ void CvDatabaseUtility::Initialize2DArray(int**& ppArray, const size_t iCount1, 
 {
 	if(iCount1 <= 0 || iCount2 <= 0)
 	{
-		ASSERT_DEBUG(false, "Cannot initialize array to 0 size.");
+		ASSERT(false, "Cannot initialize array to 0 size.");
 		return;
 	}
 
@@ -164,7 +164,7 @@ bool CvDatabaseUtility::PopulateArrayByExistence(bool*& pArray, const char* szTy
 
 	if(!pResults->Bind(1, szFilterValue, false))
 	{
-		ASSERT_DEBUG(false, GetErrorMessage());
+		ASSERT(false, GetErrorMessage());
 		return false;
 	}
 
@@ -200,7 +200,7 @@ bool CvDatabaseUtility::PopulateArrayByExistence(int*& pArray, const char* szTyp
 
 	if(!pResults->Bind(1, szFilterValue, false))
 	{
-		ASSERT_DEBUG(false, GetErrorMessage());
+		ASSERT(false, GetErrorMessage());
 		return false;
 	}
 
@@ -237,7 +237,7 @@ bool CvDatabaseUtility::PopulateVector(std::vector<int>& pVector, const char* sz
 
 	if (!pResults->Bind(1, szFilterValue, false))
 	{
-		ASSERT_DEBUG(false, GetErrorMessage());
+		ASSERT(false, GetErrorMessage());
 		return false;
 	}
 
@@ -281,7 +281,7 @@ bool CvDatabaseUtility::PopulateArrayByValue(int*& pArray, const char* szTypeTab
 
 	if(!pResults->Bind(1, szFilterValue, false))
 	{
-		ASSERT_DEBUG(false, GetErrorMessage());
+		ASSERT(false, GetErrorMessage());
 		return false;
 	}
 	while(pResults->Step())
@@ -318,7 +318,7 @@ bool CvDatabaseUtility::PopulateSetByExistence(set<int>& siData, const char* szT
 
 	if (!pResults->Bind(1, szFilterValue, false))
 	{
-		ASSERT_DEBUG(false, GetErrorMessage());
+		ASSERT(false, GetErrorMessage());
 		return false;
 	}
 

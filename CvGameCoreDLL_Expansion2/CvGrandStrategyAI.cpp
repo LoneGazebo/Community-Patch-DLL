@@ -49,24 +49,24 @@ bool CvAIGrandStrategyXMLEntry::CacheResults(Database::Results& kResults, CvData
 /// What Flavors will be added by adopting this Grand Strategy?
 int CvAIGrandStrategyXMLEntry::GetFlavorValue(int i) const
 {
-	ASSERT_DEBUG(i < GC.getNumFlavorTypes(), "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumFlavorTypes(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piFlavorValue ? m_piFlavorValue[i] : -1;
 }
 
 /// What Flavors will be added by adopting this Grand Strategy?
 int CvAIGrandStrategyXMLEntry::GetSpecializationBoost(YieldTypes eYield) const
 {
-	ASSERT_DEBUG(eYield < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(eYield > -1, "Index out of bounds");
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(eYield > -1, "Index out of bounds");
 	return m_piSpecializationBoost ? m_piSpecializationBoost[(int)eYield] : 0;
 }
 
 /// What Flavors will be added by adopting this Grand Strategy?
 int CvAIGrandStrategyXMLEntry::GetFlavorModValue(int i) const
 {
-	ASSERT_DEBUG(i < GC.getNumFlavorTypes(), "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumFlavorTypes(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piFlavorModValue ? m_piFlavorModValue[i] : 0;
 }
 
@@ -141,7 +141,7 @@ void CvGrandStrategyAI::Init(CvAIGrandStrategyXMLEntries* pAIGrandStrategies, Cv
 	m_pPlayer = pPlayer;
 
 	// Initialize AIGrandStrategy status array
-	ASSERT_DEBUG(m_paiGrandStrategyPriority==NULL, "about to leak memory, CvGrandStrategyAI::m_paiGrandStrategyPriority");
+	ASSERT(m_paiGrandStrategyPriority==NULL, "about to leak memory, CvGrandStrategyAI::m_paiGrandStrategyPriority");
 	m_paiGrandStrategyPriority = FNEW(int[m_pAIGrandStrategies->GetNumAIGrandStrategies()], c_eCiv5GameplayDLL, 0);
 
 	Reset();
@@ -191,7 +191,7 @@ void CvGrandStrategyAI::Serialize(GrandStrategyAI& grandStrategyAI, Visitor& vis
 	visitor(grandStrategyAI.m_iNumTurnsSinceActiveSet);
 	visitor(grandStrategyAI.m_eActiveGrandStrategy);
 
-	ASSERT_DEBUG(grandStrategyAI.m_pAIGrandStrategies != NULL && grandStrategyAI.m_pAIGrandStrategies->GetNumAIGrandStrategies() > 0, "Number of AIGrandStrategies to serialize is expected to greater than 0");
+	ASSERT(grandStrategyAI.m_pAIGrandStrategies != NULL && grandStrategyAI.m_pAIGrandStrategies->GetNumAIGrandStrategies() > 0, "Number of AIGrandStrategies to serialize is expected to greater than 0");
 	visitor(MakeConstSpan(grandStrategyAI.m_paiGrandStrategyPriority, grandStrategyAI.m_pAIGrandStrategies->GetNumAIGrandStrategies()));
 
 	visitor(grandStrategyAI.m_eGuessOtherPlayerActiveGrandStrategy);
@@ -1272,7 +1272,7 @@ int CvGrandStrategyAI::GetUnitedNationsPriority()
 	else
 	{
 		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-		ASSERT_DEBUG(pLeague != NULL);
+		ASSERT(pLeague != NULL);
 		if (pLeague != NULL)
 		{
 			// Votes we control
@@ -1647,7 +1647,7 @@ int CvGrandStrategyAI::GetNumTurnsSinceActiveSet() const
 void CvGrandStrategyAI::SetNumTurnsSinceActiveSet(int iValue)
 {
 	m_iNumTurnsSinceActiveSet = iValue;
-	ASSERT_DEBUG(m_iNumTurnsSinceActiveSet >= 0);
+	ASSERT(m_iNumTurnsSinceActiveSet >= 0);
 }
 
 /// Change the number of turns since the Active Strategy was last set
@@ -1658,27 +1658,27 @@ void CvGrandStrategyAI::ChangeNumTurnsSinceActiveSet(int iChange)
 		m_iNumTurnsSinceActiveSet += iChange;
 	}
 
-	ASSERT_DEBUG(m_iNumTurnsSinceActiveSet >= 0);
+	ASSERT(m_iNumTurnsSinceActiveSet >= 0);
 }
 
 /// Returns the Priority Level the player has for a particular Grand Strategy
 int CvGrandStrategyAI::GetGrandStrategyPriority(AIGrandStrategyTypes eGrandStrategy) const
 {
-	ASSERT_DEBUG(eGrandStrategy != NO_AIGRANDSTRATEGY);
+	PRECONDITION(eGrandStrategy != NO_AIGRANDSTRATEGY);
 	return m_paiGrandStrategyPriority[eGrandStrategy];
 }
 
 /// Sets the Priority Level the player has for a particular Grand Strategy
 void CvGrandStrategyAI::SetGrandStrategyPriority(AIGrandStrategyTypes eGrandStrategy, int iValue)
 {
-	ASSERT_DEBUG(eGrandStrategy != NO_AIGRANDSTRATEGY);
+	PRECONDITION(eGrandStrategy != NO_AIGRANDSTRATEGY);
 	m_paiGrandStrategyPriority[eGrandStrategy] = iValue;
 }
 
 /// Changes the Priority Level the player has for a particular Grand Strategy
 void CvGrandStrategyAI::ChangeGrandStrategyPriority(AIGrandStrategyTypes eGrandStrategy, int iChange)
 {
-	ASSERT_DEBUG(eGrandStrategy != NO_AIGRANDSTRATEGY);
+	PRECONDITION(eGrandStrategy != NO_AIGRANDSTRATEGY);
 
 	if(iChange != 0)
 	{
@@ -1833,21 +1833,21 @@ void CvGrandStrategyAI::DoGuessOtherPlayersActiveGrandStrategy()
 /// What does this AI BELIEVE another player's Active Grand Strategy to be?
 AIGrandStrategyTypes CvGrandStrategyAI::GetGuessOtherPlayerActiveGrandStrategy(PlayerTypes ePlayer) const
 {
-	ASSERT_DEBUG(ePlayer < MAX_MAJOR_CIVS);
+	PRECONDITION(ePlayer < MAX_MAJOR_CIVS);
 	return (AIGrandStrategyTypes) m_eGuessOtherPlayerActiveGrandStrategy[ePlayer];
 }
 
 /// How confident is the AI in its guess of what another player's Active Grand Strategy is?
 GuessConfidenceTypes CvGrandStrategyAI::GetGuessOtherPlayerActiveGrandStrategyConfidence(PlayerTypes ePlayer) const
 {
-	ASSERT_DEBUG(ePlayer < MAX_MAJOR_CIVS);
+	PRECONDITION(ePlayer < MAX_MAJOR_CIVS);
 	return (GuessConfidenceTypes) m_eGuessOtherPlayerActiveGrandStrategyConfidence[ePlayer];
 }
 
 /// Sets what this AI BELIEVES another player's Active Grand Strategy to be
 void CvGrandStrategyAI::SetGuessOtherPlayerActiveGrandStrategy(PlayerTypes ePlayer, AIGrandStrategyTypes eGrandStrategy, GuessConfidenceTypes eGuessConfidence)
 {
-	ASSERT_DEBUG(ePlayer < MAX_MAJOR_CIVS);
+	PRECONDITION(ePlayer < MAX_MAJOR_CIVS);
 	m_eGuessOtherPlayerActiveGrandStrategy[ePlayer] = eGrandStrategy;
 	m_eGuessOtherPlayerActiveGrandStrategyConfidence[ePlayer] = eGuessConfidence;
 }

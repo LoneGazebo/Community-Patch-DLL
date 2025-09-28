@@ -54,7 +54,7 @@ CvCitySiteEvaluator::CvCitySiteEvaluator()
 /// Is it valid for this player to found a city here?
 bool CvCitySiteEvaluator::CanFoundCity(const CvPlot* pPlot, const CvPlayer* pPlayer, bool bIgnoreDistanceToExistingCities) const
 {
-	ASSERT_DEBUG(pPlot);
+	ASSERT(pPlot);
 	if(!pPlot)
 		return false;
 
@@ -273,7 +273,7 @@ void CvSiteEvaluatorForSettler::ComputeFlavorMultipliers(const CvPlayer* pPlayer
 /// Retrieve the relative value of this plot (including plots that would be in city radius)
 int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, const std::vector<int>& ignorePlots, bool bCoastOnly, CvString* pDebug)
 {
-	ASSERT_DEBUG(pPlot);
+	ASSERT(pPlot);
 	if(!pPlot)
 		return -1;
 

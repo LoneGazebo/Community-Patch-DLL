@@ -45,8 +45,8 @@ static CvEnumMap<PlayerTypes, CvPlayerAI> s_players;
 
 CvPlayerAI& CvPlayerAI::getPlayer(PlayerTypes ePlayer)
 {
-	ASSERT_DEBUG(ePlayer != NO_PLAYER, "Player is not assigned a valid value");
-	ASSERT_DEBUG(ePlayer < MAX_PLAYERS, "Player is not assigned a valid value");
+	PRECONDITION(ePlayer != NO_PLAYER, "Player is not assigned a valid value");
+	PRECONDITION(ePlayer < MAX_PLAYERS, "Player is not assigned a valid value");
 
 	if (ePlayer <= NO_PLAYER || ePlayer >= MAX_PLAYERS)
 		ePlayer = BARBARIAN_PLAYER;
@@ -100,9 +100,9 @@ void CvPlayerAI::AI_reset()
 
 void CvPlayerAI::AI_doTurnPre()
 {
-	ASSERT_DEBUG(getPersonalityType() != NO_LEADER, "getPersonalityType() is not expected to be equal with NO_LEADER");
-	ASSERT_DEBUG(getLeaderType() != NO_LEADER, "getLeaderType() is not expected to be equal with NO_LEADER");
-	ASSERT_DEBUG(getCivilizationType() != NO_CIVILIZATION, "getCivilizationType() is not expected to be equal with NO_CIVILIZATION");
+	PRECONDITION(getPersonalityType() != NO_LEADER, "getPersonalityType() is not expected to be equal with NO_LEADER");
+	PRECONDITION(getLeaderType() != NO_LEADER, "getLeaderType() is not expected to be equal with NO_LEADER");
+	PRECONDITION(getCivilizationType() != NO_CIVILIZATION, "getCivilizationType() is not expected to be equal with NO_CIVILIZATION");
 
 	if(isHuman())
 	{
@@ -1199,7 +1199,7 @@ void CvPlayerAI::AI_DoEventChoice(EventTypes eChosenEvent)
 
 void CvPlayerAI::AI_doResearch()
 {
-	ASSERT_DEBUG(!isHuman(), "isHuman did not return false as expected");
+	ASSERT(!isHuman(), "isHuman did not return false as expected");
 
 	if(GetPlayerTechs()->GetCurrentResearch() == NO_TECH)
 	{
@@ -1341,7 +1341,7 @@ void CvPlayerAI::ProcessGreatPeople(void)
 {
 	SpecialUnitTypes eSpecialUnitGreatPerson = (SpecialUnitTypes) GC.getInfoTypeForString("SPECIALUNIT_PEOPLE");
 
-	ASSERT_DEBUG(isAlive());
+	ASSERT(isAlive());
 
 	if(!isAlive())
 		return;
@@ -1414,13 +1414,13 @@ void CvPlayerAI::ProcessGreatPeople(void)
 
 bool PreparingForWar(CvPlayerAI* pPlayer)
 {
-	ASSERT_DEBUG(pPlayer, "Need a player");
+	ASSERT(pPlayer, "Need a player");
 	if(!pPlayer)
 	{
 		return false;
 	}
 	CvMilitaryAI* pMilitaryAI = pPlayer->GetMilitaryAI();
-	ASSERT_DEBUG(pMilitaryAI, "No military AI");
+	ASSERT(pMilitaryAI, "No military AI");
 	if(!pMilitaryAI)
 	{
 		return false;

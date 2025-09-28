@@ -171,7 +171,7 @@ int CvGameQueries::GetTeamClosenessScore(int** aaiDistances, int* aiStartingLocs
 								}
 								else if(iPlayerStart == iOtherPlayerStart)
 								{
-									ASSERT_DEBUG(false, "Two players are (hypothetically) assigned to the same starting location!");
+									ASSERT(false, "Two players are (hypothetically) assigned to the same starting location!");
 								}
 								iTeamTotalDist += aaiDistances[iPlayerStart][iOtherPlayerStart];
 							}

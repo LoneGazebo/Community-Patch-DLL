@@ -1427,7 +1427,7 @@ bool CvBuilderTaskingAI::ExecuteWorkerMove(CvUnit* pUnit, BuilderDirective aDire
 			{
 				pUnit->PushMission(CvTypes::getMISSION_BUILD(), aDirective.m_eBuild, aDirective.m_eDirectiveType, 0, false, false, MISSIONAI_BUILD, pPlot);
 
-				ASSERT_DEBUG(!pUnit->ReadyToMove(), "Worker did not do their mission this turn. Could cause game to hang.");
+				ASSERT(!pUnit->ReadyToMove(), "Worker did not do their mission this turn. Could cause game to hang.");
 				bSuccessful = true;
 			}
 

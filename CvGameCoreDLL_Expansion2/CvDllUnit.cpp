@@ -16,7 +16,7 @@ CvDllUnit::CvDllUnit(CvUnit* pUnit)
 	: m_pUnit(pUnit)
 	, m_uiRefCount(1)
 {
-	ASSERT_DEBUG(pUnit != NULL, "SHOULD NOT HAPPEN");
+	ASSERT(pUnit != NULL, "SHOULD NOT HAPPEN");
 }
 //------------------------------------------------------------------------------
 CvDllUnit::~CvDllUnit()
@@ -207,7 +207,7 @@ void CvDllUnit::GetPosition(int& iX, int& iY) const
 bool CvDllUnit::CanSwapWithUnitHere(ICvPlot1* pPlot) const
 {
 	CvPlot* pkPlot = (NULL != pPlot)? dynamic_cast<CvDllPlot*>(pPlot)->GetInstance() : NULL;
-	ASSERT_DEBUG(pkPlot != NULL);
+	ASSERT(pkPlot != NULL);
 	if(pkPlot != NULL)
 		return m_pUnit->CanSwapWithUnitHere(*pkPlot);
 	else
@@ -218,8 +218,8 @@ bool CvDllUnit::CanEmbarkOnto(ICvPlot1* pOriginPlot, ICvPlot1* pTargetPlot, bool
 {
 	CvPlot* pkOriginPlot = (NULL != pOriginPlot)? dynamic_cast<CvDllPlot*>(pOriginPlot)->GetInstance() : NULL;
 	CvPlot* pkTargetPlot = (NULL != pTargetPlot)? dynamic_cast<CvDllPlot*>(pTargetPlot)->GetInstance() : NULL;
-	ASSERT_DEBUG(pkOriginPlot != NULL);
-	ASSERT_DEBUG(pkTargetPlot != NULL);
+	ASSERT(pkOriginPlot != NULL);
+	ASSERT(pkTargetPlot != NULL);
 
 	if(pkOriginPlot != NULL && pkTargetPlot != NULL)
 		return m_pUnit->canEmbarkOnto(*pkOriginPlot, *pkTargetPlot, bOverrideEmbarkedCheck);
@@ -231,8 +231,8 @@ bool CvDllUnit::CanDisembarkOnto(ICvPlot1* pOriginPlot, ICvPlot1* pTargetPlot, b
 {
 	CvPlot* pkOriginPlot = (NULL != pOriginPlot)? dynamic_cast<CvDllPlot*>(pOriginPlot)->GetInstance() : NULL;
 	CvPlot* pkTargetPlot = (NULL != pTargetPlot)? dynamic_cast<CvDllPlot*>(pTargetPlot)->GetInstance() : NULL;
-	ASSERT_DEBUG(pkOriginPlot != NULL);
-	ASSERT_DEBUG(pkTargetPlot != NULL);
+	ASSERT(pkOriginPlot != NULL);
+	ASSERT(pkTargetPlot != NULL);
 	if(pkOriginPlot != NULL && pkTargetPlot != NULL)
 		return m_pUnit->canDisembarkOnto(*pkOriginPlot, *pkTargetPlot, bOverrideEmbarkedCheck);
 	else

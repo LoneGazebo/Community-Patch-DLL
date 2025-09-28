@@ -113,8 +113,8 @@ bool CvAICityStrategyEntry::CacheResults(Database::Results& kResults, CvDatabase
 /// What Flavors will be added by adopting this Strategy?
 int CvAICityStrategyEntry::GetFlavorValue(int i) const
 {
-	ASSERT_DEBUG(i < GC.getNumFlavorTypes(), "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumFlavorTypes(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piFlavorValue ? m_piFlavorValue[i] : -1;
 }
 
@@ -127,8 +127,8 @@ int CvAICityStrategyEntry::GetWeightThreshold() const
 /// How do a player's Personality Flavors affect the Threshold for adopting a Strategy? (if applicable)
 int CvAICityStrategyEntry::GetPersonalityFlavorThresholdMod(int i) const
 {
-	ASSERT_DEBUG(i < GC.getNumFlavorTypes(), "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumFlavorTypes(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piPersonalityFlavorThresholdMod ? m_piPersonalityFlavorThresholdMod[i] : -1;
 }
 
@@ -877,7 +877,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 			{		
 				int iTempWeight = m_pProcessProductionAI->GetWeight((ProcessTypes)iProcessLoop);
 				CvProcessInfo* pProcess = GC.getProcessInfo(eProcess);
-				ASSERT_DEBUG(pProcess);
+				ASSERT(pProcess);
 				if (pProcess->getDefenseValue() > 0)
 				{
 					iTempWeight = 100;
@@ -3064,7 +3064,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_KeyScienceCity(CvCity* pCity)
 				eFlavorEspionage = eFlavor;
 			}
 		}
-		ASSERT_DEBUG(eFlavorEspionage != NO_FLAVOR, "Could not find espionage flavor!");
+		PRECONDITION(eFlavorEspionage != NO_FLAVOR, "Could not find espionage flavor!");
 
 		float fRatio = iNumBetterScienceCities / (float)iNumOtherCities;
 		float fCutOff = (0.05f * GET_PLAYER(ePlayer).GetFlavorManager()->GetPersonalityIndividualFlavor(eFlavorEspionage));

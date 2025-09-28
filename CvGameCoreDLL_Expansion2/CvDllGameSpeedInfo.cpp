@@ -13,7 +13,7 @@ CvDllGameSpeedInfo::CvDllGameSpeedInfo(CvGameSpeedInfo* pGameSpeedInfo)
 	: m_pGameSpeedInfo(pGameSpeedInfo)
 	, m_uiRefCount(1)
 {
-	ASSERT_DEBUG(pGameSpeedInfo != NULL, "SHOULD NOT HAPPEN");
+	ASSERT(pGameSpeedInfo != NULL, "SHOULD NOT HAPPEN");
 }
 //------------------------------------------------------------------------------
 CvDllGameSpeedInfo::~CvDllGameSpeedInfo()

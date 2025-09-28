@@ -9,6 +9,7 @@ if not VP and not (MapModData and MapModData.VP) then
 	local print = print;
 	local error = error;
 	local table_insert = table.insert;
+	local math_floor = math.floor;
 
 	print("VPUI - Populating VP core library");
 
@@ -196,20 +197,44 @@ if not VP and not (MapModData and MapModData.VP) then
 		return #tGameInfoCache[strTable];
 	end
 
+	local tIconAtlasCache = {};
+
 	--- IconHookup, but set the control texture to the random civ icon if it fails (instead of retaining the previous texture)
 	--- @param iPortraitIndex integer
 	--- @param iIconSize integer
 	--- @param strAtlas string
 	--- @param imageControl Control
 	local function IconHookupOrDefault(iPortraitIndex, iIconSize, strAtlas, imageControl)
-		-- When first called, and when global env is corrupted
-		if not IconHookup then
-			include("IconSupport");
+		if iPortraitIndex < 0 then
+			iPortraitIndex = 23;
+			strAtlas = "CIV_COLOR_ATLAS";
 		end
-		if not IconHookup(iPortraitIndex, iIconSize, strAtlas, imageControl) then
-			print("Failed to find icon, using default instead");
-			IconHookup(23, iIconSize, "CIV_COLOR_ATLAS", imageControl);
+
+		tIconAtlasCache[strAtlas] = tIconAtlasCache[strAtlas] or {};
+		if not tIconAtlasCache[strAtlas][iIconSize] then
+			for row in GameInfo.IconTextureAtlases{Atlas = strAtlas, IconSize = iIconSize} do
+				tIconAtlasCache[strAtlas][iIconSize] = {
+					FileName = row.Filename,
+					Columns = row.IconsPerRow,
+					Rows = row.IconsPerColumn,
+				};
+			end
 		end
+
+		local tAtlas = tIconAtlasCache[strAtlas][iIconSize];
+		if not tAtlas or iPortraitIndex >= tAtlas.Columns * tAtlas.Rows then
+			if strAtlas == "CIV_COLOR_ATLAS" and iPortraitIndex == 23 then
+				-- Even the default icon is missing! We give up
+				error("Default icon is missing!");
+			end
+			print("The specified icon doesn't exist; using default icon instead.");
+			IconHookupOrDefault(23, iIconSize, "CIV_COLOR_ATLAS", imageControl);
+		end
+
+		local iX = iPortraitIndex % tAtlas.Columns;
+		local iY = math_floor(iPortraitIndex / tAtlas.Columns);
+		imageControl:SetTexture(tAtlas.FileName);
+		imageControl:SetTextureOffsetVal(iX * iIconSize, iY * iIconSize);
 	end
 
 	-- Add the local functions to VP object
