@@ -107,7 +107,7 @@ int CvDealAI::GetDealPercentLeeway(PlayerTypes eOtherPlayer, bool bInTheBlack) c
 
 	//for human players the opinion score is unreliable
 	//so we use a fixed amount, but make it asymmetric
-	if (GET_PLAYER(eOtherPlayer).isHuman())
+	if (GET_PLAYER(eOtherPlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
 		iPercent = bInTheBlack ? 13 : 7;
 	else
 	{
@@ -166,7 +166,7 @@ bool CvDealAI::BothSidesIncluded(CvDeal* pDeal)
 		return true;
 
 	//humans sometimes give nice things!
-	if (GET_PLAYER(pDeal->m_eFromPlayer).isHuman() && pDeal->GetNumItems() > 0 && GetDealValue(pDeal) >= 0)
+	if (GET_PLAYER(pDeal->m_eFromPlayer).isHuman(ISHUMAN_AI_DIPLOMACY) && pDeal->GetNumItems() > 0 && GetDealValue(pDeal) >= 0)
 		return true;
 
 	return (pDeal->GetFromPlayerValue() > 0 && pDeal->GetToPlayerValue() > 0);
@@ -237,7 +237,7 @@ DealOfferResponseTypes CvDealAI::DoHumanOfferDealToThisAI(CvDeal* pDeal)
 		CvDeal kDeal = *pDeal;
 
 		// If it's from a human, send it through the network
-		if(GET_PLAYER(eFromPlayer).isHuman())
+		if(GET_PLAYER(eFromPlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
 		{
 			GC.GetEngineUserInterface()->SetDealInTransit(true);
 			CvInterfacePtr<ICvDeal1> pDllDeal = GC.WrapDealPointer(&kDeal);
@@ -322,7 +322,7 @@ void CvDealAI::DoAcceptedDeal(PlayerTypes eFromPlayer, const CvDeal& kDeal, int 
 		GC.getGame().GetGameDeals().FinalizeDeal(eFromPlayer, GetPlayer()->GetID(), true);
 	}
 
-	if (GET_PLAYER(eFromPlayer).isHuman())
+	if (GET_PLAYER(eFromPlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
 	{
 		// If this was a peace deal, apply a recent assist bonus for demanding less than the maximum value.
 		int iCachedPeaceValue = GetCachedValueOfPeaceWithHuman();
@@ -736,7 +736,7 @@ bool CvDealAI::DoEqualizeDeal(CvDeal* pDeal, PlayerTypes eOtherPlayer, bool& bDe
 		if (iTotalValue == INT_MAX)
 			return false;
 
-		if (GET_PLAYER(eOtherPlayer).isHuman())
+		if (GET_PLAYER(eOtherPlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
 		{
 			bMakeOffer = IsDealWithHumanAcceptable(pDeal, eOtherPlayer, /*Passed by reference*/ iTotalValue, &bCantMatchOffer, true);
 			bDealGoodToBeginWith = bMakeOffer;
@@ -829,7 +829,7 @@ bool CvDealAI::DoEqualizeDeal(CvDeal* pDeal, PlayerTypes eOtherPlayer, bool& bDe
 				iLoops++;
 			}
 
-			if (GET_PLAYER(eOtherPlayer).isHuman())
+			if (GET_PLAYER(eOtherPlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
 			{
 				bMakeOffer = IsDealWithHumanAcceptable(pDeal, eOtherPlayer, /*Passed by reference*/ iTotalValue, /*passed by reference*/&bCantMatchOffer, false);
 				if (bCantMatchOffer)
@@ -963,7 +963,7 @@ int CvDealAI::GetTradeItemValue(TradeableItems eItem, bool bFromMe, PlayerTypes 
 	if (!bEqualize || eItem == TRADE_ITEM_GOLD || eItem == TRADE_ITEM_GOLD_PER_TURN || eItem == TRADE_ITEM_PEACE_TREATY ||eItem == TRADE_ITEM_VASSALAGE ||eItem == TRADE_ITEM_ALLOW_EMBASSY)
 	{
 		// not for sale modmod
-		if (MOD_NOT_FOR_SALE && GetPlayer()->isHuman() && bFromMe)
+		if (MOD_NOT_FOR_SALE && GetPlayer()->isHuman(ISHUMAN_AI_DIPLOMACY) && bFromMe)
 		{
 			if ((eItem == TRADE_ITEM_RESOURCES && GetPlayer()->IsResourceNotForSale((ResourceTypes)iData1)) ||
 				(eItem == TRADE_ITEM_ALLOW_EMBASSY && GetPlayer()->IsRefuseEmbassyTrade()) ||
@@ -1030,7 +1030,7 @@ int CvDealAI::GetTradeItemValue(TradeableItems eItem, bool bFromMe, PlayerTypes 
 		PlayerTypes eWinner = NO_PLAYER;
 		if (GetPlayer()->IsAtWarWith(eOtherPlayer))
 		{
-			if (GET_PLAYER(eOtherPlayer).isHuman())
+			if (GET_PLAYER(eOtherPlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
 			{
 				PeaceTreatyTypes ePeaceTreatyImWillingToOffer = GetPlayer()->GetDiplomacyAI()->GetTreatyWillingToOffer(eOtherPlayer);
 				PeaceTreatyTypes ePeaceTreatyImWillingToAccept = GetPlayer()->GetDiplomacyAI()->GetTreatyWillingToAccept(eOtherPlayer);
@@ -1068,11 +1068,11 @@ int CvDealAI::GetTradeItemValue(TradeableItems eItem, bool bFromMe, PlayerTypes 
 		// non-peace deals or white peace: the average of the two players' evaluation is taken
 		else
 		{
-			bool bHumanInvolved = GetPlayer()->isHuman() || GET_PLAYER(eOtherPlayer).isHuman();
+			bool bHumanInvolved = GetPlayer()->isHuman(ISHUMAN_AI_DIPLOMACY) || GET_PLAYER(eOtherPlayer).isHuman(ISHUMAN_AI_DIPLOMACY);
 
 			// modify buy and sell price by the players' opinions towards each other
-			int iApproachModifier = (GetPlayer()->isHuman()) ? 100 : GetPlayer()->GetDiplomacyAI()->GetSurfaceApproachDealModifier(eOtherPlayer, bFromMe);
-			int iOtherPlayerApproachModifier = (GET_PLAYER(eOtherPlayer).isHuman()) ? 100 : GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->GetSurfaceApproachDealModifier(eMyPlayer, !bFromMe);
+			int iApproachModifier = GetPlayer()->isHuman(ISHUMAN_AI_DIPLOMACY) ? 100 : GetPlayer()->GetDiplomacyAI()->GetSurfaceApproachDealModifier(eOtherPlayer, bFromMe);
+			int iOtherPlayerApproachModifier = GET_PLAYER(eOtherPlayer).isHuman(ISHUMAN_AI_DIPLOMACY) ? 100 : GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->GetSurfaceApproachDealModifier(eMyPlayer, !bFromMe);
 
 			int iBuyPrice = 0;
 			int iBuyModifier = 0;
@@ -1202,7 +1202,7 @@ int CvDealAI::GetTradeItemValue(TradeableItems eItem, bool bFromMe, PlayerTypes 
 				}
 
 				// Difficulty option to modify the AI's selling prices towards humans.
-				if (bFromMe && GET_PLAYER(eOtherPlayer).isHuman() && eItem != TRADE_ITEM_PEACE_TREATY && (eItem != TRADE_ITEM_THIRD_PARTY_PEACE || !GetPlayer()->IsAtWarWith(eOtherPlayer)))
+				if (bFromMe && GET_PLAYER(eOtherPlayer).isHuman(ISHUMAN_HANDICAP) && eItem != TRADE_ITEM_PEACE_TREATY && (eItem != TRADE_ITEM_THIRD_PARTY_PEACE || !GetPlayer()->IsAtWarWith(eOtherPlayer)))
 				{
 					iItemValue *= 100 + GET_PLAYER(eOtherPlayer).getHandicapInfo().getHumanTradeModifier();
 					iItemValue /= 100;
@@ -1272,7 +1272,7 @@ int CvDealAI::GetGPTForForValueExchange(int iGPTorValue, bool bNumGPTFromValue, 
 	}
 	else
 	{
-		if (!GetPlayer()->isHuman() && bFromMe)
+		if ((!GetPlayer()->isHuman(ISHUMAN_AI_DIPLOMACY)) && bFromMe)
 		{
 			int iNetGold = GetPlayer()->calculateGoldRate();
 			std::vector<CvDeal*> pRenewDeals = GetPlayer()->GetDiplomacyAI()->GetDealsToRenew(eOtherPlayer);
@@ -1888,7 +1888,7 @@ vector<int> CvDealAI::GetStrategicResourceItemList(ResourceTypes eResource, int 
 	{
 		bWar = true;
 	}
-	else if (!GetPlayer()->isHuman())
+	else if (!GetPlayer()->isHuman(ISHUMAN_AI_DIPLOMACY))
 	{
 		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 		{
@@ -2341,7 +2341,7 @@ int CvDealAI::GetCityValueForDeal(CvCity* pCity, PlayerTypes eAssumedOwner)
 			iItemValue /= 100;
 		}
 
-		if (!bPeaceTreatyTrade && !assumedOwner.isHuman())
+		if (!bPeaceTreatyTrade && !assumedOwner.isHuman(ISHUMAN_AI_DIPLOMACY))
 		{
 			// don't buy a city we're trying to liberate (exploitable)
 			// this is not an ideal solution - ideally AI would check whether the city is at risk of getting recaptured if liberated ... but will do for now
@@ -2983,7 +2983,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 	}
 
 	// AI sanity check - who else would we go to war with?
-	if (!kPlayerDeclaringWar.isHuman())
+	if (!kPlayerDeclaringWar.isHuman(ISHUMAN_AI_DIPLOMACY))
 	{
 		CivsList vDefensiveWarAllies = pDiploAI->GetDefensiveWarAllies(eWithPlayer, /*bIncludeMinors*/ true, /*bReverseMode*/ true, /*bNewWarsOnly*/ true);
 		for (CivsList::iterator it = vDefensiveWarAllies.begin(); it != vDefensiveWarAllies.end(); ++it)
@@ -3041,7 +3041,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 	// Rationale: If the AI hates warmongers, they'll require more in order to go to war, and they'll also pay more to have others wage their battles
 	iItemValue *= bFromMe ? GetPlayer()->GetDiplomacyAI()->GetWarmongerHate() : GetPlayer()->GetDiplomacyAI()->GetWarmongerHate() / 2;
 
-	if (!kPlayerDeclaringWar.isHuman())
+	if (!kPlayerDeclaringWar.isHuman(ISHUMAN_AI_DIPLOMACY))
 	{
 		if (pDiploAI->GetBiggestCompetitor() == eWithPlayer)
 		{
@@ -4050,7 +4050,7 @@ void CvDealAI::DoAddStrategicResourceToThem(CvDeal* pDeal, PlayerTypes eThem, in
 				continue;
 
 			//AI should not sell if they are importing in parallel
-			if (!GET_PLAYER(eThem).isHuman() && GET_PLAYER(eThem).getResourceImportFromMajor(eResource) > 0)
+			if (!GET_PLAYER(eThem).isHuman(ISHUMAN_AI_DIPLOMACY) && GET_PLAYER(eThem).getResourceImportFromMajor(eResource) > 0)
 				continue;
 
 			// Don't bother looking at this resource if they don't even have any of it
@@ -4636,7 +4636,7 @@ void CvDealAI::DoAddGPTToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue
 	int iValueNeeded = -iTotalValue + iDemandValue;
 	{
 		int iGoldRate = GET_PLAYER(eThem).calculateGoldRate();
-		if (!GET_PLAYER(eThem).isHuman())
+		if (!GET_PLAYER(eThem).isHuman(ISHUMAN_HANDICAP))
 		{
 			iGoldRate -= 2;
 		}
@@ -4689,7 +4689,7 @@ void CvDealAI::DoAddGPTToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue)
 	if (iTotalValue > 0)
 	{	
 		int iGoldRate = GET_PLAYER(eMyPlayer).calculateGoldRate();
-		if (!GET_PLAYER(eMyPlayer).isHuman())
+		if (!GET_PLAYER(eMyPlayer).isHuman(ISHUMAN_HANDICAP))
 		{
 			iGoldRate -= 2;
 		}
@@ -4727,7 +4727,7 @@ void CvDealAI::DoAddItemsToThem(CvDeal* pDeal, PlayerTypes eOtherPlayer, int& iT
 	bool bWeAreOfferingTemporaryItems = pDeal->ContainsTemporaryItems(GetPlayer()->GetID(), eOtherPlayer);
 	if (bWeAreOfferingTemporaryItems)
 	{
-		if (GET_PLAYER(eOtherPlayer).isHuman())
+		if (GET_PLAYER(eOtherPlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
 		{
 			if (!GC.getGame().IsHumanPermanentForAITemporaryTradingAllowed())
 				bBlockPermanentItems = true;
@@ -4826,7 +4826,7 @@ void CvDealAI::DoAddItemsToUs(CvDeal* pDeal, PlayerTypes eOtherPlayer, int& iTot
 	// As a convenience to humans and teammates, let's prioritize giving permanent items (when requesting them) in a no-betrayal scenario
 	if (bTheyAreOfferingPermanentItems && !bTheyAreOfferingTemporaryItems)
 	{
-		if (GetPlayer()->getTeam() == GET_PLAYER(eOtherPlayer).getTeam() || GET_PLAYER(eOtherPlayer).isHuman())
+		if (GetPlayer()->getTeam() == GET_PLAYER(eOtherPlayer).getTeam() || GET_PLAYER(eOtherPlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
 			bPrioritizePermanentItems = true;
 	}
 
@@ -5035,7 +5035,7 @@ bool CvDealAI::IsOfferPeace(PlayerTypes eOtherPlayer, CvDeal* pDeal, bool bEqual
 	PeaceTreatyTypes ePeaceTreatyImWillingToAccept = GetPlayer()->GetDiplomacyAI()->GetTreatyWillingToAccept(eOtherPlayer);
 
 	// Peace between AI players
-	if(!GET_PLAYER(eOtherPlayer).isHuman())
+	if(!GET_PLAYER(eOtherPlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
 	{
 		PeaceTreatyTypes ePeaceTreatyTheyreWillingToAccept = GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->GetTreatyWillingToAccept(eMyPlayer);
 		PeaceTreatyTypes ePeaceTreatyTheyreWillingToOffer = GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->GetTreatyWillingToOffer(eMyPlayer);
@@ -5893,7 +5893,7 @@ bool CvDealAI::IsMakeOfferForResearchAgreement(PlayerTypes eOtherPlayer, CvDeal*
 	if (!GetPlayer()->GetDiplomacyAI()->IsWantsResearchAgreementWithPlayer(eOtherPlayer))
 		return false;
 
-	if (!GET_PLAYER(eOtherPlayer).isHuman() && !GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->IsWantsResearchAgreementWithPlayer(GetPlayer()->GetID()))
+	if (!GET_PLAYER(eOtherPlayer).isHuman(ISHUMAN_AI_DIPLOMACY) && !GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->IsWantsResearchAgreementWithPlayer(GetPlayer()->GetID()))
 		return false;
 
 	// Logic for when THIS AI wants to make a RA is in the Diplo AI
@@ -5934,7 +5934,7 @@ bool CvDealAI::IsMakeOfferForDefensivePact(PlayerTypes eOtherPlayer, CvDeal* pDe
 	{
 		return false;
 	}
-	if (!GET_PLAYER(eOtherPlayer).isHuman() && !GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->IsWantsDefensivePactWithPlayer(GetPlayer()->GetID()))
+	if (!GET_PLAYER(eOtherPlayer).isHuman(ISHUMAN_AI_DIPLOMACY) && !GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->IsWantsDefensivePactWithPlayer(GetPlayer()->GetID()))
 	{
 		return false;
 	}
@@ -6745,7 +6745,7 @@ int CvDealAI::GetMapValue(bool bFromMe, PlayerTypes eOtherPlayer)
 	if (bFromMe)
 	{
 		//prevent AI spam
-		if (iItemValue <= 400 && !GET_PLAYER(eOtherPlayer).isHuman())
+		if (iItemValue <= 400 && !GET_PLAYER(eOtherPlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
 			return INT_MAX;
 
 		// Approach will modify the deal
@@ -6781,7 +6781,7 @@ int CvDealAI::GetMapValue(bool bFromMe, PlayerTypes eOtherPlayer)
 	}
 	else
 	{
-		if (iItemValue <= 400 && !GET_PLAYER(eOtherPlayer).isHuman())
+		if (iItemValue <= 400 && !GET_PLAYER(eOtherPlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
 			return INT_MAX;
 
 		// Approach will modify the deal
@@ -7646,7 +7646,7 @@ bool CvDealAI::IsMakeOfferForVassalage(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 	PRECONDITION(eOtherPlayer < MAX_MAJOR_CIVS);
 
 	// Human teams don't get asked for vassalage
-	if(GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).isHuman())
+	if(GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).isHuman(ISHUMAN_AI_DIPLOMACY))
 	{
 		return false;
 	}
@@ -7707,7 +7707,7 @@ bool CvDealAI::IsMakeOfferToBecomeVassal(PlayerTypes eOtherPlayer, CvDeal* pDeal
 	}
 
 	// they don't want to do it?
-	if (!GET_PLAYER(eOtherPlayer).isHuman() && !GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->IsVassalageAcceptable(GetPlayer()->GetID(), true))
+	if (!GET_PLAYER(eOtherPlayer).isHuman(ISHUMAN_AI_DIPLOMACY) && !GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->IsVassalageAcceptable(GetPlayer()->GetID(), true))
 	{
 		return false;
 	}
@@ -8008,7 +8008,7 @@ void CvDealAI::DoAddVassalageToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalV
 		}
 
 		// they don't want to do it?
-		if (!GET_PLAYER(eThem).isHuman() && !GET_PLAYER(eThem).GetDiplomacyAI()->IsVassalageAcceptable(GetPlayer()->GetID(), true))
+		if (!GET_PLAYER(eThem).isHuman(ISHUMAN_AI_DIPLOMACY) && !GET_PLAYER(eThem).GetDiplomacyAI()->IsVassalageAcceptable(GetPlayer()->GetID(), true))
 		{
 			return;
 		}
@@ -8038,7 +8038,7 @@ void CvDealAI::DoAddVassalageToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTota
 
 	if (pDeal->GetDemandingPlayer() != NO_PLAYER)
 	{
-		if (GET_PLAYER(eThem).isHuman())
+		if (GET_PLAYER(eThem).isHuman(ISHUMAN_AI_DIPLOMACY))
 		{
 			// Assume humans won't agree unless they're way weaker.
 			if (GetPlayer()->GetDiplomacyAI()->GetRawTargetValue(eThem) < TARGET_VALUE_SOFT)
@@ -8047,7 +8047,7 @@ void CvDealAI::DoAddVassalageToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTota
 	}
 	else
 	{
-		if (!GetPlayer()->IsAtWarWith(eThem) && GET_PLAYER(eThem).isHuman())
+		if (!GetPlayer()->IsAtWarWith(eThem) && GET_PLAYER(eThem).isHuman(ISHUMAN_AI_DIPLOMACY))
 		{
 			return;
 		}
@@ -8060,7 +8060,7 @@ void CvDealAI::DoAddVassalageToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTota
 	}
 
 	// they don't want to do it?
-	if (!GET_PLAYER(eThem).isHuman() && !GET_PLAYER(eThem).GetDiplomacyAI()->IsVassalageAcceptable(GetPlayer()->GetID(), false))
+	if (!GET_PLAYER(eThem).isHuman(ISHUMAN_AI_DIPLOMACY) && !GET_PLAYER(eThem).GetDiplomacyAI()->IsVassalageAcceptable(GetPlayer()->GetID(), false))
 	{
 		return;
 	}

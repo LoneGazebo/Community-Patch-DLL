@@ -18,7 +18,7 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 	DomainTypes domain = pUnit->getDomainType();
 
 	//some easy checks first
-	if (kPlayer.isHuman() && !pToPlot->isRevealed(pUnit->getTeam()))
+	if (kPlayer.isHuman(ISHUMAN_AI_UNITS) && !pToPlot->isRevealed(pUnit->getTeam()))
 	{
 		//moving into unknown tiles ends the turn for humans (to prevent information leakage from the displayed path)
 		return INT_MAX;

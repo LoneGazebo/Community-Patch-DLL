@@ -476,7 +476,7 @@ void CvPlayerAchievements::FinishedBuilding(CvCity* pkCity, BuildingTypes eBuild
 		m_eHarborType = (BuildingTypes)GC.getInfoTypeForString("BUILDING_HARBOR", true);
 	}
 
-	if(m_kPlayer.isLocalPlayer() && m_kPlayer.isHuman() && m_eCollossusType != NO_BUILDING && m_ePetraType != NO_BUILDING && m_eCaravansaryType != NO_BUILDING && m_eHarborType != NO_BUILDING)
+	if(m_kPlayer.isLocalPlayer() && m_kPlayer.isHuman(ISHUMAN_ACHIEVEMENTS) && m_eCollossusType != NO_BUILDING && m_ePetraType != NO_BUILDING && m_eCaravansaryType != NO_BUILDING && m_eHarborType != NO_BUILDING)
 	{
 		CvCityBuildings* pkBuildings = pkCity->GetCityBuildings();
 		if(pkBuildings != NULL)

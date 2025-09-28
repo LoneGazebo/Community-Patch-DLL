@@ -5951,7 +5951,7 @@ void CvCityBuildings::SetNumRealBuildingTimed(BuildingTypes eIndex, int iNewValu
 		else if(isNationalWonderClass(kBuildingClassInfo))
 		{
 			m_pCity->changeNumNationalWonders(iChangeNumRealBuilding);
-			if(m_pCity->isHuman() && !GC.getGame().isGameMultiPlayer())
+			if(m_pCity->isHuman(ISHUMAN_ACHIEVEMENTS) && !GC.getGame().isGameMultiPlayer())
 			{
 				IncrementWonderStats(buildingClassType);
 			}
@@ -6015,7 +6015,7 @@ void CvCityBuildings::SetNumRealBuildingTimed(BuildingTypes eIndex, int iNewValu
 							CvPopupInfo kPopup(BUTTONPOPUP_WONDER_COMPLETED_ACTIVE_PLAYER, eIndex);
 							GC.GetEngineUserInterface()->AddPopup(kPopup);
 
-							if (MOD_API_ACHIEVEMENTS && GET_PLAYER(GC.getGame().getActivePlayer()).isHuman())
+							if (MOD_API_ACHIEVEMENTS && GET_PLAYER(GC.getGame().getActivePlayer()).isHuman(ISHUMAN_ACHIEVEMENTS))
 							{
 								gDLL->UnlockAchievement(ACHIEVEMENT_BUILD_WONDER);
 

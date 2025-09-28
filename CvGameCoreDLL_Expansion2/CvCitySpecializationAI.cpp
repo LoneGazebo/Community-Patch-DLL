@@ -304,7 +304,7 @@ CvCitySpecializationXMLEntries* CvCitySpecializationAI::GetCitySpecializations()
 void CvCitySpecializationAI::DoTurn()
 {
 	// No city specializations for humans!
-	if (m_pPlayer->isHuman())
+	if (m_pPlayer->isHuman(ISHUMAN_AI_CITY_PRODUCTION))
 		return;
 
 	// No city specializations for minor civs

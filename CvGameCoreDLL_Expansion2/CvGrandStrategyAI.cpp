@@ -390,6 +390,7 @@ void CvGrandStrategyAI::DoTurn()
 		}
 	}
 
+	// Unused
 	if (!m_pPlayer->isHuman())
 	{
 		m_iFlavorGold = GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GOLD"));

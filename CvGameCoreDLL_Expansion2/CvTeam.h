@@ -79,7 +79,7 @@ public:
 	int countTotalPopulationByArea(CvArea* pArea) const;
 	int countEnemyDangerByArea(CvArea* pArea) const;
 
-	bool isHuman() const;
+	bool isHuman(IsHumanReason eIsHumanReason = OTHER_ISHUMAN_REASON) const;
 	bool isObserver() const;
 	bool isBarbarian() const;
 	bool isMinorCiv() const;

@@ -1411,7 +1411,7 @@ void CvPlayerCulture::MoveWorks(GreatWorkSlotType eType, vector<CvGreatWorkBuild
 	}
 
 	//Not a human? Let's get swappin!
-	if ((works1.size() > 0 || works2.size() > 0) && !m_pPlayer->isHuman())
+	if ((works1.size() > 0 || works2.size() > 0) && (!m_pPlayer->isHuman(ISHUMAN_AI_TOURISM)))
 		bSwap = true;
 
 	// Set the first work left that we haven't themed as something we'd be willing to trade
@@ -3669,7 +3669,7 @@ void CvPlayerCulture::DoTurn()
 		}
 	}
 
-	if (MOD_API_ACHIEVEMENTS && m_pPlayer->isHuman() && !GC.getGame().isGameMultiPlayer())
+	if (MOD_API_ACHIEVEMENTS && m_pPlayer->isHuman(ISHUMAN_ACHIEVEMENTS) && !GC.getGame().isGameMultiPlayer())
 	{
 		// check for having city-state artifacts
 		std::vector<int> aiCityStateArtifact;
@@ -6124,7 +6124,7 @@ int CvCityCulture::GetThemingBonus(BuildingClassTypes eBuildingClass) const
 	CvPlayer* pPlayer = m_pCity->GetPlayer();
 	if (m_pCity->isCapital() && pPlayer->GetPlayerTraits()->GetCapitalThemingBonusModifier() != 0)
 	{
-		if (MOD_API_ACHIEVEMENTS && pPlayer->isHuman() && !GC.getGame().isGameMultiPlayer() && iRtnValue >= 16)
+		if (MOD_API_ACHIEVEMENTS && pPlayer->isHuman(ISHUMAN_ACHIEVEMENTS) && !GC.getGame().isGameMultiPlayer() && iRtnValue >= 16)
 		{
 			gDLL->UnlockAchievement(ACHIEVEMENT_XP2_40);
 		}

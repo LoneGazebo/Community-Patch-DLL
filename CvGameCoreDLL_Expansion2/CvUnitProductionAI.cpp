@@ -824,7 +824,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		if(pkUnitEntry->GetSpaceshipProject() != NO_PROJECT)
 		{
 			// if we're an AI player going for spaceship victory, spaceship production is controlled in AI_doSpaceshipProduction, overriding normal AI production selection. other cities should not start building spaceship parts on their own
-			if (!kPlayer.isHuman() && !kPlayer.isMinorCiv() && kPlayer.GetDiplomacyAI()->IsGoingForSpaceshipVictory())
+			if (!kPlayer.isHuman(ISHUMAN_AI_CITY_PRODUCTION) && !kPlayer.isMinorCiv() && kPlayer.GetDiplomacyAI()->IsGoingForSpaceshipVictory())
 			{
 				return SR_STRATEGY;
 			}

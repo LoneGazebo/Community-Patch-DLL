@@ -2674,7 +2674,7 @@ void CvLeague::DoProposeRepeal(int iResolutionID, PlayerTypes eProposer)
 				PlayerTypes eOriginalProposer = it->GetProposerDecision()->GetProposer();
 				if (eOriginalProposer != NO_PLAYER && eOriginalProposer == eProposer)
 				{
-					if (GET_PLAYER(eProposer).isHuman() && GET_PLAYER(eProposer).isLocalPlayer())
+					if (GET_PLAYER(eProposer).isHuman(ISHUMAN_ACHIEVEMENTS) && GET_PLAYER(eProposer).isLocalPlayer())
 					{
 						gDLL->UnlockAchievement(ACHIEVEMENT_XP2_42);
 					}
@@ -4932,7 +4932,7 @@ int CvLeague::GetProjectProgress(LeagueProjectTypes eProject)
 							iCivProgress /= std::max(100 + iMod, 1);
 						}
 
-						if (!GET_PLAYER(ePlayer).isHuman())
+						if (!GET_PLAYER(ePlayer).isHuman(ISHUMAN_HANDICAP))
 						{
 							iMod = GC.getGame().getHandicapInfo().getAIWorldCreatePercent() - 100;
 							if (iCivProgress > INT_MAX / 100) {
@@ -5007,7 +5007,7 @@ int CvLeague::GetMemberContribution(PlayerTypes ePlayer, LeagueProjectTypes eLea
 			iValue *= 100;
 			iValue /= std::max(100 + iMod, 1);
 		}
-		if (!GET_PLAYER(ePlayer).isHuman())
+		if (!GET_PLAYER(ePlayer).isHuman(ISHUMAN_HANDICAP))
 		{
 			iMod = GC.getGame().getHandicapInfo().getAIWorldCreatePercent() - 100;
 			if (iValue > INT_MAX / 100) {
@@ -7240,7 +7240,7 @@ void CvLeague::CheckProjectAchievements()
 
 	for (MemberList::const_iterator member = m_vMembers.begin(); member != m_vMembers.end(); ++member)
 	{
-		if (member->ePlayer != NO_PLAYER && GET_PLAYER(member->ePlayer).isAlive() && GET_PLAYER(member->ePlayer).isHuman() && GET_PLAYER(member->ePlayer).isLocalPlayer())
+		if (member->ePlayer != NO_PLAYER && GET_PLAYER(member->ePlayer).isAlive() && GET_PLAYER(member->ePlayer).isHuman(ISHUMAN_ACHIEVEMENTS) && GET_PLAYER(member->ePlayer).isLocalPlayer())
 		{
 			int iHighestContributorProjects = 0;
 
@@ -7452,7 +7452,7 @@ void CvLeague::FinishSession()
 						for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 						{
 							PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-							if (!GET_PLAYER(eLoopPlayer).isAlive() || GET_PLAYER(eLoopPlayer).isHuman() || !GET_PLAYER(eLoopPlayer).isMajorCiv())
+							if (!GET_PLAYER(eLoopPlayer).isAlive() || GET_PLAYER(eLoopPlayer).isHuman(ISHUMAN_AI_DIPLOMACY) || !GET_PLAYER(eLoopPlayer).isMajorCiv())
 								continue;
 							if (eLoopPlayer == *playerIt)
 								continue;
@@ -7554,7 +7554,7 @@ void CvLeague::FinishSession()
 						for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 						{
 							PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-							if (!GET_PLAYER(eLoopPlayer).isAlive() || GET_PLAYER(eLoopPlayer).isHuman() || !GET_PLAYER(eLoopPlayer).isMajorCiv())
+							if (!GET_PLAYER(eLoopPlayer).isAlive() || GET_PLAYER(eLoopPlayer).isHuman(ISHUMAN_AI_DIPLOMACY) || !GET_PLAYER(eLoopPlayer).isMajorCiv())
 								continue;
 							if (eLoopPlayer == *playerIt)
 								continue;
@@ -7647,7 +7647,7 @@ void CvLeague::FinishSession()
 					for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 					{
 						PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-						if (!GET_PLAYER(eLoopPlayer).isAlive() || GET_PLAYER(eLoopPlayer).isHuman() || !GET_PLAYER(eLoopPlayer).isMajorCiv())
+						if (!GET_PLAYER(eLoopPlayer).isAlive() || GET_PLAYER(eLoopPlayer).isHuman(ISHUMAN_AI_DIPLOMACY) || !GET_PLAYER(eLoopPlayer).isMajorCiv())
 							continue;
 						if (eLoopPlayer == *playerIt)
 							continue;
@@ -7737,7 +7737,7 @@ void CvLeague::FinishSession()
 					for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 					{
 						PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-						if (!GET_PLAYER(eLoopPlayer).isAlive() || GET_PLAYER(eLoopPlayer).isHuman() || !GET_PLAYER(eLoopPlayer).isMajorCiv())
+						if (!GET_PLAYER(eLoopPlayer).isAlive() || GET_PLAYER(eLoopPlayer).isHuman(ISHUMAN_AI_DIPLOMACY) || !GET_PLAYER(eLoopPlayer).isMajorCiv())
 							continue;
 						if (eLoopPlayer == *playerIt)
 							continue;
@@ -7838,7 +7838,7 @@ void CvLeague::FinishSession()
 						for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 						{
 							PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-							if (!GET_PLAYER(eLoopPlayer).isAlive() || GET_PLAYER(eLoopPlayer).isHuman() || !GET_PLAYER(eLoopPlayer).isMajorCiv())
+							if (!GET_PLAYER(eLoopPlayer).isAlive() || GET_PLAYER(eLoopPlayer).isHuman(ISHUMAN_AI_DIPLOMACY) || !GET_PLAYER(eLoopPlayer).isMajorCiv())
 								continue;
 							if (eLoopPlayer == *playerIt)
 								continue;
@@ -7942,7 +7942,7 @@ void CvLeague::FinishSession()
 						for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 						{
 							PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-							if (!GET_PLAYER(eLoopPlayer).isAlive() || GET_PLAYER(eLoopPlayer).isHuman() || !GET_PLAYER(eLoopPlayer).isMajorCiv())
+							if (!GET_PLAYER(eLoopPlayer).isAlive() || GET_PLAYER(eLoopPlayer).isHuman(ISHUMAN_AI_DIPLOMACY) || !GET_PLAYER(eLoopPlayer).isMajorCiv())
 								continue;
 							if (eLoopPlayer == *playerIt)
 								continue;
@@ -8061,7 +8061,7 @@ void CvLeague::FinishSession()
 						for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 						{
 							PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-							if (!GET_PLAYER(eLoopPlayer).isAlive() || GET_PLAYER(eLoopPlayer).isHuman() || !GET_PLAYER(eLoopPlayer).isMajorCiv())
+							if (!GET_PLAYER(eLoopPlayer).isAlive() || GET_PLAYER(eLoopPlayer).isHuman(ISHUMAN_AI_DIPLOMACY) || !GET_PLAYER(eLoopPlayer).isMajorCiv())
 								continue;
 							if (eLoopPlayer == *playerIt)
 								continue;
@@ -8155,7 +8155,7 @@ void CvLeague::FinishSession()
 						for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 						{
 							PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-							if (!GET_PLAYER(eLoopPlayer).isAlive() || GET_PLAYER(eLoopPlayer).isHuman() || !GET_PLAYER(eLoopPlayer).isMajorCiv())
+							if (!GET_PLAYER(eLoopPlayer).isAlive() || GET_PLAYER(eLoopPlayer).isHuman(ISHUMAN_AI_DIPLOMACY) || !GET_PLAYER(eLoopPlayer).isMajorCiv())
 								continue;
 							if (eLoopPlayer == *playerIt)
 								continue;
@@ -8685,7 +8685,7 @@ void CvLeague::NotifyProposalResult(CvEnactProposal* pProposal)
 	{
 		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 
-		if (GET_PLAYER(eLoopPlayer).isObserver() || (GET_PLAYER(eLoopPlayer).isHuman() && GET_PLAYER(eLoopPlayer).isAlive()))
+		if (GET_PLAYER(eLoopPlayer).isObserver() || (GET_PLAYER(eLoopPlayer).isHuman(ISHUMAN_NOTIFICATIONS) && GET_PLAYER(eLoopPlayer).isAlive()))
 		{
 			CvNotifications* pNotifications = GET_PLAYER(eLoopPlayer).GetNotifications();
 			if (pNotifications)
@@ -8726,7 +8726,7 @@ void CvLeague::NotifyProposalResult(CvRepealProposal* pProposal)
 	{
 		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 
-		if (GET_PLAYER(eLoopPlayer).isObserver() || (GET_PLAYER(eLoopPlayer).isHuman() && GET_PLAYER(eLoopPlayer).isAlive()))
+		if (GET_PLAYER(eLoopPlayer).isObserver() || (GET_PLAYER(eLoopPlayer).isHuman(ISHUMAN_NOTIFICATIONS) && GET_PLAYER(eLoopPlayer).isAlive()))
 		{
 			CvNotifications* pNotifications = GET_PLAYER(eLoopPlayer).GetNotifications();
 			if (pNotifications)
@@ -8742,7 +8742,7 @@ void CvLeague::NotifySessionSoon(int iTurnsLeft)
 	for (MemberList::iterator it = m_vMembers.begin(); it != m_vMembers.end(); ++it)
 	{
 		PlayerTypes eMember = it->ePlayer;
-		if (GET_PLAYER(eMember).isHuman())
+		if (GET_PLAYER(eMember).isHuman(ISHUMAN_NOTIFICATIONS))
 		{
 			CvNotifications* pNotifications = GET_PLAYER(eMember).GetNotifications();
 			if (pNotifications)
@@ -8780,7 +8780,7 @@ void CvLeague::NotifyProjectComplete(LeagueProjectTypes eProject)
 		{
 			PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 
-			if (GET_PLAYER(eLoopPlayer).isObserver() || (GET_PLAYER(eLoopPlayer).isHuman() && GET_PLAYER(eLoopPlayer).isAlive()))
+			if (GET_PLAYER(eLoopPlayer).isObserver() || (GET_PLAYER(eLoopPlayer).isHuman(ISHUMAN_NOTIFICATIONS) && GET_PLAYER(eLoopPlayer).isAlive()))
 			{
 				CvNotifications* pNotifications = GET_PLAYER(eLoopPlayer).GetNotifications();
 				if (pNotifications)
@@ -8808,7 +8808,7 @@ void CvLeague::NotifyProjectProgress(LeagueProjectTypes eProject)
 		{
 			PlayerTypes eMember = it->ePlayer;
 			CvPlayer& kPlayer = GET_PLAYER(eMember);
-			if (kPlayer.isHuman())
+			if (kPlayer.isHuman(ISHUMAN_NOTIFICATIONS))
 			{
 				if (kPlayer.isLocalPlayer() && !kPlayer.isObserver())
 				{
@@ -9481,7 +9481,7 @@ void CvGameLeagues::DoPlayerTurn(CvPlayer& kPlayer)
 				// Call for Proposals
 				if (it->CanPropose(kPlayer.GetID()))
 				{
-					if (kPlayer.isHuman())
+					if (kPlayer.isHuman(ISHUMAN_AI_WORLD_CONGRESS))
 					{
 						CvNotifications* pNotifications = kPlayer.GetNotifications();
 						if (pNotifications)
@@ -9534,7 +9534,7 @@ void CvGameLeagues::DoPlayerTurn(CvPlayer& kPlayer)
 
 						if (it->IsAnythingProposed())
 						{
-							if (kPlayer.isHuman())
+							if (kPlayer.isHuman(ISHUMAN_AI_WORLD_CONGRESS))
 							{
 								CvNotifications* pNotifications = kPlayer.GetNotifications();
 								if (pNotifications)
@@ -10266,7 +10266,7 @@ FDataStream& operator<<(FDataStream& stream, const CvLeagueAI& leagueAI)
 
 void CvLeagueAI::DoTurn()
 {
-	if (m_pPlayer->isHuman())
+	if (m_pPlayer->isHuman(ISHUMAN_AI_WORLD_CONGRESS))
 	{
 		return;
 	}
@@ -10325,7 +10325,7 @@ CvLeagueAI::VoteCommitmentList CvLeagueAI::GetDesiredVoteCommitments(PlayerTypes
 		if (pLeague)
 		{
 			// For human players, make assumptions
-			if (GetPlayer()->isHuman())
+			if (GetPlayer()->isHuman(ISHUMAN_AI_WORLD_CONGRESS))
 			{
 				EnactProposalList vEnactProposals = pLeague->GetEnactProposals();
 				for (EnactProposalList::iterator it = vEnactProposals.begin(); it != vEnactProposals.end(); ++it)
@@ -11255,7 +11255,7 @@ CvLeagueAI::KnowledgeLevels CvLeagueAI::GetKnowledgeGivenToOtherPlayer(PlayerTyp
 	{
 		eKnowledge = KNOWLEDGE_INTIMATE;
 	}
-	if (GetPlayer()->isHuman())
+	if (GetPlayer()->isHuman(ISHUMAN_AI_DIPLOMACY))
 	{
 		// Human player intentions are never known
 		eKnowledge = KNOWLEDGE_NONE;
@@ -11278,7 +11278,7 @@ CvLeagueAI::KnowledgeLevels CvLeagueAI::GetKnowledgeGivenToOtherPlayer(PlayerTyp
 			break;
 		}
 
-		if (!bOverride && !GetPlayer()->isHuman())
+		if (!bOverride && !GetPlayer()->isHuman(ISHUMAN_UI))
 		{
 			if (bShareIdeology)
 			{
