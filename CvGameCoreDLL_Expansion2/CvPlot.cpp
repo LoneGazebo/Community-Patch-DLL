@@ -9120,45 +9120,6 @@ void CvPlot::SetImprovedByGiftFromMajor(bool bValue)
 }
 
 //	--------------------------------------------------------------------------------
-/// Does this plot have a special improvement that we shouldn't remove?
-bool CvPlot::HasSpecialImprovement() const
-{
-	// Gifted improvements (if we are a minor civ)
-	if (getOwner() != NO_PLAYER)
-	{
-		CvPlayer* pOwner = &GET_PLAYER(getOwner());
-		if (pOwner->isMinorCiv())
-		{
-			if (IsImprovedByGiftFromMajor())
-			{
-				return true;
-			}
-		}
-
-		// Great person improvements
-		ImprovementTypes eImprovement = getImprovementType();
-		if (eImprovement != NO_IMPROVEMENT)
-		{
-			CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(eImprovement);
-			//Works like GP improvement.
-			if (pImprovementInfo && pImprovementInfo->IsCreatedByGreatPerson())
-			{
-				return true;
-			}
-
-			//Don't delete landmarks!
-			ImprovementTypes eLandmark = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_LANDMARK");
-			if (eLandmark != NO_IMPROVEMENT && eImprovement == eLandmark)
-			{
-				return true;
-			}
-		}
-	}
-
-	return false;
-}
-
-//	--------------------------------------------------------------------------------
 bool CvPlot::IsBarbarianCampNotConverting() const
 {
 	return m_bBarbCampNotConverting;

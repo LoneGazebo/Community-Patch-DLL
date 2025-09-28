@@ -24,7 +24,8 @@ struct BuilderDirective
 		BUILD_IMPROVEMENT_ON_RESOURCE, // enabling a special resource
 		BUILD_IMPROVEMENT,			   // improving a tile
 		BUILD_ROUTE,				   // build a route on a tile
-		REPAIR,						   // repairing a pillaged route or improvement
+		REPAIR_IMPROVEMENT,			   // repairing a pillaged improvement
+		REPAIR_ROUTE,				   // repairing a pillaged route
 		REMOVE_FEATURE,				   // remove a feature to improve production
 		REMOVE_ROAD,				   // remove a road from a plot
 		KEEP_IMPROVEMENT,			   // will not actually be executed but needed for planning
@@ -195,6 +196,8 @@ protected:
 	void SetupExtraXAdjacentPlotsForBuild(BuildTypes eBuild, ImprovementTypes eImprovement, int iAdjacencyRequirement);
 
 	void UpdateCanalPlots();
+
+	bool PlotHasSpecialImprovement(const CvPlot* pPlot) const;
 
 	PlotPair GetPlotPair(int iPlotId1, int iPlotId2);
 

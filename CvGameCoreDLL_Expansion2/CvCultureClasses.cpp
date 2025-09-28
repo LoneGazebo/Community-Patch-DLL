@@ -204,6 +204,8 @@ CvString CvGameCulture::GetGreatWorkTooltip(int iIndex, PlayerTypes eOwner) cons
 			iBaseValueTimes100 = 0;
 		}
 
+		iAddedValue = 0;
+
 		iBaseValueTimes100 += GET_PLAYER(eOwner).GetGreatWorkYieldChange(eYield) * 100;
 		iBaseValueTimes100 += GET_PLAYER(eOwner).GetPlayerTraits()->GetGreatWorkYieldChanges(eYield) * 100;
 		if (pCity)
@@ -6319,7 +6321,7 @@ int CvCityCulture::GetThemingBonusMultiplierTimes10000() const
 {
 	CvPlayer* pPlayer = m_pCity->GetPlayer();
 	int iMultiplier = 100 + pPlayer->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_THEMING_BONUS);
-	iMultiplier *= 100 + m_pCity->isCapital() ? pPlayer->GetPlayerTraits()->GetCapitalThemingBonusModifier() : 0;
+	iMultiplier *= 100 + (m_pCity->isCapital() ? pPlayer->GetPlayerTraits()->GetCapitalThemingBonusModifier() : 0);
 	return iMultiplier;
 }
 
