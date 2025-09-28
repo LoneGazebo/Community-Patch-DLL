@@ -992,23 +992,10 @@ void CvConnectionService::ProcessLuaResult(lua_State* L, int executionResult, co
 	{
 		// Script execution failed
 		(*m_pMainThreadWriteBuffer)["success"] = false;
-		
+
 		const char* errorMsg = lua_tostring(L, -1);
-		if (!errorMsg) errorMsg = "Unknown Lua error";
-		
-		// Clean up error message by stripping raw scripts
-		std::string cleanedError = errorMsg;
-		
-		// Remove script location prefix (e.g., "summaries:" from "summaries:82:error message")
-		size_t lastColon = cleanedError.rfind(':');
-		if (lastColon != std::string::npos && lastColon > 0) {
-			size_t secondLastColon = cleanedError.rfind(':', lastColon - 1);
-			if (secondLastColon != std::string::npos) {
-				// Keep everything after the second-to-last colon
-				cleanedError = cleanedError.substr(secondLastColon + 1);
-			}
-		}
-		
+		std::string cleanedError = CleanLuaErrorMessage(errorMsg);
+
 		(*m_pMainThreadWriteBuffer)["error"]["code"] = "LUA_EXECUTION_ERROR";
 		(*m_pMainThreadWriteBuffer)["error"]["message"] = cleanedError;
 		
@@ -1859,7 +1846,81 @@ void CvConnectionService::ForwardGameEvent(const char* eventName, ICvEngineScrip
 			}
 		}
 
-		if (hasSchema && argCount > 0)
+		// Check if a Lua function named "!PostProcessEvent" exists and call it
+		// Look up the function in the registered functions
+		EnterCriticalSection(&m_csFunctions);
+		std::map<std::string, LuaFunctionInfo>::iterator luaIt = m_registeredFunctions.find("!PostProcessGameEvent");
+		bool hasPostProcessor = (luaIt != m_registeredFunctions.end());
+		LuaFunctionInfo postProcessorInfo;
+		if (hasPostProcessor)
+		{
+			postProcessorInfo = luaIt->second;
+		}
+		LeaveCriticalSection(&m_csFunctions);
+
+		if (hasPostProcessor)
+		{
+			// Call the Lua function with eventName and payload
+			bool bHadLock = gDLL->HasGameCoreLock();
+			if (bHadLock)
+			{
+				gDLL->ReleaseGameCoreLock();
+			}
+
+			// Push the function from the registry
+			lua_rawgeti(postProcessorInfo.pLuaState, LUA_REGISTRYINDEX, postProcessorInfo.iRegistryRef);
+
+			// Push arguments: eventName (string) and payload (table)
+			lua_pushstring(postProcessorInfo.pLuaState, eventName);
+
+			// Convert JSON payload to Lua table
+			ConvertJsonToLuaValue(postProcessorInfo.pLuaState, payload);
+
+			// Call the function (2 args, 2 results)
+			int result = lua_pcall(postProcessorInfo.pLuaState, 2, 2, 0);
+
+			if (result == 0)
+			{
+				// Success - get the return values
+				// First return value: extraPayload
+				if (!lua_isnil(postProcessorInfo.pLuaState, -2))
+				{
+					// Convert first return value to JSON and store as extraPayload
+					ConvertLuaToJsonValue(postProcessorInfo.pLuaState, -2, message.as<JsonObject>(), "extraPayload");
+				}
+
+				// Second return value: visibility
+				if (!lua_isnil(postProcessorInfo.pLuaState, -1))
+				{
+					// Convert second return value to JSON and store as visibility
+					ConvertLuaToJsonValue(postProcessorInfo.pLuaState, -1, message.as<JsonObject>(), "visibility");
+				}
+
+				// Pop both return values
+				lua_pop(postProcessorInfo.pLuaState, 2);
+			}
+			else
+			{
+				// Error - log warning and continue
+				const char* errorMsg = lua_tostring(postProcessorInfo.pLuaState, -1);
+				std::string cleanedError = CleanLuaErrorMessage(errorMsg);
+
+				std::stringstream logMsg;
+				logMsg << "ForwardGameEvent - !PostProcessEvent failed for event '" << eventName << "': " << cleanedError;
+				Log(LOG_WARNING, logMsg.str().c_str());
+
+				// Pop the error message
+				lua_pop(postProcessorInfo.pLuaState, 1);
+			}
+
+			// Restore game core lock if we had it
+			if (bHadLock)
+			{
+				gDLL->GetGameCoreLock();
+			}
+		}
+
+		if (hasSchema)
 		{
 
 			std::stringstream ss;
@@ -1869,8 +1930,6 @@ void CvConnectionService::ForwardGameEvent(const char* eventName, ICvEngineScrip
 			// Send the message asynchronously via the queue
 			if (SendMessage(message) >= 5) {
 				Sleep(20); // Wait 20ms to throttle the game thread
-				// This slows the game a bit, but shouldn't be a big issue other than observer mode - which is our intention
-				// Also, even when the modmod is enabled, one has to connect to the Bridge Service
 			}
 		}
 		else
@@ -2035,8 +2094,9 @@ void CvConnectionService::SerializeEventSequence()
 	if (result != 0)
 	{
 		const char* errorMsg = lua_tostring(m_pLuaState, -1);
+		std::string cleanedError = CleanLuaErrorMessage(errorMsg);
 		std::stringstream ss;
-		ss << "SerializeEventSequence - Failed to save: " << (errorMsg ? errorMsg : "unknown error");
+		ss << "SerializeEventSequence - Failed to save: " << cleanedError;
 		Log(LOG_ERROR, ss.str().c_str());
 		lua_pop(m_pLuaState, 1);
 	}
@@ -2070,8 +2130,9 @@ void CvConnectionService::DeserializeEventSequence()
 	if (result != 0)
 	{
 		const char* errorMsg = lua_tostring(m_pLuaState, -1);
+		std::string cleanedError = CleanLuaErrorMessage(errorMsg);
 		std::stringstream ss;
-		ss << "DeserializeEventSequence - Failed to load: " << (errorMsg ? errorMsg : "unknown error");
+		ss << "DeserializeEventSequence - Failed to load: " << cleanedError;
 		Log(LOG_ERROR, ss.str().c_str());
 		lua_pop(m_pLuaState, 1);
 	}
@@ -2095,6 +2156,32 @@ void CvConnectionService::DeserializeEventSequence()
 	std::stringstream ss;
 	ss << "DeserializeEventSequence - Loaded event sequence: " << m_uiEventSequence;
 	Log(LOG_DEBUG, ss.str().c_str());
+}
+
+// Vox Deorum: Helper to clean Lua error messages by removing script location prefixes
+std::string CvConnectionService::CleanLuaErrorMessage(const char* errorMsg)
+{
+	if (!errorMsg) return "Unknown Lua error";
+
+	std::string cleanedError = errorMsg;
+
+	// Remove script location prefix (e.g., "summaries:82:" from "summaries:82:error message")
+	// Find the last colon in the string
+	size_t lastColon = cleanedError.rfind(':');
+	if (lastColon != std::string::npos && lastColon > 0) {
+		// Find the second-to-last colon
+		size_t secondLastColon = cleanedError.rfind(':', lastColon - 1);
+		if (secondLastColon != std::string::npos) {
+			// Keep everything after the second-to-last colon, trimming leading space
+			cleanedError = cleanedError.substr(secondLastColon + 1);
+			// Trim leading space if present
+			if (!cleanedError.empty() && cleanedError[0] == ' ') {
+				cleanedError = cleanedError.substr(1);
+			}
+		}
+	}
+
+	return cleanedError;
 }
 
 // Callback data structure for Lua external calls
