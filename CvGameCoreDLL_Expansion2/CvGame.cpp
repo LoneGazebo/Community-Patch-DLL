@@ -1355,7 +1355,7 @@ void CvGame::initFreeState(CvGameInitialItemsOverrides& kOverrides) const
 						if(!bValid)
 						{
 							if((getHandicapInfo().isFreeTechs(iI)) ||
-							        (!(kTeam.isHuman())&& getHandicapInfo().isAIFreeTechs(iI)) ||
+							        (!kTeam.isHuman(ISHUMAN_HANDICAP) && getHandicapInfo().isAIFreeTechs(iI)) ||
 							        (pkTechInfo->GetEra() < getStartEra()))
 							{
 								bValid = true;
@@ -2454,6 +2454,12 @@ void CvGame::cycleUnits(bool bClear, bool bForward, bool bWorkers)
 	PlayerTypes eActivePlayer = getActivePlayer();
 	ICvUserInterface2* pUI = GC.GetEngineUserInterface();
 	CvPlayerAI& theActivePlayer = GET_PLAYER(eActivePlayer);
+
+	if (MOD_AI_CONTROL_UNITS)
+	{
+		pUI->ClearSelectionList();
+		return;
+	}
 
 	CvInterfacePtr<ICvUnit1> pDllSelectedUnit(pUI->GetHeadSelectedUnit());
 	CvUnit* pCycleUnit = GC.UnwrapUnitPointer(pDllSelectedUnit.get());
@@ -6601,7 +6607,7 @@ bool CvGame::CanPlayerAttemptDominationVictory(PlayerTypes ePlayer, PlayerTypes 
 	if (!bDominationVictoryEnabled && !bCheckEliminationPossible)
 		return false;
 
-	if ((!GET_PLAYER(ePlayer).isHuman() && IsAIPassiveMode()) || isOption(GAMEOPTION_ALWAYS_PEACE) || isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE))
+	if ((!GET_PLAYER(ePlayer).isHuman(ISHUMAN_MECHANICS) && IsAIPassiveMode()) || isOption(GAMEOPTION_ALWAYS_PEACE) || isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE))
 	{
 		// Loop through all major civs
 		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
@@ -6651,7 +6657,7 @@ bool CvGame::CanPlayerAttemptDominationVictory(PlayerTypes ePlayer, PlayerTypes 
 			}
 		}
 	}
-	else if (!GET_PLAYER(ePlayer).isHuman() && IsAIPassiveTowardsHumans())
+	else if (!GET_PLAYER(ePlayer).isHuman(ISHUMAN_MECHANICS) && IsAIPassiveTowardsHumans())
 	{
 		// Loop through all major civs
 		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
@@ -6668,7 +6674,7 @@ bool CvGame::CanPlayerAttemptDominationVictory(PlayerTypes ePlayer, PlayerTypes 
 					continue;
 
 				// It's only humans we can't make peace with ...
-				if (!kPlayer.isHuman())
+				if (!kPlayer.isHuman(ISHUMAN_MECHANICS))
 					continue;
 
 				// Not already at war?
@@ -6689,7 +6695,7 @@ bool CvGame::CanPlayerAttemptDominationVictory(PlayerTypes ePlayer, PlayerTypes 
 				PlayerTypes eCapitalOwner = pCapitalPlot->getPlotCity()->GetOwnerForDominationVictory();
 
 				// It's only humans we can't make peace with ...
-				if (!GET_PLAYER(eCapitalOwner).isHuman())
+				if (!GET_PLAYER(eCapitalOwner).isHuman(ISHUMAN_MECHANICS))
 					continue;
 
 				// Not already at war?
@@ -6882,7 +6888,7 @@ void CvGame::setWinner(TeamTypes eNewWinner, VictoryTypes eNewVictory)
 
 				//--Start Achievements
 				//--Don't allow most in multiplayer so friends can't achieve-whore it up together
-				if (MOD_API_ACHIEVEMENTS && !GC.getGame().isGameMultiPlayer() && kWinningTeamLeader.isHuman() && kWinningTeamLeader.isLocalPlayer())
+				if (MOD_API_ACHIEVEMENTS && !GC.getGame().isGameMultiPlayer() && kWinningTeamLeader.isHuman(ISHUMAN_ACHIEVEMENTS) && kWinningTeamLeader.isLocalPlayer())
 				{
 					const bool bUsingDLC1Scenario = gDLL->IsModActivated(CIV5_DLC_01_SCENARIO_MODID);
 					const bool bUsingDLC2Scenario = gDLL->IsModActivated(CIV5_DLC_02_SCENARIO_MODID) || gDLL->IsModActivated(CIV5_COMPLETE_SCENARIO1_MODID);
@@ -7614,7 +7620,7 @@ void CvGame::setWinner(TeamTypes eNewWinner, VictoryTypes eNewVictory)
 					}
 				}
 				//Win any multiplayer game
-				if (MOD_API_ACHIEVEMENTS && GC.getGame().isGameMultiPlayer() && kWinningTeamLeader.isHuman() && (GET_PLAYER(GC.getGame().getActivePlayer()).GetID() == kWinningTeamLeader.GetID()))
+				if (MOD_API_ACHIEVEMENTS && GC.getGame().isGameMultiPlayer() && kWinningTeamLeader.isHuman(ISHUMAN_ACHIEVEMENTS) && (GET_PLAYER(GC.getGame().getActivePlayer()).GetID() == kWinningTeamLeader.GetID()))
 				{
 					gDLL->UnlockAchievement(ACHIEVEMENT_WIN_MULTIPLAYER);
 				}
@@ -7990,7 +7996,7 @@ void CvGame::setGameState(GameStateTypes eNewValue)
 			for(int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
 			{
 				CvPlayer& player = GET_PLAYER((PlayerTypes)iI);
-				if(player.isHuman())
+				if(player.isHuman(ISHUMAN_LOGGING))
 				{
 					addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, (PlayerTypes)iI, GetLocalizedText("TXT_KEY_MISC_TIME_SPENT", iHours, iMinutes));
 
@@ -8543,7 +8549,7 @@ void CvGame::doTurn()
 			ASSERT((kPlayer.isLocalPlayer() && !kPlayer.GetDiplomacyRequests()->HasPendingRequests()) || !kPlayer.isLocalPlayer(), "Clearing requests, expected local player to be empty.");
 			kPlayer.GetDiplomacyRequests()->ClearAllRequests();
 
-			if (isNetworkMultiPlayer && !kPlayer.isHuman()) {
+			if (isNetworkMultiPlayer && !kPlayer.isHuman(ISHUMAN_AI_DIPLOMACY)) {
 				// in the beginning of turn - remove all the proposed deals from/to this player
 				GC.getGame().GetGameDeals().DoCancelAllProposedMPDealsWithPlayer((PlayerTypes)iI, DIPLO_ALL_PLAYERS);
 			}
@@ -8964,14 +8970,14 @@ void CvGame::updateWar() const
 		for(iI = 0; iI < MAX_TEAMS; iI++)
 		{
 			CvTeam& teamI = GET_TEAM((TeamTypes)iI);
-			if(teamI.isHuman())
+			if(teamI.isHuman(ISHUMAN_MECHANICS))
 			{
 				if(teamI.isAlive())
 				{
 					for(iJ = 0; iJ < MAX_TEAMS; iJ++)
 					{
 						CvTeam& teamJ = GET_TEAM((TeamTypes)iJ);
-						if(!(teamJ.isHuman()))
+						if(!(teamJ.isHuman(ISHUMAN_MECHANICS)))
 						{
 							if(teamJ.isAlive())
 							{
@@ -9176,7 +9182,7 @@ void CvGame::updateMoves()
 							pLoopUnit->AutoMission();
 
 							// Does the unit still have movement points left over?
-							if(player.isHuman() && CvUnitMission::HasCompletedMoveMission(pLoopUnit) && pLoopUnit->canMove() && !pLoopUnit->IsDoingPartialMove() && !pLoopUnit->IsAutomated())
+							if(player.isHuman(ISHUMAN_AI_UNITS) && CvUnitMission::HasCompletedMoveMission(pLoopUnit) && pLoopUnit->canMove() && !pLoopUnit->IsDoingPartialMove() && !pLoopUnit->IsAutomated())
 							{
 								if(player.isEndTurn())
 								{
@@ -9207,7 +9213,7 @@ void CvGame::updateMoves()
 							// jrandall sez: In MP matches, let's not OOS or stall the game.
 							if(!isNetworkMultiPlayer() && !isOption(GAMEOPTION_END_TURN_TIMER_ENABLED))
 							{
-								if(pLoopUnit && player.isEndTurn() && pLoopUnit->GetLengthMissionQueue() == 0 && pLoopUnit->GetActivityType() == ACTIVITY_AWAKE && pLoopUnit->canMove() && !pLoopUnit->IsDoingPartialMove() && !pLoopUnit->IsAutomated())
+								if(pLoopUnit && player.isEndTurn() && pLoopUnit->GetLengthMissionQueue() == 0 && pLoopUnit->GetActivityType() == ACTIVITY_AWAKE && pLoopUnit->canMove() && !pLoopUnit->IsDoingPartialMove() && !pLoopUnit->IsAutomated() && !MOD_AI_CONTROL_UNITS)
 								{
 									if(IsForceEndingTurn())
 									{
@@ -9226,7 +9232,7 @@ void CvGame::updateMoves()
 					while(bRepeatAutomoves && iRepeatPassCount--);
 
 					// slewis - I changed this to only be the AI because human players should have the tools to deal with this now
-					if(!player.isHuman())
+					if(!player.isHuman(ISHUMAN_AI_UNITS))
 					{
 						for(pLoopUnit = player.firstUnit(&iLoop); pLoopUnit; pLoopUnit = player.nextUnit(&iLoop))
 						{
@@ -10099,7 +10105,7 @@ void CvGame::doVictoryRandomization()
 			if (ePlayer == NO_PLAYER)
 				continue;
 
-			if (GET_PLAYER(ePlayer).isHuman() && GC.getGame().getActivePlayer() == ePlayer)
+			if (GET_PLAYER(ePlayer).isHuman(ISHUMAN_NOTIFICATIONS) && GC.getGame().getActivePlayer() == ePlayer)
 			{
 				if (pkBestVictoryInfo->isDiploVote())
 				{
@@ -11912,7 +11918,7 @@ void CvGame::DoDefensivePactNotification(PlayerTypes eFirstPlayer, PlayerTypes e
 		if (eLoopPlayer == eFirstPlayer || eLoopPlayer == eSecondPlayer)
 			continue;
 
-		if (GET_PLAYER(eLoopPlayer).isObserver() || (GET_PLAYER(eLoopPlayer).isHuman() && GET_PLAYER(eLoopPlayer).isAlive()))
+		if (GET_PLAYER(eLoopPlayer).isObserver() || (GET_PLAYER(eLoopPlayer).isHuman(ISHUMAN_NOTIFICATIONS) && GET_PLAYER(eLoopPlayer).isAlive()))
 		{
 			if (!GET_PLAYER(eLoopPlayer).isObserver())
 			{
@@ -11946,7 +11952,7 @@ void CvGame::DoResearchAgreementNotification(PlayerTypes eFirstPlayer, PlayerTyp
 		if (eLoopPlayer == eFirstPlayer || eLoopPlayer == eSecondPlayer)
 			continue;
 
-		if (GET_PLAYER(eLoopPlayer).isObserver() || (GET_PLAYER(eLoopPlayer).isHuman() && GET_PLAYER(eLoopPlayer).isAlive()))
+		if (GET_PLAYER(eLoopPlayer).isObserver() || (GET_PLAYER(eLoopPlayer).isHuman(ISHUMAN_NOTIFICATIONS) && GET_PLAYER(eLoopPlayer).isAlive()))
 		{
 			if (!GET_PLAYER(eLoopPlayer).isObserver())
 			{

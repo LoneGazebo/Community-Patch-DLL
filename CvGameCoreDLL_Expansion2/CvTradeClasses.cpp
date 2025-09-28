@@ -666,7 +666,7 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 		// Apply a diplomacy bonus for recent trade in both directions
 		if (GET_PLAYER(eOriginPlayer).isMajorCiv() && GET_PLAYER(eDestPlayer).isMajorCiv())
 		{
-			if (!GET_PLAYER(eOriginPlayer).isHuman())
+			if (!GET_PLAYER(eOriginPlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
 			{
 				int iGoldYield = m_aTradeConnections[iNewTradeRouteIndex].m_aiOriginYields[YIELD_GOLD];
 				int iScienceYield = m_aTradeConnections[iNewTradeRouteIndex].m_aiOriginYields[YIELD_SCIENCE] * max(4 - GET_PLAYER(eOriginPlayer).GetCurrentEra(), 1);
@@ -681,7 +681,7 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 					GET_PLAYER(eOriginPlayer).GetDiplomacyAI()->ChangeRecentTradeValue(eDestPlayer, iTotalValue / 5);
 				}
 			}
-			if (!GET_PLAYER(eDestPlayer).isHuman())
+			if (!GET_PLAYER(eDestPlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
 			{
 				int iGoldYield = m_aTradeConnections[iNewTradeRouteIndex].m_aiDestYields[YIELD_GOLD];
 				int iScienceYield = m_aTradeConnections[iNewTradeRouteIndex].m_aiDestYields[YIELD_SCIENCE] * max(4 - GET_PLAYER(eDestPlayer).GetCurrentEra(), 1);
@@ -2477,7 +2477,7 @@ void CvPlayerTrade::MoveUnits (void)
 												strMessage << pDestCity->getNameKey();
 												strMessage << kDestPlayer.getCivilizationShortDescriptionKey();
 												strMessage << (iTourism / 3);
-												if (GC.getGame().isGameMultiPlayer() && kDestPlayer.isHuman())
+												if (GC.getGame().isGameMultiPlayer() && kDestPlayer.isHuman(ISHUMAN_UI))
 												{
 													strMessage << kDestPlayer.getNickName();
 												}
@@ -4369,7 +4369,7 @@ bool CvPlayerTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Dom
 		}
 	}
 
-	if (MOD_API_ACHIEVEMENTS && m_pPlayer->isHuman() && !GC.getGame().isGameMultiPlayer())
+	if (MOD_API_ACHIEVEMENTS && m_pPlayer->isHuman(ISHUMAN_ACHIEVEMENTS) && !GC.getGame().isGameMultiPlayer())
 	{
 		bool bConnectedToArabs = false;
 		bool bConnectedToPersia = false;
@@ -4465,7 +4465,9 @@ void CvPlayerTrade::UpdateTradeStats()
 		if (!connection.isValid())
 			continue;
 
-		if (connection.m_eOriginOwner == m_pPlayer->GetID() && GET_PLAYER(connection.m_eDestOwner).isMinorCiv())
+		CvPlayer& kDestinationPlayer = GET_PLAYER(connection.m_eDestOwner);
+
+		if (connection.m_eOriginOwner == m_pPlayer->GetID() && kDestinationPlayer.GetID() != NO_PLAYER && kDestinationPlayer.isMinorCiv())
 			m_tradeStats.iMinorTRs++;
 
 		if (connection.m_eOriginOwner == m_pPlayer->GetID() && connection.m_eDestOwner == m_pPlayer->GetID())
@@ -4703,7 +4705,7 @@ std::vector<int> CvPlayerTrade::GetTradeUnitsAtPlot(const CvPlot* pPlot, bool bF
 			{
 				if (pConnection->m_eDestOwner == m_pPlayer->GetID())
 					bIgnore = true;
-				else if (!m_pPlayer->isHuman() && m_pPlayer->GetDiplomacyAI()->IsBadTheftTarget(pConnection->m_eOriginOwner, THEFT_TYPE_TRADE_ROUTE, pPlot))
+				else if (!m_pPlayer->isHuman(ISHUMAN_AI_DIPLOMACY) && m_pPlayer->GetDiplomacyAI()->IsBadTheftTarget(pConnection->m_eOriginOwner, THEFT_TYPE_TRADE_ROUTE, pPlot))
 					bIgnore = true;
 			}
 			else
@@ -4769,7 +4771,7 @@ std::vector<int> CvPlayerTrade::GetTradePlotsAtPlot(const CvPlot* pPlot, bool bF
 			{
 				if (pConnection->m_eDestOwner == m_pPlayer->GetID())
 					bIgnore = true;
-				else if (!m_pPlayer->isHuman() && m_pPlayer->GetDiplomacyAI()->IsBadTheftTarget(pConnection->m_eOriginOwner, THEFT_TYPE_TRADE_ROUTE, pPlot))
+				else if (!m_pPlayer->isHuman(ISHUMAN_AI_DIPLOMACY) && m_pPlayer->GetDiplomacyAI()->IsBadTheftTarget(pConnection->m_eOriginOwner, THEFT_TYPE_TRADE_ROUTE, pPlot))
 					bIgnore = true;
 			}
 			else
@@ -4971,7 +4973,7 @@ bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID, CvUnit* pUnit)
 	// do the notification stuff
 	if (pOriginCity && pDestCity)
 	{
-		bool bHumanPlunderer = m_pPlayer->isHuman();
+		bool bHumanPlunderer = m_pPlayer->isHuman(ISHUMAN_NOTIFICATIONS);
 		
 		// send notification to owner player
 		CvNotifications* pNotifications = GET_PLAYER(eOwningPlayer).GetNotifications();
@@ -4990,7 +4992,7 @@ bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID, CvUnit* pUnit)
 			else if (GET_TEAM(eOwningTeam).isHasMet(m_pPlayer->getTeam()))
 			{
 				strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_TRADE_UNIT_PLUNDERED_TRADER_KNOWN");
-				if(GC.getGame().isGameMultiPlayer() && m_pPlayer->isHuman())
+				if(GC.getGame().isGameMultiPlayer() && m_pPlayer->isHuman(ISHUMAN_UI))
 				{
 					strMessage << m_pPlayer->getNickName();
 				}
@@ -5024,7 +5026,7 @@ bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID, CvUnit* pUnit)
 				if (m_pPlayer->isBarbarian() || (!bHumanPlunderer && !GET_TEAM(eDestTeam).isAtWar(m_pPlayer->getTeam()) && m_pPlayer->GetPlayerTraits()->IsCanPlunderWithoutWar() && !pPlunderPlot->isVisible(eDestTeam)))
 				{
 					strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_TRADE_UNIT_PLUNDERED_TRADEE_BARBARIANS");
-					if(GC.getGame().isGameMultiPlayer() && GET_PLAYER(eOwningPlayer).isHuman())
+					if(GC.getGame().isGameMultiPlayer() && GET_PLAYER(eOwningPlayer).isHuman(ISHUMAN_UI))
 					{
 						strMessage << GET_PLAYER(eOwningPlayer).getNickName();
 					}
@@ -5038,7 +5040,7 @@ bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID, CvUnit* pUnit)
 				else if (GET_TEAM(eDestTeam).isHasMet(m_pPlayer->getTeam()))
 				{
 					strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_TRADE_UNIT_PLUNDERED_TRADEE_KNOWN");
-					if(GC.getGame().isGameMultiPlayer() && m_pPlayer->isHuman())
+					if(GC.getGame().isGameMultiPlayer() && m_pPlayer->isHuman(ISHUMAN_UI))
 					{
 						strMessage << m_pPlayer->getNickName();
 					}
@@ -5047,7 +5049,7 @@ bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID, CvUnit* pUnit)
 						strMessage << m_pPlayer->getNameKey();
 					}
 
-					if(GC.getGame().isGameMultiPlayer() && GET_PLAYER(eOwningPlayer).isHuman())
+					if(GC.getGame().isGameMultiPlayer() && GET_PLAYER(eOwningPlayer).isHuman(ISHUMAN_UI))
 					{
 						strMessage << GET_PLAYER(eOwningPlayer).getNickName();
 					}
@@ -5063,7 +5065,7 @@ bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID, CvUnit* pUnit)
 				{
 					strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_TRADE_UNIT_PLUNDERED_TRADEE_UNKNOWN");
 
-					if(GC.getGame().isGameMultiPlayer() && GET_PLAYER(eOwningPlayer).isHuman())
+					if(GC.getGame().isGameMultiPlayer() && GET_PLAYER(eOwningPlayer).isHuman(ISHUMAN_UI))
 					{
 						strMessage << GET_PLAYER(eOwningPlayer).getNickName();
 					}
@@ -5081,7 +5083,7 @@ bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID, CvUnit* pUnit)
 		}
 	}
 
-	if (MOD_API_ACHIEVEMENTS && eDomain == DOMAIN_LAND && m_pPlayer->isHuman() && !GC.getGame().isGameMultiPlayer())
+	if (MOD_API_ACHIEVEMENTS && eDomain == DOMAIN_LAND && m_pPlayer->isHuman(ISHUMAN_ACHIEVEMENTS) && !GC.getGame().isGameMultiPlayer())
 	{
 		gDLL->UnlockAchievement(ACHIEVEMENT_XP2_28);
 	}

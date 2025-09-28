@@ -3834,3 +3834,31 @@ enum CLOSED_ENUM Likelyhood
 	LIKELYHOOD_LIKELY,
 	LIKELYHOOD_CERTAIN
 };
+
+// Passed as an argument to isHuman calls to communicate what the purpose of the isHuman call was.
+// I.e., if the isHuman result is false, what AI code will be run.
+enum CLOSED_ENUM IsHumanReason
+{
+	ISHUMAN_AI_CITY_MANAGEMENT,     // City management, including plot purchasing, annex/raze/keep decisions, city focus, citizen distribution, etc.
+	ISHUMAN_AI_CITY_PRODUCTION,     // City production.
+	ISHUMAN_AI_DIPLOMACY,           // All functionality related to interacting with other civs, including trade but excluding espionage. Also includes flavor messages that are sent e.g. when tiles are stolen.
+	ISHUMAN_AI_ECONOMY,             // All logic related to the economic AI, including many grand strategy decisions and general planning.
+	ISHUMAN_AI_ESPIONAGE,           // All logic related to espionage.
+	ISHUMAN_AI_EVENT_CHOICE,        // Event choices.
+	ISHUMAN_AI_FAITH_SPENDING,      // Faith purchases.
+	ISHUMAN_AI_GREAT_PERSON_CHOICE, // Great person choices.
+	ISHUMAN_AI_POLICY_CHOICE,       // Policy and ideology choices
+	ISHUMAN_AI_RELIGION_CHOICE,     // Religion choices, i.e. what Pantheon to found and everything related to founding and extending religions
+	ISHUMAN_AI_TECH_CHOICE,         // Technology choices.
+	ISHUMAN_AI_TOURISM,             // All logic related to tourism, including archaeology choices and great work swapping.
+	ISHUMAN_AI_UNIT_PROMOTIONS,     // Unit promotions.
+	ISHUMAN_AI_UNITS,               // Unit control, excluding trade units.
+	ISHUMAN_AI_WORLD_CONGRESS,      // Making proposals and voting in the World Congress.
+	ISHUMAN_ACHIEVEMENTS,           // isHuman calls to check whether achievements should be given.
+	ISHUMAN_HANDICAP,               // isHuman calls to check whether AI handicap bonuses should be given.
+	ISHUMAN_LOGGING,                // isHuman calls to check whether certain events should be logged.
+	ISHUMAN_MECHANICS,              // isHuman calls to check whether to apply certain human only mechanics, such as OCC, but also certain AI behaviors towards human players.
+	ISHUMAN_NOTIFICATIONS,          // isHuman calls to check whether notifications should be sent.
+	ISHUMAN_UI,                     // UI related isHuman calls.
+	OTHER_ISHUMAN_REASON            // Any other isHuman call reason (multiplayer syncing or other isHuman calls we do not want to tamper with).
+};

@@ -224,7 +224,7 @@ void CvCityCitizens::DoTurn()
 			bForceCheck |= SetForcedAvoidGrowth(false);
 	}
 
-	if (!thisPlayer.isHuman())
+	if (!thisPlayer.isHuman(ISHUMAN_AI_CITY_MANAGEMENT))
 	{
 		// Are we running at a deficit?
 		static EconomicAIStrategyTypes eStrategyLosingMoney = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY", true);
@@ -484,7 +484,7 @@ YieldAndGPPList CvCityCitizens::GetPlotYields(CvPlot* pPlot, SPrecomputedExpensi
 
 bool CvCityCitizens::CityShouldEmphasizeFood(int iAssumedExcessFood) const
 {
-	bool bCityFoodProduction = !GET_PLAYER(GetOwner()).isHuman() && m_pCity->getPopulation() > 3 && m_pCity->isFoodProduction(); //settler!
+	bool bCityFoodProduction = !GET_PLAYER(GetOwner()).isHuman(ISHUMAN_AI_CITY_MANAGEMENT) && m_pCity->getPopulation() > 3 && m_pCity->isFoodProduction(); //settler!
 	bool bSmallCity = m_pCity->getPopulation() < /*2 in CP, 4 in VP*/ GD_INT_GET(CITY_MIN_SIZE_FOR_SETTLERS);
 	int iFoodThreshold = GetExcessFoodThreshold100();
 
@@ -496,12 +496,12 @@ bool CvCityCitizens::CityShouldEmphasizeFood(int iAssumedExcessFood) const
 
 bool CvCityCitizens::CityShouldEmphasizeProduction() const
 {
-	if (GET_PLAYER(GetOwner()).isHuman() || m_pCity->getPopulation() <= 3)
+	if ((GET_PLAYER(GetOwner()).isHuman(ISHUMAN_AI_CITY_MANAGEMENT)) || m_pCity->getPopulation() <= 3)
 		return false;
 
 	//settler
-	if (m_pCity->isFoodProduction())
-		return true;
+	//if (m_pCity->isFoodProduction())
+	//	return true;
 
 	// world wonder
 	if (m_pCity->IsBuildingWorldWonder())
@@ -583,7 +583,7 @@ bool CvCityCitizens::IsAvoidGrowth() const
 
 	//failsafe for AI
 	const CvPlayer& kPlayer = GET_PLAYER(GetOwner());
-	if (!kPlayer.isHuman() && kPlayer.IsEmpireVeryUnhappy())
+	if ((!kPlayer.isHuman(ISHUMAN_AI_CITY_MANAGEMENT)) && kPlayer.IsEmpireVeryUnhappy())
 	{
 		return true;
 	}
@@ -1432,7 +1432,7 @@ vector<TileChange> CvCityCitizens::GetBestOptionsQuick(int iNumOptions, bool bAd
 				if (bAdd)
 				{
 					// how many specialists of this type can we assign?
-					if (GET_PLAYER(GetOwner()).isHuman() && (IsNoAutoAssignSpecialists()))
+					if (GET_PLAYER(GetOwner()).isHuman(ISHUMAN_AI_CITY_MANAGEMENT) && IsNoAutoAssignSpecialists())
 					{
 						iNumSpecialists = 0;
 					}
@@ -1667,7 +1667,7 @@ void CvCityCitizens::DoInitialAssigment(bool bAssumeStarving, bool bAssumeBelowG
 	gCachedNumbers.update(m_pCity);
 	
 	// score all possible options
-	vector<TileChange> vScoredOptions = GetBestOptionsQuick(iNumToAssign, /*bAdd*/ true, /*bAllowOverride*/ !GET_PLAYER(GetOwner()).isHuman(), gCachedNumbers, bAssumeStarving, bAssumeBelowGrowthThreshold, gCachedNumbers.iNetGold < 0);
+	vector<TileChange> vScoredOptions = GetBestOptionsQuick(iNumToAssign, /*bAdd*/ true, /*bAllowOverride*/ !GET_PLAYER(GetOwner()).isHuman(ISHUMAN_AI_CITY_MANAGEMENT), gCachedNumbers, bAssumeStarving, bAssumeBelowGrowthThreshold, gCachedNumbers.iNetGold < 0);
 
 	// assign the best ones
 	for (int i = 0; i < (int)vScoredOptions.size(); i++)
@@ -1696,7 +1696,7 @@ bool CvCityCitizens::DoAddBestCitizenFromUnassigned(CvCity::eUpdateMode updateMo
 	int iBestPlotValue = -1;
 	CvPlot* pBestPlot = GetBestCityPlotWithValue(iBestPlotValue, eBEST_UNWORKED_NO_OVERRIDE, gCachedNumbers, bLogging);
 
-	bool bSpecialistForbidden = GET_PLAYER(GetOwner()).isHuman() && ( IsNoAutoAssignSpecialists() || NoSpecialists );
+	bool bSpecialistForbidden = GET_PLAYER(GetOwner()).isHuman(ISHUMAN_AI_CITY_MANAGEMENT) && ( IsNoAutoAssignSpecialists() || NoSpecialists );
 	FILogFile* pLog = bLogging && GC.getLogging() ? LOGFILEMGR.GetLog("CityTileScorer.csv", FILogFile::kDontTimeStamp) : NULL;
 
 	int iSpecialistValue = -1;
@@ -1984,7 +1984,7 @@ void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 
 	int iCount = 0;
 	FILogFile* pLog = bLogging && GC.getLogging() ? LOGFILEMGR.GetLog("CityTileScorer.csv", FILogFile::kDontTimeStamp) : NULL;
-	bool bIsHuman = GET_PLAYER(GetOwner()).isHuman();
+	bool bIsHuman = GET_PLAYER(GetOwner()).isHuman(ISHUMAN_AI_CITY_MANAGEMENT);
 	bool bSpecialistForbidden = bIsHuman && IsNoAutoAssignSpecialists();
 
 	if (pLog)
@@ -2017,7 +2017,7 @@ void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 		bool bBelowGrowthThreshold = iNetFood100 < GetExcessFoodThreshold100();
 		bool bInDebt = gCachedNumbers.iNetGold < 0;
 		
-		bool bAllowOverride = !GET_PLAYER(GetOwner()).isHuman();
+		bool bAllowOverride = !GET_PLAYER(GetOwner()).isHuman(ISHUMAN_AI_CITY_MANAGEMENT);
 		vector<TileChange> vRemoveOptions = GetBestOptionsQuick(iNumOptionsPlots, /*bAdd*/ false, bAllowOverride, gCachedNumbers, bStarving, bBelowGrowthThreshold, bInDebt, /*bIncludePlots*/ true, /*bIncludeSpecialists*/ false, true);
 		if (!bSpecialistForbidden)
 		{
@@ -2127,7 +2127,7 @@ bool CvCityCitizens::NeedReworkCitizens()
 
 	//for simplicity we do not check for laborers here
 	int iRemoveWorstSpecialistValue = 0;
-	if (!GET_PLAYER(GetOwner()).isHuman() || !IsNoAutoAssignSpecialists())
+	if (!GET_PLAYER(GetOwner()).isHuman(ISHUMAN_AI_CITY_MANAGEMENT) || !IsNoAutoAssignSpecialists())
 	{
 		GetAIWorstSpecialistCurrentlyInBuilding(iRemoveWorstSpecialistValue, gCachedNumbers);
 	}
@@ -2144,7 +2144,7 @@ bool CvCityCitizens::NeedReworkCitizens()
 	GetBestCityPlotWithValue(iAddBestUnworkedPlotValue, eBEST_UNWORKED_NO_OVERRIDE, gCachedNumbers);
 
 	int iAddBestSpecialistValue = 0;
-	if (!GET_PLAYER(GetOwner()).isHuman() || !IsNoAutoAssignSpecialists())
+	if (!GET_PLAYER(GetOwner()).isHuman(ISHUMAN_AI_CITY_MANAGEMENT) || !IsNoAutoAssignSpecialists())
 	{
 		GetAIBestSpecialistBuilding(iAddBestSpecialistValue, gCachedNumbers);
 	}
@@ -3512,7 +3512,7 @@ int CvCityCitizens::GetSpecialistUpgradeThreshold(UnitClassTypes eUnitClass) con
 		iThreshold *= kPlayer.getHandicapInfo().getGreatPeoplePercent();
 		iThreshold /= 100;
 
-		if (!kPlayer.isHuman())
+		if (!kPlayer.isHuman(ISHUMAN_HANDICAP))
 		{
 			iThreshold *= GC.getGame().getHandicapInfo().getAIGreatPeoplePercent();
 			iThreshold /= 100;
@@ -3728,7 +3728,7 @@ void SPrecomputedExpensiveNumbers::update(CvCity* pCity, bool bInsideLoop)
 				bonusForXTerrain[i][j] = INT_MAX;
 		}
 
-		if (kPlayer.isHuman())
+		if (kPlayer.isHuman(ISHUMAN_AI_DIPLOMACY))
 		{
 			bWantArt = false;
 			bWantScience = false;

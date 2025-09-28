@@ -863,7 +863,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 				}
 			}
 
-			if (!isHuman())
+			if (!isHuman(ISHUMAN_AI_CITY_PRODUCTION))
 			{
 				changeOverflowProduction(/*0*/ GD_INT_GET(INITIAL_AI_CITY_PRODUCTION));
 			}
@@ -1101,11 +1101,11 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 
 	AI_init();
 
-	if (GC.getGame().getGameTurn() == 0)
+	if (GC.getGame().getGameTurn() == 0 && !MOD_AI_CONTROL_CITY_PRODUCTION)
 	{
 		chooseProduction();
 	}
-	if (!GET_PLAYER(getOwner()).isHuman())
+	if (!GET_PLAYER(getOwner()).isHuman(ISHUMAN_AI_CITY_PRODUCTION))
 	{
 		AI_chooseProduction(false, false);
 	}
@@ -2457,7 +2457,7 @@ void CvCity::doTurn()
 	{
 		ChangeBuildingPurchaseCooldown(-1);
 	}
-	if (!GET_PLAYER(getOwner()).isHuman())
+	if (!GET_PLAYER(getOwner()).isHuman(ISHUMAN_AI_UNITS))
 	{
 		CheckForOperationUnits();
 	}
@@ -2619,7 +2619,7 @@ void CvCity::doTurn()
 		DoNearbyEnemy();
 
 		//Check for Achievements
-		if (MOD_API_ACHIEVEMENTS && isHuman() && !GC.getGame().isGameMultiPlayer() && GET_PLAYER(GC.getGame().getActivePlayer()).isLocalPlayer())
+		if (MOD_API_ACHIEVEMENTS && isHuman(ISHUMAN_ACHIEVEMENTS) && !GC.getGame().isGameMultiPlayer() && GET_PLAYER(GC.getGame().getActivePlayer()).isLocalPlayer())
 		{
 			if ((getYieldRateTimes100(YIELD_CULTURE) / 100) >= 100)
 			{
@@ -3540,7 +3540,7 @@ void CvCity::DoStartEvent(CityEventTypes eChosenEvent, bool bSendMsg)
 							if (pkEventInfo->getNumChoices() == 1)
 							{
 								DoEventChoice(eEventChoice, eChosenEvent, bSendMsg);
-								if (isHuman())
+								if (isHuman(ISHUMAN_AI_EVENT_CHOICE))
 								{
 									CvPopupInfo kPopupInfo(BUTTONPOPUP_MODDER_7, eEventChoice, GetID(), getOwner());
 									GC.GetEngineUserInterface()->AddPopup(kPopupInfo);
@@ -3553,7 +3553,7 @@ void CvCity::DoStartEvent(CityEventTypes eChosenEvent, bool bSendMsg)
 			}
 			if (iNumEvent > 0 && pkEventInfo->getNumChoices() > 1)
 			{
-				if (GET_PLAYER(getOwner()).isHuman())
+				if (GET_PLAYER(getOwner()).isHuman(ISHUMAN_AI_EVENT_CHOICE))
 				{
 					CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
 					if (pNotifications)
@@ -6355,7 +6355,7 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice, int
 }
 void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCityEvent, bool bSendMsg, int iSpyID, PlayerTypes eSpyOwner)
 {
-	if (GC.getGame().isNetworkMultiPlayer() && bSendMsg && (GET_PLAYER(getOwner()).isHuman() || (eSpyOwner != NO_PLAYER && GET_PLAYER(eSpyOwner).isHuman()))) {
+	if (GC.getGame().isNetworkMultiPlayer() && bSendMsg && (GET_PLAYER(getOwner()).isHuman(ISHUMAN_AI_EVENT_CHOICE) || (eSpyOwner != NO_PLAYER && GET_PLAYER(eSpyOwner).isHuman(ISHUMAN_AI_EVENT_CHOICE)))) {
 		NetMessageExt::Send::DoCityEventChoice(getOwner(), GetID(), eEventChoice, eCityEvent, iSpyID, eSpyOwner);
 		return;
 	}
@@ -8427,7 +8427,7 @@ UnitTypes CvCity::allUpgradesAvailable(UnitTypes eUnit, int iUpgradeCount) const
 bool CvCity::isWorldWondersMaxed() const
 {
 	VALIDATE_OBJECT();
-	if (GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && isHuman())
+	if (GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && isHuman(ISHUMAN_MECHANICS))
 	{
 		return false;
 	}
@@ -8450,7 +8450,7 @@ bool CvCity::isWorldWondersMaxed() const
 bool CvCity::isTeamWondersMaxed() const
 {
 	VALIDATE_OBJECT();
-	if (GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && isHuman())
+	if (GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && isHuman(ISHUMAN_MECHANICS))
 	{
 		return false;
 	}
@@ -8473,7 +8473,7 @@ bool CvCity::isTeamWondersMaxed() const
 bool CvCity::isNationalWondersMaxed() const
 {
 	VALIDATE_OBJECT();
-	int iMaxNumWonders = (GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && isHuman()) ? /*-1*/ GD_INT_GET(MAX_NATIONAL_WONDERS_PER_CITY_FOR_OCC) : /*-1*/ GD_INT_GET(MAX_NATIONAL_WONDERS_PER_CITY);
+	int iMaxNumWonders = (GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && isHuman(ISHUMAN_MECHANICS)) ? /*-1*/ GD_INT_GET(MAX_NATIONAL_WONDERS_PER_CITY_FOR_OCC) : /*-1*/ GD_INT_GET(MAX_NATIONAL_WONDERS_PER_CITY);
 
 	if (iMaxNumWonders == -1)
 	{
@@ -8498,7 +8498,7 @@ bool CvCity::isBuildingsMaxed() const
 		return false;
 	}
 
-	if (GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && isHuman())
+	if (GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && isHuman(ISHUMAN_MECHANICS))
 	{
 		return false;
 	}
@@ -8620,7 +8620,7 @@ bool CvCity::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool b
 	}
 
 	// check whether we can supply the units. do not check this on player level, all the dynamic checks should happen here
-	if (MOD_BALANCE_CORE_MILITARY && !isHuman() && !isBarbarian() && !pkUnitEntry->IsNoSupply() && (pkUnitEntry->GetCombat() > 0 || pkUnitEntry->GetRangedCombat() > 0))
+	if (MOD_BALANCE_CORE_MILITARY && !isHuman(ISHUMAN_AI_CITY_PRODUCTION) && !isBarbarian() && !pkUnitEntry->IsNoSupply() && (pkUnitEntry->GetCombat() > 0 || pkUnitEntry->GetRangedCombat() > 0))
 	{
 		bool bCanSupply = GET_PLAYER(getOwner()).GetNumUnitsToSupply() < GET_PLAYER(getOwner()).GetNumUnitsSupplied(); // this works when we're at the limit
 		if (!bCanSupply)
@@ -10662,7 +10662,7 @@ void CvCity::addProductionExperience(CvUnit* pUnit, bool bHalveXP, bool bGoldPur
 		if (MOD_API_ACHIEVEMENTS && getOwner() != NO_PLAYER)
 		{
 			CvPlayer& kOwner = GET_PLAYER(getOwner());
-			if (!GC.getGame().isGameMultiPlayer() && kOwner.isHuman() && kOwner.isLocalPlayer())
+			if (!GC.getGame().isGameMultiPlayer() && kOwner.isHuman(ISHUMAN_ACHIEVEMENTS) && kOwner.isLocalPlayer())
 			{
 				// This unit begins with a promotion from XP, and part of that XP came from filled Great Work slots
 				if ((pUnit->getExperienceTimes100() / 100) >= pUnit->experienceNeeded() && getDomainFreeExperienceFromGreatWorks(pUnit->getUnitInfo().GetDomainType()) > 0)
@@ -11964,7 +11964,7 @@ int CvCity::GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts)
 		iCost *= GET_PLAYER(getOwner()).getHandicapInfo().getProphetPercent();
 		iCost /= 100;
 
-		if (!GET_PLAYER(getOwner()).isHuman())
+		if (!GET_PLAYER(getOwner()).isHuman(ISHUMAN_HANDICAP))
 		{
 			iCost *= GC.getGame().getHandicapInfo().getAIProphetPercent();
 			iCost /= 100;
@@ -11981,7 +11981,7 @@ int CvCity::GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts)
 			iCost *= std::max(0, GET_PLAYER(getOwner()).getHandicapInfo().getTrainPerEraModifier() * GC.getGame().getCurrentEra() + 100);
 			iCost /= 100;
 
-			if (!isHuman())
+			if (!isHuman(ISHUMAN_HANDICAP))
 			{
 				iCost *= GC.getGame().getHandicapInfo().getAITrainPercent();
 				iCost /= 100;
@@ -11998,7 +11998,7 @@ int CvCity::GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts)
 			iCost *= std::max(0, GET_PLAYER(getOwner()).getHandicapInfo().getCivilianPerEraModifier() * GC.getGame().getCurrentEra() + 100);
 			iCost /= 100;
 
-			if (!isHuman())
+			if (!isHuman(ISHUMAN_HANDICAP))
 			{
 				iCost *= GC.getGame().getHandicapInfo().getAICivilianPercent();
 				iCost /= 100;
@@ -12204,7 +12204,7 @@ int CvCity::GetFaithPurchaseCost(BuildingTypes eBuilding)
 		iCost *= getHandicapInfo().getConstructPercent();
 		iCost /= 100;
 
-		if (!isHuman())
+		if (!isHuman(ISHUMAN_HANDICAP))
 		{
 			iCost *= GC.getGame().getHandicapInfo().getAIConstructPercent();
 			iCost /= 100;
@@ -12442,7 +12442,7 @@ void CvCity::changeProductionTimes100(int iChange)
 											bValid = false;
 										}
 										// one city challenge
-										else if (GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && pOtherPlayer->isHuman())
+										else if (GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && pOtherPlayer->isHuman(ISHUMAN_MECHANICS))
 										{
 											bValid = false;
 										}
@@ -13533,7 +13533,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 				if (pUnitInfo)
 				{
 					// No settling units for One City Challenge
-					if (isHuman() && pUnitInfo->IsFound() && GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
+					if (isHuman(ISHUMAN_MECHANICS) && pUnitInfo->IsFound() && GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
 						continue;
 
 					int iNumFreeUnits = pBuildingInfo->GetNumFreeUnits(iUnitLoop);
@@ -14925,8 +14925,8 @@ void CvCity::processProcess(ProcessTypes eProcess, int iChange)
 
 			int iDifficultyMod = GET_PLAYER(getOwner()).getHandicapInfo().getProcessBonus();
 			iDifficultyMod += GET_PLAYER(getOwner()).getHandicapInfo().getProcessPerEraModifier() * GC.getGame().getCurrentEra();
-			iDifficultyMod += GET_PLAYER(getOwner()).isHuman() ? 0 : GC.getGame().getHandicapInfo().getAIProcessBonus();
-			iDifficultyMod += GET_PLAYER(getOwner()).isHuman() ? 0 : GC.getGame().getHandicapInfo().getAIProcessPerEraModifier() * GC.getGame().getCurrentEra();
+			iDifficultyMod += GET_PLAYER(getOwner()).isHuman(ISHUMAN_HANDICAP) ? 0 : GC.getGame().getHandicapInfo().getAIProcessBonus();
+			iDifficultyMod += GET_PLAYER(getOwner()).isHuman(ISHUMAN_HANDICAP) ? 0 : GC.getGame().getHandicapInfo().getAIProcessPerEraModifier() * GC.getGame().getCurrentEra();
 
 			changeProductionToYieldModifier((YieldTypes)iI, (pkProcessInfo->getProductionToYieldModifier(iI) + GetYieldFromProcessModifier((YieldTypes)iI) + iDifficultyMod) * iChange);
 
@@ -15346,17 +15346,17 @@ bool CvCity::isBarbarian() const
 
 
 //	--------------------------------------------------------------------------------
-bool CvCity::isHuman() const
+bool CvCity::isHuman(IsHumanReason eIsHumanReason) const
 {
 	VALIDATE_OBJECT();
-	return GET_PLAYER(getOwner()).isHuman();
+	return GET_PLAYER(getOwner()).isHuman(eIsHumanReason);
 }
 
 //	Automated City Production
 bool CvCity::isHumanAutomated() const
 {
 	VALIDATE_OBJECT();
-	return GET_PLAYER(getOwner()).isHuman() && isProductionAutomated() && !IsPuppet();
+	return GET_PLAYER(getOwner()).isHuman(ISHUMAN_AI_CITY_PRODUCTION) && isProductionAutomated() && !IsPuppet();
 }
 
 //	--------------------------------------------------------------------------------
@@ -15738,7 +15738,7 @@ void CvCity::CheckForOperationUnits()
 									}
 									pushOrder(ORDER_TRAIN, eBestUnit, -1, false, false, true, false);
 								}
-								else if (!GET_PLAYER(getOwner()).isHuman() && !IsPuppet())
+								else if (!GET_PLAYER(getOwner()).isHuman(ISHUMAN_AI_CITY_PRODUCTION) && !IsPuppet())
 								{
 									if (getProductionProcess() != NO_PROCESS)
 									{
@@ -15884,7 +15884,7 @@ void CvCity::CheckForOperationUnits()
 							}
 							pushOrder(ORDER_TRAIN, eBestUnit, -1, false, false, true, false);
 						}
-						else if (!GET_PLAYER(getOwner()).isHuman() && !IsPuppet())
+						else if (!GET_PLAYER(getOwner()).isHuman(ISHUMAN_AI_CITY_PRODUCTION) && !IsPuppet())
 						{
 							if (getProductionProcess() != NO_PROCESS)
 							{
@@ -16274,7 +16274,7 @@ int CvCity::GetUnhappinessFromCitySpecialists()
 		iUnhappiness /= 100;
 
 		// Handicap mod
-		iUnhappiness *= GET_PLAYER(getOwner()).isHuman() ? 100 + GET_PLAYER(getOwner()).getHandicapInfo().getPopulationUnhappinessMod() : 100 + GET_PLAYER(getOwner()).getHandicapInfo().getPopulationUnhappinessMod() + GC.getGame().getHandicapInfo().getAIPopulationUnhappinessMod();
+		iUnhappiness *= GET_PLAYER(getOwner()).isHuman(ISHUMAN_HANDICAP) ? 100 + GET_PLAYER(getOwner()).getHandicapInfo().getPopulationUnhappinessMod() : 100 + GET_PLAYER(getOwner()).getHandicapInfo().getPopulationUnhappinessMod() + GC.getGame().getHandicapInfo().getAIPopulationUnhappinessMod();
 		iUnhappiness /= 100;
 	}
 
@@ -17214,7 +17214,7 @@ void CvCity::DoJONSCultureLevelIncrease()
 {
 	VALIDATE_OBJECT();
 	int iOverflow = GetJONSCultureStoredTimes100() - GetJONSCultureThreshold() * 100;
-	bool bIsHumanControlled = (GET_PLAYER(getOwner()).isHuman() && !IsPuppet());
+	bool bIsHumanControlled = GET_PLAYER(getOwner()).isHuman(ISHUMAN_AI_CITY_MANAGEMENT) && !IsPuppet();
 	bool bSendEvent = true;
 	if (!(MOD_UI_CITY_EXPANSION && bIsHumanControlled)) {
 		// We need to defer this for humans picking their own tiles
@@ -19596,7 +19596,7 @@ void CvCity::DoAnnex(bool bRaze)
 	}
 
 	// Turn this off - used to display info for annex/puppet/raze popup
-	if (!isHuman())
+	if (!isHuman(ISHUMAN_AI_CITY_PRODUCTION))
 		clearOrderQueue();
 
 	// Apply warmongering
@@ -19649,7 +19649,7 @@ void CvCity::DoAnnex(bool bRaze)
 	if (MOD_API_ACHIEVEMENTS)
 	{
 		bool bUsingXP1Scenario1 = gDLL->IsModActivated(CIV5_XP1_SCENARIO1_MODID);
-		if (!bRaze && !bUsingXP1Scenario1 && GET_PLAYER(getOwner()).isHuman() && getOriginalOwner() != GetID() && GET_PLAYER(getOriginalOwner()).isMinorCiv() && !GC.getGame().isGameMultiPlayer())
+		if (!bRaze && !bUsingXP1Scenario1 && GET_PLAYER(getOwner()).isHuman(ISHUMAN_ACHIEVEMENTS) && getOriginalOwner() != GetID() && GET_PLAYER(getOriginalOwner()).isMinorCiv() && !GC.getGame().isGameMultiPlayer())
 		{
 			gDLL->UnlockAchievement(ACHIEVEMENT_CITYSTATE_ANNEX);
 		}
@@ -19940,9 +19940,9 @@ int CvCity::GetLocalHappiness(int iPopMod, bool bExcludeEmpireContributions) con
 
 	if (isCapital())
 	{
-		if (MOD_BALANCE_VP && GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && kPlayer.isHuman())
+		if (MOD_BALANCE_VP && GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && kPlayer.isHuman(ISHUMAN_MECHANICS))
 			iLocalHappiness += kPlayer.getHandicapInfo().getHappinessDefaultCapital() * 2;
-		else if (kPlayer.isHuman())
+		else if (kPlayer.isHuman(ISHUMAN_HANDICAP))
 			iLocalHappiness += kPlayer.getHandicapInfo().getHappinessDefaultCapital();
 		else
 			iLocalHappiness += kPlayer.getHandicapInfo().getHappinessDefaultCapital() + GC.getGame().getHandicapInfo().getAIHappinessDefaultCapital();
@@ -19977,9 +19977,9 @@ CvString CvCity::GetCityHappinessBreakdown()
 	int iHandicap = 0;
 	if (isCapital())
 	{
-		if (MOD_BALANCE_VP && kPlayer.isHuman() && GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
+		if (MOD_BALANCE_VP && kPlayer.isHuman(ISHUMAN_MECHANICS) && GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
 			iHandicap += kPlayer.getHandicapInfo().getHappinessDefaultCapital() * 2;
-		else if (kPlayer.isHuman())
+		else if (kPlayer.isHuman(ISHUMAN_HANDICAP))
 			iHandicap += kPlayer.getHandicapInfo().getHappinessDefaultCapital();
 		else
 			iHandicap += kPlayer.getHandicapInfo().getHappinessDefaultCapital() + GC.getGame().getHandicapInfo().getAIHappinessDefaultCapital();
@@ -20396,7 +20396,7 @@ int CvCity::GetAllNeedsModifier(bool bForceRecalc) const
 	iModifier += GetReducedEmpireSizeModifier(bForceRecalc, false);
 
 	// Modifier from difficulty level
-	iModifier += kPlayer.isHuman() ? kPlayer.getHandicapInfo().getPopulationUnhappinessMod() : kPlayer.getHandicapInfo().getPopulationUnhappinessMod() + GC.getGame().getHandicapInfo().getAIPopulationUnhappinessMod();
+	iModifier += kPlayer.isHuman(ISHUMAN_HANDICAP) ? kPlayer.getHandicapInfo().getPopulationUnhappinessMod() : kPlayer.getHandicapInfo().getPopulationUnhappinessMod() + GC.getGame().getHandicapInfo().getAIPopulationUnhappinessMod();
 
 	// Decrease from Carnival (Brazil UA)
 	if (GetWeLoveTheKingDayCounter() > 0)
@@ -20446,7 +20446,7 @@ int CvCity::GetEmpireSizeModifier() const
 	iEmpireMod /= 100;
 
 	// Difficulty level can modify this
-	iEmpireMod *= GET_PLAYER(getOwner()).isHuman() ? 100 + GET_PLAYER(getOwner()).getHandicapInfo().getEmpireSizeUnhappinessMod() : 100 + GET_PLAYER(getOwner()).getHandicapInfo().getEmpireSizeUnhappinessMod() + GC.getGame().getHandicapInfo().getAIEmpireSizeUnhappinessMod();
+	iEmpireMod *= GET_PLAYER(getOwner()).isHuman(ISHUMAN_HANDICAP) ? 100 + GET_PLAYER(getOwner()).getHandicapInfo().getEmpireSizeUnhappinessMod() : 100 + GET_PLAYER(getOwner()).getHandicapInfo().getEmpireSizeUnhappinessMod() + GC.getGame().getHandicapInfo().getAIEmpireSizeUnhappinessMod();
 	iEmpireMod /= 100;
 
 	return range(iEmpireMod, 0, /*100000*/ GD_INT_GET(EMPIRE_SIZE_NEED_MODIFIER_CAP));
@@ -21029,7 +21029,7 @@ CvString CvCity::GetCityUnhappinessBreakdown(bool bIncludeMedian, bool bCityBann
 		int iTechMod = GetCachedTechNeedModifier();
 		int iCitySize = GetCitySizeModifier();
 		int iEmpireSize = GetReducedEmpireSizeModifier(false,false);
-		int iDifficultyMod = kPlayer.isHuman() ? kPlayer.getHandicapInfo().getPopulationUnhappinessMod() : kPlayer.getHandicapInfo().getPopulationUnhappinessMod() + GC.getGame().getHandicapInfo().getAIPopulationUnhappinessMod();
+		int iDifficultyMod = kPlayer.isHuman(ISHUMAN_HANDICAP) ? kPlayer.getHandicapInfo().getPopulationUnhappinessMod() : kPlayer.getHandicapInfo().getPopulationUnhappinessMod() + GC.getGame().getHandicapInfo().getAIPopulationUnhappinessMod();
 		int iCarnivalMod = GetWeLoveTheKingDayCounter() > 0 ? kPlayer.GetPlayerTraits()->GetWLTKDUnhappinessNeedsMod() : 0;
 		int iAirUnitsMod = kPlayer.GetNeedsModifierFromAirUnits() != 0 ? plot()->countNumAirUnits(getTeam(), true) * kPlayer.GetNeedsModifierFromAirUnits() * -1 : 0;
 		int iTotalMod = iCapitalMod + iTechMod + iCitySize + iEmpireSize + iDifficultyMod + iCarnivalMod + iAirUnitsMod;
@@ -25796,7 +25796,7 @@ int CvCity::CalculateCitySecurity(CvString* toolTipSink) const
 	const CvHandicapInfo& playerHandicap = GET_PLAYER(getOwner()).getHandicapInfo();
 	const CvHandicapInfo& gameHandicap = GC.getGame().getHandicapInfo();
 	iTempMod = playerHandicap.getSpySecurityModifier();
-	iTempMod += !GET_PLAYER(getOwner()).isHuman() ? gameHandicap.getSpySecurityModifier() : 0;
+	iTempMod += !GET_PLAYER(getOwner()).isHuman(ISHUMAN_HANDICAP) ? gameHandicap.getSpySecurityModifier() : 0;
 	GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_EO_CITY_SECURITY_DIFFICULTY_TT", iTempMod);
 	iCitySecurity += iTempMod;
 
@@ -27623,7 +27623,7 @@ bool CvCity::CanBuyPlot(int iPlotX, int iPlotY, bool bIgnoreCost) const
 			return false;
 
 		// Bad idea for AI to steal?
-		if (!kOwner.isHuman() && kOwner.isMajorCiv())
+		if (!kOwner.isHuman(ISHUMAN_AI_DIPLOMACY) && kOwner.isMajorCiv())
 		{
 			CvDiplomacyAI* pDiplo = kOwner.GetDiplomacyAI();
 			if (pDiplo->IsBadTheftTarget(pTargetPlot->getOwner(), THEFT_TYPE_PLOT, pTargetPlot))
@@ -28162,7 +28162,7 @@ int CvCity::GetBuyPlotCost(int iPlotX, int iPlotY) const
 	}
 
 #if defined(MOD_UI_CITY_EXPANSION)
-	if (MOD_UI_CITY_EXPANSION && GET_PLAYER(getOwner()).isHuman()) {
+	if (MOD_UI_CITY_EXPANSION && GET_PLAYER(getOwner()).isHuman(ISHUMAN_AI_CITY_MANAGEMENT)) {
 		// If we have a culture surplus, we get a discount on the tile
 		if (GetJONSCultureStoredTimes100() >= GetJONSCultureThreshold() * 100) {
 			iCost -= GET_PLAYER(getOwner()).GetBuyPlotCost();
@@ -28219,7 +28219,7 @@ void CvCity::BuyPlot(int iPlotX, int iPlotY, bool bAutomaticPurchaseFromBuilding
 		thisPlayer.GetTreasury()->LogExpenditure("buy plot", iCost, 1);
 		thisPlayer.GetTreasury()->ChangeGold(-iCost);
 		bWithGold = true;
-		if (MOD_UI_CITY_EXPANSION && GET_PLAYER(getOwner()).isHuman()) {
+		if (MOD_UI_CITY_EXPANSION && GET_PLAYER(getOwner()).isHuman(ISHUMAN_AI_CITY_MANAGEMENT)) {
 			// If we have a culture surplus, we got a discount on the tile, so remove the surplus
 			int iOverflow = GetJONSCultureStoredTimes100() - GetJONSCultureThreshold() * 100;
 			if (iOverflow >= 0) {
@@ -28253,7 +28253,7 @@ void CvCity::BuyPlot(int iPlotX, int iPlotY, bool bAutomaticPurchaseFromBuilding
 				}
 
 				// The embassy owner is mad (doubly so if they're diplomacy-inclined)!
-				if (!GET_PLAYER(eEmbassyOwner).isHuman())
+				if (!GET_PLAYER(eEmbassyOwner).isHuman(ISHUMAN_AI_DIPLOMACY))
 				{
 					int iPenalty = (GET_PLAYER(eEmbassyOwner).GetDiplomacyAI()->IsDiplomat() || GET_PLAYER(eEmbassyOwner).GetPlayerTraits()->IsDiplomat()) ? 6 : 3;
 					GET_PLAYER(eEmbassyOwner).GetDiplomacyAI()->ChangeNumTimesCultureBombed(getOwner(), iPenalty);
@@ -28477,7 +28477,7 @@ void CvCity::BuyPlot(int iPlotX, int iPlotY, bool bAutomaticPurchaseFromBuilding
 	}
 
 	//Achievement test for purchasing 1000 tiles
-	if (MOD_API_ACHIEVEMENTS && thisPlayer.isHuman() && !GC.getGame().isGameMultiPlayer() && !bAutomaticPurchaseFromBuilding)
+	if (MOD_API_ACHIEVEMENTS && thisPlayer.isHuman(ISHUMAN_ACHIEVEMENTS) && !GC.getGame().isGameMultiPlayer() && !bAutomaticPurchaseFromBuilding)
 	{
 		gDLL->IncrementSteamStatAndUnlock(ESTEAMSTAT_TILESPURCHASED, 1000, ACHIEVEMENT_PURCHASE_1000TILES);
 	}
@@ -29152,7 +29152,7 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 	{
 		if (getOrderQueueLength() == 0)
 		{
-			if (!isHuman() || isProductionAutomated())
+			if (!isHuman(ISHUMAN_AI_CITY_PRODUCTION) || isProductionAutomated())
 			{
 				AI_chooseProduction(false /*bInterruptWonders*/, false);
 			}
@@ -29536,7 +29536,7 @@ void CvCity::produce(UnitTypes eTrainUnit, UnitAITypes eTrainAIUnit, bool bCanOv
 	}
 
 	//immediately check if the AI should start a found city operation so we can queue up the escort for production
-	if (!GET_PLAYER(m_eOwner).isHuman() && pUnit->isFound())
+	if (!GET_PLAYER(m_eOwner).isHuman(ISHUMAN_AI_CITY_PRODUCTION) && pUnit->isFound())
 		EconomicAIHelpers::IsTestStrategy_FoundCity(NO_ECONOMICAISTRATEGY,&GET_PLAYER(m_eOwner));
 }
 
@@ -29734,7 +29734,7 @@ CvUnit* CvCity::CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType, UnitCreatio
 		pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pRallyPlot->getX(), pRallyPlot->getY());
 	}
 	// Any AI unit with explore AI as a secondary unit AI (e.g. warriors) are assigned that unit AI if this AI player needs to explore more
-	else if (!pUnit->isHuman() && EconomicAIHelpers::CannotMinorCiv(&kOwner, (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_RECON")))
+	else if (!pUnit->isHuman(ISHUMAN_AI_UNITS) && EconomicAIHelpers::CannotMinorCiv(&kOwner, (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_RECON")))
 	{
 		EconomicAIStrategyTypes eStrategy = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_RECON");
 		if (kOwner.GetEconomicAI()->IsUsingStrategy(eStrategy))
@@ -29780,7 +29780,7 @@ CvUnit* CvCity::CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType, UnitCreatio
 		}
 	}
 	//Increment for stat tracking and achievements
-	if (pUnit->isHuman())
+	if (pUnit->isHuman(ISHUMAN_ACHIEVEMENTS))
 	{
 		IncrementUnitStatCount(pUnit);
 	}
@@ -29814,7 +29814,7 @@ bool CvCity::CreateBuilding(BuildingTypes eBuildingType)
 	m_pCityBuildings->SetNumRealBuilding(eBuildingType, m_pCityBuildings->GetNumRealBuilding(eBuildingType) + 1);
 
 	//Achievements
-	if (MOD_API_ACHIEVEMENTS && kPlayer.isHuman() && !GC.getGame().isGameMultiPlayer())
+	if (MOD_API_ACHIEVEMENTS && kPlayer.isHuman(ISHUMAN_ACHIEVEMENTS) && !GC.getGame().isGameMultiPlayer())
 	{
 		CvBuildingClassInfo* pBuildingClass = GC.getBuildingClassInfo(eBuildingClass);
 		if (pBuildingClass && ::isWorldWonderClass(*pBuildingClass))
@@ -31227,7 +31227,7 @@ bool CvCity::doCheckProduction()
 		}
 	}
 
-	if (!isProduction() && isHuman() && !isProductionAutomated() && !IsIgnoreCityForHappiness())
+	if (!isProduction() && isHuman(ISHUMAN_AI_CITY_PRODUCTION) && !isProductionAutomated() && !IsIgnoreCityForHappiness())
 	{
 		chooseProduction();
 		return true;
@@ -31354,7 +31354,7 @@ void CvCity::doProduction(bool bAllowNoProduction)
 {
 	VALIDATE_OBJECT();
 
-	if (!isHuman() || isProductionAutomated())
+	if (!isHuman(ISHUMAN_AI_CITY_PRODUCTION) || isProductionAutomated())
 	{
 		if (!isProduction() || isProductionProcess() || AI_isChooseProductionDirty())
 		{
@@ -31443,7 +31443,7 @@ void CvCity::doDecay()
 			{
 				m_pCityBuildings->ChangeBuildingProductionTime(((BuildingTypes)iI), 1);
 
-				if (isHuman())
+				if (isHuman(ISHUMAN_AI_CITY_PRODUCTION))
 				{
 					if (m_pCityBuildings->GetBuildingProductionTime((BuildingTypes)iI) > iBuildingProductionDecayTime)
 					{
@@ -31473,7 +31473,7 @@ void CvCity::doDecay()
 				{
 					changeUnitProductionTime(eUnit, 1);
 
-					if (isHuman())
+					if (isHuman(ISHUMAN_AI_CITY_PRODUCTION))
 					{
 						if (getUnitProductionTime(eUnit) > iUnitProductionDecayTime)
 						{
@@ -32780,7 +32780,7 @@ void CvCity::DoNearbyEnemy()
 	{
 		// Notification
 		CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
-		if (pNotifications)
+		if (pNotifications && !MOD_AI_CONTROL_UNITS)
 		{
 			Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_CAN_SHOOT");
 			strText << getNameKey();
@@ -34325,7 +34325,7 @@ int CvCity::getDamageTakenThisTurn() const
 
 int CvCity::addDamageReceivedThisTurn(int iDamage, CvUnit* pAttacker)
 {
-	if (pAttacker && !isHuman())
+	if (pAttacker && !isHuman(ISHUMAN_AI_UNITS))
 		GET_PLAYER(getOwner()).AddKnownAttacker(pAttacker);
 
 	m_iDamageTakenThisTurn += iDamage;

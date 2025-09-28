@@ -2867,7 +2867,7 @@ int CvLuaPlayer::lGetBaseUnitMaintenance(lua_State* L)
 
 	const CvHandicapInfo& playerHandicap = pkPlayer->getHandicapInfo();
 	int iFreeUnits = playerHandicap.getMaintenanceFreeUnits();
-	iFreeUnits += pkPlayer->isHuman() ? 0 : GC.getGame().getHandicapInfo().getAIMaintenanceFreeUnits();
+	iFreeUnits += pkPlayer->isHuman(ISHUMAN_HANDICAP) ? 0 : GC.getGame().getHandicapInfo().getAIMaintenanceFreeUnits();
 
 	// Defined in XML by unit info type
 	iFreeUnits += pkPlayer->GetNumMaintenanceFreeUnits();
@@ -4599,7 +4599,7 @@ int CvLuaPlayer::lGetHandicapHappiness(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 
 	int iHappiness = pkPlayer->getHandicapInfo().getHappinessDefault() + GC.getGame().getGameSpeedInfo().GetStartingHappiness();
-	iHappiness += pkPlayer->isHuman() ? 0 : GC.getGame().getHandicapInfo().getAIHappinessDefault();
+	iHappiness += pkPlayer->isHuman(ISHUMAN_HANDICAP) ? 0 : GC.getGame().getHandicapInfo().getAIHappinessDefault();
 	
 	lua_pushinteger(L, iHappiness);
 	return 1;
@@ -13420,13 +13420,13 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 	int iValue = 0;
 	int iTempValue = 0;
 
-	bool bHuman = pkPlayer->isHuman();
+	bool bHuman = pkPlayer->isHuman(ISHUMAN_UI);
 	bool bTeammate = pDiplo->IsTeammate(ePlayer);
 	bool bShowHiddenModifiers = bForceDebugMode || GC.getGame().IsShowHiddenOpinionModifiers();
 	bool bShowAllValues = bHuman ? false : (bForceDebugMode || GC.getGame().IsShowAllOpinionValues());
 	bool bHideDisputes = bShowHiddenModifiers ? false : pDiplo->ShouldHideDisputeMods(ePlayer);
 	bool bHideNegatives = bShowHiddenModifiers ? false : pDiplo->ShouldHideNegativeMods(ePlayer);
-	bool bPretendNoDisputes = GET_PLAYER(ePlayer).isHuman() && bHideDisputes && bHideNegatives && !GC.getGame().IsNoFakeOpinionModifiers();
+	bool bPretendNoDisputes = GET_PLAYER(ePlayer).isHuman(ISHUMAN_UI) && bHideDisputes && bHideNegatives && !GC.getGame().IsNoFakeOpinionModifiers();
 	bool bObserver = GET_PLAYER(ePlayer).isObserver() || !pkPlayer->isMajorCiv() || !GET_PLAYER(ePlayer).isMajorCiv() || !pkPlayer->isAlive() || !GET_PLAYER(ePlayer).isAlive() || GC.getGame().IsHideOpinionTable();
 	bool bUNActive = GC.getGame().IsUnitedNationsActive();
 	bool bJustMet = (bForceDebugMode || GC.getGame().IsDiploDebugModeEnabled()) ? false : (GET_TEAM(pkPlayer->getTeam()).GetTurnsSinceMeetingTeam(GET_PLAYER(ePlayer).getTeam()) == 0); // Don't display certain modifiers if we just met them
@@ -16535,7 +16535,7 @@ int CvLuaPlayer::lIsTradeItemValuedImpossible(lua_State* L)
 	const int iData3 = luaL_optint(L, 8, -1);
 	const bool bFlag1 = luaL_optbool(L, 9, false);
 
-	if (!GET_PLAYER(pkThisPlayer->GetID()).isHuman())
+	if (!GET_PLAYER(pkThisPlayer->GetID()).isHuman(ISHUMAN_AI_DIPLOMACY))
 	{
 		int iResult = pkThisPlayer->GetDealAI()->GetTradeItemValue(eItem, bFromMe, eOtherPlayer, iData1, iData2, iData3, bFlag1, iDuration, false, true);
 		if (iResult == INT_MAX || iResult == (INT_MAX * -1))

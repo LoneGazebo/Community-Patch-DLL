@@ -678,7 +678,7 @@ bool CvCityConnections::ShouldConnectToOtherPlayer(PlayerTypes eOtherPlayer)
 		CvPlayer* pMajorCiv = pOtherPlayer;
 
 		// If the major is a human, don't decide a connection to a minor is desirable on their behalf
-		if(pMajorCiv->isHuman())
+		if(pMajorCiv->isHuman(ISHUMAN_AI_ECONOMY))
 		{
 			return false;
 		}
@@ -698,7 +698,7 @@ bool CvCityConnections::ShouldConnectToOtherPlayer(PlayerTypes eOtherPlayer)
 			return false;
 		}
 
-		if (!m_pPlayer->isHuman()&& !m_pPlayer->GetDiplomacyAI()->IsWantToRouteConnectToMinor(pMinorPlayer->GetID()))
+		if (!m_pPlayer->isHuman(ISHUMAN_AI_DIPLOMACY) && !m_pPlayer->GetDiplomacyAI()->IsWantToRouteConnectToMinor(pMinorPlayer->GetID()))
 		{
 			return false;
 		}

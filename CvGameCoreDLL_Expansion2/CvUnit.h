@@ -589,7 +589,7 @@ public:
 	int flavorValue(FlavorTypes eFlavor) const;
 
 	bool isBarbarian() const;
-	bool isHuman() const;
+	bool isHuman(IsHumanReason eIsHumanReason = OTHER_ISHUMAN_REASON) const;
 
 	int visibilityRange() const;
 #if defined(MOD_PROMOTIONS_VARIABLE_RECON)

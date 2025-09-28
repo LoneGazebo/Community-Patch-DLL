@@ -100,7 +100,7 @@ void CvUnitMission::AutoMission(CvUnit* hUnit)
 /// Queue up a new mission
 void CvUnitMission::PushMission(CvUnit* hUnit, MissionTypes eMission, int iData1, int iData2, int iFlags, bool bAppend, bool bManual, MissionAITypes eMissionAI, CvPlot* pMissionAIPlot, CvUnit* pMissionAIUnit)
 {
-	if(CvPreGame::isHuman(hUnit->getOwner()))
+	if(hUnit->isHuman(ISHUMAN_AI_UNITS))
 	{
 		ASSERT(CvUnit::dispatchingNetMessage(), "Multiplayer Error! CvUnit::PushMission invoked for a human player outside of a network message!");
 		if(!CvUnit::dispatchingNetMessage())
@@ -409,7 +409,7 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps)
 				{
 					bool bCityAttackInterrupt = gDLL->GetAdvisorCityAttackInterrupt();
 					bool bBadAttackInterrupt = gDLL->GetAdvisorBadAttackInterrupt();
-					if(hUnit->isHuman() && !CvPreGame::isNetworkMultiplayerGame() && !GC.getGame().IsCombatWarned() && (bCityAttackInterrupt || bBadAttackInterrupt))
+					if(hUnit->isHuman(ISHUMAN_UI) && !CvPreGame::isNetworkMultiplayerGame() && !GC.getGame().IsCombatWarned() && (bCityAttackInterrupt || bBadAttackInterrupt))
 					{
 						if(hUnit->canMoveInto(*pDestPlot, CvUnit::MOVEFLAG_ATTACK) && pDestPlot->isVisible(hUnit->getTeam()))
 						{

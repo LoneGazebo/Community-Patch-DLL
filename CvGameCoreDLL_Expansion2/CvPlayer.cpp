@@ -2365,7 +2365,7 @@ void CvPlayer::initFreeState(CvGameInitialItemsOverrides& kOverrides)
 		if (kOverrides.GrantInitialGoldPerPlayer[GetID()])
 		{
 			int iInitialGold = 0;
-			if (isHuman())
+			if (isHuman(ISHUMAN_HANDICAP))
 			{
 				iInitialGold = kHandicapInfo.getStartingGold();
 				iInitialGold += GC.getGame().getStartEraInfo().getStartingGold() * (100 + kHandicapInfo.getAdvancedStartPointsMod()) / 100;
@@ -2385,7 +2385,7 @@ void CvPlayer::initFreeState(CvGameInitialItemsOverrides& kOverrides)
 		if (kOverrides.GrantInitialCulturePerPlayer[GetID()])
 		{
 			int iInitialCulture = 0;
-			if (isHuman())
+			if (isHuman(ISHUMAN_HANDICAP))
 			{
 				iInitialCulture = kHandicapInfo.getStartingPolicyPoints();
 				iInitialCulture += GC.getGame().getStartEraInfo().getStartingCulture() * (100 + kHandicapInfo.getAdvancedStartPointsMod()) / 100;
@@ -2400,13 +2400,13 @@ void CvPlayer::initFreeState(CvGameInitialItemsOverrides& kOverrides)
 			setJONSCultureTimes100(iInitialCulture);
 
 			// I think policy points is a better name than Jon's Culture, don't you?
-			int iCulturePerTurnForFree = isHuman() ? kHandicapInfo.getFreeCulturePerTurn() : kHandicapInfo.getFreeCulturePerTurn() + GC.getGame().getHandicapInfo().getAIFreeCulturePerTurn();
+			int iCulturePerTurnForFree = isHuman(ISHUMAN_HANDICAP) ? kHandicapInfo.getFreeCulturePerTurn() : kHandicapInfo.getFreeCulturePerTurn() + GC.getGame().getHandicapInfo().getAIFreeCulturePerTurn();
 			ChangeJONSCulturePerTurnForFree(iCulturePerTurnForFree); // No, IMNSHO ;P
 		}
 
 		// Extra Happiness from Luxuries
 		int iExtraHappinessPerLuxury = kHandicapInfo.getExtraHappinessPerLuxury();
-		iExtraHappinessPerLuxury += isHuman() ? 0 : GC.getGame().getHandicapInfo().getAIExtraHappinessPerLuxury();
+		iExtraHappinessPerLuxury += isHuman(ISHUMAN_HANDICAP) ? 0 : GC.getGame().getHandicapInfo().getAIExtraHappinessPerLuxury();
 		ChangeExtraHappinessPerLuxury(iExtraHappinessPerLuxury);
 	}
 
@@ -2483,7 +2483,7 @@ void CvPlayer::initFreeUnits()
 		{
 			int iUnitCountMultiplier = gameStartEra.getStartingUnitMultiplier();
 			iUnitCountMultiplier += playerHandicap.getStartingUnitMultiplier();
-			iUnitCountMultiplier += isHuman() ? 0 : gameHandicap.getAIStartingUnitMultiplier();
+			iUnitCountMultiplier += isHuman(ISHUMAN_HANDICAP) ? 0 : gameHandicap.getAIStartingUnitMultiplier();
 			iFreeUnitsOfThisClass *= iUnitCountMultiplier;
 		}
 
@@ -2516,7 +2516,7 @@ void CvPlayer::initFreeUnits()
 	{
 		iFreeWorkers = gameStartEra.getStartingWorkerUnits();
 		iFreeWorkers += playerHandicap.getStartingWorkerUnits();
-		iFreeWorkers += isHuman() ? 0 : gameHandicap.getAIStartingWorkerUnits();
+		iFreeWorkers += isHuman(ISHUMAN_HANDICAP) ? 0 : gameHandicap.getAIStartingWorkerUnits();
 	}
 	else if (isMinorCiv())
 	{
@@ -2532,7 +2532,7 @@ void CvPlayer::initFreeUnits()
 	{
 		iFreeDefenseUnits = gameStartEra.getStartingDefenseUnits();
 		iFreeDefenseUnits += playerHandicap.getStartingDefenseUnits();
-		iFreeDefenseUnits += isHuman() ? 0 : gameHandicap.getAIStartingDefenseUnits();
+		iFreeDefenseUnits += isHuman(ISHUMAN_HANDICAP) ? 0 : gameHandicap.getAIStartingDefenseUnits();
 	}
 	else if (isMinorCiv())
 	{
@@ -2548,7 +2548,7 @@ void CvPlayer::initFreeUnits()
 	{
 		int iFreeExplorers = gameStartEra.getStartingExploreUnits();
 		iFreeExplorers += playerHandicap.getStartingExploreUnits();
-		iFreeExplorers += isHuman() ? 0 : gameHandicap.getAIStartingExploreUnits();
+		iFreeExplorers += isHuman(ISHUMAN_HANDICAP) ? 0 : gameHandicap.getAIStartingExploreUnits();
 
 		if (iFreeExplorers > 0)
 			addFreeUnitAI(UNITAI_EXPLORE, true, iFreeExplorers);
@@ -2609,7 +2609,7 @@ void CvPlayer::initFreeUnits()
 		{
 			int iUnitCountMultiplier = gameStartEra.getStartingUnitMultiplier();
 			iUnitCountMultiplier += playerHandicap.getStartingUnitMultiplier();
-			iUnitCountMultiplier += isHuman() ? 0 : gameHandicap.getAIStartingUnitMultiplier();
+			iUnitCountMultiplier += isHuman(ISHUMAN_HANDICAP) ? 0 : gameHandicap.getAIStartingUnitMultiplier();
 			iNumSettlersToSpawn *= iUnitCountMultiplier;
 		}
 		addFreeUnitAI(UNITAI_SETTLE, true, iNumSettlersToSpawn);
@@ -2683,7 +2683,7 @@ CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, bool bGameStart, UnitAITypes eUni
 	if (eUnitAI == UNITAI_SETTLE || pkUnitInfo->IsFound() || pkUnitInfo->GetDefaultUnitAIType() == UNITAI_SETTLE)
 	{
 		// Do not spawn additional Settlers for humans in OCC games
-		if (isHuman() && GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
+		if (isHuman(ISHUMAN_MECHANICS) && GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
 		{
 			if (GetNumUnitsWithUnitAI(UNITAI_SETTLE, false) >= 1 || getNumCities() > 0)
 				return NULL;
@@ -2784,7 +2784,7 @@ CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, bool bGameStart, UnitAITypes eUni
 					continue;
 
 				// To avoid a bug, AI will not settle on Antiquity Sites even if they have no other options
-				if (!isHuman())
+				if (!isHuman(ISHUMAN_AI_UNITS))
 				{
 					ResourceTypes ePlotResource = pLoopPlot->getResourceType(NO_TEAM);
 					if (ePlotResource == (ResourceTypes)GD_INT_GET(ARTIFACT_RESOURCE) || ePlotResource == (ResourceTypes)GD_INT_GET(HIDDEN_ARTIFACT_RESOURCE))
@@ -2817,7 +2817,7 @@ CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, bool bGameStart, UnitAITypes eUni
 	}
 
 	// To counteract the human first move advantage, try to place one of the AI's defense units on top of their civilians
-	if (MOD_BALANCE_VP && bCombat && pkUnitInfo->GetDomainType() == DOMAIN_LAND && bGameStart && !isHuman())
+	if (MOD_BALANCE_VP && bCombat && pkUnitInfo->GetDomainType() == DOMAIN_LAND && bGameStart && !isHuman(ISHUMAN_MECHANICS))
 	{
 		// Check if the starting plot is undefended
 		bool bNoDefender = true;
@@ -3173,7 +3173,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift, bool bO
 
 					continue;
 				}
-				else if (!GET_PLAYER(eLoopPlayer).isAlive() || !GET_PLAYER(eLoopPlayer).isMajorCiv() || !GET_PLAYER(eLoopPlayer).isHuman() || !GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).isHasMet(GET_PLAYER(eOldOwner).getTeam()) || !GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).isHasMet(getTeam()))
+				else if (!GET_PLAYER(eLoopPlayer).isAlive() || !GET_PLAYER(eLoopPlayer).isMajorCiv() || !GET_PLAYER(eLoopPlayer).isHuman(ISHUMAN_NOTIFICATIONS) || !GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).isHasMet(GET_PLAYER(eOldOwner).getTeam()) || !GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).isHasMet(getTeam()))
 					continue;
 
 				pNotify = GET_PLAYER(eLoopPlayer).GetNotifications();
@@ -3425,7 +3425,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift, bool bO
 			{
 				if (MOD_ALTERNATE_ASSYRIA_TRAIT)
 				{
-					if (!isHuman())
+					if (!isHuman(ISHUMAN_AI_TECH_CHOICE))
 					{
 						AI_chooseFreeTech();
 					}
@@ -3596,7 +3596,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift, bool bO
 		}
 
 		// Lastly, run the achievement code...
-		if (MOD_API_ACHIEVEMENTS && !GC.getGame().isGameMultiPlayer() && isHuman())
+		if (MOD_API_ACHIEVEMENTS && !GC.getGame().isGameMultiPlayer() && isHuman(ISHUMAN_ACHIEVEMENTS))
 		{
 			const char* szLeaderKey = getLeaderTypeKey();
 			const char* szCivKey = getCivilizationTypeKey();
@@ -4227,7 +4227,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift, bool bO
 				}
 			}
 
-			if (bConquest && MOD_API_ACHIEVEMENTS && !GC.getGame().isGameMultiPlayer() && isHuman())
+			if (bConquest && MOD_API_ACHIEVEMENTS && !GC.getGame().isGameMultiPlayer() && isHuman(ISHUMAN_ACHIEVEMENTS))
 			{
 				// Check for Tomb Raider achievement
 				if (_stricmp(pkLoopBuildingInfo->GetType(), "BUILDING_BURIAL_TOMB") == 0 && iCaptureGold > 0) // Need to actually pillage something from the 'tomb'
@@ -4516,7 +4516,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift, bool bO
 				pNewCity->DoCreatePuppet();
 			}
 			// AI decides what to do with a City
-			else if (!isHuman())
+			else if (!isHuman(ISHUMAN_AI_CITY_MANAGEMENT))
 			{
 				AI_conquerCity(pNewCity, bGift, bAllowSphereRemoval); // Calling this could delete the pointer...
 
@@ -6681,7 +6681,7 @@ void CvPlayer::DoStartEvent(EventTypes eChosenEvent, bool bSendMsg)
 							if(pkEventInfo->getNumChoices() == 1)
 							{
 								DoEventChoice(eEventChoice, eChosenEvent, bSendMsg);
-								if(isHuman())
+								if(isHuman(ISHUMAN_AI_EVENT_CHOICE))
 								{
 									CvPopupInfo kPopupInfo(BUTTONPOPUP_MODDER_9, eEventChoice, GetID());
 									GC.GetEngineUserInterface()->AddPopup(kPopupInfo);
@@ -6694,7 +6694,7 @@ void CvPlayer::DoStartEvent(EventTypes eChosenEvent, bool bSendMsg)
 			}
 			if(iNumEvents > 0 && pkEventInfo->getNumChoices() > 1)
 			{
-				if(isHuman())
+				if(isHuman(ISHUMAN_AI_EVENT_CHOICE))
 				{
 					CvNotifications* pNotifications = GetNotifications();
 					if(pNotifications)
@@ -7956,7 +7956,7 @@ CvString CvPlayer::GetDisabledTooltip(EventChoiceTypes eChosenEventChoice)
 
 void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent, bool bSendMsg, bool bEspionage)
 {
-	if (GC.getGame().isNetworkMultiPlayer() && bSendMsg && isHuman()) {
+	if (GC.getGame().isNetworkMultiPlayer() && bSendMsg && isHuman(ISHUMAN_AI_EVENT_CHOICE)) {
 		NetMessageExt::Send::DoEventChoice(GetID(), eEventChoice, eEvent);
 		return;
 	}
@@ -8119,6 +8119,7 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent, b
 								if(pLoopUnit->HasPromotion(ePromotion))
 								{
 									pLoopUnit->changeExperienceTimes100(15 * 100);
+									pLoopUnit->testPromotionReady();
 								}
 								else
 								{
@@ -8586,7 +8587,7 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 		if (bAlive)
 		{
 			Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_LIBERATED");
-			if (GC.getGame().isGameMultiPlayer() && isHuman())
+			if (GC.getGame().isGameMultiPlayer() && isHuman(ISHUMAN_UI))
 			{
 				strMessage << getNickName();
 			}
@@ -8599,7 +8600,7 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 
 			Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CIV_LIBERATED_SHORT");
 			strSummary << pNewCity->getNameKey();
-			if (GC.getGame().isGameMultiPlayer() && kPlayer.isHuman())
+			if (GC.getGame().isGameMultiPlayer() && kPlayer.isHuman(ISHUMAN_UI))
 			{
 				strSummary << kPlayer.getNickName();
 			}
@@ -8769,12 +8770,12 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 			strMessage << kPlayer.getCivilizationDescriptionKey();// LIBERATED CIV NAME
 			Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CIV_RESURRECTED_SHORT");
 
-			if (GC.getGame().isGameMultiPlayer() && kPlayer.isHuman())
+			if (GC.getGame().isGameMultiPlayer() && kPlayer.isHuman(ISHUMAN_UI))
 				strSummary << kPlayer.getNickName();
 			else
 				strSummary << kPlayer.getNameKey();
 
-			if (GC.getGame().isGameMultiPlayer() && isHuman())
+			if (GC.getGame().isGameMultiPlayer() && isHuman(ISHUMAN_UI))
 				strSummary << getNickName();
 			else
 				strSummary << getNameKey();
@@ -9660,14 +9661,96 @@ void CvPlayer::SetDangerPlotsDirty()
 	m_pDangerPlots->SetDirty();
 }
 
-bool CvPlayer::isHuman() const
+bool CvPlayer::isHuman(IsHumanReason eIsHumanReason) const
 {
-	if(GetID() == NO_PLAYER)
+	if (GetID() == NO_PLAYER)
 	{
 		return false;
 	}
 
-	return CvPreGame::isHuman(GetID());
+	if (!CvPreGame::isHuman(GetID()))
+		return false;
+
+	// We are a human player, but do we want the AI to control this aspect of civ management?
+	switch (eIsHumanReason)
+	{
+	case ISHUMAN_AI_CITY_MANAGEMENT:
+		if (MOD_AI_CONTROL_CITY_MANAGEMENT)
+			return false;
+		break;
+	case ISHUMAN_AI_CITY_PRODUCTION:
+		if (MOD_AI_CONTROL_CITY_PRODUCTION)
+			return false;
+		break;
+	case ISHUMAN_AI_DIPLOMACY:
+		if (MOD_AI_CONTROL_DIPLOMACY)
+			return false;
+		break;
+	case ISHUMAN_AI_ECONOMY:
+		if (MOD_AI_CONTROL_ECONOMY)
+			return false;
+		break;
+	case ISHUMAN_AI_ESPIONAGE:
+		if (MOD_AI_CONTROL_ESPIONAGE)
+			return false;
+		break;
+	case ISHUMAN_AI_EVENT_CHOICE:
+		if (MOD_AI_CONTROL_EVENT_CHOICE)
+			return false;
+		break;
+	case ISHUMAN_AI_GREAT_PERSON_CHOICE:
+		if (MOD_AI_CONTROL_GREAT_PERSON_CHOICE)
+			return false;
+		break;
+	case ISHUMAN_AI_FAITH_SPENDING:
+		if (MOD_AI_CONTROL_FAITH_SPENDING)
+			return false;
+		break;
+	case ISHUMAN_AI_TECH_CHOICE:
+		if (MOD_AI_CONTROL_TECH_CHOICE)
+			return false;
+		break;
+	case ISHUMAN_AI_POLICY_CHOICE:
+		if (MOD_AI_CONTROL_POLICY_CHOICE)
+			return false;
+		break;
+	case ISHUMAN_AI_RELIGION_CHOICE:
+		if (MOD_AI_CONTROL_RELIGION_CHOICE)
+			return false;
+		break;
+	case ISHUMAN_AI_TOURISM:
+		if (MOD_AI_CONTROL_TOURISM)
+			return false;
+		break;
+	case ISHUMAN_AI_UNIT_PROMOTIONS:
+		if (MOD_AI_CONTROL_UNIT_PROMOTIONS)
+			return false;
+		break;
+	case ISHUMAN_AI_UNITS:
+		if (MOD_AI_CONTROL_UNITS)
+			return false;
+		break;
+	case ISHUMAN_AI_WORLD_CONGRESS:
+		if (MOD_AI_CONTROL_WORLD_CONGRESS)
+			return false;
+		break;
+	case ISHUMAN_HANDICAP:
+		if (MOD_HUMAN_USES_AI_HANDICAP)
+			return false;
+		break;
+	case ISHUMAN_MECHANICS:
+		if (MOD_HUMAN_USES_AI_MECHANICS)
+			return false;
+		break;
+	case ISHUMAN_ACHIEVEMENTS:
+	case ISHUMAN_LOGGING:
+	case ISHUMAN_NOTIFICATIONS:
+	case ISHUMAN_UI:
+	case OTHER_ISHUMAN_REASON:
+		break;
+	}
+
+	return true;
 }
 
 bool CvPlayer::isObserver() const
@@ -9698,7 +9781,7 @@ const char* CvPlayer::getName() const
 		return getLeaderInfo().GetDescription();
 	}
 
-	if(GC.getGame().isGameMultiPlayer() && isHuman())
+	if(GC.getGame().isGameMultiPlayer() && isHuman(ISHUMAN_UI))
 	{
 		const CvString& szDisplayName = CvPreGame::nicknameDisplayed(GetID());
 		if(szDisplayName.GetLength())
@@ -9727,7 +9810,7 @@ const char* CvPlayer::getNameKey() const
 		return getLeaderInfo().GetTextKey();
 	}
 
-	if(GC.getGame().isGameMultiPlayer() && isHuman())
+	if(GC.getGame().isGameMultiPlayer() && isHuman(ISHUMAN_UI))
 	{
 		// No, this won't be a 'key', but it should just pass through the lookup code and display as is.
 		const CvString& szDisplayName = CvPreGame::nicknameDisplayed(GetID());
@@ -9968,7 +10051,7 @@ void CvPlayer::doTurn()
 				DoDifficultyBonus(DIFFICULTY_BONUS_PLAYER_TURNS_PASSED);
 			}
 
-			iTurnInterval = isHuman() ? 0 : GC.getGame().getHandicapInfo().getAIDifficultyBonusTurnInterval();
+			iTurnInterval = isHuman(ISHUMAN_HANDICAP) ? 0 : GC.getGame().getHandicapInfo().getAIDifficultyBonusTurnInterval();
 			if (iTurnInterval > 0 && GC.getGame().getElapsedGameTurns() % iTurnInterval == 0)
 			{
 				DoDifficultyBonus(DIFFICULTY_BONUS_AI_TURNS_PASSED);
@@ -10092,7 +10175,7 @@ void CvPlayer::doTurn()
 		}
 		else
 		{
-			if (GC.getGame().isHotSeat() && !isHuman())
+			if (GC.getGame().isHotSeat() && !isHuman(ISHUMAN_AI_DIPLOMACY))
 			{
 				// In Hotseat, AIs only do their diplomacy pass for other AIs on their turn
 				// Diplomacy toward a human is done at the beginning of the humans turn.
@@ -10101,7 +10184,7 @@ void CvPlayer::doTurn()
 			else
 				GetDiplomacyAI()->DoTurn(DIPLO_ALL_PLAYERS); // Do diplomacy for toward everyone
 
-			if (!isHuman())
+			if (!isHuman(ISHUMAN_AI_DIPLOMACY))
 				bHasActiveDiploRequest = CvDiplomacyRequests::HasActiveDiploRequestWithHuman(GetID());
 		}
 	}
@@ -10115,10 +10198,10 @@ void CvPlayer::doTurn()
 		}
 	}
 
-	if(isHuman() && !GC.getGame().isGameMultiPlayer())
+	if(isHuman(ISHUMAN_ACHIEVEMENTS) && !GC.getGame().isGameMultiPlayer())
 		checkArmySizeAchievement();
 
-	if( (bHasActiveDiploRequest || GC.GetEngineUserInterface()->isDiploActive()) && !GC.getGame().isGameMultiPlayer() && !isHuman())
+	if( (bHasActiveDiploRequest || GC.GetEngineUserInterface()->isDiploActive()) && !GC.getGame().isGameMultiPlayer() && !isHuman(ISHUMAN_AI_DIPLOMACY))
 	{
 		GC.getGame().SetWaitingForBlockingInput(m_eID);
 	}
@@ -10259,13 +10342,21 @@ void CvPlayer::doTurnPostDiplomacy()
 
 	if (isAlive() && isMajorCiv() && getNumCities() > 0)
 	{
-		if (!isHuman())
+		if (!isHuman(ISHUMAN_AI_POLICY_CHOICE))
 		{
 			if (GetPlayerPolicies()->IsTimeToChooseIdeology() && GetPlayerPolicies()->GetLateGamePolicyTree() == NO_POLICY_BRANCH_TYPE)
 			{
 				if (GetPlayerTraits()->IsAdoptionFreeTech())
 				{
-					AI_chooseFreeTech();
+					if (isHuman(ISHUMAN_AI_TECH_CHOICE))
+					{
+						CvString strBuffer = GetLocalizedText("TXT_KEY_MISC_CHOSE_IDEOLOGY_UA_CHOOSE_TECH");
+						chooseTech(1, strBuffer.GetCString());
+					}
+					else
+					{
+						AI_chooseFreeTech();
+					}
 				}
 
 				GetPlayerPolicies()->DoChooseIdeology();
@@ -10323,8 +10414,15 @@ void CvPlayer::doTurnPostDiplomacy()
 
 				if (GetPlayerTraits()->IsAdoptionFreeTech())
 				{
-					CvString strBuffer = GetLocalizedText("TXT_KEY_MISC_CHOSE_IDEOLOGY_UA_CHOOSE_TECH");
-					chooseTech(1, strBuffer.GetCString());
+					if (isHuman(ISHUMAN_AI_TECH_CHOICE))
+					{
+						CvString strBuffer = GetLocalizedText("TXT_KEY_MISC_CHOSE_IDEOLOGY_UA_CHOOSE_TECH");
+						chooseTech(1, strBuffer.GetCString());
+					}
+					else
+					{
+						AI_chooseFreeTech();
+					}
 				}
 
 				if (!bForcedIdeology)
@@ -10597,7 +10695,7 @@ void CvPlayer::DoUnitReset()
 		pLoopUnit->setMadeAttack(false);
 		pLoopUnit->resetInterceptionCount();
 
-		if(!isHuman())
+		if(!isHuman(ISHUMAN_AI_UNITS))
 		{
 			const MissionData* pkMissionData = pLoopUnit->GetHeadMissionData();
 			if(pkMissionData)
@@ -11361,7 +11459,7 @@ void CvPlayer::findNewCapital()
 	{
 		gDLL->sendDoTask(pBestCity->GetID(), TASK_ANNEX_PUPPET, -1, -1, false, false, false, false);
 	}
-	else if (pBestCity->IsRazing() && !isHuman())
+	else if (pBestCity->IsRazing() && !isHuman(ISHUMAN_AI_CITY_MANAGEMENT))
 	{
 		// For the AI, we'll stop burning our new capital!
 		gDLL->sendDoTask(pBestCity->GetID(), TASK_UNRAZE, -1, -1, false, false, false, false);
@@ -11397,7 +11495,7 @@ bool CvPlayer::canRaze(CvCity* pCity, bool bIgnoreCapitals) const
 	}
 
 	// Humans cannot raze in a OCC game - it's destroyed instead
-	if (GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && GET_PLAYER(pCity->getOwner()).isHuman())
+	if (GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && GET_PLAYER(pCity->getOwner()).isHuman(ISHUMAN_MECHANICS))
 	{
 		return false;
 	}
@@ -12079,7 +12177,7 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 		}
 
 		// OCC games - no Settlers
-		if (GetPlayerTraits()->IsNoAnnexing() || (GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && isHuman()))
+		if (GetPlayerTraits()->IsNoAnnexing() || (GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && isHuman(ISHUMAN_MECHANICS)))
 		{
 			if (pUnitInfo->IsFound() || pUnitInfo->IsFoundAbroad())
 			{
@@ -13061,7 +13159,7 @@ void CvPlayer::doGoody(CvPlot* pPlot, CvUnit* pUnit)
 		if(avValidGoodies.size() > 0)
 		{
 			// Fix the bug where the AI won't get anything for Goody Hut pickers!!!
-			if (pUnit && pUnit->isHasPromotion((PromotionTypes)GD_INT_GET(PROMOTION_GOODY_HUT_PICKER)) && GET_PLAYER(pUnit->getOwner()).isHuman())
+			if (pUnit && pUnit->isHasPromotion((PromotionTypes)GD_INT_GET(PROMOTION_GOODY_HUT_PICKER)) && GET_PLAYER(pUnit->getOwner()).isHuman(ISHUMAN_AI_EVENT_CHOICE))
 			{
 				if (GC.getGame().getActivePlayer() == GetID())
 
@@ -13086,7 +13184,7 @@ void CvPlayer::doGoody(CvPlot* pPlot, CvUnit* pUnit)
 					GAMEEVENTINVOKE_HOOK(GAMEEVENT_GoodyHutReceivedBonus, GetID(), pUnit ? pUnit->GetID() : -1, eGoody, pPlot->getX(), pPlot->getY());
 			}
 
-			if (MOD_API_ACHIEVEMENTS && pUnit && isHuman() && !GC.getGame().isGameMultiPlayer())
+			if (MOD_API_ACHIEVEMENTS && pUnit && isHuman(ISHUMAN_ACHIEVEMENTS) && !GC.getGame().isGameMultiPlayer())
 			{
 				pUnit->SetNumGoodyHutsPopped(pUnit->GetNumGoodyHutsPopped() + 1);
 				if (pUnit->isHasPromotion((PromotionTypes)GD_INT_GET(PROMOTION_GOODY_HUT_PICKER)) && pUnit->GetNumGoodyHutsPopped() >= 5)
@@ -13647,7 +13745,7 @@ void CvPlayer::foundCity(int iX, int iY, ReligionTypes eReligion, bool bForce, C
 		if (GC.getGame().GetGameReligions()->CanCreatePantheon(GetID(), true) == 0)
 		{
 			// Create the pantheon
-			if (isHuman())
+			if (isHuman(ISHUMAN_AI_RELIGION_CHOICE))
 			{
 				//If the player is human then a net message will be received which will pick the pantheon.
 				CvNotifications* pNotifications = GetNotifications();
@@ -13673,7 +13771,7 @@ void CvPlayer::foundCity(int iX, int iY, ReligionTypes eReligion, bool bForce, C
 		// Human player is prompted to choose production BEFORE the AI runs for the turn.
 		// So we'll force the AI strategies on the city now, just after it is founded.
 		// And if the very first turn, we haven't even run player strategies once yet, so do that too.
-		if(GC.getGame().getGameTurn() == 0)
+		if (GC.getGame().getGameTurn() == 0)
 		{
 			GetEconomicAI()->DoTurn();
 			GetMilitaryAI()->DoTurn();
@@ -13683,7 +13781,7 @@ void CvPlayer::foundCity(int iX, int iY, ReligionTypes eReligion, bool bForce, C
 		}
 		pCity->GetCityStrategyAI()->DoTurn();
 
-		if (!pCity->IsPuppet())
+		if (!pCity->IsPuppet() && !MOD_AI_CONTROL_CITY_PRODUCTION)
 			pCity->chooseProduction();
 
 		pCity->doFoundMessage();
@@ -13693,9 +13791,15 @@ void CvPlayer::foundCity(int iX, int iY, ReligionTypes eReligion, bool bForce, C
 		{
 			if(GetID() == GC.getGame().getActivePlayer())
 			{
-				chooseTech();
+				if (!MOD_AI_CONTROL_TECH_CHOICE)
+					chooseTech();
+				else
+					AI_chooseResearch();
 			}
 		}
+
+		if (MOD_AI_CONTROL_CITY_MANAGEMENT)
+			GetCitySpecializationAI()->SetSpecializationsDirty(SPECIALIZATION_UPDATE_CITY_FOUNDED);
 	}
 	else
 	{
@@ -13856,7 +13960,7 @@ bool CvPlayer::canTrainUnit(UnitTypes eUnit, bool bContinue, bool bTestVisible, 
 			return false;
 
 		// One City Challenge
-		if (GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && isHuman())
+		if (GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && isHuman(ISHUMAN_MECHANICS))
 			return false;
 	}
 
@@ -15022,7 +15126,7 @@ int CvPlayer::getProductionNeeded(UnitTypes eUnit, bool bIgnoreDifficulty) const
 				iProductionNeeded *= getHandicapInfo().getWorldTrainPercent();
 				iProductionNeeded /= 100;
 
-				if (!isHuman())
+				if (!isHuman(ISHUMAN_HANDICAP))
 				{
 					iProductionNeeded *= GC.getGame().getHandicapInfo().getAIWorldTrainPercent();
 					iProductionNeeded /= 100;
@@ -15036,7 +15140,7 @@ int CvPlayer::getProductionNeeded(UnitTypes eUnit, bool bIgnoreDifficulty) const
 				iProductionNeeded *= std::max(0, getHandicapInfo().getTrainPerEraModifier() * GC.getGame().getCurrentEra() + 100);
 				iProductionNeeded /= 100;
 
-				if (!isHuman())
+				if (!isHuman(ISHUMAN_HANDICAP))
 				{
 					iProductionNeeded *= GC.getGame().getHandicapInfo().getAITrainPercent();
 					iProductionNeeded /= 100;
@@ -15053,7 +15157,7 @@ int CvPlayer::getProductionNeeded(UnitTypes eUnit, bool bIgnoreDifficulty) const
 				iProductionNeeded *= std::max(0, getHandicapInfo().getCivilianPerEraModifier() * GC.getGame().getCurrentEra() + 100);
 				iProductionNeeded /= 100;
 
-				if (!isHuman())
+				if (!isHuman(ISHUMAN_HANDICAP))
 				{
 					iProductionNeeded *= GC.getGame().getHandicapInfo().getAICivilianPercent();
 					iProductionNeeded /= 100;
@@ -15235,7 +15339,7 @@ int CvPlayer::getProductionNeeded(BuildingTypes eTheBuilding) const
 			iProductionNeeded *= getHandicapInfo().getWorldConstructPercent();
 			iProductionNeeded /= 100;
 
-			if (!isHuman())
+			if (!isHuman(ISHUMAN_HANDICAP))
 			{
 				iProductionNeeded *= GC.getGame().getHandicapInfo().getAIWorldConstructPercent();
 				iProductionNeeded /= 100;
@@ -15249,7 +15353,7 @@ int CvPlayer::getProductionNeeded(BuildingTypes eTheBuilding) const
 			iProductionNeeded *= std::max(0, getHandicapInfo().getConstructPerEraModifier() * GC.getGame().getCurrentEra() + 100);
 			iProductionNeeded /= 100;
 
-			if (!isHuman())
+			if (!isHuman(ISHUMAN_HANDICAP))
 			{
 				iProductionNeeded *= GC.getGame().getHandicapInfo().getAIConstructPercent();
 				iProductionNeeded /= 100;
@@ -15296,7 +15400,7 @@ int CvPlayer::getProductionNeeded(ProjectTypes eProject) const
 			iProductionNeeded *= getHandicapInfo().getWorldConstructPercent();
 			iProductionNeeded /= 100;
 
-			if (!isHuman())
+			if (!isHuman(ISHUMAN_HANDICAP))
 			{
 				iProductionNeeded *= GC.getGame().getHandicapInfo().getAIWorldConstructPercent();
 				iProductionNeeded /= 100;
@@ -15310,7 +15414,7 @@ int CvPlayer::getProductionNeeded(ProjectTypes eProject) const
 			iProductionNeeded *= std::max(0, getHandicapInfo().getCreatePerEraModifier() * GC.getGame().getCurrentEra() + 100);
 			iProductionNeeded /= 100;
 
-			if (!isHuman())
+			if (!isHuman(ISHUMAN_HANDICAP))
 			{
 				iProductionNeeded *= GC.getGame().getHandicapInfo().getAICreatePercent();
 				iProductionNeeded /= 100;
@@ -15559,7 +15663,7 @@ int CvPlayer::getBuildingClassPrereqBuilding(BuildingTypes eBuilding, BuildingCl
 		iPrereqs *= (getBuildingClassCount(eBuildingClass) + iExtra + 1);
 	}
 
-	if ((GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && isHuman()) || GET_PLAYER(GetID()).GetPlayerTraits()->IsNoAnnexing())
+	if ((GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && isHuman(ISHUMAN_MECHANICS)) || GET_PLAYER(GetID()).GetPlayerTraits()->IsNoAnnexing())
 	{
 		iPrereqs = std::min(1, iPrereqs);
 	}
@@ -15639,7 +15743,7 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 		// Free techs
 		if(pBuildingInfo->GetFreeTechs() > 0)
 		{
-			if(!isHuman())
+			if(!isHuman(ISHUMAN_AI_TECH_CHOICE))
 			{
 				for(iI = 0; iI < pBuildingInfo->GetFreeTechs(); iI++)
 				{
@@ -16555,7 +16659,7 @@ int CvPlayer::GetNumUnitsSupplied(bool bCheckWarWeariness) const
 
 		if (isMajorCiv())
 		{
-			if (isHuman())
+			if (isHuman(ISHUMAN_HANDICAP))
 			{
 				iUnitSupply *= 100 + getHandicapInfo().getUnitSupplyBonusPercent() + getHandicapInfo().getUnitSupplyPerEraModifier() * GC.getGame().getCurrentEra();
 				iUnitSupply /= 100;
@@ -16649,7 +16753,7 @@ int CvPlayer::GetNumUnitsSuppliedByHandicap(bool bIgnoreReduction) const
 	{
 		iSupply = m_pTraits->GetExtraSupply() + GC.getGame().getStartEraInfo().getUnitSupplyBase();
 		iSupply += getHandicapInfo().getUnitSupplyBase() + getHandicapInfo().getUnitSupplyPerEraFlat() * GC.getGame().getCurrentEra();
-		iSupply += isHuman() ? 0 : GC.getGame().getHandicapInfo().getAIUnitSupplyBase() + GC.getGame().getHandicapInfo().getAIUnitSupplyPerEraFlat() * GC.getGame().getCurrentEra();
+		iSupply += isHuman(ISHUMAN_HANDICAP) ? 0 : GC.getGame().getHandicapInfo().getAIUnitSupplyBase() + GC.getGame().getHandicapInfo().getAIUnitSupplyPerEraFlat() * GC.getGame().getCurrentEra();
 	}
 	else if (isMinorCiv())
 	{
@@ -16677,7 +16781,7 @@ int CvPlayer::GetNumUnitsSuppliedByCities(bool bIgnoreReduction) const
 
 		int iStartingSupplyPerCity = m_pTraits->GetExtraSupplyPerCity() + getCitySupplyFlatGlobal();
 		iStartingSupplyPerCity += getHandicapInfo().getUnitSupplyPerCity();
-		iStartingSupplyPerCity += isHuman() ? 0 : GC.getGame().getHandicapInfo().getAIUnitSupplyPerCity();
+		iStartingSupplyPerCity += isHuman(ISHUMAN_HANDICAP) ? 0 : GC.getGame().getHandicapInfo().getAIUnitSupplyPerCity();
 
 		int iLoop = 0;
 		for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
@@ -16730,7 +16834,7 @@ int CvPlayer::GetNumUnitsSuppliedByPopulation(bool bIgnoreReduction) const
 	{
 		int iStartingPopulationPercent = m_pTraits->GetExtraSupplyPerPopulation() + GetExtraSupplyPerPopulation();
 		iStartingPopulationPercent += getHandicapInfo().getUnitSupplyPopulationPercent();
-		iStartingPopulationPercent += isHuman() ? 0 : GC.getGame().getHandicapInfo().getAIUnitSupplyPopulationPercent();
+		iStartingPopulationPercent += isHuman(ISHUMAN_HANDICAP) ? 0 : GC.getGame().getHandicapInfo().getAIUnitSupplyPopulationPercent();
 
 		int iLoop = 0;
 		for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
@@ -16874,7 +16978,7 @@ int CvPlayer::calculateResearchModifier(TechTypes eTech)
 		if (isMajorCiv())
 		{
 			iExtraCatchUP = getHandicapInfo().getTechCatchUpMod();
-			iExtraCatchUP += isHuman() ? 0 : GC.getGame().getHandicapInfo().getAITechCatchUpMod();
+			iExtraCatchUP += isHuman(ISHUMAN_HANDICAP) ? 0 : GC.getGame().getHandicapInfo().getAITechCatchUpMod();
 			iExtraCatchUP *= GC.getGame().getCurrentEra();
 		}
 		iModifier += ((/*30 in CP, 10 in VP*/ GD_INT_GET(TECH_COST_TOTAL_KNOWN_TEAM_MODIFIER) + iExtraCatchUP) * iKnownCount) / iPossibleKnownCount;
@@ -18308,7 +18412,7 @@ void CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 		CvString strLogString;
 		CvString strTemp;
 		strLogString.Format("VP ");
-		if (isHuman())
+		if (isHuman(ISHUMAN_HANDICAP))
 		{
 			strTemp.Format("HUMAN DIFFICULTY BONUS FROM ");
 		}
@@ -18461,7 +18565,7 @@ void CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 						continue;
 
 					// Ignore cities that can't be kept.
-					if (isHuman() && !pLoopCity->isCapital() && GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
+					if (isHuman(ISHUMAN_MECHANICS) && !pLoopCity->isCapital() && GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
 						continue;
 
 					vValidCities.push_back(pLoopCity->GetID());
@@ -18515,7 +18619,7 @@ void CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 						continue;
 
 					// Ignore cities that can't be kept.
-					if (isHuman() && !pLoopCity->isCapital() && GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
+					if (isHuman(ISHUMAN_MECHANICS) && !pLoopCity->isCapital() && GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
 						continue;
 
 					vValidCities.push_back(pLoopCity->GetID());
@@ -18773,7 +18877,7 @@ void CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 						continue;
 
 					// Ignore cities that can't be kept.
-					if (isHuman() && !pLoopCity->isCapital() && GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
+					if (isHuman(ISHUMAN_MECHANICS) && !pLoopCity->isCapital() && GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
 						continue;
 
 					int iLocalHappiness = pLoopCity->GetLocalHappiness(0, /*bExcludeEmpireContributions*/ false);
@@ -18828,7 +18932,7 @@ void CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 						continue;
 
 					// Ignore cities that can't be kept.
-					if (isHuman() && !pLoopCity->isCapital() && GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
+					if (isHuman(ISHUMAN_MECHANICS) && !pLoopCity->isCapital() && GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
 						continue;
 
 					vValidCities.push_back(pLoopCity->GetID());
@@ -18895,7 +18999,7 @@ void CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 		}
 	}
 
-	if (isHuman())
+	if (isHuman(ISHUMAN_HANDICAP))
 		return;
 
 	// Now do the AI difficulty bonus
@@ -19720,7 +19824,7 @@ void CvPlayer::DoUpdateTotalHappiness()
 {
 	// Start level
 	m_iHappiness = getHandicapInfo().getHappinessDefault() + GC.getGame().getGameSpeedInfo().GetStartingHappiness();
-	m_iHappiness += isHuman() ? 0 : GC.getGame().getHandicapInfo().getAIHappinessDefault();
+	m_iHappiness += isHuman(ISHUMAN_HANDICAP) ? 0 : GC.getGame().getHandicapInfo().getAIHappinessDefault();
 
 	if (MOD_BALANCE_VP)
 	{
@@ -20552,7 +20656,7 @@ void CvPlayer::DoUpdateCityRevolts()
 					if (GET_PLAYER(eRecipient).isAlive())
 					{
 						CvNotifications* pNotifications = GetNotifications();
-						if (pNotifications && isHuman())
+						if (pNotifications && isHuman(ISHUMAN_NOTIFICATIONS))
 						{
 							Localization::String strMessage(GetLocalizedText("TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLT", GetCityRevoltCounter(), pMostUnhappyCity->getName(), GET_PLAYER(eRecipient).getCivilizationShortDescription()));
 							Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLT_SUMMARY");
@@ -20562,7 +20666,7 @@ void CvPlayer::DoUpdateCityRevolts()
 					else if (GET_PLAYER(eRecipient).isEverAlive())
 					{
 						CvNotifications* pNotifications = GetNotifications();
-						if (pNotifications && isHuman())
+						if (pNotifications && isHuman(ISHUMAN_NOTIFICATIONS))
 						{
 							Localization::String strMessage(GetLocalizedText("TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLUTION_CP", GetCityRevoltCounter(), pMostUnhappyCity->getName(), GET_PLAYER(eRecipient).getCivilizationShortDescription()));
 							Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLUTION_CP_SUMMARY");
@@ -20572,7 +20676,7 @@ void CvPlayer::DoUpdateCityRevolts()
 					else
 					{
 						CvNotifications* pNotifications = GetNotifications();
-						if (pNotifications && isHuman())
+						if (pNotifications && isHuman(ISHUMAN_NOTIFICATIONS))
 						{
 							Localization::String strMessage(GetLocalizedText("TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLUTION_CP_FREE_CITY", GetCityRevoltCounter(), pMostUnhappyCity->getName()));
 							Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLUTION_CP_SUMMARY");
@@ -20673,7 +20777,7 @@ void CvPlayer::DoResetCityRevoltCounter()
 		if (GET_PLAYER(eRecipient).isAlive())
 		{
 			CvNotifications* pNotifications = GetNotifications();
-			if (pNotifications && isHuman())
+			if (pNotifications && isHuman(ISHUMAN_NOTIFICATIONS))
 			{
 				Localization::String strMessage(GetLocalizedText("TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLT", iTurns, pMostUnhappyCity->getName(), GET_PLAYER(eRecipient).getCivilizationShortDescription()));
 				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLT_SUMMARY");
@@ -20709,7 +20813,7 @@ void CvPlayer::DoResetCityRevoltCounter()
 		else if (GET_PLAYER(eRecipient).isEverAlive())
 		{
 			CvNotifications* pNotifications = GetNotifications();
-			if (pNotifications && isHuman())
+			if (pNotifications && isHuman(ISHUMAN_NOTIFICATIONS))
 			{
 				Localization::String strMessage(GetLocalizedText("TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLUTION_CP", iTurns, pMostUnhappyCity->getName(), GET_PLAYER(eRecipient).getCivilizationShortDescription()));
 				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLUTION_CP_SUMMARY");
@@ -20745,7 +20849,7 @@ void CvPlayer::DoResetCityRevoltCounter()
 		else
 		{
 			CvNotifications* pNotifications = GetNotifications();
-			if (pNotifications && isHuman())
+			if (pNotifications && isHuman(ISHUMAN_NOTIFICATIONS))
 			{
 				Localization::String strMessage(GetLocalizedText("TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLUTION_CP_FREE_CITY", iTurns, pMostUnhappyCity->getName()));
 				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLUTION_CP_SUMMARY");
@@ -21681,7 +21785,7 @@ int CvPlayer::GetUnhappinessFromCityForUI(CvCity* pCity) const
 	}
 
 	// Population Handicap mod
-	iPopulationUnhappinessTimes100 *= isHuman() ? 100 + getHandicapInfo().getPopulationUnhappinessMod() : 100 + getHandicapInfo().getPopulationUnhappinessMod() + GC.getGame().getHandicapInfo().getAIPopulationUnhappinessMod();
+	iPopulationUnhappinessTimes100 *= isHuman(ISHUMAN_HANDICAP) ? 100 + getHandicapInfo().getPopulationUnhappinessMod() : 100 + getHandicapInfo().getPopulationUnhappinessMod() + GC.getGame().getHandicapInfo().getAIPopulationUnhappinessMod();
 	iPopulationUnhappinessTimes100 /= 100;
 
 	// City Count Player mod
@@ -21689,7 +21793,7 @@ int CvPlayer::GetUnhappinessFromCityForUI(CvCity* pCity) const
 	iMod += GetCityCountUnhappinessMod();
 	iMod += GetPlayerTraits()->GetCityUnhappinessModifier();
 	iMod += getHandicapInfo().getEmpireSizeUnhappinessMod();
-	iMod += isHuman() ? 0 : GC.getGame().getHandicapInfo().getEmpireSizeUnhappinessMod();
+	iMod += isHuman(ISHUMAN_HANDICAP) ? 0 : GC.getGame().getHandicapInfo().getEmpireSizeUnhappinessMod();
 
 	iNumCitiesUnhappinessTimes100 *= (100 + iMod);
 	iNumCitiesUnhappinessTimes100 /= 100;
@@ -21757,7 +21861,7 @@ int CvPlayer::GetUnhappinessFromCityCount(CvCity* pAssumeCityAnnexed, CvCity* pA
 	iMod += GetCityCountUnhappinessMod();
 	iMod += GetPlayerTraits()->GetCityUnhappinessModifier();
 	iMod += getHandicapInfo().getEmpireSizeUnhappinessMod();
-	iMod += isHuman() ? 0 : GC.getGame().getHandicapInfo().getEmpireSizeUnhappinessMod();
+	iMod += isHuman(ISHUMAN_HANDICAP) ? 0 : GC.getGame().getHandicapInfo().getEmpireSizeUnhappinessMod();
 
 	iUnhappiness *= (100 + iMod);
 	iUnhappiness /= 100;
@@ -21808,7 +21912,7 @@ int CvPlayer::GetUnhappinessFromCapturedCityCount(CvCity* pAssumeCityAnnexed, Cv
 	iMod += GetCityCountUnhappinessMod();
 	iMod += GetPlayerTraits()->GetCityUnhappinessModifier();
 	iMod += getHandicapInfo().getEmpireSizeUnhappinessMod();
-	iMod += isHuman() ? 0 : GC.getGame().getHandicapInfo().getEmpireSizeUnhappinessMod();
+	iMod += isHuman(ISHUMAN_HANDICAP) ? 0 : GC.getGame().getHandicapInfo().getEmpireSizeUnhappinessMod();
 
 	iUnhappiness *= (100 + iMod);
 	iUnhappiness /= 100;
@@ -21944,7 +22048,7 @@ int CvPlayer::GetUnhappinessFromCityPopulation(CvCity* pAssumeCityAnnexed, CvCit
 	iUnhappiness /= 100;
 
 	// Handicap mod
-	iUnhappiness *= isHuman() ? 100 + getHandicapInfo().getPopulationUnhappinessMod() : 100 + getHandicapInfo().getPopulationUnhappinessMod() + GC.getGame().getHandicapInfo().getAIPopulationUnhappinessMod();
+	iUnhappiness *= isHuman(ISHUMAN_HANDICAP) ? 100 + getHandicapInfo().getPopulationUnhappinessMod() : 100 + getHandicapInfo().getPopulationUnhappinessMod() + GC.getGame().getHandicapInfo().getAIPopulationUnhappinessMod();
 	iUnhappiness /= 100;
 
 	return (int)iUnhappiness;
@@ -22010,7 +22114,7 @@ int CvPlayer::GetUnhappinessFromPuppetCityPopulation() const
 	iUnhappiness /= 100;
 
 	// Handicap mod
-	iUnhappiness *= isHuman() ? 100 + getHandicapInfo().getPopulationUnhappinessMod() : 100 + getHandicapInfo().getPopulationUnhappinessMod() + GC.getGame().getHandicapInfo().getAIPopulationUnhappinessMod();
+	iUnhappiness *= isHuman(ISHUMAN_HANDICAP) ? 100 + getHandicapInfo().getPopulationUnhappinessMod() : 100 + getHandicapInfo().getPopulationUnhappinessMod() + GC.getGame().getHandicapInfo().getAIPopulationUnhappinessMod();
 	iUnhappiness /= 100;
 
 	return iUnhappiness;
@@ -22120,7 +22224,7 @@ int CvPlayer::GetUnhappinessFromCitySpecialists(CvCity* pAssumeCityAnnexed, CvCi
 		iUnhappiness /= 100;
 
 		// Handicap mod
-		iUnhappiness *= isHuman() ? 100 + getHandicapInfo().getPopulationUnhappinessMod() : 100 + getHandicapInfo().getPopulationUnhappinessMod() + GC.getGame().getHandicapInfo().getAIPopulationUnhappinessMod();
+		iUnhappiness *= isHuman(ISHUMAN_HANDICAP) ? 100 + getHandicapInfo().getPopulationUnhappinessMod() : 100 + getHandicapInfo().getPopulationUnhappinessMod() + GC.getGame().getHandicapInfo().getAIPopulationUnhappinessMod();
 		iUnhappiness /= 100;
 	}
 
@@ -22171,7 +22275,7 @@ int CvPlayer::GetUnhappinessFromOccupiedCities(CvCity* pAssumeCityAnnexed, CvCit
 	}
 
 	// Handicap mod
-	iUnhappiness *= isHuman() ? 100 + getHandicapInfo().getPopulationUnhappinessMod() : 100 + getHandicapInfo().getPopulationUnhappinessMod() + GC.getGame().getHandicapInfo().getAIPopulationUnhappinessMod();
+	iUnhappiness *= isHuman(ISHUMAN_HANDICAP) ? 100 + getHandicapInfo().getPopulationUnhappinessMod() : 100 + getHandicapInfo().getPopulationUnhappinessMod() + GC.getGame().getHandicapInfo().getAIPopulationUnhappinessMod();
 	iUnhappiness /= 100;
 
 	return iUnhappiness;
@@ -23731,7 +23835,7 @@ int CvPlayer::GetBarbarianCombatBonus(bool bIgnoreHandicap) const
 	if (!bIgnoreHandicap && isMajorCiv())
 	{
 		iRtnValue += getHandicapInfo().getBonusVSBarbarians();
-		iRtnValue += isHuman() ? 0 : GC.getGame().getHandicapInfo().getAIBonusVSBarbarians();
+		iRtnValue += isHuman(ISHUMAN_HANDICAP) ? 0 : GC.getGame().getHandicapInfo().getAIBonusVSBarbarians();
 	}
 
 	return iRtnValue;
@@ -24456,7 +24560,7 @@ int CvPlayer::GetGoldenAgeProgressThreshold() const
 	{
 		iThreshold *= getHandicapInfo().getGoldenAgePercent();
 		iThreshold /= 100;
-		if (!isHuman())
+		if (!isHuman(ISHUMAN_HANDICAP))
 		{
 			iThreshold *= GC.getGame().getHandicapInfo().getAIGoldenAgePercent();
 			iThreshold /= 100;
@@ -24556,7 +24660,7 @@ void CvPlayer::SetNumGoldenAges(int iValue)
 {
 	m_iNumGoldenAges = iValue;
 
-	if (MOD_API_ACHIEVEMENTS && iValue > 0 && isHuman() && !GC.getGame().isGameMultiPlayer()&& GET_PLAYER(GC.getGame().getActivePlayer()).isLocalPlayer())
+	if (MOD_API_ACHIEVEMENTS && iValue > 0 && isHuman(ISHUMAN_ACHIEVEMENTS) && !GC.getGame().isGameMultiPlayer()&& GET_PLAYER(GC.getGame().getActivePlayer()).isLocalPlayer())
 	{
 		gDLL->UnlockAchievement(ACHIEVEMENT_GOLDEN_AGE);
 
@@ -28140,7 +28244,7 @@ void CvPlayer::DoGreatPersonExpended(UnitTypes eGreatPersonUnit, CvUnit* pGreatP
 	int iExpendGold = GetGreatPersonExpendGold();
 	if (iExpendGold > 0)
 	{
-		if (MOD_API_ACHIEVEMENTS && isHuman() && !GC.getGame().isGameMultiPlayer() && GET_PLAYER(GC.getGame().getActivePlayer()).isLocalPlayer())
+		if (MOD_API_ACHIEVEMENTS && isHuman(ISHUMAN_ACHIEVEMENTS) && !GC.getGame().isGameMultiPlayer() && GET_PLAYER(GC.getGame().getActivePlayer()).isLocalPlayer())
 		{
 			// Update Steam stat and check achievement
 			const int HALICARNASSUS_ACHIEVEMENT_GOLD = 1000;
@@ -29220,7 +29324,7 @@ int CvPlayer::GetNumMaintenanceFreeUnits(DomainTypes eDomain, bool bOnlyCombatUn
 	if (isMajorCiv())
 	{
 		iNumFreeUnits = getHandicapInfo().getMaintenanceFreeUnits();
-		iNumFreeUnits += isHuman() ? 0 : GC.getGame().getHandicapInfo().getAIMaintenanceFreeUnits();
+		iNumFreeUnits += isHuman(ISHUMAN_HANDICAP) ? 0 : GC.getGame().getHandicapInfo().getAIMaintenanceFreeUnits();
 	}
 
 	// Loop through all units to see if any of them are free!
@@ -30195,7 +30299,7 @@ int CvPlayer::GetDominationResistance(PlayerTypes ePlayer)
 	if (iResistance == 0)
 		return 0;
 
-	int iHandicapCap = GET_PLAYER(ePlayer).isHuman() ? std::max(0, GET_PLAYER(ePlayer).getHandicapInfo().getResistanceCap()) : std::max(0, GC.getGame().getHandicapInfo().getAIResistanceCap());
+	int iHandicapCap = GET_PLAYER(ePlayer).isHuman(ISHUMAN_HANDICAP) ? std::max(0, GET_PLAYER(ePlayer).getHandicapInfo().getResistanceCap()) : std::max(0, GC.getGame().getHandicapInfo().getAIResistanceCap());
 
 	return min(iHandicapCap, iResistance/25);
 }
@@ -31190,7 +31294,7 @@ void CvPlayer::SetHasLostCapital(bool bValue, PlayerTypes eConqueror)
 						if (eWinningPlayer != NO_PLAYER) // there is a winning player
 						{
 							localizedBuffer = Localization::Lookup("TXT_KEY_NOTIFICATION_YOU_LOST_CAPITAL_OTHER_PLAYER_WINNING");
-							if(GC.getGame().isGameMultiPlayer() && GET_PLAYER(eWinningPlayer).isHuman())
+							if(GC.getGame().isGameMultiPlayer() && GET_PLAYER(eWinningPlayer).isHuman(ISHUMAN_UI))
 							{
 								localizedBuffer << GET_PLAYER(eWinningPlayer).getNickName();
 							}
@@ -31233,7 +31337,7 @@ void CvPlayer::SetHasLostCapital(bool bValue, PlayerTypes eConqueror)
 						{
 							localizedBuffer = Localization::Lookup("TXT_KEY_NOTIFICATION_OTHER_LOST_CAPITAL_YOU_WINNING");
 
-							if (GC.getGame().isGameMultiPlayer() && isHuman())
+							if (GC.getGame().isGameMultiPlayer() && isHuman(ISHUMAN_UI))
 							{
 								localizedBuffer << getNickName();
 							}
@@ -31246,7 +31350,7 @@ void CvPlayer::SetHasLostCapital(bool bValue, PlayerTypes eConqueror)
 						else if (eWinningPlayer != NO_PLAYER)
 						{
 							localizedBuffer = Localization::Lookup("TXT_KEY_NOTIFICATION_OTHER_LOST_CAPITAL_OTHER_WINNING");
-							if (GC.getGame().isGameMultiPlayer() && isHuman())
+							if (GC.getGame().isGameMultiPlayer() && isHuman(ISHUMAN_UI))
 							{
 								localizedBuffer << getNickName();
 							}
@@ -31255,7 +31359,7 @@ void CvPlayer::SetHasLostCapital(bool bValue, PlayerTypes eConqueror)
 								localizedBuffer << getNameKey();
 							}
 
-							if(GC.getGame().isGameMultiPlayer() && GET_PLAYER(eWinningPlayer).isHuman())
+							if(GC.getGame().isGameMultiPlayer() && GET_PLAYER(eWinningPlayer).isHuman(ISHUMAN_UI))
 							{
 								localizedBuffer << GET_PLAYER(eWinningPlayer).getNickName();
 							}
@@ -31268,7 +31372,7 @@ void CvPlayer::SetHasLostCapital(bool bValue, PlayerTypes eConqueror)
 						else // if (eWinningTeam != NO_TEAM)
 						{
 							localizedBuffer = Localization::Lookup("TXT_KEY_NOTIFICATION_OTHER_LOST_CAPITAL_TEAM_WINNING");
-							if (GC.getGame().isGameMultiPlayer() && isHuman())
+							if (GC.getGame().isGameMultiPlayer() && isHuman(ISHUMAN_UI))
 							{
 								localizedBuffer << getNickName();
 							}
@@ -31284,7 +31388,7 @@ void CvPlayer::SetHasLostCapital(bool bValue, PlayerTypes eConqueror)
 					else
 					{
 						localizedBuffer = Localization::Lookup("TXT_KEY_NOTIFICATION_OTHER_LOST_CAPITAL_UNMET_WINNING");
-						if (GC.getGame().isGameMultiPlayer() && isHuman())
+						if (GC.getGame().isGameMultiPlayer() && isHuman(ISHUMAN_UI))
 						{
 							localizedBuffer << getNickName();
 						}
@@ -31298,7 +31402,7 @@ void CvPlayer::SetHasLostCapital(bool bValue, PlayerTypes eConqueror)
 				else
 				{
 					localizedBuffer = Localization::Lookup("TXT_KEY_NOTIFICATION_OTHER_LOST_CAPITAL");
-					if (GC.getGame().isGameMultiPlayer() && isHuman())
+					if (GC.getGame().isGameMultiPlayer() && isHuman(ISHUMAN_UI))
 					{
 						localizedBuffer << getNickName();
 					}
@@ -31325,7 +31429,7 @@ void CvPlayer::SetHasLostCapital(bool bValue, PlayerTypes eConqueror)
 						else if (eWinningPlayer != NO_PLAYER)
 						{
 							localizedBuffer = Localization::Lookup("TXT_KEY_NOTIFICATION_UNMET_LOST_CAPITAL_OTHER_WINNING");
-							if(GC.getGame().isGameMultiPlayer() && GET_PLAYER(eWinningPlayer).isHuman())
+							if(GC.getGame().isGameMultiPlayer() && GET_PLAYER(eWinningPlayer).isHuman(ISHUMAN_UI))
 							{
 								localizedBuffer << GET_PLAYER(eWinningPlayer).getNickName();
 							}
@@ -31363,7 +31467,7 @@ void CvPlayer::SetHasLostCapital(bool bValue, PlayerTypes eConqueror)
 			if (eWinningPlayer != NO_PLAYER)
 			{
 				message = Localization::Lookup("TXT_KEY_NOTIFICATION_OTHER_LOST_CAPITAL_OTHER_WINNING");
-				if (GC.getGame().isGameMultiPlayer() && isHuman())
+				if (GC.getGame().isGameMultiPlayer() && isHuman(ISHUMAN_UI))
 				{
 					message << getNickName();
 				}
@@ -31372,7 +31476,7 @@ void CvPlayer::SetHasLostCapital(bool bValue, PlayerTypes eConqueror)
 					message << getNameKey();
 				}
 
-				if(GC.getGame().isGameMultiPlayer() && GET_PLAYER(eWinningPlayer).isHuman())
+				if(GC.getGame().isGameMultiPlayer() && GET_PLAYER(eWinningPlayer).isHuman(ISHUMAN_UI))
 				{
 					message << GET_PLAYER(eWinningPlayer).getNickName();
 				}
@@ -31386,7 +31490,7 @@ void CvPlayer::SetHasLostCapital(bool bValue, PlayerTypes eConqueror)
 			else if (eWinningTeam != NO_TEAM)
 			{
 				message = Localization::Lookup("TXT_KEY_NOTIFICATION_OTHER_LOST_CAPITAL_TEAM_WINNING");
-				if (GC.getGame().isGameMultiPlayer() && isHuman())
+				if (GC.getGame().isGameMultiPlayer() && isHuman(ISHUMAN_UI))
 				{
 					message << getNickName();
 				}
@@ -31401,7 +31505,7 @@ void CvPlayer::SetHasLostCapital(bool bValue, PlayerTypes eConqueror)
 			else
 			{
 				message = Localization::Lookup("TXT_KEY_NOTIFICATION_OTHER_LOST_CAPITAL");
-				if (GC.getGame().isGameMultiPlayer() && isHuman())
+				if (GC.getGame().isGameMultiPlayer() && isHuman(ISHUMAN_UI))
 				{
 					message << getNickName();
 				}
@@ -31444,7 +31548,7 @@ void CvPlayer::SetHasLostCapital(bool bValue, PlayerTypes eConqueror)
 					if (eWinningPlayer != NO_PLAYER) // there is a winning player
 					{
 						localizedBuffer = Localization::Lookup("TXT_KEY_NOTIFICATION_YOU_REGAINED_CAPITAL_OTHER_PLAYER_WINNING");
-						if(GC.getGame().isGameMultiPlayer() && GET_PLAYER(eWinningPlayer).isHuman())
+						if(GC.getGame().isGameMultiPlayer() && GET_PLAYER(eWinningPlayer).isHuman(ISHUMAN_UI))
 						{
 							localizedBuffer << GET_PLAYER(eWinningPlayer).getNickName();
 						}
@@ -31489,7 +31593,7 @@ void CvPlayer::SetHasLostCapital(bool bValue, PlayerTypes eConqueror)
 						else if (eWinningPlayer != NO_PLAYER)
 						{
 							localizedBuffer = Localization::Lookup("TXT_KEY_NOTIFICATION_OTHER_REGAINED_CAPITAL_OTHER_WINNING");
-							if (GC.getGame().isGameMultiPlayer() && isHuman())
+							if (GC.getGame().isGameMultiPlayer() && isHuman(ISHUMAN_UI))
 							{
 								localizedBuffer << getNickName();
 							}
@@ -31498,7 +31602,7 @@ void CvPlayer::SetHasLostCapital(bool bValue, PlayerTypes eConqueror)
 								localizedBuffer << getNameKey();
 							}
 
-							if(GC.getGame().isGameMultiPlayer() && GET_PLAYER(eWinningPlayer).isHuman())
+							if(GC.getGame().isGameMultiPlayer() && GET_PLAYER(eWinningPlayer).isHuman(ISHUMAN_UI))
 							{
 								localizedBuffer << GET_PLAYER(eWinningPlayer).getNickName();
 							}
@@ -31511,7 +31615,7 @@ void CvPlayer::SetHasLostCapital(bool bValue, PlayerTypes eConqueror)
 						else // if (eWinningTeam != NO_TEAM)
 						{
 							localizedBuffer = Localization::Lookup("TXT_KEY_NOTIFICATION_OTHER_REGAINED_CAPITAL_TEAM_WINNING");
-							if (GC.getGame().isGameMultiPlayer() && isHuman())
+							if (GC.getGame().isGameMultiPlayer() && isHuman(ISHUMAN_UI))
 							{
 								localizedBuffer << getNickName();
 							}
@@ -31527,7 +31631,7 @@ void CvPlayer::SetHasLostCapital(bool bValue, PlayerTypes eConqueror)
 					else
 					{
 						localizedBuffer = Localization::Lookup("TXT_KEY_NOTIFICATION_OTHER_REGAINED_CAPITAL_UNMET_WINNING");
-						if (GC.getGame().isGameMultiPlayer() && isHuman())
+						if (GC.getGame().isGameMultiPlayer() && isHuman(ISHUMAN_UI))
 						{
 							localizedBuffer << getNickName();
 						}
@@ -31541,7 +31645,7 @@ void CvPlayer::SetHasLostCapital(bool bValue, PlayerTypes eConqueror)
 				else
 				{
 					localizedBuffer = Localization::Lookup("TXT_KEY_NOTIFICATION_OTHER_REGAINED_CAPITAL");
-					if (GC.getGame().isGameMultiPlayer() && isHuman())
+					if (GC.getGame().isGameMultiPlayer() && isHuman(ISHUMAN_UI))
 					{
 						localizedBuffer << getNickName();
 					}
@@ -31567,7 +31671,7 @@ void CvPlayer::SetHasLostCapital(bool bValue, PlayerTypes eConqueror)
 						else if (eWinningPlayer != NO_PLAYER)
 						{
 							localizedBuffer = Localization::Lookup("TXT_KEY_NOTIFICATION_UNMET_REGAINED_CAPITAL_OTHER_WINNING");
-							if(GC.getGame().isGameMultiPlayer() && GET_PLAYER(eWinningPlayer).isHuman())
+							if(GC.getGame().isGameMultiPlayer() && GET_PLAYER(eWinningPlayer).isHuman(ISHUMAN_UI))
 							{
 								localizedBuffer << GET_PLAYER(eWinningPlayer).getNickName();
 							}
@@ -31605,7 +31709,7 @@ void CvPlayer::SetHasLostCapital(bool bValue, PlayerTypes eConqueror)
 			if (eWinningPlayer != NO_PLAYER)
 			{
 				message = Localization::Lookup("TXT_KEY_NOTIFICATION_OTHER_REGAINED_CAPITAL_OTHER_WINNING");
-				if (GC.getGame().isGameMultiPlayer() && isHuman())
+				if (GC.getGame().isGameMultiPlayer() && isHuman(ISHUMAN_UI))
 				{
 					message << getNickName();
 				}
@@ -31614,7 +31718,7 @@ void CvPlayer::SetHasLostCapital(bool bValue, PlayerTypes eConqueror)
 					message << getNameKey();
 				}
 
-				if(GC.getGame().isGameMultiPlayer() && GET_PLAYER(eWinningPlayer).isHuman())
+				if(GC.getGame().isGameMultiPlayer() && GET_PLAYER(eWinningPlayer).isHuman(ISHUMAN_UI))
 				{
 					message << GET_PLAYER(eWinningPlayer).getNickName();
 				}
@@ -31628,7 +31732,7 @@ void CvPlayer::SetHasLostCapital(bool bValue, PlayerTypes eConqueror)
 			else if (eWinningTeam != NO_TEAM)
 			{
 				message = Localization::Lookup("TXT_KEY_NOTIFICATION_OTHER_REGAINED_CAPITAL_TEAM_WINNING");
-				if (GC.getGame().isGameMultiPlayer() && isHuman())
+				if (GC.getGame().isGameMultiPlayer() && isHuman(ISHUMAN_UI))
 				{
 					message << getNickName();
 				}
@@ -31643,7 +31747,7 @@ void CvPlayer::SetHasLostCapital(bool bValue, PlayerTypes eConqueror)
 			else
 			{
 				message = Localization::Lookup("TXT_KEY_NOTIFICATION_OTHER_REGAINED_CAPITAL");
-				if (GC.getGame().isGameMultiPlayer() && isHuman())
+				if (GC.getGame().isGameMultiPlayer() && isHuman(ISHUMAN_UI))
 				{
 					message << getNickName();
 				}
@@ -31706,8 +31810,8 @@ int CvPlayer::CalculateDefensivePactLimit(bool bIsAITradeWithHumanPossible /* = 
 	if (!isMajorCiv() || !isAlive() || GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR) || GC.getGame().isOption(GAMEOPTION_ALWAYS_PEACE) || GC.getGame().isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE))
 		return 0;
 
-	int iBaseLimit = isHuman() || bIsAITradeWithHumanPossible ? /*99 in CP, 2 in VP*/ GD_INT_GET(DEFENSIVE_PACT_LIMIT_BASE) : /*2*/ min(GD_INT_GET(DEFENSIVE_PACT_LIMIT_BASE), GD_INT_GET(AI_DEFENSIVE_PACT_LIMIT_BASE));
-	int iLimitScaler = isHuman() || bIsAITradeWithHumanPossible ? /*0 in CP, 10 in VP*/ GD_INT_GET(DEFENSIVE_PACT_LIMIT_SCALER) : /*10*/ min(GD_INT_GET(DEFENSIVE_PACT_LIMIT_SCALER), GD_INT_GET(AI_DEFENSIVE_PACT_LIMIT_SCALER));
+	int iBaseLimit = isHuman(ISHUMAN_HANDICAP) || bIsAITradeWithHumanPossible ? /*99 in CP, 2 in VP*/ GD_INT_GET(DEFENSIVE_PACT_LIMIT_BASE) : /*2*/ min(GD_INT_GET(DEFENSIVE_PACT_LIMIT_BASE), GD_INT_GET(AI_DEFENSIVE_PACT_LIMIT_BASE));
+	int iLimitScaler = isHuman(ISHUMAN_HANDICAP) || bIsAITradeWithHumanPossible ? /*0 in CP, 10 in VP*/ GD_INT_GET(DEFENSIVE_PACT_LIMIT_SCALER) : /*10*/ min(GD_INT_GET(DEFENSIVE_PACT_LIMIT_SCALER), GD_INT_GET(AI_DEFENSIVE_PACT_LIMIT_SCALER));
 	if (iBaseLimit <= -1)
 		return 0;
 
@@ -32988,7 +33092,7 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn) // R: bDoTurn default
 				GetTreasury()->DoUpdateCityConnectionGold();
 
 				//no tactical AI for human, only make sure we have current postures in case we want the AI to take over (debugging)
-				if (isHuman() || /* if MP, invalidate for AI too */ kGame.isNetworkMultiPlayer()) {
+				if (isHuman(ISHUMAN_AI_UNITS) || /* if MP, invalidate for AI too */ kGame.isNetworkMultiPlayer()) {
 					GetTacticalAI()->GetTacticalAnalysisMap()->Invalidate();
 					GetHomelandAI()->Invalidate();
 				}
@@ -33020,7 +33124,7 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn) // R: bDoTurn default
 
 			if (GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
 			{
-				if (isHuman())
+				if (isHuman(ISHUMAN_AI_DIPLOMACY))
 				{
 					// JdH: we just activated a human
 					// later the AI players need to try to contact the player
@@ -33085,7 +33189,7 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn) // R: bDoTurn default
 			//important: healing and restoration of movement points
 			DoUnitReset();
 
-			if(!isHuman())
+			if(!isHuman(ISHUMAN_AI_UNITS))
 			{
 				RepositionInvalidUnits();
 			}
@@ -33453,7 +33557,7 @@ void CvPlayer::CheckForMurder(PlayerTypes ePossibleVictimPlayer)
 			}
 
 			// Leader pops up and whines
-			if (isMajorCiv() && !CvPreGame::isNetworkMultiplayerGame() && !kPossibleVictimPlayer.isHuman()) // Not humans or in MP
+			if (isMajorCiv() && !CvPreGame::isNetworkMultiplayerGame() && !kPossibleVictimPlayer.isHuman(ISHUMAN_AI_DIPLOMACY)) // Not humans or in MP
 			{
 				kPossibleVictimPlayer.GetDiplomacyAI()->DoKilledByPlayer(GetID());
 			}
@@ -33549,6 +33653,9 @@ const CvHandicapInfo& CvPlayer::getHandicapInfo() const
 
 HandicapTypes CvPlayer::getHandicapType() const
 {
+	if (MOD_HUMAN_USES_AI_HANDICAP && isHuman())
+		return (HandicapTypes)GD_INT_GET(AI_HANDICAP);
+
 	return CvPreGame::handicap(GetID());
 }
 
@@ -33613,7 +33720,7 @@ void CvPlayer::setLeaderType(LeaderHeadTypes eNewLeader)
 		GetPlayerTraits()->InitPlayerTraits();
 		recomputePolicyCostModifier();
 
-		if (!isHuman())
+		if (!isHuman(ISHUMAN_AI_DIPLOMACY))
 		{
 			// Update the player's biases (Leader_MajorCivApproachBiases)
 			// Nothing to do as they are not cached in CvPlayer
@@ -33682,7 +33789,7 @@ void CvPlayer::setTeam(TeamTypes eTeam)
 
 bool CvPlayer::IsAITeammateOfHuman() const
 {
-	if (isHuman())
+	if (isHuman(ISHUMAN_AI_DIPLOMACY))
 		return false;
 
 	const std::vector<PlayerTypes>& teammates = GET_TEAM(getTeam()).getPlayers();
@@ -33690,7 +33797,7 @@ bool CvPlayer::IsAITeammateOfHuman() const
 	{
 		CvPlayer& player = GET_PLAYER(teammates[i]);
 
-		if (player.isHuman() && player.isAlive())
+		if (player.isHuman(ISHUMAN_AI_DIPLOMACY) && player.isAlive())
 		{
 			return true;
 		}
@@ -35395,7 +35502,7 @@ void CvPlayer::DoBankruptcy()
 			pScrapUnit = pNavalUnit;
 
 		//AI players try to gift their units away
-		if (pScrapUnit && !isHuman())
+		if (pScrapUnit && !isHuman(ISHUMAN_AI_UNITS))
 		{
 			PlayerTypes eMinor = GetBestGiftTarget(pScrapUnit->getDomainType());
 			if (eMinor != NO_PLAYER)
@@ -35515,7 +35622,7 @@ void CvPlayer::ApplyWarDamage(PlayerTypes ePlayer, int iAmount, bool bNoRatingCh
 					continue;
 
 				// Capitulated vassals don't care, but they do get a bonus in CvDiplomacyAI::ChangeVassalProtectValue() if the damage to the foe was done near them.
-				if (!GET_PLAYER(eLoopPlayer).isHuman() && pDiplo->IsVassal(GetID()) && !pDiplo->IsVoluntaryVassalage(GetID()))
+				if (!GET_PLAYER(eLoopPlayer).isHuman(ISHUMAN_AI_DIPLOMACY) && pDiplo->IsVassal(GetID()) && !pDiplo->IsVoluntaryVassalage(GetID()))
 					continue;
 
 				// Are they at war with me too? Then they're happy that this player damaged us!
@@ -35906,7 +36013,7 @@ int CvPlayer::GetHighestWarWearinessPercent() const
 				continue;
 
 			// Exception between human and AI players: if the AI is unwilling to make peace, ignore war weariness from them.
-			if (isHuman() && !GET_PLAYER(eLoopPlayer).isHuman() && !GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsWantsPeaceWithPlayer(GetID()))
+			if (isHuman(ISHUMAN_AI_DIPLOMACY) && !GET_PLAYER(eLoopPlayer).isHuman(ISHUMAN_AI_DIPLOMACY) && !GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsWantsPeaceWithPlayer(GetID()))
 				continue;
 		}
 
@@ -35959,7 +36066,7 @@ PlayerTypes CvPlayer::GetHighestWarWearinessPlayer(bool bConsiderHappinessOnly) 
 				continue;
 
 			// Exception between human and AI players: if the AI is unwilling to make peace, ignore war weariness from them.
-			if (isHuman() && !GET_PLAYER(eLoopPlayer).isHuman() && !GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsWantsPeaceWithPlayer(GetID()))
+			if (isHuman(ISHUMAN_AI_DIPLOMACY) && !GET_PLAYER(eLoopPlayer).isHuman(ISHUMAN_AI_DIPLOMACY) && !GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsWantsPeaceWithPlayer(GetID()))
 				continue;
 		}
 
@@ -36355,7 +36462,7 @@ void CvPlayer::DoCivilianReturnLogic(bool bReturn, PlayerTypes eToPlayer, int iU
 			GET_PLAYER(eToPlayer).GetMinorCivAI()->ChangeFriendshipWithMajor(GetID(), iInfluence);
 		}
 		// Returned to major power
-		else if(!GET_PLAYER(eToPlayer).isHuman())
+		else if(!GET_PLAYER(eToPlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
 		{
 			// Additional diplo bonus for returning civilians in the early game, especially Settlers
 			int iTheirEra = GET_PLAYER(eToPlayer).GetCurrentEra();
@@ -36389,7 +36496,7 @@ void CvPlayer::DoCivilianReturnLogic(bool bReturn, PlayerTypes eToPlayer, int iU
 				GET_PLAYER(eToPlayer).GetDiplomacyAI()->ChangeNumCiviliansReturnedToMe(GetID(), 1);
 			}
 		}
-		else if(GET_PLAYER(eToPlayer).isHuman() && pNewUnit)
+		else if(GET_PLAYER(eToPlayer).isHuman(ISHUMAN_AI_DIPLOMACY) && pNewUnit)
 		{
 			CvNotifications* pNotification = GET_PLAYER(eToPlayer).GetNotifications();
 			if(pNotification)
@@ -36409,7 +36516,7 @@ void CvPlayer::DoCivilianReturnLogic(bool bReturn, PlayerTypes eToPlayer, int iU
 		if(eNewUnitType != pUnit->getUnitType())
 		{
 			// In OCC games, all captured settlers are converted
-			if ((pUnit->isFound() || pUnit->IsFoundAbroad()) && MOD_GLOBAL_GRATEFUL_SETTLERS && !(GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && isHuman()))
+			if ((pUnit->isFound() || pUnit->IsFoundAbroad()) && MOD_GLOBAL_GRATEFUL_SETTLERS && !(GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && isHuman(ISHUMAN_MECHANICS)))
 			{
 				int iDefectProb = gCustomMods.getOption("GLOBAL_GRATEFUL_SETTLERS_PERCENT", 20);
 				int iPercent = 0;
@@ -38007,7 +38114,7 @@ void CvPlayer::CheckForMonopoly(ResourceTypes eResource)
 					{
 						//Notify human players of this, as they'll care.
 						CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iPlayer);
-						if(GET_TEAM(kLoopPlayer.getTeam()).isHasMet(getTeam()) && kLoopPlayer.isHuman() && (kLoopPlayer.GetID() != GetID()))
+						if(GET_TEAM(kLoopPlayer.getTeam()).isHasMet(getTeam()) && kLoopPlayer.isHuman(ISHUMAN_NOTIFICATIONS) && (kLoopPlayer.GetID() != GetID()))
 						{
 							Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_OTHER_PLAYER_MONOPOLY_GAINED");
 							strMessage << pkResourceInfo->GetTextKey();
@@ -38048,7 +38155,7 @@ void CvPlayer::CheckForMonopoly(ResourceTypes eResource)
 					{
 						//Notify human players of this, as they'll care.
 						CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iPlayer);
-						if(GET_TEAM(kLoopPlayer.getTeam()).isHasMet(getTeam()) && kLoopPlayer.isHuman() && (kLoopPlayer.GetID() != GetID()))
+						if(GET_TEAM(kLoopPlayer.getTeam()).isHasMet(getTeam()) && kLoopPlayer.isHuman(ISHUMAN_NOTIFICATIONS) && (kLoopPlayer.GetID() != GetID()))
 						{
 							Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_OTHER_PLAYER_STRATEGIC_MONOPOLY_GAINED");
 							strMessage << pkResourceInfo->GetTextKey();
@@ -40830,7 +40937,7 @@ CvAIOperation* CvPlayer::getAIOperation(int iID)
 CvAIOperation* CvPlayer::addAIOperation(AIOperationTypes eOperationType, size_t iMaxMissingUnits, PlayerTypes eEnemy, CvCity* pTarget, CvCity* pMuster)
 {
 	//no AI operations for human players
-	if (isHuman())
+	if (isHuman(ISHUMAN_AI_UNITS))
 	{
 		CUSTOMLOG("warning: trying to create an AI operation for a human player!");
 		return NULL;
@@ -41803,28 +41910,10 @@ void CvPlayer::doResearch()
 	{
 		return;
 	}
-	bool bForceResearchChoice = false;
 	int iOverflowResearch = 0;
 
 	if(GetPlayerTechs()->IsResearch())
 	{
-		bForceResearchChoice = false;
-
-		// Force player to pick Research if he doesn't have anything assigned
-		if(GetPlayerTechs()->GetCurrentResearch() == NO_TECH)
-		{
-			if(GetID() == GC.getGame().getActivePlayer() && GetScienceTimes100() > 0)
-			{
-				chooseTech();
-			}
-
-			if(GC.getGame().getElapsedGameTurns() > 4)
-			{
-				AI_chooseResearch();
-
-				bForceResearchChoice = true;
-			}
-		}
 
 		TechTypes eCurrentTech = GetPlayerTechs()->GetCurrentResearch();
 		if(eCurrentTech == NO_TECH)
@@ -41844,9 +41933,18 @@ void CvPlayer::doResearch()
 			}
 		}
 
-		if(bForceResearchChoice)
+		// Force player to pick Research if he doesn't have anything assigned
+		if (GetPlayerTechs()->GetCurrentResearch() == NO_TECH)
 		{
-			clearResearchQueue();
+			if (!isHuman(ISHUMAN_AI_TECH_CHOICE))
+			{
+				AI_chooseResearch();
+			}
+			else if (GetID() == GC.getGame().getActivePlayer() && GetScienceTimes100() > 0)
+			{
+				chooseTech();
+			}
+
 		}
 	}
 	GetPlayerTechs()->CheckForTechAchievement();
@@ -42619,7 +42717,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 		int iNumFreeTechs = pkPolicyInfo->GetNumFreeTechs();
 		if (iNumFreeTechs > 0)
 		{
-			if (!isHuman())
+			if (!isHuman(ISHUMAN_AI_TECH_CHOICE))
 			{
 				for (int iI = 0; iI < iNumFreeTechs; iI++)
 				{
@@ -42661,7 +42759,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 						CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
 
 						// No settling units for One City Challenge
-						if (isHuman() && pkUnitInfo->IsFound() && GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
+						if (isHuman(ISHUMAN_MECHANICS) && pkUnitInfo->IsFound() && GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
 							continue;
 
 						// For Venice, replace any spawned settling unit with Merchant of Venice
@@ -42786,7 +42884,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 		// Add a Reformation belief if eligible, otherwise eligibility is checked every turn (at CvGameReligions::DoPlayerTurn())
 		if (pkPolicyInfo->IsAddReformationBelief() && GetReligions()->OwnsReligion(true) && !GetReligions()->HasAddedReformationBelief())
 		{
-			if (isHuman())
+			if (isHuman(ISHUMAN_AI_RELIGION_CHOICE))
 			{
 				CvNotifications* pNotifications = GetNotifications();
 				if (pNotifications)
@@ -44018,7 +44116,7 @@ void CvPlayer::createGreatGeneral(UnitTypes eGreatPersonUnit, int iX, int iY, bo
 		pGreatPeopleUnit->jumpToNearestValidPlot();
 
 	// Achievements and Stats
-	if (MOD_API_ACHIEVEMENTS && pGreatPeopleUnit->isHuman() && !GC.getGame().isGameMultiPlayer())
+	if (MOD_API_ACHIEVEMENTS && pGreatPeopleUnit->isHuman(ISHUMAN_ACHIEVEMENTS) && !GC.getGame().isGameMultiPlayer())
 	{
 		gDLL->IncrementSteamStat(ESTEAMSTAT_GREATGENERALS);
 		const char* strLeader = getLeaderTypeKey();
@@ -44515,7 +44613,7 @@ int CvPlayer::getNewCityProductionValue() const
 		iValue *= std::max(0, ((getHandicapInfo().getGrowthPerEraModifier() * GC.getGame().getCurrentEra()) + 100));
 		iValue /= 100;
 
-		if (!isHuman())
+		if (!isHuman(ISHUMAN_HANDICAP))
 		{
 			iValue *= GC.getGame().getHandicapInfo().getAIGrowthPercent();
 			iValue /= 100;
@@ -44566,7 +44664,7 @@ int CvPlayer::getGrowthThreshold(int iPopulation) const
 		iThreshold *= std::max(0, ((getHandicapInfo().getGrowthPerEraModifier() * GC.getGame().getCurrentEra()) + 100));
 		iThreshold /= 100;
 
-		if (!isHuman())
+		if (!isHuman(ISHUMAN_HANDICAP))
 		{
 			iThreshold *= GC.getGame().getHandicapInfo().getAIGrowthPercent();
 			iThreshold /= 100;
@@ -46317,7 +46415,7 @@ void CvPlayer::DoUpdateCoreCitiesForSpaceshipProduction()
 {
 	m_viCoreCitiesForSpaceshipProduction.clear();
 
-	if (isHuman() || !GetDiplomacyAI()->IsGoingForSpaceshipVictory())
+	if (isHuman(ISHUMAN_AI_CITY_PRODUCTION) || !GetDiplomacyAI()->IsGoingForSpaceshipVictory())
 		return;
 
 	int iNumCitiesToConsider = GD_INT_GET(AI_NUM_CORE_CITIES_FOR_SPACESHIP);
@@ -46504,7 +46602,7 @@ void CvPlayer::DoAnnounceReligionAdoption()
 	for(int iI = 0; iI < MAX_PLAYERS; iI++)
 	{
 		CvPlayerAI& thisPlayer = GET_PLAYER((PlayerTypes)iI);
-		if(thisPlayer.isHuman() && thisPlayer.isAlive() && thisPlayer.GetNotifications())
+		if(thisPlayer.isHuman(ISHUMAN_NOTIFICATIONS) && thisPlayer.isAlive() && thisPlayer.GetNotifications())
 		{
 			int iX = -1;
 			int iY = -1;
@@ -46743,12 +46841,15 @@ void CvPlayer::ChangeNumFreePolicies(int iChange)
 
 	if (iChange > 0 && getNumCities() > 0)
 	{
-		CvNotifications* pNotifications = GetNotifications();
-		if (pNotifications)
+		if (isHuman(ISHUMAN_AI_POLICY_CHOICE))
 		{
-			CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_FREE_POLICY");
-			CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_FREE_POLICY_SUMMARY");
-			pNotifications->Add(NOTIFICATION_FREE_POLICY, strBuffer, strSummary, -1, -1, -1);
+			CvNotifications* pNotifications = GetNotifications();
+			if (pNotifications)
+			{
+				CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_FREE_POLICY");
+				CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_FREE_POLICY_SUMMARY");
+				pNotifications->Add(NOTIFICATION_FREE_POLICY, strBuffer, strSummary, -1, -1, -1);
+			}
 		}
 	}
 }
@@ -46776,14 +46877,16 @@ void CvPlayer::ChangeNumFreeTenets(int iChange, bool bCountAsFreePolicies)
 
 	if(iChange > 0 && getNumCities() > 0)
 	{
-		CvNotifications* pNotifications = GetNotifications();
-		if(pNotifications)
+		if (isHuman(ISHUMAN_AI_POLICY_CHOICE))
 		{
-			CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_FREE_POLICY");
-			CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_FREE_POLICY_SUMMARY");
-			pNotifications->Add(NOTIFICATION_FREE_POLICY, strBuffer, strSummary, -1, -1, -1);
+			CvNotifications* pNotifications = GetNotifications();
+			if (pNotifications)
+			{
+				CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_FREE_POLICY");
+				CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_FREE_POLICY_SUMMARY");
+				pNotifications->Add(NOTIFICATION_FREE_POLICY, strBuffer, strSummary, -1, -1, -1);
+			}
 		}
-
 	}
 }
 
@@ -46803,7 +46906,7 @@ void CvPlayer::ChangeNumFreeGreatPeople(int iChange)
 
 	if (iChange > 0)
 	{
-		if (isHuman())
+		if (isHuman(ISHUMAN_AI_GREAT_PERSON_CHOICE))
 		{
 			CvNotifications* pNotifications = GetNotifications();
 			if (pNotifications)
@@ -46838,7 +46941,7 @@ void CvPlayer::ChangeNumMayaBoosts(int iChange)
 	m_iNumMayaBoosts = GetNumMayaBoosts() + iChange;
 	if(iChange > 0)
 	{
-		if(isHuman())
+		if(isHuman(ISHUMAN_AI_GREAT_PERSON_CHOICE))
 		{
 			CvNotifications* pNotifications = GetNotifications();
 			if(pNotifications)
@@ -46886,7 +46989,7 @@ void CvPlayer::ChangeNumFaithGreatPeople(int iChange)
 	m_iNumFaithGreatPeople = GetNumFaithGreatPeople() + iChange;
 	if(iChange > 0)
 	{
-		if(isHuman())
+		if(isHuman(ISHUMAN_AI_GREAT_PERSON_CHOICE))
 		{
 			CvNotifications* pNotifications = GetNotifications();
 			if(pNotifications)
@@ -47101,8 +47204,8 @@ bool CvPlayer::hasUnitsThatNeedAIUpdate() const
 	for (const CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
 	{
 		if (!pLoopUnit->TurnProcessed() &&
-			pLoopUnit->IsAutomated() &&
-			pLoopUnit->AI_getUnitAIType() != UNITAI_UNKNOWN &&
+			((pLoopUnit->IsAutomated() &&
+			pLoopUnit->AI_getUnitAIType() != UNITAI_UNKNOWN) || MOD_AI_CONTROL_UNITS) &&
 			pLoopUnit->canMove())
 		{
 			return true;

@@ -62,7 +62,7 @@ bool CvCitySiteEvaluator::CanFoundCity(const CvPlot* pPlot, const CvPlayer* pPla
 
 	if(GC.getGame().isFinalInitialized())
 	{
-		if(GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && pPlayer && pPlayer->isHuman())
+		if(GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && pPlayer && pPlayer->isHuman(ISHUMAN_MECHANICS))
 		{
 			if(pPlayer->getNumCities() > 0)
 			{
@@ -109,7 +109,7 @@ bool CvCitySiteEvaluator::CanFoundCity(const CvPlot* pPlot, const CvPlayer* pPla
 		}
 
 		// Has the AI agreed to not settle here?
-		if (!pPlayer->isHuman() && pPlayer->isMajorCiv())
+		if (!pPlayer->isHuman(ISHUMAN_AI_DIPLOMACY) && pPlayer->isMajorCiv())
 		{
 			vector<PlayerTypes> vNoSettlePlayers = pPlayer->GetDiplomacyAI()->GetPlayersWithNoSettlePolicy();
 			for (size_t i = 0; i < vNoSettlePlayers.size(); i++)
@@ -302,7 +302,7 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 	TeamTypes eTeam = pPlayer ? pPlayer->getTeam() : NO_TEAM;
 
 	// To avoid a bug, AI does not settle on Antiquity Sites
-	ResourceTypes ePlotResource = pPlot->getResourceType(pPlayer->isHuman() ? eTeam : NO_TEAM);
+	ResourceTypes ePlotResource = pPlot->getResourceType(pPlayer->isHuman(ISHUMAN_AI_UNITS) ? eTeam : NO_TEAM);
 	if (ePlotResource == (ResourceTypes)GD_INT_GET(ARTIFACT_RESOURCE) ||
 		ePlotResource == (ResourceTypes)GD_INT_GET(HIDDEN_ARTIFACT_RESOURCE))
 	{

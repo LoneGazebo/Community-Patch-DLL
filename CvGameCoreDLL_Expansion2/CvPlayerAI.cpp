@@ -103,39 +103,33 @@ void CvPlayerAI::AI_doTurnPre()
 	PRECONDITION(getLeaderType() != NO_LEADER, "getLeaderType() is not expected to be equal with NO_LEADER");
 	PRECONDITION(getCivilizationType() != NO_CIVILIZATION, "getCivilizationType() is not expected to be equal with NO_CIVILIZATION");
 
-	if(isHuman())
+	if (!isHuman(ISHUMAN_AI_UNITS))
 	{
-		return;
-	}
-
-	//make sure we iterate our units in a sensible order
-	struct CompareUnitPowerAscending
-	{
-		bool operator()(const CvUnit* a, const CvUnit* b)
+		//make sure we iterate our units in a sensible order
+		struct CompareUnitPowerAscending
 		{
-			if (a->GetPower() != b->GetPower())
-				return a->GetPower() > b->GetPower();
-			else //tiebreak
-				return a->GetID() < b->GetID();
-		}
-	};
+			bool operator()(const CvUnit* a, const CvUnit* b)
+			{
+				if (a->GetPower() != b->GetPower())
+					return a->GetPower() > b->GetPower();
+				else //tiebreak
+					return a->GetID() < b->GetID();
+			}
+		};
 
-	//this orders units by combat strength
-	m_units.OrderByContent( CompareUnitPowerAscending() );
-
-	AI_doResearch();
-	AI_considerAnnex();
-	AI_considerRaze();
+		//this orders units by combat strength
+		m_units.OrderByContent( CompareUnitPowerAscending() );
+	}
+	if (!isHuman(ISHUMAN_AI_CITY_MANAGEMENT))
+	{
+		AI_considerAnnex();
+		AI_considerRaze();
+	}
 }
 
 
 void CvPlayerAI::AI_doTurnPost()
 {
-	if(isHuman())
-	{
-		return;
-	}
-
 	if(isBarbarian())
 	{
 		return;
@@ -146,14 +140,20 @@ void CvPlayerAI::AI_doTurnPost()
 		return;
 	}
 
-	for(int i = 0; i < GC.getNumVictoryInfos(); ++i)
+	if (!isHuman())
 	{
-		AI_launch((VictoryTypes)i);
+		for (int i = 0; i < GC.getNumVictoryInfos(); ++i)
+		{
+			AI_launch((VictoryTypes)i);
+		}
 	}
 
-	ProcessGreatPeople();
-	GetEspionageAI()->DoTurn();
-	GetTradeAI()->DoTurn();
+	if (!isHuman(ISHUMAN_AI_UNITS))
+		ProcessGreatPeople();
+	if (!isHuman(ISHUMAN_AI_ESPIONAGE))
+		GetEspionageAI()->DoTurn();
+	if (!isHuman(ISHUMAN_AI_DIPLOMACY))
+		GetTradeAI()->DoTurn();
 }
 
 
@@ -207,7 +207,7 @@ void CvPlayerAI::AI_doTurnUnitsPost()
 	CvUnit* pLoopUnit = NULL;
 	int iLoop = 0;
 
-	if(!isHuman())
+	if(!isHuman(ISHUMAN_AI_UNIT_PROMOTIONS))
 	{
 		for(pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
 		{
@@ -269,7 +269,7 @@ void CvPlayerAI::AI_unitUpdate(bool bUpdateHomelandAI)
 		return;
 	}
 
-	if(isHuman())
+	if(isHuman(ISHUMAN_AI_UNITS))
 	{
 		CvUnit::dispatchingNetMessage(true);
 		GetTacticalAI()->UpdateVisibility();
@@ -289,7 +289,7 @@ void CvPlayerAI::AI_unitUpdate(bool bUpdateHomelandAI)
 
 void CvPlayerAI::AI_conquerCity(CvCity* pCity, bool bGift, bool bAllowSphereRemoval)
 {
-	if (isHuman())
+	if (isHuman(ISHUMAN_AI_CITY_MANAGEMENT))
 		return;
 
 	// What are our options for this city?
@@ -632,7 +632,7 @@ void CvPlayerAI::AI_chooseResearch()
 
 void CvPlayerAI::AI_considerAnnex()
 {
-	if (isHuman())
+	if (isHuman(ISHUMAN_AI_CITY_MANAGEMENT))
 		return;
 
 	AI_PERF("AI-perf.csv", "AI_ considerAnnex");
@@ -785,7 +785,7 @@ void CvPlayerAI::AI_considerAnnex()
 
 void CvPlayerAI::AI_considerRaze()
 {
-	if (isHuman() || !isMajorCiv())
+	if (isHuman(ISHUMAN_AI_CITY_MANAGEMENT) || !isMajorCiv())
 		return;
 
 	AI_PERF("AI-perf.csv", "AI_ considerRaze");
@@ -1193,7 +1193,7 @@ void CvPlayerAI::AI_DoEventChoice(EventTypes eChosenEvent)
 
 void CvPlayerAI::AI_doResearch()
 {
-	ASSERT(!isHuman(), "isHuman did not return false as expected");
+	ASSERT(!isHuman(ISHUMAN_AI_TECH_CHOICE), "isHuman did not return false as expected");
 
 	if(GetPlayerTechs()->GetCurrentResearch() == NO_TECH)
 	{
@@ -2322,7 +2322,7 @@ const vector<CvCity*> CvPlayerAI::GetBestCitiesForSpaceshipParts()
 /// if going for spaceship victory, the results from GetBestCitiesForSpaceshipParts are used to overwrite normal AI city production selection
 void CvPlayerAI::AI_doSpaceshipProduction()
 {
-	if (isHuman() || isMinorCiv() || !GetDiplomacyAI()->IsGoingForSpaceshipVictory())
+	if (isHuman(ISHUMAN_AI_CITY_PRODUCTION) || isMinorCiv() || !GetDiplomacyAI()->IsGoingForSpaceshipVictory())
 		return;
 
 	if (GetNumSpaceshipPartsBuildableNow(true) == 0)
@@ -2607,7 +2607,7 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit)
 	}
 
 	int iScore = 100;
-	if (!isHuman())
+	if (!isHuman(ISHUMAN_AI_DIPLOMACY))
 	{
 		EconomicAIStrategyTypes eNeedHappiness = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_HAPPINESS");
 		EconomicAIStrategyTypes eNeedHappinessCritical = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_HAPPINESS_CRITICAL");

@@ -458,10 +458,13 @@ void CvMilitaryAI::DoTurn()
 	//do this also for humans because AI relies on the data!
 	UpdateAttackTargets();
 
-	if(!m_pPlayer->isHuman())
+	if(!m_pPlayer->isHuman(ISHUMAN_AI_UNITS))
 	{
 		UpdateOperations();
-		MakeEmergencyPurchases();
+		if (!m_pPlayer->isHuman(ISHUMAN_AI_ECONOMY))
+		{
+			MakeEmergencyPurchases();
+		}
 		DisbandObsoleteUnits();
 	}
 
@@ -558,7 +561,7 @@ CvUnit* CvMilitaryAI::BuyEmergencyUnit(UnitAITypes eUnitType, CvCity* pCity)
 	}
 
 	// AI unit promotions have already been processed, so we need to do it explicitly here
-	if (pUnit)
+	if (pUnit && !pUnit->isHuman(ISHUMAN_AI_UNIT_PROMOTIONS))
 		pUnit->AI_promote();
 
 	if (pUnit)
