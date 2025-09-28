@@ -509,8 +509,6 @@ public:
 	bool IsImprovedByGiftFromMajor() const;
 	void SetImprovedByGiftFromMajor(bool bValue);
 
-	bool HasSpecialImprovement() const;
-
 	// Who built the improvement in this plot?
 	PlayerTypes GetPlayerThatBuiltImprovement() const;
 	void SetPlayerThatBuiltImprovement(PlayerTypes eBuilder);
