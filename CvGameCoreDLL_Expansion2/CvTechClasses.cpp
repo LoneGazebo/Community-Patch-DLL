@@ -1598,7 +1598,7 @@ bool CvPlayerTechs::IsNoResearchAvailable() const
 ///Check for Achievement
 void CvPlayerTechs::CheckForTechAchievement() const
 {
-	if (!MOD_API_ACHIEVEMENTS || !m_pPlayer->isHuman() || GC.getGame().isGameMultiPlayer())
+	if (!MOD_API_ACHIEVEMENTS || !m_pPlayer->isHuman(ISHUMAN_ACHIEVEMENTS) || GC.getGame().isGameMultiPlayer())
 		return;
 
 	//Check for Catherine Achievement
@@ -2553,7 +2553,7 @@ int CvTeamTechs::GetResearchCost(TechTypes eTech) const
 		iModifier /= 100;
 		iModifier *= std::max(0, ((pkHandicapInfo->getResearchPerEraModifier() * GC.getGame().getCurrentEra()) + 100));
 		iModifier /= 100;
-		if (!m_pTeam->isHuman())
+		if (!m_pTeam->isHuman(ISHUMAN_HANDICAP))
 		{
 			iModifier *= GC.getGame().getHandicapInfo().getAIResearchPercent();
 			iModifier /= 100;

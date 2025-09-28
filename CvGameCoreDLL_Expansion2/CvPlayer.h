@@ -201,7 +201,7 @@ public:
 	void UpdateDangerPlots();
 	void SetDangerPlotsDirty();
 
-	bool isHuman() const;
+	bool isHuman(IsHumanReason eIsHumanReason = OTHER_ISHUMAN_REASON) const;
 	bool isObserver() const;
 	bool isBarbarian() const;
 

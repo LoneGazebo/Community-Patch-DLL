@@ -761,13 +761,21 @@ void CvEconomicAI::DoTurn()
 		}
 	}
 
-	if (!m_pPlayer->isHuman())
+	if (!m_pPlayer->isHuman(ISHUMAN_AI_CITY_PRODUCTION))
 	{
 		// This needs to be called first
 		m_pPlayer->DoUpdateCoreCitiesForSpaceshipProduction();
 
 		DoHurry();
+	}
+
+	if (!m_pPlayer->isHuman(ISHUMAN_AI_CITY_MANAGEMENT))
+	{
 		DoPlotPurchases();
+	}
+
+	if (!m_pPlayer->isHuman(ISHUMAN_AI_ECONOMY))
+	{
 		DisbandExtraWorkers();
 		DisbandExtraArchaeologists();
 		DisbandLongObsoleteUnits();
@@ -780,15 +788,22 @@ void CvEconomicAI::DoTurn()
 		YieldTypes eFocusYield = NO_YIELD;
 		if (EconomicAIHelpers::IsTestStrategy_GS_Spaceship(m_pPlayer)) {
 			eFocusYield = YIELD_SCIENCE;
-		} else if (EconomicAIHelpers::IsTestStrategy_DevelopingReligion(m_pPlayer)) {
+		}
+		else if (EconomicAIHelpers::IsTestStrategy_DevelopingReligion(m_pPlayer)) {
 			eFocusYield = YIELD_FAITH;
-		} else if (EconomicAIHelpers::IsTestStrategy_LosingMoney((EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY", true), m_pPlayer)) {
+		}
+		else if (EconomicAIHelpers::IsTestStrategy_LosingMoney((EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY", true), m_pPlayer)) {
 			eFocusYield = YIELD_GOLD;
-		} else {
+		}
+		else
+		{
 			eFocusYield = YIELD_CULTURE;
 		}
 		
-		m_pPlayer->GetCulture()->DoSwapGreatWorks(eFocusYield);
+		if (!m_pPlayer->isHuman(ISHUMAN_AI_TOURISM))
+		{
+			m_pPlayer->GetCulture()->DoSwapGreatWorks(eFocusYield);
+		}
 	}
 }
 
@@ -3422,7 +3437,7 @@ bool EconomicAIHelpers::IsTestStrategy_EnoughReconSea(CvPlayer* pPlayer)
 /// "Developing Religion" Player Strategy: planning to create and spread religion
 bool EconomicAIHelpers::IsTestStrategy_DevelopingReligion(CvPlayer* pPlayer)
 {
-	if(pPlayer->isHuman())
+	if(pPlayer->isHuman(ISHUMAN_AI_ECONOMY))
 	{
 		return false;
 	}
@@ -3449,7 +3464,7 @@ bool EconomicAIHelpers::IsTestStrategy_DevelopingReligion(CvPlayer* pPlayer)
 /// "Tech Leader" player strategy: if the player is a leader technologically, they should build espionage buildings to slow stealing
 bool EconomicAIHelpers::IsTestStrategy_TechLeader(CvPlayer* pPlayer)
 {
-	if (pPlayer->isHuman())
+	if (pPlayer->isHuman(ISHUMAN_AI_ECONOMY))
 	{
 		return false;
 	}
@@ -3516,7 +3531,7 @@ bool EconomicAIHelpers::IsTestStrategy_EarlyExpansion(EconomicAIStrategyTypes eS
 	if (CannotMinorCiv(pPlayer, eStrategy))
 		return false;
 
-	if (pPlayer->isHuman() && GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
+	if (pPlayer->isHuman(ISHUMAN_MECHANICS) && GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
 		return false;
 
 	if(pPlayer->IsEmpireUnhappy())
@@ -3584,7 +3599,7 @@ bool EconomicAIHelpers::IsTestStrategy_EnoughExpansion(EconomicAIStrategyTypes e
 {
 	bool bCannotExpand = pPlayer->isBarbarian() || CannotMinorCiv(pPlayer, eStrategy) || pPlayer->GetPlayerTraits()->IsNoAnnexing();
 
-	if ((GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && pPlayer->isHuman()) || bCannotExpand)
+	if ((GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && pPlayer->isHuman(ISHUMAN_MECHANICS)) || bCannotExpand)
 	{
 		return true;
 	}
@@ -3776,14 +3791,14 @@ bool EconomicAIHelpers::IsTestStrategy_CitiesNeedNavalTileImprovement(EconomicAI
 bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer)
 {
 	// Never run this strategy for OCC, barbarians or minor civs
-	if ((GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && pPlayer->isHuman()) || pPlayer->isBarbarian() || CannotMinorCiv(pPlayer, eStrategy))
+	if ((GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && pPlayer->isHuman(ISHUMAN_MECHANICS)) || pPlayer->isBarbarian() || CannotMinorCiv(pPlayer, eStrategy))
 		return false;
 
 	if (pPlayer->GetNumCitiesFounded() == 0) //in this case homeland (first settler moves) should apply
 		return false;
 
 	// Never run this strategy for a human player
-	if(pPlayer->isHuman())
+	if(pPlayer->isHuman(ISHUMAN_AI_UNITS))
 		return false;
 
 	// Won't be allowed to settle ...
@@ -3843,7 +3858,7 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes eStrate
 bool EconomicAIHelpers::IsTestStrategy_TradeWithCityState(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer)
 {
 	// Never run this strategy for a human player
-	if (pPlayer->isHuman())
+	if (pPlayer->isHuman(ISHUMAN_AI_UNITS))
 		return false;
 
 	// Look at map for loose merchants
@@ -3883,7 +3898,7 @@ bool EconomicAIHelpers::IsTestStrategy_InfluenceCityState(EconomicAIStrategyType
 	int iStrategyWeight = 0;
 
 	// Never run this strategy for a human player
-	if(!pPlayer->isHuman())
+	if(!pPlayer->isHuman(ISHUMAN_AI_UNITS))
 	{
 		// Look at map for loose diplomats
 		for(pLoopUnit = pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = pPlayer->nextUnit(&iUnitLoop))
@@ -3921,7 +3936,7 @@ bool EconomicAIHelpers::IsTestStrategy_ConcertTour(EconomicAIStrategyTypes eStra
 	int iStrategyWeight = 0;
 
 	// Never run this strategy for a human player
-	if(!pPlayer->isHuman())
+	if(!pPlayer->isHuman(ISHUMAN_AI_UNITS))
 	{
 		// Look at map for loose merchants
 		for(pLoopUnit = pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = pPlayer->nextUnit(&iUnitLoop))
@@ -4188,7 +4203,7 @@ bool EconomicAIHelpers::IsTestStrategy_IslandStart(EconomicAIStrategyTypes eStra
 /// Are we running out of room on our current landmass?
 bool EconomicAIHelpers::IsTestStrategy_ExpandToOtherContinents(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer)
 {
-	if(GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && pPlayer->isHuman())
+	if(GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && pPlayer->isHuman(ISHUMAN_MECHANICS))
 		return false;
 
 	if (pPlayer->IsEmpireUnhappy() || CannotMinorCiv(pPlayer, eStrategy) || !pPlayer->getCapitalCity())

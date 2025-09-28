@@ -401,7 +401,7 @@ foundRequest:
 	// Send the request
 	m_bRequestActive = true;
 	DiploUIStateTypes eDiploType = requestIter->m_eDiploType;
-	if (GET_PLAYER(requestIter->m_eFromPlayer).isHuman())
+	if (GET_PLAYER(requestIter->m_eFromPlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
 	{
 		// disable leader root for human players (meeting, denouncing etc...)
 		eDiploType = DIPLO_UI_STATE_BLANK_DISCUSSION;
@@ -476,11 +476,14 @@ void CvDiplomacyRequests::DoAIMPDiplomacyWithHumans()
 	if (s_aDiploHumans.size() == 0)
 		return;
 
+	if (MOD_AI_CONTROL_DIPLOMACY)
+		return;
+
 	// just loop through all ai players and to diplomacy with active humans
 	for (int i = 0; i < MAX_CIV_PLAYERS; ++i)
 	{
 		CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)i);
-		if (kPlayer.isAlive() && !kPlayer.isHuman() && !kPlayer.isMinorCiv() && !kPlayer.isBarbarian())
+		if (kPlayer.isAlive() && !kPlayer.isHuman(ISHUMAN_AI_DIPLOMACY) && !kPlayer.isMinorCiv() && !kPlayer.isBarbarian())
 		{
 			kPlayer.GetDiplomacyAI()->DoTurn(DIPLO_HUMAN_PLAYERS);
 		}
@@ -547,7 +550,7 @@ void CvDiplomacyRequests::SendDealRequest(PlayerTypes eFromPlayer, PlayerTypes e
 	if(GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
 	{
 		PRECONDITION(eFromPlayer != NO_PLAYER);
-		ASSERT(!GET_PLAYER(eFromPlayer).isHuman(), "CvDiplomacyRequests::SendDealRequest must not be used by a human player!");
+		ASSERT(!GET_PLAYER(eFromPlayer).isHuman(ISHUMAN_AI_DIPLOMACY), "CvDiplomacyRequests::SendDealRequest must not be used by a human player!");
 
 		CvPlayer& kTo = GET_PLAYER(eToPlayer);
 		CvDiplomacyRequests* pDiploRequests = kTo.GetDiplomacyRequests();
@@ -612,7 +615,7 @@ void CvDiplomacyRequests::DoAIDiplomacy(PlayerTypes eTargetPlayer)
 						{
 							CvPlayer& kPlayer = GET_PLAYER(ePlayerLoop);
 
-							if(eTargetPlayer != ePlayerLoop && kPlayer.isAlive() && !kPlayer.isHuman() && !kPlayer.isMinorCiv() && !kPlayer.isBarbarian())
+							if(eTargetPlayer != ePlayerLoop && kPlayer.isAlive() && !kPlayer.isHuman(ISHUMAN_AI_DIPLOMACY) && !kPlayer.isMinorCiv() && !kPlayer.isBarbarian())
 							{
 								kPlayer.GetDiplomacyAI()->DoTurn(DIPLO_SPECIFIC_PLAYER,eTargetPlayer);
 								if(pkTargetRequests->HasPendingRequests())
@@ -652,7 +655,7 @@ bool CvDiplomacyRequests::HasActiveDiploRequestWithHuman(PlayerTypes eSourcePlay
 	for (int i = 0; i < MAX_CIV_PLAYERS; ++i)
 	{
 		CvPlayer& kTargetPlayer = GET_PLAYER((PlayerTypes)i);
-		if (kTargetPlayer.isHuman() && kTargetPlayer.isAlive() && (PlayerTypes)i != eSourcePlayer)
+		if (kTargetPlayer.isHuman(ISHUMAN_AI_DIPLOMACY) && kTargetPlayer.isAlive() && (PlayerTypes)i != eSourcePlayer)
 		{
 			if (kTargetPlayer.GetDiplomacyRequests()->HasActiveRequestFrom(eSourcePlayer))
 				return true;

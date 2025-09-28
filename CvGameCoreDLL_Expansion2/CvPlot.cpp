@@ -7676,7 +7676,7 @@ void CvPlot::setResourceType(ResourceTypes eNewValue, int iResourceNum, bool bFo
 				GET_PLAYER(getOwner()).GetDiplomacyAI()->SetWaitingForDigChoice(true);
 			}
 			// Hidden sites are ignored unless owner has unlocked Artistry or is human
-			else if (m_eResourceType == GD_INT_GET(HIDDEN_ARTIFACT_RESOURCE) && (GET_PLAYER(getOwner()).isHuman() || GET_PLAYER(getOwner()).GetPlayerPolicies()->IsPolicyBranchUnlocked((PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_AESTHETICS", true))))
+			else if (m_eResourceType == GD_INT_GET(HIDDEN_ARTIFACT_RESOURCE) && (GET_PLAYER(getOwner()).isHuman(ISHUMAN_AI_DIPLOMACY) || GET_PLAYER(getOwner()).GetPlayerPolicies()->IsPolicyBranchUnlocked((PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_AESTHETICS", true))))
 			{
 				GET_PLAYER(getOwner()).GetDiplomacyAI()->SetWaitingForDigChoice(true);
 			}
@@ -8310,7 +8310,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 						kPlayer.SetNumArchaeologyChoices(kPlayer.GetNumArchaeologyChoices() + 1);
 						kPlayer.GetCulture()->AddDigCompletePlot(this);
 
-						if (kPlayer.isHuman())
+						if (kPlayer.isHuman(ISHUMAN_AI_TOURISM))
 						{
 							CvNotifications* pNotifications = NULL;
 							Localization::String locString;
@@ -8325,7 +8325,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 							}
 
 							// Raiders of the Lost Ark achievement
-							if (MOD_API_ACHIEVEMENTS)
+							if (MOD_API_ACHIEVEMENTS && kPlayer.isHuman(ISHUMAN_ACHIEVEMENTS))
 							{
 								const char* szCivKey = kPlayer.getCivilizationTypeKey();
 								if (getOwner() != NO_PLAYER && !GC.getGame().isNetworkMultiPlayer() && strcmp(szCivKey, "CIVILIZATION_AMERICA") == 0)
@@ -8583,7 +8583,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 					// XP2 Achievement
 					if (eBuilder != NO_PLAYER && !GC.getGame().isGameMultiPlayer())
 					{
-						if (GET_PLAYER(eBuilder).isHuman() && GET_PLAYER(eBuilder).isLocalPlayer() && strncmp(newImprovementEntry.GetType(), "IMPROVEMENT_FEITORIA", 64) == 0)
+						if (GET_PLAYER(eBuilder).isHuman(ISHUMAN_ACHIEVEMENTS) && GET_PLAYER(eBuilder).isLocalPlayer() && strncmp(newImprovementEntry.GetType(), "IMPROVEMENT_FEITORIA", 64) == 0)
 						{
 							if (owningPlayer.isMinorCiv())
 							{
@@ -11499,7 +11499,7 @@ PlotVisibilityChangeResult CvPlot::changeVisibilityCount(TeamTypes eTeam, int iC
 		if (isCity())
 		{
 			// If the AI spots a human City, don't meet - wait for the human to find the AI
-			if (GET_TEAM(eTeam).isHuman() || !getPlotCity()->isHuman())
+			if ((GET_TEAM(eTeam).isHuman()) || !getPlotCity()->isHuman())
 			{
 				GET_TEAM(eTeam).meet(getTeam(), false);	// If there's a City here, we can assume its owner is the same as the plot owner
 			}
@@ -11909,7 +11909,7 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, CvUnit* pUnit, bool bT
 		bVisibilityUpdated = true;
 		m_bfRevealed.ToggleBit(eTeam);
 
-		bool bEligibleForAchievement = MOD_API_ACHIEVEMENTS ? GET_PLAYER(GC.getGame().getActivePlayer()).isHuman() && !GC.getGame().isGameMultiPlayer() : false;
+		bool bEligibleForAchievement = MOD_API_ACHIEVEMENTS ? GET_PLAYER(GC.getGame().getActivePlayer()).isHuman(ISHUMAN_ACHIEVEMENTS) && !GC.getGame().isGameMultiPlayer() : false;
 
 		if(area())
 		{
@@ -12664,7 +12664,7 @@ bool CvPlot::changeBuildProgress(BuildTypes eBuild, int iChange, PlayerTypes ePl
 						kPlayer.SetNumArchaeologyChoices(kPlayer.GetNumArchaeologyChoices() + 1);
 						kPlayer.GetCulture()->AddDigCompletePlot(this);
 
-						if (kPlayer.isHuman())
+						if (kPlayer.isHuman(ISHUMAN_AI_TOURISM))
 						{
 							CvNotifications* pNotifications = NULL;
 							Localization::String locString;
@@ -12679,7 +12679,7 @@ bool CvPlot::changeBuildProgress(BuildTypes eBuild, int iChange, PlayerTypes ePl
 							}
 
 							// Raiders of the Lost Ark achievement
-							if (MOD_API_ACHIEVEMENTS)
+							if (MOD_API_ACHIEVEMENTS && kPlayer.isHuman(ISHUMAN_ACHIEVEMENTS))
 							{
 								const char* szCivKey = kPlayer.getCivilizationTypeKey();
 								if (getOwner() != NO_PLAYER && !GC.getGame().isNetworkMultiPlayer() && strcmp(szCivKey, "CIVILIZATION_AMERICA") == 0)

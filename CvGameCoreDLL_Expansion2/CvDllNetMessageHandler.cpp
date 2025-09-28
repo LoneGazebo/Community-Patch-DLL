@@ -401,7 +401,7 @@ void CvDllNetMessageHandler::ResponseFoundReligion(PlayerTypes ePlayer, Religion
 			// We don't want them to lose the opportunity to found the religion, and the Great Prophet is already gone so just repost the notification
 			// If someone beat them to the last religion, well... tough luck.
 			CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
-			if(kPlayer.isHuman() && eResult != CvGameReligions::FOUNDING_NO_RELIGIONS_AVAILABLE)
+			if(kPlayer.isHuman(ISHUMAN_AI_RELIGION_CHOICE) && eResult != CvGameReligions::FOUNDING_NO_RELIGIONS_AVAILABLE)
 			{
 				CvNotifications* pNotifications = kPlayer.GetNotifications();
 				if(pNotifications)
@@ -434,7 +434,7 @@ void CvDllNetMessageHandler::ResponseEnhanceReligion(PlayerTypes ePlayer, Religi
 		// We don't want them to lose the opportunity to enhance the religion, and the Great Prophet is already gone so just repost the notification
 		CvCity* pkCity = GC.getMap().plot(iCityX, iCityY)->getPlotCity();
 		CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
-		if(kPlayer.isHuman() && eResult != CvGameReligions::FOUNDING_NO_RELIGIONS_AVAILABLE && pkCity)
+		if(kPlayer.isHuman(ISHUMAN_AI_RELIGION_CHOICE) && eResult != CvGameReligions::FOUNDING_NO_RELIGIONS_AVAILABLE && pkCity)
 		{
 			CvNotifications* pNotifications = kPlayer.GetNotifications();
 			if(pNotifications)

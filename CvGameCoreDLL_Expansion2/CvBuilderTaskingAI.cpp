@@ -147,7 +147,7 @@ void CvBuilderTaskingAI::Update(void)
 
 	if(m_bLogging)
 	{
-		bool bShowOutput = m_pPlayer->isHuman();
+		bool bShowOutput = m_pPlayer->isHuman(ISHUMAN_LOGGING);
 
 		if(m_pPlayer->IsEmpireUnhappy())
 		{
@@ -2094,7 +2094,7 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirective(vector<OptionWithScore<Build
 	if (eExistingImprovement != NO_IMPROVEMENT)
 	{
 		// Do we have a special improvement here? (great person improvement, gifted improvement from major civ)
-		if (PlotHasSpecialImprovement(pPlot) || (m_pPlayer->isOption(PLAYEROPTION_SAFE_AUTOMATION) && m_pPlayer->isHuman()))
+		if (PlotHasSpecialImprovement(pPlot) || (m_pPlayer->isOption(PLAYEROPTION_SAFE_AUTOMATION) && m_pPlayer->isHuman(ISHUMAN_AI_UNITS)))
 		{
 			if (m_bLogging)
 			{
@@ -2155,7 +2155,7 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirective(vector<OptionWithScore<Build
 
 		if (!bWillConnectResource && bWillRemoveFeature)
 		{
-			if (m_pPlayer->isOption(PLAYEROPTION_LEAVE_FORESTS) && m_pPlayer->isHuman())
+			if (m_pPlayer->isOption(PLAYEROPTION_LEAVE_FORESTS) && m_pPlayer->isHuman(ISHUMAN_AI_UNITS))
 			{
 				if (m_bLogging) {
 						CvString strTemp;
@@ -2243,7 +2243,7 @@ void CvBuilderTaskingAI::AddRemoveRouteDirective(vector<OptionWithScore<BuilderD
 		return;
 
 	// If "Automated Workers Don't Replace Improvements" option is enabled, don't remove roads
-	if (m_pPlayer->isOption(PLAYEROPTION_SAFE_AUTOMATION) && m_pPlayer->isHuman())
+	if (m_pPlayer->isOption(PLAYEROPTION_SAFE_AUTOMATION) && m_pPlayer->isHuman(ISHUMAN_AI_UNITS))
 		return;
 
 	if (pPlot->GetPlannedRouteState(m_pPlayer->GetID()) >= ROAD_PLANNING_INCLUDE)
@@ -2727,7 +2727,7 @@ bool CvBuilderTaskingAI::PlotHasSpecialImprovement(const CvPlot* pPlot) const
 		}
 	}
 
-	if (m_pPlayer->isHuman())
+	if (m_pPlayer->isHuman(ISHUMAN_AI_UNITS))
 	{
 		// Great person improvements
 		ImprovementTypes eImprovement = pPlot->getImprovementType();
@@ -4537,7 +4537,7 @@ void CvBuilderTaskingAI::LogDirective(BuilderDirective directive, int iWeight, b
 		strLog += (", Chosen!");
 	}
 
-	LogInfo(strLog, m_pPlayer, m_pPlayer->isHuman());
+	LogInfo(strLog, m_pPlayer, m_pPlayer->isHuman(ISHUMAN_LOGGING));
 }
 
 // looks at the current plot to see what it's worth

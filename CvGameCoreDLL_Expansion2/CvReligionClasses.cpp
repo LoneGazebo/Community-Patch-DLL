@@ -589,7 +589,7 @@ void CvGameReligions::DoPlayerTurn(CvPlayer& kPlayer)
 	}
 
 	// If just now can afford missionary, add a notification
-	bool bSendFaithPurchaseNotification = (kPlayer.isHuman() && kPlayer.GetFaithPurchaseType() == NO_AUTOMATIC_FAITH_PURCHASE);
+	bool bSendFaithPurchaseNotification = kPlayer.isHuman(ISHUMAN_AI_FAITH_SPENDING) && kPlayer.GetFaithPurchaseType() == NO_AUTOMATIC_FAITH_PURCHASE;
 
 	if (bSendFaithPurchaseNotification) 
 	{
@@ -623,7 +623,7 @@ void CvGameReligions::DoPlayerTurn(CvPlayer& kPlayer)
 		if(CanCreatePantheon(kPlayer.GetID(), true) == FOUNDING_OK)
 		{
 			// Create the pantheon
-			if(kPlayer.isHuman())
+			if(kPlayer.isHuman(ISHUMAN_AI_RELIGION_CHOICE))
 			{
 				//If the player is human then a net message will be received which will pick the pantheon.
 				CvNotifications* pNotifications = kPlayer.GetNotifications();
@@ -657,7 +657,7 @@ void CvGameReligions::DoPlayerTurn(CvPlayer& kPlayer)
 	ReligionTypes eOwnedReligion = GET_PLAYER(ePlayer).GetReligions()->GetOwnedReligion();
 	if (eOwnedReligion != NO_RELIGION && !HasAddedReformationBelief(ePlayer) && (kPlayer.GetPlayerPolicies()->HasPolicyGrantingReformationBelief() || kPlayer.IsReformation()))
 	{
-		if (!kPlayer.isHuman())
+		if (!kPlayer.isHuman(ISHUMAN_AI_RELIGION_CHOICE)) // continue from here
 		{
 			BeliefTypes eReformationBelief = kPlayer.GetReligionAI()->ChooseReformationBelief(ePlayer, eOwnedReligion);
 			AddReformationBelief(ePlayer, eOwnedReligion, eReformationBelief);
@@ -678,6 +678,10 @@ void CvGameReligions::DoPlayerTurn(CvPlayer& kPlayer)
 	bool bSelectionStillValid = true;
 	CvString szItemName = "";
 	ReligionTypes eReligion = kPlayer.GetReligionAI()->GetReligionToSpread(true);
+
+	// AI shouldn't do human automatic faith purchases (e.g. if in observer mode)
+	if (!kPlayer.isHuman(ISHUMAN_AI_FAITH_SPENDING))
+		return;
 
 	switch (kPlayer.GetFaithPurchaseType())
 	{
@@ -1017,7 +1021,7 @@ void CvGameReligions::FoundPantheon(PlayerTypes ePlayer, BeliefTypes eBelief)
 
 	if(kPlayer.GetPlayerTraits()->IsAdoptionFreeTech())
 	{
-		if (!kPlayer.isHuman())
+		if (!kPlayer.isHuman(ISHUMAN_AI_TECH_CHOICE))
 		{
 			kPlayer.AI_chooseFreeTech();
 		}
@@ -1161,7 +1165,7 @@ void CvGameReligions::FoundReligion(PlayerTypes ePlayer, ReligionTypes eReligion
 
 	if(kPlayer.GetPlayerTraits()->IsAdoptionFreeTech())
 	{
-		if (!kPlayer.isHuman())
+		if (!kPlayer.isHuman(ISHUMAN_AI_TECH_CHOICE))
 		{
 			kPlayer.AI_chooseFreeTech();
 		}
@@ -1458,7 +1462,7 @@ void CvGameReligions::EnhanceReligion(PlayerTypes ePlayer, ReligionTypes eReligi
 
 	if (kPlayer.GetPlayerTraits()->IsAdoptionFreeTech())
 	{
-		if (!kPlayer.isHuman())
+		if (!kPlayer.isHuman(ISHUMAN_AI_TECH_CHOICE))
 		{
 			kPlayer.AI_chooseFreeTech();
 		}
@@ -1640,7 +1644,7 @@ void CvGameReligions::AddReformationBelief(PlayerTypes ePlayer, ReligionTypes eR
 
 	if(kPlayer.GetPlayerTraits()->IsAdoptionFreeTech())
 	{
-		if (!kPlayer.isHuman())
+		if (!kPlayer.isHuman(ISHUMAN_AI_TECH_CHOICE))
 		{
 			kPlayer.AI_chooseFreeTech();
 		}
@@ -3094,7 +3098,7 @@ bool CvGameReligions::CheckSpawnGreatProphet(CvPlayer& kPlayer)
 	{
 		if(MOD_NO_AUTO_SPAWN_PROPHET)
 		{
-			if (kPlayer.isHuman())
+			if (kPlayer.isHuman(ISHUMAN_AI_FAITH_SPENDING))
 			{
 				switch (kPlayer.GetFaithPurchaseType())
 				{
@@ -3131,7 +3135,7 @@ bool CvGameReligions::CheckSpawnGreatProphet(CvPlayer& kPlayer)
 		{
 			if(MOD_NO_AUTO_SPAWN_PROPHET)
 			{
-				if (!kPlayer.isHuman() || prophetboughtwithfaith)
+				if (!kPlayer.isHuman(ISHUMAN_AI_FAITH_SPENDING) || prophetboughtwithfaith)
 				{
 					kPlayer.ChangeFaith(-1 * iCost);
 				}
@@ -3143,7 +3147,7 @@ bool CvGameReligions::CheckSpawnGreatProphet(CvPlayer& kPlayer)
 		{
 			if(MOD_NO_AUTO_SPAWN_PROPHET)
 			{
-				if (!kPlayer.isHuman() || prophetboughtwithfaith)
+				if (!kPlayer.isHuman(ISHUMAN_AI_FAITH_SPENDING) || prophetboughtwithfaith)
 				{
 					kPlayer.SetFaithTimes100(0);
 				}
@@ -3192,7 +3196,7 @@ bool CvGameReligions::CheckSpawnGreatProphet(CvPlayer& kPlayer)
 		{
 			if(MOD_NO_AUTO_SPAWN_PROPHET)
 			{
-				if (kPlayer.isHuman())
+				if (kPlayer.isHuman(ISHUMAN_AI_FAITH_SPENDING))
 				{
 					switch (kPlayer.GetFaithPurchaseType())
 					{
@@ -3229,7 +3233,7 @@ bool CvGameReligions::CheckSpawnGreatProphet(CvPlayer& kPlayer)
 			{
 				if(MOD_NO_AUTO_SPAWN_PROPHET)
 				{			
-					if (!kPlayer.isHuman() || prophetboughtwithfaith)
+					if (!kPlayer.isHuman(ISHUMAN_AI_FAITH_SPENDING) || prophetboughtwithfaith)
 					{
 						kPlayer.ChangeFaith(-1 * iCost);
 					}
@@ -3243,7 +3247,7 @@ bool CvGameReligions::CheckSpawnGreatProphet(CvPlayer& kPlayer)
 			{
 				if(MOD_NO_AUTO_SPAWN_PROPHET)
 				{
-					if (!kPlayer.isHuman() || prophetboughtwithfaith)
+					if (!kPlayer.isHuman(ISHUMAN_AI_FAITH_SPENDING) || prophetboughtwithfaith)
 					{
 						kPlayer.SetFaithTimes100(0);
 					}
@@ -3521,7 +3525,7 @@ int CvPlayerReligions::GetCostNextProphet(bool bIncludeBeliefDiscounts, bool bAd
 			iCost *= m_pPlayer->getHandicapInfo().getProphetPercent();
 			iCost /= 100;
 
-			if (!m_pPlayer->isHuman())
+			if (!m_pPlayer->isHuman(ISHUMAN_HANDICAP))
 			{
 				iCost *= GC.getGame().getHandicapInfo().getAIProphetPercent();
 				iCost /= 100;
@@ -5957,7 +5961,7 @@ FDataStream& operator<<(FDataStream& stream, const CvReligionAI& religionAI)
 void CvReligionAI::DoTurn()
 {
 	// Only AI players use this function for now
-	if (m_pPlayer->isHuman())
+	if (m_pPlayer->isHuman(ISHUMAN_AI_FAITH_SPENDING))
 		return;
 
 	//buy inquisitors in unprotected cities if an enemy prophet is near or buy missionaries to spread our faith
@@ -11719,7 +11723,7 @@ bool CvReligionAIHelpers::PassesTeammateReligionCheck(ReligionTypes eReligion, P
 	if (eController == NO_PLAYER || eController == ePlayer)
 		return true;
 
-	if (bMustBeHuman && !GET_PLAYER(eController).isHuman())
+	if (bMustBeHuman && !GET_PLAYER(eController).isHuman(ISHUMAN_MECHANICS))
 		return true;
 
 	return GET_PLAYER(eController).getTeam() != GET_PLAYER(ePlayer).getTeam();

@@ -236,7 +236,7 @@ int CvNotifications::AddByName(const char* pszNotificationName, const char* strM
 int CvNotifications::Add(NotificationTypes eNotificationType, const char* strMessage, const char* strSummary, int iX, int iY, int iGameDataIndex, int iExtraGameData)
 {
 	// if the player is not human, do not record
-	if(!GET_PLAYER(m_ePlayer).isHuman())
+	if(!GET_PLAYER(m_ePlayer).isHuman(ISHUMAN_NOTIFICATIONS))
 	{
 		return -1;
 	}
@@ -874,7 +874,7 @@ void CvNotifications::Activate(Notification& notification)
 			// JdH => we need to switch behaviour for AI vs Human players.
 			PlayerTypes eFrom = static_cast<PlayerTypes>(notification.m_iX);
 			CvPlayer& kFrom = GET_PLAYER(eFrom);
-			if (kFrom.isHuman() && notification.m_iY != -2 /* request hack */)
+			if (kFrom.isHuman(ISHUMAN_AI_DIPLOMACY) && notification.m_iY != -2 /* request hack */)
 			{
 			// Keep old PvP notification behaviour
 				GC.GetEngineUserInterface()->OpenPlayerDealScreen(eFrom);
@@ -1704,7 +1704,7 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 
 #if defined(MOD_ACTIVE_DIPLOMACY)
 		PlayerTypes eFrom = static_cast<PlayerTypes>(m_aNotifications[iIndex].m_iX);
-		if((!GET_PLAYER(m_ePlayer).isHuman() || !GET_PLAYER(eFrom).isHuman()) && GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
+		if ((!GET_PLAYER(m_ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY) || !GET_PLAYER(eFrom).isHuman(ISHUMAN_AI_DIPLOMACY)) && GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
 		{
 			if (game.GetGameDeals().GetProposedMPDeal(m_ePlayer, eFrom, true) == NULL)
 			{
@@ -1733,7 +1733,7 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 #if defined(MOD_ACTIVE_DIPLOMACY)
 		PlayerTypes eFrom = static_cast<PlayerTypes>(m_aNotifications[iIndex].m_iX);
 		// DN: Not understanding the rationale behind this code and it seems there is more to it but skipping it for human-human deals fixes not getting notifications for those deals and doesn't *seem* to break anything (although some code may be redundant now)
-		if((!GET_PLAYER(m_ePlayer).isHuman() || !GET_PLAYER(eFrom).isHuman()) && GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
+		if((!GET_PLAYER(m_ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY) || !GET_PLAYER(eFrom).isHuman(ISHUMAN_AI_DIPLOMACY)) && GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
 		{
 			// JdH =>			
 			if (!GET_PLAYER(m_ePlayer).GetDiplomacyRequests()->HasActiveRequestFrom(eFrom))

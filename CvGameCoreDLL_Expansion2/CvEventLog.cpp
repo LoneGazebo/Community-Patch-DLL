@@ -60,7 +60,7 @@ void CvEventLog::Uninit(void)
 bool CvEventLog::Add(const char* szMessage, PlayerTypes eOtherPlayerID, int iX, int iY, int iData1, int iData2, int iData3, int iData4)
 {
 	// if the player is not human, do not record
-	if (!GET_PLAYER(m_ePlayer).isHuman())
+	if (!GET_PLAYER(m_ePlayer).isHuman(ISHUMAN_UI))
 	{
 		return false;
 	}

@@ -108,7 +108,7 @@ void CvTreasury::DoGold()
 		m_GoldBalanceForTurnTimes100.push_back(GetGoldTimes100());
 	}
 
-	if (MOD_API_ACHIEVEMENTS && m_pPlayer->isHuman() && !GC.getGame().isGameMultiPlayer())
+	if (MOD_API_ACHIEVEMENTS && m_pPlayer->isHuman(ISHUMAN_ACHIEVEMENTS) && !GC.getGame().isGameMultiPlayer())
 	{
 		int iGoldDelta = (GetGoldFromCitiesTimes100(false) - GetGoldFromCitiesTimes100(true)) / 100;
 		if (iGoldDelta >= 200)
@@ -470,7 +470,7 @@ int CvTreasury::CalculateUnitCost()
 	int iCostPerUnit = m_pPlayer->getGoldPerUnitTimes100(); // 0.5 GPT per unit
 
 	int iFreeUnits = playerHandicap.getMaintenanceFreeUnits() + m_pPlayer->GetNumMaintenanceFreeUnits() + m_pPlayer->getBaseFreeUnits();
-	iFreeUnits += m_pPlayer->isHuman() ? 0 : GC.getGame().getHandicapInfo().getAIMaintenanceFreeUnits();
+	iFreeUnits += m_pPlayer->isHuman(ISHUMAN_HANDICAP) ? 0 : GC.getGame().getHandicapInfo().getAIMaintenanceFreeUnits();
 
 	int iPaidUnits = max(0, m_pPlayer->getNumUnits() - iFreeUnits);
 
@@ -549,7 +549,7 @@ int CvTreasury::CalculateUnitCost()
 
 		dDifference *= playerHandicap.getInflationPercent();
 		dDifference /= 100;
-		if (!m_pPlayer->isHuman())
+		if (!m_pPlayer->isHuman(ISHUMAN_HANDICAP))
 		{
 			dDifference *= GC.getGame().getHandicapInfo().getAIInflationPercent();
 			dDifference /= 100;
@@ -573,7 +573,7 @@ int CvTreasury::CalculateUnitCost()
 	{
 		dFinalCost *= playerHandicap.getUnitCostPercent();
 		dFinalCost /= 100;
-		if (!m_pPlayer->isHuman())
+		if (!m_pPlayer->isHuman(ISHUMAN_HANDICAP))
 		{
 			dFinalCost *= GC.getGame().getHandicapInfo().getAIUnitCostPercent();
 			dFinalCost /= 100;
@@ -634,7 +634,7 @@ int CvTreasury::GetBuildingGoldMaintenance() const
 		const CvHandicapInfo& playerHandicap = m_pPlayer->getHandicapInfo();
 		iMaintenance *= playerHandicap.getBuildingCostPercent();
 		iMaintenance /= 100;
-		if (!m_pPlayer->isHuman())
+		if (!m_pPlayer->isHuman(ISHUMAN_HANDICAP))
 		{
 			iMaintenance *= GC.getGame().getHandicapInfo().getAIBuildingCostPercent();
 			iMaintenance /= 100;
@@ -680,7 +680,7 @@ int CvTreasury::GetImprovementGoldMaintenance() const
 	{
 		iMaintenance *= m_pPlayer->getHandicapInfo().getImprovementCostPercent();
 		iMaintenance /= 100;
-		if (!m_pPlayer->isHuman())
+		if (!m_pPlayer->isHuman(ISHUMAN_HANDICAP))
 		{
 			iMaintenance *= GC.getGame().getHandicapInfo().getAIImprovementCostPercent();
 			iMaintenance /= 100;

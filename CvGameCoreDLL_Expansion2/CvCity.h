@@ -498,7 +498,7 @@ public:
 	CitySizeTypes getCitySizeType() const;
 
 	bool isBarbarian() const;
-	bool isHuman() const;
+	bool isHuman(IsHumanReason eIsHumanReason = OTHER_ISHUMAN_REASON) const;
 	bool isVisible(TeamTypes eTeam, bool bDebug) const;
 
 	bool isHumanAutomated() const;
