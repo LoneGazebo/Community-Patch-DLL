@@ -28375,7 +28375,8 @@ void CvPlayer::recomputeGreatPeopleModifiers()
 	const GreatPersonTypes eArtist = static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_ARTIST"));
 	const GreatPersonTypes eMusician = static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_MUSICIAN"));
 	const GreatPersonTypes eWriter = static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_WRITER"));
-	const GreatPersonTypes eDiplomat = static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_DIPLOMAT"));
+	// Great Diplomats (only in VP)
+	const GreatPersonTypes eDiplomat = static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_DIPLOMAT", true));
 
 	CvTeam& kTeam = GET_TEAM(getTeam());
 
@@ -28398,7 +28399,10 @@ void CvPlayer::recomputeGreatPeopleModifiers()
 	ChangeGreatPersonRateModifier(eMusician, m_pPlayerPolicies->GetNumericModifier(POLICYMOD_GREAT_MUSICIAN_RATE));
 	ChangeGreatPersonRateModifier(eMerchant, m_pPlayerPolicies->GetNumericModifier(POLICYMOD_GREAT_MERCHANT_RATE));
 	ChangeGreatPersonRateModifier(eEngineer, m_pPlayerPolicies->GetNumericModifier(POLICYMOD_GREAT_ENGINEER_RATE));
-	ChangeGreatPersonRateModifier(eDiplomat, m_pPlayerPolicies->GetNumericModifier(POLICYMOD_GREAT_DIPLOMAT_RATE));
+	if (eDiplomat != NO_GREATPERSON)
+	{
+		ChangeGreatPersonRateModifier(eDiplomat, m_pPlayerPolicies->GetNumericModifier(POLICYMOD_GREAT_DIPLOMAT_RATE));
+	}
 	ChangeGreatPersonRateModifier(eScientist, m_pPlayerPolicies->GetNumericModifier(POLICYMOD_GREAT_SCIENTIST_RATE));
 
 	// Next add in buildings
