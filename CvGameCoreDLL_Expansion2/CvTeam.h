@@ -470,6 +470,9 @@ public:
 
 	int GetSSProjectCount(bool bIncludeApollo = true);
 
+	bool CanBuildOceanCrossingUnit() const;
+	void SetCanBuildOceanCrossingUnit(bool bValue);
+
 	// Wrapper for giving Players on this Team a notification message
 	void AddNotification(NotificationTypes eNotificationType, const char* strMessage, const char* strSummary, int iX = -1, int iY = -1, int iGameDataIndex = -1, int iExtraGameData = -1);
 
@@ -531,6 +534,8 @@ protected:
 
 	bool m_bMapCentering;
 	bool m_bHasTechForWorldCongress;
+
+	bool m_bCanBuildOceanCrossingUnit;
 
 	EraTypes m_eCurrentEra;
 

@@ -300,8 +300,9 @@ FDataStream& operator>>(FDataStream&, CvPurchaseRequest&);
 namespace EconomicAIHelpers
 {
 
+bool IsPotentialLandExplorer(CvUnitEntry& kUnitInfo);
 bool IsPotentialNavalExplorer(UnitAITypes eType);
-int ScoreExplorePlot(CvPlot* pPlot, CvPlayer* pPlayer, DomainTypes eDomainType, bool bEmbarked);
+int ScoreExplorePlot(CvPlot* pPlot, CvPlayer* pPlayer, DomainTypes eDomainType, bool bEmbarked, bool bCanPopGoody);
 int GetWeightThresholdModifier(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer);
 
 // Functions that check triggers to see if a strategy should be adopted/continued

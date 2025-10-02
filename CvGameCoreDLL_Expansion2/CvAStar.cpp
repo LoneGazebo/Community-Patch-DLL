@@ -2219,6 +2219,36 @@ int CityConnectionWaterValid(const CvAStarNode* parent, const CvAStarNode* node,
 }
 
 //	--------------------------------------------------------------------------------
+/// Can a work boat (safely) traverse this plot?
+static int WorkerSeaUnitSafeValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData& data, const CvAStar*)
+{
+	if (parent == NULL)
+		return TRUE;
+
+	PlayerTypes ePlayer = data.ePlayer;
+	TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
+
+	CvPlot* pNewPlot = GC.getMap().plotUnchecked(node->m_iX, node->m_iY);
+
+	if (!pNewPlot || !pNewPlot->isRevealed(eTeam))
+		return FALSE;
+
+	if (pNewPlot->getTeam() != eTeam && !pNewPlot->isAdjacentTeam(eTeam))
+		return FALSE;
+
+	if (pNewPlot->isDeepWater() && !GET_PLAYER(ePlayer).CanCrossOcean())
+		return FALSE;
+
+	if (pNewPlot->isIce() && !GET_PLAYER(ePlayer).CanCrossIce())
+		return FALSE;
+
+	if (!pNewPlot->isWater() && !pNewPlot->isCoastalCityOrPassableImprovement(ePlayer, true, true))
+		return FALSE;
+
+	return TRUE;
+}
+
+//	--------------------------------------------------------------------------------
 /// Prefer building routes that can have villages.
 static int BuildRouteVillageBonus(CvPlot* pPlot, RouteTypes eRouteType, CvBuilderTaskingAI* eBuilderTaskingAi)
 {
@@ -2821,6 +2851,10 @@ bool CvStepFinder::Configure(const SPathFinderUserData& config)
 		break;
 	case PT_AIR_REBASE:
 		SetFunctionPointers(NULL, StepHeuristic, NULL, RebaseValid, RebaseGetExtraChildren, UnitPathInitialize, UnitPathUninitialize);
+		m_iBasicPlotCost = PATH_BASE_COST;
+		break;
+	case PT_WORKER_SEA_UNIT_SAFE:
+		SetFunctionPointers(NULL, StepHeuristic, NULL, WorkerSeaUnitSafeValid, NULL, NULL, NULL);
 		m_iBasicPlotCost = PATH_BASE_COST;
 		break;
 	default:
