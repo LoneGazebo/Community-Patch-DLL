@@ -55,7 +55,7 @@ LuaEvents.SQUADS_OPTIONS_CHANGED.Add(SquadsOptionChanged);
 
 -- Mode Logic
 function SetSquadsMode(mode)
-    -- if mode == currentMode then return end
+    pSelectBoxStartPlot = nil;
     currentMode = mode;
 
     local iPlayer = Game.GetActivePlayer();
@@ -126,17 +126,9 @@ function UpdateMouse(gridX, gridY)
                 -- Determine box select direction across world wrap using mapW
                 if bBoxSelectingLeftToRight == nil and currentPlot:GetX() ~= pSelectBoxStartPlot:GetX() then
                     if currentPlot:GetX() > pSelectBoxStartPlot:GetX() then
-                        if currentPlot:GetX() - pSelectBoxStartPlot:GetX() > mapW / 2 then
-                            bBoxSelectingLeftToRight = false;
-                        else
-                            bBoxSelectingLeftToRight = true;
-                        end
+                        bBoxSelectingLeftToRight = currentPlot:GetX() - pSelectBoxStartPlot:GetX() < mapW / 2
                     else
-                        if pSelectBoxStartPlot:GetX() - currentPlot:GetX() > mapW / 2 then
-                            bBoxSelectingLeftToRight = true;
-                        else
-                            bBoxSelectingLeftToRight = false;
-                        end
+                        bBoxSelectingLeftToRight = pSelectBoxStartPlot:GetX() - currentPlot:GetX() > mapW / 2
                     end
                 end
                 if currentPlot:GetX() == pSelectBoxStartPlot:GetX() then
@@ -286,6 +278,7 @@ function DoBoxSelect()
         end
     end
     bBoxSelectingLeftToRight = nil;
+    pSelectBoxStartPlot = nil;
     return bUnitsSelected;
 end
 
