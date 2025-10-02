@@ -31,17 +31,11 @@ public:
 	int GetProductionCost() const;
 	int GetFaithCost() const;
 	bool IsRequiresFaithPurchaseEnabled() const;
-#if defined(MOD_GLOBAL_EXCLUDE_FROM_GIFTS)
-	bool IsNoMinorGifts() const;
-#endif
+	bool IsNoMinorCivUU() const;
 	bool IsPurchaseOnly() const;
 	bool CanMoveAfterPurchase() const;
-#if defined(MOD_GLOBAL_MOVE_AFTER_UPGRADE)
 	bool CanMoveAfterUpgrade() const;
-#endif
-#if defined(MOD_GLOBAL_CANNOT_EMBARK)
 	bool CannotEmbark() const;
-#endif
 	int GetHurryCostModifier() const;
 	int GetMinAreaSize() const;
 	int GetMoves() const;
@@ -83,10 +77,8 @@ public:
 	int GetBuilderStrength() const;
 #endif
 	bool IsCanBuyCityState() const;
-#if defined(MOD_GLOBAL_SEPARATE_GREAT_ADMIRAL)
 	bool IsCanRepairFleet() const;
 	bool IsCanChangePort() const;
-#endif
 	int GetCombat() const;
 #if defined(MOD_GLOBAL_STACKING_RULES)
 	int StackCombat() const;
@@ -109,9 +101,7 @@ public:
 	int GetSpecialUnitType() const;
 	int GetUnitCaptureClassType() const;
 	int GetUnitCombatType() const;
-#if defined(MOD_GLOBAL_PROMOTION_CLASSES)
 	int GetUnitPromotionType() const;
-#endif
 #if defined(MOD_EVENTS_CAN_MOVE_INTO)
 	bool IsSendCanMoveIntoEvent() const;
 #endif
@@ -141,12 +131,10 @@ public:
 	bool IsPillage() const;
 	bool IsFound() const;
 	bool IsFoundAbroad() const;
-#if defined(MOD_BALANCE_CORE_SETTLER_ADVANCED)
 	bool IsFoundMid() const;
 	bool IsFoundLate() const;
 	int GetNumColonyFound() const;
 	bool IsCityAttackSupport() const;
-#endif
 	int IsGPExtra() const;
 	int GetGoodyModifier() const;
 	int GetSupplyCapBoost() const;
@@ -249,17 +237,11 @@ private:
 	int m_iProductionCost;
 	int m_iFaithCost;
 	bool m_bRequiresFaithPurchaseEnabled;
-#if defined(MOD_GLOBAL_EXCLUDE_FROM_GIFTS)
-	bool m_bNoMinorGifts;
-#endif
+	bool m_bNoMinorCivUU;
 	bool m_bPurchaseOnly;
 	bool m_bMoveAfterPurchase;
-#if defined(MOD_GLOBAL_MOVE_AFTER_UPGRADE)
 	bool m_bMoveAfterUpgrade;
-#endif
-#if defined(MOD_GLOBAL_CANNOT_EMBARK)
 	bool m_bCannotEmbark;
-#endif
 	int m_iHurryCostModifier;
 	int m_iMinAreaSize;
 	int m_iMoves;
@@ -300,10 +282,8 @@ private:
 	int m_iBuilderStrength;
 #endif
 	bool m_bCanBuyCityState;
-#if defined(MOD_GLOBAL_SEPARATE_GREAT_ADMIRAL)
 	bool m_bCanRepairFleet;
 	bool m_bCanChangePort;
-#endif
 	int m_iCombat;
 #if defined(MOD_GLOBAL_STACKING_RULES)
 	int m_iStackCombat;
@@ -325,9 +305,7 @@ private:
 	int m_iSpecialUnitType;
 	int m_iUnitCaptureClassType;
 	int m_iUnitCombatType;
-#if defined(MOD_GLOBAL_PROMOTION_CLASSES)
 	int m_iUnitPromotionType;
-#endif
 #if defined(MOD_EVENTS_CAN_MOVE_INTO)
 	bool m_bSendCanMoveIntoEvent;
 #endif

@@ -1955,7 +1955,6 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 			yield[YIELD_FOOD] += PolicyInfo->GetHappinessPerXGreatWorks() * 5;
 		}
 	}
-#if defined(MOD_BALANCE_CORE_POLICIES)
 	if (PolicyInfo->GetExtraMissionaryStrength() != 0)
 	{
 		if (pPlayerTraits->IsReligious())
@@ -1979,7 +1978,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 			yield[YIELD_FAITH] += PolicyInfo->GetExtraMissionarySpreads() * 5;
 		}
 	}
-#endif
+
 	if (PolicyInfo->GetExtraHappinessPerLuxury() != 0)
 	{
 		if (pPlayerTraits->IsExpansionist() || pPlayerTraits->IsDiplomat())

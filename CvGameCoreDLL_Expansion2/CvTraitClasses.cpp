@@ -41,12 +41,8 @@ CvTraitEntry::CvTraitEntry() :
 	m_iCapitalBuildingModifier(0),
 	m_iPlotBuyCostModifier(0),
 	m_iNationalPopReqModifier(0),
-#if defined(MOD_TRAITS_CITY_WORKING)
 	m_iCityWorkingChange(0),
-#endif
-#if defined(MOD_TRAITS_CITY_AUTOMATON_WORKERS)
 	m_iCityAutomatonWorkersChange(0),
-#endif
 	m_iPlotCultureCostModifier(0),
 	m_iCultureFromKills(0),
 	m_iFaithFromKills(0),
@@ -488,21 +484,17 @@ int CvTraitEntry::GetNationalPopReqModifier() const
 	return m_iNationalPopReqModifier;
 }
 
-#if defined(MOD_TRAITS_CITY_WORKING)
 /// Accessor:: greater border expansion
 int CvTraitEntry::GetCityWorkingChange() const
 {
 	return m_iCityWorkingChange;
 }
-#endif
 
-#if defined(MOD_TRAITS_CITY_AUTOMATON_WORKERS)
 /// Accessor:: automaton workers
 int CvTraitEntry::GetCityAutomatonWorkersChange() const
 {
 	return m_iCityAutomatonWorkersChange;
 }
-#endif
 
 /// Accessor:: increased rate of culture border expansion
 int CvTraitEntry::GetPlotCultureCostModifier() const
@@ -2324,12 +2316,8 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_iCapitalBuildingModifier				= kResults.GetInt("CapitalBuildingModifier");
 	m_iPlotBuyCostModifier					= kResults.GetInt("PlotBuyCostModifier");
 	m_iNationalPopReqModifier				= kResults.GetInt("NationalPopReqModifier");
-#if defined(MOD_TRAITS_CITY_WORKING)
 	m_iCityWorkingChange					= kResults.GetInt("CityWorkingChange");
-#endif
-#if defined(MOD_TRAITS_CITY_AUTOMATON_WORKERS)
 	m_iCityAutomatonWorkersChange			= kResults.GetInt("CityAutomatonWorkersChange");
-#endif
 	m_iPlotCultureCostModifier              = kResults.GetInt("PlotCultureCostModifier");
 	m_iCultureFromKills						= kResults.GetInt("CultureFromKills");
 	m_iFaithFromKills						= kResults.GetInt("FaithFromKills");
@@ -4362,12 +4350,8 @@ void CvPlayerTraits::InitPlayerTraits()
 			m_iCapitalBuildingModifier += trait->GetCapitalBuildingModifier();
 			m_iPlotBuyCostModifier += trait->GetPlotBuyCostModifier();
 			m_iNationalPopReqModifier += trait->GetNationalPopReqModifier();
-#if defined(MOD_TRAITS_CITY_WORKING)
 			m_iCityWorkingChange += trait->GetCityWorkingChange();
-#endif
-#if defined(MOD_TRAITS_CITY_AUTOMATON_WORKERS)
 			m_iCityAutomatonWorkersChange += trait->GetCityAutomatonWorkersChange();
-#endif
 			m_iPlotCultureCostModifier += trait->GetPlotCultureCostModifier();
 			m_iCultureFromKills += trait->GetCultureFromKills();
 			m_iFaithFromKills += trait->GetFaithFromKills();
@@ -5270,12 +5254,8 @@ void CvPlayerTraits::Reset()
 	m_iCapitalBuildingModifier = 0;
 	m_iPlotBuyCostModifier = 0;
 	m_iNationalPopReqModifier = 0;
-#if defined(MOD_TRAITS_CITY_WORKING)
 	m_iCityWorkingChange = 0;
-#endif
-#if defined(MOD_TRAITS_CITY_AUTOMATON_WORKERS)
 	m_iCityAutomatonWorkersChange = 0;
-#endif
 	m_iPlotCultureCostModifier = 0;
 	m_iCultureFromKills = 0;
 	m_iFaithFromKills = 0;
@@ -6852,11 +6832,7 @@ FreeResourceXCities CvPlayerTraits::GetFreeResourceXCities(ResourceTypes eResour
 /// Is this civ currently able to cross mountains with combat units?
 bool CvPlayerTraits::IsAbleToCrossMountainsWithGreatGeneral() const
 {
-#if defined(MOD_GLOBAL_TRULY_FREE_GP)
 	return (m_bCrossesMountainsAfterGreatGeneral && m_pPlayer->getGreatGeneralsCreated(false) > 0);
-#else
-	return (m_bCrossesMountainsAfterGreatGeneral && m_pPlayer->getGreatGeneralsCreated() > 0);
-#endif
 }
 
 #if defined(MOD_TRAITS_CROSSES_ICE)

@@ -17,17 +17,11 @@ CvUnitEntry::CvUnitEntry(void) :
 	m_iProductionCost(0),
 	m_iFaithCost(0),
 	m_bRequiresFaithPurchaseEnabled(false),
-#if defined(MOD_GLOBAL_EXCLUDE_FROM_GIFTS)
-	m_bNoMinorGifts(false),
-#endif
+	m_bNoMinorCivUU(false),
 	m_bPurchaseOnly(false),
 	m_bMoveAfterPurchase(false),
-#if defined(MOD_GLOBAL_MOVE_AFTER_UPGRADE)
 	m_bMoveAfterUpgrade(false),
-#endif
-#if defined(MOD_GLOBAL_CANNOT_EMBARK)
 	m_bCannotEmbark(false),
-#endif
 	m_iHurryCostModifier(0),
 	m_iMinAreaSize(0),
 	m_iMoves(0),
@@ -79,10 +73,8 @@ CvUnitEntry::CvUnitEntry(void) :
 	m_iBuilderStrength(0),
 #endif
 	m_bCanBuyCityState(false),
-#if defined(MOD_GLOBAL_SEPARATE_GREAT_ADMIRAL)
 	m_bCanRepairFleet(false),
 	m_bCanChangePort(false),
-#endif
 	m_iCombat(0),
 #if defined(MOD_GLOBAL_STACKING_RULES)
 	m_iStackCombat(0),
@@ -103,9 +95,7 @@ CvUnitEntry::CvUnitEntry(void) :
 	m_iSpecialUnitType(NO_SPECIALUNIT),
 	m_iUnitCaptureClassType(NO_UNITCLASS),
 	m_iUnitCombatType(NO_UNITCOMBAT),
-#if defined(MOD_GLOBAL_PROMOTION_CLASSES)
 	m_iUnitPromotionType(NO_UNITCOMBAT),
-#endif
 #if defined(MOD_EVENTS_CAN_MOVE_INTO)
 	m_bSendCanMoveIntoEvent(false),
 #endif
@@ -245,17 +235,11 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	m_iProductionCost = kResults.GetInt("Cost");
 	m_iFaithCost = kResults.GetInt("FaithCost");
 	m_bRequiresFaithPurchaseEnabled = kResults.GetBool("RequiresFaithPurchaseEnabled");
-#if defined(MOD_GLOBAL_EXCLUDE_FROM_GIFTS)
-	m_bNoMinorGifts = kResults.GetBool("NoMinorGifts");
-#endif
+	m_bNoMinorCivUU = kResults.GetBool("NoMinorCivUU");
 	m_bPurchaseOnly = kResults.GetBool("PurchaseOnly");
 	m_bMoveAfterPurchase = kResults.GetBool("MoveAfterPurchase");
-#if defined(MOD_GLOBAL_MOVE_AFTER_UPGRADE)
 	m_bMoveAfterUpgrade = kResults.GetBool("MoveAfterUpgrade");
-#endif
-#if defined(MOD_GLOBAL_CANNOT_EMBARK)
 	m_bCannotEmbark = kResults.GetBool("CannotEmbark");
-#endif
 	m_iHurryCostModifier = kResults.GetInt("HurryCostModifier");
 	m_iMinAreaSize = kResults.GetInt("MinAreaSize");
 	m_iMoves = kResults.GetInt("Moves");
@@ -296,10 +280,8 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	m_iBuilderStrength = kResults.GetInt("BuilderStrength");
 #endif
 	m_bCanBuyCityState = kResults.GetBool("CanBuyCityState");
-#if defined(MOD_GLOBAL_SEPARATE_GREAT_ADMIRAL)
 	m_bCanRepairFleet = kResults.GetBool("CanRepairFleet");
 	m_bCanChangePort = kResults.GetBool("CanChangePort");
-#endif
 	m_iCombat = kResults.GetInt("Combat");
 	m_iRangedCombat = kResults.GetInt("RangedCombat");
 	m_bNoSupply = kResults.GetBool("NoSupply");
@@ -366,15 +348,11 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	szTextVal = kResults.GetText("CombatClass");
 	m_iUnitCombatType = GC.getInfoTypeForString(szTextVal, true);
 
-#if defined(MOD_GLOBAL_PROMOTION_CLASSES)
 	szTextVal = kResults.GetText("PromotionClass");
 	m_iUnitPromotionType = GC.getInfoTypeForString(szTextVal, true);
-
-	if (m_iUnitPromotionType == NO_UNITCOMBAT || !MOD_GLOBAL_PROMOTION_CLASSES) 
-	{
+	if (m_iUnitPromotionType == NO_UNITCOMBAT) 
 		m_iUnitPromotionType = m_iUnitCombatType;
-	}
-#endif
+
 #if defined(MOD_CARGO_SHIPS)
 	szTextVal = kResults.GetText("SpecialUnitCargoLoad");
 	m_iSpecialUnitCargoLoad = GC.getInfoTypeForString(szTextVal, true);
@@ -705,13 +683,11 @@ bool CvUnitEntry::IsRequiresFaithPurchaseEnabled() const
 	return m_bRequiresFaithPurchaseEnabled;
 }
 
-#if defined(MOD_GLOBAL_EXCLUDE_FROM_GIFTS)
-/// Can City States gift this unit?
-bool CvUnitEntry::IsNoMinorGifts() const
+/// Can City-States select this as a Unique Unit?
+bool CvUnitEntry::IsNoMinorCivUU() const
 {
-	return m_bNoMinorGifts;
+	return m_bNoMinorCivUU;
 }
-#endif
 
 /// Do we need to purchase this unit (i.e. can't be built)?
 bool CvUnitEntry::IsPurchaseOnly() const
@@ -725,21 +701,17 @@ bool CvUnitEntry::CanMoveAfterPurchase() const
 	return m_bMoveAfterPurchase;
 }
 
-#if defined(MOD_GLOBAL_MOVE_AFTER_UPGRADE)
 /// Can this unit move after being upgraded?
 bool CvUnitEntry::CanMoveAfterUpgrade() const
 {
 	return m_bMoveAfterUpgrade;
 }
-#endif
 
-#if defined(MOD_GLOBAL_CANNOT_EMBARK)
 /// Can this unit embark?
 bool CvUnitEntry::CannotEmbark() const
 {
 	return m_bCannotEmbark;
 }
-#endif
 
 /// Does it cost extra to hurry this init?
 int CvUnitEntry::GetHurryCostModifier() const
@@ -970,7 +942,6 @@ bool CvUnitEntry::IsCanBuyCityState() const
 	return m_bCanBuyCityState;
 }
 
-#if defined(MOD_GLOBAL_SEPARATE_GREAT_ADMIRAL)
 bool CvUnitEntry::IsCanRepairFleet() const
 {
 	return m_bCanRepairFleet;
@@ -980,7 +951,6 @@ bool CvUnitEntry::IsCanChangePort() const
 {
 	return m_bCanChangePort;
 }
-#endif
 
 /// Returns combat value
 int CvUnitEntry::GetCombat() const
@@ -1074,13 +1044,11 @@ int CvUnitEntry::GetUnitCombatType() const
 	return m_iUnitCombatType;
 }
 
-#if defined(MOD_GLOBAL_PROMOTION_CLASSES)
 /// Combat type for promotions - this permits subs and anti-air units to receive more meaningful promotion trees
 int CvUnitEntry::GetUnitPromotionType() const
 {
 	return m_iUnitPromotionType;
 }
-#endif
 
 #if defined(MOD_EVENTS_CAN_MOVE_INTO)
 /// Send CanMoveInto events for this unit type?
@@ -1228,7 +1196,6 @@ bool CvUnitEntry::IsFoundAbroad() const
 	return m_bFoundAbroad;
 }
 
-#if defined(MOD_BALANCE_CORE_SETTLER_ADVANCED)
 /// Can it start a city in the mid game?
 bool CvUnitEntry::IsFoundMid() const
 {
@@ -1263,8 +1230,6 @@ int CvUnitEntry::GetSupplyCapBoost() const
 {
 	return m_iSupplyCapBoost;
 }
-
-#endif
 
 /// Distance this unit steals
 int CvUnitEntry::GetCultureBombRadius() const

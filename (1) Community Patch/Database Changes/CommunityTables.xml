@@ -11,17 +11,10 @@
 	<Table name="CustomModOptions">
 		<Column name="Name" type="text" primarykey="true"/>
 		<Column name="Value" type="integer" default="1"/>
-		<!-- Class (unused in code, for modder reference) - Data=0, BugFix, API, Events, Minor, Common, Major -->
+		<!-- Class (unused in code, for modder reference) - Data=0, Bugfix, API, Events, Minor, Moderate, Major -->
 		<Column name="Class" type="integer" default="5"/>
+		<!-- DbUpdates - if set to 1, an entry in CustomModDbUpdates needs to be added [CustomModOptions.Name, 1] in order for this CustomModOption to be enabled. -->
 		<Column name="DbUpdates" type="integer" default="0"/>
-	</Table>
-
-	<!-- Values inserted in runtime into CustomModOptions by reference to GameInfoTypes[GameInfo[Table].Type] -->
-	<!-- Similar to the relationship between PostDefines and Defines -->
-	<Table name="CustomModPostDefines">
-		<Column name="Name" type="text" primarykey="true"/>
-		<Column name="Table" type="text"/>
-		<Column name="Type" type="text"/>
 	</Table>
 
 	<!-- Records database update success -->
@@ -31,5 +24,13 @@
 	<Table name="CustomModDbUpdates">
 		<Column name="Name" type="text" primarykey="true"/>
 		<Column name="Value" type="integer" default="0"/>
+	</Table>
+
+	<!-- Values inserted in runtime into CustomModOptions by reference to GameInfoTypes[GameInfo[Table].Type] -->
+	<!-- Similar to the relationship between PostDefines and Defines -->
+	<Table name="CustomModPostDefines">
+		<Column name="Name" type="text" primarykey="true"/>
+		<Column name="Table" type="text"/>
+		<Column name="Type" type="text"/>
 	</Table>
 </GameData>

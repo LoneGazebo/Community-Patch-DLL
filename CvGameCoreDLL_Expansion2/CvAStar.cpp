@@ -2058,7 +2058,7 @@ static void AddCityConnectionHarborConnections(const CvPlot* pPlot, const CvASta
 
 static void AddCityConnectionRiverConnections(CvPlot* pPlot, const CvAStar* finder, vector<pair<int, int>>& out)
 {
-	if (!MOD_RIVER_CITY_CONNECTIONS)
+	if (!MOD_BALANCE_RIVER_CITY_CONNECTIONS)
 		return;
 
 	RouteTypes eRoute = finder->GetData().eRoute;

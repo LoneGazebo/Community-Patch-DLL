@@ -1,211 +1,267 @@
 <?xml version="1.0" encoding="utf-8"?>
 <GameData>
 	<CustomModOptions>
-		<!-- V19 was the first version for BNW - all options prior to this are flagged as being for v19 -->
-
-		<!-- "See also: Mod Name" refers to mods on www.picknmixmods.com -->
-		<!-- Any option with a "See also" and a default value of 0 should not be enabled directly in this file but only via a mod -->
-
-		<!-- Class - Data=0, BugFix=1, API=2, Events=3, Minor=4, Common=5, Major=6 -->
-		<!-- 0=Data   - Data used by other components -->
-		<!-- 1=BugFix - Bug fixes, usually wanted -->
-		<!-- 2=API    - API, no effect and very minor overhead unless used by another mod -->
-		<!-- 3=Events - Events, overhead even if not used by another mod -->
-		<!-- 4=Minor  - Minor enhancements, limited game play changes -->
-		<!-- 5=Common - Common enhancements, obvious game play changes -->
-		<!-- 6=Major  - Major enhancements, massive game play changes -->
+		<!-- Class - Data=0, Bugfix=1, API=2, Events=3, Minor=4, Moderate=5, Major=6 -->
+		<!-- 0=Data   	- Data used by other components -->
+		<!-- 1=Bugfix   - Bugfixes, usually wanted; this class is not used by CP or VP since all bugfixes are perma-enabled, but the functionality is retained -->
+		<!-- 2=API    	- API options or extensions, no effect and very minor overhead unless used by another mod -->
+		<!-- 3=Events 	- Events, significant overhead even if not used by another mod; these run triggers from the gamecore whenever specified things happen ingame -->
+		<!-- 4=Minor  	- Minor enhancements, limited gameplay changes -->
+		<!-- 5=Moderate - Moderate enhancements, obvious gameplay changes -->
+		<!-- 6=Major  	- Major enhancements, massive gameplay changes -->
 
 		<!-- DbUpdates - indicates if the DLL code requires associated database changes -->
-		<!--   Missing - no associated database updates -->
-		<!--         0 - unimportant database updates (usually TXT_KEY_s that if deleted won't cause serious problems -->
-		<!--         1 - required database updates -->
-		<!--   If these file(s) have been deleted, eg for compatibility with other mods, the option will be forced off -->
+		<!--         0 (default) 	- no associated database updates, or only unimportant ones (usually TXT_KEY_s that if deleted won't cause serious problems -->
+		<!--         1				- required database updates -->
+		<!--	The files which make the database changes need to set the CustomModOption's value to 1 in the table CustomModDbUpdates -->
+		<!--	If the files have been deleted, e.g., for compatibility with other mods, the option will be forced off -->
 
-		<!-- All changes added by VP that aren't covered by another CustomModOption. -->
+		<!-- "See also: Mod Name" refers to mods on www.picknmixmods.com -->
+		<!-- Any option with a "See also" should NOT be enabled directly in this file but only via a mod -->
+		<!-- Any option which lists "Defines:" or "PostDefines:" can be enabled by changing its Value to 1, but needs the user/modder to verify that the associated defines are the correct value -->
+		<!-- Any option without either of these can be enabled by simply changing its Value to 1, unless otherwise noted -->
+
+		<!-- KEYSTONE OPTIONS -->
+
+		<!-- All changes added by VP that aren't covered by another CustomModOption -->
 		<Row Class="6" Name="BALANCE_VP" Value="0"/>
+
+		<!-- Enables runtime interoperability features for enhanced multiplayer functionality -->
+		<Row Class="5" Name="BIN_HOOKS" Value="1"/>
+
+		<!-- This adds the ability for AI players to contact human players in multiplayer with trade deals -->
+		<Row Class="6" Name="ACTIVE_DIPLOMACY" Value="1"/>
+
+
+		<!-- CORE BALANCE CHANGES -->
+		<!-- Enabled in Community Patch Only, but can be disabled -->
+		<!-- This is not a complete list of core balance changes - many more are integrated with no option to disable them -->
+		<!-- Core Pick 'N' Mix Mods that are enabled in the Community Patch have their own section just below this one -->
+
+		<!-- Visible tiles stay visible until the end of the turn -->
+		<Row Class="6" Name="CORE_DELAYED_VISIBILITY" Value="1"/>
+
+		<!-- When a military unit retreats, civilian and embarked units on the same tile also retreat -->
+		<Row Class="5" Name="CORE_CIVILIANS_RETREAT_WITH_MILITARY" Value="1"/>
+
+		<!-- Great Engineers' Hurry Production produces completed buildings on the same turn as the Great Engineer is expended -->
+		<Row Class="5" Name="CORE_ENGINEER_HURRY" Value="1"/>
+
+		<!-- Prevents repairing improvements in foreign lands with Workers, blocking the pillage-repair loop exploit -->
+		<Row Class="4" Name="CORE_NO_REPAIRING_FOREIGN_LANDS" Value="1"/>
+
+		<!-- Disallows gifting units to major civs, since the AI cannot use this -->
+		<Row Class="4" Name="CORE_NO_INTERMAJOR_UNIT_GIFTING" Value="1"/>
+
+		<!-- Disallows healing on Mountain tiles, except in Cities -->
+		<Row Class="4" Name="CORE_NO_HEALING_ON_MOUNTAINS" Value="1"/>
+
+		<!-- Tiles with Ice do not directly give any yields, even if one would be granted by Improvements, Policies, etc. -->
+		<Row Class="4" Name="CORE_NO_YIELD_ICE" Value="1"/>
+
+
+		<!-- CORE PICK'N'MIX MODS -->
+		<!-- Enabled in Community Patch Only, but can be disabled -->
+		<!-- Other supported Pick'N'Mix mods are listed in separate sections below -->
+		<!-- There are a number of integrated Pick'N'Mix mods that are perma-enabled and thus will not show up in any section -->
+
+		<!-- Removes free Great People (from buildings, policies, traits, etc.) from the Great People counters -->
+		<Row Class="6" Name="GLOBAL_TRULY_FREE_GP" Value="1"/>
+
+		<!-- City States can be liberated after they have been "bought" (Austria's or Venice's UA) -->
+		<Row Class="5" Name="GLOBAL_CS_LIBERATE_AFTER_BUYOUT" Value="1"/>
+
+		<!-- Great Artists, Writers and Musicians that do NOT create Great Works can be "reborn" -->
+		<Row Class="4" Name="GLOBAL_NO_LOST_GREATWORKS" Value="1"/>
+
+		<!-- When a Great Prophet spawns with a 100% spawn chance, any overflow Faith is kept, not discarded -->
+		<Row Class="4" Name="RELIGION_KEEP_PROPHET_OVERFLOW" Value="1"/>
+
+
+		<!-- ENABLED PICK'N'MIX MODS -->
+		<!-- Enabled in Vox Populi, disabled in Community Patch Only -->
+
+		<!-- Separates the Great People counters for Engineers, Scientists, and Merchants -->
+		<Row Class="6" Name="GLOBAL_SEPARATE_GP_COUNTERS" Value="0"/>
+
+		<!-- Permits ships to enter coastal forts/citadels in friendly lands -->
+		<!-- If GLOBAL_PASSABLE_FORTS=0, ships may only enter player cities or pass through allied City-State cities -->
+		<Row Class="6" Name="GLOBAL_PASSABLE_FORTS" Value="0"/>
+
+		<!-- Paratroopers take interception damage from hostile anti-air units -->
+		<Row Class="5" Name="GLOBAL_PARATROOPS_AA_DAMAGE" Value="0"/>
+
+		<!-- Instead of always giving Gold, City-States give different first contact gifts depending on their trait (Cultural, Religious, Maritime, etc.) -->
+		<!-- See also: "Global - City States Gifts" -->
+		<Row Class="5" Name="GLOBAL_CS_GIFTS" Value="0"/>
+
+		<!-- Permits coastal City-States to gift Naval Units, as a quest reward or if Militaristic -->
+		<Row Class="5" Name="GLOBAL_CS_GIFT_SHIPS" Value="0"/>
+
+		<!-- Units gifted by City-States receive XP from their spawning city, not the City-State's capital -->
+		<Row Class="5" Name="GLOBAL_CS_GIFTS_LOCAL_XP" Value="0"/>
+
+		<!-- Give initial production boost for cities founded on forests, as if the forest had been chopped down by a worker -->
+		<Row Class="5" Name="GLOBAL_CITY_FOREST_BONUS" Value="0"/>
+		<Row Class="0" Name="GLOBAL_CITY_FOREST_BONUS_PERCENT" Value="50"/> <!-- Percentage of "ring-1 chop" -->
+		<!-- Also GLOBAL_CITY_FOREST_BONUS_TECH (optional) in CustomModPostDefines -->
+
+		<!-- Give initial production boost for cities founded on jungles, as if the jungle had been chopped down by a worker -->
+		<Row Class="5" Name="GLOBAL_CITY_JUNGLE_BONUS" Value="0"/>
+		<Row Class="0" Name="GLOBAL_CITY_JUNGLE_BONUS_PERCENT" Value="50"/> <!-- Percentage of "ring-1 chop" -->
+		<!-- Also GLOBAL_CITY_JUNGLE_BONUS_TECH (optional) in CustomModPostDefines -->
+
+
+		<!-- DISABLED PICK'N'MIX MODS -->
+		<!-- These can be enabled by players and modders -->
+
+		<!-- Removes assembled spaceship parts from conquered capitals -->
+		<Row Class="6" Name="GLOBAL_NO_CONQUERED_SPACESHIPS" Value="0"/>
+
+		<!-- If City-States are allied to a major, other players cannot enter their territory unless they would be able to enter the major's territory -->
+		<Row Class="6" Name="GLOBAL_CS_OVERSEAS_TERRITORY" Value="0"/>
+
+		<!-- Allows purchasing buildings that have a Faith cost in puppet cities -->
+		<Row Class="6" Name="GLOBAL_PURCHASE_FAITH_BUILDINGS_IN_PUPPETS" Value="0"/>
+
+		<!-- Other players' Settlers recaptured from Barbarians will sometimes remain as Settlers -->
+		<Row Class="6" Name="GLOBAL_GRATEFUL_SETTLERS" Value="0"/>
+		<!-- Probability modifiers (can be optionally modified by uncommenting them) -->
+		<!-- Row Class="0" Name="GLOBAL_GRATEFUL_SETTLERS_PERCENT" Value="20"/ -->
+		<!-- Row Class="0" Name="GLOBAL_GRATEFUL_SETTLERS_WAR_MULTIPLIER" Value="0"/ -->
+		<!-- Row Class="0" Name="GLOBAL_GRATEFUL_SETTLERS_HOSTILE_MULTIPLIER" Value="25"/ -->
+		<!-- Row Class="0" Name="GLOBAL_GRATEFUL_SETTLERS_DECEPTIVE_MULTIPLIER" Value="50"/ -->
+		<!-- Row Class="0" Name="GLOBAL_GRATEFUL_SETTLERS_GUARDED_MULTIPLIER" Value="50"/ -->
+		<!-- Row Class="0" Name="GLOBAL_GRATEFUL_SETTLERS_AFRAID_MULTIPLIER" Value="50"/ -->
+		<!-- Row Class="0" Name="GLOBAL_GRATEFUL_SETTLERS_NEUTRAL_MULTIPLIER" Value="75"/ -->
+		<!-- Row Class="0" Name="GLOBAL_GRATEFUL_SETTLERS_FRIENDLY_MULTIPLIER" Value="125"/ -->
+		<!-- Row Class="0" Name="GLOBAL_GRATEFUL_SETTLERS_ALLY_MULTIPLIER" Value="125"/ -->
+		<!-- Row Class="0" Name="GLOBAL_GRATEFUL_SETTLERS_FRIEND_MULTIPLIER" Value="100"/ -->
+		<!-- Row Class="0" Name="GLOBAL_GRATEFUL_SETTLERS_FAVORABLE_MULTIPLIER" Value="75"/ -->
+		<!-- Row Class="0" Name="GLOBAL_GRATEFUL_SETTLERS_NEUTRAL_OPINION_MULTIPLIER" Value="50"/ -->
+		<!-- Row Class="0" Name="GLOBAL_GRATEFUL_SETTLERS_COMPETITOR_MULTIPLIER" Value="0"/ -->
+		<!-- Row Class="0" Name="GLOBAL_GRATEFUL_SETTLERS_ENEMY_MULTIPLIER" Value="-100"/ -->
+		<!-- Row Class="0" Name="GLOBAL_GRATEFUL_SETTLERS_UNFORGIVABLE_MULTIPLIER" Value="-100"/ -->
+		<!-- Row Class="0" Name="GLOBAL_GRATEFUL_SETTLERS_INITIAL_MIN_PERCENT" Value="5"/ -->
+		<!-- Row Class="0" Name="GLOBAL_GRATEFUL_SETTLERS_INITIAL_MAX_PERCENT" Value="50"/ -->
+		<!-- Row Class="0" Name="GLOBAL_GRATEFUL_SETTLERS_MUTUAL_WAR_MULTIPLIER" Value="200"/ -->
+		<!-- Row Class="0" Name="GLOBAL_GRATEFUL_SETTLERS_ONE_CITY_MULTIPLIER" Value="150"/ -->
+		<!-- Row Class="0" Name="GLOBAL_GRATEFUL_SETTLERS_HOLY_CITY_FOUNDER" Value="20"/ -->
+		<!-- Row Class="0" Name="GLOBAL_GRATEFUL_SETTLERS_HOLY_CITY_OCCUPIER" Value="-20"/ -->
+		<!-- Row Class="0" Name="GLOBAL_GRATEFUL_SETTLERS_MAX_PERCENT" Value="80"/ -->
+		<!-- Row Class="0" Name="GLOBAL_GRATEFUL_SETTLERS_SMILE_RATIO_BASE" Value="10"/ -->
+		<!-- Row Class="0" Name="GLOBAL_GRATEFUL_SETTLERS_SMILE_RATIO_MIN" Value="75"/ -->
+		<!-- Row Class="0" Name="GLOBAL_GRATEFUL_SETTLERS_SMILE_RATIO_MAX" Value="150"/ -->
+
+		<!-- Units that can found a city take the city's majority religion with them -->
+		<!-- If RELIGIOUS_SETTLERS_WEIGHTED=1, it's instead a weighted random choice, with each religion having a weight equal to its local followers -->
+		<Row Class="5" Name="GLOBAL_RELIGIOUS_SETTLERS" Value="0"/>
+		<Row Class="5" Name="RELIGIOUS_SETTLERS_WEIGHTED" Value="1"/>
+
+		<!-- Permits units to upgrade in allied militaristic City-States, but increases the # of turns until the next free unit spawns by UPGRADE_EXTRA_TURNS_UNIT_SPAWN, scaling with game speed -->
+		<Row Class="5" Name="GLOBAL_CS_UPGRADES" Value="0"/>
+
+		<!-- Great Generals and Admirals spawned from combat experience appear on top of the unit that triggered the spawn, and not in a distant city -->
+		<!-- If LOCAL_GENERALS_NEAREST_CITY is also enabled, the general or admiral instead spawns in the closest city to the triggering unit -->
+		<Row Class="5" Name="GLOBAL_LOCAL_GENERALS" Value="0"/>
+		<Row Class="5" Name="LOCAL_GENERALS_NEAREST_CITY" Value="1"/>
+
+		<!-- Trade Routes can't be plundered on deep ocean tiles - too much sea to hide in, too many directions to escape in -->
+		<Row Class="5" Name="GLOBAL_NO_OCEAN_PLUNDERING" Value="0"/>
+
+		<!-- Submarines under ice are immune to ranged attacks, except from other submarines -->
+		<Row Class="5" Name="GLOBAL_SUBS_UNDER_ICE_IMMUNITY" Value="0"/>
+
+		<!-- Nukes melt Ice (same chance as for fallout to appear); however, as neither the 3D nor the SV map update as the Ice is removed, it's fairly pointless! -->
+		<Row Class="4" Name="GLOBAL_NUKES_MELT_ICE" Value="0"/>
+
+		<!-- CURRENTLY NON-FUNCTIONAL -->
+		<!-- Changes the stacking limits based on what the tile is (city, fort, plain, etc) (v19) -->
+		<!-- See also: "Global - 2 Units Per Fort" -->
+		<!-- See also: "Global - 3 Units Per City" -->
+		<Row Class="6" Name="GLOBAL_STACKING_RULES" Value="0"/>
+
+		<!-- CURRENTLY NON-FUNCTIONAL -->
+		<!-- Route To will only build roads, or upgrade road to rail, for human players (v44) -->
+		<!-- See also: "UI - No Auto-Embark Workers" -->
+		<Row Class="4" Name="GLOBAL_QUICK_ROUTES" Value="0"/>
+
+
+		<!-- VOX POPULI BALANCE CHANGES -->
+		<!-- Enabled by default -->
+
+		<!-- Indonesia's unique luxuries spawn around the city instead of under the city tile, and also appear when conquering a city -->
+		<Row Class="6" Name="BALANCE_ALTERNATE_INDONESIA_TRAIT" Value="0"/>
+
+		<!-- Siam's trait now affects Resources, Happiness, Unit Gift frequency, and all Yields from City-States; it no longer gives bonus XP -->
+		<Row Class="6" Name="BALANCE_ALTERNATE_SIAM_TRAIT" Value="0"/>
+
+		<!-- Barbarian Encampments can spawn on visible tiles -->
+		<Row Class="6" Name="BALANCE_ENCAMPMENTS_SPAWN_ON_VISIBLE_TILES" Value="0"/>
+
+		<!-- Barbarians can raid adjacent cities and steal yields -->
+		<Row Class="6" Name="BALANCE_BARBARIAN_THEFT" Value="0"/>
+
+		<!-- Settler units (Units.Food=1) reduce population by 1 when completed -->
+		<Row Class="6" Name="BALANCE_SETTLERS_CONSUME_POPULATION" Value="0"/>
+
+		<!-- Adds military, connection, and Influence requirements for pledging to protect a City-State, and enables the PtP revocation system -->
+		<Row Class="6" Name="BALANCE_MINOR_PROTECTION_REQUIREMENTS" Value="0"/>
+
+		<!-- Workers receive -50% work speed for 50 turns when they are captured -->
+		<!-- PostDefines: PRISONERS_OF_WAR_PROMOTION -->
+		<Row Class="6" Name="BALANCE_PRISONERS_OF_WAR" Value="0"/>
+
+		<!-- Allows all civs to form City Connections along Rivers -->
+		<Row Class="6" Name="BALANCE_RIVER_CITY_CONNECTIONS" Value="0"/>
+
+		<!-- Vote Commitments cannot be cancelled by war; if the resolution becomes invalid, the votes are abstained instead of returned to the civ -->
+		<Row Class="6" Name="BALANCE_PERMANENT_VOTE_COMMITMENTS" Value="0"/>
+
+		<!-- Purchased COMBAT units do not have full health when the city is damaged -->
+		<Row Class="5" Name="BALANCE_PURCHASED_UNIT_DAMAGE" Value="0"/>
+
+		<!-- Increases the Production cost of World Wonders based on the number of World Wonders the player already owns -->
+		<!-- Defines: BALANCE_WORLD_WONDER_SAME_ERA_COST_MODIFIER, BALANCE_WORLD_WONDER_PREVIOUS_ERA_COST_MODIFIER, BALANCE_WORLD_WONDER_SECOND_PREVIOUS_ERA_COST_MODIFIER, BALANCE_WORLD_WONDER_EARLIER_ERA_COST_MODIFIER -->
+		<Row Class="6" Name="BALANCE_WORLD_WONDER_COST_INCREASE" Value=0"/>
+
+		<!-- Enables VP-specific adjustments to air warfare, such as units and cities having air defense -->
+		<Row Class="6" Name="BALANCE_AIR_UNIT_CHANGES" Value="0"/>
+
+		<!-- Cities that are being razed will spawn partisans (free units) for the opposing player if still at war, or Barbarians if not still at war -->
+		<Row Class="5" Name="BALANCE_RAZING_CREATES_PARTISANS" Value="0"/>
+
+		<!-- Changes to City-State Quests (currently includes: Faith Contest (now based on followers converted), Kill City-State quest (now mutual and solvable by allying both City-States)) -->
+		<!-- NOTE: The Kill City-State Quest change also requires some updates to text keys -->
+		<Row Class="6" Name="BALANCE_QUEST_CHANGES" Value="0"/>
+
+		<!-- Puppet cities don't use up Global Happiness (in VP), don't generate Unhappiness from most sources (except Specialists), and don't generate any Local Happiness (except Venice) -->
+		<!-- They generate flat Unhappiness per X citizens, no longer generate GPP points, don't count for the Technology cost penalty, and generate full Unit Supply for Venice -->
+		<!-- Defines: UNHAPPINESS_PER_X_PUPPET_CITIZENS -->
+		<Row Class="6" Name="BALANCE_PUPPET_CHANGES" Value="0"/>
+
+		<!-- OPTIONS BELOW THIS POINT HAVE NOT BEEN CHECKED -->
+
+
+
+		<!-- OPTIONAL UI & QUALITY OF LIFE IMPROVEMENTS -->
+
+		<!-- Turn off animations for Diplomats, Missionaries, Great Persons, etc. when playing with the Quick Movement game option enabled -->
+		<Row Class="4" Name="UI_QUICK_ANIMATIONS" Value="0"/>
+
+
 
 		<!-- Balance the number of City-States with each trait evenly. -->
 		<Row Class="6" Name="BALANCE_CITY_STATE_TRAITS" Value="0"/>
 		<!-- Balance the number of City-States with each personality evenly. -->
 		<!-- If combined with the above option, each pool of City-States with the same trait will be balanced separately. -->
 		<Row Class="6" Name="BALANCE_CITY_STATE_PERSONALITIES" Value="0"/>
-
-		<!-- Barbarian Encampments can spawn on visible tiles. -->
-		<Row Class="5" Name="BALANCE_ENCAMPMENTS_SPAWN_ON_VISIBLE_TILES" Value="0"/>
-
-		<!-- Vote Commitments cannot be cancelled by war. If the resolution becomes invalid, the votes are abstained instead of given back. -->
-		<Row Class="5" Name="BALANCE_PERMANENT_VOTE_COMMITMENTS" Value="0"/>
-
-		<!-- Turn off animations for diplomats, missionaries, great persons etc. when playing with quick movement enabled. -->
-		<Row Class="4" Name="UI_QUICK_ANIMATIONS" Value="0"/>
 		
 		<!-- Make the UI show moves remaining in the form (exact movement points / 60) for the tile currently being moused over. -->
 		<Row Class="2" Name="UI_DISPLAY_PRECISE_MOVEMENT_POINTS" Value="0"/>
 
 		<!-- Changes in Milae's Alternative Difficulty Mod -->
 		<Row Class="4" Name="ALTERNATIVE_DIFFICULTY" Value="0" DbUpdates="1"/>
-
-		<!-- Changes the stacking limits based on what the tile is (city, fort, plain, etc) (v19) -->
-		<!-- See also: "Global - 2 Units Per Fort" -->
-		<!-- See also: "Global - 3 Units Per City" -->
-		<Row Class="5" Name="GLOBAL_STACKING_RULES" Value="0"/>
-
-		<!-- Great Generals and Admirals gained from combat experience spawn in the war-zone and not in a distant city (v19) -->
-		<!-- See also: "Global - Local Generals" -->
-		<Row Class="5" Name="GLOBAL_LOCAL_GENERALS" Value="0"/>
-
-		<!-- Great Generals and Admirals gained from combat experience spawn in city closest to the war-zone -->
-		<!-- Reqires "Global - Local Generals" -->
-		<Row Class="5" Name="LOCAL_GENERALS_NEAREST_CITY" Value="0"/>
-
-		<!-- Separates out the repair fleet and change port abilities of the Great Admiral (v61) -->
-		<!-- If you enable this option, you will need to add back the abilities to the standard GA -->
-		<Row Class="5" Name="GLOBAL_SEPARATE_GREAT_ADMIRAL" Value="0"/>
-
-		<!-- Lets all Civs get City Connections along rivers. -->
-		<Row Class="5" Name="RIVER_CITY_CONNECTIONS" Value="0"/>
-
-		<!-- Permits units to have promotion trees different from their assigned CombatClass (v19) -->
-		<!-- See also: "Promotions - Subs Silent Running" -->
-		<!-- See also: "Promotions - AntiAir Specialisations" -->
-		<Row Class="4" Name="GLOBAL_PROMOTION_CLASSES" Value="0"/>
-
-		<!-- Ships may enter coastal forts/citadels (v19) -->
-		<!-- GLOBAL_PASSABLE_FORTS=0 ships may only enter player cities or pass through allied CS cities -->
-		<!-- GLOBAL_PASSABLE_FORTS=1 ships may additionally enter coastal forts in player, allied CS or no-mans land -->
-		<!-- See also: "Global - Passable Forts" -->
-		<Row Class="6" Name="GLOBAL_PASSABLE_FORTS" Value="0"/>
-
-		<!-- Goody Huts can always give gold, stops the late-game issue where entering a goody hut can result in nothing being awarded (v22) -->
-		<!-- See also: "Goody Huts - No Auto-Mapping" -->
-		<Row Class="6" Name="GLOBAL_ANYTIME_GOODY_GOLD" Value="0"/>
-
-		<!-- Give initial production boost for cities founded on forests, as if the forest had been chopped down by a worker (v19) -->
-		<!-- See also: "Global - City Forest Bonus" -->
-		<Row Class="6" Name="GLOBAL_CITY_FOREST_BONUS" Value="0"/>
-		<Row Class="0" Name="GLOBAL_CITY_FOREST_BONUS_PERCENT" Value="50"/>
-		<!-- Percentage of "ring-1 chop" (v47) -->
-		<!-- Also GLOBAL_CITY_FOREST_BONUS_TECH in CustomModPostDefines -->
-
-		<!-- Permit cities to work tiles up to MAXIMUM_ACQUIRE_PLOT_DISTANCE - WARNING! Cities take 2.5 times as much memory/file space (v19) -->
-		<!-- See also: "Global - City Working Distance" -->
-		<Row Class="6" Name="GLOBAL_CITY_WORKING" Value="0"/>
-
-		<!-- Permit cities to work additional slots (tiles and specialists) with automatons (v89) -->
-		<!-- See also: "Tech - City Automaton Workers" -->
-		<Row Class="6" Name="GLOBAL_CITY_AUTOMATON_WORKERS" Value="0"/>
-
-		<!-- Enables rebasing to and airlifting to/from improvements (v74) -->
-		<!-- See also: "Units - Dwarf Broad Axeman" -->
-		<Row Class="5" Name="GLOBAL_RELOCATION" Value="0"/>
-
-		<!-- Mountain plots return their terrain as TERRAIN_MOUNTAIN and any land unit may enter a mountain that has a road/rail route (v19) -->
-		<!-- See also: "Improvement - Tunnel" -->
-		<Row Class="5" Name="GLOBAL_ALPINE_PASSES" Value="0"/>
-
-		<!-- City States will (occasionally) gift ships (v19) -->
-		<!-- See also: "Global - City States Gifts" -->
-		<Row Class="5" Name="GLOBAL_CS_GIFT_SHIPS" Value="0"/>
-
-		<!-- Units in allied militaristic City States can upgrade - requires a (cosmetic) patch to UnitPanel.lua to fix the incorrect message about being in friendly territory (v19) -->
-		<!-- See also: "in Global - CS Unit Upgrades" -->
-		<Row Class="5" Name="GLOBAL_CS_UPGRADES" Value="0"/>
-
-		<!-- City States can be liberated after they have been "bought" (Austria's or Venice's UA) (v19) -->
-		<!-- See also: "Global - CS Liberate After Buyout" -->
-		<Row Class="5" Name="GLOBAL_CS_LIBERATE_AFTER_BUYOUT" Value="1"/>
-
-		<!-- City States give different gifts depending on their type (cultural, religious, maritime, etc) (v19) -->
-		<!-- See also: "Global - City States Gifts" -->
-		<Row Class="6" Name="GLOBAL_CS_GIFTS" Value="0"/>
-
-		<!-- Units gifted from City States receive XP from their spawning city, not the CS capital (v84) -->
-		<!-- See also: "Global - City States Gifts" -->
-		<Row Class="4" Name="GLOBAL_CS_GIFTS_LOCAL_XP" Value="0"/>
-
-		<!-- City States allied to a major behave as an overseas territory of that major (v39) -->
-		<!-- See also: "Global - City States Overseas Territory" -->
-		<Row Class="6" Name="GLOBAL_CS_OVERSEAS_TERRITORY" Value="0"/>
-
-		<!-- Units attacking from cities, forts or citadels will not follow-up if they kill the defender (v19) -->
-		<!-- See also: "Global - No Followup From Cities" -->
-		<Row Class="6" Name="GLOBAL_NO_FOLLOWUP_FROM_CITIES" Value="1"/>
-
-		<!-- Units that can move after attacking can also capture civilian units (eg workers in empty barbarian camps) (v32) -->
-		<!-- See also: "Global - No Followup From Cities" -->
-		<Row Class="5" Name="GLOBAL_CAPTURE_AFTER_ATTACKING" Value="1"/>
-
-		<!-- Trade routes can't be plundered on ocean tiles - too much sea to hide in, too many directions to escape in (v39) -->
-		<!-- See also: "Global - No Ocean Plundering" -->
-		<Row Class="5" Name="GLOBAL_NO_OCEAN_PLUNDERING" Value="0"/>
-
-		<!-- Remove assembled spaceship parts from conquered capitals (v19) -->
-		<!-- See also: "Global - No Conquered Spaceships" -->
-		<Row Class="5" Name="GLOBAL_NO_CONQUERED_SPACESHIPS" Value="0"/>
-
-		<!-- Other player's settlers captured from Barbarians will sometimes remain as settlers (v19) -->
-		<!-- See also: "Global - Grateful Settlers" -->
-		<Row Class="6" Name="GLOBAL_GRATEFUL_SETTLERS" Value="0"/>
-		<Row Class="0" Name="GLOBAL_GRATEFUL_SETTLERS_PERCENT" Value="20"/>
-		<!-- Row Class="0" Name="GLOBAL_GRATEFUL_SETTLERS_WAR_MULTIPLIER" Value="0"/ -->
-		<!-- Row Class="0" Name="GLOBAL_GRATEFUL_SETTLERS_HOSTILE_MULTIPLIER" Value="2"/ -->
-		<!-- Row Class="0" Name="GLOBAL_GRATEFUL_SETTLERS_GUARDED_MULTIPLIER" Value="4"/ -->
-		<!-- Row Class="0" Name="GLOBAL_GRATEFUL_SETTLERS_DECEPTIVE_MULTIPLIER" Value="4"/ -->
-		<!-- Row Class="0" Name="GLOBAL_GRATEFUL_SETTLERS_AFRAID_MULTIPLIER" Value="4"/ -->
-		<!-- Row Class="0" Name="GLOBAL_GRATEFUL_SETTLERS_NEUTRAL_MULTIPLIER" Value="6"/ -->
-		<!-- Row Class="0" Name="GLOBAL_GRATEFUL_SETTLERS_FRIENDLY_MULTIPLIER" Value="10"/ -->
-		<!-- Row Class="0" Name="GLOBAL_GRATEFUL_SETTLERS_DIVISOR" Value="8"/ -->
-
-		<!-- Route To will only build roads, or upgrade road to rail, for human players (v44) -->
-		<!-- See also: "UI - No Auto-Embark Workers" -->
-		<Row Class="4" Name="GLOBAL_QUICK_ROUTES" Value="0"/>
-
-		<!-- Units that can found a city take their religion with them (v34) -->
-		<!-- See also: "Global - Religious Settlers" -->
-		<Row Class="6" Name="GLOBAL_RELIGIOUS_SETTLERS" Value="0"/>
-		<!-- Row Class="0" Name="GLOBAL_GRATEFUL_SETTLERS_HOLYCITY_FOUNDER" Value="20"/ -->
-		<!-- Row Class="0" Name="GLOBAL_GRATEFUL_SETTLERS_HOLYCITY_OCCUPIER" Value="-20"/ -->
-
-		<!-- Subs under ice are immune to all attacks except from other subs (v19) -->
-		<!-- See also: "Units - Subs Immune Under Ice" -->
-		<Row Class="6" Name="GLOBAL_SUBS_UNDER_ICE_IMMUNITY" Value="0"/>
-
-		<!-- Paratroops take AA damage from hostile units (v19) -->
-		<!-- See also: "Units - Paratroop Enhancements" -->
-		<Row Class="5" Name="GLOBAL_PARATROOPS_AA_DAMAGE" Value="0"/>
-
-		<!-- Nukes will melt ice, however as neither the 3D nor the SV map update as the ice is removed it's fairly pointless! (v19) -->
-		<Row Class="4" Name="GLOBAL_NUKES_MELT_ICE" Value="0"/>
-
-		<!-- Great Works can generate different yields than just culture (v25) -->
-		<!-- See also: "Global - Great Work Research" -->
-		<!-- See also: "Global - Great Work Vaults" -->
-		<Row Class="6" Name="GLOBAL_GREATWORK_YIELDTYPES" Value="0"/>
-
-		<!-- Great Artists, Writers and Musicians that do NOT create Great Works can be "reborn" (v84) -->
-		<!-- See also: "Global - No Lost Greatworks" -->
-		<Row Class="4" Name="GLOBAL_NO_LOST_GREATWORKS" Value="1"/>
-
-		<!-- Units of this type will not be gifted by City States (v46) -->
-		<!-- See also: "Civilization - Morindim" -->
-		<Row Class="4" Name="GLOBAL_EXCLUDE_FROM_GIFTS" Value="0"/>
-
-		<!-- Units of this type may move after being upgraded (v46) -->
-		<!-- See also: "Civilization - Morindim" -->
-		<Row Class="5" Name="GLOBAL_MOVE_AFTER_UPGRADE" Value="0"/>
-
-		<!-- Units of this type may never embark (v46) -->
-		<!-- See also: "Civilization - Morindim" -->
-		<Row Class="5" Name="GLOBAL_CANNOT_EMBARK" Value="0"/>
-
-		<!-- Separates the Engineer, Scientist and Merchant GP counters (v52) -->
-		<Row Class="6" Name="GLOBAL_SEPARATE_GP_COUNTERS" Value="0"/>
-
-		<!-- Removes free GP (from buildings, policies, traits, etc) from the GP counters (v61) -->
-		<Row Class="6" Name="GLOBAL_TRULY_FREE_GP" Value="0"/>
-
-		<!-- Allows faith purchase of buildings in puppets -->
-		<Row Class="6" Name="GLOBAL_PURCHASE_FAITH_BUILDINGS_IN_PUPPETS" Value="0"/>
 
 		<!--
 	Various new tables and logics for improvements. Currently, this is required to activate:
@@ -241,22 +297,8 @@
 		<Row Class="4" Name="NO_AUTO_SPAWN_PROPHET" Value="0"/>
 		<!-- Alters Assyria's conquest trait. Now player can chooses a free tech upon city conquest -->
 		<Row Class="5" Name="ALTERNATE_ASSYRIA_TRAIT" Value="0"/>
-		<!-- Alters Siam's trait. Now affects all Yields, Resources, Happiness and Unit Gift frequency from City-States, and does not give bonus XP. -->
-		<Row Class="5" Name="ALTERNATE_SIAM_TRAIT" Value="0"/>
-		<!-- No exploit to pillage and repair in foreign lands during war -->
-		<Row Class="5" Name="NO_REPAIR_FOREIGN_LANDS" Value="1"/>
-		<!-- Ice Features are prevented from having a yield -->
-		<Row Class="5" Name="NO_YIELD_ICE" Value="1"/>
-		<!-- Fixes an exploit of gifting to Major Civs -->
-		<Row Class="5" Name="NO_MAJORCIV_GIFTING" Value="1"/>
-		<!-- No healing on mountains if not a city plot -->
-		<Row Class="5" Name="NO_HEALING_ON_MOUNTAINS" Value="1"/>
 		<!-- Players can pillage permanent improvements if at war -->
 		<Row Class="4" Name="PILLAGE_PERMANENT_IMPROVEMENTS" Value="0"/>
-		<!-- This adds the ability for AI players to contact human players in multiplayer with trade deals -->
-		<Row Class="5" Name="ACTIVE_DIPLOMACY" Value="1"/>
-		<!-- Enables runtime interoperability features for enhanced multiplayer functionality -->
-		<Row Class="5" Name="BIN_HOOKS" Value="1"/>
 		<!-- Grants Celts maximum up to 3 unimproved adjacent forests for faith -->
 		<Row Class="4" Name="ALTERNATE_CELTS" Value="0"/>
 		<!-- Restricts a Team from passing into the next era before they have found all techs of their current era -->
@@ -271,14 +313,6 @@
 		<Row Class="5" Name="BARBARIAN_GG_GA_POINTS" Value="1"/>
 		<!-- Permits land units to cross ice, this is the trait version (ie applies to all units of the civ) of PROMOTIONS_CROSS_ICE (v19) -->
 		<Row Class="2" Name="TRAITS_CROSSES_ICE" Value="0"/>
-
-		<!-- Permits cities to work more rings (v19) -->
-		<!-- See also: "Global - City Working Distance" -->
-		<Row Class="2" Name="TRAITS_CITY_WORKING" Value="0"/>
-
-		<!-- Permit cities to work additional slots (tiles and specialists) with automatons (v90) -->
-		<!-- See also: "Global - City Automaton Workers" -->
-		<Row Class="2" Name="TRAITS_CITY_AUTOMATON_WORKERS" Value="0"/>
 
 		<!-- Enables traits to be enabled/obsoleted via beliefs and policies (v77) -->
 		<!-- See also: "Belief - One With Natural Wonders" -->
@@ -299,27 +333,8 @@
 		<Row Class="6" Name="TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY" Value="0"/>
 
 		<!-- Interprets double movement as "no extra cost" and half movement as "one extra cost" -->
-		<!-- Also disables fake roads in woodland -->
-		<Row Class="2" Name="SANE_UNIT_MOVEMENT_COST" Value="0"/>
-
-		<!-- Permits cities to work more rings (v19) -->
-		<!-- See also: "Global - City Working Distance" -->
-		<Row Class="2" Name="POLICIES_CITY_WORKING" Value="0"/>
-
-		<!-- Permit cities to work additional slots (tiles and specialists) with automatons (v90) -->
-		<!-- See also: "Global - City Automaton Workers" -->
-		<Row Class="2" Name="POLICIES_CITY_AUTOMATON_WORKERS" Value="0"/>
-
-		<!-- Enables Policy_UnitClassReplacements -->
-		<Row Class="4" Name="POLICIES_UNIT_CLASS_REPLACEMENTS" Value="0"/>
-
-		<!-- Permits cities to work more rings (v19) -->
-		<!-- See also: "Global - City Working Distance" -->
-		<Row Class="2" Name="TECHS_CITY_WORKING" Value="0"/>
-
-		<!-- Permit cities to work additional slots (tiles and specialists) with automatons (v90) -->
-		<!-- See also: "Global - City Automaton Workers" -->
-		<Row Class="2" Name="TECHS_CITY_AUTOMATON_WORKERS" Value="0"/>
+		<!-- Also disables fake roads in woodland (Iroquois trait), as it applies to unit movement -->
+		<Row Class="6" Name="SANE_UNIT_MOVEMENT_COST" Value="0"/>
 
 		<!-- Permits units to earn GG/GA points from killing barbarians (v83) -->
 		<!-- See also: "Global - Commander Points From Barbarians" -->
@@ -376,14 +391,6 @@
 		<Row Class="5" Name="BUILDINGS_PRO_RATA_PURCHASE" Value="0"/>
 		<Row Class="0" Name="BUILDINGS_PRO_RATA_PURCHASE_DEPRECIATION" Value="80"/>
 
-		<!-- Permits cities to work more rings (v19) -->
-		<!-- See also: "Global - City Working Distance" -->
-		<Row Class="2" Name="BUILDINGS_CITY_WORKING" Value="0"/>
-
-		<!-- Permit cities to work additional slots (tiles and specialists) with automatons (v90) -->
-		<!-- See also: "Global - City Automaton Workers" -->
-		<Row Class="2" Name="BUILDINGS_CITY_AUTOMATON_WORKERS" Value="0"/>
-
 		<!-- When checking for a building's prerequisites in a city for Building_ClassesNeededInCity, loop through all buildings in the city to find a building belonging in the class, rather than the shortcut method of only checking if there is an entry in Civilization_BuildingClassOverrides. -->
 		<!-- A more thorough check for mods which replace buildings using Lua. Otherwise, the prerequisite for Building_ClassesNeededInCity will not be fulfilled correctly. -->
 		<Row Class="4" Name="BUILDINGS_THOROUGH_PREREQUISITES" Value="0"/>
@@ -411,9 +418,6 @@
 		<!-- Adds ConversionModifier and GlobalConversionModifier (in the same vein as espionage modifiers) to buildings (v19) -->
 		<!-- See also: "Global - Counter Religion" -->
 		<Row Class="5" Name="RELIGION_CONVERSION_MODIFIERS" Value="1"/>
-		<!-- Keeps overflow faith from spawning a Great Prophet if the base spawn chance is 100% (v21) -->
-		<!-- See also: "Religion - Fixed Prophets" -->
-		<Row Class="4" Name="RELIGION_KEEP_PROPHET_OVERFLOW" Value="1"/>
 		<!-- Inquisitors will keep religion out of allied City State cities if positioned adjacent (v60) -->
 		<Row Class="4" Name="RELIGION_ALLIED_INQUISITORS" Value="0"/>
 		<!-- Send purchase notifications at every boundary and not just the first (v42) -->
@@ -451,20 +455,15 @@
 		<Row Class="6" Name="PROCESS_STOCKPILE" Value="0"/>
 		<!-- Row Class="0" Name="PROCESS_STOCKPILE_PER_ERA" Value="30"/ -->
 
-		<!-- Enables the various tables related to production cost modifiers triggered by access to resources -->
-		<Row Class="6" Name="RESOURCES_PRODUCTION_COST_MODIFIERS" Value="0"/>
-
-		<!-- Enables the column CivilizationType in Processes, allowing civilizations to have unique processes -->
-		<Row Class="5" Name="CIVILIZATIONS_UNIQUE_PROCESSES" Value="0"/>
+		<!-- Enables the Resource_UnitCombatProductionCostModifiersLocal and Resource_BuildingProductionCostModifiersLocal tables -->
+		<Row Class="2" Name="RESOURCE_PRODUCTION_COST_MODIFIERS" Value="0"/>
 
 		<!-- Enables experimental Unit Production AI tweaks -->
 		<Row Class="5" Name="AI_UNIT_PRODUCTION" Value="0"/>
-		<!-- Land units blockade undefended adjacent tiles -->
-		<Row Class="4" Name="ADJACENT_BLOCKADE" Value="0"/>
+		<!-- Land COMBAT units blockade undefended adjacent tiles -->
+		<Row Class="5" Name="BALANCE_LAND_UNITS_ADJACENT_BLOCKADE" Value="0"/>
 		<!-- Units take damage when moving through enemy lands -->
 		<Row Class="4" Name="ATTRITION" Value="0"/>
-		<!-- When a military unit retreats, civilian and embarked units on the same tile also retreat -->
-		<Row Class="4" Name="CIVILIANS_RETREAT_WITH_MILITARY" Value="1"/>
 		<!-- Linked & group movement -->
 		<Row Class="4" Name="LINKED_MOVEMENT" Value="0"/>
 		<!-- Era scaling for GE & GM yields -->
@@ -829,78 +828,38 @@
 		<Row Class="6" Name="BALANCE_CORE_SPIES" Value="0"/>
 		<!-- The military sub-feature of COMMUNITY_PATCH -->
 		<Row Class="6" Name="BALANCE_CORE_MILITARY" Value="1"/>
-		<!-- The minors sub-feature of COMMUNITY_PATCH -->
-		<Row Class="6" Name="BALANCE_CORE_MINORS" Value="0"/>
 		<!-- VP: Unhappiness is NOT capped by city population -->
 		<Row Class="6" Name="BALANCE_CORE_UNCAPPED_UNHAPPINESS" Value="0"/>
-		<!-- The national wonder sub-feature of COMMUNITY_PATCH -->
-		<Row Class="6" Name="BALANCE_CORE_POP_REQ_BUILDINGS" Value="0"/>
 		<!-- The settler reset city growth sub-feature of COMMUNITY_PATCH -->
 		<Row Class="6" Name="BALANCE_CORE_SETTLER_RESET_FOOD" Value="0"/>
 		<!-- The wonder variable consolation prize sub-feature of COMMUNITY_PATCH -->
 		<Row Class="6" Name="BALANCE_CORE_WONDERS_VARIABLE_REWARD" Value="0"/>
-		<!-- The pantheon requires resource or improvement aspect of COMMUNITY_PATCH -->
-		<Row Class="6" Name="BALANCE_CORE_BELIEFS_RESOURCE" Value="0"/>
 		<!-- The annex cs if bully trait part of COMMUNITY_PATCH -->
 		<Row Class="6" Name="BALANCE_CORE_AFRAID_ANNEX" Value="0"/>
-		<!-- The instant yield from buildings part of COMMUNITY_PATCH -->
-		<Row Class="6" Name="BALANCE_CORE_BUILDING_INSTANT_YIELD" Value="0"/>
-		<!-- The Beliefs and Religion Overhauls of COMMUNITY_PATCH -->
-		<Row Class="6" Name="BALANCE_CORE_BELIEFS" Value="0"/>
 		<!-- Great Prophets spawn in a random city, partially based on Faith generation -->
 		<Row Class="6" Name="BALANCE_CORE_RANDOMIZED_GREAT_PROPHET_SPAWNS" Value="0"/>
-		<!-- The National Wonders require x population part of COMMUNITY_PATCH -->
-		<Row Class="6" Name="BALANCE_CORE_FOLLOWER_POP_WONDER" Value="0"/>
-		<!-- The Policies and Ideololgies COMMUNITY_PATCH -->
-		<Row Class="6" Name="BALANCE_CORE_POLICIES" Value="0"/>
-		<!-- The more dangerous barbarians element of COMMUNITY_PATCH -->
-		<Row Class="6" Name="BALANCE_CORE_BARBARIAN_THEFT" Value="0"/>
 		<!-- Resources given Flavor Value of COMMUNITY_PATCH -->
 		<Row Class="6" Name="BALANCE_CORE_RESOURCE_FLAVORS" Value="0"/>
-		<!-- Purchases Scale with # of Cities of COMMUNITY_PATCH -->
-		<Row Class="6" Name="BALANCE_CORE_PURCHASE_COST_INCREASE" Value="0"/>
-		<!-- Force Puppet Purchase in Cities of COMMUNITY_PATCH -->
-		<Row Class="6" Name="BALANCE_CORE_PUPPET_PURCHASE" Value="1"/>
-		<!-- Allows units to embark/disembark from cities without losing all points - COMMUNITY_PATCH -->
-		<Row Class="6" Name="BALANCE_CORE_EMBARK_CITY_NO_COST" Value="0"/>
-		<!-- Pushed PtP minimum to XML - COMMUNITY_PATCH -->
-		<Row Class="6" Name="BALANCE_CORE_MINOR_PROTECTION" Value="0"/>
-		<!-- Pushed Ideology start date to XML - COMMUNITY_PATCH -->
-		<Row Class="6" Name="BALANCE_CORE_IDEOLOGY_START" Value="0"/>
-		<!-- Wonder Costs increase as more are built - COMMUNITY_PATCH -->
-		<Row Class="6" Name="BALANCE_CORE_WONDER_COST_INCREASE" Value="0"/>
-		<!-- Specify units that can only be granted by CSs as gifted units - COMMUNITY_PATCH -->
-		<Row Class="6" Name="BALANCE_CORE_MINOR_CIV_GIFT" Value="0"/>
-		<!-- Allows for advanced settlers - COMMUNITY_PATCH -->
-		<Row Class="6" Name="BALANCE_CORE_SETTLER_ADVANCED" Value="0"/>
-		<!-- Advanced military changes (promotions) - COMMUNITY_PATCH -->
-		<Row Class="6" Name="BALANCE_CORE_MILITARY_PROMOTION_ADVANCED" Value="0"/>
-		<!-- Purchased COMBAT units do not have full health when the city is damaged  -->
-		<Row Class="6" Name="BALANCE_CORE_UNIT_CREATION_DAMAGED" Value="0"/>
+		<!-- Increases the Gold cost of Buildings (1% per 3 Techs researched) and Units (1% per 2 Techs researched); also decreases the final Gold cost of Units by 20% -->
+		<Row Class="5" Name="BALANCE_PURCHASE_COST_ADJUSTMENTS" Value="0"/>
 		<!-- City-States' unit supply is equal to their handicap amount, which can be modified by globals based on trait, personality, and number of cities. No other unit supply bonuses/penalties apply. -->
 		<Row Class="6" Name="UNIT_SUPPLY_MINORS_USE_HANDICAP" Value="0"/>
-		<!-- Luxury Trait change (indonesia) - COMMUNITY_PATCH -->
-		<Row Class="6" Name="BALANCE_CORE_LUXURIES_TRAIT" Value="0"/>
 		<!-- Military and City logging for CP - COMMUNITY_PATCH -->
 		<Row Class="6" Name="BALANCE_CORE_MILITARY_LOGGING" Value="0"/>
 		<!-- Resources can give monopoly bonuses - COMMUNITY_PATCH -->
-		<Row Class="6" Name="BALANCE_CORE_RESOURCE_MONOPOLIES" Value="0"/>
+		<Row Class="6" Name="BALANCE_RESOURCE_MONOPOLIES" Value="0"/>
 		<!-- Enables/Disables Strategic Monopolies - COMMUNITY_PATCH -->
-		<Row Class="6" Name="BALANCE_CORE_RESOURCE_MONOPOLIES_STRATEGIC" Value="0"/>
+		<Row Class="6" Name="BALANCE_STRATEGIC_RESOURCE_MONOPOLIES" Value="0"/>
 		<!-- Gold purchases in cities reduce production cost by 50% instead of buying it outright - COMMUNITY_PATCH -->
 		<Row Class="6" Name="BALANCE_CORE_BUILDING_INVESTMENTS" Value="0"/>
 		<!-- Units are invested at 50% (see define) of their production cost, instead of being built outright. -->
 		<Row Class="6" Name="BALANCE_CORE_UNIT_INVESTMENTS" Value="0"/>
-		<!-- Great Engineers' Hurry Production produces completed buildings on the same turn as the Great Engineer is expended -->
-		<Row Class="6" Name="BALANCE_CORE_ENGINEER_HURRY" Value="1"/>
 		<!-- Maya cannot buy a prophet without a religion -->
 		<Row Class="6" Name="BALANCE_CORE_MAYA_CHANGE" Value="0"/>
 		<!-- Portugal can only sell exotic goods to CSs -->
 		<Row Class="6" Name="BALANCE_CORE_PORTUGAL_CHANGE" Value="0"/>
 		<!-- CSs give different bullying bonuses -->
 		<Row Class="6" Name="BALANCE_CORE_MINOR_VARIABLE_BULLYING" Value="0"/>
-		<!-- Yields scale with era -->
-		<Row Class="6" Name="BALANCE_YIELD_SCALE_ERA" Value="0"/>
 		<!-- Boost to GM and GD -->
 		<Row Class="6" Name="BALANCE_CORE_NEW_GP_ATTRIBUTES" Value="0"/>
 		<!-- Debugging -->
@@ -911,12 +870,8 @@
 		<Row Class="6" Name="BALANCE_CORE_MILITARY_RESISTANCE" Value="0"/>
 		<!-- Lack of strategic resources causes units to be unable to heal, rather than decrease their combat strength -->
 		<Row Class="6" Name="BALANCE_CORE_MILITARY_RESOURCES" Value="0"/>
-		<!-- Religion Founding removes all pantheon followers in your empire. Currently unimplemented. -->
-		<Row Class="6" Name="BALANCE_CORE_PANTHEON_RESET_FOUND" Value="0"/>
 		<!-- Enables era-specific messages for civ influence. Disabling may be useful for mods like Unique Cultural Influence that add special notifications. -->
 		<Row Class="6" Name="BALANCE_CORE_DIPLOMACY_ERA_INFLUENCE" Value="1"/>
-		<!-- Enables PtP minimum military system for CSs, and also the revocation system. -->
-		<Row Class="6" Name="BALANCE_CORE_MINOR_PTP_MINIMUM_VALUE" Value="0"/>
 		<!-- Cultural Victory requires Ideology and Content Population to win -->
 		<Row Class="6" Name="BALANCE_CORE_VICTORY_GAME_CHANGES" Value="0"/>
 		<!-- Missing strategic resources for buildings greatly increases their maintenance -->
@@ -929,24 +884,16 @@
 		<Row Class="6" Name="BALANCE_RETROACTIVE_PROMOS" Value="0"/>
 		<!-- Enable to disable Golden Age Point acquisition during Golden Ages. -->
 		<Row Class="6" Name="BALANCE_NO_GAP_DURING_GA" Value="0"/>
-		<!-- Settler units reduce population by 1 when completed. -->
-		<Row Class="6" Name="BALANCE_CORE_SETTLERS_CONSUME_POP" Value="0"/>
 		<!-- Beliefs with a 'RequiredCivilization' component are now only for that civ bonus-wise. -->
-		<Row Class="6" Name="BALANCE_CORE_UNIQUE_BELIEFS_ONLY_FOR_CIV" Value="0"/>
+		<Row Class="6" Name="BALANCE_UNIQUE_BELIEFS_ONLY_FOR_CIV" Value="0"/>
 		<!-- Defensive Pacts only end if you attack the player you have the agreement with. -->
 		<Row Class="6" Name="BALANCE_DEFENSIVE_PACTS_AGGRESSION_ONLY" Value="0"/>
 		<!-- Proximity malus for international trade routes -->
 		<Row Class="6" Name="BALANCE_CORE_SCALING_TRADE_DISTANCE" Value="0"/>
-		<!-- Scales XP with game speed; affects promotions' tresholds and flat XP gains -->
-		<Row Class="6" Name="BALANCE_CORE_SCALING_XP" Value="0"/>
 		<!-- Halved XP for units purchased with gold -->
 		<Row Class="6" Name="BALANCE_CORE_HALF_XP_PURCHASE" Value="0"/>
 		<!-- XP is granted only on a unit's first attack. -->
 		<Row Class="6" Name="BALANCE_CORE_XP_ON_FIRST_ATTACK" Value="0"/>
-		<!-- Updates to City State Quests (currently includes: Faith Contest (now based on followers converted)) -->
-		<Row Class="6" Name="BALANCE_CORE_QUEST_CHANGES" Value="0"/>
-		<!-- Puppets ignored for happiness/unhappiness, no longer make GPP points -->
-		<Row Class="6" Name="BALANCE_CORE_PUPPET_CHANGES" Value="0"/>
 		<!-- City pop now affects HP, not defense -->
 		<Row Class="6" Name="BALANCE_CORE_CITY_DEFENSE_SWITCH" Value="0"/>
 		<!-- Gather archaeological data from planting a GP -->
@@ -981,8 +928,6 @@
 		<Row Class="5" Name="CORE_RESILIENT_PANTHEONS" Value="0"/>
 		<!-- Enables hovercraft. -->
 		<Row Class="5" Name="CORE_HOVERING_UNITS" Value="0"/>
-		<!-- Visible tiles stay visible until the end of the turn. -->
-		<Row Class="6" Name="CORE_DELAYED_VISIBILITY" Value="1"/>
 		<!-- Danger plot valuation: ignore ZOC only for those units which are likely to be killed by the enemy (alternatively ignore ZOC for all owned units) -->
 		<Row Class="1" Name="CORE_TWO_PASS_DANGER" Value="0"/>
 
@@ -1018,8 +963,8 @@
 	<!-- GameEvents.EventActivated(iPlayer, iEvent, iChoice)-->
 
 	<CustomModPostDefines>
-		<!-- Give initial production boost for cities founded on forests, as if the forest had been chopped down by a worker (v19) -->
-		<!-- See also: "Global - City Forest Bonus" -->
-		<!-- Row Name="GLOBAL_CITY_FOREST_BONUS_TECH" Table="Technologies" Type="TECH_MINING"/ -->		<!-- Required tech (v47) -->
+		<!-- We can optionally add tech gates for Forest/Jungle chopping bonuses here, but Community Patch and Vox Populi use Technologies.FeatureProductionModifier instead -->
+		<!-- Row Name="GLOBAL_CITY_FOREST_BONUS_TECH" Table="Technologies" Type="TECH_MINING"/ -->		<!-- Required tech (GLOBAL_CITY_FOREST_BONUS) -->
+		<!-- Row Name="GLOBAL_CITY_JUNGLE_BONUS_TECH" Table="Technologies" Type="TECH_MINING"/ -->		<!-- Required tech (GLOBAL_CITY_JUNGLE_BONUS) -->
 	</CustomModPostDefines>
 </GameData>

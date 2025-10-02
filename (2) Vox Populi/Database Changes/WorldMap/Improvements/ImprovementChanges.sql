@@ -80,7 +80,6 @@ SET
 	NoTwoAdjacent = 1,
 	OutsideBorders = 0,
 	BuildableOnResources = 0,
-	MakesPassable = 1,
 	DestroyedWhenPillaged = 0
 WHERE Type = 'IMPROVEMENT_FORT';
 
@@ -92,7 +91,7 @@ VALUES
 	('IMPROVEMENT_CITADEL', 'YIELD_SCIENCE', 1);
 
 UPDATE Improvements
-SET NoTwoAdjacent = 1, MakesPassable = 1
+SET NoTwoAdjacent = 1
 WHERE Type = 'IMPROVEMENT_CITADEL';
 
 -- Other GPTIs

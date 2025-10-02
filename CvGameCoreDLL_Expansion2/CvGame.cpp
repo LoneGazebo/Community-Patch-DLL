@@ -8844,7 +8844,7 @@ UnitTypes CvGame::GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bInclude
 				continue;
 
 			//Not valid?
-			if (MOD_GLOBAL_EXCLUDE_FROM_GIFTS && pkUnitInfo->IsNoMinorGifts())
+			if (pkUnitInfo->IsNoMinorCivUU())
 				continue;
 			if (pkUnitInfo->IsInvalidMinorCivGift())
 				continue;
@@ -8864,20 +8864,20 @@ UnitTypes CvGame::GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bInclude
 			}
 			
 			// We only want unique units that are not in the game already, or are explicitly Minor Civ Gifts
-			if( !MOD_BALANCE_CORE_MINOR_CIV_GIFT || !pkUnitInfo->IsMinorCivGift() )
+			if (!pkUnitInfo->IsMinorCivGift() )
 			{
-				if(eLoopUnit == pkUnitClassInfo->getDefaultUnitIndex())
+				if (eLoopUnit == pkUnitClassInfo->getDefaultUnitIndex())
 					continue;
-				
+
 				if (!bIncludeCivsInGame)
 				{
-					for(int iMajorLoop = 0; iMajorLoop < MAX_PLAYERS; iMajorLoop++)  // MAX_PLAYERS so that we look at Barbarian UUs (ie. Brute) as well
+					for (int iMajorLoop = 0; iMajorLoop < MAX_PLAYERS; iMajorLoop++)  // MAX_PLAYERS so that we look at Barbarian UUs (ie. Brute) as well
 					{
 						PlayerTypes eMajorLoop = (PlayerTypes) iMajorLoop;
-						if(GET_PLAYER(eMajorLoop).isAlive())
+						if (GET_PLAYER(eMajorLoop).isAlive())
 						{
 							UnitTypes eUniqueUnitInGame = (UnitTypes) GET_PLAYER(eMajorLoop).getCivilizationInfo().getCivilizationUnits(eLoopUnitClass);
-							if(eLoopUnit == eUniqueUnitInGame)
+							if (eLoopUnit == eUniqueUnitInGame)
 							{
 								bValid = false;
 								break;
@@ -8886,22 +8886,22 @@ UnitTypes CvGame::GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bInclude
 					}
 				}
 			}
-			if(!bValid)
+			if (!bValid)
 				continue;
 			
 			// Avoid Recon units
-			if(pkUnitInfo->GetDefaultUnitAIType() == UNITAI_EXPLORE)
+			if (pkUnitInfo->GetDefaultUnitAIType() == UNITAI_EXPLORE)
 				continue;
 
 			// No Ranged units?
-			if(!bIncludeRanged && pkUnitInfo->GetRangedCombat() > 0)
+			if (!bIncludeRanged && pkUnitInfo->GetRangedCombat() > 0)
 				continue;
 
 			// Must be land Unit?
-			if(!bCoastal && pkUnitInfo->GetDomainType() != DOMAIN_LAND)
-					continue;
+			if (!bCoastal && pkUnitInfo->GetDomainType() != DOMAIN_LAND)
+				continue;
 
-			if(pkUnitInfo->GetDomainType() == DOMAIN_AIR)
+			if (pkUnitInfo->GetDomainType() == DOMAIN_AIR)
 				continue;
 
 			// Technology level
@@ -8917,9 +8917,9 @@ UnitTypes CvGame::GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bInclude
 				}
 			}
 
-			if ( ePrereqEra == getStartEra() && !bIncludeStartEra )
+			if (ePrereqEra == getStartEra() && !bIncludeStartEra)
 				continue;
-			else if ( ePrereqEra < getStartEra() && !bIncludeOldEras ) // Assumption: NO_ERA < 0
+			else if (ePrereqEra < getStartEra() && !bIncludeOldEras) // Assumption: NO_ERA < 0
 				continue;
 
 			// Is this Unit already assigned to another minor civ?

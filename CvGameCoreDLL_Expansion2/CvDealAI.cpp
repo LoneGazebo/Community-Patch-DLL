@@ -1918,7 +1918,7 @@ vector<int> CvDealAI::GetStrategicResourceItemList(ResourceTypes eResource, int 
 		if (pPlayer->GetPlayerTraits()->NoTrain(eUnitClass))
 			continue;
 
-		if (MOD_BALANCE_CORE_MINOR_CIV_GIFT && pkUnitInfo->IsMinorCivGift())
+		if (pkUnitInfo->IsMinorCivGift())
 			continue;
 
 		// if we're over supply limit, only check air units
@@ -2585,8 +2585,7 @@ int CvDealAI::GetDefensivePactValue(bool bFromMe, PlayerTypes eOtherPlayer)
 		return INT_MAX;
 
 	int iDefensivePactValue = GetPlayer()->GetDiplomacyAI()->ScoreDefensivePactChoice(eOtherPlayer, GetPlayer()->GetNumEffectiveCoastalCities() > 1);
-
-	if (MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
+	if (MOD_BALANCE_VP)
 		iDefensivePactValue *= max(1, (int)GetPlayer()->GetCurrentEra());
 
 	int iItemValue = 0;

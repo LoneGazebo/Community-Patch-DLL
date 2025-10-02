@@ -76,8 +76,8 @@ VALUES
 -- Trade routes
 	('OPEN_BORDERS_MODIFIER_TRADE_GOLD', 20), -- Open Borders trade gold modifier (halved if not mutual)
 -- Ideology unlock via policies
-	('BALANCE_MOD_POLICY_BRANCHES_NEEDED_IDEOLOGY', 3),
-	('BALANCE_MOD_POLICIES_NEEDED_IDEOLOGY', 18),
+	('BALANCE_MOD_POLICY_BRANCHES_NEEDED_IDEOLOGY', -1),
+	('BALANCE_MOD_POLICIES_NEEDED_IDEOLOGY', -1),
 -- Resource monopolies
 	('GLOBAL_RESOURCE_MONOPOLY_THRESHOLD', 50),
 	('STRATEGIC_RESOURCE_MONOPOLY_THRESHOLD', 25),
@@ -1416,50 +1416,47 @@ VALUES
 -- Irrational city-states roll to see if they are friendly, neutral or hostile towards the meeting player.
 	('MINOR_CIV_FIRST_CONTACT_BONUS_FRIENDSHIP', 5),
 	('MINOR_CIV_FIRST_CONTACT_BONUS_CULTURE', 5),
-	('MINOR_CIV_FIRST_CONTACT_BONUS_FAITH', 5),
+	('MINOR_CIV_FIRST_CONTACT_BONUS_FAITH', 8), -- also used for the BNW Faith gift if GLOBAL_CS_GIFTS = 0 since Firaxis didn't add a define; updated to 5 below if GLOBAL_CS_GIFTS = 1
 	('MINOR_CIV_FIRST_CONTACT_BONUS_GOLD', 25),
 	-- Below are only given to the player who meets the CS instead of the whole team
 	('MINOR_CIV_FIRST_CONTACT_BONUS_FOOD', 10),
 	-- Chance to get a unit
 	('MINOR_CIV_FIRST_CONTACT_BONUS_UNIT', 10),
 	('MINOR_CIV_FIRST_CONTACT_XP_PER_ERA', 5),
-	('MINOR_CIV_FIRST_CONTACT_XP_RANDOM', 5),
+	('MINOR_CIV_FIRST_CONTACT_XP_RANDOM', 4),
+	-- Multiplier to base Influence amount if no unit is given; adds (Influence * x / 100) Influence instead
+	('MINOR_CIV_FIRST_CONTACT_NO_UNIT_CONSOLATION_MULTIPLIER', 100),
 
-	-- Multiplier and Divisor for the player meeting the CS, we can only store ints so *2 is 2/1
-	-- Only Influence uses these
-	('MINOR_CIV_FIRST_CONTACT_PLAYER_MULTIPLIER', 2),
-	('MINOR_CIV_FIRST_CONTACT_PLAYER_DIVISOR', 1),
+	-- Multiplier to Influence for the player who meets the CS
+	('MINOR_CIV_FIRST_CONTACT_PLAYER_MULTIPLIER', 200),
 
-	-- Multiplier and Divisor for the subsequent teams meeting the CS, we can only store ints so *0.5 is 1/2
-	-- Only Influence uses the multiplier
-	('MINOR_CIV_FIRST_CONTACT_SUBSEQUENT_TEAM_MULTIPLIER', 1),
-	-- Only Influence, Culture and Faith use the divisor, others are set to 0 instead
-	('MINOR_CIV_FIRST_CONTACT_SUBSEQUENT_TEAM_DIVISOR', 2),
+	-- Multiplier for the subsequent teams meeting the CS
+	-- This is also used for the Faith gift if GLOBAL_CS_GIFTS = 0
+	('MINOR_CIV_FIRST_CONTACT_SUBSEQUENT_TEAM_MULTIPLIER', 50),
 
-	-- Multiplier and Divisor for friendly city states bonuses, we can only store ints so *1.5 is 3/2
-	('MINOR_CIV_FIRST_CONTACT_FRIENDLY_BONUS_MULTIPLIER', 3),
-	('MINOR_CIV_FIRST_CONTACT_FRIENDLY_BONUS_DIVISOR', 2),
+	-- Multiplier for Friendly CS bonuses
+	('MINOR_CIV_FIRST_CONTACT_FRIENDLY_BONUS_MULTIPLIER', 150),
 
-	-- Multiplier and Divisor for friendly city states unit chance, we can only store ints so *2 is 2/1
-	('MINOR_CIV_FIRST_CONTACT_FRIENDLY_UNIT_MULTIPLIER', 2),
-	('MINOR_CIV_FIRST_CONTACT_FRIENDLY_UNIT_DIVISOR', 1),
+	-- Multiplier for Friendly CS unit chance
+	('MINOR_CIV_FIRST_CONTACT_FRIENDLY_UNIT_MULTIPLIER', 200),
 
-	-- Multiplier and Divisor for hostile city states bonuses, we can only store ints so *0.5 is 1/2
-	('MINOR_CIV_FIRST_CONTACT_HOSTILE_BONUS_MULTIPLIER', 1),
-	('MINOR_CIV_FIRST_CONTACT_HOSTILE_BONUS_DIVISOR', 2),
+	-- Multiplier for Hostile CS bonuses
+	('MINOR_CIV_FIRST_CONTACT_HOSTILE_BONUS_MULTIPLIER', 50),
 
-	-- Multiplier and Divisor for hostile city states unit chance, we can only store ints so *0 is 0/1
+	-- Multiplier for Hostile CS unit chance
 	('MINOR_CIV_FIRST_CONTACT_HOSTILE_UNIT_MULTIPLIER', 0),
-	('MINOR_CIV_FIRST_CONTACT_HOSTILE_UNIT_DIVISOR', 1),
+
+-- GLOBAL_CS_UPGRADES
+	('UPGRADE_EXTRA_TURNS_UNIT_SPAWN', 3),
 
 -- BALANCE_CORE_NEW_GP_ATTRIBUTES
 	('RELIGION_MIN_FAITH_SECOND_PROPHET', 600),
 
--- BALANCE_CORE_WONDER_COST_INCREASE
-	('BALANCE_CORE_WORLD_WONDER_SAME_ERA_COST_MODIFIER', 25),
-	('BALANCE_CORE_WORLD_WONDER_PREVIOUS_ERA_COST_MODIFIER', 15),
-	('BALANCE_CORE_WORLD_WONDER_SECOND_PREVIOUS_ERA_COST_MODIFIER', 10),
-	('BALANCE_CORE_WORLD_WONDER_EARLIER_ERA_COST_MODIFIER', 5); -- all previous eras
+-- Increases the Production cost of World Wonders based on the number of existing World Wonders in the city
+	('BALANCE_WORLD_WONDER_SAME_ERA_COST_MODIFIER', 25),
+	('BALANCE_WORLD_WONDER_PREVIOUS_ERA_COST_MODIFIER', 15),
+	('BALANCE_WORLD_WONDER_SECOND_PREVIOUS_ERA_COST_MODIFIER', 10),
+	('BALANCE_WORLD_WONDER_EARLIER_ERA_COST_MODIFIER', 5); -- all previous eras
 
 INSERT INTO PostDefines
 	(Name, Key, "Table")
@@ -1477,10 +1474,15 @@ VALUES
 	('RELIGION_LAST_FOUND_ERA', 'ERA_RENAISSANCE', 'Eras'),
 	('RELIGION_GP_FAITH_PURCHASE_ERA', 'ERA_INDUSTRIAL', 'Eras'),
 	('IDEOLOGY_START_ERA', 'ERA_INDUSTRIAL', 'Eras'),
-	('IDEOLOGY_PREREQ_ERA', 'ERA_INDUSTRIAL', 'Eras'),
 	('MARCH_PROMOTION', 'PROMOTION_MARCH', 'UnitPromotions'),
 	('MORALE_PROMOTION', 'PROMOTION_MORALE', 'UnitPromotions'),
 	('PROMOTION_DEEPWATER_EMBARKATION', 'PROMOTION_DEEPWATER_EMBARKATION', 'UnitPromotions'),
 	('PROMOTION_DEFENSIVE_DEEPWATER_EMBARKATION', 'PROMOTION_DEFENSIVE_DEEPWATER_EMBARKATION', 'UnitPromotions'),
 	('PROMOTION_FLAGSHIP', 'PROMOTION_FLAGSHIP', 'UnitPromotions'),
 	('NUKE_TRIGGER_PROJECT', 'PROJECT_MANHATTAN_PROJECT', 'Projects');
+
+-- CustomModOption define overrides
+UPDATE Defines
+SET Value = 5
+WHERE Name = 'MINOR_CIV_FIRST_CONTACT_BONUS_FAITH'
+AND EXISTS (SELECT 1 FROM CustomModOptions WHERE Name = 'GLOBAL_CS_GIFTS' AND Value = 1);

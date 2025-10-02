@@ -136,9 +136,7 @@ protected:
 	static int lCanTrade(lua_State* L);
 	static int lCanBuyCityState(lua_State* L);
 	static int lCanRepairFleet(lua_State* L);
-#if defined(MOD_GLOBAL_SEPARATE_GREAT_ADMIRAL)
 	LUAAPIEXTN(CanChangePort, bool);
-#endif
 	static int lCanBuildSpaceship(lua_State* L);
 
 	static int lCanGoldenAge(lua_State* L);
@@ -159,9 +157,7 @@ protected:
 	static int lUpgradePrice(lua_State* L);
 	static int lCanUpgradeRightNow(lua_State* L);
 	LUAAPIEXTN(CanUpgradeTo, bool, iUpgradeUnitType, bTestVisible);
-#if defined(MOD_GLOBAL_CS_UPGRADES)
 	LUAAPIEXTN(CanUpgradeInTerritory, bool, bTestVisible);
-#endif
 	static int lGetNumResourceNeededToUpgrade(lua_State* L);
 	static int lGetNumResourceTotalNeededToUpgrade(lua_State* L);
 
@@ -170,9 +166,7 @@ protected:
 	static int lGetSpecialUnitType(lua_State* L);
 	static int lGetCaptureUnitType(lua_State* L);
 	static int lGetUnitCombatType(lua_State* L);
-#if defined(MOD_GLOBAL_PROMOTION_CLASSES)
 	LUAAPIEXTN(GetUnitPromotionType, int);
-#endif
 	static int lGetUnitAIType(lua_State* L);
 	static int lSetUnitAIType(lua_State* L);
 	static int lGetDomainType(lua_State* L);

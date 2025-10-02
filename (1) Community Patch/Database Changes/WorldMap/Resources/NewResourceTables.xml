@@ -40,7 +40,7 @@
 		<Column name="Value" type="integer" notnull="true"/>
 	</Table>
 
-	<!-- Below production cost modifier tables need the RESOURCES_PRODUCTION_COST_MODIFIERS option to function -->
+	<!-- Below production cost modifier tables need the RESOURCE_PRODUCTION_COST_MODIFIERS option to function -->
 	<!-- Production cost modifier to units of the specified combat in cities that have this resource connected -->
 	<!-- The unit's era must be on or later than RequiredEra and earlier than ObsoleteEra, if those columns are specified. If the unit doesn't have a prereq tech, the player's era is used instead. -->
 	<Table name="Resource_UnitCombatProductionCostModifiersLocal">

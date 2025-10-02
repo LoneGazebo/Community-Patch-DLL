@@ -1143,7 +1143,7 @@ bool CvHomelandAI::SendUnitGift(DomainTypes eDomain)
 
 				if (pUnit->CanDistanceGift(eBestGiftTarget) && pUnit->canUseForAIOperation())
 				{
-					// Check tech - don't gift obsolete units as we'll lose the Influence bonus if it's upgraded
+					// Check tech - don't gift obsolete units as we don't want them to be disbanded
 					UnitTypes eUpgradeUnitType = pUnit->GetUpgradeUnitType();
 					if (eUpgradeUnitType != NO_UNIT)
 					{
@@ -1183,14 +1183,6 @@ bool CvHomelandAI::SendUnitGift(DomainTypes eDomain)
 					continue;
 
 				int iXP = pUnit->getExperienceTimes100();
-
-				// Unique units last longer before upgrading, so they'll give us a longer Influence bonus
-				if (pUnit->getUnitType() != pkUnitClassInfo->getDefaultUnitIndex())
-				{
-					iXP /= 2;
-					iXP -= 1;
-				}
-
 				if (iXP < iLowestXP)
 				{
 					pGiftedUnit = m_pPlayer->getUnit(*it);

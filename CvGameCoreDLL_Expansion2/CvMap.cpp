@@ -2748,7 +2748,7 @@ void CvMap::RecalculateRivers()
 //	--------------------------------------------------------------------------------
 void CvMap::CalculateRivers()
 {
-	if (!MOD_RIVER_CITY_CONNECTIONS)
+	if (!MOD_BALANCE_RIVER_CITY_CONNECTIONS)
 		return;
 
 	CvPlot* pLoopPlot = NULL;

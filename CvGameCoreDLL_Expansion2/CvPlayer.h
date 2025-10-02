@@ -1533,9 +1533,7 @@ public:
 	int GetLostHolyCityX();
 	int GetLostHolyCityY();
 	PlayerTypes GetHolyCityConqueror();
-#if defined(MOD_GLOBAL_NO_CONQUERED_SPACESHIPS)
 	void disassembleSpaceship(CvPlot* pPlot);
-#endif
 	PlayerTypes GetCapitalConqueror() const;
 
 	int getCitiesLost() const;
@@ -1686,7 +1684,7 @@ public:
 
 	int getYieldFromExpendTileCapital(YieldTypes eIndex) const;
 	void changeYieldFromExpendTileCapital(YieldTypes eIndex, int iChange);
-#if defined(MOD_BALANCE_CORE_POLICIES)
+
 	int GetTradeReligionModifier() const;
 	void changeTradeReligionModifier(int iChange);
 
@@ -1913,7 +1911,7 @@ public:
 
 	void ChangeBullyGlobalCSReduction(int iValue);
 	int GetBullyGlobalCSReduction() const;
-#endif
+
 	void changeMaxAirUnits(int iChange);
 	int getMaxAirUnits() const;
 
@@ -1944,10 +1942,8 @@ public:
 	int GetAdmiralLuxuryBonus() const;
 	void changeAdmiralLuxuryBonus(int iChange);
 
-#if defined(MOD_POLICIES_UNIT_CLASS_REPLACEMENTS)
 	UnitClassTypes GetUnitClassReplacement(UnitClassTypes eUnitClass) const;
 	void SetUnitClassReplacement(UnitClassTypes eReplacedUnitClass, UnitClassTypes eReplacementUnitClass);
-#endif
 
 	int GetPromotionSameAttackBonus(PromotionTypes ePromotion) const;
 	void ProcessAttackForPromotionSameAttackBonus(PromotionTypes ePromotion);
@@ -2449,15 +2445,12 @@ public:
 
 	int GetPlotGoldCostMod() const;
 	void ChangePlotGoldCostMod(int iChange);
-#if defined(MOD_TRAITS_CITY_WORKING) || defined(MOD_BUILDINGS_CITY_WORKING) || defined(MOD_POLICIES_CITY_WORKING) || defined(MOD_TECHS_CITY_WORKING)
+
 	int GetCityWorkingChange() const;
 	void ChangeCityWorkingChange(int iChange);
-#endif
 
-#if defined(MOD_TRAITS_CITY_AUTOMATON_WORKERS) || defined(MOD_BUILDINGS_CITY_AUTOMATON_WORKERS) || defined(MOD_POLICIES_CITY_AUTOMATON_WORKERS) || defined(MOD_TECHS_CITY_AUTOMATON_WORKERS)
 	int GetCityAutomatonWorkersChange() const;
 	void ChangeCityAutomatonWorkersChange(int iChange);
-#endif
 
 	int GetBorderGrowthRateIncreaseGlobal() const;
 	void ChangeBorderGrowthRateIncreaseGlobal(int iChange);
@@ -3007,7 +3000,6 @@ protected:
 	int m_iHappinessPerGarrisonedUnitCount;
 	int m_iHappinessPerTradeRouteCount;
 	int m_iHappinessPerXPopulation;
-#if defined(MOD_BALANCE_CORE_POLICIES)
 	int m_iHappinessPerXPopulationGlobal;
 	int m_iIdeologyPoint;
 	int m_iNoXPLossUnitPurchase;
@@ -3019,8 +3011,7 @@ protected:
 	int m_iMinimumAllyInfluenceIncreaseAtWar;
 	int m_iCanBullyFriendlyCS;
 	int m_iKeepConqueredBuildings;
-	int m_iBullyGlobalCSReduction;	
-#endif
+	int m_iBullyGlobalCSReduction;
 	int m_iIsVassalsNoRebel;
 	int m_iVassalYieldBonusModifier;
 	int m_iCSYieldBonusModifier;
@@ -3081,7 +3072,6 @@ protected:
 	int m_iNumUnitGoldenAges;
 	int m_iStrikeTurns;
 	int m_iGoldenAgeModifier;
-#if defined(MOD_GLOBAL_TRULY_FREE_GP)
 	int m_iProductionBonusTurnsConquest;
 	int m_iCultureBonusTurnsConquest;
 	int m_iFreeGreatPeopleCreated;
@@ -3106,7 +3096,6 @@ protected:
 	int m_iFreeGPExtra3Created;
 	int m_iFreeGPExtra4Created;
 	int m_iFreeGPExtra5Created;
-#endif
 	int m_iGreatPeopleCreated;
 	int m_iGreatGeneralsCreated;
 	int m_iGreatAdmiralsCreated;
@@ -3155,7 +3144,6 @@ protected:
 	int m_iSpecialistFoodChange;
 	int m_iWarWearinessModifier;
 	int m_iWarScoreModifier;
-#if defined(MOD_BALANCE_CORE_POLICIES)
 	int m_iGarrisonsOccupiedUnhappinessMod;
 	int m_iXPopulationConscription;
 	int m_iExtraMoves;
@@ -3183,7 +3171,6 @@ protected:
 	int m_iUnitsInLiberatedCities;
 	int m_iCityCaptureHealGlobal;
 	int m_iCityCaptureHealLocal;
-#endif
 	int m_iMaxAirUnits;
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int m_iInvestmentModifier;
@@ -3196,9 +3183,7 @@ protected:
 	int m_iNeedsModifierFromAirUnits;
 	int m_iFlatDefenseFromAirUnits;
 #endif
-#if defined(MOD_POLICIES_UNIT_CLASS_REPLACEMENTS)
 	std::map<UnitClassTypes, UnitClassTypes> m_piUnitClassReplacements;
-#endif
 	std::map<PromotionTypes, int> m_miPromotionSameAttackBonuses;
 	int m_iMaxGlobalBuildingProductionModifier;
 	int m_iMaxTeamBuildingProductionModifier;
@@ -3367,12 +3352,8 @@ protected:
 	int m_iCapitalGrowthMod;
 	int m_iNumPlotsBought;
 	int m_iPlotGoldCostMod;
-#if defined(MOD_TRAITS_CITY_WORKING) || defined(MOD_BUILDINGS_CITY_WORKING) || defined(MOD_POLICIES_CITY_WORKING) || defined(MOD_TECHS_CITY_WORKING)
 	int m_iCityWorkingChange;
-#endif
-#if defined(MOD_TRAITS_CITY_AUTOMATON_WORKERS) || defined(MOD_BUILDINGS_CITY_AUTOMATON_WORKERS) || defined(MOD_POLICIES_CITY_AUTOMATON_WORKERS) || defined(MOD_TECHS_CITY_AUTOMATON_WORKERS)
 	int m_iCityAutomatonWorkersChange;
-#endif
 	int m_iCachedGoldRate;
 	int m_iBorderGrowthRateIncreaseGlobal;
 	int m_iPlotCultureCostModifier;
@@ -3447,7 +3428,6 @@ protected:
 	std::vector<int> m_aiCapitalYieldPerPopChangeEmpire;
 	std::vector<int> m_aiSeaPlotYield;
 	std::vector<int> m_aiYieldRateModifier;
-#if defined(MOD_BALANCE_CORE_POLICIES)
 	std::vector<int> m_paiJFDPoliticPercent;
 	std::vector<int> m_aiYieldFromMinors;
 	std::vector<int> m_paiResourceFromCSAlliances;
@@ -3493,8 +3473,7 @@ protected:
 	std::vector<UnitAITypes> m_neededUnitAITypes;
 	bool m_bAllowsProductionTradeRoutesGlobal;
 	bool m_bAllowsFoodTradeRoutesGlobal;
-	
-#endif
+
 	std::map<int, int> m_piDomainFreeExperience;
 
 	std::vector<int> m_aiCapitalYieldRateModifier;

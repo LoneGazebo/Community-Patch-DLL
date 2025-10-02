@@ -4629,6 +4629,7 @@ CvGameSpeedInfo::CvGameSpeedInfo() :
 	m_iTrainPercent(0),
 	m_iInstantYieldPercent(0),
 	m_iDifficultyBonusPercent(0),
+	m_iExperiencePercent(0),
 	m_iConstructPercent(0),
 	m_iCreatePercent(0),
 	m_iResearchPercent(0),
@@ -4701,6 +4702,11 @@ int CvGameSpeedInfo::getInstantYieldPercent() const
 int CvGameSpeedInfo::getDifficultyBonusPercent() const
 {
 	return m_iDifficultyBonusPercent;
+}
+//------------------------------------------------------------------------------
+int CvGameSpeedInfo::getExperiencePercent() const
+{
+	return m_iExperiencePercent;
 }
 //------------------------------------------------------------------------------
 int CvGameSpeedInfo::getConstructPercent() const
@@ -4886,6 +4892,7 @@ bool CvGameSpeedInfo::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iTrainPercent					= kResults.GetInt("TrainPercent");
 	m_iInstantYieldPercent			= kResults.GetInt("InstantYieldPercent");
 	m_iDifficultyBonusPercent		= kResults.GetInt("DifficultyBonusPercent");
+	m_iExperiencePercent			= kResults.GetInt("ExperiencePercent");
 	m_iConstructPercent				= kResults.GetInt("ConstructPercent");
 	m_iCreatePercent				= kResults.GetInt("CreatePercent");
 	m_iResearchPercent				= kResults.GetInt("ResearchPercent");
@@ -5871,10 +5878,8 @@ CvResourceInfo::CvResourceInfo() :
 	m_piMonopolyGreatPersonRateModifiers(),
 	m_piMonopolyGreatPersonRateChanges(),
 #endif
-#if defined(MOD_RESOURCES_PRODUCTION_COST_MODIFIERS)
 	m_piiiUnitCombatProductionCostModifiersLocal(),
 	m_aiiiBuildingProductionCostModifiersLocal(),
-#endif
 	m_piResourceQuantityTypes(NULL),
 	m_piImprovementChange(NULL),
 	m_pbTerrain(NULL),
@@ -5893,10 +5898,8 @@ CvResourceInfo::~CvResourceInfo()
 	m_piMonopolyGreatPersonRateModifiers.clear();
 	m_piMonopolyGreatPersonRateChanges.clear();
 #endif
-#if defined(MOD_RESOURCES_PRODUCTION_COST_MODIFIERS)
 	m_piiiUnitCombatProductionCostModifiersLocal.clear();
 	m_aiiiBuildingProductionCostModifiersLocal.clear();
-#endif
 	SAFE_DELETE_ARRAY(m_piResourceQuantityTypes);
 	SAFE_DELETE_ARRAY(m_piImprovementChange);
 	SAFE_DELETE_ARRAY(m_pbTerrain);
@@ -6362,7 +6365,6 @@ int CvResourceInfo::getMonopolyGreatPersonRateChange(SpecialistTypes eSpecialist
 }
 #endif
 
-#if defined(MOD_RESOURCES_PRODUCTION_COST_MODIFIERS)
 //------------------------------------------------------------------------------
 bool CvResourceInfo::isHasUnitCombatProductionCostModifiersLocal() const
 {
@@ -6471,7 +6473,7 @@ std::vector<ProductionCostModifiers> CvResourceInfo::getBuildingProductionCostMo
 {
 	return m_aiiiBuildingProductionCostModifiersLocal;
 }
-#endif
+
 //------------------------------------------------------------------------------
 int CvResourceInfo::getResourceQuantityType(int i) const
 {
@@ -6725,7 +6727,6 @@ bool CvResourceInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	}
 #endif
 
-#if defined(MOD_RESOURCES_PRODUCTION_COST_MODIFIERS)
 	//Resource_UnitCombatProductionCostModifiersLocal
 	{
 
@@ -6761,36 +6762,34 @@ bool CvResourceInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	}
 
 	//Resource_BuildingProductionCostModifiersLocal
+	{
+
+		std::string sqlKey = "Resource_BuildingProductionCostModifiersLocal";
+		Database::Results* pResults = kUtility.GetResults(sqlKey);
+		if (pResults == NULL)
 		{
-
-			std::string sqlKey = "Resource_BuildingProductionCostModifiersLocal";
-			Database::Results* pResults = kUtility.GetResults(sqlKey);
-			if (pResults == NULL)
-			{
-				const char* szSQL = "select RequiredEra, ObsoleteEra, CostModifier from Resource_BuildingProductionCostModifiersLocal where ResourceType = ?";
-				pResults = kUtility.PrepareResults(sqlKey, szSQL);
-			}
-
-			pResults->Bind(1, szResourceType);
-
-			while (pResults->Step())
-			{
-				const int iRequiredEra = GC.getInfoTypeForString(pResults->GetText(0), true);
-				const int iObsoleteEra = GC.getInfoTypeForString(pResults->GetText(1), true);
-				const int iCostMod = pResults->GetInt(2);
-
-				ProductionCostModifiers sElement;
-				sElement.m_iRequiredEra = iRequiredEra;
-				sElement.m_iObsoleteEra = iObsoleteEra;
-				sElement.m_iCostModifier = iCostMod;
-
-				m_aiiiBuildingProductionCostModifiersLocal.push_back(sElement);
-			}
-
-			pResults->Reset();
+			const char* szSQL = "select RequiredEra, ObsoleteEra, CostModifier from Resource_BuildingProductionCostModifiersLocal where ResourceType = ?";
+			pResults = kUtility.PrepareResults(sqlKey, szSQL);
 		}
-#endif
 
+		pResults->Bind(1, szResourceType);
+
+		while (pResults->Step())
+		{
+			const int iRequiredEra = GC.getInfoTypeForString(pResults->GetText(0), true);
+			const int iObsoleteEra = GC.getInfoTypeForString(pResults->GetText(1), true);
+			const int iCostMod = pResults->GetInt(2);
+
+			ProductionCostModifiers sElement;
+			sElement.m_iRequiredEra = iRequiredEra;
+			sElement.m_iObsoleteEra = iObsoleteEra;
+			sElement.m_iCostModifier = iCostMod;
+
+			m_aiiiBuildingProductionCostModifiersLocal.push_back(sElement);
+		}
+
+		pResults->Reset();
+	}
 
 	return true;
 }
@@ -8510,9 +8509,7 @@ CvProcessInfo::CvProcessInfo() :
 	m_iTechPrereq(NO_TECH),
 	m_iRequiredPolicy(NO_POLICY),
 	m_iDefenseValue(0),
-#if defined(MOD_CIVILIZATIONS_UNIQUE_PROCESSES)
 	m_eRequiredCivilization(NO_CIVILIZATION),
-#endif
 	m_paiProductionToYieldModifier(NULL),
 	m_paiFlavorValue(NULL)
 {
@@ -8541,13 +8538,11 @@ int CvProcessInfo::getDefenseValue() const
 	return m_iDefenseValue;
 }
 
-#if defined(MOD_CIVILIZATIONS_UNIQUE_PROCESSES)
 //------------------------------------------------------------------------------
 CivilizationTypes CvProcessInfo::GetRequiredCivilization() const
 {
 	return m_eRequiredCivilization;
 }
-#endif
 
 //------------------------------------------------------------------------------
 int CvProcessInfo::getProductionToYieldModifier(int i) const
@@ -8580,10 +8575,8 @@ bool CvProcessInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 
 	m_iDefenseValue = kResults.GetInt("DefenseValue");
 
-#if defined(MOD_CIVILIZATIONS_UNIQUE_PROCESSES)
 	const char* szCivilizationType = kResults.GetText("CivilizationType");
 	m_eRequiredCivilization = (CivilizationTypes)GC.getInfoTypeForString(szCivilizationType, true);
-#endif
 
 	const char* szProcessType = GetType();
 

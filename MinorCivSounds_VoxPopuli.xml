@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- To apply the changes in this file, the Expansion2.Civ5Pkg file needs to be replaced with the modified version which loads this file. -->
-<!-- The Community Patch / Vox Populi autoinstaller will do this automatically, but if you are installing manually, you will need to make the replacement yourself. -->
+<!-- The Vox Populi autoinstaller will do this automatically, but if you are installing manually, you will need to make the replacement yourself. -->
 <MinorCivsSounds>
 	<!-- Fix a BNW bug where Cape Town uses Almaty's sound clip instead of its own. -->
 	<MinorCivSound>

@@ -294,13 +294,11 @@ protected:
 	LUAAPIEXTN(ResetOriginalCapitalXY, void);
 	LUAAPIEXTN(GetNumWonders, int);
 	LUAAPIEXTN(GetOriginalCapitalPlot, int);
-#if defined(MOD_BALANCE_CORE_POLICIES)
 	LUAAPIEXTN(GetNoUnhappinessExpansion, int);
 	LUAAPIEXTN(GetFractionOriginalCapitalsUnderControl, int);
 	LUAAPIEXTN(GetTechNeedModifier, int);
 	LUAAPIEXTN(GetTourismPenalty, int);
 	LUAAPIEXTN(GetTechsToFreePolicy, int);
-#endif
 	static int lGetInfluenceTradeRouteScienceBonus(lua_State* L);
 	static int lGetInfluenceCityStateSpyRankBonus(lua_State* L);
 	static int lGetInfluenceMajorCivSpyRankBonus(lua_State* L);
@@ -348,9 +346,7 @@ protected:
 	static int lGetOriginalReligionCreatedByPlayer(lua_State* L);
 	static int lGetFoundedReligionEnemyCityCombatMod(lua_State* L);
 	static int lGetFoundedReligionFriendlyCityCombatMod(lua_State* L);
-#if defined(MOD_BALANCE_CORE_BELIEFS)
 	LUAAPIEXTN(GetYieldPerTurnFromReligion, int);
-#endif
 	static int lGetMinimumFaithNextGreatProphet(lua_State* L);
 	static int lHasReligionInMostCities(lua_State* L);
 	static int lDoesUnitPassFaithPurchaseCheck(lua_State* L);
@@ -783,9 +779,7 @@ protected:
 	static int lChangeMinorCivFriendshipWithMajor(lua_State* L);
 	static int lGetMinorCivFriendshipAnchorWithMajor(lua_State* L);
 	static int lGetFriendshipNeededForNextLevel(lua_State* L);
-#if defined(MOD_BALANCE_CORE_MINORS)
 	LUAAPIEXTN(GetJerkTurnsRemaining, int);
-#endif
 	LUAAPIEXTN(GetNumDenouncements, int);
 	LUAAPIEXTN(GetNumDenouncementsOfPlayer, int);
 
@@ -1040,14 +1034,10 @@ protected:
 
 	LUAAPIEXTN(GetBuyPlotDistance, int);
 	LUAAPIEXTN(GetWorkPlotDistance, int);
-#if defined(MOD_TRAITS_CITY_WORKING) || defined(MOD_BUILDINGS_CITY_WORKING) || defined(MOD_POLICIES_CITY_WORKING) || defined(MOD_TECHS_CITY_WORKING)
 	LUAAPIEXTN(GetCityWorkingChange, int);
 	LUAAPIEXTN(ChangeCityWorkingChange, void, iChange);
-#endif
-#if defined(MOD_TRAITS_CITY_AUTOMATON_WORKERS) || defined(MOD_BUILDINGS_CITY_AUTOMATON_WORKERS) || defined(MOD_POLICIES_CITY_AUTOMATON_WORKERS) || defined(MOD_TECHS_CITY_AUTOMATON_WORKERS)
 	LUAAPIEXTN(GetCityAutomatonWorkersChange, int);
 	LUAAPIEXTN(ChangeCityAutomatonWorkersChange, void, iChange);
-#endif
 
 	// Diplomacy Stuff
 
@@ -1234,9 +1224,7 @@ protected:
 
 	static int lGetExtraBuildingHappinessFromPolicies(lua_State* L);
 
-#if defined(MOD_BALANCE_CORE_POLICIES)
 	static int lGetExtraYieldWorldWonder(lua_State* L);
-#endif
 
 	static int lGetPrevCity(lua_State* L);
 	static int lGetNextCity(lua_State* L);

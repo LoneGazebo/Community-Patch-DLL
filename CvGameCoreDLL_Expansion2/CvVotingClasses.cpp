@@ -1417,21 +1417,18 @@ void CvActiveResolution::DoEffects(PlayerTypes ePlayer)
 
 	if (GetEffects()->bOpenDoor)
 	{
-		if (!GET_PLAYER(ePlayer).isMinorCiv())
+		if (GET_PLAYER(ePlayer).isMajorCiv() && GET_PLAYER(ePlayer).isAlive() && eTargetCityState != NO_PLAYER && GET_PLAYER(eTargetCityState).isMinorCiv() && GET_PLAYER(eTargetCityState).isAlive())
 		{
-			if (GET_PLAYER(ePlayer).isAlive())
+			TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
+			TeamTypes eCityStateTeam = GET_PLAYER(eTargetCityState).getTeam();
+			if (!GET_TEAM(eTeam).isHasMet(eCityStateTeam))
 			{
-				if (GET_PLAYER(eTargetCityState).isMinorCiv() && eTargetCityState != NO_PLAYER && GET_PLAYER(eTargetCityState).isAlive())
-				{
-					if(!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isHasMet(GET_PLAYER(eTargetCityState).getTeam()))
-					{
-						GET_TEAM(GET_PLAYER(ePlayer).getTeam()).meet(GET_PLAYER(eTargetCityState).getTeam(), false);
-					}
-					GET_PLAYER(eTargetCityState).GetMinorCivAI()->SetFriendshipWithMajor(ePlayer, 40);
-				}
-				GET_PLAYER(eTargetCityState).GetMinorCivAI()->SetNoAlly(true);
-				GET_PLAYER(eTargetCityState).GetMinorCivAI()->SetAlly(NO_PLAYER,false);
+				GET_TEAM(eTeam).meet(eCityStateTeam, false);
+				GET_PLAYER(eTargetCityState).GetMinorCivAI()->DoFirstContactWithMajor(ePlayer, GET_TEAM(eTeam).isAtWar(eCityStateTeam));
 			}
+			GET_PLAYER(eTargetCityState).GetMinorCivAI()->SetFriendshipWithMajor(ePlayer, 40);
+			GET_PLAYER(eTargetCityState).GetMinorCivAI()->SetNoAlly(true);
+			GET_PLAYER(eTargetCityState).GetMinorCivAI()->SetAlly(NO_PLAYER,false);
 		}
 	}
 

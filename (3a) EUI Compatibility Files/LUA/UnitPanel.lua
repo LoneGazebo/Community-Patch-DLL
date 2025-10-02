@@ -1709,8 +1709,7 @@ function ActionToolTipHandler( control )
 			end
 
 			-- Can't upgrade because we're outside our territory
-			if plot:GetOwner() ~= unit:GetOwner() then
-
+			if (not unit:CanUpgradeInTerritory(false)) then
 				disabledTip:insertLocalized( "TXT_KEY_UPGRADE_HELP_DISABLED_TERRITORY" )
 			end
 

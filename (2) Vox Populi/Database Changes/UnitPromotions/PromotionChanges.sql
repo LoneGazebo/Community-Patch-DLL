@@ -605,13 +605,6 @@ UPDATE UnitPromotions SET IgnoreFeatureDamage = 1 WHERE Type = 'PROMOTION_FALLOU
 --------------------------------------------
 -- Natural Wonder free promotions
 --------------------------------------------
-UPDATE UnitPromotions SET HillsDoubleMove = 1 WHERE Type = 'PROMOTION_ALTITUDE_TRAINING';
-DELETE FROM UnitPromotions_Terrains WHERE PromotionType = 'PROMOTION_ALTITUDE_TRAINING';
-INSERT INTO UnitPromotions_TerrainModifiers
-	(PromotionType, TerrainType, Attack, Defense)
-VALUES
-	('PROMOTION_ALTITUDE_TRAINING', 'TERRAIN_HILL', 10, 10);
-
 UPDATE UnitPromotions SET MovesChange = 2 WHERE Type = 'PROMOTION_SACRED_STEPS';
 
 UPDATE UnitPromotions SET FriendlyHealChange = 5, NeutralHealChange = 5, EnemyHealChange = 5 WHERE Type = 'PROMOTION_EVERLASTING_YOUTH';
@@ -905,8 +898,7 @@ UPDATE UnitPromotions SET AttackWoundedMod = 33 WHERE Type = 'PROMOTION_STRONGER
 UPDATE UnitPromotions SET MoraleBreakChance = -1 WHERE Type = 'PROMOTION_WITHERING_FIRE';
 
 -- Pictish Warrior, Norwegian Ski Infantry: Highlander
-UPDATE UnitPromotions SET HillsDoubleMove = 1 WHERE Type = 'PROMOTION_SKI_INFANTRY';
-DELETE FROM UnitPromotions_Terrains WHERE PromotionType = 'PROMOTION_SKI_INFANTRY' AND TerrainType = 'TERRAIN_HILL';
+DELETE FROM UnitPromotions_Terrains WHERE PromotionType = 'PROMOTION_SKI_INFANTRY' AND TerrainType IN ('TERRAIN_SNOW', 'TERRAIN_TUNDRA');
 UPDATE UnitPromotions_Terrains SET Attack = 0, Defense = 0 WHERE PromotionType = 'PROMOTION_SKI_INFANTRY';
 INSERT INTO UnitPromotions_TerrainModifiers
 	(PromotionType, TerrainType, Attack, Defense)
@@ -1051,14 +1043,11 @@ UPDATE UnitPromotions SET AdjacentCityDefenseMod = 5 WHERE Type = 'PROMOTION_HAR
 UPDATE UnitPromotions SET FreePillageMoves = 1, AOEDamageOnPillage = 15 WHERE Type = 'PROMOTION_GARLAND_MINE';
 
 -- Hashemite Raider: Desert Raider
+UPDATE UnitPromotions_TerrainModifiers SET Attack = 25, Defense = 25 WHERE PromotionType = 'PROMOTION_DESERT_RAIDER';
 INSERT INTO UnitPromotions_Terrains
 	(PromotionType, TerrainType, DoubleMove)
 VALUES
 	('PROMOTION_DESERT_RAIDER', 'TERRAIN_DESERT', 1);
-INSERT INTO UnitPromotions_TerrainModifiers
-	(PromotionType, TerrainType, Attack, Defense)
-VALUES
-	('PROMOTION_DESERT_RAIDER', 'TERRAIN_DESERT', 25, 25);
 
 -- Iron Chariot: Shock Cavalry
 UPDATE UnitPromotions SET OpenAttack = 20, OpenDefense = 20 WHERE Type = 'PROMOTION_SHOCK_CAVALRY';

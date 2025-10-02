@@ -79,14 +79,11 @@ public:
 	bool ConvertsBarbarians() const;
 	bool FaithPurchaseAllGreatPeople() const;
 
-#if defined(MOD_BALANCE_CORE_BELIEFS_RESOURCE)
 	bool RequiresImprovement() const;
 	bool RequiresResource() const;
 	bool RequiresNoImprovement() const;
 	bool RequiresNoFeature() const;
-#endif
 
-#if defined(MOD_BALANCE_CORE_BELIEFS)
 	int GetHappinessFromForeignSpies() const;
 	int GetPressureChangeTradeRoute() const;
 	int GetYieldPerActiveTR(int i) const;
@@ -129,7 +126,6 @@ public:
 	int GetIgnorePolicyRequirementsAmount() const;
 	int GetCSYieldBonus() const;
 	int GetImprovementVoteChange(ImprovementTypes eIndex1) const;
-#endif
 	CivilizationTypes GetRequiredCivilization() const;
 
 	EraTypes GetObsoleteEra() const;
@@ -248,12 +244,10 @@ protected:
 	bool m_bRequiresPeace;
 	bool m_bConvertsBarbarians;
 	bool m_bFaithPurchaseAllGreatPeople;
-#if defined(MOD_BALANCE_CORE_BELIEFS_RESOURCE)
 	bool m_bRequiresImprovement;
 	bool m_bRequiresResource;
 	bool m_bRequiresNoImprovement;
 	bool m_bRequiresNoFeature;
-#endif
 
 	EraTypes m_eObsoleteEra;
 	ResourceTypes m_eResourceRevealed;
@@ -313,7 +307,6 @@ protected:
 	bool* m_pbFaithPurchaseUnitEraEnabled;
     bool* m_pbBuildingClassEnabled;
 
-#if defined(MOD_BALANCE_CORE_BELIEFS)
 	int m_iHappinessFromForeignSpies;
 	int m_iGetPressureChangeTradeRoute;
 	int* m_piYieldPerActiveTR;
@@ -356,7 +349,6 @@ protected:
 	int m_iFollowerScalerLimiter;
 	int m_iPolicyReductionWonderXFollowerCities;
 	bool m_bAIGoodStartingPantheon;
-#endif
 	CivilizationTypes m_eRequiredCivilization;
 
 private:
@@ -444,7 +436,6 @@ public:
 	int GetInquisitorPressureRetention(PlayerTypes ePlayer = NO_PLAYER, bool bHolyCityOnly = false) const;
 	int GetFaithBuildingTourism(PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetFullyConvertedHappiness(PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
-#if defined(MOD_BALANCE_CORE_BELIEFS)
 	int GetCombatVersusOtherReligionOwnLands(PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetCombatVersusOtherReligionTheirLands(PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetMissionaryInfluenceCS(PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
@@ -453,7 +444,6 @@ public:
 	int GetPolicyReductionWonderXFollowerCities(PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetCityScalerLimiter(int iCap = 0) const;
 	int GetFollowerScalerLimiter(int iCap = 0) const;
-#endif
 	EraTypes GetObsoleteEra(PlayerTypes ePlayer = NO_PLAYER, bool bHolyCityOnly = false) const;
 	ResourceTypes GetResourceRevealed(PlayerTypes ePlayer = NO_PLAYER, bool bHolyCityOnly = false) const;
 	TechTypes GetSpreadModifierDoublingTech(PlayerTypes ePlayer = NO_PLAYER, bool bHolyCityOnly = false) const;
@@ -525,14 +515,11 @@ public:
 	bool IsConvertsBarbarians(PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	bool IsFaithPurchaseAllGreatPeople(PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 
-#if defined(MOD_BALANCE_CORE_BELIEFS_RESOURCE)
 	bool RequiresImprovement(PlayerTypes ePlayer = NO_PLAYER, bool bHolyCityOnly = false) const;
 	bool RequiresResource(PlayerTypes ePlayer = NO_PLAYER, bool bHolyCityOnly = false) const;
 	bool RequiresNoImprovement(PlayerTypes ePlayer = NO_PLAYER, bool bHolyCityOnly = false) const;
 	bool RequiresNoFeature(PlayerTypes ePlayer = NO_PLAYER, bool bHolyCityOnly = false) const;
-#endif
 
-#if defined(MOD_BALANCE_CORE_BELIEFS)
 	int GetHappinessFromForeignSpies(PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetPressureChangeTradeRoute(PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetYieldPerActiveTR(YieldTypes eYieldType, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
@@ -569,7 +556,6 @@ public:
 	fraction GetVoteFromOwnedImprovement(ImprovementTypes eImprovement, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 
 	const BeliefList& GetBeliefList() const { return m_ReligionBeliefs; }
-#endif
 
 	// Serialization
 	template<typename ReligionBeliefs, typename Visitor>

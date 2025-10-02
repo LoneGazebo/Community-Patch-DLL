@@ -206,7 +206,6 @@ public:
 	bool IsStrongerDamaged() const;
 	bool IsFightWellDamaged() const;
 	bool IsFreeAttackMoves() const;
-	bool IsMountainsDoubleMove() const;
 	bool IsEmbarkFlatCost() const;
 	bool IsDisembarkFlatCost() const;
 	bool IsMountedOnly() const;
@@ -238,7 +237,6 @@ public:
 	bool IsRangedSupportFire() const;
 	bool IsAlwaysHeal() const;
 	bool IsHealOutsideFriendly() const;
-	bool IsHillsDoubleMove() const;
 	bool IsRiverDoubleMove() const;
 
 	bool IsIgnoreTerrainCost() const;
@@ -555,7 +553,6 @@ protected:
 	bool m_bRangedSupportFire;
 	bool m_bAlwaysHeal;
 	bool m_bHealOutsideFriendly;
-	bool m_bHillsDoubleMove;
 	bool m_bRiverDoubleMove;
 	bool m_bIgnoreTerrainCost;
 	bool m_bIgnoreTerrainDamage;
@@ -585,7 +582,6 @@ protected:
 	int m_iMultiAttackBonus;
 	int m_iLandAirDefenseValue;
 	int m_iDamageReductionCityAssault;
-	bool m_bMountainsDoubleMove;
 	bool m_bEmbarkFlatCost;
 	bool m_bDisembarkFlatCost;
 	bool m_bMountedOnly;

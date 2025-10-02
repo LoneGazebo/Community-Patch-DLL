@@ -58,10 +58,8 @@ public:
 	void DoUpdateCityConnectionGold();
 
 	// City Connection Route Modifiers
-#if defined(MOD_BALANCE_CORE_POLICIES)
 	int GetInternalTradeRouteGoldBonus() const;
 	void DoInternalTradeRouteGoldBonus();
-#endif
 	int GetCityConnectionTradeRouteGoldModifier() const;
 	void ChangeCityConnectionTradeRouteGoldModifier(int iChange);
 	int GetCityConnectionTradeRouteGoldChange() const;

@@ -296,7 +296,6 @@ void CvTreasury::DoUpdateCityConnectionGold()
 
 	m_iCityConnectionGoldTimes100 = iNumGold;
 }
-#if defined(MOD_BALANCE_CORE_POLICIES)
 /// How much of a percent bonus do we get for Trade Routes
 int CvTreasury::GetInternalTradeRouteGoldBonus() const
 {
@@ -317,8 +316,6 @@ void CvTreasury::DoInternalTradeRouteGoldBonus()
 	}
 	m_iInternalTradeGoldBonus = iGold;
 }
-#endif
-
 
 /// How much of a percent bonus do we get for Trade Routes
 int CvTreasury::GetCityConnectionTradeRouteGoldModifier() const
@@ -369,19 +366,9 @@ int CvTreasury::GetGoldPerTurnFromTradeRoutesTimes100() const
 /// Gold per turn from traits
 int CvTreasury::GetGoldPerTurnFromTraits() const
 {
-	if(MOD_BALANCE_YIELD_SCALE_ERA)
-	{
-		int iEra = m_pPlayer->GetCurrentEra();
-		if(iEra < 1)
-		{
-			iEra = 1;
-		}
-		return ((iEra * m_pPlayer->GetPlayerTraits()->GetYieldChangePerTradePartner(YIELD_GOLD) * m_pPlayer->GetTrade()->GetNumDifferentTradingPartners()) + (m_pPlayer->GetYieldPerTurnFromResources(YIELD_GOLD, true, true)));
-	}
-	else
-	{
-	return ((m_pPlayer->GetPlayerTraits()->GetYieldChangePerTradePartner(YIELD_GOLD) * m_pPlayer->GetTrade()->GetNumDifferentTradingPartners()) + (m_pPlayer->GetYieldPerTurnFromResources(YIELD_GOLD, true, true)));
-	}
+	int iEra = MOD_BALANCE_VP ? m_pPlayer->GetCurrentEra() : 1;
+	int iReturnValue = (max(iEra, 1) * m_pPlayer->GetPlayerTraits()->GetYieldChangePerTradePartner(YIELD_GOLD) * m_pPlayer->GetTrade()->GetNumDifferentTradingPartners()) + m_pPlayer->GetYieldPerTurnFromResources(YIELD_GOLD, true, true);
+	return iReturnValue;
 }
 
 /// Gold Per Turn from Religion
@@ -421,10 +408,8 @@ int CvTreasury::CalculateGrossGoldTimes100()
 	// We're a master of someone, we get gold from taxes
 	iNetGold += GetMyShareOfVassalTaxes();
 
-	if(MOD_BALANCE_CORE_MINOR_CIV_GIFT)
-	{
-		iNetGold += m_pPlayer->GetGoldPerTurnFromMinorCivs() * 100;
-	}
+	iNetGold += m_pPlayer->GetGoldPerTurnFromMinorCivs() * 100;
+
 	if (MOD_BALANCE_CORE_JFD)
 	{
 		iNetGold += m_pPlayer->GetYieldPerTurnFromMinors(YIELD_GOLD) * 100;

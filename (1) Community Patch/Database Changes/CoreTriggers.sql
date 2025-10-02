@@ -1,4 +1,4 @@
-CREATE TRIGGER CBP_DummyPolicies
+CREATE TRIGGER VP_DummyPolicies
 AFTER INSERT ON Policies
 WHEN (
 	NEW.PolicyBranchType IS NULL
@@ -16,23 +16,20 @@ END;
 
 CREATE TRIGGER Improvements_GPTIConnectsResources
 AFTER INSERT ON Improvements
+WHEN NEW.CreatedByGreatPerson = 1
 BEGIN
 	UPDATE Improvements
 	SET ConnectsAllResources = 1
-	WHERE Type = NEW.Type AND CreatedByGreatPerson = 1;
+	WHERE Type = NEW.Type;
 END;
 
-CREATE TRIGGER Leaders_Personality
-AFTER INSERT ON Leaders
-WHEN (EXISTS (SELECT 1 FROM Leaders WHERE Type = NEW.Type))
+CREATE TRIGGER Units_GlobalSeparateGreatAdmiral
+AFTER INSERT ON Units
+WHEN NEW.Class = 'UNITCLASS_GREAT_ADMIRAL'
 BEGIN
-	UPDATE Leaders
+	UPDATE Units
 	SET
-		Personality = CASE
-			WHEN (DoFWillingness >= 7 OR Loyalty >= 7) THEN 'PERSONALITY_COALITION'
-			WHEN (DiploBalance >= 7 OR MinorCivCompetitiveness >= 7) THEN 'PERSONALITY_DIPLOMAT'
-			WHEN (Loyalty <= 3 OR WonderCompetitiveness <= 3) THEN 'PERSONALITY_EXPANSIONIST'
-			ELSE 'PERSONALITY_CONQUEROR'
-		END
+		CanRepairFleet = 1,
+		CanChangePort = 1
 	WHERE Type = NEW.Type;
 END;
