@@ -123,7 +123,7 @@ bool CvDllDatabaseUtility::PrefetchCollection(std::vector<T*>& kCollection, cons
 		while(kResults.Step())
 		{
 			size_t Id = kResults.GetInt("ID");
-			ASSERT_DEBUG(index <= Id, "This should never happen!")
+			ASSERT(index <= Id, "This should never happen!")
 
 			while(Id > index)
 			{
@@ -141,7 +141,7 @@ bool CvDllDatabaseUtility::PrefetchCollection(std::vector<T*>& kCollection, cons
 	{
 		char szErrorMsg[512];
 		sprintf_s(szErrorMsg, "PrefetchCollection: Cannot find table '%s'.  Error - %s", tableName, DB.ErrorMessage());
-		ASSERT_DEBUG(false, szErrorMsg);
+		ASSERT(false, szErrorMsg);
 
 	}
 

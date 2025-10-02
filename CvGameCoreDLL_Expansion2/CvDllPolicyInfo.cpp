@@ -13,7 +13,7 @@ CvDllPolicyInfo::CvDllPolicyInfo(CvPolicyEntry* pPolicyInfo)
 	: m_pPolicyInfo(pPolicyInfo)
 	, m_uiRefCount(1)
 {
-	ASSERT_DEBUG(pPolicyInfo != NULL, "SHOULD NOT HAPPEN");
+	ASSERT(pPolicyInfo != NULL, "SHOULD NOT HAPPEN");
 }
 //------------------------------------------------------------------------------
 CvDllPolicyInfo::~CvDllPolicyInfo()

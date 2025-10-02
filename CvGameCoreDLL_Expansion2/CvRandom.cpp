@@ -97,7 +97,7 @@ unsigned long CvRandom::get(unsigned long ulNum, const char* pszLog)
 	if (!gDLL->IsGameCoreThread() && gDLL->IsGameCoreExecuting() && m_bSynchronous)
 	{
 		OutputDebugString("Warning: GUI is accessing the synchronous random number generator while the game core is running.");
-		ASSERT_DEBUG(false && "Invalid thread access to synchronous RNG");
+		ASSERT(false && "Invalid thread access to synchronous RNG");
 	}
 
 	//catch trivial cases

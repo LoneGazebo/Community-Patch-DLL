@@ -13,7 +13,7 @@ CvDllFeatureInfo::CvDllFeatureInfo(CvFeatureInfo* pFeatureInfo)
 	: m_pFeatureInfo(pFeatureInfo)
 	, m_uiRefCount(1)
 {
-	ASSERT_DEBUG(pFeatureInfo != NULL, "SHOULD NOT HAPPEN");
+	ASSERT(pFeatureInfo != NULL, "SHOULD NOT HAPPEN");
 }
 //------------------------------------------------------------------------------
 CvDllFeatureInfo::~CvDllFeatureInfo()

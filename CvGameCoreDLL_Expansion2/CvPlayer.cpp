@@ -898,7 +898,7 @@ void CvPlayer::init(PlayerTypes eID)
 
 	//--------------------------------
 	// Init other game data
-	ASSERT_DEBUG(getTeam() != NO_TEAM);
+	PRECONDITION(getTeam() != NO_TEAM);
 
 	PlayerTypes p = GetID();
 	SlotStatus s = CvPreGame::slotStatus(p);
@@ -946,7 +946,7 @@ void CvPlayer::init(PlayerTypes eID)
 			}
 		}
 
-		ASSERT_DEBUG(m_pTraits);
+		ASSERT(m_pTraits);
 		m_pTraits->InitPlayerTraits();
 
 		// Special handling for the Polynesian trait's overriding of embarked unit graphics
@@ -1975,7 +1975,7 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 			delete(m_AIOperations[i].second);
 		m_AIOperations.clear();
 
-		ASSERT_DEBUG(0 < GC.getNumResourceInfos(), "GC.getNumResourceInfos() is not greater than zero but it is used to allocate memory in CvPlayer::reset");
+		PRECONDITION(0 < GC.getNumResourceInfos(), "GC.getNumResourceInfos() is not greater than zero but it is used to allocate memory in CvPlayer::reset");
 
 		m_paiNumResourceUnimproved.clear();
 		m_paiNumResourceUnimproved.resize(GC.getNumResourceInfos(), 0);
@@ -2012,7 +2012,7 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 		m_aiNumResourceFromGP.clear();
 		m_aiNumResourceFromGP.resize(GC.getNumResourceInfos(), 0);
 
-		ASSERT_DEBUG(0 < GC.getNumImprovementInfos(), "GC.getNumImprovementInfos() is not greater than zero but it is used to allocate memory in CvPlayer::reset");
+		PRECONDITION(0 < GC.getNumImprovementInfos(), "GC.getNumImprovementInfos() is not greater than zero but it is used to allocate memory in CvPlayer::reset");
 		m_paiImprovementCount.clear();
 		m_paiImprovementCount.resize(GC.getNumImprovementInfos(), 0);
 		m_paiImprovementBuiltCount.clear();
@@ -2949,10 +2949,10 @@ CvCity* CvPlayer::initCity(int iX, int iY, bool bBumpUnits, bool bInitialFoundin
 {
 	CvCity* pNewCity = addCity();
 
-	ASSERT_DEBUG(pNewCity != NULL, "City is not assigned a valid value");
+	ASSERT(pNewCity != NULL, "City is not assigned a valid value");
 	if(pNewCity != NULL)
 	{
-		ASSERT_DEBUG(!(GC.getMap().plot(iX, iY)->isCity()), "No city is expected at this plot when initializing new city");
+		ASSERT(!(GC.getMap().plot(iX, iY)->isCity()), "No city is expected at this plot when initializing new city");
 		pNewCity->init(pNewCity->GetID(), GetID(), iX, iY, bBumpUnits, bInitialFounding, eInitialReligion, szName, pkSettlerUnitEntry);
 		pNewCity->GetCityStrategyAI()->UpdateFlavorsForNewCity();
 		pNewCity->DoUpdateCheapestPlotInfluenceDistance();
@@ -4924,7 +4924,7 @@ int CvPlayer::GetNumWorkablePlots() const
 void CvPlayer::DoRevolutionPlayer(PlayerTypes ePlayer, int iOldCityID)
 {
 	CvCity* pCity = getCity(iOldCityID);
-	ASSERT_DEBUG(pCity);
+	ASSERT(pCity);
 	if (!pCity)
 		return;
 
@@ -5190,15 +5190,15 @@ void CvPlayer::UpdateBestMilitaryCities()
 void CvPlayer::SetBestMilitaryCityDomain(int iValue, DomainTypes eDomain)
 {
 	VALIDATE_OBJECT();
-	ASSERT_DEBUG(eDomain >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eDomain < NUM_DOMAIN_TYPES, "eIndex1 is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eDomain >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
+	PRECONDITION(eDomain < NUM_DOMAIN_TYPES, "eIndex1 is expected to be within maximum bounds (invalid Index)");
 	m_aiBestMilitaryDomainCity[eDomain] = iValue;
 }
 void CvPlayer::SetBestMilitaryCityCombatClass(int iValue, UnitCombatTypes eUnitCombat)
 {
 	VALIDATE_OBJECT();
-	ASSERT_DEBUG(eUnitCombat >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eUnitCombat < GC.getNumUnitCombatClassInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eUnitCombat >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
+	PRECONDITION(eUnitCombat < GC.getNumUnitCombatClassInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
 	m_aiBestMilitaryCombatClassCity[eUnitCombat] = iValue;
 }
 CvCity* CvPlayer::GetBestMilitaryCity(UnitCombatTypes eUnitCombat, DomainTypes eDomain)
@@ -5220,15 +5220,15 @@ CvCity* CvPlayer::GetBestMilitaryCity(UnitCombatTypes eUnitCombat, DomainTypes e
 int CvPlayer::GetEventChoiceDuration(EventChoiceTypes eEventChoice) const
 {
 	VALIDATE_OBJECT();
-	ASSERT_DEBUG(eEventChoice >= 0, "eEvent is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eEventChoice < GC.getNumEventChoiceInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eEventChoice >= 0, "eEvent is expected to be non-negative (invalid Index)");
+	PRECONDITION(eEventChoice < GC.getNumEventChoiceInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
 	return m_aiEventChoiceDuration[eEventChoice];
 }
 void CvPlayer::ChangeEventChoiceDuration(EventChoiceTypes eEventChoice,int iValue)
 {
 	VALIDATE_OBJECT();
-	ASSERT_DEBUG(eEventChoice >= 0, "eEvent is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eEventChoice < GC.getNumEventChoiceInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eEventChoice >= 0, "eEvent is expected to be non-negative (invalid Index)");
+	PRECONDITION(eEventChoice < GC.getNumEventChoiceInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
 	if(iValue != 0)
 	{
 		m_aiEventChoiceDuration[eEventChoice] = m_aiEventChoiceDuration[eEventChoice] + iValue;
@@ -5237,22 +5237,22 @@ void CvPlayer::ChangeEventChoiceDuration(EventChoiceTypes eEventChoice,int iValu
 void CvPlayer::SetEventChoiceDuration(EventChoiceTypes eEventChoice,int iValue)
 {
 	VALIDATE_OBJECT();
-	ASSERT_DEBUG(eEventChoice >= 0, "eEvent is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eEventChoice < GC.getNumEventChoiceInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eEventChoice >= 0, "eEvent is expected to be non-negative (invalid Index)");
+	PRECONDITION(eEventChoice < GC.getNumEventChoiceInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
 	m_aiEventChoiceDuration[eEventChoice] = iValue;
 }
 int CvPlayer::GetEventIncrement(EventTypes eEvent) const
 {
 	VALIDATE_OBJECT();
-	ASSERT_DEBUG(eEvent >= 0, "eEvent is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eEvent < GC.getNumEventInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eEvent >= 0, "eEvent is expected to be non-negative (invalid Index)");
+	PRECONDITION(eEvent < GC.getNumEventInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
 	return m_aiEventIncrement[eEvent];
 }
 void CvPlayer::IncrementEvent(EventTypes eEvent, int iValue)
 {
 	VALIDATE_OBJECT();
-	ASSERT_DEBUG(eEvent >= 0, "eEvent is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eEvent < GC.getNumEventInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eEvent >= 0, "eEvent is expected to be non-negative (invalid Index)");
+	PRECONDITION(eEvent < GC.getNumEventInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
 	if(iValue != 0)
 	{
 		m_aiEventIncrement[eEvent] = m_aiEventIncrement[eEvent] + iValue;
@@ -5274,15 +5274,15 @@ void CvPlayer::ChangePlayerEventCooldown(int iValue)
 int CvPlayer::GetEventCooldown(EventTypes eEvent) const
 {
 	VALIDATE_OBJECT();
-	ASSERT_DEBUG(eEvent >= 0, "eEvent is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eEvent < GC.getNumEventInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eEvent >= 0, "eEvent is expected to be non-negative (invalid Index)");
+	PRECONDITION(eEvent < GC.getNumEventInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
 	return m_aiEventCooldown[eEvent];
 }
 void CvPlayer::ChangeEventCooldown(EventTypes eEvent,int iValue)
 {
 	VALIDATE_OBJECT();
-	ASSERT_DEBUG(eEvent >= 0, "eEvent is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eEvent < GC.getNumEventInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eEvent >= 0, "eEvent is expected to be non-negative (invalid Index)");
+	PRECONDITION(eEvent < GC.getNumEventInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
 	if(iValue != 0)
 	{
 		m_aiEventCooldown[eEvent] = m_aiEventCooldown[eEvent] + iValue;
@@ -5291,72 +5291,72 @@ void CvPlayer::ChangeEventCooldown(EventTypes eEvent,int iValue)
 void CvPlayer::SetEventCooldown(EventTypes eEvent,int iValue)
 {
 	VALIDATE_OBJECT();
-	ASSERT_DEBUG(eEvent >= 0, "eEvent is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eEvent < GC.getNumEventInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eEvent >= 0, "eEvent is expected to be non-negative (invalid Index)");
+	PRECONDITION(eEvent < GC.getNumEventInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
 	m_aiEventCooldown[eEvent] = iValue;
 }
 
 void CvPlayer::SetEventActive(EventTypes eEvent, bool bValue)
 {
 	VALIDATE_OBJECT();
-	ASSERT_DEBUG(eEvent >= 0, "eEvent is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eEvent < GC.getNumEventInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eEvent >= 0, "eEvent is expected to be non-negative (invalid Index)");
+	PRECONDITION(eEvent < GC.getNumEventInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
 
 	m_abEventActive[eEvent] = bValue;
 }
 bool CvPlayer::IsEventActive(EventTypes eEvent) const
 {
 	VALIDATE_OBJECT();
-	ASSERT_DEBUG(eEvent >= 0, "eEvent is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eEvent < GC.getNumEventInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eEvent >= 0, "eEvent is expected to be non-negative (invalid Index)");
+	PRECONDITION(eEvent < GC.getNumEventInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
 
 	return m_abEventActive[eEvent];
 }
 void CvPlayer::SetEventChoiceActive(EventChoiceTypes eEventChoice, bool bValue)
 {
 	VALIDATE_OBJECT();
-	ASSERT_DEBUG(eEventChoice >= 0, "eEvent is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eEventChoice < GC.getNumEventChoiceInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eEventChoice >= 0, "eEvent is expected to be non-negative (invalid Index)");
+	PRECONDITION(eEventChoice < GC.getNumEventChoiceInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
 
 	m_abEventChoiceActive[eEventChoice] = bValue;
 }
 bool CvPlayer::IsEventChoiceActive(EventChoiceTypes eEventChoice) const
 {
 	VALIDATE_OBJECT();
-	ASSERT_DEBUG(eEventChoice >= 0, "eEvent is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eEventChoice < GC.getNumEventChoiceInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eEventChoice >= 0, "eEvent is expected to be non-negative (invalid Index)");
+	PRECONDITION(eEventChoice < GC.getNumEventChoiceInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
 
 	return m_abEventChoiceActive[eEventChoice];
 }
 void CvPlayer::SetEventChoiceFired(EventChoiceTypes eEvent, bool bValue)
 {
 	VALIDATE_OBJECT();
-	ASSERT_DEBUG(eEvent >= 0, "eEvent is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eEvent < GC.getNumEventChoiceInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eEvent >= 0, "eEvent is expected to be non-negative (invalid Index)");
+	PRECONDITION(eEvent < GC.getNumEventChoiceInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
 
 	m_abEventChoiceFired[eEvent] = bValue;
 }
 bool CvPlayer::IsEventChoiceFired(EventChoiceTypes eEvent) const
 {
 	VALIDATE_OBJECT();
-	ASSERT_DEBUG(eEvent >= 0, "eEvent is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eEvent < GC.getNumEventChoiceInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eEvent >= 0, "eEvent is expected to be non-negative (invalid Index)");
+	PRECONDITION(eEvent < GC.getNumEventChoiceInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
 
 	return m_abEventChoiceFired[eEvent];
 }
 void CvPlayer::SetEventFired(EventTypes eEvent, bool bValue)
 {
 	VALIDATE_OBJECT();
-	ASSERT_DEBUG(eEvent >= 0, "eEvent is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eEvent < GC.getNumEventInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eEvent >= 0, "eEvent is expected to be non-negative (invalid Index)");
+	PRECONDITION(eEvent < GC.getNumEventInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
 
 	m_abEventFired[eEvent] = bValue;
 }
 bool CvPlayer::IsEventFired(EventTypes eEvent) const
 {
 	VALIDATE_OBJECT();
-	ASSERT_DEBUG(eEvent >= 0, "eEvent is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eEvent < GC.getNumEventInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eEvent >= 0, "eEvent is expected to be non-negative (invalid Index)");
+	PRECONDITION(eEvent < GC.getNumEventInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
 
 	return m_abEventFired[eEvent];
 }
@@ -8495,7 +8495,7 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent, b
 void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForced, bool bSphereRemoval)
 {
 	CvCity* pCity = getCity(iOldCityID);
-	ASSERT_DEBUG(pCity);
+	ASSERT(pCity);
 	if (!pCity)
 		return;
 
@@ -9080,7 +9080,7 @@ PlayerTypes CvPlayer::GetPlayerToLiberate(CvCity* pCity)
 
 CvUnit* CvPlayer::initUnit(UnitTypes eUnit, int iX, int iY, UnitAITypes eUnitAI, UnitCreationReason eReason, bool bNoMove, bool bSetupGraphical, int iMapLayer /* = 0 */, int iNumGoodyHutsPopped, ContractTypes eContract, bool bHistoric, CvUnit* pPassUnit)
 {
-	ASSERT_DEBUG(eUnit > NO_UNIT && eUnit < GC.getNumUnitInfos(), "Unit is not assigned a valid value");
+	PRECONDITION(eUnit > NO_UNIT && eUnit < GC.getNumUnitInfos(), "Unit is not assigned a valid value");
 
 	const CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
 	if (isMajorCiv() && pkUnitInfo->IsMilitarySupport() && GetNumUnitsOutOfSupply() > 4 && eReason != REASON_UPGRADE && eReason != REASON_GIFT)
@@ -9089,7 +9089,7 @@ CvUnit* CvPlayer::initUnit(UnitTypes eUnit, int iX, int iY, UnitAITypes eUnitAI,
 	}
 
 	CvUnit* pUnit = addUnit();
-	ASSERT_DEBUG(pUnit, "Unit is not assigned a valid value");
+	ASSERT(pUnit, "Unit is not assigned a valid value");
 	pUnit->init(pUnit->GetID(), eUnit, ((eUnitAI == NO_UNITAI) ? pkUnitInfo->GetDefaultUnitAIType() : eUnitAI), GetID(), iX, iY, eReason, bNoMove, bSetupGraphical, iMapLayer, iNumGoodyHutsPopped, eContract, bHistoric, pPassUnit);
 
 	if (pkUnitInfo->GetWorkRate() > 0 && pkUnitInfo->GetDomainType() == DOMAIN_LAND)
@@ -9103,12 +9103,12 @@ CvUnit* CvPlayer::initUnit(UnitTypes eUnit, int iX, int iY, UnitAITypes eUnitAI,
 
 CvUnit* CvPlayer::initUnitWithNameOffset(UnitTypes eUnit, int nameOffset, int iX, int iY, UnitAITypes eUnitAI, UnitCreationReason eReason, bool bNoMove, bool bSetupGraphical, int iMapLayer /* = 0 */, int iNumGoodyHutsPopped, ContractTypes eContract, bool bHistoric, CvUnit* pPassUnit)
 {
-	ASSERT_DEBUG(eUnit > NO_UNIT && eUnit < GC.getNumUnitInfos(), "Unit is not assigned a valid value");
+	PRECONDITION(eUnit > NO_UNIT && eUnit < GC.getNumUnitInfos(), "Unit is not assigned a valid value");
 
 	const CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
 
 	CvUnit* pUnit = addUnit();
-	ASSERT_DEBUG(pUnit, "Unit is not assigned a valid value");
+	ASSERT(pUnit, "Unit is not assigned a valid value");
 	pUnit->initWithNameOffset(pUnit->GetID(), eUnit, nameOffset, ((eUnitAI == NO_UNITAI) ? pkUnitInfo->GetDefaultUnitAIType() : eUnitAI), GetID(), iX, iY, eReason, bNoMove, bSetupGraphical, iMapLayer, iNumGoodyHutsPopped, eContract, bHistoric, false, pPassUnit);
 
 	if (pkUnitInfo->GetWorkRate() > 0 && pkUnitInfo->GetDomainType() == DOMAIN_LAND)
@@ -9123,8 +9123,8 @@ CvUnit* CvPlayer::initUnitWithNameOffset(UnitTypes eUnit, int nameOffset, int iX
 
 CvUnit* CvPlayer::initNamedUnit(UnitTypes eUnit, const char* strKey, int iX, int iY, UnitAITypes eUnitAI, UnitCreationReason eReason, bool bNoMove, bool bSetupGraphical, int iMapLayer /* = 0 */, int iNumGoodyHutsPopped)
 {
-	ASSERT_DEBUG(eUnit > NO_UNIT && eUnit < GC.getNumUnitInfos(), "Unit is not assigned a valid value");
-	ASSERT_DEBUG(strKey, "No name is assigned");
+	PRECONDITION(eUnit > NO_UNIT && eUnit < GC.getNumUnitInfos(), "Unit is not assigned a valid value");
+	ASSERT(strKey, "No name is assigned");
 
 	const CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
 
@@ -9133,7 +9133,7 @@ CvUnit* CvPlayer::initNamedUnit(UnitTypes eUnit, const char* strKey, int iX, int
 		return NULL;
 
 	CvUnit* pUnit = addUnit();
-	ASSERT_DEBUG(pUnit, "Unit is not assigned a valid value");
+	ASSERT(pUnit, "Unit is not assigned a valid value");
 
 	pUnit->initWithNameOffset(pUnit->GetID(), eUnit, -1, ((eUnitAI == NO_UNITAI) ? pkUnitInfo->GetDefaultUnitAIType() : eUnitAI), GetID(), iX, iY, eReason, bNoMove, bSetupGraphical, iMapLayer, iNumGoodyHutsPopped, NO_CONTRACT, true, true);
 
@@ -9915,7 +9915,7 @@ void CvPlayer::doTurn()
 {
 	// Time building of these maps
 
-	ASSERT_DEBUG(isAlive(), "isAlive is expected to be true");
+	PRECONDITION(isAlive(), "isAlive is expected to be true");
 
 	//cache reset
 	m_iNumUnitsSuppliedCached = -1;
@@ -10489,7 +10489,7 @@ void CvPlayer::doTurnUnits()
 				}
 				break;
 			case NO_DOMAIN:
-				ASSERT_DEBUG(false, "Unit with no Domain");
+				ASSERT(false, "Unit with no Domain");
 				break;
 			default:
 				if(iPass == 3)
@@ -10607,7 +10607,7 @@ void CvPlayer::DoUnitReset()
 				        pkMissionData->eMissionType == CvTypes::getMISSION_AIR_SWEEP() ||
 				        pkMissionData->eMissionType == CvTypes::getMISSION_NUKE())
 				{
-					ASSERT_DEBUG(0, "An AI unit has a combat mission queued at the end of its turn.");
+					ASSERT(0, "An AI unit has a combat mission queued at the end of its turn.");
 					pLoopUnit->ClearMissionQueue();	// Clear the whole thing, the AI will re-evaluate next turn.
 				}
 			}
@@ -11201,42 +11201,42 @@ int CvPlayer::UpdateNumCitiesNeedingTerrainImprovements()
 
 void CvPlayer::setCityFeatures(FeatureTypes eFeature, int iValue)
 {
-	ASSERT_DEBUG(eFeature >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eFeature < GC.getNumFeatureInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eFeature >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
+	PRECONDITION(eFeature < GC.getNumFeatureInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
 
 	m_piCityFeatures[eFeature] = iValue;
 }
 int CvPlayer::getCityFeatures(FeatureTypes eFeature) const
 {
-	ASSERT_DEBUG(eFeature >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eFeature < GC.getNumFeatureInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eFeature >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
+	PRECONDITION(eFeature < GC.getNumFeatureInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
 	return m_piCityFeatures[eFeature];
 }
 void CvPlayer::setNumBuildings(BuildingTypes eBuilding, int iValue)
 {
-	ASSERT_DEBUG(eBuilding >= 0, "eBuilding is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eBuilding < GC.getNumBuildingInfos(), "eBuilding is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eBuilding >= 0, "eBuilding is expected to be non-negative (invalid Index)");
+	PRECONDITION(eBuilding < GC.getNumBuildingInfos(), "eBuilding is expected to be within maximum bounds (invalid Index)");
 
 	m_piNumBuildings[eBuilding] = iValue;
 }
 int CvPlayer::getNumBuildings(BuildingTypes eBuilding) const
 {
-	ASSERT_DEBUG(eBuilding >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eBuilding < GC.getNumBuildingInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eBuilding >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
+	PRECONDITION(eBuilding < GC.getNumBuildingInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
 	return m_piNumBuildings[eBuilding];
 }
 
 void CvPlayer::setNumBuildingsInPuppets(BuildingTypes eBuilding, int iValue)
 {
-	ASSERT_DEBUG(eBuilding >= 0, "eBuilding is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eBuilding < GC.getNumBuildingInfos(), "eBuilding is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eBuilding >= 0, "eBuilding is expected to be non-negative (invalid Index)");
+	PRECONDITION(eBuilding < GC.getNumBuildingInfos(), "eBuilding is expected to be within maximum bounds (invalid Index)");
 
 	m_piNumBuildingsInPuppets[eBuilding] = iValue;
 }
 int CvPlayer::getNumBuildingsInPuppets(BuildingTypes eBuilding) const
 {
-	ASSERT_DEBUG(eBuilding >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eBuilding < GC.getNumBuildingInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eBuilding >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
+	PRECONDITION(eBuilding < GC.getNumBuildingInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
 	return m_piNumBuildingsInPuppets[eBuilding];
 }
 
@@ -11635,7 +11635,7 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 	CvGoodyInfo kGoodyInfo;
 	const bool bResult = DB.SelectAt(kResult, "GoodyHuts", eGoody);
 	DEBUG_VARIABLE(bResult);
-	ASSERT_DEBUG(bResult, "Cannot find goody info.");
+	ASSERT(bResult, "Cannot find goody info.");
 	kGoodyInfo.CacheResult(kResult);
 
 	// Wishing we had lambdas right about now
@@ -12136,7 +12136,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 	int iDY = 0;
 	int iI = 0;
 
-	ASSERT_DEBUG(canReceiveGoody(pPlot, eGoody, pUnit), "Instance is expected to be able to receive goody");
+	PRECONDITION(canReceiveGoody(pPlot, eGoody, pUnit), "Instance is expected to be able to receive goody");
 
 	// Wishing we had lambdas right about now
 	struct BestCityFinder
@@ -12208,7 +12208,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 	CvGoodyInfo kGoodyInfo;
 	const bool bResult = DB.SelectAt(kResult, "GoodyHuts", eGoody);
 	DEBUG_VARIABLE(bResult);
-	ASSERT_DEBUG(bResult, "Cannot find goody info.");
+	ASSERT(bResult, "Cannot find goody info.");
 	kGoodyInfo.CacheResult(kResult);
 
 	CvGoodyHuts::DoPlayerReceivedGoody(GetID(), eGoody);
@@ -12694,7 +12694,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 			pUnit->finishMoves();
 			pUnit->SetBeenPromotedFromGoody(true);
 
-			ASSERT_DEBUG(pNewUnit);
+			ASSERT(pNewUnit);
 			if (pNewUnit != NULL)
 			{
 				// MUST call the event before convert() as that kills the old unit
@@ -12791,7 +12791,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 			}
 		}
 
-		ASSERT_DEBUG(eBestTech != NO_TECH, "BestTech is not assigned a valid value");
+		PRECONDITION(eBestTech != NO_TECH, "BestTech is not assigned a valid value");
 
 		if (MOD_EVENTS_GOODY_TECH)
 		{
@@ -12989,7 +12989,7 @@ void CvPlayer::doGoody(CvPlot* pPlot, CvUnit* pUnit)
 
 	GoodyTypes eGoody;
 
-	ASSERT_DEBUG(pPlot->isGoody(), "pPlot->isGoody is expected to be true");
+	PRECONDITION(pPlot->isGoody(), "pPlot->isGoody is expected to be true");
 
 	// Barbarians and Minor Civs don't claim ruins
 	if (!isMajorCiv())
@@ -13045,7 +13045,7 @@ void CvPlayer::doGoody(CvPlot* pPlot, CvUnit* pUnit)
 				Database::SingleResult kResult;
 				const bool bResult = DB.SelectAt(kResult, "GoodyHuts", eGoody);
 				DEBUG_VARIABLE(bResult);
-				ASSERT_DEBUG(bResult, "Cannot find goody info.");
+				ASSERT(bResult, "Cannot find goody info.");
 
 				CvGoodyInfo kGoodyInfo;
 				kGoodyInfo.CacheResult(kResult);
@@ -13129,7 +13129,7 @@ std::vector<BuildingTypes> CvPlayer::FindInitialBuildings()
 		return v_StarterBuildings;
 
 	CvCivilizationInfo* pkCivilizationInfo = GC.getCivilizationInfo(getCivilizationType());
-	ASSERT_DEBUG(pkCivilizationInfo);
+	ASSERT(pkCivilizationInfo);
 
 	//first, loop through all buildings...
 	for (int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
@@ -13229,8 +13229,8 @@ void CvPlayer::SetChainLength(BuildingTypes eBuilding)
 }
 int CvPlayer::GetChainLength(BuildingTypes eBuilding)
 {
-	ASSERT_DEBUG(eBuilding >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eBuilding < GC.getNumBuildingInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eBuilding >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eBuilding < GC.getNumBuildingInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_paiBuildingChainSteps[eBuilding];
 }
 
@@ -13456,7 +13456,7 @@ void CvPlayer::foundCity(int iX, int iY, ReligionTypes eReligion, bool bForce, C
 
 	CvCity* pCity = initCity(iX, iY, true, true, eReligion, NULL, pkSettlerUnitEntry);
 
-	ASSERT_DEBUG(pCity != NULL, "City is not assigned a valid value");
+	ASSERT(pCity != NULL, "City is not assigned a valid value");
 	if(pCity == NULL)
 		return;
 
@@ -14882,8 +14882,8 @@ bool CvPlayer::isProductionMaxedUnitClass(UnitClassTypes eUnitClass) const
 void CvPlayer::changeUnitsBuiltCount(UnitTypes eUnitType, int iValue)
 {
 	VALIDATE_OBJECT();
-	ASSERT_DEBUG(eUnitType >= 0, "eUnitType expected to be >= 0");
-	ASSERT_DEBUG(eUnitType < GC.getNumUnitInfos(), "eUnitType expected to be < GC.getNumUnitInfos()");
+	PRECONDITION(eUnitType >= 0, "eUnitType expected to be >= 0");
+	PRECONDITION(eUnitType < GC.getNumUnitInfos(), "eUnitType expected to be < GC.getNumUnitInfos()");
 
 	m_aiNumUnitsBuilt[eUnitType] = m_aiNumUnitsBuilt[eUnitType] + iValue;
 }
@@ -14891,8 +14891,8 @@ void CvPlayer::changeUnitsBuiltCount(UnitTypes eUnitType, int iValue)
 int CvPlayer::getUnitsBuiltCount(UnitTypes eUnitType) const
 {
 	VALIDATE_OBJECT();
-	ASSERT_DEBUG(eUnitType >= 0, "eUnitType expected to be >= 0");
-	ASSERT_DEBUG(eUnitType < GC.getNumUnitInfos(), "eUnitType expected to be < GC.getNumUnitInfos()");
+	PRECONDITION(eUnitType >= 0, "eUnitType expected to be >= 0");
+	PRECONDITION(eUnitType < GC.getNumUnitInfos(), "eUnitType expected to be < GC.getNumUnitInfos()");
 
 	return m_aiNumUnitsBuilt[eUnitType];
 }
@@ -14963,15 +14963,15 @@ int CvPlayer::getProductionNeeded(UnitTypes eUnit, bool bIgnoreDifficulty) const
 {
 	CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eUnit);
 
-	ASSERT_DEBUG(pkUnitEntry, "This should never be hit");
+	ASSERT(pkUnitEntry, "This should never be hit");
 	if (pkUnitEntry == NULL)
 		return 0;
 
 	UnitClassTypes eUnitClass = (UnitClassTypes)pkUnitEntry->GetUnitClassType();
-	ASSERT_DEBUG(NO_UNITCLASS != eUnitClass);
+	ASSERT(NO_UNITCLASS != eUnitClass);
 
 	CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
-	ASSERT_DEBUG(pkUnitClassInfo);
+	ASSERT(pkUnitClassInfo);
 	if (pkUnitClassInfo == NULL)
 		return 0;
 
@@ -15187,8 +15187,8 @@ int CvPlayer::getProductionNeeded(BuildingTypes eTheBuilding) const
 				{
 					for (int iLoop = eBuildingUnlockedEra; iLoop < GetCurrentEra(); iLoop++)
 					{
-						ASSERT_DEBUG(iLoop >= 0, "Loop should be within era bounds");
-						ASSERT_DEBUG(iLoop <GC.getNumEraInfos(), "Loop should be within era bounds");
+						ASSERT(iLoop >= 0, "Loop should be within era bounds");
+						ASSERT(iLoop <GC.getNumEraInfos(), "Loop should be within era bounds");
 
 						if (iLoop >= 0 && iLoop < GC.getNumEraInfos())
 						{
@@ -15210,8 +15210,8 @@ int CvPlayer::getProductionNeeded(BuildingTypes eTheBuilding) const
 			int iTotalEraMod = 0;
 			for (int iLoop = 0; iLoop < GetCurrentEra(); iLoop++)
 			{
-				ASSERT_DEBUG(iLoop >= 0, "Loop should be within era bounds");
-				ASSERT_DEBUG(iLoop <GC.getNumEraInfos(), "Loop should be within era bounds");
+				ASSERT(iLoop >= 0, "Loop should be within era bounds");
+				ASSERT(iLoop <GC.getNumEraInfos(), "Loop should be within era bounds");
 
 				if (iLoop >= 0 && iLoop < GC.getNumEraInfos())
 				{
@@ -15518,7 +15518,7 @@ int CvPlayer::getBuildingClassPrereqBuilding(BuildingTypes eBuilding, BuildingCl
 	CvBuildingEntry* pkBuilding = GC.getBuildingInfo(eBuilding);
 	if(pkBuilding == NULL)
 	{
-		ASSERT_DEBUG(pkBuilding, "Should never happen...");
+		ASSERT(pkBuilding, "Should never happen...");
 		return -1;
 	}
 
@@ -15667,7 +15667,7 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 		if(pBuildingInfo->GetInstantSpyRankChange() > 0)
 		{
 			CvPlayerEspionage* pEspionage = GetEspionage();
-			ASSERT_DEBUG(pEspionage, "pEspionage is null! What's up with that?!");
+			ASSERT(pEspionage, "pEspionage is null! What's up with that?!");
 			if(pEspionage)
 			{
 				for(uint ui = 0; ui < pEspionage->m_aSpyList.size(); ui++)
@@ -16285,7 +16285,7 @@ bool CvPlayer::IsBuildBlockedByFeature(BuildTypes eBuild, FeatureTypes eFeature,
 // Returns the cost
 int CvPlayer::getBuildCost(const CvPlot* pPlot, BuildTypes eBuild) const
 {
-	ASSERT_DEBUG(eBuild >= 0 && eBuild < GC.getNumBuildInfos());
+	PRECONDITION(eBuild >= 0 && eBuild < GC.getNumBuildInfos());
 
 	CvBuildInfo* pkBuildInfo = GC.getBuildInfo(eBuild);
 	if(pkBuildInfo == NULL)
@@ -16894,7 +16894,7 @@ int CvPlayer::calculateResearchModifier(TechTypes eTech)
 			iPossiblePaths++;
 		}
 	}
-	ASSERT_DEBUG(iPossiblePaths >= iUnknownPaths, "The number of possible paths is expected to match or exceed the number of unknown ones");
+	ASSERT(iPossiblePaths >= iUnknownPaths, "The number of possible paths is expected to match or exceed the number of unknown ones");
 	iModifier += (iPossiblePaths - iUnknownPaths) * /*20*/ GD_INT_GET(TECH_COST_KNOWN_PREREQ_MODIFIER);
 
 	// Leagues mod
@@ -17127,7 +17127,7 @@ int CvPlayer::specialistYield(SpecialistTypes eSpecialist, YieldTypes eYield) co
 	if(pkSpecialistInfo == NULL)
 	{
 		//This function REQUIRES a valid specialist info.
-		ASSERT_DEBUG(pkSpecialistInfo);
+		ASSERT(pkSpecialistInfo);
 		return 0;
 	}
 
@@ -17143,16 +17143,16 @@ int CvPlayer::specialistYield(SpecialistTypes eSpecialist, YieldTypes eYield) co
 /// How much additional Yield does every City produce?
 int CvPlayer::GetCityYieldChangeTimes100(YieldTypes eYield) const
 {
-	ASSERT_DEBUG(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_aiCityYieldChange[eYield];
 }
 
 /// Changes how much additional Yield every City produces
 void CvPlayer::ChangeCityYieldChangeTimes100(YieldTypes eYield, int iChange)
 {
-	ASSERT_DEBUG(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	if (iChange != 0)
 	{
@@ -17164,16 +17164,16 @@ void CvPlayer::ChangeCityYieldChangeTimes100(YieldTypes eYield, int iChange)
 /// How much additional Yield do coastal Cities produce?
 int CvPlayer::GetCoastalCityYieldChange(YieldTypes eYield) const
 {
-	ASSERT_DEBUG(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_aiCoastalCityYieldChange[eYield];
 }
 
 /// Changes how much additional Yield coastal Cities produce
 void CvPlayer::ChangeCoastalCityYieldChange(YieldTypes eYield, int iChange)
 {
-	ASSERT_DEBUG(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	if (iChange != 0)
 	{
@@ -17185,16 +17185,16 @@ void CvPlayer::ChangeCoastalCityYieldChange(YieldTypes eYield, int iChange)
 /// How much additional Yield does the Capital produce?
 int CvPlayer::GetCapitalYieldChangeTimes100(YieldTypes eYield) const
 {
-	ASSERT_DEBUG(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_aiCapitalYieldChange[eYield];
 }
 
 /// Changes how much additional Yield the Capital produces
 void CvPlayer::ChangeCapitalYieldChangeTimes100(YieldTypes eYield, int iChange)
 {
-	ASSERT_DEBUG(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	if (iChange != 0)
 	{
@@ -17206,16 +17206,16 @@ void CvPlayer::ChangeCapitalYieldChangeTimes100(YieldTypes eYield, int iChange)
 /// How much additional Yield does the Capital produce per pop?
 int CvPlayer::GetCapitalYieldPerPopChange(YieldTypes eYield) const
 {
-	ASSERT_DEBUG(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_aiCapitalYieldPerPopChange[eYield];
 }
 
 /// Changes how much additional Yield the Capital produces per pop
 void CvPlayer::ChangeCapitalYieldPerPopChange(YieldTypes eYield, int iChange)
 {
-	ASSERT_DEBUG(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	if (iChange != 0)
 	{
@@ -17227,16 +17227,16 @@ void CvPlayer::ChangeCapitalYieldPerPopChange(YieldTypes eYield, int iChange)
 /// How much additional Yield does the Capital produce per pop?
 int CvPlayer::GetCapitalYieldPerPopChangeEmpire(YieldTypes eYield) const
 {
-	ASSERT_DEBUG(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_aiCapitalYieldPerPopChangeEmpire[eYield];
 }
 
 /// Changes how much additional Yield the Capital produces per pop
 void CvPlayer::ChangeCapitalYieldPerPopChangeEmpire(YieldTypes eYield, int iChange)
 {
-	ASSERT_DEBUG(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	if (iChange != 0)
 	{
@@ -17250,16 +17250,16 @@ void CvPlayer::ChangeCapitalYieldPerPopChangeEmpire(YieldTypes eYield, int iChan
 /// How much additional Yield does a Great Work produce?
 int CvPlayer::GetGreatWorkYieldChange(YieldTypes eYield) const
 {
-	ASSERT_DEBUG(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_aiGreatWorkYieldChange[eYield];
 }
 
 /// Changes how much additional Yield a Great Work produces
 void CvPlayer::ChangeGreatWorkYieldChange(YieldTypes eYield, int iChange)
 {
-	ASSERT_DEBUG(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	if (iChange != 0)
 	{
@@ -17276,8 +17276,8 @@ void CvPlayer::ChangeGreatWorkYieldChange(YieldTypes eYield, int iChange)
 int CvPlayer::getLakePlotYield(YieldTypes eYield) const
 {
 	VALIDATE_OBJECT();
-	ASSERT_DEBUG(eYield >= 0, "eYield expected to be >= 0");
-	ASSERT_DEBUG(eYield < NUM_YIELD_TYPES, "eYield expected to be < NUM_YIELD_TYPES");
+	PRECONDITION(eYield >= 0, "eYield expected to be >= 0");
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "eYield expected to be < NUM_YIELD_TYPES");
 	return m_aiLakePlotYield[eYield];
 }
 
@@ -17286,13 +17286,13 @@ int CvPlayer::getLakePlotYield(YieldTypes eYield) const
 void CvPlayer::changeLakePlotYield(YieldTypes eYield, int iChange)
 {
 	VALIDATE_OBJECT();
-	ASSERT_DEBUG(eYield >= 0, "eYield expected to be >= 0");
-	ASSERT_DEBUG(eYield < NUM_YIELD_TYPES, "eYield expected to be < NUM_YIELD_TYPES");
+	PRECONDITION(eYield >= 0, "eYield expected to be >= 0");
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "eYield expected to be < NUM_YIELD_TYPES");
 
 	if (iChange != 0)
 	{
 		m_aiLakePlotYield[eYield] = m_aiLakePlotYield[eYield] + iChange;
-		ASSERT_DEBUG(getLakePlotYield(eYield) >= 0);
+		ASSERT(getLakePlotYield(eYield) >= 0);
 		updateYield();
 	}
 }
@@ -17350,7 +17350,7 @@ float CvPlayer::getAveragePopulation() const
 void CvPlayer::changeTotalPopulation(int iChange)
 {
 	m_iTotalPopulation = (m_iTotalPopulation + iChange);
-	ASSERT_DEBUG(getTotalPopulation() >= 0);
+	ASSERT(getTotalPopulation() >= 0);
 }
 
 long CvPlayer::getRealPopulation() const
@@ -17409,7 +17409,7 @@ int CvPlayer::getTotalLand() const
 void CvPlayer::changeTotalLand(int iChange)
 {
 	m_iTotalLand = (m_iTotalLand + iChange);
-	ASSERT_DEBUG(getTotalLand() >= 0);
+	ASSERT(getTotalLand() >= 0);
 }
 
 int CvPlayer::getTotalLandScored() const
@@ -17422,7 +17422,7 @@ void CvPlayer::changeTotalLandScored(int iChange)
 	if(iChange != 0)
 	{
 		m_iTotalLandScored = (m_iTotalLandScored + iChange);
-		ASSERT_DEBUG(getTotalLandScored() >= 0);
+		ASSERT(getTotalLandScored() >= 0);
 	}
 }
 
@@ -17528,8 +17528,8 @@ int CvPlayer::GetTotalJONSCulturePerTurnTimes100(CvString* toolTipSink) const
 /// Culture per turn from Cities times 100
 int CvPlayer::GetYieldRateFromCitiesTimes100(YieldTypes eYield, bool bIgnoreTrade) const
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex expected to be >= 0");
-	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	PRECONDITION(eYield >= 0, "eYield expected to be >= 0");
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "eYield expected to be < NUM_YIELD_TYPES");
 
 	int iYield = 0;
 
@@ -17836,8 +17836,8 @@ void CvPlayer::ChangeNumCitiesFreeFoodBuilding(int iChange)
 /// Cities remaining to get a free building
 int CvPlayer::GetNumCitiesFreeChosenBuilding(BuildingClassTypes eBuildingClass) const
 {
-	ASSERT_DEBUG(eBuildingClass < GC.getNumBuildingClassInfos(), "Index out of bounds");
-	ASSERT_DEBUG(eBuildingClass > -1, "Index out of bounds");
+	PRECONDITION(eBuildingClass < GC.getNumBuildingClassInfos(), "Index out of bounds");
+	PRECONDITION(eBuildingClass > -1, "Index out of bounds");
 	return m_paiNumCitiesFreeChosenBuilding[eBuildingClass];
 }
 
@@ -17850,8 +17850,8 @@ void CvPlayer::ChangeNumCitiesFreeChosenBuilding(BuildingClassTypes eBuildingCla
 // New Founded City waiting to get a free unit?
 bool CvPlayer::IsFreeUnitNewFoundCity(UnitClassTypes eUnitClass) const
 {
-	ASSERT_DEBUG(eUnitClass < GC.getNumUnitClassInfos(), "Index out of bounds");
-	ASSERT_DEBUG(eUnitClass > -1, "Index out of bounds");
+	PRECONDITION(eUnitClass < GC.getNumUnitClassInfos(), "Index out of bounds");
+	PRECONDITION(eUnitClass > -1, "Index out of bounds");
 	return (m_paiNewFoundCityFreeUnit[eUnitClass] > 0);
 }
 
@@ -17864,8 +17864,8 @@ void CvPlayer::ChangeNewFoundCityFreeUnit(UnitClassTypes eUnitClass, int iChange
 // New Founded City waiting to get a free building?
 bool CvPlayer::IsFreeBuildingNewFoundCity(BuildingClassTypes eBuildingClass) const
 {
-	ASSERT_DEBUG(eBuildingClass < GC.getNumBuildingClassInfos(), "Index out of bounds");
-	ASSERT_DEBUG(eBuildingClass > -1, "Index out of bounds");
+	PRECONDITION(eBuildingClass < GC.getNumBuildingClassInfos(), "Index out of bounds");
+	PRECONDITION(eBuildingClass > -1, "Index out of bounds");
 	return (m_paiNewFoundCityFreeBuilding[eBuildingClass] > 0);
 }
 
@@ -17878,8 +17878,8 @@ void CvPlayer::ChangeNewFoundCityFreeBuilding(BuildingClassTypes eBuildingClass,
 // Cities remaining to get a free building
 bool CvPlayer::IsFreeChosenBuildingNewCity(BuildingClassTypes eBuildingClass) const
 {
-	ASSERT_DEBUG(eBuildingClass < GC.getNumBuildingClassInfos(), "Index out of bounds");
-	ASSERT_DEBUG(eBuildingClass > -1, "Index out of bounds");
+	PRECONDITION(eBuildingClass < GC.getNumBuildingClassInfos(), "Index out of bounds");
+	PRECONDITION(eBuildingClass > -1, "Index out of bounds");
 	return (m_paiFreeChosenBuildingNewCity[eBuildingClass] > 0);
 }
 
@@ -17892,8 +17892,8 @@ void CvPlayer::ChangeFreeChosenBuildingNewCity(BuildingClassTypes eBuildingClass
 // City waiting to get a free building?
 bool CvPlayer::IsFreeBuildingAllCity(BuildingClassTypes eBuildingClass) const
 {
-	ASSERT_DEBUG(eBuildingClass < GC.getNumBuildingClassInfos(), "Index out of bounds");
-	ASSERT_DEBUG(eBuildingClass > -1, "Index out of bounds");
+	PRECONDITION(eBuildingClass < GC.getNumBuildingClassInfos(), "Index out of bounds");
+	PRECONDITION(eBuildingClass > -1, "Index out of bounds");
 	return (m_paiAllCityFreeBuilding[eBuildingClass] > 0);
 }
 
@@ -18021,7 +18021,7 @@ void CvPlayer::DoTechFromCityConquer(CvCity* pConqueredCity)
 	{
 		uint uRoll = GC.getGame().urandLimitExclusive(vePossibleTechs.size(), GET_PLAYER(pConqueredCity->getOwner()).GetPseudoRandomSeed());
 		TechTypes eFreeTech = vePossibleTechs[uRoll];
-		ASSERT_DEBUG(eFreeTech != NO_TECH)
+		PRECONDITION(eFreeTech != NO_TECH)
 		if (eFreeTech != NO_TECH)
 		{
 			GET_TEAM(getTeam()).setHasTech(eFreeTech, true, GetID(), true, true);
@@ -18107,7 +18107,7 @@ void CvPlayer::DoFreeGreatWorkOnConquest(CvCity* pCity)
 			continue;
 
 		int iDistance = plotDistance(pCity->getX(), pCity->getY(), pPlayerCity->getX(), pPlayerCity->getY());
-		ASSERT_DEBUG(iDistance > 0);
+		ASSERT(iDistance > 0);
 		for (int iBuildingClassLoop = 0; iBuildingClassLoop < GC.getNumBuildingClassInfos(); iBuildingClassLoop++)
 		{
 			BuildingClassTypes eBuildingClass = static_cast<BuildingClassTypes>(iBuildingClassLoop);
@@ -18179,7 +18179,7 @@ void CvPlayer::DoFreeGreatWorkOnConquest(CvCity* pCity)
 
 		BuildingTypes eBuilding = pGWCity->GetBuildingTypeFromClass(eBuildingClass);
 		CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-		ASSERT_DEBUG(pkBuildingInfo);
+		ASSERT(pkBuildingInfo);
 
 		// Create the GW at the best slot
 		BuildingClassTypes eNewBuildingClass = NO_BUILDINGCLASS;
@@ -21146,7 +21146,7 @@ int CvPlayer::GetHappinessFromBuildings() const
 /// Changes amount of extra Happiness per City
 void CvPlayer::ChangeExtraHappinessPerCity(int iChange)
 {
-	ASSERT_DEBUG(m_iHappinessPerCity >= 0, "Count of buildings helping Happiness is corrupted");
+	ASSERT(m_iHappinessPerCity >= 0, "Count of buildings helping Happiness is corrupted");
 
 	if(iChange != 0)
 		m_iHappinessPerCity += iChange;
@@ -21162,7 +21162,7 @@ fraction CvPlayer::GetExtraHappinessPolicies() const
 void CvPlayer::ChangeExtraHappinessPolicies(fraction iChange)
 {
 	m_fHappinessPolicies += iChange;
-	ASSERT_DEBUG(m_fHappinessPolicies >= 0, "Count of extra happiness per buildings is corrupted");
+	ASSERT(m_fHappinessPolicies >= 0, "Count of extra happiness per buildings is corrupted");
 }
 
 /// Returns the amount of extra Happiness per City
@@ -21175,7 +21175,7 @@ fraction CvPlayer::GetExtraHappinessPoliciesFromPolicies() const
 void CvPlayer::ChangeExtraHappinessPoliciesFromPolicies(fraction iChange)
 {
 	m_fExtraHappinessPoliciesFromPolicies += iChange;
-	ASSERT_DEBUG(m_fExtraHappinessPoliciesFromPolicies >= 0, "Count of extra happiness per policies is corrupted");
+	ASSERT(m_fExtraHappinessPoliciesFromPolicies >= 0, "Count of extra happiness per policies is corrupted");
 }
 
 /// Returns the amount of extra Happiness per City
@@ -21188,7 +21188,7 @@ int CvPlayer::GetHappinessPerXGreatWorks() const
 void CvPlayer::ChangeHappinessPerXGreatWorks(int iChange)
 {
 	m_iHappinessPerXGreatWorks += iChange;
-	ASSERT_DEBUG(m_iHappinessPerXGreatWorks >= 0, "Count of extra happiness per buildings is corrupted");
+	ASSERT(m_iHappinessPerXGreatWorks >= 0, "Count of extra happiness per buildings is corrupted");
 }
 
 int CvPlayer::GetHappinessFromResourceMonopolies() const
@@ -21386,8 +21386,8 @@ int CvPlayer::GetHappinessFromNaturalWonders() const
 void CvPlayer::SetNaturalWonderOwned(FeatureTypes eFeature, bool bValue)
 {
 	VALIDATE_OBJECT();
-	ASSERT_DEBUG(eFeature >= 0, "eFeature is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eFeature < GC.getNumFeatureInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eFeature >= 0, "eFeature is expected to be non-negative (invalid Index)");
+	PRECONDITION(eFeature < GC.getNumFeatureInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
 
 	vector<FeatureTypes>::const_iterator it = std::find(m_ownedNaturalWonders.begin(), m_ownedNaturalWonders.end(), eFeature);
 
@@ -21400,16 +21400,16 @@ void CvPlayer::SetNaturalWonderOwned(FeatureTypes eFeature, bool bValue)
 void CvPlayer::ChangeUnitClassProductionModifier(UnitClassTypes eUnitClass, int iValue)
 {
 	VALIDATE_OBJECT();
-	ASSERT_DEBUG(eUnitClass >= 0, "eIndex expected to be >= 0");
-	ASSERT_DEBUG(eUnitClass < GC.getNumUnitClassInfos(), "eUnitClass expected to be < GC.getNumUnitClassInfos()");
+	PRECONDITION(eUnitClass >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eUnitClass < GC.getNumUnitClassInfos(), "eUnitClass expected to be < GC.getNumUnitClassInfos()");
 	m_paiUnitClassProductionModifiers[eUnitClass] = m_paiUnitClassProductionModifiers[eUnitClass] + iValue;
 }
 
 int CvPlayer::GetUnitClassProductionModifier(UnitClassTypes eUnitClass) const
 {
 	VALIDATE_OBJECT();
-		ASSERT_DEBUG(eUnitClass >= 0, "eIndex expected to be >= 0");
-	ASSERT_DEBUG(eUnitClass < GC.getNumUnitClassInfos(), "eUnitClass expected to be < GC.getNumUnitClassInfos()");
+		PRECONDITION(eUnitClass >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eUnitClass < GC.getNumUnitClassInfos(), "eUnitClass expected to be < GC.getNumUnitClassInfos()");
 	return m_paiUnitClassProductionModifiers[eUnitClass];
 }
 
@@ -22789,7 +22789,7 @@ void CvPlayer::CreateSpies(int iNumSpies, bool bScaling)
 		return;
 
 	CvPlayerEspionage* pEspionage = GetEspionage();
-	ASSERT_DEBUG(pEspionage, "pEspionage is null! What's up with that?!");
+	ASSERT(pEspionage, "pEspionage is null! What's up with that?!");
 	if (!pEspionage)
 		return;
 
@@ -23185,7 +23185,7 @@ int CvPlayer::GetFaithToVotesTimes100() const
 void CvPlayer::ChangeFaithToVotesTimes100(int iChange)
 {
 	m_iFaithToVotes = iChange;
-	ASSERT_DEBUG(m_iFaithToVotes >= 0);
+	ASSERT(m_iFaithToVotes >= 0);
 	if (m_iFaithToVotes < 0)
 	{
 		m_iFaithToVotes = 0;
@@ -23216,7 +23216,7 @@ int CvPlayer::GetCapitalsToVotes() const
 void CvPlayer::ChangeCapitalsToVotes(int iChange)
 {
 	m_iCapitalsToVotes = iChange;
-	ASSERT_DEBUG(m_iCapitalsToVotes >= 0);
+	ASSERT(m_iCapitalsToVotes >= 0);
 	if (m_iCapitalsToVotes < 0)
 	{
 		m_iCapitalsToVotes = 0;
@@ -23245,7 +23245,7 @@ int CvPlayer::GetDoFToVotes() const
 void CvPlayer::ChangeDoFToVotes(int iChange)
 {
 	m_iDoFToVotes = iChange;
-	ASSERT_DEBUG(m_iDoFToVotes >= 0);
+	ASSERT(m_iDoFToVotes >= 0);
 	if (m_iDoFToVotes < 0)
 	{
 		m_iDoFToVotes = 0;
@@ -23276,7 +23276,7 @@ int CvPlayer::GetRAToVotes() const
 void CvPlayer::ChangeRAToVotes(int iChange)
 {
 	m_iRAToVotes = iChange;
-	ASSERT_DEBUG(m_iRAToVotes >= 0);
+	ASSERT(m_iRAToVotes >= 0);
 	if (m_iRAToVotes < 0)
 	{
 		m_iRAToVotes = 0;
@@ -23305,7 +23305,7 @@ int CvPlayer::GetDefensePactsToVotes() const
 void CvPlayer::ChangeDefensePactsToVotes(int iChange)
 {
 	m_iDefensePactsToVotes = iChange;
-	ASSERT_DEBUG(m_iDefensePactsToVotes >= 0);
+	ASSERT(m_iDefensePactsToVotes >= 0);
 	if (m_iDefensePactsToVotes < 0)
 	{
 		m_iDefensePactsToVotes = 0;
@@ -23399,7 +23399,7 @@ int CvPlayer::GetImprovementLeagueVotes() const
 void CvPlayer::ChangeImprovementLeagueVotes(int iChange)
 {
 	m_iImprovementLeagueVotes += iChange;
-	ASSERT_DEBUG(m_iImprovementLeagueVotes >= 0);
+	ASSERT(m_iImprovementLeagueVotes >= 0);
 	if (m_iImprovementLeagueVotes < 0)
 	{
 		m_iImprovementLeagueVotes = 0;
@@ -23834,8 +23834,8 @@ bool CvPlayer::swapPolicy(PolicyTypes iNewPolicy, PolicyTypes iOldPolicy)
 
 void CvPlayer::setHasPolicy(PolicyTypes eIndex, bool bNewValue, bool bFree)
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < GC.getNumPolicyInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumPolicyInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	if (m_pPlayerPolicies->HasPolicy(eIndex) != bNewValue)
 	{
@@ -23862,7 +23862,7 @@ bool CvPlayer::canAdoptPolicy(PolicyTypes eIndex) const
 void CvPlayer::doAdoptPolicy(PolicyTypes ePolicy)
 {
 	CvPolicyEntry* pkPolicyInfo = GC.getPolicyInfo(ePolicy);
-	ASSERT_DEBUG(pkPolicyInfo != NULL);
+	ASSERT(pkPolicyInfo != NULL);
 	if(pkPolicyInfo == NULL)
 		return;
 
@@ -24046,21 +24046,21 @@ void CvPlayer::ChangeTourismBonusTurns(int iChange)
 
 int CvPlayer::getTourismBonusTurnsPlayer(PlayerTypes eWithPlayer) const
 {
-	ASSERT_DEBUG(eWithPlayer >= 0, "eFromPlayer is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eWithPlayer < MAX_PLAYERS, "eFromPlayer is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eWithPlayer >= 0, "eFromPlayer is expected to be non-negative (invalid Index)");
+	PRECONDITION(eWithPlayer < MAX_PLAYERS, "eFromPlayer is expected to be within maximum bounds (invalid Index)");
 
 	return m_aiTourismBonusTurnsPlayer[eWithPlayer];
 }
 
 void CvPlayer::changeTourismBonusTurnsPlayer(PlayerTypes eWithPlayer, int iChange)
 {
-	ASSERT_DEBUG(eWithPlayer >= 0, "eFromPlayer is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eWithPlayer < MAX_PLAYERS, "eFromPlayer is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eWithPlayer >= 0, "eFromPlayer is expected to be non-negative (invalid Index)");
+	PRECONDITION(eWithPlayer < MAX_PLAYERS, "eFromPlayer is expected to be within maximum bounds (invalid Index)");
 
 	if (iChange != 0)
 	{
 		m_aiTourismBonusTurnsPlayer[eWithPlayer] = m_aiTourismBonusTurnsPlayer[eWithPlayer] + iChange;
-		ASSERT_DEBUG(getTourismBonusTurnsPlayer(eWithPlayer) >= 0);
+		ASSERT(getTourismBonusTurnsPlayer(eWithPlayer) >= 0);
 	}
 }
 
@@ -24598,7 +24598,7 @@ void CvPlayer::changeGoldenAgeTurns(int iChange, bool bFree)
 	int iThreshold = GetGoldenAgeProgressThreshold();
 
 	m_iGoldenAgeTurns += iChange;
-	ASSERT_DEBUG(m_iGoldenAgeTurns >= 0);
+	ASSERT(m_iGoldenAgeTurns >= 0);
 
 	if (bOldGoldenAge != isGoldenAge())
 	{
@@ -24777,7 +24777,7 @@ int CvPlayer::getNumUnitGoldenAges() const
 void CvPlayer::changeNumUnitGoldenAges(int iChange)
 {
 	m_iNumUnitGoldenAges = (m_iNumUnitGoldenAges + iChange);
-	ASSERT_DEBUG(getNumUnitGoldenAges() >= 0);
+	ASSERT(getNumUnitGoldenAges() >= 0);
 }
 
 int CvPlayer::getStrikeTurns() const
@@ -24788,7 +24788,7 @@ int CvPlayer::getStrikeTurns() const
 void CvPlayer::changeStrikeTurns(int iChange)
 {
 	m_iStrikeTurns = (m_iStrikeTurns + iChange);
-	ASSERT_DEBUG(getStrikeTurns() >= 0);
+	ASSERT(getStrikeTurns() >= 0);
 }
 
 int CvPlayer::getGoldenAgeModifier(bool bCheckMonopolies) const
@@ -25292,15 +25292,15 @@ int CvPlayer::getGreatPeopleRateModifier() const
 
 int CvPlayer::GetGreatPersonRateModifier(GreatPersonTypes eGreatPerson) const
 {
-	ASSERT_DEBUG(eGreatPerson > NO_GREATPERSON, "eGreatPerson expected to be non-negative");
-	ASSERT_DEBUG(eGreatPerson < GC.getNumGreatPersonInfos(), "eGreatPerson expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eGreatPerson > NO_GREATPERSON, "eGreatPerson expected to be non-negative");
+	PRECONDITION(eGreatPerson < GC.getNumGreatPersonInfos(), "eGreatPerson expected to be within maximum bounds (invalid Index)");
 	return m_viGreatPersonRateModifier[eGreatPerson];
 }
 
 void CvPlayer::ChangeGreatPersonRateModifier(GreatPersonTypes eGreatPerson, int iChange)
 {
-	ASSERT_DEBUG(eGreatPerson > NO_GREATPERSON, "eGreatPerson expected to be non-negative");
-	ASSERT_DEBUG(eGreatPerson < GC.getNumGreatPersonInfos(), "eGreatPerson expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eGreatPerson > NO_GREATPERSON, "eGreatPerson expected to be non-negative");
+	PRECONDITION(eGreatPerson < GC.getNumGreatPersonInfos(), "eGreatPerson expected to be within maximum bounds (invalid Index)");
 	m_viGreatPersonRateModifier[eGreatPerson] += iChange;
 }
 
@@ -25710,7 +25710,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				case INSTANT_YIELD_TYPE_GP_USE:
 				{
 					// Don't use this case if you aren't using a Great Person
-					ASSERT_DEBUG(eGreatPerson != NO_GREATPERSON);
+					PRECONDITION(eGreatPerson != NO_GREATPERSON);
 
 					if (pLoopCity->isCapital())
 					{
@@ -25757,25 +25757,31 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				}
 				case INSTANT_YIELD_TYPE_GP_BORN:
 				{
-					if(eGreatPerson != NO_GREATPERSON)
+					if (bEraScale)
 					{
-						iValue += GetPlayerTraits()->GetGreatPersonBornYield(eGreatPerson, eYield);
-					}
-					if (pUnit->GetCultureBlastStrength() > 0)
-					{
-						iValue += pUnit->GetCultureBlastStrength() * pLoopCity->GetYieldFromGPBirthScaledWithWriterBulb(eYield) / 100;
-					}
-					if (pUnit->GetGAPBlastStrength() > 0)
-					{
-						iValue += pUnit->GetGAPBlastStrength() * pLoopCity->GetYieldFromGPBirthScaledWithArtistBulb(eYield) / 100;
-					}
-					if (!pLoopCity->GetYieldFromGPBirthScaledWithPerTurnYieldMap().empty())
-					{
-						for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+						if (eGreatPerson != NO_GREATPERSON)
 						{
-							if (pLoopCity->GetYieldFromGPBirthScaledWithPerTurnYield(eGreatPerson, (YieldTypes)iI, eYield) > 0)
+							iValue += GetPlayerTraits()->GetGreatPersonBornYield(eGreatPerson, eYield);
+						}
+					}
+					else
+					{
+						if (pUnit->GetCultureBlastStrength() > 0)
+						{
+							iValue += pUnit->GetCultureBlastStrength() * pLoopCity->GetYieldFromGPBirthScaledWithWriterBulb(eYield) / 100;
+						}
+						if (pUnit->GetGAPBlastStrength() > 0)
+						{
+							iValue += pUnit->GetGAPBlastStrength() * pLoopCity->GetYieldFromGPBirthScaledWithArtistBulb(eYield) / 100;
+						}
+						if (!pLoopCity->GetYieldFromGPBirthScaledWithPerTurnYieldMap().empty())
+						{
+							for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 							{
-								iValue += pLoopCity->GetYieldFromGPBirthScaledWithPerTurnYield(eGreatPerson, (YieldTypes)iI, eYield) * GetEmpireYieldRateTimes100((YieldTypes)iI, false) / 10000;
+								if (pLoopCity->GetYieldFromGPBirthScaledWithPerTurnYield(eGreatPerson, (YieldTypes)iI, eYield) > 0)
+								{
+									iValue += pLoopCity->GetYieldFromGPBirthScaledWithPerTurnYield(eGreatPerson, (YieldTypes)iI, eYield) * GetEmpireYieldRateTimes100((YieldTypes)iI, false) / 10000;
+								}
 							}
 						}
 					}
@@ -26449,11 +26455,11 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				{
 					// Unit pointer must be valid for unit specific pillage yields.
 					// Not passing a unit pointer is a logic error.
-					ASSERT_DEBUG(pUnit != NULL);
+					ASSERT(pUnit != NULL);
 
 					// This yield shoud never have scale with era passed as true.
 					// This would be another logic error since we split the value and scale it ourself.
-					ASSERT_DEBUG(!bEraScale);
+					ASSERT(!bEraScale);
 
 					const std::pair<int, int> unitPillageYield = pUnit->getYieldFromPillage(eYield);
 					iValue += unitPillageYield.first;
@@ -26484,7 +26490,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				}
 				case INSTANT_YIELD_TYPE_CITY_DAMAGE:
 				{
-					ASSERT_DEBUG(pUnit != NULL && pCity != NULL);
+					ASSERT(pUnit != NULL && pCity != NULL);
 
 					iValue = iPassYield * GetPlayerTraits()->GetYieldFromCityDamageTimes100(eYield);
 					iValue /= 100;
@@ -27576,23 +27582,23 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 void CvPlayer::addInstantYieldText(InstantYieldType iType, const CvString& strInstantYield)
 {
 	VALIDATE_OBJECT();
-	ASSERT_DEBUG(iType >= 0, "iType expected to be >= 0");
-	ASSERT_DEBUG(iType < NUM_INSTANT_YIELD_TYPES, "iType expected to be < NUM_INSTANT_YIELD_TYPES");
+	PRECONDITION(iType >= 0, "iType expected to be >= 0");
+	PRECONDITION(iType < NUM_INSTANT_YIELD_TYPES, "iType expected to be < NUM_INSTANT_YIELD_TYPES");
 
 	m_aistrInstantYield[iType] = m_aistrInstantYield[iType] + strInstantYield;
 }
 void CvPlayer::setInstantYieldText(InstantYieldType iType, const CvString& strInstantYield)
 {
 	VALIDATE_OBJECT();
-	ASSERT_DEBUG(iType >= 0, "iType expected to be >= 0");
-	ASSERT_DEBUG(iType < NUM_INSTANT_YIELD_TYPES, "iType expected to be < NUM_INSTANT_YIELD_TYPES");
+	PRECONDITION(iType >= 0, "iType expected to be >= 0");
+	PRECONDITION(iType < NUM_INSTANT_YIELD_TYPES, "iType expected to be < NUM_INSTANT_YIELD_TYPES");
 	m_aistrInstantYield[iType] = strInstantYield;
 }
 CvString CvPlayer::getInstantYieldText(InstantYieldType iType) const
 {
 	VALIDATE_OBJECT();
-	ASSERT_DEBUG(iType >= 0, "iType expected to be >= 0");
-	ASSERT_DEBUG(iType < NUM_INSTANT_YIELD_TYPES, "iType expected to be < NUM_INSTANT_YIELD_TYPES");
+	PRECONDITION(iType >= 0, "iType expected to be >= 0");
+	PRECONDITION(iType < NUM_INSTANT_YIELD_TYPES, "iType expected to be < NUM_INSTANT_YIELD_TYPES");
 	return m_aistrInstantYield[iType];
 }
 void CvPlayer::doInstantGWAM(GreatPersonTypes eGreatPerson, const CvString& strName, bool bConquest)
@@ -28082,8 +28088,8 @@ void CvPlayer::doInstantGreatPersonProgress(InstantYieldType iType, bool bSuppre
 void CvPlayer::addInstantGreatPersonProgressText(InstantYieldType iType, const CvString& strInstantYield)
 {
 	VALIDATE_OBJECT();
-	ASSERT_DEBUG(iType >= 0, "iType expected to be >= 0");
-	ASSERT_DEBUG(iType < NUM_INSTANT_YIELD_TYPES, "iType expected to be < NUM_INSTANT_YIELD_TYPES");
+	PRECONDITION(iType >= 0, "iType expected to be >= 0");
+	PRECONDITION(iType < NUM_INSTANT_YIELD_TYPES, "iType expected to be < NUM_INSTANT_YIELD_TYPES");
 
 	std::map<int, CvString>::iterator it = m_aistrInstantGreatPersonProgress.find((int)iType);
 	if (it != m_aistrInstantGreatPersonProgress.end())
@@ -28098,8 +28104,8 @@ void CvPlayer::addInstantGreatPersonProgressText(InstantYieldType iType, const C
 void CvPlayer::setInstantGreatPersonProgressText(InstantYieldType iType, const CvString& strInstantYield)
 {
 	VALIDATE_OBJECT();
-	ASSERT_DEBUG(iType >= 0, "iType expected to be >= 0");
-	ASSERT_DEBUG(iType < NUM_INSTANT_YIELD_TYPES, "iType expected to be < NUM_INSTANT_YIELD_TYPES");
+	PRECONDITION(iType >= 0, "iType expected to be >= 0");
+	PRECONDITION(iType < NUM_INSTANT_YIELD_TYPES, "iType expected to be < NUM_INSTANT_YIELD_TYPES");
 
 	std::map<int, CvString>::iterator it = m_aistrInstantGreatPersonProgress.find((int)iType);
 	if (it != m_aistrInstantGreatPersonProgress.end())
@@ -28114,8 +28120,8 @@ void CvPlayer::setInstantGreatPersonProgressText(InstantYieldType iType, const C
 CvString CvPlayer::getInstantGreatPersonProgressText(InstantYieldType iType) const
 {
 	VALIDATE_OBJECT();
-	ASSERT_DEBUG(iType >= 0, "iType expected to be >= 0");
-	ASSERT_DEBUG(iType < NUM_INSTANT_YIELD_TYPES, "iType expected to be < NUM_INSTANT_YIELD_TYPES");
+	PRECONDITION(iType >= 0, "iType expected to be >= 0");
+	PRECONDITION(iType < NUM_INSTANT_YIELD_TYPES, "iType expected to be < NUM_INSTANT_YIELD_TYPES");
 
 	std::map<int, CvString>::const_iterator it = m_aistrInstantGreatPersonProgress.find((int)iType);
 	if (it != m_aistrInstantGreatPersonProgress.end())
@@ -28588,14 +28594,14 @@ void CvPlayer::ChangeGreatPeopleSpawnCounter(int iChange)
 /// Create a GreatPeople
 void CvPlayer::DoSpawnGreatPerson(PlayerTypes eMinor, bool bIsFree)
 {
-	ASSERT_DEBUG(eMinor >= MAX_MAJOR_CIVS, "eMinor is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eMinor < MAX_CIV_PLAYERS, "eMinor is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eMinor >= MAX_MAJOR_CIVS, "eMinor is expected to be non-negative (invalid Index)");
+	PRECONDITION(eMinor < MAX_CIV_PLAYERS, "eMinor is expected to be within maximum bounds (invalid Index)");
 
 	// Minor must have Capital
 	CvCity* pMinorCapital = GET_PLAYER(eMinor).getCapitalCity();
 	if(pMinorCapital == NULL)
 	{
-		ASSERT_DEBUG(false, "MINOR CIV AI: Trying to spawn a GreatPeople for a major civ but the minor has no capital.");
+		ASSERT(false, "MINOR CIV AI: Trying to spawn a GreatPeople for a major civ but the minor has no capital.");
 		return;
 	}
 
@@ -28603,7 +28609,7 @@ void CvPlayer::DoSpawnGreatPerson(PlayerTypes eMinor, bool bIsFree)
 	CvPlot* pMinorPlot = pMinorCapital->plot();
 	if(pMinorPlot == NULL)
 	{
-		ASSERT_DEBUG(false, "Plot for minor civ's capital not found!");
+		ASSERT(false, "Plot for minor civ's capital not found!");
 		return;
 	}
 
@@ -28651,7 +28657,7 @@ void CvPlayer::DoSpawnGreatPerson(PlayerTypes eMinor, bool bIsFree)
 	if(eBestUnit != NO_UNIT)
 	{
 		CvUnit* pNewGreatPeople = initUnit(eBestUnit, iX, iY);
-		ASSERT_DEBUG(pNewGreatPeople);
+		ASSERT(pNewGreatPeople);
 
 		if (pNewGreatPeople->IsGreatAdmiral())
 		{
@@ -29013,7 +29019,7 @@ int CvPlayer::getNumNukeUnits() const
 void CvPlayer::changeNumNukeUnits(int iChange)
 {
 	m_iNumNukeUnits += iChange;
-	ASSERT_DEBUG(m_iNumNukeUnits >= 0);
+	ASSERT(m_iNumNukeUnits >= 0);
 	if (iChange != 0)
 		updateMightStatistics(); // force an immediate update of might statistics, nukes are powerful
 }
@@ -29043,7 +29049,7 @@ void CvPlayer::changeNumOutsideUnits(int iChange)
 	if(iChange != 0)
 	{
 		m_iNumOutsideUnits += iChange;
-		ASSERT_DEBUG(getNumOutsideUnits() >= 0);
+		ASSERT(getNumOutsideUnits() >= 0);
 
 		if(GetID() == GC.getGame().getActivePlayer())
 		{
@@ -29278,7 +29284,7 @@ void CvPlayer::changeNumMilitaryUnits(int iChange, DomainTypes eDomain)
 	if(iChange != 0)
 	{
 		m_iNumMilitaryUnits = (m_iNumMilitaryUnits + iChange);
-		ASSERT_DEBUG(getNumMilitaryUnits() >= 0);
+		ASSERT(getNumMilitaryUnits() >= 0);
 
 		switch (eDomain)
 		{
@@ -29286,15 +29292,15 @@ void CvPlayer::changeNumMilitaryUnits(int iChange, DomainTypes eDomain)
 			break;
 		case DOMAIN_SEA:
 			m_iNumMilitarySeaUnits = (m_iNumMilitarySeaUnits + iChange);
-			ASSERT_DEBUG(getNumMilitarySeaUnits() >= 0);
+			ASSERT(getNumMilitarySeaUnits() >= 0);
 			break;
 		case DOMAIN_AIR:
 			m_iNumMilitaryAirUnits = (m_iNumMilitaryAirUnits + iChange);
-			ASSERT_DEBUG(getNumMilitaryAirUnits() >= 0);
+			ASSERT(getNumMilitaryAirUnits() >= 0);
 			break;
 		case DOMAIN_LAND:
 			m_iNumMilitaryLandUnits = (m_iNumMilitaryLandUnits + iChange);
-			ASSERT_DEBUG(getNumMilitarySeaUnits() >= 0);
+			ASSERT(getNumMilitarySeaUnits() >= 0);
 			break;
 		case DOMAIN_IMMOBILE:
 			break;
@@ -29378,7 +29384,7 @@ int CvPlayer::getHappinessToCulture() const
 void CvPlayer::changeHappinessToCulture(int iChange)
 {
 	m_iHappinessToCulture += iChange;
-	ASSERT_DEBUG(m_iHappinessToCulture >= 0);
+	ASSERT(m_iHappinessToCulture >= 0);
 }
 
 int CvPlayer::getHappinessToScience() const
@@ -29389,7 +29395,7 @@ int CvPlayer::getHappinessToScience() const
 void CvPlayer::changeHappinessToScience(int iChange)
 {
 	m_iHappinessToScience += iChange;
-	ASSERT_DEBUG(m_iHappinessToScience >= 0);
+	ASSERT(m_iHappinessToScience >= 0);
 }
 
 int CvPlayer::getHalfSpecialistUnhappinessCount() const
@@ -29405,7 +29411,7 @@ bool CvPlayer::isHalfSpecialistUnhappiness() const
 void CvPlayer::changeHalfSpecialistUnhappinessCount(int iChange)
 {
 	m_iHalfSpecialistUnhappinessCount += iChange;
-	ASSERT_DEBUG(m_iHalfSpecialistUnhappinessCount >= 0);
+	ASSERT(m_iHalfSpecialistUnhappinessCount >= 0);
 }
 
 int CvPlayer::getHalfSpecialistFoodCount() const
@@ -29421,7 +29427,7 @@ bool CvPlayer::isHalfSpecialistFood() const
 void CvPlayer::changeHalfSpecialistFoodCount(int iChange)
 {
 	m_iHalfSpecialistFoodCount += iChange;
-	ASSERT_DEBUG(m_iHalfSpecialistFoodCount >= 0);
+	ASSERT(m_iHalfSpecialistFoodCount >= 0);
 }
 
 int CvPlayer::getHalfSpecialistFoodCapitalCount() const
@@ -29437,7 +29443,7 @@ bool CvPlayer::isHalfSpecialistFoodCapital() const
 void CvPlayer::changeHalfSpecialistFoodCapitalCount(int iChange)
 {
 	m_iHalfSpecialistFoodCapitalCount += iChange;
-	ASSERT_DEBUG(m_iHalfSpecialistFoodCapitalCount >= 0);
+	ASSERT(m_iHalfSpecialistFoodCapitalCount >= 0);
 }
 
 int CvPlayer::getTradeRouteLandDistanceModifier() const
@@ -29448,7 +29454,7 @@ int CvPlayer::getTradeRouteLandDistanceModifier() const
 void CvPlayer::changeTradeRouteLandDistanceModifier(int iChange)
 {
 	m_iTradeRouteLandDistanceModifier += iChange;
-	ASSERT_DEBUG(m_iTradeRouteLandDistanceModifier >= 0);
+	ASSERT(m_iTradeRouteLandDistanceModifier >= 0);
 }
 
 int CvPlayer::getTradeRouteSeaDistanceModifier() const
@@ -29459,30 +29465,30 @@ int CvPlayer::getTradeRouteSeaDistanceModifier() const
 void CvPlayer::changeTradeRouteSeaDistanceModifier(int iChange)
 {
 	m_iTradeRouteSeaDistanceModifier += iChange;
-	ASSERT_DEBUG(m_iTradeRouteSeaDistanceModifier >= 0);
+	ASSERT(m_iTradeRouteSeaDistanceModifier >= 0);
 }
 
 int CvPlayer::GetDomainFreeExperiencePerGreatWorkGlobal(DomainTypes eIndex) const
 {
 	VALIDATE_OBJECT();
-	ASSERT_DEBUG(eIndex >= 0, "eIndex expected to be >= 0");
-	ASSERT_DEBUG(eIndex < NUM_DOMAIN_TYPES, "eIndex expected to be < NUM_DOMAIN_TYPES");
+	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eIndex < NUM_DOMAIN_TYPES, "eIndex expected to be < NUM_DOMAIN_TYPES");
 	return m_aiDomainFreeExperiencePerGreatWorkGlobal[eIndex];
 }
 
 void CvPlayer::ChangeDomainFreeExperiencePerGreatWorkGlobal(DomainTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT();
-	ASSERT_DEBUG(eIndex >= 0, "eIndex expected to be >= 0");
-	ASSERT_DEBUG(eIndex < NUM_DOMAIN_TYPES, "eIndex expected to be < NUM_DOMAIN_TYPES");
+	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eIndex < NUM_DOMAIN_TYPES, "eIndex expected to be < NUM_DOMAIN_TYPES");
 	m_aiDomainFreeExperiencePerGreatWorkGlobal[eIndex] = m_aiDomainFreeExperiencePerGreatWorkGlobal[eIndex] + iChange;
 }
 
 int CvPlayer::GetDomainFreeExperience(DomainTypes eIndex) const
 {
 	VALIDATE_OBJECT();
-	ASSERT_DEBUG(eIndex >= 0, "eIndex expected to be >= 0");
-	ASSERT_DEBUG(eIndex < NUM_DOMAIN_TYPES, "eIndex expected to be < NUM_DOMAIN_TYPES");
+	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eIndex < NUM_DOMAIN_TYPES, "eIndex expected to be < NUM_DOMAIN_TYPES");
 
 	std::map<int, int>::const_iterator it = m_piDomainFreeExperience.find((int)eIndex);
 	if (it != m_piDomainFreeExperience.end()) // find returns the iterator to map::end if the key i is not present in the map
@@ -29496,8 +29502,8 @@ int CvPlayer::GetDomainFreeExperience(DomainTypes eIndex) const
 void CvPlayer::ChangeDomainFreeExperience(DomainTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT();
-	ASSERT_DEBUG(eIndex >= 0, "eIndex expected to be >= 0");
-	ASSERT_DEBUG(eIndex < NUM_DOMAIN_TYPES, "eIndex expected to be < NUM_DOMAIN_TYPES");
+	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eIndex < NUM_DOMAIN_TYPES, "eIndex expected to be < NUM_DOMAIN_TYPES");
 
 	m_piDomainFreeExperience[(int)eIndex] += iChange;
 }
@@ -29562,7 +29568,7 @@ void CvPlayer::changeMilitaryFoodProductionCount(int iChange)
 	if (iChange != 0)
 	{
 		m_iMilitaryFoodProductionCount += iChange;
-		ASSERT_DEBUG(m_iMilitaryFoodProductionCount >= 0);
+		ASSERT(m_iMilitaryFoodProductionCount >= 0);
 
 		if (getTeam() == GC.getGame().getActiveTeam())
 		{
@@ -29584,7 +29590,7 @@ bool CvPlayer::IsGoldenAgeCultureBonusDisabled() const
 void CvPlayer::ChangeGoldenAgeCultureBonusDisabledCount(int iChange)
 {
 	m_iGoldenAgeCultureBonusDisabledCount += iChange;
-	ASSERT_DEBUG(m_iGoldenAgeCultureBonusDisabledCount >= 0);
+	ASSERT(m_iGoldenAgeCultureBonusDisabledCount >= 0);
 }
 
 void CvPlayer::ChangeNumMissionarySpreads(int iChange)
@@ -29610,7 +29616,7 @@ bool CvPlayer::IsSecondReligionPantheon() const
 void CvPlayer::ChangeSecondReligionPantheonCount(int iChange)
 {
 	m_iSecondReligionPantheonCount += iChange;
-	ASSERT_DEBUG(m_iSecondReligionPantheonCount >= 0);
+	ASSERT(m_iSecondReligionPantheonCount >= 0);
 }
 
 int CvPlayer::GetEnablesSSPartHurryCount() const
@@ -29626,7 +29632,7 @@ bool CvPlayer::IsEnablesSSPartHurry() const
 void CvPlayer::ChangeEnablesSSPartHurryCount(int iChange)
 {
 	m_iEnablesSSPartHurryCount += iChange;
-	ASSERT_DEBUG(m_iEnablesSSPartHurryCount >= 0);
+	ASSERT(m_iEnablesSSPartHurryCount >= 0);
 }
 
 int CvPlayer::GetEnablesSSPartPurchaseCount() const
@@ -29642,7 +29648,7 @@ bool CvPlayer::IsEnablesSSPartPurchase() const
 void CvPlayer::ChangeEnablesSSPartPurchaseCount(int iChange)
 {
 	m_iEnablesSSPartPurchaseCount += iChange;
-	ASSERT_DEBUG(m_iEnablesSSPartPurchaseCount >= 0);
+	ASSERT(m_iEnablesSSPartPurchaseCount >= 0);
 }
 
 int CvPlayer::getHighestUnitLevel()	const
@@ -29653,7 +29659,7 @@ int CvPlayer::getHighestUnitLevel()	const
 void CvPlayer::setHighestUnitLevel(int iNewValue)
 {
 	m_iHighestUnitLevel = iNewValue;
-	ASSERT_DEBUG(m_iHighestUnitLevel >= 0);
+	ASSERT(m_iHighestUnitLevel >= 0);
 }
 
 int CvPlayer::getOverflowResearch() const
@@ -29682,7 +29688,7 @@ void CvPlayer::setOverflowResearchTimes100(int iNewValue)
 		return;
 
 	m_iOverflowResearch = iNewValue;
-	ASSERT_DEBUG(m_iOverflowResearch >= 0);
+	ASSERT(m_iOverflowResearch >= 0);
 }
 
 void CvPlayer::changeOverflowResearchTimes100(int iChange)
@@ -29701,7 +29707,7 @@ int CvPlayer::getExpModifier() const
 void CvPlayer::changeExpModifier(int iChange)
 {
 	m_iExpModifier += iChange;
-	ASSERT_DEBUG(m_iExpModifier >= 0);
+	ASSERT(m_iExpModifier >= 0);
 }
 
 int CvPlayer::getExpInBorderModifier() const
@@ -29712,7 +29718,7 @@ int CvPlayer::getExpInBorderModifier() const
 void CvPlayer::changeExpInBorderModifier(int iChange)
 {
 	m_iExpInBorderModifier += iChange;
-	ASSERT_DEBUG(m_iExpInBorderModifier >= 0);
+	ASSERT(m_iExpInBorderModifier >= 0);
 }
 
 int CvPlayer::getLevelExperienceModifier() const
@@ -29733,7 +29739,7 @@ int CvPlayer::getMinorQuestFriendshipMod() const
 void CvPlayer::changeMinorQuestFriendshipMod(int iChange)
 {
 	m_iMinorQuestFriendshipMod += iChange;
-	ASSERT_DEBUG(m_iMinorQuestFriendshipMod >= 0);
+	ASSERT(m_iMinorQuestFriendshipMod >= 0);
 }
 
 int CvPlayer::getMinorGoldFriendshipMod() const
@@ -29744,7 +29750,7 @@ int CvPlayer::getMinorGoldFriendshipMod() const
 void CvPlayer::changeMinorGoldFriendshipMod(int iChange)
 {
 	m_iMinorGoldFriendshipMod += iChange;
-	ASSERT_DEBUG(m_iMinorGoldFriendshipMod >= 0);
+	ASSERT(m_iMinorGoldFriendshipMod >= 0);
 }
 
 /// What is the general modifier we get towards the resting Influence point with a city-state? (ex. Social Policies)
@@ -30099,16 +30105,19 @@ int CvPlayer::GetProsperityScore() const
 bool CvPlayer::PlayerHasContract(ContractTypes eContract) const
 {
 	VALIDATE_OBJECT();
-	ASSERT_DEBUG(eContract >= 0, "eContract expected to be >= 0");
-	ASSERT_DEBUG(eContract < GC.getNumContractInfos(), "eContract expected to be < GC.GetNumContractInfos()");
+	PRECONDITION(eContract >= 0, "eContract expected to be >= 0");
+	PRECONDITION(eContract < GC.getNumContractInfos(), "eContract expected to be < GC.GetNumContractInfos()");
 	return m_abActiveContract[eContract];
 }
 void CvPlayer::SetActiveContract(ContractTypes eContract, bool bValue)
 {
 	VALIDATE_OBJECT();
-	ASSERT_DEBUG(eContract >= 0, "eContract expected to be >= 0");
-	ASSERT_DEBUG(eContract < GC.getNumContractInfos(), "eContract expected to be < GC.GetNumContractInfos()");
-	m_abActiveContract[eContract] = bValue;
+	PRECONDITION(eContract >= 0, "eContract expected to be >= 0");
+	PRECONDITION(eContract < GC.getNumContractInfos(), "eContract expected to be < GC.GetNumContractInfos()");
+	if (m_abActiveContract[eContract] != bValue)
+	{
+		m_abActiveContract[eContract] = bValue;
+	}
 }
 
 void CvPlayer::DoUnitDiversity()
@@ -30336,8 +30345,8 @@ int CvPlayer::GetEventTourism() const
 
 void CvPlayer::SetGlobalTourismAlreadyReceived(MinorCivQuestTypes eQuest, int iValue)
 {
-	ASSERT_DEBUG(eQuest >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eQuest < NUM_MINOR_CIV_QUEST_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eQuest >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eQuest < NUM_MINOR_CIV_QUEST_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 	if(iValue != 0)
 	{
 		m_aiGlobalTourismAlreadyReceived[eQuest] = iValue;
@@ -30345,8 +30354,8 @@ void CvPlayer::SetGlobalTourismAlreadyReceived(MinorCivQuestTypes eQuest, int iV
 }
 int CvPlayer::GlobalTourismAlreadyReceived(MinorCivQuestTypes eQuest) const
 {
-	ASSERT_DEBUG(eQuest >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eQuest < NUM_MINOR_CIV_QUEST_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eQuest >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eQuest < NUM_MINOR_CIV_QUEST_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	return m_aiGlobalTourismAlreadyReceived[eQuest];
 }
@@ -30899,7 +30908,7 @@ void CvPlayer::setCultureBombTimer(int iNewValue)
 	if(getCultureBombTimer() != iNewValue)
 	{
 		m_iCultureBombTimer = iNewValue;
-		ASSERT_DEBUG(getCultureBombTimer() >= 0);
+		ASSERT(getCultureBombTimer() >= 0);
 	}
 }
 
@@ -30918,7 +30927,7 @@ void CvPlayer::setConversionTimer(int iNewValue)
 	if(getConversionTimer() != iNewValue)
 	{
 		m_iConversionTimer = iNewValue;
-		ASSERT_DEBUG(getConversionTimer() >= 0);
+		ASSERT(getConversionTimer() >= 0);
 
 		if(GetID() == GC.getGame().getActivePlayer())
 		{
@@ -31975,7 +31984,7 @@ int CvPlayer::calculateNuclearMight(PlayerTypes ePlayer, bool bComputeShelterNum
 
 	if (bComputeShelterNumbers)
 	{
-		ASSERT_DEBUG(ePlayer != NO_PLAYER && ePlayer != BARBARIAN_PLAYER);
+		PRECONDITION(ePlayer != NO_PLAYER && ePlayer != BARBARIAN_PLAYER);
 		int iNumTheirCities = 0;
 		int iNumTheirShelteredCities = 0;
 		iNukeModifier = 0;
@@ -32107,7 +32116,7 @@ int CvPlayer::getCombatExperienceTimes100() const
 
 void CvPlayer::setCombatExperienceTimes100(int iExperienceTimes100, CvUnit* pFromUnit)
 {
-	ASSERT_DEBUG(iExperienceTimes100 >= 0);
+	ASSERT(iExperienceTimes100 >= 0);
 
 	if (iExperienceTimes100 != getCombatExperienceTimes100())
 	{
@@ -32219,7 +32228,7 @@ int CvPlayer::getNavalCombatExperienceTimes100() const
 
 void CvPlayer::setNavalCombatExperienceTimes100(int iExperienceTimes100, CvUnit* pFromUnit)
 {
-	ASSERT_DEBUG(iExperienceTimes100 >= 0);
+	ASSERT(iExperienceTimes100 >= 0);
 
 	if (iExperienceTimes100 != getNavalCombatExperienceTimes100())
 	{
@@ -32389,7 +32398,7 @@ void CvPlayer::changeBorderObstacleCount(int iChange)
 	if(iChange != 0)
 	{
 		m_iBorderObstacleCount = (m_iBorderObstacleCount + iChange);
-		ASSERT_DEBUG(getBorderObstacleCount() >= 0);
+		ASSERT(getBorderObstacleCount() >= 0);
 	}
 }
 
@@ -32845,7 +32854,7 @@ bool CvPlayer::isTurnActive() const
 
 void CvPlayer::setTurnActiveForPbem(bool bActive)
 {
-	ASSERT_DEBUG(GC.getGame().isPbem(), "You are using setTurnActiveForPbem. Are you sure you know what you're doing?");
+	ASSERT(GC.getGame().isPbem(), "You are using setTurnActiveForPbem. Are you sure you know what you're doing?");
 
 	// does nothing more than to set the member variable before saving the game
 	// the rest of the turn will be performed upon loading the game
@@ -32891,7 +32900,7 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn) // R: bDoTurn default
 
 		if(isTurnActive())
 		{
-			ASSERT_DEBUG(isAlive(), "isAlive is expected to be true");
+			PRECONDITION(isAlive(), "isAlive is expected to be true");
 
 			setEndTurn(false);
 
@@ -33066,7 +33075,7 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn) // R: bDoTurn default
 				GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerDoneTurn, GetID());
 			}
 
-			ASSERT_DEBUG(GetEndTurnBlockingType() == NO_ENDTURN_BLOCKING_TYPE, "Expecting the end-turn blocking to be NO_ENDTURN_BLOCKING_TYPE, got %d", GetEndTurnBlockingType());
+			ASSERT(GetEndTurnBlockingType() == NO_ENDTURN_BLOCKING_TYPE, "Expecting the end-turn blocking to be NO_ENDTURN_BLOCKING_TYPE, got %d", GetEndTurnBlockingType());
 			SetEndTurnBlocking(NO_ENDTURN_BLOCKING_TYPE, -1);	// Make sure this is clear so the UI doesn't block when it is not our turn.
 
 			//important: healing and restoration of movement points
@@ -33257,7 +33266,7 @@ void CvPlayer::setEndTurn(bool bNewValue)
 			//}
 		}
 
-		ASSERT_DEBUG(isTurnActive(), "isTurnActive is expected to be true");
+		PRECONDITION(isTurnActive(), "isTurnActive is expected to be true");
 
 		m_bEndTurn = bNewValue;
 
@@ -33526,7 +33535,7 @@ const CvHandicapInfo& CvPlayer::getHandicapInfo() const
 	{
 		const char* szError = "ERROR: Player does not contain valid handicap!!";
 		GC.LogMessage(szError);
-		ASSERT_DEBUG(false, szError);
+		ASSERT(false, szError);
 
 		return emptyResult;
 	}
@@ -33548,7 +33557,7 @@ const CvCivilizationInfo& CvPlayer::getCivilizationInfo() const
 	{
 		const char* szError = "ERROR: Player does not contain valid civilization type!!";
 		GC.LogMessage(szError);
-		ASSERT_DEBUG(false, szError);
+		ASSERT(false, szError);
 
 		return emptyResult;
 	}
@@ -33570,7 +33579,7 @@ const CvLeaderHeadInfo& CvPlayer::getLeaderInfo() const
 	{
 		const char* szError = "ERROR: Player does not contain valid leader type!!";
 		GC.LogMessage(szError);
-		ASSERT_DEBUG(false, szError);
+		ASSERT(false, szError);
 
 		return emptyResult;
 	}
@@ -33631,8 +33640,8 @@ EraTypes CvPlayer::GetCurrentEra() const
 
 void CvPlayer::setTeam(TeamTypes eTeam)
 {
-	ASSERT_DEBUG(eTeam != NO_TEAM);
-	ASSERT_DEBUG(getTeam() != NO_TEAM);
+	PRECONDITION(eTeam != NO_TEAM);
+	PRECONDITION(getTeam() != NO_TEAM);
 	if(isAlive())
 	{
 		GET_TEAM(getTeam()).changeAliveCount(-1);
@@ -33693,7 +33702,7 @@ PlayerColorTypes CvPlayer::getPlayerColor() const
 
 const CvColorA& CvPlayer::getPlayerTextColor() const
 {
-	ASSERT_DEBUG(getPlayerColor() != NO_PLAYERCOLOR, "getPlayerColor() is not expected to be equal with NO_PLAYERCOLOR");
+	PRECONDITION(getPlayerColor() != NO_PLAYERCOLOR, "getPlayerColor() is not expected to be equal with NO_PLAYERCOLOR");
 	CvPlayerColorInfo* pkPlayerColorInfo = GC.GetPlayerColorInfo(getPlayerColor());
 	CvColorInfo* pkColorInfo = NULL;
 	if(pkPlayerColorInfo)
@@ -33711,15 +33720,15 @@ const CvColorA& CvPlayer::getPlayerTextColor() const
 
 int CvPlayer::getSeaPlotYield(YieldTypes eIndex) const
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_aiSeaPlotYield[eIndex];
 }
 
 void CvPlayer::changeSeaPlotYield(YieldTypes eIndex, int iChange)
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	if (iChange != 0)
 	{
@@ -33730,15 +33739,15 @@ void CvPlayer::changeSeaPlotYield(YieldTypes eIndex, int iChange)
 
 int CvPlayer::getYieldRateModifier(YieldTypes eIndex) const
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_aiYieldRateModifier[eIndex];
 }
 
 void CvPlayer::changeYieldRateModifier(YieldTypes eIndex, int iChange)
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	if (iChange != 0)
 	{
@@ -33755,15 +33764,15 @@ void CvPlayer::changeYieldRateModifier(YieldTypes eIndex, int iChange)
 
 int CvPlayer::getYieldFromExpendTileCapital(YieldTypes eIndex) const
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_aiYieldFromExpendTileCapital[eIndex];
 }
 
 void CvPlayer::changeYieldFromExpendTileCapital(YieldTypes eIndex, int iChange)
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	if (iChange != 0)
 	{
@@ -33790,15 +33799,15 @@ void CvPlayer::changeTradeReligionModifier(int iChange)
 
 int CvPlayer::getYieldFromBirth(YieldTypes eIndex) const
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_aiYieldFromBirth[eIndex];
 }
 
 void CvPlayer::changeYieldFromBirth(YieldTypes eIndex, int iChange)
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	if (iChange != 0)
 	{
@@ -33815,15 +33824,15 @@ void CvPlayer::changeYieldFromBirth(YieldTypes eIndex, int iChange)
 
 int CvPlayer::getYieldFromBirthCapital(YieldTypes eIndex) const
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_aiYieldFromBirthCapital[eIndex];
 }
 
 void CvPlayer::changeYieldFromBirthCapital(YieldTypes eIndex, int iChange)
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	if (iChange != 0)
 	{
@@ -33840,15 +33849,15 @@ void CvPlayer::changeYieldFromBirthCapital(YieldTypes eIndex, int iChange)
 
 int CvPlayer::getYieldFromDeath(YieldTypes eIndex) const
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_aiYieldFromDeath[eIndex];
 }
 
 void CvPlayer::changeYieldFromDeath(YieldTypes eIndex, int iChange)
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	if(iChange != 0)
 	{
@@ -33866,16 +33875,16 @@ void CvPlayer::changeYieldFromDeath(YieldTypes eIndex, int iChange)
 int CvPlayer::GetYieldFromPillage(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT();
-	ASSERT_DEBUG(eIndex >= 0, "eIndex expected to be >= 0");
-	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	return m_aiYieldFromPillage[eIndex];
 }
 
 /// Extra yield from building
 void CvPlayer::ChangeYieldFromPillage(YieldTypes eIndex, int iChange)
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	if (iChange != 0)
 	{
@@ -33893,16 +33902,16 @@ void CvPlayer::ChangeYieldFromPillage(YieldTypes eIndex, int iChange)
 int CvPlayer::GetYieldFromVictory(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT();
-		ASSERT_DEBUG(eIndex >= 0, "eIndex expected to be >= 0");
-	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+		PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	return m_aiYieldFromVictory[eIndex];
 }
 
 /// Extra yield from building
 void CvPlayer::ChangeYieldFromVictory(YieldTypes eIndex, int iChange)
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	if (iChange != 0)
 	{
@@ -33919,14 +33928,14 @@ void CvPlayer::ChangeYieldFromVictory(YieldTypes eIndex, int iChange)
 
 int CvPlayer::getYieldFromConstruction(YieldTypes eIndex) const
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_aiYieldFromConstruction[eIndex];
 }
 void CvPlayer::changeYieldFromConstruction(YieldTypes eIndex, int iChange)
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	if (iChange != 0)
 	{
@@ -33943,15 +33952,15 @@ void CvPlayer::changeYieldFromConstruction(YieldTypes eIndex, int iChange)
 
 int CvPlayer::GetYieldFromWorldWonderConstruction(YieldTypes eIndex) const
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_aiYieldFromWorldWonderConstruction[eIndex];
 }
 
 void CvPlayer::ChangeYieldFromWorldWonderConstruction(YieldTypes eIndex, int iChange)
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	if (iChange != 0)
 	{
@@ -33968,15 +33977,15 @@ void CvPlayer::ChangeYieldFromWorldWonderConstruction(YieldTypes eIndex, int iCh
 
 int CvPlayer::getYieldFromTech(YieldTypes eIndex) const
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_aiYieldFromTech[eIndex];
 }
 
 void CvPlayer::changeYieldFromTech(YieldTypes eIndex, int iChange)
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	if (iChange != 0)
 	{
@@ -33993,15 +34002,15 @@ void CvPlayer::changeYieldFromTech(YieldTypes eIndex, int iChange)
 
 int CvPlayer::getYieldFromBorderGrowth(YieldTypes eIndex) const
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_aiYieldFromBorderGrowth[eIndex];
 }
 
 void CvPlayer::changeYieldFromBorderGrowth(YieldTypes eIndex, int iChange)
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	if (iChange != 0)
 	{
@@ -34018,14 +34027,14 @@ void CvPlayer::changeYieldFromBorderGrowth(YieldTypes eIndex, int iChange)
 
 int CvPlayer::getYieldGPExpend(YieldTypes eIndex) const
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_aiYieldGPExpend[eIndex];
 }
 void CvPlayer::changeYieldGPExpend(YieldTypes eIndex, int iChange)
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	if (iChange != 0)
 	{
@@ -34042,15 +34051,15 @@ void CvPlayer::changeYieldGPExpend(YieldTypes eIndex, int iChange)
 
 int CvPlayer::getConquerorYield(YieldTypes eIndex) const
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_aiConquerorYield[eIndex];
 }
 
 void CvPlayer::changeConquerorYield(YieldTypes eIndex, int iChange)
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	if (iChange != 0)
 	{
@@ -34067,15 +34076,15 @@ void CvPlayer::changeConquerorYield(YieldTypes eIndex, int iChange)
 
 int CvPlayer::getFounderYield(YieldTypes eIndex) const
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_aiFounderYield[eIndex];
 }
 
 void CvPlayer::changeFounderYield(YieldTypes eIndex, int iChange)
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	if (iChange != 0)
 	{
@@ -34092,99 +34101,99 @@ void CvPlayer::changeFounderYield(YieldTypes eIndex, int iChange)
 
 int CvPlayer::getArtifactYieldBonus(YieldTypes eIndex) const
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_aiArtifactYieldBonus[eIndex];
 }
 
 void CvPlayer::changeArtifactYieldBonus(YieldTypes eIndex, int iChange)
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 	m_aiArtifactYieldBonus[eIndex] += iChange;
 }
 
 int CvPlayer::getArtYieldBonus(YieldTypes eIndex) const
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_aiArtYieldBonus[eIndex];
 }
 
 void CvPlayer::changeArtYieldBonus(YieldTypes eIndex, int iChange)
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 	m_aiArtYieldBonus[eIndex] += iChange;
 }
 
 int CvPlayer::getMusicYieldBonus(YieldTypes eIndex) const
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_aiMusicYieldBonus[eIndex];
 }
 
 void CvPlayer::changeMusicYieldBonus(YieldTypes eIndex, int iChange)
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 	m_aiMusicYieldBonus[eIndex] += iChange;
 }
 
 int CvPlayer::getLitYieldBonus(YieldTypes eIndex) const
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_aiLitYieldBonus[eIndex];
 }
 
 void CvPlayer::changeLitYieldBonus(YieldTypes eIndex, int iChange)
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 	m_aiLitYieldBonus[eIndex] += iChange;
 }
 
 int CvPlayer::getFilmYieldBonus(YieldTypes eIndex) const
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_aiFilmYieldBonus[eIndex];
 }
 
 void CvPlayer::changeFilmYieldBonus(YieldTypes eIndex, int iChange)
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 	m_aiFilmYieldBonus[eIndex] += iChange;
 }
 
 int CvPlayer::getRelicYieldBonus(YieldTypes eIndex) const
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_aiRelicYieldBonus[eIndex];
 }
 
 void CvPlayer::changeRelicYieldBonus(YieldTypes eIndex, int iChange)
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 	m_aiRelicYieldBonus[eIndex] += iChange;
 }
 
 int CvPlayer::getGoldenAgeYieldMod(YieldTypes eIndex)	const
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex expected to be >= 0");
-	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	return m_aiGoldenAgeYieldMod[eIndex];
 }
 
 void CvPlayer::changeGoldenAgeYieldMod(YieldTypes eIndex, int iChange)
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	if (iChange != 0)
 	{
@@ -34235,15 +34244,15 @@ int CvPlayer::GetSciencePerTurnFromPassiveSpyBonusesTimes100() const
 
 int CvPlayer::GetNumAnnexedCityStates(MinorCivTraitTypes eIndex)	const
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex expected to be >= 0");
-	ASSERT_DEBUG(eIndex < NUM_MINOR_CIV_TRAIT_TYPES, "eIndex expected to be < NUM_MINOR_CIV_TRAIT_TYPES");
+	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eIndex < NUM_MINOR_CIV_TRAIT_TYPES, "eIndex expected to be < NUM_MINOR_CIV_TRAIT_TYPES");
 	return m_aiNumAnnexedCityStates[eIndex];
 }
 
 void CvPlayer::ChangeNumAnnexedCityStates(MinorCivTraitTypes eIndex, int iChange)
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < NUM_MINOR_CIV_TRAIT_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < NUM_MINOR_CIV_TRAIT_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	if (iChange != 0)
 	{
@@ -34261,15 +34270,15 @@ void CvPlayer::ChangeNumAnnexedCityStates(MinorCivTraitTypes eIndex, int iChange
 
 int CvPlayer::getYieldFromNonSpecialistCitizensTimes100(YieldTypes eIndex)	const
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex expected to be >= 0");
-	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	return m_aiYieldFromNonSpecialistCitizensTimes100[eIndex];
 }
 
 void CvPlayer::changeYieldFromNonSpecialistCitizensTimes100(YieldTypes eIndex, int iChange)
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	if (iChange != 0)
 	{
@@ -34286,15 +34295,15 @@ void CvPlayer::changeYieldFromNonSpecialistCitizensTimes100(YieldTypes eIndex, i
 
 int CvPlayer::getYieldModifierFromGreatWorks(YieldTypes eIndex)	const
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex expected to be >= 0");
-	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	return m_aiYieldModifierFromGreatWorks[eIndex];
 }
 
 void CvPlayer::changeYieldModifierFromGreatWorks(YieldTypes eIndex, int iChange)
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	if (iChange != 0)
 	{
@@ -34311,15 +34320,15 @@ void CvPlayer::changeYieldModifierFromGreatWorks(YieldTypes eIndex, int iChange)
 
 int CvPlayer::getYieldModifierFromActiveSpies(YieldTypes eIndex)	const
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex expected to be >= 0");
-	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	return m_aiYieldModifierFromActiveSpies[eIndex];
 }
 
 void CvPlayer::changeYieldModifierFromActiveSpies(YieldTypes eIndex, int iChange)
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	if (iChange != 0)
 	{
@@ -34336,15 +34345,15 @@ void CvPlayer::changeYieldModifierFromActiveSpies(YieldTypes eIndex, int iChange
 
 int CvPlayer::GetYieldModifierFromLeague(YieldTypes eIndex) const
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex expected to be >= 0");
-	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	return m_aiYieldModifierFromLeague[eIndex];
 }
 
 void CvPlayer::SetYieldModifierFromLeague(YieldTypes eIndex, int iNewValue)
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	if (iNewValue != GetYieldModifierFromLeague(eIndex))
 	{
@@ -34361,15 +34370,15 @@ void CvPlayer::SetYieldModifierFromLeague(YieldTypes eIndex, int iNewValue)
 
 int CvPlayer::getYieldFromDelegateCount(YieldTypes eIndex)	const
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex expected to be >= 0");
-	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	return m_aiYieldFromDelegateCount[eIndex];
 }
 
 void CvPlayer::changeYieldFromDelegateCount(YieldTypes eIndex, int iChange)
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	if (iChange != 0)
 	{
@@ -34386,15 +34395,15 @@ void CvPlayer::changeYieldFromDelegateCount(YieldTypes eIndex, int iChange)
 
 int CvPlayer::getYieldFromXMilitaryUnits(YieldTypes eIndex)	const
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex expected to be >= 0");
-	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	return m_aiYieldFromXMilitaryUnits[eIndex];
 }
 
 void CvPlayer::changeYieldFromXMilitaryUnits(YieldTypes eIndex, int iChange)
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	if (iChange != 0)
 	{
@@ -34411,15 +34420,15 @@ void CvPlayer::changeYieldFromXMilitaryUnits(YieldTypes eIndex, int iChange)
 
 int CvPlayer::getYieldPerCityOverStrengthThreshold(YieldTypes eIndex) const
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex expected to be >= 0");
-	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	return m_aiYieldPerCityOverStrengthThreshold[eIndex];
 }
 
 void CvPlayer::changeYieldPerCityOverStrengthThreshold(YieldTypes eIndex, int iChange)
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	if (iChange != 0)
 	{
@@ -34436,29 +34445,29 @@ void CvPlayer::changeYieldPerCityOverStrengthThreshold(YieldTypes eIndex, int iC
 
 int CvPlayer::getYieldForLiberation(YieldTypes eIndex)	const
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex expected to be >= 0");
-	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	return m_aiYieldForLiberation[eIndex];
 }
 
 void CvPlayer::changeYieldForLiberation(YieldTypes eIndex, int iChange)
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 	m_aiYieldForLiberation[eIndex] += iChange;
 }
 
 int CvPlayer::getYieldForSpyID(YieldTypes eIndex)	const
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex expected to be >= 0");
-	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	return m_aiYieldForSpyID[eIndex];
 }
 
 void CvPlayer::changeYieldForSpyID(YieldTypes eIndex, int iChange)
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 	m_aiYieldForSpyID[eIndex] += iChange;
 }
 
@@ -34508,8 +34517,8 @@ int CvPlayer::getNumBuildingClassInLiberatedCities(BuildingClassTypes eIndex) co
 
 void CvPlayer::changeNumBuildingClassInLiberatedCities(BuildingClassTypes eIndex, int iChange)
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex expected to be >= 0");
-	ASSERT_DEBUG(eIndex < GC.getNumBuildingClassInfos(), "eIndex expected to be < GC.getNumBuildingClassInfos()");
+	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eIndex < GC.getNumBuildingClassInfos(), "eIndex expected to be < GC.getNumBuildingClassInfos()");
 	m_aiBuildingClassInLiberatedCities[eIndex] += iChange;
 }
 
@@ -34525,15 +34534,15 @@ void CvPlayer::changeUnitsInLiberatedCities(int iChange)
 
 int CvPlayer::getReligionYieldRateModifier(YieldTypes eIndex) const
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex expected to be >= 0");
-	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	return m_aiReligionYieldRateModifier[eIndex];
 }
 
 void CvPlayer::changeReligionYieldRateModifier(YieldTypes eIndex, int iChange)
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	if (iChange != 0)
 	{
@@ -34879,26 +34888,26 @@ int CvPlayer::getMaxAirUnits() const
 /// Extra yield for a improvement this city is working?
 int CvPlayer::GetImprovementExtraYield(ImprovementTypes eImprovement, YieldTypes eYield) const
 {
-	ASSERT_DEBUG(eImprovement >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eImprovement < GC.getNumImprovementInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
-	ASSERT_DEBUG(eYield >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eYield < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eImprovement >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
+	PRECONDITION(eImprovement < GC.getNumImprovementInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eYield >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
 	return m_ppiImprovementYieldChange[eImprovement][eYield];
 }
 
 void CvPlayer::ChangeImprovementExtraYield(ImprovementTypes eImprovement, YieldTypes eYield, int iChange)
 {
-	ASSERT_DEBUG(eImprovement >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eImprovement < GC.getNumImprovementInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
-	ASSERT_DEBUG(eYield >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eYield < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eImprovement >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
+	PRECONDITION(eImprovement < GC.getNumImprovementInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eYield >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
 
 	if(iChange != 0)
 	{
 		Firaxis::Array<int, NUM_YIELD_TYPES> yields = m_ppiImprovementYieldChange[eImprovement];
 		yields[eYield] = (m_ppiImprovementYieldChange[eImprovement][eYield] + iChange);
 		m_ppiImprovementYieldChange[eImprovement] = yields;
-		ASSERT_DEBUG(GetImprovementExtraYield(eImprovement, eYield) >= 0);
+		ASSERT(GetImprovementExtraYield(eImprovement, eYield) >= 0);
 
 		updateYield();
 	}
@@ -34996,8 +35005,8 @@ void CvPlayer::changeAdmiralLuxuryBonus(int iChange)
 
 UnitClassTypes CvPlayer::GetUnitClassReplacement(UnitClassTypes eUnitClass) const
 {
-	ASSERT_DEBUG((int)eUnitClass >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG((int)eUnitClass < GC.getNumUnitClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION((int)eUnitClass >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION((int)eUnitClass < GC.getNumUnitClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	std::map<UnitClassTypes, UnitClassTypes>::const_iterator it = m_piUnitClassReplacements.find(eUnitClass);
 	if (it != m_piUnitClassReplacements.end()) // find returns the iterator to map::end if the key i is not present in the map
@@ -35013,11 +35022,11 @@ UnitClassTypes CvPlayer::GetUnitClassReplacement(UnitClassTypes eUnitClass) cons
 
 void CvPlayer::SetUnitClassReplacement(UnitClassTypes eReplacedUnitClass, UnitClassTypes eReplacementUnitClass)
 {
-	ASSERT_DEBUG(eReplacedUnitClass > NO_UNITCLASS, "eReplacedUnitClass is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eReplacedUnitClass < GC.getNumUnitClassInfos(), "eReplacedUnitClass is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eReplacedUnitClass > NO_UNITCLASS, "eReplacedUnitClass is expected to be non-negative (invalid Index)");
+	PRECONDITION(eReplacedUnitClass < GC.getNumUnitClassInfos(), "eReplacedUnitClass is expected to be within maximum bounds (invalid Index)");
 
-	ASSERT_DEBUG(eReplacementUnitClass >= NO_UNITCLASS, "eReplacementUnitClass is expected to be non-negative or NO_UNITCLASS (invalid Index)");
-	ASSERT_DEBUG(eReplacementUnitClass < GC.getNumUnitClassInfos(), "eReplacementUnitClass is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eReplacementUnitClass >= NO_UNITCLASS, "eReplacementUnitClass is expected to be non-negative or NO_UNITCLASS (invalid Index)");
+	PRECONDITION(eReplacementUnitClass < GC.getNumUnitClassInfos(), "eReplacementUnitClass is expected to be within maximum bounds (invalid Index)");
 
 	if (eReplacementUnitClass != NO_UNITCLASS)
 	{
@@ -35064,15 +35073,15 @@ void CvPlayer::ProcessAttackForPromotionSameAttackBonus(PromotionTypes ePromotio
 	// m_miPromotionSameAttackBonuses contains the strength bonuses that will be given in the next turn
 	// when the next turn starts, its values are used to update the unit strength values in CvPlayer::UpdatePromotionSameAttackBonuses
 
-	ASSERT_DEBUG(eIndex >= 0, "eIndex expected to be >= 0");
-	ASSERT_DEBUG(eIndex < GC.getNumPromotionInfos(), "eIndex expected to be < GC.getNumPromotionInfos()");
+	PRECONDITION(ePromotion >= 0, "ePromotion expected to be >= 0");
+	PRECONDITION(ePromotion < GC.getNumPromotionInfos(), "ePromotion expected to be < GC.getNumPromotionInfos()");
 
 	CvPromotionEntry* pkPromotionEntry = GC.getPromotionInfo(ePromotion);
 
 	int iSameAttackBonus = pkPromotionEntry->GetAttackModPerSamePromotionAttack();
 	int iSameAttackBonusCap = pkPromotionEntry->GetAttackModPerSamePromotionAttackCap();
 
-	ASSERT_DEBUG(iSameAttackBonus > 0, "ProcessAttackForPromotionSameAttackBonus called for a promotion with GetAttackModPerSamePromotionAttack() == 0");
+	ASSERT(iSameAttackBonus > 0, "ProcessAttackForPromotionSameAttackBonus called for a promotion with GetAttackModPerSamePromotionAttack() == 0");
 	
 	m_miPromotionSameAttackBonuses[ePromotion] = min(GetPromotionSameAttackBonus(ePromotion) + iSameAttackBonus, iSameAttackBonusCap);
 }
@@ -35143,15 +35152,15 @@ int CvPlayer::GetScalingNationalPopulationRequired(BuildingTypes eBuilding) cons
 
 int CvPlayer::getCapitalYieldRateModifier(YieldTypes eIndex) const
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_aiCapitalYieldRateModifier[eIndex];
 }
 
 void CvPlayer::changeCapitalYieldRateModifier(YieldTypes eIndex, int iChange)
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	if (iChange != 0)
 	{
@@ -35162,8 +35171,8 @@ void CvPlayer::changeCapitalYieldRateModifier(YieldTypes eIndex, int iChange)
 
 int CvPlayer::getExtraYieldThreshold(YieldTypes eIndex) const
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_aiExtraYieldThreshold[eIndex];
 }
 
@@ -35171,15 +35180,15 @@ void CvPlayer::updateExtraYieldThreshold(YieldTypes eIndex)
 {
 	int iBestValue = 0;
 
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	iBestValue = GetPlayerTraits()->GetExtraYieldThreshold(eIndex);
 
 	if(getExtraYieldThreshold(eIndex) != iBestValue)
 	{
 		m_aiExtraYieldThreshold[eIndex] = iBestValue;
-		ASSERT_DEBUG(getExtraYieldThreshold(eIndex) >= 0);
+		ASSERT(getExtraYieldThreshold(eIndex) >= 0);
 
 		updateYield();
 	}
@@ -35332,8 +35341,8 @@ int CvPlayer::GetScienceFromBudgetDeficitTimes100() const
 
 bool CvPlayer::IsGetsScienceFromPlayer(PlayerTypes ePlayer) const
 {
-	ASSERT_DEBUG(ePlayer >= MAX_MAJOR_CIVS, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(ePlayer < MAX_CIV_PLAYERS, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(ePlayer >= MAX_MAJOR_CIVS, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(ePlayer < MAX_CIV_PLAYERS, "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	// Might have global modifier
 	if(IsMinorScienceAllies() && GET_PLAYER(ePlayer).GetMinorCivAI()->IsAllies(GetID()))
@@ -35346,8 +35355,8 @@ bool CvPlayer::IsGetsScienceFromPlayer(PlayerTypes ePlayer) const
 
 void CvPlayer::SetGetsScienceFromPlayer(PlayerTypes ePlayer, bool bNewValue)
 {
-	ASSERT_DEBUG(ePlayer >= MAX_MAJOR_CIVS, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(ePlayer < MAX_CIV_PLAYERS, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(ePlayer >= MAX_MAJOR_CIVS, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(ePlayer < MAX_CIV_PLAYERS, "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	if(bNewValue != m_pabGetsScienceFromPlayer[ePlayer])
 	{
@@ -35412,15 +35421,15 @@ void CvPlayer::DoBankruptcy()
 
 int CvPlayer::getSpecialistExtraYield(YieldTypes eIndex) const
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_aiSpecialistExtraYield[eIndex];
 }
 
 void CvPlayer::changeSpecialistExtraYield(YieldTypes eIndex, int iChange)
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	if (iChange != 0)
 	{
@@ -35441,7 +35450,7 @@ void CvPlayer::changeSpecialistExtraYield(YieldTypes eIndex, int iChange)
 		}
 
 		m_aiSpecialistExtraYield[eIndex] += iChange;
-		ASSERT_DEBUG(m_aiSpecialistExtraYield[eIndex] >= 0);
+		ASSERT(m_aiSpecialistExtraYield[eIndex] >= 0);
 
 		// Then add them back!
 		for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
@@ -36003,21 +36012,21 @@ int CvPlayer::GetUnhappinessFromWarWearinessWithTeam(TeamTypes eTeam, bool bCons
 /// Returns how "close" we are to another player (useful for diplomacy, war planning, etc.)
 PlayerProximityTypes CvPlayer::GetProximityToPlayer(PlayerTypes ePlayer) const
 {
-	ASSERT_DEBUG(ePlayer >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(ePlayer < MAX_PLAYERS, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(ePlayer >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(ePlayer < MAX_PLAYERS, "eIndex is expected to be within maximum bounds (invalid Index)");
 	return (PlayerProximityTypes) m_aiProximityToPlayer[ePlayer];
 }
 
 /// Sets how "close" we are to another player (useful for diplomacy, war planning, etc.)
 void CvPlayer::SetProximityToPlayer(PlayerTypes ePlayer, PlayerProximityTypes eProximity)
 {
-	ASSERT_DEBUG(ePlayer >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(ePlayer < MAX_PLAYERS, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(ePlayer >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(ePlayer < MAX_PLAYERS, "eIndex is expected to be within maximum bounds (invalid Index)");
 
-	ASSERT_DEBUG(GetID() != ePlayer, "Trying to calculate proximity to oneself.");
+	ASSERT(GetID() != ePlayer, "Trying to calculate proximity to oneself.");
 
-	ASSERT_DEBUG(eProximity >= NO_PLAYER_PROXIMITY, "eIndex is expected to be non-negative (invalid Index)");	// NO_PLAYER_PROXIMITY is valid because some players may have no Cities (e.g. on the first turn)
-	ASSERT_DEBUG(eProximity < NUM_PLAYER_PROXIMITIES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eProximity >= NO_PLAYER_PROXIMITY, "eIndex is expected to be non-negative (invalid Index)");	// NO_PLAYER_PROXIMITY is valid because some players may have no Cities (e.g. on the first turn)
+	PRECONDITION(eProximity < NUM_PLAYER_PROXIMITIES, "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	if(GC.getLogging() && GC.getAILogging() && GET_PLAYER(ePlayer).isEverAlive())
 	{
@@ -36256,18 +36265,18 @@ void CvPlayer::UpdateResearchAgreements(int iValue)
 /// Get the beakers accumulated during the RA with a player
 int CvPlayer::GetResearchAgreementCounter(PlayerTypes ePlayer) const
 {
-	ASSERT_DEBUG(ePlayer >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(ePlayer < MAX_PLAYERS, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(ePlayer >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(ePlayer < MAX_PLAYERS, "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_aiResearchAgreementCounter[ePlayer];
 }
 
 /// Set the beakers accumulated during the RA with a player
 void CvPlayer::SetResearchAgreementCounter(PlayerTypes ePlayer, int iValue)
 {
-	ASSERT_DEBUG(ePlayer >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(ePlayer < MAX_PLAYERS, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(ePlayer >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(ePlayer < MAX_PLAYERS, "eIndex is expected to be within maximum bounds (invalid Index)");
 
-	ASSERT_DEBUG(GetID() != ePlayer, "Trying to make a RA Agreement with oneself.");
+	ASSERT(GetID() != ePlayer, "Trying to make a RA Agreement with oneself.");
 
 	m_aiResearchAgreementCounter[ePlayer] = iValue;
 }
@@ -36318,7 +36327,7 @@ void CvPlayer::DoCivilianReturnLogic(bool bReturn, PlayerTypes eToPlayer, int iU
 	{
 		pUnit->kill(true);
 		CvUnit* pNewUnit = GET_PLAYER(eToPlayer).initUnit(eNewUnitType, iX, iY);
-		ASSERT_DEBUG(pNewUnit != NULL);
+		ASSERT(pNewUnit != NULL);
 		if (pNewUnit)
 		{
 			if (!pNewUnit->jumpToNearestValidPlot())
@@ -36512,7 +36521,7 @@ void CvPlayer::DoCivilianReturnLogic(bool bReturn, PlayerTypes eToPlayer, int iU
 				} else {
 					pUnit->kill(true);
 					CvUnit* pNewUnit = initUnit(eNewUnitType, iX, iY);
-					ASSERT_DEBUG(pNewUnit != NULL);
+					ASSERT(pNewUnit != NULL);
 					if (pNewUnit)
 						pNewUnit->finishMoves();
 				}
@@ -36521,7 +36530,7 @@ void CvPlayer::DoCivilianReturnLogic(bool bReturn, PlayerTypes eToPlayer, int iU
 			{
 				pUnit->kill(true);
 				CvUnit* pNewUnit = initUnit(eNewUnitType, iX, iY);
-				ASSERT_DEBUG(pNewUnit != NULL);
+				ASSERT(pNewUnit != NULL);
 				if (pNewUnit)
 					pNewUnit->finishMoves();
 			}
@@ -36596,18 +36605,18 @@ void CvPlayer::DoDistanceGift(PlayerTypes eFromPlayer, CvUnit* pUnit)
 /// Someone sent us a present!
 void CvPlayer::AddIncomingUnit(PlayerTypes eFromPlayer, CvUnit* pUnit)
 {
-	ASSERT_DEBUG(pUnit);
+	ASSERT(pUnit);
 	if (!pUnit) { return; }
 
 	// Gift to a minor civ for friendship
 	if(isMinorCiv() && GET_PLAYER(eFromPlayer).isMajorCiv())
 	{
 		CvMinorCivAI* pMinorCivAI = GetMinorCivAI();
-		ASSERT_DEBUG(pMinorCivAI);
+		ASSERT(pMinorCivAI);
 		if (pMinorCivAI)
 		{
 			CvMinorCivIncomingUnitGift& unitGift = pMinorCivAI->getIncomingUnitGift(eFromPlayer);
-			ASSERT_DEBUG(!unitGift.hasIncomingUnit(), "Adding incoming unit when one is already on its way.");
+			ASSERT(!unitGift.hasIncomingUnit(), "Adding incoming unit when one is already on its way.");
 			if (!unitGift.hasIncomingUnit())
 			{
 				unitGift.init(*pUnit, /*3*/ GD_INT_GET(MINOR_UNIT_GIFT_TRAVEL_TURNS), eFromPlayer);
@@ -36631,7 +36640,7 @@ void CvPlayer::AddIncomingUnit(PlayerTypes eFromPlayer, CvUnit* pUnit)
 		if(eType != NO_UNIT)
 		{
 			CvUnit* pNewUnit = initUnit(eType, iX, iY);
-			ASSERT_DEBUG(pNewUnit);
+			ASSERT(pNewUnit);
 			if (pNewUnit)
 			{
 				if (!pUnit->getUnitInfo().CanMoveAfterPurchase())
@@ -36647,7 +36656,7 @@ void CvPlayer::AddIncomingUnit(PlayerTypes eFromPlayer, CvUnit* pUnit)
 	}
 	else
 	{
-		ASSERT_DEBUG(false, "Unexpected case for adding an incoming unit for this player.");
+		ASSERT(false, "Unexpected case for adding an incoming unit for this player.");
 	}
 }
 //AI Routine for Gifting
@@ -37050,21 +37059,21 @@ void CvPlayer::removeResourcesOnPlotFromTotal(CvPlot* pPlot, bool bOnlyExtraReso
 
 int CvPlayer::getNumResourceUnimproved(ResourceTypes eIndex) const
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_paiNumResourceUnimproved[eIndex];
 }
 void CvPlayer::changeNumResourceUnimproved(ResourceTypes eIndex, int iChange)
 {
-	ASSERT_DEBUG(eIndex >= 0);
-	ASSERT_DEBUG(eIndex < GC.getNumResourceInfos());
+	ASSERT(eIndex >= 0);
+	PRECONDITION(eIndex < GC.getNumResourceInfos());
 
 	if (iChange != 0)
 	{
 		m_paiNumResourceUnimproved[eIndex] = m_paiNumResourceUnimproved[eIndex] + iChange;
 	}
 
-	ASSERT_DEBUG(m_paiNumResourceUnimproved[eIndex] >= 0);
+	ASSERT(m_paiNumResourceUnimproved[eIndex] >= 0);
 }
 void CvPlayer::addResourcesOnPlotToUnimproved(CvPlot* pPlot, bool bOnlyExtraResources, bool bIgnoreTechPrereq)
 {
@@ -37106,14 +37115,14 @@ void CvPlayer::removeResourcesOnPlotFromUnimproved(CvPlot* pPlot, bool bOnlyExtr
 
 int CvPlayer::getNumResourceUsed(ResourceTypes eIndex) const
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_paiNumResourceUsed[eIndex];
 }
 void CvPlayer::changeNumResourceUsed(ResourceTypes eIndex, int iChange)
 {
-	ASSERT_DEBUG(eIndex >= 0);
-	ASSERT_DEBUG(eIndex < GC.getNumResourceInfos());
+	ASSERT(eIndex >= 0);
+	PRECONDITION(eIndex < GC.getNumResourceInfos());
 
 	if(iChange != 0)
 	{
@@ -37122,13 +37131,13 @@ void CvPlayer::changeNumResourceUsed(ResourceTypes eIndex, int iChange)
 
 	GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 
-	ASSERT_DEBUG(m_paiNumResourceUsed[eIndex] >= 0);
+	ASSERT(m_paiNumResourceUsed[eIndex] >= 0);
 }
 
 int CvPlayer::getNumResourcesFromOther(ResourceTypes eIndex) const
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	CvResourceInfo *pkResource = GC.getResourceInfo(eIndex);
 
@@ -37191,16 +37200,16 @@ int CvPlayer::getNumResourcesFromOther(ResourceTypes eIndex) const
 
 int CvPlayer::getNumResourceFromBuildings(ResourceTypes eIndex) const
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	return m_paiNumResourceFromBuildings[eIndex];
 }
 
 int CvPlayer::getNumResourceTotal(ResourceTypes eIndex, bool bIncludeImport) const
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	int iTotalNumResource = m_paiNumResourceFromTiles[eIndex];
 	iTotalNumResource += m_paiNumResourceFromBuildings[eIndex];
@@ -37221,20 +37230,20 @@ int CvPlayer::getNumResourceTotal(ResourceTypes eIndex, bool bIncludeImport) con
 }
 void CvPlayer::changeNumResourceTotal(ResourceTypes eIndex, int iChange, bool bFromBuilding, bool bCheckForMonopoly, bool /*bIgnoreResourceWarning*/)
 {
-	ASSERT_DEBUG(eIndex >= 0);
-	ASSERT_DEBUG(eIndex < GC.getNumResourceInfos());
+	ASSERT(eIndex >= 0);
+	PRECONDITION(eIndex < GC.getNumResourceInfos());
 
 	if(iChange != 0)
 	{
 		if (!bFromBuilding)
 		{
 			m_paiNumResourceFromTiles[eIndex] = m_paiNumResourceFromTiles[eIndex] + iChange;
-			ASSERT_DEBUG(m_paiNumResourceFromTiles[eIndex] >= 0);
+			ASSERT(m_paiNumResourceFromTiles[eIndex] >= 0);
 		}
 		else
 		{
 			m_paiNumResourceFromBuildings[eIndex] = m_paiNumResourceFromBuildings[eIndex] + iChange;
-			ASSERT_DEBUG(m_paiNumResourceFromBuildings[eIndex] >= 0);
+			ASSERT(m_paiNumResourceFromBuildings[eIndex] >= 0);
 		}
 
 		if (iChange > 0)
@@ -37319,16 +37328,16 @@ void CvPlayer::changeNumResourceTotal(ResourceTypes eIndex, int iChange, bool bF
 
 int CvPlayer::GetHighestResourceQuantity(ResourceTypes eIndex) const
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	return m_paiHighestResourceQuantity[eIndex];
 }
 
 void CvPlayer::SetHighestResourceQuantity(ResourceTypes eIndex, int iValue)
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	m_paiHighestResourceQuantity[eIndex] = iValue;
 }
@@ -37368,15 +37377,15 @@ void CvPlayer::CheckForLuxuryResourceGainInstantYields(ResourceTypes eResource)
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 int CvPlayer::getResourceShortageValue(ResourceTypes eIndex) const
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_paiResourceShortageValue[eIndex];
 }
 
 void CvPlayer::changeResourceShortageValue(ResourceTypes eIndex, int iChange)
 {
-	ASSERT_DEBUG(eIndex >= 0);
-	ASSERT_DEBUG(eIndex < GC.getNumResourceInfos());
+	ASSERT(eIndex >= 0);
+	PRECONDITION(eIndex < GC.getNumResourceInfos());
 
 	if(iChange != 0)
 	{
@@ -37385,37 +37394,37 @@ void CvPlayer::changeResourceShortageValue(ResourceTypes eIndex, int iChange)
 
 	GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 
-	ASSERT_DEBUG(m_paiResourceShortageValue[eIndex] >= 0);
+	ASSERT(m_paiResourceShortageValue[eIndex] >= 0);
 }
 
 void CvPlayer::setResourceShortageValue(ResourceTypes eIndex, int iChange)
 {
-	ASSERT_DEBUG(eIndex >= 0);
-	ASSERT_DEBUG(eIndex < GC.getNumResourceInfos());
+	ASSERT(eIndex >= 0);
+	PRECONDITION(eIndex < GC.getNumResourceInfos());
 
 	m_paiResourceShortageValue[eIndex] = iChange;
 
 	GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 
-	ASSERT_DEBUG(m_paiResourceShortageValue[eIndex] >= 0);
+	ASSERT(m_paiResourceShortageValue[eIndex] >= 0);
 }
 
 int CvPlayer::getResourceFromCSAlliances(ResourceTypes eIndex) const
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_paiResourceFromCSAlliances[eIndex];
 }
 
 void CvPlayer::changeResourceFromCSAlliances(ResourceTypes eIndex, int iChange)
 {
-	ASSERT_DEBUG(eIndex >= 0);
-	ASSERT_DEBUG(eIndex < GC.getNumResourceInfos());
+	ASSERT(eIndex >= 0);
+	PRECONDITION(eIndex < GC.getNumResourceInfos());
 
 	if (iChange != 0)
 	{
 		m_paiResourceFromCSAlliances[eIndex] = m_paiResourceFromCSAlliances[eIndex] + iChange;
-		ASSERT_DEBUG(m_paiResourceFromCSAlliances[eIndex] >= 0);
+		ASSERT(m_paiResourceFromCSAlliances[eIndex] >= 0);
 
 		if (iChange > 0)
 			CheckForLuxuryResourceGainInstantYields(eIndex);
@@ -37426,14 +37435,14 @@ void CvPlayer::changeResourceFromCSAlliances(ResourceTypes eIndex, int iChange)
 
 void CvPlayer::setResourceFromCSAlliances(ResourceTypes eIndex, int iChange)
 {
-	ASSERT_DEBUG(eIndex >= 0);
-	ASSERT_DEBUG(eIndex < GC.getNumResourceInfos());
+	ASSERT(eIndex >= 0);
+	PRECONDITION(eIndex < GC.getNumResourceInfos());
 
 	m_paiResourceFromCSAlliances[eIndex] = iChange;
 
 	GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 
-	ASSERT_DEBUG(m_paiResourceFromCSAlliances[eIndex] >= 0);
+	ASSERT(m_paiResourceFromCSAlliances[eIndex] >= 0);
 }
 
 bool CvPlayer::IsResourceNotForSale(ResourceTypes eResource)
@@ -37591,8 +37600,8 @@ void CvPlayer::CompleteAccomplishment(AccomplishmentTypes eAccomplishment)
 
 int CvPlayer::getResourceModFromReligion(ResourceTypes eIndex) const
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	int iQuantityMod = 0;
 
@@ -38115,16 +38124,16 @@ bool CvPlayer::WouldGainMonopoly(ResourceTypes eResource, int iExtraResource) co
 
 int CvPlayer::getCityYieldModFromMonopoly(YieldTypes eIndex) const
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex expected to be >= 0");
-	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	return m_aiCityYieldModFromMonopoly[eIndex];
 }
 
 void CvPlayer::changeCityYieldModFromMonopoly(YieldTypes eIndex, int iChange)
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex expected to be >= 0");
-	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	if (iChange != 0)
 	{
@@ -38247,8 +38256,8 @@ CvImprovementEntry* CvPlayer::GetResourceImprovement(ResourceTypes eResource, bo
 /// Do we get copies of each type of luxury connected by eFromPlayer?
 int CvPlayer::getSiphonLuxuryCount(PlayerTypes eFromPlayer) const
 {
-	ASSERT_DEBUG(eFromPlayer >= 0, "eFromPlayer is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eFromPlayer < MAX_PLAYERS, "eFromPlayer is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eFromPlayer >= 0, "eFromPlayer is expected to be non-negative (invalid Index)");
+	PRECONDITION(eFromPlayer < MAX_PLAYERS, "eFromPlayer is expected to be within maximum bounds (invalid Index)");
 
 	return m_aiSiphonLuxuryCount[eFromPlayer];
 }
@@ -38256,13 +38265,13 @@ int CvPlayer::getSiphonLuxuryCount(PlayerTypes eFromPlayer) const
 /// Change number of copies we get of luxury types connected by eFromPlayer
 void CvPlayer::changeSiphonLuxuryCount(PlayerTypes eFromPlayer, int iChange)
 {
-	ASSERT_DEBUG(eFromPlayer >= 0, "eFromPlayer is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eFromPlayer < MAX_PLAYERS, "eFromPlayer is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eFromPlayer >= 0, "eFromPlayer is expected to be non-negative (invalid Index)");
+	PRECONDITION(eFromPlayer < MAX_PLAYERS, "eFromPlayer is expected to be within maximum bounds (invalid Index)");
 
 	if (iChange != 0)
 	{
 		m_aiSiphonLuxuryCount[eFromPlayer] = m_aiSiphonLuxuryCount[eFromPlayer] + iChange;
-		ASSERT_DEBUG(getSiphonLuxuryCount(eFromPlayer) >= 0);
+		ASSERT(getSiphonLuxuryCount(eFromPlayer) >= 0);
 
 		UpdateResourcesSiphoned();
 	}
@@ -38373,41 +38382,41 @@ void CvPlayer::ChangeStrategicResourceMod(int iChange)
 
 int CvPlayer::getNumResourceAvailable(ResourceTypes eIndex, bool bIncludeImport) const
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	return getNumResourceTotal(eIndex, bIncludeImport) - getNumResourceUsed(eIndex);
 }
 
 int CvPlayer::getResourceGiftedToMinors(ResourceTypes eIndex) const
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_paiResourceGiftedToMinors[eIndex];
 }
 
 void CvPlayer::changeResourceGiftedToMinors(ResourceTypes eIndex, int iChange)
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	if(iChange != 0)
 	{
 		m_paiResourceGiftedToMinors[eIndex] = m_paiResourceGiftedToMinors[eIndex] + iChange;
-		ASSERT_DEBUG(getResourceGiftedToMinors(eIndex) >= 0);
+		ASSERT(getResourceGiftedToMinors(eIndex) >= 0);
 	}
 }
 
 int CvPlayer::getResourceExport(ResourceTypes eIndex) const
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_paiResourceExport[eIndex];
 }
 
 void CvPlayer::changeResourceExport(ResourceTypes eIndex, int iChange)
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	if(iChange != 0)
 	{
@@ -38416,7 +38425,7 @@ void CvPlayer::changeResourceExport(ResourceTypes eIndex, int iChange)
 		if (m_paiResourceExport[eIndex] <= 0)
 			m_paiResourceExport[eIndex] = 0;
 
-		ASSERT_DEBUG(getResourceExport(eIndex) >= 0);
+		ASSERT(getResourceExport(eIndex) >= 0);
 
 		CalculateNetHappiness();
 	}
@@ -38424,15 +38433,15 @@ void CvPlayer::changeResourceExport(ResourceTypes eIndex, int iChange)
 
 int CvPlayer::getResourceImportFromMajor(ResourceTypes eIndex) const
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_paiResourceImportFromMajor[eIndex];
 }
 
 void CvPlayer::changeResourceImportFromMajor(ResourceTypes eIndex, int iChange)
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	if(iChange != 0)
 	{
@@ -38441,7 +38450,7 @@ void CvPlayer::changeResourceImportFromMajor(ResourceTypes eIndex, int iChange)
 		if (m_paiResourceImportFromMajor[eIndex] <= 0)
 			m_paiResourceImportFromMajor[eIndex] = 0;
 
-		ASSERT_DEBUG(getResourceImportFromMajor(eIndex) >= 0);
+		ASSERT(getResourceImportFromMajor(eIndex) >= 0);
 
 		CalculateNetHappiness();
 
@@ -38454,8 +38463,8 @@ void CvPlayer::changeResourceImportFromMajor(ResourceTypes eIndex, int iChange)
 
 int CvPlayer::getResourceFromMinors(ResourceTypes eIndex) const
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	int iNumResourceFromMinors = m_paiResourceFromMinors[eIndex];
 	int iModifier = 0;
@@ -38473,13 +38482,13 @@ int CvPlayer::getResourceFromMinors(ResourceTypes eIndex) const
 
 void CvPlayer::changeResourceFromMinors(ResourceTypes eIndex, int iChange)
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	if(iChange != 0)
 	{
 		m_paiResourceFromMinors[eIndex] = m_paiResourceFromMinors[eIndex] + iChange;
-		ASSERT_DEBUG(getResourceFromMinors(eIndex) >= 0);
+		ASSERT(getResourceFromMinors(eIndex) >= 0);
 
 		CalculateNetHappiness();
 		UpdateNumStrategicResourcesFromMinors();
@@ -38527,8 +38536,8 @@ void CvPlayer::UpdateNumStrategicResourcesFromMinors()
 
 int CvPlayer::getResourceSiphoned(ResourceTypes eIndex) const
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	int iNumResourceSiphoned = m_paiResourcesSiphoned[eIndex];
 
@@ -38537,13 +38546,13 @@ int CvPlayer::getResourceSiphoned(ResourceTypes eIndex) const
 
 void CvPlayer::changeResourceSiphoned(ResourceTypes eIndex, int iChange)
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	if (iChange != 0)
 	{
 		m_paiResourcesSiphoned[eIndex] = m_paiResourcesSiphoned[eIndex] + iChange;
-		ASSERT_DEBUG(getResourceSiphoned(eIndex) >= 0);
+		ASSERT(getResourceSiphoned(eIndex) >= 0);
 
 		CalculateNetHappiness();
 	}
@@ -38551,16 +38560,16 @@ void CvPlayer::changeResourceSiphoned(ResourceTypes eIndex, int iChange)
 
 byte CvPlayer::getResourceFromGP(ResourceTypes eIndex) const
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	return m_aiNumResourceFromGP[eIndex];
 }
 
 void CvPlayer::changeResourceFromGP(ResourceTypes eIndex, byte iChange)
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	if (iChange != 0)
 	{
@@ -38572,8 +38581,8 @@ void CvPlayer::changeResourceFromGP(ResourceTypes eIndex, byte iChange)
 
 int CvPlayer::getResourceInOwnedPlots(ResourceTypes eIndex)
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	int iCount = 0;
 
@@ -38667,13 +38676,13 @@ int CvPlayer::getTotalImprovementsBuilt() const
 void CvPlayer::changeTotalImprovementsBuilt(int iChange)
 {
 	m_iTotalImprovementsBuilt = (m_iTotalImprovementsBuilt + iChange);
-	ASSERT_DEBUG(getTotalImprovementsBuilt() >= 0);
+	ASSERT(getTotalImprovementsBuilt() >= 0);
 }
 
 int CvPlayer::getImprovementCount(ImprovementTypes eIndex, bool bBuiltOnly) const
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < GC.getNumImprovementInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumImprovementInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	if (bBuiltOnly)
 		return m_paiImprovementBuiltCount[eIndex];
 	else
@@ -38682,16 +38691,16 @@ int CvPlayer::getImprovementCount(ImprovementTypes eIndex, bool bBuiltOnly) cons
 
 void CvPlayer::changeImprovementCount(ImprovementTypes eIndex, int iChange, bool bBuilt)
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < GC.getNumImprovementInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumImprovementInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	m_paiImprovementCount[eIndex] += iChange;
-	ASSERT_DEBUG(getImprovementCount(eIndex) >= 0);
+	ASSERT(getImprovementCount(eIndex) >= 0);
 
 	if (bBuilt)
 	{
 		m_paiImprovementBuiltCount[eIndex] += iChange;
-		ASSERT_DEBUG(getImprovementCount(eIndex, true) >= 0);
+		ASSERT(getImprovementCount(eIndex, true) >= 0);
 	}
 
 	//Update yields (needs a rewrite of SCityExtraYields in order for this to be optimized)
@@ -38714,24 +38723,24 @@ void CvPlayer::changeImprovementCount(ImprovementTypes eIndex, int iChange, bool
 
 int CvPlayer::getTotalImprovementsBuilt(ImprovementTypes eIndex) const
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < GC.getNumImprovementInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumImprovementInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_paiTotalImprovementsBuilt[eIndex];
 }
 
 void CvPlayer::changeTotalImprovementsBuilt(ImprovementTypes eIndex, int iChange)
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < GC.getNumImprovementInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumImprovementInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	m_paiTotalImprovementsBuilt[eIndex] = m_paiTotalImprovementsBuilt[eIndex] + iChange;
-	ASSERT_DEBUG(getTotalImprovementsBuilt(eIndex) >= 0);
+	ASSERT(getTotalImprovementsBuilt(eIndex) >= 0);
 }
 
 #if defined(MOD_IMPROVEMENTS_EXTENSIONS)
 int CvPlayer::getResponsibleForRouteCount(RouteTypes eIndex) const
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < GC.getNumRouteInfos() , "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumRouteInfos() , "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	std::map<RouteTypes, int>::const_iterator it = m_piResponsibleForRouteCount.find(eIndex);
 	if (it != m_piResponsibleForRouteCount.end()) // find returns the iterator to map::end if the key eIndex is not present in the map
@@ -38744,8 +38753,8 @@ int CvPlayer::getResponsibleForRouteCount(RouteTypes eIndex) const
 
 void CvPlayer::changeResponsibleForRouteCount(RouteTypes eIndex, int iChange)
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < GC.getNumRouteInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumRouteInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	m_piResponsibleForRouteCount[eIndex] += iChange;
 
@@ -38754,12 +38763,12 @@ void CvPlayer::changeResponsibleForRouteCount(RouteTypes eIndex, int iChange)
 		m_piResponsibleForRouteCount.erase(eIndex);
 	}
 
-	ASSERT_DEBUG(getResponsibleForRouteCount(eIndex) >= 0);
+	ASSERT(getResponsibleForRouteCount(eIndex) >= 0);
 }
 int CvPlayer::getResponsibleForImprovementCount(ImprovementTypes eIndex) const
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < GC.getNumImprovementInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumImprovementInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	std::map<ImprovementTypes, int>::const_iterator it = m_piResponsibleForImprovementCount.find(eIndex);
 	if (it != m_piResponsibleForImprovementCount.end()) // find returns the iterator to map::end if the key eIndex is not present in the map
@@ -38772,8 +38781,8 @@ int CvPlayer::getResponsibleForImprovementCount(ImprovementTypes eIndex) const
 
 void CvPlayer::changeResponsibleForImprovementCount(ImprovementTypes eIndex, int iChange)
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < GC.getNumImprovementInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumImprovementInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	m_piResponsibleForImprovementCount[eIndex] += iChange;
 
@@ -38782,7 +38791,7 @@ void CvPlayer::changeResponsibleForImprovementCount(ImprovementTypes eIndex, int
 		m_piResponsibleForImprovementCount.erase(eIndex);
 	}
 
-	ASSERT_DEBUG(getResponsibleForImprovementCount(eIndex) >= 0);
+	ASSERT(getResponsibleForImprovementCount(eIndex) >= 0);
 }
 #endif
 
@@ -38803,8 +38812,8 @@ int CvPlayer::getGreatPersonImprovementCount()
 
 int CvPlayer::getFreeBuildingCount(BuildingTypes eIndex) const
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < GC.getNumBuildingInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumBuildingInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_paiFreeBuildingCount[eIndex];
 }
 
@@ -38815,13 +38824,13 @@ bool CvPlayer::isBuildingFree(BuildingTypes eIndex)	const
 
 void CvPlayer::changeFreeBuildingCount(BuildingTypes eIndex, int iChange)
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < GC.getNumBuildingInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumBuildingInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	if (iChange != 0)
 	{
 		m_paiFreeBuildingCount[eIndex] += iChange;
-		ASSERT_DEBUG(getFreeBuildingCount(eIndex) >= 0);
+		ASSERT(getFreeBuildingCount(eIndex) >= 0);
 
 		// Immediately grant/remove the free buildings in all cities
 		// Max 1 free building per city
@@ -38838,8 +38847,8 @@ void CvPlayer::changeFreeBuildingCount(BuildingTypes eIndex, int iChange)
 /// How many sources have added ePromotion as a free promotion?
 int CvPlayer::GetFreePromotionCount(PromotionTypes ePromotion) const
 {
-	ASSERT_DEBUG(ePromotion >= 0, "ePromotion is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(ePromotion < GC.getNumPromotionInfos(), "ePromotion is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(ePromotion >= 0, "ePromotion is expected to be non-negative (invalid Index)");
+	PRECONDITION(ePromotion < GC.getNumPromotionInfos(), "ePromotion is expected to be within maximum bounds (invalid Index)");
 	return m_paiFreePromotionCount[ePromotion];
 }
 
@@ -38852,15 +38861,15 @@ bool CvPlayer::IsFreePromotion(PromotionTypes ePromotion) const
 /// Add another source of ePromotion to the free promotion list
 void CvPlayer::ChangeFreePromotionCount(PromotionTypes ePromotion, int iChange)
 {
-	ASSERT_DEBUG(ePromotion >= 0, "ePromotion is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(ePromotion < GC.getNumPromotionInfos(), "ePromotion is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(ePromotion >= 0, "ePromotion is expected to be non-negative (invalid Index)");
+	PRECONDITION(ePromotion < GC.getNumPromotionInfos(), "ePromotion is expected to be within maximum bounds (invalid Index)");
 
 	if (iChange != 0)
 	{
 		bool bWasFree = IsFreePromotion(ePromotion);
 
 		m_paiFreePromotionCount[ePromotion] += iChange;
-		ASSERT_DEBUG(m_paiFreePromotionCount[ePromotion] >= 0);
+		ASSERT(m_paiFreePromotionCount[ePromotion] >= 0);
 
 		// This promotion is now set to be free, but wasn't before we called this function
 		if (IsFreePromotion(ePromotion) && !bWasFree)
@@ -38885,57 +38894,57 @@ void CvPlayer::ChangeFreePromotionCount(PromotionTypes ePromotion, int iChange)
 
 int CvPlayer::getUnitCombatProductionModifiers(UnitCombatTypes eIndex) const
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < GC.getNumUnitCombatClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumUnitCombatClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_paiUnitCombatProductionModifiers[eIndex];
 }
 
 void CvPlayer::changeUnitCombatProductionModifiers(UnitCombatTypes eIndex, int iChange)
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < GC.getNumUnitCombatClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumUnitCombatClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	m_paiUnitCombatProductionModifiers[eIndex] += iChange;
 }
 
 int CvPlayer::getYieldFromConquestAllCities(YieldTypes eIndex) const
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_paiYieldFromConquestAllCities[eIndex];
 }
 
 void CvPlayer::changeYieldFromConquestAllCities(YieldTypes eIndex, int iChange)
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 	m_paiYieldFromConquestAllCities[eIndex] += iChange;
 }
 
 int CvPlayer::getUnitCombatFreeExperiences(UnitCombatTypes eIndex) const
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < GC.getNumUnitCombatClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumUnitCombatClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_paiUnitCombatFreeExperiences[eIndex];
 }
 
 void CvPlayer::changeUnitCombatFreeExperiences(UnitCombatTypes eIndex, int iChange)
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < GC.getNumUnitCombatClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumUnitCombatClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	m_paiUnitCombatFreeExperiences[eIndex] += iChange;
 }
 
 int CvPlayer::getUnitClassCount(UnitClassTypes eIndex) const
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < GC.getNumUnitClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumUnitClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_paiUnitClassCount[eIndex];
 }
 
 bool CvPlayer::isUnitClassMaxedOut(UnitClassTypes eIndex, int iExtra) const
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < GC.getNumUnitClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumUnitClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eIndex);
 	if(pkUnitClassInfo == NULL)
@@ -38959,28 +38968,28 @@ bool CvPlayer::isUnitClassMaxedOut(UnitClassTypes eIndex, int iExtra) const
 
 void CvPlayer::changeUnitClassCount(UnitClassTypes eIndex, int iChange)
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < GC.getNumUnitClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumUnitClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	m_paiUnitClassCount[eIndex] = m_paiUnitClassCount[eIndex] + iChange;
-	ASSERT_DEBUG(getUnitClassCount(eIndex) >= 0);
+	ASSERT(getUnitClassCount(eIndex) >= 0);
 }
 
 int CvPlayer::getUnitClassMaking(UnitClassTypes eIndex) const
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < GC.getNumUnitClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumUnitClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_paiUnitClassMaking[eIndex];
 }
 
 void CvPlayer::changeUnitClassMaking(UnitClassTypes eIndex, int iChange)
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < GC.getNumUnitClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumUnitClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	if(iChange != 0)
 	{
 		m_paiUnitClassMaking[eIndex] = m_paiUnitClassMaking[eIndex] + iChange;
-		ASSERT_DEBUG(getUnitClassMaking(eIndex) >= 0);
+		ASSERT(getUnitClassMaking(eIndex) >= 0);
 
 		const CvCivilizationInfo& playerCivilizationInfo = getCivilizationInfo();
 		UnitTypes eUnit = static_cast<UnitTypes>(playerCivilizationInfo.getCivilizationUnits(eIndex));
@@ -39022,22 +39031,22 @@ int CvPlayer::getUnitClassCountPlusMaking(UnitClassTypes eIndex) const
 
 int CvPlayer::getBuildingClassCount(BuildingClassTypes eIndex) const
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < GC.getNumBuildingClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumBuildingClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_paiBuildingClassCount[eIndex];
 }
 
 int CvPlayer::getMaxPlayerInstances(BuildingTypes eIndex) const
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < GC.getNumBuildingInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumBuildingInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	CvBuildingEntry* pkBuildingEntry = GC.getBuildingInfo(eIndex);
 	BuildingClassTypes eBuildingClass = pkBuildingEntry->GetBuildingClassType();
 	CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
 	if (pkBuildingClassInfo == NULL)
 	{
-		ASSERT_DEBUG(false, "This should never happen...");
+		ASSERT(false, "This should never happen...");
 		return -1;
 	}
 
@@ -39060,15 +39069,15 @@ int CvPlayer::getMaxPlayerInstances(BuildingTypes eIndex) const
 
 bool CvPlayer::isBuildingMaxedOut(BuildingTypes eIndex, int iExtra) const
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < GC.getNumBuildingInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumBuildingInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	CvBuildingEntry* pkBuildingEntry = GC.getBuildingInfo(eIndex);
 	BuildingClassTypes eBuildingClass = pkBuildingEntry->GetBuildingClassType();
 	CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
 	if(pkBuildingClassInfo == NULL)
 	{
-		ASSERT_DEBUG(false, "This should never happen...");
+		ASSERT(false, "This should never happen...");
 		return false;
 	}
 
@@ -39079,15 +39088,15 @@ bool CvPlayer::isBuildingMaxedOut(BuildingTypes eIndex, int iExtra) const
 
 	int iMaxInstances = getMaxPlayerInstances(eIndex);
 
-	ASSERT_DEBUG(getBuildingClassCount(eBuildingClass) <= iMaxInstances, "BuildingClassCount is expected to be less than or match the number of max player instances plus extra player instances");
+	PRECONDITION(getBuildingClassCount(eBuildingClass) <= iMaxInstances, "BuildingClassCount is expected to be less than or match the number of max player instances plus extra player instances");
 
 	return ((getBuildingClassCount(eBuildingClass) + iExtra) >= iMaxInstances);
 }
 
 bool CvPlayer::isProjectMaxedOut(ProjectTypes eIndex, int iExtra) const
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < GC.getNumProjectInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumProjectInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	CvProjectEntry* pProjectInfo = GC.getProjectInfo(eIndex);
 
@@ -39113,28 +39122,28 @@ bool CvPlayer::isProjectMaxedOut(ProjectTypes eIndex, int iExtra) const
 
 void CvPlayer::changeBuildingClassCount(BuildingClassTypes eIndex, int iChange)
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < GC.getNumBuildingClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumBuildingClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	m_paiBuildingClassCount[eIndex] = m_paiBuildingClassCount[eIndex] + iChange;
-	ASSERT_DEBUG(getBuildingClassCount(eIndex) >= 0);
+	ASSERT(getBuildingClassCount(eIndex) >= 0);
 }
 
 int CvPlayer::getBuildingClassMaking(BuildingClassTypes eIndex) const
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < GC.getNumBuildingClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumBuildingClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_paiBuildingClassMaking[eIndex];
 }
 
 void CvPlayer::changeBuildingClassMaking(BuildingClassTypes eIndex, int iChange)
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < GC.getNumBuildingClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumBuildingClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	if(iChange != 0)
 	{
 		m_paiBuildingClassMaking[eIndex] = m_paiBuildingClassMaking[eIndex] + iChange;
-		ASSERT_DEBUG(getBuildingClassMaking(eIndex) >= 0);
+		ASSERT(getBuildingClassMaking(eIndex) >= 0);
 
 		const BuildingTypes eBuilding = (BuildingTypes) getCivilizationInfo().getCivilizationBuildings(eIndex);
 		if (eBuilding != NO_BUILDING)
@@ -39172,20 +39181,20 @@ int CvPlayer::getBuildingClassCountPlusMaking(BuildingClassTypes eIndex) const
 // Check out CvTeam::getProjectMaking() for something used more
 int CvPlayer::getProjectMaking(ProjectTypes eIndex) const
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < GC.getNumProjectInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumProjectInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_paiProjectMaking[eIndex];
 }
 
 void CvPlayer::changeProjectMaking(ProjectTypes eIndex, int iChange, CvCity* pCity)
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < GC.getNumProjectInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumProjectInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	if(iChange != 0)
 	{
 		m_paiProjectMaking[eIndex] = m_paiProjectMaking[eIndex] + iChange;
-		ASSERT_DEBUG(getProjectMaking(eIndex) >= 0);
+		ASSERT(getProjectMaking(eIndex) >= 0);
 
 		// Update the amount of a Resource used up by Projects in Production
 		for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
@@ -39229,22 +39238,22 @@ void CvPlayer::changeProjectMaking(ProjectTypes eIndex, int iChange, CvCity* pCi
 
 int CvPlayer::getHurryModifier(HurryTypes eIndex) const
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < GC.getNumHurryInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumHurryInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_paiHurryModifier[eIndex];
 }
 
 void CvPlayer::changeHurryModifier(HurryTypes eIndex, int iChange)
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < GC.getNumHurryInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumHurryInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	m_paiHurryModifier[eIndex] += iChange;
 }
 
 void CvPlayer::setResearchingTech(TechTypes eIndex, bool bNewValue)
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < GC.getNumTechInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumTechInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	if(m_pPlayerTechs->IsResearchingTech(eIndex) != bNewValue)
 	{
@@ -39259,26 +39268,26 @@ void CvPlayer::setResearchingTech(TechTypes eIndex, bool bNewValue)
 
 int CvPlayer::getSpecialistExtraYield(SpecialistTypes eIndex1, YieldTypes eIndex2) const
 {
-	ASSERT_DEBUG(eIndex1 >= 0, "eIndex1 expected to be >= 0");
-	ASSERT_DEBUG(eIndex1 < GC.getNumSpecialistInfos(), "eIndex1 expected to be < GC.getNumSpecialistInfos()");
-	ASSERT_DEBUG(eIndex2 >= 0, "eIndex2 expected to be >= 0");
-	ASSERT_DEBUG(eIndex2 < NUM_YIELD_TYPES, "eIndex2 expected to be < NUM_YIELD_TYPES");
+	PRECONDITION(eIndex1 >= 0, "eIndex1 expected to be >= 0");
+	PRECONDITION(eIndex1 < GC.getNumSpecialistInfos(), "eIndex1 expected to be < GC.getNumSpecialistInfos()");
+	PRECONDITION(eIndex2 >= 0, "eIndex2 expected to be >= 0");
+	PRECONDITION(eIndex2 < NUM_YIELD_TYPES, "eIndex2 expected to be < NUM_YIELD_TYPES");
 	return m_ppaaiSpecialistExtraYield[eIndex1][eIndex2];
 }
 
 void CvPlayer::changeSpecialistExtraYield(SpecialistTypes eIndex1, YieldTypes eIndex2, int iChange)
 {
-	ASSERT_DEBUG(eIndex1 >= 0, "eIndex1 expected to be >= 0");
-	ASSERT_DEBUG(eIndex1 < GC.getNumSpecialistInfos(), "eIndex1 expected to be < GC.getNumSpecialistInfos()");
-	ASSERT_DEBUG(eIndex2 >= 0, "eIndex2 expected to be >= 0");
-	ASSERT_DEBUG(eIndex2 < NUM_YIELD_TYPES, "eIndex2 expected to be < NUM_YIELD_TYPES");
+	PRECONDITION(eIndex1 >= 0, "eIndex1 expected to be >= 0");
+	PRECONDITION(eIndex1 < GC.getNumSpecialistInfos(), "eIndex1 expected to be < GC.getNumSpecialistInfos()");
+	PRECONDITION(eIndex2 >= 0, "eIndex2 expected to be >= 0");
+	PRECONDITION(eIndex2 < NUM_YIELD_TYPES, "eIndex2 expected to be < NUM_YIELD_TYPES");
 
 	if (iChange != 0)
 	{
 		Firaxis::Array<int, NUM_YIELD_TYPES> yields = m_ppaaiSpecialistExtraYield[eIndex1];
 		yields[eIndex2] = m_ppaaiSpecialistExtraYield[eIndex1][eIndex2] + iChange;
 		m_ppaaiSpecialistExtraYield[eIndex1] = yields;
-		ASSERT_DEBUG(m_ppaaiSpecialistExtraYield[eIndex1][eIndex2] >= 0);
+		ASSERT(m_ppaaiSpecialistExtraYield[eIndex1][eIndex2] >= 0);
 
 		updateExtraSpecialistYield();
 	}
@@ -39286,53 +39295,53 @@ void CvPlayer::changeSpecialistExtraYield(SpecialistTypes eIndex1, YieldTypes eI
 
 int CvPlayer::getYieldFromYieldGlobal(YieldTypes eIndex1, YieldTypes eIndex2) const
 {
-	ASSERT_DEBUG(eIndex1 >= 0, "eIndex1 expected to be >= 0");
-	ASSERT_DEBUG(eIndex1 < NUM_YIELD_TYPES, "eIndex1 expected to be < NUM_YIELD_TYPES");
-	ASSERT_DEBUG(eIndex2 >= 0, "eIndex2 expected to be >= 0");
-	ASSERT_DEBUG(eIndex2 < NUM_YIELD_TYPES, "eIndex2 expected to be < NUM_YIELD_TYPES");
+	PRECONDITION(eIndex1 >= 0, "eIndex1 expected to be >= 0");
+	PRECONDITION(eIndex1 < NUM_YIELD_TYPES, "eIndex1 expected to be < NUM_YIELD_TYPES");
+	PRECONDITION(eIndex2 >= 0, "eIndex2 expected to be >= 0");
+	PRECONDITION(eIndex2 < NUM_YIELD_TYPES, "eIndex2 expected to be < NUM_YIELD_TYPES");
 	return m_ppiYieldFromYieldGlobal[eIndex1][eIndex2];
 }
 
 void CvPlayer::changeYieldFromYieldGlobal(YieldTypes eIndex1, YieldTypes eIndex2, int iChange)
 {
-	ASSERT_DEBUG(eIndex1 >= 0, "eIndex1 expected to be >= 0");
-	ASSERT_DEBUG(eIndex1 < NUM_YIELD_TYPES, "eIndex1 expected to be < NUM_YIELD_TYPES");
-	ASSERT_DEBUG(eIndex2 >= 0, "eIndex2 expected to be >= 0");
-	ASSERT_DEBUG(eIndex2 < NUM_YIELD_TYPES, "eIndex2 expected to be < NUM_YIELD_TYPES");
+	PRECONDITION(eIndex1 >= 0, "eIndex1 expected to be >= 0");
+	PRECONDITION(eIndex1 < NUM_YIELD_TYPES, "eIndex1 expected to be < NUM_YIELD_TYPES");
+	PRECONDITION(eIndex2 >= 0, "eIndex2 expected to be >= 0");
+	PRECONDITION(eIndex2 < NUM_YIELD_TYPES, "eIndex2 expected to be < NUM_YIELD_TYPES");
 
 	if (iChange != 0)
 	{
 		Firaxis::Array<int, NUM_YIELD_TYPES> yields = m_ppiYieldFromYieldGlobal[eIndex1];
 		yields[eIndex2] = (m_ppiYieldFromYieldGlobal[eIndex1][eIndex2] + iChange);
 		m_ppiYieldFromYieldGlobal[eIndex1] = yields;
-		ASSERT_DEBUG(getYieldFromYieldGlobal(eIndex1, eIndex2) >= 0);
+		ASSERT(getYieldFromYieldGlobal(eIndex1, eIndex2) >= 0);
 	}
 }
 
 int CvPlayer::getPlotYieldChange(PlotTypes eIndex1, YieldTypes eIndex2) const
 {
-	ASSERT_DEBUG(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex1 < GC.getNumPlotInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
-	ASSERT_DEBUG(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex1 < GC.getNumPlotInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
 	return m_ppiPlotYieldChange[eIndex1][eIndex2];
 }
 
 void CvPlayer::changePlotYieldChange(PlotTypes eIndex1, YieldTypes eIndex2, int iChange)
 {
-	ASSERT_DEBUG(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex1 < GC.getNumPlotInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
-	ASSERT_DEBUG(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex1 < GC.getNumPlotInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
 
 	if (iChange != 0)
 	{
-		ASSERT_DEBUG(iChange > -50 && iChange < 50, "GAMEPLAY: Yield for a plot is either negative or a ridiculously large number.");
+		ASSERT(iChange > -50 && iChange < 50, "GAMEPLAY: Yield for a plot is either negative or a ridiculously large number.");
 
 		Firaxis::Array<int, NUM_YIELD_TYPES> yields = m_ppiPlotYieldChange[eIndex1];
 		yields[eIndex2] = m_ppiPlotYieldChange[eIndex1][eIndex2] + iChange;
 		m_ppiPlotYieldChange[eIndex1] = yields;
-		ASSERT_DEBUG(m_ppiPlotYieldChange[eIndex1][eIndex2] >= 0);
+		ASSERT(m_ppiPlotYieldChange[eIndex1][eIndex2] >= 0);
 
 		updateYield();
 	}
@@ -39340,28 +39349,28 @@ void CvPlayer::changePlotYieldChange(PlotTypes eIndex1, YieldTypes eIndex2, int 
 
 int CvPlayer::getFeatureYieldChange(FeatureTypes eIndex1, YieldTypes eIndex2) const
 {
-	ASSERT_DEBUG(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex1 < GC.getNumFeatureInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
-	ASSERT_DEBUG(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex1 < GC.getNumFeatureInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
 	return m_ppiFeatureYieldChange[eIndex1][eIndex2];
 }
 
 void CvPlayer::changeFeatureYieldChange(FeatureTypes eIndex1, YieldTypes eIndex2, int iChange)
 {
-	ASSERT_DEBUG(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex1 < GC.getNumFeatureInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
-	ASSERT_DEBUG(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex1 < GC.getNumFeatureInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
 
 	if (iChange != 0)
 	{
-		ASSERT_DEBUG(iChange > -50 && iChange < 50, "GAMEPLAY: Yield for a plot is either negative or a ridiculously large number.");
+		ASSERT(iChange > -50 && iChange < 50, "GAMEPLAY: Yield for a plot is either negative or a ridiculously large number.");
 
 		Firaxis::Array<int, NUM_YIELD_TYPES> yields = m_ppiFeatureYieldChange[eIndex1];
 		yields[eIndex2] = m_ppiFeatureYieldChange[eIndex1][eIndex2] + iChange;
 		m_ppiFeatureYieldChange[eIndex1] = yields;
-		ASSERT_DEBUG(m_ppiFeatureYieldChange[eIndex1][eIndex2] >= 0);
+		ASSERT(m_ppiFeatureYieldChange[eIndex1][eIndex2] >= 0);
 
 		updateYield();
 	}
@@ -39369,28 +39378,28 @@ void CvPlayer::changeFeatureYieldChange(FeatureTypes eIndex1, YieldTypes eIndex2
 
 int CvPlayer::getCityYieldFromUnimprovedFeature(FeatureTypes eIndex1, YieldTypes eIndex2) const
 {
-	ASSERT_DEBUG(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex1 < GC.getNumFeatureInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
-	ASSERT_DEBUG(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex1 < GC.getNumFeatureInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
 	return m_ppiCityYieldFromUnimprovedFeature[eIndex1][eIndex2];
 }
 
 void CvPlayer::changeCityYieldFromUnimprovedFeature(FeatureTypes eIndex1, YieldTypes eIndex2, int iChange)
 {
-	ASSERT_DEBUG(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex1 < GC.getNumFeatureInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
-	ASSERT_DEBUG(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex1 < GC.getNumFeatureInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
 
 	if (iChange != 0)
 	{
-		ASSERT_DEBUG(iChange > -50 && iChange < 50, "GAMEPLAY: Yield for a plot is either negative or a ridiculously large number.");
+		ASSERT(iChange > -50 && iChange < 50, "GAMEPLAY: Yield for a plot is either negative or a ridiculously large number.");
 
 		Firaxis::Array<int, NUM_YIELD_TYPES> yields = m_ppiCityYieldFromUnimprovedFeature[eIndex1];
 		yields[eIndex2] = m_ppiCityYieldFromUnimprovedFeature[eIndex1][eIndex2] + iChange;
 		m_ppiCityYieldFromUnimprovedFeature[eIndex1] = yields;
-		ASSERT_DEBUG(m_ppiCityYieldFromUnimprovedFeature[eIndex1][eIndex2] >= 0);
+		ASSERT(m_ppiCityYieldFromUnimprovedFeature[eIndex1][eIndex2] >= 0);
 
 		updateYield();
 	}
@@ -39398,28 +39407,28 @@ void CvPlayer::changeCityYieldFromUnimprovedFeature(FeatureTypes eIndex1, YieldT
 
 int CvPlayer::getUnimprovedFeatureYieldChange(FeatureTypes eIndex1, YieldTypes eIndex2) const
 {
-	ASSERT_DEBUG(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex1 < GC.getNumFeatureInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
-	ASSERT_DEBUG(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex1 < GC.getNumFeatureInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
 	return m_ppiUnimprovedFeatureYieldChange[eIndex1][eIndex2];
 }
 
 void CvPlayer::changeUnimprovedFeatureYieldChange(FeatureTypes eIndex1, YieldTypes eIndex2, int iChange)
 {
-	ASSERT_DEBUG(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex1 < GC.getNumFeatureInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
-	ASSERT_DEBUG(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex1 < GC.getNumFeatureInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
 
 	if (iChange != 0)
 	{
-		ASSERT_DEBUG(iChange > -50 && iChange < 50, "GAMEPLAY: Yield for a plot is either negative or a ridiculously large number.");
+		ASSERT(iChange > -50 && iChange < 50, "GAMEPLAY: Yield for a plot is either negative or a ridiculously large number.");
 
 		Firaxis::Array<int, NUM_YIELD_TYPES> yields = m_ppiUnimprovedFeatureYieldChange[eIndex1];
 		yields[eIndex2] = m_ppiUnimprovedFeatureYieldChange[eIndex1][eIndex2] + iChange;
 		m_ppiUnimprovedFeatureYieldChange[eIndex1] = yields;
-		ASSERT_DEBUG(m_ppiUnimprovedFeatureYieldChange[eIndex1][eIndex2] >= 0);
+		ASSERT(m_ppiUnimprovedFeatureYieldChange[eIndex1][eIndex2] >= 0);
 
 		updateYield();
 	}
@@ -39427,28 +39436,28 @@ void CvPlayer::changeUnimprovedFeatureYieldChange(FeatureTypes eIndex1, YieldTyp
 
 int CvPlayer::getResourceYieldChange(ResourceTypes eIndex1, YieldTypes eIndex2) const
 {
-	ASSERT_DEBUG(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex1 < GC.getNumResourceInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
-	ASSERT_DEBUG(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex1 < GC.getNumResourceInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
 	return m_ppiResourceYieldChange[eIndex1][eIndex2];
 }
 
 void CvPlayer::changeResourceYieldChange(ResourceTypes eIndex1, YieldTypes eIndex2, int iChange)
 {
-	ASSERT_DEBUG(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex1 < GC.getNumResourceInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
-	ASSERT_DEBUG(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex1 < GC.getNumResourceInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
 
 	if (iChange != 0)
 	{
-		ASSERT_DEBUG(iChange > -50 && iChange < 50, "GAMEPLAY: Yield for a plot is either negative or a ridiculously large number.");
+		ASSERT(iChange > -50 && iChange < 50, "GAMEPLAY: Yield for a plot is either negative or a ridiculously large number.");
 
 		Firaxis::Array<int, NUM_YIELD_TYPES> yields = m_ppiResourceYieldChange[eIndex1];
 		yields[eIndex2] = m_ppiResourceYieldChange[eIndex1][eIndex2] + iChange;
 		m_ppiResourceYieldChange[eIndex1] = yields;
-		ASSERT_DEBUG(m_ppiResourceYieldChange[eIndex1][eIndex2] >= 0);
+		ASSERT(m_ppiResourceYieldChange[eIndex1][eIndex2] >= 0);
 
 		updateYield();
 	}
@@ -39456,28 +39465,28 @@ void CvPlayer::changeResourceYieldChange(ResourceTypes eIndex1, YieldTypes eInde
 
 int CvPlayer::getTerrainYieldChange(TerrainTypes eIndex1, YieldTypes eIndex2) const
 {
-	ASSERT_DEBUG(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex1 < GC.getNumTerrainInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
-	ASSERT_DEBUG(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex1 < GC.getNumTerrainInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
 	return m_ppiTerrainYieldChange[eIndex1][eIndex2];
 }
 
 void CvPlayer::changeTerrainYieldChange(TerrainTypes eIndex1, YieldTypes eIndex2, int iChange)
 {
-	ASSERT_DEBUG(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex1 < GC.getNumTerrainInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
-	ASSERT_DEBUG(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex1 < GC.getNumTerrainInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
 
 	if (iChange != 0)
 	{
-		ASSERT_DEBUG(iChange > -50 && iChange < 50, "GAMEPLAY: Yield for a plot is either negative or a ridiculously large number.");
+		ASSERT(iChange > -50 && iChange < 50, "GAMEPLAY: Yield for a plot is either negative or a ridiculously large number.");
 
 		Firaxis::Array<int, NUM_YIELD_TYPES> yields = m_ppiTerrainYieldChange[eIndex1];
 		yields[eIndex2] = m_ppiTerrainYieldChange[eIndex1][eIndex2] + iChange;
 		m_ppiTerrainYieldChange[eIndex1] = yields;
-		ASSERT_DEBUG(m_ppiTerrainYieldChange[eIndex1][eIndex2] >= 0);
+		ASSERT(m_ppiTerrainYieldChange[eIndex1][eIndex2] >= 0);
 
 		updateYield();
 	}
@@ -39485,26 +39494,26 @@ void CvPlayer::changeTerrainYieldChange(TerrainTypes eIndex1, YieldTypes eIndex2
 
 int CvPlayer::getTradeRouteYieldChange(DomainTypes eIndex1, YieldTypes eIndex2) const
 {
-	ASSERT_DEBUG(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex1 < NUM_DOMAIN_TYPES, "eIndex1 is expected to be within maximum bounds (invalid Index)");
-	ASSERT_DEBUG(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex1 < NUM_DOMAIN_TYPES, "eIndex1 is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
 	return m_ppiTradeRouteYieldChange[eIndex1][eIndex2];
 }
 
 void CvPlayer::changeTradeRouteYieldChange(DomainTypes eIndex1, YieldTypes eIndex2, int iChange)
 {
-	ASSERT_DEBUG(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex1 < NUM_DOMAIN_TYPES, "eIndex1 is expected to be within maximum bounds (invalid Index)");
-	ASSERT_DEBUG(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex1 < NUM_DOMAIN_TYPES, "eIndex1 is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
 
 	if (iChange != 0)
 	{
 		Firaxis::Array<int, NUM_YIELD_TYPES> yields = m_ppiTradeRouteYieldChange[eIndex1];
 		yields[eIndex2] = m_ppiTradeRouteYieldChange[eIndex1][eIndex2] + iChange;
 		m_ppiTradeRouteYieldChange[eIndex1] = yields;
-		ASSERT_DEBUG(m_ppiTradeRouteYieldChange[eIndex1][eIndex2] >= 0);
+		ASSERT(m_ppiTradeRouteYieldChange[eIndex1][eIndex2] >= 0);
 
 		updateYield();
 	}
@@ -39512,26 +39521,26 @@ void CvPlayer::changeTradeRouteYieldChange(DomainTypes eIndex1, YieldTypes eInde
 
 int CvPlayer::getGreatPersonExpendedYield(GreatPersonTypes eIndex1, YieldTypes eIndex2) const
 {
-	ASSERT_DEBUG(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex1 < GC.getNumGreatPersonInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
-	ASSERT_DEBUG(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex1 < GC.getNumGreatPersonInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
 	return m_ppiGreatPersonExpendedYield[eIndex1][eIndex2];
 }
 
 void CvPlayer::changeGreatPersonExpendedYield(GreatPersonTypes eIndex1, YieldTypes eIndex2, int iChange)
 {
-	ASSERT_DEBUG(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex1 < GC.getNumGreatPersonInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
-	ASSERT_DEBUG(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex1 < GC.getNumGreatPersonInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
 
 	if (iChange != 0)
 	{
 		Firaxis::Array<int, NUM_YIELD_TYPES> yields = m_ppiGreatPersonExpendedYield[eIndex1];
 		yields[eIndex2] = m_ppiGreatPersonExpendedYield[eIndex1][eIndex2] + iChange;
 		m_ppiGreatPersonExpendedYield[eIndex1] = yields;
-		ASSERT_DEBUG(m_ppiGreatPersonExpendedYield[eIndex1][eIndex2] >= 0);
+		ASSERT(m_ppiGreatPersonExpendedYield[eIndex1][eIndex2] >= 0);
 
 		updateYield();
 	}
@@ -39539,57 +39548,57 @@ void CvPlayer::changeGreatPersonExpendedYield(GreatPersonTypes eIndex1, YieldTyp
 
 int CvPlayer::getGoldenAgeGreatPersonRateModifier(GreatPersonTypes eGreatPerson) const
 {
-	ASSERT_DEBUG(eGreatPerson >= 0, "eGreatPerson is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eGreatPerson < GC.getNumGreatPersonInfos(), "eGreatPerson is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eGreatPerson >= 0, "eGreatPerson is expected to be non-negative (invalid Index)");
+	PRECONDITION(eGreatPerson < GC.getNumGreatPersonInfos(), "eGreatPerson is expected to be within maximum bounds (invalid Index)");
 	return m_piGoldenAgeGreatPersonRateModifier[eGreatPerson];
 }
 
 void CvPlayer::changeGoldenAgeGreatPersonRateModifier(GreatPersonTypes eGreatPerson, int iChange)
 {
-	ASSERT_DEBUG(eGreatPerson >= 0, "eGreatPerson is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eGreatPerson < GC.getNumGreatPersonInfos(), "eGreatPerson is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eGreatPerson >= 0, "eGreatPerson is expected to be non-negative (invalid Index)");
+	PRECONDITION(eGreatPerson < GC.getNumGreatPersonInfos(), "eGreatPerson is expected to be within maximum bounds (invalid Index)");
 	m_piGoldenAgeGreatPersonRateModifier[eGreatPerson] += iChange;
 }
 
 int CvPlayer::GetYieldFromKills(YieldTypes eYield) const
 {
-	ASSERT_DEBUG(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_piYieldFromKills[eYield];
 }
 
 void CvPlayer::changeYieldFromKills(YieldTypes eYield, int iChange)
 {
-	ASSERT_DEBUG(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 	m_piYieldFromKills[eYield] += iChange;
 }
 
 int CvPlayer::GetYieldFromBarbarianKills(YieldTypes eYield) const
 {
-	ASSERT_DEBUG(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_piYieldFromBarbarianKills[eYield];
 }
 
 void CvPlayer::changeYieldFromBarbarianKills(YieldTypes eYield, int iChange)
 {
-	ASSERT_DEBUG(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 	m_piYieldFromBarbarianKills[eYield] += iChange;
 }
 
 int CvPlayer::GetYieldChangeTradeRoute(YieldTypes eYield) const
 {
-	ASSERT_DEBUG(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_piYieldChangeTradeRoute[eYield];
 }
 
 void CvPlayer::ChangeYieldChangeTradeRoute(YieldTypes eYield, int iChange)
 {
-	ASSERT_DEBUG(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	if (iChange != 0)
 	{
@@ -39600,15 +39609,15 @@ void CvPlayer::ChangeYieldChangeTradeRoute(YieldTypes eYield, int iChange)
 
 int CvPlayer::GetYieldChangesNaturalWonder(YieldTypes eYield) const
 {
-	ASSERT_DEBUG(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_piYieldChangesNaturalWonder[eYield];
 }
 
 void CvPlayer::ChangeYieldChangesNaturalWonder(YieldTypes eYield, int iChange)
 {
-	ASSERT_DEBUG(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	if (iChange != 0)
 	{
@@ -39619,16 +39628,16 @@ void CvPlayer::ChangeYieldChangesNaturalWonder(YieldTypes eYield, int iChange)
 
 int CvPlayer::GetYieldChangesPerReligionTimes100(YieldTypes eYield) const
 {
-	ASSERT_DEBUG(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	return m_piYieldChangesPerReligion[eYield];
 }
 
 void CvPlayer::ChangeYieldChangesPerReligionTimes100(YieldTypes eYield, int iChange)
 {
-	ASSERT_DEBUG(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	if (iChange != 0)
 	{
@@ -39639,15 +39648,15 @@ void CvPlayer::ChangeYieldChangesPerReligionTimes100(YieldTypes eYield, int iCha
 
 int CvPlayer::GetYieldChangeWorldWonder(YieldTypes eYield) const
 {
-	ASSERT_DEBUG(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_piYieldChangeWorldWonder[eYield];
 }
 
 void CvPlayer::ChangeYieldChangeWorldWonder(YieldTypes eYield, int iChange)
 {
-	ASSERT_DEBUG(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	if (iChange != 0)
 	{
@@ -39658,29 +39667,29 @@ void CvPlayer::ChangeYieldChangeWorldWonder(YieldTypes eYield, int iChange)
 
 int CvPlayer::GetYieldFromMinorDemand(YieldTypes eYield) const
 {
-	ASSERT_DEBUG(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_piYieldFromMinorDemand[eYield];
 }
 
 void CvPlayer::ChangeYieldFromMinorDemand(YieldTypes eYield, int iChange)
 {
-	ASSERT_DEBUG(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 	m_piYieldFromMinorDemand[eYield] += iChange;
 }
 
 int CvPlayer::GetYieldFromWLTKD(YieldTypes eYield) const
 {
-	ASSERT_DEBUG(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_piYieldFromWLTKD[eYield];
 }
 
 void CvPlayer::ChangeYieldFromWLTKD(YieldTypes eYield, int iChange)
 {
-	ASSERT_DEBUG(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 	m_piYieldFromWLTKD[eYield] += iChange;
 }
 
@@ -39705,11 +39714,11 @@ void CvPlayer::ChangeEmpireSizeModifierPerCityMod(int iChange)
 /// Does the player get a great person rate modifier from having a monopoly?
 int CvPlayer::getSpecificGreatPersonRateModifierFromMonopoly(GreatPersonTypes eGreatPerson, MonopolyTypes eMonopoly) const
 {
-	ASSERT_DEBUG(eGreatPerson >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eGreatPerson < GC.getNumGreatPersonInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eGreatPerson >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eGreatPerson < GC.getNumGreatPersonInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
-	ASSERT_DEBUG(eMonopoly >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eMonopoly < NUM_MONOPOLY_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eMonopoly >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eMonopoly < NUM_MONOPOLY_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	if (eGreatPerson != NO_GREATPERSON && eMonopoly != NO_MONOPOLY)
 	{
@@ -39730,8 +39739,8 @@ int CvPlayer::getSpecificGreatPersonRateModifierFromMonopoly(GreatPersonTypes eG
 /// Overload to sum up modifiers from both global (including global monopoly mod percent) and strategic monopolies, for convenience
 int CvPlayer::getSpecificGreatPersonRateModifierFromMonopoly(GreatPersonTypes eGreatPerson) const
 {
-	ASSERT_DEBUG(eGreatPerson >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eGreatPerson < GC.getNumGreatPersonInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eGreatPerson >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eGreatPerson < GC.getNumGreatPersonInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	int iMod = 0;
 	int iTemp = 0;
@@ -39757,11 +39766,11 @@ int CvPlayer::getSpecificGreatPersonRateModifierFromMonopoly(GreatPersonTypes eG
 
 void CvPlayer::changeSpecificGreatPersonRateModifierFromMonopoly(GreatPersonTypes eGreatPerson, MonopolyTypes eMonopoly, int iChange)
 {
-	ASSERT_DEBUG(eGreatPerson >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eGreatPerson < GC.getNumGreatPersonInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eGreatPerson >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eGreatPerson < GC.getNumGreatPersonInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
-	ASSERT_DEBUG(eMonopoly >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eMonopoly < NUM_MONOPOLY_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eMonopoly >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eMonopoly < NUM_MONOPOLY_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	if (iChange != 0 && eGreatPerson != NO_GREATPERSON && eMonopoly != NO_MONOPOLY)
 	{
@@ -39772,11 +39781,11 @@ void CvPlayer::changeSpecificGreatPersonRateModifierFromMonopoly(GreatPersonType
 /// Does the player get a great person rate modifier from having a monopoly?
 int CvPlayer::getSpecificGreatPersonRateChangeFromMonopoly(GreatPersonTypes eGreatPerson, MonopolyTypes eMonopoly) const
 {
-	ASSERT_DEBUG(eGreatPerson >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eGreatPerson < GC.getNumGreatPersonInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eGreatPerson >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eGreatPerson < GC.getNumGreatPersonInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
-	ASSERT_DEBUG(eMonopoly >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eMonopoly < NUM_MONOPOLY_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eMonopoly >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eMonopoly < NUM_MONOPOLY_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	if (eGreatPerson != NO_GREATPERSON && eMonopoly != NO_MONOPOLY)
 	{
@@ -39797,8 +39806,8 @@ int CvPlayer::getSpecificGreatPersonRateChangeFromMonopoly(GreatPersonTypes eGre
 /// Overload to sum up modifiers from both global (including global monopoly mod flat) and strategic monopolies, for convenience
 int CvPlayer::getSpecificGreatPersonRateChangeFromMonopoly(GreatPersonTypes eGreatPerson) const
 {
-	ASSERT_DEBUG(eGreatPerson >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eGreatPerson < GC.getNumGreatPersonInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eGreatPerson >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eGreatPerson < GC.getNumGreatPersonInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	int iChange = 0;
 	int iTemp = 0;
@@ -39824,11 +39833,11 @@ int CvPlayer::getSpecificGreatPersonRateChangeFromMonopoly(GreatPersonTypes eGre
 
 void CvPlayer::changeSpecificGreatPersonRateChangeFromMonopoly(GreatPersonTypes eGreatPerson, MonopolyTypes eMonopoly, int iChange)
 {
-	ASSERT_DEBUG(eGreatPerson >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eGreatPerson < GC.getNumGreatPersonInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eGreatPerson >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eGreatPerson < GC.getNumGreatPersonInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
-	ASSERT_DEBUG(eMonopoly >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eMonopoly < NUM_MONOPOLY_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eMonopoly >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eMonopoly < NUM_MONOPOLY_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	if (iChange != 0 && eGreatPerson != NO_GREATPERSON && eMonopoly != NO_MONOPOLY)
 	{
@@ -39839,28 +39848,28 @@ void CvPlayer::changeSpecificGreatPersonRateChangeFromMonopoly(GreatPersonTypes 
 
 int CvPlayer::getImprovementYieldChange(ImprovementTypes eIndex1, YieldTypes eIndex2) const
 {
-	ASSERT_DEBUG(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex1 < GC.getNumImprovementInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
-	ASSERT_DEBUG(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex1 < GC.getNumImprovementInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
 	return m_ppaaiImprovementYieldChange[eIndex1][eIndex2];
 }
 
 void CvPlayer::changeImprovementYieldChange(ImprovementTypes eIndex1, YieldTypes eIndex2, int iChange)
 {
-	ASSERT_DEBUG(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex1 < GC.getNumImprovementInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
-	ASSERT_DEBUG(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex1 < GC.getNumImprovementInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
 
 	if (iChange != 0)
 	{
-		ASSERT_DEBUG(iChange > -50 && iChange < 50, "GAMEPLAY: Yield for a plot is either negative or a ridiculously large number.");
+		ASSERT(iChange > -50 && iChange < 50, "GAMEPLAY: Yield for a plot is either negative or a ridiculously large number.");
 
 		Firaxis::Array<int, NUM_YIELD_TYPES> yields = m_ppaaiImprovementYieldChange[eIndex1];
 		yields[eIndex2] = m_ppaaiImprovementYieldChange[eIndex1][eIndex2] + iChange;
 		m_ppaaiImprovementYieldChange[eIndex1] = yields;
-		ASSERT_DEBUG(m_ppaaiImprovementYieldChange[eIndex1][eIndex2] >= 0);
+		ASSERT(m_ppaaiImprovementYieldChange[eIndex1][eIndex2] >= 0);
 
 		updateYield();
 	}
@@ -39883,7 +39892,7 @@ bool CvPlayer::removeFromArmy(int iArmyID, int iID)
 //  DEPRECATED, use findTechPathLength() instead; kept for compatibility with modmods
 int CvPlayer::findPathLengthNew(TechTypes eTech, int pTechs[]) const
 {
-	ASSERT_DEBUG(eTech != NO_TECH, "Tech is not assigned a valid value");
+	PRECONDITION(eTech != NO_TECH, "Tech is not assigned a valid value");
 	int i = 0;
 
 	// if buffer is empty then initialize, start recursive calls and count techs at the end
@@ -40024,7 +40033,7 @@ bool CvPlayer::pushResearch(TechTypes eTech, bool bClear)
 	TechTypes ePreReq;
 	TechTypes eShortestOr;
 
-	ASSERT_DEBUG(eTech != NO_TECH, "Tech is not assigned a valid value");
+	PRECONDITION(eTech != NO_TECH, "Tech is not assigned a valid value");
 
 	CvTechEntry* pkTechInfo = GC.getTechInfo(eTech);
 	if(pkTechInfo == NULL)
@@ -40780,7 +40789,7 @@ void CvPlayer::deleteArmyAI(int iID)
 {
 	bool bRemoved = m_armyAIs.Remove(iID);
 	DEBUG_VARIABLE(bRemoved);
-	ASSERT_DEBUG(bRemoved, "could not find army, delete failed");
+	ASSERT(bRemoved, "could not find army, delete failed");
 }
 
 const CvAIOperation* CvPlayer::getAIOperation(int iID) const
@@ -41890,7 +41899,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 		return;
 
 	CvPolicyEntry* pkPolicyInfo = GC.getPolicyInfo(ePolicy);
-	ASSERT_DEBUG(pkPolicyInfo);
+	ASSERT(pkPolicyInfo);
 
 	CvCity* pCapital = getCapitalCity();
 
@@ -43745,7 +43754,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 
 		// Players may not yet have notifications during an initial load.
 		// Any players who do have notifications are expected to be majors.
-		ASSERT_DEBUG((bLoading && !bHasNotifications) || bHasNotifications == player.m_eID < MAX_MAJOR_CIVS);
+		PRECONDITION((bLoading && !bHasNotifications) || bHasNotifications == player.m_eID < MAX_MAJOR_CIVS);
 
 		if (bHasNotifications)
 		{
@@ -43873,7 +43882,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 		}
 		if (bSaving)
 		{
-			ASSERT_DEBUG(player.m_pDiplomacyRequests != NULL);
+			ASSERT(player.m_pDiplomacyRequests != NULL);
 		}
 		visitor(*player.m_pDiplomacyRequests);
 	}
@@ -43978,7 +43987,7 @@ void CvPlayer::createGreatGeneral(UnitTypes eGreatPersonUnit, int iX, int iY, bo
 {
 	CvUnit* pGreatPeopleUnit = initUnit(eGreatPersonUnit, iX, iY);
 
-	ASSERT_DEBUG(pGreatPeopleUnit);
+	ASSERT(pGreatPeopleUnit);
 
 	CvCity* pOriginCity = pGreatPeopleUnit->getOriginCity();
 	if (pOriginCity)
@@ -44030,7 +44039,7 @@ void CvPlayer::createGreatAdmiral(UnitTypes eGreatPersonUnit, int iX, int iY, bo
 {
 	CvUnit* pGreatPeopleUnit = initUnit(eGreatPersonUnit, iX, iY);
 
-	ASSERT_DEBUG(pGreatPeopleUnit);
+	ASSERT(pGreatPeopleUnit);
 
 	CvCity* pOriginCity = pGreatPeopleUnit->getOriginCity();
 	if (pOriginCity)
@@ -44112,7 +44121,7 @@ void CvPlayer::addAnnexedMilitaryCityStates(PlayerTypes eMinor)
 	// city states shouldn't be already in the list
 	for (std::vector< std::pair<PlayerTypes, int> >::const_iterator it = m_AnnexedMilitaryCityStatesUnitSpawnTurns.begin(); it != m_AnnexedMilitaryCityStatesUnitSpawnTurns.end(); ++it)
 	{
-		ASSERT_DEBUG((*it).first != eMinor)
+		ASSERT((*it).first != eMinor)
 	}
 
 	int iTurns = GET_PLAYER(eMinor).GetMinorCivAI()->GetSpawnBaseTurns(GetID(), true);
@@ -44129,7 +44138,7 @@ void CvPlayer::removeAnnexedMilitaryCityStates(PlayerTypes eMinor)
 			return;
 		}
 	}
-	ASSERT_DEBUG(false);
+	ASSERT(false);
 }
 
 void CvPlayer::updateTimerAnnexedMilitaryCityStates()
@@ -44280,8 +44289,8 @@ void CvPlayer::ProcessEspionageEvents()
 
 int CvPlayer::GetYieldPerTurnFromEspionageEvents(YieldTypes eYield, bool bIncoming) const
 {
-	ASSERT_DEBUG(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 	if (bIncoming)
 	{
 		return m_aiIncomingEspionageYields[eYield];
@@ -44529,7 +44538,7 @@ int CvPlayer::getNewCityProductionValue() const
 
 int CvPlayer::getGrowthThreshold(int iPopulation) const
 {
-	ASSERT_DEBUG(iPopulation > 0, "Population of city should be at least 1.");
+	ASSERT(iPopulation > 0, "Population of city should be at least 1.");
 
 	int iBaseThreshold = /*15*/ GD_INT_GET(BASE_CITY_GROWTH_THRESHOLD);
 	int iExtraPopThreshold = int((iPopulation-1) * /*8.0f in CP, 12.0f in VP*/ GD_FLOAT_GET(CITY_GROWTH_MULTIPLIER));
@@ -44618,7 +44627,7 @@ void CvPlayer::ChangeCityStrengthMod(int iChange)
 	if (iChange != 0)
 	{
 		m_iCityStrengthMod += iChange;
-		ASSERT_DEBUG(m_iCityStrengthMod > -100);
+		PRECONDITION(m_iCityStrengthMod > -100);
 
 		// Loop through all Cities and update their strength
 		int iLoop = 0;
@@ -44638,7 +44647,7 @@ int CvPlayer::GetCityGrowthMod() const
 /// Sets City growth percent mod (i.e. 100 = foodDifference doubled)
 void CvPlayer::SetCityGrowthMod(int iValue)
 {
-	ASSERT_DEBUG(iValue >= 0);
+	ASSERT(iValue >= 0);
 	m_iCityGrowthMod = iValue;
 }
 
@@ -44657,7 +44666,7 @@ int CvPlayer::GetCapitalGrowthMod() const
 /// Sets Capital growth percent mod (i.e. 100 = foodDifference doubled)
 void CvPlayer::SetCapitalGrowthMod(int iValue)
 {
-	ASSERT_DEBUG(iValue >= 0);
+	ASSERT(iValue >= 0);
 	m_iCapitalGrowthMod = iValue;
 }
 
@@ -44676,7 +44685,7 @@ int CvPlayer::GetNumPlotsBought() const
 /// Sets how many Plot has this player bought (costs should ramp up as more are purchased)
 void CvPlayer::SetNumPlotsBought(int iValue)
 {
-	ASSERT_DEBUG(iValue >= 0);
+	ASSERT(iValue >= 0);
 	m_iNumPlotsBought = iValue;
 }
 
@@ -45962,7 +45971,7 @@ void CvPlayer::SetBestWonderCities()
 		vector<pair<int, BuildingClassTypes>> bestScorePerClass;
 		for (map<BuildingClassTypes,vector<sct>>::iterator it = allScores.begin(); it != allScores.end(); ++it)
 		{
-			ASSERT_DEBUG(!it->second.empty());
+			ASSERT(!it->second.empty());
 			std::stable_sort(it->second.begin(), it->second.end());
 			bestScorePerClass.push_back(make_pair(it->second.back().score, it->first));
 		}
@@ -46229,7 +46238,7 @@ CvCity* CvPlayer::GetHolyCity()
 void CvPlayer::SetHolyCity(int iCityID)
 {
 	// This should only be set once under normal circumstances
-	ASSERT_DEBUG(m_iHolyCityID == -1);
+	ASSERT(m_iHolyCityID == -1);
 
 	m_iHolyCityID = iCityID;
 }
@@ -46855,7 +46864,7 @@ int CvPlayer::GetMissionaryExtraStrength() const
 void CvPlayer::ChangeMissionaryExtraStrength(int iChange)
 {
 	m_iMissionaryExtraStrength += iChange;
-	ASSERT_DEBUG(m_iMissionaryExtraStrength >= 0);
+	ASSERT(m_iMissionaryExtraStrength >= 0);
 }
 
 int CvPlayer::GetNumFaithGreatPeople() const
@@ -47686,7 +47695,7 @@ void CvPlayer::SetVassalLevy(bool bValue)
 /// bCheckMasterTech: whether master's tech level needs to be checked (default true)
 bool CvPlayer::IsUnitValidForVassalLevy(UnitTypes eUnit, const CvTeam& kTeam, const CvCity* pMasterCity, bool bCheckMasterTech) const
 {
-	ASSERT_DEBUG(eUnit != NO_UNIT);
+	PRECONDITION(eUnit != NO_UNIT);
 	CvUnitEntry* pUnitInfo = GC.getUnitInfo(eUnit);
 
 	// Both vassal and master can't have the obsolete tech for the unit

@@ -34,7 +34,7 @@ BOOL APIENTRY DllMain(HANDLE hModule,
 		// set timer precision
 		MMRESULT iTimeSet = timeBeginPeriod(1);		// set timeGetTime and sleep resolution to 1 ms, otherwise it's 10-16ms
 		DEBUG_VARIABLE(iTimeSet);
-		ASSERT_DEBUG(iTimeSet==TIMERR_NOERROR, "failed setting timer resolution to 1 ms");
+		ASSERT(iTimeSet==TIMERR_NOERROR, "failed setting timer resolution to 1 ms");
 		CvDllGameContext::InitializeSingleton();
 	}
 	break;

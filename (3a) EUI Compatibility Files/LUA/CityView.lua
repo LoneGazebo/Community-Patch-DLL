@@ -13,7 +13,6 @@ include("InfoTooltipInclude");
 -------------------------------
 -- minor lua optimizations
 -------------------------------
-local ipairs = ipairs
 local math_abs = math.abs
 local math_ceil = math.ceil
 local math_floor = math.floor
@@ -48,7 +47,7 @@ local civ5bnw_mode = civ5_mode and bnw_mode
 local g_currencyIcon = civ5_mode and "[ICON_GOLD]" or "[ICON_ENERGY]"
 local g_maintenanceCurrency = civ5_mode and "GoldMaintenance" or "EnergyMaintenance"
 local g_yieldCurrency = civ5_mode and YieldTypes.YIELD_GOLD or YieldTypes.YIELD_ENERGY
-local g_focusCurrency = CityAIFocusTypes.CITY_AI_FOCUS_TYPE_GOLD or CityAIFocusTypes.CITY_AI_FOCUS_TYPE_ENERGY
+local g_focusCurrency = CityAIFocusTypes.CITY_AI_FOCUS_TYPE_GOLD
 
 --EUI_utilities
 local IconHookup = EUI.IconHookup
@@ -99,7 +98,6 @@ local Network = Network
 local NotificationTypes = NotificationTypes
 local OptionsManager = OptionsManager
 local OrderTypes = OrderTypes
-local Path = Path
 local Players = Players
 local TaskTypes = TaskTypes
 local ToHexFromGrid = ToHexFromGrid
@@ -108,7 +106,7 @@ local UI_GetHeadSelectedCity = UI.GetHeadSelectedCity
 local UI_GetUnitPortraitIcon = UI.GetUnitPortraitIcon
 local YieldDisplayTypes_AREA = YieldDisplayTypes.AREA
 local YieldTypes = YieldTypes
-
+local NUM_YIELD_TYPES = Game.GetNumYieldTypes()
 
 -------------------------------
 -- Globals
@@ -166,7 +164,6 @@ local g_previousCity, g_isCityViewDirty, g_isCityHexesDirty
 
 local g_isButtonPopupChooseProduction = false
 local g_isAutoClose
-local g_requestTopPanelUpdate
 local g_slotTexture = {
 	SPECIALIST_CITIZEN = "CitizenUnemployed.dds",
 	SPECIALIST_SCIENTIST = "CitizenScientist.dds",
@@ -335,9 +332,9 @@ local function ClearCityUIInfo()
 	g_ProdQueueIM.ResetInstances()
 	g_ProdQueueIM.Commit()
 	Controls.PQremove:SetHide( true )
-	Controls.PQrank:SetText()
-	Controls.PQname:SetText()
-	Controls.PQturns:SetText()
+	Controls.PQrank:SetText("")
+	Controls.PQname:SetText("")
+	Controls.PQturns:SetText("")
 	Controls.PQGoldButton:SetHide( true )
 	return Controls.ProductionPortraitButton:SetHide(true)
 end
@@ -481,9 +478,9 @@ local function GetSpecialistYields( city, specialist )
 		local specialistYield = 0
 		local cultureFromSpecialist = city:GetCultureFromSpecialist( specialistID )
 		local specialistYieldModifier = 0
-		local specialistCultureModifier = city:GetCultureRateModifier() + ( cityOwner and ( cityOwner:GetCultureCityModifier() + ( city:GetNumWorldWonders() > 0 and cityOwner:GetCultureWonderMultiplier() or 0 ) or 0 ) )
+		local specialistCultureModifier = city:GetCultureRateModifier() + ( cityOwner and ( cityOwner:GetCultureCityModifier() + ( city:GetNumWorldWonders() > 0 and cityOwner:GetCultureWonderMultiplier() or 0 )) or 0 )
 		-- Yield
-		for yieldID = 0, YieldTypes.NUM_YIELD_TYPES-1 do
+		for yieldID = 0, NUM_YIELD_TYPES - 1 do
 			specialistYield = city:GetSpecialistYield( specialistID, yieldID )
 			-- COMMUNITY PATCH BEGINS
 			local extraYield = city:GetSpecialistYieldChange( specialistID, yieldID)
@@ -702,17 +699,16 @@ local function GreatWorkPopup( greatWorkID )
 		return Events.SerialEventGameMessagePopup{
 			Type = ButtonPopupTypes.BUTTONPOPUP_GREAT_WORK_COMPLETED_ACTIVE_PLAYER,
 			Data1 = greatWorkID,
-			Priority = PopupPriority.Current
-			}
+		}
 	end
 end
 
-local function YourCulturePopup( greatWorkID )
+local function YourCulturePopup()
 	return Events.SerialEventGameMessagePopup{
 		Type = ButtonPopupTypes.BUTTONPOPUP_CULTURE_OVERVIEW,
 		Data1 = 1,
 		Data2 = 1,
-		}
+	}
 end
 
 local function ThemingTooltip( buildingClassID, _, control )
@@ -927,8 +923,8 @@ local function SetupBuildingList( city, buildings, buildingIM )
 
 		tips:insertIf( unhappinessChange ~=0 and unhappinessChange .. "[ICON_HAPPINESS_4]" )
 
-		for yieldID = 0, YieldTypes.NUM_YIELD_TYPES-1 do
-			local buildingYieldRate = city:GetBuildingYieldRateTimes100(buildingID, yieldID)
+		for yieldID = 0, NUM_YIELD_TYPES - 1 do
+			local buildingYieldRate = city:GetBuildingYieldRateTimes100(buildingID, yieldID) / 100
 			tips:insertIf( buildingYieldRate ~= 0 and StringFormatNeatFloat(buildingYieldRate) .. tostring(YieldIcons[ yieldID ]) )
 		end
 
@@ -1219,7 +1215,7 @@ local function SetupSelectionList( itemList, selectionIM, cityOwnerID, getUnitPo
 		local itemID = item.ID
 		local avisorRecommended = g_isAdvisor and g_avisorRecommended[ orderID ]
 		if g_isDebugMode then
-			avisorRecommended, goldCost, canBuyWithGold, faithCost, canBuyWithFaith = nil
+			avisorRecommended, goldCost, canBuyWithGold, faithCost, canBuyWithFaith = nil, nil, nil, nil, nil
 		end
 		local instance, isNewInstance = selectionIM.GetInstance()
 
@@ -1472,7 +1468,7 @@ end)
 			isMaintain = true
 			instance.PQrank:SetText( "[ICON_TURNS_REMAINING]" )
 		else
-			instance.PQrank:SetText( not isMaintain and queueLength > 1 and (queuedItemNumber+1).."." )
+			instance.PQrank:SetText( not isMaintain and queueLength > 1 and (queuedItemNumber+1).."." or "")
 		end
 	end
 
@@ -1873,12 +1869,12 @@ local function UpdateWorkingHexesNow()
 					IconHookup( iconID, 45, "CITIZEN_ATLAS", instance.PlotButtonImage )
 					local button = instance.PlotButtonImage
 					if not cityPlotIndex or (g_isViewingMode and not bAnnex) then 
-						button:ClearCallback( Mouse.eLCLick )
+						button:ClearCallback( Mouse.eLClick )
 					elseif (bAnnex and city:IsPuppet() and iconID ~= 12) then --Another Venice exception huh...
-						button:ClearCallback( Mouse.eLCLick )
+						button:ClearCallback( Mouse.eLClick )
 					else
 						button:SetVoid1( cityPlotIndex )
-						button:RegisterCallback( Mouse.eLCLick, PlotButtonClicked )
+						button:RegisterCallback( Mouse.eLClick, PlotButtonClicked )
 					end
 				end
 			end
@@ -1909,7 +1905,7 @@ local function UpdateWorkingHexesNow()
 								txt = plotCost
 								alpha = 1
 								button:SetVoid1( cityPlotIndex )
-								button:RegisterCallback( Mouse.eLCLick, BuyPlotAnchorButtonClicked )
+								button:RegisterCallback( Mouse.eLClick, BuyPlotAnchorButtonClicked )
 								if notInStrategicView then
 									Events_SerialEventHexHighlight( hexPos , true, nil, "BuyFill" )
 									if not purchasablePlots[ plot ] then
@@ -1941,7 +1937,6 @@ end
 -- City View Update
 -------------------------------------------------
 local function UpdateCityViewNow()
-	g_requestTopPanelUpdate = true;
 	g_isCityViewDirty = false
 	local city = UI_GetHeadSelectedCity()
 

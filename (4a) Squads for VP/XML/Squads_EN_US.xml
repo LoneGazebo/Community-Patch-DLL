@@ -30,6 +30,12 @@
         <Row Tag="TXT_KEY_SQUADS_OPTION_FLAGS_NUMBER">
             <Text>Display Squad Number on Unit Flags</Text>
         </Row>
+        <Row Tag="TXT_KEY_SQUADS_OPTION_ESCORT">
+            <Text>Escort non-combat units</Text>
+        </Row>
+        <Row Tag="TXT_KEY_SQUADS_OPTION_ESCORT_TT">
+            <Text>During squad movement, combat units that start on the same tile as non combat units will escort them, linking their movement until the destination is reached or another move order is issued.</Text>
+        </Row>
         <Row Tag="TXT_KEY_SQUADS_MOVEMENT_END_TYPE">
             <Text>Squad Movement End Behavior:</Text>
         </Row>

@@ -182,8 +182,8 @@ void CvCityAI::AI_setChooseProductionDirty(bool bNewValue)
 int CvCityAI::AI_GetNumPlotsAcquiredByOtherPlayer(PlayerTypes ePlayer) const
 {
 	VALIDATE_OBJECT();
-	ASSERT_DEBUG(ePlayer < MAX_PLAYERS);
-	ASSERT_DEBUG(ePlayer > -1);
+	PRECONDITION(ePlayer < MAX_PLAYERS);
+	PRECONDITION(ePlayer > -1);
 	
 	map<PlayerTypes,int>::const_iterator it = m_mapPlotsAcquiredByOtherPlayers.find(ePlayer);
 	if (it != m_mapPlotsAcquiredByOtherPlayers.end())
@@ -196,8 +196,8 @@ int CvCityAI::AI_GetNumPlotsAcquiredByOtherPlayer(PlayerTypes ePlayer) const
 void CvCityAI::AI_ChangeNumPlotsAcquiredByOtherPlayer(PlayerTypes ePlayer, int iChange)
 {
 	VALIDATE_OBJECT();
-	ASSERT_DEBUG(ePlayer < MAX_PLAYERS);
-	ASSERT_DEBUG(ePlayer > -1);
+	PRECONDITION(ePlayer < MAX_PLAYERS);
+	PRECONDITION(ePlayer > -1);
 
 	m_mapPlotsAcquiredByOtherPlayers[ePlayer] += iChange;
 

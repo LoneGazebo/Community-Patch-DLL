@@ -1425,96 +1425,96 @@ int CvTraitEntry::GetStrategicResourceQuantityModifier(int i) const
 /// Accessor:: Additional quantity of a specific resource
 int CvTraitEntry::GetResourceQuantityModifier(int i) const
 {
-	ASSERT_DEBUG(i < GC.getNumResourceInfos(), "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumResourceInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piResourceQuantityModifiers ? m_piResourceQuantityModifiers[i] : -1;
 }
 
 /// Accessor: Amount of a specific resource awarded on World Wonder completion
 int CvTraitEntry::GetNumFreeResourceOnWorldWonderCompletion(int i) const
 {
-	ASSERT_DEBUG(i < GC.getNumResourceInfos(), "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumResourceInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piNumFreeResourceOnWorldWonderCompletion ? m_piNumFreeResourceOnWorldWonderCompletion[i] : 0;
 }
 
 /// Accessor:: Extra yield from an improvement
 int CvTraitEntry::GetImprovementYieldChanges(ImprovementTypes eIndex1, YieldTypes eIndex2) const
 {
-	ASSERT_DEBUG(eIndex1 < GC.getNumImprovementInfos(), "Index out of bounds");
-	ASSERT_DEBUG(eIndex1 > -1, "Index out of bounds");
-	ASSERT_DEBUG(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(eIndex2 > -1, "Index out of bounds");
+	PRECONDITION(eIndex1 < GC.getNumImprovementInfos(), "Index out of bounds");
+	PRECONDITION(eIndex1 > -1, "Index out of bounds");
+	PRECONDITION(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(eIndex2 > -1, "Index out of bounds");
 	return m_ppiImprovementYieldChanges ? m_ppiImprovementYieldChanges[eIndex1][eIndex2] : 0;
 }
 
 int CvTraitEntry::GetYieldFromTileEarnTerrainType(TerrainTypes eIndex1, YieldTypes eIndex2) const
 {
-	ASSERT_DEBUG(eIndex1 < GC.getNumTerrainInfos(), "Index out of bounds");
-	ASSERT_DEBUG(eIndex1 > -1, "Index out of bounds");
-	ASSERT_DEBUG(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(eIndex2 > -1, "Index out of bounds");
+	PRECONDITION(eIndex1 < GC.getNumTerrainInfos(), "Index out of bounds");
+	PRECONDITION(eIndex1 > -1, "Index out of bounds");
+	PRECONDITION(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(eIndex2 > -1, "Index out of bounds");
 	return m_ppiYieldFromTileEarnTerrainType ? m_ppiYieldFromTileEarnTerrainType[eIndex1][eIndex2] : 0;
 }
 
 int CvTraitEntry::GetYieldFromTilePurchaseTerrainType(TerrainTypes eIndex1, YieldTypes eIndex2) const
 {
-	ASSERT_DEBUG(eIndex1 < GC.getNumTerrainInfos(), "Index out of bounds");
-	ASSERT_DEBUG(eIndex1 > -1, "Index out of bounds");
-	ASSERT_DEBUG(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(eIndex2 > -1, "Index out of bounds");
+	PRECONDITION(eIndex1 < GC.getNumTerrainInfos(), "Index out of bounds");
+	PRECONDITION(eIndex1 > -1, "Index out of bounds");
+	PRECONDITION(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(eIndex2 > -1, "Index out of bounds");
 	return m_ppiYieldFromTilePurchaseTerrainType ? m_ppiYieldFromTilePurchaseTerrainType[eIndex1][eIndex2] : 0;
 }
 
 int CvTraitEntry::GetYieldFromTileConquest(TerrainTypes eIndex1, YieldTypes eIndex2) const
 {
-	ASSERT_DEBUG(eIndex1 < GC.getNumTerrainInfos(), "Index out of bounds");
-	ASSERT_DEBUG(eIndex1 > -1, "Index out of bounds");
-	ASSERT_DEBUG(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(eIndex2 > -1, "Index out of bounds");
+	PRECONDITION(eIndex1 < GC.getNumTerrainInfos(), "Index out of bounds");
+	PRECONDITION(eIndex1 > -1, "Index out of bounds");
+	PRECONDITION(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(eIndex2 > -1, "Index out of bounds");
 	return m_ppiYieldFromTileConquest ? m_ppiYieldFromTileConquest[eIndex1][eIndex2] : 0;
 }
 
 int CvTraitEntry::GetYieldFromTileCultureBomb(TerrainTypes eIndex1, YieldTypes eIndex2) const
 {
-	ASSERT_DEBUG(eIndex1 < GC.getNumTerrainInfos(), "Index out of bounds");
-	ASSERT_DEBUG(eIndex1 > -1, "Index out of bounds");
-	ASSERT_DEBUG(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(eIndex2 > -1, "Index out of bounds");
+	PRECONDITION(eIndex1 < GC.getNumTerrainInfos(), "Index out of bounds");
+	PRECONDITION(eIndex1 > -1, "Index out of bounds");
+	PRECONDITION(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(eIndex2 > -1, "Index out of bounds");
 	return m_ppiYieldFromTileCultureBomb ? m_ppiYieldFromTileCultureBomb[eIndex1][eIndex2] : 0;
 }
 
 int CvTraitEntry::GetYieldFromTileStealCultureBomb(TerrainTypes eIndex1, YieldTypes eIndex2) const
 {
-	ASSERT_DEBUG(eIndex1 < GC.getNumTerrainInfos(), "Index out of bounds");
-	ASSERT_DEBUG(eIndex1 > -1, "Index out of bounds");
-	ASSERT_DEBUG(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(eIndex2 > -1, "Index out of bounds");
+	PRECONDITION(eIndex1 < GC.getNumTerrainInfos(), "Index out of bounds");
+	PRECONDITION(eIndex1 > -1, "Index out of bounds");
+	PRECONDITION(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(eIndex2 > -1, "Index out of bounds");
 	return m_ppiYieldFromTileStealCultureBomb ? m_ppiYieldFromTileStealCultureBomb[eIndex1][eIndex2] : 0;
 }
 
 int CvTraitEntry::GetYieldFromTileSettle(TerrainTypes eIndex1, YieldTypes eIndex2) const
 {
-	ASSERT_DEBUG(eIndex1 < GC.getNumTerrainInfos(), "Index out of bounds");
-	ASSERT_DEBUG(eIndex1 > -1, "Index out of bounds");
-	ASSERT_DEBUG(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(eIndex2 > -1, "Index out of bounds");
+	PRECONDITION(eIndex1 < GC.getNumTerrainInfos(), "Index out of bounds");
+	PRECONDITION(eIndex1 > -1, "Index out of bounds");
+	PRECONDITION(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(eIndex2 > -1, "Index out of bounds");
 	return m_ppiYieldFromTileSettle ? m_ppiYieldFromTileSettle[eIndex1][eIndex2] : 0;
 }
 
 int CvTraitEntry::GetYieldChangePerImprovementBuilt(ImprovementTypes eIndex1, YieldTypes eIndex2) const
 {
-	ASSERT_DEBUG(eIndex1 < GC.getNumImprovementInfos(), "Index out of bounds");
-	ASSERT_DEBUG(eIndex1 > -1, "Index out of bounds");
-	ASSERT_DEBUG(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(eIndex2 > -1, "Index out of bounds");
+	PRECONDITION(eIndex1 < GC.getNumImprovementInfos(), "Index out of bounds");
+	PRECONDITION(eIndex1 > -1, "Index out of bounds");
+	PRECONDITION(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(eIndex2 > -1, "Index out of bounds");
 	return m_ppiYieldChangePerImprovementBuilt ? m_ppiYieldChangePerImprovementBuilt[eIndex1][eIndex2] : 0;
 }
 
 int CvTraitEntry::GetYieldFromBarbarianCampClear(YieldTypes eIndex1, bool bEraScaling) const
 {
-	ASSERT_DEBUG(eIndex1 < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(eIndex1 > -1, "Index out of bounds");
+	PRECONDITION(eIndex1 < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(eIndex1 > -1, "Index out of bounds");
 	std::map<int, std::map<bool, int>>::const_iterator itYield = m_pbiYieldFromBarbarianCampClear.find((int)eIndex1);
 	if (itYield != m_pbiYieldFromBarbarianCampClear.end()) // find returns the iterator to map::end if the key eYield is not present in the map
 	{
@@ -1533,10 +1533,10 @@ int CvTraitEntry::GetYieldFromBarbarianCampClear(YieldTypes eIndex1, bool bEraSc
 /// Accessor:: Extra yield from a plot
 int CvTraitEntry::GetPlotYieldChanges(PlotTypes eIndex1, YieldTypes eIndex2) const
 {
-	ASSERT_DEBUG(eIndex1 < GC.getNumPlotInfos(), "Index out of bounds");
-	ASSERT_DEBUG(eIndex1 > -1, "Index out of bounds");
-	ASSERT_DEBUG(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(eIndex2 > -1, "Index out of bounds");
+	PRECONDITION(eIndex1 < GC.getNumPlotInfos(), "Index out of bounds");
+	PRECONDITION(eIndex1 > -1, "Index out of bounds");
+	PRECONDITION(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(eIndex2 > -1, "Index out of bounds");
 	return m_ppiPlotYieldChanges ? m_ppiPlotYieldChanges[eIndex1][eIndex2] : 0;
 }
 
@@ -1641,27 +1641,27 @@ int CvTraitEntry::GetFaithCostModifier() const
 
 int CvTraitEntry::GetNumPledgeDomainProductionModifier(DomainTypes eDomain) const
 {
-	ASSERT_DEBUG((int)eDomain < NUM_DOMAIN_TYPES, "Index out of bounds");
-	ASSERT_DEBUG((int)eDomain > -1, "Index out of bounds");
+	PRECONDITION((int)eDomain < NUM_DOMAIN_TYPES, "Index out of bounds");
+	PRECONDITION((int)eDomain > -1, "Index out of bounds");
 	return m_piNumPledgesDomainProdMod ? m_piNumPledgesDomainProdMod[(int)eDomain] : 0;
 }
 int CvTraitEntry::GetDomainFreeExperienceModifier(DomainTypes eDomain) const
 {
-	ASSERT_DEBUG((int)eDomain < NUM_DOMAIN_TYPES, "Index out of bounds");
-	ASSERT_DEBUG((int)eDomain > -1, "Index out of bounds");
+	PRECONDITION((int)eDomain < NUM_DOMAIN_TYPES, "Index out of bounds");
+	PRECONDITION((int)eDomain > -1, "Index out of bounds");
 	return m_piDomainFreeExperienceModifier ? m_piDomainFreeExperienceModifier[(int)eDomain] : 0;
 }
 int CvTraitEntry::GetFreeUnitClassesDOW(UnitClassTypes eUnitClass) const
 {
-	ASSERT_DEBUG((int)eUnitClass < GC.getNumUnitClassInfos(), "Index out of bounds");
-	ASSERT_DEBUG((int)eUnitClass > -1, "Index out of bounds");
+	PRECONDITION((int)eUnitClass < GC.getNumUnitClassInfos(), "Index out of bounds");
+	PRECONDITION((int)eUnitClass > -1, "Index out of bounds");
 	return m_piFreeUnitClassesDOW ? m_piFreeUnitClassesDOW[(int)eUnitClass] : 0;
 }
 #if defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
 int CvTraitEntry::GetYieldFromRouteMovementInForeignTerritory(YieldTypes eIndex, bool bTradePartner) const
 {
-	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(eIndex > -1, "Index out of bounds");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(eIndex > -1, "Index out of bounds");
 
 	std::map<int, std::map<bool, int>>::const_iterator itYield = m_pbiYieldFromRouteMovementInForeignTerritory.find((int)eIndex);
 	if (itYield != m_pbiYieldFromRouteMovementInForeignTerritory.end()) // find returns the iterator to map::end if the key eYield is not present in the map
@@ -1679,10 +1679,10 @@ int CvTraitEntry::GetYieldFromRouteMovementInForeignTerritory(YieldTypes eIndex,
 
 int CvTraitEntry::GetBuildingClassYieldChanges(BuildingClassTypes eIndex1, YieldTypes eIndex2) const
 {
-	ASSERT_DEBUG(eIndex1 < GC.getNumBuildingClassInfos(), "Index out of bounds");
-	ASSERT_DEBUG(eIndex1 > -1, "Index out of bounds");
-	ASSERT_DEBUG(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(eIndex2 > -1, "Index out of bounds");
+	PRECONDITION(eIndex1 < GC.getNumBuildingClassInfos(), "Index out of bounds");
+	PRECONDITION(eIndex1 > -1, "Index out of bounds");
+	PRECONDITION(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(eIndex2 > -1, "Index out of bounds");
 	return m_ppiBuildingClassYieldChanges ? m_ppiBuildingClassYieldChanges[eIndex1][eIndex2] : 0;
 }
 
@@ -1727,32 +1727,32 @@ int CvTraitEntry::GetMusicYieldChanges(int i) const
 }
 int CvTraitEntry::GetSeaPlotYieldChanges(int i) const
 {
-	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piSeaPlotYieldChanges ? m_piSeaPlotYieldChanges[i] : 0;
 }
 int CvTraitEntry::GetFeatureYieldChanges(FeatureTypes eIndex1, YieldTypes eIndex2) const
 {
-	ASSERT_DEBUG(eIndex1 < GC.getNumFeatureInfos(), "Index out of bounds");
-	ASSERT_DEBUG(eIndex1 > -1, "Index out of bounds");
-	ASSERT_DEBUG(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(eIndex2 > -1, "Index out of bounds");
+	PRECONDITION(eIndex1 < GC.getNumFeatureInfos(), "Index out of bounds");
+	PRECONDITION(eIndex1 > -1, "Index out of bounds");
+	PRECONDITION(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(eIndex2 > -1, "Index out of bounds");
 	return m_ppiFeatureYieldChanges ? m_ppiFeatureYieldChanges[eIndex1][eIndex2] : 0;
 }
 
 int CvTraitEntry::GetResourceYieldChanges(ResourceTypes eIndex1, YieldTypes eIndex2) const
 {
-	ASSERT_DEBUG(eIndex1 < GC.getNumResourceInfos(), "Index out of bounds");
-	ASSERT_DEBUG(eIndex1 > -1, "Index out of bounds");
-	ASSERT_DEBUG(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(eIndex2 > -1, "Index out of bounds");
+	PRECONDITION(eIndex1 < GC.getNumResourceInfos(), "Index out of bounds");
+	PRECONDITION(eIndex1 > -1, "Index out of bounds");
+	PRECONDITION(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(eIndex2 > -1, "Index out of bounds");
 	return m_ppiResourceYieldChanges ? m_ppiResourceYieldChanges[eIndex1][eIndex2] : 0;
 }
 
 int CvTraitEntry::GetLuxuryYieldChanges(int i) const
 {
-	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piLuxuryYieldChanges ? m_piLuxuryYieldChanges[i] : 0;
 }
 
@@ -1768,38 +1768,38 @@ std::map<int, std::map<int, int>> CvTraitEntry::GetResourceYieldChangesFromGolde
 
 int CvTraitEntry::GetTerrainYieldChanges(TerrainTypes eIndex1, YieldTypes eIndex2) const
 {
-	ASSERT_DEBUG(eIndex1 < GC.getNumTerrainInfos(), "Index out of bounds");
-	ASSERT_DEBUG(eIndex1 > -1, "Index out of bounds");
-	ASSERT_DEBUG(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(eIndex2 > -1, "Index out of bounds");
+	PRECONDITION(eIndex1 < GC.getNumTerrainInfos(), "Index out of bounds");
+	PRECONDITION(eIndex1 > -1, "Index out of bounds");
+	PRECONDITION(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(eIndex2 > -1, "Index out of bounds");
 	return m_ppiTerrainYieldChanges ? m_ppiTerrainYieldChanges[eIndex1][eIndex2] : 0;
 }
 
 int CvTraitEntry::GetYieldFromKills(YieldTypes eYield) const
 {
-	ASSERT_DEBUG((int)eYield < NUM_YIELD_TYPES, "Yield type out of bounds");
-	ASSERT_DEBUG((int)eYield > -1, "Index out of bounds");
+	PRECONDITION((int)eYield < NUM_YIELD_TYPES, "Yield type out of bounds");
+	PRECONDITION((int)eYield > -1, "Index out of bounds");
 	return m_piYieldFromKills ? m_piYieldFromKills[(int)eYield] : 0;
 }
 
 int CvTraitEntry::GetYieldFromBarbarianKills(YieldTypes eYield) const
 {
-	ASSERT_DEBUG((int)eYield < NUM_YIELD_TYPES, "Yield type out of bounds");
-	ASSERT_DEBUG((int)eYield > -1, "Index out of bounds");
+	PRECONDITION((int)eYield < NUM_YIELD_TYPES, "Yield type out of bounds");
+	PRECONDITION((int)eYield > -1, "Index out of bounds");
 	return m_piYieldFromBarbarianKills ? m_piYieldFromBarbarianKills[(int)eYield] : 0;
 }
 
 int CvTraitEntry::GetYieldFromMinorDemand(YieldTypes eYield) const
 {
-	ASSERT_DEBUG((int)eYield < NUM_YIELD_TYPES, "Yield type out of bounds");
-	ASSERT_DEBUG((int)eYield > -1, "Index out of bounds");
+	PRECONDITION((int)eYield < NUM_YIELD_TYPES, "Yield type out of bounds");
+	PRECONDITION((int)eYield > -1, "Index out of bounds");
 	return m_piYieldFromMinorDemand ? m_piYieldFromMinorDemand[(int)eYield] : 0;
 }
 
 int CvTraitEntry::GetYieldFromLuxuryResourceGain(YieldTypes eYield) const
 {
-	ASSERT_DEBUG((int)eYield < NUM_YIELD_TYPES, "Yield type out of bounds");
-	ASSERT_DEBUG((int)eYield > -1, "Index out of bounds");
+	PRECONDITION((int)eYield < NUM_YIELD_TYPES, "Yield type out of bounds");
+	PRECONDITION((int)eYield > -1, "Index out of bounds");
 	return m_piYieldFromLuxuryResourceGain ? m_piYieldFromLuxuryResourceGain[(int)eYield] : 0;
 }
 
@@ -1815,85 +1815,85 @@ int CvTraitEntry::GetYieldChangeWorldWonder(int i) const
 
 int CvTraitEntry::GetTradeRouteYieldChange(DomainTypes eIndex1, YieldTypes eIndex2) const
 {
-	ASSERT_DEBUG(eIndex1 < NUM_DOMAIN_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(eIndex1 > -1, "Index out of bounds");
-	ASSERT_DEBUG(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(eIndex2 > -1, "Index out of bounds");
+	PRECONDITION(eIndex1 < NUM_DOMAIN_TYPES, "Index out of bounds");
+	PRECONDITION(eIndex1 > -1, "Index out of bounds");
+	PRECONDITION(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(eIndex2 > -1, "Index out of bounds");
 	return m_ppiTradeRouteYieldChange ? m_ppiTradeRouteYieldChange[eIndex1][eIndex2] : 0;
 }
 
 /// Accessor:: Extra yield from an improvement
 int CvTraitEntry::GetSpecialistYieldChanges(SpecialistTypes eIndex1, YieldTypes eIndex2) const
 {
-	ASSERT_DEBUG(eIndex1 < GC.getNumSpecialistInfos(), "Index out of bounds");
-	ASSERT_DEBUG(eIndex1 > -1, "Index out of bounds");
-	ASSERT_DEBUG(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(eIndex2 > -1, "Index out of bounds");
+	PRECONDITION(eIndex1 < GC.getNumSpecialistInfos(), "Index out of bounds");
+	PRECONDITION(eIndex1 > -1, "Index out of bounds");
+	PRECONDITION(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(eIndex2 > -1, "Index out of bounds");
 	return m_ppiSpecialistYieldChanges ? m_ppiSpecialistYieldChanges[eIndex1][eIndex2] : 0;
 }
 
 int CvTraitEntry::GetGreatPersonExpendedYield(GreatPersonTypes eIndex1, YieldTypes eIndex2) const
 {
-	ASSERT_DEBUG(eIndex1 < GC.getNumGreatPersonInfos(), "Index out of bounds");
-	ASSERT_DEBUG(eIndex1 > -1, "Index out of bounds");
-	ASSERT_DEBUG(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(eIndex2 > -1, "Index out of bounds");
+	PRECONDITION(eIndex1 < GC.getNumGreatPersonInfos(), "Index out of bounds");
+	PRECONDITION(eIndex1 > -1, "Index out of bounds");
+	PRECONDITION(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(eIndex2 > -1, "Index out of bounds");
 	return m_ppiGreatPersonExpendedYield ? m_ppiGreatPersonExpendedYield[eIndex1][eIndex2] : 0;
 }
 int CvTraitEntry::GetGreatPersonBornYield(GreatPersonTypes eIndex1, YieldTypes eIndex2) const
 {
-	ASSERT_DEBUG(eIndex1 < GC.getNumGreatPersonInfos(), "Index out of bounds");
-	ASSERT_DEBUG(eIndex1 > -1, "Index out of bounds");
-	ASSERT_DEBUG(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(eIndex2 > -1, "Index out of bounds");
+	PRECONDITION(eIndex1 < GC.getNumGreatPersonInfos(), "Index out of bounds");
+	PRECONDITION(eIndex1 > -1, "Index out of bounds");
+	PRECONDITION(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(eIndex2 > -1, "Index out of bounds");
 	return m_ppiGreatPersonBornYield ? m_ppiGreatPersonBornYield[eIndex1][eIndex2] : 0;
 }
 int CvTraitEntry::GetGoldenAgeGreatPersonRateModifier(GreatPersonTypes eGreatPerson) const
 {
-	ASSERT_DEBUG((int)eGreatPerson < GC.getNumGreatPersonInfos(), "Yield type out of bounds");
-	ASSERT_DEBUG((int)eGreatPerson > -1, "Index out of bounds");
+	PRECONDITION((int)eGreatPerson < GC.getNumGreatPersonInfos(), "Yield type out of bounds");
+	PRECONDITION((int)eGreatPerson > -1, "Index out of bounds");
 	return m_piGoldenAgeGreatPersonRateModifier ? m_piGoldenAgeGreatPersonRateModifier[(int)eGreatPerson] : 0;
 }
 
 int CvTraitEntry::GetGreatPersonCostReduction(GreatPersonTypes eGreatPerson) const
 {
-	ASSERT_DEBUG((int)eGreatPerson < GC.getNumGreatPersonInfos(), "Yield type out of bounds");
-	ASSERT_DEBUG((int)eGreatPerson > -1, "Index out of bounds");
+	PRECONDITION((int)eGreatPerson < GC.getNumGreatPersonInfos(), "Yield type out of bounds");
+	PRECONDITION((int)eGreatPerson > -1, "Index out of bounds");
 	return m_piGreatPersonCostReduction ? m_piGreatPersonCostReduction[(int)eGreatPerson] : 0;
 }
 
 int CvTraitEntry::GetPerPuppetGreatPersonRateModifier(GreatPersonTypes eGreatPerson) const
 {
-	ASSERT_DEBUG((int)eGreatPerson < GC.getNumGreatPersonInfos(), "Yield type out of bounds");
-	ASSERT_DEBUG((int)eGreatPerson > -1, "Index out of bounds");
+	PRECONDITION((int)eGreatPerson < GC.getNumGreatPersonInfos(), "Yield type out of bounds");
+	PRECONDITION((int)eGreatPerson > -1, "Index out of bounds");
 	return m_piPerPuppetGreatPersonRateModifier ? m_piPerPuppetGreatPersonRateModifier[(int)eGreatPerson] : 0;
 }
 
 int CvTraitEntry::GetGreatPersonGWAM(GreatPersonTypes eGreatPerson) const
 {
-	ASSERT_DEBUG((int)eGreatPerson < GC.getNumGreatPersonInfos(), "Yield type out of bounds");
-	ASSERT_DEBUG((int)eGreatPerson > -1, "Index out of bounds");
+	PRECONDITION((int)eGreatPerson < GC.getNumGreatPersonInfos(), "Yield type out of bounds");
+	PRECONDITION((int)eGreatPerson > -1, "Index out of bounds");
 	return m_piGreatPersonGWAM ? m_piGreatPersonGWAM[(int)eGreatPerson] : 0;
 }
 
 int CvTraitEntry::GetGoldenAgeFromGreatPersonBirth(GreatPersonTypes eGreatPerson) const
 {
-	ASSERT_DEBUG((int)eGreatPerson < GC.getNumGreatPersonInfos(), "Yield type out of bounds");
-	ASSERT_DEBUG((int)eGreatPerson > -1, "Index out of bounds");
+	PRECONDITION((int)eGreatPerson < GC.getNumGreatPersonInfos(), "Yield type out of bounds");
+	PRECONDITION((int)eGreatPerson > -1, "Index out of bounds");
 	return m_piGoldenAgeFromGreatPersonBirth ? m_piGoldenAgeFromGreatPersonBirth[(int)eGreatPerson] : 0;
 }
 
 int CvTraitEntry::GetGreatPersonProgressFromPolicyUnlock(GreatPersonTypes eIndex) const
 {
-	ASSERT_DEBUG((int)eIndex < GC.getNumGreatPersonInfos(), "Yield type out of bounds");
-	ASSERT_DEBUG((int)eIndex > -1, "Index out of bounds");
+	PRECONDITION((int)eIndex < GC.getNumGreatPersonInfos(), "Yield type out of bounds");
+	PRECONDITION((int)eIndex > -1, "Index out of bounds");
 	return m_piGreatPersonProgressFromPolicyUnlock ? m_piGreatPersonProgressFromPolicyUnlock[(int)eIndex] : 0;
 }
 
 int CvTraitEntry::GetGreatPersonProgressFromKills(GreatPersonTypes eIndex) const
 {
-	ASSERT_DEBUG((int)eIndex < GC.getNumGreatPersonInfos(), "Yield type out of bounds");
-	ASSERT_DEBUG((int)eIndex > -1, "Index out of bounds");
+	PRECONDITION((int)eIndex < GC.getNumGreatPersonInfos(), "Yield type out of bounds");
+	PRECONDITION((int)eIndex > -1, "Index out of bounds");
 
 	std::map<int, int>::const_iterator it = m_piGreatPersonProgressFromKills.find((int)eIndex);
 	if (it != m_piGreatPersonProgressFromKills.end()) // find returns the iterator to map::end if the key eIndex is not present in the map
@@ -1906,8 +1906,8 @@ int CvTraitEntry::GetGreatPersonProgressFromKills(GreatPersonTypes eIndex) const
 
 int CvTraitEntry::GetRandomGreatPersonProgressFromKills(GreatPersonTypes eIndex) const
 {
-	ASSERT_DEBUG((int)eIndex < GC.getNumGreatPersonInfos(), "Yield type out of bounds");
-	ASSERT_DEBUG((int)eIndex > -1, "Index out of bounds");
+	PRECONDITION((int)eIndex < GC.getNumGreatPersonInfos(), "Yield type out of bounds");
+	PRECONDITION((int)eIndex > -1, "Index out of bounds");
 
 	std::map<int, int>::const_iterator it = m_piRandomGreatPersonProgressFromKills.find((int)eIndex);
 	if (it != m_piRandomGreatPersonProgressFromKills.end()) // find returns the iterator to map::end if the key eIndex is not present in the map
@@ -1920,50 +1920,50 @@ int CvTraitEntry::GetRandomGreatPersonProgressFromKills(GreatPersonTypes eIndex)
 
 int CvTraitEntry::GetCityYieldFromUnimprovedFeature(FeatureTypes eIndex1, YieldTypes eIndex2) const
 {
-	ASSERT_DEBUG(eIndex1 < GC.getNumFeatureInfos(), "Index out of bounds");
-	ASSERT_DEBUG(eIndex1 > -1, "Index out of bounds");
-	ASSERT_DEBUG(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(eIndex2 > -1, "Index out of bounds");
+	PRECONDITION(eIndex1 < GC.getNumFeatureInfos(), "Index out of bounds");
+	PRECONDITION(eIndex1 > -1, "Index out of bounds");
+	PRECONDITION(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(eIndex2 > -1, "Index out of bounds");
 	return m_ppiCityYieldFromUnimprovedFeature ? m_ppiCityYieldFromUnimprovedFeature[eIndex1][eIndex2] : 0;
 }
 
 /// Accessor:: Extra yield from an unimproved feature
 int CvTraitEntry::GetUnimprovedFeatureYieldChanges(FeatureTypes eIndex1, YieldTypes eIndex2) const
 {
-	ASSERT_DEBUG(eIndex1 < GC.getNumFeatureInfos(), "Index out of bounds");
-	ASSERT_DEBUG(eIndex1 > -1, "Index out of bounds");
-	ASSERT_DEBUG(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(eIndex2 > -1, "Index out of bounds");
+	PRECONDITION(eIndex1 < GC.getNumFeatureInfos(), "Index out of bounds");
+	PRECONDITION(eIndex1 > -1, "Index out of bounds");
+	PRECONDITION(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(eIndex2 > -1, "Index out of bounds");
 	return m_ppiUnimprovedFeatureYieldChanges ? m_ppiUnimprovedFeatureYieldChanges[eIndex1][eIndex2] : 0;
 }
 
 /// Accessor:: Additional moves for a class of combat unit
 int CvTraitEntry::GetMovesChangeUnitCombat(const int unitCombatID) const
 {
-	ASSERT_DEBUG((unitCombatID >= 0), "unitCombatID is less than zero");
-	ASSERT_DEBUG((unitCombatID < GC.getNumUnitCombatClassInfos()), "unitCombatID exceeds number of combat classes");
+	ASSERT((unitCombatID >= 0), "unitCombatID is less than zero");
+	PRECONDITION((unitCombatID < GC.getNumUnitCombatClassInfos()), "unitCombatID exceeds number of combat classes");
 
 	return m_piMovesChangeUnitCombats[unitCombatID];
 }
 /// Accessor:: Additional moves for a class of combat unit
 int CvTraitEntry::GetMovesChangeUnitClass(const int unitClassID) const
 {
-	ASSERT_DEBUG((unitClassID >= 0), "unitCombatID is less than zero");
-	ASSERT_DEBUG((unitClassID < GC.getNumUnitClassInfos()), "unitCombatID exceeds number of combat classes");
+	ASSERT((unitClassID >= 0), "unitCombatID is less than zero");
+	PRECONDITION((unitClassID < GC.getNumUnitClassInfos()), "unitCombatID exceeds number of combat classes");
 
 	return m_piMovesChangeUnitClasses[unitClassID];
 }
 int CvTraitEntry::GetGAPToYield(int i) const
 {
-	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 
 	return m_paiGAPToYield[i];
 }
 int CvTraitEntry::GetMountainRangeYield(int i) const
 {
-	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 
 	return m_paiMountainRangeYield[i];
 }
@@ -1971,8 +1971,8 @@ int CvTraitEntry::GetMountainRangeYield(int i) const
 /// Accessor:: Maintenance Modifier for a class of combat unit
 int CvTraitEntry::GetMaintenanceModifierUnitCombat(const int unitCombatID) const
 {
-	ASSERT_DEBUG((unitCombatID >= 0), "unitCombatID is less than zero");
-	ASSERT_DEBUG((unitCombatID < GC.getNumUnitCombatClassInfos()), "unitCombatID exceeds number of combat classes");
+	ASSERT((unitCombatID >= 0), "unitCombatID is less than zero");
+	PRECONDITION((unitCombatID < GC.getNumUnitCombatClassInfos()), "unitCombatID exceeds number of combat classes");
 
 	return m_piMaintenanceModifierUnitCombats[unitCombatID];
 }
@@ -2086,8 +2086,8 @@ bool CvTraitEntry::IsFreePromotionUnitClass(const int promotionID, const int uni
 /// Accessor:: Does the civ have a golden age modifier for the yield type?
 int CvTraitEntry::GetGoldenAgeYieldModifier(const int iYield) const
 {
-	ASSERT_DEBUG(iYield < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(iYield > -1, "Index out of bounds");
+	PRECONDITION(iYield < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(iYield > -1, "Index out of bounds");
 	
 	std::map<int, int>::const_iterator it = m_piGoldenAgeYieldModifier.find(iYield);
 	if (it != m_piGoldenAgeYieldModifier.end()) // find returns the iterator to map::end if the key iYield is not present in the map
@@ -2121,8 +2121,8 @@ bool CvTraitEntry::UnitClassCanBuild(const int buildID, const int unitClassID) c
 /// Accessor:: Does the civ have a production cost modifier for the unit combat type? And is it only granted during golden ages?
 std::pair <int, bool> CvTraitEntry::GetUnitCombatProductionCostModifier(const int unitCombatID) const
 {
-	ASSERT_DEBUG(unitCombatID >= 0, "unitCombatID expected to be >= 0");
-	ASSERT_DEBUG(unitCombatID < GC.getNumUnitCombatClassInfos(), "unitCombatID expected to be < GC.getNumUnitCombatInfos()");
+	PRECONDITION(unitCombatID >= 0, "unitCombatID expected to be >= 0");
+	PRECONDITION(unitCombatID < GC.getNumUnitCombatClassInfos(), "unitCombatID expected to be < GC.getNumUnitCombatInfos()");
 
 	std::map<int, std::pair<int, bool>>::const_iterator it = m_pibUnitCombatProductionCostModifier.find(unitCombatID);
 	if (it != m_pibUnitCombatProductionCostModifier.end()) // find returns the iterator to map::end if the key iYield is not present in the map
@@ -2149,8 +2149,8 @@ bool CvTraitEntry::IsNoBuild(BuildTypes eBuild) const
 /// Accessor:: Does the civ have a production modifier for domain type per worked specialist?
 int CvTraitEntry::GetDomainProductionModifiersPerSpecialist(DomainTypes eDomain) const
 {
-	ASSERT_DEBUG(eDomain >= 0, "domainID expected to be >= 0");
-	ASSERT_DEBUG(eDomain < NUM_DOMAIN_TYPES, "domainID expected to be < NUM_DOMAIN_TYPES");
+	PRECONDITION(eDomain >= 0, "domainID expected to be >= 0");
+	PRECONDITION(eDomain < NUM_DOMAIN_TYPES, "domainID expected to be < NUM_DOMAIN_TYPES");
 
 	std::map<int, int>::const_iterator it = m_piDomainProductionModifiersPerSpecialist.find(eDomain);
 	if (it != m_piDomainProductionModifiersPerSpecialist.end()) // find returns the iterator to map::end if the key eDomain is not present
@@ -2656,7 +2656,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 		while(pResults->Step())
 		{
 			const int iTerrainID = pResults->GetInt("TerrainID");
-			ASSERT_DEBUG(iTerrainID > -1 && iTerrainID < iNumTerrains);
+			PRECONDITION(iTerrainID > -1 && iTerrainID < iNumTerrains);
 
 			const int iStrategicResourceQuantityModifier = pResults->GetInt("StrategicResourceQuantityModifier");
 			m_piStrategicResourceQuantityModifier[iTerrainID] = iStrategicResourceQuantityModifier;
@@ -2732,7 +2732,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 		while(pResults->Step())
 		{
 			const int iUnitCombatID = pResults->GetInt(0);
-			ASSERT_DEBUG(iUnitCombatID > -1 && iUnitCombatID < iNumUnitCombatClasses);
+			PRECONDITION(iUnitCombatID > -1 && iUnitCombatID < iNumUnitCombatClasses);
 
 			const int iMovesChange = pResults->GetInt(1);
 			m_piMovesChangeUnitCombats[iUnitCombatID] = iMovesChange;
@@ -2937,7 +2937,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 		while(pResults->Step())
 		{
 			const int iUnitClassID = pResults->GetInt(0);
-			ASSERT_DEBUG(iUnitClassID > -1 && iUnitClassID < iNumUnitClasses);
+			PRECONDITION(iUnitClassID > -1 && iUnitClassID < iNumUnitClasses);
 
 			const int iMovesChange = pResults->GetInt(1);
 			m_piMovesChangeUnitClasses[iUnitClassID] = iMovesChange;
@@ -3180,7 +3180,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 		while(pResults->Step())
 		{
 			const int iUnitCombatID = pResults->GetInt(0);
-			ASSERT_DEBUG(iUnitCombatID > -1 && iUnitCombatID < iNumUnitCombatClasses);
+			PRECONDITION(iUnitCombatID > -1 && iUnitCombatID < iNumUnitCombatClasses);
 
 			const int iMaintenanceModifier = pResults->GetInt(1);
 			m_piMaintenanceModifierUnitCombats[iUnitCombatID] = iMaintenanceModifier;
@@ -5068,7 +5068,7 @@ void CvPlayerTraits::InitPlayerTraits()
 				}
 			}
 
-			ASSERT_DEBUG(GC.getNumTerrainInfos() <= NUM_TERRAIN_TYPES);
+			ASSERT(GC.getNumTerrainInfos() <= NUM_TERRAIN_TYPES);
 			for(int iTerrain = 0; iTerrain < GC.getNumTerrainInfos(); iTerrain++)
 			{
 				m_iStrategicResourceQuantityModifier[iTerrain] = trait->GetStrategicResourceQuantityModifier(iTerrain);
@@ -5650,7 +5650,7 @@ void CvPlayerTraits::Reset()
 	m_aFreeTraitUnits.clear();
 
 	int iNumUnitCombatClassInfos = GC.getNumUnitCombatClassInfos();
-	ASSERT_DEBUG((0 < iNumUnitCombatClassInfos),  "GC.getNumUnitCombatClassInfos() is not greater than zero but an array is being allocated in CvPlayerTraits::Reset");
+	ASSERT((0 < iNumUnitCombatClassInfos),  "GC.getNumUnitCombatClassInfos() is not greater than zero but an array is being allocated in CvPlayerTraits::Reset");
 	m_paiMovesChangeUnitCombat.clear();
 	m_paiMaintenanceModifierUnitCombat.clear();
 	m_paiMovesChangeUnitCombat.resize(iNumUnitCombatClassInfos);
@@ -5724,12 +5724,12 @@ void CvPlayerTraits::Reset()
 /// Does this player possess a specific trait?
 bool CvPlayerTraits::HasTrait(TraitTypes eTrait) const
 {
-	ASSERT_DEBUG(m_pPlayer);
+	ASSERT(m_pPlayer);
 
 	if(m_pPlayer != NULL)
 	{
-		ASSERT_DEBUG((m_pPlayer->getLeaderType() >= 0), "getLeaderType() is less than zero");
-		ASSERT_DEBUG((eTrait >= 0), "eTrait is less than zero");
+		ASSERT((m_pPlayer->getLeaderType() >= 0), "getLeaderType() is less than zero");
+		ASSERT((eTrait >= 0), "eTrait is less than zero");
 #if defined(MOD_TRAITS_OTHER_PREREQS)
 		TeamTypes eTeam = m_pPlayer->getTeam();
 		PlayerTypes ePlayer = m_pPlayer->GetID();
@@ -5806,8 +5806,8 @@ bool CvPlayerTraits::WillGetUniqueLuxury(CvArea *pArea) const
 /// Instant great person progress when killing enemy units
 int CvPlayerTraits::GetGreatPersonProgressFromKills(GreatPersonTypes eIndex) const
 {
-	ASSERT_DEBUG((int)eIndex < GC.getNumGreatPersonInfos(), "Yield type out of bounds");
-	ASSERT_DEBUG((int)eIndex > -1, "Index out of bounds");
+	PRECONDITION((int)eIndex < GC.getNumGreatPersonInfos(), "Yield type out of bounds");
+	PRECONDITION((int)eIndex > -1, "Index out of bounds");
 
 	std::map<int, int>::const_iterator it = m_aiGreatPersonProgressFromKills.find((int)eIndex);
 	if (it != m_aiGreatPersonProgressFromKills.end()) // find returns the iterator to map::end if the key eIndex is not present in the map
@@ -5853,7 +5853,7 @@ std::pair<GreatPersonTypes, int> CvPlayerTraits::GetRandomGreatPersonProgressFro
 /// Bonus movement for this combat class
 int CvPlayerTraits::GetMovesChangeUnitCombat(const int unitCombatID) const
 {
-	ASSERT_DEBUG(unitCombatID < GC.getNumUnitCombatClassInfos(),  "Invalid unitCombatID parameter in call to CvPlayerTraits::GetMovesChangeUnitCombat()");
+	PRECONDITION(unitCombatID < GC.getNumUnitCombatClassInfos(),  "Invalid unitCombatID parameter in call to CvPlayerTraits::GetMovesChangeUnitCombat()");
 
 	if(unitCombatID == NO_UNITCLASS)
 	{
@@ -5865,7 +5865,7 @@ int CvPlayerTraits::GetMovesChangeUnitCombat(const int unitCombatID) const
 /// Bonus movement for this unit class
 int CvPlayerTraits::GetMovesChangeUnitClass(const int unitClassID) const
 {
-	ASSERT_DEBUG(unitClassID < GC.getNumUnitClassInfos(),  "Invalid unitClassID parameter in call to CvPlayerTraits::GetMovesChangeUnitClass()");
+	PRECONDITION(unitClassID < GC.getNumUnitClassInfos(),  "Invalid unitClassID parameter in call to CvPlayerTraits::GetMovesChangeUnitClass()");
 
 	if(unitClassID == NO_UNITCLASS)
 	{
@@ -5878,7 +5878,8 @@ int CvPlayerTraits::GetMovesChangeUnitClass(const int unitClassID) const
 /// Maintenance modifier for this combat class
 int CvPlayerTraits::GetMaintenanceModifierUnitCombat(const int unitCombatID) const
 {
-	ASSERT_DEBUG(unitCombatID < GC.getNumUnitCombatClassInfos(),  "Invalid unitCombatID parameter in call to CvPlayerTraits::GetMaintenanceModifierUnitCombat()");
+	PRECONDITION(unitCombatID < GC.getNumUnitCombatClassInfos(),  "Invalid unitCombatID parameter in call to CvPlayerTraits::GetMaintenanceModifierUnitCombat()");
+	ASSERT(unitCombatID > -1, "Index out of bounds");
 
 	if(unitCombatID == NO_UNITCLASS)
 	{
@@ -5891,8 +5892,9 @@ int CvPlayerTraits::GetMaintenanceModifierUnitCombat(const int unitCombatID) con
 /// Extra yield from this improvement
 int CvPlayerTraits::GetImprovementYieldChange(ImprovementTypes eImprovement, YieldTypes eYield) const
 {
-	ASSERT_DEBUG(eImprovement < GC.getNumImprovementInfos(),  "Invalid eImprovement parameter in call to CvPlayerTraits::GetImprovementYieldChange()");
-	ASSERT_DEBUG(eYield < NUM_YIELD_TYPES,  "Invalid eYield parameter in call to CvPlayerTraits::GetImprovementYieldChange()");
+	PRECONDITION(eImprovement < GC.getNumImprovementInfos(),  "Invalid eImprovement parameter in call to CvPlayerTraits::GetImprovementYieldChange()");
+	PRECONDITION(eYield < NUM_YIELD_TYPES,  "Invalid eYield parameter in call to CvPlayerTraits::GetImprovementYieldChange()");
+	PRECONDITION(eYield > -1, "Index out of bounds");
 
 	if(eImprovement == NO_IMPROVEMENT)
 	{
@@ -5903,8 +5905,9 @@ int CvPlayerTraits::GetImprovementYieldChange(ImprovementTypes eImprovement, Yie
 }
 int CvPlayerTraits::GetYieldChangeFromTileEarnTerrainType(TerrainTypes eTerrain, YieldTypes eYield) const
 {
-	ASSERT_DEBUG(eTerrain < GC.getNumTerrainInfos(),  "Invalid eImprovement parameter in call to CvPlayerTraits::GetYieldChangeFromTileEarnTerrainType()");
-	ASSERT_DEBUG(eYield < NUM_YIELD_TYPES,  "Invalid eYield parameter in call to CvPlayerTraits::GetYieldChangeFromTileEarnTerrainType()");
+	PRECONDITION(eTerrain < GC.getNumTerrainInfos(),  "Invalid eImprovement parameter in call to CvPlayerTraits::GetYieldChangeFromTileEarnTerrainType()");
+	PRECONDITION(eYield < NUM_YIELD_TYPES,  "Invalid eYield parameter in call to CvPlayerTraits::GetYieldChangeFromTileEarnTerrainType()");
+	PRECONDITION(eYield > -1, "Index out of bounds");
 
 	if(eTerrain == NO_TERRAIN)
 	{
@@ -5914,8 +5917,9 @@ int CvPlayerTraits::GetYieldChangeFromTileEarnTerrainType(TerrainTypes eTerrain,
 }
 int CvPlayerTraits::GetYieldChangeFromTilePurchaseTerrainType(TerrainTypes eTerrain, YieldTypes eYield) const
 {
-	ASSERT_DEBUG(eTerrain < GC.getNumTerrainInfos(), "Invalid eTerrain parameter in call to CvPlayerTraits::GetYieldChangeFromTilePurchaseTerrainType()");
-	ASSERT_DEBUG(eYield < NUM_YIELD_TYPES, "Invalid eYield parameter in call to CvPlayerTraits::GetYieldChangeFromTilePurchaseTerrainType()");
+	PRECONDITION(eTerrain < GC.getNumTerrainInfos(), "Invalid eTerrain parameter in call to CvPlayerTraits::GetYieldChangeFromTilePurchaseTerrainType()");
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "Invalid eYield parameter in call to CvPlayerTraits::GetYieldChangeFromTilePurchaseTerrainType()");
+	PRECONDITION(eYield > -1, "Index out of bounds");
 
 	if (eTerrain == NO_TERRAIN)
 	{
@@ -5925,8 +5929,9 @@ int CvPlayerTraits::GetYieldChangeFromTilePurchaseTerrainType(TerrainTypes eTerr
 }
 int CvPlayerTraits::GetYieldChangeFromTileConquest(TerrainTypes eTerrain, YieldTypes eYield) const
 {
-	ASSERT_DEBUG(eTerrain < GC.getNumTerrainInfos(), "Invalid eTerrain parameter in call to CvPlayerTraits::GetYieldChangeFromTileConquest()");
-	ASSERT_DEBUG(eYield < NUM_YIELD_TYPES, "Invalid eYield parameter in call to CvPlayerTraits::GetYieldChangeFromTileConquest()");
+	PRECONDITION(eTerrain < GC.getNumTerrainInfos(), "Invalid eTerrain parameter in call to CvPlayerTraits::GetYieldChangeFromTileConquest()");
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "Invalid eYield parameter in call to CvPlayerTraits::GetYieldChangeFromTileConquest()");
+	PRECONDITION(eYield > -1, "Index out of bounds");
 
 	if (eTerrain == NO_TERRAIN)
 	{
@@ -5936,8 +5941,9 @@ int CvPlayerTraits::GetYieldChangeFromTileConquest(TerrainTypes eTerrain, YieldT
 }
 int CvPlayerTraits::GetYieldChangeFromTileCultureBomb(TerrainTypes eTerrain, YieldTypes eYield) const
 {
-	ASSERT_DEBUG(eTerrain < GC.getNumTerrainInfos(), "Invalid eTerrain parameter in call to CvPlayerTraits::GetYieldChangeFromTileCultureBomb()");
-	ASSERT_DEBUG(eYield < NUM_YIELD_TYPES, "Invalid eYield parameter in call to CvPlayerTraits::GetYieldChangeFromTileCultureBomb()");
+	PRECONDITION(eTerrain < GC.getNumTerrainInfos(), "Invalid eTerrain parameter in call to CvPlayerTraits::GetYieldChangeFromTileCultureBomb()");
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "Invalid eYield parameter in call to CvPlayerTraits::GetYieldChangeFromTileCultureBomb()");
+	PRECONDITION(eYield > -1, "Index out of bounds");
 
 	if (eTerrain == NO_TERRAIN)
 	{
@@ -5947,8 +5953,9 @@ int CvPlayerTraits::GetYieldChangeFromTileCultureBomb(TerrainTypes eTerrain, Yie
 }
 int CvPlayerTraits::GetYieldChangeFromTileStealCultureBomb(TerrainTypes eTerrain, YieldTypes eYield) const
 {
-	ASSERT_DEBUG(eTerrain < GC.getNumTerrainInfos(), "Invalid eTerrain parameter in call to CvPlayerTraits::GetYieldChangeFromTileStealCultureBomb()");
-	ASSERT_DEBUG(eYield < NUM_YIELD_TYPES, "Invalid eYield parameter in call to CvPlayerTraits::GetYieldChangeFromTileStealCultureBomb()");
+	PRECONDITION(eTerrain < GC.getNumTerrainInfos(), "Invalid eTerrain parameter in call to CvPlayerTraits::GetYieldChangeFromTileStealCultureBomb()");
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "Invalid eYield parameter in call to CvPlayerTraits::GetYieldChangeFromTileStealCultureBomb()");
+	PRECONDITION(eYield > -1, "Index out of bounds");
 
 	if (eTerrain == NO_TERRAIN)
 	{
@@ -5958,8 +5965,9 @@ int CvPlayerTraits::GetYieldChangeFromTileStealCultureBomb(TerrainTypes eTerrain
 }
 int CvPlayerTraits::GetYieldChangeFromTileSettle(TerrainTypes eTerrain, YieldTypes eYield) const
 {
-	ASSERT_DEBUG(eTerrain < GC.getNumTerrainInfos(), "Invalid eTerrain parameter in call to CvPlayerTraits::GetYieldChangeFromTileSettle()");
-	ASSERT_DEBUG(eYield < NUM_YIELD_TYPES, "Invalid eYield parameter in call to CvPlayerTraits::GetYieldChangeFromTileSettle()");
+	PRECONDITION(eTerrain < GC.getNumTerrainInfos(), "Invalid eTerrain parameter in call to CvPlayerTraits::GetYieldChangeFromTileSettle()");
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "Invalid eYield parameter in call to CvPlayerTraits::GetYieldChangeFromTileSettle()");
+	PRECONDITION(eYield > -1, "Index out of bounds");
 
 	if (eTerrain == NO_TERRAIN)
 	{
@@ -5969,8 +5977,9 @@ int CvPlayerTraits::GetYieldChangeFromTileSettle(TerrainTypes eTerrain, YieldTyp
 }
 int CvPlayerTraits::GetYieldChangePerImprovementBuilt(ImprovementTypes eImprovement, YieldTypes eYield) const
 {
-	ASSERT_DEBUG(eImprovement < GC.getNumImprovementInfos(), "Invalid eImprovement parameter in call to CvPlayerTraits::GetYieldChangePerImprovementBuilt()");
-	ASSERT_DEBUG(eYield < NUM_YIELD_TYPES, "Invalid eYield parameter in call to CvPlayerTraits::GetYieldChangePerImprovementBuilt()");
+	PRECONDITION(eImprovement < GC.getNumImprovementInfos(), "Invalid eImprovement parameter in call to CvPlayerTraits::GetYieldChangePerImprovementBuilt()");
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "Invalid eYield parameter in call to CvPlayerTraits::GetYieldChangePerImprovementBuilt()");
+	PRECONDITION(eYield > -1, "Index out of bounds");
 
 	if (eImprovement == NO_IMPROVEMENT)
 	{
@@ -6004,7 +6013,8 @@ void CvPlayerTraits::UpdateYieldChangeImprovementTypes()
 
 int CvPlayerTraits::GetYieldFromBarbarianCampClear(YieldTypes eYield, bool bEraScaling) const
 {
-	ASSERT_DEBUG(eYield < NUM_YIELD_TYPES, "Invalid eYield parameter in call to CvPlayerTraits::GetYieldFromBarbarianCampClear()");
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "Invalid eYield parameter in call to CvPlayerTraits::GetYieldFromBarbarianCampClear()");
+	PRECONDITION(eYield > -1, "Index out of bounds");
 
 	std::map<int, std::map<bool, int>>::const_iterator itYield = m_pbiYieldFromBarbarianCampClear.find((int)eYield);
 	if (itYield != m_pbiYieldFromBarbarianCampClear.end()) // find returns the iterator to map::end if the key eYield is not present in the map
@@ -6023,8 +6033,8 @@ int CvPlayerTraits::GetYieldFromBarbarianCampClear(YieldTypes eYield, bool bEraS
 #if defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
 int CvPlayerTraits::GetYieldFromRouteMovementInForeignTerritory(YieldTypes eIndex, bool bTradePartner) const
 {
-	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(eIndex > -1, "Index out of bounds");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(eIndex > -1, "Index out of bounds");
 
 	std::map<int, std::map<bool, int>>::const_iterator itYield = m_pbiYieldFromRouteMovementInForeignTerritory.find((int)eIndex);
 	if (itYield != m_pbiYieldFromRouteMovementInForeignTerritory.end()) // find returns the iterator to map::end if the key eYield is not present in the map
@@ -6043,16 +6053,18 @@ int CvPlayerTraits::GetYieldFromRouteMovementInForeignTerritory(YieldTypes eInde
 /// Extra yield from this plot
 int CvPlayerTraits::GetPlotYieldChange(PlotTypes ePlot, YieldTypes eYield) const
 {
-	ASSERT_DEBUG(ePlot < GC.getNumPlotInfos(),  "Invalid ePlot parameter in call to CvPlayerTraits::GetPlotYieldChange()");
-	ASSERT_DEBUG(eYield < NUM_YIELD_TYPES,  "Invalid eYield parameter in call to CvPlayerTraits::GetPlotYieldChange()");
+	PRECONDITION(ePlot < GC.getNumPlotInfos(),  "Invalid ePlot parameter in call to CvPlayerTraits::GetPlotYieldChange()");
+	PRECONDITION(eYield < NUM_YIELD_TYPES,  "Invalid eYield parameter in call to CvPlayerTraits::GetPlotYieldChange()");
+	PRECONDITION(eYield > -1, "Index out of bounds");
 
 	return m_ppiPlotYieldChange[(int)ePlot][(int)eYield];
 }
 
 int CvPlayerTraits::GetBuildingClassYieldChange(BuildingClassTypes eBuildingClass, YieldTypes eYield) const
 {
-	ASSERT_DEBUG(eBuildingClass < GC.getNumBuildingClassInfos(),  "Invalid eBuildingClass parameter in call to CvPlayerTraits::GetBuildingClassYieldChange()");
-	ASSERT_DEBUG(eYield < NUM_YIELD_TYPES,  "Invalid eYield parameter in call to CvPlayerTraits::GetBuildingClassYieldChange()");
+	PRECONDITION(eBuildingClass < GC.getNumBuildingClassInfos(),  "Invalid eBuildingClass parameter in call to CvPlayerTraits::GetBuildingClassYieldChange()");
+	PRECONDITION(eYield < NUM_YIELD_TYPES,  "Invalid eYield parameter in call to CvPlayerTraits::GetBuildingClassYieldChange()");
+	PRECONDITION(eYield > -1, "Index out of bounds");
 
 	if(eBuildingClass == NO_BUILDINGCLASS)
 	{
@@ -6064,16 +6076,18 @@ int CvPlayerTraits::GetBuildingClassYieldChange(BuildingClassTypes eBuildingClas
 
 int CvPlayerTraits::GetFeatureYieldChange(FeatureTypes eFeature, YieldTypes eYield) const
 {
-	ASSERT_DEBUG(eFeature < GC.getNumFeatureInfos(),  "Invalid eFeature parameter in call to CvPlayerTraits::GetFeatureYieldChange()");
-	ASSERT_DEBUG(eYield < NUM_YIELD_TYPES,  "Invalid eYield parameter in call to CvPlayerTraits::GetFeatureYieldChange()");
+	PRECONDITION(eFeature < GC.getNumFeatureInfos(),  "Invalid eFeature parameter in call to CvPlayerTraits::GetFeatureYieldChange()");
+	PRECONDITION(eYield < NUM_YIELD_TYPES,  "Invalid eYield parameter in call to CvPlayerTraits::GetFeatureYieldChange()");
+	PRECONDITION(eYield > -1, "Index out of bounds");
 
 	return m_ppiFeatureYieldChange[(int)eFeature][(int)eYield];
 }
 
 int CvPlayerTraits::GetResourceYieldChange(ResourceTypes eResource, YieldTypes eYield) const
 {
-	ASSERT_DEBUG(eResource < GC.getNumResourceInfos(),  "Invalid eResource parameter in call to CvPlayerTraits::GetResourceYieldChange()");
-	ASSERT_DEBUG(eYield < NUM_YIELD_TYPES,  "Invalid eYield parameter in call to CvPlayerTraits::GetResourceYieldChange()");
+	PRECONDITION(eResource < GC.getNumResourceInfos(),  "Invalid eResource parameter in call to CvPlayerTraits::GetResourceYieldChange()");
+	PRECONDITION(eYield < NUM_YIELD_TYPES,  "Invalid eYield parameter in call to CvPlayerTraits::GetResourceYieldChange()");
+	PRECONDITION(eYield > -1, "Index out of bounds");
 
 	return m_ppiResourceYieldChange[(int)eResource][(int)eYield];
 }
@@ -6081,8 +6095,8 @@ int CvPlayerTraits::GetResourceYieldChange(ResourceTypes eResource, YieldTypes e
 
 int CvPlayerTraits::GetResourceYieldChangesFromGoldenAge(ResourceTypes eResource, YieldTypes eYield) const
 {
-	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(eIndex > -1, "Index out of bounds");
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(eYield > -1, "Index out of bounds");
 
 	std::map<int, std::map<int, int>>::const_iterator itResource = m_miResourceYieldChangesFromGoldenAge.find((int)eResource);
 	if (itResource != m_miResourceYieldChangesFromGoldenAge.end())
@@ -6099,8 +6113,8 @@ int CvPlayerTraits::GetResourceYieldChangesFromGoldenAge(ResourceTypes eResource
 
 int CvPlayerTraits::GetResourceYieldChangesFromGoldenAgeCap(ResourceTypes eResource, YieldTypes eYield) const
 {
-	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(eIndex > -1, "Index out of bounds");
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(eYield > -1, "Index out of bounds");
 
 	std::map<int, std::map<int, int>>::const_iterator itResource = m_miResourceYieldChangesFromGoldenAgeCap.find((int)eResource);
 	if (itResource != m_miResourceYieldChangesFromGoldenAgeCap.end())
@@ -6118,45 +6132,45 @@ int CvPlayerTraits::GetResourceYieldChangesFromGoldenAgeCap(ResourceTypes eResou
 
 int CvPlayerTraits::GetTerrainYieldChange(TerrainTypes eTerrain, YieldTypes eYield) const
 {
-	ASSERT_DEBUG(eTerrain < GC.getNumTerrainInfos(),  "Invalid eTerrain parameter in call to CvPlayerTraits::GetTerrainYieldChange()");
-	ASSERT_DEBUG(eYield < NUM_YIELD_TYPES,  "Invalid eYield parameter in call to CvPlayerTraits::GetTerrainYieldChange()");
+	PRECONDITION(eTerrain < GC.getNumTerrainInfos(),  "Invalid eTerrain parameter in call to CvPlayerTraits::GetTerrainYieldChange()");
+	PRECONDITION(eYield < NUM_YIELD_TYPES,  "Invalid eYield parameter in call to CvPlayerTraits::GetTerrainYieldChange()");
 
 	return m_ppiTerrainYieldChange[(int)eTerrain][(int)eYield];
 }
 
 int CvPlayerTraits::GetYieldFromKills(YieldTypes eYield) const
 {
-	ASSERT_DEBUG((int)eYield < NUM_YIELD_TYPES, "Yield type out of bounds");
-	ASSERT_DEBUG((int)eYield > -1, "Index out of bounds");
+	PRECONDITION((int)eYield < NUM_YIELD_TYPES, "Yield type out of bounds");
+	PRECONDITION((int)eYield > -1, "Index out of bounds");
 	return m_iYieldFromKills[(int)eYield];
 }
 
 int CvPlayerTraits::GetYieldFromBarbarianKills(YieldTypes eYield) const
 {
-	ASSERT_DEBUG((int)eYield < NUM_YIELD_TYPES, "Yield type out of bounds");
-	ASSERT_DEBUG((int)eYield > -1, "Index out of bounds");
+	PRECONDITION((int)eYield < NUM_YIELD_TYPES, "Yield type out of bounds");
+	PRECONDITION((int)eYield > -1, "Index out of bounds");
 	return m_iYieldFromBarbarianKills[(int)eYield];
 }
 
 int CvPlayerTraits::GetYieldFromMinorDemand(YieldTypes eYield) const
 {
-	ASSERT_DEBUG((int)eYield < NUM_YIELD_TYPES, "Yield type out of bounds");
-	ASSERT_DEBUG((int)eYield > -1, "Index out of bounds");
+	PRECONDITION((int)eYield < NUM_YIELD_TYPES, "Yield type out of bounds");
+	PRECONDITION((int)eYield > -1, "Index out of bounds");
 	return m_iYieldFromMinorDemand[(int)eYield];
 }
 
 int CvPlayerTraits::GetYieldFromLuxuryResourceGain(YieldTypes eYield) const
 {
-	ASSERT_DEBUG((int)eYield < NUM_YIELD_TYPES, "Yield type out of bounds");
-	ASSERT_DEBUG((int)eYield > -1, "Index out of bounds");
+	PRECONDITION((int)eYield < NUM_YIELD_TYPES, "Yield type out of bounds");
+	PRECONDITION((int)eYield > -1, "Index out of bounds");
 	return m_iYieldFromLuxuryResourceGain[(int)eYield];
 }
 
 /// Extra yield from this specialist
 int CvPlayerTraits::GetTradeRouteYieldChange(DomainTypes eDomain, YieldTypes eYield) const
 {
-	ASSERT_DEBUG(eDomain < NUM_DOMAIN_TYPES,  "Invalid eDomain parameter in call to CvPlayerTraits::GetDomainYieldChange()");
-	ASSERT_DEBUG(eYield < NUM_YIELD_TYPES,  "Invalid eYield parameter in call to CvPlayerTraits::GetDomainYieldChange()");
+	PRECONDITION(eDomain < NUM_DOMAIN_TYPES,  "Invalid eDomain parameter in call to CvPlayerTraits::GetDomainYieldChange()");
+	PRECONDITION(eYield < NUM_YIELD_TYPES,  "Invalid eYield parameter in call to CvPlayerTraits::GetDomainYieldChange()");
 
 	if(eDomain == NO_DOMAIN)
 	{
@@ -6169,8 +6183,8 @@ int CvPlayerTraits::GetTradeRouteYieldChange(DomainTypes eDomain, YieldTypes eYi
 /// Extra yield from this specialist
 int CvPlayerTraits::GetSpecialistYieldChange(SpecialistTypes eSpecialist, YieldTypes eYield) const
 {
-	ASSERT_DEBUG(eSpecialist < GC.getNumSpecialistInfos(),  "Invalid eSpecialist parameter in call to CvPlayerTraits::GetSpecialistYieldChange()");
-	ASSERT_DEBUG(eYield < NUM_YIELD_TYPES,  "Invalid eYield parameter in call to CvPlayerTraits::GetSpecialistYieldChange()");
+	PRECONDITION(eSpecialist < GC.getNumSpecialistInfos(),  "Invalid eSpecialist parameter in call to CvPlayerTraits::GetSpecialistYieldChange()");
+	PRECONDITION(eYield < NUM_YIELD_TYPES,  "Invalid eYield parameter in call to CvPlayerTraits::GetSpecialistYieldChange()");
 
 	if(eSpecialist == NO_SPECIALIST)
 	{
@@ -6202,8 +6216,8 @@ int CvPlayerTraits::GetSpecialistYieldChange(SpecialistTypes eSpecialist, YieldT
 
 int CvPlayerTraits::GetGreatPersonExpendedYield(GreatPersonTypes eGreatPerson, YieldTypes eYield) const
 {
-	ASSERT_DEBUG(eGreatPerson < GC.getNumGreatPersonInfos(), "Invalid eGreatPerson parameter in call to CvPlayerTraits::GetGreatPersonExpendedYield()");
-	ASSERT_DEBUG(eYield < NUM_YIELD_TYPES,  "Invalid eYield parameter in call to CvPlayerTraits::GetGreatPersonExpendedYield()");
+	PRECONDITION(eGreatPerson < GC.getNumGreatPersonInfos(), "Invalid eGreatPerson parameter in call to CvPlayerTraits::GetGreatPersonExpendedYield()");
+	PRECONDITION(eYield < NUM_YIELD_TYPES,  "Invalid eYield parameter in call to CvPlayerTraits::GetGreatPersonExpendedYield()");
 
 	if(eGreatPerson == NO_GREATPERSON)
 	{
@@ -6214,8 +6228,8 @@ int CvPlayerTraits::GetGreatPersonExpendedYield(GreatPersonTypes eGreatPerson, Y
 }
 int CvPlayerTraits::GetGreatPersonBornYield(GreatPersonTypes eGreatPerson, YieldTypes eYield) const
 {
-	ASSERT_DEBUG(eGreatPerson < GC.getNumGreatPersonInfos(),  "Invalid eGreatPerson parameter in call to CvPlayerTraits::GetGreatPersonBornYield()");
-	ASSERT_DEBUG(eYield < NUM_YIELD_TYPES,  "Invalid eYield parameter in call to CvPlayerTraits::GetGreatPersonBornYield()");
+	PRECONDITION(eGreatPerson < GC.getNumGreatPersonInfos(),  "Invalid eGreatPerson parameter in call to CvPlayerTraits::GetGreatPersonBornYield()");
+	PRECONDITION(eYield < NUM_YIELD_TYPES,  "Invalid eYield parameter in call to CvPlayerTraits::GetGreatPersonBornYield()");
 
 	if(eGreatPerson == NO_GREATPERSON)
 	{
@@ -6227,8 +6241,8 @@ int CvPlayerTraits::GetGreatPersonBornYield(GreatPersonTypes eGreatPerson, Yield
 
 int CvPlayerTraits::GetCityYieldFromUnimprovedFeature(FeatureTypes eFeature, YieldTypes eYield) const
 {
-	ASSERT_DEBUG(eFeature < GC.getNumFeatureInfos(),  "Invalid eImprovement parameter in call to CvPlayerTraits::GetCityYieldFromUnimprovedFeature()");
-	ASSERT_DEBUG(eYield < NUM_YIELD_TYPES,  "Invalid eYield parameter in call to CvPlayerTraits::GetCityYieldFromUnimprovedFeature()");
+	PRECONDITION(eFeature < GC.getNumFeatureInfos(),  "Invalid eImprovement parameter in call to CvPlayerTraits::GetCityYieldFromUnimprovedFeature()");
+	PRECONDITION(eYield < NUM_YIELD_TYPES,  "Invalid eYield parameter in call to CvPlayerTraits::GetCityYieldFromUnimprovedFeature()");
 
 	if(eFeature == NO_FEATURE)
 	{
@@ -6241,8 +6255,8 @@ int CvPlayerTraits::GetCityYieldFromUnimprovedFeature(FeatureTypes eFeature, Yie
 /// Extra yield from a feature without improvement
 int CvPlayerTraits::GetUnimprovedFeatureYieldChange(FeatureTypes eFeature, YieldTypes eYield) const
 {
-	ASSERT_DEBUG(eFeature < GC.getNumFeatureInfos(),  "Invalid eImprovement parameter in call to CvPlayerTraits::GetUnimprovedFeatureYieldChange()");
-	ASSERT_DEBUG(eYield < NUM_YIELD_TYPES,  "Invalid eYield parameter in call to CvPlayerTraits::GetUnimprovedFeatureYieldChange()");
+	PRECONDITION(eFeature < GC.getNumFeatureInfos(),  "Invalid eImprovement parameter in call to CvPlayerTraits::GetUnimprovedFeatureYieldChange()");
+	PRECONDITION(eYield < NUM_YIELD_TYPES,  "Invalid eYield parameter in call to CvPlayerTraits::GetUnimprovedFeatureYieldChange()");
 
 	if(eFeature == NO_FEATURE)
 	{
@@ -6255,7 +6269,7 @@ int CvPlayerTraits::GetUnimprovedFeatureYieldChange(FeatureTypes eFeature, Yield
 /// Do all new units get a specific promotion?
 bool CvPlayerTraits::HasFreePromotionUnitCombat(const int promotionID, const int unitCombatID) const
 {
-	ASSERT_DEBUG((promotionID >= 0), "promotionID is less than zero");
+	ASSERT((promotionID >= 0), "promotionID is less than zero");
 	for(size_t iI = 0; iI < m_vPotentiallyActiveLeaderTraits.size(); iI++)
 	{
 		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(m_vPotentiallyActiveLeaderTraits[iI]);
@@ -6273,7 +6287,7 @@ bool CvPlayerTraits::HasFreePromotionUnitCombat(const int promotionID, const int
 /// Does this player have units that have a special upgrade path?
 bool CvPlayerTraits::HasSpecialUnitUpgrade(const int unitClassID, const int unitID) const
 {
-	ASSERT_DEBUG((unitClassID >= 0), "unitClassID is less than zero");
+	ASSERT((unitClassID >= 0), "unitClassID is less than zero");
 	for (size_t iI = 0; iI < m_vPotentiallyActiveLeaderTraits.size(); iI++)
 	{
 		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(m_vPotentiallyActiveLeaderTraits[iI]);
@@ -6291,7 +6305,7 @@ bool CvPlayerTraits::HasSpecialUnitUpgrade(const int unitClassID, const int unit
 /// Do all new units of a certain class get a specific promotion?
 bool CvPlayerTraits::HasFreePromotionUnitClass(const int promotionID, const int unitClassID) const
 {
-	ASSERT_DEBUG((promotionID >= 0), "promotionID is less than zero");
+	ASSERT((promotionID >= 0), "promotionID is less than zero");
 	for(size_t iI = 0; iI < m_vPotentiallyActiveLeaderTraits.size(); iI++)
 	{
 		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(m_vPotentiallyActiveLeaderTraits[iI]);
@@ -6309,7 +6323,7 @@ bool CvPlayerTraits::HasFreePromotionUnitClass(const int promotionID, const int 
 /// Do all new units of a certain class get a specific promotion?
 bool CvPlayerTraits::HasUnitClassCanBuild(const int buildID, const int unitClassID) const
 {
-	ASSERT_DEBUG((buildID >= 0), "buildID is less than zero");
+	ASSERT((buildID >= 0), "buildID is less than zero");
 	for(size_t iI = 0; iI < m_vPotentiallyActiveLeaderTraits.size(); iI++)
 	{
 		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(m_vPotentiallyActiveLeaderTraits[iI]);
@@ -6327,8 +6341,8 @@ bool CvPlayerTraits::HasUnitClassCanBuild(const int buildID, const int unitClass
 /// What is the golden age modifier for the specific yield type?
 int CvPlayerTraits::GetGoldenAgeYieldModifier(YieldTypes eYield) const
 {
-	ASSERT_DEBUG(eYield < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(eYield > -1, "Index out of bounds");
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(eYield > -1, "Index out of bounds");
 
 	std::map<int, int>::const_iterator it = m_aiGoldenAgeYieldModifier.find((int)eYield);
 	if (it != m_aiGoldenAgeYieldModifier.end()) // find returns the iterator to map::end if the key is not present
@@ -6341,8 +6355,8 @@ int CvPlayerTraits::GetGoldenAgeYieldModifier(YieldTypes eYield) const
 /// What is the production cost modifier for the unit combat type? And does it only work during golden ages?
 std::pair<int, bool> CvPlayerTraits::GetUnitCombatProductionCostModifier(UnitCombatTypes eUnitCombat) const
 {
-	ASSERT_DEBUG(eUnitCombat >= 0, "unitCombatID expected to be >= 0");
-	ASSERT_DEBUG(eUnitCombat < GC.getNumUnitCombatClassInfos(), "unitCombatID expected to be < GC.getNumUnitCombatInfos()");
+	PRECONDITION(eUnitCombat >= 0, "unitCombatID expected to be >= 0");
+	PRECONDITION(eUnitCombat < GC.getNumUnitCombatClassInfos(), "unitCombatID expected to be < GC.getNumUnitCombatInfos()");
 
 	std::map<int, std::pair<int, bool>>::const_iterator it = m_aibUnitCombatProductionCostModifier.find((int)eUnitCombat);
 	if (it != m_aibUnitCombatProductionCostModifier.end()) // find returns the iterator to map::end if the key is not present
@@ -6355,8 +6369,8 @@ std::pair<int, bool> CvPlayerTraits::GetUnitCombatProductionCostModifier(UnitCom
 /// Is this build blocked for this civ?
 bool CvPlayerTraits::IsNoBuild(BuildTypes eBuild) const
 {
-	ASSERT_DEBUG(eBuild >= 0, "buildID expected to be >= 0");
-	ASSERT_DEBUG(eBuild < GC.getNumBuildInfos(), "buildID expected to be < GC.getNumBuildInfos()");
+	PRECONDITION(eBuild >= 0, "buildID expected to be >= 0");
+	PRECONDITION(eBuild < GC.getNumBuildInfos(), "buildID expected to be < GC.getNumBuildInfos()");
 
 	std::vector<int>::const_iterator it = find(m_aiNoBuilds.begin(), m_aiNoBuilds.end(), (int)eBuild);
 
@@ -6365,8 +6379,8 @@ bool CvPlayerTraits::IsNoBuild(BuildTypes eBuild) const
 /// What is the production modifier for the domain type for each worked specialist?
 int CvPlayerTraits::GetDomainProductionModifiersPerSpecialist(DomainTypes eDomain) const
 {
-	ASSERT_DEBUG(eDomain >= 0, "domainID expected to be >= 0");
-	ASSERT_DEBUG(eDomain < NUM_DOMAIN_TYPES, "domainID expected to be < NUM_DOMAIN_TYPES");
+	PRECONDITION(eDomain >= 0, "domainID expected to be >= 0");
+	PRECONDITION(eDomain < NUM_DOMAIN_TYPES, "domainID expected to be < NUM_DOMAIN_TYPES");
 
 	std::map<int, int>::const_iterator it = m_aiDomainProductionModifiersPerSpecialist.find((int)eDomain);
 	if (it != m_aiDomainProductionModifiersPerSpecialist.end()) // find returns the iterator to map::end if the key is not present
@@ -7202,7 +7216,7 @@ void CvPlayerTraits::ComputeMayaDate()
 
 int CvPlayerTraits::GetCurrentBaktun() const
 {
-	ASSERT_DEBUG(IsUsingMayaCalendar());
+	ASSERT(IsUsingMayaCalendar());
 	return m_iBaktun;
 }
 
@@ -7790,7 +7804,7 @@ bool CvPlayerTraits::ConvertBarbarianCamp(CvUnit* pByUnit, CvPlot* pPlot)
 		pPlot->SetPlayerThatClearedBarbCampHere(m_pPlayer->GetID());
 
 		// Convert the barbarian into our unit
-		ASSERT_DEBUG(m_eCampGuardType < GC.getNumUnitInfos(), "Illegal camp guard unit type");
+		PRECONDITION(m_eCampGuardType < GC.getNumUnitInfos(), "Illegal camp guard unit type");
 		pGiftUnit = m_pPlayer->initUnit(m_eCampGuardType, pPlot->getX(), pPlot->getY(), NO_UNITAI, REASON_CONVERT, true /*bNoMove*/);
 		if (!pGiftUnit->jumpToNearestValidPlot())
 			pGiftUnit->kill(false);
@@ -7869,7 +7883,7 @@ bool CvPlayerTraits::ConvertBarbarianNavalUnit(CvUnit* pByUnit, CvUnit* pUnit)
 
 		// Convert the barbarian into our unit
 		pGiftUnit = m_pPlayer->initUnit(pUnit->getUnitType(), pUnit->getX(), pUnit->getY(), pUnit->AI_getUnitAIType(), REASON_CONVERT, true /*bNoMove*/, false);
-		ASSERT_DEBUG(pGiftUnit, "GiftUnit is not assigned a valid value");
+		ASSERT(pGiftUnit, "GiftUnit is not assigned a valid value");
 		pGiftUnit->convert(pUnit, false);
 		pGiftUnit->setupGraphical();
 		pGiftUnit->finishMoves(); // No move first turn

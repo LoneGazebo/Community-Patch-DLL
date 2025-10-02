@@ -125,14 +125,14 @@ int CvGameCulture::CreateGreatWork(GreatWorkType eType, GreatWorkClass eClass, P
 
 GreatWorkType CvGameCulture::GetGreatWorkType(int iIndex) const
 {
-	ASSERT_DEBUG(iIndex < GetNumGreatWorks(), "Bad Great Work index");
+	PRECONDITION(iIndex < GetNumGreatWorks(), "Bad Great Work index");
 	const CvGreatWork* pWork = &m_CurrentGreatWorks[iIndex];
 	return pWork->m_eType;
 }
 
 GreatWorkClass CvGameCulture::GetGreatWorkClass(int iIndex) const
 {
-	ASSERT_DEBUG(iIndex < GetNumGreatWorks(), "Bad Great Work index");
+	PRECONDITION(iIndex < GetNumGreatWorks(), "Bad Great Work index");
 	const CvGreatWork* pWork = &m_CurrentGreatWorks[iIndex];
 	return pWork->m_eClassType;
 }
@@ -140,11 +140,11 @@ GreatWorkClass CvGameCulture::GetGreatWorkClass(int iIndex) const
 /// Returns UI tooltip for this Great Work
 CvString CvGameCulture::GetGreatWorkTooltip(int iIndex, PlayerTypes eOwner) const
 {
-	ASSERT_DEBUG(iIndex < GetNumGreatWorks(), "Bad Great Work index");
+	PRECONDITION(iIndex < GetNumGreatWorks(), "Bad Great Work index");
 	CvString szTooltip = "";
 
 	const CvGreatWork *pWork = &m_CurrentGreatWorks[iIndex];
-	ASSERT_DEBUG(pWork->m_eClassType != NO_GREAT_WORK_CLASS, "Invalid Great Work Class");
+	PRECONDITION(pWork->m_eClassType != NO_GREAT_WORK_CLASS, "Invalid Great Work Class");
 
 	CvString strYearString;
 	CvGameTextMgr::setDateStr(strYearString,
@@ -203,6 +203,8 @@ CvString CvGameCulture::GetGreatWorkTooltip(int iIndex, PlayerTypes eOwner) cons
 		{
 			iBaseValueTimes100 = 0;
 		}
+
+		iAddedValue = 0;
 
 		iBaseValueTimes100 += GET_PLAYER(eOwner).GetGreatWorkYieldChange(eYield) * 100;
 		iBaseValueTimes100 += GET_PLAYER(eOwner).GetPlayerTraits()->GetGreatWorkYieldChanges(eYield) * 100;
@@ -321,7 +323,7 @@ CvString CvGameCulture::GetGreatWorkTooltip(int iIndex, PlayerTypes eOwner) cons
 /// Returns name of this Great Work
 CvString CvGameCulture::GetGreatWorkName(int iIndex) const
 {
-	ASSERT_DEBUG(iIndex < GetNumGreatWorks(), "Bad Great Work index");
+	PRECONDITION(iIndex < GetNumGreatWorks(), "Bad Great Work index");
 	const CvGreatWork* pWork = &m_CurrentGreatWorks[iIndex];
 
 	return CultureHelpers::GetGreatWorkName(pWork->m_eType);
@@ -330,7 +332,7 @@ CvString CvGameCulture::GetGreatWorkName(int iIndex) const
 /// Returns artist of this Great Work
 CvString CvGameCulture::GetGreatWorkArtist(int iIndex) const
 {
-	ASSERT_DEBUG(iIndex < GetNumGreatWorks(), "Bad Great Work index");
+	PRECONDITION(iIndex < GetNumGreatWorks(), "Bad Great Work index");
 	CvString szArtist = "";
 
 	const CvGreatWork *pWork = &m_CurrentGreatWorks[iIndex];
@@ -342,7 +344,7 @@ CvString CvGameCulture::GetGreatWorkArtist(int iIndex) const
 /// Returns era of this Great Work
 CvString CvGameCulture::GetGreatWorkEra(int iIndex) const
 {
-	ASSERT_DEBUG(iIndex < GetNumGreatWorks(), "Bad Great Work index");
+	PRECONDITION(iIndex < GetNumGreatWorks(), "Bad Great Work index");
 	CvString szEra = "";
 
 	const CvGreatWork *pWork = &m_CurrentGreatWorks[iIndex];
@@ -365,7 +367,7 @@ CvString CvGameCulture::GetGreatWorkEra(int iIndex) const
 
 CvString CvGameCulture::GetGreatWorkEraAbbreviation(int iIndex) const
 {
-	ASSERT_DEBUG(iIndex < GetNumGreatWorks(), "Bad Great Work index");
+	PRECONDITION(iIndex < GetNumGreatWorks(), "Bad Great Work index");
 	CvString szEra = "";
 
 	const CvGreatWork *pWork = &m_CurrentGreatWorks[iIndex];
@@ -376,7 +378,7 @@ CvString CvGameCulture::GetGreatWorkEraAbbreviation(int iIndex) const
 
 CvString CvGameCulture::GetGreatWorkEraShort(int iIndex) const
 {
-	ASSERT_DEBUG(iIndex < GetNumGreatWorks(), "Bad Great Work index");
+	PRECONDITION(iIndex < GetNumGreatWorks(), "Bad Great Work index");
 	CvString szEra = "";
 
 	const CvGreatWork *pWork = &m_CurrentGreatWorks[iIndex];
@@ -387,14 +389,14 @@ CvString CvGameCulture::GetGreatWorkEraShort(int iIndex) const
 
 PlayerTypes CvGameCulture::GetGreatWorkCreator (int iIndex) const
 {
-	ASSERT_DEBUG(iIndex < GetNumGreatWorks(), "Bad Great Work index");
+	PRECONDITION(iIndex < GetNumGreatWorks(), "Bad Great Work index");
 	const CvGreatWork *pWork = &m_CurrentGreatWorks[iIndex];
 	return pWork->m_ePlayer;
 }
 
 PlayerTypes CvGameCulture::GetGreatWorkController(int iIndex) const
 {
-	ASSERT_DEBUG(iIndex < GetNumGreatWorks(), "Bad Great Work index");
+	PRECONDITION(iIndex < GetNumGreatWorks(), "Bad Great Work index");
 	
 	// for each player
 	//   for each building
@@ -454,7 +456,7 @@ bool CvGameCulture::IsGreatWorkCreated(GreatWorkType eType) const
 
 CvCity* CvGameCulture::GetGreatWorkCity(int iIndex, BuildingTypes& eBuilding) const
 {
-	ASSERT_DEBUG(iIndex < GetNumGreatWorks(), "Bad Great Work index");
+	PRECONDITION(iIndex < GetNumGreatWorks(), "Bad Great Work index");
 	
 	// for each player
 	//   for each building
@@ -498,7 +500,7 @@ CvCity* CvGameCulture::GetGreatWorkCity(int iIndex, BuildingTypes& eBuilding) co
 
 int CvGameCulture::GetGreatWorkCurrentThemingBonus(int iIndex) const
 {
-	ASSERT_DEBUG(iIndex < GetNumGreatWorks(), "Bad Great Work index");
+	PRECONDITION(iIndex < GetNumGreatWorks(), "Bad Great Work index");
 
 	// for each player
 	//   for each building
@@ -2814,14 +2816,14 @@ void CvPlayerCulture::SetSwappableMusicIndex (int iIndex)
 /// Add to the list of plots where we have archaeologists waiting for orders
 void CvPlayerCulture::AddDigCompletePlot(CvPlot* pPlot)
 {
-	ASSERT_DEBUG(pPlot != NULL);
+	ASSERT(pPlot != NULL);
 	m_aDigCompletePlots.push_back(pPlot);
 }
 
 /// Remove a plot from the list of plots where we have archaeologists waiting for orders
 void CvPlayerCulture::RemoveDigCompletePlot(CvPlot* pPlot)
 {
-	ASSERT_DEBUG(pPlot != NULL);
+	ASSERT(pPlot != NULL);
 	vector<CvPlot*>::iterator it = std::find(m_aDigCompletePlots.begin(), m_aDigCompletePlots.end(), pPlot);
 	if (it != m_aDigCompletePlots.end())
 	{
@@ -2881,7 +2883,7 @@ CvUnit *CvPlayerCulture::GetNextDigCompleteArchaeologist(CvPlot **ppPlot) const
 /// Is there a dig that completed at this plot?
 bool CvPlayerCulture::HasDigCompleteHere(CvPlot* pPlot) const
 {
-	ASSERT_DEBUG(pPlot != NULL);
+	ASSERT(pPlot != NULL);
 	return std::find(m_aDigCompletePlots.begin(), m_aDigCompletePlots.end(), pPlot) != m_aDigCompletePlots.end();
 }
 
@@ -3830,8 +3832,8 @@ void CvPlayerCulture::SetLastTurnCPT(int iValue)
 /// What is our cultural influence now?
 int CvPlayerCulture::GetInfluenceOnTimes100(PlayerTypes ePlayer) const
 {
-	ASSERT_DEBUG(ePlayer >= 0, "Invalid player index");
-	ASSERT_DEBUG(ePlayer < MAX_MAJOR_CIVS, "Invalid player index");
+	PRECONDITION(ePlayer >= 0, "Invalid player index");
+	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "Invalid player index");
 
 	int iIndex = (int)ePlayer;
 	if (iIndex < 0 || iIndex >= MAX_MAJOR_CIVS)
@@ -3843,8 +3845,8 @@ int CvPlayerCulture::GetInfluenceOnTimes100(PlayerTypes ePlayer) const
 // What is our cultural influence now?
 void CvPlayerCulture::ChangeInfluenceOnTimes100(PlayerTypes ePlayer, int iValue)
 {
-	ASSERT_DEBUG(ePlayer >= 0, "Invalid player index");
-	ASSERT_DEBUG(ePlayer < MAX_MAJOR_CIVS, "Invalid player index");
+	PRECONDITION(ePlayer >= 0, "Invalid player index");
+	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "Invalid player index");
 
 	int iIndex = (int)ePlayer;
 	if (iIndex < 0 || iIndex >= MAX_MAJOR_CIVS)
@@ -3901,8 +3903,8 @@ int CvPlayerCulture::ChangeInfluenceOn(PlayerTypes eOtherPlayer, int iBaseInflue
 /// What was our cultural influence last turn?
 int CvPlayerCulture::GetLastTurnInfluenceOnTimes100(PlayerTypes ePlayer) const
 {
-	ASSERT_DEBUG(ePlayer >= 0, "Invalid player index");
-	ASSERT_DEBUG(ePlayer < MAX_MAJOR_CIVS, "Invalid player index");
+	PRECONDITION(ePlayer >= 0, "Invalid player index");
+	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "Invalid player index");
 
 	int iIndex = (int)ePlayer;
 	if (iIndex < 0 || iIndex >= MAX_MAJOR_CIVS) return 0;
@@ -3912,8 +3914,8 @@ int CvPlayerCulture::GetLastTurnInfluenceOnTimes100(PlayerTypes ePlayer) const
 /// What was our cultural influence per turn last turn?
 void CvPlayerCulture::SetLastTurnInfluenceOnTimes100(PlayerTypes ePlayer, int iNewValue)
 {
-	ASSERT_DEBUG(ePlayer >= 0, "Invalid player index");
-	ASSERT_DEBUG(ePlayer < MAX_MAJOR_CIVS, "Invalid player index");
+	PRECONDITION(ePlayer >= 0, "Invalid player index");
+	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "Invalid player index");
 
 	int iIndex = (int)ePlayer;
 	if (iIndex < 0 || iIndex >= MAX_MAJOR_CIVS) return;
@@ -3923,8 +3925,8 @@ void CvPlayerCulture::SetLastTurnInfluenceOnTimes100(PlayerTypes ePlayer, int iN
 /// What was our cultural influence per turn last turn?
 int CvPlayerCulture::GetLastTurnInfluenceIPTTimes100(PlayerTypes ePlayer) const
 {
-	ASSERT_DEBUG(ePlayer >= 0, "Invalid player index");
-	ASSERT_DEBUG(ePlayer < MAX_MAJOR_CIVS, "Invalid player index");
+	PRECONDITION(ePlayer >= 0, "Invalid player index");
+	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "Invalid player index");
 
 	int iIndex = (int)ePlayer;
 	if (iIndex < 0 || iIndex >= MAX_MAJOR_CIVS) return 0;
@@ -3934,8 +3936,8 @@ int CvPlayerCulture::GetLastTurnInfluenceIPTTimes100(PlayerTypes ePlayer) const
 /// What was our cultural influence last turn?
 void CvPlayerCulture::SetLastTurnInfluenceIPTTimes100(PlayerTypes ePlayer, int iNewValue)
 {
-	ASSERT_DEBUG(ePlayer >= 0, "Invalid player index");
-	ASSERT_DEBUG(ePlayer < MAX_MAJOR_CIVS, "Invalid player index");
+	PRECONDITION(ePlayer >= 0, "Invalid player index");
+	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "Invalid player index");
 
 	int iIndex = (int)ePlayer;
 	if (iIndex < 0 || iIndex >= MAX_MAJOR_CIVS) return;
@@ -6151,7 +6153,7 @@ CvString CvCityCulture::GetThemingTooltip(BuildingClassTypes eBuildingClass) con
 	if (iIndex != -1)
 	{
 		CvThemingBonusInfo* pkThemingInfo = pkBuildingInfo->GetThemingBonusInfo(iIndex);
-		ASSERT_DEBUG(pkThemingInfo, "Couldn't find theming bonus info");
+		ASSERT(pkThemingInfo, "Couldn't find theming bonus info");
 
 		CvString szBonusString = "";
 		szBonusString.Format("+%d [ICON_TOURISM]/[ICON_CULTURE]: ", GetThemingBonus(eBuildingClass));
@@ -6306,7 +6308,7 @@ int CvCityCulture::GetThemingBonusMultiplierTimes10000() const
 {
 	CvPlayer* pPlayer = m_pCity->GetPlayer();
 	int iMultiplier = 100 + pPlayer->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_THEMING_BONUS);
-	iMultiplier *= 100 + m_pCity->isCapital() ? pPlayer->GetPlayerTraits()->GetCapitalThemingBonusModifier() : 0;
+	iMultiplier *= 100 + (m_pCity->isCapital() ? pPlayer->GetPlayerTraits()->GetCapitalThemingBonusModifier() : 0);
 	return iMultiplier;
 }
 

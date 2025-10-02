@@ -13,7 +13,7 @@ CvDllPlayerOptionInfo::CvDllPlayerOptionInfo(CvPlayerOptionInfo* pPlayerOptionIn
 	: m_pPlayerOptionInfo(pPlayerOptionInfo)
 	, m_uiRefCount(1)
 {
-	ASSERT_DEBUG(pPlayerOptionInfo != NULL, "SHOULD NOT HAPPEN");
+	ASSERT(pPlayerOptionInfo != NULL, "SHOULD NOT HAPPEN");
 }
 //------------------------------------------------------------------------------
 CvDllPlayerOptionInfo::~CvDllPlayerOptionInfo()

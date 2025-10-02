@@ -17,10 +17,10 @@ int **CvGoodyHuts::m_aaiPlayerGoodyHutResults = NULL;
 /// New Goody Hut Result from a Player
 void CvGoodyHuts::DoPlayerReceivedGoody(PlayerTypes ePlayer, GoodyTypes eGoody)
 {
-	ASSERT_DEBUG(ePlayer >= 0);
-	ASSERT_DEBUG(ePlayer < MAX_MAJOR_CIVS);
-	ASSERT_DEBUG(eGoody >= 0);
-	//	ASSERT_DEBUG(eGoody < DB.count("GoodyHuts"));
+	ASSERT(ePlayer >= 0);
+	PRECONDITION(ePlayer < MAX_MAJOR_CIVS);
+	ASSERT(eGoody >= 0);
+	//	ASSERT(eGoody < DB.count("GoodyHuts"));
 
 	// Push elements up in the array so that we free up element 0
 	for (int iGoodySlotLoop = 0; iGoodySlotLoop < NUM_GOODIES_REMEMBERED-1; iGoodySlotLoop++)
@@ -43,10 +43,10 @@ bool CvGoodyHuts::IsCanPlayerReceiveGoody(PlayerTypes ePlayer, GoodyTypes eGoody
 /// Have we gotten this type of Goody lately? (in the last 3 Goodies, defined by NUM_GOODIES_REMEMBERED)
 bool CvGoodyHuts::IsHasPlayerReceivedGoodyLately(PlayerTypes ePlayer, GoodyTypes eGoody)
 {
-	ASSERT_DEBUG(ePlayer >= 0);
-	ASSERT_DEBUG(ePlayer < MAX_MAJOR_CIVS);
-	ASSERT_DEBUG(eGoody >= 0);
-	//	ASSERT_DEBUG(eGoody < DB.count("GoodyHuts"));
+	ASSERT(ePlayer >= 0);
+	PRECONDITION(ePlayer < MAX_MAJOR_CIVS);
+	ASSERT(eGoody >= 0);
+	//	ASSERT(eGoody < DB.count("GoodyHuts"));
 
 	// Look at all of our Goody slots and see if the requested Goody matches anything
 	for (int iGoodySlotLoop = 0; iGoodySlotLoop < NUM_GOODIES_REMEMBERED; iGoodySlotLoop++)
