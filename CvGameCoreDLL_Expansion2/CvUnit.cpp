@@ -412,6 +412,7 @@ CvUnit::CvUnit() :
 	, m_TurnPromotionGained()
 	, m_iNumTilesRevealedThisTurn()
 	, m_bSpottedEnemy()
+	, m_bSpottedRuin()
 	, m_iGainsXPFromScouting()
 	, m_iXPFromPillaging()
 	, m_iExtraXPOnKill()
@@ -1563,6 +1564,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 #endif
 	m_iNumTilesRevealedThisTurn = 0;
 	m_bSpottedEnemy = false;
+	m_bSpottedRuin = false;
 	m_iGainsXPFromScouting = 0;
 	m_iGainsXPFromSpotting = 0;
 	m_iXPFromPillaging = 0;
@@ -4844,22 +4846,7 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 			//true naval units can enter ocean plots if they don't stay there. embarked units need the tech in any case
 			if ( (iMoveFlags&CvUnit::MOVEFLAG_DESTINATION) || enterPlot.needsEmbarkation(this))
 			{
-				//this promotion overrides the exception ...
-				PromotionTypes ePromotionOceanImpassable = (PromotionTypes)GD_INT_GET(PROMOTION_OCEAN_IMPASSABLE);
-				bool bOceanImpassable = isHasPromotion(ePromotionOceanImpassable);
-				if(bOceanImpassable)
-					return false;
-
-				if (canCrossOceans())
-					return true;
-
-				// tech-locked promotion
-				if (m_Promotions.HasAllowTerrainPassable())
-					return m_Promotions.GetAllowTerrainPassable(enterPlot.getTerrainType(), getTeam());
-
-				// tech limited embarkation
-				if (eDomain == DOMAIN_LAND)
-					return IsEmbarkDeepWater() || IsEmbarkAllWater() || kPlayer.CanCrossOcean();
+				return CanStayInOcean();
 			}
 		}
 		else if(enterPlot.getFeatureType() != NO_FEATURE && isFeatureImpassable(enterPlot.getFeatureType()))
@@ -4879,6 +4866,28 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 		//ok, seems there are no objections. let's go!
 		return true;
 	}
+}
+
+bool CvUnit::CanStayInOcean() const
+{
+	//this promotion overrides the exception ...
+	PromotionTypes ePromotionOceanImpassable = (PromotionTypes)GD_INT_GET(PROMOTION_OCEAN_IMPASSABLE);
+	bool bOceanImpassable = isHasPromotion(ePromotionOceanImpassable);
+	if (bOceanImpassable)
+		return false;
+
+	if (canCrossOceans())
+		return true;
+
+	// tech-locked promotion
+	if (m_Promotions.HasAllowTerrainPassable())
+		return m_Promotions.GetAllowTerrainPassable(TERRAIN_OCEAN, getTeam());
+
+	// tech limited embarkation
+	if (getDomainType() == DOMAIN_LAND)
+		return IsEmbarkDeepWater() || IsEmbarkAllWater() || GET_PLAYER(m_eOwner).CanCrossOcean();
+
+	return true;
 }
 
 //	--------------------------------------------------------------------------------
@@ -18766,6 +18775,18 @@ void CvUnit::SetSpottedEnemy(bool bValue)
 	m_bSpottedEnemy = bValue;
 }
 
+bool CvUnit::HasSpottedRuin() const
+{
+	VALIDATE_OBJECT();
+	return m_bSpottedRuin;
+}
+
+void CvUnit::SetSpottedRuin(bool bValue)
+{
+	VALIDATE_OBJECT();
+	m_bSpottedRuin = bValue;
+}
+
 //	--------------------------------------------------------------------------------
 bool CvUnit::IsGainsYieldFromScouting() const
 {
@@ -28712,6 +28733,7 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_iCanCrossIceCount);
 	visitor(unit.m_iNumTilesRevealedThisTurn);
 	visitor(unit.m_bSpottedEnemy);
+	visitor(unit.m_bSpottedRuin);
 	visitor(unit.m_iGainsXPFromScouting);
 	visitor(unit.m_iXPFromPillaging);
 	visitor(unit.m_iExtraXPOnKill);
@@ -30518,6 +30540,7 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags)
 
 	//hack ...
 	SetSpottedEnemy(false);
+	SetSpottedRuin(false);
 
 	//todo: consider movement flags here. especially turn destination, not only path destination
 	bool bMoved = UnitMove(pPathPlot, IsCombatUnit(), NULL, bDone);
@@ -30525,6 +30548,19 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags)
 	if (HasSpottedEnemy())
 	{
 		if (iFlags & CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED)
+		{
+			ClearPathCache();
+			if (MOD_SQUADS)
+			{
+				UnlinkUnits();
+			}
+			return MOVE_RESULT_CANCEL;
+		}
+	}
+
+	if (HasSpottedRuin() && !IsCivilianUnit())
+	{
+		if (!MOD_BALANCE_CORE_GOODY_RECON_ONLY || getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_RECON", true) || IsGainsXPFromScouting())
 		{
 			ClearPathCache();
 			if (MOD_SQUADS)

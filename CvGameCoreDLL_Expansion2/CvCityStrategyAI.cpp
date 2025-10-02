@@ -2569,31 +2569,25 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NeedNavalTileImprovement(CvCity* 
 			{
 				if(pLoopPlot->isWater())
 				{
-					// Only look at Tiles THIS City can use; Prevents issue where two Cities can look at the same tile the same turn and both want Workboats for it; By the time this Strategy is called for a City another City isn't guaranteed to have popped it's previous order and registered that it's now training a Workboat! :(
-					if(pCity->GetCityCitizens()->IsCanWork(pLoopPlot))
+					// Does this Tile already have a Resource, and if so, is it already improved?
+					ResourceTypes eResource = pLoopPlot->getResourceType(pCity->getTeam());
+					if(eResource != NO_RESOURCE && pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
 					{
-						// Does this Tile already have a Resource, and if so, is it already improved?
-						ResourceTypes eResource = pLoopPlot->getResourceType(pCity->getTeam());
-						if(eResource != NO_RESOURCE && pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
-						{
-							if (!kPlayer.NeedWorkboatToImproveResource(eResource))
-								continue;
+						if (!kPlayer.NeedWorkboatToImproveResource(eResource))
+							continue;
 
-							iNumUnimprovedWaterResources++;
-						}
+						iNumUnimprovedWaterResources++;
 					}
 				}
 			}
 		}
 	}
 
-	int iNumWaterTileImprovers = GET_PLAYER(pCity->getOwner()).GetNumUnitsWithUnitAI(UNITAI_WORKER_SEA, true);
-
-	// Are there more Water Resources we can build an Improvement on than we have Naval Tile Improvers?
-	return iNumUnimprovedWaterResources > iNumWaterTileImprovers;
+	// Are there any nearby Water Resources we can build an Improvement on?
+	return iNumUnimprovedWaterResources > 0;
 }
 
-/// "Enough Naval Tile Improvement" City Strategy: If we're not running "Need Naval Tile Improvement" then there's no need to worry about it at all
+/// "Enough Naval Tile Improvement" City Strategy: If we're running "Need Naval Tile Improvement" then there's no need to worry about it at all
 bool CityStrategyAIHelpers::IsTestCityStrategy_EnoughNavalTileImprovement(CvCity* pCity)
 {
 	static AICityStrategyTypes eStrategyNeedNavalTileImprovement = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_NEED_NAVAL_TILE_IMPROVEMENT");

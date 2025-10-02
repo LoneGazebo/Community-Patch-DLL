@@ -528,6 +528,7 @@ CvCity::CvCity() :
 	, m_abTempCaptureData()
 	, m_bIsPendingCapture()
 	, m_iVassalLevyEra()
+	, m_bConnectedToOcean()
 {
 	OBJECT_ALLOCATED
 		FSerialization::citiesToCheck.push_back(this);
@@ -1807,6 +1808,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	}
 
 	m_iVassalLevyEra = 0;
+	m_bConnectedToOcean = false;
 }
 
 
@@ -2433,6 +2435,7 @@ void CvCity::doTurn()
 		updateNetHappiness();
 	}
 	UpdateTerrainImprovementNeed();
+	UpdateOceanStatus();
 
 	GetCityStrategyAI()->DoTurn();
 	AI_doTurn();
@@ -9267,6 +9270,53 @@ void CvCity::UpdateTerrainImprovementNeed()
 
 	//should we take into account the population of the city or whether any of these plots are worked or will be worked?
 	m_iTerrainImprovementNeed = iImprovablePlots;
+}
+
+//	--------------------------------------------------------------------------------
+// Checks if this city is connected to a large ocean, or a contested water body
+// (other civs have built cities here). Used to determined if military naval units
+// should be built here.
+void CvCity::UpdateOceanStatus()
+{
+	if (!isCoastal(/*10*/ GD_INT_GET(MIN_WATER_SIZE_FOR_OCEAN)))
+	{
+		m_bConnectedToOcean = false;
+		return;
+	}
+
+	CvPlot* pPlot = plot();
+
+	//check nearby landmasses
+	std::vector<int> aiAllAdjacentLandmasses = pPlot->getAllAdjacentLandmasses();
+	for (std::vector<int>::iterator it = aiAllAdjacentLandmasses.begin(); it != aiAllAdjacentLandmasses.end(); ++it)
+	{
+		int iLandmassId = *it;
+		if (iLandmassId == -1)
+			continue;
+
+		CvLandmass* pLandmass = GC.getMap().getLandmassById(iLandmassId);
+		if (!pLandmass)
+			continue;
+
+		if (!pLandmass->isWater())
+			continue;
+
+		// Large water bodies are ok
+		if (pLandmass->getNumTiles() > 50)
+		{
+			m_bConnectedToOcean = true;
+			return;
+		}
+
+		// Contested water body
+		if (pLandmass->getNumCities() > pLandmass->getCitiesPerPlayer(m_eOwner))
+		{
+			m_bConnectedToOcean = true;
+			return;
+		}
+	}
+
+	m_bConnectedToOcean = false;
 }
 
 //	--------------------------------------------------------------------------------
@@ -29733,49 +29783,40 @@ CvUnit* CvCity::CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType, UnitCreatio
 	{
 		pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pRallyPlot->getX(), pRallyPlot->getY());
 	}
-	// Any AI unit with explore AI as a secondary unit AI (e.g. warriors) are assigned that unit AI if this AI player needs to explore more
+	// Any AI unit with explore AI as a secondary unit AI (e.g. warriors) are assigned that unit AI. If we have too many units exploring, the worst explorers will be taken off exploration duty.
 	else if (!pUnit->isHuman(ISHUMAN_AI_UNITS) && EconomicAIHelpers::CannotMinorCiv(&kOwner, (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_RECON")))
 	{
-		EconomicAIStrategyTypes eStrategy = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_RECON");
-		if (kOwner.GetEconomicAI()->IsUsingStrategy(eStrategy))
+		if (pUnit->getUnitInfo().GetUnitAIType(UNITAI_EXPLORE) && pUnit->AI_getUnitAIType() != UNITAI_EXPLORE)
 		{
-			if (pUnit->getUnitInfo().GetUnitAIType(UNITAI_EXPLORE) && pUnit->AI_getUnitAIType() != UNITAI_EXPLORE)
+			// Now make sure there isn't a critical military threat
+			if (kOwner.GetMilitaryAI()->ShouldFightBarbarians())
 			{
-				// Now make sure there isn't a critical military threat
-				if (kOwner.GetMilitaryAI()->ShouldFightBarbarians())
-				{
-					if (GC.getLogging() && GC.getAILogging())
-					{
-						CvString strLogString;
-						strLogString.Format("Not assigning explore AI to %s due to threats, X: %d, Y: %d", pUnit->getName().GetCString(), pUnit->getX(), pUnit->getY());
-						kOwner.GetHomelandAI()->LogHomelandMessage(strLogString);
-					}
-				}
-				else
-				{
-					pUnit->AI_setUnitAIType(UNITAI_EXPLORE);
-					if (GC.getLogging() && GC.getAILogging())
-					{
-						CvString strLogString;
-						strLogString.Format("Assigning explore unit AI to %s, X: %d, Y: %d", pUnit->getName().GetCString(), pUnit->getX(), pUnit->getY());
-						kOwner.GetHomelandAI()->LogHomelandMessage(strLogString);
-					}
-				}
-			}
-		}
-		eStrategy = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_RECON_SEA");
-		EconomicAIStrategyTypes eOtherStrategy = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_REALLY_NEED_RECON_SEA");
-		if (kOwner.GetEconomicAI()->IsUsingStrategy(eStrategy) || kOwner.GetEconomicAI()->IsUsingStrategy(eOtherStrategy))
-		{
-			if (pUnit->getUnitInfo().GetUnitAIType(UNITAI_EXPLORE_SEA))
-			{
-				pUnit->AI_setUnitAIType(UNITAI_EXPLORE_SEA);
 				if (GC.getLogging() && GC.getAILogging())
 				{
 					CvString strLogString;
-					strLogString.Format("Assigning explore sea unit AI to %s, X: %d, Y: %d", pUnit->getName().GetCString(), pUnit->getX(), pUnit->getY());
+					strLogString.Format("Not assigning explore AI to %s due to threats, X: %d, Y: %d", pUnit->getName().GetCString(), pUnit->getX(), pUnit->getY());
 					kOwner.GetHomelandAI()->LogHomelandMessage(strLogString);
 				}
+			}
+			else
+			{
+				pUnit->AI_setUnitAIType(UNITAI_EXPLORE);
+				if (GC.getLogging() && GC.getAILogging())
+				{
+					CvString strLogString;
+					strLogString.Format("Assigning explore unit AI to %s, X: %d, Y: %d", pUnit->getName().GetCString(), pUnit->getX(), pUnit->getY());
+					kOwner.GetHomelandAI()->LogHomelandMessage(strLogString);
+				}
+			}
+		}
+		if (pUnit->getUnitInfo().GetUnitAIType(UNITAI_EXPLORE_SEA))
+		{
+			pUnit->AI_setUnitAIType(UNITAI_EXPLORE_SEA);
+			if (GC.getLogging() && GC.getAILogging())
+			{
+				CvString strLogString;
+				strLogString.Format("Assigning explore sea unit AI to %s, X: %d, Y: %d", pUnit->getName().GetCString(), pUnit->getX(), pUnit->getY());
+				kOwner.GetHomelandAI()->LogHomelandMessage(strLogString);
 			}
 		}
 	}
@@ -31960,6 +32001,7 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_abIsBuildingHidden);
 	visitor(city.m_inumHiddenBuildings);
 	visitor(city.m_iVassalLevyEra);
+	visitor(city.m_bConnectedToOcean);
 
 	visitor(*city.m_pCityBuildings);
 
@@ -34771,6 +34813,11 @@ void CvCity::SetNoTourismTurns(int iValue)
 void CvCity::ChangeNoTourismTurns(int iValue) //Set in city::doturn
 {
 	m_iNoTourismTurns += iValue;
+}
+
+bool CvCity::IsConnectedToOcean() const
+{
+	return m_bConnectedToOcean;
 }
 
 int CvCity::GetPlagueType() const

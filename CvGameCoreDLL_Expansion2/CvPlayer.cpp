@@ -2594,7 +2594,7 @@ void CvPlayer::initFreeUnits()
 	{
 		for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
 		{
-			if (pLoopUnit->isFound())
+			if (pLoopUnit->isFound() && pLoopUnit->getUnitInfo().GetCombat() == 0)
 			{
 				pLoopUnit->AI_setUnitAIType(UNITAI_SETTLE);
 				break;
@@ -9485,8 +9485,10 @@ bool CvPlayer::HasActiveSettler()
 	return false;
 }
 
-/// Returns number of Units a player has with a particular UnitAI.  The second argument allows you to check whether or not to include Units currently being trained in Cities.
-int CvPlayer::GetNumUnitsWithUnitAI(UnitAITypes eUnitAIType, bool bIncludeBeingTrained)
+/// Returns number of Units a player has with a particular UnitAI.
+// The second argument allows you to check whether or not to include Units currently being trained in Cities.
+// The third argument allows you to check for default AI type rather than what it is currently assigned to.
+int CvPlayer::GetNumUnitsWithUnitAI(UnitAITypes eUnitAIType, bool bIncludeBeingTrained, bool bDefaultAI)
 {
 	int iNumUnits = 0;
 	int iLoop = 0;
@@ -9494,7 +9496,11 @@ int CvPlayer::GetNumUnitsWithUnitAI(UnitAITypes eUnitAIType, bool bIncludeBeingT
 	// Current Units
 	for(CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
 	{
-		if(pLoopUnit->AI_getUnitAIType() == eUnitAIType)
+		if (bDefaultAI && pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == eUnitAIType)
+		{
+			iNumUnits++;
+		}
+		else if(!bDefaultAI && pLoopUnit->AI_getUnitAIType() == eUnitAIType)
 		{
 			iNumUnits++;
 		}
@@ -46685,6 +46691,25 @@ bool CvPlayer::CanCrossMountain() const
 bool CvPlayer::CanCrossIce() const
 {
 	return GetPlayerTraits()->IsAbleToCrossIce();
+}
+
+bool CvPlayer::HasAnyUnitCanEmbark()
+{
+	int iUnitLoop = 0;
+	CvUnit* pLoopUnit = NULL;
+
+	for (pLoopUnit = firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iUnitLoop))
+	{
+		if (!pLoopUnit)
+		{
+			continue;
+		}
+
+		if (pLoopUnit->IsHasEmbarkAbility())
+			return true;
+	}
+
+	return false;
 }
 
 //////////////////////////////////////////////////////////////////////////

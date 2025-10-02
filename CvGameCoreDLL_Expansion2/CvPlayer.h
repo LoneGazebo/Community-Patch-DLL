@@ -192,7 +192,7 @@ public:
 
 	bool HasActiveSettler();
 
-	int GetNumUnitsWithUnitAI(UnitAITypes eUnitAIType, bool bIncludeBeingTrained);
+	int GetNumUnitsWithUnitAI(UnitAITypes eUnitAIType, bool bIncludeBeingTrained, bool bDefaultAI=false);
 	int GetNumUnitsWithDomain(DomainTypes eDomain, bool bMilitaryOnly);
 	int GetNumUnitsWithUnitCombat(UnitCombatTypes eUnitCombat);
 	int GetNumUnitsOfType(UnitTypes eUnit, bool bIncludeBeingTrained = false);
@@ -2656,6 +2656,8 @@ public:
 	bool CanCrossOcean() const;
 	bool CanCrossMountain() const;
 	bool CanCrossIce() const;
+
+	bool HasAnyUnitCanEmbark();
 
 	// International Trade
 	bool IsAllowedToTradeWith(PlayerTypes eOtherPlayer);

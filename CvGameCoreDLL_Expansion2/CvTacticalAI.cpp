@@ -4402,7 +4402,7 @@ CvUnit* CvTacticalAI::FindUnitForThisMove(AITacticalMove eMove, CvPlot* pTarget,
 			// Leaving this code here because A) this option can be turned off (is by default in Community Patch Only), and
 			// B) even though most explorers aren't available to tactical AI, some secondary explorer units with the Reconnaissance promotion, like Conquistadors, can make use of it
 			// Economic AI still places a high value on goody huts for AI explorers, so they'll still be prioritized; see EconomicAIHelpers::ScoreExplorePlot()
-			if (MOD_BALANCE_CORE_GOODY_RECON_ONLY && eMove == AI_TACTICAL_GOODY && pTarget->isGoody())
+			if (MOD_BALANCE_CORE_GOODY_RECON_ONLY && eMove == AI_TACTICAL_GOODY && pTarget->isRevealedGoody(m_pPlayer->getTeam()))
 			{
 				if (pLoopUnit->getUnitCombatType() != eReconType && !pLoopUnit->IsGainsXPFromScouting())
 					continue;
@@ -5740,7 +5740,8 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 			return pCurrentPlot;
 
 	//for current plot
-	int iCurrentHealRate = pUnit->healRate(pCurrentPlot);
+	int iCurrentHealRate = pUnit->canHeal(pUnit->plot(), true) ? pUnit->healRate(pCurrentPlot) : 0;
+	int iCurrentDanger = pUnit->GetDanger();
 
 	//don't run if we are needed
 	if (pUnit->IsCoveringFriendlyCivilian() && pUnit->GetDanger(pCurrentPlot)<pUnit->GetCurrHitPoints()*2)
@@ -5810,12 +5811,13 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 
 		if (pPlot != pUnit->plot() && !pUnit->hasMoved())
 		{
-			//everything else equal it looks stupid to stand around while being shot at
-			iScore += max(0,iCurrentHealRate);
-
 			//we can't heal after moving and lose fortification bonus, so the current plot gets a bonus (respectively all others a penalty)
 			if (pUnit->canFortify(pUnit->plot()))
 				iScore += 3;
+
+			// We can outheal the danger, should stay and heal
+			if (iCurrentHealRate > 0 && pUnit->getDamage() >= iCurrentHealRate && iCurrentHealRate > iCurrentDanger && !pUnit->isAlwaysHeal())
+				iScore += max(0, iCurrentHealRate * 2);
 		}
 
 		//safer at home ... but not if we need to embark b/c we can't fight back then
@@ -5847,12 +5849,16 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 			iScore += (iEnemyUnitsAdjacent - iFriendlyUnitsAdjacent) * 13;
 
 			//use city distance as tiebreaker
-			iScore = iScore * 10 + iCityDistance;
+			if (pUnit->getDomainType() != DOMAIN_SEA)
+				iScore = iScore * 10 + iCityDistance;
+			else
+				// Naval units should try to go home to heal, even if it's considered dangerous
+				iScore = iScore * 3 + iCityDistance;
 		}
 
 		//discourage water tiles for land units
 		//note that zero danger status has already been established, this is only for sorting now
-		if (bWrongDomain)
+		if (bIsZeroDanger && bWrongDomain)
 			iScore += 250;
 
 		if(bIsInCityOrCitadel)
@@ -6000,7 +6006,12 @@ CvPlot* TacticalAIHelpers::FindClosestSafePlotForHealing(CvUnit* pUnit, bool bCo
 		return NULL;
 
 	//first see if the current plot is good
-	if (pUnit->GetDanger() == 0 && pUnit->canHeal(pUnit->plot(), true))
+	if (pUnit->GetDanger() == 0 && pUnit->canHeal(pUnit->plot(), true) && !pUnit->isAlwaysHeal())
+		return pUnit->plot();
+
+	//check if we can outheal the damage
+	int iCurrentHealRate = pUnit->healRate(pUnit->plot());
+	if (pUnit->canHeal(pUnit->plot(), true) && iCurrentHealRate > 5 && iCurrentHealRate > pUnit->GetDanger() && !pUnit->isAlwaysHeal())
 		return pUnit->plot();
 
 	//doesn't get much safer than in a city
@@ -6050,18 +6061,24 @@ CvPlot* TacticalAIHelpers::FindClosestSafePlotForHealing(CvUnit* pUnit, bool bCo
 		}
 
 		int iDanger = min(pUnit->GetDanger(pPlot),10000); //handle INT_MAX for civilians
-		int iHealRate = pUnit->healRate(pPlot);
-		int nFriends = pPlot->GetNumFriendlyUnitsAdjacent(pUnit->getTeam(), NO_DOMAIN, true, pUnit);
+		int iHealRate = pUnit->canHeal(pPlot, false) ? pUnit->healRate(pPlot) : 0;
+		int iFriends = pPlot->GetNumFriendlyUnitsAdjacent(pUnit->getTeam(), NO_DOMAIN, true, pUnit);
 
 		//sometimes we want to ignore pillage health, it's a one-time effect and may lead into dead ends
 		if (bPillage && !bConservative)
-			iHealRate += /*25*/ GD_INT_GET(PILLAGE_HEAL_AMOUNT);
+		{
+			if (!pUnit->hasFreePillageMove())
+				iHealRate = max(iHealRate, /*25*/ GD_INT_GET(PILLAGE_HEAL_AMOUNT));
+			else
+				iHealRate += /*25*/ GD_INT_GET(PILLAGE_HEAL_AMOUNT);
+		}
 
 		//make up a score function
 		//this is difficult, danger does not consider cover from our own units
 		//on the other hand, our covering units might run away ... just assume an even spread
-		int iRemainingDanger = iDanger / (nFriends+1);
-		int iScore = (pUnit->GetCurrHitPoints() + iHealRate - iRemainingDanger) * 10;
+		int iRemainingDanger = iDanger / (iFriends + 1);
+		//don't try to go to heal in a plot where we will slowly die
+		int iScore = iHealRate - iRemainingDanger;
 		//is this safe enough?
 		if (iScore > 0)
 		{
@@ -10085,7 +10102,7 @@ bool CvTacticalPosition::addAvailableUnit(const CvUnit* pUnit)
 			else
 			{
 				//the unit AI type is unreliable, so we do this manually
-				if (pUnit->IsCanAttackRanged())
+				if (pUnit->IsCanAttackRanged() && pUnit->getUnitInfo().GetMoves() > 2)
 					eStrategy = MS_SECONDLINE; //skirmishers are second line always
 				else
 					eStrategy = MS_FIRSTLINE; //regular melee

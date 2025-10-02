@@ -1237,7 +1237,23 @@ int PathEndTurnCost(CvPlot* pToPlot, const CvPathNodeCacheData& kToNodeCacheData
 		//we should give more weight to the first end-turn plot, the danger values for future stops are less concrete
 		int iFutureFactor = std::max(1,4-iTurnsInFuture);
 
-		if (pUnit->IsCombatUnit() && pUnit->isNativeDomain(pToPlot))
+		bool bIsCombatUnit = pUnit->IsCombatUnit() && pUnit->isNativeDomain(pToPlot);
+
+		if (bIsCombatUnit)
+		{
+			if (pUnit->isHuman(ISHUMAN_AI_UNITS))
+			{
+				if (pUnit->IsAutomated())
+					bIsCombatUnit = false;
+			}
+			else
+			{
+				if (pUnit->AI_getUnitAIType() == UNITAI_EXPLORE || pUnit->AI_getUnitAIType() == UNITAI_EXPLORE_SEA)
+					bIsCombatUnit = false;
+			}
+		}
+
+		if (bIsCombatUnit)
 		{
 			//be extra careful if requested but don't really abort, else we might not find a path at all
 			int iScale = bAbortInDanger ? 2 : 1;
@@ -1251,11 +1267,11 @@ int PathEndTurnCost(CvPlot* pToPlot, const CvPathNodeCacheData& kToNodeCacheData
 			else if (iPlotDanger*iScale > pUnit->GetCurrHitPoints()/3)
 				iCost += PATH_END_TURN_LOW_DANGER_WEIGHT*iFutureFactor;
 		}
-		else //civilian or embarked
+		else //civilian, embarked or exploring
 		{
 			if (bOnlySafeEmbark && iPlotDanger>0 && !pUnit->isNativeDomain(pToPlot))
 				return -1; //don't expose ourselves
-			else if (iPlotDanger == INT_MAX && iTurnsInFuture < 2 && bAbortInDanger)
+			else if (iPlotDanger > pUnit->GetCurrHitPoints() / 2 && iTurnsInFuture < 2 && bAbortInDanger)
 				return -1; //don't ever do this
 			else if (iPlotDanger > pUnit->GetCurrHitPoints())
 				iCost += PATH_END_TURN_HIGH_DANGER_WEIGHT * 4 * iFutureFactor;
@@ -1529,7 +1545,9 @@ int PathValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFin
 		}
 	}
 	else if (finder->HaveFlag(CvUnit::MOVEFLAG_VISIBLE_ONLY))
-		return FALSE;
+		// Let workers run through one unseen tile at the time, otherwise they can barely move between cities in the early game
+		if (!pFromPlot->isVisible(eUnitTeam))
+			return FALSE;
 
 	//some checks about terrain etc. needs to be revealed, otherwise we leak information in the UI
 	if (kToNodeCacheData.bIsRevealedToTeam)
@@ -2219,6 +2237,44 @@ int CityConnectionWaterValid(const CvAStarNode* parent, const CvAStarNode* node,
 }
 
 //	--------------------------------------------------------------------------------
+/// Can a work boat (safely) traverse this plot?
+static int WorkerSeaUnitSafeValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData& data, const CvAStar*)
+{
+	if (parent == NULL)
+		return TRUE;
+
+	PlayerTypes ePlayer = data.ePlayer;
+	TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
+
+	CvPlot* pNewPlot = GC.getMap().plotUnchecked(node->m_iX, node->m_iY);
+	CvPlot* pOldPlot = GC.getMap().plotUnchecked(parent->m_iX, parent->m_iY);
+
+	if (!pNewPlot || !pNewPlot->isRevealed(eTeam))
+		return FALSE;
+
+	if (!pNewPlot->isVisible(eTeam) && !pOldPlot->isVisible(eTeam))
+		return FALSE;
+
+	if (pNewPlot->isDeepWater() && !GET_PLAYER(ePlayer).CanCrossOcean())
+		return FALSE;
+
+	if (pNewPlot->isIce() && !GET_PLAYER(ePlayer).CanCrossIce())
+		return FALSE;
+
+	if (!pNewPlot->isWater() && !pNewPlot->isCoastalCityOrPassableImprovement(ePlayer, true, true))
+		return FALSE;
+
+	if (pNewPlot->getTeam() != eTeam && !pNewPlot->isAdjacentTeam(eTeam))
+	{
+		CvPlot* pOldPlot = GC.getMap().plotUnchecked(parent->m_iX, parent->m_iY);
+		if (pOldPlot->getTeam() != eTeam && !pOldPlot->isAdjacentTeam(eTeam))
+			return FALSE;
+	}
+
+	return TRUE;
+}
+
+//	--------------------------------------------------------------------------------
 /// Prefer building routes that can have villages.
 static int BuildRouteVillageBonus(CvPlot* pPlot, RouteTypes eRouteType, CvBuilderTaskingAI* eBuilderTaskingAi)
 {
@@ -2821,6 +2877,10 @@ bool CvStepFinder::Configure(const SPathFinderUserData& config)
 		break;
 	case PT_AIR_REBASE:
 		SetFunctionPointers(NULL, StepHeuristic, NULL, RebaseValid, RebaseGetExtraChildren, UnitPathInitialize, UnitPathUninitialize);
+		m_iBasicPlotCost = PATH_BASE_COST;
+		break;
+	case PT_WORKER_SEA_UNIT_SAFE:
+		SetFunctionPointers(NULL, StepHeuristic, NULL, WorkerSeaUnitSafeValid, NULL, NULL, NULL);
 		m_iBasicPlotCost = PATH_BASE_COST;
 		break;
 	default:
