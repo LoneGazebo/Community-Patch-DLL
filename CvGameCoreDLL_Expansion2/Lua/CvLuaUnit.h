@@ -205,6 +205,7 @@ protected:
 	static int lRemoveFromSquad(lua_State* L);
 	static int lDoSquadMovement(lua_State* L);
 	static int lSetSquadEndMovementType(lua_State* L);
+	static int lGetSquadMovementPreview(lua_State* L);
 
 	static int lRange(lua_State* L);
 	static int lNukeDamageLevel(lua_State* L);

@@ -2677,7 +2677,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 	if (pTransportUnit != NULL)
 		setTransportUnit(NULL);
 
-	if (MOD_LINKED_MOVEMENT)
+	if (MOD_LINKED_MOVEMENT || MOD_SQUADS)
 	{
 		// remove linked status
 		if (IsLinkedLeader())
@@ -3191,7 +3191,6 @@ void CvUnit::doTurn()
 {
 	VALIDATE_OBJECT();
 	ASSERT(!IsDead(), "isDead did not return false as expected");
-
 	// Wake unit if skipped last turn
 	ActivityTypes eActivityType = GetActivityType();
 	bool bHoldCheck = (eActivityType == ACTIVITY_HOLD); //this is after a skip mission
@@ -3306,6 +3305,10 @@ void CvUnit::doTurn()
 	if (MOD_LINKED_MOVEMENT && IsLinked() && !IsLinkedLeader())
 	{
 		SetTurnProcessed(true);
+	}
+	if (MOD_SQUADS && IsLinked() && !IsLinkedLeader())
+	{
+		SetActivityType(ACTIVITY_SLEEP);
 	}
 
 	doDelayedDeath();
@@ -5546,7 +5549,7 @@ void CvUnit::move(CvPlot& targetPlot, bool bShow, bool bNoMovementCost)
 		}
 	}
 
-	if (MOD_LINKED_MOVEMENT && IsLinkedLeader()) // moving the whole stack, one plot at a time
+	if ((MOD_LINKED_MOVEMENT || MOD_SQUADS) && IsLinkedLeader()) // moving the whole stack, one plot at a time
 	{
 		UnitIdContainer LinkedUnitIDs = GetLinkedUnits();
 		bool bCanDoLinkedMove = true;
@@ -5569,7 +5572,7 @@ void CvUnit::move(CvPlot& targetPlot, bool bShow, bool bNoMovementCost)
 			for (int iI = 0; iI < (int)LinkedUnits.size(); iI++)
 			{
 				CvUnit* pLinkedUnit = LinkedUnits[iI];
-				pLinkedUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), targetPlot.getX(), targetPlot.getY(), CvUnit::MOVEFLAG_DESTINATION);
+				pLinkedUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), targetPlot.getX(), targetPlot.getY(), CvUnit::MOVEFLAG_DESTINATION | CvUnit::MOVEFLAG_KEEP_LINK);
 			}
 		}
 	}
@@ -14706,7 +14709,7 @@ int CvUnit::maxMoves() const
 {
 	if (plot() == NULL)
 		return 0;
-	if (MOD_LINKED_MOVEMENT && (IsLinked() || IsGrouped() ))
+	if ((MOD_LINKED_MOVEMENT || MOD_SQUADS) && (IsLinked() || IsGrouped() ))
 		return GetLinkedMaxMoves();
 	// WARNING: Depends on the current embark state of the unit!
 	if (plot()->getOwner() == getOwner())
@@ -15154,14 +15157,90 @@ struct ScoredPlot
   }
 };
 
-void CvUnit::DoSquadMovement(CvPlot* pDestPlot)
+CvPlot* CvUnit::GetSquadCenterOfMass()
 {
-	VALIDATE_OBJECT();
+	int squadNumber = GetSquadNumber();
+	if (GetSquadNumber() == -1)
+	{
+		return NULL;
+	}
+
+	CvPlayer* pPlayer = &GET_PLAYER(getOwner());
+
+	int iTotalX = 0;
+	int iTotalY = 0;
+	int iNumUnits = 0;
+
+	CvUnit* pUnit = pPlayer->firstUnitInSquad(&iNumUnits, squadNumber);
+
+	int iTotalX2 = 0;
+	int iTotalY2 = 0;
+	int iWorldWidth = GC.getMap().getGridWidth();
+	int iWorldHeight = GC.getMap().getGridHeight();
+
+	//the first unit is our reference ...
+	int iRefX = pUnit->getX();
+	int iRefY = pUnit->getY();
+
+	pUnit = pPlayer->nextUnitInSquad(&iNumUnits, squadNumber);
+	while (pUnit)
+	{
+		int iDX = pUnit->getX() - iRefX;
+		int iDY = pUnit->getY() - iRefY;
+
+		if (GC.getMap().isWrapX())
+		{
+			if (iDX > +(iWorldWidth / 2))
+				iDX -= iWorldWidth;
+			if (iDX < -(iWorldWidth / 2))
+				iDX += iWorldWidth;
+		}
+		if (GC.getMap().isWrapY())
+		{
+			if (iDY > +(iWorldHeight / 2))
+				iDY -= iWorldHeight;
+			if (iDY < -(iWorldHeight / 2))
+				iDY += iWorldHeight;
+		}
+
+		iTotalX += iDX;
+		iTotalY += iDY;
+		iTotalX2 += iDX * iDX;
+		iTotalY2 += iDY * iDY;
+
+		pUnit = pPlayer->nextUnitInSquad(&iNumUnits, squadNumber);
+	}
+
+	//finally, compute average
+	float fNUnits = (float)iNumUnits;
+	float fAvgX = (iTotalX / fNUnits) + iRefX;
+	float fAvgY = (iTotalY / fNUnits) + iRefY;
+
+	//rounding to nearest integer
+	int iAvgX = fAvgX > 0 ? int(fAvgX + 0.5f) : int(fAvgX - 0.5f);
+	int iAvgY = fAvgY > 0 ? int(fAvgY + 0.5f) : int(fAvgY - 0.5f);
+
+	//this handles wrapped coordinates
+	CvPlot* pCOM = GC.getMap().plot(iAvgX, iAvgY);
+	if (!pCOM)
+		return NULL;
+	return pCOM;
+}
+
+//! Logic for determining which units should go to which plots for squad movement
+//! @param pDestPlot The plot the squad is moving to
+//! @param escort If true, escort non-combat units with combat units starting on the same plot by linking them to a combat unit
+//!     on their starting plot, if one exists. Has no effect if computeOnly is true.
+//! @param computeOnly If true, don't clear mission queues in preparation for movement or do any linking of units. Intended to
+//!     be used to generate a preview of the movement destination tiles.
+std::map<CvUnit*, CvPlot*> CvUnit::DoSquadPlotAssignments(CvPlot* pDestPlot, bool escort, bool computeOnly)
+{
+	std::map<CvUnit*, CvPlot*> unitToPlotMap;
 
 	int squadNumber = GetSquadNumber();
 	if (GetSquadNumber() == -1)
 	{
-		return;
+		return unitToPlotMap;
 	}
 
 	CvPlayer* pPlayer = &GET_PLAYER(getOwner());
@@ -15170,44 +15249,94 @@ void CvUnit::DoSquadMovement(CvPlot* pDestPlot)
 
 	// First, construct a list of all units in squad eligible to go to target tile
 	std::vector<CvUnit*> stackingUnits;
-	std::vector<CvUnit*> eligibleUnits;
+	std::vector<CvUnit*> eligibleLandUnits;
+	std::vector<CvUnit*> eligibleSeaUnits;
+
 	int iLoop = 0;
 	CvUnit* pLoopUnit = NULL;
 	for(pLoopUnit = pPlayer->firstUnitInSquad(&iLoop, squadNumber); pLoopUnit != NULL; pLoopUnit = pPlayer->nextUnitInSquad(&iLoop, squadNumber))
 	{
 		if (pLoopUnit->canMoveInto(*pDestPlot))
 		{
-			// If this unit is going to move later, clear its path cache. Otherwise, due to the 
-			// use of MOVEFLAG_CONTINUE_TO_CLOSEST_PLOT it can try to continue on its old path
-			// instead of calculating a new route to the destination plot
-			pLoopUnit->ClearMissionQueue(false);
+			if (!computeOnly)
+			{
+				// If this unit is going to move later, clear its path cache. Otherwise, due to the
+				// use of MOVEFLAG_CONTINUE_TO_CLOSEST_PLOT it can try to continue on its old path
+				// instead of calculating a new route to the destination plot
+				pLoopUnit->ClearMissionQueue(false);
+			}
 
 			if (!pLoopUnit->IsCombatUnit() || pLoopUnit->IsStackingUnit())
 			{
 				stackingUnits.push_back(pLoopUnit);
 			}
-			else
+			else if (pLoopUnit->getDomainType() == DOMAIN_LAND)
 			{
-				eligibleUnits.push_back(pLoopUnit);
+				eligibleLandUnits.push_back(pLoopUnit);
+			}
+			else if (pLoopUnit->getDomainType() == DOMAIN_SEA)
+			{
+				eligibleSeaUnits.push_back(pLoopUnit);
+			}
+		}
+	}
+	int unique_plots_required = max(eligibleLandUnits.size(), eligibleSeaUnits.size());
+
+	// If enabled, for each stacking unit: if a non-stacking unit in the squad is on the same plot, make it an escort
+	if (!computeOnly && escort)
+	{
+		for (std::vector<CvUnit*>::iterator it = stackingUnits.begin(); it != stackingUnits.end(); ++it)
+		{
+			CvUnit* pStackingUnit = *it;
+
+			// If the source plot is water, make a water domain unit the escort leader
+			if (pStackingUnit->plot()->isWater())
+			{
+				for (std::vector<CvUnit*>::iterator jt = eligibleSeaUnits.begin(); jt != eligibleSeaUnits.end(); ++jt)
+				{
+					CvUnit* pEligibleUnit = *jt;
+					if (pEligibleUnit->plot() == pStackingUnit->plot() && pEligibleUnit->CanLinkUnits())
+					{
+						pEligibleUnit->LinkUnits();
+						break;
+					}
+				}
+			}
+			// If the source plot is land, make a land domain unit the escort leader
+			else {
+				for (std::vector<CvUnit*>::iterator jt = eligibleLandUnits.begin(); jt != eligibleLandUnits.end(); ++jt)
+				{
+					CvUnit* pEligibleUnit = *jt;
+					if (pEligibleUnit->plot() == pStackingUnit->plot() && pEligibleUnit->CanLinkUnits())
+					{
+						pEligibleUnit->LinkUnits();
+						break;
+					}
+				}
 			}
 		}
 	}
 
-	// Refuse to handle this absurdidity
-	if (eligibleUnits.size() > 90)
-	{
-		return;
-	}
-
-	// Generate a list of units to move and their distance to the destination plot
-	std::vector<ScoredUnit> unitsToMoveByDistance;
-	for (std::vector<CvUnit*>::iterator it = eligibleUnits.begin(); it != eligibleUnits.end(); ++it)
+	// Generate a list of units to move and their distance to the destination plot by domain
+	std::vector<ScoredUnit> landUnitsToMoveByDistance;
+	for (std::vector<CvUnit*>::iterator it = eligibleLandUnits.begin(); it != eligibleLandUnits.end(); ++it)
 	{
 		CvUnit* pLoopUnit = *it;
 		int dist = plotDistance(*pLoopUnit->plot(), *pDestPlot);
-		unitsToMoveByDistance.push_back(ScoredUnit(dist, pLoopUnit));
+		landUnitsToMoveByDistance.push_back(ScoredUnit(dist, pLoopUnit));
 	}
-	std::stable_sort(unitsToMoveByDistance.begin(), unitsToMoveByDistance.end(), greater<ScoredUnit>());
+	// Give priority to furthest units so they won't have to walk around closer units
+	// that arrive to shortest distance plots first
+	std::stable_sort(landUnitsToMoveByDistance.begin(), landUnitsToMoveByDistance.end(), greater<ScoredUnit>());
+
+	std::vector<ScoredUnit> seaUnitsToMoveByDistance;
+    for (std::vector<CvUnit*>::iterator it = eligibleSeaUnits.begin(); it != eligibleSeaUnits.end(); ++it)
+    {
+    	CvUnit* pLoopUnit = *it;
+    	int dist = plotDistance(*pLoopUnit->plot(), *pDestPlot);
+    	seaUnitsToMoveByDistance.push_back(ScoredUnit(dist, pLoopUnit));
+    }
+    std::stable_sort(seaUnitsToMoveByDistance.begin(), seaUnitsToMoveByDistance.end(), greater<ScoredUnit>());
 
 	// Generate a list of eligible plots for these units, only adding another
 	// ring when there are still insufficient plots for the current selection
@@ -15224,18 +15353,61 @@ void CvUnit::DoSquadMovement(CvPlot* pDestPlot)
 			eligiblePlots.push_back(pLoopPlot);
 		}
 
-		if (targetPlotIdx == (RING_PLOTS[currRingEndIdx] - 1) && eligiblePlots.size() < unitsToMoveByDistance.size())
+		if (targetPlotIdx == (RING_PLOTS[currRingEndIdx] - 1) && eligiblePlots.size() < unique_plots_required)
 		{
 			currRingEndIdx++;
 		}
 	}
 
-	// Give priority to furthest units so they won't have to walk around closer units
-	// that arrive to shortest distance plots first
-	std::map<CvUnit*, CvPlot*> unitToPlot;
-	for (std::vector<ScoredUnit>::iterator it = unitsToMoveByDistance.begin(); it != unitsToMoveByDistance.end(); ++it)
+	// Trim the list of eligible plots to the number of unique plots required by removing those 
+	// furthest from the squad COM in the outermost ring
+	CvPlot* squadCenterOfMass = GetSquadCenterOfMass();
+	if (squadCenterOfMass)
+	{
+		std::vector<ScoredPlot> scoredPlots;
+		for (std::vector<CvPlot*>::iterator it = eligiblePlots.begin(); it != eligiblePlots.end(); ++it)
+		{
+			CvPlot* pLoopPlot = *it;
+			int ring = plotDistance(*pDestPlot, *pLoopPlot);
+			int dist = plotDistance(*squadCenterOfMass, *pLoopPlot) + (ring + 1) * (ring + 1);
+			scoredPlots.push_back(ScoredPlot(dist, pLoopPlot));
+		}
+		std::stable_sort(scoredPlots.begin(), scoredPlots.end(), less<ScoredPlot>());
+
+		eligiblePlots.clear();
+		for (int i = 0; i < min(unique_plots_required, (int)scoredPlots.size()); i++)
+		{
+			eligiblePlots.push_back(scoredPlots[i].plot);
+		}
+	}
+
+	// Make a copy for sea domain units since they can occupy the same tile as embarked land domain units
+	std::vector<CvPlot*> eligiblePlotsSea(eligiblePlots);
+
+	// For stacking units, the assignment is simply the destination plot since they can all fit there
+	for (std::vector<CvUnit*>::iterator it = stackingUnits.begin(); it != stackingUnits.end(); ++it)
+	{
+		CvUnit* pLoopUnit = *it;
+		unitToPlotMap.insert(std::make_pair(pLoopUnit, pDestPlot));
+	}
+
+	// Assign destination plots for combat units
+	int numUnitsAssigned = 0;
+	for (std::vector<ScoredUnit>::iterator it = landUnitsToMoveByDistance.begin(); it != landUnitsToMoveByDistance.end(); ++it)
 	{
 		CvUnit* pLoopUnit = (*it).unit;
+
+		// Special case for destination plot: If the number of units to move is less than half of the ring area, the closest plots may
+		// be closer which causes the destination plot to go unfilled. If the destination plot is not already filled by the time the median
+		// distance unit is processed, assign it to the destination plot
+		if (numUnitsAssigned == landUnitsToMoveByDistance.size() / 2
+			&& std::find(eligiblePlots.begin(), eligiblePlots.end(), pDestPlot) != eligiblePlots.end())
+		{
+			unitToPlotMap.insert(std::make_pair(pLoopUnit, pDestPlot));
+			eligiblePlots.erase(std::find(eligiblePlots.begin(), eligiblePlots.end(), pDestPlot));
+			numUnitsAssigned++;
+			continue;
+		}
 
 		CvPlot* closestPlot = NULL;
 		int closestDistance = INT_MAX;
@@ -15263,49 +15435,108 @@ void CvUnit::DoSquadMovement(CvPlot* pDestPlot)
 		{
 			// Insert into a map and move all at once instead of moving one by one so a unit doesn't
 			// occupy a valid tile as an intermediate step to a further tile
-			unitToPlot.insert(std::make_pair(pLoopUnit, closestPlot));
+			unitToPlotMap.insert(std::make_pair(pLoopUnit, closestPlot));
 			eligiblePlots.erase(std::find(eligiblePlots.begin(), eligiblePlots.end(), closestPlot));
+			numUnitsAssigned++;
 		}
 	}
+	numUnitsAssigned = 0;
+	for (std::vector<ScoredUnit>::iterator it = seaUnitsToMoveByDistance.begin(); it != seaUnitsToMoveByDistance.end(); ++it)
+	{
+		CvUnit* pLoopUnit = (*it).unit;
+
+		// Special case for destination plot: If the number of units to move is less than half of the ring area, the closest plots may
+		// be closer which causes the destination plot to go unfilled. If the destination plot is not already filled by the time the median
+		// distance unit is processed, assign it to the destination plot
+		if (numUnitsAssigned == seaUnitsToMoveByDistance.size() / 2
+			&& std::find(eligiblePlotsSea.begin(), eligiblePlotsSea.end(), pDestPlot) != eligiblePlotsSea.end())
+		{
+			unitToPlotMap.insert(std::make_pair(pLoopUnit, pDestPlot));
+			eligiblePlotsSea.erase(std::find(eligiblePlotsSea.begin(), eligiblePlotsSea.end(), pDestPlot));
+			numUnitsAssigned++;
+			continue;
+		}
+
+		CvPlot* closestPlot = NULL;
+		int closestDistance = INT_MAX;
+
+		for (std::vector<CvPlot*>::iterator it = eligiblePlotsSea.begin(); it != eligiblePlotsSea.end(); ++it)
+		{
+			CvPlot* pLoopPlot = *it;
+
+			if (closestPlot)
+			{
+				int dist = plotDistance(*pLoopUnit->plot(), *pLoopPlot);
+				if (dist < closestDistance && pLoopUnit->canMoveInto(*pLoopPlot) && (isDestWater == pLoopPlot->isWater()))
+				{
+					closestDistance = dist;
+					closestPlot = pLoopPlot;
+				}
+			}
+			else
+			{
+				closestPlot = pLoopPlot;
+			}
+		}
+
+		if (closestPlot)
+		{
+			unitToPlotMap.insert(std::make_pair(pLoopUnit, closestPlot));
+			eligiblePlotsSea.erase(std::find(eligiblePlotsSea.begin(), eligiblePlotsSea.end(), closestPlot));
+			numUnitsAssigned++;
+		}
+	}
+
+	return unitToPlotMap;
+}
+
+void CvUnit::DoSquadMovement(CvPlot* pDestPlot, bool escort)
+{
+	VALIDATE_OBJECT();
+
+	std::map<CvUnit*, CvPlot*> unitToPlotMap = DoSquadPlotAssignments(pDestPlot, escort, false);
 
 	SetSquadDestination(pDestPlot);
 
-	// Send all stacking units to original destination plot
-	for (std::vector<CvUnit*>::iterator it = stackingUnits.begin(); it != stackingUnits.end(); ++it)
-	{
-		CvUnit* pLoopUnit = *it;
-		gDLL->sendPushMission(pLoopUnit->GetID(),
-			CvTypes::getMISSION_MOVE_TO(),
-			pDestPlot->getX(),
-			pDestPlot->getY(),
-			CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED | CvUnit::MOVEFLAG_CONTINUE_TO_CLOSEST_PLOT,
-			false);
-	}
 
 	// Now that we have all the units to move and tiles for them, send the move missions
-	for (std::vector<ScoredUnit>::iterator it = unitsToMoveByDistance.begin(); it != unitsToMoveByDistance.end(); ++it)
+	for (std::map<CvUnit*, CvPlot*>::iterator it = unitToPlotMap.begin(); it != unitToPlotMap.end(); ++it)
 	{
-		CvUnit* pLoopUnit = (*it).unit;
-		CvPlot* targetPlot = NULL;
+		CvUnit* pLoopUnit = it->first;
+		CvPlot* targetPlot = it->second;
 
-		std::map<CvUnit*, CvPlot*>::iterator mit = unitToPlot.find(pLoopUnit);
-		if (mit != unitToPlot.end())
+		if (!pLoopUnit->IsLinked() || pLoopUnit->IsLinkedLeader())
 		{
-			targetPlot = mit->second;
+			gDLL->sendPushMission(pLoopUnit->GetID(),
+				CvTypes::getMISSION_MOVE_TO(),
+				targetPlot->getX(),
+				targetPlot->getY(),
+				CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED | CvUnit::MOVEFLAG_CONTINUE_TO_CLOSEST_PLOT | CvUnit::MOVEFLAG_KEEP_LINK,
+				false);
 		}
-		else
-		{
-			targetPlot = pDestPlot;
-		}
-
-		gDLL->sendPushMission(pLoopUnit->GetID(),
-			CvTypes::getMISSION_MOVE_TO(),
-			targetPlot->getX(),
-			targetPlot->getY(),
-			CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED | CvUnit::MOVEFLAG_CONTINUE_TO_CLOSEST_PLOT,
-			false);
 	}
 }
+
+void CvUnit::GetSquadMovementPreview(std::vector<CvPlot*>& pPlotList, CvPlot* pDestPlot)
+{
+	VALIDATE_OBJECT();
+
+	std::map<CvUnit*, CvPlot*> unitToPlotMap = DoSquadPlotAssignments(pDestPlot, false, true);
+
+	// Determine unique destination plots
+	std::set<CvPlot*> uniqueDestPlots;
+	for (std::map<CvUnit*, CvPlot*>::iterator it = unitToPlotMap.begin(); it != unitToPlotMap.end(); ++it)
+	{
+		CvPlot* targetPlot = it->second;
+		uniqueDestPlots.insert(targetPlot);
+	}
+
+	// Provide unique destination plots
+	for (std::set<CvPlot*>::iterator it = uniqueDestPlots.begin(); it != uniqueDestPlots.end(); ++it) {
+		pPlotList.push_back(*it);
+	}
+}
+
 //	--------------------------------------------------------------------------------
 bool CvUnit::IsUnitInActiveMoveMission()
 {
@@ -15341,6 +15572,30 @@ bool CvUnit::IsSquadMoving()
 	return false;
 }
 
+bool CvUnit::SquadHasLink()
+{
+	VALIDATE_OBJECT();
+
+	int squadNumber = GetSquadNumber();
+	if (GetSquadNumber() == -1 || !HasSquadDestination())
+	{
+		return false;
+	}
+
+	CvPlayer* pPlayer = &GET_PLAYER(getOwner());
+	int iLoop = 0;
+	CvUnit* pLoopUnit = NULL;
+	for (pLoopUnit = pPlayer->firstUnitInSquad(&iLoop, squadNumber); pLoopUnit != NULL; pLoopUnit = pPlayer->nextUnitInSquad(&iLoop, squadNumber))
+	{
+		if (pLoopUnit->IsLinked())
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
 //	--------------------------------------------------------------------------------
 void CvUnit::TryEndSquadMovement()
 {
@@ -15359,6 +15614,7 @@ void CvUnit::TryEndSquadMovement()
 		CvUnit* pLoopUnit = NULL;
 		for(pLoopUnit = pPlayer->firstUnitInSquad(&iLoop, GetSquadNumber()); pLoopUnit != NULL; pLoopUnit = pPlayer->nextUnitInSquad(&iLoop, GetSquadNumber()))
 		{
+			pLoopUnit->UnlinkUnits();
 			pLoopUnit->SetActivityType(ACTIVITY_AWAKE);
 		}
 		SetSquadDestination();
@@ -15368,6 +15624,25 @@ void CvUnit::TryEndSquadMovement()
 	{
 		if (GetSquadEndMovementType() != WAKE_ON_EACH_UNIT_ARRIVED)
 		{
+			// Linked units don't get their own move missions that would trigger a call to this function
+			// so handle them alongside the leader
+			if (IsLinkedLeader())
+			{
+				UnitIdContainer LinkedUnitIDs = GetLinkedUnits();
+				for (int iI = 0; iI < (int)LinkedUnitIDs.size(); iI++)
+				{
+					CvUnit* pLinkedUnit = GET_PLAYER(m_eOwner).getUnit(LinkedUnitIDs[iI]);
+					if (pLinkedUnit->canSentry(plot()))
+					{
+						gDLL->sendPushMission(pLinkedUnit->GetID(), CvTypes::getMISSION_ALERT(), 0, 0, 0, false);
+					}
+					else
+					{
+						gDLL->sendPushMission(pLinkedUnit->GetID(), CvTypes::getMISSION_SLEEP(), 0, 0, 0, false);
+					}
+				}
+			}
+
 			if (canSentry(plot()))
 			{
 				gDLL->sendPushMission(GetID(), CvTypes::getMISSION_ALERT(), 0, 0, 0, false);
@@ -15377,7 +15652,10 @@ void CvUnit::TryEndSquadMovement()
 				gDLL->sendPushMission(GetID(), CvTypes::getMISSION_SLEEP(), 0, 0, 0, false);
 			}
 		}
+
+		UnlinkUnits();
 	}
+	
 }
 
 //  --------------------------------------------------------------------------------
@@ -30262,6 +30540,10 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags)
 		if (iFlags & CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED)
 		{
 			ClearPathCache();
+			if (MOD_SQUADS)
+			{
+				UnlinkUnits();
+			}
 			return MOVE_RESULT_CANCEL;
 		}
 	}
@@ -30719,6 +31001,12 @@ void CvUnit::PushMission(MissionTypes eMission, int iData1, int iData2, int iFla
 	{
 		finishMoves();
 		return;
+	}
+
+	// Cancel linking if mission was not pushed by an internal call that wants to keep it
+	if (MOD_SQUADS && eMission == CvTypes::getMISSION_MOVE_TO() && !(iFlags & MOVEFLAG_KEEP_LINK))
+	{
+		UnlinkUnits();
 	}
 
 	//plausi check
