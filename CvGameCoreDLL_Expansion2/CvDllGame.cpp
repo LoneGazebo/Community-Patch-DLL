@@ -630,14 +630,31 @@ void CvDllGame::InitExeStuff()
 
 	m_pGame->SetExeBinType(binType);
 
-	if (binType == BIN_DX11)
+	if (binType == BIN_DX11 || binType == BIN_DX9 || binType == BIN_TABLET)
 	{
 		DWORD baseAddr = (DWORD) GetModuleHandleA(NULL);
 		DWORD headersOffset = 0x400000;
 		DWORD totalOffset = baseAddr - headersOffset;
 
-		int* s_wantForceResync = reinterpret_cast<int*>(0x02dd2f68 + totalOffset);
-		m_pGame->SetExeWantForceResyncPointer(s_wantForceResync);
+		DWORD wantForceResyncAddr = 0;
+		if (binType == BIN_DX11)
+		{
+			wantForceResyncAddr = 0x02dd2f68;
+		}
+		else if (binType == BIN_DX9)
+		{
+			wantForceResyncAddr = 0x02dc2d78;
+		}
+		else if (binType == BIN_TABLET)
+		{
+			wantForceResyncAddr = 0x02dd4f60;
+		}
+
+		if (wantForceResyncAddr != 0)
+		{
+			int* s_wantForceResync = reinterpret_cast<int*>(wantForceResyncAddr + totalOffset);
+			m_pGame->SetExeWantForceResyncPointer(s_wantForceResync);
+		}
 	}
 
 	/*{
