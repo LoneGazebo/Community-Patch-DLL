@@ -13,7 +13,7 @@ CvDllBuildInfo::CvDllBuildInfo(CvBuildInfo* pBuildInfo)
 	: m_pBuildInfo(pBuildInfo)
 	, m_uiRefCount(1)
 {
-	ASSERT_DEBUG(pBuildInfo != NULL, "SHOULD NOT HAPPEN");
+	ASSERT(pBuildInfo != NULL, "SHOULD NOT HAPPEN");
 }
 //------------------------------------------------------------------------------
 CvDllBuildInfo::~CvDllBuildInfo()

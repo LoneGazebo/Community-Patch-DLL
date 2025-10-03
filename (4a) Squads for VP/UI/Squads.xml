@@ -155,13 +155,14 @@
         <Image Anchor="C,B" Offset="0,110" Texture="HorizontalTrim.dds" Size="1027.5"/>
 
         <!-- Options Panel -->
-        <Grid ID="OptionsPanel" Anchor="R,C" Size="350,300" Color="White.256" Style="Grid9DetailSix140" Padding="5,10" Offset="-338,0" Hidden="true" ConsumeMouse="1" >
+        <Grid ID="OptionsPanel" Anchor="R,C" Size="350,350" Color="White.256" Style="Grid9DetailSix140" Padding="5,10" Offset="-338,0" Hidden="true" ConsumeMouse="1" >
             <Stack Anchor="C,C" Padding="0" Offset="0,5" StackGrowth="Bottom" ID="MainStack" >
                 <CheckBox Anchor="L,T"  TextAnchorSide="Right" Offset="-25,0" TextOffset="40,0" IsChecked="0" ID="HighlightSquadUnitsCheckBox" String="TXT_KEY_SQUADS_OPTION_HIGHLIGHT" />
                 <CheckBox Anchor="L,T"  TextAnchorSide="Right" Offset="-25,0" TextOffset="40,0" IsChecked="0" ID="FlagsNumberCheckBox" String="TXT_KEY_SQUADS_OPTION_FLAGS_NUMBER" />
+                <CheckBox Anchor="L,T"  TextAnchorSide="Right" Offset="-25,0" TextOffset="40,0" IsChecked="1" ID="EscortCheckBox" String="TXT_KEY_SQUADS_OPTION_ESCORT" ToolTip="TXT_KEY_SQUADS_OPTION_ESCORT_TT" />
                 <Label Anchor="L,T"  TextAnchorSide="Right" Offset="-25,0" TextOffset="40,0" String=" " />
                 <Label Anchor="L,T"  TextAnchorSide="Right" Offset="-25,0" TextOffset="40,0" String="TXT_KEY_SQUADS_MOVEMENT_END_TYPE" />
-                <RadioButton RadioGroup="SquadsEndMoveMode" Anchor="L,T"  TextAnchorSide="Right" Offset="-25,0" TextOffset="40,0" IsChecked="0" ID="AlertOnArrivalRadioButton" String="TXT_KEY_SQUADS_MOVEMENT_END_TYPE_ALERT_ON_ARRIVAL" />
+                <RadioButton RadioGroup="SquadsEndMoveMode" Anchor="L,T"  TextAnchorSide="Right" Offset="-25,15" TextOffset="40,0" IsChecked="0" ID="AlertOnArrivalRadioButton" String="TXT_KEY_SQUADS_MOVEMENT_END_TYPE_ALERT_ON_ARRIVAL" />
                 <RadioButton RadioGroup="SquadsEndMoveMode" Anchor="L,T"  TextAnchorSide="Right" Offset="-25,0" TextOffset="40,0" IsChecked="0" ID="WakeOnUnitArrivalRadioButton" String="TXT_KEY_SQUADS_MOVEMENT_END_TYPE_WAKE_ON_UNIT_ARRIVAL" />
                 <RadioButton RadioGroup="SquadsEndMoveMode" Anchor="L,T"  TextAnchorSide="Right" Offset="-25,0" TextOffset="40,0" IsChecked="0" ID="WakeOnSquadArrivalRadioButton" String="TXT_KEY_SQUADS_MOVEMENT_END_TYPE_WAKE_ON_SQUAD_ARRIVAL" />
                 <Box Anchor="C,T" Size="210,1" Color="0,0,0,0" />

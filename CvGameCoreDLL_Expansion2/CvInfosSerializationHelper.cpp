@@ -153,7 +153,7 @@ int Read(FDataStream& kStream, bool* bValid /*= NULL*/)
 			CvString szError;
 			szError.Format("LOAD ERROR: Type not found: %s", sTemp.c_str());
 			GC.LogMessage(szError.GetCString());
-			ASSERT_DEBUG(false, szError);
+			ASSERT(false, szError);
 		}
 	}
 
@@ -178,7 +178,7 @@ int ReadHashed(FDataStream& kStream, bool* bValid /*= NULL*/)
 			CvString szError;
 			szError.Format("LOAD ERROR: Type not found for hash: %u", uiHash);
 			GC.LogMessage(szError.GetCString());
-			ASSERT_DEBUG(false, szError);
+			ASSERT(false, szError);
 			if(bValid) *bValid = false;
 		}
 	}

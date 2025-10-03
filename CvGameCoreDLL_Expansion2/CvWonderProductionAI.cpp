@@ -47,7 +47,7 @@ void CvWonderProductionAI::Init(CvBuildingXMLEntries* pBuildings, CvPlayer* pPla
 /// Clear out AI local variables
 void CvWonderProductionAI::Reset()
 {
-	ASSERT_DEBUG(m_pBuildings != NULL, "Wonder Production AI init failure: building entries are NULL");
+	ASSERT(m_pBuildings != NULL, "Wonder Production AI init failure: building entries are NULL");
 
 	// Reset vector
 	m_WonderAIWeights.clear();

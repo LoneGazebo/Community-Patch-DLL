@@ -113,8 +113,8 @@ bool CvAICityStrategyEntry::CacheResults(Database::Results& kResults, CvDatabase
 /// What Flavors will be added by adopting this Strategy?
 int CvAICityStrategyEntry::GetFlavorValue(int i) const
 {
-	ASSERT_DEBUG(i < GC.getNumFlavorTypes(), "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumFlavorTypes(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piFlavorValue ? m_piFlavorValue[i] : -1;
 }
 
@@ -127,8 +127,8 @@ int CvAICityStrategyEntry::GetWeightThreshold() const
 /// How do a player's Personality Flavors affect the Threshold for adopting a Strategy? (if applicable)
 int CvAICityStrategyEntry::GetPersonalityFlavorThresholdMod(int i) const
 {
-	ASSERT_DEBUG(i < GC.getNumFlavorTypes(), "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumFlavorTypes(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piPersonalityFlavorThresholdMod ? m_piPersonalityFlavorThresholdMod[i] : -1;
 }
 
@@ -544,10 +544,7 @@ int CvCityStrategyAI::GetTurnCityStrategyAdopted(AICityStrategyTypes eStrategy)
 /// Sets the turn number eStrategy was most recently adopted
 void CvCityStrategyAI::SetTurnCityStrategyAdopted(AICityStrategyTypes eStrategy, int iValue)
 {
-	if(m_paiTurnCityStrategyAdopted[(int) eStrategy] != iValue)
-	{
-		m_paiTurnCityStrategyAdopted[(int) eStrategy] = iValue;
-	}
+	m_paiTurnCityStrategyAdopted[(int) eStrategy] = iValue;
 }
 
 /// Get the sub-object tracking building production
@@ -877,7 +874,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 			{		
 				int iTempWeight = m_pProcessProductionAI->GetWeight((ProcessTypes)iProcessLoop);
 				CvProcessInfo* pProcess = GC.getProcessInfo(eProcess);
-				ASSERT_DEBUG(pProcess);
+				ASSERT(pProcess);
 				if (pProcess->getDefenseValue() > 0)
 				{
 					iTempWeight = 100;
@@ -3064,7 +3061,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_KeyScienceCity(CvCity* pCity)
 				eFlavorEspionage = eFlavor;
 			}
 		}
-		ASSERT_DEBUG(eFlavorEspionage != NO_FLAVOR, "Could not find espionage flavor!");
+		PRECONDITION(eFlavorEspionage != NO_FLAVOR, "Could not find espionage flavor!");
 
 		float fRatio = iNumBetterScienceCities / (float)iNumOtherCities;
 		float fCutOff = (0.05f * GET_PLAYER(ePlayer).GetFlavorManager()->GetPersonalityIndividualFlavor(eFlavorEspionage));
@@ -3167,7 +3164,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_GoodGPCity(CvCity* pCity)
 									if (pPantheon != NULL && ePantheonBelief != NO_BELIEF && ePantheonBelief != eSecondaryPantheon)
 									{
 										const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pCity->getOwner());
-										if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, pReligion->m_eReligion, pCity->getOwner()))) // check that the our religion does not have our belief, to prevent double counting
+										if (pReligion == NULL || !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, pReligion->m_eReligion, pCity->getOwner())) // check that the our religion does not have our belief, to prevent double counting
 										{
 											iMod += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
 										}

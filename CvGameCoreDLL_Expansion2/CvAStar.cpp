@@ -426,7 +426,7 @@ bool CvAStar::FindPathWithCurrentConfiguration(int iXstart, int iYstart, int iXd
 		{
 			// Add debug breakpoint here for investigation during development
 			OutputDebugString("Repeated pathfinding start\n");
-			ASSERT_DEBUG(false, "Repeated pathfinding detected - investigate call path");
+			ASSERT(false, "Repeated pathfinding detected - investigate call path");
 		}
 		giLastStartIndex = iStartIndex;
 		giLastDestIndex = iDestIndex;
@@ -577,7 +577,7 @@ void CvAStar::CreateChildren(CvAStarNode* node)
 			if (isValid(x, y))
 			{
 				CvAStarNode* check = GetNodeMutable(x,y);
-				ASSERT_DEBUG(check != NULL, "GetNodeMutable returned null after isValid check");
+				ASSERT(check != NULL, "GetNodeMutable returned null after isValid check");
 				if (check == node->m_pParent)
 					continue;
 
@@ -1771,8 +1771,8 @@ int StepValidGeneric(const CvAStarNode* parent, const CvAStarNode* node, const S
 	CvPlot* pToPlot = kMap.plotUnchecked(node->m_iX, node->m_iY);
 	CvPlot* pFromPlot = kMap.plotUnchecked(parent->m_iX, parent->m_iY);
 
-	ASSERT_DEBUG(pFromPlot != NULL, "plotUnchecked returned null - invalid parent coordinates");
-	ASSERT_DEBUG(pToPlot != NULL, "plotUnchecked returned null - invalid node coordinates");
+	ASSERT(pFromPlot != NULL, "plotUnchecked returned null - invalid parent coordinates");
+	ASSERT(pToPlot != NULL, "plotUnchecked returned null - invalid node coordinates");
 
 	if (eMyTeam!=NO_TEAM && !pToPlot->isRevealed(eMyTeam))
 		return FALSE;
@@ -1998,8 +1998,7 @@ int InfluenceValid(const CvAStarNode* parent, const CvAStarNode* node, const SPa
 
 	CvPlot* pOrigin = GC.getMap().plotUnchecked(finder->GetStartX(), finder->GetStartY());
 	CvPlot* pToPlot = GC.getMap().plotUnchecked(node->m_iX, node->m_iY);
-	if (!pOrigin || !pToPlot)
-		return FALSE;
+	ASSERT(pOrigin != NULL && pToPlot != NULL);
 
 	//can only claim ocean tiles after we can cross oceans
 	if (pToPlot->isDeepWater() && data.ePlayer!=NO_PLAYER)
@@ -2190,8 +2189,9 @@ int CityConnectionWaterValid(const CvAStarNode* parent, const CvAStarNode* node,
 	TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
 
 	CvPlot* pNewPlot = GC.getMap().plotUnchecked(node->m_iX, node->m_iY);
+	ASSERT(pNewPlot != NULL);
 
-	if(!pNewPlot || !pNewPlot->isRevealed(eTeam))
+	if(!pNewPlot->isRevealed(eTeam))
 		return FALSE;
 
 	if (!pNewPlot->isWater() && !pNewPlot->isCoastalCityOrPassableImprovement(ePlayer,true,true))
@@ -2424,9 +2424,10 @@ int AreaValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFin
 	CvMap& kMap = GC.getMap();
 	CvPlot* pToPlot = kMap.plotUnchecked(node->m_iX, node->m_iY);
 	CvPlot* pFromPlot = kMap.plotUnchecked(parent->m_iX, parent->m_iY);
+	ASSERT(pToPlot != NULL && pFromPlot != NULL);
 
 	//ignore plots which already have their area set!
-	if (!pFromPlot || !pToPlot || pToPlot->getArea()!=-1)
+	if (pToPlot->getArea()!=-1)
 		return FALSE;
 
 	//small misuse ...

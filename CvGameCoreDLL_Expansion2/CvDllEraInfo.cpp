@@ -13,7 +13,7 @@ CvDllEraInfo::CvDllEraInfo(CvEraInfo* pEraInfo)
 	: m_pEraInfo(pEraInfo)
 	, m_uiRefCount(1)
 {
-	ASSERT_DEBUG(pEraInfo != NULL, "SHOULD NOT HAPPEN");
+	ASSERT(pEraInfo != NULL, "SHOULD NOT HAPPEN");
 }
 //------------------------------------------------------------------------------
 CvDllEraInfo::~CvDllEraInfo()

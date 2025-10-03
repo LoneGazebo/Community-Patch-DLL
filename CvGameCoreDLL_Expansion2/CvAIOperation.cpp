@@ -516,7 +516,7 @@ int CvAIOperation::GrabUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTarget
 	for (size_t iI = 0; iI < pArmy->GetNumFormationEntries(); iI++)
 	{
 		CvArmyFormationSlot* pSlot = pArmy->GetSlotStatus(iI);
-		ASSERT_DEBUG(pSlot != NULL, "GetSlotStatus returned null - array bounds issue");
+		ASSERT(pSlot != NULL, "GetSlotStatus returned null - array bounds issue");
 
 		if (pSlot->IsFree())
 		{
@@ -1349,7 +1349,7 @@ bool CvAIOperation::FindBestFitReserveUnit(OperationSlot thisOperationSlot, vect
 		return false;
 
 	CvArmyFormationSlot* pSlot = pThisArmy->GetSlotStatus(thisOperationSlot.m_iSlotID);
-	ASSERT_DEBUG(pSlot != NULL, "GetSlotStatus returned null - slot ID out of bounds");
+	PRECONDITION(pSlot != NULL, "GetSlotStatus returned null - slot ID out of bounds");
 
 	if (pSlot->IsUsed())
 	{
@@ -2713,14 +2713,14 @@ CvPlot* CvAIOperationNukeAttack::FindBestTarget(CvPlot** ppMuster) const
 	// check all of our units to find the nukes
 	for(CvUnit* pLoopUnit = ownerPlayer.firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = ownerPlayer.nextUnit(&iUnitLoop))
 	{
-		if (!pLoopUnit || !pLoopUnit->canNuke())
+		if (!pLoopUnit->canNuke())
 			continue;
 
 		// for all cities of this enemy
 		for(CvCity* pLoopCity = enemyPlayer.firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = enemyPlayer.nextCity(&iCityLoop))
 		{
 			//in range?
-			if (!pLoopCity || plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), pLoopCity->getX(), pLoopCity->getY()) > pLoopUnit->GetRange())
+			if (plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), pLoopCity->getX(), pLoopCity->getY()) > pLoopUnit->GetRange())
 				continue;
 
 			//don't nuke if we're about to capture it or if it was captured from us

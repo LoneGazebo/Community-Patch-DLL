@@ -9466,7 +9466,7 @@ pair<int,int> CvTacticalPosition::doVisibilityUpdate(const STacticalAssignment& 
 						{
 							const vector<STacticalUnit>& units = neighborPlot.getUnitsAtPlot();
 							for (size_t j = 0; j < units.size(); j++)
-								ASSERT_DEBUG(!isCombatUnit(units[j].eMoveType));
+								ASSERT(!isCombatUnit(units[j].eMoveType));
 						}
 					}
 				}
@@ -10399,8 +10399,8 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 		GET_PLAYER(ePlayer).GetTacticalAI()->LogTacticalMessage(strMsg);
 
 		// Assertions for critical conditions
-		ASSERT_DEBUG(iMaxBranches >= 2 && iMaxBranches <= 9 && "Invalid branch count");
-		ASSERT_DEBUG(iMaxChoicesPerUnit >= 2 && iMaxChoicesPerUnit <= 9 && "Invalid choices per unit");
+		ASSERT(iMaxBranches >= 2 && iMaxBranches <= 9 && "Invalid branch count");
+		ASSERT(iMaxChoicesPerUnit >= 2 && iMaxChoicesPerUnit <= 9 && "Invalid choices per unit");
 	}
 #endif
 
@@ -10643,7 +10643,7 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 	// Additional debug info
 	char szDebugInfo[256];
 	sprintf_s(szDebugInfo, "TacticalAI: Target (%d,%d), Units %lu, Agg %d, Enemies %d, Checked Positions %d, Used %d, Completed %lu, Bad Units %lu, %d ms, Player %d\n",
-		pTarget->getX(), pTarget->getY(), vUnits.size(), eAggLvl, initialPosition->getNumEnemies(), gCheckedPositions, iUsedPositions, completedPositions.size(), unuseableUnits.size(), durationMs, ePlayer);
+		pTarget->getX(), pTarget->getY(), (unsigned long)vUnits.size(), eAggLvl, initialPosition->getNumEnemies(), gCheckedPositions, iUsedPositions, (unsigned long)completedPositions.size(), (unsigned long)unuseableUnits.size(), durationMs, ePlayer);
 	OutputDebugString(szDebugInfo);
 #endif
 

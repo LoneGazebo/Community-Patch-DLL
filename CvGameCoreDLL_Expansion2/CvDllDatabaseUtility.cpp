@@ -178,7 +178,7 @@ bool CvDllDatabaseUtility::CacheGameDatabaseData()
 	//Log Database Memory statistics
 	LogMsg(DB.CalculateMemoryStats());
 
-	ASSERT_DEBUG(bSuccess, "Failed to load Gameplay Database Data! Not Good!");
+	ASSERT(bSuccess, "Failed to load Gameplay Database Data! Not Good!");
 
 	GC.GameDataPostCache();
 
@@ -416,7 +416,7 @@ bool CvDllDatabaseUtility::PrefetchGameData()
 			while(kResults.Step())
 			{
 				const int iFlavor = kResults.GetInt("ID");
-				ASSERT_DEBUG(iFlavor >= 0 && iFlavor < iNumFlavors);
+				ASSERT(iFlavor >= 0 && iFlavor < iNumFlavors);
 				if(iFlavor >= 0 && iFlavor < iNumFlavors)
 				{
 					paFlavors[iFlavor] = kResults.GetText("Type");
@@ -426,7 +426,7 @@ bool CvDllDatabaseUtility::PrefetchGameData()
 		}
 		else
 		{
-			ASSERT_DEBUG(false, DB.ErrorMessage());
+			ASSERT(false, DB.ErrorMessage());
 		}
 	}
 
@@ -499,7 +499,7 @@ void CvDllDatabaseUtility::DatabaseRemapper()
 										bFirst = false;
 									}
 									char szUpdate[512];
-									sprintf_s(szUpdate, "UPDATE %s SET ID = %d WHERE ID = %d;", szTableName, ui, vTableIDs[ui]);
+									sprintf_s(szUpdate, "UPDATE %s SET ID = %d WHERE ID = %d;", szTableName, (int)ui, vTableIDs[ui]);
 									DB.Execute(szUpdate);
 								}
 							}
@@ -978,7 +978,7 @@ bool CvDllDatabaseUtility::SetGlobalActionInfo()
 	for(i = 0; i < iTotalActionInfoCount; i++)
 	{
 		CvActionInfo* pActionInfo = FNEW(CvActionInfo, c_eCiv5GameplayDLL, 0);
-		ASSERT_DEBUG(piIndexList[piOrderedIndex[i]] != -1);
+		ASSERT(piIndexList[piOrderedIndex[i]] != -1);
 
 		pActionInfo->setOriginalIndex(piIndexList[piOrderedIndex[i]]);
 		pActionInfo->setSubType((ActionSubTypes)piActionInfoTypeList[piOrderedIndex[i]]);

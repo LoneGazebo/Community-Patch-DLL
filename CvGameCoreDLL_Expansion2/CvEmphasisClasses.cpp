@@ -56,8 +56,8 @@ bool CvEmphasisEntry::IsGreatPeople() const
 // What is the yield change for this yield type?
 int CvEmphasisEntry::GetYieldChange(int i) const
 {
-	ASSERT_DEBUG(i < NUM_YIELD_TYPES, "Index out of bounds");
-	ASSERT_DEBUG(i > -1, "Index out of bounds");
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piYieldModifiers ? m_piYieldModifiers[i] : -1;
 }
 
@@ -144,7 +144,7 @@ void CvCityEmphases::Reset()
 	m_iEmphasizeGreatPeopleCount = 0;
 
 	m_aiEmphasizeYieldCount.init(0);
-	ASSERT_DEBUG(GC.getNumEmphasisInfos() > 0,  "GC.getNumEmphasizeInfos() is not greater than zero but an array is being allocated in CvCityEmphases::Reset");
+	ASSERT(GC.getNumEmphasisInfos() > 0,  "GC.getNumEmphasizeInfos() is not greater than zero but an array is being allocated in CvCityEmphases::Reset");
 	m_pbEmphasize.init(false);
 }
 
@@ -163,8 +163,8 @@ bool CvCityEmphases::IsEmphasizeAvoidGrowth()
 /// What is this city's yield boost due to emphasis?
 int CvCityEmphases::GetEmphasizeYieldCount(YieldTypes eIndex)
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 	if(eIndex >= 0 && eIndex < NUM_YIELD_TYPES)
 		return m_aiEmphasizeYieldCount[eIndex];
 	return 0; // default set during "reset"
@@ -179,9 +179,9 @@ bool CvCityEmphases::IsEmphasizeYield(YieldTypes eIndex)
 /// Is this emphasis turned on?
 bool CvCityEmphases::IsEmphasize(EmphasizeTypes eIndex)
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < GC.getNumEmphasisInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	ASSERT_DEBUG(m_pbEmphasize.valid(), "m_pbEmphasize is expected to be valid");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumEmphasisInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(m_pbEmphasize.valid(), "m_pbEmphasize is expected to be valid");
 
 	return m_pbEmphasize[eIndex];
 }
@@ -189,8 +189,8 @@ bool CvCityEmphases::IsEmphasize(EmphasizeTypes eIndex)
 /// Turn on this emphasis
 void CvCityEmphases::SetEmphasize(EmphasizeTypes eIndex, bool bNewValue)
 {
-	ASSERT_DEBUG(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	ASSERT_DEBUG(eIndex < GC.getNumEmphasisInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumEmphasisInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	if(IsEmphasize(eIndex) != bNewValue)
 	{
@@ -201,7 +201,7 @@ void CvCityEmphases::SetEmphasize(EmphasizeTypes eIndex, bool bNewValue)
 		if(pkEmphasis->IsAvoidGrowth())
 		{
 			m_iEmphasizeAvoidGrowthCount += ((IsEmphasize(eIndex)) ? 1 : -1);
-			ASSERT_DEBUG(GetEmphasizeAvoidGrowthCount() >= 0);
+			ASSERT(GetEmphasizeAvoidGrowthCount() >= 0);
 		}
 
 		if(pkEmphasis->IsGreatPeople())
@@ -214,7 +214,7 @@ void CvCityEmphases::SetEmphasize(EmphasizeTypes eIndex, bool bNewValue)
 			if(pkEmphasis->GetYieldChange(iI))
 			{
 				m_aiEmphasizeYieldCount[iI] += ((IsEmphasize(eIndex)) ? 1 : -1);
-				ASSERT_DEBUG(GetEmphasizeYieldCount((YieldTypes)iI) >= 0);
+				ASSERT(GetEmphasizeYieldCount((YieldTypes)iI) >= 0);
 			}
 		}
 

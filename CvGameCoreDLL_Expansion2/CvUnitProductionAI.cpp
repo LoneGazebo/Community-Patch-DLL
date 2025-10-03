@@ -33,7 +33,7 @@ CvUnitProductionAI::~CvUnitProductionAI(void)
 /// Clear out AI local variables
 void CvUnitProductionAI::Reset()
 {
-	ASSERT_DEBUG(m_pUnits != NULL, "Unit Production AI init failure: unit entries are NULL");
+	ASSERT(m_pUnits != NULL, "Unit Production AI init failure: unit entries are NULL");
 
 	m_UnitAIWeights.clear();
 
@@ -289,7 +289,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		return SR_UNITSUPPLY;
 	else if (bCombat && pkUnitEntry->GetDomainType() == DOMAIN_SEA && iNumSeaUnits >= kPlayer.GetMilitaryAI()->GetRecommendNavySize())
 		return SR_UNITSUPPLY;
-	else if (pkUnitEntry->GetDefaultUnitAIType() == UNITAI_EXPLORE && iNumExplorers >= kPlayer.GetEconomicAI()->GetExplorersNeeded())
+	else if (pkUnitEntry->GetDefaultUnitAIType() == UNITAI_EXPLORE && iNumExplorers >= kPlayer.GetMilitaryAI()->GetRecommendedExplorers())
 		return SR_UNITSUPPLY;
 
 	//only war with majors count
@@ -526,7 +526,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		//Need Explorers?
 		if (eDomain == DOMAIN_LAND && pkUnitEntry->GetDefaultUnitAIType() == UNITAI_EXPLORE)
 		{
-			int iExplorersNeeded = kPlayer.GetEconomicAI()->GetExplorersNeeded();
+			int iExplorersNeeded = kPlayer.GetMilitaryAI()->GetRecommendedExplorers();
 
 			int iExploreBonus = iExplorersNeeded - iNumExplorers;
 			if (iExploreBonus > 0)

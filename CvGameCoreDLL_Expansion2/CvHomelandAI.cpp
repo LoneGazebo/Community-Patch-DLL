@@ -2103,29 +2103,25 @@ void CvHomelandAI::ReviewUnassignedUnits()
 						}
 					}
 
-					if (pBestPlot != NULL)
-					{
-
-						if (
+					if (pBestPlot != NULL && (
 							// check if we are satisfying MOVEFLAG_APPROX_TARGET_RING2 already
 							(iBestDistance < 3 && iBestDistance >= 0) || 
 							// move if not
-							MoveToTargetButDontEndTurn(pUnit, pBestPlot, iFlags)
-						) {
-							pUnit->SetTurnProcessed(true);
+							MoveToTargetButDontEndTurn(pUnit, pBestPlot, iFlags)))
+					{
+						pUnit->SetTurnProcessed(true);
 
-							CvString strTemp;
-							CvUnitEntry* pkUnitInfo = GC.getUnitInfo(pUnit->getUnitType());
-							if(pkUnitInfo)
-							{
-								strTemp = pkUnitInfo->GetDescription();
-								CvString strLogString;
-								strLogString.Format("Unassigned %s %d wandering homeward, at, X: %d, Y: %d - to X: %d, Y: %d.", strTemp.GetCString(), pUnit->GetID(), pUnit->getX(), pUnit->getY(), pBestPlot->getX(), pBestPlot->getY());
-								LogHomelandMessage(strLogString);
-							}
-
-							continue;
+						CvString strTemp;
+						CvUnitEntry* pkUnitInfo = GC.getUnitInfo(pUnit->getUnitType());
+						if(pkUnitInfo)
+						{
+							strTemp = pkUnitInfo->GetDescription();
+							CvString strLogString;
+							strLogString.Format("Unassigned %s %d wandering homeward, at, X: %d, Y: %d - to X: %d, Y: %d.", strTemp.GetCString(), pUnit->GetID(), pUnit->getX(), pUnit->getY(), pBestPlot->getX(), pBestPlot->getY());
+							LogHomelandMessage(strLogString);
 						}
+
+						continue;
 					}
 					else {
 						// mark as processed to not hang the game but still do scrap check
@@ -2921,6 +2917,12 @@ void CvHomelandAI::ExecuteWorkerMoves()
 		CvUnit* pBuilder = aDistanceWeightedDirectives.front().option.first;
 		BuilderDirective eDirective = aDistanceWeightedDirectives.front().option.second;
 
+		// Need to save the state of the plot in case we finish the improvement this turn
+		CvPlot* pDirectivePlot = GC.getMap().plot(eDirective.m_sX, eDirective.m_sY);
+		ImprovementTypes eOldImprovement = !pDirectivePlot->IsImprovementPillaged() ? pDirectivePlot->getImprovementType() : NO_IMPROVEMENT;
+		FeatureTypes eOldFeature = pDirectivePlot->getFeatureType();
+		ResourceTypes eOldResource = pDirectivePlot->getResourceType(m_pPlayer->getTeam());
+
 		// We may have planned an improvement that we can't build yet, but should still update other plots as if we've built it
 		// E.g. if we're planning to build an improvement with a no-two-adjacent requirement, we still want to build other improvements next to it.
 		bool bCanBuild = pBuilder->canBuild(GC.getMap().plot(eDirective.m_sX, eDirective.m_sY), eDirective.m_eBuild);
@@ -2980,21 +2982,59 @@ void CvHomelandAI::ExecuteWorkerMoves()
 		if (allWorkers.size() > processedWorkers.size())
 		{
 			// We may want to recalculate some of the other directive scores
-			CvPlot* pDirectivePlot = GC.getMap().plot(eDirective.m_sX, eDirective.m_sY);
 			CvBuildInfo* pkBuildInfo = GC.getBuildInfo(eDirective.m_eBuild);
-			ImprovementTypes eOldImprovement = !pDirectivePlot->IsImprovementPillaged() ? pDirectivePlot->getImprovementType() : NO_IMPROVEMENT;
 			ImprovementTypes eImprovement = (ImprovementTypes)pkBuildInfo->getImprovement();
+			RouteTypes eRoute = (RouteTypes)pkBuildInfo->getRoute();
 
-			if (eImprovement == NO_IMPROVEMENT && (pkBuildInfo->isRepair() || !pDirectivePlot->IsImprovementPillaged()))
+			bool bFinishedBuilding = false;
+			switch (eDirective.m_eDirectiveType)
+			{
+			case BuilderDirective::BUILD_IMPROVEMENT:
+			case BuilderDirective::BUILD_IMPROVEMENT_ON_RESOURCE:
+				bFinishedBuilding = pDirectivePlot->getImprovementType() == eImprovement;
+				break;
+			case BuilderDirective::BUILD_ROUTE:
+				bFinishedBuilding = pDirectivePlot->getRouteType() == eRoute;
+				break;
+			case BuilderDirective::KEEP_IMPROVEMENT:
+				UNREACHABLE();
+				break;
+			case BuilderDirective::REMOVE_FEATURE:
+				bFinishedBuilding = pDirectivePlot->getFeatureType() == NO_FEATURE;
+				break;
+			case BuilderDirective::REMOVE_ROAD:
+				bFinishedBuilding = pDirectivePlot->getRouteType() == NO_ROUTE;
+				break;
+			case BuilderDirective::REPAIR_IMPROVEMENT:
+				bFinishedBuilding = !pDirectivePlot->IsImprovementPillaged();
+				break;
+			case BuilderDirective::REPAIR_ROUTE:
+				bFinishedBuilding = !pDirectivePlot->IsRoutePillaged();
+				break;
+			}
+
+			if (eImprovement == NO_IMPROVEMENT && eDirective.m_eDirectiveType == BuilderDirective::REPAIR_IMPROVEMENT)
 				eImprovement = pDirectivePlot->getImprovementType();
 
 			CvImprovementEntry* pkImprovementInfo = eImprovement != NO_IMPROVEMENT ? GC.getImprovementInfo(eImprovement) : NULL;
 			CvImprovementEntry* pkOldImprovementInfo = eOldImprovement != NO_IMPROVEMENT ? GC.getImprovementInfo(eOldImprovement) : NULL;
 
+			if (GC.getLogging() && GC.getAILogging())
+			{
+				if (pkImprovementInfo && pkOldImprovementInfo && pkOldImprovementInfo->IsCreatedByGreatPerson())
+				{
+					CvString strLogString;
+					CvString strTemp = pkOldImprovementInfo->GetDescription();
+					CvString strTemp2 = pkImprovementInfo->GetDescription();
+					strLogString.Format("Planning to replace Great Person improvement %s with %s", strTemp.GetCString(), strTemp2.GetCString());
+					LogHomelandMessage(strLogString);
+				}
+			}
+
 			vector<BuilderDirective> aNewBuilderDirectives;
 
 			const CvCity* pOwningCity = pDirectivePlot->getEffectiveOwningCity();
-			if (!pOwningCity && eImprovement == NO_IMPROVEMENT)
+			if (!pOwningCity && eImprovement != NO_IMPROVEMENT)
 			{
 				// If we are performing a culture bomb, find which city will be owning the plot
 				bool bIsCultureBomb = pkImprovementInfo ? pkImprovementInfo->GetCultureBombRadius() > 0 : false;
@@ -3028,12 +3068,11 @@ void CvHomelandAI::ExecuteWorkerMoves()
 
 			// Resource considerations
 			bool bResourceStateChanged = false;
-			const ResourceTypes eResource = pDirectivePlot->getResourceType(m_pPlayer->getTeam());
 			if (bCanBuild)
 			{
 				const ResourceTypes eResourceFromImprovement = pkImprovementInfo ? (ResourceTypes)pkImprovementInfo->GetResourceFromImprovement() : NO_RESOURCE;
 				const ResourceTypes eResourceFromOldImprovement = pkOldImprovementInfo ? (ResourceTypes)pkOldImprovementInfo->GetResourceFromImprovement() : NO_RESOURCE;
-				const ResourceTypes eNaturalResource = eResourceFromOldImprovement == NO_RESOURCE ? eResource : NO_RESOURCE;
+				const ResourceTypes eNaturalResource = eResourceFromOldImprovement == NO_RESOURCE ? eOldResource : NO_RESOURCE;
 
 				bool bOldCreatedResource = eResourceFromOldImprovement != NO_RESOURCE;
 				bool bOldConnectedResource = eNaturalResource != NO_RESOURCE && pkOldImprovementInfo && pkOldImprovementInfo->IsConnectsResource(eNaturalResource);
@@ -3061,14 +3100,20 @@ void CvHomelandAI::ExecuteWorkerMoves()
 
 				if (eCreatedResource != NO_RESOURCE)
 				{
-					int iResourceAmount = eResourceFromImprovement != NO_RESOURCE ? pkImprovementInfo->GetResourceQuantityFromImprovement() : pDirectivePlot->getNumResource();
-					sState.mExtraResources[eResource] += iResourceAmount;
+					if (!bFinishedBuilding)
+					{
+						int iResourceAmount = eResourceFromImprovement != NO_RESOURCE ? pkImprovementInfo->GetResourceQuantityFromImprovement() : pDirectivePlot->getNumResource();
+						sState.mExtraResources[eOldResource] += iResourceAmount;
+					}
 					bResourceStateChanged = true;
 				}
 				if (eRemovedResource != NO_RESOURCE)
 				{
-					int iResourceAmount = eResourceFromOldImprovement != NO_RESOURCE ? pkOldImprovementInfo->GetResourceQuantityFromImprovement() : pDirectivePlot->getNumResource();
-					sState.mExtraResources[eResource] -= iResourceAmount;
+					if (!bFinishedBuilding)
+					{
+						int iResourceAmount = eResourceFromOldImprovement != NO_RESOURCE ? pkOldImprovementInfo->GetResourceQuantityFromImprovement() : pDirectivePlot->getNumResource();
+						sState.mExtraResources[eOldResource] -= iResourceAmount;
+					}
 					bResourceStateChanged = true;
 				}
 			}
@@ -3079,7 +3124,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 			FeatureTypes eFeature = eFeatureFromImprovement;
 			if (eFeature == NO_FEATURE)
 			{
-				eFeature = pDirectivePlot->getFeatureType();
+				eFeature = eOldFeature;
 				if (eFeature != NO_FEATURE && pkBuildInfo->isFeatureRemove(eFeature))
 				{
 					eFeature = NO_FEATURE;
@@ -3088,22 +3133,25 @@ void CvHomelandAI::ExecuteWorkerMoves()
 
 			if (bCanBuild)
 			{
-				if (!MOD_BALANCE_VP && eFeature != pDirectivePlot->getFeatureType())
+				if (eFeature != eOldFeature)
 				{
-					sState.mChangedPlotFeatures[pDirectivePlot->GetPlotIndex()] = eFeature;
+					if (!bFinishedBuilding)
+						sState.mChangedPlotFeatures[pDirectivePlot->GetPlotIndex()] = eFeature;
+
 					bFeatureStateChanged = true;
 				}
 			}
 
 			// Improvement considerations
 			bool bImprovementStateChanged = false;
-			if (bCanBuild)
+			if (bCanBuild && (eDirective.m_eDirectiveType == BuilderDirective::BUILD_IMPROVEMENT || 
+							  eDirective.m_eDirectiveType == BuilderDirective::BUILD_IMPROVEMENT_ON_RESOURCE || 
+				              eDirective.m_eDirectiveType == BuilderDirective::REPAIR_IMPROVEMENT))
 			{
-				if ((eImprovement != NO_IMPROVEMENT && eImprovement != pDirectivePlot->getImprovementType()) || (pkBuildInfo->isRepair() && pDirectivePlot->IsImprovementPillaged()))
-				{
+				if (!bFinishedBuilding)
 					sState.mChangedPlotImprovements[pDirectivePlot->GetPlotIndex()].second = eImprovement;
-					bImprovementStateChanged = true;
-				}
+
+				bImprovementStateChanged = true;
 			}
 
 			// Defense considerations
@@ -3112,7 +3160,6 @@ void CvHomelandAI::ExecuteWorkerMoves()
 			{
 				if (bImprovementStateChanged)
 				{
-					ImprovementTypes eOldImprovement = pDirectivePlot->getImprovementType();
 					CvImprovementEntry* pkOldImprovementInfo = eOldImprovement != NO_IMPROVEMENT ? GC.getImprovementInfo(eOldImprovement) : NULL;
 
 					int iOldDefenseModifier = pkOldImprovementInfo ? pkOldImprovementInfo->GetDefenseModifier() : 0;
@@ -3138,7 +3185,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 				if (bImprovementStateChanged)
 				{
 					ImprovementTypes eBonusImprovement = m_pPlayer->GetPlayerTraits()->GetCombatBonusImprovementType();
-					if (eBonusImprovement == eImprovement)
+					if (eBonusImprovement == eImprovement || eBonusImprovement == eOldImprovement)
 					{
 						bCombatBonusStateChanged = true;
 					}
@@ -3147,12 +3194,9 @@ void CvHomelandAI::ExecuteWorkerMoves()
 
 			// Road considerations
 			bool bRouteStateChanged = false;
-			if (pkBuildInfo->getRoute() != NO_ROUTE || (pkBuildInfo->isRepair() && pDirectivePlot->IsRoutePillaged() && (pDirectivePlot->getImprovementType() == NO_IMPROVEMENT || !pDirectivePlot->IsImprovementPillaged())))
+			if (bCanBuild && (eDirective.m_eDirectiveType == BuilderDirective::BUILD_ROUTE || eDirective.m_eDirectiveType == BuilderDirective::REPAIR_ROUTE))
 			{
-				if (pDirectivePlot->getRouteType() == NO_ROUTE || pDirectivePlot->IsRoutePillaged())
-				{
-					bRouteStateChanged = true;
-				}
+				bRouteStateChanged = true;
 			}
 
 			for (vector<OptionWithScore<pair<CvUnit*, BuilderDirective>>>::iterator it = aDistanceWeightedDirectives.begin(); it != aDistanceWeightedDirectives.end(); ++it)
@@ -3220,7 +3264,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 				if (eOtherImprovement != NO_IMPROVEMENT && bResourceStateChanged && !bDirectiveUpdated)
 				{
 					// Connecting a resource may reduce or increase the value of connecting more instances of the same resource
-					if (pOtherPlot->getResourceType(m_pPlayer->getTeam()) == eResource || (pkOtherImprovementInfo && pkOtherImprovementInfo->GetResourceFromImprovement() == eResource))
+					if (pOtherPlot->getResourceType(m_pPlayer->getTeam()) == eOldResource || (pkOtherImprovementInfo && pkOtherImprovementInfo->GetResourceFromImprovement() == eOldResource))
 					{
 						pair<int, int> pScore = pBuilderTaskingAI->ScorePlotBuild(pOtherPlot, eOtherImprovement, eOtherDirective.m_eBuild, sState);
 
@@ -3239,16 +3283,14 @@ void CvHomelandAI::ExecuteWorkerMoves()
 
 				if (bFeatureStateChanged && !bDirectiveUpdated)
 				{
-					// This is only used for vanilla Celts, removing forests will cause faith reduction in cities on certain thresholds
-					CvPlot* pOtherPlot = GC.getMap().plot(eOtherDirective.m_sX, eOtherDirective.m_sY);
-
-					if (pOtherPlot->getFeatureType() == pDirectivePlot->getFeatureType())
+					// This is only used for vanilla Celts, removing/improving forests will cause faith reduction in cities on certain thresholds
+					if (pOtherPlot->getFeatureType() == eOldFeature)
 					{
 						FeatureTypes eFeatureFromOtherImprovement = pkOtherImprovementInfo ? pkOtherImprovementInfo->GetCreatedFeature() : NO_FEATURE;
 						FeatureTypes eOtherFeature = pkOtherBuildInfo && pkOtherBuildInfo->isFeatureRemove(pOtherPlot->getFeatureType()) ? NO_FEATURE : pOtherPlot->getFeatureType();
 						eOtherFeature = eFeatureFromOtherImprovement != NO_FEATURE ? eFeatureFromOtherImprovement : eOtherFeature;
 
-						if (eOtherFeature != pOtherPlot->getFeatureType())
+						if (eOtherFeature != pOtherPlot->getFeatureType() || eOtherImprovement != NO_IMPROVEMENT)
 						{
 							pair<int, int> pScore = pBuilderTaskingAI->ScorePlotBuild(pOtherPlot, eOtherImprovement, eOtherDirective.m_eBuild, sState);
 
@@ -4542,7 +4584,7 @@ void CvHomelandAI::ExecuteGeneralMoves()
 							break;
 						}
 
-						ASSERT_DEBUG(eSelectedBuildType != NO_BUILD, "Great General trying to build something it doesn't qualify for");
+						PRECONDITION(eSelectedBuildType != NO_BUILD, "Great General trying to build something it doesn't qualify for");
 						if (eSelectedBuildType != NO_BUILD)
 						{
 							pUnit->PushMission(CvTypes::getMISSION_BUILD(), eSelectedBuildType, -1, 0, false, false, MISSIONAI_BUILD, pTargetPlot);
@@ -6026,7 +6068,7 @@ bool CvHomelandAI::ExecuteSpecialExploreMove(CvUnit* pUnit, CvPlot* pTargetPlot)
 		CvPlot* pPlot = PathHelpers::GetPathEndFirstTurnPlot(path);
 		if(pPlot)
 		{
-			ASSERT_DEBUG(!pUnit->atPlot(*pPlot));
+			ASSERT(!pUnit->atPlot(*pPlot));
 			if(GC.getLogging() && GC.getAILogging())
 			{
 				CvString strLogString;
@@ -6115,8 +6157,14 @@ bool CvHomelandAI::MoveToTargetButDontEndTurn(CvUnit* pUnit, CvPlot* pTargetPlot
 		CvPlot* pOldPlot = pUnit->plot();
 		CvPlot* pWayPoint = pUnit->GetPathEndFirstTurnPlot();
 		//don't do it if it's too dangerous
-		if (pUnit->GetDanger(pWayPoint)<pUnit->GetCurrHitPoints())
+		if (pUnit->GetDanger(pWayPoint) < pUnit->GetCurrHitPoints())
+		{
 			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTargetPlot->getX(), pTargetPlot->getY(), iFlags, false, false, MISSIONAI_HOMEMOVE, pTargetPlot);
+		}
+		else
+		{
+			pUnit->PushMission(CvTypes::getMISSION_SKIP());
+		}
 
 		return pUnit->plot() != pOldPlot;
 	}

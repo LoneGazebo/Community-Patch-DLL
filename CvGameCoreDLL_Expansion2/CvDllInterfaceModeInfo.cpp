@@ -13,7 +13,7 @@ CvDllInterfaceModeInfo::CvDllInterfaceModeInfo(CvInterfaceModeInfo* pInterfaceMo
 	: m_pInterfaceModeInfo(pInterfaceModeInfo)
 	, m_uiRefCount(1)
 {
-	ASSERT_DEBUG(pInterfaceModeInfo != NULL, "SHOULD NOT HAPPEN");
+	ASSERT(pInterfaceModeInfo != NULL, "SHOULD NOT HAPPEN");
 }
 //------------------------------------------------------------------------------
 CvDllInterfaceModeInfo::~CvDllInterfaceModeInfo()

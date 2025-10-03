@@ -1313,7 +1313,8 @@ bool CvBuilderTaskingAI::ExecuteWorkerMove(CvUnit* pUnit, BuilderDirective aDire
 			UNREACHABLE();
 		case BuilderDirective::BUILD_IMPROVEMENT_ON_RESOURCE:
 		case BuilderDirective::BUILD_IMPROVEMENT:
-		case BuilderDirective::REPAIR:
+		case BuilderDirective::REPAIR_IMPROVEMENT:
+		case BuilderDirective::REPAIR_ROUTE:
 		case BuilderDirective::BUILD_ROUTE:
 		case BuilderDirective::REMOVE_FEATURE:
 		case BuilderDirective::REMOVE_ROAD:
@@ -1355,8 +1356,11 @@ bool CvBuilderTaskingAI::ExecuteWorkerMove(CvUnit* pUnit, BuilderDirective aDire
 				case BuilderDirective::BUILD_IMPROVEMENT:
 					strLog += "On plot,";
 					break;
-				case BuilderDirective::REPAIR:
+				case BuilderDirective::REPAIR_IMPROVEMENT:
 					strLog += "Repairing,";
+					break;
+				case BuilderDirective::REPAIR_ROUTE:
+					strLog += "Repairing route,";
 					break;
 				case BuilderDirective::BUILD_ROUTE:
 					strLog += "Building route,";
@@ -1371,16 +1375,13 @@ bool CvBuilderTaskingAI::ExecuteWorkerMove(CvUnit* pUnit, BuilderDirective aDire
 
 				if (eMission == CvTypes::getMISSION_BUILD())
 				{
-					if (aDirective.m_eDirectiveType == BuilderDirective::REPAIR)
+					if (aDirective.m_eDirectiveType == BuilderDirective::REPAIR_IMPROVEMENT)
 					{
-						if (pPlot->IsImprovementPillaged())
-						{
-							strLog += "Repairing improvement";
-						}
-						else
-						{
-							strLog += "Repairing route";
-						}
+						strLog += "Repairing improvement";
+					}
+					else if (aDirective.m_eDirectiveType == BuilderDirective::REPAIR_ROUTE)
+					{
+						strLog += "Repairing route";
 					}
 					else if (aDirective.m_eDirectiveType == BuilderDirective::BUILD_ROUTE)
 					{
@@ -1427,7 +1428,7 @@ bool CvBuilderTaskingAI::ExecuteWorkerMove(CvUnit* pUnit, BuilderDirective aDire
 			{
 				pUnit->PushMission(CvTypes::getMISSION_BUILD(), aDirective.m_eBuild, aDirective.m_eDirectiveType, 0, false, false, MISSIONAI_BUILD, pPlot);
 
-				ASSERT_DEBUG(!pUnit->ReadyToMove(), "Worker did not do their mission this turn. Could cause game to hang.");
+				ASSERT(!pUnit->ReadyToMove(), "Worker did not do their mission this turn. Could cause game to hang.");
 				bSuccessful = true;
 			}
 
@@ -2093,7 +2094,7 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirective(vector<OptionWithScore<Build
 	if (eExistingImprovement != NO_IMPROVEMENT)
 	{
 		// Do we have a special improvement here? (great person improvement, gifted improvement from major civ)
-		if (pPlot->HasSpecialImprovement() || (m_pPlayer->isOption(PLAYEROPTION_SAFE_AUTOMATION) && m_pPlayer->isHuman()))
+		if (PlotHasSpecialImprovement(pPlot) || (m_pPlayer->isOption(PLAYEROPTION_SAFE_AUTOMATION) && m_pPlayer->isHuman()))
 		{
 			if (m_bLogging)
 			{
@@ -2579,7 +2580,7 @@ void CvBuilderTaskingAI::AddRepairImprovementDirective(vector<OptionWithScore<Bu
 
 	if (iScore > 0)
 	{
-		aDirectives.push_back(OptionWithScore<BuilderDirective>(BuilderDirective(BuilderDirective::REPAIR, m_eRepairBuild, NO_RESOURCE, false, pPlot->getX(), pPlot->getY(), iScore, iPotentialScore), iScore));
+		aDirectives.push_back(OptionWithScore<BuilderDirective>(BuilderDirective(BuilderDirective::REPAIR_IMPROVEMENT, m_eRepairBuild, NO_RESOURCE, false, pPlot->getX(), pPlot->getY(), iScore, iPotentialScore), iScore));
 	}
 }
 
@@ -2598,7 +2599,7 @@ void CvBuilderTaskingAI::AddRepairRouteDirective(vector<OptionWithScore<BuilderD
 
 	if (iValue > 0)
 	{
-		aDirectives.push_back(OptionWithScore<BuilderDirective>(BuilderDirective(BuilderDirective::REPAIR, m_eRepairBuild, NO_RESOURCE, false, pPlot->getX(), pPlot->getY(), iValue, 0), iValue));
+		aDirectives.push_back(OptionWithScore<BuilderDirective>(BuilderDirective(BuilderDirective::REPAIR_ROUTE, m_eRepairBuild, NO_RESOURCE, false, pPlot->getX(), pPlot->getY(), iValue, 0), iValue));
 	}
 }
 
@@ -2711,6 +2712,44 @@ bool CvBuilderTaskingAI::ShouldBuilderConsiderPlot(CvUnit* pUnit, CvPlot* pPlot)
 	}
 
 	return true;
+}
+
+//	--------------------------------------------------------------------------------
+/// Does this plot have a special improvement that we shouldn't remove?
+bool CvBuilderTaskingAI::PlotHasSpecialImprovement(const CvPlot* pPlot) const
+{
+	// Gifted improvements (if we are a minor civ)
+	if (m_pPlayer->isMinorCiv())
+	{
+		if (pPlot->IsImprovedByGiftFromMajor())
+		{
+			return true;
+		}
+	}
+
+	if (m_pPlayer->isHuman())
+	{
+		// Great person improvements
+		ImprovementTypes eImprovement = pPlot->getImprovementType();
+		if (eImprovement != NO_IMPROVEMENT)
+		{
+			CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(eImprovement);
+			//Works like GP improvement.
+			if (pImprovementInfo && pImprovementInfo->IsCreatedByGreatPerson())
+			{
+				return true;
+			}
+
+			//Don't delete landmarks!
+			ImprovementTypes eLandmark = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_LANDMARK");
+			if (eLandmark != NO_IMPROVEMENT && eImprovement == eLandmark)
+			{
+				return true;
+			}
+		}
+	}
+
+	return false;
 }
 
 /// Return the weight of this resource
@@ -2898,8 +2937,11 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 	int iSecondaryScore = 0;
 	int iPotentialScore = 0;
 
+	const bool bIsBuild = eBuild != NO_BUILD;
+	const bool bIsRepair = bIsBuild ? pkBuildInfo->isRepair() : false;
+
 	// Not building anything has some inherent value
-	if (eBuild == NO_BUILD && eImprovement != NO_IMPROVEMENT)
+	if (!bIsBuild && eImprovement != NO_IMPROVEMENT)
 		iSecondaryScore += 100;
 
 	const CvCity* pOwningCity = pPlot->getEffectiveOwningCity();
@@ -3054,7 +3096,7 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 
 	if (bIsWithinWorkRange)
 	{
-		if (eBuild != NO_BUILD)
+		if (bIsBuild)
 			UpdateProjectedPlotYields(pPlot, eBuild, eForceCityConnection);
 		else
 			UpdateCurrentPlotYields(pPlot);
@@ -3157,7 +3199,7 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 
 		int iYieldModifier = GetYieldBaseModifierTimes100(eYield);
 		int iNewYieldTimes100 = 0;
-		int iProjectedNewYieldsTimes100 = eBuild != NO_BUILD ? 100 * m_aiProjectedPlotYields[ui] : 100 * m_aiCurrentPlotYields[ui];
+		int iProjectedNewYieldsTimes100 = bIsBuild ? 100 * m_aiProjectedPlotYields[ui] : 100 * m_aiCurrentPlotYields[ui];
 
 		if (bIsWithinWorkRange)
 		{
@@ -3387,10 +3429,10 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 					if (pkAdjacentImprovementInfo)
 					{
 						// How much extra yield we give to adjacent tiles with a certain improvement
-						fraction fAdjacentImprovementYield = pkAdjacentImprovementInfo->GetYieldPerXAdjacentImprovement(eYield, eImprovement);
+						fraction fAdjacentImprovementYield = eImprovement != NO_IMPROVEMENT ? pkAdjacentImprovementInfo->GetYieldPerXAdjacentImprovement(eYield, eImprovement) : 0;
 						fraction fCurrentAdjacentImprovementYield = GetCurrentAdjacencyScoreFromImprovementsAndTerrain(pAdjacentPlot, *pkAdjacentImprovementInfo, eYield, sState);
 
-						if (eBuild == NO_BUILD)
+						if (!bIsBuild)
 							fCurrentAdjacentImprovementYield -= fAdjacentImprovementYield;
 
 						int iDeltaTruncatedYield = (fCurrentAdjacentImprovementYield + fAdjacentImprovementYield).Truncate() - fCurrentAdjacentImprovementYield.Truncate();
@@ -3651,7 +3693,15 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 			}
 		}
 
-		int iPenalty = pkImprovementInfo && pkImprovementInfo->IsCreatedByGreatPerson() ? 1000 : 100;
+		int iPenalty = 100;
+		if (pkImprovementInfo && pkImprovementInfo->IsCreatedByGreatPerson())
+		{
+			// No penalty for repairing/keeping GP improvements
+			if (!bIsBuild || bIsRepair)
+				iPenalty = 0;
+			else
+				iPenalty = 1000;
+		}
 
 		if (bBenefitsFromRoads && eForceCityConnection == NO_ROUTE)
 			iSecondaryScore -= iPenalty;
@@ -3660,7 +3710,7 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 	}
 
 	// Don't build on antiquity sites
-	if (eResource != NO_RESOURCE && eBuild != NO_BUILD)
+	if (eResource != NO_RESOURCE && bIsBuild)
 	{
 		static const BuildTypes eDigBuild = (BuildTypes)GC.getInfoTypeForString("BUILD_ARCHAEOLOGY_DIG");
 		if (m_pPlayer->canBuild(pPlot, eDigBuild) && eDigBuild != eBuild)
@@ -3693,7 +3743,12 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 		if (iDefenseBuildValue > 0)
 			iSecondaryScore += iDefenseBuildValue;
 		else
-			iYieldScore /= 2; //de-emphasize yields if we're not close to the border
+		{
+			//de-emphasize yields for forts if we're not close to the border (they look ugly when spammed)
+			bool bIsFort = strncmp(pkImprovementInfo->GetType(), "IMPROVEMENT_FORT", 64) == 0;
+			if (bIsFort)
+				iYieldScore /= 2;
+		}
 	}
 
 	// How many tiles will be covered by an encampment bonus (or similar)
@@ -3739,7 +3794,7 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 	}
 
 	// Currently this is only for human player recommendations.
-	if (bIsCultureBomb && eBuild != NO_BUILD)
+	if (bIsCultureBomb && bIsBuild)
 	{
 		int iStealScore = 0;
 		int iRange = pkImprovementInfo->GetCultureBombRadius();
@@ -3891,7 +3946,7 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 	{
 		int iTileClaimChance = 0;
 		int iTileWorkableChance = 0;
-		if (eBuild != NO_BUILD)
+		if (bIsBuild)
 		{
 			iTileWorkableChance = GetResourceSpawnWorkableChance(pPlot, iTileClaimChance);
 		}
@@ -4392,8 +4447,11 @@ void CvBuilderTaskingAI::LogDirective(BuilderDirective directive, int iWeight, b
 	case BuilderDirective::BUILD_IMPROVEMENT:
 		strLog += "BUILD_IMPROVEMENT,";
 		break;
-	case BuilderDirective::REPAIR:
-		strLog += "REPAIR,";
+	case BuilderDirective::REPAIR_IMPROVEMENT:
+		strLog += "REPAIR_IMPROVEMENT,";
+		break;
+	case BuilderDirective::REPAIR_ROUTE:
+		strLog += "REPAIR_ROUTE,";
 		break;
 	case BuilderDirective::BUILD_ROUTE:
 		strLog += "BUILD_ROUTE,";
@@ -4429,29 +4487,27 @@ void CvBuilderTaskingAI::LogDirective(BuilderDirective directive, int iWeight, b
 		strLog += ",";
 	}
 
-	if(directive.m_eDirectiveType == BuilderDirective::REPAIR)
+	if(directive.m_eDirectiveType == BuilderDirective::REPAIR_IMPROVEMENT)
 	{
 		CvPlot* pPlot = GC.getMap().plot(directive.m_sX, directive.m_sY);
-		if(pPlot->IsImprovementPillaged())
+		if(pPlot->getImprovementType() != NO_IMPROVEMENT)
 		{
-			if(pPlot->getImprovementType() != NO_IMPROVEMENT)
+			CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(pPlot->getImprovementType());
+			if(pkImprovementInfo)
 			{
-				CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(pPlot->getImprovementType());
-				if(pkImprovementInfo)
-				{
-					strLog += pkImprovementInfo->GetType();
-				}
+				strLog += pkImprovementInfo->GetType();
 			}
 		}
-		else
+	}
+	else if (directive.m_eDirectiveType == BuilderDirective::REPAIR_ROUTE)
+	{
+		CvPlot* pPlot = GC.getMap().plot(directive.m_sX, directive.m_sY);
+		if (pPlot->getRouteType() != NO_ROUTE)
 		{
-			if(pPlot->getRouteType() != NO_ROUTE)
+			CvRouteInfo* pkRouteInfo = GC.getRouteInfo(pPlot->getRouteType());
+			if (pkRouteInfo)
 			{
-				CvRouteInfo* pkRouteInfo = GC.getRouteInfo(pPlot->getRouteType());
-				if(pkRouteInfo)
-				{
-					strLog += pkRouteInfo->GetType();
-				}
+				strLog += pkRouteInfo->GetType();
 			}
 		}
 	}
@@ -4545,7 +4601,7 @@ void CvBuilderTaskingAI::UpdateProjectedPlotYields(const CvPlot* pPlot, BuildTyp
 					{
 						if (pPantheon != NULL && ePantheonBelief != NO_BELIEF && ePantheonBelief != eSecondaryPantheon)
 						{
-							if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, m_pPlayer->GetID()))) // check that the our religion does not have our belief, to prevent double counting
+							if (pReligion == NULL || !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, m_pPlayer->GetID())) // check that the our religion does not have our belief, to prevent double counting
 							{
 								m_aiProjectedPlotYields[ui] += pPlot->getYieldWithBuild(eBuild, (YieldTypes)ui, false, eForceCityConnection, m_pPlayer->GetID(), pOwningCity, pPantheon, NULL);
 								m_aiProjectedPlotYields[ui] = max(m_aiProjectedPlotYields[ui], 0);
