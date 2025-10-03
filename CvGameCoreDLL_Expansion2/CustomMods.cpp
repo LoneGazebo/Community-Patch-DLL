@@ -13,15 +13,8 @@ CustomMods::CustomMods() :
 	// The cppcheck warnings about uninitialized variables are false positives
 }
 
-// This function hooks an event with a variable number of arguments.
-int CustomMods::eventHook(const char* szName, const char* p, ...) {
-	// Initialize an argument handle for Lua.
-	CvLuaArgsHandle args;
-
-	// Initialize the variable argument list.
-	va_list vl;
-	va_start(vl, p);
-
+// Helper function to parse variable arguments into CvLuaArgsHandle
+void CustomMods::parseVariableArgs(CvLuaArgsHandle &args, const char* p, va_list vl) {
 	// Iterate through the format string to handle each argument.
 	for (const char* it = p; *it; ++it) {
 		if (*it == 'b') {
@@ -37,6 +30,19 @@ int CustomMods::eventHook(const char* szName, const char* p, ...) {
 			break; // Exit after processing the first string argument.
 		}
 	}
+}
+
+// This function hooks an event with a variable number of arguments.
+int CustomMods::eventHook(const char* szName, const char* p, ...) {
+	// Initialize an argument handle for Lua.
+	CvLuaArgsHandle args;
+
+	// Initialize the variable argument list.
+	va_list vl;
+	va_start(vl, p);
+
+	// Parse arguments using helper function.
+	parseVariableArgs(args, p, vl);
 
 	// Clean up the variable argument list.
 	va_end(vl);
@@ -54,21 +60,8 @@ int CustomMods::eventTestAll(const char* szName, const char* p, ...) {
     va_list vl;
     va_start(vl, p);
 
-	// Iterate through the format string to handle each argument.
-	for (const char* it = p; *it; ++it) {
-		if (*it == 'b') {
-			// Handle boolean arguments.
-			args->Push(!!va_arg(vl, int));
-		} else if (*it == 'i') {
-			// Handle integer arguments.
-			args->Push(va_arg(vl, int));
-		} else {
-			// Assume it's a string argument.
-			char* s = va_arg(vl, char*);
-			args->Push(s, strlen(s));
-			break; // Exit after processing the first string argument.
-		}
-	}
+	// Parse arguments using helper function.
+	parseVariableArgs(args, p, vl);
 
 	// Clean up the variable argument list.
 	va_end(vl);
@@ -86,21 +79,8 @@ int CustomMods::eventTestAny(const char* szName, const char* p, ...) {
 	va_list vl;
 	va_start(vl, p);
 
-	// Iterate through the format string to handle each argument.
-	for (const char* it = p; *it; ++it) {
-		if (*it == 'b') {
-			// Handle boolean arguments.
-			args->Push(!!va_arg(vl, int));
-		} else if (*it == 'i') {
-			// Handle integer arguments.
-			args->Push(va_arg(vl, int));
-		} else {
-			// Assume it's a string argument.
-			char* s = va_arg(vl, char*);
-			args->Push(s, strlen(s));
-			break; // Exit after processing the first string argument.
-		}
-	}
+	// Parse arguments using helper function.
+	parseVariableArgs(args, p, vl);
 
 	// Clean up the variable argument list.
 	va_end(vl);
@@ -118,21 +98,8 @@ int CustomMods::eventAccumulator(int &iValue, const char* szName, const char* p,
 	va_list vl;
 	va_start(vl, p);
 
-	// Iterate through the format string to handle each argument.
-	for (const char* it = p; *it; ++it) {
-		if (*it == 'b') {
-			// Handle boolean arguments.
-			args->Push(!!va_arg(vl, int));
-		} else if (*it == 'i') {
-			// Handle integer arguments.
-			args->Push(va_arg(vl, int));
-		} else {
-			// Assume it's a string argument.
-			char* s = va_arg(vl, char*);
-			args->Push(s, strlen(s));
-			break; // Exit after processing the first string argument.
-		}
-	}
+	// Parse arguments using helper function.
+	parseVariableArgs(args, p, vl);
 
 	// Clean up the variable argument list.
 	va_end(vl);

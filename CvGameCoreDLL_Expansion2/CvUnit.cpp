@@ -7211,10 +7211,7 @@ void CvUnit::disembark(CvPlot* pPlot)
 void CvUnit::setEmbarked(bool bValue)
 {
 	VALIDATE_OBJECT();
-	if(m_bEmbarked != bValue)
-	{
-		m_bEmbarked = bValue;
-	}
+	m_bEmbarked = bValue;
 }
 
 //	--------------------------------------------------------------------------------
@@ -7937,7 +7934,7 @@ int CvUnit::healRate(const CvPlot* pPlot) const
 					if (pPantheon != NULL && ePantheonBelief != NO_BELIEF && ePantheonBelief != eSecondaryPantheon)
 					{
 						const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
-						if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, getOwner()))) // check that the our religion does not have our belief, to prevent double counting
+						if (pReligion == NULL || !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, getOwner())) // check that the our religion does not have our belief, to prevent double counting
 						{
 							iExtraFriendlyHeal += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetFriendlyHealChange();
 						}
@@ -7988,7 +7985,7 @@ int CvUnit::healRate(const CvPlot* pPlot) const
 				if (pPantheon != NULL && ePantheonBelief != NO_BELIEF && ePantheonBelief != eSecondaryPantheon)
 				{
 					const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
-					if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, getOwner()))) // check that the our religion does not have our belief, to prevent double counting
+					if (pReligion == NULL || !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, getOwner())) // check that the our religion does not have our belief, to prevent double counting
 					{
 						iExtraFriendlyHeal += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetFriendlyHealChange();
 					}
@@ -8250,7 +8247,7 @@ void CvUnit::doHeal()
 					if (pPantheon != NULL && ePantheonBelief != NO_BELIEF && ePantheonBelief != GET_PLAYER(getOwner()).getCapitalCity()->GetCityReligions()->GetSecondaryReligionPantheonBelief())
 					{
 						const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
-						if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, pReligion->m_eReligion, getOwner()))) // check that the our religion does not have our belief, to prevent double counting
+						if (pReligion == NULL || !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, pReligion->m_eReligion, getOwner())) // check that the our religion does not have our belief, to prevent double counting
 						{
 							GET_PLAYER(getOwner()).ChangeFaith(GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetYieldPerHeal(YIELD_FAITH) * iEra);
 							if (getOwner() == GC.getGame().getActivePlayer())
@@ -9990,7 +9987,7 @@ bool CvUnit::sellExoticGoods()
 		{
 			pLoopUnit = ::GetPlayerUnit(*pUnitNode);
 			pUnitNode = pBestPlot->nextUnitNode(pUnitNode);
-			if (pLoopUnit != NULL && pLoopUnit->GetMissionAIType() == MISSIONAI_BUILD && pLoopUnit->GetMissionAIPlot() == pBestPlot)
+			if (pLoopUnit->GetMissionAIType() == MISSIONAI_BUILD && pLoopUnit->GetMissionAIPlot() == pBestPlot)
 			{
 				pLoopUnit->ClearMissionQueue();
 			}
@@ -13521,7 +13518,7 @@ bool CvUnit::build(BuildTypes eBuild)
 					}
 					else
 					{
-						if (!pkBuildInfo->isKillOnlyCivilian() || (pkBuildInfo->isKillOnlyCivilian() && IsCivilianUnit()))
+						if (!pkBuildInfo->isKillOnlyCivilian() || IsCivilianUnit())
 						{
 							kill(true);
 						}
@@ -14854,10 +14851,7 @@ int CvUnit::GetLinkedMaxMoves()	const
 void CvUnit::SetLinkedMaxMoves(int iValue)
 {
 	VALIDATE_OBJECT();
-		if (m_iLinkedMaxMoves != iValue)
-		{
-			m_iLinkedMaxMoves = iValue;
-		}
+	m_iLinkedMaxMoves = iValue;
 }
 
 //	--------------------------------------------------------------------------------
@@ -14871,10 +14865,7 @@ int CvUnit::GetLinkedLeaderID()	const
 void CvUnit::SetLinkedLeaderID(int iLinkedLeaderID)
 {
 	VALIDATE_OBJECT();
-		if (m_iLinkedLeaderID != iLinkedLeaderID)
-		{
-			m_iLinkedLeaderID = iLinkedLeaderID;
-		}
+	m_iLinkedLeaderID = iLinkedLeaderID;
 }
 
 
@@ -14902,7 +14893,7 @@ bool CvUnit::CanLinkUnits()
 		pLoopUnit = ::GetPlayerUnit(*pUnitNode);
 		pUnitNode = pCurrentPlot->nextUnitNode(pUnitNode);
 
-		if (pLoopUnit != NULL && pLoopUnit->getOwner() == getOwner() && !pLoopUnit->isDelayedDeath() && !pLoopUnit->isTrade() && pLoopUnit->getDomainType() != DOMAIN_AIR)
+		if (pLoopUnit->getOwner() == getOwner() && !pLoopUnit->isDelayedDeath() && !pLoopUnit->isTrade() && pLoopUnit->getDomainType() != DOMAIN_AIR)
 		{
 			if (pLoopUnit != this)
 			{
@@ -14941,7 +14932,7 @@ void CvUnit::LinkUnits()
 		pLoopUnit = ::GetPlayerUnit(*pUnitNode);
 		pUnitNode = pCurrentPlot->nextUnitNode(pUnitNode);
 
-		if (pLoopUnit != NULL && pLoopUnit->getOwner() == getOwner() && !pLoopUnit->isDelayedDeath() && !pLoopUnit->isTrade() && pLoopUnit->getDomainType() != DOMAIN_AIR)
+		if (pLoopUnit->getOwner() == getOwner() && !pLoopUnit->isDelayedDeath() && !pLoopUnit->isTrade() && pLoopUnit->getDomainType() != DOMAIN_AIR)
 		{
 			if ((bIsOnSea && (pLoopUnit->getDomainType() == DOMAIN_SEA || pLoopUnit->isEmbarked())) || (!bIsOnSea && (pLoopUnit->getDomainType() == DOMAIN_LAND && !pLoopUnit->isEmbarked())))
 			{
@@ -15051,7 +15042,7 @@ void CvUnit::DoGroupMovement(CvPlot* pDestPlot)
 			{
 				pLoopUnit = ::GetPlayerUnit(*pUnitNode);
 				pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
-				if ( pLoopUnit != NULL && pLoopUnit->getOwner() == getOwner() && !pLoopUnit->isDelayedDeath() && 
+				if ( pLoopUnit->getOwner() == getOwner() && !pLoopUnit->isDelayedDeath() && 
 					( !pLoopUnit->IsCivilianUnit() || pLoopUnit->IsGreatAdmiral() || pLoopUnit->IsGreatGeneral() ) 
 					&&
 					( ( bIsOnSea && (pLoopUnit->getDomainType() == DOMAIN_SEA || pLoopUnit->isEmbarked()) ) || 
@@ -25659,10 +25650,7 @@ const UnitTypes CvUnit::getLeaderUnitType() const
 void CvUnit::setLeaderUnitType(UnitTypes leaderUnitType)
 {
 	VALIDATE_OBJECT();
-	if(m_eLeaderUnitType != leaderUnitType)
-	{
-		m_eLeaderUnitType = leaderUnitType;
-	}
+	m_eLeaderUnitType = leaderUnitType;
 }
 
 //	--------------------------------------------------------------------------------
@@ -25676,10 +25664,7 @@ const InvisibleTypes CvUnit::getInvisibleType() const
 void CvUnit::setInvisibleType(InvisibleTypes InvisibleType)
 {
 	VALIDATE_OBJECT();
-	if(m_eInvisibleType != InvisibleType)
-	{
-		m_eInvisibleType = InvisibleType;
-	}
+	m_eInvisibleType = InvisibleType;
 }
 
 //	--------------------------------------------------------------------------------

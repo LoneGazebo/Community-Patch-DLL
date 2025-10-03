@@ -13025,7 +13025,7 @@ int CvCity::getProductionModifier(BuildingTypes eBuilding, CvString* toolTipSink
 				if (pPantheon != NULL && ePantheonBelief != NO_BELIEF && ePantheonBelief != eSecondaryPantheon)
 				{
 					const CvReligion* pReligion = GetCityReligions()->GetMajorityReligion();
-					if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, getOwner()))) // check that the our religion does not have our belief, to prevent double counting
+					if (pReligion == NULL || !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, getOwner())) // check that the our religion does not have our belief, to prevent double counting
 					{
 						if (eEra != NO_ERA)
 						{
@@ -13179,7 +13179,7 @@ int CvCity::getProductionModifier(BuildingTypes eBuilding, CvString* toolTipSink
 				if (pPantheon != NULL && ePantheonBelief != NO_BELIEF && ePantheonBelief != eSecondaryPantheon)
 				{
 					const CvReligion* pReligion = GetCityReligions()->GetMajorityReligion();
-					if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, getOwner()))) // check that the our religion does not have our belief, to prevent double counting
+					if (pReligion == NULL || !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, getOwner())) // check that the our religion does not have our belief, to prevent double counting
 					{
 						if (eEra != NO_ERA)
 						{
@@ -15147,7 +15147,7 @@ void CvCity::UpdateReligion(ReligionTypes eNewMajority, bool bRecalcPlotYields)
 				if (pPantheon != NULL && ePantheonBelief != NO_BELIEF && ePantheonBelief != eSecondaryPantheon)
 				{
 					const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eNewMajority, getOwner());
-					if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eNewMajority, getOwner()))) // check that the our religion does not have our belief, to prevent double counting
+					if (pReligion == NULL || !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eNewMajority, getOwner())) // check that the our religion does not have our belief, to prevent double counting
 					{
 						int iReligionYieldChange = GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetCityYieldChange((YieldTypes)iYield);
 
@@ -16108,7 +16108,7 @@ int CvCity::getGrowthMods(CvString* toolTipSink, int iAssumedLocalHappinessChang
 			if (pPantheon != NULL && ePantheonBelief != NO_BELIEF && ePantheonBelief != GetCityReligions()->GetSecondaryReligionPantheonBelief())
 			{
 				const CvReligion* pReligion = GetCityReligions()->GetMajorityReligion();
-				if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, pReligion->m_eReligion, getOwner()))) // check that the our religion does not have our belief, to prevent double counting
+				if (pReligion == NULL || !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, pReligion->m_eReligion, getOwner())) // check that the our religion does not have our belief, to prevent double counting
 				{
 					iReligionGrowthMod += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetCityGrowthModifier();
 				}
@@ -17091,7 +17091,7 @@ int CvCity::GetReligionGreatPersonRateModifier(GreatPersonTypes eGreatPerson) co
 				if (pPantheon != NULL && ePantheonBelief != NO_BELIEF && ePantheonBelief != eSecondaryPantheon)
 				{
 					const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
-					if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, getOwner()))) // check that the our religion does not have our belief, to prevent double counting
+					if (pReligion == NULL || !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, getOwner())) // check that the our religion does not have our belief, to prevent double counting
 					{
 						iResult += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
 					}
@@ -17404,7 +17404,7 @@ int CvCity::GetJONSCultureThreshold() const
 			if (pPantheon != NULL && ePantheonBelief != NO_BELIEF && ePantheonBelief != eSecondaryPantheon)
 			{
 				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
-				if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, getOwner()))) // check that the our religion does not have our belief, to prevent double counting
+				if (pReligion == NULL || !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, getOwner())) // check that the our religion does not have our belief, to prevent double counting
 				{
 					iReligionMod += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetPlotCultureCostModifier();
 				}
@@ -18075,7 +18075,7 @@ void CvCity::UpdateYieldPerXUnimprovedFeature(YieldTypes eYield)
 			{
 				if (pPantheon != NULL && ePantheonBelief != NO_BELIEF && ePantheonBelief != eSecondaryPantheon)
 				{
-					if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, pReligion->m_eReligion, getOwner()))) // check that the our religion does not have our belief, to prevent double counting
+					if (pReligion == NULL || !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, pReligion->m_eReligion, getOwner())) // check that the our religion does not have our belief, to prevent double counting
 					{
 						iBaseYield += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetCityYieldFromUnimprovedFeature(eFeature, eYield);
 					}
@@ -19112,10 +19112,7 @@ void CvCity::changeDamageReductionFlat(int iChange)
 
 void CvCity::SetProductionRoutes(bool bValue)
 {
-	if (m_bAllowsProductionTradeRoutes != bValue)
-	{
-		m_bAllowsProductionTradeRoutes = bValue;
-	}
+	m_bAllowsProductionTradeRoutes = bValue;
 }
 bool CvCity::IsProductionRoutes() const
 {
@@ -19124,10 +19121,7 @@ bool CvCity::IsProductionRoutes() const
 
 void CvCity::SetFoodRoutes(bool bValue)
 {
-	if (m_bAllowsFoodTradeRoutes != bValue)
-	{
-		m_bAllowsFoodTradeRoutes = bValue;
-	}
+	m_bAllowsFoodTradeRoutes = bValue;
 }
 bool CvCity::IsFoodRoutes() const
 {
@@ -19136,10 +19130,7 @@ bool CvCity::IsFoodRoutes() const
 
 void CvCity::SetAllowPuppetPurchase(bool bValue)
 {
-	if (m_bAllowPuppetPurchase != bValue)
-	{
-		m_bAllowPuppetPurchase = bValue;
-	}
+	m_bAllowPuppetPurchase = bValue;
 }
 bool CvCity::IsAllowPuppetPurchase() const
 {
@@ -19852,7 +19843,7 @@ void CvCity::UpdateHappinessFromReligion()
 			if (pPantheon != NULL && ePantheonBelief != NO_BELIEF && ePantheonBelief != eSecondaryPantheon)
 			{
 				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
-				if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, getOwner()))) // check that the our religion does not have our belief, to prevent double counting
+				if (pReligion == NULL || !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, getOwner())) // check that the our religion does not have our belief, to prevent double counting
 				{
 					iHappinessFromReligion += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetHappinessPerCity();
 					if (plot()->isRiver())
@@ -20337,10 +20328,7 @@ int CvCity::GetGrowthFromTourism() const
 }
 void CvCity::SetGrowthFromTourism(int iValue)
 {
-	if (m_iGrowthFromTourism != iValue)
-	{
-		m_iGrowthFromTourism = iValue;
-	}
+	m_iGrowthFromTourism = iValue;
 }
 void CvCity::ChangeGrowthFromTourism(int iValue)
 {
@@ -26436,7 +26424,7 @@ int CvCity::getExtraSpecialistYield(YieldTypes eIndex, SpecialistTypes eSpeciali
 			if (pPantheon != NULL && ePantheonBelief != NO_BELIEF && ePantheonBelief != eSecondaryPantheon)
 			{
 				const CvReligion* pReligion = GetCityReligions()->GetMajorityReligion();
-				if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, getOwner()))) // check that the our religion does not have our belief, to prevent double counting
+				if (pReligion == NULL || !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, getOwner())) // check that the our religion does not have our belief, to prevent double counting
 				{
 					iYieldMultiplier += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetSpecialistYieldChange(eSpecialist, eIndex);
 				}
@@ -27445,7 +27433,7 @@ int CvCity::getStrengthValue(bool bForRangeStrike, bool bIgnoreBuildings, const 
 				{
 					// Check that the our religion does not have our belief, to prevent double counting
 					const CvReligion* pReligion = GetCityReligions()->GetMajorityReligion();
-					if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, getOwner())))
+					if (pReligion == NULL || !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, getOwner()))
 					{
 						iModifier += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetCityRangeStrikeModifier();
 					}
@@ -28772,8 +28760,7 @@ int CvCity::GetCheapestPlotInfluenceDistance() const
 /// What is the cheapest plot we can get
 void CvCity::SetCheapestPlotInfluenceDistance(int iValue)
 {
-	if (m_iCheapestPlotInfluenceDistance != iValue)
-		m_iCheapestPlotInfluenceDistance = iValue;
+	m_iCheapestPlotInfluenceDistance = iValue;
 
 	ASSERT(m_iCheapestPlotInfluenceDistance > 0, "Cheapest plot influence should never be 0 or less.");
 }
@@ -34661,10 +34648,7 @@ bool CvCity::IsColony() const
 }
 void CvCity::SetColony(bool bValue)
 {
-	if (m_bIsColony != bValue)
-	{
-		m_bIsColony = bValue;
-	}
+	m_bIsColony = bValue;
 }
 int CvCity::GetProvinceLevel() const
 {
@@ -34686,10 +34670,7 @@ int CvCity::GetOrganizedCrime() const
 }
 void CvCity::SetOrganizedCrime(int iValue)
 {
-	if (m_iOrganizedCrime != iValue)
-	{
-		m_iOrganizedCrime = iValue;
-	}
+	m_iOrganizedCrime = iValue;
 }
 bool CvCity::HasOrganizedCrime()
 {

@@ -1998,8 +1998,7 @@ int InfluenceValid(const CvAStarNode* parent, const CvAStarNode* node, const SPa
 
 	CvPlot* pOrigin = GC.getMap().plotUnchecked(finder->GetStartX(), finder->GetStartY());
 	CvPlot* pToPlot = GC.getMap().plotUnchecked(node->m_iX, node->m_iY);
-	if (!pOrigin || !pToPlot)
-		return FALSE;
+	ASSERT(pOrigin != NULL && pToPlot != NULL);
 
 	//can only claim ocean tiles after we can cross oceans
 	if (pToPlot->isDeepWater() && data.ePlayer!=NO_PLAYER)
@@ -2190,8 +2189,9 @@ int CityConnectionWaterValid(const CvAStarNode* parent, const CvAStarNode* node,
 	TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
 
 	CvPlot* pNewPlot = GC.getMap().plotUnchecked(node->m_iX, node->m_iY);
+	ASSERT(pNewPlot != NULL);
 
-	if(!pNewPlot || !pNewPlot->isRevealed(eTeam))
+	if(!pNewPlot->isRevealed(eTeam))
 		return FALSE;
 
 	if (!pNewPlot->isWater() && !pNewPlot->isCoastalCityOrPassableImprovement(ePlayer,true,true))
@@ -2424,9 +2424,10 @@ int AreaValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFin
 	CvMap& kMap = GC.getMap();
 	CvPlot* pToPlot = kMap.plotUnchecked(node->m_iX, node->m_iY);
 	CvPlot* pFromPlot = kMap.plotUnchecked(parent->m_iX, parent->m_iY);
+	ASSERT(pToPlot != NULL && pFromPlot != NULL);
 
 	//ignore plots which already have their area set!
-	if (!pFromPlot || !pToPlot || pToPlot->getArea()!=-1)
+	if (pToPlot->getArea()!=-1)
 		return FALSE;
 
 	//small misuse ...

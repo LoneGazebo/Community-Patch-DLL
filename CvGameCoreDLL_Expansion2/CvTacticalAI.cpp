@@ -10643,7 +10643,7 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 	// Additional debug info
 	char szDebugInfo[256];
 	sprintf_s(szDebugInfo, "TacticalAI: Target (%d,%d), Units %lu, Agg %d, Enemies %d, Checked Positions %d, Used %d, Completed %lu, Bad Units %lu, %d ms, Player %d\n",
-		pTarget->getX(), pTarget->getY(), vUnits.size(), eAggLvl, initialPosition->getNumEnemies(), gCheckedPositions, iUsedPositions, completedPositions.size(), unuseableUnits.size(), durationMs, ePlayer);
+		pTarget->getX(), pTarget->getY(), (unsigned long)vUnits.size(), eAggLvl, initialPosition->getNumEnemies(), gCheckedPositions, iUsedPositions, (unsigned long)completedPositions.size(), (unsigned long)unuseableUnits.size(), durationMs, ePlayer);
 	OutputDebugString(szDebugInfo);
 #endif
 

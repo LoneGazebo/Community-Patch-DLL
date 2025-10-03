@@ -687,36 +687,33 @@ int CvGrandStrategyAI::GetConquestPriority()
 	int iLoop = 0;
 	for (CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 	{
-		if (pLoopCity != NULL)
-		{
-			//Add in our base production value.
-			iPriorityBonus += (pLoopCity->getProduction() / 10);
+		//Add in our base production value.
+		iPriorityBonus += (pLoopCity->getProduction() / 10);
 
-			int iNumBuildingInfos = GC.getNumBuildingInfos();
-			for (int iI = 0; iI < iNumBuildingInfos; iI++)
+		int iNumBuildingInfos = GC.getNumBuildingInfos();
+		for (int iI = 0; iI < iNumBuildingInfos; iI++)
+		{
+			const BuildingTypes eBuildingLoop = static_cast<BuildingTypes>(iI);
+			if (eBuildingLoop == NO_BUILDING)
+				continue;
+			if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuildingLoop) > 0)
 			{
-				const BuildingTypes eBuildingLoop = static_cast<BuildingTypes>(iI);
-				if (eBuildingLoop == NO_BUILDING)
-					continue;
-				if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuildingLoop) > 0)
+				CvBuildingEntry* pkLoopBuilding = GC.getBuildingInfo(eBuildingLoop);
+				if (pkLoopBuilding)
 				{
-					CvBuildingEntry* pkLoopBuilding = GC.getBuildingInfo(eBuildingLoop);
-					if (pkLoopBuilding)
+					for (int iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes(); iFlavorLoop++)
 					{
-						for (int iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes(); iFlavorLoop++)
+						if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_OFFENSE")
 						{
-							if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_OFFENSE")
-							{
-								iPriorityBonus += pkLoopBuilding->GetFlavorValue(iFlavorLoop) * 2;
-							}
-							else if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_MILITARY_TRAINING")
-							{
-								iPriorityBonus += pkLoopBuilding->GetFlavorValue(iFlavorLoop);
-							}
-							else if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_NAVAL")
-							{
-								iPriorityBonus += pkLoopBuilding->GetFlavorValue(iFlavorLoop);
-							}
+							iPriorityBonus += pkLoopBuilding->GetFlavorValue(iFlavorLoop) * 2;
+						}
+						else if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_MILITARY_TRAINING")
+						{
+							iPriorityBonus += pkLoopBuilding->GetFlavorValue(iFlavorLoop);
+						}
+						else if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_NAVAL")
+						{
+							iPriorityBonus += pkLoopBuilding->GetFlavorValue(iFlavorLoop);
 						}
 					}
 				}
@@ -933,37 +930,34 @@ int CvGrandStrategyAI::GetCulturePriority()
 	int iLoop = 0;
 	for (CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop)) 
 	{
-		if(pLoopCity != NULL)
+		int iNumBuildingInfos = GC.getNumBuildingInfos();
+		for(int iI = 0; iI < iNumBuildingInfos; iI++)
 		{
-			int iNumBuildingInfos = GC.getNumBuildingInfos();
-			for(int iI = 0; iI < iNumBuildingInfos; iI++)
+			const BuildingTypes eBuildingLoop = static_cast<BuildingTypes>(iI);
+			if(eBuildingLoop == NO_BUILDING)
+				continue;
+			if(pLoopCity->GetCityBuildings()->GetNumBuilding(eBuildingLoop) > 0)
 			{
-				const BuildingTypes eBuildingLoop = static_cast<BuildingTypes>(iI);
-				if(eBuildingLoop == NO_BUILDING)
-					continue;
-				if(pLoopCity->GetCityBuildings()->GetNumBuilding(eBuildingLoop) > 0)
+				CvBuildingEntry* pkLoopBuilding = GC.getBuildingInfo(eBuildingLoop);
+				if(pkLoopBuilding)
 				{
-					CvBuildingEntry* pkLoopBuilding = GC.getBuildingInfo(eBuildingLoop);
-					if(pkLoopBuilding)
+					for(int iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes(); iFlavorLoop++)
 					{
-						for(int iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes(); iFlavorLoop++)
+						if(GC.getFlavorTypes((FlavorTypes) iFlavorLoop) == "FLAVOR_CULTURE")
 						{
-							if(GC.getFlavorTypes((FlavorTypes) iFlavorLoop) == "FLAVOR_CULTURE")
-							{
-								iPriorityBonus += pkLoopBuilding->GetFlavorValue(iFlavorLoop);
-							}
-							else if(GC.getFlavorTypes((FlavorTypes) iFlavorLoop) == "FLAVOR_GREAT_PEOPLE")
-							{
-								iPriorityBonus += pkLoopBuilding->GetFlavorValue(iFlavorLoop);
-							}
-							else if(GC.getFlavorTypes((FlavorTypes) iFlavorLoop) == "FLAVOR_WONDER")
-							{
-								iPriorityBonus += pkLoopBuilding->GetFlavorValue(iFlavorLoop);
-							}
-							else if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_HAPPINESS")
-							{
-								iPriorityBonus += pkLoopBuilding->GetFlavorValue(iFlavorLoop);
-							}
+							iPriorityBonus += pkLoopBuilding->GetFlavorValue(iFlavorLoop);
+						}
+						else if(GC.getFlavorTypes((FlavorTypes) iFlavorLoop) == "FLAVOR_GREAT_PEOPLE")
+						{
+							iPriorityBonus += pkLoopBuilding->GetFlavorValue(iFlavorLoop);
+						}
+						else if(GC.getFlavorTypes((FlavorTypes) iFlavorLoop) == "FLAVOR_WONDER")
+						{
+							iPriorityBonus += pkLoopBuilding->GetFlavorValue(iFlavorLoop);
+						}
+						else if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_HAPPINESS")
+						{
+							iPriorityBonus += pkLoopBuilding->GetFlavorValue(iFlavorLoop);
 						}
 					}
 				}
@@ -1131,37 +1125,34 @@ int CvGrandStrategyAI::GetUnitedNationsPriority()
 	int iLoop = 0;
 	for (CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop)) 
 	{
-		if(pLoopCity != NULL)
+		int iNumBuildingInfos = GC.getNumBuildingInfos();
+		for(int iI = 0; iI < iNumBuildingInfos; iI++)
 		{
-			int iNumBuildingInfos = GC.getNumBuildingInfos();
-			for(int iI = 0; iI < iNumBuildingInfos; iI++)
+			const BuildingTypes eBuildingLoop = static_cast<BuildingTypes>(iI);
+			if(eBuildingLoop == NO_BUILDING)
+				continue;
+			if(pLoopCity->GetCityBuildings()->GetNumBuilding(eBuildingLoop) > 0)
 			{
-				const BuildingTypes eBuildingLoop = static_cast<BuildingTypes>(iI);
-				if(eBuildingLoop == NO_BUILDING)
-					continue;
-				if(pLoopCity->GetCityBuildings()->GetNumBuilding(eBuildingLoop) > 0)
+				CvBuildingEntry* pkLoopBuilding = GC.getBuildingInfo(eBuildingLoop);
+				if(pkLoopBuilding)
 				{
-					CvBuildingEntry* pkLoopBuilding = GC.getBuildingInfo(eBuildingLoop);
-					if(pkLoopBuilding)
+					for(int iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes(); iFlavorLoop++)
 					{
-						for(int iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes(); iFlavorLoop++)
+						if(GC.getFlavorTypes((FlavorTypes) iFlavorLoop) == "FLAVOR_GOLD")
 						{
-							if(GC.getFlavorTypes((FlavorTypes) iFlavorLoop) == "FLAVOR_GOLD")
-							{
-								iPriorityBonus += pkLoopBuilding->GetFlavorValue(iFlavorLoop);
-							}
-							else if(GC.getFlavorTypes((FlavorTypes) iFlavorLoop) == "FLAVOR_DIPLOMACY")
-							{
-								iPriorityBonus += pkLoopBuilding->GetFlavorValue(iFlavorLoop) * 2;
-							}
-							else if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_PRODUCTION")
-							{
-								iPriorityBonus += pkLoopBuilding->GetFlavorValue(iFlavorLoop);
-							}
-							else if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_RELIGION")
-							{
-								iPriorityBonus += pkLoopBuilding->GetFlavorValue(iFlavorLoop);
-							}
+							iPriorityBonus += pkLoopBuilding->GetFlavorValue(iFlavorLoop);
+						}
+						else if(GC.getFlavorTypes((FlavorTypes) iFlavorLoop) == "FLAVOR_DIPLOMACY")
+						{
+							iPriorityBonus += pkLoopBuilding->GetFlavorValue(iFlavorLoop) * 2;
+						}
+						else if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_PRODUCTION")
+						{
+							iPriorityBonus += pkLoopBuilding->GetFlavorValue(iFlavorLoop);
+						}
+						else if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_RELIGION")
+						{
+							iPriorityBonus += pkLoopBuilding->GetFlavorValue(iFlavorLoop);
 						}
 					}
 				}
@@ -1467,37 +1458,34 @@ int CvGrandStrategyAI::GetSpaceshipPriority()
 	int iLoop = 0;
 	for (CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop)) 
 	{
-		if(pLoopCity != NULL)
+		int iNumBuildingInfos = GC.getNumBuildingInfos();
+		for(int iI = 0; iI < iNumBuildingInfos; iI++)
 		{
-			int iNumBuildingInfos = GC.getNumBuildingInfos();
-			for(int iI = 0; iI < iNumBuildingInfos; iI++)
+			const BuildingTypes eBuildingLoop = static_cast<BuildingTypes>(iI);
+			if(eBuildingLoop == NO_BUILDING)
+				continue;
+			if(pLoopCity->GetCityBuildings()->GetNumBuilding(eBuildingLoop) > 0)
 			{
-				const BuildingTypes eBuildingLoop = static_cast<BuildingTypes>(iI);
-				if(eBuildingLoop == NO_BUILDING)
-					continue;
-				if(pLoopCity->GetCityBuildings()->GetNumBuilding(eBuildingLoop) > 0)
+				CvBuildingEntry* pkLoopBuilding = GC.getBuildingInfo(eBuildingLoop);
+				if(pkLoopBuilding)
 				{
-					CvBuildingEntry* pkLoopBuilding = GC.getBuildingInfo(eBuildingLoop);
-					if(pkLoopBuilding)
+					for(int iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes(); iFlavorLoop++)
 					{
-						for(int iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes(); iFlavorLoop++)
+						if(GC.getFlavorTypes((FlavorTypes) iFlavorLoop) == "FLAVOR_SPACESHIP")
 						{
-							if(GC.getFlavorTypes((FlavorTypes) iFlavorLoop) == "FLAVOR_SPACESHIP")
-							{
-								iPriorityBonus += pkLoopBuilding->GetFlavorValue(iFlavorLoop);
-							}
-							else if(GC.getFlavorTypes((FlavorTypes) iFlavorLoop) == "FLAVOR_SCIENCE")
-							{
-								iPriorityBonus += pkLoopBuilding->GetFlavorValue(iFlavorLoop);
-							}
-							else if(GC.getFlavorTypes((FlavorTypes) iFlavorLoop) == "FLAVOR_GROWTH")
-							{
-								iPriorityBonus += pkLoopBuilding->GetFlavorValue(iFlavorLoop);
-							}
-							else if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_TILE_IMPROVEMENT")
-							{
-								iPriorityBonus += pkLoopBuilding->GetFlavorValue(iFlavorLoop);
-							}
+							iPriorityBonus += pkLoopBuilding->GetFlavorValue(iFlavorLoop);
+						}
+						else if(GC.getFlavorTypes((FlavorTypes) iFlavorLoop) == "FLAVOR_SCIENCE")
+						{
+							iPriorityBonus += pkLoopBuilding->GetFlavorValue(iFlavorLoop);
+						}
+						else if(GC.getFlavorTypes((FlavorTypes) iFlavorLoop) == "FLAVOR_GROWTH")
+						{
+							iPriorityBonus += pkLoopBuilding->GetFlavorValue(iFlavorLoop);
+						}
+						else if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_TILE_IMPROVEMENT")
+						{
+							iPriorityBonus += pkLoopBuilding->GetFlavorValue(iFlavorLoop);
 						}
 					}
 				}

@@ -10554,15 +10554,12 @@ void CvGame::updateEconomicTotal()
 		{
 			for (pLoopCity = GET_PLAYER(eLoopPlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eLoopPlayer).nextCity(&iCityLoop))
 			{
-				if (pLoopCity != NULL)
-				{
-					int iVal = pLoopCity->getEconomicValue(pLoopCity->getOwner());
-					if (iVal > iHighestVal)
-						iHighestVal = iVal;
+				int iVal = pLoopCity->getEconomicValue(pLoopCity->getOwner());
+				if (iVal > iHighestVal)
+					iHighestVal = iVal;
 
-					iTotalEconomicValue += iVal;
-					viEconValues.push_back(iVal);
-				}
+				iTotalEconomicValue += iVal;
+				viEconValues.push_back(iVal);
 			}
 		}
 	}
@@ -14078,10 +14075,7 @@ void CvGame::SetContractUnits(ContractTypes eContract, UnitTypes eUnit, int iVal
 	PRECONDITION(eContract > -1 && eContract < GC.getNumContractInfos(), "Invalid eContract index.");
 	PRECONDITION(eUnit > -1 && eUnit < GC.getNumUnitInfos(), "Invalid eUnit index.");
 
-	if(m_ppaiContractUnits[eContract][eUnit] != iValue)
-	{
-		m_ppaiContractUnits[eContract][eUnit] = iValue;
-	}
+	m_ppaiContractUnits[eContract][eUnit] = iValue;
 }
 int CvGame::GetContractUnits(ContractTypes eContract, UnitTypes eUnit) const
 {
