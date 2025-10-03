@@ -14370,7 +14370,7 @@ CvBinType CvGame::GetExeBinType() const
 }
 bool CvGame::IsExeWantForceResyncAvailable() 
 {
-	return MOD_EXE_HACKING && m_eExeBinType == BIN_DX11 && isNetworkMultiPlayer() && gDLL->IsHost();
+	return MOD_BIN_HOOKS && m_eExeBinType == BIN_DX11 && isNetworkMultiPlayer() && gDLL->IsHost();
 }
 void CvGame::SetExeWantForceResyncValue(int value) 
 {

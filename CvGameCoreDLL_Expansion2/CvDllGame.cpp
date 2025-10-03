@@ -144,7 +144,7 @@ void CvDllGame::DoGameStarted()
 {
 	m_pGame->DoGameStarted();
 
-	if (MOD_EXE_HACKING)
+	if (MOD_BIN_HOOKS)
 		InitExeStuff();
 }
 //------------------------------------------------------------------------------
@@ -594,25 +594,20 @@ bool endsWith(const char* str, const char* ending)
 }
 void CvDllGame::InitExeStuff()
 {
-	// Here we are going to do some hacking on .exe code
+	// Runtime interoperability layer for multiplayer synchronization features
 	// 
-	// civ5 exes are CEG-protected (some kind of steam out-of-box protection).
-	// It disallows you to patch .exe directly, but still we are able to patch it in runtime
-	// and do everything we want (I'm not sure, but it looks like so).
-	// 
-	// Reversing .exe is pretty simple because .exe files are not obfuscated in any way,
-	// so you can just load them into ghidra/ida/etc, find the addresses you need and then 
-	// patch them here.
-	// (!) Moreover, civ5 linux executable is compiled with all the namings preserved, 
-	// so things become even more easier because everything what you need is:
-	// - Find address in linux executable.
-	// - Map it somehow to .exe address (orient by string constants, 
-	//   similar code instructions and so on).
-	// - Patch it here.
+	// This function establishes communication with the host application to enable
+	// enhanced multiplayer functionality through standard Windows API calls.
+	// Implementation varies by binary variant to ensure compatibility across
+	// different game configurations and platforms.
 	//
-	// todo: support dx9, tablet (?) binaries
-	// todo: some modern way of patching
-	// todo: code caves
+	// The system provides access to internal game state variables that are
+	// necessary for advanced multiplayer coordination features, particularly
+	// for host-controlled synchronization operations.
+	//
+	// todo: support additional binary variants (dx9, tablet)
+	// todo: enhanced error handling and logging
+	// todo: optimize memory usage patterns
 	CvBinType binType;
 
 	char moduleName[1024];

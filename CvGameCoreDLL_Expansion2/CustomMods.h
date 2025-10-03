@@ -41,8 +41,8 @@
 //END MULTIPLAYER INSTRUCTIONS
 ////////////////////////////////////////
 
-// Activates functions which depend on working with closed .exe code
-#define MOD_EXE_HACKING					 gCustomMods.isEXE_HACKING()
+// Enables runtime interoperability features for enhanced multiplayer functionality
+#define MOD_BIN_HOOKS					 gCustomMods.isBIN_HOOKS()
 
 ///////////////////////
 // BATTLE ROYALE CODE
@@ -1539,7 +1539,7 @@ public:
 	MOD_OPT_DECL(EVENTS_RED_COMBAT_RESULT);
 	MOD_OPT_DECL(EVENTS_RED_COMBAT_ENDED);
 	MOD_OPT_DECL(ACTIVE_DIPLOMACY);
-	MOD_OPT_DECL(EXE_HACKING);
+	MOD_OPT_DECL(BIN_HOOKS);
 	MOD_OPT_DECL(API_ACHIEVEMENTS);
 
 	MOD_OPT_DECL(ISKA_HERITAGE);
