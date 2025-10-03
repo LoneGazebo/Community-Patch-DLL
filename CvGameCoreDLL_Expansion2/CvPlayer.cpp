@@ -3781,7 +3781,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift, bool bO
 			{
 				Localization::String strNotification = bConquest ? Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_EVICTED_CONQUEST_YOU") : Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_EVICTED_TRADE_YOU");
 				strNotification << pEspionage->GetSpyRankName(pSpy->m_eRank);
-				strNotification << pSpy->GetSpyName(&GET_PLAYER(eLoopPlayer));
+				strNotification << pSpy->GetSpyName();
 				strNotification << pCity->getNameKey();
 				pNotify->Add(NOTIFICATION_SPY_EVICTED, strNotification.toUTF8(), strSummary.toUTF8(), -1, -1, eOldOwner);
 			}
@@ -3789,7 +3789,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift, bool bO
 			{
 				Localization::String strNotification = bConquest ? Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_EVICTED_CONQUEST") : Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_EVICTED_TRADE");
 				strNotification << pEspionage->GetSpyRankName(pSpy->m_eRank);
-				strNotification << pSpy->GetSpyName(&GET_PLAYER(eLoopPlayer));
+				strNotification << pSpy->GetSpyName();
 				strNotification << pCity->getNameKey();
 				strNotification << getCivilizationInfo().getShortDescriptionKey();
 				pNotify->Add(NOTIFICATION_SPY_EVICTED, strNotification.toUTF8(), strSummary.toUTF8(), -1, -1, eOldOwner);

@@ -193,7 +193,7 @@ class CvEspionageSpy
 public:
 	CvEspionageSpy();
 
-	const char* GetSpyName(CvPlayer* pPlayer);
+	const char* GetSpyName() const;
 
 	PlayerTypes GetVassalDiplomatPlayer() const;
 	CvSpyState GetSpyState() const;

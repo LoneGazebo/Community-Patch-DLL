@@ -6778,7 +6778,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 						{
 							CvString strMsg;
 							strMsg.Format("Siphoning %d Yield per Turn for Spy Event! %d, ", (int)eYield, iAmount);
-							strMsg += GetLocalizedText(pSpy->GetSpyName(&GET_PLAYER(eSpyOwner)));
+							strMsg += GetLocalizedText(pSpy->GetSpyName());
 							GET_PLAYER(eSpyOwner).GetEspionage()->LogEspionageMsg(strMsg);
 						}
 					}
