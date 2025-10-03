@@ -1069,7 +1069,7 @@ local function UpdateWorkingHexes()
 					instance.BuyPlotButtonAnchor:SetWorldPosition(VecAdd(vWorldPosition, g_vWorldPositionOffset2));
 					local iPlotCost = pCity:GetBuyPlotCost(pPlot:GetX(), pPlot:GetY());
 					instance.BuyPlotAnchoredButton:LocalizeAndSetToolTip(strTooltipKey, iPlotCost);
-					instance.BuyPlotAnchoredButton:SetDisabled(bCanAfford);
+					instance.BuyPlotAnchoredButton:SetDisabled(not bCanAfford);
 					if bCanAfford then
 						instance.BuyPlotAnchoredButtonLabel:SetText(iPlotCost);
 						instance.BuyPlotAnchoredButton:RegisterCallback(Mouse.eLClick, function ()
@@ -1361,16 +1361,15 @@ local function UpdateViewFull()
 	Controls.FoodBox:SetToolTipString(strFoodTooltip);
 	Controls.PopulationBox:SetToolTipString(strFoodTooltip);
 	local fFoodPerTurn = pCity:GetYieldRateTimes100(YieldTypes.YIELD_FOOD) / 100;
-	if fFoodPerTurn >= 0 then
+	if fFoodPerTurn > 0 then
 		Controls.FoodPerTurnLabel:LocalizeAndSetText("TXT_KEY_CITYVIEW_PERTURN_TEXT", fFoodPerTurn);
 		Controls.CityGrowthLabel:LocalizeAndSetText("TXT_KEY_CITYVIEW_TURNS_TILL_CITIZEN_TEXT", pCity:GetFoodTurnsLeft());
+	elseif fFoodPerTurn == 0 then
+		Controls.FoodPerTurnLabel:LocalizeAndSetText("TXT_KEY_CITYVIEW_PERTURN_TEXT", fFoodPerTurn);
+		Controls.CityGrowthLabel:LocalizeAndSetText("TXT_KEY_CITYVIEW_STAGNATION_TEXT");
 	else
 		Controls.FoodPerTurnLabel:LocalizeAndSetText("TXT_KEY_CITYVIEW_PERTURN_TEXT_NEGATIVE", fFoodPerTurn);
-		if fFoodPerTurn == 0 then
-			Controls.CityGrowthLabel:LocalizeAndSetText("TXT_KEY_CITYVIEW_STAGNATION_TEXT");
-		elseif fFoodPerTurn < 0 then
-			Controls.CityGrowthLabel:LocalizeAndSetText("TXT_KEY_CITYVIEW_STARVATION_TEXT");
-		end
+		Controls.CityGrowthLabel:LocalizeAndSetText("TXT_KEY_CITYVIEW_STARVATION_TEXT");
 	end
 	local iPopulation = pCity:GetPopulation();
 	Controls.CityPopulationLabel:SetText(iPopulation);

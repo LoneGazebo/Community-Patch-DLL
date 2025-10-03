@@ -3781,7 +3781,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift, bool bO
 			{
 				Localization::String strNotification = bConquest ? Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_EVICTED_CONQUEST_YOU") : Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_EVICTED_TRADE_YOU");
 				strNotification << pEspionage->GetSpyRankName(pSpy->m_eRank);
-				strNotification << pSpy->GetSpyName(&GET_PLAYER(eLoopPlayer));
+				strNotification << pSpy->GetSpyName();
 				strNotification << pCity->getNameKey();
 				pNotify->Add(NOTIFICATION_SPY_EVICTED, strNotification.toUTF8(), strSummary.toUTF8(), -1, -1, eOldOwner);
 			}
@@ -3789,7 +3789,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift, bool bO
 			{
 				Localization::String strNotification = bConquest ? Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_EVICTED_CONQUEST") : Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_EVICTED_TRADE");
 				strNotification << pEspionage->GetSpyRankName(pSpy->m_eRank);
-				strNotification << pSpy->GetSpyName(&GET_PLAYER(eLoopPlayer));
+				strNotification << pSpy->GetSpyName();
 				strNotification << pCity->getNameKey();
 				strNotification << getCivilizationInfo().getShortDescriptionKey();
 				pNotify->Add(NOTIFICATION_SPY_EVICTED, strNotification.toUTF8(), strSummary.toUTF8(), -1, -1, eOldOwner);
@@ -28338,7 +28338,8 @@ void CvPlayer::recomputeGreatPeopleModifiers()
 	const GreatPersonTypes eArtist = static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_ARTIST"));
 	const GreatPersonTypes eMusician = static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_MUSICIAN"));
 	const GreatPersonTypes eWriter = static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_WRITER"));
-	const GreatPersonTypes eDiplomat = static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_DIPLOMAT"));
+	// Great Diplomats (only in VP)
+	const GreatPersonTypes eDiplomat = static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_DIPLOMAT", true));
 
 	CvTeam& kTeam = GET_TEAM(getTeam());
 
@@ -28361,7 +28362,10 @@ void CvPlayer::recomputeGreatPeopleModifiers()
 	ChangeGreatPersonRateModifier(eMusician, m_pPlayerPolicies->GetNumericModifier(POLICYMOD_GREAT_MUSICIAN_RATE));
 	ChangeGreatPersonRateModifier(eMerchant, m_pPlayerPolicies->GetNumericModifier(POLICYMOD_GREAT_MERCHANT_RATE));
 	ChangeGreatPersonRateModifier(eEngineer, m_pPlayerPolicies->GetNumericModifier(POLICYMOD_GREAT_ENGINEER_RATE));
-	ChangeGreatPersonRateModifier(eDiplomat, m_pPlayerPolicies->GetNumericModifier(POLICYMOD_GREAT_DIPLOMAT_RATE));
+	if (eDiplomat != NO_GREATPERSON)
+	{
+		ChangeGreatPersonRateModifier(eDiplomat, m_pPlayerPolicies->GetNumericModifier(POLICYMOD_GREAT_DIPLOMAT_RATE));
+	}
 	ChangeGreatPersonRateModifier(eScientist, m_pPlayerPolicies->GetNumericModifier(POLICYMOD_GREAT_SCIENTIST_RATE));
 
 	// Next add in buildings

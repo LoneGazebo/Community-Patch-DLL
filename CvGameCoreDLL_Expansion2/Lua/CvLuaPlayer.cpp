@@ -16846,7 +16846,7 @@ int CvLuaPlayer::lGetEspionageSpies(lua_State* L)
 		lua_pushinteger(L, pSpy->m_iCityY);
 		lua_setfield(L, t, "CityY");
 
-		const char* szSpyName = pSpy->GetSpyName(pkThisPlayer);
+		const char* szSpyName = pSpy->GetSpyName();
 
 		lua_pushstring(L, szSpyName);
 		lua_setfield(L, t, "Name");

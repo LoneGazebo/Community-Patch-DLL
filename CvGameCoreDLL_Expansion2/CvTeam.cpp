@@ -4795,7 +4795,7 @@ void CvTeam::EvacuateDiplomatsAtTeam(TeamTypes eIndex)
 							Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_DIPLOMAT_EJECTED");
 							Localization::String strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_DIPLOMAT_EJECTED_TT");
 							strNotification << pEspionage->GetSpyRankName(eSpyRank);
-							strNotification << pEspionage->m_aSpyList[iSpyIndex].GetSpyName(&GET_PLAYER(ePlayer1));
+							strNotification << pEspionage->m_aSpyList[iSpyIndex].GetSpyName();
 							strNotification << pCapitalCity->getNameKey();
 							pNotifications->Add(NOTIFICATION_SPY_CANT_STEAL_TECH, strNotification.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
 						}

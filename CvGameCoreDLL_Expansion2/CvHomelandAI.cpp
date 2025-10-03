@@ -2103,29 +2103,25 @@ void CvHomelandAI::ReviewUnassignedUnits()
 						}
 					}
 
-					if (pBestPlot != NULL)
-					{
-
-						if (
+					if (pBestPlot != NULL && (
 							// check if we are satisfying MOVEFLAG_APPROX_TARGET_RING2 already
 							(iBestDistance < 3 && iBestDistance >= 0) || 
 							// move if not
-							MoveToTargetButDontEndTurn(pUnit, pBestPlot, iFlags)
-						) {
-							pUnit->SetTurnProcessed(true);
+							MoveToTargetButDontEndTurn(pUnit, pBestPlot, iFlags)))
+					{
+						pUnit->SetTurnProcessed(true);
 
-							CvString strTemp;
-							CvUnitEntry* pkUnitInfo = GC.getUnitInfo(pUnit->getUnitType());
-							if(pkUnitInfo)
-							{
-								strTemp = pkUnitInfo->GetDescription();
-								CvString strLogString;
-								strLogString.Format("Unassigned %s %d wandering homeward, at, X: %d, Y: %d - to X: %d, Y: %d.", strTemp.GetCString(), pUnit->GetID(), pUnit->getX(), pUnit->getY(), pBestPlot->getX(), pBestPlot->getY());
-								LogHomelandMessage(strLogString);
-							}
-
-							continue;
+						CvString strTemp;
+						CvUnitEntry* pkUnitInfo = GC.getUnitInfo(pUnit->getUnitType());
+						if(pkUnitInfo)
+						{
+							strTemp = pkUnitInfo->GetDescription();
+							CvString strLogString;
+							strLogString.Format("Unassigned %s %d wandering homeward, at, X: %d, Y: %d - to X: %d, Y: %d.", strTemp.GetCString(), pUnit->GetID(), pUnit->getX(), pUnit->getY(), pBestPlot->getX(), pBestPlot->getY());
+							LogHomelandMessage(strLogString);
 						}
+
+						continue;
 					}
 					else {
 						// mark as processed to not hang the game but still do scrap check
@@ -6161,8 +6157,14 @@ bool CvHomelandAI::MoveToTargetButDontEndTurn(CvUnit* pUnit, CvPlot* pTargetPlot
 		CvPlot* pOldPlot = pUnit->plot();
 		CvPlot* pWayPoint = pUnit->GetPathEndFirstTurnPlot();
 		//don't do it if it's too dangerous
-		if (pUnit->GetDanger(pWayPoint)<pUnit->GetCurrHitPoints())
+		if (pUnit->GetDanger(pWayPoint) < pUnit->GetCurrHitPoints())
+		{
 			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTargetPlot->getX(), pTargetPlot->getY(), iFlags, false, false, MISSIONAI_HOMEMOVE, pTargetPlot);
+		}
+		else
+		{
+			pUnit->PushMission(CvTypes::getMISSION_SKIP());
+		}
 
 		return pUnit->plot() != pOldPlot;
 	}

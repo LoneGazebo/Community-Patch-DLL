@@ -17182,7 +17182,7 @@ void CvMinorCivAI::DoElection()
 					strSummary << pCapital->getNameKey();
 					Localization::String strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_RIG_ELECTION_SUCCESS");
 					strNotification << GET_PLAYER(ePlayer).GetEspionage()->GetSpyRankName(apSpy[ui]->m_eRank);
-					strNotification << apSpy[ui]->GetSpyName(&GET_PLAYER(ePlayer));
+					strNotification << apSpy[ui]->GetSpyName();
 					strNotification << pCapital->getNameKey();
 					strNotification << iValue;
 					pNotifications->Add(NOTIFICATION_SPY_RIG_ELECTION_SUCCESS, strNotification.toUTF8(), strSummary.toUTF8(), pCapital->getX(), pCapital->getY(), -1);
@@ -17276,7 +17276,7 @@ void CvMinorCivAI::DoElection()
 						strSummary << pCapital->getNameKey();
 						Localization::String strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_RIG_ELECTION_FAILURE");
 						strNotification << GET_PLAYER(ePlayer).GetEspionage()->GetSpyRankName(apSpy[ui]->m_eRank);
-						strNotification << apSpy[ui]->GetSpyName(&GET_PLAYER(ePlayer));
+						strNotification << apSpy[ui]->GetSpyName();
 						strNotification << pCapital->getNameKey();
 						strNotification << GET_PLAYER(eElectionWinner).getCivilizationShortDescriptionKey();
 						strNotification << (iDiminishAmount / 100);

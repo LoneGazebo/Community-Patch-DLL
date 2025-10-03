@@ -6778,7 +6778,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 						{
 							CvString strMsg;
 							strMsg.Format("Siphoning %d Yield per Turn for Spy Event! %d, ", (int)eYield, iAmount);
-							strMsg += GetLocalizedText(pSpy->GetSpyName(&GET_PLAYER(eSpyOwner)));
+							strMsg += GetLocalizedText(pSpy->GetSpyName());
 							GET_PLAYER(eSpyOwner).GetEspionage()->LogEspionageMsg(strMsg);
 						}
 					}
@@ -11456,7 +11456,7 @@ int CvCity::getProductionTurnsLeft(ProjectTypes eProject, int iNum) const
 int CvCity::getProductionNeeded(ProcessTypes eProcess) const
 {
 	VALIDATE_OBJECT();
-	static ProcessTypes stockpile = (ProcessTypes)GC.getInfoTypeForString("PROCESS_STOCKPILE");
+	static ProcessTypes stockpile = (ProcessTypes)GC.getInfoTypeForString("PROCESS_STOCKPILE", true);
 	if (eProcess == stockpile)
 	{
 		return GET_PLAYER(getOwner()).getMaxStockpile();
@@ -11469,7 +11469,7 @@ int CvCity::getProductionNeeded(ProcessTypes eProcess) const
 int CvCity::getProductionTurnsLeft(ProcessTypes eProcess, int) const
 {
 	VALIDATE_OBJECT();
-	static ProcessTypes stockpile = (ProcessTypes)GC.getInfoTypeForString("PROCESS_STOCKPILE");
+	static ProcessTypes stockpile = (ProcessTypes)GC.getInfoTypeForString("PROCESS_STOCKPILE", true);
 	if (eProcess == stockpile)
 	{
 		int iProductionStored = getOverflowProduction() * 100;
@@ -31418,7 +31418,6 @@ void CvCity::doProcess()
 	PRECONDITION(eProcess != NO_PROCESS, "Invalid Process for city production.");
 	if (eProcess == NO_PROCESS) return;
 
-#if defined(MOD_PROCESS_STOCKPILE)
 	if (MOD_PROCESS_STOCKPILE && eProcess == GC.getInfoTypeForString("PROCESS_STOCKPILE", true))
 	{
 		int iPile = getYieldRateTimes100(YIELD_PRODUCTION);
@@ -31426,7 +31425,6 @@ void CvCity::doProcess()
 		setOverflowProductionTimes100(getOverflowProductionTimes100() + iPile);
 		CUSTOMLOG("Adding %i production to the stockpile of %s (for a total of %i)", iPile / 100, getName().c_str(), getOverflowProduction());
 	}
-#endif
 }
 
 
