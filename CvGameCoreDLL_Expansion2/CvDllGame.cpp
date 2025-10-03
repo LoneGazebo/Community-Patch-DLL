@@ -630,6 +630,7 @@ void CvDllGame::InitExeStuff()
 
 	m_pGame->SetExeBinType(binType);
 
+#ifdef WIN32
 	if (binType == BIN_DX11 || binType == BIN_DX9 || binType == BIN_TABLET)
 	{
 		DWORD baseAddr = (DWORD) GetModuleHandleA(NULL);
@@ -656,6 +657,7 @@ void CvDllGame::InitExeStuff()
 			m_pGame->SetExeWantForceResyncPointer(s_wantForceResync);
 		}
 	}
+#endif
 
 	/*{
 	    // the very basic example of how to fill something with NOPs
