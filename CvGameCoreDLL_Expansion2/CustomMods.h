@@ -808,6 +808,9 @@
 #define MOD_EVENTS_RED_COMBAT_RESULT                (MOD_EVENTS_RED_COMBAT && gCustomMods.isEVENTS_RED_COMBAT_RESULT())
 #define MOD_EVENTS_RED_COMBAT_ENDED                 (MOD_EVENTS_RED_COMBAT && gCustomMods.isEVENTS_RED_COMBAT_ENDED())
 
+// Vox Deorum modmod - opening IPC channel
+#define MOD_IPC_CHANNEL					gCustomMods.isIPC_CHANNEL()
+
 //
 // NOTHING BELOW HERE SHOULD NEED CHANGING
 //
@@ -1069,7 +1072,7 @@ enum BattleTypeTypes
 #define GAMEEVENT_PlayerCanRevoke				"PlayerCanRevoke",				"ii"
 #define GAMEEVENT_PlayerCanSpreadReligion		"PlayerCanSpreadReligion",		"iiii"
 #define GAMEEVENT_PlayerCanTransitMinorCity		"PlayerCanTransitMinorCity",	"iiiii"
-#define GAMEEVENT_PlayerDoneTurn				"PlayerDoneTurn",				"i"
+#define GAMEEVENT_PlayerDoneTurn				"PlayerDoneTurn",				"ii"
 #define GAMEEVENT_PlayerGifted					"PlayerGifted",					"iiiiii"
 #define GAMEEVENT_PlayerGoldenAge				"PlayerGoldenAge",				"ibi"
 #define GAMEEVENT_PlayerEndOfMayaLongCount		"PlayerEndOfMayaLongCount",		"iii"
@@ -1265,6 +1268,7 @@ public:
 	int getOption(const char* szOption, int defValue = 0);
 	int getOption(const std::string& sOption, int defValue = 0);
 	int getCivOption(const char* szCiv, const char* szName, int defValue = 0);
+	int enableAllEventOptions();
 
 	MOD_OPT_DECL(BALANCE_VP);
 	MOD_OPT_DECL(CORE_DEBUGGING);
@@ -1572,6 +1576,8 @@ public:
 	MOD_OPT_DECL(NOTIFICATION_SETTINGS);
 	MOD_OPT_DECL(LOG_MAP_STATE);
 	MOD_OPT_DECL(ROUTE_PLANNER);
+
+	MOD_OPT_DECL(IPC_CHANNEL);
 
 protected:
 	bool m_bInit;
