@@ -97,7 +97,7 @@
 			<Text>In the Civil War, a "monitor" was an armored, steam-driven warship with a very low freeboard (as a foot from waterline to deck) mounting a few heavy guns in one or more turrets. Intended primarily for use on the rivers that cut through Southern territory, the unseaworthy craft were used to support land forces, protect riverbank positions, and control river passage; monitors were crucial to the Union victories in the West, notably along the Mississippi River.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_MONITOR_STRATEGY">
-			<Text></Text>
+			<Text>The {TXT_KEY_UNIT_MONITOR} benefits a lot from Comabt Strength boosts and Dauntless Promotion, becauce the combined -8 Damage Reduction works better the less daamge enemies can deal to you. Therefore promote your {TXT_KEY_UNIT_MONITOR}s as much as you can and accompny them with Great Admirals. The City Defense Bonus is a small benefit, the main strength of this Ship lies in its high base Combat Strength.</Text>
 		</Row>
 
 		<!-- Arabia -->
@@ -293,7 +293,7 @@
 			<Text>Embrapa is a state-owned research corporation affiliated with the Brazilian Ministry of Agriculture. Since its inception on April 26, 1973, it has been devoted to developing technologies, knowledge and technical-scientific information aimed at Brazilian agriculture, including livestock. Embrapa''s organizational structure is composed of 46 centers that can be divided into Research Units or Service Units, and of 17 Central Units that comprise the corporation''s headquarters. Such research centers are distributed throughout the country in nearly all Brazilian states.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_EMBRAPA_STRATEGY">
-			<Text>The Embrapa provides bonuses to Tourism, Culture, and even Gold, on top of Science bonuses like the Research Lab, which it replaces. Brazilwood Camps, as well as the Jungle and/or Forest tiles on which they are built receive additional Science as well as either Tourism or Culture and Gold. Pastures and the plant bonuses resources are also boosted like the Brazilwood Camp. These bonuses are most effective for a large empire with many Brazilwood Camps and ways of turning Culture on tiles into Tourism. Finally Cities gain Tourism from a percentage of their total Food, increasing its value to your Empire.</Text>
+			<Text>When aiming for Cultural Victory {TXT_KEY_BUILDING_EMBRAPA} is a must due to 5% Food to Tourism conversion. Tourism is a yield that is hard to come by, so focusing more of Food generation might be beneficial to take full advantage of this conversion process. Research Plastics technology early to unlock this building.[NEWLINE][NEWLINE]When not aiming for Cultural or Science victory it is still worth building {TXT_KEY_BUILDING_EMBRAPA} due to strong bonuses to Science which are always valuable. Especially in Cities with many Forest or Jungle tiles and Farm resources, as these gain significant yields. In Cities without these tiles {TXT_KEY_BUILDING_EMBRAPA} loses significance, so you may wish to delay its construction. In any case, working all the tiles strengthened by {TXT_KEY_BUILDING_EMBRAPA} is highly recommended.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_UNIT_AMAZONAS">
@@ -306,7 +306,7 @@
 			<Text>The Amazonas was a large steam frigate serving as the flagship of the Brazilian Navy during the Paraguayan War, the bloodiest conflict in South American history. The hulking warship played a pivotal roll at the Battle of Riachuelo, where a combined artillery and naval brigade of Paraguayans attempted to ambush the Brazilians in the early morning and under the cover of a dense fog. Caught by surprise, the Brazilians were put at a great disadvantage, but rallied and countered the Paraguayans. The Amazonas proved to be the decisive factor, ramming and sinking two ships and disabling a third. At Riachuelo, the Paraguayans navy was badly damaged, putting a halt to their momentum for the remainder of the war. Brazil and its allies took the initiative and maintained naval supremacy for the remainder of the war.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_AMAZONAS_STRATEGY">
-			<Text></Text>
+			<Text>Thanks to the Blitz promotion {TXT_KEY_UNIT_AMAZONAS} not only can attack twice per turn, but as a side effect can move after attacking. This enables focus attacks on ships, which is strong as it allows to defeat enemy units more reliably. This synergises with {TXT_KEY_UNIT_AMAZONAS} gain of Golden Age Points and Great Admiral Points upon defeating enemy units which further synergises with Brazils Unique Ability. However, Blitz also allows to attack Cities with many ships in a single turn, which stopped being possible with the obsolecence of Galleasses. Consider building many {TXT_KEY_UNIT_AMAZONAS} and performing mass sieges on Cities with as many of them as possible, even without siege promotions from the Hull Promotion line!</Text>
 		</Row>
 
 		<!-- Byzantium -->
@@ -368,7 +368,7 @@
 			<Text>In contrast to most Phoenician colonies, Carthage grew larger and more quickly thanks to its combination of favorable climate, arable land, and lucrative trade routes. Within just one century of its founding, its population rose to 30,000. Though the specific date and circumstances are unknown, Carthage became independent in the middle of the 6th century BC. It had grown into a fully independent thalassocracy, embarking its own colonization efforts across the western Mediterranean. Carthage became an expansionist power, driven by its desire to access new sources of wealth and trade. By 300 BC, through its vast patchwork of colonies, vassals, and satellite states, held together by its naval dominance of the western and central Mediterranean Sea, Carthage controlled the largest territory in the region, including the coast of northwestern Africa, southern and eastern Iberia, and the islands of Sicily, Sardinia, Corsica, Malta, and the Balearic Islands.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_ASAMU_STRATEGY">
-			<Text></Text>
+			<Text>The {TXT_KEY_UNIT_ASAMU} allows for more aggressive settling, but requires very high Gold generation, as it can not be produced but only be purchased for a lot of Gold. Because purchasing one does not decrease population like producing a Settler does, a major bottleneck on the speed of settling early game is replaced by Gold generation. Therefore, consider gathering as much Gold as possible early game from your Unique Ability, destroying Barbarian Camps, exploring Ruins and working Gold tiles to then settle at a high pace. Because {TXT_KEY_UNIT_ASAMU} can retreat from melee attack once per turn, you can travel though barbarain terriory without escort, unless two units can attack it. Additionally, since {TXT_KEY_UNIT_ASAMU} can Embark without researching Sailing technology, you can claim valuable islands before your rivals. You can couple that with producing Settlers at the same time. This way you can secure many great City locations with many Luxury Resources, synergizing with your Unique Ability.</Text>
 		</Row>
 
 		<!-- Celts -->
@@ -1488,7 +1488,7 @@ These elite shock troops posed a deadly threat to any opponent, whether in the f
 			<Text>Often thought of as ceremonial and military implements first, perhaps the greatest contribution of elephants to human society has been as beasts of burden. Elephants are prized as a labour force even in modern times for their ability to haul the dense teak lumber found only in Burma and Thailand. The strength of a fully grown elephant is matched only by its grace, navigating difficult and uneven terrain while carrying heavy loads. With their delicate command of the forest trails, elephants also reduce the potential damage of logging roads to the surrounding forest.[NEWLINE][NEWLINE]The jobs of Southeast Asia's working elephants have come under threat within the past few decades with the mechanization of logging. Elephants and their mahouts have been forced to look for work in tourism and religious festivals, jobs which elephants find terribly stressful.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_ELEPHANT_CAMP_STRATEGY">
-			<Text></Text>
+			<Text>The {TXT_KEY_BUILDING_ELEPHANT_CAMP}s main strength comes from adding +1 Culture to Lumbermills. This adds a lot of value to these already strong improvments, so from the start of the game strongly prioritise settling near Forests and Jungles and avoid chopping them down. Additionally, try to maintain many City-State Allies that have access to Strategic Resources to benefit from the +1 Gold and Production in every {TXT_KEY_BUILDING_ELEPHANT_CAMP} for each. This Building will likely always be a priority to build as the base is already strong, so think about how you can research Technologies to unlock it as soon as possible.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_UNIT_SUEA_MOP">
@@ -1501,7 +1501,9 @@ These elite shock troops posed a deadly threat to any opponent, whether in the f
 			<Text>Despite Siam's remarkable diplomacy, they did occasionally come into conflict with the western imperial powers which threated their independence. When the French set their sights on Laos, the Siamese mistakenly believed the English would support them against France and prepared for war. The Seir Morb ("Crouching Tiger") were the most technologically advanced cannons in the Siamese arsenal at the time; coastal artillery which could destroy any French boats foolish enough to enter their harbours. However, no amount of raw power can account for corruption and disorganization; the French managed to establish their beachheads, and the coastal artillery of Thailand remained unused. It turns out that the finest artillery money can buy still needs to be fired.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_SUEA_MOP_STRATEGY">
-			<Text></Text>
+			<Text>{TXT_KEY_UNIT_SUEA_MOP} lacks the bonus to Combat Strength when attacking Cities, making it similar to a normal Ranged Unit. However it deals an extra 15 damage if it did not move before attacking in a turn. This ignores damage reduction and high combat strength of attacked Units, so it effectively makes {TXT_KEY_UNIT_SUEA_MOP} just as effective when attacking cities and very effective when fighting Units, especially if they are more advanced than you. As it has low Comabt Strength, to avoid moving before attacking you will have to carefully position your army.
+				[NEWLINE][NEWLINE]For Promotions, Logistics has the strongest synergy with {TXT_KEY_UNIT_SUEA_MOP} because you can apply the 15 damage twice per turn, or you can move after attacking which will not affect this bonus next turn. Alternatively, the Range Promotion will allow you to be stationary with more safety giving more reliability in dealing the bonus damage.
+				[NEWLINE][NEWLINE]Further the Naval Artillery Promotion is a must-have when using {TXT_KEY_UNIT_SUEA_MOP} as coastal defense. So you Cities with water access are safer than they otherwise would be.</Text>
 		</Row> 
 
 		<!-- Songhai -->
