@@ -6523,7 +6523,6 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 		GC.getGame().addReplayMessage(REPLAY_MESSAGE_PLOT_OWNER_CHANGE, eNewValue, "", getX(), getY());
 
 		CvCity* pOldCity = getPlotCity();
-		CvCity* pOldOwningCity = getEffectiveOwningCity();
 
 		{
 			setOwnershipDuration(0);

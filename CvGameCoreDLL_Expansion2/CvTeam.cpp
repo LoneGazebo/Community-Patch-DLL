@@ -205,6 +205,7 @@ void CvTeam::uninit()
 
 	m_bMapCentering = false;
 	m_bHasTechForWorldCongress = false;
+	m_bCanBuildOceanCrossingUnit = false;
 
 	m_iVassalageTradingAllowedCount = 0;
 
@@ -8143,6 +8144,44 @@ void CvTeam::processTech(TechTypes eTech, int iChange, bool bNoBonus)
 		}
 	}
 
+	// Figure out which Promotion is the one which makes a unit able to cross oceans
+	PromotionTypes eOceanCrossingPromotion = NO_PROMOTION;
+	for (int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+	{
+		const PromotionTypes eLoopPromotion = static_cast<PromotionTypes>(iI);
+		CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(eLoopPromotion);
+		if (pkPromotionInfo)
+		{
+			if (pkPromotionInfo->CanCrossOceans())
+			{
+				eOceanCrossingPromotion = eLoopPromotion;
+				break;
+			}
+		}
+	}
+
+	if (eOceanCrossingPromotion != NO_PROMOTION)
+	{
+		for (iI = 0; iI < GC.getNumUnitInfos(); iI++)
+		{
+			const UnitTypes eUnit = static_cast<UnitTypes>(iI);
+			CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eUnit);
+			if (pkUnitEntry)
+			{
+				TechTypes ePrereqTech = (TechTypes)pkUnitEntry->GetPrereqAndTech();
+
+				if (ePrereqTech == NO_TECH || ePrereqTech != pTech->GetID())
+					continue;
+
+				if (pkUnitEntry->GetFreePromotions(eOceanCrossingPromotion))
+				{
+					SetCanBuildOceanCrossingUnit(true);
+					break;
+				}
+			}
+		}
+	}
+
 	for(iI = 0; iI < GC.getMap().numPlots(); iI++)
 	{
 		pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
@@ -9167,6 +9206,7 @@ void CvTeam::Serialize(Team& team, Visitor& visitor)
 
 	visitor(team.m_abAtWar);
 	visitor(team.m_abAggressorPacifier);
+	visitor(team.m_bCanBuildOceanCrossingUnit);
 }
 
 //	--------------------------------------------------------------------------------
@@ -10341,4 +10381,14 @@ int CvTeam::GetSSProjectCount(bool bIncludeApollo)
 	iTotal += getProjectCount(engineID) + getProjectMaking(engineID);
 
 	return iTotal;
+}
+
+bool CvTeam::CanBuildOceanCrossingUnit() const
+{
+	return m_bCanBuildOceanCrossingUnit;
+}
+
+void CvTeam::SetCanBuildOceanCrossingUnit(bool bValue)
+{
+	m_bCanBuildOceanCrossingUnit = bValue;
 }

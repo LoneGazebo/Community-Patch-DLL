@@ -457,7 +457,7 @@
 		<!-- Enables the column CivilizationType in Processes, allowing civilizations to have unique processes -->
 		<Row Class="5" Name="CIVILIZATIONS_UNIQUE_PROCESSES" Value="0"/>
 
-		<!-- Enables experimental Unit Production AI tweaks -->
+		<!-- Enables experimental Unit Production AI tweaks (requires the modmod Unit Production AI) -->
 		<Row Class="5" Name="AI_UNIT_PRODUCTION" Value="0"/>
 		<!-- Land units blockade undefended adjacent tiles -->
 		<Row Class="4" Name="ADJACENT_BLOCKADE" Value="0"/>

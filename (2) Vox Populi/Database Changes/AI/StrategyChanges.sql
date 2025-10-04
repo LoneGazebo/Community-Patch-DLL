@@ -76,3 +76,21 @@ DELETE FROM AIEconomicStrategy_Player_Flavors WHERE FlavorType = 'FLAVOR_NAVAL' 
 UPDATE AIEconomicStrategy_City_Flavors
 SET Flavor = -10
 WHERE AIEconomicStrategyType = 'ECONOMICAISTRATEGY_NEED_HAPPINESS_CRITICAL' AND FlavorType = 'FLAVOR_GROWTH';
+
+---------------------------------
+-- Military Strategies
+---------------------------------
+UPDATE AIMilitaryStrategies
+SET TechObsolete = (
+	SELECT PrereqTech FROM Units WHERE Type = 'UNIT_ARCHER'
+) WHERE Type = 'MILITARYAISTRATEGY_NEED_RANGED_EARLY';
+
+UPDATE AIMilitaryStrategies
+SET TechPrereq = (
+	SELECT PrereqTech FROM Units WHERE Type = 'UNIT_ANTI_AIRCRAFT_GUN'
+) WHERE Type = 'MILITARYAISTRATEGY_NEED_ANTIAIR';
+
+UPDATE AIMilitaryStrategies
+SET TechPrereq = (
+	SELECT PrereqTech FROM Units WHERE Type = 'UNIT_ANTI_AIRCRAFT_GUN'
+) WHERE Type = 'MILITARYAISTRATEGY_ENOUGH_ANTIAIR';

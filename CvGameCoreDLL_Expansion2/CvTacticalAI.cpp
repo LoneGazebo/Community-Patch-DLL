@@ -5740,7 +5740,7 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 			return pCurrentPlot;
 
 	//for current plot
-	int iCurrentHealRate = pUnit->healRate(pCurrentPlot);
+	int iCurrentHealRate = pUnit->canHeal(pUnit->plot(), true) ? pUnit->healRate(pCurrentPlot) : 0;
 
 	//don't run if we are needed
 	if (pUnit->IsCoveringFriendlyCivilian() && pUnit->GetDanger(pCurrentPlot)<pUnit->GetCurrHitPoints()*2)
@@ -5813,9 +5813,15 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 			//everything else equal it looks stupid to stand around while being shot at
 			iScore += max(0,iCurrentHealRate);
 
+			bool bCanFortify = pUnit->canFortify(pUnit->plot());
+
 			//we can't heal after moving and lose fortification bonus, so the current plot gets a bonus (respectively all others a penalty)
-			if (pUnit->canFortify(pUnit->plot()))
+			if (bCanFortify)
 				iScore += 3;
+
+			// We can outheal the danger, should stay and heal
+			if (iCurrentHealRate > 0 && pUnit->getDamage() >= iCurrentHealRate && iCurrentHealRate * 100 > iDanger * (bCanFortify ? 90 : 100))
+				iScore += 250;
 		}
 
 		//safer at home ... but not if we need to embark b/c we can't fight back then
@@ -5847,7 +5853,11 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 			iScore += (iEnemyUnitsAdjacent - iFriendlyUnitsAdjacent) * 13;
 
 			//use city distance as tiebreaker
-			iScore = iScore * 10 + iCityDistance;
+			if (pUnit->getDomainType() != DOMAIN_SEA)
+				iScore = iScore * 10 + iCityDistance;
+			else
+				// Naval units should try to go home to heal, even if it's considered dangerous
+				iScore = iScore * 3 + iCityDistance;
 		}
 
 		//discourage water tiles for land units
@@ -6001,6 +6011,12 @@ CvPlot* TacticalAIHelpers::FindClosestSafePlotForHealing(CvUnit* pUnit, bool bCo
 
 	//first see if the current plot is good
 	if (pUnit->GetDanger() == 0 && pUnit->canHeal(pUnit->plot(), true))
+		return pUnit->plot();
+
+	//check if we can outheal the damage
+	int iCurrentHealRate = pUnit->healRate(pUnit->plot());
+	bool bCanFortify = pUnit->canFortify(pUnit->plot());
+	if (pUnit->canHeal(pUnit->plot(), true) && iCurrentHealRate > 5 && iCurrentHealRate * 100 > pUnit->GetDanger() * (bCanFortify ? 90 : 100))
 		return pUnit->plot();
 
 	//doesn't get much safer than in a city
@@ -10085,7 +10101,7 @@ bool CvTacticalPosition::addAvailableUnit(const CvUnit* pUnit)
 			else
 			{
 				//the unit AI type is unreliable, so we do this manually
-				if (pUnit->IsCanAttackRanged())
+				if (pUnit->IsCanAttackRanged() && pUnit->getUnitInfo().GetMoves() > 2)
 					eStrategy = MS_SECONDLINE; //skirmishers are second line always
 				else
 					eStrategy = MS_FIRSTLINE; //regular melee

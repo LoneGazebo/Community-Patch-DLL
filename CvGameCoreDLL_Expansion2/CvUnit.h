@@ -295,6 +295,8 @@ public:
 	bool canMoveInto(const CvPlot& pPlot, int iMoveFlags = 0) const;
 	bool canMoveOrAttackInto(const CvPlot& pPlot, int iMoveFlags = 0) const;
 
+	bool CanStayInOcean() const;
+
 	bool IsAngerFreeUnit() const;
 
 	int getMeleeCombatDamageCity(int iStrength, const CvCity* pCity, int& iSelfDamageInflicted, int iGarrisonMaxHP, int& iGarrisonDamage, bool bIncludeRand) const;

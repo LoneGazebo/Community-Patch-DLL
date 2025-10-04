@@ -56,6 +56,7 @@ enum PathType
 	PT_CITY_CONNECTION_LAND,	//is there a road or railroad between two points
 	PT_CITY_CONNECTION_WATER,	//is there a sea connection between two points
 	PT_CITY_CONNECTION_MIXED,	//is there a mixed land/sea connection between two points
+	PT_WORKER_SEA_UNIT_SAFE,        //is it definitely safe for a worker to go between two points
 	PT_AIR_REBASE,				//for aircraft, only plots with cities and carriers are allowed
 };
 

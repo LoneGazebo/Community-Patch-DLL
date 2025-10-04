@@ -4831,8 +4831,8 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 		if(enterPlot.getFeatureType() != NO_FEATURE && m_Promotions.HasAllowFeaturePassable() && m_Promotions.GetAllowFeaturePassable(enterPlot.getFeatureType(), getTeam()))
 			return true;
 
-		else if(enterPlot.getTerrainType() != NO_TERRAIN && m_Promotions.HasAllowTerrainPassable())
-			return m_Promotions.GetAllowTerrainPassable(enterPlot.getTerrainType(), getTeam());
+		else if(enterPlot.getTerrainType() != NO_TERRAIN && m_Promotions.HasAllowTerrainPassable() && m_Promotions.GetAllowTerrainPassable(enterPlot.getTerrainType(), getTeam()))
+			return true;
 
 		//ok, seems we ran out of jokers. no pasaran!
 		return false;
@@ -4845,22 +4845,7 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 			//true naval units can enter ocean plots if they don't stay there. embarked units need the tech in any case
 			if ( (iMoveFlags&CvUnit::MOVEFLAG_DESTINATION) || enterPlot.needsEmbarkation(this))
 			{
-				//this promotion overrides the exception ...
-				PromotionTypes ePromotionOceanImpassable = (PromotionTypes)GD_INT_GET(PROMOTION_OCEAN_IMPASSABLE);
-				bool bOceanImpassable = isHasPromotion(ePromotionOceanImpassable);
-				if(bOceanImpassable)
-					return false;
-
-				if (canCrossOceans())
-					return true;
-
-				// tech-locked promotion
-				if (m_Promotions.HasAllowTerrainPassable())
-					return m_Promotions.GetAllowTerrainPassable(enterPlot.getTerrainType(), getTeam());
-
-				// tech limited embarkation
-				if (eDomain == DOMAIN_LAND)
-					return IsEmbarkDeepWater() || IsEmbarkAllWater() || kPlayer.CanCrossOcean();
+				return CanStayInOcean();
 			}
 		}
 		else if(enterPlot.getFeatureType() != NO_FEATURE && isFeatureImpassable(enterPlot.getFeatureType()))
@@ -4880,6 +4865,28 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 		//ok, seems there are no objections. let's go!
 		return true;
 	}
+}
+
+bool CvUnit::CanStayInOcean() const
+{
+	//this promotion overrides the exception ...
+	PromotionTypes ePromotionOceanImpassable = (PromotionTypes)GD_INT_GET(PROMOTION_OCEAN_IMPASSABLE);
+	bool bOceanImpassable = isHasPromotion(ePromotionOceanImpassable);
+	if (bOceanImpassable)
+		return false;
+
+	if (canCrossOceans())
+		return true;
+
+	// tech-locked promotion
+	if (m_Promotions.HasAllowTerrainPassable() && m_Promotions.GetAllowTerrainPassable(TERRAIN_OCEAN, getTeam()))
+		return true;
+
+	// tech limited embarkation
+	if (getDomainType() == DOMAIN_LAND)
+		return IsEmbarkDeepWater() || IsEmbarkAllWater() || GET_PLAYER(m_eOwner).CanCrossOcean();
+
+	return true;
 }
 
 //	--------------------------------------------------------------------------------
