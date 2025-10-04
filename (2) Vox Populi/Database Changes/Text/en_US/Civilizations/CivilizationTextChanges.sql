@@ -71,7 +71,7 @@ SET Text = 'Habsburg Diplomacy'
 WHERE Tag = 'TXT_KEY_TRAIT_ANNEX_CITY_STATE_SHORT';
 
 UPDATE Language_en_US
-SET Text = '+50% rewards from [ICON_CITY_STATE] Quests. May arrange [ICON_RES_MARRIAGE] Marriages to Allied CS with [ICON_GOLD] Gold. While at peace with [COLOR_POSITIVE_TEXT]Married[ENDCOLOR] CS, gain 75 Resting [ICON_INFLUENCE] Influence, scaling with Era, and +15% [ICON_GREAT_PEOPLE] GP generation in the [ICON_CAPITAL] Capital.'
+SET Text = '+50% rewards from [ICON_CITY_STATE] City-State [COLOR_POSITIVE_TEXT]Quests[ENDCOLOR]. May arrange [ICON_RES_MARRIAGE] Marriages to Allied City-States with [ICON_GOLD] Gold. While at peace with [COLOR_POSITIVE_TEXT]Married[ENDCOLOR] City-States, gain 200 Resting [ICON_INFLUENCE] Influence.'
 WHERE Tag = 'TXT_KEY_TRAIT_ANNEX_CITY_STATE';
 
 UPDATE Language_en_US
