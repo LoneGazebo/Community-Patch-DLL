@@ -234,7 +234,11 @@ WHERE Tag = 'TXT_KEY_CIV5_DENMARK_BERSERKER_STRATEGY';
 -- Egypt
 --------------------
 UPDATE Language_en_US
-SET Text = '+20% [ICON_PRODUCTION] Production towards [ICON_WONDER] Wonders (+40% during [ICON_GOLDEN_AGE] Golden Ages). [ICON_ARTIFACT] Artifacts gain +5 [ICON_RESEARCH] Science and [ICON_CULTURE] Culture, and Landmarks gain +5 [ICON_GOLD] Gold and [ICON_TOURISM] Tourism.'
+SET Text = 'Great Ancestor'
+WHERE Tag = 'TXT_KEY_TRAIT_WONDER_BUILDER_SHORT';
+
+UPDATE Language_en_US
+SET Text = '+20% [ICON_PRODUCTION] Production towards [ICON_WONDER] Wonders (+40% during [ICON_GOLDEN_AGE] Golden Ages). Reveal a nearby [ICON_RES_ARTIFACTS] Antiquity Site when you Found a City, or construct a [ICON_WONDER] World Wonder before anyone unlocks [COLOR_CYAN]Archaeology[ENDCOLOR]. [ICON_RES_ARTIFACTS] Antiquity Sites gain +1 [ICON_RESEARCH] Science, [ICON_CULTURE] Culture, and [ICON_PEACE] Faith each [ICON_GOLDEN_AGE] Golden Age (max +5).'
 WHERE Tag = 'TXT_KEY_TRAIT_WONDER_BUILDER';
 
 UPDATE Language_en_US
