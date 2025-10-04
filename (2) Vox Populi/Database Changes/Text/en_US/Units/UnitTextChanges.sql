@@ -464,11 +464,11 @@ WHERE Tag = 'TXT_KEY_UNIT_BRAZILIAN_PRACINHA_STRATEGY';
 
 -- Dromon
 UPDATE Language_en_US
-SET Text = 'The Dromon can only be gifted by City-States.'
+SET Text = ''
 WHERE Tag = 'TXT_KEY_UNIT_HELP_BYZANTINE_DROMON';
 
 UPDATE Language_en_US
-SET Text = 'The Dromon performs similarly to the Liburna, but is much more powerful against units. Starts with the [COLOR_POSITIVE_TEXT]Splash I[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Targeting I[ENDCOLOR] Promotions.'
+SET Text = 'The Dromon Greek Fire effect multiplies subsequent damage dealt to the Unit in the same turn, which better than giving +20% Combat Strength to the next attackers. Carefully consider this bonus to determine how many targets you can destroy in a turn and attack these targets with Dromons first before other units make subsequent attacks. In addition, The Dromon has significantly stronger base statistics, so generally it is a much better choice to build than melee ships. Consider conducting an early war with these ships due to their strength. Like Liburna, because it can move after attacking, you can attack Cities with many Dromons in the same turn.'
 WHERE Tag = 'TXT_KEY_UNIT_BYZANTINE_DROMON_STRATEGY';
 
 -- Norwegian Ski Infantry
