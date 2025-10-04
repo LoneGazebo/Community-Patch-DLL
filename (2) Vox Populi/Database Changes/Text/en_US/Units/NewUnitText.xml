@@ -88,16 +88,16 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_UNIT_ELEPHANT_RIDER">
-			<Text>War Elephant</Text>
+			<Text>Atlas Elephant</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_ELEPHANT_RIDER_STRATEGY">
 			<Text>War Elephants are more expensive and slower than the Horseman, but they are also much more powerful. They can move after attacking and strike fear into nearby enemy units, giving them a negative combat modifier. You must have a source of [ICON_RES_IVORY] Ivory to construct War Elephants, and the city where you wish to build them must have a Barracks. Unlike other Military Units, War Elephants do not consume resources when constructed.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_ELEPHANT_RIDER_HELP">
-			<Text>Powerful early game Mounted Unit that is weak to Spearmen. This Unit has a higher [ICON_STRENGTH] Combat Strength than other Mounted Units and strikes fear into nearby Enemy Units. It is, however, much slower and more expensive than the Horseman.[NEWLINE][NEWLINE]You must have a source of [ICON_RES_IVORY] Ivory and a Barracks in order to construct this Unit.</Text>
+			<Text>Powerful early game Mounted Unit that is weak to Spearmen. This Unit has a higher [ICON_STRENGTH] Combat Strength than other Mounted Units and strikes fear into nearby Enemy Units. It is, however, much slower and more expensive than the Horseman.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_ELEPHANT_RIDER_TEXT">
-			<Text>A War Elephant was an elephant trained and guided by humans for combat. Their main use was to charge the enemy, breaking their ranks and instilling terror. Elephantry are military units with elephant-mounted troops. They were first employed in India, the practice spreading out across south-east Asia and westwards into the Mediterranean. Their most famous use in the West was by the Greek general Pyrrhus of Epirus and in significant numbers by the armies of Carthage, including briefly by Hannibal.</Text>
+			<Text>Atlas Elephant should be the main force of your early army, because its as strong as Swordsman, but avialable earlier, requires no strategic resources and is faster. It is one of the strongest Classical Era units, and since its available at Trade, you can delay researching military technologies in favor of Trade, Writing, and Sailing to focus on economic development of your Cities. The ability to cross Mountains allows for creative surprise attacks, so try to fight near Mountain chains if they exist on your map. Because this ability and +20 HP bonus stays on upgrade you can maintain strong mounted army into later stages of the game. However, you should claim many Horse Resoures in advance, to be able to upgrade to Knights and Lancers.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_UNIT_PIONEER">
