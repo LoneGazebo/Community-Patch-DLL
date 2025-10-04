@@ -5,7 +5,9 @@
 			<Text>Coaling Station</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_COALING_STATION_STRATEGY">
-			<Text>Provides a massive boost to City Production and Gold during the Industrial Era. Requires an Industrial City Connection (see Concepts for more details).</Text>
+			<Text>Provides a massive boost to City Production and Gold, particularly in Cities where those base yields are high. Boosts internal Food trade routes, so it's best to build in Cities that already can send strongest internal trade routes.
+				[NEWLINE][NEWLINE]Requires an Industrial City Connection (see Concepts for more details).
+				[NEWLINE][NEWLINE]Additionally requires Coal, presenting a tradeoff with Factories if you don't have enough Coal for both in all your Cities. While Coaling Stations are usually stronger, the production of individual Factories increases by 2 for each built in your Empire. Therefore, Factories become stronger the more cities you own, surpassing Coaling Stations at a specific number of them, usually between 6 and 12.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_COALING_STATION_HELP">
 			<Text>Internal [ICON_INTERNATIONAL_TRADE] Trade Routes from this City generate +6 [ICON_FOOD] Food. Requires an [ICON_INDUSTRIAL_CONNECTED] Industrial City Connection before it can be constructed.[NEWLINE][NEWLINE]Requires 1 [ICON_RES_COAL] Coal.</Text>
