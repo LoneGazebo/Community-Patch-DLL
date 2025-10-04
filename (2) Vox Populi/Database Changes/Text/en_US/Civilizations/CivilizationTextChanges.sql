@@ -175,6 +175,15 @@ UPDATE Language_en_US
 SET Text = 'The {TXT_KEY_UNIT_CARTHAGINIAN_QUINQUEREME} has arguably the strongest Promotions ships of Classical or Medieval era can get, with Pincer. Make sure to surround enemy ships as much has possible to exploit your enhanced flanking bonus. It should be easy thanks to ingnoring of the Zone of Control. Combined with higher combat strength and +25% bonus when attacking, enemy ships should not be a challenge. Likewise, attacking Cities, especially before they build a Castle, is incentivised thanks to +50% bonus when attacking them. It is recommended to aim for the Boarding Party Promotion line, to reach Blitz Promotion as it allows moving after attack and hence attacking a Cities with many ships in a single turn. ALternatively Hull promotions leading to Vanguard are also a good choice.'
 WHERE Tag = 'TXT_KEY_UNIT_CARTHAGINIAN_QUINQUEREME_STRATEGY';
 
+-- Dromon
+UPDATE Language_en_US
+SET Text = ''
+WHERE Tag = 'TXT_KEY_UNIT_HELP_BYZANTINE_DROMON';
+
+UPDATE Language_en_US
+SET Text = 'The Dromon Greek Fire effect multiplies subsequent damage dealt to the Unit in the same turn, which better than giving +20% Combat Strength to the next attackers. Carefully consider this bonus to determine how many targets you can destroy in a turn and attack these targets with Dromons first before other units make subsequent attacks. In addition, The Dromon has significantly stronger base statistics, so generally it is a much better choice to build than melee ships. Consider conducting an early war with these ships due to their strength. Like Liburna, because it can move after attacking, you can attack Cities with many Dromons in the same turn.'
+WHERE Tag = 'TXT_KEY_UNIT_BYZANTINE_DROMON_STRATEGY';
+
 --------------------
 -- Celts
 --------------------
