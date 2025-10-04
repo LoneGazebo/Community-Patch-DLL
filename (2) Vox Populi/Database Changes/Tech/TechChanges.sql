@@ -94,6 +94,7 @@ UPDATE Technologies SET MapTrading = 1 WHERE Type = 'TECH_MILITARY_SCIENCE';
 UPDATE Technologies SET TechTrading = 1 WHERE Type = 'TECH_SCIENTIFIC_THEORY';
 
 -- Feature removal yield%
+UPDATE Technologies SET FeatureProductionModifier = 0 WHERE Type = 'TECH_MINING';
 UPDATE Technologies SET FeatureProductionModifier = 100 WHERE Type = 'TECH_BRONZE_WORKING';
 
 -- Reduce Tourism modifier from Internet

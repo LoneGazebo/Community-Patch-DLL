@@ -140,9 +140,7 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(CanTrade);
 	Method(CanBuyCityState);
 	Method(CanRepairFleet);
-#if defined(MOD_GLOBAL_SEPARATE_GREAT_ADMIRAL)
 	Method(CanChangePort);
-#endif
 	Method(CanBuildSpaceship);
 
 	Method(CanGoldenAge);
@@ -163,9 +161,7 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(UpgradePrice);
 	Method(CanUpgradeRightNow);
 	Method(CanUpgradeTo);
-#if defined(MOD_GLOBAL_CS_UPGRADES)
 	Method(CanUpgradeInTerritory);
-#endif
 	Method(GetNumResourceNeededToUpgrade);
 	Method(GetNumResourceTotalNeededToUpgrade);
 
@@ -174,9 +170,7 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(GetSpecialUnitType);
 	Method(GetCaptureUnitType);
 	Method(GetUnitCombatType);
-#if defined(MOD_GLOBAL_PROMOTION_CLASSES)
 	Method(GetUnitPromotionType);
-#endif
 	Method(GetUnitAIType);
 	Method(SetUnitAIType);
 	Method(GetDomainType);
@@ -2292,18 +2286,16 @@ int CvLuaUnit::lCanUpgradeTo(lua_State* L)
 	lua_pushboolean(L, bResult);
 	return 1;
 }
-#if defined(MOD_GLOBAL_CS_UPGRADES)
 //------------------------------------------------------------------------------
 int CvLuaUnit::lCanUpgradeInTerritory(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	const bool bTestVisible = luaL_optint(L, 2, 0);
+	const bool bTestVisible = luaL_optbool(L, 2, false);
 	const bool bResult = pkUnit->CanUpgradeInTerritory(bTestVisible);
 
 	lua_pushboolean(L, bResult);
 	return 1;
 }
-#endif
 //------------------------------------------------------------------------------
 int CvLuaUnit::lGetNumResourceNeededToUpgrade(lua_State* L)
 {
@@ -2404,7 +2396,6 @@ int CvLuaUnit::lGetUnitCombatType(lua_State* L)
 	lua_pushinteger(L, eResult);
 	return 1;
 }
-#if defined(MOD_GLOBAL_PROMOTION_CLASSES)
 //------------------------------------------------------------------------------
 //int /*UnitCombatTypes*/ getUnitPromotionType();
 int CvLuaUnit::lGetUnitPromotionType(lua_State* L)
@@ -2415,7 +2406,6 @@ int CvLuaUnit::lGetUnitPromotionType(lua_State* L)
 	lua_pushinteger(L, eResult);
 	return 1;
 }
-#endif
 //------------------------------------------------------------------------------
 //int /*UnitAITypes*/ getUnitAIType();
 int CvLuaUnit::lGetUnitAIType(lua_State* L)
@@ -5108,11 +5098,10 @@ int CvLuaUnit::lIsHealOutsideFriendly(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
-//bool isHillsDoubleMove();
 int CvLuaUnit::lIsHillsDoubleMove(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	const bool bResult = pkUnit->isHillsDoubleMove();
+	const bool bResult = pkUnit->isTerrainDoubleMove(TERRAIN_HILL);
 
 	lua_pushboolean(L, bResult);
 	return 1;

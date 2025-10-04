@@ -647,7 +647,7 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 	CreateTradeUnitForRoute(iNewTradeRouteIndex);
 	MoveUnit(iNewTradeRouteIndex);
 
-	if (MOD_BALANCE_CORE_POLICIES && GET_PLAYER(eOriginPlayer).IsGoldInternalTrade())
+	if (GET_PLAYER(eOriginPlayer).IsGoldInternalTrade())
 	{
 		if (eConnectionType == TRADE_CONNECTION_FOOD || eConnectionType == TRADE_CONNECTION_PRODUCTION || (MOD_TRADE_WONDER_RESOURCE_ROUTES && eConnectionType == TRADE_CONNECTION_WONDER_RESOURCE) || (MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES && eConnectionType == TRADE_CONNECTION_GOLD_INTERNAL))
 			GET_PLAYER(eOriginPlayer).GetTreasury()->DoUpdateCityConnectionGold();
@@ -3963,7 +3963,7 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 					{
 						pEndCity = pEndPlot->getPlotCity();
 					}
-					if(MOD_BALANCE_YIELD_SCALE_ERA && pOriginCity != NULL && pEndCity != NULL)
+					if (MOD_BALANCE_VP && pOriginCity != NULL && pEndCity != NULL)
 					{
 						int iStartCityPop = pOriginCity->getPopulation();
 						int iEndCityPop = pEndCity->getPopulation();
@@ -4030,11 +4030,11 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 					{
 						pEndCity = pEndPlot->getPlotCity();
 					}
-					if(MOD_BALANCE_YIELD_SCALE_ERA && pOriginCity != NULL && pEndCity != NULL)
+					if (MOD_BALANCE_VP && pOriginCity != NULL && pEndCity != NULL)
 					{
 						int iStartCityPop = pOriginCity->getPopulation();
 						int iEndCityPop = pEndCity->getPopulation();
-						if(iStartCityPop > iEndCityPop)
+						if (iStartCityPop > iEndCityPop)
 						{
 							int iDelta = ((iStartCityPop - iEndCityPop) / 3);
 							iValue += max((iDelta * 100), 100);
@@ -4554,7 +4554,7 @@ bool CvPlayerTrade::IsCityAlreadyConnectedByTrade(CvCity* pOtherCity) const
 
 	return false;
 }
-#if defined(MOD_BALANCE_CORE_POLICIES)
+
 //Returns the number of internal trade routes in your empire
 int CvPlayerTrade::GetNumberOfInternalTradeRoutes()
 {
@@ -4575,7 +4575,6 @@ int CvPlayerTrade::GetNumberOfTradeRoutes()
 	UpdateTradeStats();
 	return m_tradeStats.iInternalTRs + m_tradeStats.iInternationalTRsOut;
 }
-#endif
 
 //	--------------------------------------------------------------------------------
 bool CvPlayerTrade::IsPreviousTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, DomainTypes eDomain, TradeConnectionType eConnectionType)
@@ -5417,12 +5416,10 @@ uint CvPlayerTrade::GetNumTradeRoutesPossible() const
 		}
 	}
 
-#if defined(MOD_BALANCE_CORE_POLICIES)
 	if(m_pPlayer->GetFreeTradeRoute() > 0)
 	{
 		iNumRoutes += m_pPlayer->GetFreeTradeRoute();
 	}
-#endif
 
 	int iModifier = 100 + m_pPlayer->GetPlayerTraits()->GetNumTradeRoutesModifier();
 	iNumRoutes *= iModifier;
@@ -6596,7 +6593,7 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& 
 		{
 			if (GET_PLAYER(kTradeConnection.m_eDestOwner).GetMinorCivAI()->GetPermanentAlly() != NO_PLAYER && !GET_PLAYER(kTradeConnection.m_eDestOwner).GetMinorCivAI()->IsNoAlly())
 			{
-				iScore *= iTradeRouteMod * (MOD_BALANCE_CORE_MINORS ? min(m_pPlayer->GetTrade()->GetNumberOfCityStateTradeRoutes() + 1, 5) : 1) / 100;
+				iScore *= iTradeRouteMod * (MOD_BALANCE_VP ? min(m_pPlayer->GetTrade()->GetNumberOfCityStateTradeRoutes() + 1, 5) : 1) / 100;
 			}
 		}
 	}

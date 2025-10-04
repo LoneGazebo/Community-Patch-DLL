@@ -326,11 +326,10 @@ public:
 	int GetNumberOfTradeRoutesCity(const CvCity* pCity);
 
 	bool IsCityAlreadyConnectedByTrade(CvCity* pOtherCity) const;
-#if defined(MOD_BALANCE_CORE_POLICIES)
+
 	int GetNumberOfInternalTradeRoutes();
 	int GetNumberOfInternationalTradeRoutes(bool bOutgoing);
 	int GetNumberOfTradeRoutes();
-#endif
 
 	bool IsPreviousTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, DomainTypes eDomain, TradeConnectionType eConnectionType);
 

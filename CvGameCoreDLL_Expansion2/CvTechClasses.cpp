@@ -54,17 +54,11 @@ CvTechEntry::CvTechEntry(void):
 	m_bOpenBordersTradingAllowed(false),
 	m_bDefensivePactTradingAllowed(false),
 	m_bResearchAgreementTradingAllowed(false),
-#if defined(MOD_TECHS_CITY_WORKING)
 	m_iCityWorkingChange(0),
-#endif
-#if defined(MOD_TECHS_CITY_AUTOMATON_WORKERS)
 	m_iCityAutomatonWorkersChange(0),
-#endif
 	m_bBridgeBuilding(false),
-#if defined(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST)
 	m_bCityLessEmbarkCost(false),
 	m_bCityNoEmbarkCost(false),
-#endif
 	m_bWaterWork(false),
 	m_bTriggersArchaeologicalSites(false),
 	m_bAllowsWorldCongress(false),
@@ -133,17 +127,11 @@ bool CvTechEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	m_bOpenBordersTradingAllowed = kResults.GetBool("OpenBordersTradingAllowed");
 	m_bDefensivePactTradingAllowed = kResults.GetBool("DefensivePactTradingAllowed");
 	m_bResearchAgreementTradingAllowed = kResults.GetBool("ResearchAgreementTradingAllowed");
-#if defined(MOD_TECHS_CITY_WORKING)
 	m_iCityWorkingChange = kResults.GetInt("CityWorkingChange");
-#endif
-#if defined(MOD_TECHS_CITY_AUTOMATON_WORKERS)
 	m_iCityAutomatonWorkersChange = kResults.GetInt("CityAutomatonWorkersChange");
-#endif
 	m_bBridgeBuilding = kResults.GetBool("BridgeBuilding");
-#if defined(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST)
 	m_bCityLessEmbarkCost = kResults.GetBool("CityLessEmbarkCost");
 	m_bCityNoEmbarkCost = kResults.GetBool("CityNoEmbarkCost");
-#endif
 	m_bWaterWork = kResults.GetBool("WaterWork");
 	m_iGridX = kResults.GetInt("GridX");
 	m_iGridY = kResults.GetInt("GridY");
@@ -462,21 +450,17 @@ bool CvTechEntry::IsResearchAgreementTradingAllowed() const
 	return m_bResearchAgreementTradingAllowed;
 }
 
-#if defined(MOD_TECHS_CITY_WORKING)
 /// Change in number of rings a city can work
 int CvTechEntry::GetCityWorkingChange() const
 {
 	return m_iCityWorkingChange;
 }
-#endif
 
-#if defined(MOD_TECHS_CITY_AUTOMATON_WORKERS)
 /// Change the number of automaton workers a city can have
 int CvTechEntry::GetCityAutomatonWorkersChange() const
 {
 	return m_iCityAutomatonWorkersChange;
 }
-#endif
 
 /// Are river crossings treated as bridges?
 bool CvTechEntry::IsBridgeBuilding() const
@@ -484,7 +468,6 @@ bool CvTechEntry::IsBridgeBuilding() const
 	return m_bBridgeBuilding;
 }
 
-#if defined(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST)
 /// Do cities cost less embark movement?
 bool CvTechEntry::IsCityLessEmbarkCost() const
 {
@@ -495,7 +478,6 @@ bool CvTechEntry::IsCityNoEmbarkCost() const
 {
 	return m_bCityNoEmbarkCost;
 }
-#endif
 
 /// Enable working of water tiles?
 bool CvTechEntry::IsWaterWork() const
@@ -1776,21 +1758,8 @@ int CvPlayerTechs::GetResearchCost(TechTypes eTech) const
 
 	// Mod for City Count
 	int iCityCountMod = GC.getMap().getWorldInfo().GetNumCitiesTechCostMod();	// Default is 40, gets smaller on larger maps
-
-#if defined(MOD_BALANCE_CORE_PURCHASE_COST_INCREASE)
 	iCityCountMod += m_pPlayer->GetTechCostXCitiesModifier();
-
-	if (MOD_BALANCE_CORE_PURCHASE_COST_INCREASE)
-	{
-		iCityCountMod *= m_pPlayer->GetNumEffectiveCities(/*bIncludePuppets*/ false);
-	}
-	else
-	{
-		iCityCountMod *= m_pPlayer->GetNumEffectiveCities(/*bIncludePuppets*/ true);
-	}
-#else
-	iCityCountMod *= m_pPlayer->GetNumEffectiveCities(/*bIncludePuppets*/ true);
-#endif
+	iCityCountMod *= m_pPlayer->GetNumEffectiveCities(/*bIncludePuppets*/ !MOD_BALANCE_PUPPET_CHANGES);
 
 	//apply the modifiers
 	iResearchCost = iResearchCost * (100 + iCityCountMod) / 100;
@@ -2461,14 +2430,7 @@ void CvTeamTechs::SetResearchProgressTimes100(TechTypes eIndex, int iNewValue, P
 		int iNumCitiesMod = GC.getMap().getWorldInfo().GetNumCitiesTechCostMod();	// Default is 40, gets smaller on larger maps
 		iNumCitiesMod += GET_PLAYER(ePlayer).GetTechCostXCitiesModifier();
 
-		if (MOD_BALANCE_CORE_PURCHASE_COST_INCREASE)
-		{
-			iNumCitiesMod = iNumCitiesMod * GET_PLAYER(ePlayer).GetNumEffectiveCities(/*bIncludePuppets*/ false);
-		}
-		else
-		{
-			iNumCitiesMod = iNumCitiesMod * GET_PLAYER(ePlayer).GetNumEffectiveCities(/*bIncludePuppets*/ true);
-		}
+		iNumCitiesMod = iNumCitiesMod * GET_PLAYER(ePlayer).GetNumEffectiveCities(/*bIncludePuppets*/ !MOD_BALANCE_PUPPET_CHANGES);
 
 		iResearchCost = iResearchCost * (100 + iNumCitiesMod) / 100;
 

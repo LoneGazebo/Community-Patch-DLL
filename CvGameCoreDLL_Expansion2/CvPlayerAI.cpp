@@ -322,7 +322,7 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, bool bGift, bool bAllowSphereRemo
 	}
 
 	// Burn them all to the ground! (Timurids modmod)
-	if (MOD_BALANCE_CORE_SETTLER_ADVANCED && GetPlayerTraits()->GetRazeSpeedModifier() > 0 && canRaze(pCity))
+	if (MOD_BALANCE_VP && GetPlayerTraits()->GetRazeSpeedModifier() > 0 && canRaze(pCity))
 	{
 		pCity->doTask(TASK_RAZE);
 		return;

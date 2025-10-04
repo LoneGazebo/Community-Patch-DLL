@@ -1669,7 +1669,7 @@ void CvTacticalAI::PlotEmergencyPurchases(CvTacticalDominanceZone* pZone)
 
 	// Sometimes buying a unit is useless
 	bool bWantUnits = true;
-	if (pCity->getDamage() * 2 > pCity->GetMaxHitPoints() && MOD_BALANCE_CORE_UNIT_CREATION_DAMAGED)
+	if (MOD_BALANCE_PURCHASED_UNIT_DAMAGE && pCity->getDamage() * 2 > pCity->GetMaxHitPoints())
 		bWantUnits = false;
 
 	// If we need additional units - ignore the supply limit here, we're probably losing units anyway

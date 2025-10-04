@@ -14,6 +14,9 @@ ALTER TABLE GameSpeeds ADD InstantYieldPercent integer DEFAULT 100;
 -- Modifier for all difficulty bonuses
 ALTER TABLE GameSpeeds ADD DifficultyBonusPercent integer DEFAULT 100;
 
+-- Modifier for experience (affects promotion thresholds, flat XP gains, and temporary attack bonus duration)
+ALTER TABLE GameSpeeds ADD ExperiencePercent integer DEFAULT 100;
+
 -- Percentage by which military rating decays each turn for different game speeds (affects AI strength perception behavior)
 -- (10 = 1%)
 ALTER TABLE GameSpeeds ADD MilitaryRatingDecayPercent integer DEFAULT 0;

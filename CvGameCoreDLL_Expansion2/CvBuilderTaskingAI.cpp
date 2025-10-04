@@ -228,7 +228,7 @@ int CvBuilderTaskingAI::GetMoveCostWithRoute(const CvPlot* pFromPlot, const CvPl
 
 	if (!MOD_SANE_UNIT_MOVEMENT_COST)
 	{
-		//balance patch does not require plot ownership
+		// VP does not require plot ownership
 		bFakeRouteTo |= (pTraits->IsWoodlandMovementBonus() && (eToFeature == FEATURE_FOREST || eToFeature == FEATURE_JUNGLE) && (MOD_BALANCE_VP || pToPlot->getTeam() == eTeam));
 		bFakeRouteFrom |= (pTraits->IsWoodlandMovementBonus() && (eFromFeature == FEATURE_FOREST || eFromFeature == FEATURE_JUNGLE) && (MOD_BALANCE_VP || pToPlot->getTeam() == eTeam));
 	}
@@ -855,7 +855,7 @@ void CvBuilderTaskingAI::ConnectCitiesForShortcuts(CvCity* pCity1, CvCity* pCity
 		return;
 
 	ShortcutConnectionHelper(pCity1, pCity2, eBuild, eRoute, iPlotDistance, false);
-	if (MOD_RIVER_CITY_CONNECTIONS && eRoute == ROUTE_ROAD)
+	if (MOD_BALANCE_RIVER_CITY_CONNECTIONS && eRoute == ROUTE_ROAD)
 		ShortcutConnectionHelper(pCity1, pCity2, eBuild, eRoute, iPlotDistance, true);
 }
 

@@ -180,15 +180,10 @@ CvString CvGameCulture::GetGreatWorkTooltip(int iIndex, PlayerTypes eOwner) cons
 
 	BuildingTypes eGreatWorkBuilding = NO_BUILDING;
 	CvCity* pCity = GetGreatWorkCity(iIndex, eGreatWorkBuilding);
+	YieldTypes eBaseYieldType = eGreatWorkBuilding != NO_BUILDING ? GC.getBuildingInfo(eGreatWorkBuilding)->GetGreatWorkYieldType() : YIELD_CULTURE;
 
-	YieldTypes eBaseYieldType = YIELD_CULTURE;
-	if (MOD_GLOBAL_GREATWORK_YIELDTYPES && eGreatWorkBuilding != NO_BUILDING)
+	for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
 	{
-		CvBuildingEntry* pkInfo = GC.getBuildingInfo(eGreatWorkBuilding);
-		eBaseYieldType = pkInfo->GetGreatWorkYieldType();
-	}
-
-	for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++) {
 		YieldTypes eYield = (YieldTypes) iYield;
 		
 		if (eYield == eBaseYieldType)
@@ -2558,7 +2553,6 @@ bool CvPlayerCulture::ThemeEqualArtArtifact(CvGreatWorkBuildingInMyEmpire kBldg,
 	return false;
 }
 
-#if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
 bool CvPlayerCulture::MoveSingleWorks(vector<CvGreatWorkBuildingInMyEmpire> &buildings, vector<CvGreatWorkInMyEmpire> &works1, vector<CvGreatWorkInMyEmpire> &works2, YieldTypes eFocusYield, bool bPuppet)
 {
 	// CUSTOMLOG("Move Single Works");
@@ -2655,7 +2649,6 @@ bool CvPlayerCulture::MoveSingleWorks(vector<CvGreatWorkBuildingInMyEmpire> &bui
 	}
 	return bUpdate;
 }
-#endif
 
 /// Simple version of ThemeBuilding() which just fills in a building with ANY Great Works, not ones that provide a theming bonus
 bool CvPlayerCulture::FillBuilding(vector<CvGreatWorkBuildingInMyEmpire>::const_iterator buildingIt, vector<CvGreatWorkInMyEmpire> &works1, vector<CvGreatWorkInMyEmpire> &works2)
@@ -4196,7 +4189,7 @@ PlayerTypes CvPlayerCulture::GetCivLowestInfluence(bool bCheckOpenBorders) const
 /// Get extra gold from trade routes based on current influence level
 int CvPlayerCulture::GetInfluenceTradeRouteGoldBonus(PlayerTypes ePlayer) const
 {
-	if (!MOD_BALANCE_CORE_POLICIES)
+	if (!MOD_BALANCE_VP)
 		return 0;
 
 	int iRtnValue = 0;
@@ -4233,7 +4226,7 @@ int CvPlayerCulture::GetInfluenceTradeRouteGoldBonus(PlayerTypes ePlayer) const
 /// Get extra growth from trade routes based on current influence level
 int CvPlayerCulture::GetInfluenceTradeRouteGrowthBonus(PlayerTypes ePlayer) const
 {
-	if (!MOD_BALANCE_CORE_POLICIES)
+	if (!MOD_BALANCE_VP)
 		return 0;
 
 	int iRtnValue = 0;
@@ -5284,11 +5277,11 @@ void CvPlayerCulture::DoPublicOpinion()
 
 	if (m_eOpinion != PUBLIC_OPINION_CONTENT)
 	{
-		if ((MOD_BALANCE_CORE_POLICIES && iDissatisfaction < 4) || (!MOD_BALANCE_CORE_POLICIES && iDissatisfaction < 3))
+		if ((MOD_BALANCE_VP && iDissatisfaction < 4) || (!MOD_BALANCE_VP && iDissatisfaction < 3))
 		{
 			m_eOpinion = PUBLIC_OPINION_DISSIDENTS;
 		}
-		else if ((MOD_BALANCE_CORE_POLICIES && iDissatisfaction < 7) || (!MOD_BALANCE_CORE_POLICIES && iDissatisfaction < 5))
+		else if ((MOD_BALANCE_VP && iDissatisfaction < 7) || (!MOD_BALANCE_VP && iDissatisfaction < 5))
 		{
 			m_eOpinion = PUBLIC_OPINION_CIVIL_RESISTANCE;
 		}
@@ -5388,7 +5381,7 @@ void CvPlayerCulture::DoPublicOpinion()
 		locText << m_iOpinionUnhappiness;
 		m_strOpinionUnhappinessTooltip += locText.toUTF8();
 
-		if (!MOD_BALANCE_CORE_POLICIES)
+		if (!MOD_BALANCE_VP)
 		{
 			locText = Localization::Lookup("TXT_KEY_CO_OPINION_TT_UNHAPPINESS_LINE2");
 			m_strOpinionUnhappinessTooltip += locText.toUTF8();
@@ -5619,7 +5612,7 @@ int CvPlayerCulture::ComputePublicOpinionUnhappiness(int iDissatisfaction)
 	if (iDissatisfaction == 0)
 		return 0;
 
-	if (!MOD_BALANCE_CORE_POLICIES)
+	if (!MOD_BALANCE_VP)
 	{
 		int iPerCityUnhappy = 0;
 		int iUnhappyPerXPop = 0;

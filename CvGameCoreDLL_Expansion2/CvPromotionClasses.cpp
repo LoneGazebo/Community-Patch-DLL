@@ -217,7 +217,6 @@ CvPromotionEntry::CvPromotionEntry():
 	m_bRangedSupportFire(false),
 	m_bAlwaysHeal(false),
 	m_bHealOutsideFriendly(false),
-	m_bHillsDoubleMove(false),
 	m_bRiverDoubleMove(false),
 	m_bIgnoreTerrainCost(false),
 	m_bIgnoreTerrainDamage(false),
@@ -247,7 +246,6 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iMultiAttackBonus(0),
 	m_iLandAirDefenseValue(0),
 	m_iDamageReductionCityAssault(0),
-	m_bMountainsDoubleMove(false),
 	m_bEmbarkFlatCost(false),
 	m_bDisembarkFlatCost(false),
 	m_bMountedOnly(false),
@@ -490,7 +488,6 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_bRangedSupportFire= kResults.GetBool("RangedSupportFire");
 	m_bAlwaysHeal = kResults.GetBool("AlwaysHeal");
 	m_bHealOutsideFriendly = kResults.GetBool("HealOutsideFriendly");
-	m_bHillsDoubleMove = kResults.GetBool("HillsDoubleMove");
 	m_bRiverDoubleMove = kResults.GetBool("RiverDoubleMove");
 	m_bIgnoreTerrainCost = kResults.GetBool("IgnoreTerrainCost");
 	m_bIgnoreTerrainDamage = kResults.GetBool("IgnoreTerrainDamage");
@@ -526,7 +523,6 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iMultiAttackBonus = kResults.GetInt("MultiAttackBonus");
 	m_iLandAirDefenseValue = kResults.GetInt("LandAirDefenseBonus");
 	m_iDamageReductionCityAssault = kResults.GetInt("DamageReductionCityAssault");
-	m_bMountainsDoubleMove = kResults.GetBool("MountainsDoubleMove");
 	m_bEmbarkFlatCost = kResults.GetBool("EmbarkFlatCost");
 	m_bDisembarkFlatCost = kResults.GetBool("DisembarkFlatCost");
 	m_bMountedOnly = kResults.GetBool("MountedOnly");
@@ -847,6 +843,10 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 			const int iPassableTechID = pResults->GetInt("PassableTechID");
 			m_piTerrainPassableTech[iTerrainID] = iPassableTechID;
 		}
+		// Backwards compatibility for vanilla HillsDoubleMove column
+		bool bHillsDoubleMove = kResults.GetBool("HillsDoubleMove");
+		if (bHillsDoubleMove)
+			m_pbTerrainDoubleMove[TERRAIN_HILL] = true;
 	}
 
 	//UnitPromotions_TerrainModifiers
@@ -2421,12 +2421,6 @@ bool CvPromotionEntry::IsHealOutsideFriendly() const
 	return m_bHealOutsideFriendly;
 }
 
-/// Accessor: Double movement in hills
-bool CvPromotionEntry::IsHillsDoubleMove() const
-{
-	return m_bHillsDoubleMove;
-}
-
 /// Accessor: Double movement when next to rivers
 bool CvPromotionEntry::IsRiverDoubleMove() const
 {
@@ -2552,11 +2546,6 @@ int CvPromotionEntry::GetLandAirDefenseValue() const
 int CvPromotionEntry::GetDamageReductionCityAssault() const
 {
 	return m_iDamageReductionCityAssault;
-}
-/// Accessor: Double movement in hills
-bool CvPromotionEntry::IsMountainsDoubleMove() const
-{
-	return m_bMountainsDoubleMove;
 }
 
 bool CvPromotionEntry::IsEmbarkFlatCost() const

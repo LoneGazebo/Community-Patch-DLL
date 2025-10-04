@@ -81,7 +81,6 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iCulturePerGarrisonedUnit(0),
 	m_iHappinessPerTradeRoute(0),
 	m_iHappinessPerXPopulation(0),
-#if defined(MOD_BALANCE_CORE_POLICIES)
 	m_iHappinessPerXPopulationGlobal(0),
 	m_ePolicyEraUnlock(NO_ERA),
 	m_iIdeologyPoint(0),
@@ -113,17 +112,12 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iHappinessPerXGreatWorks(0),
 	m_iExtraMissionaryStrength(0),
 	m_iExtraMissionarySpreads(0),
-#endif
 	m_iExtraHappinessPerLuxury(0),
 	m_iUnhappinessFromUnitsMod(0),
 	m_iNumExtraBuilders(0),
 	m_iPlotGoldCostMod(0),
-#if defined(MOD_POLICIES_CITY_WORKING)
 	m_iCityWorkingChange(0),
-#endif
-#if defined(MOD_POLICIES_CITY_AUTOMATON_WORKERS)
 	m_iCityAutomatonWorkersChange(0),
-#endif
 	m_iPlotCultureCostModifier(0),
 	m_iPlotCultureExponentModifier(0),
 	m_iNumCitiesPolicyCostDiscount(0),
@@ -283,7 +277,6 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_paiHurryModifier(NULL),
 	m_pabSpecialistValid(NULL),
 	m_paiFreeChosenBuilding(NULL),
-#if defined(MOD_BALANCE_CORE_POLICIES)
 	m_piResourcefromCSAlly(NULL),
 	m_piYieldFromBirth(NULL),
 	m_piYieldFromBirthCapital(NULL),
@@ -348,7 +341,6 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iMaxAirUnitsChange(0),
 	m_iCityCaptureHealGlobal(0),
 	m_iCityCaptureHealLocal(0),
-#endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier(0),
 #endif
@@ -392,9 +384,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 #if defined(HH_MOD_API_TRADEROUTE_MODIFIERS)
 	m_piInternationalRouteYieldModifiers(NULL),
 #endif
-#if defined(MOD_POLICIES_UNIT_CLASS_REPLACEMENTS)
 	m_piUnitClassReplacements(),
-#endif
 	m_ppiBuildingClassYieldModifiers(NULL),
 	m_ppiBuildingClassYieldChanges(NULL),
 	m_piFlavorValue(NULL),
@@ -430,7 +420,6 @@ CvPolicyEntry::~CvPolicyEntry(void)
 	SAFE_DELETE_ARRAY(m_paiHurryModifier);
 	SAFE_DELETE_ARRAY(m_pabSpecialistValid);
 	SAFE_DELETE_ARRAY(m_paiFreeChosenBuilding);
-#if defined(MOD_BALANCE_CORE_POLICIES)
 	SAFE_DELETE_ARRAY(m_piResourcefromCSAlly);
 	SAFE_DELETE_ARRAY(m_piYieldFromBirth);
 	SAFE_DELETE_ARRAY(m_piYieldFromBirthRetroactive);
@@ -451,7 +440,6 @@ CvPolicyEntry::~CvPolicyEntry(void)
 	SAFE_DELETE_ARRAY(m_piYieldForLiberation);
 	SAFE_DELETE_ARRAY(m_piBuildingClassInLiberatedCities);
 	SAFE_DELETE_ARRAY(m_piFranchisesPerImprovement);
-#endif
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiImprovementYieldChanges);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiPlotYieldChanges);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiFeatureYieldChanges);
@@ -484,9 +472,7 @@ CvPolicyEntry::~CvPolicyEntry(void)
 #if defined(HH_MOD_API_TRADEROUTE_MODIFIERS)
 	SAFE_DELETE_ARRAY(m_piInternationalRouteYieldModifiers);
 #endif 
-#if defined(MOD_POLICIES_UNIT_CLASS_REPLACEMENTS)
 	m_piUnitClassReplacements.clear();
-#endif
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiBuildingClassYieldModifiers);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiBuildingClassYieldChanges);
 }
@@ -557,7 +543,6 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iCulturePerGarrisonedUnit = kResults.GetInt("CulturePerGarrisonedUnit");
 	m_iHappinessPerTradeRoute = kResults.GetInt("HappinessPerTradeRoute");
 	m_iHappinessPerXPopulation = kResults.GetInt("HappinessPerXPopulation");
-#if defined(MOD_BALANCE_CORE_POLICIES)
 	m_iHappinessPerXPopulationGlobal = kResults.GetInt("HappinessPerXPopulationGlobal");
 	const char* szUnlockPolicyEra = kResults.GetText("UnlocksPolicyBranchEra");
 	if(szUnlockPolicyEra)
@@ -592,17 +577,12 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iHappinessPerXGreatWorks = kResults.GetInt("HappinessPerXGreatWorks");
 	m_iExtraMissionaryStrength = kResults.GetInt("ExtraMissionaryStrength");
 	m_iExtraMissionarySpreads = kResults.GetInt("ExtraMissionarySpreads");
-#endif
 	m_iExtraHappinessPerLuxury = kResults.GetInt("ExtraHappinessPerLuxury");
 	m_iUnhappinessFromUnitsMod = kResults.GetInt("UnhappinessFromUnitsMod");
 	m_iNumExtraBuilders = kResults.GetInt("NumExtraBuilders");
 	m_iPlotGoldCostMod = kResults.GetInt("PlotGoldCostMod");
-#if defined(MOD_POLICIES_CITY_WORKING)
 	m_iCityWorkingChange = kResults.GetInt("CityWorkingChange");
-#endif
-#if defined(MOD_POLICIES_CITY_AUTOMATON_WORKERS)
 	m_iCityAutomatonWorkersChange = kResults.GetInt("CityAutomatonWorkersChange");
-#endif
 	m_iPlotCultureCostModifier = kResults.GetInt("PlotCultureCostModifier");
 	m_iPlotCultureExponentModifier = kResults.GetInt("PlotCultureExponentModifier");
 	m_iNumCitiesPolicyCostDiscount = kResults.GetInt("NumCitiesPolicyCostDiscount");
@@ -733,7 +713,6 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iWarWearinessModifier = kResults.GetInt("WarWearinessModifier");
 	m_iWarScoreModifier = kResults.GetInt("WarScoreModifier");
 	m_iGreatGeneralExtraBonus = kResults.GetInt("GreatGeneralExtraBonus");
-#if defined(MOD_BALANCE_CORE_POLICIES)
 	m_iGarrisonsOccupiedUnhappinessMod = kResults.GetInt("GarrisonsOccupiedUnhappinessMod");
 	m_iTradeReligionModifier = kResults.GetInt("TradeReligionModifier");
 	m_iXPopulationConscription = kResults.GetInt("XPopulationConscription");
@@ -781,7 +760,6 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iPuppetYieldPenaltyMod = kResults.GetInt("PuppetYieldPenaltyMod");
 	m_iConquestPerEraBuildingProductionMod = kResults.GetInt("ConquestPerEraBuildingProductionMod");
 	m_iAdmiralLuxuryBonus = kResults.GetInt("AdmiralLuxuryBonus");
-#endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier = kResults.GetInt("InvestmentModifier");
 #endif
@@ -831,7 +809,6 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	kUtility.SetYields(m_piCapitalYieldModifier, "Policy_CapitalYieldModifiers", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piGreatWorkYieldChange, "Policy_GreatWorkYieldChanges", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piSpecialistExtraYield, "Policy_SpecialistExtraYields", "PolicyType", szPolicyType);
-#if defined(MOD_BALANCE_CORE_POLICIES)
 	kUtility.PopulateArrayByValue(m_piResourcefromCSAlly, "Resources", "Policy_ResourcefromCSAlly", "ResourceType", "PolicyType", szPolicyType, "Number");
 	kUtility.SetYields(m_piYieldFromBirth, "Policy_YieldFromBirth", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piYieldFromBirthRetroactive, "Policy_YieldFromBirthRetroactive", "PolicyType", szPolicyType);
@@ -847,7 +824,6 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	kUtility.SetYields(m_piFounderYield, "Policy_FounderYield", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piReligionYieldMod, "Policy_ReligionYieldMod", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piGoldenAgeYieldMod, "Policy_GoldenAgeYieldMod", "PolicyType", szPolicyType);
-#endif
 	kUtility.SetFlavors(m_piFlavorValue, "Policy_Flavors", "PolicyType", szPolicyType);
 
 	kUtility.PopulateArrayByValue(m_paiHurryModifier, "HurryInfos", "Policy_HurryModifiers", "HurryType", "PolicyType", szPolicyType, "HurryCostModifier");
@@ -1216,8 +1192,6 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	kUtility.SetYields(m_piInternationalRouteYieldModifiers, "Policy_InternationalRouteYieldModifiers", "PolicyType", szPolicyType);
 #endif
 
-#if defined(MOD_POLICIES_UNIT_CLASS_REPLACEMENTS)
-	if (MOD_POLICIES_UNIT_CLASS_REPLACEMENTS)
 	{
 		m_piUnitClassReplacements.clear();
 
@@ -1243,12 +1217,10 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 		//Trim extra memory off container since this is mostly read-only.
 		std::map<UnitClassTypes, UnitClassTypes>(m_piUnitClassReplacements).swap(m_piUnitClassReplacements);
 	}
-#endif
 
 	//ImprovementCultureChanges
 	kUtility.PopulateArrayByValue(m_piImprovementCultureChange, "Improvements", "Policy_ImprovementCultureChanges", "ImprovementType", "PolicyType", szPolicyType, "CultureChange");
 
-#if defined(MOD_BALANCE_CORE_POLICIES)
 	kUtility.SetYields(m_piYieldForSpyID, "Policy_YieldForSpyID", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piYieldForLiberation, "Policy_YieldForLiberation", "PolicyType", szPolicyType);
 	m_iInfluenceForLiberation = kResults.GetInt("InfluenceAllCSFromLiberation");
@@ -1261,7 +1233,6 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iCityCaptureHealGlobal = kResults.GetInt("CityCaptureHealGlobal");
 	m_iCityCaptureHealLocal = kResults.GetInt("CityCaptureHealLocal");
 	m_iMaxAirUnitsChange = kResults.GetInt("MaxAirUnitsChangeGlobal");
-#endif
 
 	//OrPreReqs
 	{
@@ -1737,7 +1708,7 @@ int CvPolicyEntry::GetHappinessPerXPopulation() const
 {
 	return m_iHappinessPerXPopulation;
 }
-#if defined(MOD_BALANCE_CORE_POLICIES)
+
 /// Happiness from global city pop
 int CvPolicyEntry::GetHappinessPerXPopulationGlobal() const
 {
@@ -1873,7 +1844,7 @@ int CvPolicyEntry::GetExtraMissionarySpreads() const
 {
 	return m_iExtraMissionarySpreads;
 }
-#endif
+
 /// Happiness from each connected Luxury Resource
 int CvPolicyEntry::GetExtraHappinessPerLuxury() const
 {
@@ -1898,21 +1869,17 @@ int CvPolicyEntry::GetPlotGoldCostMod() const
 	return m_iPlotGoldCostMod;
 }
 
-#if defined(MOD_POLICIES_CITY_WORKING)
 /// How many more rings can we work
 int CvPolicyEntry::GetCityWorkingChange() const
 {
 	return m_iCityWorkingChange;
 }
-#endif
 
-#if defined(MOD_POLICIES_CITY_AUTOMATON_WORKERS)
 /// How many more tiles can we work
 int CvPolicyEntry::GetCityAutomatonWorkersChange() const
 {
 	return m_iCityAutomatonWorkersChange;
 }
-#endif
 
 /// How much Culture is needed for a City to acquire a new Plot?
 int CvPolicyEntry::GetPlotCultureCostModifier() const
@@ -2663,7 +2630,6 @@ int* CvPolicyEntry::GetInternationalRouteYieldModifiersArray()
 
 #endif
 
-#if defined(MOD_POLICIES_UNIT_CLASS_REPLACEMENTS)
 /// Replace a unit class (unless unique unit) with another
 bool CvPolicyEntry::IsUnitClassReplacements() const
 {
@@ -2673,7 +2639,6 @@ std::map<UnitClassTypes, UnitClassTypes> CvPolicyEntry::GetUnitClassReplacements
 {
 	return m_piUnitClassReplacements;
 }
-#endif
 
 /// Change to yield in every City by type
 int CvPolicyEntry::GetCityYieldChange(int i) const
@@ -2847,7 +2812,6 @@ bool CvPolicyEntry::IsFaithPurchaseUnitClass(const int eUnitClass, const int eCu
 }
 #endif
 
-#if defined(MOD_BALANCE_CORE_POLICIES)
 /// What is the golden age modifier for the specific yield type?
 int CvPolicyEntry::GetYieldChangesPerReligionTimes100(int iYield) const
 {
@@ -2861,7 +2825,6 @@ int* CvPolicyEntry::GetYieldChangesPerReligionTimes100Array() const
 {
 	return m_piYieldChangesPerReligion;
 }
-#endif
 
 /// Free experience by unit type
 int CvPolicyEntry::GetUnitCombatFreeExperiences(int i) const
@@ -2925,7 +2888,7 @@ int CvPolicyEntry::GetFreeChosenBuilding(int i) const
 	PRECONDITION(i > -1, "Index out of bounds");
 	return m_paiFreeChosenBuilding ? m_paiFreeChosenBuilding[i] : -1;
 }
-#if defined(MOD_BALANCE_CORE_POLICIES)
+
 int CvPolicyEntry::GetResourceFromCSAlly(int i) const
 {
 	PRECONDITION(i < GC.getNumResourceInfos(), "Index out of bounds");
@@ -3232,7 +3195,6 @@ int CvPolicyEntry::GetGoldenAgeYieldMod(int i) const
 	return m_piGoldenAgeYieldMod[i];
 }
 
-#endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 int CvPolicyEntry::GetInvestmentModifier () const
 {
@@ -3652,7 +3614,6 @@ int CvPolicyEntry::GetImprovementCultureChanges(int i) const
 	return m_piImprovementCultureChange[i];
 }
 
-#if defined(MOD_BALANCE_CORE_POLICIES)
 /// Yields whenever you identify a foreign spy
 int CvPolicyEntry::GetYieldForSpyID(int i) const
 {
@@ -3712,8 +3673,6 @@ int CvPolicyEntry::GetCityCaptureHealLocal() const
 {
 	return m_iCityCaptureHealLocal;
 }
-
-#endif
 
 /// Free building in each city conquered
 BuildingTypes CvPolicyEntry::GetFreeBuildingOnConquest() const
@@ -4538,7 +4497,6 @@ int CvPlayerPolicies::GetBuildingClassYieldChange(BuildingClassTypes eBuildingCl
 
 	return rtnValue;
 }
-#if defined(MOD_BALANCE_CORE_POLICIES)
 /// Get yield modifier from policies for a specific building class if your religion is present
 int CvPlayerPolicies::GetReligionBuildingClassYieldModifier(BuildingClassTypes eBuildingClass, YieldTypes eYieldType)
 {
@@ -4555,7 +4513,6 @@ int CvPlayerPolicies::GetReligionBuildingClassYieldModifier(BuildingClassTypes e
 
 	return rtnValue;
 }
-#endif
 /// Get culture change from policies for a specific improvement
 int CvPlayerPolicies::GetImprovementCultureChange(ImprovementTypes eImprovement)
 {
@@ -4760,7 +4717,7 @@ int CvPlayerPolicies::GetNextPolicyCost()
 	iCost /= 100;
 
 	// Adopting Ideology tenets increases the cost of future policies/tenets
-	if (MOD_BALANCE_CORE_PURCHASE_COST_INCREASE)
+	if (MOD_BALANCE_VP)
 	{
 		int iTier1 = 0;
 		int iTier2 = 0;
@@ -6008,27 +5965,19 @@ bool CvPlayerPolicies::IsTimeToChooseIdeology() const
 		return false;
 	}
 
-	if(MOD_BALANCE_CORE_IDEOLOGY_START && m_pPlayer->GetIdeologyPoint() >= /*3*/ GD_INT_GET(BALANCE_MOD_POLICY_BRANCHES_NEEDED_IDEOLOGY))
+	if (GD_INT_GET(IDEOLOGY_PREREQ_ERA) > -1 && m_pPlayer->GetCurrentEra() >= /*INDUSTRIAL*/ GD_INT_GET(IDEOLOGY_PREREQ_ERA))
 	{
-		if (m_pPlayer->GetCurrentEra() >= /*INDUSTRIAL*/ GD_INT_GET(IDEOLOGY_PREREQ_ERA))
-		{
+		if (GD_INT_GET(BALANCE_MOD_POLICY_BRANCHES_NEEDED_IDEOLOGY) > -1 && m_pPlayer->GetIdeologyPoint() >= /*3*/ GD_INT_GET(BALANCE_MOD_POLICY_BRANCHES_NEEDED_IDEOLOGY))
 			return true;
-		}
-	}
 
-	if(MOD_BALANCE_CORE_IDEOLOGY_START && m_pPlayer->GetPlayerPolicies()->GetNumPoliciesOwned(true, true) >= /*18*/ GD_INT_GET(BALANCE_MOD_POLICIES_NEEDED_IDEOLOGY))
-	{
-		if (m_pPlayer->GetCurrentEra() >= /*INDUSTRIAL*/ GD_INT_GET(IDEOLOGY_PREREQ_ERA))
-		{
+		if (GD_INT_GET(BALANCE_MOD_POLICIES_NEEDED_IDEOLOGY) > -1 && m_pPlayer->GetPlayerPolicies()->GetNumPoliciesOwned(true, true) >= /*18*/ GD_INT_GET(BALANCE_MOD_POLICIES_NEEDED_IDEOLOGY))
 			return true;
-		}
 	}
 
 	if (m_pPlayer->GetCurrentEra() > /*INDUSTRIAL IN CP, MODERN IN VP*/ GD_INT_GET(IDEOLOGY_START_ERA))
 	{
 		return true;
 	}
-
 	// Check for the right number of buildings of a certain type (3 factories)
 	else
 	{

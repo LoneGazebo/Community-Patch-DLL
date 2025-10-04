@@ -139,16 +139,12 @@ void CvLuaTeam::PushMethods(lua_State* L, int t)
 	Method(SetForcePeace);
 	Method(GetNumTurnsAtWar);
 	Method(GetNumNaturalWondersDiscovered);
-#if defined(MOD_TECHS_CITY_WORKING)
 	Method(GetCityWorkingChange);
 	Method(IsCityWorkingChange);
 	Method(ChangeCityWorkingChange);
-#endif
-#if defined(MOD_TECHS_CITY_AUTOMATON_WORKERS)
 	Method(GetCityAutomatonWorkersChange);
 	Method(IsCityAutomatonWorkersChange);
 	Method(ChangeCityAutomatonWorkersChange);
-#endif
 	Method(GetBridgeBuildingCount);
 	Method(IsBridgeBuilding);
 	Method(ChangeBridgeBuildingCount);
@@ -354,7 +350,17 @@ int CvLuaTeam::lMeet(lua_State* L)
 	TeamTypes eOtherTeam = (TeamTypes)lua_tointeger(L, 2);
 	const bool bSuppressMessages = lua_toboolean(L, 3);
 
-	pkTeam->meet(eOtherTeam, bSuppressMessages);
+	if (!pkTeam->isHasMet(eOtherTeam))
+	{
+		pkTeam->meet(eOtherTeam, bSuppressMessages);
+		PlayerTypes eMeeter = pkTeam->getLeaderID();
+		PlayerTypes eMeeted = GET_TEAM(eOtherTeam).getLeaderID();
+		PRECONDITION(eMeeter != NO_PLAYER && eMeeted != NO_PLAYER);
+		if (GET_PLAYER(eMeeter).isMinorCiv())
+			GET_PLAYER(eMeeter).GetMinorCivAI()->DoFirstContactWithMajor(eMeeted, bSuppressMessages);
+		else if (GET_PLAYER(eMeeted).isMinorCiv())
+			GET_PLAYER(eMeeted).GetMinorCivAI()->DoFirstContactWithMajor(eMeeter, bSuppressMessages);
+	}
 	return 0;
 }
 //------------------------------------------------------------------------------
@@ -889,7 +895,6 @@ int CvLuaTeam::lGetNumNaturalWondersDiscovered(lua_State* L)
 	return 1;
 }
 
-#if defined(MOD_TECHS_CITY_WORKING)
 //------------------------------------------------------------------------------
 //int getCityWorkingChange();
 int CvLuaTeam::lGetCityWorkingChange(lua_State* L)
@@ -910,9 +915,7 @@ int CvLuaTeam::lChangeCityWorkingChange(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvTeam::changeCityWorkingChange);
 }
-#endif
 
-#if defined(MOD_TECHS_CITY_AUTOMATON_WORKERS)
 //------------------------------------------------------------------------------
 //int getCityAutomatonWorkersChange();
 int CvLuaTeam::lGetCityAutomatonWorkersChange(lua_State* L)
@@ -933,7 +936,6 @@ int CvLuaTeam::lChangeCityAutomatonWorkersChange(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvTeam::changeCityAutomatonWorkersChange);
 }
-#endif
 
 //------------------------------------------------------------------------------
 //int getBridgeBuildingCount();

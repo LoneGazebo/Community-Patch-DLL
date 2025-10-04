@@ -596,11 +596,10 @@ public:
 
 	void setLowestRazingPop(int iValue);
 
-#if defined(MOD_GLOBAL_CITY_AUTOMATON_WORKERS)
 	int getAutomatons() const;
 	void setAutomatons(int iNewValue, bool bReassignPop = true);
 	void changeAutomatons(int iChange, bool bReassignPop = true);
-#endif
+
 	long getRealPopulation() const;
 
 	int getHighestPopulation() const;
@@ -679,14 +678,13 @@ public:
 
 	int getPlotBuyCostModifier() const;
 	void changePlotBuyCostModifier(int iChange);
-#if defined(MOD_BUILDINGS_CITY_WORKING)
+
 	int GetCityWorkingChange() const;
 	void changeCityWorkingChange(int iChange);
-#endif
-#if defined(MOD_BUILDINGS_CITY_AUTOMATON_WORKERS)
+
 	int GetCityAutomatonWorkersChange() const;
 	void changeCityAutomatonWorkersChange(int iChange);
-#endif
+
 	int getHealRate() const;
 	void changeHealRate(int iChange);
 
@@ -1375,7 +1373,6 @@ public:
 	int GetLuxuryExtraYield(YieldTypes eIndex) const;
 	void ChangeLuxuryExtraYield(YieldTypes eIndex, int iChange);
 
-#if defined(MOD_BALANCE_CORE_POLICIES)
 	int getReligionBuildingYieldRateModifier(BuildingClassTypes eBuilding, YieldTypes eYield)	const;
 	void changeReligionBuildingYieldRateModifier(BuildingClassTypes eBuilding, YieldTypes eYield, int iChange);
 
@@ -1384,7 +1381,6 @@ public:
 
 	void ChangeGreatWorkYieldChange(YieldTypes eIndex, int iChange);
 	int GetGreatWorkYieldChange(YieldTypes eIndex) const;
-#endif
 
 	int getResourceYieldRateModifier(YieldTypes eIndex) const;
 	void changeResourceYieldRateModifier(YieldTypes eIndex, int iChange);
@@ -1849,9 +1845,7 @@ protected:
 	int m_iGameTurnAcquired;
 	int m_iGameTurnLastExpanded;
 	int m_iPopulation;
-#if defined(MOD_GLOBAL_CITY_AUTOMATON_WORKERS)
 	int m_iAutomatons;
-#endif
 	int m_iHighestPopulation;
 	int m_iExtraHitPoints;
 
@@ -1878,7 +1872,6 @@ protected:
 	int m_iBorderGrowthRateIncrease;
 	int m_iPlotCultureCostModifier;
 	int m_iPlotBuyCostModifier;
-#if defined(MOD_BUILDINGS_CITY_WORKING)
 	int m_iCityWorkingChange;
 	int m_iCitySupplyModifier;
 	int m_iCitySupplyFlat;
@@ -1886,10 +1879,7 @@ protected:
 	bool m_bAllowsProductionTradeRoutes;
 	bool m_bAllowsFoodTradeRoutes;
 	bool m_bAllowPuppetPurchase;
-#endif
-#if defined(MOD_BUILDINGS_CITY_AUTOMATON_WORKERS)
 	int m_iCityAutomatonWorkersChange;
-#endif
 	int m_iMaintenance;
 	int m_iHealRate;
 	int m_iNoOccupiedUnhappinessCount;
@@ -2135,9 +2125,7 @@ protected:
 	std::vector<int> m_paiUnitCombatFreeExperience;
 	std::vector<int> m_paiUnitCombatProductionModifier;
 	std::map<PromotionTypes, int> m_paiFreePromotionCount;
-#if defined(MOD_BALANCE_CORE_POLICIES)
 	std::vector<int> m_paiHurryModifier;
-#endif
 
 	int m_iHappinessDelta;
 	int m_iPillagedPlots;

@@ -2621,12 +2621,11 @@ uint CvUnitCombat::ApplyNuclearExplosionDamage(const CvCombatMemberEntry* pkDama
 								pLoopPlot->setFeatureType((FeatureTypes)(GD_INT_GET(NUKE_FEATURE)));
 							}
 						}
-#if defined(MOD_GLOBAL_NUKES_MELT_ICE)
-					} else if (MOD_GLOBAL_NUKES_MELT_ICE && pLoopPlot->getFeatureType() == FEATURE_ICE) {
-						if (pLoopPlot == pkTargetPlot || GC.getGame().randRangeExclusive(0, 100, CvSeeder(pLoopPlot->GetPseudoRandomSeed())) < /*50*/ GD_INT_GET(NUKE_FALLOUT_PROB)) {
+					}
+					else if (MOD_GLOBAL_NUKES_MELT_ICE && pLoopPlot->getFeatureType() == FEATURE_ICE)
+					{
+						if (pLoopPlot == pkTargetPlot || GC.getGame().randRangeExclusive(0, 100, CvSeeder(pLoopPlot->GetPseudoRandomSeed())) < /*50*/ GD_INT_GET(NUKE_FALLOUT_PROB))
 							pLoopPlot->setFeatureType(NO_FEATURE);
-						}
-#endif
 					}
 				}
 			}
@@ -3013,15 +3012,16 @@ void CvUnitCombat::ResolveNuclearCombat(const CvCombatInfo& kCombatInfo, uint ui
 	BATTLE_FINISHED();
 }
 
-#if defined(MOD_GLOBAL_PARATROOPS_AA_DAMAGE)
 //	---------------------------------------------------------------------------
-bool CvUnitCombat::ParadropIntercept(CvUnit& paraUnit, CvPlot& dropPlot) {
+bool CvUnitCombat::ParadropIntercept(CvUnit& paraUnit, CvPlot& dropPlot)
+{
 	ASSERT(!paraUnit.isDelayedDeath(), "Trying to paradrop and the unit is already dead!");
 	ASSERT(paraUnit.getCombatTimer() == 0);
 
 	// Any interception to be done?
 	CvUnit* pInterceptor = dropPlot.GetBestInterceptor(paraUnit.getOwner(), &paraUnit);
-	if (pInterceptor) {
+	if (pInterceptor)
+	{
 		uint uiParentEventID = 0;
 		int iInterceptionDamage = 0;
 
@@ -3031,35 +3031,39 @@ bool CvUnitCombat::ParadropIntercept(CvUnit& paraUnit, CvPlot& dropPlot) {
 			iInterceptionDamage = pInterceptor->GetInterceptionDamage(&paraUnit, true, &dropPlot);
 		}
 	
-		if (iInterceptionDamage > 0) {
-#if defined(MOD_EVENTS_BATTLES)
-			if (MOD_EVENTS_BATTLES) {
+		if (iInterceptionDamage > 0)
+		{
+			if (MOD_EVENTS_BATTLES)
+			{
 				BATTLE_STARTED(BATTLE_TYPE_PARADROP, dropPlot);
 				BATTLE_JOINED(&paraUnit, BATTLE_UNIT_ATTACKER, false);
 				BATTLE_JOINED(pInterceptor, BATTLE_UNIT_INTERCEPTOR, false);
 
-				if (MOD_EVENTS_BATTLES_DAMAGE) {
+				if (MOD_EVENTS_BATTLES_DAMAGE)
+				{
 					int iValue = 0;
-					if (GAMEEVENTINVOKE_VALUE(iValue, GAMEEVENT_BattleDamageDelta, BATTLE_UNIT_INTERCEPTOR, iInterceptionDamage) == GAMEEVENTRETURN_VALUE) {
-						if (iValue != 0) {
-							if (iValue < 0) {
+					if (GAMEEVENTINVOKE_VALUE(iValue, GAMEEVENT_BattleDamageDelta, BATTLE_UNIT_INTERCEPTOR, iInterceptionDamage) == GAMEEVENTRETURN_VALUE)
+					{
+						if (iValue != 0)
+						{
+							if (iValue < 0)
+							{
 								// Decreasing the amount of damage, in which case it can't be more than the amount inflicted (as that's called 'healing'!)
-								if (iInterceptionDamage + iValue < 0) {
+								if (iInterceptionDamage + iValue < 0)
 									iValue = -iInterceptionDamage;
-								}
-							} else {
-								// Increasing the amount of damage, in which case we can't exceed unit's hit points
-								if (iInterceptionDamage + iValue > paraUnit.GetCurrHitPoints()) {
-									iValue = paraUnit.GetCurrHitPoints() - iInterceptionDamage;
-								}
 							}
-				
+							else
+							{
+								// Increasing the amount of damage, in which case we can't exceed unit's hit points
+								if (iInterceptionDamage + iValue > paraUnit.GetCurrHitPoints())
+									iValue = paraUnit.GetCurrHitPoints() - iInterceptionDamage;
+							}
+
 							iInterceptionDamage += iValue;
 						}
 					}
 				}
 			}
-#endif
 
 			CUSTOMLOG("Paradrop: hostile AA did %i damage", iInterceptionDamage);
 			// Play the AA animations here ... but without an air attacker it's just not possible!!!
@@ -3103,7 +3107,6 @@ bool CvUnitCombat::ParadropIntercept(CvUnit& paraUnit, CvPlot& dropPlot) {
 	
 	return paraUnit.IsDead();
 }
-#endif
 
 //result is times 100
 int CvUnitCombat::DoDamageMath(int iAttackerStrength100, int iDefenderStrength100, int iDefaultDamage100, int iMaxRandomDamage100, bool bIncludeRand, const CvSeeder& randomSeed, int iModifierPercent)
@@ -4026,7 +4029,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackAirSweep(CvUnit& kAttacker, CvPl
 	else
 	{
 		bool bFallbackAttack = false;
-		if (MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
+		if (MOD_BALANCE_AIR_UNIT_CHANGES)
 			bFallbackAttack = kAttacker.attemptGroundAttacks(targetPlot);
 
 		if (bFallbackAttack)

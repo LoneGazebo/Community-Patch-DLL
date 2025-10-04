@@ -24864,13 +24864,12 @@ void CvDiplomacyAI::SelectBestApproachTowardsMinorCiv(PlayerTypes ePlayer)
 		vApproachScores[CIV_APPROACH_FRIENDLY] += bAnyFriendshipBonus ? vApproachBias[CIV_APPROACH_FRIENDLY] * 2 : vApproachBias[CIV_APPROACH_FRIENDLY];
 	}
 
-	//If this civ has a kill CS quest, then it means another CS has one too...let's compare.
-	if (GET_PLAYER(ePlayer).GetMinorCivAI()->IsActiveQuestForPlayer(eMyPlayer, MINOR_CIV_QUEST_KILL_CITY_STATE))
+	// Check for kill CS quests
+	if (!MOD_BALANCE_QUEST_CHANGES || GET_PLAYER(ePlayer).GetMinorCivAI()->IsActiveQuestForPlayer(eMyPlayer, MINOR_CIV_QUEST_KILL_CITY_STATE))
 	{
 		for (int iMinorCivLoop = MAX_MAJOR_CIVS; iMinorCivLoop < MAX_CIV_PLAYERS; iMinorCivLoop++)
 		{
 			PlayerTypes eOtherMinor = (PlayerTypes) iMinorCivLoop;
-
 			if (IsPlayerValid(eOtherMinor) && GET_PLAYER(eOtherMinor).isMinorCiv() && GET_PLAYER(eOtherMinor).getTeam() != GET_PLAYER(ePlayer).getTeam())
 			{
 				if (GET_PLAYER(eOtherMinor).GetMinorCivAI()->IsActiveQuestForPlayer(eMyPlayer, MINOR_CIV_QUEST_KILL_CITY_STATE))
@@ -24899,23 +24898,28 @@ void CvDiplomacyAI::SelectBestApproachTowardsMinorCiv(PlayerTypes ePlayer)
 						default:
 							break;
 						}
-						int iPTV2 = GetTargetValue(eOtherMinor);
-						switch (iPTV2)
+						// If this City-State has a kill CS quest, then it means another CS has one too...
+						if (MOD_BALANCE_QUEST_CHANGES)
 						{
-							//Is the other guy also a bad target? Let's diplo them both instead.
-						case TARGET_VALUE_IMPOSSIBLE:
-						case TARGET_VALUE_BAD:
-						case TARGET_VALUE_DIFFICULT:
-						case TARGET_VALUE_AVERAGE:
-							if (bBadTarget)
+							int iPTV2 = GetTargetValue(eOtherMinor);
+							switch (iPTV2)
 							{
-								vApproachScores[CIV_APPROACH_FRIENDLY] += bAnyFriendshipBonus ? vApproachBias[CIV_APPROACH_FRIENDLY] * 4 : vApproachBias[CIV_APPROACH_FRIENDLY] * 2;
+							// Is the other guy also a bad target? Let's diplo them both instead.
+							case TARGET_VALUE_IMPOSSIBLE:
+							case TARGET_VALUE_BAD:
+							case TARGET_VALUE_DIFFICULT:
+							case TARGET_VALUE_AVERAGE:
+								if (bBadTarget)
+								{
+									vApproachScores[CIV_APPROACH_FRIENDLY] += bAnyFriendshipBonus ? vApproachBias[CIV_APPROACH_FRIENDLY] * 4 : vApproachBias[CIV_APPROACH_FRIENDLY] * 2;
+								}
+								break;
+							default:
+								break;
 							}
-							break;
-						default:
+							// Break out of the loop here if it's the modified quest, since no one else will also be targeting this CS
 							break;
 						}
-						break;
 					}
 				}
 			}
@@ -25061,6 +25065,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMinorCiv(PlayerTypes ePlayer)
 	////////////////////////////////////
 
 	bool bTheyCapturedFromUs = GetPlayer()->GetNumOurCitiesOwnedBy(ePlayer) > 0;
+	PlayerTypes eAlly = GET_PLAYER(ePlayer).GetMinorCivAI()->GetAlly();
 
 	// If we can't declare war, ignore any captures for the time being.
 	if (!GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(ePlayer).getTeam(), eMyPlayer) && !IsAtWar(ePlayer))
@@ -25096,8 +25101,6 @@ void CvDiplomacyAI::SelectBestApproachTowardsMinorCiv(PlayerTypes ePlayer)
 		////////////////////////////////////
 		// ALLIES WITH MINOR?
 		////////////////////////////////////
-
-		PlayerTypes eAlly = GET_PLAYER(ePlayer).GetMinorCivAI()->GetAlly();
 
 		if (eAlly == eMyPlayer)
 		{
@@ -25239,6 +25242,16 @@ void CvDiplomacyAI::SelectBestApproachTowardsMinorCiv(PlayerTypes ePlayer)
 	else if (!bIsGoodWarTarget && !bGoodAttackTarget)
 	{
 		vApproachScores[CIV_APPROACH_WAR] = 0;
+	}
+
+	if (MOD_GLOBAL_CS_OVERSEAS_TERRITORY)
+	{
+		// Don't bother going after City-States unless they don't have an ally or we're at war with the ally.
+		if (eAlly != NO_PLAYER && !IsAtWar(eAlly))
+		{
+			vApproachScores[CIV_APPROACH_WAR] = 0;
+			bPotentialWarTarget = false;
+		}
 	}
 
 	// If we're in bad shape, don't waste time trying to go after City-States.
@@ -25521,6 +25534,42 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 		}
 	}
 
+	// Extra logic for GLOBAL_CS_OVERSEAS_TERRITORY
+	vector<PlayerTypes> vEndangeredCityStates;
+	bool bInTerribleShape = GetPlayer()->IsInTerribleShapeForWar();
+	if (MOD_GLOBAL_CS_OVERSEAS_TERRITORY && !bCriticalState && !bInTerribleShape)
+	{
+		for (int iPlayerLoop = MAX_MAJOR_CIVS; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+		{
+			PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+			if (!GET_PLAYER(eLoopPlayer).isAlive())
+				continue;
+
+			PlayerTypes eAlly = GET_PLAYER(eLoopPlayer).GetMinorCivAI()->GetAlly();
+			if (eAlly == NO_PLAYER || !IsAtWar(eAlly))
+				continue;
+
+			// Failsafe so peace is *eventually* possible
+			int iTurnsSinceCityCapture = GetPlayer()->GetNumTurnsSinceCityCapture(eLoopPlayer);
+			int iMinorWarDuration = min(GET_TEAM(GetTeam()).GetNumTurnsAtWar(GET_PLAYER(eLoopPlayer).getTeam()), iTurnsSinceCityCapture);
+			if (iMinorWarDuration >= 30)
+				continue;
+
+			// Need to check city danger here for a peace refusal check way below.
+			for (CvCity* pLoopCity = GET_PLAYER(eLoopPlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eLoopPlayer).nextCity(&iLoop))
+			{
+				if (pLoopCity->isCapital() || GET_PLAYER(pLoopCity->getOriginalOwner()).getTeam() == GetTeam() || IsTryingToLiberate(pLoopCity))
+				{
+					if ((pLoopCity->isUnderSiege() || pLoopCity->IsBlockadedWaterAndLand()) && pLoopCity->IsInDangerFromPlayers(vMyTeam))
+					{
+						vEndangeredCityStates.push_back(eLoopPlayer);
+						break;
+					}
+				}
+			}
+		}
+	}
+
 	//-----------------------------------------//
 	// [PART 2: EXTEND PEACE BLOCKS TO TEAMS]  //
 	//-----------------------------------------//
@@ -25649,7 +25698,6 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 	// [PART 5: INIT GLOBAL VARIABLES]  //
 	//----------------------------------//
 
-	bool bInTerribleShape = GetPlayer()->IsInTerribleShapeForWar();
 	bool bWorldConquest = IsGoingForWorldConquest() || IsCloseToWorldConquest();
 	bool bDiplomatic = IsGoingForDiploVictory() || IsDiplomat() || GetPlayer()->GetPlayerTraits()->IsDiplomat();
 	bool bUABonusesFromCityConquest = false;
@@ -26069,6 +26117,29 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 					RefusePeaceTreaty(vEnemyTeamMembers[i], strLogMessage);
 			}
 			continue;
+		}
+
+		// If we're fine and GLOBAL_CS_OVERSEAS_TERRITORY=1, try to capture any allied City-States of theirs we've endangered.
+		if (MOD_GLOBAL_CS_OVERSEAS_TERRITORY && !bInTerribleShape && !bAnySeriousDangerUs)
+		{
+			for (std::vector<PlayerTypes>::iterator iter = vEndangeredCityStates.begin(); iter != vEndangeredCityStates.end(); ++iter)
+			{
+				PlayerTypes eMinor = *iter;
+				PlayerTypes eAlly = GET_PLAYER(eMinor).GetMinorCivAI()->GetAlly();
+				if (eAlly == NO_PLAYER || GET_PLAYER(eAlly).getTeam() != *it)
+					continue;
+
+				CvString strLogMessage;
+				if (bLog)
+					strLogMessage.Format("No peace! Making peace will lock us out of capturing their allied City-State's city!");
+
+				for (size_t i=0; i<vEnemyTeamMembers.size(); i++)
+				{
+					if (GET_PLAYER(vEnemyTeamMembers[i]).isAlive())
+						RefusePeaceTreaty(vEnemyTeamMembers[i], strLogMessage);
+				}
+				continue;
+			}
 		}
 
 		//----------------------------------//

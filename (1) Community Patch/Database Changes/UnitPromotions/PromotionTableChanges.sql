@@ -124,9 +124,6 @@ ALTER TABLE UnitPromotions ADD NearbyHealNeutralTerritory integer DEFAULT 0;
 ALTER TABLE UnitPromotions ADD NearbyHealFriendlyTerritory integer DEFAULT 0;
 -- End
 
--- Double Movement on Mountains
-ALTER TABLE UnitPromotions ADD MountainsDoubleMove boolean DEFAULT 0;
-
 -- Double Movement when next to Rivers
 ALTER TABLE UnitPromotions ADD RiverDoubleMove boolean DEFAULT 0;
 

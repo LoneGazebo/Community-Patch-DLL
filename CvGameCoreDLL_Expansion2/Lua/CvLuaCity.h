@@ -218,11 +218,9 @@ protected:
 	static int lSetPopulation(lua_State* L);
 	static int lChangePopulation(lua_State* L);
 	static int lGetRealPopulation(lua_State* L);
-	
-#if defined(MOD_GLOBAL_CITY_AUTOMATON_WORKERS)
+
 	LUAAPIEXTN(GetAutomatons, int);
 	LUAAPIEXTN(SetAutomatons, void, iAutomatons, bReassignPop);
-#endif
 
 	static int lGetHighestPopulation(lua_State* L);
 	static int lSetHighestPopulation(lua_State* L);
@@ -334,14 +332,10 @@ protected:
 
 	LUAAPIEXTN(GetBuyPlotDistance, int);
 	LUAAPIEXTN(GetWorkPlotDistance, int);
-#if defined(MOD_BUILDINGS_CITY_WORKING)
 	LUAAPIEXTN(GetCityWorkingChange, int);
 	LUAAPIEXTN(ChangeCityWorkingChange, void, iChange);
-#endif
-#if defined(MOD_BUILDINGS_CITY_AUTOMATON_WORKERS)
 	LUAAPIEXTN(GetCityAutomatonWorkersChange, int);
 	LUAAPIEXTN(ChangeCityAutomatonWorkersChange, void, iChange);
-#endif
 
 	LUAAPIEXTN(GetRemainingFreeSpecialists, int);
 	LUAAPIEXTN(GetBasicNeedsMedian, int);
@@ -443,9 +437,7 @@ protected:
 	static int lGetBaseYieldRate(lua_State* L);
 	static int lGetBaseYieldRateTimes100(lua_State* L);
 
-#if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
 	LUAAPIEXTN(GetBaseYieldRateFromGreatWorks, int, iYield);
-#endif
 
 	static int lGetBaseYieldRateFromTerrain(lua_State* L);
 	static int lChangeBaseYieldRateFromTerrain(lua_State* L);

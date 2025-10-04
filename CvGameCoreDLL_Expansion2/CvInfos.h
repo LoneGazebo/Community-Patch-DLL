@@ -80,7 +80,6 @@ struct CombatModifiers
 };
 #endif
 
-#if defined(MOD_RESOURCES_PRODUCTION_COST_MODIFIERS)
 struct ProductionCostModifiers
 {
 	ProductionCostModifiers() :
@@ -93,7 +92,6 @@ struct ProductionCostModifiers
 	int m_iObsoleteEra;
 	int m_iCostModifier;
 };
-#endif
 
 class CvDatabaseUtility;
 
@@ -1397,6 +1395,7 @@ public:
 	int getTrainPercent() const;
 	int getInstantYieldPercent() const;
 	int getDifficultyBonusPercent() const;
+	int getExperiencePercent() const;
 	int getConstructPercent() const;
 	int getCreatePercent() const;
 	int getResearchPercent() const;
@@ -1451,6 +1450,7 @@ protected:
 	int m_iTrainPercent;
 	int m_iInstantYieldPercent;
 	int m_iDifficultyBonusPercent;
+	int m_iExperiencePercent;
 	int m_iConstructPercent;
 	int m_iCreatePercent;
 	int m_iResearchPercent;
@@ -1870,7 +1870,7 @@ public:
 	int getMonopolyGreatPersonRateModifier(SpecialistTypes eSpecialist, MonopolyTypes eMonopoly) const;
 	int getMonopolyGreatPersonRateChange(SpecialistTypes eSpecialist, MonopolyTypes eMonopoly) const;
 #endif
-#if defined(MOD_RESOURCES_PRODUCTION_COST_MODIFIERS)
+
 	bool isHasUnitCombatProductionCostModifiersLocal() const;
 	int getUnitCombatProductionCostModifiersLocal(UnitCombatTypes eUnitCombat, EraTypes eUnitEra) const;
 	std::vector<ProductionCostModifiers> getUnitCombatProductionCostModifiersLocal(UnitCombatTypes eUnitCombat) const;
@@ -1878,7 +1878,6 @@ public:
 	bool isHasBuildingProductionCostModifiersLocal() const;
 	int getBuildingProductionCostModifiersLocal(EraTypes eBuildingEra) const;
 	std::vector<ProductionCostModifiers> getBuildingProductionCostModifiersLocal() const;
-#endif
 
 	int getResourceQuantityType(int i) const;
 
@@ -1940,10 +1939,8 @@ protected:
 	std::map<MonopolyGreatPersonRateModifierKey, int> m_piMonopolyGreatPersonRateModifiers;
 	std::map<MonopolyGreatPersonRateModifierKey, int> m_piMonopolyGreatPersonRateChanges;
 #endif
-#if defined(MOD_RESOURCES_PRODUCTION_COST_MODIFIERS)
 	std::map<int, std::vector<ProductionCostModifiers>> m_piiiUnitCombatProductionCostModifiersLocal;
 	std::vector<ProductionCostModifiers> m_aiiiBuildingProductionCostModifiersLocal;
-#endif
 	int* m_piResourceQuantityTypes;
 	int* m_piImprovementChange;
 
@@ -2565,9 +2562,7 @@ public:
 	int getRequiredPolicy() const;
 	int getDefenseValue() const;
 
-#if defined(MOD_CIVILIZATIONS_UNIQUE_PROCESSES)
 	CivilizationTypes GetRequiredCivilization() const;
-#endif
 
 	// Arrays
 	int getProductionToYieldModifier(int i) const;
@@ -2580,9 +2575,7 @@ protected:
 	int m_iRequiredPolicy;
 	int m_iDefenseValue;
 
-#if defined(MOD_CIVILIZATIONS_UNIQUE_PROCESSES)
 	CivilizationTypes m_eRequiredCivilization;
-#endif
 
 	// Arrays
 	int* m_paiProductionToYieldModifier;

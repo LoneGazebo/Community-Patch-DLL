@@ -226,10 +226,8 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(SetPopulation);
 	Method(ChangePopulation);
 	Method(GetRealPopulation);
-#if defined(MOD_GLOBAL_CITY_AUTOMATON_WORKERS)
 	Method(GetAutomatons);
 	Method(SetAutomatons);
-#endif
 	Method(GetHighestPopulation);
 	Method(SetHighestPopulation);
 	//Method(GetWorkingPopulation);
@@ -340,14 +338,10 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(GetBuyPlotDistance);
 	Method(GetWorkPlotDistance);
 
-#if defined(MOD_BUILDINGS_CITY_WORKING)
 	Method(GetCityWorkingChange);
 	Method(ChangeCityWorkingChange);
-#endif
-#if defined(MOD_BUILDINGS_CITY_AUTOMATON_WORKERS)
 	Method(GetCityAutomatonWorkersChange);
 	Method(ChangeCityAutomatonWorkersChange);
-#endif
 
 	Method(GetRemainingFreeSpecialists);
 	Method(GetBasicNeedsMedian);
@@ -447,9 +441,7 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(GetBaseYieldRate);
 	Method(GetBaseYieldRateTimes100);
 
-#if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
 	Method(GetBaseYieldRateFromGreatWorks);
-#endif
 
 	Method(GetBaseYieldRateFromTerrain);
 	Method(ChangeBaseYieldRateFromTerrain);
@@ -581,12 +573,10 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(GetBuildingYieldChange);
 	Method(SetBuildingYieldChange);
 
-#if defined(MOD_BALANCE_CORE_POLICIES)
 	Method(GetReligionYieldRateModifier);
 	Method(GetReligionBuildingYieldRateModifier);
 	Method(GetYieldPerTurnFromMinors);
 	Method(SetYieldPerTurnFromMinors);
-#endif
 	Method(GetBaseYieldRateFromNonSpecialists);
 	Method(GetBuildingYieldChangeFromCorporationFranchises);
 	Method(GetYieldChangeFromCorporationFranchises);
@@ -2054,15 +2044,21 @@ int CvLuaCity::lIsWorldWonder(lua_State* L)
 }
 int CvLuaCity::lGetWorldWonderCost(lua_State* L)
 {
-	int iNumWorldWonderPercent = 0;
 	CvCity* pkCity = GetInstance(L);
-
 	const BuildingTypes eBuildingType = (BuildingTypes)lua_tointeger(L, 2);
+	if (!MOD_BALANCE_WORLD_WONDER_COST_INCREASE)
+	{
+		lua_pushinteger(L, 0);
+		return 1;
+	}
+
+	int iNumWorldWonderPercent = 0;
 	CvBuildingEntry* pGameBuilding = GC.getBuildingInfo(eBuildingType);
-	if (MOD_BALANCE_CORE_WONDER_COST_INCREASE && pGameBuilding)
+	if (pGameBuilding)
 	{
 		const CvBuildingClassInfo& kBuildingClassInfo = pGameBuilding->GetBuildingClassInfo();
-		if (::isWorldWonderClass(kBuildingClassInfo)) {
+		if (::isWorldWonderClass(kBuildingClassInfo))
+		{
 			const CvCity* pLoopCity;
 			int iLoop;
 			for (pLoopCity = GET_PLAYER(pkCity->getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(pkCity->getOwner()).nextCity(&iLoop))
@@ -2072,22 +2068,21 @@ int CvLuaCity::lGetWorldWonderCost(lua_State* L)
 					for (int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
 					{
 						const BuildingTypes eBuilding = static_cast<BuildingTypes>(iBuildingLoop);
-						CvBuildingEntry* pkeBuildingInfo = GC.getBuildingInfo(eBuilding);
+						CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 
 						// Has this Building
-						if (pkeBuildingInfo && pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
+						if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
 						{
-							if (isWorldWonderClass(pkeBuildingInfo->GetBuildingClassInfo()))
+							if (isWorldWonderClass(pkBuildingInfo->GetBuildingClassInfo()))
 							{
-								if (pkeBuildingInfo->GetPrereqAndTech() == NO_TECH)
+								if (pkBuildingInfo->GetPrereqAndTech() == NO_TECH)
 									continue;
 
-								CvTechEntry* pkTechInfo = GC.getTechInfo((TechTypes)pkeBuildingInfo->GetPrereqAndTech());
+								CvTechEntry* pkTechInfo = GC.getTechInfo((TechTypes)pkBuildingInfo->GetPrereqAndTech());
 								if (pkTechInfo)
 								{
 									// Loop through all eras and apply Building production mod based on how much time has passed
 									EraTypes eBuildingUnlockedEra = (EraTypes)pkTechInfo->GetEra();
-
 									if (eBuildingUnlockedEra == NO_ERA)
 										continue;
 
@@ -2095,16 +2090,16 @@ int CvLuaCity::lGetWorldWonderCost(lua_State* L)
 									switch (iEraDifference)
 									{
 									case 0:
-										iNumWorldWonderPercent += /*25*/ GD_INT_GET(BALANCE_CORE_WORLD_WONDER_SAME_ERA_COST_MODIFIER);
+										iNumWorldWonderPercent += /*25*/ GD_INT_GET(BALANCE_WORLD_WONDER_SAME_ERA_COST_MODIFIER);
 										break;
 									case 1:
-										iNumWorldWonderPercent += /*15*/ GD_INT_GET(BALANCE_CORE_WORLD_WONDER_PREVIOUS_ERA_COST_MODIFIER);
+										iNumWorldWonderPercent += /*15*/ GD_INT_GET(BALANCE_WORLD_WONDER_PREVIOUS_ERA_COST_MODIFIER);
 										break;
 									case 2:
-										iNumWorldWonderPercent += /*10*/ GD_INT_GET(BALANCE_CORE_WORLD_WONDER_SECOND_PREVIOUS_ERA_COST_MODIFIER);
+										iNumWorldWonderPercent += /*10*/ GD_INT_GET(BALANCE_WORLD_WONDER_SECOND_PREVIOUS_ERA_COST_MODIFIER);
 										break;
 									default:
-										iNumWorldWonderPercent += /*5*/ GD_INT_GET(BALANCE_CORE_WORLD_WONDER_EARLIER_ERA_COST_MODIFIER);
+										iNumWorldWonderPercent += /*5*/ GD_INT_GET(BALANCE_WORLD_WONDER_EARLIER_ERA_COST_MODIFIER);
 									}
 								}
 							}
@@ -3008,7 +3003,6 @@ int CvLuaCity::lSetHighestPopulation(lua_State* L)
 //{
 //	return BasicLuaMethod(L, &CvCity::getSpecialistPopulation);
 //}
-#if defined(MOD_GLOBAL_CITY_AUTOMATON_WORKERS)
 //------------------------------------------------------------------------------
 //int getAutomatons();
 int CvLuaCity::lGetAutomatons(lua_State* L)
@@ -3021,7 +3015,6 @@ int CvLuaCity::lSetAutomatons(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvCity::setAutomatons);
 }
-#endif
 //------------------------------------------------------------------------------
 //int getBaseGreatPeopleRate();
 int CvLuaCity::lGetBaseGreatPeopleRate(lua_State* L)
@@ -3384,12 +3377,8 @@ int CvLuaCity::lChangeTourismRateModifier(lua_State* L)
 int CvLuaCity::lGetNumGreatWorks(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-#if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
 	const bool bIgnoreYield = luaL_optbool(L, 2, true);
 	lua_pushinteger(L, pkCity->GetCityCulture()->GetNumGreatWorks(bIgnoreYield));
-#else
-	lua_pushinteger(L, pkCity->GetCityCulture()->GetNumGreatWorks());
-#endif
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -3934,7 +3923,6 @@ int CvLuaCity::lGetWorkPlotDistance(lua_State* L)
 	return BasicLuaMethod(L, &CvCity::getWorkPlotDistance);
 }
 
-#if defined(MOD_BUILDINGS_CITY_WORKING)
 //------------------------------------------------------------------------------
 //int getCityWorkingChange();
 int CvLuaCity::lGetCityWorkingChange(lua_State* L)
@@ -3948,9 +3936,7 @@ int CvLuaCity::lChangeCityWorkingChange(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvCity::changeCityWorkingChange);
 }
-#endif
 
-#if defined(MOD_BUILDINGS_CITY_AUTOMATON_WORKERS)
 //------------------------------------------------------------------------------
 //int getCityAutomatonWorkersChange();
 int CvLuaCity::lGetCityAutomatonWorkersChange(lua_State* L)
@@ -3964,7 +3950,6 @@ int CvLuaCity::lChangeCityAutomatonWorkersChange(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvCity::changeCityAutomatonWorkersChange);
 }
-#endif
 
 int CvLuaCity::lGetRemainingFreeSpecialists(lua_State* L)
 {
@@ -4673,7 +4658,6 @@ int CvLuaCity::lSetYieldPerTurnFromMinors(lua_State* L)
 	pkCity->SetYieldFromMinors(eYield, iValue);
 	return 1;
 }
-#if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
 //------------------------------------------------------------------------------
 // LEGACY METHOD
 int CvLuaCity::lGetBaseYieldRateFromGreatWorks(lua_State* L)
@@ -4684,7 +4668,6 @@ int CvLuaCity::lGetBaseYieldRateFromGreatWorks(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
-#endif
 //------------------------------------------------------------------------------
 int CvLuaCity::lGetBaseYieldRateFromTerrain(lua_State* L)
 {
@@ -5844,7 +5827,6 @@ int CvLuaCity::lGetBuildingYieldChange(lua_State* L)
 	return 1;
 }
 
-#if defined(MOD_BALANCE_CORE_POLICIES)
 //int getReligionYieldRateModifier(YieldTypes eYield);
 int CvLuaCity::lGetReligionYieldRateModifier(lua_State* L)
 {
@@ -5884,7 +5866,6 @@ int CvLuaCity::lGetReligionBuildingYieldRateModifier(lua_State* L)
 
 	return 1;
 }
-#endif
 
 int CvLuaCity::lGetBaseYieldRateFromNonSpecialists(lua_State* L)
 {

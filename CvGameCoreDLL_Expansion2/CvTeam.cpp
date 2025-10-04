@@ -179,17 +179,11 @@ void CvTeam::uninit()
 	m_iOpenBordersTradingAllowedCount = 0;
 	m_iDefensivePactTradingAllowedCount = 0;
 	m_iResearchAgreementTradingAllowedCount = 0;
-#if defined(MOD_TECHS_CITY_WORKING)
 	m_iCityWorkingChange = 0;
-#endif
-#if defined(MOD_TECHS_CITY_AUTOMATON_WORKERS)
 	m_iCityAutomatonWorkersChange = 0;
-#endif
 	m_iBridgeBuildingCount = 0;
-#if defined(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST)
 	m_iCityLessEmbarkCost = 0;
 	m_iCityNoEmbarkCost = 0;
-#endif
 	m_iWaterWorkCount = 0;
 	m_iRiverTradeCount = 0;
 	m_iBorderObstacleCount = 0;
@@ -452,24 +446,6 @@ void CvTeam::addTeam(TeamTypes eTeam)
 
 	shareItems(eTeam);
 	GET_TEAM(eTeam).shareItems(GetID());
-
-	for(iI = 0; iI < MAX_TEAMS; iI++)
-	{
-		if((iI != GetID()) && (iI != eTeam))
-		{
-			if(GET_TEAM((TeamTypes)iI).isAlive())
-			{
-				if(GET_TEAM(eTeam).isHasMet((TeamTypes)iI))
-				{
-					meet(((TeamTypes)iI), false);
-				}
-				else if(isHasMet((TeamTypes)iI))
-				{
-					GET_TEAM(eTeam).meet((TeamTypes)iI, false);
-				}
-			}
-		}
-	}
 
 	for(iI = 0; iI < MAX_TEAMS; iI++)
 	{
@@ -1766,7 +1742,17 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 	}
 
 	// Meet the team if we haven't already
-	meet(eTeam, false);
+	if (!isHasMet(eTeam))
+	{
+		meet(eTeam, false);
+		PlayerTypes eMeeter = getLeaderID();
+		PlayerTypes eMeeted = GET_TEAM(eTeam).getLeaderID();
+		PRECONDITION(eMeeter != NO_PLAYER && eMeeted != NO_PLAYER);
+		if (GET_PLAYER(eMeeter).isMinorCiv())
+			GET_PLAYER(eMeeter).GetMinorCivAI()->DoFirstContactWithMajor(eMeeted, true);
+		else if (GET_PLAYER(eMeeted).isMinorCiv())
+			GET_PLAYER(eMeeted).GetMinorCivAI()->DoFirstContactWithMajor(eMeeter, true);
+	}
 
 	// Update interface stuff
 	if((GetID() == GC.getGame().getActiveTeam()) || (eTeam == GC.getGame().getActiveTeam()))
@@ -3524,7 +3510,6 @@ void CvTeam::ChangeResearchAgreementTradingAllowedCount(int iChange)
 	ASSERT(GetResearchAgreementTradingAllowedCount() >= 0);
 }
 
-#if defined(MOD_TECHS_CITY_WORKING)
 //	--------------------------------------------------------------------------------
 int CvTeam::GetCityWorkingChange() const
 {
@@ -3571,9 +3556,7 @@ void CvTeam::changeCityWorkingChange(int iChange)
 		m_iCityWorkingChange = (m_iCityWorkingChange + iChange);
 	}
 }
-#endif
 
-#if defined(MOD_TECHS_CITY_AUTOMATON_WORKERS)
 //	--------------------------------------------------------------------------------
 int CvTeam::GetCityAutomatonWorkersChange() const
 {
@@ -3605,7 +3588,6 @@ void CvTeam::changeCityAutomatonWorkersChange(int iChange)
 		m_iCityAutomatonWorkersChange = (m_iCityAutomatonWorkersChange + iChange);
 	}
 }
-#endif
 	
 //	--------------------------------------------------------------------------------
 int CvTeam::getBridgeBuildingCount() const
@@ -3645,7 +3627,6 @@ void CvTeam::changeBridgeBuildingCount(int iChange)
 		}
 	}
 }
-#if defined(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST)
 //	--------------------------------------------------------------------------------
 int CvTeam::getCityLessEmbarkCost() const
 {
@@ -3684,7 +3665,6 @@ void CvTeam::changeCityNoEmbarkCost(int iChange)
 		ASSERT(getCityNoEmbarkCost() >= 0);
 	}
 }
-#endif
 //	--------------------------------------------------------------------------------
 int CvTeam::getWaterWorkCount() const
 {
@@ -4207,12 +4187,6 @@ void CvTeam::makeHasMet(TeamTypes eIndex, bool bSuppressMessages)
 				pCapPlot->setRevealed(GetID(), true);
 				GC.getMap().updateDeferredFog();
 			}
-		}
-
-		// First contact with major stuff
-		if (isMajorCiv())
-		{
-			GET_PLAYER(GET_TEAM(eIndex).getLeaderID()).GetMinorCivAI()->DoFirstContactWithMajor(GetID(), /*bSuppressMessages*/ isAtWar(eIndex));
 		}
 
 		if (!isAtWar(eIndex))
@@ -5279,13 +5253,8 @@ void CvTeam::changeProjectCount(ProjectTypes eIndex, int iChange)
 	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	PRECONDITION(eIndex < GC.getNumProjectInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
-	if(iChange != 0)
+	if (iChange != 0)
 	{
-#if defined(MOD_GLOBAL_NO_CONQUERED_SPACESHIPS)
-		if (MOD_GLOBAL_NO_CONQUERED_SPACESHIPS && iChange < 0) {
-			CUSTOMLOG("Disassembling project %d by %d", (int) eIndex, iChange);
-		}
-#endif
 		GC.getGame().incrementProjectCreatedCount(eIndex, iChange);
 
 		iOldProjectCount = getProjectCount(eIndex);
@@ -6739,7 +6708,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 					}
 				}
 
-				if(MOD_BALANCE_CORE_BELIEFS && !bNoBonus)
+				if (!bNoBonus)
 				{
 					for(int iI = 0; iI < MAX_PLAYERS; iI++)
 					{
@@ -6890,7 +6859,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 								}
 							}
 
-							if(MOD_BALANCE_CORE_BELIEFS && !bNoBonus)
+							if (!bNoBonus)
 							{
 								for(int iI = 0; iI < MAX_PLAYERS; iI++)
 								{
@@ -7777,25 +7746,20 @@ void CvTeam::processTech(TechTypes eTech, int iChange, bool bNoBonus)
 		}
 	}
 
-#if defined(MOD_TECHS_CITY_WORKING)
 	if(pTech->GetCityWorkingChange() != 0)
 	{
 		changeCityWorkingChange(pTech->GetCityWorkingChange() * iChange);
 	}
-#endif
-	
-#if defined(MOD_TECHS_CITY_AUTOMATON_WORKERS)
+
 	if(pTech->GetCityAutomatonWorkersChange() != 0)
 	{
 		changeCityAutomatonWorkersChange(pTech->GetCityAutomatonWorkersChange() * iChange);
 	}
-#endif
 
 	if(pTech->IsBridgeBuilding())
 	{
 		changeBridgeBuildingCount(iChange);
 	}
-#if defined(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST)
 	if(pTech->IsCityLessEmbarkCost())
 	{
 		changeCityLessEmbarkCost(iChange);
@@ -7804,7 +7768,6 @@ void CvTeam::processTech(TechTypes eTech, int iChange, bool bNoBonus)
 	{
 		changeCityNoEmbarkCost(iChange);
 	}
-#endif
 
 	if(pTech->IsWaterWork())
 	{

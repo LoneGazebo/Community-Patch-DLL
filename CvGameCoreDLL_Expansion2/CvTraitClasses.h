@@ -125,12 +125,8 @@ public:
 	int GetCapitalBuildingModifier() const;
 	int GetPlotBuyCostModifier() const;
 	int GetNationalPopReqModifier() const;
-#if defined(MOD_TRAITS_CITY_WORKING)
 	int GetCityWorkingChange() const;
-#endif
-#if defined(MOD_TRAITS_CITY_AUTOMATON_WORKERS)
 	int GetCityAutomatonWorkersChange() const;
-#endif
 	int GetPlotCultureCostModifier() const;
 	int GetCultureFromKills() const;
 	int GetFaithFromKills() const;
@@ -481,12 +477,8 @@ protected:
 	int m_iCapitalBuildingModifier;
 	int m_iPlotBuyCostModifier;
 	int m_iNationalPopReqModifier;
-#if defined(MOD_TRAITS_CITY_WORKING)
 	int m_iCityWorkingChange;
-#endif
-#if defined(MOD_TRAITS_CITY_AUTOMATON_WORKERS)
 	int m_iCityAutomatonWorkersChange;
-#endif
 	int m_iPlotCultureCostModifier;
 	int m_iCultureFromKills;
 	int m_iFaithFromKills;
@@ -984,18 +976,14 @@ public:
 	{
 		return m_iNationalPopReqModifier;
 	};
-#if defined(MOD_TRAITS_CITY_WORKING)
 	int GetCityWorkingChange() const
 	{
 		return m_iCityWorkingChange;
 	};
-#endif
-#if defined(MOD_TRAITS_CITY_AUTOMATON_WORKERS)
 	int GetCityAutomatonWorkersChange() const
 	{
 		return m_iCityAutomatonWorkersChange;
 	};
-#endif
 	int GetPlotCultureCostModifier() const
 	{
 		return m_iPlotCultureCostModifier;
@@ -2114,12 +2102,8 @@ private:
 	int m_iCapitalBuildingModifier;
 	int m_iPlotBuyCostModifier;
 	int m_iNationalPopReqModifier;
-#if defined(MOD_TRAITS_CITY_WORKING)
 	int m_iCityWorkingChange;
-#endif
-#if defined(MOD_TRAITS_CITY_AUTOMATON_WORKERS)
 	int m_iCityAutomatonWorkersChange;
-#endif
 	int m_iPlotCultureCostModifier;
 	int m_iCultureFromKills;
 	int m_iFaithFromKills;

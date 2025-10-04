@@ -383,7 +383,7 @@ void CvBarbarians::DoBarbCityCleared(CvPlot* pPlot)
 //return false if stealing is impossible and the unit should do something else instead
 bool CvBarbarians::DoStealFromCity(CvUnit* pUnit, CvCity* pCity)
 {
-	if (!MOD_BALANCE_CORE_BARBARIAN_THEFT)
+	if (!MOD_BALANCE_BARBARIAN_THEFT)
 		return false;
 
 	if (!pUnit || !pUnit->IsCanAttack() || !pCity)

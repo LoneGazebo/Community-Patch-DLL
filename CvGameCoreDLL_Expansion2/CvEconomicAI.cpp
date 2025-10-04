@@ -2525,7 +2525,7 @@ void CvEconomicAI::DisbandUnitsToFreeSpaceshipResources()
 			for (CvCity* pLoopCity = m_pPlayer->firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoopCity))
 			{
 				// can't sell anything in this city?
-				if (pLoopCity->IsPuppet() || pLoopCity->IsResistance() || pLoopCity->GetCityBuildings()->IsSoldBuildingThisTurn() || m_pPlayer->GetPlayerTraits()->IsNoAnnexing())
+				if (pLoopCity->IsPuppet() || pLoopCity->IsResistance() || pLoopCity->getDamage() > 0 || pLoopCity->GetCityBuildings()->IsSoldBuildingThisTurn() || m_pPlayer->GetPlayerTraits()->IsNoAnnexing())
 					continue;
 
 				int iWeight = pLoopCity->getEconomicValue(m_pPlayer->GetID());

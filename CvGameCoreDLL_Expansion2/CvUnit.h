@@ -559,10 +559,7 @@ public:
 	bool isReadyForUpgrade() const;
 	bool CanUpgradeRightNow(bool bOnlyTestVisible) const;
 	bool CanUpgradeTo(UnitTypes eUpgradeUnitType, bool bOnlyTestVisible) const;
-
-#if defined(MOD_GLOBAL_CS_UPGRADES)
 	bool CanUpgradeInTerritory(bool bOnlyTestVisible) const;
-#endif
 	UnitTypes GetUpgradeUnitType() const;
 	int upgradePrice(UnitTypes eUnit) const;
 	CvUnit* DoUpgrade(bool bFree = false);
@@ -577,9 +574,7 @@ public:
 	UnitTypes getCaptureUnitType(PlayerTypes eCapturingPlayer) const;
 	UnitCombatTypes getUnitCombatType() const;
 	void setUnitCombatType(UnitCombatTypes eCombat);
-#if defined(MOD_GLOBAL_PROMOTION_CLASSES)
 	UnitCombatTypes getUnitPromotionType() const;
-#endif
 	DomainTypes getDomainType() const;
 	//check if plot type matches the (primary) domain type
 	bool isNativeDomain(const CvPlot* pPlot) const;
@@ -658,11 +653,9 @@ public:
 	void changeRivalTerritoryCount(int iChange);
 	bool isFound() const;
 	bool IsFoundAbroad() const;
-#if defined(MOD_BALANCE_CORE_SETTLER_ADVANCED)
 	bool IsFoundMid() const;
 	bool IsFoundLate() const;
 	bool CanFoundColony() const;
-#endif
 	bool IsWork() const;
 	bool isGoldenAge() const;
 	bool isGivesPolicies() const;
@@ -1185,18 +1178,10 @@ public:
 	int getHealOutsideFriendlyCount() const;
 	bool isHealOutsideFriendly() const;
 	void changeHealOutsideFriendlyCount(int iChange);
-
-	int getHillsDoubleMoveCount() const;
-	bool isHillsDoubleMove() const;
-	void changeHillsDoubleMoveCount(int iChange);
 	
 	int getRiverDoubleMoveCount() const;
 	bool isRiverDoubleMove() const;
 	void changeRiverDoubleMoveCount(int iChange);
-
-	int getMountainsDoubleMoveCount() const;
-	bool isMountainsDoubleMove() const;
-	void changeMountainsDoubleMoveCount(int iChange);
 
 	int getEmbarkFlatCostCount() const;
 	bool isEmbarkFlatCost() const;
@@ -1647,10 +1632,8 @@ public:
 #endif
 	const CvString getNameNoDesc() const;
 	void setName(const CvString strNewValue);
-#if defined(MOD_GLOBAL_NO_LOST_GREATWORKS)
 	const CvString getGreatName() const;
 	void setGreatName(const CvString& strName);
-#endif
 	GreatWorkType GetGreatWork() const;
 	void SetGreatWork(GreatWorkType eGreatWork);
 	bool HasGreatWork() const;
@@ -2150,9 +2133,7 @@ protected:
 	int m_iRangedSupportFireCount;
 	int m_iAlwaysHealCount;
 	int m_iHealOutsideFriendlyCount;
-	int m_iHillsDoubleMoveCount;
 	int m_iRiverDoubleMoveCount;
-	int m_iMountainsDoubleMoveCount;
 	int m_iEmbarkFlatCostCount;
 	int m_iDisembarkFlatCostCount;
 	int m_iAOEDamageOnKill;
@@ -2501,9 +2482,7 @@ protected:
 	CvString m_strUnitName;
 #endif
 	CvString m_strName;
-#if defined(MOD_GLOBAL_NO_LOST_GREATWORKS)
 	CvString m_strGreatName;
-#endif
 	GreatWorkType m_eGreatWork;
 
 	//this is always stored with the zero-counting convention
@@ -2609,9 +2588,7 @@ SYNC_ARCHIVE_VAR(SYNC_ARCHIVE_VAR_TYPE(std::map<PromotionTypes, int>), m_TurnPro
 SYNC_ARCHIVE_VAR(int, m_iRangedSupportFireCount)
 SYNC_ARCHIVE_VAR(int, m_iAlwaysHealCount)
 SYNC_ARCHIVE_VAR(int, m_iHealOutsideFriendlyCount)
-SYNC_ARCHIVE_VAR(int, m_iHillsDoubleMoveCount)
 SYNC_ARCHIVE_VAR(int, m_iRiverDoubleMoveCount)
-SYNC_ARCHIVE_VAR(int, m_iMountainsDoubleMoveCount)
 SYNC_ARCHIVE_VAR(int, m_iEmbarkFlatCostCount)
 SYNC_ARCHIVE_VAR(int, m_iDisembarkFlatCostCount)
 SYNC_ARCHIVE_VAR(int, m_iAOEDamageOnKill)
