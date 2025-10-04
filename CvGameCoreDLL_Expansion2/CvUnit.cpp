@@ -9385,9 +9385,7 @@ bool CvUnit::plunderTradeRoute()
 		return false;
 	}
 
-	// right now, plunder the first unit
-	//No!
-	bool bGood = false;
+	bool bSuccess = false;
 	for (uint uiTradeRoute = 0; uiTradeRoute < aiTradeUnitsAtPlot.size(); uiTradeRoute++)
 	{
 		PlayerTypes eTradeUnitOwner = GC.getGame().GetGameTrade()->GetOwnerFromID(aiTradeUnitsAtPlot[uiTradeRoute]);
@@ -9408,8 +9406,8 @@ bool CvUnit::plunderTradeRoute()
 		TeamTypes eTeam = GET_PLAYER(eTradeUnitOwner).getTeam();
 		if (GET_TEAM(GET_PLAYER(m_eOwner).getTeam()).isAtWar(eTeam) || GET_PLAYER(m_eOwner).GetPlayerTraits()->IsCanPlunderWithoutWar())
 		{
-			pTrade->PlunderTradeRoute(aiTradeUnitsAtPlot[0], this);
-			bGood = true;
+			pTrade->PlunderTradeRoute(aiTradeUnitsAtPlot[uiTradeRoute], this);
+			bSuccess = true;
 
 			if (GC.getLogging() && GC.getAILogging() && GET_PLAYER(m_eOwner).GetPlayerTraits()->IsCanPlunderWithoutWar())
 			{
@@ -9419,12 +9417,8 @@ bool CvUnit::plunderTradeRoute()
 			}
 		}
 	}
-	if (bGood)
-	{
-		return true;
-	}
 
-	return true;
+	return bSuccess;
 }
 
 //	--------------------------------------------------------------------------------

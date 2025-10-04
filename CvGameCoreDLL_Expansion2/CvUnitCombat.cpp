@@ -1652,7 +1652,6 @@ void CvUnitCombat::ResolveAirUnitVsCombat(const CvCombatInfo& kCombatInfo, uint 
 		iDefenderDamageInflicted = 1;
 
 	CvUnit* pInterceptor = kCombatInfo.getUnit(BATTLE_UNIT_INTERCEPTOR);
-	ASSERT(pInterceptor);
 	if(pInterceptor)
 	{
 		pInterceptor->increaseInterceptionCount();

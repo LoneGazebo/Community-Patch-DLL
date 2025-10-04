@@ -7519,9 +7519,12 @@ void CvLeague::FinishSession()
 								if (GET_PLAYER(eLoopPlayer).GetLeagueAI()->IsSanctionProposal(&(*it), NO_PLAYER))
 								{
 									PlayerTypes eTarget = (PlayerTypes) it->GetProposerDecision()->GetDecision();
-									bool bAIWantedToPass = iDesireMultiplier >= 0 && it->GetRepealDecision()->GetVotesCastForChoice(LeagueHelpers::CHOICE_YES, eLoopPlayer) >= it->GetRepealDecision()->GetVotesCastForChoice(LeagueHelpers::CHOICE_NO, eLoopPlayer);
-									bool bAIWantedToFail = iDesireMultiplier < 0 && it->GetRepealDecision()->GetVotesCastForChoice(LeagueHelpers::CHOICE_NO, eLoopPlayer) >= it->GetRepealDecision()->GetVotesCastForChoice(LeagueHelpers::CHOICE_YES, eLoopPlayer);
-									DoRepealSanctionsDiplomacy(eTarget, eLoopPlayer, *playerIt, /*bPassed*/ true, /*bVotedToPass*/ true, bAIWantedToPass, bAIWantedToFail);
+									if (eTarget != *playerIt)
+									{
+										bool bAIWantedToPass = iDesireMultiplier >= 0 && it->GetRepealDecision()->GetVotesCastForChoice(LeagueHelpers::CHOICE_YES, eLoopPlayer) >= it->GetRepealDecision()->GetVotesCastForChoice(LeagueHelpers::CHOICE_NO, eLoopPlayer);
+										bool bAIWantedToFail = iDesireMultiplier < 0 && it->GetRepealDecision()->GetVotesCastForChoice(LeagueHelpers::CHOICE_NO, eLoopPlayer) >= it->GetRepealDecision()->GetVotesCastForChoice(LeagueHelpers::CHOICE_YES, eLoopPlayer);
+										DoRepealSanctionsDiplomacy(eTarget, eLoopPlayer, *playerIt, /*bPassed*/ true, /*bVotedToPass*/ true, bAIWantedToPass, bAIWantedToFail);
+									}
 								}
 							}
 
@@ -7611,9 +7614,12 @@ void CvLeague::FinishSession()
 								if (GET_PLAYER(eLoopPlayer).GetLeagueAI()->IsSanctionProposal(&(*it), NO_PLAYER))
 								{
 									PlayerTypes eTarget = (PlayerTypes) it->GetProposerDecision()->GetDecision();
-									bool bAIWantedToPass = iDesireMultiplier >= 0 && it->GetRepealDecision()->GetVotesCastForChoice(LeagueHelpers::CHOICE_YES, eLoopPlayer) >= it->GetRepealDecision()->GetVotesCastForChoice(LeagueHelpers::CHOICE_NO, eLoopPlayer);
-									bool bAIWantedToFail = iDesireMultiplier < 0 && it->GetRepealDecision()->GetVotesCastForChoice(LeagueHelpers::CHOICE_NO, eLoopPlayer) >= it->GetRepealDecision()->GetVotesCastForChoice(LeagueHelpers::CHOICE_YES, eLoopPlayer);
-									DoRepealSanctionsDiplomacy(eTarget, eLoopPlayer, *playerIt, /*bPassed*/ true, /*bVotedToPass*/ false, bAIWantedToPass, bAIWantedToFail);
+									if (eTarget != *playerIt)
+									{
+										bool bAIWantedToPass = iDesireMultiplier >= 0 && it->GetRepealDecision()->GetVotesCastForChoice(LeagueHelpers::CHOICE_YES, eLoopPlayer) >= it->GetRepealDecision()->GetVotesCastForChoice(LeagueHelpers::CHOICE_NO, eLoopPlayer);
+										bool bAIWantedToFail = iDesireMultiplier < 0 && it->GetRepealDecision()->GetVotesCastForChoice(LeagueHelpers::CHOICE_NO, eLoopPlayer) >= it->GetRepealDecision()->GetVotesCastForChoice(LeagueHelpers::CHOICE_YES, eLoopPlayer);
+										DoRepealSanctionsDiplomacy(eTarget, eLoopPlayer, *playerIt, /*bPassed*/ true, /*bVotedToPass*/ false, bAIWantedToPass, bAIWantedToFail);
+									}
 								}
 							}
 
@@ -7702,9 +7708,12 @@ void CvLeague::FinishSession()
 							if (GET_PLAYER(eLoopPlayer).GetLeagueAI()->IsSanctionProposal(&(*it), NO_PLAYER))
 							{
 								PlayerTypes eTarget = (PlayerTypes) it->GetProposerDecision()->GetDecision();
-								bool bAIWantedToPass = iDesireMultiplier <= 0 && it->GetRepealDecision()->GetVotesCastForChoice(LeagueHelpers::CHOICE_YES, eLoopPlayer) >= it->GetRepealDecision()->GetVotesCastForChoice(LeagueHelpers::CHOICE_NO, eLoopPlayer);
-								bool bAIWantedToFail = iDesireMultiplier > 0 && it->GetRepealDecision()->GetVotesCastForChoice(LeagueHelpers::CHOICE_NO, eLoopPlayer) >= it->GetRepealDecision()->GetVotesCastForChoice(LeagueHelpers::CHOICE_YES, eLoopPlayer);
-								DoRepealSanctionsDiplomacy(eTarget, eLoopPlayer, *playerIt, /*bPassed*/ false, /*bVotedToPass*/ false, bAIWantedToPass, bAIWantedToFail);
+								if (eTarget != *playerIt)
+								{
+									bool bAIWantedToPass = iDesireMultiplier <= 0 && it->GetRepealDecision()->GetVotesCastForChoice(LeagueHelpers::CHOICE_YES, eLoopPlayer) >= it->GetRepealDecision()->GetVotesCastForChoice(LeagueHelpers::CHOICE_NO, eLoopPlayer);
+									bool bAIWantedToFail = iDesireMultiplier > 0 && it->GetRepealDecision()->GetVotesCastForChoice(LeagueHelpers::CHOICE_NO, eLoopPlayer) >= it->GetRepealDecision()->GetVotesCastForChoice(LeagueHelpers::CHOICE_YES, eLoopPlayer);
+									DoRepealSanctionsDiplomacy(eTarget, eLoopPlayer, *playerIt, /*bPassed*/ false, /*bVotedToPass*/ false, bAIWantedToPass, bAIWantedToFail);
+								}
 							}
 						}
 
@@ -7788,10 +7797,13 @@ void CvLeague::FinishSession()
 							// Special handling for sanction proposals against others.
 							if (GET_PLAYER(eLoopPlayer).GetLeagueAI()->IsSanctionProposal(&(*it), NO_PLAYER))
 							{
-								PlayerTypes eTarget = (PlayerTypes) it->GetProposerDecision()->GetDecision();
-								bool bAIWantedToPass = iDesireMultiplier <= 0 && it->GetRepealDecision()->GetVotesCastForChoice(LeagueHelpers::CHOICE_YES, eLoopPlayer) >= it->GetRepealDecision()->GetVotesCastForChoice(LeagueHelpers::CHOICE_NO, eLoopPlayer);
-								bool bAIWantedToFail = iDesireMultiplier > 0 && it->GetRepealDecision()->GetVotesCastForChoice(LeagueHelpers::CHOICE_NO, eLoopPlayer) >= it->GetRepealDecision()->GetVotesCastForChoice(LeagueHelpers::CHOICE_YES, eLoopPlayer);
-								DoRepealSanctionsDiplomacy(eTarget, eLoopPlayer, *playerIt, /*bPassed*/ false, /*bVotedToPass*/ true, bAIWantedToPass, bAIWantedToFail);
+								PlayerTypes eTarget = (PlayerTypes)it->GetProposerDecision()->GetDecision();
+								if (eTarget != *playerIt)
+								{
+									bool bAIWantedToPass = iDesireMultiplier <= 0 && it->GetRepealDecision()->GetVotesCastForChoice(LeagueHelpers::CHOICE_YES, eLoopPlayer) >= it->GetRepealDecision()->GetVotesCastForChoice(LeagueHelpers::CHOICE_NO, eLoopPlayer);
+									bool bAIWantedToFail = iDesireMultiplier > 0 && it->GetRepealDecision()->GetVotesCastForChoice(LeagueHelpers::CHOICE_NO, eLoopPlayer) >= it->GetRepealDecision()->GetVotesCastForChoice(LeagueHelpers::CHOICE_YES, eLoopPlayer);
+									DoRepealSanctionsDiplomacy(eTarget, eLoopPlayer, *playerIt, /*bPassed*/ false, /*bVotedToPass*/ true, bAIWantedToPass, bAIWantedToFail);
+								}
 							}
 						}
 
@@ -7907,9 +7919,12 @@ void CvLeague::FinishSession()
 								if (GET_PLAYER(eLoopPlayer).GetLeagueAI()->IsSanctionProposal(&(*it), NO_PLAYER))
 								{
 									PlayerTypes eTarget = (PlayerTypes) it->GetProposerDecision()->GetDecision();
-									bool bAIWantedToPass = iDesireMultiplier > 0 && it->GetVoterDecision()->GetVotesCastForChoice(LeagueHelpers::CHOICE_YES, eLoopPlayer) >= it->GetVoterDecision()->GetVotesCastForChoice(LeagueHelpers::CHOICE_NO, eLoopPlayer);
-									bool bAIWantedToFail = iDesireMultiplier <= 0 && it->GetVoterDecision()->GetVotesCastForChoice(LeagueHelpers::CHOICE_NO, eLoopPlayer) >= it->GetVoterDecision()->GetVotesCastForChoice(LeagueHelpers::CHOICE_YES, eLoopPlayer);
-									DoEnactSanctionsDiplomacy(eTarget, eLoopPlayer, *playerIt, /*bPassed*/ true, /*bVotedToPass*/ true, bAIWantedToPass, bAIWantedToFail);
+									if (eTarget != *playerIt)
+									{
+										bool bAIWantedToPass = iDesireMultiplier > 0 && it->GetVoterDecision()->GetVotesCastForChoice(LeagueHelpers::CHOICE_YES, eLoopPlayer) >= it->GetVoterDecision()->GetVotesCastForChoice(LeagueHelpers::CHOICE_NO, eLoopPlayer);
+										bool bAIWantedToFail = iDesireMultiplier <= 0 && it->GetVoterDecision()->GetVotesCastForChoice(LeagueHelpers::CHOICE_NO, eLoopPlayer) >= it->GetVoterDecision()->GetVotesCastForChoice(LeagueHelpers::CHOICE_YES, eLoopPlayer);
+										DoEnactSanctionsDiplomacy(eTarget, eLoopPlayer, *playerIt, /*bPassed*/ true, /*bVotedToPass*/ true, bAIWantedToPass, bAIWantedToFail);
+									}
 								}
 							}
 
@@ -8003,9 +8018,12 @@ void CvLeague::FinishSession()
 								if (GET_PLAYER(eLoopPlayer).GetLeagueAI()->IsSanctionProposal(&(*it), NO_PLAYER))
 								{
 									PlayerTypes eTarget = (PlayerTypes) it->GetProposerDecision()->GetDecision();
-									bool bAIWantedToPass = iDesireMultiplier > 0 && it->GetVoterDecision()->GetVotesCastForChoice(LeagueHelpers::CHOICE_YES, eLoopPlayer) >= it->GetVoterDecision()->GetVotesCastForChoice(LeagueHelpers::CHOICE_NO, eLoopPlayer);
-									bool bAIWantedToFail = iDesireMultiplier <= 0 && it->GetVoterDecision()->GetVotesCastForChoice(LeagueHelpers::CHOICE_NO, eLoopPlayer) >= it->GetVoterDecision()->GetVotesCastForChoice(LeagueHelpers::CHOICE_YES, eLoopPlayer);
-									DoEnactSanctionsDiplomacy(eTarget, eLoopPlayer, *playerIt, /*bPassed*/ true, /*bVotedToPass*/ false, bAIWantedToPass, bAIWantedToFail);
+									if (eTarget != *playerIt)
+									{
+										bool bAIWantedToPass = iDesireMultiplier > 0 && it->GetVoterDecision()->GetVotesCastForChoice(LeagueHelpers::CHOICE_YES, eLoopPlayer) >= it->GetVoterDecision()->GetVotesCastForChoice(LeagueHelpers::CHOICE_NO, eLoopPlayer);
+										bool bAIWantedToFail = iDesireMultiplier <= 0 && it->GetVoterDecision()->GetVotesCastForChoice(LeagueHelpers::CHOICE_NO, eLoopPlayer) >= it->GetVoterDecision()->GetVotesCastForChoice(LeagueHelpers::CHOICE_YES, eLoopPlayer);
+										DoEnactSanctionsDiplomacy(eTarget, eLoopPlayer, *playerIt, /*bPassed*/ true, /*bVotedToPass*/ false, bAIWantedToPass, bAIWantedToFail);
+									}
 								}
 							}
 
@@ -8120,9 +8138,12 @@ void CvLeague::FinishSession()
 								if (GET_PLAYER(eLoopPlayer).GetLeagueAI()->IsSanctionProposal(&(*it), NO_PLAYER))
 								{
 									PlayerTypes eTarget = (PlayerTypes) it->GetProposerDecision()->GetDecision();
-									bool bAIWantedToPass = iDesireMultiplier < 0 && it->GetVoterDecision()->GetVotesCastForChoice(LeagueHelpers::CHOICE_YES, eLoopPlayer) >= it->GetVoterDecision()->GetVotesCastForChoice(LeagueHelpers::CHOICE_NO, eLoopPlayer);
-									bool bAIWantedToFail = iDesireMultiplier >= 0 && it->GetVoterDecision()->GetVotesCastForChoice(LeagueHelpers::CHOICE_NO, eLoopPlayer) >= it->GetVoterDecision()->GetVotesCastForChoice(LeagueHelpers::CHOICE_YES, eLoopPlayer);
-									DoEnactSanctionsDiplomacy(eTarget, eLoopPlayer, *playerIt, /*bPassed*/ false, /*bVotedToPass*/ false, bAIWantedToPass, bAIWantedToFail);
+									if (eTarget != *playerIt)
+									{
+										bool bAIWantedToPass = iDesireMultiplier < 0 && it->GetVoterDecision()->GetVotesCastForChoice(LeagueHelpers::CHOICE_YES, eLoopPlayer) >= it->GetVoterDecision()->GetVotesCastForChoice(LeagueHelpers::CHOICE_NO, eLoopPlayer);
+										bool bAIWantedToFail = iDesireMultiplier >= 0 && it->GetVoterDecision()->GetVotesCastForChoice(LeagueHelpers::CHOICE_NO, eLoopPlayer) >= it->GetVoterDecision()->GetVotesCastForChoice(LeagueHelpers::CHOICE_YES, eLoopPlayer);
+										DoEnactSanctionsDiplomacy(eTarget, eLoopPlayer, *playerIt, /*bPassed*/ false, /*bVotedToPass*/ false, bAIWantedToPass, bAIWantedToFail);
+									}
 								}
 							}
 
@@ -8208,9 +8229,12 @@ void CvLeague::FinishSession()
 								if (GET_PLAYER(eLoopPlayer).GetLeagueAI()->IsSanctionProposal(&(*it), NO_PLAYER))
 								{
 									PlayerTypes eTarget = (PlayerTypes) it->GetProposerDecision()->GetDecision();
-									bool bAIWantedToPass = iDesireMultiplier < 0 && it->GetVoterDecision()->GetVotesCastForChoice(LeagueHelpers::CHOICE_YES, eLoopPlayer) >= it->GetVoterDecision()->GetVotesCastForChoice(LeagueHelpers::CHOICE_NO, eLoopPlayer);
-									bool bAIWantedToFail = iDesireMultiplier >= 0 && it->GetVoterDecision()->GetVotesCastForChoice(LeagueHelpers::CHOICE_NO, eLoopPlayer) >= it->GetVoterDecision()->GetVotesCastForChoice(LeagueHelpers::CHOICE_YES, eLoopPlayer);
-									DoEnactSanctionsDiplomacy(eTarget, eLoopPlayer, *playerIt, /*bPassed*/ false, /*bVotedToPass*/ true, bAIWantedToPass, bAIWantedToFail);
+									if (eTarget != *playerIt)
+									{
+										bool bAIWantedToPass = iDesireMultiplier < 0 && it->GetVoterDecision()->GetVotesCastForChoice(LeagueHelpers::CHOICE_YES, eLoopPlayer) >= it->GetVoterDecision()->GetVotesCastForChoice(LeagueHelpers::CHOICE_NO, eLoopPlayer);
+										bool bAIWantedToFail = iDesireMultiplier >= 0 && it->GetVoterDecision()->GetVotesCastForChoice(LeagueHelpers::CHOICE_NO, eLoopPlayer) >= it->GetVoterDecision()->GetVotesCastForChoice(LeagueHelpers::CHOICE_YES, eLoopPlayer);
+										DoEnactSanctionsDiplomacy(eTarget, eLoopPlayer, *playerIt, /*bPassed*/ false, /*bVotedToPass*/ true, bAIWantedToPass, bAIWantedToFail);
+									}
 								}
 							}
 

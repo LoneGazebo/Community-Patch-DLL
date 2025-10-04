@@ -8087,7 +8087,7 @@ void CvDealAI::DoAddRevokeVassalageToUs(CvDeal* pDeal, PlayerTypes eThem, int& i
 {
 	PRECONDITION(eThem >= 0);
 	PRECONDITION(eThem < MAX_MAJOR_CIVS);
-	ASSERT(eThem != GetPlayer()->GetID(), "DEAL_AI: Trying to add Technology to Them, but them is us.");
+	ASSERT(eThem != GetPlayer()->GetID(), "DEAL_AI: Trying to add Vassalage to Us, but them is us.");
 
 	if (!pDeal->IsPossibleToTradeItem(GetPlayer()->GetID(), eThem, TRADE_ITEM_VASSALAGE_REVOKE))
 		return;
@@ -8104,7 +8104,7 @@ void CvDealAI::DoAddRevokeVassalageToUs(CvDeal* pDeal, PlayerTypes eThem, int& i
 		}
 		if (!TooMuchAdded(eThem, pDeal->GetMaxValue(), iTotalValue-iThresholdValue, iItemValue, true))
 		{
-			pDeal->AddRevokeVassalageTrade(eThem);
+			pDeal->AddRevokeVassalageTrade(GetPlayer()->GetID());
 			iTotalValue = GetDealValue(pDeal);
 		}
 	}
@@ -8114,7 +8114,7 @@ void CvDealAI::DoAddRevokeVassalageToThem(CvDeal* pDeal, PlayerTypes eThem, int&
 {
 	PRECONDITION(eThem >= 0);
 	PRECONDITION(eThem < MAX_MAJOR_CIVS);
-	ASSERT(eThem != GetPlayer()->GetID(), "DEAL_AI: Trying to add Technology to Them, but them is us.");
+	ASSERT(eThem != GetPlayer()->GetID(), "DEAL_AI: Trying to add Vassalage to Them, but them is us.");
 
 	// Not allowed in demands.
 	if (pDeal->GetDemandingPlayer() != NO_PLAYER)
