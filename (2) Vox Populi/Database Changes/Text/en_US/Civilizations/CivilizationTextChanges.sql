@@ -898,7 +898,7 @@ SET Text = '+3 [ICON_RESEARCH] Science from Temples and Shrines in this City. +1
 WHERE Tag = 'TXT_KEY_BUILDING_WAT_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Unique Siamese replacement for the {TXT_KEY_BUILDING_CONSTABLE}. In addition to the {TXT_KEY_BUILDING_CONSTABLE}''s bonuses, {TXT_KEY_BUILDING_WAT_DESC} increases [ICON_CITY_SECURITY] City Security even more; generates [ICON_RESEARCH] Science, [ICON_CULTURE] Culture, and [ICON_PEACE] Faith; and boosts Shrines, Temples, and diplomatic units. It also has a [ICON_SCIENTIST] Scientist slot. It is available in the [COLOR_CYAN]Medieval Era[ENDCOLOR] with the discovery of [COLOR_CYAN]{TXT_KEY_TECH_THEOLOGY_TITLE}[ENDCOLOR], much earlier than the {TXT_KEY_BUILDING_CONSTABLE}.'
+SET Text = 'Unique Siamese religious building only purchasable with Faith, making it similar in theme to the Monastery, allowing you to convert Faith into permananet yields and bonuses. {TXT_KEY_BUILDING_WAT_DESC} should be purchased in every Cty as quickly as possible because it will spread your Capital religion like a Missionary. Furthermore, it gives strong Science bonus to Shrines and Temples, so they should be your priority to build. Increased Influence for Diplomatic Units created in the City is valuable throughout the game, and the sooner you have these Buildings constructed, the sooner you can start really fighting for all the world''s City States.'
 WHERE Tag = 'TXT_KEY_BUILDING_WAT_STRATEGY';
 
 UPDATE Language_en_US
