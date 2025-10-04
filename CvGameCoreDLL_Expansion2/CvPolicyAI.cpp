@@ -326,7 +326,7 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 		if (!GET_PLAYER(eTeamMember).isAlive() || GET_PLAYER(eTeamMember).getNumCities() == 0)
 			continue;
 
-		if (GET_PLAYER(eTeamMember).isHuman()) // AI shall bow before the human even if they're a weakling!
+		if (GET_PLAYER(eTeamMember).isHuman(ISHUMAN_AI_DIPLOMACY)) // AI shall bow before the human even if they're a weakling!
 		{
 			eTeamLeader = eTeamMember;
 			break;
@@ -768,7 +768,7 @@ void CvPolicyAI::DoConsiderIdeologySwitch(CvPlayer* pPlayer)
 					if (MOD_API_ACHIEVEMENTS && eMasterIdeology == GD_INT_GET(POLICY_BRANCH_FREEDOM) && eCurrentIdeology == GD_INT_GET(POLICY_BRANCH_ORDER))
 					{
 						PlayerTypes eActivePlayer = GC.getGame().getActivePlayer();
-						if (GET_PLAYER(eActivePlayer).isAlive() && GET_PLAYER(eActivePlayer).isHuman() && GET_PLAYER(eActivePlayer).getTeam() == eMasterTeam)
+						if (GET_PLAYER(eActivePlayer).isAlive() && GET_PLAYER(eActivePlayer).isHuman(ISHUMAN_ACHIEVEMENTS) && GET_PLAYER(eActivePlayer).getTeam() == eMasterTeam)
 						{
 							gDLL->UnlockAchievement(ACHIEVEMENT_XP2_39);
 						}
@@ -787,7 +787,7 @@ void CvPolicyAI::DoConsiderIdeologySwitch(CvPlayer* pPlayer)
 	}
 
 	// Humans halt here!
-	if (pPlayer->isHuman())
+	if (pPlayer->isHuman(ISHUMAN_AI_DIPLOMACY))
 		return;
 
 	int iPublicOpinionUnhappiness = pPlayer->GetCulture()->GetPublicOpinionUnhappiness();
@@ -848,7 +848,7 @@ void CvPolicyAI::DoConsiderIdeologySwitch(CvPlayer* pPlayer)
 			if (!GET_PLAYER(eTeamMember).isAlive() || GET_PLAYER(eTeamMember).getNumCities() == 0)
 				continue;
 
-			if (GET_PLAYER(eTeamMember).isHuman()) // AI shall bow before the human even if they're a weakling!
+			if (GET_PLAYER(eTeamMember).isHuman(ISHUMAN_AI_DIPLOMACY)) // AI shall bow before the human even if they're a weakling!
 			{
 				eTeamLeader = eTeamMember;
 				break;

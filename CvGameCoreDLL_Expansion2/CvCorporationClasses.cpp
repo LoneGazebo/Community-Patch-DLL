@@ -1853,7 +1853,7 @@ void CvGameCorporations::FoundCorporation(PlayerTypes ePlayer, CorporationTypes 
 			if(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isHasMet(GET_PLAYER(eLoopPlayer).getTeam()))
 			{
 				CvPlayerAI& player = GET_PLAYER(ePlayer);
-				if(GC.getGame().isGameMultiPlayer() && player.isHuman())
+				if(GC.getGame().isGameMultiPlayer() && player.isHuman(ISHUMAN_UI))
 				{
 					strMessage << player.getNickName();
 					strSummary << player.getNickName();

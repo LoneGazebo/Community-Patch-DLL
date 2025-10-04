@@ -1156,7 +1156,7 @@ bool CvTeam::canDeclareWar(TeamTypes eTeam, PlayerTypes eOriginatingPlayer)
 		return false;
 	}
 
-	if (eOriginatingPlayer != NO_PLAYER && !GET_PLAYER(eOriginatingPlayer).isHuman())
+	if (eOriginatingPlayer != NO_PLAYER && !GET_PLAYER(eOriginatingPlayer).isHuman(ISHUMAN_MECHANICS))
 	{
 		if (GC.getGame().IsAIPassiveMode())
 		{
@@ -1164,7 +1164,7 @@ bool CvTeam::canDeclareWar(TeamTypes eTeam, PlayerTypes eOriginatingPlayer)
 		}
 		else if (GC.getGame().IsAIPassiveTowardsHumans())
 		{
-			if (GET_TEAM(eTeam).isHuman())
+			if (GET_TEAM(eTeam).isHuman(ISHUMAN_MECHANICS))
 			{
 				return false;
 			}
@@ -1177,7 +1177,7 @@ bool CvTeam::canDeclareWar(TeamTypes eTeam, PlayerTypes eOriginatingPlayer)
 		TeamTypes eLoopTeam = (TeamTypes) iTeamLoop;
 		if (eLoopTeam != NO_TEAM && eLoopTeam != GetID() && eLoopTeam != eTeam && (GET_TEAM(eTeam).IsHasDefensivePact(eLoopTeam) || GET_TEAM(eTeam).IsVassal(eLoopTeam) || GET_TEAM(eLoopTeam).IsVassal(eTeam)))
 		{
-			if (GET_TEAM(eTeam).isHuman() && eOriginatingPlayer != NO_PLAYER && !GET_PLAYER(eOriginatingPlayer).isHuman() && GC.getGame().IsAIPassiveTowardsHumans())
+			if (GET_TEAM(eTeam).isHuman(ISHUMAN_MECHANICS) && eOriginatingPlayer != NO_PLAYER && !GET_PLAYER(eOriginatingPlayer).isHuman(ISHUMAN_MECHANICS) && GC.getGame().IsAIPassiveTowardsHumans())
 				return false;
 
 			// Exploit prevention: Can't bypass a Peace Treaty!
@@ -1307,7 +1307,7 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 							if (GET_PLAYER(eLoopTarget).isMajorCiv())
 							{
 								bool bHaveOffensiveOperation = GET_PLAYER(eLoopPlayer).HasAnyOffensiveOperationsAgainstPlayer(eLoopTarget);
-								bool bWarApproach = !GET_PLAYER(eLoopPlayer).isHuman() && pDiplo->GetCivApproach(eLoopTarget) == CIV_APPROACH_WAR;
+								bool bWarApproach = !GET_PLAYER(eLoopPlayer).isHuman(ISHUMAN_AI_DIPLOMACY) && pDiplo->GetCivApproach(eLoopTarget) == CIV_APPROACH_WAR;
 
 								if (bHaveOffensiveOperation || bWarApproach || pDiplo->IsArmyInPlaceForAttack(eLoopTarget) || pDiplo->GetGlobalCoopWarAgainstState(eLoopTarget) >= COOP_WAR_STATE_PREPARING)
 								{
@@ -1317,7 +1317,7 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 							else if (GET_PLAYER(eLoopTarget).isMinorCiv())
 							{
 								bool bHaveOperation = GET_PLAYER(eLoopPlayer).HasAnyOffensiveOperationsAgainstPlayer(eLoopTarget);
-								bool bWarApproach = !GET_PLAYER(eLoopPlayer).isHuman() && pDiplo->GetCivApproach(eLoopTarget) == CIV_APPROACH_WAR;
+								bool bWarApproach = !GET_PLAYER(eLoopPlayer).isHuman(ISHUMAN_AI_DIPLOMACY) && pDiplo->GetCivApproach(eLoopTarget) == CIV_APPROACH_WAR;
 
 								if (bHaveOperation || bWarApproach || pDiplo->IsArmyInPlaceForAttack(eLoopTarget))
 								{
@@ -1335,7 +1335,7 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 						if (GET_PLAYER(eLoopPlayer).isMajorCiv())
 						{
 							bool bHaveOffensiveOperation = GET_PLAYER(eLoopTarget).HasAnyOffensiveOperationsAgainstPlayer(eLoopPlayer);
-							bool bWarApproach = !GET_PLAYER(eLoopTarget).isHuman() && pDiplo->GetCivApproach(eLoopPlayer) == CIV_APPROACH_WAR;
+							bool bWarApproach = !GET_PLAYER(eLoopTarget).isHuman(ISHUMAN_AI_DIPLOMACY) && pDiplo->GetCivApproach(eLoopPlayer) == CIV_APPROACH_WAR;
 
 							if (bHaveOffensiveOperation || bWarApproach || pDiplo->IsArmyInPlaceForAttack(eLoopPlayer) || pDiplo->GetGlobalCoopWarAgainstState(eLoopPlayer) >= COOP_WAR_STATE_PREPARING)
 							{
@@ -1345,7 +1345,7 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 						else if (GET_PLAYER(eLoopPlayer).isMinorCiv() && pDiplo->GetCivApproach(eLoopPlayer) == CIV_APPROACH_WAR)
 						{
 							bool bHaveOperation = GET_PLAYER(eLoopTarget).HasAnyOffensiveOperationsAgainstPlayer(eLoopPlayer);
-							bool bWarApproach = !GET_PLAYER(eLoopTarget).isHuman() && pDiplo->GetCivApproach(eLoopPlayer) == CIV_APPROACH_WAR;
+							bool bWarApproach = !GET_PLAYER(eLoopTarget).isHuman(ISHUMAN_AI_DIPLOMACY) && pDiplo->GetCivApproach(eLoopPlayer) == CIV_APPROACH_WAR;
 
 							if (bHaveOperation || bWarApproach || pDiplo->IsArmyInPlaceForAttack(eLoopPlayer))
 							{
@@ -1589,11 +1589,11 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 				if(kDefendingPlayer.isAlive() && kDefendingPlayer.getTeam() == eTeam)
 				{
 					//Setup our defenses!
-					if(!kAttackingPlayer.isHuman())
+					if(!kAttackingPlayer.isHuman(ISHUMAN_AI_UNITS))
 					{
 						kAttackingPlayer.GetMilitaryAI()->SetupInstantDefenses(eDefendingPlayer);
 					}
-					if(!kDefendingPlayer.isHuman())
+					if(!kDefendingPlayer.isHuman(ISHUMAN_AI_UNITS))
 					{
 						kDefendingPlayer.GetMilitaryAI()->SetupInstantDefenses(eAttackingPlayer);
 					}
@@ -2894,12 +2894,12 @@ CvTeamTechs* CvTeam::GetTeamTechs() const
 }
 
 //	--------------------------------------------------------------------------------
-bool CvTeam::isHuman() const
+bool CvTeam::isHuman(IsHumanReason eIsHumanReason) const
 {
 	for (int iI = 0; iI < MAX_PLAYERS; iI++)
 	{
 		PlayerTypes ePlayer = (PlayerTypes)iI;
-		if (GET_PLAYER(ePlayer).isAlive() && GET_PLAYER(ePlayer).isHuman() && GET_PLAYER(ePlayer).getTeam() == GetID())
+		if (GET_PLAYER(ePlayer).isAlive() && GET_PLAYER(ePlayer).isHuman(eIsHumanReason) && GET_PLAYER(ePlayer).getTeam() == GetID())
 		{
 			return true;
 		}
@@ -4100,7 +4100,7 @@ void CvTeam::makeHasMet(TeamTypes eIndex, bool bSuppressMessages)
 		GET_PLAYER(eMyPlayer).GetDiplomacyAI()->DoUpdatePlayerStrengthEstimates();
 	}
 
-	if (GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR) && isHuman() && GetID() != eIndex)
+	if (GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR) && isHuman(ISHUMAN_MECHANICS) && GetID() != eIndex)
 	{
 		declareWar(eIndex, false, getLeaderID());
 	}
@@ -4171,12 +4171,12 @@ void CvTeam::makeHasMet(TeamTypes eIndex, bool bSuppressMessages)
 		}
 	}
 
-	if (GET_TEAM(eIndex).isHuman())
+	if (GET_TEAM(eIndex).isHuman(ISHUMAN_AI_TECH_CHOICE))
 	{
 		for (size_t i=0; i<vMyTeam.size(); i++)
 		{
 			PlayerTypes eMyPlayer = vMyTeam[i];
-			if (!GET_PLAYER(eMyPlayer).isAlive() || GET_PLAYER(eMyPlayer).isHuman())
+			if (!GET_PLAYER(eMyPlayer).isAlive() || GET_PLAYER(eMyPlayer).isHuman(ISHUMAN_AI_TECH_CHOICE))
 				continue;
 
 			GET_PLAYER(eMyPlayer).clearResearchQueue();
@@ -5397,7 +5397,7 @@ void CvTeam::changeProjectCount(ProjectTypes eIndex, int iChange)
 				{
 					if(GET_PLAYER((PlayerTypes)iI).getTeam() == GetID())
 					{
-						if(!(GET_PLAYER((PlayerTypes)iI).isHuman()))
+						if(!GET_PLAYER((PlayerTypes)iI).isHuman(ISHUMAN_AI_TECH_CHOICE))
 						{
 							bChangeProduction = false;
 
@@ -6979,7 +6979,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 							if (kPlayer.isAlive() && kPlayer.getTeam() == GetID())
 							{
 
-								if (!kPlayer.isHuman())
+								if (!kPlayer.isHuman(ISHUMAN_AI_TECH_CHOICE))
 								{
 									for (int iI = 0; iI < pkTechInfo->GetFirstFreeTechs(); iI++)
 									{
@@ -7024,7 +7024,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 							CvPlayerAI& kPlayer = GET_PLAYER(eLoopPlayer);
 							if(kPlayer.isAlive())
 							{
-								if(!(kPlayer.isHuman()))
+								if(!kPlayer.isHuman(ISHUMAN_AI_TECH_CHOICE))
 								{
 									if(kPlayer.GetPlayerTechs()->IsResearchingTech(eIndex))
 									{
@@ -7251,7 +7251,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 			{
 				if (GC.getGame().isFinalInitialized())
 				{
-					if(GET_PLAYER(ePlayer).isHuman())
+					if(GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_TECH_CHOICE))
 					{
 						if(GET_PLAYER(ePlayer).GetPlayerTechs()->IsResearch() && (GET_PLAYER(ePlayer).GetPlayerTechs()->GetCurrentResearch() == NO_TECH))
 						{
@@ -7633,7 +7633,7 @@ void CvTeam::testCircumnavigated()
 				{
 					GC.getGame().SetTeamThatCircumnavigated(eTeamID);
 
-					if (MOD_API_ACHIEVEMENTS && !kGame.isGameMultiPlayer() && kPlayer.isHuman())
+					if (MOD_API_ACHIEVEMENTS && !kGame.isGameMultiPlayer() && kPlayer.isHuman(ISHUMAN_ACHIEVEMENTS))
 					{
 						gDLL->UnlockAchievement(ACHIEVEMENT_ROUND_WORLD);
 					}
@@ -8537,7 +8537,7 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 				
 				if(!isBarbarian() && (eNewValue != GC.getGame().getStartEra())){
 					//Era Popup
-					if (!GC.getGame().isReallyNetworkMultiPlayer() && isHuman() && GetID() == GC.getGame().getActiveTeam())
+					if (!GC.getGame().isReallyNetworkMultiPlayer() && isHuman(ISHUMAN_UI) && GetID() == GC.getGame().getActiveTeam())
 					{
 						CvPopupInfo kPopupInfo(BUTTONPOPUP_NEW_ERA, eNewValue);
 						DLLUI->AddPopup(kPopupInfo);
@@ -8576,7 +8576,7 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 							if(GET_TEAM(kCurNotifyPlayer.getTeam()).isHasMet(GetID()))
 							{
 								CvPlayerAI& player = GET_PLAYER(getLeaderID());
-								if(GC.getGame().isGameMultiPlayer() && player.isHuman())
+								if(GC.getGame().isGameMultiPlayer() && player.isHuman(ISHUMAN_UI))
 									strMessage << player.getNickName() << szEraTextKey;
 								else
 									strMessage << player.getName() << szEraTextKey;
@@ -9382,7 +9382,7 @@ bool CvTeam::canEndVassal(TeamTypes eTeam) const
 	if (GC.getGame().isOption(GAMEOPTION_ALWAYS_PEACE) || GC.getGame().isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE) || GC.getGame().IsAIPassiveMode())
 		return false;
 
-	if (GC.getGame().IsAIPassiveTowardsHumans() && GET_TEAM(eTeam).isHuman())
+	if (GC.getGame().IsAIPassiveTowardsHumans() && GET_TEAM(eTeam).isHuman(ISHUMAN_MECHANICS))
 		return false;
 
 	// We're the voluntary vassal of eTeam and it's not too early to end vassalage - we're not bound by the % rules
@@ -9566,7 +9566,7 @@ void CvTeam::DoEndVassal(TeamTypes eTeam, bool bPeaceful, bool bSuppressNotifica
 		if (!GET_PLAYER(ePlayer).GetNotifications())
 			continue;
 
-		if (GET_PLAYER(ePlayer).isAlive() && GET_PLAYER(ePlayer).isHuman())
+		if (GET_PLAYER(ePlayer).isAlive() && GET_PLAYER(ePlayer).isHuman(ISHUMAN_NOTIFICATIONS))
 		{
 			// Player is no longer the vassal
 			if (GET_PLAYER(ePlayer).getTeam() == GetID())
@@ -9993,7 +9993,7 @@ void CvTeam::DoBecomeVassal(TeamTypes eTeam, bool bVoluntary, PlayerTypes eOrigi
 		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 		TeamTypes eLoopTeam = GET_PLAYER(eLoopPlayer).getTeam();
 
-		if (!GET_PLAYER(eLoopPlayer).isAlive() || GET_PLAYER(eLoopPlayer).isHuman())
+		if (!GET_PLAYER(eLoopPlayer).isAlive() || GET_PLAYER(eLoopPlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
 			continue;
 
 		if (eLoopTeam == GetID())

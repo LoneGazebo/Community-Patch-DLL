@@ -5892,7 +5892,7 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 		{
 			//taking cover only works if the defender will not move away!
 			//since we move civilians only after the combat units have moved it should be safe to pin the defender here (AI players only!)
-			if (!pDefender->TurnProcessed() && !pDefender->isHuman())
+			if (!pDefender->TurnProcessed() && !pDefender->isHuman(ISHUMAN_AI_UNITS))
 			{
 				TacticalAIHelpers::PerformRangedOpportunityAttack(pDefender, false);
 				pDefender->PushMission(CvTypes::getMISSION_SKIP());

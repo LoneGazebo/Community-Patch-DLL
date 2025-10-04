@@ -131,7 +131,7 @@ void CvFlavorManager::Init(CvPlayer* pPlayer)
 		if ((s == SS_TAKEN || s == SS_COMPUTER) && !pPlayer->isBarbarian())
 		{
 			// Copy over leaderhead defaults unless human
-			if (!pPlayer->isHuman())
+			if (!pPlayer->isHuman(ISHUMAN_AI_DIPLOMACY))
 			{
 				LeaderHeadTypes leader = pPlayer->getPersonalityType();
 				if (leader != NO_LEADER)

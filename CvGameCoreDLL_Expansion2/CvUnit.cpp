@@ -1026,7 +1026,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 		{
 			// free XP from handicap?
 			int iXP = kPlayer.getHandicapInfo().getFreeXP();
-			iXP += kPlayer.isHuman() ? 0 : GC.getGame().getHandicapInfo().getAIFreeXP();
+			iXP += kPlayer.isHuman(ISHUMAN_HANDICAP) ? 0 : GC.getGame().getHandicapInfo().getAIFreeXP();
 			if (iXP > 0)
 			{
 				changeExperienceTimes100(iXP * 100);
@@ -1034,7 +1034,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 
 			// bonus xp in combat from handicap?
 			int iXPPercent = kPlayer.getHandicapInfo().getFreeXPPercent();
-			iXPPercent += kPlayer.isHuman() ? 0 : GC.getGame().getHandicapInfo().getAIFreeXPPercent();
+			iXPPercent += kPlayer.isHuman(ISHUMAN_HANDICAP) ? 0 : GC.getGame().getHandicapInfo().getAIFreeXPPercent();
 			if (iXPPercent > 0)
 			{
 				changeExperiencePercent(iXPPercent);
@@ -3040,7 +3040,7 @@ bool CvUnit::getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerT
 			bShowingHumanPopup = false;
 
 		// Not human?
-		else if(!GET_PLAYER(GC.getGame().getActivePlayer()).isHuman())
+		else if(!GET_PLAYER(GC.getGame().getActivePlayer()).isHuman(ISHUMAN_AI_DIPLOMACY))
 			bShowingHumanPopup = false;
 
 		if (ForcedCapture)
@@ -3062,7 +3062,7 @@ bool CvUnit::getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerT
 			// If the unit originally belonged to us, we've already done what we needed to do
 			if(kCaptureDef.eCapturingPlayer != kCaptureDef.eOriginalOwner)
 			{
-				if (kCaptureDef.eOriginalOwner != NO_PLAYER && GET_PLAYER(kCaptureDef.eOriginalOwner).isAlive() && !GET_PLAYER(kCaptureDef.eCapturingPlayer).isHuman() && !GET_PLAYER(kCaptureDef.eCapturingPlayer).IsAtWarWith(kCaptureDef.eOriginalOwner))
+				if (kCaptureDef.eOriginalOwner != NO_PLAYER && GET_PLAYER(kCaptureDef.eOriginalOwner).isAlive() && !GET_PLAYER(kCaptureDef.eCapturingPlayer).isHuman(ISHUMAN_AI_DIPLOMACY) && !GET_PLAYER(kCaptureDef.eCapturingPlayer).IsAtWarWith(kCaptureDef.eOriginalOwner))
 				{
 					CivOpinionTypes eMajorOpinion = CIV_OPINION_NEUTRAL;
 					CivApproachTypes eMinorOpinion = CIV_APPROACH_NEUTRAL;
@@ -3090,15 +3090,14 @@ bool CvUnit::getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerT
 				}
 				else
 				{
-
-				kCapturingPlayer.DoCivilianReturnLogic(false, kCaptureDef.eOriginalOwner, pkCapturedUnit->GetID());
+					kCapturingPlayer.DoCivilianReturnLogic(false, kCaptureDef.eOriginalOwner, pkCapturedUnit->GetID());
 				}
 			}
 		}
 		// if Venice
 		else if (kCapturingPlayer.GetPlayerTraits()->IsNoAnnexing())
 		{
-			if(kCaptureDef.eOriginalOwner != NO_PLAYER && !GET_PLAYER(kCaptureDef.eCapturingPlayer).isHuman())
+			if(kCaptureDef.eOriginalOwner != NO_PLAYER && !GET_PLAYER(kCaptureDef.eCapturingPlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
 			{
 				CivOpinionTypes eMajorOpinion = CIV_OPINION_NEUTRAL;
 				CivApproachTypes eMinorOpinion = CIV_APPROACH_NEUTRAL;
@@ -3158,7 +3157,7 @@ bool CvUnit::getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerT
 				//let tactical AI handle the unit
 				//DO NOT PUSH MISSIONS DIRECTLY WHILE ANOTHER UNIT IS EXECUTING ITS MISSION
 				CvPlayer& kOwner = GET_PLAYER(pkCapturedUnit->getOwner());
-				if (!kOwner.isHuman())
+				if (!kOwner.isHuman(ISHUMAN_AI_UNITS))
 					kOwner.GetTacticalAI()->AddCurrentTurnUnit(pkCapturedUnit);
 			}
 		}
@@ -3197,7 +3196,7 @@ void CvUnit::doTurn()
 	bool bHealCheck = (eActivityType == ACTIVITY_HEAL) && (m_iDamageTakenLastTurn>0 || !IsHurt()); //done healing or under attack?
 	bool bSentryCheck = (eActivityType == ACTIVITY_SENTRY) && SentryAlert(true); //on alert
 	bool bFortifyCheck = (eActivityType == ACTIVITY_SLEEP) && isProjectedToDieNextTurn(); //fortified but about to die
-	bool bInterceptCheck = (eActivityType == ACTIVITY_INTERCEPT) && !isHuman(); //AI interceptors reconsider each turn
+	bool bInterceptCheck = (eActivityType == ACTIVITY_INTERCEPT) && !isHuman(ISHUMAN_AI_UNITS); //AI interceptors reconsider each turn
 
 	if (bHoldCheck || bHealCheck || bSentryCheck || bFortifyCheck || bInterceptCheck)	
 	{
@@ -4720,7 +4719,7 @@ bool CvUnit::canEnterTerritory(TeamTypes eTeam, bool bEndTurn) const
 	if(kTheirTeam.isMinorCiv() && kMyTeam.isMajorCiv())
 	{
 		// Humans can always enter a minor's territory and bear the consequences
-		if (isHuman())
+		if (isHuman(ISHUMAN_AI_UNITS))
 			return true;
 
 		// Allow AI players to pass through minors' territory
@@ -4755,7 +4754,7 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 	VALIDATE_OBJECT();
 	DomainTypes eDomain = getDomainType();
 
-	if (!isHuman() && !enterPlot.isRevealed(getTeam()) && (iMoveFlags & CvUnit::MOVEFLAG_PRETEND_ALL_REVEALED) == 0 && AI_getUnitAIType() != UNITAI_EXPLORE)
+	if (!isHuman(ISHUMAN_AI_UNITS) && !enterPlot.isRevealed(getTeam()) && (iMoveFlags & CvUnit::MOVEFLAG_PRETEND_ALL_REVEALED) == 0 && AI_getUnitAIType() != UNITAI_EXPLORE)
 		return false;
 
 	// Part 1 : Domain specific exclusions -----------------------------------------------
@@ -4887,7 +4886,7 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 TeamTypes CvUnit::GetDeclareWarMove(const CvPlot& plot) const
 {
 	VALIDATE_OBJECT();
-		ASSERT(isHuman());
+	ASSERT(isHuman());
 
 	if (getDomainType() != DOMAIN_AIR)
 	{
@@ -4989,7 +4988,7 @@ TeamTypes CvUnit::GetDeclareWarMove(const CvPlot& plot) const
 TeamTypes CvUnit::GetDeclareWarRangeStrike(const CvPlot& plot) const
 {
 	VALIDATE_OBJECT();
-		ASSERT(isHuman());
+	ASSERT(isHuman());
 
 	if (plot.isActiveVisible())
 	{
@@ -5177,7 +5176,7 @@ bool CvUnit::canMoveInto(const CvPlot& plot, int iMoveFlags) const
 				return false;
 			}
 
-			if(!isHuman() || (plot.isVisible(getTeam())))
+			if(!isHuman(ISHUMAN_AI_UNITS) || (plot.isVisible(getTeam())))
 			{
 				// This stuff to the next if statement is to get units to advance into a tile with an enemy if that enemy is dying...
 				bool bCanAdvanceOnDeadUnit = false;
@@ -5274,7 +5273,7 @@ bool CvUnit::canMoveInto(const CvPlot& plot, int iMoveFlags) const
 				return false;		// Can't enter a plot that contains combat that doesn't involve us.
 			}
 
-			if(!isHuman() || plot.isVisible(getTeam()) || bEmbarkedAndAdjacent)
+			if(!isHuman(ISHUMAN_AI_UNITS) || plot.isVisible(getTeam()) || bEmbarkedAndAdjacent)
 			{
 				if (!(iMoveFlags & CvUnit::MOVEFLAG_IGNORE_ENEMIES))
 				{
@@ -5293,7 +5292,7 @@ bool CvUnit::canMoveInto(const CvPlot& plot, int iMoveFlags) const
 			}
 		}
 
-		TeamTypes ePlotTeam = ((isHuman()) ? plot.getRevealedTeam(getTeam()) : plot.getTeam());
+		TeamTypes ePlotTeam = isHuman(ISHUMAN_AI_UNITS) ? plot.getRevealedTeam(getTeam()) : plot.getTeam();
 
 		bool bCanEnterTerritory = ((iMoveFlags&CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE)>0) || canEnterTerritory(ePlotTeam, (iMoveFlags&CvUnit::MOVEFLAG_DESTINATION)>0);
 		if (!bCanEnterTerritory)
@@ -6430,7 +6429,7 @@ int CvUnit::addDamageReceivedThisTurn(int iDamage, CvUnit* pAttacker)
 	m_iDamageTakenThisTurn+=iDamage;
 
 	//remember the attacker for AI danger calculation - in case he came out of nowhere, now moves and becomes invisible again
-	if (pAttacker && !isHuman())
+	if (pAttacker && !isHuman(ISHUMAN_AI_UNITS))
 		GET_PLAYER(getOwner()).AddKnownAttacker(pAttacker);
 
 	return m_iDamageTakenThisTurn;
@@ -6730,7 +6729,7 @@ void CvUnit::unloadAll()
 			}
 			else
 			{
-				ASSERT(isHuman());
+				ASSERT(isHuman(ISHUMAN_AI_UNITS));
 				pLoopUnit->SetActivityType(ACTIVITY_AWAKE);
 			}
 		}
@@ -6742,7 +6741,7 @@ void CvUnit::unloadAll()
 bool CvUnit::canHold(const CvPlot* pPlot) const // skip turn
 {
 	VALIDATE_OBJECT();
-	if(isHuman() && !IsFortified())  // we aren't fortified
+	if(isHuman(ISHUMAN_AI_UNITS) && !IsFortified())  // we aren't fortified
 	{
 		if (!canEndTurnAtPlot(pPlot))
 		{
@@ -6764,7 +6763,7 @@ bool CvUnit::canSleep(const CvPlot* pPlot) const
 		return false;
 	}
 
-	if(isHuman() && !IsFortified())  // we aren't fortified
+	if(isHuman(ISHUMAN_AI_UNITS) && !IsFortified())  // we aren't fortified
 	{
 		if (!canEndTurnAtPlot(pPlot))
 		{
@@ -7187,7 +7186,7 @@ void CvUnit::embark(CvPlot* pPlot)
 	CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 	gDLL->GameplayUnitEmbark(pDllUnit.get(), true);
 
-	if (MOD_API_ACHIEVEMENTS && isHuman() && !GC.getGame().isGameMultiPlayer() && GET_PLAYER(GC.getGame().getActivePlayer()).isLocalPlayer())
+	if (MOD_API_ACHIEVEMENTS && isHuman(ISHUMAN_ACHIEVEMENTS) && !GC.getGame().isGameMultiPlayer() && GET_PLAYER(GC.getGame().getActivePlayer()).isLocalPlayer())
 		gDLL->UnlockAchievement(ACHIEVEMENT_UNIT_EMBARK);
 }
 
@@ -7778,7 +7777,7 @@ bool CvUnit::canHeal(const CvPlot* pPlot, bool bCheckMovement) const
 	if (IsCannotHeal())
 		return false;
 
-	if (isHuman() && !IsFortified())
+	if (isHuman(ISHUMAN_AI_UNITS) && !IsFortified())
 	{
 		if (!canEndTurnAtPlot(pPlot))
 		{
@@ -7855,7 +7854,7 @@ bool CvUnit::canHeal(const CvPlot* pPlot, bool bCheckMovement) const
 bool CvUnit::canSentry(const CvPlot* pPlot) const
 {
 	VALIDATE_OBJECT();
-	if(isHuman() && !IsFortified())  // we aren't fortified
+	if(isHuman(ISHUMAN_AI_UNITS) && !IsFortified())  // we aren't fortified
 	{
 		if (!canEndTurnAtPlot(pPlot))
 		{
@@ -8585,7 +8584,7 @@ bool CvUnit::airlift(int iX, int iY)
 	{
 		//Here's Looking at You, Kid
 		CvPlayerAI& kActivePlayer = GET_PLAYER(GC.getGame().getActivePlayer());
-		if (pTargetPlot != NULL && getOwner() == kActivePlayer.GetID() && kActivePlayer.isHuman())
+		if (pTargetPlot != NULL && getOwner() == kActivePlayer.GetID() && kActivePlayer.isHuman(ISHUMAN_ACHIEVEMENTS))
 		{
 			//Easy checks out of the way, now for the ugly ones.
 
@@ -9673,7 +9672,7 @@ bool CvUnit::createFreeLuxury()
 		{
 			GET_PLAYER(getOwner()).changeResourceFromGP(eResourceToGive, iNumLuxuries);
 			CvPlayerAI& kOwner = GET_PLAYER(getOwner());
-			if(kOwner.isHuman())
+			if(kOwner.isHuman(ISHUMAN_NOTIFICATIONS))
 			{
 				CvNotifications* pNotifications = kOwner.GetNotifications();
 				if(pNotifications)
@@ -10828,7 +10827,7 @@ bool CvUnit::foundCity()
 
 	PlayerTypes eActivePlayer = GC.getGame().getActivePlayer();
 
-	if(eActivePlayer == getOwner())
+	if(eActivePlayer == getOwner() && !MOD_AI_CONTROL_UNITS)
 	{
 		CvInterfacePtr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(pPlot);
 		DLLUI->lookAt(pDllPlot.get(), CAMERALOOKAT_NORMAL);
@@ -10855,7 +10854,7 @@ bool CvUnit::foundCity()
 		}
 
 		//Achievement
-		if (MOD_API_ACHIEVEMENTS && eActivePlayer == getOwner() && kActivePlayer.getNumCities() >= 2 && kActivePlayer.isHuman() && !GC.getGame().isGameMultiPlayer())
+		if (MOD_API_ACHIEVEMENTS && eActivePlayer == getOwner() && kActivePlayer.getNumCities() >= 2 && kActivePlayer.isHuman(ISHUMAN_ACHIEVEMENTS) && !GC.getGame().isGameMultiPlayer())
 			gDLL->UnlockAchievement(ACHIEVEMENT_SECOND_CITY);
 	}
 
@@ -11093,7 +11092,7 @@ bool CvUnit::DoFoundReligion()
 				finishMoves();
 			}
 
-			if(kOwner.isHuman())
+			if(kOwner.isHuman(ISHUMAN_AI_RELIGION_CHOICE))
 			{
 				ASSERT(pkCity != NULL, "No City??");
 
@@ -11251,7 +11250,7 @@ bool CvUnit::DoEnhanceReligion()
 				finishMoves();
 			}
 
-			if(kOwner.isHuman())
+			if(kOwner.isHuman(ISHUMAN_AI_RELIGION_CHOICE))
 			{
 				ASSERT(pkCity != NULL, "No City??");
 
@@ -11864,7 +11863,7 @@ bool CvUnit::discover()
 
 	// Free techs
 	int iNumFreeTechs = m_pUnitInfo->GetNumFreeTechs();
-	if(!isHuman())
+	if(!isHuman(ISHUMAN_AI_TECH_CHOICE))
 	{
 		for(int iI = 0; iI < iNumFreeTechs; iI++)
 		{
@@ -12001,7 +12000,7 @@ bool CvUnit::hurry()
 			{
 				if (isLimitedWonderClass(pkProductionBuildinInfo->GetBuildingClassInfo()))
 				{
-					if (pCity->isHuman() && !GC.getGame().isGameMultiPlayer())
+					if (pCity->isHuman(ISHUMAN_ACHIEVEMENTS) && !GC.getGame().isGameMultiPlayer())
 					{
 						const char* pLeaderChar = GET_PLAYER(pCity->getOwner()).getLeaderTypeKey();
 						CvString szLeader = pLeaderChar;
@@ -12187,7 +12186,7 @@ bool CvUnit::trade()
 			pLoopCity->ChangeWeLoveTheKingDayCounter(iTurn);
 		}
 
-		if (kOwner.isHuman())
+		if (kOwner.isHuman(ISHUMAN_NOTIFICATIONS))
 		{
 			CvNotifications* pNotifications = kOwner.GetNotifications();
 			if (pNotifications)
@@ -12263,7 +12262,7 @@ bool CvUnit::canBuyCityState(const CvPlot* pPlot, bool bTestVisible) const
 		return false;
 
 	// Not allowed for humans in OCC games
-	if (GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && GET_PLAYER(getOwner()).isHuman())
+	if (GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && GET_PLAYER(getOwner()).isHuman(ISHUMAN_MECHANICS))
 		return false;
 
 	// Things that block usage but not visibility
@@ -12819,7 +12818,7 @@ void CvUnit::PerformCultureBomb(int iRadius)
 				pPlayer->GetDiplomacyAI()->ChangeNumTimesCultureBombed(getOwner(), iPenalty);
 
 				// Message for human
-				if (!pPlayer->isHuman() && getTeam() != eOtherTeam && !GET_TEAM(eOtherTeam).isAtWar(getTeam()) && !CvPreGame::isNetworkMultiplayerGame() && GC.getGame().getActivePlayer() == getOwner() && !bAlreadyShownLeader && !GC.getGame().IsInsultMessagesDisabled() && !GC.getGame().IsAllDiploStatementsDisabled())
+				if (!pPlayer->isHuman(ISHUMAN_AI_DIPLOMACY) && getTeam() != eOtherTeam && !GET_TEAM(eOtherTeam).isAtWar(getTeam()) && !CvPreGame::isNetworkMultiplayerGame() && GC.getGame().getActivePlayer() == getOwner() && !bAlreadyShownLeader && !GC.getGame().IsInsultMessagesDisabled() && !GC.getGame().IsAllDiploStatementsDisabled())
 				{
 					bAlreadyShownLeader = true;
 
@@ -13237,7 +13236,7 @@ bool CvUnit::blastTourism()
 	}
 
 	// Achievements
-	if (MOD_API_ACHIEVEMENTS && GET_PLAYER(m_eOwner).isHuman() && !GC.getGame().isGameMultiPlayer())
+	if (MOD_API_ACHIEVEMENTS && GET_PLAYER(m_eOwner).isHuman(ISHUMAN_ACHIEVEMENTS) && !GC.getGame().isGameMultiPlayer())
 	{
 		if (strcmp(GET_PLAYER(eOwner).getCivilizationTypeKey(),   "CIVILIZATION_AMERICA") == 0 &&
 			strcmp(GET_PLAYER(m_eOwner).getCivilizationTypeKey(), "CIVILIZATION_ENGLAND") == 0)
@@ -14221,7 +14220,7 @@ int CvUnit::upgradePrice(UnitTypes eUnit) const
 
 		iPrice *= std::max(0, ((kPlayer.getHandicapInfo().getUnitUpgradePerEraModifier() * GC.getGame().getCurrentEra()) + 100));
 		iPrice /= 100;
-		if (!isHuman())
+		if (!isHuman(ISHUMAN_HANDICAP))
 		{
 			iPrice *= GC.getGame().getHandicapInfo().getAIUnitUpgradePercent();
 			iPrice /= 100;
@@ -14275,7 +14274,7 @@ CvUnit* CvUnit::DoUpgradeTo(UnitTypes eUnitType, bool bFree)
 
 	if(NULL != pNewUnit)
 	{
-		if(GC.getGame().getActivePlayer() == getOwner())
+		if(GC.getGame().getActivePlayer() == getOwner() && !MOD_AI_CONTROL_UNITS)
 		{
 			CvInterfacePtr<ICvUnit1> pDllNewUnit = GC.WrapUnitPointer(pNewUnit);
 			DLLUI->selectUnit(pDllNewUnit.get(), true, false, false);
@@ -14343,7 +14342,7 @@ CvUnit* CvUnit::DoUpgradeTo(UnitTypes eUnitType, bool bFree)
 		kill(true);
 	}
 
-	if (MOD_API_ACHIEVEMENTS && isHuman() && !GC.getGame().isGameMultiPlayer() && GET_PLAYER(GC.getGame().getActivePlayer()).isLocalPlayer())
+	if (MOD_API_ACHIEVEMENTS && isHuman(ISHUMAN_ACHIEVEMENTS) && !GC.getGame().isGameMultiPlayer() && GET_PLAYER(GC.getGame().getActivePlayer()).isLocalPlayer())
 		gDLL->UnlockAchievement(ACHIEVEMENT_UNIT_UPGRADE);
 
 	return pNewUnit;
@@ -14570,10 +14569,11 @@ bool CvUnit::isBarbarian() const
 
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::isHuman() const
+bool CvUnit::isHuman(IsHumanReason eIsHumanReason) const
 {
 	VALIDATE_OBJECT();
-	return GET_PLAYER(getOwner()).isHuman();
+
+	return GET_PLAYER(getOwner()).isHuman(eIsHumanReason);
 }
 
 //	--------------------------------------------------------------------------------
@@ -14589,7 +14589,7 @@ int CvUnit::visibilityRange() const
 		if (GET_PLAYER(m_eOwner).isMajorCiv())
 		{
 			iVisionRange += GET_PLAYER(m_eOwner).getHandicapInfo().getVisionBonus();
-			iVisionRange += isHuman() ? 0 : GC.getGame().getHandicapInfo().getAIVisionBonus();
+			iVisionRange += isHuman(ISHUMAN_HANDICAP) ? 0 : GC.getGame().getHandicapInfo().getAIVisionBonus();
 		}
 		else if (GET_PLAYER(m_eOwner).isMinorCiv())
 		{
@@ -14876,7 +14876,7 @@ bool CvUnit::CanLinkUnits()
 
 	const CvPlot* pCurrentPlot = plot();
 
-	if (pCurrentPlot == NULL || !isHuman() || IsLinked())
+	if (pCurrentPlot == NULL || !isHuman(ISHUMAN_AI_UNITS) || IsLinked())
 		return false;
 
 	const CvUnit* pThisUnit = this;
@@ -14914,7 +14914,7 @@ void CvUnit::LinkUnits()
 
 	const CvPlot* pCurrentPlot = plot();
 		
-	if (pCurrentPlot == NULL || !isHuman())
+	if (pCurrentPlot == NULL || !isHuman(ISHUMAN_AI_UNITS))
 		return;
 
 	const IDInfo* pUnitNode = pCurrentPlot->headUnitNode();
@@ -15836,7 +15836,7 @@ int CvUnit::workRate(bool bMax, BuildTypes /*eBuild*/) const
 	if (kPlayer.isMajorCiv())
 	{
 		Modifiers += kPlayer.getHandicapInfo().getWorkRateModifier();
-		Modifiers += kPlayer.isHuman() ? 0 : GC.getGame().getHandicapInfo().getAIWorkRateModifier();
+		Modifiers += kPlayer.isHuman(ISHUMAN_HANDICAP) ? 0 : GC.getGame().getHandicapInfo().getAIWorkRateModifier();
 	}
 	else if (kPlayer.isMinorCiv())
 	{
@@ -21154,7 +21154,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 	}
 
 	//Dr. Livingstone I presume?
-	if (MOD_API_ACHIEVEMENTS && isHuman() && !isDelayedDeath())
+	if (MOD_API_ACHIEVEMENTS && isHuman(ISHUMAN_ACHIEVEMENTS) && !isDelayedDeath())
 	{
 		if(strcmp(getCivilizationInfo().GetType(), "CIVILIZATION_BRAZIL") == 0)
 		{
@@ -21670,6 +21670,8 @@ void CvUnit::setExperienceTimes100(int iNewValueTimes100, int iMax, bool bDontSh
 {
 	VALIDATE_OBJECT();
 
+	// One unit is getting experience but isn't getting promoted by the AI on the same turn (it's created on that turn), why?
+
 	// Checking limits.h for the values of MAX_INT and MAX_LONG they are the same, so we need to use "long long" and hence MAX_LLONG
 	long long lMaxTimes100 = (iMax < 0) ? INT_MAX : (iMax * 100LL);
 	int iMaxTimes100 = (lMaxTimes100 > ((long long) INT_MAX)) ? INT_MAX : (int) lMaxTimes100;
@@ -21863,7 +21865,7 @@ void CvUnit::changeExperienceTimes100(int iChangeTimes100, int iMax, bool bFromC
 		if (bFromHuman && GET_PLAYER(getOwner()).isMajorCiv())
 		{
 			iExperiencePercent += GET_PLAYER(getOwner()).getHandicapInfo().getFreeXPPercentVSHuman();
-			iExperiencePercent += GET_PLAYER(getOwner()).isHuman() ? 0 : GC.getGame().getHandicapInfo().getAIFreeXPPercentVSHuman();
+			iExperiencePercent += GET_PLAYER(getOwner()).isHuman(ISHUMAN_HANDICAP) ? 0 : GC.getGame().getHandicapInfo().getAIFreeXPPercentVSHuman();
 		}
 
 		if (iExperiencePercent != 0)
@@ -23075,7 +23077,7 @@ int CvUnit::getExtraCombatPercent() const
 	if (kPlayer.isMajorCiv())
 	{
 		iRtnValue += kPlayer.getHandicapInfo().getCombatBonus();
-		iRtnValue += kPlayer.isHuman() ? 0 : GC.getGame().getHandicapInfo().getAICombatBonus();
+		iRtnValue += kPlayer.isHuman(ISHUMAN_HANDICAP) ? 0 : GC.getGame().getHandicapInfo().getAICombatBonus();
 	}
 	else if (kPlayer.isMinorCiv())
 	{
@@ -24588,7 +24590,7 @@ void CvUnit::DoConvertReligiousUnitsToMilitary(const CvPlot* pPlot)
 //finish improvements (mostly roads) at the beginning of the turn so we can use them immediately
 void CvUnit::DoFinishBuildIfSafe()
 {
-	if (isHuman() && !IsAutomated())
+	if (isHuman(ISHUMAN_AI_UNITS) && !IsAutomated())
 		return;
 
 	BuildTypes eBuild = getBuildType();
@@ -25383,13 +25385,13 @@ void CvUnit::setPromotionReady(bool bNewValue)
 		if(bNewValue)
 		{
 			CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
-			if(pNotifications)
+			if(pNotifications && GET_PLAYER(getOwner()).isHuman(ISHUMAN_AI_UNIT_PROMOTIONS))
 			{
 				CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_UNIT_CAN_GET_PROMOTION");
 				CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_UNIT_CAN_GET_PROMOTION");
 				pNotifications->Add(NOTIFICATION_UNIT_PROMOTION, strBuffer, strSummary, -1, -1, getUnitType(), GetID());
 
-				if (MOD_API_ACHIEVEMENTS && isHuman() && !GC.getGame().isGameMultiPlayer() && GET_PLAYER(GC.getGame().getActivePlayer()).isLocalPlayer())
+				if (MOD_API_ACHIEVEMENTS && GET_PLAYER(getOwner()).isHuman(ISHUMAN_ACHIEVEMENTS) && !GC.getGame().isGameMultiPlayer() && GET_PLAYER(GC.getGame().getActivePlayer()).isLocalPlayer())
 				{
 					gDLL->UnlockAchievement(ACHIEVEMENT_UNIT_PROMOTE);
 				}
@@ -28334,7 +28336,7 @@ CvUnit* CvUnit::GetPotentialUnitToPushOut(const CvPlot& pushPlot, CvPlot** ppToP
 		*ppToPlot = NULL;
 
 	//this is AI only, humans have to do it manually
-	if (isHuman())
+	if (isHuman(ISHUMAN_AI_UNITS))
 		return NULL;
 
 	//no problem if we can stack
@@ -28447,7 +28449,7 @@ bool CvUnit::CanSwapWithUnitHere(const CvPlot& swapPlot) const
 CvUnit* CvUnit::GetPotentialUnitToSwapWith(const CvPlot & swapPlot) const
 {
 	//AI shouldn't swap into a frontline plot
-	if (!isHuman() && swapPlot.GetNumEnemyUnitsAdjacent(getTeam(), getDomainType()) > 0)
+	if (!isHuman(ISHUMAN_AI_UNITS) && swapPlot.GetNumEnemyUnitsAdjacent(getTeam(), getDomainType()) > 0)
 		return NULL;
 
 	if (getDomainType() == DOMAIN_LAND || getDomainType() == DOMAIN_SEA)
@@ -30026,7 +30028,7 @@ RouteTypes CvUnit::GetBestBuildRouteForRoadTo(CvPlot* pPlot, BuildTypes* peBestB
 	RouteTypes eBestRoute = NO_ROUTE;
 	
 	bool bOnlyRoad = false;
-	if (MOD_GLOBAL_QUICK_ROUTES && GET_PLAYER(getOwner()).isHuman())
+	if (MOD_GLOBAL_QUICK_ROUTES && GET_PLAYER(getOwner()).isHuman(ISHUMAN_AI_UNITS))
 	{
 		// If there is no road to the mission end plot, bOnlyRoad is true
 		bOnlyRoad = !IsPlotConnectedToPlot(getOwner(), pPlot, LastMissionPlot(), ROUTE_ROAD, false, false);
@@ -30220,7 +30222,7 @@ bool CvUnit::CheckDOWNeededForMove(int iX, int iY, bool bPopup)
 		return false;
 
 	// Test if this attack requires war to be declared first
-	if (pDestPlot && isHuman() && getOwner() == GC.getGame().getActivePlayer() && pDestPlot->isVisible(getTeam()))
+	if (pDestPlot && isHuman(ISHUMAN_AI_UNITS) && getOwner() == GC.getGame().getActivePlayer() && pDestPlot->isVisible(getTeam()))
 	{
 		TeamTypes eRivalTeam = GetDeclareWarMove(*pDestPlot);
 
@@ -30596,7 +30598,7 @@ bool CvUnit::UnitRoadTo(int iX, int iY, int iFlags)
 
 	RouteTypes ePlayerBestRoute = kPlayer.getBestRoute();
 
-	if (MOD_GLOBAL_QUICK_ROUTES && kPlayer.isHuman() && ePlayerBestRoute > ROUTE_ROAD) {
+	if (MOD_GLOBAL_QUICK_ROUTES && kPlayer.isHuman(ISHUMAN_AI_UNITS) && ePlayerBestRoute > ROUTE_ROAD) {
 		if (!IsPlotConnectedToPlot(getOwner(), plot(), LastMissionPlot(), ROUTE_ROAD, false, false))
 			ePlayerBestRoute = ROUTE_ROAD;
 	}
@@ -30614,7 +30616,7 @@ bool CvUnit::UnitRoadTo(int iX, int iY, int iFlags)
 	{
 		// add route interrupted notification
 		CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
-		if(pNotifications && isHuman())
+		if(pNotifications && isHuman(ISHUMAN_NOTIFICATIONS))
 		{
 			CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_ROUTE_TO_CANCELLED");
 			CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_ROUTE_TO_CANCELLED");
@@ -31002,7 +31004,7 @@ void CvUnit::PushMission(MissionTypes eMission, int iData1, int iData2, int iFla
 	}
 
 	//comfort feature for humans
-	if (eMission == CvTypes::getMISSION_MOVE_TO() && isHuman())
+	if (eMission == CvTypes::getMISSION_MOVE_TO() && isHuman(ISHUMAN_AI_UNITS))
 		iFlags |= MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED;
 
 	//safety check - air units should not use ranged attack missions (for unknown reasons)

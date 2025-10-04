@@ -343,7 +343,7 @@ void CvUnitCombat::ResolveMeleeCombat(const CvCombatInfo& kCombatInfo, uint uiPa
 		bAttackerDidMoreDamage = iAttackerDamageInflicted > iDefenderDamageInflicted;
 
 		//One Hit
-		if (MOD_API_ACHIEVEMENTS && iAttackerDamageInflicted > pkDefender->GetCurrHitPoints() && !pkDefender->IsHurt() && pkAttacker->isHuman() && !GC.getGame().isGameMultiPlayer())
+		if (MOD_API_ACHIEVEMENTS && iAttackerDamageInflicted > pkDefender->GetCurrHitPoints() && !pkDefender->IsHurt() && pkAttacker->isHuman(ISHUMAN_ACHIEVEMENTS) && !GC.getGame().isGameMultiPlayer())
 			gDLL->UnlockAchievement(ACHIEVEMENT_ONEHITKILL);
 
 		pkDefender->changeDamage(iAttackerDamageInflicted, pkAttacker->getOwner());
@@ -363,7 +363,7 @@ void CvUnitCombat::ResolveMeleeCombat(const CvCombatInfo& kCombatInfo, uint uiPa
 		    true,
 		    kCombatInfo.getInBorders(BATTLE_UNIT_DEFENDER),
 		    kCombatInfo.getUpdateGlobal(BATTLE_UNIT_DEFENDER),
-			pkAttacker->isHuman());
+			pkAttacker->isHuman(ISHUMAN_HANDICAP));
 
 		// only gain XP for the first attack made per turn.
 		if(!MOD_BALANCE_CORE_XP_ON_FIRST_ATTACK || pkAttacker->getNumAttacksMadeThisTurn() <= 1)
@@ -373,7 +373,7 @@ void CvUnitCombat::ResolveMeleeCombat(const CvCombatInfo& kCombatInfo, uint uiPa
 				true,
 				kCombatInfo.getInBorders(BATTLE_UNIT_ATTACKER),
 				kCombatInfo.getUpdateGlobal(BATTLE_UNIT_ATTACKER),
-				pkDefender->isHuman());
+				pkDefender->isHuman(ISHUMAN_HANDICAP));
 		}
 
 		// Anyone eat it?
@@ -882,7 +882,7 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 			{
 				if(pkAttacker)
 				{
-					if (pkDefender->isHuman())
+					if (pkDefender->isHuman(ISHUMAN_HANDICAP))
 						bTargetIsHuman = true;
 
 					pkAttacker->DoAdjacentPlotDamage(pkTargetPlot,min(iDamage,pkAttacker->getSplashDamage()),"TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_SPLASH");
@@ -900,7 +900,7 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 							pkAttacker->setMadeAttack(true);
 
 						//One Hit
-						if (MOD_API_ACHIEVEMENTS && !pkDefender->IsHurt() && pkAttacker->isHuman() && !GC.getGame().isGameMultiPlayer())
+						if (MOD_API_ACHIEVEMENTS && !pkDefender->IsHurt() && pkAttacker->isHuman(ISHUMAN_ACHIEVEMENTS) && !GC.getGame().isGameMultiPlayer())
 							gDLL->UnlockAchievement(ACHIEVEMENT_ONEHITKILL);
 
 						if(pkAttacker->getOwner() == GC.getGame().getActivePlayer())
@@ -999,7 +999,7 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 					    true,
 					    kCombatInfo.getInBorders(BATTLE_UNIT_DEFENDER),
 					    kCombatInfo.getUpdateGlobal(BATTLE_UNIT_DEFENDER),
-						pkAttacker->isHuman());
+						pkAttacker->isHuman(ISHUMAN_HANDICAP));
 				}
 
 				pkDefender->setCombatUnit(NULL);
@@ -1018,7 +1018,7 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 			{
 				if(pkAttacker)
 				{
-					if (pCity->isHuman())
+					if (pCity->isHuman(ISHUMAN_HANDICAP))
 						bTargetIsHuman = true;
 
 					pkAttacker->DoAdjacentPlotDamage(pkTargetPlot,min(iDamage,pkAttacker->getSplashDamage()),"TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_SPLASH");
@@ -1176,7 +1176,7 @@ void CvUnitCombat::ResolveRangedCityVsUnitCombat(const CvCombatInfo& kCombatInfo
 		true,
 		kCombatInfo.getInBorders(BATTLE_UNIT_DEFENDER),
 		kCombatInfo.getUpdateGlobal(BATTLE_UNIT_DEFENDER),
-		pkAttacker->isHuman());
+		pkAttacker->isHuman(ISHUMAN_HANDICAP));
 
 	pkDefender->setCombatUnit(NULL);
 	if(!CvUnitMission::IsHeadMission(pkDefender, CvTypes::getMISSION_WAIT_FOR()))		// If the top mission was not a 'wait for', then clear it.
@@ -1228,7 +1228,7 @@ void CvUnitCombat::ResolveCityMeleeCombat(const CvCombatInfo& kCombatInfo, uint 
 				true,
 				false,
 				kCombatInfo.getUpdateGlobal(BATTLE_UNIT_ATTACKER),
-				pkDefender->isHuman());
+				pkDefender->isHuman(ISHUMAN_HANDICAP));
 		}
 	}
 
@@ -1271,7 +1271,7 @@ void CvUnitCombat::ResolveCityMeleeCombat(const CvCombatInfo& kCombatInfo, uint 
 					MILITARYLOG(pkDefender->getOwner(), strBuffer.c_str(), pkDefender->plot(), pkAttacker->getOwner());
 			}
 
-			if (MOD_API_ACHIEVEMENTS && pkDefender->getOwner() == GC.getGame().getActivePlayer() && pkDefender->isHuman() && !GC.getGame().isGameMultiPlayer())
+			if (MOD_API_ACHIEVEMENTS && pkDefender->getOwner() == GC.getGame().getActivePlayer() && pkDefender->isHuman(ISHUMAN_ACHIEVEMENTS) && !GC.getGame().isGameMultiPlayer())
 			{
 				gDLL->UnlockAchievement(ACHIEVEMENT_REALLY_SUCK);
 			}
@@ -1561,7 +1561,7 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 			CvUnitEntry* pkUnitInfo = GC.getUnitInfo(kAttacker.getUnitType());
 			if(pkUnitInfo)
 			{
-				if(kAttacker.isHuman() && !GC.getGame().isGameMultiPlayer() && _stricmp(pkUnitInfo->GetType(), "UNIT_AMERICAN_B17") == 0)
+				if(kAttacker.isHuman(ISHUMAN_ACHIEVEMENTS) && !GC.getGame().isGameMultiPlayer() && _stricmp(pkUnitInfo->GetType(), "UNIT_AMERICAN_B17") == 0)
 				{
 					gDLL->UnlockAchievement(ACHIEVEMENT_SPECIAL_B17);
 				}
@@ -1663,7 +1663,7 @@ void CvUnitCombat::ResolveAirUnitVsCombat(const CvCombatInfo& kCombatInfo, uint 
 			true,
 			kCombatInfo.getInBorders(BATTLE_UNIT_INTERCEPTOR),
 			kCombatInfo.getUpdateGlobal(BATTLE_UNIT_INTERCEPTOR),
-			pkAttacker->isHuman());
+			pkAttacker->isHuman(ISHUMAN_HANDICAP));
 	}
 
 	CvPlot* pkTargetPlot = kCombatInfo.getPlot();
@@ -1683,11 +1683,11 @@ void CvUnitCombat::ResolveAirUnitVsCombat(const CvCombatInfo& kCombatInfo, uint 
 
 			if(pkDefender)
 			{
-				if (pkDefender->isHuman())
+				if (pkDefender->isHuman(ISHUMAN_HANDICAP))
 					bTargetIsHuman = true;
 
 				//One Hit
-				if (MOD_API_ACHIEVEMENTS && iAttackerDamageInflicted > pkDefender->GetCurrHitPoints() && !pkDefender->IsHurt() && pkAttacker->isHuman() && !GC.getGame().isGameMultiPlayer())
+				if (MOD_API_ACHIEVEMENTS && iAttackerDamageInflicted > pkDefender->GetCurrHitPoints() && !pkDefender->IsHurt() && pkAttacker->isHuman(ISHUMAN_ACHIEVEMENTS) && !GC.getGame().isGameMultiPlayer())
 					gDLL->UnlockAchievement(ACHIEVEMENT_ONEHITKILL);
 
 				pkAttacker->changeDamage(iDefenderDamageInflicted, pkDefender->getOwner());
@@ -1707,7 +1707,7 @@ void CvUnitCombat::ResolveAirUnitVsCombat(const CvCombatInfo& kCombatInfo, uint 
 					true,
 					kCombatInfo.getInBorders(BATTLE_UNIT_DEFENDER),
 					kCombatInfo.getUpdateGlobal(BATTLE_UNIT_DEFENDER),
-					pkAttacker->isHuman());
+					pkAttacker->isHuman(ISHUMAN_HANDICAP));
 
 				// Attacker died
 				if(pkAttacker->IsDead())
@@ -1872,7 +1872,7 @@ void CvUnitCombat::ResolveAirUnitVsCombat(const CvCombatInfo& kCombatInfo, uint 
 
 			if(pCity)
 			{
-				if (pCity->isHuman())
+				if (pCity->isHuman(ISHUMAN_HANDICAP))
 					bTargetIsHuman = true;
 
 				pCity->clearCombat();
@@ -2128,7 +2128,7 @@ void CvUnitCombat::ResolveAirSweep(const CvCombatInfo& kCombatInfo, uint uiParen
 		if(pkAttacker && pkTargetPlot)
 		{
 			//One Hit
-			if (MOD_API_ACHIEVEMENTS && iAttackerDamageInflicted > pkDefender->GetCurrHitPoints() && !pkDefender->IsHurt() && pkAttacker->isHuman() && !GC.getGame().isGameMultiPlayer())
+			if (MOD_API_ACHIEVEMENTS && iAttackerDamageInflicted > pkDefender->GetCurrHitPoints() && !pkDefender->IsHurt() && pkAttacker->isHuman(ISHUMAN_ACHIEVEMENTS) && !GC.getGame().isGameMultiPlayer())
 				gDLL->UnlockAchievement(ACHIEVEMENT_ONEHITKILL);
 
 			pkDefender->changeDamage(iAttackerDamageInflicted, pkAttacker->getOwner());
@@ -2141,7 +2141,7 @@ void CvUnitCombat::ResolveAirSweep(const CvCombatInfo& kCombatInfo, uint uiParen
 			    true,
 			    kCombatInfo.getInBorders(BATTLE_UNIT_DEFENDER),
 			    kCombatInfo.getUpdateGlobal(BATTLE_UNIT_DEFENDER),
-				pkAttacker->isHuman());
+				pkAttacker->isHuman(ISHUMAN_HANDICAP));
 
 			pkAttacker->changeExperienceTimes100(100 * 
 			    kCombatInfo.getExperience(BATTLE_UNIT_ATTACKER),
@@ -2149,7 +2149,7 @@ void CvUnitCombat::ResolveAirSweep(const CvCombatInfo& kCombatInfo, uint uiParen
 			    true,
 			    kCombatInfo.getInBorders(BATTLE_UNIT_ATTACKER),
 			    kCombatInfo.getUpdateGlobal(BATTLE_UNIT_ATTACKER),
-				pkDefender->isHuman());
+				pkDefender->isHuman(ISHUMAN_HANDICAP));
 
 			// Anyone eat it?
 			bAttackerDead = (pkAttacker->getDamage() >= pkAttacker->GetMaxHitPoints());
@@ -2435,7 +2435,7 @@ void CvUnitCombat::GenerateNuclearCombatInfo(CvUnit& kAttacker, CvPlot& plot, Cv
 		{
 			PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 
-			if (GET_PLAYER(eLoopPlayer).isObserver() || (GET_PLAYER(eLoopPlayer).isHuman() && GET_PLAYER(eLoopPlayer).isAlive()))
+			if (GET_PLAYER(eLoopPlayer).isObserver() || (GET_PLAYER(eLoopPlayer).isHuman(ISHUMAN_NOTIFICATIONS) && GET_PLAYER(eLoopPlayer).isAlive()))
 			{
 				if (!GET_PLAYER(eLoopPlayer).isObserver())
 				{
@@ -2715,7 +2715,7 @@ uint CvUnitCombat::ApplyNuclearExplosionDamage(const CvCombatMemberEntry* pkDama
 			GET_PLAYER(*iter).GetDiplomacyAI()->ChangeNumTimesNuked(pkAttacker->getOwner(), 1);
 		}
 
-		if (GET_PLAYER(*iter).isHuman() && GET_PLAYER(*iter).isAlive())
+		if (GET_PLAYER(*iter).isHuman(ISHUMAN_NOTIFICATIONS) && GET_PLAYER(*iter).isAlive())
 		{
 			CvNotifications* pNotifications = GET_PLAYER(*iter).GetNotifications();
 			if (pNotifications)
@@ -2731,7 +2731,7 @@ uint CvUnitCombat::ApplyNuclearExplosionDamage(const CvCombatMemberEntry* pkDama
 	{
 		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 
-		if (GET_PLAYER(eLoopPlayer).isObserver() || (GET_PLAYER(eLoopPlayer).isHuman() && GET_PLAYER(eLoopPlayer).isAlive()))
+		if (GET_PLAYER(eLoopPlayer).isObserver() || (GET_PLAYER(eLoopPlayer).isHuman(ISHUMAN_NOTIFICATIONS) && GET_PLAYER(eLoopPlayer).isAlive()))
 		{
 			if (!GET_PLAYER(eLoopPlayer).isObserver())
 			{
@@ -4034,7 +4034,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackAirSweep(CvUnit& kAttacker, CvPl
 			int iExperience = /*5*/ GD_INT_GET(EXPERIENCE_ATTACKING_AIR_SWEEP);
 			PlayerTypes eUnitOwner = kAttacker.getOwner();
 			PlayerTypes ePlotOwner = targetPlot.getOwner();
-			kAttacker.changeExperienceTimes100(100 * iExperience, -1, true, eUnitOwner == ePlotOwner, true, eUnitOwner != ePlotOwner && GET_PLAYER(ePlotOwner).isHuman());
+			kAttacker.changeExperienceTimes100(100 * iExperience, -1, true, eUnitOwner == ePlotOwner, true, eUnitOwner != ePlotOwner && GET_PLAYER(ePlotOwner).isHuman(ISHUMAN_HANDICAP));
 			kAttacker.testPromotionReady();
 
 			// attempted to do a sweep in a plot that had no interceptors
@@ -4314,7 +4314,7 @@ void CvUnitCombat::ApplyPostKillTraitEffects(CvUnit* pkWinner, CvUnit* pkLoser)
 	}
 
 	//Achievements and Stats
-	if (MOD_API_ACHIEVEMENTS && pkWinner->isHuman() && !GC.getGame().isGameMultiPlayer())
+	if (MOD_API_ACHIEVEMENTS && pkWinner->isHuman(ISHUMAN_ACHIEVEMENTS) && !GC.getGame().isGameMultiPlayer())
 	{
 		CvString szUnitType;
 		CvUnitEntry* pkUnitInfo = GC.getUnitInfo(pkWinner->getUnitType());

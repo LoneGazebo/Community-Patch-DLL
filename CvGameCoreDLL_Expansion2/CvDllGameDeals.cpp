@@ -90,7 +90,7 @@ void CvDllGameDeals::AddProposedDeal(ICvDeal1* pDeal)
 bool CvDllGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, bool bAccepted)
 {
 	// was getting errors in the diplomacy log for human-human deals, bypassing seems ok.
-	if((!GET_PLAYER(eFromPlayer).isHuman() || !GET_PLAYER(eToPlayer).isHuman()) && GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)	
+	if((!GET_PLAYER(eFromPlayer).isHuman(ISHUMAN_AI_DIPLOMACY) || !GET_PLAYER(eToPlayer).isHuman(ISHUMAN_AI_DIPLOMACY)) && GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
 	{
 		return m_pGameDeals->FinalizeMPDealLatest(eFromPlayer, eToPlayer, bAccepted, true);
 	}
@@ -117,7 +117,7 @@ PlayerTypes CvDllGameDeals::HasMadeProposal(PlayerTypes eFromPlayer)
 //------------------------------------------------------------------------------
 bool CvDllGameDeals::ProposedDealExists(PlayerTypes eFromPlayer, PlayerTypes eToPlayer)
 {
-	if ((!GET_PLAYER(eFromPlayer).isHuman() || !GET_PLAYER(eToPlayer).isHuman()) && GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
+	if ((!GET_PLAYER(eFromPlayer).isHuman(ISHUMAN_AI_DIPLOMACY) || !GET_PLAYER(eToPlayer).isHuman(ISHUMAN_AI_DIPLOMACY)) && GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
 		return m_pGameDeals->GetProposedMPDeal(eFromPlayer, eToPlayer, false) != NULL;
 
 	return m_pGameDeals->ProposedDealExists(eFromPlayer, eToPlayer);
@@ -126,7 +126,7 @@ bool CvDllGameDeals::ProposedDealExists(PlayerTypes eFromPlayer, PlayerTypes eTo
 ICvDeal1* CvDllGameDeals::GetProposedDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer)
 {
 	CvDeal* pDeal = NULL;
-	if ((!GET_PLAYER(eFromPlayer).isHuman() || !GET_PLAYER(eToPlayer).isHuman()) && GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
+	if ((!GET_PLAYER(eFromPlayer).isHuman(ISHUMAN_AI_DIPLOMACY) || !GET_PLAYER(eToPlayer).isHuman(ISHUMAN_AI_DIPLOMACY)) && GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
 	{
 		pDeal = m_pGameDeals->GetProposedMPDeal(eFromPlayer, eToPlayer, false);
 	}

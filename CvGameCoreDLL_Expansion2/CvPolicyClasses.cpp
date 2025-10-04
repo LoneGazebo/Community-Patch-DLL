@@ -4305,7 +4305,7 @@ void CvPlayerPolicies::SetPolicy(PolicyTypes eIndex, bool bNewValue, bool bFree)
 						GetPlayer()->DoDifficultyBonus(DIFFICULTY_BONUS_COMPLETED_POLICY_TREE);
 						if (GetPlayer()->GetPlayerTraits()->IsAdoptionFreeTech())
 						{
-							if (!GetPlayer()->isHuman())
+							if (!GetPlayer()->isHuman(ISHUMAN_AI_TECH_CHOICE))
 							{
 								GetPlayer()->AI_chooseFreeTech();
 							}
@@ -4798,7 +4798,7 @@ int CvPlayerPolicies::GetNextPolicyCost()
 		iCost *= std::max(0, ((m_pPlayer->getHandicapInfo().getPolicyPerEraModifier() * GC.getGame().getCurrentEra()) + 100));
 		iCost /= 100;
 
-		if (!GetPlayer()->isHuman())
+		if (!GetPlayer()->isHuman(ISHUMAN_HANDICAP))
 		{
 			iCost *= GC.getGame().getHandicapInfo().getAIPolicyPercent();
 			iCost /= 100;
@@ -4807,7 +4807,7 @@ int CvPlayerPolicies::GetNextPolicyCost()
 		}
 
 		int iExtraCatchUP = m_pPlayer->getHandicapInfo().getPolicyCatchUpMod();
-		iExtraCatchUP += m_pPlayer->isHuman() ? 0 : GC.getGame().getHandicapInfo().getAIPolicyCatchUpMod();
+		iExtraCatchUP += m_pPlayer->isHuman(ISHUMAN_HANDICAP) ? 0 : GC.getGame().getHandicapInfo().getAIPolicyCatchUpMod();
 
 		if (iExtraCatchUP > 0)
 		{
@@ -5661,7 +5661,7 @@ void CvPlayerPolicies::SetPolicyBranchFinished(PolicyBranchTypes eBranchType, bo
 				bool bUsingXP1Scenario3 = gDLL->IsModActivated(CIV5_XP1_SCENARIO3_MODID);
 
 				//Achievements for fulfilling branches
-				if (!GC.getGame().isGameMultiPlayer() && GET_PLAYER(GC.getGame().getActivePlayer()).isHuman())
+				if (!GC.getGame().isGameMultiPlayer() && GET_PLAYER(GC.getGame().getActivePlayer()).isHuman(ISHUMAN_ACHIEVEMENTS))
 				{
 					//Must not be playing smokey skies scenario.
 					if (m_pPlayer->GetID() == GC.getGame().getActivePlayer() && !bUsingXP1Scenario3)
@@ -6165,7 +6165,7 @@ void CvPlayerPolicies::DoPolicyAI()
 
 	// Force an ideology update for human vassals, if applicable
 	m_pPolicyAI->DoConsiderIdeologySwitch(m_pPlayer);
-	if (m_pPlayer->isHuman())
+	if (m_pPlayer->isHuman(ISHUMAN_AI_POLICY_CHOICE))
 		return;
 
 	// Do we have enough points to buy a new policy?

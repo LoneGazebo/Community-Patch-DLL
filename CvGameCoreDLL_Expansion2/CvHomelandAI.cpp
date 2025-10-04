@@ -191,7 +191,7 @@ void CvHomelandAI::Update(bool bUpdateImprovements)
 		return;
 	}
 
-	if (m_pPlayer->isHuman())
+	if (m_pPlayer->isHuman(ISHUMAN_AI_UNITS))
 		FindAutomatedUnits();
 	else
 		RecruitUnits();
@@ -577,7 +577,7 @@ void CvHomelandAI::PlotFirstTurnSettlerMoves()
 	for (list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
-		if (pUnit && !pUnit->isHuman())
+		if (pUnit && !pUnit->isHuman(ISHUMAN_AI_UNITS))
 		{
 			if (pUnit->canFoundCity(NULL))
 			{
@@ -612,7 +612,7 @@ void CvHomelandAI::PlotGarrisonMoves()
 			//nothing to do really
 			CvUnit* pGarrison = pCity->GetGarrisonedUnit();
 			//do not touch units which are under human control (eg accidentally garrisoned explorers)
-			if (!pGarrison->TurnProcessed() && (!pGarrison->isHuman() || pGarrison->IsAutomated()))
+			if (!pGarrison->TurnProcessed() && (!pGarrison->isHuman(ISHUMAN_AI_UNITS) || pGarrison->IsAutomated()))
 				UnitProcessed(pGarrison->GetID());
 		}
 		else
@@ -646,7 +646,7 @@ void CvHomelandAI::PlotHealMoves()
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
 		//this is very simple, we know there are no enemies around, else tactical AI would have kicked in
-		if(pUnit && !pUnit->isHuman() && pUnit->IsHurt() && !pUnit->IsCannotHeal())
+		if(pUnit && !pUnit->isHuman(ISHUMAN_AI_UNITS) && pUnit->IsHurt() && !pUnit->IsCannotHeal())
 		{
 			//workers may get hurt a bit
 			if (pUnit->GetCurrHitPoints() > pUnit->GetMaxHitPoints() / 2)
@@ -987,7 +987,7 @@ void CvHomelandAI::PlotWorkerMoves()
 	m_greatPeopleForImprovements.clear();
 
 	// Human players may have only non-automated workers which nevertheless need to be given directives
-	if(m_CurrentMoveUnits.size() > 0 || m_pPlayer->isHuman())
+	if(m_CurrentMoveUnits.size() > 0 || m_pPlayer->isHuman(ISHUMAN_AI_UNITS))
 	{
 		ExecuteWorkerMoves();
 	}
@@ -995,7 +995,7 @@ void CvHomelandAI::PlotWorkerMoves()
 
 void CvHomelandAI::ExecuteUnitGift()
 {
-	if (!m_pPlayer->isMajorCiv() || m_pPlayer->isHuman())
+	if (!m_pPlayer->isMajorCiv() || m_pPlayer->isHuman(ISHUMAN_AI_UNITS))
 		return;
 
 	UnitTypes eUnitType = NO_UNIT;
@@ -1396,7 +1396,7 @@ void CvHomelandAI::PlotUpgradeMoves()
 	for (CvUnit* pUnit = m_pPlayer->firstUnit(&iLoop); pUnit != NULL; pUnit = m_pPlayer->nextUnit(&iLoop))
 	{
 		// Don't try and upgrade a human player's unit
-		if (pUnit && !pUnit->isHuman() && pUnit->isReadyForUpgrade() && !pUnit->isDelayedDeath() && !pUnit->isProjectedToDieNextTurn())
+		if (pUnit && !pUnit->isHuman(ISHUMAN_AI_UNITS) && pUnit->isReadyForUpgrade() && !pUnit->isDelayedDeath() && !pUnit->isProjectedToDieNextTurn())
 		{
 			//Let's only worry about units in our land.
 			if (pUnit->plot()->getOwner() != m_pPlayer->GetID())
@@ -2341,7 +2341,7 @@ bool CvHomelandAI::ExecuteExplorerMoves(CvUnit* pUnit)
 			return true;
 	}
 
-	if (!m_pPlayer->isHuman() && pUnit->CanStartMission(CvTypes::getMISSION_SELL_EXOTIC_GOODS(), -1, -1))
+	if (!m_pPlayer->isHuman(ISHUMAN_AI_UNITS) && pUnit->CanStartMission(CvTypes::getMISSION_SELL_EXOTIC_GOODS(), -1, -1))
 	{
 		// Far enough from home to get a good reward?
 		float fRewardFactor = pUnit->calculateExoticGoodsDistanceFactor(pUnit->plot());
@@ -2622,7 +2622,7 @@ bool CvHomelandAI::ExecuteExplorerMoves(CvUnit* pUnit)
 		LogHomelandMessage(strLogString);
 	}
 
-	if (pUnit->isHuman())
+	if (pUnit->isHuman(ISHUMAN_AI_UNITS))
 		pUnit->SetAutomateType(NO_AUTOMATE);
 
 	//in case it was non-native scout, reset the unit AI
@@ -2854,7 +2854,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 
 	// Humans also have non-automated workers. Pretend they are automated as well to avoid going where they are.
 	// We also throw in all great people that can build anything here so they get recommendations as well.
-	if (m_pPlayer->isHuman())
+	if (m_pPlayer->isHuman(ISHUMAN_AI_UNITS))
 	{
 		int iLoop = 0;
 		for (CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoop))
@@ -2888,7 +2888,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 		if (!pUnit)
 			continue;
 
-		bool bIsAutomated = !m_pPlayer->isHuman() || pUnit->IsAutomated();
+		bool bIsAutomated = !m_pPlayer->isHuman(ISHUMAN_AI_UNITS) || pUnit->IsAutomated();
 
 		if (bIsAutomated)
 		{
@@ -2928,7 +2928,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 		bool bCanBuild = pBuilder->canBuild(GC.getMap().plot(eDirective.m_sX, eDirective.m_sY), eDirective.m_eBuild);
 		if (bCanBuild)
 		{
-			bool bIsAutomated = !m_pPlayer->isHuman() || pBuilder->IsAutomated();
+			bool bIsAutomated = !m_pPlayer->isHuman(ISHUMAN_AI_UNITS) || pBuilder->IsAutomated();
 			if (bIsAutomated)
 			{
 				if (pBuilderTaskingAI->ExecuteWorkerMove(pBuilder, eDirective))
@@ -3412,7 +3412,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 	for (list<int>::iterator it = allWorkers.begin(); it != allWorkers.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
-		if (!pUnit || pUnit->TurnProcessed() || pUnit->getUnitInfo().GetCombat() > 0 || (!pUnit->IsAutomated() && m_pPlayer->isHuman()))
+		if (!pUnit || pUnit->TurnProcessed() || pUnit->getUnitInfo().GetCombat() > 0 || (!pUnit->IsAutomated() && m_pPlayer->isHuman(ISHUMAN_AI_UNITS)))
 			continue;
 
 		//find the city which is most in need of workers
@@ -4306,7 +4306,7 @@ void CvHomelandAI::ExecuteMessengerMoves()
 		//Dangerous?
 		else
 		{
-			if(pUnit->isHuman())
+			if(pUnit->isHuman(ISHUMAN_AI_UNITS))
 			{
 				pUnit->SetAutomateType(NO_AUTOMATE);
 			}
@@ -4750,7 +4750,7 @@ void CvHomelandAI::ExecuteMissionaryMoves()
 		}
 		else
 		{
-			if(pUnit->isHuman())
+			if(pUnit->isHuman(ISHUMAN_AI_UNITS))
 			{
 				pUnit->SetAutomateType(NO_AUTOMATE);
 				UnitProcessed(pUnit->GetID());
@@ -5697,7 +5697,7 @@ bool CvHomelandAI::FindUnitsForThisMove(AIHomelandMove eMove)
 	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
 	{
 		CvUnit* pLoopUnit = m_pPlayer->getUnit(*it);
-		if(pLoopUnit && !pLoopUnit->isHuman())
+		if(pLoopUnit && !pLoopUnit->isHuman(ISHUMAN_AI_UNITS))
 		{
 			// Civilians or units in armies aren't useful for any of these moves
 			if(!pLoopUnit->canMove() || !pLoopUnit->IsCombatUnit() || pLoopUnit->getArmyID() != -1)

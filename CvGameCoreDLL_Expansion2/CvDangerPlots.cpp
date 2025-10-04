@@ -480,7 +480,7 @@ bool CvDangerPlots::ShouldIgnoreUnit(const CvUnit* pUnit, bool bIgnoreVisibility
 		return true;
 
 	//invisible but revealed camp/city. count the unit there anyways (for AI), humans would guess so
-	if (!GET_PLAYER(m_ePlayer).isHuman())
+	if (!GET_PLAYER(m_ePlayer).isHuman(ISHUMAN_AI_UNITS))
 	{
 		bIgnoreVisibility |= pUnit->plot()->isCity();
 		bIgnoreVisibility |= pUnit->plot()->getRevealedImprovementType(pUnit->getTeam()) == GD_INT_GET(BARBARIAN_CAMP_IMPROVEMENT);

@@ -1024,6 +1024,7 @@ void CvMinorCivQuest::DoRewards(PlayerTypes ePlayer, bool bHeavyTribute)
 			if (pLoopUnit && !pLoopUnit->IsCivilianUnit())
 			{
 				pLoopUnit->changeExperienceTimes100(GetExperience() * 100);
+				pLoopUnit->testPromotionReady();
 			}
 		}
 
@@ -1922,7 +1923,7 @@ bool CvMinorCivQuest::IsExpired()
 			return true;
 
 		// Are both players now humans?
-		if (pAssignedPlayer->isHuman() && GET_PLAYER(eTargetPlayer).isHuman())
+		if (pAssignedPlayer->isHuman(ISHUMAN_AI_DIPLOMACY) && GET_PLAYER(eTargetPlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
 			return true;
 
 		// We're now Allies with the Major
@@ -2675,7 +2676,7 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn, PlayerTypes pCallingPlayer)
 		strSummary << strCivKey;
 
 		//Let's issue an attack request.
-		if (!pAssignedPlayer->isHuman() && GET_TEAM(pAssignedPlayer->getTeam()).canDeclareWar(GET_PLAYER(eMostRecentBully).getTeam(), pAssignedPlayer->GetID()))
+		if (!pAssignedPlayer->isHuman(ISHUMAN_AI_UNITS) && GET_TEAM(pAssignedPlayer->getTeam()).canDeclareWar(GET_PLAYER(eMostRecentBully).getTeam(), pAssignedPlayer->GetID()))
 			pAssignedPlayer->GetMilitaryAI()->RequestCityAttack(eMostRecentBully,2);
 
 		break;
@@ -2722,7 +2723,7 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn, PlayerTypes pCallingPlayer)
 
 		//Let's issue a recon request.
 		EconomicAIStrategyTypes eNavalRecon = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_RECON_SEA");
-		if (!pAssignedPlayer->isHuman() && !pAssignedPlayer->GetEconomicAI()->IsUsingStrategy(eNavalRecon))
+		if (!pAssignedPlayer->isHuman(ISHUMAN_AI_ECONOMY) && !pAssignedPlayer->GetEconomicAI()->IsUsingStrategy(eNavalRecon))
 			pAssignedPlayer->GetEconomicAI()->SetUsingStrategy(eNavalRecon, true);
 		break;
 	}
@@ -2771,7 +2772,7 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn, PlayerTypes pCallingPlayer)
 
 		//Let's issue a recon request.
 		EconomicAIStrategyTypes eNavalRecon = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_RECON_SEA");
-		if (!pAssignedPlayer->isHuman() && !pAssignedPlayer->GetEconomicAI()->IsUsingStrategy(eNavalRecon))
+		if (!pAssignedPlayer->isHuman(ISHUMAN_AI_ECONOMY) && !pAssignedPlayer->GetEconomicAI()->IsUsingStrategy(eNavalRecon))
 			pAssignedPlayer->GetEconomicAI()->SetUsingStrategy(eNavalRecon, true);
 
 		break;
@@ -2793,7 +2794,7 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn, PlayerTypes pCallingPlayer)
 
 		//Let's issue an attack request.
 		PlayerTypes eCityOwner = pPlot->getOwner();
-		if (!pAssignedPlayer->isHuman())
+		if (!pAssignedPlayer->isHuman(ISHUMAN_AI_UNITS))
 			pAssignedPlayer->GetMilitaryAI()->RequestCityAttack(eCityOwner,2);
 
 		break;
@@ -2813,7 +2814,7 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn, PlayerTypes pCallingPlayer)
 		}
 
 		//Tell the AI to get over there!
-		if (!pAssignedPlayer->isHuman() && pAssignedPlayer->GetMilitaryAI()->GetNumberCivsAtWarWith(false) <= 0)
+		if (!pAssignedPlayer->isHuman(ISHUMAN_AI_UNITS) && pAssignedPlayer->GetMilitaryAI()->GetNumberCivsAtWarWith(false) <= 0)
 		{
 			CvCity* pMinorCap = pMinor->getCapitalCity();
 			if (pMinorCap && pAssignedPlayer->getCapitalCity() && pMinorCap->HasSharedAreaWith(pAssignedPlayer->getCapitalCity(),true,false))
@@ -2882,7 +2883,7 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn, PlayerTypes pCallingPlayer)
 		}
 
 		//Tell the AI ally to get over there!
-		if (eMajor != NO_PLAYER && !GET_PLAYER(eMajor).isHuman() && GET_PLAYER(eMajor).GetMilitaryAI()->GetNumberCivsAtWarWith(false) <= 0)
+		if (eMajor != NO_PLAYER && !GET_PLAYER(eMajor).isHuman(ISHUMAN_AI_UNITS) && GET_PLAYER(eMajor).GetMilitaryAI()->GetNumberCivsAtWarWith(false) <= 0)
 		{
 			if (pMinor->GetMinorCivAI()->GetAlly() == eMajor)
 			{
@@ -2984,7 +2985,7 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn, PlayerTypes pCallingPlayer)
 
 		const char* strTargetNameKey = pCity->getNameKey();
 
-		if (pAssignedPlayer->isHuman() && GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
+		if (pAssignedPlayer->isHuman(ISHUMAN_MECHANICS) && GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
 		{
 			strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_QUEST_ACQUIRE_CITY_OCC");
 			strMessage << strTargetNameKey;
@@ -3552,7 +3553,7 @@ bool CvMinorCivQuest::DoFinishQuest()
 	}
 	case MINOR_CIV_QUEST_ACQUIRE_CITY:
 	{
-		if (GET_PLAYER(m_eAssignedPlayer).isHuman() && GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
+		if (GET_PLAYER(m_eAssignedPlayer).isHuman(ISHUMAN_MECHANICS) && GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
 		{
 			strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_QUEST_ACQUIRE_CITY_OCC_COMPLETE");
 			strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_ACQUIRE_CITY_OCC_COMPLETE");
@@ -5093,6 +5094,7 @@ void CvMinorCivAI::DoFirstContactWithMajor(TeamTypes eTeam, bool bSuppressMessag
 										CvUnit* pUnit = DoSpawnUnit(ePlayer, true, true);
 										if (pUnit != NULL) {
 											pUnit->changeExperienceTimes100(100 * (pPlayer->GetCurrentEra() * /*5*/ GD_INT_GET(MINOR_CIV_FIRST_CONTACT_XP_PER_ERA) + GC.getGame().randRangeExclusive(0, /*5*/ GD_INT_GET(MINOR_CIV_FIRST_CONTACT_XP_RANDOM), pPlayer->GetPseudoRandomSeed().mix(pPlayer->getTotalPopulation()))));
+											pUnit->testPromotionReady();
 											iGift = pUnit->getUnitType();
 										}
 									}
@@ -6888,7 +6890,7 @@ bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes
 			return false;
 
 		// Humans are unable to denounce each other
-		if (GET_PLAYER(ePlayer).isHuman() && GET_PLAYER(eMostRecentBully).isHuman())
+		if (GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY) && GET_PLAYER(eMostRecentBully).isHuman(ISHUMAN_AI_DIPLOMACY))
 			return false;
 
 		// This player must not have already denounced the most recent bully
@@ -11716,7 +11718,7 @@ void CvMinorCivAI::DoFriendshipDecay()
 					AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), ePlayer);
 				}
 
-				if (MOD_API_ACHIEVEMENTS && !GC.getGame().isGameMultiPlayer() && GET_PLAYER(ePlayer).isHuman())
+				if (MOD_API_ACHIEVEMENTS && !GC.getGame().isGameMultiPlayer() && GET_PLAYER(ePlayer).isHuman(ISHUMAN_ACHIEVEMENTS))
 					gDLL->UnlockAchievement(ACHIEVEMENT_CITYSTATE_ALLY);
 			}
 			else if (IsFriends(ePlayer))
@@ -12461,7 +12463,7 @@ void CvMinorCivAI::ProcessAllyChangeNotifications(PlayerTypes eOldAlly, PlayerTy
 			if (!kPlayer.isAlive())
 				continue;
 
-			if (!kPlayer.isHuman())
+			if (!kPlayer.isHuman(ISHUMAN_NOTIFICATIONS))
 				continue;
 
 			if (!kPlayer.IsAtWarWith(eOldAlly))
@@ -12738,7 +12740,7 @@ void CvMinorCivAI::DoFriendshipChangeEffects(const PlayerTypes ePlayer, const in
 			for (int iI = 0; iI < pPlot->getNumUnits(); iI++)
 			{
 				CvUnit* pUnit = pPlot->getUnitByIndex(iI);
-				if (pUnit && pUnit->getOwner() == ePlayer && pUnit->isHuman())
+				if (pUnit && pUnit->getOwner() == ePlayer && pUnit->isHuman(ISHUMAN_AI_UNITS))
 				{
 					if (pUnit->GetActivityType() == ACTIVITY_SENTRY || pUnit->GetActivityType() == ACTIVITY_SLEEP)
 						pUnit->SetActivityType(ACTIVITY_AWAKE);
@@ -15609,7 +15611,7 @@ bool CvMinorCivAI::CanMajorBuyout(PlayerTypes eMajor)
 		return false;
 
 	// Not allowed in OCC games
-	if (GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && GET_PLAYER(eMajor).isHuman())
+	if (GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && GET_PLAYER(eMajor).isHuman(ISHUMAN_MECHANICS))
 		return false;
 
 	// Must be allies
@@ -15802,7 +15804,7 @@ void CvMinorCivAI::DoBuyout(PlayerTypes eMajor)
 			MinorCivTypes  eSokoto =(MinorCivTypes) GC.getInfoTypeForString("MINOR_CIV_SOKOTO", /*bHideAssert*/ true);
 			bool bUsingXP2Scenario2 = gDLL->IsModActivated(CIV5_XP2_SCENARIO2_MODID);
 
-			if (kMajorPlayer.isHuman() && bUsingXP2Scenario2 && (GetPlayer()->GetMinorCivAI()->GetMinorCivType() == eBornu || GetPlayer()->GetMinorCivAI()->GetMinorCivType() == eSokoto ))
+			if (kMajorPlayer.isHuman(ISHUMAN_ACHIEVEMENTS) && bUsingXP2Scenario2 && (GetPlayer()->GetMinorCivAI()->GetMinorCivType() == eBornu || GetPlayer()->GetMinorCivAI()->GetMinorCivType() == eSokoto))
 				gDLL->UnlockAchievement(ACHIEVEMENT_XP2_54);
 		}
 	}
@@ -16601,7 +16603,7 @@ void CvMinorCivAI::DoMajorBullyGold(PlayerTypes eBully, int iGold)
 
 					ChangeFriendshipWithMajor(eBully, iInfluence);
 
-					if (GET_PLAYER(eBully).isHuman())
+					if (GET_PLAYER(eBully).isHuman(ISHUMAN_NOTIFICATIONS))
 					{
 						const char* strMinorsNameKey = GetPlayer()->getNameKey();
 						//const char* strBullyName = GET_PLAYER(eBully).getNameKey();
@@ -16635,7 +16637,7 @@ void CvMinorCivAI::DoMajorBullyGold(PlayerTypes eBully, int iGold)
 
 					GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeNumTimesTheyLoweredOurInfluence(eBully, 1);
 
-					if (GET_PLAYER(ePlayer).isHuman())
+					if (GET_PLAYER(ePlayer).isHuman(ISHUMAN_NOTIFICATIONS))
 					{
 						const char* strMinorsNameKey = GetPlayer()->getNameKey();
 						const char* strBullyName = GET_PLAYER(eBully).getNameKey();
@@ -16782,7 +16784,7 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 
 					ChangeFriendshipWithMajor(eBully, iInfluence);
 
-					if (GET_PLAYER(eBully).isHuman())
+					if (GET_PLAYER(eBully).isHuman(ISHUMAN_NOTIFICATIONS))
 					{
 						const char* strMinorsNameKey = GetPlayer()->getNameKey();
 						Localization::String strMessageOthers;
@@ -16815,7 +16817,7 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 
 					GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeNumTimesTheyLoweredOurInfluence(eBully, 1);
 
-					if (GET_PLAYER(ePlayer).isHuman())
+					if (GET_PLAYER(ePlayer).isHuman(ISHUMAN_NOTIFICATIONS))
 					{
 						const char* strMinorsNameKey = GetPlayer()->getNameKey();
 						const char* strBullyName = GET_PLAYER(eBully).getNameKey();
