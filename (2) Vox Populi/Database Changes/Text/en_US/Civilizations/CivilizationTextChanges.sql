@@ -71,7 +71,7 @@ SET Text = 'Habsburg Diplomacy'
 WHERE Tag = 'TXT_KEY_TRAIT_ANNEX_CITY_STATE_SHORT';
 
 UPDATE Language_en_US
-SET Text = '+50% rewards from [ICON_CITY_STATE] Quests. May arrange [ICON_RES_MARRIAGE] Marriages to Allied CS with [ICON_GOLD] Gold. While at peace with [COLOR_POSITIVE_TEXT]Married[ENDCOLOR] CS, gain 75 Resting [ICON_INFLUENCE] Influence, scaling with Era, and +15% [ICON_GREAT_PEOPLE] GP generation in the [ICON_CAPITAL] Capital.'
+SET Text = '+50% rewards from [ICON_CITY_STATE] City-State [COLOR_POSITIVE_TEXT]Quests[ENDCOLOR]. May arrange [ICON_RES_MARRIAGE] Marriages to Allied City-States with [ICON_GOLD] Gold. While at peace with [COLOR_POSITIVE_TEXT]Married[ENDCOLOR] City-States, gain 200 Resting [ICON_INFLUENCE] Influence.'
 WHERE Tag = 'TXT_KEY_TRAIT_ANNEX_CITY_STATE';
 
 UPDATE Language_en_US
@@ -162,7 +162,7 @@ WHERE Tag = 'TXT_KEY_UNIT_BYZANTINE_CATAPHRACT_STRATEGY';
 -- Carthage
 --------------------
 UPDATE Language_en_US
-SET Text = '+100 [ICON_GOLD] Gold and +25 [ICON_RESEARCH] Science when your all-time highest tradeable quantity of a Luxury increases, and +5 XP to [ICON_GOLD] Gold purchased Units, both scaling with Era. +100% Resource Diversity on [ICON_INTERNATIONAL_TRADE] Trade Routes.'
+SET Text = '+100 [ICON_GOLD] Gold and +25 [ICON_RESEARCH] Science when your all-time highest tradeable quantity of a Luxury increases, and +5 XP to [ICON_GOLD] Gold purchased Units, both scaling with Era. +100% Resource Diversity on [ICON_INTERNATIONAL_TRADE] Trade Routes. Starts with an {TXT_KEY_UNIT_ASAMU} instead of a Settler.'
 WHERE Tag = 'TXT_KEY_TRAIT_PHOENICIAN_HERITAGE';
 
 UPDATE Language_en_US
@@ -234,7 +234,11 @@ WHERE Tag = 'TXT_KEY_CIV5_DENMARK_BERSERKER_STRATEGY';
 -- Egypt
 --------------------
 UPDATE Language_en_US
-SET Text = '+20% [ICON_PRODUCTION] Production towards [ICON_WONDER] Wonders (+40% during [ICON_GOLDEN_AGE] Golden Ages). [ICON_ARTIFACT] Artifacts gain +5 [ICON_RESEARCH] Science and [ICON_CULTURE] Culture, and Landmarks gain +5 [ICON_GOLD] Gold and [ICON_TOURISM] Tourism.'
+SET Text = 'Great Ancestor'
+WHERE Tag = 'TXT_KEY_TRAIT_WONDER_BUILDER_SHORT';
+
+UPDATE Language_en_US
+SET Text = '+20% [ICON_PRODUCTION] Production towards [ICON_WONDER] Wonders (+40% during [ICON_GOLDEN_AGE] Golden Ages). Reveal a nearby [ICON_RES_ARTIFACTS] Antiquity Site when you Found a City, or construct a [ICON_WONDER] World Wonder before anyone unlocks [COLOR_CYAN]Archaeology[ENDCOLOR]. [ICON_RES_ARTIFACTS] Antiquity Sites gain +1 [ICON_RESEARCH] Science, [ICON_CULTURE] Culture, and [ICON_PEACE] Faith each [ICON_GOLDEN_AGE] Golden Age (max +5).'
 WHERE Tag = 'TXT_KEY_TRAIT_WONDER_BUILDER';
 
 UPDATE Language_en_US
@@ -257,11 +261,11 @@ WHERE Tag = 'TXT_KEY_UNIT_EGYPTIAN_WARCHARIOT_STRATEGY';
 -- England
 --------------------
 UPDATE Language_en_US
-SET Text = 'Perfidious Albion'
+SET Text = 'Sun Never Sets'
 WHERE Tag = 'TXT_KEY_TRAIT_OCEAN_MOVEMENT_SHORT';
 
 UPDATE Language_en_US
-SET Text = '+1 [ICON_MOVES] Movement for Naval and Embarked Units, and -25% Naval Unit [ICON_GOLD] Gold maintenance. +15 [ICON_CITY_SECURITY] City Security in all owned Cities. [ICON_SPY] Spies travel to any City in 1 turn and are 25% stronger in foreign Cities. Starts with a [ICON_SPY] Spy.'
+SET Text = 'Naval Units have +1 [ICON_MOVES] Movement, cost -25% Unit [ICON_GOLD] Gold maintenance, and gain +1% [ICON_STRENGTH] Combat Strength for every Tile away from the Capital they are (max 30%). Diplomatic Units and Archaeologists can [COLOR_POSITIVE_TEXT]Enter Rival Territory[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_TRAIT_OCEAN_MOVEMENT';
 
 UPDATE Language_en_US
@@ -459,7 +463,7 @@ WHERE Tag = 'TXT_KEY_UNIT_HUN_HORSE_ARCHER_STRATEGY';
 -- Inca
 --------------------
 UPDATE Language_en_US
-SET Text = 'Units can cross Mountains and ignore terrain costs when entering any Hill or Mountain. Cities, Roads, and Railroads may be built on Mountains. Mountains produce +1 [ICON_FOOD] Food, [ICON_GOLD] Gold, and [ICON_RESEARCH] Science when worked, scaling with Era.'
+SET Text = 'Units can cross Mountains and ignore terrain costs when entering any Hill or Mountain. Cities, Roads, and Railroads may be built on Mountains. Mountains produce +1 [ICON_PRODUCTION] Production, [ICON_GOLD] Gold, and [ICON_RESEARCH] Science when worked, scaling with Era.'
 WHERE Tag = 'TXT_KEY_TRAIT_GREAT_ANDEAN_ROAD';
 
 UPDATE Language_en_US
@@ -536,7 +540,7 @@ WHERE Tag = 'TXT_KEY_UNIT_INDONESIAN_KRIS_SWORDSMAN_STRATEGY';
 -- Iroquois
 --------------------
 UPDATE Language_en_US
-SET Text = 'Units move through Forest and Jungle as if they were roads, and these tiles establish [ICON_CONNECTED] City Connections. Military Land Units start with the [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_WOODSMAN}[ENDCOLOR] Promotion.'
+SET Text = 'Units move through Forest and Jungle as if they were roads, and these tiles establish [ICON_CONNECTED] City Connections. Military Land Units start with the [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_WOODSMAN}[ENDCOLOR] Promotion. When you adopt a Policy, gain 15% [ICON_GREAT_PEOPLE] progress towards a {TXT_KEY_UNIT_TADODAHO} in your [ICON_CAPITAL] Capital.'
 WHERE Tag = 'TXT_KEY_TRAIT_IGNORE_TERRAIN_IN_FOREST';
 
 UPDATE Language_en_US
@@ -654,7 +658,7 @@ WHERE Tag = 'TXT_KEY_UNIT_BERBER_CAVALRY_STRATEGY';
 -- Netherlands
 --------------------
 UPDATE Language_en_US
-SET Text = '+3 [ICON_GOLD] Gold and [ICON_CULTURE] Culture for each unique Luxury Resource you import or export from/to other Civilizations and [ICON_CITY_STATE] City-States, scaling with Era. Can import duplicate Luxuries from Civilizations which count toward [ICON_MONOPOLY] Monopolies.'
+SET Text = '+4 [ICON_GOLD] Gold for each unique Luxury Resource you import or export from/to other Civilizations and [ICON_CITY_STATE] City-States, scaling with Era. Can import duplicate Luxuries from Civilizations which count toward [ICON_MONOPOLY] Monopolies. +1 [ICON_GOLD] Gold and [ICON_CULTURE] Culture to Luxury Resources.'
 WHERE Tag = 'TXT_KEY_TRAIT_LUXURY_RETENTION';
 
 UPDATE Language_en_US
@@ -946,7 +950,7 @@ SET Text = 'Lion of the North'
 WHERE Tag = 'TXT_KEY_TRAIT_DIPLOMACY_GREAT_PEOPLE_SHORT';
 
 UPDATE Language_en_US
-SET Text = 'Melee Land Units gain +20% [ICON_STRENGTH] Combat Strength [COLOR_POSITIVE_TEXT]when attacking[ENDCOLOR], and Siege Units gain +1 [ICON_MOVES] Movement. When a [ICON_GREAT_GENERAL] Great General is born, all Military Land Units fully heal and earn +15 XP. +15% [ICON_GREAT_GENERAL]/[ICON_GREAT_ADMIRAL] [COLOR_POSITIVE_TEXT]Leadership[ENDCOLOR] combat bonus.'
+SET Text = 'Melee Land Units gain +20% [ICON_STRENGTH] Combat Strength [COLOR_POSITIVE_TEXT]when attacking[ENDCOLOR], and Siege Units gain +1 [ICON_MOVES] Movement. Units heal 10 HP and earn +2 XP whenever a [ICON_GREAT_PEOPLE] Great Person is born. +15% [ICON_GREAT_GENERAL]/[ICON_GREAT_ADMIRAL] [COLOR_POSITIVE_TEXT]Leadership[ENDCOLOR] combat bonus.'
 WHERE Tag = 'TXT_KEY_TRAIT_DIPLOMACY_GREAT_PEOPLE';
 
 UPDATE Language_en_US
