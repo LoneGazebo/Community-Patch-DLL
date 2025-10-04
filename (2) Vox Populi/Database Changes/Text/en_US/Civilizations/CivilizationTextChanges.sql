@@ -261,11 +261,11 @@ WHERE Tag = 'TXT_KEY_UNIT_EGYPTIAN_WARCHARIOT_STRATEGY';
 -- England
 --------------------
 UPDATE Language_en_US
-SET Text = 'Perfidious Albion'
+SET Text = 'Sun Never Sets'
 WHERE Tag = 'TXT_KEY_TRAIT_OCEAN_MOVEMENT_SHORT';
 
 UPDATE Language_en_US
-SET Text = '+1 [ICON_MOVES] Movement for Naval and Embarked Units, and -25% Naval Unit [ICON_GOLD] Gold maintenance. +15 [ICON_CITY_SECURITY] City Security in all owned Cities. [ICON_SPY] Spies travel to any City in 1 turn and are 25% stronger in foreign Cities. Starts with a [ICON_SPY] Spy.'
+SET Text = 'Naval Units have +1 [ICON_MOVES] Movement, cost -25% Unit [ICON_GOLD] Gold maintenance, and gain +1% [ICON_STRENGTH] Combat Strength for every Tile away from the Capital they are (max 30%). Diplomatic Units and Archaeologists can [COLOR_POSITIVE_TEXT]Enter Rival Territory[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_TRAIT_OCEAN_MOVEMENT';
 
 UPDATE Language_en_US
