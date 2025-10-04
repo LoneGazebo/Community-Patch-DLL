@@ -87,19 +87,6 @@
 			<Text>Flank attack bonus increased, and receives bonuses when embarked or attacking over rivers.[NEWLINE][NEWLINE]May only be purchased with [ICON_GOLD] Gold after completing the [COLOR_MAGENTA]Authority[ENDCOLOR] Policy Branch.</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_UNIT_ELEPHANT_RIDER">
-			<Text>War Elephant</Text>
-		</Row>
-		<Row Tag="TXT_KEY_UNIT_ELEPHANT_RIDER_STRATEGY">
-			<Text>War Elephants are more expensive and slower than the Horseman, but they are also much more powerful. They can move after attacking and strike fear into nearby enemy units, giving them a negative combat modifier. You must have a source of [ICON_RES_IVORY] Ivory to construct War Elephants, and the city where you wish to build them must have a Barracks. Unlike other Military Units, War Elephants do not consume resources when constructed.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_UNIT_ELEPHANT_RIDER_HELP">
-			<Text>Powerful early game Mounted Unit that is weak to Spearmen. This Unit has a higher [ICON_STRENGTH] Combat Strength than other Mounted Units and strikes fear into nearby Enemy Units. It is, however, much slower and more expensive than the Horseman.[NEWLINE][NEWLINE]You must have a source of [ICON_RES_IVORY] Ivory and a Barracks in order to construct this Unit.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_UNIT_ELEPHANT_RIDER_TEXT">
-			<Text>A War Elephant was an elephant trained and guided by humans for combat. Their main use was to charge the enemy, breaking their ranks and instilling terror. Elephantry are military units with elephant-mounted troops. They were first employed in India, the practice spreading out across south-east Asia and westwards into the Mediterranean. Their most famous use in the West was by the Greek general Pyrrhus of Epirus and in significant numbers by the armies of Carthage, including briefly by Hannibal.</Text>
-		</Row>
-
 		<Row Tag="TXT_KEY_UNIT_PIONEER">
 			<Text>Pioneer</Text>
 		</Row>

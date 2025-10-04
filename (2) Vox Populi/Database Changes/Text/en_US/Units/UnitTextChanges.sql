@@ -462,15 +462,6 @@ UPDATE Language_en_US
 SET Text = 'This Atomic Era melee unit can use its Survivalism I promotion to help it survive on the front line. When the opportunity presents itself, it can defeat a weakened enemy to earn points toward starting another [ICON_GOLDEN_AGE] Golden Age.'
 WHERE Tag = 'TXT_KEY_UNIT_BRAZILIAN_PRACINHA_STRATEGY';
 
--- Dromon
-UPDATE Language_en_US
-SET Text = 'The Dromon can only be gifted by City-States.'
-WHERE Tag = 'TXT_KEY_UNIT_HELP_BYZANTINE_DROMON';
-
-UPDATE Language_en_US
-SET Text = 'The Dromon performs similarly to the Liburna, but is much more powerful against units. Starts with the [COLOR_POSITIVE_TEXT]Splash I[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Targeting I[ENDCOLOR] Promotions.'
-WHERE Tag = 'TXT_KEY_UNIT_BYZANTINE_DROMON_STRATEGY';
-
 -- Norwegian Ski Infantry
 UPDATE Language_en_US
 SET Text = 'The Norwegian Ski Infantry can only be gifted by City-States.'
