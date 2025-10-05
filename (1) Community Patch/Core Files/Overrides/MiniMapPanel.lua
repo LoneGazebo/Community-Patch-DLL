@@ -253,10 +253,64 @@ function GetMapOptions(iPlayer)
 	return mapOptions;
 end		
 
-----------------------------------------------------------------        
-----------------------------------------------------------------        
+----------------------------------------------------------------
+--- MODS START
+----------------------------------------------------------------
+function SetLegend(index)
+	local sTitle = nil;
+
+	if (index ~= nil) then
+		sTitle = g_Overlays[index];
+	end
+
+	-- Hide any previous legend options
+	if (g_OverlayActive ~= -1 and g_OverlayActive ~= index) then
+		g_OverlayCallbacks[g_OverlayActive].call(false)
+	end
+
+	PopulateLegend(sTitle, GetOverlayLegend());
+end
+
+function PopulateLegend(sTitle, info)
+	if (sTitle ~= nil) then
+		Controls.OverlayTitle:SetText(Locale.ConvertTextKey(sTitle));
+	end
+
+	g_LegendIM:ResetInstances();
+
+	if (info ~= nil and InStrategicView()) then
+		for i, v in pairs(info) do
+			local controlTable = g_LegendIM:GetInstance();
+
+			local keyColor = { x = v.Color.R, y = v.Color.G, z = v.Color.B, w = 1 };
+			controlTable.KeyColor:SetColor(keyColor);
+			controlTable.KeyName:LocalizeAndSetText(v.Name);
+		end
+
+		Controls.LegendStack:CalculateSize();
+		Controls.LegendStack:ReprocessAnchoring();
+
+		Controls.LegendFrame:SetHide(false);
+		Controls.LegendFrame:DoAutoSize();
+
+	    	Controls.SideStack:CalculateSize();
+    		Controls.SideStack:ReprocessAnchoring();
+	else
+		Controls.LegendFrame:SetHide(true);
+	    	Controls.SideStack:CalculateSize();
+    		Controls.SideStack:ReprocessAnchoring();
+	end
+end
+LuaEvents.MiniMapOverlayLegend.Add(PopulateLegend)
+
+----------------------------------------------------------------
+----- MODS END
+----------------------------------------------------------------
+
+----------------------------------------------------------------
+----------------------------------------------------------------
 function UpdateOptionsPanel()
-	
+
 	local mapOptions = GetMapOptions(Game.GetActivePlayer());
 
 	Controls.ShowTrade:SetCheck( mapOptions.ShowTrade );
@@ -416,64 +470,9 @@ function OnOverlaySelected( index )
 	SetLegend(index);
 end
 
-----------------------------------------------------------------        
-----------------------------------------------------------------        
+----------------------------------------------------------------
+----------------------------------------------------------------
 
-----------------------------------------------------------------        
---- MODS START
-----------------------------------------------------------------        
-function SetLegend(index)
-	local sTitle = nil;
-
-	if (index ~= nil) then
-		sTitle = g_Overlays[index];
-	end
-
-	-- Hide any previous legend options
-	if (g_OverlayActive ~= -1 and g_OverlayActive ~= index) then
-		g_OverlayCallbacks[g_OverlayActive].call(false)
-	end
-
-	PopulateLegend(sTitle, GetOverlayLegend());
-end
-
-function PopulateLegend(sTitle, info)
-	if (sTitle ~= nil) then
-		Controls.OverlayTitle:SetText(Locale.ConvertTextKey(sTitle));
-	end
-
-	g_LegendIM:ResetInstances();
-
-	if (info ~= nil and InStrategicView()) then
-		for i, v in pairs(info) do
-			local controlTable = g_LegendIM:GetInstance();
-			
-			local keyColor = { x = v.Color.R, y = v.Color.G, z = v.Color.B, w = 1 };
-			controlTable.KeyColor:SetColor(keyColor);
-			controlTable.KeyName:LocalizeAndSetText(v.Name);
-		end
-
-		Controls.LegendStack:CalculateSize();
-		Controls.LegendStack:ReprocessAnchoring();
-		
-		Controls.LegendFrame:SetHide(false);
-		Controls.LegendFrame:DoAutoSize();
-		
-	    	Controls.SideStack:CalculateSize();
-    		Controls.SideStack:ReprocessAnchoring();
-	else
-		Controls.LegendFrame:SetHide(true);
-	    	Controls.SideStack:CalculateSize();
-    		Controls.SideStack:ReprocessAnchoring();
-	end
-end
-LuaEvents.MiniMapOverlayLegend.Add(PopulateLegend)
-
-----------------------------------------------------------------        
------ MODS END
-----------------------------------------------------------------        
-
-----------------------------------------------------------------        
 ----------------------------------------------------------------        
 function PopulateIconPulldown( pullDown )
 	
