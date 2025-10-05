@@ -5,6 +5,43 @@ print("This is the modded TopPanel from CBP- CSD")
 
 local g_activePlayerObserver = Game.GetActivePlayer();
 
+local function FormatDecimalTimes100(f)
+	return Locale.ToNumber(f / 100, "#,###.00")
+end
+
+local function FormatDecimal(f)
+	return Locale.ToNumber(f, "#,###.00")
+end
+
+local function FormatIntegerTimes100(f)
+	return Locale.ToNumber(math.floor(f / 100), "#,###")
+end
+
+local function FormatInteger(f)
+	return Locale.ToNumber(f, "#,###")
+end
+
+local function ConvertTextKeyFormatDecimalTimes100(textKey, ...)
+	local args = {...}
+	for i, v in ipairs(args) do
+		if type(v) == "number" then
+			args[i] = FormatDecimalTimes100(v)
+		end
+	end
+	return Locale.ConvertTextKey(textKey, unpack(args))
+end
+
+local function ConvertTextKeyFormatDecimal(textKey, ...)
+	local args = {...}
+	for i, v in ipairs(args) do
+		if type(v) == "number" then
+			args[i] = FormatDecimal(v)
+		end
+	end
+	return Locale.ConvertTextKey(textKey, unpack(args))
+end
+
+
 function UpdateData()
 
 	local iPlayerID = g_activePlayerObserver;
@@ -37,14 +74,14 @@ function UpdateData()
 				strScienceText = Locale.ConvertTextKey("TXT_KEY_TOP_PANEL_SCIENCE_OFF");
 			else
 			
-				local sciencePerTurn = pPlayer:GetScienceTimes100() / 100;
+				local sciencePerTurn = pPlayer:GetScienceTimes100();
 			
 				-- No Science
 				if (sciencePerTurn <= 0) then
-					strScienceText = string.format("[COLOR:255:60:60:255]" .. Locale.ConvertTextKey("TXT_KEY_NO_SCIENCE") .. "[/COLOR]");
+					strScienceText = "[COLOR:255:60:60:255]" .. Locale.ConvertTextKey("TXT_KEY_NO_SCIENCE") .. "[/COLOR]";
 				-- We have science
 				else
-					strScienceText = string.format("+%s", sciencePerTurn);
+					strScienceText = "+" .. FormatIntegerTimes100(sciencePerTurn);
 
 					local iGoldPerTurn = pPlayer:CalculateGoldRateTimes100();
 					
@@ -65,8 +102,8 @@ function UpdateData()
 			-----------------------------
 			-- Update gold stats
 			-----------------------------
-			local iTotalGold = pPlayer:GetGoldTimes100() / 100;
-			local iGoldPerTurn = pPlayer:CalculateGoldRateTimes100() / 100;
+			local iTotalGold = math.floor(pPlayer:GetGoldTimes100() / 100);
+			local iGoldPerTurn = math.floor(pPlayer:CalculateGoldRateTimes100() / 100);
 			
 			-- Accounting for positive or negative GPT - there's obviously a better way to do this.  If you see this comment and know how, it's up to you ;)
 			-- Text is White when you can buy a Plot
@@ -138,13 +175,13 @@ function UpdateData()
 						strGoldenAgeStr = string.format(Locale.ToUpper(Locale.ConvertTextKey("TXT_KEY_GOLDEN_AGE_ANNOUNCE")) .. " (%i)", pPlayer:GetGoldenAgeTurns());
 					end
 				else
-					iChange = pPlayer:GetHappinessForGAP() + pPlayer:GetGAPFromReligion() + pPlayer:GetGAPFromTraits() + pPlayer:GetGAPFromCitiesTimes100() / 100;
+					local iChange = (pPlayer:GetHappinessForGAP() + pPlayer:GetGAPFromReligion() + pPlayer:GetGAPFromTraits()) * 100 + pPlayer:GetGAPFromCitiesTimes100();
 					if(iChange > 0) then
-						strGoldenAgeStr = string.format("%s/%i (+%s)", pPlayer:GetGoldenAgeProgressMeterTimes100() / 100, pPlayer:GetGoldenAgeProgressThreshold(), iChange);
+						strGoldenAgeStr = string.format("%s/%s (+%s)", FormatIntegerTimes100(pPlayer:GetGoldenAgeProgressMeterTimes100()), FormatInteger(pPlayer:GetGoldenAgeProgressThreshold()), FormatIntegerTimes100(iChange));
 					elseif(iChange < 0) then
-						strGoldenAgeStr = string.format("%s/%i (%s)", pPlayer:GetGoldenAgeProgressMeterTimes100() / 100, pPlayer:GetGoldenAgeProgressThreshold(), iChange);
+						strGoldenAgeStr = string.format("%s/%s (%s)", FormatIntegerTimes100(pPlayer:GetGoldenAgeProgressMeterTimes100()), FormatInteger(pPlayer:GetGoldenAgeProgressThreshold()), FormatIntegerTimes100(iChange));
 					else
-						strGoldenAgeStr = string.format("%i/%i", pPlayer:GetGoldenAgeProgressMeter(), pPlayer:GetGoldenAgeProgressThreshold());
+						strGoldenAgeStr = string.format("%s/%s", FormatIntegerTimes100(pPlayer:GetGoldenAgeProgressMeterTimes100()), FormatInteger(pPlayer:GetGoldenAgeProgressThreshold()));
 					end
 					
 				end
@@ -165,9 +202,9 @@ function UpdateData()
 			else
 			
 				if (pPlayer:GetNextPolicyCost() > 0) then
-					strCultureStr = string.format("%s/%i (+%s)", pPlayer:GetJONSCultureTimes100() / 100, pPlayer:GetNextPolicyCost(), pPlayer:GetTotalJONSCulturePerTurnTimes100() / 100);
+					strCultureStr = string.format("%s/%s (+%s)", FormatIntegerTimes100(pPlayer:GetJONSCultureTimes100()), FormatInteger(pPlayer:GetNextPolicyCost()), FormatIntegerTimes100(pPlayer:GetTotalJONSCulturePerTurnTimes100()));
 				else
-					strCultureStr = string.format("%s (+%s)", pPlayer:GetJONSCultureTimes100() / 100, pPlayer:GetTotalJONSCulturePerTurnTimes100() / 100);
+					strCultureStr = string.format("%s (+%s)", FormatIntegerTimes100(pPlayer:GetJONSCultureTimes100()), FormatIntegerTimes100(pPlayer:GetTotalJONSCulturePerTurnTimes100()));
 				end
 			
 				strCultureStr = "[ICON_CULTURE][COLOR:255:0:255:255]" .. strCultureStr .. "[/COLOR]";
@@ -179,7 +216,7 @@ function UpdateData()
 			-- Update Tourism
 			-----------------------------
 			local strTourism;
-			strTourism = string.format("[ICON_TOURISM] +%s", pPlayer:GetTourism() / 100);
+			strTourism = string.format("[ICON_TOURISM] +%s", FormatIntegerTimes100(pPlayer:GetTourism()));
 			Controls.TourismString:SetText(strTourism);
 			
 			-----------------------------
@@ -189,7 +226,7 @@ function UpdateData()
 			if (Game.IsOption(GameOptionTypes.GAMEOPTION_NO_RELIGION)) then
 				strFaithStr = Locale.ConvertTextKey("TXT_KEY_TOP_PANEL_RELIGION_OFF");
 			else
-				strFaithStr = string.format("%s (+%s)", pPlayer:GetFaithTimes100() / 100, pPlayer:GetTotalFaithPerTurnTimes100() / 100);
+				strFaithStr = string.format("%s (+%s)", FormatIntegerTimes100(pPlayer:GetFaithTimes100()), FormatIntegerTimes100(pPlayer:GetTotalFaithPerTurnTimes100()));
 				strFaithStr = "[ICON_PEACE]" .. strFaithStr;
 			end
 			Controls.FaithString:SetText(strFaithStr);
@@ -442,7 +479,7 @@ function ScienceTipHandler( control )
 		local pTeam = Teams[pPlayer:GetTeam()];
 		local pCity = UI.GetHeadSelectedCity();
 	
-		local iSciencePerTurn = pPlayer:GetScienceTimes100() / 100;
+		local iSciencePerTurn = pPlayer:GetScienceTimes100();
 	
 		if (pPlayer:IsAnarchy()) then
 			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_ANARCHY", pPlayer:GetAnarchyNumTurns());
@@ -451,7 +488,7 @@ function ScienceTipHandler( control )
 	
 		-- Science
 		if (not OptionsManager.IsNoBasicHelp()) then
-			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_SCIENCE", iSciencePerTurn);
+			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_SCIENCE", FormatDecimalTimes100(iSciencePerTurn));
 		
 			if (pPlayer:GetNumCities() > 0) then
 				strText = strText .. "[NEWLINE][NEWLINE]";
@@ -471,7 +508,7 @@ function ScienceTipHandler( control )
 				strText = strText .. "[NEWLINE]";
 			end
 
-			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_SCIENCE_FROM_BUDGET_DEFICIT", iScienceFromBudgetDeficit / 100);
+			strText = strText .. ConvertTextKeyFormatDecimalTimes100("TXT_KEY_TP_SCIENCE_FROM_BUDGET_DEFICIT", iScienceFromBudgetDeficit);
 			strText = strText .. "[NEWLINE]";
 		end
 	
@@ -486,7 +523,7 @@ function ScienceTipHandler( control )
 				strText = strText .. "[NEWLINE]";
 			end
 
-			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_SCIENCE_FROM_CITIES", iScienceFromCities / 100);
+			strText = strText .. ConvertTextKeyFormatDecimalTimes100("TXT_KEY_TP_SCIENCE_FROM_CITIES", iScienceFromCities);
 		end
 	
 		-- Science from Trade Routes
@@ -498,7 +535,7 @@ function ScienceTipHandler( control )
 				strText = strText .. "[NEWLINE]";
 			end
 			
-			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_SCIENCE_FROM_ITR", iScienceFromTrade / 100);
+			strText = strText .. ConvertTextKeyFormatDecimalTimes100("TXT_KEY_TP_SCIENCE_FROM_ITR", iScienceFromTrade);
 		end
 	
 		-- Science from Other Players
@@ -512,7 +549,7 @@ function ScienceTipHandler( control )
 				strText = strText .. "[NEWLINE]";
 			end
 
-			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_SCIENCE_FROM_MINORS", iScienceFromOtherPlayers / 100);
+			strText = strText .. ConvertTextKeyFormatDecimalTimes100("TXT_KEY_TP_SCIENCE_FROM_MINORS", iScienceFromOtherPlayers);
 		end
 	
 		-- Science from Happiness
@@ -526,7 +563,7 @@ function ScienceTipHandler( control )
 				strText = strText .. "[NEWLINE]";
 			end
 	
-			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_SCIENCE_FROM_HAPPINESS", iScienceFromHappiness / 100);
+			strText = strText .. ConvertTextKeyFormatDecimalTimes100("TXT_KEY_TP_SCIENCE_FROM_HAPPINESS", iScienceFromHappiness);
 		end
 	
 		-- Science from Research Agreements
@@ -540,12 +577,12 @@ function ScienceTipHandler( control )
 				strText = strText .. "[NEWLINE]";
 			end
 	
-			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_SCIENCE_FROM_RESEARCH_AGREEMENTS", iScienceFromRAs / 100);
+			strText = strText .. ConvertTextKeyFormatDecimalTimes100("TXT_KEY_TP_SCIENCE_FROM_RESEARCH_AGREEMENTS", iScienceFromRAs);
 		end
 		
 		-- C4DF
 		-- Science from Vassals
-		local iScienceFromVassals = pPlayer:GetYieldPerTurnFromVassalsTimes100(YieldTypes.YIELD_SCIENCE) / 100;
+		local iScienceFromVassals = pPlayer:GetYieldPerTurnFromVassalsTimes100(YieldTypes.YIELD_SCIENCE);
 		if (iScienceFromVassals ~= 0) then
 		
 			-- Add separator for non-initial entries
@@ -555,11 +592,11 @@ function ScienceTipHandler( control )
 				strText = strText .. "[NEWLINE]";
 			end
 	
-			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_SCIENCE_VASSALS", iScienceFromVassals);
+			strText = strText .. ConvertTextKeyFormatDecimalTimes100("TXT_KEY_TP_SCIENCE_VASSALS", iScienceFromVassals);
 		end
 
 		-- Science from Allies (CSD MOD)
-		local iScienceFromAllies = pPlayer:GetScienceRateFromMinorAllies();
+		local iScienceFromAllies = pPlayer:GetScienceRateFromMinorAllies() * 100;
 		if (iScienceFromAllies ~= 0) then
 		
 			-- Add separator for non-initial entries
@@ -569,12 +606,12 @@ function ScienceTipHandler( control )
 				strText = strText .. "[NEWLINE]";
 			end
 	
-			strText = strText .. Locale.ConvertTextKey("TXT_KEY_MINOR_SCIENCE_FROM_LEAGUE_ALLIES", iScienceFromAllies);
+			strText = strText .. ConvertTextKeyFormatDecimalTimes100("TXT_KEY_MINOR_SCIENCE_FROM_LEAGUE_ALLIES", iScienceFromAllies);
 		end
 		
 -- CBP
 		-- Science from Annexed Minors
-		local iScienceFromAnnexedMinors = pPlayer:GetSciencePerTurnFromAnnexedMinors();
+		local iScienceFromAnnexedMinors = pPlayer:GetSciencePerTurnFromAnnexedMinors() * 100;
 		if (iScienceFromAnnexedMinors ~= 0) then
 		
 			-- Add separator for non-initial entries
@@ -584,12 +621,12 @@ function ScienceTipHandler( control )
 				strText = strText .. "[NEWLINE]";
 			end
 	
-			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_SCIENCE_FROM_ANNEXED_MINORS", iScienceFromAnnexedMinors);
+			strText = strText .. ConvertTextKeyFormatDecimalTimes100("TXT_KEY_TP_SCIENCE_FROM_ANNEXED_MINORS", iScienceFromAnnexedMinors);
 		end
 -- END
 
 -- CBP Science from Religion
-		local iScienceFromReligion = pPlayer:GetYieldPerTurnFromReligion(YieldTypes.YIELD_SCIENCE);
+		local iScienceFromReligion = pPlayer:GetYieldPerTurnFromReligion(YieldTypes.YIELD_SCIENCE) * 100;
 		if (iScienceFromReligion ~= 0) then
 		
 			-- Add separator for non-initial entries
@@ -599,9 +636,9 @@ function ScienceTipHandler( control )
 				strText = strText .. "[NEWLINE]";
 			end
 	
-			strText = strText .. Locale.ConvertTextKey("TXT_KEY_SCIENCE_FROM_RELIGION", iScienceFromReligion);
+			strText = strText .. ConvertTextKeyFormatDecimalTimes100("TXT_KEY_SCIENCE_FROM_RELIGION", iScienceFromReligion);
 		end
-		local iScienceFromMinors = pPlayer:GetSciencePerTurnFromMinorCivs();
+		local iScienceFromMinors = pPlayer:GetSciencePerTurnFromMinorCivs() * 100;
 		if (iScienceFromMinors ~= 0) then
 		
 			-- Add separator for non-initial entries
@@ -611,11 +648,11 @@ function ScienceTipHandler( control )
 				strText = strText .. "[NEWLINE]";
 			end
 	
-			strText = strText .. Locale.ConvertTextKey("TXT_KEY_SCIENCE_FROM_MINORS", iScienceFromMinors);
+			strText = strText .. ConvertTextKeyFormatDecimalTimes100("TXT_KEY_SCIENCE_FROM_MINORS", iScienceFromMinors);
 		end
 		
 		-- Science from Espionage
-		local iScienceFromEspionage = pPlayer:GetYieldPerTurnFromEspionageEvents(YieldTypes.YIELD_SCIENCE, true) - pPlayer:GetYieldPerTurnFromEspionageEvents(YieldTypes.YIELD_SCIENCE, false) + (pPlayer:GetSciencePerTurnFromPassiveSpyBonusesTimes100() / 100);
+		local iScienceFromEspionage = (pPlayer:GetYieldPerTurnFromEspionageEvents(YieldTypes.YIELD_SCIENCE, true) - pPlayer:GetYieldPerTurnFromEspionageEvents(YieldTypes.YIELD_SCIENCE, false)) * 100 + pPlayer:GetSciencePerTurnFromPassiveSpyBonusesTimes100();
 		if (iScienceFromEspionage > 0) then
 		
 			-- Add separator for non-initial entries
@@ -625,7 +662,7 @@ function ScienceTipHandler( control )
 				strText = strText .. "[NEWLINE]";
 			end
 	
-			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_SCIENCE_FROM_ESPIONAGE_POSITIVE", iScienceFromEspionage);
+			strText = strText .. ConvertTextKeyFormatDecimalTimes100("TXT_KEY_TP_SCIENCE_FROM_ESPIONAGE_POSITIVE", iScienceFromEspionage);
 		elseif (iScienceFromEspionage < 0) then
 		
 			-- Add separator for non-initial entries
@@ -635,7 +672,7 @@ function ScienceTipHandler( control )
 				strText = strText .. "[NEWLINE]";
 			end
 	
-			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_SCIENCE_FROM_ESPIONAGE_NEGATIVE", iScienceFromEspionage);
+			strText = strText .. ConvertTextKeyFormatDecimalTimes100("TXT_KEY_TP_SCIENCE_FROM_ESPIONAGE_NEGATIVE", iScienceFromEspionage);
 		end
 		
 		-- Let people know that building more cities makes techs harder to get
@@ -662,7 +699,7 @@ function GoldTipHandler( control )
 	local pTeam = Teams[pPlayer:GetTeam()];
 	local pCity = UI.GetHeadSelectedCity();
 	
-	local iTotalGold = pPlayer:GetGoldTimes100() / 100;
+	local iTotalGold = pPlayer:GetGoldTimes100();
 
 	local iGoldPerTurnFromOtherPlayers = pPlayer:GetGoldPerTurnFromDiplomacy();
 	local iGoldPerTurnToOtherPlayers = 0;
@@ -708,50 +745,50 @@ function GoldTipHandler( control )
 		strText = strText .. "[NEWLINE][NEWLINE]";
 	end
 	
-	if (not OptionsManager.IsNoBasicHelp()) then
-		strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_AVAILABLE_GOLD", iTotalGold);
-		strText = strText .. "[NEWLINE][NEWLINE]";
-	end
+	strText = strText .. ConvertTextKeyFormatDecimalTimes100("TXT_KEY_TP_AVAILABLE_GOLD", iTotalGold);
+	local fGoldPerTurnChange = pPlayer:CalculateGoldRateTimes100() / 100;
+	strText = strText .. "[NEWLINE]" .. ConvertTextKeyFormatDecimal((fGoldPerTurnChange >= 0) and "TXT_KEY_TP_GOLD_PER_TURN_POSITIVE" or "TXT_KEY_TP_GOLD_PER_TURN_NEGATIVE", fGoldPerTurnChange);
+	strText = strText .. "[NEWLINE][NEWLINE]";
 	
 	strText = strText .. "[COLOR:150:255:150:255]";
-	strText = strText .. "+" .. Locale.ConvertTextKey("TXT_KEY_TP_TOTAL_INCOME", fTotalIncome);
-	strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_CITY_OUTPUT", fGoldPerTurnFromCities);
-	strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_GOLD_FROM_CITY_CONNECTIONS", math.floor(fCityConnectionGold));
-	strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_GOLD_FROM_ITR", math.floor(fTradeRouteGold));
+	strText = strText .. "+" .. ConvertTextKeyFormatDecimal("TXT_KEY_TP_TOTAL_INCOME", fTotalIncome);
+	strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. ConvertTextKeyFormatDecimal("TXT_KEY_TP_CITY_OUTPUT", fGoldPerTurnFromCities);
+	strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. ConvertTextKeyFormatDecimal("TXT_KEY_TP_GOLD_FROM_CITY_CONNECTIONS", fCityConnectionGold);
+	strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. ConvertTextKeyFormatDecimal("TXT_KEY_TP_GOLD_FROM_ITR", fTradeRouteGold);
 	if (math.floor(fTraitGold) > 0) then
-		strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_GOLD_FROM_TRAITS", math.floor(fTraitGold));
+		strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. ConvertTextKeyFormatDecimal("TXT_KEY_TP_GOLD_FROM_TRAITS", fTraitGold);
 	end
 	--CBP
 	if (iInternalRouteGold > 0) then
-		strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_GOLD_FROM_INTERNAL_TRADE", iInternalRouteGold);
+		strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. ConvertTextKeyFormatDecimal("TXT_KEY_TP_GOLD_FROM_INTERNAL_TRADE", iInternalRouteGold);
 	end
 	--END
 	if (iGoldPerTurnFromOtherPlayers > 0) then
-		strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_GOLD_FROM_OTHERS", iGoldPerTurnFromOtherPlayers);
+		strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. ConvertTextKeyFormatDecimal("TXT_KEY_TP_GOLD_FROM_OTHERS", iGoldPerTurnFromOtherPlayers);
 	end
 	if (iGoldPerTurnFromReligion > 0) then
-		strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_GOLD_FROM_RELIGION", iGoldPerTurnFromReligion);
+		strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. ConvertTextKeyFormatDecimal("TXT_KEY_TP_GOLD_FROM_RELIGION", iGoldPerTurnFromReligion);
 	end
 -- C4DF
 	-- Gold from Vassals
 	if (iGoldFromVassals > 0) then
-		strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_GOLD_VASSALS", iGoldFromVassals);
+		strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. ConvertTextKeyFormatDecimal("TXT_KEY_TP_GOLD_VASSALS", iGoldFromVassals);
 	end
 
 	-- Gold from Vassal Tax
 	if (iGoldFromVassalTax > 0) then
-		strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_GOLD_VASSAL_TAX", iGoldFromVassalTax);
+		strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. ConvertTextKeyFormatDecimal("TXT_KEY_TP_GOLD_VASSAL_TAX", iGoldFromVassalTax);
 	end
 --  END
 -- COMMUNITY PATCH CHANGE
 	if (iMinorGold > 0) then
-		strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_GOLD_FROM_MINORS", iMinorGold);
+		strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. ConvertTextKeyFormatDecimal("TXT_KEY_TP_GOLD_FROM_MINORS", iMinorGold);
 	end
 	if (iAnnexedMinorsGold > 0) then
-		strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_GOLD_FROM_ANNEXED_MINORS", iAnnexedMinorsGold);
+		strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. ConvertTextKeyFormatDecimal("TXT_KEY_TP_GOLD_FROM_ANNEXED_MINORS", iAnnexedMinorsGold);
 	end
 	if (iGoldFromEspionageIncoming > 0) then
-		strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_GOLD_FROM_ESPIONAGE_INCOMING", iGoldFromEspionageIncoming);
+		strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. ConvertTextKeyFormatDecimal("TXT_KEY_TP_GOLD_FROM_ESPIONAGE_INCOMING", iGoldFromEspionageIncoming);
 	end
 --END
 	strText = strText .. "[/COLOR]";
@@ -779,39 +816,39 @@ function GoldTipHandler( control )
 --END
 	strText = strText .. "[NEWLINE]";
 	strText = strText .. "[COLOR:255:150:150:255]";
-	strText = strText .. "[NEWLINE]-" .. Locale.ConvertTextKey("TXT_KEY_TP_TOTAL_EXPENSES", iTotalExpenses);
+	strText = strText .. "[NEWLINE]-" .. ConvertTextKeyFormatDecimal("TXT_KEY_TP_TOTAL_EXPENSES", iTotalExpenses);
 	if (iUnitCost ~= 0) then
-		strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_UNIT_MAINT", iUnitCost);
+		strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. ConvertTextKeyFormatDecimal("TXT_KEY_TP_UNIT_MAINT", iUnitCost);
 	end
 	if (iBuildingMaintenance ~= 0) then
-		strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_GOLD_BUILDING_MAINT", iBuildingMaintenance);
+		strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. ConvertTextKeyFormatDecimal("TXT_KEY_TP_GOLD_BUILDING_MAINT", iBuildingMaintenance);
 	end
 	if (iImprovementMaintenance ~= 0) then
-		strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_GOLD_TILE_MAINT", iImprovementMaintenance);
+		strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. ConvertTextKeyFormatDecimal("TXT_KEY_TP_GOLD_TILE_MAINT", iImprovementMaintenance);
 	end
 	if (iGoldPerTurnToOtherPlayers > 0) then
-		strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_GOLD_TO_OTHERS", iGoldPerTurnToOtherPlayers);
+		strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. ConvertTextKeyFormatDecimal("TXT_KEY_TP_GOLD_TO_OTHERS", iGoldPerTurnToOtherPlayers);
 	end
 -- COMMUNITY PATCH CHANGE
 --END
 -- C4DF
 	if (iVassalMaintenance > 0) then
-		strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_GOLD_VASSAL_MAINT", iVassalMaintenance);
+		strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. ConvertTextKeyFormatDecimal("TXT_KEY_TP_GOLD_VASSAL_MAINT", iVassalMaintenance);
 	end
 
 	-- Gold from Vassal Tax
 	if (iExpenseFromVassalTaxes > 0) then
-		strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_GOLD_VASSAL_TAX", iExpenseFromVassalTaxes);
+		strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. ConvertTextKeyFormatDecimal("TXT_KEY_TP_GOLD_VASSAL_TAX", iExpenseFromVassalTaxes);
 	end
 	-- Gold From Espionage
 	if (iExpenseFromEspionage > 0) then
-		strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_GOLD_FROM_ESPIONAGE_OUTGOING", iExpenseFromEspionage);
+		strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. ConvertTextKeyFormatDecimal("TXT_KEY_TP_GOLD_FROM_ESPIONAGE_OUTGOING", iExpenseFromEspionage);
 	end
 --  END
 	strText = strText .. "[/COLOR]";
 	
 	if (fTotalIncome + iTotalGold < 0) then
-		strText = strText .. "[NEWLINE][COLOR:255:60:60:255]" .. Locale.ConvertTextKey("TXT_KEY_TP_LOSING_SCIENCE_FROM_DEFICIT") .. "[/COLOR]";
+		strText = strText .. "[NEWLINE][COLOR:255:60:60:255]" .. ConvertTextKeyFormatDecimal("TXT_KEY_TP_LOSING_SCIENCE_FROM_DEFICIT") .. "[/COLOR]";
 	end
 	
 	-- Basic explanation of Happiness
@@ -1069,26 +1106,29 @@ function GoldenAgeTipHandler( control )
 			strText = strText .. "[NEWLINE][NEWLINE]";
 		end
 
-		strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_GOLDEN_AGE_PROGRESS", pPlayer:GetGoldenAgeProgressMeterTimes100() / 100, pPlayer:GetGoldenAgeProgressThreshold());
+		strText = strText .. ConvertTextKeyFormatDecimal("TXT_KEY_TP_GOLDEN_AGE_PROGRESS", pPlayer:GetGoldenAgeProgressMeterTimes100() / 100, pPlayer:GetGoldenAgeProgressThreshold());
 		strText = strText .. "[NEWLINE]";
-		
+		strText = strText .. "[NEWLINE]";
+		strText = strText .. ConvertTextKeyFormatDecimal("TXT_KEY_TP_GOLDEN_AGE_PER_TURN", iChange, pPlayer:GetGoldenAgeProgressThreshold());
+		strText = strText .. "[NEWLINE]";
+
 		if (iHappiness >= 0) then
-			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_GOLDEN_AGE_ADDITION", iHappiness);
+			strText = strText .. ConvertTextKeyFormatDecimal("TXT_KEY_TP_GOLDEN_AGE_ADDITION", iHappiness);
 		else
-			strText = strText .. "[COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey("TXT_KEY_TP_GOLDEN_AGE_LOSS", -iHappiness) .. "[ENDCOLOR]";
+			strText = strText .. "[COLOR_WARNING_TEXT]" .. ConvertTextKeyFormatDecimal("TXT_KEY_TP_GOLDEN_AGE_LOSS", -iHappiness) .. "[ENDCOLOR]";
 		end
 		-- CBP
 		if (iGAPReligion > 0) then
 			strText = strText .. "[NEWLINE]";
-			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_GOLDEN_AGE_ADDITION_RELIGION", iGAPReligion);
+			strText = strText .. ConvertTextKeyFormatDecimal("TXT_KEY_TP_GOLDEN_AGE_ADDITION_RELIGION", iGAPReligion);
 		end
 		if (iGAPTrait > 0) then
 			strText = strText .. "[NEWLINE]";
-			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_GOLDEN_AGE_ADDITION_TRAIT", iGAPTrait);
+			strText = strText .. ConvertTextKeyFormatDecimal("TXT_KEY_TP_GOLDEN_AGE_ADDITION_TRAIT", iGAPTrait);
 		end
 		if (iGAPCities > 0) then
 			strText = strText .. "[NEWLINE]";
-			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_GOLDEN_AGE_ADDITION_CITIES", iGAPCities);
+			strText = strText .. ConvertTextKeyFormatDecimal("TXT_KEY_TP_GOLDEN_AGE_ADDITION_CITIES", iGAPCities);
 		end
 		-- END
 		
@@ -1122,10 +1162,9 @@ function CultureTipHandler( control )
 	if (Game.IsOption(GameOptionTypes.GAMEOPTION_NO_POLICIES)) then
 		strText = Locale.ConvertTextKey("TXT_KEY_TOP_PANEL_POLICIES_OFF_TOOLTIP");
 	else
-	
 		local iPlayerID = g_activePlayerObserver;
 		local pPlayer = Players[iPlayerID];
-    
+		
 	    local iTurns;
 		local iCultureNeeded = pPlayer:GetNextPolicyCost() - (pPlayer:GetJONSCultureTimes100() / 100);
 	    if (iCultureNeeded <= 0) then
@@ -1147,12 +1186,16 @@ function CultureTipHandler( control )
 	
 		if (not OptionsManager.IsNoBasicHelp()) then
 			strText = strText .. "[NEWLINE][NEWLINE]";
-			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_CULTURE_ACCUMULATED", pPlayer:GetJONSCultureTimes100() / 100);
+			strText = strText .. ConvertTextKeyFormatDecimalTimes100("TXT_KEY_TP_CULTURE_ACCUMULATED", pPlayer:GetJONSCultureTimes100());
 			strText = strText .. "[NEWLINE]";
 		
 			if (pPlayer:GetNextPolicyCost() > 0) then
-				strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_CULTURE_NEXT_POLICY", pPlayer:GetNextPolicyCost());
+				strText = strText .. ConvertTextKeyFormatDecimal("TXT_KEY_TP_CULTURE_NEXT_POLICY", pPlayer:GetNextPolicyCost());
+				strText = strText .. "[NEWLINE]";
 			end
+			
+			strText = strText .. "[NEWLINE]";
+			strText = strText .. ConvertTextKeyFormatDecimalTimes100("TXT_KEY_TP_CULTURE_PER_TURN", pPlayer:GetTotalJONSCulturePerTurnTimes100());
 		end
 
 		if (pPlayer:IsAnarchy()) then
@@ -1196,10 +1239,12 @@ function TourismTipHandler( control )
 	local iTotalGreatWorks = pPlayer:GetNumGreatWorks();
 	local iTotalSlots = pPlayer:GetNumGreatWorkSlots();
 	
+	local strText = ConvertTextKeyFormatDecimalTimes100("TXT_KEY_TP_TOURISM_PER_TURN", pPlayer:GetTourism());
+	
 	local strText1 = Locale.ConvertTextKey("TXT_KEY_TOP_PANEL_TOURISM_TOOLTIP_1", iTotalGreatWorks);
 	local strText2 = Locale.ConvertTextKey("TXT_KEY_TOP_PANEL_TOURISM_TOOLTIP_2", (iTotalSlots - iTotalGreatWorks));
 		
-	local strText = strText1 .. "[NEWLINE]" .. strText2;
+	local strText = strText .. "[NEWLINE][NEWLINE]" .. strText1 .. "[NEWLINE]" .. strText2;
 		
 	local cultureVictory = GameInfo.Victories["VICTORY_CULTURAL"];
 	if(cultureVictory ~= nil and PreGame.IsVictory(cultureVictory.ID)) then
@@ -1220,7 +1265,7 @@ function TourismTipHandler( control )
 	
 end
 
--- FaithTooltip
+-- Faith Tooltip
 function FaithTipHandler( control )
 
 	local strText = "";
@@ -1238,28 +1283,29 @@ function FaithTipHandler( control )
 			strText = strText .. "[NEWLINE]";
 		end
 	    
-		strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_FAITH_ACCUMULATED", pPlayer:GetFaithTimes100() / 100);
-		strText = strText .. "[NEWLINE]";
-	
+		strText = strText .. ConvertTextKeyFormatDecimalTimes100("TXT_KEY_TP_FAITH_ACCUMULATED", pPlayer:GetFaithTimes100());
+		strText = strText .. "[NEWLINE][NEWLINE]";
+		strText = strText .. ConvertTextKeyFormatDecimalTimes100("TXT_KEY_TP_FAITH_PER_TURN", pPlayer:GetTotalFaithPerTurnTimes100());
+
 		-- Faith from Cities
-		local iFaithFromCities = pPlayer:GetYieldRateFromCitiesTimes100(YieldTypes.YIELD_FAITH) / 100;
+		local iFaithFromCities = pPlayer:GetYieldRateFromCitiesTimes100(YieldTypes.YIELD_FAITH);
 		if (iFaithFromCities ~= 0) then
 			strText = strText .. "[NEWLINE]";
-			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_FAITH_FROM_CITIES", iFaithFromCities);
+			strText = strText .. ConvertTextKeyFormatDecimalTimes100("TXT_KEY_TP_FAITH_FROM_CITIES", iFaithFromCities);
 		end
 	
 		-- Faith from Minor Civs
 		local iFaithFromMinorCivs = pPlayer:GetFaithPerTurnFromMinorCivs();
 		if (iFaithFromMinorCivs ~= 0) then
 			strText = strText .. "[NEWLINE]";
-			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_FAITH_FROM_MINORS", iFaithFromMinorCivs);
+			strText = strText .. ConvertTextKeyFormatDecimal("TXT_KEY_TP_FAITH_FROM_MINORS", iFaithFromMinorCivs);
 		end
 -- CBP
 		-- Faith from Annexed Minors
 		local iFaithFromAnnexedMinors = pPlayer:GetFaithPerTurnFromAnnexedMinors();
 		if (iFaithFromAnnexedMinors ~= 0) then
 			strText = strText .. "[NEWLINE]";
-			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_FAITH_FROM_ANNEXED_MINORS", iFaithFromAnnexedMinors);
+			strText = strText .. ConvertTextKeyFormatDecimal("TXT_KEY_TP_FAITH_FROM_ANNEXED_MINORS", iFaithFromAnnexedMinors);
 		end
 -- END
 
@@ -1267,31 +1313,27 @@ function FaithTipHandler( control )
 		local iFaithFromReligion = pPlayer:GetFaithPerTurnFromReligion();
 		if (iFaithFromReligion ~= 0) then
 			strText = strText .. "[NEWLINE]";
-			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_FAITH_FROM_RELIGION", iFaithFromReligion);
+			strText = strText .. ConvertTextKeyFormatDecimal("TXT_KEY_TP_FAITH_FROM_RELIGION", iFaithFromReligion);
 		end
 -- C4DF
 		-- Faith from Vassals
-		local iFaithFromVassals = pPlayer:GetYieldPerTurnFromVassalsTimes100(YieldTypes.YIELD_FAITH) / 100;
+		local iFaithFromVassals = pPlayer:GetYieldPerTurnFromVassalsTimes100(YieldTypes.YIELD_FAITH);
 		if (iFaithFromVassals ~= 0) then
 			strText = strText .. "[NEWLINE]";
-			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_FAITH_VASSALS", iFaithFromVassals);
+			strText = strText .. ConvertTextKeyFormatDecimalTimes100("TXT_KEY_TP_FAITH_VASSALS", iFaithFromVassals);
 		end
 		-- Faith from Espionage
 		local iFaithFromEspionage = pPlayer:GetYieldPerTurnFromEspionageEvents(YieldTypes.YIELD_FAITH, true) - pPlayer:GetYieldPerTurnFromEspionageEvents(YieldTypes.YIELD_FAITH, false);
 		if (iFaithFromEspionage > 0) then
 			strText = strText .. "[NEWLINE]";
-			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_FAITH_FROM_ESPIONAGE_POSITIVE", iFaithFromEspionage);
+			strText = strText .. ConvertTextKeyFormatDecimal("TXT_KEY_TP_FAITH_FROM_ESPIONAGE_POSITIVE", iFaithFromEspionage);
 		elseif (iFaithFromEspionage < 0) then
 			strText = strText .. "[NEWLINE]";
-			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_FAITH_FROM_ESPIONAGE_NEGATIVE", iFaithFromEspionage);
+			strText = strText .. ConvertTextKeyFormatDecimal("TXT_KEY_TP_FAITH_FROM_ESPIONAGE_NEGATIVE", iFaithFromEspionage);
 		end
 -- END	
 		
-		if (iFaithFromCities ~= 0 or iFaithFromMinorCivs ~= 0 or iFaithFromReligion ~= 0 or iFaithFromAnnexedMinors ~= 0 or iFaithFromVassals ~= 0 or iFaithFromEspionage ~= 0) then
-			strText = strText .. "[NEWLINE]";
-		end
-	
-		strText = strText .. "[NEWLINE]";
+		strText = strText .. "[NEWLINE][NEWLINE]";
 
 		if (pPlayer:HasCreatedPantheon()) then
 			if (Game.GetNumReligionsStillToFound(false, g_activePlayerObserver) > 0 or pPlayer:OwnsReligion()) then

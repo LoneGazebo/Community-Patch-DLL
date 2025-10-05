@@ -12307,7 +12307,7 @@ void CvGame::BuildYieldTimes100HelpText(CvString* toolTipSink, const char* strTe
 		{
 			(*toolTipSink) += CvString("[NEWLINE]");
 		}
-		(*toolTipSink) += GetLocalizedText(strTextKey, (float)iYieldTimes100 / 100, strYieldIcon);
+		(*toolTipSink) += GetLocalizedText(strTextKey, CvString::format("%.2f", (float)iYieldTimes100 / 100), strYieldIcon);
 	}
 }
 

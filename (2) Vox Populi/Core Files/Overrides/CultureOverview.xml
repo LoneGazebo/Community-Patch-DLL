@@ -1864,7 +1864,7 @@
 			<!-- Culture Victory Tab Content-->
 			<Box Size="953,459" Color="0,0,0,0" ID="CultureVictoryPanel" Hidden="1">
 				<!-- Column Headers -->
-				<Stack Anchor="L,T" StackGrowth="Right" Offset="28,20" Padding="0">
+				<Stack Anchor="L,T" StackGrowth="Right" Offset="08,20" Padding="0">
 					<Button ID="VictoryPlayerNameHeader" Anchor="C,C" Size="200,24" Style="BoxButton">
 						<ShowOnMouseOver>
 							<AlphaAnim Anchor="C,C" Offset="0,0" Size="260,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
