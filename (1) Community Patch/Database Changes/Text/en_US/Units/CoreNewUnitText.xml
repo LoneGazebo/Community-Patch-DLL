@@ -1100,6 +1100,9 @@
 		<Row Tag="TXT_KEY_GREAT_PERSON_N__B60">
 			<Text>Evan Spiegel</Text>
 		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__B70">
+			<Text>Ea-nasir</Text>
+		</Row>
 		<!-- Great Engineer names -->
 		<Row Tag="TXT_KEY_GREAT_PERSON_E__010">
 			<Text>Tapputi</Text>
