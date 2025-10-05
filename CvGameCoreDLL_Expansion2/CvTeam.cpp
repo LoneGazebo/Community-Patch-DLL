@@ -5488,7 +5488,7 @@ void CvTeam::changeProjectCount(ProjectTypes eIndex, int iChange)
 								const PlayerTypes ePlayer = static_cast<PlayerTypes>(iI);
 								CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 
-								if (kPlayer.isAlive())
+								if (kPlayer.isAlive() || kPlayer.isObserver())
 								{
 									if (isHasMet(kPlayer.getTeam()))
 									{

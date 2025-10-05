@@ -15265,7 +15265,7 @@ std::map<CvUnit*, CvPlot*> CvUnit::DoSquadPlotAssignments(CvPlot* pDestPlot, boo
 			}
 		}
 	}
-	int unique_plots_required = max(eligibleLandUnits.size(), eligibleSeaUnits.size());
+	uint unique_plots_required = max(eligibleLandUnits.size(), eligibleSeaUnits.size());
 
 	// If enabled, for each stacking unit: if a non-stacking unit in the squad is on the same plot, make it an escort
 	if (!computeOnly && escort)
@@ -15360,7 +15360,7 @@ std::map<CvUnit*, CvPlot*> CvUnit::DoSquadPlotAssignments(CvPlot* pDestPlot, boo
 		std::stable_sort(scoredPlots.begin(), scoredPlots.end(), less<ScoredPlot>());
 
 		eligiblePlots.clear();
-		for (int i = 0; i < min(unique_plots_required, (int)scoredPlots.size()); i++)
+		for (uint i = 0; i < min(unique_plots_required, scoredPlots.size()); i++)
 		{
 			eligiblePlots.push_back(scoredPlots[i].plot);
 		}

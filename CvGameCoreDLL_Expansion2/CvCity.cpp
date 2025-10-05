@@ -2078,7 +2078,7 @@ void CvCity::PreKill()
 			pLoopPlot->setOwner(NO_PLAYER, NO_PLAYER, /*bCheckUnits*/ false, /*bUpdateResources*/ true);
 
 		//but also give back any loaned plots to their original city
-		if (pLoopPlot->isEffectiveOwner(this))
+		else if (pLoopPlot->isEffectiveOwner(this))
 			pLoopPlot->setOwningCityOverride(NULL);
 	}
 
