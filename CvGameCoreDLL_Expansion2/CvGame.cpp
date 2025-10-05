@@ -2809,6 +2809,9 @@ void CvGame::CityPurchase(CvCity* pCity, UnitTypes eUnitType, BuildingTypes eBui
 //	--------------------------------------------------------------------------------
 void CvGame::selectUnit(CvUnit* pUnit, bool bClear, bool bToggle, bool bSound)
 {
+	// DEBUG: Assert if UI interface is null to debug DLL call stack
+	ASSERT(GC.GetEngineUserInterface() != NULL);
+	
 	CvInterfacePtr<ICvUnit1> pOldSelectedUnit(GC.GetEngineUserInterface()->GetHeadSelectedUnit());
 	CvUnit* pkOldSelectedUnit = GC.UnwrapUnitPointer(pOldSelectedUnit.get());
 
@@ -3573,6 +3576,9 @@ void CvGame::doControl(ControlTypes eControl)
 
 	case CONTROL_LASTUNIT:
 	{
+		// DEBUG: Assert if UI interface is null to debug DLL call stack
+		ASSERT(GC.GetEngineUserInterface() != NULL);
+		
 		ICvUserInterface2* UI = GC.GetEngineUserInterface();
 		CvInterfacePtr<ICvUnit1> pUnit(UI->getLastSelectedUnit());
 
@@ -3592,6 +3598,9 @@ void CvGame::doControl(ControlTypes eControl)
 
 	case CONTROL_ENDTURN:
 	case CONTROL_ENDTURN_ALT:
+		// DEBUG: Assert if UI interface is null to debug DLL call stack
+		ASSERT(GC.GetEngineUserInterface() != NULL);
+		
 		if(GC.GetEngineUserInterface()->canEndTurn() && gDLL->allAICivsProcessedThisTurn() && allUnitAIProcessed())
 		{
 			CvPlayerAI& kActivePlayer = GET_PLAYER(getActivePlayer());
