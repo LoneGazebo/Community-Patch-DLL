@@ -824,7 +824,8 @@ VALUES
 	('B30', 'ERA_POSTMODERN'), -- 1984
 	('B40', 'ERA_POSTMODERN'), -- 1984
 	('B50', 'ERA_FUTURE'), -- 1990
-	('B60', 'ERA_FUTURE'); -- 1990
+	('B60', 'ERA_FUTURE'), -- 1990
+	('B70', 'ERA_ANCIENT'); -- -1750
 
 INSERT INTO Unit_UniqueNames
 	(UnitType, UniqueName, EraType)
