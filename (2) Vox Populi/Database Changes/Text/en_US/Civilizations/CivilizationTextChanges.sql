@@ -265,7 +265,7 @@ SET Text = 'Sun Never Sets'
 WHERE Tag = 'TXT_KEY_TRAIT_OCEAN_MOVEMENT_SHORT';
 
 UPDATE Language_en_US
-SET Text = 'Naval Units have +1 [ICON_MOVES] Movement, cost -25% Unit [ICON_GOLD] Gold maintenance, and gain +1% [ICON_STRENGTH] Combat Strength for every Tile away from the Capital they are (max 30%). Diplomatic Units and Archaeologists can [COLOR_POSITIVE_TEXT]Enter Rival Territory[ENDCOLOR].'
+SET Text = 'Naval Units cost 25% less [ICON_GOLD] Gold maintenance, and start with the [COLOR_POSITIVE_TEXT]Sun Never Sets[ENDCOLOR] Promotion. Diplomatic Units and Archaeologists can [COLOR_POSITIVE_TEXT]Enter Rival Territory[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_TRAIT_OCEAN_MOVEMENT';
 
 UPDATE Language_en_US
@@ -342,7 +342,7 @@ SET Text = 'Blood and Iron'
 WHERE Tag = 'TXT_KEY_TRAIT_CONVERTS_LAND_BARBARIANS_SHORT';
 
 UPDATE Language_en_US
-SET Text = '+2 [ICON_RESEARCH] Science in the [ICON_CAPITAL] Capital per [ICON_CITY_STATE] City-State Friend, and additionally +2 [ICON_CULTURE] Culture per Ally, scaling with Era. Gain +1 [ICON_INFLUENCE] Influence per turn with [ICON_CITY_STATE] City-States for each gifted Unit (lost when killed). -15% [ICON_PRODUCTION] Production Cost for all Military Units.'
+SET Text = '+2 [ICON_RESEARCH] Science in the [ICON_CAPITAL] Capital per [ICON_CITY_STATE] City-State Friend, and additionally +2 [ICON_CULTURE] Culture per Ally, scaling with Era. Gain +1 [ICON_INFLUENCE] Influence per turn with [ICON_CITY_STATE] City-States for each gifted Unit (lost when killed). -15% [ICON_PRODUCTION] Production and [ICON_GOLD] Gold Cost for all Military Units.'
 WHERE Tag = 'TXT_KEY_TRAIT_CONVERTS_LAND_BARBARIANS';
 
 UPDATE Language_en_US
@@ -950,7 +950,7 @@ SET Text = 'Lion of the North'
 WHERE Tag = 'TXT_KEY_TRAIT_DIPLOMACY_GREAT_PEOPLE_SHORT';
 
 UPDATE Language_en_US
-SET Text = 'Melee Land Units gain +20% [ICON_STRENGTH] Combat Strength [COLOR_POSITIVE_TEXT]when attacking[ENDCOLOR], and Siege Units gain +1 [ICON_MOVES] Movement. Military Land Units heal 10 HP and earn +2 XP whenever a [ICON_GREAT_PEOPLE] Great Person is born. +15% [ICON_GREAT_GENERAL]/[ICON_GREAT_ADMIRAL] [COLOR_POSITIVE_TEXT]Leadership[ENDCOLOR] combat bonus.'
+SET Text = 'Melee Land Units start with the [COLOR_POSITIVE_TEXT]Gå-På[ENDCOLOR] Promotion, and Siege Units start with [COLOR_POSITIVE_TEXT]Mobility[ENDCOLOR]. +15% [ICON_STRENGTH] Combat Strength from the [ICON_GREAT_GENERAL]/[ICON_GREAT_ADMIRAL] [COLOR_POSITIVE_TEXT]Leadership[ENDCOLOR] aura. Military Land Units heal 10 HP and earn +2 XP whenever a [ICON_GREAT_PEOPLE] Great Person is born.'
 WHERE Tag = 'TXT_KEY_TRAIT_DIPLOMACY_GREAT_PEOPLE';
 
 UPDATE Language_en_US
