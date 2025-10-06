@@ -749,7 +749,7 @@ protected:
 	unsigned char aiFriendlyCombatUnitsAdjacent[3]; //for flanking. set initially and updated every time a unit moves
 	unsigned char aiFriendlyCombatUnitsAdjacentEndTurn[3]; //ranged units need cover. updated every time a unit finishes
 	unsigned char nSupportUnitsAdjacent; //for general bonus (not differentiated by domain)
-	unsigned char iDamageDealt; //damage dealt to this plot in previous simulated attacks
+	unsigned short iDamageDealt; //damage dealt to this plot in previous simulated attacks
 
 	unsigned char nVisiblePlotsNearEnemyRange2; //what can we see from here
 	unsigned char nVisiblePlotsNearEnemyRange3; //what can we see from here
