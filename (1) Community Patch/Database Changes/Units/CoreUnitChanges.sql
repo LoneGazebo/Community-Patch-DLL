@@ -709,6 +709,7 @@ CREATE TEMP TABLE GreatMerchants (
 
 INSERT INTO GreatMerchants
 VALUES
+	('B70', 'ERA_ANCIENT'), -- -1750
 	('010', 'ERA_CLASSICAL'), -- -600
 	('020', 'ERA_MEDIEVAL'), -- 0752
 	('030', 'ERA_MEDIEVAL'), -- 0877
@@ -824,8 +825,7 @@ VALUES
 	('B30', 'ERA_POSTMODERN'), -- 1984
 	('B40', 'ERA_POSTMODERN'), -- 1984
 	('B50', 'ERA_FUTURE'), -- 1990
-	('B60', 'ERA_FUTURE'), -- 1990
-	('B70', 'ERA_ANCIENT'); -- -1750
+	('B60', 'ERA_FUTURE'); -- 1990
 
 INSERT INTO Unit_UniqueNames
 	(UnitType, UniqueName, EraType)
