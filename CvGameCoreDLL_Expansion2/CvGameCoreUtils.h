@@ -499,4 +499,5 @@ public:
 };
 
 //------------------------------------------------------------------------------
+CvString FormatYieldTimes100(int iYieldTimes100);
 void PrintMemoryInfo(const char* hint);

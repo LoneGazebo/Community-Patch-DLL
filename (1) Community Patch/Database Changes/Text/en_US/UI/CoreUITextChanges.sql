@@ -126,11 +126,11 @@ SET Text = '[ICON_PEACE] Faith is spent on founding and improving [ICON_RELIGION
 WHERE Tag = 'TXT_KEY_FAITH_HELP_INFO';
 
 UPDATE Language_en_US
-SET Text = '{1: number "''[COLOR_POSITIVE_TEXT]''#,###.00;''[COLOR_NEGATIVE_TEXT]-''#,###.00"} {2_IconString} Base[ENDCOLOR]'
+SET Text = '{1: number "''[COLOR_POSITIVE_TEXT]''#,##0.00;''[COLOR_NEGATIVE_TEXT]-''#,##0.00"} {2_IconString} Base[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_YIELD_BASE';
 
 UPDATE Language_en_US
-SET Text = '{1: number "''[COLOR_POSITIVE_TEXT]''#,###.00;''[COLOR_NEGATIVE_TEXT]-''#,###.00"} {2_IconString} Total[ENDCOLOR]'
+SET Text = '{1: number "''[COLOR_POSITIVE_TEXT]''#,##0.00;''[COLOR_NEGATIVE_TEXT]-''#,##0.00"} {2_IconString} Total[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_YIELD_TOTAL';
 
 ------------------------------------------------

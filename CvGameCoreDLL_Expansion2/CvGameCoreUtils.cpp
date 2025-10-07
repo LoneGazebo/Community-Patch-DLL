@@ -1935,6 +1935,30 @@ FDataStream& operator>>(FDataStream& loadFrom, fraction& writeTo)
 }
 
 //------------------------------------------------------------------------------
+CvString FormatYieldTimes100(int iYieldTimes100)
+{
+	// Format with thousands separator and exactly 2 decimal places
+	float fValue = (float)iYieldTimes100 / 100;
+	int iIntegerPart = (int)fValue;
+	int iDecimalPart = abs((int)((fValue - iIntegerPart) * 100 + 0.5f));
+
+	// Add thousands separators to integer part
+	CvString strIntegerPart;
+	CvString strTemp = CvString::format("%d", abs(iIntegerPart));
+	int iLen = strTemp.GetLength();
+	for (int i = 0; i < iLen; i++)
+	{
+		if (i > 0 && (iLen - i) % 3 == 0)
+			strIntegerPart += ",";
+		strIntegerPart += strTemp[i];
+	}
+	if (iIntegerPart < 0)
+		strIntegerPart = "-" + strIntegerPart;
+
+	return CvString::format("%s.%02d", strIntegerPart.c_str(), iDecimalPart);
+}
+
+//------------------------------------------------------------------------------
 void PrintMemoryInfo(const char* hint)
 {
 	DWORD processID = GetCurrentProcessId();

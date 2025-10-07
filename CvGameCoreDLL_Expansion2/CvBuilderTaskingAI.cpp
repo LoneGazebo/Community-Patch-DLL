@@ -4478,7 +4478,7 @@ void CvBuilderTaskingAI::LogDirective(BuilderDirective directive, int iWeight, b
 			strLog += pkResourceInfo->GetType();
 			strLog += ",";
 			CvPlot* pPlot = GC.getMap().plot(directive.m_sX, directive.m_sY);
-			strLog += pPlot->getNumResource();
+			strLog += CvString::format("%d", pPlot->getNumResource());
 			strLog += ",";
 		}
 	}

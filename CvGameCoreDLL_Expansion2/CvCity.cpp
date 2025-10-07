@@ -23353,7 +23353,7 @@ int CvCity::getBaseYieldRateTimes100(const YieldTypes eYield, CvString* tooltipS
 			iTempYield = (iFromWonders + iFromNaturalWonders + iFromImprovements) * iPercent;
 			iYield += iTempYield;
 			if (tooltipSink) 
-				(*tooltipSink) += CvString("[NEWLINE]") + GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_TILES", CvString::format("%.2f", (float)iTempYield / 100), iPercent); /* can't use BuildYieldTimes100HelpText here */
+				(*tooltipSink) += CvString("[NEWLINE]") + GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_TILES", FormatYieldTimes100(iTempYield), iPercent); /* can't use BuildYieldTimes100HelpText here */
 		}
 	}
 
@@ -30703,18 +30703,15 @@ CvUnit* CvCity::PurchaseUnit(UnitTypes eUnitType, YieldTypes ePurchaseYield)
 		if (GC.getLogging())
 		{
 			CvString strLogMsg;
-			CvString temp;
 			strLogMsg = kPlayer.getCivilizationShortDescription();
 			strLogMsg += ", FAITH UNIT PURCHASE, ";
 			strLogMsg += pUnit->getName();
 			strLogMsg += ", ";
 			strLogMsg += getName();
 			strLogMsg += ", Faith Cost: ";
-			temp.Format("%d", iFaithCost);
-			strLogMsg += temp;
+			strLogMsg += CvString::format("%d", iFaithCost);
 			strLogMsg += ", Faith Left: ";
-			temp.Format("%.2f", (float)kPlayer.GetFaithTimes100() / 100);
-			strLogMsg += temp;
+			strLogMsg += FormatYieldTimes100(kPlayer.GetFaithTimes100());
 			GC.getGame().GetGameReligions()->LogReligionMessage(strLogMsg);
 		}
 

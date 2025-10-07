@@ -2,24 +2,14 @@ print("This is the modded TopPanel from CBP- CSD")
 -------------------------------
 -- TopPanel.lua
 -------------------------------
+include("CPK.lua");
 
 local g_activePlayerObserver = Game.GetActivePlayer();
 
-local function FormatDecimalTimes100(f)
-	return Locale.ToNumber(f / 100, "#,###.00")
-end
-
-local function FormatDecimal(f)
-	return Locale.ToNumber(f, "#,###.00")
-end
-
-local function FormatIntegerTimes100(f)
-	return Locale.ToNumber(math.floor(f / 100), "#,###")
-end
-
-local function FormatInteger(f)
-	return Locale.ToNumber(f, "#,###")
-end
+local FormatDecimal = CPK.Text.FormatDecimal;
+local FormatDecimalTimes100 = CPK.Text.FormatDecimalTimes100;
+local FormatInteger = CPK.Text.FormatInteger;
+local FormatIntegerTimes100 = CPK.Text.FormatIntegerTimes100;
 
 local function ConvertTextKeyFormatDecimalTimes100(textKey, ...)
 	local args = {...}
@@ -848,7 +838,7 @@ function GoldTipHandler( control )
 	strText = strText .. "[/COLOR]";
 	
 	if (fTotalIncome + iTotalGold < 0) then
-		strText = strText .. "[NEWLINE][COLOR:255:60:60:255]" .. ConvertTextKeyFormatDecimal("TXT_KEY_TP_LOSING_SCIENCE_FROM_DEFICIT") .. "[/COLOR]";
+		strText = strText .. "[NEWLINE][COLOR:255:60:60:255]" .. Locale.ConvertTextKey("TXT_KEY_TP_LOSING_SCIENCE_FROM_DEFICIT") .. "[/COLOR]";
 	end
 	
 	-- Basic explanation of Happiness

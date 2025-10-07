@@ -1693,13 +1693,13 @@
 			<Text>{1_Num} {2_IconString} from [ICON_CULTURE] Culture</Text>
 		</Row>
 		<Row Tag="TXT_KEY_YIELD_POST_MODIFIER">
-			<Text>{1: number "'[COLOR_POSITIVE_TEXT]'#,###.00;'[COLOR_NEGATIVE_TEXT]-'#,###.00"} {2_IconString} after Modifiers[ENDCOLOR]</Text>
+			<Text>{1: number "'[COLOR_POSITIVE_TEXT]'#,##0.00;'[COLOR_NEGATIVE_TEXT]-'#,##0.00"} {2_IconString} after Modifiers[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EATEN_FOOD">
 			<Text>[NEWLINE][ICON_BULLET][COLOR_NEGATIVE_TEXT]-{1_Num}[ENDCOLOR] [ICON_FOOD] eaten by [ICON_CITIZEN] Citizens</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EXCESS_FOOD">
-			<Text>[NEWLINE][ICON_BULLET]{1: number "'[COLOR_POSITIVE_TEXT]'+#,###.00;'[COLOR_NEGATIVE_TEXT]-'#,###.00"}[ENDCOLOR] excess [ICON_FOOD] before Modifiers</Text>
+			<Text>[NEWLINE][ICON_BULLET]{1: number "'[COLOR_POSITIVE_TEXT]'+#,##0.00;'[COLOR_NEGATIVE_TEXT]-'#,##0.00"}[ENDCOLOR] excess [ICON_FOOD] before Modifiers</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GROWTH_MOD_BELIEF">
 			<Text>[NEWLINE][ICON_BULLET]{1: number "'+'##;'-'##"}% from [ICON_RELIGION] Religious Beliefs</Text>
