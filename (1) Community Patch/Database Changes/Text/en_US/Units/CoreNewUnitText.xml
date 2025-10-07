@@ -752,6 +752,9 @@
 			<Text>Gabriel Garzon Montano</Text>
 		</Row>
 		<!-- Great Merchant names -->
+		<Row Tag="TXT_KEY_GREAT_PERSON_N__000">
+			<Text>Ea-nasir</Text>
+		</Row>
 		<Row Tag="TXT_KEY_GREAT_PERSON_N__010">
 			<Text>Colaeus</Text>
 		</Row>

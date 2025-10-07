@@ -709,6 +709,7 @@ CREATE TEMP TABLE GreatMerchants (
 
 INSERT INTO GreatMerchants
 VALUES
+	('000', 'ERA_ANCIENT'), -- -1750
 	('010', 'ERA_CLASSICAL'), -- -600
 	('020', 'ERA_MEDIEVAL'), -- 0752
 	('030', 'ERA_MEDIEVAL'), -- 0877
