@@ -22,7 +22,7 @@
 #include "CvDllUnit.h"
 #include "CvTypes.h"
 
-#if !defined(FINAL_RELEASE)
+#if !defined(FINAL_RELEASE) || defined(VPDEBUG)
 #include <sstream>
 
 // If defined, various operations related to the movement of units will be logged.

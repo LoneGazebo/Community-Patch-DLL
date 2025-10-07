@@ -46,7 +46,7 @@ private:
 	LARGE_INTEGER m_oldTimerVal;
 };
 
-#if !defined(FINAL_RELEASE)
+#if !defined(FINAL_RELEASE) || defined(VPDEBUG)
 #define CVSTOPWATCH(x)	cvStopwatch(x)
 #define CVSTOPWATCH_STR(x)	std::ostringstream stopwatchstr; stopwatchstr << x; cvStopwatch(stopwatchstr.str())
 #else
