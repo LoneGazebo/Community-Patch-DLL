@@ -15,9 +15,9 @@
 #ifndef _INCLUDED_FAutoVariableBase_H
 #define _INCLUDED_FAutoVariableBase_H
 
-#ifndef FINAL_RELEASE
+#if !defined(FINAL_RELEASE) || defined(VPDEBUG)
 #	include "FCallStack.h"
-#endif//FINAL_RELEASE
+#endif
 
 #ifdef _WINPC
 #	pragma warning ( disable : 4355 )  // Clients of this class will need to pass 'this' along to construct AutoVariables
@@ -101,7 +101,7 @@ public:
 	virtual std::string toString() const = 0;
 
 protected:
-#ifndef FINAL_RELEASE
+#if !defined(FINAL_RELEASE) || defined(VPDEBUG)
 	friend class FAutoArchive;
 	FCallStack   m_lastCallStackToChangeThisVariable;
 	std::string  m_callStackRemark;

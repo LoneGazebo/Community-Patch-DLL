@@ -290,6 +290,22 @@ void CvGame::init(HandicapTypes eHandicap)
 		}
 	}
 
+	// Initialize multiplayer desync debugging
+	if(isGameMultiPlayer())
+	{
+#if !defined(FINAL_RELEASE) || defined(VPDEBUG)
+		// Enable out-of-sync debugging for stack traces and logging
+		GC.setOutOfSyncDebuggingEnabled(true);
+		
+		std::string logMsg = "MP desync debugging enabled - stack traces and detailed logging active";
+		gDLL->netMessageDebugLog(logMsg);
+#else
+		// Basic desync detection still available in release builds
+		std::string logMsg = "Basic MP desync detection enabled";
+		gDLL->netMessageDebugLog(logMsg);
+#endif
+	}
+
 	const CvGameSpeedInfo& kGameSpeedInfo = getGameSpeedInfo();
 	if(getGameTurn() == 0)
 	{

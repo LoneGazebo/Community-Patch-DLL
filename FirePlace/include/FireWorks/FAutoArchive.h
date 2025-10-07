@@ -28,7 +28,7 @@ class FDataStream;
 class FAutoVariableBase;
 
 //---------------------------------------------------------------------------------------
-
+// TODO: Confirm debugHelp compiled out in FireWorksWin32.lib
 #if !defined(FINAL_RELEASE)
 #define FAUTOARCHIVE_DEBUG
 #endif

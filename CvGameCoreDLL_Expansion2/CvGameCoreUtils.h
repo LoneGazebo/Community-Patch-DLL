@@ -405,7 +405,7 @@ inline CvString GetLocalizedText(const char* szString, const T1& arg1, const T2&
 	return str;
 }
 
-#if !defined(FINAL_RELEASE)
+#if !defined(FINAL_RELEASE) || defined(VPDEBUG)
 #define NET_MESSAGE_DEBUG(x)		gDLL->netMessageDebugLog(x)
 #define NET_MESSAGE_DEBUG_OSTR(x)	{ std::ostringstream str; str << x; gDLL->netMessageDebugLog(str.str()); }
 #else

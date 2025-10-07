@@ -142,9 +142,9 @@ private:
 	// the variable's name in the debugger. This is already
 	// available by way of the container, but is not as
 	// readily available when debugging.
-#ifdef _DEBUG
+#if defined _DEBUG || defined(VPDEBUG)
 	const std::string & m_name;
-#endif//_DEBUG
+#endif
 };
 
 //---------------------------------------------------------------------------------------
@@ -173,9 +173,9 @@ FAutoVariableBase(name, container)
 , m_commands()
 , m_value()
 , m_owner(container)
-#ifdef _DEBUG
+#if defined _DEBUG || defined(VPDEBUG)
 , m_name(*container.getVariableName(*this))
-#endif//_DEBUG
+#endif
 {
 }
 
@@ -187,9 +187,9 @@ FAutoVariableBase(name, container, callStackTracking)
 , m_commands()
 , m_value()
 , m_owner(container)
-#ifdef _DEBUG
+#if defined _DEBUG || defined(VPDEBUG)
 , m_name(*container.getVariableName(*this))
-#endif//_DEBUG
+#endif
 {
 }
 
@@ -201,9 +201,9 @@ FAutoVariableBase(name, container, callStackTracking)
 , m_commands()
 , m_value(reserveSize)
 , m_owner(container)
-#ifdef _DEBUG
+#if defined _DEBUG || defined(VPDEBUG)
 , m_name(*container.getVariableName(*this))
-#endif//_DEBUG
+#endif
 {
 }
 
@@ -330,7 +330,7 @@ FAutoVariable<std::vector<ElementType>, ClassContainer>::operator[](size_t index
 template<typename ElementType, typename ClassContainer>
 void FAutoVariable<std::vector<ElementType>, ClassContainer>::setStackTraceRemark()
 {
-#ifndef FINAL_RELEASE
+#if !defined(FINAL_RELEASE) || defined(VPDEBUG)
 	m_callStackRemark = m_owner.stackTraceRemark(*this);
 #endif
 }

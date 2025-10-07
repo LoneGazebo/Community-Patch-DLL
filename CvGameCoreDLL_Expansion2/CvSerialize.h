@@ -15,6 +15,10 @@
 
 #include <array>
 
+// Include for debug logging functionality
+#include <sstream>
+#include "CvGlobals.h"
+
 // Shared empty string
 extern const std::string EmptyString;
 
@@ -205,6 +209,10 @@ public:
 	typedef typename VarTraits::SyncVarsType SyncVarsType;
 	std::string nameStr;
 
+#if defined(VPDEBUG)
+	mutable ValueType m_remoteValue;
+#endif
+
 	CvSyncVar()
 		: CvSyncVarBase<ValueType>(nameStr, getContainer().getSyncArchive(), currentValue()),
 		nameStr(VarTraits::name())
@@ -274,12 +282,35 @@ public:
 	{
 		ValueType other;
 		otherValue >> other;
+#if defined(VPDEBUG)
+		m_remoteValue = other;
+#endif
 		const bool result = other == currentValue();
 
 		if (!result) {
-			std::string desyncValues = std::string("Desync values, current ") + FSerialization::toString(currentValue()) + "; other " + FSerialization::toString(other) + std::string("\n");
-			gGlobals.getDLLIFace()->netMessageDebugLog(desyncValues);
-
+			// Desync logging with available context
+			std::ostringstream logMsg;
+			logMsg << "[DESYNC_DETECTED] Variable=" << this->name()
+				   << " | Turn=" << GC.getGame().getGameTurn()
+				   << " | Player=" << GC.getGame().getActivePlayer()
+				   << " | Host=" << (gDLL->IsHost() ? "YES" : "NO")
+				   << " | Local=" << FSerialization::toString(currentValue())
+				   << " | Remote=" << FSerialization::toString(other);
+			
+			// Add container-specific context
+			std::string containerContext = getContainer().debugDump(*this);
+			if (!containerContext.empty()) {
+				logMsg << " | Context=" << containerContext;
+			}
+			
+#if !defined(FINAL_RELEASE) || defined(VPDEBUG)
+			// Add stack trace information if available
+			if (!this->m_callStackRemark.empty()) {
+				logMsg << " | StackTrace=" << this->m_callStackRemark;
+			}
+#endif
+			
+			gGlobals.getDLLIFace()->netMessageDebugLog(logMsg.str());
 			gGlobals.getGame().setDesynced(true);
 		}
 
@@ -300,8 +331,8 @@ public:
 	{
 		std::string result = FAutoVariableBase::debugDump(callStacks);
 		result += std::string("\n") + getContainer().debugDump(*this) + std::string("\n");
-#if !defined(FINAL_RELEASE)
-		result += std::string("local value=") + FSerialization::toString(m_value) + "\n";
+#if !defined(FINAL_RELEASE) || defined(VPDEBUG)
+		result += std::string("local value=") + FSerialization::toString(currentValue()) + "\n";
 		result += std::string("remote value=") + FSerialization::toString(m_remoteValue) + "\n";
 #endif
 		return result;
