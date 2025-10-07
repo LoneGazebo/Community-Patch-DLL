@@ -881,7 +881,7 @@ void CvTeam::doTurn()
 
 	testCircumnavigated();
 
-#ifndef FINAL_RELEASE
+#if !defined(FINAL_RELEASE) || defined(VPDEBUG)
 	for(int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
 	{
 		if(!isAtWar(GET_PLAYER((PlayerTypes) iMinorLoop).getTeam()))

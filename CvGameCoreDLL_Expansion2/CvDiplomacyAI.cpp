@@ -32033,7 +32033,7 @@ void CvDiplomacyAI::DoContactPlayer(PlayerTypes ePlayer)
 	// Reset avoiding deals value
 	SetAvoidDeals(false);
 
-#if !defined(FINAL_RELEASE)
+#if !defined(FINAL_RELEASE) || defined(VPDEBUG)
 	// Check for an optional message injection from the Tuner
 	if(eStatement == NO_DIPLO_STATEMENT_TYPE && m_eTestStatement != NO_DIPLO_STATEMENT_TYPE && ePlayer == m_eTestToPlayer)
 	{

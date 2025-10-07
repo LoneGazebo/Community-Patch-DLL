@@ -16,7 +16,7 @@
 // Include this after all other headers.
 #include "LintFree.h"
 
-#if !defined(FINAL_RELEASE)
+#if !defined(FINAL_RELEASE) || defined(VPDEBUG)
 #define TARGETING_DEBUG
 #endif
 
