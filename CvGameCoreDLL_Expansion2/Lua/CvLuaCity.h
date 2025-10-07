@@ -69,6 +69,7 @@ protected:
 
 	static int lCanJoin(lua_State* L);
 	static int lIsBuildingLocalResourceValid(lua_State* L);
+	static int lGetImprovementCount(lua_State* L);
 
 	static int lGetBuildingYieldRateTimes100(lua_State* L);
 	static int lGetBuildingYieldModifier(lua_State* L);

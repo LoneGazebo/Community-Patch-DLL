@@ -4188,72 +4188,74 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackNuclear(CvUnit& kAttacker, int i
 	bool bDoImmediate = CvPreGame::quickCombat();
 	CvCombatInfo kCombatInfo;
 	CvUnitCombat::GenerateNuclearCombatInfo(kAttacker, *pPlot, &kCombatInfo);
-	if (kAttacker.isDelayedDeath())
+
+	uint uiParentEventID = 0;
+	kAttacker.setMadeAttack(true);
+
+	if (kAttacker.isDelayedDeath()) 
 	{
+		// attack was intercepted. it is handled like a suicide missile air attack
 		kCombatInfo.setAttackIsBombingMission(true);
 		kCombatInfo.setAttackNuclearLevel(0);
 		kCombatInfo.setDefenderRetaliates(true);
-	}
-	kAttacker.setMadeAttack(true);
-	uint uiParentEventID = 0;
-	if(!bDoImmediate)
-	{
-		// Nuclear attacks are different in that you can target a plot you can't see, so check to see if the active player
-		// is involved in the combat
-		TeamTypes eActiveTeam = GC.getGame().getActiveTeam();
-
-		bool isTargetVisibleToActivePlayer = pPlot->isActiveVisible();
-		if(!isTargetVisibleToActivePlayer)
-		{
-			// Is the attacker part of the local team?
-			isTargetVisibleToActivePlayer = (kAttacker.getTeam() != NO_TEAM && eActiveTeam == kAttacker.getTeam());
-
-			if(!isTargetVisibleToActivePlayer)
-			{
-				// Are any of the teams effected by the blast in the local team?
-				for(int i = 0; i < MAX_TEAMS && !isTargetVisibleToActivePlayer; ++i)
-				{
-					if(kAttacker.isNukeVictim(pPlot, ((TeamTypes)i)))
-					{
-						isTargetVisibleToActivePlayer = eActiveTeam == ((TeamTypes)i);
-					}
-				}
-			}
-		}
-
-		if(isTargetVisibleToActivePlayer)
-		{
-			CvInterfacePtr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(pPlot);
-			GC.GetEngineUserInterface()->lookAt(pDllPlot.get(), CAMERALOOKAT_NORMAL);
-		}
-		kCombatInfo.setVisualizeCombat(isTargetVisibleToActivePlayer);
-
-		// Set a combat unit/city.  Not really needed for the combat since we are killing everyone, but it is currently the only way a unit is marked that it is 'in-combat'
-		if(pPlot->getPlotCity())
-			kAttacker.setCombatCity(pPlot->getPlotCity());
-		else
-		{
-			if(pPlot->getNumUnits())
-				kAttacker.setCombatUnit(pPlot->getUnitByIndex(0), true);
-			else
-				kAttacker.setAttackPlot(pPlot, false);
-		}
-
-		CvInterfacePtr<ICvCombatInfo1> pDllCombatInfo(new CvDllCombatInfo(&kCombatInfo));
-		uiParentEventID = gDLL->GameplayUnitCombat(pDllCombatInfo.get());
-
-		eResult = ATTACK_QUEUED;
+		GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeNumTimesNuked(kAttacker.getOwner(), 1);
 	}
 	else
 	{
-		eResult = ATTACK_COMPLETED;
-		// Set the plot, just so the unit is marked as 'in-combat'
-		kAttacker.setAttackPlot(pPlot, false);
-	}
+		if (!bDoImmediate)
+		{
+			// Nuclear attacks are different in that you can target a plot you can't see, so check to see if the active player
+			// is involved in the combat
+			TeamTypes eActiveTeam = GC.getGame().getActiveTeam();
 
-	if (kAttacker.isDelayedDeath())
-	{
-		GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeNumTimesNuked(kAttacker.getOwner(), 1);
+			bool isTargetVisibleToActivePlayer = pPlot->isActiveVisible();
+			if (!isTargetVisibleToActivePlayer)
+			{
+				// Is the attacker part of the local team?
+				isTargetVisibleToActivePlayer = (kAttacker.getTeam() != NO_TEAM && eActiveTeam == kAttacker.getTeam());
+
+				if (!isTargetVisibleToActivePlayer)
+				{
+					// Are any of the teams effected by the blast in the local team?
+					for (int i = 0; i < MAX_TEAMS && !isTargetVisibleToActivePlayer; ++i)
+					{
+						if (kAttacker.isNukeVictim(pPlot, ((TeamTypes)i)))
+						{
+							isTargetVisibleToActivePlayer = eActiveTeam == ((TeamTypes)i);
+						}
+					}
+				}
+			}
+
+			if (isTargetVisibleToActivePlayer)
+			{
+				CvInterfacePtr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(pPlot);
+				GC.GetEngineUserInterface()->lookAt(pDllPlot.get(), CAMERALOOKAT_NORMAL);
+			}
+			kCombatInfo.setVisualizeCombat(isTargetVisibleToActivePlayer);
+
+			// Set a combat unit/city.  Not really needed for the combat since we are killing everyone, but it is currently the only way a unit is marked that it is 'in-combat'
+			if (pPlot->getPlotCity())
+				kAttacker.setCombatCity(pPlot->getPlotCity());
+			else
+			{
+				if (pPlot->getNumUnits())
+					kAttacker.setCombatUnit(pPlot->getUnitByIndex(0), true);
+				else
+					kAttacker.setAttackPlot(pPlot, false);
+			}
+
+			CvInterfacePtr<ICvCombatInfo1> pDllCombatInfo(new CvDllCombatInfo(&kCombatInfo));
+			uiParentEventID = gDLL->GameplayUnitCombat(pDllCombatInfo.get());
+
+			eResult = ATTACK_QUEUED;
+		}
+		else
+		{
+			eResult = ATTACK_COMPLETED;
+			// Set the plot, just so the unit is marked as 'in-combat'
+			kAttacker.setAttackPlot(pPlot, false);
+		}
 	}
 
 	ResolveCombat(kCombatInfo,  uiParentEventID);

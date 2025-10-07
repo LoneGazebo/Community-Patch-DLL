@@ -8223,6 +8223,21 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 			SetPlayerResponsibleForImprovement(NO_PLAYER);
 		}
 
+		// destroy archaeological site (needs to be done before setting the improvement, otherwise the removed artifact will incorrectly be treated as improved, messing with the resource counters)
+		if (eNewValue != NO_IMPROVEMENT)
+		{
+			CvImprovementEntry& newImprovementEntry = *GC.getImprovementInfo(eNewValue);
+			if (newImprovementEntry.IsPermanent() || newImprovementEntry.IsCreatedByGreatPerson())
+			{
+				ResourceTypes eArtifact = static_cast<ResourceTypes>(GD_INT_GET(ARTIFACT_RESOURCE));
+				ResourceTypes eHiddenArtifact = static_cast<ResourceTypes>(GD_INT_GET(HIDDEN_ARTIFACT_RESOURCE));
+				if (getResourceType() == eArtifact || getResourceType() == eHiddenArtifact)
+				{
+					ClearArchaeologicalRecord();
+				}
+			}
+		}
+
 		m_eImprovementType = eNewValue;
 		if (MOD_GLOBAL_STACKING_RULES)
 		{

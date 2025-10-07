@@ -74,6 +74,7 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 
 	Method(CanJoin);
 	Method(IsBuildingLocalResourceValid);
+	Method(GetImprovementCount);
 
 	Method(GetBuildingYieldRateTimes100)
 	Method(GetBuildingYieldModifier)
@@ -1472,6 +1473,17 @@ int CvLuaCity::lIsBuildingLocalResourceValid(lua_State* L)
 	CvCity* pkCity = GetInstance(L);
 
 	lua_pushboolean(L, pkCity->IsBuildingLocalResourceValid(static_cast<BuildingTypes>(lua_tointeger(L, 2)), lua_toboolean(L, 3)));
+	return 1;
+}
+
+//------------------------------------------------------------------------------
+// int GetImprovementCount(ImprovementTypes eImprovement);
+int CvLuaCity::lGetImprovementCount(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const ImprovementTypes eImprovement = static_cast<ImprovementTypes>(lua_tointeger(L, 2));
+
+	lua_pushinteger(L, pkCity->GetImprovementCount(eImprovement));
 	return 1;
 }
 
