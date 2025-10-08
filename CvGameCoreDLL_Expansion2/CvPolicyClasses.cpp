@@ -5099,10 +5099,10 @@ void CvPlayerPolicies::DoUnlockPolicyBranch(PolicyBranchTypes eBranchType)
 }
 
 /// can the player unlock eBranchType right now?
-bool CvPlayerPolicies::CanUnlockPolicyBranch(PolicyBranchTypes eBranchType)
+bool CvPlayerPolicies::CanUnlockPolicyBranch(PolicyBranchTypes eBranchType, bool bIgnoreCost)
 {
 	// Must have enough culture to spend a buy opening a new branch
-	if(GetPlayer()->getJONSCultureTimes100() < GetPlayer()->getNextPolicyCost() * 100)
+	if(!bIgnoreCost && GetPlayer()->getJONSCultureTimes100() < GetPlayer()->getNextPolicyCost() * 100)
 	{
 		if(GetPlayer()->GetNumFreePolicies() == 0)
 			return false;

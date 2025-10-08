@@ -31,6 +31,9 @@
 #include "../CvEconomicAI.h"
 #include "../CvMilitaryAI.h"
 #include "../CvCitySpecializationAI.h"
+#include "../CvTechAI.h"
+#include "../CvPolicyAI.h"
+#include "../CvTacticalAnalysisMap.h"
 #include "ICvDLLUserInterface.h"
 #include "CvDllInterfaces.h"
 #include "CvDllNetMessageExt.h"
@@ -92,6 +95,14 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(AddFreeUnit);
 
 	Method(ChooseTech);
+	Method(GetPossibleTechs); // Vox Deorum: Get possible tech choices
+	Method(GetPossiblePolicies); // Vox Deorum: Get possible policy choices
+	Method(SetNextResearch); // Vox Deorum: Force next tech selection
+	Method(GetNextResearch); // Vox Deorum: Get forced next tech
+	Method(SetNextPolicy); // Vox Deorum: Force next policy selection
+	Method(GetNextPolicy); // Vox Deorum: Get forced next policy
+	Method(GetPossibleEconomicStrategies); // Vox Deorum: Get possible economic strategies
+	Method(GetPossibleMilitaryStrategies); // Vox Deorum: Get possible military strategies
 
 	Method(GetSpecificUnitType);
 	Method(GetSpecificBuildingType);
@@ -1553,6 +1564,9 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(SetEconomicStrategies);
 	Method(GetMilitaryStrategies);
 	Method(SetMilitaryStrategies);
+
+	Method(GetNumTacticalZones); // Vox Deorum: Get number of tactical zones
+	Method(GetTacticalZone);     // Vox Deorum: Get tactical zone information
 }
 //------------------------------------------------------------------------------
 void CvLuaPlayer::HandleMissingInstance(lua_State* L)
@@ -7349,14 +7363,21 @@ int CvLuaPlayer::lDoAdoptPolicy(lua_State* L)
 
 
 //------------------------------------------------------------------------------
-//bool CanUnlockPolicyBranch(PolicyBranchTypes  iIndex);
+//bool CanUnlockPolicyBranch(PolicyBranchTypes  iIndex, bool bIgnoreCost = false);
 int CvLuaPlayer::lCanUnlockPolicyBranch(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	const PolicyBranchTypes iIndex = (PolicyBranchTypes)lua_tointeger(L, 2);
 
+	// Get optional bIgnoreCost parameter (defaults to false)
+	bool bIgnoreCost = false;
+	if(lua_gettop(L) >= 3)
+	{
+		bIgnoreCost = lua_toboolean(L, 3);
+	}
+
 	const bool bResult
-	    = pkPlayer->GetPlayerPolicies()->CanUnlockPolicyBranch(iIndex);
+	    = pkPlayer->GetPlayerPolicies()->CanUnlockPolicyBranch(iIndex, bIgnoreCost);
 	lua_pushboolean(L, bResult);
 	return 1;
 }
@@ -19125,6 +19146,9 @@ int CvLuaPlayer::lSetGrandStrategy(lua_State* L)
 			// If we have a valid new primary pursuit
 			if (eNewPrimaryPursuit != NO_VICTORY_PURSUIT)
 			{
+				// Suggested by Recursive: also set the current victory pursuit.
+				pDiploAI->SetCurrentVictoryPursuit(eNewPrimaryPursuit);
+
 				// Get current primary and secondary pursuits
 				VictoryPursuitTypes eCurrentPrimary = pDiploAI->GetPrimaryVictoryPursuit();
 				VictoryPursuitTypes eCurrentSecondary = pDiploAI->GetSecondaryVictoryPursuit();
@@ -19148,35 +19172,358 @@ int CvLuaPlayer::lSetGrandStrategy(lua_State* L)
 }
 
 //------------------------------------------------------------------------------
+// Vox Deorum: Get possible techs by calling RecommendNextTech and returning m_ResearchableTechs
+int CvLuaPlayer::lGetPossibleTechs(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+
+	// Vox Deorum: Get optional bPredictNext parameter (defaults to false)
+	// If true, passes the currently researching tech to RecommendNextTech
+	bool bPredictNext = false;
+	if(lua_gettop(L) >= 2)
+	{
+		bPredictNext = lua_toboolean(L, 2);
+	}
+
+	// Call RecommendNextTech to update m_ResearchableTechs
+	CvTechAI* pTechAI = pkPlayer->GetPlayerTechs()->GetTechAI();
+
+	// If bPredictNext is true, get the currently researching tech and pass it as bAssumingTech
+	TechTypes eAssumingTech = NO_TECH;
+	if(bPredictNext)
+	{
+		eAssumingTech = pkPlayer->GetPlayerTechs()->GetCurrentResearch();
+	}
+
+	pTechAI->RecommendNextTech(pkPlayer, NO_TECH, eAssumingTech);
+
+	// Get the researchable techs after the call
+	const CvWeightedVector<int>& researchableTechs = pTechAI->GetResearchableTechs();
+
+	// Push the tech list to Lua as a table
+	lua_createtable(L, researchableTechs.size(), 0);
+	for(int i = 0; i < researchableTechs.size(); i++)
+	{
+		lua_pushinteger(L, researchableTechs.GetElement(i)); // Push the tech ID
+		lua_rawseti(L, -2, i + 1); // Lua arrays are 1-indexed
+	}
+
+	return 1;
+}
+
+//------------------------------------------------------------------------------
+// Vox Deorum: Get possible policies by calling ChooseNextPolicy and returning m_AdoptablePolicies
+// Returns two tables: policies and policy branches
+int CvLuaPlayer::lGetPossiblePolicies(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+
+	// Get optional bIgnoreCost parameter (defaults to false)
+	bool bIgnoreCost = false;
+	if(lua_gettop(L) >= 2)
+	{
+		bIgnoreCost = lua_toboolean(L, 2);
+	}
+
+	// Call ChooseNextPolicy to update m_AdoptablePolicies
+	CvPolicyAI* pPolicyAI = pkPlayer->GetPlayerPolicies()->GetPolicyAI();
+	pPolicyAI->ChooseNextPolicy(pkPlayer, bIgnoreCost);
+
+	// Get the adoptable policies after the call
+	const CvWeightedVector<int>& adoptablePolicies = pPolicyAI->GetAdoptablePolicies();
+
+	// Create two separate lists: one for policies, one for branches
+	lua_createtable(L, 0, 0); // First table for policies
+	lua_createtable(L, 0, 0); // Second table for branches
+
+	int policyIndex = 1;
+	int branchIndex = 1;
+
+	for(int i = 0; i < adoptablePolicies.size(); i++)
+	{
+		// Note: Policies are stored with branch IDs first, then actual policy IDs offset by NUM_POLICY_BRANCH_TYPES
+		// We need to check if this is a branch or a policy
+		int iElement = adoptablePolicies.GetElement(i);
+		if(iElement >= GC.getNumPolicyBranchInfos())
+		{
+			// This is a policy, adjust the ID and add to the policies table
+			lua_pushinteger(L, iElement - GC.getNumPolicyBranchInfos());
+			lua_rawseti(L, -3, policyIndex++); // -3 because we have two tables on the stack
+		}
+		else
+		{
+			// This is a branch, add to the branches table
+			lua_pushinteger(L, iElement);
+			lua_rawseti(L, -2, branchIndex++); // -2 for the second table
+		}
+	}
+
+	return 2; // Return two tables
+}
+
+//------------------------------------------------------------------------------
+// Vox Deorum: Set the next research to force selection
+int CvLuaPlayer::lSetNextResearch(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int iTech = lua_tointeger(L, 2);
+
+	if (pkPlayer && pkPlayer->GetPlayerTechs())
+	{
+		CvTechAI* pTechAI = pkPlayer->GetPlayerTechs()->GetTechAI();
+		pTechAI->SetNextResearch((TechTypes)iTech);
+	}
+
+	return 0;
+}
+
+//------------------------------------------------------------------------------
+// Vox Deorum: Get the forced next research selection
+int CvLuaPlayer::lGetNextResearch(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+
+	if (pkPlayer && pkPlayer->GetPlayerTechs())
+	{
+		CvTechAI* pTechAI = pkPlayer->GetPlayerTechs()->GetTechAI();
+		lua_pushinteger(L, pTechAI->GetNextResearch());
+		return 1;
+	}
+
+	lua_pushinteger(L, NO_TECH);
+	return 1;
+}
+
+//------------------------------------------------------------------------------
+// Vox Deorum: Set the next policy to force selection
+// Takes two parameters: policy ID and branch ID (-1 means ignore)
+int CvLuaPlayer::lSetNextPolicy(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int iPolicy = lua_tointeger(L, 2);
+	const int iBranch = lua_tointeger(L, 3);
+
+	if (pkPlayer && pkPlayer->GetPlayerPolicies())
+	{
+		CvPolicyAI* pPolicyAI = pkPlayer->GetPlayerPolicies()->GetPolicyAI();
+
+		// Determine what to set based on the parameters
+		// -1 means ignore that parameter
+		int iNextPolicy = -1;
+
+		if (iBranch >= 0)
+		{
+			// Branch is specified, use it directly
+			iNextPolicy = iBranch;
+		}
+		else if (iPolicy >= 0)
+		{
+			// Policy is specified, offset it by the number of branches
+			iNextPolicy = iPolicy + GC.getNumPolicyBranchInfos();
+		}
+
+		pPolicyAI->SetNextPolicy(iNextPolicy);
+	}
+
+	return 0;
+}
+
+//------------------------------------------------------------------------------
+// Vox Deorum: Get the forced next policy selection
+// Returns two values: policy ID and branch ID (-1 if not set)
+int CvLuaPlayer::lGetNextPolicy(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+
+	if (pkPlayer && pkPlayer->GetPlayerPolicies())
+	{
+		CvPolicyAI* pPolicyAI = pkPlayer->GetPlayerPolicies()->GetPolicyAI();
+		int iNextPolicy = pPolicyAI->GetNextPolicy();
+
+		// Split the stored value into policy and branch
+		if (iNextPolicy >= 0)
+		{
+			if (iNextPolicy >= GC.getNumPolicyBranchInfos())
+			{
+				// This is a policy, return it adjusted and branch as -1
+				lua_pushinteger(L, iNextPolicy - GC.getNumPolicyBranchInfos());
+				lua_pushinteger(L, -1);
+				return 2;
+			}
+			else
+			{
+				// This is a branch, return policy as -1 and the branch ID
+				lua_pushinteger(L, -1);
+				lua_pushinteger(L, iNextPolicy);
+				return 2;
+			}
+		}
+	}
+
+	lua_pushinteger(L, -1);
+	lua_pushinteger(L, -1);
+	return 2;
+}
+
+// Vox Deorum: Helper function to check if an economic strategy is blacklisted
+// Blacklisted strategies have immediate effects or are not suitable for LLM decision-making
+static bool IsEconomicStrategyBlacklisted(int iStrategyID)
+{
+	static std::set<int> blacklistedStrategies;
+	static bool initialized = false;
+
+	if (!initialized)
+	{
+		// TradeWithCityState - immediate effect: triggers trade routes with city-states
+		int iTradeWithCityState = GC.getInfoTypeForString("ECONOMICAISTRATEGY_TRADE_WITH_CITY_STATE");
+		if (iTradeWithCityState != -1) blacklistedStrategies.insert(iTradeWithCityState);
+
+		// FoundCity - immediate effect: triggers city founding operations
+		int iFoundCity = GC.getInfoTypeForString("ECONOMICAISTRATEGY_FOUND_CITY");
+		if (iFoundCity != -1) blacklistedStrategies.insert(iFoundCity);
+
+		// InfluenceCityState - immediate effect: asks diplomat to influence city-state
+		int iInfluenceCityState = GC.getInfoTypeForString("ECONOMICAISTRATEGY_INFLUENCE_CITY_STATE");
+		if (iInfluenceCityState != -1) blacklistedStrategies.insert(iInfluenceCityState);
+
+		// ConcertTour - immediate effect: triggers great musician concert tour
+		int iConcertTour = GC.getInfoTypeForString("ECONOMICAISTRATEGY_CONCERT_TOUR");
+		if (iConcertTour != -1) blacklistedStrategies.insert(iConcertTour);
+
+		// NeedArchaeologists - checked with a formula, not suitable for LLM
+		int iNeedArchaeologists = GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_ARCHAEOLOGISTS");
+		if (iNeedArchaeologists != -1) blacklistedStrategies.insert(iNeedArchaeologists);
+
+		// EnoughArchaeologists - checked with a formula, not suitable for LLM
+		int iEnoughArchaeologists = GC.getInfoTypeForString("ECONOMICAISTRATEGY_ENOUGH_ARCHAEOLOGISTS");
+		if (iEnoughArchaeologists != -1) blacklistedStrategies.insert(iEnoughArchaeologists);
+
+		// NeedGuilds - checked with a formula, not suitable for LLM
+		int iNeedGuilds = GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_GUILDS");
+		if (iNeedGuilds != -1) blacklistedStrategies.insert(iNeedGuilds);
+
+		// NeedMuseums - checked with a formula, not suitable for LLM
+		int iNeedMuseums = GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_MUSEUMS");
+		if (iNeedMuseums != -1) blacklistedStrategies.insert(iNeedMuseums);
+
+		// OneOrFewerCoastalCities - checked with a formula, not suitable for LLM
+		int iOneOrFewerCoastalCities = GC.getInfoTypeForString("ECONOMICAISTRATEGY_ONE_OR_FEWER_COASTAL_CITIES");
+		if (iOneOrFewerCoastalCities != -1) blacklistedStrategies.insert(iOneOrFewerCoastalCities);
+
+		initialized = true;
+	}
+
+	return blacklistedStrategies.find(iStrategyID) != blacklistedStrategies.end();
+}
+
+//------------------------------------------------------------------------------
+// Get possible economic strategies (returns only allowed strategy IDs)
+// Optional parameter: includeBlacklisted (default false) - if true, returns blacklisted strategies too
+int CvLuaPlayer::lGetPossibleEconomicStrategies(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	CvEconomicAI* pEconomicAI = pkPlayer->GetEconomicAI();
+	int iNumStrategies = pEconomicAI->GetEconomicAIStrategies()->GetNumEconomicAIStrategies();
+
+	// Check if includeBlacklisted parameter is provided (optional, defaults to false)
+	bool bIncludeBlacklisted = false;
+	if (lua_gettop(L) >= 2 && lua_isboolean(L, 2))
+	{
+		bIncludeBlacklisted = lua_toboolean(L, 2);
+	}
+
+	// Push only allowed strategy IDs to Lua as a table
+	lua_createtable(L, iNumStrategies, 0);
+	int iIndex = 1; // Lua arrays are 1-indexed
+	for (int i = 0; i < iNumStrategies; i++)
+	{
+		EconomicAIStrategyTypes eStrategy = (EconomicAIStrategyTypes)i;
+		CvEconomicAIStrategyXMLEntry* pStrategy = pEconomicAI->GetEconomicAIStrategies()->GetEntry(i);
+		if (pStrategy && pEconomicAI->IsStrategyAllowed(eStrategy, pStrategy))
+		{
+			// Skip blacklisted strategies unless explicitly requested
+			if (!bIncludeBlacklisted && IsEconomicStrategyBlacklisted(i))
+			{
+				continue;
+			}
+
+			lua_pushinteger(L, i);  // Push the strategy ID
+			lua_rawseti(L, -2, iIndex++);
+		}
+	}
+
+	return 1;
+}
+
+//------------------------------------------------------------------------------
+// Get possible military strategies (returns only allowed strategy IDs)
+int CvLuaPlayer::lGetPossibleMilitaryStrategies(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	CvMilitaryAI* pMilitaryAI = pkPlayer->GetMilitaryAI();
+	int iNumStrategies = pMilitaryAI->GetMilitaryAIStrategies()->GetNumMilitaryAIStrategies();
+
+	// Push only allowed strategy IDs to Lua as a table
+	lua_createtable(L, iNumStrategies, 0);
+	int iIndex = 1; // Lua arrays are 1-indexed
+	for (int i = 0; i < iNumStrategies; i++)
+	{
+		MilitaryAIStrategyTypes eStrategy = (MilitaryAIStrategyTypes)i;
+		CvMilitaryAIStrategyXMLEntry* pStrategy = pMilitaryAI->GetMilitaryAIStrategies()->GetEntry(i);
+		if (pStrategy && pMilitaryAI->IsStrategyAllowed(eStrategy, pStrategy))
+		{
+			lua_pushinteger(L, i);  // Push the strategy ID
+			lua_rawseti(L, -2, iIndex++);
+		}
+	}
+
+	return 1;
+}
+
+//------------------------------------------------------------------------------
 //array, array GetEconomicStrategies();
 // Returns two arrays: first with strategy IDs, second with corresponding active turns
+// Optional parameter: includeBlacklisted (default false) - if true, returns blacklisted strategies too
 int CvLuaPlayer::lGetEconomicStrategies(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	lua_newtable(L); // Create the first array (strategy IDs)
 	lua_newtable(L); // Create the second array (active turns)
-	
+
+	// Check if includeBlacklisted parameter is provided (optional, defaults to false)
+	bool bIncludeBlacklisted = false;
+	if (lua_gettop(L) >= 2 && lua_isboolean(L, 2))
+	{
+		bIncludeBlacklisted = lua_toboolean(L, 2);
+	}
+
 	if (pkPlayer && pkPlayer->GetEconomicAI())
 	{
 		int iCurrentTurn = GC.getGame().getGameTurn();
 		int iNumStrategies = pkPlayer->GetEconomicAI()->GetEconomicAIStrategies()->GetNumEconomicAIStrategies();
 		int iActiveCount = 0;
-		
+
 		for (int i = 0; i < iNumStrategies; i++)
 		{
 			EconomicAIStrategyTypes eStrategy = (EconomicAIStrategyTypes)i;
 			if (pkPlayer->GetEconomicAI()->IsUsingStrategy(eStrategy))
 			{
+				// Skip blacklisted strategies unless explicitly requested
+				if (!bIncludeBlacklisted && IsEconomicStrategyBlacklisted(i))
+				{
+					continue;
+				}
+
 				int iTurnAdopted = pkPlayer->GetEconomicAI()->GetTurnStrategyAdopted(eStrategy);
 				int iActiveTurns = (iTurnAdopted != -1) ? (iCurrentTurn - iTurnAdopted) : 0;
-				
+
 				iActiveCount++;
-				
+
 				// Add to strategy IDs array
 				lua_pushinteger(L, iActiveCount);
 				lua_pushinteger(L, i);
 				lua_settable(L, -4);
-				
+
 				// Add to active turns array
 				lua_pushinteger(L, iActiveCount);
 				lua_pushinteger(L, iActiveTurns);
@@ -19184,33 +19531,45 @@ int CvLuaPlayer::lGetEconomicStrategies(lua_State* L)
 			}
 		}
 	}
-	
+
 	return 2;
 }
 
 //------------------------------------------------------------------------------
 //void SetEconomicStrategies(array enabledStrategies);
 // Takes an array of strategy IDs to enable, all others will be disabled
+// Optional parameter: includeBlacklisted (default false) - if true, allows setting blacklisted strategies too
 int CvLuaPlayer::lSetEconomicStrategies(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	if (pkPlayer && pkPlayer->GetEconomicAI())
 	{
 		int iNumStrategies = pkPlayer->GetEconomicAI()->GetEconomicAIStrategies()->GetNumEconomicAIStrategies();
-		
-		// First, disable all strategies
+
+		// Check if includeBlacklisted parameter is provided (optional, defaults to false)
+		bool bIncludeBlacklisted = false;
+		if (lua_gettop(L) >= 3 && lua_isboolean(L, 3))
+		{
+			bIncludeBlacklisted = lua_toboolean(L, 3);
+		}
+
+		// First, disable all non-blacklisted strategies (or all strategies if includeBlacklisted is true)
 		for (int i = 0; i < iNumStrategies; i++)
 		{
 			EconomicAIStrategyTypes eStrategy = (EconomicAIStrategyTypes)i;
-			pkPlayer->GetEconomicAI()->SetUsingStrategy(eStrategy, false);
+			// Only disable if not blacklisted, or if we're allowed to modify blacklisted strategies
+			if (bIncludeBlacklisted || !IsEconomicStrategyBlacklisted(i))
+			{
+				pkPlayer->GetEconomicAI()->SetUsingStrategy(eStrategy, false);
+			}
 		}
-		
+
 		// Check if argument is a table (array)
 		if (lua_istable(L, 2))
 		{
 			// Get array length
 			int iLen = lua_objlen(L, 2);
-			
+
 			// Enable strategies specified in the array
 			for (int i = 1; i <= iLen; i++)
 			{
@@ -19218,10 +19577,17 @@ int CvLuaPlayer::lSetEconomicStrategies(lua_State* L)
 				if (lua_isnumber(L, -1))
 				{
 					const int iStrategy = lua_tointeger(L, -1);
-					
+
 					// Validate strategy ID
 					if (iStrategy >= 0 && iStrategy < iNumStrategies)
 					{
+						// Skip blacklisted strategies unless explicitly allowed
+						if (!bIncludeBlacklisted && IsEconomicStrategyBlacklisted(iStrategy))
+						{
+							lua_pop(L, 1);
+							continue;
+						}
+
 						EconomicAIStrategyTypes eStrategy = (EconomicAIStrategyTypes)iStrategy;
 						pkPlayer->GetEconomicAI()->SetUsingStrategy(eStrategy, true);
 					}
@@ -19283,20 +19649,20 @@ int CvLuaPlayer::lSetMilitaryStrategies(lua_State* L)
 	if (pkPlayer && pkPlayer->GetMilitaryAI())
 	{
 		int iNumStrategies = pkPlayer->GetMilitaryAI()->GetMilitaryAIStrategies()->GetNumMilitaryAIStrategies();
-		
+
 		// First, disable all strategies
 		for (int i = 0; i < iNumStrategies; i++)
 		{
 			MilitaryAIStrategyTypes eStrategy = (MilitaryAIStrategyTypes)i;
 			pkPlayer->GetMilitaryAI()->SetUsingStrategy(eStrategy, false);
 		}
-		
+
 		// Check if argument is a table (array)
 		if (lua_istable(L, 2))
 		{
 			// Get array length
 			int iLen = lua_objlen(L, 2);
-			
+
 			// Enable strategies specified in the array
 			for (int i = 1; i <= iLen; i++)
 			{
@@ -19304,7 +19670,7 @@ int CvLuaPlayer::lSetMilitaryStrategies(lua_State* L)
 				if (lua_isnumber(L, -1))
 				{
 					const int iStrategy = lua_tointeger(L, -1);
-					
+
 					// Validate strategy ID
 					if (iStrategy >= 0 && iStrategy < iNumStrategies)
 					{
@@ -19317,4 +19683,148 @@ int CvLuaPlayer::lSetMilitaryStrategies(lua_State* L)
 		}
 	}
 	return 0;
+}
+
+//------------------------------------------------------------------------------
+// Vox Deorum: Get the number of tactical zones
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetNumTacticalZones(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	if (pkPlayer && pkPlayer->GetTacticalAI())
+	{
+		CvTacticalAnalysisMap* pTactMap = pkPlayer->GetTacticalAI()->GetTacticalAnalysisMap();
+		if (pTactMap)
+		{
+			lua_pushinteger(L, pTactMap->GetNumZones());
+			return 1;
+		}
+	}
+	lua_pushinteger(L, 0);
+	return 1;
+}
+
+//------------------------------------------------------------------------------
+// Vox Deorum: Get tactical zone information by index
+// Returns a table with zone information
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetTacticalZone(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int iIndex = lua_tointeger(L, 2);
+
+	if (pkPlayer && pkPlayer->GetTacticalAI())
+	{
+		CvTacticalAnalysisMap* pTactMap = pkPlayer->GetTacticalAI()->GetTacticalAnalysisMap();
+		if (pTactMap)
+		{
+			CvTacticalDominanceZone* pZone = pTactMap->GetZoneByIndex(iIndex);
+			if (pZone)
+			{
+				// Create a Lua table to return zone information
+				lua_createtable(L, 0, 10);
+
+				// Zone ID
+				lua_pushinteger(L, pZone->GetZoneID());
+				lua_setfield(L, -2, "ZoneID");
+
+				// Territory type
+				const char* territoryType = "None";
+				switch (pZone->GetTerritoryType())
+				{
+					case TACTICAL_TERRITORY_FRIENDLY: territoryType = "Friendly"; break;
+					case TACTICAL_TERRITORY_ENEMY: territoryType = "Enemy"; break;
+					case TACTICAL_TERRITORY_NEUTRAL: territoryType = "Neutral"; break;
+				}
+				lua_pushstring(L, territoryType);
+				lua_setfield(L, -2, "Territory");
+
+				// Dominance flag
+				const char* dominance = "No Units";
+				switch (pZone->GetOverallDominanceFlag())
+				{
+					case TACTICAL_DOMINANCE_FRIENDLY: dominance = "Friendly"; break;
+					case TACTICAL_DOMINANCE_ENEMY: dominance = "Enemy"; break;
+					case TACTICAL_DOMINANCE_EVEN: dominance = "Even"; break;
+				}
+				lua_pushstring(L, dominance);
+				lua_setfield(L, -2, "Dominance");
+
+				// Domain
+				lua_pushstring(L, pZone->GetDomain() == DOMAIN_SEA ? "Sea" : "Land");
+				lua_setfield(L, -2, "Domain");
+
+				// Posture
+				const char* posture = "NONE";
+				switch (pZone->GetPosture())
+				{
+					case TACTICAL_POSTURE_WITHDRAW: posture = "Withdraw"; break;
+					case TACTICAL_POSTURE_ATTRITION: posture = "Attrition"; break;
+					case TACTICAL_POSTURE_EXPLOIT_FLANKS: posture = "Exploit Flanks"; break;
+					case TACTICAL_POSTURE_STEAMROLL: posture = "Steamroll"; break;
+					case TACTICAL_POSTURE_SURGICAL_CITY_STRIKE: posture = "Surgical City Strike"; break;
+					case TACTICAL_POSTURE_HEDGEHOG: posture = "Hedgehog"; break;
+					case TACTICAL_POSTURE_COUNTERATTACK: posture = "Counterattack"; break;
+				}
+				lua_pushstring(L, posture);
+				lua_setfield(L, -2, "Posture");
+
+				// Area ID
+				lua_pushinteger(L, pZone->GetAreaID());
+				lua_setfield(L, -2, "AreaID");
+
+				// Zone city (if any)
+				CvCity* pCity = pZone->GetZoneCity();
+				if (pCity)
+				{
+					lua_pushstring(L, pCity->getName());
+				}
+				else
+				{
+					lua_pushnil(L);
+				}
+				lua_setfield(L, -2, "City");
+
+				// Center coordinates
+				lua_pushinteger(L, pZone->GetCenterX());
+				lua_setfield(L, -2, "CenterX");
+
+				lua_pushinteger(L, pZone->GetCenterY());
+				lua_setfield(L, -2, "CenterY");
+
+				// Number of plots in zone
+				lua_pushinteger(L, pZone->GetNumPlots());
+				lua_setfield(L, -2, "Plots");
+
+				// Dominance zone value (priority)
+				lua_pushinteger(L, pZone->GetDominanceZoneValue());
+				lua_setfield(L, -2, "Value");
+
+				// Strength information
+				lua_pushinteger(L, pZone->GetOverallFriendlyStrength());
+				lua_setfield(L, -2, "FriendlyStrength");
+
+				lua_pushinteger(L, pZone->GetOverallEnemyStrength());
+				lua_setfield(L, -2, "EnemyStrength");
+
+				lua_pushinteger(L, pZone->GetNeutralStrength());
+				lua_setfield(L, -2, "NeutralStrength");
+
+				// Neighboring zones
+				const std::vector<int>& neighbors = pZone->GetNeighboringZones();
+				lua_createtable(L, neighbors.size(), 0);
+				for (size_t i = 0; i < neighbors.size(); i++)
+				{
+					lua_pushinteger(L, neighbors[i]);
+					lua_rawseti(L, -2, i + 1);
+				}
+				lua_setfield(L, -2, "Neighbors");
+
+				return 1;
+			}
+		}
+	}
+
+	lua_pushnil(L);
+	return 1;
 }

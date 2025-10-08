@@ -482,6 +482,27 @@ void CvEconomicAI::LogEconomyMessage(const CvString& strMsg)
 	}
 }
 
+// Check if a strategy meets all prerequisites and is allowed
+bool CvEconomicAI::IsStrategyAllowed(EconomicAIStrategyTypes eStrategy, CvEconomicAIStrategyXMLEntry* pStrategy) {
+	// Minor Civs can't run some Strategies
+	if (m_pPlayer->isMinorCiv() && pStrategy->IsNoMinorCivs())
+		return false;
+
+	// Has the prereq Tech necessary?
+	if (pStrategy->GetTechPrereq() != NO_TECH && !GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->HasTech((TechTypes)pStrategy->GetTechPrereq()))
+		return false;
+
+	// Has the Tech which obsoletes this Strategy?
+	if (pStrategy->GetTechObsolete() != NO_TECH && GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->HasTech((TechTypes)pStrategy->GetTechObsolete()))
+		return false;
+
+	// Not time to check this yet?
+	if (GC.getGame().getGameTurn() < pStrategy->GetFirstTurnExecuted())
+		return false;
+
+	return true;
+}
+
 // Do Turn & Strategy Trigger Functions beneath this line
 
 /// Called every turn to see what Strategies this player should using (or not)
@@ -503,39 +524,13 @@ void CvEconomicAI::DoTurn()
 		CvEconomicAIStrategyXMLEntry* pStrategy = GetEconomicAIStrategies()->GetEntry(iStrategiesLoop);
 		CvString strStrategyName = (CvString) pStrategy->GetType();
 
-		// Minor Civs can't run some Strategies
-		if(m_pPlayer->isMinorCiv() && pStrategy->IsNoMinorCivs())
-		{
+		if(pStrategy == NULL)	// Can have holes in the list
 			continue;
-		}
-
-		bool bTestStrategyStart = true;
-
-		// Do we already have this Strategy adopted?
-		if(IsUsingStrategy(eStrategy))
-		{
-			bTestStrategyStart = false;
-		}
-		else
-		{
-			// Has the prereq Tech necessary?
-			if(pStrategy->GetTechPrereq() != NO_TECH && !GET_TEAM(GetPlayer()->getTeam()).GetTeamTechs()->HasTech((TechTypes) pStrategy->GetTechPrereq()))
-			{
-				bTestStrategyStart = false;
-			}
-
-			// Has the Tech which obsoletes this Strategy?
-			if(bTestStrategyStart && pStrategy->GetTechObsolete() != NO_TECH && GET_TEAM(GetPlayer()->getTeam()).GetTeamTechs()->HasTech((TechTypes) pStrategy->GetTechObsolete()))
-			{
-				bTestStrategyStart = false;
-			}
-
-			// Not time to check this yet?
-			if(GC.getGame().getGameTurn() < pStrategy->GetFirstTurnExecuted())
-			{
-				bTestStrategyStart = false;
-			}
-		}
+		
+		// Use utility function to check if strategy is allowed (pass pStrategy to avoid redundant lookup)
+		bool bTestStrategyStart = !IsUsingStrategy(eStrategy);
+		if (bTestStrategyStart)
+			bTestStrategyStart = IsStrategyAllowed(eStrategy, pStrategy);
 
 		bool bTestStrategyEnd = false;
 

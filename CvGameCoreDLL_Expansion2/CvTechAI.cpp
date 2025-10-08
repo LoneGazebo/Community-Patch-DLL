@@ -16,7 +16,8 @@
 
 /// Constructor
 CvTechAI::CvTechAI(CvPlayerTechs* currentTechs):
-	m_pCurrentTechs(currentTechs)
+	m_pCurrentTechs(currentTechs),
+	m_iNextResearch(NO_TECH)  // Vox Deorum: Initialize forced next research
 {
 }
 
@@ -48,6 +49,7 @@ template<typename TechAI, typename Visitor>
 void CvTechAI::Serialize(TechAI& techAI, Visitor& visitor)
 {
 	visitor(techAI.m_TechAIWeights);
+	visitor(techAI.m_iNextResearch);  // Vox Deorum: Serialize forced next research
 }
 
 /// Serialization read
@@ -130,6 +132,21 @@ TechTypes CvTechAI::ChooseNextTech(CvPlayer *pPlayer, bool bFreeTech)
 	if (!pPlayer->isMajorCiv())
 		return NO_TECH;
 
+	// Check if we have a forced next research selection
+	if (m_iNextResearch != NO_TECH)
+	{
+		TechTypes forcedTech = m_iNextResearch;
+		m_iNextResearch = NO_TECH;
+		// Verify that the forced tech is still researchable
+		if (m_pCurrentTechs->CanResearch(forcedTech))
+		{
+			if (!bFreeTech || m_pCurrentTechs->CanResearchForFree(forcedTech))
+			{
+				return forcedTech;
+			}
+		}
+	}
+
 	TechTypes rtnValue = NO_TECH;
 
 	// Create a new vector holding only techs we can currently research
@@ -172,7 +189,8 @@ TechTypes CvTechAI::ChooseNextTech(CvPlayer *pPlayer, bool bFreeTech)
 }
 
 /// Choose a player's next tech research project
-TechTypes CvTechAI::RecommendNextTech(CvPlayer *pPlayer, TechTypes eIgnoreTech /* = NO_TECH */)
+// Vox Deorum: Added eAssumingTech parameter to check researchability assuming a specific tech is already researched
+TechTypes CvTechAI::RecommendNextTech(CvPlayer *pPlayer, TechTypes eIgnoreTech /* = NO_TECH */, TechTypes eAssumingTech /* = NO_TECH */)
 {
 	TechTypes rtnValue = NO_TECH;
 
@@ -182,7 +200,7 @@ TechTypes CvTechAI::RecommendNextTech(CvPlayer *pPlayer, TechTypes eIgnoreTech /
 	// Loop through adding the researchable techs
 	for(int iTechLoop = 0; iTechLoop < m_pCurrentTechs->GetTechs()->GetNumTechs(); iTechLoop++)
 	{
-		if(m_pCurrentTechs->CanResearch((TechTypes) iTechLoop) && iTechLoop != eIgnoreTech)
+		if(m_pCurrentTechs->CanResearch((TechTypes) iTechLoop, false, eAssumingTech) && iTechLoop != eIgnoreTech)
 		{
 			m_ResearchableTechs.push_back(iTechLoop, m_TechAIWeights.GetWeight(iTechLoop));
 		}

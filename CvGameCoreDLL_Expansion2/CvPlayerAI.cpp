@@ -34,6 +34,7 @@
 #include "CvEnumMap.h"
 
 #include "CvDistanceMap.h"
+#include "CvConnectionService.h"
 
 // Include this after all other headers.
 #include "LintFree.h"
@@ -284,6 +285,11 @@ void CvPlayerAI::AI_unitUpdate(bool bUpdateHomelandAI)
 		GetTacticalAI()->Update();
 		GetHomelandAI()->Update(true);
 		GetTacticalAI()->CleanUp();
+	}
+
+	if (MOD_IPC_CHANNEL) {
+		// Process messages from the Connection Service
+		CvConnectionService::GetInstance().ProcessMessages();
 	}
 }
 

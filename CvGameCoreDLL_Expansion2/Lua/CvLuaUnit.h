@@ -639,6 +639,7 @@ protected:
 	static int lGetAIOperationInfo(lua_State* L);
 	static int lGetMissionInfo(lua_State* L);
 	static int lGetDanger(lua_State* L);
+	static int lGetTacticalZoneID(lua_State* L);
 #endif
 
 	LUAAPIEXTN(AddMessage, void, sMessage, iNotifyPlayer);

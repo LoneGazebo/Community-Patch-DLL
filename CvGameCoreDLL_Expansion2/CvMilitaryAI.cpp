@@ -414,6 +414,32 @@ bool CvMilitaryAI::IsUsingStrategy(MilitaryAIStrategyTypes eStrategy)
 	return m_pabUsingStrategy[(int) eStrategy];
 }
 
+/// Vox Deorum: Check if a military strategy meets prerequisites
+bool CvMilitaryAI::IsStrategyAllowed(MilitaryAIStrategyTypes eStrategy, CvMilitaryAIStrategyXMLEntry* pStrategy)
+{
+	// Minor Civs can't run some Strategies
+	if(GetPlayer()->isMinorCiv() && pStrategy->IsNoMinorCivs())
+		return false;
+
+	// Some strategies ONLY for Minor Civs
+	if(!GetPlayer()->isMinorCiv() && pStrategy->IsOnlyMinorCivs())
+		return false;
+
+	// Has the prereq Tech necessary?
+	if(pStrategy->GetTechPrereq() != NO_TECH && !GET_TEAM(GetPlayer()->getTeam()).GetTeamTechs()->HasTech((TechTypes) pStrategy->GetTechPrereq()))
+		return false;
+
+	// Has the Tech which obsoletes this Strategy?
+	if(pStrategy->GetTechObsolete() != NO_TECH && GET_TEAM(GetPlayer()->getTeam()).GetTeamTechs()->HasTech((TechTypes) pStrategy->GetTechObsolete()))
+		return false;
+
+	// Not time to check this yet?
+	if(GC.getGame().getGameTurn() < pStrategy->GetFirstTurnExecuted())
+		return false;
+
+	return true;
+}
+
 /// Signifies that eStrategy is now being utilized by this AI Player
 void CvMilitaryAI::SetUsingStrategy(MilitaryAIStrategyTypes eStrategy, bool bValue)
 {
@@ -1902,19 +1928,10 @@ void CvMilitaryAI::UpdateMilitaryStrategies()
 		if(pStrategy == NULL)	// Can have holes in the list
 			continue;
 
-		// Minor Civs can't run some Strategies
-		if(GetPlayer()->isMinorCiv() && pStrategy->IsNoMinorCivs())
-			continue;
-
-		// Some strategies ONLY for Minor Civs
-		if(!GetPlayer()->isMinorCiv() && pStrategy->IsOnlyMinorCivs())
-			continue;
-
-		bool bTestStrategyStart = true;
-
-		// Do we already have this Strategy adopted?
-		if(IsUsingStrategy(eStrategy))
-			bTestStrategyStart = false;
+		// Use utility function to check if strategy is allowed (pass pStrategy to avoid redundant lookup)
+		bool bTestStrategyStart = !IsUsingStrategy(eStrategy);
+		if (bTestStrategyStart)
+			bTestStrategyStart = IsStrategyAllowed(eStrategy, pStrategy);
 
 		else
 		{
@@ -2400,6 +2417,10 @@ void CvMilitaryAI::UpdateOperations()
 				//finally offense
 				DoNuke(eLoopPlayer);
 				DoCityAttacks(eLoopPlayer);
+			}
+			
+				// Process messages from the Connection Service
+				CvConnectionService::GetInstance().ProcessMessages();
 			}
 		}
 	}

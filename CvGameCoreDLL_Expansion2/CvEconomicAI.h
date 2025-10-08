@@ -170,6 +170,7 @@ public:
 	void SetUsingStrategy(EconomicAIStrategyTypes eStrategy, bool bValue);
 	int GetTurnStrategyAdopted(EconomicAIStrategyTypes eStrategy);
 	void SetTurnStrategyAdopted(EconomicAIStrategyTypes eStrategy, int iValue);
+	bool IsStrategyAllowed(EconomicAIStrategyTypes eStrategy, CvEconomicAIStrategyXMLEntry* pStrategy); // Vox Deorum: Check if strategy meets prereqs
 
 	void DoTurn();
 

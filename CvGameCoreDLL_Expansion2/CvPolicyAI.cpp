@@ -18,7 +18,8 @@
 
 /// Constructor
 CvPolicyAI::CvPolicyAI(CvPlayerPolicies* currentPolicies):
-	m_pCurrentPolicies(currentPolicies)
+	m_pCurrentPolicies(currentPolicies),
+	m_iNextPolicy(-1)  // Vox Deorum: Initialize forced next policy selection
 {
 }
 
@@ -56,6 +57,7 @@ template<typename PolicyAI, typename Visitor>
 void CvPolicyAI::Serialize(PolicyAI& policyAI, Visitor& visitor)
 {
 	visitor(policyAI.m_PolicyAIWeights);
+	visitor(policyAI.m_iNextPolicy);  // Vox Deorum: Serialize forced next policy selection
 }
 
 /// Serialization read
@@ -119,10 +121,37 @@ void CvPolicyAI::AddFlavorWeights(FlavorTypes eFlavor, int iWeight, int iPropaga
 }
 
 /// Choose a player's next policy purchase (could be opening a branch)
-int CvPolicyAI::ChooseNextPolicy(CvPlayer* pPlayer)
+int CvPolicyAI::ChooseNextPolicy(CvPlayer* pPlayer, bool bIgnoreCost)
 {
 	if (!pPlayer->isMajorCiv())
 		return 0;
+
+	// Vox Deorum: Check if we have a forced next policy selection
+	if (!bIgnoreCost && m_iNextPolicy != NO_POLICY)
+	{
+		int iForcedPolicy = m_iNextPolicy;
+		m_iNextPolicy = (int)NO_POLICY;  // Clear the forced selection after using it
+
+		// Verify that the forced policy is still valid
+		if (iForcedPolicy >= GC.getNumPolicyBranchInfos())
+		{
+			// It's a policy (not a branch)
+			PolicyTypes ePolicy = (PolicyTypes)(iForcedPolicy - GC.getNumPolicyBranchInfos());
+			if (m_pCurrentPolicies->CanAdoptPolicy(ePolicy, bIgnoreCost))
+			{
+				return iForcedPolicy;
+			}
+		}
+		else
+		{
+			// It's a policy branch
+			PolicyBranchTypes eBranch = (PolicyBranchTypes)iForcedPolicy;
+			if (m_pCurrentPolicies->CanUnlockPolicyBranch(eBranch, bIgnoreCost) && !m_pCurrentPolicies->IsPolicyBranchUnlocked(eBranch))
+			{
+				return iForcedPolicy;
+			}
+		}
+	}
 
 	int iRtnValue = (int)NO_POLICY;
 	int iPolicyLoop = 0;
@@ -136,7 +165,7 @@ int CvPolicyAI::ChooseNextPolicy(CvPlayer* pPlayer)
 	// Loop through adding the adoptable policies
 	for(iPolicyLoop = 0; iPolicyLoop < m_pCurrentPolicies->GetPolicies()->GetNumPolicies(); iPolicyLoop++)
 	{
-		if(m_pCurrentPolicies->CanAdoptPolicy((PolicyTypes) iPolicyLoop) && (!bMustChooseTenet || m_pCurrentPolicies->GetPolicies()->GetPolicyEntry(iPolicyLoop)->GetLevel() > 0))
+		if(m_pCurrentPolicies->CanAdoptPolicy((PolicyTypes) iPolicyLoop, bIgnoreCost) && (!bMustChooseTenet || m_pCurrentPolicies->GetPolicies()->GetPolicyEntry(iPolicyLoop)->GetLevel() > 0))
 		{
 			int iWeight = WeighPolicy(pPlayer, (PolicyTypes)iPolicyLoop);
 
@@ -168,19 +197,23 @@ int CvPolicyAI::ChooseNextPolicy(CvPlayer* pPlayer)
 	}
 
 	bool bNeedToFinish = false;
-	for (int iBranchLoop2 = 0; iBranchLoop2 < GC.getNumPolicyBranchInfos(); iBranchLoop2++)
-	{
-		const PolicyBranchTypes ePolicyBranch2 = static_cast<PolicyBranchTypes>(iBranchLoop2);
-		CvPolicyBranchEntry* pkPolicyBranchInfo2 = GC.getPolicyBranchInfo(ePolicyBranch2);
-		// Do we already have a different policy branch unlocked?
-		if (pkPolicyBranchInfo2 && m_pCurrentPolicies->IsPolicyBranchUnlocked(ePolicyBranch2))
+	// If we ignored the cost already, let's ignore uncompleted branches as well
+	// Actually as a human player, sometimes I don't finish a branch before jumping into another..
+	if (!bIgnoreCost) {
+		for (int iBranchLoop2 = 0; iBranchLoop2 < GC.getNumPolicyBranchInfos(); iBranchLoop2++)
 		{
-			// Have we not finished it yet? If we can finish it, let's not open a new one.
-			PolicyTypes eFinisher = (PolicyTypes)pkPolicyBranchInfo2->GetFreeFinishingPolicy();
-			if (eFinisher != NO_POLICY && !m_pCurrentPolicies->HasPolicy(eFinisher) && CanContinuePolicyBranch(ePolicyBranch2))
+			const PolicyBranchTypes ePolicyBranch2 = static_cast<PolicyBranchTypes>(iBranchLoop2);
+			CvPolicyBranchEntry* pkPolicyBranchInfo2 = GC.getPolicyBranchInfo(ePolicyBranch2);
+			// Do we already have a different policy branch unlocked?
+			if (pkPolicyBranchInfo2 && m_pCurrentPolicies->IsPolicyBranchUnlocked(ePolicyBranch2))
 			{
-				bNeedToFinish = true;
-				break;
+				// Have we not finished it yet? If we can finish it, let's not open a new one.
+				PolicyTypes eFinisher = (PolicyTypes)pkPolicyBranchInfo2->GetFreeFinishingPolicy();
+				if (eFinisher != NO_POLICY && !m_pCurrentPolicies->HasPolicy(eFinisher) && CanContinuePolicyBranch(ePolicyBranch2))
+				{
+					bNeedToFinish = true;
+					break;
+				}
 			}
 		}
 	}
@@ -199,7 +232,7 @@ int CvPolicyAI::ChooseNextPolicy(CvPlayer* pPlayer)
 					continue;
 				}
 
-				if(m_pCurrentPolicies->CanUnlockPolicyBranch(ePolicyBranch) && !m_pCurrentPolicies->IsPolicyBranchUnlocked(ePolicyBranch))
+				if(m_pCurrentPolicies->CanUnlockPolicyBranch(ePolicyBranch, bIgnoreCost) && !m_pCurrentPolicies->IsPolicyBranchUnlocked(ePolicyBranch))
 				{
 					int iBranchWeight = 0;
 

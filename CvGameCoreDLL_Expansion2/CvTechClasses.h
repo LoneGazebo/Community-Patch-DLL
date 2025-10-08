@@ -256,7 +256,7 @@ public:
 	void SetGSPriorities();
 	bool IsResearch() const;
 	bool CanEverResearch(TechTypes eTech) const;
-	bool CanResearch(TechTypes eTech, bool bTrade = false) const;
+	bool CanResearch(TechTypes eTech, bool bTrade = false, TechTypes eAssumingTech = NO_TECH) const;
 	bool CanResearchForFree(TechTypes eTech) const;
 	TechTypes GetCurrentResearch() const;
 	bool IsCurrentResearchRepeat() const;

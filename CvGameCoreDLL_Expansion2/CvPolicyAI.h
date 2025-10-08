@@ -37,7 +37,7 @@ public:
 	void AddFlavorWeights(FlavorTypes eFlavor, int iWeight, int iPropagationPercent);
 
 	// Choose a player's next policy purchase
-	int ChooseNextPolicy(CvPlayer* pPlayer);
+	int ChooseNextPolicy(CvPlayer* pPlayer, bool bIgnoreCost = false);
 	bool CanContinuePolicyBranch(PolicyBranchTypes ePolicyBranch);
 
 	// Ideology
@@ -48,6 +48,13 @@ public:
 
 	int WeighBranch(CvPlayer* pPlayer, PolicyBranchTypes eBranch);
 	int WeighPolicy(CvPlayer* pPlayer, PolicyTypes ePolicy);
+
+	// Vox Deorum: Get possible policies by calling ChooseNextPolicy and returning m_AdoptablePolicies
+	const CvWeightedVector<int>& GetAdoptablePolicies() const { return m_AdoptablePolicies; }
+
+	// Vox Deorum: Force next policy selection
+	void SetNextPolicy(int iPolicy) { m_iNextPolicy = iPolicy; }
+	int GetNextPolicy() const { return m_iNextPolicy; }
 
 private:
 	// Internal methods
@@ -74,6 +81,9 @@ private:
 	// Locally cached GlobalAIDefines
 	int m_iPolicyWeightPropagationLevels;
 	int m_iPolicyWeightPercentDropNewBranch;
+
+	// Vox Deorum: Forced next policy selection
+	int m_iNextPolicy;
 };
 FDataStream& operator<<(FDataStream&, const CvPolicyAI&);
 FDataStream& operator>>(FDataStream&, CvPolicyAI&);

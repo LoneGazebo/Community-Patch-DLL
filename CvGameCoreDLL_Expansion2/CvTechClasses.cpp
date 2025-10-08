@@ -1433,7 +1433,8 @@ bool CvPlayerTechs::CanEverResearch(TechTypes eTech) const
 }
 
 /// Accessor: Is it possible to research this tech?
-bool CvPlayerTechs::CanResearch(TechTypes eTech, bool bTrade) const
+// Vox Deorum: Added eAssumingTech parameter to check researchability assuming a specific tech is already researched
+bool CvPlayerTechs::CanResearch(TechTypes eTech, bool bTrade, TechTypes eAssumingTech) const
 {
 	bool bFoundPossible = false;
 	bool bFoundValid = false;
@@ -1454,6 +1455,12 @@ bool CvPlayerTechs::CanResearch(TechTypes eTech, bool bTrade) const
 		return false;
 	}
 
+	// Vox Deorum: Don't check the assuming tech itself
+	if(eAssumingTech != NO_TECH && eTech == eAssumingTech)
+	{
+		return false;
+	}
+
 	bFoundPossible = false;
 	bFoundValid = false;
 
@@ -1465,7 +1472,8 @@ bool CvPlayerTechs::CanResearch(TechTypes eTech, bool bTrade) const
 		{
 			bFoundPossible = true;
 
-			if(GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->HasTech(ePrereq))
+			// Vox Deorum: Check if we have the prereq OR if it's the tech we're assuming
+			if(GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->HasTech(ePrereq) || ePrereq == eAssumingTech)
 			{
 				if(!bTrade || !GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->IsNoTradeTech(ePrereq))
 				{
@@ -1487,7 +1495,8 @@ bool CvPlayerTechs::CanResearch(TechTypes eTech, bool bTrade) const
 		TechTypes ePrereq = (TechTypes)pkTechEntry->GetPrereqAndTechs(iI);
 		if(ePrereq != NO_TECH)
 		{
-			if(!GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->HasTech(ePrereq))
+			// Vox Deorum: Check if we have the prereq OR if it's the tech we're assuming
+			if(!GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->HasTech(ePrereq) && ePrereq != eAssumingTech)
 			{
 				return false;
 			}

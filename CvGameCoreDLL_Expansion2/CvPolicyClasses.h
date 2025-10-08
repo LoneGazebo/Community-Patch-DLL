@@ -1077,6 +1077,8 @@ public:
 	void FlavorUpdate();
 
 	CvPlayer* GetPlayer();
+	// Vox Deorum: Get PolicyAI for accessing adoptable policies
+	CvPolicyAI* GetPolicyAI() const { return m_pPolicyAI; }
 
 	// Accessor functions
 	bool HasPolicy(PolicyTypes eIndex) const;
@@ -1116,7 +1118,7 @@ public:
 
 	// Policy Branch Stuff
 	void DoUnlockPolicyBranch(PolicyBranchTypes eBranchType);
-	bool CanUnlockPolicyBranch(PolicyBranchTypes eBranchType);
+	bool CanUnlockPolicyBranch(PolicyBranchTypes eBranchType, bool bIgnoreCost = false);
 
 	bool IsPolicyBranchUnlocked(PolicyBranchTypes eBranchType) const;
 	void SetPolicyBranchUnlocked(PolicyBranchTypes eBranchType, bool bNewValue, bool bRevolution);

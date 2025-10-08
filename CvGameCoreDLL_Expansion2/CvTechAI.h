@@ -42,13 +42,20 @@ public:
 
 	// Choose a player's next tech to research
 	TechTypes ChooseNextTech(CvPlayer *pPlayer, bool bFreeTech = false);
-	TechTypes RecommendNextTech(CvPlayer *pPlayer, TechTypes eIgnoreTech = NO_TECH);
+	TechTypes RecommendNextTech(CvPlayer *pPlayer, TechTypes eIgnoreTech = NO_TECH, TechTypes eAssumingTech = NO_TECH);
 
 	int GetWeight(TechTypes eTech);
 
 	float GetTechRatio();
 
 	void LogResearchCompleted(TechTypes eTech);
+
+	// Vox Deorum: Get the researchable techs after ChooseNextTech is called
+	const CvWeightedVector<int>& GetResearchableTechs() const { return m_ResearchableTechs; }
+
+	// Vox Deorum: Force next tech selection
+	void SetNextResearch(TechTypes eTech) { m_iNextResearch = eTech; }
+	TechTypes GetNextResearch() const { return m_iNextResearch; }
 
 private:
 	// Internal methods
@@ -66,6 +73,7 @@ private:
 	CvPlayerTechs* m_pCurrentTechs;
 	CvWeightedVector<int> m_TechAIWeights;
 	CvWeightedVector<int> m_ResearchableTechs;
+	TechTypes m_iNextResearch;  // Vox Deorum: Forced next research selection
 };
 
 FDataStream& operator<<(FDataStream&, const CvTechAI&);

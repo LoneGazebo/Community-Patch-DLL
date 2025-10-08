@@ -73,6 +73,7 @@ protected:
 	static int lCanTrainNukes(lua_State* L);
 
 	static int lGetCurrentEra(lua_State* L);
+	static int lGetMapScriptName(lua_State* L);
 	static int lGetDiploResponse(lua_State* L);
 
 	static int lGetActiveTeam(lua_State* L);
