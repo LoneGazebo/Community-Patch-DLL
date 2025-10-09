@@ -2956,7 +2956,6 @@ CvCity* CvPlayer::initCity(int iX, int iY, bool bBumpUnits, bool bInitialFoundin
 		pNewCity->init(pNewCity->GetID(), GetID(), iX, iY, bBumpUnits, bInitialFounding, eInitialReligion, szName, pkSettlerUnitEntry);
 		pNewCity->GetCityStrategyAI()->UpdateFlavorsForNewCity();
 		pNewCity->DoUpdateCheapestPlotInfluenceDistance();
-		pNewCity->UpdateYieldsFromExistingFriendsAndAllies(false);
 
 		GC.getGame().SetClosestCityMapDirty();
 

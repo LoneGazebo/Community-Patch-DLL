@@ -829,6 +829,8 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	// Update Proximity between this Player and all others
 	owningPlayer.DoUpdateProximityToPlayers();
 
+	UpdateYieldsFromExistingFriendsAndAllies(false);
+
 	// Free Buildings in the first City
 	if (GC.getGame().isFinalInitialized())
 	{
