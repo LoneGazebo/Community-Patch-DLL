@@ -792,7 +792,7 @@ local function BuildGPMeter(pCity, ePlayer)
 				g_tPediaSearchStrings[tostring(instance.GPImage)] = strGreatPerson;
 				instance.GPImage:RegisterCallback(Mouse.eRClick, GetPedia);
 
-				local _, strTooltip = pCity:GetSpecialistRate(eSpecialist);
+				local _, strTooltip = pCity:GetSpecialistRate(eSpecialist, true);
 				instance.GPBox:SetToolTipString(strTooltip);
 
 				local kUnitClassInfo = GetInfoFromType("UnitClasses", kGreatPersonInfo.Class);
