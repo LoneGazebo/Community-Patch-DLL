@@ -2669,6 +2669,20 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_EnoughSettlers(CvCity* pCity)
 		return true;
 
 	int iNumSettlers = kPlayer.GetNumUnitsWithUnitAI(UNITAI_SETTLE, true);
+
+	UnitTypes eCurrentlyProducing = pCity->getProductionUnit();
+	if (eCurrentlyProducing != NO_UNIT)
+	{
+		CvUnitEntry* pkCurrentlyProducing = GC.getUnitInfo(eCurrentlyProducing);
+		if (pkCurrentlyProducing)
+		{
+			if (pkCurrentlyProducing->GetDefaultUnitAIType() == UNITAI_SETTLE)
+			{
+				iNumSettlers--;
+			}
+		}
+	}
+
 	if (iNumSettlers > 1)
 		return true;
 
