@@ -1438,14 +1438,17 @@ local function UpdateViewFull()
 	local fCultureStored = pCity:GetJONSCultureStoredTimes100() / 100;
 	local iCultureNeeded = pCity:GetJONSCultureThreshold();
 	local fBorderGrowth = pCity:GetYieldRateTimes100(YieldTypes.YIELD_CULTURE_LOCAL) / 100;
+	local strBorderGrowthTooltip = GetBorderGrowthTooltip(pCity);
 	if fBorderGrowth > 0 then
 		local iTurnsToExpand = math.max(1, math.ceil((iCultureNeeded - fCultureStored) / fBorderGrowth));
 		Controls.CultureTimeTillGrowthLabel:LocalizeAndSetText("TXT_KEY_CITYVIEW_TURNS_TILL_TILE_TEXT", iTurnsToExpand);
+		Controls.CultureTimeTillGrowthLabel:SetToolTipString(strBorderGrowthTooltip);
 		Show(Controls.CultureTimeTillGrowthLabel);
 	else
 		Hide(Controls.CultureTimeTillGrowthLabel);
 	end
 	Controls.CultureMeter:SetPercent(fCultureStored / iCultureNeeded);
+	Controls.CultureMeter:SetToolTipString(strBorderGrowthTooltip);
 end
 
 UpdateTypes.FULLVIEW.UpdateFunc = UpdateViewFull;
