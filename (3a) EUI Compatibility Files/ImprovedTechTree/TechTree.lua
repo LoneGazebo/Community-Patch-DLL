@@ -227,7 +227,7 @@ local function RefreshDisplayOfSpecificTech( tech )
 	local thisTechButton = g_techButtons[ techID ]
 	local canResearchThisTech = g_activePlayer:CanResearch( techID )
 	local turnText = L( "TXT_KEY_STR_TURNS", g_activePlayer:GetResearchTurnsLeft( techID, true ) )
-	local researchPerTurn = g_activePlayer:GetScience()
+	local researchPerTurn = g_activePlayer:GetScienceTimes100()
 
 	if showDiscoveredBy then --afw
 --		local modifier = g_activePlayer:CalculateResearchModifier(techID)
@@ -301,7 +301,7 @@ local function RefreshDisplayOfSpecificTech( tech )
 		isClickable = true -- to clear research queue
 --[[
 		-- turn on the meter
-		local currentResearchProgress = g_activePlayer:GetResearchProgress( techID )
+		local currentResearchProgress = g_activePlayer:GetResearchProgressTimes100( techID ) / 100
 		local researchNeeded = g_activePlayer:GetResearchCost( techID )
 		local currentResearchPlusThisTurn = currentResearchProgress + researchPerTurn
 		local researchProgressPercent = currentResearchProgress / researchNeeded
@@ -398,13 +398,13 @@ end
 
 local function QueueInfo() -- afw
 	g_queueInfo = {}
-	local researchPerTurn = g_activePlayer:GetScience()
-	local overflow = g_activePlayer:GetOverflowResearch()
+	local researchPerTurn = g_activePlayer:GetScienceTimes100() / 100
+	local overflow = g_activePlayer:GetOverflowResearchTimes100() / 100
 	for tech in GameInfo.Technologies() do
 		local techID = tech.ID
 		local pos = g_activePlayer:GetQueuePosition( techID )
 		if pos > 0 then
-			local currentResearchProgress = g_activePlayer:GetResearchProgress( techID )
+			local currentResearchProgress = g_activePlayer:GetResearchProgressTimes100( techID ) / 100
 			local researchNeeded = g_activePlayer:GetResearchCost( techID )
 			local remaining = researchNeeded + overflow - currentResearchProgress
 --			print("AFW Tech:", pos, techID, currentResearchProgress, researchNeeded, overflow, remaining, tech.Description )

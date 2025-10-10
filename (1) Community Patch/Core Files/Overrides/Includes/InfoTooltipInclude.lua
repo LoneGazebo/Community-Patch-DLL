@@ -3947,7 +3947,6 @@ function GetTourismTooltip(pCity)
 	end
 
 	table.insert(tLines, pCity:GetYieldRateTooltip(YieldTypes.YIELD_TOURISM));
-	table.insert(tLines, SEPARATOR_STRING);
 
 	return table.concat(tLines, "[NEWLINE]");
 end

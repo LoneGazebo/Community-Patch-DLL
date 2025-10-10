@@ -63,6 +63,9 @@ local GameInfo = EUI.GameInfoCache -- warning! use iterator ONLY with table fiel
 local UpdateCityView
 --END
 
+local FormatInteger = CPK.Text.FormatInteger;
+local FormatIntegerTimes100 = CPK.Text.FormatIntegerTimes100;
+
 include( "SupportFunctions" )
 local TruncateString = TruncateString
 if not civ5_mode then
@@ -1205,8 +1208,8 @@ local g_SelectionListTooltips = {
 local function SetupSelectionList( itemList, selectionIM, cityOwnerID, getUnitPortraitIcon )
 	itemList:sort( SortSelectionList )
 	selectionIM.ResetInstances()
-	local cash = g_activePlayer:GetGold()
-	local faith = gk_mode and g_activePlayer:GetFaith() or 0
+	local cash = g_activePlayer:GetGoldTimes100() / 100
+	local faith = gk_mode and (g_activePlayer:GetFaithTimes100() / 100) or 0
 	for i = 1, #itemList do
 		local item, orderID, itemDescription, turnsLeft, canProduce, goldCost, canBuyWithGold, faithCost, canBuyWithFaith = unpack( itemList[i] )
 		local itemID = item.ID
@@ -1329,7 +1332,7 @@ end)
 	-- Update Production Queue
 	-------------------------------------------
 	local queueLength = city:GetOrderQueueLength()
-	local currentProductionPerTurnTimes100 = city:GetCurrentProductionDifferenceTimes100(false, false)
+	local currentProductionPerTurnTimes100 = city:GetYieldRateTimes100(YieldTypes.YIELD_PRODUCTION)
 	local isGeneratingProduction = not bnw_mode or ( currentProductionPerTurnTimes100 > 0)
 	local isMaintain = false
 	local isQueueEmpty = queueLength < 1
@@ -1349,7 +1352,7 @@ end)
 
 	Controls.PQmeter:SetPercents( storedProduction / productionNeeded, storedProductionPlusThisTurn / productionNeeded )
 
-	Controls.ProdPerTurnLabel:LocalizeAndSetText( "TXT_KEY_CITYVIEW_PERTURN_TEXT", currentProductionPerTurnTimes100 / 100 )
+	Controls.ProdPerTurnLabel:LocalizeAndSetText( "TXT_KEY_CITYVIEW_PERTURN_TEXT", math_floor(currentProductionPerTurnTimes100 / 100) )
 
 	Controls.ProductionPortraitButton:SetHide( false )
 
@@ -1972,7 +1975,7 @@ local function UpdateCityViewNow()
 			Controls.NoAutoSpecialistCheckbox:SetDisabled( g_isViewingMode )
 			Controls.ResetSpecialistsButton:SetDisabled( g_isViewingMode )
 			if bnw_mode then
-				Controls.TourismPerTurnLabel:LocalizeAndSetText( "TXT_KEY_CITYVIEW_PERTURN_TEXT", city:GetBaseTourism() / 100 )
+				Controls.TourismPerTurnLabel:LocalizeAndSetText( "TXT_KEY_CITYVIEW_PERTURN_TEXT", math_floor(city:GetYieldRateTimes100(YieldTypes.YIELD_TOURISM) / 100) )
 				-- CBP
 				local iHappinessPerTurn = city:GetLocalHappiness();
 				local iUnhappinessPerTurn = city:GetUnhappinessAggregated();
@@ -2524,55 +2527,47 @@ local function UpdateCityViewNow()
 		UpdateCityProductionQueueNow( city, cityID, cityOwnerID, isActivePlayerCity and not isCityCaptureViewingMode and civ5_mode and bnw_mode and cityOwner:MayNotAnnex() and city:IsPuppet() )
 
 		-- display gold income
-		local iGoldPerTurn = city:GetYieldRateTimes100( g_yieldCurrency ) / 100
-		Controls.GoldPerTurnLabel:LocalizeAndSetText( "TXT_KEY_CITYVIEW_PERTURN_TEXT", iGoldPerTurn )
+		Controls.GoldPerTurnLabel:LocalizeAndSetText( "TXT_KEY_CITYVIEW_PERTURN_TEXT", math_floor(city:GetYieldRateTimes100( g_yieldCurrency ) / 100) )
 
 		-- display science income
 		if Game.IsOption(GameOptionTypes.GAMEOPTION_NO_SCIENCE) then
 			Controls.SciencePerTurnLabel:LocalizeAndSetText( "TXT_KEY_CITYVIEW_OFF" )
 		else
-			local iSciencePerTurn = city:GetYieldRateTimes100(YieldTypes.YIELD_SCIENCE) / 100
-			Controls.SciencePerTurnLabel:LocalizeAndSetText( "TXT_KEY_CITYVIEW_PERTURN_TEXT", iSciencePerTurn )
+			Controls.SciencePerTurnLabel:LocalizeAndSetText( "TXT_KEY_CITYVIEW_PERTURN_TEXT", math_floor(city:GetYieldRateTimes100(YieldTypes.YIELD_SCIENCE) / 100) )
 		end
 
-		local culturePerTurn, cultureStored, cultureNext
-		-- thanks for Firaxis Cleverness !
-		if civ5_mode then
-			culturePerTurn = city:GetJONSCulturePerTurn()
-			cultureStored = city:GetJONSCultureStored()
-			cultureNext = city:GetJONSCultureThreshold()
-		else
-			culturePerTurn = city:GetCulturePerTurn()
-			cultureStored = city:GetCultureStored()
-			cultureNext = city:GetCultureThreshold()
-		end
-		Controls.CulturePerTurnLabel:LocalizeAndSetText( "TXT_KEY_CITYVIEW_PERTURN_TEXT", culturePerTurn )
+		local cultureStored, cultureNext
+		cultureStored = city:GetJONSCultureStoredTimes100() / 100
+		cultureNext = city:GetJONSCultureThreshold()
+
+		Controls.CulturePerTurnLabel:LocalizeAndSetText( "TXT_KEY_CITYVIEW_PERTURN_TEXT", math_floor(city:GetYieldRateTimes100(YieldTypes.YIELD_CULTURE) / 100) )
 		local cultureDiff = cultureNext - cultureStored
-		local borderGrowthRate = culturePerTurn + city:GetBaseYieldRate(YieldTypes.YIELD_CULTURE_LOCAL)
-		local borderGrowthRateIncrease = city:GetBorderGrowthRateIncreaseTotal()
-		borderGrowthRate = math_floor(borderGrowthRate * (100 + borderGrowthRateIncrease) / 100)
+		local borderGrowthRate = city:GetYieldRateTimes100(YieldTypes.YIELD_CULTURE_LOCAL) / 100
+		local strBorderGrowthTooltip = GetBorderGrowthTooltip(city);
 
 		if borderGrowthRate > 0 then
 			local cultureTurns = math_max(math_ceil(cultureDiff / borderGrowthRate), 1)
 			Controls.CultureTimeTillGrowthLabel:LocalizeAndSetText( "TXT_KEY_CITYVIEW_TURNS_TILL_TILE_TEXT", cultureTurns )
+			Controls.CultureTimeTillGrowthLabel:SetToolTipString(strBorderGrowthTooltip);
 			Controls.CultureTimeTillGrowthLabel:SetHide( false )
 		else
 			Controls.CultureTimeTillGrowthLabel:SetHide( true )
 		end
 		local percentComplete = cultureStored / cultureNext
+		Controls.CultureMeter:SetToolTipString(strBorderGrowthTooltip);
 		Controls.CultureMeter:SetPercent( percentComplete )
 
 		if gk_mode then
 			if Game.IsOption(GameOptionTypes.GAMEOPTION_NO_RELIGION) then
 				Controls.FaithPerTurnLabel:LocalizeAndSetText( "TXT_KEY_CITYVIEW_OFF" )
 			else
-				Controls.FaithPerTurnLabel:LocalizeAndSetText( "TXT_KEY_CITYVIEW_PERTURN_TEXT", city:GetFaithPerTurn() )
+				Controls.FaithPerTurnLabel:LocalizeAndSetText( "TXT_KEY_CITYVIEW_PERTURN_TEXT", math_floor(city:GetYieldRateTimes100(YieldTypes.YIELD_FAITH) / 100) )
 			end
 			Controls.FaithFocusButton:SetDisabled( g_isViewingMode )
 		end
 
 		local cityGrowth = city:GetFoodTurnsLeft()
-		local foodPerTurnTimes100 = city:FoodDifferenceTimes100()
+		local foodPerTurnTimes100 = city:GetYieldRateTimes100(YieldTypes.YIELD_FOOD)
 		if foodPerTurnTimes100 == 0 then
 			Controls.CityGrowthLabel:LocalizeAndSetText( "TXT_KEY_CITYVIEW_STAGNATION_TEXT" )
 		elseif foodPerTurnTimes100 < 0 then
@@ -2581,7 +2576,7 @@ local function UpdateCityViewNow()
 			Controls.CityGrowthLabel:LocalizeAndSetText( "TXT_KEY_CITYVIEW_TURNS_TILL_CITIZEN_TEXT", cityGrowth )
 		end
 
-		Controls.FoodPerTurnLabel:LocalizeAndSetText( foodPerTurnTimes100 >= 0 and "TXT_KEY_CITYVIEW_PERTURN_TEXT" or "TXT_KEY_CITYVIEW_PERTURN_TEXT_NEGATIVE", foodPerTurnTimes100 / 100 )
+		Controls.FoodPerTurnLabel:LocalizeAndSetText( foodPerTurnTimes100 >= 0 and "TXT_KEY_CITYVIEW_PERTURN_TEXT" or "TXT_KEY_CITYVIEW_PERTURN_TEXT_NEGATIVE", math_floor(foodPerTurnTimes100 / 100) )
 
 		-------------------------------------------
 		-- Disable Buttons as Appropriate

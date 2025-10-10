@@ -3,6 +3,7 @@
 -------------------------------------------------
 include( "IconSupport" );
 include( "InstanceManager" );
+include ("CPK.lua")
 
 local defaultErrorTextureSheet = "CityBannerProductionImage.dds";
 local nullOffset = Vector2( 0, 0 );
@@ -23,6 +24,9 @@ local m_SortMode = ePopulation;
 local m_bSortReverse = false;
 
 local pediaSearchStrings = {};
+
+local FormatDecimal = CPK.Text.FormatDecimal;
+local FormatDecimalTimes100 = CPK.Text.FormatDecimalTimes100;
 
 -- fix for DB cache issue, by merill
 local DB_HandicapInfos = {};
@@ -145,10 +149,10 @@ function UpdateDisplay()
 		if(instance.CityGrowth) then
 			local cityGrowth = pCity:GetFoodTurnsLeft();
 			
-			if (pCity:IsFoodProduction() or pCity:FoodDifferenceTimes100() == 0) then
+			if (pCity:GetYieldRateTimes100(YieldTypes.YIELD_FOOD) == 0) then
 				cityGrowth = "-";
 				--instance.CityBannerRightBackground:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_CITY_STOPPED_GROWING_TT", localizedCityName, cityPopulation));
-			elseif pCity:FoodDifferenceTimes100() < 0 then
+			elseif pCity:GetYieldRateTimes100(YieldTypes.YIELD_FOOD) < 0 then
 				cityGrowth = "[COLOR_WARNING_TEXT]-[ENDCOLOR]";
 				--instance.CityBannerRightBackground:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_CITY_STARVING_TT",localizedCityName ));
 			else
@@ -158,34 +162,31 @@ function UpdateDisplay()
 			instance.CityGrowth:SetText(cityGrowth);
 		end
 		
-		sortEntry.Food = pCity:FoodDifference();
+		sortEntry.Food = pCity:GetYieldRateTimes100(YieldTypes.YIELD_FOOD) / 100;
         instance.Food:SetText( sortEntry.Food );
        
-		local productionYield = pCity:GetYieldRate( YieldTypes.YIELD_PRODUCTION );
-		local totalProductionPerTurn = math.floor(productionYield + (productionYield * (pCity:GetProductionModifier() / 100)));
-       
-		sortEntry.Production = totalProductionPerTurn;
+		sortEntry.Production = pCity:GetYieldRateTimes100( YieldTypes.YIELD_PRODUCTION ) / 100;
         instance.Production:SetText( sortEntry.Production );
         
         
         if(Game.IsOption(GameOptionTypes.GAMEOPTION_NO_SCIENCE)) then
 			instance.ScienceBox:SetHide(true);
         else
-			sortEntry.Science = pCity:GetYieldRate( YieldTypes.YIELD_SCIENCE );
+			sortEntry.Science = pCity:GetYieldRateTimes100( YieldTypes.YIELD_SCIENCE ) / 100;
 			instance.Science:SetText( sortEntry.Science );
 			instance.ScienceBox:SetHide(false);
         end
         
-        sortEntry.Gold = pCity:GetYieldRate( YieldTypes.YIELD_GOLD );
+        sortEntry.Gold = pCity:GetYieldRateTimes100( YieldTypes.YIELD_GOLD ) / 100;
         instance.Gold:SetText( sortEntry.Gold );
         
-        sortEntry.Culture = pCity:GetJONSCulturePerTurn();
+        sortEntry.Culture = pCity:GetYieldRateTimes100(YieldTypes.YIELD_CULTURE) / 100;
         instance.Culture:SetText( sortEntry.Culture );
         
         if(Game.IsOption(GameOptionTypes.GAMEOPTION_NO_RELIGION)) then
 			instance.FaithBox:SetHide(true);
         else
-			sortEntry.Faith = pCity:GetFaithPerTurn();
+			sortEntry.Faith = pCity:GetYieldRateTimes100(YieldTypes.YIELD_FAITH) / 100;
 			instance.Faith:SetText(sortEntry.Faith);
 			instance.FaithBox:SetHide(false);   
         end
@@ -205,24 +206,24 @@ function UpdateGPT()
     
     local iHandicap = Players[Game.GetActivePlayer()]:GetHandicapType();
 
-    Controls.TotalGoldValue:SetText( Locale.ToNumber( pPlayer:GetGold(), "#.##" ) );
+    Controls.TotalGoldValue:SetText( FormatDecimalTimes100( pPlayer:GetGoldTimes100()) );
     
-    local netGPT = pPlayer:CalculateGoldRateTimes100() / 100;
-    Controls.NetGoldValue:SetText( Locale.ToNumber( netGPT, "#.##" ) );
+    local netGPT = pPlayer:CalculateGoldRateTimes100()
+    Controls.NetGoldValue:SetText( FormatDecimalTimes100( netGPT, "#.##" ) );
     
     if( netGPT < 0 ) then
         Controls.ScienceLost:SetHide( false );
-        Controls.ScienceLostValue:SetText( Locale.ToNumber( pPlayer:GetScienceFromBudgetDeficitTimes100() / 100, "#.##" ) );
+        Controls.ScienceLostValue:SetText( FormatDecimalTimes100( pPlayer:GetScienceFromBudgetDeficitTimes100() ) );
     else
         Controls.ScienceLost:SetHide( true );
     end
     
-    Controls.GrossGoldValue:SetText( "[COLOR_POSITIVE_TEXT]" .. Locale.ToNumber( pPlayer:CalculateGrossGoldTimes100() / 100, "#.##" ) .. "[ENDCOLOR]" );
+    Controls.GrossGoldValue:SetText( "[COLOR_POSITIVE_TEXT]" .. FormatDecimalTimes100( pPlayer:CalculateGrossGoldTimes100() ) .. "[ENDCOLOR]" );
     
-    Controls.TotalExpenseValue:SetText( "[COLOR_NEGATIVE_TEXT]" .. Locale.ToNumber( pPlayer:CalculateInflatedCosts(), "#.##" ) .. "[ENDCOLOR]" );
+    Controls.TotalExpenseValue:SetText( "[COLOR_NEGATIVE_TEXT]" .. FormatDecimal( pPlayer:CalculateInflatedCosts() ) .. "[ENDCOLOR]" );
 
 	-- Cities
-    Controls.CityIncomeValue:SetText( Locale.ToNumber( pPlayer:GetGoldFromCitiesTimes100() / 100, "#.##" ) );
+    Controls.CityIncomeValue:SetText( FormatDecimalTimes100( pPlayer:GetGoldFromCitiesTimes100()) );
     
     local bFoundCity = false;
     Controls.CityStack:DestroyAllChildren();
@@ -236,7 +237,7 @@ function UpdateGPT()
             ContextPtr:BuildInstanceForControl( "TradeEntry", instance, Controls.CityStack );
             
             instance.CityName:SetText( pCity:GetName() );
-            instance.TradeIncomeValue:SetText( Locale.ToNumber( CityIncome, "#.##" ) );
+            instance.TradeIncomeValue:SetText( FormatDecimal( CityIncome) );
         end
     end
     
@@ -253,20 +254,20 @@ function UpdateGPT()
     -- Diplomacy
     local diploGPT = pPlayer:GetGoldPerTurnFromDiplomacy();
     if( diploGPT > 0 ) then
-        Controls.DiploIncomeValue:SetText( Locale.ToNumber( diploGPT, "#.##" ) );
+        Controls.DiploIncomeValue:SetText( FormatDecimal( diploGPT ) );
     else
-        Controls.DiploIncomeValue:SetText( 0 );
+        Controls.DiploIncomeValue:SetText( FormatDecimal(0) );
     end
     
     -- Religion
     local religionGPT = pPlayer:GetGoldPerTurnFromReligion();
     if( religionGPT > 0 ) then
-        Controls.ReligionIncomeValue:SetText( Locale.ToNumber( religionGPT, "#.##" ) );
+        Controls.ReligionIncomeValue:SetText( FormatDecimal( religionGPT) );
     else
-        Controls.ReligionIncomeValue:SetText( 0 );
+        Controls.ReligionIncomeValue:SetText( FormatDecimal(0) );
     end
 
-    Controls.TradeIncomeValue:SetText( Locale.ToNumber( pPlayer:GetCityConnectionGoldTimes100() / 100, "#.##" ) );
+    Controls.TradeIncomeValue:SetText( FormatDecimalTimes100( pPlayer:GetCityConnectionGoldTimes100()) );
     
     -- Trade income breakdown tooltip
     local iBaseGold = GameDefines.TRADE_ROUTE_BASE_GOLD / 100;
@@ -294,7 +295,7 @@ function UpdateGPT()
                 ContextPtr:BuildInstanceForControl( "TradeEntry", instance, Controls.TradeStack );
                 
                 instance.CityName:SetText( pCity:GetName() );
-                instance.TradeIncomeValue:SetText( Locale.ToNumber( tradeIncome, "#.##" ) );
+                instance.TradeIncomeValue:SetText( FormatDecimal( tradeIncome ) );
                 
                 local strPopInfo = " (" .. pCity:GetPopulation() .. ")"; 
                 instance.CityName:SetToolTipString( strTooltip .. strPopInfo );
@@ -318,7 +319,7 @@ function UpdateGPT()
 	
 	local iTotalUnitMaintenance = pPlayer:CalculateUnitCost();
 	
-    Controls.UnitExpenseValue:SetText( Locale.ToNumber( iTotalUnitMaintenance , "#.##" ) );
+    Controls.UnitExpenseValue:SetText(FormatDecimal( iTotalUnitMaintenance) );
     
     local iTotalUnits = pPlayer:GetNumUnits();
     
@@ -332,7 +333,7 @@ function UpdateGPT()
     
     print("Paid Units - " .. iPaidUnits);
     
-    local fCostPer = Locale.ToNumber( iTotalUnitMaintenance / iPaidUnits , "#.##" );
+    local fCostPer = FormatDecimal( iTotalUnitMaintenance / iPaidUnits );
     
     local strUnitTT = Locale.ConvertTextKey("TXT_KEY_EO_EX_UNITS", fCostPer, iPaidUnits);
     
@@ -363,7 +364,7 @@ function UpdateGPT()
     
     Controls.BuildingsToggle:SetToolTipString( strBuildingsTT );
     
-    Controls.BuildingExpenseValue:SetText( Locale.ToNumber( pPlayer:GetBuildingGoldMaintenance(), "#.##" ) );
+    Controls.BuildingExpenseValue:SetText( FormatDecimal( pPlayer:GetBuildingGoldMaintenance() ) );
    
     bFoundCity = false;
     Controls.BuildingsStack:DestroyAllChildren();
@@ -377,7 +378,7 @@ function UpdateGPT()
             ContextPtr:BuildInstanceForControl( "TradeEntry", instance, Controls.BuildingsStack );
             
             instance.CityName:SetText( pCity:GetName() );
-            instance.TradeIncomeValue:SetText( Locale.ToNumber( BuildingCost, "#.##" ) );
+            instance.TradeIncomeValue:SetText( FormatDecimal( BuildingCost) );
             instance.TradeIncome:SetToolTipString( strBuildingsModTT );
         end
     end
@@ -404,14 +405,14 @@ function UpdateGPT()
 	end
     
     Controls.TileExpense:SetToolTipString(strRoutesTT);
-    Controls.TileExpenseValue:SetText( Locale.ToNumber( pPlayer:GetImprovementGoldMaintenance(), "#.##" ) );
+    Controls.TileExpenseValue:SetText( FormatDecimal( pPlayer:GetImprovementGoldMaintenance() ) );
     
     -- Diplo
     local diploGPT = pPlayer:GetGoldPerTurnFromDiplomacy();
     if( diploGPT < 0 ) then
-        Controls.DiploExpenseValue:SetText( Locale.ToNumber( -diploGPT, "#.##" ) );
+        Controls.DiploExpenseValue:SetText( FormatDecimal( -diploGPT ) );
     else
-        Controls.DiploExpenseValue:SetText( 0 );
+        Controls.DiploExpenseValue:SetText( FormatDecimal(0) );
     end
     
     Controls.GoldScroll:CalculateInternalSize();
@@ -591,12 +592,10 @@ function ProductionDetails( city, instance )
 	-- Update Production Meter
 	if (instance.ProductionBar) then
 		
-		local iCurrentProduction = city:GetProduction();
+		local iCurrentProduction = city:GetProductionTimes100() / 100;
 		local iProductionNeeded = city:GetProductionNeeded();
-		local iProductionPerTurn = city:GetYieldRate(YieldTypes.YIELD_PRODUCTION);
-		if (city:IsFoodProduction()) then
-			iProductionPerTurn = iProductionPerTurn + city:GetYieldRate(YieldTypes.YIELD_FOOD) - city:FoodConsumption(true);
-		end
+		local iProductionPerTurn = city:GetYieldRateTimes100(YieldTypes.YIELD_PRODUCTION) / 100;
+
 		local iCurrentProductionPlusThisTurn = iCurrentProduction + iProductionPerTurn;
 		
 		local fProductionProgressPercent = iCurrentProduction / iProductionNeeded;
@@ -614,7 +613,7 @@ function ProductionDetails( city, instance )
 		local buildGrowth = "-";
 		
 		if (city:IsProduction() and not city:IsProductionProcess()) then
-			if (city:GetCurrentProductionDifferenceTimes100(false, false) > 0) then
+			if (city:GetYieldRateTimes100(YieldTypes.YIELD_PRODUCTION) > 0) then
 				buildGrowth = city:GetProductionTurnsLeft();
 			end
 		end

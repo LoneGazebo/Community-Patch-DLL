@@ -584,7 +584,7 @@ function DoVassalStatistics( ePlayer )
 	
 	-- Economic
 	Controls.VassalStatsGross:SetText( pPlayer:CalculateGrossGold() );
-	Controls.VassalStatsGold:SetText( "([COLOR_NEGATIVE_TEXT]-" ..  g_pPlayer:GetVassalGoldMaintenance(pPlayer:GetTeam(), false, true) .. "[ENDCOLOR][ICON_GOLD]) " .. pPlayer:CalculateGoldRate() );
+	Controls.VassalStatsGold:SetText( "([COLOR_NEGATIVE_TEXT]-" ..  g_pPlayer:GetVassalGoldMaintenance(pPlayer:GetTeam(), false, true) .. "[ENDCOLOR][ICON_GOLD]) " .. (pPlayer:CalculateGoldRateTimes100() / 100) );
 	Controls.VassalStatsGold:SetToolTipString( Locale.ConvertTextKey("TXT_KEY_VO_UNIT_MAINTENANCE") );
 	Controls.VassalStatsTradeRoutes:LocalizeAndSetText( "TXT_KEY_VO_TRADE_ROUTES_LABEL", pPlayer:GetNumInternationalTradeRoutesUsed(), pPlayer:GetNumInternationalTradeRoutesAvailable() );
 
@@ -616,10 +616,10 @@ function DoVassalStatistics( ePlayer )
 		szMajorityReligion = Locale.ConvertTextKey( "TXT_KEY_VO_MAJORITY_RELIGION", pReligionInfo.Description );
 	end
 	Controls.VassalStatsReligion:SetText( szMajorityReligion );
-	Controls.VassalStatsFaith:LocalizeAndSetText( pPlayer:GetTotalFaithPerTurn() );
+	Controls.VassalStatsFaith:LocalizeAndSetText( pPlayer:GetTotalFaithPerTurnTimes100() / 100 );
 
 	-- Science
-	Controls.VassalStatsScience:SetText( pPlayer:GetScience() );
+	Controls.VassalStatsScience:SetText( pPlayer:GetScienceTimes100() / 100 );
 	DoVassalTechUpdate( ePlayer );
 end
 

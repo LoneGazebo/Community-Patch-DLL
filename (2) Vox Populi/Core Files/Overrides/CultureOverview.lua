@@ -842,7 +842,7 @@ function RefreshYourCulture()
     
 		cityData.Culture = math.floor(city:GetYieldRateTimes100(YieldTypes.YIELD_CULTURE) / 100);
 		cityData.Tourism = math.floor(city:GetYieldRateTimes100(YieldTypes.YIELD_TOURISM) / 100);
-		cityData.TourismToolTip = city:GetTourismTooltip();
+		cityData.TourismToolTip = city:GetYieldRateTooltip(YieldTypes.YIELD_TOURISM);
 		cityData.GreatWorks = city:GetNumGreatWorks();
 		cityData.GreatWorksToolTip = city:GetTotalSlotsTooltip();
         

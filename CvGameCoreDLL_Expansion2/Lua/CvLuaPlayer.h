@@ -720,6 +720,7 @@ protected:
 	static int lIsMilitaryFoodProduction(lua_State* L);
 	static int lGetHighestUnitLevel(lua_State* L);
 
+	static int lGetOverflowResearchTimes100(lua_State* L);
 	static int lGetOverflowResearch(lua_State* L);
 	LUAAPIEXTN(SetOverflowResearch, void, iResearch);
 	LUAAPIEXTN(ChangeOverflowResearch, void, iResearch);

@@ -648,6 +648,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(IsMilitaryFoodProduction);
 	Method(GetHighestUnitLevel);
 
+	Method(GetOverflowResearchTimes100);
 	Method(GetOverflowResearch);
 	Method(SetOverflowResearch);
 	Method(ChangeOverflowResearch);
@@ -8343,6 +8344,12 @@ int CvLuaPlayer::lGetHighestUnitLevel(lua_State* L)
 	return BasicLuaMethod(L, &CvPlayerAI::getHighestUnitLevel);
 }
 
+//------------------------------------------------------------------------------
+//int getOverflowResearchTimes100();
+int CvLuaPlayer::lGetOverflowResearchTimes100(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::getOverflowResearchTimes100);
+}
 //------------------------------------------------------------------------------
 //int getOverflowResearch();
 int CvLuaPlayer::lGetOverflowResearch(lua_State* L)

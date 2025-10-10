@@ -771,9 +771,9 @@ function RefreshYourCulture()
 		
 		cityData.HealthPercent = 1 - (city:GetDamage() / city:GetMaxHitPoints());
     
-		cityData.Culture = city:GetJONSCulturePerTurn();
-		cityData.Tourism = city:GetBaseTourism();
-		cityData.TourismToolTip = city:GetTourismTooltip();
+		cityData.Culture = city:GetYieldRateTimes100(YieldTypes.YIELD_CULTURE) / 100;
+		cityData.Tourism = city:GetYieldRateTimes100(YieldTypes.YIELD_TOURISM) / 100
+		cityData.TourismToolTip = city:GetYieldRateTooltip(YieldTypes.YIELD_TOURISM);
 		cityData.GreatWorks = city:GetNumGreatWorks();
 		cityData.GreatWorksToolTip = city:GetTotalSlotsTooltip();
         
@@ -2095,8 +2095,8 @@ function RefreshPlayerInfluence()
 				
 					
 				
-					local iInfluence = pSelectedPlayer:GetInfluenceOn(iPlayer);
-					local iCulture = pPlayer:GetJONSCultureEverGenerated();
+					local iInfluence = pSelectedPlayer:GetInfluenceOnTimes100(iPlayer) / 100;
+					local iCulture = pPlayer:GetJONSCultureEverGeneratedTimes100() / 100;
 					local iPercent = 0;
 					
 					if (iCulture > 0) then
@@ -2146,7 +2146,7 @@ function RefreshPlayerInfluence()
 					playerInfluence.Modifier = iModifiers;
 					playerInfluence.ModifierToolTip = strModifiersToolTip;
 					
-					playerInfluence.TourismPerTurn = pSelectedPlayer:GetInfluencePerTurn(iPlayer);
+					playerInfluence.TourismPerTurn = pSelectedPlayer:GetTourismPerTurnIncludingInstantTimes100(iPlayer) / 100;
 					playerInfluence.TourismPerTurn = math.floor(playerInfluence.TourismPerTurn);
 					
 					if(playerInfluence.TourismPerTurn > 0) then

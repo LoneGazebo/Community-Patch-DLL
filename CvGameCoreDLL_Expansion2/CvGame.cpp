@@ -12330,7 +12330,17 @@ void CvGame::BuildProdModHelpText(CvString* toolTipSink, const char* strTextKey,
 
 		const char* const localized = localizedText.toUTF8();
 		if(localized)
-			(*toolTipSink) += localized;
+		{
+			// Remove leading [NEWLINE] if the tooltip is currently empty
+			if (toolTipSink->empty() && strncmp(localized, "[NEWLINE]", 9) == 0)
+			{
+				(*toolTipSink) += (localized + 9);
+			}
+			else
+			{
+				(*toolTipSink) += localized;
+			}
+		}
 	}
 }
 

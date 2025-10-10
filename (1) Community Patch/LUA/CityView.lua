@@ -639,7 +639,7 @@ local function BuildProductionBox(pCity, ePlayer)
 	table.insert(tLines, strProductionTooltip);
 
 	Controls.ProductionPortraitButton:SetToolTipString(table.concat(tLines, "[NEWLINE]"));
-	Controls.ProdPerTurnLabel:LocalizeAndSetText("TXT_KEY_CITYVIEW_PERTURN_TEXT", fProductionPerTurn);
+	Controls.ProdPerTurnLabel:LocalizeAndSetText("TXT_KEY_CITYVIEW_PERTURN_TEXT", math.floor(fProductionPerTurn));
 	Controls.ProdBox:SetToolTipString(strProductionTooltip);
 
 	---------------------------------------------------------------
@@ -1389,13 +1389,13 @@ local function UpdateViewFull()
 	Controls.PopulationBox:SetToolTipString(strFoodTooltip);
 	local fFoodPerTurn = pCity:GetYieldRateTimes100(YieldTypes.YIELD_FOOD) / 100;
 	if fFoodPerTurn > 0 then
-		Controls.FoodPerTurnLabel:LocalizeAndSetText("TXT_KEY_CITYVIEW_PERTURN_TEXT", fFoodPerTurn);
+		Controls.FoodPerTurnLabel:LocalizeAndSetText("TXT_KEY_CITYVIEW_PERTURN_TEXT", math.floor(fFoodPerTurn));
 		Controls.CityGrowthLabel:LocalizeAndSetText("TXT_KEY_CITYVIEW_TURNS_TILL_CITIZEN_TEXT", pCity:GetFoodTurnsLeft());
 	elseif fFoodPerTurn == 0 then
-		Controls.FoodPerTurnLabel:LocalizeAndSetText("TXT_KEY_CITYVIEW_PERTURN_TEXT", fFoodPerTurn);
+		Controls.FoodPerTurnLabel:LocalizeAndSetText("TXT_KEY_CITYVIEW_PERTURN_TEXT", math.floor(fFoodPerTurn));
 		Controls.CityGrowthLabel:LocalizeAndSetText("TXT_KEY_CITYVIEW_STAGNATION_TEXT");
 	else
-		Controls.FoodPerTurnLabel:LocalizeAndSetText("TXT_KEY_CITYVIEW_PERTURN_TEXT_NEGATIVE", fFoodPerTurn);
+		Controls.FoodPerTurnLabel:LocalizeAndSetText("TXT_KEY_CITYVIEW_PERTURN_TEXT_NEGATIVE", math.floor(fFoodPerTurn));
 		Controls.CityGrowthLabel:LocalizeAndSetText("TXT_KEY_CITYVIEW_STARVATION_TEXT");
 	end
 	local iPopulation = pCity:GetPopulation();
@@ -1403,24 +1403,24 @@ local function UpdateViewFull()
 	Controls.CityPopulationLabelSuffix:LocalizeAndSetText("TXT_KEY_CITYVIEW_CITIZENS_TEXT", iPopulation);
 	Controls.PeopleMeter:SetPercent(pCity:GetFoodTimes100() / pCity:GrowthThreshold() / 100);
 
-	Controls.GoldPerTurnLabel:LocalizeAndSetText("TXT_KEY_CITYVIEW_PERTURN_TEXT", pCity:GetYieldRateTimes100(YieldTypes.YIELD_GOLD) / 100);
+	Controls.GoldPerTurnLabel:LocalizeAndSetText("TXT_KEY_CITYVIEW_PERTURN_TEXT", math.floor(pCity:GetYieldRateTimes100(YieldTypes.YIELD_GOLD) / 100));
 	Controls.GoldBox:SetToolTipString(GetGoldTooltip(pCity));
 
 	if Game.IsOption(GameOptionTypes.GAMEOPTION_NO_SCIENCE) then
 		Controls.SciencePerTurnLabel:LocalizeAndSetText("TXT_KEY_CITYVIEW_OFF");
 	else
-		Controls.SciencePerTurnLabel:LocalizeAndSetText("TXT_KEY_CITYVIEW_PERTURN_TEXT", pCity:GetYieldRateTimes100(YieldTypes.YIELD_SCIENCE) / 100);
+		Controls.SciencePerTurnLabel:LocalizeAndSetText("TXT_KEY_CITYVIEW_PERTURN_TEXT", math.floor(pCity:GetYieldRateTimes100(YieldTypes.YIELD_SCIENCE) / 100));
 	end
 	Controls.ScienceBox:SetToolTipString(GetScienceTooltip(pCity));
 
 	if Game.IsOption(GameOptionTypes.GAMEOPTION_NO_RELIGION) then
 		Controls.FaithPerTurnLabel:LocalizeAndSetText("TXT_KEY_CITYVIEW_OFF");
 	else
-		Controls.FaithPerTurnLabel:LocalizeAndSetText("TXT_KEY_CITYVIEW_PERTURN_TEXT", pCity:GetYieldRateTimes100(YieldTypes.YIELD_FAITH) / 100);
+		Controls.FaithPerTurnLabel:LocalizeAndSetText("TXT_KEY_CITYVIEW_PERTURN_TEXT", math.floor(pCity:GetYieldRateTimes100(YieldTypes.YIELD_FAITH) / 100));
 	end
 	Controls.FaithBox:SetToolTipString(GetFaithTooltip(pCity));
 
-	Controls.TourismPerTurnLabel:LocalizeAndSetText("TXT_KEY_CITYVIEW_PERTURN_TEXT", pCity:GetYieldRateTimes100(YieldTypes.YIELD_TOURISM) / 100);
+	Controls.TourismPerTurnLabel:LocalizeAndSetText("TXT_KEY_CITYVIEW_PERTURN_TEXT", math.floor(pCity:GetYieldRateTimes100(YieldTypes.YIELD_TOURISM) / 100));
 	Controls.TourismBox:SetToolTipString(GetTourismTooltip(pCity));
 
 	if MOD_BALANCE_VP then
@@ -1433,7 +1433,7 @@ local function UpdateViewFull()
 		Refresh(Controls.TopLeftStack);
 	end
 
-	Controls.CulturePerTurnLabel:LocalizeAndSetText("TXT_KEY_CITYVIEW_PERTURN_TEXT", pCity:GetYieldRateTimes100(YieldTypes.YIELD_CULTURE) / 100);
+	Controls.CulturePerTurnLabel:LocalizeAndSetText("TXT_KEY_CITYVIEW_PERTURN_TEXT", math.floor(pCity:GetYieldRateTimes100(YieldTypes.YIELD_CULTURE) / 100));
 	Controls.CultureBox:SetToolTipString(GetCultureTooltip(pCity));
 	local fCultureStored = pCity:GetJONSCultureStoredTimes100() / 100;
 	local iCultureNeeded = pCity:GetJONSCultureThreshold();

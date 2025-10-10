@@ -1633,73 +1633,73 @@
 		</Row>
 		<!-- Yield -->
 		<Row Tag="TXT_KEY_YIELD_FROM_GREAT_WORKS">
-			<Text>{1_Num} {2_IconString} from [ICON_GREAT_WORK] Great Works and Themes</Text>
+			<Text>[ICON_BULLET]{1_Num} {2_IconString} from [ICON_GREAT_WORK] Great Works and Themes</Text>
 		</Row>
 		<Row Tag="TXT_KEY_YIELD_FROM_TRAIT_BONUS">
-			<Text>{1_Num} {2_IconString} from Trait</Text>
+			<Text>[ICON_BULLET]{1_Num} {2_IconString} from Trait</Text>
 		</Row>
 		<Row Tag="TXT_KEY_YIELD_FROM_POLICIES">
-			<Text>{1_Num} {2_IconString} from Policies</Text>
+			<Text>[ICON_BULLET]{1_Num} {2_IconString} from Policies</Text>
 		</Row>
 		<Row Tag="TXT_KEY_YIELD_FROM_EMPIRE_POP">
-			<Text>{1_Num} {2_IconString} from National [ICON_CITIZEN] Population</Text>
+			<Text>[ICON_BULLET]{1_Num} {2_IconString} from Empire-Wide [ICON_CITIZEN] Population</Text>
 		</Row>
 		<Row Tag="TXT_KEY_YIELD_FROM_NON_SPECIALISTS">
-			<Text>{1_Num} {2_IconString} from non-Specialist Citizens</Text>
+			<Text>[ICON_BULLET]{1_Num} {2_IconString} from non-Specialist Citizens</Text>
 		</Row>
 		<Row Tag="TXT_KEY_YIELD_FROM_TILE_EXPEND">
-			<Text>{1_Num} {2_IconString} from Expended Units</Text>
+			<Text>[ICON_BULLET]{1_Num} {2_IconString} from Expended Units</Text>
 		</Row>
 		<Row Tag="TXT_KEY_YIELD_FROM_PIETY">
-			<Text>{1_Num} {2_IconString} from following the [ICON_RELIGION] Primary Religion</Text>
+			<Text>[ICON_BULLET]{1_Num} {2_IconString} from following the [ICON_RELIGION] Primary Religion</Text>
 		</Row>
 		<Row Tag="TXT_KEY_YIELD_FROM_PROCESS">
-			<Text>{1_Num} {2_IconString} from [ICON_SWAP] Process</Text>
+			<Text>[ICON_BULLET]{1_Num} {2_IconString} from [ICON_SWAP] Process</Text>
 		</Row>
 		<Row Tag="TXT_KEY_YIELD_FROM_TRADE_ROUTES">
-			<Text>{1_Num} {2_IconString} from [ICON_INTERNATIONAL_TRADE] Trade Routes</Text>
+			<Text>[ICON_BULLET]{1_Num} {2_IconString} from [ICON_INTERNATIONAL_TRADE] Trade Routes</Text>
 		</Row>
 		<Row Tag="TXT_KEY_YIELD_FROM_CONNECTION">
-			<Text>{1_Num} {2_IconString} from [ICON_CONNECTED] City Connection</Text>
+			<Text>[ICON_BULLET]{1_Num} {2_IconString} from [ICON_CONNECTED] City Connection</Text>
 		</Row>
 		<Row Tag="TXT_KEY_YIELD_FROM_INDUSTRIAL_CITY_CONNECTION">
-			<Text>{1_Num} {2_IconString} from [ICON_INDUSTRIAL_CONNECTED] Industrial City Connection</Text>
+			<Text>[ICON_BULLET]{1_Num} {2_IconString} from [ICON_INDUSTRIAL_CONNECTED] Industrial City Connection</Text>
 		</Row>
 		<Row Tag="TXT_KEY_YIELD_FROM_UNITS">
-			<Text>{1_Num} {2_IconString} from Unit Garrison</Text>
+			<Text>[ICON_BULLET]{1_Num} {2_IconString} from Unit Garrison</Text>
 		</Row>
 		<Row Tag="TXT_KEY_YIELD_FROM_CITY_YIELDS">
-			<Text>{1_Num} {2_IconString} from Yield Conversion</Text>
+			<Text>[ICON_BULLET]{1_Num} {2_IconString} from Yield Conversion</Text>
 		</Row>
 		<Row Tag="TXT_KEY_YIELD_FROM_CS_ALLIANCE">
-			<Text>{1_Num} {2_IconString} from [ICON_CITY_STATE] City-States</Text>
+			<Text>[ICON_BULLET]{1_Num} {2_IconString} from [ICON_CITY_STATE] City-States</Text>
 		</Row>
 		<Row Tag="TXT_KEY_YIELD_FROM_WORLD_CONGRESS">
-			<Text>{1_Num} {2_IconString} from Active Resolutions</Text>
+			<Text>[ICON_BULLET]{1_Num} {2_IconString} from Active Resolutions</Text>
 		</Row>
 		<Row Tag="TXT_KEY_YIELD_FROM_CORPORATIONS">
-			<Text>{1_Num} {2_IconString} from Corporation</Text>
+			<Text>[ICON_BULLET]{1_Num} {2_IconString} from Corporation</Text>
 		</Row>
 		<Row Tag="TXT_KEY_YIELD_FROM_EVENTS">
-			<Text>{1_Num} {2_IconString} from Active Events</Text>
+			<Text>[ICON_BULLET]{1_Num} {2_IconString} from Active Events</Text>
 		</Row>
 		<Row Tag="TXT_KEY_YIELD_CONVERTED_TO_PRODUCTION">
-			<Text>[COLOR_NEGATIVE_TEXT]-{1_Num}[ENDCOLOR] {2_IconString} converted to [ICON_PRODUCTION] Production</Text>
+			<Text>[ICON_BULLET][COLOR_NEGATIVE_TEXT]-{1_Num}[ENDCOLOR] {2_IconString} converted to [ICON_PRODUCTION] Production</Text>
 		</Row>
 		<Row Tag="TXT_KEY_YIELD_FROM_EXCESS_FOOD">
-			<Text>{1_Num} {2_IconString} from excess [ICON_FOOD] Food</Text>
+			<Text>[ICON_BULLET]{1_Num} {2_IconString} from excess [ICON_FOOD] Food</Text>
 		</Row>
 		<Row Tag="TXT_KEY_YIELD_FROM_CULTURE">
-			<Text>{1_Num} {2_IconString} from [ICON_CULTURE] Culture</Text>
+			<Text>[ICON_BULLET]{1_Num} {2_IconString} from [ICON_CULTURE] Culture</Text>
 		</Row>
 		<Row Tag="TXT_KEY_YIELD_POST_MODIFIER">
 			<Text>{1: number "'[COLOR_POSITIVE_TEXT]'#,##0.00;'[COLOR_NEGATIVE_TEXT]-'#,##0.00"} {2_IconString} after Modifiers[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EATEN_FOOD">
-			<Text>[NEWLINE][ICON_BULLET][COLOR_NEGATIVE_TEXT]-{1_Num}[ENDCOLOR] [ICON_FOOD] eaten by [ICON_CITIZEN] Citizens</Text>
+			<Text>[ICON_BULLET][COLOR_NEGATIVE_TEXT]-{1_Num}[ENDCOLOR] [ICON_FOOD] eaten by [ICON_CITIZEN] Citizens</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EXCESS_FOOD">
-			<Text>[NEWLINE][ICON_BULLET]{1: number "'[COLOR_POSITIVE_TEXT]'+#,##0.00;'[COLOR_NEGATIVE_TEXT]-'#,##0.00"}[ENDCOLOR] excess [ICON_FOOD] before Modifiers</Text>
+			<Text>{1: number "'[COLOR_POSITIVE_TEXT]'+#,##0.00;'[COLOR_NEGATIVE_TEXT]-'#,##0.00"}[ENDCOLOR] excess [ICON_FOOD] before Modifiers[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GROWTH_MOD_BELIEF">
 			<Text>[NEWLINE][ICON_BULLET]{1: number "'+'##;'-'##"}% from [ICON_RELIGION] Religious Beliefs</Text>
@@ -1850,16 +1850,16 @@
 		</Row>
 		<!-- Great person points -->
 		<Row Tag="TXT_KEY_GPP_FROM_SPECIALIST">
-			<Text>{1_Num} {2_IconString} from Specialists</Text>
+			<Text>[NEWLINE]{1_Num} {2_IconString} from Specialists</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GPP_FROM_BUILDING">
-			<Text>{1_Num} {2_IconString} from Buildings</Text>
+			<Text>[NEWLINE]{1_Num} {2_IconString} from Buildings</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GPP_FROM_RELIGION">
-			<Text>{1_Num} {2_IconString} from [ICON_RELIGION] Majority Religion</Text>
+			<Text>[NEWLINE]{1_Num} {2_IconString} from [ICON_RELIGION] Majority Religion</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GPP_FROM_MONOPOLY">
-			<Text>{1_Num} {2_IconString} from [ICON_MONOPOLY] Monopolies</Text>
+			<Text>[NEWLINE]{1_Num} {2_IconString} from [ICON_MONOPOLY] Monopolies</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GPP_BASE">
 			<Text>Base {1_IconString} {2_GreatPerson:textkey} Points: {3: number "#.##"}</Text>

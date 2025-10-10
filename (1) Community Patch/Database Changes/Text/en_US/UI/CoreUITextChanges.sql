@@ -133,6 +133,34 @@ UPDATE Language_en_US
 SET Text = '{1: number "''[COLOR_POSITIVE_TEXT]''#,##0.00;''[COLOR_NEGATIVE_TEXT]-''#,##0.00"} {2_IconString} Total[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_YIELD_TOTAL';
 
+UPDATE Language_en_US
+SET Text = '[ICON_BULLET]{1_Num} {2_IconString} from [ICON_CULTURE] Culture'
+WHERE Tag = 'TXT_KEY_YIELD_FROM_CULTURE';
+
+UPDATE Language_en_US
+SET Text = '[ICON_BULLET]{1_Num} {2_IconString} from Terrain'
+WHERE Tag = 'TXT_KEY_YIELD_FROM_TERRAIN';
+
+UPDATE Language_en_US
+SET Text = '[ICON_BULLET]{1_Num} {2_IconString} from Buildings'
+WHERE Tag = 'TXT_KEY_YIELD_FROM_BUILDINGS';
+
+UPDATE Language_en_US
+SET Text = '[ICON_BULLET]{1_Num} {2_IconString} from Specialists'
+WHERE Tag = 'TXT_KEY_YIELD_FROM_SPECIALISTS';
+
+UPDATE Language_en_US
+SET Text = '[ICON_BULLET]{1_Num} {2_IconString} from Religion'
+WHERE Tag = 'TXT_KEY_YIELD_FROM_RELIGION';
+
+UPDATE Language_en_US
+SET Text = '[ICON_BULLET]{1_Num} {2_IconString} from [ICON_CITIZEN] Population'
+WHERE Tag = 'TXT_KEY_YIELD_FROM_POP';
+UPDATE Language_en_US
+
+SET Text = '[ICON_BULLET]{1_Num} {2_IconString} from other sources'
+WHERE Tag = 'TXT_KEY_YIELD_FROM_MISC';
+
 ------------------------------------------------
 -- City screen/banner
 ------------------------------------------------

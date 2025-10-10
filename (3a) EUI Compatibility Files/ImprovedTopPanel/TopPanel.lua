@@ -7,6 +7,7 @@
 -- compatible with Gazebo's City-State Diplomacy Mod (CSD) for Brave New World v 23
 -------------------------------
 include( "EUI_utilities" )
+include ("CPK.lua")
 
 Events.SequenceGameInitComplete.Add(function()
 print( "Loading EUI top panel",ContextPtr,os.clock(), [[
@@ -28,6 +29,11 @@ local ExtraCondensedHappiness = false -- Remove Happy & Unhappy numbers, only di
 local NoParentheses = true -- Remove parentheses from supply text
 local HideMenuButton = false -- set true to hide
 local HideCivilopediaButton = false -- set true to hide
+
+local FormatDecimal = CPK.Text.FormatDecimal
+local FormatDecimalTimes100 = CPK.Text.FormatDecimalTimes100
+local FormatInteger = CPK.Text.FormatInteger
+local FormatIntegerTimes100 = CPK.Text.FormatIntegerTimes100
 ------------------------------
 
 local NavalSupplyID = GameInfoTypes.RESOURCE_SAILORS -- Support for Separate Naval Supply mod
@@ -420,7 +426,7 @@ local function UpdateTopPanelNow()
 			if techID ~= -1 then
 			-- research in progress
 
-				local scienceProgress = g_activePlayer:GetResearchProgress(techID)
+				local scienceProgress = g_activePlayer:GetResearchProgressTimes100(techID) / 100
 				local scienceNeeded = g_activePlayer:GetResearchCost(techID)
 
 				if sciencePerTurnTimes100 > 0 then
@@ -496,17 +502,17 @@ local function UpdateTopPanelNow()
 
 	if civ5_mode then
 		-- Clever Firaxis...
-		culturePerTurn = g_activePlayer:GetTotalJONSCulturePerTurn()
-		cultureProgress = g_activePlayer:GetJONSCulture()
+		culturePerTurn = g_activePlayer:GetTotalJONSCulturePerTurnTimes100() / 100
+		cultureProgress = g_activePlayer:GetJONSCultureTimes100() / 100
 
 		-----------------------------
 		-- Update gold stats
 		-----------------------------
 
 		if PerTurnOnLeft then
-			Controls.GoldPerTurn:LocalizeAndSetText( "TXT_KEY_ITP_TOP_PANEL_GOLD", g_activePlayer:CalculateGoldRate(), g_activePlayer:GetGold() )
+			Controls.GoldPerTurn:LocalizeAndSetText( "TXT_KEY_ITP_TOP_PANEL_GOLD", FormatIntegerTimes100(g_activePlayer:CalculateGoldRateTimes100()), FormatIntegerTimes100(g_activePlayer:GetGoldTimes100()) )
 		else
-			Controls.GoldPerTurn:LocalizeAndSetText( "TXT_KEY_TOP_PANEL_GOLD", g_activePlayer:GetGold(), g_activePlayer:CalculateGoldRate() )
+			Controls.GoldPerTurn:LocalizeAndSetText( "TXT_KEY_TOP_PANEL_GOLD", FormatIntegerTimes100(g_activePlayer:GetGoldTimes100()), FormatIntegerTimes100(g_activePlayer:CalculateGoldRateTimes100()) )
 		end
 
 		-----------------------------
@@ -569,7 +575,7 @@ local function UpdateTopPanelNow()
 			Controls.HappinessString:SetText(happinessText)
 
 			local goldenAgeTurns = g_activePlayer:GetGoldenAgeTurns()
-			local happyProgress = g_activePlayer:GetGoldenAgeProgressMeter()
+			local happyProgress = g_activePlayer:GetGoldenAgeProgressMeterTimes100() / 100
 			local happyNeeded = g_activePlayer:GetGoldenAgeProgressThreshold()
 			-- CBP
 			local iGAPReligion = g_activePlayer:GetGAPFromReligion();
@@ -603,8 +609,8 @@ local function UpdateTopPanelNow()
 		-- Update Faith
 		-----------------------------
 		if g_isReligionEnabled then
-			local faithPerTurn = g_activePlayer:GetTotalFaithPerTurn()
-			local faithProgress = g_activePlayer:GetFaith()
+			local faithPerTurn = g_activePlayer:GetTotalFaithPerTurnTimes100() / 100
+			local faithProgress = g_activePlayer:GetFaithTimes100() / 100
 			local faithProgressNext = faithProgress + faithPerTurn
 
 			local faithTarget, faithNeeded
@@ -982,7 +988,7 @@ g_toolTipHandler.SciencePerTurn = function()-- control )
 			local researchTurnsLeft = g_activePlayer:GetResearchTurnsLeft( techID, true )
 			tech = GameInfo.Technologies[ techID ]
 			local researchCost = g_activePlayer:GetResearchCost( techID )
-			local researchProgress = g_activePlayer:GetResearchProgress( techID )
+			local researchProgress = g_activePlayer:GetResearchProgressTimes100( techID ) / 100
 			local tip = researchProgress .. "[ICON_RESEARCH]"
 			if tech then
 				tip = L( "TXT_KEY_PROGRESS_TOWARDS", g_scienceTextColor .. Locale.ToUpper( tech.Description ) .. "[ENDCOLOR]" ) .. " " .. tip .. "/ " .. researchCost .. "[ICON_RESEARCH]"
@@ -1082,9 +1088,8 @@ g_toolTipHandler.SciencePerTurn = function()-- control )
 			end
 
 			-- Compatibility with Gazebo's City-State Diplomacy Mod (CSD) for Brave New World v23
-			if g_activePlayer.GetScienceRateFromMinorAllies and g_activePlayer.GetScienceRateFromLeagueAid then
+			if g_activePlayer.GetScienceRateFromMinorAllies then
 				tips:insertLocalizedIfNonZero( "TXT_KEY_MINOR_SCIENCE_FROM_LEAGUE_ALLIES", g_activePlayer:GetScienceRateFromMinorAllies() )
-				tips:insertLocalizedIfNonZero( "TXT_KEY_SCIENCE_FUNDING_FROM_LEAGUE", g_activePlayer:GetScienceRateFromLeagueAid() )
 			end
 -- CBP
 			-- Science from Annexed Minors
@@ -1549,7 +1554,7 @@ if civ5_mode then
 			local tips = table()
 			local excessHappiness = g_activePlayer:GetHappinessForGAP()
 			local goldenAgeTurns = g_activePlayer:GetGoldenAgeTurns()
-			local happyProgress = g_activePlayer:GetGoldenAgeProgressMeter()
+			local happyProgress = g_activePlayer:GetGoldenAgeProgressMeterTimes100() / 100
 			local happyNeeded = g_activePlayer:GetGoldenAgeProgressThreshold()
 			-- CBP
 			local iGAPReligion = g_activePlayer:GetGAPFromReligion();
@@ -1830,22 +1835,12 @@ g_toolTipHandler.CultureString = function()-- control )
 	else
 		local turnsRemaining = 1
 		local cultureProgress, culturePerTurn, culturePerTurnForFree, culturePerTurnFromCities, culturePerTurnFromExcessHappiness, culturePerTurnFromTraits
-		-- Firaxis Cleverness...
-		if civ5_mode then
-			cultureProgress = g_activePlayer:GetJONSCulture()
-			culturePerTurn = g_activePlayer:GetTotalJONSCulturePerTurn()
-			culturePerTurnForFree = g_activePlayer:GetJONSCulturePerTurnForFree()
-			culturePerTurnFromCities = g_activePlayer:GetJONSCulturePerTurnFromCities()
-			culturePerTurnFromExcessHappiness = g_activePlayer:GetJONSCulturePerTurnFromExcessHappiness()
-			culturePerTurnFromTraits = bnw_mode and g_activePlayer:GetJONSCulturePerTurnFromTraits() or 0
-		else
-			cultureProgress = g_activePlayer:GetCulture()
-			culturePerTurn = g_activePlayer:GetTotalCulturePerTurn()
-			culturePerTurnForFree = g_activePlayer:GetCulturePerTurnForFree()
-			culturePerTurnFromCities = g_activePlayer:GetCulturePerTurnFromCities()
-			culturePerTurnFromExcessHappiness = g_activePlayer:GetCulturePerTurnFromExcessHealth()
-			culturePerTurnFromTraits = g_activePlayer:GetCulturePerTurnFromTraits()
-		end
+		cultureProgress = g_activePlayer:GetJONSCultureTimes100() / 100
+		culturePerTurn = g_activePlayer:GetTotalJONSCulturePerTurnTimes100() / 100
+		culturePerTurnForFree = g_activePlayer:GetJONSCulturePerTurnForFree()
+		culturePerTurnFromCities = g_activePlayer:GetYieldRateFromCitiesTimes100(YieldTypes.YIELD_CULTURE) / 100
+		culturePerTurnFromExcessHappiness = g_activePlayer:GetJONSCulturePerTurnFromExcessHappiness()
+		culturePerTurnFromTraits = bnw_mode and g_activePlayer:GetJONSCulturePerTurnFromTraits() or 0
 		local cultureTheshold = g_activePlayer:GetNextPolicyCost()
 		if cultureTheshold > cultureProgress then
 			if culturePerTurn > 0 then
@@ -1863,89 +1858,7 @@ g_toolTipHandler.CultureString = function()-- control )
 		tips:insert( L( "TXT_KEY_PROGRESS_TOWARDS", "[COLOR_MAGENTA]" .. Locale.ToUpper"TXT_KEY_ADVISOR_SCREEN_SOCIAL_POLICY_DISPLAY" .. "[ENDCOLOR]" )
 				.. " " .. cultureProgress .. "[ICON_CULTURE]/ " .. cultureTheshold .. "[ICON_CULTURE]" )
 
-		if culturePerTurn > 0 then
-			local cultureOverflow = culturePerTurn * turnsRemaining + cultureProgress - cultureTheshold
-			local tip = "[COLOR_MAGENTA]" .. Locale.ToUpper( L( "TXT_KEY_STR_TURNS", turnsRemaining ) )
-					.. "[ENDCOLOR]"	.. S( " %+g[ICON_CULTURE]", cultureOverflow )
-			if turnsRemaining > 1 then
-				tip = L( "TXT_KEY_STR_TURNS", turnsRemaining -1 )
-					.. S( " %+g[ICON_CULTURE]  ", cultureOverflow - culturePerTurn )
-					.. tip
-			end
-			tips:insert( tip )
-		end
-
-		tips:insert( "" )
-		tips:insert( "[COLOR_MAGENTA]" .. S( "%+g", culturePerTurn )
-				.. "[ENDCOLOR] " .. L"TXT_KEY_REPLAY_DATA_CULTUREPERTURN" )
-
-		-- Culture for Free
-		tips:insertLocalizedIfNonZero( "TXT_KEY_TP_CULTURE_FOR_FREE", culturePerTurnForFree )
-
-		-- Culture from Cities
-		tips:insertLocalizedIfNonZero( "TXT_KEY_TP_CULTURE_FROM_CITIES", culturePerTurnFromCities )
-
-		-- Culture from Excess Happiness / Health
-		tips:insertLocalizedIfNonZero( "TXT_KEY_TP_CULTURE_FROM_" .. g_happinessString, culturePerTurnFromExcessHappiness )
-
-		-- Culture from Traits
-		tips:insertLocalizedIfNonZero( "TXT_KEY_TP_CULTURE_FROM_TRAITS", culturePerTurnFromTraits )
-
-		if civ5_mode then
-			-- Culture from Minor Civs
-			local culturePerTurnFromMinorCivs = g_activePlayer:GetCulturePerTurnFromMinorCivs()
-			tips:insertLocalizedIfNonZero( "TXT_KEY_TP_CULTURE_FROM_MINORS", culturePerTurnFromMinorCivs )
-
--- CBP
-			-- Culture from Annexed Minors
-			local culturePerTurnFromAnnexedMinors = g_activePlayer:GetCulturePerTurnFromAnnexedMinors()
-			tips:insertLocalizedIfNonZero( "TXT_KEY_TP_CULTURE_FROM_ANNEXED_MINORS", culturePerTurnFromAnnexedMinors )
-
-			-- Culture from Espionage
-			local iCultureFromEspionage = g_activePlayer:GetYieldPerTurnFromEspionageEvents(YieldTypes.YIELD_CULTURE, true) - g_activePlayer:GetYieldPerTurnFromEspionageEvents(YieldTypes.YIELD_CULTURE, false);
-			tips:insertLocalizedIf( iCultureFromEspionage > 0 and "TXT_KEY_TP_CULTURE_FROM_ESPIONAGE_POSITIVE", iCultureFromEspionage )
-			tips:insertLocalizedIf( iCultureFromEspionage < 0 and "TXT_KEY_TP_CULTURE_FROM_ESPIONAGE_NEGATIVE", iCultureFromEspionage )
-
--- END
-
-			-- Culture from Religion
-			local culturePerTurnFromReligion = gk_mode and g_activePlayer:GetCulturePerTurnFromReligion() or 0
-			tips:insertLocalizedIfNonZero( "TXT_KEY_TP_CULTURE_FROM_RELIGION", culturePerTurnFromReligion )
-
-			-- Culture from bonus turns (League Project)
-			local culturePerTurnFromBonusTurns = 0
-			if bnw_mode then
-				culturePerTurnFromBonusTurns = g_activePlayer:GetCulturePerTurnFromBonusTurns()
-				tips:insertLocalizedIfNonZero( "TXT_KEY_TP_CULTURE_FROM_BONUS_TURNS", culturePerTurnFromBonusTurns, g_activePlayer:GetCultureBonusTurns() )
-			end
-
-			-- Culture from Vassals / Compatibility with Putmalk's Civ IV Diplomacy Features Mod
--- C4DF
-			local culturePerTurnFromVassals = 0;
-			if g_activePlayer.GetYieldPerTurnFromVassalsTimes100 then
-				culturePerTurnFromVassals = g_activePlayer:GetYieldPerTurnFromVassalsTimes100(YieldTypes.YIELD_CULTURE) / 100
-				tips:insertLocalizedIfNonZero( "TXT_KEY_TP_CULTURE_VASSALS", culturePerTurnFromVassals )
-			end
--- END
-			-- Culture from Golden Age
--- CBP
-
-			local iCultureFromGoldenAge = (culturePerTurn - culturePerTurnForFree - culturePerTurnFromCities - culturePerTurnFromExcessHappiness - culturePerTurnFromMinorCivs - culturePerTurnFromReligion - culturePerTurnFromTraits - culturePerTurnFromBonusTurns - culturePerTurnFromVassals - culturePerTurnFromAnnexedMinors- iCultureFromEspionage)
-
-			tips:insertLocalizedIfNonZero( "TXT_KEY_TP_CULTURE_FROM_GOLDEN_AGE", iCultureFromGoldenAge)
--- END
-
-		else
-			-- Uncategorized Culture
-			tips:insertLocalizedIfNonZero( "TXT_KEY_TP_YIELD_FROM_UNCATEGORIZED", culturePerTurn - culturePerTurnForFree - culturePerTurnFromCities - culturePerTurnFromExcessHappiness - culturePerTurnFromTraits )
-		end
-
-		-- CBP
-		if(g_activePlayer:GetTechsToFreePolicy() >= 0)then
-			tips:insert( "[NEWLINE][NEWLINE]" )
-			tips:insert( L("TXT_KEY_TP_TECHS_NEEDED_FOR_NEXT_FREE_POLICY", g_activePlayer:GetTechsToFreePolicy()) )
-		end
---END
+		tips:insert( g_activePlayer:GetTotalCulturePerTurnTooltip() )		
 
 		-- Let people know that building more cities makes policies harder to get
 
@@ -1971,20 +1884,20 @@ if civ5_mode and gk_mode then
 
 		if g_isReligionEnabled then
 			local tips = table()
-			local faithPerTurn = g_activePlayer:GetTotalFaithPerTurn()
+			local faithPerTurn = g_activePlayer:GetTotalFaithPerTurnTimes100() / 100
 
 			if bnw_mode and g_activePlayer:IsAnarchy() then
 				tips:insert( L( "TXT_KEY_TP_ANARCHY", g_activePlayer:GetAnarchyNumTurns() ) )
 				tips:insert( "" )
 			end
 
-			tips:insert( L("TXT_KEY_TP_FAITH_ACCUMULATED", g_activePlayer:GetFaith()) )
+			tips:insert( L("TXT_KEY_TP_FAITH_ACCUMULATED", g_activePlayer:GetFaithTimes100() / 100) )
 			tips:insert( "" )
 			tips:insert( "[COLOR_WHITE]" .. S("%+g", faithPerTurn ) .. "[ENDCOLOR] "
 				.. L"TXT_KEY_YIELD_FAITH" .. "[ICON_PEACE] " .. L"TXT_KEY_GOLD_PERTURN_HEADING4_TITLE" )
 
 			-- Faith from Cities
-			tips:insertLocalizedIfNonZero( "TXT_KEY_TP_FAITH_FROM_CITIES", g_activePlayer:GetFaithPerTurnFromCities() )
+			tips:insertLocalizedIfNonZero( "TXT_KEY_TP_FAITH_FROM_CITIES", g_activePlayer:GetYieldRateFromCitiesTimes100(YieldTypes.YIELD_FAITH) / 100 )
 
 			-- Faith from Outposts
 			tips:insertLocalizedIfNonZero( "TXT_KEY_TP_FAITH_FROM_OUTPOSTS", civBE_mode and g_activePlayer:GetFaithPerTurnFromOutposts() or 0 )
