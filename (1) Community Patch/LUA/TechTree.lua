@@ -410,7 +410,16 @@ function AddTechButton(tech)
 	thisTechButtonInstance.LockedTechName:SetText(strTechName);
 	thisTechButtonInstance.FreeTechName:SetText(strTechName);
 
-	thisTechButtonInstance.TechButton:SetToolTipString(GetHelpTextForTech(tech.ID, false, playerID));
+	-- Use a closure to track if we're already setting the tooltip
+	local bSettingTooltip = false;
+	thisTechButtonInstance.TechButton:SetToolTipCallback(function(control)
+		if bSettingTooltip then
+			return;
+		end
+		bSettingTooltip = true;
+		control:SetToolTipString(GetHelpTextForTech(tech.ID, false, playerID));
+		bSettingTooltip = false;
+	end);
 
 	-- update the picture
 	IconHookupOrDefault(tech.PortraitIndex, 64, tech.IconAtlas, thisTechButtonInstance.TechPortrait);
@@ -544,8 +553,6 @@ function RefreshDisplayOfSpecificTech(tech)
 	if g_NeedsFullRefresh then
 		AddSmallButtonsToTechButton(thisTechButton, tech, maxSmallButtons, 45, playerID);
 	end
-
-	thisTechButton.TechButton:SetToolTipString(GetHelpTextForTech(techID, false, playerID));
 
 	if GAMEOPTION_NO_SCIENCE then
 		turnText = "";
