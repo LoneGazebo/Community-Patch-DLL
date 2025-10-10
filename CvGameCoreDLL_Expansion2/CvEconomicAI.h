@@ -175,6 +175,8 @@ public:
 
 	CvCity* GetBestGreatWorkCity(CvPlot *pStartPlot, GreatWorkType eGreatWork) const;
 
+	YieldTypes GetFocusYield() const;
+
 	void SetExplorersNeeded(int iValue);
 	int GetExplorersNeeded() const;
 

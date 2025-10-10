@@ -784,27 +784,24 @@ void CvEconomicAI::DoTurn()
 		DisbandExtraWorkboats();
 		DisbandMiscUnits();
 		DisbandUnitsToFreeSpaceshipResources();
-
-		YieldTypes eFocusYield = NO_YIELD;
-		if (EconomicAIHelpers::IsTestStrategy_GS_Spaceship(m_pPlayer)) {
-			eFocusYield = YIELD_SCIENCE;
-		}
-		else if (EconomicAIHelpers::IsTestStrategy_DevelopingReligion(m_pPlayer)) {
-			eFocusYield = YIELD_FAITH;
-		}
-		else if (EconomicAIHelpers::IsTestStrategy_LosingMoney((EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY", true), m_pPlayer)) {
-			eFocusYield = YIELD_GOLD;
-		}
-		else
-		{
-			eFocusYield = YIELD_CULTURE;
-		}
 		
 		if (!m_pPlayer->isHuman(ISHUMAN_AI_TOURISM))
 		{
-			m_pPlayer->GetCulture()->DoSwapGreatWorks(eFocusYield);
+			m_pPlayer->GetCulture()->DoSwapGreatWorks(GetFocusYield());
 		}
 	}
+}
+
+YieldTypes CvEconomicAI::GetFocusYield() const
+{
+	if (EconomicAIHelpers::IsTestStrategy_GS_Spaceship(m_pPlayer))
+		return YIELD_SCIENCE;
+	else if (EconomicAIHelpers::IsTestStrategy_DevelopingReligion(m_pPlayer))
+		return YIELD_FAITH;
+	else if (EconomicAIHelpers::IsTestStrategy_LosingMoney((EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY", true), m_pPlayer))
+		return YIELD_GOLD;
+
+	return YIELD_CULTURE;
 }
 
 /// Find the best city to create a Great Work in

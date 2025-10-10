@@ -85,8 +85,7 @@ public:
 	int GetGreatWorkCurrentThemingBonus (int iIndex) const;
 
 	bool SwapGreatWorks (PlayerTypes ePlayer1, int iWork1, PlayerTypes ePlayer2, int iWork2);
-	void MoveGreatWorks(PlayerTypes ePlayer, int iCity1, int iBuildingClass1, int iWorkIndex1, 
-																					 int iCity2, int iBuildingClass2, int iWorkIndex2);
+	void MoveGreatWorks(PlayerTypes ePlayer, int iCity1, int iBuildingClass1, int iWorkIndex1, int iCity2, int iBuildingClass2, int iWorkIndex2);
 	GreatWorkList m_CurrentGreatWorks;
 
 	// Culture Victory
@@ -137,19 +136,20 @@ enum CLOSED_ENUM PublicOpinionTypes
 FDataStream& operator<<(FDataStream&, const PublicOpinionTypes&);
 FDataStream& operator>>(FDataStream&, PublicOpinionTypes&);
 
-class CvGreatWorkInMyEmpire
+class CvGreatWorkAvailableForUse
 {
 public:
-	CvGreatWorkInMyEmpire();
-	CvGreatWorkInMyEmpire(int iIndex, int iCityID, BuildingTypes eBuilding, int iSlot, PlayerTypes ePlayer, EraTypes eEra);
+	CvGreatWorkAvailableForUse();
+	CvGreatWorkAvailableForUse(int iIndex, PlayerTypes eOwnedByPlayer, int iCityID, BuildingTypes eBuilding, int iSlot, PlayerTypes eCreatedByPlayer, EraTypes eCreatedEra);
 
 	// Public data
 	int m_iGreatWorkIndex;
+	PlayerTypes m_eOwnedByPlayer;
 	int m_iCityID;
 	BuildingTypes m_eBuilding;
 	int m_iSlot;
-	PlayerTypes m_ePlayer;
-	EraTypes m_eEra;
+	PlayerTypes m_eCreatedByPlayer;
+	EraTypes m_eCreatedEra;
 };
 
 class CvGreatWorkBuildingInMyEmpire
@@ -200,12 +200,12 @@ public:
 	void DoSwapGreatWorksHuman(bool bSwap);
 
 	void DoSwapGreatWorks(YieldTypes eFocusYield);
-	void MoveWorks(GreatWorkSlotType eType, vector<CvGreatWorkBuildingInMyEmpire> &buildings, vector<CvGreatWorkInMyEmpire> &works1, vector<CvGreatWorkInMyEmpire> &works2, YieldTypes eFocusYield, bool bSwap);
-	bool ThemeBuilding(vector<CvGreatWorkBuildingInMyEmpire>::const_iterator it, vector<CvGreatWorkInMyEmpire> &works1, vector<CvGreatWorkInMyEmpire> &works2, bool bConsiderOtherPlayers);
-	bool ThemeEqualArtArtifact(CvGreatWorkBuildingInMyEmpire kBldg, int iThemingBonusIndex, int iNumSlots, vector<CvGreatWorkInMyEmpire> &works1, vector<CvGreatWorkInMyEmpire> &works2, bool bConsiderOtherPlayers, int iThemeID = -1);
-	bool MoveSingleWorks(vector<CvGreatWorkBuildingInMyEmpire> &buildings, vector<CvGreatWorkInMyEmpire> &works1, vector<CvGreatWorkInMyEmpire> &works2, YieldTypes eFocusYield, bool bPuppet);
-	bool FillBuilding(vector<CvGreatWorkBuildingInMyEmpire>::const_iterator it, vector<CvGreatWorkInMyEmpire> &works1, vector<CvGreatWorkInMyEmpire> &works2);
-	bool MoveWorkIntoSlot (CvGreatWorkInMyEmpire kWork, int iCityID, BuildingTypes eBuilding, int iSlot);
+	void MoveWorks(GreatWorkSlotType eType, vector<CvGreatWorkBuildingInMyEmpire> &buildings, vector<CvGreatWorkAvailableForUse> &works1, vector<CvGreatWorkAvailableForUse> &works2, YieldTypes eFocusYield, bool bSwapWithOtherCivs);
+	bool ThemeBuilding(vector<CvGreatWorkBuildingInMyEmpire>::const_iterator it, vector<CvGreatWorkAvailableForUse> &works1, vector<CvGreatWorkAvailableForUse> &works2);
+	bool ThemeEqualArtArtifact(CvGreatWorkBuildingInMyEmpire kBldg, int iThemingBonusIndex, int iNumSlots, vector<CvGreatWorkAvailableForUse> &works1, vector<CvGreatWorkAvailableForUse> &works2);
+	bool MoveSingleWorks(vector<CvGreatWorkBuildingInMyEmpire> &buildings, vector<CvGreatWorkAvailableForUse> &works1, vector<CvGreatWorkAvailableForUse> &works2, YieldTypes eFocusYield, bool bPuppet);
+	bool FillBuilding(vector<CvGreatWorkBuildingInMyEmpire>::const_iterator it, vector<CvGreatWorkAvailableForUse> &works1, vector<CvGreatWorkAvailableForUse> &works2);
+	bool MoveWorkIntoSlot(int iWorkID, int iToCityID, BuildingTypes eToBuilding, int iToSlot, vector<CvGreatWorkAvailableForUse>& works1, vector<CvGreatWorkAvailableForUse>& works2, const set<int>* toIgnore = NULL);
 
 	int GetSwappableWritingIndex() const;
 	int GetSwappableArtIndex() const;
@@ -337,6 +337,8 @@ private:
 	void LogSwapWorks(PlayerTypes eOtherPlayer, int iWorkDiscarded, int iWorkAcquired);
 	void LogSwapMultipleWorks(PlayerTypes eOtherPlayer, int iWorkDiscarded, int iWorkAcquired);
 	void LogSwapMultipleArtifacts(PlayerTypes eOtherPlayer, int iWorkDiscarded, int iWorkAcquired);
+	void LogMoveSingleWork(int iWorkID, PlayerTypes eOldPlayer, int iOldCityID, BuildingTypes eOldBuilding, int iOldSlotID, PlayerTypes eNewPlayer, int iNewCityID, BuildingTypes eNewBuilding, int iNewSlotID);
+	void LogWorkPositionUpdated(int iWorkID, PlayerTypes ePlayer, int iCityID, BuildingTypes eBuilding, int iSlotID);
 	void AppendToLog(CvString& strHeader, CvString& strLog, const CvString& strHeaderValue, const CvString& strValue);
 	void AppendToLog(CvString& strHeader, CvString& strLog, const CvString& strHeaderValue, int iValue);
 	void AppendToLog(CvString& strHeader, CvString& strLog, const CvString& strHeaderValue, float fValue);
@@ -405,7 +407,7 @@ namespace CultureHelpers
 	int GetThemingBonusIndex(PlayerTypes eOwner, CvBuildingEntry *pkEntry, vector<int> &aGreatWorkIndices);
 	bool IsValidForThemingBonus(CvThemingBonusInfo *pBonusInfo, EraTypes eEra, vector<EraTypes> &aErasSeen, PlayerTypes ePlayer, vector<PlayerTypes> &aPlayersSeen, PlayerTypes eOwner);
 	bool IsValidForForeignThemingBonus(CvThemingBonusInfo *pBonusInfo, EraTypes eEra, vector<EraTypes> &aForeignErasSeen, vector<EraTypes> &aErasSeen, PlayerTypes ePlayer, vector<PlayerTypes> &aForeignPlayersSeen, vector<PlayerTypes> &aPlayersSeen, PlayerTypes eOwner);
-	int FindWorkNotChosen(vector<CvGreatWorkInMyEmpire> &aWorks, vector<int> &aWorksChosen);
+	int FindWorkNotChosen(vector<CvGreatWorkAvailableForUse> &aWorks, vector<int> &aWorksChosen);
 	void SendArtSwapNotification(GreatWorkSlotType eType, bool bArt, PlayerTypes eOriginator, PlayerTypes eReceipient, int iWorkFromOriginator, int iWorkFromRecipient);
 
 	const CvString GetInfluenceText(InfluenceLevelTypes eLevel, int iTourism);

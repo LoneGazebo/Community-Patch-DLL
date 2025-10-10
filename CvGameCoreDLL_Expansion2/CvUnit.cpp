@@ -9355,6 +9355,11 @@ bool CvUnit::createGreatWork()
 			GAMEEVENTINVOKE_HOOK(GAMEEVENT_GreatWorkCreated, getOwner(), GetID(), iValue);
 		}
 
+		if (!kPlayer.isHuman(ISHUMAN_AI_TOURISM))
+		{
+			kPlayer.GetCulture()->DoSwapGreatWorks(kPlayer.GetEconomicAI()->GetFocusYield());
+		}
+
 		return true;
 	}
 

@@ -155,8 +155,7 @@ public:
 	virtual void sendGoodyChoice(PlayerTypes ePlayerID, int iPlotX, int iPlotY, GoodyTypes eGoody, int iUnitID) = 0;
 	virtual void sendSetSwappableGreatWork(PlayerTypes ePlayer, int iWorkClass, int iWorkIndex) = 0;
 	virtual void sendSwapGreatWorks(PlayerTypes ePlayer1, int iWork1, PlayerTypes ePlayer2, int iWork2) = 0;
-	virtual void sendMoveGreatWorks(PlayerTypes ePlayer, int iCity1, int iBuildingClass1, int iWorkIndex1, 
-																											 int iCity2, int iBuildingClass2, int iWorkIndex2) = 0;
+	virtual void sendMoveGreatWorks(PlayerTypes ePlayer, int iCity1, int iBuildingClass1, int iWorkIndex1, int iCity2, int iBuildingClass2, int iWorkIndex2) = 0;
 	virtual void netDisconnect() = 0;
 	virtual void sendPlayerInitialAIProcessed() const = 0;
 	virtual void hotJoinComplete() const = 0;
