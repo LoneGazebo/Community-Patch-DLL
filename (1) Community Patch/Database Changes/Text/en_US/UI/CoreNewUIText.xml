@@ -413,13 +413,16 @@
 			<Text>Found City on Different Landmass</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_UNIT_FOUND_CITY_PUPPET">
-			<Text>Found Colony</Text>
+			<Text>Found Colony (Puppet City)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_UNIT_FOUND_CITY_ADVANCED">
-			<Text>with Extra Territory, Population, and Buildings</Text>
+			<Text>with Extra Territory and Population</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_UNIT_FOUND_CITY_RESTRICTION">
 			<Text>[COLOR_NEGATIVE_TEXT]Cannot found Cities next to anyone's border or if your Empire is very unhappy.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_UNIT_FOUND_CITY_FREE_BUILDINGS">
+			<Text>Free Buildings on Found (subject to location requirements): {1_Buildings}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_UNIT_CULTURE_BOMB">
 			<Text>{TXT_KEY_MISSION_CULTURE_BOMB} (Radius {1_Radius}, {2_Num} {2: plural 1?Time; other?Times;})</Text>
@@ -443,7 +446,7 @@
 			<Text>Prevent Active Foreign Religion Spread</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_UNIT_PROHIBIT_SPREAD_PARTIAL">
-			<Text>Reduce Active Foreign Religion Spread</Text>
+			<Text>Reduce Active Foreign Religion Spread by {1_Effectiveness}%</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_UNIT_IGNORE_BUILDING_DEFENSE">
 			<Text>Ignore [ICON_STRENGTH] City Strength from Buildings when Attacking</Text>
@@ -559,6 +562,9 @@
 		<Row Tag="TXT_KEY_PRODUCTION_UNIQUE_UNIT_NO_DEFAULT">
 			<Text>{1_CivAdj} Unique Unit</Text>
 		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_UNIQUE_UNIT_CITY_STATE">
+			<Text>[ICON_CITY_STATE] City-State Unique Unit</Text>
+		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_UNIT_MAX_CITY_INSTANCE">
 			<Text>Max {1_Num} per owned City</Text>
 		</Row>
@@ -599,6 +605,12 @@
 		<Row Tag="TXT_KEY_PRODUCTION_CORPORATION_FRANCHISE">
 			<Text>Franchise of [COLOR_YIELD_GOLD]{1_Corporation:textkey}[ENDCOLOR]</Text>
 		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_CORPORATION_BASE_FRANCHISE">
+			<Text>Base Franchise Limit: {1_Num}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_CORPORATION_RANDOM_FRANCHISE_CHANCE">
+			<Text>{1_Num}% chance of a [ICON_FRANCHISE] Franchise appearing in a random foreign City each Turn</Text>
+		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_WORLD_CONGRESS_PROJECT_REWARD_1">
 			<Text>[ICON_TROPHY_BRONZE] Reward of [COLOR_PLAYER_MIDDLE_PURPLE_TEXT]{1_Project:textkey}[ENDCOLOR]</Text>
 		</Row>
@@ -634,6 +646,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_TEAM_EFFECTS">
 			<Text>Team-Wide Effects:</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_CORPORATION_EFFECTS">
+			<Text>Corporation Benefits:</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_HISTORIC_EVENTS">
 			<Text>Trigger or Enhance the following Historic Events:</Text>
@@ -921,7 +936,7 @@
 			<Text>{2_Sign}{1_Num}% Damage on Unit Garrison and [ICON_CITIZEN] Population Loss when Nuked</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_NUKE_INTERCEPTION">
-			<Text>{2_Sign}{1_Num}% Chance to Intercept Nukes</Text>
+			<Text>{2_Sign}{1_Num}% Chance to Intercept Nukes, lowering their Damage Level</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_WORK_RATE_MODIFIER">
 			<Text>{2_Sign}{1_Num}% Tile Improvement Rate</Text>
@@ -955,6 +970,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_SPECIFIC_DOMAIN_PRODUCTION_MODIFIER">
 			<Text>{2_Sign}{1_Num}% [ICON_PRODUCTION] Production for [COLOR_YELLOW]{3_Domain:textkey}[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_CORPORATION_SPECIFIC_STRATEGIC_UNIT_PRODUCTION_MODIFIER">
+			<Text>{2_Sign}{1_Num}% [ICON_PRODUCTION] Production for Units requiring {3_ResourceIcon} {4_Resource:textkey}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_CITY_CONNECTION_MODIFIER">
 			<Text>{2_Sign}{1_Num}% [ICON_PRODUCTION] Production/[ICON_GOLD] Gold from [ICON_CONNECTED] City Connections and [ICON_INDUSTRIAL_CONNECTED] Industrial City Connections</Text>
@@ -1038,7 +1056,10 @@
 			<Text>{2_Sign}{1_Num} Sight for Trade Units</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_TRADE_UNIT_SPEED_MULTIPLIER">
-			<Text>Trade Units move {1_Num} times faster</Text>
+			<Text>{1_Num}x Speed for Trade Units</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_CORPORATION_TRADE_ROUTE_IMMUNITY">
+			<Text>[ICON_INTERNATIONAL_TRADE] Trade Routes cannot be plundered</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_CULTURE_TO_TOURISM_TERRAIN_WONDER">
 			<Text>{1_Num}% of [ICON_CULTURE] Culture from Terrain and [ICON_WONDER] World Wonders is added to [ICON_TOURISM] Tourism output</Text>
@@ -1048,6 +1069,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_NULLIFY_TECH_TOURISM_MODIFIER">
 			<Text>-{1_Num}% [ICON_TOURISM] Tourism from Civilizatons that have researched [ICON_CYAN]{2_Tech:textkey}[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_CORPORATION_FRANCHISE_TOURISM_MODIFIER">
+			<Text>{2_Sign}{1_Num}% [ICON_TOURISM] Tourism to another Civilization for each [ICON_FRANCHISE] Established Franchise in its territory</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_REDUCED_GLOBAL_FOLLOWER_REQUIREMENT">
 			<Text>{2_Sign}{1_Num}% Worldwide Follower Requirement for all Buildings</Text>
@@ -1498,6 +1522,12 @@
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_YIELD_MODIFIER_AREA">
 			<Text>{1_YieldModifiers} to Cities in the same Area</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_CORPORATION_YIELD_MODIFIER_TR_WITH_FRANCHISE">
+			<Text>{1_YieldModifiers} to [ICON_INTERNATIONAL_TRADE] Trade Routes targeting Cities with [ICON_FRANCHISE] Established Franchise of this Corporation</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_CORPORATION_YIELD_MODIFIER_TR_WITH_FRANCHISE_CITY">
+			<Text>{1_YieldModifiers} per [ICON_INTERNATIONAL_TRADE] Trade Route targeting Cities with [ICON_FRANCHISE] Established Franchise of this Corporation</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_HAPPINESS_FROM_BUILDING">
 			<Text>[ICON_BULLET] [COLOR_YIELD_FOOD]{3_Building:textkey}[ENDCOLOR]: {2_Sign}{1_Num} [ICON_HAPPINESS_1] Happiness</Text>

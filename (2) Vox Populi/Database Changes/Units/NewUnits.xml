@@ -703,6 +703,7 @@
 			<Description>TXT_KEY_UNIT_GREAT_DIPLOMAT</Description>
 			<Civilopedia>TXT_KEY_UNIT_GREAT_DIPLOMAT_TEXT</Civilopedia>
 			<Strategy>TXT_KEY_UNIT_GREAT_DIPLOMAT_STRATEGY</Strategy>
+			<Help>TXT_KEY_UNIT_GREAT_DIPLOMAT_HELP</Help>
 			<Domain>DOMAIN_LAND</Domain>
 			<Class>UNITCLASS_GREAT_DIPLOMAT</Class>
 			<Special>SPECIALUNIT_PEOPLE</Special>
