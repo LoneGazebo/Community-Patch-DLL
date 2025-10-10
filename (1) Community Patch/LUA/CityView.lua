@@ -934,11 +934,16 @@ local function BuildBuildingBox(pCity)
 			g_iSortOrder = g_iSortOrder + 1;
 			g_tButtonOrders[tostring(Controls[tRightSideSections[t.HeaderName].InnerStack])] = g_iSortOrder;
 
-			-- Create building buttons (and add them to sorting list)
-			table.sort(t.BuildingList, SortByName);
-			for _, building in ipairs(t.BuildingList) do
-				local kBuildingInfo = GameInfo.Buildings[building.ID];
-				AddBuildingButton(pCity, kBuildingInfo);
+			-- Show the stack and header
+			Show(Controls[tRightSideSections[t.HeaderName].InnerStack]);
+
+			-- Create building buttons only if the section is open
+			if tRightSideSections[t.HeaderName].HeadingOpen then
+				table.sort(t.BuildingList, SortByName);
+				for _, building in ipairs(t.BuildingList) do
+					local kBuildingInfo = GameInfo.Buildings[building.ID];
+					AddBuildingButton(pCity, kBuildingInfo);
+				end
 			end
 		else
 			-- Hide the entire stack (which includes the header and everything)
@@ -947,7 +952,7 @@ local function BuildBuildingBox(pCity)
 	end
 
 	-- Urbanization-free specialists
-	if MOD_BALANCE_VP and next(tSpecialistBuildings) then
+	if MOD_BALANCE_VP and next(tSpecialistBuildings) and tRightSideSections.SpecialistBuildingHeader.HeadingOpen then
 		local iNumFreeSpecialists = pCity:GetRemainingFreeSpecialists();
 		if iNumFreeSpecialists > 0 then
 			Controls.FreeSpecialistLabel:SetText(iNumFreeSpecialists);
@@ -964,15 +969,37 @@ local function BuildBuildingBox(pCity)
 	local bManualSpecialists = pCity:IsNoAutoAssignSpecialists();
 	Controls.NoAutoSpecialistCheckbox:SetCheck(bManualSpecialists);
 	Controls.NoAutoSpecialistCheckbox2:SetCheck(bManualSpecialists);
-	Controls.ResetSpecialistsButton:SetHide(not bHasLockedSpecialists);
-	Controls.ResetSpecialistsFooter:SetHide(not bHasLockedSpecialists);
-	Controls.SpecialistControlBox2:SetHide(not bHasSpecialistSlotsInWonders);
+
+	-- Hide specialist controls when SpecialistBuildingHeader is closed
+	if tRightSideSections.SpecialistBuildingHeader.HeadingOpen then
+		Controls.ResetSpecialistsButton:SetHide(not bHasLockedSpecialists);
+		Controls.ResetSpecialistsFooter:SetHide(not bHasLockedSpecialists);
+		Show(Controls.SpecialistControlBox);
+	else
+		Hide(Controls.SpecialistControlBox, Controls.ResetSpecialistsButton, Controls.ResetSpecialistsFooter);
+	end
+
+	-- Hide wonder specialist controls when WonderHeader is closed
+	if tRightSideSections.WonderHeader.HeadingOpen then
+		Controls.SpecialistControlBox2:SetHide(not bHasSpecialistSlotsInWonders);
+	else
+		Hide(Controls.SpecialistControlBox2);
+	end
 
 	-- Reorder headers, extra buttons, and building buttons by sorting list
 	Controls.BuildingStack:SortChildren(CVSortFunction);
 end
 
-UpdateTypes.BUILDINGS.UpdateFunc = RefreshRightStack;
+-- Update function that rebuilds buildings and refreshes the right stack
+local function UpdateBuildings()
+	local pCity = UI.GetHeadSelectedCity();
+	if pCity then
+		BuildBuildingBox(pCity);
+		RefreshRightStack();
+	end
+end
+
+UpdateTypes.BUILDINGS.UpdateFunc = UpdateBuildings;
 tRightSideSections.SpecialistBuildingHeader.UpdateType = UpdateTypes.BUILDINGS;
 tRightSideSections.CorporationHeader.UpdateType = UpdateTypes.BUILDINGS;
 tRightSideSections.WonderHeader.UpdateType = UpdateTypes.BUILDINGS;
@@ -1868,14 +1895,15 @@ end);
 local function HandleAppearance(strSectionName, tSection)
 	if tSection.HeadingOpen then
 		Controls[tSection.Label]:SetText("[ICON_MINUS] " .. tSection.LabelText);
-		Show(Controls[strSectionName]);
 	else
 		Controls[tSection.Label]:SetText("[ICON_PLUS] " .. tSection.LabelText);
-		Hide(Controls[strSectionName]);
 	end
 	if tSection.OuterStack then
 		Controls[tSection.OuterStack]:SetHide(not tSection.HeadingOpen);
 	end
+	-- For InnerStack sections, we handle collapsing in BuildBuildingBox by:
+	-- 1. Not adding building buttons when closed
+	-- 2. Hiding static child controls when closed
 end
 
 --- @param strSectionName string
