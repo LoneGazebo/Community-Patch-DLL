@@ -13545,6 +13545,11 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 				int iGWindex = GC.getGame().GetGameCulture()->CreateGreatWork(eGWType, eClass, m_eOwner, owningPlayer.GetCurrentEra(), pBuildingInfo->GetDescription());
 				m_pCityBuildings->SetBuildingGreatWork(eBuildingClass, 0, iGWindex);
 
+				if (!GET_PLAYER(m_eOwner).isHuman(ISHUMAN_AI_TOURISM))
+				{
+					GET_PLAYER(m_eOwner).GetCulture()->DoSwapGreatWorks(GET_PLAYER(m_eOwner).GetEconomicAI()->GetFocusYield());
+				}
+
 				if (owningPlayer.GetPlayerTraits()->IsGreatWorkWLTKD())
 				{
 					int iWLTKD = /*6*/ GD_INT_GET(CITY_RESOURCE_WLTKD_TURNS) / 3;
@@ -13993,6 +13998,11 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 							if (iGWindex != -1)
 							{
 								GetCityBuildings()->SetBuildingGreatWork(eBuildingClass, iI, iGWindex);
+
+								if (!GET_PLAYER(m_eOwner).isHuman(ISHUMAN_AI_TOURISM))
+								{
+									GET_PLAYER(m_eOwner).GetCulture()->DoSwapGreatWorks(GET_PLAYER(m_eOwner).GetEconomicAI()->GetFocusYield());
+								}
 							}
 						}
 					}

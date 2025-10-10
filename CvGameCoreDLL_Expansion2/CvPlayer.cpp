@@ -3874,15 +3874,15 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift, bool bO
 						kData.m_bTransferred = false;
 						vcGreatWorkData.push_back(kData);
 
-						CvPlayer &kOldOwner = GET_PLAYER(eOriginalOwner); // Recursive: shouldn't this be eOldOwner?
+						CvPlayer &kOldOwner = GET_PLAYER(eOldOwner); // Recursive: shouldn't this be eOldOwner?
 						if (kOldOwner.GetCulture()->GetSwappableWritingIndex() == iGreatWork)
 							kOldOwner.GetCulture()->SetSwappableWritingIndex(-1);
 
 						if (kOldOwner.GetCulture()->GetSwappableArtifactIndex() == iGreatWork)
-							kOldOwner.GetCulture()->SetSwappableArtifactIndex(-1);
+							kOldOwner.GetCulture()->SetSwappableArtIndex(-1);
 
 						if (kOldOwner.GetCulture()->GetSwappableArtIndex() == iGreatWork)
-							kOldOwner.GetCulture()->SetSwappableArtIndex(-1);
+							kOldOwner.GetCulture()->SetSwappableArtifactIndex(-1);
 
 						if (kOldOwner.GetCulture()->GetSwappableMusicIndex() == iGreatWork)
 							kOldOwner.GetCulture()->SetSwappableMusicIndex(-1);
@@ -42622,6 +42622,16 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 						for (int iUnitLoop = 0; iUnitLoop < iNumFreeUnits; iUnitLoop++)
 						{
 							pCapital->SpawnFreeUnit(eUnit);
+						}
+
+						// If a human player chooses this policy to get a worker and it is their first worker, we need to figure out what it can do
+						if (isHuman(ISHUMAN_AI_POLICY_CHOICE))
+						{
+							int iNumUnits = GetNumUnitsOfType(eUnit);
+							if (iNumUnits == iNumFreeUnits && (pkUnitInfo->GetDefaultUnitAIType() == UNITAI_WORKER || pkUnitInfo->GetDefaultUnitAIType() == UNITAI_WORKER_SEA))
+							{
+								GetBuilderTaskingAI()->UpdateImprovementPlots();
+							}
 						}
 					}
 

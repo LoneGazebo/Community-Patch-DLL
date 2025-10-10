@@ -620,7 +620,7 @@ void CvDllNetMessageHandler::ResponseSetSwappableGreatWork(PlayerTypes ePlayer, 
 			else if (iWorkClass == GC.getInfoTypeForString("GREAT_WORK_LITERATURE"))
 			{
 				GET_PLAYER(ePlayer).GetCulture()->SetSwappableWritingIndex(-1);
-			}			
+			}
 			else if (iWorkClass == GC.getInfoTypeForString("GREAT_WORK_MUSIC"))
 			{
 				GET_PLAYER(ePlayer).GetCulture()->SetSwappableMusicIndex(-1);
@@ -642,11 +642,11 @@ void CvDllNetMessageHandler::ResponseSetSwappableGreatWork(PlayerTypes ePlayer, 
 				else if (iWorkClass == GC.getInfoTypeForString("GREAT_WORK_LITERATURE"))
 				{
 					GET_PLAYER(ePlayer).GetCulture()->SetSwappableWritingIndex(iWorkIndex);
-				}			
+				}
 				else if (iWorkClass == GC.getInfoTypeForString("GREAT_WORK_MUSIC"))
 				{
 					GET_PLAYER(ePlayer).GetCulture()->SetSwappableMusicIndex(iWorkIndex);
-				}				
+				}
 			}
 		}
 		GC.GetEngineUserInterface()->setDirty(GreatWorksScreen_DIRTY_BIT, true);
