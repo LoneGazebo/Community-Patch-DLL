@@ -6510,8 +6510,7 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 {
 	CvString strBuffer;
 	int iI = 0;
-	ImprovementTypes eLandmarkImprovement = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_LANDMARK");
-
+	
 	// Remove effects for old owner before changing the member
 	if(getOwner() != eNewValue)
 	{
@@ -6650,10 +6649,6 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 						}
 					}
 				}
-
-				// Remove credit for building Landmark if player took it from the minor
-				if (eImprovement == eLandmarkImprovement && eOldOwner == GetLandmarkCreditMinor() && GET_PLAYER(eBuilder).getTeam() == GET_PLAYER(eNewValue).getTeam())
-					SetLandmarkCreditMinor(NO_PLAYER);
 			}
 
 			// Remove Resource Quantity from total
