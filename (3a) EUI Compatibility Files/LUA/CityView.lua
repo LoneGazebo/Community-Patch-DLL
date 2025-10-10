@@ -9,6 +9,7 @@
 ------------------------------------------------------
 include( "EUI_tooltips" )
 include("InfoTooltipInclude");
+include("CPK.lua")
 
 -------------------------------
 -- minor lua optimizations
@@ -58,10 +59,6 @@ local YieldIcons = EUI.YieldIcons
 local GreatPeopleIcon = EUI.GreatPeopleIcon
 local StackInstanceManager = StackInstanceManager
 local GameInfo = EUI.GameInfoCache -- warning! use iterator ONLY with table field conditions, NOT string SQL query
-
---EUI_tooltips
-local GetHelpTextForProject = EUI.GetHelpTextForProject
-local GetHelpTextForProcess = EUI.GetHelpTextForProcess
 
 local UpdateCityView
 --END

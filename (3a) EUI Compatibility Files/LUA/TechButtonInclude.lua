@@ -7,6 +7,7 @@ local AsPercentage = CPK.Misc.AsPercentage
 
 include( "FLuaVector" ) --compatibility with Firaxis scripts
 include( "EUI_utilities" )
+include( "InfoTooltipInclude" )
 IconLookup = EUI.IconLookup
 IconHookup = EUI.IconHookup
 CivIconHookup = EUI.CivIconHookup
@@ -17,10 +18,6 @@ local YieldIcons = EUI.YieldIcons
 local GameInfo = EUI.GameInfoCache -- warning! use iterator ONLY with table field conditions, NOT string SQL query
 
 include( "EUI_tooltips" )
-local GetHelpTextForUnit = EUI.GetHelpTextForUnit
-local GetHelpTextForBuilding = EUI.GetHelpTextForBuilding
-local GetHelpTextForImprovement = EUI.GetHelpTextForImprovement
-local GetHelpTextForProject = EUI.GetHelpTextForProject
 local GetHelpTextForPlayerPerk = EUI.GetHelpTextForPlayerPerk -- BE only
 --CBP
 local GetHelpTextForCorp = EUI.GetHelpTextForCorp

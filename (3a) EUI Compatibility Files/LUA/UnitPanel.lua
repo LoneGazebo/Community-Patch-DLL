@@ -43,10 +43,6 @@ local BackgroundColors = EUI.BackgroundColors
 local GameInfo = EUI.GameInfoCache -- warning! use iterator ONLY with table field conditions, NOT string SQL query
 local table = EUI.table
 
---EUI_tooltips
-local GetHelpTextForProject = EUI.GetHelpTextForProject
-local GetHelpTextForProcess = EUI.GetHelpTextForProcess
-
 local ActionSubTypes = ActionSubTypes
 local ActivityTypes = ActivityTypes
 local ContextPtr = ContextPtr
