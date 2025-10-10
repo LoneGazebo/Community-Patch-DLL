@@ -6,10 +6,6 @@ SET Text = 'Military Land Units start with the [COLOR_POSITIVE_TEXT]{TXT_KEY_PRO
 WHERE Tag = 'TXT_KEY_TRAIT_RIVER_EXPANSION';
 
 UPDATE Language_en_US
-SET Text = 'Unique American {TXT_KEY_UNIT_MUSKETMAN} that can ignore terrain movement cost and generate [ICON_GOLDEN_AGE] Golden Age Points from defeated enemies equal to 100% of their [ICON_STRENGTH] Combat Strength. Starts with [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_BARRAGE_1}[ENDCOLOR].'
-WHERE Tag = 'TXT_KEY_UNIT_HELP_MINUTEMAN';
-
-UPDATE Language_en_US
 SET Text = 'The {TXT_KEY_UNIT_AMERICAN_MINUTEMAN} is the American unique unit, replacing the {TXT_KEY_UNIT_MUSKETMAN}. It can move through difficult terrain without penalty and gain [ICON_GOLDEN_AGE] Golden Age Points from destroying units.'
 WHERE Tag = 'TXT_KEY_UNIT_AMERICAN_MINUTEMAN_STRATEGY';
 
@@ -25,16 +21,8 @@ SET Text = 'When you complete a [COLOR_POSITIVE_TEXT]Historic Event[ENDCOLOR], y
 WHERE Tag = 'TXT_KEY_TRAIT_LAND_TRADE_GOLD2';
 
 UPDATE Language_en_US
-SET Text = 'Completing a [ICON_CARAVAN]/[ICON_CARGO_SHIP] Trade Route targeting another Civilization triggers a (or strengthens an existing) [COLOR_POSITIVE_TEXT]Historic Event[ENDCOLOR].[NEWLINE][NEWLINE][ICON_CARAVAN] Land Trade Routes gain 50% range. Incoming [ICON_INTERNATIONAL_TRADE] Trade Routes generate +1 [ICON_GOLD] Gold for this City, and +1 [ICON_GOLD] Gold for the origin City.[NEWLINE][NEWLINE]Nearby [ICON_RES_SPICES] Cinnamon: +1 [ICON_FOOD] Food, +1 [ICON_PRODUCTION] Production.[NEWLINE]Nearby [ICON_RES_SUGAR] Sugar: +1 [ICON_FOOD] Food, +1 [ICON_GOLD] Gold.'
-WHERE Tag = 'TXT_KEY_BUILDING_BAZAAR_HELP';
-
-UPDATE Language_en_US
 SET Text = 'Unique Arabian replacement for the {TXT_KEY_BUILDING_MARKET}. In addition to the {TXT_KEY_BUILDING_MARKET}''s bonuses, {TXT_KEY_BUILDING_BAZAAR_DESC} generates [ICON_RESEARCH] Science and [ICON_PEACE] Faith, boosts [ICON_CARAVAN] land trade route range, and enables or strengthens Historic Events on [ICON_INTERNATIONAL_TRADE] Trade Route completion.'
 WHERE Tag = 'TXT_KEY_BUILDING_BAZAAR_STRATEGY';
-
-UPDATE Language_en_US
-SET Text = 'Unique Arabian {TXT_KEY_UNIT_HEAVY_SKIRMISHER} that does not require [ICON_RES_HORSE] {TXT_KEY_RESOURCE_HORSES} and can withdraw from melee combat once per turn. Starts with [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_SPLASH_1}[ENDCOLOR].'
-WHERE Tag = 'TXT_KEY_UNIT_HELP_CAMEL_ARCHER';
 
 UPDATE Language_en_US
 SET Text = 'The {TXT_KEY_UNIT_ARABIAN_CAMELARCHER} is the Arabian unique unit, replacing the {TXT_KEY_UNIT_HEAVY_SKIRMISHER}. It can do chip damage to a group of enemies adjacent to itself, and can retreat from melee combat once per turn. Does not require [ICON_RES_HORSE] {TXT_KEY_RESOURCE_HORSES} to be trained.'
@@ -48,16 +36,8 @@ SET Text = 'When you conquer a City, gain a Technology already known by the owne
 WHERE Tag = 'TXT_KEY_TRAIT_SLAYER_OF_TIAMAT';
 
 UPDATE Language_en_US
-SET Text = '+20% [ICON_RESEARCH] Science during [ICON_GOLDEN_AGE] Golden Ages. +1 [ICON_RESEARCH] Science for every 2 [ICON_CITIZEN] Citizens in the City, and all Libraries produce +3 [ICON_RESEARCH] Science. Comes with both a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] [ICON_GW_WRITING] Great Work of Writing and a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] {TXT_KEY_BUILDING_LIBRARY} in the City.[NEWLINE][NEWLINE]Every [ICON_GW_WRITING] Great Work of Writing you control grants +5 XP to all created Units (maximum of 45 XP).[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_RESEARCH] Illiteracy in all Cities. 1 Specialist in this City no longer produces [ICON_HAPPINESS_3] Unhappiness from [ICON_URBANIZATION] Urbanization.[NEWLINE][NEWLINE]Contains 3 slots for [ICON_GW_WRITING] Great Works of Writing. +3 [ICON_PRODUCTION] Production and [ICON_RESEARCH] Science if [COLOR_POSITIVE_TEXT]Themed[ENDCOLOR].[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost increases based on the number of Cities you own.'
-WHERE Tag = 'TXT_KEY_BUILDING_ROYAL_LIBRARY_HELP';
-
-UPDATE Language_en_US
 SET Text = 'Unique Assyrian replacement for the {TXT_KEY_BUILDING_NATIONAL_COLLEGE}. In addition to the bonuses of the {TXT_KEY_BUILDING_NATIONAL_COLLEGE}, the {TXT_KEY_BUILDING_ROYAL_LIBRARY_DESC} generates more [ICON_RESEARCH] Science and [ICON_CULTURE] Culture and boosts all Libraries. It contains more slots for [ICON_GW_WRITING] Great Works of Writing, and comes with a free [ICON_GW_WRITING] Great Work of Writing. Units trained in all cities gain extra XP based on the number of [ICON_GW_WRITING] Great Works of Writing in your empire. Unlike the {TXT_KEY_BUILDING_NATIONAL_COLLEGE}, the {TXT_KEY_BUILDING_ROYAL_LIBRARY_DESC} is made available with the discovery of [COLOR_CYAN]{TXT_KEY_TECH_WRITING_TITLE}[ENDCOLOR], and comes with a free {TXT_KEY_BUILDING_LIBRARY} in the city instead of requiring one.'
 WHERE Tag = 'TXT_KEY_BUILDING_ROYAL_LIBRARY_STRATEGY';
-
-UPDATE Language_en_US
-SET Text = 'Unique Assyrian support Unit. Nearby owned Units gain +40% [ICON_STRENGTH] Combat Strength versus Cities if this Unit is adjacent to an enemy City, or +20% if this Unit is two tiles from an enemy City. Starts with [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_MEDIC}[ENDCOLOR] and [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_MEDIC_II}[ENDCOLOR]. [COLOR_NEGATIVE_TEXT]Cannot attack or defend itself.[ENDCOLOR][NEWLINE][NEWLINE]May only have [COLOR_POSITIVE_TEXT]2[ENDCOLOR] Siege Towers active at one time.'
-WHERE Tag = 'TXT_KEY_UNIT_HELP_ASSYRIAN_SIEGE_TOWER';
 
 UPDATE Language_en_US
 SET Text = 'The {TXT_KEY_UNIT_ASSYRIAN_SIEGE_TOWER} is the Assyrian unique unit.[NEWLINE][NEWLINE]If adjacent to a City, the {TXT_KEY_UNIT_ASSYRIAN_SIEGE_TOWER} confers a huge combat bonus to all owned units also attacking the City. If it is two tiles away from the City, all owned units attacking the City receive half of this bonus. It can see further, and nearby units heal at a faster rate. It cannot attack or defend itself, so protect it at all costs! Complement a {TXT_KEY_UNIT_ASSYRIAN_SIEGE_TOWER} with melee or ranged units, and make sure it reaches its target before getting killed, and cities will fall much more quickly.[NEWLINE][NEWLINE]Does not obsolete. You cannot have more than 2 active Siege Towers at one time.'
@@ -71,12 +51,8 @@ SET Text = 'Habsburg Diplomacy'
 WHERE Tag = 'TXT_KEY_TRAIT_ANNEX_CITY_STATE_SHORT';
 
 UPDATE Language_en_US
-SET Text = '+50% rewards from [ICON_CITY_STATE] Quests. May arrange [ICON_RES_MARRIAGE] Marriages to Allied CS with [ICON_GOLD] Gold. While at peace with [COLOR_POSITIVE_TEXT]Married[ENDCOLOR] CS, gain 75 Resting [ICON_INFLUENCE] Influence, scaling with Era, and +15% [ICON_GREAT_PEOPLE] GP generation in the [ICON_CAPITAL] Capital.'
+SET Text = '+50% rewards from Quests. May arrange [ICON_RES_MARRIAGE] Marriages to [ICON_CITY_STATE] City-States with [ICON_GOLD] Gold after Allying for 5 Turns. Gain 200 Resting [ICON_INFLUENCE] Influence with [ICON_RES_MARRIAGE] Married City-States while at peace.'
 WHERE Tag = 'TXT_KEY_TRAIT_ANNEX_CITY_STATE';
-
-UPDATE Language_en_US
-SET Text = 'Unique Austrian {TXT_KEY_UNIT_CUIRASSIER} that excels at scouting and flanking. Can move faster and ignore Zone of Control.'
-WHERE Tag = 'TXT_KEY_UNIT_HELP_AUSTRIAN_HUSSAR';
 
 UPDATE Language_en_US
 SET Text = 'The {TXT_KEY_UNIT_AUSTRIAN_HUSSAR} is the Austrian unique unit, replacing the {TXT_KEY_UNIT_CUIRASSIER}. It is faster, can see further, and can ignore Zone of Control. It also has a slight attack bonus.'
@@ -90,10 +66,6 @@ SET Text = 'Killing enemy Units grants 150% of their [ICON_STRENGTH] Strength as
 WHERE Tag = 'TXT_KEY_TRAIT_CULTURE_FROM_KILLS';
 
 UPDATE Language_en_US
-SET Text = 'Unique Aztec {TXT_KEY_UNIT_WARRIOR} that excels at Forest and Jungle warfare and recovers HP when it kills an enemy unit. Starts with [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_WOODSMAN}[ENDCOLOR].'
-WHERE Tag = 'TXT_KEY_UNIT_HELP_JAGUAR';
-
-UPDATE Language_en_US
 SET Text = 'The {TXT_KEY_UNIT_AZTEC_JAGUAR} is the Aztec unique unit, replacing the {TXT_KEY_UNIT_WARRIOR}. It is much stronger, especially in forests and jungles, and can heal when defeating an enemy unit.'
 WHERE Tag = 'TXT_KEY_UNIT_AZTEC_JAGUAR_STRATEGY';
 
@@ -105,16 +77,8 @@ SET Text = 'Receive a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] [ICON_GREAT_SCIENTIST]
 WHERE Tag = 'TXT_KEY_TRAIT_INGENIOUS';
 
 UPDATE Language_en_US
-SET Text = 'Unique Babylonian {TXT_KEY_UNIT_ARCHER} that is stronger and inflicts bonus damage on wounded units when attacking.'
-WHERE Tag = 'TXT_KEY_CIV5_BABYLON_BOWMAN_HELP';
-
-UPDATE Language_en_US
 SET Text = 'The {TXT_KEY_UNIT_BABYLON_BOWMAN} is the Babylonian unique unit, replacing the {TXT_KEY_UNIT_ARCHER}. It is defensively stronger, allowing placement on the front line. It can quickly shred through wounded melee units after being attacked by them.'
 WHERE Tag = 'TXT_KEY_CIV5_BABYLON_BOWMAN_STRATEGY';
-
-UPDATE Language_en_US
-SET Text = '+5% [ICON_SILVER_FIST] Military Supply from Population. +1 [ICON_RANGE_STRENGTH] City Strike Range. Great Scientists provide 5% more [ICON_RESEARCH] Science when used to discover new Technology.[NEWLINE][NEWLINE][ICON_CITY_STATE] Empire Size Modifier is reduced by 5% in this City.'
-WHERE Tag = 'TXT_KEY_CIV5_BABYLON_WALLS_INFO';
 
 UPDATE Language_en_US
 SET Text = 'Unique Babylonian replacement for the {TXT_KEY_BUILDING_WALLS}. In addition to the {TXT_KEY_BUILDING_WALLS}'' bonuses, {TXT_KEY_BUILDING_WALLS_OF_BABYLON_DESC} provides more City Strength and Hit Points, generates [ICON_RESEARCH] Science and [ICON_GREAT_SCIENTIST] Great Scientist points, and improves the yields when [ICON_GREAT_SCIENTIST] Great Scientists are expended to discover technology.'
@@ -151,12 +115,12 @@ SET Text = 'Can always found a [ICON_RELIGION] Religion, receives 1 [COLOR_POSIT
 WHERE Tag = 'TXT_KEY_TRAIT_EXTRA_BELIEF';
 
 UPDATE Language_en_US
-SET Text = 'Unique Byzantine {TXT_KEY_UNIT_KNIGHT} that is slower but can fortify and benefit from defensive terrain; has a [ICON_STRENGTH] Combat Strength bonus in open terrain; and assault Cities better. Starts with [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_COVER_1}[ENDCOLOR].'
-WHERE Tag = 'TXT_KEY_UNIT_HELP_BYZANTINE_CATAPHRACT';
-
-UPDATE Language_en_US
 SET Text = 'The {TXT_KEY_UNIT_BYZANTINE_CATAPHRACT} is the Byzantine unique unit, replacing the {TXT_KEY_UNIT_KNIGHT}. It is slower but much more powerful, especially in open terrain. It is able to fortify and benefit from defensive terrain unlike the {TXT_KEY_UNIT_KNIGHT}. Its penalty for attacking cities is also not as severe.'
 WHERE Tag = 'TXT_KEY_UNIT_BYZANTINE_CATAPHRACT_STRATEGY';
+
+UPDATE Language_en_US
+SET Text = 'The Dromon performs similarly to the Liburna, but is much more powerful against units. Starts with the [COLOR_POSITIVE_TEXT]Splash I[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Targeting I[ENDCOLOR] Promotions.'
+WHERE Tag = 'TXT_KEY_UNIT_BYZANTINE_DROMON_STRATEGY';
 
 --------------------
 -- Carthage
@@ -164,10 +128,6 @@ WHERE Tag = 'TXT_KEY_UNIT_BYZANTINE_CATAPHRACT_STRATEGY';
 UPDATE Language_en_US
 SET Text = '+100 [ICON_GOLD] Gold and +25 [ICON_RESEARCH] Science when your all-time highest tradeable quantity of a Luxury increases, and +5 XP to [ICON_GOLD] Gold purchased Units, both scaling with Era. +100% Resource Diversity on [ICON_INTERNATIONAL_TRADE] Trade Routes.'
 WHERE Tag = 'TXT_KEY_TRAIT_PHOENICIAN_HERITAGE';
-
-UPDATE Language_en_US
-SET Text = 'Unique Carthaginian {TXT_KEY_UNIT_TRIREME} that specializes in naval assaults and capturing coastal cities. Starts with [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_PINCER}[ENDCOLOR].'
-WHERE Tag = 'TXT_KEY_UNIT_HELP_CARTHAGINIAN_QUINQUEREME';
 
 UPDATE Language_en_US
 SET Text = 'The {TXT_KEY_UNIT_CARTHAGINIAN_QUINQUEREME} is the Carthaginian unique unit, replacing the {TXT_KEY_UNIT_TRIREME}. It can ignore Zone of Control and has a huge attack bonus against cities.'
@@ -185,10 +145,6 @@ SET Text = 'Unique Celtic replacement for the {TXT_KEY_BUILDING_CIRCUS}. In addi
 WHERE Tag = 'TXT_KEY_BUILDING_CEILIDH_HALL_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = 'Unique Celtic {TXT_KEY_UNIT_SPEARMAN} that excels at hill, tundra, and snow warfare. Moves at double speed on hill, tundra, and snow, and additionally gains a [ICON_STRENGTH] Combat Strength bonus if these tiles are featureless. Consumes no [ICON_MOVES] Moves when pillaging, and gains 200% of the opponent''s [ICON_STRENGTH] Combat Strength as [ICON_PEACE] Faith when defeating an enemy Unit. Does not start with [COLOR_NEGATIVE_TEXT]{TXT_KEY_PROMOTION_FORMATION_1}[ENDCOLOR].'
-WHERE Tag = 'TXT_KEY_UNIT_HELP_CELT_PICTISH_WARRIOR';
-
-UPDATE Language_en_US
 SET Text = 'The {TXT_KEY_UNIT_CELT_PICTISH_WARRIOR} is the Celtic unique unit, replacing the {TXT_KEY_UNIT_SPEARMAN}. It moves and fights better on hill, tundra, and snow; can pillage tiles without spending [ICON_MOVES] movement; and gains [ICON_PEACE] Faith when defeating enemy units. It is available with the discovery of [COLOR_CYAN]{TXT_KEY_TECH_MINING_TITLE}[ENDCOLOR], earlier than the {TXT_KEY_UNIT_SPEARMAN}, but does not start with the {TXT_KEY_PROMOTION_FORMATION_1} promotion, which makes it weaker against mounted units.'
 WHERE Tag = 'TXT_KEY_UNIT_CELT_PICTISH_WARRIOR_STRATEGY';
 
@@ -202,10 +158,6 @@ WHERE Tag = 'TXT_KEY_TRAIT_ART_OF_WAR_SHORT';
 UPDATE Language_en_US
 SET Text = 'Creating [ICON_GREAT_WORK] Great Works or gaining Cities grants 5 Turns of "We Love the Empress Day", and a permanent +2 [ICON_FOOD] Food in all Cities. The permanent [ICON_FOOD] Food declines by 50% on Era Change.'
 WHERE Tag = 'TXT_KEY_TRAIT_ART_OF_WAR';
-
-UPDATE Language_en_US
-SET Text = 'Unique Chinese {TXT_KEY_UNIT_CROSSBOWMAN} that specializes in city defenses and dealing splash damage.'
-WHERE Tag = 'TXT_KEY_UNIT_HELP_CHUKONU';
 
 UPDATE Language_en_US
 SET Text = 'The {TXT_KEY_UNIT_CHINESE_CHUKONU} is the Chinese unique unit, replacing the {TXT_KEY_UNIT_CROSSBOWMAN}. It deals splash damage and gains additional [ICON_STRENGTH] Combat Strength when adjacent to cities, giving it a hefty punch on offense and defense. This unit is particularly deadly when garrisoned in a City that is under attack, and when fighting in packs.'
@@ -223,10 +175,6 @@ SET Text = 'Embarked Units gain +1 [ICON_MOVES] Movement and pay just 1 [ICON_MO
 WHERE Tag = 'TXT_KEY_TRAIT_VIKING_FURY';
 
 UPDATE Language_en_US
-SET Text = 'Unique Danish {TXT_KEY_UNIT_PIKEMAN} that is adept at attacking from the coast. Starts with [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_AMPHIBIOUS}[ENDCOLOR] and [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_CHARGE}[ENDCOLOR].'
-WHERE Tag = 'TXT_KEY_CIV5_DENMARK_BERSERKER_HELP';
-
-UPDATE Language_en_US
 SET Text = 'The {TXT_KEY_UNIT_DANISH_BERSERKER} is the Danish unique unit, replacing the {TXT_KEY_UNIT_PIKEMAN}. It can cross rivers and attack while embarked with no penalty, and has a [ICON_STRENGTH] Combat Strength bonus against wounded units. It is also faster, allowing it to catch up to wounded units to deal the final strike. It is available in the [COLOR_CYAN]Classical Era[ENDCOLOR] with the discovery of [COLOR_CYAN]{TXT_KEY_TECH_METAL_CASTING_TITLE}[ENDCOLOR], earlier than the {TXT_KEY_UNIT_PIKEMAN}.'
 WHERE Tag = 'TXT_KEY_CIV5_DENMARK_BERSERKER_STRATEGY';
 
@@ -234,20 +182,16 @@ WHERE Tag = 'TXT_KEY_CIV5_DENMARK_BERSERKER_STRATEGY';
 -- Egypt
 --------------------
 UPDATE Language_en_US
-SET Text = '+20% [ICON_PRODUCTION] Production towards [ICON_WONDER] Wonders (+40% during [ICON_GOLDEN_AGE] Golden Ages). [ICON_ARTIFACT] Artifacts gain +5 [ICON_RESEARCH] Science and [ICON_CULTURE] Culture, and Landmarks gain +5 [ICON_GOLD] Gold and [ICON_TOURISM] Tourism.'
+SET Text = 'Great Ancestor'
+WHERE Tag = 'TXT_KEY_TRAIT_WONDER_BUILDER_SHORT';
+
+UPDATE Language_en_US
+SET Text = '+20% [ICON_PRODUCTION] Production towards [ICON_WONDER] Wonders (+40% during [ICON_GOLDEN_AGE] Golden Ages). Reveal a nearby Antiquity Site when founding a City or completing a [ICON_WONDER] World Wonder. Antiquity Sites gain +1 [ICON_RESEARCH] Science, [ICON_CULTURE] Culture, and [ICON_PEACE] Faith with each [ICON_GOLDEN_AGE] Golden Age (up to +5).'
 WHERE Tag = 'TXT_KEY_TRAIT_WONDER_BUILDER';
 
 UPDATE Language_en_US
 SET Text = 'Placeholder'
-WHERE Tag = 'TXT_KEY_BUILDING_NILOMETER_HELP';
-
-UPDATE Language_en_US
-SET Text = 'Placeholder'
 WHERE Tag = 'TXT_KEY_BUILDING_NILOMETER_STRATEGY';
-
-UPDATE Language_en_US
-SET Text = 'Unique Egyptian {TXT_KEY_UNIT_CHARIOT_ARCHER} that does not require [ICON_RES_HORSE] {TXT_KEY_RESOURCE_HORSES} and grants [ICON_PRODUCTION] Production when defeating enemies equal to 150% of their [ICON_STRENGTH] Combat Strength.'
-WHERE Tag = 'TXT_KEY_UNIT_HELP_EGYPTIAN_WAR_CHARIOT';
 
 UPDATE Language_en_US
 SET Text = 'The {TXT_KEY_UNIT_EGYPT_WARCHARIOT} is the Egyptian unique unit, replacing the {TXT_KEY_UNIT_CHARIOT_ARCHER}. It can gain [ICON_PRODUCTION] Production from destroying units. Does not require [ICON_RES_HORSE] {TXT_KEY_RESOURCE_HORSES} to be trained.'
@@ -257,16 +201,8 @@ WHERE Tag = 'TXT_KEY_UNIT_EGYPTIAN_WARCHARIOT_STRATEGY';
 -- England
 --------------------
 UPDATE Language_en_US
-SET Text = 'Perfidious Albion'
-WHERE Tag = 'TXT_KEY_TRAIT_OCEAN_MOVEMENT_SHORT';
-
-UPDATE Language_en_US
-SET Text = '+1 [ICON_MOVES] Movement for Naval and Embarked Units, and -25% Naval Unit [ICON_GOLD] Gold maintenance. +15 [ICON_CITY_SECURITY] City Security in all owned Cities. [ICON_SPY] Spies travel to any City in 1 turn and are 25% stronger in foreign Cities. Starts with a [ICON_SPY] Spy.'
+SET Text = '-25% Naval Unit [ICON_GOLD] Gold maintenance. Military Naval Units start with the [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_SUN_NEVER_SETS}[ENDCOLOR] Promotion. Diplomatic Units and Archaeologists may enter rival territory without Open Borders.'
 WHERE Tag = 'TXT_KEY_TRAIT_OCEAN_MOVEMENT';
-
-UPDATE Language_en_US
-SET Text = 'Unique English {TXT_KEY_UNIT_FRIGATE} that specializes in wresting control of sea and coast with extra vision and splash damage. Starts with [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_SPLASH_1}[ENDCOLOR] and [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_SPLASH_2}[ENDCOLOR].[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Land attacks can only be performed on Coastal tiles.[ENDCOLOR]'
-WHERE Tag = 'TXT_KEY_UNIT_HELP_SHIPOFTHELINE';
 
 UPDATE Language_en_US
 SET Text = 'The {TXT_KEY_UNIT_ENGLISH_SHIPOFTHELINE} is the English unique unit, replacing the {TXT_KEY_UNIT_FRIGATE}. It can deal splash damage to clear out masses of enemy ships and land units on coastal tiles. It can also see further, allowing it to spot enemies in a significantly larger section of ocean.'
@@ -284,14 +220,6 @@ SET Text = 'When you complete a Policy Branch, adopt new Beliefs, or choose your
 WHERE Tag = 'TXT_KEY_TRAIT_BONUS_AGAINST_TECH';
 
 UPDATE Language_en_US
-SET Text = 'Unique Ethiopian {TXT_KEY_UNIT_RIFLEMAN} that specializes in fighting in Friendly Territory especially when near the [ICON_CAPITAL] Capital. Starts with [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_COVER_1}[ENDCOLOR].'
-WHERE Tag = 'TXT_KEY_UNIT_HELP_MEHAL_SEFARI';
-
-UPDATE Language_en_US
-SET Text = 'The {TXT_KEY_UNIT_MEHAL_SEFARI} is the Ethiopian unique unit, replacing the {TXT_KEY_UNIT_RIFLEMAN}. It possesses significant combat bonuses when fighting in friendly land, especially when near your [ICON_CAPITAL] Capital. It is also slightly cheaper to train.'
-WHERE Tag = 'TXT_KEY_UNIT_MEHAL_SEFARI_STRATEGY';
-
-UPDATE Language_en_US
 SET Text = 'Unique Ethiopian replacement for the {TXT_KEY_BUILDING_MONUMENT_DESC}. In addition to the {TXT_KEY_BUILDING_MONUMENT_DESC}''s bonuses, {TXT_KEY_BUILDING_STELE} generates [ICON_PEACE] Faith as well as a {TXT_KEY_BUILDING_SHRINE}, and produces extra [ICON_PEACE] Faith during [ICON_GOLDEN_AGE] Golden Ages.'
 WHERE Tag = 'TXT_KEY_BUILDING_STELE_STRATEGY';
 
@@ -305,10 +233,6 @@ WHERE Tag = 'TXT_KEY_TRAIT_ENHANCED_CULTURE_SHORT';
 UPDATE Language_en_US
 SET Text = 'Melee and Gunpowder Units may enlist defeated enemies, which do not consume [ICON_WAR] Military Supply. +1 [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism in every City for every 10 Military Units. +15% [ICON_SILVER_FIST] Military Supply from Population.'
 WHERE Tag = 'TXT_KEY_TRAIT_ENHANCED_CULTURE';
-
-UPDATE Language_en_US
-SET Text = 'Unique French {TXT_KEY_UNIT_SPANISH_TERCIO} that excels at delivering a fast attack into the enemy. Can move faster and ignore Zone of Control.'
-WHERE Tag = 'TXT_KEY_UNIT_HELP_MUSKETEER';
 
 UPDATE Language_en_US
 SET Text = 'The {TXT_KEY_UNIT_FRENCH_MUSKETEER} is the French unique unit, replacing the {TXT_KEY_UNIT_SPANISH_TERCIO}. It is faster, significantly more powerful, and ignores Zone of Control.'
@@ -338,20 +262,12 @@ SET Text = 'Blood and Iron'
 WHERE Tag = 'TXT_KEY_TRAIT_CONVERTS_LAND_BARBARIANS_SHORT';
 
 UPDATE Language_en_US
-SET Text = '+2 [ICON_RESEARCH] Science in [ICON_CAPITAL] Capital per [ICON_CITY_STATE] City-State Friend, and additionally +2 [ICON_CULTURE] Culture per Ally, scaling with Era. Gain +1 [ICON_INFLUENCE] Influence per turn with [ICON_CITY_STATE] City-States for each gifted Unit (lost when killed).'
+SET Text = 'Gain +1 [ICON_INFLUENCE] Influence per turn with [ICON_CITY_STATE] City-States for each gifted Unit (lost when killed). -15% [ICON_PRODUCTION] Production and [ICON_GOLD] Gold costs for Military Units.'
 WHERE Tag = 'TXT_KEY_TRAIT_CONVERTS_LAND_BARBARIANS';
-
-UPDATE Language_en_US
-SET Text = '+5% [ICON_PRODUCTION] Production for each [ICON_INTERNATIONAL_TRADE] Trade Route your Civilization has with a [ICON_CITY_STATE] City-State. 10% of the City''s [ICON_GOLD] Gold output is converted into [ICON_RESEARCH] Science every turn.[NEWLINE][NEWLINE]Incoming [ICON_ARROW_LEFT] Trade Routes generate +3 [ICON_GOLD] Gold for the City, and +3 [ICON_GOLD] Gold for the [ICON_ARROW_RIGHT] Trade Route owner.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_GOLD] Poverty.[NEWLINE][NEWLINE]Nearby [ICON_RES_BANANA] Bananas: +2 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_COFFEE] Coffee: +1 [ICON_GOLD] Gold, +2 [ICON_PRODUCTION] Production.[NEWLINE]Nearby [ICON_RES_TEA] Tea: +2 [ICON_GOLD] Gold, +1 [ICON_PRODUCTION] Production.[NEWLINE]Nearby [ICON_RES_TOBACCO] Tobacco: +3 [ICON_GOLD] Gold.'
-WHERE Tag = 'TXT_KEY_BUILDING_HANSE_HELP';
 
 UPDATE Language_en_US
 SET Text = 'Unique German replacement for the {TXT_KEY_BUILDING_MINT}. In addition to the {TXT_KEY_BUILDING_MINT}''s bonuses, {TXT_KEY_BUILDING_HANSE_DESC} produces more [ICON_GOLD] Gold and [ICON_CULTURE] Culture; boosts [ICON_INTERNATIONAL_TRADE] international Trade Routes even more; generates [ICON_RESEARCH] Science based on the city''s [ICON_CULTURE] Gold yield; and provides a [ICON_PRODUCTION] Production bonus depending on the number of your [ICON_INTERNATIONAL_TRADE] Trade Routes connecting to City-States.'
 WHERE Tag = 'TXT_KEY_BUILDING_HANSE_STRATEGY';
-
-UPDATE Language_en_US
-SET Text = 'Unique German {TXT_KEY_UNIT_SPANISH_TERCIO} that specializes as mercenaries, having no experience penalty or cooldown while being able to move immediately when purchased. Has a [ICON_STRENGTH] Combat Strength bonus against enemy Units that are at full health. Starts with [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_FORMATION_2}[ENDCOLOR].'
-WHERE Tag = 'TXT_KEY_UNIT_HELP_LANDSKNECHT';
 
 UPDATE Language_en_US
 SET Text = 'The {TXT_KEY_UNIT_GERMAN_LANDSKNECHT} is the German unique unit, replacing the {TXT_KEY_UNIT_SPANISH_TERCIO}. It has a combat bonus against full health units, and a increased bonus against mounted units. It is also slightly cheaper to train or purchase, and gain full XP and can move immediately when bought.[NEWLINE][NEWLINE]Use their fast deployment and their bonus against full health units to surprise your opponents in the first turns of your wars and break their lines quickly. Its cheap cost also makes it an excellent gift. Buy several units at once, walk them over to a nearby City State, and reap the benefits of both short- and long-term influence.'
@@ -433,10 +349,6 @@ SET Text = '[ICON_INFLUENCE] Influence degrades at half and recovers at twice th
 WHERE Tag = 'TXT_KEY_TRAIT_CITY_STATE_FRIENDSHIP';
 
 UPDATE Language_en_US
-SET Text = 'Unique Greek {TXT_KEY_UNIT_SPEARMAN} that is stronger and produce double the [ICON_GREAT_GENERAL] Great General Points from combat than normal. Gains [ICON_STRENGTH] Combat Strength for each adjacent owned land unit.'
-WHERE Tag = 'TXT_KEY_UNIT_HELP_HOPLITE';
-
-UPDATE Language_en_US
 SET Text = 'The {TXT_KEY_UNIT_GREEK_HOPLITE} is the Greek unique unit, replacing the {TXT_KEY_UNIT_SPEARMAN}. It is stronger when adjacent to more owned land units, and generates[ICON_GREAT_GENERAL] Great Generals faster through combat.'
 WHERE Tag = 'TXT_KEY_UNIT_GREEK_HOPLITE_STRATEGY';
 
@@ -446,10 +358,6 @@ WHERE Tag = 'TXT_KEY_UNIT_GREEK_HOPLITE_STRATEGY';
 UPDATE Language_en_US
 SET Text = 'Inflict +100% and receive -50% [ICON_HAPPINESS_3] [COLOR_POSITIVE_TEXT]War Weariness[ENDCOLOR]. +10% [ICON_STRENGTH] Combat Strength for each subsequent attack on the same target in a turn. Gain 1 [ICON_GOLD] Gold and [ICON_CULTURE] Culture for every 2 damage dealt to Cities, scaling with Era.'
 WHERE Tag = 'TXT_KEY_TRAIT_RAZE_AND_HORSES';
-
-UPDATE Language_en_US
-SET Text = 'Unique Hunnic {TXT_KEY_UNIT_MONGOL_KESHIK} that specializes in hit-and-run attacks focusing on one target. Gains combat bonuses for subsequent attacks on the same target in a turn. Starts with [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_BARRAGE_1}[ENDCOLOR].'
-WHERE Tag = 'TXT_KEY_UNIT_HELP_HUN_HORSE_ARCHER';
 
 UPDATE Language_en_US
 SET Text = 'The {TXT_KEY_UNIT_HUN_HORSE_ARCHER} is the Hunnic unique unit, replacing the {TXT_KEY_UNIT_MONGOL_KESHIK}. It is stronger when attacking units that have already been hit multiple times in the same turn.'
@@ -482,28 +390,24 @@ WHERE Tag = 'TXT_KEY_BUILD_TERRACE_FARM';
 -- India
 --------------------
 UPDATE Language_en_US
-SET Text = 'Starts with a [ICON_RELIGION_PANTHEON] Pantheon. [ICON_PROPHET] Great Prophets require 35% less [ICON_PEACE] Faith. You may spend a Prophet''s first spread action to Found or Enhance a [ICON_RELIGION] Religion, or build a Holy Site, without consuming the Prophet. [COLOR_NEGATIVE_TEXT]Cannot build [ICON_MISSIONARY] Missionaries.[ENDCOLOR]'
-WHERE Tag = 'TXT_KEY_TRAIT_POPULATION_GROWTH';
-
-UPDATE Language_en_US
 SET Text = 'Mahatma'
 WHERE Tag = 'TXT_KEY_TRAIT_POPULATION_GROWTH_SHORT';
+
+UPDATE Language_en_US
+SET Text = 'Starts with a [ICON_RELIGION_PANTHEON] Pantheon. [ICON_PROPHET] Great Prophets require 35% less [ICON_PEACE] Faith. You may spend a Prophet''s first spread action to Found or Enhance a [ICON_RELIGION] Religion, or build a Holy Site, without consuming the Prophet. [COLOR_NEGATIVE_TEXT]Cannot build [ICON_MISSIONARY] Missionaries.[ENDCOLOR]'
+WHERE Tag = 'TXT_KEY_TRAIT_POPULATION_GROWTH';
 
 UPDATE Language_en_US
 SET Text = 'Naga-Malla'
 WHERE Tag = 'TXT_KEY_UNIT_INDIAN_WARELEPHANT';
 
 UPDATE Language_en_US
-SET Text = 'A terrifying sight on the battlefield, often as dangerous to its own side as it was to the enemy, the Naga-Malla (the Hindu term for Fighting Elephant) could be considered the first weapon of mass destruction. Indians used elephants in war until the advent of gunpowder rendered them obsolete. In pre-gunpowder battle the war elephant served two primary purposes. First, their scent absolutely terrified horses, rendering enemy cavalry useless. Second, they could break through even the strongest line of infantry, crushing a wall of spears that no horse could ever surmount. Elephants were incredibly difficult to kill and history records them surviving sixty or more arrows. The primary problem with elephants was their tendency to go berserk with pain or rage, at which point they became impossible for their rider to control. Elephant riders often carried a spike and mallet that they could use to kill the animals if they attacked their own forces.'
-WHERE Tag = 'TXT_KEY_CIV5_ANTIQUITY_INDIANWARELEPHANT_TEXT';
-
-UPDATE Language_en_US
-SET Text = 'Unique Indian {TXT_KEY_UNIT_CUIRASSIER} that does not require [ICON_RES_HORSE] {TXT_KEY_RESOURCE_HORSES}. Trades 2 [ICON_MOVES] [COLOR_NEGATIVE_TEXT]Movement[ENDCOLOR] and [COLOR_NEGATIVE_TEXT]{TXT_KEY_PROMOTION_SKIRMISHER_DOCTRINE}[ENDCOLOR] for immense [ICON_STRENGTH] Combat Strength and [ICON_RANGE_STRENGTH] Ranged Combat Strength. Lowers the [ICON_STRENGTH] Combat Strength of nearby enemy Units. Starts with [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_ACCURACY_1}[ENDCOLOR].'
-WHERE Tag = 'TXT_KEY_UNIT_HELP_INDIAN_WAR_ELEPHANT';
-
-UPDATE Language_en_US
 SET Text = 'The {TXT_KEY_UNIT_INDIAN_WARELEPHANT} is the Indian unique unit, replacing the {TXT_KEY_UNIT_CUIRASSIER}. As an elephant unit, it strikes fear into nearby enemy units and weakens them, has vastly superior [ICON_STRENGTH] Combat Strength and [ICON_RANGE_STRENGTH] Ranged Combat Strength, but moves slower. It does not require [ICON_RES_HORSE] {TXT_KEY_RESOURCE_HORSES} to be trained, and is available with the discovery of [COLOR_CYAN]{TXT_KEY_TECH_GUNPOWDER_TITLE}[ENDCOLOR], earlier than the {TXT_KEY_UNIT_CUIRASSIER}. Does not start with the {TXT_KEY_PROMOTION_SKIRMISHER_DOCTRINE} promotion.'
 WHERE Tag = 'TXT_KEY_UNIT_INDIAN_WARELEPHANT_STRATEGY';
+
+UPDATE Language_en_US
+SET Text = 'A terrifying sight on the battlefield, often as dangerous to its own side as it was to the enemy, the Naga-Malla (the Hindu term for Fighting Elephant) could be considered the first weapon of mass destruction. Indians used elephants in war until the advent of gunpowder rendered them obsolete. In pre-gunpowder battle the war elephant served two primary purposes. First, their scent absolutely terrified horses, rendering enemy cavalry useless. Second, they could break through even the strongest line of infantry, crushing a wall of spears that no horse could ever surmount. Elephants were incredibly difficult to kill and history records them surviving sixty or more arrows. The primary problem with elephants was their tendency to go berserk with pain or rage, at which point they became impossible for their rider to control. Elephant riders often carried a spike and mallet that they could use to kill the animals if they attacked their own forces.'
+WHERE Tag = 'TXT_KEY_CIV5_ANTIQUITY_INDIANWARELEPHANT_TEXT';
 
 --------------------
 -- Indonesia
@@ -517,16 +421,8 @@ SET Text = 'When you gain a City, one of 3 unique Luxuries ([ICON_RES_CLOVES]/[I
 WHERE Tag = 'TXT_KEY_TRAIT_SPICE';
 
 UPDATE Language_en_US
-SET Text = 'A [ICON_RES_CLOVES] Cloves, [ICON_RES_PEPPER] Pepper, or [ICON_RES_NUTMEG] Nutmeg Resource will appear near or under this City when constructed.[NEWLINE][NEWLINE]+25% [ICON_GREAT_PEOPLE] Great People generation in this City. +15% [ICON_CULTURE] Culture and [ICON_PEACE] Faith in the City during "We Love the King Day."[NEWLINE][NEWLINE]1 Specialist in this City no longer produces [ICON_HAPPINESS_3] Unhappiness from [ICON_URBANIZATION] Urbanization.[NEWLINE][NEWLINE]Nearby Oases: +2 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_CITRUS] Citrus: +1 [ICON_FOOD] Food, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_COCOA] Cocoa: +1 [ICON_FOOD] Food, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_CLOVES] Cloves: +1 [ICON_PEACE] Faith, +1 [ICON_CULTURE] Culture.[NEWLINE]Nearby [ICON_RES_PEPPER] Pepper: +1 [ICON_PEACE] Faith, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_NUTMEG] Nutmeg: +1 [ICON_CULTURE] Culture, +1 [ICON_PRODUCTION] Production.'
-WHERE Tag = 'TXT_KEY_BUILDING_CANDI_HELP';
-
-UPDATE Language_en_US
 SET Text = 'Unique Indonesian replacement for the {TXT_KEY_BUILDING_GARDEN}. In addition to the {TXT_KEY_BUILDING_GARDEN}''s bonuses, the {TXT_KEY_BUILDING_CANDI_DESC} spawns a random unique luxury; provides [ICON_CULTURE] Culture and [ICON_PEACE] Faith; and gains an additional boost to these yields during "We Love the King Day."'
 WHERE Tag = 'TXT_KEY_BUILDING_CANDI_STRATEGY';
-
-UPDATE Language_en_US
-SET Text = 'Unique Indonesian {TXT_KEY_UNIT_SWORDSMAN} that has a [COLOR:30:200:255:255]{TXT_KEY_PROMOTION_MYSTIC_BLADE}[ENDCOLOR] whose abilities will be discovered the first time it is used in combat.'
-WHERE Tag = 'TXT_KEY_UNIT_HELP_INDONESIAN_KRIS_SWORDSMAN';
 
 UPDATE Language_en_US
 SET Text = 'The {TXT_KEY_UNIT_INDONESIAN_KRIS_SWORDSMAN} is the Indonesian unique unit, replacing the {TXT_KEY_UNIT_SWORDSMAN}. It randomly unlocks one of the below unique promotions after its first combat:[NEWLINE][NEWLINE][COLOR:30:200:255:255]{TXT_KEY_PROMOTION_INVULNERABIILITY}[ENDCOLOR][NEWLINE]{TXT_KEY_PROMOTION_INVULNERABIILITY_HELP}[NEWLINE][NEWLINE][COLOR:30:200:255:255]{TXT_KEY_PROMOTION_SNEAK_ATTACK}[ENDCOLOR][NEWLINE]{TXT_KEY_PROMOTION_SNEAK_ATTACK_HELP}[NEWLINE][NEWLINE][COLOR:30:200:255:255]{TXT_KEY_PROMOTION_ENEMY_BLADE}[ENDCOLOR][NEWLINE]{TXT_KEY_PROMOTION_ENEMY_BLADE_HELP}[NEWLINE][NEWLINE][COLOR:30:200:255:255]{TXT_KEY_PROMOTION_AMBITION}[ENDCOLOR][NEWLINE]{TXT_KEY_PROMOTION_AMBITION_HELP}[NEWLINE][NEWLINE][COLOR:30:200:255:255]{TXT_KEY_PROMOTION_EVIL_SPIRITS}[ENDCOLOR][NEWLINE]{TXT_KEY_PROMOTION_EVIL_SPIRITS_HELP}[NEWLINE][NEWLINE][COLOR:30:200:255:255]{TXT_KEY_PROMOTION_RESTLESSNESS}[ENDCOLOR][NEWLINE]{TXT_KEY_PROMOTION_RESTLESSNESS_HELP}'
@@ -536,20 +432,12 @@ WHERE Tag = 'TXT_KEY_UNIT_INDONESIAN_KRIS_SWORDSMAN_STRATEGY';
 -- Iroquois
 --------------------
 UPDATE Language_en_US
-SET Text = 'Units move through Forest and Jungle as if they were roads, and these tiles establish [ICON_CONNECTED] City Connections. Military Land Units start with the [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_WOODSMAN}[ENDCOLOR] Promotion.'
+SET Text = 'Units move through Forest and Jungle as if they were roads, and these tiles establish [ICON_CONNECTED] City Connections. Military Land Units start with the [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_WOODSMAN}[ENDCOLOR] Promotion. Gain 15% progress towards the next [ICON_DIPLOMAT] {TXT_KEY_UNIT_TADODAHO} in your [ICON_CAPITAL] Capital when adopting a Social Policy.'
 WHERE Tag = 'TXT_KEY_TRAIT_IGNORE_TERRAIN_IN_FOREST';
-
-UPDATE Language_en_US
-SET Text = '+1 [ICON_FOOD] Food and [ICON_PRODUCTION] Production from Forests, Jungles, Marshes, and Plantations worked by this City.'
-WHERE Tag = 'TXT_KEY_BUILDING_LONGHOUSE_HELP';
 
 UPDATE Language_en_US
 SET Text = 'Unique Iroquois replacement for the {TXT_KEY_BUILDING_HERBALIST}. Instead of providing only [ICON_FOOD] Food, {TXT_KEY_BUILDING_LONGHOUSE_DESC} adds both [ICON_FOOD] Food and [ICON_PRODUCTION] Production to nearby Forests, Jungles, Marshes, and Plantations.'
 WHERE Tag = 'TXT_KEY_BUILDING_LONGHOUSE_STRATEGY';
-
-UPDATE Language_en_US
-SET Text = 'Unique Iroquois {TXT_KEY_UNIT_SWORDSMAN} that excels at Forest and Jungle warfare and does not require [ICON_RES_IRON] {TXT_KEY_RESOURCE_IRON}. Starts with [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_WOODSMAN}[ENDCOLOR].'
-WHERE Tag = 'TXT_KEY_UNIT_HELP_MOHAWK_WARRIOR';
 
 UPDATE Language_en_US
 SET Text = 'The {TXT_KEY_UNIT_IROQUOIAN_MOHAWKWARRIOR} is the Iroquois unique unit, replacing the {TXT_KEY_UNIT_SWORDSMAN}. It receives a [ICON_MOVES] Movement and [ICON_STRENGTH] Combat bonus when fighting in Forests and Jungles. Does not require [ICON_RES_IRON] {TXT_KEY_RESOURCE_IRON} to be trained.'
@@ -567,10 +455,6 @@ SET Text = '+1 [ICON_CULTURE] Culture and [ICON_PEACE] Faith from Defense Buildi
 WHERE Tag = 'TXT_KEY_TRAIT_FIGHT_WELL_DAMAGED';
 
 UPDATE Language_en_US
-SET Text = 'Unique Japanese {TXT_KEY_UNIT_LONGSWORDSMAN} that gains 50% more experience and produces 100% more [ICON_GREAT_GENERAL] Great General Points from combat than normal.'
-WHERE Tag = 'TXT_KEY_UNIT_HELP_SAMURAI';
-
-UPDATE Language_en_US
 SET Text = 'The {TXT_KEY_UNIT_JAPANESE_SAMURAI} is the Japanese unique unit, replacing the {TXT_KEY_UNIT_LONGSWORDSMAN}. It gains more experience and generates [ICON_GREAT_GENERAL] Great Generals faster from combat.'
 WHERE Tag = 'TXT_KEY_UNIT_JAPANESE_SAMURAI_STRATEGY';
 
@@ -582,12 +466,12 @@ SET Text = '+1 [ICON_RESEARCH] Science from Specialists, increasing by +1 in Med
 WHERE Tag = 'TXT_KEY_TRAIT_SCHOLARS_JADE_HALL';
 
 UPDATE Language_en_US
-SET Text = 'Unique Korean {TXT_KEY_UNIT_TREBUCHET} that is stronger against land units, but weaker against cities. Has normal sight range and starts with [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_LOGISTICS}[ENDCOLOR].'
-WHERE Tag = 'TXT_KEY_CIV5_KOREA_HWACHA_HELP';
-
-UPDATE Language_en_US
 SET Text = 'The {TXT_KEY_CIV5_KOREA_HWACHA_HEADING} is the Korean unique unit, replacing the {TXT_KEY_UNIT_TREBUCHET}. It operates similar to ranged units rather than siege - it lacks most bonuses and penalties that siege units have. It can also attack twice per turn, but cannot fortify or benefit from terrain defense, and retains the movement penalty in enemy territory that most siege units have.'
 WHERE Tag = 'TXT_KEY_CIV5_KOREA_HWACHA_STRATEGY';
+
+UPDATE Language_en_US
+SET Text = 'The Turtle Ship has a more powerful attack than the Caravel, and is extremely difficult to destroy due to its Indomitable promotion. However, while it can end its movement in Ocean tiles, the Turtle Ship still travels at half speed through them.'
+WHERE Tag = 'TXT_KEY_CIV5_KOREA_TURTLESHIP_STRATEGY';
 
 --------------------
 -- Maya
@@ -595,10 +479,6 @@ WHERE Tag = 'TXT_KEY_CIV5_KOREA_HWACHA_STRATEGY';
 UPDATE Language_en_US
 SET Text = 'After researching [COLOR_CYAN]Mathematics[ENDCOLOR], receive a bonus [ICON_GREAT_PEOPLE] Great Person at the end of every Maya Long Count cycle (every 394 years). Each bonus [ICON_GREAT_PEOPLE] Great Person can only be chosen once.'
 WHERE Tag = 'TXT_KEY_TRAIT_LONG_COUNT';
-
-UPDATE Language_en_US
-SET Text = 'Unique Mayan {TXT_KEY_UNIT_COMPOSITE_BOWMAN} that can attack over obstacles.'
-WHERE Tag = 'TXT_KEY_UNIT_HELP_MAYAN_ATLATLIST';
 
 UPDATE Language_en_US
 SET Text = 'The {TXT_KEY_UNIT_MAYAN_ATLATLIST} is the Mayan unique unit, replacing the {TXT_KEY_UNIT_COMPOSITE_BOWMAN}. It is the only ranged unit that can shoot over obstacles in the early eras. It is also cheaper and is available with the discovery of [COLOR_CYAN]{TXT_KEY_TECH_MATHEMATICS_TITLE}[ENDCOLOR], earlier than the {TXT_KEY_UNIT_COMPOSITE_BOWMAN}.[NEWLINE][NEWLINE]The {TXT_KEY_UNIT_MAYAN_ATLATLIST} allows you to set up a stronger defense line in rough terrain against slower units.'
@@ -610,10 +490,6 @@ WHERE Tag = 'TXT_KEY_UNIT_MAYAN_ATLATLIST_STRATEGY';
 UPDATE Language_en_US
 SET Text = 'Skirmisher Units have an extra Attack. Gain All Yields equal to 20% of the [ICON_GOLD] Gold from bullying [ICON_CITY_STATE] City-States.'
 WHERE Tag = 'TXT_KEY_TRAIT_TERROR';
-
-UPDATE Language_en_US
-SET Text = 'Unique Mongolian {TXT_KEY_UNIT_GREAT_GENERAL} that specializes in mobile leadership. The same {TXT_KEY_PROMOTION_GREAT_GENERAL} bonuses apply, but the {TXT_KEY_UNIT_MONGOL_KHAN} moves much faster, starts with [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_MEDIC}[ENDCOLOR] and [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_MEDIC_II}[ENDCOLOR], and deals 10 damage to enemy Units if they end their turn next to it.[NEWLINE][NEWLINE]Can be expended to construct an [COLOR_POSITIVE_TEXT]{TXT_KEY_IMPROVEMENT_ORDO}[ENDCOLOR], the unique Mongolian {TXT_KEY_IMPROVEMENT_CITADEL}.'
-WHERE Tag = 'TXT_KEY_CIV5_MONGOLIA_KHAN_HELP';
 
 UPDATE Language_en_US
 SET Text = 'The {TXT_KEY_UNIT_MONGOL_KHAN} is the Mongolian unique unit, replacing the {TXT_KEY_UNIT_GREAT_GENERAL}. It moves much faster, heals stacked and adjacent units for additional HP per turn, and damages adjacent enemies if they end their turn next to it. It can also be expended to construct an [COLOR_POSITIVE_TEXT]{TXT_KEY_IMPROVEMENT_ORDO}[ENDCOLOR] and claim all adjacent tiles.'
@@ -643,10 +519,6 @@ SET Text = 'It will increase [ICON_FOOD] Food, [ICON_PRODUCTION] Production, [IC
 WHERE Tag = 'TXT_KEY_BUILD_KASBAH_REC';
 
 UPDATE Language_en_US
-SET Text = 'Unique Moroccan {TXT_KEY_UNIT_CAVALRY} that specializes in patrolling and protecting friendly lands. Receives a [ICON_STRENGTH] Combat Strength bonus when fighting in friendly territory and ignores terrain movement cost.'
-WHERE Tag = 'TXT_KEY_UNIT_HELP_BERBER_CAVALRY';
-
-UPDATE Language_en_US
 SET Text = 'The {TXT_KEY_UNIT_BERBER_CAVALRY} is the Moroccan unique unit, replacing the {TXT_KEY_UNIT_CAVALRY}. It possesses a combat bonus when fighting in friendly land, and can move through difficult terrain without penalty.[NEWLINE][NEWLINE]Combined with the Moroccan Unique Ability, you can send the {TXT_KEY_UNIT_BERBER_CAVALRY} out to plunder foreign [ICON_INTERNATIONAL_TRADE] Trade Routes easily. Just make sure you aren''t seen!'
 WHERE Tag = 'TXT_KEY_UNIT_BERBER_CAVALRY_STRATEGY';
 
@@ -656,10 +528,6 @@ WHERE Tag = 'TXT_KEY_UNIT_BERBER_CAVALRY_STRATEGY';
 UPDATE Language_en_US
 SET Text = '+3 [ICON_GOLD] Gold and [ICON_CULTURE] Culture for each unique Luxury Resource you import or export from/to other Civilizations and [ICON_CITY_STATE] City-States, scaling with Era. Can import duplicate Luxuries from Civilizations which count toward [ICON_MONOPOLY] Monopolies.'
 WHERE Tag = 'TXT_KEY_TRAIT_LUXURY_RETENTION';
-
-UPDATE Language_en_US
-SET Text = 'Unique Dutch {TXT_KEY_UNIT_PRIVATEER} that specializes in attacking coastal cities and capturing enemy ships. Starts with [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_VANGUARD}[ENDCOLOR] and [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_SUPPLY}[ENDCOLOR].'
-WHERE Tag = 'TXT_KEY_UNIT_HELP_SEA_BEGGAR';
 
 UPDATE Language_en_US
 SET Text = 'The {TXT_KEY_UNIT_SEA_BEGGAR} is the Dutch unique unit, replacing the {TXT_KEY_UNIT_PRIVATEER}. It has immense [ICON_STRENGTH] strength against cities, can heal anywhere, and may capture defeated enemy ships.[NEWLINE][NEWLINE]Make use of its strong promotions to take down rival navies and cities, and grow your navy with prize ships!'
@@ -685,10 +553,6 @@ SET Text = 'Completing a [ICON_INTERNATIONAL_TRADE] Trade Route grants +150 [ICO
 WHERE Tag = 'TXT_KEY_TRAIT_CONVERTS_SEA_BARBARIANS';
 
 UPDATE Language_en_US
-SET Text = 'Unique Ottoman {TXT_KEY_UNIT_MUSKETMAN} that gains a [ICON_STRENGTH] Combat Strength bonus when attacking. Starts with [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_MARCH}[ENDCOLOR].'
-WHERE Tag = 'TXT_KEY_UNIT_HELP_JANISSARY';
-
-UPDATE Language_en_US
 SET Text = 'The {TXT_KEY_UNIT_OTTOMAN_JANISSARY} is the Ottoman unique unit, replacing the {TXT_KEY_UNIT_MUSKETMAN}. It has a [ICON_STRENGTH] Combat Strength bonus when attacking, and may heal even after performing an action. It is available with the discovery of [COLOR_CYAN]{TXT_KEY_TECH_GUNPOWDER_TITLE}[ENDCOLOR], earlier than the {TXT_KEY_UNIT_MUSKETMAN}.'
 WHERE Tag = 'TXT_KEY_UNIT_OTTOMAN_JANISSARY_STRATEGY';
 
@@ -700,16 +564,8 @@ SET Text = '[ICON_GOLDEN_AGE] Golden Ages last 50% longer, and 15% of your gross
 WHERE Tag = 'TXT_KEY_TRAIT_ENHANCED_GOLDEN_AGES';
 
 UPDATE Language_en_US
-SET Text = '+1 [ICON_GOLD] Gold for every 3 [ICON_CITIZEN] Citizens in the City. +1 [ICON_GOLD] Gold from [ICON_SCIENTIST] Scientist, [ICON_ENGINEER] Engineer, and [ICON_MERCHANT] Merchant Specialists in the City.[NEWLINE][NEWLINE]Eliminates extra [ICON_HAPPINESS_4] Unhappiness from an [ICON_OCCUPIED] Occupied City (if it is [ICON_OCCUPIED] Occupied).'
-WHERE Tag = 'TXT_KEY_BUILDING_SATRAPS_COURT_HELP';
-
-UPDATE Language_en_US
 SET Text = 'Unique Persian replacement for the {TXT_KEY_BUILDING_COURTHOUSE}. In addition to the {TXT_KEY_BUILDING_COURTHOUSE}''s bonuses, the {TXT_KEY_BUILDING_SATRAPS_COURT_DESC} generates [ICON_GOLD] Gold from population and specialists, and has a [ICON_MERCHANT] Merchant slot. It can be built in any city instead of only occupied ones, and does not cost [ICON_GOLD] Gold maintenance.'
 WHERE Tag = 'TXT_KEY_BUILDING_SATRAPS_COURT_STRATEGY';
-
-UPDATE Language_en_US
-SET Text = 'Unique Persian {TXT_KEY_UNIT_SPEARMAN} that heals faster and has a defensive bonus.'
-WHERE Tag = 'TXT_KEY_UNIT_HELP_IMMORTAL';
 
 UPDATE Language_en_US
 SET Text = 'The {TXT_KEY_UNIT_PERSIAN_IMMORTAL} is the Persian unique unit, replacing the {TXT_KEY_UNIT_SPEARMAN}. It has a [ICON_STRENGTH] Combat Strength bonus when defending, and can heal faster anywhere.'
@@ -723,16 +579,8 @@ SET Text = 'Gain 1 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Social Policy when you en
 WHERE Tag = 'TXT_KEY_TRAIT_SOLIDARITY';
 
 UPDATE Language_en_US
-SET Text = 'Provides 1 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] [ICON_RES_HORSE] Horse. +50% [ICON_PRODUCTION] Production and +15 XP when building Mounted Melee Units. +1 [ICON_WAR] Military Supply. Internal [ICON_INTERNATIONAL_TRADE] Trade Routes from this City generate +2 [ICON_PRODUCTION] Production.[NEWLINE][NEWLINE]Nearby [ICON_RES_HORSE] Horses: +3 [ICON_PRODUCTION] Production, +3 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_SHEEP] Sheep: +3 [ICON_PRODUCTION] Production, +3 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_COW] Cattle: +3 [ICON_PRODUCTION] Production, +3 [ICON_GOLD] Gold.'
-WHERE Tag = 'TXT_KEY_BUILDING_DUCAL_STABLE_HELP';
-
-UPDATE Language_en_US
 SET Text = 'Unique Polish replacement for the {TXT_KEY_BUILDING_STABLE}. In addition to the {TXT_KEY_BUILDING_STABLE}''s bonuses, the {TXT_KEY_BUILDING_DUCAL_STABLE_DESC} provides a better [ICON_PRODUCTION] Production bonus and bonus XP for mounted melee units, and a greater boost on pasture resources. It also grants a free [ICON_RES_HORSE] Horse instead of requiring a nearby improved pasture resource to be built.'
 WHERE Tag = 'TXT_KEY_BUILDING_DUCAL_STABLE_STRATEGY';
-
-UPDATE Language_en_US
-SET Text = 'Unique Polish {TXT_KEY_UNIT_LANCER} that is much faster and specializes in disrupting formations. Gains a [ICON_STRENGTH] Combat Strength bonus when attacking Units that cannot retreat, and forces its target to retreat (if possible) if it has more [ICON_STRENGTH] Combat Strength than its target while attacking. Starts with [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_FORMATION_1}[ENDCOLOR].'
-WHERE Tag = 'TXT_KEY_UNIT_HELP_WINGED_HUSSAR';
 
 UPDATE Language_en_US
 SET Text = 'The {TXT_KEY_UNIT_POLISH_WINGED_HUSSAR} is the Polish unique unit, replacing the {TXT_KEY_UNIT_LANCER}. It is faster and stronger against mounted units. It can force weaker targets to retreat and strike harder if they cannot.[NEWLINE][NEWLINE]Use this ability to push the enemy front line away and expose their weaker units!'
@@ -744,10 +592,6 @@ WHERE Tag = 'TXT_KEY_UNIT_POLISH_WINGED_HUSSAR_STRATEGY';
 UPDATE Language_en_US
 SET Text = '+2 [ICON_VISION] Sight when Embarked, can always Embark and move over Oceans. +2 [ICON_PRODUCTION] Production from Fishing Boats and Atolls. Melee and Gunpowder Units can construct Fishing Boats. No [ICON_HAPPINESS_3] Unhappiness from Isolation.'
 WHERE Tag = 'TXT_KEY_TRAIT_WAYFINDING';
-
-UPDATE Language_en_US
-SET Text = 'Unique Polynesian {TXT_KEY_UNIT_SCOUT} that weakens adjacent enemy Units. Starts with [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_AMPHIBIOUS}[ENDCOLOR].'
-WHERE Tag = 'TXT_KEY_CIV5_POLYNESIAN_MAORI_WARRIOR_HELP';
 
 UPDATE Language_en_US
 SET Text = 'The {TXT_KEY_UNIT_POLYNESIAN_MAORI_WARRIOR} is the Polynesian unique unit, replacing the {TXT_KEY_UNIT_SCOUT}. It is more powerful, and can attack across rivers or from the sea with no penalty. It also has a unique debuffing aura that decreases the [ICON_STRENGTH] Combat Strength of adjacent enemies.'
@@ -793,7 +637,7 @@ SET Text = 'It will provide [ICON_PRODUCTION] Production and [ICON_GOLD] Gold. R
 WHERE Tag = 'TXT_KEY_BUILD_FEITORIA_REC';
 
 UPDATE Language_en_US
-SET Text = 'Unique Portuguese {TXT_KEY_UNIT_CARAVEL} that excels at sea exploration and trade. Has 2 Exotic Cargo that it can sell when adjacent to a foreign tile, earning up to 400 [ICON_GOLD] Gold and 30 XP scaling with the distance from your [ICON_CAPITAL] Capital. It can also withdraw from melee combat once per turn.[NEWLINE][NEWLINE]If an Exotic Cargo is sold adjacent to City-State territory and this {TXT_KEY_UNIT_PORTUGUESE_NAU} belongs to Portugal, a {TXT_KEY_IMPROVEMENT_FEITORIA} is [COLOR_POSITIVE_TEXT]automatically created[ENDCOLOR] on one of the coastal tiles owned by the City-State.'
+SET Text = 'If an Exotic Cargo is sold adjacent to City-State territory and this {TXT_KEY_UNIT_PORTUGUESE_NAU} belongs to Portugal, a {TXT_KEY_IMPROVEMENT_FEITORIA} is [COLOR_POSITIVE_TEXT]automatically created[ENDCOLOR] on one of the coastal tiles owned by the City-State.'
 WHERE Tag = 'TXT_KEY_UNIT_HELP_PORTUGUESE_NAU';
 
 UPDATE Language_en_US
@@ -808,12 +652,12 @@ SET Text = '+30% [ICON_STRENGTH] Combat Strength against [ICON_CITY_STATE] City-
 WHERE Tag = 'TXT_KEY_TRAIT_CAPITAL_BUILDINGS_CHEAPER';
 
 UPDATE Language_en_US
-SET Text = 'Unique Roman {TXT_KEY_UNIT_SWORDSMAN} that can construct [COLOR_POSITIVE_TEXT]{TXT_KEY_CIV5_IMPROVEMENTS_FORT}[ENDCOLOR] and [COLOR_POSITIVE_TEXT]{TXT_KEY_CIV5_IMPROVEMENTS_ROAD}[ENDCOLOR]. Deals 10 damage to adjacent enemy Units every turn while fortified. Starts with [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_COVER_1}[ENDCOLOR].'
-WHERE Tag = 'TXT_KEY_UNIT_HELP_ROMAN_LEGION';
-
-UPDATE Language_en_US
 SET Text = 'The {TXT_KEY_UNIT_ROMAN_LEGION} is the Roman unique unit, replacing the {TXT_KEY_UNIT_SWORDSMAN}. It can deal damage to adjacent enemies if fortified (not moving nor attacking) on turn end. It can also construct roads and forts slightly faster than Workers.'
 WHERE Tag = 'TXT_KEY_UNIT_ROMAN_LEGION_STRATEGY';
+
+UPDATE Language_en_US
+SET Text = 'The Ballista is an excellent siege weapon. While still very useful against cities, its lack of penalties against land units and free Field I promotion gives it an extra punch against other units. The Ballista is still quite vulnerable to attack, so be sure to protect it with other military units. Moves at half speed in enemy territory, but has normal sight range.'
+WHERE Tag = 'TXT_KEY_UNIT_ROMAN_BALLISTA_STRATEGY';
 
 --------------------
 -- Russia
@@ -827,20 +671,12 @@ SET Text = 'Ostrog'
 WHERE Tag = 'TXT_KEY_BUILDING_KREPOST_DESC';
 
 UPDATE Language_en_US
-SET Text = 'Damage from all sources against this City is reduced by 2. Allows City to [ICON_RANGE_STRENGTH] Strike over obstacles. +5% [ICON_SILVER_FIST] Military Supply from Population.[NEWLINE][NEWLINE]Enemy Land Units expend all [ICON_MOVES] Movement when entering land territory owned by this City.[NEWLINE][NEWLINE]+1 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold to Camps, Mines, Lumber Mills, and Strategic Resources worked by this City.[NEWLINE][NEWLINE]Garrisoned Units receive an additional 5 Health when healing in this City.[NEWLINE][NEWLINE][ICON_CITY_STATE] Empire Size Modifier is reduced by 5% in this City.'
-WHERE Tag = 'TXT_KEY_BUILDING_KREPOST_HELP';
-
-UPDATE Language_en_US
 SET Text = 'Unique Russian replacement for the {TXT_KEY_BUILDING_BASTION_FORT}. In addition to the {TXT_KEY_BUILDING_BASTION_FORT}''s bonuses, {TXT_KEY_BUILDING_KREPOST_DESC} provides more [ICON_STRENGTH] City Strength and makes enemies expend all [ICON_MOVES] movement when entering land tiles owned by the city, like a localized [ICON_WONDER] Great Wall. It also boosts camps, mines, lumber mills, and strategic resources.'
 WHERE Tag = 'TXT_KEY_BUILDINGS_KREPOST_STRATEGY';
 
 UPDATE Language_en_US
 SET Text = 'Ostrog is a Russian term for a small fort, typically wooden and often non-permanently manned. Ostrogs were widely used during the age of Russian imperial expansion, particularly during the 18th and early 19th centuries. Ostrogs were encircled by 6 metres high palisade walls made from sharpened trunks. The name derives from the Russian word strogat, "to shave the wood". Ostrogs were smaller and exclusively military forts, compared to larger kremlins that were the cores of Russian cities. Ostrogs were often built in remote areas or within the fortification lines, such as the Great Abatis Line.'
 WHERE Tag = 'TXT_KEY_BUILDINGS_KREPOST_PEDIA';
-
-UPDATE Language_en_US
-SET Text = 'Unique Russian {TXT_KEY_UNIT_CAVALRY} that excels at taking out weakened and cornered enemies by having a [ICON_STRENGTH] Combat Strength bonus when attacking enemies that have already taken damage, and dealing more damage to enemies that cannot retreat.'
-WHERE Tag = 'TXT_KEY_UNIT_HELP_COSSACK';
 
 UPDATE Language_en_US
 SET Text = 'The {TXT_KEY_UNIT_RUSSIAN_COSSACK} is the Russian unique unit, replacing the {TXT_KEY_UNIT_CAVALRY}. It is significantly stronger, and has a [ICON_STRENGTH] Combat Strength bonus when attacking wounded units. It also does extra damage when attacking enemies that cannot retreat.'
@@ -858,10 +694,6 @@ SET Text = '+10 [ICON_GOLD] Gold and +4 [ICON_PEACE] Faith from gaining tiles, s
 WHERE Tag = 'TXT_KEY_TRAIT_SEVEN_CITIES';
 
 UPDATE Language_en_US
-SET Text = 'Unique Spanish {TXT_KEY_UNIT_EXPLORER} that specializes in conquest and settling advanced Cities overseas. Starts with [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_OVERRUN}[ENDCOLOR] and [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_VANGUARD}[ENDCOLOR].[NEWLINE][NEWLINE]Can be expended to found a City in any foreign landmass. Cities established by this Unit start with the same buildings as Cities established by a {TXT_KEY_UNIT_PIONEER} plus {TXT_KEY_BUILDING_LIGHTHOUSE} and {TXT_KEY_BUILDING_ARMORY}.'
-WHERE Tag = 'TXT_KEY_CIV5_SPAIN_CONQUISTADOR_HELP';
-
-UPDATE Language_en_US
 SET Text = 'The {TXT_KEY_UNIT_SPANISH_CONQUISTADOR} is the Spanish unique unit, replacing the {TXT_KEY_UNIT_EXPLORER}. It is much stronger and has large bonuses to flanking and attacking cities. Combined with its great mobility, the {TXT_KEY_UNIT_SPANISH_CONQUISTADOR} is a formidable unit, able to augment or replace your existing Medieval military.[NEWLINE][NEWLINE]It also has the ability to found new cities, but only on a foreign continent that does not contain your [ICON_CAPITAL] Capital. A city founded by {TXT_KEY_UNIT_SPANISH_CONQUISTADOR} starts with 3 [ICON_CITIZEN] Citizens, claims 3 additional tiles, and immediately receives the following selection of buildings:[NEWLINE][NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_COLOSSEUM}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_ARMORY}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_BARRACKS}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_COUNCIL}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_FORGE}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_GRANARY}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_HERBALIST}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_LIBRARY}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_LIGHTHOUSE}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_MARKET}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_MONUMENT_DESC}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_SHRINE}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_SMOKEHOUSE}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_WATERMILL} (if applicable)[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_WELL} (if applicable)[NEWLINE][NEWLINE]Note: the bonuses for constructing buildings from the Progress and Industry policy branches do not apply to the buildings automatically constructed on founding!'
 WHERE Tag = 'TXT_KEY_CIV5_SPAIN_CONQUISTADOR_STRATEGY';
 
@@ -877,10 +709,6 @@ SET Text = 'Comanche Rider'
 WHERE Tag = 'TXT_KEY_UNIT_SHOSHONE_COMANCHE_RIDERS';
 
 UPDATE Language_en_US
-SET Text = 'Unique Shoshone {TXT_KEY_UNIT_CAVALRY} that excels at hit-and-run attacks and pillaging. Generates [ICON_RESEARCH] Science and consumes no [ICON_MOVES] Moves when pillaging. Can move faster, and withdraw from melee combat once per turn.'
-WHERE Tag = 'TXT_KEY_UNIT_HELP_SHOSHONE_COMANCHE_RIDERS';
-
-UPDATE Language_en_US
 SET Text = 'The {TXT_KEY_UNIT_SHOSHONE_COMANCHE_RIDERS} is the Shoshone unique unit, replacing the {TXT_KEY_UNIT_CAVALRY}. It can move faster, pillage tiles without spending [ICON_MOVE] movement, and gain [ICON_RESEARCH] Science doing so. It can also retreat from melee combat once per turn.[NEWLINE][NEWLINE]Use this to destroy your enemies'' infrastructure while maintaining a tech lead!'
 WHERE Tag = 'TXT_KEY_UNIT_SHOSHONE_COMANCHE_RIDERS_STRATEGY';
 
@@ -892,16 +720,8 @@ SET Text = 'Yields, Resources, [ICON_HAPPINESS_1] Happiness and Unit Gift freque
 WHERE Tag = 'TXT_KEY_TRAIT_CITY_STATE_BONUSES';
 
 UPDATE Language_en_US
-SET Text = '+3 [ICON_RESEARCH] Science from Temples and Shrines in this City. +10 [ICON_INFLUENCE] Influence from Diplomatic Missions by Units originating from this City.[NEWLINE][NEWLINE]+25 [ICON_CITY_SECURITY] City Security, plus 1 for every two [ICON_CITIZEN] Citizens in the City.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress.'
-WHERE Tag = 'TXT_KEY_BUILDING_WAT_HELP';
-
-UPDATE Language_en_US
 SET Text = 'Unique Siamese replacement for the {TXT_KEY_BUILDING_CONSTABLE}. In addition to the {TXT_KEY_BUILDING_CONSTABLE}''s bonuses, {TXT_KEY_BUILDING_WAT_DESC} increases [ICON_CITY_SECURITY] City Security even more; generates [ICON_RESEARCH] Science, [ICON_CULTURE] Culture, and [ICON_PEACE] Faith; and boosts Shrines, Temples, and diplomatic units. It also has a [ICON_SCIENTIST] Scientist slot. It is available in the [COLOR_CYAN]Medieval Era[ENDCOLOR] with the discovery of [COLOR_CYAN]{TXT_KEY_TECH_THEOLOGY_TITLE}[ENDCOLOR], much earlier than the {TXT_KEY_BUILDING_CONSTABLE}.'
 WHERE Tag = 'TXT_KEY_BUILDING_WAT_STRATEGY';
-
-UPDATE Language_en_US
-SET Text = 'Unique Siamese {TXT_KEY_UNIT_KNIGHT} that excels at defeating Mounted Units and does not require [ICON_RES_HORSE] {TXT_KEY_RESOURCE_HORSES}. Receives an extra [ICON_STRENGTH] Combat Strength boost when stacked with a {TXT_KEY_UNIT_GREAT_GENERAL}. Trades 1 [ICON_MOVES] [COLOR_NEGATIVE_TEXT]Movement[ENDCOLOR] for the ability to lower the [ICON_STRENGTH] Combat Strength of nearby enemy Units.'
-WHERE Tag = 'TXT_KEY_UNIT_HELP_SIAMESE_WARELEPHANT';
 
 UPDATE Language_en_US
 SET Text = 'The {TXT_KEY_UNIT_SIAMESE_WARELEPHANT} is the Siamese unique unit, replacing the {TXT_KEY_UNIT_KNIGHT}. As an elephant unit, it strikes fear into nearby enemy units and weakens them, has superior [ICON_STRENGTH] Combat Strength, but moves slower. It has a [ICON_STRENGTH] Combat Strength bonus when fighting against fellow mounted units, and an extra bonus when stacked with a {TXT_KEY_UNIT_GREAT_GENERAL}. It does not require [ICON_RES_HORSE] {TXT_KEY_RESOURCE_HORSES} to be trained.'
@@ -919,20 +739,12 @@ SET Text = 'Tabya'
 WHERE Tag = 'TXT_KEY_BUILDING_MUD_PYRAMID_MOSQUE_DESC';
 
 UPDATE Language_en_US
-SET Text = '+10% [ICON_PRODUCTION] Production when constructing Buildings.[NEWLINE][NEWLINE]Allows [ICON_PRODUCTION] Production to be moved from this City along trade routes inside your Civilization.[NEWLINE][NEWLINE]Nearby River: +1 [ICON_PRODUCTION] Production.[NEWLINE]Nearby [ICON_RES_MARBLE] Marble: +1 [ICON_PRODUCTION] Production, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_STONE] Stone: +2 [ICON_PRODUCTION] Production.[NEWLINE]Nearby [ICON_RES_SALT] Salt: +2 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_JADE] Jade: +1 [ICON_PRODUCTION] Production, +1 [ICON_GOLD] Gold.'
-WHERE Tag = 'TXT_KEY_BUILDING_MUD_PYRAMID_MOSQUE_HELP';
-
-UPDATE Language_en_US
 SET Text = 'Unique Songhai replacement for the {TXT_KEY_BUILDING_STONE_WORKS}. In addition to the {TXT_KEY_BUILDING_STONE_WORKS}'' bonuses, {TXT_KEY_BUILDING_MUD_PYRAMID_MOSQUE_DESC} generates a bit of [ICON_CULTURE] Culture, boosts all river tiles, and provides a [ICON_PRODUCTION] Production bonus on building construction. It does not require a nearby improved resource to be built, which makes sure [ICON_PRODUCTION] Production internal [ICON_INTERNATIONAL_TRADE] Trade Routes are always available early.'
 WHERE Tag = 'TXT_KEY_BUILDING_MUD_PYRAMID_MOSQUE_STRATEGY';
 
 UPDATE Language_en_US
 SET Text = 'Adobe, the Spanish word for mud brick, is a natural building material made from sand, clay, water and some kind of fibrous or organic material (sticks, straw or manure) and the bricks made with adobe material using molds and dried in the sun. The Great Mosque of Djenné, in central Mali, is largest mudbrick structure in the world. It, like much Sahelian architecture, is built with a mudbrick called Banco: a recipe of mud and grain husks, fermented, and either formed into bricks or applied on surfaces as a plaster like paste in broad strokes. This plaster must be reapplied annually. The facilities where these material were created were called Tabya (Cobworks), and played an essential role in West African architecture.'
 WHERE Tag = 'TXT_KEY_CIV5_BUILDING_MUD_PYRAMID_MOSQUE_PEDIA';
-
-UPDATE Language_en_US
-SET Text = 'Unique Songhai {TXT_KEY_UNIT_KNIGHT} that excels at raiding cities and flanking enemies. Does not have a [ICON_STRENGTH] Combat Strength penalty and steals [ICON_GOLD] Gold when attacking Cities. Can use enemy roads and railroads.'
-WHERE Tag = 'TXT_KEY_UNIT_HELP_MUSLIM_CAVALRY';
 
 UPDATE Language_en_US
 SET Text = 'The {TXT_KEY_UNIT_SONGHAI_MUSLIMCAVALRY} is the Songhai unique unit, replacing the {TXT_KEY_UNIT_KNIGHT}. It has a significant flanking bonus and can use enemy roads/railroads against them. It does not suffer from the [ICON_STRENGTH] Combat Strength penalty a regular {TXT_KEY_UNIT_KNIGHT} has when attacking cities, and can steal [ICON_GOLD] Gold based on how much damage it deals to cities.'
@@ -946,16 +758,16 @@ SET Text = 'Lion of the North'
 WHERE Tag = 'TXT_KEY_TRAIT_DIPLOMACY_GREAT_PEOPLE_SHORT';
 
 UPDATE Language_en_US
-SET Text = 'Melee Land Units gain +20% [ICON_STRENGTH] Combat Strength [COLOR_POSITIVE_TEXT]when attacking[ENDCOLOR], and Siege Units gain +1 [ICON_MOVES] Movement. When a [ICON_GREAT_GENERAL] Great General is born, all Military Land Units fully heal and earn +15 XP. +15% [ICON_GREAT_GENERAL]/[ICON_GREAT_ADMIRAL] [COLOR_POSITIVE_TEXT]Leadership[ENDCOLOR] combat bonus.'
+SET Text = 'Melee Land Units gain +20% [ICON_STRENGTH] Combat Strength [COLOR_POSITIVE_TEXT]when attacking[ENDCOLOR], and Siege Units start with the [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_MOBILITY}[ENDCOLOR] Promotion. When a [ICON_GREAT_PEOPLE] Great Person is born, all Military Land Units heal 10 HP and earn 2 XP. +15% [ICON_GREAT_GENERAL]/[ICON_GREAT_ADMIRAL] [COLOR_POSITIVE_TEXT]Leadership[ENDCOLOR] combat bonus.'
 WHERE Tag = 'TXT_KEY_TRAIT_DIPLOMACY_GREAT_PEOPLE';
-
-UPDATE Language_en_US
-SET Text = 'Unique Swedish {TXT_KEY_UNIT_RIFLEMAN} that specializes in reckless attacks. Deals 15 damage to all adjacent enemy Units on kill. Starts with [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_MARCH}[ENDCOLOR].'
-WHERE Tag = 'TXT_KEY_UNIT_HELP_SWEDISH_CAROLEAN';
 
 UPDATE Language_en_US
 SET Text = 'The {TXT_KEY_UNIT_SWEDISH_CAROLEAN} is the Swedish unique unit, replacing the {TXT_KEY_UNIT_RIFLEMAN}. It deals damage to all adjacent enemies after advancing from killing a unit, and may heal even after performing an action.'
 WHERE Tag = 'TXT_KEY_UNIT_SWEDISH_CAROLEAN_STRATEGY';
+
+UPDATE Language_en_US
+SET Text = 'The Hakkapeliitta is much faster and can see one hex farther than the Lancer. It pillages enemy improvements at no additional cost, so foray into enemy lands to knock out key improvements, using its improved sight and speed to minimize retaliatory attacks. Keep the unit healthy by pillaging and defeating weakened units, as it has lower [ICON_STRENGTH] Combat Strength than its contemporary Lancers.'
+WHERE Tag = 'TXT_KEY_UNIT_SWEDISH_HAKKAPELIITTA_STRATEGY';
 
 --------------------
 -- Venice
@@ -965,12 +777,12 @@ SET Text = '[COLOR_NEGATIVE_TEXT]Cannot create Settlers or Annex Cities.[ENDCOLO
 WHERE Tag = 'TXT_KEY_TRAIT_SUPER_CITY_STATE';
 
 UPDATE Language_en_US
-SET Text = 'Unique Venetian {TXT_KEY_UNIT_GREAT_MERCHANT} that can conduct better trade missions; purchase control of a [ICON_CITY_STATE] City-State and its units at no cost; and found a [COLOR_POSITIVE_TEXT]Colonia[ENDCOLOR], a [ICON_PUPPET] Puppeted City with additional territory, population, and buildings.'
-WHERE Tag = 'TXT_KEY_UNIT_HELP_VENETIAN_MERCHANT';
-
-UPDATE Language_en_US
 SET Text = 'The {TXT_KEY_UNIT_VENETIAN_MERCHANT} is the Venetian unique unit, replacing the {TXT_KEY_UNIT_GREAT_MERCHANT}. It generates more [ICON_GOLD] when performing a trade mission. It can acquire a City-State outright, bringing it under Venetian control as a puppet. It can also found a Colonia, which is a city that starts puppeted with 3 [ICON_CITIZEN] Citizens, claims 3 additional tiles, and immediately receives a {TXT_KEY_BUILDING_MONUMENT_DESC} and a {TXT_KEY_BUILDING_MARKET}. The {TXT_KEY_UNIT_VENETIAN_MERCHANT} is expended when used in any of these ways.[NEWLINE][NEWLINE]Note: the bonuses for constructing buildings from the Progress and Industry policy branches do not apply to the buildings automatically constructed on founding!'
 WHERE Tag = 'TXT_KEY_UNIT_VENETIAN_MERCHANT_STRATEGY';
+
+UPDATE Language_en_US
+SET Text = 'The Great Galleass performs similarly to the Galleass, but is more resilient in battle and has a stronger ranged attack. Starts with the [COLOR_POSITIVE_TEXT]Bombardment I[ENDCOLOR] Promotion.'
+WHERE Tag = 'TXT_KEY_UNIT_VENETIAN_GALLEASS_STRATEGY';
 
 --------------------
 -- Zulu
@@ -980,16 +792,8 @@ SET Text = '-50% [ICON_GOLD] Gold maintenance for Melee and Gunpowder Units. All
 WHERE Tag = 'TXT_KEY_TRAIT_BUFFALO_HORNS';
 
 UPDATE Language_en_US
-SET Text = 'All Melee and Gunpowder Units trained in this City receive the [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_IKLWA}[ENDCOLOR] Promotion. +15 XP for all Units. +2 [ICON_WAR] Military Supply.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress.'
-WHERE Tag = 'TXT_KEY_BUILDING_IKANDA_HELP';
-
-UPDATE Language_en_US
 SET Text = 'Unique Zulu replacement for the {TXT_KEY_BUILDING_BARRACKS}. In addition to the {TXT_KEY_BUILDING_BARRACKS}'' bonuses, the {TXT_KEY_BUILDING_IKANDA_DESC} provides more [ICON_WAR] Military Supply and grants the {TXT_KEY_PROMOTION_IKLWA} promotion to all melee and gunpowder units, which unlocks a unique promotion line that offers extra HP, extra [ICON_MOVES] movement, and a flank bonus. It is available with the discovery of [COLOR_CYAN]{TXT_KEY_TECH_BRONZE_WORKING_TITLE}[ENDCOLOR] instead of [COLOR_CYAN]{TXT_KEY_TECH_ARCHERY_TITLE}[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_BUILDING_IKANDA_STRATEGY';
-
-UPDATE Language_en_US
-SET Text = 'Unique Zulu {TXT_KEY_UNIT_SPANISH_TERCIO} that excels at defeating Gunpowder Units. Performs a first-strike Ranged attack ([COLOR_POSITIVE_TEXT]at 50% Combat Strength[ENDCOLOR]) before an attack, softening enemies.'
-WHERE Tag = 'TXT_KEY_UNIT_HELP_ZULU_IMPI';
 
 UPDATE Language_en_US
 SET Text = 'The {TXT_KEY_UNIT_ZULU_IMPI} is the Zulu unique unit, replacing the {TXT_KEY_UNIT_SPANISH_TERCIO}. Before engaging in an melee attack, it performs a spear throw attack that can damage or kill the enemy unit. This will weaken the defender before melee combat ensues, ensuring that it takes less damage when attacking compared to its contemporary units. It also has a [ICON_STRENGTH] Combat Strength bonus when fighting against Gunpowder units, making it a deadly unit well into the Industrial Era.'

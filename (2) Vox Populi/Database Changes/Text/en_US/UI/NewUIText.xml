@@ -1594,19 +1594,19 @@
 			<Text>{2_Sign}{1_Num}% [ICON_CITY_STATE] Empire Size Modifier</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_DISTRESS_REDUCTION">
-			<Text>{2_Sign}{1_Num} [ICON_FOOD] and [ICON_PRODUCTION] Distress Reduction</Text>
+			<Text>{2_Sign}{1_Num} [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_POVERTY_REDUCTION">
-			<Text>{2_Sign}{1_Num} [ICON_GOLD] Poverty Reduction</Text>
+			<Text>{2_Sign}{1_Num} [ICON_HAPPINESS_3] Unhappiness from [ICON_GOLD] Poverty</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_ILLITERACY_REDUCTION">
-			<Text>{2_Sign}{1_Num} [ICON_RESEARCH] Illiteracy Reduction</Text>
+			<Text>{2_Sign}{1_Num} [ICON_HAPPINESS_3] Unhappiness from [ICON_RESEARCH] Illiteracy</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_BOREDOM_REDUCTION">
-			<Text>{2_Sign}{1_Num} [ICON_CULTURE] Boredom Reduction</Text>
+			<Text>{2_Sign}{1_Num} [ICON_HAPPINESS_3] Unhappiness from [ICON_CULTURE] Boredom</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_RELIGIOUS_UNREST_REDUCTION">
-			<Text>{2_Sign}{1_Num} [ICON_RELIGION] Religious Unrest Reduction</Text>
+			<Text>{2_Sign}{1_Num} [ICON_HAPPINESS_3] Unhappiness from [ICON_RELIGION] Religious Unrest</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_BASIC_NEEDS_NEW_MEDIAN">
 			<Text>[ICON_BULLET] New Median: {1_Num} [ICON_FOOD] and [ICON_PRODUCTION] per [ICON_CITIZEN][NEWLINE][ICON_BULLET] Current: {2_Num} [ICON_FOOD] and [ICON_PRODUCTION] per [ICON_CITIZEN]</Text>
