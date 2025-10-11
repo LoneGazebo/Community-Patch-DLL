@@ -3888,10 +3888,17 @@ function GetCultureTooltip(pCity)
 		end
 		table.insert(tLines, pCity:GetYieldRateTooltip(YieldTypes.YIELD_CULTURE));
 	end
+	
+	return table.concat(tLines, "[NEWLINE]");
+end
 
-	table.insert(tLines, "[NEWLINE]");
+function GetBorderGrowthTooltip(pCity)
+	local tLines = {};
 
-	-- Border growth
+	if not OptionsManager.IsNoBasicHelp() then
+		table.insert(tLines, L("TXT_KEY_BORDER_GROWTH_HELP_INFO"));
+		table.insert(tLines, "");
+	end
 	local eYield = YieldTypes.YIELD_CULTURE_LOCAL;
 	table.insert(tLines, pCity:GetYieldRateTooltip(eYield));
 	local fCultureStored = pCity:GetJONSCultureStoredTimes100() / 100;
@@ -3916,6 +3923,7 @@ function GetFaithTooltip(pCity)
 	local tLines = {};
 	if not OptionsManager.IsNoBasicHelp() then
 		table.insert(tLines, L("TXT_KEY_FAITH_HELP_INFO"));
+		table.insert(tLines, "");
 	end
 
 	table.insert(tLines, pCity:GetYieldRateTooltip(YieldTypes.YIELD_FAITH));
@@ -3928,7 +3936,14 @@ function GetFaithTooltip(pCity)
 end
 
 function GetTourismTooltip(pCity)
-	return pCity:GetYieldRateTooltip(YieldTypes.YIELD_TOURISM);
+	local tLines = {};
+	if not OptionsManager.IsNoBasicHelp() then
+		table.insert(tLines, L("TXT_KEY_TOURISM_HELP_INFO"));
+	end
+
+	table.insert(tLines, pCity:GetYieldRateTooltip(YieldTypes.YIELD_TOURISM));
+
+	return table.concat(tLines, "[NEWLINE]");
 end
 
 function GetCityHappinessTooltip(pCity)

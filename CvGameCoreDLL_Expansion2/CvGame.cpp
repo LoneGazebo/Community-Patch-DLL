@@ -12283,7 +12283,7 @@ void CvGame::BuildYieldTimes100HelpText(CvString* toolTipSink, const char* strTe
 		{
 			(*toolTipSink) += CvString("[NEWLINE]");
 		}
-		(*toolTipSink) += GetLocalizedText(strTextKey, (float)iYieldTimes100 / 100, strYieldIcon);
+		(*toolTipSink) += GetLocalizedText(strTextKey, FormatYieldTimes100(iYieldTimes100), strYieldIcon);
 	}
 }
 
@@ -12306,7 +12306,17 @@ void CvGame::BuildProdModHelpText(CvString* toolTipSink, const char* strTextKey,
 
 		const char* const localized = localizedText.toUTF8();
 		if(localized)
-			(*toolTipSink) += localized;
+		{
+			// Remove leading [NEWLINE] if the tooltip is currently empty
+			if (toolTipSink->empty() && strncmp(localized, "[NEWLINE]", 9) == 0)
+			{
+				(*toolTipSink) += (localized + 9);
+			}
+			else
+			{
+				(*toolTipSink) += localized;
+			}
+		}
 	}
 }
 

@@ -4,6 +4,7 @@
 -- code is common using gk_mode and bnw_mode switches
 -------------------------------------------------
 include( "EUI_tooltips" )
+include( "InfoTooltipInclude" )
 
 Events.SequenceGameInitComplete.Add(function()
 print("Loading EUI city banners",ContextPtr,os.clock(),[[
@@ -45,15 +46,6 @@ local GetCityStateStatusToolTip = GetCityStateStatusToolTip
 local GetAllyToolTip = GetAllyToolTip
 local GetActiveQuestText = GetActiveQuestText
 local GetActiveQuestToolTip = GetActiveQuestToolTip
-
---EUI_tooltips
---local GetHelpTextForUnit = EUI.GetHelpTextForUnit
---local GetHelpTextForBuilding = EUI.GetHelpTextForBuilding
---local GetHelpTextForProject = EUI.GetHelpTextForProject
-local GetHelpTextForProcess = EUI.GetHelpTextForProcess
-local GetMoodInfo = EUI.GetMoodInfo
-local GetReligionTooltip = EUI.GetReligionTooltip
-
 
 local ButtonPopupTypes = ButtonPopupTypes
 local CityAIFocusTypes = CityAIFocusTypes
@@ -224,10 +216,10 @@ local g_cityToolTips = {
 
 			if cityTeamID == g_activeTeamID then
 
-				local cultureStored = city:GetJONSCultureStored()
+				local cultureStored = city:GetJONSCultureStoredTimes100() / 100
 				local cultureNeeded = city:GetJONSCultureThreshold()
-				local culturePerTurn = city:GetJONSCulturePerTurn()
-				local borderGrowthRate = culturePerTurn + city:GetBaseYieldRate(YieldTypes.YIELD_CULTURE_LOCAL)
+				local culturePerTurn = city:GetYieldRateTimes100(YieldTypes.YIELD_CULTURE) / 100
+				local borderGrowthRate = culturePerTurn + city:GetBaseYieldRateTimes100(YieldTypes.YIELD_CULTURE_LOCAL) / 100
 				local borderGrowthRateIncrease = city:GetBorderGrowthRateIncreaseTotal()
 				borderGrowthRate = math_floor(borderGrowthRate * (100 + borderGrowthRateIncrease) / 100)
 
@@ -306,8 +298,8 @@ local g_cityToolTips = {
 		local tipText = ""
 		local isProducingSomething = true
 
-		local productionPerTurn100 = city:GetCurrentProductionDifferenceTimes100(false, false)	-- food = false, overflow = false
-		local productionStored100 = city:GetProductionTimes100() + city:GetCurrentProductionDifferenceTimes100(false, true) - productionPerTurn100
+		local productionPerTurn100 = city:GetYieldRateTimes100(YieldTypes.YIELD_PRODUCTION)
+		local productionStored100 = city:GetProductionTimes100() + city:GetYieldRateTimes100(YieldTypes.YIELD_PRODUCTION) + city:GetTotalOverflowProductionTimes100() - productionPerTurn100
 		local productionNeeded = 0
 		local productionTurnsLeft = 1
 
@@ -370,7 +362,7 @@ local g_cityToolTips = {
 		local cityPopulation = city:GetPopulation()
 
 		local foodStoredTimes100 = city:GetFoodTimes100()
-		local foodPerTurnTimes100 = city:FoodDifferenceTimes100( true )	-- true means size 1 city cannot starve
+		local foodPerTurnTimes100 = city:GetYieldRateTimes100(YieldTypes.YIELD_FOOD)
 		local foodThreshold = city:GrowthThreshold()
 
 		local turnsToCityGrowth = city:GetFoodTurnsLeft()
@@ -1171,7 +1163,7 @@ local function RefreshCityBannersNow()
 				-- Update Growth
 				local foodStored100 = city:GetFoodTimes100()
 				local foodThreshold100 = city:GrowthThreshold() * 100
-				local foodPerTurn100 = city:FoodDifferenceTimes100( true )
+				local foodPerTurn100 = city:GetYieldRateTimes100(YieldTypes.YIELD_FOOD)
 				local foodStoredPercent = 0
 				local foodStoredNextTurnPercent = 0
 				if foodThreshold100 > 0 then
@@ -1204,8 +1196,8 @@ local function RefreshCityBannersNow()
 
 				instance.CityGrowth:SetText( growthText )
 
-				local productionPerTurn100 = city:GetCurrentProductionDifferenceTimes100(false, false)	-- food = false, overflow = false
-				local productionStored100 = city:GetProductionTimes100() + city:GetCurrentProductionDifferenceTimes100(false, true) - productionPerTurn100
+				local productionPerTurn100 = city:GetYieldRateTimes100(YieldTypes.YIELD_PRODUCTION)
+				local productionStored100 = city:GetProductionTimes100() + city:GetYieldRateTimes100(YieldTypes.YIELD_PRODUCTION) + city:GetTotalOverflowProductionTimes100() - productionPerTurn100
 				local productionNeeded100 = city:GetProductionNeeded() * 100
 				local productionStoredPercent = 0
 				local productionStoredNextTurnPercent = 0

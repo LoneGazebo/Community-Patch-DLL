@@ -714,7 +714,7 @@ local function UpdateWindow(pCity)
 	Controls.TopLeftInnerGrid:SetSizeX(iStackWidth);
 	Controls.CityButton:SetSizeX(iStackWidth);
 
-	if pCity:IsFoodProduction() or fFoodPerTurn == 0 then
+	if fFoodPerTurn == 0 then
 		Controls.CityGrowthLabel:SetText(L("TXT_KEY_CITYVIEW_STAGNATION_TEXT"));
 	elseif fFoodPerTurn < 0 then
 		Controls.CityGrowthLabel:SetText(L("TXT_KEY_CITYVIEW_STARVATION_TEXT"));

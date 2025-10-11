@@ -289,11 +289,11 @@ function UpdateDisplay()
 		Controls.NextPolicyTurnLabel:SetText("");
 	else
 		Controls.NextCost:LocalizeAndSetText( "TXT_KEY_NEXT_POLICY_COST_LABEL", player:GetNextPolicyCost() )
-		Controls.CurrentCultureLabel:LocalizeAndSetText( "TXT_KEY_CURRENT_CULTURE_LABEL", player:GetJONSCulture() )
-		Controls.CulturePerTurnLabel:LocalizeAndSetText( "TXT_KEY_CULTURE_PER_TURN_LABEL", player:GetTotalJONSCulturePerTurn() )
+		Controls.CurrentCultureLabel:LocalizeAndSetText( "TXT_KEY_CURRENT_CULTURE_LABEL", player:GetJONSCultureTimes100() / 100)
+		Controls.CulturePerTurnLabel:LocalizeAndSetText( "TXT_KEY_CULTURE_PER_TURN_LABEL", player:GetTotalJONSCulturePerTurnTimes100() / 100)
 
-		local cultureNeeded = player:GetNextPolicyCost() - player:GetJONSCulture()
-		local culturePerTurn = player:GetTotalJONSCulturePerTurn()
+		local cultureNeeded = player:GetNextPolicyCost() - player:GetJONSCultureTimes100() / 100
+		local culturePerTurn = player:GetTotalJONSCulturePerTurnTimes100() / 100
 		Controls.NextPolicyTurnLabel:LocalizeAndSetText( "TXT_KEY_NEXT_POLICY_TURN_LABEL", cultureNeeded <= 0 and 0 or ( culturePerTurn <= 0 and "?" or math_ceil( cultureNeeded / culturePerTurn ) ) )
 	end
 
@@ -316,7 +316,7 @@ function UpdateDisplay()
 	end
 
 
-	local justLooking = player:GetJONSCulture() < player:GetNextPolicyCost() or m_CalledFromEspionage
+	local justLooking = (player:GetJONSCultureTimes100() / 100) < player:GetNextPolicyCost() or m_CalledFromEspionage
 
 	-- Adjust Policy Branches
 	local policyBranchID = 0;
@@ -608,7 +608,7 @@ function UpdateDisplay()
 						tip = Locale.ConvertTextKey( "TXT_KEY_POLICYSCREEN_ADD_TENET" )
 						labelControl:SetText( tip )
 						lockControl:SetHide( true )
-						if player:GetJONSCulture() >= player:GetNextPolicyCost() or player:GetNumFreePolicies() > 0 or player:GetNumFreeTenets() > 0 then
+						if (player:GetJONSCultureTimes100() / 100) >= player:GetNextPolicyCost() or player:GetNumFreePolicies() > 0 or player:GetNumFreeTenets() > 0 then
 							buttonControl:RegisterCallback( Mouse.eLClick, function() TenetSelect(j) end)
 							buttonControl:SetDisabled( false )
 						else

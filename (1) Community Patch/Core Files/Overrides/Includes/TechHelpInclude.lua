@@ -636,14 +636,7 @@ end
 local function GetTechProgressById(techId, player)
 	local progress = 0
 
-	local a = lua_type(player.GetResearchProgressTimes100) == 'function'
-	local b = lua_type(player.GetResearchProgress) == 'function'
-
-	if a then
-		progress = player:GetResearchProgressTimes100(techId) / 100
-	elseif b then
-		progress = player:GetResearchProgress(techId)
-	end
+	progress = player:GetResearchProgressTimes100(techId) / 100
 
 	return progress
 end

@@ -9,6 +9,7 @@
 ------------------------------------------------------
 include( "EUI_tooltips" )
 include("InfoTooltipInclude");
+include("CPK.lua")
 
 -------------------------------
 -- minor lua optimizations
@@ -59,12 +60,11 @@ local GreatPeopleIcon = EUI.GreatPeopleIcon
 local StackInstanceManager = StackInstanceManager
 local GameInfo = EUI.GameInfoCache -- warning! use iterator ONLY with table field conditions, NOT string SQL query
 
---EUI_tooltips
-local GetHelpTextForProject = EUI.GetHelpTextForProject
-local GetHelpTextForProcess = EUI.GetHelpTextForProcess
-
 local UpdateCityView
 --END
+
+local FormatInteger = CPK.Text.FormatInteger;
+local FormatIntegerTimes100 = CPK.Text.FormatIntegerTimes100;
 
 include( "SupportFunctions" )
 local TruncateString = TruncateString
@@ -1208,8 +1208,8 @@ local g_SelectionListTooltips = {
 local function SetupSelectionList( itemList, selectionIM, cityOwnerID, getUnitPortraitIcon )
 	itemList:sort( SortSelectionList )
 	selectionIM.ResetInstances()
-	local cash = g_activePlayer:GetGold()
-	local faith = gk_mode and g_activePlayer:GetFaith() or 0
+	local cash = g_activePlayer:GetGoldTimes100() / 100
+	local faith = gk_mode and (g_activePlayer:GetFaithTimes100() / 100) or 0
 	for i = 1, #itemList do
 		local item, orderID, itemDescription, turnsLeft, canProduce, goldCost, canBuyWithGold, faithCost, canBuyWithFaith = unpack( itemList[i] )
 		local itemID = item.ID
@@ -1332,7 +1332,7 @@ end)
 	-- Update Production Queue
 	-------------------------------------------
 	local queueLength = city:GetOrderQueueLength()
-	local currentProductionPerTurnTimes100 = city:GetCurrentProductionDifferenceTimes100(false, false)
+	local currentProductionPerTurnTimes100 = city:GetYieldRateTimes100(YieldTypes.YIELD_PRODUCTION)
 	local isGeneratingProduction = not bnw_mode or ( currentProductionPerTurnTimes100 > 0)
 	local isMaintain = false
 	local isQueueEmpty = queueLength < 1
@@ -1352,7 +1352,7 @@ end)
 
 	Controls.PQmeter:SetPercents( storedProduction / productionNeeded, storedProductionPlusThisTurn / productionNeeded )
 
-	Controls.ProdPerTurnLabel:LocalizeAndSetText( "TXT_KEY_CITYVIEW_PERTURN_TEXT", currentProductionPerTurnTimes100 / 100 )
+	Controls.ProdPerTurnLabel:LocalizeAndSetText( "TXT_KEY_CITYVIEW_PERTURN_TEXT", math_floor(currentProductionPerTurnTimes100 / 100) )
 
 	Controls.ProductionPortraitButton:SetHide( false )
 
@@ -1975,7 +1975,7 @@ local function UpdateCityViewNow()
 			Controls.NoAutoSpecialistCheckbox:SetDisabled( g_isViewingMode )
 			Controls.ResetSpecialistsButton:SetDisabled( g_isViewingMode )
 			if bnw_mode then
-				Controls.TourismPerTurnLabel:LocalizeAndSetText( "TXT_KEY_CITYVIEW_PERTURN_TEXT", city:GetBaseTourism() / 100 )
+				Controls.TourismPerTurnLabel:LocalizeAndSetText( "TXT_KEY_CITYVIEW_PERTURN_TEXT", math_floor(city:GetYieldRateTimes100(YieldTypes.YIELD_TOURISM) / 100) )
 				-- CBP
 				local iHappinessPerTurn = city:GetLocalHappiness();
 				local iUnhappinessPerTurn = city:GetUnhappinessAggregated();
@@ -2153,179 +2153,12 @@ local function UpdateCityViewNow()
 				if unitClass then
 					local gpThreshold = city:GetSpecialistUpgradeThreshold(unitClass.ID)
 					local gpProgress = city:GetSpecialistGreatPersonProgressTimes100(specialist.ID) / 100
-					local gpChange = (specialist.GreatPeopleRateChange + city:GetEventGPPFromSpecialists()) * city:GetSpecialistCount( specialist.ID )
-					for building in GameInfo.Buildings{SpecialistType = specialist.Type} do
-						if city:IsHasBuilding(building.ID) then
-							local iBuildingCopies = city:GetNumRealBuilding(building.ID)
-							
-							gpChange = gpChange + (building.GreatPeopleRateChange * iBuildingCopies)
-						end
-					end
-
-					gpChange = gpChange + city:GetExtraSpecialistPoints(specialist.ID)
-					gpChange = gpChange + cityOwner:GetMonopolyGreatPersonRateChange(specialist.ID)
-
-					local gpChangePlayerMod = cityOwner:GetGreatPeopleRateModifier()
-					local gpChangeCityMod = city:GetGreatPeopleRateModifier()
-					-- CBP
-					gpChangeCityMod = gpChangeCityMod + city:GetSpecialistCityModifier(specialist.ID)
-					local gpChangeMonopolyMod = cityOwner:GetMonopolyGreatPersonRateModifier(specialist.ID)
-
-					-- City modifiers includes religion and improvement modifiers, separate them into new tooltip lines
-					local gpChangeImprovementsMod = city:GetImprovementGreatPersonRateModifier()
-					if gpChangeImprovementsMod ~= 0 then
-						gpChangeCityMod = gpChangeCityMod - gpChangeImprovementsMod
-					end
-					local gpChangeReligionsMod = city:GetReligionGreatPersonRateModifier(specialist.ID)
-					if gpChangeReligionsMod ~= 0 then
-						gpChangeCityMod = gpChangeCityMod - gpChangeReligionsMod
-					end
-					--END
-					local gpChangePolicyMod = 0
-					local gpChangeWorldCongressMod = 0
-					local gpChangeGoldenAgeMod = 0
-					local isGoldenAge = cityOwner:GetGoldenAgeTurns() > 0
-
-					if bnw_mode then
-						-- Generic GP mods
-
-						gpChangePolicyMod = cityOwner:GetPolicyGreatPeopleRateModifier()
-
-						local worldCongress = (Game.GetNumActiveLeagues() > 0) and Game.GetActiveLeague()
-
-						-- GP mods by type
-						if specialist.GreatPeopleUnitClass == "UNITCLASS_WRITER" then
-							gpChangePlayerMod = gpChangePlayerMod + cityOwner:GetGreatWriterRateModifier()
-							gpChangePolicyMod = gpChangePolicyMod + cityOwner:GetPolicyGreatWriterRateModifier()
-							if worldCongress then
-								gpChangeWorldCongressMod = gpChangeWorldCongressMod + cityOwner:GetArtsyGreatPersonRateModifier()
-							end
-							if isGoldenAge and cityOwner:GetGoldenAgeGreatWriterRateModifier() > 0 then
-								gpChangeGoldenAgeMod = gpChangeGoldenAgeMod + cityOwner:GetGoldenAgeGreatWriterRateModifier()
-							end
-						elseif specialist.GreatPeopleUnitClass == "UNITCLASS_ARTIST" then
-							gpChangePlayerMod = gpChangePlayerMod + cityOwner:GetGreatArtistRateModifier()
-							gpChangePolicyMod = gpChangePolicyMod + cityOwner:GetPolicyGreatArtistRateModifier()
-							if worldCongress then
-								gpChangeWorldCongressMod = gpChangeWorldCongressMod + cityOwner:GetArtsyGreatPersonRateModifier()
-							end
-							if isGoldenAge and cityOwner:GetGoldenAgeGreatArtistRateModifier() > 0 then
-								gpChangeGoldenAgeMod = gpChangeGoldenAgeMod + cityOwner:GetGoldenAgeGreatArtistRateModifier()
-							end
-						elseif specialist.GreatPeopleUnitClass == "UNITCLASS_MUSICIAN" then
-							gpChangePlayerMod = gpChangePlayerMod + cityOwner:GetGreatMusicianRateModifier()
-							gpChangePolicyMod = gpChangePolicyMod + cityOwner:GetPolicyGreatMusicianRateModifier()
-							if worldCongress then
-								gpChangeWorldCongressMod = gpChangeWorldCongressMod + cityOwner:GetArtsyGreatPersonRateModifier()
-							end
-							if isGoldenAge and cityOwner:GetGoldenAgeGreatMusicianRateModifier() > 0 then
-								gpChangeGoldenAgeMod = gpChangeGoldenAgeMod + cityOwner:GetGoldenAgeGreatMusicianRateModifier()
-							end
-						elseif specialist.GreatPeopleUnitClass == "UNITCLASS_SCIENTIST" then
-							gpChangePlayerMod = gpChangePlayerMod + cityOwner:GetGreatScientistRateModifier()
-							gpChangePolicyMod = gpChangePolicyMod + cityOwner:GetPolicyGreatScientistRateModifier()
-							if worldCongress then
-								gpChangeWorldCongressMod = gpChangeWorldCongressMod + cityOwner:GetScienceyGreatPersonRateModifier()
-							end
---CBP
-							if isGoldenAge and cityOwner:GetGoldenAgeGreatScientistRateModifier() > 0 then
-								gpChangeGoldenAgeMod = gpChangeGoldenAgeMod + cityOwner:GetGoldenAgeGreatScientistRateModifier()
-							end
--- END
-						elseif specialist.GreatPeopleUnitClass == "UNITCLASS_MERCHANT" then
-							gpChangePlayerMod = gpChangePlayerMod + cityOwner:GetGreatMerchantRateModifier()
-							gpChangePolicyMod = gpChangePolicyMod + cityOwner:GetPolicyGreatMerchantRateModifier()
-							if worldCongress then
-								gpChangeWorldCongressMod = gpChangeWorldCongressMod + cityOwner:GetScienceyGreatPersonRateModifier()
-							end
---CBP
-							if isGoldenAge and cityOwner:GetGoldenAgeGreatMerchantRateModifier() > 0 then
-								gpChangeGoldenAgeMod = gpChangeGoldenAgeMod + cityOwner:GetGoldenAgeGreatMerchantRateModifier()
-							end
--- END
-						elseif specialist.GreatPeopleUnitClass == "UNITCLASS_ENGINEER" then
-							gpChangePlayerMod = gpChangePlayerMod + cityOwner:GetGreatEngineerRateModifier()
-							gpChangePolicyMod = gpChangePolicyMod + cityOwner:GetPolicyGreatEngineerRateModifier()
-							if worldCongress then
-								gpChangeWorldCongressMod = gpChangeWorldCongressMod + cityOwner:GetScienceyGreatPersonRateModifier()
-							end
---CBP
-							if isGoldenAge and cityOwner:GetGoldenAgeGreatEngineerRateModifier() > 0 then
-								gpChangeGoldenAgeMod = gpChangeGoldenAgeMod + cityOwner:GetGoldenAgeGreatEngineerRateModifier()
-							end
--- END
-						-- Compatibility with Gazebo's City-State Diplomacy Mod (CSD) for Brave New World
-						elseif cityOwner.GetGreatDiplomatRateModifier and specialist.GreatPeopleUnitClass == "UNITCLASS_GREAT_DIPLOMAT" then
-							gpChangePlayerMod = gpChangePlayerMod + cityOwner:GetGreatDiplomatRateModifier()
---CBP
-							if isGoldenAge and cityOwner:GetGoldenAgeGreatDiplomatRateModifier() > 0 then
-								gpChangeGoldenAgeMod = gpChangeGoldenAgeMod + cityOwner:GetGoldenAgeGreatDiplomatRateModifier()
-							end
--- END
-						end
-
-						-- Player mod actually includes policy mod and World Congress mod, so separate them for tooltip
-
-						gpChangePlayerMod = gpChangePlayerMod - gpChangePolicyMod - gpChangeWorldCongressMod
-
-					elseif gpuClass == "UNITCLASS_SCIENTIST" then
-
-						gpChangePlayerMod = gpChangePlayerMod + cityOwner:GetTraitGreatScientistRateModifier()
-
-					end
-
-					local gpChangeMod = gpChangePlayerMod + gpChangePolicyMod + gpChangeWorldCongressMod + gpChangeCityMod + gpChangeGoldenAgeMod + gpChangeMonopolyMod + gpChangeImprovementsMod + gpChangeReligionsMod
-					gpChange = (gpChangeMod / 100 + 1) * gpChange
-
+					local gpChange, strTooltip = city:GetSpecialistRate(specialist.ID, true);
 					if gpProgress > 0 or gpChange > 0 then
 						local instance = g_GreatPeopleIM.GetInstance()
 						local percent = gpProgress / gpThreshold
 						instance.GPMeter:SetPercent( percent )
-						local labelText = L(unitClass.Description)
-						local icon = GreatPeopleIcon(gpuClass)
-						local tips = table( "[COLOR_YIELD_FOOD]" .. Locale.ToUpper( labelText ) .. "[ENDCOLOR]"
-									.. " " .. gpProgress .. icon .." / " .. gpThreshold .. icon )
-	--					tips:insert( L( "TXT_KEY_PROGRESS_TOWARDS", "[COLOR_YIELD_FOOD]" .. Locale.ToUpper( labelText ) .. "[ENDCOLOR]" )
-						if gpChange > 0 then
-							local gpTurns = math_ceil( (gpThreshold - gpProgress) / gpChange )
-							tips:insert( "[COLOR_YIELD_FOOD]" .. Locale.ToUpper( L( "TXT_KEY_STR_TURNS", gpTurns ) ) .. "[ENDCOLOR]  "
-										 .. gpChange .. icon .. " " .. L"TXT_KEY_GOLD_PERTURN_HEADING4_TITLE" )
-							labelText = labelText .. ": " .. Locale.ToLower( L( "TXT_KEY_STR_TURNS", gpTurns ) )
-						end
-						instance.GreatPersonLabel:SetText( icon .. labelText )
-						if gk_mode then
-							if gpChangePlayerMod ~= 0 then
-								tips:insert( L( "TXT_KEY_PLAYER_GP_MOD", gpChangePlayerMod ) )
-							end
-							if gpChangeMonopolyMod ~= 0 then
-								tips:insert( L( "TXT_KEY_MONOPOLY_GP_MOD", gpChangeMonopolyMod ) )
-							end
-							if gpChangePolicyMod ~= 0 then
-								tips:insert( L( "TXT_KEY_POLICY_GP_MOD", gpChangePolicyMod ) )
-							end
-							if gpChangeCityMod ~= 0 then
-								tips:insert( L( "TXT_KEY_CITY_GP_MOD", gpChangeCityMod ) )
-							end
-							if gpChangeReligionsMod ~= 0 then
-								tips:insert( L( "TXT_KEY_RELIGIONS_GP_MOD", gpChangeReligionsMod ) )
-							end
-							if gpChangeGoldenAgeMod ~= 0 then
-								tips:insert( L( "TXT_KEY_GOLDENAGE_GP_MOD", gpChangeGoldenAgeMod ) )
-							end
-							if gpChangeImprovementsMod ~= 0 then
-								tips:insert( L( "TXT_KEY_IMPROVEMENTS_GP_MOD", gpChangeImprovementsMod ) )
-							end
-							if gpChangeWorldCongressMod ~= 0 then
-								if gpChangeWorldCongressMod < 0 then
-									tips:insert( L( "TXT_KEY_WORLD_CONGRESS_NEGATIVE_GP_MOD", gpChangeWorldCongressMod ) )
-								else
-									tips:insert( L( "TXT_KEY_WORLD_CONGRESS_POSITIVE_GP_MOD", gpChangeWorldCongressMod ) )
-								end
-							end
-						elseif gpChangeMod ~= 0 then
-							tips:insert( "[ICON_BULLET] "..gpChangeMod..icon )
-						end
-						instance.GPBox:SetToolTipString( tips:concat("[NEWLINE]") )
+						instance.GPBox:SetToolTipString( strTooltip )
 						instance.GPBox:SetVoid1( unitClass.ID )
 						instance.GPBox:RegisterCallback( Mouse.eRClick, UnitClassPedia )
 
@@ -2527,55 +2360,47 @@ local function UpdateCityViewNow()
 		UpdateCityProductionQueueNow( city, cityID, cityOwnerID, isActivePlayerCity and not isCityCaptureViewingMode and civ5_mode and bnw_mode and cityOwner:MayNotAnnex() and city:IsPuppet() )
 
 		-- display gold income
-		local iGoldPerTurn = city:GetYieldRateTimes100( g_yieldCurrency ) / 100
-		Controls.GoldPerTurnLabel:LocalizeAndSetText( "TXT_KEY_CITYVIEW_PERTURN_TEXT", iGoldPerTurn )
+		Controls.GoldPerTurnLabel:LocalizeAndSetText( "TXT_KEY_CITYVIEW_PERTURN_TEXT", math_floor(city:GetYieldRateTimes100( g_yieldCurrency ) / 100) )
 
 		-- display science income
 		if Game.IsOption(GameOptionTypes.GAMEOPTION_NO_SCIENCE) then
 			Controls.SciencePerTurnLabel:LocalizeAndSetText( "TXT_KEY_CITYVIEW_OFF" )
 		else
-			local iSciencePerTurn = city:GetYieldRateTimes100(YieldTypes.YIELD_SCIENCE) / 100
-			Controls.SciencePerTurnLabel:LocalizeAndSetText( "TXT_KEY_CITYVIEW_PERTURN_TEXT", iSciencePerTurn )
+			Controls.SciencePerTurnLabel:LocalizeAndSetText( "TXT_KEY_CITYVIEW_PERTURN_TEXT", math_floor(city:GetYieldRateTimes100(YieldTypes.YIELD_SCIENCE) / 100) )
 		end
 
-		local culturePerTurn, cultureStored, cultureNext
-		-- thanks for Firaxis Cleverness !
-		if civ5_mode then
-			culturePerTurn = city:GetJONSCulturePerTurn()
-			cultureStored = city:GetJONSCultureStored()
-			cultureNext = city:GetJONSCultureThreshold()
-		else
-			culturePerTurn = city:GetCulturePerTurn()
-			cultureStored = city:GetCultureStored()
-			cultureNext = city:GetCultureThreshold()
-		end
-		Controls.CulturePerTurnLabel:LocalizeAndSetText( "TXT_KEY_CITYVIEW_PERTURN_TEXT", culturePerTurn )
+		local cultureStored, cultureNext
+		cultureStored = city:GetJONSCultureStoredTimes100() / 100
+		cultureNext = city:GetJONSCultureThreshold()
+
+		Controls.CulturePerTurnLabel:LocalizeAndSetText( "TXT_KEY_CITYVIEW_PERTURN_TEXT", math_floor(city:GetYieldRateTimes100(YieldTypes.YIELD_CULTURE) / 100) )
 		local cultureDiff = cultureNext - cultureStored
-		local borderGrowthRate = culturePerTurn + city:GetBaseYieldRate(YieldTypes.YIELD_CULTURE_LOCAL)
-		local borderGrowthRateIncrease = city:GetBorderGrowthRateIncreaseTotal()
-		borderGrowthRate = math_floor(borderGrowthRate * (100 + borderGrowthRateIncrease) / 100)
+		local borderGrowthRate = city:GetYieldRateTimes100(YieldTypes.YIELD_CULTURE_LOCAL) / 100
+		local strBorderGrowthTooltip = GetBorderGrowthTooltip(city);
 
 		if borderGrowthRate > 0 then
 			local cultureTurns = math_max(math_ceil(cultureDiff / borderGrowthRate), 1)
 			Controls.CultureTimeTillGrowthLabel:LocalizeAndSetText( "TXT_KEY_CITYVIEW_TURNS_TILL_TILE_TEXT", cultureTurns )
+			Controls.CultureTimeTillGrowthLabel:SetToolTipString(strBorderGrowthTooltip);
 			Controls.CultureTimeTillGrowthLabel:SetHide( false )
 		else
 			Controls.CultureTimeTillGrowthLabel:SetHide( true )
 		end
 		local percentComplete = cultureStored / cultureNext
+		Controls.CultureMeter:SetToolTipString(strBorderGrowthTooltip);
 		Controls.CultureMeter:SetPercent( percentComplete )
 
 		if gk_mode then
 			if Game.IsOption(GameOptionTypes.GAMEOPTION_NO_RELIGION) then
 				Controls.FaithPerTurnLabel:LocalizeAndSetText( "TXT_KEY_CITYVIEW_OFF" )
 			else
-				Controls.FaithPerTurnLabel:LocalizeAndSetText( "TXT_KEY_CITYVIEW_PERTURN_TEXT", city:GetFaithPerTurn() )
+				Controls.FaithPerTurnLabel:LocalizeAndSetText( "TXT_KEY_CITYVIEW_PERTURN_TEXT", math_floor(city:GetYieldRateTimes100(YieldTypes.YIELD_FAITH) / 100) )
 			end
 			Controls.FaithFocusButton:SetDisabled( g_isViewingMode )
 		end
 
 		local cityGrowth = city:GetFoodTurnsLeft()
-		local foodPerTurnTimes100 = city:FoodDifferenceTimes100()
+		local foodPerTurnTimes100 = city:GetYieldRateTimes100(YieldTypes.YIELD_FOOD)
 		if foodPerTurnTimes100 == 0 then
 			Controls.CityGrowthLabel:LocalizeAndSetText( "TXT_KEY_CITYVIEW_STAGNATION_TEXT" )
 		elseif foodPerTurnTimes100 < 0 then
@@ -2584,7 +2409,7 @@ local function UpdateCityViewNow()
 			Controls.CityGrowthLabel:LocalizeAndSetText( "TXT_KEY_CITYVIEW_TURNS_TILL_CITIZEN_TEXT", cityGrowth )
 		end
 
-		Controls.FoodPerTurnLabel:LocalizeAndSetText( foodPerTurnTimes100 >= 0 and "TXT_KEY_CITYVIEW_PERTURN_TEXT" or "TXT_KEY_CITYVIEW_PERTURN_TEXT_NEGATIVE", foodPerTurnTimes100 / 100 )
+		Controls.FoodPerTurnLabel:LocalizeAndSetText( foodPerTurnTimes100 >= 0 and "TXT_KEY_CITYVIEW_PERTURN_TEXT" or "TXT_KEY_CITYVIEW_PERTURN_TEXT_NEGATIVE", math_floor(foodPerTurnTimes100 / 100) )
 
 		-------------------------------------------
 		-- Disable Buttons as Appropriate

@@ -117,7 +117,7 @@ function GetReligiousStatus()
 		text = Locale.Lookup("TXT_KEY_RO_STATUS_CAN_CREATE_PANTHEON");
 	elseif(player:CanCreatePantheon(false)) then
 		local minRequiredFaith = Game.GetMinimumFaithNextPantheon();
-		local currentFaith = player:GetFaith();
+		local currentFaith = player:GetFaithTimes100() / 100;
 		local faithNeeded = minRequiredFaith - currentFaith;
 		text = Locale.Lookup("TXT_KEY_RO_STATUS_NEED_FAITH" , faithNeeded);
 	else
@@ -222,13 +222,13 @@ function RefreshYourReligion()
 
 	-- faith Display
 	local minFaithForProphet = tostring(player:GetMinimumFaithNextGreatProphet());
-	Controls.CurrentFaith:LocalizeAndSetText("TXT_KEY_RO_FAITH", player:GetFaith(), minFaithForProphet);
+	Controls.CurrentFaith:LocalizeAndSetText("TXT_KEY_RO_FAITH", player:GetFaithTimes100() / 100, minFaithForProphet);
 	Controls.CurrentFaith:LocalizeAndSetToolTip("TXT_KEY_RO_FAITH_TOOLTIP", minFaithForProphet);
 	
 	-- Update faith modifiers
 	g_FaithModifierManager:ResetInstances();
 	-- Faith from Cities
-	local iFaithFromCities = player:GetFaithPerTurnFromCities();
+	local iFaithFromCities = player:GetYieldRateFromCitiesTimes100(YieldTypes.YIELD_FAITH) / 100;
 	if (iFaithFromCities ~= 0) then
 		local entry = g_FaithModifierManager:GetInstance();
 		entry.FaithModifier:LocalizeAndSetText("TXT_KEY_TP_FAITH_FROM_CITIES", iFaithFromCities);

@@ -126,12 +126,40 @@ SET Text = '[ICON_PEACE] Faith is spent on founding and improving [ICON_RELIGION
 WHERE Tag = 'TXT_KEY_FAITH_HELP_INFO';
 
 UPDATE Language_en_US
-SET Text = '{1: number "''[COLOR_POSITIVE_TEXT]''#.##;''[COLOR_NEGATIVE_TEXT]-''#.##"} {2_IconString} Base[ENDCOLOR]'
+SET Text = '{1: number "''[COLOR_POSITIVE_TEXT]''#,##0.00;''[COLOR_NEGATIVE_TEXT]-''#,##0.00"} {2_IconString} Base[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_YIELD_BASE';
 
 UPDATE Language_en_US
-SET Text = '{1: number "''[COLOR_POSITIVE_TEXT]''#.##;''[COLOR_NEGATIVE_TEXT]-''#.##"} {2_IconString} Total[ENDCOLOR]'
+SET Text = '{1: number "''[COLOR_POSITIVE_TEXT]''#,##0.00;''[COLOR_NEGATIVE_TEXT]-''#,##0.00"} {2_IconString} Total[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_YIELD_TOTAL';
+
+UPDATE Language_en_US
+SET Text = '[ICON_BULLET]{1_Num} {2_IconString} from [ICON_CULTURE] Culture'
+WHERE Tag = 'TXT_KEY_YIELD_FROM_CULTURE';
+
+UPDATE Language_en_US
+SET Text = '[ICON_BULLET]{1_Num} {2_IconString} from Terrain'
+WHERE Tag = 'TXT_KEY_YIELD_FROM_TERRAIN';
+
+UPDATE Language_en_US
+SET Text = '[ICON_BULLET]{1_Num} {2_IconString} from Buildings'
+WHERE Tag = 'TXT_KEY_YIELD_FROM_BUILDINGS';
+
+UPDATE Language_en_US
+SET Text = '[ICON_BULLET]{1_Num} {2_IconString} from Specialists'
+WHERE Tag = 'TXT_KEY_YIELD_FROM_SPECIALISTS';
+
+UPDATE Language_en_US
+SET Text = '[ICON_BULLET]{1_Num} {2_IconString} from Religion'
+WHERE Tag = 'TXT_KEY_YIELD_FROM_RELIGION';
+
+UPDATE Language_en_US
+SET Text = '[ICON_BULLET]{1_Num} {2_IconString} from [ICON_CITIZEN] Population'
+WHERE Tag = 'TXT_KEY_YIELD_FROM_POP';
+UPDATE Language_en_US
+
+SET Text = '[ICON_BULLET]{1_Num} {2_IconString} from other sources'
+WHERE Tag = 'TXT_KEY_YIELD_FROM_MISC';
 
 ------------------------------------------------
 -- City screen/banner
@@ -616,6 +644,26 @@ WHERE Tag = 'TXT_KEY_TP_FAITH_NEXT_PANTHEON';
 UPDATE Language_en_US
 SET Text = '{1_Num} [ICON_PEACE] Faith is the minimum required for your next chance at a Great Prophet.'
 WHERE Tag = 'TXT_KEY_TP_FAITH_NEXT_PROPHET';
+
+-- Gold
+UPDATE Language_en_US
+SET Text = '[ICON_GOLD][COLOR:255:235:0:255]{1_TotalGold: number "#,###"} {2_GoldPerTurn: number "''(+''#,###'')'';''[COLOR:255:60:60:255](-''#,###'')''"}[/COLOR]'
+WHERE Tag = 'TXT_KEY_TOP_PANEL_GOLD';
+
+-- Golden Age
+UPDATE Language_en_US
+SET Text = '{1_NumCurrent}/{2_NumNeeded} progress towards the next [ICON_GOLDEN_AGE] Golden Age.'
+WHERE Tag = 'TXT_KEY_TP_GOLDEN_AGE_PROGRESS';
+
+-- Tourism
+UPDATE Language_en_US
+SET Text = '{1_Num} [ICON_GREAT_WORK] {1_Num: plural 1?Great Work Slot; other?Great Work Slots;} Filled'
+WHERE Tag = 'TXT_KEY_TOP_PANEL_TOURISM_TOOLTIP_1';
+
+UPDATE Language_en_US
+SET Text = '{1_Num} [ICON_GREAT_WORK] {1_Num: plural 1?Great Work Slot; other?Great Work Slots;} Available'
+WHERE Tag = 'TXT_KEY_TOP_PANEL_TOURISM_TOOLTIP_2';
+
 
 -- Trade routes
 UPDATE Language_en_US

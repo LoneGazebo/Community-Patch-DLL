@@ -43,10 +43,6 @@ local BackgroundColors = EUI.BackgroundColors
 local GameInfo = EUI.GameInfoCache -- warning! use iterator ONLY with table field conditions, NOT string SQL query
 local table = EUI.table
 
---EUI_tooltips
-local GetHelpTextForProject = EUI.GetHelpTextForProject
-local GetHelpTextForProcess = EUI.GetHelpTextForProcess
-
 local ActionSubTypes = ActionSubTypes
 local ActivityTypes = ActivityTypes
 local ContextPtr = ContextPtr
@@ -366,12 +362,12 @@ local function UpdateCity( instance )
 		instance.BuildIcon:SetHide( not itemInfo )
 		instance.BuildGrowth:SetString( turnsRemaining )
 		instance.Population:SetString( city:GetPopulation() )
-		local foodPerTurnTimes100 = city:FoodDifferenceTimes100()
+		local foodPerTurnTimes100 = city:GetYieldRateTimes100(YieldTypes.YIELD_FOOD)
 		if foodPerTurnTimes100 < 0 then
 			instance.CityGrowth:SetString( " [COLOR_RED]" .. (math_floor( city:GetFoodTimes100() / -foodPerTurnTimes100 ) + 1) .. "[ENDCOLOR] " )
 		elseif city:IsForcedAvoidGrowth() then
 			instance.CityGrowth:SetString( "[ICON_LOCKED]" )
-		elseif city:IsFoodProduction() or foodPerTurnTimes100 == 0 then
+		elseif foodPerTurnTimes100 == 0 then
 			instance.CityGrowth:SetString()
 		else
 			instance.CityGrowth:SetString( " "..city:GetFoodTurnsLeft().." " )
@@ -396,12 +392,12 @@ local function UpdateCity( instance )
 		instance.CityIsAutomated:SetHide( not isAutomated )
 		instance.Name:SetString( city:GetName() )
 
-		local culturePerTurn = city:GetJONSCulturePerTurn()
-		local borderGrowthRate = culturePerTurn + city:GetBaseYieldRate(YieldTypes.YIELD_CULTURE_LOCAL)
+		local culturePerTurn = city:GetYieldRateTimes100(YieldTypes.YIELD_CULTURE) / 100
+		local borderGrowthRate = culturePerTurn + city:GetBaseYieldRateTimes100(YieldTypes.YIELD_CULTURE_LOCAL) / 100
 		local borderGrowthRateIncrease = city:GetBorderGrowthRateIncreaseTotal()
 		borderGrowthRate = math_floor(borderGrowthRate * (100 + borderGrowthRateIncrease) / 100)
 
-		instance.BorderGrowth:SetString( borderGrowthRate > 0 and math_ceil( (city:GetJONSCultureThreshold() - city:GetJONSCultureStored()) / borderGrowthRate ) )
+		instance.BorderGrowth:SetString( borderGrowthRate > 0 and math_ceil( (city:GetJONSCultureThreshold() - (city:GetJONSCultureStoredTimes100() / 100)) / borderGrowthRate ) )
 
 		local percent = 1 - city:GetDamage() / ( gk_mode and city:GetMaxHitPoints() or GameDefines.MAX_CITY_HIT_POINTS )
 		instance.Button:SetColor( Color( 1, percent, percent, 1 ) )
@@ -839,13 +835,13 @@ g_cities = g_RibbonManager( "CityInstance", Controls.CityStack, Controls.Scrap,
 		if not city then
 			return ShowSimpleTip()
 		end
-		local foodPerTurnTimes100 = city:FoodDifferenceTimes100()
+		local foodPerTurnTimes100 = city:GetYieldRateTimes100(YieldTypes.YIELD_FOOD)
 		local tip
 		if foodPerTurnTimes100 < 0 then
 			tip = L( "TXT_KEY_NTFN_CITY_STARVING", city:GetName() )
 		elseif city:IsForcedAvoidGrowth() then
 			tip = L"TXT_KEY_CITYVIEW_FOCUS_AVOID_GROWTH_TEXT"
-		elseif city:IsFoodProduction() or foodPerTurnTimes100 == 0 then
+		elseif foodPerTurnTimes100 == 0 then
 			tip = L"TXT_KEY_CITYVIEW_STAGNATION_TEXT"
 		else
 			tip = L( "TXT_KEY_CITYVIEW_TURNS_TILL_CITIZEN_TEXT", city:GetFoodTurnsLeft() )
@@ -855,10 +851,10 @@ g_cities = g_RibbonManager( "CityInstance", Controls.CityStack, Controls.Scrap,
 	BorderGrowth = function( control )
 		local city = FindCity( control )
 		local cityOwner = Players[city:GetOwner()]
-		local borderGrowthRate = city:GetJONSCulturePerTurn() + city:GetBaseYieldRate(YieldTypes.YIELD_CULTURE_LOCAL)
+		local borderGrowthRate = city:GetYieldRateTimes100(YieldTypes.YIELD_CULTURE) / 100 + city:GetBaseYieldRateTimes100(YieldTypes.YIELD_CULTURE_LOCAL) / 100
 		local borderGrowthRateIncrease = city:GetBorderGrowthRateIncreaseTotal()
 		borderGrowthRate = math_floor(borderGrowthRate * (100 + borderGrowthRateIncrease) / 100)
-		ShowSimpleCityTip( control, city, L("TXT_KEY_CITYVIEW_TURNS_TILL_TILE_TEXT", math_ceil( (city:GetJONSCultureThreshold() - city:GetJONSCultureStored()) / borderGrowthRate ) ), GetCultureTooltip( city ) )
+		ShowSimpleCityTip( control, city, L("TXT_KEY_CITYVIEW_TURNS_TILL_TILE_TEXT", math_ceil( (city:GetJONSCultureThreshold() - (city:GetJONSCultureStoredTimes100() / 100)) / borderGrowthRate ) ), GetCultureTooltip( city ) + GetBorderGrowthTooltip(city) )
 	end,
 	CityIsCapital = function( control )
 		local city = FindCity( control )

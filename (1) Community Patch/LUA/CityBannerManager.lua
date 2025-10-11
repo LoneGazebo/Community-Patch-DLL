@@ -353,10 +353,10 @@ function RefreshCityBanner(cityBanner, iActiveTeam, iActivePlayer)
 		if(controls.CityGrowth) then
 			local cityGrowth = city:GetFoodTurnsLeft();
 			
-			if (city:FoodDifferenceTimes100() == 0) then
+			if (city:GetYieldRateTimes100(YieldTypes.YIELD_FOOD) == 0) then
 				cityGrowth = "-";
 				controls.CityBannerRightBackground:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_CITY_STOPPED_GROWING_TT", localizedCityName, cityPopulation));
-			elseif city:FoodDifferenceTimes100() < 0 then
+			elseif city:GetYieldRateTimes100(YieldTypes.YIELD_FOOD) < 0 then
 				cityGrowth = "[COLOR_WARNING_TEXT]-[ENDCOLOR]";
 				controls.CityBannerRightBackground:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_CITY_STARVING_TT",localizedCityName ));
 			else
@@ -371,7 +371,7 @@ function RefreshCityBanner(cityBanner, iActiveTeam, iActivePlayer)
 			local buildGrowth = "-";
 			
 			if (city:IsProduction() and not city:IsProductionProcess()) then
-				if (city:GetCurrentProductionDifferenceTimes100(false, false) > 0) then
+				if (city:GetYieldRateTimes100(YieldTypes.YIELD_PRODUCTION) > 0) then
 					buildGrowth = city:GetProductionTurnsLeft();
 				end
 			end
@@ -402,12 +402,9 @@ function RefreshCityBanner(cityBanner, iActiveTeam, iActivePlayer)
 		-- Update Production Meter
 		if (controls.ProductionBar) then
 			
-			local iCurrentProduction = city:GetProduction();
+			local iCurrentProduction = city:GetProductionTimes100() / 100;
 			local iProductionNeeded = city:GetProductionNeeded();
-			local iProductionPerTurn = city:GetYieldRate(YieldTypes.YIELD_PRODUCTION);
-			if (city:IsFoodProduction()) then
-				iProductionPerTurn = iProductionPerTurn + city:GetYieldRate(YieldTypes.YIELD_FOOD) - city:FoodConsumption(true);
-			end
+			local iProductionPerTurn = city:GetYieldRateTimes100(YieldTypes.YIELD_PRODUCTION) / 100;
 			local iCurrentProductionPlusThisTurn = iCurrentProduction + iProductionPerTurn;
 			
 			local fProductionProgressPercent = iCurrentProduction / iProductionNeeded;

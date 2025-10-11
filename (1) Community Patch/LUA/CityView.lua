@@ -639,7 +639,7 @@ local function BuildProductionBox(pCity, ePlayer)
 	table.insert(tLines, strProductionTooltip);
 
 	Controls.ProductionPortraitButton:SetToolTipString(table.concat(tLines, "[NEWLINE]"));
-	Controls.ProdPerTurnLabel:LocalizeAndSetText("TXT_KEY_CITYVIEW_PERTURN_TEXT", fProductionPerTurn);
+	Controls.ProdPerTurnLabel:LocalizeAndSetText("TXT_KEY_CITYVIEW_PERTURN_TEXT", math.floor(fProductionPerTurn));
 	Controls.ProdBox:SetToolTipString(strProductionTooltip);
 
 	---------------------------------------------------------------
@@ -779,7 +779,8 @@ local function BuildGPMeter(pCity, ePlayer)
 	if tRightSideSections.GPHeader.HeadingOpen then
 		for eSpecialist, kSpecialistInfo in GameInfoCache("Specialists") do
 			local iProgress = pCity:GetSpecialistGreatPersonProgress(eSpecialist);
-			if iProgress > 0 then
+			local iChange, strTooltip = pCity:GetSpecialistRate(eSpecialist, true);
+			if iProgress > 0 or iChange > 0 then
 				bHasGPProgress = true;
 
 				local kGreatPersonInfo = GetGreatPersonInfoFromSpecialist(kSpecialistInfo.Type);
@@ -792,7 +793,6 @@ local function BuildGPMeter(pCity, ePlayer)
 				g_tPediaSearchStrings[tostring(instance.GPImage)] = strGreatPerson;
 				instance.GPImage:RegisterCallback(Mouse.eRClick, GetPedia);
 
-				local _, strTooltip = pCity:GetSpecialistRate(eSpecialist);
 				instance.GPBox:SetToolTipString(strTooltip);
 
 				local kUnitClassInfo = GetInfoFromType("UnitClasses", kGreatPersonInfo.Class);
@@ -934,11 +934,16 @@ local function BuildBuildingBox(pCity)
 			g_iSortOrder = g_iSortOrder + 1;
 			g_tButtonOrders[tostring(Controls[tRightSideSections[t.HeaderName].InnerStack])] = g_iSortOrder;
 
-			-- Create building buttons (and add them to sorting list)
-			table.sort(t.BuildingList, SortByName);
-			for _, building in ipairs(t.BuildingList) do
-				local kBuildingInfo = GameInfo.Buildings[building.ID];
-				AddBuildingButton(pCity, kBuildingInfo);
+			-- Show the stack and header
+			Show(Controls[tRightSideSections[t.HeaderName].InnerStack]);
+
+			-- Create building buttons only if the section is open
+			if tRightSideSections[t.HeaderName].HeadingOpen then
+				table.sort(t.BuildingList, SortByName);
+				for _, building in ipairs(t.BuildingList) do
+					local kBuildingInfo = GameInfo.Buildings[building.ID];
+					AddBuildingButton(pCity, kBuildingInfo);
+				end
 			end
 		else
 			-- Hide the entire stack (which includes the header and everything)
@@ -947,7 +952,7 @@ local function BuildBuildingBox(pCity)
 	end
 
 	-- Urbanization-free specialists
-	if MOD_BALANCE_VP and next(tSpecialistBuildings) then
+	if MOD_BALANCE_VP and next(tSpecialistBuildings) and tRightSideSections.SpecialistBuildingHeader.HeadingOpen then
 		local iNumFreeSpecialists = pCity:GetRemainingFreeSpecialists();
 		if iNumFreeSpecialists > 0 then
 			Controls.FreeSpecialistLabel:SetText(iNumFreeSpecialists);
@@ -964,15 +969,37 @@ local function BuildBuildingBox(pCity)
 	local bManualSpecialists = pCity:IsNoAutoAssignSpecialists();
 	Controls.NoAutoSpecialistCheckbox:SetCheck(bManualSpecialists);
 	Controls.NoAutoSpecialistCheckbox2:SetCheck(bManualSpecialists);
-	Controls.ResetSpecialistsButton:SetHide(not bHasLockedSpecialists);
-	Controls.ResetSpecialistsFooter:SetHide(not bHasLockedSpecialists);
-	Controls.SpecialistControlBox2:SetHide(not bHasSpecialistSlotsInWonders);
+
+	-- Hide specialist controls when SpecialistBuildingHeader is closed
+	if tRightSideSections.SpecialistBuildingHeader.HeadingOpen then
+		Controls.ResetSpecialistsButton:SetHide(not bHasLockedSpecialists);
+		Controls.ResetSpecialistsFooter:SetHide(not bHasLockedSpecialists);
+		Show(Controls.SpecialistControlBox);
+	else
+		Hide(Controls.SpecialistControlBox, Controls.ResetSpecialistsButton, Controls.ResetSpecialistsFooter);
+	end
+
+	-- Hide wonder specialist controls when WonderHeader is closed
+	if tRightSideSections.WonderHeader.HeadingOpen then
+		Controls.SpecialistControlBox2:SetHide(not bHasSpecialistSlotsInWonders);
+	else
+		Hide(Controls.SpecialistControlBox2);
+	end
 
 	-- Reorder headers, extra buttons, and building buttons by sorting list
 	Controls.BuildingStack:SortChildren(CVSortFunction);
 end
 
-UpdateTypes.BUILDINGS.UpdateFunc = RefreshRightStack;
+-- Update function that rebuilds buildings and refreshes the right stack
+local function UpdateBuildings()
+	local pCity = UI.GetHeadSelectedCity();
+	if pCity then
+		BuildBuildingBox(pCity);
+		RefreshRightStack();
+	end
+end
+
+UpdateTypes.BUILDINGS.UpdateFunc = UpdateBuildings;
 tRightSideSections.SpecialistBuildingHeader.UpdateType = UpdateTypes.BUILDINGS;
 tRightSideSections.CorporationHeader.UpdateType = UpdateTypes.BUILDINGS;
 tRightSideSections.WonderHeader.UpdateType = UpdateTypes.BUILDINGS;
@@ -1362,13 +1389,13 @@ local function UpdateViewFull()
 	Controls.PopulationBox:SetToolTipString(strFoodTooltip);
 	local fFoodPerTurn = pCity:GetYieldRateTimes100(YieldTypes.YIELD_FOOD) / 100;
 	if fFoodPerTurn > 0 then
-		Controls.FoodPerTurnLabel:LocalizeAndSetText("TXT_KEY_CITYVIEW_PERTURN_TEXT", fFoodPerTurn);
+		Controls.FoodPerTurnLabel:LocalizeAndSetText("TXT_KEY_CITYVIEW_PERTURN_TEXT", math.floor(fFoodPerTurn));
 		Controls.CityGrowthLabel:LocalizeAndSetText("TXT_KEY_CITYVIEW_TURNS_TILL_CITIZEN_TEXT", pCity:GetFoodTurnsLeft());
 	elseif fFoodPerTurn == 0 then
-		Controls.FoodPerTurnLabel:LocalizeAndSetText("TXT_KEY_CITYVIEW_PERTURN_TEXT", fFoodPerTurn);
+		Controls.FoodPerTurnLabel:LocalizeAndSetText("TXT_KEY_CITYVIEW_PERTURN_TEXT", math.floor(fFoodPerTurn));
 		Controls.CityGrowthLabel:LocalizeAndSetText("TXT_KEY_CITYVIEW_STAGNATION_TEXT");
 	else
-		Controls.FoodPerTurnLabel:LocalizeAndSetText("TXT_KEY_CITYVIEW_PERTURN_TEXT_NEGATIVE", fFoodPerTurn);
+		Controls.FoodPerTurnLabel:LocalizeAndSetText("TXT_KEY_CITYVIEW_PERTURN_TEXT_NEGATIVE", math.floor(fFoodPerTurn));
 		Controls.CityGrowthLabel:LocalizeAndSetText("TXT_KEY_CITYVIEW_STARVATION_TEXT");
 	end
 	local iPopulation = pCity:GetPopulation();
@@ -1376,24 +1403,24 @@ local function UpdateViewFull()
 	Controls.CityPopulationLabelSuffix:LocalizeAndSetText("TXT_KEY_CITYVIEW_CITIZENS_TEXT", iPopulation);
 	Controls.PeopleMeter:SetPercent(pCity:GetFoodTimes100() / pCity:GrowthThreshold() / 100);
 
-	Controls.GoldPerTurnLabel:LocalizeAndSetText("TXT_KEY_CITYVIEW_PERTURN_TEXT", pCity:GetYieldRateTimes100(YieldTypes.YIELD_GOLD) / 100);
+	Controls.GoldPerTurnLabel:LocalizeAndSetText("TXT_KEY_CITYVIEW_PERTURN_TEXT", math.floor(pCity:GetYieldRateTimes100(YieldTypes.YIELD_GOLD) / 100));
 	Controls.GoldBox:SetToolTipString(GetGoldTooltip(pCity));
 
 	if Game.IsOption(GameOptionTypes.GAMEOPTION_NO_SCIENCE) then
 		Controls.SciencePerTurnLabel:LocalizeAndSetText("TXT_KEY_CITYVIEW_OFF");
 	else
-		Controls.SciencePerTurnLabel:LocalizeAndSetText("TXT_KEY_CITYVIEW_PERTURN_TEXT", pCity:GetYieldRateTimes100(YieldTypes.YIELD_SCIENCE) / 100);
+		Controls.SciencePerTurnLabel:LocalizeAndSetText("TXT_KEY_CITYVIEW_PERTURN_TEXT", math.floor(pCity:GetYieldRateTimes100(YieldTypes.YIELD_SCIENCE) / 100));
 	end
 	Controls.ScienceBox:SetToolTipString(GetScienceTooltip(pCity));
 
 	if Game.IsOption(GameOptionTypes.GAMEOPTION_NO_RELIGION) then
 		Controls.FaithPerTurnLabel:LocalizeAndSetText("TXT_KEY_CITYVIEW_OFF");
 	else
-		Controls.FaithPerTurnLabel:LocalizeAndSetText("TXT_KEY_CITYVIEW_PERTURN_TEXT", pCity:GetYieldRateTimes100(YieldTypes.YIELD_FAITH) / 100);
+		Controls.FaithPerTurnLabel:LocalizeAndSetText("TXT_KEY_CITYVIEW_PERTURN_TEXT", math.floor(pCity:GetYieldRateTimes100(YieldTypes.YIELD_FAITH) / 100));
 	end
 	Controls.FaithBox:SetToolTipString(GetFaithTooltip(pCity));
 
-	Controls.TourismPerTurnLabel:LocalizeAndSetText("TXT_KEY_CITYVIEW_PERTURN_TEXT", pCity:GetYieldRateTimes100(YieldTypes.YIELD_TOURISM) / 100);
+	Controls.TourismPerTurnLabel:LocalizeAndSetText("TXT_KEY_CITYVIEW_PERTURN_TEXT", math.floor(pCity:GetYieldRateTimes100(YieldTypes.YIELD_TOURISM) / 100));
 	Controls.TourismBox:SetToolTipString(GetTourismTooltip(pCity));
 
 	if MOD_BALANCE_VP then
@@ -1406,19 +1433,22 @@ local function UpdateViewFull()
 		Refresh(Controls.TopLeftStack);
 	end
 
-	Controls.CulturePerTurnLabel:LocalizeAndSetText("TXT_KEY_CITYVIEW_PERTURN_TEXT", pCity:GetYieldRateTimes100(YieldTypes.YIELD_CULTURE) / 100);
+	Controls.CulturePerTurnLabel:LocalizeAndSetText("TXT_KEY_CITYVIEW_PERTURN_TEXT", math.floor(pCity:GetYieldRateTimes100(YieldTypes.YIELD_CULTURE) / 100));
 	Controls.CultureBox:SetToolTipString(GetCultureTooltip(pCity));
 	local fCultureStored = pCity:GetJONSCultureStoredTimes100() / 100;
 	local iCultureNeeded = pCity:GetJONSCultureThreshold();
 	local fBorderGrowth = pCity:GetYieldRateTimes100(YieldTypes.YIELD_CULTURE_LOCAL) / 100;
+	local strBorderGrowthTooltip = GetBorderGrowthTooltip(pCity);
 	if fBorderGrowth > 0 then
 		local iTurnsToExpand = math.max(1, math.ceil((iCultureNeeded - fCultureStored) / fBorderGrowth));
 		Controls.CultureTimeTillGrowthLabel:LocalizeAndSetText("TXT_KEY_CITYVIEW_TURNS_TILL_TILE_TEXT", iTurnsToExpand);
+		Controls.CultureTimeTillGrowthLabel:SetToolTipString(strBorderGrowthTooltip);
 		Show(Controls.CultureTimeTillGrowthLabel);
 	else
 		Hide(Controls.CultureTimeTillGrowthLabel);
 	end
 	Controls.CultureMeter:SetPercent(fCultureStored / iCultureNeeded);
+	Controls.CultureMeter:SetToolTipString(strBorderGrowthTooltip);
 end
 
 UpdateTypes.FULLVIEW.UpdateFunc = UpdateViewFull;
@@ -1868,14 +1898,15 @@ end);
 local function HandleAppearance(strSectionName, tSection)
 	if tSection.HeadingOpen then
 		Controls[tSection.Label]:SetText("[ICON_MINUS] " .. tSection.LabelText);
-		Show(Controls[strSectionName]);
 	else
 		Controls[tSection.Label]:SetText("[ICON_PLUS] " .. tSection.LabelText);
-		Hide(Controls[strSectionName]);
 	end
 	if tSection.OuterStack then
 		Controls[tSection.OuterStack]:SetHide(not tSection.HeadingOpen);
 	end
+	-- For InnerStack sections, we handle collapsing in BuildBuildingBox by:
+	-- 1. Not adding building buttons when closed
+	-- 2. Hiding static child controls when closed
 end
 
 --- @param strSectionName string

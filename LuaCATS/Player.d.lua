@@ -40,7 +40,7 @@ function Player:GetResearchCost(eTech) end
 --- Gets player's research progress of specified technology
 --- @param eTech TechType
 --- @return integer
-function Player:GetResearchProgress(eTech) end
+function Player:GetResearchProgressTimes100(eTech) end
 
 --- @param eGreatPerson GreatPersonType Caller is responsible for validating this
 --- @return integer # The cost of the next great person for this player

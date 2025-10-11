@@ -2799,8 +2799,10 @@ int CvCityCitizens::GetSpecialistRate(SpecialistTypes eSpecialist, CvString* too
 		GC.getGame().BuildYieldTimes100HelpText(tooltip, "TXT_KEY_GPP_FROM_MONOPOLY", iGPPFromMonopolies, szIconString);
 	}
 
+	int iProgressTimes100 = GetSpecialistGreatPersonProgressTimes100(eSpecialist);
+
 	int iBaseGPP = iGPPFromSpecialists + iGPPFromBuildings + iGPPFromReligion + iGPPFromMonopolies;
-	if (iBaseGPP > 0)
+	if (iBaseGPP > 0 || iProgressTimes100 > 0)
 	{
 		int iPlayerMod = GetPlayer()->getGreatPeopleRateModifier() + GetPlayer()->GetGreatPersonRateModifier(eGreatPerson);
 		int iNumPuppets = GetPlayer()->GetNumPuppetCities();
@@ -2827,50 +2829,55 @@ int CvCityCitizens::GetSpecialistRate(SpecialistTypes eSpecialist, CvString* too
 
 		if (tooltip)
 		{
-			*tooltip += strNewLine + strLineDivision + strNewLine;
-			*tooltip += GetLocalizedText("TXT_KEY_GPP_BASE", szIconString, szGreatPerson, static_cast<float>(iBaseGPP) / 100);
-
-			// Player mod already includes league mod, so we separate them
-			// Unfortunately, this is still hardcoded
-			const GreatPersonTypes eEngineer = static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_ENGINEER"));
-			const GreatPersonTypes eScientist = static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_SCIENTIST"));
-			const GreatPersonTypes eMerchant = static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_MERCHANT"));
-			const GreatPersonTypes eArtist = static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_ARTIST"));
-			const GreatPersonTypes eMusician = static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_MUSICIAN"));
-			const GreatPersonTypes eWriter = static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_WRITER"));
-
-			int iLeagueMod = 0;
-			if (eGreatPerson == eEngineer || eGreatPerson == eScientist || eGreatPerson == eMerchant)
+			if (!tooltip->IsEmpty())
+				*tooltip += strNewLine + strLineDivision + strNewLine;
+			
+			if (iPlayerMod + iMonopolyMod + iCityMod + iGoldenAgePolicyMod + iGoldenAgeTraitMod + iGoldenAgeReligionMod > 0)
 			{
-				iLeagueMod += GC.getGame().GetGameLeagues()->GetScienceyGreatPersonRateModifier(GetOwner());
-			}
-			else if (eGreatPerson == eArtist || eGreatPerson == eMusician || eGreatPerson == eWriter)
-			{
-				iLeagueMod += GC.getGame().GetGameLeagues()->GetArtsyGreatPersonRateModifier(GetOwner());
-			}
-			iPlayerMod -= iLeagueMod;
+				*tooltip += GetLocalizedText("TXT_KEY_GPP_BASE", szIconString, szGreatPerson, static_cast<float>(iBaseGPP) / 100);
+				*tooltip += strNewLine + strLineDivision;
 
-			// City mod can be further divided into buildings and others
-			int iImprovementMod = GetCity()->GetImprovementGreatPersonRateModifier();
-			int iCapitalMod = GetPlayer()->GetNumMarriedCityStatesNotAtWar() * /*15*/ GD_INT_GET(BALANCE_GPP_RATE_IN_CAPITAL_PER_MARRIAGE);
-			iCityMod -= iImprovementMod + iCapitalMod;
+				// Player mod already includes league mod, so we separate them
+				// Unfortunately, this is still hardcoded
+				const GreatPersonTypes eEngineer = static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_ENGINEER"));
+				const GreatPersonTypes eScientist = static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_SCIENTIST"));
+				const GreatPersonTypes eMerchant = static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_MERCHANT"));
+				const GreatPersonTypes eArtist = static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_ARTIST"));
+				const GreatPersonTypes eMusician = static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_MUSICIAN"));
+				const GreatPersonTypes eWriter = static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_WRITER"));
 
-			GC.getGame().BuildProdModHelpText(tooltip, "TXT_KEY_GPP_MOD_PLAYER", iPlayerMod);
-			GC.getGame().BuildProdModHelpText(tooltip, "TXT_KEY_GPP_MOD_MONOPOLY", iMonopolyMod);
-			GC.getGame().BuildProdModHelpText(tooltip, "TXT_KEY_GPP_MOD_CAPITAL", iCapitalMod);
-			GC.getGame().BuildProdModHelpText(tooltip, "TXT_KEY_GPP_MOD_BUILDINGS", iCityMod);
-			GC.getGame().BuildProdModHelpText(tooltip, "TXT_KEY_GPP_MOD_GA_TRAIT", iGoldenAgeTraitMod);
-			GC.getGame().BuildProdModHelpText(tooltip, "TXT_KEY_GPP_MOD_GA_POLICY", iGoldenAgePolicyMod);
-			GC.getGame().BuildProdModHelpText(tooltip, "TXT_KEY_GPP_MOD_GA_BELIEF", iGoldenAgeReligionMod);
-			GC.getGame().BuildProdModHelpText(tooltip, "TXT_KEY_GPP_MOD_IMPROVEMENT", iImprovementMod);
-			GC.getGame().BuildProdModHelpText(tooltip, "TXT_KEY_GPP_MOD_LEAGUE", iLeagueMod);
-			*tooltip += strNewLine + strLineDivision + strNewLine;
+				int iLeagueMod = 0;
+				if (eGreatPerson == eEngineer || eGreatPerson == eScientist || eGreatPerson == eMerchant)
+				{
+					iLeagueMod += GC.getGame().GetGameLeagues()->GetScienceyGreatPersonRateModifier(GetOwner());
+				}
+				else if (eGreatPerson == eArtist || eGreatPerson == eMusician || eGreatPerson == eWriter)
+				{
+					iLeagueMod += GC.getGame().GetGameLeagues()->GetArtsyGreatPersonRateModifier(GetOwner());
+				}
+				iPlayerMod -= iLeagueMod;
+
+				// City mod can be further divided into buildings and others
+				int iImprovementMod = GetCity()->GetImprovementGreatPersonRateModifier();
+				int iCapitalMod = GetPlayer()->GetNumMarriedCityStatesNotAtWar() * /*15*/ GD_INT_GET(BALANCE_GPP_RATE_IN_CAPITAL_PER_MARRIAGE);
+				iCityMod -= iImprovementMod + iCapitalMod;
+
+				GC.getGame().BuildProdModHelpText(tooltip, "TXT_KEY_GPP_MOD_PLAYER", iPlayerMod);
+				GC.getGame().BuildProdModHelpText(tooltip, "TXT_KEY_GPP_MOD_MONOPOLY", iMonopolyMod);
+				GC.getGame().BuildProdModHelpText(tooltip, "TXT_KEY_GPP_MOD_CAPITAL", iCapitalMod);
+				GC.getGame().BuildProdModHelpText(tooltip, "TXT_KEY_GPP_MOD_BUILDINGS", iCityMod);
+				GC.getGame().BuildProdModHelpText(tooltip, "TXT_KEY_GPP_MOD_GA_TRAIT", iGoldenAgeTraitMod);
+				GC.getGame().BuildProdModHelpText(tooltip, "TXT_KEY_GPP_MOD_GA_POLICY", iGoldenAgePolicyMod);
+				GC.getGame().BuildProdModHelpText(tooltip, "TXT_KEY_GPP_MOD_GA_BELIEF", iGoldenAgeReligionMod);
+				GC.getGame().BuildProdModHelpText(tooltip, "TXT_KEY_GPP_MOD_IMPROVEMENT", iImprovementMod);
+				GC.getGame().BuildProdModHelpText(tooltip, "TXT_KEY_GPP_MOD_LEAGUE", iLeagueMod);
+				*tooltip += strNewLine + strLineDivision + strNewLine;
+			}
 
 			Localization::String localized = Localization::Lookup("TXT_KEY_GPP_TOTAL");
-			int iProgressTimes100 = GetSpecialistGreatPersonProgressTimes100(eSpecialist);
 			int iNextGPCost = GetSpecialistUpgradeThreshold(static_cast<UnitClassTypes>(pkGreatPersonInfo->GetUnitClassType()));
-			int iTurnsRemaining = (iNextGPCost * 100 - iProgressTimes100 - 1) / iGPP + 1; // rounded up
-			localized << szGreatPerson << static_cast<float>(iProgressTimes100) / 100 << iNextGPCost << static_cast<float>(iGPP) / 100 << szIconString << iTurnsRemaining;
+			CvString strTurnsRemaining = (iGPP > 0) ? CvString::format("%d", (iNextGPCost * 100 - iProgressTimes100 - 1) / iGPP + 1) : "---"; // rounded up
+			localized << szGreatPerson << static_cast<float>(iProgressTimes100) / 100 << iNextGPCost << static_cast<float>(iGPP) / 100 << szIconString << strTurnsRemaining.c_str();
 			const char* szLocalized = localized.toUTF8();
 			if (szLocalized)
 				*tooltip += szLocalized;

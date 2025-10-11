@@ -207,10 +207,10 @@ function UpdateDisplay()
 		if(instance.CityGrowth) then
 			local cityGrowth = pCity:GetFoodTurnsLeft();
 			
-			if (pCity:IsFoodProduction() or pCity:FoodDifferenceTimes100() == 0) then
+			if (pCity:GetYieldRateTimes100(YieldTypes.YIELD_FOOD) == 0) then
 				cityGrowth = "-";
 				--instance.CityBannerRightBackground:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_CITY_STOPPED_GROWING_TT", localizedCityName, cityPopulation));
-			elseif pCity:FoodDifferenceTimes100() < 0 then
+			elseif pCity:GetYieldRateTimes100(YieldTypes.YIELD_FOOD) < 0 then
 				cityGrowth = "[COLOR_WARNING_TEXT]-[ENDCOLOR]";
 				--instance.CityBannerRightBackground:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_CITY_STARVING_TT",localizedCityName ));
 			else
@@ -358,9 +358,9 @@ function ProductionDetails( city, instance )
 	-- Update Production Meter
 	if (instance.ProductionBar) then
 		
-		local iCurrentProduction = city:GetProduction();
+		local iCurrentProduction = city:GetProductionTimes100() / 100;
 		local iProductionNeeded = city:GetProductionNeeded();
-		local iProductionPerTurn = city:GetYieldRate(YieldTypes.YIELD_PRODUCTION);
+		local iProductionPerTurn = city:GetYieldRateTimes100(YieldTypes.YIELD_PRODUCTION) / 100;
 		local iCurrentProductionPlusThisTurn = iCurrentProduction + iProductionPerTurn;
 		
 		local fProductionProgressPercent = iCurrentProduction / iProductionNeeded;
