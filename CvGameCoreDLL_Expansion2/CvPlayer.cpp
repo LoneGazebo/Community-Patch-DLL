@@ -14619,10 +14619,17 @@ bool CvPlayer::canCreate(ProjectTypes eProject, bool bContinue, bool bTestVisibl
 
 	if (pProjectInfo.InfluenceAllRequired())
 	{
-		// don't show this if there are still a lot of civs we're not Influential with
-		if (GetCulture()->GetNumCivsInfluentialOn() < GC.getGame().GetGameCulture()->GetNumCivsInfluentialForWin() - 2)
+		// don't show this if we're not at least popular with every civ
+		for (int iLoopPlayer = 0; iLoopPlayer < MAX_MAJOR_CIVS; iLoopPlayer++)
 		{
-			return false;
+			CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iLoopPlayer);
+			if (iLoopPlayer != GetID() && kLoopPlayer.isAlive())
+			{
+				if (GetCulture()->GetInfluenceLevel(kLoopPlayer.GetID()) < INFLUENCE_LEVEL_POPULAR)
+				{
+					return false;
+				}
+			}
 		}
 	}
 
@@ -14638,7 +14645,7 @@ bool CvPlayer::canCreate(ProjectTypes eProject, bool bContinue, bool bTestVisibl
 			}
 		}
 
-		if (pProjectInfo.GetNumRequiredTier3Tenets())
+		if (pProjectInfo.IdeologyRequired() || pProjectInfo.GetNumRequiredTier3Tenets() > 0)
 		{
 			PolicyBranchTypes eIdeology = GetPlayerPolicies()->GetLateGamePolicyTree();
 			if (eIdeology == NO_POLICY_BRANCH_TYPE)
@@ -14646,26 +14653,22 @@ bool CvPlayer::canCreate(ProjectTypes eProject, bool bContinue, bool bTestVisibl
 				GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_PROJECT_IDEOLOGY_REQUIRED");
 				bResult = false;
 			}
-
-			int iNumTenets = GetPlayerPolicies()->GetNumTenetsOfLevel(eIdeology, 3);
-			if (iNumTenets < pProjectInfo.GetNumRequiredTier3Tenets())
+			else
 			{
-				GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_PROJECT_LEVEL_THREE_TENETS_REQUIRED", "", "", pProjectInfo.GetNumRequiredTier3Tenets() - iNumTenets);
-				bResult = false;
-			}
-		}
-
-		if (pProjectInfo.IdeologyRequired())
-		{
-			if (GetPlayerPolicies()->GetLateGamePolicyTree() == NO_POLICY_BRANCH_TYPE)
-			{
-				GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_PROJECT_IDEOLOGY_REQUIRED");
-				bResult = false;
-			}
-			else if (GetCulture()->GetPublicOpinionType() > PUBLIC_OPINION_CONTENT)
-			{
-				GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_PROJECT_PUBLIC_OPINION_CONTENT");
-				bResult = false;
+				if (pProjectInfo.IdeologyRequired() && GetCulture()->GetPublicOpinionType() > PUBLIC_OPINION_CONTENT)
+				{
+					GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_PROJECT_PUBLIC_OPINION_CONTENT");
+					bResult = false;
+				}
+				if (pProjectInfo.GetNumRequiredTier3Tenets() > 0)
+				{
+					int iNumTenets = GetPlayerPolicies()->GetNumTenetsOfLevel(eIdeology, 3);
+					if (iNumTenets < pProjectInfo.GetNumRequiredTier3Tenets())
+					{
+						GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_PROJECT_LEVEL_THREE_TENETS_REQUIRED", "", "", pProjectInfo.GetNumRequiredTier3Tenets() - iNumTenets);
+						bResult = false;
+					}
+				}
 			}
 		}
 
