@@ -7993,7 +7993,6 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 	}
 
 	bool bArchaeologyChoicePending = false;
-	CvPlayer& kBuilder = GET_PLAYER(eBuilder);
 
 	if (eOldImprovement != eNewValue)
 	{
@@ -8259,42 +8258,50 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 			CvImprovementEntry& newImprovementEntry = *GC.getImprovementInfo(eNewValue);
 			ResourceTypes eArtifact = static_cast<ResourceTypes>(GD_INT_GET(ARTIFACT_RESOURCE));
 			ResourceTypes eHiddenArtifact = static_cast<ResourceTypes>(GD_INT_GET(HIDDEN_ARTIFACT_RESOURCE));
-			bool bAntiquitySite = (getResourceType(GET_PLAYER(getOwner()).getTeam()) == eArtifact || getResourceType(GET_PLAYER(getOwner()).getTeam()) == eHiddenArtifact);
-			if (bAntiquitySite && newImprovementEntry.IsCreatedByGreatPerson())
+			if (getOwner() != NO_PLAYER)
 			{
-				TechTypes eRequiredTech = (TechTypes)gCustomMods.getOption("GPTI_ARCHAEOLOGY_TECH", -1);
-				if (MOD_BALANCE_GPTI_ARCHAEOLOGY && getOwner() != NO_PLAYER && (eRequiredTech == NO_TECH || GET_TEAM(kBuilder.getTeam()).GetTeamTechs()->HasTech(eRequiredTech)))
+				CvPlayer& kOwner = GET_PLAYER(getOwner());
+				ResourceTypes eResource = getResourceType(kOwner.getTeam());
+				if (eResource == eArtifact || eResource == eHiddenArtifact)
 				{
-					kBuilder.SetNumArchaeologyChoices(kBuilder.GetNumArchaeologyChoices() + 1);
-					kBuilder.GetCulture()->AddDigCompletePlot(this);
-
-					// Raiders of the Lost Ark achievement
-					if (MOD_ENABLE_ACHIEVEMENTS && kBuilder.isHuman(ISHUMAN_ACHIEVEMENTS))
+					if (eBuilder != NO_PLAYER && newImprovementEntry.IsCreatedByGreatPerson())
 					{
-						const char* szCivKey = kBuilder.getCivilizationTypeKey();
-						if (getOwner() != NO_PLAYER && !GC.getGame().isNetworkMultiPlayer() && strcmp(szCivKey, "CIVILIZATION_AMERICA") == 0)
+						CvPlayer& kBuilder = GET_PLAYER(eBuilder);
+						TechTypes eRequiredTech = (TechTypes)gCustomMods.getOption("GPTI_ARCHAEOLOGY_TECH", -1);
+						if (MOD_BALANCE_GPTI_ARCHAEOLOGY && (eRequiredTech == NO_TECH || kBuilder.HasTech(eRequiredTech)))
 						{
-							CvPlayer &kPlotOwner = GET_PLAYER(getOwner());
-							szCivKey = kPlotOwner.getCivilizationTypeKey();
-							if (strcmp(szCivKey, "CIVILIZATION_EGYPT") == 0)
+							kBuilder.SetNumArchaeologyChoices(kBuilder.GetNumArchaeologyChoices() + 1);
+							kBuilder.GetCulture()->AddDigCompletePlot(this);
+
+							// Raiders of the Lost Ark achievement
+							if (MOD_ENABLE_ACHIEVEMENTS && kBuilder.isHuman(ISHUMAN_ACHIEVEMENTS))
 							{
-								for (int i = 0; i < MAX_MAJOR_CIVS; i++)
+								const char* szCivKey = kBuilder.getCivilizationTypeKey();
+								if (getOwner() != NO_PLAYER && !GC.getGame().isNetworkMultiPlayer() && strcmp(szCivKey, "CIVILIZATION_AMERICA") == 0)
 								{
-									CvPlayer &kLoopPlayer = GET_PLAYER((PlayerTypes)i);
-									if (kLoopPlayer.GetID() != NO_PLAYER && kLoopPlayer.isAlive())
+									CvPlayer &kPlotOwner = GET_PLAYER(getOwner());
+									szCivKey = kPlotOwner.getCivilizationTypeKey();
+									if (strcmp(szCivKey, "CIVILIZATION_EGYPT") == 0)
 									{
-										szCivKey = kLoopPlayer.getCivilizationTypeKey();
-										if (strcmp(szCivKey, "CIVILIZATION_GERMANY"))
+										for (int i = 0; i < MAX_MAJOR_CIVS; i++)
 										{
-											CvUnit *pLoopUnit = NULL;
-											int iUnitLoop = 0;
-											for (pLoopUnit = kLoopPlayer.firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = kLoopPlayer.nextUnit(&iUnitLoop))
+											CvPlayer &kLoopPlayer = GET_PLAYER((PlayerTypes)i);
+											if (kLoopPlayer.GetID() != NO_PLAYER && kLoopPlayer.isAlive())
 											{
-												if (strcmp(pLoopUnit->getUnitInfo().GetType(), "UNIT_ARCHAEOLOGIST") == 0)
+												szCivKey = kLoopPlayer.getCivilizationTypeKey();
+												if (strcmp(szCivKey, "CIVILIZATION_GERMANY"))
 												{
-													if (plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), getX(), getY()) <= 2)
+													CvUnit *pLoopUnit = NULL;
+													int iUnitLoop = 0;
+													for (pLoopUnit = kLoopPlayer.firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = kLoopPlayer.nextUnit(&iUnitLoop))
 													{
-														gDLL->UnlockAchievement(ACHIEVEMENT_XP2_33);
+														if (strcmp(pLoopUnit->getUnitInfo().GetType(), "UNIT_ARCHAEOLOGIST") == 0)
+														{
+															if (plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), getX(), getY()) <= 2)
+															{
+																gDLL->UnlockAchievement(ACHIEVEMENT_XP2_33);
+															}
+														}
 													}
 												}
 											}
@@ -8302,31 +8309,31 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 									}
 								}
 							}
-						}
-					}
 
-					if (kBuilder.isHuman(ISHUMAN_AI_TOURISM))
-					{
-						CvNotifications* pNotifications = NULL;
-						Localization::String locString;
-						Localization::String locSummary;
-						pNotifications = kBuilder.GetNotifications();
-						if (pNotifications)
-						{
-							CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_CHOOSE_ARCHAEOLOGY");
-							CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_CHOOSE_ARCHAEOLOGY");
-							pNotifications->Add(NOTIFICATION_CHOOSE_ARCHAEOLOGY, strBuffer, strSummary, getX(), getY(), kBuilder.GetID());
-							CancelActivePlayerEndTurn();
+							if (kBuilder.isHuman(ISHUMAN_AI_TOURISM))
+							{
+								CvNotifications* pNotifications = NULL;
+								Localization::String locString;
+								Localization::String locSummary;
+								pNotifications = kBuilder.GetNotifications();
+								if (pNotifications)
+								{
+									CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_CHOOSE_ARCHAEOLOGY");
+									CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_CHOOSE_ARCHAEOLOGY");
+									pNotifications->Add(NOTIFICATION_CHOOSE_ARCHAEOLOGY, strBuffer, strSummary, getX(), getY(), kBuilder.GetID());
+									CancelActivePlayerEndTurn();
+								}
+							}
+							else
+								bArchaeologyChoicePending = true;
 						}
+						else
+							ClearArchaeologicalRecord();
 					}
-					else
-						bArchaeologyChoicePending = true;
+					else if (newImprovementEntry.IsPermanent())
+						ClearArchaeologicalRecord();
 				}
-				else
-					ClearArchaeologicalRecord();
 			}
-			else if (bAntiquitySite && newImprovementEntry.IsPermanent())
-				ClearArchaeologicalRecord();
 
 			if (newImprovementEntry.GetHappinessOnConstruction() != 0 && eBuilder != NO_PLAYER)
 			{
@@ -8817,6 +8824,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 	// Do the AI's dig site choice at the very end since it could replace the tile with a Landmark, so it's better to do that after all the other code updating things has run
 	if (bArchaeologyChoicePending)
 	{
+		CvPlayer& kBuilder = GET_PLAYER(eBuilder);
 		ArchaeologyChoiceType eChoice = kBuilder.GetCulture()->GetArchaeologyChoice(this);
 		kBuilder.GetCulture()->DoArchaeologyChoice(eChoice);
 	}
