@@ -20588,7 +20588,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 					// We already checked border adjacency, so we can assume it's probably a unit that spotted us.
 					// Let's see which unit is closest.
 					int iLoop = 0;
-					for (CvUnit* pLoopUnit = GET_PLAYER(eTheirTeamMember).firstUnit(&iLoop); pLoopUnit != NULL; GET_PLAYER(eTheirTeamMember).nextUnit(&iLoop))
+					for (CvUnit* pLoopUnit = GET_PLAYER(eTheirTeamMember).firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER(eTheirTeamMember).nextUnit(&iLoop))
 					{
 						int iDistance = plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), iX, iY);
 						if (iDistance < iShortestDistance)
