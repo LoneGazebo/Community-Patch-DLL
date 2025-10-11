@@ -12,10 +12,8 @@ namespace CvTypes
 {
 void AcquireTypes(Database::Connection& db);
 
-#if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
 const std::string& GetMissionName(MissionTypes eMission);
 extern std::tr1::unordered_map<MissionTypes, std::string> MissionNameLookup;
-#endif
 
 //MissionTypes
 const MissionTypes getMISSION_MOVE_TO();

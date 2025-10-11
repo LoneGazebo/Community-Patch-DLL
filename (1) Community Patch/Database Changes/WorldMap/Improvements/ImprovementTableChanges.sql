@@ -85,12 +85,13 @@ ALTER TABLE Improvements ADD IsEmbassy boolean DEFAULT 0;
 -- The tile cannot be stolen by any means. Disabled when pillaged.
 ALTER TABLE Improvements ADD BlockTileSteal boolean DEFAULT 0;
 
--- GLOBAL_ALPINE_PASSES
+-- GLOBAL_ALPINE_PASSES (integrated)
 ALTER TABLE Improvements ADD MountainsMakesValid integer DEFAULT 0;
 
 -- GLOBAL_PASSABLE_FORTS
 ALTER TABLE Improvements ADD MakesPassable integer DEFAULT 0;
 
+-- GLOBAL_RELOCATION (integrated)
 ALTER TABLE Improvements ADD AllowsRebaseTo integer DEFAULT 0;
 ALTER TABLE Improvements ADD AllowsAirliftFrom integer DEFAULT 0;
 ALTER TABLE Improvements ADD AllowsAirliftTo integer DEFAULT 0;

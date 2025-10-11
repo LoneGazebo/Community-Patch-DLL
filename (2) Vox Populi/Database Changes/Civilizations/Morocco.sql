@@ -3,7 +3,7 @@
 ----------------------------------------------------------
 UPDATE Traits
 SET
-	IgnoreTradeDistanceScaling = 1,
+	NoTradeRouteProximityPenalty = 1,
 	CanPlunderWithoutWar = 1
 WHERE Type = 'TRAIT_GATEWAY_AFRICA';
 

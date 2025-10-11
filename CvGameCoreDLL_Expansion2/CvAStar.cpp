@@ -994,7 +994,7 @@ void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, const CvAStar* 
 	kToNodeCacheData.bCanEnterTerritoryPermanent = finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE) || pUnit->canEnterTerritory(ePlotTeam, true);
 
 	//precompute this. it only depends on this one plot, so we don't have to do this in PathCost()
-	if (MOD_SANE_UNIT_MOVEMENT_COST)
+	if (MOD_BALANCE_SANE_UNIT_MOVEMENT_COST)
 	{
 		kToNodeCacheData.plotMovementCostMultiplier = GD_INT_GET(MOVE_DENOMINATOR); //will be ignored!
 		kToNodeCacheData.plotMovementCostAdder = CvUnitMovement::GetMovementCostChangeFromPromotions(pUnit, pPlot);
@@ -2076,7 +2076,7 @@ static void AddCityConnectionHarborConnections(const CvPlot* pPlot, const CvASta
 
 static void AddCityConnectionRiverConnections(CvPlot* pPlot, const CvAStar* finder, vector<pair<int, int>>& out)
 {
-	if (!MOD_RIVER_CITY_CONNECTIONS)
+	if (!MOD_BALANCE_RIVER_CITY_CONNECTIONS)
 		return;
 
 	RouteTypes eRoute = finder->GetData().eRoute;

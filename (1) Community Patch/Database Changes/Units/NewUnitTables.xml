@@ -72,7 +72,7 @@
 	</Table>
 
 	<!-- Modifiers to the instant yield given by Discover Technology, Conduct Diplomatic Mission, and Hurry Production missions, per specified improvement built and owned by the player -->
-	<!-- Need the BALANCE_CORE_NEW_GP_ATTRIBUTES mod option to function -->
+	<!-- Need the BALANCE_NEW_GREAT_PERSON_ATTRIBUTES mod option to function -->
 	<Table name="Unit_ScalingFromOwnedImprovements">
 		<Column name="UnitType" type="text" reference="Units(Type)" notnull="true"/>
 		<Column name="ImprovementType" type="text" reference="Improvements(Type)" notnull="true"/>

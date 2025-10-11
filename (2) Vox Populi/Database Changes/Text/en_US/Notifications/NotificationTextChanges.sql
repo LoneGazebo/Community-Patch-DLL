@@ -55,10 +55,6 @@ SET Text = 'If they have [COLOR_POSITIVE_TEXT]two[ENDCOLOR] Tier 3 Tenets of an 
 WHERE Tag = 'TXT_KEY_NOTIFICATION_CULTURE_VICTORY_WITHIN_TWO_UNMET_TT';
 
 UPDATE Language_en_US
-SET Text = 'You are currently using more {1_Resource:textkey} than you have! All Units which require it are [COLOR_NEGATIVE_TEXT]unable to heal[ENDCOLOR].'
-WHERE Tag = 'TXT_KEY_NOTIFICATION_OVER_RESOURCE_LIMIT';
-
-UPDATE Language_en_US
 SET Text = 'Because {1_Resource:textkey} is connected to your trade network, the City of {2_CityName:textkey} enters "We Love the King Day", giving it a [ICON_FOOD] Growth bonus!'
 WHERE Tag = 'TXT_KEY_NOTIFICATION_CITY_WLTKD';
 
@@ -216,3 +212,9 @@ WHERE Tag = 'TXT_KEY_NOTIFICATION_CITY_REVOLT';
 UPDATE Language_en_US
 SET Text = 'Because your Empire''s approval rating is below 35%, an uprising has occurred in your territory!'
 WHERE Tag = 'TXT_KEY_NOTIFICATION_REBELS';
+
+-- BALANCE_RESOURCE_SHORTAGE_UNIT_HEALING
+UPDATE Language_en_US
+SET Text = 'You are currently using more {1_Resource:textkey} than you have! All Units which require it are [COLOR_NEGATIVE_TEXT]unable to heal[ENDCOLOR].'
+WHERE Tag = 'TXT_KEY_NOTIFICATION_OVER_RESOURCE_LIMIT'
+AND EXISTS (SELECT 1 FROM CustomModOptions WHERE Name = 'BALANCE_RESOURCE_SHORTAGE_UNIT_HEALING' AND Value = 1);

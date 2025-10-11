@@ -69,17 +69,11 @@ public:
 	bool IsOpenBordersTradingAllowed() const;
 	bool IsDefensivePactTradingAllowed() const;
 	bool IsResearchAgreementTradingAllowed() const;
-#if defined(MOD_TECHS_CITY_WORKING)
 	int GetCityWorkingChange() const;
-#endif
-#if defined(MOD_TECHS_CITY_AUTOMATON_WORKERS)
 	int GetCityAutomatonWorkersChange() const;
-#endif
 	bool IsBridgeBuilding() const;
-#if defined(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST)
 	bool IsCityLessEmbarkCost() const;
 	bool IsCityNoEmbarkCost() const;
-#endif
 	bool IsWaterWork() const;
 	int IsFreePromotion(int i) const;
 	bool IsTriggersArchaeologicalSites() const;
@@ -107,9 +101,7 @@ public:
 	int GetTechYieldChanges(int i, int j) const;
 	int GetHappiness() const;
 	bool IsCorporationsEnabled() const;
-#if defined(MOD_CIV6_EUREKA)
 	int GetEurekaPerMillion() const;
-#endif
 
 private:
 	int m_iResearchCost;
@@ -147,17 +139,11 @@ private:
 	bool m_bOpenBordersTradingAllowed;
 	bool m_bDefensivePactTradingAllowed;
 	bool m_bResearchAgreementTradingAllowed;
-#if defined(MOD_TECHS_CITY_WORKING)
 	int m_iCityWorkingChange;
-#endif
-#if defined(MOD_TECHS_CITY_AUTOMATON_WORKERS)
 	int m_iCityAutomatonWorkersChange;
-#endif
 	bool m_bBridgeBuilding;
-#if defined(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST)
 	bool m_bCityLessEmbarkCost;
 	bool m_bCityNoEmbarkCost;
-#endif
 	bool m_bWaterWork;
 	bool m_bTriggersArchaeologicalSites;
 	bool m_bAllowsWorldCongress;
@@ -177,9 +163,7 @@ private:
 	int** m_ppiTechYieldChanges;
 	int m_iHappiness;
 	bool m_bCorporationsEnabled;
-#if defined(MOD_CIV6_EUREKA)
 	int m_iEurekaPerMillion;
-#endif
 	bool m_bVassalageTradingAllowed;
 };
 
@@ -349,11 +333,9 @@ public:
 	bool HasPrereqTechs(TechTypes eTech, const vector<TechTypes>& extraTech) const;
 	vector<TechTypes> GetTechFrontier() const;
 
-#if defined(MOD_CIV6_EUREKA)
 	int GetEurekaCounter(TechTypes eTech) const;
 	int GetEurekaDiscount(TechTypes eTech) const;
-	void SetEurekaCounter(TechTypes eTech, int newEurakaCount);
-#endif
+	void SetEurekaCounter(TechTypes eTech, int newEurekaCount);
 
 private:
 	int GetMaxResearchOverflow(TechTypes eTech, PlayerTypes ePlayer) const;
@@ -364,9 +346,7 @@ private:
 	bool* m_pabHasTech;
 	bool* m_pabNoTradeTech;
 	int* m_paiResearchProgressTimes100;
-#if defined(MOD_CIV6_EUREKA)
 	int* m_paiEurekaCounter;
-#endif
 	int* m_paiTechCount;
 	CvTechXMLEntries* m_pTechs;
 	CvTeam* m_pTeam;

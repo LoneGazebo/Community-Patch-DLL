@@ -2,7 +2,6 @@
 -- On Standard speed the trade route target turns is 30 (TRADE_ROUTE_BASE_TARGET_TURNS)
 -- On Quick speed the target turns will be 20, and on Marathon speed 90
 -- The number of turns the AI remembers a plundered trade route is also scaled using this value
--- Need TRADE_ROUTE_SCALING mod option to function
 ALTER TABLE GameSpeeds ADD TradeRouteSpeedMod integer DEFAULT 100;
 
 -- Additional starting happiness for each player
@@ -13,6 +12,9 @@ ALTER TABLE GameSpeeds ADD InstantYieldPercent integer DEFAULT 100;
 
 -- Modifier for all difficulty bonuses
 ALTER TABLE GameSpeeds ADD DifficultyBonusPercent integer DEFAULT 100;
+
+-- Modifier for experience (affects promotion thresholds, flat XP gains, and temporary attack bonus duration)
+ALTER TABLE GameSpeeds ADD ExperiencePercent integer DEFAULT 100;
 
 -- Percentage by which military rating decays each turn for different game speeds (affects AI strength perception behavior)
 -- (10 = 1%)

@@ -8,6 +8,15 @@
 UPDATE Defines SET Value = 10 WHERE Name = 'COMPLETE_KILLS_TURN_TIMER';
 
 -------------------------------------------------------------------------------------------------------------------
+-- Victory Conditions
+-------------------------------------------------------------------------------------------------------------------
+
+UPDATE Defines SET Value = 1.5 WHERE Name = 'DIPLO_VICTORY_CIV_DELEGATES_ALIVE';
+UPDATE Defines SET Value = 0.75 WHERE Name = 'DIPLO_VICTORY_CIV_DELEGATES_ELIMINATED';
+UPDATE Defines SET Value = 1.34 WHERE Name = 'DIPLO_VICTORY_CS_DELEGATES_ALIVE';
+UPDATE Defines SET Value = 0.75 WHERE Name = 'DIPLO_VICTORY_CS_DELEGATES_ELIMINATED';
+
+-------------------------------------------------------------------------------------------------------------------
 -- Defensive Pact
 -------------------------------------------------------------------------------------------------------------------
 
@@ -46,7 +55,7 @@ UPDATE Defines SET Value = 200 WHERE Name = 'CITY_STRENGTH_HILL_CHANGE';
 UPDATE Defines SET Value = 200 WHERE Name = 'CITY_STRENGTH_UNIT_DIVISOR';
 
 -- Extra city strength from tech progress
--- Only used if BALANCE_CORE_CITY_DEFENSE_SWITCH is on
+-- Only used if BALANCE_CITY_STRENGTH_SWITCH is turned off
 UPDATE Defines SET Value = 3.6 WHERE Name = 'CITY_STRENGTH_TECH_BASE';
 UPDATE Defines SET Value = 2.0 WHERE Name = 'CITY_STRENGTH_TECH_EXPONENT';
 UPDATE Defines SET Value = 0 WHERE Name = 'CITY_STRENGTH_TECH_MULTIPLIER';
@@ -80,7 +89,7 @@ UPDATE Defines SET Value = 2 WHERE Name = 'EXPERIENCE_ATTACKING_CITY_RANGED';
 -- % HP healed for captured enemy unit
 UPDATE Defines SET Value = 75 WHERE Name = 'COMBAT_CAPTURE_HEALTH';
 
--- Naval unit blockade range (land blockade is set in CustomModOptions ADJACENT_BLOCKADE)
+-- Naval unit blockade range (land blockade is set in CustomModOptions BALANCE_LAND_UNITS_ADJACENT_BLOCKADE)
 UPDATE Defines SET Value = 1 WHERE Name = 'NAVAL_PLOT_BLOCKADE_RANGE';
 
 -- Coastal city gold per turn penalty if all WATER tiles are blockaded 
@@ -188,6 +197,12 @@ UPDATE Defines SET Value = 50 WHERE Name = 'BALANCE_MINOR_PROTECTION_MINIMUM_DUR
 UPDATE Defines SET Value = 100 WHERE Name = 'MINOR_POLICY_RESOURCE_HAPPINESS_MULTIPLIER';
 UPDATE Defines SET Value = 60 WHERE Name = 'MINOR_CIV_TECH_PERCENT';
 UPDATE Defines SET Value = 115 WHERE Name = 'MINOR_CIV_PLOT_CULTURE_COST_MULTIPLIER';
+
+-- Update first contact Faith bonus if GLOBAL_CS_GIFTS=1
+UPDATE Defines
+SET Value = 5
+WHERE Name = 'MINOR_CIV_FIRST_CONTACT_BONUS_FAITH'
+AND EXISTS (SELECT 1 FROM CustomModOptions WHERE Name = 'GLOBAL_CS_GIFTS' AND Value = 1);
 
 -- Gold tribute amount increasing with game progress
 UPDATE Defines SET Value = 1000 WHERE Name = 'MINOR_BULLY_GOLD_GROWTH_FACTOR';
@@ -355,6 +370,10 @@ UPDATE Defines SET Value = 50 WHERE Name = 'BASE_POLICY_COST';
 UPDATE Defines SET Value = 2.22 WHERE Name = 'POLICY_COST_EXPONENT';
 UPDATE Defines SET Value = 4 WHERE Name = 'POLICY_COST_INCREASE_TO_BE_EXPONENTED';
 UPDATE Defines SET Value = .20 WHERE Name = 'POLICY_COST_EXTRA_VALUE';
+
+UPDATE Defines SET Value = 3 WHERE Name = 'IDEOLOGY_UNLOCK_NUM_POLICY_BRANCHES_NEEDED';
+UPDATE Defines SET Value = 18 WHERE Name = 'IDEOLOGY_UNLOCK_NUM_POLICIES_NEEDED';
+UPDATE Defines SET Value = 1 WHERE Name = 'IDEOLOGY_UNLOCK_BASE_FREE_TENETS';
 
 UPDATE Defines SET Value = 5 WHERE Name = 'SWITCH_POLICY_BRANCHES_TENETS_LOST';
 UPDATE Defines SET Value = 3 WHERE Name = 'SWITCH_POLICY_BRANCHES_ANARCHY_TURNS';
@@ -562,8 +581,10 @@ UPDATE Defines SET Value = -2 WHERE Name = 'WAR_PROGRESS_PER_UNHAPPY';
 INSERT INTO PostDefines
 	(Name, Key, "Table")
 VALUES
+	('IDEOLOGY_PREREQ_ERA', 'ERA_INDUSTRIAL', 'Eras'),
 	('EMBASSY_IMPROVEMENT', 'IMPROVEMENT_EMBASSY', 'Improvements'),
 	('JUGGERNAUT_PROMOTION', 'PROMOTION_JUGGERNAUT', 'UnitPromotions'),
-	('MARCH_SKIRMISHER_PROMOTION', 'PROMOTION_SKIRMISHER_MARCH', 'UnitPromotions');
+	('MARCH_SKIRMISHER_PROMOTION', 'PROMOTION_SKIRMISHER_MARCH', 'UnitPromotions'),
+	('PRISONERS_OF_WAR_PROMOTION', 'PROMOTION_PRISONERS_OF_WAR', 'UnitPromotions');
 
 UPDATE PostDefines SET Key = 'ERA_MODERN' WHERE Name = 'IDEOLOGY_START_ERA';

@@ -76,9 +76,7 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iInvisibleType(NO_INVISIBLE),
 	m_iSeeInvisibleType(NO_INVISIBLE),
 	m_iVisibilityChange(0),
-#if defined(MOD_PROMOTIONS_VARIABLE_RECON)
 	m_iReconChange(0),
-#endif
 	m_iMovesChange(0),
 	m_iMoveDiscountChange(0),
 	m_iRangeChange(0),
@@ -164,10 +162,8 @@ CvPromotionEntry::CvPromotionEntry():
 	m_bRequiresLeadership(false),
 	m_bCannotHeal(false),
 	m_bPillageFortificationsOnKill(false),
-#if defined(MOD_BALANCE_CORE_JFD)
 	m_iPlagueID(NO_PROMOTION),
 	m_iPlaguePriority(0),
-#endif
 	m_iEmbarkExtraVisibility(0),
 	m_iEmbarkDefenseModifier(0),
 	m_iCapitalDefenseModifier(0),
@@ -217,18 +213,15 @@ CvPromotionEntry::CvPromotionEntry():
 	m_bRangedSupportFire(false),
 	m_bAlwaysHeal(false),
 	m_bHealOutsideFriendly(false),
-	m_bHillsDoubleMove(false),
 	m_bRiverDoubleMove(false),
 	m_bIgnoreTerrainCost(false),
 	m_bIgnoreTerrainDamage(false),
 	m_bIgnoreFeatureDamage(false),
 	m_bExtraTerrainDamage(false),
 	m_bExtraFeatureDamage(false),
-#if defined(MOD_PROMOTIONS_IMPROVEMENT_BONUS)
 	m_iNearbyImprovementCombatBonus(0),
 	m_iNearbyImprovementBonusRange(0),
 	m_eCombatBonusImprovement(NO_IMPROVEMENT),
-#endif
 	m_iNearbyUnitClassBonus(0),
 	m_iNearbyUnitClassBonusRange(0),
 	m_iCombatBonusFromNearbyUnitClass(NO_UNITCLASS),
@@ -247,22 +240,13 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iMultiAttackBonus(0),
 	m_iLandAirDefenseValue(0),
 	m_iDamageReductionCityAssault(0),
-	m_bMountainsDoubleMove(false),
 	m_bEmbarkFlatCost(false),
 	m_bDisembarkFlatCost(false),
 	m_bMountedOnly(false),
-#if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
 	m_bCanCrossMountains(false),
-#endif
-#if defined(MOD_PROMOTIONS_CROSS_OCEANS)
 	m_bCanCrossOceans(false),
-#endif
-#if defined(MOD_PROMOTIONS_CROSS_ICE)
 	m_bCanCrossIce(false),
-#endif
-#if defined(MOD_PROMOTIONS_GG_FROM_BARBARIANS)
 	m_bGGFromBarbarians(false),
-#endif
 	m_bRoughTerrainEndsTurn(false),
 	m_bCapturedUnitsConscripted(false),
 	m_bHoveringUnit(false),
@@ -286,9 +270,7 @@ CvPromotionEntry::CvPromotionEntry():
 	m_bHealOnPillage(false),
 	m_bHealIfDefeatExcludesBarbarians(false),
 	m_bEmbarkedAllWater(false),
-#if defined(MOD_PROMOTIONS_DEEP_WATER_EMBARKATION)
 	m_bEmbarkedDeepWater(false),
-#endif
 	m_bCityAttackOnly(false),
 	m_bCaptureDefeatedEnemy(false),
 	m_bIgnoreGreatGeneralBenefit(false),
@@ -365,12 +347,10 @@ CvPromotionEntry::CvPromotionEntry():
 	m_pbIgnoreFeatureCostFrom(NULL),
 	m_pbTerrainDoubleMove(NULL),
 	m_pbFeatureDoubleMove(NULL),
-#if defined(MOD_PROMOTIONS_HALF_MOVE)
 	m_pbTerrainHalfMove(NULL),
 	m_pbTerrainExtraMove(NULL),
 	m_pbFeatureHalfMove(NULL),
 	m_pbFeatureExtraMove(NULL),
-#endif
 	m_pbTerrainDoubleHeal(NULL),
 	m_pbFeatureDoubleHeal(NULL),
 	m_pbTerrainImpassable(NULL),
@@ -378,9 +358,7 @@ CvPromotionEntry::CvPromotionEntry():
 	m_pbFeatureImpassable(NULL),
 	m_pbUnitCombat(NULL),
 	m_pbCivilianUnitType(NULL),
-#if defined(MOD_PROMOTIONS_UNIT_NAMING)
 	m_pbUnitName(NULL),
-#endif
 	m_pbPostCombatRandomPromotion(NULL)
 {
 }
@@ -423,12 +401,10 @@ CvPromotionEntry::~CvPromotionEntry(void)
 	SAFE_DELETE_ARRAY(m_pbIgnoreFeatureCostFrom);
 	SAFE_DELETE_ARRAY(m_pbTerrainDoubleMove);
 	SAFE_DELETE_ARRAY(m_pbFeatureDoubleMove);
-#if defined(MOD_PROMOTIONS_HALF_MOVE)
 	SAFE_DELETE_ARRAY(m_pbTerrainHalfMove);
 	SAFE_DELETE_ARRAY(m_pbTerrainExtraMove);
 	SAFE_DELETE_ARRAY(m_pbFeatureHalfMove);
 	SAFE_DELETE_ARRAY(m_pbFeatureExtraMove);
-#endif
 	SAFE_DELETE_ARRAY(m_pbTerrainDoubleHeal);
 	SAFE_DELETE_ARRAY(m_pbFeatureDoubleHeal);
 	SAFE_DELETE_ARRAY(m_pbTerrainImpassable);
@@ -436,9 +412,7 @@ CvPromotionEntry::~CvPromotionEntry(void)
 	SAFE_DELETE_ARRAY(m_pbFeatureImpassable);
 	SAFE_DELETE_ARRAY(m_pbUnitCombat);
 	SAFE_DELETE_ARRAY(m_pbCivilianUnitType);
-#if defined(MOD_PROMOTIONS_UNIT_NAMING)
 	SAFE_DELETE_ARRAY(m_pbUnitName);
-#endif
 	SAFE_DELETE_ARRAY(m_pbPostCombatRandomPromotion);
 }
 //------------------------------------------------------------------------------
@@ -490,23 +464,18 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_bRangedSupportFire= kResults.GetBool("RangedSupportFire");
 	m_bAlwaysHeal = kResults.GetBool("AlwaysHeal");
 	m_bHealOutsideFriendly = kResults.GetBool("HealOutsideFriendly");
-	m_bHillsDoubleMove = kResults.GetBool("HillsDoubleMove");
 	m_bRiverDoubleMove = kResults.GetBool("RiverDoubleMove");
 	m_bIgnoreTerrainCost = kResults.GetBool("IgnoreTerrainCost");
 	m_bIgnoreTerrainDamage = kResults.GetBool("IgnoreTerrainDamage");
 	m_bIgnoreFeatureDamage = kResults.GetBool("IgnoreFeatureDamage");
 	m_bExtraTerrainDamage = kResults.GetBool("ExtraTerrainDamage");
 	m_bExtraFeatureDamage = kResults.GetBool("ExtraFeatureDamage");
-#if defined(MOD_PROMOTIONS_IMPROVEMENT_BONUS)
-	if (MOD_PROMOTIONS_IMPROVEMENT_BONUS) {
-		m_iNearbyImprovementCombatBonus = kResults.GetInt("NearbyImprovementCombatBonus");
-		m_iNearbyImprovementBonusRange = kResults.GetInt("NearbyImprovementBonusRange");
-		const char* szTextVal = kResults.GetText("CombatBonusImprovement");
-		if (szTextVal) {
-			m_eCombatBonusImprovement = (ImprovementTypes)GC.getInfoTypeForString(szTextVal, true);
-		}
-	}
-#endif
+	m_iNearbyImprovementCombatBonus = kResults.GetInt("NearbyImprovementCombatBonus");
+	m_iNearbyImprovementBonusRange = kResults.GetInt("NearbyImprovementBonusRange");
+	const char* szTextVal = kResults.GetText("CombatBonusImprovement");
+	if (szTextVal)
+		m_eCombatBonusImprovement = (ImprovementTypes)GC.getInfoTypeForString(szTextVal, true);
+
 	const char* szCombatBonusFromNearbyUnitClass = kResults.GetText("CombatBonusFromNearbyUnitClass");
 	m_iCombatBonusFromNearbyUnitClass = (UnitClassTypes)GC.getInfoTypeForString(szCombatBonusFromNearbyUnitClass, true);
 	m_iNearbyUnitClassBonusRange = kResults.GetInt("NearbyUnitClassBonusRange");
@@ -526,29 +495,13 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iMultiAttackBonus = kResults.GetInt("MultiAttackBonus");
 	m_iLandAirDefenseValue = kResults.GetInt("LandAirDefenseBonus");
 	m_iDamageReductionCityAssault = kResults.GetInt("DamageReductionCityAssault");
-	m_bMountainsDoubleMove = kResults.GetBool("MountainsDoubleMove");
 	m_bEmbarkFlatCost = kResults.GetBool("EmbarkFlatCost");
 	m_bDisembarkFlatCost = kResults.GetBool("DisembarkFlatCost");
 	m_bMountedOnly = kResults.GetBool("MountedOnly");
-#if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
-	if (MOD_PROMOTIONS_CROSS_MOUNTAINS)
-	{
-		m_bCanCrossMountains = kResults.GetBool("CanCrossMountains");
-	}
-#endif
-#if defined(MOD_PROMOTIONS_CROSS_OCEANS)
+	m_bCanCrossMountains = kResults.GetBool("CanCrossMountains");
 	m_bCanCrossOceans = kResults.GetBool("CanCrossOceans");
-#endif
-#if defined(MOD_PROMOTIONS_CROSS_ICE)
-	if (MOD_PROMOTIONS_CROSS_ICE) {
-		m_bCanCrossIce = kResults.GetBool("CanCrossIce");
-	}
-#endif
-#if defined(MOD_PROMOTIONS_GG_FROM_BARBARIANS)
-	if (MOD_PROMOTIONS_GG_FROM_BARBARIANS) {
-		m_bGGFromBarbarians = kResults.GetBool("GGFromBarbarians");
-	}
-#endif
+	m_bCanCrossIce = kResults.GetBool("CanCrossIce");
+	m_bGGFromBarbarians = kResults.GetBool("GGFromBarbarians");
 	m_bRoughTerrainEndsTurn = kResults.GetBool("RoughTerrainEndsTurn");
 	m_bCapturedUnitsConscripted = kResults.GetBool("CapturedUnitsConscripted");
 	m_bHoveringUnit = kResults.GetBool("HoveringUnit");
@@ -572,9 +525,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_bHealOnPillage = kResults.GetBool("HealOnPillage");
 	m_bHealIfDefeatExcludesBarbarians = kResults.GetBool("HealIfDestroyExcludesBarbarians");
 	m_bEmbarkedAllWater = kResults.GetBool("EmbarkedAllWater");
-#if defined(MOD_PROMOTIONS_DEEP_WATER_EMBARKATION)
 	m_bEmbarkedDeepWater = kResults.GetBool("EmbarkedDeepWater");
-#endif
 	m_bCityAttackOnly = kResults.GetBool("CityAttackOnly");
 	m_bCaptureDefeatedEnemy = kResults.GetBool("CaptureDefeatedEnemy");
 	m_bIgnoreGreatGeneralBenefit = kResults.GetBool("IgnoreGreatGeneralBenefit");
@@ -623,9 +574,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_bCanHeavyCharge = kResults.GetBool("HeavyCharge");
 
 	m_iVisibilityChange = kResults.GetInt("VisibilityChange");
-#if defined(MOD_PROMOTIONS_VARIABLE_RECON)
 	m_iReconChange = kResults.GetInt("ReconChange");
-#endif
 	m_iMovesChange = kResults.GetInt("MovesChange");
 	m_iMoveDiscountChange = kResults.GetInt("MoveDiscountChange");
 	m_iRangeChange = kResults.GetInt("RangeChange");
@@ -710,12 +659,8 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_bRequiresLeadership = kResults.GetBool("RequiresLeadership");
 	m_bCannotHeal = kResults.GetBool("CannotHeal");
 	m_bPillageFortificationsOnKill = kResults.GetBool("PillageFortificationsOnKill");
-#if defined(MOD_BALANCE_CORE_JFD)
-
-
 	m_iPlagueID = kResults.GetInt("PlagueID");
 	m_iPlaguePriority = kResults.GetInt("PlaguePriority");
-#endif
 	m_iEmbarkExtraVisibility = kResults.GetInt("EmbarkExtraVisibility");
 	m_iEmbarkDefenseModifier = kResults.GetInt("EmbarkDefenseModifier");
 	m_iCapitalDefenseModifier = kResults.GetInt("CapitalDefenseModifier");
@@ -791,10 +736,8 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		kUtility.InitializeArray(m_pbIgnoreTerrainCostIn, iNumTerrains, false);
 		kUtility.InitializeArray(m_pbIgnoreTerrainCostFrom, iNumTerrains, false);
 		kUtility.InitializeArray(m_pbTerrainDoubleMove, iNumTerrains, false);
-#if defined(MOD_PROMOTIONS_HALF_MOVE)
 		kUtility.InitializeArray(m_pbTerrainHalfMove, iNumTerrains, false);
 		kUtility.InitializeArray(m_pbTerrainExtraMove, iNumTerrains, false);
-#endif
 		kUtility.InitializeArray(m_pbTerrainDoubleHeal, iNumTerrains, false);
 		kUtility.InitializeArray(m_pbTerrainImpassable, iNumTerrains, false);
 
@@ -831,13 +774,12 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 			const bool bDoubleMove = pResults->GetBool("DoubleMove");
 			m_pbTerrainDoubleMove[iTerrainID] = bDoubleMove;
 
-#if defined(MOD_PROMOTIONS_HALF_MOVE)
 			const bool bHalfMove = pResults->GetBool("HalfMove");
 			m_pbTerrainHalfMove[iTerrainID] = bHalfMove;
 
 			const bool bExtraMove = pResults->GetBool("ExtraMove");
 			m_pbTerrainExtraMove[iTerrainID] = bExtraMove;
-#endif
+
 			const bool bDoubleHeal = pResults->GetBool("DoubleHeal");
 			m_pbTerrainDoubleHeal[iTerrainID] = bDoubleHeal;
 
@@ -847,6 +789,10 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 			const int iPassableTechID = pResults->GetInt("PassableTechID");
 			m_piTerrainPassableTech[iTerrainID] = iPassableTechID;
 		}
+		// Backwards compatibility for vanilla HillsDoubleMove column
+		bool bHillsDoubleMove = kResults.GetBool("HillsDoubleMove");
+		if (bHillsDoubleMove)
+			m_pbTerrainDoubleMove[TERRAIN_HILL] = true;
 	}
 
 	//UnitPromotions_TerrainModifiers
@@ -888,10 +834,8 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		kUtility.InitializeArray(m_pbIgnoreFeatureCostIn, iNumFeatures, false);
 		kUtility.InitializeArray(m_pbIgnoreFeatureCostFrom, iNumFeatures, false);
 		kUtility.InitializeArray(m_pbFeatureDoubleMove, iNumFeatures, false);
-#if defined(MOD_PROMOTIONS_HALF_MOVE)
 		kUtility.InitializeArray(m_pbFeatureHalfMove, iNumFeatures, false);
 		kUtility.InitializeArray(m_pbFeatureExtraMove, iNumFeatures, false);
-#endif
 		kUtility.InitializeArray(m_pbFeatureDoubleHeal, iNumFeatures, false);
 		kUtility.InitializeArray(m_pbFeatureImpassable, iNumFeatures, false);
 
@@ -928,13 +872,12 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 			const bool bDoubleMove = pResults->GetBool("DoubleMove");
 			m_pbFeatureDoubleMove[iFeatureID] = bDoubleMove;
 
-#if defined(MOD_PROMOTIONS_HALF_MOVE)
 			const bool bHalfMove = pResults->GetBool("HalfMove");
 			m_pbFeatureHalfMove[iFeatureID] = bHalfMove;
 
 			const bool bExtraMove = pResults->GetBool("ExtraMove");
 			m_pbFeatureExtraMove[iFeatureID] = bExtraMove;
-#endif
+
 			const bool bDoubleHeal = pResults->GetBool("DoubleHeal");
 			m_pbFeatureDoubleHeal[iFeatureID] = bDoubleHeal;
 
@@ -1460,18 +1403,13 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		std::map<int, std::pair<int, int>>(m_yieldFromPillage).swap(m_yieldFromPillage);
 	}
 
-#if defined(MOD_PROMOTIONS_UNIT_NAMING)
-	if (MOD_PROMOTIONS_UNIT_NAMING)
-	{
-		// We don't store the unit names, only if the promotion gives a name, we will look-up the actual name as it's needed
-		kUtility.PopulateArrayByExistence(m_pbUnitName,
-			"Units",
-			"UnitPromotions_UnitName",
-			"UnitType",
-			"PromotionType",
-			szPromotionType);
-	}
-#endif
+	// We don't store the unit names, only if the promotion gives a name, we will look-up the actual name as it's needed
+	kUtility.PopulateArrayByExistence(m_pbUnitName,
+		"Units",
+		"UnitPromotions_UnitName",
+		"UnitType",
+		"PromotionType",
+		szPromotionType);
 
 	kUtility.PopulateArrayByExistence(m_pbPostCombatRandomPromotion,
 		"UnitPromotions",
@@ -1633,13 +1571,11 @@ int CvPromotionEntry::GetVisibilityChange() const
 	return m_iVisibilityChange;
 }
 
-#if defined(MOD_PROMOTIONS_VARIABLE_RECON)
 /// Accessor: How many additional tiles this promotion allows a unit to recon (can be negative)
 int CvPromotionEntry::GetReconChange() const
 {
 	return m_iReconChange;
 }
-#endif
 
 /// Accessor: How many additional tiles a unit may move
 int CvPromotionEntry::GetMovesChange() const
@@ -2149,10 +2085,6 @@ bool CvPromotionEntry::IsPillageFortificationsOnKill() const
 	return m_bPillageFortificationsOnKill;
 }
 
-#if defined(MOD_BALANCE_CORE_JFD)
-
-
-
 int CvPromotionEntry::GetPlagueID() const
 {
 	return m_iPlagueID;
@@ -2162,7 +2094,6 @@ int CvPromotionEntry::GetPlaguePriority() const
 {
 	return m_iPlaguePriority;
 }
-#endif
 
 /// Accessor: extra sight range when embarked
 int CvPromotionEntry::GetEmbarkExtraVisibility() const
@@ -2421,12 +2352,6 @@ bool CvPromotionEntry::IsHealOutsideFriendly() const
 	return m_bHealOutsideFriendly;
 }
 
-/// Accessor: Double movement in hills
-bool CvPromotionEntry::IsHillsDoubleMove() const
-{
-	return m_bHillsDoubleMove;
-}
-
 /// Accessor: Double movement when next to rivers
 bool CvPromotionEntry::IsRiverDoubleMove() const
 {
@@ -2463,7 +2388,6 @@ bool CvPromotionEntry::IsExtraFeatureDamage() const
 	return m_bExtraFeatureDamage;
 }
 
-#if defined(MOD_PROMOTIONS_IMPROVEMENT_BONUS)
 /// Accessor: Can cross mountains (but we'd rather they left them nice and straight!)
 int CvPromotionEntry::GetNearbyImprovementCombatBonus() const
 {
@@ -2477,7 +2401,7 @@ ImprovementTypes CvPromotionEntry::GetCombatBonusImprovement() const
 {
 	return m_eCombatBonusImprovement;
 }
-#endif
+
 /// Get the UnitClass we want to receive the bonus from.
 UnitClassTypes CvPromotionEntry::GetCombatBonusFromNearbyUnitClass() const
 {
@@ -2553,11 +2477,6 @@ int CvPromotionEntry::GetDamageReductionCityAssault() const
 {
 	return m_iDamageReductionCityAssault;
 }
-/// Accessor: Double movement in hills
-bool CvPromotionEntry::IsMountainsDoubleMove() const
-{
-	return m_bMountainsDoubleMove;
-}
 
 bool CvPromotionEntry::IsEmbarkFlatCost() const
 {
@@ -2576,37 +2495,29 @@ bool CvPromotionEntry::IsMountedOnly() const
 
 
 
-#if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
 /// Accessor: Can cross mountains (but we'd rather they left them nice and straight!)
 bool CvPromotionEntry::CanCrossMountains() const
 {
 	return m_bCanCrossMountains;
 }
-#endif
 
-#if defined(MOD_PROMOTIONS_CROSS_OCEANS)
 /// Accessor: Can cross oceans (but that may make them angry!)
 bool CvPromotionEntry::CanCrossOceans() const
 {
 	return m_bCanCrossOceans;
 }
-#endif
 
-#if defined(MOD_PROMOTIONS_CROSS_ICE)
 /// Accessor: Can cross ice (with what? Fire?)
 bool CvPromotionEntry::CanCrossIce() const
 {
 	return m_bCanCrossIce;
 }
-#endif
 
-#if defined(MOD_PROMOTIONS_GG_FROM_BARBARIANS)
 /// Accessor: Gets GG/GA points from barbarians
 bool CvPromotionEntry::IsGGFromBarbarians() const
 {
 	return m_bGGFromBarbarians;
 }
-#endif
 
 /// Accessor: Entering rough terrain uses up a unit's movement? (regardless of how many moves he has)
 bool CvPromotionEntry::IsRoughTerrainEndsTurn() const
@@ -2745,13 +2656,11 @@ bool CvPromotionEntry::IsEmbarkedAllWater() const
 	return m_bEmbarkedAllWater;
 }
 
-#if defined(MOD_PROMOTIONS_DEEP_WATER_EMBARKATION)
 /// Accessor: Do we not get run over by naval units when embarked at sea?
 bool CvPromotionEntry::IsEmbarkedDeepWater() const
 {
 	return m_bEmbarkedDeepWater;
 }
-#endif
 
 /// Accessor: Does this unit only attack cities
 bool CvPromotionEntry::IsCityAttackSupport() const
@@ -3457,7 +3366,6 @@ bool CvPromotionEntry::GetFeatureDoubleMove(int i) const
 	return false;
 }
 
-#if defined(MOD_PROMOTIONS_HALF_MOVE)
 /// Indicates if a unit can move half as fast in a type of terrain
 bool CvPromotionEntry::GetTerrainHalfMove(int i) const
 {
@@ -3513,7 +3421,7 @@ bool CvPromotionEntry::GetFeatureExtraMove(int i) const
 
 	return false;
 }
-#endif
+
 /// Indicates if a unit can heal twice as fast in a type of terrain
 bool CvPromotionEntry::GetTerrainDoubleHeal(int i) const
 {
@@ -3641,7 +3549,6 @@ std::vector<PlagueInfo> CvPromotionEntry::GetPlagues() const
 	return m_vsPlagues;
 }
 
-#if defined(MOD_PROMOTIONS_UNIT_NAMING)
 /// If this a promotion that names a unit
 bool CvPromotionEntry::IsUnitNaming(int i) const
 {
@@ -3663,7 +3570,6 @@ void CvPromotionEntry::GetUnitName(UnitTypes eUnit, CvString& sUnitName) const
 		}
 	}
 }
-#endif
 
 /// If this a promotion that can randomly turn into other c
 bool CvPromotionEntry::IsPostCombatRandomPromotion(int i) const
@@ -4003,17 +3909,15 @@ PromotionTypes CvUnitPromotions::ChangePromotionAfterCombat(PromotionTypes eInde
 		{
 			if (!pkEntry->ArePostCombatPromotionsExclusive() || !IsInUseByPlayer((PromotionTypes)iI, pThisUnit->getOwner()))
 			{
-#if defined(MOD_EVENTS_UNIT_UPGRADES)
-				if (MOD_EVENTS_UNIT_UPGRADES) {
-					if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_CanHavePromotion, pThisUnit->getOwner(), pThisUnit->GetID(), iI) == GAMEEVENTRETURN_FALSE) {
+				if (MOD_EVENTS_UNIT_UPGRADES)
+				{
+					if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_CanHavePromotion, pThisUnit->getOwner(), pThisUnit->GetID(), iI) == GAMEEVENTRETURN_FALSE)
 						continue;
-					}
 
-					if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_UnitCanHavePromotion, pThisUnit->getOwner(), pThisUnit->GetID(), iI) == GAMEEVENTRETURN_FALSE) {
+					if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_UnitCanHavePromotion, pThisUnit->getOwner(), pThisUnit->GetID(), iI) == GAMEEVENTRETURN_FALSE)
 						continue;
-					}
 				}
-#endif
+
 				aPossiblePromotions.push_back(iI);
 			}
 		}

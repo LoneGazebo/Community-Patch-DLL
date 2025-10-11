@@ -54,17 +54,11 @@ CvTechEntry::CvTechEntry(void):
 	m_bOpenBordersTradingAllowed(false),
 	m_bDefensivePactTradingAllowed(false),
 	m_bResearchAgreementTradingAllowed(false),
-#if defined(MOD_TECHS_CITY_WORKING)
 	m_iCityWorkingChange(0),
-#endif
-#if defined(MOD_TECHS_CITY_AUTOMATON_WORKERS)
 	m_iCityAutomatonWorkersChange(0),
-#endif
 	m_bBridgeBuilding(false),
-#if defined(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST)
 	m_bCityLessEmbarkCost(false),
 	m_bCityNoEmbarkCost(false),
-#endif
 	m_bWaterWork(false),
 	m_bTriggersArchaeologicalSites(false),
 	m_bAllowsWorldCongress(false),
@@ -76,9 +70,7 @@ CvTechEntry::CvTechEntry(void):
 	m_iHappiness(0),
 	m_ppiTechYieldChanges(NULL),
 	m_bCorporationsEnabled(false),
-#if defined(MOD_CIV6_EUREKA)
 	m_iEurekaPerMillion(0),
-#endif
 	m_bVassalageTradingAllowed(false),
 	m_pabFreePromotion(NULL)
 {
@@ -133,17 +125,11 @@ bool CvTechEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	m_bOpenBordersTradingAllowed = kResults.GetBool("OpenBordersTradingAllowed");
 	m_bDefensivePactTradingAllowed = kResults.GetBool("DefensivePactTradingAllowed");
 	m_bResearchAgreementTradingAllowed = kResults.GetBool("ResearchAgreementTradingAllowed");
-#if defined(MOD_TECHS_CITY_WORKING)
 	m_iCityWorkingChange = kResults.GetInt("CityWorkingChange");
-#endif
-#if defined(MOD_TECHS_CITY_AUTOMATON_WORKERS)
 	m_iCityAutomatonWorkersChange = kResults.GetInt("CityAutomatonWorkersChange");
-#endif
 	m_bBridgeBuilding = kResults.GetBool("BridgeBuilding");
-#if defined(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST)
 	m_bCityLessEmbarkCost = kResults.GetBool("CityLessEmbarkCost");
 	m_bCityNoEmbarkCost = kResults.GetBool("CityNoEmbarkCost");
-#endif
 	m_bWaterWork = kResults.GetBool("WaterWork");
 	m_iGridX = kResults.GetInt("GridX");
 	m_iGridY = kResults.GetInt("GridY");
@@ -152,9 +138,7 @@ bool CvTechEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 
 	m_iHappiness = kResults.GetInt("Happiness");
 	m_bCorporationsEnabled = kResults.GetBool("CorporationsEnabled");
-#if defined(MOD_CIV6_EUREKA)
 	m_iEurekaPerMillion = kResults.GetInt("EurekaPerMillion");
-#endif
 
 	//References
 	const char* szTextVal = NULL;
@@ -462,21 +446,17 @@ bool CvTechEntry::IsResearchAgreementTradingAllowed() const
 	return m_bResearchAgreementTradingAllowed;
 }
 
-#if defined(MOD_TECHS_CITY_WORKING)
 /// Change in number of rings a city can work
 int CvTechEntry::GetCityWorkingChange() const
 {
 	return m_iCityWorkingChange;
 }
-#endif
 
-#if defined(MOD_TECHS_CITY_AUTOMATON_WORKERS)
 /// Change the number of automaton workers a city can have
 int CvTechEntry::GetCityAutomatonWorkersChange() const
 {
 	return m_iCityAutomatonWorkersChange;
 }
-#endif
 
 /// Are river crossings treated as bridges?
 bool CvTechEntry::IsBridgeBuilding() const
@@ -484,7 +464,6 @@ bool CvTechEntry::IsBridgeBuilding() const
 	return m_bBridgeBuilding;
 }
 
-#if defined(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST)
 /// Do cities cost less embark movement?
 bool CvTechEntry::IsCityLessEmbarkCost() const
 {
@@ -495,7 +474,6 @@ bool CvTechEntry::IsCityNoEmbarkCost() const
 {
 	return m_bCityNoEmbarkCost;
 }
-#endif
 
 /// Enable working of water tiles?
 bool CvTechEntry::IsWaterWork() const
@@ -598,12 +576,10 @@ bool CvTechEntry::IsCorporationsEnabled() const
 	return m_bCorporationsEnabled;
 }
 
-#if defined(MOD_CIV6_EUREKA)
 int CvTechEntry::GetEurekaPerMillion() const
 {
 	return m_iEurekaPerMillion;
 }
-#endif
 
 //=====================================
 // CvTechXMLEntries
@@ -1148,7 +1124,7 @@ void CvPlayerTechs::SetLocalePriorities()
 						multiplierValue++;
 
 					//somehow close on monopolies?
-					if (MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+					if (MOD_BALANCE_RESOURCE_MONOPOLIES)
 					{
 						int iMonopolyVal = m_pPlayer->GetMonopolyPercent(eResource);
 						if (iMonopolyVal > /*25*/ GD_INT_GET(STRATEGIC_RESOURCE_MONOPOLY_THRESHOLD) && iMonopolyVal <= /*50*/ GD_INT_GET(GLOBAL_RESOURCE_MONOPOLY_THRESHOLD))
@@ -1399,15 +1375,13 @@ bool CvPlayerTechs::CanEverResearch(TechTypes eTech) const
 	{
 		return false;
 	}
-#if defined(MOD_ERA_RESTRICTION)
-	if(MOD_ERA_RESTRICTION)
+	if(MOD_BALANCE_ERA_RESTRICTION)
 	{
 		if(GET_TEAM(m_pPlayer->getTeam()).GetCurrentEra() < pkTechInfo->GetEra())
 		{
 			return false;
 		}
 	}
-#endif
 	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
 	if(pkScriptSystem)
 	{
@@ -1598,7 +1572,7 @@ bool CvPlayerTechs::IsNoResearchAvailable() const
 ///Check for Achievement
 void CvPlayerTechs::CheckForTechAchievement() const
 {
-	if (!MOD_API_ACHIEVEMENTS || !m_pPlayer->isHuman(ISHUMAN_ACHIEVEMENTS) || GC.getGame().isGameMultiPlayer())
+	if (!MOD_ENABLE_ACHIEVEMENTS || !m_pPlayer->isHuman(ISHUMAN_ACHIEVEMENTS) || GC.getGame().isGameMultiPlayer())
 		return;
 
 	//Check for Catherine Achievement
@@ -1776,21 +1750,8 @@ int CvPlayerTechs::GetResearchCost(TechTypes eTech) const
 
 	// Mod for City Count
 	int iCityCountMod = GC.getMap().getWorldInfo().GetNumCitiesTechCostMod();	// Default is 40, gets smaller on larger maps
-
-#if defined(MOD_BALANCE_CORE_PURCHASE_COST_INCREASE)
 	iCityCountMod += m_pPlayer->GetTechCostXCitiesModifier();
-
-	if (MOD_BALANCE_CORE_PURCHASE_COST_INCREASE)
-	{
-		iCityCountMod *= m_pPlayer->GetNumEffectiveCities(/*bIncludePuppets*/ false);
-	}
-	else
-	{
-		iCityCountMod *= m_pPlayer->GetNumEffectiveCities(/*bIncludePuppets*/ true);
-	}
-#else
-	iCityCountMod *= m_pPlayer->GetNumEffectiveCities(/*bIncludePuppets*/ true);
-#endif
+	iCityCountMod *= m_pPlayer->GetNumEffectiveCities(/*bIncludePuppets*/ !MOD_BALANCE_PUPPET_CHANGES);
 
 	//apply the modifiers
 	iResearchCost = iResearchCost * (100 + iCityCountMod) / 100;
@@ -2165,9 +2126,7 @@ CvTeamTechs::CvTeamTechs():
 	m_pabHasTech(NULL),
 	m_pabNoTradeTech(NULL),
 	m_paiResearchProgressTimes100(NULL),
-#if defined(MOD_CIV6_EUREKA)
 	m_paiEurekaCounter(NULL),
-#endif
 	m_paiTechCount(NULL)
 {
 }
@@ -2191,10 +2150,8 @@ void CvTeamTechs::Init(CvTechXMLEntries* pTechs, CvTeam* pTeam)
 	m_pabNoTradeTech = FNEW(bool[m_pTechs->GetNumTechs()], c_eCiv5GameplayDLL, 0);
 	ASSERT(m_paiResearchProgressTimes100 ==NULL, "about to leak memory, CvTeamTechs::m_paiResearchProgress");
 	m_paiResearchProgressTimes100 = FNEW(int [m_pTechs->GetNumTechs()], c_eCiv5GameplayDLL, 0);
-#if defined(MOD_CIV6_EUREKA)
 	ASSERT(m_paiEurekaCounter == NULL, "about to leak memory, CvTeamTechs::m_paiEurekaCounter");
 	m_paiEurekaCounter = FNEW(int[m_pTechs->GetNumTechs()], c_eCiv5GameplayDLL, 0);
-#endif
 	ASSERT(m_paiTechCount==NULL, "about to leak memory, CvTeamTechs::m_paiTechCount");
 	m_paiTechCount = FNEW(int [m_pTechs->GetNumTechs()], c_eCiv5GameplayDLL, 0);
 
@@ -2207,9 +2164,7 @@ void CvTeamTechs::Uninit()
 	SAFE_DELETE_ARRAY(m_pabHasTech);
 	SAFE_DELETE_ARRAY(m_pabNoTradeTech);
 	SAFE_DELETE_ARRAY(m_paiResearchProgressTimes100);
-#if defined(MOD_CIV6_EUREKA)
 	SAFE_DELETE_ARRAY(m_paiEurekaCounter);
-#endif
 	SAFE_DELETE_ARRAY(m_paiTechCount);
 }
 
@@ -2226,9 +2181,7 @@ void CvTeamTechs::Reset()
 		m_pabHasTech[iI] = false;
 		m_pabNoTradeTech[iI] = false;
 		m_paiResearchProgressTimes100[iI] = 0;
-#if defined(MOD_CIV6_EUREKA)
 		m_paiEurekaCounter[iI] = 0;
-#endif
 		m_paiTechCount[iI] = 0;
 	}
 }
@@ -2261,9 +2214,7 @@ void CvTeamTechs::Read(FDataStream& kStream)
 		CvInfosSerializationHelper::ReadAndRemapDataArray(kStream, iNumSavedTechs, m_pabHasTech, iNumActiveTechs, paTechIDs);
 		CvInfosSerializationHelper::ReadAndRemapDataArray(kStream, iNumSavedTechs, m_pabNoTradeTech, iNumActiveTechs, paTechIDs);
 		CvInfosSerializationHelper::ReadAndRemapDataArray(kStream, iNumSavedTechs, m_paiResearchProgressTimes100, iNumActiveTechs, paTechIDs);
-#if defined(MOD_CIV6_EUREKA)
 		CvInfosSerializationHelper::ReadAndRemapDataArray(kStream, iNumSavedTechs, m_paiEurekaCounter, iNumActiveTechs, paTechIDs);
-#endif
 		CvInfosSerializationHelper::ReadAndRemapDataArray(kStream, iNumSavedTechs, m_paiTechCount, iNumActiveTechs, paTechIDs);
 
 		free(paTechIDs);
@@ -2294,9 +2245,7 @@ void CvTeamTechs::Write(FDataStream& kStream) const
 		kStream << ArrayWrapper<bool>(iNumTechs, m_pabHasTech);
 		kStream << ArrayWrapper<bool>(iNumTechs, m_pabNoTradeTech);
 		kStream << ArrayWrapper<int>(iNumTechs, m_paiResearchProgressTimes100);
-#if defined(MOD_CIV6_EUREKA)
 		kStream << ArrayWrapper<int>(iNumTechs, m_paiEurekaCounter);
-#endif
 		kStream << ArrayWrapper<int>(iNumTechs, m_paiTechCount);
 	}
 	else
@@ -2461,14 +2410,7 @@ void CvTeamTechs::SetResearchProgressTimes100(TechTypes eIndex, int iNewValue, P
 		int iNumCitiesMod = GC.getMap().getWorldInfo().GetNumCitiesTechCostMod();	// Default is 40, gets smaller on larger maps
 		iNumCitiesMod += GET_PLAYER(ePlayer).GetTechCostXCitiesModifier();
 
-		if (MOD_BALANCE_CORE_PURCHASE_COST_INCREASE)
-		{
-			iNumCitiesMod = iNumCitiesMod * GET_PLAYER(ePlayer).GetNumEffectiveCities(/*bIncludePuppets*/ false);
-		}
-		else
-		{
-			iNumCitiesMod = iNumCitiesMod * GET_PLAYER(ePlayer).GetNumEffectiveCities(/*bIncludePuppets*/ true);
-		}
+		iNumCitiesMod = iNumCitiesMod * GET_PLAYER(ePlayer).GetNumEffectiveCities(/*bIncludePuppets*/ !MOD_BALANCE_PUPPET_CHANGES);
 
 		iResearchCost = iResearchCost * (100 + iNumCitiesMod) / 100;
 
@@ -2569,10 +2511,8 @@ int CvTeamTechs::GetResearchCost(TechTypes eTech) const
 	iModifier /= 100;
 	iModifier *= (100 + std::max(0, /*50 in CP, 100 in VP*/ GD_INT_GET(TECH_COST_EXTRA_TEAM_MEMBER_MODIFIER) * (m_pTeam->getNumMembers() - 1)));
 	iModifier /= 100;
-
-#if defined(MOD_CIV6_EUREKA)
-	iModifier += (std::max(0, (1000000 - (pkTechInfo->GetEurekaPerMillion() * m_paiEurekaCounter[eTech]) / max(1, m_pTeam->getNumMembers())) / 10000) - 100);
-#endif
+	if (MOD_CIV6_EUREKAS)
+		iModifier += (std::max(0, (1000000 - (pkTechInfo->GetEurekaPerMillion() * m_paiEurekaCounter[eTech]) / max(1, m_pTeam->getNumMembers())) / 10000) - 100);
 
 	if (iCost<10000)
 		//avoid rounding errors
@@ -2582,7 +2522,6 @@ int CvTeamTechs::GetResearchCost(TechTypes eTech) const
 	return std::max(1, (iCost/100)*iModifier);
 }
 
-#if defined(MOD_CIV6_EUREKA)
 int CvTeamTechs::GetEurekaDiscount(TechTypes eTech) const
 {
 	PRECONDITION(eTech != NO_TECH, "Tech is not assigned a valid value");
@@ -2593,7 +2532,6 @@ int CvTeamTechs::GetEurekaDiscount(TechTypes eTech) const
 	}
 	return std::max(0, (1000000 - pkTechInfo->GetEurekaPerMillion() * m_paiEurekaCounter[eTech]) / 10000);
 }
-#endif
 
 /// Accessor: how many beakers of research to go for this tech?
 int CvTeamTechs::GetResearchLeftTimes100(TechTypes eTech) const
@@ -2796,27 +2734,17 @@ int CvTeamTechs::GetMaxResearchOverflow(TechTypes eTech, PlayerTypes ePlayer) co
 	return iReturnValue;
 }
 
-
-#if defined(MOD_CIV6_EUREKA)
 int CvTeamTechs::GetEurekaCounter(TechTypes eTech) const
 {
-	if (eTech != NO_TECH)
-	{
-		return m_paiEurekaCounter[eTech];
-	}
-	else
-	{
-		return 0;
-	}
+	return eTech != NO_TECH ? m_paiEurekaCounter[eTech] : 0;
 }
-void CvTeamTechs::SetEurekaCounter(TechTypes eTech, int newEurakaCount)
+void CvTeamTechs::SetEurekaCounter(TechTypes eTech, int newEurekaCount)
 {
-	if (eTech != NO_TECH)
-	{
-		m_paiEurekaCounter[eTech] = newEurakaCount;
-	}
+	if (eTech == NO_TECH)
+		return;
+
+	m_paiEurekaCounter[eTech] = newEurekaCount;
 }
-#endif
 
 /// Can you permit vassalage to be traded?
 bool CvTechEntry::IsVassalageTradingAllowed() const

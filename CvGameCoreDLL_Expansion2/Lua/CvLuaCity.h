@@ -116,21 +116,17 @@ protected:
 	static int lGetProductionNeeded(lua_State* L);
 	static int lGetUnitProductionNeeded(lua_State* L);
 	static int lGetBuildingProductionNeeded(lua_State* L);
-#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	LUAAPIEXTN(GetBuildingInvestment, int);
 	LUAAPIEXTN(GetUnitInvestment, int);
 	LUAAPIEXTN(IsWorldWonder, int);
 	LUAAPIEXTN(GetWorldWonderCost, int);
 	LUAAPIEXTN(GetNumPoliciesNeeded, int);
-#endif
 	static int lGetProjectProductionNeeded(lua_State* L);
 	static int lGetProductionTurnsLeft(lua_State* L);
 	static int lGetUnitProductionTurnsLeft(lua_State* L);
 	static int lGetBuildingProductionTurnsLeft(lua_State* L);
 	static int lGetProjectProductionTurnsLeft(lua_State* L);
-#if defined(MOD_PROCESS_STOCKPILE)
 	LUAAPIEXTN(GetProcessProductionTurnsLeft, int);
-#endif
 
 	static int lCreateApolloProgram(lua_State* L);
 
@@ -218,11 +214,9 @@ protected:
 	static int lSetPopulation(lua_State* L);
 	static int lChangePopulation(lua_State* L);
 	static int lGetRealPopulation(lua_State* L);
-	
-#if defined(MOD_GLOBAL_CITY_AUTOMATON_WORKERS)
+
 	LUAAPIEXTN(GetAutomatons, int);
 	LUAAPIEXTN(SetAutomatons, void, iAutomatons, bReassignPop);
-#endif
 
 	static int lGetHighestPopulation(lua_State* L);
 	static int lSetHighestPopulation(lua_State* L);
@@ -271,9 +265,7 @@ protected:
 
 	static int lGetCultureRateModifier(lua_State* L);
 	static int lChangeCultureRateModifier(lua_State* L);
-#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	LUAAPIEXTN(GetCityYieldModFromMonopoly, int);
-#endif
 
 	LUAAPIEXTN(GetTourismRateModifier, int);
 	LUAAPIEXTN(ChangeTourismRateModifier, void, iChange);
@@ -334,14 +326,10 @@ protected:
 
 	LUAAPIEXTN(GetBuyPlotDistance, int);
 	LUAAPIEXTN(GetWorkPlotDistance, int);
-#if defined(MOD_BUILDINGS_CITY_WORKING)
 	LUAAPIEXTN(GetCityWorkingChange, int);
 	LUAAPIEXTN(ChangeCityWorkingChange, void, iChange);
-#endif
-#if defined(MOD_BUILDINGS_CITY_AUTOMATON_WORKERS)
 	LUAAPIEXTN(GetCityAutomatonWorkersChange, int);
 	LUAAPIEXTN(ChangeCityAutomatonWorkersChange, void, iChange);
-#endif
 
 	LUAAPIEXTN(GetRemainingFreeSpecialists, int);
 	LUAAPIEXTN(GetBasicNeedsMedian, int);
@@ -443,9 +431,7 @@ protected:
 	static int lGetBaseYieldRate(lua_State* L);
 	static int lGetBaseYieldRateTimes100(lua_State* L);
 
-#if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
 	LUAAPIEXTN(GetBaseYieldRateFromGreatWorks, int, iYield);
-#endif
 
 	static int lGetBaseYieldRateFromTerrain(lua_State* L);
 	static int lChangeBaseYieldRateFromTerrain(lua_State* L);
@@ -538,10 +524,9 @@ protected:
 	static int lChangeDamage(lua_State* L);
 	static int lGetMaxHitPoints(lua_State* L);
 
-#if defined(MOD_EVENTS_CITY_BOMBARD)
 	LUAAPIEXTN(GetBombardRange, int); // returns iRange, bIndirectFire
 	LUAAPIEXTN(GetCityBuildingRangeStrikeModifier, int);
-#endif
+
 	static int lCanRangeStrike(lua_State* L);
 	static int lCanRangeStrikeNow(lua_State* L);
 	static int lCanRangeStrikeAt(lua_State* L);
@@ -606,10 +591,8 @@ protected:
 	LUAAPIEXTN(HasCounterSpy, bool);
 	LUAAPIEXTN(GetCounterSpy, int);
 
-#if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
 	LUAAPIEXTN(GetBuildingConversionModifier, int, iBuildingType);
 	LUAAPIEXTN(GetBuildingGlobalConversionModifier, int, iBuildingType);
-#endif
 
 	static int lAI_avoidGrowth(lua_State* L);
 
@@ -710,7 +693,6 @@ protected:
 
 	LUAAPIEXTN(GetHurryProduction, int, UnitTypes);
 
-#if defined(MOD_BALANCE_CORE_EVENTS)
 	static int lGetDisabledTooltip(lua_State* L);
 	static int lGetScaledEventChoiceValue(lua_State* L);
 	static int lIsCityEventChoiceActive(lua_State* L);
@@ -723,9 +705,7 @@ protected:
 	static int lSetCityEventChoiceCooldown(lua_State* L);
 	static int lIsCityEventChoiceValid(lua_State* L);
 	static int lIsCityEventChoiceValidEspionage(lua_State* L);
-#endif
 
-#if defined(MOD_BALANCE_CORE_JFD)
 	static int lIsColony(lua_State* L);
 	static int lSetColony(lua_State* L);
 
@@ -790,7 +770,6 @@ protected:
 	static int lSetYieldFromDevelopment(lua_State* L);
 
 	LUAAPIEXTN(GetCompetitiveSpawnUnitType, int, bIncludeRanged, bIncludeShips, bIncludeRecon, bIncludeUUs, bNoResource, bMinorCivGift, bRandom, tUnitCombatIDs);
-#endif
 };
 
 namespace CvLuaArgs

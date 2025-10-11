@@ -138,16 +138,12 @@ protected:
 	LUAAPIEXTN(SetForcePeace, int);
 	LUAAPIEXTN(GetNumTurnsAtWar, int);
 	LUAAPIEXTN(GetNumNaturalWondersDiscovered, int);
-#if defined(MOD_TECHS_CITY_WORKING)
 	LUAAPIEXTN(GetCityWorkingChange, int);
 	LUAAPIEXTN(IsCityWorkingChange, bool);
 	LUAAPIEXTN(ChangeCityWorkingChange, void, iChange);
-#endif
-#if defined(MOD_TECHS_CITY_AUTOMATON_WORKERS)
 	LUAAPIEXTN(GetCityAutomatonWorkersChange, int);
 	LUAAPIEXTN(IsCityAutomatonWorkersChange, bool);
 	LUAAPIEXTN(ChangeCityAutomatonWorkersChange, void, iChange);
-#endif
 	static int lGetBridgeBuildingCount(lua_State* L);
 	static int lIsBridgeBuilding(lua_State* L);
 	static int lChangeBridgeBuildingCount(lua_State* L);

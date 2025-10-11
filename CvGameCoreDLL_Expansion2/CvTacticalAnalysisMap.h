@@ -247,7 +247,6 @@ public:
 	}
 	int getHospitalityScore() const;
 
-#if defined(MOD_BALANCE_CORE_MILITARY)
 	void Extend(CvPlot* pPlot);
 	int GetCenterX() const { return (m_iAvgX+500)/1000; }
 	int GetCenterY() const { return (m_iAvgY+500)/1000; }
@@ -260,7 +259,6 @@ public:
 	eTacticalDominanceFlags SetOverallDominance(int iDominancePercentage);
 	eTacticalPosture SelectPostureSingleZone(int iDominancePercent);
 	eTacticalPosture SelectPostureMultiZone(vector<CvTacticalDominanceZone*> vNeighbors);
-#endif
 
 private:
 	int m_iZoneID;

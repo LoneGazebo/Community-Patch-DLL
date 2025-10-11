@@ -1104,29 +1104,26 @@ void CvDllNetMessageHandler::ResponseSellBuilding(PlayerTypes ePlayer, int iCity
 		return;
 
 	CvCity* pCity = GET_PLAYER(ePlayer).getCity(iCityID);
-	if(pCity)
+	if (pCity)
 	{
 		pCity->GetCityBuildings()->DoSellBuilding(eBuilding);
 
-#if defined(MOD_EVENTS_CITY)
-		if (MOD_EVENTS_CITY) {
+		if (MOD_EVENTS_CITY)
 			GAMEEVENTINVOKE_HOOK(GAMEEVENT_CitySoldBuilding, ePlayer, iCityID, eBuilding);
-		} else {
-#endif
-		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-		if (pkScriptSystem) 
+		else
 		{
-			CvLuaArgsHandle args;
-			args->Push(ePlayer);
-			args->Push(iCityID);
-			args->Push(eBuilding);
+			ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+			if (pkScriptSystem) 
+			{
+				CvLuaArgsHandle args;
+				args->Push(ePlayer);
+				args->Push(iCityID);
+				args->Push(eBuilding);
 
-			bool bResult = false;
-			LuaSupport::CallHook(pkScriptSystem, "CitySoldBuilding", args.get(), bResult);
+				bool bResult = false;
+				LuaSupport::CallHook(pkScriptSystem, "CitySoldBuilding", args.get(), bResult);
+			}
 		}
-#if defined(MOD_EVENTS_CITY)
-		}
-#endif
 	}
 }
 //------------------------------------------------------------------------------

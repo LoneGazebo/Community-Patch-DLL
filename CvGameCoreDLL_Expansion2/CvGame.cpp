@@ -433,26 +433,18 @@ bool CvGame::init2()
 	initSpyThreshold();
 	setFinalInitialized(true);
 
-#if defined(MOD_EVENTS_TERRAFORMING)
-	if (MOD_EVENTS_TERRAFORMING) {
+	if (MOD_EVENTS_TERRAFORMING)
 		GAMEEVENTINVOKE_HOOK(GAMEEVENT_TerraformingMap, TERRAFORMINGEVENT_LOAD, 0);
-	}
-#endif
-#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-	if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+
+	if (MOD_BALANCE_RESOURCE_MONOPOLIES)
 	{
 		int iNumResourceInfos= GC.getNumResourceInfos();
-		for(int iResourceLoop = 0; iResourceLoop < iNumResourceInfos; iResourceLoop++)
+		for (int iResourceLoop = 0; iResourceLoop < iNumResourceInfos; iResourceLoop++)
 		{
 			const ResourceTypes eResource = static_cast<ResourceTypes>(iResourceLoop);
-			CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
-			if(pkResourceInfo)
-			{
-				GC.getMap().setNumResources(eResource);
-			}
+			GC.getMap().setNumResources(eResource);
 		}
 	}
-#endif
 
 	return true;
 }
@@ -1034,7 +1026,7 @@ void CvGame::uninit()
 		}
 		m_ppaaiTeamVictoryRank.uninit();
 	}
-#if defined(MOD_BALANCE_CORE_JFD)
+
 	if(m_ppaiContractUnits.valid())
 	{
 		for(CvEnumMap<ContractTypes, CvEnumMap<UnitTypes, int>>::Iterator it = m_ppaiContractUnits.begin(); it != m_ppaiContractUnits.end(); ++it)
@@ -1043,7 +1035,6 @@ void CvGame::uninit()
 		}
 		m_ppaiContractUnits.uninit();
 	}
-#endif
 
 	m_aszDestroyedCities.clear();
 	m_aszGreatPeopleBorn.clear();
@@ -1242,13 +1233,12 @@ void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
 				(*it)[i] = NO_TEAM;
 			}
 		}
-#if defined(MOD_BALANCE_CORE_JFD)
+
 		m_ppaiContractUnits.init();
 		for(CvEnumMap<ContractTypes, CvEnumMap<UnitTypes, int>>::Iterator it = m_ppaiContractUnits.begin(); it != m_ppaiContractUnits.end(); ++it)
 		{
 			it->init(0);
 		}
-#endif
 
 		ASSERT(m_pSettlerSiteEvaluator==NULL, "about to leak memory, CvGame::m_pSettlerSiteEvaluator");
 		m_pSettlerSiteEvaluator = FNEW(CvSiteEvaluatorForSettler, c_eCiv5GameplayDLL, 0);
@@ -2033,13 +2023,13 @@ bool CvGame::hasTurnTimerExpired(PlayerTypes playerID)
 				}
 			}
 		}
-		else if(isLocalPlayer){
+		else if (isLocalPlayer)
+		{
 			//hold the turn timer at 0 seconds with 0% completion
 			CvPreGame::setEndTurnTimerLength(0.0f);
 
-#if defined(MOD_EVENTS_RED_TURN)
-			if (MOD_EVENTS_RED_TURN)
 			// RED <<<<<
+			if (MOD_EVENTS_RED_TURN)
 			{
 				ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
 				if(pkScriptSystem)
@@ -2053,7 +2043,6 @@ bool CvGame::hasTurnTimerExpired(PlayerTypes playerID)
 				}
 			}
 			// RED >>>>>
-#endif
 
 			iface->updateEndTurnTimer(0.0f);
 		}
@@ -2105,7 +2094,7 @@ void CvGame::updateTestEndTurn()
 				{
 					if(pkIface->canEndTurn() && gDLL->allAICivsProcessedThisTurn() && allUnitAIProcessed() && !gDLL->HasSentTurnComplete())
 					{
-						if (MOD_API_ACHIEVEMENTS)
+						if (MOD_ENABLE_ACHIEVEMENTS)
 							activePlayer.GetPlayerAchievements().EndTurn();
 
 						if (MOD_EVENTS_RED_TURN)
@@ -2126,7 +2115,7 @@ void CvGame::updateTestEndTurn()
 
 						gDLL->sendTurnComplete();
 
-						if (MOD_API_ACHIEVEMENTS)
+						if (MOD_ENABLE_ACHIEVEMENTS)
 							CvAchievementUnlocker::EndTurn();
 
 						m_endTurnTimer.Start();
@@ -2208,7 +2197,7 @@ void CvGame::updateTestEndTurn()
 							{
 								if(!gDLL->HasSentTurnComplete() && gDLL->allAICivsProcessedThisTurn() && allUnitAIProcessed() && pkIface && pkIface->IsMPAutoEndTurnEnabled())
 								{
-									if (MOD_API_ACHIEVEMENTS)
+									if (MOD_ENABLE_ACHIEVEMENTS)
 										activePlayer.GetPlayerAchievements().EndTurn();
 
 									if (MOD_EVENTS_RED_TURN)
@@ -2229,7 +2218,7 @@ void CvGame::updateTestEndTurn()
 
 									gDLL->sendTurnComplete();
 
-									if (MOD_API_ACHIEVEMENTS)
+									if (MOD_ENABLE_ACHIEVEMENTS)
 										CvAchievementUnlocker::EndTurn();
 								}
 
@@ -2706,7 +2695,6 @@ void CvGame::selectionListGameNetMessage(int eMessage, int iData2, int iData3, i
 					}
 					else
 					{
-#if defined(MOD_EVENTS_RED_COMBAT_MISSION)
 						if (MOD_EVENTS_RED_COMBAT_MISSION)
 						// RED <<<<<
 						{
@@ -2726,7 +2714,6 @@ void CvGame::selectionListGameNetMessage(int eMessage, int iData2, int iData3, i
 							}
 						}
 						// RED >>>>>
-#endif
 
 						gDLL->sendPushMission(pkSelectedUnit->GetID(), ((MissionTypes)iData2), iData3, iData4, iFlags, bShift);
 					}
@@ -3643,12 +3630,12 @@ void CvGame::doControl(ControlTypes eControl)
 			}
 			// RED >>>>>
 
-			if (MOD_API_ACHIEVEMENTS)
+			if (MOD_ENABLE_ACHIEVEMENTS)
 				kActivePlayer.GetPlayerAchievements().EndTurn();
 
 			gDLL->sendTurnComplete();
 
-			if (MOD_API_ACHIEVEMENTS)
+			if (MOD_ENABLE_ACHIEVEMENTS)
 				CvAchievementUnlocker::EndTurn();
 
 			GC.GetEngineUserInterface()->setInterfaceMode(INTERFACEMODE_SELECTION);
@@ -3660,7 +3647,7 @@ void CvGame::doControl(ControlTypes eControl)
 		EndTurnBlockingTypes eBlock = GET_PLAYER(getActivePlayer()).GetEndTurnBlockingType();
 		if(gDLL->allAICivsProcessedThisTurn() && allUnitAIProcessed() && (eBlock == NO_ENDTURN_BLOCKING_TYPE || eBlock == ENDTURN_BLOCKING_UNITS))
 		{
-			if (MOD_API_ACHIEVEMENTS)
+			if (MOD_ENABLE_ACHIEVEMENTS)
 			{
 				CvPlayerAI& kActivePlayer = GET_PLAYER(getActivePlayer());
 				kActivePlayer.GetPlayerAchievements().EndTurn();
@@ -3684,7 +3671,7 @@ void CvGame::doControl(ControlTypes eControl)
 
 			gDLL->sendTurnComplete();
 
-			if (MOD_API_ACHIEVEMENTS)
+			if (MOD_ENABLE_ACHIEVEMENTS)
 				CvAchievementUnlocker::EndTurn();
 
 			SetForceEndingTurn(true);
@@ -5485,26 +5472,23 @@ bool CvGame::circumnavigationAvailable() const
 /// Message from UI to gameplay about something that should happen with regards to diplomacy
 void CvGame::DoFromUIDiploEvent(FromUIDiploEventTypes eEvent, PlayerTypes eAIPlayer, int iArg1, int iArg2)
 {
-#if defined(MOD_EVENTS_DIPLO_EVENTS)
-	if (MOD_EVENTS_DIPLO_EVENTS) {
+	if (MOD_EVENTS_DIPLO_EVENTS)
 		GAMEEVENTINVOKE_HOOK(GAMEEVENT_UiDiploEvent, eEvent, eAIPlayer, iArg1, iArg2);
-	} else {
-#endif
-	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-	if(pkScriptSystem)
+	else
 	{
-		CvLuaArgsHandle args;
-		args->Push(eEvent);
-		args->Push(eAIPlayer);
-		args->Push(iArg1);
-		args->Push(iArg2);
+		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+		if(pkScriptSystem)
+		{
+			CvLuaArgsHandle args;
+			args->Push(eEvent);
+			args->Push(eAIPlayer);
+			args->Push(iArg1);
+			args->Push(iArg2);
 
-		bool bResult = false;
-		LuaSupport::CallHook(pkScriptSystem, "UiDiploEvent", args.get(), bResult);
+			bool bResult = false;
+			LuaSupport::CallHook(pkScriptSystem, "UiDiploEvent", args.get(), bResult);
+		}
 	}
-#if defined(MOD_EVENTS_DIPLO_EVENTS)
-	}
-#endif
 
 	gDLL->sendFromUIDiploEvent(eAIPlayer, eEvent, iArg1, iArg2);
 }
@@ -5542,68 +5526,34 @@ void CvGame::DoUpdateDiploVictory()
 
 	float fCivsToCount = 0.0f;
 	float fCityStatesToCount = 0.0f;
-	for (uint i = 0; i < MAX_CIV_PLAYERS; i++)
+	for (int i = 0; i < MAX_CIV_PLAYERS; i++)
 	{
 		PlayerTypes e = (PlayerTypes)i;
 		CvPlayer* pPlayer = &GET_PLAYER(e);
-		if (pPlayer != NULL && pPlayer->isEverAlive())
+		if (!pPlayer->isEverAlive())
+			continue;
+
+		if (pPlayer->isMajorCiv())
 		{
-			// Minor civ
-			if (pPlayer->isMinorCiv())
-			{
-				// Bought out does not count (they are no longer in the pool of teams, cannot be liberated, etc.)
-				if (!pPlayer->GetMinorCivAI()->IsBoughtOut())
-				{
-					if (pPlayer->isAlive())
-					{
-						if(MOD_BALANCE_CORE_VICTORY_GAME_CHANGES)
-						{
-							fCityStatesToCount += 1.34f;
-						}
-						else
-						{
-							fCityStatesToCount += 1.0f;
-						}
-					}
-					else
-					{
-						if(MOD_BALANCE_CORE_VICTORY_GAME_CHANGES)
-						{
-							fCityStatesToCount += 0.75f;
-						}
-						else
-						{
-							fCityStatesToCount += 0.5f;
-						}
-					}
-				}
-			}
-			// Major civ
+			if (pPlayer->isAlive())
+				fCivsToCount += /*1.0f in CP, 1.5f in VP*/ GD_FLOAT_GET(DIPLO_VICTORY_CIV_DELEGATES_ALIVE);
 			else
-			{
-				if (pPlayer->isAlive())
-				{
-					if(MOD_BALANCE_CORE_VICTORY_GAME_CHANGES)
-					{
-						fCivsToCount += 1.5f;
-					}
-					else
-					{
-						fCivsToCount += 1.0f;
-					}
-				}
-				else
-				{
-					if(MOD_BALANCE_CORE_VICTORY_GAME_CHANGES)
-					{
-						fCivsToCount += 0.75f;
-					}
-					else
-					{
-						fCivsToCount += 0.5f;
-					}
-				}
-			}
+				fCivsToCount += /*0.5f in CP, 0.75f in VP*/ GD_FLOAT_GET(DIPLO_VICTORY_CIV_DELEGATES_ELIMINATED);
+		}
+		else if (pPlayer->isMinorCiv())
+		{
+			// Must have founded an original capital
+			// For City-States, this is reset by the BNW Austria UA or the Merchant of Venice, unless GLOBAL_CS_LIBERATE_AFTER_BUYOUT=1
+			int iX = pPlayer->GetOriginalCapitalX();
+			int iY = pPlayer->GetOriginalCapitalY();
+			CvPlot* pCapitalPlot = GC.getMap().plot(iX, iY);
+			if (!pCapitalPlot || !pCapitalPlot->isCity())
+				continue;
+
+			if (pPlayer->isAlive())
+				fCityStatesToCount += /*1.0f in CP, 1.34f in VP*/ GD_FLOAT_GET(DIPLO_VICTORY_CS_DELEGATES_ALIVE);
+			else
+				fCityStatesToCount += /*0.5f in CP, 0.75f in VP*/ GD_FLOAT_GET(DIPLO_VICTORY_CS_DELEGATES_ELIMINATED);
 		}
 	}
 
@@ -5870,7 +5820,7 @@ Localization::String CvGame::GetDiploResponse(const char* szLeader, const char* 
 	int totbias = 0;
 
 	// Get only leader-specific responses first
-	if (MOD_NO_RANDOM_TEXT_CIVS)
+	if (MOD_UI_NO_RANDOM_CIV_DIALOGUE)
 	{
 		Database::Results* tempDatabase = NULL;
 		const char* callTemp = "select Tag, Bias from Diplomacy_Responses, Language_en_US where LeaderType = ? and ResponseType = ? and Tag like Response";
@@ -6904,7 +6854,7 @@ void CvGame::setWinner(TeamTypes eNewWinner, VictoryTypes eNewVictory)
 
 				//--Start Achievements
 				//--Don't allow most in multiplayer so friends can't achieve-whore it up together
-				if (MOD_API_ACHIEVEMENTS && !GC.getGame().isGameMultiPlayer() && kWinningTeamLeader.isHuman(ISHUMAN_ACHIEVEMENTS) && kWinningTeamLeader.isLocalPlayer())
+				if (MOD_ENABLE_ACHIEVEMENTS && !GC.getGame().isGameMultiPlayer() && kWinningTeamLeader.isHuman(ISHUMAN_ACHIEVEMENTS) && kWinningTeamLeader.isLocalPlayer())
 				{
 					const bool bUsingDLC1Scenario = gDLL->IsModActivated(CIV5_DLC_01_SCENARIO_MODID);
 					const bool bUsingDLC2Scenario = gDLL->IsModActivated(CIV5_DLC_02_SCENARIO_MODID) || gDLL->IsModActivated(CIV5_COMPLETE_SCENARIO1_MODID);
@@ -7636,7 +7586,7 @@ void CvGame::setWinner(TeamTypes eNewWinner, VictoryTypes eNewVictory)
 					}
 				}
 				//Win any multiplayer game
-				if (MOD_API_ACHIEVEMENTS && GC.getGame().isGameMultiPlayer() && kWinningTeamLeader.isHuman(ISHUMAN_ACHIEVEMENTS) && (GET_PLAYER(GC.getGame().getActivePlayer()).GetID() == kWinningTeamLeader.GetID()))
+				if (MOD_ENABLE_ACHIEVEMENTS && GC.getGame().isGameMultiPlayer() && kWinningTeamLeader.isHuman(ISHUMAN_ACHIEVEMENTS) && (GET_PLAYER(GC.getGame().getActivePlayer()).GetID() == kWinningTeamLeader.GetID()))
 				{
 					gDLL->UnlockAchievement(ACHIEVEMENT_WIN_MULTIPLAYER);
 				}
@@ -7951,7 +7901,7 @@ void CvGame::setGameState(GameStateTypes eNewValue)
 
 		if (eNewValue == GAMESTATE_OVER || eNewValue == GAMESTATE_EXTENDED)
 		{
-			if (MOD_API_ACHIEVEMENTS && !isGameMultiPlayer())
+			if (MOD_ENABLE_ACHIEVEMENTS && !isGameMultiPlayer())
 			{
 				if (GetGameLeagues()->GetNumActiveLeagues() > 0)
 				{
@@ -7969,7 +7919,7 @@ void CvGame::setGameState(GameStateTypes eNewValue)
 
 		if(eNewValue == GAMESTATE_OVER)
 		{
-			if (MOD_API_ACHIEVEMENTS && !isGameMultiPlayer())
+			if (MOD_ENABLE_ACHIEVEMENTS && !isGameMultiPlayer())
 			{
 				bool bLocalPlayerLost = true;
 
@@ -8875,7 +8825,7 @@ UnitTypes CvGame::GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bInclude
 				continue;
 
 			//Not valid?
-			if (MOD_GLOBAL_EXCLUDE_FROM_GIFTS && pkUnitInfo->IsNoMinorGifts())
+			if (pkUnitInfo->IsNoMinorCivUU())
 				continue;
 			if (pkUnitInfo->IsInvalidMinorCivGift())
 				continue;
@@ -8895,20 +8845,20 @@ UnitTypes CvGame::GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bInclude
 			}
 			
 			// We only want unique units that are not in the game already, or are explicitly Minor Civ Gifts
-			if( !MOD_BALANCE_CORE_MINOR_CIV_GIFT || !pkUnitInfo->IsMinorCivGift() )
+			if (!pkUnitInfo->IsMinorCivGift() )
 			{
-				if(eLoopUnit == pkUnitClassInfo->getDefaultUnitIndex())
+				if (eLoopUnit == pkUnitClassInfo->getDefaultUnitIndex())
 					continue;
-				
+
 				if (!bIncludeCivsInGame)
 				{
-					for(int iMajorLoop = 0; iMajorLoop < MAX_PLAYERS; iMajorLoop++)  // MAX_PLAYERS so that we look at Barbarian UUs (ie. Brute) as well
+					for (int iMajorLoop = 0; iMajorLoop < MAX_PLAYERS; iMajorLoop++)  // MAX_PLAYERS so that we look at Barbarian UUs (ie. Brute) as well
 					{
 						PlayerTypes eMajorLoop = (PlayerTypes) iMajorLoop;
-						if(GET_PLAYER(eMajorLoop).isAlive())
+						if (GET_PLAYER(eMajorLoop).isAlive())
 						{
 							UnitTypes eUniqueUnitInGame = (UnitTypes) GET_PLAYER(eMajorLoop).getCivilizationInfo().getCivilizationUnits(eLoopUnitClass);
-							if(eLoopUnit == eUniqueUnitInGame)
+							if (eLoopUnit == eUniqueUnitInGame)
 							{
 								bValid = false;
 								break;
@@ -8917,22 +8867,22 @@ UnitTypes CvGame::GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bInclude
 					}
 				}
 			}
-			if(!bValid)
+			if (!bValid)
 				continue;
 			
 			// Avoid Recon units
-			if(pkUnitInfo->GetDefaultUnitAIType() == UNITAI_EXPLORE)
+			if (pkUnitInfo->GetDefaultUnitAIType() == UNITAI_EXPLORE)
 				continue;
 
 			// No Ranged units?
-			if(!bIncludeRanged && pkUnitInfo->GetRangedCombat() > 0)
+			if (!bIncludeRanged && pkUnitInfo->GetRangedCombat() > 0)
 				continue;
 
 			// Must be land Unit?
-			if(!bCoastal && pkUnitInfo->GetDomainType() != DOMAIN_LAND)
-					continue;
+			if (!bCoastal && pkUnitInfo->GetDomainType() != DOMAIN_LAND)
+				continue;
 
-			if(pkUnitInfo->GetDomainType() == DOMAIN_AIR)
+			if (pkUnitInfo->GetDomainType() == DOMAIN_AIR)
 				continue;
 
 			// Technology level
@@ -8948,9 +8898,9 @@ UnitTypes CvGame::GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bInclude
 				}
 			}
 
-			if ( ePrereqEra == getStartEra() && !bIncludeStartEra )
+			if (ePrereqEra == getStartEra() && !bIncludeStartEra)
 				continue;
-			else if ( ePrereqEra < getStartEra() && !bIncludeOldEras ) // Assumption: NO_ERA < 0
+			else if (ePrereqEra < getStartEra() && !bIncludeOldEras) // Assumption: NO_ERA < 0
 				continue;
 
 			// Is this Unit already assigned to another minor civ?
@@ -9058,7 +9008,7 @@ void CvGame::updateMoves()
 			{//if the active player is an observer, send a turn complete so we don't hold up the game.
 				//We wait until allAICivsProcessedThisTurn to prevent a race condition where an observer could send turn complete,
 				//before all clients have cleared the netbarrier locally.
-				if (MOD_API_ACHIEVEMENTS)
+				if (MOD_ENABLE_ACHIEVEMENTS)
 				{
 					CvPlayer& kActivePlayer = GET_PLAYER(eActivePlayer);
 					kActivePlayer.GetPlayerAchievements().EndTurn();
@@ -9066,7 +9016,7 @@ void CvGame::updateMoves()
 
 				gDLL->sendTurnComplete();
 
-				if (MOD_API_ACHIEVEMENTS)
+				if (MOD_ENABLE_ACHIEVEMENTS)
 					CvAchievementUnlocker::EndTurn();
 			}
 
@@ -9571,17 +9521,14 @@ bool CvGame::testVictory(VictoryTypes eVictory, TeamTypes eTeam, bool* pbEndScor
 				CvPlayer &kPlayer = GET_PLAYER((PlayerTypes)iPlayerLoop);
 				if (kPlayer.isAlive())
 				{
-#if defined(MOD_BALANCE_CORE_VICTORY_GAME_CHANGES)
-					if(MOD_BALANCE_CORE_VICTORY_GAME_CHANGES)
+					if (MOD_BALANCE_CULTURE_VICTORY_CHANGES)
 					{
-						if(kPlayer.GetPlayerPolicies()->GetLateGamePolicyTree() == NO_POLICY_BRANCH_TYPE)
+						PolicyBranchTypes eIdeology = kPlayer.GetPlayerPolicies()->GetLateGamePolicyTree();
+						if (eIdeology == NO_POLICY_BRANCH_TYPE)
 							continue;
 
-						if(kPlayer.GetPlayerPolicies()->GetLateGamePolicyTree() != NO_POLICY_BRANCH_TYPE)
-						{
-							if(kPlayer.GetCulture()->GetPublicOpinionType() > PUBLIC_OPINION_CONTENT)
-								continue;
-						}
+						if (kPlayer.GetCulture()->GetPublicOpinionType() > PUBLIC_OPINION_CONTENT)
+							continue;
 
 						ProjectTypes eUtopia = (ProjectTypes)GC.getInfoTypeForString("PROJECT_UTOPIA_PROJECT", true);
 						if (eUtopia != NO_PROJECT)
@@ -9590,7 +9537,7 @@ bool CvGame::testVictory(VictoryTypes eVictory, TeamTypes eTeam, bool* pbEndScor
 								continue;
 						}
 					}
-#endif
+
 					if (kPlayer.getTeam() == eTeam)
 					{
 						if (kPlayer.GetCulture()->GetNumCivsInfluentialOn() >= m_pGameCulture->GetNumCivsInfluentialForWin())
@@ -10769,7 +10716,7 @@ int CvGame::GetCultureMedian() const
 
 void CvGame::initSpyThreshold()
 {
-	if (!MOD_BALANCE_CORE_SPIES)
+	if (!MOD_BALANCE_SPY_POINTS)
 		return;
 
 	int iSpyRatio = /*20*/ GD_INT_GET(BALANCE_SPY_TO_PLAYER_RATIO);
@@ -11094,8 +11041,7 @@ void CvGame::Read(FDataStream& kStream)
 		}
 	}
 
-#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-	if (MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	if (MOD_BALANCE_RESOURCE_MONOPOLIES)
 	{
 		for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 		{
@@ -11110,7 +11056,6 @@ void CvGame::Read(FDataStream& kStream)
 			}
 		}
 	}
-#endif
 
 	//when loading from file, we need to reset m_lastTurnAICivsProcessed 
 	//so that updateMoves() can turn active players after loading an autosave in simultaneous turns multiplayer.
@@ -14099,7 +14044,6 @@ bool CvGame::AnyoneHasUnitClass(UnitClassTypes iUnitClassType) const
 	return false;
 }
 
-#if defined(MOD_BALANCE_CORE_JFD)	
 void CvGame::SetContractUnits(ContractTypes eContract, UnitTypes eUnit, int iValue)
 {
 	VALIDATE_OBJECT();
@@ -14116,7 +14060,6 @@ int CvGame::GetContractUnits(ContractTypes eContract, UnitTypes eUnit) const
 
 	return m_ppaiContractUnits[eContract][eUnit];
 }
-#endif
 
 PlayerTypes CvGame::GetCorporationFounder(CorporationTypes eCorporation) const
 {
@@ -14132,7 +14075,6 @@ int CvGame::GetNumCorporationsFounded() const
 	return m_pGameCorporations->GetNumActiveCorporations();
 }
 
-#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 void CvGame::UpdateGreatestPlayerResourceMonopoly(ResourceTypes eTestResource)
 {
 	for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
@@ -14184,7 +14126,6 @@ int CvGame::GetGreatestPlayerResourceMonopolyValue(ResourceTypes eResource) cons
 
 	return GET_PLAYER(eGreatestPlayer).GetMonopolyPercent(eResource);
 }
-#endif
 
 PlayerTypes CvGame::GetPotentialFreeCityPlayer(CvCity* pCity)
 {

@@ -5,20 +5,16 @@ include("VPUI_core");
 -- Game object is not available in PreGame, so this will have to do
 local MOD_BALANCE_VP = GameInfo.CustomModOptions{Name = "BALANCE_VP"}().Value == 1;
 local MOD_BALANCE_CORE_JFD = GameInfo.CustomModOptions{Name = "BALANCE_CORE_JFD"}().Value == 1;
-local MOD_BALANCE_CORE_BUILDING_INVESTMENTS = GameInfo.CustomModOptions{Name = "BALANCE_CORE_BUILDING_INVESTMENTS"}().Value == 1;
-local MOD_BALANCE_CORE_UNIT_INVESTMENTS = GameInfo.CustomModOptions{Name = "BALANCE_CORE_UNIT_INVESTMENTS"}().Value == 1;
+local MOD_BALANCE_BUILDING_INVESTMENTS = GameInfo.CustomModOptions{Name = "BALANCE_BUILDING_INVESTMENTS"}().Value == 1;
+local MOD_BALANCE_UNIT_INVESTMENTS = GameInfo.CustomModOptions{Name = "BALANCE_UNIT_INVESTMENTS"}().Value == 1;
 local MOD_UNITS_RESOURCE_QUANTITY_TOTALS = GameInfo.CustomModOptions{Name = "UNITS_RESOURCE_QUANTITY_TOTALS"}().Value == 1;
-local MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES = GameInfo.CustomModOptions{Name = "BALANCE_CORE_NEW_GP_ATTRIBUTES"}().Value == 1;
-local MOD_BALANCE_CORE_INQUISITOR_TWEAKS = GameInfo.CustomModOptions{Name = "BALANCE_CORE_INQUISITOR_TWEAKS"}().Value == 1;
-local MOD_GLOBAL_CANNOT_EMBARK = GameInfo.CustomModOptions{Name = "GLOBAL_CANNOT_EMBARK"}().Value == 1;
-local MOD_GLOBAL_MOVE_AFTER_UPGRADE = GameInfo.CustomModOptions{Name = "GLOBAL_MOVE_AFTER_UPGRADE"}().Value == 1;
-local MOD_BALANCE_RETROACTIVE_PROMOS = GameInfo.CustomModOptions{Name = "BALANCE_RETROACTIVE_PROMOS"}().Value == 1;
-local MOD_BALANCE_CORE_BOMBARD_RANGE_BUILDINGS = GameInfo.CustomModOptions{Name = "BALANCE_CORE_BOMBARD_RANGE_BUILDINGS"}().Value == 1;
-local MOD_GLOBAL_GREATWORK_YIELDTYPES = GameInfo.CustomModOptions{Name = "GLOBAL_GREATWORK_YIELDTYPES"}().Value == 1;
-local MOD_RELIGION_CONVERSION_MODIFIERS = GameInfo.CustomModOptions{Name = "RELIGION_CONVERSION_MODIFIERS"}().Value == 1;
-local MOD_BALANCE_CORE_WONDER_COST_INCREASE = GameInfo.CustomModOptions{Name = "BALANCE_CORE_WONDER_COST_INCREASE"}().Value == 1;
-local MOD_BALANCE_CORE_SPIES = GameInfo.CustomModOptions{Name = "BALANCE_CORE_SPIES"}().Value == 1;
-local MOD_BALANCE_CORE_SETTLERS_CONSUME_POP = GameInfo.CustomModOptions{Name = "BALANCE_CORE_SETTLERS_CONSUME_POP"}().Value == 1;
+local MOD_BALANCE_NEW_GREAT_PERSON_ATTRIBUTES = GameInfo.CustomModOptions{Name = "BALANCE_NEW_GREAT_PERSON_ATTRIBUTES"}().Value == 1;
+local MOD_BALANCE_INQUISITOR_NERF = GameInfo.CustomModOptions{Name = "BALANCE_INQUISITOR_NERF"}().Value == 1;
+local MOD_BALANCE_RETROACTIVE_PROMOTIONS = GameInfo.CustomModOptions{Name = "BALANCE_RETROACTIVE_PROMOTIONS"}().Value == 1;
+local MOD_BALANCE_BOMBARD_RANGE_BUILDINGS = GameInfo.CustomModOptions{Name = "BALANCE_BOMBARD_RANGE_BUILDINGS"}().Value == 1;
+local MOD_BALANCE_WORLD_WONDER_COST_INCREASE = GameInfo.CustomModOptions{Name = "BALANCE_WORLD_WONDER_COST_INCREASE"}().Value == 1;
+local MOD_BALANCE_SPY_POINTS = GameInfo.CustomModOptions{Name = "BALANCE_SPY_POINTS"}().Value == 1;
+local MOD_BALANCE_SETTLERS_CONSUME_POPULATION = GameInfo.CustomModOptions{Name = "BALANCE_SETTLERS_CONSUME_POPULATION"}().Value == 1;
 
 -- So is GameDefines
 local CITY_RESOURCE_WLTKD_TURNS = GameInfo.Defines{Name = "CITY_RESOURCE_WLTKD_TURNS"}().Value;
@@ -785,7 +781,7 @@ function GetHelpTextForUnit(eUnit, bIncludeRequirementsInfo, pCity, bExcludeName
 
 	-- Stagnation
 	AddTooltipIfTrue(tStatLines, "TXT_KEY_PRODUCTION_UNIT_STAGNATION", kUnitInfo.Food);
-	AddTooltipIfTrue(tStatLines, "TXT_KEY_PRODUCTION_UNIT_REDUCE_POPULATION", MOD_BALANCE_CORE_SETTLERS_CONSUME_POP and kUnitInfo.Food);
+	AddTooltipIfTrue(tStatLines, "TXT_KEY_PRODUCTION_UNIT_REDUCE_POPULATION", MOD_BALANCE_SETTLERS_CONSUME_POPULATION and kUnitInfo.Food);
 
 	-- Max HP (show when non-standard only)
 	local iMaxHP = kUnitInfo.MaxHitPoints;
@@ -860,10 +856,10 @@ function GetHelpTextForUnit(eUnit, bIncludeRequirementsInfo, pCity, bExcludeName
 	AddTooltipIfTrue(tAbilityLines, "TXT_KEY_PRODUCTION_UNIT_CULTURE_ON_DISBAND_UPGRADE", kUnitInfo.CulExpOnDisbandUpgrade);
 	AddTooltipIfTrue(tAbilityLines, "TXT_KEY_PRODUCTION_UNIT_EXTRA_PLUNDER_GOLD", kUnitInfo.HighSeaRaider);
 	AddTooltipIfTrue(tAbilityLines, "TXT_KEY_PRODUCTION_UNIT_EXPEND_COPY_TILE_YIELD", kUnitInfo.CopyYieldsFromExpendTile);
-	AddTooltipIfTrue(tAbilityLines, "TXT_KEY_PRODUCTION_UNIT_MOVE_AFTER_UPGRADE", MOD_GLOBAL_MOVE_AFTER_UPGRADE and kUnitInfo.MoveAfterUpgrade);
+	AddTooltipIfTrue(tAbilityLines, "TXT_KEY_PRODUCTION_UNIT_MOVE_AFTER_UPGRADE", kUnitInfo.MoveAfterUpgrade);
 
 	-- Block/weaken active spread
-	local strProhibitsSpreadKey = MOD_BALANCE_CORE_INQUISITOR_TWEAKS and "TXT_KEY_PRODUCTION_UNIT_PROHIBIT_SPREAD_PARTIAL" or "TXT_KEY_PRODUCTION_UNIT_PROHIBIT_SPREAD";
+	local strProhibitsSpreadKey = MOD_BALANCE_INQUISITOR_NERF and "TXT_KEY_PRODUCTION_UNIT_PROHIBIT_SPREAD_PARTIAL" or "TXT_KEY_PRODUCTION_UNIT_PROHIBIT_SPREAD";
 	AddTooltipIfTrue(tAbilityLines, strProhibitsSpreadKey, kUnitInfo.ProhibitsSpread);
 
 	-- Found city
@@ -1037,7 +1033,7 @@ function GetHelpTextForUnit(eUnit, bIncludeRequirementsInfo, pCity, bExcludeName
 		-- Avoid calling DLL where possible - table lookups are way faster
 		local iGold = (kUnitInfo.BaseGold > 0 or kUnitInfo.BaseGoldTurnsToCount > 0 or kUnitInfo.NumGoldPerEra ~= 0) and pActivePlayer:GetTradeGold(eUnit) or 0;
 		local strGold = (iGold > 0) and L("TXT_KEY_PRODUCTION_UNIT_TRADE_MISSION_GOLD", iGold);
-		local iWLTKDTurn = MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES and (kUnitInfo.BaseWLTKDTurns > 0) and pActivePlayer:GetTradeWLTKDTurns(eUnit) or 0;
+		local iWLTKDTurn = MOD_BALANCE_NEW_GREAT_PERSON_ATTRIBUTES and (kUnitInfo.BaseWLTKDTurns > 0) and pActivePlayer:GetTradeWLTKDTurns(eUnit) or 0;
 		local strWLTKD = (iWLTKDTurn > 0) and L("TXT_KEY_PRODUCTION_UNIT_TRADE_MISSION_WLTKD", iWLTKDTurn);
 		if strGold and strWLTKD then
 			table.insert(tAbilityLines, string.format("%s: %s, %s", L("TXT_KEY_MISSION_CONDUCT_TRADE_MISSION"), strGold, strWLTKD));
@@ -1131,7 +1127,7 @@ function GetHelpTextForUnit(eUnit, bIncludeRequirementsInfo, pCity, bExcludeName
 		AddTooltipIfTrue(tAbilityLines, v, kUnitInfo[k]);
 	end
 
-	AddTooltipIfTrue(tAbilityLines, "TXT_KEY_PRODUCTION_UNIT_NO_EMBARK", MOD_GLOBAL_CANNOT_EMBARK and kUnitInfo.CannotEmbark);
+	AddTooltipIfTrue(tAbilityLines, "TXT_KEY_PRODUCTION_UNIT_NO_EMBARK", kUnitInfo.CannotEmbark);
 
 	-- Bounty on this unit
 	tInstantYields = {};
@@ -1179,12 +1175,12 @@ function GetHelpTextForUnit(eUnit, bIncludeRequirementsInfo, pCity, bExcludeName
 		end
 	end
 	if next(tBuildings) then
-		local strTextKey = MOD_BALANCE_CORE_BUILDING_INVESTMENTS and "TXT_KEY_PRODUCTION_REQUIRED_BUILDINGS_INVEST" or "TXT_KEY_PRODUCTION_REQUIRED_BUILDINGS_PURCHASE";
+		local strTextKey = MOD_BALANCE_BUILDING_INVESTMENTS and "TXT_KEY_PRODUCTION_REQUIRED_BUILDINGS_INVEST" or "TXT_KEY_PRODUCTION_REQUIRED_BUILDINGS_PURCHASE";
 		table.insert(tReqLines, L(strTextKey, table.concat(tBuildings, ", ")));
 	end
 
 	-- May be purchased/invested in puppets
-	local strTextKey = MOD_BALANCE_CORE_UNIT_INVESTMENTS and "TXT_KEY_PRODUCTION_PUPPET_INVESTABLE" or "TXT_KEY_PRODUCTION_PUPPET_PURCHASABLE";
+	local strTextKey = MOD_BALANCE_UNIT_INVESTMENTS and "TXT_KEY_PRODUCTION_PUPPET_INVESTABLE" or "TXT_KEY_PRODUCTION_PUPPET_PURCHASABLE";
 	AddTooltipIfTrue(tReqLines, strTextKey, kUnitInfo.PuppetPurchaseOverride);
 
 	if not pCity then
@@ -1498,7 +1494,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 	-- Name
 	if not bExcludeName then
 		local strName = BuildingColor(Locale.ToUpper(L(kBuildingInfo.Description)));
-		if pCity and MOD_BALANCE_CORE_BUILDING_INVESTMENTS then
+		if pCity and MOD_BALANCE_BUILDING_INVESTMENTS then
 			if iInvestedCost > 0 then
 				strName = strName .. L("TXT_KEY_INVESTED");
 			end
@@ -1790,7 +1786,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 	-- Great Work slots
 	if kBuildingInfo.GreatWorkSlotType then
 		AddTooltipPositive(tYieldLines, GameInfo.GreatWorkSlots[kBuildingInfo.GreatWorkSlotType].SlotsToolTipText, kBuildingInfo.GreatWorkCount);
-		if MOD_GLOBAL_GREATWORK_YIELDTYPES and kBuildingInfo.GreatWorkYieldType and kBuildingInfo.GreatWorkYieldType ~= "YIELD_CULTURE" then
+		if kBuildingInfo.GreatWorkYieldType and kBuildingInfo.GreatWorkYieldType ~= "YIELD_CULTURE" then
 			local kYieldInfo = GetInfoFromType("Yields", kBuildingInfo.GreatWorkYieldType);
 			AddTooltip(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_GREAT_WORK_YIELD_TYPE", kYieldInfo.IconString, kYieldInfo.Description);
 		end
@@ -1884,7 +1880,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 	AddTooltipNonZeroSigned(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_CITY_STRIKE_STRENGTH_MODIFIER", kBuildingInfo.RangedStrikeModifier);
 
 	-- City strike range
-	if MOD_BALANCE_CORE_BOMBARD_RANGE_BUILDINGS then
+	if MOD_BALANCE_BOMBARD_RANGE_BUILDINGS then
 		AddTooltipNonZeroSigned(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_CITY_STRIKE_RANGE", kBuildingInfo.CityRangedStrikeRange);
 		AddTooltipIfTrue(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_INDIRECT_FIRE", kBuildingInfo.CityIndirectFire);
 	end
@@ -1898,7 +1894,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 	AddTooltipGlobalNonZeroSigned(tGlobalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_AIR_SLOTS", kBuildingInfo.AirModifierGlobal);
 
 	-- Cooldown reduction for unit purchase/investment
-	if MOD_BALANCE_CORE_UNIT_INVESTMENTS then
+	if MOD_BALANCE_UNIT_INVESTMENTS then
 		AddTooltipNonZeroSigned(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_INVEST_MILITARY_COOLDOWN_MODIFIER", kBuildingInfo.PurchaseCooldownReduction * -1);
 		AddTooltipNonZeroSigned(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_INVEST_CIVILIAN_COOLDOWN_MODIFIER", kBuildingInfo.PurchaseCooldownReductionCivilian * -1);
 	else
@@ -1918,10 +1914,8 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 	AddTooltipNonZeroSigned(tLocalAbilityLines, strPressureModKey, kBuildingInfo.ReligiousPressureModifier);
 	AddTooltipNonZeroSigned(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_PRESSURE_MODIFIER_IF_TRADE_ROUTE", kBuildingInfo.TradeReligionModifier);
 	AddTooltipGlobalNonZeroSigned(tGlobalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_BASE_PRESSURE_MODIFIER", kBuildingInfo.BasePressureModifierGlobal);
-	if MOD_RELIGION_CONVERSION_MODIFIERS then
-		AddTooltipNonZeroSigned(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_PRESSURE_RECEIVED_MODIFIER", kBuildingInfo.ConversionModifier);
-		AddTooltipNonZeroSigned(tGlobalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_PRESSURE_RECEIVED_MODIFIER_GLOBAL", kBuildingInfo.GlobalConversionModifier);
-	end
+	AddTooltipNonZeroSigned(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_PRESSURE_RECEIVED_MODIFIER", kBuildingInfo.ConversionModifier);
+	AddTooltipNonZeroSigned(tGlobalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_PRESSURE_RECEIVED_MODIFIER_GLOBAL", kBuildingInfo.GlobalConversionModifier);
 
 	-- Defensive espionage modifier
 	if not MOD_BALANCE_VP then
@@ -2326,7 +2320,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 	AddTooltipPositive(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_FREE_ARTIFACT", kBuildingInfo.FreeArtifacts);
 
 	-- Free spies
-	if MOD_BALANCE_CORE_SPIES then
+	if MOD_BALANCE_SPY_POINTS then
 		AddTooltipPositive(tGlobalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_FREE_SPY_POINTS", kBuildingInfo.ExtraSpies * ESPIONAGE_SPY_POINT_UNIT);
 	else
 		AddTooltipPositive(tGlobalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_FREE_SPIES", kBuildingInfo.ExtraSpies);
@@ -2384,7 +2378,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 	-- Free promotion
 	if kBuildingInfo.TrainedFreePromotion then
 		local kFreePromotionInfo = GetInfoFromType("UnitPromotions", kBuildingInfo.TrainedFreePromotion);
-		if MOD_BALANCE_RETROACTIVE_PROMOS then
+		if MOD_BALANCE_RETROACTIVE_PROMOTIONS then
 			AddTooltip(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_FREE_PROMOTION_RETROACTIVE", kFreePromotionInfo.Description);
 		else
 			AddTooltip(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_FREE_PROMOTION", kFreePromotionInfo.Description);
@@ -2847,7 +2841,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 	local tReqLines = {};
 
 	-- May be purchased/invested in puppets
-	local strInvestKey = MOD_BALANCE_CORE_BUILDING_INVESTMENTS and "TXT_KEY_PRODUCTION_PUPPET_INVESTABLE" or "TXT_KEY_PRODUCTION_PUPPET_PURCHASABLE";
+	local strInvestKey = MOD_BALANCE_BUILDING_INVESTMENTS and "TXT_KEY_PRODUCTION_PUPPET_INVESTABLE" or "TXT_KEY_PRODUCTION_PUPPET_PURCHASABLE";
 	AddTooltipIfTrue(tReqLines, strInvestKey, kBuildingInfo.PuppetPurchaseOverride);
 
 	if not pCity then
@@ -3666,14 +3660,14 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 
 	if pCity then
 		-- Investment rules (for unbuilt buildings only)
-		if MOD_BALANCE_CORE_BUILDING_INVESTMENTS and pCity:GetNumRealBuilding(eBuilding) <= 0 and pCity:GetNumFreeBuilding(eBuilding) <= 0 then
+		if MOD_BALANCE_BUILDING_INVESTMENTS and pCity:GetNumRealBuilding(eBuilding) <= 0 and pCity:GetNumFreeBuilding(eBuilding) <= 0 then
 			local iAmount = BALANCE_BUILDING_INVESTMENT_BASELINE * -1;
 			local iWonderAmount = iAmount / 2;
 			AddTooltip(tLines, "TXT_KEY_PRODUCTION_BUILDING_INVESTMENT", iAmount, iWonderAmount);
 		end
 
 		-- Wonder cost increase
-		if MOD_BALANCE_CORE_WONDER_COST_INCREASE then
+		if MOD_BALANCE_WORLD_WONDER_COST_INCREASE then
 			AddTooltipPositive(tLines, "TXT_KEY_PRODUCTION_BUILDING_WONDER_COST_INCREASE_METRIC", pCity:GetWorldWonderCost(eBuilding));
 		end
 	end

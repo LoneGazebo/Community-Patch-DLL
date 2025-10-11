@@ -58,9 +58,10 @@ Source: "VPUI Text\VPUI_tips_en_us.xml"; DestDir: "{app}\Text"; Flags: ignorever
 ; Replacement of the base game Expansion2 files (either MinorCivSounds_Expansion2.xml or the .Civ5Pkg file) is necessary for newly-added City-States to load the correct audio clips on selection.
 ; The .Civ5Pkg file is modified to add a new MinorCivSounds_VoxPopuli file because this is the least intrusive method. This also corrects a BNW bug with Cape Town's audio clip.
 ; The added entries don't do anything if the new City-States don't exist, so this doesn't affect the game when not using VP.
-Source: "Expansion2_VoxPopuli.Civ5Pkg"; DestDir: "{code:GetCIVDir}\Assets\DLC\Expansion2"; DestName: "Expansion2.Civ5Pkg"; Flags: ignoreversion; Components: FullNoEUI FullEUI Civ43EUI Civ43NoEUI Core Civ43CPOnly
+Source: "Expansion2_VoxPopuli.Civ5Pkg"; DestDir: "{code:GetCIVDir}\Assets\DLC\Expansion2"; DestName: "Expansion2.Civ5Pkg"; Flags: ignoreversion; Components: Core Civ43CPOnly FullEUI FullNoEUI Civ43EUI Civ43NoEUI
 Source: "Expansion2_Base.Civ5Pkg"; DestDir: "{code:GetCIVDir}\Assets\DLC\Expansion2"; DestName: "Expansion2.Civ5Pkg"; Flags: ignoreversion; Components: Uninstall
-Source: "MinorCivSounds_VoxPopuli.xml"; DestDir: "{code:GetCIVDir}\Assets\DLC\Expansion2\Sounds\XML"; DestName: "MinorCivSounds_VoxPopuli.xml"; Flags: ignoreversion; Components: FullNoEUI FullEUI Civ43EUI Civ43NoEUI Core Civ43CPOnly
+Source: "MinorCivSounds_CommunityPatch.xml"; DestDir: "{code:GetCIVDir}\Assets\DLC\Expansion2\Sounds\XML"; DestName: "MinorCivSounds_VoxPopuli.xml"; Flags: ignoreversion; Components: Core Civ43CPOnly
+Source: "MinorCivSounds_VoxPopuli.xml"; DestDir: "{code:GetCIVDir}\Assets\DLC\Expansion2\Sounds\XML"; DestName: "MinorCivSounds_VoxPopuli.xml"; Flags: ignoreversion; Components: FullEUI FullNoEUI Civ43EUI Civ43NoEUI
 
 [Components]
 Name: "FullEUI"; Description: "Vox Populi (with EUI)"; Types: FullEUI; Flags: exclusive disablenouninstallwarning
@@ -92,6 +93,7 @@ Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\MODS
 Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\MODS\(3a) VP - EUI Compatibility Files"
 Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\MODS\(3b) 43 Civs Community Patch"
 Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\MODS\(4a) Squads for VP"
+Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\MODS\(2) Community Balance Patch"
 Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\MODS\(2) Community Balance Overhaul"
 Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\MODS\(3) CSD for VP"
 Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\MODS\(3) CSD for CBP"
@@ -101,8 +103,10 @@ Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\MODS
 Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\MODS\(4b) UI - Promotion Tree for VP"
 Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\MODS\(5) More Luxuries"
 Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\MODS\(6a) Vox Populi - Compatibility Files (EUI)"
+Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\MODS\(6a) Community Balance Patch - Compatibility Files (EUI)"
 Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\MODS\(6a) Community Balance Overhaul - Compatibility Files (EUI)"
 Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\MODS\(6b) Vox Populi - Compatibility Files (No-EUI)"
+Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\MODS\(6b) Community Balance Patch - Compatibility Files (No-EUI)"
 Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\MODS\(6b) Community Balance Overhaul - Compatibility Files (No-EUI)"
 Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\MODS\(6c) 43 Civs Community Patch"
 Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\MODS\(6c) 43 Civs CP"

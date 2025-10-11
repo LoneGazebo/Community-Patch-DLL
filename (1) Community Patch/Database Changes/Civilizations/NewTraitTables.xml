@@ -215,7 +215,7 @@
 		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
 		<Column name="Yield" type="integer" notnull="true"/>
 	</Table>
-	<!-- Yields in cities per adjacent unimproved specified feature (up to 2, or up to 3 if ALTERNATE_CELTS custom mod option is on) -->
+	<!-- Yields in cities per adjacent unimproved specified feature (up to 2, or up to 3 if BALANCE_ALTERNATE_CELTS_TRAIT custom mod option is on) -->
 	<Table name="Trait_CityYieldFromUnimprovedFeature">
 		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
 		<Column name="FeatureType" type="text" reference="Features(Type)" notnull="true"/>

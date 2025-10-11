@@ -1,10 +1,30 @@
-DELETE FROM Leader_Flavors;
+DELETE FROM Leader_Flavors WHERE LeaderType <> 'LEADER_BARBARIAN';
 
 -- Personality Types
+-- Conquerors
+CREATE TEMP TABLE ConquerorLeaders (
+	LeaderType TEXT
+);
+
 CREATE TEMP TABLE ConquerorFlavors (
 	FlavorType TEXT,
 	Flavor INTEGER
 );
+
+INSERT INTO ConquerorLeaders
+VALUES
+	('LEADER_ASHURBANIPAL'),
+	('LEADER_ASKIA'),
+	('LEADER_ATTILA'),
+	('LEADER_AUGUSTUS'),
+	('LEADER_DARIUS'),
+	('LEADER_GENGHIS_KHAN'),
+	('LEADER_GUSTAVUS_ADOLPHUS'),
+	('LEADER_HARALD'),
+	('LEADER_MONTEZUMA'),
+	('LEADER_NAPOLEON'),
+	('LEADER_ODA_NOBUNAGA'),
+	('LEADER_SHAKA');
 
 INSERT INTO ConquerorFlavors
 VALUES
@@ -50,16 +70,33 @@ VALUES
 INSERT INTO Leader_Flavors
 	(LeaderType, FlavorType, Flavor)
 SELECT
-	a.Type, b.FlavorType, b.Flavor
-FROM Leaders a, ConquerorFlavors b
-WHERE a.Personality = 'PERSONALITY_CONQUEROR';
+	a.LeaderType, b.FlavorType, b.Flavor
+FROM ConquerorLeaders a, ConquerorFlavors b;
 
+DROP TABLE ConquerorLeaders;
 DROP TABLE ConquerorFlavors;
+
+-- Coalitionists
+CREATE TEMP TABLE CoalitionLeaders (
+	LeaderType TEXT
+);
 
 CREATE TEMP TABLE CoalitionFlavors (
 	FlavorType TEXT,
 	Flavor INTEGER
 );
+
+INSERT INTO CoalitionLeaders
+VALUES
+	('LEADER_CASIMIR'),
+	('LEADER_ELIZABETH'),
+	('LEADER_SELASSIE'),
+	('LEADER_HARUN_AL_RASHID'),
+	('LEADER_KAMEHAMEHA'),
+	('LEADER_NEBUCHADNEZZAR'),
+	('LEADER_PACAL'),
+	('LEADER_RAMESSES'),
+	('LEADER_WASHINGTON');
 
 INSERT INTO CoalitionFlavors
 VALUES
@@ -105,16 +142,35 @@ VALUES
 INSERT INTO Leader_Flavors
 	(LeaderType, FlavorType, Flavor)
 SELECT
-	a.Type, b.FlavorType, b.Flavor
-FROM Leaders a, CoalitionFlavors b
-WHERE a.Personality = 'PERSONALITY_COALITION';
+	a.LeaderType, b.FlavorType, b.Flavor
+FROM CoalitionLeaders a, CoalitionFlavors b;
 
+DROP TABLE CoalitionLeaders;
 DROP TABLE CoalitionFlavors;
+
+-- Diplomats
+CREATE TEMP TABLE DiplomatLeaders (
+	LeaderType TEXT
+);
 
 CREATE TEMP TABLE DiplomatFlavors (
 	FlavorType TEXT,
 	Flavor INTEGER
 );
+
+INSERT INTO DiplomatLeaders
+VALUES
+	('LEADER_AHMAD_ALMANSUR'),
+	('LEADER_BISMARCK'),
+	('LEADER_ENRICO_DANDOLO'),
+	('LEADER_GANDHI'),
+	('LEADER_MARIA_I'),
+	('LEADER_MARIA'),
+	('LEADER_PEDRO'),
+	('LEADER_RAMKHAMHAENG'),
+	('LEADER_SEJONG'),
+	('LEADER_THEODORA'),
+	('LEADER_WILLIAM');
 
 INSERT INTO DiplomatFlavors
 VALUES
@@ -160,16 +216,35 @@ VALUES
 INSERT INTO Leader_Flavors
 	(LeaderType, FlavorType, Flavor)
 SELECT
-	a.Type, b.FlavorType, b.Flavor
-FROM Leaders a, DiplomatFlavors b
-WHERE a.Personality = 'PERSONALITY_DIPLOMAT';
+	a.LeaderType, b.FlavorType, b.Flavor
+FROM DiplomatLeaders a, DiplomatFlavors b;
 
+DROP TABLE DiplomatLeaders;
 DROP TABLE DiplomatFlavors;
+
+-- Expansionists
+CREATE TEMP TABLE ExpansionistLeaders (
+	LeaderType TEXT
+);
 
 CREATE TEMP TABLE ExpansionistFlavors (
 	FlavorType TEXT,
 	Flavor INTEGER
 );
+
+INSERT INTO ExpansionistLeaders
+VALUES
+	('LEADER_ALEXANDER'),
+	('LEADER_BOUDICCA'),
+	('LEADER_CATHERINE'),
+	('LEADER_DIDO'),
+	('LEADER_GAJAH_MADA'),
+	('LEADER_HIAWATHA'),
+	('LEADER_ISABELLA'),
+	('LEADER_PACHACUTI'),
+	('LEADER_POCATELLO'),
+	('LEADER_SULEIMAN'),
+	('LEADER_WU_ZETIAN');
 
 INSERT INTO ExpansionistFlavors
 VALUES
@@ -215,56 +290,13 @@ VALUES
 INSERT INTO Leader_Flavors
 	(LeaderType, FlavorType, Flavor)
 SELECT
-	a.Type, b.FlavorType, b.Flavor
-FROM Leaders a, ExpansionistFlavors b
-WHERE a.Personality = 'PERSONALITY_EXPANSIONIST';
+	a.LeaderType, b.FlavorType, b.Flavor
+FROM ExpansionistLeaders a, ExpansionistFlavors b;
 
+DROP TABLE ExpansionistLeaders;
 DROP TABLE ExpansionistFlavors;
 
--- barbs don't have leader personality anymore, so don't get inserted with the function above
-INSERT INTO Leader_Flavors
-	(LeaderType, FlavorType, Flavor)
-VALUES
-	('LEADER_BARBARIAN', 'FLAVOR_OFFENSE', 4),
-	('LEADER_BARBARIAN', 'FLAVOR_DEFENSE', 8),
-	('LEADER_BARBARIAN', 'FLAVOR_CITY_DEFENSE', 8),
-	('LEADER_BARBARIAN', 'FLAVOR_MILITARY_TRAINING', 4),
-	('LEADER_BARBARIAN', 'FLAVOR_RECON', 2),
-	('LEADER_BARBARIAN', 'FLAVOR_RANGED', 4),
-	('LEADER_BARBARIAN', 'FLAVOR_MOBILE', 4),
-	('LEADER_BARBARIAN', 'FLAVOR_NAVAL', 4),
-	('LEADER_BARBARIAN', 'FLAVOR_NAVAL_RECON', 4),
-	('LEADER_BARBARIAN', 'FLAVOR_NAVAL_GROWTH', 4),
-	('LEADER_BARBARIAN', 'FLAVOR_NAVAL_TILE_IMPROVEMENT', 4),
-	('LEADER_BARBARIAN', 'FLAVOR_AIR', 0),
-	('LEADER_BARBARIAN', 'FLAVOR_ANTIAIR', 0),
-	('LEADER_BARBARIAN', 'FLAVOR_AIRLIFT', 0),
-	('LEADER_BARBARIAN', 'FLAVOR_AIR_CARRIER', 0),
-	('LEADER_BARBARIAN', 'FLAVOR_EXPANSION', 0),
-	('LEADER_BARBARIAN', 'FLAVOR_GROWTH', 4),
-	('LEADER_BARBARIAN', 'FLAVOR_HAPPINESS', 4),
-	('LEADER_BARBARIAN', 'FLAVOR_TILE_IMPROVEMENT', 4),
-	('LEADER_BARBARIAN', 'FLAVOR_INFRASTRUCTURE', 0),
-	('LEADER_BARBARIAN', 'FLAVOR_PRODUCTION', 0),
-	('LEADER_BARBARIAN', 'FLAVOR_GOLD', 4),
-	('LEADER_BARBARIAN', 'FLAVOR_SCIENCE', 4),
-	('LEADER_BARBARIAN', 'FLAVOR_CULTURE', 4),
-	('LEADER_BARBARIAN', 'FLAVOR_GREAT_PEOPLE', 4),
-	('LEADER_BARBARIAN', 'FLAVOR_WONDER', 0),
-	('LEADER_BARBARIAN', 'FLAVOR_RELIGION', 0),
-	('LEADER_BARBARIAN', 'FLAVOR_DIPLOMACY', 0),
-	('LEADER_BARBARIAN', 'FLAVOR_SPACESHIP', 0),
-	('LEADER_BARBARIAN', 'FLAVOR_WATER_CONNECTION', 0),
-	('LEADER_BARBARIAN', 'FLAVOR_USE_NUKE', 4),
-	('LEADER_BARBARIAN', 'FLAVOR_NUKE', 0),
-	('LEADER_BARBARIAN', 'FLAVOR_I_LAND_TRADE_ROUTE', 0),
-	('LEADER_BARBARIAN', 'FLAVOR_I_SEA_TRADE_ROUTE', 0),
-	('LEADER_BARBARIAN', 'FLAVOR_I_TRADE_ORIGIN', 0),
-	('LEADER_BARBARIAN', 'FLAVOR_I_TRADE_DESTINATION', 0),
-	('LEADER_BARBARIAN', 'FLAVOR_ARCHAEOLOGY', 0),
-	('LEADER_BARBARIAN', 'FLAVOR_ESPIONAGE', 0);
-
--- OVERRIDES FOR UAs
+-- Overrides for unique components
 UPDATE Leader_Flavors SET Flavor = 8 WHERE FlavorType = 'FLAVOR_TILE_IMPROVEMENT' AND LeaderType = 'LEADER_AHMAD_ALMANSUR'; -- 7, has unique improvement
 
 UPDATE Leader_Flavors SET Flavor = 8 WHERE FlavorType = 'FLAVOR_MILITARY_TRAINING' AND LeaderType = 'LEADER_ALEXANDER'; -- 5, primary: domination

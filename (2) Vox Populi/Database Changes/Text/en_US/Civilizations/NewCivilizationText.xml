@@ -656,8 +656,8 @@
 			<Text>Possible Theming Bonuses:
 				[NEWLINE][ICON_BULLET] +2 [ICON_CULTURE] Culture and Tourism for two French Great Works of Art.
 				[NEWLINE][ICON_BULLET] +4 [ICON_CULTURE] Culture and Tourism for two French Great Works of Art from the same Era.
-				[NEWLINE][ICON_BULLET] +4 [ICON_CULTURE] Culture and Tourism for two French Great Works of Art from the same foreign Civilization.
-				[NEWLINE][ICON_BULLET] +8 [ICON_CULTURE] Culture and Tourism for two French Great Works of Art from the same foreign Civilization and the same Era.
+				[NEWLINE][ICON_BULLET] +4 [ICON_CULTURE] Culture and Tourism for two Great Works of Art from the same foreign Civilization.
+				[NEWLINE][ICON_BULLET] +8 [ICON_CULTURE] Culture and Tourism for two Great Works of Art from the same foreign Civilization and the same Era.
 			</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_SALON_TEXT">

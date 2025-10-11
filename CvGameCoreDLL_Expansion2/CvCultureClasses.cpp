@@ -180,15 +180,10 @@ CvString CvGameCulture::GetGreatWorkTooltip(int iIndex, PlayerTypes eOwner) cons
 
 	BuildingTypes eGreatWorkBuilding = NO_BUILDING;
 	CvCity* pCity = GetGreatWorkCity(iIndex, eGreatWorkBuilding);
+	YieldTypes eBaseYieldType = eGreatWorkBuilding != NO_BUILDING ? GC.getBuildingInfo(eGreatWorkBuilding)->GetGreatWorkYieldType() : YIELD_CULTURE;
 
-	YieldTypes eBaseYieldType = YIELD_CULTURE;
-	if (MOD_GLOBAL_GREATWORK_YIELDTYPES && eGreatWorkBuilding != NO_BUILDING)
+	for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
 	{
-		CvBuildingEntry* pkInfo = GC.getBuildingInfo(eGreatWorkBuilding);
-		eBaseYieldType = pkInfo->GetGreatWorkYieldType();
-	}
-
-	for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++) {
 		YieldTypes eYield = (YieldTypes) iYield;
 		
 		if (eYield == eBaseYieldType)
@@ -229,7 +224,7 @@ CvString CvGameCulture::GetGreatWorkTooltip(int iIndex, PlayerTypes eOwner) cons
 			}
 
 			// mod for civs keeping their pantheon belief forever
-			if (MOD_RELIGION_PERMANENT_PANTHEON)
+			if (MOD_BALANCE_PERMANENT_PANTHEONS)
 			{
 				if (GC.getGame().GetGameReligions()->HasCreatedPantheon(eOwner))
 				{
@@ -2558,7 +2553,6 @@ bool CvPlayerCulture::ThemeEqualArtArtifact(CvGreatWorkBuildingInMyEmpire kBldg,
 	return false;
 }
 
-#if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
 bool CvPlayerCulture::MoveSingleWorks(vector<CvGreatWorkBuildingInMyEmpire> &buildings, vector<CvGreatWorkInMyEmpire> &works1, vector<CvGreatWorkInMyEmpire> &works2, YieldTypes eFocusYield, bool bPuppet)
 {
 	// CUSTOMLOG("Move Single Works");
@@ -2655,7 +2649,6 @@ bool CvPlayerCulture::MoveSingleWorks(vector<CvGreatWorkBuildingInMyEmpire> &bui
 	}
 	return bUpdate;
 }
-#endif
 
 /// Simple version of ThemeBuilding() which just fills in a building with ANY Great Works, not ones that provide a theming bonus
 bool CvPlayerCulture::FillBuilding(vector<CvGreatWorkBuildingInMyEmpire>::const_iterator buildingIt, vector<CvGreatWorkInMyEmpire> &works1, vector<CvGreatWorkInMyEmpire> &works2)
@@ -3669,7 +3662,7 @@ void CvPlayerCulture::DoTurn()
 		}
 	}
 
-	if (MOD_API_ACHIEVEMENTS && m_pPlayer->isHuman(ISHUMAN_ACHIEVEMENTS) && !GC.getGame().isGameMultiPlayer())
+	if (MOD_ENABLE_ACHIEVEMENTS && m_pPlayer->isHuman(ISHUMAN_ACHIEVEMENTS) && !GC.getGame().isGameMultiPlayer())
 	{
 		// check for having city-state artifacts
 		std::vector<int> aiCityStateArtifact;
@@ -4168,8 +4161,8 @@ PlayerTypes CvPlayerCulture::GetCivLowestInfluence(bool bCheckOpenBorders) const
 		CvTeam &kTeam = GET_TEAM(kPlayer.getTeam());
 		if (iLoopPlayer != m_pPlayer->GetID() && kPlayer.isAlive() && !kPlayer.isMinorCiv() && !kTeam.isAtWar(m_pPlayer->getTeam()))
 		{
-			if (!bCheckOpenBorders || (MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS && GET_TEAM(m_pPlayer->getTeam()).IsAllowsOpenBordersToTeam(kTeam.GetID()))
-			|| (!MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS && kTeam.IsAllowsOpenBordersToTeam(m_pPlayer->getTeam())))
+			if (!bCheckOpenBorders || (MOD_BALANCE_FLIPPED_OPEN_BORDERS_TOURISM && GET_TEAM(m_pPlayer->getTeam()).IsAllowsOpenBordersToTeam(kTeam.GetID()))
+			|| (!MOD_BALANCE_FLIPPED_OPEN_BORDERS_TOURISM && kTeam.IsAllowsOpenBordersToTeam(m_pPlayer->getTeam())))
 			{
 				long long lInfluenceOn = GetInfluenceOnTimes100((PlayerTypes)iLoopPlayer);
 				long long lLifetimeCulture = kPlayer.GetJONSCultureEverGeneratedTimes100();
@@ -4196,7 +4189,7 @@ PlayerTypes CvPlayerCulture::GetCivLowestInfluence(bool bCheckOpenBorders) const
 /// Get extra gold from trade routes based on current influence level
 int CvPlayerCulture::GetInfluenceTradeRouteGoldBonus(PlayerTypes ePlayer) const
 {
-	if (!MOD_BALANCE_CORE_POLICIES)
+	if (!MOD_BALANCE_VP)
 		return 0;
 
 	int iRtnValue = 0;
@@ -4233,7 +4226,7 @@ int CvPlayerCulture::GetInfluenceTradeRouteGoldBonus(PlayerTypes ePlayer) const
 /// Get extra growth from trade routes based on current influence level
 int CvPlayerCulture::GetInfluenceTradeRouteGrowthBonus(PlayerTypes ePlayer) const
 {
-	if (!MOD_BALANCE_CORE_POLICIES)
+	if (!MOD_BALANCE_VP)
 		return 0;
 
 	int iRtnValue = 0;
@@ -4504,8 +4497,8 @@ int CvPlayerCulture::GetTourismModifierWith(PlayerTypes eTargetPlayer, bool bIgn
 	if (!bIgnoreOpenBorders)
 	{
 		// Open borders with this player
-		if ((MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS && kTeam.IsAllowsOpenBordersToTeam(kTargetTeam.GetID())) ||
-			(!MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS && kTargetTeam.IsAllowsOpenBordersToTeam(m_pPlayer->getTeam())))
+		if ((MOD_BALANCE_FLIPPED_OPEN_BORDERS_TOURISM && kTeam.IsAllowsOpenBordersToTeam(kTargetTeam.GetID())) ||
+			(!MOD_BALANCE_FLIPPED_OPEN_BORDERS_TOURISM && kTargetTeam.IsAllowsOpenBordersToTeam(m_pPlayer->getTeam())))
 		{
 			iMultiplier += GetTourismModifierOpenBorders();
 		}
@@ -4679,8 +4672,8 @@ CvString CvPlayerCulture::GetTourismModifierWithTooltip(PlayerTypes eTargetPlaye
 	}
 
 	// Open Borders with this player
-	if ((MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS && kMyTeam.IsAllowsOpenBordersToTeam(kTargetTeam.GetID())) ||
-		(!MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS && kTargetTeam.IsAllowsOpenBordersToTeam(m_pPlayer->getTeam())))
+	if ((MOD_BALANCE_FLIPPED_OPEN_BORDERS_TOURISM && kMyTeam.IsAllowsOpenBordersToTeam(kTargetTeam.GetID())) ||
+		(!MOD_BALANCE_FLIPPED_OPEN_BORDERS_TOURISM && kTargetTeam.IsAllowsOpenBordersToTeam(m_pPlayer->getTeam())))
 	{
 		szRtnValue += "[COLOR_POSITIVE_TEXT]" + GetLocalizedText("TXT_KEY_CO_PLAYER_TOURISM_OPEN_BORDERS", GetTourismModifierOpenBorders()) + "[ENDCOLOR]";
 	}
@@ -4806,8 +4799,8 @@ CvString CvPlayerCulture::GetTourismModifierWithTooltip(PlayerTypes eTargetPlaye
 	{
 		szRtnValue += "[COLOR_GREY]" + GetLocalizedText("TXT_KEY_CO_PLAYER_TOURISM_TRADE_ROUTE", 0) + "[ENDCOLOR]";
 	}
-	if ((MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS && !kMyTeam.IsAllowsOpenBordersToTeam(kTargetTeam.GetID())) ||
-		(!MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS && !kTargetTeam.IsAllowsOpenBordersToTeam(m_pPlayer->getTeam())))
+	if ((MOD_BALANCE_FLIPPED_OPEN_BORDERS_TOURISM && !kMyTeam.IsAllowsOpenBordersToTeam(kTargetTeam.GetID())) ||
+		(!MOD_BALANCE_FLIPPED_OPEN_BORDERS_TOURISM && !kTargetTeam.IsAllowsOpenBordersToTeam(m_pPlayer->getTeam())))
 	{
 		szRtnValue += "[COLOR_GREY]" + GetLocalizedText("TXT_KEY_CO_PLAYER_TOURISM_OPEN_BORDERS", 0) + "[ENDCOLOR]";
 	}
@@ -5127,7 +5120,7 @@ void CvPlayerCulture::DoPublicOpinion()
 				int iTheirInfluenceLevel = kPlayer.GetCulture()->GetInfluenceLevel(m_pPlayer->GetID());
 				int iOurInfluenceLevel = m_pPlayer->GetCulture()->GetInfluenceLevel((PlayerTypes)iLoopPlayer);
 
-				if (MOD_BALANCE_CORE_VICTORY_GAME_CHANGES)
+				if (MOD_BALANCE_VP)
 				{
 					//Only for popular+ civs.
 					if (iTheirInfluenceLevel > (int)INFLUENCE_LEVEL_FAMILIAR)
@@ -5136,7 +5129,7 @@ void CvPlayerCulture::DoPublicOpinion()
 
 						iTheirInfluenceLevel -= (int)(kPlayer.GetCulture()->GetInfluenceTrend(m_pPlayer->GetID())) - 1;
 						iOurInfluenceLevel -= (int)(m_pPlayer->GetCulture()->GetInfluenceTrend((PlayerTypes)iLoopPlayer)) - 1;
-				}
+					}
 				}
 
 				iCulturalDominanceOverUs = max(0, iTheirInfluenceLevel) - max(0, iOurInfluenceLevel);
@@ -5174,7 +5167,7 @@ void CvPlayerCulture::DoPublicOpinion()
 		}
 	}
 
-	if (MOD_BALANCE_CORE_VICTORY_GAME_CHANGES)
+	if (MOD_BALANCE_VP)
 	{
 		CvString sIdeologyIcon = GC.getPolicyBranchInfo(eOurIdeology)->GetIconString();
 		if (sIdeologyIcon == NULL || sIdeologyIcon.IsEmpty())
@@ -5284,11 +5277,11 @@ void CvPlayerCulture::DoPublicOpinion()
 
 	if (m_eOpinion != PUBLIC_OPINION_CONTENT)
 	{
-		if ((MOD_BALANCE_CORE_POLICIES && iDissatisfaction < 4) || (!MOD_BALANCE_CORE_POLICIES && iDissatisfaction < 3))
+		if ((MOD_BALANCE_VP && iDissatisfaction < 4) || (!MOD_BALANCE_VP && iDissatisfaction < 3))
 		{
 			m_eOpinion = PUBLIC_OPINION_DISSIDENTS;
 		}
-		else if ((MOD_BALANCE_CORE_POLICIES && iDissatisfaction < 7) || (!MOD_BALANCE_CORE_POLICIES && iDissatisfaction < 5))
+		else if ((MOD_BALANCE_VP && iDissatisfaction < 7) || (!MOD_BALANCE_VP && iDissatisfaction < 5))
 		{
 			m_eOpinion = PUBLIC_OPINION_CIVIL_RESISTANCE;
 		}
@@ -5388,7 +5381,7 @@ void CvPlayerCulture::DoPublicOpinion()
 		locText << m_iOpinionUnhappiness;
 		m_strOpinionUnhappinessTooltip += locText.toUTF8();
 
-		if (!MOD_BALANCE_CORE_POLICIES)
+		if (!MOD_BALANCE_VP)
 		{
 			locText = Localization::Lookup("TXT_KEY_CO_OPINION_TT_UNHAPPINESS_LINE2");
 			m_strOpinionUnhappinessTooltip += locText.toUTF8();
@@ -5450,7 +5443,7 @@ int CvPlayerCulture::ComputeHypotheticalPublicOpinionUnhappiness(PolicyBranchTyp
 				int iTheirInfluenceLevel = kPlayer.GetCulture()->GetInfluenceLevel(m_pPlayer->GetID());
 				int iOurInfluenceLevel = m_pPlayer->GetCulture()->GetInfluenceLevel((PlayerTypes)iLoopPlayer);
 
-				if (MOD_BALANCE_CORE_VICTORY_GAME_CHANGES)
+				if (MOD_BALANCE_VP)
 				{
 					//Only for popular+ civs.
 					if (iTheirInfluenceLevel <= (int)INFLUENCE_LEVEL_FAMILIAR)
@@ -5468,7 +5461,7 @@ int CvPlayerCulture::ComputeHypotheticalPublicOpinionUnhappiness(PolicyBranchTyp
 		}
 	}
 
-	if (MOD_BALANCE_CORE_VICTORY_GAME_CHANGES)
+	if (MOD_BALANCE_VP)
 	{
 		//Get a bonus for fewer followers.
 		int iNumCivsNotFollowingNewIdeology = GetNumCivsFollowingAnyIdeology() - GetNumCivsFollowingIdeology(eBranch) + 1;
@@ -5619,7 +5612,7 @@ int CvPlayerCulture::ComputePublicOpinionUnhappiness(int iDissatisfaction)
 	if (iDissatisfaction == 0)
 		return 0;
 
-	if (!MOD_BALANCE_CORE_POLICIES)
+	if (!MOD_BALANCE_VP)
 	{
 		int iPerCityUnhappy = 0;
 		int iUnhappyPerXPop = 0;
@@ -6124,7 +6117,7 @@ int CvCityCulture::GetThemingBonus(BuildingClassTypes eBuildingClass) const
 	CvPlayer* pPlayer = m_pCity->GetPlayer();
 	if (m_pCity->isCapital() && pPlayer->GetPlayerTraits()->GetCapitalThemingBonusModifier() != 0)
 	{
-		if (MOD_API_ACHIEVEMENTS && pPlayer->isHuman(ISHUMAN_ACHIEVEMENTS) && !GC.getGame().isGameMultiPlayer() && iRtnValue >= 16)
+		if (MOD_ENABLE_ACHIEVEMENTS && pPlayer->isHuman(ISHUMAN_ACHIEVEMENTS) && !GC.getGame().isGameMultiPlayer() && iRtnValue >= 16)
 		{
 			gDLL->UnlockAchievement(ACHIEVEMENT_XP2_40);
 		}

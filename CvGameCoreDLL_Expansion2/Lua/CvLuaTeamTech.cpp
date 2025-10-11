@@ -53,10 +53,8 @@ void CvLuaTeamTech::PushMethods(lua_State* L, int t)
 	Method(GetResearchCost);
 	Method(GetResearchLeft);
 	Method(GetResearchLeftTimes100);
-#if defined(MOD_CIV6_EUREKA)
 	Method(GetEurekaCounter);
 	Method(SetEurekaCounter);
-#endif
 }
 //------------------------------------------------------------------------------
 const char* CvLuaTeamTech::GetTypeName()
@@ -221,7 +219,6 @@ int CvLuaTeamTech::lGetResearchLeftTimes100(lua_State* L)
 	return BasicLuaMethod(L, &CvTeamTechs::GetResearchLeftTimes100);
 }
 
-#if defined(MOD_CIV6_EUREKA)
 //------------------------------------------------------------------------------
 //int GetEurekaCounter(TechTypes eTech);
 int CvLuaTeamTech::lGetEurekaCounter(lua_State* L)
@@ -234,5 +231,3 @@ int CvLuaTeamTech::lSetEurekaCounter(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvTeamTechs::SetEurekaCounter);
 }
-#endif
-

@@ -30,9 +30,7 @@ void CvPlayerManager::Refresh(bool bWarStateChanged)
 		kPlayer.UpdateAreaEffectPlots();
 		kPlayer.UpdateMilitaryStats();
 		kPlayer.UpdateCurrentAndFutureWars();
-#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 		kPlayer.UpdateMonopolyCache();
-#endif
 
 		if (bWarStateChanged)
 		{

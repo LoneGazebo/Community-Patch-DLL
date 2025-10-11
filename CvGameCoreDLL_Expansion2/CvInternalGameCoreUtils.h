@@ -26,6 +26,4 @@ bool isLimitedWonderClass(const CvBuildingClassInfo& kBuildingClass);
 int limitedWonderClassLimit(const CvBuildingClassInfo& kBuildingClass);
 //------------------------------------------------------------------------------
 
-#if defined(MOD_TRADE_WONDER_RESOURCE_ROUTES)
 ResourceTypes getWonderResource();
-#endif

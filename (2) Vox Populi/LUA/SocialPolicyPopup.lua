@@ -829,7 +829,7 @@ function UpdateDisplay()
 	    Controls.DisabledIdeology:SetHide(not bDisablePolicies);
 		--CBP
 		local iNumPolicies = player:GetNumPolicies(true, true);
-		local iNeed = GameDefines.BALANCE_MOD_POLICIES_NEEDED_IDEOLOGY;
+		local iNeed = GameDefines.IDEOLOGY_UNLOCK_NUM_POLICIES_NEEDED;
 		local iNeeded = iNeed - iNumPolicies;
 		local strPoliciesLeft = Locale.ConvertTextKey("TXT_KEY_POLICYSCREEN_POLICIES_NEEDED_UNTIL_IDEOLOGY", iNeeded);
 		Controls.PoliciesLeftLabel:SetText(strPoliciesLeft);

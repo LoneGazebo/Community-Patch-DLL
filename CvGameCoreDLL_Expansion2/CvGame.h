@@ -577,11 +577,10 @@ public:
 
 	PlayerTypes GetCorporationFounder( CorporationTypes eCorporation ) const;
 	int GetNumCorporationsFounded() const;
-#if defined (MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+
 	void UpdateGreatestPlayerResourceMonopoly(ResourceTypes eTestResource = NO_RESOURCE);
 	int GetGreatestPlayerResourceMonopoly(ResourceTypes eResource) const;
 	int GetGreatestPlayerResourceMonopolyValue(ResourceTypes eResource) const;
-#endif
 
 	void addReplayMessage(ReplayMessageTypes eType, PlayerTypes ePlayer, const CvString& pszText, int iPlotX = -1, int iPlotY = -1);
 	void clearReplayMessageMap();
@@ -779,10 +778,9 @@ public:
 	bool AnyoneHasUnit(UnitTypes iUnitType) const;
 	bool AnyoneHasUnitClass(UnitClassTypes iUnitClassType) const;
 
-#if defined(MOD_BALANCE_CORE_JFD)	
 	void SetContractUnits(ContractTypes eContract, UnitTypes eUnit, int iValue);
 	int GetContractUnits(ContractTypes eContract, UnitTypes eUnit) const;
-#endif
+
 	//Function to determine city size from city population
 	unsigned int GetVariableCitySizeFromPopulation(unsigned int nPopulation);
 
@@ -958,9 +956,7 @@ protected:
 	CvEnumMap<SpecialUnitTypes, bool> m_pabSpecialUnitValid;
 
 	CvEnumMap<VictoryTypes, TeamTypes*> m_ppaaiTeamVictoryRank;
-#if defined(MOD_BALANCE_CORE_JFD)
 	CvEnumMap<ContractTypes, CvEnumMap<UnitTypes, int> > m_ppaiContractUnits;
-#endif
 
 	Database::Results* m_pDiploResponseQuery;
 

@@ -90,7 +90,6 @@ public:
 	int GetCulturePerGarrisonedUnit() const;
 	int GetHappinessPerTradeRoute() const;
 	int GetHappinessPerXPopulation() const;
-#if defined(MOD_BALANCE_CORE_POLICIES)
 	int GetHappinessPerXPopulationGlobal() const;
 	EraTypes GetPolicyEraUnlock() const;
 	int GetIdeologyPoint() const;
@@ -121,17 +120,12 @@ public:
 	int GetHappinessPerXGreatWorks() const;
 	int GetExtraMissionaryStrength() const;
 	int GetExtraMissionarySpreads() const;
-#endif
 	int GetExtraHappinessPerLuxury() const;
 	int GetUnhappinessFromUnitsMod() const;
 	int GetNumExtraBuilders() const;
 	int GetPlotGoldCostMod() const;
-#if defined(MOD_POLICIES_CITY_WORKING)
 	int GetCityWorkingChange() const;
-#endif
-#if defined(MOD_POLICIES_CITY_AUTOMATON_WORKERS)
 	int GetCityAutomatonWorkersChange() const;
-#endif
 	int GetPlotCultureCostModifier() const;
 	int GetPlotCultureExponentModifier() const;
 	int GetNumCitiesPolicyCostDiscount() const;
@@ -145,9 +139,7 @@ public:
 	int GetStealTechSlowerModifier() const;
 	int GetStealTechFasterModifier() const;
 	int GetCatchSpiesModifier() const;
-#if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
 	int GetConversionModifier() const;
-#endif
 	int GetGoldPerUnit() const;
 	int GetGoldPerMilitaryUnit() const;
 	int GetCityStrengthMod() const;
@@ -158,9 +150,7 @@ public:
 	int GetNewCityExtraPopulation() const;
 	int GetFreeFoodBox() const;
 	int GetImprovementGoldMaintenanceMod() const;
-#if defined(MOD_CIV6_WORKER)
 	int GetRouteBuilderCostMod() const;
-#endif
 	int GetBuildingGoldMaintenanceMod() const;
 	int GetUnitGoldMaintenanceMod() const;
 	int GetUnitSupplyMod() const;
@@ -273,14 +263,10 @@ public:
 	int* GetSpecialistExtraYieldArray() const;
 	bool IsFreePromotion(int i) const;
 	bool IsFreePromotionUnitCombat(const int promotionID, const int unitCombatID) const;
-#if defined(MOD_RELIGION_POLICY_BRANCH_FAITH_GP)
 	bool HasFaithPurchaseUnitClasses() const;
 	bool IsFaithPurchaseUnitClass(const int eUnitClass, const int eCurrentEra) const;
-#endif
-#if defined(MOD_BALANCE_CORE_POLICIES)
 	int GetYieldChangesPerReligionTimes100(int i) const;
 	int* GetYieldChangesPerReligionTimes100Array() const;
-#endif
 	int GetUnitCombatProductionModifiers(int i) const;
 	int GetUnitCombatFreeExperiences(int i) const;
 	int GetBuildingClassSecurityChange(int i) const;
@@ -294,7 +280,6 @@ public:
 	int GetHurryModifier(int i) const;
 	bool IsSpecialistValid(int i) const;
 	int GetFreeChosenBuilding(int i) const;
-#if defined(MOD_BALANCE_CORE_POLICIES)
 	int GetResourceFromCSAlly(int i) const;
 	int GetYieldFromBirth(int i) const;
 	int GetYieldFromBirthCapital(int i) const;
@@ -360,10 +345,7 @@ public:
 	int GetCityCaptureHealLocal() const;
 	int getFranchisesPerImprovement(int i) const;
 	int GetMaxAirUnitsChange() const;
-#endif
-#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int GetInvestmentModifier() const;
-#endif
 	int GetImprovementYieldChanges(int i, int j) const;
 	int GetPlotYieldChanges(int i, int j) const;
 	int GetFeatureYieldChanges(int i, int j) const;
@@ -442,10 +424,8 @@ public:
 	int GetInternationalRouteYieldModifier(int i) const;
 	int* GetInternationalRouteYieldModifiersArray();
 #endif
-#if defined(MOD_POLICIES_UNIT_CLASS_REPLACEMENTS)
 	bool IsUnitClassReplacements() const;
 	std::map<UnitClassTypes, UnitClassTypes> GetUnitClassReplacements() const;
-#endif
 	int GetBuildingClassYieldModifiers(int i, int j) const;
 	int GetBuildingClassYieldChanges(int i, int j) const;
 	int GetFlavorValue(int i) const;
@@ -549,22 +529,16 @@ private:
 	int m_iCulturePerGarrisonedUnit;
 	int m_iHappinessPerTradeRoute;
 	int m_iHappinessPerXPopulation;
-#if defined(MOD_BALANCE_CORE_POLICIES)
 	int m_iHappinessPerXPopulationGlobal;
 	EraTypes m_ePolicyEraUnlock;
 	int m_iIdeologyPoint;
 	bool m_bNoXPLossUnitPurchase;
-#endif
 	int m_iExtraHappinessPerLuxury;
 	int m_iUnhappinessFromUnitsMod;
 	int m_iNumExtraBuilders;
 	int m_iPlotGoldCostMod;
-#if defined(MOD_POLICIES_CITY_WORKING)
 	int m_iCityWorkingChange;
-#endif
-#if defined(MOD_POLICIES_CITY_AUTOMATON_WORKERS)
 	int m_iCityAutomatonWorkersChange;
-#endif
 	int m_iPlotCultureCostModifier;
 	int m_iPlotCultureExponentModifier;
 	int m_iNumCitiesPolicyCostDiscount;
@@ -578,9 +552,7 @@ private:
 	int m_iStealTechSlowerModifier;
 	int m_iStealTechFasterModifier;
 	int m_iCatchSpiesModifier;
-#if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
 	int m_iConversionModifier;
-#endif
 	int m_iGoldPerUnit;
 	int m_iGoldPerMilitaryUnit;
 	int m_iCityStrengthMod;
@@ -591,9 +563,7 @@ private:
 	int m_iNewCityExtraPopulation;
 	int m_iFreeFoodBox;
 	int m_iImprovementGoldMaintenanceMod;
-#if defined(MOD_CIV6_WORKER)
 	int m_iRouteBuilderCostMod;
-#endif
 	int m_iBuildingGoldMaintenanceMod;
 	int m_iUnitGoldMaintenanceMod;
 	int m_iUnitSupplyMod;
@@ -716,12 +686,8 @@ private:
 
 	// Arrays
 	std::multimap<int, int> m_FreePromotionUnitCombats;
-#if defined(MOD_RELIGION_POLICY_BRANCH_FAITH_GP)
 	std::multimap<int, int> m_FaithPurchaseUnitClasses;
-#endif
-#if defined(MOD_BALANCE_CORE_POLICIES)
 	int* m_piYieldChangesPerReligion;
-#endif
 	int* m_piPrereqOrPolicies;
 	int* m_piPrereqAndPolicies;
 	set<int> m_siPolicyDisables;
@@ -747,7 +713,6 @@ private:
 	int* m_paiFreeUnitClasses;
 	int* m_paiTourismOnUnitCreation;
 	int* m_paiFreeChosenBuilding;
-#if defined(MOD_BALANCE_CORE_POLICIES)
 	int* m_piResourcefromCSAlly;
 	int* m_piYieldFromBirth;
 	int* m_piYieldFromBirthCapital;
@@ -839,10 +804,7 @@ private:
 	int m_iMaxAirUnitsChange;
 	int m_iCityCaptureHealGlobal;
 	int m_iCityCaptureHealLocal;
-#endif
-#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int m_iInvestmentModifier;
-#endif
 	bool* m_pabSpecialistValid;
 	int** m_ppiImprovementYieldChanges;
 	int** m_ppiPlotYieldChanges;
@@ -885,9 +847,7 @@ private:
 #if defined(HH_MOD_API_TRADEROUTE_MODIFIERS)
 	int* m_piInternationalRouteYieldModifiers;
 #endif
-#if defined(MOD_POLICIES_UNIT_CLASS_REPLACEMENTS)
 	std::map<UnitClassTypes, UnitClassTypes> m_piUnitClassReplacements;
-#endif
 	int** m_ppiBuildingClassYieldModifiers;
 	int** m_ppiBuildingClassYieldChanges;
 	int* m_piFlavorValue;
@@ -1045,9 +1005,7 @@ enum CLOSED_ENUM PolicyModifierType
     POLICYMOD_SHARED_RELIGION_TOURISM_MODIFIER,
     POLICYMOD_TRADE_ROUTE_TOURISM_MODIFIER,
 	POLICYMOD_OPEN_BORDERS_TOURISM_MODIFIER,
-#if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
     POLICYMOD_CONVERSION_MODIFIER,
-#endif
 	NUM_POLICY_MODIFIER_TYPE
 };
 
@@ -1095,9 +1053,7 @@ public:
 #if defined(HH_MOD_API_TRADEROUTE_MODIFIERS)
 	int GetInternationalRouteYieldModifier(YieldTypes eYieldType);
 #endif
-#if defined(MOD_BALANCE_CORE_POLICIES)
 	int GetReligionBuildingClassYieldModifier(BuildingClassTypes eBuildingClass, YieldTypes eYieldType);
-#endif
 	int GetBuildingClassProductionModifier(BuildingClassTypes eBuildingClass);
 	int GetBuildingClassHappinessModifier(BuildingClassTypes eBuildingClass);
 

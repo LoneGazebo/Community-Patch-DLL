@@ -125,12 +125,8 @@ public:
 	int GetCapitalBuildingModifier() const;
 	int GetPlotBuyCostModifier() const;
 	int GetNationalPopReqModifier() const;
-#if defined(MOD_TRAITS_CITY_WORKING)
 	int GetCityWorkingChange() const;
-#endif
-#if defined(MOD_TRAITS_CITY_AUTOMATON_WORKERS)
 	int GetCityAutomatonWorkersChange() const;
-#endif
 	int GetPlotCultureCostModifier() const;
 	int GetCultureFromKills() const;
 	int GetFaithFromKills() const;
@@ -141,9 +137,7 @@ public:
 	int GetWonderProductionModifier() const;
 	int GetPlunderModifier() const;
 	int GetImprovementMaintenanceModifier() const;
-#if defined(MOD_CIV6_WORKER)
 	int GetRouteBuilderCostModifier() const;
-#endif
 	int GetGoldenAgeDurationModifier() const;
 	int GetGoldenAgeMoveChange() const;
 	int GetGoldenAgeCombatModifier() const;
@@ -228,9 +222,7 @@ public:
 	int GetExtraTradeRoutesPerXOwnedVassals() const;
 	int GetMinorInfluencePerGiftedUnit() const;
 	bool IsCapitalOnly() const;
-#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int GetInvestmentModifier() const;
-#endif
 	int GetCombatBonusVsHigherTech() const;
 	int GetCombatBonusVsLargerCiv() const;
 	int GetLandUnitMaintenanceModifier() const;
@@ -256,9 +248,7 @@ public:
 	int GetWorkerSpeedModifier() const;
 	int GetAfraidMinorPerTurnInfluence() const;
 	int GetLandTradeRouteRangeBonus() const;
-#if defined(MOD_TRAITS_TRADE_ROUTE_BONUSES)
 	int GetSeaTradeRouteRangeBonus() const;
-#endif
 	int GetTradeReligionModifier() const;
 	int GetTradeBuildingModifier() const;
 	int GetNumFreeBuildings() const;
@@ -271,10 +261,8 @@ public:
 	BuildingTypes GetFreeCapitalBuilding() const;
 	UnitTypes GetFreeUnitOnConquest() const;
 	BuildingTypes GetFreeBuildingOnConquest() const;
-#if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
 	bool IsBullyAnnex() const;
 	int GetBullyYieldMultiplierAnnex() const;
-#endif
 	bool IsFightWellDamaged() const;
 	bool IsWoodlandMovementBonus() const;
 	bool IsRiverMovementBonus() const;
@@ -286,18 +274,14 @@ public:
 	bool IsArtistGoldenAgeTechBoost() const;
 	bool IsStaysAliveZeroCities() const;
 	bool IsFaithFromUnimprovedForest() const;
-#if defined(MOD_TRAITS_ANY_BELIEF)
 	bool IsAnyBelief() const;
 	bool IsAlwaysReligion() const;
-	bool IsIgnoreTradeDistanceScaling() const;
+	bool IsNoTradeRouteProximityPenalty() const;
 	bool IsCanPlunderWithoutWar() const;
-#endif
 	bool IsBonusReligiousBelief() const;
 	bool IsAbleToAnnexCityStates() const;
 	bool IsCrossesMountainsAfterGreatGeneral() const;
-#if defined(MOD_TRAITS_CROSSES_ICE)
 	bool IsCrossesIce() const;
-#endif
 	bool IsGGFromBarbarians() const;
 	bool IsMayaCalendarBonuses() const;
 	bool IsNoAnnexing() const;
@@ -332,12 +316,10 @@ public:
 	int GetStrategicResourceQuantityModifier(int i) const;
 	int GetObsoleteTech() const;
 	int GetPrereqTech() const;
-#if defined(MOD_TRAITS_OTHER_PREREQS)
 	int GetObsoleteBelief() const;
 	int GetPrereqBelief() const;
 	int GetObsoletePolicy() const;
 	int GetPrereqPolicy() const;
-#endif
 	int GetResourceQuantityModifier(int i) const;
 	int GetNumFreeResourceOnWorldWonderCompletion(int i) const;
 	int GetMovesChangeUnitCombat(const int unitCombatID) const;
@@ -389,9 +371,7 @@ public:
 	int GetFreePolicyPerXTechs() const;
 	EraTypes GetGPFaithPurchaseEra() const;
 	int GetFaithCostModifier() const;
-#if defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
 	int GetYieldFromRouteMovementInForeignTerritory(YieldTypes eIndex, bool bTradePartner) const;
-#endif
 	int GetBuildingClassYieldChanges(BuildingClassTypes eIndex1, YieldTypes eIndex2) const;
 	int GetCapitalYieldChanges(int i) const;
 	int GetCityYieldChanges(int i) const;
@@ -442,18 +422,14 @@ public:
 	{
 		return m_siFreePromotions;
 	}
-#if defined(MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON)
 	TradeRouteProductionSiphon GetTradeRouteProductionSiphon(const bool bInternationalOnly) const;
-#endif
 	AlternateResourceTechs GetAlternateResourceTechs(const ResourceTypes eResource) const;
 	bool IsObsoleteByTech(TeamTypes eTeam);
 	bool IsEnabledByTech(TeamTypes eTeam);
-#if defined(MOD_TRAITS_OTHER_PREREQS)
 	bool IsObsoleteByBelief(PlayerTypes ePlayer);
 	bool IsEnabledByBelief(PlayerTypes ePlayer);
 	bool IsObsoleteByPolicy(PlayerTypes ePlayer);
 	bool IsEnabledByPolicy(PlayerTypes ePlayer);
-#endif
 
 	bool NoTrain(UnitClassTypes eUnitClassType);
 
@@ -481,12 +457,8 @@ protected:
 	int m_iCapitalBuildingModifier;
 	int m_iPlotBuyCostModifier;
 	int m_iNationalPopReqModifier;
-#if defined(MOD_TRAITS_CITY_WORKING)
 	int m_iCityWorkingChange;
-#endif
-#if defined(MOD_TRAITS_CITY_AUTOMATON_WORKERS)
 	int m_iCityAutomatonWorkersChange;
-#endif
 	int m_iPlotCultureCostModifier;
 	int m_iCultureFromKills;
 	int m_iFaithFromKills;
@@ -497,9 +469,7 @@ protected:
 	int m_iWonderProductionModifier;
 	int m_iPlunderModifier;
 	int m_iImprovementMaintenanceModifier;
-#if defined(MOD_CIV6_WORKER)
 	int m_iRouteBuilderCostModifier;
-#endif
 	int m_iGoldenAgeDurationModifier;
 	int m_iGoldenAgeMoveChange;
 	int m_iGoldenAgeCombatModifier;
@@ -509,12 +479,10 @@ protected:
 	int m_iGoldenAgeGreatWriterRateModifier;
 	int m_iObsoleteTech;
 	int m_iPrereqTech;
-#if defined(MOD_TRAITS_OTHER_PREREQS)
 	int m_iObsoleteBelief;
 	int m_iPrereqBelief;
 	int m_iObsoletePolicy;
 	int m_iPrereqPolicy;
-#endif
 	int m_iExtraEmbarkMoves;
 	int m_iFreeUnitClassType;
 	int m_iNaturalWonderFirstFinderGold;
@@ -586,9 +554,7 @@ protected:
 	int m_iExtraTradeRoutesPerXOwnedVassals;
 	int m_iMinorInfluencePerGiftedUnit;
 	bool m_bIsCapitalOnly;
-#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int m_iInvestmentModifier;
-#endif
 	int m_iCombatBonusVsHigherTech;
 	int m_iCombatBonusVsLargerCiv;
 	int m_iLandUnitMaintenanceModifier;
@@ -614,9 +580,7 @@ protected:
 	int m_iWorkerSpeedModifier;
 	int m_iAfraidMinorPerTurnInfluence;
 	int m_iLandTradeRouteRangeBonus;
-#if defined(MOD_TRAITS_TRADE_ROUTE_BONUSES)
 	int m_iSeaTradeRouteRangeBonus;
-#endif
 	int m_iTradeReligionModifier;
 	int m_iTradeBuildingModifier;
 	int m_iNumFreeBuildings;
@@ -638,10 +602,8 @@ protected:
 	TechTypes m_eCapitalFreeBuildingPrereqTech;
 	UnitTypes m_eFreeUnitOnConquest;
 	BuildingTypes m_eFreeBuildingOnConquest;
-#if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
 	bool m_bBullyAnnex;
 	int m_iBullyYieldMultiplierAnnex;
-#endif
 	bool m_bFightWellDamaged;
 	bool m_bWoodlandMovementBonus;
 	bool m_bRiverMovementBonus;
@@ -653,18 +615,14 @@ protected:
 	bool m_bArtistGoldenAgeTechBoost;
 	bool m_bStaysAliveZeroCities;
 	bool m_bFaithFromUnimprovedForest;
-#if defined(MOD_TRAITS_ANY_BELIEF)
 	bool m_bAnyBelief;
 	bool m_bAlwaysReligion;
-	bool m_bIgnoreTradeDistanceScaling;
+	bool m_bNoTradeRouteProximityPenalty;
 	bool m_bCanPlunderWithoutWar;
-#endif
 	bool m_bBonusReligiousBelief;
 	bool m_bAbleToAnnexCityStates;
 	bool m_bCrossesMountainsAfterGreatGeneral;
-#if defined(MOD_TRAITS_CROSSES_ICE)
 	bool m_bCrossesIce;
-#endif
 	bool m_bGGFromBarbarians;
 	bool m_bMayaCalendarBonuses;
 	bool m_bNoAnnexing;
@@ -746,9 +704,7 @@ protected:
 	std::map<int, int> m_piGreatPersonProgressFromKills;
 	std::map<int, int> m_piRandomGreatPersonProgressFromKills;
 	int* m_piFreeUnitClassesDOW;
-#if defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
 	std::map<int, std::map<bool, int>> m_pbiYieldFromRouteMovementInForeignTerritory;
-#endif
 	int** m_ppiBuildingClassYieldChanges;
 	int* m_piCapitalYieldChanges;
 	int* m_piCityYieldChanges;
@@ -794,9 +750,7 @@ protected:
 	int m_iNonSpecialistFoodChange;
 	std::vector<int> m_aiNoBuilds;
 	std::map<int, int> m_piDomainProductionModifiersPerSpecialist;
-#if defined(MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON)
 	std::map<bool, TradeRouteProductionSiphon> m_biiTradeRouteProductionSiphon;
-#endif
 	std::map<int, AlternateResourceTechs> m_piiAlternateResourceTechs;
 	std::vector<FreeResourceXCities> m_aFreeResourceXCities;
 	std::vector<bool> m_abNoTrainUnitClass;
@@ -984,18 +938,14 @@ public:
 	{
 		return m_iNationalPopReqModifier;
 	};
-#if defined(MOD_TRAITS_CITY_WORKING)
 	int GetCityWorkingChange() const
 	{
 		return m_iCityWorkingChange;
 	};
-#endif
-#if defined(MOD_TRAITS_CITY_AUTOMATON_WORKERS)
 	int GetCityAutomatonWorkersChange() const
 	{
 		return m_iCityAutomatonWorkersChange;
 	};
-#endif
 	int GetPlotCultureCostModifier() const
 	{
 		return m_iPlotCultureCostModifier;
@@ -1036,12 +986,10 @@ public:
 	{
 		return m_iImprovementMaintenanceModifier;
 	};
-#if defined(MOD_CIV6_WORKER)
 	int GetRouteBuilderCostModifier() const
 	{
 		return m_iRouteBuilderCostModifier;
 	};
-#endif
 	int GetGoldenAgeDurationModifier() const
 	{
 		return m_iGoldenAgeDurationModifier;
@@ -1380,12 +1328,10 @@ public:
 	{
 		return m_bIsCapitalOnly;
 	};
-#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int GetInvestmentModifier() const
 	{
 		return m_iInvestmentModifier;
 	};
-#endif
 	int GetCombatBonusVsHigherTech() const
 	{
 		return m_iCombatBonusVsHigherTech;
@@ -1486,12 +1432,10 @@ public:
 	{
 		return m_iLandTradeRouteRangeBonus;
 	}
-#if defined(MOD_TRAITS_TRADE_ROUTE_BONUSES)
 	int GetSeaTradeRouteRangeBonus() const
 	{
 		return m_iSeaTradeRouteRangeBonus;
 	}
-#endif
 	int GetTradeReligionModifier() const
 	{
 		return m_iTradeReligionModifier;
@@ -1504,7 +1448,6 @@ public:
 	{
 		return m_iNumFreeBuildings;
 	}
-#if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
 	bool IsBullyAnnex() const
 	{
 		return m_bBullyAnnex;
@@ -1513,7 +1456,6 @@ public:
 	{
 		return m_iBullyYieldMultiplierAnnex;
 	}
-#endif
 
 	bool IsFightWellDamaged() const
 	{
@@ -1559,7 +1501,6 @@ public:
 	{
 		return m_bFaithFromUnimprovedForest;
 	};
-#if defined(MOD_TRAITS_ANY_BELIEF)
 	bool IsAnyBelief() const
 	{
 		return m_bAnyBelief;
@@ -1569,15 +1510,14 @@ public:
 		return m_bAlwaysReligion;
 	};
 
-	bool IsIgnoreTradeDistanceScaling() const
+	bool IsNoTradeRouteProximityPenalty() const
 	{
-		return m_bIgnoreTradeDistanceScaling;
+		return m_bNoTradeRouteProximityPenalty;
 	};
 	bool IsCanPlunderWithoutWar() const
 	{
 		return m_bCanPlunderWithoutWar;
 	};
-#endif
 	bool IsBonusReligiousBelief() const
 	{
 		return m_bBonusReligiousBelief;
@@ -1590,12 +1530,10 @@ public:
 	{
 		return m_bCrossesMountainsAfterGreatGeneral;
 	};
-#if defined(MOD_TRAITS_CROSSES_ICE)
 	bool IsCrossesIce() const
 	{
 		return m_bCrossesIce;
 	};
-#endif
 	bool IsGGFromBarbarians() const
 	{
 		return m_bGGFromBarbarians;
@@ -1918,9 +1856,7 @@ public:
 	{
 		return m_iLuxuryYieldChanges[(int)eYield];
 	};
-#if defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
 	int GetYieldFromRouteMovementInForeignTerritory(YieldTypes eIndex, bool bTradePartner) const;
-#endif
 	int GetBuildingClassYieldChange(BuildingClassTypes eBuildingClass, YieldTypes eYield) const;
 	int GetCapitalYieldChanges(YieldTypes eYield) const
 	{
@@ -2001,10 +1937,8 @@ public:
 	}
 	bool IsNoBuild(const BuildTypes eBuild) const;
 	int GetDomainProductionModifiersPerSpecialist(DomainTypes eDomain) const;
-#if defined(MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON)
 	TradeRouteProductionSiphon GetTradeRouteProductionSiphon(bool bInternationalOnly) const;
 	bool IsTradeRouteProductionSiphon() const;
-#endif
 
 	AlternateResourceTechs GetAlternateResourceTechs(ResourceTypes eResource) const;
 	bool IsAlternateResourceTechs() const;
@@ -2042,10 +1976,8 @@ public:
 
 	bool IsAbleToCrossMountainsWithGreatGeneral() const;
 
-#if defined(MOD_TRAITS_CROSSES_ICE)
 	bool IsAbleToCrossIce() const;
 	bool TerrainClaimBoost(TerrainTypes eTerrain);
-#endif
 
 	bool NoTrain(UnitClassTypes eUnitClassType);
 
@@ -2060,9 +1992,8 @@ public:
 	int GetUnitBaktun(UnitTypes eUnit) const;
 	void SetUnitBaktun(UnitTypes eUnit);
 	bool IsFreeMayaGreatPersonChoice() const;
-#if defined(MOD_BALANCE_CORE_MAYA_CHANGE)
 	bool IsProphetValid() const;
-#endif
+
 	// Serialization
 	template<typename PlayerTraits, typename Visitor>
 	static void Serialize(PlayerTraits& playerTraits, Visitor& visitor);
@@ -2114,12 +2045,8 @@ private:
 	int m_iCapitalBuildingModifier;
 	int m_iPlotBuyCostModifier;
 	int m_iNationalPopReqModifier;
-#if defined(MOD_TRAITS_CITY_WORKING)
 	int m_iCityWorkingChange;
-#endif
-#if defined(MOD_TRAITS_CITY_AUTOMATON_WORKERS)
 	int m_iCityAutomatonWorkersChange;
-#endif
 	int m_iPlotCultureCostModifier;
 	int m_iCultureFromKills;
 	int m_iFaithFromKills;
@@ -2130,9 +2057,7 @@ private:
 	int m_iWonderProductionModifier;
 	int m_iPlunderModifier;
 	int m_iImprovementMaintenanceModifier;
-#if defined(MOD_CIV6_WORKER)
 	int m_iRouteBuilderCostModifier;
-#endif
 	int m_iGoldenAgeDurationModifier;
 	int m_iGoldenAgeMoveChange;
 	int m_iGoldenAgeCombatModifier;
@@ -2216,9 +2141,7 @@ private:
 	int m_iExtraTradeRoutesPerXOwnedVassals;
 	int m_iMinorInfluencePerGiftedUnit;
 	bool m_bIsCapitalOnly;
-#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int m_iInvestmentModifier;
-#endif
 	int m_iCombatBonusVsHigherTech;
 	int m_iCombatBonusVsLargerCiv;
 	int m_iLandUnitMaintenanceModifier;
@@ -2245,9 +2168,7 @@ private:
 	int m_iWorkerSpeedModifier;
 	int m_iAfraidMinorPerTurnInfluence; 
 	int m_iLandTradeRouteRangeBonus;
-#if defined(MOD_TRAITS_TRADE_ROUTE_BONUSES)
 	int m_iSeaTradeRouteRangeBonus;
-#endif
 	int m_iTradeReligionModifier;
 	int m_iTradeBuildingModifier;
 	int m_iNumFreeBuildings;
@@ -2264,18 +2185,14 @@ private:
 	bool m_bArtistGoldenAgeTechBoost;
 	bool m_bStaysAliveZeroCities;
 	bool m_bFaithFromUnimprovedForest;
-#if defined(MOD_TRAITS_ANY_BELIEF)
 	bool m_bAnyBelief;
 	bool m_bAlwaysReligion;
-	bool m_bIgnoreTradeDistanceScaling;
+	bool m_bNoTradeRouteProximityPenalty;
 	bool m_bCanPlunderWithoutWar;
-#endif
 	bool m_bBonusReligiousBelief;
 	bool m_bAbleToAnnexCityStates;
 	bool m_bCrossesMountainsAfterGreatGeneral;
-#if defined(MOD_TRAITS_CROSSES_ICE)
 	bool m_bCrossesIce;
-#endif
 	bool m_bGGFromBarbarians;
 	bool m_bMayaCalendarBonuses;
 	bool m_bNoAnnexing;
@@ -2298,11 +2215,9 @@ private:
 	TechTypes m_eFreeUnitPrereqTech;
 	ImprovementTypes m_eCombatBonusImprovement;
 	UnitTypes m_eFreeUnitOnConquest;
-#if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
 	bool m_bBullyAnnex;
 	int m_iBullyYieldMultiplierAnnex;
 	std::vector<bool> m_abTerrainClaimBoost;
-#endif
 	int m_iExtraYieldThreshold[NUM_YIELD_TYPES];
 	int m_iFreeCityYield[NUM_YIELD_TYPES];
 	int m_iYieldChangeStrategicResources[NUM_YIELD_TYPES];
@@ -2381,12 +2296,8 @@ private:
 	bool m_bCombatBoostNearNaturalWonder;
 	int m_iCultureBonusModifierConquest;
 	int m_iProductionBonusModifierConquest;
-#if defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
 	std::map<int, std::map<bool, int>> m_pbiYieldFromRouteMovementInForeignTerritory;
-#endif
-#if defined(MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON)
 	std::map<bool, TradeRouteProductionSiphon> m_aiiTradeRouteProductionSiphon;
-#endif
 	std::map<int, AlternateResourceTechs> m_aiiAlternateResourceTechs;
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiBuildingClassYieldChange;
 	int m_iCityYieldChanges[NUM_YIELD_TYPES];

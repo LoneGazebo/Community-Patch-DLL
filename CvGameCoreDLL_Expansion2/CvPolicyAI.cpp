@@ -281,13 +281,9 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 	PolicyBranchTypes eFreedomBranch = (PolicyBranchTypes)GD_INT_GET(POLICY_BRANCH_FREEDOM);
 	PolicyBranchTypes eAutocracyBranch = (PolicyBranchTypes)GD_INT_GET(POLICY_BRANCH_AUTOCRACY);
 	PolicyBranchTypes eOrderBranch = (PolicyBranchTypes)GD_INT_GET(POLICY_BRANCH_ORDER);
-#if defined(MOD_ISKA_HERITAGE)
 	PolicyBranchTypes eHeritageBranch = (PolicyBranchTypes)GD_INT_GET(POLICY_BRANCH_HERITAGE);
-#endif
 	if (eFreedomBranch == NO_POLICY_BRANCH_TYPE || eAutocracyBranch == NO_POLICY_BRANCH_TYPE || eOrderBranch == NO_POLICY_BRANCH_TYPE)
-	{
 		return;
-	}
 
 	// Vassals are forced to choose the master's ideology
 	TeamTypes eMasterTeam = GET_TEAM(pPlayer->getTeam()).GetMaster();
@@ -411,26 +407,23 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 	int iTechPriority = iScienceInterest;
 	int iCulturePriority = iCultureInterest;
 
-#if defined(MOD_EVENTS_IDEOLOGIES)
-	if (MOD_EVENTS_IDEOLOGIES) {
+	if (MOD_EVENTS_IDEOLOGIES)
+	{
 		CvPlayerPolicies* pPolicies = pPlayer->GetPlayerPolicies();
 
 		// Just jump on the band-wagon and hard code for three ideologies!!!
-		if (!pPolicies->CanAdoptIdeology(eFreedomBranch)) {
+		if (!pPolicies->CanAdoptIdeology(eFreedomBranch))
 			iFreedomMultiplier = 0;
-		}
-		if (!pPolicies->CanAdoptIdeology(eAutocracyBranch)) {
-			iAutocracyMultiplier = 0;
-		}
-		if (!pPolicies->CanAdoptIdeology(eOrderBranch)) {
-			iOrderMultiplier = 0;
-		}
-	}
-#endif
 
-#if defined(MOD_EVENTS_IDEOLOGIES)
-	if (iFreedomMultiplier != 0 && iAutocracyMultiplier != 0 && iOrderMultiplier != 0) {
-#endif
+		if (!pPolicies->CanAdoptIdeology(eAutocracyBranch))
+			iAutocracyMultiplier = 0;
+
+		if (!pPolicies->CanAdoptIdeology(eOrderBranch))
+			iOrderMultiplier = 0;
+	}
+
+	if (iFreedomMultiplier != 0 && iAutocracyMultiplier != 0 && iOrderMultiplier != 0)
+	{
 		// Rule out one ideology if we are clearly (at least 25% more priority) going for the victory this ideology doesn't support
 		int iClearPrefPercent = /*25*/ GD_INT_GET(IDEOLOGY_PERCENT_CLEAR_VICTORY_PREF);
 		if (iConquestPriority > (iDiploPriority   * (100 + iClearPrefPercent) / 100) &&
@@ -451,9 +444,7 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 		{
 			iAutocracyMultiplier = 0;
 		}
-#if defined(MOD_EVENTS_IDEOLOGIES)
 	}
-#endif
 
 	int iFreedomTotal = iDiploPriority + iTechPriority + iCulturePriority;
 	int iAutocracyTotal = iDiploPriority + iConquestPriority + iCulturePriority;
@@ -765,7 +756,7 @@ void CvPolicyAI::DoConsiderIdeologySwitch(CvPlayer* pPlayer)
 				PolicyBranchTypes eMasterIdeology = GET_PLAYER(eMaster).GetPlayerPolicies()->GetLateGamePolicyTree();
 				if (eMasterIdeology != NO_POLICY_BRANCH_TYPE && eMasterIdeology != eCurrentIdeology)
 				{
-					if (MOD_API_ACHIEVEMENTS && eMasterIdeology == GD_INT_GET(POLICY_BRANCH_FREEDOM) && eCurrentIdeology == GD_INT_GET(POLICY_BRANCH_ORDER))
+					if (MOD_ENABLE_ACHIEVEMENTS && eMasterIdeology == GD_INT_GET(POLICY_BRANCH_FREEDOM) && eCurrentIdeology == GD_INT_GET(POLICY_BRANCH_ORDER))
 					{
 						PlayerTypes eActivePlayer = GC.getGame().getActivePlayer();
 						if (GET_PLAYER(eActivePlayer).isAlive() && GET_PLAYER(eActivePlayer).isHuman(ISHUMAN_ACHIEVEMENTS) && GET_PLAYER(eActivePlayer).getTeam() == eMasterTeam)
@@ -889,7 +880,7 @@ void CvPolicyAI::DoConsiderIdeologySwitch(CvPlayer* pPlayer)
 			return;
 		}
 
-		if (MOD_API_ACHIEVEMENTS && ePreferredIdeology == GD_INT_GET(POLICY_BRANCH_FREEDOM) && eCurrentIdeology == GD_INT_GET(POLICY_BRANCH_ORDER))
+		if (MOD_ENABLE_ACHIEVEMENTS && ePreferredIdeology == GD_INT_GET(POLICY_BRANCH_FREEDOM) && eCurrentIdeology == GD_INT_GET(POLICY_BRANCH_ORDER))
 		{
 			PlayerTypes eMostPressure = pPlayer->GetCulture()->GetPublicOpinionBiggestInfluence();
 			if (eMostPressure != NO_PLAYER && GET_PLAYER(eMostPressure).GetID() == GC.getGame().getActivePlayer())
@@ -927,7 +918,7 @@ void CvPolicyAI::DoConsiderIdeologySwitch(CvPlayer* pPlayer)
 
 		if (bSwitch)
 		{
-			if (MOD_API_ACHIEVEMENTS && ePreferredIdeology == GD_INT_GET(POLICY_BRANCH_FREEDOM) && eCurrentIdeology == GD_INT_GET(POLICY_BRANCH_ORDER))
+			if (MOD_ENABLE_ACHIEVEMENTS && ePreferredIdeology == GD_INT_GET(POLICY_BRANCH_FREEDOM) && eCurrentIdeology == GD_INT_GET(POLICY_BRANCH_ORDER))
 			{
 				PlayerTypes eMostPressure = pPlayer->GetCulture()->GetPublicOpinionBiggestInfluence();
 				if (eMostPressure != NO_PLAYER && GET_PLAYER(eMostPressure).GetID() == GC.getGame().getActivePlayer())
@@ -996,7 +987,7 @@ void CvPolicyAI::DoConsiderIdeologySwitch(CvPlayer* pPlayer)
 			return;
 		}
 
-		if (MOD_API_ACHIEVEMENTS && ePreferredIdeology == GD_INT_GET(POLICY_BRANCH_FREEDOM) && eCurrentIdeology == GD_INT_GET(POLICY_BRANCH_ORDER))
+		if (MOD_ENABLE_ACHIEVEMENTS && ePreferredIdeology == GD_INT_GET(POLICY_BRANCH_FREEDOM) && eCurrentIdeology == GD_INT_GET(POLICY_BRANCH_ORDER))
 		{
 			PlayerTypes eMostPressure = pPlayer->GetCulture()->GetPublicOpinionBiggestInfluence();
 			if (eMostPressure != NO_PLAYER && GET_PLAYER(eMostPressure).GetID() == GC.getGame().getActivePlayer())
@@ -1955,7 +1946,6 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 			yield[YIELD_FOOD] += PolicyInfo->GetHappinessPerXGreatWorks() * 5;
 		}
 	}
-#if defined(MOD_BALANCE_CORE_POLICIES)
 	if (PolicyInfo->GetExtraMissionaryStrength() != 0)
 	{
 		if (pPlayerTraits->IsReligious())
@@ -1979,7 +1969,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 			yield[YIELD_FAITH] += PolicyInfo->GetExtraMissionarySpreads() * 5;
 		}
 	}
-#endif
+
 	if (PolicyInfo->GetExtraHappinessPerLuxury() != 0)
 	{
 		if (pPlayerTraits->IsExpansionist() || pPlayerTraits->IsDiplomat())

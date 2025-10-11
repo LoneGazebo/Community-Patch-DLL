@@ -828,11 +828,11 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	}
 	
 
-	if (MOD_BALANCE_CORE_BUILDING_INVESTMENTS && !bIgnoreSituational)
+	if (MOD_BALANCE_BUILDING_INVESTMENTS && !bIgnoreSituational)
 	{
-		//Virtually force this.
+		// Virtually force this.
 		const BuildingClassTypes eBuildingClass = pkBuildingInfo->GetBuildingClassType();
-		if(m_pCity->IsBuildingInvestment(eBuildingClass))
+		if (m_pCity->IsBuildingInvestment(eBuildingClass))
 		{
 			iBonus += 1000;
 		}

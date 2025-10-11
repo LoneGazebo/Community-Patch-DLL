@@ -1186,7 +1186,7 @@ int CvMilitaryAI::ScoreAttackTarget(const CvAttackTarget& target)
 		}
 	}
 
-	if (MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	if (MOD_BALANCE_RESOURCE_MONOPOLIES)
 	{
 		for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 		{
@@ -2457,7 +2457,7 @@ void CvMilitaryAI::DisbandObsoleteUnits()
 	int iUnitLoop = 0;
 	for (CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
 	{
-		if (pLoopUnit->IsCannotHeal() && !pLoopUnit->isDelayedDeath() && pLoopUnit->canScrap() && !pLoopUnit->HasPlague())
+		if (pLoopUnit->IsCannotHeal(/*bConsiderResourceShortage*/ false) && !pLoopUnit->isDelayedDeath() && pLoopUnit->canScrap() && !pLoopUnit->HasPlague())
 		{
 			if (pLoopUnit->GetCurrHitPoints() < 75 || (GetNumberCivsAtWarWith(m_pPlayer->isMinorCiv()) > 0 && pLoopUnit->GetCurrHitPoints() < 25))
 				pLoopUnit->scrap();

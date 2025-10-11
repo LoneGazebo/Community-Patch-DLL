@@ -15,11 +15,9 @@
 #include "CvMinorCivAI.h"
 #include "CvDllInterfaces.h"
 #include "CvGrandStrategyAI.h"
-#if defined(MOD_BALANCE_CORE_MILITARY)
 #include "CvMilitaryAI.h"
 #include "CvEconomicAI.h"
 #include "CvVotingClasses.h"
-#endif
 
 // must be included after all other headers
 #include "LintFree.h"
@@ -1918,7 +1916,7 @@ vector<int> CvDealAI::GetStrategicResourceItemList(ResourceTypes eResource, int 
 		if (pPlayer->GetPlayerTraits()->NoTrain(eUnitClass))
 			continue;
 
-		if (MOD_BALANCE_CORE_MINOR_CIV_GIFT && pkUnitInfo->IsMinorCivGift())
+		if (pkUnitInfo->IsMinorCivGift())
 			continue;
 
 		// if we're over supply limit, only check air units
@@ -2425,7 +2423,7 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer)
 			iItemValue /= 100;
 		}
 
-		if (MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS && (GetPlayer()->GetCulture()->GetTourism() / 100) > 0)
+		if (MOD_BALANCE_FLIPPED_OPEN_BORDERS_TOURISM && (GetPlayer()->GetCulture()->GetTourism() / 100) > 0)
 		{
 			// The civ we need influence on the most should ALWAYS be included
 			if (GetPlayer()->GetCulture()->GetCivLowestInfluence(false /*bCheckOpenBorders*/) == eOtherPlayer)
@@ -2452,7 +2450,7 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer)
 		}
 
 		// Does open borders make their production siphon trait stronger?
-		if (MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON && GET_PLAYER(eOtherPlayer).GetPlayerTraits()->IsTradeRouteProductionSiphon())
+		if (GET_PLAYER(eOtherPlayer).GetPlayerTraits()->IsTradeRouteProductionSiphon())
 		{
 			iItemValue += GET_PLAYER(eOtherPlayer).GetPlayerTraits()->GetTradeRouteProductionSiphon(true).m_iPercentIncreaseWithOpenBorders * 20;
 			iItemValue += GET_PLAYER(eOtherPlayer).GetPlayerTraits()->GetTradeRouteProductionSiphon(false).m_iPercentIncreaseWithOpenBorders * 20;
@@ -2548,13 +2546,13 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer)
 		}
 
 		// Does open borders make our production siphon trait stronger?
-		if (MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON && GetPlayer()->GetPlayerTraits()->IsTradeRouteProductionSiphon())
+		if (GetPlayer()->GetPlayerTraits()->IsTradeRouteProductionSiphon())
 		{
 			iItemValue += GetPlayer()->GetPlayerTraits()->GetTradeRouteProductionSiphon(true).m_iPercentIncreaseWithOpenBorders * 20;
 			iItemValue += GetPlayer()->GetPlayerTraits()->GetTradeRouteProductionSiphon(false).m_iPercentIncreaseWithOpenBorders * 20;
 		}
 
-		if (!MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS && (GetPlayer()->GetCulture()->GetTourism() / 100) > 0)
+		if (!MOD_BALANCE_FLIPPED_OPEN_BORDERS_TOURISM && (GetPlayer()->GetCulture()->GetTourism() / 100) > 0)
 		{
 			// The civ we need influence on the most should ALWAYS be included
 			if (GetPlayer()->GetCulture()->GetCivLowestInfluence(false) == eOtherPlayer)
@@ -2585,8 +2583,7 @@ int CvDealAI::GetDefensivePactValue(bool bFromMe, PlayerTypes eOtherPlayer)
 		return INT_MAX;
 
 	int iDefensivePactValue = GetPlayer()->GetDiplomacyAI()->ScoreDefensivePactChoice(eOtherPlayer, GetPlayer()->GetNumEffectiveCoastalCities() > 1);
-
-	if (MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
+	if (MOD_BALANCE_VP)
 		iDefensivePactValue *= max(1, (int)GetPlayer()->GetCurrentEra());
 
 	int iItemValue = 0;

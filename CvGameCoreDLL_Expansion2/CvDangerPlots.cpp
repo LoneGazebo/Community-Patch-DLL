@@ -65,7 +65,7 @@ bool CvDangerPlots::UpdateDangerSingleUnit(const CvUnit* pLoopUnit, bool bIgnore
 	//the IGNORE_DANGER flag is extremely important here, otherwise we can get into endless loops
 	//(when the pathfinder does a lazy danger update)
 	int iFlags = CvUnit::MOVEFLAG_IGNORE_STACKING_SELF | CvUnit::MOVEFLAG_IGNORE_STACKING_NEUTRAL | CvUnit::MOVEFLAG_IGNORE_ENEMIES | CvUnit::MOVEFLAG_IGNORE_DANGER;
-	if (MOD_CORE_TWO_PASS_DANGER)
+	if (MOD_COMBATAI_TWO_PASS_DANGER)
 		iFlags |= CvUnit::MOVEFLAG_SELECTIVE_ZOC;
 	else
 		iFlags |= CvUnit::MOVEFLAG_IGNORE_ZOC;
@@ -140,7 +140,7 @@ void CvDangerPlots::UpdateDanger()
 	}
 
 	//two pass danger is dangerous ... it might happen that a covering unit moves away, leaving other exposed
-	if (MOD_CORE_TWO_PASS_DANGER)
+	if (MOD_COMBATAI_TWO_PASS_DANGER)
 	{
 		CvPlayer& thisPlayer = GET_PLAYER(m_ePlayer);
 		PlotIndexContainer plotsWithOwnedUnitsLikelyToBeKilled;

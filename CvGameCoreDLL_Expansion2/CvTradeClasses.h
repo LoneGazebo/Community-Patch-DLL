@@ -326,11 +326,10 @@ public:
 	int GetNumberOfTradeRoutesCity(const CvCity* pCity);
 
 	bool IsCityAlreadyConnectedByTrade(CvCity* pOtherCity) const;
-#if defined(MOD_BALANCE_CORE_POLICIES)
+
 	int GetNumberOfInternalTradeRoutes();
 	int GetNumberOfInternationalTradeRoutes(bool bOutgoing);
 	int GetNumberOfTradeRoutes();
-#endif
 
 	bool IsPreviousTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, DomainTypes eDomain, TradeConnectionType eConnectionType);
 
@@ -429,17 +428,13 @@ public:
 	TRSortElement ScoreInternationalTR(const TradeConnection& kTradeConnection, bool bHaveTourism) const;
 
 	//generic method
-	int ScoreInternalTR (const TradeConnection& kTradeConnection, const std::vector<CvCity*>& aTargetCityList);
+	int ScoreInternalTR(const TradeConnection& kTradeConnection, const std::vector<CvCity*>& aTargetCityList);
 
 	//wrapper for different types of trade route
-	int ScoreFoodTR (const TradeConnection& kTradeConnection, const std::vector<CvCity*>& aTargetCityList);
-	int ScoreProductionTR (const TradeConnection& kTradeConnection, const std::vector<CvCity*>& aTargetCityList);
-#if defined(MOD_TRADE_WONDER_RESOURCE_ROUTES)
-	int ScoreWonderTR (const TradeConnection& kTradeConnection, const std::vector<CvCity*>& aTargetCityList);
-#endif
-#if defined(MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES)
+	int ScoreFoodTR(const TradeConnection& kTradeConnection, const std::vector<CvCity*>& aTargetCityList);
+	int ScoreProductionTR(const TradeConnection& kTradeConnection, const std::vector<CvCity*>& aTargetCityList);
+	int ScoreWonderTR(const TradeConnection& kTradeConnection, const std::vector<CvCity*>& aTargetCityList);
 	TRSortElement ScoreGoldInternalTR(const TradeConnection& kTradeConnection) const;
-#endif
 
 	int m_iRemovableValue;
 

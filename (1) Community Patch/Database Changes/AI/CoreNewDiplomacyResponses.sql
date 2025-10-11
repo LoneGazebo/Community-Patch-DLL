@@ -4,7 +4,7 @@
 -- the game picks an associated ResponseType (CvDiplomacyAI::GetDiploStringForMessage()),
 -- and then a random Response text key from the Diplomacy_Responses table based on Biases (CvGame::GetDiploResponse()).
 --
--- If NO_RANDOM_TEXT_CIVS option is on and leader-specific responses exist, only those will be picked.
+-- If UI_NO_RANDOM_CIV_DIALOGUE option is on and leader-specific responses exist, only those will be picked.
 -- Otherwise, GENERIC and leader-specific responses will both be picked.
 --
 -- This file inserts a Response into the table for each LeaderType/ResponseType pair,

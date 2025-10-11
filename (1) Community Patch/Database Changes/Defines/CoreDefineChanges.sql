@@ -20,6 +20,10 @@ VALUES
 	('MAX_NUM_TENETS_LEVEL_3', 3),
 -- Victory conditions
 	('VICTORY_DOMINATION_CONTROL_PERCENT', 100),
+	('DIPLO_VICTORY_CIV_DELEGATES_ALIVE', 1.0),
+	('DIPLO_VICTORY_CIV_DELEGATES_ELIMINATED', 0.5),
+	('DIPLO_VICTORY_CS_DELEGATES_ALIVE', 1.0),
+	('DIPLO_VICTORY_CS_DELEGATES_ELIMINATED', 0.5),
 -- Number of units allowed in a city
 	('CITY_UNIT_LIMIT', 1),
 	('HISTORY_LOCAL_NUM_BEST_CITIES', 1),
@@ -36,7 +40,7 @@ VALUES
 	('WAR_MINOR_MINIMUM_TURNS', 1),
 -- Religion
 	('INQUISITION_EFFECTIVENESS', 100), -- expected value between 1 and 100. percentage of heretics' pressure to be removed by inquisitors. does not affect prophets.
-	('INQUISITOR_CONVERSION_REDUCTION_FACTOR', 2), -- Only relevant if BALANCE_CORE_INQUISITOR_TWEAKS is active. Divides missionary and prophet conversion strength by this number if an inquisitor is defending the target city.
+	('INQUISITOR_CONVERSION_REDUCTION_FACTOR', 50), -- Only relevant if BALANCE_INQUISITOR_NERF is active. x100 multiplier to missionary and prophet conversion strength if an inquisitor is defending the target city.
 	('RELIGION_MAXIMUM_FIXED_AMOUNT', 1), -- this number is added to the religion maximum (VP only)
 	('RELIGION_MAXIMUM_PER_PLAYER_DIVISOR', 200), -- the number of majors in the game * 100 / this number is added to the religion maximum (VP only)
 	('RELIGION_MAXIMUM_CAP', 8), -- cap on religion maximum (VP only)
@@ -76,14 +80,16 @@ VALUES
 -- Trade routes
 	('OPEN_BORDERS_MODIFIER_TRADE_GOLD', 20), -- Open Borders trade gold modifier (halved if not mutual)
 -- Ideology unlock via policies
-	('BALANCE_MOD_POLICY_BRANCHES_NEEDED_IDEOLOGY', 3),
-	('BALANCE_MOD_POLICIES_NEEDED_IDEOLOGY', 18),
+	('IDEOLOGY_UNLOCK_NUM_POLICY_BRANCHES_NEEDED', -1),
+	('IDEOLOGY_UNLOCK_NUM_POLICIES_NEEDED', -1),
+-- Free Tenets given to everyone when adopting an Ideology, regardless of the timing
+	('IDEOLOGY_UNLOCK_BASE_FREE_TENETS', 0),
 -- Resource monopolies
 	('GLOBAL_RESOURCE_MONOPOLY_THRESHOLD', 50),
 	('STRATEGIC_RESOURCE_MONOPOLY_THRESHOLD', 25),
 -- Corporations
-	('BALANCE_CORE_CORP_OFFICE_FRANCHISE_CONVERSION', 0.5),
-	('BALANCE_CORE_CORP_OFFICE_TR_CONVERSION', 1.0),
+	('BALANCE_CORP_OFFICE_FRANCHISE_CONVERSION', 0.5),
+	('BALANCE_CORP_OFFICE_TR_CONVERSION', 1.0),
 -- Recon
 	('BALANCE_SCOUT_XP_RANDOM_VALUE', 12),
 	('BALANCE_SCOUT_XP_BASE', 1),
@@ -424,7 +430,7 @@ VALUES
 	('GWAM_THRESHOLD_DECREASE', 0), -- Flat GPP cost reduction for GWAM
 	('BALANCE_BUILDING_INVESTMENT_BASELINE', -50), -- Cost modifier for building investment
 	('BALANCE_UNIT_INVESTMENT_BASELINE', -50), -- Cost modifier for unit investment
-	('BALANCE_CORE_PRODUCTION_DESERT_IMPROVEMENT', 0), -- Production yield change on featureless flat desert with improved resource
+	('BALANCE_PRODUCTION_DESERT_IMPROVEMENT', 0), -- Production yield change on featureless flat desert with improved resource
 	('BALANCE_CONQUEST_REDUCTION_BOOST', 0), -- Reduce resistance turns when annexing cities. Base is hardcoded per level of influence, this adds to it.
 	('EMBARKED_VISIBILITY_RANGE', 1), -- Base vision when embarked
 	('CITY_RANGED_ATTACK_STRENGTH_MULTIPLIER', -40), -- Modifier of city strike strength from city defense strength
@@ -887,7 +893,7 @@ VALUES
 
 	('BALANCE_SPY_RESPAWN_TIMER', 5),
 
--- Calculation of the number of spies per era, if BALANCE_CORE_SPIES is activated:
+-- Calculation of the number of spies per era, if BALANCE_SPY_POINTS is activated:
 -- Each era, gain 100 spy points. To get a spy, you need (iThreshold) Spy Points, with iThreshold = 100 * BALANCE_SPY_TO_PLAYER_RATIO / ((Num Minor Civs ever alive) + BALANCE_SPY_POINT_MAJOR_PLAYER_MULTIPLIER * (Num Major Civs ever alive))
 -- Excessive Spy Points are stored, so if for example iThreshold = 66, you get 3 spies every 2 eras
 -- iThreshold is bounded between BALANCE_SPY_POINT_THRESHOLD_MIN and BALANCE_SPY_POINT_THRESHOLD_MAX
@@ -895,6 +901,7 @@ VALUES
 	('BALANCE_SPY_POINT_MAJOR_PLAYER_MULTIPLIER', 2),
 	('BALANCE_SPY_POINT_THRESHOLD_MIN', 33),
 	('BALANCE_SPY_POINT_THRESHOLD_MAX', 100),
+	('ESPIONAGE_SPY_POINT_UNIT', 100), -- Number of spy points a value of '1' in database columns like Eras.SpiesGrantedForPlayer or Buildings.ExtraSpies corresponds to
 
 -- Influence modifier for each consecutive successfully rigged election (VP Espionage System)
 	('ESPIONAGE_CONSECUTIVE_RIGGING_INFLUENCE_MODIFIER', 40),
@@ -928,7 +935,6 @@ VALUES
 	('ESPIONAGE_SPY_XP_MISSION_SUCCESS_PERCENT', 0), -- When successfully completing a Spy Mission, gain (NP Points needed for Mission) * ESPIONAGE_XP_MISSION_SUCESS_PERCENT / 100 XP
 
 	('ESPIONAGE_COUNTERSPY_CHANGE_FOCUS_COOLDOWN', 5), -- Cooldown between switching Counterspy Missions
-	('ESPIONAGE_SPY_POINT_UNIT', 100), -- Number of spy points a value of '1' in database columns like Eras.SpiesGrantedForPlayer or Buildings.ExtraSpies corresponds to
 
 ---------------------------------------
 -- VP happiness system
@@ -1383,7 +1389,7 @@ VALUES
 -- Mod options
 ---------------------------------------
 
--- Trade route related constants (TRADE_ROUTE_SCALING)
+-- Trade route related constants
 	('TRADE_ROUTE_BASE_TARGET_TURNS', 30),
 	('TRADE_ROUTE_BASE_LAND_DISTANCE', 10),
 	('TRADE_ROUTE_BASE_LAND_MODIFIER', 0),
@@ -1404,7 +1410,7 @@ VALUES
 	('TRADE_ROUTE_CS_ALLY_GOLD', 2),
 	('TRADE_ROUTE_CS_FRIEND_GOLD', 1),
 
--- CITY_STATE_SCALE
+-- BALANCE_CITY_STATE_SCALE
 	('FRIENDSHIP_THRESHOLD_MOD_MEDIEVAL', 6),
 	('FRIENDSHIP_THRESHOLD_MOD_INDUSTRIAL', 10),
 	('CITY_STATE_SCALE_PER_CITY_MOD', 0),
@@ -1416,50 +1422,47 @@ VALUES
 -- Irrational city-states roll to see if they are friendly, neutral or hostile towards the meeting player.
 	('MINOR_CIV_FIRST_CONTACT_BONUS_FRIENDSHIP', 5),
 	('MINOR_CIV_FIRST_CONTACT_BONUS_CULTURE', 5),
-	('MINOR_CIV_FIRST_CONTACT_BONUS_FAITH', 5),
+	('MINOR_CIV_FIRST_CONTACT_BONUS_FAITH', 8), -- also used for the BNW Faith gift if GLOBAL_CS_GIFTS = 0 since Firaxis didn't add a define; updated to 5 below if GLOBAL_CS_GIFTS = 1
 	('MINOR_CIV_FIRST_CONTACT_BONUS_GOLD', 25),
 	-- Below are only given to the player who meets the CS instead of the whole team
 	('MINOR_CIV_FIRST_CONTACT_BONUS_FOOD', 10),
 	-- Chance to get a unit
 	('MINOR_CIV_FIRST_CONTACT_BONUS_UNIT', 10),
 	('MINOR_CIV_FIRST_CONTACT_XP_PER_ERA', 5),
-	('MINOR_CIV_FIRST_CONTACT_XP_RANDOM', 5),
+	('MINOR_CIV_FIRST_CONTACT_XP_RANDOM', 4),
+	-- Multiplier to base Influence amount if no unit is given; adds (Influence * x / 100) Influence instead
+	('MINOR_CIV_FIRST_CONTACT_NO_UNIT_CONSOLATION_MULTIPLIER', 100),
 
-	-- Multiplier and Divisor for the player meeting the CS, we can only store ints so *2 is 2/1
-	-- Only Influence uses these
-	('MINOR_CIV_FIRST_CONTACT_PLAYER_MULTIPLIER', 2),
-	('MINOR_CIV_FIRST_CONTACT_PLAYER_DIVISOR', 1),
+	-- Multiplier to Influence for the player who meets the CS
+	('MINOR_CIV_FIRST_CONTACT_PLAYER_MULTIPLIER', 200),
 
-	-- Multiplier and Divisor for the subsequent teams meeting the CS, we can only store ints so *0.5 is 1/2
-	-- Only Influence uses the multiplier
-	('MINOR_CIV_FIRST_CONTACT_SUBSEQUENT_TEAM_MULTIPLIER', 1),
-	-- Only Influence, Culture and Faith use the divisor, others are set to 0 instead
-	('MINOR_CIV_FIRST_CONTACT_SUBSEQUENT_TEAM_DIVISOR', 2),
+	-- Multiplier for the subsequent teams meeting the CS
+	-- This is also used for the Faith gift if GLOBAL_CS_GIFTS = 0
+	('MINOR_CIV_FIRST_CONTACT_SUBSEQUENT_TEAM_MULTIPLIER', 50),
 
-	-- Multiplier and Divisor for friendly city states bonuses, we can only store ints so *1.5 is 3/2
-	('MINOR_CIV_FIRST_CONTACT_FRIENDLY_BONUS_MULTIPLIER', 3),
-	('MINOR_CIV_FIRST_CONTACT_FRIENDLY_BONUS_DIVISOR', 2),
+	-- Multiplier for Friendly CS bonuses
+	('MINOR_CIV_FIRST_CONTACT_FRIENDLY_BONUS_MULTIPLIER', 150),
 
-	-- Multiplier and Divisor for friendly city states unit chance, we can only store ints so *2 is 2/1
-	('MINOR_CIV_FIRST_CONTACT_FRIENDLY_UNIT_MULTIPLIER', 2),
-	('MINOR_CIV_FIRST_CONTACT_FRIENDLY_UNIT_DIVISOR', 1),
+	-- Multiplier for Friendly CS unit chance
+	('MINOR_CIV_FIRST_CONTACT_FRIENDLY_UNIT_MULTIPLIER', 200),
 
-	-- Multiplier and Divisor for hostile city states bonuses, we can only store ints so *0.5 is 1/2
-	('MINOR_CIV_FIRST_CONTACT_HOSTILE_BONUS_MULTIPLIER', 1),
-	('MINOR_CIV_FIRST_CONTACT_HOSTILE_BONUS_DIVISOR', 2),
+	-- Multiplier for Hostile CS bonuses
+	('MINOR_CIV_FIRST_CONTACT_HOSTILE_BONUS_MULTIPLIER', 50),
 
-	-- Multiplier and Divisor for hostile city states unit chance, we can only store ints so *0 is 0/1
+	-- Multiplier for Hostile CS unit chance
 	('MINOR_CIV_FIRST_CONTACT_HOSTILE_UNIT_MULTIPLIER', 0),
-	('MINOR_CIV_FIRST_CONTACT_HOSTILE_UNIT_DIVISOR', 1),
 
--- BALANCE_CORE_NEW_GP_ATTRIBUTES
+-- GLOBAL_CS_UPGRADES
+	('UPGRADE_EXTRA_TURNS_UNIT_SPAWN', 3),
+
+-- BALANCE_NEW_GREAT_PERSON_ATTRIBUTES
 	('RELIGION_MIN_FAITH_SECOND_PROPHET', 600),
 
--- BALANCE_CORE_WONDER_COST_INCREASE
-	('BALANCE_CORE_WORLD_WONDER_SAME_ERA_COST_MODIFIER', 25),
-	('BALANCE_CORE_WORLD_WONDER_PREVIOUS_ERA_COST_MODIFIER', 15),
-	('BALANCE_CORE_WORLD_WONDER_SECOND_PREVIOUS_ERA_COST_MODIFIER', 10),
-	('BALANCE_CORE_WORLD_WONDER_EARLIER_ERA_COST_MODIFIER', 5); -- all previous eras
+-- Increases the Production cost of World Wonders based on the number of existing World Wonders in the city
+	('BALANCE_WORLD_WONDER_SAME_ERA_COST_MODIFIER', 25),
+	('BALANCE_WORLD_WONDER_PREVIOUS_ERA_COST_MODIFIER', 15),
+	('BALANCE_WORLD_WONDER_SECOND_PREVIOUS_ERA_COST_MODIFIER', 10),
+	('BALANCE_WORLD_WONDER_EARLIER_ERA_COST_MODIFIER', 5); -- all previous eras
 
 INSERT INTO PostDefines
 	(Name, Key, "Table")
@@ -1477,10 +1480,15 @@ VALUES
 	('RELIGION_LAST_FOUND_ERA', 'ERA_RENAISSANCE', 'Eras'),
 	('RELIGION_GP_FAITH_PURCHASE_ERA', 'ERA_INDUSTRIAL', 'Eras'),
 	('IDEOLOGY_START_ERA', 'ERA_INDUSTRIAL', 'Eras'),
-	('IDEOLOGY_PREREQ_ERA', 'ERA_INDUSTRIAL', 'Eras'),
 	('MARCH_PROMOTION', 'PROMOTION_MARCH', 'UnitPromotions'),
 	('MORALE_PROMOTION', 'PROMOTION_MORALE', 'UnitPromotions'),
 	('PROMOTION_DEEPWATER_EMBARKATION', 'PROMOTION_DEEPWATER_EMBARKATION', 'UnitPromotions'),
 	('PROMOTION_DEFENSIVE_DEEPWATER_EMBARKATION', 'PROMOTION_DEFENSIVE_DEEPWATER_EMBARKATION', 'UnitPromotions'),
 	('PROMOTION_FLAGSHIP', 'PROMOTION_FLAGSHIP', 'UnitPromotions'),
 	('NUKE_TRIGGER_PROJECT', 'PROJECT_MANHATTAN_PROJECT', 'Projects');
+
+-- CustomModOption define overrides
+UPDATE Defines
+SET Value = 5
+WHERE Name = 'MINOR_CIV_FIRST_CONTACT_BONUS_FAITH'
+AND EXISTS (SELECT 1 FROM CustomModOptions WHERE Name = 'GLOBAL_CS_GIFTS' AND Value = 1);

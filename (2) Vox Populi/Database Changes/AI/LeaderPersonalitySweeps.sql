@@ -9,7 +9,6 @@ UPDATE Leaders
 SET
 	PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DIPLOMACY',
 	SecondaryVictoryPursuit = 'VICTORY_PURSUIT_CULTURE',
-	Personality = 'PERSONALITY_DIPLOMAT',
 	VictoryCompetitiveness = 5,
 	WonderCompetitiveness = 6,
 	MinorCivCompetitiveness = 7,
@@ -50,7 +49,6 @@ UPDATE Leaders
 SET
 	PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DIPLOMACY',
 	SecondaryVictoryPursuit = 'VICTORY_PURSUIT_DOMINATION',
-	Personality = 'PERSONALITY_EXPANSIONIST',
 	VictoryCompetitiveness = 6,
 	WonderCompetitiveness = 3,
 	MinorCivCompetitiveness = 10,
@@ -91,7 +89,6 @@ UPDATE Leaders
 SET
 	PrimaryVictoryPursuit = 'VICTORY_PURSUIT_SCIENCE',
 	SecondaryVictoryPursuit = 'VICTORY_PURSUIT_DOMINATION',
-	Personality = 'PERSONALITY_CONQUEROR',
 	VictoryCompetitiveness = 6,
 	WonderCompetitiveness = 5,
 	MinorCivCompetitiveness = 2,
@@ -131,7 +128,6 @@ VALUES
 UPDATE Leaders
 SET
 	PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DOMINATION',
-	Personality = 'PERSONALITY_CONQUEROR',
 	VictoryCompetitiveness = 8,
 	WonderCompetitiveness = 6,
 	MinorCivCompetitiveness = 4,
@@ -171,7 +167,6 @@ VALUES
 UPDATE Leaders
 SET
 	PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DOMINATION',
-	Personality = 'PERSONALITY_CONQUEROR',
 	VictoryCompetitiveness = 5,
 	WonderCompetitiveness = 4,
 	MinorCivCompetitiveness = 4,
@@ -211,7 +206,6 @@ VALUES
 UPDATE Leaders
 SET
 	PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DOMINATION',
-	Personality = 'PERSONALITY_CONQUEROR',
 	VictoryCompetitiveness = 6,
 	WonderCompetitiveness = 8,
 	MinorCivCompetitiveness = 2,
@@ -251,7 +245,6 @@ VALUES
 UPDATE Leaders
 SET
 	PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DIPLOMACY',
-	Personality = 'PERSONALITY_DIPLOMAT',
 	VictoryCompetitiveness = 5,
 	WonderCompetitiveness = 5,
 	MinorCivCompetitiveness = 9,
@@ -290,7 +283,6 @@ VALUES
 -- Boudicca (The Celts); generalist civ with no victory pursuit bias
 UPDATE Leaders
 SET
-	Personality = 'PERSONALITY_EXPANSIONIST',
 	VictoryCompetitiveness = 8,
 	WonderCompetitiveness = 6,
 	MinorCivCompetitiveness = 4,
@@ -329,7 +321,6 @@ VALUES
 -- Casimir III (Poland); generalist civ with no victory pursuit bias
 UPDATE Leaders
 SET
-	Personality = 'PERSONALITY_COALITION',
 	VictoryCompetitiveness = 4,
 	WonderCompetitiveness = 6,
 	MinorCivCompetitiveness = 5,
@@ -370,7 +361,6 @@ UPDATE Leaders
 SET
 	PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DOMINATION',
 	SecondaryVictoryPursuit = 'VICTORY_PURSUIT_SCIENCE',
-	Personality = 'PERSONALITY_EXPANSIONIST',
 	VictoryCompetitiveness = 7,
 	WonderCompetitiveness = 5,
 	MinorCivCompetitiveness = 6,
@@ -410,7 +400,6 @@ VALUES
 UPDATE Leaders
 SET
 	PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DOMINATION',
-	Personality = 'PERSONALITY_CONQUEROR',
 	VictoryCompetitiveness = 5,
 	WonderCompetitiveness = 8,
 	MinorCivCompetitiveness = 3,
@@ -451,7 +440,6 @@ UPDATE Leaders
 SET
 	PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DIPLOMACY',
 	SecondaryVictoryPursuit = 'VICTORY_PURSUIT_DOMINATION',
-	Personality = 'PERSONALITY_EXPANSIONIST',
 	VictoryCompetitiveness = 6,
 	WonderCompetitiveness = 4,
 	MinorCivCompetitiveness = 8,
@@ -492,7 +480,6 @@ UPDATE Leaders
 SET
 	PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DOMINATION',
 	SecondaryVictoryPursuit = 'VICTORY_PURSUIT_SCIENCE',
-	Personality = 'PERSONALITY_COALITION',
 	VictoryCompetitiveness = 7,
 	WonderCompetitiveness = 5,
 	MinorCivCompetitiveness = 8,
@@ -532,7 +519,6 @@ VALUES
 UPDATE Leaders
 SET
 	PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DIPLOMACY',
-	Personality = 'PERSONALITY_DIPLOMAT',
 	VictoryCompetitiveness = 3,
 	WonderCompetitiveness = 10,
 	MinorCivCompetitiveness = 10,
@@ -573,7 +559,6 @@ UPDATE Leaders
 SET
 	PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DOMINATION',
 	SecondaryVictoryPursuit = 'VICTORY_PURSUIT_DIPLOMACY',
-	Personality = 'PERSONALITY_EXPANSIONIST',
 	VictoryCompetitiveness = 6,
 	WonderCompetitiveness = 4,
 	MinorCivCompetitiveness = 5,
@@ -614,7 +599,6 @@ UPDATE Leaders
 SET
 	PrimaryVictoryPursuit = 'VICTORY_PURSUIT_SCIENCE',
 	SecondaryVictoryPursuit = 'VICTORY_PURSUIT_CULTURE',
-	Personality = 'PERSONALITY_DIPLOMAT',
 	VictoryCompetitiveness = 4,
 	WonderCompetitiveness = 9,
 	MinorCivCompetitiveness = 6,
@@ -654,7 +638,6 @@ VALUES
 UPDATE Leaders
 SET
 	PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DOMINATION',
-	Personality = 'PERSONALITY_CONQUEROR',
 	VictoryCompetitiveness = 10,
 	WonderCompetitiveness = 1,
 	MinorCivCompetitiveness = 1,
@@ -694,7 +677,6 @@ VALUES
 UPDATE Leaders
 SET
 	PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DOMINATION',
-	Personality = 'PERSONALITY_CONQUEROR',
 	VictoryCompetitiveness = 8,
 	WonderCompetitiveness = 6,
 	MinorCivCompetitiveness = 4,
@@ -735,7 +717,6 @@ UPDATE Leaders
 SET
 	PrimaryVictoryPursuit = 'VICTORY_PURSUIT_CULTURE',
 	SecondaryVictoryPursuit = 'VICTORY_PURSUIT_SCIENCE',
-	Personality = 'PERSONALITY_COALITION',
 	VictoryCompetitiveness = 2,
 	WonderCompetitiveness = 7,
 	MinorCivCompetitiveness = 6,
@@ -775,7 +756,6 @@ VALUES
 UPDATE Leaders
 SET
 	PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DOMINATION',
-	Personality = 'PERSONALITY_CONQUEROR',
 	VictoryCompetitiveness = 7,
 	WonderCompetitiveness = 6,
 	MinorCivCompetitiveness = 5,
@@ -815,7 +795,6 @@ VALUES
 UPDATE Leaders
 SET
 	PrimaryVictoryPursuit = 'VICTORY_PURSUIT_CULTURE',
-	Personality = 'PERSONALITY_COALITION',
 	VictoryCompetitiveness = 3,
 	WonderCompetitiveness = 10,
 	MinorCivCompetitiveness = 7,
@@ -856,7 +835,6 @@ UPDATE Leaders
 SET
 	PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DIPLOMACY',
 	SecondaryVictoryPursuit = 'VICTORY_PURSUIT_DOMINATION',
-	Personality = 'PERSONALITY_EXPANSIONIST',
 	VictoryCompetitiveness = 5,
 	WonderCompetitiveness = 2,
 	MinorCivCompetitiveness = 8,
@@ -897,7 +875,6 @@ UPDATE Leaders
 SET
 	PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DOMINATION',
 	SecondaryVictoryPursuit = 'VICTORY_PURSUIT_DIPLOMACY',
-	Personality = 'PERSONALITY_EXPANSIONIST',
 	VictoryCompetitiveness = 6,
 	WonderCompetitiveness = 5,
 	MinorCivCompetitiveness = 7,
@@ -937,7 +914,6 @@ VALUES
 UPDATE Leaders
 SET
 	PrimaryVictoryPursuit = 'VICTORY_PURSUIT_CULTURE',
-	Personality = 'PERSONALITY_COALITION',
 	VictoryCompetitiveness = 5,
 	WonderCompetitiveness = 7,
 	MinorCivCompetitiveness = 7,
@@ -977,7 +953,6 @@ VALUES
 UPDATE Leaders
 SET
 	PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DIPLOMACY',
-	Personality = 'PERSONALITY_DIPLOMAT',
 	VictoryCompetitiveness = 4,
 	WonderCompetitiveness = 4,
 	MinorCivCompetitiveness = 9,
@@ -1018,7 +993,6 @@ UPDATE Leaders
 SET
 	PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DIPLOMACY',
 	SecondaryVictoryPursuit = 'VICTORY_PURSUIT_CULTURE',
-	Personality = 'PERSONALITY_DIPLOMAT',
 	VictoryCompetitiveness = 4,
 	WonderCompetitiveness = 8,
 	MinorCivCompetitiveness = 10,
@@ -1058,7 +1032,6 @@ VALUES
 UPDATE Leaders
 SET
 	PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DOMINATION',
-	Personality = 'PERSONALITY_CONQUEROR',
 	VictoryCompetitiveness = 8,
 	WonderCompetitiveness = 7,
 	MinorCivCompetitiveness = 3,
@@ -1099,7 +1072,6 @@ UPDATE Leaders
 SET
 	PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DOMINATION',
 	SecondaryVictoryPursuit = 'VICTORY_PURSUIT_CULTURE',
-	Personality = 'PERSONALITY_CONQUEROR',
 	VictoryCompetitiveness = 8,
 	WonderCompetitiveness = 9,
 	MinorCivCompetitiveness = 5,
@@ -1139,7 +1111,6 @@ VALUES
 UPDATE Leaders
 SET
 	PrimaryVictoryPursuit = 'VICTORY_PURSUIT_SCIENCE',
-	Personality = 'PERSONALITY_COALITION',
 	VictoryCompetitiveness = 3,
 	WonderCompetitiveness = 8,
 	MinorCivCompetitiveness = 7,
@@ -1180,7 +1151,6 @@ UPDATE Leaders
 SET
 	PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DOMINATION',
 	SecondaryVictoryPursuit = 'VICTORY_PURSUIT_CULTURE',
-	Personality = 'PERSONALITY_CONQUEROR',
 	VictoryCompetitiveness = 7,
 	WonderCompetitiveness = 7,
 	MinorCivCompetitiveness = 6,
@@ -1221,7 +1191,6 @@ UPDATE Leaders
 SET
 	PrimaryVictoryPursuit = 'VICTORY_PURSUIT_SCIENCE',
 	SecondaryVictoryPursuit = 'VICTORY_PURSUIT_CULTURE',
-	Personality = 'PERSONALITY_COALITION',
 	VictoryCompetitiveness = 5,
 	WonderCompetitiveness = 9,
 	MinorCivCompetitiveness = 6,
@@ -1261,7 +1230,6 @@ VALUES
 UPDATE Leaders
 SET
 	PrimaryVictoryPursuit = 'VICTORY_PURSUIT_SCIENCE',
-	Personality = 'PERSONALITY_EXPANSIONIST',
 	VictoryCompetitiveness = 6,
 	WonderCompetitiveness = 6,
 	MinorCivCompetitiveness = 6,
@@ -1301,7 +1269,6 @@ VALUES
 UPDATE Leaders
 SET
 	PrimaryVictoryPursuit = 'VICTORY_PURSUIT_CULTURE',
-	Personality = 'PERSONALITY_DIPLOMAT',
 	VictoryCompetitiveness = 2,
 	WonderCompetitiveness = 10,
 	MinorCivCompetitiveness = 7,
@@ -1340,7 +1307,6 @@ VALUES
 -- Pocatello (The Shoshone); generalist civ with no victory pursuit bias
 UPDATE Leaders
 SET
-	Personality = 'PERSONALITY_EXPANSIONIST',
 	VictoryCompetitiveness = 7,
 	WonderCompetitiveness = 3,
 	MinorCivCompetitiveness = 7,
@@ -1380,7 +1346,6 @@ VALUES
 UPDATE Leaders
 SET
 	PrimaryVictoryPursuit = 'VICTORY_PURSUIT_CULTURE',
-	Personality = 'PERSONALITY_COALITION',
 	VictoryCompetitiveness = 7,
 	WonderCompetitiveness = 12,
 	MinorCivCompetitiveness = 5,
@@ -1420,7 +1385,6 @@ VALUES
 UPDATE Leaders
 SET
 	PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DIPLOMACY',
-	Personality = 'PERSONALITY_DIPLOMAT',
 	VictoryCompetitiveness = 4,
 	WonderCompetitiveness = 6,
 	MinorCivCompetitiveness = 12,
@@ -1460,7 +1424,6 @@ VALUES
 UPDATE Leaders
 SET
 	PrimaryVictoryPursuit = 'VICTORY_PURSUIT_SCIENCE',
-	Personality = 'PERSONALITY_DIPLOMAT',
 	VictoryCompetitiveness = 2,
 	WonderCompetitiveness = 10,
 	MinorCivCompetitiveness = 8,
@@ -1500,7 +1463,6 @@ VALUES
 UPDATE Leaders
 SET
 	PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DOMINATION',
-	Personality = 'PERSONALITY_CONQUEROR',
 	VictoryCompetitiveness = 8,
 	WonderCompetitiveness = 2,
 	MinorCivCompetitiveness = -1,
@@ -1541,7 +1503,6 @@ UPDATE Leaders
 SET
 	PrimaryVictoryPursuit = 'VICTORY_PURSUIT_SCIENCE',
 	SecondaryVictoryPursuit = 'VICTORY_PURSUIT_DOMINATION',
-	Personality = 'PERSONALITY_EXPANSIONIST',
 	VictoryCompetitiveness = 7,
 	WonderCompetitiveness = 7,
 	MinorCivCompetitiveness = 8,
@@ -1580,7 +1541,6 @@ VALUES
 -- Theodora (Byzantium); generalist civ with no victory pursuit bias
 UPDATE Leaders
 SET
-	Personality = 'PERSONALITY_DIPLOMAT',
 	VictoryCompetitiveness = 6,
 	WonderCompetitiveness = 9,
 	MinorCivCompetitiveness = 8,
@@ -1619,7 +1579,6 @@ VALUES
 -- Washington (America); generalist civ with no victory pursuit bias
 UPDATE Leaders
 SET
-	Personality = 'PERSONALITY_COALITION',
 	VictoryCompetitiveness = 8,
 	WonderCompetitiveness = 4,
 	MinorCivCompetitiveness = 8,
@@ -1659,7 +1618,6 @@ VALUES
 UPDATE Leaders
 SET
 	PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DIPLOMACY',
-	Personality = 'PERSONALITY_DIPLOMAT',
 	VictoryCompetitiveness = 3,
 	WonderCompetitiveness = 4,
 	MinorCivCompetitiveness = 10,
@@ -1700,7 +1658,6 @@ UPDATE Leaders
 SET
 	PrimaryVictoryPursuit = 'VICTORY_PURSUIT_SCIENCE',
 	SecondaryVictoryPursuit = 'VICTORY_PURSUIT_DOMINATION',
-	Personality = 'PERSONALITY_EXPANSIONIST',
 	VictoryCompetitiveness = 10,
 	WonderCompetitiveness = 8,
 	MinorCivCompetitiveness = 8,

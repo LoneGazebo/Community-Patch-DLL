@@ -4629,6 +4629,7 @@ CvGameSpeedInfo::CvGameSpeedInfo() :
 	m_iTrainPercent(0),
 	m_iInstantYieldPercent(0),
 	m_iDifficultyBonusPercent(0),
+	m_iExperiencePercent(0),
 	m_iConstructPercent(0),
 	m_iCreatePercent(0),
 	m_iResearchPercent(0),
@@ -4651,9 +4652,7 @@ CvGameSpeedInfo::CvGameSpeedInfo() :
 	m_iReligiousPressureAdjacentCity(0),
 	m_iVictoryDelayPercent(0),
 	m_iMinorCivElectionFreqMod(0),
-#if defined(MOD_TRADE_ROUTE_SCALING)
 	m_iTradeRouteSpeedMod(100),
-#endif
 	m_iPietyMax(0),
 	m_iPietyMin(0),
 	m_iMilitaryRatingDecayPercent(0),
@@ -4701,6 +4700,11 @@ int CvGameSpeedInfo::getInstantYieldPercent() const
 int CvGameSpeedInfo::getDifficultyBonusPercent() const
 {
 	return m_iDifficultyBonusPercent;
+}
+//------------------------------------------------------------------------------
+int CvGameSpeedInfo::getExperiencePercent() const
+{
+	return m_iExperiencePercent;
 }
 //------------------------------------------------------------------------------
 int CvGameSpeedInfo::getConstructPercent() const
@@ -4832,13 +4836,11 @@ int CvGameSpeedInfo::getRelationshipDuration() const
 {
 	return m_iRelationshipDuration;
 }
-#if defined(MOD_TRADE_ROUTE_SCALING)
 //------------------------------------------------------------------------------
 int CvGameSpeedInfo::getTradeRouteSpeedMod() const
 {
 	return m_iTradeRouteSpeedMod;
 }
-#endif
 //------------------------------------------------------------------------------
 int CvGameSpeedInfo::getMilitaryRatingDecayPercent() const
 {
@@ -4886,6 +4888,7 @@ bool CvGameSpeedInfo::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iTrainPercent					= kResults.GetInt("TrainPercent");
 	m_iInstantYieldPercent			= kResults.GetInt("InstantYieldPercent");
 	m_iDifficultyBonusPercent		= kResults.GetInt("DifficultyBonusPercent");
+	m_iExperiencePercent			= kResults.GetInt("ExperiencePercent");
 	m_iConstructPercent				= kResults.GetInt("ConstructPercent");
 	m_iCreatePercent				= kResults.GetInt("CreatePercent");
 	m_iResearchPercent				= kResults.GetInt("ResearchPercent");
@@ -4912,22 +4915,17 @@ bool CvGameSpeedInfo::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iSpyRatePercent				= kResults.GetInt("SpyRatePercent");
 	m_iPeaceDealDuration			= kResults.GetInt("PeaceDealDuration");
 	m_iRelationshipDuration			= kResults.GetInt("RelationshipDuration");
-#if defined(MOD_TRADE_ROUTE_SCALING)
-	if (MOD_TRADE_ROUTE_SCALING) {
-		m_iTradeRouteSpeedMod		= kResults.GetInt("TradeRouteSpeedMod");
-	}
-#endif
+	m_iTradeRouteSpeedMod			= kResults.GetInt("TradeRouteSpeedMod");
 	m_iMilitaryRatingDecayPercent	= kResults.GetInt("MilitaryRatingDecayPercent");
 	m_iPietyMin						= kResults.GetInt("PietyMin");
 	m_iPietyMax						= kResults.GetInt("PietyMax");
 	m_iLeaguePercent				= kResults.GetInt("LeaguePercent");
-
 	m_iTechCostPerTurnMultiplier	= kResults.GetInt("TechCostPerTurnMultiplier");
 	m_iMinimumVoluntaryVassalTurns	= kResults.GetInt("MinimumVoluntaryVassalTurns");
 	m_iMinimumVassalTurns			= kResults.GetInt("MinimumVassalTurns");
 	m_iMinimumVassalTaxTurns		= kResults.GetInt("MinimumVassalTaxTurns");
 	m_iNumTurnsBetweenVassals		= kResults.GetInt("NumTurnsBetweenVassals");
-	m_iMinimumVassalLiberateTurns		= kResults.GetInt("MinimumVassalLiberateTurns");
+	m_iMinimumVassalLiberateTurns	= kResults.GetInt("MinimumVassalLiberateTurns");
 
 	//GameTurnInfos
 	{
@@ -5054,8 +5052,6 @@ FDataStream& operator>>(FDataStream& loadFrom, CvTurnTimerInfo& writeTo)
 	return loadFrom;
 }
 
-
-#if defined(MOD_EVENTS_DIPLO_MODIFIERS)
 //======================================================================================================
 //					CvDiploModifierInfo
 //======================================================================================================
@@ -5133,7 +5129,6 @@ FDataStream& operator>>(FDataStream& loadFrom, CvDiploModifierInfo& writeTo)
 	writeTo.readFrom(loadFrom);
 	return loadFrom;
 }
-#endif
 
 
 //======================================================================================================
@@ -5142,9 +5137,7 @@ FDataStream& operator>>(FDataStream& loadFrom, CvDiploModifierInfo& writeTo)
 CvBuildInfo::CvBuildInfo() :
 	m_iTime(0),
 	m_iCost(0),
-#if defined(MOD_CIV6_WORKER)
 	m_iBuilderCost(0),
-#endif
 	m_iCostIncreasePerImprovement(0),
 	m_iTechPrereq(NO_TECH),
 	m_iTechObsolete(NO_TECH),
@@ -5192,13 +5185,11 @@ int CvBuildInfo::getCost() const
 {
 	return m_iCost;
 }
-#if defined(MOD_CIV6_WORKER)
 //------------------------------------------------------------------------------
 int CvBuildInfo::getBuilderCost() const
 {
 	return m_iBuilderCost;
 }
-#endif
 //------------------------------------------------------------------------------
 int CvBuildInfo::getCostIncreasePerImprovement() const
 {
@@ -5345,9 +5336,7 @@ bool CvBuildInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 
 	m_iTime = kResults.GetInt("Time");
 	m_iCost = kResults.GetInt("Cost");
-#if defined(MOD_CIV6_WORKER)
 	m_iBuilderCost = kResults.GetInt("BuilderCost");
-#endif
 	m_iCostIncreasePerImprovement = kResults.GetInt("CostIncreasePerImprovement");
 	m_bKill = kResults.GetBool("Kill");
 	m_bRepair = kResults.GetBool("Repair");
@@ -5851,11 +5840,9 @@ CvResourceInfo::CvResourceInfo() :
 	m_iMinLatitude(0),
 	m_iMaxLatitude(0),
 	m_eResourceUsage(RESOURCEUSAGE_BONUS),
-#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	m_iMonopolyHappiness(0),
 	m_iMonopolyGALength(0),
 	m_bIsMonopoly(false),
-#endif
 	m_bPresentOnAllValidPlots(false),
 	m_bOneArea(false),
 	m_bHills(false),
@@ -5864,17 +5851,13 @@ CvResourceInfo::CvResourceInfo() :
 	m_bOnlyMinorCivs(false),
 	m_eRequiredCivilization(NO_CIVILIZATION),
 	m_piYieldChange(NULL),
-#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	m_piYieldChangeFromMonopoly(NULL),
 	m_piCityYieldModFromMonopoly(NULL),
 	m_piiMonopolyCombatModifiers(),
 	m_piMonopolyGreatPersonRateModifiers(),
 	m_piMonopolyGreatPersonRateChanges(),
-#endif
-#if defined(MOD_RESOURCES_PRODUCTION_COST_MODIFIERS)
 	m_piiiUnitCombatProductionCostModifiersLocal(),
 	m_aiiiBuildingProductionCostModifiersLocal(),
-#endif
 	m_piResourceQuantityTypes(NULL),
 	m_piImprovementChange(NULL),
 	m_pbTerrain(NULL),
@@ -5886,17 +5869,13 @@ CvResourceInfo::CvResourceInfo() :
 CvResourceInfo::~CvResourceInfo()
 {
 	SAFE_DELETE_ARRAY(m_piYieldChange);
-#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	SAFE_DELETE_ARRAY(m_piYieldChangeFromMonopoly);
 	SAFE_DELETE_ARRAY(m_piCityYieldModFromMonopoly);
 	m_piiMonopolyCombatModifiers.clear();
 	m_piMonopolyGreatPersonRateModifiers.clear();
 	m_piMonopolyGreatPersonRateChanges.clear();
-#endif
-#if defined(MOD_RESOURCES_PRODUCTION_COST_MODIFIERS)
 	m_piiiUnitCombatProductionCostModifiersLocal.clear();
 	m_aiiiBuildingProductionCostModifiersLocal.clear();
-#endif
 	SAFE_DELETE_ARRAY(m_piResourceQuantityTypes);
 	SAFE_DELETE_ARRAY(m_piImprovementChange);
 	SAFE_DELETE_ARRAY(m_pbTerrain);
@@ -5988,7 +5967,6 @@ ResourceUsageTypes CvResourceInfo::getResourceUsage() const
 {
 	return m_eResourceUsage;
 }
-#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 int CvResourceInfo::getMonopolyHappiness() const
 {
 	return m_iMonopolyHappiness;
@@ -6021,7 +5999,6 @@ bool CvResourceInfo::isMonopoly() const
 {
 	return m_bIsMonopoly;
 }
-#endif
 //------------------------------------------------------------------------------
 bool CvResourceInfo::isPresentOnAllValidPlots() const
 {
@@ -6119,7 +6096,6 @@ int* CvResourceInfo::getYieldChangeArray()
 {
 	return m_piYieldChange;
 }
-#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 //------------------------------------------------------------------------------
 int CvResourceInfo::getYieldChangeFromMonopoly(int i) const
 {
@@ -6360,9 +6336,7 @@ int CvResourceInfo::getMonopolyGreatPersonRateChange(SpecialistTypes eSpecialist
 
 	return iMod;
 }
-#endif
 
-#if defined(MOD_RESOURCES_PRODUCTION_COST_MODIFIERS)
 //------------------------------------------------------------------------------
 bool CvResourceInfo::isHasUnitCombatProductionCostModifiersLocal() const
 {
@@ -6471,7 +6445,7 @@ std::vector<ProductionCostModifiers> CvResourceInfo::getBuildingProductionCostMo
 {
 	return m_aiiiBuildingProductionCostModifiersLocal;
 }
-#endif
+
 //------------------------------------------------------------------------------
 int CvResourceInfo::getResourceQuantityType(int i) const
 {
@@ -6524,8 +6498,6 @@ bool CvResourceInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	m_iMinAreaSize = kResults.GetInt("MinAreaSize");
 	m_iMinLatitude = kResults.GetInt("MinLatitude");
 	m_iMaxLatitude = kResults.GetInt("MaxLatitude");
-
-#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	m_iMonopolyHappiness = kResults.GetInt("MonopolyHappiness");
 	m_iMonopolyGALength = kResults.GetInt("MonopolyGALength");
 	m_iMonopolyAttackBonus = kResults.GetInt("MonopolyAttackBonus");
@@ -6534,7 +6506,6 @@ bool CvResourceInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	m_iMonopolyHealBonus = kResults.GetInt("MonopolyHealBonus");
 	m_iMonopolyXPBonus = kResults.GetInt("MonopolyXPBonus");
 	m_bIsMonopoly = kResults.GetBool("IsMonopoly");
-#endif
 	m_bPresentOnAllValidPlots = kResults.GetBool("PresentOnAllValidPlots");
 	m_bOneArea = kResults.GetBool("Area");
 	m_bHills = kResults.GetBool("Hills");
@@ -6587,10 +6558,8 @@ bool CvResourceInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	//Arrays
 	const char* szResourceType = GetType();
 	kUtility.SetYields(m_piYieldChange, "Resource_YieldChanges", "ResourceType", szResourceType);
-#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	kUtility.SetYields(m_piYieldChangeFromMonopoly, "Resource_YieldChangeFromMonopoly", "ResourceType", szResourceType);
 	kUtility.SetYields(m_piCityYieldModFromMonopoly, "Resource_CityYieldModFromMonopoly", "ResourceType", szResourceType);
-#endif
 
 	kUtility.PopulateArrayByExistence(m_pbTerrain, "Terrains", "Resource_TerrainBooleans", "TerrainType", "ResourceType", szResourceType);
 	kUtility.PopulateArrayByExistence(m_pbFeature, "Features", "Resource_FeatureBooleans", "FeatureType", "ResourceType", szResourceType);
@@ -6618,10 +6587,8 @@ bool CvResourceInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 				m_piResourceQuantityTypes[i++] = quantity;
 			}
 		}
-
 	}
 
-#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	//Resource_MonopolyCombatModifiers
 	{
 
@@ -6692,7 +6659,6 @@ bool CvResourceInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 
 	//Resource_MonopolyGreatPersonRateChanges
 	{
-
 		std::string sqlKey = "Resource_MonopolyGreatPersonRateChanges";
 		Database::Results* pResults = kUtility.GetResults(sqlKey);
 		if (pResults == NULL)
@@ -6723,12 +6689,9 @@ bool CvResourceInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 		//Trim extra memory off container since this is mostly read-only.
 		std::map<MonopolyGreatPersonRateModifierKey, int>(m_piMonopolyGreatPersonRateChanges).swap(m_piMonopolyGreatPersonRateChanges);
 	}
-#endif
 
-#if defined(MOD_RESOURCES_PRODUCTION_COST_MODIFIERS)
 	//Resource_UnitCombatProductionCostModifiersLocal
 	{
-
 		std::string sqlKey = "Resource_UnitCombatProductionCostModifiersLocal";
 		Database::Results* pResults = kUtility.GetResults(sqlKey);
 		if (pResults == NULL)
@@ -6761,36 +6724,33 @@ bool CvResourceInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	}
 
 	//Resource_BuildingProductionCostModifiersLocal
+	{
+		std::string sqlKey = "Resource_BuildingProductionCostModifiersLocal";
+		Database::Results* pResults = kUtility.GetResults(sqlKey);
+		if (pResults == NULL)
 		{
-
-			std::string sqlKey = "Resource_BuildingProductionCostModifiersLocal";
-			Database::Results* pResults = kUtility.GetResults(sqlKey);
-			if (pResults == NULL)
-			{
-				const char* szSQL = "select RequiredEra, ObsoleteEra, CostModifier from Resource_BuildingProductionCostModifiersLocal where ResourceType = ?";
-				pResults = kUtility.PrepareResults(sqlKey, szSQL);
-			}
-
-			pResults->Bind(1, szResourceType);
-
-			while (pResults->Step())
-			{
-				const int iRequiredEra = GC.getInfoTypeForString(pResults->GetText(0), true);
-				const int iObsoleteEra = GC.getInfoTypeForString(pResults->GetText(1), true);
-				const int iCostMod = pResults->GetInt(2);
-
-				ProductionCostModifiers sElement;
-				sElement.m_iRequiredEra = iRequiredEra;
-				sElement.m_iObsoleteEra = iObsoleteEra;
-				sElement.m_iCostModifier = iCostMod;
-
-				m_aiiiBuildingProductionCostModifiersLocal.push_back(sElement);
-			}
-
-			pResults->Reset();
+			const char* szSQL = "select RequiredEra, ObsoleteEra, CostModifier from Resource_BuildingProductionCostModifiersLocal where ResourceType = ?";
+			pResults = kUtility.PrepareResults(sqlKey, szSQL);
 		}
-#endif
 
+		pResults->Bind(1, szResourceType);
+
+		while (pResults->Step())
+		{
+			const int iRequiredEra = GC.getInfoTypeForString(pResults->GetText(0), true);
+			const int iObsoleteEra = GC.getInfoTypeForString(pResults->GetText(1), true);
+			const int iCostMod = pResults->GetInt(2);
+
+			ProductionCostModifiers sElement;
+			sElement.m_iRequiredEra = iRequiredEra;
+			sElement.m_iObsoleteEra = iObsoleteEra;
+			sElement.m_iCostModifier = iCostMod;
+
+			m_aiiiBuildingProductionCostModifiersLocal.push_back(sElement);
+		}
+
+		pResults->Reset();
+	}
 
 	return true;
 }
@@ -6832,9 +6792,7 @@ CvFeatureInfo::CvFeatureInfo() :
 	m_bNukeImmune(false),
 	m_bRough(false),
 	m_bNaturalWonder(false),
-#if defined(MOD_PSEUDO_NATURAL_WONDER)
 	m_bPseudoNaturalWonder(false),
-#endif
 	m_iWorldSoundscapeScriptId(0),
 	m_iEffectProbability(0),
 	m_piYieldChange(NULL),
@@ -7201,9 +7159,7 @@ bool CvFeatureInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_bNukeImmune = kResults.GetBool("NukeImmune");
 	m_bRough = kResults.GetBool("Rough");
 	m_bNaturalWonder = kResults.GetBool("NaturalWonder");
-#if defined(MOD_PSEUDO_NATURAL_WONDER)
 	m_bPseudoNaturalWonder = kResults.GetBool("PseudoNaturalWonder");
-#endif
 	m_strEffectType = kResults.GetText("EffectType");
 	m_strEffectTypeTag = kResults.GetText("EffectTypeTag");
 
@@ -8070,11 +8026,9 @@ CvWorldInfo::CvWorldInfo() :
 	m_iNumCitiesUnhappinessPercent(100),
 	m_iNumCitiesPolicyCostMod(10),
 	m_iNumCitiesTechCostMod(5),
-#if defined(MOD_TRADE_ROUTE_SCALING)
 	m_iNumCitiesTourismCostMod(5),
 	m_iNumCitiesUnitSupplyMod(5),
 	m_iTradeRouteDistanceMod(100),
-#endif
 	m_iMinDistanceCities(3),
 	m_iMinDistanceCityStates(3),
 	m_iReformationPercent(100),
@@ -8166,7 +8120,6 @@ int CvWorldInfo::GetNumCitiesTechCostMod() const
 {
 	return m_iNumCitiesTechCostMod;
 }
-#if defined(MOD_TRADE_ROUTE_SCALING)
 //------------------------------------------------------------------------------
 int CvWorldInfo::GetNumCitiesTourismCostMod() const
 {
@@ -8182,7 +8135,6 @@ int CvWorldInfo::getTradeRouteDistanceMod() const
 {
 	return m_iTradeRouteDistanceMod;
 }
-#endif
 //------------------------------------------------------------------------------
 int CvWorldInfo::getMinDistanceCities() const
 {
@@ -8246,16 +8198,12 @@ bool CvWorldInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	m_iNumCitiesUnhappinessPercent	= kResults.GetInt("NumCitiesUnhappinessPercent");
 	m_iNumCitiesPolicyCostMod		= kResults.GetInt("NumCitiesPolicyCostMod");
 	m_iNumCitiesTechCostMod			= kResults.GetInt("NumCitiesTechCostMod");
-#if defined(MOD_TRADE_ROUTE_SCALING)
-	if (MOD_TRADE_ROUTE_SCALING) {
-		m_iTradeRouteDistanceMod	= kResults.GetInt("TradeRouteDistanceMod");
-	}
-#endif
-	m_iNumCitiesTourismCostMod = kResults.GetInt("NumCitiesTourismCostMod");
-	m_iNumCitiesUnitSupplyMod = kResults.GetInt("NumCitiesUnitSupplyMod");
-	m_iMinDistanceCities = kResults.GetInt("MinDistanceCities");
-	m_iMinDistanceCityStates = kResults.GetInt("MinDistanceCityStates");
-	m_iReformationPercent = kResults.GetInt("ReformationPercentRequired");
+	m_iTradeRouteDistanceMod		= kResults.GetInt("TradeRouteDistanceMod");
+	m_iNumCitiesTourismCostMod		= kResults.GetInt("NumCitiesTourismCostMod");
+	m_iNumCitiesUnitSupplyMod		= kResults.GetInt("NumCitiesUnitSupplyMod");
+	m_iMinDistanceCities			= kResults.GetInt("MinDistanceCities");
+	m_iMinDistanceCityStates		= kResults.GetInt("MinDistanceCityStates");
+	m_iReformationPercent			= kResults.GetInt("ReformationPercentRequired");
 	m_iEstimatedNumCities			= kResults.GetInt("EstimatedNumCities");
 
 	return true;
@@ -8281,9 +8229,7 @@ bool CvWorldInfo::operator==(const CvWorldInfo& rhs) const
 	if(m_iResearchPercent != rhs.m_iResearchPercent) return false;
 	if(m_iNumCitiesUnhappinessPercent != rhs.m_iNumCitiesUnhappinessPercent) return false;
 	if(m_iNumCitiesPolicyCostMod != rhs.m_iNumCitiesPolicyCostMod) return false;
-#if defined(MOD_TRADE_ROUTE_SCALING)
 	if(m_iTradeRouteDistanceMod != rhs.m_iTradeRouteDistanceMod) return false;
-#endif
 	if (m_iNumCitiesTourismCostMod != rhs.m_iNumCitiesTourismCostMod) return false;
 	if (m_iNumCitiesUnitSupplyMod != rhs.m_iNumCitiesUnitSupplyMod) return false;
 	if(m_iMinDistanceCities != rhs.m_iMinDistanceCities) return false;
@@ -8510,9 +8456,7 @@ CvProcessInfo::CvProcessInfo() :
 	m_iTechPrereq(NO_TECH),
 	m_iRequiredPolicy(NO_POLICY),
 	m_iDefenseValue(0),
-#if defined(MOD_CIVILIZATIONS_UNIQUE_PROCESSES)
 	m_eRequiredCivilization(NO_CIVILIZATION),
-#endif
 	m_paiProductionToYieldModifier(NULL),
 	m_paiFlavorValue(NULL)
 {
@@ -8541,13 +8485,11 @@ int CvProcessInfo::getDefenseValue() const
 	return m_iDefenseValue;
 }
 
-#if defined(MOD_CIVILIZATIONS_UNIQUE_PROCESSES)
 //------------------------------------------------------------------------------
 CivilizationTypes CvProcessInfo::GetRequiredCivilization() const
 {
 	return m_eRequiredCivilization;
 }
-#endif
 
 //------------------------------------------------------------------------------
 int CvProcessInfo::getProductionToYieldModifier(int i) const
@@ -8580,10 +8522,8 @@ bool CvProcessInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 
 	m_iDefenseValue = kResults.GetInt("DefenseValue");
 
-#if defined(MOD_CIVILIZATIONS_UNIQUE_PROCESSES)
 	const char* szCivilizationType = kResults.GetText("CivilizationType");
 	m_eRequiredCivilization = (CivilizationTypes)GC.getInfoTypeForString(szCivilizationType, true);
-#endif
 
 	const char* szProcessType = GetType();
 
@@ -9345,7 +9285,7 @@ bool CvVoteSourceInfo::CacheResults(Database::Results& kResults, CvDatabaseUtili
 
 	return true;
 }
-#if defined(MOD_BALANCE_CORE_EVENTS)
+
 //======================================================================================================
 //		CvModEventInfo
 //======================================================================================================
@@ -12634,7 +12574,7 @@ bool CvModEventCityChoiceInfo::CacheResults(Database::Results& kResults, CvDatab
 
 	return true;
 }
-#endif
+
 //------------------------------------------------------------------------------
 bool CvEraInfo::getVassalageEnabled() const
 {

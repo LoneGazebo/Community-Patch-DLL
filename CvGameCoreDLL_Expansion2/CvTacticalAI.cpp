@@ -17,18 +17,15 @@
 #include "cvStopWatch.h"
 #include "CvMilitaryAI.h"
 #include "CvTypes.h"
-#if defined(MOD_BALANCE_CORE_MILITARY)
 #include "CvDiplomacyAI.h"
 #include "CvBarbarians.h"
 #include "CvUnitMovement.h"
-#endif
 
 #include <iomanip>
 #include <sstream>
 #include <cmath>
 #include "LintFree.h"
 
-#if defined(MOD_BALANCE_CORE_MILITARY)
 //for easier debugging
 #ifdef VPDEBUG
 #define TACTDEBUG 1
@@ -65,7 +62,6 @@ unsigned long gDangerCacheHit = 0, gDangerCacheMiss = 0;
 unsigned long giEquivalentPos = 0, giDifferentPos = 0;
 unsigned long giValidEndPos = 0, giInvalidEndPos = 0;
 int gCheckedPositions = 0;
-#endif
 
 void CheckDebugTrigger(int iUnitID)
 {
@@ -1669,16 +1665,16 @@ void CvTacticalAI::PlotEmergencyPurchases(CvTacticalDominanceZone* pZone)
 
 	// Sometimes buying a unit is useless
 	bool bWantUnits = true;
-	if (pCity->getDamage() * 2 > pCity->GetMaxHitPoints() && MOD_BALANCE_CORE_UNIT_CREATION_DAMAGED)
+	if (MOD_BALANCE_PURCHASED_UNIT_DAMAGE && pCity->getDamage() * 2 > pCity->GetMaxHitPoints())
 		bWantUnits = false;
 
 	// If we need additional units - ignore the supply limit here, we're probably losing units anyway
-	if(pZone->GetOverallDominanceFlag()>TACTICAL_DOMINANCE_FRIENDLY || pCity->isUnderSiege())
+	if (pZone->GetOverallDominanceFlag()>TACTICAL_DOMINANCE_FRIENDLY || pCity->isUnderSiege())
 	{
-		if(!MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+		if (!MOD_BALANCE_BUILDING_INVESTMENTS)
 			m_pPlayer->GetMilitaryAI()->BuyEmergencyBuilding(pCity);
 
-		if(!MOD_BALANCE_CORE_UNIT_INVESTMENTS)
+		if (!MOD_BALANCE_UNIT_INVESTMENTS)
 		{
 			//only buy ranged if there's no garrison
 			//otherwise it will be placed outside of the city and most probably die instantly
@@ -4402,7 +4398,7 @@ CvUnit* CvTacticalAI::FindUnitForThisMove(AITacticalMove eMove, CvPlot* pTarget,
 			// Leaving this code here because A) this option can be turned off (is by default in Community Patch Only), and
 			// B) even though most explorers aren't available to tactical AI, some secondary explorer units with the Reconnaissance promotion, like Conquistadors, can make use of it
 			// Economic AI still places a high value on goody huts for AI explorers, so they'll still be prioritized; see EconomicAIHelpers::ScoreExplorePlot()
-			if (MOD_BALANCE_CORE_GOODY_RECON_ONLY && eMove == AI_TACTICAL_GOODY && pTarget->isRevealedGoody(m_pPlayer->getTeam()))
+			if (MOD_BALANCE_RECON_ONLY_ANCIENT_RUINS && eMove == AI_TACTICAL_GOODY && pTarget->isRevealedGoody(m_pPlayer->getTeam()))
 			{
 				if (pLoopUnit->getUnitCombatType() != eReconType && !pLoopUnit->IsGainsXPFromScouting())
 					continue;
@@ -5146,7 +5142,6 @@ CvPlot* CvTacticalAI::FindBarbarianExploreTarget(CvUnit* pUnit)
 	return pBestMovePlot;
 }
 
-#if defined(MOD_BALANCE_CORE_MILITARY)
 /// Do we want to move this air unit to a new base?
 bool CvTacticalAI::ShouldRebase(CvUnit* pUnit) const
 {
@@ -5231,7 +5226,6 @@ bool CvTacticalAI::ShouldRebase(CvUnit* pUnit) const
 
 	return !bIsNeeded;
 }
-#endif
 
 // Find a faraway target for a unit to wander towards
 // Can be either a specific type or any offensive type
@@ -7178,7 +7172,7 @@ int ScoreCombatUnitTurnEnd(const CvUnit* pUnit, eUnitAssignmentType eLastAssignm
 		if (!bIsFrontlineCitadelOrCity)
 			return INT_MAX;
 
-	if (!MOD_CORE_TWO_PASS_DANGER)
+	if (!MOD_COMBATAI_TWO_PASS_DANGER)
 	{
 		//check for cover and assume this would help us
 		if (testPlot.hasCoverFromOtherUnits(assumedPosition))
@@ -7261,7 +7255,7 @@ int ScoreCombatUnitTurnEnd(const CvUnit* pUnit, eUnitAssignmentType eLastAssignm
 	//don't add too much else it overrides the firstline/secondline order
 	if (!bHasMoved)
 	{
-		if (pUnit->IsHurt() && !pUnit->isAlwaysHeal() && !pUnit->IsCannotHeal())
+		if (pUnit->IsHurt() && !pUnit->isAlwaysHeal() && !pUnit->IsCannotHeal(/*bConsiderResourceShortage*/ false))
 			iResult++;
 		if (testPlot.getEnemyDistance(eRelevantDomain) < 3 && !pUnit->noDefensiveBonus())
 		{
@@ -8366,7 +8360,7 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 				//redundant with ScoreCombatUnitTurnEnd but we have to make sure we consider these moves in the first place
 				if (it->iMovesLeft == unit.iMaxMoves)
 				{
-					if (!pUnit->isAlwaysHeal() && pUnit->getDamage() > /*10 in CP, 7 in VP*/ GD_INT_GET(FRIENDLY_HEAL_RATE) / 2 && !pUnit->IsCannotHeal())
+					if (!pUnit->isAlwaysHeal() && pUnit->getDamage() > /*10 in CP, 7 in VP*/ GD_INT_GET(FRIENDLY_HEAL_RATE) / 2 && !pUnit->IsCannotHeal(/*bConsiderResourceShortage*/ false))
 					{
 						//calling canHeal is too expensive, so fake it
 						if (pUnit->getDomainType() != DOMAIN_SEA || testPlot.getPlot()->IsFriendlyTerritory(pUnit->getOwner()) || pUnit->isHealOutsideFriendly())

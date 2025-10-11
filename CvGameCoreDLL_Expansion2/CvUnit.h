@@ -543,10 +543,8 @@ public:
 	bool canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestVisible = false, bool bTestGold = true, bool bTestEra = false) const;
 	bool build(BuildTypes eBuild);
 
-#if defined(MOD_CIV6_WORKER)
 	int getBuilderStrength() const;
 	void setBuilderStrength(const int newPower);
-#endif
 
 	bool canPromote(PromotionTypes ePromotion, int iLeaderUnitId) const;
 	void promote(PromotionTypes ePromotion, int iLeaderUnitId);
@@ -561,10 +559,7 @@ public:
 	bool isReadyForUpgrade() const;
 	bool CanUpgradeRightNow(bool bOnlyTestVisible) const;
 	bool CanUpgradeTo(UnitTypes eUpgradeUnitType, bool bOnlyTestVisible) const;
-
-#if defined(MOD_GLOBAL_CS_UPGRADES)
 	bool CanUpgradeInTerritory(bool bOnlyTestVisible) const;
-#endif
 	UnitTypes GetUpgradeUnitType() const;
 	int upgradePrice(UnitTypes eUnit) const;
 	CvUnit* DoUpgrade(bool bFree = false);
@@ -579,9 +574,7 @@ public:
 	UnitTypes getCaptureUnitType(PlayerTypes eCapturingPlayer) const;
 	UnitCombatTypes getUnitCombatType() const;
 	void setUnitCombatType(UnitCombatTypes eCombat);
-#if defined(MOD_GLOBAL_PROMOTION_CLASSES)
 	UnitCombatTypes getUnitPromotionType() const;
-#endif
 	DomainTypes getDomainType() const;
 	//check if plot type matches the (primary) domain type
 	bool isNativeDomain(const CvPlot* pPlot) const;
@@ -594,9 +587,7 @@ public:
 	bool isHuman(IsHumanReason eIsHumanReason = OTHER_ISHUMAN_REASON) const;
 
 	int visibilityRange() const;
-#if defined(MOD_PROMOTIONS_VARIABLE_RECON)
 	int reconRange() const;
-#endif
 	bool canChangeVisibility() const;
 
 	int baseMoves(bool bPretendEmbarked) const;
@@ -627,7 +618,6 @@ public:
 #endif
 
 	// VP - Squads control groups modmod
-#if defined(MOD_SQUADS)
 	int  GetSquadNumber() const;
 	void AssignToSquad(int iNewSquadNumber);
 	void RemoveFromSquad();
@@ -644,7 +634,6 @@ public:
 	CvPlot* GetSquadDestination();
 	SquadsEndMovementType GetSquadEndMovementType() const;
 	void SetSquadEndMovementType(SquadsEndMovementType endMovementType);
-#endif
 
 	int GetRange() const;
 	int GetNukeDamageLevel() const;
@@ -660,11 +649,9 @@ public:
 	void changeRivalTerritoryCount(int iChange);
 	bool isFound() const;
 	bool IsFoundAbroad() const;
-#if defined(MOD_BALANCE_CORE_SETTLER_ADVANCED)
 	bool IsFoundMid() const;
 	bool IsFoundLate() const;
 	bool CanFoundColony() const;
-#endif
 	bool IsWork() const;
 	bool isGoldenAge() const;
 	bool isGivesPolicies() const;
@@ -763,7 +750,7 @@ public:
 	int getExtraFeatureDamageCount() const;
 	void changeExtraFeatureDamageCount(int iValue);
 
-	bool IsCannotHeal() const;
+	bool IsCannotHeal(bool bConsiderResourceShortage) const;
 	int getCannotHealCount() const;
 	void changeCannotHealCount(int iValue);
 
@@ -771,14 +758,13 @@ public:
 	int getPillageFortificationsOnKillCount() const;
 	void changePillageFortificationsOnKillCount(int iValue);
 
-#if defined(MOD_PROMOTIONS_IMPROVEMENT_BONUS)
 	int GetNearbyImprovementCombatBonus() const;
 	void SetNearbyImprovementCombatBonus(int iCombatBonus);
 	int GetNearbyImprovementBonusRange() const;
 	void SetNearbyImprovementBonusRange(int iBonusRange);
 	ImprovementTypes GetCombatBonusImprovement() const;
 	void SetCombatBonusImprovement(ImprovementTypes eImprovement);
-#endif
+
 	int getNearbyUnitClassBonus() const;
 	void SetNearbyUnitClassBonus(int iCombatBonus);
 	int getNearbyUnitClassBonusRange() const;
@@ -859,23 +845,17 @@ public:
 	void ChangeConvertDamageOrFullHPUnit(UnitTypes eUnit);
 	bool canIntercept() const;
 	int GetAirInterceptRange() const;
-#if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
 	bool canCrossMountains() const;
 	int getCanCrossMountainsCount() const;
 	void changeCanCrossMountainsCount(int iValue);
-#endif
 
-#if defined(MOD_PROMOTIONS_CROSS_OCEANS)
 	bool canCrossOceans() const;
 	int getCanCrossOceansCount() const;
 	void changeCanCrossOceansCount(int iValue);
-#endif
 
-#if defined(MOD_PROMOTIONS_CROSS_ICE)
 	bool canCrossIce() const;
 	int getCanCrossIceCount() const;
 	void changeCanCrossIceCount(int iValue);
-#endif
 
 	void ChangeNumTilesRevealedThisTurn(int iValue);
 	void SetNumTilesRevealedThisTurn(int iValue);
@@ -912,12 +892,9 @@ public:
 	int GetAdjacentEnemySapMovement() const;
 	void ChangeAdjacentEnemySapMovement(int iValue);
 
-
-#if defined(MOD_PROMOTIONS_GG_FROM_BARBARIANS)
 	bool isGGFromBarbarians() const;
 	int getGGFromBarbariansCount() const;
 	void changeGGFromBarbariansCount(int iValue);
-#endif
 
 	bool IsRoughTerrainEndsTurn() const;
 	int GetRoughTerrainEndsTurnCount() const;
@@ -1116,11 +1093,9 @@ public:
 	int setDamage(int iNewValue, PlayerTypes ePlayer = NO_PLAYER, float fAdditionalTextDelay = 0.0f, const CvString* pAppendText = NULL, bool bDontShow = false);
 	int changeDamage(int iChange, PlayerTypes ePlayer = NO_PLAYER, float fAdditionalTextDelay = 0.0f, const CvString* pAppendText = NULL);
 
-#if defined(MOD_CORE_PER_TURN_DAMAGE)
 	int addDamageReceivedThisTurn(int iDamage, CvUnit* pAttacker=NULL);
 	void flipDamageReceivedPerTurn();
 	bool isProjectedToDieNextTurn() const;
-#endif
 
 	int getMoves() const;
 	void changeMoves(int iChange);
@@ -1190,18 +1165,10 @@ public:
 	int getHealOutsideFriendlyCount() const;
 	bool isHealOutsideFriendly() const;
 	void changeHealOutsideFriendlyCount(int iChange);
-
-	int getHillsDoubleMoveCount() const;
-	bool isHillsDoubleMove() const;
-	void changeHillsDoubleMoveCount(int iChange);
 	
 	int getRiverDoubleMoveCount() const;
 	bool isRiverDoubleMove() const;
 	void changeRiverDoubleMoveCount(int iChange);
-
-	int getMountainsDoubleMoveCount() const;
-	bool isMountainsDoubleMove() const;
-	void changeMountainsDoubleMoveCount(int iChange);
 
 	int getEmbarkFlatCostCount() const;
 	bool isEmbarkFlatCost() const;
@@ -1244,10 +1211,8 @@ public:
 	int getExtraVisibilityRange() const;
 	void changeExtraVisibilityRange(int iChange);
 
-#if defined(MOD_PROMOTIONS_VARIABLE_RECON)
 	int getExtraReconRange() const;
 	void changeExtraReconRange(int iChange);
-#endif
 
 	int getExtraMoves() const;
 	void changeExtraMoves(int iChange);
@@ -1285,11 +1250,9 @@ public:
 
 	void ProcessAttackForPromotionSameAttackBonus();
 
-#if defined(MOD_BALANCE_CORE_JFD)
 	void setContractUnit(ContractTypes eContract);
 	bool isContractUnit() const;
 	ContractTypes getContract() const;
-#endif
 
 	bool IsNoMaintenance() const;
 	void SetNoMaintenance(bool bValue);
@@ -1646,16 +1609,12 @@ public:
 
 	const CvString getName() const;
 	const char* getNameKey() const;
-#if defined(MOD_PROMOTIONS_UNIT_NAMING)
 	const CvString getUnitName() const;
 	void setUnitName(const CvString& strNewValue);
-#endif
 	const CvString getNameNoDesc() const;
 	void setName(const CvString strNewValue);
-#if defined(MOD_GLOBAL_NO_LOST_GREATWORKS)
 	const CvString getGreatName() const;
 	void setGreatName(const CvString& strName);
-#endif
 	GreatWorkType GetGreatWork() const;
 	void SetGreatWork(GreatWorkType eGreatWork);
 	bool HasGreatWork() const;
@@ -1959,11 +1918,9 @@ public:
 	void ChangeEmbarkAllWaterCount(int iValue);
 	int GetEmbarkAllWaterCount() const;
 
-#if defined(MOD_PROMOTIONS_DEEP_WATER_EMBARKATION)
 	bool IsEmbarkDeepWater() const;
 	void ChangeEmbarkDeepWaterCount(int iValue);
 	int GetEmbarkDeepWaterCount() const;
-#endif
 
 	void ChangeEmbarkExtraVisibility(int iValue);
 	int GetEmbarkExtraVisibility() const;
@@ -2015,16 +1972,12 @@ public:
 	std::string debugDump(const FAutoVariableBase&) const;
 	std::string stackTraceRemark(const FAutoVariableBase&) const;
 
-#if defined(MOD_BALANCE_CORE_MILITARY)
 	const char* GetMissionInfo();
 	void DumpDangerInNeighborhood();
-#endif
 
-#if defined(MOD_BALANCE_CORE_MILITARY)
 	void setHomelandMove(AIHomelandMove eMove);
 	AIHomelandMove getHomelandMove(int* pTurnSet=NULL) const;
 	bool hasCurrentTacticalMove() const;
-#endif
 
 	bool IsCivilization(CivilizationTypes iCivilizationType) const;
 	bool HasPromotion(PromotionTypes iPromotionType) const;
@@ -2155,9 +2108,7 @@ protected:
 	int m_iRangedSupportFireCount;
 	int m_iAlwaysHealCount;
 	int m_iHealOutsideFriendlyCount;
-	int m_iHillsDoubleMoveCount;
 	int m_iRiverDoubleMoveCount;
-	int m_iMountainsDoubleMoveCount;
 	int m_iEmbarkFlatCostCount;
 	int m_iDisembarkFlatCostCount;
 	int m_iAOEDamageOnKill;
@@ -2175,19 +2126,15 @@ protected:
 	int m_iMultiAttackBonus;
 	int m_iLandAirDefenseValue;
 	int m_iExtraVisibilityRange;
-#if defined(MOD_PROMOTIONS_VARIABLE_RECON)
 	int m_iExtraReconRange;
-#endif
 	int m_iExtraMoves;
 	int m_iExtraMoveDiscount;
 	int m_iExtraRange;
 	int m_iInterceptChance;
 	int m_iExtraEvasion;
 	int m_iExtraWithdrawal;
-#if defined(MOD_BALANCE_CORE_JFD)
 	ContractTypes m_eUnitContract;
 	int m_iNegatorPromotion;
-#endif
 	bool m_bIsNoMaintenance;
 	int m_iExtraEnemyHeal;
 	int m_iExtraNeutralHeal;
@@ -2245,11 +2192,9 @@ protected:
 	int m_iExtraFeatureDamageCount;
 	int m_iCannotHealCount;
 	int m_iPillageFortificationsOnKillCount;
-#if defined(MOD_PROMOTIONS_IMPROVEMENT_BONUS)
 	int m_iNearbyImprovementCombatBonus;
 	int m_iNearbyImprovementBonusRange;
 	ImprovementTypes m_eCombatBonusImprovement;
-#endif
 	int m_iNearbyUnitClassBonus;
 	int m_iNearbyUnitClassBonusRange;
 	UnitClassTypes m_iCombatBonusFromNearbyUnitClass;
@@ -2288,15 +2233,9 @@ protected:
 	int m_iNearbyHealEnemyTerritory;
 	int m_iNearbyHealNeutralTerritory;
 	int m_iNearbyHealFriendlyTerritory;
-#if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
 	int m_iCanCrossMountainsCount;
-#endif
-#if defined(MOD_PROMOTIONS_CROSS_OCEANS)
 	int m_iCanCrossOceansCount;
-#endif
-#if defined(MOD_PROMOTIONS_CROSS_ICE)
 	int m_iCanCrossIceCount;
-#endif
 	int m_iNumTilesRevealedThisTurn;
 	bool m_bSpottedEnemy;
 	bool m_bSpottedRuin;
@@ -2307,9 +2246,7 @@ protected:
 	int m_iCaptureDefeatedEnemyChance;
 	int m_iBarbCombatBonus;
 	int m_iAdjacentEnemySapMovement;
-#if defined(MOD_PROMOTIONS_GG_FROM_BARBARIANS)
 	int m_iGGFromBarbariansCount;
-#endif
 	int m_iAuraRangeChange;
 	int m_iAuraEffectChange;
 	int m_iNumRepairCharges;
@@ -2384,10 +2321,8 @@ protected:
 	bool m_bEmbarked;
 	bool m_bPromotedFromGoody;
 	bool m_bAITurnProcessed;
-#if defined(MOD_CORE_PER_TURN_DAMAGE)
 	int m_iDamageTakenThisTurn;
 	int m_iDamageTakenLastTurn;
-#endif
 
 	PlayerTypes m_eCapturingPlayer;
 	bool m_bCapturedAsIs;
@@ -2419,9 +2354,7 @@ protected:
 	CvUnitPromotions m_Promotions;
 	CvUnitReligion m_Religion;
 
-#if defined(MOD_CIV6_WORKER)
 	int m_iBuilderStrength;
-#endif
 
 	TerrainTypeCounter m_ignoreTerrainCostInCount;
 	TerrainTypeCounter m_ignoreTerrainCostFromCount;
@@ -2478,9 +2411,7 @@ protected:
 	std::vector<CvPlot*> m_unitMoveLocs;
 
 	int m_iEmbarkedAllWaterCount;
-#if defined(MOD_PROMOTIONS_DEEP_WATER_EMBARKATION)
 	int m_iEmbarkedDeepWaterCount;
-#endif
 	int m_iEmbarkExtraVisibility;
 	int m_iEmbarkDefensiveModifier;
 	int m_iCapitalDefenseModifier;
@@ -2502,14 +2433,10 @@ protected:
 	int m_iCultureBlastStrength;
 	int m_iGAPBlastStrength;
 	std::vector<bool> m_abPromotionEverObtained;
-		
-#if defined(MOD_PROMOTIONS_UNIT_NAMING)
+
 	CvString m_strUnitName;
-#endif
 	CvString m_strName;
-#if defined(MOD_GLOBAL_NO_LOST_GREATWORKS)
 	CvString m_strGreatName;
-#endif
 	GreatWorkType m_eGreatWork;
 
 	//this is always stored with the zero-counting convention
@@ -2537,14 +2464,12 @@ private:
 
 	mutable MissionQueue m_missionQueue;
 
-#if defined(MOD_BALANCE_CORE_MILITARY)
 	// for debugging
 	CvString m_strMissionInfoString;
 	AITacticalMove m_eTacticalMove;
 	int m_iTacticalMoveSetTurn;
 	AIHomelandMove m_eHomelandMove;
 	int m_iHomelandMoveSetTurn;
-#endif
 
 	friend class CvLuaUnit;
 };
@@ -2615,9 +2540,7 @@ SYNC_ARCHIVE_VAR(SYNC_ARCHIVE_VAR_TYPE(std::map<PromotionTypes, int>), m_TurnPro
 SYNC_ARCHIVE_VAR(int, m_iRangedSupportFireCount)
 SYNC_ARCHIVE_VAR(int, m_iAlwaysHealCount)
 SYNC_ARCHIVE_VAR(int, m_iHealOutsideFriendlyCount)
-SYNC_ARCHIVE_VAR(int, m_iHillsDoubleMoveCount)
 SYNC_ARCHIVE_VAR(int, m_iRiverDoubleMoveCount)
-SYNC_ARCHIVE_VAR(int, m_iMountainsDoubleMoveCount)
 SYNC_ARCHIVE_VAR(int, m_iEmbarkFlatCostCount)
 SYNC_ARCHIVE_VAR(int, m_iDisembarkFlatCostCount)
 SYNC_ARCHIVE_VAR(int, m_iAOEDamageOnKill)

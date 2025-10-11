@@ -37,10 +37,8 @@ public:
 	static void GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, CvPlot& kPlot, CvCombatInfo* pkCombatInfo);
 	static void GenerateAirSweepCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, CvPlot& kPlot, CvCombatInfo* pkCombatInfo);
 	static void GenerateNuclearCombatInfo(CvUnit& kAttacker, CvPlot& plot, CvCombatInfo* pkCombatInfo);
-	
-#if defined(MOD_GLOBAL_PARATROOPS_AA_DAMAGE)
+
 	static bool ParadropIntercept(CvUnit& paraUnit, CvPlot& dropPlot);
-#endif
 
 	//returns damage times 100
 	static int DoDamageMath(int iAttackerStrength100, int iDefenderStrength100, int iDefaultDamage100, int iMaxRandomDamage100, bool bIncludeRand, const CvSeeder& randomSeed, int iModifierPercent);

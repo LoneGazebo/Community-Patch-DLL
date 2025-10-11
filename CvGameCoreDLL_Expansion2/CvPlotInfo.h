@@ -20,11 +20,9 @@ public:
 	typedef bool IgnoreNaturalWonders;
 
 	// Arrays
-#if defined(MOD_PLOTS_EXTENSIONS)
 	int GetAdjacentFeatureYieldChange(FeatureTypes eFeature, YieldTypes eYield, bool bNaturalWonderPlot = false) const;
 	bool IsAdjacentFeatureYieldChange(bool bNaturalWonderPlot = false) const;
 	bool IsAdjacentFeatureYieldChange(FeatureTypes eFeature, bool bNaturalWonderPlot = false) const;
-#endif
 	int getYield(int i) const;
 
 	// Other
@@ -35,9 +33,7 @@ protected:
 	bool m_bImpassable;
 
 	// Arrays
-#if defined(MOD_PLOTS_EXTENSIONS)
 	std::map<FeatureTypes, std::map<IgnoreNaturalWonders, std::map<YieldTypes, int>>> m_pppiAdjacentFeatureYieldChange;
-#endif
 	int* m_piYields;
 
 private:

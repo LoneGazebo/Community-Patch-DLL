@@ -4534,7 +4534,7 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 			GET_PLAYER(eReceivingPlayer).changeResourceImportFromMajor(eResource, iResourceQuantity);
 
 			// Resource Trading Achievements
-			if (MOD_API_ACHIEVEMENTS && !GC.getGame().isGameMultiPlayer() && GET_PLAYER(eGivingPlayer).isHuman(ISHUMAN_ACHIEVEMENTS))
+			if (MOD_ENABLE_ACHIEVEMENTS && !GC.getGame().isGameMultiPlayer() && GET_PLAYER(eGivingPlayer).isHuman(ISHUMAN_ACHIEVEMENTS))
 			{
 				gDLL->IncrementSteamStatAndUnlock(ESTEAMSTAT_RESOURCESTRADED, 100, ACHIEVEMENT_100RESOURCES);
 

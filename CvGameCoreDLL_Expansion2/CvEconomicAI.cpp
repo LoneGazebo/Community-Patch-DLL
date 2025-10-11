@@ -1897,7 +1897,7 @@ void CvEconomicAI::DoHurry()
 					if (!m_pPlayer->HasResourceForNewUnit(eUnitType, false, true))
 						continue;
 
-					if (MOD_BALANCE_CORE_UNIT_INVESTMENTS || pkUnitInfo->GetSpaceshipProject() != NO_PROJECT)
+					if (MOD_BALANCE_UNIT_INVESTMENTS || pkUnitInfo->GetSpaceshipProject() != NO_PROJECT)
 					{
 						const UnitClassTypes eUnitClass = (UnitClassTypes)(pkUnitInfo->GetUnitClassType());
 						pSelectedCity->SetUnitInvestment(eUnitClass, true);
@@ -1985,7 +1985,7 @@ void CvEconomicAI::DoHurry()
 						if (GC.getLogging() && GC.getAILogging())
 						{
 							CvString strLogString;
-							if (MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+							if (MOD_BALANCE_BUILDING_INVESTMENTS)
 								strLogString = "MOD - Investing in building:";
 							else
 								strLogString = "MOD - Buying building:";
@@ -2001,7 +2001,7 @@ void CvEconomicAI::DoHurry()
 						m_pPlayer->GetTreasury()->ChangeGold(-iGoldCost);
 
 						//and build it!
-						if (MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+						if (MOD_BALANCE_BUILDING_INVESTMENTS)
 						{
 							const BuildingClassTypes eBuildingClass = pkBuildingInfo->GetBuildingClassType();
 							pSelectedCity->SetBuildingInvestment(eBuildingClass, true);
@@ -2625,7 +2625,7 @@ void CvEconomicAI::DisbandUnitsToFreeSpaceshipResources()
 			for (CvCity* pLoopCity = m_pPlayer->firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoopCity))
 			{
 				// can't sell anything in this city?
-				if (pLoopCity->IsPuppet() || pLoopCity->IsResistance() || pLoopCity->GetCityBuildings()->IsSoldBuildingThisTurn() || m_pPlayer->GetPlayerTraits()->IsNoAnnexing())
+				if (pLoopCity->IsPuppet() || pLoopCity->IsResistance() || pLoopCity->getDamage() > 0 || pLoopCity->GetCityBuildings()->IsSoldBuildingThisTurn() || m_pPlayer->GetPlayerTraits()->IsNoAnnexing())
 					continue;
 
 				int iWeight = pLoopCity->getEconomicValue(m_pPlayer->GetID());
@@ -3112,31 +3112,6 @@ void CvEconomicAI::UpdateExplorePlotsFromScratch()
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(i);
 		TestExplorationPlot(pPlot, m_pPlayer, bCanEmbark, bNeedToLookAtDeepWaterAlso, m_vPlotsToExploreLand, m_vPlotsToExploreSea);
 	}
-
-#if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
-	bool bLogging = GC.getLogging() && GC.getAILogging() && m_pPlayer->isMajorCiv() && MOD_BALANCE_CORE_MILITARY_LOGGING;
-	CvString fname = CvString::format("ExplorePlots_%s_%03d.txt", m_pPlayer->getCivilizationAdjective(), GC.getGame().getGameTurn());
-	FILogFile* pLog = bLogging ? LOGFILEMGR.GetLog(fname.c_str(), FILogFile::kDontTimeStamp) : NULL;
-	if (bLogging && pLog)
-	{
-		for (size_t i = 0; i < m_vPlotsToExploreLand.size(); i++)
-		{
-			CvPlot* pPlot = m_vPlotsToExploreLand[i].pPlot;
-			CvString dump = CvString::format("%d,%d,%d,%d,%d,%d\n",
-				pPlot->getX(), pPlot->getY(), pPlot->isRevealed(m_pPlayer->getTeam()), pPlot->getTerrainType(), pPlot->getOwner(), m_vPlotsToExploreLand[i].score);
-			pLog->Msg(dump.c_str());
-		}
-		for (size_t i = 0; i < m_vPlotsToExploreSea.size(); i++)
-		{
-			CvPlot* pPlot = m_vPlotsToExploreSea[i].pPlot;
-			CvString dump = CvString::format("%d,%d,%d,%d,%d,%d\n",
-				pPlot->getX(), pPlot->getY(), pPlot->isRevealed(m_pPlayer->getTeam()), pPlot->getTerrainType(), pPlot->getOwner(), m_vPlotsToExploreSea[i].score);
-			pLog->Msg(dump.c_str());
-		}
-	}
-	if (pLog)
-		pLog->Close();
-#endif
 
 	//keep all of them - GetBestExplorePlot will only look at the n best candidates anyway
 	std::stable_sort(m_vPlotsToExploreLand.begin(),m_vPlotsToExploreLand.end());

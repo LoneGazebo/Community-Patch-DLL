@@ -136,9 +136,7 @@ protected:
 	static int lCanTrade(lua_State* L);
 	static int lCanBuyCityState(lua_State* L);
 	static int lCanRepairFleet(lua_State* L);
-#if defined(MOD_GLOBAL_SEPARATE_GREAT_ADMIRAL)
 	LUAAPIEXTN(CanChangePort, bool);
-#endif
 	static int lCanBuildSpaceship(lua_State* L);
 
 	static int lCanGoldenAge(lua_State* L);
@@ -159,9 +157,7 @@ protected:
 	static int lUpgradePrice(lua_State* L);
 	static int lCanUpgradeRightNow(lua_State* L);
 	LUAAPIEXTN(CanUpgradeTo, bool, iUpgradeUnitType, bTestVisible);
-#if defined(MOD_GLOBAL_CS_UPGRADES)
 	LUAAPIEXTN(CanUpgradeInTerritory, bool, bTestVisible);
-#endif
 	static int lGetNumResourceNeededToUpgrade(lua_State* L);
 	static int lGetNumResourceTotalNeededToUpgrade(lua_State* L);
 
@@ -170,9 +166,7 @@ protected:
 	static int lGetSpecialUnitType(lua_State* L);
 	static int lGetCaptureUnitType(lua_State* L);
 	static int lGetUnitCombatType(lua_State* L);
-#if defined(MOD_GLOBAL_PROMOTION_CLASSES)
 	LUAAPIEXTN(GetUnitPromotionType, int);
-#endif
 	static int lGetUnitAIType(lua_State* L);
 	static int lSetUnitAIType(lua_State* L);
 	static int lGetDomainType(lua_State* L);
@@ -217,9 +211,7 @@ protected:
 	static int lGetImprovementBuildType(lua_State* L);
 	static int lGetRouteBuildType(lua_State* L);
 
-#if defined(MOD_CIV6_WORKER)
 	static int lGetBuilderStrength(lua_State* L);
-#endif
 
 	static int lIsNoBadGoodies(lua_State* L);
 	static int lIsOnlyDefensive(lua_State* L);
@@ -320,23 +312,13 @@ protected:
 	LUAAPIEXTN(GetMovementRules, int);
 	LUAAPIEXTN(GetZOCStatus, int);
 	LUAAPIEXTN(GetWithdrawChance, int);
-#if defined(MOD_PROMOTIONS_IMPROVEMENT_BONUS)
 	LUAAPIEXTN(GetNearbyImprovementCombatBonus, int);
 	LUAAPIEXTN(GetNearbyImprovementBonusRange, int);
 	LUAAPIEXTN(GetCombatBonusImprovement, int);
-#endif
-#if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
 	LUAAPIEXTN(CanCrossMountains, bool);
-#endif
-#if defined(MOD_PROMOTIONS_CROSS_OCEANS)
 	LUAAPIEXTN(CanCrossOceans, bool);
-#endif
-#if defined(MOD_PROMOTIONS_CROSS_ICE)
 	LUAAPIEXTN(CanCrossIce, bool);
-#endif
-#if defined(MOD_PROMOTIONS_GG_FROM_BARBARIANS)
 	LUAAPIEXTN(IsGGFromBarbarians, bool);
-#endif
 	static int lIsNeverInvisible(lua_State* L);
 	static int lIsInvisible(lua_State* L);
 
@@ -468,9 +450,7 @@ protected:
 	static int lGetGarrisonedCity(lua_State* L);
 
 	static int lGetExtraVisibilityRange(lua_State* L);
-#if defined(MOD_PROMOTIONS_VARIABLE_RECON)
 	LUAAPIEXTN(GetExtraReconRange, int);
-#endif
 	static int lGetExtraMoves(lua_State* L);
 	static int lGetExtraMoveDiscount(lua_State* L);
 	static int lGetExtraRange(lua_State* L);
@@ -562,10 +542,8 @@ protected:
 	static int lGetCityName(lua_State* L);
 	static int lIsTerrainDoubleMove(lua_State* L);
 	static int lIsFeatureDoubleMove(lua_State* L);
-#if defined(MOD_PROMOTIONS_HALF_MOVE)
 	LUAAPIEXTN(IsTerrainHalfMove, bool, iTerrainType);
 	LUAAPIEXTN(IsFeatureHalfMove, bool, iFeatureType);
-#endif
 
 	static int lGetScriptData(lua_State* L);
 	static int lSetScriptData(lua_State* L);
@@ -626,20 +604,16 @@ protected:
 	static int lGetResistancePower(lua_State* L);
 	static int lGetAllianceCSStrength(lua_State* L);
 	static int lGetCombatModFromUnitLevel(lua_State* L);
-#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	static int lGetMonopolyAttackBonus(lua_State* L);
 	static int lGetMonopolyDefenseBonus(lua_State* L);
-#endif
 	static int lIsHigherTechThan(lua_State* L);
 	static int lIsLargerCivThan(lua_State* L);
 
 	static int lIsRangedSupportFire(lua_State* L);
 
-#if defined(MOD_BALANCE_CORE_MILITARY)
 	static int lGetAIOperationInfo(lua_State* L);
 	static int lGetMissionInfo(lua_State* L);
 	static int lGetDanger(lua_State* L);
-#endif
 
 	LUAAPIEXTN(AddMessage, void, sMessage, iNotifyPlayer);
 	LUAAPIEXTN(IsCivilization, bool, iCivilizationType);

@@ -1097,8 +1097,7 @@ int CvCitySiteEvaluator::ComputeTradeableResourceValue(CvPlot* pPlot, const CvPl
 				if(pPlayer->getNumResourceTotal(eResource) == 0)
 					rtnValue *= 3;
 
-#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-				if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES && (GC.getMap().getNumResources(eResource) > 0))
+				if(MOD_BALANCE_RESOURCE_MONOPOLIES && (GC.getMap().getNumResources(eResource) > 0))
 				{
 					//Will this get us closer to a monopoly?
 					if((((pPlot->getNumResource() + pPlayer->getNumResourceTotal(eResource, false) + pPlayer->getResourceExport(eResource)) * 100) / GC.getMap().getNumResources(eResource)) >= 30)
@@ -1110,7 +1109,6 @@ int CvCitySiteEvaluator::ComputeTradeableResourceValue(CvPlot* pPlot, const CvPl
 						rtnValue *= 10;
 					}
 				}
-#endif
 			}
 		}
 	}

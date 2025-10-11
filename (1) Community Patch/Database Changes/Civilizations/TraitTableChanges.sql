@@ -3,8 +3,9 @@
 -- Bonus XP to Gold-purchased military units, scaling with era.
 ALTER TABLE Traits ADD PurchasedUnitsBonusXP integer DEFAULT 0;
 
--- Trade Route yields no longer scale from distance.
-ALTER TABLE Traits ADD IgnoreTradeDistanceScaling boolean DEFAULT 0;
+-- Negates the proximity penalty for sending/receiving Trade Routes to/from nearby cities
+-- Only does anything if BALANCE_TRADE_ROUTE_PROXIMITY_PENALTY=1
+ALTER TABLE Traits ADD NoTradeRouteProximityPenalty boolean DEFAULT 0;
 
 -- Trade Routes can be plundered without being at war
 ALTER TABLE Traits ADD CanPlunderWithoutWar boolean DEFAULT 0;
@@ -313,7 +314,7 @@ ALTER TABLE Traits ADD FreeZuluPikemanToImpi boolean DEFAULT 0;
 ALTER TABLE Traits ADD ExtraMissionaryStrength integer DEFAULT 0;
 
 -- Can send gold internal trade routes; gold yield calculated as if international, culture and science calculated as if allied city state. Only sender city gets the yields.
--- Note: Requires BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES in CustomModOptions to be set to 1 (0 by default for performance).
+-- Note: Requires TRADE_INTERNAL_GOLD_ROUTES in CustomModOptions to be set to 1 (0 by default for performance).
 ALTER TABLE Traits ADD CanGoldInternalTradeRoutes boolean DEFAULT 0;
 
 -- Additional trade routes based on the number of owned cities

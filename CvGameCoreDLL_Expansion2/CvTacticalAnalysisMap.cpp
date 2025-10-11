@@ -46,11 +46,8 @@ CvTacticalDominanceZone::CvTacticalDominanceZone(void)
 	m_iEnemyNavalUnitCount = 0;
 	m_iFriendlyNavalUnitCount = 0;
 	m_iZoneValue = 0;
-
-#if defined(MOD_BALANCE_CORE_MILITARY)
 	m_iAvgX = m_iAvgY = 0;
 	m_iPlotCount = 0;
-#endif
 }
 
 /// Retrieve city controlling this zone
@@ -200,7 +197,6 @@ int CvTacticalDominanceZone::getHospitalityScore() const
 	return iScore;
 }
 
-#if defined(MOD_BALANCE_CORE_MILITARY)
 void CvTacticalDominanceZone::Extend(CvPlot* pPlot)
 {
 	if (!pPlot)
@@ -244,7 +240,6 @@ void CvTacticalDominanceZone::Extend(CvPlot* pPlot)
 			m_iAvgY += iHalfHeight * 2;
 	}
 }
-#endif
 
 //=====================================
 // CvTacticalAnalysisMap

@@ -1596,7 +1596,6 @@ void CvMap::changeNumResources(ResourceTypes eIndex, int iChange)
 	m_paiNumResource[eIndex] = (m_paiNumResource[eIndex] + iChange);
 	ASSERT(getNumResources(eIndex) >= 0);
 }
-#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 //	--------------------------------------------------------------------------------
 void CvMap::setNumResources(ResourceTypes eIndex)
 {
@@ -1622,7 +1621,6 @@ void CvMap::setNumResources(ResourceTypes eIndex)
 		m_paiNumResource[eIndex] = iResourceQuantity;
 	}
 }
-#endif
 //	--------------------------------------------------------------------------------
 int CvMap::getNumResourcesOnLand(ResourceTypes eIndex)
 {
@@ -1812,11 +1810,8 @@ void CvMap::Read(FDataStream& kStream)
 
 	gDLL->DoMapSetup(numPlots());
 
-#if defined(MOD_EVENTS_TERRAFORMING)
-	if (MOD_EVENTS_TERRAFORMING) {
+	if (MOD_EVENTS_TERRAFORMING)
 		GAMEEVENTINVOKE_HOOK(GAMEEVENT_TerraformingMap, TERRAFORMINGEVENT_LOAD, 1);
-	}
-#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -2748,7 +2743,7 @@ void CvMap::RecalculateRivers()
 //	--------------------------------------------------------------------------------
 void CvMap::CalculateRivers()
 {
-	if (!MOD_RIVER_CITY_CONNECTIONS)
+	if (!MOD_BALANCE_RIVER_CITY_CONNECTIONS)
 		return;
 
 	CvPlot* pLoopPlot = NULL;
