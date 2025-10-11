@@ -282,6 +282,7 @@ private:
 	// Routines to execute homeland moves
 	void ExecuteFirstTurnSettlerMoves();
 	bool ExecuteExplorerMoves(CvUnit* pUnit);
+	bool ExecuteOpportunisticSettlementMoves(CvUnit* pUnit);
 
 	void ExecuteWorkerMoves();
 	void ExecuteMovesToSafestPlot(CvUnit* pUnit);

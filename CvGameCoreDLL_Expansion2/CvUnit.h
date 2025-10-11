@@ -295,6 +295,8 @@ public:
 	bool canMoveInto(const CvPlot& pPlot, int iMoveFlags = 0) const;
 	bool canMoveOrAttackInto(const CvPlot& pPlot, int iMoveFlags = 0) const;
 
+	bool CanStayInOcean() const;
+
 	bool IsAngerFreeUnit() const;
 
 	int getMeleeCombatDamageCity(int iStrength, const CvCity* pCity, int& iSelfDamageInflicted, int iGarrisonMaxHP, int& iGarrisonDamage, bool bIncludeRand) const;
@@ -881,6 +883,9 @@ public:
 
 	bool HasSpottedEnemy() const;
 	void SetSpottedEnemy(bool bValue);
+
+	bool HasSpottedRuin() const;
+	void SetSpottedRuin(bool bValue);
 
 	bool IsGainsXPFromScouting() const;
 	int GetGainsXPFromScouting() const;
@@ -2294,6 +2299,7 @@ protected:
 #endif
 	int m_iNumTilesRevealedThisTurn;
 	bool m_bSpottedEnemy;
+	bool m_bSpottedRuin;
 	int m_iGainsXPFromScouting;
 	int m_iXPFromPillaging;
 	int m_iExtraXPOnKill;

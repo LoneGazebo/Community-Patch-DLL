@@ -485,6 +485,8 @@ public:
 
 	int GetCultureFromSpecialist(SpecialistTypes eSpecialist) const;
 
+	void UpdateOceanStatus();
+
 	const CvHandicapInfo& getHandicapInfo() const;
 	HandicapTypes getHandicapType() const;
 
@@ -1835,6 +1837,8 @@ public:
 
 	bool IsNukeKillable(int iNukeLevel);
 
+	bool IsConnectedToOcean() const;
+
 protected:
 	SYNC_ARCHIVE_MEMBER(CvCity)
 
@@ -2235,6 +2239,8 @@ protected:
 	std::vector<bool> m_abBuildingConstructed;
 
 	int m_iVassalLevyEra;
+
+	bool m_bConnectedToOcean;
 
 	//cache for great work yields, they are need often during citizen re-assignment but they don't change
 	mutable vector<int> m_GwYieldCache; //not serialized

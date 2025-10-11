@@ -1926,6 +1926,8 @@ CvUnit* CvAIOperationCivilianFoundCity::FindBestCivilian()
 	{
 		if (pLoopUnit->getArmyID() != -1)
 			continue;
+		if (!pLoopUnit->IsCivilianUnit())
+			continue;
 		if (pLoopUnit->canFoundCity(NULL,true,true))
 			return pLoopUnit;
 	}
@@ -3209,7 +3211,7 @@ int OperationalAIHelpers::IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, const 
 		*/
 		return -1;
 	}
-	if (pLoopUnit->GetCurrHitPoints() < ((pLoopUnit->GetMaxHitPoints() * /*70*/ GD_INT_GET(AI_OPERATIONAL_PERCENT_HEALTH_FOR_OPERATION)) / 100))
+	if (pLoopUnit->GetCurrHitPoints() * 100 < pLoopUnit->GetMaxHitPoints() * /*70*/ GD_INT_GET(AI_OPERATIONAL_PERCENT_HEALTH_FOR_OPERATION))
 	{
 		/*
 		if (GC.getLogging() && GC.getAILogging())
@@ -3234,8 +3236,8 @@ int OperationalAIHelpers::IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, const 
 		return -1;
 	}
 
-	//skip pure explorers
-	if (pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_EXPLORE || pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_EXPLORE_SEA)
+	//skip units that are assigned to exploring or settling (e.g. conquistadors)
+	if (pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE || pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE_SEA || pLoopUnit->AI_getUnitAIType() == UNITAI_SETTLE)
 		return -1;
 
 	if (pLoopUnit->getDomainType() == DOMAIN_LAND)

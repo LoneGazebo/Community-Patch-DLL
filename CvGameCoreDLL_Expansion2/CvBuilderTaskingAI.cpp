@@ -2771,6 +2771,17 @@ int CvBuilderTaskingAI::GetResourceWeight(ResourceTypes eResource, int iQuantity
 		// measure quantity
 		int iValue = (iQuantity + 1) * 250;
 
+		// big bonus for late game resources
+		TechTypes eRevealTech = (TechTypes)pkResource->getTechReveal();
+		if (eRevealTech != NO_TECH)
+		{
+			CvTechEntry* pkRevealTech = GC.getTechInfo(eRevealTech);
+			if (pkRevealTech && pkRevealTech->GetEra() >= GD_INT_GET(RENAISSANCE_ERA))
+			{
+				iValue *= 10;
+			}
+		}
+
 		return iValue;
 	}
 
@@ -3714,7 +3725,7 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 	{
 		static const BuildTypes eDigBuild = (BuildTypes)GC.getInfoTypeForString("BUILD_ARCHAEOLOGY_DIG");
 		if (m_pPlayer->canBuild(pPlot, eDigBuild) && eDigBuild != eBuild)
-			iSecondaryScore -= 1000;
+			return make_pair(-1, 0);
 	}
 
 #if defined(MOD_IMPROVEMENTS_EXTENSIONS)

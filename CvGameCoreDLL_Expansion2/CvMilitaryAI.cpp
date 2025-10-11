@@ -1699,7 +1699,7 @@ void CvMilitaryAI::SetRecommendedArmyNavySize()
 
 	// 1 Unit per City & 1 per Settler
 	iLandDefenseWeight += (int)(m_pPlayer->getNumCities() * 10 * /*1.0f*/ GD_FLOAT_GET(AI_STRATEGY_DEFEND_MY_LANDS_UNITS_PER_CITY));
-	iLandDefenseWeight += m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_SETTLE, true) * 10;
+	iLandDefenseWeight += m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_SETTLE, true, true) * 10;
 
 	iNavalDefenseWeight += (int)(iNumCoastalCities * 7 * /*1.0f*/ GD_FLOAT_GET(AI_STRATEGY_DEFEND_MY_LANDS_UNITS_PER_CITY));
 

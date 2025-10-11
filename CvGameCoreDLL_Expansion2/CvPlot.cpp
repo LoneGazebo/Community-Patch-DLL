@@ -6523,7 +6523,6 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 		GC.getGame().addReplayMessage(REPLAY_MESSAGE_PLOT_OWNER_CHANGE, eNewValue, "", getX(), getY());
 
 		CvCity* pOldCity = getPlotCity();
-		CvCity* pOldOwningCity = getEffectiveOwningCity();
 
 		{
 			setOwnershipDuration(0);
@@ -11293,7 +11292,7 @@ int CvPlot::GetExplorationBonus(const CvPlayer* pPlayer, const CvUnit* pUnit)
 	if (!pPlayer || !pUnit || pPlayer->getNumCities()==0)
 		return 0;
 
-	CvPlot* pRefPlot = pUnit->plot();
+	CvPlot* pUnitPlot = pUnit->plot();
 
 	//land based exploration - give a bonus to fertile tiles that are close to our own territory
 	if (pUnit->getDomainType() == DOMAIN_LAND)
@@ -11311,15 +11310,15 @@ int CvPlot::GetExplorationBonus(const CvPlayer* pPlayer, const CvUnit* pUnit)
 			iBonus += 20;
 
 		int iDistToOwnCities = pPlayer->GetCityDistancePathLength(this);
-		int iDistRef = pPlayer->GetCityDistancePathLength(pRefPlot);
-		if (iDistToOwnCities < iDistRef)
+		int iUnitDistToOwnCities = pPlayer->GetCityDistancePathLength(pUnitPlot);
+		if (iDistToOwnCities < iUnitDistToOwnCities)
 			iBonus += 20;
 
 		return iBonus;
 	}
 
 	//naval exploration - the further away, the better
-	return pPlayer->GetCityDistanceInPlots(this) - pPlayer->GetCityDistanceInPlots(pRefPlot);
+	return pPlayer->GetCityDistanceInPlots(this) - pPlayer->GetCityDistanceInPlots(pUnitPlot);
 }
 
 //	--------------------------------------------------------------------------------
@@ -11464,6 +11463,10 @@ PlotVisibilityChangeResult CvPlot::changeVisibilityCount(TeamTypes eTeam, int iC
 					GET_PLAYER(vPlayers[i]).GetEconomicAI()->UpdateExplorePlotsLocally(this);
 				}
 			}
+
+			// Did we spot an ancient ruin?
+			if (pUnit && isGoody())
+				pUnit->SetSpottedRuin(true);
 		}
 		else
 		{
