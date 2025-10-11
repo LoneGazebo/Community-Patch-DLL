@@ -8277,74 +8277,10 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				ResourceTypes eResource = getResourceType(kOwner.getTeam());
 				if (eResource == eArtifact || eResource == eHiddenArtifact)
 				{
-					if (eBuilder != NO_PLAYER && newImprovementEntry.IsCreatedByGreatPerson())
+					if (newImprovementEntry.IsPermanent())
 					{
-						CvPlayer& kBuilder = GET_PLAYER(eBuilder);
-						TechTypes eRequiredTech = (TechTypes)gCustomMods.getOption("GPTI_ARCHAEOLOGY_TECH", -1);
-						if (MOD_BALANCE_GPTI_ARCHAEOLOGY && (eRequiredTech == NO_TECH || kBuilder.HasTech(eRequiredTech)))
-						{
-							kBuilder.SetNumArchaeologyChoices(kBuilder.GetNumArchaeologyChoices() + 1);
-							kBuilder.GetCulture()->AddDigCompletePlot(this);
-
-							// Raiders of the Lost Ark achievement
-							if (MOD_ENABLE_ACHIEVEMENTS && kBuilder.isHuman(ISHUMAN_ACHIEVEMENTS))
-							{
-								const char* szCivKey = kBuilder.getCivilizationTypeKey();
-								if (getOwner() != NO_PLAYER && !GC.getGame().isNetworkMultiPlayer() && strcmp(szCivKey, "CIVILIZATION_AMERICA") == 0)
-								{
-									CvPlayer &kPlotOwner = GET_PLAYER(getOwner());
-									szCivKey = kPlotOwner.getCivilizationTypeKey();
-									if (strcmp(szCivKey, "CIVILIZATION_EGYPT") == 0)
-									{
-										for (int i = 0; i < MAX_MAJOR_CIVS; i++)
-										{
-											CvPlayer &kLoopPlayer = GET_PLAYER((PlayerTypes)i);
-											if (kLoopPlayer.GetID() != NO_PLAYER && kLoopPlayer.isAlive())
-											{
-												szCivKey = kLoopPlayer.getCivilizationTypeKey();
-												if (strcmp(szCivKey, "CIVILIZATION_GERMANY"))
-												{
-													CvUnit *pLoopUnit = NULL;
-													int iUnitLoop = 0;
-													for (pLoopUnit = kLoopPlayer.firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = kLoopPlayer.nextUnit(&iUnitLoop))
-													{
-														if (strcmp(pLoopUnit->getUnitInfo().GetType(), "UNIT_ARCHAEOLOGIST") == 0)
-														{
-															if (plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), getX(), getY()) <= 2)
-															{
-																gDLL->UnlockAchievement(ACHIEVEMENT_XP2_33);
-															}
-														}
-													}
-												}
-											}
-										}
-									}
-								}
-							}
-
-							if (kBuilder.isHuman(ISHUMAN_AI_TOURISM))
-							{
-								CvNotifications* pNotifications = NULL;
-								Localization::String locString;
-								Localization::String locSummary;
-								pNotifications = kBuilder.GetNotifications();
-								if (pNotifications)
-								{
-									CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_CHOOSE_ARCHAEOLOGY");
-									CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_CHOOSE_ARCHAEOLOGY");
-									pNotifications->Add(NOTIFICATION_CHOOSE_ARCHAEOLOGY, strBuffer, strSummary, getX(), getY(), kBuilder.GetID());
-									CancelActivePlayerEndTurn();
-								}
-							}
-							else
-								bArchaeologyChoicePending = true;
-						}
-						else
-							ClearArchaeologicalRecord();
-					}
-					else if (newImprovementEntry.IsPermanent())
 						ClearArchaeologicalRecord();
+					}
 				}
 			}
 
