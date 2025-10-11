@@ -6649,6 +6649,11 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 						}
 					}
 				}
+
+				// Remove credit for building Landmark if player took it from the minor
+				ImprovementTypes eLandmarkImprovement = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_LANDMARK");
+				if (eImprovement == eLandmarkImprovement && eOldOwner == GetLandmarkCreditMinor() && eBuilder != NO_PLAYER && eNewValue != NO_PLAYER && GET_PLAYER(eBuilder).getTeam() == GET_PLAYER(eNewValue).getTeam())
+					SetLandmarkCreditMinor(NO_PLAYER);
 			}
 
 			// Remove Resource Quantity from total
