@@ -2898,31 +2898,55 @@ ArchaeologyChoiceType CvPlayerCulture::GetArchaeologyChoice(CvPlot *pPlot)
 	ArchaeologyChoiceType eRtnValue = ARCHAEOLOGY_DO_NOTHING;
 
 	GreatWorkSlotType eArtArtifactSlot = CvTypes::getGREAT_WORK_SLOT_ART_ARTIFACT();
+	GreatWorkSlotType eLiteratureSlot = CvTypes::getGREAT_WORK_SLOT_LITERATURE();
 
+	// Take Landmark if it's in our territory and we get additional delegates from it
+	if (pPlot->getOwner() == m_pPlayer->GetID())
+	{
+		ImprovementTypes eLandmarkImprovement = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_LANDMARK");
+		if (eLandmarkImprovement != NO_IMPROVEMENT)
+		{
+			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(m_pPlayer->GetReligions()->GetStateReligion(false), m_pPlayer->GetID());
+			if (pReligion)
+			{
+				if (pReligion->m_Beliefs.GetVoteFromOwnedImprovement(eLandmarkImprovement, m_pPlayer->GetID()) > 0)
+				{
+					return ARCHAEOLOGY_LANDMARK;
+				}
+			}
+		}
+	}
+
+	// instant culture? take it, unless we really don't need the culture anymore
 	if (pPlot->HasWrittenArtifact())
 	{
-		eRtnValue = ARCHAEOLOGY_ARTIFACT_WRITING;
+		PolicyBranchTypes eIdeology = m_pPlayer->GetPlayerPolicies()->GetLateGamePolicyTree();
+		if (eIdeology == NO_POLICY_BRANCH_TYPE)
+			return ARCHAEOLOGY_CULTURE_BOOST;
+
+		if (m_pPlayer->GetPlayerPolicies()->GetNumTenetsOfLevel(eIdeology, 3) < 2)
+			return ARCHAEOLOGY_CULTURE_BOOST; 
 	}
 	
 	// No slots? Definitely go for Landmark or Cultural Renaissance
-	if (!HasAvailableGreatWorkSlot(eArtArtifactSlot))
+	if (!HasAvailableGreatWorkSlot(eArtArtifactSlot) && (!pPlot->HasWrittenArtifact() || !HasAvailableGreatWorkSlot(eLiteratureSlot)))
 	{
 		if (pPlot->HasWrittenArtifact())
 		{
-			eRtnValue = ARCHAEOLOGY_CULTURE_BOOST;
+			return ARCHAEOLOGY_CULTURE_BOOST; 
 		}
 		else
 		{
-			eRtnValue = ARCHAEOLOGY_LANDMARK;
+			return ARCHAEOLOGY_LANDMARK;
 		}
 	}
 
 	// Outside territory? Go for artifact ...
-	else if (pPlot->getOwner() != m_pPlayer->GetID())
+	if (pPlot->getOwner() != m_pPlayer->GetID())
 	{
 		eRtnValue = ARCHAEOLOGY_ARTIFACT_PLAYER1;
 
-		// ... unless this is a city state we want to influence to help with diplo victory
+		// ... unless this is a city state we want to influence to help with diplo victory, or we don't need the artifact and want to improve relations with a friend
 		if (pPlot->getOwner() != NO_PLAYER)
 		{
 			if (GET_PLAYER(pPlot->getOwner()).isMinorCiv())
@@ -2934,41 +2958,36 @@ ArchaeologyChoiceType CvPlayerCulture::GetArchaeologyChoice(CvPlot *pPlot)
 			}
 			else
 			{
-				if (m_pPlayer->IsEmpireUnhappy() || m_pPlayer->GetDiplomacyAI()->GetCivOpinion(pPlot->getOwner()) >= CIV_OPINION_FRIEND)
+				if (!m_pPlayer->GetDiplomacyAI()->IsGoingForCultureVictory() && m_pPlayer->GetDiplomacyAI()->GetCivOpinion(pPlot->getOwner()) >= CIV_OPINION_FRIEND)
 					eRtnValue = ARCHAEOLOGY_LANDMARK;
 			}
 		}
 	}
-
-	// Not a tile a city can work?  Go for artifact
-	else if (pPlot->getOwningCity() == NULL)
+	else 
 	{
-		eRtnValue = ARCHAEOLOGY_ARTIFACT_PLAYER1;
-	}
-
-	// Otherwise go for Landmark if from Medieval Era or earlier, or if have enough other Archaeologists and Antiquity sites to fill all slots
-	else if (pPlot->GetArchaeologicalRecord().m_eEra <= 2)
-	{
-		eRtnValue = ARCHAEOLOGY_LANDMARK;
-	}
-
-	else
-	{
-		int iNumArchaeologists = m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_ARCHAEOLOGIST, true) - 1 /* For this one that just completed work */;
-		int iNumSites = m_pPlayer->GetEconomicAI()->GetVisibleAntiquitySites() - 1 /* For this one then just was completed */;
-		int iNumGreatWorkSlots = m_pPlayer->GetCulture()->GetNumAvailableGreatWorkSlots(eArtArtifactSlot);
-		int iLimitingFactor = min(iNumArchaeologists, iNumSites);
-
-		if (iNumGreatWorkSlots <= iLimitingFactor)
+		// Not a tile a city can work?  Go for artifact
+		bool bWithinWorkingRange = false;
+		if (pPlot->getOwningCity() && pPlot->getOwningCity()->IsWithinWorkRange(pPlot))
 		{
-			if (pPlot->HasWrittenArtifact())
+			bWithinWorkingRange = true;
+		}
+		else
+		{
+			CvCity* pClosestCity = m_pPlayer->GetClosestCity(pPlot, 5, false);
+			if (pClosestCity && pClosestCity->IsWithinWorkRange(pPlot))
 			{
-				eRtnValue = ARCHAEOLOGY_CULTURE_BOOST;
+				bWithinWorkingRange = true;
 			}
-			else
-			{
-				eRtnValue = ARCHAEOLOGY_LANDMARK;
-			}
+		}
+		if (!bWithinWorkingRange)
+		{
+			eRtnValue = ARCHAEOLOGY_ARTIFACT_PLAYER1;
+		}
+
+		// Otherwise go for Landmark if from Medieval Era or earlier and we're not going for a cultural victory, or if we're very unhappy
+		else if ((!m_pPlayer->GetDiplomacyAI()->IsGoingForCultureVictory() && pPlot->GetArchaeologicalRecord().m_eEra <= 2) || m_pPlayer->IsEmpireVeryUnhappy() || m_pPlayer->IsEmpireSuperUnhappy())
+		{
+			eRtnValue = ARCHAEOLOGY_LANDMARK;
 		}
 		else
 		{
@@ -2980,9 +2999,17 @@ ArchaeologyChoiceType CvPlayerCulture::GetArchaeologyChoice(CvPlot *pPlot)
 	if (eRtnValue == ARCHAEOLOGY_ARTIFACT_PLAYER1)
 	{
 		// For now have AI player try to collect their own artifacts
-		if (pPlot->GetArchaeologicalRecord().m_ePlayer2 == m_pPlayer->GetID())
+		if (HasAvailableGreatWorkSlot(eArtArtifactSlot) && pPlot->GetArchaeologicalRecord().m_ePlayer2 == m_pPlayer->GetID())
 		{
 			eRtnValue = ARCHAEOLOGY_ARTIFACT_PLAYER2;
+		}
+		else if (HasAvailableGreatWorkSlot(eArtArtifactSlot) && pPlot->GetArchaeologicalRecord().m_ePlayer1 == m_pPlayer->GetID())
+		{
+			eRtnValue = ARCHAEOLOGY_ARTIFACT_PLAYER1;
+		}
+		else if (pPlot->HasWrittenArtifact() && HasAvailableGreatWorkSlot(eLiteratureSlot))
+		{
+			eRtnValue = ARCHAEOLOGY_ARTIFACT_WRITING;
 		}
 	}
 
