@@ -2892,7 +2892,6 @@ CvCity* CvPlayer::initCity(int iX, int iY, bool bBumpUnits, bool bInitialFoundin
 		pNewCity->init(pNewCity->GetID(), GetID(), iX, iY, bBumpUnits, bInitialFounding, eInitialReligion, szName, pkSettlerUnitEntry);
 		pNewCity->GetCityStrategyAI()->UpdateFlavorsForNewCity();
 		pNewCity->DoUpdateCheapestPlotInfluenceDistance();
-		pNewCity->UpdateYieldsFromExistingFriendsAndAllies(false);
 
 		GC.getGame().SetClosestCityMapDirty();
 
@@ -43892,13 +43891,21 @@ void CvPlayer::Read(FDataStream& kStream)
 	if(m_bTurnActive)
 		GC.getGame().changeNumGameTurnActive(1, std::string("setTurnActive() [loading save game] for player ") + getName());
 
-	UpdateAreaEffectUnits();
-	UpdateAreaEffectPlots();
-	GET_TEAM(getTeam()).updateTeamStatus();
-	UpdateCurrentAndFutureWars();
-	int iLoop=0;
-	for (CvCity* pCity=firstCity(&iLoop); pCity!=NULL; pCity=nextCity(&iLoop))
-		pCity->UpdateClosestFriendlyNeighbors();
+	// update area effects for every player after all players have been loaded
+	if (GetID() == (PlayerTypes)MAX_CIV_PLAYERS)
+	{
+		for (int iPlayerLoop = 0; iPlayerLoop <= MAX_CIV_PLAYERS; iPlayerLoop++)
+		{
+			CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iPlayerLoop);
+			kLoopPlayer.UpdateAreaEffectUnits();
+			kLoopPlayer.UpdateAreaEffectPlots();
+			GET_TEAM(kLoopPlayer.getTeam()).updateTeamStatus();
+			kLoopPlayer.UpdateCurrentAndFutureWars();
+			int iLoop = 0;
+			for (CvCity* pCity = kLoopPlayer.firstCity(&iLoop); pCity != NULL; pCity = kLoopPlayer.nextCity(&iLoop))
+				pCity->UpdateClosestFriendlyNeighbors();
+		}
+	}
 }
 
 //

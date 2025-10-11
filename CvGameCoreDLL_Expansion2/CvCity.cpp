@@ -821,6 +821,8 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	// Update Proximity between this Player and all others
 	owningPlayer.DoUpdateProximityToPlayers();
 
+	UpdateYieldsFromExistingFriendsAndAllies(false);
+
 	// Free Buildings in the first City
 	if (GC.getGame().isFinalInitialized())
 	{
@@ -2050,7 +2052,7 @@ void CvCity::PreKill()
 			pLoopPlot->setOwner(NO_PLAYER, NO_PLAYER, /*bCheckUnits*/ false, /*bUpdateResources*/ true);
 
 		//but also give back any loaned plots to their original city
-		if (pLoopPlot->isEffectiveOwner(this))
+		else if (pLoopPlot->isEffectiveOwner(this))
 			pLoopPlot->setOwningCityOverride(NULL);
 	}
 

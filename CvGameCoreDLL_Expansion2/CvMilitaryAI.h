@@ -330,7 +330,6 @@ private:
 	vector<CvAttackTarget> m_potentialAttackTargets; //enemy cities we might want to attack
 	vector<CvAttackTarget> m_exposedCities; //those of our cities which might be tempting to the enemies
 
-	// Data recomputed each turn (no need to serialize)
 	int m_iNumLandUnits;
 	int m_iNumRangedLandUnits;
 	int m_iNumMobileLandUnits;
@@ -369,6 +368,9 @@ private:
 
 FDataStream& operator>>(FDataStream&, CvMilitaryAI&);
 FDataStream& operator<<(FDataStream&, const CvMilitaryAI&);
+
+FDataStream& operator<<(FDataStream&, const DefenseState&);
+FDataStream& operator>>(FDataStream&, DefenseState&);
 
 namespace MilitaryAIHelpers
 {

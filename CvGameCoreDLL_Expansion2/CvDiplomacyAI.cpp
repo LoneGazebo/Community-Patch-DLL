@@ -113,6 +113,10 @@ void CvDiplomacyAI::Init(CvPlayer* pPlayer)
 	m_eCurrentVictoryPursuit = NO_VICTORY_PURSUIT;
 	m_eStateAllWars = STATE_ALL_WARS_NEUTRAL;
 
+	m_eTestStatement = NO_DIPLO_STATEMENT_TYPE;
+  	m_eTestToPlayer = NO_PLAYER;
+  	m_iTestStatementArg1 = 0;
+
 	for (int iI = 0; iI < MAX_PLAYERS; iI++)
 	{
 		if (iI < MAX_MINOR_CIVS)

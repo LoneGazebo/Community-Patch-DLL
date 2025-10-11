@@ -353,12 +353,37 @@ void CvMilitaryAI::Serialize(MilitaryAI& militaryAI, Visitor& visitor)
 	visitor(militaryAI.m_iNumberOfTimesOpsBuildSkippedOver);
 	visitor(militaryAI.m_iNumberOfTimesSettlerBuildSkippedOver);
 
-	visitor(militaryAI.m_iNumAntiAirUnits);
 	visitor(militaryAI.m_iNumLandUnits);
+	visitor(militaryAI.m_iNumRangedLandUnits);
+	visitor(militaryAI.m_iNumMobileLandUnits);
+	visitor(militaryAI.m_iNumMeleeLandUnits);
 	visitor(militaryAI.m_iNumNavalUnits);
-	visitor(militaryAI.m_iRecOffensiveLandUnits);
+	visitor(militaryAI.m_iNumLandUnitsInArmies);
+	visitor(militaryAI.m_iNumNavalUnitsInArmies);
 	visitor(militaryAI.m_iRecOffensiveNavalUnits);
+	visitor(militaryAI.m_iNumAirUnits);
+	visitor(militaryAI.m_iNumAntiAirUnits);
+	visitor(militaryAI.m_iBarbarianCampCount);
+	visitor(militaryAI.m_iVisibleBarbarianCount);
+	visitor(militaryAI.m_iRecOffensiveLandUnits);
+	visitor(militaryAI.m_iRecDefensiveLandUnits);
+	visitor(militaryAI.m_iRecExplorerUnits);
 	visitor(militaryAI.m_iNumFreeCarriers);
+	visitor(militaryAI.m_iNumArcherLandUnits);
+	visitor(militaryAI.m_iNumSiegeLandUnits);
+	visitor(militaryAI.m_iNumSkirmisherLandUnits);
+	visitor(militaryAI.m_iNumReconLandUnits);
+	visitor(militaryAI.m_iNumBomberAirUnits);
+	visitor(militaryAI.m_iNumFighterAirUnits);
+	visitor(militaryAI.m_iNumMeleeNavalUnits);
+	visitor(militaryAI.m_iNumRangedNavalUnits);
+	visitor(militaryAI.m_iNumSubmarineNavalUnits);
+	visitor(militaryAI.m_iNumCarrierNavalUnits);
+	visitor(militaryAI.m_iNumMissileUnits);
+	visitor(militaryAI.m_iNumActiveUniqueUnits);
+
+	visitor(militaryAI.m_eLandDefenseState);
+	visitor(militaryAI.m_eNavalDefenseState);
 	visitor(militaryAI.m_potentialAttackTargets);
 	visitor(militaryAI.m_exposedCities);
 
@@ -391,6 +416,21 @@ FDataStream& operator<<(FDataStream& stream, const CvMilitaryAI& militaryAI)
 {
 	militaryAI.Write(stream);
 	return stream;
+}
+
+FDataStream& operator<<(FDataStream& saveTo, const DefenseState& readFrom)
+{
+	int v = static_cast<int>(readFrom);
+	saveTo << v;
+	return saveTo;
+}
+
+FDataStream& operator>>(FDataStream& loadFrom, DefenseState& writeTo)
+{
+	int v = 0;
+	loadFrom >> v;
+	writeTo = static_cast<DefenseState>(v);
+	return loadFrom;
 }
 
 /// Returns the Player object the Strategies are associated with

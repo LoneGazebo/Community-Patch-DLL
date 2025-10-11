@@ -9156,9 +9156,7 @@ bool CvUnit::plunderTradeRoute()
 		return false;
 	}
 
-	// right now, plunder the first unit
-	//No!
-	bool bGood = false;
+	bool bSuccess = false;
 	for (uint uiTradeRoute = 0; uiTradeRoute < aiTradeUnitsAtPlot.size(); uiTradeRoute++)
 	{
 		PlayerTypes eTradeUnitOwner = GC.getGame().GetGameTrade()->GetOwnerFromID(aiTradeUnitsAtPlot[uiTradeRoute]);
@@ -9179,8 +9177,8 @@ bool CvUnit::plunderTradeRoute()
 		TeamTypes eTeam = GET_PLAYER(eTradeUnitOwner).getTeam();
 		if (GET_TEAM(GET_PLAYER(m_eOwner).getTeam()).isAtWar(eTeam) || GET_PLAYER(m_eOwner).GetPlayerTraits()->IsCanPlunderWithoutWar())
 		{
-			pTrade->PlunderTradeRoute(aiTradeUnitsAtPlot[0], this);
-			bGood = true;
+			pTrade->PlunderTradeRoute(aiTradeUnitsAtPlot[uiTradeRoute], this);
+			bSuccess = true;
 
 			if (GC.getLogging() && GC.getAILogging() && GET_PLAYER(m_eOwner).GetPlayerTraits()->IsCanPlunderWithoutWar())
 			{
@@ -9190,12 +9188,8 @@ bool CvUnit::plunderTradeRoute()
 			}
 		}
 	}
-	if (bGood)
-	{
-		return true;
-	}
 
-	return true;
+	return bSuccess;
 }
 
 //	--------------------------------------------------------------------------------
@@ -14997,7 +14991,7 @@ std::map<CvUnit*, CvPlot*> CvUnit::DoSquadPlotAssignments(CvPlot* pDestPlot, boo
 			}
 		}
 	}
-	int unique_plots_required = max(eligibleLandUnits.size(), eligibleSeaUnits.size());
+	uint unique_plots_required = max(eligibleLandUnits.size(), eligibleSeaUnits.size());
 
 	// If enabled, for each stacking unit: if a non-stacking unit in the squad is on the same plot, make it an escort
 	if (!computeOnly && escort)
@@ -15092,7 +15086,7 @@ std::map<CvUnit*, CvPlot*> CvUnit::DoSquadPlotAssignments(CvPlot* pDestPlot, boo
 		std::stable_sort(scoredPlots.begin(), scoredPlots.end(), less<ScoredPlot>());
 
 		eligiblePlots.clear();
-		for (int i = 0; i < min(unique_plots_required, (int)scoredPlots.size()); i++)
+		for (uint i = 0; i < min(unique_plots_required, scoredPlots.size()); i++)
 		{
 			eligiblePlots.push_back(scoredPlots[i].plot);
 		}
