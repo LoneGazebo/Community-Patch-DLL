@@ -409,7 +409,7 @@ local function UpdateTopPanelNow()
 
 		local sciencePerTurnTimes100 = g_activePlayer:GetScienceTimes100()
 
-		local strSciencePerTurn = S( "+%.0f", sciencePerTurnTimes100 / 100 )
+		local strSciencePerTurn = FormatIntegerTimes100(sciencePerTurnTimes100)
 
 		-- Gold being deducted from our Science ?
 		if g_activePlayer:GetScienceFromBudgetDeficitTimes100() == 0 then
@@ -510,9 +510,9 @@ local function UpdateTopPanelNow()
 		-----------------------------
 
 		if PerTurnOnLeft then
-			Controls.GoldPerTurn:LocalizeAndSetText( "TXT_KEY_ITP_TOP_PANEL_GOLD", FormatIntegerTimes100(g_activePlayer:CalculateGoldRateTimes100()), FormatIntegerTimes100(g_activePlayer:GetGoldTimes100()) )
+			Controls.GoldPerTurn:LocalizeAndSetText( "TXT_KEY_ITP_TOP_PANEL_GOLD", math_floor(g_activePlayer:CalculateGoldRateTimes100() / 100), math_floor(g_activePlayer:GetGoldTimes100() / 100) )
 		else
-			Controls.GoldPerTurn:LocalizeAndSetText( "TXT_KEY_TOP_PANEL_GOLD", FormatIntegerTimes100(g_activePlayer:GetGoldTimes100()), FormatIntegerTimes100(g_activePlayer:CalculateGoldRateTimes100()) )
+			Controls.GoldPerTurn:LocalizeAndSetText( "TXT_KEY_TOP_PANEL_GOLD", math_floor(g_activePlayer:GetGoldTimes100() / 100), math_floor(g_activePlayer:CalculateGoldRateTimes100() / 100) )
 		end
 
 		-----------------------------
@@ -580,7 +580,7 @@ local function UpdateTopPanelNow()
 			-- CBP
 			local iGAPReligion = g_activePlayer:GetGAPFromReligion();
 			local iGAPTrait = g_activePlayer:GetGAPFromTraits();
-			local iGAPCities = g_activePlayer:GetGAPFromCities();
+			local iGAPCities = g_activePlayer:GetGAPFromCitiesTimes100() / 100;
 			-- END
 			local happyProgressNext = (happyProgress + excessHappiness + iGAPReligion + iGAPTrait + iGAPCities);
 
@@ -594,7 +594,7 @@ local function UpdateTopPanelNow()
 					Controls.HappyBar:SetPercent( happyProgress / happyNeeded )
 					Controls.HappyBarShadow:SetPercent( happyProgressNext / happyNeeded )
 					if (excessHappiness + iGAPReligion + iGAPTrait + iGAPCities) > 0 then
-						turnsRemaining = math_ceil((happyNeeded - happyProgress) / (excessHappiness + iGAPReligion + iGAPTrait + iGAPCities))
+						turnsRemaining = FormatInteger(math_ceil((happyNeeded - happyProgress) / (excessHappiness + iGAPReligion + iGAPTrait + iGAPCities)))
 					end
 					Controls.HappyBox:SetHide(false)
 				else
@@ -670,21 +670,21 @@ local function UpdateTopPanelNow()
 				Controls.FaithBar:SetPercent( faithProgress / faithNeeded )
 				Controls.FaithBarShadow:SetPercent( faithProgressNext / faithNeeded )
 				if faithPerTurn > 0 then
-					turnsRemaining = math_ceil((faithNeeded - faithProgress) / faithPerTurn )
+					turnsRemaining = FormatInteger(math_ceil((faithNeeded - faithProgress) / faithPerTurn ))
 				end
 				Controls.FaithBox:SetHide(false)
 				
 				if not (g_activePlayer:HasCreatedPantheon() and g_activePlayer:HasCreatedReligion()) then
-					Controls.FaithString:SetText( S("+%i[ICON_PEACE]", faithPerTurn ) )
+					Controls.FaithString:SetText( S("+%s[ICON_PEACE]", FormatInteger(faithPerTurn) ) )
 				else
-					Controls.FaithString:SetText( S("+%i[ICON_PEACE]%i", faithPerTurn, faithProgress ) )
+					Controls.FaithString:SetText( S("+%s[ICON_PEACE]%s", FormatInteger(faithPerTurn), FormatInteger(faithProgress) ) )
 				end
 			else
 				Controls.FaithBox:SetHide(true)
 				if PerTurnOnLeft then
-					Controls.FaithString:SetText( S("+%i[ICON_PEACE]%i", faithPerTurn, faithProgress ) )
+					Controls.FaithString:SetText( S("+%s[ICON_PEACE]%s", FormatInteger(faithPerTurn), FormatInteger(faithProgress) ) )
 				else
-					Controls.FaithString:SetText( S("[ICON_PEACE]%i(+%i)", faithProgress, faithPerTurn ) )
+					Controls.FaithString:SetText( S("[ICON_PEACE]%s(+%s)", FormatInteger(faithProgress), FormatInteger(faithPerTurn) ) )
 				end
 			end
 
@@ -724,7 +724,7 @@ local function UpdateTopPanelNow()
 		if gp then
 			Controls.GpBar:SetPercent( gp.Progress / gp.Threshold )
 			Controls.GpBarShadow:SetPercent( (gp.Progress+gp.Change) / gp.Threshold )
-			Controls.GpTurns:SetText(L("[COLOR:255:234:128:255]"..gp.Turns.."[ENDCOLOR]"))
+			Controls.GpTurns:SetText(L("[COLOR:255:234:128:255]"..FormatInteger(gp.Turns).."[ENDCOLOR]"))
 			Controls.GpBox:SetHide(false)
 			local gpUnit = GameInfo.Units[ gp.Class.DefaultUnit ]
 			if ReplaceIcons then
@@ -868,12 +868,6 @@ local function UpdateTopPanelNow()
 		Controls.SupremacyProgressBar:Resize(5, math_floor((percentToNextSupremacyLevel/100)*30))
 
 		-----------------------------
-		-- Update energy stats
-		-----------------------------
-
-		Controls.GoldPerTurn:LocalizeAndSetText( "TXT_KEY_TOP_PANEL_ENERGY", g_activePlayer:GetEnergy(), g_activePlayer:CalculateGoldRate() )
-
-		-----------------------------
 		-- Update Health
 		-----------------------------
 		if g_isHealthEnabled then
@@ -885,10 +879,6 @@ local function UpdateTopPanelNow()
 			end
 --				SetAutoWidthGridButton( Controls.HealthString, strHealth, BUTTON_PADDING )
 		end
-
-		-- Clever Firaxis...
-		culturePerTurn = g_activePlayer:GetTotalCulturePerTurn()
-		cultureProgress = g_activePlayer:GetCulture()
 	end
 
 	-----------------------------
@@ -913,7 +903,7 @@ local function UpdateTopPanelNow()
 		end
 
 		Controls.CultureTurns:SetText( S("[COLOR:255:75:255:255]%i[ENDCOLOR]", turnsRemaining))
-		Controls.CultureString:SetText( S("[COLOR_MAGENTA]+%i[ENDCOLOR][ICON_CULTURE]", culturePerTurn ) )
+		Controls.CultureString:SetText( S("[COLOR_MAGENTA]+%s[ENDCOLOR][ICON_CULTURE]", FormatInteger(culturePerTurn) ) )
 	end
 
 	Controls.TopPanelInfoStack:CalculateSize()
@@ -989,7 +979,7 @@ g_toolTipHandler.SciencePerTurn = function()-- control )
 			tech = GameInfo.Technologies[ techID ]
 			local researchCost = g_activePlayer:GetResearchCost( techID )
 			local researchProgress = g_activePlayer:GetResearchProgressTimes100( techID ) / 100
-			local tip = researchProgress .. "[ICON_RESEARCH]"
+			local tip = FormatDecimal(researchProgress) .. "[ICON_RESEARCH]"
 			if tech then
 				tip = L( "TXT_KEY_PROGRESS_TOWARDS", g_scienceTextColor .. Locale.ToUpper( tech.Description ) .. "[ENDCOLOR]" ) .. " " .. tip .. "/ " .. researchCost .. "[ICON_RESEARCH]"
 			end
@@ -997,11 +987,12 @@ g_toolTipHandler.SciencePerTurn = function()-- control )
 
 			if sciencePerTurnTimes100 > 0 then
 				local scienceOverflowTimes100 = sciencePerTurnTimes100 * researchTurnsLeft + (researchProgress - researchCost) * 100
-				local tip = g_scienceTextColor .. Locale.ToUpper( L( "TXT_KEY_STR_TURNS", researchTurnsLeft ) ) .. "[ENDCOLOR] " .. S( "%+g", scienceOverflowTimes100 / 100 ) .. "[ICON_RESEARCH]"
+				local tip = g_scienceTextColor .. Locale.ToUpper( L( "TXT_KEY_STR_TURNS", researchTurnsLeft ) ) .. "[ENDCOLOR] " .. FormatDecimalTimes100( scienceOverflowTimes100 ) .. "[ICON_RESEARCH]"
 				if researchTurnsLeft > 1 then
-					tip = L( "TXT_KEY_STR_TURNS", researchTurnsLeft -1 ) .. " " .. S( "%+g", (scienceOverflowTimes100 - sciencePerTurnTimes100) / 100 ) .. "[ICON_RESEARCH]  " .. tip
+					tip = L( "TXT_KEY_STR_TURNS", researchTurnsLeft -1 ) .. " " .. FormatDecimalTimes100( scienceOverflowTimes100 - sciencePerTurnTimes100 ) .. "[ICON_RESEARCH]  " .. tip
 				end
 				tips:insert( tip )
+				tips:insert( "" )
 			end
 -- todo: rationalize
 			local cost = g_activePlayer:GetResearchCost(techID) * 100
@@ -1052,25 +1043,25 @@ g_toolTipHandler.SciencePerTurn = function()-- control )
 				tip = L"TXT_KEY_RESEARCH_FINISHED" .. " " .. g_scienceTextColor .. Locale.ToUpper( tech.Description ) .. "[ENDCOLOR], " .. tip
 			end
 			tips:insert( tip )
+			tips:insert( "" )
 		end
 
 		-- if we have one, update the tech picture
 		showPortrait = tech and IconHookup( tech.PortraitIndex, size, tech.IconAtlas, tipControls.ItemPortrait )
-
-		tips:insert( g_scienceTextColor )
-		tips:insert( S( "%+g", sciencePerTurnTimes100 / 100 ) .. "[ENDCOLOR] " .. L"TXT_KEY_REPLAY_DATA_SCIENCEPERTURN" )
+		
+		tips:insert( L("TXT_KEY_TP_SCIENCE_PER_TURN", FormatDecimalTimes100( sciencePerTurnTimes100 )) )
 
 		-- Science LOSS from Budget Deficits
-		tips:insertLocalizedIfNonZero( "TXT_KEY_TP_SCIENCE_FROM_BUDGET_DEFICIT", g_activePlayer:GetScienceFromBudgetDeficitTimes100() / 100 )
+		tips:insertLocalizedIfNonZeroFormatDecimal( "TXT_KEY_TP_SCIENCE_FROM_BUDGET_DEFICIT", g_activePlayer:GetScienceFromBudgetDeficitTimes100() / 100 )
 
 		-- Science from Cities
-		tips:insertLocalizedIfNonZero( "TXT_KEY_TP_SCIENCE_FROM_CITIES", g_activePlayer:GetScienceFromCitiesTimes100(true) / 100 )
+		tips:insertLocalizedIfNonZeroFormatDecimal( "TXT_KEY_TP_SCIENCE_FROM_CITIES", g_activePlayer:GetScienceFromCitiesTimes100(true) / 100 )
 
 		-- Science from Trade Routes
-		tips:insertLocalizedIfNonZero( "TXT_KEY_TP_SCIENCE_FROM_ITR", ( g_activePlayer:GetScienceFromCitiesTimes100(false) - g_activePlayer:GetScienceFromCitiesTimes100(true) ) / 100 )
+		tips:insertLocalizedIfNonZeroFormatDecimal( "TXT_KEY_TP_SCIENCE_FROM_ITR", ( g_activePlayer:GetScienceFromCitiesTimes100(false) - g_activePlayer:GetScienceFromCitiesTimes100(true) ) / 100 )
 
 		-- Science from Other Players
-		tips:insertLocalizedIfNonZero( "TXT_KEY_TP_SCIENCE_FROM_MINORS", g_activePlayer:GetScienceFromOtherPlayersTimes100() / 100 )
+		tips:insertLocalizedIfNonZeroFormatDecimal( "TXT_KEY_TP_SCIENCE_FROM_MINORS", g_activePlayer:GetScienceFromOtherPlayersTimes100() / 100 )
 
 		-- Science from Espionage
 		local iScienceFromEspionage = g_activePlayer:GetYieldPerTurnFromEspionageEvents(YieldTypes.YIELD_SCIENCE, true) - g_activePlayer:GetYieldPerTurnFromEspionageEvents(YieldTypes.YIELD_SCIENCE, false) + (g_activePlayer:GetSciencePerTurnFromPassiveSpyBonusesTimes100() / 100);
@@ -1080,31 +1071,27 @@ g_toolTipHandler.SciencePerTurn = function()-- control )
 
 		if civ5_mode then
 			-- Science from Happiness
-			tips:insertLocalizedIfNonZero( "TXT_KEY_TP_SCIENCE_FROM_HAPPINESS", g_activePlayer:GetScienceFromHappinessTimes100() / 100 )
+			tips:insertLocalizedIfNonZeroFormatDecimal( "TXT_KEY_TP_SCIENCE_FROM_HAPPINESS", g_activePlayer:GetScienceFromHappinessTimes100() / 100 )
 
 			-- Science from Vassals / Compatibility with Putmalk's Civ IV Diplomacy Features Mod
 			if g_activePlayer.GetYieldPerTurnFromVassalsTimes100 then
-				tips:insertLocalizedIfNonZero( "TXT_KEY_TP_SCIENCE_VASSALS", g_activePlayer:GetYieldPerTurnFromVassalsTimes100(YieldTypes.YIELD_SCIENCE) / 100)
+				tips:insertLocalizedIfNonZeroFormatDecimal( "TXT_KEY_TP_SCIENCE_VASSALS", g_activePlayer:GetYieldPerTurnFromVassalsTimes100(YieldTypes.YIELD_SCIENCE) / 100)
 			end
 
-			-- Compatibility with Gazebo's City-State Diplomacy Mod (CSD) for Brave New World v23
-			if g_activePlayer.GetScienceRateFromMinorAllies then
-				tips:insertLocalizedIfNonZero( "TXT_KEY_MINOR_SCIENCE_FROM_LEAGUE_ALLIES", g_activePlayer:GetScienceRateFromMinorAllies() )
-			end
 -- CBP
 			-- Science from Annexed Minors
-			tips:insertLocalizedIfNonZero( "TXT_KEY_TP_SCIENCE_FROM_ANNEXED_MINORS", g_activePlayer:GetSciencePerTurnFromAnnexedMinors())
+			tips:insertLocalizedIfNonZeroFormatDecimal( "TXT_KEY_TP_SCIENCE_FROM_ANNEXED_MINORS", g_activePlayer:GetSciencePerTurnFromAnnexedMinors())
 			-- Putmalk
 			local g_bAllowResearchAgreements = Game.IsOption("GAMEOPTION_RESEARCH_AGREEMENTS")
 			-- Science from Religion
-			tips:insertLocalizedIfNonZero( "TXT_KEY_SCIENCE_FROM_RELIGION", g_activePlayer:GetYieldPerTurnFromReligion(YieldTypes.YIELD_SCIENCE))
+			tips:insertLocalizedIfNonZeroFormatDecimal( "TXT_KEY_SCIENCE_FROM_RELIGION", g_activePlayer:GetYieldPerTurnFromReligion(YieldTypes.YIELD_SCIENCE))
 
 			-- Science % lost from unhappiness
 			local iScienceMinors = g_activePlayer:GetSciencePerTurnFromMinorCivs();
-			tips:insertLocalizedIfNonZero( "TXT_KEY_SCIENCE_FROM_MINORS", iScienceMinors)
+			tips:insertLocalizedIfNonZeroFormatDecimal( "TXT_KEY_SCIENCE_FROM_MINORS", iScienceMinors)
 --END
 			-- Science from Research Agreements
-			tips:insertLocalizedIfNonZero( "TXT_KEY_TP_SCIENCE_FROM_RESEARCH_AGREEMENTS", g_activePlayer:GetScienceFromResearchAgreementsTimes100() / 100 )
+			tips:insertLocalizedIfNonZeroFormatDecimal( "TXT_KEY_TP_SCIENCE_FROM_RESEARCH_AGREEMENTS", g_activePlayer:GetScienceFromResearchAgreementsTimes100() / 100 )
 
 			-- Show Research Agreements
 -- CBP
@@ -1165,15 +1152,20 @@ g_toolTipHandler.SciencePerTurn = function()-- control )
 -- END
 		else
 			-- Science from Health
-			tips:insertLocalizedIfNonZero( "TXT_KEY_TP_SCIENCE_FROM_HEALTH", g_activePlayer:GetScienceFromHealthTimes100() / 100 )
+			tips:insertLocalizedIfNonZeroFormatDecimal( "TXT_KEY_TP_SCIENCE_FROM_HEALTH", g_activePlayer:GetScienceFromHealthTimes100() / 100 )
 
 			-- Science from Culture Rate
-			tips:insertLocalizedIfNonZero( "TXT_KEY_TP_SCIENCE_FROM_CULTURE", g_activePlayer:GetScienceFromCultureTimes100() / 100 )
+			tips:insertLocalizedIfNonZeroFormatDecimal( "TXT_KEY_TP_SCIENCE_FROM_CULTURE", g_activePlayer:GetScienceFromCultureTimes100() / 100 )
 
 			-- Science from Diplomacy Rate
 			local scienceFromDiplomacy = g_activePlayer:GetScienceFromDiplomacyTimes100() / 100
 			tips:insertLocalizedIf( scienceFromDiplomacy > 0 and "TXT_KEY_TP_SCIENCE_FROM_DIPLOMACY", scienceFromDiplomacy )
 			tips:insertLocalizedIf( scienceFromDiplomacy < 0 and "TXT_KEY_TP_NEGATIVE_SCIENCE_FROM_DIPLOMACY", -scienceFromDiplomacy )
+		end
+
+		-- Compatibility with Gazebo's City-State Diplomacy Mod (CSD) for Brave New World v23
+		if g_activePlayer.GetScienceRateFromMinorAllies then
+			tips:insertLocalizedIfNonZeroFormatDecimal( "TXT_KEY_MINOR_SCIENCE_FROM_LEAGUE_ALLIES", g_activePlayer:GetScienceRateFromMinorAllies() )
 		end
 
 		-- Let people know that building more cities makes techs harder to get
@@ -1272,7 +1264,7 @@ g_toolTipHandler.GoldPerTurn = function()-- control )
 	end
 -- C4DF END CHANGE
 	if civ5_mode then
-		totalWealth = g_activePlayer:GetGold()
+		totalWealth = g_activePlayer:GetGoldTimes100() / 100
 		totalIncome = explicitIncome
 	else
 		totalWealth = g_activePlayer:GetEnergy()
@@ -1282,7 +1274,7 @@ g_toolTipHandler.GoldPerTurn = function()-- control )
 		routeMaintenance = g_activePlayer:GetRouteEnergyMaintenance()
 		beaconEnergyDelta = g_activePlayer:GetBeaconEnergyCostPerTurn()
 	end
-	tips:insert( L( "TXT_KEY_TP_AVAILABLE_GOLD", totalWealth ) )
+	tips:insert( L( "TXT_KEY_TP_AVAILABLE_GOLD", FormatDecimal(totalWealth) ) )
 	local totalExpenses = unitCost + buildingMaintenance + improvementMaintenance + goldPerTurnToOtherPlayers + routeMaintenance + beaconEnergyDelta
 -- BEGIN C4DF
 	if (iVassalMaintenance > 0) then
@@ -1298,59 +1290,63 @@ g_toolTipHandler.GoldPerTurn = function()-- control )
 	tips:insert( "" )
 
 	-- Gold per turn
-
-	tips:insert( S( "[COLOR_YELLOW]%+g[ENDCOLOR] ", g_activePlayer:CalculateGoldRateTimes100() / 100 ) .. L(S("TXT_KEY_REPLAY_DATA_%sPERTURN", g_currencyString)) )
+	local fGoldPerTurn = g_activePlayer:CalculateGoldRateTimes100();
+	if (fGoldPerTurn >= 0) then
+		tips:insert( L( "TXT_KEY_TP_GOLD_PER_TURN_POSITIVE", FormatDecimalTimes100(fGoldPerTurn)  ))
+	else
+		tips:insert( L( "TXT_KEY_TP_GOLD_PER_TURN_NEGATIVE", FormatDecimalTimes100(fGoldPerTurn)  ))
+	end
 
 	-- Science LOSS from Budget Deficits
 
-	tips:insertLocalizedIfNonZero( "TXT_KEY_TP_SCIENCE_FROM_BUDGET_DEFICIT", g_activePlayer:GetScienceFromBudgetDeficitTimes100() / 100 )
+	tips:insertLocalizedIfNonZeroFormatDecimal( "TXT_KEY_TP_SCIENCE_FROM_BUDGET_DEFICIT", g_activePlayer:GetScienceFromBudgetDeficitTimes100() / 100 )
 
 	-- Income
 
 	tips:insert( "[COLOR_WHITE]" )
 
 	-- EDIT CBP
-	tips:insert( L("TXT_KEY_TP_TOTAL_INCOME", math.floor(totalIncome) ) )
-	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_CITY_OUTPUT", math.floor(goldPerTurnFromCities) )
+	tips:insert( L("TXT_KEY_TP_TOTAL_INCOME", FormatDecimal(totalIncome) ) )
+	tips:insertLocalizedBulletIfNonZeroFormatDecimal( "TXT_KEY_TP_CITY_OUTPUT", goldPerTurnFromCities)
 
 	if bnw_mode then
-		tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_%s_FROM_CITY_CONNECTIONS", g_currencyString), math.floor(cityConnectionGold) )
-		tips:insertLocalizedBulletIfNonZero( civ5_mode and "TXT_KEY_TP_GOLD_FROM_ITR" or "TXT_KEY_TP_ENERGY_FROM_TRADE_ROUTES", math.floor(tradeRouteGold) )
-		tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_%s_FROM_TRAITS", g_currencyString), playerTraitGold )
-		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_ENERGY_FROM_POLICIES", goldPerTurnFromPolicies )
+		tips:insertLocalizedBulletIfNonZeroFormatDecimal( S("TXT_KEY_TP_%s_FROM_CITY_CONNECTIONS", g_currencyString), cityConnectionGold )
+		tips:insertLocalizedBulletIfNonZeroFormatDecimal( civ5_mode and "TXT_KEY_TP_GOLD_FROM_ITR" or "TXT_KEY_TP_ENERGY_FROM_TRADE_ROUTES", tradeRouteGold )
+		tips:insertLocalizedBulletIfNonZeroFormatDecimal( S("TXT_KEY_TP_%s_FROM_TRAITS", g_currencyString), playerTraitGold )
+		tips:insertLocalizedBulletIfNonZeroFormatDecimal( "TXT_KEY_TP_ENERGY_FROM_POLICIES", goldPerTurnFromPolicies )
 	else
-		tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_%s_FROM_TR", g_currencyString), math.floor(cityConnectionGold) )
+		tips:insertLocalizedBulletIfNonZeroFormatDecimal( S("TXT_KEY_TP_%s_FROM_TR", g_currencyString), cityConnectionGold )
 	end
 -- C4DF
 	-- Gold from Vassals / Compatibility with Putmalk's Civ IV Diplomacy Features Mod
-	tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_GOLD_VASSALS", g_currencyString), iGoldFromVassals)
-	tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_GOLD_VASSAL_TAX", g_currencyString), iGoldFromVassalTax)
+	tips:insertLocalizedBulletIfNonZeroFormatDecimal( S("TXT_KEY_TP_GOLD_VASSALS", g_currencyString), iGoldFromVassals)
+	tips:insertLocalizedBulletIfNonZeroFormatDecimal( S("TXT_KEY_TP_GOLD_VASSAL_TAX", g_currencyString), iGoldFromVassalTax)
 -- END
 --CBP
-	tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_GOLD_FROM_INTERNAL_TRADE", g_currencyString), iInternalRouteGold)
-	tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_%s_FROM_OTHERS", g_currencyString), goldPerTurnFromOtherPlayers )
-	tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_%s_FROM_RELIGION", g_currencyString), goldPerTurnFromReligion )
-	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_YIELD_FROM_UNCATEGORIZED", math.floor(totalIncome - explicitIncome) )
+	tips:insertLocalizedBulletIfNonZeroFormatDecimal( S("TXT_KEY_TP_GOLD_FROM_INTERNAL_TRADE", g_currencyString), iInternalRouteGold)
+	tips:insertLocalizedBulletIfNonZeroFormatDecimal( S("TXT_KEY_TP_%s_FROM_OTHERS", g_currencyString), goldPerTurnFromOtherPlayers )
+	tips:insertLocalizedBulletIfNonZeroFormatDecimal( S("TXT_KEY_TP_%s_FROM_RELIGION", g_currencyString), goldPerTurnFromReligion )
+	tips:insertLocalizedBulletIfNonZeroFormatDecimal( "TXT_KEY_TP_YIELD_FROM_UNCATEGORIZED", totalIncome - explicitIncome )
 -- CBP
-	tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_GOLD_FROM_MINORS", g_currencyString), iGoldFromMinors)
-	tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_GOLD_FROM_ANNEXED_MINORS", g_currencyString), iGoldFromAnnexedMinors)
-	tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_GOLD_FROM_ESPIONAGE_INCOMING", g_currencyString), iGoldFromEspionageIncoming)
+	tips:insertLocalizedBulletIfNonZeroFormatDecimal( S("TXT_KEY_TP_GOLD_FROM_MINORS", g_currencyString), iGoldFromMinors)
+	tips:insertLocalizedBulletIfNonZeroFormatDecimal( S("TXT_KEY_TP_GOLD_FROM_ANNEXED_MINORS", g_currencyString), iGoldFromAnnexedMinors)
+	tips:insertLocalizedBulletIfNonZeroFormatDecimal( S("TXT_KEY_TP_GOLD_FROM_ESPIONAGE_INCOMING", g_currencyString), iGoldFromEspionageIncoming)
 --END
 	tips:insert( "[ENDCOLOR]" )
 
 	-- Spending
 
 --END
-	tips:insert( "[COLOR:255:150:150:255]" .. L("TXT_KEY_TP_TOTAL_EXPENSES", totalExpenses ) )
-	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNIT_MAINT", unitCost )
-	tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_%s_BUILDING_MAINT", g_currencyString), buildingMaintenance )
-	tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_%s_TILE_MAINT", g_currencyString), improvementMaintenance )
-	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_ENERGY_ROUTE_MAINT", routeMaintenance )
-	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_GOLD_VASSAL_MAINT", iVassalMaintenance )	-- Compatibility with Putmalk's Civ IV Diplomacy Features Mod
-	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_GOLD_VASSAL_TAX", iExpenseFromVassalTaxes )	-- Compatibility with Putmalk's Civ IV Diplomacy Features Mod
-	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_GOLD_FROM_ESPIONAGE_OUTGOING", iExpenseFromEspionage )
-	tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_%s_TO_OTHERS", g_currencyString), goldPerTurnToOtherPlayers )
-	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_ENERGY_TO_BEACON", beaconEnergyDelta )
+	tips:insert( "[COLOR:255:150:150:255]" .. L("TXT_KEY_TP_TOTAL_EXPENSES", FormatDecimal(totalExpenses) ) )
+	tips:insertLocalizedBulletIfNonZeroFormatDecimal( "TXT_KEY_TP_UNIT_MAINT", unitCost )
+	tips:insertLocalizedBulletIfNonZeroFormatDecimal( S("TXT_KEY_TP_%s_BUILDING_MAINT", g_currencyString), buildingMaintenance )
+	tips:insertLocalizedBulletIfNonZeroFormatDecimal( S("TXT_KEY_TP_%s_TILE_MAINT", g_currencyString), improvementMaintenance )
+	tips:insertLocalizedBulletIfNonZeroFormatDecimal( "TXT_KEY_TP_ENERGY_ROUTE_MAINT", routeMaintenance )
+	tips:insertLocalizedBulletIfNonZeroFormatDecimal( "TXT_KEY_TP_GOLD_VASSAL_MAINT", iVassalMaintenance )	-- Compatibility with Putmalk's Civ IV Diplomacy Features Mod
+	tips:insertLocalizedBulletIfNonZeroFormatDecimal( "TXT_KEY_TP_GOLD_VASSAL_TAX", iExpenseFromVassalTaxes )	-- Compatibility with Putmalk's Civ IV Diplomacy Features Mod
+	tips:insertLocalizedBulletIfNonZeroFormatDecimal( "TXT_KEY_TP_GOLD_FROM_ESPIONAGE_OUTGOING", iExpenseFromEspionage )
+	tips:insertLocalizedBulletIfNonZeroFormatDecimal( S("TXT_KEY_TP_%s_TO_OTHERS", g_currencyString), goldPerTurnToOtherPlayers )
+	tips:insertLocalizedBulletIfNonZeroFormatDecimal( "TXT_KEY_TP_ENERGY_TO_BEACON", beaconEnergyDelta )
 
 	tips:insert( "[ENDCOLOR]" )
 
@@ -1559,7 +1555,9 @@ if civ5_mode then
 			-- CBP
 			local iGAPReligion = g_activePlayer:GetGAPFromReligion();
 			local iGAPTrait = g_activePlayer:GetGAPFromTraits();
-			local iGAPCities = g_activePlayer:GetGAPFromCities();
+			local iGAPCities = g_activePlayer:GetGAPFromCitiesTimes100() / 100;
+
+			local iTotalGAPPerTurn = excessHappiness + iGAPReligion + iGAPTrait + iGAPCities
 			--END
 			if goldenAgeTurns > 0 then
 				if bnw_mode and g_activePlayer:GetGoldenAgeTourismModifier() > 0 then
@@ -1571,26 +1569,30 @@ if civ5_mode then
 			end
 			tips:insert( L( "TXT_KEY_PROGRESS_TOWARDS", "[COLOR_YELLOW]"
 				.. Locale.ToUpper( "TXT_KEY_SPECIALISTSANDGP_GOLDENAGE_HEADING4_TITLE" )
-				.. "[ENDCOLOR]" ) .. " " .. happyProgress .. " / " .. happyNeeded )
-			if excessHappiness > 0 then
+				.. "[ENDCOLOR]" ) .. " " .. FormatDecimal(happyProgress) .. " / " .. FormatDecimal(happyNeeded) )
+			if iTotalGAPPerTurn > 0 then
 				tips:insert( L("TXT_KEY_MISSION_START_GOLDENAGE") .. ": [COLOR_YELLOW]"
 					.. Locale.ToUpper( L( "TXT_KEY_STR_TURNS", math_ceil((happyNeeded - happyProgress) / (excessHappiness + iGAPReligion + iGAPTrait + iGAPCities)) ) )
-					.. "[ENDCOLOR]"	.. "[NEWLINE][NEWLINE]" .. L("TXT_KEY_TP_GOLDEN_AGE_ADDITION", excessHappiness) )
+					.. "[ENDCOLOR]" .. "[NEWLINE]")
+				tips:insert(L("TXT_KEY_TP_GOLDEN_AGE_POINTS_PER_TURN", FormatDecimal(iTotalGAPPerTurn)))
+			end
+			if excessHappiness > 0 then
+				tips:insert( L("TXT_KEY_TP_GOLDEN_AGE_ADDITION", FormatDecimal(excessHappiness)) )
 			elseif excessHappiness < 0 then
-				tips:insert( "[COLOR_WARNING_TEXT]" .. L("TXT_KEY_TP_GOLDEN_AGE_LOSS", -excessHappiness) .. "[ENDCOLOR]" )
+				tips:insert( "[COLOR_WARNING_TEXT]" .. L("TXT_KEY_TP_GOLDEN_AGE_LOSS", -FormatDecimal(excessHappiness)) .. "[ENDCOLOR]" )
 			end
 			-- CBP
 			local iGAPReligion = g_activePlayer:GetGAPFromReligion();
 			if (iGAPReligion > 0) then
-				tips:insert( "[NEWLINE]" .. L("TXT_KEY_TP_GOLDEN_AGE_ADDITION_RELIGION", iGAPReligion));
+				tips:insert( "[NEWLINE]" .. L("TXT_KEY_TP_GOLDEN_AGE_ADDITION_RELIGION", FormatDecimal(iGAPReligion)));
 			end
 
 			if (iGAPTrait > 0) then
-				tips:insert( "[NEWLINE]" .. L("TXT_KEY_TP_GOLDEN_AGE_ADDITION_TRAIT", iGAPTrait));
+				tips:insert( "[NEWLINE]" .. L("TXT_KEY_TP_GOLDEN_AGE_ADDITION_TRAIT", FormatDecimal(iGAPTrait)));
 			end
 
 			if (iGAPCities > 0) then
-				tips:insert( "[NEWLINE]" .. L("TXT_KEY_TP_GOLDEN_AGE_ADDITION_CITIES", iGAPCities));
+				tips:insert( "[NEWLINE]" .. L("TXT_KEY_TP_GOLDEN_AGE_ADDITION_CITIES", FormatDecimal(iGAPCities)));
 			end
 			-- END
 
@@ -1623,7 +1625,9 @@ if civ5_mode then
 			local totalGreatWorks = g_activePlayer:GetNumGreatWorks()
 			local totalSlots = g_activePlayer:GetNumGreatWorkSlots()
 
-			local tipText = L( "TXT_KEY_TOP_PANEL_TOURISM_TOOLTIP_1", totalGreatWorks )
+			local tipText = L("TXT_KEY_TP_TOURISM_PER_TURN", FormatDecimal(g_activePlayer:GetTourism()))
+					.. "[NEWLINE][NEWLINE]"
+					.. L( "TXT_KEY_TOP_PANEL_TOURISM_TOOLTIP_1", totalGreatWorks )
 					.. "[NEWLINE]"
 					.. L( "TXT_KEY_TOP_PANEL_TOURISM_TOOLTIP_2", totalSlots - totalGreatWorks )
 
@@ -1834,7 +1838,7 @@ g_toolTipHandler.CultureString = function()-- control )
 		tips:insert( L"TXT_KEY_TOP_PANEL_POLICIES_OFF_TOOLTIP" )
 	else
 		local turnsRemaining = 1
-		local cultureProgress, culturePerTurn, culturePerTurnForFree, culturePerTurnFromCities, culturePerTurnFromExcessHappiness, culturePerTurnFromTraits
+		local cultureProgress, culturePerTurn
 		cultureProgress = g_activePlayer:GetJONSCultureTimes100() / 100
 		culturePerTurn = g_activePlayer:GetTotalJONSCulturePerTurnTimes100() / 100
 		culturePerTurnForFree = g_activePlayer:GetJONSCulturePerTurnForFree()
@@ -1856,8 +1860,9 @@ g_toolTipHandler.CultureString = function()-- control )
 		end
 
 		tips:insert( L( "TXT_KEY_PROGRESS_TOWARDS", "[COLOR_MAGENTA]" .. Locale.ToUpper"TXT_KEY_ADVISOR_SCREEN_SOCIAL_POLICY_DISPLAY" .. "[ENDCOLOR]" )
-				.. " " .. cultureProgress .. "[ICON_CULTURE]/ " .. cultureTheshold .. "[ICON_CULTURE]" )
-
+				.. " " .. FormatDecimal(cultureProgress) .. "[ICON_CULTURE]/ " .. FormatDecimal(cultureTheshold) .. "[ICON_CULTURE][NEWLINE]" )
+		
+		tips:insert( L( "TXT_KEY_TP_CULTURE_PER_TURN", FormatDecimal(culturePerTurn) ) )
 		tips:insert( g_activePlayer:GetTotalCulturePerTurnTooltip() )		
 
 		-- Let people know that building more cities makes policies harder to get
@@ -1891,43 +1896,42 @@ if civ5_mode and gk_mode then
 				tips:insert( "" )
 			end
 
-			tips:insert( L("TXT_KEY_TP_FAITH_ACCUMULATED", g_activePlayer:GetFaithTimes100() / 100) )
+			tips:insert( L("TXT_KEY_TP_FAITH_ACCUMULATED", FormatDecimal(g_activePlayer:GetFaithTimes100() / 100)) )
 			tips:insert( "" )
-			tips:insert( "[COLOR_WHITE]" .. S("%+g", faithPerTurn ) .. "[ENDCOLOR] "
-				.. L"TXT_KEY_YIELD_FAITH" .. "[ICON_PEACE] " .. L"TXT_KEY_GOLD_PERTURN_HEADING4_TITLE" )
+			tips:insert( L( "TXT_KEY_TP_FAITH_PER_TURN", FormatDecimal(faithPerTurn) ) )
 
 			-- Faith from Cities
-			tips:insertLocalizedIfNonZero( "TXT_KEY_TP_FAITH_FROM_CITIES", g_activePlayer:GetYieldRateFromCitiesTimes100(YieldTypes.YIELD_FAITH) / 100 )
+			tips:insertLocalizedIfNonZeroFormatDecimal( "TXT_KEY_TP_FAITH_FROM_CITIES", g_activePlayer:GetYieldRateFromCitiesTimes100(YieldTypes.YIELD_FAITH) / 100 )
 
 			-- Faith from Outposts
-			tips:insertLocalizedIfNonZero( "TXT_KEY_TP_FAITH_FROM_OUTPOSTS", civBE_mode and g_activePlayer:GetFaithPerTurnFromOutposts() or 0 )
+			tips:insertLocalizedIfNonZeroFormatDecimal( "TXT_KEY_TP_FAITH_FROM_OUTPOSTS", civBE_mode and g_activePlayer:GetFaithPerTurnFromOutposts() or 0 )
 
 			-- Faith from Minor Civs
-			tips:insertLocalizedIfNonZero( "TXT_KEY_TP_FAITH_FROM_MINORS", g_activePlayer:GetFaithPerTurnFromMinorCivs() )
+			tips:insertLocalizedIfNonZeroFormatDecimal( "TXT_KEY_TP_FAITH_FROM_MINORS", g_activePlayer:GetFaithPerTurnFromMinorCivs() )
 
 -- CBP
 			-- Faith from Minor Civs
-			tips:insertLocalizedIfNonZero( "TXT_KEY_TP_FAITH_FROM_ANNEXED_MINORS", g_activePlayer:GetFaithPerTurnFromAnnexedMinors() )
+			tips:insertLocalizedIfNonZeroFormatDecimal( "TXT_KEY_TP_FAITH_FROM_ANNEXED_MINORS", g_activePlayer:GetFaithPerTurnFromAnnexedMinors() )
 -- END
 			-- Faith from Religion
-			tips:insertLocalizedIfNonZero( "TXT_KEY_TP_FAITH_FROM_RELIGION", g_activePlayer:GetFaithPerTurnFromReligion() )
+			tips:insertLocalizedIfNonZeroFormatDecimal( "TXT_KEY_TP_FAITH_FROM_RELIGION", g_activePlayer:GetFaithPerTurnFromReligion() )
 
 -- C4DF
 			if g_activePlayer.GetYieldPerTurnFromVassalsTimes100 then
-				tips:insertLocalizedIfNonZero( "TXT_KEY_TP_FAITH_VASSALS", g_activePlayer:GetYieldPerTurnFromVassalsTimes100(YieldTypes.YIELD_FAITH) / 100)
+				tips:insertLocalizedIfNonZeroFormatDecimal( "TXT_KEY_TP_FAITH_VASSALS", g_activePlayer:GetYieldPerTurnFromVassalsTimes100(YieldTypes.YIELD_FAITH) / 100)
 			end
 
 			-- Faith from Espionage
 			local iFaithFromEspionage = g_activePlayer:GetYieldPerTurnFromEspionageEvents(YieldTypes.YIELD_FAITH, true) - g_activePlayer:GetYieldPerTurnFromEspionageEvents(YieldTypes.YIELD_FAITH, false);
-			tips:insertLocalizedIf( iFaithFromEspionage > 0 and "TXT_KEY_TP_FAITH_FROM_ESPIONAGE_POSITIVE", iFaithFromEspionage )
-			tips:insertLocalizedIf( iFaithFromEspionage < 0 and "TXT_KEY_TP_FAITH_FROM_ESPIONAGE_NEGATIVE", iFaithFromEspionage )
+			tips:insertLocalizedIf( iFaithFromEspionage > 0 and "TXT_KEY_TP_FAITH_FROM_ESPIONAGE_POSITIVE", FormatDecimal(iFaithFromEspionage) )
+			tips:insertLocalizedIf( iFaithFromEspionage < 0 and "TXT_KEY_TP_FAITH_FROM_ESPIONAGE_NEGATIVE", FormatDecimal(iFaithFromEspionage) )
 
 
 -- END
 -- COMMUNITY PATCH CHANGE
 
 --END
-
+			tips:insert( "" )
 			-- New World Deluxe Scenario ( you still need to delete TopPanel.lua from ...\Steam\SteamApps\common\sid meier's civilization v\assets\DLC\DLC_07\Scenarios\Conquest of the New World Deluxe\UI )
 			if EUI.deluxe_scenario then
 				tips:insertLocalized( "TXT_KEY_NEWWORLD_SCENARIO_TP_RELIGION_TOOLTIP" )

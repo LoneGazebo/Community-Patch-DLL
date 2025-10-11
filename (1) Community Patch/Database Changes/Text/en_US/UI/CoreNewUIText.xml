@@ -213,29 +213,33 @@
 		<!-- Top panel -->
 		<!-- Gold -->
 		<Row Tag="TXT_KEY_TP_GOLD_PER_TURN_POSITIVE">
-			<Text>+{1_Num} [ICON_GOLD] Gold earned per Turn.</Text>
+			<Text>+{1_Num} [ICON_GOLD] Gold Per Turn.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TP_GOLD_PER_TURN_NEGATIVE">
-			<Text>{1_Num} [ICON_GOLD] Gold lost per Turn.</Text>
+			<Text>[COLOR_NEGATIVE]{1_Num}[ENDCOLOR] [ICON_GOLD] Gold Lost Per Turn.</Text>
 		</Row>
 		<!-- Culture -->
 		<Row Tag="TXT_KEY_TP_CULTURE_PER_TURN">
-			<Text>+{1_Num} [ICON_CULTURE] Culture produced per Turn.</Text>
+			<Text>+{1_Num} [ICON_CULTURE] Culture Per Turn.</Text>
+		</Row>
+		<!-- Science -->
+		<Row Tag="TXT_KEY_TP_SCIENCE_PER_TURN">
+			<Text>+{1_Num} [ICON_RESEARCH] Science Per Turn.</Text>
 		</Row>
 		<!-- Tourism -->
 		<Row Tag="TXT_KEY_TP_TOURISM_PER_TURN">
-			<Text>+{1_Num} [ICON_TOURISM] Tourism generated per Turn.</Text>
+			<Text>+{1_Num} [ICON_TOURISM] Per Turn.</Text>
 		</Row>
 		<!-- Golden Age Points -->
-		<Row Tag="TXT_KEY_TP_GOLDEN_AGE_PER_TURN">
-			<Text>+{1_Num} Golden Age Points produced per Turn.</Text>
+		<Row Tag="TXT_KEY_TP_GOLDEN_AGE_POINTS_PER_TURN">
+			<Text>+{1_Num} [ICON_GOLDEN_AGE] Golden Age Points Per Turn.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TOP_PANEL_TURNS_UNTIL_GOLDEN_AGE">
 			<Text>Next Golden Age: {1_Num} {1_Num: plural 1?Turn; other?Turns;}</Text>
 		</Row>
 		<!-- Faith -->
 		<Row Tag="TXT_KEY_TP_FAITH_PER_TURN">
-			<Text>+{1_Num} [ICON_PEACE] Faith generated per Turn.</Text>
+			<Text>+{1_Num} [ICON_PEACE] Faith Per Turn.</Text>
 		</Row>
 		<!-- Instant yields -->
 		<Row Tag="TXT_KEY_INSTANT_YIELD_THIS_TURN">
@@ -1850,19 +1854,19 @@
 		</Row>
 		<!-- Great person points -->
 		<Row Tag="TXT_KEY_GPP_FROM_SPECIALIST">
-			<Text>[NEWLINE]{1_Num} {2_IconString} from Specialists</Text>
+			<Text>[ICON_BULLET]{1_Num} {2_IconString} from Specialists</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GPP_FROM_BUILDING">
-			<Text>[NEWLINE]{1_Num} {2_IconString} from Buildings</Text>
+			<Text>[ICON_BULLET]{1_Num} {2_IconString} from Buildings</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GPP_FROM_RELIGION">
-			<Text>[NEWLINE]{1_Num} {2_IconString} from [ICON_RELIGION] Majority Religion</Text>
+			<Text>[ICON_BULLET]{1_Num} {2_IconString} from [ICON_RELIGION] Majority Religion</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GPP_FROM_MONOPOLY">
-			<Text>[NEWLINE]{1_Num} {2_IconString} from [ICON_MONOPOLY] Monopolies</Text>
+			<Text>[ICON_BULLET]{1_Num} {2_IconString} from [ICON_MONOPOLY] Monopolies</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GPP_BASE">
-			<Text>Base {1_IconString} {2_GreatPerson:textkey} Points: {3: number "#.##"}</Text>
+			<Text>Base {1_IconString} {2_GreatPerson:textkey} Points: {3: number "#,##0.00"}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GPP_MOD_BUILDINGS">
 			<Text>[NEWLINE][ICON_BULLET]{1: number "'+'##;'-'##"}% from Buildings</Text>
@@ -1892,7 +1896,7 @@
 			<Text>[NEWLINE][ICON_BULLET]{1: number "'+'##;'-'##"}% from Empire Bonuses</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GPP_TOTAL">
-			<Text>Progress towards {1_GreatPerson:textkey}: {2_Progress}/{3_Cost} ({4_PerTurn}{5_IconString}, {6_Turns}[ICON_TURNS_REMAINING])</Text>
+			<Text>Progress towards {1_GreatPerson:textkey}: {2_Progress: number "#,##0.00"}/{3_Cost: number "#,##0.00"} ({4_PerTurn: number "#,##0.00"}{5_IconString} Per Turn, {6_Turns}[ICON_TURNS_REMAINING])</Text>
 		</Row>
 
 		<!-- City screen/banner -->

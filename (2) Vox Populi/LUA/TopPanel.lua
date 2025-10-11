@@ -743,9 +743,13 @@ function GoldTipHandler( control )
 	strText = strText .. "[COLOR:150:255:150:255]";
 	strText = strText .. "+" .. ConvertTextKeyFormatDecimal("TXT_KEY_TP_TOTAL_INCOME", fTotalIncome);
 	strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. ConvertTextKeyFormatDecimal("TXT_KEY_TP_CITY_OUTPUT", fGoldPerTurnFromCities);
-	strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. ConvertTextKeyFormatDecimal("TXT_KEY_TP_GOLD_FROM_CITY_CONNECTIONS", fCityConnectionGold);
-	strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. ConvertTextKeyFormatDecimal("TXT_KEY_TP_GOLD_FROM_ITR", fTradeRouteGold);
-	if (math.floor(fTraitGold) > 0) then
+	if (fCityConnectionGold > 0) then
+		strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. ConvertTextKeyFormatDecimal("TXT_KEY_TP_GOLD_FROM_CITY_CONNECTIONS", fCityConnectionGold);
+	end
+	if (fTradeRouteGold > 0) then
+		strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. ConvertTextKeyFormatDecimal("TXT_KEY_TP_GOLD_FROM_ITR", fTradeRouteGold);
+	end
+	if (fTraitGold > 0) then
 		strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. ConvertTextKeyFormatDecimal("TXT_KEY_TP_GOLD_FROM_TRAITS", fTraitGold);
 	end
 	--CBP
@@ -1099,7 +1103,7 @@ function GoldenAgeTipHandler( control )
 		strText = strText .. ConvertTextKeyFormatDecimal("TXT_KEY_TP_GOLDEN_AGE_PROGRESS", pPlayer:GetGoldenAgeProgressMeterTimes100() / 100, pPlayer:GetGoldenAgeProgressThreshold());
 		strText = strText .. "[NEWLINE]";
 		strText = strText .. "[NEWLINE]";
-		strText = strText .. ConvertTextKeyFormatDecimal("TXT_KEY_TP_GOLDEN_AGE_PER_TURN", iChange, pPlayer:GetGoldenAgeProgressThreshold());
+		strText = strText .. ConvertTextKeyFormatDecimal("TXT_KEY_TP_GOLDEN_AGE_POINTS_PER_TURN", iChange, pPlayer:GetGoldenAgeProgressThreshold());
 		strText = strText .. "[NEWLINE]";
 
 		if (iHappiness >= 0) then

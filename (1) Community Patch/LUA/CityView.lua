@@ -779,7 +779,8 @@ local function BuildGPMeter(pCity, ePlayer)
 	if tRightSideSections.GPHeader.HeadingOpen then
 		for eSpecialist, kSpecialistInfo in GameInfoCache("Specialists") do
 			local iProgress = pCity:GetSpecialistGreatPersonProgress(eSpecialist);
-			if iProgress > 0 then
+			local iChange, strTooltip = pCity:GetSpecialistRate(eSpecialist, true);
+			if iProgress > 0 or iChange > 0 then
 				bHasGPProgress = true;
 
 				local kGreatPersonInfo = GetGreatPersonInfoFromSpecialist(kSpecialistInfo.Type);
@@ -792,7 +793,6 @@ local function BuildGPMeter(pCity, ePlayer)
 				g_tPediaSearchStrings[tostring(instance.GPImage)] = strGreatPerson;
 				instance.GPImage:RegisterCallback(Mouse.eRClick, GetPedia);
 
-				local _, strTooltip = pCity:GetSpecialistRate(eSpecialist, true);
 				instance.GPBox:SetToolTipString(strTooltip);
 
 				local kUnitClassInfo = GetInfoFromType("UnitClasses", kGreatPersonInfo.Class);

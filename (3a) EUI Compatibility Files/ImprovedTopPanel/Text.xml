@@ -21,7 +21,7 @@
 		</Row>
 		<Row>
 			<Tag>TXT_KEY_ITP_TOP_PANEL_GOLD</Tag>
-			<Text>[COLOR:255:235:0:255]{1_GoldPerTurn: number "'+'##'[ICON_GOLD]';'[COLOR:255:60:60:255]-'##'[ICON_GOLD]'"}{2_TotalGold: number "##"}[/COLOR]</Text>
+			<Text>[COLOR:255:235:0:255]{1_GoldPerTurn: number "'+'#,###'[ICON_GOLD]';'[COLOR:255:60:60:255]-'#,###'[ICON_GOLD]'"}{2_TotalGold: number "#,###"}[/COLOR]</Text>
 		</Row>
 		<Row>
 			<Tag>TXT_KEY_HAPPINESS_TOP_PANEL_ITP</Tag>

@@ -580,9 +580,13 @@ function GoldTipHandler( control )
 	strText = strText .. "[COLOR:150:255:150:255]";
 	strText = strText .. "+" .. ConvertTextKeyFormatDecimal("TXT_KEY_TP_TOTAL_INCOME", fTotalIncome);
 	strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. ConvertTextKeyFormatDecimal("TXT_KEY_TP_CITY_OUTPUT", fGoldPerTurnFromCities);
-	strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. ConvertTextKeyFormatDecimal("TXT_KEY_TP_GOLD_FROM_CITY_CONNECTIONS", fCityConnectionGold);
-	strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. ConvertTextKeyFormatDecimal("TXT_KEY_TP_GOLD_FROM_ITR", fTradeRouteGold);
-	if (math.floor(fTraitGold) > 0) then
+	if (fCityConnectionGold > 0) then
+		strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. ConvertTextKeyFormatDecimal("TXT_KEY_TP_GOLD_FROM_CITY_CONNECTIONS", fCityConnectionGold);
+	end
+	if (fTradeRouteGold > 0) then
+		strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. ConvertTextKeyFormatDecimal("TXT_KEY_TP_GOLD_FROM_ITR", fTradeRouteGold);
+	end
+	if (fTraitGold > 0) then
 		strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. ConvertTextKeyFormatDecimal("TXT_KEY_TP_GOLD_FROM_TRAITS", fTraitGold);
 	end
 	if (iGoldPerTurnFromOtherPlayers > 0) then
@@ -946,8 +950,8 @@ function CultureTipHandler( control )
 				strText = strText .. "[NEWLINE]";
 			end
 			
-			strText = strText .. "[NEWLINE]";
 			strText = strText .. ConvertTextKeyFormatDecimalTimes100("TXT_KEY_TP_CULTURE_PER_TURN", pPlayer:GetTotalJONSCulturePerTurnTimes100());
+			strText = strText .. "[NEWLINE]";
 		end
 
 		if (pPlayer:IsAnarchy()) then

@@ -3929,6 +3929,7 @@ function GetFaithTooltip(pCity)
 	local tLines = {};
 	if not OptionsManager.IsNoBasicHelp() then
 		table.insert(tLines, L("TXT_KEY_FAITH_HELP_INFO"));
+		table.insert(tLines, "");
 	end
 
 	table.insert(tLines, pCity:GetYieldRateTooltip(YieldTypes.YIELD_FAITH));

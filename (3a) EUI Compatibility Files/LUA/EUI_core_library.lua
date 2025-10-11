@@ -3,6 +3,9 @@ local civ5_mode = InStrategicView ~= nil
 local civBE_mode = not civ5_mode
 local bnw_mode, gk_mode
 
+include ("CPK.lua")
+local FormatDecimal = CPK.Text.FormatDecimal
+
 -------------------------------------------------
 -- Minor lua optimizations
 -------------------------------------------------
@@ -297,6 +300,11 @@ function table:insertLocalizedIfNonZero( textKey, ... )
 		return table_insert( self, L( textKey, ... ) )
 	end
 end
+function table:insertLocalizedIfNonZeroFormatDecimal( textKey, ... )
+	if ... ~= 0 then
+		return table_insert( self, L( textKey, FormatDecimal(...) ) )
+	end
+end
 function table:insertLocalizedBulletIfNonZero( a, b, ... )
 	if tonumber( b ) then
 		if b ~= 0 then
@@ -304,6 +312,15 @@ function table:insertLocalizedBulletIfNonZero( a, b, ... )
 		end
 	elseif ... ~= 0 then
 		return table_insert( self, a .. L( b, ... ) )
+	end
+end
+function table:insertLocalizedBulletIfNonZeroFormatDecimal( a, b, ... )
+	if tonumber( b ) then
+		if b ~= 0 then
+			return table_insert( self, "[ICON_BULLET]" .. L( a, FormatDecimal(b), ... ) )
+		end
+	elseif ... ~= 0 then
+		return table_insert( self, a .. L( b, FormatDecimal(...) ) )
 	end
 end
 
