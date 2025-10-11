@@ -442,11 +442,6 @@
 		<!-- Halves the pantheon follower reduction that occurs when a city receives pressure from an actual religion, making pantheons stick around a little longer -->
 		<Row Class="4" Name="BALANCE_RESILIENT_PANTHEONS" Value="0"/>
 
-		<!-- Creating a Great Person Tile Improvement on top of an Antiquity Site counts as digging it up with an Archaeologist -->
-		<!-- CustomModPostDefines: GPTI_ARCHAEOLOGY_TECH -->
-		<Row Class="4" Name="BALANCE_GPTI_ARCHAEOLOGY" Value="0"/>
-
-
 		<!-- ********************************************************** -->
 		<!-- 				OTHER BALANCE OPTIONS						-->
 		<!-- 			Sorting order: alphabetical						-->
@@ -1088,9 +1083,6 @@
 		<!--   GameEvents.CityPuppeted.Add(function(playerID, cityID) end) -->
 	</CustomModOptions>
 	<CustomModPostDefines>
-		<!-- Required tech to enable BALANCE_GPTI_ARCHAEOLOGY -->
-		<Row Name="GPTI_ARCHAEOLOGY_TECH" Table="Technologies" Type="TECH_ARCHAEOLOGY"/>
-
 		<!-- We can optionally add tech gates for Forest/Jungle chopping bonuses here, but Community Patch and Vox Populi use Technologies.FeatureProductionModifier instead -->
 		<!-- Row Name="GLOBAL_CITY_FOREST_BONUS_TECH" Table="Technologies" Type="TECH_MINING"/ -->		<!-- Required tech (GLOBAL_CITY_FOREST_BONUS) -->
 		<!-- Row Name="GLOBAL_CITY_JUNGLE_BONUS_TECH" Table="Technologies" Type="TECH_MINING"/ -->		<!-- Required tech (GLOBAL_CITY_JUNGLE_BONUS) -->

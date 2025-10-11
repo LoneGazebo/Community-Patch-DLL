@@ -378,9 +378,6 @@
 // Halves the pantheon follower reduction that occurs when a city receives pressure from an actual religion, making pantheons stick around a little longer
 #define MOD_BALANCE_RESILIENT_PANTHEONS								gCustomMods.isBALANCE_RESILIENT_PANTHEONS()
 
-// Creating a Great Person Tile Improvement on top of an Antiquity Site counts as digging it up with an Archaeologist
-#define MOD_BALANCE_GPTI_ARCHAEOLOGY								gCustomMods.isBALANCE_GPTI_ARCHAEOLOGY()
-
 
 /////////////////////////////////////////
 // OTHER BALANCE OPTIONS
