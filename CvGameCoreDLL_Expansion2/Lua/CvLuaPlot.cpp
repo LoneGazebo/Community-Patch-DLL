@@ -61,9 +61,7 @@ void CvLuaPlot::PushMethods(lua_State* L, int t)
 	Method(ShareAdjacentArea);
 	Method(IsAdjacentToLand);
 	Method(IsAdjacentToShallowWater);
-#if defined(MOD_PROMOTIONS_CROSS_ICE)
 	Method(IsAdjacentToIce);
-#endif
 	Method(IsCoastalLand);
 
 	Method(IsWithinTeamCityRadius);
@@ -126,9 +124,7 @@ void CvLuaPlot::PushMethods(lua_State* L, int t)
 
 	Method(IsCity);
 	Method(IsFriendlyCity);
-#if defined(MOD_GLOBAL_PASSABLE_FORTS)
 	Method(isFriendlyCityOrPassableImprovement);
-#endif
 	Method(IsEnemyCity);
 	Method(IsBeingWorked);
 
@@ -579,14 +575,12 @@ int CvLuaPlot::lIsAdjacentToShallowWater(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlot::isAdjacentToShallowWater);
 }
-#if defined(MOD_PROMOTIONS_CROSS_ICE)
 //------------------------------------------------------------------------------
 //bool IsAdjacentToIce()
 int CvLuaPlot::lIsAdjacentToIce(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlot::isAdjacentToIce);
 }
-#endif
 //------------------------------------------------------------------------------
 //bool isCoastalLand();
 int CvLuaPlot::lIsCoastalLand(lua_State* L)
@@ -1020,7 +1014,6 @@ int CvLuaPlot::lIsFriendlyCity(lua_State* L)
 	lua_pushboolean(L, bResult);
 	return 1;
 }
-#if defined(MOD_GLOBAL_PASSABLE_FORTS)
 //bool isFriendlyCityOrPassableImprovement(CyUnit* pUnit, bool bCheckImprovement);
 int CvLuaPlot::lisFriendlyCityOrPassableImprovement(lua_State* L)
 {
@@ -1034,7 +1027,6 @@ int CvLuaPlot::lisFriendlyCityOrPassableImprovement(lua_State* L)
 	lua_pushboolean(L, bResult);
 	return 1;
 }
-#endif
 //------------------------------------------------------------------------------
 //bool isEnemyCity(CyUnit* pUnit);
 int CvLuaPlot::lIsEnemyCity(lua_State* L)
@@ -1788,9 +1780,9 @@ int CvLuaPlot::lGetYieldWithBuild(lua_State* L)
 		const CvReligion* pReligion = (eMajority != NO_RELIGION) ? GC.getGame().GetGameReligions()->GetReligion(eMajority, pOwningCity->getOwner()) : 0;
 		const CvBeliefEntry* pBelief = (eSecondaryPantheon != NO_BELIEF) ? GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon) : 0;
 		int iResult = pkPlot->getYieldWithBuild(eBuild, eYield, bUpgrade, NUM_ROUTE_TYPES, ePlayer, pOwningCity, pReligion, pBelief);
-#if defined(MOD_RELIGION_PERMANENT_PANTHEON)
+
 		// Mod for civs keeping their pantheon belief forever
-		if (MOD_RELIGION_PERMANENT_PANTHEON)
+		if (MOD_BALANCE_PERMANENT_PANTHEONS)
 		{
 			if (GC.getGame().GetGameReligions()->HasCreatedPantheon(pOwningCity->getOwner()))
 			{
@@ -1805,7 +1797,7 @@ int CvLuaPlot::lGetYieldWithBuild(lua_State* L)
 				}
 			}
 		}
-#endif
+
 		lua_pushinteger(L, iResult);
 		return 1;
 	}

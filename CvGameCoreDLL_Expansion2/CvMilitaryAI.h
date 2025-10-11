@@ -261,7 +261,6 @@ public:
 	void UpdateWarType();
 	void SetupInstantDefenses(PlayerTypes ePlayer);
 
-#if defined(MOD_BALANCE_CORE_MILITARY)
 	int GetRecommendLandArmySize() const
 	{
 		return m_iRecOffensiveLandUnits + m_iRecDefensiveLandUnits;
@@ -290,7 +289,6 @@ public:
 	{
 		return m_iNumFreeCarriers;
 	}
-#endif
 
 private:
 
@@ -329,10 +327,8 @@ private:
 	int m_iNumberOfTimesOpsBuildSkippedOver;
 	int m_iNumberOfTimesSettlerBuildSkippedOver;
 
-#if defined(MOD_BALANCE_CORE_MILITARY)
 	vector<CvAttackTarget> m_potentialAttackTargets; //enemy cities we might want to attack
 	vector<CvAttackTarget> m_exposedCities; //those of our cities which might be tempting to the enemies
-#endif
 
 	// Data recomputed each turn (no need to serialize)
 	int m_iNumLandUnits;

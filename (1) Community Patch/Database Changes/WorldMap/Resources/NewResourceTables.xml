@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <GameData>
-	<!-- Below monopoly tables need the BALANCE_CORE_RESOURCE_MONOPOLIES option to function -->
+	<!-- Below monopoly tables need the BALANCE_RESOURCE_MONOPOLIES option to function -->
 	<!-- For the tables that have IsGlobalMonopoly and IsStrategicMonopoly columns, as strategic and global monopolies are not mutually exclusive, setting both to true will double the modifier when a global monopoly is reached -->
 
 	<!-- Extra yields on tiles with this resource if the tile owner has a global monopoly of it -->

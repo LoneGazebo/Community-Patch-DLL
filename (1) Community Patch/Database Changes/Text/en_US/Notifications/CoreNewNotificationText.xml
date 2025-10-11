@@ -83,7 +83,7 @@
 			<Text>The City of {2_City} needs {1_Resource:textkey}!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_OVER_RESOURCE_LIMIT_CITY">
-			<Text>The City of {2_City} is currently using more {1_Resource:textkey} than you have! Your Building [ICON_GOLD] Gold Maintenance will be increased by [COLOR_NEGATIVE_TEXT]{3_num}%[ENDCOLOR] until you fix this problem!</Text>
+			<Text>The City of {2_City} is currently using [COLOR_NEGATIVE_TEXT]{3_Num}[ENDCOLOR] more {1_Resource:textkey} than you have! Your empire-wide [ICON_GOLD] Building Maintenance will be increased by [COLOR_NEGATIVE_TEXT]{4_Num}%[ENDCOLOR] until you fix this problem!</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_CHOOSE_CITY_CAPTURE">

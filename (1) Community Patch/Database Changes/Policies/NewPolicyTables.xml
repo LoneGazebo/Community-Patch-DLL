@@ -356,7 +356,6 @@
 	<!--         - Units normally upgrading to the replaced unit class will upgrade to the replacement instead, unless the replaced is a unique unit. -->
 	<!--         - The replaced unit will no longer be buildable, unless the replaced is a unique unit. -->
 	<!--         - Anything that normally spawns the replaced class now spawns the replacement class. Example: events, city razing, city state gifts. Again, unless the replaced is a unique unit. -->
-	<!--         Requires POLICIES_UNIT_CLASS_REPLACEMENTS in CustomModOptions. -->
 	<!--         Multiple policies (or other sources in the future) giving a replacement will result in the last policy only taking effect. -->
 	<!--         After that, undoing the replacement will not return the effect of previous policies. -->
 	<Table name="Policy_UnitClassReplacements">
@@ -380,7 +379,7 @@
 		<Column name="Yield" type="integer" notnull="true"/>
 	</Table>
 
-	<!-- RELIGION_POLICY_BRANCH_FAITH_GP -->
+	<!-- RELIGION_POLICY_BRANCH_FAITH_GP (integrated) -->
 	<Table name="Policy_FaithPurchaseUnitClasses">
 		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
 		<Column name="UnitClassType" type="text" reference="UnitClasses(Type)"/>

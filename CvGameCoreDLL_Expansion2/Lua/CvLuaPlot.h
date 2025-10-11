@@ -71,9 +71,7 @@ protected:
 	static int lShareAdjacentArea(lua_State* L);
 	static int lIsAdjacentToLand(lua_State* L);
 	static int lIsAdjacentToShallowWater(lua_State* L);
-#if defined(MOD_PROMOTIONS_CROSS_ICE)
 	LUAAPIEXTN(IsAdjacentToIce, bool);
-#endif
 	static int lIsCoastalLand(lua_State* L);
 
 	static int lIsWithinTeamCityRadius(lua_State* L);
@@ -137,9 +135,7 @@ protected:
 
 	static int lIsCity(lua_State* L);
 	static int lIsFriendlyCity(lua_State* L);
-#if defined(MOD_GLOBAL_PASSABLE_FORTS)
 	LUAAPIEXTN(isFriendlyCityOrPassableImprovement, bool, pUnit, bCheckImprovement);
-#endif
 	static int lIsEnemyCity(lua_State* L);
 	static int lIsBeingWorked(lua_State* L);
 

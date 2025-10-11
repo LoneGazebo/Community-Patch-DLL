@@ -280,10 +280,8 @@ protected:
 	static int lGetNumResourceRequiredForUnit(lua_State* L);
 	static int lGetNumResourceRequiredForBuilding(lua_State* L);
 
-#if defined(MOD_IMPROVEMENTS_EXTENSIONS)
 	static int lGetNumResourceRequiredForImprovement(lua_State* L);
 	static int lGetNumResourceRequiredForRoute(lua_State* L);
-#endif
 
 	static int lIsCombatWarned(lua_State* L);
 	static int lSetCombatWarned(lua_State* L);
@@ -333,9 +331,7 @@ protected:
 	static int lGetNumCorporationsFounded(lua_State* L);
 	static int lGetNumAvailableCorporations(lua_State* L);
 	static int lGetSpyThreshold(lua_State* L);
-#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	static int lGetGreatestPlayerResourceMonopoly(lua_State* L);
-#endif
 
 	static int lGetWorldNumCitiesUnhappinessPercent(lua_State* L);
 
@@ -490,11 +486,9 @@ protected:
 
 	LUAAPIEXTN(DoSpawnFreeCity, void);
 
-#if defined(MOD_BATTLE_ROYALE)
 	// Lua CSV Logging Functions
 	static int lDeleteCSV(lua_State* L);
 	static int lWriteCSV(lua_State* L);
-#endif
 
 	static int lIsPitbossHost(lua_State* L);
 	static int lIsHost(lua_State* L);

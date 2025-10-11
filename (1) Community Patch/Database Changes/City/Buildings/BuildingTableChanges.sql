@@ -316,7 +316,7 @@ ALTER TABLE Buildings ADD GarrisonRangedAttackModifier integer DEFAULT 0;
 -- GLOBAL_GREATWORK_YIELDTYPES
 ALTER TABLE Buildings ADD GreatWorkYieldType text REFERENCES Yields (Type) DEFAULT 'YIELD_CULTURE';
 
--- RELIGION_CONVERSION_MODIFIERS
+-- RELIGION_CONVERSION_MODIFIERS (integrated)
 ALTER TABLE Buildings ADD GlobalConversionModifier integer DEFAULT 0;
 ALTER TABLE Buildings ADD ConversionModifier integer DEFAULT 0;
 

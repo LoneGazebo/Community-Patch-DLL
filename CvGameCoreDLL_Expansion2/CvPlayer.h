@@ -129,7 +129,6 @@ public:
 	// Declared public because CvPlayerCorporations needs to access this. Maybe want to use a friend
 	void processCorporations(CorporationTypes eCorporation, int iChange);
 
-#if defined(MOD_BALANCE_CORE_EVENTS)
 	void DoEvents(bool bEspionageOnly = false);
 	void DoCancelEventChoice(EventChoiceTypes eChosenEventChoice);
 	bool IsEventValid(EventTypes eEvent);
@@ -164,7 +163,7 @@ public:
 
 	bool IsEventFired(EventTypes eEvent) const;
 	void SetEventFired(EventTypes eEvent, bool bValue);
-#endif
+
 	void DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForced, bool bSphereRemoval);
 	bool CanLiberatePlayer(PlayerTypes ePlayer);
 	bool CanLiberatePlayerCity(PlayerTypes ePlayer);
@@ -335,9 +334,7 @@ public:
 	int getProductionNeeded(BuildingTypes eBuilding) const;
 	int getProductionNeeded(ProjectTypes eProject) const;
 
-#if defined(MOD_PROCESS_STOCKPILE)
 	int getMaxStockpile() const;
-#endif
 
 	int getProductionModifier(CvString* toolTipSink = NULL) const;
 	int getProductionModifier(UnitTypes eUnit, CvString* toolTipSink = NULL) const;
@@ -673,9 +670,7 @@ public:
 	int GetHappinessPerXGreatWorks() const;
 	void ChangeHappinessPerXGreatWorks(int iChange);
 
-#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	int GetHappinessFromResourceMonopolies() const;
-#endif
 	int GetHappinessFromResources() const;
 	int GetHappinessFromResourceVariety() const;
 	int GetHappinessFromReligion();
@@ -781,10 +776,8 @@ public:
 	void CreateSpies(int iNumSpies, bool bScaling = true);
 	// END Espionage
 
-#if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
 	int GetConversionModifier() const;
 	void ChangeConversionModifier(int iChange);
-#endif
 
 	// City-level Extra Yields from Annexed Minors
 	int GetFoodInCapitalPerTurnFromAnnexedMinors() const;
@@ -913,10 +906,8 @@ public:
 	// Golden Age Stuff
 
 	void DoProcessVotes();
-#if defined(MOD_BALANCE_CORE_YIELDS)
 	void DoChangeGreatGeneralRate();
 	void DoChangeGreatAdmiralRate();
-#endif
 	int GetGoldenAgePointsFromEmpireTimes100();
 	int GetGoldenAgePointsFromCitiesTimes100();
 	void DoProcessGoldenAge();
@@ -1117,9 +1108,7 @@ public:
 	int getWorkerSpeedModifier() const;
 	void changeWorkerSpeedModifier(int iChange);
 
-#if defined(MOD_CIV6_WORKER)
 	int GetImprovementBuilderCost(BuildTypes iBuild) const;
-#endif
 
 	int getImprovementCostModifier() const;
 	void changeImprovementCostModifier(int iChange);
@@ -1187,10 +1176,8 @@ public:
 	int GetImprovementGoldMaintenanceMod() const;
 	void ChangeImprovementGoldMaintenanceMod(int iChange);
 
-#if defined(MOD_CIV6_WORKER)
 	int GetRouteBuilderCostMod() const;
 	void ChangeRouteBuilderCostMod(int iChange);
-#endif
 
 	int GetBuildingGoldMaintenanceMod() const;
 	void ChangeBuildingGoldMaintenanceMod(int iChange);
@@ -1207,13 +1194,20 @@ public:
 	int GetNumMaintenanceFreeUnits(DomainTypes eDomain = NO_DOMAIN, bool bOnlyCombatUnits = false) const;
 
 	int getNumMilitaryUnits() const;
-	/*Changes to allow finer details of the Military Units that the Player has*/
+
 	int getNumMilitaryLandUnits() const;
 	int getNumMilitarySeaUnits() const;
 	int getNumMilitaryAirUnits() const;
-	int GetMilitarySeaMight() const;
-	int GetMilitaryAirMight() const;
+
 	int GetMilitaryLandMight() const;
+	void SetMilitaryLandMight(int iValue);
+
+	int GetMilitarySeaMight() const;
+	void SetMilitarySeaMight(int iValue);
+
+	int GetMilitaryAirMight() const;
+	void SetMilitaryAirMight(int iValue);
+
 	void changeNumMilitaryUnits(int iChange, DomainTypes eDomain = NO_DOMAIN);
 
 	int getHappyPerMilitaryUnit() const;
@@ -1254,9 +1248,7 @@ public:
 	void SetNullifyInfluenceModifier(bool bValue);
 	bool IsNullifyInfluenceModifier() const;
 
-#if defined(MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON)
 	int GetTradeRouteProductionSiphonPercent(bool bInternationalOnly, CvPlayer* pOtherPlayer) const;
-#endif
 
 	int getMilitaryFoodProductionCount() const;
 	bool isMilitaryFoodProduction() const;
@@ -1533,9 +1525,7 @@ public:
 	int GetLostHolyCityX();
 	int GetLostHolyCityY();
 	PlayerTypes GetHolyCityConqueror();
-#if defined(MOD_GLOBAL_NO_CONQUERED_SPACESHIPS)
 	void disassembleSpaceship(CvPlot* pPlot);
-#endif
 	PlayerTypes GetCapitalConqueror() const;
 
 	int getCitiesLost() const;
@@ -1686,7 +1676,7 @@ public:
 
 	int getYieldFromExpendTileCapital(YieldTypes eIndex) const;
 	void changeYieldFromExpendTileCapital(YieldTypes eIndex, int iChange);
-#if defined(MOD_BALANCE_CORE_POLICIES)
+
 	int GetTradeReligionModifier() const;
 	void changeTradeReligionModifier(int iChange);
 
@@ -1886,8 +1876,8 @@ public:
 	void SetIdeologyPoint(int iValue);
 	void ChangeIdeologyPoint(int iChange);
 
+	bool IsNoXPLossUnitPurchase() const;
 	int GetNoXPLossUnitPurchase() const;
-	void SetNoXPLossUnitPurchase(int iValue);
 	void ChangeNoXPLossUnitPurchase(int iChange);
 
 	void ChangeCSAlliesLowersPolicyNeedWonders(int iChange);
@@ -1913,13 +1903,13 @@ public:
 
 	void ChangeBullyGlobalCSReduction(int iValue);
 	int GetBullyGlobalCSReduction() const;
-#endif
+
 	void changeMaxAirUnits(int iChange);
 	int getMaxAirUnits() const;
 
 	int GetImprovementExtraYield(ImprovementTypes eImprovement, YieldTypes eYield) const;
 	void ChangeImprovementExtraYield(ImprovementTypes eImprovement, YieldTypes eYield, int iChange);
-#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+
 	int GetInvestmentModifier() const;
 	void changeInvestmentModifier(int iChange);
 
@@ -1944,10 +1934,8 @@ public:
 	int GetAdmiralLuxuryBonus() const;
 	void changeAdmiralLuxuryBonus(int iChange);
 
-#if defined(MOD_POLICIES_UNIT_CLASS_REPLACEMENTS)
 	UnitClassTypes GetUnitClassReplacement(UnitClassTypes eUnitClass) const;
 	void SetUnitClassReplacement(UnitClassTypes eReplacedUnitClass, UnitClassTypes eReplacementUnitClass);
-#endif
 
 	int GetPromotionSameAttackBonus(PromotionTypes ePromotion) const;
 	void ProcessAttackForPromotionSameAttackBonus(PromotionTypes ePromotion);
@@ -1957,7 +1945,7 @@ public:
 	void changeCSResourcesCountMonopolies(int iChange);
 
 	int GetScalingNationalPopulationRequired(BuildingTypes eBuilding) const;
-#endif
+
 	int getCapitalYieldRateModifier(YieldTypes eIndex) const;
 	void changeCapitalYieldRateModifier(YieldTypes eIndex, int iChange);
 
@@ -2162,13 +2150,11 @@ public:
 	int getTotalImprovementsBuilt(ImprovementTypes eIndex) const;
 	void changeTotalImprovementsBuilt(ImprovementTypes eIndex, int iChange);
 
-#if defined(MOD_IMPROVEMENTS_EXTENSIONS)
 	int getResponsibleForRouteCount(RouteTypes eIndex) const;
 	void changeResponsibleForRouteCount(RouteTypes eIndex, int iChange);
 
 	int getResponsibleForImprovementCount(ImprovementTypes eIndex) const;
 	void changeResponsibleForImprovementCount(ImprovementTypes eIndex, int iChange);
-#endif
 
 	int getGreatPersonImprovementCount();
 
@@ -2271,7 +2257,6 @@ public:
 	int GetEmpireSizeModifierPerCityMod() const;
 	void ChangeEmpireSizeModifierPerCityMod(int iChange);
 
-#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	int getSpecificGreatPersonRateModifierFromMonopoly(GreatPersonTypes eGreatPerson, MonopolyTypes eMonopoly) const;
 	int getSpecificGreatPersonRateModifierFromMonopoly(GreatPersonTypes eGreatPerson) const;
 	void changeSpecificGreatPersonRateModifierFromMonopoly(GreatPersonTypes eGreatPerson, MonopolyTypes eMonopoly, int iChange);
@@ -2279,7 +2264,6 @@ public:
 	int getSpecificGreatPersonRateChangeFromMonopoly(GreatPersonTypes eGreatPerson, MonopolyTypes eMonopoly) const;
 	int getSpecificGreatPersonRateChangeFromMonopoly(GreatPersonTypes eGreatPerson) const;
 	void changeSpecificGreatPersonRateChangeFromMonopoly(GreatPersonTypes eGreatPerson, MonopolyTypes eMonopoly, int iChange);
-#endif
 
 	int getImprovementYieldChange(ImprovementTypes eIndex1, YieldTypes eIndex2) const;
 	void changeImprovementYieldChange(ImprovementTypes eIndex1, YieldTypes eIndex2, int iChange);
@@ -2449,15 +2433,12 @@ public:
 
 	int GetPlotGoldCostMod() const;
 	void ChangePlotGoldCostMod(int iChange);
-#if defined(MOD_TRAITS_CITY_WORKING) || defined(MOD_BUILDINGS_CITY_WORKING) || defined(MOD_POLICIES_CITY_WORKING) || defined(MOD_TECHS_CITY_WORKING)
+
 	int GetCityWorkingChange() const;
 	void ChangeCityWorkingChange(int iChange);
-#endif
 
-#if defined(MOD_TRAITS_CITY_AUTOMATON_WORKERS) || defined(MOD_BUILDINGS_CITY_AUTOMATON_WORKERS) || defined(MOD_POLICIES_CITY_AUTOMATON_WORKERS) || defined(MOD_TECHS_CITY_AUTOMATON_WORKERS)
 	int GetCityAutomatonWorkersChange() const;
 	void ChangeCityAutomatonWorkersChange(int iChange);
-#endif
 
 	int GetBorderGrowthRateIncreaseGlobal() const;
 	void ChangeBorderGrowthRateIncreaseGlobal(int iChange);
@@ -2496,7 +2477,6 @@ public:
 	int GetNumEffectiveCities(bool bIncludePuppets = false) const;
 	int GetNumEffectiveCoastalCities() const;
 
-#if defined(MOD_BALANCE_CORE_MILITARY)
 	int GetFractionOriginalCapitalsUnderControl() const;
 	bool OwnsOurCity(PlayerTypes ePlayer);
 	int GetNumOurCitiesOwnedBy(PlayerTypes ePlayer);
@@ -2539,7 +2519,6 @@ public:
 	void ChangeUnitSupplyFromExpendedGreatPeople(int iChange);
 
 	int GetAvgUnitExp100() const;
-#endif
 
 	int GetNumNaturalWondersDiscoveredInArea() const;
 	void SetNumNaturalWondersDiscoveredInArea(int iValue);
@@ -2584,9 +2563,7 @@ public:
 	void SetHolyCity(int iCityID);
 
 	PromotionTypes GetEmbarkationPromotion() const;
-#if defined(MOD_PROMOTIONS_DEEP_WATER_EMBARKATION)
 	PromotionTypes GetDeepWaterEmbarkationPromotion() const;
-#endif
 
 	// spaceship planning
 	void LogSpaceshipPlanMessage(const CvString& strMsg) const;
@@ -2692,10 +2669,8 @@ public:
 	CvPlayerContracts* GetContracts() const;
 	int AddNotification(NotificationTypes eNotificationType, const char* sMessage, const char* sSummary, CvPlot* pPlot = NULL, int iGameDataIndex = -1, int iExtraGameData = -1);
 	int AddNotification(NotificationTypes eNotificationType, const char* sMessage, const char* sSummary, int iGameDataIndex, int iExtraGameData = -1);
-#if defined(MOD_WH_MILITARY_LOG)
 	CvEventLog* GetMilitaryLog() const;
 	bool AddMilitaryEvent(const char* sMessage, CvPlot* pPlot, PlayerTypes eOtherPlayer, int iData1 = -1, int iData2 = -1, int iData3 = -1, int iData4 = -1);
-#endif
 
 	CvDiplomacyRequests* GetDiplomacyRequests() const;
 	bool HasActiveDiplomacyRequests() const;
@@ -2796,9 +2771,7 @@ public:
 	virtual void AI_conquerCity(CvCity* pCity, bool bGift, bool bAllowSphereRemoval) = 0;
 	bool HasSameIdeology(PlayerTypes ePlayer) const;
 
-#if defined(MOD_BALANCE_CORE_EVENTS)
 	virtual void AI_DoEventChoice(EventTypes eEvent) = 0;
-#endif
 
 	virtual void updatePlotFoundValues();
 	virtual void invalidatePlotFoundValues();
@@ -2883,7 +2856,7 @@ public:
 
 	UnitTypes GetCompetitiveSpawnUnitType(const bool bIncludeRanged = false, const bool bIncludeShips = false, const bool bIncludeRecon = false, const bool bIncludeUUs = false, const CvCity* pSpawnCity = NULL, const bool bNoResource = false, const bool bMinorCivGift = false, const bool bRandom = false, CvSeeder* pSeed = NULL, const vector<int> viUnitCombat = vector<int>()) const;
 
-	int calculateNuclearMight(PlayerTypes ePlayer = NO_PLAYER, bool bComputeShelterNumbers = false, int iBombShelterPercent = 0, int iNukeModifier = 0, int iInterceptionChance = 0) const;
+	int calculateNuclearMight(PlayerTypes ePlayer = NO_PLAYER, bool bComputeShelterNumbers = false, int iBombShelterPercent = 0, int iNukeModifier = 0, int iInterceptionChance = 0);
 
 protected:
 	class ConqueredByBoolField
@@ -2944,9 +2917,9 @@ protected:
 	};
 
 	void updateMightStatistics();
-	int calculateMilitaryMight(DomainTypes eDomain = NO_DOMAIN) const;
-	int calculateEconomicMight() const;
-	int calculateProductionMight() const;
+	int calculateMilitaryMight();
+	int calculateEconomicMight();
+	int calculateProductionMight();
 
 	SYNC_ARCHIVE_MEMBER(CvPlayer)
 
@@ -3009,7 +2982,6 @@ protected:
 	int m_iHappinessPerGarrisonedUnitCount;
 	int m_iHappinessPerTradeRouteCount;
 	int m_iHappinessPerXPopulation;
-#if defined(MOD_BALANCE_CORE_POLICIES)
 	int m_iHappinessPerXPopulationGlobal;
 	int m_iIdeologyPoint;
 	int m_iNoXPLossUnitPurchase;
@@ -3021,8 +2993,7 @@ protected:
 	int m_iMinimumAllyInfluenceIncreaseAtWar;
 	int m_iCanBullyFriendlyCS;
 	int m_iKeepConqueredBuildings;
-	int m_iBullyGlobalCSReduction;	
-#endif
+	int m_iBullyGlobalCSReduction;
 	int m_iIsVassalsNoRebel;
 	int m_iVassalYieldBonusModifier;
 	int m_iCSYieldBonusModifier;
@@ -3043,9 +3014,7 @@ protected:
 	int m_iSpyPoints;
 	int m_iSpyPointsTotal;
 	int m_iSpyStartingRank;
-#if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
 	int m_iConversionModifier;
-#endif
 
 	//for bookkeeping only, yields are added to cities
 	int m_iFoodInCapitalFromAnnexedMinors;
@@ -3083,7 +3052,6 @@ protected:
 	int m_iNumUnitGoldenAges;
 	int m_iStrikeTurns;
 	int m_iGoldenAgeModifier;
-#if defined(MOD_GLOBAL_TRULY_FREE_GP)
 	int m_iProductionBonusTurnsConquest;
 	int m_iCultureBonusTurnsConquest;
 	int m_iFreeGreatPeopleCreated;
@@ -3108,7 +3076,6 @@ protected:
 	int m_iFreeGPExtra3Created;
 	int m_iFreeGPExtra4Created;
 	int m_iFreeGPExtra5Created;
-#endif
 	int m_iGreatPeopleCreated;
 	int m_iGreatGeneralsCreated;
 	int m_iGreatAdmiralsCreated;
@@ -3157,7 +3124,6 @@ protected:
 	int m_iSpecialistFoodChange;
 	int m_iWarWearinessModifier;
 	int m_iWarScoreModifier;
-#if defined(MOD_BALANCE_CORE_POLICIES)
 	int m_iGarrisonsOccupiedUnhappinessMod;
 	int m_iXPopulationConscription;
 	int m_iExtraMoves;
@@ -3185,9 +3151,7 @@ protected:
 	int m_iUnitsInLiberatedCities;
 	int m_iCityCaptureHealGlobal;
 	int m_iCityCaptureHealLocal;
-#endif
 	int m_iMaxAirUnits;
-#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int m_iInvestmentModifier;
 	int m_iMissionInfluenceModifier;
 	int m_iHappinessPerActiveTradeRoute;
@@ -3197,10 +3161,7 @@ protected:
 	int m_iPuppetYieldPenaltyMod;
 	int m_iNeedsModifierFromAirUnits;
 	int m_iFlatDefenseFromAirUnits;
-#endif
-#if defined(MOD_POLICIES_UNIT_CLASS_REPLACEMENTS)
 	std::map<UnitClassTypes, UnitClassTypes> m_piUnitClassReplacements;
-#endif
 	std::map<PromotionTypes, int> m_miPromotionSameAttackBonuses;
 	int m_iMaxGlobalBuildingProductionModifier;
 	int m_iMaxTeamBuildingProductionModifier;
@@ -3234,9 +3195,7 @@ protected:
 	int m_iGoldPerUnit;
 	int m_iGoldPerMilitaryUnit;
 	int m_iImprovementGoldMaintenanceMod;
-#if defined(MOD_CIV6_WORKER)
 	int m_iRouteBuilderCostMod;
-#endif
 	int m_iBuildingGoldMaintenanceMod;
 	int m_iUnitGoldMaintenanceMod;
 	int m_iUnitSupplyMod;
@@ -3369,12 +3328,8 @@ protected:
 	int m_iCapitalGrowthMod;
 	int m_iNumPlotsBought;
 	int m_iPlotGoldCostMod;
-#if defined(MOD_TRAITS_CITY_WORKING) || defined(MOD_BUILDINGS_CITY_WORKING) || defined(MOD_POLICIES_CITY_WORKING) || defined(MOD_TECHS_CITY_WORKING)
 	int m_iCityWorkingChange;
-#endif
-#if defined(MOD_TRAITS_CITY_AUTOMATON_WORKERS) || defined(MOD_BUILDINGS_CITY_AUTOMATON_WORKERS) || defined(MOD_POLICIES_CITY_AUTOMATON_WORKERS) || defined(MOD_TECHS_CITY_AUTOMATON_WORKERS)
 	int m_iCityAutomatonWorkersChange;
-#endif
 	int m_iCachedGoldRate;
 	int m_iBorderGrowthRateIncreaseGlobal;
 	int m_iPlotCultureCostModifier;
@@ -3449,7 +3404,6 @@ protected:
 	std::vector<int> m_aiCapitalYieldPerPopChangeEmpire;
 	std::vector<int> m_aiSeaPlotYield;
 	std::vector<int> m_aiYieldRateModifier;
-#if defined(MOD_BALANCE_CORE_POLICIES)
 	std::vector<int> m_paiJFDPoliticPercent;
 	std::vector<int> m_aiYieldFromMinors;
 	std::vector<int> m_paiResourceFromCSAlliances;
@@ -3495,8 +3449,7 @@ protected:
 	std::vector<UnitAITypes> m_neededUnitAITypes;
 	bool m_bAllowsProductionTradeRoutesGlobal;
 	bool m_bAllowsFoodTradeRoutesGlobal;
-	
-#endif
+
 	std::map<int, int> m_piDomainFreeExperience;
 
 	std::vector<int> m_aiCapitalYieldRateModifier;
@@ -3538,12 +3491,9 @@ protected:
 	std::vector<int> m_paiImprovementCount;
 	std::vector<int> m_paiImprovementBuiltCount;
 	std::vector<int> m_paiTotalImprovementsBuilt;
-#if defined(MOD_IMPROVEMENTS_EXTENSIONS)
 	std::map<RouteTypes, int> m_piResponsibleForRouteCount;
 	std::map<ImprovementTypes, int> m_piResponsibleForImprovementCount;
-
 	std::vector<int> m_paiBuildingChainSteps;
-#endif
 	std::vector<int> m_paiFreeBuildingCount;
 	std::vector<int> m_paiFreePromotionCount;
 	std::vector<int> m_paiUnitCombatProductionModifiers;
@@ -3567,14 +3517,12 @@ protected:
 
 	std::vector<bool> m_pabLoyalMember;
 
-#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	std::vector<bool> m_pabHasGlobalMonopoly;
 	std::vector<bool> m_pabHasStrategicMonopoly;
 	std::vector<ResourceTypes> m_vResourcesWGlobalMonopoly;
 	std::vector<ResourceTypes> m_vResourcesWStrategicMonopoly;
 	int m_iCombatAttackBonusFromMonopolies;
 	int m_iCombatDefenseBonusFromMonopolies;
-#endif
 
 	std::vector<ResourceTypes> m_vResourcesNotForSale;
 	bool m_refuseOpenBordersTrade;
@@ -3611,10 +3559,8 @@ protected:
 	std::vector<int> m_piYieldFromWLTKD;
 	int m_iEmpireSizeModifierPerCityMod;
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppaaiImprovementYieldChange;
-#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	std::map<GreatPersonTypes, std::map<MonopolyTypes, int>> m_ppiSpecificGreatPersonRateModifierFromMonopoly;
 	std::map<GreatPersonTypes, std::map<MonopolyTypes, int>> m_ppiSpecificGreatPersonRateChangeFromMonopoly;
-#endif
 
 	CvUnitCycler m_kUnitCycle;
 
@@ -3714,9 +3660,7 @@ protected:
 	CvPlayerCulture* m_pCulture;
 
 	CvNotifications* m_pNotifications;
-#if defined(MOD_WH_MILITARY_LOG)
 	CvEventLog* m_pMilitaryLog;
-#endif
 	CvDiplomacyRequests* m_pDiplomacyRequests;
 
 	PlotIndexContainer m_aiPlots;
@@ -3749,7 +3693,6 @@ protected:
 
 	CvPlayerAchievements m_kPlayerAchievements;
 
-#if defined(MOD_BALANCE_CORE_MILITARY)
 	//percent
 	int m_iFractionOriginalCapitalsUnderControl;
 	int m_iAvgUnitExp100;
@@ -3760,19 +3703,16 @@ protected:
 	std::vector<int> m_plotsAreaEffectPositiveFromTraits;
 	std::vector<PlayerTypes> m_playersWeAreAtWarWith;
 	std::vector<PlayerTypes> m_playersAtWarWithInFuture;
-#endif
 
 	mutable int m_iNumUnitsSuppliedCached; //not serialized
 	mutable int m_iNumUnitsSuppliedCachedWarWeariness; //not serialized
 
-#if defined(MOD_BATTLE_ROYALE)
 	int m_iNumMilitarySeaUnits;
 	int m_iNumMilitaryAirUnits;
 	int m_iNumMilitaryLandUnits;
 	int m_iMilitarySeaMight;
 	int m_iMilitaryAirMight;
 	int m_iMilitaryLandMight;
-#endif
 
 	std::vector<int> m_vCityConnectionPlots; //serialized
 	std::vector<int> m_vIndustrialCityConnectionPlots; //serialized

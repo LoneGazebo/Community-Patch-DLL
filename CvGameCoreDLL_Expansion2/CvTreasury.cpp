@@ -108,7 +108,7 @@ void CvTreasury::DoGold()
 		m_GoldBalanceForTurnTimes100.push_back(GetGoldTimes100());
 	}
 
-	if (MOD_API_ACHIEVEMENTS && m_pPlayer->isHuman(ISHUMAN_ACHIEVEMENTS) && !GC.getGame().isGameMultiPlayer())
+	if (MOD_ENABLE_ACHIEVEMENTS && m_pPlayer->isHuman(ISHUMAN_ACHIEVEMENTS) && !GC.getGame().isGameMultiPlayer())
 	{
 		int iGoldDelta = (GetGoldFromCitiesTimes100(false) - GetGoldFromCitiesTimes100(true)) / 100;
 		if (iGoldDelta >= 200)
@@ -296,7 +296,6 @@ void CvTreasury::DoUpdateCityConnectionGold()
 
 	m_iCityConnectionGoldTimes100 = iNumGold;
 }
-#if defined(MOD_BALANCE_CORE_POLICIES)
 /// How much of a percent bonus do we get for Trade Routes
 int CvTreasury::GetInternalTradeRouteGoldBonus() const
 {
@@ -317,8 +316,6 @@ void CvTreasury::DoInternalTradeRouteGoldBonus()
 	}
 	m_iInternalTradeGoldBonus = iGold;
 }
-#endif
-
 
 /// How much of a percent bonus do we get for Trade Routes
 int CvTreasury::GetCityConnectionTradeRouteGoldModifier() const
@@ -369,19 +366,9 @@ int CvTreasury::GetGoldPerTurnFromTradeRoutesTimes100() const
 /// Gold per turn from traits
 int CvTreasury::GetGoldPerTurnFromTraits() const
 {
-	if(MOD_BALANCE_YIELD_SCALE_ERA)
-	{
-		int iEra = m_pPlayer->GetCurrentEra();
-		if(iEra < 1)
-		{
-			iEra = 1;
-		}
-		return ((iEra * m_pPlayer->GetPlayerTraits()->GetYieldChangePerTradePartner(YIELD_GOLD) * m_pPlayer->GetTrade()->GetNumDifferentTradingPartners()) + (m_pPlayer->GetYieldPerTurnFromResources(YIELD_GOLD, true, true)));
-	}
-	else
-	{
-	return ((m_pPlayer->GetPlayerTraits()->GetYieldChangePerTradePartner(YIELD_GOLD) * m_pPlayer->GetTrade()->GetNumDifferentTradingPartners()) + (m_pPlayer->GetYieldPerTurnFromResources(YIELD_GOLD, true, true)));
-	}
+	int iEra = MOD_BALANCE_VP ? m_pPlayer->GetCurrentEra() : 1;
+	int iReturnValue = (max(iEra, 1) * m_pPlayer->GetPlayerTraits()->GetYieldChangePerTradePartner(YIELD_GOLD) * m_pPlayer->GetTrade()->GetNumDifferentTradingPartners()) + m_pPlayer->GetYieldPerTurnFromResources(YIELD_GOLD, true, true);
+	return iReturnValue;
 }
 
 /// Gold Per Turn from Religion
@@ -421,10 +408,8 @@ int CvTreasury::CalculateGrossGoldTimes100()
 	// We're a master of someone, we get gold from taxes
 	iNetGold += GetMyShareOfVassalTaxes();
 
-	if(MOD_BALANCE_CORE_MINOR_CIV_GIFT)
-	{
-		iNetGold += m_pPlayer->GetGoldPerTurnFromMinorCivs() * 100;
-	}
+	iNetGold += m_pPlayer->GetGoldPerTurnFromMinorCivs() * 100;
+
 	if (MOD_BALANCE_CORE_JFD)
 	{
 		iNetGold += m_pPlayer->GetYieldPerTurnFromMinors(YIELD_GOLD) * 100;
@@ -610,19 +595,21 @@ int CvTreasury::CalculateTotalCosts()
 int CvTreasury::GetBuildingGoldMaintenance() const
 {
 	int iMaintenance = GetBaseBuildingGoldMaintenance();
+	int iExtraMaintenancePercent = 0;
 
-	if (MOD_BALANCE_CORE_BUILDING_RESOURCE_MAINTENANCE)
+	if (MOD_BALANCE_RESOURCE_SHORTAGE_BUILDING_REFUND)
 	{
 		int iLoop = 0;
 		for (CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 		{
 			if (pLoopCity->GetExtraBuildingMaintenance() > 0)
-			{
-				iMaintenance *= 100 + pLoopCity->GetExtraBuildingMaintenance();
-				iMaintenance /= 100;
-			}
+				iExtraMaintenancePercent += pLoopCity->GetExtraBuildingMaintenance();
 		}
 	}
+
+	// Extra maintenance from Strategic Resource shortage
+	iMaintenance *= 100 + iExtraMaintenancePercent;
+	iMaintenance /= 100;
 
 	// Player modifier
 	iMaintenance *= 100 + m_pPlayer->GetBuildingGoldMaintenanceMod();

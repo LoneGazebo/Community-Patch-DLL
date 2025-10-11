@@ -71,14 +71,11 @@ CvBeliefEntry::CvBeliefEntry() :
 	m_bConvertsBarbarians(false),
 	m_bFaithPurchaseAllGreatPeople(false),
 
-#if defined(MOD_BALANCE_CORE_BELIEFS_RESOURCE)
 	m_bRequiresImprovement(false),
 	m_bRequiresResource(false),
 	m_bRequiresNoImprovement(false),
 	m_bRequiresNoFeature(false),
-#endif
 
-#if defined(MOD_BALANCE_CORE_BELIEFS)
 	m_iHappinessFromForeignSpies(0),
 	m_iGetPressureChangeTradeRoute(0),
 	m_piYieldPerActiveTR(NULL),
@@ -121,7 +118,6 @@ CvBeliefEntry::CvBeliefEntry() :
 	m_piImprovementVoteChange(NULL),
 	m_iReducePolicyRequirements(0),
 	m_iCSYieldBonus(0),
-#endif
 
 	m_eRequiredCivilization(NO_CIVILIZATION),
 
@@ -163,11 +159,9 @@ CvBeliefEntry::CvBeliefEntry() :
 	m_ppiPlotYieldChange(NULL),
 	m_pbFaithPurchaseUnitSpecificEnabled(NULL),
 
-#if defined(MOD_RELIGION_EXTENSIONS)
 	m_aiFreePromotions(),
 	m_pbiYieldFromImprovementBuild(),
 	m_pbiYieldFromPillageGlobal(),
-#endif
 
 	m_piResourceHappiness(NULL),
 	m_piYieldChangeAnySpecialist(NULL),
@@ -506,7 +500,6 @@ bool CvBeliefEntry::FaithPurchaseAllGreatPeople() const
 	return m_bFaithPurchaseAllGreatPeople;
 }
 
-#if defined(MOD_BALANCE_CORE_BELIEFS_RESOURCE)
 /// Accessor: is this a belief that grants faith only from improvements?
 bool CvBeliefEntry::RequiresImprovement() const
 {
@@ -527,9 +520,7 @@ bool CvBeliefEntry::RequiresNoFeature() const
 {
 	return m_bRequiresNoFeature;
 }
-#endif
 
-#if defined(MOD_BALANCE_CORE_BELIEFS)
 int CvBeliefEntry::GetHappinessFromForeignSpies() const
 {
 	return m_iHappinessFromForeignSpies;
@@ -808,7 +799,7 @@ bool CvBeliefEntry::IsAIGoodStartingPantheon() const
 {
 	return m_bAIGoodStartingPantheon;
 }
-#endif
+
 //------------------------------------------------------------------------------
 CivilizationTypes CvBeliefEntry::GetRequiredCivilization() const
 {
@@ -1093,7 +1084,6 @@ int CvBeliefEntry::GetPlotYieldChange(int i, int j) const
 	return m_ppiPlotYieldChange ? m_ppiPlotYieldChange[i][j] : -1;
 }
 
-#if defined(MOD_RELIGION_EXTENSIONS)
 /// Free promotions 
 std::vector<int> CvBeliefEntry::GetFreePromotions() const
 {
@@ -1135,7 +1125,6 @@ int CvBeliefEntry::GetYieldFromPillageGlobal(YieldTypes eYield, bool bEraScaling
 	}
 	return 0;
 }
-#endif
 
 /// Happiness from a resource
 int CvBeliefEntry::GetResourceHappiness(int i) const
@@ -1283,13 +1272,11 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_bConvertsBarbarians			  = kResults.GetBool("ConvertsBarbarians");
 	m_bFaithPurchaseAllGreatPeople	  = kResults.GetBool("FaithPurchaseAllGreatPeople");
 
-#if defined(MOD_BALANCE_CORE_BELIEFS_RESOURCE)
 	m_bRequiresImprovement			  = kResults.GetBool("RequiresImprovement");
 	m_bRequiresResource				  = kResults.GetBool("RequiresResource");
 	m_bRequiresNoImprovement		  = kResults.GetBool("RequiresNoImprovement");
 	m_bRequiresNoFeature			  = kResults.GetBool("RequiresNoImprovementFeature");
-#endif
-#if defined(MOD_BALANCE_CORE_BELIEFS)
+
 	m_iHappinessFromForeignSpies = kResults.GetInt("HappinessFromForeignSpies");
 	m_iGetPressureChangeTradeRoute = kResults.GetInt("PressureChangeTradeRoute");
 	m_iCombatVersusOtherReligionOwnLands = kResults.GetInt("CombatVersusOtherReligionOwnLands");
@@ -1300,7 +1287,7 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iCityScalerLimiter = kResults.GetInt("CityScalerLimiter");
 	m_iFollowerScalerLimiter = kResults.GetInt("FollowerScalerLimiter");
 	m_iPolicyReductionWonderXFollowerCities = kResults.GetInt("PolicyReductionWonderXFollowerCities");
-#endif
+
 	m_bAIGoodStartingPantheon = kResults.GetBool("AI_GoodStartingPantheon");
 	const char* szCivilizationType = kResults.GetText("CivilizationType");
 	m_eRequiredCivilization = (CivilizationTypes)GC.getInfoTypeForString(szCivilizationType, true);
@@ -1322,7 +1309,6 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	kUtility.SetYields(m_piYieldChangeNaturalWonder, "Belief_YieldChangeNaturalWonder", "BeliefType", szBeliefType);
 	kUtility.SetYields(m_piYieldChangeWorldWonder, "Belief_YieldChangeWorldWonder", "BeliefType", szBeliefType);
 	kUtility.SetYields(m_piYieldModifierNaturalWonder, "Belief_YieldModifierNaturalWonder", "BeliefType", szBeliefType);
-#if defined(MOD_BALANCE_CORE_BELIEFS)
 	kUtility.SetYields(m_piYieldPerActiveTR, "Belief_YieldPerActiveTR", "BeliefType", szBeliefType);
 	kUtility.SetYields(m_piYieldPerConstruction, "Belief_YieldPerConstruction", "BeliefType", szBeliefType);
 	kUtility.SetYields(m_piYieldPerWorldWonderConstruction, "Belief_YieldPerWorldWonderConstruction", "BeliefType", szBeliefType);
@@ -1354,7 +1340,7 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 
 	m_iReducePolicyRequirements = kResults.GetInt("ReducePolicyRequirements");
 	m_iCSYieldBonus = kResults.GetInt("CSYieldBonusFromSharedReligion");
-#endif
+
 	kUtility.PopulateArrayByValue(m_piMaxYieldModifierPerFollower, "Yields", "Belief_MaxYieldModifierPerFollower", "YieldType", "BeliefType", szBeliefType, "Max");
 	kUtility.PopulateArrayByValue(m_piMaxYieldModifierPerFollowerPercent, "Yields", "Belief_MaxYieldModifierPerFollowerPercent", "YieldType", "BeliefType", szBeliefType, "Max");
 	kUtility.PopulateArrayByValue(m_piResourceHappiness, "Resources", "Belief_ResourceHappiness", "ResourceType", "BeliefType", szBeliefType, "HappinessChange");
@@ -1371,7 +1357,6 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	kUtility.PopulateArrayByExistence(m_pbFaithPurchaseUnitEraEnabled, "Eras", "Belief_EraFaithUnitPurchase", "EraType", "BeliefType", szBeliefType);
 	kUtility.PopulateArrayByExistence(m_pbBuildingClassEnabled, "BuildingClasses", "Belief_BuildingClassFaithPurchase", "BuildingClassType", "BeliefType", szBeliefType);
 
-#if defined(MOD_BALANCE_CORE_BELIEFS)
 	//YieldPerBorderGrowth
 	{
 		std::string strKey("Belief_YieldPerBorderGrowth");
@@ -1419,7 +1404,6 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 		//Trim extra memory off container since this is mostly read-only.
 		std::map<int, std::map<bool, int>>(m_pbiYieldFromTechUnlock).swap(m_pbiYieldFromTechUnlock);
 	}
-#endif
 
 	//ImprovementYieldChanges
 	{
@@ -1743,7 +1727,6 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 		m_ppiPlotYieldChange[PlotID][YieldID] = yield;
 	}
 
-#if defined(MOD_RELIGION_EXTENSIONS)
 	if (MOD_RELIGION_EXTENSIONS)
 	{
 		//FreePromotions
@@ -1816,7 +1799,6 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 			std::map<int, std::map<bool, int>>(m_pbiYieldFromPillageGlobal).swap(m_pbiYieldFromPillageGlobal);
 		}
 	}
-#endif
 
 	return true;
 }
@@ -2124,7 +2106,7 @@ bool CvReligionBeliefs::IsBeliefValid(BeliefTypes eBelief, ReligionTypes eReligi
 			}
 		}
 	}
-	if (MOD_BALANCE_CORE_UNIQUE_BELIEFS_ONLY_FOR_CIV && pBeliefs->GetEntry(eBelief)->GetRequiredCivilization() != NO_CIVILIZATION)
+	if (MOD_BALANCE_UNIQUE_BELIEFS_ONLY_FOR_CIV && pBeliefs->GetEntry(eBelief)->GetRequiredCivilization() != NO_CIVILIZATION)
 	{
 		if (pBeliefs->GetEntry(eBelief)->GetRequiredCivilization() != GET_PLAYER(ePlayer).getCivilizationType())
 			return false;
@@ -3931,7 +3913,6 @@ bool CvReligionBeliefs::IsFaithPurchaseAllGreatPeople(PlayerTypes ePlayer, const
 	return false;
 }
 
-#if defined(MOD_BALANCE_CORE_BELIEFS_RESOURCE)
 /// Is there a belief that requires improvements?
 bool CvReligionBeliefs::RequiresImprovement(PlayerTypes ePlayer, bool bHolyCityOnly) const
 {
@@ -4004,7 +3985,7 @@ bool CvReligionBeliefs::RequiresResource(PlayerTypes ePlayer, bool bHolyCityOnly
 
 	return false;
 }
-#endif
+
 int CvReligionBeliefs::GetYieldPerActiveTR(YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
@@ -4061,9 +4042,6 @@ int CvReligionBeliefs::GetYieldPerWorldWonderConstruction(YieldTypes eYieldType,
 	return rtnValue;
 }
 
-
-
-#if defined(MOD_BALANCE_CORE_BELIEFS)
 /// Get yield modifier from beliefs for pop
 int CvReligionBeliefs::GetYieldPerPop(YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
@@ -4619,7 +4597,6 @@ CivilizationTypes CvReligionBeliefs::GetUniqueCiv(PlayerTypes ePlayer, bool bHol
 
 	return eCivilization;
 }
-#endif
 
 template<typename ReligionBeliefs, typename Visitor>
 void CvReligionBeliefs::Serialize(ReligionBeliefs& religionBeliefs, Visitor& visitor)

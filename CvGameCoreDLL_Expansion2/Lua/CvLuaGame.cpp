@@ -32,9 +32,7 @@
 
 #pragma warning(disable:4800 ) //forcing value to bool 'true' or 'false'
 
-#if defined(MOD_BATTLE_ROYALE)
 #include "../CvLoggerCSV.h"
-#endif
 
 #define Method(func) RegisterMethod(L, l##func, #func);
 
@@ -299,10 +297,8 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 	Method(GetNumResourceRequiredForUnit);
 	Method(GetNumResourceRequiredForBuilding);
 
-#if defined(MOD_IMPROVEMENTS_EXTENSIONS)
 	Method(GetNumResourceRequiredForImprovement);
 	Method(GetNumResourceRequiredForRoute);
-#endif
 
 	Method(IsCombatWarned);
 	Method(SetCombatWarned);
@@ -350,9 +346,7 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 	Method(GetNumCorporationsFounded);
 	Method(GetNumAvailableCorporations);
 	Method(GetSpyThreshold);
-#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	Method(GetGreatestPlayerResourceMonopoly);
-#endif
 
 	Method(GetWorldNumCitiesUnhappinessPercent);
 
@@ -506,10 +500,8 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 
 	Method(DoSpawnFreeCity);
 
-#if defined(MOD_BATTLE_ROYALE)
 	Method(DeleteCSV);
 	Method(WriteCSV);
-#endif
 
 	Method(IsPitbossHost);
 	Method(IsHost);
@@ -2076,7 +2068,6 @@ int CvLuaGame::lGetNumResourceRequiredForBuilding(lua_State* L)
 	return 1;
 }
 
-#if defined(MOD_IMPROVEMENTS_EXTENSIONS)
 //------------------------------------------------------------------------------
 int CvLuaGame::lGetNumResourceRequiredForImprovement(lua_State* L)
 {
@@ -2113,7 +2104,6 @@ int CvLuaGame::lGetNumResourceRequiredForRoute(lua_State* L)
 	lua_pushinteger(L, iNumNeeded);
 	return 1;
 }
-#endif
 
 //------------------------------------------------------------------------------
 int CvLuaGame::lIsCombatWarned(lua_State* L)
@@ -2604,7 +2594,6 @@ int CvLuaGame::lGetSpyThreshold(lua_State* L)
 	return 1;
 }
 
-#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 int CvLuaGame::lGetGreatestPlayerResourceMonopoly(lua_State* L)
 {
 	const ResourceTypes eResource = (ResourceTypes) luaL_checkint(L, 1);
@@ -2612,7 +2601,7 @@ int CvLuaGame::lGetGreatestPlayerResourceMonopoly(lua_State* L)
 	lua_pushinteger(L, iReturn);
 	return 1;
 }
-#endif
+
 //------------------------------------------------------------------------------
 int CvLuaGame::lGetWorldNumCitiesUnhappinessPercent(lua_State* L)
 {
@@ -2702,15 +2691,9 @@ int CvLuaGame::lSetMinimumFaithNextPantheon(lua_State* L)
 int CvLuaGame::lIsInSomeReligion(lua_State* L)
 {
 	BeliefTypes eBelief = (BeliefTypes)luaL_optint(L, 1, NO_BELIEF);
-#if defined(MOD_TRAITS_ANY_BELIEF)
 	PlayerTypes ePlayer = (PlayerTypes)luaL_optint(L, 2, NO_PLAYER);
-#endif
 
-#if defined(MOD_TRAITS_ANY_BELIEF)
 	const bool bResult = GC.getGame().GetGameReligions()->IsInSomeReligion(eBelief, ePlayer);
-#else
-	const bool bResult = GC.getGame().GetGameReligions()->IsInSomeReligion(eBelief);
-#endif
 	lua_pushboolean(L, bResult);
 
 	return 1;
@@ -2718,19 +2701,13 @@ int CvLuaGame::lIsInSomeReligion(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaGame::lGetAvailablePantheonBeliefs(lua_State* L)
 {
-#if defined(MOD_EVENTS_ACQUIRE_BELIEFS)
 	PlayerTypes ePlayer = (PlayerTypes)luaL_optint(L, 1, GC.getGame().getActivePlayer());
-#endif
 
 	lua_createtable(L, 0, 0);
 	const int t = lua_gettop(L);
 	int idx = 1;
 
-#if defined(MOD_EVENTS_ACQUIRE_BELIEFS)
 	std::vector<BeliefTypes> availableBeliefs = GC.getGame().GetGameReligions()->GetAvailablePantheonBeliefs(ePlayer);
-#else
-	std::vector<BeliefTypes> availableBeliefs = GC.getGame().GetGameReligions()->GetAvailablePantheonBeliefs();
-#endif
 	for(std::vector<BeliefTypes>::iterator it = availableBeliefs.begin();
 	        it!= availableBeliefs.end(); ++it)
 	{
@@ -2744,20 +2721,14 @@ int CvLuaGame::lGetAvailablePantheonBeliefs(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaGame::lGetAvailableFounderBeliefs(lua_State* L)
 {
-#if defined(MOD_EVENTS_ACQUIRE_BELIEFS)
 	PlayerTypes ePlayer = (PlayerTypes)luaL_optint(L, 1, NO_PLAYER);
 	ReligionTypes eReligion = (ReligionTypes)luaL_optint(L, 2, NO_RELIGION);
-#endif
 
 	lua_createtable(L, 0, 0);
 	const int t = lua_gettop(L);
 	int idx = 1;
 
-#if defined(MOD_EVENTS_ACQUIRE_BELIEFS)
 	std::vector<BeliefTypes> availableBeliefs = GC.getGame().GetGameReligions()->GetAvailableFounderBeliefs(ePlayer, eReligion);
-#else
-	std::vector<BeliefTypes> availableBeliefs = GC.getGame().GetGameReligions()->GetAvailableFounderBeliefs();
-#endif
 	for(std::vector<BeliefTypes>::iterator it = availableBeliefs.begin();
 	        it!= availableBeliefs.end(); ++it)
 	{
@@ -2771,20 +2742,14 @@ int CvLuaGame::lGetAvailableFounderBeliefs(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaGame::lGetAvailableFollowerBeliefs(lua_State* L)
 {
-#if defined(MOD_EVENTS_ACQUIRE_BELIEFS)
 	PlayerTypes ePlayer = (PlayerTypes)luaL_optint(L, 1, NO_PLAYER);
 	ReligionTypes eReligion = (ReligionTypes)luaL_optint(L, 2, NO_RELIGION);
-#endif
 
 	lua_createtable(L, 0, 0);
 	const int t = lua_gettop(L);
 	int idx = 1;
 
-#if defined(MOD_EVENTS_ACQUIRE_BELIEFS)
 	std::vector<BeliefTypes> availableBeliefs = GC.getGame().GetGameReligions()->GetAvailableFollowerBeliefs(ePlayer, eReligion);
-#else
-	std::vector<BeliefTypes> availableBeliefs = GC.getGame().GetGameReligions()->GetAvailableFollowerBeliefs();
-#endif
 	for(std::vector<BeliefTypes>::iterator it = availableBeliefs.begin();
 	        it!= availableBeliefs.end(); ++it)
 	{
@@ -2798,20 +2763,14 @@ int CvLuaGame::lGetAvailableFollowerBeliefs(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaGame::lGetAvailableEnhancerBeliefs(lua_State* L)
 {
-#if defined(MOD_EVENTS_ACQUIRE_BELIEFS)
 	PlayerTypes ePlayer = (PlayerTypes)luaL_optint(L, 1, NO_PLAYER);
 	ReligionTypes eReligion = (ReligionTypes)luaL_optint(L, 2, NO_RELIGION);
-#endif
 
 	lua_createtable(L, 0, 0);
 	const int t = lua_gettop(L);
 	int idx = 1;
 
-#if defined(MOD_EVENTS_ACQUIRE_BELIEFS)
 	std::vector<BeliefTypes> availableBeliefs = GC.getGame().GetGameReligions()->GetAvailableEnhancerBeliefs(ePlayer, eReligion);
-#else
-	std::vector<BeliefTypes> availableBeliefs = GC.getGame().GetGameReligions()->GetAvailableEnhancerBeliefs();
-#endif
 	for(std::vector<BeliefTypes>::iterator it = availableBeliefs.begin();
 	        it!= availableBeliefs.end(); ++it)
 	{
@@ -2825,20 +2784,14 @@ int CvLuaGame::lGetAvailableEnhancerBeliefs(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaGame::lGetAvailableBonusBeliefs(lua_State* L)
 {
-#if defined(MOD_EVENTS_ACQUIRE_BELIEFS)
 	PlayerTypes ePlayer = (PlayerTypes)luaL_optint(L, 1, NO_PLAYER);
 	ReligionTypes eReligion = (ReligionTypes)luaL_optint(L, 2, NO_RELIGION);
-#endif
 
 	lua_createtable(L, 0, 0);
 	const int t = lua_gettop(L);
 	int idx = 1;
 
-#if defined(MOD_EVENTS_ACQUIRE_BELIEFS)
 	std::vector<BeliefTypes> availableBeliefs = GC.getGame().GetGameReligions()->GetAvailableBonusBeliefs(ePlayer, eReligion);
-#else
-	std::vector<BeliefTypes> availableBeliefs = GC.getGame().GetGameReligions()->GetAvailableBonusBeliefs();
-#endif
 	for(std::vector<BeliefTypes>::iterator it = availableBeliefs.begin();
 	        it!= availableBeliefs.end(); ++it)
 	{
@@ -2852,20 +2805,14 @@ int CvLuaGame::lGetAvailableBonusBeliefs(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaGame::lGetAvailableReformationBeliefs(lua_State* L)
 {
-#if defined(MOD_EVENTS_ACQUIRE_BELIEFS)
 	PlayerTypes ePlayer = (PlayerTypes)luaL_optint(L, 1, NO_PLAYER);
 	ReligionTypes eReligion = (ReligionTypes)luaL_optint(L, 2, NO_RELIGION);
-#endif
 
 	lua_createtable(L, 0, 0);
 	const int t = lua_gettop(L);
 	int idx = 1;
 
-#if defined(MOD_EVENTS_ACQUIRE_BELIEFS)
 	std::vector<BeliefTypes> availableBeliefs = GC.getGame().GetGameReligions()->GetAvailableReformationBeliefs(ePlayer, eReligion);
-#else
-	std::vector<BeliefTypes> availableBeliefs = GC.getGame().GetGameReligions()->GetAvailableReformationBeliefs();
-#endif
 	for(std::vector<BeliefTypes>::iterator it = availableBeliefs.begin();
 	        it!= availableBeliefs.end(); ++it)
 	{
@@ -2937,28 +2884,16 @@ int CvLuaGame::lBeliefIsInReligion(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaGame::lGetNumReligionsStillToFound(lua_State* L)
 {
-	int iRtnValue;
-#if defined(MOD_RELIGION_LOCAL_RELIGIONS)
 	const bool bIgnoreLocal = luaL_optbool(L, 1, false);
 	PlayerTypes ePlayer = (PlayerTypes)luaL_optint(L, 2, NO_PLAYER);
-	iRtnValue = GC.getGame().GetGameReligions()->GetNumReligionsStillToFound(bIgnoreLocal, ePlayer);
-#else
-	iRtnValue = GC.getGame().GetGameReligions()->GetNumReligionsStillToFound();
-#endif
-	lua_pushinteger(L, iRtnValue);
+	lua_pushinteger(L, GC.getGame().GetGameReligions()->GetNumReligionsStillToFound(bIgnoreLocal, ePlayer));
 	return 1;
 }
 //------------------------------------------------------------------------------
 int CvLuaGame::lGetNumReligionsFounded(lua_State* L)
 {
-	int iRtnValue;
-#if defined(MOD_RELIGION_LOCAL_RELIGIONS)
-	const bool bIgnoreLocal	= luaL_optint(L, 1, 1);
-	iRtnValue = GC.getGame().GetGameReligions()->GetNumReligionsFounded(bIgnoreLocal);
-#else
-	iRtnValue = GC.getGame().GetGameReligions()->GetNumReligionsFounded();
-#endif
-	lua_pushinteger(L, iRtnValue);
+	const bool bIgnoreLocal	= luaL_optbool(L, 1, false);
+	lua_pushinteger(L, GC.getGame().GetGameReligions()->GetNumReligionsFounded(bIgnoreLocal));
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -4190,7 +4125,6 @@ int CvLuaGame::lDoSpawnFreeCity(lua_State* L)
 	return 0;
 }
 
-#if defined(MOD_BATTLE_ROYALE)
 int CvLuaGame::lDeleteCSV(lua_State * L)
 {
 	const char* szCSVFilename = lua_tostring(L, 2);
@@ -4209,7 +4143,6 @@ int CvLuaGame::lWriteCSV(lua_State * L)
 
 	return 1;
 }
-#endif
 
 int CvLuaGame::lIsPitbossHost(lua_State* L)
 {

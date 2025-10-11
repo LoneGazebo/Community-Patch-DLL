@@ -66,9 +66,7 @@ CvImprovementEntry::CvImprovementEntry(void):
 	m_iCultureBombRadius(0),
 	m_iRequiresXAdjacentLand(-1),
 	m_iRequiresXAdjacentWater(-1),
-#if defined(MOD_GLOBAL_NO_FOLLOWUP_FROM_CITIES)
 	m_bNoFollowUp(false),
-#endif
 #if defined(MOD_GLOBAL_STACKING_RULES)
 	m_iAdditionalUnits(0),
 #endif
@@ -97,19 +95,13 @@ CvImprovementEntry::CvImprovementEntry(void):
 	m_bOwnerOnly(true),
 	m_iImprovementPillage(NO_IMPROVEMENT),
 	m_iImprovementUpgrade(NO_IMPROVEMENT),
-#if defined(MOD_GLOBAL_RELOCATION)
 	m_bAllowsRebaseTo(false),
 	m_bAllowsAirliftFrom(false),
 	m_bAllowsAirliftTo(false),
-#endif
 	m_bBlockTileSteal(false),
 	m_bHillsMakesValid(false),
-#if defined(MOD_GLOBAL_ALPINE_PASSES)
 	m_bMountainsMakesValid(false),
-#endif
-#if defined(MOD_GLOBAL_PASSABLE_FORTS)
 	m_bMakesPassable(false),
-#endif
 	m_bWaterAdjacencyMakesValid(false),
 	m_bFreshWaterMakesValid(false),
 	m_bRiverSideMakesValid(false),
@@ -273,25 +265,17 @@ bool CvImprovementEntry::CacheResults(Database::Results& kResults, CvDatabaseUti
 	m_iCultureBombRadius = kResults.GetInt("CultureBombRadius");
 	m_iRequiresXAdjacentLand = kResults.GetInt("RequiresXAdjacentLand");
 	m_iRequiresXAdjacentWater = kResults.GetInt("RequiresXAdjacentWater");
-#if defined(MOD_GLOBAL_NO_FOLLOWUP_FROM_CITIES)
 	m_bNoFollowUp = kResults.GetBool("NoFollowUp");
-#endif
 #if defined(MOD_GLOBAL_STACKING_RULES)
 	m_iAdditionalUnits = kResults.GetInt("AdditionalUnits");
 #endif
-#if defined(MOD_GLOBAL_RELOCATION)
 	m_bAllowsRebaseTo = kResults.GetBool("AllowsRebaseTo");
 	m_bAllowsAirliftFrom = kResults.GetBool("AllowsAirliftFrom");
 	m_bAllowsAirliftTo = kResults.GetBool("AllowsAirliftTo");
-#endif
 	m_bBlockTileSteal = kResults.GetBool("BlockTileSteal");
 	m_bHillsMakesValid = kResults.GetBool("HillsMakesValid");
-#if defined(MOD_GLOBAL_ALPINE_PASSES)
 	m_bMountainsMakesValid = kResults.GetBool("MountainsMakesValid");
-#endif
-#if defined(MOD_GLOBAL_PASSABLE_FORTS)
 	m_bMakesPassable = kResults.GetBool("MakesPassable");
-#endif
 	m_bWaterAdjacencyMakesValid = kResults.GetBool("WaterAdjacencyMakesValid");
 	m_bFreshWaterMakesValid = kResults.GetBool("FreshWaterMakesValid");
 	m_bRiverSideMakesValid = kResults.GetBool("RiverSideMakesValid");
@@ -872,13 +856,11 @@ int CvImprovementEntry::GetRequiresXAdjacentWater() const
 	return m_iRequiresXAdjacentWater;
 }
 
-#if defined(MOD_GLOBAL_NO_FOLLOWUP_FROM_CITIES)
 /// Units that stand on this improvement don't leave it when they attack (like from a city)
 bool CvImprovementEntry::IsNoFollowUp() const
 {
 	return m_bNoFollowUp;
 }
-#endif
 
 #if defined(MOD_GLOBAL_STACKING_RULES)
 /// Additional units that can stack in this improvement
@@ -1114,7 +1096,6 @@ void CvImprovementEntry::SetImprovementUpgrade(int i)
 	m_iImprovementUpgrade = i;
 }
 
-#if defined(MOD_GLOBAL_RELOCATION)
 bool CvImprovementEntry::IsAllowsRebaseTo() const
 {
 	return m_bAllowsRebaseTo;
@@ -1129,7 +1110,6 @@ bool CvImprovementEntry::IsAllowsAirliftTo() const
 {
 	return m_bAllowsAirliftTo;
 }
-#endif
 
 bool CvImprovementEntry::IsBlockTileSteal() const
 {
@@ -1142,21 +1122,17 @@ bool CvImprovementEntry::IsHillsMakesValid() const
 	return m_bHillsMakesValid;
 }
 
-#if defined(MOD_GLOBAL_ALPINE_PASSES)
 /// Requires mountains to be constructed
 bool CvImprovementEntry::IsMountainsMakesValid() const
 {
 	return m_bMountainsMakesValid;
 }
-#endif
 
-#if defined(MOD_GLOBAL_PASSABLE_FORTS)
 /// Permits the tile to be passed by ships
 bool CvImprovementEntry::IsMakesPassable() const
 {
 	return m_bMakesPassable;
 }
-#endif
 
 // Requires any body of water to build
 bool CvImprovementEntry::IsWaterAdjacencyMakesValid() const

@@ -294,9 +294,7 @@ public:
 
 	int getNumResources(ResourceTypes eIndex);
 	void changeNumResources(ResourceTypes eIndex, int iChange);
-#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	void setNumResources(ResourceTypes eIndex);
-#endif
 
 	int getNumResourcesOnLand(ResourceTypes eIndex);
 	void changeNumResourcesOnLand(ResourceTypes eIndex, int iChange);

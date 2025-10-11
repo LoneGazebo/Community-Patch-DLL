@@ -3149,10 +3149,10 @@
 			<Text>A Pledge of Protection prevents this action.</Text>
 		</Row>
 		<!-- Multiplayer only -->
-		<Row Tag="TXT_KEY_CBP_DENOUNCE_HUMAN">
+		<Row Tag="TXT_KEY_DENOUNCE_HUMAN">
 			<Text>Denounce</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CBP_DENOUNCE_HUMAN_TT">
+		<Row Tag="TXT_KEY_DENOUNCE_HUMAN_TT">
 			<Text>Clicking this button will [COLOR_NEGATIVE_TEXT]DENOUNCE[ENDCOLOR] the other player.</Text>
 		</Row>
 
@@ -3327,6 +3327,11 @@
 		<!-- Unused - paradrop units cannot be killed by interceptions -->
 		<Row Tag="TXT_KEY_PARADROP_AA_KILLED">
 			<Text>Your {1_Unit} was killed by an enemy {2_EnUName}!</Text>
+		</Row>
+
+		<!-- GLOBAL_GRATEFUL_SETTLERS -->
+		<Row Tag="TXT_KEY_GRATEFUL_SETTLERS">
+			<Text>The settlers decided to join your civilization!</Text>
 		</Row>
 
 		<!-- End turn blocking message -->

@@ -374,7 +374,7 @@ public:
 
 	void DoChangeAliveStatus(bool bAlive);
 
-	void DoFirstContactWithMajor(TeamTypes eTeam, bool bSuppressMessages);
+	void DoFirstContactWithMajor(PlayerTypes eMeetingPlayer, bool bSuppressMessages);
 
 	void DoTestEndWarsVSMinors(PlayerTypes eOldAlly, PlayerTypes eNewAlly);
 
@@ -734,16 +734,11 @@ public:
 	bool CanMajorBullyUnit(PlayerTypes ePlayer);
 	bool CanMajorBullyUnit(PlayerTypes ePlayer, int iSpecifiedBullyMetric);
 	CvString GetMajorBullyUnitDetails(PlayerTypes ePlayer);
-#if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
 	CvString GetMajorBullyAnnexDetails(PlayerTypes ePlayer);
-#endif
 
 	void DoMajorBullyGold(PlayerTypes eBully, int iGold);
 	void DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType);
-
-#if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
 	void DoMajorBullyAnnex(PlayerTypes eBully);
-#endif
 	
 	void DoBulliedByMajorReaction(PlayerTypes eBully, int iInfluenceChangeTimes100);
 
@@ -798,7 +793,6 @@ public:
 	bool IsWaryOfTeam(TeamTypes eTeam) const;
 	void SetWaryOfTeam(TeamTypes eTeam, bool bValue);
 
-#if defined(MOD_BALANCE_CORE_MINORS)
 	int GetTurnLastAttacked(TeamTypes eTeam) const;
 	void SetTurnLastAttacked(TeamTypes eTeam, int iTurn);
 	int GetJerkTurnsRemaining(TeamTypes eTeam) const;
@@ -814,7 +808,7 @@ public:
 
 	bool IsSiphoned(PlayerTypes ePlayer) const;
 	void SetSiphoned(PlayerTypes ePlayer, bool bValue);
-#endif
+
 	int GetNumConsecutiveSuccessfulRiggings(PlayerTypes ePlayer) const;
 	void ChangeNumConsecutiveSuccessfulRiggings(PlayerTypes ePlayer, int iChange);
 	void ResetNumConsecutiveSuccessfulRiggings(PlayerTypes ePlayer);
@@ -876,7 +870,6 @@ private:
 
 	int m_iTurnLiberated;
 
-#if defined(MOD_BALANCE_CORE_MINORS)
 	int m_aiTurnLastAttacked[MAX_CIV_TEAMS];
 	bool m_abIgnoreJerk[MAX_CIV_TEAMS];
 	bool m_abIsMarried[MAX_MAJOR_CIVS];
@@ -887,7 +880,6 @@ private:
 	bool m_abSentUnitForQuest[MAX_MAJOR_CIVS];
 	int m_aiAssignedPlotAreaID[MAX_MAJOR_CIVS];
 	int m_aiTurnsSincePtPWarning[MAX_MAJOR_CIVS];
-#endif
 
 	PlayerTypes m_eAlly;
 	int m_iTurnAllied;

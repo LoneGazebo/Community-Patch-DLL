@@ -120,25 +120,25 @@ ALTER TABLE Units ADD TileXPOnExpend integer DEFAULT 0;
 -- EVENTS_CAN_MOVE_INTO
 ALTER TABLE Units ADD SendCanMoveIntoEvent boolean DEFAULT 0;
 
--- GLOBAL_CANNOT_EMBARK
+-- GLOBAL_CANNOT_EMBARK (integrated)
 ALTER TABLE Units ADD CannotEmbark boolean DEFAULT 0;
 
--- This unit can only be gifted by a city state as its unique unit (BALANCE_CORE_MINOR_CIV_GIFT)
+-- This unit can only be gifted by a City-State as its unique unit
 ALTER TABLE Units ADD MinorCivGift boolean DEFAULT 0;
 
--- This unit cannot be a city state's unique unit or gifted by city states at all 
+-- This unit cannot be a City-State's unique unit or gifted by City-States at all 
 ALTER TABLE Units ADD NoMinorCivGift boolean DEFAULT 0;
 
--- This unit cannot be a city state's unique unit, but can still be gifted by city states if all other requirements are met (GLOBAL_EXCLUDE_FROM_GIFTS)
-ALTER TABLE Units ADD NoMinorGifts boolean DEFAULT 0;
+-- This unit cannot be a City-State's unique unit, but can still be gifted by City-States if all other requirements are met (GLOBAL_EXCLUDE_FROM_GIFTS, integrated)
+ALTER TABLE Units ADD NoMinorCivUU boolean DEFAULT 0;
 
--- GLOBAL_MOVE_AFTER_UPGRADE
+-- GLOBAL_MOVE_AFTER_UPGRADE (integrated)
 ALTER TABLE Units ADD MoveAfterUpgrade boolean DEFAULT 0;
 
--- GLOBAL_PROMOTION_CLASSES
+-- GLOBAL_PROMOTION_CLASSES (integrated)
 ALTER TABLE Units ADD PromotionClass text REFERENCES UnitCombatInfos (Type);
 
--- GLOBAL_SEPARATE_GREAT_ADMIRAL
+-- GLOBAL_SEPARATE_GREAT_ADMIRAL (integrated)
 ALTER TABLE Units ADD CanRepairFleet boolean DEFAULT 0;
 ALTER TABLE Units ADD CanChangePort boolean DEFAULT 0;
 

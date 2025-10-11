@@ -2296,7 +2296,7 @@ void CvDiplomacyAI::SelectDefaultVictoryPursuits()
 					SetPrimaryVictoryPursuit(VICTORY_PURSUIT_DOMINATION);
 					return;
 				}
-				if (MOD_BALANCE_CORE_VICTORY_GAME_CHANGES) // VP makes Cultural victory easier than Science victory
+				if (MOD_BALANCE_VP) // VP makes Culture Victory easier than Science Victory
 				{
 					if (bCanUnlockPolicies)
 					{
@@ -3178,7 +3178,7 @@ int CvDiplomacyAI::GetCultureVictoryProgress() const
 	int iLowestPercent = GetLowestTourismInfluence();
 	int iProgress = min(99,iLowestPercent);
 
-	if (MOD_BALANCE_CORE_VICTORY_GAME_CHANGES)
+	if (MOD_BALANCE_CULTURE_VICTORY_CHANGES)
 	{
 		int iPolicies = GetPlayer()->GetPlayerPolicies()->GetNumPoliciesOwned(true, true, true);
 		iPolicies = min(iPolicies, 27);
@@ -7985,7 +7985,7 @@ void CvDiplomacyAI::SetNumArtifactsEverDugUp(PlayerTypes ePlayer, int iValue)
 	ASSERT(NotMe(ePlayer), "Setting ArtifactsEverDugUp for self");
 	m_aiArtifactsEverDugUp[ePlayer] = min(iValue, UCHAR_MAX);
 
-	if (MOD_API_ACHIEVEMENTS && !GC.getGame().isGameMultiPlayer() && GET_PLAYER(ePlayer).isHuman(ISHUMAN_ACHIEVEMENTS) && ePlayer == GC.getGame().getActivePlayer())
+	if (MOD_ENABLE_ACHIEVEMENTS && !GC.getGame().isGameMultiPlayer() && GET_PLAYER(ePlayer).isHuman(ISHUMAN_ACHIEVEMENTS) && ePlayer == GC.getGame().getActivePlayer())
 	{
 		if (iValue >= 5)
 			gDLL->UnlockAchievement(ACHIEVEMENT_XP2_34);
@@ -19332,7 +19332,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 				else
 				{
 					// Weight for Open Borders
-					if ((MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS && pTheirDiplo->IsHasOpenBorders(eMyPlayer)) || (!MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS && IsHasOpenBorders(ePlayer)))
+					if ((MOD_BALANCE_FLIPPED_OPEN_BORDERS_TOURISM && pTheirDiplo->IsHasOpenBorders(eMyPlayer)) || (!MOD_BALANCE_FLIPPED_OPEN_BORDERS_TOURISM && IsHasOpenBorders(ePlayer)))
 					{
 						vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * 2;
 
@@ -24518,36 +24518,33 @@ void CvDiplomacyAI::SelectBestApproachTowardsMinorCiv(PlayerTypes ePlayer)
 		vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * 2;
 		bAnyAggressionBonus = true;
 	}
-	if (MOD_BALANCE_CORE_AFRAID_ANNEX)
+	if (pTraits->IsBullyAnnex())
 	{
-		if (pTraits->IsBullyAnnex())
+		vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * 5;
+		bAnyAggressionBonus = true;
+	}
+	if (pTraits->IgnoreBullyPenalties())
+	{
+		vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * 5;
+		bAnyAggressionBonus = true;
+	}
+	if (pTraits->GetBullyMilitaryStrengthModifier() != 0)
+	{
+		vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * 5;
+		bAnyAggressionBonus = true;
+	}
+	if (pTraits->GetBullyValueModifier() != 0)
+	{
+		vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * 5;
+		bAnyAggressionBonus = true;
+	}
+	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+	{
+		YieldTypes eYield = (YieldTypes)iI;
+		if (GetPlayer()->GetYieldFromMinorDemand(eYield) > 0)
 		{
 			vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * 5;
 			bAnyAggressionBonus = true;
-		}
-		if (pTraits->IgnoreBullyPenalties())
-		{
-			vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * 5;
-			bAnyAggressionBonus = true;
-		}
-		if (pTraits->GetBullyMilitaryStrengthModifier() != 0)
-		{
-			vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * 5;
-			bAnyAggressionBonus = true;
-		}
-		if (pTraits->GetBullyValueModifier() != 0)
-		{
-			vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * 5;
-			bAnyAggressionBonus = true;
-		}
-		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-		{
-			YieldTypes eYield = (YieldTypes)iI;
-			if (GetPlayer()->GetYieldFromMinorDemand(eYield) > 0)
-			{
-				vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * 5;
-				bAnyAggressionBonus = true;
-			}
 		}
 	}
 
@@ -24864,13 +24861,12 @@ void CvDiplomacyAI::SelectBestApproachTowardsMinorCiv(PlayerTypes ePlayer)
 		vApproachScores[CIV_APPROACH_FRIENDLY] += bAnyFriendshipBonus ? vApproachBias[CIV_APPROACH_FRIENDLY] * 2 : vApproachBias[CIV_APPROACH_FRIENDLY];
 	}
 
-	//If this civ has a kill CS quest, then it means another CS has one too...let's compare.
-	if (GET_PLAYER(ePlayer).GetMinorCivAI()->IsActiveQuestForPlayer(eMyPlayer, MINOR_CIV_QUEST_KILL_CITY_STATE))
+	// Check for kill CS quests
+	if ((!MOD_BALANCE_QUEST_CHANGES && GET_PLAYER(ePlayer).GetMinorCivAI()->IsEnabledQuest(MINOR_CIV_QUEST_KILL_CITY_STATE)) || GET_PLAYER(ePlayer).GetMinorCivAI()->IsActiveQuestForPlayer(eMyPlayer, MINOR_CIV_QUEST_KILL_CITY_STATE))
 	{
 		for (int iMinorCivLoop = MAX_MAJOR_CIVS; iMinorCivLoop < MAX_CIV_PLAYERS; iMinorCivLoop++)
 		{
 			PlayerTypes eOtherMinor = (PlayerTypes) iMinorCivLoop;
-
 			if (IsPlayerValid(eOtherMinor) && GET_PLAYER(eOtherMinor).isMinorCiv() && GET_PLAYER(eOtherMinor).getTeam() != GET_PLAYER(ePlayer).getTeam())
 			{
 				if (GET_PLAYER(eOtherMinor).GetMinorCivAI()->IsActiveQuestForPlayer(eMyPlayer, MINOR_CIV_QUEST_KILL_CITY_STATE))
@@ -24899,23 +24895,28 @@ void CvDiplomacyAI::SelectBestApproachTowardsMinorCiv(PlayerTypes ePlayer)
 						default:
 							break;
 						}
-						int iPTV2 = GetTargetValue(eOtherMinor);
-						switch (iPTV2)
+						// If this City-State has a kill CS quest, then it means another CS has one too...
+						if (MOD_BALANCE_QUEST_CHANGES)
 						{
-							//Is the other guy also a bad target? Let's diplo them both instead.
-						case TARGET_VALUE_IMPOSSIBLE:
-						case TARGET_VALUE_BAD:
-						case TARGET_VALUE_DIFFICULT:
-						case TARGET_VALUE_AVERAGE:
-							if (bBadTarget)
+							int iPTV2 = GetTargetValue(eOtherMinor);
+							switch (iPTV2)
 							{
-								vApproachScores[CIV_APPROACH_FRIENDLY] += bAnyFriendshipBonus ? vApproachBias[CIV_APPROACH_FRIENDLY] * 4 : vApproachBias[CIV_APPROACH_FRIENDLY] * 2;
+							// Is the other guy also a bad target? Let's diplo them both instead.
+							case TARGET_VALUE_IMPOSSIBLE:
+							case TARGET_VALUE_BAD:
+							case TARGET_VALUE_DIFFICULT:
+							case TARGET_VALUE_AVERAGE:
+								if (bBadTarget)
+								{
+									vApproachScores[CIV_APPROACH_FRIENDLY] += bAnyFriendshipBonus ? vApproachBias[CIV_APPROACH_FRIENDLY] * 4 : vApproachBias[CIV_APPROACH_FRIENDLY] * 2;
+								}
+								break;
+							default:
+								break;
 							}
-							break;
-						default:
+							// Break out of the loop here if it's the modified quest, since no one else will also be targeting this CS
 							break;
 						}
-						break;
 					}
 				}
 			}
@@ -25061,6 +25062,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMinorCiv(PlayerTypes ePlayer)
 	////////////////////////////////////
 
 	bool bTheyCapturedFromUs = GetPlayer()->GetNumOurCitiesOwnedBy(ePlayer) > 0;
+	PlayerTypes eAlly = GET_PLAYER(ePlayer).GetMinorCivAI()->GetAlly();
 
 	// If we can't declare war, ignore any captures for the time being.
 	if (!GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(ePlayer).getTeam(), eMyPlayer) && !IsAtWar(ePlayer))
@@ -25097,8 +25099,6 @@ void CvDiplomacyAI::SelectBestApproachTowardsMinorCiv(PlayerTypes ePlayer)
 		// ALLIES WITH MINOR?
 		////////////////////////////////////
 
-		PlayerTypes eAlly = GET_PLAYER(ePlayer).GetMinorCivAI()->GetAlly();
-
 		if (eAlly == eMyPlayer)
 		{
 			// Disfavor conquest and bullying if they are our ally
@@ -25126,15 +25126,9 @@ void CvDiplomacyAI::SelectBestApproachTowardsMinorCiv(PlayerTypes ePlayer)
 
 	if (vApproachScores[CIV_APPROACH_HOSTILE] > 0)
 	{
-		int iBullyScore = GET_PLAYER(ePlayer).GetMinorCivAI()->CalculateBullyScore(eMyPlayer, false);
-
+		int iBullyScore = GET_PLAYER(ePlayer).GetMinorCivAI()->CalculateBullyScore(eMyPlayer, false) * 100;
 		if (iBullyScore > 0)
-		{
-			if (MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING)
-				vApproachScores[CIV_APPROACH_HOSTILE] += (iBullyScore / 5);
-			else
-				vApproachScores[CIV_APPROACH_HOSTILE] += (iBullyScore / 10);
-		}
+			vApproachScores[CIV_APPROACH_HOSTILE] += MOD_BALANCE_HEAVY_TRIBUTE ? iBullyScore / 5 : iBullyScore / 10;
 		else
 			vApproachScores[CIV_APPROACH_HOSTILE] = 0;
 	}
@@ -25239,6 +25233,16 @@ void CvDiplomacyAI::SelectBestApproachTowardsMinorCiv(PlayerTypes ePlayer)
 	else if (!bIsGoodWarTarget && !bGoodAttackTarget)
 	{
 		vApproachScores[CIV_APPROACH_WAR] = 0;
+	}
+
+	if (MOD_GLOBAL_CS_OVERSEAS_TERRITORY)
+	{
+		// Don't bother going after City-States unless they don't have an ally or we're at war with the ally.
+		if (eAlly != NO_PLAYER && !IsAtWar(eAlly))
+		{
+			vApproachScores[CIV_APPROACH_WAR] = 0;
+			bPotentialWarTarget = false;
+		}
 	}
 
 	// If we're in bad shape, don't waste time trying to go after City-States.
@@ -25521,6 +25525,42 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 		}
 	}
 
+	// Extra logic for GLOBAL_CS_OVERSEAS_TERRITORY
+	vector<PlayerTypes> vEndangeredCityStates;
+	bool bInTerribleShape = GetPlayer()->IsInTerribleShapeForWar();
+	if (MOD_GLOBAL_CS_OVERSEAS_TERRITORY && !bCriticalState && !bInTerribleShape)
+	{
+		for (int iPlayerLoop = MAX_MAJOR_CIVS; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+		{
+			PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+			if (!GET_PLAYER(eLoopPlayer).isAlive())
+				continue;
+
+			PlayerTypes eAlly = GET_PLAYER(eLoopPlayer).GetMinorCivAI()->GetAlly();
+			if (eAlly == NO_PLAYER || !IsAtWar(eAlly))
+				continue;
+
+			// Failsafe so peace is *eventually* possible
+			int iTurnsSinceCityCapture = GetPlayer()->GetNumTurnsSinceCityCapture(eLoopPlayer);
+			int iMinorWarDuration = min(GET_TEAM(GetTeam()).GetNumTurnsAtWar(GET_PLAYER(eLoopPlayer).getTeam()), iTurnsSinceCityCapture);
+			if (iMinorWarDuration >= 30)
+				continue;
+
+			// Need to check city danger here for a peace refusal check way below.
+			for (CvCity* pLoopCity = GET_PLAYER(eLoopPlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eLoopPlayer).nextCity(&iLoop))
+			{
+				if (pLoopCity->isCapital() || GET_PLAYER(pLoopCity->getOriginalOwner()).getTeam() == GetTeam() || IsTryingToLiberate(pLoopCity))
+				{
+					if ((pLoopCity->isUnderSiege() || pLoopCity->IsBlockadedWaterAndLand()) && pLoopCity->IsInDangerFromPlayers(vMyTeam))
+					{
+						vEndangeredCityStates.push_back(eLoopPlayer);
+						break;
+					}
+				}
+			}
+		}
+	}
+
 	//-----------------------------------------//
 	// [PART 2: EXTEND PEACE BLOCKS TO TEAMS]  //
 	//-----------------------------------------//
@@ -25649,7 +25689,6 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 	// [PART 5: INIT GLOBAL VARIABLES]  //
 	//----------------------------------//
 
-	bool bInTerribleShape = GetPlayer()->IsInTerribleShapeForWar();
 	bool bWorldConquest = IsGoingForWorldConquest() || IsCloseToWorldConquest();
 	bool bDiplomatic = IsGoingForDiploVictory() || IsDiplomat() || GetPlayer()->GetPlayerTraits()->IsDiplomat();
 	bool bUABonusesFromCityConquest = false;
@@ -26069,6 +26108,29 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 					RefusePeaceTreaty(vEnemyTeamMembers[i], strLogMessage);
 			}
 			continue;
+		}
+
+		// If we're fine and GLOBAL_CS_OVERSEAS_TERRITORY=1, try to capture any allied City-States of theirs we've endangered.
+		if (MOD_GLOBAL_CS_OVERSEAS_TERRITORY && !bInTerribleShape && !bAnySeriousDangerUs)
+		{
+			for (std::vector<PlayerTypes>::iterator iter = vEndangeredCityStates.begin(); iter != vEndangeredCityStates.end(); ++iter)
+			{
+				PlayerTypes eMinor = *iter;
+				PlayerTypes eAlly = GET_PLAYER(eMinor).GetMinorCivAI()->GetAlly();
+				if (eAlly == NO_PLAYER || GET_PLAYER(eAlly).getTeam() != *it)
+					continue;
+
+				CvString strLogMessage;
+				if (bLog)
+					strLogMessage.Format("No peace! Making peace will lock us out of capturing their allied City-State's city!");
+
+				for (size_t i=0; i<vEnemyTeamMembers.size(); i++)
+				{
+					if (GET_PLAYER(vEnemyTeamMembers[i]).isAlive())
+						RefusePeaceTreaty(vEnemyTeamMembers[i], strLogMessage);
+				}
+				continue;
+			}
 		}
 
 		//----------------------------------//
@@ -28388,7 +28450,7 @@ bool CvDiplomacyAI::IsWantsOpenBordersWithPlayer(PlayerTypes ePlayer)
 		return false;
 	}
 
-	if (!MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS)
+	if (!MOD_BALANCE_FLIPPED_OPEN_BORDERS_TOURISM)
 	{
 		// If going for culture win we always want open borders with civs we need influence on
 		if (IsGoingForCultureVictory())
@@ -28532,7 +28594,7 @@ bool CvDiplomacyAI::IsWillingToGiveOpenBordersToPlayer(PlayerTypes ePlayer)
 		return false;
 	}
 	
-	if (MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS)
+	if (MOD_BALANCE_FLIPPED_OPEN_BORDERS_TOURISM)
 	{
 		// If going for culture win we always want to open our borders to civs we need influence on
 		if (IsGoingForCultureVictory())
@@ -29679,7 +29741,7 @@ void CvDiplomacyAI::DoKilledByPlayer(PlayerTypes ePlayer)
 			gDLL->GameplayDiplomacyAILeaderMessage(GetID(), DIPLO_UI_STATE_BLANK_DISCUSSION, szText, LEADERHEAD_ANIM_DEFEATED);
 		}
 
-		if (MOD_API_ACHIEVEMENTS && !GC.getGame().isGameMultiPlayer())
+		if (MOD_ENABLE_ACHIEVEMENTS && !GC.getGame().isGameMultiPlayer())
 		{
 			gDLL->UnlockAchievement(ACHIEVEMENT_DESTROY_CIV);
 			CvAchievementUnlocker::AlexanderConquest(ePlayer);
@@ -32076,14 +32138,10 @@ void CvDiplomacyAI::DoContactMinorCivs()
 	bool bWantsToMarry = GetPlayer()->GetPlayerTraits()->IsDiplomaticMarriage();
 
 	// **************************
-	// Would we like to forcefully annex a minor this turn?  (Rome UA)
+	// Would we like to forcefully annex a minor this turn?
 	// **************************
 
-	bool bWantsToBullyAnnex = false;
-	if (MOD_BALANCE_CORE_AFRAID_ANNEX)
-	{
-		bWantsToBullyAnnex = GetPlayer()->GetPlayerTraits()->IsBullyAnnex();
-	}
+	bool bWantsToBullyAnnex = GetPlayer()->GetPlayerTraits()->IsBullyAnnex();
 
 	// **************************
 	// Would we like to give a gold gift this turn?
@@ -32132,7 +32190,7 @@ void CvDiplomacyAI::DoContactMinorCivs()
 		if (GetCivApproach(eMinor) > CIV_APPROACH_HOSTILE)
 			continue;
 
-		if (MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING)
+		if (MOD_BALANCE_HEAVY_TRIBUTE)
 		{
 			if (GET_PLAYER(eMinor).GetMinorCivAI()->CalculateBullyScore(GetID(), false) >= 50)
 			{
@@ -32203,16 +32261,13 @@ void CvDiplomacyAI::DoContactMinorCivs()
 	int iHappinessFlavor = GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_HAPPINESS"));
 	int iProductionFlavor = GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_PRODUCTION")) / 2;
 
-	if(MOD_BALANCE_CORE_AFRAID_ANNEX)
+	if (GetPlayer()->GetPlayerTraits()->GetBullyMilitaryStrengthModifier() != 0 || GetPlayer()->GetPlayerTraits()->GetBullyValueModifier() != 0)
 	{
-		if (GetPlayer()->GetPlayerTraits()->GetBullyMilitaryStrengthModifier() != 0 || GetPlayer()->GetPlayerTraits()->GetBullyValueModifier() != 0)
+		if (!GetPlayer()->IsEmpireUnhappy())
 		{
-			if (!GetPlayer()->IsEmpireUnhappy())
-			{
-				bWantsToBullyUnit = true;
-				bWantsToBullyGold = true;
-				bWantsToMakeGoldGift = false;
-			}
+			bWantsToBullyUnit = true;
+			bWantsToBullyGold = true;
+			bWantsToMakeGoldGift = false;
 		}
 	}
 
@@ -32777,7 +32832,7 @@ void CvDiplomacyAI::DoContactMinorCivs()
 			if (bWantsToBullyUnit && !bWantsToBuyoutThisMinor && !bWantsToMarryThisMinor && !bWantsToBullyAnnexThisMinor && !bWantsToGiveGoldToThisMinor)
 			{
 				int iValue = 100; //antonjs: todo: XML, bully threshold
-				if (MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING)
+				if (MOD_BALANCE_HEAVY_TRIBUTE)
 					iValue = pMinor->GetMinorCivAI()->CalculateBullyScore(eID, true);
 
 				if (iValue <= 0)
@@ -32788,7 +32843,7 @@ void CvDiplomacyAI::DoContactMinorCivs()
 					// Only bother if we can successfully bully
 					if (pMinor->GetMinorCivAI()->CanMajorBullyUnit(eID))
 					{
-						if (MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING)
+						if (MOD_BALANCE_HEAVY_TRIBUTE)
 						{		
 							iValue += (GET_PLAYER(eMinor).GetMinorCivAI()->GetBullyGoldAmount(GetID(), false, /*bForUnit*/ true) * iGoldFlavor) / 10;
 
@@ -32862,12 +32917,9 @@ void CvDiplomacyAI::DoContactMinorCivs()
 						}
 
 						//Do we get a bonus from this?
-						if (MOD_BALANCE_CORE_AFRAID_ANNEX)
+						if (GetPlayer()->GetPlayerTraits()->GetBullyMilitaryStrengthModifier() != 0 || GetPlayer()->GetPlayerTraits()->GetBullyValueModifier() != 0)
 						{
-							if (GetPlayer()->GetPlayerTraits()->GetBullyMilitaryStrengthModifier() != 0 || GetPlayer()->GetPlayerTraits()->GetBullyValueModifier() != 0)
-							{
-								iValue += 25;
-							}
+							iValue += 25;
 						}
 						for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 						{
@@ -32903,7 +32955,7 @@ void CvDiplomacyAI::DoContactMinorCivs()
 			if(bWantsToBullyGold && !bWantsToBuyoutThisMinor && !bWantsToMarryThisMinor && !bWantsToBullyAnnexThisMinor && !bWantsToGiveGoldToThisMinor && !bWantsToBullyUnitFromThisMinor)
 			{
 				int iValue = 100; //antonjs: todo: XML, bully threshold
-				if (MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING)
+				if (MOD_BALANCE_HEAVY_TRIBUTE)
 					iValue = pMinor->GetMinorCivAI()->CalculateBullyScore(eID, false);
 
 				if (iValue <= 0)
@@ -32912,7 +32964,7 @@ void CvDiplomacyAI::DoContactMinorCivs()
 				if(eApproach == CIV_APPROACH_HOSTILE)
 				{
 					// Only bother if we can successfully bully
-					if (pMinor->GetMinorCivAI()->CanMajorBullyGold(eID, MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING ? iValue - 25 : 0))
+					if (pMinor->GetMinorCivAI()->CanMajorBullyGold(eID, MOD_BALANCE_HEAVY_TRIBUTE ? iValue - 25 : 0))
 					{
 						iValue += (GET_PLAYER(eMinor).GetMinorCivAI()->GetBullyGoldAmount(GetID()) * iGoldFlavor) / 10;
 						// We like to keep bullying the same minor
@@ -32935,12 +32987,9 @@ void CvDiplomacyAI::DoContactMinorCivs()
 						//antonjs: consider: distance to other majors
 
 						//Do we get a bonus from this?
-						if (MOD_BALANCE_CORE_AFRAID_ANNEX)
+						if (GetPlayer()->GetPlayerTraits()->GetBullyMilitaryStrengthModifier() != 0 || GetPlayer()->GetPlayerTraits()->GetBullyValueModifier() != 0)
 						{
-							if (GetPlayer()->GetPlayerTraits()->GetBullyMilitaryStrengthModifier() != 0 || GetPlayer()->GetPlayerTraits()->GetBullyValueModifier() != 0)
-							{
-								iValue += 25;
-							}
+							iValue += 25;
 						}
 
 						// If we are getting a bonus, don't mess that up!
@@ -37736,7 +37785,7 @@ const char* CvDiplomacyAI::GetDiploStringForMessage(DiploMessageTypes eDiploMess
 		
 	// Human is influential over the AI - defeat message based on era
 	case DIPLO_MESSAGE_YOUR_CULTURE_INFLUENTIAL:
-		if (MOD_BALANCE_CORE_DIPLOMACY_ERA_INFLUENCE)
+		if (MOD_COREUI_DIPLOMACY_ERA_INFLUENCE)
 		{
 			if (eCurrentEra <= 1)
 			{
@@ -37763,7 +37812,7 @@ const char* CvDiplomacyAI::GetDiploStringForMessage(DiploMessageTypes eDiploMess
 	
 	// AI is influential over human - victory message based on era
 	case DIPLO_MESSAGE_OUR_CULTURE_INFLUENTIAL:
-		if (MOD_BALANCE_CORE_DIPLOMACY_ERA_INFLUENCE)
+		if (MOD_COREUI_DIPLOMACY_ERA_INFLUENCE)
 		{
 			if (eCurrentEra <= 1)
 			{
@@ -39690,7 +39739,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 
 			if (bActivePlayer)
 			{
-				if (MOD_API_ACHIEVEMENTS)
+				if (MOD_ENABLE_ACHIEVEMENTS)
 				{
 					if (GET_PLAYER(eFromPlayer).GetEspionage()->HasSharedIntrigueAboutMe(eMyPlayer))
 						gDLL->UnlockAchievement(ACHIEVEMENT_XP1_37);

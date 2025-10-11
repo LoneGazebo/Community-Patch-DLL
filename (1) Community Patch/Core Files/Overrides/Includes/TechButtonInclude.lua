@@ -10,8 +10,8 @@ local bNoTechTrading = Game.IsOption("GAMEOPTION_NO_TECH_TRADING");
 local bNoVassalage = Game.IsOption("GAMEOPTION_NO_VASSALAGE");
 
 local MOD_EVENTS_CITY_BOMBARD = Game.IsCustomModOption("EVENTS_CITY_BOMBARD")
-	and not Game.IsCustomModOption("CORE_NO_RANGED_ATTACK_FROM_CITIES")
-	and not Game.IsCustomModOption("BALANCE_CORE_BOMBARD_RANGE_BUILDINGS");
+	and not Game.IsCustomModOption("BALANCE_NO_CITY_RANGED_ATTACK")
+	and not Game.IsCustomModOption("BALANCE_BOMBARD_RANGE_BUILDINGS");
 
 local L = Locale.Lookup;
 local VP = MapModData and MapModData.VP or VP;

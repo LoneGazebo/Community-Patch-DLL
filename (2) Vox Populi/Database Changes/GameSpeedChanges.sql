@@ -9,10 +9,12 @@ SET
 	DealDuration = 30,
 	InstantYieldPercent = 75,
 	DifficultyBonusPercent = 75,
+	ExperiencePercent = 67,
 	SpyRatePercent = 67,
 	ResearchPercent = 67,
 	StartingHappiness = 0,
-	GoldenAgePercent = 67
+	GoldenAgePercent = 67,
+	TradeRouteSpeedMod = 67
 WHERE Type = 'GAMESPEED_QUICK';
 
 UPDATE GameSpeeds
@@ -26,10 +28,12 @@ SET
 	DealDuration = 50,
 	InstantYieldPercent = 100,
 	DifficultyBonusPercent = 100,
+	ExperiencePercent = 100,
 	SpyRatePercent = 100,
 	ResearchPercent = 100,
 	StartingHappiness = 0,
-	GoldenAgePercent = 100
+	GoldenAgePercent = 100,
+	TradeRouteSpeedMod = 100
 WHERE Type = 'GAMESPEED_STANDARD';
 
 UPDATE GameSpeeds
@@ -43,10 +47,12 @@ SET
 	DealDuration = 70,
 	InstantYieldPercent = 150,
 	DifficultyBonusPercent = 150,
+	ExperiencePercent = 150,
 	SpyRatePercent = 150,
 	ResearchPercent = 150,
 	StartingHappiness = 1,
-	GoldenAgePercent = 150
+	GoldenAgePercent = 150,
+	TradeRouteSpeedMod = 150
 WHERE Type = 'GAMESPEED_EPIC';
 
 UPDATE GameSpeeds
@@ -60,8 +66,10 @@ SET
 	DealDuration = 100,
 	InstantYieldPercent = 200,
 	DifficultyBonusPercent = 200,
+	ExperiencePercent = 300,
 	SpyRatePercent = 300,
 	ResearchPercent = 300,
 	StartingHappiness = 2,
-	GoldenAgePercent = 300
+	GoldenAgePercent = 300,
+	TradeRouteSpeedMod = 300
 WHERE Type = 'GAMESPEED_MARATHON';

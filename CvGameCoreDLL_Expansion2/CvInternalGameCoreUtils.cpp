@@ -60,20 +60,15 @@ int limitedWonderClassLimit(const CvBuildingClassInfo& kBuildingClass)
 	return bIsLimited ? iCount : -1;
 }
 //------------------------------------------------------------------------------
-#if defined(MOD_TRADE_WONDER_RESOURCE_ROUTES)
 ResourceTypes getWonderResource()
 {
 	// Find the wonder resource, we don't assume it's Marble, but we do assume there's only one
-	for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++) {
+	for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+	{
 		const ResourceTypes eResource = static_cast<ResourceTypes>(iResourceLoop);
-		CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
-		if (pkResource) {
-			if (pkResource->getWonderProductionMod() != 0) {
-				return eResource;
-			}
-		}
+		if (GC.getResourceInfo(eResource)->getWonderProductionMod() != 0)
+			return eResource;
 	}
 	
 	return NO_RESOURCE;
 }
-#endif

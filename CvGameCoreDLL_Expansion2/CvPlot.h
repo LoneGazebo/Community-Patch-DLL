@@ -130,9 +130,7 @@ public:
 	bool isDeepWater() const;
 	bool isShallowWater() const;
 	bool isAdjacentToShallowWater() const;
-#if defined(MOD_PROMOTIONS_CROSS_ICE)
 	bool isAdjacentToIce() const;
-#endif
 	CvLandmass* GetLargestAdjacentWater() const;
 	CvArea* GetLargestAdjacentWaterArea() const;
 
@@ -1058,7 +1056,6 @@ struct PrSortByPlotIndex
 	bool operator()(const CvPlot* lhs, const CvPlot* rhs) const { return lhs->GetPlotIndex() < rhs->GetPlotIndex(); }
 };
 
-#if defined(MOD_BALANCE_CORE_MILITARY)
 struct SPlotWithScore
 {
 	SPlotWithScore() {}
@@ -1103,6 +1100,5 @@ struct SPlotWithTwoScoresL2
 };
 FDataStream& operator<<(FDataStream&, const SPlotWithTwoScoresL2&);
 FDataStream& operator>>(FDataStream&, SPlotWithTwoScoresL2&);
-#endif
 
 #endif

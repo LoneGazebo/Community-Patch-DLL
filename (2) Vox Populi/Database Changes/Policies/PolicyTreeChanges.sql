@@ -25,7 +25,7 @@ WHERE Type IN (
 
 -- Number of free tenets given to first ideology adopters
 UPDATE PolicyBranchTypes
-SET FirstAdopterFreePolicies = 1
+SET FirstAdopterFreePolicies = 0, SecondAdopterFreePolicies = 0
 WHERE Type IN (
 	'POLICY_BRANCH_FREEDOM',
 	'POLICY_BRANCH_ORDER',

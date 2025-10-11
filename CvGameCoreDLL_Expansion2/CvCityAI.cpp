@@ -205,7 +205,6 @@ void CvCityAI::AI_ChangeNumPlotsAcquiredByOtherPlayer(PlayerTypes ePlayer, int i
 		m_mapPlotsAcquiredByOtherPlayers.erase(ePlayer);
 }
 
-#if defined(MOD_BALANCE_CORE_EVENTS)
 void CvCityAI::AI_DoEventChoice(CityEventTypes eChosenEvent)
 {
 	if(eChosenEvent != NO_EVENT_CITY)
@@ -349,7 +348,6 @@ void CvCityAI::AI_DoEventChoice(CityEventTypes eChosenEvent)
 		}
 	}
 }
-#endif
 
 template<typename CityAI, typename Visitor>
 void CvCityAI::Serialize(CityAI& cityAI, Visitor& visitor)

@@ -333,7 +333,7 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nMinCandidat
 	if (reachablePlots.empty())
 		return NULL;
 
-	bool bCanPopGoody = !MOD_BALANCE_CORE_GOODY_RECON_ONLY || pUnit->GetGainsXPFromScouting() || pUnit->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_RECON", true);
+	bool bCanPopGoody = !MOD_BALANCE_RECON_ONLY_ANCIENT_RUINS || pUnit->GetGainsXPFromScouting() || pUnit->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_RECON", true);
 
 	int iValidCandidates = 0;
 	for (size_t idx = 0; idx < vPlotByDistance.size(); idx++)
@@ -717,11 +717,11 @@ void CvHomelandAI::PlotHealMoves()
 	ClearCurrentMoveUnits(AI_HOMELAND_MOVE_HEAL);
 
 	// Loop through all recruited units
-	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
+	for (list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
 		//this is very simple, we know there are no enemies around, else tactical AI would have kicked in
-		if(pUnit && !pUnit->isHuman(ISHUMAN_AI_UNITS) && pUnit->IsHurt() && !pUnit->IsCannotHeal())
+		if (pUnit && !pUnit->isHuman(ISHUMAN_AI_UNITS) && pUnit->IsHurt() && !pUnit->IsCannotHeal(/*bConsiderResourceShortage*/ false))
 		{
 			//workers may get hurt a bit while working in dangerous terrain
 			if (pUnit->IsCivilianUnit() && pUnit->GetDanger() == 0)
@@ -739,7 +739,7 @@ void CvHomelandAI::PlotHealMoves()
 			unit.SetID(pUnit->GetID());
 			m_CurrentMoveUnits.push_back(unit);
 
-			if(GC.getLogging() && GC.getAILogging())
+			if (GC.getLogging() && GC.getAILogging())
 			{
 				CvString strLogString;
 				CvString strTemp;
@@ -751,7 +751,7 @@ void CvHomelandAI::PlotHealMoves()
 		}
 	}
 
-	if(m_CurrentMoveUnits.size() > 0)
+	if (m_CurrentMoveUnits.size() > 0)
 	{
 		ExecuteHeals();
 	}
@@ -1260,7 +1260,7 @@ bool CvHomelandAI::SendUnitGift(DomainTypes eDomain)
 
 				if (pUnit->CanDistanceGift(eBestGiftTarget) && pUnit->canUseForAIOperation())
 				{
-					// Check tech - don't gift obsolete units as we'll lose the Influence bonus if it's upgraded
+					// Check tech - don't gift obsolete units as we don't want them to be disbanded
 					UnitTypes eUpgradeUnitType = pUnit->GetUpgradeUnitType();
 					if (eUpgradeUnitType != NO_UNIT)
 					{
@@ -1293,21 +1293,12 @@ bool CvHomelandAI::SendUnitGift(DomainTypes eDomain)
 			{
 				CvUnit* pUnit = m_pPlayer->getUnit(*it);
 				CvUnitEntry* pkUnitInfo = GC.getUnitInfo(pUnit->getUnitType());
-				CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo((UnitClassTypes)pkUnitInfo->GetUnitClassType());
 
 				// Don't send weak units, we don't want them to be disbanded
 				if ((pkUnitInfo->GetPower() * 100) < iStrongestUnitComparison)
 					continue;
 
 				int iXP = pUnit->getExperienceTimes100();
-
-				// Unique units last longer before upgrading, so they'll give us a longer Influence bonus
-				if (pUnit->getUnitType() != pkUnitClassInfo->getDefaultUnitIndex())
-				{
-					iXP /= 2;
-					iXP -= 1;
-				}
-
 				if (iXP < iLowestXP)
 				{
 					pGiftedUnit = m_pPlayer->getUnit(*it);
@@ -2477,7 +2468,7 @@ bool CvHomelandAI::ExecuteExplorerMoves(CvUnit* pUnit)
 
 	//moveflags should be the same everywhere so we can reuse paths
 	int iMoveFlags = CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE | CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER | CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED;
-	bool bCanPopGoody = !MOD_BALANCE_CORE_GOODY_RECON_ONLY || pUnit->GetGainsXPFromScouting() || pUnit->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_RECON", true);
+	bool bCanPopGoody = !MOD_BALANCE_RECON_ONLY_ANCIENT_RUINS || pUnit->GetGainsXPFromScouting() || pUnit->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_RECON", true);
 	CvPlot* pOldPlot = pUnit->plot();
 
 	//step 1: check if there's a really good plot relatively nearby (we don't want to ignore ancient ruins that are two turns away)
@@ -5719,16 +5710,12 @@ void CvHomelandAI::ExecuteTradeUnitMoves()
 					case TRADE_CONNECTION_PRODUCTION:
 						strLogString.Format("Establishing production trade route from %s to %s", pOriginCity->getName().c_str(), pDestCity->getName().c_str());
 						break;
-#if defined(MOD_TRADE_WONDER_RESOURCE_ROUTES)
 					case TRADE_CONNECTION_WONDER_RESOURCE:
 						strLogString.Format("Establishing wonder trade route from %s to %s", pOriginCity->getName().c_str(), pDestCity->getName().c_str());
 						break;
-#endif
-#if defined(MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES)
 					case TRADE_CONNECTION_GOLD_INTERNAL:
 						strLogString.Format("Establishing gold trade route (internal) from %s to %s", pOriginCity->getName().c_str(), pDestCity->getName().c_str());
 						break;
-#endif
 					}
 
 					LogHomelandMessage(strLogString);
@@ -6289,7 +6276,7 @@ bool CvHomelandAI::IsValidExplorerEndTurnPlot(const CvUnit* pUnit, CvPlot* pPlot
 	}
 
 	//don't target goody huts if we can't claim them with this unit
-	if (MOD_BALANCE_CORE_GOODY_RECON_ONLY && pPlot->isRevealedGoody(pUnit->getTeam()))
+	if (MOD_BALANCE_RECON_ONLY_ANCIENT_RUINS && pPlot->isRevealedGoody(pUnit->getTeam()))
 	{
 		if (pUnit->getUnitCombatType() != (UnitCombatTypes) GC.getInfoTypeForString("UNITCOMBAT_RECON", true) && !pUnit->IsGainsXPFromScouting())
 			return false;
@@ -6398,8 +6385,6 @@ void CvHomelandAI::ClearCurrentMoveUnits(AIHomelandMove eNextMove)
 	m_CurrentMoveUnits.clear();
 }
 
-#if defined(MOD_BALANCE_CORE_MILITARY)
-
 bool CvHomelandAI::MoveToTargetButDontEndTurn(CvUnit* pUnit, CvPlot* pTargetPlot, int iFlags)
 {
 	if(pUnit->GeneratePath(pTargetPlot,iFlags))
@@ -6490,7 +6475,6 @@ void CHomelandUnitArray::push_back(const CvHomelandUnit& unit)
 {
 	m_vec.push_back(unit);
 }
-#endif
 
 // HELPER FUNCTIONS
 

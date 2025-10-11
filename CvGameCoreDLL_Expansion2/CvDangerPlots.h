@@ -22,7 +22,7 @@ typedef std::set<std::pair<PlayerTypes,int>> UnitSet;
 //todo: return more information on top of the total danger
 //might help to make better decisions in tactical AI
 //alternatively: try to check whether attacks are mutually exclusive b/c of units blocking each other
-//unfortunately MOD_CORE_TWO_PASS_DANGER doesn't really work well if blocking units move ...
+//unfortunately MOD_COMBATAI_TWO_PASS_DANGER doesn't really work well if blocking units move ...
 //wild idea: run a reverse tactsim for the enemy first and use that to find our most endangered units
 struct UnitDangerEstimate
 {

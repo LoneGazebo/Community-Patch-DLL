@@ -2786,7 +2786,7 @@ int CvCityCitizens::GetSpecialistRate(SpecialistTypes eSpecialist, CvString* too
 	}
 
 	int iGPPFromMonopolies = 0;
-	if (MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	if (MOD_BALANCE_RESOURCE_MONOPOLIES)
 	{
 		iGPPFromMonopolies = GetPlayer()->getSpecificGreatPersonRateChangeFromMonopoly(eGreatPerson) * 100;
 	}
@@ -3767,7 +3767,7 @@ void SPrecomputedExpensiveNumbers::update(CvCity* pCity, bool bInsideLoop)
 		iBasicNeedsRateChangeForIncreasedDistress = -INT_MAX;
 		iBasicNeedsRateChangeForIncreasedDistress = -INT_MAX;
 		iBasicNeedsRateChangeForIncreasedDistress = -INT_MAX;
-		int iLimit = MOD_BALANCE_CORE_UNCAPPED_UNHAPPINESS ? INT_MAX : pCity->getPopulation();
+		int iLimit = MOD_BALANCE_UNCAPPED_UNHAPPINESS ? INT_MAX : pCity->getPopulation();
 		if (iDistress < iLimit)
 		{
 			// for additional distress to count, it must get us over the flat reduction threshold

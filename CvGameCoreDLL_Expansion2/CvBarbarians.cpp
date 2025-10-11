@@ -342,7 +342,7 @@ void CvBarbarians::DoBarbCampCleared(CvPlot* pPlot, PlayerTypes ePlayer, CvUnit*
 				CancelActivePlayerEndTurn();
 
 				//Increment Stat
-				if (MOD_API_ACHIEVEMENTS && kPlayer.isHuman(ISHUMAN_ACHIEVEMENTS) && !GC.getGame().isGameMultiPlayer())
+				if (MOD_ENABLE_ACHIEVEMENTS && kPlayer.isHuman(ISHUMAN_ACHIEVEMENTS) && !GC.getGame().isGameMultiPlayer())
 				{
 					gDLL->IncrementSteamStatAndUnlock(ESTEAMSTAT_BARBARIANCAMPS, 100, ACHIEVEMENT_100CAMPS);
 				}
@@ -383,7 +383,7 @@ void CvBarbarians::DoBarbCityCleared(CvPlot* pPlot)
 //return false if stealing is impossible and the unit should do something else instead
 bool CvBarbarians::DoStealFromCity(CvUnit* pUnit, CvCity* pCity)
 {
-	if (!MOD_BALANCE_CORE_BARBARIAN_THEFT)
+	if (!MOD_BALANCE_BARBARIAN_THEFT)
 		return false;
 
 	if (!pUnit || !pUnit->IsCanAttack() || !pCity)

@@ -25,7 +25,6 @@
 #pragma warning( disable: 4251 )		// needs to have dll-interface to be used by clients of class
 #pragma warning( disable: 4127 )
 
-#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 struct ResourceMonopolySettings
 {
 	ResourceMonopolySettings() :
@@ -78,9 +77,7 @@ struct CombatModifiers
 	int m_iAttackMod;
 	int m_iDefenseMod;
 };
-#endif
 
-#if defined(MOD_RESOURCES_PRODUCTION_COST_MODIFIERS)
 struct ProductionCostModifiers
 {
 	ProductionCostModifiers() :
@@ -93,7 +90,6 @@ struct ProductionCostModifiers
 	int m_iObsoleteEra;
 	int m_iCostModifier;
 };
-#endif
 
 class CvDatabaseUtility;
 
@@ -1397,6 +1393,7 @@ public:
 	int getTrainPercent() const;
 	int getInstantYieldPercent() const;
 	int getDifficultyBonusPercent() const;
+	int getExperiencePercent() const;
 	int getConstructPercent() const;
 	int getCreatePercent() const;
 	int getResearchPercent() const;
@@ -1423,9 +1420,7 @@ public:
 	int getSpyRatePercent() const;
 	int getPeaceDealDuration() const;
 	int getRelationshipDuration() const;
-#if defined(MOD_TRADE_ROUTE_SCALING)
 	int getTradeRouteSpeedMod() const;
-#endif
 	int getMilitaryRatingDecayPercent() const;
 	int getPietyMax() const;
 	int getPietyMin() const;
@@ -1451,6 +1446,7 @@ protected:
 	int m_iTrainPercent;
 	int m_iInstantYieldPercent;
 	int m_iDifficultyBonusPercent;
+	int m_iExperiencePercent;
 	int m_iConstructPercent;
 	int m_iCreatePercent;
 	int m_iResearchPercent;
@@ -1477,9 +1473,7 @@ protected:
 	int m_iSpyRatePercent;
 	int m_iPeaceDealDuration;
 	int m_iRelationshipDuration;
-#if defined(MOD_TRADE_ROUTE_SCALING)
 	int m_iTradeRouteSpeedMod;
-#endif
 	int m_iMilitaryRatingDecayPercent;
 	int m_iPietyMax;
 	int m_iPietyMin;
@@ -1533,7 +1527,6 @@ protected:
 FDataStream& operator<<(FDataStream&, const CvTurnTimerInfo&);
 FDataStream& operator>>(FDataStream&, CvTurnTimerInfo&);
 
-#if defined(MOD_EVENTS_DIPLO_MODIFIERS)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // CvDiploModifierInfo
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -1560,7 +1553,6 @@ protected:
 
 FDataStream& operator<<(FDataStream&, const CvDiploModifierInfo&);
 FDataStream& operator>>(FDataStream&, CvDiploModifierInfo&);
-#endif
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  class : CvBuildInfo
@@ -1573,9 +1565,7 @@ public:
 
 	int getTime() const;
 	int getCost() const;
-#if defined(MOD_CIV6_WORKER)
 	int getBuilderCost() const;
-#endif
 	int getCostIncreasePerImprovement() const;
 	int getTechPrereq() const;
 	int getTechObsolete() const;
@@ -1610,9 +1600,7 @@ public:
 protected:
 	int m_iTime;
 	int m_iCost;
-#if defined(MOD_CIV6_WORKER)
 	int m_iBuilderCost;
-#endif
 	int m_iCostIncreasePerImprovement;
 	int m_iTechPrereq;
 	bool m_bKillOnlyCivilian;
@@ -1817,7 +1805,6 @@ public:
 	int getMinAreaSize() const;
 	int getMinLatitude() const;
 	int getMaxLatitude() const;
-#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	int getMonopolyHappiness() const;
 	int getMonopolyGALength() const;
 	int getMonopolyAttackBonus() const;
@@ -1826,7 +1813,6 @@ public:
 	int getMonopolyHealBonus() const;
 	int getMonopolyXPBonus() const;
 	bool isMonopoly() const;
-#endif
 
 	bool isPresentOnAllValidPlots() const;
 	bool isOneArea() const;
@@ -1857,7 +1843,6 @@ public:
 	int* getYieldChangeArray();
 	int getImprovementChange(int i) const;
 
-#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	int getYieldChangeFromMonopoly(int i) const;
 	int* getYieldChangeFromMonopolyArray();
 
@@ -1869,8 +1854,7 @@ public:
 
 	int getMonopolyGreatPersonRateModifier(SpecialistTypes eSpecialist, MonopolyTypes eMonopoly) const;
 	int getMonopolyGreatPersonRateChange(SpecialistTypes eSpecialist, MonopolyTypes eMonopoly) const;
-#endif
-#if defined(MOD_RESOURCES_PRODUCTION_COST_MODIFIERS)
+
 	bool isHasUnitCombatProductionCostModifiersLocal() const;
 	int getUnitCombatProductionCostModifiersLocal(UnitCombatTypes eUnitCombat, EraTypes eUnitEra) const;
 	std::vector<ProductionCostModifiers> getUnitCombatProductionCostModifiersLocal(UnitCombatTypes eUnitCombat) const;
@@ -1878,7 +1862,6 @@ public:
 	bool isHasBuildingProductionCostModifiersLocal() const;
 	int getBuildingProductionCostModifiersLocal(EraTypes eBuildingEra) const;
 	std::vector<ProductionCostModifiers> getBuildingProductionCostModifiersLocal() const;
-#endif
 
 	int getResourceQuantityType(int i) const;
 
@@ -1903,7 +1886,6 @@ protected:
 	int m_iMinAreaSize;
 	int m_iMinLatitude;
 	int m_iMaxLatitude;
-#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	int m_iMonopolyHappiness;
 	int m_iMonopolyGALength;
 	bool m_bIsMonopoly;
@@ -1912,7 +1894,6 @@ protected:
 	int m_iMonopolyMovementBonus;
 	int m_iMonopolyHealBonus;
 	int m_iMonopolyXPBonus;
-#endif
 
 	bool m_bPresentOnAllValidPlots;
 	bool m_bOneArea;
@@ -1933,17 +1914,13 @@ protected:
 
 	// Arrays
 	int* m_piYieldChange;
-#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	int* m_piYieldChangeFromMonopoly;
 	int* m_piCityYieldModFromMonopoly;
 	std::map<ResourceMonopolySettings, CombatModifiers> m_piiMonopolyCombatModifiers;
 	std::map<MonopolyGreatPersonRateModifierKey, int> m_piMonopolyGreatPersonRateModifiers;
 	std::map<MonopolyGreatPersonRateModifierKey, int> m_piMonopolyGreatPersonRateChanges;
-#endif
-#if defined(MOD_RESOURCES_PRODUCTION_COST_MODIFIERS)
 	std::map<int, std::vector<ProductionCostModifiers>> m_piiiUnitCombatProductionCostModifiersLocal;
 	std::vector<ProductionCostModifiers> m_aiiiBuildingProductionCostModifiersLocal;
-#endif
 	int* m_piResourceQuantityTypes;
 	int* m_piImprovementChange;
 
@@ -2065,9 +2042,7 @@ protected:
 	bool m_bNukeImmune;
 	bool m_bRough;
 	bool m_bNaturalWonder;
-#if defined(MOD_PSEUDO_NATURAL_WONDER)
 	bool m_bPseudoNaturalWonder;
-#endif
 
 	// Set each time the game is started
 	bool m_bClearable;
@@ -2376,11 +2351,9 @@ public:
 	int getNumCitiesUnhappinessPercent() const;
 	int GetNumCitiesPolicyCostMod() const;
 	int GetNumCitiesTechCostMod() const;
-#if defined(MOD_TRADE_ROUTE_SCALING)
 	int GetNumCitiesTourismCostMod() const;
 	int GetNumCitiesUnitSupplyMod() const;
 	int getTradeRouteDistanceMod() const;
-#endif
 	int getMinDistanceCities() const;
 	int getMinDistanceCityStates() const;
 	int getReformationPercent() const;
@@ -2422,11 +2395,9 @@ protected:
 	int m_iNumCitiesUnhappinessPercent;
 	int m_iNumCitiesPolicyCostMod;
 	int m_iNumCitiesTechCostMod;
-#if defined(MOD_TRADE_ROUTE_SCALING)
 	int m_iNumCitiesTourismCostMod;
 	int m_iNumCitiesUnitSupplyMod;
 	int m_iTradeRouteDistanceMod;
-#endif
 	int m_iMinDistanceCities;
 	int m_iMinDistanceCityStates;
 	int m_iReformationPercent;
@@ -2565,9 +2536,7 @@ public:
 	int getRequiredPolicy() const;
 	int getDefenseValue() const;
 
-#if defined(MOD_CIVILIZATIONS_UNIQUE_PROCESSES)
 	CivilizationTypes GetRequiredCivilization() const;
-#endif
 
 	// Arrays
 	int getProductionToYieldModifier(int i) const;
@@ -2580,9 +2549,7 @@ protected:
 	int m_iRequiredPolicy;
 	int m_iDefenseValue;
 
-#if defined(MOD_CIVILIZATIONS_UNIQUE_PROCESSES)
 	CivilizationTypes m_eRequiredCivilization;
-#endif
 
 	// Arrays
 	int* m_paiProductionToYieldModifier;
@@ -2902,7 +2869,6 @@ private:
 	CvVoteSourceInfo& operator=(const CvVoteSourceInfo&);
 };
 
-#if defined(MOD_BALANCE_CORE_EVENTS)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  class : CvEventLinkingInfo
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -3864,8 +3830,6 @@ private:
 	CvModEventCityChoiceInfo(const CvModEventCityChoiceInfo&);
 	CvModEventCityChoiceInfo& operator=(const CvModEventCityChoiceInfo&);
 };
-
-#endif
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  class : CvDomainInfo

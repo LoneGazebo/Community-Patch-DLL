@@ -7,18 +7,14 @@
 CvPlotInfo::CvPlotInfo() :
 	m_bWater(false),
 	m_bImpassable(false),
-#if defined(MOD_PLOTS_EXTENSIONS)
 	m_pppiAdjacentFeatureYieldChange(),
-#endif
 	m_piYields(NULL)
 {
 }
 
 CvPlotInfo::~CvPlotInfo()
 {
-#if defined(MOD_PLOTS_EXTENSIONS)
 	m_pppiAdjacentFeatureYieldChange.clear();
-#endif
 	SAFE_DELETE_ARRAY(m_piYields);
 }
 
@@ -39,7 +35,6 @@ int CvPlotInfo::getYield(int i) const
 	return m_piYields ? m_piYields[i] : -1;
 }
 
-#if defined(MOD_PLOTS_EXTENSIONS)
 //------------------------------------------------------------------------------
 int CvPlotInfo::GetAdjacentFeatureYieldChange(FeatureTypes eFeature, YieldTypes eYield, bool bNaturalWonderPlot) const
 {
@@ -125,7 +120,6 @@ bool CvPlotInfo::IsAdjacentFeatureYieldChange(FeatureTypes eFeature, bool bNatur
 
 	return false;
 }
-#endif
 
 bool CvPlotInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
@@ -139,7 +133,6 @@ bool CvPlotInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kU
 	const char* szPlotType = GetType();
 	kUtility.SetYields(m_piYields, "Plot_Yields", "PlotType", szPlotType);
 
-#if defined(MOD_PLOTS_EXTENSIONS)
 	//Plot_AdjacentFeatureYieldChanges
 	{
 		std::string strKey("Plot_AdjacentFeatureYieldChanges");
@@ -169,7 +162,6 @@ bool CvPlotInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kU
 		//Trim extra memory off container since this is mostly read-only.
 		std::map<FeatureTypes, std::map<IgnoreNaturalWonders, std::map<YieldTypes, int>>>(m_pppiAdjacentFeatureYieldChange).swap(m_pppiAdjacentFeatureYieldChange);
 	}
-#endif
 
 	return true;
 }

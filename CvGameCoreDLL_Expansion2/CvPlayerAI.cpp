@@ -321,8 +321,9 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, bool bGift, bool bAllowSphereRemo
 		return;
 	}
 
-	// Burn them all to the ground! (Timurids modmod)
-	if (MOD_BALANCE_CORE_SETTLER_ADVANCED && GetPlayerTraits()->GetRazeSpeedModifier() > 0 && canRaze(pCity))
+	// Burn them all to the ground!
+	CvString szLeaderName = (CvString)getLeaderTypeKey();
+	if (szLeaderName == "LEADER_TIMUR_MOD" && canRaze(pCity))
 	{
 		pCity->doTask(TASK_RAZE);
 		return;
@@ -1043,7 +1044,6 @@ int CvPlayerAI::AI_computeHappinessFromRazing(CvCity* pCity, int iCurrentHappy, 
 	return iFutureHappiness - iCurrentHappiness;
 }
 
-#if defined(MOD_BALANCE_CORE_EVENTS)
 void CvPlayerAI::AI_DoEventChoice(EventTypes eChosenEvent)
 {
 	if(eChosenEvent != NO_EVENT)
@@ -1188,7 +1188,7 @@ void CvPlayerAI::AI_DoEventChoice(EventTypes eChosenEvent)
 		}
 	}
 }
-#endif
+
 // Protected Functions...
 
 void CvPlayerAI::AI_doResearch()
@@ -1712,7 +1712,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveScientist(CvUnit* /*pGreatScie
 GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveGeneral(CvUnit* pGreatGeneral)
 {
 	bool bHasGeneralNegation = false;
-	if (MOD_ERA_RESTRICTED_GENERALS)
+	if (MOD_BALANCE_ERA_RESTRICTED_GENERALS)
 	{
 		string GGNegationPromotions[4] = {
 			"PROMOTION_NEGATE_GENERAL",
@@ -1861,7 +1861,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveProphet(CvUnit* pUnit)
 GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveAdmiral(CvUnit* pGreatAdmiral)
 {
 	bool bHasAdmiralNegation = false;
-	if (MOD_ERA_RESTRICTED_GENERALS)
+	if (MOD_BALANCE_ERA_RESTRICTED_GENERALS)
 	{
 		string GANegationPromotions[4] = {
 			"PROMOTION_NEGATE_ADMIRAL",

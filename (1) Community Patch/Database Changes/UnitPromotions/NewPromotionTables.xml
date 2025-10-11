@@ -116,7 +116,6 @@
 	</Table>
 
 	<!-- Unit has its name changed when gaining this promotion -->
-	<!-- Needs the PROMOTIONS_UNIT_NAMING option to function -->
 	<Table name="UnitPromotions_UnitName">
 		<Column name="PromotionType" type="text" reference="UnitPromotions(Type)" notnull="true"/>
 		<Column name="UnitType" type="text" reference="Units(Type)" notnull="true"/>

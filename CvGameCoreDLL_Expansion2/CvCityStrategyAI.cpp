@@ -788,10 +788,9 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 		//Skip if null
 		if(pkBuildingInfo == NULL)
 			continue;
-		
-#if defined(MOD_BALANCE_CORE_PUPPETS_LIMITED_BUILDINGS)
+
 		//puppets will build fewer buildings
-		if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(m_pCity))
+		if (MOD_CORE_PUPPET_BUILDING_LIMITATIONS && CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(m_pCity))
 		{
 			//too new? not ok
 			if (pkBuildingInfo->GetEra() > kPlayer.GetCurrentEra() - 1)
@@ -805,7 +804,6 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 					continue;
 			}
 		}
-#endif
 
 		//automated cities won't build costly buildings when running a deficit
 		if (m_pCity->isHumanAutomated())
@@ -3149,7 +3147,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_GoodGPCity(CvCity* pCity)
 							}
 
 							// Mod for civs keeping their pantheon belief forever
-							if (MOD_RELIGION_PERMANENT_PANTHEON)
+							if (MOD_BALANCE_PERMANENT_PANTHEONS)
 							{
 								if (GC.getGame().GetGameReligions()->HasCreatedPantheon(pCity->getOwner()))
 								{

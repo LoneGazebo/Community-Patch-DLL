@@ -124,9 +124,6 @@ ALTER TABLE UnitPromotions ADD NearbyHealNeutralTerritory integer DEFAULT 0;
 ALTER TABLE UnitPromotions ADD NearbyHealFriendlyTerritory integer DEFAULT 0;
 -- End
 
--- Double Movement on Mountains
-ALTER TABLE UnitPromotions ADD MountainsDoubleMove boolean DEFAULT 0;
-
 -- Double Movement when next to Rivers
 ALTER TABLE UnitPromotions ADD RiverDoubleMove boolean DEFAULT 0;
 
@@ -292,13 +289,13 @@ ALTER TABLE UnitPromotions ADD RequiresLeadership boolean DEFAULT 0;
 -- This promotion is only effective if the unit starts its turn at or above this percentage of health
 ALTER TABLE UnitPromotions ADD MinEffectiveHealth integer DEFAULT 0;
 
--- PROMOTIONS_CROSS_ICE
+-- PROMOTIONS_CROSS_ICE (integrated)
 ALTER TABLE UnitPromotions ADD CanCrossIce boolean DEFAULT 0;
 
--- PROMOTIONS_CROSS_MOUNTAINS
+-- PROMOTIONS_CROSS_MOUNTAINS (integrated)
 ALTER TABLE UnitPromotions ADD CanCrossMountains boolean DEFAULT 0;
 
--- PROMOTIONS_CROSS_OCEANS
+-- PROMOTIONS_CROSS_OCEANS (integrated)
 ALTER TABLE UnitPromotions ADD CanCrossOceans boolean DEFAULT 0;
 
 -- PROMOTIONS_DEEP_WATER_EMBARKATION

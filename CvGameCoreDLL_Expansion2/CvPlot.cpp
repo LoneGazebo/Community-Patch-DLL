@@ -947,8 +947,6 @@ bool CvPlot::isAdjacentToShallowWater() const
 	return false;
 }
 
-
-#if defined(MOD_PROMOTIONS_CROSS_ICE)
 //	--------------------------------------------------------------------------------
 bool CvPlot::isAdjacentToIce() const
 {
@@ -967,7 +965,6 @@ bool CvPlot::isAdjacentToIce() const
 
 	return false;
 }
-#endif
 
 //	--------------------------------------------------------------------------------
 CvLandmass* CvPlot::GetLargestAdjacentWater() const
@@ -2327,20 +2324,14 @@ void CvPlot::updateSeeFromSight(bool bIncrement, bool bRecalculate)
 	int iDY = 0;
 
 	int iRange = 1 + /*1*/ GD_INT_GET(UNIT_VISIBILITY_RANGE);
-#if defined(MOD_PROMOTIONS_VARIABLE_RECON)
 	int iReconRange = 1 + /*6*/ GD_INT_GET(RECON_VISIBILITY_RANGE);
-#endif
-	for(int iPromotion = 0; iPromotion < GC.getNumPromotionInfos(); ++iPromotion)
+
+	for (int iPromotion = 0; iPromotion < GC.getNumPromotionInfos(); ++iPromotion)
 	{
 		const PromotionTypes ePromotion = static_cast<PromotionTypes>(iPromotion);
 		CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(ePromotion);
-		if(pkPromotionInfo)
-		{
-			iRange += pkPromotionInfo->GetVisibilityChange();
-#if defined(MOD_PROMOTIONS_VARIABLE_RECON)
-			iReconRange += std::max(0, pkPromotionInfo->GetReconChange());
-#endif
-		}
+		iRange += pkPromotionInfo->GetVisibilityChange();
+		iReconRange += std::max(0, pkPromotionInfo->GetReconChange());
 	}
 
 	iRange = std::max(iReconRange, iRange);
@@ -2526,7 +2517,7 @@ bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlay
 		return false;
 	}
 
-	if (MOD_GLOBAL_ALPINE_PASSES && pkImprovementInfo->IsMountainsMakesValid() && isMountain())
+	if (pkImprovementInfo->IsMountainsMakesValid() && isMountain())
 	{
 		return true;
 	}
@@ -2941,19 +2932,15 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 
 	// Repairing an Improvement that's been pillaged
 	CvBuildInfo& thisBuildInfo = *GC.getBuildInfo(eBuild);
-	if(thisBuildInfo.isRepair())
+	if (thisBuildInfo.isRepair())
 	{
-#if defined(MOD_NO_REPAIR_FOREIGN_LANDS)
-		if(MOD_NO_REPAIR_FOREIGN_LANDS)
+		if (MOD_CORE_NO_REPAIRING_FOREIGN_LANDS)
 		{
-			//Can't repair outside of owned territory.
-			if(ePlayer != NO_PLAYER && getOwner() != NO_PLAYER && getOwner() != ePlayer)
-			{
+			// Can't repair outside of owned territory.
+			if (ePlayer != NO_PLAYER && getOwner() != NO_PLAYER && getOwner() != ePlayer)
 				return false;
-			}
 		}
-#endif
-		if(IsImprovementPillaged() || IsRoutePillaged())
+		if (IsImprovementPillaged() || IsRoutePillaged())
 		{
 			bValid = true;
 		}
@@ -3449,16 +3436,8 @@ int CvPlot::getFeatureProduction(BuildTypes eBuild, PlayerTypes ePlayer, CvCity*
 		iProduction = GC.getBuildInfo(eBuild)->getFeatureProduction(getFeatureType());
 	}
 
-	if (MOD_BALANCE_CORE_SETTLER_ADVANCED)
-	{
-		iProduction *= std::max(0, (GET_PLAYER(ePlayer).getFeatureProductionModifier()));
-		iProduction /= 100;
-	}
-	else
-	{
-		iProduction *= std::max(0, (GET_PLAYER(ePlayer).getFeatureProductionModifier() + 100));
-		iProduction /= 100;
-	}
+	iProduction *= std::max(0, GET_PLAYER(ePlayer).getFeatureProductionModifier());
+	iProduction /= 100;
 
 	iProduction *= GC.getGame().getGameSpeedInfo().getFeatureProductionPercent();
 	iProduction /= 100;
@@ -4782,16 +4761,13 @@ bool CvPlot::isFortification(TeamTypes eOccupyingTeam) const
 	if (isCity())
 		return true;
 
-	if (MOD_GLOBAL_NO_FOLLOWUP_FROM_CITIES)
+	// If the attacker is in a fort or citadel or other improvement with NoFollowUp, don't advance
+	TeamTypes eOwnerTeam = getTeam();
+	ImprovementTypes eImprovement = getImprovementType();
+	if ((eOwnerTeam == NO_TEAM || eOwnerTeam == eOccupyingTeam) && eImprovement != NO_IMPROVEMENT && !IsImprovementPillaged())
 	{
-		// If the attacker is in a fort or citadel or other improvement with NoFollowUp, don't advance
-		TeamTypes eOwnerTeam = getTeam();
-		if ((eOwnerTeam == NO_TEAM || eOwnerTeam == eOccupyingTeam) && getImprovementType() != NO_IMPROVEMENT && !IsImprovementPillaged())
-		{
-			CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(getImprovementType());
-			if (pImprovementInfo && pImprovementInfo->IsNoFollowUp())
-				return true;
-		}
+		if (GC.getImprovementInfo(eImprovement)->IsNoFollowUp())
+			return true;
 	}
 
 	return false;
@@ -4799,19 +4775,19 @@ bool CvPlot::isFortification(TeamTypes eOccupyingTeam) const
 
 bool CvPlot::isCoastalCityOrPassableImprovement(PlayerTypes ePlayer, bool bCityMustBeFriendly, bool bImprovementMustBeFriendly) const
 {
-	bool bIsCity = isCity() && isCoastalLand();
 	// Good enough
-	if (bIsCity)
+	if (isCity())
 	{
+		if (isCoastalLand())
+			return false;
+
 		if (bCityMustBeFriendly)
 			return IsFriendlyTerritory(ePlayer);
-		else
-			return true;
+
+		return true;
 	}
 
-	bool bIsPassableImprovement = false;
-	if (MOD_GLOBAL_PASSABLE_FORTS)
-		bIsPassableImprovement = IsImprovementPassable() && !IsImprovementPillaged() && isOwned() && isCoastalLand();
+	bool bIsPassableImprovement = MOD_GLOBAL_PASSABLE_FORTS && isOwned() && IsImprovementPassable() && !IsImprovementPillaged() && isCoastalLand();
 
 	// Good enough
 	if (bIsPassableImprovement)
@@ -5680,11 +5656,8 @@ void CvPlot::setLandmass(int iNewValue)
 			pLandmass->ChangeCentroidY(-m_iY);
 		}
 
-#if defined(MOD_EVENTS_TERRAFORMING)
-		if (MOD_EVENTS_TERRAFORMING) {
+		if (MOD_EVENTS_TERRAFORMING)
 			GAMEEVENTINVOKE_HOOK(GAMEEVENT_TerraformingPlot, TERRAFORMINGEVENT_LANDMASS, m_iX, m_iY, 0, iNewValue, m_iLandmass, -1, -1);
-		}
-#endif
 
 		m_iLandmass = iNewValue;
 
@@ -7037,7 +7010,7 @@ bool CvPlot::isBlockaded(PlayerTypes eForPlayer)
 	if (isFriendlyUnit(eForPlayer, true, false) || isNeutralUnit(eForPlayer, true, true))
 		return false;
 
-	int iLandRange = (MOD_ADJACENT_BLOCKADE) ? 1 : 0;
+	int iLandRange = MOD_BALANCE_LAND_UNITS_ADJACENT_BLOCKADE ? 1 : 0;
 	int iRange = isWater() ? range(/*2 in CP, 1 in VP*/ GD_INT_GET(NAVAL_PLOT_BLOCKADE_RANGE),0,3) : iLandRange;
 
 	for (int i = RING0_PLOTS; i < RING_PLOTS[iRange]; i++)
@@ -7089,11 +7062,8 @@ void CvPlot::setPlotType(PlotTypes eNewValue, bool bRecalculate, bool bRebuildGr
 
 		updateSeeFromSight(false,bRecalculate);
 
-#if defined(MOD_EVENTS_TERRAFORMING)
-		if (MOD_EVENTS_TERRAFORMING) {
+		if (MOD_EVENTS_TERRAFORMING)
 			GAMEEVENTINVOKE_HOOK(GAMEEVENT_TerraformingPlot, TERRAFORMINGEVENT_PLOT, m_iX, m_iY, 0, eNewValue, m_ePlotType, -1, -1);
-		}
-#endif
 
 		m_ePlotType = eNewValue;
 
@@ -7337,11 +7307,8 @@ void CvPlot::setTerrainType(TerrainTypes eNewValue, bool bRecalculate, bool bReb
 			updateSeeFromSight(false,bRecalculate);
 		}
 
-#if defined(MOD_EVENTS_TERRAFORMING)
-		if (MOD_EVENTS_TERRAFORMING) {
+		if (MOD_EVENTS_TERRAFORMING)
 			GAMEEVENTINVOKE_HOOK(GAMEEVENT_TerraformingPlot, TERRAFORMINGEVENT_TERRAIN, m_iX, m_iY, 0, eNewValue, m_eTerrainType, -1, -1);
-		}
-#endif
 
 		m_eTerrainType = eNewValue;
 
@@ -7549,9 +7516,8 @@ void CvPlot::setFeatureType(FeatureTypes eNewValue)
 			}
 		}
 
-		if (MOD_EVENTS_TILE_IMPROVEMENTS) {
+		if (MOD_EVENTS_TILE_IMPROVEMENTS)
 			GAMEEVENTINVOKE_HOOK(GAMEEVENT_TileFeatureChanged, getX(), getY(), getOwner(), eOldFeature, eNewValue);
-		}
 	}
 }
 
@@ -7573,7 +7539,7 @@ ResourceTypes CvPlot::getResourceType(TeamTypes eTeam, bool bIgnoreTechPrereq) c
 	{
 		if(m_eResourceType != NO_RESOURCE)
 		{
-			if (MOD_BALANCE_CORE_BARBARIAN_THEFT && (getImprovementType() == GD_INT_GET(BARBARIAN_CAMP_IMPROVEMENT)))
+			if (getImprovementType() == GD_INT_GET(BARBARIAN_CAMP_IMPROVEMENT))
 				return NO_RESOURCE;
 
 			CvGame& Game = GC.getGame();
@@ -7942,12 +7908,8 @@ void CvPlot::setIsCity(bool bValue, int iCityID, int iWorkRange)
 			}
 		}
 
-#if defined(MOD_EVENTS_TERRAFORMING)
 		if (MOD_EVENTS_TERRAFORMING)
-		{
 			GAMEEVENTINVOKE_HOOK(GAMEEVENT_TerraformingPlot, TERRAFORMINGEVENT_CITY, m_iX, m_iY, 0, -1, getOwner(), -1, getOwningCityID());
-		}
-#endif
 	}
 	
 	//setting flag
@@ -7983,12 +7945,8 @@ void CvPlot::setIsCity(bool bValue, int iCityID, int iWorkRange)
 			SetPlayerResponsibleForRoute(NO_PLAYER);
 		}
 
-#if defined(MOD_EVENTS_TERRAFORMING)
 		if (MOD_EVENTS_TERRAFORMING)
-		{
 			GAMEEVENTINVOKE_HOOK(GAMEEVENT_TerraformingPlot, TERRAFORMINGEVENT_CITY, m_iX, m_iY, 0, getOwner(), -1, getOwningCityID(), -1);
-		}
-#endif
 	}
 
 	m_bIsCity = bValue;
@@ -8034,6 +7992,9 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 		bNewImprovementGiftFromMajor = true;
 	}
 
+	bool bArchaeologyChoicePending = false;
+	CvPlayer& kBuilder = GET_PLAYER(eBuilder);
+
 	if (eOldImprovement != eNewValue)
 	{
 		PlayerTypes eOldBuilder = GetPlayerThatBuiltImprovement();
@@ -8072,13 +8033,13 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 			CvImprovementEntry& oldImprovementEntry = *GC.getImprovementInfo(eOldImprovement);
 
 			DomainTypes eTradeRouteDomain = NO_DOMAIN;
-			if (oldImprovementEntry.IsAllowsWalkWater()) {
+			if (oldImprovementEntry.IsAllowsWalkWater())
+			{
 				eTradeRouteDomain = DOMAIN_LAND;
-#if defined(MOD_GLOBAL_PASSABLE_FORTS)
 			}
-			else if (oldImprovementEntry.IsMakesPassable()) {
+			else if (oldImprovementEntry.IsMakesPassable())
+			{
 				eTradeRouteDomain = DOMAIN_SEA;
-#endif
 			}
 
 
@@ -8293,65 +8254,47 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 			}
 		}
 
-		if(m_eImprovementType != NO_IMPROVEMENT)
+		if (m_eImprovementType != NO_IMPROVEMENT)
 		{
 			CvImprovementEntry& newImprovementEntry = *GC.getImprovementInfo(eNewValue);
-
 			ResourceTypes eArtifact = static_cast<ResourceTypes>(GD_INT_GET(ARTIFACT_RESOURCE));
 			ResourceTypes eHiddenArtifact = static_cast<ResourceTypes>(GD_INT_GET(HIDDEN_ARTIFACT_RESOURCE));
-			if (newImprovementEntry.IsPermanent() || newImprovementEntry.IsCreatedByGreatPerson())
+			bool bAntiquitySite = (getResourceType(GET_PLAYER(getOwner()).getTeam()) == eArtifact || getResourceType(GET_PLAYER(getOwner()).getTeam()) == eHiddenArtifact);
+			if (bAntiquitySite && newImprovementEntry.IsCreatedByGreatPerson())
 			{
-				if (getOwner() != NO_PLAYER && (getResourceType(GET_PLAYER(getOwner()).getTeam()) == eArtifact || getResourceType(GET_PLAYER(getOwner()).getTeam()) == eHiddenArtifact))
+				TechTypes eRequiredTech = (TechTypes)gCustomMods.getOption("GPTI_ARCHAEOLOGY_TECH", -1);
+				if (MOD_BALANCE_GPTI_ARCHAEOLOGY && getOwner() != NO_PLAYER && (eRequiredTech == NO_TECH || GET_TEAM(kBuilder.getTeam()).GetTeamTechs()->HasTech(eRequiredTech)))
 				{
-					if (MOD_BALANCE_CORE_ARCHAEOLOGY_FROM_GP && GetArchaeologicalRecord().m_eArtifactType != NO_GREAT_WORK_ARTIFACT_CLASS)
+					kBuilder.SetNumArchaeologyChoices(kBuilder.GetNumArchaeologyChoices() + 1);
+					kBuilder.GetCulture()->AddDigCompletePlot(this);
+
+					// Raiders of the Lost Ark achievement
+					if (MOD_ENABLE_ACHIEVEMENTS && kBuilder.isHuman(ISHUMAN_ACHIEVEMENTS))
 					{
-						CvPlayer& kPlayer = GET_PLAYER(getOwner());
-						kPlayer.SetNumArchaeologyChoices(kPlayer.GetNumArchaeologyChoices() + 1);
-						kPlayer.GetCulture()->AddDigCompletePlot(this);
-
-						if (kPlayer.isHuman(ISHUMAN_AI_TOURISM))
+						const char* szCivKey = kBuilder.getCivilizationTypeKey();
+						if (getOwner() != NO_PLAYER && !GC.getGame().isNetworkMultiPlayer() && strcmp(szCivKey, "CIVILIZATION_AMERICA") == 0)
 						{
-							CvNotifications* pNotifications = NULL;
-							Localization::String locString;
-							Localization::String locSummary;
-							pNotifications = kPlayer.GetNotifications();
-							if (pNotifications)
+							CvPlayer &kPlotOwner = GET_PLAYER(getOwner());
+							szCivKey = kPlotOwner.getCivilizationTypeKey();
+							if (strcmp(szCivKey, "CIVILIZATION_EGYPT") == 0)
 							{
-								CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_CHOOSE_ARCHAEOLOGY");
-								CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_CHOOSE_ARCHAEOLOGY");
-								pNotifications->Add(NOTIFICATION_CHOOSE_ARCHAEOLOGY, strBuffer, strSummary, getX(), getY(), kPlayer.GetID());
-								CancelActivePlayerEndTurn();
-							}
-
-							// Raiders of the Lost Ark achievement
-							if (MOD_API_ACHIEVEMENTS && kPlayer.isHuman(ISHUMAN_ACHIEVEMENTS))
-							{
-								const char* szCivKey = kPlayer.getCivilizationTypeKey();
-								if (getOwner() != NO_PLAYER && !GC.getGame().isNetworkMultiPlayer() && strcmp(szCivKey, "CIVILIZATION_AMERICA") == 0)
+								for (int i = 0; i < MAX_MAJOR_CIVS; i++)
 								{
-									CvPlayer &kPlotOwner = GET_PLAYER(getOwner());
-									szCivKey = kPlotOwner.getCivilizationTypeKey();
-									if (strcmp(szCivKey, "CIVILIZATION_EGYPT") == 0)
+									CvPlayer &kLoopPlayer = GET_PLAYER((PlayerTypes)i);
+									if (kLoopPlayer.GetID() != NO_PLAYER && kLoopPlayer.isAlive())
 									{
-										for (int i = 0; i < MAX_MAJOR_CIVS; i++)
+										szCivKey = kLoopPlayer.getCivilizationTypeKey();
+										if (strcmp(szCivKey, "CIVILIZATION_GERMANY"))
 										{
-											CvPlayer &kLoopPlayer = GET_PLAYER((PlayerTypes)i);
-											if (kLoopPlayer.GetID() != NO_PLAYER && kLoopPlayer.isAlive())
+											CvUnit *pLoopUnit = NULL;
+											int iUnitLoop = 0;
+											for (pLoopUnit = kLoopPlayer.firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = kLoopPlayer.nextUnit(&iUnitLoop))
 											{
-												szCivKey = kLoopPlayer.getCivilizationTypeKey();
-												if (strcmp(szCivKey, "CIVILIZATION_GERMANY"))
+												if (strcmp(pLoopUnit->getUnitInfo().GetType(), "UNIT_ARCHAEOLOGIST") == 0)
 												{
-													CvUnit *pLoopUnit = NULL;
-													int iUnitLoop = 0;
-													for (pLoopUnit = kLoopPlayer.firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = kLoopPlayer.nextUnit(&iUnitLoop))
+													if (plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), getX(), getY()) <= 2)
 													{
-														if (strcmp(pLoopUnit->getUnitInfo().GetType(), "UNIT_ARCHAEOLOGIST") == 0)
-														{
-															if (plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), getX(), getY()) <= 2)
-															{
-																gDLL->UnlockAchievement(ACHIEVEMENT_XP2_33);
-															}
-														}
+														gDLL->UnlockAchievement(ACHIEVEMENT_XP2_33);
 													}
 												}
 											}
@@ -8360,22 +8303,31 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 								}
 							}
 						}
-						else
+					}
+
+					if (kBuilder.isHuman(ISHUMAN_AI_TOURISM))
+					{
+						CvNotifications* pNotifications = NULL;
+						Localization::String locString;
+						Localization::String locSummary;
+						pNotifications = kBuilder.GetNotifications();
+						if (pNotifications)
 						{
-							ArchaeologyChoiceType eChoice = kPlayer.GetCulture()->GetArchaeologyChoice(this);
-							kPlayer.GetCulture()->DoArchaeologyChoice(eChoice);
+							CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_CHOOSE_ARCHAEOLOGY");
+							CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_CHOOSE_ARCHAEOLOGY");
+							pNotifications->Add(NOTIFICATION_CHOOSE_ARCHAEOLOGY, strBuffer, strSummary, getX(), getY(), kBuilder.GetID());
+							CancelActivePlayerEndTurn();
 						}
 					}
 					else
-					{
-						ClearArchaeologicalRecord();
-					}
+						bArchaeologyChoicePending = true;
 				}
-				else if (getResourceType() == eArtifact || getResourceType() == eHiddenArtifact)
-				{
+				else
 					ClearArchaeologicalRecord();
-				}
 			}
+			else if (bAntiquitySite && newImprovementEntry.IsPermanent())
+				ClearArchaeologicalRecord();
+
 			if (newImprovementEntry.GetHappinessOnConstruction() != 0 && eBuilder != NO_PLAYER)
 			{
 				GET_TEAM(GET_PLAYER(eBuilder).getTeam()).ChangeNumLandmarksBuilt(newImprovementEntry.GetHappinessOnConstruction());
@@ -8568,7 +8520,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				pOwningCity->ChangeImprovementCount(eNewValue, 1);
 
 				//DLC_04 Achievement
-				if (MOD_API_ACHIEVEMENTS)
+				if (MOD_ENABLE_ACHIEVEMENTS)
 				{
 					if (owningPlayerID == GC.getGame().getActivePlayer() && strncmp(newImprovementEntry.GetType(), "IMPROVEMENT_MOTTE_BAILEY", 64) == 0)
 					{
@@ -8860,6 +8812,13 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				setImprovementType(NO_IMPROVEMENT);
 			}
 		}
+	}
+
+	// Do the AI's dig site choice at the very end since it could replace the tile with a Landmark, so it's better to do that after all the other code updating things has run
+	if (bArchaeologyChoicePending)
+	{
+		ArchaeologyChoiceType eChoice = kBuilder.GetCulture()->GetArchaeologyChoice(this);
+		kBuilder.GetCulture()->DoArchaeologyChoice(eChoice);
 	}
 }
 
@@ -9217,11 +9176,8 @@ void CvPlot::setRouteType(RouteTypes eNewValue, PlayerTypes eBuilder)
 
 		updateYield();
 
-#if defined(MOD_EVENTS_TILE_IMPROVEMENTS)
-		if (MOD_EVENTS_TILE_IMPROVEMENTS) {
+		if (MOD_EVENTS_TILE_IMPROVEMENTS)
 			GAMEEVENTINVOKE_HOOK(GAMEEVENT_TileRouteChanged, getX(), getY(), getOwner(), eOldRoute, eNewValue, IsRoutePillaged());
-		}
-#endif
 	}
 }
 
@@ -9234,7 +9190,7 @@ bool CvPlot::IsRoutePillaged() const
 //	--------------------------------------------------------------------------------
 void CvPlot::SetRoutePillaged(bool bPillaged, bool bEvents)
 {
-	if(m_bRoutePillaged != bPillaged)
+	if (m_bRoutePillaged != bPillaged)
 	{
 		for(int iI = 0; iI < MAX_TEAMS; ++iI)
 		{
@@ -9247,21 +9203,16 @@ void CvPlot::SetRoutePillaged(bool bPillaged, bool bEvents)
 			}
 		}
 	}
-#if defined(MOD_EVENTS_TILE_IMPROVEMENTS)
 	else
 	{
 		bEvents = false;
 	}
-#endif
 
 	//city connections will be recalculated on turn start for each player!
 	m_bRoutePillaged = bPillaged;
 
-#if defined(MOD_EVENTS_TILE_IMPROVEMENTS)
-	if (bEvents && MOD_EVENTS_TILE_IMPROVEMENTS) {
+	if (bEvents && MOD_EVENTS_TILE_IMPROVEMENTS)
 		GAMEEVENTINVOKE_HOOK(GAMEEVENT_TileRouteChanged, getX(), getY(), getOwner(), getRouteType(), getRouteType(), IsRoutePillaged());
-	}
-#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -9341,13 +9292,11 @@ void CvPlot::SetPlayerResponsibleForImprovement(PlayerTypes eNewValue)
 						GET_PLAYER(eOldValue).GetTreasury()->ChangeBaseImprovementGoldMaintenance(-pkImprovementInfo->GetGoldMaintenance());
 					}
 
-#if defined(MOD_IMPROVEMENTS_EXTENSIONS)
 					if (MOD_IMPROVEMENTS_EXTENSIONS)
 					{
 						// Remember how many improvements we are responsible for (for UI)
 						GET_PLAYER(eOldValue).changeResponsibleForImprovementCount(eImprovement, -1);
 					}
-#endif
 				}
 
 				if (eNewValue != NO_PLAYER)
@@ -9358,13 +9307,11 @@ void CvPlot::SetPlayerResponsibleForImprovement(PlayerTypes eNewValue)
 						GET_PLAYER(eNewValue).GetTreasury()->ChangeBaseImprovementGoldMaintenance(pkImprovementInfo->GetGoldMaintenance());
 					}
 
-#if defined(MOD_IMPROVEMENTS_EXTENSIONS)
 					if (MOD_IMPROVEMENTS_EXTENSIONS)
 					{
 						// Remember how many improvements we are responsible for (for UI)
 						GET_PLAYER(eNewValue).changeResponsibleForImprovementCount(eImprovement, 1);
 					}
-#endif
 				}
 
 				if (MOD_IMPROVEMENTS_EXTENSIONS)
@@ -9424,13 +9371,11 @@ void CvPlot::SetPlayerResponsibleForRoute(PlayerTypes eNewValue)
 						GET_PLAYER(eOldValue).GetTreasury()->ChangeBaseImprovementGoldMaintenance(-pkRouteInfo->GetGoldMaintenance());
 					}
 
-#if defined(MOD_IMPROVEMENTS_EXTENSIONS)
 					if (MOD_IMPROVEMENTS_EXTENSIONS)
 					{
 						// Remember how many routes we are responsible for (for UI)
 						GET_PLAYER(eOldValue).changeResponsibleForRouteCount(eRoute, -1);
 					}
-#endif
 				}
 
 				if (eNewValue != NO_PLAYER)
@@ -9441,13 +9386,11 @@ void CvPlot::SetPlayerResponsibleForRoute(PlayerTypes eNewValue)
 						GET_PLAYER(eNewValue).GetTreasury()->ChangeBaseImprovementGoldMaintenance(pkRouteInfo->GetGoldMaintenance());
 					}
 
-#if defined(MOD_IMPROVEMENTS_EXTENSIONS)
 					if (MOD_IMPROVEMENTS_EXTENSIONS)
 					{
 						// Remember how many routes we are responsible for (for UI)
 						GET_PLAYER(eNewValue).changeResponsibleForRouteCount(eRoute, 1);
 					}
-#endif
 				}
 
 				if (MOD_IMPROVEMENTS_EXTENSIONS)
@@ -9887,7 +9830,7 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, Feature
 		if (eYield == YIELD_PRODUCTION && eTerrain == TERRAIN_DESERT && !isHills() && eFeature == NO_FEATURE)
 		{
 			if (eResource != NO_RESOURCE && eImprovement != NO_IMPROVEMENT)
-				iYield += /*0*/ GD_INT_GET(BALANCE_CORE_PRODUCTION_DESERT_IMPROVEMENT);
+				iYield += /*0*/ GD_INT_GET(BALANCE_PRODUCTION_DESERT_IMPROVEMENT);
 		}
 	}
 
@@ -9994,43 +9937,17 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, Feature
 		if (MOD_BALANCE_VP)
 		{
 			iYield = pkYieldInfo->getMinCity();
-
-			if (eResource != NO_RESOURCE)
-			{
-				CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
-				if (pkResourceInfo)
-				{
-					iYield += pkResourceInfo->getYieldChange(eYield);
-				}
-			}
-
-			if (isHills())
-			{
-				if (isFreshWater())
-					iYield += pkYieldInfo->getMinCityHillFreshWater();
-				else
-					iYield += pkYieldInfo->getMinCityHillNoFreshWater();
-			}
-			else if (isMountain())
-			{
-				if (isFreshWater())
-					iYield += pkYieldInfo->getMinCityMountainFreshWater();
-				else
-					iYield += pkYieldInfo->getMinCityMountainNoFreshWater();
-			}
+			iYield += eResource != NO_RESOURCE ? GC.getResourceInfo(eResource)->getYieldChange(eYield) : 0;
+			if (isMountain())
+				iYield += isFreshWater() ? pkYieldInfo->getMinCityMountainFreshWater() : pkYieldInfo->getMinCityMountainNoFreshWater();
+			else if (isHills())
+				iYield += isFreshWater() ? pkYieldInfo->getMinCityHillFreshWater() : pkYieldInfo->getMinCityHillNoFreshWater();
 			else
-			{
-				if (isFreshWater())
-					iYield += pkYieldInfo->getMinCityFlatFreshWater();
-				else
-					iYield += pkYieldInfo->getMinCityFlatNoFreshWater();
-			}
+				iYield += isFreshWater() ? pkYieldInfo->getMinCityFlatFreshWater() : pkYieldInfo->getMinCityFlatNoFreshWater();
 		}
-		// Community Patch only: Min. 2 Food & 1 Production for city center tile yields
+		// Community Patch Only: Min. 2 Food & 1 Production for city center tile yields
 		else
-		{
 			iYield = std::max(iYield, pkYieldInfo->getMinCity());
-		}
 
 		// Yields from garrison
 		if (pOwningCity->HasGarrison())
@@ -10139,7 +10056,7 @@ int CvPlot::calculateReligionNatureYield(YieldTypes eYield, PlayerTypes ePlayer,
 	bool bRequiresEmptyTile = (bRequiresResource && bRequiresNoFeature);
 	bool bRequiresBoth = (bRequiresImprovement && bRequiresResource);
 	int iValue = pMajorityReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield, ePlayer, pOwningCity);
-	if (MOD_BALANCE_CORE_BELIEFS_RESOURCE && (bRequiresImprovement || bRequiresResource || bRequiresNoImprovement))
+	if (bRequiresImprovement || bRequiresResource || bRequiresNoImprovement)
 	{
 		if (bRequiresBoth)
 		{
@@ -10209,7 +10126,7 @@ int CvPlot::calculateReligionNatureYield(YieldTypes eYield, PlayerTypes ePlayer,
 		bool bRequiresEmptyTile = (bRequiresResource && bRequiresNoFeature);
 		bool bRequiresBoth = (bRequiresImprovement && bRequiresResource);
 		int iValue = pSecondaryPantheon->GetTerrainYieldChange(getTerrainType(), eYield);
-		if (MOD_BALANCE_CORE_BELIEFS_RESOURCE && (bRequiresImprovement || bRequiresResource || bRequiresNoImprovement))
+		if (bRequiresImprovement || bRequiresResource || bRequiresNoImprovement)
 		{
 			if (bRequiresBoth)
 			{
@@ -10302,11 +10219,11 @@ int CvPlot::calculateReligionNatureYield(YieldTypes eYield, PlayerTypes ePlayer,
 		iReligionChange = 0;
 		bool bRequiresNoImprovement = pMajorityReligion->m_Beliefs.RequiresNoImprovement(ePlayer);
 		bool bRequiresImprovement = pMajorityReligion->m_Beliefs.RequiresImprovement(ePlayer);
-		if (MOD_BALANCE_CORE_BELIEFS_RESOURCE && bRequiresNoImprovement && eImprovement == NO_IMPROVEMENT)
+		if (bRequiresNoImprovement && eImprovement == NO_IMPROVEMENT)
 		{
 			iReligionChange += pMajorityReligion->m_Beliefs.GetFeatureYieldChange(eFeature, eYield, ePlayer, pOwningCity);
 		}
-		else if (MOD_BALANCE_CORE_BELIEFS_RESOURCE && bRequiresImprovement && eImprovement != NO_IMPROVEMENT)
+		else if (bRequiresImprovement && eImprovement != NO_IMPROVEMENT)
 		{
 			iReligionChange += pMajorityReligion->m_Beliefs.GetFeatureYieldChange(eFeature, eYield, ePlayer, pOwningCity);
 		}
@@ -10323,11 +10240,11 @@ int CvPlot::calculateReligionNatureYield(YieldTypes eYield, PlayerTypes ePlayer,
 			iReligionChange = 0;
 			bool bRequiresNoImprovement = pSecondaryPantheon->RequiresNoImprovement();
 			bool bRequiresImprovement = pSecondaryPantheon->RequiresImprovement();
-			if (MOD_BALANCE_CORE_BELIEFS_RESOURCE && bRequiresNoImprovement && eImprovement == NO_IMPROVEMENT)
+			if (bRequiresNoImprovement && eImprovement == NO_IMPROVEMENT)
 			{
 				iReligionChange += pSecondaryPantheon->GetFeatureYieldChange(eFeature, eYield);
 			}
-			else if (MOD_BALANCE_CORE_BELIEFS_RESOURCE && bRequiresImprovement && eImprovement != NO_IMPROVEMENT)
+			else if (bRequiresImprovement && eImprovement != NO_IMPROVEMENT)
 			{
 				iReligionChange += pSecondaryPantheon->GetFeatureYieldChange(eFeature, eYield);
 			}
@@ -10391,7 +10308,7 @@ int CvPlot::calculateReligionImprovementYield(YieldTypes eYield, PlayerTypes ePl
 	{
 		bRequiresResource = false;
 	}
-	if (MOD_BALANCE_CORE_BELIEFS_RESOURCE && bRequiresResource)
+	if (bRequiresResource)
 	{
 		if (bRequiresResource && eResource != NO_RESOURCE && (pkImprovementInfo->IsImprovementResourceMakesValid(eResource) || pkImprovementInfo->GetResourceFromImprovement() == eResource))
 		{
@@ -10411,7 +10328,7 @@ int CvPlot::calculateReligionImprovementYield(YieldTypes eYield, PlayerTypes ePl
 	{
 		bRequiresResource = false;
 	}
-	if (MOD_BALANCE_CORE_BELIEFS_RESOURCE && bRequiresResource)
+	if (bRequiresResource)
 	{
 		if (eResource != NO_RESOURCE && (pkImprovementInfo->IsImprovementResourceMakesValid(eResource) || pkImprovementInfo->GetResourceFromImprovement() == eResource))
 		{
@@ -10585,7 +10502,7 @@ int CvPlot::calculateImprovementYield(YieldTypes eYield, PlayerTypes ePlayer, Im
 
 			if (eRoute != NO_ROUTE || (eForceCityConnection != NUM_ROUTE_TYPES && eForceCityConnection != NO_ROUTE))
 			{
-				if ((eForceCityConnection == ROUTE_RAILROAD || (eForceCityConnection == NUM_ROUTE_TYPES && IsCityConnection(ePlayer, true /*bIndustrial*/))) && MOD_BALANCE_YIELD_SCALE_ERA)
+				if ((eForceCityConnection == ROUTE_RAILROAD || (eForceCityConnection == NUM_ROUTE_TYPES && IsCityConnection(ePlayer, true /*bIndustrial*/))) && MOD_BALANCE_VP)
 				{
 					iYield += pkImprovementInfo->GetRouteYieldChanges(ROUTE_RAILROAD, eYield);
 				}
@@ -10694,7 +10611,7 @@ int CvPlot::calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTyp
 						}
 					}
 
-					if (MOD_RELIGION_PERMANENT_PANTHEON && pPlayerPantheon != NULL)
+					if (MOD_BALANCE_PERMANENT_PANTHEONS && pPlayerPantheon != NULL)
 					{
 						iMod += pPlayerPantheon->m_Beliefs.GetYieldModifierNaturalWonder(eYield, ePlayer, pOwningCity);
 					}
@@ -10791,44 +10708,21 @@ int CvPlot::calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTyp
 	// Trait player terrain/improvement (for features handled below) yield changes that don't require a trade route connection
 	if (pTraits->IsTradeRouteOnly() && getOwner() == ePlayer)
 	{
-		if (eFeature == NO_FEATURE && !MOD_USE_TRADE_FEATURES)
+		int iBonus = pTraits->GetTerrainYieldChange(eTerrain, eYield);
+		if (iBonus > 0)
 		{
-			int iBonus = pTraits->GetTerrainYieldChange(eTerrain, eYield);
-			if (iBonus > 0)
+			if (bIsCityConnection || IsTradeUnitRoute())
 			{
-				if (bIsCityConnection || IsTradeUnitRoute())
+				int iScale = 0;
+				int iEra = (kPlayer.GetCurrentEra() + 1);
+
+				iScale = ((iBonus * iEra) / 4);
+
+				if (iScale <= 0)
 				{
-					int iScale = 0;
-					int iEra = (kPlayer.GetCurrentEra() + 1);
-
-					iScale = ((iBonus * iEra) / 4);
-
-					if (iScale <= 0)
-					{
-						iScale = 1;
-					}
-					iYield += iScale;
+					iScale = 1;
 				}
-			}
-		}
-		else
-		{
-			int iBonus = pTraits->GetTerrainYieldChange(eTerrain, eYield);
-			if (iBonus > 0)
-			{
-				if (bIsCityConnection || IsTradeUnitRoute())
-				{
-					int iScale = 0;
-					int iEra = (kPlayer.GetCurrentEra() + 1);
-
-					iScale = ((iBonus * iEra) / 4);
-
-					if (iScale <= 0)
-					{
-						iScale = 1;
-					}
-					iYield += iScale;
-				}
+				iYield += iScale;
 			}
 		}
 		if (eImprovement != NO_IMPROVEMENT)
@@ -10998,7 +10892,7 @@ int CvPlot::calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTyp
 					iYield += min(iResourceYieldFromGoldenAge, pTraits->GetResourceYieldChangesFromGoldenAgeCap(eResource, eYield));
 				}
 				
-				if (MOD_BALANCE_CORE_RESOURCE_MONOPOLIES && kPlayer.HasGlobalMonopoly(eResource))
+				if (MOD_BALANCE_RESOURCE_MONOPOLIES && kPlayer.HasGlobalMonopoly(eResource))
 				{
 					int iTemp = pkResourceInfo->getYieldChangeFromMonopoly(eYield);
 					if (iTemp > 0)
@@ -11085,9 +10979,8 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay, const CvCity* pOwni
 		const CvReligion* pReligion = (eMajority != NO_RELIGION) ? GC.getGame().GetGameReligions()->GetReligion(eMajority, pOwningCity->getOwner()) : 0;
 		const CvBeliefEntry* pBelief = (eSecondaryPantheon != NO_BELIEF) ? GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon) : 0;
 
-#if defined(MOD_RELIGION_PERMANENT_PANTHEON)
 		// Mod for civs keeping their pantheon belief forever
-		if (MOD_RELIGION_PERMANENT_PANTHEON)
+		if (MOD_BALANCE_PERMANENT_PANTHEONS)
 		{
 			if (GC.getGame().GetGameReligions()->HasCreatedPantheon(pOwningCity->getOwner()))
 			{
@@ -11102,7 +10995,7 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay, const CvCity* pOwni
 				}
 			}
 		}
-#endif
+
 		return calculateYieldFast(eYield, bDisplay, pOwningCity, pReligion, pBelief, NULL, bAssumeNoImprovement);
 	}
 
@@ -11116,40 +11009,26 @@ int CvPlot::calculateYieldFast(YieldTypes eYield, bool bDisplay, const CvCity* p
 	RouteTypes eRoute = NO_ROUTE;
 	PlayerTypes ePlayer = NO_PLAYER;
 
-	if(bDisplay && GC.getGame().isDebugMode())
-	{
-		return getYield(eYield);
-	}
-
-	if(getTerrainType() == NO_TERRAIN)
-	{
+	if (getTerrainType() == NO_TERRAIN)
 		return 0;
-	}
-#if defined(MOD_NO_YIELD_ICE)
-	if(MOD_NO_YIELD_ICE)
-	{
-		if(isIce())
-		{
-			return 0;
-		}
-	}
-#endif
 
-	if(!isPotentialCityWork())
-	{
+	if (MOD_CORE_NO_YIELD_ICE && isIce())
 		return 0;
-	}
 
-	if(bDisplay)
+	if (!isPotentialCityWork())
+		return 0;
+
+	if (bDisplay)
 	{
+		if (GC.getGame().isDebugMode())
+			return getYield(eYield);
+
 		ePlayer = getRevealedOwner(GC.getGame().getActiveTeam());
 		eImprovement = getRevealedImprovementType(GC.getGame().getActiveTeam());
 		eRoute = getRevealedRouteType(GC.getGame().getActiveTeam());
 
-		if(ePlayer == NO_PLAYER)
-		{
+		if (ePlayer == NO_PLAYER)
 			ePlayer = GC.getGame().getActivePlayer();
-		}
 	}
 	else
 	{
@@ -11159,9 +11038,7 @@ int CvPlot::calculateYieldFast(YieldTypes eYield, bool bDisplay, const CvCity* p
 
 		// For tile picker
 		if (ePlayer == NO_PLAYER && pOwningCity)
-		{
 			ePlayer = pOwningCity->getOwner();
-		}
 	}
 
 	if (IsImprovementPillaged() || bAssumeNoImprovement)
@@ -11177,13 +11054,12 @@ int CvPlot::calculateYieldFast(YieldTypes eYield, bool bDisplay, const CvCity* p
 	iYield += calculateReligionNatureYield(eYield, ePlayer, eImprovement, eFeature, eResource, pOwningCity, pMajorityReligion, pSecondaryPantheon);
 	iYield += calculateImprovementYield(eYield, ePlayer, eImprovement, eRoute, eFeature, eResource, NUM_ROUTE_TYPES, pOwningCity, false);
 	iYield += calculatePlayerYield(eYield, iYield, ePlayer, eImprovement, eFeature, eResource, NUM_ROUTE_TYPES, pOwningCity, pMajorityReligion, pSecondaryPantheon, pPlayerPantheon, bDisplay);
-#if defined(MOD_RELIGION_PERMANENT_PANTHEON)
-	if (MOD_RELIGION_PERMANENT_PANTHEON && pPlayerPantheon != NULL)
+
+	if (MOD_BALANCE_PERMANENT_PANTHEONS && pPlayerPantheon != NULL)
 	{
 		iYield += calculateReligionImprovementYield(eYield, ePlayer, eImprovement, eResource, pOwningCity, pPlayerPantheon, NULL);
 		iYield += calculateReligionNatureYield(eYield, ePlayer, eImprovement, eFeature, eResource, pOwningCity, pPlayerPantheon, NULL);
 	}
-#endif
 
 	//no overhead if empty
 	for (size_t i=0; i<m_vExtraYields.size(); i++)
@@ -11228,9 +11104,8 @@ void CvPlot::updateYield()
 		const CvReligion* pReligion = (eMajority != NO_RELIGION) ? GC.getGame().GetGameReligions()->GetReligion(eMajority, pOwningCity->getOwner()) : 0;
 		const CvBeliefEntry* pBelief = (eSecondaryPantheon != NO_BELIEF) ? GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon) : 0;
 
-#if defined(MOD_RELIGION_PERMANENT_PANTHEON)
 		// Mod for civs keeping their pantheon belief forever
-		if (MOD_RELIGION_PERMANENT_PANTHEON)
+		if (MOD_BALANCE_PERMANENT_PANTHEONS)
 		{
 			if (GC.getGame().GetGameReligions()->HasCreatedPantheon(getOwner()))
 			{
@@ -11243,7 +11118,7 @@ void CvPlot::updateYield()
 				}
 			}
 		}
-#endif
+
 		updateYieldFast(pOwningCity, pReligion, pBelief);
 		return;
 	}
@@ -11504,7 +11379,19 @@ PlotVisibilityChangeResult CvPlot::changeVisibilityCount(TeamTypes eTeam, int iC
 			// If the AI spots a human City, don't meet - wait for the human to find the AI
 			if ((GET_TEAM(eTeam).isHuman()) || !getPlotCity()->isHuman())
 			{
-				GET_TEAM(eTeam).meet(getTeam(), false);	// If there's a City here, we can assume its owner is the same as the plot owner
+				TeamTypes eCityOwner = getPlotCity()->getTeam();
+				if (!GET_TEAM(eTeam).isHasMet(eCityOwner))
+				{
+					GET_TEAM(eTeam).meet(eCityOwner, false);
+					if (GET_TEAM(eCityOwner).isMinorCiv())
+					{
+						PlayerTypes eMeetingPlayer = pUnit ? pUnit->getOwner() : NO_PLAYER;
+						if (eMeetingPlayer == NO_PLAYER)
+							eMeetingPlayer = GET_TEAM(eTeam).getLeaderID();
+
+						GET_PLAYER(getPlotCity()->getOwner()).GetMinorCivAI()->DoFirstContactWithMajor(eMeetingPlayer, GET_TEAM(eTeam).isAtWar(eCityOwner));
+					}
+				}
 			}
 
 			GC.getGame().GetGameTrade()->InvalidateTradePathTeamCache(getTeam());
@@ -11549,12 +11436,22 @@ PlotVisibilityChangeResult CvPlot::changeVisibilityCount(TeamTypes eTeam, int iC
 			}
 
 			// If the AI spots a human Unit, don't meet - wait for the human to find the AI
-			if (GET_TEAM(eTeam).isHuman())
+			if (GET_TEAM(eTeam).isHuman() && !GET_TEAM(eTeam).isHasMet(loopUnit->getTeam()))
+			{
 				GET_TEAM(eTeam).meet(loopUnit->getTeam(), false);
+				if (GET_TEAM(loopUnit->getTeam()).isMinorCiv())
+				{
+					PlayerTypes eMeetingPlayer = pUnit ? pUnit->getOwner() : NO_PLAYER;
+					if (eMeetingPlayer == NO_PLAYER)
+						eMeetingPlayer = GET_TEAM(eTeam).getLeaderID();
+
+					GET_PLAYER(loopUnit->getOwner()).GetMinorCivAI()->DoFirstContactWithMajor(eMeetingPlayer, GET_TEAM(eTeam).isAtWar(loopUnit->getTeam()));
+				}
+			}
 		}
 	}
 
-	// We could se the plot before but not anymore
+	// We could see the plot before but not anymore
 	// With delayed visibility we do this in setTurnActive()
 	if (!MOD_CORE_DELAYED_VISIBILITY && bOldVisibility && !isVisible(eTeam))
 	{
@@ -11892,11 +11789,9 @@ void CvPlot::SetTeamImpassable(TeamTypes eTeam, bool bValue)
 bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, CvUnit* pUnit, bool bTerrainOnly, TeamTypes eFromTeam)
 {
 	int iI = 0;
-	
-#if defined(MOD_EVENTS_TILE_REVEALED)
+
 	// We need to capture this value here, as a Natural Wonder may update it before we need it
 	int iRevealedMajors = getNumMajorCivsRevealed();
-#endif
 
 	PRECONDITION(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
 	PRECONDITION(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
@@ -11907,17 +11802,14 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, CvUnit* pUnit, bool bT
 	bool bVisibilityUpdated = false;
 	bool bRevealed = isRevealed(eTeam) != bNewValue;
 
-	if(bRevealed)
+	if (bRevealed)
 	{
 		bVisibilityUpdated = true;
 		m_bfRevealed.ToggleBit(eTeam);
+		bool bEligibleForAchievement = MOD_ENABLE_ACHIEVEMENTS ? GET_PLAYER(GC.getGame().getActivePlayer()).isHuman(ISHUMAN_ACHIEVEMENTS) && !GC.getGame().isGameMultiPlayer() : false;
 
-		bool bEligibleForAchievement = MOD_API_ACHIEVEMENTS ? GET_PLAYER(GC.getGame().getActivePlayer()).isHuman(ISHUMAN_ACHIEVEMENTS) && !GC.getGame().isGameMultiPlayer() : false;
-
-		if(area())
-		{
+		if (area())
 			area()->changeNumRevealedTiles(eTeam, (bNewValue ? 1 : -1));
-		}
 
 		// Update tactical AI, let it know that the tile was revealed
 		PlayerTypes eCurrentPlayer = GC.getGame().GetCurrentVisibilityPlayer();
@@ -12110,7 +12002,7 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, CvUnit* pUnit, bool bT
 						}
 
 						//DLC2 Natural Wonder Achievements
-						if (MOD_API_ACHIEVEMENTS)
+						if (MOD_ENABLE_ACHIEVEMENTS)
 						{
 							CvFeatureInfo* pkFeatureInfo = GC.getFeatureInfo(getFeatureType());
 							if(pkFeatureInfo)
@@ -12275,21 +12167,18 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, CvUnit* pUnit, bool bT
 			bVisibilityUpdated = true;
 		}
 	}
-	
-#if defined(MOD_EVENTS_TILE_REVEALED)
+
 	CvTeam& kTeam = GET_TEAM(eTeam);
 	
-	if (MOD_EVENTS_TILE_REVEALED && bNewValue && bRevealed) {
+	if (MOD_EVENTS_TILE_REVEALED && bNewValue && bRevealed)
 		GAMEEVENTINVOKE_HOOK(GAMEEVENT_TileRevealed, getX(), getY(), eTeam, eFromTeam, (kTeam.isMajorCiv() && iRevealedMajors == 0), (pUnit ? pUnit->getOwner() : NO_PLAYER), (pUnit ? pUnit->GetID() : -1));
-	}
 
 	// This is badly named, as it's actually an on/off "revealed to any major" flag, not a counter
-	if (getNumMajorCivsRevealed() == 0) {
-		if (kTeam.isMajorCiv()) {
+	if (getNumMajorCivsRevealed() == 0)
+	{
+		if (kTeam.isMajorCiv())
 			changeNumMajorCivsRevealed(1);
-		}
 	}
-#endif
 
 	PlayerTypes eObserverUIPlayer = GC.getGame().getObserverUIOverridePlayer();
 	if (eObserverUIPlayer != NO_PLAYER && GET_PLAYER(eObserverUIPlayer).getTeam() == eTeam && GET_PLAYER(GC.getGame().getActivePlayer()).isObserver() && !GET_TEAM(eTeam).isObserver())
@@ -12667,6 +12556,43 @@ bool CvPlot::changeBuildProgress(BuildTypes eBuild, int iChange, PlayerTypes ePl
 						kPlayer.SetNumArchaeologyChoices(kPlayer.GetNumArchaeologyChoices() + 1);
 						kPlayer.GetCulture()->AddDigCompletePlot(this);
 
+						// Raiders of the Lost Ark achievement
+						if (MOD_ENABLE_ACHIEVEMENTS && kPlayer.isHuman(ISHUMAN_ACHIEVEMENTS))
+						{
+							const char* szCivKey = kPlayer.getCivilizationTypeKey();
+							if (getOwner() != NO_PLAYER && !GC.getGame().isNetworkMultiPlayer() && strcmp(szCivKey, "CIVILIZATION_AMERICA") == 0)
+							{
+								CvPlayer &kPlotOwner = GET_PLAYER(getOwner());
+								szCivKey = kPlotOwner.getCivilizationTypeKey();
+								if (strcmp(szCivKey, "CIVILIZATION_EGYPT") == 0)
+								{
+									for (int i = 0; i < MAX_MAJOR_CIVS; i++)
+									{
+										CvPlayer &kLoopPlayer = GET_PLAYER((PlayerTypes)i);
+										if (kLoopPlayer.GetID() != NO_PLAYER && kLoopPlayer.isAlive())
+										{
+											szCivKey = kLoopPlayer.getCivilizationTypeKey();
+											if (strcmp(szCivKey, "CIVILIZATION_GERMANY"))
+											{
+												CvUnit *pLoopUnit = NULL;
+												int iUnitLoop = 0;
+												for (pLoopUnit = kLoopPlayer.firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = kLoopPlayer.nextUnit(&iUnitLoop))
+												{
+													if (strcmp(pLoopUnit->getUnitInfo().GetType(), "UNIT_ARCHAEOLOGIST") == 0)
+													{
+														if (plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), getX(), getY()) <= 2)
+														{
+															gDLL->UnlockAchievement(ACHIEVEMENT_XP2_33);
+														}
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+
 						if (kPlayer.isHuman(ISHUMAN_AI_TOURISM))
 						{
 							CvNotifications* pNotifications = NULL;
@@ -12679,43 +12605,6 @@ bool CvPlot::changeBuildProgress(BuildTypes eBuild, int iChange, PlayerTypes ePl
 								CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_CHOOSE_ARCHAEOLOGY");
 								pNotifications->Add(NOTIFICATION_CHOOSE_ARCHAEOLOGY, strBuffer, strSummary, getX(), getY(), kPlayer.GetID());
 								CancelActivePlayerEndTurn();
-							}
-
-							// Raiders of the Lost Ark achievement
-							if (MOD_API_ACHIEVEMENTS && kPlayer.isHuman(ISHUMAN_ACHIEVEMENTS))
-							{
-								const char* szCivKey = kPlayer.getCivilizationTypeKey();
-								if (getOwner() != NO_PLAYER && !GC.getGame().isNetworkMultiPlayer() && strcmp(szCivKey, "CIVILIZATION_AMERICA") == 0)
-								{
-									CvPlayer &kPlotOwner = GET_PLAYER(getOwner());
-									szCivKey = kPlotOwner.getCivilizationTypeKey();
-									if (strcmp(szCivKey, "CIVILIZATION_EGYPT") == 0)
-									{
-										for (int i = 0; i < MAX_MAJOR_CIVS; i++)
-										{
-											CvPlayer &kLoopPlayer = GET_PLAYER((PlayerTypes)i);
-											if (kLoopPlayer.GetID() != NO_PLAYER && kLoopPlayer.isAlive())
-											{
-												szCivKey = kLoopPlayer.getCivilizationTypeKey();
-												if (strcmp(szCivKey, "CIVILIZATION_GERMANY"))
-												{
-													CvUnit *pLoopUnit = NULL;
-													int iUnitLoop = 0;
-													for (pLoopUnit = kLoopPlayer.firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = kLoopPlayer.nextUnit(&iUnitLoop))
-													{
-														if (strcmp(pLoopUnit->getUnitInfo().GetType(), "UNIT_ARCHAEOLOGIST") == 0)
-														{
-															if (plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), getX(), getY()) <= 2)
-															{
-																gDLL->UnlockAchievement(ACHIEVEMENT_XP2_33);
-															}
-														}
-													}
-												}
-											}
-										}
-									}
-								}
 							}
 						}
 						else
@@ -14047,7 +13936,7 @@ int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUp
 		}
 
 		iYield += calculateImprovementYield(eYield, ePlayer, eNewImprovement, eNewRoute, eFeature, eResource, eForceCityConnection, pOwningCity, false) + calculateReligionImprovementYield(eYield, ePlayer, eNewImprovement, eResource, pOwningCity, pMajorityReligion, pSecondaryPantheon);
-		if (MOD_RELIGION_PERMANENT_PANTHEON && pPlayerPantheon != NULL)
+		if (MOD_BALANCE_PERMANENT_PANTHEONS && pPlayerPantheon != NULL)
 		{
 			iYield += calculateReligionImprovementYield(eYield, ePlayer, eNewImprovement, eResource, pOwningCity, pPlayerPantheon, NULL);
 		}
@@ -14213,11 +14102,8 @@ char CvPlot::GetContinentType() const
 //	--------------------------------------------------------------------------------
 void CvPlot::SetContinentType(const char cContinent)
 {
-#if defined(MOD_EVENTS_TERRAFORMING)
-	if (MOD_EVENTS_TERRAFORMING) {
+	if (MOD_EVENTS_TERRAFORMING)
 		GAMEEVENTINVOKE_HOOK(GAMEEVENT_TerraformingPlot, TERRAFORMINGEVENT_CONTINENT, m_iX, m_iY, 0, cContinent, m_cContinentType, -1, -1);
-	}
-#endif
 
 	m_cContinentType = cContinent;
 }

@@ -337,10 +337,7 @@ bool CvDllDatabaseUtility::PrefetchGameData()
 	PrefetchCollection(GC.getCityEventInfo(), "CityEvents");
 	PrefetchCollection(GC.getCityEventChoiceInfo(), "CityEventChoices");
 	PrefetchCollection(GC.getUnitDomainInfo(), "Domains");
-
-#if defined(MOD_EVENTS_DIPLO_MODIFIERS)
 	PrefetchCollection(GC.getDiploModifierInfo(), "DiploModifiers");
-#endif
 
 	//Leaders
 	PrefetchCollection(GC.getLeaderHeadInfo(), "Leaders");
@@ -394,7 +391,7 @@ bool CvDllDatabaseUtility::PrefetchGameData()
 	PrefetchCollection(GC.getLeagueProjectRewardInfo(), "LeagueProjectRewards");
 	PrefetchCollection(GC.getResolutionInfo(), "Resolutions");
 
-	if (MOD_API_ACHIEVEMENTS)
+	if (MOD_ENABLE_ACHIEVEMENTS)
 		PrefetchCollection(GC.getAchievementInfo(), "Achievements");
 
 	// Must be after buildings because this calls from Buildings
@@ -666,12 +663,10 @@ bool CvDllDatabaseUtility::ValidatePrefetchProcess()
 	ValidateVectorSize(getNumUnitInfos);
 	ValidateVectorSize(getNumSpecialUnitInfos);
 	ValidateVectorSize(getNumVoteSourceInfos);
-#if defined(MOD_BALANCE_CORE_EVENTS)
 	ValidateVectorSize(getNumEventInfos);
 	ValidateVectorSize(getNumEventChoiceInfos);
 	ValidateVectorSize(getNumCityEventInfos);
 	ValidateVectorSize(getNumCityEventChoiceInfos);
-#endif
 	ValidateVectorSize(getNumUnitCombatClassInfos);
 
 	ValidateCount(gc.getUnitAIInfo().size);
@@ -696,11 +691,8 @@ bool CvDllDatabaseUtility::ValidatePrefetchProcess()
 	ValidateVectorSize(getNumUnitClassInfos);
 	//ValidateVectorSize(getNumActionInfos);	//Action Infos are generated as a post process.
 
-#if defined(MOD_EVENTS_DIPLO_MODIFIERS)
-	if (MOD_EVENTS_DIPLO_MODIFIERS) {
+	if (MOD_EVENTS_DIPLO_MODIFIERS)
 		ValidateVectorSize(getNumDiploModifierInfos);
-	}
-#endif
 
 	ValidateCount(gc.getMissionInfo().size);
 	ValidateCount(gc.getControlInfo().size);

@@ -41,12 +41,8 @@ CvTraitEntry::CvTraitEntry() :
 	m_iCapitalBuildingModifier(0),
 	m_iPlotBuyCostModifier(0),
 	m_iNationalPopReqModifier(0),
-#if defined(MOD_TRAITS_CITY_WORKING)
 	m_iCityWorkingChange(0),
-#endif
-#if defined(MOD_TRAITS_CITY_AUTOMATON_WORKERS)
 	m_iCityAutomatonWorkersChange(0),
-#endif
 	m_iPlotCultureCostModifier(0),
 	m_iCultureFromKills(0),
 	m_iFaithFromKills(0),
@@ -57,9 +53,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_iWonderProductionModifier(0),
 	m_iPlunderModifier(0),
 	m_iImprovementMaintenanceModifier(0),
-#if defined(MOD_CIV6_WORKER)
 	m_iRouteBuilderCostModifier(0),
-#endif
 	m_iGoldenAgeDurationModifier(0),
 	m_iGoldenAgeMoveChange(0),
 	m_iGoldenAgeCombatModifier(0),
@@ -69,12 +63,10 @@ CvTraitEntry::CvTraitEntry() :
 	m_iGoldenAgeGreatWriterRateModifier(0),
 	m_iObsoleteTech(NO_TECH),
 	m_iPrereqTech(NO_TECH),
-#if defined(MOD_TRAITS_OTHER_PREREQS)
 	m_iObsoleteBelief(NO_BELIEF),
 	m_iPrereqBelief(NO_BELIEF),
 	m_iObsoletePolicy(NO_POLICY),
 	m_iPrereqPolicy(NO_POLICY),
-#endif
 	m_iExtraEmbarkMoves(0),
 	m_iFreeUnitClassType(NO_UNITCLASS),
 	m_iNaturalWonderFirstFinderGold(0),
@@ -155,9 +147,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_iExtraTradeRoutesPerXOwnedVassals(0),
 	m_iMinorInfluencePerGiftedUnit(0),
 	m_bIsCapitalOnly(false),
-#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier(0),
-#endif
 	m_iCombatBonusVsHigherTech(0),
 	m_iCombatBonusVsLargerCiv(0),
 	m_iLandUnitMaintenanceModifier(0),
@@ -183,9 +173,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_iWorkerSpeedModifier(0),
 	m_iAfraidMinorPerTurnInfluence(0),
 	m_iLandTradeRouteRangeBonus(0),
-#if defined(MOD_TRAITS_TRADE_ROUTE_BONUSES)
 	m_iSeaTradeRouteRangeBonus(0),
-#endif
 	m_iTradeReligionModifier(0),
 	m_iTradeBuildingModifier(0),
 
@@ -196,10 +184,8 @@ CvTraitEntry::CvTraitEntry() :
 	m_eCapitalFreeBuildingPrereqTech(NO_TECH),
 	m_eFreeUnitOnConquest(NO_UNIT),
 	m_eFreeBuildingOnConquest(NO_BUILDING),
-#if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
 	m_bBullyAnnex(false),
 	m_iBullyYieldMultiplierAnnex(0),
-#endif
 	m_bFightWellDamaged(false),
 	m_bWoodlandMovementBonus(false),
 	m_bRiverMovementBonus(false),
@@ -211,18 +197,14 @@ CvTraitEntry::CvTraitEntry() :
 	m_bArtistGoldenAgeTechBoost(false),
 	m_bStaysAliveZeroCities(false),
 	m_bFaithFromUnimprovedForest(false),
-#if defined(MOD_TRAITS_ANY_BELIEF)
 	m_bAnyBelief(false),
 	m_bAlwaysReligion(false),
-	m_bIgnoreTradeDistanceScaling(false),
+	m_bNoTradeRouteProximityPenalty(false),
 	m_bCanPlunderWithoutWar(false),
-#endif
 	m_bBonusReligiousBelief(false),
 	m_bAbleToAnnexCityStates(false),
 	m_bCrossesMountainsAfterGreatGeneral(false),
-#if defined(MOD_TRAITS_CROSSES_ICE)
 	m_bCrossesIce(false),
-#endif
 	m_bGGFromBarbarians(false),
 	m_bMayaCalendarBonuses(false),
 	m_bNoAnnexing(false),
@@ -282,9 +264,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_ppiYieldFromTileSettle(NULL),
 	m_ppiYieldChangePerImprovementBuilt(NULL),
 	m_pbiYieldFromBarbarianCampClear(),
-#if defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
 	m_pbiYieldFromRouteMovementInForeignTerritory(),
-#endif
 	m_ppiBuildingClassYieldChanges(NULL),
 	m_piCapitalYieldChanges(NULL),
 	m_piCityYieldChanges(NULL),
@@ -488,21 +468,17 @@ int CvTraitEntry::GetNationalPopReqModifier() const
 	return m_iNationalPopReqModifier;
 }
 
-#if defined(MOD_TRAITS_CITY_WORKING)
 /// Accessor:: greater border expansion
 int CvTraitEntry::GetCityWorkingChange() const
 {
 	return m_iCityWorkingChange;
 }
-#endif
 
-#if defined(MOD_TRAITS_CITY_AUTOMATON_WORKERS)
 /// Accessor:: automaton workers
 int CvTraitEntry::GetCityAutomatonWorkersChange() const
 {
 	return m_iCityAutomatonWorkersChange;
 }
-#endif
 
 /// Accessor:: increased rate of culture border expansion
 int CvTraitEntry::GetPlotCultureCostModifier() const
@@ -564,13 +540,11 @@ int CvTraitEntry::GetImprovementMaintenanceModifier() const
 	return m_iImprovementMaintenanceModifier;
 }
 
-#if defined(MOD_CIV6_WORKER)
 /// Accessor:: percent change to builder cost of roads
 int CvTraitEntry::GetRouteBuilderCostModifier() const
 {
 	return m_iRouteBuilderCostModifier;
 }
-#endif
 
 /// Accessor:: extra length of each golden age
 int CvTraitEntry::GetGoldenAgeDurationModifier() const
@@ -931,12 +905,11 @@ bool CvTraitEntry::IsCapitalOnly() const
 {
 	return m_bIsCapitalOnly;
 }
-#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+
 int CvTraitEntry::GetInvestmentModifier() const
 {
 	return m_iInvestmentModifier;
 }
-#endif
 
 /// Accessor: combat bonus in own territory vs. higher tech units
 int CvTraitEntry::GetCombatBonusVsHigherTech() const
@@ -1071,12 +1044,10 @@ int CvTraitEntry::GetLandTradeRouteRangeBonus() const
 	return m_iLandTradeRouteRangeBonus;
 }
 
-#if defined(MOD_TRAITS_TRADE_ROUTE_BONUSES)
 int CvTraitEntry::GetSeaTradeRouteRangeBonus() const
 {
 	return m_iSeaTradeRouteRangeBonus;
 }
-#endif
 
 int CvTraitEntry::GetTradeReligionModifier() const
 {
@@ -1153,7 +1124,6 @@ BuildingTypes CvTraitEntry::GetFreeBuildingOnConquest() const
 {
 	return m_eFreeBuildingOnConquest;
 }
-#if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
 bool CvTraitEntry::IsBullyAnnex() const
 {
 	return m_bBullyAnnex;
@@ -1162,7 +1132,6 @@ int CvTraitEntry::GetBullyYieldMultiplierAnnex() const
 {
 	return m_iBullyYieldMultiplierAnnex;
 }
-#endif
 /// Accessor:: does this civ get combat bonuses when damaged?
 bool CvTraitEntry::IsFightWellDamaged() const
 {
@@ -1228,7 +1197,6 @@ bool CvTraitEntry::IsFaithFromUnimprovedForest() const
 	return m_bFaithFromUnimprovedForest;
 }
 
-#if defined(MOD_TRAITS_ANY_BELIEF)
 /// Accessor: can this civ have any belief?
 bool CvTraitEntry::IsAnyBelief() const
 {
@@ -1238,15 +1206,14 @@ bool CvTraitEntry::IsAlwaysReligion() const
 {
 	return m_bAlwaysReligion;
 }
-bool CvTraitEntry::IsIgnoreTradeDistanceScaling() const
+bool CvTraitEntry::IsNoTradeRouteProximityPenalty() const
 {
-	return m_bIgnoreTradeDistanceScaling;
+	return m_bNoTradeRouteProximityPenalty;
 }
 bool CvTraitEntry::IsCanPlunderWithoutWar() const
 {
 	return m_bCanPlunderWithoutWar;
 }
-#endif
 
 /// Accessor: does this civ get a bonus religious belief?
 bool CvTraitEntry::IsBonusReligiousBelief() const
@@ -1266,13 +1233,11 @@ bool CvTraitEntry::IsCrossesMountainsAfterGreatGeneral() const
 	return m_bCrossesMountainsAfterGreatGeneral;
 }
 
-#if defined(MOD_TRAITS_CROSSES_ICE)
 /// Accessor: do combat units have the ability to cross ice?
 bool CvTraitEntry::IsCrossesIce() const
 {
 	return m_bCrossesIce;
 }
-#endif
 
 /// Accessor: do combat units gain GG/GA points from killing barbarians?
 bool CvTraitEntry::IsGGFromBarbarians() const
@@ -1657,7 +1622,7 @@ int CvTraitEntry::GetFreeUnitClassesDOW(UnitClassTypes eUnitClass) const
 	PRECONDITION((int)eUnitClass > -1, "Index out of bounds");
 	return m_piFreeUnitClassesDOW ? m_piFreeUnitClassesDOW[(int)eUnitClass] : 0;
 }
-#if defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
+
 int CvTraitEntry::GetYieldFromRouteMovementInForeignTerritory(YieldTypes eIndex, bool bTradePartner) const
 {
 	PRECONDITION(eIndex < NUM_YIELD_TYPES, "Index out of bounds");
@@ -1675,7 +1640,6 @@ int CvTraitEntry::GetYieldFromRouteMovementInForeignTerritory(YieldTypes eIndex,
 
 	return 0;
 }
-#endif
 
 int CvTraitEntry::GetBuildingClassYieldChanges(BuildingClassTypes eIndex1, YieldTypes eIndex2) const
 {
@@ -1995,7 +1959,6 @@ int CvTraitEntry::GetPrereqTech() const
 	return m_iPrereqTech;
 }
 
-#if defined(MOD_TRAITS_OTHER_PREREQS)
 /// Belief that makes this trait obsolete
 int CvTraitEntry::GetObsoleteBelief() const
 {
@@ -2019,7 +1982,7 @@ int CvTraitEntry::GetPrereqPolicy() const
 {
 	return m_iPrereqPolicy;
 }
-#endif
+
 /// Accessor:: Does the civ get free promotions?
 bool CvTraitEntry::IsFreePromotionUnitCombat(const int promotionID, const int unitCombatID) const
 {
@@ -2160,7 +2123,7 @@ int CvTraitEntry::GetDomainProductionModifiersPerSpecialist(DomainTypes eDomain)
 
 	return 0;
 }
-#if defined(MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON)
+
 /// Accessor:: If linked with trade routes, does the origin city gain a percent of the target city's production towards that specific thing
 TradeRouteProductionSiphon CvTraitEntry::GetTradeRouteProductionSiphon(bool bInternationalOnly) const
 {
@@ -2174,7 +2137,6 @@ TradeRouteProductionSiphon CvTraitEntry::GetTradeRouteProductionSiphon(bool bInt
 
 	return sDefault;
 }
-#endif
 
 /// Accessor:: Does this trait change the reveal and/or the city trade techs for resources?
 AlternateResourceTechs CvTraitEntry::GetAlternateResourceTechs(ResourceTypes eResource) const
@@ -2226,18 +2188,15 @@ bool CvTraitEntry::NoTrain(UnitClassTypes eUnitClass)
 		return false;
 	}
 }
-#if defined(MOD_TRAITS_OTHER_PREREQS)
+
 /// Has this trait become obsolete?
 bool CvTraitEntry::IsObsoleteByBelief(PlayerTypes ePlayer)
 {
 	bool bObsolete = false;
 
-	if (MOD_TRAITS_OTHER_PREREQS && m_iObsoleteBelief != NO_BELIEF)
-	{
+	if (m_iObsoleteBelief != NO_BELIEF)
 		bObsolete = (GET_PLAYER(ePlayer).HasBelief((BeliefTypes)m_iObsoleteBelief));
-	}
 
-	if (m_iObsoleteBelief != NO_BELIEF) CUSTOMLOG("IsObsoleteByBelief(%i) is %s", m_iObsoleteBelief, (bObsolete ? "true" : "false"));
 	return bObsolete;
 }
 
@@ -2246,12 +2205,9 @@ bool CvTraitEntry::IsEnabledByBelief(PlayerTypes ePlayer)
 {
 	bool bEnabled = true;
 
-	if (MOD_TRAITS_OTHER_PREREQS && m_iPrereqBelief != NO_BELIEF)
-	{
+	if (m_iPrereqBelief != NO_BELIEF)
 		bEnabled = (GET_PLAYER(ePlayer).HasBelief((BeliefTypes)m_iPrereqBelief));
-	}
 
-	if (m_iPrereqBelief != NO_BELIEF) CUSTOMLOG("IsEnabledByBelief(%i) is %s", m_iPrereqBelief, (bEnabled ? "true" : "false"));
 	return bEnabled;
 }
 
@@ -2260,12 +2216,9 @@ bool CvTraitEntry::IsObsoleteByPolicy(PlayerTypes ePlayer)
 {
 	bool bObsolete = false;
 
-	if (MOD_TRAITS_OTHER_PREREQS && m_iObsoletePolicy != NO_POLICY)
-	{
+	if (m_iObsoletePolicy != NO_POLICY)
 		bObsolete = (GET_PLAYER(ePlayer).HasPolicy((PolicyTypes)m_iObsoletePolicy));
-	}
 
-	if (m_iObsoletePolicy != NO_POLICY) CUSTOMLOG("IsObsoleteByPolicy(%i) is %s", m_iObsoletePolicy, (bObsolete ? "true" : "false"));
 	return bObsolete;
 }
 
@@ -2274,15 +2227,12 @@ bool CvTraitEntry::IsEnabledByPolicy(PlayerTypes ePlayer)
 {
 	bool bEnabled = true;
 
-	if (MOD_TRAITS_OTHER_PREREQS && m_iPrereqPolicy != NO_POLICY)
-	{
+	if (m_iPrereqPolicy != NO_POLICY)
 		bEnabled = (GET_PLAYER(ePlayer).HasPolicy((PolicyTypes)m_iPrereqPolicy));
-	}
 
-	if (m_iPrereqPolicy != NO_POLICY) CUSTOMLOG("IsEnabledByPolicy(%i) is %s", m_iPrereqPolicy, (bEnabled ? "true" : "false"));
 	return bEnabled;
 }
-#endif
+
 bool CvTraitEntry::TerrainClaimBoost(TerrainTypes eTerrain)
 {
 	if (eTerrain != NO_TERRAIN)
@@ -2324,12 +2274,8 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_iCapitalBuildingModifier				= kResults.GetInt("CapitalBuildingModifier");
 	m_iPlotBuyCostModifier					= kResults.GetInt("PlotBuyCostModifier");
 	m_iNationalPopReqModifier				= kResults.GetInt("NationalPopReqModifier");
-#if defined(MOD_TRAITS_CITY_WORKING)
 	m_iCityWorkingChange					= kResults.GetInt("CityWorkingChange");
-#endif
-#if defined(MOD_TRAITS_CITY_AUTOMATON_WORKERS)
 	m_iCityAutomatonWorkersChange			= kResults.GetInt("CityAutomatonWorkersChange");
-#endif
 	m_iPlotCultureCostModifier              = kResults.GetInt("PlotCultureCostModifier");
 	m_iCultureFromKills						= kResults.GetInt("CultureFromKills");
 	m_iFaithFromKills						= kResults.GetInt("FaithFromKills");
@@ -2424,9 +2370,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_iExtraTradeRoutesPerXOwnedVassals		= kResults.GetInt("TradeRoutesPerXOwnedVassals");
 	m_iMinorInfluencePerGiftedUnit			= kResults.GetInt("MinorInfluencePerGiftedUnit");
 	m_bIsCapitalOnly						= kResults.GetBool("IsCapitalOnly");
-#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier					= kResults.GetInt("InvestmentModifier");
-#endif
 	m_iCombatBonusVsHigherTech				= kResults.GetInt("CombatBonusVsHigherTech");
 	m_iCombatBonusVsLargerCiv				= kResults.GetInt("CombatBonusVsLargerCiv");
 	m_iLandUnitMaintenanceModifier          = kResults.GetInt("LandUnitMaintenanceModifier");
@@ -2441,9 +2385,9 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_iUnresearchedTechBonusFromKills		= kResults.GetInt("UnresearchedTechBonusFromKills");
 	m_iExtraFoundedCityTerritoryClaimRange  = kResults.GetInt("ExtraFoundedCityTerritoryClaimRange");
 	m_iExtraConqueredCityTerritoryClaimRange = kResults.GetInt("ExtraConqueredCityTerritoryClaimRange");
-	m_iExtraTenetsFirstAdoption = kResults.GetInt("ExtraTenetsFirstAdoption");
-	m_iMonopolyModFlat = kResults.GetInt("MonopolyModFlat");
-	m_iMonopolyModPercent = kResults.GetInt("MonopolyModPercent");
+	m_iExtraTenetsFirstAdoption				= kResults.GetInt("ExtraTenetsFirstAdoption");
+	m_iMonopolyModFlat						= kResults.GetInt("MonopolyModFlat");
+	m_iMonopolyModPercent					= kResults.GetInt("MonopolyModPercent");
 	m_iFreeSocialPoliciesPerEra				= kResults.GetInt("FreeSocialPoliciesPerEra");
 	m_iNumTradeRoutesModifier				= kResults.GetInt("NumTradeRoutesModifier");
 	m_iTradeRouteResourceModifier			= kResults.GetInt("TradeRouteResourceModifier");
@@ -2452,14 +2396,9 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_iWorkerSpeedModifier					= kResults.GetInt("WorkerSpeedModifier");
 	m_iAfraidMinorPerTurnInfluence			= kResults.GetInt("AfraidMinorPerTurnInfluence");
 	m_iLandTradeRouteRangeBonus				= kResults.GetInt("LandTradeRouteRangeBonus");
-#if defined(MOD_TRAITS_TRADE_ROUTE_BONUSES)
-	if (MOD_TRAITS_TRADE_ROUTE_BONUSES) {
-		m_iSeaTradeRouteRangeBonus			= kResults.GetInt("SeaTradeRouteRangeBonus");
-	}
-#endif
+	m_iSeaTradeRouteRangeBonus				= kResults.GetInt("SeaTradeRouteRangeBonus");
 	m_iTradeReligionModifier				= kResults.GetInt("TradeReligionModifier");
 	m_iTradeBuildingModifier				= kResults.GetInt("TradeBuildingModifier");
-
 	m_iNumFreeBuildings						= kResults.GetInt("NumFreeBuildings");
 	m_iNonSpecialistFoodChange				= kResults.GetInt("NonSpecialistFoodChange");
 	const char* szTextVal = NULL;
@@ -2519,44 +2458,38 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	{
 		m_eFreeBuilding = (BuildingTypes)GC.getInfoTypeForString(szTextVal, true);
 	}
-#if defined(MOD_TRAITS_OTHER_PREREQS)
-	if (MOD_TRAITS_OTHER_PREREQS) {
-		szTextVal = kResults.GetText("ObsoleteBelief");
-		if(szTextVal)
-		{
-			m_iObsoleteBelief = GC.getInfoTypeForString(szTextVal, true);
-			CUSTOMLOG("%s is %i", szTextVal, m_iObsoleteBelief);
-		}
 
-		szTextVal = kResults.GetText("PrereqBelief");
-		if(szTextVal)
-		{
-			m_iPrereqBelief = GC.getInfoTypeForString(szTextVal, true);
-			CUSTOMLOG("%s is %i", szTextVal, m_iPrereqBelief);
-		}
-
-		szTextVal = kResults.GetText("ObsoletePolicy");
-		if(szTextVal)
-		{
-			m_iObsoletePolicy = GC.getInfoTypeForString(szTextVal, true);
-			CUSTOMLOG("%s is %i", szTextVal, m_iObsoletePolicy);
-		}
-
-		szTextVal = kResults.GetText("PrereqPolicy");
-		if(szTextVal)
-		{
-			m_iPrereqPolicy = GC.getInfoTypeForString(szTextVal, true);
-			CUSTOMLOG("%s is %i", szTextVal, m_iPrereqPolicy);
-		}
+	szTextVal = kResults.GetText("ObsoleteBelief");
+	if(szTextVal)
+	{
+		m_iObsoleteBelief = GC.getInfoTypeForString(szTextVal, true);
 	}
-#endif
+
+	szTextVal = kResults.GetText("PrereqBelief");
+	if(szTextVal)
+	{
+		m_iPrereqBelief = GC.getInfoTypeForString(szTextVal, true);
+	}
+
+	szTextVal = kResults.GetText("ObsoletePolicy");
+	if(szTextVal)
+	{
+		m_iObsoletePolicy = GC.getInfoTypeForString(szTextVal, true);
+	}
+
+	szTextVal = kResults.GetText("PrereqPolicy");
+	if(szTextVal)
+	{
+		m_iPrereqPolicy = GC.getInfoTypeForString(szTextVal, true);
+	}
+
 	szTextVal = kResults.GetText("FreeCapitalBuilding");
 	if(szTextVal)
 	{
 		m_eFreeCapitalBuilding = (BuildingTypes)GC.getInfoTypeForString(szTextVal, true);
 	}
-	szTextVal = kResults.GetText("FreeUnitOnConquest");
 
+	szTextVal = kResults.GetText("FreeUnitOnConquest");
 	if(szTextVal)
 	{
 		m_eFreeUnitOnConquest = (UnitTypes)GC.getInfoTypeForString(szTextVal, true);
@@ -2567,10 +2500,8 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	{
 		m_eFreeBuildingOnConquest = (BuildingTypes)GC.getInfoTypeForString(szTextVal, true);
 	}
-#if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
 	m_bBullyAnnex = kResults.GetBool("BullyAnnex");
 	m_iBullyYieldMultiplierAnnex = kResults.GetInt("BullyYieldMultiplierAnnex");
-#endif
 	m_bFightWellDamaged = kResults.GetBool("FightWellDamaged");
 	m_bWoodlandMovementBonus = kResults.GetBool("MoveFriendlyWoodsAsRoad");
 	m_bRiverMovementBonus = kResults.GetBool("FasterAlongRiver");
@@ -2582,21 +2513,15 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_bArtistGoldenAgeTechBoost = kResults.GetBool("ArtistGoldenAgeTechBoost");
 	m_bStaysAliveZeroCities = kResults.GetBool("StaysAliveZeroCities");
 	m_bFaithFromUnimprovedForest = kResults.GetBool("FaithFromUnimprovedForest");
-#if defined(MOD_TRAITS_ANY_BELIEF)
 	m_bAnyBelief = kResults.GetBool("AnyBelief");
 	m_bAlwaysReligion = kResults.GetBool("AlwaysReligion");
 
-	m_bIgnoreTradeDistanceScaling = kResults.GetBool("IgnoreTradeDistanceScaling");
+	m_bNoTradeRouteProximityPenalty = kResults.GetBool("NoTradeRouteProximityPenalty");
 	m_bCanPlunderWithoutWar = kResults.GetBool("CanPlunderWithoutWar");
-#endif
 	m_bBonusReligiousBelief = kResults.GetBool("BonusReligiousBelief");
 	m_bAbleToAnnexCityStates = kResults.GetBool("AbleToAnnexCityStates");
 	m_bCrossesMountainsAfterGreatGeneral = kResults.GetBool("CrossesMountainsAfterGreatGeneral");
-#if defined(MOD_TRAITS_CROSSES_ICE)
-	if (MOD_TRAITS_CROSSES_ICE) {
-		m_bCrossesIce = kResults.GetBool("CrossesIce");
-	}
-#endif
+	m_bCrossesIce = kResults.GetBool("CrossesIce");
 	m_bGGFromBarbarians = kResults.GetBool("GGFromBarbarians");
 	m_bMayaCalendarBonuses = kResults.GetBool("MayaCalendarBonuses");
 	m_bNoAnnexing = kResults.GetBool("NoAnnexing");
@@ -3103,7 +3028,6 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 		std::map<int, int>(m_piDomainProductionModifiersPerSpecialist).swap(m_piDomainProductionModifiersPerSpecialist);
 	}
 
-#if defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
 	//Populate m_pbiYieldFromRouteMovementInForeignTerritory
 	{
 		std::string sqlKey = "Trait_YieldFromRouteMovementInForeignTerritory";
@@ -3130,9 +3054,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 		//Trim extra memory off container since this is mostly read-only.
 		std::map<int, std::map<bool, int>>(m_pbiYieldFromRouteMovementInForeignTerritory).swap(m_pbiYieldFromRouteMovementInForeignTerritory);
 	}
-#endif
 
-#if defined(MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON)
 	//Populate m_biiTradeRouteProductionSiphon
 	{
 		std::string sqlKey = "Trait_TradeRouteProductionSiphon";
@@ -3160,7 +3082,6 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 		//Trim extra memory off container since this is mostly read-only.
 		std::map<bool, TradeRouteProductionSiphon>(m_biiTradeRouteProductionSiphon).swap(m_biiTradeRouteProductionSiphon);
 	}
-#endif
 
 	//Populate m_MaintenanceModifierUnitCombats
 	{
@@ -4093,7 +4014,7 @@ void CvPlayerTraits::SetIsDiplomat()
 		IsDiplomaticMarriage() ||
 		IsAbleToAnnexCityStates() ||
 		IsCanPlunderWithoutWar() ||
-		IsIgnoreTradeDistanceScaling())
+		IsNoTradeRouteProximityPenalty())
 	{
 		m_bIsDiplomat = true;
 		return;
@@ -4362,12 +4283,8 @@ void CvPlayerTraits::InitPlayerTraits()
 			m_iCapitalBuildingModifier += trait->GetCapitalBuildingModifier();
 			m_iPlotBuyCostModifier += trait->GetPlotBuyCostModifier();
 			m_iNationalPopReqModifier += trait->GetNationalPopReqModifier();
-#if defined(MOD_TRAITS_CITY_WORKING)
 			m_iCityWorkingChange += trait->GetCityWorkingChange();
-#endif
-#if defined(MOD_TRAITS_CITY_AUTOMATON_WORKERS)
 			m_iCityAutomatonWorkersChange += trait->GetCityAutomatonWorkersChange();
-#endif
 			m_iPlotCultureCostModifier += trait->GetPlotCultureCostModifier();
 			m_iCultureFromKills += trait->GetCultureFromKills();
 			m_iFaithFromKills += trait->GetFaithFromKills();
@@ -4565,9 +4482,7 @@ void CvPlayerTraits::InitPlayerTraits()
 				m_bIsCapitalOnly = true;
 			}
 
-#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 			m_iInvestmentModifier += trait->GetInvestmentModifier();
-#endif
 			m_iCombatBonusVsHigherTech += trait->GetCombatBonusVsHigherTech();
 			m_iCombatBonusVsLargerCiv += trait->GetCombatBonusVsLargerCiv();
 			m_iLandUnitMaintenanceModifier += trait->GetLandUnitMaintenanceModifier();
@@ -4593,35 +4508,28 @@ void CvPlayerTraits::InitPlayerTraits()
 			m_iWorkerSpeedModifier += trait->GetWorkerSpeedModifier();
 			m_iAfraidMinorPerTurnInfluence += trait->GetAfraidMinorPerTurnInfluence();
 			m_iLandTradeRouteRangeBonus += trait->GetLandTradeRouteRangeBonus();
-#if defined(MOD_TRAITS_TRADE_ROUTE_BONUSES)
 			m_iSeaTradeRouteRangeBonus += trait->GetSeaTradeRouteRangeBonus();
-#endif
 			m_iTradeReligionModifier += trait->GetTradeReligionModifier();
 			m_iTradeBuildingModifier += trait->GetTradeBuildingModifier();
 			m_iNumFreeBuildings	+= trait->GetNumFreeBuildings();
 			m_iNonSpecialistFoodChange += trait->GetNonSpecialistFoodChange();
-#if defined(MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON)
-			if (MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON)
+
+			if (trait->GetTradeRouteProductionSiphon(true).IsHaveProductionSiphon())
 			{
-				if (trait->GetTradeRouteProductionSiphon(true).IsHaveProductionSiphon())
-				{
-					m_aiiTradeRouteProductionSiphon[true].m_iSiphonPercent += trait->GetTradeRouteProductionSiphon(true).m_iSiphonPercent;
-					m_aiiTradeRouteProductionSiphon[true].m_iPercentIncreaseWithOpenBorders += trait->GetTradeRouteProductionSiphon(true).m_iPercentIncreaseWithOpenBorders;
-				}
-				if (trait->GetTradeRouteProductionSiphon(false).IsHaveProductionSiphon())
-				{
-					m_aiiTradeRouteProductionSiphon[false].m_iSiphonPercent += trait->GetTradeRouteProductionSiphon(false).m_iSiphonPercent;
-					m_aiiTradeRouteProductionSiphon[false].m_iPercentIncreaseWithOpenBorders += trait->GetTradeRouteProductionSiphon(false).m_iPercentIncreaseWithOpenBorders;
-				}
+				m_aiiTradeRouteProductionSiphon[true].m_iSiphonPercent += trait->GetTradeRouteProductionSiphon(true).m_iSiphonPercent;
+				m_aiiTradeRouteProductionSiphon[true].m_iPercentIncreaseWithOpenBorders += trait->GetTradeRouteProductionSiphon(true).m_iPercentIncreaseWithOpenBorders;
 			}
-#endif
-#if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
+			if (trait->GetTradeRouteProductionSiphon(false).IsHaveProductionSiphon())
+			{
+				m_aiiTradeRouteProductionSiphon[false].m_iSiphonPercent += trait->GetTradeRouteProductionSiphon(false).m_iSiphonPercent;
+				m_aiiTradeRouteProductionSiphon[false].m_iPercentIncreaseWithOpenBorders += trait->GetTradeRouteProductionSiphon(false).m_iPercentIncreaseWithOpenBorders;
+			}
+
 			if(trait->IsBullyAnnex())
 			{
 				m_bBullyAnnex = true;
 			}
 			m_iBullyYieldMultiplierAnnex += trait->GetBullyYieldMultiplierAnnex();
-#endif
 			if(trait->IsFightWellDamaged())
 			{
 				m_bFightWellDamaged = true;
@@ -4666,7 +4574,6 @@ void CvPlayerTraits::InitPlayerTraits()
 			{
 				m_bFaithFromUnimprovedForest = true;
 			}
-#if defined(MOD_TRAITS_ANY_BELIEF)
 			if(trait->IsAnyBelief())
 			{
 				m_bAnyBelief = true;
@@ -4675,15 +4582,14 @@ void CvPlayerTraits::InitPlayerTraits()
 			{
 				m_bAlwaysReligion = true;
 			}
-			if (trait->IsIgnoreTradeDistanceScaling())
+			if (trait->IsNoTradeRouteProximityPenalty())
 			{
-				m_bIgnoreTradeDistanceScaling = true;
+				m_bNoTradeRouteProximityPenalty = true;
 			}
 			if (trait->IsCanPlunderWithoutWar())
 			{
 				m_bCanPlunderWithoutWar = true;
 			}
-#endif
 			if(trait->IsBonusReligiousBelief())
 			{
 				m_bBonusReligiousBelief = true;
@@ -4696,12 +4602,10 @@ void CvPlayerTraits::InitPlayerTraits()
 			{
 				m_bCrossesMountainsAfterGreatGeneral = true;
 			}
-#if defined(MOD_TRAITS_CROSSES_ICE)
 			if(trait->IsCrossesIce())
 			{
 				m_bCrossesIce = true;
 			}
-#endif
 			if(trait->IsGGFromBarbarians())
 			{
 				m_bGGFromBarbarians = true;
@@ -4755,6 +4659,35 @@ void CvPlayerTraits::InitPlayerTraits()
 
 			m_miResourceYieldChangesFromGoldenAge = trait->GetResourceYieldChangesFromGoldenAge();
 			m_miResourceYieldChangesFromGoldenAgeCap = trait->GetResourceYieldChangesFromGoldenAgeCap();
+
+			m_iPurchasedUnitsBonusXP = trait->GetPurchasedUnitsBonusXP();
+			m_iVotePerXCSAlliance = trait->GetVotePerXCSAlliance();
+			m_iVotePerXCSFollowingFollowingYourReligion = trait->GetVotePerXCSFollowingYourReligion();
+			m_iChanceToConvertReligiousUnits = trait->GetChanceToConvertReligiousUnits();
+			m_iGoldenAgeFromVictory = trait->GetGoldenAgeFromVictory();
+			m_iFreePolicyPerXTechs = trait->GetFreePolicyPerXTechs();
+			m_eGPFaithPurchaseEra = trait->GetGPFaithPurchaseEra();
+			m_iFaithCostModifier = trait->GetFaithCostModifier();
+			if(trait->IsFreeGreatWorkOnConquest())
+			{
+				m_bFreeGreatWorkOnConquest = true;
+			}
+			if(trait->IsPopulationBoostReligion())
+			{
+				m_bPopulationBoostReligion = true;
+			}
+			if(trait->StartsWithPantheon())
+			{
+				m_bStartsWithPantheon = true;
+			}
+			if(trait->IsProphetFervor())
+			{
+				m_bProphetFervor = true;
+			}
+			if(trait->IsCombatBoostNearNaturalWonder())
+			{
+				m_bCombatBoostNearNaturalWonder= true;
+			}
 			
 			for(int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
 			{
@@ -4930,38 +4863,10 @@ void CvPlayerTraits::InitPlayerTraits()
 				{
 					m_aiGoldenAgeYieldModifier.insert(std::pair<int, int>(iYield, trait->GetGoldenAgeYieldModifier(iYield)));
 				}
-				m_iPurchasedUnitsBonusXP = trait->GetPurchasedUnitsBonusXP();
-				m_iVotePerXCSAlliance = trait->GetVotePerXCSAlliance();
-				m_iVotePerXCSFollowingFollowingYourReligion = trait->GetVotePerXCSFollowingYourReligion();
-				m_iChanceToConvertReligiousUnits = trait->GetChanceToConvertReligiousUnits();
-				m_iGoldenAgeFromVictory = trait->GetGoldenAgeFromVictory();
-				m_iFreePolicyPerXTechs = trait->GetFreePolicyPerXTechs();
-				m_eGPFaithPurchaseEra = trait->GetGPFaithPurchaseEra();
-				m_iFaithCostModifier = trait->GetFaithCostModifier();
-				if(trait->IsFreeGreatWorkOnConquest())
-				{
-					m_bFreeGreatWorkOnConquest = true;
-				}
-				if(trait->IsPopulationBoostReligion())
-				{
-					m_bPopulationBoostReligion = true;
-				}
-				if(trait->StartsWithPantheon())
-				{
-					m_bStartsWithPantheon = true;
-				}
-				if(trait->IsProphetFervor())
-				{
-					m_bProphetFervor = true;
-				}
-				if(trait->IsCombatBoostNearNaturalWonder())
-				{
-					m_bCombatBoostNearNaturalWonder= true;
-				}
-#if defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
+
 				m_pbiYieldFromRouteMovementInForeignTerritory[iYield][true] = trait->GetYieldFromRouteMovementInForeignTerritory((YieldTypes)iYield, true);
 				m_pbiYieldFromRouteMovementInForeignTerritory[iYield][false] = trait->GetYieldFromRouteMovementInForeignTerritory((YieldTypes)iYield, false);
-#endif
+
 				for(int iBuildingClassLoop = 0; iBuildingClassLoop < GC.getNumBuildingClassInfos(); iBuildingClassLoop++)
 				{
 					int iChange = trait->GetBuildingClassYieldChanges((BuildingClassTypes)iBuildingClassLoop, (YieldTypes)iYield);
@@ -5270,12 +5175,8 @@ void CvPlayerTraits::Reset()
 	m_iCapitalBuildingModifier = 0;
 	m_iPlotBuyCostModifier = 0;
 	m_iNationalPopReqModifier = 0;
-#if defined(MOD_TRAITS_CITY_WORKING)
 	m_iCityWorkingChange = 0;
-#endif
-#if defined(MOD_TRAITS_CITY_AUTOMATON_WORKERS)
 	m_iCityAutomatonWorkersChange = 0;
-#endif
 	m_iPlotCultureCostModifier = 0;
 	m_iCultureFromKills = 0;
 	m_iFaithFromKills = 0;
@@ -5369,9 +5270,7 @@ void CvPlayerTraits::Reset()
 	m_iExtraTradeRoutesPerXOwnedVassals = 0;
 	m_iMinorInfluencePerGiftedUnit = 0;
 	m_bIsCapitalOnly = false;
-#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier = 0;
-#endif
 	m_iCombatBonusVsHigherTech = 0;
 	m_iCombatBonusVsLargerCiv = 0;
 	m_iLandUnitMaintenanceModifier = 0;
@@ -5397,18 +5296,14 @@ void CvPlayerTraits::Reset()
 	m_iWorkerSpeedModifier = 0;
 	m_iAfraidMinorPerTurnInfluence = 0;
 	m_iLandTradeRouteRangeBonus = 0;
-#if defined(MOD_TRAITS_TRADE_ROUTE_BONUSES)
 	m_iSeaTradeRouteRangeBonus = 0;
-#endif
 	m_iTradeReligionModifier = 0;
 	m_iTradeBuildingModifier = 0;
 	m_iNumFreeBuildings = 0;
 	m_eFreeUnitOnConquest = NO_UNIT;
 	m_iNonSpecialistFoodChange = 0;
-#if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
 	m_bBullyAnnex = false;
 	m_iBullyYieldMultiplierAnnex = 0;
-#endif
 	m_bFightWellDamaged = false;
 	m_bWoodlandMovementBonus = false;
 	m_bRiverMovementBonus = false;
@@ -5419,18 +5314,14 @@ void CvPlayerTraits::Reset()
 	m_bTechBoostFromCapitalScienceBuildings = false;
 	m_bStaysAliveZeroCities = false;
 	m_bFaithFromUnimprovedForest = false;
-#if defined(MOD_TRAITS_ANY_BELIEF)
 	m_bAnyBelief = false;
 	m_bAlwaysReligion = false;
-	m_bIgnoreTradeDistanceScaling = false;
+	m_bNoTradeRouteProximityPenalty = false;
 	m_bCanPlunderWithoutWar = false;
-#endif
 	m_bBonusReligiousBelief = false;
 	m_bAbleToAnnexCityStates = false;
 	m_bCrossesMountainsAfterGreatGeneral = false;
-#if defined(MOD_TRAITS_CROSSES_ICE)
 	m_bCrossesIce = false;
-#endif
 	m_bGGFromBarbarians = false;
 	m_bMayaCalendarBonuses = false;
 	m_bNoAnnexing = false;
@@ -5472,9 +5363,7 @@ void CvPlayerTraits::Reset()
 	m_ppaaiYieldChangePerImprovementBuilt.resize(GC.getNumImprovementInfos());
 	UpdateYieldChangeImprovementTypes();
 	m_pbiYieldFromBarbarianCampClear.clear();
-#if defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
 	m_pbiYieldFromRouteMovementInForeignTerritory.clear();
-#endif
 	m_ppiPlotYieldChange.clear();
 	m_ppiPlotYieldChange.resize(GC.getNumPlotInfos());
 	m_ppiBuildingClassYieldChange.clear();
@@ -5709,9 +5598,7 @@ void CvPlayerTraits::Reset()
 	}
 	m_aiNoBuilds.clear();
 	m_aiDomainProductionModifiersPerSpecialist.clear();
-#if defined(MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON)
 	m_aiiTradeRouteProductionSiphon.clear();
-#endif
 	m_aiiAlternateResourceTechs.clear();
 	int iResourceLoop = 0;
 	for(iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
@@ -5730,7 +5617,7 @@ bool CvPlayerTraits::HasTrait(TraitTypes eTrait) const
 	{
 		ASSERT((m_pPlayer->getLeaderType() >= 0), "getLeaderType() is less than zero");
 		ASSERT((eTrait >= 0), "eTrait is less than zero");
-#if defined(MOD_TRAITS_OTHER_PREREQS)
+
 		TeamTypes eTeam = m_pPlayer->getTeam();
 		PlayerTypes ePlayer = m_pPlayer->GetID();
 		CvTraitEntry* pTrait = m_pTraits->GetEntry(eTrait);
@@ -5738,9 +5625,6 @@ bool CvPlayerTraits::HasTrait(TraitTypes eTrait) const
 			   ((!pTrait->IsObsoleteByBelief(ePlayer) && pTrait->IsEnabledByBelief(ePlayer)) &&
 			    (!pTrait->IsObsoleteByPolicy(ePlayer) && pTrait->IsEnabledByPolicy(ePlayer)) &&
 			    (!pTrait->IsObsoleteByTech(eTeam)     && pTrait->IsEnabledByTech(eTeam)));
-#else
-		return m_vLeaderHasTrait[eTrait] && !m_pTraits->GetEntry(eTrait)->IsObsoleteByTech(m_pPlayer->getTeam()) && m_pTraits->GetEntry(eTrait)->IsEnabledByTech(m_pPlayer->getTeam());
-#endif
 	}
 	else
 	{
@@ -6030,7 +5914,7 @@ int CvPlayerTraits::GetYieldFromBarbarianCampClear(YieldTypes eYield, bool bEraS
 
 	return 0;
 }
-#if defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
+
 int CvPlayerTraits::GetYieldFromRouteMovementInForeignTerritory(YieldTypes eIndex, bool bTradePartner) const
 {
 	PRECONDITION(eIndex < NUM_YIELD_TYPES, "Index out of bounds");
@@ -6048,7 +5932,6 @@ int CvPlayerTraits::GetYieldFromRouteMovementInForeignTerritory(YieldTypes eInde
 
 	return 0;
 }
-#endif
 
 /// Extra yield from this plot
 int CvPlayerTraits::GetPlotYieldChange(PlotTypes ePlot, YieldTypes eYield) const
@@ -6391,7 +6274,6 @@ int CvPlayerTraits::GetDomainProductionModifiersPerSpecialist(DomainTypes eDomai
 	return 0;
 }
 
-#if defined(MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON)
 /// What is the percent if the origin city gains a percent of the target city's production towards that specific thing
 TradeRouteProductionSiphon CvPlayerTraits::GetTradeRouteProductionSiphon(bool bInternationalOnly) const
 {
@@ -6410,7 +6292,6 @@ bool CvPlayerTraits::IsTradeRouteProductionSiphon() const
 {
 	return !m_aiiTradeRouteProductionSiphon.empty();
 }
-#endif
 
 /// What are the alternate technologies for revealing resources
 AlternateResourceTechs CvPlayerTraits::GetAlternateResourceTechs(ResourceTypes eResource) const
@@ -6657,14 +6538,12 @@ void CvPlayerTraits::AddUniqueLuxuries(CvCity *pCity)
 			{
 				return;
 			}
-			
-#if defined(MOD_EVENTS_AREA_RESOURCES)
-			if (MOD_EVENTS_AREA_RESOURCES) {
-				if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_AreaCanHaveAnyResource, m_pPlayer->GetID(), iArea) == GAMEEVENTRETURN_FALSE) {
+
+			if (MOD_EVENTS_AREA_RESOURCES)
+			{
+				if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_AreaCanHaveAnyResource, m_pPlayer->GetID(), iArea) == GAMEEVENTRETURN_FALSE)
 					return;
-				}
 			}
-#endif
 		}
 
 		m_aUniqueLuxuryAreas.push_back(iArea);  		// Store area
@@ -6691,19 +6570,15 @@ void CvPlayerTraits::AddUniqueLuxuries(CvCity *pCity)
 
 		if (eResourceToGive != NO_RESOURCE)
 		{
-#if defined(MOD_EVENTS_AREA_RESOURCES)
 			if (MOD_EVENTS_AREA_RESOURCES)
 			{
 				GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlaceResource, m_pPlayer->GetID(), eResourceToGive, m_iUniqueLuxuryQuantity, pCity->getX(), pCity->getY());
 			}
 			else 
 			{
-#endif
 				pCity->plot()->setResourceType(NO_RESOURCE, 0, true);
 				pCity->plot()->setResourceType(eResourceToGive, m_iUniqueLuxuryQuantity, true);
-#if defined(MOD_EVENTS_AREA_RESOURCES)
 			}
-#endif
 		}
 	}
 }
@@ -6852,20 +6727,14 @@ FreeResourceXCities CvPlayerTraits::GetFreeResourceXCities(ResourceTypes eResour
 /// Is this civ currently able to cross mountains with combat units?
 bool CvPlayerTraits::IsAbleToCrossMountainsWithGreatGeneral() const
 {
-#if defined(MOD_GLOBAL_TRULY_FREE_GP)
 	return (m_bCrossesMountainsAfterGreatGeneral && m_pPlayer->getGreatGeneralsCreated(false) > 0);
-#else
-	return (m_bCrossesMountainsAfterGreatGeneral && m_pPlayer->getGreatGeneralsCreated() > 0);
-#endif
 }
 
-#if defined(MOD_TRAITS_CROSSES_ICE)
 /// Is this civ currently able to cross ice with combat units?
 bool CvPlayerTraits::IsAbleToCrossIce() const
 {
-	return (m_bCrossesIce);
+	return m_bCrossesIce;
 }
-#endif
 
 bool CvPlayerTraits::NoTrain(UnitClassTypes eUnitClassType)
 {
@@ -6928,12 +6797,11 @@ bool CvPlayerTraits::IsEndOfMayaLongCount()
 	{
 		bRtnValue = true;
 		m_pPlayer->doInstantYield(INSTANT_YIELD_TYPE_BAKTUN_END);
-#if defined(MOD_EVENTS_GOLDEN_AGE)
+
 		// Since m_iBaktunPreviousTurn will be overwritten in a moment, this is the only place to properly send an event for end of Maya long count
-		if(MOD_EVENTS_GOLDEN_AGE && m_pPlayer != NULL)
+		if (MOD_EVENTS_GOLDEN_AGE && m_pPlayer != NULL)
 			// GameEvents.PlayerEndOfMayaLongCount.Add(function(iPlayer, iBaktun, iBaktunPreviousTurn) end)
 			GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerEndOfMayaLongCount, m_pPlayer->GetID(), m_iBaktun, m_iBaktunPreviousTurn);
-#endif
 	}
 
 	m_iBaktunPreviousTurn = m_iBaktun;
@@ -6967,7 +6835,7 @@ void CvPlayerTraits::ChooseMayaBoost()
 
 	// Go for a prophet?
 	bool bHasReligion = false;
-	if (MOD_BALANCE_CORE_MAYA_CHANGE && m_pPlayer->GetReligions()->GetOwnedReligion() != NO_RELIGION)
+	if (MOD_BALANCE_ALTERNATE_MAYA_TRAIT && m_pPlayer->GetReligions()->GetOwnedReligion() != NO_RELIGION)
 	{
 		bHasReligion = true;
 	}
@@ -6998,7 +6866,7 @@ void CvPlayerTraits::ChooseMayaBoost()
 			}
 		}
 
-		if (MOD_BALANCE_CORE_MAYA_CHANGE && (eDesiredGreatPerson == ePossibleGreatPerson) && !bHasReligion)
+		if (MOD_BALANCE_ALTERNATE_MAYA_TRAIT && eDesiredGreatPerson == ePossibleGreatPerson && !bHasReligion)
 		{
 			eDesiredGreatPerson = NO_UNIT;
 		}
@@ -7082,14 +6950,14 @@ void CvPlayerTraits::ChooseMayaBoost()
 	}
 
 	// No obvious strategic choice, just go for first one available in a reasonable order
-	if(eDesiredGreatPerson == NO_UNIT)
+	if (eDesiredGreatPerson == NO_UNIT)
 	{
 		ePossibleGreatPerson = m_pPlayer->GetSpecificUnitType("UNITCLASS_PROPHET", true);
 
-		if(GetUnitBaktun(ePossibleGreatPerson) == 0)
+		if (GetUnitBaktun(ePossibleGreatPerson) == 0)
 		{
 			eDesiredGreatPerson = ePossibleGreatPerson;
-			if(MOD_BALANCE_CORE_MAYA_CHANGE && (eDesiredGreatPerson == ePossibleGreatPerson) && !bHasReligion)
+			if (MOD_BALANCE_ALTERNATE_MAYA_TRAIT && eDesiredGreatPerson == ePossibleGreatPerson && !bHasReligion)
 			{
 				eDesiredGreatPerson = NO_UNIT;
 			}
@@ -7226,23 +7094,19 @@ int CvPlayerTraits::GetUnitBaktun(UnitTypes eUnit) const
 	std::vector<MayaBonusChoice>::const_iterator it;
 
 	// Loop through all units available to tactical AI this turn
-	for(it = m_aMayaBonusChoices.begin(); it != m_aMayaBonusChoices.end(); it++)
+	for (it = m_aMayaBonusChoices.begin(); it != m_aMayaBonusChoices.end(); it++)
 	{
 		if(it->m_eUnitType == eUnit)
 		{
-#if defined(MOD_BALANCE_CORE_MAYA_CHANGE)
 			CvUnitEntry* pUnitEntry = GC.getUnitInfo(eUnit);
-			if(MOD_BALANCE_CORE_MAYA_CHANGE && m_aMayaBonusChoices.size() > 1 && pUnitEntry->IsFoundReligion() && !IsProphetValid())
+			if (MOD_BALANCE_ALTERNATE_MAYA_TRAIT && m_aMayaBonusChoices.size() > 1 && pUnitEntry->IsFoundReligion() && !IsProphetValid())
 			{
 				return 1;
 			}
 			else
 			{
-#endif
-			return it->m_iBaktunJustFinished;
-#if defined(MOD_BALANCE_CORE_MAYA_CHANGE)
+				return it->m_iBaktunJustFinished;
 			}
-#endif
 		}
 	}
 
@@ -7334,7 +7198,7 @@ bool CvPlayerTraits::IsFreeMayaGreatPersonChoice() const
 			{
 				if (pUnitEntry->GetSpecialUnitType() == eSpecialUnitGreatPerson)
 				{
-					if (MOD_BALANCE_CORE_MAYA_CHANGE && pUnitEntry->IsFoundReligion() && !IsProphetValid())
+					if (MOD_BALANCE_ALTERNATE_MAYA_TRAIT && pUnitEntry->IsFoundReligion() && !IsProphetValid())
 						continue;
 
 					iNumGreatPeopleTypes++;
@@ -7601,7 +7465,7 @@ void CvPlayerTraits::Serialize(PlayerTraits& playerTraits, Visitor& visitor)
 	visitor(playerTraits.m_bFaithFromUnimprovedForest);
 	visitor(playerTraits.m_bAnyBelief);
 	visitor(playerTraits.m_bAlwaysReligion);
-	visitor(playerTraits.m_bIgnoreTradeDistanceScaling);
+	visitor(playerTraits.m_bNoTradeRouteProximityPenalty);
 	visitor(playerTraits.m_bCanPlunderWithoutWar);
 	visitor(playerTraits.m_bBonusReligiousBelief);
 	visitor(playerTraits.m_bAbleToAnnexCityStates);
@@ -7844,7 +7708,7 @@ bool CvPlayerTraits::ConvertBarbarianCamp(CvUnit* pByUnit, CvPlot* pPlot)
 		m_pPlayer->GetNotifications()->Add(NOTIFICATION_GENERIC, strBuffer, strSummary, pPlot->getX(), pPlot->getY(), -1);
 
 		//Increase Stat
-		if (MOD_API_ACHIEVEMENTS && m_pPlayer->isHuman(ISHUMAN_ACHIEVEMENTS) &&!GC.getGame().isGameMultiPlayer())
+		if (MOD_ENABLE_ACHIEVEMENTS && m_pPlayer->isHuman(ISHUMAN_ACHIEVEMENTS) &&!GC.getGame().isGameMultiPlayer())
 		{
 			gDLL->IncrementSteamStatAndUnlock(ESTEAMSTAT_BARBSCONVERTED, 10, ACHIEVEMENT_SPECIAL_BARBARIANWARLORD);
 		}
@@ -7889,7 +7753,7 @@ bool CvPlayerTraits::ConvertBarbarianNavalUnit(CvUnit* pByUnit, CvUnit* pUnit)
 		pGiftUnit->finishMoves(); // No move first turn
 
 		// Validate that the achievement is reached by a live human and active player at the same time
-		if (MOD_API_ACHIEVEMENTS && m_pPlayer->isHuman(ISHUMAN_ACHIEVEMENTS) && !GC.getGame().isGameMultiPlayer() && m_pPlayer->getLeaderInfo().GetType() && _stricmp(m_pPlayer->getLeaderInfo().GetType(), "LEADER_SULEIMAN") == 0)
+		if (MOD_ENABLE_ACHIEVEMENTS && m_pPlayer->isHuman(ISHUMAN_ACHIEVEMENTS) && !GC.getGame().isGameMultiPlayer() && m_pPlayer->getLeaderInfo().GetType() && _stricmp(m_pPlayer->getLeaderInfo().GetType(), "LEADER_SULEIMAN") == 0)
 		{
 			gDLL->IncrementSteamStatAndUnlock(ESTEAMSTAT_BARBSNAVALCONVERTED, 10, ACHIEVEMENT_SPECIAL_BARBARYPIRATE);
 		}

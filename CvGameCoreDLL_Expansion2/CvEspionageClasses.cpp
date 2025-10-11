@@ -411,7 +411,7 @@ void CvPlayerEspionage::Init(CvPlayer* pPlayer)
 	for (uint ui = 0; ui < m_aiSpyListNameOrder.size(); ui++)
 	{
 		int iCounter = static_cast<int>(ui);
-		uint uiTargetSlot = GC.getGame().urandLimitExclusive(m_aiSpyListNameOrder.size(), CvSeeder::fromRaw(0xff0af677).mix(iCounter));
+		uint uiTargetSlot = GC.getGame().urandLimitExclusive(m_aiSpyListNameOrder.size(), CvSeeder::fromRaw(0xff0af677).mix(pPlayer->GetID()).mix(iCounter));
 		uint uiTempValue = m_aiSpyListNameOrder[ui];
 		m_aiSpyListNameOrder[ui] = m_aiSpyListNameOrder[uiTargetSlot];
 		m_aiSpyListNameOrder[uiTargetSlot] = uiTempValue;
@@ -1264,7 +1264,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 					}
 
 					//Achievements!
-					if (MOD_API_ACHIEVEMENTS && m_pPlayer->GetID() == GC.getGame().getActivePlayer())
+					if (MOD_ENABLE_ACHIEVEMENTS && m_pPlayer->GetID() == GC.getGame().getActivePlayer())
 						gDLL->UnlockAchievement(ACHIEVEMENT_XP1_12);
 
 					LevelUpSpy(uiSpyIndex);
@@ -2687,13 +2687,11 @@ bool CvPlayerEspionage::CanEverMoveSpyTo(CvCity* pCity)
 		return false;
 	}
 
-#if defined(MOD_EVENTS_ESPIONAGE)
-	if (MOD_EVENTS_ESPIONAGE) {
-		if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_EspionageCanMoveSpyTo, m_pPlayer->GetID(), pCity->getOwner(), pCity->GetID()) == GAMEEVENTRETURN_FALSE) {
+	if (MOD_EVENTS_ESPIONAGE)
+	{
+		if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_EspionageCanMoveSpyTo, m_pPlayer->GetID(), pCity->getOwner(), pCity->GetID()) == GAMEEVENTRETURN_FALSE)
 			return false;
-		}
 	}
-#endif
 	
 	return true;
 }
@@ -3631,13 +3629,11 @@ bool CvPlayerEspionage::CanStageCoup(uint uiSpyIndex)
 		return true;
 	}
 
-#if defined(MOD_EVENTS_ESPIONAGE)
-	if (MOD_EVENTS_ESPIONAGE) {
-		if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_EspionageCanStageCoup, m_pPlayer->GetID(), eCityOwner, pCity->GetID()) == GAMEEVENTRETURN_FALSE) {
+	if (MOD_EVENTS_ESPIONAGE)
+	{
+		if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_EspionageCanStageCoup, m_pPlayer->GetID(), eCityOwner, pCity->GetID()) == GAMEEVENTRETURN_FALSE)
 			return false;
-		}
 	}
-#endif
 	
 	return false;
 }
@@ -3657,13 +3653,11 @@ bool CvPlayerEspionage::CanStageCoup(CvCity* pCity)
 		return true;
 	}
 
-#if defined(MOD_EVENTS_ESPIONAGE)
-	if (MOD_EVENTS_ESPIONAGE) {
-		if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_EspionageCanStageCoup, m_pPlayer->GetID(), eCityOwner, pCity->GetID()) == GAMEEVENTRETURN_FALSE) {
+	if (MOD_EVENTS_ESPIONAGE)
+	{
+		if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_EspionageCanStageCoup, m_pPlayer->GetID(), eCityOwner, pCity->GetID()) == GAMEEVENTRETURN_FALSE)
 			return false;
-		}
 	}
-#endif
 
 	return false;
 }
@@ -4036,7 +4030,7 @@ bool CvPlayerEspionage::AttemptCoup(uint uiSpyIndex)
 	if (bAttemptSuccess)
 	{
 		//Achievements!
-		if (MOD_API_ACHIEVEMENTS && m_pPlayer->GetID() == GC.getGame().getActivePlayer())
+		if (MOD_ENABLE_ACHIEVEMENTS && m_pPlayer->GetID() == GC.getGame().getActivePlayer())
 			gDLL->UnlockAchievement(ACHIEVEMENT_XP1_13);
 	}
 
@@ -4514,11 +4508,8 @@ void CvPlayerEspionage::AddSpyMessage(int iCityX, int iCityY, PlayerTypes eAttac
 	kMessage.m_iMission = (int)eMission;
 	kMessage.m_iGWID = iGWID;
 
-#if defined(MOD_EVENTS_ESPIONAGE)
-	if (MOD_EVENTS_ESPIONAGE) {
+	if (MOD_EVENTS_ESPIONAGE)
 		GAMEEVENTINVOKE_HOOK(GAMEEVENT_EspionageNotificationData, iCityX, iCityY, eAttackingPlayer, m_pPlayer->GetID(), iSpyResult, eStolenTech, iAmountStolen);
-	}
-#endif
 
 	m_aSpyNotificationMessages.push_back(kMessage);
 }
@@ -4648,7 +4639,7 @@ void CvPlayerEspionage::ProcessSpyMessages()
 						pNotifications->Add(NOTIFICATION_SPY_KILLED_A_SPY, strNotification.toUTF8(), strSummary.toUTF8(), -1, -1, m_aSpyNotificationMessages[ui].m_eAttackingPlayer);
 
 						//Achievements
-						if (MOD_API_ACHIEVEMENTS && m_pPlayer->GetID() == GC.getGame().getActivePlayer())
+						if (MOD_ENABLE_ACHIEVEMENTS && m_pPlayer->GetID() == GC.getGame().getActivePlayer())
 							gDLL->UnlockAchievement(ACHIEVEMENT_XP1_15);
 					}
 				}
@@ -4770,7 +4761,7 @@ void CvPlayerEspionage::ProcessSpyMessages()
 				pNotifications->Add(NOTIFICATION_SPY_KILLED_A_SPY, strNotification.toUTF8(), strSummary.toUTF8(), -1, -1, m_aSpyNotificationMessages[ui].m_eAttackingPlayer);
 
 				//Achievements
-				if (MOD_API_ACHIEVEMENTS && m_pPlayer->GetID() == GC.getGame().getActivePlayer())
+				if (MOD_ENABLE_ACHIEVEMENTS && m_pPlayer->GetID() == GC.getGame().getActivePlayer())
 					gDLL->UnlockAchievement(ACHIEVEMENT_XP1_15);
 			}
 			break;
@@ -4786,7 +4777,7 @@ void CvPlayerEspionage::ProcessSpyMessages()
 				pNotifications->Add(NOTIFICATION_SPY_KILLED_A_SPY, strNotification.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
 
 				//Achievements
-				if (MOD_API_ACHIEVEMENTS && m_pPlayer->GetID() == GC.getGame().getActivePlayer())
+				if (MOD_ENABLE_ACHIEVEMENTS && m_pPlayer->GetID() == GC.getGame().getActivePlayer())
 					gDLL->UnlockAchievement(ACHIEVEMENT_XP1_15);
 			}
 			break;

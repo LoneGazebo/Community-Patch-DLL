@@ -31,7 +31,7 @@ int CvAchievementUnlocker::ms_iNumImprovementsPillagedPerTurn = 0;
 //	Test the conditions for the ACHIEVEMENT_PSG
 bool CvAchievementUnlocker::Check_PSG()
 {
-	if (!MOD_API_ACHIEVEMENTS)
+	if (!MOD_ENABLE_ACHIEVEMENTS)
 		return false;
 
 	const int PSG_STAT_MATCH_VALUE = 100;
@@ -55,7 +55,7 @@ bool CvAchievementUnlocker::Check_PSG()
 //------------------------------------------------------------------------------
 void CvAchievementUnlocker::FarmImprovementPillaged()
 {
-	if (!MOD_API_ACHIEVEMENTS)
+	if (!MOD_ENABLE_ACHIEVEMENTS)
 		return;
 
 	ms_iNumImprovementsPillagedPerTurn++;
@@ -73,7 +73,7 @@ void CvAchievementUnlocker::EndTurn()
 //------------------------------------------------------------------------------
 void CvAchievementUnlocker::AlexanderConquest(PlayerTypes ePlayer)
 {
-	if (!MOD_API_ACHIEVEMENTS)
+	if (!MOD_ENABLE_ACHIEVEMENTS)
 		return;
 
 	//Test For Alexander Conquest
@@ -113,7 +113,7 @@ void CvAchievementUnlocker::AlexanderConquest(PlayerTypes ePlayer)
 
 void CvAchievementUnlocker::UnlockFromDatabase()
 {
-	if (!MOD_API_ACHIEVEMENTS)
+	if (!MOD_ENABLE_ACHIEVEMENTS)
 		return;
 
 	GUID guid;
@@ -219,7 +219,7 @@ CvPlayerAchievements::CvPlayerAchievements(const CvPlayer& kPlayer)
 //------------------------------------------------------------------------------
 void CvPlayerAchievements::AlliedWithCityState(PlayerTypes eNewCityStateAlly)
 {
-	if (!MOD_API_ACHIEVEMENTS || m_kPlayer.GetID() != GC.getGame().getActivePlayer())
+	if (!MOD_ENABLE_ACHIEVEMENTS || m_kPlayer.GetID() != GC.getGame().getActivePlayer())
 		return;
 
 	//Cache value if needed
@@ -264,7 +264,7 @@ void CvPlayerAchievements::AlliedWithCityState(PlayerTypes eNewCityStateAlly)
 //------------------------------------------------------------------------------
 void CvPlayerAchievements::AddUnit(CvUnit* pUnit)
 {
-	if (!MOD_API_ACHIEVEMENTS || m_kPlayer.GetID() != GC.getGame().getActivePlayer())
+	if (!MOD_ENABLE_ACHIEVEMENTS || m_kPlayer.GetID() != GC.getGame().getActivePlayer())
 		return;
 
 	//Attempt to read from cache
@@ -294,7 +294,7 @@ void CvPlayerAchievements::AddUnit(CvUnit* pUnit)
 //------------------------------------------------------------------------------
 void CvPlayerAchievements::AttackedUnitWithUnit(CvUnit* pAttackingUnit, CvUnit* pDefendingUnit)
 {
-	if (!MOD_API_ACHIEVEMENTS || m_kPlayer.GetID() != GC.getGame().getActivePlayer())
+	if (!MOD_ENABLE_ACHIEVEMENTS || m_kPlayer.GetID() != GC.getGame().getActivePlayer())
 		return;
 
 	if(m_eCarthageType == UNDEFINED_TYPE)
@@ -326,7 +326,7 @@ void CvPlayerAchievements::AttackedUnitWithUnit(CvUnit* pAttackingUnit, CvUnit* 
 //------------------------------------------------------------------------------
 void CvPlayerAchievements::BoughtCityState(int iNumUnits)
 {
-	if (!MOD_API_ACHIEVEMENTS || iNumUnits < 15)
+	if (!MOD_ENABLE_ACHIEVEMENTS || iNumUnits < 15)
 		return;
 
 	gDLL->UnlockAchievement(ACHIEVEMENT_XP1_35);
@@ -334,7 +334,7 @@ void CvPlayerAchievements::BoughtCityState(int iNumUnits)
 //------------------------------------------------------------------------------
 void CvPlayerAchievements::KilledUnitWithUnit(CvUnit* pKillingUnit, CvUnit* pKilledUnit)
 {
-	if (!MOD_API_ACHIEVEMENTS || m_kPlayer.GetID() != GC.getGame().getActivePlayer())
+	if (!MOD_ENABLE_ACHIEVEMENTS || m_kPlayer.GetID() != GC.getGame().getActivePlayer())
 		return;
 
 	if(m_eByzantinesType == UNDEFINED_TYPE)
@@ -400,7 +400,7 @@ void CvPlayerAchievements::KilledUnitWithUnit(CvUnit* pKillingUnit, CvUnit* pKil
 //------------------------------------------------------------------------------
 void CvPlayerAchievements::StartTurn()
 {
-	if (!MOD_API_ACHIEVEMENTS || m_kPlayer.GetID() != GC.getGame().getActivePlayer())
+	if (!MOD_ENABLE_ACHIEVEMENTS || m_kPlayer.GetID() != GC.getGame().getActivePlayer())
 		return;
 
 	if(m_eSwedenType == UNDEFINED_TYPE)
@@ -453,7 +453,7 @@ void CvPlayerAchievements::EndTurn()
 //-------------------------------------------------------------------------
 void CvPlayerAchievements::FinishedBuilding(CvCity* pkCity, BuildingTypes eBuilding)
 {
-	if (!MOD_API_ACHIEVEMENTS)
+	if (!MOD_ENABLE_ACHIEVEMENTS)
 		return;
 
 	if(m_eCollossusType == UNDEFINED_TYPE)

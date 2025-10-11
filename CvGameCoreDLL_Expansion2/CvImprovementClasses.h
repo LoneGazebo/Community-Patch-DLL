@@ -92,26 +92,17 @@ public:
 	void SetImprovementUpgrade(int i);
 	int GetRequiresXAdjacentLand() const;
 	int GetRequiresXAdjacentWater() const;
-
-#if defined(MOD_GLOBAL_NO_FOLLOWUP_FROM_CITIES)
 	bool IsNoFollowUp() const;
-#endif
 
-#if defined(MOD_GLOBAL_RELOCATION)
 	bool IsAllowsRebaseTo() const;
 	bool IsAllowsAirliftFrom() const;
 	bool IsAllowsAirliftTo() const;
-#endif
 
 	bool IsBlockTileSteal() const;
 
 	bool IsHillsMakesValid() const;
-#if defined(MOD_GLOBAL_ALPINE_PASSES)
 	bool IsMountainsMakesValid() const;
-#endif
-#if defined(MOD_GLOBAL_PASSABLE_FORTS)
 	bool IsMakesPassable() const;
-#endif
 	bool IsWaterAdjacencyMakesValid() const;
 	bool IsFreshWaterMakesValid() const;
 	bool IsRiverSideMakesValid() const;
@@ -272,25 +263,17 @@ protected:
 	int m_iImprovementUpgrade;
 	int m_iRequiresXAdjacentLand;
 	int m_iRequiresXAdjacentWater;
-#if defined(MOD_GLOBAL_NO_FOLLOWUP_FROM_CITIES)
 	bool m_bNoFollowUp;
-#endif
 
-#if defined(MOD_GLOBAL_RELOCATION)
 	bool m_bAllowsRebaseTo;
 	bool m_bAllowsAirliftFrom;
 	bool m_bAllowsAirliftTo;
-#endif
 
 	bool m_bBlockTileSteal;
 
 	bool m_bHillsMakesValid;
-#if defined(MOD_GLOBAL_ALPINE_PASSES)
 	bool m_bMountainsMakesValid;
-#endif
-#if defined(MOD_GLOBAL_PASSABLE_FORTS)
 	bool m_bMakesPassable;
-#endif
 	bool m_bWaterAdjacencyMakesValid;
 	bool m_bFreshWaterMakesValid;
 	bool m_bRiverSideMakesValid;

@@ -83,7 +83,6 @@ private:
 	CvPlot* m_pTarget;
 };
 
-#if defined(MOD_BALANCE_CORE_MILITARY)
 //a simple wrapper around std::vector so we can log/break on certain units being added (in a central place)
 class CHomelandUnitArray
 {
@@ -107,8 +106,6 @@ private:
 	std::vector<CvHomelandUnit> m_vec;
 	AIHomelandMove m_currentHomelandMove;
 };
-
-#endif
 
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -351,10 +348,8 @@ private:
 FDataStream& operator>>(FDataStream&, CvHomelandAI&);
 FDataStream& operator<<(FDataStream&, const CvHomelandAI&);
 
-#if defined(MOD_BALANCE_CORE_MILITARY)
 extern const char* homelandMoveNames[];
 extern const char* directiveNames[];
-#endif
 
 struct SPatrolTarget {
 	CvPlot* pTarget;

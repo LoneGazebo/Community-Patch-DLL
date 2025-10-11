@@ -13,15 +13,13 @@ if not VP and not (MapModData and MapModData.VP) then
 
 	print("VPUI - Populating VP core library");
 
-	local MOD_BALANCE_CORE_YIELDS = GameInfo.CustomModOptions{Name = "BALANCE_CORE_YIELDS"}().Value == 1;
 	local MOD_BALANCE_CORE_JFD = GameInfo.CustomModOptions{Name = "BALANCE_CORE_JFD"}().Value == 1;
 
 	local iNumYields = Game and Game.GetNumYieldTypes();
 	if not iNumYields then
 		local iNumJFDYields = GameInfo.Yields{Type = "YIELD_JFD_SOVEREIGNTY"}().ID + 1;
 		local iNumCoreYields = GameInfo.Yields{Type = "YIELD_CULTURE_LOCAL"}().ID + 1;
-		local iNumBaseYields = GameInfo.Yields{Type = "YIELD_GOLDEN_AGE_POINTS"}().ID + 1;
-		iNumYields = MOD_BALANCE_CORE_JFD and iNumJFDYields or (MOD_BALANCE_CORE_YIELDS and iNumCoreYields or iNumBaseYields);
+		iNumYields = MOD_BALANCE_CORE_JFD and iNumJFDYields or iNumCoreYields;
 	end
 
 	-- Yields are so frequently accessed it is worth to cache the ID, Type, IconString, and Description of each

@@ -4,6 +4,13 @@ UPDATE Units SET Moves = 4, MinAreaSize = 3 WHERE Type = 'UNIT_CARGO_SHIP';
 -- Make Work Boats buildable regardless of whether the water body has resources
 UPDATE Units SET PrereqResources = 0 WHERE Type = 'UNIT_WORKBOAT';
 
+-- GLOBAL_SEPARATE_GREAT_ADMIRAL (integrated)
+UPDATE Units
+SET
+	CanRepairFleet = 1,
+	CanChangePort = 1
+WHERE Type = 'UNIT_GREAT_ADMIRAL';
+
 -- Update Hover Units to obey coast/ocean tiles
 INSERT INTO Unit_FreePromotions
 	(UnitType, PromotionType)

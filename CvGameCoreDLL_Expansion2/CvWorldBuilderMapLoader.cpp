@@ -1140,7 +1140,17 @@ bool CvWorldBuilderMapLoader::InitMap()
 			CvTeam& kTeam2 = GET_TEAM(eTeam2);
 
 			if(sg_kSave.m_kTeamsInContact.Get(uiTeam1, uiTeam2))
-				kTeam1.meet(eTeam2, true);
+			{
+				if (!kTeam1.isHasMet(kTeam2.GetID()))
+				{
+					kTeam1.meet(eTeam2, true);
+					if (!kTeam1.isMinorCiv() && kTeam2.isMinorCiv())
+					{
+						PRECONDITION(kTeam1.getLeaderID() != NO_PLAYER && kTeam2.getLeaderID() != NO_PLAYER);
+						GET_PLAYER(kTeam2.getLeaderID()).GetMinorCivAI()->DoFirstContactWithMajor(kTeam1.getLeaderID(), true);
+					}
+				}
+			}
 
 			if(sg_kSave.m_kTeamsAtWar.Get(uiTeam1, uiTeam2))
 			{
@@ -1346,11 +1356,7 @@ bool CvWorldBuilderMapLoader::Save(const wchar_t* wszFilename, const char* szMap
 		else
 		{
 			CvFeatureInfo* pkFeatureInfo = GC.getFeatureInfo(eFeatureType);
-#if defined(MOD_PSEUDO_NATURAL_WONDER)
 			if(pkFeatureInfo != NULL && pkFeatureInfo->IsNaturalWonder(true))
-#else
-			if(pkFeatureInfo != NULL && pkFeatureInfo->IsNaturalWonder())
-#endif
 			{
 				kPlotData.SetFeatureType(CvWorldBuilderMap::PlotMapData::InvalidFeature);
 				kPlotData.SetNaturalWonderType((byte)eFeatureType);

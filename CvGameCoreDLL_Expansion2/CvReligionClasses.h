@@ -31,9 +31,7 @@ public:
 	
 	CvString GetIconString() const;
 
-#if defined(MOD_RELIGION_LOCAL_RELIGIONS)
 	bool IsLocalReligion() const;
-#endif
 
 protected:
 	CvString m_strIconString;
@@ -42,9 +40,7 @@ private:
 	CvReligionEntry(const CvReligionEntry&);
 	CvReligionEntry& operator=(const CvReligionEntry&);
 
-#if defined(MOD_RELIGION_LOCAL_RELIGIONS)
 	int m_iLocalReligion;
-#endif
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -293,12 +289,7 @@ enum CvReligiousFollowChangeReason
 	FOLLOWER_CHANGE_SCRIPTED_CONVERSION,
 	FOLLOWER_CHANGE_SPY_PRESSURE,
 	FOLLOWER_CHANGE_INSTANT_YIELD,
-#if defined(MOD_GLOBAL_RELIGIOUS_SETTLERS)
 	FOLLOWER_CHANGE_ADOPT_FULLY,
-#endif
-#if defined(MOD_BALANCE_CORE_PANTHEON_RESET_FOUND)
-	FOLLOWER_CHANGE_PANTHEON_OBSOLETE,
-#endif
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -372,9 +363,7 @@ private:
 	bool SetStateReligion(ReligionTypes eReligion, bool bOwnsReligion);
 	CvPlayer* m_pPlayer;
 
-#if defined(MOD_GLOBAL_TRULY_FREE_GP)
 	int m_iNumFreeProphetsSpawned;
-#endif
 	int m_iNumProphetsSpawned;
 	bool m_bFoundingReligion; //seems to be used to suppress further prophet use before the religion has been customized
 	int m_iFaithAtLastNotifyTimes100;
@@ -475,9 +464,7 @@ protected:
 	bool ComputeReligiousMajority(bool bNotifications = false);
 	void SimulateFollowers();
 	void CityConvertsReligion(ReligionTypes eMajority, ReligionTypes eOldMajority, PlayerTypes eResponsibleParty);
-#if defined(MOD_ISKA_PANTHEONS)
 	void CityConvertsPantheon();
-#endif
 	void LogFollowersChange(CvReligiousFollowChangeReason eReason);
 
 	CvCity* m_pCity; //not serialized
@@ -541,9 +528,7 @@ private:
 	bool BuyInquisitor(ReligionTypes eReligion);
 	bool BuyGreatPerson(UnitTypes eUnit, ReligionTypes eReligion = NO_RELIGION);
 	bool BuyFaithBuilding(CvCity* pCity, BuildingTypes eBuilding);
-#if defined(MOD_BALANCE_CORE_BELIEFS)
 	bool BuyAnyAvailableNonFaithUnit();
-#endif
 	bool BuyAnyAvailableNonFaithBuilding();
 	bool BuyAnyAvailableFaithBuilding();
 
@@ -566,10 +551,8 @@ private:
 	bool HaveEnoughInquisitors(ReligionTypes eReligion) const;
 	bool CanHaveInquisitors(ReligionTypes eReligion) const;
 	BuildingClassTypes FaithBuildingAvailable(ReligionTypes eReligion, CvCity* pCity = NULL, bool bEvaluateBestPurchase = false) const;
-#if defined(MOD_BALANCE_CORE_BELIEFS)
 	bool IsProphetGainRateAcceptable();
 	bool CanBuyNonFaithUnit() const;
-#endif
 	bool CanBuyNonFaithBuilding() const;
 	UnitTypes GetDesiredFaithGreatPerson() const;
 	void LogBeliefChoices(CvWeightedVector<BeliefTypes>& beliefChoices, int iChoice);

@@ -56,9 +56,9 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 	bool bFakeRouteTo = (pTraits->IsRiverMovementBonus() && bMovingAlongRiver);
 	bool bFakeRouteFrom = (pTraits->IsRiverMovementBonus() && bMovingAlongRiver);
 
-	if (!MOD_SANE_UNIT_MOVEMENT_COST)
+	if (!MOD_BALANCE_SANE_UNIT_MOVEMENT_COST)
 	{
-		//balance patch does not require plot ownership
+		// VP does not require plot ownership
 		bFakeRouteTo |= (pTraits->IsWoodlandMovementBonus() && (eToFeature == FEATURE_FOREST || eToFeature == FEATURE_JUNGLE) && (MOD_BALANCE_VP || pToPlot->getTeam() == eUnitTeam));
 		bFakeRouteFrom |= (pTraits->IsWoodlandMovementBonus() && (eFromFeature == FEATURE_FOREST || eFromFeature == FEATURE_JUNGLE) && (MOD_BALANCE_VP || pToPlot->getTeam() == eUnitTeam));
 	}
@@ -107,7 +107,6 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 			if (pTraits->IsEmbarkedToLandFlatCost() || pUnit->isDisembarkFlatCost())
 				bCheapEmbarkStateChange = true;
 
-#if defined(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST)
 			//If city, and player has disembark to city at reduced cost...
 			if (pToPlot->isCoastalCityOrPassableImprovement(pUnit->getOwner(),true,true))
 			{
@@ -116,7 +115,6 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 				else if (kUnitTeam.isCityLessEmbarkCost())
 					bCheapEmbarkStateChange = true;
 			}
-#endif
 
 			bFullCostEmbarkStateChange = !(bFreeEmbarkStateChange || bCheapEmbarkStateChange);
 		}
@@ -128,7 +126,6 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 			if (pTraits->IsEmbarkedToLandFlatCost() || pUnit->isEmbarkFlatCost())
 				bCheapEmbarkStateChange = true;
 
-#if defined(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST)
 			//If city, and player has embark from city at reduced cost...
 			if (pFromPlot->isCoastalCityOrPassableImprovement(kPlayerId,true,true))
 			{
@@ -137,7 +134,6 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 				else if (kUnitTeam.isCityLessEmbarkCost())
 					bCheapEmbarkStateChange = true;
 			}
-#endif
 
 			bFullCostEmbarkStateChange = !(bFreeEmbarkStateChange || bCheapEmbarkStateChange);
 		}
@@ -225,18 +221,20 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 		//difference to flat movement cost is that flat movement units don't get any bonuses
 		bool bIgnoreCostsHere = pUnit->ignoreTerrainCost();
 		bool bNoRiverCrossingPenalty = !bRiverCrossing || bHover || bAmphibious || (bIgnoreCostsHere && /*TRUE*/ GD_INT_GET(IGNORE_GLOBAL_TERRAIN_COSTS_INCLUDES_RIVERS) > 0);
+		bool bIsHills = pToPlot->isHills();
+		bool bIsMountain = pToPlot->isMountain();
 
 		//in some cases, we ignore terrain and feature costs if the destination tile contains a specific terrain/feature
-		if (pTraits->IsFasterInHills() && (pToPlot->isHills() || pToPlot->isMountain()))
+		if ((bIsHills || bIsMountain) && pTraits->IsFasterInHills())
 		{
 			bIgnoreCostsHere = true;
 			bNoRiverCrossingPenalty = true; // as specified by Incan UA
 		}
-		else if (pToPlot->isHills() && pUnit->isIgnoreTerrainCostIn(TERRAIN_HILL))
+		else if (bIsHills && pUnit->isIgnoreTerrainCostIn(TERRAIN_HILL))
 		{
 			bIgnoreCostsHere = true;
 		}
-		else if (pToPlot->isMountain() && pUnit->isIgnoreTerrainCostIn(TERRAIN_MOUNTAIN))
+		else if (bIsMountain && pUnit->isIgnoreTerrainCostIn(TERRAIN_MOUNTAIN))
 		{
 			bIgnoreCostsHere = true;
 		}
@@ -249,7 +247,7 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 			bIgnoreCostsHere = true;
 		}
 
-		if (MOD_SANE_UNIT_MOVEMENT_COST)
+		if (MOD_BALANCE_SANE_UNIT_MOVEMENT_COST)
 		{
 			if (iTerrainFeatureCostAdderFromPromotions == INT_MAX)
 				//we have to do it on the fly
@@ -292,7 +290,7 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 				}
 
 				// Hill cost is hardcoded
-				if ((pToPlot->isHills() && !pUnit->isIgnoreTerrainCostFrom(TERRAIN_HILL)) || (pToPlot->isMountain() && !pUnit->isIgnoreTerrainCostFrom(TERRAIN_MOUNTAIN)))
+				if ((bIsHills && !pUnit->isIgnoreTerrainCostFrom(TERRAIN_HILL)) || (bIsMountain && !pUnit->isIgnoreTerrainCostFrom(TERRAIN_MOUNTAIN)))
 				{
 					iRegularCost += /*1*/ GD_INT_GET(HILLS_EXTRA_MOVEMENT);
 				}
@@ -313,7 +311,7 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 		iRegularCost *= iMoveDenominator;
 
 		//even if the unit ignores terrain cost, it can still profit from terrain/feature bonuses
-		if (!MOD_SANE_UNIT_MOVEMENT_COST)
+		if (!MOD_BALANCE_SANE_UNIT_MOVEMENT_COST)
 		{
 			if (iTerrainFeatureCostMultiplierFromPromotions == INT_MAX)
 				//we have to do it on the fly
@@ -600,8 +598,18 @@ int CvUnitMovement::GetMovementCostMultiplierFromPromotions(const CvUnit* pUnit,
 	int iModifier = GD_INT_GET(MOVE_DENOMINATOR);
 	TerrainTypes eToTerrain = pPlot->getTerrainType();
 	FeatureTypes eToFeature = pPlot->getFeatureType();
+	bool bIsHills = pPlot->isHills();
+	bool bIsMountain = pPlot->isMountain();
 
-	if (pUnit->isHillsDoubleMove() && pPlot->isHills())
+	if (bIsMountain && pUnit->isTerrainDoubleMove(TERRAIN_MOUNTAIN))
+	{
+		iModifier /= 2;
+	}
+	else if (bIsMountain && pUnit->isTerrainHalfMove(TERRAIN_MOUNTAIN))
+	{
+		iModifier *= 2;
+	}
+	else if (bIsHills && pUnit->isTerrainDoubleMove(TERRAIN_HILL))
 	{
 		iModifier /= 2;
 	}
@@ -609,13 +617,9 @@ int CvUnitMovement::GetMovementCostMultiplierFromPromotions(const CvUnit* pUnit,
 	{
 		iModifier /= 2;
 	}
-	else if (pUnit->isTerrainHalfMove(TERRAIN_HILL) && pPlot->isHills())
+	else if (bIsHills && pUnit->isTerrainHalfMove(TERRAIN_HILL))
 	{
 		iModifier *= 2;
-	}
-	else if (pUnit->isMountainsDoubleMove() && pPlot->isMountain())
-	{
-		iModifier /= 2;
 	}
 	else if (pUnit->isTerrainDoubleMove(eToTerrain) || pUnit->isFeatureDoubleMove(eToFeature))
 	{
@@ -637,25 +641,29 @@ int CvUnitMovement::GetMovementCostAdderFromPromotions(const CvUnit* pUnit, cons
 	TerrainTypes eToTerrain = pPlot->getTerrainType();
 	FeatureTypes eToFeature = pPlot->getFeatureType();
 
-	if (pUnit->isTerrainExtraMove(TERRAIN_HILL) && pPlot->isHills())
+	if (pUnit->isTerrainExtraMove(TERRAIN_MOUNTAIN) && pPlot->isMountain())
 	{
-		iModifier += (GD_INT_GET(MOVE_DENOMINATOR) * pUnit->getTerrainExtraMoveCount(TERRAIN_HILL));
+		iModifier += GD_INT_GET(MOVE_DENOMINATOR) * pUnit->getTerrainExtraMoveCount(TERRAIN_MOUNTAIN);
+	}
+	else if (pUnit->isTerrainExtraMove(TERRAIN_HILL) && pPlot->isHills())
+	{
+		iModifier += GD_INT_GET(MOVE_DENOMINATOR) * pUnit->getTerrainExtraMoveCount(TERRAIN_HILL);
 	}
 	else if (pUnit->isTerrainExtraMove(eToTerrain))
 	{
-		iModifier += (GD_INT_GET(MOVE_DENOMINATOR) * pUnit->getTerrainExtraMoveCount(eToTerrain));
+		iModifier += GD_INT_GET(MOVE_DENOMINATOR) * pUnit->getTerrainExtraMoveCount(eToTerrain);
 	}
 	else if (pUnit->isFeatureExtraMove(eToFeature))
 	{
-		iModifier += (GD_INT_GET(MOVE_DENOMINATOR) * pUnit->getFeatureExtraMoveCount(eToFeature));
+		iModifier += GD_INT_GET(MOVE_DENOMINATOR) * pUnit->getFeatureExtraMoveCount(eToFeature);
 	}
 
 	return iModifier;
 }
 
-//alternative logic:
-// return -1 for double movement; will be interpreted as ignore terrain/feature cost
-// return +60 for half movement; will be interpreted as one extra move
+/// simplified logic used by BALANCE_SANE_UNIT_MOVEMENT_COST
+/// return -1 for double movement; will be interpreted as ignore terrain/feature cost
+/// return +60 for half movement; will be interpreted as one extra move
 int CvUnitMovement::GetMovementCostChangeFromPromotions(const CvUnit* pUnit, const CvPlot* pPlot)
 {
 	bool bIsFaster = false;
@@ -663,8 +671,18 @@ int CvUnitMovement::GetMovementCostChangeFromPromotions(const CvUnit* pUnit, con
 
 	TerrainTypes eToTerrain = pPlot->getTerrainType();
 	FeatureTypes eToFeature = pPlot->getFeatureType();
+	bool bIsHills = pPlot->isHills();
+	bool bIsMountain = pPlot->isMountain();
 
-	if (pUnit->isHillsDoubleMove() && pPlot->isHills())
+	if (bIsMountain && pUnit->isTerrainDoubleMove(TERRAIN_MOUNTAIN))
+	{
+		bIsFaster = true;
+	}
+	else if (bIsMountain && pUnit->isTerrainHalfMove(TERRAIN_MOUNTAIN))
+	{
+		bIsSlower = true;
+	}
+	else if (bIsHills && pUnit->isTerrainDoubleMove(TERRAIN_HILL))
 	{
 		bIsFaster = true;
 	}
@@ -672,13 +690,9 @@ int CvUnitMovement::GetMovementCostChangeFromPromotions(const CvUnit* pUnit, con
 	{
 		bIsFaster = true;
 	}
-	else if (pUnit->isTerrainHalfMove(TERRAIN_HILL) && pPlot->isHills())
+	else if (bIsHills && pUnit->isTerrainHalfMove(TERRAIN_HILL))
 	{
-		bIsFaster = true;
-	}
-	else if (pUnit->isMountainsDoubleMove() && pPlot->isMountain())
-	{
-		bIsFaster = true;
+		bIsSlower = true;
 	}
 	else if (pUnit->isTerrainDoubleMove(eToTerrain) || pUnit->isFeatureDoubleMove(eToFeature))
 	{
@@ -694,7 +708,11 @@ int CvUnitMovement::GetMovementCostChangeFromPromotions(const CvUnit* pUnit, con
 
 	//if slow isn't slow enough, we can make you go even slower!
 	int iExtraCost = bIsSlower ? GD_INT_GET(MOVE_DENOMINATOR) : 0;
-	if (pUnit->isTerrainExtraMove(TERRAIN_HILL) && pPlot->isHills())
+	if (bIsMountain && pUnit->isTerrainExtraMove(TERRAIN_MOUNTAIN))
+	{
+		iExtraCost += GD_INT_GET(MOVE_DENOMINATOR) * pUnit->getTerrainExtraMoveCount(TERRAIN_MOUNTAIN);
+	}
+	else if (bIsHills && pUnit->isTerrainExtraMove(TERRAIN_HILL))
 	{
 		iExtraCost += GD_INT_GET(MOVE_DENOMINATOR) * pUnit->getTerrainExtraMoveCount(TERRAIN_HILL);
 	}
