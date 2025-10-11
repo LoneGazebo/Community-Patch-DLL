@@ -1948,7 +1948,7 @@ function RefreshCultureVictory()
 				row.InfluencePct = iNumInfluential/iNumToBeInfluential;
 			end
 			
-			local iTourism = pPlayer:GetTourism();
+			local iTourism = math.floor(pPlayer:GetTourism() / 100);
 			row.Tourism = iTourism;
 			row.strTourism = tostring(iTourism);
 			
@@ -2061,7 +2061,7 @@ function RefreshPlayerInfluence()
 	
 	local selectedPlayer = Players[g_iSelectedPlayerID];
 	
-	g_InfluenceByPlayer.SelectedPlayerTourism = selectedPlayer:GetTourism();
+	g_InfluenceByPlayer.SelectedPlayerTourism = math.floor(selectedPlayer:GetTourism() / 100);
 		
 	g_InfluenceByPlayer.Players = {};
 	
