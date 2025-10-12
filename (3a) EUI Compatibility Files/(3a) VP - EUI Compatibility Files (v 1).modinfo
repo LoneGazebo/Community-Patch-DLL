@@ -54,6 +54,7 @@
     <File md5="85F70F5E1DFA8D5DCD3E514D946D88E7" import="1">LUA/NotificationPanel.lua</File>
     <File md5="55E88523B0E22CF8E425321957273D6D" import="1">LUA/NotificationPanel.xml</File>
     <File md5="CA25120D3925D12EEBA95857B3A69986" import="1">LUA/PlotHelpManager.lua</File>
+    <File md5="CA25120D3925D12EEBA95857B3A69986" import="1">LUA/PopulateUniques.lua</File>
     <File md5="A96E1CBCE39C50FB82E40C64BFD03270" import="1">LUA/SocialPolicyPopup.lua</File>
     <File md5="AFDCE04CF7F4A8FD40BB08BC1103B89B" import="1">LUA/SocialPolicyPopup.xml</File>
     <File md5="B878A95C1F755D948A777A49B8B1AE64" import="1">LUA/TradeLogic.lua</File>
