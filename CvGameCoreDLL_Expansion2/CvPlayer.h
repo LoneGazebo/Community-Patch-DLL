@@ -243,7 +243,7 @@ public:
 	bool hasPromotableUnit() const;
 
 	bool hasReadyUnit() const;
-	int GetCountReadyUnits() const;
+	int GetCountReadyUnits(bool bCreatedThisTurnSlice = false) const;
 	const CvUnit* GetFirstReadyUnit() const;
 	void EndTurnsForReadyUnits(bool bLinkedUnitsOnly = false);
 	bool hasAutoUnit() const;

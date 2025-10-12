@@ -10807,7 +10807,7 @@ bool CvPlayer::hasReadyUnit() const
 	return false;
 }
 
-int CvPlayer::GetCountReadyUnits() const
+int CvPlayer::GetCountReadyUnits(bool bCreatedThisTurnSlice) const
 {
 	int iRtnValue = 0;
 	const CvUnit* pLoopUnit = NULL;
@@ -10817,7 +10817,10 @@ int CvPlayer::GetCountReadyUnits() const
 	{
 		if(pLoopUnit->ReadyToMove() && !pLoopUnit->isDelayedDeath() && !pLoopUnit->TurnProcessed())
 		{
-			iRtnValue++;
+			if (!bCreatedThisTurnSlice || pLoopUnit->getTurnSliceCreated() == GC.getGame().getTurnSlice())
+			{
+				iRtnValue++;
+			}
 		}
 	}
 

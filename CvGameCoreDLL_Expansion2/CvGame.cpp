@@ -9089,7 +9089,8 @@ void CvGame::updateMoves()
 					int iReadyUnitsNow = player.GetCountReadyUnits();
 
 					// Was a move completed, if so save off which turn slice this was
-					if(iReadyUnitsNow < iReadyUnitsBeforeMoves)
+					// also check if any new units were created this turn slice, which might cause (iReadyUnitsNow < iReadyUnitsBeforeMoves) to be false even though moves were made
+					if(iReadyUnitsNow < iReadyUnitsBeforeMoves || player.GetCountReadyUnits(true) > 0)
 					{
 						player.SetLastSliceMoved(m_iTurnSlice);
 					}
