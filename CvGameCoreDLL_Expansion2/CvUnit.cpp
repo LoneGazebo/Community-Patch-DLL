@@ -139,6 +139,7 @@ CvUnit::CvUnit() :
 	, m_iReconY()
 	, m_iReconCount()
 	, m_iGameTurnCreated()
+	, m_iTurnSliceCreated()
 	, m_iDamage()
 	, m_iMoves()
 #if defined(MOD_LINKED_MOVEMENT)
@@ -691,6 +692,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 		}
 	}
 	setGameTurnCreated(GC.getGame().getGameTurn());
+	setTurnSliceCreated(GC.getGame().getTurnSlice());
 
 	GC.getGame().incrementUnitCreatedCount(getUnitType());
 
@@ -1278,6 +1280,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iReconY = INVALID_PLOT_COORD;
 	m_iReconCount = 0;
 	m_iGameTurnCreated = 0;
+	m_iTurnSliceCreated = 0;
 	m_iDamage = 0;
 	m_iMoves = 0;
 #if defined(MOD_LINKED_MOVEMENT)
@@ -21103,6 +21106,22 @@ void CvUnit::setGameTurnCreated(int iNewValue)
 	VALIDATE_OBJECT();
 	m_iGameTurnCreated = iNewValue;
 	ASSERT(getGameTurnCreated() >= 0);
+}
+
+
+//	--------------------------------------------------------------------------------
+int CvUnit::getTurnSliceCreated() const
+{
+	VALIDATE_OBJECT();
+	return m_iTurnSliceCreated;
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::setTurnSliceCreated(int iNewValue)
+{
+	VALIDATE_OBJECT();
+	m_iTurnSliceCreated = iNewValue;
+	ASSERT(getTurnSliceCreated() >= 0);
 }
 
 

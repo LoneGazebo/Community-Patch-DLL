@@ -1089,6 +1089,9 @@ public:
 	int getGameTurnCreated() const;
 	void setGameTurnCreated(int iNewValue);
 
+	int getTurnSliceCreated() const;
+	void setTurnSliceCreated(int iNewValue);
+
 	int getDamage() const;
 	int setDamage(int iNewValue, PlayerTypes ePlayer = NO_PLAYER, float fAdditionalTextDelay = 0.0f, const CvString* pAppendText = NULL, bool bDontShow = false);
 	int changeDamage(int iChange, PlayerTypes ePlayer = NO_PLAYER, float fAdditionalTextDelay = 0.0f, const CvString* pAppendText = NULL);
@@ -2077,6 +2080,7 @@ protected:
 	int m_iReconY;
 	int m_iReconCount;
 	int m_iGameTurnCreated;
+	int m_iTurnSliceCreated; // not serialized
 	bool m_bImmobile;
 	int m_iExperienceTimes100;
 	int m_iLevel;
