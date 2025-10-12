@@ -377,7 +377,7 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nMinCandidat
 		if (pUnit->getDomainType()==DOMAIN_LAND && pEvalPlot->isWater())
 			iRating /= 2;
 
-		int iPlotScore = (1000 * iRating) / max(1, it->iPathLength);
+		int iPlotScore = (1000 * iRating) / (it->iPathLength + 1);
 
 		iValidCandidates++;
 		if (iPlotScore > iBestPlotScore)
