@@ -442,8 +442,10 @@ VALUES
 	('WLTKD_RESOURCE_RESET_TURNS', 0), -- WLTKD Reset Timer (<= 0 means disabled); scales with game speed
 -- These will be replaced by PostDefines in VP
 	('EMBASSY_IMPROVEMENT', -1),
+	('IDEOLOGY_PREREQ_ERA', -1),
 	('JUGGERNAUT_PROMOTION', -1),
-	('MARCH_SKIRMISHER_PROMOTION', -1);
+	('MARCH_SKIRMISHER_PROMOTION', -1),
+	('PRISONERS_OF_WAR_PROMOTION', -1);
 
 --------------------------------
 -- City State quest disables
