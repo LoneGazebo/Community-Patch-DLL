@@ -7634,12 +7634,7 @@ void CvPlot::setResourceType(ResourceTypes eNewValue, int iResourceNum, bool bFo
 		// Dig cleared? To circumvent Firaxis hardcoding we need to mark whether a diplo penalty might apply now.
 		if (eNewValue == NO_RESOURCE && getOwner() != NO_PLAYER && GET_PLAYER(getOwner()).isMajorCiv() && GET_PLAYER(getOwner()).isAlive())
 		{
-			if (m_eResourceType == GD_INT_GET(ARTIFACT_RESOURCE))
-			{
-				GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeNumWaitingForDigChoice(1);
-			}
-			// Hidden sites are ignored unless owner has unlocked Artistry or is human
-			else if (m_eResourceType == GD_INT_GET(HIDDEN_ARTIFACT_RESOURCE) && (GET_PLAYER(getOwner()).isHuman(ISHUMAN_AI_DIPLOMACY) || GET_PLAYER(getOwner()).GetPlayerPolicies()->IsPolicyBranchUnlocked((PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_AESTHETICS", true))))
+			if (m_eResourceType == GD_INT_GET(ARTIFACT_RESOURCE) || m_eResourceType == GD_INT_GET(HIDDEN_ARTIFACT_RESOURCE))
 			{
 				GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeNumWaitingForDigChoice(1);
 			}
