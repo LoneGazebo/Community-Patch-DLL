@@ -165,7 +165,8 @@ VALUES
 UPDATE Projects
 SET
 	Cost = 200,
-	EmpireSizeModifierPerCityMod = -40
+	EmpireSizeModifierPerCityMod = -40,
+	TechPrereq = 'TECH_PHILOSOPHY'
 WHERE Type = 'PROJECT_YASSA';
 
 INSERT INTO Project_UnitCombatProductionModifiersGlobal
