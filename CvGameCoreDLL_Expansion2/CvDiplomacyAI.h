@@ -928,7 +928,8 @@ public:
 	void ChangeNumReevaluations(int iChange);
 
 	bool IsWaitingForDigChoice() const;
-	void SetWaitingForDigChoice(bool bValue);
+	void SetNumWaitingForDigChoice(int iNewValue);
+	void ChangeNumWaitingForDigChoice(int iChange);
 
 	bool IsAvoidDeals() const;
 	void SetAvoidDeals(bool bValue);
@@ -1883,7 +1884,7 @@ private:
 	bool m_bEndedFriendshipThisTurn;
 	bool m_bUpdatedWarProgressThisTurn;
 	int m_iNumReevaluations; // Used for RNG
-	bool m_bWaitingForDigChoice;
+	int m_iNumWaitingForDigChoice;
 	bool m_bBackstabber;
 	bool m_bCompetingForVictory;
 	VictoryPursuitTypes m_ePrimaryVictoryPursuit;
