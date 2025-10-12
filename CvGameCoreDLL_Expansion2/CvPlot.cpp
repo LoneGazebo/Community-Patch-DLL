@@ -7636,12 +7636,12 @@ void CvPlot::setResourceType(ResourceTypes eNewValue, int iResourceNum, bool bFo
 		{
 			if (m_eResourceType == GD_INT_GET(ARTIFACT_RESOURCE))
 			{
-				GET_PLAYER(getOwner()).GetDiplomacyAI()->SetWaitingForDigChoice(true);
+				GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeNumWaitingForDigChoice(1);
 			}
 			// Hidden sites are ignored unless owner has unlocked Artistry or is human
 			else if (m_eResourceType == GD_INT_GET(HIDDEN_ARTIFACT_RESOURCE) && (GET_PLAYER(getOwner()).isHuman(ISHUMAN_AI_DIPLOMACY) || GET_PLAYER(getOwner()).GetPlayerPolicies()->IsPolicyBranchUnlocked((PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_AESTHETICS", true))))
 			{
-				GET_PLAYER(getOwner()).GetDiplomacyAI()->SetWaitingForDigChoice(true);
+				GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeNumWaitingForDigChoice(1);
 			}
 		}
 

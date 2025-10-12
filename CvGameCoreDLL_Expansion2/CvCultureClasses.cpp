@@ -2900,8 +2900,8 @@ ArchaeologyChoiceType CvPlayerCulture::GetArchaeologyChoice(CvPlot *pPlot)
 	GreatWorkSlotType eArtArtifactSlot = CvTypes::getGREAT_WORK_SLOT_ART_ARTIFACT();
 	GreatWorkSlotType eLiteratureSlot = CvTypes::getGREAT_WORK_SLOT_LITERATURE();
 
-	// Take Landmark if it's in our territory and we get additional delegates from it
-	if (pPlot->getOwner() == m_pPlayer->GetID())
+	// Take Landmark if the option is available, the plot in our territory and we get additional delegates from it
+	if (!pPlot->HasWrittenArtifact() && pPlot->getOwner() == m_pPlayer->GetID())
 	{
 		ImprovementTypes eLandmarkImprovement = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_LANDMARK");
 		if (eLandmarkImprovement != NO_IMPROVEMENT)
@@ -2947,7 +2947,7 @@ ArchaeologyChoiceType CvPlayerCulture::GetArchaeologyChoice(CvPlot *pPlot)
 		eRtnValue = ARCHAEOLOGY_ARTIFACT_PLAYER1;
 
 		// ... unless this is a city state we want to influence to help with diplo victory, or we don't need the artifact and want to improve relations with a friend
-		if (pPlot->getOwner() != NO_PLAYER)
+		if (!pPlot->HasWrittenArtifact() && pPlot->getOwner() != NO_PLAYER)
 		{
 			if (GET_PLAYER(pPlot->getOwner()).isMinorCiv())
 			{
@@ -2985,7 +2985,7 @@ ArchaeologyChoiceType CvPlayerCulture::GetArchaeologyChoice(CvPlot *pPlot)
 		}
 
 		// Otherwise go for Landmark if from Medieval Era or earlier and we're not going for a cultural victory, or if we're very unhappy
-		else if ((!m_pPlayer->GetDiplomacyAI()->IsGoingForCultureVictory() && pPlot->GetArchaeologicalRecord().m_eEra <= 2) || m_pPlayer->IsEmpireVeryUnhappy() || m_pPlayer->IsEmpireSuperUnhappy())
+		else if (!pPlot->HasWrittenArtifact() && (!m_pPlayer->GetDiplomacyAI()->IsGoingForCultureVictory() && pPlot->GetArchaeologicalRecord().m_eEra <= 2) || m_pPlayer->IsEmpireVeryUnhappy())
 		{
 			eRtnValue = ARCHAEOLOGY_LANDMARK;
 		}
@@ -3084,7 +3084,7 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 				else if (kOwner.isMajorCiv())
 				{
 					kOwner.GetDiplomacyAI()->ChangeNumLandmarksBuiltForMe(m_pPlayer->GetID(), 1);
-					kOwner.GetDiplomacyAI()->SetWaitingForDigChoice(false);
+					kOwner.GetDiplomacyAI()->ChangeNumWaitingForDigChoice(-1);
 				}
 			}
 		}
@@ -3100,7 +3100,7 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 			}
 			else
 			{
-				GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->SetWaitingForDigChoice(false);
+				GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeNumWaitingForDigChoice(-1);
 			}
 		}
 
@@ -3153,7 +3153,7 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 			}
 			else
 			{
-				GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->SetWaitingForDigChoice(false);
+				GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeNumWaitingForDigChoice(-1);
 			}
 		}
 		pHousingCity = m_pPlayer->GetCulture()->GetClosestAvailableGreatWorkSlot(pPlot->getX(), pPlot->getY(), eArtArtifactSlot, eBuildingToHouse, iSlot);
@@ -3207,7 +3207,7 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 			}
 			else
 			{
-				GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->SetWaitingForDigChoice(false);
+				GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeNumWaitingForDigChoice(-1);
 			}
 		}
 		pHousingCity = m_pPlayer->GetCulture()->GetClosestAvailableGreatWorkSlot(pPlot->getX(), pPlot->getY(), eWritingSlot, eBuildingToHouse, iSlot);
@@ -3263,7 +3263,7 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 			}
 			else
 			{
-				GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->SetWaitingForDigChoice(false);
+				GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeNumWaitingForDigChoice(-1);
 			}
 		}
 
