@@ -2481,7 +2481,6 @@ void CvCity::doTurn()
 							if (iExcessConsumption > 0)
 							{
 								// Refund the resource consumption at the cost of a penalty to empire-wide building maintenance
-								GET_PLAYER(getOwner()).changeResourceShortageValue(eResourceLoop, -iExcessConsumption);
 								int iPenalty = iExcessConsumption * 2;
 								iTotalPenalty += iPenalty;
 								CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
@@ -2497,6 +2496,10 @@ void CvCity::doTurn()
 									strSummary << getNameKey();
 									pNotifications->Add(NOTIFICATION_DISCOVERED_STRATEGIC_RESOURCE, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), eResourceLoop);
 								}
+								GET_PLAYER(getOwner()).changeResourceShortageValue(eResourceLoop, -iExcessConsumption);
+								iResourceShortageValue = GET_PLAYER(getOwner()).getResourceShortageValue(eResourceLoop);
+								if (iResourceShortageValue <= 0)
+									break;
 							}
 						}
 					}
