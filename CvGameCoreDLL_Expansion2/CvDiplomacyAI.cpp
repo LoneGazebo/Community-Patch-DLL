@@ -19857,6 +19857,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// If we picked offensive policy trees, war is a lot better for us.
 	PolicyBranchTypes eAuthority = (PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_HONOR", true);
 	PolicyBranchTypes eImperialism = (PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_EXPLORATION", true);
+	bool bCanCrossOcean = GetPlayer()->CanCrossOcean() && iMyEra >= GD_INT_GET(MEDIEVAL_ERA);
 
 	if (GetPlayer()->GetPlayerPolicies()->IsPolicyBranchUnlocked(eAuthority))
 	{
@@ -19873,15 +19874,18 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	}
 	if (GetPlayer()->GetPlayerPolicies()->IsPolicyBranchUnlocked(eImperialism))
 	{
-		iWarBonus += bWantsOpportunityAttack ? vApproachBias[CIV_APPROACH_WAR] * 3 * iAttackMultiplier : vApproachBias[CIV_APPROACH_WAR] * 2 * iAttackMultiplier;
-		iHostileBonus += bWantsOpportunityAttack ? vApproachBias[CIV_APPROACH_HOSTILE] * 3 * iAttackMultiplier : vApproachBias[CIV_APPROACH_HOSTILE] * 2 * iAttackMultiplier;
-		iDeceptiveBonus += bWantsOpportunityAttack ? vApproachBias[CIV_APPROACH_DECEPTIVE] * 3 * iAttackMultiplier : vApproachBias[CIV_APPROACH_DECEPTIVE] * 2 * iAttackMultiplier;
-		
-		if (GetPlayer()->GetPlayerPolicies()->IsPolicyBranchFinished(eImperialism))
+		if (MOD_BALANCE_VP || (bCanCrossOcean && GetPlayer()->GetNumEffectiveCoastalCities() > 1 && GET_PLAYER(ePlayer).GetNumEffectiveCoastalCities() > 0))
 		{
 			iWarBonus += bWantsOpportunityAttack ? vApproachBias[CIV_APPROACH_WAR] * 3 * iAttackMultiplier : vApproachBias[CIV_APPROACH_WAR] * 2 * iAttackMultiplier;
 			iHostileBonus += bWantsOpportunityAttack ? vApproachBias[CIV_APPROACH_HOSTILE] * 3 * iAttackMultiplier : vApproachBias[CIV_APPROACH_HOSTILE] * 2 * iAttackMultiplier;
 			iDeceptiveBonus += bWantsOpportunityAttack ? vApproachBias[CIV_APPROACH_DECEPTIVE] * 3 * iAttackMultiplier : vApproachBias[CIV_APPROACH_DECEPTIVE] * 2 * iAttackMultiplier;
+			
+			if (GetPlayer()->GetPlayerPolicies()->IsPolicyBranchFinished(eImperialism))
+			{
+				iWarBonus += bWantsOpportunityAttack ? vApproachBias[CIV_APPROACH_WAR] * 3 * iAttackMultiplier : vApproachBias[CIV_APPROACH_WAR] * 2 * iAttackMultiplier;
+				iHostileBonus += bWantsOpportunityAttack ? vApproachBias[CIV_APPROACH_HOSTILE] * 3 * iAttackMultiplier : vApproachBias[CIV_APPROACH_HOSTILE] * 2 * iAttackMultiplier;
+				iDeceptiveBonus += bWantsOpportunityAttack ? vApproachBias[CIV_APPROACH_DECEPTIVE] * 3 * iAttackMultiplier : vApproachBias[CIV_APPROACH_DECEPTIVE] * 2 * iAttackMultiplier;
+			}
 		}
 	}
 	if (eMyBranch == GD_INT_GET(POLICY_BRANCH_AUTOCRACY))
@@ -20526,8 +20530,6 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	////////////////////////////////////
 	// PROXIMITY MULTIPLIER - the farther away a player is the less likely we are to care about them!
 	////////////////////////////////////
-
-	bool bCanCrossOcean = GetPlayer()->CanCrossOcean() && iMyEra >= GD_INT_GET(MEDIEVAL_ERA);
 
 	if (bCanCrossOcean)
 	{
@@ -28572,14 +28574,14 @@ bool CvDiplomacyAI::IsWillingToGiveOpenBordersToPlayer(PlayerTypes ePlayer)
 	{
 		int iHiddenSites = GetPlayer()->GetEconomicAI()->GetVisibleHiddenAntiquitySitesOwnTerritory();
 		int iNormalSites = GetPlayer()->GetEconomicAI()->GetVisibleAntiquitySitesOwnTerritory() - iHiddenSites;
-		PolicyBranchTypes eArtistry = (PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_AESTHETICS", true);
+		PolicyBranchTypes eHiddenSiteBranch = MOD_BALANCE_VP ? (PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_AESTHETICS", true) : (PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_EXPLORATION", true);
 		
 		if (iNormalSites > 0)
 		{
 			return false;
 		}
-		// Have they unlocked Artistry?
-		if (iHiddenSites > 0 && GET_PLAYER(ePlayer).GetPlayerPolicies()->IsPolicyBranchUnlocked(eArtistry))
+		// Have they unlocked the branch whose finisher lets them see hidden sites?
+		if (iHiddenSites > 0 && GET_PLAYER(ePlayer).GetPlayerPolicies()->IsPolicyBranchUnlocked(eHiddenSiteBranch))
 		{
 			return false;
 		}
