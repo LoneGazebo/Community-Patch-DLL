@@ -1189,6 +1189,26 @@ int PathEndTurnCost(CvPlot* pToPlot, const CvPathNodeCacheData& kToNodeCacheData
 			iCost += (PATH_BASE_COST * pToPlot->getExtraMovePathCost());
 	}
 
+	// Explorers aren't banned from entering minor civ territory, but they should avoid it when possible
+	if (pUnit->AI_getUnitAIType() == UNITAI_EXPLORE)
+	{
+		TeamTypes ePlotTeam = pToPlot->getTeam();
+		if (ePlotTeam != NO_TEAM && ePlotTeam != eUnitTeam)
+		{
+			CvTeam& kMyTeam = GET_TEAM(eUnitTeam);
+			CvTeam& kTheirTeam = GET_TEAM(ePlotTeam);
+			if (kTheirTeam.isMinorCiv() && kMyTeam.isMajorCiv())
+			{
+				if (!pUnit->isHuman(ISHUMAN_AI_UNITS) && kMyTeam.isHasMet(ePlotTeam) && !pUnit->IsAngerFreeUnit())
+				{
+					// If we are friends etc we may go there
+					CvMinorCivAI* pMinorAI = GET_PLAYER(kTheirTeam.getLeaderID()).GetMinorCivAI();
+					if (!pMinorAI->IsPlayerHasOpenBorders(pUnit->getOwner()))
+						iCost += PATH_END_TURN_MISSIONARY_OTHER_TERRITORY;
+				}
+			}
+		}
+	}
 	if (pUnit->isHasPromotion((PromotionTypes)GD_INT_GET(PROMOTION_UNWELCOME_EVANGELIST)))
 	{
 		// Avoid being in a territory that we are not welcome in

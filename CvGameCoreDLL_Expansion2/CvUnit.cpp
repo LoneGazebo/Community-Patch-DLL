@@ -4632,6 +4632,10 @@ bool CvUnit::canEnterTerritory(TeamTypes eTeam, bool bEndTurn) const
 		if (IsAngerFreeUnit())
 			return true;
 
+		// Explorers occasionally need to go through minor civ territory to get out of dead ends
+		if (AI_getUnitAIType() == UNITAI_EXPLORE)
+			return true;
+
 		// If we are friends etc we may go there
 		CvMinorCivAI* pMinorAI = GET_PLAYER(kTheirTeam.getLeaderID()).GetMinorCivAI();
 		if (pMinorAI->IsPlayerHasOpenBorders(getOwner()))

@@ -1056,6 +1056,11 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		if (m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eEnoughSettlers))
 			return SR_BALANCE;
 
+		if (m_pCity->plot()->getNumUnitsOfAIType(UNITAI_SETTLE, m_pCity->getOwner()) > 0)
+		{
+			return SR_USELESS;
+		}
+
 		int iFlavorExpansion = kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_EXPANSION"));
 
 		//we already checked ECONOMICAISTRATEGY_ENOUGH_EXPANSION, so we know we have a good settle plot

@@ -311,9 +311,8 @@ void CvMilitaryAI::Reset()
 	m_iNumNavalUnitsInArmies = 0;
 	m_iBarbarianCampCount = 0;
 	m_iVisibleBarbarianCount = 0;
-	m_iRecDefensiveLandUnits = 0;
-	m_iRecOffensiveLandUnits = 0;
-	m_iRecOffensiveNavalUnits = 0;
+	m_iRecLandUnits = 0;
+	m_iRecNavalUnits = 0;
 	m_iRecExplorerUnits = 0;
 	m_eLandDefenseState = NO_DEFENSE_STATE;
 	m_eNavalDefenseState = NO_DEFENSE_STATE;
@@ -360,13 +359,12 @@ void CvMilitaryAI::Serialize(MilitaryAI& militaryAI, Visitor& visitor)
 	visitor(militaryAI.m_iNumNavalUnits);
 	visitor(militaryAI.m_iNumLandUnitsInArmies);
 	visitor(militaryAI.m_iNumNavalUnitsInArmies);
-	visitor(militaryAI.m_iRecOffensiveNavalUnits);
+	visitor(militaryAI.m_iRecNavalUnits);
 	visitor(militaryAI.m_iNumAirUnits);
 	visitor(militaryAI.m_iNumAntiAirUnits);
 	visitor(militaryAI.m_iBarbarianCampCount);
 	visitor(militaryAI.m_iVisibleBarbarianCount);
-	visitor(militaryAI.m_iRecOffensiveLandUnits);
-	visitor(militaryAI.m_iRecDefensiveLandUnits);
+	visitor(militaryAI.m_iRecLandUnits);
 	visitor(militaryAI.m_iRecExplorerUnits);
 	visitor(militaryAI.m_iNumFreeCarriers);
 	visitor(militaryAI.m_iNumArcherLandUnits);
@@ -1589,11 +1587,11 @@ void CvMilitaryAI::LogDeficitScrapUnit(CvUnit* pUnit, bool bGifted)
 
 		if(pUnit->getDomainType() == DOMAIN_LAND)
 		{
-			strTemp.Format("Num Land Units: %d, In Armies %d, Rec Size: %d, ", m_iNumLandUnits, m_iNumLandUnitsInArmies, m_iRecOffensiveLandUnits + m_iRecDefensiveLandUnits + m_iRecExplorerUnits);
+			strTemp.Format("Num Land Units: %d, In Armies %d, Rec Size: %d, ", m_iNumLandUnits, m_iNumLandUnitsInArmies, m_iRecLandUnits + m_iRecExplorerUnits);
 		}
 		else
 		{
-			strTemp.Format("Num Naval Units: %d, In Armies %d, Rec Size %d, ", m_iNumNavalUnits, m_iNumNavalUnitsInArmies, m_iRecOffensiveNavalUnits);
+			strTemp.Format("Num Naval Units: %d, In Armies %d, Rec Size %d, ", m_iNumNavalUnits, m_iNumNavalUnitsInArmies, m_iRecNavalUnits);
 		}
 
 		strOutBuf += strTemp;
@@ -1618,7 +1616,7 @@ void CvMilitaryAI::UpdateBaseData()
 	m_iNumNavalUnits = 0;
 	m_iNumLandUnitsInArmies = 0;
 	m_iNumNavalUnitsInArmies = 0;
-	m_iRecOffensiveNavalUnits = 0;
+	m_iRecNavalUnits = 0;
 	m_iNumFreeCarriers = 0;
 	
 	// new counters
@@ -1724,11 +1722,10 @@ void CvMilitaryAI::SetRecommendedArmyNavySize()
 	// offense is simple for minors
 	if (m_pPlayer->isMinorCiv())
 	{
-		m_iRecOffensiveLandUnits = 0;
-		m_iRecOffensiveNavalUnits = 0;
+		m_iRecNavalUnits = 0;
 		if (m_pPlayer->getCapitalCity() && m_pPlayer->getCapitalCity()->isCoastal())
-			m_iRecOffensiveNavalUnits = 2;
-		m_iRecDefensiveLandUnits = iMaxPossibleUnits - m_iRecOffensiveNavalUnits;
+			m_iRecNavalUnits = 2;
+		m_iRecLandUnits = iMaxPossibleUnits - m_iRecNavalUnits;
 		return;
 	}
 
@@ -1791,39 +1788,45 @@ void CvMilitaryAI::SetRecommendedArmyNavySize()
 	int iFlavorOffense = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE"));
 	int iOffenseModifier = 100 + m_pPlayer->GetDiplomacyAI()->GetBoldness() + iFlavorOffense;
 
-	iLandDefenseWeight = iLandDefenseWeight * iDefenseModifier / 100;
-	iNavalDefenseWeight = iNavalDefenseWeight * iDefenseModifier / 100;
-	iTotalOffenseWeight = iTotalOffenseWeight * iOffenseModifier / 100;
+	iLandDefenseWeight = iLandDefenseWeight * iDefenseModifier;
+	iNavalDefenseWeight = iNavalDefenseWeight * iDefenseModifier;
+	iTotalOffenseWeight = iTotalOffenseWeight * iOffenseModifier;
 
 	int iTotalWeight = iTotalOffenseWeight + iLandDefenseWeight + iNavalDefenseWeight;
 
+	int iNumExplorers = m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_EXPLORE, false, true);
+	int iNumUnitsToSupply = m_pPlayer->GetNumUnitsToSupply();
+	int iNumUnitsSupplied = m_pPlayer->GetNumUnitsSupplied();
+
 	// Limit explorers to 1/4 of total supply
 	int iExplorersNeeded = min(iMaxPossibleUnits / 4, m_pPlayer->GetEconomicAI()->GetExplorersNeeded());
+
+	// If we have too many units to be able to supply this many explorers, limit the number of explorers
+	if (iNumUnitsToSupply - iNumExplorers + iExplorersNeeded > iNumUnitsSupplied)
+		iExplorersNeeded = iNumExplorers + iNumUnitsSupplied - iNumUnitsToSupply;
+
 	m_iRecExplorerUnits = iExplorersNeeded;
 
-	iMaxPossibleUnits -= iExplorersNeeded;
-
-	// We don't want to max out our supply cap
-	//if (iMaxPossibleUnits * 10 > iTotalWeight)
-	//	iMaxPossibleUnits = iTotalWeight / 10;
+	// If we have more explorers than we need, don't build more units above the force limit anyway
+	iMaxPossibleUnits -= max(iExplorersNeeded, iNumExplorers);
 	
-	m_iRecDefensiveLandUnits = static_cast<int>((iMaxPossibleUnits * iLandDefenseWeight / static_cast<double>(iTotalWeight)) + 0.5f);
-	m_iRecOffensiveNavalUnits = static_cast<int>((iMaxPossibleUnits * iNavalDefenseWeight / static_cast<double>(iTotalWeight)) + 0.5f);
-	m_iRecOffensiveLandUnits = static_cast<int>((iMaxPossibleUnits * iTotalOffenseWeight * (100 - iNavalPercent) / static_cast<double>(iTotalWeight * 100)) + 0.5f);
-	m_iRecOffensiveNavalUnits += static_cast<int>((iMaxPossibleUnits * iTotalOffenseWeight * iNavalPercent / static_cast<double>(iTotalWeight * 100)) + 0.5f);
+	m_iRecLandUnits = static_cast<int>((iMaxPossibleUnits * (100 * iLandDefenseWeight + iTotalOffenseWeight * (100 - iNavalPercent)) / (100.0f * iTotalWeight)) + 0.5f);
+	m_iRecNavalUnits = static_cast<int>((iMaxPossibleUnits * (100 * iNavalDefenseWeight + iTotalOffenseWeight * iNavalPercent)) / (100.0f * iTotalWeight) + 0.5f);
 
-	// Adjust if sum exceeds iMaxPossibleUnits
-	int iTotalAssignedUnits = m_iRecDefensiveLandUnits + m_iRecOffensiveLandUnits + m_iRecOffensiveNavalUnits;
-	if (iTotalAssignedUnits > iMaxPossibleUnits)
+	int iNumLandUnits = m_pPlayer->GetNumUnitsWithDomain(DOMAIN_LAND, true) - iNumExplorers;
+	int iNumNavalUnits = m_pPlayer->GetNumUnitsWithDomain(DOMAIN_SEA, true);
+
+	if (iNumLandUnits > m_iRecLandUnits)
 	{
-		int iExcess = iTotalAssignedUnits - iMaxPossibleUnits;
-
-		if (m_iRecOffensiveNavalUnits >= iExcess)
-			m_iRecOffensiveNavalUnits -= iExcess;
-		else if (m_iRecOffensiveLandUnits >= iExcess)
-			m_iRecOffensiveLandUnits -= iExcess;
-		else
-			m_iRecDefensiveLandUnits -= iExcess;
+		int iDiff = iNumLandUnits - m_iRecLandUnits;
+		m_iRecLandUnits += iDiff;
+		m_iRecNavalUnits -= iDiff;
+	}
+	else if (iNumNavalUnits > m_iRecNavalUnits)
+	{
+		int iDiff = iNumNavalUnits - m_iRecNavalUnits;
+		m_iRecNavalUnits += iDiff;
+		m_iRecLandUnits -= iDiff;
 	}
 }
 
@@ -1831,15 +1834,15 @@ void CvMilitaryAI::SetRecommendedArmyNavySize()
 /// Update how we're doing on defensive units
 void CvMilitaryAI::UpdateDefenseState()
 {
-	if(m_iNumLandUnits < m_iRecDefensiveLandUnits)
+	if(m_iNumLandUnits < m_iRecLandUnits)
 	{
 		m_eLandDefenseState = DEFENSE_STATE_CRITICAL;
 	}
-	else if(m_iNumLandUnits < (m_iRecDefensiveLandUnits+m_iRecOffensiveLandUnits) * 3 / 4)
+	else if(m_iNumLandUnits < m_iRecLandUnits * 3 / 4)
 	{
 		m_eLandDefenseState = DEFENSE_STATE_NEEDED;
 	}
-	else if(m_iNumLandUnits < (m_iRecDefensiveLandUnits+m_iRecOffensiveLandUnits) * 5 / 4)
+	else if(m_iNumLandUnits < m_iRecLandUnits * 5 / 4)
 	{
 		m_eLandDefenseState = DEFENSE_STATE_NEUTRAL;
 	}
@@ -1861,15 +1864,15 @@ void CvMilitaryAI::UpdateDefenseState()
 		}
 	}
 
-	if(m_iNumNavalUnits <= (m_iRecOffensiveNavalUnits / 2))
+	if(m_iNumNavalUnits <= (m_iRecNavalUnits / 2))
 	{
 		m_eNavalDefenseState = DEFENSE_STATE_CRITICAL;
 	}
-	else if(m_iNumNavalUnits <= m_iRecOffensiveNavalUnits)
+	else if(m_iNumNavalUnits <= m_iRecNavalUnits)
 	{
 		m_eNavalDefenseState = DEFENSE_STATE_NEEDED;
 	}
-	else if(m_iNumNavalUnits <= m_iRecOffensiveNavalUnits * 5 / 4)
+	else if(m_iNumNavalUnits <= m_iRecNavalUnits * 5 / 4)
 	{
 		m_eNavalDefenseState = DEFENSE_STATE_NEUTRAL;
 	}
@@ -2374,7 +2377,7 @@ void CvMilitaryAI::DoCityAttacks(PlayerTypes ePlayer)
 {
 	//Not perfect, as some operations are mixed, but it will keep us from sending everyone to slaughter all at once.
 	int iReservesTotal = ((m_iNumLandUnits + m_iNumNavalUnits) - (m_iNumNavalUnitsInArmies + m_iNumLandUnitsInArmies));
-	if (iReservesTotal >= m_iRecDefensiveLandUnits || (m_pPlayer->GetNumOffensiveOperations(DOMAIN_LAND)+m_pPlayer->GetNumOffensiveOperations(DOMAIN_SEA)) <= 0)
+	if (iReservesTotal >= m_iRecLandUnits || (m_pPlayer->GetNumOffensiveOperations(DOMAIN_LAND)+m_pPlayer->GetNumOffensiveOperations(DOMAIN_SEA)) <= 0)
 	{
 		WarStateTypes eWarState = GET_PLAYER(ePlayer).isMajorCiv() ? m_pPlayer->GetDiplomacyAI()->GetWarState(ePlayer) : WAR_STATE_OFFENSIVE;
 		if (eWarState >= WAR_STATE_TROUBLED)
@@ -3004,7 +3007,7 @@ void CvMilitaryAI::LogMilitaryStatus()
 		strOutBuf = strBaseString + strTemp;
 
 		// Military size Info
-		strTemp.Format("%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, ", m_iNumLandUnits, m_iNumLandUnitsInArmies, m_iRecOffensiveLandUnits, m_iRecDefensiveLandUnits, m_iNumNavalUnits, m_iNumNavalUnitsInArmies, m_iRecOffensiveNavalUnits, m_iNumMeleeLandUnits, m_iNumMobileLandUnits, m_iNumReconLandUnits, m_iNumArcherLandUnits, m_iNumSiegeLandUnits, m_iNumSkirmisherLandUnits, m_iNumRangedLandUnits, m_iNumAntiAirUnits, m_iNumMeleeNavalUnits, m_iNumRangedNavalUnits, m_iNumSubmarineNavalUnits, m_iNumCarrierNavalUnits, m_iNumAirUnits, m_iNumBomberAirUnits, m_iNumFighterAirUnits, m_pPlayer->getNumNukeUnits(), m_iNumMissileUnits);
+		strTemp.Format("%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, ", m_iNumLandUnits, m_iNumLandUnitsInArmies, m_iRecLandUnits, m_iNumNavalUnits, m_iNumNavalUnitsInArmies, m_iRecNavalUnits, m_iNumMeleeLandUnits, m_iNumMobileLandUnits, m_iNumReconLandUnits, m_iNumArcherLandUnits, m_iNumSiegeLandUnits, m_iNumSkirmisherLandUnits, m_iNumRangedLandUnits, m_iNumAntiAirUnits, m_iNumMeleeNavalUnits, m_iNumRangedNavalUnits, m_iNumSubmarineNavalUnits, m_iNumCarrierNavalUnits, m_iNumAirUnits, m_iNumBomberAirUnits, m_iNumFighterAirUnits, m_pPlayer->getNumNukeUnits(), m_iNumMissileUnits);
 		strOutBuf += strTemp;
 
 		// Unit supply
@@ -3221,7 +3224,7 @@ void CvMilitaryAI::LogScrapUnit(CvUnit* pUnit, bool bDeficit, bool bSupply)
 		}
 		else
 		{
-			strTemp.Format("Num Naval Units: %d, In Armies %d, Rec Size: %d ", m_iNumNavalUnits, m_iNumNavalUnitsInArmies, m_iRecOffensiveNavalUnits);
+			strTemp.Format("Num Naval Units: %d, In Armies %d, Rec Size: %d ", m_iNumNavalUnits, m_iNumNavalUnitsInArmies, m_iRecNavalUnits);
 		}
 		strOutBuf += strTemp;
 		pLog->Msg(strOutBuf);
@@ -3268,7 +3271,7 @@ void CvMilitaryAI::LogGiftUnit(CvUnit* pUnit, bool bDeficit, bool bSupply)
 		}
 		else
 		{
-			strTemp.Format("Num Naval Units: %d, In Armies %d, Rec: %d ", m_iNumNavalUnits, m_iNumNavalUnitsInArmies, m_iRecOffensiveNavalUnits);
+			strTemp.Format("Num Naval Units: %d, In Armies %d, Rec: %d ", m_iNumNavalUnits, m_iNumNavalUnitsInArmies, m_iRecNavalUnits);
 		}
 		strOutBuf += strTemp;
 		pLog->Msg(strOutBuf);

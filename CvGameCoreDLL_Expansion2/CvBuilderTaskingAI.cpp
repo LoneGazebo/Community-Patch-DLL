@@ -1859,7 +1859,7 @@ static vector<OptionWithScore<BuilderDirective>> FilterNonOptimalNoTwoAdjacentIm
 	return aNewDirectives;
 }
 
-static vector<OptionWithScore<BuilderDirective>> FilterNoTwoAdjacentDirectives(vector<OptionWithScore<BuilderDirective>> aDirectives)
+static vector<OptionWithScore<BuilderDirective>> FilterNoTwoAdjacentDirectives(vector<OptionWithScore<BuilderDirective>> aDirectives, PlayerTypes ePlayer)
 {
 	vector<OptionWithScore<BuilderDirective>> aNewDirectives;
 	vector<OptionWithScore<BuilderDirective>> aNoTwoAdjacentDirectives;
@@ -1903,6 +1903,20 @@ static vector<OptionWithScore<BuilderDirective>> FilterNoTwoAdjacentDirectives(v
 				continue;
 
 			iNeighboringSameScore += it2->option.m_iScore;
+		}
+
+		// Check all adjacent tiles that are unowned to see if we could potentially build one there, use as tie-breaker
+		for (int iI = 1; iI < RING1_PLOTS; iI++)
+		{
+			CvPlot* pLoopPlot = iterateRingPlots(pPlot, iI);
+			if (!pLoopPlot)
+				continue;
+
+			if (pLoopPlot->getOwner() != NO_PLAYER)
+				continue;
+
+			if (pLoopPlot->canBuild(it->option.m_eBuild, ePlayer, false, false))
+				iNeighboringSameScore++;
 		}
 
 		int iNewScore = it->option.m_iScore - iNeighboringSameScore;
@@ -2079,7 +2093,7 @@ vector<OptionWithScore<BuilderDirective>> CvBuilderTaskingAI::GetImprovementDire
 
 	// Special handling for no-two-adjacent and great person improvements
 	aDirectives = FilterNonOptimalNoTwoAdjacentImprovements(aDirectives, true);
-	aDirectives = FilterNoTwoAdjacentDirectives(aDirectives);
+	aDirectives = FilterNoTwoAdjacentDirectives(aDirectives, ePlayer);
 	aDirectives = FilterNonOptimalNoTwoAdjacentImprovements(aDirectives, false);
 	UpdateGreatPersonDirectives(aDirectives);
 
