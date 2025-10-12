@@ -5069,11 +5069,12 @@ void CvMinorCivAI::DoFirstContactWithMajor(PlayerTypes eMeetingPlayer, bool bSup
 				CvPlayer* pPlayer = &GET_PLAYER(ePlayer);
 				if (eTrait == MINOR_CIV_TRAIT_MILITARISTIC)
 				{
+					CvUnit* pUnit = NULL;
 					if (iUnitGift > 0)
 					{
 						if (GC.getGame().randRangeInclusive(1, 100, CvSeeder::fromRaw(0xa0978c74).mix(m_pPlayer->GetID()).mix(pPlayer->GetID())) <= iUnitGift)
 						{
-							CvUnit* pUnit = DoSpawnUnit(ePlayer, true, true);
+							pUnit = DoSpawnUnit(ePlayer, true, true);
 							if (pUnit != NULL)
 							{
 								pUnit->changeExperienceTimes100(100 * (pPlayer->GetCurrentEra() * /*5*/ GD_INT_GET(MINOR_CIV_FIRST_CONTACT_XP_PER_ERA) + GC.getGame().randRangeInclusive(0, /*4*/ max(GD_INT_GET(MINOR_CIV_FIRST_CONTACT_XP_RANDOM), 0), CvSeeder::fromRaw(0x9022be60).mix(m_pPlayer->GetID()).mix(pPlayer->GetID()))));
@@ -5083,7 +5084,7 @@ void CvMinorCivAI::DoFirstContactWithMajor(PlayerTypes eMeetingPlayer, bool bSup
 						}
 					}
 					// No success on the unit roll? Add more Influence instead.
-					else
+					if (pUnit == NULL)
 						iExtraFriendship += (iFriendshipBoost * /*100*/ GD_INT_GET(MINOR_CIV_FIRST_CONTACT_NO_UNIT_CONSOLATION_MULTIPLIER) / 100);
 				}
 				else if (eTrait == MINOR_CIV_TRAIT_MARITIME && pPlayer->getCapitalCity() != NULL)
