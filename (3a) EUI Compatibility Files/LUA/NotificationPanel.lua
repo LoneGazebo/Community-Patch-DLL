@@ -34,6 +34,7 @@ local unpack = unpack
 --EUI_utilities
 local IconLookup = EUI.IconLookup
 local IconHookup = EUI.IconHookup
+local GetMoodInfo = EUI.GetMoodInfo
 local CivIconHookup = EUI.CivIconHookup
 local PushScratchDeal = EUI.PushScratchDeal
 local PopScratchDeal = EUI.PopScratchDeal

@@ -17,6 +17,7 @@ include( "EUI_utilities" )
 include( "InfoTooltipInclude" )
 local IconHookup = EUI.IconHookup
 local CivIconHookup = EUI.CivIconHookup
+local GetMoodInfo = EUI.GetMoodInfo
 
 local g_iAIPlayer = -1;
 local g_iAITeam = -1;
