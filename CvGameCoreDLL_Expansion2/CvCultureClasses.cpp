@@ -1495,7 +1495,7 @@ void CvPlayerCulture::MoveWorks(GreatWorkSlotType eType, vector<CvGreatWorkBuild
 	if (eType == CvTypes::getGREAT_WORK_SLOT_LITERATURE())
 	{
 		GreatWorkClass eClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_LITERATURE");
-		gDLL->sendSetSwappableGreatWork(m_pPlayer->GetID(), eClass, -1);
+		int iGreatWorkIndex = -1;
 
 		if (bSwapWithOtherCivs)
 		{
@@ -1504,17 +1504,19 @@ void CvPlayerCulture::MoveWorks(GreatWorkSlotType eType, vector<CvGreatWorkBuild
 				if (it->m_eOwnedByPlayer == m_pPlayer->GetID())
 				{
 					// CUSTOMLOG("  ... for writing to %i", it->m_iGreatWorkIndex);
-					gDLL->sendSetSwappableGreatWork(m_pPlayer->GetID(), eClass, it->m_iGreatWorkIndex);
+					iGreatWorkIndex = it->m_iGreatWorkIndex;
 					break;
 				}
 			}
 		}
+
+		gDLL->sendSetSwappableGreatWork(m_pPlayer->GetID(), eClass, iGreatWorkIndex);
 	}
 	// For Art and Artifacts
 	else if (eType == CvTypes::getGREAT_WORK_SLOT_ART_ARTIFACT())
 	{
 		GreatWorkClass eClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_ART");
-		gDLL->sendSetSwappableGreatWork(m_pPlayer->GetID(), eClass, -1);
+		int iGreatWorkIndex = -1;
 
 		if(bSwapWithOtherCivs)
 		{
@@ -1523,14 +1525,16 @@ void CvPlayerCulture::MoveWorks(GreatWorkSlotType eType, vector<CvGreatWorkBuild
 				if (it->m_eOwnedByPlayer == m_pPlayer->GetID())
 				{
 					// CUSTOMLOG("  ... for art to %i", it->m_iGreatWorkIndex);
-					gDLL->sendSetSwappableGreatWork(m_pPlayer->GetID(), eClass, it->m_iGreatWorkIndex);
+					iGreatWorkIndex = it->m_iGreatWorkIndex;
 					break;
 				}
 			}
 		}
 
+		gDLL->sendSetSwappableGreatWork(m_pPlayer->GetID(), eClass, iGreatWorkIndex);
+
 		eClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_ARTIFACT");
-		gDLL->sendSetSwappableGreatWork(m_pPlayer->GetID(), eClass, -1);
+		iGreatWorkIndex = -1;
 
 		if (bSwapWithOtherCivs)
 		{
@@ -1539,11 +1543,13 @@ void CvPlayerCulture::MoveWorks(GreatWorkSlotType eType, vector<CvGreatWorkBuild
 				if (it->m_eOwnedByPlayer == m_pPlayer->GetID())
 				{
 					// CUSTOMLOG("  ... for artifact to %i", it->m_iGreatWorkIndex);
-					gDLL->sendSetSwappableGreatWork(m_pPlayer->GetID(), eClass, it->m_iGreatWorkIndex);
+					iGreatWorkIndex = it->m_iGreatWorkIndex;
 					break;
 				}
 			}
 		}
+
+		gDLL->sendSetSwappableGreatWork(m_pPlayer->GetID(), eClass, iGreatWorkIndex);
 	}
 
 	bool bSecondUpdate = MoveSingleWorks(buildings, works1, works2, eFocusYield, true);
@@ -1627,16 +1633,33 @@ bool CvPlayerCulture::ThemeBuilding(vector<CvGreatWorkBuildingInMyEmpire>::const
 		else if (pkBonusInfo->IsMustBeEqualArtArtifact())
 		{
 			if (ThemeEqualArtArtifact(*buildingIt, bestThemes.GetElement(iI), pkEntry->GetGreatWorkCount(), works1, works2))
-			{
 				return true;
-			}
+			else
+				continue;
 		}
 		else
 		{
-			worksToConsider = works1;
+			worksToConsider.clear();
+			// Need owned works to be before unowned works
+			for (it = works1.begin(); it != works1.end(); ++it)
+			{
+				if (it->m_eOwnedByPlayer == m_pPlayer->GetID())
+					worksToConsider.push_back(*it);
+			}
 			for (it = works2.begin(); it != works2.end(); ++it)
 			{
-				worksToConsider.push_back(*it);
+				if (it->m_eOwnedByPlayer == m_pPlayer->GetID())
+					worksToConsider.push_back(*it);
+			}
+			for (it = works1.begin(); it != works1.end(); ++it)
+			{
+				if (it->m_eOwnedByPlayer != m_pPlayer->GetID())
+					worksToConsider.push_back(*it);
+			}
+			for (it = works2.begin(); it != works2.end(); ++it)
+			{
+				if (it->m_eOwnedByPlayer != m_pPlayer->GetID())
+					worksToConsider.push_back(*it);
 			}
 		}
 
@@ -1690,7 +1713,7 @@ bool CvPlayerCulture::ThemeBuilding(vector<CvGreatWorkBuildingInMyEmpire>::const
 			}
 
 			if (iOwnedWorks + iExtraOwnedWorks < iCountSlots)
-				return false;
+				continue;
 
 			// Did we theme it properly?
 			bThemedProperly = false;
@@ -1780,10 +1803,27 @@ bool CvPlayerCulture::ThemeBuilding(vector<CvGreatWorkBuildingInMyEmpire>::const
 				}
 				else
 				{
-					worksToConsider = works1;
+					worksToConsider.clear();
+					// Need owned works to be before unowned works
+					for (it = works1.begin(); it != works1.end(); ++it)
+					{
+						if (it->m_eOwnedByPlayer == m_pPlayer->GetID())
+							worksToConsider.push_back(*it);
+					}
 					for (it = works2.begin(); it != works2.end(); ++it)
 					{
-						worksToConsider.push_back(*it);
+						if (it->m_eOwnedByPlayer == m_pPlayer->GetID())
+							worksToConsider.push_back(*it);
+					}
+					for (it = works1.begin(); it != works1.end(); ++it)
+					{
+						if (it->m_eOwnedByPlayer != m_pPlayer->GetID())
+							worksToConsider.push_back(*it);
+					}
+					for (it = works2.begin(); it != works2.end(); ++it)
+					{
+						if (it->m_eOwnedByPlayer != m_pPlayer->GetID())
+							worksToConsider.push_back(*it);
 					}
 				}
 
@@ -1867,7 +1907,7 @@ bool CvPlayerCulture::ThemeEqualArtArtifact(CvGreatWorkBuildingInMyEmpire kBldg,
 		}
 
 		if (iOwnedWorks + iExtraOwnedWorks < iWorksInHalf)
-			return false;
+			continue;
 
 		// Do we have the right amount of art?
 		if (static_cast<int>(aArtifactsChosen.size()) == iWorksInHalf)
@@ -1929,7 +1969,7 @@ bool CvPlayerCulture::ThemeEqualArtArtifact(CvGreatWorkBuildingInMyEmpire kBldg,
 				}
 
 				if (iOwnedWorks + iExtraOwnedWorks < iWorksInHalf)
-					return false;
+					continue;
 
 				// Did we theme it properly?
 				bool bThemedProperly = false;
