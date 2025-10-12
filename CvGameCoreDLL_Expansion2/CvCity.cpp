@@ -2480,22 +2480,30 @@ void CvCity::doTurn()
 							int iExcessConsumption = min(iResourceShortageValue, pkBuildingInfo->GetResourceQuantityRequirement(eResourceLoop));
 							if (iExcessConsumption > 0)
 							{
-								// Refund the resource consumption at the cost of a penalty to empire-wide building maintenance
-								GET_PLAYER(getOwner()).changeResourceShortageValue(eResourceLoop, -iExcessConsumption);
-								int iPenalty = iExcessConsumption * 2;
-								iTotalPenalty += iPenalty;
-								CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
-								if (pNotifications)
+								// Read player's current shortage and only subtract up to that amount
+								int iPlayerShortageNow = GET_PLAYER(getOwner()).getResourceShortageValue(eResourceLoop);
+								int iActualRefund = std::min(iExcessConsumption, iPlayerShortageNow);
+
+								if (iActualRefund > 0)
 								{
-									Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_OVER_RESOURCE_LIMIT_CITY");
-									strText << pkResourceInfo->GetTextKey();
-									strText << getNameKey();
-									strText << iExcessConsumption;
-									strText << iPenalty;
-									Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_OVER_RESOURCE_LIMIT_CITY");
-									strSummary << pkResourceInfo->GetTextKey();
-									strSummary << getNameKey();
-									pNotifications->Add(NOTIFICATION_DISCOVERED_STRATEGIC_RESOURCE, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), eResourceLoop);
+									// Refund the resource consumption at the cost of a penalty to empire-wide building maintenance
+									GET_PLAYER(getOwner()).changeResourceShortageValue(eResourceLoop, -iActualRefund);
+									int iPenalty = iActualRefund * 2;
+									iTotalPenalty += iPenalty;
+
+									CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
+									if (pNotifications)
+									{
+										Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_OVER_RESOURCE_LIMIT_CITY");
+										strText << pkResourceInfo->GetTextKey();
+										strText << getNameKey();
+										strText << iActualRefund;
+										strText << iPenalty;
+										Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_OVER_RESOURCE_LIMIT_CITY");
+										strSummary << pkResourceInfo->GetTextKey();
+										strSummary << getNameKey();
+										pNotifications->Add(NOTIFICATION_DISCOVERED_STRATEGIC_RESOURCE, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), eResourceLoop);
+									}
 								}
 							}
 						}
