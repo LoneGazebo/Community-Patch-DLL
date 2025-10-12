@@ -47,6 +47,8 @@ local GetAllyToolTip = GetAllyToolTip
 local GetActiveQuestText = GetActiveQuestText
 local GetActiveQuestToolTip = GetActiveQuestToolTip
 
+local GetMoodInfo = EUI.GetMoodInfo
+local GetReligionTooltip = EUI.GetReligionTooltip
 local ButtonPopupTypes = ButtonPopupTypes
 local CityAIFocusTypes = CityAIFocusTypes
 local CityUpdateTypes = CityUpdateTypes

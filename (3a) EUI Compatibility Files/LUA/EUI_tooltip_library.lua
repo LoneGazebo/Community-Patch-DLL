@@ -352,6 +352,647 @@ end
 
 local g_relationshipDuration = gk_mode and GameInfo.GameSpeeds[ PreGame.GetGameSpeed() ].RelationshipDuration or 50
 
+local function inParentheses( duration )
+	if duration and duration >= 0 then
+		return " (".. duration ..")"
+	else
+		return ""
+	end
+end
+
+local function GetMoodInfo( playerID )
+
+	local activePlayerID = Game.GetActivePlayer()
+	local activePlayer = Players[activePlayerID]
+	local activeTeamID = activePlayer:GetTeam()
+	local activeTeam = Teams[activeTeamID]
+
+	local player = Players[playerID]
+	local teamID = player:GetTeam()
+	local team = Teams[teamID]
+
+	-- Player & civ names
+	local strInfo = GetCivName(player) .. " (" .. GetLeaderName(player) .. ") "
+
+	-- Always war ?
+	if (playerID ~= activePlayerID) and (
+		( activeTeam:IsAtWar( teamID )
+		and Game.IsOption( GameOptionTypes.GAMEOPTION_NO_CHANGING_WAR_PEACE ) )
+		or Game.IsOption(GameOptionTypes.GAMEOPTION_ALWAYS_WAR) )
+	then
+		return strInfo .. L"TXT_KEY_ALWAYS_WAR_TT"
+	end
+
+	-- Era
+	strInfo = strInfo .. L( ( GameInfo.Eras[ player:GetCurrentEra() ] or {} ).Description )
+
+	-- Tech in Progress
+	if teamID == activeTeamID then
+		local currentTechID = player:GetCurrentResearch()
+		local currentTech = GameInfo.Technologies[currentTechID]
+		if currentTech and g_isScienceEnabled then
+			strInfo = strInfo .. " [ICON_RESEARCH] " .. L(currentTech.Description)
+		end
+	else
+	-- Mood
+		local visibleApproachID = activePlayer:GetApproachTowardsUsGuess(playerID)
+		strInfo = strInfo .. " " .. (
+		-- At war
+		((team:IsAtWar( activeTeamID ) or visibleApproachID == MajorCivApproachTypes.MAJOR_CIV_APPROACH_WAR) and L"TXT_KEY_DIPLO_MAJOR_CIV_DIPLO_STATE_WAR")
+		-- Denouncing
+		or (player:IsDenouncingPlayer( activePlayerID ) and L"TXT_KEY_DIPLO_MAJOR_CIV_DIPLO_STATE_DENOUNCING")
+		-- Resurrected
+		or (gk_mode and player:WasResurrectedThisTurnBy( activePlayerID ) and L"TXT_KEY_DIPLO_MAJOR_CIV_DIPLO_STATE_LIBERATED")
+		-- Appears Hostile
+		or (visibleApproachID == MajorCivApproachTypes.MAJOR_CIV_APPROACH_HOSTILE and L"TXT_KEY_DIPLO_MAJOR_CIV_DIPLO_STATE_HOSTILE")
+		-- Appears Guarded
+		or (visibleApproachID == MajorCivApproachTypes.MAJOR_CIV_APPROACH_GUARDED and L"TXT_KEY_DIPLO_MAJOR_CIV_DIPLO_STATE_GUARDED")
+		-- Appears Afraid
+		or (visibleApproachID == MajorCivApproachTypes.MAJOR_CIV_APPROACH_AFRAID and L"TXT_KEY_DIPLO_MAJOR_CIV_DIPLO_STATE_AFRAID")
+		-- Appears Friendly
+		or (visibleApproachID == MajorCivApproachTypes.MAJOR_CIV_APPROACH_FRIENDLY and L"TXT_KEY_DIPLO_MAJOR_CIV_DIPLO_STATE_FRIENDLY")
+		-- Neutral - default string
+		or L"TXT_KEY_DIPLO_MAJOR_CIV_DIPLO_STATE_NEUTRAL" )
+	end
+
+	-- Techs Known
+	local tips = table( team:GetTeamTechs():GetNumTechsKnown() .. " " .. TechColor( Locale_ToLower("TXT_KEY_VP_TECH") ) )
+	-- Policies
+	for policyBranch in GameInfo.PolicyBranchTypes() do
+		local policyCount = player:GetNumPoliciesPurchasedInBranch(policyBranch.ID)
+
+		if (policyCount > 0) then
+			tips:insert(policyCount .. " " .. PolicyColor( Locale_ToLower(policyBranch.Description) ) )
+		end
+	end
+	-- Religion Founded
+	if g_isReligionEnabled then
+		local religionID = player:GetOwnedReligion()
+		tips:insertIf( religionID > 0 and tostring( (GameInfo.Religions[ religionID ] or {}).IconString )..BeliefColor( L("TXT_KEY_RO_STATUS_FOUNDER", Game.GetReligionName( religionID ) ) ) )
+	end
+	tips = table( strInfo, tips:concat(", ") )
+
+	-- Wonders
+	local wonders = table()
+	for building in GameInfo.Buildings() do
+		if building.BuildingClass
+			and ( ( GameInfo.BuildingClasses[building.BuildingClass] or {} ).MaxGlobalInstances or 0 ) > 0
+			and player:CountNumBuildings(building.ID) > 0
+		then
+			wonders:insert( BuildingColor( L(building.Description) ) )
+		end
+	end
+	-- Population
+	local numpuppets = player:GetNumPuppetCities()
+	tips:insert( player:GetTotalPopulation() .. "[ICON_CITIZEN]"
+			.. ", "
+			.. player:GetNumCities() .. " " .. Locale_ToLower("TXT_KEY_VP_CITIES")
+			.. (numpuppets>0 and " (" .. numpuppets .. L"TXT_KEY_VP_PUPPET_CITIES" .. ")" or "")
+			.. ", "
+			.. player:GetNumWorldWonders() .. " " .. Locale_ToLower("TXT_KEY_VP_WONDERS")
+			.. (#wonders>0 and ": " .. wonders:concat( ", " ) or "") )
+--[[ too much info
+	local cities = table()
+	for city in player:Cities() do
+		-- Name & population
+		local cityTxt = S("%i[ICON_CITIZEN] %s", city:GetPopulation(), city:GetName())
+		if city:IsCapital() then
+			cityTxt = "[ICON_CAPITAL]" .. cityTxt
+		end
+		-- Wonders
+		local wonders = table()
+		for building in GameInfo.Buildings() do
+			if building.BuildingClass
+				and GameInfo.BuildingClasses[building.BuildingClass].MaxGlobalInstances > 0
+				and city:IsHasBuilding(building.ID)
+			then
+				wonders:insert( L(building.Description) )
+			end
+		end
+		if #wonders > 0 then
+			cityTxt = cityTxt .. " (" .. wonders:concat(", ") .. ")"
+		end
+		cities:insert( cityTxt )
+	end
+	if #cities > 1 then
+		tips:insert( #cities .. " " .. L("TXT_KEY_DIPLO_CITIES"):lower() .. " : " .. cities:concat(", ") )
+	elseif #cities ==1 then
+		tips:insert( cities[1] )
+	end
+--]]
+
+	-- Gold (can be seen in diplo relation ship)
+	tips:insert( S( "%i%s(%+i)", player:GetGold(), g_currencyIcon, player:CalculateGoldRate() ) )
+
+
+	--------------------------------------------------------------------
+	-- Loop through the active player's current deals
+	--------------------------------------------------------------------
+
+	local isTradeable, isActiveDeal
+	local dealsFinalTurn = {}
+	local deals = table()
+	local tradeRoutes = table()
+	local opinions = table()
+	local treaties = table()
+	local currentTurn = Game.GetGameTurn() -1
+	local isUs = playerID == activePlayerID
+
+	local function GetDealTurnsRemaining( itemID )
+		local turnsRemaining
+		if bnw_mode and itemID == TradeableItems.TRADE_ITEM_DECLARATION_OF_FRIENDSHIP then -- DoF special kinky case
+			turnsRemaining = g_relationshipDuration - activePlayer:GetDoFCounter( playerID )
+		elseif itemID then
+			local finalTurn = dealsFinalTurn[ itemID ]
+			if finalTurn then
+				turnsRemaining = finalTurn - currentTurn
+			end
+		end
+		return inParentheses( isActiveDeal and turnsRemaining )
+	end
+
+	local dealItems = {}
+	local finalTurns = table()
+	PushScratchDeal()
+	for i = 0, UI_GetNumCurrentDeals( activePlayerID ) - 1 do
+		UI_LoadCurrentDeal( activePlayerID, i )
+		local toPlayerID = g_deal:GetOtherPlayer( activePlayerID )
+		g_deal:ResetIterator()
+		repeat
+			local itemID, duration, finalTurn, data1, data2, data3, flag1, fromPlayerID = g_deal:GetNextItem()
+			if not bnw_mode then
+				fromPlayerID = data3
+			end
+			if itemID then
+				if isUs or toPlayerID == playerID or fromPlayerID == playerID then
+--					finalTurn = finalTurn - currentTurn
+					local isFromUs = fromPlayerID == activePlayerID
+					local dealItem = dealItems[ finalTurn ]
+					if not dealItem then
+						dealItem = {}
+						dealItems[ finalTurn ] = dealItem
+						finalTurns:insert( finalTurn )
+					end
+					if itemID == TradeableItems.TRADE_ITEM_GOLD_PER_TURN then
+						dealItem.GPT = (dealItem.GPT or 0) + (isFromUs and -data1 or data1)
+					elseif itemID == TradeableItems.TRADE_ITEM_RESOURCES then
+						dealItem[data1] = (dealItem[data1] or 0) + (isFromUs and -data2 or data2)
+					else
+						dealsFinalTurn[ itemID + (isFromUs and 65536 or 0) ] = finalTurn
+					end
+				end
+			else
+				break
+			end
+		until false
+	end
+	PopScratchDeal()
+	finalTurns:sort()
+	for i = 1, #finalTurns do
+		local finalTurn = finalTurns[i]
+		local dealItem = dealItems[ finalTurn ] or {}
+		local deal = table()
+		local quantity = dealItem.GPT
+		deal:insertIf( quantity and quantity ~= 0 and S( "%+g%s", quantity, g_currencyIcon ) )
+		for resource in GameInfo.Resources() do
+			local quantity = dealItem[ resource.ID ]
+			deal:insertIf( (quantity or 0) ~= 0 and S( "%+g%s", quantity, tostring(resource.IconString) ) )
+		end
+		deals:insertIf( #deal > 0 and deal:concat() .. "("..( finalTurn - currentTurn )..")" )
+	end
+
+
+	--if bnw_mode then
+	--	for _, route in ipairs( activePlayer:GetTradeRoutes() ) do
+	--		if route.ToID == playerID then
+		--		local tip = "   [ICON_INTERNATIONAL_TRADE]" .. route.FromCityName .. " "
+			--			.. routeBonus( route, "From" )
+				--		.. "[ICON_MOVES]" .. route.ToCityName
+			--	if route.ToID == activePlayerID then
+			--		tip = tip .. " ".. routeBonus( route, "To" )
+			--	end
+			--	tradeRoutes:insert( tip .. " ("..(route.TurnsLeft-1)..")" )
+			--end
+		--end
+		--for _, route in ipairs( activePlayer:GetTradeRoutesToYou() ) do
+			--if isUs or route.FromID == playerID then
+				--tradeRoutes:insert( "   [ICON_INTERNATIONAL_TRADE]" .. route.FromCityName .. "[ICON_MOVES]" .. route.ToCityName .. " "
+					--	.. routeBonus( route, "To" )
+					--	)
+			--end
+		--end
+	--end
+
+	if isUs then
+
+		-- Resources available for trade
+		local luxuries = table()
+		local strategic = table()
+		for resource in GameInfo.Resources() do
+			local i = activePlayer:GetNumResourceAvailable( resource.ID, false )
+			if i > 0 then
+				if resource.ResourceClassType == "RESOURCECLASS_LUXURY" then
+					luxuries:insert( " " .. activePlayer:GetNumResourceAvailable( resource.ID, true ) .. tostring(resource.IconString) )
+				elseif resource.ResourceClassType ~= "RESOURCECLASS_BONUS" then
+					strategic:insert( " " .. i .. tostring(resource.IconString) )
+				end
+			end
+		end
+		tips:append( luxuries:concat() .. strategic:concat() )
+
+	else  --if teamID ~= activeTeamID then
+
+		local visibleApproachID = activePlayer:GetApproachTowardsUsGuess(playerID)
+
+		if (not activeTeam:IsAtWar( teamID )) then	-- Not at war right now
+
+			-- Resources available from them
+			local luxuries = table()
+			local strategic = table()
+			for resource in GameInfo.Resources() do
+				if g_deal:IsPossibleToTradeItem( playerID, activePlayerID, TradeableItems.TRADE_ITEM_RESOURCES, resource.ID, 1 ) then	-- 1 here is 1 quantity of the Resource, which is the minimum possible
+					local resource = "  " .. player:GetNumResourceAvailable( resource.ID, false ) .. tostring(resource.IconString)
+					if resource.ResourceClassType == "RESOURCECLASS_LUXURY" then
+						luxuries:insert( resource )
+					else
+						strategic:insert( resource )
+					end
+				end
+			end
+			tips:append( luxuries:concat() .. strategic:concat() )
+
+			-- Resources they would like from us
+			luxuries = table()
+			strategic = table()
+			for resource in GameInfo.Resources() do
+				if g_deal:IsPossibleToTradeItem( activePlayerID, playerID, TradeableItems.TRADE_ITEM_RESOURCES, resource.ID, 1 ) then	-- 1 here is 1 quantity of the Resource, which is the minimum possible
+					if resource.ResourceClassType == "RESOURCECLASS_LUXURY" then
+						luxuries:insert( " " .. activePlayer:GetNumResourceAvailable( resource.ID, true ) .. tostring(resource.IconString) )
+					else
+						strategic:insert( " " .. activePlayer:GetNumResourceAvailable( resource.ID, false ) .. tostring(resource.IconString) )
+					end
+				end
+			end
+			if #luxuries > 0 or #strategic > 0 then
+				tips:insert( L"TXT_KEY_DIPLO_YOUR_ITEMS_LABEL" .. ": " .. luxuries:concat() .. strategic:concat() )
+			end
+
+			-- Treaties
+			local peaceTurnExpire = dealsFinalTurn[ TradeableItems.TRADE_ITEM_PEACE_TREATY ]
+			if peaceTurnExpire and peaceTurnExpire > currentTurn then
+				treaties:insert( "[ICON_PEACE]" .. L( "TXT_KEY_DIPLO_PEACE_TREATY", peaceTurnExpire - currentTurn ) )
+			end
+			if gk_mode then
+
+				-- Embassy to them
+				isTradeable = g_deal:IsPossibleToTradeItem( activePlayerID, playerID, TradeableItems.TRADE_ITEM_ALLOW_EMBASSY, g_dealDuration )
+				isActiveDeal = team:HasEmbassyAtTeam( activeTeamID )
+
+				if isTradeable or isActiveDeal then
+					treaties:insert( negativeOrPositiveTextColor[isActiveDeal] .. "[ICON_CAPITAL]"
+							.. L("TXT_KEY_DIPLO_ALLOW_EMBASSY"):lower()
+							.. "[ENDCOLOR]" .. GetDealTurnsRemaining( TradeableItems.TRADE_ITEM_ALLOW_EMBASSY + 65536 ) -- 65536 means from us
+					)
+				end
+
+				-- Embassy from them
+				isTradeable = g_deal:IsPossibleToTradeItem( playerID, activePlayerID, TradeableItems.TRADE_ITEM_ALLOW_EMBASSY, g_dealDuration )
+				isActiveDeal = activeTeam:HasEmbassyAtTeam( teamID )
+
+				if isTradeable or isActiveDeal then
+					treaties:insert( negativeOrPositiveTextColor[isActiveDeal]
+							.. L("TXT_KEY_DIPLO_ALLOW_EMBASSY"):lower()
+							.. "[ICON_CAPITAL][ENDCOLOR]" .. GetDealTurnsRemaining( TradeableItems.TRADE_ITEM_ALLOW_EMBASSY )
+					)
+				end
+			end
+
+			-- Open Borders to them
+			isTradeable = g_deal:IsPossibleToTradeItem( activePlayerID, playerID, TradeableItems.TRADE_ITEM_OPEN_BORDERS, g_dealDuration )
+			isActiveDeal = activeTeam:IsAllowsOpenBordersToTeam(teamID)
+
+			if isTradeable or isActiveDeal then
+				treaties:insert( negativeOrPositiveTextColor[isActiveDeal] .. "<"
+						.. L"TXT_KEY_DO_OPEN_BORDERS"
+						.. "[ENDCOLOR]" .. GetDealTurnsRemaining( TradeableItems.TRADE_ITEM_OPEN_BORDERS + 65536 ) -- 65536 means from us
+				)
+			end
+
+			-- Open Borders from them
+			isTradeable = g_deal:IsPossibleToTradeItem( playerID, activePlayerID, TradeableItems.TRADE_ITEM_OPEN_BORDERS, g_dealDuration )
+			isActiveDeal = team:IsAllowsOpenBordersToTeam( activeTeamID )
+
+			if isTradeable or isActiveDeal then
+				treaties:insert( negativeOrPositiveTextColor[isActiveDeal]
+						.. L"TXT_KEY_DO_OPEN_BORDERS"
+						.. ">[ENDCOLOR]" .. GetDealTurnsRemaining( TradeableItems.TRADE_ITEM_OPEN_BORDERS )
+				)
+			end
+
+			-- Declaration of Friendship
+			isTradeable = not gk_mode or g_deal:IsPossibleToTradeItem( playerID, activePlayerID, TradeableItems.TRADE_ITEM_DECLARATION_OF_FRIENDSHIP, g_dealDuration )
+			isActiveDeal = activePlayer:IsDoF(playerID)
+			if isTradeable or isActiveDeal then
+				treaties:insert( negativeOrPositiveTextColor[isActiveDeal] .. "[ICON_FLOWER]"
+						.. L"TXT_KEY_DIPLOMACY_FRIENDSHIP_ADV_QUEST"
+						.. "[ENDCOLOR]" .. GetDealTurnsRemaining( TradeableItems.TRADE_ITEM_DECLARATION_OF_FRIENDSHIP )
+				)
+			end
+
+			-- Research Agreement
+--			isTradeable = (activeTeam:IsResearchAgreementTradingAllowed() or team:IsResearchAgreementTradingAllowed())
+--				and not activeTeam:GetTeamTechs():HasResearchedAllTechs() and not team:GetTeamTechs():HasResearchedAllTechs()
+--				and not g_isScienceEnabled
+			isTradeable = g_deal:IsPossibleToTradeItem( playerID, activePlayerID, TradeableItems.TRADE_ITEM_RESEARCH_AGREEMENT, g_dealDuration )
+			isActiveDeal = activeTeam:IsHasResearchAgreement(teamID)
+			if isTradeable or isActiveDeal then
+				treaties:insert( negativeOrPositiveTextColor[isActiveDeal] .. "[ICON_RESEARCH]"
+						.. L"TXT_KEY_DO_RESEARCH_AGREEMENT"
+						.. "[ENDCOLOR]" .. GetDealTurnsRemaining( TradeableItems.TRADE_ITEM_RESEARCH_AGREEMENT )
+				)
+			end
+
+			-- Defensive Pact
+			isTradeable = g_deal:IsPossibleToTradeItem( playerID, activePlayerID, TradeableItems.TRADE_ITEM_DEFENSIVE_PACT, g_dealDuration )
+			isActiveDeal = activeTeam:IsDefensivePact(teamID)
+			if isTradeable or isActiveDeal then
+				treaties:insert( negativeOrPositiveTextColor[isActiveDeal] .. "[ICON_STRENGTH]"
+						.. L"TXT_KEY_DO_PACT"
+						.. "[ENDCOLOR]" .. GetDealTurnsRemaining( TradeableItems.TRADE_ITEM_DEFENSIVE_PACT )
+				)
+			end
+		end
+
+		if player.GetOpinionTable then
+			opinions = player:GetOpinionTable( activePlayerID )
+		else
+			-- Eliminated
+			if (not player:IsAlive()) then
+				opinions = { L"TXT_KEY_DIPLO_ELIMINATED_INDICATOR" }
+			-- Teammates
+			elseif teamID == activeTeamID then
+				opinions = { L"TXT_KEY_DIPLO_HUMAN_TEAMMATE" }
+			-- At war
+			elseif activeTeam:IsAtWar( teamID ) then
+				opinions = { L"TXT_KEY_DIPLO_AT_WAR" }
+			-- Appears Friendly
+			elseif visibleApproachID == MajorCivApproachTypes.MAJOR_CIV_APPROACH_FRIENDLY then
+				opinions = { L"TXT_KEY_DIPLO_FRIENDLY" }
+			-- Appears Guarded
+			elseif visibleApproachID == MajorCivApproachTypes.MAJOR_CIV_APPROACH_GUARDED then
+				opinions = { L"TXT_KEY_DIPLO_GUARDED" }
+			-- Appears Hostile
+			elseif visibleApproachID == MajorCivApproachTypes.MAJOR_CIV_APPROACH_HOSTILE then
+				opinions = { L"TXT_KEY_DIPLO_HOSTILE" }
+			-- Appears Afraid
+			elseif visibleApproachID == MajorCivApproachTypes.MAJOR_CIV_APPROACH_AFRAID then
+				opinions = { L"TXT_KEY_DIPLO_AFRAID" }
+			-- Appears Neutral, opinions deliberately hidden
+			elseif (Game.IsHideOpinionTable() and (team:GetTurnsSinceMeetingTeam(activeTeamID) ~= 0 or player:IsActHostileTowardsHuman(activePlayerID))) then
+				if player:IsActHostileTowardsHuman(activePlayerID) then
+					opinions = { L"TXT_KEY_DIPLO_NEUTRAL_HOSTILE" }
+				else
+					opinions = { L"TXT_KEY_DIPLO_NEUTRAL_FRIENDLY" }
+				end
+			-- Appears Neutral, no opinions
+			else
+				opinions = { L"TXT_KEY_DIPLO_DEFAULT_STATUS" }
+			end
+		end
+
+		--  No specific modifiers are visible, so let's see what string we should use (based on visible approach towards us)
+		if #opinions == 0 then
+			-- Eliminated
+			if (not player:IsAlive()) then
+				opinions = { L"TXT_KEY_DIPLO_ELIMINATED_INDICATOR" }
+			-- Teammates
+			elseif teamID == activeTeamID then
+				opinions = { L"TXT_KEY_DIPLO_HUMAN_TEAMMATE" }
+			-- At war
+			elseif activeTeam:IsAtWar( teamID ) then
+				opinions = { L"TXT_KEY_DIPLO_AT_WAR" }
+			-- Appears Friendly
+			elseif visibleApproachID == MajorCivApproachTypes.MAJOR_CIV_APPROACH_FRIENDLY then
+				opinions = { L"TXT_KEY_DIPLO_FRIENDLY" }
+			-- Appears Guarded
+			elseif visibleApproachID == MajorCivApproachTypes.MAJOR_CIV_APPROACH_GUARDED then
+				opinions = { L"TXT_KEY_DIPLO_GUARDED" }
+			-- Appears Hostile
+			elseif visibleApproachID == MajorCivApproachTypes.MAJOR_CIV_APPROACH_HOSTILE then
+				opinions = { L"TXT_KEY_DIPLO_HOSTILE" }
+			-- Appears Afraid
+			elseif visibleApproachID == MajorCivApproachTypes.MAJOR_CIV_APPROACH_AFRAID then
+				opinions = { L"TXT_KEY_DIPLO_AFRAID" }
+			-- Appears Neutral, opinions deliberately hidden
+			elseif (Game.IsHideOpinionTable() and (team:GetTurnsSinceMeetingTeam(activeTeamID) ~= 0 or player:IsActHostileTowardsHuman(activePlayerID))) then
+				if player:IsActHostileTowardsHuman(activePlayerID) then
+					opinions = { L"TXT_KEY_DIPLO_NEUTRAL_HOSTILE" }
+				else
+					opinions = { L"TXT_KEY_DIPLO_NEUTRAL_FRIENDLY" }
+				end
+			-- Appears Neutral, no opinions
+			else
+				opinions = { L"TXT_KEY_DIPLO_DEFAULT_STATUS" }
+			end
+		end
+
+	end -- playerID vs activePlayerID
+
+--TODO "TXT_KEY_DO_WE_PROVIDE" & "TXT_KEY_DO_THEY_PROVIDE"
+	tips:insertIf( #deals > 0 and L"TXT_KEY_DO_CURRENT_DEALS" .. "[NEWLINE]" .. deals:concat( ", " ) )
+	tips:insertIf( #tradeRoutes > 0 and tradeRoutes:concat( "[NEWLINE]" ) )
+	tips:insertIf( #treaties > 0 and treaties:concat( ", " ) .. "[ENDCOLOR]" )
+	tips:insertIf( #opinions > 0 and "[ICON_BULLET]" .. table_concat( opinions, "[NEWLINE][ICON_BULLET]" ) .. "[ENDCOLOR]" )
+
+	local allied = table()
+	local friends = table()
+	local protected = table()
+	local pacts = table()
+	--CBP
+	local marriage = table()
+	--END
+	--C4df
+	local master = table()
+	local vassal = table()
+	--END
+	local denouncements = table()
+	local backstabs = table()
+	local denouncedBy = table()
+	local wars = table()
+
+	-- Relationships with others
+	for otherPlayerID = 0, GameDefines.MAX_CIV_PLAYERS - 1 do
+		local otherPlayer = Players[otherPlayerID]
+		if otherPlayer
+			and otherPlayerID ~= playerID
+			and otherPlayer:IsAlive()
+			and activeTeam:IsHasMet(otherPlayer:GetTeam())
+		then
+			local otherPlayerName =  GetCivName(otherPlayer)
+			-- Wars
+			if team:IsAtWar(otherPlayer:GetTeam()) then
+				if not otherPlayer:IsMinorCiv() then
+					local iWarScore = player:GetWarScore(otherPlayerID);
+					wars:insert(otherPlayerName .. " (" .. L"TXT_KEY_DIPLO_WARSCORE_CP" .. " " .. iWarScore .. ")")
+				else
+					wars:insert( otherPlayerName)
+
+				end
+			end
+			if otherPlayer:IsMinorCiv() then
+
+				if otherPlayer:IsMarried(playerID) then
+					marriage:insert( otherPlayerName )
+				end
+				-- Alliances
+				if otherPlayer:IsAllies(playerID) then
+					allied:insert( otherPlayerName )
+				-- Friendships
+				elseif otherPlayer:IsFriends(playerID) then
+					friends:insert( otherPlayerName )
+				end
+				-- Protections
+				if player:IsProtectingMinor(otherPlayerID) then
+-- CBP
+					protected:insert( otherPlayerName .. inParentheses( gk_mode and isUs and ( otherPlayer:GetTurnLastPledgedProtectionByMajor(playerID) - Game.GetGameTurn() + GameDefines.BALANCE_MINOR_PROTECTION_MINIMUM_DURATION ) ) )  -- todo check scaling % game speed
+-- END
+					--protected:insert( otherPlayerName .. inParentheses( gk_mode and isUs and ( otherPlayer:GetTurnLastPledgedProtectionByMajor(playerID) - Game.GetGameTurn() + 10 ) ) )  -- todo check scaling % game speed
+				end
+			else
+				-- Friendships
+				if player:IsDoF(otherPlayerID) then
+					friends:insert( otherPlayerName .. inParentheses( bnw_mode and ( g_relationshipDuration - player:GetDoFCounter( otherPlayerID ) ) ) )
+				end
+				-- Backstab
+				if otherPlayer:IsFriendDenouncedUs(playerID) or otherPlayer:IsFriendDeclaredWarOnUs(playerID) then
+					backstabs:insert( otherPlayerName )
+				-- Denouncement
+				elseif player:IsDenouncedPlayer(otherPlayerID) then
+					denouncements:insert( otherPlayerName .. inParentheses( bnw_mode and ( g_relationshipDuration - player:GetDenouncedPlayerCounter( otherPlayerID ) ) ) )
+				end
+				-- Denounced by 3rd party
+				if otherPlayer:IsDenouncedPlayer(playerID) then
+					denouncedBy:insert( otherPlayerName .. inParentheses( bnw_mode and ( g_relationshipDuration - otherPlayer:GetDenouncedPlayerCounter( playerID ) ) ) )
+				end
+
+				if player:IsHasDefensivePactWithPlayer(otherPlayerID) then
+					pacts:insert( otherPlayerName )
+				end
+
+				--C4df
+				if team:IsVassal(otherPlayer:GetTeam()) then
+					vassal:insert( otherPlayerName )
+				end
+				if Teams[otherPlayer:GetTeam()]:IsVassal(player:GetTeam()) then
+					master:insert( otherPlayerName )
+				end
+				--END
+			end
+		end
+	end
+
+	tips:insertIf( #allied > 0 and "[ICON_CITY_STATE]" .. L( "TXT_KEY_ALLIED_WITH", allied:concat(", ") ) )
+	tips:insertIf( #friends > 0 and "[ICON_FLOWER]" .. L( "TXT_KEY_DIPLO_FRIENDS_WITH", friends:concat(", ") ) )
+	tips:insertIf( #protected > 0 and "[ICON_STRENGTH]" .. L"TXT_KEY_POP_CSTATE_PLEDGE_TO_PROTECT" .. ": " .. protected:concat(", ") )
+	tips:insertIf( #pacts > 0 and "[ICON_VICTORY_DOMINATION]" .. L"TXT_KEY_CP_DIPLO_DP" .. ": " .. pacts:concat(", ") )
+	tips:insertIf( #marriage > 0 and "[ICON_CITY_STATE]" .. L"TXT_KEY_CP_DIPLO_MARRIAGE" .. ": " .. marriage:concat(", ") )
+	--C4DF
+	tips:insertIf( #master > 0 and "[ICON_PUPPET]" .. L"TXT_KEY_CP_DIPLO_MASTER_OF" .. ": " .. master:concat(", ") )
+	tips:insertIf( #vassal > 0 and "[ICON_OCCUPIED]" .. L"TXT_KEY_CP_DIPLO_VASSAL_OF" .. ": " .. vassal:concat(", ") )
+	--END
+	tips:insertIf( #backstabs > 0 and "[ICON_PIRATE]" .. L( "TXT_KEY_DIPLO_BACKSTABBED", backstabs:concat(", ") ) )
+	tips:insertIf( #denouncements > 0 and "[ICON_DENOUNCE]" .. L( "TXT_KEY_DIPLO_DENOUNCED", denouncements:concat(", ") ) )
+	tips:insertIf( #denouncedBy > 0 and "[ICON_DENOUNCE]" .. TextColor( negativeOrPositiveTextColor[false], L( "TXT_KEY_NTFN_DENOUNCED_US_S", denouncedBy:concat(", ") ) ) )
+	tips:insertIf( #wars > 0 and "[ICON_WAR]" .. L( "TXT_KEY_AT_WAR_WITH_CP", wars:concat(", ") ) )
+
+	return tips:concat( "[NEWLINE]" )
+end
+
+local function GetReligionTooltip(city)
+
+	if g_isReligionEnabled then
+
+		local tips = table()
+		local majorityReligionID = city:GetReligiousMajority()
+		local pressureMultiplier = GameDefines.RELIGION_MISSIONARY_PRESSURE_MULTIPLIER or 1
+		local beliefPantheonID = -1
+		local beliefSecondaryReligionID = -1
+		local hasPlayerPantheon = false
+
+		if g_isPermanentPantheonMod and Players[city:GetOwner()]:HasCreatedPantheon() then
+			beliefPantheonID = Players[city:GetOwner()]:GetBeliefInPantheon()
+			if majorityReligionID ~= 0 then
+				hasPlayerPantheon = true
+			end
+		end
+
+		for religion in GameInfo.Religions() do
+			local religionID = religion.ID
+
+			if religionID >= 0 then
+				local pressurePerTurn, numSourceCities, totalPressure = city:GetPressurePerTurn(religionID)
+				local numFollowers = city:GetNumFollowers(religionID)
+				local religion = GameInfo.Religions[religionID]
+				local religionName = L( Game.GetReligionName(religionID) )
+				local religionIcon = tostring(religion.IconString)
+
+				if math_floor(pressurePerTurn/pressureMultiplier) > 0 or numFollowers > 0 then
+
+					local religionTip = L( "TXT_KEY_RELIGION_TOOLTIP_EXTENDED", 
+						religionIcon, numFollowers, math_floor(totalPressure/pressureMultiplier), math_floor(pressurePerTurn/pressureMultiplier), numSourceCities)
+
+					if religionID == majorityReligionID then
+						local beliefs
+						if religionID > 0 then
+							beliefs = Game.GetBeliefsInReligion( religionID )
+						else
+							beliefs = {Players[city:GetOwner()]:GetBeliefInPantheon()}
+						end
+						for _,beliefID in pairs( beliefs or {} ) do
+							if(GameInfo.Beliefs[beliefID].Pantheon and Game.IsBeliefValid(religionID, beliefID, city, false)) then
+								religionTip = religionTip .. "[NEWLINE][ICON_BULLET] ".. L("TXT_KEY_RO_BELIEF_TYPE_PANTHEON") .. ": " .. L(GameInfo.Beliefs[ beliefID ].Description)
+							elseif(GameInfo.Beliefs[beliefID].Founder and Game.IsBeliefValid(religionID, beliefID, city, true)) then
+								religionTip = religionTip .. "[NEWLINE][ICON_BULLET] ".. L("TXT_KEY_RO_BELIEF_TYPE_FOUNDER") .. ": " .. L(GameInfo.Beliefs[ beliefID ].Description)
+							elseif(GameInfo.Beliefs[beliefID].Follower and Game.IsBeliefValid(religionID, beliefID, city, false)) then
+								religionTip = religionTip .. "[NEWLINE][ICON_BULLET] ".. L("TXT_KEY_RO_BELIEF_TYPE_FOLLOWER") .. ": " .. L(GameInfo.Beliefs[ beliefID ].Description)
+							elseif(GameInfo.Beliefs[beliefID].Enhancer and Game.IsBeliefValid(religionID, beliefID, city, true)) then
+								religionTip = religionTip .. "[NEWLINE][ICON_BULLET] ".. L("TXT_KEY_RO_BELIEF_TYPE_ENHANCER") .. ": " .. L(GameInfo.Beliefs[ beliefID ].Description)
+							elseif(GameInfo.Beliefs[beliefID].Reformation and Game.IsBeliefValid(religionID, beliefID, city, true)) then
+								religionTip = religionTip .. "[NEWLINE][ICON_BULLET] ".. L("TXT_KEY_RO_BELIEF_TYPE_REFORMATION") .. ": " .. L(GameInfo.Beliefs[ beliefID ].Description)
+							end
+							if g_isPermanentPantheonMod and Players[city:GetOwner()]:HasCreatedPantheon() then
+								if beliefID == beliefPantheonID then
+									hasPlayerPantheon = false
+								end
+							end
+						end
+						beliefSecondaryReligionID = city:GetSecondaryReligionPantheonBelief()
+						if beliefSecondaryReligionID >= 0 then
+							religionTip = religionTip .. "[NEWLINE][ICON_BULLET] ".. L("TXT_KEY_RO_BELIEF_TYPE_PANTHEON") .. ": " .. L(GameInfo.Beliefs[ beliefSecondaryReligionID ].Description)
+						end
+						tips:insert( 1, religionTip )
+					else
+						tips:insert( religionTip )
+					end
+				end
+
+				if city:IsHolyCityForReligion( religionID ) then
+					tips:insert( 1, L( "TXT_KEY_HOLY_CITY_TOOLTIP_LINE", religionIcon, religionName) )
+				end
+			end
+		end
+		if hasPlayerPantheon and beliefPantheonID >= 0 then
+			local pantheonTip = tostring(GameInfo.Religions["RELIGION_PANTHEON"].IconString) .. " " .. L(Players[city:GetOwner()]:GetCivilizationAdjectiveKey()) .. " " .. L("TXT_KEY_RELIGION_PANTHEON")
+			pantheonTip = pantheonTip .. "[NEWLINE]" .. L(GameInfo.Beliefs[ beliefPantheonID ].Description)
+			
+			tips:insert( 1, pantheonTip )
+		end
+		return tips:concat( "[NEWLINE]" )
+	else
+		return L"TXT_KEY_TOP_PANEL_RELIGION_OFF_TOOLTIP"
+	end
+end
+
 -------------------------------------------------
 -- Expose functions
 -------------------------------------------------
@@ -366,6 +1007,8 @@ if Game and Game.GetReligionName == nil then
 	end
 end
 function TT.GetEnergyTooltip( ... ) return select(2, pcall( GetEnergyTooltip, ... ) ) end
+function TT.GetMoodInfo( ... ) return select(2, pcall( GetMoodInfo, ... ) ) end
+function TT.GetReligionTooltip( ... ) return select(2, pcall( GetReligionTooltip, ... ) ) end
 --CBP
 function TT.GetHelpTextForCorp( ... ) return select(2, pcall( GetHelpTextForCorp, ... ) ) end
 --END
