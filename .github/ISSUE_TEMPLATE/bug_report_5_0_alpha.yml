@@ -1,5 +1,6 @@
 name: Bug Report 5.0-alpha
 description: Bug Report for 5.0-alpha
+labels: ["5.0 alpha"]
 body:
   - type: markdown
     attributes:
