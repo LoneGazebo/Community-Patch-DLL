@@ -606,50 +606,7 @@ void CvDllNetMessageHandler::ResponseSetSwappableGreatWork(PlayerTypes ePlayer, 
 	// is this player alive
 	if (GET_PLAYER(ePlayer).isAlive())
 	{
-		// -1 indicates that they want to clear the slot
-		if (iWorkIndex == -1)
-		{
-			if (iWorkClass == GC.getInfoTypeForString("GREAT_WORK_ARTIFACT"))
-			{
-				GET_PLAYER(ePlayer).GetCulture()->SetSwappableArtifactIndex(-1);
-			}
-			else if (iWorkClass == GC.getInfoTypeForString("GREAT_WORK_ART"))
-			{
-				GET_PLAYER(ePlayer).GetCulture()->SetSwappableArtIndex(-1);
-			}
-			else if (iWorkClass == GC.getInfoTypeForString("GREAT_WORK_LITERATURE"))
-			{
-				GET_PLAYER(ePlayer).GetCulture()->SetSwappableWritingIndex(-1);
-			}
-			else if (iWorkClass == GC.getInfoTypeForString("GREAT_WORK_MUSIC"))
-			{
-				GET_PLAYER(ePlayer).GetCulture()->SetSwappableMusicIndex(-1);
-			}
-		}
-		else
-		{
-			// does this player control this work
-			if (GET_PLAYER(ePlayer).GetCulture()->ControlsGreatWork(iWorkIndex))
-			{
-				if (iWorkClass == GC.getInfoTypeForString("GREAT_WORK_ARTIFACT"))
-				{
-					GET_PLAYER(ePlayer).GetCulture()->SetSwappableArtifactIndex(iWorkIndex);
-				}
-				else if (iWorkClass == GC.getInfoTypeForString("GREAT_WORK_ART"))
-				{
-					GET_PLAYER(ePlayer).GetCulture()->SetSwappableArtIndex(iWorkIndex);
-				}
-				else if (iWorkClass == GC.getInfoTypeForString("GREAT_WORK_LITERATURE"))
-				{
-					GET_PLAYER(ePlayer).GetCulture()->SetSwappableWritingIndex(iWorkIndex);
-				}
-				else if (iWorkClass == GC.getInfoTypeForString("GREAT_WORK_MUSIC"))
-				{
-					GET_PLAYER(ePlayer).GetCulture()->SetSwappableMusicIndex(iWorkIndex);
-				}
-			}
-		}
-		GC.GetEngineUserInterface()->setDirty(GreatWorksScreen_DIRTY_BIT, true);
+		GET_PLAYER(ePlayer).GetCulture()->SetSwappableGreatWork((GreatWorkClass)iWorkClass, iWorkIndex);
 	}
 }
 //------------------------------------------------------------------------------

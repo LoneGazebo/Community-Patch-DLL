@@ -211,6 +211,7 @@ public:
 	int GetSwappableArtIndex() const;
 	int GetSwappableArtifactIndex() const;
 	int GetSwappableMusicIndex() const;
+	void SetSwappableGreatWork(GreatWorkClass eGWClass, int iGreatWorkIndex);
 	void SetSwappableWritingIndex(int iIndex);
 	void SetSwappableArtIndex(int iIndex);
 	void SetSwappableArtifactIndex(int iIndex);
