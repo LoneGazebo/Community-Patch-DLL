@@ -5,7 +5,7 @@
 			<Text>Coaling Station</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_COALING_STATION_STRATEGY">
-			<Text>Provides a massive boost to City Production and Gold during the Industrial Era. Requires an Industrial City Connection (see Concepts for more details).</Text>
+			<Text>Provides a massive boost to City Production and Gold, particularly in Cities where those base yields are high. Boosts internal Food trade routes, so it's best to build in Cities that already can send strongest internal trade routes.[NEWLINE][NEWLINE]Requires an Industrial City Connection (see Concepts for more details).[NEWLINE][NEWLINE]Additionally requires Coal, presenting a tradeoff with Factories if you don't have enough Coal for both in all your Cities. While Coaling Stations are usually stronger, the production of individual Factories increases by 2 for each built in your Empire. Therefore, Factories become stronger the more cities you own, surpassing Coaling Stations at a specific number of them, usually between 6 and 12.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_COALING_STATION_HELP">
 			<Text></Text>
@@ -178,7 +178,7 @@
 			<Text></Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_MINEFIELD_TEXT">
-			<Text>A naval mine is a self-contained explosive device placed in water to damage or destroy surface ships or submarines. Unlike depth charges, mines are deposited and left to wait until they are triggered by the approach of, or contact with, an enemy vessel. Naval mines can be used offensively—to hamper enemy shipping movements or lock vessels into a harbour; or defensively—to protect friendly vessels and create "safe" zones.</Text>
+			<Text>A naval mine is a self-contained explosive device placed in water to damage or destroy surface ships or submarines. Unlike depth charges, mines are deposited and left to wait until they are triggered by the approach of, or contact with, an enemy vessel. Naval mines can be used offensively - to hamper enemy shipping movements or lock vessels into a harbour; or defensively - to protect friendly vessels and create "safe" zones.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_INTERPRETIVE_CENTER">
@@ -469,7 +469,7 @@
 			<Text></Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_CERN_TEXT">
-			<Text>The European Organization for Nuclear Research, known as CERN, is a European research organization whose purpose is to operate the world's largest particle physics laboratory. Established in 1954, the organization is based in the northwest suburbs of Geneva on the Franco–Swiss border, and has 21 European member states. Israel is the first (and currently only) non-European country granted full membership. The term CERN is also used to refer to the laboratory, which in 2013 counted 2513 staff members, and hosted some 12,313 fellows, associates, apprentices as well as visiting scientists and engineers representing 608 universities and research facilities and 113 nationalities. CERN's main function is to provide the particle accelerators and other infrastructure needed for high-energy physics research – as a result, numerous experiments have been constructed at CERN following international collaborations. It is also the birthplace of the World Wide Web. The main site at Meyrin has a large computer centre containing powerful data processing facilities, primarily for experimental-data analysis; because of the need to make these facilities available to researchers elsewhere, it has historically been a major wide area networking hub.</Text>
+			<Text>The European Organization for Nuclear Research, known as CERN, is a European research organization whose purpose is to operate the world's largest particle physics laboratory. Established in 1954, the organization is based in the northwest suburbs of Geneva on the Franco-Swiss border, and has 21 European member states. Israel is the first (and currently only) non-European country granted full membership. The term CERN is also used to refer to the laboratory, which in 2013 counted 2513 staff members, and hosted some 12,313 fellows, associates, apprentices as well as visiting scientists and engineers representing 608 universities and research facilities and 113 nationalities. CERN's main function is to provide the particle accelerators and other infrastructure needed for high-energy physics research - as a result, numerous experiments have been constructed at CERN following international collaborations. It is also the birthplace of the World Wide Web. The main site at Meyrin has a large computer centre containing powerful data processing facilities, primarily for experimental-data analysis; because of the need to make these facilities available to researchers elsewhere, it has historically been a major wide area networking hub.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_WONDER_CERN_QUOTE">
 			<Text>[NEWLINE][TAB][TAB]"When you look at a vacuum in a quantum theory of fields, it isn't exactly nothing."[NEWLINE][TAB][TAB] - Dr. Peter Higgs[NEWLINE][TAB]</Text>
@@ -857,7 +857,7 @@
 			<Text></Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_ORDER_TEXT">
-			<Text>A military order is any one of a variety of Christian societies of knights that were founded from the Middle Ages onwards for the purpose of crusading – propagating or defending the faith (originally Catholic, and after the Reformation sometimes Protestant), either in the Holy Land or against Islam (as, for example, during the Reconquista) or pagans (mainly in the Baltic region) in Europe. Many orders have, since the end of the Crusades and the Ottoman incursions, become secularized, and are usually represented by Roman Catholic ceremonial, missionary and charitable organizations in modern times.</Text>
+			<Text>A military order is any one of a variety of Christian societies of knights that were founded from the Middle Ages onwards for the purpose of crusading - propagating or defending the faith (originally Catholic, and after the Reformation sometimes Protestant), either in the Holy Land or against Islam (as, for example, during the Reconquista) or pagans (mainly in the Baltic region) in Europe. Many orders have, since the end of the Crusades and the Ottoman incursions, become secularized, and are usually represented by Roman Catholic ceremonial, missionary and charitable organizations in modern times.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_TEOCALLI">
@@ -1030,7 +1030,7 @@
 			<Text></Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_THRONE_ROOM_TEXT">
-			<Text>A throne room is the room, often rather a hall, in the official residence of the crown, either a palace or a fortified castle, where the throne of a senior figure (usually a monarch) is set up with elaborate pomp— usually raised, often with steps, and under a canopy, both of which are part of the original notion of the Greek word thronos.</Text>
+			<Text>A throne room is the room, often rather a hall, in the official residence of the crown, either a palace or a fortified castle, where the throne of a senior figure (usually a monarch) is set up with elaborate pomp - usually raised, often with steps, and under a canopy, both of which are part of the original notion of the Greek word thronos.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_STATE_TREASURY">
@@ -1080,7 +1080,7 @@
 			<Text></Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_ROYAL_ASTROLOGER_TEXT">
-			<Text>Astrology, in its broadest sense, is the search for meaning in the sky. Early evidence for humans making conscious attempts to measure, record, and predict seasonal changes by reference to astronomical cycles, appears as markings on bones and cave walls, which show that lunar cycles were being noted as early as 25,000 years ago. This was a first step towards recording the Moon's influence upon tides and rivers, and towards organising a communal calendar. Farmers addressed agricultural needs with increasing knowledge of the constellations that appear in the different seasons—and used the rising of particular star-groups to herald annual floods or seasonal activities. By the 3rd millennium BCE, civilisations had sophisticated awareness of celestial cycles, and may have oriented temples in alignment with heliacal risings of the stars.</Text>
+			<Text>Astrology, in its broadest sense, is the search for meaning in the sky. Early evidence for humans making conscious attempts to measure, record, and predict seasonal changes by reference to astronomical cycles, appears as markings on bones and cave walls, which show that lunar cycles were being noted as early as 25,000 years ago. This was a first step towards recording the Moon's influence upon tides and rivers, and towards organising a communal calendar. Farmers addressed agricultural needs with increasing knowledge of the constellations that appear in the different seasons - and used the rising of particular star-groups to herald annual floods or seasonal activities. By the 3rd millennium BCE, civilisations had sophisticated awareness of celestial cycles, and may have oriented temples in alignment with heliacal risings of the stars.</Text>
 		</Row>
 
 		<!-- Theming bonuses -->
