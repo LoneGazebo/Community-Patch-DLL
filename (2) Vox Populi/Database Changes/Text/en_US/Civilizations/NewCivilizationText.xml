@@ -6,13 +6,13 @@
 			<Text>Independence Hall</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_INDEPENDENCE_HALL_HELP">
-			<Text>+1 [ICON_CULTURE] Culture for every 4 [ICON_CITIZEN] Citizens in the City. +10% [ICON_CULTURE] Culture in the City.[NEWLINE][NEWLINE][ICON_CULTURE] Culture cost of adopting new Policies reduced by 5%.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_CULTURE] Boredom in all Cities.[NEWLINE][NEWLINE]Contains 2 Slots for [ICON_GREAT_WORK] Great Works of Art or Artifacts. +3 [ICON_CULTURE] Culture and +3 [ICON_GOLD] Gold if [COLOR_POSITIVE_TEXT]Themed[ENDCOLOR].[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost increases based on the number of Cities you own.[NEWLINE][NEWLINE]Unlocks access to [COLOR_POSITIVE_TEXT]Slater Mill[ENDCOLOR], [COLOR_POSITIVE_TEXT]West Point[ENDCOLOR], and [COLOR_POSITIVE_TEXT]Smithsonian Institute[ENDCOLOR] in the [COLOR_CYAN]Industrial Era[ENDCOLOR].</Text>
+			<Text>Unlocks access to [COLOR_POSITIVE_TEXT]Slater Mill[ENDCOLOR], [COLOR_POSITIVE_TEXT]West Point[ENDCOLOR], and [COLOR_POSITIVE_TEXT]Smithsonian Institute[ENDCOLOR] in the [COLOR_CYAN]Industrial Era[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_INDEPENDENCE_HALL_TEXT">
 			<Text>Originally constructed as the state house of Pennsylvannia, Independence Hall is where the United States Declaration of Independence and Constitution were debated and formally adopted, making it the birthplace of the American nation. Today, Independence Hall is a museum and the centre of the Independence National Park in the heart of Philadelphia.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_INDEPENDENCE_HALL_STRATEGY">
-			<Text>Unique American replacement for the {TXT_KEY_BUILDING_HERMITAGE}. In addition to the bonuses of the {TXT_KEY_BUILDING_HERMITAGE}, {TXT_KEY_BUILDING_INDEPENDENCE_HALL} reduces the cost of future policies, is easier to theme, and unlocks the ability for America to build 1 of 3 unique wonders in the Industrial Era.</Text>
+			<Text>Make sure to build it before you gain the next Policy, to benefit from the unique 5% Policy cost reduction at the first occasion. The Culture bonuses are the same as that of The Royal Collection, but it lacks any Theming requirements, so place any Great Works of Art in the slots. Additionally, it reduces Boredom by 1 in all cities. In short, constructing The Independence Hall is a priority.[NEWLINE][NEWLINE]Unlocks the ability for America to build 1 of 3 unique wonders in the Industrial Era. Choose which wonder is the best for you early to arrange you technology research order accordingly.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_THEMING_BONUS_INDEPENDENCEHALL">
 			<Text>National Treasures</Text>
@@ -27,34 +27,34 @@
 			<Text>The Smithsonian Institution, originally established in 1846 as the United States National Museum is a group of museums and research centers administered by the Government of the United States. Lovingly called "the nation's attic" for its eclectic holdings of 138 million items, the Institution's nineteen museums, nine research centers, and zoo include historical and architectural landmarks, mostly located in the District of Columbia. Additional facilities are located in Arizona, Maryland, Massachusetts, New York City, Virginia, and Panama. A further 170 museums are Smithsonian Affiliates. The Institution's thirty million annual visitors are admitted without charge; funding comes from the Institution's endowment, private, corporate, and government contributions, membership dues, as well as retail, concession and licensing revenues. Institution publications include Smithsonian and Air and Space magazines.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_SMITHSONIAN_INSTITUTION_HELP">
-			<Text>1 of 3 [COLOR_NEGATIVE_TEXT]Mutually Exclusive[ENDCOLOR] Unique American Wonders. Requires construction of {TXT_KEY_BUILDING_INDEPENDENCE_HALL} in any owned City.[NEWLINE][NEWLINE][ICON_GOLD] Gold costs of acquiring new tiles reduced by 25% in every City. +5 [ICON_RESEARCH] Science and [ICON_CULTURE] Culture to all Museums and Research Labs. +2 [ICON_RESEARCH] Science and [ICON_CULTURE] Culture to all [ICON_WONDER] World Wonders.[NEWLINE][NEWLINE]Receive a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] {TXT_KEY_BUILDING_MUSEUM} in this City.[NEWLINE][NEWLINE]10% of [ICON_GOLD] Gold created by all Cities on Empire counts as [ICON_CULTURE] Culture Per Turn.[NEWLINE][NEWLINE]+5 [ICON_RESEARCH] Science to all Landmarks and +1 [ICON_RESEARCH] to all [ICON_GREAT_WORK] Great Works on Empire.</Text>
+			<Text></Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_SMITHSONIAN_INSTITUTION_STRATEGY">
-			<Text>One of three mutually exclusive wonders that America can build after it has completed {TXT_KEY_BUILDING_INDEPENDENCE_HALL}. It gives major empire-wide bonuses towards [ICON_RESEARCH] Science and [ICON_CULTURE] Culture generation, boosting the power of Museums, Research Labs, World Wonders, Landmarks, and Great Works.[NEWLINE][NEWLINE]Build this if you want to focus on technological and cultural advancement.</Text>
+			<Text>One of the three mutually exclusive Wonders that America can build after it has completed Independence Hall. Choose your destiny carefully.[NEWLINE][NEWLINE]Note that all 3 Wonders have symmetry between them, focusing either on [ICON_CULTURE] Culture, [ICON_RESEARCH] Science, or [ICON_PRODUCTION] Production in similar ways. Thus, which Yield and Victory type you care most about should influence your choice.[NEWLINE][NEWLINE]Build the Smithsonian Institution if you aim for the Cultural or Scientific victory. Your Cities receive extra [ICON_CULTURE] Culture based on their [ICON_GOLD] Gold output, which lets you unlock Policies faster. Focusing on [ICON_GOLD] Gold per turn is a strong strategy from now on. This wonder synergizes best with Artistry as this Policy Branch lets you create more Great Works or Landmarks that gain a [ICON_RESEARCH] Science bonus from this Wonder. Freedom Ideology will further benefit Landmarks and Tourism output.[NEWLINE][NEWLINE]Museums and Research Labs gain powerful yields, so it's worth building them as soon as possible.[NEWLINE][NEWLINE]Since it's unlocked at Archaeology, you will reveal antiquity sites early, so consider expanding near unowned sites to create Landmarks in your new territories. They are recommended over Great Works because on top of the bigger [ICON_RESEARCH] Science bonus, they provide [ICON_GOLD] Gold which feeds back to the [ICON_CULTURE] Culture bonus. However, keep your City number in check to avoid the [ICON_TOURISM] Tourism penalty.[NEWLINE][NEWLINE]The 25% discount on tile [ICON_GOLD] Gold purchases promotes buying tiles liberally to boost prodution of important Buildings, Wonders or Units.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_WEST_POINT">
 			<Text>West Point</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_WEST_POINT_HELP">
-			<Text>1 of 3 [COLOR_NEGATIVE_TEXT]Mutually Exclusive[ENDCOLOR] Unique American Wonders. Requires construction of {TXT_KEY_BUILDING_INDEPENDENCE_HALL} in any owned City.[NEWLINE][NEWLINE][ICON_GOLD] Gold costs of acquiring new tiles reduced by 25% in every City. +5 [ICON_PRODUCTION] Production and [ICON_RESEARCH] Science to all Military Academies and Arsenals. +2 [ICON_PRODUCTION] Production and [ICON_RESEARCH] Science to all [ICON_WONDER] World Wonders.[NEWLINE][NEWLINE]Receive a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] {TXT_KEY_BUILDING_MILITARY_ACADEMY} in this City.[NEWLINE][NEWLINE]10% of [ICON_GOLD] Gold output in all Cities is added as [ICON_RESEARCH] Science Per Turn.[NEWLINE][NEWLINE]All Siege Units and Naval Ranged Units receive the [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_SPLASH_1}[ENDCOLOR] Promotion.</Text>
+			<Text></Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_WEST_POINT_TEXT">
 			<Text>The United States Military Academy, informally known as West Point, is the oldest service academy, educating cadets to become commissioned officers for the United States Army. The academy is notable for producing some of the most renowned generals in modern history in addition to numerous heads of state, both foreign and domestic. The campus is the oldest continuously operating American army post, originally built as a river fort to overlook and control shipping along the Hudson River. As a result, the campus is a national landmark, dotted with numerous monuments and statues representing its long and storied history.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_WEST_POINT_STRATEGY">
-			<Text>One of three mutually exclusive wonders that America can build after it has completed {TXT_KEY_BUILDING_INDEPENDENCE_HALL}. It gives major empire-wide bonuses towards [ICON_PRODUCTION] Production and [ICON_RESEARCH] Science generation, boosting the power of Military Academies, Arsenals, World Wonders, siege units, and naval ranged units.[NEWLINE][NEWLINE]Build this if you want to focus on military power.</Text>
+			<Text>One of the three mutually exclusive Wonders that America can build after it has completed Independence Hall. Choose your destiny carefully.[NEWLINE][NEWLINE]Note that all 3 Wonders have symmetry between them, focusing either on [ICON_CULTURE] Culture, [ICON_RESEARCH] Science, or [ICON_PRODUCTION] Production in similar ways. Thus, which Yield and Victory type you care most about should influence your choice.[NEWLINE][NEWLINE]Build West Point if you aim for the Scientific or Domination Victory. Your Cities receive extra [ICON_RESEARCH] Science based on their [ICON_GOLD] Gold output, which lets you unlock Techonologies faster and therefore also helps with gaining a military advantage. Focusing on [ICON_GOLD] Gold per turn is a strong strategy from now on. Moreover, Splash I is a strong Promotion that is given to all Siege and Naval Ranged Units, so if you plan to war, consider this Wonder more. Despite Splash I is given to Siege units, Minutemen are so strong that they shouldn't be replaced in attacking enemy Units in any way. West Point benefits most from Fealty which encourages wide empires, because such an empire is needed both for Scientific and Domination victories. Both Rationalism and Industry fit too, by multiplying [ICON_RESEARCH] Science yields from the Buildings and boosting [ICON_GOLD] Gold generation respectively.[NEWLINE][NEWLINE]Military Academies and Arsenals gain powerful yields so it's worth building them as soon as possible.[NEWLINE][NEWLINE]Since it's unlocked at Military Science, try to focus on this Technology first, and at that point why not build Brandenburg Gate as well if you can?[NEWLINE][NEWLINE]The 25% discount on tile [ICON_GOLD] Gold purchases promotes buying tiles liberally to boost prodution of important Buildings, Wonders or Units.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_SLATER_MILL">
 			<Text>Slater Mill</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_SLATER_MILL_HELP">
-			<Text>1 of 3 [COLOR_NEGATIVE_TEXT]Mutually Exclusive[ENDCOLOR] Unique American Wonders. Requires construction of {TXT_KEY_BUILDING_INDEPENDENCE_HALL} in any owned City. Can only be built in a City next to fresh water.[NEWLINE][NEWLINE][ICON_GOLD] Gold costs of acquiring new tiles reduced by 25% in every City. +5 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold to all Factories and Stock Exchanges. +2 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold to all [ICON_WONDER] World Wonders.[NEWLINE][NEWLINE]Receive a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] {TXT_KEY_BUILDING_FACTORY} in this City.[NEWLINE][NEWLINE]10% of [ICON_GOLD] Gold output in all Cities is added as [ICON_PRODUCTION] Production Per Turn.[NEWLINE][NEWLINE]Grants 1 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_INTERNATIONAL_TRADE] Trade Route, and all [ICON_INTERNATIONAL_TRADE] Trade Units complete their routes 25% faster.</Text>
+			<Text></Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_SLATER_MILL_TEXT">
 			<Text>A National Historic Landmark, the Slater Mill is located next to the Blackstone River in Pawtucket, Rhode Island. Modeled after cotton spinning mills first established in England, the Slater Mill is the first water-powered cotton spinning mill in North America to utilize the Arkwright system of cotton spinning as developed by Richard Arkwright. Samuel Slater, the mill's founder, apprenticed as a young man in Belper, England with industrialist Jedediah Strutt. Shortly after immigrating to the United States, Slater was hired by Moses Brown of Providence, Rhode Island to produce a working set of machines necessary to spin cotton yarn using water-power. Construction of the machines, as well as a dam, waterway, waterwheel and mill was completed in 1793. Manufacturing was based on Richard Arkwright's cotton spinning system which included carding, drawing, and spinning machines. Slater initially hired children and families to work in his mill, establishing a pattern that was replicated throughout the Blackstone Valley and known as the "Rhode Island System". It was later eclipsed by Francis Cabot Lowell's Waltham System. Slater Mill was the first property to be listed on the National Register of Historic Places, and was designated a National Historic Landmark on November 13, 1966.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_SLATER_MILL_STRATEGY">
-			<Text>One of three mutually exclusive wonders that America can build after it has completed {TXT_KEY_BUILDING_INDEPENDENCE_HALL}. It gives major empire-wide bonuses towards [ICON_PRODUCTION] Production and [ICON_GOLD] Gold generation, boosting the power of Factories, Stock Exchanges, and World Wonders; grants an additional [ICON_INTERNATIONAL_TRADE] Trade Route; and reduces the time for [ICON_INTERNATIONAL_TRADE] Trade Routes to complete, increasing the rate of [ICON_TOURISM] tourism generation and [ICON_FRANCHISE] franchise establishment.[NEWLINE][NEWLINE]Build this if you want to focus on infrastructure.</Text>
+			<Text>One of the three mutually exclusive Wonders that America can build after it has completed Independence Hall. Choose your destiny carefully.[NEWLINE][NEWLINE]Note that all 3 Wonders have symmetry between them, focusing either on [ICON_CULTURE] Culture, [ICON_RESEARCH] Science, or [ICON_PRODUCTION] Production in similar ways. Thus, which Yield and Victory type you care most about should influence your choice.[NEWLINE][NEWLINE]Build the Slater Mill if you aim for the Diplomatic or Domination victory. Your Cities receive extra [ICON_PRODUCTION] Production based on their [ICON_GOLD] Gold output, which lets you build Military and Diplomatic Units faster. The [ICON_RESEARCH] Science or [ICON_CULTURE] Culture that the alternatives provide is stronger, unless you heavily lack [ICON_PRODUCTION] Production. The West Point encourages Domination too, and it's usually a better choice, especially if you're lacking in [ICON_RESEARCH] Science but your [ICON_PRODUCTION] Production capacity is strong. Otherwise the Slater Mill might be better. Focusing on [ICON_GOLD] Gold per turn is a strong strategy from now on. This Wonder synergizes best with Statecraft as this Policy Branch helps with allying city states and gaining Congress Votes, and gives an extra Trade Route. Industry and Freedom will further add Trade Routes which are important, because with the Slater Mill's 25% shorter Trade Route duration, you will be able to establish your Franchises faster.[NEWLINE][NEWLINE]Factories and Stock Exchanges gain powerful yields so it's worth building them as soon as possible.[NEWLINE][NEWLINE]The 25% discount on tile [ICON_GOLD] Gold purchases promotes buying tiles liberally to boost prodution of important Buildings, Wonders or Units.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_WONDER_AMERICA_QUOTE">
 			<Text>[NEWLINE][TAB][TAB]"My country 'tis of thee,[NEWLINE]Sweet land of liberty.[NEWLINE][TAB][TAB] - Samuel F. Smith[NEWLINE][TAB]</Text>
@@ -83,7 +83,7 @@
 			<Text>In the Civil War, a "monitor" was an armored, steam-driven warship with a very low freeboard (as a foot from waterline to deck) mounting a few heavy guns in one or more turrets. Intended primarily for use on the rivers that cut through Southern territory, the unseaworthy craft were used to support land forces, protect riverbank positions, and control river passage; monitors were crucial to the Union victories in the West, notably along the Mississippi River.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_MONITOR_STRATEGY">
-			<Text></Text>
+			<Text>The Monitor benefits a lot from Combat Strength boosts and Dauntless Promotion, becauce the combined -8 Damage Reduction works better the less damage enemies can deal to you. Therefore, promote your Monitors as much as you can and accompany them with Great Admirals. The City Defense Bonus is a small benefit; the main strength of this Ship lies in its high base Combat Strength.</Text>
 		</Row>
 
 		<!-- Arabia -->
@@ -107,7 +107,7 @@
 			<Text></Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_HASHEMITE_RAIDER_TEXT">
-			<Text>Long considered the "Sick Man of Europe", Ottoman power was in decline well before nationalist sentiment took root in the Arab population. When WWI broke out among the European powers the Ottomans set about crushing Arab dissent. Arab citizens responded in a popular revolt, declaring a new Islamic empire.[NEWLINE][NEWLINE]Hussein bin Ali, Sharif of Mecca, began the rebellion in hopes of re-establishing a Hashemite dynasty in Arabia, and led his fellow Arabs in armed rebellion against their Turkish masters in Hejaz. Seeing an opportunity to tie down Ottoman forces in a new front, the British promised to recognize Arab hegemony and heavily subsidize the revolt, sending the now famous T.E. Lawrence as a liaison. With this new infusion of funds and equipment, the Arabs waged a guerilla war through the desert, crippling Ottoman supply lines. With the help of French and English navy, they were able to take several ports along the Mediterranean coast, emboldening even more to join their cause.[NEWLINE][NEWLINE]With the end of WWI in 1918 and the Ottomans’ defeat, the Arabs expected the full cooperation of their European allies as they established their new kingdom. However, the English and French had other plans. Behind closed doors, the French and English secretly formed the Sykes-Picot Agreement which divided the Middle-East amongst their own respective spheres of influence. This gross betrayal of a trusted ally has soured relations between the Arab states and the West ever since.</Text>
+			<Text>Long considered the "Sick Man of Europe", Ottoman power was in decline well before nationalist sentiment took root in the Arab population. When WWI broke out among the European powers the Ottomans set about crushing Arab dissent. Arab citizens responded in a popular revolt, declaring a new Islamic empire.[NEWLINE][NEWLINE]Hussein bin Ali, Sharif of Mecca, began the rebellion in hopes of re-establishing a Hashemite dynasty in Arabia, and led his fellow Arabs in armed rebellion against their Turkish masters in Hejaz. Seeing an opportunity to tie down Ottoman forces in a new front, the British promised to recognize Arab hegemony and heavily subsidize the revolt, sending the now famous T.E. Lawrence as a liaison. With this new infusion of funds and equipment, the Arabs waged a guerilla war through the desert, crippling Ottoman supply lines. With the help of French and English navy, they were able to take several ports along the Mediterranean coast, emboldening even more to join their cause.[NEWLINE][NEWLINE]With the end of WWI in 1918 and the Ottomans' defeat, the Arabs expected the full cooperation of their European allies as they established their new kingdom. However, the English and French had other plans. Behind closed doors, the French and English secretly formed the Sykes-Picot Agreement which divided the Middle-East amongst their own respective spheres of influence. This gross betrayal of a trusted ally has soured relations between the Arab states and the West ever since.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_HASHEMITE_RAIDER_STRATEGY">
 			<Text></Text>
@@ -242,13 +242,13 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_ETEMENANKI">
-			<Text>E-temenanki</Text>
+			<Text>Etemenanki</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_ETEMENANKI_HELP">
 			<Text></Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_ETEMENANKI_TEXT">
-			<Text>E-temenanki was the Ziggurat of Marduk, god of storms and head of the Babylonian pantheon. Ziggurats were religious temples erected in Mesopotamian cities as the literal homes for the city's patron god. It was believed that the gods originally lived in the high mountains, so Ziggurats took the form of artificial mountains inside the city to make their resident god feel more comfortable.</Text>
+			<Text>Etemenanki was the Ziggurat of Marduk, god of storms and head of the Babylonian pantheon. Ziggurats were religious temples erected in Mesopotamian cities as the literal homes for the city's patron god. It was believed that the gods originally lived in the high mountains, so Ziggurats took the form of artificial mountains inside the city to make their resident god feel more comfortable.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_ETEMENANKI_STRATEGY">
 			<Text></Text>
@@ -262,7 +262,7 @@
 			<Text>The Bandeirantes ("those who carry the flag") were 17th-century Portuguese settlers in Brazil and fortune hunters. They led expeditions called bandeiras ("flags") which penetrated the interior of Brazil far south and west of the Tordesillas Line of 1494, which officially divided the Castilian or later Spanish (west) domain from the Portuguese (east) domain in South America. Though they originally aimed to capture and force Indigenous Americans into slavery, the bandeirantes later began to focus their expeditions on finding gold, silver, and diamond mines. As they ventured into unmapped regions in search of profit and adventure, they expanded the effective borders of the Brazilian colony.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_BANDEIRANTE_STRATEGY">
-			<Text>The {TXT_KEY_UNIT_BANDEIRANTE} is the Brazilian unique unit, replacing the {TXT_KEY_UNIT_EXPLORER}. The {TXT_KEY_UNIT_BANDEIRANTE} is faster and generates [ICON_GOLD] Gold, [ICON_RESEARCH] Science, and [ICON_CULTURE] Culture from exploring unrevealed tiles. These yields are added to the nearest owned city. Also has the ability to construct {TXT_KEY_IMPROVEMENT_MINE}, {TXT_KEY_CIV5_IMPROVEMENTS_QUARRY}, {TXT_KEY_CIV5_IMPROVEMENTS_FORT}, and {TXT_KEY_IMPROVEMENT_BRAZILWOOD_CAMP} slightly faster than Workers. Use these units to explore and generate valuable yields for your frontier cities.</Text>
+			<Text>Avoid exploring early game (within reason) to leave lots of unexplored territory for the Bandeirantes, so that they can grant you enormous amounts of [ICON_GOLD] Gold, [ICON_RESEARCH] Science, and [ICON_CULTURE] Culture by revealing tiles. For reference, exploring 60% of a standard map will yield approximately 10,000 of each yield. These yields are added to the nearest owned city.[NEWLINE][NEWLINE]The Bandeirante is faster, heals every turn, and doesn't use Movement for pillaging, so use it for this, but carefully. During peace, after you have explored the World, use them to build Mines, Quarries, Brazilwood Camps, and Forts in your frontier Cities.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_BANDEIRANTE_HELP">
 			<Text>Unique Brazilian {TXT_KEY_UNIT_EXPLORER} that can construct {TXT_KEY_IMPROVEMENT_MINE}, {TXT_KEY_CIV5_IMPROVEMENTS_QUARRY}, {TXT_KEY_CIV5_IMPROVEMENTS_FORT}, and {TXT_KEY_IMPROVEMENT_BRAZILWOOD_CAMP}; and generate [ICON_GOLD] Gold, [ICON_RESEARCH] Science, and [ICON_CULTURE] Culture when revealing tiles with this unit. Starts with [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_SURVIVALISM_3}[ENDCOLOR].</Text>
@@ -278,7 +278,7 @@
 			<Text>Embrapa is a state-owned research corporation affiliated with the Brazilian Ministry of Agriculture. Since its inception on April 26, 1973, it has been devoted to developing technologies, knowledge and technical-scientific information aimed at Brazilian agriculture, including livestock. Embrapa''s organizational structure is composed of 46 centers that can be divided into Research Units or Service Units, and of 17 Central Units that comprise the corporation''s headquarters. Such research centers are distributed throughout the country in nearly all Brazilian states.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_EMBRAPA_STRATEGY">
-			<Text>The Embrapa provides bonuses to Tourism, Culture, and even Gold, on top of Science bonuses like the Research Lab, which it replaces. Brazilwood Camps, as well as the Jungle and/or Forest tiles on which they are built receive additional Science as well as either Tourism or Culture and Gold. Pastures and the plant bonuses resources are also boosted like the Brazilwood Camp. These bonuses are most effective for a large empire with many Brazilwood Camps and ways of turning Culture on tiles into Tourism. Finally Cities gain Tourism from a percentage of their total Food, increasing its value to your Empire.</Text>
+			<Text>When aiming for Cultural Victory, Embrapa is a must due to the extra [ICON_TOURISM] Tourism from the City's [ICON_FOOD] Food output. [ICON_TOURISM] Tourism is a yield that is hard to come by, so focusing more on [ICON_FOOD] Food generation might be beneficial to take full advantage of this. Research Plastics to unlock this building as soon as possible.[NEWLINE][NEWLINE]When not aiming for Cultural or Science Victories, building Embrapa is still worth due to the strong bonuses to [ICON_RESEARCH] Science which are always valuable, especially in Cities with many Forest or Jungle tiles and Farm resources, as these gain significant yields. In Cities without these tiles, Embrapa loses significance, so you may wish to delay its construction. In any case, working all the tiles strengthened by Embrapa is highly recommended.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_UNIT_AMAZONAS">
@@ -291,7 +291,7 @@
 			<Text>The Amazonas was a large steam frigate serving as the flagship of the Brazilian Navy during the Paraguayan War, the bloodiest conflict in South American history. The hulking warship played a pivotal roll at the Battle of Riachuelo, where a combined artillery and naval brigade of Paraguayans attempted to ambush the Brazilians in the early morning and under the cover of a dense fog. Caught by surprise, the Brazilians were put at a great disadvantage, but rallied and countered the Paraguayans. The Amazonas proved to be the decisive factor, ramming and sinking two ships and disabling a third. At Riachuelo, the Paraguayans navy was badly damaged, putting a halt to their momentum for the remainder of the war. Brazil and its allies took the initiative and maintained naval supremacy for the remainder of the war.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_AMAZONAS_STRATEGY">
-			<Text></Text>
+			<Text>Thanks to the Blitz Promotion, Amazonas not only can attack twice per turn, but can also move after attacking. This enables focus attacks on ships, which is strong as it allows to defeat enemy Units more reliably. This synergizes with Amazonas' gain of Golden Age Points and Great Admiral Points upon defeating enemy Units which further synergizes with Brazil's Unique Ability. Blitz also allows attacking Cities with many ships in a single turn, which stopped being possible with the obsolation of Galleasses. Consider building many Amazonas and performing mass sieges on Cities with as many of them as possible, even without siege promotions from the Hull Promotion line!</Text>
 		</Row>
 
 		<!-- Byzantium -->
@@ -302,7 +302,7 @@
 			<Text>Over many centuries, Byzantine architecture gradually drifted away from older Roman forms. Byzantine-style buildings are often noted for their high domes and intricate mosaic work, and far greater use of stone and brick construction. The tetraconch churches, meaning "four shells" in Greek, represent the highest achievement of Byzantine architecture. The floorplan of these buildings incorporates four domed apses, giving the building the shape of a cross, with the central space capped by a high dome. The form was widely used in mausoleums and baptisteries and informed later Ottoman and Renaissance architectural traditions that followed.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_TETRACONCH_STRATEGY">
-			<Text>Unique Byzantine replacement for the {TXT_KEY_BUILDING_TEMPLE}. In addition to the {TXT_KEY_BUILDING_TEMPLE}'s bonuses, {TXT_KEY_BUILDING_TETRACONCH} does not require [ICON_GOLD] Gold maintenance, boosts the City's [ICON_PEACE] Faith output based on the number of [ICON_CITIZEN] Citizens in the City, and boosts the Religious Pressure towards cities connected by Trade Routes.[NEWLINE][NEWLINE]This building provides a rare source of scaling [ICON_PEACE] Faith income, which synergizes very well with the Byzantine Unique Ability.</Text>
+			<Text>The +1 [ICON_PEACE] Faith for every 3 Citizens bonus is very strong, so having high Population is encouraged. It will significantly increase your total Faith generation, so consider your Beliefs and Policies knowing you will have a lot of Faith to spend. For example, Zealotry might be an atypical but very strong choice for Byzantium. With the +100% Religious Pressure added to Cities receiving a Trade Route, consider which owned or foreign Cities need more Religious Pressure when choosing Trade Route destinations. Due to having no gold maintenance, extra Culture, and the above bonuses, this Building should be a priority.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_TETRACONCH_HELP">
 			<Text>+1 [ICON_PEACE] Faith for every 3 [ICON_CITIZEN] Citizens in the City. +25% Religious Pressure, and an additional +100% towards Cities connected by Trade Routes.[NEWLINE][NEWLINE]Contains 1 slot for a [ICON_GW_MUSIC] Great Work of Music.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_RELIGION] Religious Unrest.[NEWLINE][NEWLINE]Nearby [ICON_RES_INCENSE] Incense: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_WINE] Wine: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_AMBER] Amber: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.</Text>
@@ -335,7 +335,7 @@
 			<Text>A cothon is an artificial, protected inner harbor such as that in Carthage during the Punic Wars around 200 BC. The cothon at Carthage was divided into a rectangular merchant harbor followed by an inner protected harbor reserved for military use only. This inner harbor was circular and surrounded by an outer ring of structures divided into a series of docking bays for ship maintenance, along with an island structure at its centre that also housed navy ships. Each individual docking bay featured a raised slipway. Above the raised docking bays was a second level consisting of warehouses where oars and rigging were kept along with supplies such as wood and canvas. On the island structure there existed a raised 'cabin' where the admiral in command could observe the whole harbor along with the surrounding sea. Altogether the inner docking complex could house up to 220 ships. The entire harbor was protected by an outer wall and the main entrance could be closed off with iron chains.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_GREAT_COTHON_STRATEGY">
-			<Text>Unique Carthaginian replacement for the {TXT_KEY_BUILDING_EAST_INDIA}. In addition to the bonuses of the {TXT_KEY_BUILDING_EAST_INDIA}, the {TXT_KEY_BUILDING_GREAT_COTHON} provides a free {TXT_KEY_BUILDING_HARBOR} in all of your coastal cities, two [ICON_INTERNATIONAL_TRADE] Trade Routes, more poverty reduction, more [ICON_GOLD] Gold for both recipient and target of trade routes from the City where it is built; and boosts all Lighthouses and Harbors in your empire. Unlike the {TXT_KEY_BUILDING_EAST_INDIA}, the {TXT_KEY_BUILDING_GREAT_COTHON} is made available in the [COLOR_CYAN]Classical Era[ENDCOLOR] with the discovery of [COLOR_CYAN]{TXT_KEY_TECH_CURRENCY_TITLE}[ENDCOLOR]. The {TXT_KEY_BUILDING_GREAT_COTHON} does not have any building requirements, but can only be built in a Coastal City.</Text>
+			<Text>Maximizing the amount of Trade Routes is a prority for Carthage because their bonus to Trade Route [ICON_GOLD] Gold generation from Resource Diversity makes them much more profitable. Since the Great Cothon grants 2 additional Trade Routes and many other strong bonuses, this Wonder is an absolute priority, especially since it's unlocked earlier at Currency.[NEWLINE][NEWLINE]Build it in the City with the highest amount of unique Luxury Resources as it is the main determinant of the profitability of your Trade Routes and like the Chartered Company, the Great Cothon further increases this bonus for the City in which it is built, and grants an additional copy of each of these Resources. This City should become your main sender of Trade Routes.[NEWLINE][NEWLINE]As this National Wonder grants [ICON_PRODUCTION] Production and [ICON_CULTURE] Culture to all Lighthouses and Harbors and grants free Harbors to all coastal Cities, it is strongly encouraged to settle coastal Cities over landlocked ones.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_GREAT_COTHON_HELP">
 			<Text>Receive an additional copy of all Luxury Resources around this City and a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] {TXT_KEY_BUILDING_HARBOR} in all of your coastal Cities. Incoming [ICON_ARROW_LEFT] Trade Routes generate +5 [ICON_GOLD] Gold for the City, and +3 [ICON_GOLD] Gold for the [ICON_ARROW_RIGHT] Trade Route owner. +25% [COLOR_POSITIVE_TEXT]Resource Diversity Modifier for Trade Routes[ENDCOLOR] from this City.[NEWLINE][NEWLINE]All Harbors gain +3 [ICON_PRODUCTION] Production, and all Lighthouses gain +2 [ICON_CULTURE] Culture.[NEWLINE][NEWLINE]Gain 2 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_INTERNATIONAL_TRADE] Trade Routes.[NEWLINE][NEWLINE]-2 [ICON_HAPPINESS_3] Unhappiness from [ICON_GOLD] Poverty in this City, and -1 in all other Cities.[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost increases based on the number of Cities you own.</Text>
@@ -351,7 +351,7 @@
 			<Text>In contrast to most Phoenician colonies, Carthage grew larger and more quickly thanks to its combination of favorable climate, arable land, and lucrative trade routes. Within just one century of its founding, its population rose to 30,000. Though the specific date and circumstances are unknown, Carthage became independent in the middle of the 6th century BC. It had grown into a fully independent thalassocracy, embarking its own colonization efforts across the western Mediterranean. Carthage became an expansionist power, driven by its desire to access new sources of wealth and trade. By 300 BC, through its vast patchwork of colonies, vassals, and satellite states, held together by its naval dominance of the western and central Mediterranean Sea, Carthage controlled the largest territory in the region, including the coast of northwestern Africa, southern and eastern Iberia, and the islands of Sicily, Sardinia, Corsica, Malta, and the Balearic Islands.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_ASAMU_STRATEGY">
-			<Text></Text>
+			<Text>The Asamu allows for more aggressive settling, but requires very high [ICON_GOLD] Gold generation, as it cannot be produced but only be purchased for a lot of [ICON_GOLD] Gold. Because purchasing one doesn't decrease Population like producing a Settler does, a major bottleneck on the speed of settling early game is replaced by [ICON_GOLD] Gold generation. Therefore, consider gathering as much [ICON_GOLD] Gold as possible early game from your Unique Ability, destroying Barbarian Encampments, exploring Ancient Ruins, and working [ICON_GOLD] Gold tiles to then settle at a high pace. Because Asamu can retreat from melee attack once per turn, it can travel though barbarain terriory without escort, unless two Units can attack it. Additionally, since Asamu can embark without having the Fishing Technology, you can claim valuable islands before your rivals. You can couple that with producing Settlers at the same time. This way, you can secure many great City locations with many Luxury Resources, synergizing with your Unique Ability.</Text>
 		</Row>
 
 		<!-- Celts -->
@@ -366,7 +366,7 @@
 			<Text></Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_SCYTHED_CHARIOT_TEXT">
-			<Text>Scythed chariots are modified war chariots with long blades extending from the wheel axels. Though often dismissed as fanciful storytelling, the use of scythed chariots has been ascribed to Pictish, Irish and Iceni armies. The only report of a scythed chariot in Britain outside of Roman propaganda comes from the Irish Ulster Cycle, during the adventures of Chu Chulainn.[NEWLINE][NEWLINE]Although chariots had fallen out of use in continental Europe from the end of the 3rd century BC, Caesar found that they remained significant in British warfare. Caesar encountered both Celtic cavalry and chariots and described how these warriors would throw javelins from their vehicles before dismounting to fight on foot. Celtic soldiers could return to their chariots to quickly retreat or redeploy.[NEWLINE][NEWLINE]“They make war not only on horseback but also from two horse chariots and cars armed in the Gallic fashion – they call them Covinni - on which they use axles equipped with scythes.” [NEWLINE]- Pomponius Mela</Text>
+			<Text>Scythed chariots are modified war chariots with long blades extending from the wheel axels. Though often dismissed as fanciful storytelling, the use of scythed chariots has been ascribed to Pictish, Irish and Iceni armies. The only report of a scythed chariot in Britain outside of Roman propaganda comes from the Irish Ulster Cycle, during the adventures of Chu Chulainn.[NEWLINE][NEWLINE]Although chariots had fallen out of use in continental Europe from the end of the 3rd century BC, Caesar found that they remained significant in British warfare. Caesar encountered both Celtic cavalry and chariots and described how these warriors would throw javelins from their vehicles before dismounting to fight on foot. Celtic soldiers could return to their chariots to quickly retreat or redeploy.[NEWLINE][NEWLINE]"They make war not only on horseback but also from two horse chariots and cars armed in the Gallic fashion - they call them Covinni - on which they use axles equipped with scythes."[NEWLINE][TAB]- Pomponius Mela</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_SCYTHED_CHARIOT_STRATEGY">
 			<Text></Text>
@@ -376,42 +376,19 @@
 			<Text>Oppidum</Text>
 		</Row>
 		<Row Tag="TXT_KEY_IMPROVEMENT_OPPIDUM_HELP">
-			<Text>
-				Unique Celtic Great Tile Improvement. Can be built by Great Engineers, Merchants, Scientists, and Generals. Cannot be built next to another Oppidum.[NEWLINE]Improves Strategic Resources. Provides various yields and +100% [ICON_STRENGTH] Defense Bonus to Units stationed on it. Improves Adjacent Tile Improvements:[NEWLINE]
-				+1 [ICON_FOOD] and +1 [ICON_PRODUCTION] to Farms,[NEWLINE]
-				+1 [ICON_FOOD] and +1 [ICON_PEACE] to Camps,[NEWLINE]
-				+1 [ICON_PRODUCTION] and +1 [ICON_PEACE] to Pastures,[NEWLINE]
-				+1 [ICON_PRODUCTION] and +1 [ICON_GOLD] to Mines,[NEWLINE]
-				+1 [ICON_PRODUCTION] and +1 [ICON_RESEARCH] to Quarries,[NEWLINE]
-				+1 [ICON_GOLD] and +1 [ICON_CULTURE] to Plantations,[NEWLINE]
-				+1 [ICON_FOOD] and +1 [ICON_RESEARCH] to Lumber mills,[NEWLINE]
-				+1 [ICON_GOLD] and +1 [ICON_PEACE] to Fishing Boats.[NEWLINE][NEWLINE]Each Oppidum on Empire increases the effectiveness of the Hurry Production action of [ICON_GREAT_ENGINEER] Great Engineers, the Discover Technology action of [ICON_GREAT_SCIENTIST] Great Scientists, and the length of [ICON_HAPPINESS_1] 'We Love the King' Days from Trade Missions conducted by [ICON_GREAT_MERCHANT] Great Merchants.
-			</Text>
+			<Text>Unique Celtic Great Tile Improvement. Can be built by Great Engineers, Merchants, Scientists, and Generals. Cannot be built next to another Oppidum.[NEWLINE]Improves Strategic Resources. Provides various yields and +100% [ICON_STRENGTH] Defense Bonus to Units stationed on it. Improves Adjacent Tiles.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_IMPROVEMENT_OPPIDUM_TEXT">
-			<Text>
-				An Oppidum is a large defended settlement associated with the late La Tene culture. These fortified villages were often built in naturally protected areas and full of circular constructions. In times of conflict, the people who lived in open fields moved to these strategically located compounds to ensure their safety. Oppida could also have other purposes such as control of territory or safeguarding of crops. The most famous oppidum was Alesia, the site of the battle between Julius Caesar and Vercingetorix and the final defeat of the Gauls, ending of Gallic independence in France and Belgium.[NEWLINE][NEWLINE]
-				Oppida can be built by Great Engineers, Merchants, Scientists, and Generals. They cannot be built next to each other. Each oppidum Gives +100% [ICON_STRENGTH] Defense Bonus to units stationed on it. They also improve the yields of adjacent improvements:[NEWLINE]
-				[ICON_BULLET]+1 [ICON_FOOD] Food and +1 [ICON_PRODUCTION] Production to Farms[NEWLINE]
-				[ICON_BULLET]+1 [ICON_FOOD] Food and +1 [ICON_PEACE] Faith to Camps[NEWLINE]
-				[ICON_BULLET]+1 [ICON_PRODUCTION] Production and +1 [ICON_PEACE] Faith  to Pastures[NEWLINE]
-				[ICON_BULLET]+1 [ICON_PRODUCTION] Production and +1 [ICON_GOLD] Gold to Mines[NEWLINE]
-				[ICON_BULLET]+1 [ICON_PRODUCTION] Production and +1 [ICON_RESEARCH] Science to Quarries[NEWLINE]
-				[ICON_BULLET]+1 [ICON_GOLD] Gold and +1 [ICON_CULTURE] Culture to Plantations[NEWLINE]
-				[ICON_BULLET]+1 [ICON_FOOD] Food and +1 [ICON_RESEARCH] Science to Lumber Mills[NEWLINE]
-				[ICON_BULLET]+1 [ICON_GOLD] Gold and +1 [ICON_PEACE] Faith to Fishing Boats
-			</Text>
+			<Text>{TXT_KEY_IMPROVEMENT_OPPIDUM_HELP}[NEWLINE][NEWLINE]An Oppidum is a large defended settlement associated with the late La Tene culture. These fortified villages were often built in naturally protected areas and full of circular constructions. In times of conflict, the people who lived in open fields moved to these strategically located compounds to ensure their safety. Oppida could also have other purposes such as control of territory or safeguarding of crops. The most famous oppidum was Alesia, the site of the battle between Julius Caesar and Vercingetorix and the final defeat of the Gauls, ending of Gallic independence in France and Belgium.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_OPPIDUM">
 			<Text>Construct an [LINK=IMPROVEMENT_CELTS_OPPIDUM]Oppidum[\LINK]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_OPPIDUM_HELP">
-			<Text>
-				Cannot be built next to another Oppidum.[NEWLINE][NEWLINE]It will increase [COLOR_POSITIVE_TEXT]All Yields[ENDCOLOR]. Gives +100% [ICON_STRENGTH] Defense Bonus to units stationed on it. Provides bonus yields to most non-road and non-great person Improvements:[NEWLINE]
-			</Text>
+			<Text>Cannot be built next to another Oppidum.[NEWLINE][NEWLINE]It will increase [COLOR_POSITIVE_TEXT]All Yields[ENDCOLOR]. Gives +100% [ICON_STRENGTH] Defense Bonus to units stationed on it. Provides bonus yields to all adjacent Tiles.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_OPPIDUM_REC">
-			<Text>Unit will be consumed[NEWLINE]Unique Celtic Great Tile Improvement. Will connect Strategic Resources on this tile to the trade network. Gives a [ICON_STRENGTH] Defense Bonus to units stationed on it. Adjacent Improvements gain additional bonus yields.</Text>
+			<Text>Unit will be consumed[NEWLINE]Unique Celtic Great Tile Improvement. Will connect Strategic Resources on this tile to the trade network. Gives a [ICON_STRENGTH] Defense Bonus to units stationed on it. Adjacent Tiles gain additional bonus yields.</Text>
 		</Row>
 
 		<!-- China -->
@@ -438,10 +415,7 @@
 			<Text>Examination Hall</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_EXAMINATION_HALL_TEXT">
-			<Text>Perhaps the greatest legacy of Chinese culture is the Imperial Examination system with which the Son of Heaven's empire was staffed with civil servants for over two millennia. The Imperial examinations represented an attempt to create an aristocracy of learning, a remarkable advance over the warrior and hereditary aristocracies that dominated the rest of the world. Amounting to tests of rote memorization, the examinations required direct quotations of Confucian philosophy and ethics from the Five Confucian Classics. A scholar who obtained the highest degree, the jinshi, would have his memory trained to a tremendous degree.[NEWLINE][NEWLINE]
-				As Western universities began to move away from their own classical tradition to embrace economics, engineering and natural science, China's scholarly efforts languished in the ancient literary past. Under pressure to modernize, the examinations were abolished in 1890 by Dowager Empress Cixi, leaving behind a legacy as the first system of intellectual meritocracy the world had ever seen.[NEWLINE][NEWLINE]
-				“We tried an experiment which is unique in the history of the world: We sought to rule this great country not by force, but by wisdom. And for centuries we succeeded.”[NEWLINE]
-				-Anonymous Confucian Philosopher; excerpt from "On a Chinese Screen"</Text>
+			<Text>Perhaps the greatest legacy of Chinese culture is the Imperial Examination system with which the Son of Heaven's empire was staffed with civil servants for over two millennia. The Imperial examinations represented an attempt to create an aristocracy of learning, a remarkable advance over the warrior and hereditary aristocracies that dominated the rest of the world. Amounting to tests of rote memorization, the examinations required direct quotations of Confucian philosophy and ethics from the Five Confucian Classics. A scholar who obtained the highest degree, the jinshi, would have his memory trained to a tremendous degree.[NEWLINE][NEWLINE]As Western universities began to move away from their own classical tradition to embrace economics, engineering and natural science, China's scholarly efforts languished in the ancient literary past. Under pressure to modernize, the examinations were abolished in 1890 by Dowager Empress Cixi, leaving behind a legacy as the first system of intellectual meritocracy the world had ever seen.[NEWLINE][NEWLINE]"We tried an experiment which is unique in the history of the world: We sought to rule this great country not by force, but by wisdom. And for centuries we succeeded."[NEWLINE][TAB]- Anonymous Confucian Philosopher; excerpt from "On a Chinese Screen"</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_EXAMINATION_HALL_STRATEGY">
 			<Text></Text>
@@ -451,13 +425,13 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_UNIT_TREASURE_SHIP">
-			<Text>Baochuan</Text>
+			<Text>Treasure Ship</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_TREASURE_SHIP_HELP">
 			<Text></Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_TREASURE_SHIP_TEXT">
-			<Text>The Xiafan Guanjun (lit. "The Foreign Expeditionary Armada") was the great treasure fleet of the Ming Dynasty. At the behest of Emperor Zhu Di, the legendary admiral Zheng He headed seven voyages between 1405 and 1433 AD. The Xiafan Guanjun ranged as far as the Arabian Peninsula in their task of projecting Chinese influence abroad, bringing many smaller nations under the suzerainty of China.[NEWLINE][NEWLINE]The Xiafan Guanjun had some of the largest wooden ships ever constructed, called Baochuan, measuring up to 416 feet in length. It would be another century before European ships could match the size and power of China’s fleet, making China the undisputed naval superpower of the 15th century. Despite their superiority, Zheng He’s voyages were primarily diplomatic, bringing envoys and even kings before the emperor to present tribute and perform the 'kowtow', a ritual act of reverence and subservience.[NEWLINE][NEWLINE]"As an engine for carrying man and his commerce upon the high and stormy seas as well as on the vast inland waterways, it is doubtful if any class of vessel… is more suited or better adapted to its purpose than the Chinese or Indian junk, and it is certain that for flatness of sail and handiness, the Chinese rig is unsurpassed."[NEWLINE]-H. Warington Smyth</Text>
+			<Text>The Xiafan Guanjun (lit. "The Foreign Expeditionary Armada") was the great treasure fleet of the Ming Dynasty. At the behest of Emperor Zhu Di, the legendary admiral Zheng He headed seven voyages between 1405 and 1433 AD. The Xiafan Guanjun ranged as far as the Arabian Peninsula in their task of projecting Chinese influence abroad, bringing many smaller nations under the suzerainty of China.[NEWLINE][NEWLINE]The Xiafan Guanjun had some of the largest wooden ships ever constructed, called Baochuan (lit. "Treasure Ship"), measuring up to 416 feet in length. It would be another century before European ships could match the size and power of China's fleet, making China the undisputed naval superpower of the 15th century. Despite their superiority, Zheng He's voyages were primarily diplomatic, bringing envoys and even kings before the emperor to present tribute and perform the 'kowtow', a ritual act of reverence and subservience.[NEWLINE][NEWLINE]"As an engine for carrying man and his commerce upon the high and stormy seas as well as on the vast inland waterways, it is doubtful if any class of vessel… is more suited or better adapted to its purpose than the Chinese or Indian junk, and it is certain that for flatness of sail and handiness, the Chinese rig is unsurpassed."[NEWLINE][TAB]- H. Warington Smyth</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_TREASURE_SHIP_STRATEGY">
 			<Text></Text>
@@ -497,7 +471,7 @@
 			<Text></Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_LONGSHIP_TEXT">
-			<Text>Longships were a type of boat invented and used by the Norsemen for trade, exploration, and warfare during the Viking Age. The longship's design evolved over many centuries, beginning in the Stone Age with the invention of the umiak and continuing up until the 6th century with clinker-built ships like Nydam and Kvalsund, appearing in its complete form between the 9th and 13th centuries. They were all made out of wood, with woven wool sails, and had numerous details and carvings on the hull.[NEWLINE][NEWLINE]Longships were notable for their quick speed and light construction. The ships were sturdy and reliable at sea, yet light enough to be carried onto shore or even tipped over as a makeshift shelter. The ability to move quickly in and out of shore was invaluable during the Vikings’ infamous raids.[NEWLINE][NEWLINE]The character and appearance of these ships are still reflected in Scandinavian boat-building traditions. Skills and methods for making longships are still used worldwide, often with modern adaptations.</Text>
+			<Text>Longships were a type of boat invented and used by the Norsemen for trade, exploration, and warfare during the Viking Age. The longship's design evolved over many centuries, beginning in the Stone Age with the invention of the umiak and continuing up until the 6th century with clinker-built ships like Nydam and Kvalsund, appearing in its complete form between the 9th and 13th centuries. They were all made out of wood, with woven wool sails, and had numerous details and carvings on the hull.[NEWLINE][NEWLINE]Longships were notable for their quick speed and light construction. The ships were sturdy and reliable at sea, yet light enough to be carried onto shore or even tipped over as a makeshift shelter. The ability to move quickly in and out of shore was invaluable during the Vikings' infamous raids.[NEWLINE][NEWLINE]The character and appearance of these ships are still reflected in Scandinavian boat-building traditions. Skills and methods for making longships are still used worldwide, often with modern adaptations.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_LONGSHIP_STRATEGY">
 			<Text></Text>
@@ -578,7 +552,7 @@
 
 		<!-- Ethiopia -->
 		<Row Tag="TXT_KEY_BUILDING_STELE_HELP">
-			<Text>+25% [ICON_PEACE] Faith during [ICON_GOLDEN_AGE] Golden Ages.</Text>
+			<Text></Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_UNIT_CHEWA">
@@ -601,7 +575,7 @@
 			<Text></Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_OROMO_CAVALRY_TEXT">
-			<Text>The word “Oromo” refers to the dominant ethnic group in Ethiopia, making up about a third of the total population. The Oromo at times had their own kingdom, language and religion (although in present-day Ethiopia they are evenly split between Muslims and Christians). During the First Italo-Ethiopian War, when Italy attempted to seize Ethiopia as a colonial possession, the Ethiopian emperor Menelik used Oromo cavalrymen to devastating effect, especially in the decisive Battle of Adwa.[NEWLINE][NEWLINE]The Oromo cavalry were not true cavalry, but mounted infantrymen, meaning that they did not fire weapons from horseback, but would gallop towards the Italians, dismount, and then fire. With their lion’s-mane headdresses and fierce reputation, they became one of the most feared military units of the era. During the Italian invasion, a rumor spread around the Italian camps that Oromo cavalry (whom the Italians called “Galla” – a word that was seen as offensive by the Oromo) would castrate the bodies of enemies that held weapons – a rumor that caused many Italians to toss aside their guns the moment that the Oromo began their charge. Italian soldiers reported their compatriots turning their guns on themselves rather than facing the Oromo. One report depicts a lone Italian survivor of an Oromo attack, dazed out of his mind, unable to say anything but “Galla cavalry. Galla cavalry. Horror. Horror.”</Text>
+			<Text>The word "Oromo" refers to the dominant ethnic group in Ethiopia, making up about a third of the total population. The Oromo at times had their own kingdom, language and religion (although in present-day Ethiopia they are evenly split between Muslims and Christians). During the First Italo-Ethiopian War, when Italy attempted to seize Ethiopia as a colonial possession, the Ethiopian emperor Menelik used Oromo cavalrymen to devastating effect, especially in the decisive Battle of Adwa.[NEWLINE][NEWLINE]The Oromo cavalry were not true cavalry, but mounted infantrymen, meaning that they did not fire weapons from horseback, but would gallop towards the Italians, dismount, and then fire. With their lion's-mane headdresses and fierce reputation, they became one of the most feared military units of the era. During the Italian invasion, a rumor spread around the Italian camps that Oromo cavalry (whom the Italians called "Galla" - a word that was seen as offensive by the Oromo) would castrate the bodies of enemies that held weapons - a rumor that caused many Italians to toss aside their guns the moment that the Oromo began their charge. Italian soldiers reported their compatriots turning their guns on themselves rather than facing the Oromo. One report depicts a lone Italian survivor of an Oromo attack, dazed out of his mind, unable to say anything but "Galla cavalry. Galla cavalry. Horror. Horror."</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_OROMO_CAVALRY_STRATEGY">
 			<Text></Text>
@@ -611,23 +585,10 @@
 			<Text>Monolithic Church</Text>
 		</Row>
 		<Row Tag="TXT_KEY_IMPROVEMENT_MONOLITHIC_CHURCH_TEXT">
-			<Text>
-				The term "Monolithic Church" (or "rock-hewn church") can be attributed to any church cut from a single stone formation, but is most often used to refer to the complex of 11 churches in Lalibela, Ethiopia. These churches were constructed in the 12th century by King Gebre Mesqel Lalibela, a devout Christian. This 'New Jerusalem' is situated in a mountainous region in the heart of Ethiopia, and is an important center of Christian pilgrimage to this day.[NEWLINE][NEWLINE]
-				Monolithic Churches are found in places besides Lalibela, including many in Tigray. These churches were almost unknown to the outside world until Abba Tewelde Medhin Josief, a Catholic priest, announced the existence of over 120 rock-hewn churches, 90 of which were still in use. Over the next few years, the total of known churches was raised to 153.[NEWLINE][NEWLINE]
-				Monolithic Churches can be built on [ICON_RES_STONE] Stone, and on Hills with no resources and not next to another Monolithic Church.[NEWLINE][NEWLINE]Provides [ICON_PRODUCTION] Production and [ICON_PEACE] Faith. Instead of Technologies, Monolithic Churches are improved by completing [COLOR_POSITIVE_TEXT]Social Policy Branches[ENDCOLOR] and adopting an [COLOR_POSITIVE_TEXT]Ideology[ENDCOLOR] or [COLOR_POSITIVE_TEXT]Religious Beliefs[ENDCOLOR]:[NEWLINE]
-				+1 [ICON_CULTURE] for every Ancient Policy Branch,[NEWLINE]
-				+1 [ICON_PEACE] for every Medieval Policy Branch,[NEWLINE]
-				+1 [ICON_RESEARCH] for every Industrial Policy Branch,[NEWLINE]
-				+1 [ICON_PEACE] for adopting a Pantheon,[NEWLINE]
-				+1 [ICON_CULTURE] and [ICON_PRODUCTION] for founding a Religion,[NEWLINE]
-				+1 [ICON_CULTURE] and [ICON_PRODUCTION] for enhancing a Religion,[NEWLINE]
-				+1 [ICON_GOLD] for reforming a Religion,[NEWLINE]
-				+2 [ICON_GOLD] for adopting an Ideology.
-			</Text>
+			<Text>{TXT_KEY_IMPROVEMENT_MONOLITHIC_CHURCH_HELP}[NEWLINE][NEWLINE]The term "Monolithic Church" (or "rock-hewn church") can be attributed to any church cut from a single stone formation, but is most often used to refer to the complex of 11 churches in Lalibela, Ethiopia. These churches were constructed in the 12th century by King Gebre Mesqel Lalibela, a devout Christian. This 'New Jerusalem' is situated in a mountainous region in the heart of Ethiopia, and is an important center of Christian pilgrimage to this day.[NEWLINE][NEWLINE]Monolithic Churches are found in places besides Lalibela, including many in Tigray. These churches were almost unknown to the outside world until Abba Tewelde Medhin Josief, a Catholic priest, announced the existence of over 120 rock-hewn churches, 90 of which were still in use. Over the next few years, the total of known churches was raised to 153.[NEWLINE][NEWLINE]Monolithic Churches can be built on [ICON_RES_STONE] Stone, and on Hills with no resources and not next to another Monolithic Church.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_IMPROVEMENT_MONOLITHIC_CHURCH_HELP">
-			<Text>
-				Can be built on [ICON_RES_STONE] Stone, and on Hills with no resources and not next to another Monolithic Church.[NEWLINE][NEWLINE]Provides [ICON_PRODUCTION] Production and [ICON_PEACE] Faith. Instead of Technologies, Monolithic Churches are improved by completing [COLOR_POSITIVE_TEXT]Social Policy Branches[ENDCOLOR] and adopting an [COLOR_POSITIVE_TEXT]Ideology[ENDCOLOR] or [COLOR_POSITIVE_TEXT]Religious Beliefs[ENDCOLOR]:[NEWLINE]
+			<Text>Can be built on [ICON_RES_STONE] Stone, and on Hills with no resources and not next to another Monolithic Church.[NEWLINE][NEWLINE]Provides [ICON_PRODUCTION] Production and [ICON_PEACE] Faith. Instead of Technologies, Monolithic Churches are improved by completing [COLOR_POSITIVE_TEXT]Social Policy Branches[ENDCOLOR] and adopting an [COLOR_POSITIVE_TEXT]Ideology[ENDCOLOR] or [COLOR_POSITIVE_TEXT]Religious Beliefs[ENDCOLOR]:[NEWLINE]
 				+1 [ICON_CULTURE] for every Ancient Policy Branch,[NEWLINE]
 				+1 [ICON_PEACE] for every Medieval Policy Branch,[NEWLINE]
 				+1 [ICON_RESEARCH] for every Industrial Policy Branch,[NEWLINE]
@@ -635,8 +596,7 @@
 				+1 [ICON_PRODUCTION] for founding a Religion,[NEWLINE]
 				+1 [ICON_CULTURE] and [ICON_PRODUCTION] for enhancing a Religion,[NEWLINE]
 				+1 [ICON_GOLD] and [ICON_PRODUCTION] for reforming a Religion,[NEWLINE]
-				+2 [ICON_GOLD] for adopting an Ideology.
-			</Text>
+				+2 [ICON_GOLD] for adopting an Ideology.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_MONOLITHIC_CHURCH">
 			<Text>Construct a [LINK=IMPROVEMENT_ETHIOPIA_MONOLITHIC_CHURCH]Monolithic Church[\LINK]</Text>
@@ -698,7 +658,7 @@
 		<!-- Germany -->
 
 		<Row Tag="TXT_KEY_BUILDING_BREWHOUSE">
-			<Text>Bräuhaus</Text>
+			<Text>Brewhouse</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_BREWHOUSE_HELP">
 			<Text></Text>
@@ -731,7 +691,7 @@
 			<Text></Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_GYMNASION_TEXT">
-			<Text>The Gymnasion were training facilities used by adult Greek men to socialize and practice for public games. The name roughly translates to "naked training place", because all athletes practiced while naked, and usually while covered in olive oil. Gymnasia started as open fields outside city limits, but were later planned as enclosed spaces that were central to Greek public life. While the public games and festivals were important themselves, Gymnasia also became centers of arts and learning. The famous schools of philosophy in Athens -- the Academic school founded by Plato, the Peripatetic School founded by Aristotle, and the Cynic school founded by Antisthenes -- were all founded and named after the Gymnasia where they met.</Text>
+			<Text>The Gymnasion were training facilities used by adult Greek men to socialize and practice for public games. The name roughly translates to "naked training place", because all athletes practiced while naked, and usually while covered in olive oil. Gymnasia started as open fields outside city limits, but were later planned as enclosed spaces that were central to Greek public life. While the public games and festivals were important themselves, Gymnasia also became centers of arts and learning. The famous schools of philosophy in Athens - the Academic school founded by Plato, the Peripatetic School founded by Aristotle, and the Cynic school founded by Antisthenes - were all founded and named after the Gymnasia where they met.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_GYMNASION_STRATEGY">
 			<Text></Text>
@@ -744,7 +704,7 @@
 			<Text></Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_KLEPHT_TEXT">
-			<Text>Bandits and mountainfolk, turned anti-Ottoman insurgents and freedom fighters, The Klephts were the bedrock upon which the modern Greek army was formed. Together with the men originally hired to capture them, the Armatoloi, the Klephts formed the "yeast of liberty", the first hope for Greek independence after more than four centuries of Ottoman rule.[NEWLINE][NEWLINE]Undisciplined and flighty as one would expect of brigands, Klephts waged an effective guerilla campaign against the much larger Ottoman armies sent to subdue them.  Massacres on both sides of the conflict were inflicted, but European sympathies fell heavily in favor of the Greeks. The unbridled cruelty of the Muslim Ottomans outraged Europe’s citizenry, who raised supplies, food and volunteers to fight for a Hellenic independence.[NEWLINE][NEWLINE]After 8 years, Ottoman forces had finally managed to crush the revolt, but where Greek soldiers had failed poets and propaganda had succeeded. French, British, and Russian governments each sent a fleet in defense of the Greek islands in response to popular demand for intervention. In the face of such overwhelming force, the Ottomans sued for peace and liberated Greece. After more than 2,000 years under the boots of Macedonian, Roman and Ottoman conquerors, The Greek homeland was at last free -- unified as one people for the first time in history.</Text>
+			<Text>Bandits and mountainfolk, turned anti-Ottoman insurgents and freedom fighters, The Klephts were the bedrock upon which the modern Greek army was formed. Together with the men originally hired to capture them, the Armatoloi, the Klephts formed the "yeast of liberty", the first hope for Greek independence after more than four centuries of Ottoman rule.[NEWLINE][NEWLINE]Undisciplined and flighty as one would expect of brigands, Klephts waged an effective guerilla campaign against the much larger Ottoman armies sent to subdue them.  Massacres on both sides of the conflict were inflicted, but European sympathies fell heavily in favor of the Greeks. The unbridled cruelty of the Muslim Ottomans outraged Europe's citizenry, who raised supplies, food and volunteers to fight for a Hellenic independence.[NEWLINE][NEWLINE]After 8 years, Ottoman forces had finally managed to crush the revolt, but where Greek soldiers had failed poets and propaganda had succeeded. French, British, and Russian governments each sent a fleet in defense of the Greek islands in response to popular demand for intervention. In the face of such overwhelming force, the Ottomans sued for peace and liberated Greece. After more than 2,000 years under the boots of Macedonian, Roman and Ottoman conquerors, The Greek homeland was at last free -- unified as one people for the first time in history.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_KLEPHT_STRATEGY">
 			<Text></Text>
@@ -756,7 +716,7 @@
 			<Gender>neuter:an</Gender>
 		</Row>
 		<Row Tag="TXT_KEY_IMPROVEMENT_EKI_TEXT">
-			<Text>{TXT_KEY_IMPROVEMENT_EKI_HELP}[NEWLINE][NEWLINE]'Eki' is a term that the Huns likely used to describe the earth, particularly that which was essential to grazing livestock. Nomadic pastoralism is a form of pastoralism where livestock are herded in order to find fresh grazing land. Strictly speaking, true nomads follow an irregular pattern of movement, in contrast with transhumance where seasonal pastures are fixed. However this distinction is often not observed and the term nomad used for both—in historical cases the regularity of movements is often unknown in any case. The herded livestock include cattle, yaks, sheep, goats, reindeer, horses, donkeys or camels, or mixtures of species. Nomadic pastoralism is commonly practiced in regions with little arable land, typically in the developing world. Of the estimated 30 to 40 million nomadic pastoralists worldwide, most are found in central Asia and the Sahel region of West Africa. Increasing numbers of stock may lead to overgrazing of the area and desertification if lands are not allowed to fully recover between one grazing period and the next. Increased enclosure and fencing of land has reduced the amount of land available for this practice.</Text>
+			<Text>{TXT_KEY_IMPROVEMENT_EKI_HELP}[NEWLINE][NEWLINE]'Eki' is a term that the Huns likely used to describe the earth, particularly that which was essential to grazing livestock. Nomadic pastoralism is a form of pastoralism where livestock are herded in order to find fresh grazing land. Strictly speaking, true nomads follow an irregular pattern of movement, in contrast with transhumance where seasonal pastures are fixed. However this distinction is often not observed and the term nomad used for both - in historical cases the regularity of movements is often unknown in any case. The herded livestock include cattle, yaks, sheep, goats, reindeer, horses, donkeys or camels, or mixtures of species. Nomadic pastoralism is commonly practiced in regions with little arable land, typically in the developing world. Of the estimated 30 to 40 million nomadic pastoralists worldwide, most are found in central Asia and the Sahel region of West Africa. Increasing numbers of stock may lead to overgrazing of the area and desertification if lands are not allowed to fully recover between one grazing period and the next. Increased enclosure and fencing of land has reduced the amount of land available for this practice.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_IMPROVEMENT_EKI_HELP">
 			<Text>Can only be built on flat land tiles without access to Fresh Water. +1 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold if [COLOR_POSITIVE_TEXT]adjacent to two[ENDCOLOR] other Eki. Can be built [COLOR_POSITIVE_TEXT]in or adjacent to[ENDCOLOR] Hunnic territory. When completed, claims the tile beneath it if built in [COLOR_POSITIVE_TEXT]Neutral Territory[ENDCOLOR].</Text>
@@ -837,8 +797,7 @@
 			<Text></Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_INTI_MACEMAN_TEXT">
-			<Text>The standing army of the Inca was formed primarily by nobles, but the Sapa Inca could raise an army of able-bodied men from the general populace at will. Military discipline was strictly enforced when the troops were on the march and the army, although variously specialized, was extremely well trained. Drawing on the resources of a vast empire, the Inca recruited warriors from numerous subordinate tribes with their own military traditions. The Chimu, inheritors of the ancient Moche culture were once bitter enemies of the Inca but, once subdued, provided the Inca with some of their most formidable and loyal troops. The Chimu were known for their use of maces and clubs in warfare. Some warriors strode fearlessly into battle, carrying massive maces that required both hands to swing and decimated anything in their path.
-These elite shock troops posed a deadly threat to any opponent, whether in the field or in a fortification under siege.</Text>
+			<Text>The standing army of the Inca was formed primarily by nobles, but the Sapa Inca could raise an army of able-bodied men from the general populace at will. Military discipline was strictly enforced when the troops were on the march and the army, although variously specialized, was extremely well trained. Drawing on the resources of a vast empire, the Inca recruited warriors from numerous subordinate tribes with their own military traditions. The Chimu, inheritors of the ancient Moche culture were once bitter enemies of the Inca but, once subdued, provided the Inca with some of their most formidable and loyal troops. The Chimu were known for their use of maces and clubs in warfare. Some warriors strode fearlessly into battle, carrying massive maces that required both hands to swing and decimated anything in their path. These elite shock troops posed a deadly threat to any opponent, whether in the field or in a fortification under siege.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_INTI_MACEMAN_STRATEGY">
 			<Text></Text>
@@ -872,7 +831,7 @@ These elite shock troops posed a deadly threat to any opponent, whether in the f
 		</Row>
 
 		<!-- Indonesia -->
-		
+
 		<Row Tag="TXT_KEY_UNIT_DJONG">
 			<Text>Djong</Text>
 		</Row>
@@ -890,7 +849,7 @@ These elite shock troops posed a deadly threat to any opponent, whether in the f
 			<Text>Kampong</Text>
 		</Row>
 		<Row Tag="TXT_KEY_IMPROVEMENT_KAMPONG_TEXT">
-			<Text>The term ‘Sama-Bajau’ refers to a single ethnic group scattered between the modern day Philippines, Indonesia, and Malaysia. The Sama people live a semi-sedentary life in stilt villages or “kampongs” in coastal shallows, while Bajau refers to nomadic groups living in house boats. The Sama-Bajau defy national and ethnic borders, travelling and fishing between islands on the open ocean. The Sama-Bajau were frequently employed as privateers and raiders by the Srivijayan kingdoms. Bajau-Laut possess unique abilities which allow them to see better underwater, and dive longer and deeper than any other group of humans.[NEWLINE][NEWLINE]In recent years, the Bajau-Laut have been forced into sedentary lifestyles by various governments, and face discrimination as pagans, outsiders and squatters. A combination of overfishing and modernization threatens the Bajau’s nomadic traditions, as they have been forcibly resettled on land. Still, a few communities of Bajau-Laut ride their lepa lepa across the blue water of Southeast Asia, only traveling to shore a few times each year.[NEWLINE][NEWLINE]The Kampong can be built by [ICON_WORKER] Embarked Workers on Coastal and Lake Tiles, and not next to another Kampong.[NEWLINE][NEWLINE]Each Kampong yields [ICON_FOOD] Food, [ICON_PRODUCTION] Production, and [ICON_CULTURE] Culture.</Text>
+			<Text>{TXT_KEY_IMPROVEMENT_KAMPONG_HELP}[NEWLINE][NEWLINE]The term 'Sama-Bajau' refers to a single ethnic group scattered between the modern day Philippines, Indonesia, and Malaysia. The Sama people live a semi-sedentary life in stilt villages or "kampongs" in coastal shallows, while Bajau refers to nomadic groups living in house boats. The Sama-Bajau defy national and ethnic borders, travelling and fishing between islands on the open ocean. The Sama-Bajau were frequently employed as privateers and raiders by the Srivijayan kingdoms. Bajau-Laut possess unique abilities which allow them to see better underwater, and dive longer and deeper than any other group of humans.[NEWLINE][NEWLINE]In recent years, the Bajau-Laut have been forced into sedentary lifestyles by various governments, and face discrimination as pagans, outsiders and squatters. A combination of overfishing and modernization threatens the Bajau's nomadic traditions, as they have been forcibly resettled on land. Still, a few communities of Bajau-Laut ride their lepa lepa across the blue water of Southeast Asia, only traveling to shore a few times each year.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_IMPROVEMENT_KAMPONG_HELP">
 			<Text>The Kampong can be built by [ICON_WORKER] Embarked Workers on Coastal and Lake Tiles, and not next to another Kampong.[NEWLINE][NEWLINE]Each Kampong yields [ICON_FOOD] Food, [ICON_PRODUCTION] Production, and [ICON_CULTURE] Culture.</Text>
@@ -906,7 +865,6 @@ These elite shock troops posed a deadly threat to any opponent, whether in the f
 		</Row>
 
 		<!-- Iroquois -->
-
 		<Row Tag="TXT_KEY_UNIT_PROWLER">
 			<Text>Prowler</Text>
 		</Row>
@@ -994,7 +952,7 @@ These elite shock troops posed a deadly threat to any opponent, whether in the f
 			<Text></Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_CHAEBOL_TEXT">
-			<Text>Chaebol are powerful multi-national corporations originating in South Korea. Beginning as family businesses, generous government investment allowed the Chaebols to quickly industrialize South Korea's agricultural society, in what was called the Miracle on the Han River. The Chaebol became central to the South Korean economy and came to represent the invincibility of South Korea’s industrial might until the financial crashes the late 20th century, which saw several important Chaebol declare bankruptcy.[NEWLINE][NEWLINE]Chaebol continue to dominate the South Korean economy and social fabric, and some like Samsung and Hyundai have become household names worldwide. Today, Chaebol account for over 80% of South Korea's exports, and the largest single Chaebol accounts for 17% of the entire nation's GDP.</Text>
+			<Text>Chaebol are powerful multi-national corporations originating in South Korea. Beginning as family businesses, generous government investment allowed the Chaebols to quickly industrialize South Korea's agricultural society, in what was called the Miracle on the Han River. The Chaebol became central to the South Korean economy and came to represent the invincibility of South Korea's industrial might until the financial crashes the late 20th century, which saw several important Chaebol declare bankruptcy.[NEWLINE][NEWLINE]Chaebol continue to dominate the South Korean economy and social fabric, and some like Samsung and Hyundai have become household names worldwide. Today, Chaebol account for over 80% of South Korea's exports, and the largest single Chaebol accounts for 17% of the entire nation's GDP.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_CHAEBOL_STRATEGY">
 			<Text></Text>
@@ -1110,7 +1068,7 @@ These elite shock troops posed a deadly threat to any opponent, whether in the f
 			<Text></Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_RIAD_TEXT">
-			<Text>A Riad is a traditional North African house built in a peristyle format, surrounding an interior garden or courtyard. These homes were often plain on the exterior, but lavishly decorated inside, projecting humility and austerity while preserving a family’s comfort and privacy.[NEWLINE][NEWLINE]While architectural style has changed over the years, the riad’s basic form is still used in modern design. Riads enjoyed something of a renaissance during French occupation of North Africa. As befitting Europe's fascination with preserving historic heritage sites, restoration efforts on old Riads were undertaken throughout Morocco's major cities, often converting old Riads into hotels or restaurants.</Text>
+			<Text>A Riad is a traditional North African house built in a peristyle format, surrounding an interior garden or courtyard. These homes were often plain on the exterior, but lavishly decorated inside, projecting humility and austerity while preserving a family's comfort and privacy.[NEWLINE][NEWLINE]While architectural style has changed over the years, the riad's basic form is still used in modern design. Riads enjoyed something of a renaissance during French occupation of North Africa. As befitting Europe's fascination with preserving historic heritage sites, restoration efforts on old Riads were undertaken throughout Morocco's major cities, often converting old Riads into hotels or restaurants.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_RIAD_STRATEGY">
 			<Text></Text>
@@ -1123,7 +1081,7 @@ These elite shock troops posed a deadly threat to any opponent, whether in the f
 			<Text></Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_CORSAIR_TEXT">
-			<Text>The Barbary Corsairs were Muslim pirates and privateers operating off the coast of North Africa who became infamous throughout Europe. Ranging throughout the Mediterranean and as far as Iceland, the Corsairs slaughtered livestock and captured Christians for sale in the slave markets of the Islamic world. The frequency and ferocity of these raids, or "Razzia" was such that long stretches of Italian and Spanish coast were abandoned for fear of abduction. It is estimated that some 1.25 million people were enslaved by Barbary corsairs between 1530 and 1780 A.D.[NEWLINE][NEWLINE]The scope of Corsair activity began to diminish in the latter part of the 17th century, as the more powerful European navies started to pose a real threat to the Barbary States. However, Christian shipping and coastlines continued to suffer until the early 19th century. Following the Napoleonic Wars and the Congress of Vienna in 1814, European powers agreed upon the need to suppress the Barbary Corsairs for good. The razzias finally ceased after the Second Barbary War between the Barbary pirates and the United States, the impetus for the creation of the US Navy.[NEWLINE][NEWLINE]"It is written in our Koran, that all nations which do not acknowledge the Prophet are sinners, whom it is the right and duty of the faithful to plunder and enslave; and that every mu'min (believer) who is slain in this warfare is sure to go to paradise."[NEWLINE]-Sidi Haji Abdrahaman, to Thomas Jefferson in reply to his demand for the protection of American merchant ships</Text>
+			<Text>The Barbary Corsairs were Muslim pirates and privateers operating off the coast of North Africa who became infamous throughout Europe. Ranging throughout the Mediterranean and as far as Iceland, the Corsairs slaughtered livestock and captured Christians for sale in the slave markets of the Islamic world. The frequency and ferocity of these raids, or "Razzia" was such that long stretches of Italian and Spanish coast were abandoned for fear of abduction. It is estimated that some 1.25 million people were enslaved by Barbary corsairs between 1530 and 1780 A.D.[NEWLINE][NEWLINE]The scope of Corsair activity began to diminish in the latter part of the 17th century, as the more powerful European navies started to pose a real threat to the Barbary States. However, Christian shipping and coastlines continued to suffer until the early 19th century. Following the Napoleonic Wars and the Congress of Vienna in 1814, European powers agreed upon the need to suppress the Barbary Corsairs for good. The razzias finally ceased after the Second Barbary War between the Barbary pirates and the United States, the impetus for the creation of the US Navy.[NEWLINE][NEWLINE]"It is written in our Koran, that all nations which do not acknowledge the Prophet are sinners, whom it is the right and duty of the faithful to plunder and enslave; and that every mu'min (believer) who is slain in this warfare is sure to go to paradise."[NEWLINE][TAB]- Sidi Haji Abdrahaman, to Thomas Jefferson in reply to his demand for the protection of American merchant ships</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_CORSAIR_STRATEGY">
 			<Text></Text>
@@ -1163,11 +1121,11 @@ These elite shock troops posed a deadly threat to any opponent, whether in the f
 			<Text></Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_GOEDENDAG_TEXT">
-			<Text>A Goedendag is a four-foot long club with a spearhead at its tip that was used by the militias of Medieval Flanders during the Franco-Flemish War. The weapon was christened "goedendag" by the French, a cognate with the Dutch greeting "good day". This name may be a reference to the Bruges Matins massacre of 1302, in which the guildsmen of Bruges took over the city by greeting people in the streets and murdering anyone who answered with a French accent.[NEWLINE][NEWLINE]Goedendags were used to great effect by the guildsmen of Flanders against the French knights, but exactly how the weapon was used is a source of debate. Contemporary illustrations show it being used as a club, written accounts describe its first use as a spear to meet a charge, then a club as the enemy was halted. However they worked, men armed with Goedendags marked the beginning of the end for heavy cavalry in Western Europe, and the dawn of an "Infantry Revolution" where peasant militia were now a credible threat to professional soldiers. The stunning victory of common men over foreign tyrants became a wellspring of romantic nationalism for the Low Countries.[NEWLINE][NEWLINE]"each held his godendart (sic) raised against the French, the iron as one meets a wild boar"[NEWLINE]- Guillaume Guiart, a contemporary account describing the battle of Courtrai, 1302 A.D.</Text>
+			<Text>A Goedendag is a four-foot long club with a spearhead at its tip that was used by the militias of Medieval Flanders during the Franco-Flemish War. The weapon was christened "goedendag" by the French, a cognate with the Dutch greeting "good day". This name may be a reference to the Bruges Matins massacre of 1302, in which the guildsmen of Bruges took over the city by greeting people in the streets and murdering anyone who answered with a French accent.[NEWLINE][NEWLINE]Goedendags were used to great effect by the guildsmen of Flanders against the French knights, but exactly how the weapon was used is a source of debate. Contemporary illustrations show it being used as a club, written accounts describe its first use as a spear to meet a charge, then a club as the enemy was halted. However they worked, men armed with Goedendags marked the beginning of the end for heavy cavalry in Western Europe, and the dawn of an "Infantry Revolution" where peasant militia were now a credible threat to professional soldiers. The stunning victory of common men over foreign tyrants became a wellspring of romantic nationalism for the Low Countries.[NEWLINE][NEWLINE]"each held his godendart (sic) raised against the French, the iron as one meets a wild boar"[NEWLINE][TAB]- Guillaume Guiart, a contemporary account describing the battle of Courtrai, 1302 A.D.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_GOEDENDAG_STRATEGY">
 			<Text></Text>
-		</Row> 
+		</Row>
 
 		<!-- Ottoman -->
 		<Row Tag="TXT_KEY_BUILDING_SIEGE_FOUNDRY">
@@ -1190,11 +1148,11 @@ These elite shock troops posed a deadly threat to any opponent, whether in the f
 			<Text></Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_GREAT_BOMBARD_TEXT">
-			<Text>Bigger is better, and biggest is best. The super-sized bombards of the late medieval were first used in Western European warfare at the beginning of the 15th century, but it was the Ottomans that would realize the bombard's full potential at the Siege of Constantinople in 1453. Unable to find patronage with the Byzantine emperor, a Hungarian gunfounder named Orban sold his services to Mehmed II of the Ottoman Empire, and began crafting bronze cannons capable of lobbing 1.6 tons of shaped stone more than a mile.[NEWLINE][NEWLINE]Transporting such massive weapons took as many as 60 oxen, and required construction of entire road networks before the cannons could be brought to bear against the impregnable Theodosian Walls. Within a day of the opening bombardment, massive stones smashed the outer defenses to rubble and the city which had stood as a fortress of Christendom for a millennium fell. The sack of Constantinople raged for three days following, and triggered a mass exodus of Greeks into Europe proper. The influx of Byzantine refugees brought a rediscovery of the philosophical and intellectual achievements of Greek culture into Western Europe, planting the seeds of the Renaissance.[NEWLINE][NEWLINE]Stone bombards were supplanted by iron-ball cannons by the end of the 16th century, and few bombards are left intact. None of the bombard’s descendants, however, can claim to have single-handedly ended an era.</Text>
+			<Text>Bigger is better, and biggest is best. The super-sized bombards of the late medieval were first used in Western European warfare at the beginning of the 15th century, but it was the Ottomans that would realize the bombard's full potential at the Siege of Constantinople in 1453. Unable to find patronage with the Byzantine emperor, a Hungarian gunfounder named Orban sold his services to Mehmed II of the Ottoman Empire, and began crafting bronze cannons capable of lobbing 1.6 tons of shaped stone more than a mile.[NEWLINE][NEWLINE]Transporting such massive weapons took as many as 60 oxen, and required construction of entire road networks before the cannons could be brought to bear against the impregnable Theodosian Walls. Within a day of the opening bombardment, massive stones smashed the outer defenses to rubble and the city which had stood as a fortress of Christendom for a millennium fell. The sack of Constantinople raged for three days following, and triggered a mass exodus of Greeks into Europe proper. The influx of Byzantine refugees brought a rediscovery of the philosophical and intellectual achievements of Greek culture into Western Europe, planting the seeds of the Renaissance.[NEWLINE][NEWLINE]Stone bombards were supplanted by iron-ball cannons by the end of the 16th century, and few bombards are left intact. None of the bombard's descendants, however, can claim to have single-handedly ended an era.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_GREAT_BOMBARD_STRATEGY">
 			<Text></Text>
-		</Row> 
+		</Row>
 		<Row Tag="TXT_KEY_UNIT_GREAT_BOMBARD_1">
 			<Text>Basilica</Text>
 		</Row>
@@ -1241,7 +1199,7 @@ These elite shock troops posed a deadly threat to any opponent, whether in the f
 			<Text>Charbagh</Text>
 		</Row>
 		<Row Tag="TXT_KEY_IMPROVEMENT_CHARBAGH_TEXT">
-			<Text>A Charbagh is a walled garden divided into four square sections that is distinctive to Indo-Persian culture. These gardens trace their roots to the pairidaeza of the Achaemenid empire, and perhaps back even further to Assyrian garden designs. Charbagh construction was an invaluable a tool of state, demonstrating a king’s ability to bring life to an otherwise desolate area; the angular, ordered construction served as a contrast the chaos of nature. Persian and later Persianized cultures employed garden building as a subtle way to demonstrate the King of King's command over his realm and the natural world within it through the creation of public spaces.[NEWLINE][NEWLINE]The Persian gardens have captured the imaginations of Mediterranean and western thinkers. The pairidaeza is the root of the Greek “paradise”, informing modern notions of an earthly Eden in art and poetry.[NEWLINE][NEWLINE]The Charbagh can be built by [ICON_WORKER] Workers on Land with access to Fresh Water, and not next to another Charbagh.[NEWLINE][NEWLINE]Each Charbagh yields [ICON_FOOD] Food, [ICON_PRODUCTION] Production, [ICON_GOLD] Gold, and [ICON_CULTURE] Culture. During a [ICON_GOLDEN_AGE] Golden Age, the Charbagh's yields are increased by +1 [ICON_PRODUCTION] Production and [ICON_CULTURE] Culture, in addition to the usual +1 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]+5% [ICON_GREAT_PEOPLE] Great People Points in City for each worked Charbagh.</Text>
+			<Text>A Charbagh is a walled garden divided into four square sections that is distinctive to Indo-Persian culture. These gardens trace their roots to the pairidaeza of the Achaemenid empire, and perhaps back even further to Assyrian garden designs. Charbagh construction was an invaluable a tool of state, demonstrating a king's ability to bring life to an otherwise desolate area; the angular, ordered construction served as a contrast the chaos of nature. Persian and later Persianized cultures employed garden building as a subtle way to demonstrate the King of King's command over his realm and the natural world within it through the creation of public spaces.[NEWLINE][NEWLINE]The Persian gardens have captured the imaginations of Mediterranean and western thinkers. The pairidaeza is the root of the Greek "paradise", informing modern notions of an earthly Eden in art and poetry.[NEWLINE][NEWLINE]The Charbagh can be built by [ICON_WORKER] Workers on Land with access to Fresh Water, and not next to another Charbagh.[NEWLINE][NEWLINE]Each Charbagh yields [ICON_FOOD] Food, [ICON_PRODUCTION] Production, [ICON_GOLD] Gold, and [ICON_CULTURE] Culture. During a [ICON_GOLDEN_AGE] Golden Age, the Charbagh's yields are increased by +1 [ICON_PRODUCTION] Production and [ICON_CULTURE] Culture, in addition to the usual +1 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]+5% [ICON_GREAT_PEOPLE] Great People Points in City for each worked Charbagh.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_IMPROVEMENT_CHARBAGH_HELP">
 			<Text>The Charbagh can be built by [ICON_WORKER] Workers on Land with access to Fresh Water, and not next to another Charbagh.[NEWLINE][NEWLINE]Each Charbagh yields [ICON_FOOD] Food, [ICON_PRODUCTION] Production, [ICON_GOLD] Gold, and [ICON_CULTURE] Culture. During a [ICON_GOLDEN_AGE] Golden Age, the Charbagh's yields are increased by +1 [ICON_PRODUCTION] Production and [ICON_CULTURE] Culture, in addition to the usual +1 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]+5% [ICON_GREAT_PEOPLE] Great People Points in City for each worked Charbagh.</Text>
@@ -1263,13 +1221,13 @@ These elite shock troops posed a deadly threat to any opponent, whether in the f
 			<Text></Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_QIZILBASH_TEXT">
-			<Text>Qizilbash (Tr: “red-heads”) was originally a pejorative for the followers of the Safawiyyah Sufi order. Named for their distinctive crimson headwear, the Qizilbash organized into a Shi'ite society reminiscent of a European knightly order. Though primarily of Turkman origin, the Qizilbash proved instrumental in the establishment of the Iranian Safavid Dynasty.[NEWLINE][NEWLINE]In a campaign to avenge the death of his father, Ismail I led 7000 Qizilbash warriors to victory over an Aq Qoyunlu force of 30 000, and established the Safavid State. Within eleven short years, Ismail brought all of Iran under his control, becoming the first ethnically Iranian monarch to unify Iran in over 850 years. Though they had made him a powerful king, Ismail feared the influence of the Qizilbash over the Iranian people. Ismail and his successors would spend the next 80 years diminishing the threat posed by the foreign Qizilbash, replacing them with slave soldiers from the Caucasus. Nevertheless, the Qizilbash maintained a place of honor within the Safavid Empire, both on the battlefield and at court.</Text>
+			<Text>Qizilbash (Tr: "red-heads") was originally a pejorative for the followers of the Safawiyyah Sufi order. Named for their distinctive crimson headwear, the Qizilbash organized into a Shi'ite society reminiscent of a European knightly order. Though primarily of Turkman origin, the Qizilbash proved instrumental in the establishment of the Iranian Safavid Dynasty.[NEWLINE][NEWLINE]In a campaign to avenge the death of his father, Ismail I led 7000 Qizilbash warriors to victory over an Aq Qoyunlu force of 30 000, and established the Safavid State. Within eleven short years, Ismail brought all of Iran under his control, becoming the first ethnically Iranian monarch to unify Iran in over 850 years. Though they had made him a powerful king, Ismail feared the influence of the Qizilbash over the Iranian people. Ismail and his successors would spend the next 80 years diminishing the threat posed by the foreign Qizilbash, replacing them with slave soldiers from the Caucasus. Nevertheless, the Qizilbash maintained a place of honor within the Safavid Empire, both on the battlefield and at court.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_QIZILBASH_STRATEGY">
 			<Text></Text>
-		</Row> 
+		</Row>
 
-		<!-- Poland --> 
+		<!-- Poland -->
 		<Row Tag="TXT_KEY_BUILDING_BARBICAN">
 			<Text>Barbican</Text>
 		</Row>
@@ -1277,7 +1235,7 @@ These elite shock troops posed a deadly threat to any opponent, whether in the f
 			<Text></Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_BARBICAN_TEXT">
-			<Text>A Barbican is a fortified outpost or archery tower, forming part of a city’s outer defense. The towers were often situated with a clear line of fire towards the city’s gates, and connected to the city walls via a walled road called the 'neck'. The most famous barbican was built in Kraków in 1499 during the reign of Jan Olbracht. Its construction took inspiration from two other Barbicans in Torun (1429) and Chelm (1449), and was built in response to the danger posed by encroaching Ottoman and Wallachian forces.[NEWLINE][NEWLINE]Barbicans became obsolete in the 15th century due to improvements in siege tactics and artillery. The Warsaw barbican, erected in 1540, was an anachronism long before it was completed. The tower was used only once by the Swedish in 1656, while trying to prevent Poland from retaking the city. The Swedish had captured the city without a fight two years prior.</Text>
+			<Text>A Barbican is a fortified outpost or archery tower, forming part of a city's outer defense. The towers were often situated with a clear line of fire towards the city's gates, and connected to the city walls via a walled road called the 'neck'. The most famous barbican was built in Kraków in 1499 during the reign of Jan Olbracht. Its construction took inspiration from two other Barbicans in Torun (1429) and Chelm (1449), and was built in response to the danger posed by encroaching Ottoman and Wallachian forces.[NEWLINE][NEWLINE]Barbicans became obsolete in the 15th century due to improvements in siege tactics and artillery. The Warsaw barbican, erected in 1540, was an anachronism long before it was completed. The tower was used only once by the Swedish in 1656, while trying to prevent Poland from retaking the city. The Swedish had captured the city without a fight two years prior.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_BARBICAN_STRATEGY">
 			<Text></Text>
@@ -1290,13 +1248,13 @@ These elite shock troops posed a deadly threat to any opponent, whether in the f
 			<Text></Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_PANCERNY_TEXT">
-			<Text>Towarzysz Pancerny (Mailed Companion) was a rank of Polish cavalryman from the 10th to 18th century, named for their chainmail armor. Pancerni were organized into companies, with each company consisting of 60 to 200 horsemen. Exceptionally well-armored, they used chainmail or platemail armor, vambraces, helmets, and buckler shields. The most common armaments were sabres, reflex bows and, with the arrival of gunpowder, flintlock pistols and carbines.[NEWLINE][NEWLINE]After the rise of heavy cavalry the Pancerni often worked in concert with the newer and more heavily armed husaria, augmenting a cavalry charge and chasing down routing enemy soldiers. By the second half of the 17th century, they represented approximately 70% of all soldiers in the Polish military, fighting against Cossacks, Tatars, and the Swedish. The Husaria and Pancerni were eventually combined to form the ‘Kawaleria Narodowa’, the Polish-Lithuanian National Cavalry.</Text>
+			<Text>Towarzysz Pancerny (Mailed Companion) was a rank of Polish cavalryman from the 10th to 18th century, named for their chainmail armor. Pancerni were organized into companies, with each company consisting of 60 to 200 horsemen. Exceptionally well-armored, they used chainmail or platemail armor, vambraces, helmets, and buckler shields. The most common armaments were sabres, reflex bows and, with the arrival of gunpowder, flintlock pistols and carbines.[NEWLINE][NEWLINE]After the rise of heavy cavalry the Pancerni often worked in concert with the newer and more heavily armed husaria, augmenting a cavalry charge and chasing down routing enemy soldiers. By the second half of the 17th century, they represented approximately 70% of all soldiers in the Polish military, fighting against Cossacks, Tatars, and the Swedish. The Husaria and Pancerni were eventually combined to form the 'Kawaleria Narodowa', the Polish-Lithuanian National Cavalry.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_PANCERNY_STRATEGY">
 			<Text></Text>
-		</Row> 
+		</Row>
 
-		<!-- Polynesia --> 
+		<!-- Polynesia -->
 		<Row Tag="TXT_KEY_BUILDING_MARAE">
 			<Text>Marae</Text>
 		</Row>
@@ -1321,21 +1279,21 @@ These elite shock troops posed a deadly threat to any opponent, whether in the f
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_VAKA_NUI_STRATEGY">
 			<Text></Text>
-		</Row> 
+		</Row>
 
 		<!-- Portugal -->
 		<Row Tag="TXT_KEY_UNIT_CACADOR">
-			<Text>Cacador</Text>
+			<Text>Caçador</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_CACADOR_HELP">
 			<Text></Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_CACADOR_TEXT">
-			<Text>The Cacadores were the elite light infantry of the Portuguese army in the 18th and 19th centuries. The divisions were famed for their marksmanship and their brown coats, one of the first attempts at military camouflage. After Portugal's sound defeat and occupation by Napoleon, the English intervened on behalf of their ally to rally and reorganize a joint war to retake the country. The British general, William Beresford, formed the Cacadores to fill a skirmishing role analogous to the German jaegers or American ranger divisions. Under this combined military, the Cacadores helped in reclaiming Portuguese independence and distinguished themselves as the "fighting cocks" of the Portuguese army until the units were eventually dissolved in the military reforms of 1911.</Text>
+			<Text>The Caçadores were the elite light infantry of the Portuguese army in the 18th and 19th centuries. The divisions were famed for their marksmanship and their brown coats, one of the first attempts at military camouflage. After Portugal's sound defeat and occupation by Napoleon, the English intervened on behalf of their ally to rally and reorganize a joint war to retake the country. The British general, William Beresford, formed the Caçadores to fill a skirmishing role analogous to the German jaegers or American ranger divisions. Under this combined military, the Caçadores helped in reclaiming Portuguese independence and distinguished themselves as the "fighting cocks" of the Portuguese army until the units were eventually dissolved in the military reforms of 1911.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_CACADOR_STRATEGY">
 			<Text></Text>
-		</Row> 
+		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_UNIVERSITY_OF_COIMBRA">
 			<Text>University of Coimbra</Text>
@@ -1368,22 +1326,19 @@ These elite shock troops posed a deadly threat to any opponent, whether in the f
 			<Text>Villa</Text>
 		</Row>
 		<Row Tag="TXT_KEY_IMPROVEMENT_VILLA_HELP">
-			<Text>Cannot be built on Resources or adjacent to a City or another Villa. Cannot be removed once it is built.[NEWLINE][NEWLINE]On construction, immediately spawns an Improved [ICON_RES_FIGS] Figs Resource on a tile adjacent to the Villa, and claims that tile if not already owned by Rome.[NEWLINE][NEWLINE]Provides additional [ICON_CULTURE] Culture on the tile, and +2 [ICON_FOOD] Food in the [ICON_CAPITAL] Capital [NEWLINE]+1 [ICON_CULTURE] Culture and [ICON_GOLD] Gold to adjacent Plantations.[NEWLINE]+1 [ICON_FOOD] Food and [ICON_GOLD] Gold to adjacent Farms.</Text>
+			<Text>Cannot be built on Resources or adjacent to a City or another Villa.[NEWLINE][NEWLINE]A [ICON_RES_FIGS] Figs Resource appears on a tile adjacent to the Villa on construction, and claims that tile if not already owned by any Civilization. The [ICON_RES_FIGS] Figs Resource is removed when the Villa is removed.[NEWLINE]Provides additional [ICON_CULTURE] Culture on the tile, and +2 [ICON_FOOD] Food in the [ICON_CAPITAL] Capital.[NEWLINE]+1 [ICON_CULTURE] Culture and [ICON_GOLD] Gold to adjacent Plantations.[NEWLINE]+1 [ICON_FOOD] Food and [ICON_GOLD] Gold to adjacent Farms.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_IMPROVEMENT_VILLA_TEXT">
-			<Text>Villae were country homes of upper class roman citizens. Over the progressive conquests and expansion of Roman territories and wealth, the villa evolved from relatively simple getaways for social elites into extravagant centers of sprawling agricultural landholdings called Latifundia, an ancient precursor to today’s agribusinesses. The first latifundia were created from land confiscated from conquered peoples in the early 2nd century BC in Magna Graecia (Southern Italy). The Latifundia system expanded with later conquests into Spain and North Africa.
-			[NEWLINE][NEWLINE]These estates depended on forced labor for their productivity, often supplied by the enslavement of the same people who occupied the land before conquest. The Latifundia consolidated agricultural production into larger estates with greater economies of scale; owners re-invested profits by purchasing small neighbouring farms to increase their own holdings. Evicted from their farms and replaced by slave labour, the Roman peasantry were forced to find work in the cities of Rome, though often resorting to squatting and handouts.
-			[NEWLINE][NEWLINE]Latifundia became the template upon which later European nations would base their imperial experiments. The Spanish are especially noteworthy for patterning the Encomienda system after the late Roman Latifundia.
-			[NEWLINE][NEWLINE]Cannot be built on Resources or adjacent to a City or another Villa. Cannot be removed once it is built.[NEWLINE][NEWLINE]On construction, immediately spawns an Improved [ICON_RES_FIGS] Figs Resource on a tile adjacent to the Villa, and claims that tile if not already owned by Rome.[NEWLINE][NEWLINE]Provides additional [ICON_CULTURE] Culture on the tile, and +2 [ICON_FOOD] Food in the Capital [NEWLINE]+1 [ICON_CULTURE] Culture and [ICON_GOLD] Gold to adjacent Plantations.[NEWLINE]+1 [ICON_FOOD] Food and [ICON_GOLD] Gold to adjacent Farms.</Text>
+			<Text>{TXT_KEY_IMPROVEMENT_VILLA_HELP}[NEWLINE][NEWLINE]Villae were country homes of upper class roman citizens. Over the progressive conquests and expansion of Roman territories and wealth, the villa evolved from relatively simple getaways for social elites into extravagant centers of sprawling agricultural landholdings called Latifundia, an ancient precursor to today's agribusinesses. The first latifundia were created from land confiscated from conquered peoples in the early 2nd century BC in Magna Graecia (Southern Italy). The Latifundia system expanded with later conquests into Spain and North Africa.[NEWLINE][NEWLINE]These estates depended on forced labor for their productivity, often supplied by the enslavement of the same people who occupied the land before conquest. The Latifundia consolidated agricultural production into larger estates with greater economies of scale; owners re-invested profits by purchasing small neighbouring farms to increase their own holdings. Evicted from their farms and replaced by slave labour, the Roman peasantry were forced to find work in the cities of Rome, though often resorting to squatting and handouts.[NEWLINE][NEWLINE]Latifundia became the template upon which later European nations would base their imperial experiments. The Spanish are especially noteworthy for patterning the Encomienda system after the late Roman Latifundia.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_VILLA">
 			<Text>Build a [LINK=IMPROVEMENT_VILLA]Villa[\LINK]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_VILLA_HELP">
-			<Text>Constructs a Villa, which yields [ICON_CULTURE] Culture on the tile and gives [ICON_FOOD] Food permanently in the [ICON_CAPITOL] Capital.[NEWLINE]On construction, spawns an Improved [ICON_RES_FIGS] Figs Resource adjacent to the Latifundium, and the Figs tile is claimed by Rome.[NEWLINE]Adjacent Plantations Receive +1 [ICON_CULTURE] Culture and [ICON_GOLD] Gold.[NEWLINE]Adjacent Farms Receive +1 [ICON_FOOD] Food and [ICON_GOLD] Gold.</Text>
+			<Text>Constructs a Villa, which yields [ICON_CULTURE] Culture on the tile and gives [ICON_FOOD] Food permanently in the [ICON_CAPITOL] Capital.[NEWLINE]On construction, a [ICON_RES_FIGS] Figs Resource appears adjacent to the Villa and claims the tile.[NEWLINE]Adjacent Plantations Receive +1 [ICON_CULTURE] Culture and [ICON_GOLD] Gold.[NEWLINE]Adjacent Farms Receive +1 [ICON_FOOD] Food and [ICON_GOLD] Gold.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_VILLA_REC">
-			<Text>It will increase [ICON_FOOD] Food and [ICON_CULTURE] Culture.[NEWLINE]Spawns an Improved [ICON_RES_FIGS] Figs Resource adjacent to the Latifundium on construction, and the Figs tile is claimed by Rome.[NEWLINE]Adjacent Plantations Receive +1 [ICON_CULTURE] Culture and [ICON_GOLD] Gold.[NEWLINE]Adjacent Farms Receive +1 [ICON_FOOD] Food and [ICON_GOLD] Gold.</Text>
+			<Text>It will increase [ICON_FOOD] Food and [ICON_CULTURE] Culture.[NEWLINE]On construction, a [ICON_RES_FIGS] Figs Resource appears adjacent to the Villa and claims the tile.[NEWLINE]Provides additional [ICON_FOOD] Food and [ICON_GOLD] Gold to adjacent Farms, and [ICON_GOLD] Gold and [ICON_CULTURE] Culture to adjacent Plantations.</Text>
 		</Row>
 
 		<!-- Russia -->
@@ -1411,7 +1366,7 @@ These elite shock troops posed a deadly threat to any opponent, whether in the f
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_LICORNE_STRATEGY">
 			<Text></Text>
-		</Row> 
+		</Row>
 
 		<!-- Shoshone -->
 		<Row Tag="TXT_KEY_IMPROVEMENT_VP_ENCAMPMENT">
@@ -1458,7 +1413,7 @@ These elite shock troops posed a deadly threat to any opponent, whether in the f
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_YELLOW_BROW_STRATEGY">
 			<Text></Text>
-		</Row> 
+		</Row>
 
 		<!-- Siam -->
 		<Row Tag="TXT_KEY_BUILDING_ELEPHANT_CAMP">
@@ -1471,21 +1426,21 @@ These elite shock troops posed a deadly threat to any opponent, whether in the f
 			<Text>Often thought of as ceremonial and military implements first, perhaps the greatest contribution of elephants to human society has been as beasts of burden. Elephants are prized as a labour force even in modern times for their ability to haul the dense teak lumber found only in Burma and Thailand. The strength of a fully grown elephant is matched only by its grace, navigating difficult and uneven terrain while carrying heavy loads. With their delicate command of the forest trails, elephants also reduce the potential damage of logging roads to the surrounding forest.[NEWLINE][NEWLINE]The jobs of Southeast Asia's working elephants have come under threat within the past few decades with the mechanization of logging. Elephants and their mahouts have been forced to look for work in tourism and religious festivals, jobs which elephants find terribly stressful.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_ELEPHANT_CAMP_STRATEGY">
-			<Text></Text>
+			<Text>The Elephant Camp's main strength comes from adding +1 [ICON_CULTURE] Culture to Lumber Mills. This adds a lot of value to these already strong improvments, so from the start of the game, strongly prioritize settling near Forests and Jungles and avoid chopping them down. Additionally, try to maintain many City-State Allies that have access to Strategic Resources to benefit from the +1 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold in every Elephant Camp for each. This Building will likely always be a priority to build as the base is already strong, so think about how you can research Technologies to unlock it as soon as possible.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_UNIT_SUEA_MOP">
-			<Text>Seir Morb</Text>
+			<Text>Suea Mop</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_SUEA_MOP_HELP">
 			<Text></Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_SUEA_MOP_TEXT">
-			<Text>Despite Siam's remarkable diplomacy, they did occasionally come into conflict with the western imperial powers which threated their independence. When the French set their sights on Laos, the Siamese mistakenly believed the English would support them against France and prepared for war. The Seir Morb ("Crouching Tiger") were the most technologically advanced cannons in the Siamese arsenal at the time; coastal artillery which could destroy any French boats foolish enough to enter their harbours. However, no amount of raw power can account for corruption and disorganization; the French managed to establish their beachheads, and the coastal artillery of Thailand remained unused. It turns out that the finest artillery money can buy still needs to be fired.</Text>
+			<Text>Despite Siam's remarkable diplomacy, they did occasionally come into conflict with the western imperial powers which threated their independence. When the French set their sights on Laos, the Siamese mistakenly believed the English would support them against France and prepared for war. The Suea Mop ("Crouching Tiger") were the most technologically advanced cannons in the Siamese arsenal at the time; coastal artillery which could destroy any French boats foolish enough to enter their harbours. However, no amount of raw power can account for corruption and disorganization; the French managed to establish their beachheads, and the coastal artillery of Thailand remained unused. It turns out that the finest artillery money can buy still needs to be fired.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_SUEA_MOP_STRATEGY">
-			<Text></Text>
-		</Row> 
+			<Text>Suea Mop lacks the Combat Strength bonus when attacking Cities, making it similar to a normal Ranged Unit. However, it deals an extra 15 damage to Units if it hasn't moved before attacking on the turn. This ignores damage reduction and high combat strength of attacked Units, so it effectively makes Suea Mop just as effective when attacking Cities (the extra damage is dealt to all garrisons) and very effective when fighting Units, especially if they are more advanced than you. Furthermore, the Coastal Artillery Promotion is powerful when using Suea Mop as coastal defense, so your Cities with water access are safer than they otherwise would be. As it has low Combat Strength, to avoid moving before attacking you will have to carefully position your army.[NEWLINE][NEWLINE]For Promotions, Logistics has the strongest synergy with Suea Mop because you can apply the 15 damage twice per turn, or you can move after attacking which will not affect this bonus next turn. Alternatively, the Range Promotion will allow you to be stationary with more safety giving more reliability in dealing the bonus damage.</Text>
+		</Row>
 
 		<!-- Songhai -->
 		<Row Tag="TXT_KEY_BUILDING_GUMEY">
@@ -1512,7 +1467,7 @@ These elite shock troops posed a deadly threat to any opponent, whether in the f
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_SOFA_STRATEGY">
 			<Text></Text>
-		</Row> 
+		</Row>
 
 		<!-- Spain -->
 		<Row Tag="TXT_KEY_UNIT_SPAIN_INQUISITOR">
@@ -1560,11 +1515,11 @@ These elite shock troops posed a deadly threat to any opponent, whether in the f
 			<Text></Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_ARMADA_TEXT">
-			<Text>The "Great and Most Fortunate Navy", the Spanish Armada, was a fleet of 130 ships constructed for the invasion of England and the overthrow the tyrannical Reformist, Elizabeth I. The Armada was one of the largest fleets ever seen in Europe, raised at great expense by Philip II in retribution for England's break from the Catholic Church, their execution of Mary, Queen of Scots, their support for the Dutch revolt against Spain, and the illegitimacy of Elizabeth I.[NEWLINE][NEWLINE]Spanish ships were outnumbered by England’s navy, but they easily outgunned the smaller English vessels. In the end, however, it was not firepower, but speed which won the day, allowing the small English vessels to harry the lumbering Spanish Juggernaut, sinking 10 ships. When finally forced to retire to Spain, a navigational error blew the Armada off-course and onto the Irish coast, where fierce storms dashed the ships against the rocks. When the Armada managed to reach Spain, only 67 of the original 130 ships remained, full of sickly, starving, and demoralized sailors.[NEWLINE][NEWLINE]The lessons of the Spanish Armada informed naval strategy for the next two centuries. Cannons and ranged action had now overtaken boarding and ramming as the primary methods of attack; sinking, rather than capturing, was now the priority. With this stunning victory, England had wrested naval dominance from Spain, a lead they would maintain until the rise of the United States in WWII.[NEWLINE][NEWLINE]"I sent the Armada against men, not God's winds and waves".[NEWLINE]-Philip II</Text>
+			<Text>The "Great and Most Fortunate Navy", the Spanish Armada, was a fleet of 130 ships constructed for the invasion of England and the overthrow the tyrannical Reformist, Elizabeth I. The Armada was one of the largest fleets ever seen in Europe, raised at great expense by Philip II in retribution for England's break from the Catholic Church, their execution of Mary, Queen of Scots, their support for the Dutch revolt against Spain, and the illegitimacy of Elizabeth I.[NEWLINE][NEWLINE]Spanish ships were outnumbered by England's navy, but they easily outgunned the smaller English vessels. In the end, however, it was not firepower, but speed which won the day, allowing the small English vessels to harry the lumbering Spanish Juggernaut, sinking 10 ships. When finally forced to retire to Spain, a navigational error blew the Armada off-course and onto the Irish coast, where fierce storms dashed the ships against the rocks. When the Armada managed to reach Spain, only 67 of the original 130 ships remained, full of sickly, starving, and demoralized sailors.[NEWLINE][NEWLINE]The lessons of the Spanish Armada informed naval strategy for the next two centuries. Cannons and ranged action had now overtaken boarding and ramming as the primary methods of attack; sinking, rather than capturing, was now the priority. With this stunning victory, England had wrested naval dominance from Spain, a lead they would maintain until the rise of the United States in WWII.[NEWLINE][NEWLINE]"I sent the Armada against men, not God's winds and waves".[NEWLINE][TAB]- Philip II</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_ARMADA_STRATEGY">
 			<Text></Text>
-		</Row> 
+		</Row>
 
 		<!-- Sweden -->
 		<Row Tag="TXT_KEY_BUILDING_BASTU">
@@ -1634,7 +1589,7 @@ These elite shock troops posed a deadly threat to any opponent, whether in the f
 			<Text>Murano Glassworks</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_MURANO_GLASSWORKS_TEXT">
-			<Text>Murano's reputation as a center for glassmaking was born when the Venetian Republic, fearing fire and the destruction of the city’s mostly wooden buildings, ordered glassmakers to move their foundries to Murano in 1291. Murano glass is still associated with Venetian glass. Murano's glassmakers were soon numbered among the island’s most prominent citizens. By the fourteenth century, glassmakers were allowed to wear swords, enjoyed immunity from prosecution by the Venetian state and found their daughters married into Venice’s most affluent families. While benefiting from certain statutory privileges, glassmakers were forbidden to leave the Republic. However, many of them took the risks associated with migration and established glass furnaces in surrounding cities and farther afield, even in England and the Netherlands.</Text>
+			<Text>Murano's reputation as a center for glassmaking was born when the Venetian Republic, fearing fire and the destruction of the city's mostly wooden buildings, ordered glassmakers to move their foundries to Murano in 1291. Murano glass is still associated with Venetian glass. Murano's glassmakers were soon numbered among the island's most prominent citizens. By the fourteenth century, glassmakers were allowed to wear swords, enjoyed immunity from prosecution by the Venetian state and found their daughters married into Venice's most affluent families. While benefiting from certain statutory privileges, glassmakers were forbidden to leave the Republic. However, many of them took the risks associated with migration and established glass furnaces in surrounding cities and farther afield, even in England and the Netherlands.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_MURANO_GLASSWORKS_STRATEGY">
 			<Text>One of three mutually exclusive buildings that Venice can build in its capital after it has completed {TXT_KEY_BUILDING_PIAZZA_SAN_MARCO}. Boosts the value of Great Person tile improvements and villages for all cities, enables or strengthens Historic Events on [ICON_INTERNATIONAL_TRADE] Trade Route completion, and contains 2 slots for [ICON_GREAT_WORK] Great Works of Art or Artifacts.</Text>
@@ -1690,7 +1645,7 @@ These elite shock troops posed a deadly threat to any opponent, whether in the f
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_FUSTA_STRATEGY">
 			<Text></Text>
-		</Row> 
+		</Row>
 		<Row Tag="TXT_KEY_UNIT_GREAT_GALLEASS_01">
 			<Text>la nave Armera</Text>
 		</Row>
@@ -1775,7 +1730,7 @@ These elite shock troops posed a deadly threat to any opponent, whether in the f
 			<Text></Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_IZIKO_TEXT">
-			<Text>An Iziko is a simple hearth used as a gathering place for Zulu communities. The fireplace was revered as a source for food, warmth, dreams, and ancestral ties. It is from these gatherings that a sense of community and identity was formed, and young Zulus could perform and bond.[NEWLINE][NEWLINE]The fireplace is used metaphorically for the "cooking of songs" in isicathamiya stage performances, a modern offshoot of traditional Zulu music. Dreams were an essential part of communicating with ancestors and formed part of a deeply rooted Zulu religion. Some isicathamiya musicians claim some of their songs were created in the spiritual realm or given to them by their ancestors.[NEWLINE][NEWLINE]"A person is a person because of other people"[NEWLINE]-Zulu proverb</Text>
+			<Text>An Iziko is a simple hearth used as a gathering place for Zulu communities. The fireplace was revered as a source for food, warmth, dreams, and ancestral ties. It is from these gatherings that a sense of community and identity was formed, and young Zulus could perform and bond.[NEWLINE][NEWLINE]The fireplace is used metaphorically for the "cooking of songs" in isicathamiya stage performances, a modern offshoot of traditional Zulu music. Dreams were an essential part of communicating with ancestors and formed part of a deeply rooted Zulu religion. Some isicathamiya musicians claim some of their songs were created in the spiritual realm or given to them by their ancestors.[NEWLINE][NEWLINE]"A person is a person because of other people"[NEWLINE][TAB]- Zulu proverb</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_IZIKO_STRATEGY">
 			<Text></Text>
@@ -1792,7 +1747,7 @@ These elite shock troops posed a deadly threat to any opponent, whether in the f
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_INDUNA_STRATEGY">
 			<Text></Text>
-		</Row> 
+		</Row>
 		<Row Tag="TXT_KEY_UNIT_INDUNA_01">
 			<Text>Mzilikazi</Text>
 		</Row>
@@ -1849,20 +1804,19 @@ These elite shock troops posed a deadly threat to any opponent, whether in the f
 			<Text>Isibaya</Text>
 		</Row>
 		<Row Tag="TXT_KEY_IMPROVEMENT_ISIBAYA_TEXT">
-			<Text>An Isibaya is a Zulu homestead and defensive structure. The Isibaya is laid out in a circular pattern with a cattle enclosure at the centre, ringed by huts, palisades, and mud walls. The layout and function are reminiscent of a European corral, hence the Afrikaans term for Amabaya, "Kraal".[NEWLINE][NEWLINE]Cattle were central to the life and economy of the Zulu Kingdom. Cattle were a sign of status, wealth, and power, and were instrumental for feeding and arming the amabutho regiments of the Zulu army.[NEWLINE][NEWLINE]The Isibaya is a unique Zulu Great Person Tile Improvement, replacing the Citadel. It Provides [ICON_CULTURE] Culture, [ICON_RESEARCH] Science, and [ICON_PRODUCTION] Production, and gives +1 [ICON_CULTURE] Culture to adjacent Pastures.[NEWLINE][NEWLINE]Building an Isibaya places a [ICON_RES_COW] Cattle Resource and claims adjacent tiles.[NEWLINE][NEWLINE]Units standing on an Isibaya receive +100% [ICON_STRENGTH] Tile Defense. Deals 30 damage to adjacent Enemy Units.</Text>
+			<Text>{TXT_KEY_IMPROVEMENT_ISIBAYA_HELP}[NEWLINE][NEWLINE]An Isibaya is a Zulu homestead and defensive structure. The Isibaya is laid out in a circular pattern with a cattle enclosure at the centre, ringed by huts, palisades, and mud walls. The layout and function are reminiscent of a European corral, hence the Afrikaans term for Amabaya, "Kraal".[NEWLINE][NEWLINE]Cattle were central to the life and economy of the Zulu Kingdom. Cattle were a sign of status, wealth, and power, and were instrumental for feeding and arming the amabutho regiments of the Zulu army.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_IMPROVEMENT_ISIBAYA_HELP">
-			<Text>Unique Zulu Great Person Tile Improvement, replacing the Citadel. Provides [ICON_CULTURE] Culture, [ICON_RESEARCH] Science, and [ICON_PRODUCTION] Production. Adjacent Pastures receive +1 [ICON_CULTURE] Culture.[NEWLINE][NEWLINE]Building an Isibaya places a [ICON_RES_COW] Cattle Resource and claims adjacent tiles.[NEWLINE][NEWLINE]Units standing on an Isibaya receive +100% [ICON_STRENGTH] Tile Defense. Deals 30 damage to adjacent Enemy Units.</Text>
+			<Text>Unique Zulu Great Person Tile Improvement, replacing the Citadel. Provides [ICON_PRODUCTION] Production, [ICON_RESEARCH] Science, and [ICON_CULTURE] Culture. Adjacent Pastures receive +1 [ICON_CULTURE] Culture.[NEWLINE][NEWLINE]Building an Isibaya claims adjacent tiles and places a [ICON_RES_COW] Cattle Resource adjacent to it.[NEWLINE][NEWLINE]Units standing on an Isibaya receive +100% [ICON_STRENGTH] Tile Defense. Deals 30 damage to adjacent Enemy Units.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_ISIBAYA">
 			<Text>Construct an [LINK=IMPROVEMENT_ISIBAYA]Isibaya[\LINK]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_ISIBAYA_HELP">
-			<Text>Constructs an Isibaya, which will increase [ICON_CULTURE] Culture, [ICON_RESEARCH] Science, and [ICON_PRODUCTION] Production, and give +1 [ICON_CULTURE] Culture to Adjacent Pastures. Gives +100% [ICON_STRENGTH] Defense Bonus to units and deals 30 damage to adjacent Enemy Units. Claims adjacent tiles and places a [ICON_RES_COW] Cattle Resource below the Isibaya.</Text>
+			<Text>Constructs an Isibaya, which will increase [ICON_CULTURE] Culture, [ICON_RESEARCH] Science, and [ICON_PRODUCTION] Production, and give +1 [ICON_CULTURE] Culture to Adjacent Pastures. Gives +100% [ICON_STRENGTH] Defense Bonus to units and deals 30 damage to adjacent Enemy Units. Claims adjacent tiles and places a [ICON_RES_COW] Cattle Resource adjacent to the Isibaya.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_ISIBAYA_REC">
-			<Text>Unit will be consumed.[NEWLINE]Unique Zulu Tile Improvement. [ICON_CULTURE] Culture, [ICON_RESEARCH] Science, and [ICON_PRODUCTION] Production. Adjacent Pastures receive +1 [ICON_CULTURE] Culture. Gives a [ICON_STRENGTH] Defense Bonus and damages adjacent Enemy Units. Claims adjacent tiles and places a [ICON_RES_COW] Cattle Resource below the Isibaya.</Text>
+			<Text>Unit will be consumed.[NEWLINE]Unique Zulu Tile Improvement. [ICON_CULTURE] Culture, [ICON_RESEARCH] Science, and [ICON_PRODUCTION] Production. Adjacent Pastures receive +1 [ICON_CULTURE] Culture. Gives a [ICON_STRENGTH] Defense Bonus and damages adjacent Enemy Units. Claims adjacent tiles and places a [ICON_RES_COW] Cattle Resource adjacent to the Isibaya.</Text>
 		</Row>
-
 	</Language_en_US>
 </GameData>
