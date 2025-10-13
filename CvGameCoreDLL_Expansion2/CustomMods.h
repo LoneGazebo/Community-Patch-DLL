@@ -136,7 +136,7 @@
 // AI civilizations are unable to fake having no disputes by displaying false modifiers in the opinion table (i.e. no contested borders, no competition with City-States, etc.)
 // Does not prevent the AI from concealing their true Approach (i.e. pretending to be FRIENDLY or displaying "They desire friendly relations with our empire")
 // NOTE: If AI is blocked from hiding opinion modifiers, e.g., through Transparent Diplomacy, they will already be blocked from faking them
-#define MOD_DIPLOAI_HONEST_OPINION_MODIFIERS						(gCustomMods.isDIPLOAI_HONEST_OPINION_MODIFIERS() || gCustomMods.isDIPLOAI_SHOW_HIDDEN_OPINION_MODIFIERS() || gCustomMods.isDIPLO_DEBUG_MODE())
+#define MOD_DIPLOAI_HONEST_OPINION_MODIFIERS						(MOD_DIPLO_DEBUG_MODE || gCustomMods.isDIPLOAI_HONEST_OPINION_MODIFIERS() || gCustomMods.isDIPLOAI_SHOW_HIDDEN_OPINION_MODIFIERS())
 
 
 /////////////////////////////////////////

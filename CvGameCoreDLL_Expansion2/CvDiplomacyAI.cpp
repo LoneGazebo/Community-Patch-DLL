@@ -27695,7 +27695,7 @@ bool CvDiplomacyAI::IsValidDemandTarget(PlayerTypes ePlayer, int& iDemandValueSc
 		return false;
 
 	// Have to be able to contact this player
-	if (GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY) && (MOD_DIPLOAI_SHUT_UP || MOD_DIPLOAI_SHUT_UP_DEMANDS || GC.getGame().isReallyNetworkMultiPlayer()))
+	if (GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY) && (MOD_DIPLOAI_SHUT_UP_DEMANDS || GC.getGame().isReallyNetworkMultiPlayer()))
 		return false;
 
 	// Too friendly with them?
