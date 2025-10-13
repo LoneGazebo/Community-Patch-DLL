@@ -1625,7 +1625,7 @@ if civ5_mode then
 			local totalGreatWorks = g_activePlayer:GetNumGreatWorks()
 			local totalSlots = g_activePlayer:GetNumGreatWorkSlots()
 
-			local tipText = L("TXT_KEY_TP_TOURISM_PER_TURN", FormatDecimal(g_activePlayer:GetTourism()))
+			local tipText = L("TXT_KEY_TP_TOURISM_PER_TURN", FormatDecimalTimes100(g_activePlayer:GetTourism()))
 					.. "[NEWLINE][NEWLINE]"
 					.. L( "TXT_KEY_TOP_PANEL_TOURISM_TOOLTIP_1", totalGreatWorks )
 					.. "[NEWLINE]"
