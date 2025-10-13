@@ -4778,7 +4778,7 @@ bool CvPlot::isCoastalCityOrPassableImprovement(PlayerTypes ePlayer, bool bCityM
 	// Good enough
 	if (isCity())
 	{
-		if (isCoastalLand())
+		if (!isCoastalLand())
 			return false;
 
 		if (bCityMustBeFriendly)
