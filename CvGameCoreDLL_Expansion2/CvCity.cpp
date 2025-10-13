@@ -2239,13 +2239,12 @@ void CvCity::AcquireWaywardPlots()
 			CvPlot* pPlot = pLoopCity->plot();
 			if (pPlot)
 			{
-				int iDistance = plotDistance(iX, iY, pLoopCity->getX(), pLoopCity->getY());
+				int iDistance = plotDistance(pLoopPlot->getX(), pLoopPlot->getY(), pLoopCity->getX(), pLoopCity->getY());
 				if (iDistance <= iDistanceFromThisCity)
 				{
 					bAnyCloserCity = true;
 					break;
 				}
-
 			}
 		}
 
