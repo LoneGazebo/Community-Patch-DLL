@@ -2390,7 +2390,10 @@ void CvEconomicAI::DoReconState()
 					continue;
 
 				int iDistance = m_pPlayer->GetCityDistanceInPlots( pLoopUnit->plot() );
-				eligibleExplorers.push_back(make_pair(iDistance, pLoopUnit->GetID()));
+				if (pLoopUnit->IsGainsXPFromScouting() || pLoopUnit->IsGainsYieldFromScouting() || pLoopUnit->getNumExoticGoods() > 0)
+					eligibleExplorers.push_back(make_pair(iDistance + 1000, pLoopUnit->GetID()));
+				else
+					eligibleExplorers.push_back(make_pair(iDistance, pLoopUnit->GetID()));
 			}
 
 			//choose the one who is farthest out

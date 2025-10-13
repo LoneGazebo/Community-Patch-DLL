@@ -456,7 +456,7 @@ public:
 	int getNumExoticGoods() const;
 	void setNumExoticGoods(int iValue);
 	void changeNumExoticGoods(int iChange);
-	float calculateExoticGoodsDistanceFactor(const CvPlot* pPlot);
+	float calculateExoticGoodsDistanceFactor(const CvPlot* pPlot) const;
 	bool canSellExoticGoods(const CvPlot* pPlot, bool bOnlyTestVisibility = false) const;
 	int getExoticGoodsGoldAmount();
 	int getExoticGoodsXPAmount();

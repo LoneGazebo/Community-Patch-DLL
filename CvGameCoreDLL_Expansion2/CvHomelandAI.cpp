@@ -280,7 +280,7 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nMinCandidat
 		}
 		else
 		{
-			if (pLoopUnit->AI_getUnitAIType() != UNITAI_EXPLORE)
+			if (pLoopUnit->AI_getUnitAIType() != UNITAI_EXPLORE && pLoopUnit->AI_getUnitAIType() != UNITAI_EXPLORE_SEA)
 				continue;
 		}
 
@@ -289,12 +289,8 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nMinCandidat
 		const MissionData* pMissionData = pLoopUnit->GetHeadMissionData();
 		if (pMissionData && pMissionData->eMissionType == CvTypes::getMISSION_MOVE_TO())
 		{
-			CvPlot* pLastPlot = pLoopUnit->GetPathLastPlot();
-			if (pLastPlot)
-			{
-				iLoopX = pLastPlot->getX();
-				iLoopX = pLastPlot->getY();
-			}
+			iLoopX = pMissionData->iData1;
+			iLoopY = pMissionData->iData2;
 		}
 		vOtherExplorerCoordinates.push_back(make_pair(iLoopX, iLoopY));
 	}
@@ -312,6 +308,19 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nMinCandidat
 		int iX = vExplorePlots[ui].pPlot->getX();
 		int iY = vExplorePlots[ui].pPlot->getY();
 		int iDistToPlot = plotDistance(iX, iY, iRefX, iRefY);
+
+		if (pUnit->canSellExoticGoods(vExplorePlots[ui].pPlot))
+		{
+			float fRewardFactor = pUnit->calculateExoticGoodsDistanceFactor(vExplorePlots[ui].pPlot);
+			if (fRewardFactor >= 0.75f)
+			{
+				vExplorePlots[ui].score += 500;
+			}
+			else if (fRewardFactor >= 0.5f)
+			{
+				vExplorePlots[ui].score += 250;
+			}
+		}
 
 		vPlotByDistance.push_back(std::make_pair((iDistToPlot * iDistToPlot * 10000) / vExplorePlots[ui].score, vExplorePlots[ui]));
 	}
@@ -372,6 +381,19 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nMinCandidat
 			continue;
 
 		iRating -= iNearbyPenalty;
+
+		if (pUnit->canSellExoticGoods(pEvalPlot))
+		{
+			float fRewardFactor = pUnit->calculateExoticGoodsDistanceFactor(pEvalPlot);
+			if (fRewardFactor >= 0.75f)
+			{
+				iRating += 500;
+			}
+			else if (fRewardFactor >= 0.5f)
+			{
+				iRating += 250;
+			}
+		}
 
 		//discourage embarking
 		if (pUnit->getDomainType()==DOMAIN_LAND && pEvalPlot->isWater())
@@ -2476,6 +2498,14 @@ bool CvHomelandAI::ExecuteExplorerMoves(CvUnit* pUnit)
 	if (pGoodPlot)
 	{
 		int iScoreBase = EconomicAIHelpers::ScoreExplorePlot(pGoodPlot, m_pPlayer, pUnit->getDomainType(), pUnit->isEmbarked(), bCanPopGoody);
+		if (pUnit->canSellExoticGoods(pGoodPlot))
+		{
+			float fRewardFactor = pUnit->calculateExoticGoodsDistanceFactor(pGoodPlot);
+			if (fRewardFactor >= 0.5f)
+			{
+				iScoreBase += 1000;
+			}
+		}
 		if (iScoreBase >= 1000)
 		{
 			//this  must be the same moveflags as above so we can reuse the path next turn
@@ -2559,7 +2589,7 @@ bool CvHomelandAI::ExecuteExplorerMoves(CvUnit* pUnit)
 
 		//we can pass through a minor's territory but we don't want to stay there (unless we're friends)
 		//this check shouldn't be necessary because of IsValidExplorerEndTurnPlot() but sometimes it is
-		if (pEvalPlot->isOwned() && GET_PLAYER(pEvalPlot->getOwner()).isMinorCiv() && !GET_PLAYER(pEvalPlot->getOwner()).GetMinorCivAI()->IsPlayerHasOpenBorders(m_pPlayer->GetID()))
+		if (pEvalPlot->isOwned() && GET_PLAYER(pEvalPlot->getOwner()).isMinorCiv() && !GET_PLAYER(pEvalPlot->getOwner()).GetMinorCivAI()->IsPlayerHasOpenBorders(m_pPlayer->GetID()) && !pUnit->canSellExoticGoods(pEvalPlot))
 			continue;
 
 		//don't embark to reach a close-range target
@@ -2676,7 +2706,7 @@ bool CvHomelandAI::ExecuteExplorerMoves(CvUnit* pUnit)
 				}
 				else
 				{
-					if (pLoopUnit->AI_getUnitAIType() != UNITAI_EXPLORE)
+					if (pLoopUnit->AI_getUnitAIType() != UNITAI_EXPLORE && pLoopUnit->AI_getUnitAIType() != UNITAI_EXPLORE_SEA)
 						continue;
 				}
 
@@ -2685,12 +2715,8 @@ bool CvHomelandAI::ExecuteExplorerMoves(CvUnit* pUnit)
 				const MissionData* pMissionData = pLoopUnit->GetHeadMissionData();
 				if (pMissionData && pMissionData->eMissionType == CvTypes::getMISSION_MOVE_TO())
 				{
-					CvPlot* pLastPlot = pLoopUnit->GetPathLastPlot();
-					if (pLastPlot)
-					{
-						iLoopX = pLastPlot->getX();
-						iLoopX = pLastPlot->getY();
-					}
+					iLoopX = pMissionData->iData1;
+					iLoopY = pMissionData->iData2;
 				}
 
 				int iDist = plotDistance(iLoopX, iLoopY, pEvalPlot->getX(), pEvalPlot->getY());
@@ -5935,7 +5961,7 @@ bool CvHomelandAI::FindUnitsForThisMove(AIHomelandMove eMove)
 				continue;
 
 			//Don't poach garrisons
-			if (pLoopUnit->IsGarrisoned())
+			if (pLoopUnit->IsGarrisoned() && pLoopUnit->getDomainType() == DOMAIN_LAND)
 				continue;
 
 			bool bSuitableUnit = false;
@@ -5945,6 +5971,10 @@ bool CvHomelandAI::FindUnitsForThisMove(AIHomelandMove eMove)
 
 				//don't use explorers
 				if (pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE)
+					continue;
+
+				// Only use land units
+				if (pLoopUnit->getDomainType() != DOMAIN_LAND)
 					continue;
 
 				// Want to put ranged units in cities to give them a ranged attack

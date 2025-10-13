@@ -1467,6 +1467,11 @@ void CvTacticalAI::PlotGarrisonMoves(int iNumTurnsAway)
 
 		//note that garrisons do not need to be "recruited" into tactical AI
 		CvUnit* pGarrison = pCity->GetGarrisonedUnit();
+
+		// Only land units actually give a garrison bonus, and they can stack with both naval and air units
+		if (pGarrison && pGarrison->getDomainType() != DOMAIN_LAND)
+			pGarrison = NULL;
+
 		if (pGarrison)
 		{
 			if (pGarrison->CanUpgradeRightNow(false) && !pGarrison->IsHurt())
@@ -4408,7 +4413,7 @@ CvUnit* CvTacticalAI::FindUnitForThisMove(AITacticalMove eMove, CvPlot* pTarget,
 			if(!pLoopUnit->canMove() || !pLoopUnit->IsCanAttack() || !pLoopUnit->canMoveInto(*pTarget,CvUnit::MOVEFLAG_DESTINATION))
 				continue;
 
-			if(pLoopUnit->AI_getUnitAIType()==UNITAI_EXPLORE || pLoopUnit->getArmyID() != -1)
+			if(pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE || pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE_SEA || pLoopUnit->getArmyID() != -1)
 				continue;
 
 			if (pLoopUnit->IsCoveringFriendlyCivilian())
