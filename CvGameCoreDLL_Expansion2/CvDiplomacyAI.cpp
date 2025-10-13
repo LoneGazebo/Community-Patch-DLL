@@ -105,7 +105,6 @@ void CvDiplomacyAI::Init(CvPlayer* pPlayer)
 	m_bEndedFriendshipThisTurn = false;
 	m_bUpdatedWarProgressThisTurn = false;
 	m_iNumReevaluations = 0;
-	m_iNumWaitingForDigChoice = 0;
 	m_bBackstabber = false;
 	m_bCompetingForVictory = false;
 	m_ePrimaryVictoryPursuit = NO_VICTORY_PURSUIT;
@@ -444,7 +443,6 @@ void CvDiplomacyAI::Serialize(DiplomacyAI& diplomacyAI, Visitor& visitor)
 	visitor(diplomacyAI.m_bEndedFriendshipThisTurn);
 	visitor(diplomacyAI.m_bUpdatedWarProgressThisTurn);
 	visitor(diplomacyAI.m_iNumReevaluations);
-	visitor(diplomacyAI.m_iNumWaitingForDigChoice);
 	visitor(diplomacyAI.m_bBackstabber);
 	visitor(diplomacyAI.m_bCompetingForVictory);
 	visitor(diplomacyAI.m_ePrimaryVictoryPursuit);
@@ -8653,22 +8651,6 @@ void CvDiplomacyAI::ChangeNumReevaluations(int iChange)
 	SetNumReevaluations(m_iNumReevaluations + iChange);
 }
 
-bool CvDiplomacyAI::IsWaitingForDigChoice() const
-{
-	return m_iNumWaitingForDigChoice > 0;
-}
-
-void CvDiplomacyAI::SetNumWaitingForDigChoice(int iNewValue)
-{
-	m_iNumWaitingForDigChoice = iNewValue;
-}
-
-void CvDiplomacyAI::ChangeNumWaitingForDigChoice(int iChange)
-{
-	m_iNumWaitingForDigChoice += iChange;
-	ASSERT(m_iNumWaitingForDigChoice >= 0);
-}
-
 /// Are we avoiding deals? Temporary non-serialized value, used to avoid constant iterating over players...
 bool CvDiplomacyAI::IsAvoidDeals() const
 {
@@ -9177,9 +9159,6 @@ void CvDiplomacyAI::DoTurn(DiplomacyMode eDiploMode, PlayerTypes ePlayer)
 	//set this for one iteration, reset below
 	m_eDiploMode = eDiploMode;
 	m_eTargetPlayer = ePlayer;
-
-	// If this somehow wasn't cleared, clear it now
-	SetNumWaitingForDigChoice(0);
 
 	// Test if the backstabber flag should be enabled or disabled
 	TestBackstabberFlag();

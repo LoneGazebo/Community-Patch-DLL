@@ -2654,7 +2654,7 @@ ArchaeologyChoiceType CvPlayerCulture::GetArchaeologyChoice(CvPlot *pPlot)
 }
 
 /// Make things happen at an archaeology dig
-void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
+void CvPlayerCulture::DoArchaeologyChoice(ArchaeologyChoiceType eChoice)
 {
 	CvGameCulture *pCulture = GC.getGame().GetGameCulture();
 	BuildingClassTypes eBuildingToHouse = NO_BUILDINGCLASS;
@@ -2719,27 +2719,15 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 				}
 				// Major civ owned territory?
 				else if (kOwner.isMajorCiv())
-				{
 					kOwner.GetDiplomacyAI()->ChangeNumLandmarksBuiltForMe(m_pPlayer->GetID(), 1);
-					kOwner.GetDiplomacyAI()->ChangeNumWaitingForDigChoice(-1);
-				}
 			}
 		}
 	}
 	break;
 	case ARCHAEOLOGY_ARTIFACT_PLAYER1:
 	{
-		if (pPlot->getOwner() != NO_PLAYER && GET_PLAYER(pPlot->getOwner()).isMajorCiv())
-		{
-			if (pUnit && pPlot->getTeam() != pUnit->getTeam() && GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->IsWaitingForDigChoice())
-			{
-				GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeNegativeArchaeologyPoints(pUnit->getOwner(), 1);
-			}
-			else
-			{
-				GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeNumWaitingForDigChoice(-1);
-			}
-		}
+		if (pPlot->getOwner() != NO_PLAYER && GET_PLAYER(pPlot->getOwner()).isMajorCiv() && pPlot->getTeam() != m_pPlayer->getTeam())
+			GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeNegativeArchaeologyPoints(m_pPlayer->GetID(), 1);
 
 		pHousingCity = m_pPlayer->GetCulture()->GetClosestAvailableGreatWorkSlot(pPlot->getX(), pPlot->getY(), eArtArtifactSlot, eBuildingToHouse, iSlot);
 		int iGWindex = pCulture->CreateGreatWork(eGreatArtifact, eClass, pPlot->GetArchaeologicalRecord().m_ePlayer1, pPlot->GetArchaeologicalRecord().m_eEra, "");
@@ -2787,17 +2775,9 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 	break;
 	case ARCHAEOLOGY_ARTIFACT_PLAYER2:
 	{
-		if (pPlot->getOwner() != NO_PLAYER && GET_PLAYER(pPlot->getOwner()).isMajorCiv())
-		{
-			if (pUnit && pPlot->getTeam() != pUnit->getTeam() && GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->IsWaitingForDigChoice())
-			{
-				GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeNegativeArchaeologyPoints(pUnit->getOwner(), 1);
-			}
-			else
-			{
-				GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeNumWaitingForDigChoice(-1);
-			}
-		}
+		if (pPlot->getOwner() != NO_PLAYER && GET_PLAYER(pPlot->getOwner()).isMajorCiv() && pPlot->getTeam() != m_pPlayer->getTeam())
+			GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeNegativeArchaeologyPoints(m_pPlayer->GetID(), 1);
+
 		pHousingCity = m_pPlayer->GetCulture()->GetClosestAvailableGreatWorkSlot(pPlot->getX(), pPlot->getY(), eArtArtifactSlot, eBuildingToHouse, iSlot);
 		int iGWindex = pCulture->CreateGreatWork(eGreatArtifact, eClass, pPlot->GetArchaeologicalRecord().m_ePlayer2, pPlot->GetArchaeologicalRecord().m_eEra, "");
 		pHousingCity->GetCityBuildings()->SetBuildingGreatWork(eBuildingToHouse, iSlot, iGWindex);
@@ -2846,17 +2826,9 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 
 	case ARCHAEOLOGY_ARTIFACT_WRITING:
 	{
-		if (pPlot->getOwner() != NO_PLAYER && GET_PLAYER(pPlot->getOwner()).isMajorCiv())
-		{
-			if (pUnit && pPlot->getTeam() != pUnit->getTeam() && GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->IsWaitingForDigChoice())
-			{
-				GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeNegativeArchaeologyPoints(pUnit->getOwner(), 1);
-			}
-			else
-			{
-				GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeNumWaitingForDigChoice(-1);
-			}
-		}
+		if (pPlot->getOwner() != NO_PLAYER && GET_PLAYER(pPlot->getOwner()).isMajorCiv() && pPlot->getTeam() != m_pPlayer->getTeam())
+			GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeNegativeArchaeologyPoints(m_pPlayer->GetID(), 1);
+
 		pHousingCity = m_pPlayer->GetCulture()->GetClosestAvailableGreatWorkSlot(pPlot->getX(), pPlot->getY(), eWritingSlot, eBuildingToHouse, iSlot);
 		int iGWindex = pCulture->CreateGreatWork(eGreatArtifact, (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_LITERATURE"), pPlot->GetArchaeologicalRecord().m_ePlayer1, pPlot->GetArchaeologicalRecord().m_eEra, "");
 		pHousingCity->GetCityBuildings()->SetBuildingGreatWork(eBuildingToHouse, iSlot, iGWindex);
@@ -2907,17 +2879,8 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 
 	case ARCHAEOLOGY_CULTURE_BOOST:
 	{
-		if (pPlot->getOwner() != NO_PLAYER && GET_PLAYER(pPlot->getOwner()).isMajorCiv())
-		{
-			if (pUnit && pPlot->getTeam() != pUnit->getTeam() && GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->IsWaitingForDigChoice())
-			{
-				GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeNegativeArchaeologyPoints(pUnit->getOwner(), 1);
-			}
-			else
-			{
-				GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeNumWaitingForDigChoice(-1);
-			}
-		}
+		if (pPlot->getOwner() != NO_PLAYER && GET_PLAYER(pPlot->getOwner()).isMajorCiv() && pPlot->getTeam() != m_pPlayer->getTeam())
+			GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeNegativeArchaeologyPoints(m_pPlayer->GetID(), 1);
 
 		// Culture boost based on 8 previous turns; same as GREAT_WRITER; move to XML?
 		int iValue = m_pPlayer->getYieldPerTurnHistory(YIELD_CULTURE, 8 /*iPreviousTurnsToCount */);
