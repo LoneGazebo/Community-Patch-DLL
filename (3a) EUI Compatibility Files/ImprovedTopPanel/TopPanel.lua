@@ -840,7 +840,7 @@ local function UpdateTopPanelNow()
 			else
 				Controls.InternationalTradeRoutes:SetText( S( "%i/%i [ICON_INTERNATIONAL_TRADE]", activeRoutes, availableRoutes ) )
 			end
-			Controls.TourismString:SetText( S( "%+i [ICON_TOURISM]", g_activePlayer:GetTourism() / 100 ) )
+			Controls.TourismString:SetText( S( "%+s [ICON_TOURISM]", FormatIntegerTimes100(g_activePlayer:GetTourism()) ) )
 		end
 	else
 		-----------------------------
