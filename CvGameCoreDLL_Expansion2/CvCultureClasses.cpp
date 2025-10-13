@@ -1510,7 +1510,10 @@ void CvPlayerCulture::MoveWorks(GreatWorkSlotType eType, vector<CvGreatWorkBuild
 			}
 		}
 
-		gDLL->sendSetSwappableGreatWork(m_pPlayer->GetID(), eClass, iGreatWorkIndex);
+		if (m_pPlayer->isHuman(ISHUMAN_AI_TOURISM))
+			gDLL->sendSetSwappableGreatWork(m_pPlayer->GetID(), eClass, iGreatWorkIndex);
+		else
+			SetSwappableGreatWork(eClass, iGreatWorkIndex);
 	}
 	// For Art and Artifacts
 	else if (eType == CvTypes::getGREAT_WORK_SLOT_ART_ARTIFACT())
@@ -1531,7 +1534,10 @@ void CvPlayerCulture::MoveWorks(GreatWorkSlotType eType, vector<CvGreatWorkBuild
 			}
 		}
 
-		gDLL->sendSetSwappableGreatWork(m_pPlayer->GetID(), eClass, iGreatWorkIndex);
+		if (m_pPlayer->isHuman(ISHUMAN_AI_TOURISM))
+			gDLL->sendSetSwappableGreatWork(m_pPlayer->GetID(), eClass, iGreatWorkIndex);
+		else
+			SetSwappableGreatWork(eClass, iGreatWorkIndex);
 
 		eClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_ARTIFACT");
 		iGreatWorkIndex = -1;
@@ -1549,7 +1555,10 @@ void CvPlayerCulture::MoveWorks(GreatWorkSlotType eType, vector<CvGreatWorkBuild
 			}
 		}
 
-		gDLL->sendSetSwappableGreatWork(m_pPlayer->GetID(), eClass, iGreatWorkIndex);
+		if (m_pPlayer->isHuman(ISHUMAN_AI_TOURISM))
+			gDLL->sendSetSwappableGreatWork(m_pPlayer->GetID(), eClass, iGreatWorkIndex);
+		else
+			SetSwappableGreatWork(eClass, iGreatWorkIndex);
 	}
 
 	bool bSecondUpdate = MoveSingleWorks(buildings, works1, works2, eFocusYield, true);
@@ -2279,15 +2288,10 @@ bool CvPlayerCulture::MoveWorkIntoSlot(int iWorkID, int iToCityID, BuildingTypes
 					{
 						LogMoveSingleWork(kWork.m_iGreatWorkIndex, kWork.m_eOwnedByPlayer, iFromCityID, eFromBuilding, iFromSlot, m_pPlayer->GetID(), iToCityID, eToBuilding, iToSlot);
 
-						gDLL->sendMoveGreatWorks(
-							m_pPlayer->GetID(),
-							iFromCityID,
-							eFromBuildingClass,
-							iFromSlot,
-							iToCityID,
-							eToBuildingClass,
-							iToSlot
-						);
+						if (m_pPlayer->isHuman(ISHUMAN_AI_TOURISM))
+							gDLL->sendMoveGreatWorks(m_pPlayer->GetID(), iFromCityID, eFromBuildingClass, iFromSlot, iToCityID, eToBuildingClass, iToSlot);
+						else
+							GC.getGame().GetGameCulture()->MoveGreatWorks(m_pPlayer->GetID(), iFromCityID, eFromBuildingClass, iFromSlot, iToCityID, eToBuildingClass, iToSlot);
 
 						// We can't trust this external DLL call to happen instantly, so we need to update works1 and works2 manually here
 						for (vector<CvGreatWorkAvailableForUse>::iterator it = works1.begin(); it != works1.end(); ++it)
@@ -2347,7 +2351,10 @@ bool CvPlayerCulture::MoveWorkIntoSlot(int iWorkID, int iToCityID, BuildingTypes
 				if (it->m_eOwnedByPlayer == m_pPlayer->GetID() && (!toIgnore || toIgnore->find(it->m_iGreatWorkIndex) == toIgnore->end()))
 				{
 					// CUSTOMLOG("  ... for art to %i", it->m_iGreatWorkIndex);
-					gDLL->sendSetSwappableGreatWork(m_pPlayer->GetID(), eGWClass, it->m_iGreatWorkIndex);
+					if (m_pPlayer->isHuman(ISHUMAN_AI_TOURISM))
+						gDLL->sendSetSwappableGreatWork(m_pPlayer->GetID(), eGWClass, it->m_iGreatWorkIndex);
+					else
+						SetSwappableGreatWork(eGWClass, it->m_iGreatWorkIndex);
 					iOurSwapWorkIndex = it->m_iGreatWorkIndex;
 					break;
 				}
@@ -2360,7 +2367,10 @@ bool CvPlayerCulture::MoveWorkIntoSlot(int iWorkID, int iToCityID, BuildingTypes
 				if (it->m_eOwnedByPlayer == m_pPlayer->GetID() && (!toIgnore || toIgnore->find(it->m_iGreatWorkIndex) == toIgnore->end()))
 				{
 					// CUSTOMLOG("  ... for art to %i", it->m_iGreatWorkIndex);
-					gDLL->sendSetSwappableGreatWork(m_pPlayer->GetID(), eGWClass, it->m_iGreatWorkIndex);
+					if (m_pPlayer->isHuman(ISHUMAN_AI_TOURISM))
+						gDLL->sendSetSwappableGreatWork(m_pPlayer->GetID(), eGWClass, it->m_iGreatWorkIndex);
+					else
+						SetSwappableGreatWork(eGWClass, it->m_iGreatWorkIndex);
 					iOurSwapWorkIndex = it->m_iGreatWorkIndex;
 					break;
 				}
@@ -2388,7 +2398,10 @@ bool CvPlayerCulture::MoveWorkIntoSlot(int iWorkID, int iToCityID, BuildingTypes
 
 		LogSwapMultipleWorks(kWork.m_eOwnedByPlayer, iOurSwapWorkIndex, kWork.m_iGreatWorkIndex);
 
-		gDLL->sendSwapGreatWorks(m_pPlayer->GetID(), iOurSwapWorkIndex, kWork.m_eOwnedByPlayer, kWork.m_iGreatWorkIndex);
+		if (m_pPlayer->isHuman(ISHUMAN_AI_TOURISM))
+			gDLL->sendSwapGreatWorks(m_pPlayer->GetID(), iOurSwapWorkIndex, kWork.m_eOwnedByPlayer, kWork.m_iGreatWorkIndex);
+		else
+			GC.getGame().GetGameCulture()->SwapGreatWorks(m_pPlayer->GetID(), iOurSwapWorkIndex, kWork.m_eOwnedByPlayer, kWork.m_iGreatWorkIndex);
 
 		LogMoveSingleWork(kWork.m_iGreatWorkIndex, kWork.m_eOwnedByPlayer, iFromCityID, eFromBuilding, iFromSlot, m_pPlayer->GetID(), kWorkToSwapAway.m_iCityID, kWorkToSwapAway.m_eBuilding, kWorkToSwapAway.m_iSlot);
 
@@ -2458,6 +2471,54 @@ int CvPlayerCulture::GetSwappableArtifactIndex() const
 int CvPlayerCulture::GetSwappableMusicIndex() const
 {
 	return m_iSwappableMusicIndex;
+}
+
+void CvPlayerCulture::SetSwappableGreatWork(GreatWorkClass eGWClass, int iGreatWorkIndex)
+{
+	// -1 indicates that they want to clear the slot
+	if (iGreatWorkIndex == -1)
+	{
+		if (eGWClass == GC.getInfoTypeForString("GREAT_WORK_ARTIFACT"))
+		{
+			SetSwappableArtifactIndex(-1);
+		}
+		else if (eGWClass == GC.getInfoTypeForString("GREAT_WORK_ART"))
+		{
+			SetSwappableArtIndex(-1);
+		}
+		else if (eGWClass == GC.getInfoTypeForString("GREAT_WORK_LITERATURE"))
+		{
+			SetSwappableWritingIndex(-1);
+		}
+		else if (eGWClass == GC.getInfoTypeForString("GREAT_WORK_MUSIC"))
+		{
+			SetSwappableMusicIndex(-1);
+		}
+	}
+	else
+	{
+		// does this player control this work
+		if (ControlsGreatWork(iGreatWorkIndex))
+		{
+			if (eGWClass == GC.getInfoTypeForString("GREAT_WORK_ARTIFACT"))
+			{
+				SetSwappableArtifactIndex(iGreatWorkIndex);
+			}
+			else if (eGWClass == GC.getInfoTypeForString("GREAT_WORK_ART"))
+			{
+				SetSwappableArtIndex(iGreatWorkIndex);
+			}
+			else if (eGWClass == GC.getInfoTypeForString("GREAT_WORK_LITERATURE"))
+			{
+				SetSwappableWritingIndex(iGreatWorkIndex);
+			}
+			else if (eGWClass == GC.getInfoTypeForString("GREAT_WORK_MUSIC"))
+			{
+				SetSwappableMusicIndex(iGreatWorkIndex);
+			}
+		}
+	}
+	GC.GetEngineUserInterface()->setDirty(GreatWorksScreen_DIRTY_BIT, true);
 }
 
 void CvPlayerCulture::SetSwappableWritingIndex(int iIndex)
