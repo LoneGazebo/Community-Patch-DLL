@@ -13318,14 +13318,15 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 
 	bool bHuman = pkPlayer->isHuman(ISHUMAN_UI);
 	bool bTeammate = pDiplo->IsTeammate(ePlayer);
-	bool bShowHiddenModifiers = bForceDebugMode || GC.getGame().IsShowHiddenOpinionModifiers();
-	bool bShowAllValues = bHuman ? false : (bForceDebugMode || GC.getGame().IsShowAllOpinionValues());
+	bool bTransparent = GC.getGame().isOption(GAMEOPTION_TRANSPARENT_DIPLOMACY);
+	bool bShowHiddenModifiers = (bForceDebugMode || MOD_DIPLOAI_SHOW_HIDDEN_OPINION_MODIFIERS || bTransparent);
+	bool bShowAllValues = bHuman ? false : (bForceDebugMode || MOD_DIPLOAI_SHOW_ALL_OPINION_VALUES || bTransparent);
 	bool bHideDisputes = bShowHiddenModifiers ? false : pDiplo->ShouldHideDisputeMods(ePlayer);
 	bool bHideNegatives = bShowHiddenModifiers ? false : pDiplo->ShouldHideNegativeMods(ePlayer);
-	bool bPretendNoDisputes = GET_PLAYER(ePlayer).isHuman(ISHUMAN_UI) && bHideDisputes && bHideNegatives && !GC.getGame().IsNoFakeOpinionModifiers();
-	bool bObserver = GET_PLAYER(ePlayer).isObserver() || !pkPlayer->isMajorCiv() || !GET_PLAYER(ePlayer).isMajorCiv() || !pkPlayer->isAlive() || !GET_PLAYER(ePlayer).isAlive() || GC.getGame().IsHideOpinionTable();
+	bool bPretendNoDisputes = !MOD_DIPLOAI_HONEST_OPINION_MODIFIERS && bHideDisputes && bHideNegatives && GET_PLAYER(ePlayer).isHuman(ISHUMAN_UI);
+	bool bObserver = GET_PLAYER(ePlayer).isObserver() || !pkPlayer->isMajorCiv() || !GET_PLAYER(ePlayer).isMajorCiv() || !pkPlayer->isAlive() || !GET_PLAYER(ePlayer).isAlive() || (MOD_DIPLOAI_HIDE_OPINION_TABLE && !bTransparent);
 	bool bUNActive = GC.getGame().IsUnitedNationsActive();
-	bool bJustMet = (bForceDebugMode || GC.getGame().IsDiploDebugModeEnabled()) ? false : (GET_TEAM(pkPlayer->getTeam()).GetTurnsSinceMeetingTeam(GET_PLAYER(ePlayer).getTeam()) == 0); // Don't display certain modifiers if we just met them
+	bool bJustMet = (bForceDebugMode || MOD_DIPLO_DEBUG_MODE) ? false : (GET_TEAM(pkPlayer->getTeam()).GetTurnsSinceMeetingTeam(GET_PLAYER(ePlayer).getTeam()) == 0); // Don't display certain modifiers if we just met them
 
 	CivApproachTypes eSurfaceApproach = pDiplo->GetSurfaceApproach(ePlayer);
 	CivApproachTypes eTrueApproach = pDiplo->GetCivApproach(ePlayer);
@@ -13335,7 +13336,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 	//--------------------------------//
 
 	// For observers or humans in Debug Mode, display the AI's "most important other players"
-	if (!bHuman && (GET_PLAYER(ePlayer).isObserver() || GC.getGame().IsDiploDebugModeEnabled()) && pkPlayer->isAlive() && pkPlayer->isMajorCiv())
+	if (!bHuman && (GET_PLAYER(ePlayer).isObserver() || MOD_DIPLO_DEBUG_MODE) && pkPlayer->isAlive() && pkPlayer->isMajorCiv())
 	{
 		PlayerTypes eTopFriend = pDiplo->GetMostValuableFriend();
 		PlayerTypes eTopDP = pDiplo->GetMostValuableAlly();
@@ -13492,7 +13493,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 				kOpinion.m_iValue = 0;
 				CvString str;
 
-				if (bHuman || bForceDebugMode || GC.getGame().IsDiploDebugModeEnabled())
+				if (bHuman || bForceDebugMode || MOD_DIPLO_DEBUG_MODE)
 				{
 					str = Localization::Lookup("TXT_KEY_DIPLO_PAST_WAR_BAD").toUTF8();
 				}
@@ -13517,7 +13518,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		if (bForceDebugMode || (!bHuman && !bTeammate))
 		{
 			// Debug mode approach reveal
-			if (bForceDebugMode || GC.getGame().IsDiploDebugModeEnabled())
+			if (bForceDebugMode || MOD_DIPLO_DEBUG_MODE)
 			{
 				Opinion kOpinion;
 				kOpinion.m_iValue = 0;
@@ -13570,7 +13571,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 
 			// Base opinion score?
 			iValue = pDiplo->GetBaseOpinionScore(ePlayer);
-			if (iValue != 0 && !pDiplo->IsAlwaysAtWar(ePlayer) && GC.getGame().IsShowBaseHumanOpinion())
+			if (iValue != 0 && (MOD_DIPLOAI_SHOW_BASE_HUMAN_OPINION || MOD_DIPLO_DEBUG_MODE) && !pDiplo->IsAlwaysAtWar(ePlayer))
 			{
 				Opinion kOpinion;
 				kOpinion.m_iValue = iValue;
@@ -15902,7 +15903,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			aOpinions.push_back(kOpinion);
 		}
 		// If not at war and debug mode is not enabled, a hint explaining the AI's current approach is displayed
-		else if (!bForceDebugMode && !GC.getGame().IsDiploDebugModeEnabled())
+		else if (!bForceDebugMode && !MOD_DIPLO_DEBUG_MODE)
 		{
 			Opinion kOpinion;
 			kOpinion.m_iValue = 0;

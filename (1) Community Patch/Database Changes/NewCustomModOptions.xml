@@ -39,7 +39,12 @@
 		<!-- Affects savegame format; do not change midgame! -->
 		<Row Class="2" Name="ENABLE_ACHIEVEMENTS" Value="0"/>
 
-		<!-- Enables debugging functionality, but slows performance; this should only be enabled if you are debugging the gamecore -->
+		<!-- Enables the Diplomacy AI Debug Mode: always reveals true opinion/approach/congress voting info for AI players, and also provides extra information about key players -->
+		<!-- If DIPLO_DEBUG_MODE_SETTING=2, also forces the AI to accept all Discuss menu requests -->
+		<Row Class="2" Name="DIPLO_DEBUG_MODE" Value="0"/>
+		<Row Class="0" Name="DIPLO_DEBUG_MODE_SETTING" Value="1"/>
+
+		<!-- Enables additional gamecore debugging functionality, but slows performance -->
 		<Row Class="2" Name="CORE_DEBUGGING" Value="0"/>
 
 		<!-- Enables Squads for VP support -->
@@ -109,6 +114,25 @@
 		<!-- Sorting order: category names by alphabetical order and	-->
 		<!-- 	options within a category by most to least impactful	-->
 		<!-- ********************************************************** -->
+
+		<!-- Humans can trade temporary items (gold per turn, resources, etcetera) for permanent items (lump sum gold, cities, etcetera) with AI players -->
+		<Row Class="6" Name="DEALAI_HUMAN_PERMANENT_FOR_AI_TEMPORARY" Value="1"/>
+
+		<!-- Outside of peace deals or teammates, prohibits all AI players from buying cities that the seller originally founded -->
+		<Row Class="6" Name="DEALAI_NO_PEACETIME_SELLING_FOUNDED_CITIES" Value="1"/>
+
+		<!-- Gandhis who have nukes or have nuked someone and aren't vassals will do what they're best known for in the Civilization series ;) -->
+		<!-- Random Personalities settings: -->
+		<!-- 1 (default) = disable Nuclear Gandhi if Random Personalities is enabled.
+		<!-- 2 = LeaderType LEADER_GANDHI enables Nuclear Gandhi if Random Personalities is enabled. Gandhi remains nuke happy even if his personality is otherwise random. -->
+		<!-- 3 = PersonalityType LEADER_GANDHI enables Nuclear Gandhi if Random Personalities is enabled. Gandhi's nuke happiness is swapped around as if it were any other leader flavor. -->
+		<Row Class="5" Name="DIPLOAI_ENABLE_NUCLEAR_GANDHI" Value="1"/>
+		<Row Class="0" Name="DIPLOAI_NUCLEAR_GANDHI_RANDOM_PERSONALITIES_SETTING" Value="1"/>
+
+		<!-- AI civilizations are unable to fake having no disputes by displaying false modifiers in the opinion table (i.e. no contested borders, no competition with City-States, etc.) -->
+		<!-- Does not prevent the AI from concealing their true Approach (i.e. pretending to be FRIENDLY or displaying "They desire friendly relations with our empire") -->
+		<!-- NOTE: If AI is blocked from hiding opinion modifiers, e.g., through Transparent Diplomacy, they will already be blocked from faking them -->
+		<Row Class="5" Name="DIPLOAI_HONEST_OPINION_MODIFIERS" Value="1"/>
 
 
 		<!-- ********************************************************** -->
@@ -567,6 +591,78 @@
 
 		<!-- Danger plot valuation: ignore ZOC only for those units which are likely to be killed by the enemy (alternatively ignore ZOC for all owned units) -->
 		<Row Class="4" Name="COMBATAI_TWO_PASS_DANGER" Value="0"/>
+
+		<!-- Prevents the AI from trading Cities, including in peace deals -->
+		<!-- Settings: 1 (default) = with other AI players; 2 = with human players too -->
+		<Row Class="6" Name="DEALAI_DISABLE_CITY_TRADES" Value="0"/>
+		<Row Class="0" Name="DEALAI_DISABLE_CITY_TRADES_SETTING" Value="1"/>
+
+		<!-- Prevents the AI from trading Third Party War -->
+		<!-- Settings: 1 (default) = with other AI players; 2 = with human players too -->
+		<Row Class="6" Name="DEALAI_DISABLE_WAR_BRIBES" Value="0"/>
+		<Row Class="0" Name="DEALAI_DISABLE_WAR_BRIBES_SETTING" Value="1"/>
+
+		<!-- Removes all restrictions on trading temporary items for permanent items; this is abusable by humans if enabled -->
+		<Row Class="6" Name="DEALAI_GLOBAL_PERMANENT_FOR_TEMPORARY" Value="0"/>
+
+		<!-- Greatly increases the AI's aggression -->
+		<!-- Settings: 1 = only towards human players, 2 (default) = towards all civs and City-States -->
+		<Row Class="6" Name="DIPLOAI_AGGRESSIVE_MODE" Value="0"/>
+		<Row Class="0" Name="DIPLOAI_AGGRESSIVE_MODE_SETTING" Value="2"/>
+
+		<!-- Disables Aggressive Mode being automatically enabled (setting 2) if only Domination and/or Time Victories are enabled -->
+		<Row Class="6" Name="DIPLOAI_DISABLE_DOMINATION_ONLY_AGGRESSION" Value="0"/>
+
+		<!-- No AI opinion modifiers or values will appear in the table, except a short message explaining their visible approach -->
+		<Row Class="6" Name="DIPLOAI_HIDE_OPINION_TABLE" Value="0"/>
+
+		<!-- If enabled, limits how much randomness is allowed when selecting default Primary and Secondary Victory Pursuits -->
+		<!-- Settings: -->
+		<!-- 1 (default) = AI will always select the Primary Victory Pursuit that it receives a hint for in the database, and ignore Random Personalities -->
+		<!-- 2 = AI will also avoid selecting a Secondary Victory Pursuit unless they have one in the database, again ignoring Random Personalities -->
+		<!-- 3 = AI will also *always* choose their Primary Victory Pursuit as their Current Victory Pursuit, with no adaptation to circumstances; if the victory condition is disabled, they will try this for the secondary pursuit -->
+		<!-- For setting=3, Domination Victory will be attempted if it is possible for the AI to eliminate all other major civs, ignoring whether or not Domination Victory is enabled in game options -->
+		<Row Class="6" Name="DIPLOAI_LIMIT_VICTORY_PURSUIT_RANDOMIZATION" Value="0"/>
+		<Row Class="0" Name="DIPLOAI_LIMIT_VICTORY_PURSUIT_SETTING" Value="1"/>
+
+		<!-- Diplomacy flavors for AI players will always be set to their database value, clamped between 1 and 10 -->
+		<Row Class="5" Name="DIPLOAI_NO_FLAVOR_RANDOMIZATION" Value="0"/>
+
+		<!-- Prevents the AI from declaring war -->
+		<!-- Settings: 1 (default) = only towards human players, 2 = towards all civs and City-States -->
+		<Row Class="6" Name="DIPLOAI_PASSIVE_MODE" Value="0"/>
+		<Row Class="0" Name="DIPLOAI_PASSIVE_MODE_SETTING" Value="1"/>
+
+		<!-- Shows the number value of opinion modifiers, but doesn't show hidden modifiers -->
+		<!-- Also shows LeagueAI scoring for World Congress proposals -->
+		<Row Class="4" Name="DIPLOAI_SHOW_ALL_OPINION_VALUES" Value="0"/>
+
+		<!-- Include HandicapInfos.HumanOpinionChange in the opinion modifier table -->
+		<Row Class="4" Name="DIPLOAI_SHOW_BASE_HUMAN_OPINION" Value="0"/>
+
+		<!-- Shows all hidden opinion modifiers (except HandicapInfos.HumanOpinionChange), but not the number value -->
+		<Row Class="4" Name="DIPLOAI_SHOW_HIDDEN_OPINION_MODIFIERS" Value="0"/>
+
+		<!-- AI civilizations will not send some messages to human players -->
+		<!-- DIPLOAI_SHUT_UP is a global toggle; the options below it selectively disable certain types of messages -->
+		<Row Class="6" Name="DIPLOAI_SHUT_UP" Value="0"/>
+		<Row Class="5" Name="DIPLOAI_SHUT_UP_COMPLIMENTS" Value="0"/> <!-- e.g., "we befriended your friend", "we denounced the same civ you did" -->
+		<Row Class="5" Name="DIPLOAI_SHUT_UP_COOP_WAR_OFFERS" Value="0"/>
+		<Row Class="5" Name="DIPLOAI_SHUT_UP_DEMANDS" Value="0"/>
+		<Row Class="5" Name="DIPLOAI_SHUT_UP_FRIENDSHIP_OFFERS" Value="0"/>
+		<Row Class="5" Name="DIPLOAI_SHUT_UP_GIFT_OFFERS" Value="0"/>
+		<Row Class="5" Name="DIPLOAI_SHUT_UP_HELP_REQUESTS" Value="0"/>
+		<Row Class="5" Name="DIPLOAI_SHUT_UP_INDEPENDENCE_REQUESTS" Value="0"/>
+		<Row Class="5" Name="DIPLOAI_SHUT_UP_INSULTS" Value="0"/> <!-- e.g., "you're a warmonger", "you're getting too friendly with our City-States" -->
+		<Row Class="5" Name="DIPLOAI_SHUT_UP_PEACE_OFFERS" Value="0"/>
+		<Row Class="5" Name="DIPLOAI_SHUT_UP_TRADE_OFFERS" Value="0"/>
+		<Row Class="5" Name="DIPLOAI_SHUT_UP_TRADE_RENEWALS" Value="0"/>
+
+		<!-- The AI will never vote for others (EXCEPT their team leader) as host of the World Congress -->
+		<Row Class="5" Name="LEAGUEAI_NO_OTHER_HOST_VOTES" Value="0"/>
+
+		<!-- The AI will never vote for others (EXCEPT their team leader) for World Leader / Global Hegemony -->
+		<Row Class="6" Name="LEAGUEAI_NO_OTHER_WORLD_LEADER_VOTES" Value="0"/>
 
 
 		<!-- ********************************************************** -->

@@ -48,7 +48,10 @@
 // Allows Steam achievements to be obtained in single player games despite the game being modded
 #define MOD_ENABLE_ACHIEVEMENTS										gCustomMods.isENABLE_ACHIEVEMENTS()
 
-// Enables debugging functionality, but slows performance; this should only be enabled if you are debugging the gamecore
+// Enables the Diplomacy AI Debug Mode: always reveals true opinion/approach/congress voting info for AI players, and also provides extra information about key players
+#define MOD_DIPLO_DEBUG_MODE										gCustomMods.isDIPLO_DEBUG_MODE()
+
+// Enables additional gamecore debugging functionality, but slows performance
 #define MOD_CORE_DEBUGGING											gCustomMods.isCORE_DEBUGGING()
 
 // Enables Squads for VP support
@@ -120,6 +123,20 @@
 // Many more are integrated with no option to disable them
 // Sorting order: category names by alphabetical order and options within a category by most to least impactful
 /////////////////////////////////////////
+
+// Humans can trade temporary items (gold per turn, resources, etcetera) for permanent items (lump sum gold, cities, etcetera) with AI players
+#define MOD_DEALAI_HUMAN_PERMANENT_FOR_AI_TEMPORARY					gCustomMods.isDEALAI_HUMAN_PERMANENT_FOR_AI_TEMPORARY()
+
+// Outside of peace deals or teammates, prohibits all AI players from buying cities that the seller originally founded
+#define MOD_DEALAI_NO_PEACETIME_SELLING_FOUNDED_CITIES				gCustomMods.isDEALAI_NO_PEACETIME_SELLING_FOUNDED_CITIES()
+
+// Gandhis who have nukes or have nuked someone and aren't vassals will do what they're best known for in the Civilization series ;)
+#define MOD_DIPLOAI_ENABLE_NUCLEAR_GANDHI							gCustomMods.isDIPLOAI_ENABLE_NUCLEAR_GANDHI()
+
+// AI civilizations are unable to fake having no disputes by displaying false modifiers in the opinion table (i.e. no contested borders, no competition with City-States, etc.)
+// Does not prevent the AI from concealing their true Approach (i.e. pretending to be FRIENDLY or displaying "They desire friendly relations with our empire")
+// NOTE: If AI is blocked from hiding opinion modifiers, e.g., through Transparent Diplomacy, they will already be blocked from faking them
+#define MOD_DIPLOAI_HONEST_OPINION_MODIFIERS						(gCustomMods.isDIPLOAI_HONEST_OPINION_MODIFIERS() || gCustomMods.isDIPLOAI_SHOW_HIDDEN_OPINION_MODIFIERS() || gCustomMods.isDIPLO_DEBUG_MODE())
 
 
 /////////////////////////////////////////
@@ -503,6 +520,64 @@
 
 // Danger plot valuation: ignore ZOC only for those units which are likely to be killed by the enemy (alternatively ignore ZOC for all owned units)
 #define MOD_COMBATAI_TWO_PASS_DANGER								gCustomMods.isCOMBATAI_TWO_PASS_DANGER()
+
+// Prevents the AI from trading Cities, including in peace deals
+#define MOD_DEALAI_DISABLE_CITY_TRADES								gCustomMods.isDEALAI_DISABLE_CITY_TRADES()
+
+// Prevents the AI from trading Third Party War
+#define MOD_DEALAI_DISABLE_WAR_BRIBES								gCustomMods.isDEALAI_DISABLE_WAR_BRIBES()
+
+// Removes all restrictions on trading temporary items for permanent items; this is abusable by humans if enabled
+#define MOD_DEALAI_GLOBAL_PERMANENT_FOR_TEMPORARY					gCustomMods.isDEALAI_GLOBAL_PERMANENT_FOR_TEMPORARY()
+
+// Greatly increases the AI's aggression
+#define MOD_DIPLOAI_AGGRESSIVE_MODE									gCustomMods.isDIPLOAI_AGGRESSIVE_MODE()
+
+// Disables Aggressive Mode being automatically enabled (setting 2) if only Domination and/or Time Victories are enabled
+#define MOD_DIPLOAI_DISABLE_DOMINATION_ONLY_AGGRESSION				gCustomMods.isDIPLOAI_DISABLE_DOMINATION_ONLY_AGGRESSION()
+
+// No AI opinion modifiers or values will appear in the table, except a short message explaining their visible approach
+#define MOD_DIPLOAI_HIDE_OPINION_TABLE								(!MOD_DIPLO_DEBUG_MODE && gCustomMods.isDIPLOAI_HIDE_OPINION_TABLE())
+
+// If enabled, limits how much randomness is allowed when selecting default Primary and Secondary Victory Pursuits
+#define MOD_DIPLOAI_LIMIT_VICTORY_PURSUIT_RANDOMIZATION				gCustomMods.isDIPLOAI_LIMIT_VICTORY_PURSUIT_RANDOMIZATION()
+
+// Diplomacy flavors for AI players will always be set to their database value, clamped between 1 and 10
+#define MOD_DIPLOAI_NO_FLAVOR_RANDOMIZATION							gCustomMods.isDIPLOAI_NO_FLAVOR_RANDOMIZATION()
+
+// Prevents the AI from declaring war
+#define MOD_DIPLOAI_PASSIVE_MODE									gCustomMods.isDIPLOAI_PASSIVE_MODE()
+
+// Shows the number value of opinion modifiers, but doesn't show hidden modifiers
+// Also shows LeagueAI scoring for World Congress proposals
+#define MOD_DIPLOAI_SHOW_ALL_OPINION_VALUES							(MOD_DIPLO_DEBUG_MODE || (!MOD_DIPLOAI_HIDE_OPINION_TABLE && gCustomMods.isDIPLOAI_SHOW_ALL_OPINION_VALUES()))
+
+// Include HandicapInfos.HumanOpinionChange in the opinion modifier table
+#define MOD_DIPLOAI_SHOW_BASE_HUMAN_OPINION							(MOD_DIPLO_DEBUG_MODE || (!MOD_DIPLOAI_HIDE_OPINION_TABLE && gCustomMods.isDIPLOAI_SHOW_BASE_HUMAN_OPINION()))
+
+// Shows all hidden opinion modifiers (except HandicapInfos.HumanOpinionChange), but not the number value
+#define MOD_DIPLOAI_SHOW_HIDDEN_OPINION_MODIFIERS					(MOD_DIPLO_DEBUG_MODE || (!MOD_DIPLOAI_HIDE_OPINION_TABLE && gCustomMods.isDIPLOAI_SHOW_HIDDEN_OPINION_MODIFIERS()))
+
+// AI civilizations will not send some messages to human players
+// DIPLOAI_SHUT_UP is a global toggle; the options below it selectively disable certain types of messages
+#define MOD_DIPLOAI_SHUT_UP											gCustomMods.isDIPLOAI_SHUT_UP()
+#define MOD_DIPLOAI_SHUT_UP_COMPLIMENTS								(MOD_DIPLOAI_SHUT_UP || gCustomMods.isDIPLOAI_SHUT_UP_COMPLIMENTS())
+#define MOD_DIPLOAI_SHUT_UP_COOP_WAR_OFFERS							(MOD_DIPLOAI_SHUT_UP || gCustomMods.isDIPLOAI_SHUT_UP_COOP_WAR_OFFERS())
+#define MOD_DIPLOAI_SHUT_UP_DEMANDS									(MOD_DIPLOAI_SHUT_UP || gCustomMods.isDIPLOAI_SHUT_UP_DEMANDS())
+#define MOD_DIPLOAI_SHUT_UP_FRIENDSHIP_OFFERS						(MOD_DIPLOAI_SHUT_UP || gCustomMods.isDIPLOAI_SHUT_UP_FRIENDSHIP_OFFERS())
+#define MOD_DIPLOAI_SHUT_UP_GIFT_OFFERS								(MOD_DIPLOAI_SHUT_UP || gCustomMods.isDIPLOAI_SHUT_UP_GIFT_OFFERS())
+#define MOD_DIPLOAI_SHUT_UP_HELP_REQUESTS							(MOD_DIPLOAI_SHUT_UP || gCustomMods.isDIPLOAI_SHUT_UP_HELP_REQUESTS())
+#define MOD_DIPLOAI_SHUT_UP_INDEPENDENCE_REQUESTS					(MOD_DIPLOAI_SHUT_UP || gCustomMods.isDIPLOAI_SHUT_UP_INDEPENDENCE_REQUESTS())
+#define MOD_DIPLOAI_SHUT_UP_INSULTS									(MOD_DIPLOAI_SHUT_UP || gCustomMods.isDIPLOAI_SHUT_UP_INSULTS())
+#define MOD_DIPLOAI_SHUT_UP_PEACE_OFFERS							(MOD_DIPLOAI_SHUT_UP || gCustomMods.isDIPLOAI_SHUT_UP_PEACE_OFFERS())
+#define MOD_DIPLOAI_SHUT_UP_TRADE_OFFERS							(MOD_DIPLOAI_SHUT_UP || gCustomMods.isDIPLOAI_SHUT_UP_TRADE_OFFERS())
+#define MOD_DIPLOAI_SHUT_UP_TRADE_RENEWALS							(MOD_DIPLOAI_SHUT_UP || gCustomMods.isDIPLOAI_SHUT_UP_TRADE_RENEWALS())
+
+// The AI will never vote for others (EXCEPT their team leader) as host of the World Congress
+#define MOD_LEAGUEAI_NO_OTHER_HOST_VOTES							gCustomMods.isLEAGUEAI_NO_OTHER_HOST_VOTES()
+
+// The AI will never vote for others (EXCEPT their team leader) for World Leader / Global Hegemony
+#define MOD_LEAGUEAI_NO_OTHER_WORLD_LEADER_VOTES					gCustomMods.isLEAGUEAI_NO_OTHER_WORLD_LEADER_VOTES()
 
 
 /////////////////////////////////////////
@@ -1412,6 +1487,7 @@ public:
 	MOD_OPT_DECL(ACTIVE_DIPLOMACY);
 	MOD_OPT_DECL(BIN_HOOKS);
 	MOD_OPT_DECL(ENABLE_ACHIEVEMENTS);
+	MOD_OPT_DECL(DIPLO_DEBUG_MODE);
 	MOD_OPT_DECL(CORE_DEBUGGING);
 	MOD_OPT_DECL(SQUADS);
 
@@ -1433,6 +1509,10 @@ public:
 	MOD_OPT_DECL(COREUI_DIPLOMACY_ERA_INFLUENCE);
 
 	// Core AI Changes
+	MOD_OPT_DECL(DEALAI_HUMAN_PERMANENT_FOR_AI_TEMPORARY);
+	MOD_OPT_DECL(DEALAI_NO_PEACETIME_SELLING_FOUNDED_CITIES);
+	MOD_OPT_DECL(DIPLOAI_ENABLE_NUCLEAR_GANDHI);
+	MOD_OPT_DECL(DIPLOAI_HONEST_OPINION_MODIFIERS);
 
 	// Core Pick'N'Mix Mods
 	MOD_OPT_DECL(GLOBAL_TRULY_FREE_GP);
@@ -1568,6 +1648,32 @@ public:
 	MOD_OPT_DECL(HUMAN_USES_AI_HANDICAP);
 	MOD_OPT_DECL(HUMAN_USES_AI_MECHANICS);
 	MOD_OPT_DECL(COMBATAI_TWO_PASS_DANGER);
+	MOD_OPT_DECL(DEALAI_DISABLE_CITY_TRADES);
+	MOD_OPT_DECL(DEALAI_DISABLE_WAR_BRIBES);
+	MOD_OPT_DECL(DEALAI_GLOBAL_PERMANENT_FOR_TEMPORARY);
+	MOD_OPT_DECL(DIPLOAI_AGGRESSIVE_MODE);
+	MOD_OPT_DECL(DIPLOAI_DISABLE_DOMINATION_ONLY_AGGRESSION);
+	MOD_OPT_DECL(DIPLOAI_HIDE_OPINION_TABLE);
+	MOD_OPT_DECL(DIPLOAI_LIMIT_VICTORY_PURSUIT_RANDOMIZATION);
+	MOD_OPT_DECL(DIPLOAI_NO_FLAVOR_RANDOMIZATION);
+	MOD_OPT_DECL(DIPLOAI_PASSIVE_MODE);
+	MOD_OPT_DECL(DIPLOAI_SHOW_ALL_OPINION_VALUES);
+	MOD_OPT_DECL(DIPLOAI_SHOW_BASE_HUMAN_OPINION);
+	MOD_OPT_DECL(DIPLOAI_SHOW_HIDDEN_OPINION_MODIFIERS);
+	MOD_OPT_DECL(DIPLOAI_SHUT_UP);
+	MOD_OPT_DECL(DIPLOAI_SHUT_UP_COMPLIMENTS);
+	MOD_OPT_DECL(DIPLOAI_SHUT_UP_COOP_WAR_OFFERS);
+	MOD_OPT_DECL(DIPLOAI_SHUT_UP_DEMANDS);
+	MOD_OPT_DECL(DIPLOAI_SHUT_UP_FRIENDSHIP_OFFERS);
+	MOD_OPT_DECL(DIPLOAI_SHUT_UP_GIFT_OFFERS);
+	MOD_OPT_DECL(DIPLOAI_SHUT_UP_HELP_REQUESTS);
+	MOD_OPT_DECL(DIPLOAI_SHUT_UP_INDEPENDENCE_REQUESTS);
+	MOD_OPT_DECL(DIPLOAI_SHUT_UP_INSULTS);
+	MOD_OPT_DECL(DIPLOAI_SHUT_UP_PEACE_OFFERS);
+	MOD_OPT_DECL(DIPLOAI_SHUT_UP_TRADE_OFFERS);
+	MOD_OPT_DECL(DIPLOAI_SHUT_UP_TRADE_RENEWALS);
+	MOD_OPT_DECL(LEAGUEAI_NO_OTHER_HOST_VOTES);
+	MOD_OPT_DECL(LEAGUEAI_NO_OTHER_WORLD_LEADER_VOTES);
 
 	// API Extensions
 	MOD_OPT_DECL(API_AREA_EFFECT_PROMOTIONS);

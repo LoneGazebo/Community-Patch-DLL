@@ -1844,16 +1844,31 @@ vector<PlayerTypes> CvDiplomacyAI::GetWarAllies(PlayerTypes eOtherPlayer, bool b
 	return result;
 }
 
-// Determine if we are Nuclear Gandhi :)
+/// Determine if we are Nuclear Gandhi :)
 bool CvDiplomacyAI::IsNuclearGandhi(bool bPotentially) const
 {
 	// Nuclear Gandhi must be enabled
-	if (GetPlayer()->isHuman(ISHUMAN_AI_DIPLOMACY) || !GC.getGame().IsNuclearGandhiEnabled())
+	if (!MOD_DIPLOAI_ENABLE_NUCLEAR_GANDHI || GetPlayer()->isHuman(ISHUMAN_AI_DIPLOMACY) || GC.getGame().isNoNukes())
 		return false;
 
+	bool bGandhiPersonality = false;
+	if (GC.getGame().isOption(GAMEOPTION_RANDOM_PERSONALITIES))
+	{
+		int iRandomnessSetting = gCustomMods.getOption("DIPLOAI_NUCLEAR_GANDHI_RANDOM_PERSONALITIES_SETTING", 1);
+		if (iRandomnessSetting == 1) // Don't proceed if Random Personalities is enabled
+			return false;
+
+		if (iRandomnessSetting == 3) // Check if Gandhi was selected as the Random Personality instead of checking Leaders.Type
+		{
+			if (GetPlayer()->getPersonalityType() == (LeaderHeadTypes)GD_INT_GET(GANDHI_LEADER))
+				bGandhiPersonality = true;
+			else
+				return false;
+		}
+	}
+
 	// Must be Gandhi
-	CvString szLeaderName = (CvString)GetPlayer()->getLeaderTypeKey();
-	if (szLeaderName != "LEADER_GANDHI")
+	if (!bGandhiPersonality && GetPlayer()->getLeaderType() != (LeaderHeadTypes)GD_INT_GET(GANDHI_LEADER))
 		return false;
 
 	if (bPotentially)
@@ -1881,6 +1896,17 @@ bool CvDiplomacyAI::IsNuclearGandhi(bool bPotentially) const
 	return bNukeHappy;
 }
 
+/// Is the AI forced to accept all Discuss menu requests from human players?
+bool CvDiplomacyAI::IsAIMustAcceptHumanDiscussRequests() const
+{
+	if (MOD_DIPLO_DEBUG_MODE)
+	{
+		int iSetting = gCustomMods.getOption("DIPLO_DEBUG_MODE_SETTING", 1);
+		return iSetting == 2;
+	}
+	return false;
+}
+
 
 // ************************************
 // Personality Values
@@ -1892,7 +1918,7 @@ int CvDiplomacyAI::RandomizePersonalityFlavor(int iOriginalValue, const CvSeeder
 	int iPlusMinus = range(/*2*/ GD_INT_GET(FLAVOR_RANDOMIZATION_RANGE), 0, (INT_MAX - 1) / 2);
 
 	// Diplo AI Option: Disable this randomization!
-	if (iPlusMinus == 0 || GD_INT_GET(DIPLOAI_NO_FLAVOR_RANDOMIZATION) > 0)
+	if (iPlusMinus == 0 || MOD_DIPLOAI_NO_FLAVOR_RANDOMIZATION)
 		return range(iOriginalValue, 1, 10);
 
 	// Randomize!
@@ -2069,7 +2095,9 @@ void CvDiplomacyAI::SelectDefaultVictoryPursuits()
 	// Civs are given AI victory pursuit hints/biases in the Leaders table, so retrieve those now
 	VictoryPursuitTypes ePrimaryVictory = NO_VICTORY_PURSUIT;
 	VictoryPursuitTypes eSecondaryVictory = NO_VICTORY_PURSUIT;
-	LeaderHeadTypes leader = iNumValidOptions > 2 ? GetPlayer()->getPersonalityType() : GetPlayer()->getLeaderType(); // ignore Random Personalities when retrieving victory pursuit hints for highly specialized scenarios
+
+	// Ignore Random Personalities when the DiploAI option is active or when retrieving hints for highly specialized scenarios
+	LeaderHeadTypes leader = (iNumValidOptions > 2 && !MOD_DIPLOAI_LIMIT_VICTORY_PURSUIT_RANDOMIZATION) ? GetPlayer()->getPersonalityType() : GetPlayer()->getLeaderType();
 	if (leader != NO_LEADER)
 	{
 		CvLeaderHeadInfo* pkLeaderHeadInfo = GC.getLeaderHeadInfo(leader);
@@ -2485,7 +2513,7 @@ void CvDiplomacyAI::SelectDefaultVictoryPursuits()
 	}
 
 	// Override from game options? Only apply if valid.
-	if (GC.getGame().IsNoPrimaryVictoryPursuitRandomization())
+	if (MOD_DIPLOAI_LIMIT_VICTORY_PURSUIT_RANDOMIZATION)
 	{
 		bool bValid = false;
 		switch (ePrimaryVictory)
@@ -2521,7 +2549,7 @@ void CvDiplomacyAI::SelectDefaultVictoryPursuits()
 		eCandidate = eSecondaryVictory;
 	}
 	// Case 2: "No Secondary Victory Pursuit Randomization" is enabled. Don't pick anything.
-	else if (GC.getGame().IsNoSecondaryVictoryPursuitRandomization())
+	else if (MOD_DIPLOAI_LIMIT_VICTORY_PURSUIT_RANDOMIZATION && gCustomMods.getOption("DIPLOAI_LIMIT_VICTORY_PURSUIT_SETTING", 1) == 2)
 	{
 		SetSecondaryVictoryPursuit(NO_VICTORY_PURSUIT);
 		return;
@@ -2791,33 +2819,37 @@ VictoryPursuitTypes CvDiplomacyAI::GetEternalVictoryPursuit() const
 		if (pkLeaderHeadInfo)
 		{
 			// General override active for all leaders?
-			if (GD_INT_GET(DIPLOAI_LIMIT_VICTORY_PURSUIT_RANDOMIZATION) > 2)
+			if (MOD_DIPLOAI_LIMIT_VICTORY_PURSUIT_RANDOMIZATION)
 			{
-				VictoryPursuitTypes ePrimaryVictory = pkLeaderHeadInfo->GetPrimaryVictoryPursuit();
-				VictoryPursuitTypes eSecondaryVictory = pkLeaderHeadInfo->GetSecondaryVictoryPursuit();
-				if (ePrimaryVictory == VICTORY_PURSUIT_DOMINATION && bDominationVictoryEnabled)
-					return VICTORY_PURSUIT_DOMINATION;
+				int iLimitSetting = gCustomMods.getOption("DIPLOAI_LIMIT_VICTORY_PURSUIT_SETTING", 1);
+				if (iLimitSetting == 3)
+				{
+					VictoryPursuitTypes ePrimaryVictory = pkLeaderHeadInfo->GetPrimaryVictoryPursuit();
+					VictoryPursuitTypes eSecondaryVictory = pkLeaderHeadInfo->GetSecondaryVictoryPursuit();
+					if (ePrimaryVictory == VICTORY_PURSUIT_DOMINATION && bDominationVictoryEnabled)
+						return VICTORY_PURSUIT_DOMINATION;
 
-				if (ePrimaryVictory == VICTORY_PURSUIT_DIPLOMACY && bDiploVictoryEnabled)
-					return VICTORY_PURSUIT_DIPLOMACY;
+					if (ePrimaryVictory == VICTORY_PURSUIT_DIPLOMACY && bDiploVictoryEnabled)
+						return VICTORY_PURSUIT_DIPLOMACY;
 
-				if (ePrimaryVictory == VICTORY_PURSUIT_CULTURE && bCultureVictoryEnabled)
-					return VICTORY_PURSUIT_CULTURE;
+					if (ePrimaryVictory == VICTORY_PURSUIT_CULTURE && bCultureVictoryEnabled)
+						return VICTORY_PURSUIT_CULTURE;
 
-				if (ePrimaryVictory == VICTORY_PURSUIT_SCIENCE && bScienceVictoryEnabled)
-					return VICTORY_PURSUIT_SCIENCE;
+					if (ePrimaryVictory == VICTORY_PURSUIT_SCIENCE && bScienceVictoryEnabled)
+						return VICTORY_PURSUIT_SCIENCE;
 
-				if (eSecondaryVictory == VICTORY_PURSUIT_DOMINATION && bDominationVictoryEnabled)
-					return VICTORY_PURSUIT_DOMINATION;
+					if (eSecondaryVictory == VICTORY_PURSUIT_DOMINATION && bDominationVictoryEnabled)
+						return VICTORY_PURSUIT_DOMINATION;
 
-				if (eSecondaryVictory == VICTORY_PURSUIT_DIPLOMACY && bDiploVictoryEnabled)
-					return VICTORY_PURSUIT_DIPLOMACY;
+					if (eSecondaryVictory == VICTORY_PURSUIT_DIPLOMACY && bDiploVictoryEnabled)
+						return VICTORY_PURSUIT_DIPLOMACY;
 
-				if (eSecondaryVictory == VICTORY_PURSUIT_CULTURE && bCultureVictoryEnabled)
-					return VICTORY_PURSUIT_CULTURE;
+					if (eSecondaryVictory == VICTORY_PURSUIT_CULTURE && bCultureVictoryEnabled)
+						return VICTORY_PURSUIT_CULTURE;
 
-				if (eSecondaryVictory == VICTORY_PURSUIT_SCIENCE && bScienceVictoryEnabled)
-					return VICTORY_PURSUIT_SCIENCE;
+					if (eSecondaryVictory == VICTORY_PURSUIT_SCIENCE && bScienceVictoryEnabled)
+						return VICTORY_PURSUIT_SCIENCE;
+				}
 			}
 
 			// Individual override active for this leader?
@@ -7343,7 +7375,7 @@ void CvDiplomacyAI::ChangeNumCiviliansReturnedToMe(PlayerTypes ePlayer, int iCha
 
 	if (iChange > 0)
 	{
-		if (!GC.getGame().IsComplimentMessagesDisabled() && !GC.getGame().IsAllDiploStatementsDisabled())
+		if (!MOD_DIPLOAI_SHUT_UP && !MOD_DIPLOAI_SHUT_UP_COMPLIMENTS)
 		{
 			if (GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
 			{
@@ -27684,7 +27716,7 @@ bool CvDiplomacyAI::IsValidDemandTarget(PlayerTypes ePlayer, int& iDemandValueSc
 		return false;
 
 	// Have to be able to contact this player
-	if (GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY) && (GC.getGame().IsDemandsDisabled() || GC.getGame().IsAllDiploStatementsDisabled() || GC.getGame().isReallyNetworkMultiPlayer()))
+	if (GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY) && (MOD_DIPLOAI_SHUT_UP || MOD_DIPLOAI_SHUT_UP_DEMANDS || GC.getGame().isReallyNetworkMultiPlayer()))
 		return false;
 
 	// Too friendly with them?
@@ -28002,7 +28034,7 @@ bool CvDiplomacyAI::DeclareWar(PlayerTypes ePlayer)
 		m_pPlayer->GetCitySpecializationAI()->SetSpecializationsDirty(SPECIALIZATION_UPDATE_NOW_AT_WAR);
 
 		// Show scene to human
-		if (!GC.getGame().IsAllDiploStatementsDisabled())
+		if (!MOD_DIPLOAI_SHUT_UP)
 		{
 			if (GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
 			{
@@ -29264,7 +29296,7 @@ bool CvDiplomacyAI::IsMinorCivTroublemaker(PlayerTypes ePlayer, bool bIgnoreBull
 bool CvDiplomacyAI::ShouldHideDisputeMods(PlayerTypes ePlayer) const
 {
 	// Game options forbid hiding.
-	if (GC.getGame().IsShowHiddenOpinionModifiers())
+	if (MOD_DIPLOAI_SHOW_HIDDEN_OPINION_MODIFIERS || GC.getGame().isOption(GAMEOPTION_TRANSPARENT_DIPLOMACY))
 		return false;
 
 	// If we're at war, don't bother.
@@ -29302,7 +29334,7 @@ bool CvDiplomacyAI::ShouldHideDisputeMods(PlayerTypes ePlayer) const
 bool CvDiplomacyAI::ShouldHideNegativeMods(PlayerTypes ePlayer) const
 {
 	// Game options forbid hiding.
-	if (GC.getGame().IsShowHiddenOpinionModifiers())
+	if (MOD_DIPLOAI_SHOW_HIDDEN_OPINION_MODIFIERS || GC.getGame().isOption(GAMEOPTION_TRANSPARENT_DIPLOMACY))
 		return false;
 
 	// If we're at war, don't bother.
@@ -31932,7 +31964,7 @@ void CvDiplomacyAI::DoContactPlayer(PlayerTypes ePlayer)
 		return;		// Can't contact this player at the moment.
 
 	// Can't contact this player because of game options
-	if (GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY) && GC.getGame().IsAllDiploStatementsDisabled())
+	if (MOD_DIPLOAI_SHUT_UP && GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
 		return;
 
 	DiploStatementTypes eStatement = NO_DIPLO_STATEMENT_TYPE;
@@ -33312,10 +33344,7 @@ void CvDiplomacyAI::DoCoopWarStatement(PlayerTypes ePlayer, DiploStatementTypes&
 	PRECONDITION(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
 	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
-	if (GC.getGame().IsCoopWarRequestsDisabled())
-		return;
-
-	if (GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY) && GC.getGame().IsCoopWarRequestsWithHumansDisabled())
+	if (MOD_DIPLOAI_SHUT_UP_COOP_WAR_OFFERS && GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
 		return;
 
 	// Don't start a war if our empire is in bad shape for it
@@ -33925,7 +33954,7 @@ void CvDiplomacyAI::DoDoFStatement(PlayerTypes ePlayer, DiploStatementTypes& eSt
 	PRECONDITION(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
 	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
-	if (GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY) && GC.getGame().IsFriendshipRequestsDisabled())
+	if (MOD_DIPLOAI_SHUT_UP_FRIENDSHIP_OFFERS && GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
 		return;
 
 	if (eStatement == NO_DIPLO_STATEMENT_TYPE)
@@ -34080,7 +34109,7 @@ void CvDiplomacyAI::DoLuxuryTrade(PlayerTypes ePlayer, DiploStatementTypes& eSta
 	if (IsAvoidDeals())
 		return;
 
-	if (GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY) && GC.getGame().IsTradeOffersDisabled())
+	if (MOD_DIPLOAI_SHUT_UP_TRADE_OFFERS && GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
 		return;
 
 	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
@@ -34110,7 +34139,7 @@ void CvDiplomacyAI::DoEmbassyExchange(PlayerTypes ePlayer, DiploStatementTypes& 
 	if (IsAvoidDeals())
 		return;
 
-	if (GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY) && GC.getGame().IsTradeOffersDisabled())
+	if (MOD_DIPLOAI_SHUT_UP_TRADE_OFFERS && GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
 		return;
 
 	if (GetPlayer()->IsAITeammateOfHuman())
@@ -34179,7 +34208,7 @@ void CvDiplomacyAI::DoEmbassyOffer(PlayerTypes ePlayer, DiploStatementTypes& eSt
 	if (IsAvoidDeals())
 		return;
 
-	if (GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY) && GC.getGame().IsTradeOffersDisabled())
+	if (MOD_DIPLOAI_SHUT_UP_TRADE_OFFERS && GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
 		return;
 
 	if (GetPlayer()->IsAITeammateOfHuman())
@@ -34217,7 +34246,7 @@ void CvDiplomacyAI::DoOpenBordersExchange(PlayerTypes ePlayer, DiploStatementTyp
 	if (IsAvoidDeals())
 		return;
 
-	if (GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY) && GC.getGame().IsTradeOffersDisabled())
+	if (MOD_DIPLOAI_SHUT_UP_TRADE_OFFERS && GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
 		return;
 
 	if (GetPlayer()->IsAITeammateOfHuman())
@@ -34270,7 +34299,7 @@ void CvDiplomacyAI::DoOpenBordersOffer(PlayerTypes ePlayer, DiploStatementTypes&
 	if (IsAvoidDeals())
 		return;
 
-	if (GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY) && GC.getGame().IsTradeOffersDisabled())
+	if (MOD_DIPLOAI_SHUT_UP_TRADE_OFFERS && GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
 		return;
 
 	if (GetPlayer()->IsAITeammateOfHuman())
@@ -34308,7 +34337,7 @@ void CvDiplomacyAI::DoResearchAgreementOffer(PlayerTypes ePlayer, DiploStatement
 	if (IsAvoidDeals())
 		return;
 
-	if (GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY) && GC.getGame().IsTradeOffersDisabled())
+	if (MOD_DIPLOAI_SHUT_UP_TRADE_OFFERS && GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
 		return;
 
 	if (GetPlayer()->IsAITeammateOfHuman())
@@ -34345,7 +34374,7 @@ void CvDiplomacyAI::DoStrategicTrade(PlayerTypes ePlayer, DiploStatementTypes& e
 	if (IsAvoidDeals())
 		return;
 
-	if (GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY) && GC.getGame().IsTradeOffersDisabled())
+	if (MOD_DIPLOAI_SHUT_UP_TRADE_OFFERS && GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
 		return;
 
 	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
@@ -34375,7 +34404,7 @@ void CvDiplomacyAI::DoDefensivePactOffer(PlayerTypes ePlayer, DiploStatementType
 	if (IsAvoidDeals())
 		return;
 
-	if (GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY) && GC.getGame().IsTradeOffersDisabled())
+	if (MOD_DIPLOAI_SHUT_UP_TRADE_OFFERS && GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
 		return;
 
 	if (GetPlayer()->IsAITeammateOfHuman())
@@ -34408,7 +34437,7 @@ void CvDiplomacyAI::DoCityExchange(PlayerTypes ePlayer, DiploStatementTypes& eSt
 	PRECONDITION(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
 	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
-	if (GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY) && GC.getGame().IsTradeOffersDisabled())
+	if (MOD_DIPLOAI_SHUT_UP_TRADE_OFFERS && GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
 		return;
 
 	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
@@ -34435,7 +34464,7 @@ void CvDiplomacyAI::DoThirdPartyWarTrade(PlayerTypes ePlayer, DiploStatementType
 	PRECONDITION(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
 	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
-	if (GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY) && GC.getGame().IsTradeOffersDisabled())
+	if (MOD_DIPLOAI_SHUT_UP_TRADE_OFFERS && GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
 		return;
 
 	if (GetPlayer()->IsAITeammateOfHuman())
@@ -34464,7 +34493,7 @@ void CvDiplomacyAI::DoThirdPartyPeaceTrade(PlayerTypes ePlayer, DiploStatementTy
 	PRECONDITION(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
 	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
-	if (GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY) && GC.getGame().IsTradeOffersDisabled())
+	if (MOD_DIPLOAI_SHUT_UP_TRADE_OFFERS && GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
 		return;
 
 	if (GetPlayer()->IsAITeammateOfHuman())
@@ -34496,7 +34525,7 @@ void CvDiplomacyAI::DoVoteTrade(PlayerTypes ePlayer, DiploStatementTypes& eState
 	if (IsAvoidDeals())
 		return;
 
-	if (GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY) && GC.getGame().IsTradeOffersDisabled())
+	if (MOD_DIPLOAI_SHUT_UP_TRADE_OFFERS && GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
 		return;
 
 	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
@@ -34543,7 +34572,7 @@ CvDeal* CvDiplomacyAI::DoRenewExpiredDeal(PlayerTypes ePlayer, DiploStatementTyp
 		return NULL;
 	}
 
-	if (GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY) && GC.getGame().IsTradeOffersDisabled(true))
+	if (MOD_DIPLOAI_SHUT_UP_TRADE_RENEWALS && GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
 	{
 		CancelRenewDeal(ePlayer, REASON_HUMAN_REJECTION);
 		return NULL;
@@ -34625,7 +34654,7 @@ void CvDiplomacyAI::DoRequest(PlayerTypes ePlayer, DiploStatementTypes& eStateme
 	PRECONDITION(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
 	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
-	if (GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY) && GC.getGame().IsHelpRequestsDisabled())
+	if (MOD_DIPLOAI_SHUT_UP_HELP_REQUESTS && GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
 		return;
 
 	// If we just sent out a generous offer, don't ask for a request until some time has passed
@@ -34674,7 +34703,7 @@ void CvDiplomacyAI::DoGift(PlayerTypes ePlayer, DiploStatementTypes& eStatement,
 	if (IsAvoidDeals())
 		return;
 
-	if (GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY) && GC.getGame().IsGiftOffersDisabled())
+	if (MOD_DIPLOAI_SHUT_UP_GIFT_OFFERS && GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
 		return;
 
 	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
@@ -34715,7 +34744,7 @@ void CvDiplomacyAI::DoGift(PlayerTypes ePlayer, DiploStatementTypes& eStatement,
 //	ASSERT(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
 //	ASSERT(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 //
-//	if (GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY) && GC.getGame().IsInsultMessagesDisabled())
+//	if (MOD_DIPLOAI_SHUT_UP_INSULTS && GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
 //		return;
 //
 //	if (eStatement == NO_DIPLO_STATEMENT_TYPE)
@@ -34751,7 +34780,7 @@ void CvDiplomacyAI::DoGift(PlayerTypes ePlayer, DiploStatementTypes& eStatement,
 //	ASSERT(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
 //	ASSERT(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 //
-//	if (GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY) && GC.getGame().IsInsultMessagesDisabled())
+//	if (MOD_DIPLOAI_SHUT_UP_INSULTS && GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
 //		return;
 //
 //	if (eStatement == NO_DIPLO_STATEMENT_TYPE)
@@ -34794,7 +34823,7 @@ void CvDiplomacyAI::DoHostileStatement(PlayerTypes ePlayer, DiploStatementTypes&
 	if (WasResurrectedBy(ePlayer))
 		return;
 
-	if (GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY) && GC.getGame().IsInsultMessagesDisabled())
+	if (MOD_DIPLOAI_SHUT_UP_INSULTS && GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
 		return;
 
 	// We must be able to declare war on them
@@ -34833,7 +34862,7 @@ void CvDiplomacyAI::DoHostileStatement(PlayerTypes ePlayer, DiploStatementTypes&
 //	ASSERT(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
 //	ASSERT(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 //
-//	if (GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY) && GC.getGame().IsComplimentMessagesDisabled())
+//	if (MOD_DIPLOAI_SHUT_UP_COMPLIMENTS && GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
 //		return;
 //
 //	CivApproachTypes eApproach = GetCivApproach(ePlayer);
@@ -34859,7 +34888,7 @@ void CvDiplomacyAI::DoAfraidStatement(PlayerTypes ePlayer, DiploStatementTypes& 
 	PRECONDITION(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
 	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
-	if (GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY) && GC.getGame().IsComplimentMessagesDisabled())
+	if (MOD_DIPLOAI_SHUT_UP_COMPLIMENTS && GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
 		return;
 
 	CivApproachTypes eApproach = GetSurfaceApproach(ePlayer);
@@ -34886,7 +34915,7 @@ void CvDiplomacyAI::DoWarmongerStatement(PlayerTypes ePlayer, DiploStatementType
 	if (WasResurrectedBy(ePlayer))
 		return;
 
-	if (GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY) && GC.getGame().IsInsultMessagesDisabled())
+	if (MOD_DIPLOAI_SHUT_UP_INSULTS && GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
 		return;
 
 	// We must be able to declare war on them
@@ -34930,7 +34959,7 @@ void CvDiplomacyAI::DoMinorCivCompetitionStatement(PlayerTypes ePlayer, DiploSta
 	if (WasResurrectedBy(ePlayer))
 		return;
 
-	if (GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY) && GC.getGame().IsInsultMessagesDisabled())
+	if (MOD_DIPLOAI_SHUT_UP_INSULTS && GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
 		return;
 
 	// We must be able to declare war on them
@@ -35002,7 +35031,7 @@ void CvDiplomacyAI::DoAngryBefriendedEnemy(PlayerTypes ePlayer, DiploStatementTy
 	if (WasResurrectedBy(ePlayer))
 		return;
 
-	if (GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY) && GC.getGame().IsInsultMessagesDisabled())
+	if (MOD_DIPLOAI_SHUT_UP_INSULTS && GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
 		return;
 
 	// We must be able to declare war on them
@@ -35079,7 +35108,7 @@ void CvDiplomacyAI::DoAngryDenouncedFriend(PlayerTypes ePlayer, DiploStatementTy
 	if (WasResurrectedBy(ePlayer))
 		return;
 
-	if (GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY) && GC.getGame().IsInsultMessagesDisabled())
+	if (MOD_DIPLOAI_SHUT_UP_INSULTS && GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
 		return;
 
 	// We must be able to declare war on them
@@ -35153,7 +35182,7 @@ void CvDiplomacyAI::DoHappyDenouncedEnemy(PlayerTypes ePlayer, DiploStatementTyp
 	PRECONDITION(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
 	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
-	if (GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY) && GC.getGame().IsComplimentMessagesDisabled())
+	if (MOD_DIPLOAI_SHUT_UP_COMPLIMENTS && GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
 		return;
 
 	// We denounced the leader we're talking to - no use talking at this point
@@ -35223,7 +35252,7 @@ void CvDiplomacyAI::DoHappyBefriendedFriend(PlayerTypes ePlayer, DiploStatementT
 	PRECONDITION(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
 	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
-	if (GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY) && GC.getGame().IsComplimentMessagesDisabled())
+	if (MOD_DIPLOAI_SHUT_UP_COMPLIMENTS && GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
 		return;
 
 	// We denounced the leader we're talking to - no use talking at this point
@@ -35293,7 +35322,7 @@ void CvDiplomacyAI::DoPeaceOffer(PlayerTypes ePlayer, DiploStatementTypes& eStat
 	PRECONDITION(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
 	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
-	if (GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY) && GC.getGame().IsPeaceOffersDisabled())
+	if (MOD_DIPLOAI_SHUT_UP_PEACE_OFFERS && GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
 		return;
 
 	if (!IsAtWar(ePlayer))
@@ -35348,7 +35377,7 @@ void CvDiplomacyAI::DoFYIBefriendedHumanEnemy(PlayerTypes ePlayer, DiploStatemen
 	if (WasResurrectedBy(ePlayer))
 		return;
 
-	if (GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY) && GC.getGame().IsInsultMessagesDisabled())
+	if (MOD_DIPLOAI_SHUT_UP_INSULTS && GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
 		return;
 
 	// We must be able to declare war on them
@@ -35438,7 +35467,7 @@ void CvDiplomacyAI::DoFYIDenouncedHumanFriend(PlayerTypes ePlayer, DiploStatemen
 	if (WasResurrectedBy(ePlayer))
 		return;
 
-	if (GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY) && GC.getGame().IsInsultMessagesDisabled())
+	if (MOD_DIPLOAI_SHUT_UP_INSULTS && GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
 		return;
 
 	// We must be able to declare war on them
@@ -35525,7 +35554,7 @@ void CvDiplomacyAI::DoFYIDenouncedHumanEnemy(PlayerTypes ePlayer, DiploStatement
 	PRECONDITION(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
 	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
-	if (GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY) && GC.getGame().IsComplimentMessagesDisabled())
+	if (MOD_DIPLOAI_SHUT_UP_COMPLIMENTS && GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
 		return;
 
 	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
@@ -35615,7 +35644,7 @@ void CvDiplomacyAI::DoFYIBefriendedHumanFriend(PlayerTypes ePlayer, DiploStateme
 	PRECONDITION(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
 	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
-	if (GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY) && GC.getGame().IsComplimentMessagesDisabled())
+	if (MOD_DIPLOAI_SHUT_UP_COMPLIMENTS && GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
 		return;
 
 	if (eStatement == NO_DIPLO_STATEMENT_TYPE)
@@ -35716,7 +35745,7 @@ void CvDiplomacyAI::DoHappySamePolicyTree(PlayerTypes ePlayer, DiploStatementTyp
 	PRECONDITION(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
 	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
-	if (GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY) && GC.getGame().IsComplimentMessagesDisabled())
+	if (MOD_DIPLOAI_SHUT_UP_COMPLIMENTS && GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
 		return;
 
 	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
@@ -35813,7 +35842,7 @@ void CvDiplomacyAI::DoIdeologicalStatement(PlayerTypes ePlayer, DiploStatementTy
 		}
 
 		// Everything below are "insult" type messages
-		if (kTheirPlayer.isHuman(ISHUMAN_AI_DIPLOMACY) && GC.getGame().IsInsultMessagesDisabled())
+		if (MOD_DIPLOAI_SHUT_UP_INSULTS && kTheirPlayer.isHuman(ISHUMAN_AI_DIPLOMACY))
 			return;
 
 		// We must be able to declare war on them
@@ -35926,7 +35955,7 @@ void CvDiplomacyAI::DoVictoryCompetitionStatement(PlayerTypes ePlayer, DiploStat
 	if (!IsCompetingForVictory())
 		return;
 
-	if (GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY) && GC.getGame().IsInsultMessagesDisabled())
+	if (MOD_DIPLOAI_SHUT_UP_INSULTS && GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
 		return;
 
 	// We must be able to declare war on them
@@ -36085,7 +36114,7 @@ void CvDiplomacyAI::DoVictoryBlockStatement(PlayerTypes ePlayer, DiploStatementT
 	if (!IsCompetingForVictory())
 		return;
 
-	if (GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY) && GC.getGame().IsInsultMessagesDisabled())
+	if (MOD_DIPLOAI_SHUT_UP_INSULTS && GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
 		return;
 
 	// We must be able to declare war on them
@@ -36163,7 +36192,7 @@ void CvDiplomacyAI::DoWeLikedTheirProposal(PlayerTypes ePlayer, DiploStatementTy
 	PRECONDITION(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
 	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
-	if (GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY) && GC.getGame().IsComplimentMessagesDisabled())
+	if (MOD_DIPLOAI_SHUT_UP_COMPLIMENTS && GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
 		return;
 
 	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
@@ -36212,7 +36241,7 @@ void CvDiplomacyAI::DoWeDislikedTheirProposal(PlayerTypes ePlayer, DiploStatemen
 	PRECONDITION(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
 	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
-	if (GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY) && GC.getGame().IsInsultMessagesDisabled())
+	if (MOD_DIPLOAI_SHUT_UP_INSULTS && GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
 		return;
 
 	// We must be able to declare war on them
@@ -36265,7 +36294,7 @@ void CvDiplomacyAI::DoTheySupportedOurProposal(PlayerTypes ePlayer, DiploStateme
 	PRECONDITION(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
 	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
-	if (GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY) && GC.getGame().IsComplimentMessagesDisabled())
+	if (MOD_DIPLOAI_SHUT_UP_COMPLIMENTS && GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
 		return;
 
 	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
@@ -36315,7 +36344,7 @@ void CvDiplomacyAI::DoTheyFoiledOurProposal(PlayerTypes ePlayer, DiploStatementT
 	PRECONDITION(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
 	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
-	if (GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY) && GC.getGame().IsInsultMessagesDisabled())
+	if (MOD_DIPLOAI_SHUT_UP_INSULTS && GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
 		return;
 
 	// We must be able to declare war on them
@@ -36369,7 +36398,7 @@ void CvDiplomacyAI::DoTheySupportedOurHosting(PlayerTypes ePlayer, DiploStatemen
 	PRECONDITION(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
 	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
-	if (GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY) && GC.getGame().IsComplimentMessagesDisabled())
+	if (MOD_DIPLOAI_SHUT_UP_COMPLIMENTS && GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
 		return;
 
 	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
@@ -38322,7 +38351,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		ASSERT(!IsDoFAccepted(eFromPlayer));
 
 		// AI hasn't known the human for long enough yet
-		if (IsTooEarlyForDoF(eFromPlayer) && !GC.getGame().IsAIMustAcceptHumanDiscussRequests())
+		if (IsTooEarlyForDoF(eFromPlayer) && !IsAIMustAcceptHumanDiscussRequests())
 		{
 			if (bActivePlayer)
 			{
@@ -38333,7 +38362,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		// AI gives a new answer
 		else
 		{
-			bool bAcceptable = IsDoFAcceptable(eFromPlayer) || GC.getGame().IsAIMustAcceptHumanDiscussRequests();
+			bool bAcceptable = IsDoFAcceptable(eFromPlayer) || IsAIMustAcceptHumanDiscussRequests();
 			if (bAcceptable)
 			{
 				SetDoFAccepted(eFromPlayer, true);
@@ -39875,7 +39904,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 					}
 				}
 			}
-			bool bOverride = IsAtWar(eTargetPlayer) || GC.getGame().IsDiploDebugModeEnabled() || GET_PLAYER(eFromPlayer).isObserver();
+			bool bOverride = IsAtWar(eTargetPlayer) || MOD_DIPLO_DEBUG_MODE || GET_PLAYER(eFromPlayer).isObserver();
 
 			// We refuse! Choose a hostile response.
 			if (bHostile && !bOverride)
@@ -42159,7 +42188,7 @@ CoopWarStates CvDiplomacyAI::RespondToCoopWarRequest(PlayerTypes eAskingPlayer, 
 	bool bGoodAttackTarget = GetPlayer()->GetMilitaryAI()->HavePreferredAttackTarget(eTargetPlayer);
 
 	// Teammates will always agree when a human asks
-	if (IsTeammate(eAskingPlayer) || GC.getGame().IsAIMustAcceptHumanDiscussRequests())
+	if (IsTeammate(eAskingPlayer) || IsAIMustAcceptHumanDiscussRequests())
 	{
 		if (bBold && bCloseToTarget && GetTargetValue(eTargetPlayer) >= TARGET_VALUE_FAVORABLE)
 		{
@@ -42362,7 +42391,7 @@ void CvDiplomacyAI::DoWarnCoopWarTarget(PlayerTypes eAskingPlayer, PlayerTypes e
 		// If human was target, send message
 		if (GET_PLAYER(eLoopPlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
 		{
-			if (GET_PLAYER(eLoopPlayer).getTeam() == eTargetTeam && !CvPreGame::isNetworkMultiplayerGame() && GC.getGame().getActivePlayer() == eLoopPlayer && !GC.getGame().IsAllDiploStatementsDisabled())
+			if (GET_PLAYER(eLoopPlayer).getTeam() == eTargetTeam && !CvPreGame::isNetworkMultiplayerGame() && GC.getGame().getActivePlayer() == eLoopPlayer && !MOD_DIPLOAI_SHUT_UP)
 			{
 				const char* szPlayerName = NULL;
 				if (GC.getGame().isGameMultiPlayer() && GET_PLAYER(eAskingPlayer).isHuman(ISHUMAN_UI))
@@ -42712,7 +42741,7 @@ void CvDiplomacyAI::DoDemandMade(PlayerTypes ePlayer, DemandResponseTypes eRespo
 bool CvDiplomacyAI::IsDontSettleAcceptable(PlayerTypes ePlayer)
 {
 	// Debug mode
-	if (GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY) && GC.getGame().IsAIMustAcceptHumanDiscussRequests())
+	if (GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY) && IsAIMustAcceptHumanDiscussRequests())
 		return true;
 
 	// Don't agree if AI has no cities, as AI will break the promise in order to settle their capital
@@ -42872,7 +42901,7 @@ bool CvDiplomacyAI::IsDontSettleAcceptable(PlayerTypes ePlayer)
 bool CvDiplomacyAI::IsStopSpyingAcceptable(PlayerTypes ePlayer)
 {
 	// Debug mode
-	if (GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY) && GC.getGame().IsAIMustAcceptHumanDiscussRequests())
+	if (GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY) && IsAIMustAcceptHumanDiscussRequests())
 		return true;
 	
 	// Always acceptable if they resurrected or liberated us
@@ -44579,7 +44608,7 @@ bool CvDiplomacyAI::IsFriendDenounceRefusalUnacceptable(PlayerTypes ePlayer, Pla
 bool CvDiplomacyAI::IsStopSpreadingReligionAcceptable(PlayerTypes ePlayer)
 {
 	// Debug mode
-	if (GET_PLAYER(ePlayer).isHuman(ISHUMAN_MECHANICS) && GC.getGame().IsAIMustAcceptHumanDiscussRequests())
+	if (GET_PLAYER(ePlayer).isHuman(ISHUMAN_MECHANICS) && IsAIMustAcceptHumanDiscussRequests())
 		return true;
 
 	// Always acceptable for teammates and vassals
@@ -44675,7 +44704,7 @@ bool CvDiplomacyAI::IsStopSpreadingReligionAcceptable(PlayerTypes ePlayer)
 bool CvDiplomacyAI::IsStopDiggingAcceptable(PlayerTypes ePlayer)
 {
 	// Debug mode
-	if (GET_PLAYER(ePlayer).isHuman(ISHUMAN_MECHANICS) && GC.getGame().IsAIMustAcceptHumanDiscussRequests())
+	if (GET_PLAYER(ePlayer).isHuman(ISHUMAN_MECHANICS) && IsAIMustAcceptHumanDiscussRequests())
 		return true;
 	
 	// Always acceptable if they resurrected or liberated us
@@ -54780,7 +54809,7 @@ void CvDiplomacyAI::DoMakeVassalageStatement(PlayerTypes ePlayer, DiploStatement
 	PRECONDITION(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
 	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
 
-	if (GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY) && GC.getGame().IsTradeOffersDisabled())
+	if (MOD_DIPLOAI_SHUT_UP_TRADE_OFFERS && GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
 		return;
 
 	// note: we check to see if it's possible in IsMakeOfferForVassalage()
@@ -54816,7 +54845,7 @@ void CvDiplomacyAI::DoBecomeVassalageStatement(PlayerTypes ePlayer, DiploStateme
 	if (IsAvoidDeals())
 		return;
 
-	if (GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY) && GC.getGame().IsTradeOffersDisabled())
+	if (MOD_DIPLOAI_SHUT_UP_TRADE_OFFERS && GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
 		return;
 
 	// note: we check to see if it's possible in IsMakeOfferForVassalage()
@@ -54997,7 +55026,7 @@ void CvDiplomacyAI::DetermineVassalToLiberate()
 			// If human, must be contactable
 			if (GET_PLAYER(eLoopPlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
 			{
-				if (GC.getGame().IsAllDiploStatementsDisabled())
+				if (MOD_DIPLOAI_SHUT_UP)
 					continue;
 
 				if (GC.getGame().isReallyNetworkMultiPlayer() && !MOD_ACTIVE_DIPLOMACY)
@@ -55475,10 +55504,6 @@ bool CvDiplomacyAI::IsVassalageAcceptable(PlayerTypes ePlayer, bool bMasterEvalu
 
 	// Shadow AI does not make decisions for human!
 	if (GetPlayer()->IsAITeammateOfHuman())
-		return false;
-
-	// No voluntary capitulation?
-	if (!IsAtWar(ePlayer) && GD_INT_GET(DIPLOAI_DISABLE_VOLUNTARY_VASSALAGE) > 0)
 		return false;
 
 	vector<PlayerTypes> vOurTeam = GET_TEAM(GetTeam()).getPlayers();
@@ -56801,7 +56826,7 @@ void CvDiplomacyAI::DoEndVassalageStatement(PlayerTypes ePlayer, DiploStatementT
 	if (GET_PLAYER(ePlayer).IsAITeammateOfHuman())
 		return;
 
-	if (GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY) && GC.getGame().IsIndependenceRequestsDisabled())
+	if (MOD_DIPLOAI_SHUT_UP_INDEPENDENCE_REQUESTS && GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
 		return;
 
 	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
@@ -57226,7 +57251,7 @@ bool CvDiplomacyAI::IsTechGenerousOffer(PlayerTypes ePlayer, CvDeal* pDeal)
 bool CvDiplomacyAI::IsShareOpinionAcceptable(PlayerTypes ePlayer)
 {
 	// Debug setting
-	if (GC.getGame().IsDiploDebugModeEnabled() && GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
+	if (MOD_DIPLO_DEBUG_MODE && GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
 		return true;
 	
 	CivApproachTypes eApproach = GetCivApproach(ePlayer);

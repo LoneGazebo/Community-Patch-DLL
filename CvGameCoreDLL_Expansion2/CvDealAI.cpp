@@ -4726,7 +4726,7 @@ void CvDealAI::DoAddItemsToThem(CvDeal* pDeal, PlayerTypes eOtherPlayer, int& iT
 	{
 		if (GET_PLAYER(eOtherPlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
 		{
-			if (!GC.getGame().IsHumanPermanentForAITemporaryTradingAllowed())
+			if (!MOD_DEALAI_HUMAN_PERMANENT_FOR_AI_TEMPORARY)
 				bBlockPermanentItems = true;
 			else if (!bWeAreOfferingPermanentItems)
 			{
@@ -4737,7 +4737,7 @@ void CvDealAI::DoAddItemsToThem(CvDeal* pDeal, PlayerTypes eOtherPlayer, int& iT
 			}
 		}
 		else
-			bBlockPermanentItems = !GC.getGame().IsPermanentForTemporaryTradingAllowed();
+			bBlockPermanentItems = !MOD_DEALAI_GLOBAL_PERMANENT_FOR_TEMPORARY;
 	}
 
 	// If this is a demand, can't ask for permanent items, so don't try
@@ -4818,7 +4818,7 @@ void CvDealAI::DoAddItemsToUs(CvDeal* pDeal, PlayerTypes eOtherPlayer, int& iTot
 	if (GetPlayer()->getTeam() != GET_PLAYER(eOtherPlayer).getTeam() && !GC.getGame().isOption(GAMEOPTION_ALWAYS_PEACE) && !GC.getGame().isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE))
 	{
 		if (bTheyAreOfferingTemporaryItems)
-			bBlockPermanentItems = !bHumanRequestedEqualization || !GC.getGame().IsPermanentForTemporaryTradingAllowed();
+			bBlockPermanentItems = !bHumanRequestedEqualization || !MOD_DEALAI_GLOBAL_PERMANENT_FOR_TEMPORARY;
 	}
 	// As a convenience to humans and teammates, let's prioritize giving permanent items (when requesting them) in a no-betrayal scenario
 	if (bTheyAreOfferingPermanentItems && !bTheyAreOfferingTemporaryItems)
