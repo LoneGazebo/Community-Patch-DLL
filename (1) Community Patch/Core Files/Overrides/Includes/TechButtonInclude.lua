@@ -168,6 +168,8 @@ function AddSmallButtonsToTechButton(buttonStack, kTechInfo, iButtonCount, iText
 			button:GetTextControl():SetOffsetY(iTextureSize / 3);
 			button:GetTextControl():SetAlpha(0.8);
 			button:SetText(strButtonText);
+		else
+			button:SetText("");
 		end
 		if bRClick then
 			button:RegisterCallback(Mouse.eRClick, GetTechPedia);
