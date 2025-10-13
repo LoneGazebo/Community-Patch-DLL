@@ -4636,6 +4636,10 @@ bool CvUnit::canEnterTerritory(TeamTypes eTeam, bool bEndTurn) const
 		if (AI_getUnitAIType() == UNITAI_EXPLORE)
 			return true;
 
+		// We may want to sell exotic goods to them
+		if (getNumExoticGoods() > 0)
+			return true;
+
 		// If we are friends etc we may go there
 		CvMinorCivAI* pMinorAI = GET_PLAYER(kTheirTeam.getLeaderID()).GetMinorCivAI();
 		if (pMinorAI->IsPlayerHasOpenBorders(getOwner()))
@@ -9578,7 +9582,7 @@ void CvUnit::changeNumExoticGoods(int iChange)
 }
 
 //	--------------------------------------------------------------------------------
-float CvUnit::calculateExoticGoodsDistanceFactor(const CvPlot* pPlot)
+float CvUnit::calculateExoticGoodsDistanceFactor(const CvPlot* pPlot) const
 {
 	float fDistanceFactor = 0.0f;
 
