@@ -3,7 +3,7 @@ UPDATE Leader_Flavors
 SET Flavor = 4
 WHERE LeaderType = 'LEADER_GANDHI'
 AND FlavorType IN ('FLAVOR_NUKE', 'FLAVOR_USE_NUKE')
-AND EXISTS (SELECT 1 FROM Defines WHERE Name = 'DIPLOAI_ENABLE_NUCLEAR_GANDHI' AND Value < 1);
+AND EXISTS (SELECT 1 FROM CustomModOptions WHERE Name = 'DIPLOAI_ENABLE_NUCLEAR_GANDHI' AND Value = 0);
 
 -- Replace leader flavors for Barbarians - many of them are zeroed out
 INSERT INTO Leader_Flavors

@@ -338,49 +338,15 @@ public:
 	int ComputeRatingStrengthAdjustment(PlayerTypes ePlayer, PlayerTypes ePerceivingPlayer) const;
 	int ComputeAverageMajorMilitaryRating(PlayerTypes ePerceivingPlayer, PlayerTypes eExcludedPlayer = NO_PLAYER) const;
 
-	// Diplomacy AI Options (all except the first two are configurable in DiploAIOptions.sql)
-	// Also consolidates some checks from various game options, for simplicity.
+	// Global Diplomacy AI Options
 	bool IsVictoryCompetitionEnabled() const;
 	bool IsEndgameAggressionEnabled() const;
-	bool IsNoPrimaryVictoryPursuitRandomization() const;
-	bool IsNoSecondaryVictoryPursuitRandomization() const;
-	bool IsNuclearGandhiEnabled() const;
-	bool IsAllWarBribesDisabled() const;
-	bool IsAIWarBribesDisabled() const;
-	bool IsAICityTradingHumanOnly() const;
-	bool IsAICityTradingDisabled() const;
-	bool IsAllCityTradingDisabled() const;
-	bool IsInsultMessagesDisabled() const; // Only affects AI messages sent to humans
-	bool IsComplimentMessagesDisabled() const; // Only affects AI messages sent to humans
-	bool IsNoFakeOpinionModifiers() const;
-	bool IsShowHiddenOpinionModifiers() const;
-	bool IsShowAllOpinionValues() const;
-	bool IsShowBaseHumanOpinion() const;
-
-	// Advanced Options
-	bool IsHideOpinionTable() const;
-	bool IsHumanPermanentForAITemporaryTradingAllowed() const;
-	bool IsPermanentForTemporaryTradingAllowed() const;
-	bool IsFriendshipRequestsDisabled() const; // Only affects AI messages sent to humans
-	bool IsGiftOffersDisabled() const; // Only affects AI messages sent to humans
-	bool IsCoopWarRequestsWithHumansDisabled() const; // Only affects AI messages sent to humans
-	bool IsCoopWarRequestsDisabled() const;
-	bool IsHelpRequestsDisabled() const; // Only affects AI messages sent to humans
-	bool IsTradeOffersDisabled(bool bIncludeRenewals = false) const; // Only affects AI messages sent to humans
-	bool IsPeaceOffersDisabled() const; // Only affects AI messages sent to humans
-	bool IsDemandsDisabled() const; // Only affects AI messages sent to humans
-	bool IsIndependenceRequestsDisabled() const; // Only affects AI messages sent to humans
-	bool IsAllDiploStatementsDisabled() const; // Only affects AI messages sent to humans
 	bool IsAIPassiveMode() const;
 	bool IsAIPassiveTowardsHumans() const;
 	bool CanPlayerAttemptDominationVictory(PlayerTypes ePlayer, PlayerTypes eMakePeacePlayer, bool bCheckEliminationPossible) const;
 	bool WouldMakingPeacePreventDominationVictory(PlayerTypes ePlayer, PlayerTypes eMakePeacePlayer) const;
 	bool IsAIAggressiveMode() const;
 	bool IsAIAggressiveTowardsHumans() const;
-
-	// Debug Mode Options
-	bool IsDiploDebugModeEnabled() const;
-	bool IsAIMustAcceptHumanDiscussRequests() const;
 
 	UnitTypes getBestLandUnit();
 	int getBestLandUnitCombat();

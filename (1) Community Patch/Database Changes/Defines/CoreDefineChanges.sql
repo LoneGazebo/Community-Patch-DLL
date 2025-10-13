@@ -35,6 +35,8 @@ VALUES
 -- Number of rings a new city starts with
 	('CITY_STARTING_RINGS', 1),
 	('MAXIMUM_WORK_PLOT_DISTANCE', 3),
+-- Minimum war score for third party peace requests
+	('THIRD_PARTY_PEACE_MIN_WAR_SCORE', 75),
 -- Minimum war duration for AI players
 	('WAR_MAJOR_MINIMUM_TURNS', 10),
 	('WAR_MINOR_MINIMUM_TURNS', 1),
@@ -1487,6 +1489,7 @@ VALUES
 	('PROMOTION_DEEPWATER_EMBARKATION', 'PROMOTION_DEEPWATER_EMBARKATION', 'UnitPromotions'),
 	('PROMOTION_DEFENSIVE_DEEPWATER_EMBARKATION', 'PROMOTION_DEFENSIVE_DEEPWATER_EMBARKATION', 'UnitPromotions'),
 	('PROMOTION_FLAGSHIP', 'PROMOTION_FLAGSHIP', 'UnitPromotions'),
+	('GANDHI_LEADER', 'LEADER_GANDHI', 'Leaders'),
 	('NUKE_TRIGGER_PROJECT', 'PROJECT_MANHATTAN_PROJECT', 'Projects');
 
 -- CustomModOption define overrides

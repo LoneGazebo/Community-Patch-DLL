@@ -6326,8 +6326,8 @@ int CvGame::ComputeAverageMajorMilitaryRating(PlayerTypes ePerceivingPlayer, Pla
 
 ///	-----------------------------------------------------------------------------------------------
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-/// Diplomacy AI Options - All except the first two are configurable in DiploAIOptions.sql
-/// Also consolidates some checks from various game options, for simplicity.
+/// Global Diplomacy AI Options
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 /// Disable Victory Competition
 bool CvGame::IsVictoryCompetitionEnabled() const
@@ -6349,211 +6349,19 @@ bool CvGame::IsEndgameAggressionEnabled() const
 	return IsVictoryCompetitionEnabled();
 }
 
-/// Limit Victory Pursuit Randomization
-bool CvGame::IsNoPrimaryVictoryPursuitRandomization() const
-{
-	return GD_INT_GET(DIPLOAI_LIMIT_VICTORY_PURSUIT_RANDOMIZATION) > 0;
-}
-
-bool CvGame::IsNoSecondaryVictoryPursuitRandomization() const
-{
-	return GD_INT_GET(DIPLOAI_LIMIT_VICTORY_PURSUIT_RANDOMIZATION) > 1;
-}
-
-/// Enable Nuclear Gandhi
-/// NOTE: Only affects his extra personality changes, not his NUKE or USE_NUKE flavors.
-bool CvGame::IsNuclearGandhiEnabled() const
-{
-	if (isNoNukes())
-		return false;
-
-	if (isOption(GAMEOPTION_RANDOM_PERSONALITIES) && GD_INT_GET(DIPLOAI_ENABLE_NUCLEAR_GANDHI) < 2)
-		return false;
-
-	return GD_INT_GET(DIPLOAI_ENABLE_NUCLEAR_GANDHI) > 0;
-}
-
-/// Disable War Bribes
-/// NOTE: Does not affect coop war requests.
-bool CvGame::IsAllWarBribesDisabled() const
-{
-	return GD_INT_GET(DIPLOAI_DISABLE_WAR_BRIBES) > 1;
-}
-
-bool CvGame::IsAIWarBribesDisabled() const
-{
-	return GD_INT_GET(DIPLOAI_DISABLE_WAR_BRIBES) > 0;
-}
-
-/// Disable City Trading
-bool CvGame::IsAICityTradingHumanOnly() const
-{
-	return GD_INT_GET(DIPLOAI_DISABLE_CITY_TRADING) == 1;
-}
-
-bool CvGame::IsAICityTradingDisabled() const
-{
-	return GD_INT_GET(DIPLOAI_DISABLE_CITY_TRADING) > 1;
-}
-
-bool CvGame::IsAllCityTradingDisabled() const
-{
-	return GD_INT_GET(DIPLOAI_DISABLE_CITY_TRADING) > 2;
-}
-
-/// Disable Insult Messages
-/// Only affects human players, and only applies to insulting messages sent by the AI on their turn.
-bool CvGame::IsInsultMessagesDisabled() const
-{
-	return GD_INT_GET(DIPLOAI_DISABLE_INSULT_MESSAGES) > 0;
-}
-
-/// Disable Compliment Messages
-/// Only affects human players, and only applies to friendly messages sent by the AI on their turn.
-bool CvGame::IsComplimentMessagesDisabled() const
-{
-	return GD_INT_GET(DIPLOAI_DISABLE_COMPLIMENT_MESSAGES) > 0;
-}
-
-/// No Fake Modifiers
-/// This controls whether the AI is able to fake having no disputes (no contested borders, etc.) in the opinion table.
-/// Does not prevent displaying a false Approach or Approach hint (i.e. "They desire friendly relations with our empire.")
-bool CvGame::IsNoFakeOpinionModifiers() const
-{
-	return GD_INT_GET(DIPLOAI_NO_FAKE_OPINION_MODIFIERS) > 0;
-}
-
-/// Show All Opinion Modifiers
-/// This controls whether the AI should always display its full list of Opinion modifiers, even when it is FRIENDLY or otherwise might want to hide something.
-bool CvGame::IsShowHiddenOpinionModifiers() const
-{
-	if (IsDiploDebugModeEnabled() || (MOD_BALANCE_VP && isOption(GAMEOPTION_TRANSPARENT_DIPLOMACY)))
-		return true;
-
-	return GD_INT_GET(DIPLOAI_SHOW_HIDDEN_OPINION_MODIFIERS) > 0;
-}
-
-/// Show Opinion Values
-/// This controls whether the AI should display the number value of each Opinion modifier in its table of modifiers.
-bool CvGame::IsShowAllOpinionValues() const
-{
-	if (IsDiploDebugModeEnabled() || (MOD_BALANCE_VP && isOption(GAMEOPTION_TRANSPARENT_DIPLOMACY)))
-		return true;
-
-	return GD_INT_GET(DIPLOAI_SHOW_ALL_OPINION_VALUES) > 0;
-}
-
-/// Show Base Human Opinion
-/// CvDiplomacyAI::GetBaseOpinionScore()
-bool CvGame::IsShowBaseHumanOpinion() const
-{
-	if (IsDiploDebugModeEnabled())
-		return true;
-
-	return GD_INT_GET(DIPLOAI_SHOW_BASE_HUMAN_OPINION) > 0;
-}
-
-/// Hide Opinion Table
-/// Overrides Transparent Diplomacy, Show All Opinion Modifiers, and Show All Opinion Values.
-bool CvGame::IsHideOpinionTable() const
-{
-	if (IsDiploDebugModeEnabled())
-		return false;
-
-	return GD_INT_GET(DIPLOAI_HIDE_OPINION_TABLE) > 0;
-}
-
-/// Enables human permanent items (e.g., lump Gold) to be traded for AI temporary items (e.g., resources), but not the other way around
-bool CvGame::IsHumanPermanentForAITemporaryTradingAllowed() const
-{
-	return GD_INT_GET(DIPLOAI_TEMPORARY_FOR_PERMANENT_TRADING_SETTING) > 0;
-}
-
-/// Removes restrictions on permanent-for-temporary item trading
-bool CvGame::IsPermanentForTemporaryTradingAllowed() const
-{
-	return GD_INT_GET(DIPLOAI_TEMPORARY_FOR_PERMANENT_TRADING_SETTING) > 1;
-}
-
-/// Disable Friendship Requests
-/// Only affects human players, and only affects requests sent by the AI on their turn.
-bool CvGame::IsFriendshipRequestsDisabled() const
-{
-	return GD_INT_GET(DIPLOAI_DISABLE_FRIENDSHIP_REQUESTS) > 0;
-}
-
-/// Disable Gift Offers
-/// Only affects human players, and only affects gift offers sent by the AI on their turn.
-bool CvGame::IsGiftOffersDisabled() const
-{
-	return GD_INT_GET(DIPLOAI_DISABLE_GIFT_OFFERS) > 0;
-}
-
-/// Disable Coop War Requests
-/// Only affects human players, and only affects coop war requests sent by the AI on their turn.
-bool CvGame::IsCoopWarRequestsWithHumansDisabled() const
-{
-	return GD_INT_GET(DIPLOAI_DISABLE_COOP_WAR_REQUESTS) > 0;
-}
-
-/// Only affects coop war requests sent by the AI on their turn.
-bool CvGame::IsCoopWarRequestsDisabled() const
-{
-	return GD_INT_GET(DIPLOAI_DISABLE_COOP_WAR_REQUESTS) > 1;
-}
-
-/// Disable Help Requests
-/// Only affects human players, and only affects help requests sent by the AI on their own turn.
-bool CvGame::IsHelpRequestsDisabled() const
-{
-	return GD_INT_GET(DIPLOAI_DISABLE_HELP_REQUESTS) > 0;
-}
-
-/// Disable Trade Offers
-/// Only affects human players, and only affects trade offers sent by the AI on their turn. Does not affect peace offers.
-bool CvGame::IsTradeOffersDisabled(bool bIncludeRenewals) const
-{
-	if (bIncludeRenewals)
-		return GD_INT_GET(DIPLOAI_DISABLE_TRADE_OFFERS) > 1;
-
-	return GD_INT_GET(DIPLOAI_DISABLE_TRADE_OFFERS) > 0;
-}
-
-/// Disable Peace Offers
-/// Only affects human players, and only affects peace offers sent by the AI on their turn.
-bool CvGame::IsPeaceOffersDisabled() const
-{
-	return GD_INT_GET(DIPLOAI_DISABLE_PEACE_OFFERS) > 0;
-}
-
-/// Disable Demands
-/// Only affects human players, and only affects demands sent by the AI on their turn.
-bool CvGame::IsDemandsDisabled() const
-{
-	return GD_INT_GET(DIPLOAI_DISABLE_DEMANDS) > 0;
-}
-
-/// Disable Independence Requests
-/// Only affects human players, and only affects independence requests sent by the AI on their turn.
-bool CvGame::IsIndependenceRequestsDisabled() const
-{
-	return GD_INT_GET(DIPLOAI_DISABLE_INDEPENDENCE_REQUESTS) > 0;
-}
-
-/// Disable All Statements
-/// Only affects human players. Affects statements sent by the AI on their turn as well as popup messages (e.g. from returning civilians or stealing territory).
-bool CvGame::IsAllDiploStatementsDisabled() const
-{
-	return GD_INT_GET(DIPLOAI_DISABLE_ALL_STATEMENTS) > 0;
-}
-
 /// Passive Mode (towards all players)
 bool CvGame::IsAIPassiveMode() const
 {
 	if (isOption(GAMEOPTION_ALWAYS_PEACE))
 		return true;
 
-	return GD_INT_GET(DIPLOAI_PASSIVE_MODE) > 1;
+	if (MOD_DIPLOAI_PASSIVE_MODE)
+	{
+		int iSetting = gCustomMods.getOption("DIPLOAI_PASSIVE_MODE_SETTING", 1);
+		return iSetting == 2;
+	}
+
+	return false;
 }
 
 /// Passive Mode (towards humans)
@@ -6562,7 +6370,7 @@ bool CvGame::IsAIPassiveTowardsHumans() const
 	if (IsAIPassiveMode())
 		return true;
 
-	return GD_INT_GET(DIPLOAI_PASSIVE_MODE) == 1;
+	return MOD_DIPLOAI_PASSIVE_MODE;
 }
 
 /// Helper function to determine if a given player can attempt a Domination Victory (returns true if it is currently possible for them to win one)
@@ -6700,10 +6508,14 @@ bool CvGame::IsAIAggressiveMode() const
 	if (IsAIPassiveMode())
 		return false;
 
-	if (GD_INT_GET(DIPLOAI_AGGRESSIVE_MODE) == 2)
-		return true;
+	if (MOD_DIPLOAI_AGGRESSIVE_MODE)
+	{
+		int iSetting = gCustomMods.getOption("DIPLOAI_AGGRESSIVE_MODE_SETTING", 2);
+		if (iSetting == 2)
+			return true;
+	}
 
-	if (GD_INT_GET(DIPLOAI_DISABLE_DOMINATION_ONLY_AGGRESSION) > 0)
+	if (MOD_DIPLOAI_DISABLE_DOMINATION_ONLY_AGGRESSION)
 		return false;
 
 	bool bDiplomaticVictoryEnabled = isVictoryValid((VictoryTypes) GC.getInfoTypeForString("VICTORY_DIPLOMATIC", true));
@@ -6718,23 +6530,7 @@ bool CvGame::IsAIAggressiveTowardsHumans() const
 	if (IsAIPassiveTowardsHumans())
 		return false;
 
-	if (IsAIAggressiveMode())
-		return true;
-
-	return GD_INT_GET(DIPLOAI_AGGRESSIVE_MODE) > 0;
-}
-
-/// Diplomacy AI Debug Mode
-/// Enables the debug mode
-bool CvGame::IsDiploDebugModeEnabled() const
-{
-	return GD_INT_GET(DIPLOAI_ENABLE_DEBUG_MODE) > 0;
-}
-
-/// Forces the AI to accept all Discuss requests from human players
-bool CvGame::IsAIMustAcceptHumanDiscussRequests() const
-{
-	return GD_INT_GET(DIPLOAI_ENABLE_DEBUG_MODE) == 2;
+	return MOD_DIPLOAI_AGGRESSIVE_MODE || IsAIAggressiveMode();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

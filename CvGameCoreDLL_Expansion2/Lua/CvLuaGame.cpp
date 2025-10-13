@@ -2261,7 +2261,7 @@ int CvLuaGame::lGetCustomOption(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaGame::lIsHideOpinionTable(lua_State* L)
 {
-	bool bResult = GC.getGame().IsHideOpinionTable();
+	bool bResult = MOD_DIPLOAI_HIDE_OPINION_TABLE && !GC.getGame().isOption(GAMEOPTION_TRANSPARENT_DIPLOMACY);
 	lua_pushboolean(L, bResult);
 	return 1;
 }

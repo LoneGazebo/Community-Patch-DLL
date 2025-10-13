@@ -8677,7 +8677,7 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 			}
 
 			// Resurrected civ becomes a vassal of the resurrector, if possible
-			if (kLiberatedTeam.GetLiberatedByTeam() != eConquerorTeam && !IsVassalOfSomeone() && GD_INT_GET(DIPLOAI_DISABLE_VOLUNTARY_VASSALAGE) == 0)
+			if (kLiberatedTeam.GetLiberatedByTeam() != eConquerorTeam && !IsVassalOfSomeone())
 			{
 				if (!kLiberatedTeam.IsVassal(getTeam()))
 				{
@@ -33592,8 +33592,9 @@ void CvPlayer::setLeaderType(LeaderHeadTypes eNewLeader)
 
 		if (!isHuman(ISHUMAN_AI_DIPLOMACY))
 		{
-			// Update the player's biases (Leader_MajorCivApproachBiases)
-			// Nothing to do as they are not cached in CvPlayer
+			// Update the player's Diplomacy AI
+			if (isMajorCiv())
+				GetDiplomacyAI()->DoInitializePersonality(false);
 
 			// Update the player's flavours (Leader_Flavors)
 			GetFlavorManager()->ChangeLeader(eOldLeader, eNewLeader);

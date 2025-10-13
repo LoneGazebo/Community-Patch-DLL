@@ -28184,7 +28184,7 @@ void CvCity::BuyPlot(int iPlotX, int iPlotY, bool bAutomaticPurchaseFromBuilding
 				// Message for human
 				if (!bAutomaticPurchaseFromBuilding)
 				{
-					if (!GET_PLAYER(ePlotOwner).isHuman() && getTeam() != GET_PLAYER(eEmbassyOwner).getTeam() && !GET_PLAYER(getOwner()).IsAtWarWith(eEmbassyOwner) && !CvPreGame::isNetworkMultiplayerGame() && GC.getGame().getActivePlayer() == getOwner() && !GC.getGame().IsInsultMessagesDisabled() && !GC.getGame().IsAllDiploStatementsDisabled())
+					if (!GET_PLAYER(ePlotOwner).isHuman() && getTeam() != GET_PLAYER(eEmbassyOwner).getTeam() && !GET_PLAYER(getOwner()).IsAtWarWith(eEmbassyOwner) && !CvPreGame::isNetworkMultiplayerGame() && GC.getGame().getActivePlayer() == getOwner() && !MOD_DIPLOAI_SHUT_UP && !MOD_DIPLOAI_SHUT_UP_INSULTS)
 					{
 						DLLUI->SetForceDiscussionModeQuitOnBack(true);		// Set force quit so that when discuss mode pops up the Back button won't go to leader root
 						const char* strText = GET_PLAYER(eEmbassyOwner).GetDiplomacyAI()->GetDiploStringForMessage(DIPLO_MESSAGE_CULTURE_BOMBED);
@@ -28257,7 +28257,7 @@ void CvCity::BuyPlot(int iPlotX, int iPlotY, bool bAutomaticPurchaseFromBuilding
 		// Message for human
 		if (!bAutomaticPurchaseFromBuilding && GET_PLAYER(ePlotOwner).isMajorCiv())
 		{
-			if (!GET_PLAYER(ePlotOwner).isHuman() && getTeam() != GET_PLAYER(ePlotOwner).getTeam() && !GET_PLAYER(getOwner()).IsAtWarWith(ePlotOwner) && !CvPreGame::isNetworkMultiplayerGame() && GC.getGame().getActivePlayer() == getOwner() && !GC.getGame().IsInsultMessagesDisabled() && !GC.getGame().IsAllDiploStatementsDisabled())
+			if (!GET_PLAYER(ePlotOwner).isHuman() && getTeam() != GET_PLAYER(ePlotOwner).getTeam() && !GET_PLAYER(getOwner()).IsAtWarWith(ePlotOwner) && !CvPreGame::isNetworkMultiplayerGame() && GC.getGame().getActivePlayer() == getOwner() && !MOD_DIPLOAI_SHUT_UP && !MOD_DIPLOAI_SHUT_UP_INSULTS)
 			{
 				DLLUI->SetForceDiscussionModeQuitOnBack(true);		// Set force quit so that when discuss mode pops up the Back button won't go to leader root
 				const char* strText = GET_PLAYER(ePlotOwner).GetDiplomacyAI()->GetDiploStringForMessage(DIPLO_MESSAGE_CULTURE_BOMBED);

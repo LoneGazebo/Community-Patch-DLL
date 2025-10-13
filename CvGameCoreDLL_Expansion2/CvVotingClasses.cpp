@@ -6017,7 +6017,7 @@ CvString CvLeague::GetResolutionVoteOpinionDetails(ResolutionTypes eResolution, 
 		return s;
 
 	// Display the score for each civ
-	bool bShowAllValues = GC.getGame().IsShowAllOpinionValues();
+	bool bShowAllValues = MOD_DIPLOAI_SHOW_ALL_OPINION_VALUES || GC.getGame().isOption(GAMEOPTION_TRANSPARENT_DIPLOMACY);
 	std::vector<pair<int, PlayerTypes>> vScores;
 	if (bEnact)
 	{
@@ -6138,7 +6138,7 @@ CvString CvLeague::GetResolutionVoteOpinionDetails(ResolutionTypes eResolution, 
 CvString CvLeague::GetResolutionProposeOpinionDetails(ResolutionTypes eResolution, PlayerTypes eObserver, int iProposerChoice)
 {
 	CvString s = "";
-	bool bShowAllValues = GC.getGame().IsShowAllOpinionValues();
+	bool bShowAllValues = MOD_DIPLOAI_SHOW_ALL_OPINION_VALUES || GC.getGame().isOption(GAMEOPTION_TRANSPARENT_DIPLOMACY);
 	std::vector<pair<int, PlayerTypes>> vScores;
 
 
@@ -6240,7 +6240,7 @@ CvString CvLeague::GetResolutionProposeOpinionDetails(ResolutionTypes eResolutio
 CvString CvLeague::GetResolutionProposeOpinionDetails(int iTargetResolutionID, PlayerTypes eObserver)
 {
 	CvString s = "";
-	bool bShowAllValues = GC.getGame().IsShowAllOpinionValues();
+	bool bShowAllValues = MOD_DIPLOAI_SHOW_ALL_OPINION_VALUES || GC.getGame().isOption(GAMEOPTION_TRANSPARENT_DIPLOMACY);
 	std::vector<pair<int, PlayerTypes>> vScores;
 
 	ActiveResolutionList vActiveResolutions = this->GetActiveResolutions();
@@ -11219,7 +11219,7 @@ CvLeagueAI::AlignmentLevels CvLeagueAI::EvaluateAlignment(PlayerTypes ePlayer, b
 CvLeagueAI::KnowledgeLevels CvLeagueAI::GetKnowledgeGivenToOtherPlayer(PlayerTypes eToPlayer, CvString* sTooltipSink)
 {
 	// Teammates or Debug Mode
-	bool bOverride = GetPlayer()->getTeam() == GET_PLAYER(eToPlayer).getTeam() || GET_PLAYER(eToPlayer).isObserver() || GC.getGame().IsDiploDebugModeEnabled() || DEBUG_LEAGUES;
+	bool bOverride = GetPlayer()->getTeam() == GET_PLAYER(eToPlayer).getTeam() || GET_PLAYER(eToPlayer).isObserver() || MOD_DIPLO_DEBUG_MODE || DEBUG_LEAGUES;
 
 	// Shared Ideology
 	PolicyBranchTypes eMyIdeology = GetPlayer()->GetPlayerPolicies()->GetLateGamePolicyTree();
@@ -13979,13 +13979,13 @@ int CvLeagueAI::ScoreVoteChoicePlayer(CvProposal* pProposal, int iChoice, bool b
 		}
 	}
 
-	// DiploAIOptions to prevent voting for other teams
+	// LeagueAI Options to prevent voting for other teams
 	if (iScore > 0 && GET_PLAYER(ePlayer).getTeam() != GET_PLAYER(eChoicePlayer).getTeam())
 	{
-		if (pProposal->GetEffects()->bChangeLeagueHost && GD_INT_GET(DIPLOAI_NO_OTHER_HOST_VOTES) > 0)
+		if (pProposal->GetEffects()->bChangeLeagueHost && MOD_LEAGUEAI_NO_OTHER_HOST_VOTES)
 			return 0;
 
-		if (pProposal->GetEffects()->bDiplomaticVictory && GD_INT_GET(DIPLOAI_NO_OTHER_WORLD_LEADER_VOTES) > 0)
+		if (pProposal->GetEffects()->bDiplomaticVictory && MOD_LEAGUEAI_NO_OTHER_WORLD_LEADER_VOTES)
 			return 0;
 	}
 
