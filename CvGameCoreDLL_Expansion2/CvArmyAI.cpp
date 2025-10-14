@@ -586,11 +586,15 @@ void CvArmyAI::AddUnit(int iUnitID, int iSlotNum, bool bIsRequired)
 	// check for potential upgrade
 	if (pThisUnit->CanUpgradeRightNow(false))
 	{
-		CvUnit* pNewUnit = pThisUnit->DoUpgrade();
-		if (pNewUnit)
+		// Don't upgrade if we will go over supply
+		if (thisPlayer.GetNumUnitsToSupply() < thisPlayer.GetNumUnitsSupplied() || !pThisUnit->isNoSupply())
 		{
-			pThisUnit = pNewUnit;
-			iUnitID = pNewUnit->GetID();
+			CvUnit* pNewUnit = pThisUnit->DoUpgrade();
+			if (pNewUnit)
+			{
+				pThisUnit = pNewUnit;
+				iUnitID = pNewUnit->GetID();
+			}
 		}
 	}
 

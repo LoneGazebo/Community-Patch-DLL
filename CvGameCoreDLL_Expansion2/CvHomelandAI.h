@@ -177,6 +177,37 @@ private:
 	int m_iAuxData;
 };
 
+typedef std::tr1::unordered_set<int> CitySet;
+
+struct SWorkerRegion {
+	int m_iID;
+	int m_iCapitalX;
+	int m_iCapitalY;
+	CitySet m_aCities;
+	int m_iImprovementNeed;
+	std::vector<int> m_aCurrentWorkers;
+	int m_iWantedWorkers;
+
+	SWorkerRegion();
+	SWorkerRegion(CitySet aCities, int iImprovementNeed, int iCapitalX, int iCapitalY);
+
+	bool OwnsWorker(int iWorkerID) const;
+	bool ContainsCity(int iCityID) const;
+	static void ResetCounter();
+	
+	struct compareID {
+		bool operator()(const SWorkerRegion& lhs, const SWorkerRegion& rhs) const {
+			return lhs.m_iID < rhs.m_iID;
+		}
+	};
+
+	bool operator<(const SWorkerRegion& rhs) const;
+	bool operator==(const SWorkerRegion& rhs) const;
+
+private:
+	static int iIDCounter;
+};
+
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS:      CvHomelandAI
 //!  \brief		A player's AI to control units that are in reserve protecting their lands
@@ -256,6 +287,7 @@ private:
 //-------------------------------------
 
 	void PlanImprovements();
+	void PlanWorkerDistribution();
 	void PlotWorkerMoves();
 	void PlotWriterMoves();
 	void PlotArtistMoves();
@@ -326,6 +358,8 @@ private:
 	bool ExecuteGoldenAgeMove(CvUnit* pUnit);
 	bool IsValidExplorerEndTurnPlot(const CvUnit* pUnit, CvPlot* pPlot) const;
 	void ClearCurrentMoveUnits(AIHomelandMove eNextMove);
+	bool IsWorkerAtAllocatedRegion(const CvUnit* pUnit, const CvPlot* pPlot = NULL) const;
+	CvPlot* GetWorkerRegionTargetPlot(const CvUnit* pUnit) const;
 
 	// Logging functions
 	CvString GetLogFileName(CvString& playerName) const;
@@ -337,6 +371,7 @@ private:
 	list<int> m_greatPeopleForImprovements;
 	std::map<UnitAITypes,std::vector<std::pair<int,int>>> m_automatedTargetPlots; //for human units
 	bool m_bNeedsUpdate;
+	std::vector<SWorkerRegion> m_aWorkerRegions;
 
 	CHomelandUnitArray m_CurrentMoveUnits;
 

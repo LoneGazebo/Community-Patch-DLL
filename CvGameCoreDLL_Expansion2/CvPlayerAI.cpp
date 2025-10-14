@@ -1949,9 +1949,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveAdmiral(CvUnit* pGreatAdmiral)
 	// We're unhappy or have too many admirals; expend some!
 	if (pGreatAdmiral->canGetFreeLuxury())
 	{
-		int iThreshold = IsEmpireUnhappy() ? 0 : GetNumEffectiveCoastalCities() / 2 + 1;
-		if (iCommanders > iThreshold)
-			return GREAT_PEOPLE_DIRECTIVE_USE_POWER;
+		return GREAT_PEOPLE_DIRECTIVE_USE_POWER;
 	}
 
 	return bHasAdmiralNegation ? NO_GREAT_PEOPLE_DIRECTIVE_TYPE : GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;

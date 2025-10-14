@@ -15795,75 +15795,80 @@ void CvCity::CheckForOperationUnits()
 	{
 		if (eBestUnit != NO_UNIT)
 		{
-			int iGoldCost = GetPurchaseCost(eBestUnit);
-			CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eBestUnit);
-			if (pkUnitEntry && kPlayer.GetEconomicAI()->CanWithdrawMoneyForPurchase(PURCHASE_TYPE_UNIT, iGoldCost) && IsCanPurchase(/*bTestPurchaseCost*/ true, /*bTestTrainable*/ true, eBestUnit, NO_BUILDING, NO_PROJECT, YIELD_GOLD))
+			int iTempWeight = 100;
+			iTempWeight = GetCityStrategyAI()->GetUnitProductionAI()->CheckUnitBuildSanity(eBestUnit, true, iTempWeight, true);
+			if (iTempWeight > 0)
 			{
-				//Log it
-				CvString strLogString;
-				strLogString.Format("MOD - Buying unit for sneak attack from City root function: %s in %s. Cost: %d, Balance (before buy): %d",
-					pkUnitEntry->GetDescription(), getName().c_str(), iGoldCost, GET_PLAYER(getOwner()).GetTreasury()->GetGold());
-				kPlayer.GetHomelandAI()->LogHomelandMessage(strLogString);
-
-				bool bInvest = MOD_BALANCE_UNIT_INVESTMENTS || (MOD_BALANCE_VP && pkUnitEntry->GetSpaceshipProject() != NO_PROJECT);
-				if (bInvest)
+				int iGoldCost = GetPurchaseCost(eBestUnit);
+				CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eBestUnit);
+				if (pkUnitEntry && kPlayer.GetEconomicAI()->CanWithdrawMoneyForPurchase(PURCHASE_TYPE_UNIT, iGoldCost) && IsCanPurchase(/*bTestPurchaseCost*/ true, /*bTestTrainable*/ true, eBestUnit, NO_BUILDING, NO_PROJECT, YIELD_GOLD))
 				{
-					//take the money...
-					kPlayer.GetTreasury()->ChangeGold(-iGoldCost);
+					//Log it
+					CvString strLogString;
+					strLogString.Format("MOD - Buying unit for sneak attack from City root function: %s in %s. Cost: %d, Balance (before buy): %d",
+						pkUnitEntry->GetDescription(), getName().c_str(), iGoldCost, GET_PLAYER(getOwner()).GetTreasury()->GetGold());
+					kPlayer.GetHomelandAI()->LogHomelandMessage(strLogString);
 
-					const UnitClassTypes eUnitClass = (UnitClassTypes)(pkUnitEntry->GetUnitClassType());
-					if (eUnitClass != NO_UNITCLASS)
+					bool bInvest = MOD_BALANCE_UNIT_INVESTMENTS || (MOD_BALANCE_VP && pkUnitEntry->GetSpaceshipProject() != NO_PROJECT);
+					if (bInvest)
 					{
-						SetUnitInvestment(eUnitClass, true);
-						if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(this))
+						//take the money...
+						kPlayer.GetTreasury()->ChangeGold(-iGoldCost);
+
+						const UnitClassTypes eUnitClass = (UnitClassTypes)(pkUnitEntry->GetUnitClassType());
+						if (eUnitClass != NO_UNITCLASS)
 						{
-							if (getProductionProcess() != NO_PROCESS)
+							SetUnitInvestment(eUnitClass, true);
+							if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(this))
 							{
-								clearOrderQueue();
+								if (getProductionProcess() != NO_PROCESS)
+								{
+									clearOrderQueue();
+								}
+								pushOrder(ORDER_TRAIN, eBestUnit, -1, false, false, true, false);
 							}
-							pushOrder(ORDER_TRAIN, eBestUnit, -1, false, false, true, false);
-						}
-						else if (!GET_PLAYER(getOwner()).isHuman(ISHUMAN_AI_CITY_PRODUCTION) && !IsPuppet())
-						{
-							if (getProductionProcess() != NO_PROCESS)
+							else if (!GET_PLAYER(getOwner()).isHuman(ISHUMAN_AI_CITY_PRODUCTION) && !IsPuppet())
 							{
-								clearOrderQueue();
+								if (getProductionProcess() != NO_PROCESS)
+								{
+									clearOrderQueue();
+								}
+								pushOrder(ORDER_TRAIN, eBestUnit, -1, false, false, true, false);
 							}
-							pushOrder(ORDER_TRAIN, eBestUnit, -1, false, false, true, false);
 						}
 					}
+					else
+					{
+						//and train it!
+						CvUnit* pUnit = PurchaseUnit(eBestUnit, YIELD_GOLD);
+						if (pUnit)
+						{
+							CleanUpQueue();
+
+							kPlayer.GetMilitaryAI()->ResetNumberOfTimesOpsBuildSkippedOver();
+						}
+					}
+					return;
 				}
 				else
 				{
-					//and train it!
-					CvUnit* pUnit = PurchaseUnit(eBestUnit, YIELD_GOLD);
-					if (pUnit)
+					CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eBestUnit);
+					if (pkUnitEntry)
 					{
-						CleanUpQueue();
+						UnitAITypes eUnitAI = pkUnitEntry->GetDefaultUnitAIType();
+						pushOrder(ORDER_TRAIN, eBestUnit, eUnitAI, false, false, bAppend, false /*bRush*/);
+						if (GC.getLogging() && GC.getAILogging())
+						{
+							CvString strLogString;
+							strLogString.Format("MOD - Building unit for sneak attack (or at war) from City root function: %s in %s. Turns: %d",
+								pkUnitEntry->GetDescription(), getName().c_str(), getProductionTurnsLeft(eBestUnit, 0));
+							kPlayer.GetHomelandAI()->LogHomelandMessage(strLogString);
+						}
 
 						kPlayer.GetMilitaryAI()->ResetNumberOfTimesOpsBuildSkippedOver();
 					}
+					return;
 				}
-				return;
-			}
-			else
-			{
-				CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eBestUnit);
-				if (pkUnitEntry)
-				{
-					UnitAITypes eUnitAI = pkUnitEntry->GetDefaultUnitAIType();
-					pushOrder(ORDER_TRAIN, eBestUnit, eUnitAI, false, false, bAppend, false /*bRush*/);
-					if (GC.getLogging() && GC.getAILogging())
-					{
-						CvString strLogString;
-						strLogString.Format("MOD - Building unit for sneak attack (or at war) from City root function: %s in %s. Turns: %d",
-							pkUnitEntry->GetDescription(), getName().c_str(), getProductionTurnsLeft(eBestUnit, 0));
-						kPlayer.GetHomelandAI()->LogHomelandMessage(strLogString);
-					}
-
-					kPlayer.GetMilitaryAI()->ResetNumberOfTimesOpsBuildSkippedOver();
-				}
-				return;
 			}
 		}
 	}

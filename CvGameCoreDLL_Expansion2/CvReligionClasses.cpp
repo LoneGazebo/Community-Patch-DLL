@@ -712,14 +712,23 @@ void CvGameReligions::DoPlayerTurn(CvPlayer& kPlayer)
 					CvCity *pCity = CvReligionAIHelpers::GetBestCityFaithUnitPurchase(kPlayer, eUnit, eReligion);
 					if (pCity)
 					{
-						pCity->PurchaseUnit(eUnit, YIELD_FAITH);
-
-						CvNotifications* pNotifications = kPlayer.GetNotifications();
-						if(pNotifications)
+						int iTempWeight = 100;
+						iTempWeight = pCity->GetCityStrategyAI()->GetUnitProductionAI()->CheckUnitBuildSanity(eUnit, false, iTempWeight, true);
+						if (iTempWeight > 0)
 						{
-							CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_AUTOMATIC_FAITH_PURCHASE", szItemName, pCity->getNameKey());
-							CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_AUTOMATIC_FAITH_PURCHASE");
-							pNotifications->Add(NOTIFICATION_CAN_BUILD_MISSIONARY, strBuffer, strSummary, pCity->getX(), pCity->getY(), -1);
+							pCity->PurchaseUnit(eUnit, YIELD_FAITH);
+
+							CvNotifications* pNotifications = kPlayer.GetNotifications();
+							if (pNotifications)
+							{
+								CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_AUTOMATIC_FAITH_PURCHASE", szItemName, pCity->getNameKey());
+								CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_AUTOMATIC_FAITH_PURCHASE");
+								pNotifications->Add(NOTIFICATION_CAN_BUILD_MISSIONARY, strBuffer, strSummary, pCity->getX(), pCity->getY(), -1);
+							}
+						}
+						else
+						{
+							bSelectionStillValid = false;
 						}
 					}
 					else
@@ -6715,32 +6724,37 @@ bool CvReligionAI::DoFaithPurchasesInCities(CvCity* pCity)
 				UnitTypes eUnit = (UnitTypes)selection.m_iIndex;
 				if (eUnit != NO_UNIT)
 				{
-					CvUnitEntry* pUnitEntry = GC.getUnitInfo(eUnit);
-					if (pUnitEntry)
+					int iTempWeight = 100;
+					iTempWeight = pCity->GetCityStrategyAI()->GetUnitProductionAI()->CheckUnitBuildSanity(eUnit, false, iTempWeight, true);
+					if (iTempWeight > 0)
 					{
-						if (eUnit == pCity->GetUnitForOperation() || eUnit == m_pPlayer->GetMilitaryAI()->GetUnitTypeForArmy(pCity))
+						CvUnitEntry* pUnitEntry = GC.getUnitInfo(eUnit);
+						if (pUnitEntry)
 						{
-							pCity->PurchaseUnit(eUnit, YIELD_FAITH);
-							if (GC.getLogging())
+							if (eUnit == pCity->GetUnitForOperation() || eUnit == m_pPlayer->GetMilitaryAI()->GetUnitTypeForArmy(pCity))
 							{
-								CvString strFaith;
-								strFaith.Format(", Bought a Non-Faith military Unit, %s, Faith: %.2f", pUnitEntry->GetDescriptionKey(), (float)m_pPlayer->GetFaithTimes100() / 100);
-								strLogMsg += strFaith;
-								GC.getGame().GetGameReligions()->LogReligionMessage(strLogMsg);
+								pCity->PurchaseUnit(eUnit, YIELD_FAITH);
+								if (GC.getLogging())
+								{
+									CvString strFaith;
+									strFaith.Format(", Bought a Non-Faith military Unit, %s, Faith: %.2f", pUnitEntry->GetDescriptionKey(), (float)m_pPlayer->GetFaithTimes100() / 100);
+									strLogMsg += strFaith;
+									GC.getGame().GetGameReligions()->LogReligionMessage(strLogMsg);
+								}
+								return true;
 							}
-							return true;
-						}
-						else if (m_pPlayer->GetNumUnitsWithUnitAI(pUnitEntry->GetDefaultUnitAIType(), false) <= iPurchaseAmount)
-						{
-							pCity->PurchaseUnit(eUnit, YIELD_FAITH);
-							if (GC.getLogging())
+							else if (m_pPlayer->GetNumUnitsWithUnitAI(pUnitEntry->GetDefaultUnitAIType(), false) <= iPurchaseAmount)
 							{
-								CvString strFaith;
-								strFaith.Format(", Bought a Non-Faith military Unit, %s, (up to %d), Faith: %.2f", pUnitEntry->GetDescriptionKey(), iPurchaseAmount, (float)m_pPlayer->GetFaithTimes100() / 100);
-								strLogMsg += strFaith;
-								GC.getGame().GetGameReligions()->LogReligionMessage(strLogMsg);
+								pCity->PurchaseUnit(eUnit, YIELD_FAITH);
+								if (GC.getLogging())
+								{
+									CvString strFaith;
+									strFaith.Format(", Bought a Non-Faith military Unit, %s, (up to %d), Faith: %.2f", pUnitEntry->GetDescriptionKey(), iPurchaseAmount, (float)m_pPlayer->GetFaithTimes100() / 100);
+									strLogMsg += strFaith;
+									GC.getGame().GetGameReligions()->LogReligionMessage(strLogMsg);
+								}
+								return false;
 							}
-							return false;
 						}
 					}
 				}

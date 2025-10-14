@@ -889,6 +889,111 @@ int CvEconomicAI::GetNavalExplorersNeeded() const
 	return m_iNavalExplorersNeeded;
 }
 
+int CvEconomicAI::GetSoftSupplyCap() const
+{
+	int iHardSupplyCap = m_pPlayer->GetNumUnitsSupplied() + m_pPlayer->getNumUnitsSupplyFree();
+
+	CvTreasury* pTreasury = m_pPlayer->GetTreasury();
+
+	bool bWar = m_pPlayer->IsAtWar();
+	if (!m_pPlayer->isHuman(ISHUMAN_AI_DIPLOMACY))
+	{
+		bWar = false;
+		CvDiplomacyAI& kDiplomacyAI = *m_pPlayer->GetDiplomacyAI();
+		for (int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
+		{
+			PlayerTypes eOtherPlayer = (PlayerTypes)iI;
+			
+			if (eOtherPlayer == m_pPlayer->GetID())
+				continue;
+
+			if (!kDiplomacyAI.IsHasMet(eOtherPlayer))
+				continue;
+
+			if (kDiplomacyAI.GetCivApproach((PlayerTypes)iI) == CIV_APPROACH_WAR)
+			{
+				bWar = true;
+				break;
+			}
+			else if (m_pPlayer->IsAtWarWith(eOtherPlayer) && !kDiplomacyAI.IsPhonyWar(eOtherPlayer))
+			{
+				bWar = true;
+				break;
+			}
+		}
+	}
+
+	int iMinDesiredGPT = 1;
+	if (!bWar)
+	{
+		EraTypes eEra = m_pPlayer->GetCurrentEra();
+		if (eEra == GD_INT_GET(ANCIENT_ERA))
+			iMinDesiredGPT = 2;
+		else if (eEra <= GD_INT_GET(MEDIEVAL_ERA))
+			iMinDesiredGPT = 5;
+		else
+			iMinDesiredGPT = 10;
+	}
+	else if (m_pPlayer->GetDiplomacyAI()->GetStateAllWars() == STATE_ALL_WARS_LOSING)
+	{
+		iMinDesiredGPT = -5;
+		iHardSupplyCap += 3;
+	}
+
+	int iCurrentRevenue = pTreasury->CalculateGrossGold();
+	int iCurrentNonUnitCosts = 0;
+	iCurrentNonUnitCosts += pTreasury->GetBuildingGoldMaintenance();
+	iCurrentNonUnitCosts += pTreasury->GetImprovementGoldMaintenance();
+	iCurrentNonUnitCosts += pTreasury->GetVassalGoldMaintenance();
+	iCurrentNonUnitCosts += pTreasury->GetExpensePerTurnFromVassalTaxes();
+	iCurrentNonUnitCosts += MOD_BALANCE_CORE_JFD ? pTreasury->GetContractGoldMaintenance() : 0;
+	iCurrentNonUnitCosts += m_pPlayer->GetYieldPerTurnFromEspionageEvents(YIELD_GOLD, false);
+
+	int iMinUnits = m_pPlayer->getNumCities() * 2;
+
+	const CvHandicapInfo& playerHandicap = m_pPlayer->getHandicapInfo();
+
+	int iMaintenanceFreeUnits = playerHandicap.getMaintenanceFreeUnits() + m_pPlayer->GetNumMaintenanceFreeUnits() + m_pPlayer->getBaseFreeUnits();
+	iMaintenanceFreeUnits += m_pPlayer->isHuman(ISHUMAN_HANDICAP) ? 0 : GC.getGame().getHandicapInfo().getAIMaintenanceFreeUnits();
+
+	int iOtherUnits = 0;
+
+	int iLoop = 0;
+	for (const CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoop))
+	{
+		// We generally want to build as many air units as possible, compensate with less land and naval units
+		if (!pLoopUnit->IsCombatUnit() || pLoopUnit->getDomainType() == DOMAIN_AIR)
+			iOtherUnits++;
+
+		// This unit needs supply but either isn't a land/naval unit or is not a combat unit
+		if (pLoopUnit->getUnitInfo().IsMilitarySupport() && !pLoopUnit->isNoSupply() && (!pLoopUnit->IsCombatUnit() || (pLoopUnit->getDomainType() != DOMAIN_LAND && pLoopUnit->getDomainType() != DOMAIN_SEA)))
+			iHardSupplyCap--;
+	}
+
+	int iSoftSupplyCap = min(iMinUnits, iHardSupplyCap);
+
+	// We want at least iMinUnits units (including maintenance free units)
+	// We want at most iHardSupplyCap total units
+	// iTotalUnits includes all land and naval military units
+	for (int iTotalUnits = iMinUnits; iTotalUnits <= iHardSupplyCap; iTotalUnits++)
+	{
+		int iUnitCost = 0;
+
+		// If someone feels like doing the calculus to compute this without calling this function n times,
+		// you can feel free to remove this loop and just compute the desired number of units based on all
+		// the factors that go into the unit maintenance calculation.
+		if (iTotalUnits + iOtherUnits > iMaintenanceFreeUnits)
+			iUnitCost = pTreasury->CalculateUnitCost(iTotalUnits + iOtherUnits - iMaintenanceFreeUnits);
+
+		if (iCurrentRevenue - (iUnitCost + iCurrentNonUnitCosts) >= iMinDesiredGPT)
+			iSoftSupplyCap = iTotalUnits;
+		else
+			break;
+	}
+
+	return iSoftSupplyCap;
+}
+
 bool EconomicAIHelpers::IsPotentialLandExplorer(CvUnitEntry& kUnitInfo)
 {
 	// Only land or hovering units
@@ -949,7 +1054,7 @@ int EconomicAIHelpers::ScoreExplorePlot(CvPlot* pPlot, CvPlayer* pPlayer, Domain
 		if(pLoopPlot != NULL)
 		{
 			//if there's an adjacent barbarian camp, assume danger
-			if (pLoopPlot->getRevealedImprovementType(pPlayer->getTeam()) == GD_INT_GET(BARBARIAN_CAMP_IMPROVEMENT) && !pLoopPlot->isVisible(pPlayer->getTeam()))
+			if (pLoopPlot->getRevealedImprovementType(pPlayer->getTeam()) == GD_INT_GET(BARBARIAN_CAMP_IMPROVEMENT) && !pPlot->isVisible(pPlayer->getTeam()))
 				iResultValue -= iJackpot;
 
 			//no value if revealed already
@@ -1909,23 +2014,28 @@ void CvEconomicAI::DoHurry()
 					}
 					else
 					{
-						CvUnit* pUnit = pSelectedCity->PurchaseUnit(eUnitType, YIELD_GOLD);
-						if (pUnit)
+						int iTempWeight = 100;
+						iTempWeight = pSelectedCity->GetCityStrategyAI()->GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, true, iTempWeight, true);
+						if (iTempWeight > 0)
 						{
-							if (GC.getLogging() && GC.getAILogging())
+							CvUnit* pUnit = pSelectedCity->PurchaseUnit(eUnitType, YIELD_GOLD);
+							if (pUnit)
 							{
-								CvString strLogString;
-								strLogString.Format("MOD - Buying unit: %s in %s. Cost: %d, Balance (before buy): %d",
-									pkUnitInfo->GetDescription(), pSelectedCity->getName().c_str(), iGoldCost, m_pPlayer->GetTreasury()->GetGold());
-								m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
+								if (GC.getLogging() && GC.getAILogging())
+								{
+									CvString strLogString;
+									strLogString.Format("MOD - Buying unit: %s in %s. Cost: %d, Balance (before buy): %d",
+										pkUnitInfo->GetDescription(), pSelectedCity->getName().c_str(), iGoldCost, m_pPlayer->GetTreasury()->GetGold());
+									m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
+								}
+
+								if (pkUnitInfo->IsFound())
+									m_pPlayer->GetMilitaryAI()->ResetNumberOfTimesSettlerBuildSkippedOver();
+								if (selection.m_eBuildableType == CITY_BUILDABLE_UNIT_FOR_OPERATION)
+									m_pPlayer->GetMilitaryAI()->ResetNumberOfTimesOpsBuildSkippedOver();
+
+								pSelectedCity->CleanUpQueue();
 							}
-
-							if (pkUnitInfo->IsFound())
-								m_pPlayer->GetMilitaryAI()->ResetNumberOfTimesSettlerBuildSkippedOver();
-							if (selection.m_eBuildableType == CITY_BUILDABLE_UNIT_FOR_OPERATION)
-								m_pPlayer->GetMilitaryAI()->ResetNumberOfTimesOpsBuildSkippedOver();
-
-							pSelectedCity->CleanUpQueue();
 						}
 					}
 				}

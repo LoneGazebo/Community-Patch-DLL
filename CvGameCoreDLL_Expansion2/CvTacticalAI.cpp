@@ -1476,9 +1476,13 @@ void CvTacticalAI::PlotGarrisonMoves(int iNumTurnsAway)
 		{
 			if (pGarrison->CanUpgradeRightNow(false) && !pGarrison->IsHurt())
 			{
-				CvUnit* pNewUnit = pGarrison->DoUpgrade();
-				if (pNewUnit)
-					UnitProcessed(pNewUnit->GetID());
+				// Don't upgrade if we will go over supply
+				if (m_pPlayer->GetNumUnitsToSupply() < m_pPlayer->GetNumUnitsSupplied() || !pGarrison->isNoSupply())
+				{
+					CvUnit* pNewUnit = pGarrison->DoUpgrade();
+					if (pNewUnit)
+						UnitProcessed(pNewUnit->GetID());
+				}
 			}
 
 			//sometimes we have an accidental garrison ...
@@ -1569,9 +1573,13 @@ void CvTacticalAI::PlotBastionMoves(int iNumTurnsAway)
 		{
 			if (pUnit->CanUpgradeRightNow(false) && !pUnit->IsHurt())
 			{
-				CvUnit* pNewUnit = pUnit->DoUpgrade();
-				if (pNewUnit)
-					UnitProcessed(pNewUnit->GetID());
+				// Don't upgrade if we will go over supply
+				if (m_pPlayer->GetNumUnitsToSupply() < m_pPlayer->GetNumUnitsSupplied() || !pUnit->isNoSupply())
+				{
+					CvUnit* pNewUnit = pUnit->DoUpgrade();
+					if (pNewUnit)
+						UnitProcessed(pNewUnit->GetID());
+				}
 			}
 			if (GC.getLogging() && GC.getAILogging())
 			{
@@ -1599,9 +1607,13 @@ void CvTacticalAI::PlotGuardImprovementMoves(int iNumTurnsAway)
 		{
 			if (pUnit->CanUpgradeRightNow(false) && !pUnit->IsHurt())
 			{
-				CvUnit* pNewUnit = pUnit->DoUpgrade();
-				if (pNewUnit)
-					UnitProcessed(pNewUnit->GetID());
+				// Don't upgrade if we will go over supply
+				if (m_pPlayer->GetNumUnitsToSupply() < m_pPlayer->GetNumUnitsSupplied() || !pUnit->isNoSupply())
+				{
+					CvUnit* pNewUnit = pUnit->DoUpgrade();
+					if (pNewUnit)
+						UnitProcessed(pNewUnit->GetID());
+				}
 			}
 			if(GC.getLogging() && GC.getAILogging())
 			{
@@ -2083,9 +2095,13 @@ void CvTacticalAI::ReviewUnassignedUnits()
 			{
 				if (pUnit->CanUpgradeRightNow(false) && !pUnit->IsHurt())
 				{
-					CvUnit* pNewUnit = pUnit->DoUpgrade();
-					if (pNewUnit)
-						pNewUnit->SetTurnProcessed(true);
+					// Don't upgrade if we will go over supply
+					if (m_pPlayer->GetNumUnitsToSupply() < m_pPlayer->GetNumUnitsSupplied() || !pUnit->isNoSupply())
+					{
+						CvUnit* pNewUnit = pUnit->DoUpgrade();
+						if (pNewUnit)
+							pNewUnit->SetTurnProcessed(true);
+					}
 				}
 				else
 					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pSafePlot->getX(), pSafePlot->getY());
@@ -5344,9 +5360,13 @@ void CvTacticalAI::UnitProcessed(int iID)
 	//try and upgrade units even if tactical AI is using them
 	if (pUnit->CanUpgradeRightNow(false) && !pUnit->IsHurt())
 	{
-		CvUnit* pNewUnit = pUnit->DoUpgrade();
-		if (pNewUnit)
-			pNewUnit->SetTurnProcessed(true);
+		// Don't upgrade if we will go over supply
+		if (m_pPlayer->GetNumUnitsToSupply() < m_pPlayer->GetNumUnitsSupplied() || !pUnit->isNoSupply())
+		{
+			CvUnit* pNewUnit = pUnit->DoUpgrade();
+			if (pNewUnit)
+				pNewUnit->SetTurnProcessed(true);
+		}
 	}
 }
 

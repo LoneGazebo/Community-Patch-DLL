@@ -1662,7 +1662,9 @@ vector<OptionWithScore<BuilderDirective>> CvBuilderTaskingAI::GetRouteDirectives
 		if (iRoadValueNoRivers > 0)
 		{
 			// If the road is completed, increase its value
-			iRoadValueNoRivers += iRoadValueNoRivers / (4 * (GetRouteMissingTiles(plannedRouteRoadNoRivers) + 1));
+			int iMissingTiles = GetRouteMissingTiles(plannedRouteRoadNoRivers);
+			if (iMissingTiles <= 3)
+				iRoadValueNoRivers += 100 - 25 * iMissingTiles;
 
 			int iRoadMaintenance = GC.getRouteInfo(ROUTE_ROAD)->GetGoldMaintenance() * (100 + m_pPlayer->GetImprovementGoldMaintenanceMod());
 
@@ -1684,7 +1686,9 @@ vector<OptionWithScore<BuilderDirective>> CvBuilderTaskingAI::GetRouteDirectives
 		if (iRoadValueWithRivers > 0)
 		{
 			// If the road is completed, increase its value
-			iRoadValueWithRivers += iRoadValueWithRivers / (4 * (GetRouteMissingTiles(plannedRouteRoadWithRivers) + 1));
+			int iMissingTiles = GetRouteMissingTiles(plannedRouteRoadWithRivers);
+			if (iMissingTiles <= 3)
+				iRoadValueWithRivers += 100 - 25 * iMissingTiles;
 
 			int iRoadMaintenance = GC.getRouteInfo(ROUTE_ROAD)->GetGoldMaintenance() * (100 + m_pPlayer->GetImprovementGoldMaintenanceMod());
 
@@ -1707,7 +1711,9 @@ vector<OptionWithScore<BuilderDirective>> CvBuilderTaskingAI::GetRouteDirectives
 		if (iRailroadValue > 0)
 		{
 			// If the railroad is completed, increase its value
-			iRailroadValue += iRailroadValue / (4 * (GetRouteMissingTiles(plannedRouteRailroad) + 1));
+			int iMissingTiles = GetRouteMissingTiles(plannedRouteRailroad);
+			if (iMissingTiles <= 3)
+				iRailroadValue += 100 - 25 * iMissingTiles;
 
 			int iRailroadMaintenance = GC.getRouteInfo(ROUTE_RAILROAD)->GetGoldMaintenance() * (100 + m_pPlayer->GetImprovementGoldMaintenanceMod());
 			iRailroadTotalMaintenance = m_plannedRoutePlots[plannedRouteRailroad].size() * iRailroadMaintenance;
@@ -2027,13 +2033,27 @@ vector<OptionWithScore<BuilderDirective>> CvBuilderTaskingAI::GetImprovementDire
 		if (!m_pPlayer->canBuild(NULL, eBuild, true))
 			continue;
 
+		UnitTypes eWorkerUnit = (UnitTypes)GC.getInfoTypeForString("UNIT_WORKER");
+		if (eWorkerUnit != NO_UNIT)
+		{
+			CvUnitEntry* pUnitInfo = GC.getUnitInfo(eWorkerUnit);
+			if (m_pPlayer->GetPlayerTraits()->HasUnitClassCanBuild(eBuild, pUnitInfo->GetUnitClassType()) || (pUnitInfo->GetBuilds(eBuild) && !m_pPlayer->GetPlayerTraits()->IsNoBuild(eBuild)))
+			{
+				aPossibleBuilds.push_back(eBuild);
+				continue;
+			}
+		}
+
 		int iLoopUnit = 0;
 		for (CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iLoopUnit); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoopUnit))
 		{
-			if (pLoopUnit->canBuild(NULL, eBuild))
+			if (pLoopUnit->getUnitType() != eWorkerUnit)
 			{
-				aPossibleBuilds.push_back(eBuild);
-				break;
+				if (pLoopUnit->canBuild(NULL, eBuild))
+				{
+					aPossibleBuilds.push_back(eBuild);
+					break;
+				}
 			}
 		}
 	}
@@ -4249,13 +4269,27 @@ void CvBuilderTaskingAI::SetupExtraXAdjacentPlots()
 		if (!m_pPlayer->canBuild(NULL, eBuild, true))
 			continue;
 
+		UnitTypes eWorkerUnit = (UnitTypes)GC.getInfoTypeForString("UNIT_WORKER");
+		if (eWorkerUnit != NO_UNIT)
+		{
+			CvUnitEntry* pUnitInfo = GC.getUnitInfo(eWorkerUnit);
+			if (m_pPlayer->GetPlayerTraits()->HasUnitClassCanBuild(eBuild, pUnitInfo->GetUnitClassType()) || (pUnitInfo->GetBuilds(eBuild) && !m_pPlayer->GetPlayerTraits()->IsNoBuild(eBuild)))
+			{
+				aPossibleBuilds.push_back(eBuild);
+				continue;
+			}
+		}
+
 		int iLoopUnit = 0;
 		for (CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iLoopUnit); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoopUnit))
 		{
-			if (pLoopUnit->canBuild(NULL, eBuild))
+			if (pLoopUnit->getUnitType() != eWorkerUnit)
 			{
-				aPossibleBuilds.push_back(eBuild);
-				break;
+				if (pLoopUnit->canBuild(NULL, eBuild))
+				{
+					aPossibleBuilds.push_back(eBuild);
+					break;
+				}
 			}
 		}
 	}

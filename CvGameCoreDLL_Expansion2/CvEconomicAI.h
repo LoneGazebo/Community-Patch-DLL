@@ -183,6 +183,8 @@ public:
 	void SetNavalExplorersNeeded(int iValue);
 	int GetNavalExplorersNeeded() const;
 
+	int GetSoftSupplyCap() const;
+
 	const std::vector<SPlotWithScore>& GetExplorationPlots(DomainTypes domain);
 
 	void StartSaveForPurchase(PurchaseType ePurchase, int iAmount, int iPriority);
