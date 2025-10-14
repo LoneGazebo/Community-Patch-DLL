@@ -1560,8 +1560,8 @@
       <UpdateDatabase>Database Changes/AI/StrategyFlavorSweeps.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes/AI/TechFlavorSweeps.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes/AI/UnitFlavorSweeps.sql</UpdateDatabase>
-      <UpdateDatabase>Database Changes/Text/en_US/Buildings/PreBuildingTextChanges.xml</UpdateDatabase>
-      <UpdateDatabase>Database Changes/Text/en_US/Units/PreUnitTextChanges.xml</UpdateDatabase>
+      <UpdateDatabase>Database Changes/Text/en_US/Buildings/PreBuildingTextChanges.sql</UpdateDatabase>
+      <UpdateDatabase>Database Changes/Text/en_US/Units/PreUnitTextChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes/Text/en_US/NewAutomateText.xml</UpdateDatabase>
       <UpdateDatabase>Database Changes/Text/en_US/NewGameOptionText.xml</UpdateDatabase>
       <UpdateDatabase>Database Changes/Text/en_US/NewMapscriptText.xml</UpdateDatabase>
