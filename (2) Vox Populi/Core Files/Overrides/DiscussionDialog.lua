@@ -436,9 +436,9 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 				Controls.Button10:SetDisabled(true);
 
 				--------------------
-				--  SHARE OPINION --
+				-- SHARE APPROACH --
 				--------------------
-				strButton11Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_MESSAGE_SHARE_OPINION" );
+				strButton11Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_MESSAGE_SHARE_APPROACH" );
 				Controls.Button11:SetDisabled(true);
 
 				-- Discussion buttons valid?
@@ -450,8 +450,8 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 						Controls.Button10:SetDisabled(false);
 					end
 
-					-- Share Opinion button: Button 11
-					if (IsShareOpinionOnThirdPartyPlayerValid(iPlayerLoop)) then
+					-- Share Approach button: Button 11
+					if (IsShareApproachOnThirdPartyPlayerValid(iPlayerLoop)) then
 						Controls.Button11:SetDisabled(false);
 					end
 				end
@@ -1478,8 +1478,8 @@ function OnButton11()
 	if (g_DiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_DISCUSS_HUMAN_INVOKED) then
 		-- Discussion Root Mode
 		if (g_iInvokedDiscussionMode == g_iModeDiscussionRoot) then
-			g_iInvokedDiscussionMode = g_iModeDiscussionShareOpinion;
-			--print("g_iInvokedDiscussionMode = g_iModeDiscussionShareOpinion");
+			g_iInvokedDiscussionMode = g_iModeDiscussionShareApproach;
+			--print("g_iInvokedDiscussionMode = g_iModeDiscussionShareApproach");
 			OpenLeadersPanel();
 		end
     -- Default mode
@@ -1504,8 +1504,8 @@ function OpenLeadersPanel()
 			AddLeaderButton( iPlayerLoop, Players[iPlayerLoop]:GetName() );
 		end
 		
-		-- Share Opinion mode
-		if (g_iInvokedDiscussionMode == g_iModeDiscussionShareOpinion and IsShareOpinionOnThirdPartyPlayerValid(iPlayerLoop)) then
+		-- Share Approach mode
+		if (g_iInvokedDiscussionMode == g_iModeDiscussionShareApproach and IsShareApproachOnThirdPartyPlayerValid(iPlayerLoop)) then
 			iNumPlayers = iNumPlayers + 1;
 			AddLeaderButton( iPlayerLoop, Players[iPlayerLoop]:GetName() );
 		end
@@ -1592,7 +1592,7 @@ end
 
 ----------------------------------------------------------------
 ----------------------------------------------------------------
-function IsShareOpinionOnThirdPartyPlayerValid(iThirdPartyPlayer)
+function IsShareApproachOnThirdPartyPlayerValid(iThirdPartyPlayer)
 	-- Have we met them?
 	if (not IsThirdPartyPlayerValid(iThirdPartyPlayer)) then
 		return false;
@@ -1639,8 +1639,8 @@ function OnCloseLeaderPanelButton()
 			Controls.Button10:SetDisabled(false);
 		end
 
-		-- Share Opinion button: Button 11
-		if (IsShareOpinionOnThirdPartyPlayerValid(iPlayerLoop)) then
+		-- Share Approach button: Button 11
+		if (IsShareApproachOnThirdPartyPlayerValid(iPlayerLoop)) then
 			Controls.Button11:SetDisabled(false);
 		end
 	end
@@ -1661,9 +1661,9 @@ function OnLeaderSelect( iLeaderId )
 	    Game.DoFromUIDiploEvent( FromUIDiploEventTypes.FROM_UI_DIPLO_EVENT_COOP_WAR_OFFER, g_iAIPlayer, iLeaderId, -1 );
 	end
 
-	-- Sharing opinion mode
-	if (g_iInvokedDiscussionMode == g_iModeDiscussionShareOpinion) then
-	    Game.DoFromUIDiploEvent( FromUIDiploEventTypes.FROM_UI_DIPLO_EVENT_HUMAN_DISCUSSION_SHARE_OPINION, g_iAIPlayer, iLeaderId, -1 );
+	-- Sharing approach mode
+	if (g_iInvokedDiscussionMode == g_iModeDiscussionShareApproach) then
+	    Game.DoFromUIDiploEvent( FromUIDiploEventTypes.FROM_UI_DIPLO_EVENT_HUMAN_DISCUSSION_SHARE_APPROACH, g_iAIPlayer, iLeaderId, -1 );
 	end
 	
 end

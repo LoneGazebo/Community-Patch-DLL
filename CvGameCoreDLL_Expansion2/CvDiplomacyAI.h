@@ -965,8 +965,8 @@ public:
 	// C4DF Values
 	// ------------------------------------
 
-	ShareOpinionResponseTypes GetShareOpinionResponse(PlayerTypes ePlayer) const;
-	void SetShareOpinionResponse(PlayerTypes ePlayer, ShareOpinionResponseTypes eResponse);
+	ShareApproachResponseTypes GetShareApproachResponse(PlayerTypes ePlayer) const;
+	void SetShareApproachResponse(PlayerTypes ePlayer, ShareApproachResponseTypes eResponse);
 
 	bool IsPlayerMoveTroopsRequestAccepted(PlayerTypes ePlayer) const;
 	void SetPlayerMoveTroopsRequestAccepted(PlayerTypes ePlayer, bool bValue);
@@ -1519,9 +1519,9 @@ public:
 	bool IsLuxuryGenerousOffer(PlayerTypes ePlayer, CvDeal* pDeal);
 	bool IsTechGenerousOffer(PlayerTypes ePlayer, CvDeal* pDeal);
 
-	// Sharing Opinion
-	bool IsShareOpinionAcceptable(PlayerTypes ePlayer);
-	bool IsTooEarlyForShareOpinion(PlayerTypes ePlayer);
+	// Sharing Approach
+	bool IsShareApproachAcceptable(PlayerTypes ePlayer);
+	bool IsTooEarlyForShareApproach(PlayerTypes ePlayer);
 
 	// Help Request
 	void DoHelpRequestMade(PlayerTypes ePlayer, DemandResponseTypes eResponse);
@@ -2110,7 +2110,7 @@ private:
 	//char m_aeApproachTowardsUsGuessCounter[MAX_MAJOR_CIVS];
 
 	// C4DF Values
-	char m_aeShareOpinionResponse[MAX_MAJOR_CIVS];
+	char m_aeShareApproachResponse[MAX_MAJOR_CIVS];
 	int m_aiHelpRequestAcceptedTurn[MAX_MAJOR_CIVS];
 	char m_aiHelpRequestTooSoonNumTurns[MAX_MAJOR_CIVS];
 	bool m_abOfferingGift[MAX_MAJOR_CIVS];

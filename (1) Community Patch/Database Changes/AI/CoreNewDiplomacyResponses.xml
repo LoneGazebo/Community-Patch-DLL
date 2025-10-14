@@ -2,58 +2,58 @@
 <GameData>
 	<!-- For leader-specific messages, see CoreNewDiplomacyResponses.sql for systematic insertion -->
 	<Diplomacy_Responses>
-		<!-- Human asks AI about their opinions -->
+		<!-- Human asks AI about their approaches -->
 		<Row LeaderType="GENERIC">
-			<ResponseType>RESPONSE_HOSTILE_REPEAT_SHARE_OPINION_NO</ResponseType>
-			<Response>TXT_KEY_GENERIC_HOSTILE_REPEAT_SHARE_OPINION_NO%</Response>
+			<ResponseType>RESPONSE_HOSTILE_REPEAT_SHARE_APPROACH_NO</ResponseType>
+			<Response>TXT_KEY_GENERIC_HOSTILE_REPEAT_SHARE_APPROACH_NO%</Response>
 		</Row>
 		<Row LeaderType="GENERIC">
-			<ResponseType>RESPONSE_REPEAT_SHARE_OPINION_NO</ResponseType>
-			<Response>TXT_KEY_GENERIC_REPEAT_SHARE_OPINION_NO%</Response>
+			<ResponseType>RESPONSE_REPEAT_SHARE_APPROACH_NO</ResponseType>
+			<Response>TXT_KEY_GENERIC_REPEAT_SHARE_APPROACH_NO%</Response>
 		</Row>
 		<Row LeaderType="GENERIC">
-			<ResponseType>RESPONSE_HOSTILE_SHARE_OPINION_NO</ResponseType>
-			<Response>TXT_KEY_GENERIC_HOSTILE_SHARE_OPINION_NO%</Response>
+			<ResponseType>RESPONSE_HOSTILE_SHARE_APPROACH_NO</ResponseType>
+			<Response>TXT_KEY_GENERIC_HOSTILE_SHARE_APPROACH_NO%</Response>
 		</Row>
 		<Row LeaderType="GENERIC">
-			<ResponseType>RESPONSE_SHARE_OPINION_NO</ResponseType>
-			<Response>TXT_KEY_GENERIC_SHARE_OPINION_NO%</Response>
+			<ResponseType>RESPONSE_SHARE_APPROACH_NO</ResponseType>
+			<Response>TXT_KEY_GENERIC_SHARE_APPROACH_NO%</Response>
 		</Row>
 		<Row LeaderType="GENERIC">
-			<ResponseType>RESPONSE_SHARE_OPINION_FRIENDLY</ResponseType>
-			<Response>TXT_KEY_GENERIC_SHARE_OPINION_FRIENDLY%</Response>
+			<ResponseType>RESPONSE_SHARE_APPROACH_FRIENDLY</ResponseType>
+			<Response>TXT_KEY_GENERIC_SHARE_APPROACH_FRIENDLY%</Response>
 		</Row>
 		<Row LeaderType="GENERIC">
-			<ResponseType>RESPONSE_SHARE_OPINION_NEUTRAL</ResponseType>
-			<Response>TXT_KEY_GENERIC_SHARE_OPINION_NEUTRAL%</Response>
+			<ResponseType>RESPONSE_SHARE_APPROACH_NEUTRAL</ResponseType>
+			<Response>TXT_KEY_GENERIC_SHARE_APPROACH_NEUTRAL%</Response>
 		</Row>
 		<Row LeaderType="GENERIC">
-			<ResponseType>RESPONSE_SHARE_OPINION_GUARDED</ResponseType>
-			<Response>TXT_KEY_GENERIC_SHARE_OPINION_GUARDED%</Response>
+			<ResponseType>RESPONSE_SHARE_APPROACH_GUARDED</ResponseType>
+			<Response>TXT_KEY_GENERIC_SHARE_APPROACH_GUARDED%</Response>
 		</Row>
 		<Row LeaderType="GENERIC">
-			<ResponseType>RESPONSE_SHARE_OPINION_HOSTILE</ResponseType>
-			<Response>TXT_KEY_GENERIC_SHARE_OPINION_HOSTILE%</Response>
+			<ResponseType>RESPONSE_SHARE_APPROACH_HOSTILE</ResponseType>
+			<Response>TXT_KEY_GENERIC_SHARE_APPROACH_HOSTILE%</Response>
 		</Row>
 		<Row LeaderType="GENERIC">
-			<ResponseType>RESPONSE_SHARE_OPINION_WAR</ResponseType>
-			<Response>TXT_KEY_GENERIC_SHARE_OPINION_WAR%</Response>
+			<ResponseType>RESPONSE_SHARE_APPROACH_WAR</ResponseType>
+			<Response>TXT_KEY_GENERIC_SHARE_APPROACH_WAR%</Response>
 		</Row>
 		<Row LeaderType="GENERIC">
-			<ResponseType>RESPONSE_SHARE_OPINION_AFRAID</ResponseType>
-			<Response>TXT_KEY_GENERIC_SHARE_OPINION_AFRAID%</Response>
+			<ResponseType>RESPONSE_SHARE_APPROACH_AFRAID</ResponseType>
+			<Response>TXT_KEY_GENERIC_SHARE_APPROACH_AFRAID%</Response>
 		</Row>
 		<Row LeaderType="GENERIC">
-			<ResponseType>RESPONSE_SHARE_OPINION_PLANNING_WAR</ResponseType>
-			<Response>TXT_KEY_GENERIC_SHARE_OPINION_PLANNING_WAR%</Response>
+			<ResponseType>RESPONSE_SHARE_APPROACH_PLANNING_WAR</ResponseType>
+			<Response>TXT_KEY_GENERIC_SHARE_APPROACH_PLANNING_WAR%</Response>
 		</Row>
 		<Row LeaderType="GENERIC">
-			<ResponseType>RESPONSE_SHARE_OPINION_DECEPTIVE</ResponseType>
-			<Response>TXT_KEY_GENERIC_SHARE_OPINION_DECEPTIVE%</Response>
+			<ResponseType>RESPONSE_SHARE_APPROACH_DECEPTIVE</ResponseType>
+			<Response>TXT_KEY_GENERIC_SHARE_APPROACH_DECEPTIVE%</Response>
 		</Row>
 		<Row LeaderType="GENERIC">
-			<ResponseType>RESPONSE_TOO_SOON_FOR_SHARE_OPINION</ResponseType>
-			<Response>TXT_KEY_GENERIC_TOO_SOON_FOR_SHARE_OPINION%</Response>
+			<ResponseType>RESPONSE_TOO_SOON_FOR_SHARE_APPROACH</ResponseType>
+			<Response>TXT_KEY_GENERIC_TOO_SOON_FOR_SHARE_APPROACH%</Response>
 		</Row>
 
 		<!-- Move troops -->

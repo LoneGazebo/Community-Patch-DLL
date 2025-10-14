@@ -97,7 +97,7 @@ VALUES
 	('BALANCE_SCOUT_XP_BASE', 1),
 -- "Too early for agreement" turn buffers
 	('JUST_MET_TURN_BUFFER', 10), -- Hard floor for below two
-	('SHARE_OPINION_TURN_BUFFER', 20), -- How many turns after we meet a civilization must we wait before they'll share their opinion?
+	('SHARE_APPROACH_TURN_BUFFER', 20), -- How many turns after we meet a civilization must we wait before they'll share their opinion?
 	('DOF_TURN_BUFFER', 50), -- How many turns after we meet a civilization must we wait before they'll accept friendship?
 	('DOF_TURN_BUFFER_REDUCTION_PER_ERA', -5),
 -- Help requests

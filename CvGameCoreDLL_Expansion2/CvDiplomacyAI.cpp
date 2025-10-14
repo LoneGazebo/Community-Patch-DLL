@@ -337,7 +337,7 @@ void CvDiplomacyAI::Init(CvPlayer* pPlayer)
 			//m_aeApproachTowardsUsGuessCounter[iI] = 0;
 
 			// C4DF Values
-			m_aeShareOpinionResponse[iI] = NO_SHARE_OPINION_RESPONSE;
+			m_aeShareApproachResponse[iI] = NO_SHARE_APPROACH_RESPONSE;
 			m_aiHelpRequestAcceptedTurn[iI] = -1;
 			m_aiHelpRequestTooSoonNumTurns[iI] = -1;
 			m_aiVassalProtectValue[iI] = 0;
@@ -672,7 +672,7 @@ void CvDiplomacyAI::Serialize(DiplomacyAI& diplomacyAI, Visitor& visitor)
 	//visitor(diplomacyAI.m_aiApproachTowardsUsGuessCounter);
 
 	// C4DF Values
-	visitor(diplomacyAI.m_aeShareOpinionResponse);
+	visitor(diplomacyAI.m_aeShareApproachResponse);
 	visitor(diplomacyAI.m_aiHelpRequestAcceptedTurn);
 	visitor(diplomacyAI.m_aiHelpRequestTooSoonNumTurns);
 	visitor(diplomacyAI.m_aiVassalProtectValue);
@@ -938,9 +938,9 @@ void CvDiplomacyAI::SlotStateChange()
 				SetVotingHistoryScore(ePlayer, 0);
 				pOther->SetVotingHistoryScore(eID, 0);
 
-				// Reset share opinion response
-				SetShareOpinionResponse(ePlayer, NO_SHARE_OPINION_RESPONSE);
-				pOther->SetShareOpinionResponse(eID, NO_SHARE_OPINION_RESPONSE);
+				// Reset share approach response
+				SetShareApproachResponse(ePlayer, NO_SHARE_APPROACH_RESPONSE);
+				pOther->SetShareApproachResponse(eID, NO_SHARE_APPROACH_RESPONSE);
 			}
 
 			// Reset values for all civs
@@ -1112,7 +1112,7 @@ void CvDiplomacyAI::SlotStateChange()
 				// Reset other AI-only values
 				SetRecentAssistValue(ePlayer, 0);
 				SetVotingHistoryScore(ePlayer, 0);
-				SetShareOpinionResponse(ePlayer, NO_SHARE_OPINION_RESPONSE);
+				SetShareApproachResponse(ePlayer, NO_SHARE_APPROACH_RESPONSE);
 				SetCantMatchDeal(ePlayer, false);
 				SetOfferingGift(ePlayer, false);
 				SetOfferedGift(ePlayer, false);
@@ -8793,18 +8793,18 @@ void CvDiplomacyAI::ChangeApproachTowardsUsGuessCounter(PlayerTypes ePlayer, int
 // ------------------------------------
 
 /// Have we accepted or refused ePlayer's request to share our Diplomatic Approach towards other players?
-ShareOpinionResponseTypes CvDiplomacyAI::GetShareOpinionResponse(PlayerTypes ePlayer) const
+ShareApproachResponseTypes CvDiplomacyAI::GetShareApproachResponse(PlayerTypes ePlayer) const
 {
 	PRECONDITION(ePlayer >= 0 && ePlayer < MAX_MAJOR_CIVS, "Player index out of bounds");
-	return (ShareOpinionResponseTypes) m_aeShareOpinionResponse[ePlayer];
+	return (ShareApproachResponseTypes) m_aeShareApproachResponse[ePlayer];
 }
 
-void CvDiplomacyAI::SetShareOpinionResponse(PlayerTypes ePlayer, ShareOpinionResponseTypes eResponse)
+void CvDiplomacyAI::SetShareApproachResponse(PlayerTypes ePlayer, ShareApproachResponseTypes eResponse)
 {
 	PRECONDITION(ePlayer >= 0 && ePlayer < MAX_MAJOR_CIVS, "Player index out of bounds");
-	PRECONDITION(eResponse >= NO_SHARE_OPINION_RESPONSE && eResponse < NUM_SHARE_OPINION_RESPONSES, "Setting ShareOpinionResponse to invalid value");
-	ASSERT(NotMe(ePlayer), "Setting ShareOpinionResponse for self");
-	m_aeShareOpinionResponse[ePlayer] = eResponse;
+	PRECONDITION(eResponse >= NO_SHARE_APPROACH_RESPONSE && eResponse < NUM_SHARE_APPROACH_RESPONSES, "Setting ShareApproachResponse to invalid value");
+	ASSERT(NotMe(ePlayer), "Setting ShareApproachResponse for self");
+	m_aeShareApproachResponse[ePlayer] = eResponse;
 }
 
 /// Have we agreed to move our troops away from ePlayer's borders?
@@ -29477,10 +29477,10 @@ void CvDiplomacyAI::DoPlayerDeclaredWarOnSomeone(PlayerTypes ePlayer, TeamTypes 
 			GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFAccepted(eMyPlayer, false);
 			GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFType(eMyPlayer, DOF_TYPE_UNTRUSTWORTHY);
 
-			if (GetShareOpinionResponse(ePlayer) != SHARE_OPINION_RESPONSE_REFUSED)
-				SetShareOpinionResponse(ePlayer, NO_SHARE_OPINION_RESPONSE);
-			if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetShareOpinionResponse(eMyPlayer) != SHARE_OPINION_RESPONSE_REFUSED)
-				GET_PLAYER(ePlayer).GetDiplomacyAI()->SetShareOpinionResponse(eMyPlayer, NO_SHARE_OPINION_RESPONSE);
+			if (GetShareApproachResponse(ePlayer) != SHARE_APPROACH_RESPONSE_REFUSED)
+				SetShareApproachResponse(ePlayer, NO_SHARE_APPROACH_RESPONSE);
+			if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetShareApproachResponse(eMyPlayer) != SHARE_APPROACH_RESPONSE_REFUSED)
+				GET_PLAYER(ePlayer).GetDiplomacyAI()->SetShareApproachResponse(eMyPlayer, NO_SHARE_APPROACH_RESPONSE);
 
 			// End all coop war agreements with this player
 			CancelCoopWarsWithPlayer(ePlayer, !bDefensivePact);
@@ -37893,56 +37893,56 @@ const char* CvDiplomacyAI::GetDiploStringForMessage(DiploMessageTypes eDiploMess
 		strText = GetDiploTextFromTag("DIPLO_MESSAGE_VICTORY_BLOCK_ANNOUNCE_SPACESHIP");
 		break;
 	// Human repeatedly asks AI for opinion of another player after they said no (hostile)
-	case DIPLO_MESSAGE_HOSTILE_REPEAT_SHARE_OPINION_NO:
-		strText = GetDiploTextFromTag("RESPONSE_HOSTILE_REPEAT_SHARE_OPINION_NO");
+	case DIPLO_MESSAGE_HOSTILE_REPEAT_SHARE_APPROACH_NO:
+		strText = GetDiploTextFromTag("RESPONSE_HOSTILE_REPEAT_SHARE_APPROACH_NO");
 		break;
 	// Human repeatedly asks AI for opinion of another player after they said no
-	case DIPLO_MESSAGE_REPEAT_SHARE_OPINION_NO:
-		strText = GetDiploTextFromTag("RESPONSE_REPEAT_SHARE_OPINION_NO");
+	case DIPLO_MESSAGE_REPEAT_SHARE_APPROACH_NO:
+		strText = GetDiploTextFromTag("RESPONSE_REPEAT_SHARE_APPROACH_NO");
 		break;
 	// Human asks AI for their opinion of another player. The AI refuses. (hostile)
-	case DIPLO_MESSAGE_HOSTILE_SHARE_OPINION_NO:
-		strText = GetDiploTextFromTag("RESPONSE_HOSTILE_SHARE_OPINION_NO");
+	case DIPLO_MESSAGE_HOSTILE_SHARE_APPROACH_NO:
+		strText = GetDiploTextFromTag("RESPONSE_HOSTILE_SHARE_APPROACH_NO");
 		break;
     // Human asks AI for their opinion of another player. The AI refuses.
-	case DIPLO_MESSAGE_SHARE_OPINION_NO:
-		strText = GetDiploTextFromTag("RESPONSE_SHARE_OPINION_NO");
+	case DIPLO_MESSAGE_SHARE_APPROACH_NO:
+		strText = GetDiploTextFromTag("RESPONSE_SHARE_APPROACH_NO");
 		break;
     // AI tells human its approach towards another player (FRIENDLY)
-	case DIPLO_MESSAGE_SHARE_OPINION_FRIENDLY:
-		strText = GetDiploTextFromTag("RESPONSE_SHARE_OPINION_FRIENDLY", strOptionalKey1);
+	case DIPLO_MESSAGE_SHARE_APPROACH_FRIENDLY:
+		strText = GetDiploTextFromTag("RESPONSE_SHARE_APPROACH_FRIENDLY", strOptionalKey1);
 		break;
     // AI tells human its approach towards another player (NEUTRAL)
-	case DIPLO_MESSAGE_SHARE_OPINION_NEUTRAL:
-		strText = GetDiploTextFromTag("RESPONSE_SHARE_OPINION_NEUTRAL", strOptionalKey1);
+	case DIPLO_MESSAGE_SHARE_APPROACH_NEUTRAL:
+		strText = GetDiploTextFromTag("RESPONSE_SHARE_APPROACH_NEUTRAL", strOptionalKey1);
 		break;
     // AI tells human its approach towards another player (GUARDED)
-	case DIPLO_MESSAGE_SHARE_OPINION_GUARDED:
-		strText = GetDiploTextFromTag("RESPONSE_SHARE_OPINION_GUARDED", strOptionalKey1);
+	case DIPLO_MESSAGE_SHARE_APPROACH_GUARDED:
+		strText = GetDiploTextFromTag("RESPONSE_SHARE_APPROACH_GUARDED", strOptionalKey1);
 		break;
     // AI tells human its approach towards another player (HOSTILE)
-	case DIPLO_MESSAGE_SHARE_OPINION_HOSTILE:
-		strText = GetDiploTextFromTag("RESPONSE_SHARE_OPINION_HOSTILE", strOptionalKey1);
+	case DIPLO_MESSAGE_SHARE_APPROACH_HOSTILE:
+		strText = GetDiploTextFromTag("RESPONSE_SHARE_APPROACH_HOSTILE", strOptionalKey1);
 		break;
     // AI tells human it is at war with another player
-	case DIPLO_MESSAGE_SHARE_OPINION_WAR:
-		strText = GetDiploTextFromTag("RESPONSE_SHARE_OPINION_WAR", strOptionalKey1);
+	case DIPLO_MESSAGE_SHARE_APPROACH_WAR:
+		strText = GetDiploTextFromTag("RESPONSE_SHARE_APPROACH_WAR", strOptionalKey1);
 		break;
     // AI tells human its approach towards another player (AFRAID)
-	case DIPLO_MESSAGE_SHARE_OPINION_AFRAID:
-		strText = GetDiploTextFromTag("RESPONSE_SHARE_OPINION_AFRAID", strOptionalKey1);
+	case DIPLO_MESSAGE_SHARE_APPROACH_AFRAID:
+		strText = GetDiploTextFromTag("RESPONSE_SHARE_APPROACH_AFRAID", strOptionalKey1);
 		break;
     // AI tells human it is planning war against another player
-	case DIPLO_MESSAGE_SHARE_OPINION_PLANNING_WAR:
-		strText = GetDiploTextFromTag("RESPONSE_SHARE_OPINION_PLANNING_WAR", strOptionalKey1);
+	case DIPLO_MESSAGE_SHARE_APPROACH_PLANNING_WAR:
+		strText = GetDiploTextFromTag("RESPONSE_SHARE_APPROACH_PLANNING_WAR", strOptionalKey1);
 		break;
     // AI tells human its approach towards another player (DECEPTIVE)
-	case DIPLO_MESSAGE_SHARE_OPINION_DECEPTIVE:
-		strText = GetDiploTextFromTag("RESPONSE_SHARE_OPINION_DECEPTIVE", strOptionalKey1);
+	case DIPLO_MESSAGE_SHARE_APPROACH_DECEPTIVE:
+		strText = GetDiploTextFromTag("RESPONSE_SHARE_APPROACH_DECEPTIVE", strOptionalKey1);
 		break;
     // AI tells human it hasn't known them long enough to share its opinion of others
-	case DIPLO_MESSAGE_TOO_SOON_FOR_SHARE_OPINION:
-		strText = GetDiploTextFromTag("RESPONSE_TOO_SOON_FOR_SHARE_OPINION");
+	case DIPLO_MESSAGE_TOO_SOON_FOR_SHARE_APPROACH:
+		strText = GetDiploTextFromTag("RESPONSE_TOO_SOON_FOR_SHARE_APPROACH");
 		break;
     // AI wants to trade for the player's World Map
 	case DIPLO_MESSAGE_MAPS_OFFER:
@@ -39854,11 +39854,11 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		// *********************************************
 		// Player asked the AI about other civilizations
 		// *********************************************
-		case FROM_UI_DIPLO_EVENT_HUMAN_DISCUSSION_SHARE_OPINION:
+		case FROM_UI_DIPLO_EVENT_HUMAN_DISCUSSION_SHARE_APPROACH:
 		{
 			PlayerTypes eTargetPlayer = (PlayerTypes) iArg1;
 			bool bHostile = IsAtWar(eFromPlayer) || IsDenouncedPlayer(eFromPlayer) || IsDenouncedByPlayer(eFromPlayer) || IsUntrustworthy(eFromPlayer) || IsActHostileTowardsHuman(eFromPlayer);
-			bool bAcceptable = !bHostile && !IsTooEarlyForShareOpinion(eFromPlayer) && GET_PLAYER(eFromPlayer).isAlive() && !GET_PLAYER(eFromPlayer).isObserver() && (GetShareOpinionResponse(eFromPlayer) == SHARE_OPINION_RESPONSE_ACCEPTED || IsShareOpinionAcceptable(eFromPlayer));
+			bool bAcceptable = !bHostile && !IsTooEarlyForShareApproach(eFromPlayer) && GET_PLAYER(eFromPlayer).isAlive() && !GET_PLAYER(eFromPlayer).isObserver() && (GetShareApproachResponse(eFromPlayer) == SHARE_APPROACH_RESPONSE_ACCEPTED || IsShareApproachAcceptable(eFromPlayer));
 			bool bDiplomat = false;
 			if (MOD_BALANCE_VP)
 			{
@@ -39890,25 +39890,25 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			{
 				if (bActivePlayer)
 				{
-					if (GetShareOpinionResponse(eFromPlayer) == SHARE_OPINION_RESPONSE_REFUSED)
+					if (GetShareApproachResponse(eFromPlayer) == SHARE_APPROACH_RESPONSE_REFUSED)
 					{
-						strText = GetDiploStringForMessage(DIPLO_MESSAGE_HOSTILE_REPEAT_SHARE_OPINION_NO);
+						strText = GetDiploStringForMessage(DIPLO_MESSAGE_HOSTILE_REPEAT_SHARE_APPROACH_NO);
 						gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_DISCUSS_HUMAN_INVOKED, strText, LEADERHEAD_ANIM_NO);
 					}
 					else
 					{
-						strText = GetDiploStringForMessage(DIPLO_MESSAGE_HOSTILE_SHARE_OPINION_NO);
+						strText = GetDiploStringForMessage(DIPLO_MESSAGE_HOSTILE_SHARE_APPROACH_NO);
 						gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_DISCUSS_HUMAN_INVOKED, strText, LEADERHEAD_ANIM_NO);
 					}
 				}
 
-				SetShareOpinionResponse(eFromPlayer, SHARE_OPINION_RESPONSE_REFUSED);
+				SetShareApproachResponse(eFromPlayer, SHARE_APPROACH_RESPONSE_REFUSED);
 			}
 			// We accepted! Share our approach towards this player with them.
 			else if (bAcceptable || bOverride)
 			{
 				if (bAcceptable)
-					SetShareOpinionResponse(eFromPlayer, SHARE_OPINION_RESPONSE_ACCEPTED);
+					SetShareApproachResponse(eFromPlayer, SHARE_APPROACH_RESPONSE_ACCEPTED);
 
 				bool bHonest = bDiplomat || bOverride || (GetCivApproach(eFromPlayer) == CIV_APPROACH_FRIENDLY && GetCivOpinion(eFromPlayer) >= CIV_OPINION_FRIEND);
 				CivApproachTypes eTargetApproach = bHonest ? GetCivApproach(eTargetPlayer) : GetSurfaceApproach(eTargetPlayer);
@@ -39917,32 +39917,32 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 				{
 					if (IsAtWar(eTargetPlayer))
 					{
-						strText = GetDiploStringForMessage(DIPLO_MESSAGE_SHARE_OPINION_WAR, NO_PLAYER, GET_PLAYER(eTargetPlayer).getNameKey());
+						strText = GetDiploStringForMessage(DIPLO_MESSAGE_SHARE_APPROACH_WAR, NO_PLAYER, GET_PLAYER(eTargetPlayer).getNameKey());
 					}
 					else
 					{
 						switch (eTargetApproach)
 						{
 						case CIV_APPROACH_FRIENDLY:
-							strText = GetDiploStringForMessage(DIPLO_MESSAGE_SHARE_OPINION_FRIENDLY, NO_PLAYER, GET_PLAYER(eTargetPlayer).getNameKey());
+							strText = GetDiploStringForMessage(DIPLO_MESSAGE_SHARE_APPROACH_FRIENDLY, NO_PLAYER, GET_PLAYER(eTargetPlayer).getNameKey());
 							break;
 						case CIV_APPROACH_NEUTRAL:
-							strText = GetDiploStringForMessage(DIPLO_MESSAGE_SHARE_OPINION_NEUTRAL, NO_PLAYER, GET_PLAYER(eTargetPlayer).getNameKey());
+							strText = GetDiploStringForMessage(DIPLO_MESSAGE_SHARE_APPROACH_NEUTRAL, NO_PLAYER, GET_PLAYER(eTargetPlayer).getNameKey());
 							break;
 						case CIV_APPROACH_GUARDED:
-							strText = GetDiploStringForMessage(DIPLO_MESSAGE_SHARE_OPINION_GUARDED, NO_PLAYER, GET_PLAYER(eTargetPlayer).getNameKey());
+							strText = GetDiploStringForMessage(DIPLO_MESSAGE_SHARE_APPROACH_GUARDED, NO_PLAYER, GET_PLAYER(eTargetPlayer).getNameKey());
 							break;
 						case CIV_APPROACH_HOSTILE:
-							strText = GetDiploStringForMessage(DIPLO_MESSAGE_SHARE_OPINION_HOSTILE, NO_PLAYER, GET_PLAYER(eTargetPlayer).getNameKey());
+							strText = GetDiploStringForMessage(DIPLO_MESSAGE_SHARE_APPROACH_HOSTILE, NO_PLAYER, GET_PLAYER(eTargetPlayer).getNameKey());
 							break;
 						case CIV_APPROACH_AFRAID:
-							strText = GetDiploStringForMessage(DIPLO_MESSAGE_SHARE_OPINION_AFRAID, NO_PLAYER, GET_PLAYER(eTargetPlayer).getNameKey());
+							strText = GetDiploStringForMessage(DIPLO_MESSAGE_SHARE_APPROACH_AFRAID, NO_PLAYER, GET_PLAYER(eTargetPlayer).getNameKey());
 							break;
 						case CIV_APPROACH_WAR:
-							strText = GetDiploStringForMessage(DIPLO_MESSAGE_SHARE_OPINION_PLANNING_WAR, NO_PLAYER, GET_PLAYER(eTargetPlayer).getNameKey());
+							strText = GetDiploStringForMessage(DIPLO_MESSAGE_SHARE_APPROACH_PLANNING_WAR, NO_PLAYER, GET_PLAYER(eTargetPlayer).getNameKey());
 							break;
 						case CIV_APPROACH_DECEPTIVE:
-							strText = GetDiploStringForMessage(DIPLO_MESSAGE_SHARE_OPINION_DECEPTIVE, NO_PLAYER, GET_PLAYER(eTargetPlayer).getNameKey());
+							strText = GetDiploStringForMessage(DIPLO_MESSAGE_SHARE_APPROACH_DECEPTIVE, NO_PLAYER, GET_PLAYER(eTargetPlayer).getNameKey());
 							break;
 						}
 					}
@@ -39952,11 +39952,11 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			// We declined!
 			else
 			{
-				if (IsTooEarlyForShareOpinion(eFromPlayer))
+				if (IsTooEarlyForShareApproach(eFromPlayer))
 				{
 					if (bActivePlayer)
 					{
-						strText = GetDiploStringForMessage(DIPLO_MESSAGE_TOO_SOON_FOR_SHARE_OPINION);
+						strText = GetDiploStringForMessage(DIPLO_MESSAGE_TOO_SOON_FOR_SHARE_APPROACH);
 						gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_DISCUSS_HUMAN_INVOKED, strText, LEADERHEAD_ANIM_NO);
 					}
 				}
@@ -39964,19 +39964,19 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 				{
 					if (bActivePlayer)
 					{
-						if (GetShareOpinionResponse(eFromPlayer) == SHARE_OPINION_RESPONSE_REFUSED)
+						if (GetShareApproachResponse(eFromPlayer) == SHARE_APPROACH_RESPONSE_REFUSED)
 						{
-							strText = GetDiploStringForMessage(DIPLO_MESSAGE_REPEAT_SHARE_OPINION_NO);
+							strText = GetDiploStringForMessage(DIPLO_MESSAGE_REPEAT_SHARE_APPROACH_NO);
 							gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_DISCUSS_HUMAN_INVOKED, strText, LEADERHEAD_ANIM_NO);
 						}
 						else
 						{
-							strText = GetDiploStringForMessage(DIPLO_MESSAGE_SHARE_OPINION_NO);
+							strText = GetDiploStringForMessage(DIPLO_MESSAGE_SHARE_APPROACH_NO);
 							gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_DISCUSS_HUMAN_INVOKED, strText, LEADERHEAD_ANIM_NO);
 						}
 					}
 
-					SetShareOpinionResponse(eFromPlayer, SHARE_OPINION_RESPONSE_REFUSED);
+					SetShareApproachResponse(eFromPlayer, SHARE_APPROACH_RESPONSE_REFUSED);
 				}
 			}
 
@@ -57226,8 +57226,8 @@ bool CvDiplomacyAI::IsTechGenerousOffer(PlayerTypes ePlayer, CvDeal* pDeal)
 	return true;
 }
 
-/// Are we willing to share our opinion of other players with ePlayer?
-bool CvDiplomacyAI::IsShareOpinionAcceptable(PlayerTypes ePlayer)
+/// Are we willing to share our approach towards other players with ePlayer?
+bool CvDiplomacyAI::IsShareApproachAcceptable(PlayerTypes ePlayer)
 {
 	// Debug setting
 	if (MOD_DIPLO_DEBUG_MODE && GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
@@ -57236,7 +57236,7 @@ bool CvDiplomacyAI::IsShareOpinionAcceptable(PlayerTypes ePlayer)
 	CivApproachTypes eApproach = GetCivApproach(ePlayer);
 	CivOpinionTypes eOpinion = GetCivOpinion(ePlayer);
 
-	// Have to share opinion to master
+	// Have to share approach to master
 	if (IsVassal(ePlayer))
 		return true;
 
@@ -57272,7 +57272,7 @@ bool CvDiplomacyAI::IsShareOpinionAcceptable(PlayerTypes ePlayer)
 	}
 
 	// Haven't known this guy for long enough
-	if(IsTooEarlyForShareOpinion(ePlayer))
+	if(IsTooEarlyForShareApproach(ePlayer))
 		return false;
 	
 	// If player is unforgivable or an enemy, always say no
@@ -57296,28 +57296,28 @@ bool CvDiplomacyAI::IsShareOpinionAcceptable(PlayerTypes ePlayer)
 	return false;
 }
 
-/// AI won't agree to share Opinions until they've known a player for at least a few turns.
-bool CvDiplomacyAI::IsTooEarlyForShareOpinion(PlayerTypes ePlayer)
+/// AI won't agree to share Approaches until they've known a player for at least a few turns.
+bool CvDiplomacyAI::IsTooEarlyForShareApproach(PlayerTypes ePlayer)
 {
-	// Never too early for teammates to share opinion
+	// Never too early for teammates to share approach
 	if (IsTeammate(ePlayer))
 	{
 		return false;
 	}
 
-	// Never too early for vassals to share opinion
+	// Never too early for vassals to share approach
 	if (IsVassal(ePlayer))
 	{
 		return false;
 	}
 
-	// Never too early for friends to share opinion
+	// Never too early for friends to share approach
 	if (IsDoFAccepted(ePlayer))
 	{
 		return false;
 	}
 
-	if (GET_TEAM(GetTeam()).GetTurnsSinceMeetingTeam(GET_PLAYER(ePlayer).getTeam()) < max(/*20*/ GD_INT_GET(SHARE_OPINION_TURN_BUFFER), /*10*/ GD_INT_GET(JUST_MET_TURN_BUFFER)))
+	if (GET_TEAM(GetTeam()).GetTurnsSinceMeetingTeam(GET_PLAYER(ePlayer).getTeam()) < max(/*20*/ GD_INT_GET(SHARE_APPROACH_TURN_BUFFER), /*10*/ GD_INT_GET(JUST_MET_TURN_BUFFER)))
 		return true;
 
 	return false;

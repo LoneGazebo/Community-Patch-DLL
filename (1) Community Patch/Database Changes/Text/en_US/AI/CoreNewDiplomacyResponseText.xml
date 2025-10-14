@@ -411,129 +411,129 @@
 			<Text>You spend gold to steal land while I spend gold to buy brand new weapons for my soldiers. Who do you think will benefit the most from their investment in the long run?</Text>
 		</Row>
 
-		<!--// SHARE OPINION //-->
+		<!--// SHARE APPROACH //-->
 
-		<!-- Refuse to share opinion of others (hostile) -->
-		<Row Tag="TXT_KEY_GENERIC_HOSTILE_SHARE_OPINION_NO_1">
+		<!-- Refuse to share approach towards others (hostile) -->
+		<Row Tag="TXT_KEY_GENERIC_HOSTILE_SHARE_APPROACH_NO_1">
 			<Text>We would never share our diplomatic secrets with villains like you!</Text>
 		</Row>
-		<Row Tag="TXT_KEY_GENERIC_HOSTILE_SHARE_OPINION_NO_2">
+		<Row Tag="TXT_KEY_GENERIC_HOSTILE_SHARE_APPROACH_NO_2">
 			<Text>Do you honestly think I would tell a criminal like you my foreign policy?</Text>
 		</Row>
-		<Row Tag="TXT_KEY_GENERIC_HOSTILE_SHARE_OPINION_NO_3">
+		<Row Tag="TXT_KEY_GENERIC_HOSTILE_SHARE_APPROACH_NO_3">
 			<Text>Why would you waste your time asking about my foreign affairs? They are none of your business!</Text>
 		</Row>
-		<!-- Refuse to share opinion of others (hostile, repeated) -->
-		<Row Tag="TXT_KEY_GENERIC_HOSTILE_REPEAT_SHARE_OPINION_NO_1">
+		<!-- Refuse to share approach towards others (hostile, repeated) -->
+		<Row Tag="TXT_KEY_GENERIC_HOSTILE_REPEAT_SHARE_APPROACH_NO_1">
 			<Text>Why do you continue to waste my time with this nonsense? Begone!</Text>
 		</Row>
-		<Row Tag="TXT_KEY_GENERIC_HOSTILE_REPEAT_SHARE_OPINION_NO_2">
+		<Row Tag="TXT_KEY_GENERIC_HOSTILE_REPEAT_SHARE_APPROACH_NO_2">
 			<Text>Did you not hear me the first time? Go away!</Text>
 		</Row>
-		<Row Tag="TXT_KEY_GENERIC_HOSTILE_REPEAT_SHARE_OPINION_NO_3">
+		<Row Tag="TXT_KEY_GENERIC_HOSTILE_REPEAT_SHARE_APPROACH_NO_3">
 			<Text>I'm sorry, are you hard of hearing? The answer will always be no!</Text>
 		</Row>
-		<!-- Refuse to share opinion of others (non-hostile, just met) -->
-		<Row Tag="TXT_KEY_GENERIC_TOO_SOON_FOR_SHARE_OPINION_1">
+		<!-- Refuse to share approach towards others (non-hostile, just met) -->
+		<Row Tag="TXT_KEY_GENERIC_TOO_SOON_FOR_SHARE_APPROACH_1">
 			<Text>I'm sorry, but we haven't known you long enough to divulge our diplomatic secrets. Maybe in the future?</Text>
 		</Row>
-		<Row Tag="TXT_KEY_GENERIC_TOO_SOON_FOR_SHARE_OPINION_2">
+		<Row Tag="TXT_KEY_GENERIC_TOO_SOON_FOR_SHARE_APPROACH_2">
 			<Text>We haven't known each other long enough for me to reveal my foreign policy. The answer is no.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_GENERIC_TOO_SOON_FOR_SHARE_OPINION_3">
+		<Row Tag="TXT_KEY_GENERIC_TOO_SOON_FOR_SHARE_APPROACH_3">
 			<Text>I only give away my foreign policy to those whom I trust. I cannot trust someone I've just met.</Text>
 		</Row>
-		<!-- Refuse to share opinion of others (non-hostile, have met for a while) -->
-		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_NO_1">
+		<!-- Refuse to share approach towards others (non-hostile, have met for a while) -->
+		<Row Tag="TXT_KEY_GENERIC_SHARE_APPROACH_NO_1">
 			<Text>I'm sorry, but we prefer to keep our diplomatic secrets safe. Try again some other time.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_NO_2">
+		<Row Tag="TXT_KEY_GENERIC_SHARE_APPROACH_NO_2">
 			<Text>My advisors deem it important to keep our foreign policy private. Maybe some other time?</Text>
 		</Row>
-		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_NO_3">
+		<Row Tag="TXT_KEY_GENERIC_SHARE_APPROACH_NO_3">
 			<Text>We're not comfortable broadcasting our foreign affairs at this time. Perhaps another time?</Text>
 		</Row>
-		<!-- Refuse to share opinion of others (non-hostile, have met for a while, repeated) -->
-		<Row Tag="TXT_KEY_GENERIC_REPEAT_SHARE_OPINION_NO_1">
+		<!-- Refuse to share approach towards others (non-hostile, have met for a while, repeated) -->
+		<Row Tag="TXT_KEY_GENERIC_REPEAT_SHARE_APPROACH_NO_1">
 			<Text>I will not field such requests at this time. Please stop asking.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_GENERIC_REPEAT_SHARE_OPINION_NO_2">
+		<Row Tag="TXT_KEY_GENERIC_REPEAT_SHARE_APPROACH_NO_2">
 			<Text>We've been over this before. I will not tell you of my affairs.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_GENERIC_REPEAT_SHARE_OPINION_NO_3">
+		<Row Tag="TXT_KEY_GENERIC_REPEAT_SHARE_APPROACH_NO_3">
 			<Text>The answer remains no. We shall not provide diplomatic details at this time.</Text>
 		</Row>
-		<!-- Share opinion of another player -->
-		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_FRIENDLY_1">
+		<!-- Share approach towards another player -->
+		<Row Tag="TXT_KEY_GENERIC_SHARE_APPROACH_FRIENDLY_1">
 			<Text>{1_PlayerName:textkey} is a true friend and can be trusted. (Friendly)</Text>
 		</Row>
-		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_FRIENDLY_2">
+		<Row Tag="TXT_KEY_GENERIC_SHARE_APPROACH_FRIENDLY_2">
 			<Text>I'm quite fond of {1_PlayerName:textkey} and look forward to our continued friendship. (Friendly)</Text>
 		</Row>
-		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_FRIENDLY_3">
+		<Row Tag="TXT_KEY_GENERIC_SHARE_APPROACH_FRIENDLY_3">
 			<Text>{1_PlayerName:textkey} and I have been on good terms, and I see no reason why that would change. (Friendly)</Text>
 		</Row>
-		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_NEUTRAL_1">
+		<Row Tag="TXT_KEY_GENERIC_SHARE_APPROACH_NEUTRAL_1">
 			<Text>I really don't have an opinion of {1_PlayerName:textkey}. (Neutral)</Text>
 		</Row>
-		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_NEUTRAL_2">
+		<Row Tag="TXT_KEY_GENERIC_SHARE_APPROACH_NEUTRAL_2">
 			<Text>{1_PlayerName:textkey} is neither an enemy of mine nor my friend. (Neutral)</Text>
 		</Row>
-		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_NEUTRAL_3">
+		<Row Tag="TXT_KEY_GENERIC_SHARE_APPROACH_NEUTRAL_3">
 			<Text>{1_PlayerName:textkey} doesn't bother me at all. (Neutral)</Text>
 		</Row>
-		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_GUARDED_1">
+		<Row Tag="TXT_KEY_GENERIC_SHARE_APPROACH_GUARDED_1">
 			<Text>I'll be honest. I don't trust {1_PlayerName:textkey} one bit. (Guarded)</Text>
 		</Row>
-		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_GUARDED_2">
+		<Row Tag="TXT_KEY_GENERIC_SHARE_APPROACH_GUARDED_2">
 			<Text>{1_PlayerName:textkey} has alarmed my advisors and we are monitoring the situation. (Guarded)</Text>
 		</Row>
-		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_GUARDED_3">
+		<Row Tag="TXT_KEY_GENERIC_SHARE_APPROACH_GUARDED_3">
 			<Text>We're keeping an eye on {1_PlayerName:textkey} due to recent incidents. (Guarded)</Text>
 		</Row>
-		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_HOSTILE_1">
+		<Row Tag="TXT_KEY_GENERIC_SHARE_APPROACH_HOSTILE_1">
 			<Text>{1_PlayerName:textkey}'s rule taints this earth and I would see no problem with it ending. (Hostile)</Text>
 		</Row>
-		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_HOSTILE_2">
+		<Row Tag="TXT_KEY_GENERIC_SHARE_APPROACH_HOSTILE_2">
 			<Text>{1_PlayerName:textkey} is a tyrant and a villain that needs to be taken care of. (Hostile)</Text>
 		</Row>
-		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_HOSTILE_3">
+		<Row Tag="TXT_KEY_GENERIC_SHARE_APPROACH_HOSTILE_3">
 			<Text>Don't remind me that {1_PlayerName:textkey} still walks this earth... (Hostile)</Text>
 		</Row>
-		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_AFRAID_1">
+		<Row Tag="TXT_KEY_GENERIC_SHARE_APPROACH_AFRAID_1">
 			<Text>I look up to {1_PlayerName:textkey} with great envy! (Afraid)</Text>
 		</Row>
-		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_AFRAID_2">
+		<Row Tag="TXT_KEY_GENERIC_SHARE_APPROACH_AFRAID_2">
 			<Text>I marvel at {1_PlayerName:textkey}'s success. (Afraid)</Text>
 		</Row>
-		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_AFRAID_3">
+		<Row Tag="TXT_KEY_GENERIC_SHARE_APPROACH_AFRAID_3">
 			<Text>Hopefully one day I can be as good a leader as {1_PlayerName:textkey}. (Afraid)</Text>
 		</Row>
-		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_WAR_1">
+		<Row Tag="TXT_KEY_GENERIC_SHARE_APPROACH_WAR_1">
 			<Text>{1_PlayerName:textkey} and I are at war! ([COLOR_NEGATIVE_TEXT]AT WAR![ENDCOLOR])</Text>
 		</Row>
-		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_WAR_2">
+		<Row Tag="TXT_KEY_GENERIC_SHARE_APPROACH_WAR_2">
 			<Text>{1_PlayerName:textkey} and I are locked in combat.  ([COLOR_NEGATIVE_TEXT]AT WAR![ENDCOLOR])</Text>
 		</Row>
-		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_WAR_3">
+		<Row Tag="TXT_KEY_GENERIC_SHARE_APPROACH_WAR_3">
 			<Text>I am currently settling a dispute with {1_PlayerName:textkey}.  ([COLOR_NEGATIVE_TEXT]AT WAR![ENDCOLOR])</Text>
 		</Row>
-		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_PLANNING_WAR_1">
+		<Row Tag="TXT_KEY_GENERIC_SHARE_APPROACH_PLANNING_WAR_1">
 			<Text>I trust you enough to confess that I am planning war against {1_PlayerName:textkey}. (Planning War!)</Text>
 		</Row>
-		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_PLANNING_WAR_2">
+		<Row Tag="TXT_KEY_GENERIC_SHARE_APPROACH_PLANNING_WAR_2">
 			<Text>Don't be fooled by outward appearances. I plan to rid this earth of {1_PlayerName:textkey}. (Planning War!)</Text>
 		</Row>
-		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_PLANNING_WAR_3">
+		<Row Tag="TXT_KEY_GENERIC_SHARE_APPROACH_PLANNING_WAR_3">
 			<Text>I'm sick of {1_PlayerName:textkey}'s presence and I plan on eliminating them soon. (Planning War!)</Text>
 		</Row>
-		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_DECEPTIVE_1">
+		<Row Tag="TXT_KEY_GENERIC_SHARE_APPROACH_DECEPTIVE_1">
 			<Text>It may appear that I am friendly with {1_PlayerName:textkey} but that's all show. (Deceptive)</Text>
 		</Row>
-		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_DECEPTIVE_2">
+		<Row Tag="TXT_KEY_GENERIC_SHARE_APPROACH_DECEPTIVE_2">
 			<Text>Think you can keep a secret? I plan on deceiving {1_PlayerName:textkey} at earliest convenience. (Deceptive)</Text>
 		</Row>
-		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_DECEPTIVE_3">
+		<Row Tag="TXT_KEY_GENERIC_SHARE_APPROACH_DECEPTIVE_3">
 			<Text>I tell the world that {1_PlayerName:textkey} is a friend. I tell you in strictest confidence that that is not the case. (Deceptive)</Text>
 		</Row>
 

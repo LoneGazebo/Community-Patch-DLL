@@ -3221,7 +3221,7 @@
 		</Row>
 
 		<!-- Discussion/Dialogue options -->
-		<Row Tag="TXT_KEY_DIPLO_DISCUSS_MESSAGE_SHARE_OPINION">
+		<Row Tag="TXT_KEY_DIPLO_DISCUSS_MESSAGE_SHARE_APPROACH">
 			<Text>What do you think of...</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_DISCUSS_MESSAGE_DECLARE_WAR_TT">
