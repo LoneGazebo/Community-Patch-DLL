@@ -1272,7 +1272,7 @@
 		<!-- Gumey -->
 		<Row>
 			<Type>BUILDING_GUMEY</Type>
-			<BuildingClass>BUILDINGCLASS_MINT</BuildingClass>
+			<BuildingClass>BUILDINGCLASS_CARAVANSARY</BuildingClass>
 			<Description>TXT_KEY_BUILDING_GUMEY</Description>
 			<Civilopedia>TXT_KEY_BUILDING_GUMEY_TEXT</Civilopedia>
 			<Help>TXT_KEY_BUILDING_GUMEY_HELP</Help>
