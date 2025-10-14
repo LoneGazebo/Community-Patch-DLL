@@ -198,7 +198,10 @@ void CvHomelandAI::Update(bool bUpdateImprovements)
 
 	// If we've already done planning during this turn, don't do it again (e.g. if we just turned on automation for a worker).
 	if (bUpdateImprovements)
+	{
 		PlanImprovements();
+		PlanWorkerDistribution();
+	}
 
 	// Make sure we have a unit to handle
 	if(!m_CurrentTurnUnits.empty())
@@ -1074,6 +1077,159 @@ void CvHomelandAI::PlanImprovements()
 	m_pPlayer->GetBuilderTaskingAI()->Update();
 	m_workedPlots.clear();
 	m_greatPeopleForImprovements.clear();
+}
+
+// Figure out how many contiguous areas we have and how many workers should be in each
+void CvHomelandAI::PlanWorkerDistribution()
+{
+	if (m_pPlayer->isHuman(ISHUMAN_AI_UNITS) || m_pPlayer->isMinorCiv() || m_pPlayer->isBarbarian())
+		return;
+
+	SWorkerRegion::ResetCounter();
+	m_aWorkerRegions.clear();
+	std::vector<SWorkerRegion> aWorkerRegions;
+	CitySet aProcessedCities;
+
+	if (m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_WORKER, false, true) == 0)
+		return;
+
+	int iGlobalImprovementNeed = 0;
+
+	int iLoop;
+	for (CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
+	{
+		if (aProcessedCities.find(pLoopCity->GetID()) != aProcessedCities.end())
+			continue;
+
+
+		CitySet aWorkerRegionCities;
+		aWorkerRegionCities.insert(pLoopCity->GetID());
+
+		int iTotalImprovementNeed = pLoopCity->GetTerrainImprovementNeed();
+
+		SPathFinderUserData data(m_pPlayer->GetID(), PT_WORKER_LAND_UNIT_SAFE);
+		ReachablePlots allReachablePlots = GC.GetStepFinder().GetPlotsInReach(pLoopCity->getX(), pLoopCity->getY(), data);
+
+		for (ReachablePlots::iterator it = allReachablePlots.begin(); it != allReachablePlots.end(); ++it)
+		{
+			CvPlot* pReachablePlot = GC.getMap().plotByIndex(it->iPlotIndex);
+
+			if (!pReachablePlot->isCity())
+				continue;
+
+			CvCity* pReachableCity = pReachablePlot->getPlotCity();
+			if (pReachableCity == pLoopCity)
+				continue;
+
+			aWorkerRegionCities.insert(pReachableCity->GetID());
+			if (pReachableCity->getOwner() == m_pPlayer->GetID())
+				iTotalImprovementNeed += pReachableCity->GetTerrainImprovementNeed();
+
+			aProcessedCities.insert(pReachableCity->GetID());
+		}
+
+		aWorkerRegions.push_back(SWorkerRegion(aWorkerRegionCities, iTotalImprovementNeed, pLoopCity->getX(), pLoopCity->getY()));
+		aProcessedCities.insert(pLoopCity->GetID());
+		iGlobalImprovementNeed += iTotalImprovementNeed;
+	}
+
+	if (aWorkerRegions.empty())
+		return;
+
+	// Sort by number of improvements needed
+	std::stable_sort(aWorkerRegions.begin(), aWorkerRegions.end());
+
+	int iAvailableWorkers = 0;
+	std::vector<int> aNoRegionWorkers;
+	for (CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoop))
+	{
+		if (pLoopUnit->getUnitInfo().GetDefaultUnitAIType() != UNITAI_WORKER)
+			continue;
+
+		CvPlot* pUnitPlot = pLoopUnit->plot();
+		if (!pUnitPlot)
+			continue;
+
+		iAvailableWorkers++;
+		bool bFoundRegion = false;
+
+		CvCity* pUnitWorkingCity = pUnitPlot->getOwningCity();
+		if (pUnitWorkingCity)
+		{
+			for (std::vector<SWorkerRegion>::iterator it = aWorkerRegions.begin(); it != aWorkerRegions.end(); ++it)
+			{
+				if (it->ContainsCity(pUnitWorkingCity->GetID()))
+				{
+					it->m_aCurrentWorkers.push_back(pLoopUnit->GetID());
+					bFoundRegion = true;
+					break;
+				}
+			}
+		}
+
+		if (!bFoundRegion)
+			aNoRegionWorkers.push_back(pLoopUnit->GetID());
+	}
+
+	int iImprovementsPerWorker = max(iGlobalImprovementNeed / iAvailableWorkers, 1);
+
+	// First we want at least one worker in each contiguous region if possible
+	for (std::vector<SWorkerRegion>::iterator it = aWorkerRegions.begin(); it != aWorkerRegions.end() && iAvailableWorkers > 0; ++it)
+	{
+		it->m_iWantedWorkers++;
+		it->m_iImprovementNeed -= iImprovementsPerWorker;
+		iAvailableWorkers--;
+	}
+
+	// Then assign workers based on which region needs them the most
+	while (iAvailableWorkers > 0)
+	{
+		SWorkerRegion& aMostValuableWorkerRegion = aWorkerRegions[0];
+		aMostValuableWorkerRegion.m_iWantedWorkers++;
+		aMostValuableWorkerRegion.m_iImprovementNeed -= iImprovementsPerWorker;
+
+		std::stable_sort(aWorkerRegions.begin(), aWorkerRegions.end());
+		iAvailableWorkers--;
+	}
+
+	// Sort by region ID
+	std::stable_sort(aWorkerRegions.begin(), aWorkerRegions.end(), SWorkerRegion::compareID());
+
+	// We have figured out how many workers each region should have, now we need to assign our workers to the different regions
+	for (std::vector<SWorkerRegion>::iterator it = aWorkerRegions.begin(); it != aWorkerRegions.end(); ++it)
+	{
+		if ((int)it->m_aCurrentWorkers.size() < it->m_iWantedWorkers)
+		{
+			// first check for unassigned workers (they are moving between regions)
+			std::vector<int> toRemove;
+			for (std::vector<int>::iterator it2 = aNoRegionWorkers.begin(); it2 != aNoRegionWorkers.end() && (int)it->m_aCurrentWorkers.size() < it->m_iWantedWorkers; ++it2)
+			{
+				it->m_aCurrentWorkers.push_back(*it2);
+				toRemove.push_back(*it2);
+			}
+
+			for (std::vector<int>::iterator it2 = toRemove.begin(); it2 != toRemove.end(); ++it2)
+			{
+				aNoRegionWorkers.erase(find(aNoRegionWorkers.begin(), aNoRegionWorkers.end(), *it2));
+			}
+
+			// then check if we can take some from another region
+			if ((int)it->m_aCurrentWorkers.size() < it->m_iWantedWorkers)
+			{
+				for (std::vector<SWorkerRegion>::iterator it2 = aWorkerRegions.begin(); it2 != aWorkerRegions.end(); ++it2)
+				{
+					while ((int)it->m_aCurrentWorkers.size() < it->m_iWantedWorkers && (int)it2->m_aCurrentWorkers.size() > it2->m_iWantedWorkers)
+					{
+						int iToMove = it2->m_aCurrentWorkers[0];
+						it2->m_aCurrentWorkers.erase(it2->m_aCurrentWorkers.begin());
+						it->m_aCurrentWorkers.push_back(iToMove);
+					}
+				}
+			}
+		}
+	}
+
+	m_aWorkerRegions = aWorkerRegions;
 }
 
 /// Find something for all workers to do
@@ -3038,6 +3194,10 @@ vector<OptionWithScore<pair<CvUnit*, BuilderDirective>>> CvHomelandAI::GetWeight
 			if (ignoredWorkers.find(pUnit->GetID()) != ignoredWorkers.end())
 				continue;
 
+			if (!m_pPlayer->isHuman(ISHUMAN_AI_UNITS) && !m_pPlayer->isMinorCiv() && !m_pPlayer->isBarbarian())
+				if (GetWorkerRegionTargetPlot(pUnit) != NULL && !IsWorkerAtAllocatedRegion(pUnit, pDirectivePlot))
+					continue;
+
 			if (!m_pPlayer->GetBuilderTaskingAI()->CanUnitPerformDirective(pUnit, eDirective, true))
 				continue;
 
@@ -3079,6 +3239,63 @@ vector<OptionWithScore<pair<CvUnit*, BuilderDirective>>> CvHomelandAI::GetWeight
 
 	std::stable_sort(aWeightedDirectives.begin(), aWeightedDirectives.end());
 	return aWeightedDirectives;
+}
+
+
+bool CvHomelandAI::IsWorkerAtAllocatedRegion(const CvUnit* pUnit, const CvPlot* pTargetPlot) const
+{
+	const CvPlot* pPlot = pTargetPlot ? pTargetPlot : pUnit->plot();
+	if (!pPlot)
+		return false;
+
+	CvCity* pCity = pPlot->getOwningCity();
+	if (pCity)
+	{
+		for (std::vector<SWorkerRegion>::const_iterator it = m_aWorkerRegions.begin(); it != m_aWorkerRegions.end(); ++it)
+		{
+			if (!it->OwnsWorker(pUnit->GetID()))
+				continue;
+
+			if (it->ContainsCity(pCity->GetID()))
+				return true;
+		}
+	}
+
+	// Check a two-tile radius around the worker, they can be a bit outside of their assigned territory
+	for (int iI = 1; iI < RING2_PLOTS; iI++)
+	{
+		CvPlot* pLoopPlot = iterateRingPlots(pPlot, iI);
+		if (!pLoopPlot)
+			continue;
+
+		pCity = pLoopPlot->getOwningCity();
+		if (!pCity)
+			continue;
+
+		for (std::vector<SWorkerRegion>::const_iterator it = m_aWorkerRegions.begin(); it != m_aWorkerRegions.end(); ++it)
+		{
+			if (!it->OwnsWorker(pUnit->GetID()))
+				continue;
+
+			if (it->ContainsCity(pCity->GetID()))
+				return true;
+		}
+	}
+
+	return false;
+}
+
+CvPlot* CvHomelandAI::GetWorkerRegionTargetPlot(const CvUnit* pUnit) const
+{
+	for (std::vector<SWorkerRegion>::const_iterator it = m_aWorkerRegions.begin(); it != m_aWorkerRegions.end(); ++it)
+	{
+		if (!it->OwnsWorker(pUnit->GetID()))
+			continue;
+
+		return GC.getMap().plot(it->m_iCapitalX, it->m_iCapitalY);
+	}
+
+	return NULL;
 }
 
 /// Moves units to improve plots
@@ -3155,6 +3372,29 @@ void CvHomelandAI::ExecuteWorkerMoves()
 				processedWorkers.insert(iUnitId);
 				ignoredDirectives.insert(eDirective);
 				m_workedPlots.insert(pDirectivePlot->GetPlotIndex());
+			}
+		}
+	}
+
+
+	if (!m_pPlayer->isHuman(ISHUMAN_AI_UNITS) && !m_pPlayer->isMinorCiv() && !m_pPlayer->isBarbarian())
+	{
+		// Check if any worker is in the wrong region, if so they should move to the right one
+		for (std::list<int>::iterator it = allWorkers.begin(); it != allWorkers.end(); ++it)
+		{
+			CvUnit* pUnit = m_pPlayer->getUnit(*it);
+
+			if (!pUnit)
+				continue;
+
+			if (IsWorkerAtAllocatedRegion(pUnit))
+				continue;
+
+			CvPlot* pTargetPlot = GetWorkerRegionTargetPlot(pUnit);
+			if (pTargetPlot && ExecuteMoveToTarget(pUnit, pTargetPlot, CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_PRETEND_ALL_REVEALED, true))
+			{
+				processedWorkers.insert(pUnit->GetID());
+				UnitProcessed(pUnit->GetID());
 			}
 		}
 	}
@@ -3687,6 +3927,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 		if (pBestCity && ExecuteMoveToTarget(pUnit, pBestCity->plot(), CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_PRETEND_ALL_REVEALED, true))
 		{
 			mapCityAssignedWorkers[pBestCity->GetID()]++;
+			UnitProcessed(pUnit->GetID());
 		}
 		else if (pUnit->IsCivilianUnit())
 		{
@@ -6813,4 +7054,55 @@ bool SPatrolTarget::operator==(const SPatrolTarget & rhs) const
 {
 	//ignore threat level for comparison
 	return pTarget == rhs.pTarget && pWorstEnemy == rhs.pWorstEnemy;
+}
+
+int SWorkerRegion::iIDCounter = 0;
+
+SWorkerRegion::SWorkerRegion()
+	: m_iID(iIDCounter++)
+	, m_iCapitalX(INVALID_PLOT_COORD)
+	, m_iCapitalY(INVALID_PLOT_COORD)
+	, m_aCities()
+	, m_iImprovementNeed(0)
+	, m_iWantedWorkers(0)
+	, m_aCurrentWorkers()
+{
+}
+
+SWorkerRegion::SWorkerRegion(CitySet aCities, int iImprovementNeed, int iCapitalX, int iCapitalY)
+	: m_iID(iIDCounter++)
+	, m_iCapitalX(iCapitalX)
+	, m_iCapitalY(iCapitalY)
+	, m_aCities(aCities)
+	, m_iImprovementNeed(iImprovementNeed)
+	, m_iWantedWorkers(0)
+	, m_aCurrentWorkers()
+{
+}
+
+bool SWorkerRegion::ContainsCity(int iCityID) const
+{
+	return m_aCities.find(iCityID) != m_aCities.end();
+}
+
+bool SWorkerRegion::OwnsWorker(int iWorkerID) const
+{
+	return find(m_aCurrentWorkers.begin(), m_aCurrentWorkers.end(), iWorkerID) != m_aCurrentWorkers.end();
+}
+
+void SWorkerRegion::ResetCounter()
+{
+	iIDCounter = 0;
+}
+
+bool SWorkerRegion::operator<(const SWorkerRegion& rhs) const
+{
+	// highest need first
+	if (m_iImprovementNeed != rhs.m_iImprovementNeed)
+		return m_iImprovementNeed > rhs.m_iImprovementNeed;
+}
+
+bool SWorkerRegion::operator==(const SWorkerRegion& rhs) const
+{
+	return m_iID == rhs.m_iID;
 }

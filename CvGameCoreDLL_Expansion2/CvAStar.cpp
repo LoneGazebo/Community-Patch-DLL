@@ -2257,8 +2257,44 @@ int CityConnectionWaterValid(const CvAStarNode* parent, const CvAStarNode* node,
 }
 
 //	--------------------------------------------------------------------------------
+/// Can a worker (safely) traverse this plot?
+static int LandWorkerUnitSafeValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData& data, const CvAStar*)
+{
+	if (parent == NULL)
+		return TRUE;
+
+	PlayerTypes ePlayer = data.ePlayer;
+	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
+	TeamTypes eTeam = kPlayer.getTeam();
+
+	CvPlot* pNewPlot = GC.getMap().plotUnchecked(node->m_iX, node->m_iY);
+	CvPlot* pOldPlot = GC.getMap().plotUnchecked(parent->m_iX, parent->m_iY);
+
+	if (!pNewPlot || !pNewPlot->isRevealed(eTeam))
+		return FALSE;
+
+	if (!pNewPlot->isVisible(eTeam) && !pOldPlot->isVisible(eTeam))
+		return FALSE;
+
+	if (pNewPlot->isDeepWater() && !kPlayer.CanCrossOcean())
+		return FALSE;
+
+	if (pNewPlot->isWater() && !kPlayer.CanEmbark())
+		return FALSE;
+
+	if (!kPlayer.IsPlotSafeForRoute(pNewPlot, true /*bIncludeAdjacent*/))
+	{
+		CvPlot* pFromPlot = GC.getMap().plotUnchecked(parent->m_iX, parent->m_iY);
+		if (!kPlayer.IsPlotSafeForRoute(pFromPlot, true /*bIncludeAdjacent*/))
+			return FALSE;
+	}
+
+	return TRUE;
+}
+
+//	--------------------------------------------------------------------------------
 /// Can a work boat (safely) traverse this plot?
-static int WorkerSeaUnitSafeValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData& data, const CvAStar*)
+static int SeaWorkerUnitSafeValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData& data, const CvAStar*)
 {
 	if (parent == NULL)
 		return TRUE;
@@ -2899,8 +2935,12 @@ bool CvStepFinder::Configure(const SPathFinderUserData& config)
 		SetFunctionPointers(NULL, StepHeuristic, NULL, RebaseValid, RebaseGetExtraChildren, UnitPathInitialize, UnitPathUninitialize);
 		m_iBasicPlotCost = PATH_BASE_COST;
 		break;
+	case PT_WORKER_LAND_UNIT_SAFE:
+		SetFunctionPointers(NULL, StepHeuristic, NULL, LandWorkerUnitSafeValid, NULL, NULL, NULL);
+		m_iBasicPlotCost = PATH_BASE_COST;
+		break;
 	case PT_WORKER_SEA_UNIT_SAFE:
-		SetFunctionPointers(NULL, StepHeuristic, NULL, WorkerSeaUnitSafeValid, NULL, NULL, NULL);
+		SetFunctionPointers(NULL, StepHeuristic, NULL, SeaWorkerUnitSafeValid, NULL, NULL, NULL);
 		m_iBasicPlotCost = PATH_BASE_COST;
 		break;
 	default:
