@@ -1,14 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" version="143">
+<Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" version="144">
   <Properties>
     <Name>(1) Community Patch</Name>
-    <Teaser>(4.21.1) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
+    <Teaser>(5.0-alpha.01) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
     <Description>Contains core AI improvements and bugfixes for the Civ 5 BNW DLL. Also contains support for the Vox Populi unofficial expansion and its associated mods.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
     <Homepage>https://forums.civfanatics.com/forums/community-patch-project.497/</Homepage>
     <AffectsSavedGames>1</AffectsSavedGames>
-    <MinCompatibleSaveVersion>143</MinCompatibleSaveVersion>
+    <MinCompatibleSaveVersion>144</MinCompatibleSaveVersion>
     <SupportsSinglePlayer>1</SupportsSinglePlayer>
     <SupportsMultiplayer>1</SupportsMultiplayer>
     <SupportsHotSeat>1</SupportsHotSeat>
@@ -378,6 +378,8 @@
     <File md5="2F04CABEA9E85C5BBEBE5829A777E0F8" import="1">Assets/Notifications/notificationMPdiploglow128.dds</File>
     <File md5="CB05E0CC0973C888102B8128DED99EE4" import="1">Assets/Notifications/TradeMP.dds</File>
     <File md5="6DE5AC31317313EEF46A7EC98D020D3C" import="1">Assets/Resources/resource_furs.gr2</File>
+    <File md5="8C11BE8120287A5EE17DAFEF75ADDE78" import="1">Assets/UI/AutomateProduction45.dds</File>
+    <File md5="FE5757135164699240E8999592A4EC14" import="1">Assets/UI/AutomateProduction64.dds</File>
     <File md5="B3C1FBD5E66301B400B63040C7B42503" import="1">Assets/UI/corp80_base.dds</File>
     <File md5="D49B7AA0DAFF3621D9F72A36D22FB43B" import="1">Assets/UI/corp80_hl.dds</File>
     <File md5="1D94F6DC259A5A1FE149BC83BC7C80E4" import="1">Assets/UI/DC45_Corporations.dds</File>
@@ -413,7 +415,7 @@
     <File md5="5CE8AADCD96BC892206D0738E4879395" import="1">Core Files/New UI/RecentEventsInfo.lua</File>
     <File md5="B9265F59D7CFB7857DD3D8C308F5D7D0" import="1">Core Files/New UI/RecentEventsInfo.xml</File>
     <File md5="EF335289B8AA94703BFFFE012CDFB931" import="1">Core Files/Overrides/ActionInfoPanel.lua</File>
-    <File md5="0A5F81CD98BFD26E06897E5B19683469" import="1">Core Files/Overrides/CultureOverview.lua</File>
+    <File md5="34BB77BABB7A3A27FFF37AEAADD97547" import="1">Core Files/Overrides/CultureOverview.lua</File>
     <File md5="BF85D174CA9D4F2EC2AD7E3FBB6C0D6D" import="1">Core Files/Overrides/CultureOverview.xml</File>
     <File md5="B02EA79C1F74248456A842BD53106153" import="1">Core Files/Overrides/DeclareWarPopup.lua</File>
     <File md5="5D74B47C8B98B0F3D4FBC7242DA26ACD" import="1">Core Files/Overrides/DeclareWarPopup.xml</File>
@@ -421,21 +423,21 @@
     <File md5="3F3D6AFB82FAD2DD998953AC3A6DCC6F" import="1">Core Files/Overrides/DiploCurrentDeals.xml</File>
     <File md5="7CFCE3F0603744E8C1CB52619E8BA3AC" import="1">Core Files/Overrides/DiploGlobalRelationships.lua</File>
     <File md5="360612DADF974A125D906E1CB63525DC" import="1">Core Files/Overrides/DiploTrade.xml</File>
-    <File md5="7E22BB70381174FD2C246E7734E48C3F" import="1">Core Files/Overrides/DiscussionDialog.lua</File>
+    <File md5="B6548BC0A0910B210BC181F1A960E392" import="1">Core Files/Overrides/DiscussionDialog.lua</File>
     <File md5="D708ADD4055DD571EDBDC2588DF0DC0E" import="1">Core Files/Overrides/DiscussionDialog.xml</File>
-    <File md5="7EE75C69C82710F34BB0925EC51FD667" import="1">Core Files/Overrides/EconomicGeneralInfo.lua</File>
+    <File md5="E0885AB9B9243A1518563C7BD1057409" import="1">Core Files/Overrides/EconomicGeneralInfo.lua</File>
     <File md5="178907D0131B5D71827F7D7C2B895AA1" import="1">Core Files/Overrides/EnemyUnitPanel.lua</File>
     <File md5="77C539014E863414A8F59B62E2CFB7BB" import="1">Core Files/Overrides/EnemyUnitPanel.xml</File>
     <File md5="F24584C3F7D166B5E799DDCEFEBBD6B5" import="1">Core Files/Overrides/EnemyUnitPanel_small.xml</File>
     <File md5="FC931E4734EB600194E5E14890E37E28" import="1">Core Files/Overrides/EspionageOverview.lua</File>
     <File md5="5965201A71E00881AB8639C5D6A79A04" import="1">Core Files/Overrides/EspionageOverview.xml</File>
-    <File md5="63853D883DD64E748DC516729E562B56" import="1">Core Files/Overrides/GPList.lua</File>
+    <File md5="D8A8BB74144BC653D26E1A07D7A9717E" import="1">Core Files/Overrides/GPList.lua</File>
     <File md5="A0B9DBA07F98E3B8D050AAD5A247EFCB" import="1">Core Files/Overrides/HappinessInfo.lua</File>
     <File md5="3F0909308CAEA0B4F8CD7073E4DF6047" import="1">Core Files/Overrides/HappinessInfo.xml</File>
     <File md5="5D54D6C2C29D5343C9E5837C7DE5A787" import="1">Core Files/Overrides/InGame.lua</File>
     <File md5="7DF4AF6E9D5F16CD06D0CD576615869F" import="1">Core Files/Overrides/LeagueOverview.lua</File>
     <File md5="D1B2B6362725A779E49BAD0C8366DE6A" import="1">Core Files/Overrides/LeagueOverview.xml</File>
-    <File md5="A0CD8F0105BBD53729161FD8518525B9" import="1">Core Files/Overrides/MiniMapPanel.lua</File>
+    <File md5="B273A884E433EFF32B0435FBCAD81D4D" import="1">Core Files/Overrides/MiniMapPanel.lua</File>
     <File md5="A4B7AAE9AEB100FEBEDC9C952300F3C6" import="1">Core Files/Overrides/MiniMapPanel.xml</File>
     <File md5="125DBB3FDF354092B6DA2FADB20C5849" import="1">Core Files/Overrides/MPList.lua</File>
     <File md5="2BFE0E6D6EAE4917F5068B6084CF75A2" import="1">Core Files/Overrides/MPTurnPanel.lua</File>
@@ -444,53 +446,58 @@
     <File md5="34AF515180770B3554A250F1D77329A1" import="1">Core Files/Overrides/PathHelpManager.lua</File>
     <File md5="7BC0010F1CD4D0C1E5644B09D504A019" import="1">Core Files/Overrides/PathHelpManager.xml</File>
     <File md5="E0EB123F5D919F8359CE9F1041343BE9" import="1">Core Files/Overrides/PuppetCityPopup.lua</File>
-    <File md5="357663938849D3CE24370FB44B2D9E0F" import="1">Core Files/Overrides/ReligionOverview.lua</File>
+    <File md5="B9F3913388E5F2A4C28B0C44B42D8BEB" import="1">Core Files/Overrides/ReligionOverview.lua</File>
     <File md5="C16A95DB183F4BD7D3236CFDA63855AD" import="1">Core Files/Overrides/ReplayViewer.lua</File>
     <File md5="56E38F28084CA596462B0C6390936D80" import="1">Core Files/Overrides/ReplayViewer.xml</File>
     <File md5="2EDB54EB7721D8240EAF44B71BCE74D6" import="1">Core Files/Overrides/SaveMenu.lua</File>
     <File md5="FB5ADB053B50EFAC805CCB9EE0425137" import="1">Core Files/Overrides/SaveMenu.xml</File>
     <File md5="710424C27FAC6C807302F68A7C729370" import="1">Core Files/Overrides/SimpleDiploTrade.xml</File>
     <File md5="F4BD8D98536B2532C02E1CA4EC1732CF" import="1">Core Files/Overrides/StagingRoom.lua</File>
-    <File md5="5D757712B38D037DBAA2155C04ADDD07" import="1">Core Files/Overrides/TechAwardPopup.lua</File>
+    <File md5="89551DF7CE0B41B8EC45796281BED2E3" import="1">Core Files/Overrides/TechAwardPopup.lua</File>
     <File md5="3AEA3154A06B8B69762F22A642C8ED1D" import="1">Core Files/Overrides/TechAwardPopup.xml</File>
-    <File md5="EAD1D8F2F2B295F9A6EE040FC67EDA53" import="1">Core Files/Overrides/TechPanel.lua</File>
+    <File md5="EC283341D9B97062BEE4A81CE543E341" import="1">Core Files/Overrides/TechPanel.lua</File>
     <File md5="A149623233865A30C77EE55F8C4CEEF9" import="1">Core Files/Overrides/WonderPopup.xml</File>
     <File md5="8F5DDB96458A46DB71C92CCB4026905E" import="1">Core Files/Overrides/WorldView.lua</File>
     <File md5="AA9CB9B8678EFAD4FEBB780B24385C24" import="1">Core Files/Overrides/Includes/AssignStartingPlots.lua</File>
     <File md5="C83F24B1D14DA36D5F7E4CFB028A0F9A" import="1">Core Files/Overrides/Includes/Bombardment.lua</File>
-    <File md5="B19E3EEA4D85123E2BFC83D1214D13A7" import="1">Core Files/Overrides/Includes/MapGenerator.lua</File>
-    <File md5="283A2E0A350021778A59321E7F3BA013" import="1">Core Files/Overrides/Includes/TechHelpInclude.lua</File>
+    <File md5="33E5F1348C78523FD5430D80861FF276" import="1">Core Files/Overrides/Includes/InfoTooltipInclude.lua</File>
+    <File md5="F82D4290936952EACB989B91E36F79C6" import="1">Core Files/Overrides/Includes/MapGenerator.lua</File>
+    <File md5="912F67F578C779BFED67FE4A8F70D779" import="1">Core Files/Overrides/Includes/TechButtonInclude.lua</File>
+    <File md5="D09A8678E77DA2B40E5AC34E055AD4A0" import="1">Core Files/Overrides/Includes/TechHelpInclude.lua</File>
     <File md5="1D6FBE79C3778843EA7DDCE693BDD499" import="1">Core Files/Overrides/Includes/TradeRouteHelpers.lua</File>
-    <File md5="E9D54497EE7B8E5B9914B9DC1CCEC413" import="1">Core Files/VPUI/VPUI_core.lua</File>
-    <File md5="261236FFB253D5B3FCA33C05FBE6D10D" import="1">CvGameCore_Expansion2.dll</File>
-    <File md5="493E50FD96DDC30C4E390B93B95A960F" import="0">Database Changes/CommunityTables.xml</File>
-    <File md5="988FF9B66460D42D896502D75FCE69C2" import="0">Database Changes/CoreGameOptionChanges.sql</File>
-    <File md5="FFEE301FC50B4E582AC132C881BF31A7" import="0">Database Changes/CoreGameSpeedChanges.sql</File>
+    <File md5="9E2730B782AE33FFB3DC3D7A21E4D18C" import="1">Core Files/VPUI/VPUI_core.lua</File>
+    <File md5="121ACF9088B6AFACAC332CE1BC210377" import="1">CvGameCore_Expansion2.dll</File>
+    <File md5="CF1628DC6A82C749A951A27DF13D0BF0" import="0">Database Changes/CommunityTables.xml</File>
+    <File md5="F724C999F084DBC0A88B654D521314EB" import="0">Database Changes/CoreGameOptionChanges.sql</File>
+    <File md5="E5C280A2AC65C19D051F27EE7AAE11B4" import="0">Database Changes/CoreGameSpeedChanges.sql</File>
     <File md5="DA42F60E1D604165DD130DE5375A9B31" import="0">Database Changes/CoreNewAutomates.xml</File>
     <File md5="CFD3659CD00D8A06FF9F6219BC54AF3D" import="0">Database Changes/CoreNewColors.xml</File>
     <File md5="A5FB4344A8CB72305CABE032AE3B9C88" import="0">Database Changes/CoreNewControls.xml</File>
-    <File md5="F576578842EBF396F29B1CAD02E34447" import="0">Database Changes/CoreNewGameOptions.xml</File>
+    <File md5="5CE1438CC2D87A48FCE47580E9DE1F12" import="0">Database Changes/CoreNewGameOptions.xml</File>
     <File md5="6D015E47006A392888AD229120DDC86D" import="0">Database Changes/CoreNewNotifications.xml</File>
     <File md5="1361AC0F0C844D9A3B90004AC0B8541F" import="0">Database Changes/CoreNewReplayDataSets.xml</File>
-    <File md5="887967249E593753EDAABCF187A2630D" import="0">Database Changes/CoreTriggers.sql</File>
-    <File md5="839F472A1DC9AC9E48084374FAC79EBD" import="0">Database Changes/CoreWorldChanges.sql</File>
+    <File md5="A0FCAB4755DA90137969DAEE3D026922" import="0">Database Changes/CoreTriggers.sql</File>
+    <File md5="AAA176E4128E36358D0123F0D6C7CD3A" import="0">Database Changes/CoreWorldChanges.sql</File>
     <File md5="D0BFB3F71AFB183457D538EE3B0D771F" import="0">Database Changes/DatabaseIndexes.sql</File>
-    <File md5="BE5D39F0A52DD0B0B42AAE2852FFC578" import="0">Database Changes/GameSpeedTableChanges.sql</File>
-    <File md5="F6CCC7932C22083849CFCDA1C059CDDD" import="0">Database Changes/NewCustomModOptions.xml</File>
+    <File md5="F18A37227B71DC4483AA2519DDC888E8" import="0">Database Changes/GameSpeedTableChanges.sql</File>
+    <File md5="EC2E72A4D7E31E99A255D47FA84D0D3D" import="0">Database Changes/NewCustomModOptions.xml</File>
     <File md5="278A7080850F3EE5132BF2C53E6C6419" import="0">Database Changes/NewEnums.xml</File>
     <File md5="476D91532E8B5E9B97198D943F101FFD" import="0">Database Changes/NewEnumTables.xml</File>
     <File md5="5403AA54F33FADD66B29FC5978F62E55" import="0">Database Changes/Remapper.sql</File>
     <File md5="0658A832A2527DE5F698F2DD24586551" import="0">Database Changes/RemapperTables.xml</File>
-    <File md5="562464DBD6C401985B683E03E4BDC294" import="0">Database Changes/WorldTableChanges.sql</File>
-    <File md5="8EEF6C86D04BE170F9E61257581A893C" import="0">Database Changes/Achievements/CoreNewAchievements.xml</File>
+    <File md5="1BE27C020C7D596C776573887630B71E" import="0">Database Changes/WorldTableChanges.sql</File>
+    <File md5="9F3B7F95C6766857AE2362B6C6E5A202" import="0">Database Changes/Achievements/CoreNewAchievements.xml</File>
     <File md5="2AFD3DBF43DEB9AC1D801786266A9D84" import="0">Database Changes/Achievements/NewAchievementTables.xml</File>
     <File md5="6575345822FFB5CB99888D9BE09F6557" import="0">Database Changes/AI/CoreCitySpecializationChanges.sql</File>
+    <File md5="2B718E3AF30F1128AFB822231609694B" import="0">Database Changes/AI/CoreLeaderFlavorChanges.sql</File>
+    <File md5="042BFBDC576C7B8E89625FCC0AD686E7" import="0">Database Changes/AI/CoreLeaderPersonalityChanges.sql</File>
     <File md5="D90E9A6E3F9369E5957A6961E0E577C7" import="0">Database Changes/AI/CoreNewCitySpecializations.xml</File>
-    <File md5="2F2BE531BC3150CA0C2CAF7F4776298F" import="0">Database Changes/AI/CoreNewDiplomacyResponses.sql</File>
-    <File md5="0905497792D6041C31D657326758C790" import="0">Database Changes/AI/CoreNewDiplomacyResponses.xml</File>
+    <File md5="1D7683387A6175487E1084179E356773" import="0">Database Changes/AI/CoreNewDiplomacyResponses.sql</File>
+    <File md5="7B2D35D0503AE31F74F494B870581C5E" import="0">Database Changes/AI/CoreNewDiplomacyResponses.xml</File>
     <File md5="9C92503FEA5317718CFE36553E478098" import="0">Database Changes/AI/CoreNewStrategies.xml</File>
-    <File md5="3DC86CE0A64B533B74D88F80387BA0FE" import="0">Database Changes/AI/CoreStrategyChanges.sql</File>
+    <File md5="3B14EEF8B19DBEB2F04B8E32FBAFF0E6" import="0">Database Changes/AI/CoreStrategyChanges.sql</File>
     <File md5="620B84C6CA1B160FEC6F80BE2BDAA32C" import="0">Database Changes/AI/FlavorChanges.sql</File>
+    <File md5="0F06559614D458106DE94DB8A32E4E5B" import="0">Database Changes/AI/LeaderTableChanges.sql</File>
     <File md5="388FAF9F85476E0D16044669E0CEE0FC" import="0">Database Changes/AI/PreCoreDiplomacyResponseChanges.sql</File>
     <File md5="29A3082F095732BDC92BAFC212D4DECD" import="0">Database Changes/Art/CoreIconChanges.sql</File>
     <File md5="C41AA4FC74E9CC753A2DB29D53D8912B" import="0">Database Changes/Art/CoreImprovementArtChanges.sql</File>
@@ -498,28 +505,25 @@
     <File md5="6D8BD590E89B8EFBDEF7CAFE13E72F34" import="0">Database Changes/Art/CoreNewImprovementArts.xml</File>
     <File md5="12E45AC23BFC0F74EFD1F434BD2BC92D" import="0">Database Changes/Art/CoreNewTerrainArts.xml</File>
     <File md5="FA079157D378FF7E6771946B18B6083C" import="0">Database Changes/Art/CoreUnitArtSweeps.sql</File>
-    <File md5="2F756E6904D2DFC158ACAA4609E26FFC" import="0">Database Changes/City/Buildings/BuildingTableChanges.sql</File>
+    <File md5="9E7F3048E18E0AC8AAD65823412C2044" import="0">Database Changes/City/Buildings/BuildingTableChanges.sql</File>
     <File md5="2D840574CBD95CCD362693DD6A94D319" import="0">Database Changes/City/Buildings/CoreBuildingChanges.sql</File>
     <File md5="C448C3E5E46BF66B9CCEF7CBDC61E5E7" import="0">Database Changes/City/Buildings/NewBuildingTables.xml</File>
     <File md5="A4D62A2E28E402C14C9ACE714087A15F" import="0">Database Changes/City/GreatWorks/CoreGreatWorkChanges.sql</File>
     <File md5="CC00B0BBC6BB8FC7DE6055F04CA8A889" import="0">Database Changes/City/GreatWorks/CoreNewGreatWorks.sql</File>
     <File md5="BDA196ABEFE99BFE91550CA0D3463D82" import="0">Database Changes/City/GreatWorks/CoreNewGreatWorks.xml</File>
-    <File md5="BE4A06559B515703AE2C102A993877FF" import="0">Database Changes/City/Processes/ProcessTableChanges.sql</File>
+    <File md5="A9516089E705F3A6A645FD298A2A659E" import="0">Database Changes/City/Processes/ProcessTableChanges.sql</File>
     <File md5="2C0A0F75731F1EDC5E81953572675212" import="0">Database Changes/City/Projects/NewProjectTables.xml</File>
     <File md5="B2328FD0387B8D177C2D97039D9D9999" import="0">Database Changes/City/Projects/ProjectTableChanges.sql</File>
     <File md5="274DC089B727CFCF69B0337F3B21C625" import="0">Database Changes/Civilizations/CivilizationChanges.sql</File>
-    <File md5="5CCBAE39CF55B4D41BE85D0C95932073" import="0">Database Changes/Civilizations/CoreLeaderChanges.sql</File>
-    <File md5="ADA5A7E7B71751485A4B552228F424B3" import="0">Database Changes/Civilizations/LeaderTableChanges.sql</File>
     <File md5="F84FC0C21F4A11D162F4C04948EC478F" import="0">Database Changes/Civilizations/NewCivilizationTables.xml</File>
-    <File md5="57D6D92831AB7E1BF177B836B7E38516" import="0">Database Changes/Civilizations/NewTraitTables.xml</File>
+    <File md5="B4DA5141F34AA9B24A8C9A1A4B8274E2" import="0">Database Changes/Civilizations/NewTraitTables.xml</File>
     <File md5="EFF22272C1297968AE58E25650491E43" import="0">Database Changes/Civilizations/TraitChanges.sql</File>
-    <File md5="15FFCC744D28077DCE77866ED6AB4A43" import="0">Database Changes/Civilizations/TraitTableChanges.sql</File>
+    <File md5="42D27D9421733E59A91C217FDB9B1B14" import="0">Database Changes/Civilizations/TraitTableChanges.sql</File>
     <File md5="DAC8C8CD7C77EBB45FA08B9C4EC27690" import="0">Database Changes/Concepts/ConceptTableChanges.sql</File>
     <File md5="C36218BB11511D4B8BBCBE71242994E7" import="0">Database Changes/Concepts/CoreConceptChanges.sql</File>
     <File md5="5AFB377345571BA35644B7880D3CF0BC" import="0">Database Changes/Concepts/CoreNewConcepts.xml</File>
     <File md5="38862270A17CC8A2A8339A404BBA242B" import="0">Database Changes/Corporations/NewCorporationTables.xml</File>
-    <File md5="C6157CE7211B0DE6270EA12D3A3B8700" import="0">Database Changes/Defines/CoreDefineChanges.sql</File>
-    <File md5="4DF88103BD9E712F6658E3E3FEDD4846" import="0">Database Changes/Defines/DiploAIOptions.sql</File>
+    <File md5="69B247F6A0506B7D0AED954BBCA061CF" import="0">Database Changes/Defines/CoreDefineChanges.sql</File>
     <File md5="948C7007CD1779D44C09F02C2EE34D35" import="0">Database Changes/Defines/DiploApproachWeights.sql</File>
     <File md5="161C2BA666438C2B4D38AF46DAEF769E" import="0">Database Changes/Defines/DiploOpinionWeights.sql</File>
     <File md5="90ED5D6EE6AE8620EA764EB0531CA72E" import="0">Database Changes/Difficulty/CoreDifficultyChanges.sql</File>
@@ -532,30 +536,31 @@
     <File md5="76C2084139414723D7C3C6F3FC5DED3D" import="0">Database Changes/Events/NewEventTables.xml</File>
     <File md5="0511A30F6DE34B29A94B48E50273CA85" import="0">Database Changes/Minors/CoreNewMinorQuests.xml</File>
     <File md5="D983FAC8F864336264448A6A5CEBDC9E" import="0">Database Changes/Minors/MinorQuestTableChanges.sql</File>
-    <File md5="5B06B8F1F1C818059D11EBBFA9347A2C" import="0">Database Changes/Minors/MinorTableChanges.sql</File>
+    <File md5="0D34A73F384820888AE225215B61AE64" import="0">Database Changes/Minors/MinorTableChanges.sql</File>
     <File md5="028FA5959EF6F425AB88635FA56B8183" import="0">Database Changes/Mod Support/NewContractTables.xml</File>
     <File md5="5C2852DCB3D12D33F70486B229B310F8" import="0">Database Changes/Mod Support/NewDiploModifierTables.xml</File>
-    <File md5="7F4022E9196E6797EE0B175D0498F05D" import="0">Database Changes/Policies/NewPolicyTables.xml</File>
+    <File md5="592CB9E54B98BAECE7CB8E4020CBD3C8" import="0">Database Changes/Policies/NewPolicyTables.xml</File>
     <File md5="88F725E614B5C0E2420C84727A6E878B" import="0">Database Changes/Policies/PolicyChanges.sql</File>
     <File md5="BE173CB3BCFE1ADF5DF6B9D251C6AF3C" import="0">Database Changes/Policies/PolicySweeps.sql</File>
-    <File md5="30FB9EB7196D7B5A17A171B2C5F0F5FF" import="0">Database Changes/Policies/PolicyTableChanges.sql</File>
+    <File md5="E08FB032018194233FA127F08682BFD3" import="0">Database Changes/Policies/PolicyTableChanges.sql</File>
     <File md5="77B06B5F985EB8C4E80103621E105489" import="0">Database Changes/Religions/BeliefTableChanges.sql</File>
     <File md5="3BBF8BE66E216431A30202F7AC0E2B8E" import="0">Database Changes/Religions/NewBeliefTables.xml</File>
     <File md5="428774E348538C799BBCF3729539430E" import="0">Database Changes/Religions/ReligionTableChanges.sql</File>
     <File md5="5B7BCC371F1BCCA6C87FB0F5D2BD7785" import="0">Database Changes/Tech/CoreEraChanges.sql</File>
+    <File md5="1957F42921019A3B9A255D92D1D28B07" import="0">Database Changes/Tech/CoreTechChanges.sql</File>
     <File md5="AC06CF33E4D5BF34C20DBBA511CE8245" import="0">Database Changes/Tech/EraTableChanges.sql</File>
     <File md5="CC98C8BF5289799F0A0763486D965F58" import="0">Database Changes/Tech/NewTechTables.xml</File>
-    <File md5="8026B7ADBF7E854971889276F3942085" import="0">Database Changes/Tech/TechTableChanges.sql</File>
+    <File md5="32EFC8852A6CFCDDFAD5B24B1AB9F9DC" import="0">Database Changes/Tech/TechTableChanges.sql</File>
     <File md5="5823F7AEDDFB8C95A12260C464C973AC" import="0">Database Changes/Text/en_US/CoreNewAutomateText.xml</File>
     <File md5="79D913FD4E5F6212319A9AB0140D758A" import="0">Database Changes/Text/en_US/CoreNewChatMessageText.xml</File>
     <File md5="C6CB385022EED9DCF762E0F8B6FDF586" import="0">Database Changes/Text/en_US/CoreNewEnumText.xml</File>
-    <File md5="5DDCFA48E4D4876C5344A7079B2F8D92" import="0">Database Changes/Text/en_US/CoreNewGameOptionText.xml</File>
+    <File md5="C7C98A6854C566A3C532ED4234B2794E" import="0">Database Changes/Text/en_US/CoreNewGameOptionText.xml</File>
     <File md5="9B07290761EF50F6B18D3B3C163D3F07" import="0">Database Changes/Text/en_US/CoreNewReplayDataSetText.xml</File>
     <File md5="0FE6B115634BF464D3764753F238BEC9" import="0">Database Changes/Text/en_US/AI/CoreDiplomacyResponseTextChanges.sql</File>
-    <File md5="FA3B9D20AC5441FC29B5A81B60E92BAA" import="0">Database Changes/Text/en_US/AI/CoreNewDiplomacyResponseText.xml</File>
+    <File md5="44072333AFC0E543652EBE9BC2C4548E" import="0">Database Changes/Text/en_US/AI/CoreNewDiplomacyResponseText.xml</File>
     <File md5="65C451A9D80617FA678FADA4BE928EC7" import="0">Database Changes/Text/en_US/AI/CoreStrategyTextChanges.sql</File>
     <File md5="A1C3C5A5CE29EC4F95904F737107A087" import="0">Database Changes/Text/en_US/City/CoreBuildingTextChanges.sql</File>
-    <File md5="B59F235840933ED49ABB0B1D22583765" import="0">Database Changes/Text/en_US/City/CoreNewGreatWorkText.xml</File>
+    <File md5="FB01A599C375DCF4223845744DB321FA" import="0">Database Changes/Text/en_US/City/CoreNewGreatWorkText.xml</File>
     <File md5="2471B6633ABB3FBE01811D2B56801198" import="0">Database Changes/Text/en_US/Civilizations/CoreCivilizationTextChanges.sql</File>
     <File md5="954F559D1F4893B3F83D82728CFC6C01" import="0">Database Changes/Text/en_US/Civilizations/CoreLeaderTextChanges.sql</File>
     <File md5="45B8F6A4744551D601F2C33083BDC74D" import="0">Database Changes/Text/en_US/Civilizations/CoreNewCivilizationText.xml</File>
@@ -563,16 +568,16 @@
     <File md5="9D313B8578E3F39D1F1B2380BB09A8A9" import="0">Database Changes/Text/en_US/Concepts/CoreNewConceptText.xml</File>
     <File md5="F05356D5D0E61F6D8D34D00F4BA9AA35" import="0">Database Changes/Text/en_US/Espionage/CoreNewEspionageText.xml</File>
     <File md5="169E182DC2A836A78595244D969F0B7E" import="0">Database Changes/Text/en_US/Minors/CoreMinorTextChanges.sql</File>
-    <File md5="8DCCC021FE70FEF0BD350D50B0F477F1" import="0">Database Changes/Text/en_US/Notifications/CoreNewNotificationText.xml</File>
-    <File md5="D815404C801F547E8157593652F66055" import="0">Database Changes/Text/en_US/Notifications/CoreNotificationTextChanges.sql</File>
+    <File md5="468C9AA3A0E052286E8A6A455636B22B" import="0">Database Changes/Text/en_US/Notifications/CoreNewNotificationText.xml</File>
+    <File md5="93390AF59DEF5A0380A5313CE5CF181E" import="0">Database Changes/Text/en_US/Notifications/CoreNotificationTextChanges.sql</File>
     <File md5="07FA4F3EE791BC55D0F0818B8645A785" import="0">Database Changes/Text/en_US/Religions/CoreReligionTextChanges.sql</File>
-    <File md5="03BCB223DB2DE37A84795CAF2EE4111D" import="0">Database Changes/Text/en_US/UI/CoreNewUIText.xml</File>
-    <File md5="7522ECB7E65AF448E6C3DE7AC4C27C8B" import="0">Database Changes/Text/en_US/UI/CoreUITextChanges.sql</File>
+    <File md5="A58018A4B105CE4D2B4C06A0D0DBC81F" import="0">Database Changes/Text/en_US/UI/CoreNewUIText.xml</File>
+    <File md5="35D6C281C1321E05D8331AD9380D5055" import="0">Database Changes/Text/en_US/UI/CoreUITextChanges.sql</File>
     <File md5="F9C0A53E9A6986F04ADADDBA2E138A10" import="0">Database Changes/Text/en_US/UnitPromotions/CoreNewPromotionText.xml</File>
     <File md5="8BDA888FE05533BBDA015FDA10D7DA2B" import="0">Database Changes/Text/en_US/UnitPromotions/CorePromotionTextChanges.sql</File>
     <File md5="C0C038A53F42B3910523E39C54AEA5BA" import="0">Database Changes/Text/en_US/Units/CoreMissionTextChanges.sql</File>
     <File md5="808BA5E08BB20D3CC50DEC7F0FB3DAB2" import="0">Database Changes/Text/en_US/Units/CoreSpecialUnitTextChanges.sql</File>
-    <File md5="EEC8AFFD8058EAFDD717A31535942898" import="0">Database Changes/Text/en_US/Units/CoreNewUnitText.xml</File>
+    <File md5="946E2922EF5FF6624D626A094E412833" import="0">Database Changes/Text/en_US/Units/CoreNewUnitText.xml</File>
     <File md5="385767DE8D95AEB854A6E6E7368CC027" import="0">Database Changes/Text/en_US/Units/CoreUnitCombatTextChanges.sql</File>
     <File md5="936D5D64F7ACC319B27BD9C7450F7A37" import="0">Database Changes/Text/en_US/Units/CoreUnitTextChanges.sql</File>
     <File md5="CD4454A964C6F682682F380493304B13" import="0">Database Changes/Text/en_US/WorldMap/CoreGoodyHutTextChanges.sql</File>
@@ -581,23 +586,23 @@
     <File md5="C7632921C819617F07A9F2417F3D05DF" import="0">Database Changes/Text/en_US/WorldMap/CoreNewPlotText.xml</File>
     <File md5="B21748CDFC1EB2CC2107C7A231F73DBD" import="0">Database Changes/Text/en_US/WorldMap/CoreNewYieldText.xml</File>
     <File md5="5E0C5260A2BFF015EBCA959910314D24" import="0">Database Changes/UnitPromotions/CoreNewPromotions.xml</File>
-    <File md5="773EDBEAD4A859BF205F8FB8F46D0F05" import="0">Database Changes/UnitPromotions/CorePromotionChanges.sql</File>
+    <File md5="F065CACE67FA236BBF314F16D4E35897" import="0">Database Changes/UnitPromotions/CorePromotionChanges.sql</File>
     <File md5="B484F02E294AF9D3BB3B4B79354C94E7" import="0">Database Changes/UnitPromotions/CorePromotionSweeps.sql</File>
-    <File md5="62F36AF1A658CB75C1A29177C6945DF0" import="0">Database Changes/UnitPromotions/NewPromotionTables.xml</File>
-    <File md5="5BC603E9EEEFB0439C444A7D352863F2" import="0">Database Changes/UnitPromotions/PromotionTableChanges.sql</File>
+    <File md5="4DC7A2C10C82301DC9A354D09CFE2BE8" import="0">Database Changes/UnitPromotions/NewPromotionTables.xml</File>
+    <File md5="3D85F0D1FC3AA06DCC6718F3D710E5DB" import="0">Database Changes/UnitPromotions/PromotionTableChanges.sql</File>
     <File md5="91C62C39D4D285A0E8EE860BC0D369DF" import="0">Database Changes/Units/CoreNewUnitFormations.xml</File>
     <File md5="F317B3A914FFEDD4AFF61D4B0BE29B32" import="0">Database Changes/Units/CoreUnitAIChanges.sql</File>
-    <File md5="05C3E5C969FB85C61EE4FA167CED4FBA" import="0">Database Changes/Units/CoreUnitChanges.sql</File>
+    <File md5="F049A1C276D74F6834B983590396036E" import="0">Database Changes/Units/CoreUnitChanges.sql</File>
     <File md5="263F2C6CC25B7ADF58689DCA757382B1" import="0">Database Changes/Units/CoreUnitFormationChanges.sql</File>
     <File md5="F043EB0FC13B12E4F1ED4DDE94DDA06C" import="0">Database Changes/Units/CoreUnitSweeps.sql</File>
-    <File md5="9FD8412FC5A6C6E4253ACB8185759022" import="0">Database Changes/Units/NewUnitTables.xml</File>
-    <File md5="24012E6E134E1A4E4A55648701AF60F5" import="0">Database Changes/Units/UnitTableChanges.sql</File>
+    <File md5="4594D3D07AFAE49F01C3FAFA66486F78" import="0">Database Changes/Units/NewUnitTables.xml</File>
+    <File md5="86E57AF7E7345BB20A4BF51E53B057F6" import="0">Database Changes/Units/UnitTableChanges.sql</File>
     <File md5="9BB552DCFEFA6796CFD58D96A5D86790" import="0">Database Changes/Units/GreatPeople/CoreNewGreatPeople.xml</File>
     <File md5="4BE32D3D34F41D955C6DB7A4AF700142" import="0">Database Changes/Units/GreatPeople/NewGreatPersonTables.xml</File>
     <File md5="60E02A0BFD28F97DDF2D4845F636BF19" import="0">Database Changes/WorldCongress/CongressTableChanges.sql</File>
     <File md5="5BC644094D416A7CBBEAECC9A373F1C4" import="0">Database Changes/WorldCongress/ProjectTableChanges.sql</File>
     <File md5="56CD49F1E1EA6F05F8675E4F6E82630F" import="0">Database Changes/WorldCongress/ResolutionTableChanges.sql</File>
-    <File md5="00BC5EE5A30FE9503A50CA780100DB0C" import="0">Database Changes/WorldMap/AncientRuinTableChanges.sql</File>
+    <File md5="CD02BA63CF04DF97D2B2BE98761B8F67" import="0">Database Changes/WorldMap/AncientRuinTableChanges.sql</File>
     <File md5="F94EA7DACB8C77F227911753922C1D32" import="0">Database Changes/WorldMap/NewAncientRuins.xml</File>
     <File md5="16B60FD8AF059F4478C028D42F070C5A" import="0">Database Changes/WorldMap/Features/CoreFeatureChanges.sql</File>
     <File md5="7FB57C72341D42999850BAE5637C6302" import="0">Database Changes/WorldMap/Features/FeatureTableChanges.sql</File>
@@ -605,14 +610,14 @@
     <File md5="A5464E28B76EC54170274EBA92A5BAE2" import="0">Database Changes/WorldMap/Improvements/BuildTableChanges.sql</File>
     <File md5="B792CD0F4E45572CED1115C1EBF63FEB" import="0">Database Changes/WorldMap/Improvements/CoreBuildChanges.sql</File>
     <File md5="FD834E4C28FAF16331A3CB16E0A84AE6" import="0">Database Changes/WorldMap/Improvements/CoreBuildSweeps.sql</File>
-    <File md5="D8495223EDFC19F87681508A664C0BB1" import="0">Database Changes/WorldMap/Improvements/CoreImprovementChanges.sql</File>
+    <File md5="6B5C88888D4E58B61D2F862188A3E758" import="0">Database Changes/WorldMap/Improvements/CoreImprovementChanges.sql</File>
     <File md5="7CFB824A55F1E9045A67E7A3B17A1931" import="0">Database Changes/WorldMap/Improvements/CoreImprovementSweeps.sql</File>
-    <File md5="B5134C0609F48612FD11570F5A3F9B52" import="0">Database Changes/WorldMap/Improvements/ImprovementTableChanges.sql</File>
+    <File md5="8FB794B6D66D79B7398A53F7F2AD3179" import="0">Database Changes/WorldMap/Improvements/ImprovementTableChanges.sql</File>
     <File md5="1E511F6FBDD1A275D2C8C2DC8194F478" import="0">Database Changes/WorldMap/Improvements/NewImprovementTables.xml</File>
     <File md5="3A9CE505E558F6E5B9033F30146C7407" import="0">Database Changes/WorldMap/Plots/CoreNewPlots.xml</File>
     <File md5="5E2E4E850E0C65EA02833306DC1CE902" import="0">Database Changes/WorldMap/Plots/NewPlotTables.xml</File>
     <File md5="DBE0E949790CE6921BB2DD3332A2E7F8" import="0">Database Changes/WorldMap/Resources/CoreResourceChanges.sql</File>
-    <File md5="7ABB95A2829502FDD882A4E9AA55AFC0" import="0">Database Changes/WorldMap/Resources/NewResourceTables.xml</File>
+    <File md5="BDF783A9BCBA0A58453E22DAB34176F8" import="0">Database Changes/WorldMap/Resources/NewResourceTables.xml</File>
     <File md5="4203B20584815262E247EEC8D3A163D9" import="0">Database Changes/WorldMap/Resources/ResourceTableChanges.sql</File>
     <File md5="8BE60954617943A45E6673BA0EC97817" import="0">Database Changes/WorldMap/Terrains/CoreTerrainChanges.sql</File>
     <File md5="B8A11D75CCAF9B01BE337651A0CB8FBD" import="0">Database Changes/WorldMap/Terrains/NewTerrainTables.xml</File>
@@ -659,6 +664,10 @@
     <File md5="D60A773B36912344CC4A18D45A4BD6B5" import="1">Kit/Table/CPK.Table.Prop.lua</File>
     <File md5="F65368CDFC506582211DC1B339910D94" import="1">Kit/Table/CPK.Table.Reverse.lua</File>
     <File md5="934BD478BEF9A5089609480C105F45B6" import="1">Kit/Text/CPK.Text.Color.lua</File>
+    <File md5="93E5B0643B8EAE3A0CEC8492AA58DBB8" import="1">Kit/Text/CPK.Text.FormatDecimal.lua</File>
+    <File md5="D212FDBA9CB28872D35887722908CC44" import="1">Kit/Text/CPK.Text.FormatDecimalTimes100.lua</File>
+    <File md5="591A1EB2FD28B104F9BAE3550B5E0345" import="1">Kit/Text/CPK.Text.FormatInteger.lua</File>
+    <File md5="15CDC8540CBDF530859E502E509E8F65" import="1">Kit/Text/CPK.Text.FormatIntegerTimes100.lua</File>
     <File md5="BADC18B5FC8C5494033FAE1BAE1D3D59" import="1">Kit/Type/CPK.Type.IsBoolean.lua</File>
     <File md5="49903870AC6D001A8628CB2E951100E6" import="1">Kit/Type/CPK.Type.IsCallable.lua</File>
     <File md5="AEEDF84854A7E46ABA32D821D2EB496A" import="1">Kit/Type/CPK.Type.IsFunction.lua</File>
@@ -681,22 +690,26 @@
     <File md5="785258CBC5CBA251EE8B7E0EC66ABF3E" import="1">Kit/Util/CPK.Util.FuzzyTrie.lua</File>
     <File md5="8BC6EB97B8F9A8226C92398661F3986F" import="1">Kit/Util/CPK.Util.Stack.lua</File>
     <File md5="024C203421D4F4366116889662469E63" import="1">Kit/Util/CPK.Util.StringBuilder.lua</File>
-    <File md5="0BEC69D4B15DC437584DBBEEAE14B570" import="1">LUA/CityBannerManager.lua</File>
+    <File md5="58BEB98F80F9E2802FD277CD9D59BF5B" import="1">LUA/CityBannerManager.lua</File>
     <File md5="3377B347687C3915177BFE3C72B72F99" import="1">LUA/CityBannerManager.xml</File>
     <File md5="ED8CCC7A358D1EDDCFE7444E11D45CAF" import="1">LUA/CityStateDiploPopup.lua</File>
-    <File md5="FAF943E11942E6EA21A54023F1BA943E" import="1">LUA/CityView.lua</File>
+    <File md5="EB09203114F4DEE8ABBB6C14370C8029" import="1">LUA/CityView_small.xml</File>
+    <File md5="308377CEC60AB9F9038961FE80118EB4" import="1">LUA/CityView.lua</File>
+    <File md5="AB2CEB624877D98F04727E8BAFE2E09A" import="1">LUA/CityView.xml</File>
     <File md5="6AA9DB940EBEEDE516278F42EACF4F5E" import="1">LUA/DiploList.lua</File>
     <File md5="948270F0E1DD6B1A7820891B0993B56D" import="1">LUA/LeaderHeadRoot.lua</File>
     <File md5="F54B1EA651FC8C87A6BBB648F9D4CB0F" import="1">LUA/LeaderHeadRoot.xml</File>
     <File md5="372493C23E5E290ED50D148809915718" import="1">LUA/NotificationPanel.lua</File>
     <File md5="F19F8CBF1D8F8A6825ECDE6773DF63E3" import="1">LUA/NotificationPanel.xml</File>
-    <File md5="72E5484F21C6AB41E4E27378094EAA20" import="1">LUA/ProductionPopup.lua</File>
-    <File md5="1D0266BEC6B458BCB855F63B5269615C" import="1">LUA/TopPanel.lua</File>
+    <File md5="303078DF1645DC9EBF09F55FCC79E38C" import="1">LUA/ProductionPopup.lua</File>
+    <File md5="0F79AF36C79EB3AAA6B71556FF292317" import="1">LUA/ProductionPopup.xml</File>
+    <File md5="E1923020F807782237E8FA940383C38F" import="1">LUA/TechPopup.lua</File>
+    <File md5="9E24D569780AACCE44AF9909C264D1BC" import="1">LUA/TechTree.lua</File>
+    <File md5="ABFD14C5CFDFCE684230117CF0030EB4" import="1">LUA/TopPanel.lua</File>
+    <File md5="1D41B411EF470522EAFD6D86EE3163B1" import="1">LUA/UnitPanel.lua</File>
     <File md5="5A87219957975A85A1D3CEDA1D98A835" import="1">LUA/YieldIconManager.lua</File>
     <File md5="8FD4EF5AAB5BD6E16DB8EBE95963FC33" import="1">LUA/YieldIconManager.xml</File>
     <File md5="4E0C99D18951BE4A2BC61E02EDD06DA1" import="1">LUA/Includes/CityStateStatusHelper.lua</File>
-    <File md5="63BD12D67DED019218FCB63EF1F51B49" import="1">LUA/Includes/InfoTooltipInclude.lua</File>
-    <File md5="39689BA6A82FA480D111BAF26C0738A3" import="1">LUA/Includes/TechButtonInclude.lua</File>
     <File md5="3867F5E70B59C833874CBD457732E814" import="1">LUA/Includes/TradeLogic.lua</File>
     <File md5="3EEC34EC93897595AABD4367C8B4B1A9" import="1">Mapscripts/Boreal.lua</File>
     <File md5="C94DD0DDF8E82E5B09B728BD7FCD951A" import="1">Mapscripts/Highlands.lua</File>
@@ -737,7 +750,7 @@
       <UpdateDatabase>Database Changes\City\Buildings\BuildingTableChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes\City\Processes\ProcessTableChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes\City\Projects\ProjectTableChanges.sql</UpdateDatabase>
-      <UpdateDatabase>Database Changes\Civilizations\LeaderTableChanges.sql</UpdateDatabase>
+      <UpdateDatabase>Database Changes\AI\LeaderTableChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes\Civilizations\TraitTableChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes\Concepts\ConceptTableChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes\Difficulty\DifficultyTableChanges.sql</UpdateDatabase>
@@ -793,9 +806,10 @@
       <UpdateDatabase>Database Changes\CoreGameSpeedChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes\CoreWorldChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes\Defines\CoreDefineChanges.sql</UpdateDatabase>
-      <UpdateDatabase>Database Changes\Defines\DiploAIOptions.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes\Defines\DiploApproachWeights.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes\Defines\DiploOpinionWeights.sql</UpdateDatabase>
+      <UpdateDatabase>Database Changes\AI\CoreLeaderPersonalityChanges.sql</UpdateDatabase>
+      <UpdateDatabase>Database Changes\AI\CoreLeaderFlavorChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes\AI\CoreCitySpecializationChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes\AI\CoreStrategyChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes\AI\FlavorChanges.sql</UpdateDatabase>
@@ -805,12 +819,12 @@
       <UpdateDatabase>Database Changes\City\Buildings\CoreBuildingChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes\City\GreatWorks\CoreGreatWorkChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes\Civilizations\CivilizationChanges.sql</UpdateDatabase>
-      <UpdateDatabase>Database Changes\Civilizations\CoreLeaderChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes\Civilizations\TraitChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes\Difficulty\CoreDifficultyChanges.xml</UpdateDatabase>
       <UpdateDatabase>Database Changes\Difficulty\CoreDifficultyChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes\Tech\CoreEraChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes\Policies\PolicyChanges.sql</UpdateDatabase>
+      <UpdateDatabase>Database Changes\Tech\CoreTechChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes\UnitPromotions\CorePromotionChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes\Units\CoreUnitChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes\Units\CoreUnitAIChanges.sql</UpdateDatabase>
