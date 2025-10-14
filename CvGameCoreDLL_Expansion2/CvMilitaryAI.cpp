@@ -584,16 +584,21 @@ CvUnit* CvMilitaryAI::BuyEmergencyUnit(UnitAITypes eUnitType, CvCity* pCity)
 			//make sure we want to spend our gold on this
 			int iGoldCost = pCity->GetPurchaseCost(eType);
 			int iPriority = /*500*/ GD_INT_GET(AI_GOLD_PRIORITY_UNIT);
-			if(m_pPlayer->GetEconomicAI()->CanWithdrawMoneyForPurchase(PURCHASE_TYPE_UNIT, iGoldCost, iPriority))
-				//try with gold first
-				pUnit = pCity->PurchaseUnit(eType, YIELD_GOLD);
-
-			if (pUnit)
-				bGold = true;
-			else
+			int iTempWeight = 100;
+			iTempWeight = pCity->GetCityStrategyAI()->GetUnitProductionAI()->CheckUnitBuildSanity(eType, false, iTempWeight, true);
+			if (iTempWeight > 0)
 			{
-				//try again with Faith (only because this is any emergency)
-				pUnit = pCity->PurchaseUnit(eType, YIELD_FAITH);
+				if (m_pPlayer->GetEconomicAI()->CanWithdrawMoneyForPurchase(PURCHASE_TYPE_UNIT, iGoldCost, iPriority))
+					//try with gold first
+					pUnit = pCity->PurchaseUnit(eType, YIELD_GOLD);
+
+				if (pUnit)
+					bGold = true;
+				else
+				{
+					//try again with Faith (only because this is any emergency)
+					pUnit = pCity->PurchaseUnit(eType, YIELD_FAITH);
+				}
 			}
 		}
 	}
@@ -1717,7 +1722,7 @@ void CvMilitaryAI::UpdateBaseData()
 void CvMilitaryAI::SetRecommendedArmyNavySize()
 {
 	// how many units can we afford?
-	int iMaxPossibleUnits = max(0, m_pPlayer->GetNumUnitsSupplied() + m_pPlayer->getNumUnitsSupplyFree());
+	int iMaxPossibleUnits = m_pPlayer->GetEconomicAI()->GetSoftSupplyCap();
 
 	// offense is simple for minors
 	if (m_pPlayer->isMinorCiv())

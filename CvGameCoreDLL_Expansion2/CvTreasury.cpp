@@ -445,7 +445,7 @@ int CvTreasury::CalculateBaseNetGoldTimes100()
 }
 
 /// Compute unit maintenance cost for the turn
-int CvTreasury::CalculateUnitCost()
+int CvTreasury::CalculateUnitCost(int iUnits)
 {
 	// If player has 0 Cities then no Unit cost
 	if (m_pPlayer->getNumCities() == 0)
@@ -454,10 +454,16 @@ int CvTreasury::CalculateUnitCost()
 	const CvHandicapInfo& playerHandicap = m_pPlayer->getHandicapInfo();
 	int iCostPerUnit = m_pPlayer->getGoldPerUnitTimes100(); // 0.5 GPT per unit
 
-	int iFreeUnits = playerHandicap.getMaintenanceFreeUnits() + m_pPlayer->GetNumMaintenanceFreeUnits() + m_pPlayer->getBaseFreeUnits();
-	iFreeUnits += m_pPlayer->isHuman(ISHUMAN_HANDICAP) ? 0 : GC.getGame().getHandicapInfo().getAIMaintenanceFreeUnits();
+	int iPaidUnits = iUnits;
+	if (iPaidUnits == -1)
+	{
+		int iFreeUnits = playerHandicap.getMaintenanceFreeUnits() + m_pPlayer->GetNumMaintenanceFreeUnits() + m_pPlayer->getBaseFreeUnits();
+		iFreeUnits += m_pPlayer->isHuman(ISHUMAN_HANDICAP) ? 0 : GC.getGame().getHandicapInfo().getAIMaintenanceFreeUnits();
 
-	int iPaidUnits = max(0, m_pPlayer->getNumUnits() - iFreeUnits);
+		int iNumUnits = m_pPlayer->getNumUnits();
+
+		iPaidUnits = max(0, iNumUnits - iFreeUnits);
+	}
 
 	int iBaseUnitCost = iPaidUnits * iCostPerUnit;
 

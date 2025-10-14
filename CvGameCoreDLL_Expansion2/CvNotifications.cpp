@@ -1661,8 +1661,6 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 				return true;
 			}
 		}
-		else
-			return true;
 	}
 	break;
 	case NOTIFICATION_DIPLO_VOTE:

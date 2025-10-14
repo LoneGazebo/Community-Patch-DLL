@@ -24320,7 +24320,7 @@ void CvUnit::DoConvertReligiousUnitsToMilitary(const CvPlot* pPlot)
 	}
 }
 
-//finish improvements (mostly roads) at the beginning of the turn so we can use them immediately
+//finish roads improvements at the beginning of the turn so we can use them immediately
 void CvUnit::DoFinishBuildIfSafe()
 {
 	if (isHuman(ISHUMAN_AI_UNITS) && !IsAutomated())
@@ -24334,6 +24334,10 @@ void CvUnit::DoFinishBuildIfSafe()
 		{
 			BuilderDirective eDirective = GET_PLAYER(m_eOwner).GetBuilderTaskingAI()->GetAssignedDirective(this);
 			if (eDirective.m_sX != m_iX || eDirective.m_sY != m_iY || eDirective.m_eBuild != eBuild)
+				return;
+
+			CvBuildInfo* pkBuild = GC.getBuildInfo(eBuild);
+			if (pkBuild->getRoute() == NO_ROUTE)
 				return;
 
 			if (GetActivityType() == ACTIVITY_MISSION)

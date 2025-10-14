@@ -42624,16 +42624,6 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 						{
 							pCapital->SpawnFreeUnit(eUnit);
 						}
-
-						// If a human player chooses this policy to get a worker and it is their first worker, we need to figure out what it can do
-						if (isHuman(ISHUMAN_AI_POLICY_CHOICE))
-						{
-							int iNumUnits = GetNumUnitsOfType(eUnit);
-							if (iNumUnits == iNumFreeUnits && (pkUnitInfo->GetDefaultUnitAIType() == UNITAI_WORKER || pkUnitInfo->GetDefaultUnitAIType() == UNITAI_WORKER_SEA))
-							{
-								GetBuilderTaskingAI()->UpdateImprovementPlots();
-							}
-						}
 					}
 
 					int iNumFreeCombatLandUnits = pkPolicyInfo->GetBestNumberLandCombatUnitClass();

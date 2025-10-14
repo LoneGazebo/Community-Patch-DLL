@@ -184,7 +184,8 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 	if (!pkUnitEntry)
 		return SR_IMPOSSIBLE;
 
-	bool bCombat = (pkUnitEntry->GetCombat() > 0 || pkUnitEntry->GetRangedCombat() > 0) && pkUnitEntry->GetDefaultUnitAIType() != UNITAI_EXPLORE;
+	bool bCombat = pkUnitEntry->GetCombat() > 0 || pkUnitEntry->GetRangedCombat() > 0;
+	bool bNeedsSupply = (pkUnitEntry->GetCombat() > 0 || pkUnitEntry->GetRangedCombat() > 0) && !pkUnitEntry->IsNoSupply();
 
 	CvPlayerAI& kPlayer = GET_PLAYER(m_pCity->getOwner());
 	if (!bFree && bForPurchase && !m_pCity->IsCanPurchase(/*bTestPurchaseCost*/ true, /*bTestTrainable*/ true, eUnit, NO_BUILDING, NO_PROJECT, YIELD_GOLD))
@@ -259,14 +260,13 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			return SR_IMPOSSIBLE;
 	}
 
-
 	int iNumExplorers = kPlayer.GetNumUnitsWithUnitAI(UNITAI_EXPLORE, true, true);
 	int iNumLandUnits = kPlayer.getNumMilitaryLandUnits() + kPlayer.GetNumUnitsInProduction(DOMAIN_LAND, true);
 	int iNumSeaUnits = kPlayer.getNumMilitarySeaUnits() + kPlayer.GetNumUnitsInProduction(DOMAIN_SEA, true);
 
 	UnitTypes eCurrentlyProducing = m_pCity->getProductionUnit();
 
-	if (eCurrentlyProducing != NO_UNIT)
+	if (eCurrentlyProducing != NO_UNIT && !bForPurchase)
 	{
 		CvUnitEntry* pkCurrentlyProducing = GC.getUnitInfo(eCurrentlyProducing);
 		if (pkCurrentlyProducing)
@@ -280,23 +280,26 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		}
 	}
 
-	iNumLandUnits -= iNumExplorers;
-
 	int iNumTotalUnits = iNumLandUnits + iNumSeaUnits;
 	int iNumTotalUnitsToSupply = iNumTotalUnits - kPlayer.getNumUnitsSupplyFree();
 
-	if (bCombat && pkUnitEntry->GetDomainType() == DOMAIN_LAND && iNumLandUnits >= kPlayer.GetMilitaryAI()->GetRecommendLandArmySize())
-		return SR_UNITSUPPLY;
-	else if (bCombat && pkUnitEntry->GetDomainType() == DOMAIN_SEA && iNumSeaUnits >= kPlayer.GetMilitaryAI()->GetRecommendNavySize())
-		return SR_UNITSUPPLY;
-	else if (pkUnitEntry->GetDefaultUnitAIType() == UNITAI_EXPLORE && iNumExplorers >= kPlayer.GetMilitaryAI()->GetRecommendedExplorers())
-		return SR_UNITSUPPLY;
+	iNumLandUnits -= iNumExplorers;
+
+	if (bNeedsSupply)
+	{
+		if (pkUnitEntry->GetDomainType() == DOMAIN_LAND && pkUnitEntry->GetDefaultUnitAIType() != UNITAI_EXPLORE && iNumLandUnits >= kPlayer.GetMilitaryAI()->GetRecommendLandArmySize())
+			return SR_UNITSUPPLY;
+		else if (pkUnitEntry->GetDomainType() == DOMAIN_SEA && iNumSeaUnits >= kPlayer.GetMilitaryAI()->GetRecommendNavySize())
+			return SR_UNITSUPPLY;
+		else if (pkUnitEntry->GetDefaultUnitAIType() == UNITAI_EXPLORE && iNumExplorers >= kPlayer.GetMilitaryAI()->GetRecommendedExplorers())
+			return SR_UNITSUPPLY;
+	}
 
 	//only war with majors count
 	bool bAtWar = (kPlayer.GetMilitaryAI()->GetNumberCivsAtWarWith(false) > 0);
 	if (!bFree && kPlayer.isMinorCiv())
 	{
-		if (bCombat)
+		if (bNeedsSupply)
 		{
 			if (iNumTotalUnits > max(4, ((kPlayer.GetCurrentEra() + 3) * max(1, kPlayer.getNumCities()))))
 				return SR_UNITSUPPLY;
@@ -347,7 +350,9 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		{
 			if (eDomain == DOMAIN_LAND && m_pCity->HasGarrison() && !bForOperation)
 			{
-				return SR_USELESS;
+				CvUnit* pGarrison = m_pCity->GetGarrisonedUnit();
+				if (pGarrison->getDomainType() == DOMAIN_LAND)
+					return SR_USELESS;
 			}
 		}
 	}
@@ -1182,7 +1187,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			}
 
 			CvCity* pLoopPlotCity = pLoopPlot->getPlotCity();
-			if (pLoopPlotCity && pLoopPlotCity != m_pCity && pLoopPlotCity->isProductionUnit())
+			if (pLoopPlotCity && (pLoopPlotCity != m_pCity || bForPurchase) && pLoopPlotCity->isProductionUnit())
 			{
 				CvUnitEntry* pkUnitEntry = GC.getUnitInfo(pLoopPlotCity->getProductionUnit());
 				if (pkUnitEntry)
@@ -1444,7 +1449,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		}
 	}
 
-	if (bCombat)
+	if (bCombat && !bForPurchase)
 	{
 		UnitTypes eCurrentUnit = m_pCity->getProductionUnit();
 		//making a combat unit?
@@ -1493,6 +1498,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		iBonus = iFlavorWeight;
 	}
 
+	/*
 	if (!kPlayer.isMinorCiv() && !pkUnitEntry->IsNoSupply())
 	{
 		if (bCombat && !bFree)
@@ -1519,6 +1525,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			}
 		}
 	}
+	*/
 
 	//prioritize besieged cities for purchase
 	if (bForPurchase && bCombat && bDesperate)
