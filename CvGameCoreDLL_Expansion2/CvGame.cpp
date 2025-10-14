@@ -6332,7 +6332,7 @@ int CvGame::ComputeAverageMajorMilitaryRating(PlayerTypes ePerceivingPlayer, Pla
 /// Disable Victory Competition
 bool CvGame::IsVictoryCompetitionEnabled() const
 {
-	if (MOD_BALANCE_VP && isOption(GAMEOPTION_DISABLE_VICTORY_COMPETITION))
+	if (isOption(GAMEOPTION_DISABLE_AI_VICTORY_COMPETITION))
 		return false;
 
 	// Victory competition automatically ends when someone wins the game.
@@ -6342,11 +6342,8 @@ bool CvGame::IsVictoryCompetitionEnabled() const
 /// Disable Endgame Aggression Boost
 bool CvGame::IsEndgameAggressionEnabled() const
 {
-	if (MOD_BALANCE_VP && isOption(GAMEOPTION_DISABLE_ENDGAME_AGGRESSION))
-		return false;
-
 	// Automatically disabled if victory competition is disabled.
-	return IsVictoryCompetitionEnabled();
+	return IsVictoryCompetitionEnabled() && !isOption(GAMEOPTION_DISABLE_AI_ENDGAME_AGGRESSION);
 }
 
 /// Passive Mode (towards all players)
@@ -8472,7 +8469,7 @@ void CvGame::doTurn()
 		}
 	}
 
-	if (isOption(GAMEOPTION_RANDOM_VICTORY))
+	if (isOption(GAMEOPTION_RANDOMIZED_VICTORIES))
 	{
 		doVictoryRandomization();
 	}
@@ -9687,7 +9684,7 @@ void CvGame::testVictory()
 	}
 
 	//Not already defined? Skip!
-	if (isOption(GAMEOPTION_RANDOM_VICTORY) && !isVictoryRandomizationDone() && !bIsDomination && !bIsScore)
+	if (isOption(GAMEOPTION_RANDOMIZED_VICTORIES) && !isVictoryRandomizationDone() && !bIsDomination && !bIsScore)
 	{
 		aaiGameWinners.clear();
 		bEndGame = false;

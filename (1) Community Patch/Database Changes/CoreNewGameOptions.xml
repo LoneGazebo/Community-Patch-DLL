@@ -7,40 +7,67 @@
 			<Help>TXT_KEY_GAME_OPTION_BARB_GG_GA_POINTS_HELP</Help>
 		</Row>
 		<Row>
-			<Type>GAMEOPTION_GOOD_EVENTS</Type>
-			<Description>TXT_KEY_GAME_OPTION_GOOD_EVENTS</Description>
-			<Help>TXT_KEY_GAME_OPTION_GOOD_EVENTS_HELP</Help>
+			<Type>GAMEOPTION_CHILL_BARBARIANS</Type>
+			<Description>TXT_KEY_GAME_OPTION_CHILL_BARBARIANS</Description>
+			<Help>TXT_KEY_GAME_OPTION_CHILL_BARBARIANS_HELP</Help>
 		</Row>
 		<Row>
-			<Type>GAMEOPTION_NEUTRAL_EVENTS</Type>
-			<Description>TXT_KEY_GAME_OPTION_NEUTRAL_EVENTS</Description>
-			<Help>TXT_KEY_GAME_OPTION_NEUTRAL_EVENTS_HELP</Help>
+			<Type>GAMEOPTION_DISABLE_AI_VICTORY_COMPETITION</Type>
+			<Description>TXT_KEY_GAME_OPTION_DISABLE_AI_VICTORY_COMPETITION</Description>
+			<Help>TXT_KEY_GAME_OPTION_DISABLE_AI_VICTORY_COMPETITION_HELP</Help>
 		</Row>
+		<Row>
+			<Type>GAMEOPTION_DISABLE_AI_ENDGAME_AGGRESSION</Type>
+			<Description>TXT_KEY_GAME_OPTION_DISABLE_AI_ENDGAME_AGGRESSION</Description>
+			<Help>TXT_KEY_GAME_OPTION_DISABLE_AI_ENDGAME_AGGRESSION_HELP</Help>
+		</Row>
+		<Row>
+			<Type>GAMEOPTION_RANDOMIZED_VICTORIES</Type>
+			<Description>TXT_KEY_GAME_OPTION_RANDOMIZED_VICTORIES</Description>
+			<Help>TXT_KEY_GAME_OPTION_RANDOMIZED_VICTORIES_HELP</Help>
+		</Row>
+		<Row>
+			<Type>GAMEOPTION_TRANSPARENT_DIPLOMACY</Type>
+			<Description>TXT_KEY_GAME_OPTION_TRANSPARENT_DIPLOMACY</Description>
+			<Help>TXT_KEY_GAME_OPTION_TRANSPARENT_DIPLOMACY_HELP</Help>
+		</Row>
+		<!-- Multiplayer only -->
+		<Row>
+			<Type>GAMEOPTION_KEEP_UNMET_PLAYERS_UNKNOWN</Type>
+			<Description>TXT_KEY_GAME_OPTION_KEEP_UNMET_PLAYERS_UNKNOWN</Description>
+			<Help>TXT_KEY_GAME_OPTION_KEEP_UNMET_PLAYERS_UNKNOWN_HELP</Help>
+			<SupportsSinglePlayer>false</SupportsSinglePlayer>
+		</Row>
+		<!-- Events -->
 		<Row>
 			<Type>GAMEOPTION_BAD_EVENTS</Type>
 			<Description>TXT_KEY_GAME_OPTION_BAD_EVENTS</Description>
 			<Help>TXT_KEY_GAME_OPTION_BAD_EVENTS_HELP</Help>
-		</Row>
-		<Row>
-			<Type>GAMEOPTION_TRADE_EVENTS</Type>
-			<Description>TXT_KEY_GAME_OPTION_TRADE_EVENTS</Description>
-			<Help>TXT_KEY_GAME_OPTION_TRADE_EVENTS_HELP</Help>
+			<Visible>false</Visible>
 		</Row>
 		<Row>
 			<Type>GAMEOPTION_CIV_SPECIFIC_EVENTS</Type>
 			<Description>TXT_KEY_GAME_OPTION_CIV_SPECIFIC_EVENTS</Description>
 			<Help>TXT_KEY_GAME_OPTION_CIV_SPECIFIC_EVENTS_HELP</Help>
+			<Visible>false</Visible>
 		</Row>
 		<Row>
-			<Type>GAMEOPTION_CHILL_BARBARIANS</Type>
-			<Description>TXT_KEY_GAMEOPTION_CHILL_BARBARIANS</Description>
-			<Help>TXT_KEY_GAMEOPTION_CHILL_BARBARIANS_HELP</Help>
+			<Type>GAMEOPTION_GOOD_EVENTS</Type>
+			<Description>TXT_KEY_GAME_OPTION_GOOD_EVENTS</Description>
+			<Help>TXT_KEY_GAME_OPTION_GOOD_EVENTS_HELP</Help>
+			<Visible>false</Visible>
 		</Row>
 		<Row>
-			<Type>GAMEOPTION_KEEP_UNMET_PLAYERS_UNKNOWN</Type>
-			<Description>TXT_KEY_GAMEOPTION_KEEP_UNMET_PLAYERS_UNKNOWN</Description>
-			<Help>TXT_KEY_GAMEOPTION_KEEP_UNMET_PLAYERS_UNKNOWN_HELP</Help>
-			<SupportsSinglePlayer>false</SupportsSinglePlayer>
+			<Type>GAMEOPTION_NEUTRAL_EVENTS</Type>
+			<Description>TXT_KEY_GAME_OPTION_NEUTRAL_EVENTS</Description>
+			<Help>TXT_KEY_GAME_OPTION_NEUTRAL_EVENTS_HELP</Help>
+			<Visible>false</Visible>
+		</Row>
+		<Row>
+			<Type>GAMEOPTION_TRADE_EVENTS</Type>
+			<Description>TXT_KEY_GAME_OPTION_TRADE_EVENTS</Description>
+			<Help>TXT_KEY_GAME_OPTION_TRADE_EVENTS_HELP</Help>
+			<Visible>false</Visible>
 		</Row>
 	</GameOptions>
 </GameData>
