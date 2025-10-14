@@ -65,8 +65,8 @@ WHERE Type = 'UNIT_LICORNE';
 INSERT INTO Unit_FreePromotions
 	(UnitType, PromotionType)
 VALUES
-	('UNIT_RUSSIAN_COSSACK', 'PROMOTION_CAN_MOVE_AFTER_ATTACKING'),
-	('UNIT_RUSSIAN_COSSACK', 'PROMOTION_GRAPESHOT');
+	('UNIT_LICORNE', 'PROMOTION_CAN_MOVE_AFTER_ATTACKING'),
+	('UNIT_LICORNE', 'PROMOTION_GRAPESHOT');
 
 ----------------------------------------------------------
 -- Unique Building: Ostrog (Bastion Fort)
