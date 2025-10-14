@@ -1208,8 +1208,8 @@ local g_SelectionListTooltips = {
 local function SetupSelectionList( itemList, selectionIM, cityOwnerID, getUnitPortraitIcon )
 	itemList:sort( SortSelectionList )
 	selectionIM.ResetInstances()
-	local cash = g_activePlayer:GetGoldTimes100() / 100
-	local faith = gk_mode and (g_activePlayer:GetFaithTimes100() / 100) or 0
+	local cash = math_floor(g_activePlayer:GetGoldTimes100() / 100)
+	local faith = math_floor(gk_mode and (g_activePlayer:GetFaithTimes100() / 100)) or 0
 	for i = 1, #itemList do
 		local item, orderID, itemDescription, turnsLeft, canProduce, goldCost, canBuyWithGold, faithCost, canBuyWithFaith = unpack( itemList[i] )
 		local itemID = item.ID
