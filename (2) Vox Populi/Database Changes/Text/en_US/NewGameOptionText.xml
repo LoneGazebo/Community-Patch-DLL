@@ -1,13 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <GameData>
 	<Language_en_US>
-		<Row Tag="TXT_KEY_GAMEOPTION_RANDOM_VICTORY">
-			<Text>Randomized Victories</Text>
-		</Row>
-		<Row Tag="TXT_KEY_GAMEOPTION_RANDOM_VICTORY_HELP">
-			<Text>One random Victory Type (Culture, Diplomatic, or Spaceship) is enabled when any player enters the Atomic Era. All other victories are disabled (note: Time and Domination Victories are always possible).</Text>
-		</Row>
-
 		<Row Tag="TXT_KEY_GAME_OPTION_NO_TECH_TRADING">
 			<Text>No Tech Trading</Text>
 		</Row>
@@ -34,27 +27,6 @@
 		</Row>
 		<Row Tag="TXT_KEY_GAME_OPTION_NO_VASSALAGE_HELP">
 			<Text>Disables the Vassalage System. No vassals can be created.</Text>
-		</Row>
-
-		<Row Tag="TXT_KEY_GAME_OPTION_TRANSPARENT_DIPLOMACY">
-			<Text>Transparent Diplomacy</Text>
-		</Row>
-		<Row Tag="TXT_KEY_GAME_OPTION_TRANSPARENT_DIPLOMACY_HELP">
-			<Text>Display raw numbers next to diplomatic modifiers. In addition, AI leaders will never hide negative modifiers.</Text>
-		</Row>
-
-		<Row Tag="TXT_KEY_GAME_OPTION_DISABLE_VICTORY_COMPETITION">
-			<Text>Disable AI Victory Competition</Text>
-		</Row>
-		<Row Tag="TXT_KEY_GAME_OPTION_DISABLE_VICTORY_COMPETITION_HELP">
-			<Text>AI leaders will not resent other players for their progress towards Victory Conditions. This makes the game significantly easier.</Text>
-		</Row>
-
-		<Row Tag="TXT_KEY_GAME_OPTION_DISABLE_ENDGAME_AGGRESSION">
-			<Text>Disable AI Endgame Aggression</Text>
-		</Row>
-		<Row Tag="TXT_KEY_GAME_OPTION_DISABLE_ENDGAME_AGGRESSION_HELP">
-			<Text>AI leaders will not receive an aggression boost towards players who are getting close to winning the game. NOTE: This option is redundant if 'Disable AI Victory Competition' is enabled.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_GAME_OPTION_PASSIVE_ESPIONAGE">

@@ -1069,7 +1069,7 @@ VALUES
 -- Number of Units Spawned
 -- Encampment Creation
 	('BARBARIAN_NUM_UNITS_INITIAL_ENCAMPMENT_CREATION_SPAWN', 1), -- The number of units an encampment spawns when created (first spawning turn only).
-	('BARBARIAN_NUM_UNITS_INITIAL_ENCAMPMENT_CREATION_SPAWN_CHILL', -1), -- Change if Chill Barbarians is enabled.
+	('BARBARIAN_NUM_UNITS_INITIAL_ENCAMPMENT_CREATION_SPAWN_CHILL', 0), -- Change if Chill Barbarians is enabled.
 	('BARBARIAN_NUM_UNITS_INITIAL_ENCAMPMENT_CREATION_SPAWN_RAGING', 0), -- Change if Raging Barbarians is enabled.
 	('BARBARIAN_NUM_UNITS_INITIAL_ENCAMPMENT_CREATION_SPAWN_PER_ERA', 0), -- Extra units added per era (first spawning turn only). Number of extra units = this value * (era #) / 100, rounded down.
 	('BARBARIAN_NUM_UNITS_ENCAMPMENT_CREATION_SPAWN', 1), -- The number of units an encampment spawns when created.

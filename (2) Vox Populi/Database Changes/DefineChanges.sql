@@ -449,9 +449,11 @@ UPDATE Defines SET Value = 2 WHERE Name = 'BARBARIAN_INITIAL_SPAWN_TURN';
 
 -- Number of barbarians spawned with each new barbarian camp on initial spawn turn
 UPDATE Defines SET Value = 2 WHERE Name = 'BARBARIAN_NUM_UNITS_INITIAL_ENCAMPMENT_CREATION_SPAWN';
+UPDATE Defines SET Value = -1 WHERE Name = 'BARBARIAN_NUM_UNITS_INITIAL_ENCAMPMENT_CREATION_SPAWN_CHILL';
 
 -- Number of barbarians spawned with each new barbarian camp after initial spawn turn
 UPDATE Defines SET Value = 2 WHERE Name = 'BARBARIAN_NUM_UNITS_ENCAMPMENT_CREATION_SPAWN';
+UPDATE Defines SET Value = -1 WHERE Name = 'BARBARIAN_NUM_UNITS_ENCAMPMENT_CREATION_SPAWN_CHILL';
 
 -- Barbarian release turn is modified by +/- this number, then scaled with game speed
 UPDATE Defines SET Value = 2 WHERE Name = 'AI_TACTICAL_BARBARIAN_RELEASE_VARIATION';
