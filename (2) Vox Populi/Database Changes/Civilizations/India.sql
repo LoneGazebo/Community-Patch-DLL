@@ -109,11 +109,6 @@ VALUES
 ----------------------------------------------------------
 -- Unique Building: Qila (Castle)
 ----------------------------------------------------------
-INSERT INTO Civilization_BuildingClassOverrides
-	(CivilizationType, BuildingClassType, BuildingType)
-VALUES
-	('CIVILIZATION_INDIA', 'BUILDINGCLASS_CASTLE', 'BUILDING_MUGHAL_FORT');
-
 UPDATE Buildings
 SET
 	DefensePerXWonder = 2,
