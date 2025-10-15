@@ -144,7 +144,6 @@ CvUnitEntry::CvUnitEntry(void) :
 	m_pbBuilds(NULL),
 	m_pbBuildingClassRequireds(NULL),
 	m_piScalingFromOwnedImprovements(NULL),
-	m_pbBuildOnFound(NULL),
 	m_pbBuildingClassPurchaseRequireds(NULL),
 	m_iResourceType(NO_RESOURCE),
 	m_bPuppetPurchaseOverride(false),
@@ -193,7 +192,6 @@ CvUnitEntry::~CvUnitEntry(void)
 	SAFE_DELETE_ARRAY(m_pbBuilds);
 	SAFE_DELETE_ARRAY(m_pbBuildingClassRequireds);
 	SAFE_DELETE_ARRAY(m_piScalingFromOwnedImprovements);
-	SAFE_DELETE_ARRAY(m_pbBuildOnFound);
 	SAFE_DELETE_ARRAY(m_pbBuildingClassPurchaseRequireds);
 	SAFE_DELETE_ARRAY(m_piPrereqAndTechs);
 	SAFE_DELETE_ARRAY(m_piResourceQuantityRequirements);
@@ -448,9 +446,10 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	kUtility.PopulateArrayByExistence(m_pbBuilds, "Builds", "Unit_Builds", "BuildType", "UnitType", szUnitType);
 	kUtility.PopulateArrayByExistence(m_pbBuildingClassRequireds, "BuildingClasses", "Unit_BuildingClassRequireds", "BuildingClassType", "UnitType", szUnitType);
 	kUtility.PopulateArrayByValue(m_piScalingFromOwnedImprovements, "Improvements", "Unit_ScalingFromOwnedImprovements", "ImprovementType", "UnitType", szUnitType, "Amount");
-	kUtility.PopulateArrayByExistence(m_pbBuildOnFound, "BuildingClasses", "Unit_BuildOnFound", "BuildingClassType", "UnitType", szUnitType);
 	kUtility.PopulateArrayByExistence(m_pbBuildingClassPurchaseRequireds, "BuildingClasses", "Unit_BuildingClassPurchaseRequireds", "BuildingClassType", "UnitType", szUnitType);
 	kUtility.PopulateArrayByValue(m_piEraCombatStrength, "Eras", "Unit_EraCombatStrength", "EraType", "UnitType", szUnitType, "CombatStrength");
+
+	kUtility.PopulateSetByExistence(m_siBuildOnFound, "BuildingClasses", "Unit_BuildOnFound", "BuildingClassType", "UnitType", szUnitType);
 	//TechTypes
 	{
 		//Initialize array to NO_TECH
@@ -1502,13 +1501,12 @@ int CvUnitEntry::GetScalingFromOwnedImprovements(int i) const
 	return m_piScalingFromOwnedImprovements ? m_piScalingFromOwnedImprovements[i] : -1;
 }
 
-/// Does this Unit create something when it founds a city?
-bool CvUnitEntry::GetBuildOnFound(int i) const
+/// Get the set of building classes this unit creates when it founds a city
+set<int> CvUnitEntry::GetBuildOnFound() const
 {
-	PRECONDITION(i < GC.getNumBuildingClassInfos(), "Index out of bounds");
-	PRECONDITION(i > -1, "Index out of bounds");
-	return m_pbBuildOnFound? m_pbBuildOnFound[i] : false;
+	return m_siBuildOnFound;
 }
+
 /// Does this Unit need a certain BuildingClass in this City to purchase?
 bool CvUnitEntry::GetBuildingClassPurchaseRequireds(int i) const
 {

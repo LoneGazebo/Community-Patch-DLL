@@ -13732,56 +13732,6 @@ void CvPlayer::foundCity(int iX, int iY, ReligionTypes eReligion, bool bForce, C
 	}
 }
 
-void CvPlayer::cityBoost(int iX, int iY, CvUnitEntry* pkUnitEntry, int iExtraPlots, int iPopChange, int iFoodPercent)
-{
-	//Advanced Settler Buildings
-	if(pkUnitEntry && !isMinorCiv() && !isBarbarian())
-	{
-		CvPlot* pPlot = GC.getMap().plot(iX, iY);
-		CvCity* pCity = pPlot ? pPlot->getPlotCity() : NULL;
-
-		if(!pCity)
-			return;
-
-		const int iNumBuildingClassInfos = GC.getNumBuildingClassInfos();
-		const CvCivilizationInfo& thisCivilization = getCivilizationInfo();
-		for(int iBuildingClassLoop = 0; iBuildingClassLoop < iNumBuildingClassInfos; iBuildingClassLoop++)
-		{
-			const BuildingClassTypes eBuildingClass = (BuildingClassTypes) iBuildingClassLoop;
-			CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
-			if(!pkBuildingClassInfo)
-			{
-				continue;
-			}
-			if(pkUnitEntry->GetBuildOnFound(eBuildingClass))
-			{
-				const BuildingTypes eFreeBuilding = (BuildingTypes)(thisCivilization.getCivilizationBuildings(eBuildingClass));
-				if(pCity->isValidBuildingLocation(eFreeBuilding))
-				{
-					pCity->GetCityBuildings()->SetNumRealBuilding(eFreeBuilding, 1, true);
-				}
-			}
-		}
-
-		pCity->changePopulation(iPopChange, true, true);
-
-		//additional food to prevent instant-starvation
-		pCity->changeFood((pCity->growthThreshold() * iFoodPercent / 100));
-
-		//And a little territory to boot
-		for (int i = 0; i < iExtraPlots; i++)
-		{
-			CvPlot* pPlotToAcquire = pCity->GetNextBuyablePlot(false);
-
-			// maybe the player owns ALL of the plots or there are none available?
-			if(pPlotToAcquire)
-			{
-				pCity->DoAcquirePlot(pPlotToAcquire->getX(), pPlotToAcquire->getY());
-			}
-		}
-	}
-}
-
 //	this should be more or less "static" conditions, all the transient factor should be checked in CvCity::canTrain()
 bool CvPlayer::canTrainUnit(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool bIgnoreCost, bool bIgnoreUniqueUnitStatus, bool bIgnoreTechRequirements, CvString* toolTipSink) const
 {
