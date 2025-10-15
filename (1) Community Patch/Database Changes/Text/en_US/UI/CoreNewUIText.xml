@@ -693,7 +693,7 @@
 			<Text>Projected yield modifiers when built: {1_YieldModifiers}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_PROJECTED_HAPPINESS">
-			<Text>Projected [ICON_HAPPINESS] Happiness when built: {2_Sign}{1_Num}</Text>
+			<Text>Projected [ICON_HAPPINESS_1] Happiness when built: {2_Sign}{1_Num}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_AIR_DEFENSE">
 			<Text>[ICON_AIRSTRIKE_DEFENSE] City Air Strike Defense: +{1_Num}</Text>
