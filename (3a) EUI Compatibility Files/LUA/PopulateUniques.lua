@@ -16,6 +16,7 @@ include( "EUI_tooltips" )
 local GetHelpTextForUnit = EUI.GetHelpTextForUnit
 local GetHelpTextForBuilding = EUI.GetHelpTextForBuilding
 local GetHelpTextForImprovement = EUI.GetHelpTextForImprovement
+local GetHelpTextForProject = EUI.GetHelpTextForProject
 --[[
 Assumptions:
 CivilopediaControl is set before include statement with string of popup control
@@ -141,7 +142,7 @@ local function populateUniques( parentControl, civType )
 	end
 	-- UP icons
 	for project in g_uniqueProjectsQuery( civType ) do
-		newItemIcon( parentControl, project, pcall( GetHelpTextForImprovement, project.ID ) );
+		newItemIcon( parentControl, project, pcall( GetHelpTextForProject, project.ID ) );
 	end
 end
 
