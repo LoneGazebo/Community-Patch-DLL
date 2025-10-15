@@ -988,21 +988,32 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	}
 
 	// Stuff for Pioneers and Colonists
-	if (bInitialFounding && pkSettlerUnitEntry != NULL)
+	if (bInitialFounding && pkSettlerUnitEntry)
 	{
 		if (pkSettlerUnitEntry->GetNumColonyFound() > 0)
 		{
-			kPlayer.cityBoost(getX(), getY(), pkSettlerUnitEntry, /*3*/ GD_INT_GET(PIONEER_EXTRA_PLOTS), /*3*/ GD_INT_GET(PIONEER_POPULATION_CHANGE), 1);
+			InitBoost(/*3*/ GD_INT_GET(PIONEER_EXTRA_PLOTS), /*3*/ GD_INT_GET(PIONEER_POPULATION_CHANGE), 1);
 			DoCreatePuppet();
 		}
-
 		if (pkSettlerUnitEntry->IsFoundMid())
 		{
-			kPlayer.cityBoost(getX(), getY(), pkSettlerUnitEntry, /*3*/ GD_INT_GET(PIONEER_EXTRA_PLOTS), /*3*/ GD_INT_GET(PIONEER_POPULATION_CHANGE), /*25*/ GD_INT_GET(PIONEER_FOOD_PERCENT));
+			InitBoost(/*3*/ GD_INT_GET(PIONEER_EXTRA_PLOTS), /*3*/ GD_INT_GET(PIONEER_POPULATION_CHANGE), /*25*/ GD_INT_GET(PIONEER_FOOD_PERCENT));
 		}
 		if (pkSettlerUnitEntry->IsFoundLate())
 		{
-			kPlayer.cityBoost(getX(), getY(), pkSettlerUnitEntry, /*5*/ GD_INT_GET(COLONIST_EXTRA_PLOTS), /*5*/ GD_INT_GET(COLONIST_POPULATION_CHANGE), /*50*/ GD_INT_GET(COLONIST_FOOD_PERCENT));
+			InitBoost(/*5*/ GD_INT_GET(COLONIST_EXTRA_PLOTS), /*5*/ GD_INT_GET(COLONIST_POPULATION_CHANGE), /*50*/ GD_INT_GET(COLONIST_FOOD_PERCENT));
+		}
+
+		const int iNumBuildingClassInfos = GC.getNumBuildingClassInfos();
+		const CvCivilizationInfo& kCivInfo = getCivilizationInfo();
+		for (set<int>::const_iterator it = pkSettlerUnitEntry->GetBuildOnFound().begin(); it != pkSettlerUnitEntry->GetBuildOnFound().end(); ++it)
+		{
+			const BuildingClassTypes eBuildingClass = static_cast<BuildingClassTypes>(*it);
+			const BuildingTypes eFreeBuilding = static_cast<BuildingTypes>(kCivInfo.getCivilizationBuildings(eBuildingClass));
+			if (isValidBuildingLocation(eFreeBuilding))
+			{
+				GetCityBuildings()->SetNumRealBuilding(eFreeBuilding, 1, true);
+			}
 		}
 	}
 
@@ -2250,6 +2261,26 @@ void CvCity::AcquireWaywardPlots()
 
 		if (!bAnyCloserCity)
 			pLoopPlot->setOwner(eOwner, m_iID);
+	}
+}
+
+// Add random plots, population, and food to this city
+void CvCity::InitBoost(int iExtraPlots, int iPopChange, int iFoodPercent)
+{
+	// Extra population for advanced settlers
+	changePopulation(iPopChange, true, true);
+
+	// Additional food to prevent instant-starvation
+	changeFood(growthThreshold() * iFoodPercent / 100);
+
+	// And a little territory to boot
+	for (int i = 0; i < iExtraPlots; i++)
+	{
+		CvPlot* pPlotToAcquire = GetNextBuyablePlot(false);
+		if (pPlotToAcquire)
+		{
+			DoAcquirePlot(pPlotToAcquire->getX(), pPlotToAcquire->getY());
+		}
 	}
 }
 

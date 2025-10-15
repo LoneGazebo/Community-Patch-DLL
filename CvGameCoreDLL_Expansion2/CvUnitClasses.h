@@ -209,7 +209,7 @@ public:
 	bool GetBuilds(int i) const;
 	bool GetBuildingClassRequireds(int i) const;
 	int GetScalingFromOwnedImprovements(int i) const;
-	bool GetBuildOnFound(int i) const;
+	set<int> GetBuildOnFound() const;
 	bool GetBuildingClassPurchaseRequireds(int i) const;
 	int GetEraCombatStrength(int i) const;
 	int GetUnitNewEraCombatType(int i, int j) const;
@@ -406,7 +406,7 @@ private:
 	bool* m_pbBuilds;
 	bool* m_pbBuildingClassRequireds;
 	int* m_piScalingFromOwnedImprovements;
-	bool* m_pbBuildOnFound;
+	set<int> m_siBuildOnFound;
 	bool* m_pbBuildingClassPurchaseRequireds;
 	int* m_piEraCombatStrength;
 	int** m_ppiEraUnitCombatType;

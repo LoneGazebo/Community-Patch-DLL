@@ -94,6 +94,7 @@ public:
 	void PreKill();
 	void PostKill(bool bCapital, CvPlot* pPlot, int iWorkPlotDistance, PlayerTypes eOwner);
 	void AcquireWaywardPlots();
+	void InitBoost(int iExtraPlots, int iPopChange, int iFoodPercent);
 
 	void doTurn();
 
