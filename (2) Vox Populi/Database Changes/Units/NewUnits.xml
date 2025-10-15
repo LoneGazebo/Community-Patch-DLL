@@ -1219,7 +1219,7 @@
 			<Help>TXT_KEY_UNIT_PROWLER_HELP</Help>
 			<Domain>DOMAIN_LAND</Domain>
 			<CombatClass>UNITCOMBAT_ARCHER</CombatClass>
-			<Class>UNITCLASS_CROSSBOWMAN</Class>
+			<Class>UNITCLASS_MUSKETMAN</Class>
 			<DefaultUnitAI>UNITAI_RANGED</DefaultUnitAI>
 			<PrereqTech>TECH_MACHINERY</PrereqTech>
 			<ObsoleteTech>TECH_INDUSTRIALIZATION</ObsoleteTech>
