@@ -33,6 +33,8 @@ if not VP and not (MapModData and MapModData.VP) then
 			IconString = kYieldInfo.IconString,
 			Description = kYieldInfo.Description,
 		});
+		-- Also populate GameInfoTypes in case it doesn't exist
+		GameInfoTypes[kYieldInfo.Type] = eYield;
 	end
 
 	-- Cache frequently used columns of primary tables, as looping through the full tables unfiltered is very slow

@@ -821,7 +821,7 @@ function GetHelpTextForUnit(eUnit, bIncludeRequirementsInfo, pCity, bExcludeName
 	AddTooltipPositive(tStatLines, "TXT_KEY_PRODUCTION_UNIT_INTERCEPT_RANGE", kUnitInfo.AirInterceptRange);
 
 	-- Air Slots (show when non-standard only)
-	if kUnitInfo.Domain == DomainTypes.DOMAIN_AIR then
+	if kUnitInfo.Domain == GameInfoTypes.DOMAIN_AIR then
 		local iAirSlots = kUnitInfo.AirUnitCap;
 		if iAirSlots > 1 then
 			AddTooltip(tStatLines, "TXT_KEY_PRODUCTION_UNIT_AIR_SLOTS", iAirSlots);
@@ -1820,7 +1820,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 		if pCity and bShowProjectedYields and tProjectedYields[eYield] ~= iYield then
 			bBoostedYields = true;
 		end
-		if eYield == YieldTypes.YIELD_CULTURE and iYield ~= 0 then
+		if eYield == GameInfoTypes.YIELD_CULTURE and iYield ~= 0 then
 			bIsCultureBuilding = true;
 		end
 
@@ -1831,7 +1831,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 			end
 		end
 		tProjectedModifiers[eYield] = pCity and pCity:GetBuildingYieldModifier(eBuilding, eYield) or 0;
-		if eYield == YieldTypes.YIELD_CULTURE_LOCAL then
+		if eYield == GameInfoTypes.YIELD_CULTURE_LOCAL then
 			iModifier = iModifier + kBuildingInfo.BorderGrowthRateIncrease;
 			tProjectedModifiers[eYield] = tProjectedModifiers[eYield] + kBuildingInfo.BorderGrowthRateIncrease;
 		end
@@ -1845,9 +1845,9 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 			iGlobalMod = row.Yield;
 			-- Not breaking here; taking the last row value like in DLL if duplicated
 		end
-		if eYield == YieldTypes.YIELD_CULTURE then
+		if eYield == GameInfoTypes.YIELD_CULTURE then
 			iGlobalMod = iGlobalMod + kBuildingInfo.GlobalCultureRateModifier;
-		elseif eYield == YieldTypes.YIELD_CULTURE_LOCAL then
+		elseif eYield == GameInfoTypes.YIELD_CULTURE_LOCAL then
 			iGlobalMod = iGlobalMod + kBuildingInfo.BorderGrowthRateIncreaseGlobal;
 		end
 		AddTooltipGlobalNonZeroSigned(tGlobalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_MODIFIER", iGlobalMod, kYieldInfo.IconString, kYieldInfo.Description);
@@ -2309,7 +2309,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 
 		if kBuildingInfo.SpecialistExtraCulture ~= 0 then
 			for eSpecialist in GameInfoCache("Specialists") do
-				local eYield = YieldTypes.YIELD_CULTURE;
+				local eYield = GameInfoTypes.YIELD_CULTURE;
 				tSpecialistBoostsGlobal[eSpecialist] = tSpecialistBoostsGlobal[eSpecialist] or {};
 				tSpecialistBoostsGlobal[eSpecialist][eYield] = tSpecialistBoostsGlobal[eSpecialist][eYield] or 0;
 				tSpecialistBoostsGlobal[eSpecialist][eYield] = tSpecialistBoostsGlobal[eSpecialist][eYield] + kBuildingInfo.SpecialistExtraCulture;
@@ -2387,8 +2387,8 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 			ExtractSimpleYieldTable(tCompleteYieldsFromPopulation, "Building_YieldFromBirthRetroactive", kYieldInfo);
 		end
 		-- Add vanilla Gold column
-		tCompleteYields[YieldTypes.YIELD_GOLD] = tCompleteYields[YieldTypes.YIELD_GOLD] or 0;
-		tCompleteYields[YieldTypes.YIELD_GOLD] = tCompleteYields[YieldTypes.YIELD_GOLD] + kBuildingInfo.Gold;
+		tCompleteYields[GameInfoTypes.YIELD_GOLD] = tCompleteYields[GameInfoTypes.YIELD_GOLD] or 0;
+		tCompleteYields[GameInfoTypes.YIELD_GOLD] = tCompleteYields[GameInfoTypes.YIELD_GOLD] + kBuildingInfo.Gold;
 		AddTooltipSimpleYieldBoostTable(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_ON_COMPLETION", tCompleteYields);
 		AddTooltipSimpleYieldBoostTable(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_ON_COMPLETION_FROM_POPULATION", tCompleteYieldsFromPopulation);
 	end
@@ -2829,11 +2829,11 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 		end
 
 		if MOD_BALANCE_VP then
-			tGPExpendScalingYields[YieldTypes.YIELD_GOLD] = tGPExpendScalingYields[YieldTypes.YIELD_GOLD] or 0;
-			tGPExpendScalingYields[YieldTypes.YIELD_GOLD] = tGPExpendScalingYields[YieldTypes.YIELD_GOLD] + kBuildingInfo.GreatPersonExpendGold;
+			tGPExpendScalingYields[GameInfoTypes.YIELD_GOLD] = tGPExpendScalingYields[GameInfoTypes.YIELD_GOLD] or 0;
+			tGPExpendScalingYields[GameInfoTypes.YIELD_GOLD] = tGPExpendScalingYields[GameInfoTypes.YIELD_GOLD] + kBuildingInfo.GreatPersonExpendGold;
 		elseif kBuildingInfo.GreatPersonExpendGold > 0 then
 			AddTooltip(tGlobalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_INSTANT_YIELD_ON_GP_EXPEND",
-			GetYieldBoostString(GetInfoFromId("Yields", YieldTypes.YIELD_GOLD), kBuildingInfo.GreatPersonExpendGold));
+			GetYieldBoostString(GetInfoFromId("Yields", GameInfoTypes.YIELD_GOLD), kBuildingInfo.GreatPersonExpendGold));
 		end
 
 		AddTooltipSimpleYieldBoostTable(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_INSTANT_YIELD_ON_GROWTH", tGrowthYields);
@@ -3520,9 +3520,9 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 
 			for row in GameInfo.Building_YieldPerXTerrainTimes100{BuildingType = kBuildingInfo.Type, YieldType = kYieldInfo.Type} do
 				local eTerrain = GameInfoTypes[row.TerrainType];
-				if eTerrain == TerrainTypes.TERRAIN_MOUNTAIN then
+				if eTerrain == GameInfoTypes.TERRAIN_MOUNTAIN then
 					tMountainBoosts[eYield] = row.Yield / 100;
-				elseif eTerrain == TerrainTypes.TERRAIN_SNOW then
+				elseif eTerrain == GameInfoTypes.TERRAIN_SNOW then
 					tSnowBoosts[eYield] = row.Yield / 100;
 				else
 					tTerrainBoosts[eTerrain] = tTerrainBoosts[eTerrain] or {};
@@ -3615,7 +3615,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 		if kBuildingInfo.EnhancedYieldTech and kBuildingInfo.TechEnhancedTourism > 0 then
 			local eTech = GameInfoTypes[kBuildingInfo.EnhancedYieldTech];
 			if tTechBoosts[eTech] or not (pCity and pActivePlayer and pActivePlayer:HasTech(eTech)) then
-				local eYield = YieldTypes.YIELD_TOURISM;
+				local eYield = GameInfoTypes.YIELD_TOURISM;
 				tTechBoosts[eTech] = tTechBoosts[eTech] or {};
 				tTechBoosts[eTech][eYield] = tTechBoosts[eTech][eYield] or 0;
 				tTechBoosts[eTech][eYield] = tTechBoosts[eTech][eYield] + kBuildingInfo.TechEnhancedTourism;
@@ -3626,7 +3626,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 			local ePolicy = GameInfoTypes[row.PolicyType];
 			if tPolicyBoosts[ePolicy] or tPolicyModifierBoosts[ePolicy] or tPolicyBoostsStateReligion[ePolicy] or
 			not (pCity and pActivePlayer and pActivePlayer:HasPolicy(ePolicy)) then
-				local eYield = YieldTypes.YIELD_CULTURE;
+				local eYield = GameInfoTypes.YIELD_CULTURE;
 				tPolicyBoosts[ePolicy] = tPolicyBoosts[ePolicy] or {};
 				tPolicyBoosts[ePolicy][eYield] = tPolicyBoosts[ePolicy][eYield] or 0;
 				tPolicyBoosts[ePolicy][eYield] = tPolicyBoosts[ePolicy][eYield] + row.CultureChange;
@@ -3637,7 +3637,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 			local ePolicy = GameInfoTypes[row.PolicyType];
 			if tPolicyBoosts[ePolicy] or tPolicyModifierBoosts[ePolicy] or tPolicyBoostsStateReligion[ePolicy] or
 			not (pCity and pActivePlayer and pActivePlayer:HasPolicy(ePolicy)) then
-				local eYield = YieldTypes.YIELD_TOURISM;
+				local eYield = GameInfoTypes.YIELD_TOURISM;
 				tPolicyModifierBoosts[ePolicy] = tPolicyModifierBoosts[ePolicy] or {};
 				tPolicyModifierBoosts[ePolicy][eYield] = tPolicyModifierBoosts[ePolicy][eYield] or 0;
 				tPolicyModifierBoosts[ePolicy][eYield] = tPolicyModifierBoosts[ePolicy][eYield] + row.TourismModifier;
@@ -3647,7 +3647,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 		for row in GameInfo.Belief_BuildingClassTourism{BuildingClassType = kBuildingClassInfo.Type} do
 			local eBelief = GameInfoTypes[row.BeliefType];
 			if tBeliefBoosts[eBelief] or not (pCity and Game.IsBeliefValid(pCity:GetReligiousMajority(), eBelief, pCity, false)) then
-				local eYield = YieldTypes.YIELD_TOURISM;
+				local eYield = GameInfoTypes.YIELD_TOURISM;
 				tBeliefBoosts[eBelief] = tBeliefBoosts[eBelief] or {};
 				tBeliefBoosts[eBelief][eYield] = tBeliefBoosts[eBelief][eYield] or 0;
 				tBeliefBoosts[eBelief][eYield] = tBeliefBoosts[eBelief][eYield] + row.Tourism;
@@ -3657,7 +3657,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 		if not pCity and bIsCultureBuilding then
 			for kTraitInfo in GameInfo.Traits("CultureBuildingYieldChange <> 0") do
 				for _, eCiv in ipairs(GetCivsFromTrait(kTraitInfo.Type)) do
-					local eYield = YieldTypes.YIELD_CULTURE;
+					local eYield = GameInfoTypes.YIELD_CULTURE;
 					tTraitBoosts[eCiv] = tTraitBoosts[eCiv] or {};
 					tTraitBoosts[eCiv][eYield] = tTraitBoosts[eCiv][eYield] or 0;
 					tTraitBoosts[eCiv][eYield] = tTraitBoosts[eCiv][eYield] + kTraitInfo.CultureBuildingYieldChange;
@@ -3719,11 +3719,11 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 			local tBoostStrings = {};
 			local iYield = tResourceYields.YIELD_CULTURE or 0;
 			if iYield ~= 0 then
-				table.insert(tBoostStrings, GetYieldBoostString(GetInfoFromId("Yields", YieldTypes.YIELD_CULTURE), iYield));
+				table.insert(tBoostStrings, GetYieldBoostString(GetInfoFromId("Yields", GameInfoTypes.YIELD_CULTURE), iYield));
 			end
 			iYield = tResourceYields.YIELD_FAITH or 0;
 			if iYield ~= 0 then
-				table.insert(tBoostStrings, GetYieldBoostString(GetInfoFromId("Yields", YieldTypes.YIELD_FAITH), iYield));
+				table.insert(tBoostStrings, GetYieldBoostString(GetInfoFromId("Yields", GameInfoTypes.YIELD_FAITH), iYield));
 			end
 			if next(tBoostStrings) then
 				AddTooltip(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_LOCAL_RESOURCE",
@@ -4036,7 +4036,7 @@ function GetCultureTooltip(pCity)
 		end
 		table.insert(tLines, pCity:GetYieldRateTooltip(YieldTypes.YIELD_CULTURE));
 	end
-	
+
 	return table.concat(tLines, "[NEWLINE]");
 end
 
