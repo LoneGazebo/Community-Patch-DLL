@@ -1194,13 +1194,13 @@
 			<Text>When this City starts a [ICON_HAPPINESS_1] "We Love the King Day": {1_InstantYield}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_GPP_ON_GROWTH">
-			<Text>When this City gains a [ICON_CITIZEN] Citizen: +{1_Num} [ICON_GREAT_PEOPLE] Great Person Points towards the Great Person with the most Points, scaling with Era</Text>
+			<Text>When a [ICON_CITIZEN] Citizen is born in this City: +{1_Num} [ICON_GREAT_PEOPLE] Great Person Points towards the Great Person with the most Points, scaling with Era</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_INSTANT_YIELD_ON_GROWTH">
-			<Text>When this City gains a [ICON_CITIZEN] Citizen: {1_InstantYield}</Text>
+			<Text>When a [ICON_CITIZEN] Citizen is born in this City: {1_InstantYield}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_INSTANT_YIELD_ON_GROWTH_SCALING">
-			<Text>When this City gains a [ICON_CITIZEN] Citizen: gain {2_YieldIcon} {3_Yield:textkey} equal to {1_Num}% of City output</Text>
+			<Text>When a [ICON_CITIZEN] Citizen is born in this City: gain {2_YieldIcon} {3_Yield:textkey} equal to {1_Num}% of City output</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_INSTANT_YIELD_ON_BORDER_GROWTH">
 			<Text>When this City naturally expands: {1_InstantYield}</Text>
