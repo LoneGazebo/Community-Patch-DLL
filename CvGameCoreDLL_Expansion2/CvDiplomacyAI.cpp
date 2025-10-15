@@ -17778,8 +17778,8 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		// Have they been converting our cities? Grr...
 		if (GetNegativeReligiousConversionPoints(ePlayer) > 0 && !MadeNoConvertPromise(ePlayer))
 		{
-			vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] + iReligiosityScore + GetNegativeReligiousConversionPoints(ePlayer);
-			vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] + iReligiosityScore + GetNegativeReligiousConversionPoints(ePlayer);
+			vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] + iReligiosityScore + (GetNegativeReligiousConversionPoints(ePlayer) * 100);
+			vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] + iReligiosityScore + (GetNegativeReligiousConversionPoints(ePlayer) * 100);
 		}
 
 		ReligionTypes eOurOwnedReligion = GetPlayer()->GetReligions()->GetOwnedReligion();
