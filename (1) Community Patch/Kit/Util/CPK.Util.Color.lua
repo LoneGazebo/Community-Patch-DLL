@@ -21,6 +21,7 @@ local AssertError = CPK.Assert.Error
 --- @field type string | nil
 --- @field rgba Rgba
 --- @field vec4 Vector4
+--- @operator call(string): string
 --- @operator concat(string | Color): string
 --- @overload fun(str: string): string
 local ColorImpl = {}

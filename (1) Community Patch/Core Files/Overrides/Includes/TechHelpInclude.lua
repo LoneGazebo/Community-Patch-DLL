@@ -4,6 +4,9 @@ local StringBuilder = CPK.Util.StringBuilder
 local AsPercentage = CPK.Misc.AsPercentage
 local Memoize1 = CPK.Cache.Memoize1
 
+local Cyan = CPK.Text.Color.Cyan
+local Yellow = CPK.Text.Color.Yellow
+
 local lua_type = type
 local lua_math_floor = math.floor
 local lua_string_format = string.format
@@ -13,20 +16,6 @@ local civ_locale_toupper = Locale.ToUpper
 local civ_db_create_query = DB.CreateQuery
 
 local L = civ_locale_lookup
-
---- @param color string
-local function PrepareColor(color)
-	color = '[COLOR_' .. color:upper() .. ']'
-
-	--- @param str string
-	--- @return string
-	return function(str)
-		return color .. str .. '[ENDCOLOR]'
-	end
-end
-
-local Cyan = PrepareColor('CYAN')
-local Yellow = PrepareColor('YELLOW')
 
 local ICON_BULLET = '[ICON_BULLET]'
 
@@ -62,20 +51,11 @@ local function BulletLoc(row)
 	return ICON_BULLET .. L(row.Description)
 end
 
---- @package
---- @alias RowMapper<Row> fun(row: Row, type: string): string | nil
-
---- @package
---- @alias RowIterator<Row> fun(): Row | nil
-
---- @package
---- @alias Writer fun(text: StringBuilder, type: string): nil
-
 --- @generic Row : { Description: string }
 --- @param text StringBuilder
 --- @param type string # Tech type, e.g. 'TECH_COMPUTERS'
---- @param iter RowIterator<Row>
---- @param map RowMapper<Row>
+--- @param iter fun(): Row | nil
+--- @param map fun(row: Row, type: string): string | nil
 local function WriteContent(text, type, iter, map)
 	local str = nil
 
@@ -90,8 +70,8 @@ end
 
 --- @generic Row : { Description: string }
 --- @param sql string
---- @param map RowMapper<Row>
---- @return Writer
+--- @param map fun(row: Row, type: string): string | nil
+--- @return fun(text: StringBuilder, type: string): nil
 local function PrepareContent(sql, map)
 	local query = civ_db_create_query(sql)
 
@@ -104,8 +84,8 @@ end
 --- @param name string # Section name, e.g. 'Builds Unlocked'
 --- @param text StringBuilder
 --- @param type string # Tech type, e.g. 'TECH_GUILDS'
---- @param iter RowIterator<Row>
---- @param map RowMapper<Row>
+--- @param iter fun(): Row | nil
+--- @param map fun(row: Row, type: string): string | nil
 local function WriteSection(name, text, type, iter, map)
 	local row
 	local str
@@ -127,8 +107,8 @@ end
 --- @generic Row : { Description: string }
 --- @param name string # Section name text key e.g. 'TXT_KEY_TECH_GUILDS'
 --- @param sql string
---- @param map RowMapper<Row>
---- @return Writer
+--- @param map fun(row: Row, type: string): string | nil
+--- @return fun(text: StringBuilder, type: string): nil
 local function PrepareSection(name, sql, map)
 	local query = civ_db_create_query(sql)
 	name = Cyan(L(name))
@@ -284,7 +264,7 @@ local WriteBuilds = (function()
 		end
 	)
 
-	--- @type Writer
+	--- @type fun(text: StringBuilder, type: string): nil
 	return function(text, type)
 		local size = text:Size()
 
@@ -339,13 +319,12 @@ local WriteAbilities = (function()
 		text:Append(str)
 	end
 
-	local domainSea = DomainTypes.DOMAIN_SEA
 	local strSeaTrade = ICON_BULLET .. L('TXT_KEY_EXTENDS_SEA_TRADE_ROUTE_RANGE')
 	local strLandTrade = ICON_BULLET .. L('TXT_KEY_EXTENDS_LAND_TRADE_ROUTE_RANGE')
 
 	local FillAbilityTradeRouteRangeExtend = PrepareContent(
 		[[
-			SELECT d.ID as DomainType
+			SELECT d.Type = 'DOMAIN_SEA' as IsSea
 			FROM Technology_TradeRouteDomainExtraRange r
 			INNER JOIN Domains d ON d.Type = r.DomainType
 			WHERE r.DomainType IN ('DOMAIN_SEA', 'DOMAIN_LAND')
@@ -354,9 +333,7 @@ local WriteAbilities = (function()
 				AND r.TechType = ?
 		]],
 		function(row)
-			return row.DomainType == domainSea
-					and strSeaTrade
-					or strLandTrade
+			return row.IsSea ~= 0 and strSeaTrade or strLandTrade
 		end
 	)
 
