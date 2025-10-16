@@ -5643,7 +5643,7 @@ bool TacticalAIHelpers::PerformOpportunityAttack(CvUnit* pUnit, bool bAllowMovem
 //see if we can hit anything from our current plot - with or without moving
 bool TacticalAIHelpers::PerformRangedOpportunityAttack(CvUnit* pUnit, bool bAllowMovement)
 {
-	if (!pUnit || !pUnit->IsCanAttackRanged() || !pUnit->canMove())
+	if (!pUnit || !pUnit->IsCanAttackRanged() || !pUnit->canMove() || pUnit->isDelayedDeath())
 		return false;
 
 	CvPlot* pBasePlot = pUnit->plot();
