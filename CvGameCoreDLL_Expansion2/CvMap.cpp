@@ -819,6 +819,9 @@ void CvMap::uninit()
 	m_iOwnedPlots = 0;
 	m_iNumNaturalWonders = 0;
 
+	m_bWrapX = false;
+	m_bWrapY = false;
+
 	m_kPlotManager.Uninit();
 }
 
