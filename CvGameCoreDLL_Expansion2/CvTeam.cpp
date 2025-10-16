@@ -7955,7 +7955,6 @@ void CvTeam::processTech(TechTypes eTech, int iChange, bool bNoBonus)
 			}
 
 			// Update our traits (some may have become obsolete)
-			kPlayer.GetPlayerTraits()->Reset();
 			kPlayer.GetPlayerTraits()->InitPlayerTraits();
 			kPlayer.recomputePolicyCostModifier();
 

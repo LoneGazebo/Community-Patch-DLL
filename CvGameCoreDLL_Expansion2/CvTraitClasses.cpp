@@ -4246,6 +4246,9 @@ void CvPlayerTraits::SetIsReligious()
 /// Store off data on bonuses from traits
 void CvPlayerTraits::InitPlayerTraits()
 {
+	// Reset all values to prevent accumulation on multiple calls
+	Reset();
+
 	// precompute the traits our leader has
 	m_vPotentiallyActiveLeaderTraits.clear();
 	for(int iI = 0; iI < GC.getNumTraitInfos(); iI++)

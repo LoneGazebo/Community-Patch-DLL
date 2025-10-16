@@ -33586,7 +33586,6 @@ void CvPlayer::setLeaderType(LeaderHeadTypes eNewLeader)
 		setPersonalityType(eNewLeader);
 
 		// Update the player's traits (Leader_Traits)
-		GetPlayerTraits()->Reset();
 		GetPlayerTraits()->InitPlayerTraits();
 		recomputePolicyCostModifier();
 
