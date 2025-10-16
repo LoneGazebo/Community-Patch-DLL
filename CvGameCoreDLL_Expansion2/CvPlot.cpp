@@ -3498,7 +3498,7 @@ CvUnit* CvPlot::getBestDefender(PlayerTypes eOwner, PlayerTypes eAttackingPlayer
 	while(pUnitNode != NULL)
 	{
 		//for performance, avoid looking up unit pointers if we can
-		if (eOwner != NO_PLAYER && pUnitNode->eOwner != eOwner)
+		if ((eOwner != NO_PLAYER && pUnitNode->eOwner != eOwner) || (eAttackingPlayer != NO_PLAYER && pUnitNode->eOwner == eAttackingPlayer))
 		{
 			pUnitNode = nextUnitNode(pUnitNode);
 			continue;
