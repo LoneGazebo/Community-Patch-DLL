@@ -31974,6 +31974,16 @@ void CvDiplomacyAI::DoContactPlayer(PlayerTypes ePlayer)
 	pDeal->SetToPlayer(ePlayer);
 	pDeal->SetDuration(GC.getGame().getGameSpeedInfo().GetDealDuration());
 
+	bool bSanctioned = false;
+	if (MOD_BALANCE_VP)
+	{
+		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+		if (pLeague && pLeague->IsTradeEmbargoed(m_pPlayer->GetID(), ePlayer))
+		{
+			bSanctioned = true;
+		}
+	}
+
 	// JON: Add in some randomization here?
 	// How predictable do we want the AI to be with regards to what state they're in?
 
@@ -32038,8 +32048,11 @@ void CvDiplomacyAI::DoContactPlayer(PlayerTypes ePlayer)
 			DoEndDoFStatement(ePlayer, eStatement);
 			//DoRequestFriendDenounceStatement(ePlayer, eStatement, iData1);
 
-			DoMapsOffer(ePlayer,eStatement,pDeal);
-			DoTechOffer(ePlayer,eStatement,pDeal);
+			if (!bSanctioned)
+			{
+				DoMapsOffer(ePlayer, eStatement, pDeal);
+				DoTechOffer(ePlayer, eStatement, pDeal);
+			}
 
 			DoRevokeVassalageStatement(ePlayer, eStatement, pDeal);
 			DoMakeVassalageStatement(ePlayer, eStatement, pDeal);
@@ -32048,26 +32061,32 @@ void CvDiplomacyAI::DoContactPlayer(PlayerTypes ePlayer)
 		}
 
 		//	OFFERS - all members but ePlayer passed by address
-		DoLuxuryTrade(ePlayer, eStatement, pDeal);
-		DoEmbassyExchange(ePlayer, eStatement, pDeal);
-		DoEmbassyOffer(ePlayer, eStatement, pDeal);
-		DoOpenBordersExchange(ePlayer, eStatement, pDeal);
-		DoOpenBordersOffer(ePlayer, eStatement, pDeal);
-		DoResearchAgreementOffer(ePlayer, eStatement, pDeal);
-		DoStrategicTrade(ePlayer, eStatement, pDeal);
-		DoDefensivePactOffer(ePlayer, eStatement, pDeal);
-		DoCityExchange(ePlayer, eStatement, pDeal);
-		DoThirdPartyWarTrade(ePlayer, eStatement, pDeal);
-		DoThirdPartyPeaceTrade(ePlayer, eStatement, pDeal);
-		DoVoteTrade(ePlayer, eStatement, pDeal);
+		if (!bSanctioned)
+		{
+			DoLuxuryTrade(ePlayer, eStatement, pDeal);
+			DoEmbassyExchange(ePlayer, eStatement, pDeal);
+			DoEmbassyOffer(ePlayer, eStatement, pDeal);
+			DoOpenBordersExchange(ePlayer, eStatement, pDeal);
+			DoOpenBordersOffer(ePlayer, eStatement, pDeal);
+			DoResearchAgreementOffer(ePlayer, eStatement, pDeal);
+			DoStrategicTrade(ePlayer, eStatement, pDeal);
+			DoDefensivePactOffer(ePlayer, eStatement, pDeal);
+			DoCityExchange(ePlayer, eStatement, pDeal);
+			DoThirdPartyWarTrade(ePlayer, eStatement, pDeal);
+			DoThirdPartyPeaceTrade(ePlayer, eStatement, pDeal);
+			DoVoteTrade(ePlayer, eStatement, pDeal);
+		}
 
 		DoBecomeVassalageStatement(ePlayer, eStatement, pDeal);
 
 		DoShareIntrigueStatement(ePlayer, eStatement);
 
-		DoRequest(ePlayer, eStatement, pDeal);
+		if (!bSanctioned)
+		{
+			DoRequest(ePlayer, eStatement, pDeal);
 
-		DoGenerousOffer(ePlayer, eStatement, pDeal);
+			DoGenerousOffer(ePlayer, eStatement, pDeal);
+		}
 
 		// Second set of things we don't say to teammates
 		if (GetTeam() != GET_PLAYER(ePlayer).getTeam())
