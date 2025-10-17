@@ -2825,7 +2825,7 @@ bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlay
 		if ((YieldTypes)iI > YIELD_CULTURE_LOCAL && !MOD_BALANCE_CORE_JFD)
 			break;
 
-		if (pkImprovementInfo->GetPrereqNatureYield(iI) > 0 && calculateNatureYield(((YieldTypes)iI), ePlayer, getFeatureType(), getResourceType(GET_PLAYER(ePlayer).getTeam()), NULL) < pkImprovementInfo->GetPrereqNatureYield(iI))
+		if (pkImprovementInfo->GetPrereqNatureYield(iI) > 0 && calculateNatureYield(((YieldTypes)iI), ePlayer, getFeatureType(), getResourceType(GET_PLAYER(ePlayer).getTeam()), getImprovementType(), NULL) < pkImprovementInfo->GetPrereqNatureYield(iI))
 		{
 			return false;
 		}
@@ -9760,13 +9760,12 @@ void CvPlot::changeYield(YieldTypes eYield, int iChange)
     updateYield();
 }
 
-int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, FeatureTypes eFeature, ResourceTypes eResource, const CvCity* pOwningCity, bool bDisplay) const
+int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, FeatureTypes eFeature, ResourceTypes eResource, ImprovementTypes eImprovement, const CvCity* pOwningCity, bool bDisplay) const
 {
 	int iYield = 0;
 	TeamTypes eTeam = (ePlayer != NO_PLAYER) ? GET_PLAYER(ePlayer).getTeam() : NO_TEAM;
 
 	const TerrainTypes eTerrain = getTerrainType();
-	const ImprovementTypes eImprovement = getImprovementType();
 	const CvYieldInfo* pkYieldInfo = GC.getYieldInfo(eYield);
 	const CvTerrainInfo* pkTerrainInfo = GC.getTerrainInfo(eTerrain);
 
@@ -9855,7 +9854,8 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, Feature
 	if (eTeam != NO_TEAM && eResource != NO_RESOURCE)
 	{
 		CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
-		if (pkResourceInfo)
+		CvImprovementEntry* pkImprovementInfo = eImprovement != NO_IMPROVEMENT ? GC.getImprovementInfo(eImprovement) : NULL;
+		if (pkResourceInfo && (!BALANCE_NO_RESOURCE_YIELDS_FROM_GP_IMPROVEMENT || !pkImprovementInfo || !pkImprovementInfo->ConnectsAllResources()))
 			iYield += pkResourceInfo->getYieldChange(eYield);
 	}
 
@@ -10233,7 +10233,7 @@ int CvPlot::calculateReligionNatureYield(YieldTypes eYield, PlayerTypes ePlayer,
 //	--------------------------------------------------------------------------------
 int CvPlot::calculateBestNatureYield(YieldTypes eYield, PlayerTypes ePlayer) const
 {
-	return std::max(calculateNatureYield(eYield, ePlayer, getFeatureType(), getResourceType(ePlayer != NO_PLAYER ? GET_PLAYER(ePlayer).getTeam() : NO_TEAM), NULL), calculateNatureYield(eYield, ePlayer, NO_FEATURE, getResourceType(ePlayer != NO_PLAYER ? GET_PLAYER(ePlayer).getTeam() : NO_TEAM), NULL));
+	return std::max(calculateNatureYield(eYield, ePlayer, getFeatureType(), getResourceType(ePlayer != NO_PLAYER ? GET_PLAYER(ePlayer).getTeam() : NO_TEAM), getImprovementType(), NULL), calculateNatureYield(eYield, ePlayer, NO_FEATURE, getResourceType(ePlayer != NO_PLAYER ? GET_PLAYER(ePlayer).getTeam() : NO_TEAM), getImprovementType(), NULL));
 }
 
 //	--------------------------------------------------------------------------------
@@ -11001,7 +11001,7 @@ int CvPlot::calculateYieldFast(YieldTypes eYield, bool bDisplay, const CvCity* p
 	FeatureTypes eFeature = getFeatureType();
 	ResourceTypes eResource = bDisplay ? getResourceType(GC.getGame().getActiveTeam())  : getResourceType((ePlayer != NO_PLAYER) ? GET_PLAYER(ePlayer).getTeam() : NO_TEAM);
 
-	int iYield = calculateNatureYield(eYield, ePlayer, eFeature, eResource, pOwningCity, bDisplay);
+	int iYield = calculateNatureYield(eYield, ePlayer, eFeature, eResource, eImprovement, pOwningCity, bDisplay);
 	iYield += calculateReligionImprovementYield(eYield, ePlayer, eImprovement, eResource, pOwningCity, pMajorityReligion, pSecondaryPantheon);
 	iYield += calculateReligionNatureYield(eYield, ePlayer, eImprovement, eFeature, eResource, pOwningCity, pMajorityReligion, pSecondaryPantheon);
 	iYield += calculateImprovementYield(eYield, ePlayer, eImprovement, eRoute, eFeature, eResource, NUM_ROUTE_TYPES, pOwningCity, false);
@@ -13858,7 +13858,7 @@ int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUp
 	}
 
 	// Nature yield
-	iYield = calculateNatureYield(eYield, ePlayer, eFeature, eResource, pOwningCity);
+	iYield = calculateNatureYield(eYield, ePlayer, eFeature, eResource, eNewImprovement, pOwningCity);
 	iYield += calculateReligionNatureYield(eYield, ePlayer, eNewImprovement, eFeature, eResource, pOwningCity, pMajorityReligion, pSecondaryPantheon);
 
 	if(eNewImprovement != NO_IMPROVEMENT)

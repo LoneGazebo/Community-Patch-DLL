@@ -785,7 +785,7 @@ bool PlotMeetsFoodRequirement(CvPlot* pPlot, PlayerTypes ePlayer, int iFoodRequi
 		}
 		else
 		{
-			if(pLoopPlot->calculateNatureYield(YIELD_FOOD, ePlayer, pPlot->getFeatureType(), pPlot->getResourceType(GET_PLAYER(ePlayer).getTeam()), pLoopPlot->getOwningCity()) >= iFoodRequirement)
+			if(pLoopPlot->calculateNatureYield(YIELD_FOOD, ePlayer, pPlot->getFeatureType(), pPlot->getResourceType(GET_PLAYER(ePlayer).getTeam()), pPlot->getImprovementType(), pLoopPlot->getOwningCity()) >= iFoodRequirement)
 			{
 				bFoundFoodPlot = true;
 				break;
