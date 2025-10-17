@@ -79,6 +79,7 @@ WHERE Type = 'BUILD_CHATEAU';
 UPDATE Improvements
 SET
 	NoFollowUp = 1,
+	ArtDefineTag = 'ART_DEF_IMPROVEMENT_CHATEAU_NEW',
 	IconAtlas = 'IMPROVEMENT_ATLAS_VP',
 	PortraitIndex = 2
 WHERE Type = 'IMPROVEMENT_CHATEAU';
