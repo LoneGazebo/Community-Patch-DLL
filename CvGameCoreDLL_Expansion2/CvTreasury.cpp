@@ -392,7 +392,7 @@ int CvTreasury::CalculateGrossGoldTimes100()
 	iNetGold = GetGoldFromCitiesTimes100();
 
 	// Gold per Turn from Diplomacy
-	iNetGold += GetGoldPerTurnFromDiplomacy() * 100;
+	iNetGold += max(0, GetGoldPerTurnFromDiplomacy() * 100);
 
 	// City connection bonuses
 	iNetGold += GetCityConnectionGoldTimes100();
@@ -587,6 +587,7 @@ int CvTreasury::CalculateTotalCosts()
 	iTotalCosts += GetExpensePerTurnFromVassalTaxes();
 	iTotalCosts += MOD_BALANCE_CORE_JFD ? GetContractGoldMaintenance() : 0;
 	iTotalCosts += m_pPlayer->GetYieldPerTurnFromEspionageEvents(YIELD_GOLD, false);
+	iTotalCosts += max(0, -GetGoldPerTurnFromDiplomacy());
 
 	return iTotalCosts;
 }
