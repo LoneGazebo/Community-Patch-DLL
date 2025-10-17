@@ -586,6 +586,9 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 
 	pPlot->SetPlayerThatDestroyedCityHere(NO_PLAYER);
 
+	pPlot->SetImprovementPillaged(false, false);
+	pPlot->SetRoutePillaged(false, false);
+
 	// Plot Ownership
 	pPlot->setOwner(eOwner, m_iID, bBumpUnits, true, true);
 
@@ -596,9 +599,6 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 
 	//only after the owner is set!
 	pPlot->setIsCity(true, m_iID, getWorkPlotDistance());
-
-	pPlot->SetImprovementPillaged(false, false);
-	pPlot->SetRoutePillaged(false, false);
 
 	//clear the first ring
 	int iRange = min(1, /*1*/ GD_INT_GET(CITY_STARTING_RINGS));
