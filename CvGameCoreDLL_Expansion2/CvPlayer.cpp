@@ -431,6 +431,8 @@ CvPlayer::CvPlayer() :
 	, m_iCachedCurrentWarValue()
 	, m_iLastSliceMoved() // not serialized
 	, m_viCoreCitiesForSpaceshipProduction()
+	, m_playersWeAreAtWarWith()
+	, m_playersAtWarWithInFuture()
 	, m_eEndTurnBlockingType(NO_ENDTURN_BLOCKING_TYPE)
 	, m_iEndTurnBlockingNotificationIndex(0)
 	, m_activeWaitingForEndTurnMessage(false)
@@ -1588,6 +1590,8 @@ void CvPlayer::uninit()
 	m_iNumFreeTenets = 0;
 	m_iEmpireSizeModifierPerCityMod = 0;
 	m_iNumFreeGreatPeople = 0;
+	m_playersWeAreAtWarWith.clear();
+	m_playersAtWarWithInFuture.clear();
 	m_iNumMayaBoosts = 0;
 	m_iNumFaithGreatPeople = 0;
 	m_iNumArchaeologyChoices = 0;
