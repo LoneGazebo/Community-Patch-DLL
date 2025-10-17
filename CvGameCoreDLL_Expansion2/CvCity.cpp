@@ -28593,7 +28593,7 @@ int CvCity::GetIndividualPlotScore(const CvPlot* pPlot) const
 	{
 		YieldTypes eYield = (YieldTypes)iI;
 
-		int iYield = pPlot->calculateNatureYield(eYield, getOwner(), pPlot->getFeatureType(), pPlot->getResourceType(getTeam()), NULL);
+		int iYield = pPlot->calculateNatureYield(eYield, getOwner(), pPlot->getFeatureType(), pPlot->getResourceType(getTeam()), pPlot->getImprovementType(), NULL);
 
 		int iTempValue = 0;
 

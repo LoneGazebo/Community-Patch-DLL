@@ -1705,7 +1705,7 @@ int CvLuaPlot::lCalculateNatureYield(lua_State* L)
 	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
 	const YieldTypes eIndex = (YieldTypes)lua_tointeger(L, 2);
 	const PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 2);
-	const int iResult = pkPlot->calculateNatureYield(eIndex, ePlayer, pkPlot->getFeatureType(), pkPlot->getResourceType(GET_PLAYER(ePlayer).getTeam()), pkPlot->getPlotCity());
+	const int iResult = pkPlot->calculateNatureYield(eIndex, ePlayer, pkPlot->getFeatureType(), pkPlot->getResourceType(GET_PLAYER(ePlayer).getTeam()), pkPlot->getImprovementType(), pkPlot->getPlotCity());
 	lua_pushinteger(L, iResult);
 	return 1;
 }
