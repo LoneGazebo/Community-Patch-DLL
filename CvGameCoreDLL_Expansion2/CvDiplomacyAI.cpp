@@ -9689,12 +9689,7 @@ void CvDiplomacyAI::DoUpdateCurrentVictoryPursuit()
 	}
 
 	// Let's check if we're close to winning.
-	if (IsCloseToWorldConquest())
-	{
-		SetCurrentVictoryPursuit(VICTORY_PURSUIT_DOMINATION);
-		return;
-	}
-	else if (IsCloseToSpaceshipVictory())
+	if (IsCloseToSpaceshipVictory())
 	{
 		SetCurrentVictoryPursuit(VICTORY_PURSUIT_SCIENCE);
 		return;
@@ -9707,6 +9702,11 @@ void CvDiplomacyAI::DoUpdateCurrentVictoryPursuit()
 	else if (IsCloseToDiploVictory())
 	{
 		SetCurrentVictoryPursuit(VICTORY_PURSUIT_DIPLOMACY);
+		return;
+	}
+	else if (IsCloseToWorldConquest())
+	{
+		SetCurrentVictoryPursuit(VICTORY_PURSUIT_DOMINATION);
 		return;
 	}
 

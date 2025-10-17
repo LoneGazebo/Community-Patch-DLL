@@ -765,6 +765,13 @@ bool CvAIOperation::Move()
 		return false;
 	}
 
+	//this might cause us to abort
+	if (ShouldAbort())
+	{
+		pThisArmy->ReleaseAllUnits();
+		return false;
+	}
+
 	//exclude rapid response ops etc
 	if (pThisArmy->GetNumSlotsFilled()>3)
 	{
