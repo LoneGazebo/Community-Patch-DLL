@@ -19,6 +19,7 @@
 #include "CvAStar.h"
 #include "ICvDLLUserInterface.h"
 #include "CvMinorCivAI.h"
+#include "CvDiplomacyAI.h"
 #include "CvDllInterfaces.h"
 #include "cvStopWatch.h"
 #include "CvUnitMovement.h"
@@ -2330,6 +2331,76 @@ static int SeaWorkerUnitSafeValid(const CvAStarNode* parent, const CvAStarNode* 
 	return TRUE;
 }
 
+int LandUnitSimpleValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData& data, const CvAStar* finder)
+{
+	if (parent == NULL)
+		return TRUE;
+
+	CvPlot* pToPlot = GC.getMap().plotUnchecked(node->m_iX, node->m_iY); 
+
+	//can't go into the dark
+	CvPlayer& kPlayer = GET_PLAYER(data.ePlayer);
+	if (!pToPlot->isRevealed(kPlayer.getTeam()))
+		return FALSE;
+
+	//check terrain
+	if (pToPlot->isWater() && finder->HaveFlag(CvUnit::MOVEFLAG_NO_EMBARK))
+		return FALSE;
+	if (pToPlot->isDeepWater() && !kPlayer.CanCrossOcean())
+		return FALSE;
+	if (pToPlot->isMountain() && !kPlayer.CanCrossMountain())
+		return FALSE;
+	if (pToPlot->isIce() && !kPlayer.CanCrossIce())
+		return FALSE;
+
+	//check ownership
+	PlayerTypes ePlotOwner = pToPlot->getOwner();
+	if (ePlotOwner == NO_PLAYER || pToPlot->IsFriendlyTerritory(data.ePlayer))
+		return TRUE;
+
+	if (kPlayer.IsAtWarWith(ePlotOwner))
+		return TRUE;
+
+	if (!GET_PLAYER(ePlotOwner).isMajorCiv())
+		return TRUE;
+
+	return FALSE;
+}
+
+int NavalUnitSimpleValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData& data, const CvAStar* finder)
+{
+	if (parent == NULL)
+		return TRUE;
+
+	CvPlot* pToPlot = GC.getMap().plotUnchecked(node->m_iX, node->m_iY);
+
+	//can't go into the dark
+	CvPlayer& kPlayer = GET_PLAYER(data.ePlayer);
+	if (!pToPlot->isRevealed(kPlayer.getTeam()))
+		return FALSE;
+
+	//check terrain
+	if (!pToPlot->isWater() && !pToPlot->isCoastalCityOrPassableImprovement(data.ePlayer, false, true))
+		return FALSE;
+	if (pToPlot->isDeepWater() && finder->HaveFlag(CvUnit::MOVEFLAG_NO_OCEAN))
+		return FALSE;
+	if (pToPlot->isIce() && !kPlayer.CanCrossIce())
+		return FALSE;
+
+	//check ownership
+	PlayerTypes ePlotOwner = pToPlot->getOwner();
+	if (ePlotOwner == NO_PLAYER || pToPlot->IsFriendlyTerritory(data.ePlayer))
+		return TRUE;
+
+	if (kPlayer.IsAtWarWith(ePlotOwner))
+		return TRUE;
+
+	if (!GET_PLAYER(ePlotOwner).isMajorCiv())
+		return TRUE;
+
+	return FALSE;
+}
+
 //	--------------------------------------------------------------------------------
 /// Prefer building routes that can have villages.
 static int BuildRouteVillageBonus(CvPlot* pPlot, RouteTypes eRouteType, CvBuilderTaskingAI* eBuilderTaskingAi)
@@ -2941,6 +3012,14 @@ bool CvStepFinder::Configure(const SPathFinderUserData& config)
 		break;
 	case PT_WORKER_SEA_UNIT_SAFE:
 		SetFunctionPointers(NULL, StepHeuristic, NULL, SeaWorkerUnitSafeValid, NULL, NULL, NULL);
+		m_iBasicPlotCost = PATH_BASE_COST;
+		break;
+	case PT_LAND_UNIT_SIMPLE:
+		SetFunctionPointers(NULL, StepHeuristic, NULL, LandUnitSimpleValid, NULL, NULL, NULL);
+		m_iBasicPlotCost = PATH_BASE_COST;
+		break;
+	case PT_NAVAL_UNIT_SIMPLE:
+		SetFunctionPointers(NULL, StepHeuristic, NULL, NavalUnitSimpleValid, NULL, NULL, NULL);
 		m_iBasicPlotCost = PATH_BASE_COST;
 		break;
 	default:

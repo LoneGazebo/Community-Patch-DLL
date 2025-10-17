@@ -1947,7 +1947,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveAdmiral(CvUnit* pGreatAdmiral)
 	}
 
 	// We're unhappy or have too many admirals; expend some!
-	if (pGreatAdmiral->canGetFreeLuxury())
+	if (pGreatAdmiral->canGetFreeLuxury() && IsEmpireUnhappy())
 	{
 		return GREAT_PEOPLE_DIRECTIVE_USE_POWER;
 	}

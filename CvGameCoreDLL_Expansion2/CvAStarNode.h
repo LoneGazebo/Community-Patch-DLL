@@ -59,6 +59,8 @@ enum PathType
 	PT_WORKER_LAND_UNIT_SAFE,   //is it definitely safe for a worker to go between two points
 	PT_WORKER_SEA_UNIT_SAFE,    //is it definitely safe for a work boat to go between two points
 	PT_AIR_REBASE,				//for aircraft, only plots with cities and carriers are allowed
+	PT_LAND_UNIT_SIMPLE,        //how many tiles to the target for a land unit
+	PT_NAVAL_UNIT_SIMPLE,       //how many tiles to the target for a naval unit
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
