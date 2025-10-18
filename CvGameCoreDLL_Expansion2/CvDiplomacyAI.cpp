@@ -26200,7 +26200,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 		// How long do we wait before we want to make peace more?
 		int iMinimumWarDuration = max(0, /*10*/ GD_INT_GET(WAR_MAJOR_MINIMUM_TURNS));
 		int iTooLongWarThreshold = max(15, iMinimumWarDuration);
-		bool bProlongAll = GetPlayer()->GetPositiveWarScoreTourismMod() > 0 && GET_PLAYER(GetHighestWarscorePlayer()).getTeam() == GET_TEAM(*it).GetID() && !bInTerribleShape && !bAnySeriousDangerUs;
+		bool bProlongAll = GetPlayer()->GetPositiveWarScoreTourismMod() > 0 && GetHighestWarscorePlayer() != NO_PLAYER && GET_PLAYER(GetHighestWarscorePlayer()).getTeam() == GET_TEAM(*it).GetID() && !bInTerribleShape && !bAnySeriousDangerUs;
 		if (bProlongAll)
 		{
 			iTooLongWarThreshold *= 2;
