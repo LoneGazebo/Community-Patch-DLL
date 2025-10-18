@@ -1010,7 +1010,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 		{
 			const BuildingClassTypes eBuildingClass = static_cast<BuildingClassTypes>(*it);
 			const BuildingTypes eFreeBuilding = static_cast<BuildingTypes>(kCivInfo.getCivilizationBuildings(eBuildingClass));
-			if (isValidBuildingLocation(eFreeBuilding))
+			if (eFreeBuilding != NO_BUILDING && isValidBuildingLocation(eFreeBuilding))
 			{
 				GetCityBuildings()->SetNumRealBuilding(eFreeBuilding, 1, true);
 			}
