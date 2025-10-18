@@ -2007,8 +2007,8 @@
 			<CapitalOnly>true</CapitalOnly>
 			<SpecialistType>SPECIALIST_MERCHANT</SpecialistType>
 			<SpecialistCount>1</SpecialistCount>
-			<IconAtlas>NEW_BLDG_ATLAS_DLC</IconAtlas>
-			<PortraitIndex>1</PortraitIndex>
+			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
+			<PortraitIndex>18</PortraitIndex>
 		</Row>
 		<!-- Royal Guardhouse -->
 		<Row>
