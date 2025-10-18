@@ -31710,6 +31710,7 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_aiYieldFromBorderGrowth);
 	visitor(city.m_aiYieldFromPolicyUnlock);
 	visitor(city.m_aiYieldFromPurchase);
+	visitor(city.m_aiYieldFromPurchaseGlobal);
 	visitor(city.m_aiYieldFromFaithPurchase);
 	visitor(city.m_aiYieldFromUnitLevelUp);
 	visitor(city.m_aiYieldFromUnitLevelUpGlobal);
