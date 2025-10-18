@@ -12920,13 +12920,7 @@ void CvGame::SpawnArchaeologySitesHistorically()
 		ResourceTypes eResource = pPlot->getResourceType();
 		if (eResource == eArtifact || eResource == eHiddenArtifact)
 		{
-			// Remove invalid sites
-			if ((eResource == eArtifact && !pPlot->IsEligibleForNormalDigSite(true)) || (eResource == eHiddenArtifact && !pPlot->IsEligibleForHiddenDigSite(true)) || !pPlot->IsEligibleForDigSite())
-			{
-				pPlot->ClearArchaeologicalRecord();
-				continue;
-			}
-			// Also validate writing sites to make sure they have valid Great Work data
+			// Validate writing sites to make sure they have valid Great Work data
 			CvArchaeologyData kArchaeology = pPlot->GetArchaeologicalRecord();
 			if (kArchaeology.m_eWork != NO_GREAT_WORK)
 			{
