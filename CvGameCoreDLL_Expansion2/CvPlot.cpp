@@ -6633,7 +6633,11 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 			bool bIgnoreTechPrereq = IsImprovedByGiftFromMajor();
 			if (getResourceType(eOldTeam, bIgnoreTechPrereq) != NO_RESOURCE)
 			{
-				if (IsResourceImprovedForOwner(bIgnoreTechPrereq))
+				// For city plots, we need to check if there was a city here, since the city may have been deleted before setOwner() is called (e.g., during conquest).
+				// If there was a city, the resource was connected as "improved" regardless of the current isCity() flag.
+				bool bWasImprovedForOldOwner = pOldCity != NULL ? (pOldCity->getOwner() == eOldOwner && GET_TEAM(eOldTeam).IsResourceImproveable(getResourceType(eOldTeam, bIgnoreTechPrereq))) : IsResourceImprovedForOwner(bIgnoreTechPrereq);
+
+				if (bWasImprovedForOldOwner)
 				{
 					GET_PLAYER(eOldOwner).removeResourcesOnPlotFromTotal(this, false, bIgnoreTechPrereq);
 				}
