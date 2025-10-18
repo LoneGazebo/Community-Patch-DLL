@@ -2,7 +2,7 @@
 <Mod id="8411a7a8-dad3-4622-a18e-fcc18324c799" version="17">
   <Properties>
     <Name>(2) Vox Populi</Name>
-    <Teaser>(5.0-alpha.01) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
+    <Teaser>(5.0-alpha.02) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
     <Description>Contains balance changes, gameplay improvements, and entirely new game systems to make Civ V a more enjoyable and exciting game.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -19,7 +19,7 @@
     <ReloadUnitSystem>1</ReloadUnitSystem>
   </Properties>
   <Dependencies>
-    <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" minversion="144" maxversion="999" title="(1) Community Patch" />
+    <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" minversion="145" maxversion="999" title="(1) Community Patch" />
   </Dependencies>
   <References />
   <Blocks>
@@ -38,16 +38,16 @@
   </Blocks>
   <Files>
     <File md5="4D19A2F465CED315693D8621108F1C1E" import="0">CommunityOptions.sql</File>
-    <File md5="F68C20B589C96C317D3D1C6984A25B19" import="1">Assets/Atlases/Buildings/VPBuildingAtlas1_045.dds</File>
-    <File md5="359CA1BEE1796B954F873A4EFA84F889" import="1">Assets/Atlases/Buildings/VPBuildingAtlas1_064.dds</File>
-    <File md5="9A16685CEAFF53B5B0A26D0E84DB8994" import="1">Assets/Atlases/Buildings/VPBuildingAtlas1_080.dds</File>
-    <File md5="E656E8CF71C99AD3312B160FC688908B" import="1">Assets/Atlases/Buildings/VPBuildingAtlas1_128.dds</File>
-    <File md5="82438228EA62C3330D763DB3835C4D82" import="1">Assets/Atlases/Buildings/VPBuildingAtlas1_256.dds</File>
-    <File md5="185A8D317D658D02D844C75E7B2DA751" import="1">Assets/Atlases/Buildings/VPBuildingAtlas2_045.dds</File>
-    <File md5="636228398F5D3D53F80CBB33328C6E56" import="1">Assets/Atlases/Buildings/VPBuildingAtlas2_064.dds</File>
-    <File md5="DE57C468C8B7E92E6CADF5AE60B8F743" import="1">Assets/Atlases/Buildings/VPBuildingAtlas2_080.dds</File>
-    <File md5="276DA7C7189A491279E481C37598CAEF" import="1">Assets/Atlases/Buildings/VPBuildingAtlas2_128.dds</File>
-    <File md5="C2F535F5EC77BF04D4040F7167D380D8" import="1">Assets/Atlases/Buildings/VPBuildingAtlas2_256.dds</File>
+    <File md5="244BEA46F857A5E48D4F4BE276DBC250" import="1">Assets/Atlases/Buildings/VPBuildingAtlas1_045.dds</File>
+    <File md5="618770D078FBC6BD5026805F7B0C0805" import="1">Assets/Atlases/Buildings/VPBuildingAtlas1_064.dds</File>
+    <File md5="081333E1F7DC1A4A0F789F47875B92E1" import="1">Assets/Atlases/Buildings/VPBuildingAtlas1_080.dds</File>
+    <File md5="3A585A10762B3ADF60487C8AD39482CA" import="1">Assets/Atlases/Buildings/VPBuildingAtlas1_128.dds</File>
+    <File md5="9DF8B0AD8E001264EEE874B9DA1FF86D" import="1">Assets/Atlases/Buildings/VPBuildingAtlas1_256.dds</File>
+    <File md5="555FA857CC68B382BDAB1F8BF16A7294" import="1">Assets/Atlases/Buildings/VPBuildingAtlas2_045.dds</File>
+    <File md5="9F25AEBC65C02FB5E96B35FF974680BA" import="1">Assets/Atlases/Buildings/VPBuildingAtlas2_064.dds</File>
+    <File md5="C2BFC049FEB3909704B0B3072E5A90EB" import="1">Assets/Atlases/Buildings/VPBuildingAtlas2_080.dds</File>
+    <File md5="116E28DB5514FA537906AD0C9A9E1715" import="1">Assets/Atlases/Buildings/VPBuildingAtlas2_128.dds</File>
+    <File md5="A5258FD434DAF64017D1E30152923E3C" import="1">Assets/Atlases/Buildings/VPBuildingAtlas2_256.dds</File>
     <File md5="E24045F99C001549BE1A5301B87809BC" import="1">Assets/Atlases/Builds/VPBuildAtlas_045.dds</File>
     <File md5="4D28AC46358403B88F0B5F177C87266A" import="1">Assets/Atlases/Builds/VPBuildAtlas_064.dds</File>
     <File md5="9670B95F962520CC8F77E6ECB8945DD0" import="1">Assets/Atlases/Corporations/VPCorporationAtlas_045.dds</File>
@@ -121,11 +121,11 @@
     <File md5="FFE8A204503B0DCE81553A7D0DABB28B" import="1">Assets/Atlases/Technologies/VPTechAtlas_128.dds</File>
     <File md5="06EDFBEB19F8920BD233F9C5FF993F6D" import="1">Assets/Atlases/Technologies/VPTechAtlas_214.dds</File>
     <File md5="B2A1E5C0CD49D621BA2A741E0A9FCEB1" import="1">Assets/Atlases/Technologies/VPTechAtlas_256.dds</File>
-    <File md5="0D6EF663C36C41F3CA5B1A60B1D35CB3" import="1">Assets/Atlases/Units/VPUnitAtlas1_045.dds</File>
-    <File md5="FB6447AD50D9A92A7B8DF5FF6773A5C1" import="1">Assets/Atlases/Units/VPUnitAtlas1_064.dds</File>
-    <File md5="43775C55F7C0CC9060FD321ADC11173C" import="1">Assets/Atlases/Units/VPUnitAtlas1_080.dds</File>
-    <File md5="81969F9F25CA03B8197157D4C4AB55DE" import="1">Assets/Atlases/Units/VPUnitAtlas1_128.dds</File>
-    <File md5="FDC1B82AE82CA024223357C2E852C8BB" import="1">Assets/Atlases/Units/VPUnitAtlas1_256.dds</File>
+    <File md5="D2966E8E1576E4607077183739A1D121" import="1">Assets/Atlases/Units/VPUnitAtlas1_045.dds</File>
+    <File md5="3D28EDA4C07BF8F827C2C279A7F8053D" import="1">Assets/Atlases/Units/VPUnitAtlas1_064.dds</File>
+    <File md5="92D7D516A8210E3C6C4AAFBD49A443FC" import="1">Assets/Atlases/Units/VPUnitAtlas1_080.dds</File>
+    <File md5="B49E07B290E73E950667D7B4A6B1F804" import="1">Assets/Atlases/Units/VPUnitAtlas1_128.dds</File>
+    <File md5="E447397FEB81B284A3BE1E5783F8206F" import="1">Assets/Atlases/Units/VPUnitAtlas1_256.dds</File>
     <File md5="8054A648B1B3CF7CF5AA5C0315ADF713" import="1">Assets/Atlases/Units/VPUnitAtlas2_045.dds</File>
     <File md5="7EC398CD55E576987DD43D86F6667E89" import="1">Assets/Atlases/Units/VPUnitAtlas2_064.dds</File>
     <File md5="E04C504E20A83E18A94CFC1C995E03B2" import="1">Assets/Atlases/Units/VPUnitAtlas2_080.dds</File>
@@ -134,20 +134,9 @@
     <File md5="26CD17E06F3FE0982AC6C95D0BE24604" import="1">Assets/Atlases/Units/VPUnitFlagAtlas1_032.dds</File>
     <File md5="9881220F340DDA68369D4333345A72AD" import="1">Assets/Atlases/Units/VPUnitFlagAtlas2_032.dds</File>
     <File md5="24A2F27062E12BCBEC37C9E8F3AA257E" import="1">Assets/Graphics/GreatWorks_Artifact_HL_34.dds</File>
-    <File md5="41F450D710658C652158869BE18FB6D9" import="1">Assets/Graphics/Buttons/citizenCivilServant.dds</File>
-    <File md5="5E1975386AA1F6AD2CA4D293EEDE09B8" import="1">Assets/Graphics/Buttons/citizenmusician.dds</File>
-    <File md5="82F6ACBCF25EDD8D7143484547FBBD88" import="1">Assets/Graphics/Buttons/citizenwriter.dds</File>
     <File md5="2CD21E4B3FB567CE3A70B7569CC21AA5" import="1">Assets/Graphics/Buttons/civilopediatopbuttonscorporations.dds</File>
     <File md5="316984B4370EA1B11E3759F01CE9A36D" import="1">Assets/Graphics/Buttons/DC45_Generic.dds</File>
-    <File md5="F037A017F539633C0597FCE25DD651A3" import="1">Assets/Graphics/Buttons/GreatWorks_Artifact.dds</File>
     <File md5="ABD507B87DF2A2511FD9027A725A5CEF" import="1">Assets/Graphics/Buttons/GreatWorks_Artifact_Empty.dds</File>
-    <File md5="CBDC1130121DA9DB2179D2C0E547332B" import="1">Assets/Graphics/Buttons/locked_artist.dds</File>
-    <File md5="1DDC5F0B9E79488B3E542E5D23AFA1D1" import="1">Assets/Graphics/Buttons/locked_engineer.dds</File>
-    <File md5="B02C2390235CD918DA47CAEF80C74F8F" import="1">Assets/Graphics/Buttons/locked_merchant.dds</File>
-    <File md5="1B8DD467BDABB854D892F7884CA25B53" import="1">Assets/Graphics/Buttons/locked_musician.dds</File>
-    <File md5="B6181DB8D582AE62F6EA670398D298CA" import="1">Assets/Graphics/Buttons/locked_scientist.dds</File>
-    <File md5="CA684194A3C656557B00598D7D705D53" import="1">Assets/Graphics/Buttons/locked_servant.dds</File>
-    <File md5="35F6F1468ACCE5AE572247F5E2FEFD69" import="1">Assets/Graphics/Buttons/locked_writer.dds</File>
     <File md5="E9029C9E9851D1E0138D792ED5F5A471" import="1">Assets/Graphics/Buttons/AlphaAnim/vassal80.dds</File>
     <File md5="8050930951C51832D14A659C7DD22C3F" import="1">Assets/Graphics/Buttons/AlphaAnim/vassal80hl.dds</File>
     <File md5="E2D3592B6B62CDDD4EA50B27A6321AED" import="1">Assets/Graphics/Shared/Blank.dds</File>
@@ -1126,11 +1115,11 @@
     <File md5="204393C48719A1136F7812E04860930C" import="0">Database Changes/Beliefs/ReformationChanges.sql</File>
     <File md5="91C6AE94E302CE6E27CB39A28B97638E" import="0">Database Changes/Beliefs/TooltipSweeps.sql</File>
     <File md5="044A57B02AC7076B0E8C07B084B2C66D" import="0">Database Changes/City/NewGreatWorks.xml</File>
-    <File md5="38FD151DDB73AD85FF0882DF8ABF2A44" import="0">Database Changes/City/Buildings/BuildingChanges.sql</File>
+    <File md5="68BAF8E34A29AEC6BA3571507FCC6E5F" import="0">Database Changes/City/Buildings/BuildingChanges.sql</File>
     <File md5="E33C2448A949EEFE0A59900BA8FF5BD9" import="0">Database Changes/City/Buildings/BuildingChanges2.sql</File>
     <File md5="0C6F9542179CA5FD035B48AF44AE9206" import="0">Database Changes/City/Buildings/BuildingCostSweeps.sql</File>
     <File md5="F3BCA060E5344D546D690BE9AE784B3E" import="0">Database Changes/City/Buildings/BuildingSweeps.sql</File>
-    <File md5="13003A15F5E15FE3D6E456AD877A52DE" import="0">Database Changes/City/Buildings/NewBuildings.xml</File>
+    <File md5="B8AB63CB9554DA8BACA9F27FDD212719" import="0">Database Changes/City/Buildings/NewBuildings.xml</File>
     <File md5="DA93A004A6AFB13F60927B8F3AC7414C" import="0">Database Changes/City/Buildings/PreBuildingChanges.sql</File>
     <File md5="C6E5CF97A0C9DF176CA9BE3F895E351A" import="0">Database Changes/City/Processes/NewProcesses.xml</File>
     <File md5="D1ADDA25FC17F87EE8171FEC6C6A7A56" import="0">Database Changes/City/Processes/ProcessChanges.sql</File>
@@ -1153,12 +1142,12 @@
     <File md5="4AD9420CC448395C4C9F3EFBE8B9A025" import="0">Database Changes/Civilizations/Egypt.sql</File>
     <File md5="D95E0F9EBDFF436F11F74261C4AC17B7" import="0">Database Changes/Civilizations/England.sql</File>
     <File md5="62B1DDCD2F0B78CBEF60119FD312DCEA" import="0">Database Changes/Civilizations/Ethiopia.sql</File>
-    <File md5="F83D7C951E9FA385365316834703EAD5" import="0">Database Changes/Civilizations/France.sql</File>
+    <File md5="F911565EBD2BF502BA74D6DAF58C7612" import="0">Database Changes/Civilizations/France.sql</File>
     <File md5="07D36D766F7473F0EA54A36C5229EA6A" import="0">Database Changes/Civilizations/Germany.sql</File>
     <File md5="02EFB8869C641D3F782A0F3EF388190F" import="0">Database Changes/Civilizations/Greece.sql</File>
     <File md5="D42589BFC6D68E34172F0734CDCE581E" import="0">Database Changes/Civilizations/Huns.sql</File>
     <File md5="E1617F6EA56C21CEB741DFCC628A8E24" import="0">Database Changes/Civilizations/Inca.sql</File>
-    <File md5="EA8BB02133D30FB3B674FBABB9F248A0" import="0">Database Changes/Civilizations/India.sql</File>
+    <File md5="FCE78CF2D04D2A6B6E30AD089DBBC464" import="0">Database Changes/Civilizations/India.sql</File>
     <File md5="A6AA77B1E41E7ABC8540E8B2673E3268" import="0">Database Changes/Civilizations/Indonesia.sql</File>
     <File md5="DB469D17D74B456A02702240FF979972" import="0">Database Changes/Civilizations/Iroquois.sql</File>
     <File md5="BFCFEE496393324EBFC7024A4879B79A" import="0">Database Changes/Civilizations/Japan.sql</File>
@@ -1173,7 +1162,7 @@
     <File md5="E86493E03EF4C3CBCB70C0B58A2CA8AA" import="0">Database Changes/Civilizations/Polynesia.sql</File>
     <File md5="2B3BE2D4D187897DE26005D73DBBF7FD" import="0">Database Changes/Civilizations/Portugal.sql</File>
     <File md5="33224B9847AF2907ED6A15F07F315716" import="0">Database Changes/Civilizations/Rome.sql</File>
-    <File md5="B861F6121913D7A5CC262CFAF9D6A170" import="0">Database Changes/Civilizations/Russia.sql</File>
+    <File md5="0DC5D5E7D73E9F317D7B99C301345366" import="0">Database Changes/Civilizations/Russia.sql</File>
     <File md5="300BF2850B60F9573E4D97ED5CDFE2D6" import="0">Database Changes/Civilizations/Shoshone.sql</File>
     <File md5="9182AD004F9AF4F2B37B01992612D90E" import="0">Database Changes/Civilizations/Siam.sql</File>
     <File md5="10E435EF313CD9AE6E9615FD7D7EAEB7" import="0">Database Changes/Civilizations/Songhai.sql</File>
@@ -1257,7 +1246,7 @@
     <File md5="B5C60FD5DF02295B68C1FEE0052EFD88" import="0">Database Changes/Text/en_US/UI/NewUIText.sql</File>
     <File md5="5AAC10860F85F14743F056CC6A2E1779" import="0">Database Changes/Text/en_US/UI/NewUIText.xml</File>
     <File md5="4D814FCD16E9685E04E7CE8713FD3042" import="0">Database Changes/Text/en_US/UI/UITextChanges.sql</File>
-    <File md5="B3861150C83598D0FFFEAA90C399576D" import="0">Database Changes/Text/en_US/UnitPromotions/NewPromotionText.xml</File>
+    <File md5="D2E27C2A284966DBE4F81ED8FC21B77C" import="0">Database Changes/Text/en_US/UnitPromotions/NewPromotionText.xml</File>
     <File md5="0D26B4C72F69615EBF8A06D2C3095023" import="0">Database Changes/Text/en_US/UnitPromotions/PromotionTextChanges.sql</File>
     <File md5="904015DF27DC13E34A216A8E325B6CD0" import="0">Database Changes/Text/en_US/Units/MissionTextChanges.sql</File>
     <File md5="E44B069F8ED6698D11B89240DCAC6F38" import="0">Database Changes/Text/en_US/Units/NewMissionText.xml</File>
@@ -1288,7 +1277,7 @@
     <File md5="704B9F628BECBE2C57479EA10B1823D7" import="0">Database Changes/Units/NewGreatPeople.xml</File>
     <File md5="6D073C93CFB156C15667ABFB5E9E1CD8" import="0">Database Changes/Units/NewMissions.xml</File>
     <File md5="54C5AE1A26889A12C4F8EEADBE31DA37" import="0">Database Changes/Units/NewUnitFormations.xml</File>
-    <File md5="0A3B677DCB8C2BE42C40DF9C66A73CE8" import="0">Database Changes/Units/NewUnits.xml</File>
+    <File md5="3714CA9BC91EF8D06E61636255D15CA1" import="0">Database Changes/Units/NewUnits.xml</File>
     <File md5="2841139AA7FDF30B2E5471519776CB01" import="0">Database Changes/Units/PolicyUnitChanges.sql</File>
     <File md5="31386943384EFA379C21EEB069DBA72D" import="0">Database Changes/Units/PreUnitChanges.sql</File>
     <File md5="C62B5CFA10CC761F0005EAA27C0380B5" import="0">Database Changes/Units/UnitAIChanges.sql</File>

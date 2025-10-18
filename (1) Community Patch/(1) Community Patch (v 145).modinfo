@@ -1,14 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" version="144">
+<Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" version="145">
   <Properties>
     <Name>(1) Community Patch</Name>
-    <Teaser>(5.0-alpha.01) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
+    <Teaser>(5.0-alpha.02) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
     <Description>Contains core AI improvements and bugfixes for the Civ 5 BNW DLL. Also contains support for the Vox Populi unofficial expansion and its associated mods.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
     <Homepage>https://forums.civfanatics.com/forums/community-patch-project.497/</Homepage>
     <AffectsSavedGames>1</AffectsSavedGames>
-    <MinCompatibleSaveVersion>144</MinCompatibleSaveVersion>
+    <MinCompatibleSaveVersion>145</MinCompatibleSaveVersion>
     <SupportsSinglePlayer>1</SupportsSinglePlayer>
     <SupportsMultiplayer>1</SupportsMultiplayer>
     <SupportsHotSeat>1</SupportsHotSeat>
@@ -380,11 +380,22 @@
     <File md5="6DE5AC31317313EEF46A7EC98D020D3C" import="1">Assets/Resources/resource_furs.gr2</File>
     <File md5="8C11BE8120287A5EE17DAFEF75ADDE78" import="1">Assets/UI/AutomateProduction45.dds</File>
     <File md5="FE5757135164699240E8999592A4EC14" import="1">Assets/UI/AutomateProduction64.dds</File>
+    <File md5="41F450D710658C652158869BE18FB6D9" import="1">Assets/UI/citizenCivilServant.dds</File>
+    <File md5="5E1975386AA1F6AD2CA4D293EEDE09B8" import="1">Assets/UI/citizenmusician.dds</File>
+    <File md5="82F6ACBCF25EDD8D7143484547FBBD88" import="1">Assets/UI/citizenwriter.dds</File>
     <File md5="B3C1FBD5E66301B400B63040C7B42503" import="1">Assets/UI/corp80_base.dds</File>
     <File md5="D49B7AA0DAFF3621D9F72A36D22FB43B" import="1">Assets/UI/corp80_hl.dds</File>
     <File md5="1D94F6DC259A5A1FE149BC83BC7C80E4" import="1">Assets/UI/DC45_Corporations.dds</File>
     <File md5="E2B19CBFFF8F783398DF4BD00E5633D1" import="1">Assets/UI/esp_spy_rigginelectioncooldown22.dds</File>
     <File md5="F772E5C5B3C34261AE26BAD47E06B448" import="1">Assets/UI/esp_thief_framedicon45.dds</File>
+    <File md5="F037A017F539633C0597FCE25DD651A3" import="1">Assets/UI/GreatWorks_Artifact.dds</File>
+    <File md5="CBDC1130121DA9DB2179D2C0E547332B" import="1">Assets/UI/locked_artist.dds</File>
+    <File md5="1DDC5F0B9E79488B3E542E5D23AFA1D1" import="1">Assets/UI/locked_engineer.dds</File>
+    <File md5="B02C2390235CD918DA47CAEF80C74F8F" import="1">Assets/UI/locked_merchant.dds</File>
+    <File md5="1B8DD467BDABB854D892F7884CA25B53" import="1">Assets/UI/locked_musician.dds</File>
+    <File md5="B6181DB8D582AE62F6EA670398D298CA" import="1">Assets/UI/locked_scientist.dds</File>
+    <File md5="CA684194A3C656557B00598D7D705D53" import="1">Assets/UI/locked_servant.dds</File>
+    <File md5="35F6F1468ACCE5AE572247F5E2FEFD69" import="1">Assets/UI/locked_writer.dds</File>
     <File md5="ACA338F2B02A8184C76AADB60D0D4319" import="1">Assets/WonderSplashImages/wonderconceptbroadway.dds</File>
     <File md5="12D7AE7B46F4A1CFC9C04068B91EC4EA" import="1">Assets/WonderSplashImages/wonderconceptgreatwall.dds</File>
     <File md5="B0F68066FF301B6B10E15EC0E85CFDE6" import="1">Assets/WonderSplashImages/wonderconceptnotredame.dds</File>
@@ -460,13 +471,13 @@
     <File md5="8F5DDB96458A46DB71C92CCB4026905E" import="1">Core Files/Overrides/WorldView.lua</File>
     <File md5="AA9CB9B8678EFAD4FEBB780B24385C24" import="1">Core Files/Overrides/Includes/AssignStartingPlots.lua</File>
     <File md5="C83F24B1D14DA36D5F7E4CFB028A0F9A" import="1">Core Files/Overrides/Includes/Bombardment.lua</File>
-    <File md5="33E5F1348C78523FD5430D80861FF276" import="1">Core Files/Overrides/Includes/InfoTooltipInclude.lua</File>
+    <File md5="1D0598ED79C314F182DEF114E8CBDED4" import="1">Core Files/Overrides/Includes/InfoTooltipInclude.lua</File>
     <File md5="F82D4290936952EACB989B91E36F79C6" import="1">Core Files/Overrides/Includes/MapGenerator.lua</File>
     <File md5="912F67F578C779BFED67FE4A8F70D779" import="1">Core Files/Overrides/Includes/TechButtonInclude.lua</File>
-    <File md5="D09A8678E77DA2B40E5AC34E055AD4A0" import="1">Core Files/Overrides/Includes/TechHelpInclude.lua</File>
+    <File md5="300F4204259B68D126487E0EF78681D4" import="1">Core Files/Overrides/Includes/TechHelpInclude.lua</File>
     <File md5="1D6FBE79C3778843EA7DDCE693BDD499" import="1">Core Files/Overrides/Includes/TradeRouteHelpers.lua</File>
-    <File md5="9E2730B782AE33FFB3DC3D7A21E4D18C" import="1">Core Files/VPUI/VPUI_core.lua</File>
-    <File md5="121ACF9088B6AFACAC332CE1BC210377" import="1">CvGameCore_Expansion2.dll</File>
+    <File md5="F14D868410CCF7A5782AC07BA4F4B25F" import="1">Core Files/VPUI/VPUI_core.lua</File>
+    <File md5="B74477DB75E153724D2D0FEF1DEBF478" import="1">CvGameCore_Expansion2.dll</File>
     <File md5="CF1628DC6A82C749A951A27DF13D0BF0" import="0">Database Changes/CommunityTables.xml</File>
     <File md5="F724C999F084DBC0A88B654D521314EB" import="0">Database Changes/CoreGameOptionChanges.sql</File>
     <File md5="E5C280A2AC65C19D051F27EE7AAE11B4" import="0">Database Changes/CoreGameSpeedChanges.sql</File>
@@ -480,7 +491,7 @@
     <File md5="AAA176E4128E36358D0123F0D6C7CD3A" import="0">Database Changes/CoreWorldChanges.sql</File>
     <File md5="D0BFB3F71AFB183457D538EE3B0D771F" import="0">Database Changes/DatabaseIndexes.sql</File>
     <File md5="F18A37227B71DC4483AA2519DDC888E8" import="0">Database Changes/GameSpeedTableChanges.sql</File>
-    <File md5="EC2E72A4D7E31E99A255D47FA84D0D3D" import="0">Database Changes/NewCustomModOptions.xml</File>
+    <File md5="0D23604F813FAB0AFD04AAB00487A2A8" import="0">Database Changes/NewCustomModOptions.xml</File>
     <File md5="278A7080850F3EE5132BF2C53E6C6419" import="0">Database Changes/NewEnums.xml</File>
     <File md5="476D91532E8B5E9B97198D943F101FFD" import="0">Database Changes/NewEnumTables.xml</File>
     <File md5="5403AA54F33FADD66B29FC5978F62E55" import="0">Database Changes/Remapper.sql</File>
@@ -571,8 +582,8 @@
     <File md5="468C9AA3A0E052286E8A6A455636B22B" import="0">Database Changes/Text/en_US/Notifications/CoreNewNotificationText.xml</File>
     <File md5="93390AF59DEF5A0380A5313CE5CF181E" import="0">Database Changes/Text/en_US/Notifications/CoreNotificationTextChanges.sql</File>
     <File md5="07FA4F3EE791BC55D0F0818B8645A785" import="0">Database Changes/Text/en_US/Religions/CoreReligionTextChanges.sql</File>
-    <File md5="A58018A4B105CE4D2B4C06A0D0DBC81F" import="0">Database Changes/Text/en_US/UI/CoreNewUIText.xml</File>
-    <File md5="35D6C281C1321E05D8331AD9380D5055" import="0">Database Changes/Text/en_US/UI/CoreUITextChanges.sql</File>
+    <File md5="4CA3C0770F9503BD1F44C1855EA288EC" import="0">Database Changes/Text/en_US/UI/CoreNewUIText.xml</File>
+    <File md5="70E166EB57A3C416D5FC074356C47517" import="0">Database Changes/Text/en_US/UI/CoreUITextChanges.sql</File>
     <File md5="F9C0A53E9A6986F04ADADDBA2E138A10" import="0">Database Changes/Text/en_US/UnitPromotions/CoreNewPromotionText.xml</File>
     <File md5="8BDA888FE05533BBDA015FDA10D7DA2B" import="0">Database Changes/Text/en_US/UnitPromotions/CorePromotionTextChanges.sql</File>
     <File md5="C0C038A53F42B3910523E39C54AEA5BA" import="0">Database Changes/Text/en_US/Units/CoreMissionTextChanges.sql</File>
@@ -686,7 +697,7 @@
     <File md5="4593582247F76EABE54BCD7E6F36BEAC" import="1">Kit/UI/Control/CPK.UI.Control.Kind.lua</File>
     <File md5="5E4514FD0A99A88E2356D406B6D665D9" import="1">Kit/UI/Control/CPK.UI.Control.Refresh.lua</File>
     <File md5="61B29D799DBB5EB802BA531AD7D5B18C" import="1">Kit/UI/Control/CPK.UI.Control.Show.lua</File>
-    <File md5="8034BABE46906E9ACE52DCF281DE36EA" import="1">Kit/Util/CPK.Util.Color.lua</File>
+    <File md5="B5EE11CBA6B7E85198DEAF8EB6DFF08B" import="1">Kit/Util/CPK.Util.Color.lua</File>
     <File md5="785258CBC5CBA251EE8B7E0EC66ABF3E" import="1">Kit/Util/CPK.Util.FuzzyTrie.lua</File>
     <File md5="8BC6EB97B8F9A8226C92398661F3986F" import="1">Kit/Util/CPK.Util.Stack.lua</File>
     <File md5="024C203421D4F4366116889662469E63" import="1">Kit/Util/CPK.Util.StringBuilder.lua</File>
