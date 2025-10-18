@@ -209,7 +209,7 @@ public:
 	bool GetBuilds(int i) const;
 	bool GetBuildingClassRequireds(int i) const;
 	int GetScalingFromOwnedImprovements(int i) const;
-	set<int> GetBuildOnFound() const;
+	const set<int>& GetBuildOnFound() const;
 	bool GetBuildingClassPurchaseRequireds(int i) const;
 	int GetEraCombatStrength(int i) const;
 	int GetUnitNewEraCombatType(int i, int j) const;

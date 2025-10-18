@@ -1502,7 +1502,7 @@ int CvUnitEntry::GetScalingFromOwnedImprovements(int i) const
 }
 
 /// Get the set of building classes this unit creates when it founds a city
-set<int> CvUnitEntry::GetBuildOnFound() const
+const set<int>& CvUnitEntry::GetBuildOnFound() const
 {
 	return m_siBuildOnFound;
 }
