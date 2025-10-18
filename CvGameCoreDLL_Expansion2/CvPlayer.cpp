@@ -41847,6 +41847,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	CvCity* pCapital = getCapitalCity();
 
 	GetPlayerTraits()->InitPlayerTraits();
+	bool bGarrisonFreeMaintenancePre = IsGarrisonFreeMaintenance();
 
 	ChangeCulturePerWonder(pkPolicyInfo->GetCulturePerWonder() * iChange);
 	ChangeCultureWonderMultiplier(pkPolicyInfo->GetCultureWonderMultiplier() * iChange);
@@ -42228,6 +42229,10 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 		if (pLoopCity->HasGarrison())
 		{
 			iCityCultureChange += pkPolicyInfo->GetCulturePerGarrisonedUnit() * iChange;
+			if(IsGarrisonFreeMaintenance() != bGarrisonFreeMaintenancePre)
+			{
+				changeExtraUnitCost(-pLoopCity->GetGarrisonedUnit()->getUnitInfo().GetExtraMaintenanceCost() * iChange);
+			}
 		}
 		pLoopCity->ChangeBaseYieldRateFromPolicies(YIELD_CULTURE, iCityCultureChange);
 

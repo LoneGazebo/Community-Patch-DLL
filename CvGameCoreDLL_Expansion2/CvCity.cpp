@@ -16379,6 +16379,10 @@ void CvCity::SetGarrison(CvUnit* pUnit)
 		if (!bPreviousGarrison)
 		{
 			ChangeBaseYieldRateFromPolicies(YIELD_CULTURE, GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_GARRISON));
+			if(GET_PLAYER(getOwner()).IsGarrisonFreeMaintenance())
+			{
+				GET_PLAYER(getOwner()).changeExtraUnitCost(-pUnit->getUnitInfo().GetExtraMaintenanceCost());
+			}
 
 			if (pUnit != NULL && pUnit->GetReligiousPressureModifier() != 0)
 			{
@@ -16401,6 +16405,15 @@ void CvCity::SetGarrison(CvUnit* pUnit)
 				}
 			}
 		}
+		else
+		{
+			if(GET_PLAYER(getOwner()).IsGarrisonFreeMaintenance())
+			{
+				int iMaintenanceChange = -pUnit->getUnitInfo().GetExtraMaintenanceCost();
+				if(pOldGarrison != NULL) iMaintenanceChange += pOldGarrison->getUnitInfo().GetExtraMaintenanceCost();
+				GET_PLAYER(getOwner()).changeExtraUnitCost(iMaintenanceChange);
+			}
+		}
 	}
 	else
 	{
@@ -16410,6 +16423,10 @@ void CvCity::SetGarrison(CvUnit* pUnit)
 		if (bPreviousGarrison)
 		{
 			ChangeBaseYieldRateFromPolicies(YIELD_CULTURE, -GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_GARRISON));
+			if(pOldGarrison != NULL && GET_PLAYER(pOldGarrison->getOwner()).IsGarrisonFreeMaintenance())
+			{
+				GET_PLAYER(pOldGarrison->getOwner()).changeExtraUnitCost(pOldGarrison->getUnitInfo().GetExtraMaintenanceCost());
+			}
 
 			if (pOldGarrison != NULL && pOldGarrison->GetReligiousPressureModifier() != 0)
 			{
