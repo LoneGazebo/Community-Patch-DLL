@@ -625,7 +625,40 @@ local function ProductionToolTip( control )
 	local city = UI_GetHeadSelectedCity()
 	local queuedItemNumber = control:GetVoid1()
 	if city and queuedItemNumber and not Controls.QueueSlider:IsTrackingLeftMouseButton() then
-		return OrderItemTooltip( city, false, false, city:GetOrderFromQueue( queuedItemNumber ) )
+		-- First get the base tooltip from OrderItemTooltip
+		OrderItemTooltip( city, false, false, city:GetOrderFromQueue( queuedItemNumber ) )
+
+		-- Add production progress information (similar to non-EUI version)
+		if not city:IsProductionProcess() then
+			local fProductionStored = city:GetProductionTimes100() / 100 + city:GetTotalOverflowProductionTimes100() / 100
+			local iProductionNeeded = city:GetProductionNeeded()
+			local fProductionPerTurn = city:GetYieldRateTimes100(YieldTypes.YIELD_PRODUCTION) / 100
+
+			local strProgressText = ""
+			if fProductionPerTurn > 0 then
+				local iTurnsLeft = city:GetProductionTurnsLeft()
+				local strTurnsLeft
+				if iTurnsLeft > 99 then
+					strTurnsLeft = L("TXT_KEY_PRODUCTION_HELP_99PLUS_TURNS")
+				else
+					strTurnsLeft = L("TXT_KEY_PRODUCTION_HELP_NUM_TURNS", iTurnsLeft)
+				end
+				strProgressText = L("TXT_KEY_PRODUCTION_HELP_TEXT", city:GetProductionNameKey(), strTurnsLeft) .. "[NEWLINE]----------------[NEWLINE]" .. L("TXT_KEY_PRODUCTION_PROGRESS", fProductionStored, iProductionNeeded)
+			else
+				strProgressText = L("TXT_KEY_PRODUCTION_PROGRESS", fProductionStored, iProductionNeeded)
+			end
+
+			-- Prepend progress info to the existing tooltip
+			local currentText = g_leftTipControls.Text:GetText()
+			if currentText and #currentText > 0 then
+				g_leftTipControls.Text:SetText(strProgressText .. "[NEWLINE][NEWLINE]" .. currentText)
+			else
+				g_leftTipControls.Text:SetText(strProgressText)
+			end
+			g_leftTipControls.Box:DoAutoSize()
+		end
+
+		return
 	end
 end
 
