@@ -23341,6 +23341,11 @@ int CvCity::getBaseYieldRateTimes100(const YieldTypes eYield, CvString* tooltipS
 	if (tooltipSink)
 		GC.getGame().BuildYieldTimes100HelpText(tooltipSink, "TXT_KEY_YIELD_FROM_MISC", iTempYield, szIconString);
 
+
+	iTempYield = GetYieldFromPreviousGoldenAges(eYield) * 100;
+	iYield += iTempYield;
+	if (tooltipSink)
+		GC.getGame().BuildYieldTimes100HelpText(tooltipSink, "TXT_KEY_YIELD_FROM_PREVIOUS_GOLDEN_AGES", iTempYield, szIconString);
 		
 	if (isCapital())
 	{
@@ -24004,7 +24009,6 @@ void CvCity::ChangeYieldFromPreviousGoldenAges(YieldTypes eIndex, int iChange)
 		m_aiYieldFromPreviousGoldenAges[eIndex] = m_aiYieldFromPreviousGoldenAges[eIndex] + iChange;
 		ASSERT(GetYieldFromPreviousGoldenAges(eIndex) >= 0);
 
-		ChangeBaseYieldRateFromMisc(eIndex, iChange);
 		UpdateAllNonPlotYields(false);
 	}
 }
@@ -31717,6 +31721,7 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_iLocalUnhappinessMod);
 	visitor(city.m_iExperiencePerGoldenAge);
 	visitor(city.m_iExperiencePerGoldenAgeCap);
+	visitor(city.m_iExperienceFromPreviousGoldenAges);
 	visitor(city.m_bNoWarmonger);
 	visitor(city.m_iEmpireSizeModifierReduction);
 	visitor(city.m_iNoStarvationNonSpecialist);
