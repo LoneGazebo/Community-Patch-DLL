@@ -316,9 +316,7 @@ WHERE BuildingClass = 'BUILDINGCLASS_AQUEDUCT';
 UPDATE Buildings
 SET
 	FreshWater = 0,
-	NoUnhappfromXSpecialists = 1,
-	IconAtlas = 'BUILDING_ATLAS_VP_2',
-	PortraitIndex = 19
+	NoUnhappfromXSpecialists = 1
 WHERE BuildingClass = 'BUILDINGCLASS_GARDEN';
 
 INSERT INTO Building_FeatureYieldChanges
