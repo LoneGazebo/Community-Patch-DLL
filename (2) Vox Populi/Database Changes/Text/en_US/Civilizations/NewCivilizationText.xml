@@ -495,7 +495,7 @@
 			<Text>Obelisk</Text>
 		</Row>
 		<Row Tag="TXT_KEY_IMPROVEMENT_OBELISK_HELP">
-			<Text>Unique Egyptian Improvement.[NEWLINE][NEWLINE]Can only be constructed on Antiquity Sites, like a Landmark, but does not remove it. Provides [ICON_RESEARCH] Science, [ICON_CULTURE] Culture, [ICON_PEACE] Faith, and [ICON_GOLDEN_AGE] Golden Age Points. Obelisks owned by Egypt gain additional yields with each [ICON_GOLDEN_AGE] Golden Age.</Text>
+			<Text>Unique Egyptian Improvement.[NEWLINE][NEWLINE]Can only be constructed on Antiquity Sites, like a Landmark, but does not remove it. Provides [ICON_RESEARCH] Science, [ICON_CULTURE] Culture, [ICON_PEACE] Faith, and [ICON_GOLDEN_AGE] Golden Age Points.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_IMPROVEMENT_OBELISK_TEXT">
 			<Text>{TXT_KEY_IMPROVEMENT_OBELISK_HELP}[NEWLINE][NEWLINE]An obelisk is a tall, slender, tapered monument with four sides and a pyramidal or pyramidion top. Originally constructed by Ancient Egyptians and called tekhenu, the Greeks used the Greek term obeliskos to describe them, and this word passed into Latin and ultimately English. Ancient obelisks are monolithic and consist of a single stone symbolising the sun god Ra. They played a vital role in religious architecture, being placed in pairs at the entrance of temples.[NEWLINE][NEWLINE]Around 30 BCE, Rome seized control of Egypt and looted the various temple complexes; in one case they destroyed walls at the Temple of Karnak to haul them out. There are now more than twice as many obelisks that were seized and shipped out by Rome as remain in Egypt. Obelisks were being shipped out of Egypt as late as the nineteenth century when three of them were sent to London, New York and Paris. It is noteworthy that four of the obelisks in the British Museum are actually from Assyria, where they were also erected but as public monuments commemorating the King.</Text>
@@ -504,7 +504,7 @@
 			<Text>Build an [LINK=IMPROVEMENT_OBELISK]Obelisk[\LINK]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_OBELISK_HELP">
-			<Text>Does not remove the Antiquity Site. Obelisks owned by Egypt gain additional yields with each [ICON_GOLDEN_AGE] Golden Age.</Text>
+			<Text>Does not remove the Antiquity Site.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_OBELISK_REC">
 			<Text>It will increase [ICON_RESEARCH] Science, [ICON_CULTURE] Culture, [ICON_PEACE] Faith, and [ICON_GOLDEN_AGE] Golden Age Points.</Text>
