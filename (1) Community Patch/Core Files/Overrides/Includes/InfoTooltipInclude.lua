@@ -2551,7 +2551,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 	AddTooltipPositive(tGlobalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_INSTANT_SPY_RANK", kBuildingInfo.InstantSpyRankChange);
 
 	-- Instant pressure
-	AddTooltipPositive(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_INSTANT_PRESSURE", kBuildingInfo.InstantReligiousPressure);
+	AddTooltipPositive(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_INSTANT_PRESSURE", kBuildingInfo.InstantReligiousPressure / 10);
 
 	-- Nearby unique luxury
 	-- This assumes Traits.UniqueLuxuryCities is set to a large value if non-zero, so that it always spawns a resource
