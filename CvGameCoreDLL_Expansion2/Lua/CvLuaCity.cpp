@@ -1622,7 +1622,6 @@ int CvLuaCity::lGetBuildingYieldRateTimes100(lua_State* L)
 
 	iYieldTimes100 += kPlayer.GetBuildingClassYieldChange(eBuildingClass, eYield) * 100;
 	iYieldTimes100 += kPlayer.GetPlayerTraits()->GetBuildingClassYieldChange(eBuildingClass, eYield) * 100;
-	iYieldTimes100 += kPlayer.GetPlayerPolicies()->GetBuildingClassYieldChange(eBuildingClass, eYield) * 100;
 
 	iYieldTimes100 += pCity->getLocalBuildingClassYield(eBuildingClass, eYield) * 100;
 	iYieldTimes100 += pCity->GetBuildingYieldChangeFromCorporationFranchises(eBuildingClass, eYield) * 100;
