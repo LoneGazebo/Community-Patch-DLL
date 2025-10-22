@@ -27640,10 +27640,15 @@ bool CvCity::CanBuyPlot(int iPlotX, int iPlotY, bool bIgnoreCost) const
 	if (plotDistance(iPlotX, iPlotY, getX(), getY()) > iMaxRange)
 		return false;
 
+	// Some checks are inside the cost function
+	const int iCost = GetBuyPlotCost(pTargetPlot->getX(), pTargetPlot->getY());
+	if (iCost == INT_MAX)
+		return false;
+
 	// check money
 	if (!bIgnoreCost)
 	{
-		if (kOwner.GetTreasury()->GetGold() < GetBuyPlotCost(pTargetPlot->getX(), pTargetPlot->getY()))
+		if (kOwner.GetTreasury()->GetGold() < iCost)
 		{
 			return false;
 		}
@@ -28101,7 +28106,7 @@ int CvCity::GetBuyPlotCost(int iPlotX, int iPlotY) const
 	CvPlot* pPlot = GC.getMap().plot(iPlotX, iPlotY);
 	if (!pPlot)
 	{
-		return -1;
+		return INT_MAX;
 	}
 
 	// Base cost
@@ -28109,7 +28114,7 @@ int CvCity::GetBuyPlotCost(int iPlotX, int iPlotY) const
 
 	const int iMaxRange = getBuyPlotDistance();
 	if (plotDistance(iPlotX, iPlotY, getX(), getY()) > iMaxRange)
-		return 9999; // Critical hit!
+		return INT_MAX; // Critical hit!
 
 	int iPLOT_INFLUENCE_BASE = /*100*/ GD_INT_GET(PLOT_INFLUENCE_BASE_MULTIPLIER);
 	int iPLOT_INFLUENCE_DISTANCE_DIVISOR = /*3*/ GD_INT_GET(PLOT_INFLUENCE_DISTANCE_DIVISOR);
@@ -28118,7 +28123,7 @@ int CvCity::GetBuyPlotCost(int iPlotX, int iPlotY) const
 	// the path length can be larger than iMaxRange because there might not be a straight line of owned tiles from the city center to the plot
 	int iDistance = calculateInfluenceDistance(pPlot, GetNumWorkablePlots());
 	if (iDistance == -1)
-		return 9999; // failsafe
+		return INT_MAX; // failsafe
 
 	int iRefDistance = GetCheapestPlotInfluenceDistance();
 	if (iRefDistance == INT_MAX)
