@@ -4999,6 +4999,17 @@ void CvMinorCivAI::DoFirstContactWithMajor(PlayerTypes eMeetingPlayer, bool bSup
 
 				iUnitGift = iUnitGift * /*0*/ GD_INT_GET(MINOR_CIV_FIRST_CONTACT_HOSTILE_UNIT_MULTIPLIER) / 100;
 			}
+
+			// Reduce gifts if we're not the first team to meet the CS
+			if (!bFirstMajorCiv)
+			{
+				iFriendshipBoost = iFriendshipBoost * /*50*/ GD_INT_GET(MINOR_CIV_FIRST_CONTACT_SUBSEQUENT_TEAM_MULTIPLIER) / 100;
+				iCultureGift = iCultureGift * /*50*/ GD_INT_GET(MINOR_CIV_FIRST_CONTACT_SUBSEQUENT_TEAM_MULTIPLIER) / 100;
+				iFaithGift = iFaithGift * /*50*/ GD_INT_GET(MINOR_CIV_FIRST_CONTACT_SUBSEQUENT_TEAM_MULTIPLIER) / 100;
+				iGoldGift = iGoldGift * /*50*/ GD_INT_GET(MINOR_CIV_FIRST_CONTACT_SUBSEQUENT_TEAM_MULTIPLIER) / 100;
+				iFoodGift = iFoodGift * /*50*/ GD_INT_GET(MINOR_CIV_FIRST_CONTACT_SUBSEQUENT_TEAM_MULTIPLIER) / 100;
+				iUnitGift = 0;
+			}
 		}
 		else
 		{
