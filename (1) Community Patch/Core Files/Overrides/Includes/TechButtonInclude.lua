@@ -374,8 +374,10 @@ function AddSmallButtonsToTechButton(buttonStack, kTechInfo, iButtonCount, iText
 	end
 
 	for kProjectInfo in GameInfo.Projects{TechPrereq = kTechInfo.Type} do
-		GenerateNextButtonFromInfo(SetupProjectButton, kProjectInfo);
-		if iButtonIndex > iButtonCount then return iButtonCount end
+		if not kProjectInfo.CivilizationType or kProjectInfo.CivilizationType == strCivType then
+			GenerateNextButtonFromInfo(SetupProjectButton, kProjectInfo);
+			if iButtonIndex > iButtonCount then return iButtonCount end
+		end
 	end
 
 	for kBuildInfo in GameInfo.Builds{PrereqTech = kTechInfo.Type, ShowInTechTree = 1} do
@@ -427,7 +429,7 @@ function AddSmallButtonsToTechButton(buttonStack, kTechInfo, iButtonCount, iText
 				GenerateNextButtonCustom(strTooltip, "UNIT_ACTION_GOLD_ATLAS", 31);
 			elseif row.BuildType == "BUILD_REMOVE_MARSH" then
 				GenerateNextButtonCustom(strTooltip, "UNIT_ACTION_GOLD_ATLAS", 38);
-			else
+			elseif CanPlayerEverBuildImprovementCached(kBuildInfo.ImprovementType) then
 				GenerateNextButtonCustom(strTooltip, kBuildInfo.IconAtlas, kBuildInfo.IconIndex);
 			end
 			if iButtonIndex > iButtonCount then return iButtonCount end
