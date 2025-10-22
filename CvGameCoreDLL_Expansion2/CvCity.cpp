@@ -22000,16 +22000,17 @@ void CvCity::ChangeWeLoveTheKingDayCounter(int iChange, bool bUATrigger)
 {
 	VALIDATE_OBJECT();
 
+	bool bNewWLTKD = false;
+	if (m_iWeLoveTheKingDayCounter <= 0)
+		bNewWLTKD = true;
+
+	m_iWeLoveTheKingDayCounter += iChange;
+
 	if (iChange <= 0)
 		return;
 
 	GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_WLTKD_START, false, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, this);
 
-	bool bNewWLTKD = false;
-	if (m_iWeLoveTheKingDayCounter <= 0)
-		bNewWLTKD = true;
-
-	SetWeLoveTheKingDayCounter(GetWeLoveTheKingDayCounter() + iChange);
 	if (bNewWLTKD)
 	{
 		GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityBeginsWLTKD, getOwner(), getX(), getY(), iChange);
@@ -22018,14 +22019,13 @@ void CvCity::ChangeWeLoveTheKingDayCounter(int iChange, bool bUATrigger)
 	{
 		GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityExtendsWLTKD, getOwner(), getX(), getY(), iChange);
 	}
+
 	if (bUATrigger)
 	{
-		for (int iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
+		for (int iI = 0; iI < GC.getNUM_YIELD_TYPES(); iI++)
 		{
-			if (GET_PLAYER(getOwner()).GetPlayerTraits()->GetPermanentYieldChangeWLTKD((YieldTypes)iJ) > 0)
-			{
-				ChangeBaseYieldRatePermanentWLTKDTimes100((YieldTypes)iJ, GET_PLAYER(getOwner()).GetPlayerTraits()->GetPermanentYieldChangeWLTKD((YieldTypes)iJ) * 100);
-			}
+			YieldTypes eYield = static_cast<YieldTypes>(iI);
+			ChangeBaseYieldRatePermanentWLTKDTimes100(eYield, GET_PLAYER(getOwner()).GetPlayerTraits()->GetPermanentYieldChangeWLTKD(eYield) * 100);
 		}
 	}
 }
