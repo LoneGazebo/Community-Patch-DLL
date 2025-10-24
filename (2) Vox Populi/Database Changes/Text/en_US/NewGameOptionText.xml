@@ -1,32 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <GameData>
 	<Language_en_US>
-		<Row Tag="TXT_KEY_GAME_OPTION_NO_TECH_TRADING">
-			<Text>No Tech Trading</Text>
+		<Row Tag="TXT_KEY_GAME_OPTION_ENABLE_VASSALAGE">
+			<Text>Enable Vassalage</Text>
 		</Row>
-		<Row Tag="TXT_KEY_GAME_OPTION_NO_TECH_TRADING_HELP">
-			<Text>Disables technology trade between civilizations.</Text>
-		</Row>
-
-		<Row Tag="TXT_KEY_GAME_OPTION_RESEARCH_AGREEMENTS">
-			<Text>Enable Research Agreements</Text>
-		</Row>
-		<Row Tag="TXT_KEY_GAME_OPTION_RESEARCH_AGREEMENTS_HELP">
-			<Text>If enabled, you can sign Research Agreements with other civilizations.</Text>
-		</Row>
-
-		<Row Tag="TXT_KEY_GAME_OPTION_NO_TECH_BROKERING">
-			<Text>No Tech Brokering</Text>
-		</Row>
-		<Row Tag="TXT_KEY_GAME_OPTION_NO_TECH_BROKERING_HELP">
-			<Text>If enabled, you cannot sell technology to another civilization unless you have researched that technology yourself.</Text>
-		</Row>
-
-		<Row Tag="TXT_KEY_GAME_OPTION_NO_VASSALAGE">
-			<Text>No Vassalage</Text>
-		</Row>
-		<Row Tag="TXT_KEY_GAME_OPTION_NO_VASSALAGE_HELP">
-			<Text>Disables the Vassalage System. No vassals can be created.</Text>
+		<Row Tag="TXT_KEY_GAME_OPTION_ENABLE_VASSALAGE_HELP">
+			<Text>Enables the Vassalage System, allowing weaker civilizations to become the vassals of stronger civilizations.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_GAME_OPTION_PASSIVE_ESPIONAGE">

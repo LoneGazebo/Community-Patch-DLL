@@ -6900,7 +6900,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 
 			bFirstResource = false;
 
-			if (MOD_BALANCE_VP && GC.getGame().isOption(GAMEOPTION_NO_TECH_BROKERING))
+			if (GC.getGame().isOption(GAMEOPTION_NO_TECH_BROKERING))
 			{
 				SetTradeTech(eIndex, true);
 			}
@@ -7727,14 +7727,7 @@ void CvTeam::processTech(TechTypes eTech, int iChange, bool bNoBonus)
 	}
 	if(pTech->IsResearchAgreementTradingAllowed())
 	{
-		if (MOD_BALANCE_VP)
-		{
-			if (GC.getGame().isOption(GAMEOPTION_RESEARCH_AGREEMENTS))
-			{
-				ChangeResearchAgreementTradingAllowedCount(iChange);
-			}
-		}
-		else
+		if (!GC.getGame().isOption(GAMEOPTION_DISABLE_RESEARCH_AGREEMENTS))
 		{
 			ChangeResearchAgreementTradingAllowedCount(iChange);
 		}
@@ -8686,7 +8679,7 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 				}
 			}
 
-			if (pEraInfo->getVassalageEnabled() && !GC.getGame().isOption(GAMEOPTION_NO_VASSALAGE))
+			if (pEraInfo->getVassalageEnabled() && MOD_BALANCE_VP && GC.getGame().isOption(GAMEOPTION_ENABLE_VASSALAGE))
 			{
 				changeVassalageTradingAllowedCount(1);
 
@@ -9691,7 +9684,7 @@ bool CvTeam::canBecomeVassal(TeamTypes eTeam, bool bIgnoreAlreadyVassal) const
 	}
 
 	// Vassalage is disabled...
-	if(GC.getGame().isOption(GAMEOPTION_NO_VASSALAGE))
+	if(!MOD_BALANCE_VP || !GC.getGame().isOption(GAMEOPTION_ENABLE_VASSALAGE))
 	{
 		return false;
 	}
@@ -9776,7 +9769,7 @@ bool CvTeam::CanLiberateVassal(TeamTypes eTeam) const
 		return false;
 
 	// Vassalage is disabled...
-	if(GC.getGame().isOption(GAMEOPTION_NO_VASSALAGE))
+	if(!MOD_BALANCE_VP || !GC.getGame().isOption(GAMEOPTION_ENABLE_VASSALAGE))
 		return false;
 
 	// Must be a vassal of ours
@@ -10147,7 +10140,7 @@ void CvTeam::ChangeNumTurnsSinceVassalEnded(TeamTypes eTeam, int iChange)
 // Can we tax ePlayer right now?
 bool CvTeam::CanSetVassalTax(PlayerTypes ePlayer) const
 {
-	if (GC.getGame().isOption(GAMEOPTION_NO_VASSALAGE))
+	if (!MOD_BALANCE_VP || !GC.getGame().isOption(GAMEOPTION_ENABLE_VASSALAGE))
 		return false;
 
 	if (!isAlive() || !GET_PLAYER(ePlayer).isAlive() || !GET_PLAYER(ePlayer).isMajorCiv())
