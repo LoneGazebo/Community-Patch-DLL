@@ -15335,6 +15335,16 @@ void CvDiplomacyAI::SelectApproachTowardsVassal(PlayerTypes ePlayer)
 	}
 }
 
+int ApplyPercentageModifier(int iValue, int iModifier, bool bDecrease = false)
+{
+	PRECONDITION(!bDecrease || iModifier != 0);
+
+	long long lValue = static_cast<long long>(iValue);
+	return bDecrease
+		? static_cast<int>((lValue * 100) / iModifier)
+		: static_cast<int>((lValue * iModifier) / 100);
+}
+
 /// What is the best Diplomatic Approach to take towards this major civilization?
 /// This is the most important calculation in determining AI diplomatic behavior!
 void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool bStrategic, vector<PlayerTypes>& vValidPlayers, vector<PlayerTypes>& vPlayersToReevaluate, std::map<PlayerTypes, CivApproachTypes>& oldApproaches)
@@ -20492,14 +20502,10 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	if (GET_PLAYER(ePlayer).GetNumVassals() > 1)
 	{
 		// Increase bad approach scores for each vassal they own, provided they have more than one
-		vApproachScores[CIV_APPROACH_WAR] *= 100 + (GET_PLAYER(ePlayer).GetNumVassals() * /*20*/ GD_INT_GET(APPROACH_WAR_TOO_MANY_VASSALS));	// 2 vassals = 140%, 3 vassals = 160%
-		vApproachScores[CIV_APPROACH_WAR] /= 100;
-		vApproachScores[CIV_APPROACH_HOSTILE] *= 100 + (GET_PLAYER(ePlayer).GetNumVassals() * /*20*/ GD_INT_GET(APPROACH_WAR_TOO_MANY_VASSALS));
-		vApproachScores[CIV_APPROACH_HOSTILE] /= 100;
-		vApproachScores[CIV_APPROACH_GUARDED] *= 100 + (GET_PLAYER(ePlayer).GetNumVassals() * /*20*/ GD_INT_GET(APPROACH_GUARDED_TOO_MANY_VASSALS));
-		vApproachScores[CIV_APPROACH_GUARDED] /= 100;
-		vApproachScores[CIV_APPROACH_AFRAID] *= 100 + (GET_PLAYER(ePlayer).GetNumVassals() * /*20*/ GD_INT_GET(APPROACH_GUARDED_TOO_MANY_VASSALS));
-		vApproachScores[CIV_APPROACH_AFRAID] /= 100;
+		vApproachScores[CIV_APPROACH_WAR] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_WAR], 100 + GET_PLAYER(ePlayer).GetNumVassals() * /*20*/ GD_INT_GET(APPROACH_WAR_TOO_MANY_VASSALS));	// 2 vassals = 140%, 3 vassals = 160%
+		vApproachScores[CIV_APPROACH_HOSTILE] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_HOSTILE], 100 + GET_PLAYER(ePlayer).GetNumVassals() * /*20*/ GD_INT_GET(APPROACH_WAR_TOO_MANY_VASSALS));
+		vApproachScores[CIV_APPROACH_GUARDED] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_GUARDED], 100 + GET_PLAYER(ePlayer).GetNumVassals() * /*20*/ GD_INT_GET(APPROACH_GUARDED_TOO_MANY_VASSALS));
+		vApproachScores[CIV_APPROACH_AFRAID] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_AFRAID], 100 + GET_PLAYER(ePlayer).GetNumVassals() * /*20*/ GD_INT_GET(APPROACH_GUARDED_TOO_MANY_VASSALS));
 	}
 
 	////////////////////////////////////
@@ -20512,37 +20518,34 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	switch (GetTargetValue(ePlayer))
 	{
 	case TARGET_VALUE_IMPOSSIBLE:
-		vApproachScores[CIV_APPROACH_WAR] *= bWantsConquest ? /*50*/ GD_INT_GET(CONQUEST_WAR_MULTIPLIER_TARGET_IMPOSSIBLE) : /*25*/ GD_INT_GET(MAJOR_WAR_MULTIPLIER_TARGET_IMPOSSIBLE);
-		vApproachScores[CIV_APPROACH_HOSTILE] *= bWantsConquest ? /*50*/ GD_INT_GET(CONQUEST_WAR_MULTIPLIER_TARGET_IMPOSSIBLE) : /*25*/ GD_INT_GET(MAJOR_WAR_MULTIPLIER_TARGET_IMPOSSIBLE);
+		vApproachScores[CIV_APPROACH_WAR] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_WAR], bWantsConquest ? /*50*/ GD_INT_GET(CONQUEST_WAR_MULTIPLIER_TARGET_IMPOSSIBLE) : /*25*/ GD_INT_GET(MAJOR_WAR_MULTIPLIER_TARGET_IMPOSSIBLE));
+		vApproachScores[CIV_APPROACH_HOSTILE] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_HOSTILE], bWantsConquest ? /*50*/ GD_INT_GET(CONQUEST_WAR_MULTIPLIER_TARGET_IMPOSSIBLE) : /*25*/ GD_INT_GET(MAJOR_WAR_MULTIPLIER_TARGET_IMPOSSIBLE));
 		break;
 	case TARGET_VALUE_BAD:
-		vApproachScores[CIV_APPROACH_WAR] *= bWantsConquest ? /*75*/ GD_INT_GET(CONQUEST_WAR_MULTIPLIER_TARGET_BAD) : /*50*/ GD_INT_GET(MAJOR_WAR_MULTIPLIER_TARGET_BAD);
-		vApproachScores[CIV_APPROACH_HOSTILE] *= bWantsConquest ? /*75*/ GD_INT_GET(CONQUEST_WAR_MULTIPLIER_TARGET_BAD) : /*50*/ GD_INT_GET(MAJOR_WAR_MULTIPLIER_TARGET_BAD);
+		vApproachScores[CIV_APPROACH_WAR] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_WAR], bWantsConquest ? /*75*/ GD_INT_GET(CONQUEST_WAR_MULTIPLIER_TARGET_BAD) : /*50*/ GD_INT_GET(MAJOR_WAR_MULTIPLIER_TARGET_BAD));
+		vApproachScores[CIV_APPROACH_HOSTILE] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_HOSTILE], bWantsConquest ? /*75*/ GD_INT_GET(CONQUEST_WAR_MULTIPLIER_TARGET_BAD) : /*50*/ GD_INT_GET(MAJOR_WAR_MULTIPLIER_TARGET_BAD));
 		break;
 	case TARGET_VALUE_DIFFICULT:
-		vApproachScores[CIV_APPROACH_WAR] *= bWantsConquest ? /*100*/ GD_INT_GET(CONQUEST_WAR_MULTIPLIER_TARGET_DIFFICULT) : /*75*/ GD_INT_GET(MAJOR_WAR_MULTIPLIER_TARGET_DIFFICULT);
-		vApproachScores[CIV_APPROACH_HOSTILE] *= bWantsConquest ? /*100*/ GD_INT_GET(CONQUEST_WAR_MULTIPLIER_TARGET_DIFFICULT) : /*75*/ GD_INT_GET(MAJOR_WAR_MULTIPLIER_TARGET_DIFFICULT);
+		vApproachScores[CIV_APPROACH_WAR] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_WAR], bWantsConquest ? /*100*/ GD_INT_GET(CONQUEST_WAR_MULTIPLIER_TARGET_DIFFICULT) : /*75*/ GD_INT_GET(MAJOR_WAR_MULTIPLIER_TARGET_DIFFICULT));
+		vApproachScores[CIV_APPROACH_HOSTILE] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_HOSTILE], bWantsConquest ? /*100*/ GD_INT_GET(CONQUEST_WAR_MULTIPLIER_TARGET_DIFFICULT) : /*75*/ GD_INT_GET(MAJOR_WAR_MULTIPLIER_TARGET_DIFFICULT));
 		break;
 	case TARGET_VALUE_AVERAGE:
-		vApproachScores[CIV_APPROACH_WAR] *= bWantsConquest ? /*125*/ GD_INT_GET(CONQUEST_WAR_MULTIPLIER_TARGET_AVERAGE) : /*100*/ GD_INT_GET(MAJOR_WAR_MULTIPLIER_TARGET_AVERAGE);
-		vApproachScores[CIV_APPROACH_HOSTILE] *= bWantsConquest ? /*125*/ GD_INT_GET(CONQUEST_WAR_MULTIPLIER_TARGET_AVERAGE) : /*100*/ GD_INT_GET(MAJOR_WAR_MULTIPLIER_TARGET_AVERAGE);
+		vApproachScores[CIV_APPROACH_WAR] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_WAR], bWantsConquest ? /*125*/ GD_INT_GET(CONQUEST_WAR_MULTIPLIER_TARGET_AVERAGE) : /*100*/ GD_INT_GET(MAJOR_WAR_MULTIPLIER_TARGET_AVERAGE));
+		vApproachScores[CIV_APPROACH_HOSTILE] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_HOSTILE], bWantsConquest ? /*125*/ GD_INT_GET(CONQUEST_WAR_MULTIPLIER_TARGET_AVERAGE) : /*100*/ GD_INT_GET(MAJOR_WAR_MULTIPLIER_TARGET_AVERAGE));
 		break;
 	case TARGET_VALUE_FAVORABLE:
-		vApproachScores[CIV_APPROACH_WAR] *= bWantsConquest ? /*150*/ GD_INT_GET(CONQUEST_WAR_MULTIPLIER_TARGET_FAVORABLE) : /*125*/ GD_INT_GET(MAJOR_WAR_MULTIPLIER_TARGET_FAVORABLE);
-		vApproachScores[CIV_APPROACH_HOSTILE] *= bWantsConquest ? /*150*/ GD_INT_GET(CONQUEST_WAR_MULTIPLIER_TARGET_FAVORABLE) : /*125*/ GD_INT_GET(MAJOR_WAR_MULTIPLIER_TARGET_FAVORABLE);
+		vApproachScores[CIV_APPROACH_WAR] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_WAR], bWantsConquest ? /*150*/ GD_INT_GET(CONQUEST_WAR_MULTIPLIER_TARGET_FAVORABLE) : /*125*/ GD_INT_GET(MAJOR_WAR_MULTIPLIER_TARGET_FAVORABLE));
+		vApproachScores[CIV_APPROACH_HOSTILE] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_HOSTILE], bWantsConquest ? /*150*/ GD_INT_GET(CONQUEST_WAR_MULTIPLIER_TARGET_FAVORABLE) : /*125*/ GD_INT_GET(MAJOR_WAR_MULTIPLIER_TARGET_FAVORABLE));
 		break;
 	case TARGET_VALUE_SOFT:
-		vApproachScores[CIV_APPROACH_WAR] *= bWantsConquest ? /*200*/ GD_INT_GET(CONQUEST_WAR_MULTIPLIER_TARGET_SOFT) : /*150*/ GD_INT_GET(MAJOR_WAR_MULTIPLIER_TARGET_SOFT);
-		vApproachScores[CIV_APPROACH_HOSTILE] *= bWantsConquest ? /*200*/ GD_INT_GET(CONQUEST_WAR_MULTIPLIER_TARGET_SOFT) : /*150*/ GD_INT_GET(MAJOR_WAR_MULTIPLIER_TARGET_SOFT);
+		vApproachScores[CIV_APPROACH_WAR] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_WAR], bWantsConquest ? /*200*/ GD_INT_GET(CONQUEST_WAR_MULTIPLIER_TARGET_SOFT) : /*150*/ GD_INT_GET(MAJOR_WAR_MULTIPLIER_TARGET_SOFT));
+		vApproachScores[CIV_APPROACH_HOSTILE] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_HOSTILE], bWantsConquest ? /*200*/ GD_INT_GET(CONQUEST_WAR_MULTIPLIER_TARGET_SOFT) : /*150*/ GD_INT_GET(MAJOR_WAR_MULTIPLIER_TARGET_SOFT));
 		break;
 	case TARGET_VALUE_CAKEWALK:
-		vApproachScores[CIV_APPROACH_WAR] *= bWantsConquest ? /*250*/ GD_INT_GET(CONQUEST_WAR_MULTIPLIER_TARGET_CAKEWALK) : /*200*/ GD_INT_GET(MAJOR_WAR_MULTIPLIER_TARGET_CAKEWALK);
-		vApproachScores[CIV_APPROACH_HOSTILE] *= bWantsConquest ? /*250*/ GD_INT_GET(CONQUEST_WAR_MULTIPLIER_TARGET_CAKEWALK) : /*200*/ GD_INT_GET(MAJOR_WAR_MULTIPLIER_TARGET_CAKEWALK);
+		vApproachScores[CIV_APPROACH_WAR] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_WAR], bWantsConquest ? /*250*/ GD_INT_GET(CONQUEST_WAR_MULTIPLIER_TARGET_CAKEWALK) : /*200*/ GD_INT_GET(MAJOR_WAR_MULTIPLIER_TARGET_CAKEWALK));
+		vApproachScores[CIV_APPROACH_HOSTILE] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_HOSTILE], bWantsConquest ? /*250*/ GD_INT_GET(CONQUEST_WAR_MULTIPLIER_TARGET_CAKEWALK) : /*200*/ GD_INT_GET(MAJOR_WAR_MULTIPLIER_TARGET_CAKEWALK));
 		break;
 	}
-
-	vApproachScores[CIV_APPROACH_WAR] /= 100;
-	vApproachScores[CIV_APPROACH_HOSTILE] /= 100;
 
 	////////////////////////////////////
 	// PROXIMITY MULTIPLIER - the farther away a player is the less likely we are to care about them!
@@ -20553,37 +20556,37 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		switch (eClosestProximity)
 		{
 		case PLAYER_PROXIMITY_NEIGHBORS:
-			vApproachScores[CIV_APPROACH_WAR] *= (bWantsConquest && eOurProximity == PLAYER_PROXIMITY_NEIGHBORS) ? /*200*/ GD_INT_GET(APPROACH_WAR_PROXIMITY_NEIGHBORS) : /*150*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_NEIGHBORS);
-			vApproachScores[CIV_APPROACH_HOSTILE] *= (bWantsConquest && eOurProximity == PLAYER_PROXIMITY_NEIGHBORS) ? /*200*/ GD_INT_GET(APPROACH_WAR_PROXIMITY_NEIGHBORS) : /*150*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_NEIGHBORS);
-			vApproachScores[CIV_APPROACH_AFRAID] *= /*150*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_NEIGHBORS);
-			vApproachScores[CIV_APPROACH_FRIENDLY] *= /*150*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_NEIGHBORS);
-			vApproachScores[CIV_APPROACH_DECEPTIVE] *= /*150*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_NEIGHBORS);
-			vApproachScores[CIV_APPROACH_GUARDED] *= /*150*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_NEIGHBORS);
+			vApproachScores[CIV_APPROACH_WAR] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_WAR], (bWantsConquest && eOurProximity == PLAYER_PROXIMITY_NEIGHBORS) ? /*200*/ GD_INT_GET(APPROACH_WAR_PROXIMITY_NEIGHBORS) : /*150*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_NEIGHBORS));
+			vApproachScores[CIV_APPROACH_HOSTILE] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_HOSTILE], (bWantsConquest && eOurProximity == PLAYER_PROXIMITY_NEIGHBORS) ? /*200*/ GD_INT_GET(APPROACH_WAR_PROXIMITY_NEIGHBORS) : /*150*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_NEIGHBORS));
+			vApproachScores[CIV_APPROACH_AFRAID] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_AFRAID], /*150*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_NEIGHBORS));
+			vApproachScores[CIV_APPROACH_FRIENDLY] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_FRIENDLY], /*150*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_NEIGHBORS));
+			vApproachScores[CIV_APPROACH_DECEPTIVE] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_DECEPTIVE], /*150*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_NEIGHBORS));
+			vApproachScores[CIV_APPROACH_GUARDED] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_GUARDED], /*150*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_NEIGHBORS));
 			break;
 		case PLAYER_PROXIMITY_CLOSE:
-			vApproachScores[CIV_APPROACH_WAR] *= (bWantsConquest && eOurProximity == PLAYER_PROXIMITY_CLOSE) ? /*150*/ GD_INT_GET(APPROACH_WAR_PROXIMITY_CLOSE) : /*125*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_CLOSE);
-			vApproachScores[CIV_APPROACH_HOSTILE] *= (bWantsConquest && eOurProximity == PLAYER_PROXIMITY_CLOSE) ? /*150*/ GD_INT_GET(APPROACH_WAR_PROXIMITY_CLOSE) : /*125*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_CLOSE);
-			vApproachScores[CIV_APPROACH_AFRAID] *= /*125*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_CLOSE);
-			vApproachScores[CIV_APPROACH_FRIENDLY] *= /*125*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_CLOSE);
-			vApproachScores[CIV_APPROACH_DECEPTIVE] *= /*125*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_CLOSE);
-			vApproachScores[CIV_APPROACH_GUARDED] *= /*125*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_CLOSE);
+			vApproachScores[CIV_APPROACH_WAR] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_WAR], (bWantsConquest && eOurProximity == PLAYER_PROXIMITY_CLOSE) ? /*150*/ GD_INT_GET(APPROACH_WAR_PROXIMITY_CLOSE) : /*125*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_CLOSE));
+			vApproachScores[CIV_APPROACH_HOSTILE] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_HOSTILE], (bWantsConquest && eOurProximity == PLAYER_PROXIMITY_CLOSE) ? /*150*/ GD_INT_GET(APPROACH_WAR_PROXIMITY_CLOSE) : /*125*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_CLOSE));
+			vApproachScores[CIV_APPROACH_AFRAID] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_AFRAID], /*125*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_CLOSE));
+			vApproachScores[CIV_APPROACH_FRIENDLY] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_FRIENDLY], /*125*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_CLOSE));
+			vApproachScores[CIV_APPROACH_DECEPTIVE] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_DECEPTIVE], /*125*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_CLOSE));
+			vApproachScores[CIV_APPROACH_GUARDED] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_GUARDED], /*125*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_CLOSE));
 			break;
 		case PLAYER_PROXIMITY_FAR:
-			vApproachScores[CIV_APPROACH_WAR] *= (bWantsConquest && eOurProximity == PLAYER_PROXIMITY_FAR) ? /*100*/ GD_INT_GET(APPROACH_WAR_PROXIMITY_FAR) : /*75*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_FAR);
-			vApproachScores[CIV_APPROACH_HOSTILE] *= (bWantsConquest && eOurProximity == PLAYER_PROXIMITY_FAR) ? /*100*/ GD_INT_GET(APPROACH_WAR_PROXIMITY_FAR) : /*75*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_FAR);
-			vApproachScores[CIV_APPROACH_FRIENDLY] *= /*75*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_FAR);
-			vApproachScores[CIV_APPROACH_AFRAID] *= /*75*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_FAR);
-			vApproachScores[CIV_APPROACH_GUARDED] *= /*75*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_FAR);
-			vApproachScores[CIV_APPROACH_DECEPTIVE] *= /*75*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_FAR);
+			vApproachScores[CIV_APPROACH_WAR] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_WAR], (bWantsConquest && eOurProximity == PLAYER_PROXIMITY_FAR) ? /*100*/ GD_INT_GET(APPROACH_WAR_PROXIMITY_FAR) : /*75*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_FAR));
+			vApproachScores[CIV_APPROACH_HOSTILE] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_HOSTILE], (bWantsConquest && eOurProximity == PLAYER_PROXIMITY_FAR) ? /*100*/ GD_INT_GET(APPROACH_WAR_PROXIMITY_FAR) : /*75*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_FAR));
+			vApproachScores[CIV_APPROACH_FRIENDLY] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_FRIENDLY], /*75*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_FAR));
+			vApproachScores[CIV_APPROACH_AFRAID] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_AFRAID], /*75*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_FAR));
+			vApproachScores[CIV_APPROACH_GUARDED] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_GUARDED], /*75*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_FAR));
+			vApproachScores[CIV_APPROACH_DECEPTIVE] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_DECEPTIVE], /*75*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_FAR));
 			break;
 		case NO_PLAYER_PROXIMITY:
 		case PLAYER_PROXIMITY_DISTANT:
-			vApproachScores[CIV_APPROACH_WAR] *= bWantsConquest ? /*75*/ GD_INT_GET(APPROACH_WAR_PROXIMITY_DISTANT) : /*50*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_DISTANT);
-			vApproachScores[CIV_APPROACH_HOSTILE] *= bWantsConquest ? /*75*/ GD_INT_GET(APPROACH_WAR_PROXIMITY_DISTANT) : /*50*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_DISTANT);
-			vApproachScores[CIV_APPROACH_FRIENDLY] *= /*50*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_DISTANT);
-			vApproachScores[CIV_APPROACH_AFRAID] *= /*50*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_DISTANT);
-			vApproachScores[CIV_APPROACH_GUARDED] *= /*50*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_DISTANT);
-			vApproachScores[CIV_APPROACH_DECEPTIVE] *= /*50*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_DISTANT);
+			vApproachScores[CIV_APPROACH_WAR] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_WAR], bWantsConquest ? /*75*/ GD_INT_GET(APPROACH_WAR_PROXIMITY_DISTANT) : /*50*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_DISTANT));
+			vApproachScores[CIV_APPROACH_HOSTILE] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_HOSTILE], bWantsConquest ? /*75*/ GD_INT_GET(APPROACH_WAR_PROXIMITY_DISTANT) : /*50*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_DISTANT));
+			vApproachScores[CIV_APPROACH_FRIENDLY] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_FRIENDLY], /*50*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_DISTANT));
+			vApproachScores[CIV_APPROACH_AFRAID] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_AFRAID], /*50*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_DISTANT));
+			vApproachScores[CIV_APPROACH_GUARDED] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_GUARDED], /*50*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_DISTANT));
+			vApproachScores[CIV_APPROACH_DECEPTIVE] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_DECEPTIVE], /*50*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_DISTANT));
 			break;
 		}
 	}
@@ -20592,33 +20595,33 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		switch (eClosestProximity)
 		{
 		case PLAYER_PROXIMITY_NEIGHBORS:
-			vApproachScores[CIV_APPROACH_WAR] *= (bWantsConquest && eOurProximity == PLAYER_PROXIMITY_NEIGHBORS) ? /*200*/ GD_INT_GET(APPROACH_WAR_PROXIMITY_NEIGHBORS) : /*150*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_NEIGHBORS);
-			vApproachScores[CIV_APPROACH_HOSTILE] *= (bWantsConquest && eOurProximity == PLAYER_PROXIMITY_NEIGHBORS) ? /*200*/ GD_INT_GET(APPROACH_WAR_PROXIMITY_NEIGHBORS) : /*150*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_NEIGHBORS);
-			vApproachScores[CIV_APPROACH_AFRAID] *= /*150*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_NEIGHBORS);
-			vApproachScores[CIV_APPROACH_FRIENDLY] *= /*150*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_NEIGHBORS);
-			vApproachScores[CIV_APPROACH_DECEPTIVE] *= /*150*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_NEIGHBORS);
-			vApproachScores[CIV_APPROACH_GUARDED] *= /*150*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_NEIGHBORS);
+			vApproachScores[CIV_APPROACH_WAR] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_WAR], (bWantsConquest && eOurProximity == PLAYER_PROXIMITY_NEIGHBORS) ? /*200*/ GD_INT_GET(APPROACH_WAR_PROXIMITY_NEIGHBORS) : /*150*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_NEIGHBORS));
+			vApproachScores[CIV_APPROACH_HOSTILE] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_HOSTILE], (bWantsConquest && eOurProximity == PLAYER_PROXIMITY_NEIGHBORS) ? /*200*/ GD_INT_GET(APPROACH_WAR_PROXIMITY_NEIGHBORS) : /*150*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_NEIGHBORS));
+			vApproachScores[CIV_APPROACH_AFRAID] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_AFRAID], /*150*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_NEIGHBORS));
+			vApproachScores[CIV_APPROACH_FRIENDLY] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_FRIENDLY], /*150*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_NEIGHBORS));
+			vApproachScores[CIV_APPROACH_DECEPTIVE] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_DECEPTIVE], /*150*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_NEIGHBORS));
+			vApproachScores[CIV_APPROACH_GUARDED] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_GUARDED], /*150*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_NEIGHBORS));
 			break;
 		case PLAYER_PROXIMITY_CLOSE:
-			vApproachScores[CIV_APPROACH_WAR] *= (bWantsConquest && eOurProximity == PLAYER_PROXIMITY_CLOSE) ? /*150*/ GD_INT_GET(APPROACH_WAR_PROXIMITY_CLOSE) : /*125*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_CLOSE);
-			vApproachScores[CIV_APPROACH_HOSTILE] *= (bWantsConquest && eOurProximity == PLAYER_PROXIMITY_CLOSE) ? /*150*/ GD_INT_GET(APPROACH_WAR_PROXIMITY_CLOSE) : /*125*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_CLOSE);
-			vApproachScores[CIV_APPROACH_AFRAID] *= /*125*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_CLOSE);
-			vApproachScores[CIV_APPROACH_FRIENDLY] *= /*125*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_CLOSE);
-			vApproachScores[CIV_APPROACH_DECEPTIVE] *= /*125*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_CLOSE);
-			vApproachScores[CIV_APPROACH_GUARDED] *= /*125*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_CLOSE);
+			vApproachScores[CIV_APPROACH_WAR] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_WAR], (bWantsConquest && eOurProximity == PLAYER_PROXIMITY_CLOSE) ? /*150*/ GD_INT_GET(APPROACH_WAR_PROXIMITY_CLOSE) : /*125*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_CLOSE));
+			vApproachScores[CIV_APPROACH_HOSTILE] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_HOSTILE], (bWantsConquest && eOurProximity == PLAYER_PROXIMITY_CLOSE) ? /*150*/ GD_INT_GET(APPROACH_WAR_PROXIMITY_CLOSE) : /*125*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_CLOSE));
+			vApproachScores[CIV_APPROACH_AFRAID] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_AFRAID], /*125*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_CLOSE));
+			vApproachScores[CIV_APPROACH_FRIENDLY] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_FRIENDLY], /*125*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_CLOSE));
+			vApproachScores[CIV_APPROACH_DECEPTIVE] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_DECEPTIVE], /*125*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_CLOSE));
+			vApproachScores[CIV_APPROACH_GUARDED] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_GUARDED], /*125*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_CLOSE));
 			break;
 		case PLAYER_PROXIMITY_FAR:
-			vApproachScores[CIV_APPROACH_FRIENDLY] *= /*75*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_FAR);
-			vApproachScores[CIV_APPROACH_AFRAID] *= /*75*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_FAR);
-			vApproachScores[CIV_APPROACH_GUARDED] *= /*75*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_FAR);
-			vApproachScores[CIV_APPROACH_DECEPTIVE] *= /*75*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_FAR);
+			vApproachScores[CIV_APPROACH_FRIENDLY] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_FRIENDLY], /*75*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_FAR));
+			vApproachScores[CIV_APPROACH_AFRAID] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_AFRAID], /*75*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_FAR));
+			vApproachScores[CIV_APPROACH_GUARDED] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_GUARDED], /*75*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_FAR));
+			vApproachScores[CIV_APPROACH_DECEPTIVE] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_DECEPTIVE], /*75*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_FAR));
 			break;
 		case NO_PLAYER_PROXIMITY:
 		case PLAYER_PROXIMITY_DISTANT:
-			vApproachScores[CIV_APPROACH_FRIENDLY] *= /*50*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_DISTANT);
-			vApproachScores[CIV_APPROACH_AFRAID] *= /*50*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_DISTANT);
-			vApproachScores[CIV_APPROACH_GUARDED] *= /*50*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_DISTANT);
-			vApproachScores[CIV_APPROACH_DECEPTIVE] *= /*50*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_DISTANT);
+			vApproachScores[CIV_APPROACH_FRIENDLY] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_FRIENDLY], /*50*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_DISTANT));
+			vApproachScores[CIV_APPROACH_AFRAID] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_AFRAID], /*50*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_DISTANT));
+			vApproachScores[CIV_APPROACH_GUARDED] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_GUARDED], /*50*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_DISTANT));
+			vApproachScores[CIV_APPROACH_DECEPTIVE] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_DECEPTIVE], /*50*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_DISTANT));
 			break;
 		}
 
@@ -20628,13 +20631,6 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			vApproachScores[CIV_APPROACH_HOSTILE] = 0;
 		}
 	}
-
-	vApproachScores[CIV_APPROACH_WAR] /= 100;
-	vApproachScores[CIV_APPROACH_HOSTILE] /= 100;
-	vApproachScores[CIV_APPROACH_FRIENDLY] /= 100;
-	vApproachScores[CIV_APPROACH_AFRAID] /= 100;
-	vApproachScores[CIV_APPROACH_GUARDED] /= 100;
-	vApproachScores[CIV_APPROACH_DECEPTIVE] /= 100;
 
 	////////////////////////////////////
 	// DOMINATION VICTORY DISABLED
@@ -20739,8 +20735,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			int iMod = 0;
 			if (GAMEEVENTINVOKE_VALUE(iMod, GAMEEVENT_AiPercentApproachMod, GetID(), iApproachLoop) == GAMEEVENTRETURN_VALUE) 
 			{
-				vApproachScores[iApproachLoop] *= max(0, (100 + iMod));
-				vApproachScores[iApproachLoop] /= 100;
+				vApproachScores[iApproachLoop] = ApplyPercentageModifier(vApproachScores[iApproachLoop], max(0, 100 + iMod));
 			}
 		}
 	}
@@ -20752,49 +20747,23 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// Now add the percentage weight.
 	if (GET_PLAYER(ePlayer).isHuman(ISHUMAN_HANDICAP))
 	{
-		vApproachScores[CIV_APPROACH_NEUTRAL] *= max(0, 100 + GET_PLAYER(ePlayer).getHandicapInfo().getHumanNeutralApproachChangePercent());
-		vApproachScores[CIV_APPROACH_NEUTRAL] /= 100;
-
-		vApproachScores[CIV_APPROACH_FRIENDLY] *= max(0, 100 + GET_PLAYER(ePlayer).getHandicapInfo().getHumanFriendlyApproachChangePercent());
-		vApproachScores[CIV_APPROACH_FRIENDLY] /= 100;
-
-		vApproachScores[CIV_APPROACH_AFRAID] *= max(0, 100 + GET_PLAYER(ePlayer).getHandicapInfo().getHumanAfraidApproachChangePercent());
-		vApproachScores[CIV_APPROACH_AFRAID] /= 100;
-
-		vApproachScores[CIV_APPROACH_GUARDED] *= max(0, 100 + GET_PLAYER(ePlayer).getHandicapInfo().getHumanGuardedApproachChangePercent());
-		vApproachScores[CIV_APPROACH_GUARDED] /= 100;
-
-		vApproachScores[CIV_APPROACH_DECEPTIVE] *= max(0, 100 + GET_PLAYER(ePlayer).getHandicapInfo().getHumanDeceptiveApproachChangePercent());
-		vApproachScores[CIV_APPROACH_DECEPTIVE] /= 100;
-
-		vApproachScores[CIV_APPROACH_HOSTILE] *= max(0, 100 + GET_PLAYER(ePlayer).getHandicapInfo().getHumanHostileApproachChangePercent());
-		vApproachScores[CIV_APPROACH_HOSTILE] /= 100;
-
-		vApproachScores[CIV_APPROACH_WAR] *= max(0, 100 + GET_PLAYER(ePlayer).getHandicapInfo().getHumanWarApproachChangePercent());
-		vApproachScores[CIV_APPROACH_WAR] /= 100;
+		vApproachScores[CIV_APPROACH_NEUTRAL] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_NEUTRAL], max(0, 100 + GET_PLAYER(ePlayer).getHandicapInfo().getHumanNeutralApproachChangePercent()));
+		vApproachScores[CIV_APPROACH_FRIENDLY] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_FRIENDLY], max(0, 100 + GET_PLAYER(ePlayer).getHandicapInfo().getHumanFriendlyApproachChangePercent()));
+		vApproachScores[CIV_APPROACH_AFRAID] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_AFRAID], max(0, 100 + GET_PLAYER(ePlayer).getHandicapInfo().getHumanAfraidApproachChangePercent()));
+		vApproachScores[CIV_APPROACH_GUARDED] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_GUARDED], max(0, 100 + GET_PLAYER(ePlayer).getHandicapInfo().getHumanGuardedApproachChangePercent()));
+		vApproachScores[CIV_APPROACH_DECEPTIVE] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_DECEPTIVE], max(0, 100 + GET_PLAYER(ePlayer).getHandicapInfo().getHumanDeceptiveApproachChangePercent()));
+		vApproachScores[CIV_APPROACH_HOSTILE] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_HOSTILE], max(0, 100 + GET_PLAYER(ePlayer).getHandicapInfo().getHumanHostileApproachChangePercent()));
+		vApproachScores[CIV_APPROACH_WAR] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_WAR], max(0, 100 + GET_PLAYER(ePlayer).getHandicapInfo().getHumanWarApproachChangePercent()));
 	}
 	else
 	{
-		vApproachScores[CIV_APPROACH_NEUTRAL] *= max(0, 100 + GC.getGame().getHandicapInfo().getAINeutralApproachChangePercent());
-		vApproachScores[CIV_APPROACH_NEUTRAL] /= 100;
-
-		vApproachScores[CIV_APPROACH_FRIENDLY] *= max(0, 100 + GC.getGame().getHandicapInfo().getAIFriendlyApproachChangePercent());
-		vApproachScores[CIV_APPROACH_FRIENDLY] /= 100;
-
-		vApproachScores[CIV_APPROACH_AFRAID] *= max(0, 100 + GC.getGame().getHandicapInfo().getAIAfraidApproachChangePercent());
-		vApproachScores[CIV_APPROACH_AFRAID] /= 100;
-
-		vApproachScores[CIV_APPROACH_GUARDED] *= max(0, 100 + GC.getGame().getHandicapInfo().getAIGuardedApproachChangePercent());
-		vApproachScores[CIV_APPROACH_GUARDED] /= 100;
-
-		vApproachScores[CIV_APPROACH_DECEPTIVE] *= max(0, 100 + GC.getGame().getHandicapInfo().getAIDeceptiveApproachChangePercent());
-		vApproachScores[CIV_APPROACH_DECEPTIVE] /= 100;
-
-		vApproachScores[CIV_APPROACH_HOSTILE] *= max(0, 100 + GC.getGame().getHandicapInfo().getAIHostileApproachChangePercent());
-		vApproachScores[CIV_APPROACH_HOSTILE] /= 100;
-
-		vApproachScores[CIV_APPROACH_WAR] *= max(0, 100 + GC.getGame().getHandicapInfo().getAIWarApproachChangePercent());
-		vApproachScores[CIV_APPROACH_WAR] /= 100;
+		vApproachScores[CIV_APPROACH_NEUTRAL] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_NEUTRAL], max(0, 100 + GC.getGame().getHandicapInfo().getAINeutralApproachChangePercent()));
+		vApproachScores[CIV_APPROACH_FRIENDLY] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_FRIENDLY], max(0, 100 + GC.getGame().getHandicapInfo().getAIFriendlyApproachChangePercent()));
+		vApproachScores[CIV_APPROACH_AFRAID] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_AFRAID], max(0, 100 + GC.getGame().getHandicapInfo().getAIAfraidApproachChangePercent()));
+		vApproachScores[CIV_APPROACH_GUARDED] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_GUARDED], max(0, 100 + GC.getGame().getHandicapInfo().getAIGuardedApproachChangePercent()));
+		vApproachScores[CIV_APPROACH_DECEPTIVE] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_DECEPTIVE], max(0, 100 + GC.getGame().getHandicapInfo().getAIDeceptiveApproachChangePercent()));
+		vApproachScores[CIV_APPROACH_HOSTILE] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_HOSTILE], max(0, 100 + GC.getGame().getHandicapInfo().getAIHostileApproachChangePercent()));
+		vApproachScores[CIV_APPROACH_WAR] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_WAR], max(0, 100 + GC.getGame().getHandicapInfo().getAIWarApproachChangePercent()));
 	}
 
 	////////////////////////////////////
@@ -20813,49 +20782,23 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			if (bReevaluation)
 			{
 				int NumReevaluations = GetNumReevaluations();
-				vApproachScores[CIV_APPROACH_FRIENDLY] *= GC.getGame().randRangeInclusive(100 - iRandomFactor, 100 + iRandomFactor, CvSeeder::fromRaw(0xb09432c8).mix(MyID).mix(TheirID).mix(NumReevaluations));
-				vApproachScores[CIV_APPROACH_FRIENDLY] /= 100;
-
-				vApproachScores[CIV_APPROACH_NEUTRAL] *= GC.getGame().randRangeInclusive(100 - iRandomFactor, 100 + iRandomFactor, CvSeeder::fromRaw(0x576eeb77).mix(MyID).mix(TheirID).mix(NumReevaluations));
-				vApproachScores[CIV_APPROACH_NEUTRAL] /= 100;
-
-				vApproachScores[CIV_APPROACH_AFRAID] *= GC.getGame().randRangeInclusive(100 - iRandomFactor, 100 + iRandomFactor, CvSeeder::fromRaw(0x7a7a0b0a).mix(MyID).mix(TheirID).mix(NumReevaluations));
-				vApproachScores[CIV_APPROACH_AFRAID] /= 100;
-
-				vApproachScores[CIV_APPROACH_GUARDED] *= GC.getGame().randRangeInclusive(100 - iRandomFactor, 100 + iRandomFactor, CvSeeder::fromRaw(0xbe08eb5a).mix(MyID).mix(TheirID).mix(NumReevaluations));
-				vApproachScores[CIV_APPROACH_GUARDED] /= 100;
-
-				vApproachScores[CIV_APPROACH_DECEPTIVE] *= GC.getGame().randRangeInclusive(100 - iRandomFactor, 100 + iRandomFactor, CvSeeder::fromRaw(0x0b148c8b).mix(MyID).mix(TheirID).mix(NumReevaluations));
-				vApproachScores[CIV_APPROACH_DECEPTIVE] /= 100;
-
-				vApproachScores[CIV_APPROACH_HOSTILE] *= GC.getGame().randRangeInclusive(100 - iRandomFactor, 100 + iRandomFactor, CvSeeder::fromRaw(0xa6c53d5a).mix(MyID).mix(TheirID).mix(NumReevaluations));
-				vApproachScores[CIV_APPROACH_HOSTILE] /= 100;
-
-				vApproachScores[CIV_APPROACH_WAR] *= GC.getGame().randRangeInclusive(100 - iRandomFactor, 100 + iRandomFactor, CvSeeder::fromRaw(0x3dceb668).mix(MyID).mix(TheirID).mix(NumReevaluations));
-				vApproachScores[CIV_APPROACH_WAR] /= 100;
+				vApproachScores[CIV_APPROACH_FRIENDLY] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_FRIENDLY], GC.getGame().randRangeInclusive(100 - iRandomFactor, 100 + iRandomFactor, CvSeeder::fromRaw(0xb09432c8).mix(MyID).mix(TheirID).mix(NumReevaluations)));
+				vApproachScores[CIV_APPROACH_NEUTRAL] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_NEUTRAL], GC.getGame().randRangeInclusive(100 - iRandomFactor, 100 + iRandomFactor, CvSeeder::fromRaw(0x576eeb77).mix(MyID).mix(TheirID).mix(NumReevaluations)));
+				vApproachScores[CIV_APPROACH_AFRAID] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_AFRAID], GC.getGame().randRangeInclusive(100 - iRandomFactor, 100 + iRandomFactor, CvSeeder::fromRaw(0x7a7a0b0a).mix(MyID).mix(TheirID).mix(NumReevaluations)));
+				vApproachScores[CIV_APPROACH_GUARDED] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_GUARDED], GC.getGame().randRangeInclusive(100 - iRandomFactor, 100 + iRandomFactor, CvSeeder::fromRaw(0xbe08eb5a).mix(MyID).mix(TheirID).mix(NumReevaluations)));
+				vApproachScores[CIV_APPROACH_DECEPTIVE] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_DECEPTIVE], GC.getGame().randRangeInclusive(100 - iRandomFactor, 100 + iRandomFactor, CvSeeder::fromRaw(0x0b148c8b).mix(MyID).mix(TheirID).mix(NumReevaluations)));
+				vApproachScores[CIV_APPROACH_HOSTILE] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_HOSTILE], GC.getGame().randRangeInclusive(100 - iRandomFactor, 100 + iRandomFactor, CvSeeder::fromRaw(0xa6c53d5a).mix(MyID).mix(TheirID).mix(NumReevaluations)));
+				vApproachScores[CIV_APPROACH_WAR] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_WAR], GC.getGame().randRangeInclusive(100 - iRandomFactor, 100 + iRandomFactor, CvSeeder::fromRaw(0x3dceb668).mix(MyID).mix(TheirID).mix(NumReevaluations)));
 			}
 			else
 			{
-				vApproachScores[CIV_APPROACH_FRIENDLY] *= GC.getGame().randRangeInclusive(100 - iRandomFactor, 100 + iRandomFactor, CvSeeder::fromRaw(0xdaeb36d6).mix(MyID).mix(TheirID));
-				vApproachScores[CIV_APPROACH_FRIENDLY] /= 100;
-
-				vApproachScores[CIV_APPROACH_NEUTRAL] *= GC.getGame().randRangeInclusive(100 - iRandomFactor, 100 + iRandomFactor, CvSeeder::fromRaw(0x30271783).mix(MyID).mix(TheirID));
-				vApproachScores[CIV_APPROACH_NEUTRAL] /= 100;
-
-				vApproachScores[CIV_APPROACH_AFRAID] *= GC.getGame().randRangeInclusive(100 - iRandomFactor, 100 + iRandomFactor, CvSeeder::fromRaw(0x01aace4a).mix(MyID).mix(TheirID));
-				vApproachScores[CIV_APPROACH_AFRAID] /= 100;
-
-				vApproachScores[CIV_APPROACH_GUARDED] *= GC.getGame().randRangeInclusive(100 - iRandomFactor, 100 + iRandomFactor, CvSeeder::fromRaw(0xbee17684).mix(MyID).mix(TheirID));
-				vApproachScores[CIV_APPROACH_GUARDED] /= 100;
-
-				vApproachScores[CIV_APPROACH_DECEPTIVE] *= GC.getGame().randRangeInclusive(100 - iRandomFactor, 100 + iRandomFactor, CvSeeder::fromRaw(0x13c7e7c3).mix(MyID).mix(TheirID));
-				vApproachScores[CIV_APPROACH_DECEPTIVE] /= 100;
-
-				vApproachScores[CIV_APPROACH_HOSTILE] *= GC.getGame().randRangeInclusive(100 - iRandomFactor, 100 + iRandomFactor, CvSeeder::fromRaw(0x8f2681a5).mix(MyID).mix(TheirID));
-				vApproachScores[CIV_APPROACH_HOSTILE] /= 100;
-
-				vApproachScores[CIV_APPROACH_WAR] *= GC.getGame().randRangeInclusive(100 - iRandomFactor, 100 + iRandomFactor, CvSeeder::fromRaw(0x320744a1).mix(MyID).mix(TheirID));
-				vApproachScores[CIV_APPROACH_WAR] /= 100;
+				vApproachScores[CIV_APPROACH_FRIENDLY] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_FRIENDLY], GC.getGame().randRangeInclusive(100 - iRandomFactor, 100 + iRandomFactor, CvSeeder::fromRaw(0xdaeb36d6).mix(MyID).mix(TheirID)));
+				vApproachScores[CIV_APPROACH_NEUTRAL] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_NEUTRAL], GC.getGame().randRangeInclusive(100 - iRandomFactor, 100 + iRandomFactor, CvSeeder::fromRaw(0x30271783).mix(MyID).mix(TheirID)));
+				vApproachScores[CIV_APPROACH_AFRAID] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_AFRAID], GC.getGame().randRangeInclusive(100 - iRandomFactor, 100 + iRandomFactor, CvSeeder::fromRaw(0x01aace4a).mix(MyID).mix(TheirID)));
+				vApproachScores[CIV_APPROACH_GUARDED] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_GUARDED], GC.getGame().randRangeInclusive(100 - iRandomFactor, 100 + iRandomFactor, CvSeeder::fromRaw(0xbee17684).mix(MyID).mix(TheirID)));
+				vApproachScores[CIV_APPROACH_DECEPTIVE] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_DECEPTIVE], GC.getGame().randRangeInclusive(100 - iRandomFactor, 100 + iRandomFactor, CvSeeder::fromRaw(0x13c7e7c3).mix(MyID).mix(TheirID)));
+				vApproachScores[CIV_APPROACH_HOSTILE] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_HOSTILE], GC.getGame().randRangeInclusive(100 - iRandomFactor, 100 + iRandomFactor, CvSeeder::fromRaw(0x8f2681a5).mix(MyID).mix(TheirID)));
+				vApproachScores[CIV_APPROACH_WAR] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_WAR], GC.getGame().randRangeInclusive(100 - iRandomFactor, 100 + iRandomFactor, CvSeeder::fromRaw(0x320744a1).mix(MyID).mix(TheirID)));
 			}
 		}
 	}
@@ -21038,34 +20981,22 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			if (iNumBadOpinions > 0)
 			{
 				int iPercentDifferenceFromAverage = ((iOpinionWeight * 100) - (iAverage * 100)) / max(iAverage, 1);
-				iOpinionWeight *= range((100 + iPercentDifferenceFromAverage), (iHostileMod + 40), max(100,(iFriendlyMod * 10)));
-				iOpinionWeight /= 100;
+				iOpinionWeight = ApplyPercentageModifier(iOpinionWeight, range((100 + iPercentDifferenceFromAverage), (iHostileMod + 40), max(100,(iFriendlyMod * 10))));
 			}
 		}
 
 		// Increase
-		vApproachScores[CIV_APPROACH_WAR] *= 100 + iWarMod + iOpinionWeight;
-		vApproachScores[CIV_APPROACH_WAR] /= 100;
-
-		vApproachScores[CIV_APPROACH_HOSTILE] *= 100 + iHostileMod + iOpinionWeight;
-		vApproachScores[CIV_APPROACH_HOSTILE] /= 100;
-
-		vApproachScores[CIV_APPROACH_DECEPTIVE] *= 100 + iDeceptiveMod + iOpinionWeight;
-		vApproachScores[CIV_APPROACH_DECEPTIVE] /= 100;
-
-		vApproachScores[CIV_APPROACH_GUARDED] *= 100 + iGuardedMod + iOpinionWeight;
-		vApproachScores[CIV_APPROACH_GUARDED] /= 100;
-
-		vApproachScores[CIV_APPROACH_AFRAID] *= 100 + iAfraidMod + iOpinionWeight;
-		vApproachScores[CIV_APPROACH_AFRAID] /= 100;
+		vApproachScores[CIV_APPROACH_WAR] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_WAR], 100 + iWarMod + iOpinionWeight);
+		vApproachScores[CIV_APPROACH_HOSTILE] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_HOSTILE], 100 + iHostileMod + iOpinionWeight);
+		vApproachScores[CIV_APPROACH_DECEPTIVE] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_DECEPTIVE], 100 + iDeceptiveMod + iOpinionWeight);
+		vApproachScores[CIV_APPROACH_GUARDED] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_GUARDED], 100 + iGuardedMod + iOpinionWeight);
+		vApproachScores[CIV_APPROACH_AFRAID] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_AFRAID], 100 + iAfraidMod + iOpinionWeight);
 
 		// Decrease
-		vApproachScores[CIV_APPROACH_FRIENDLY] *= 100;
-		vApproachScores[CIV_APPROACH_FRIENDLY] /= max(100, (100 - iFriendlyMod + iOpinionWeight));	
+		vApproachScores[CIV_APPROACH_FRIENDLY] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_FRIENDLY], max(100, 100 - iFriendlyMod + iOpinionWeight), true);
 
 		// Decrease NEUTRAL
-		vApproachScores[CIV_APPROACH_NEUTRAL] *= 100;
-		vApproachScores[CIV_APPROACH_NEUTRAL] /= max(100, (100 - iNeutralMod + iOpinionWeight));
+		vApproachScores[CIV_APPROACH_NEUTRAL] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_NEUTRAL], max(100, 100 - iNeutralMod + iOpinionWeight), true);
 	}
 	else if (iOpinionWeight < iFavorableThreshold)
 	{
@@ -21096,35 +21027,24 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			if (iNumGoodOpinions > 0)
 			{
 				int iPercentDifferenceFromAverage = ((iOpinionWeight * 100) - (iAverage * 100)) / max(iAverage, 1);
-				iOpinionWeight *= range((100 + iPercentDifferenceFromAverage), (iFriendlyMod + 40), max(100,(iHostileMod * 10)));
-				iOpinionWeight /= 100;
+				iOpinionWeight = ApplyPercentageModifier(iOpinionWeight, range((100 + iPercentDifferenceFromAverage), (iFriendlyMod + 40), max(100,(iHostileMod * 10))));
 			}
 		}
 
 		// Increase
-		vApproachScores[CIV_APPROACH_FRIENDLY] *= 100 + iFriendlyMod + iOpinionWeight;
-		vApproachScores[CIV_APPROACH_FRIENDLY] /= 100;
+		vApproachScores[CIV_APPROACH_FRIENDLY] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_FRIENDLY], 100 + iFriendlyMod + iOpinionWeight);
 
 		// Decrease
-		vApproachScores[CIV_APPROACH_WAR] *= 100;
-		vApproachScores[CIV_APPROACH_WAR] /= max(100,(100 - iWarMod + iOpinionWeight));
-
-		vApproachScores[CIV_APPROACH_HOSTILE] *= 100;
-		vApproachScores[CIV_APPROACH_HOSTILE] /= max(100,(100 - iHostileMod + iOpinionWeight));
-
-		vApproachScores[CIV_APPROACH_DECEPTIVE] *= 100;
-		vApproachScores[CIV_APPROACH_DECEPTIVE] /= max(100,(100 - iDeceptiveMod + iOpinionWeight));
-
-		vApproachScores[CIV_APPROACH_GUARDED] *= 100;
-		vApproachScores[CIV_APPROACH_GUARDED] /= max(100,(100 - iGuardedMod + iOpinionWeight));
-
-		vApproachScores[CIV_APPROACH_AFRAID] *= 100;
-		vApproachScores[CIV_APPROACH_AFRAID] /= max(100,(100 - iAfraidMod + iOpinionWeight));
+		vApproachScores[CIV_APPROACH_WAR] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_WAR], max(100, 100 - iWarMod + iOpinionWeight), true);
+		vApproachScores[CIV_APPROACH_HOSTILE] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_HOSTILE], max(100, 100 - iHostileMod + iOpinionWeight), true);
+		vApproachScores[CIV_APPROACH_DECEPTIVE] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_DECEPTIVE], max(100, 100 - iDeceptiveMod + iOpinionWeight), true);
+		vApproachScores[CIV_APPROACH_GUARDED] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_GUARDED], max(100, 100 - iGuardedMod + iOpinionWeight), true);
+		vApproachScores[CIV_APPROACH_AFRAID] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_AFRAID], max(100, 100 - iAfraidMod + iOpinionWeight), true);
 
 		// Special logic for NEUTRAL approach!
 		// Determine the maximum amount NEUTRAL can be raised up or down based on Opinion
-		int iNeutralUpB = (vApproachScores[CIV_APPROACH_NEUTRAL] * (100 + iNeutralMod + iOpinionWeight)) / 100;
-		int iNeutralDownB = (vApproachScores[CIV_APPROACH_NEUTRAL] * 100) / max(100,(100 - iNeutralMod + iOpinionWeight));
+		int iNeutralUpB = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_NEUTRAL], 100 + iNeutralMod + iOpinionWeight);
+		int iNeutralDownB = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_NEUTRAL], max(100, 100 - iNeutralMod + iOpinionWeight), true);
 
 		// Jump ahead and look what all the values will be after Part 14: The Approach Curve
 		int iNeutralPostCurve = vApproachScores[CIV_APPROACH_NEUTRAL];
@@ -21213,8 +21133,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			iNeutralMod /= 100;
 		}
 
-		vApproachScores[CIV_APPROACH_NEUTRAL] *= 100 + iNeutralMod;
-		vApproachScores[CIV_APPROACH_NEUTRAL] /= 100;
+		vApproachScores[CIV_APPROACH_NEUTRAL] = ApplyPercentageModifier(vApproachScores[CIV_APPROACH_NEUTRAL], 100 + iNeutralMod);
 	}
 
 	//--------------------------------//
