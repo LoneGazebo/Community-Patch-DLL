@@ -17999,15 +17999,13 @@ void CvCity::UpdateYieldPerXFeature(YieldTypes eYield, FeatureTypes eFeature)
 		if (bTest)
 		{
 			iValidTiles = GetNumFeatureWorked(eFeature);
-			if (iValidTiles > 0)
-			{
-				//Gain 1 yield per x valid tiles - so if 'x' is 3, and you have 3 tiles that match, you get 1 yield
-				iYieldBase = (iValidTiles * iBaseYield);
-				iYieldReligion = (iValidTiles * iBaseYieldReligion);
 
-				SetYieldPerXFeatureTimes100(eFeature, eYield, iYieldBase);
-				SetYieldPerXFeatureFromReligionTimes100(eFeature, eYield, iYieldReligion);
-			}
+			//Gain 1 yield per x valid tiles - so if 'x' is 3, and you have 3 tiles that match, you get 1 yield
+			iYieldBase = (iValidTiles * iBaseYield);
+			iYieldReligion = (iValidTiles * iBaseYieldReligion);
+
+			SetYieldPerXFeatureTimes100(eFeature, eYield, iYieldBase);
+			SetYieldPerXFeatureFromReligionTimes100(eFeature, eYield, iYieldReligion);
 		}
 	}
 	else
