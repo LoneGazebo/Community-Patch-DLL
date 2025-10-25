@@ -3602,7 +3602,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 			ExtractYieldFractionTable(tImprovementBoostsGlobal, "Building_YieldPerXImprovementGlobal", kYieldInfo, "ImprovementType");
 			ExtractSimpleYieldFractionTable(tBuildingCountBoosts, "Building_YieldChangesPerXBuilding", kYieldInfo);
 			ExtractSimpleYieldFractionTable(tCSStrategicBoosts, "Building_YieldChangesFromXCityStateStrategicResource", kYieldInfo);
-			ExtractSimpleYieldFractionTable(tPlotCountBoosts, "Building_YieldChangesPerXBuilding", kYieldInfo);
+			ExtractSimpleYieldFractionTable(tPlotCountBoosts, "Building_YieldChangesPerXTiles", kYieldInfo);
 			ExtractSimpleYieldTable(tPassingTRBoosts, "Building_YieldChangesFromPassingTR", kYieldInfo);
 			ExtractSimpleYieldTable(tThemeBoosts, "Building_YieldChangesPerLocalTheme", kYieldInfo);
 			ExtractSimpleYieldTable(tMonopolyBoosts, "Building_YieldChangesPerMonopoly", kYieldInfo);
