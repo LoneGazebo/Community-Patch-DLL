@@ -23,6 +23,8 @@ local g_bHidden = true;
 
 local MOD_BALANCE_VP = Game.IsCustomModOption("BALANCE_VP");
 
+local g_isFaithPurchaseBuildingsInPuppetsMod = Game.IsCustomModOption("GLOBAL_PURCHASE_FAITH_BUILDINGS_IN_PUPPETS")
+
 local L = Locale.Lookup;
 local VP = MapModData.VP;
 local GetInfoFromId = VP.GetInfoFromId;
@@ -322,7 +324,8 @@ local function AddProductionButton(eItem, eOrder, ePurchaseYield, strTurnsOrCost
 			return;
 		end
 
-		if UI.IsCityScreenViewingMode() then
+		local player = Players[Game.GetActivePlayer()];
+		if (UI.IsCityScreenViewingMode() and (g_bProductionMode or (not player:MayNotAnnex() and not g_isFaithPurchaseBuildingsInPuppetsMod))) then
 			return;
 		end
 
