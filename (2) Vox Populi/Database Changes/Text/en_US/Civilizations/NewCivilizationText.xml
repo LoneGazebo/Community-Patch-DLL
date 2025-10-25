@@ -1193,7 +1193,7 @@
 			<Text>Unit will be consumed.[NEWLINE]Unique Ottoman Tile Improvement. Provides [ICON_GOLD] Gold, [ICON_PRODUCTION] Production and [ICON_RESEARCH] Science. Gives a [ICON_STRENGTH] Defense Bonus to units stationed on it.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_CONSUMED_HELP_TERSANE">
-			<Text>Can only be built in water next to an owned City, and cannot be adjacent to another Tersane.[NEWLINE][NEWLINE]+25% [ICON_PRODUCTION] Production and +15 Experience for Naval Units built in the Adjacent City. Does not stack with multiple Tersane next to the same City.[NEWLINE][NEWLINE]Building the Tersane will expand your Culture borders to surround the Tersane, increase your [ICON_WAR] Military Unit Supply Cap by 1, and will consume this Unit. Units standing on a Tersane receive +50% [ICON_STRENGTH] Tile Defense. Contains [COLOR_POSITIVE_TEXT]Fortifications[ENDCOLOR], allowing owned Units to stay stationed in this tile after attacking. Deals 30 damage to adjacent Enemy Units.</Text>
+			<Text>Can only be built in water next to an owned City, and cannot be adjacent to another Tersane.[NEWLINE][NEWLINE]+25% [ICON_PRODUCTION] Production and +10 Experience for Naval Units built in the Adjacent City. Does not stack with multiple Tersane next to the same City.[NEWLINE][NEWLINE]Building the Tersane will expand your Culture borders to surround the Tersane, increase your [ICON_WAR] Military Unit Supply Cap by 1, and will consume this Unit. Units standing on a Tersane receive +50% [ICON_STRENGTH] Tile Defense. Contains [COLOR_POSITIVE_TEXT]Fortifications[ENDCOLOR], allowing owned Units to stay stationed in this tile after attacking. Deals 30 damage to adjacent Enemy Units.</Text>
 		</Row>
 
 		<!-- Persia -->
