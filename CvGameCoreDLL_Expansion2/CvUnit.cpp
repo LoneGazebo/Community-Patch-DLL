@@ -2572,8 +2572,8 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 
 	setReconPlot(NULL);
 
-	PRECONDITION(getAttackPlot() == NULL, "The current unit instance's attack plot is expected to be NULL");
-	PRECONDITION(getCombatUnit() == NULL, "The current unit instance's combat unit is expected to be NULL");
+	ASSERT(getAttackPlot() == NULL, "The current unit instance's attack plot is expected to be NULL");
+	ASSERT(getCombatUnit() == NULL, "The current unit instance's combat unit is expected to be NULL");
 
 	GET_TEAM(getTeam()).changeUnitClassCount((UnitClassTypes)getUnitInfo().GetUnitClassType(), -1);
 	GET_PLAYER(eUnitOwner).changeUnitClassCount((UnitClassTypes)getUnitInfo().GetUnitClassType(), -1);
@@ -25458,7 +25458,7 @@ void CvUnit::setCombatUnit(CvUnit* pCombatUnit, bool bAttacking)
 
 	if(pCombatUnit != NULL)
 	{
-		PRECONDITION(getCombatUnit() == NULL && getCombatCity() == NULL, "Combat Unit or City is not expected to be assigned");
+		ASSERT(getCombatUnit() == NULL && getCombatCity() == NULL, "Combat Unit or City is not expected to be assigned");
 		m_bCombatFocus = (
 			bAttacking && 
 			!(DLLUI->isFocusedWidget()) && 
@@ -25511,7 +25511,7 @@ void CvUnit::setCombatCity(CvCity* pCombatCity)
 
 	if(pCombatCity != NULL)
 	{
-		PRECONDITION(getCombatUnit() == NULL && getCombatCity() == NULL, "Combat Unit or City is not expected to be assigned");
+		ASSERT(getCombatUnit() == NULL && getCombatCity() == NULL, "Combat Unit or City is not expected to be assigned");
 		m_bCombatFocus = (!(DLLUI->isFocusedWidget()) && ((getOwner() == GC.getGame().getActivePlayer()) || ((pCombatCity->getOwner() == GC.getGame().getActivePlayer()) && !(GET_PLAYER(GC.getGame().getActivePlayer()).isSimultaneousTurns()))));
 		m_combatCity = pCombatCity->GetIDInfo();
 	}

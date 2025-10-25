@@ -33647,7 +33647,7 @@ void CvCity::setCombatUnit(CvUnit* pCombatUnit, bool /*bAttacking*/)
 {
 	if (pCombatUnit != NULL)
 	{
-		PRECONDITION(getCombatUnit() == NULL, "Combat Unit is not expected to be assigned");
+		ASSERT(getCombatUnit() == NULL, "Combat Unit is not expected to be assigned");
 		ASSERT(!(plot()->isCityFighting()), "(plot()->isCityFighting()) did not return false as expected");
 		m_combatUnit = pCombatUnit->GetIDInfo();
 	}
