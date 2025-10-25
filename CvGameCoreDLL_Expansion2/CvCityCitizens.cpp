@@ -885,7 +885,7 @@ int CvCityCitizens::GetBaseValuePerYield(YieldTypes eYield, SPrecomputedExpensiv
 	{
 	case YIELD_FOOD:
 		// in small cities, treat being under the growth threshold like starvation, unless we focus on a yield other than food
-		if (bAssumeStarving || (bAssumeBelowGrowthThreshold && m_pCity->getPopulation() <= 3 && (eFocus == NO_CITY_AI_FOCUS_TYPE || eFocus == CITY_AI_FOCUS_TYPE_FOOD || eFocus == CITY_AI_FOCUS_TYPE_GOLD_GROWTH || eFocus == CITY_AI_FOCUS_TYPE_PROD_GROWTH)))
+		if (bAssumeStarving)
 			iYieldMod =  /*500*/ GD_INT_GET(AI_CITIZEN_VALUE_FOOD_STARVING);
 		else if (bAssumeBelowGrowthThreshold || eFocus == CITY_AI_FOCUS_TYPE_FOOD || bFoodProcess)
 			iYieldMod =  /*32*/ GD_INT_GET(AI_CITIZEN_VALUE_FOOD_NEED_GROWTH);
@@ -1282,19 +1282,23 @@ int CvCityCitizens::ScoreYieldChange(YieldAndGPPList yieldChanges, SPrecomputedE
 			int iValuePerAddedFoodBelowGrowthThreshold = GetBaseValuePerYield(eYield, cache, /*bAssumeStarving*/ false, /*bAssumeBelowGrowthThreshold*/ true);
 			int iValuePerAddedFoodAboveGrowthThreshold = GetBaseValuePerYield(eYield, cache, /*bAssumeStarving*/ false, /*bAssumeBelowGrowthThreshold*/ false);
 
+			CityAIFocusTypes eFocus = GetFocusType();
+			int iAssumedStagnationThreshold = (m_pCity->getPopulation() <= 3 && (eFocus == NO_CITY_AI_FOCUS_TYPE || eFocus == CITY_AI_FOCUS_TYPE_FOOD || eFocus == CITY_AI_FOCUS_TYPE_GOLD_GROWTH || eFocus == CITY_AI_FOCUS_TYPE_PROD_GROWTH)) ? 100 : 0; // in small cities, make sure we always have some growth. the first food above the stagnation threshold is evaluated as if the city was starving
+
+
 			// for the scoring, we split the difference in excess food in the different parts and value them accordingly
 			// the code below is a more efficient calculation of the following:
-			// for (i = iLower; i < iHigher; i++) { if (i < 0) {iFoodValue += iValuePerFoodStarving} ; if (0 <= i < GrowthThreshold) {iFoodValue += iValueBelowThreshold} ; if(i > iGrowthThreshold) {...} }
+			// for (i = iLower; i < iHigher; i++) { if (i < iAssumedStagnationThreshold) {iFoodValue += iValuePerFoodStarving;} else if (iAssumedStagnationThreshold <= i < GrowthThreshold) {iFoodValue += iValueBelowThreshold;} else if(i > iGrowthThreshold) {...} }
 
 			// how much of the difference (iHigher - iLower) corresponds to food in the "starving" area?
-			// case 1) if both iHigher and iLower < 0   -> iHigher - iLower
-			// case 2) if iLower < 0 and iHigher > 0    -> 0 - iLower
-			// case 3) if both > 0					    -> 0
-			// so in all three cases: min(iHigher, 0) - min(iLower, 0)
-			iFoodValue += (min(iHigher, 0) - min(iLower, 0)) * iValuePerAddedFoodStarving;
+			// case 1) if both iHigher and iLower < iAssumedStagnationThreshold								-> iHigher - iLower
+			// case 2) if iLower < iAssumedStagnationThreshold and iHigher > iAssumedStagnationThreshold    -> iAssumedStagnationThreshold - iLower
+			// case 3) if both > iAssumedStagnationThreshold												-> 0
+			// so in all three cases: min(iHigher, iAssumedStagnationThreshold) - min(iLower, iAssumedStagnationThreshold)
+			iFoodValue += (min(iHigher, iAssumedStagnationThreshold) - min(iLower, iAssumedStagnationThreshold)) * iValuePerAddedFoodStarving;
 
 			// the same calculation for food above the starving threshold and below the growth threshold
-			iFoodValue += (max(min(iHigher, iGrowthThreshold), 0) - max(min(iLower, iGrowthThreshold), 0)) * iValuePerAddedFoodBelowGrowthThreshold;
+			iFoodValue += (max(min(iHigher, iGrowthThreshold), iAssumedStagnationThreshold) - max(min(iLower, iGrowthThreshold), iAssumedStagnationThreshold)) * iValuePerAddedFoodBelowGrowthThreshold;
 			// and finally for food above the growth threshold
 			iFoodValue += (max(iHigher, iGrowthThreshold) - max(iLower, iGrowthThreshold)) * iValuePerAddedFoodAboveGrowthThreshold;
 
