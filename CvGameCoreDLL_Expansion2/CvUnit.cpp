@@ -12815,6 +12815,11 @@ bool CvUnit::canBlastTourism(const CvPlot* pPlot, bool bTestVisible) const
 		return false;
 	}
 
+	if (GET_PLAYER(eOwner).isMinorCiv() || eOwner == getOwner())
+	{
+		return false;
+	}
+
 	//No tourism while at war!
 	if (MOD_BALANCE_NO_WARTIME_CONCERT_TOURS && GET_TEAM(GET_PLAYER(eOwner).getTeam()).isAtWar(getTeam()))
 	{
@@ -12828,8 +12833,7 @@ bool CvUnit::canBlastTourism(const CvPlot* pPlot, bool bTestVisible) const
 		return false;
 	}
 
-	CvPlayer &kTileOwner = GET_PLAYER(eOwner);
-	return kTileOwner.isAlive() && !kTileOwner.isMinorCiv() && eOwner != getOwner();
+	return true;
 }
 
 //	--------------------------------------------------------------------------------
