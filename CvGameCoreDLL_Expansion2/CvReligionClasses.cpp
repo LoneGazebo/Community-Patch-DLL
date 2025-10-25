@@ -712,23 +712,14 @@ void CvGameReligions::DoPlayerTurn(CvPlayer& kPlayer)
 					CvCity *pCity = CvReligionAIHelpers::GetBestCityFaithUnitPurchase(kPlayer, eUnit, eReligion);
 					if (pCity)
 					{
-						int iTempWeight = 100;
-						iTempWeight = pCity->GetCityStrategyAI()->GetUnitProductionAI()->CheckUnitBuildSanity(eUnit, false, iTempWeight, true);
-						if (iTempWeight > 0)
-						{
-							pCity->PurchaseUnit(eUnit, YIELD_FAITH);
+						pCity->PurchaseUnit(eUnit, YIELD_FAITH);
 
-							CvNotifications* pNotifications = kPlayer.GetNotifications();
-							if (pNotifications)
-							{
-								CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_AUTOMATIC_FAITH_PURCHASE", szItemName, pCity->getNameKey());
-								CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_AUTOMATIC_FAITH_PURCHASE");
-								pNotifications->Add(NOTIFICATION_CAN_BUILD_MISSIONARY, strBuffer, strSummary, pCity->getX(), pCity->getY(), -1);
-							}
-						}
-						else
+						CvNotifications* pNotifications = kPlayer.GetNotifications();
+						if (pNotifications)
 						{
-							bSelectionStillValid = false;
+							CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_AUTOMATIC_FAITH_PURCHASE", szItemName, pCity->getNameKey());
+							CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_AUTOMATIC_FAITH_PURCHASE");
+							pNotifications->Add(NOTIFICATION_CAN_BUILD_MISSIONARY, strBuffer, strSummary, pCity->getX(), pCity->getY(), -1);
 						}
 					}
 					else
