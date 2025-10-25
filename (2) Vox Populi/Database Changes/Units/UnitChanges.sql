@@ -736,7 +736,11 @@ WHERE Class = 'UNITCLASS_GREAT_DIPLOMAT';
 -- Great General
 
 -- Great Admiral
-UPDATE Units SET NumFreeLux = 2 WHERE Class = 'UNITCLASS_GREAT_ADMIRAL';
+UPDATE Units 
+SET 
+	NumFreeLux = 2,
+	WorkRate = 1  -- Tersane
+WHERE Class = 'UNITCLASS_GREAT_ADMIRAL';
 
 -- Great Prophet
 UPDATE Units SET Capture = NULL WHERE Class = 'UNITCLASS_PROPHET';
