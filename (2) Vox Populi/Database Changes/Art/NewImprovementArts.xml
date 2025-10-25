@@ -503,7 +503,7 @@
 			<State>UnderConstruction</State>
 			<Scale>0.75</Scale>
 			<LayoutHandler>SNAPSHOT</LayoutHandler>
-			<Model>Aplekton_b_build.fxsxml</Model>
+			<Model>Aplekton_hb.fxsxml</Model>
 			<TerrainContour>1</TerrainContour>
 		</Row>
 		<Row>
@@ -521,7 +521,7 @@
 			<State>Pillaged</State>
 			<Scale>0.75</Scale>
 			<LayoutHandler>SNAPSHOT</LayoutHandler>
-			<Model>Aplekton_b_pl.fxsxml</Model>
+			<Model>Aplekton_pl.fxsxml</Model>
 			<TerrainContour>1</TerrainContour>
 		</Row>
 	</ArtDefine_Landmarks>
