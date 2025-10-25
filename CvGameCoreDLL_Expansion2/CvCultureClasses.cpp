@@ -3037,7 +3037,11 @@ void CvPlayerCulture::DoArchaeologyChoice(ArchaeologyChoiceType eChoice)
 	{
 		m_pPlayer->DoDifficultyBonus(HISTORIC_EVENT_DIG);
 	}
-	pPlot->ClearArchaeologicalRecord();
+	// for landmarks we need to keep the record because the improvement's yields depend on it
+	if (eChoice != ARCHAEOLOGY_LANDMARK)
+	{
+		pPlot->ClearArchaeologicalRecord();
+	}
 }
 
 // CULTURAL INFLUENCE
