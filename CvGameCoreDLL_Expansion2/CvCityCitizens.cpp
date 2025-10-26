@@ -888,7 +888,7 @@ int CvCityCitizens::GetBaseValuePerYield(YieldTypes eYield, SPrecomputedExpensiv
 		if (bAssumeStarving)
 			iYieldMod =  /*500*/ GD_INT_GET(AI_CITIZEN_VALUE_FOOD_STARVING);
 		else if (bAssumeBelowGrowthThreshold || eFocus == CITY_AI_FOCUS_TYPE_FOOD || bFoodProcess)
-			iYieldMod =  /*32*/ GD_INT_GET(AI_CITIZEN_VALUE_FOOD_NEED_GROWTH);
+			iYieldMod =  /*22*/ GD_INT_GET(AI_CITIZEN_VALUE_FOOD_NEED_GROWTH);
 		else
 			iYieldMod = /*8*/ GD_INT_GET(AI_CITIZEN_VALUE_FOOD);
 		break;
@@ -924,7 +924,7 @@ int CvCityCitizens::GetBaseValuePerYield(YieldTypes eYield, SPrecomputedExpensiv
 			iYieldMod = /*24*/ GD_INT_GET(AI_CITIZEN_VALUE_GOLD_IN_DEBT);
 		break;
 	case YIELD_SCIENCE:
-		iYieldMod = /*20*/ GD_INT_GET(AI_CITIZEN_VALUE_SCIENCE);
+		iYieldMod = /*25*/ GD_INT_GET(AI_CITIZEN_VALUE_SCIENCE);
 		if (eFocus == CITY_AI_FOCUS_TYPE_SCIENCE)
 			iYieldMod *= 3;
 		else if (cache.bWantScience)
@@ -932,14 +932,14 @@ int CvCityCitizens::GetBaseValuePerYield(YieldTypes eYield, SPrecomputedExpensiv
 		break;
 	case YIELD_CULTURE:
 	case YIELD_TOURISM:
-		iYieldMod = /*20*/ GD_INT_GET(AI_CITIZEN_VALUE_CULTURE);
+		iYieldMod = /*25*/ GD_INT_GET(AI_CITIZEN_VALUE_CULTURE);
 		if (eFocus == CITY_AI_FOCUS_TYPE_CULTURE)
 			iYieldMod *= 3;
 		else if (cache.bWantArt)
 			iYieldMod *= 2;
 		break;
 	case YIELD_FAITH:
-		iYieldMod = /*20*/ GD_INT_GET(AI_CITIZEN_VALUE_FAITH);
+		iYieldMod = /*25*/ GD_INT_GET(AI_CITIZEN_VALUE_FAITH);
 		if (eFocus == CITY_AI_FOCUS_TYPE_FAITH)
 			iYieldMod *= 3;
 		break;
