@@ -2998,7 +2998,7 @@ CivilopediaCategory[CategoryUnits].SelectArticle = function( unitID, shouldAddTo
 		Controls.RelatedImagesFrame:SetHide( true );
 
 		-- Infixo Extended info (only shown in debug mode)
-		if Game.IsDebugMode() then
+		if Game and Game.IsDebugMode() then
 			local sText = "[COLOR_CYAN]Abilities[ENDCOLOR] of this unit:"; -- change to TXT_KEY_ later
 			local function AnalyzeUnit(...)
 				sText = sText .. AnalyzeObjectField(thisUnit, ...);
@@ -4328,7 +4328,7 @@ function SelectBuildingOrWonderArticle( buildingID )
 		end
 
 		-- Infixo more info (only shown in debug mode)
-		if Game.IsDebugMode() then
+		if Game and Game.IsDebugMode() then
 			local sText = "[COLOR_CYAN]Features[ENDCOLOR] of this building:"; -- change to TXT_KEY_ later
 			-- Generic info from main table
 			local function AnalyzeBuilding(sField, sSuffix)
