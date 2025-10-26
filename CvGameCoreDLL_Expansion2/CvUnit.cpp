@@ -2572,8 +2572,8 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 
 	setReconPlot(NULL);
 
-	PRECONDITION(getAttackPlot() == NULL, "The current unit instance's attack plot is expected to be NULL");
-	PRECONDITION(getCombatUnit() == NULL, "The current unit instance's combat unit is expected to be NULL");
+	ASSERT(getAttackPlot() == NULL, "The current unit instance's attack plot is expected to be NULL");
+	ASSERT(getCombatUnit() == NULL, "The current unit instance's combat unit is expected to be NULL");
 
 	GET_TEAM(getTeam()).changeUnitClassCount((UnitClassTypes)getUnitInfo().GetUnitClassType(), -1);
 	GET_PLAYER(eUnitOwner).changeUnitClassCount((UnitClassTypes)getUnitInfo().GetUnitClassType(), -1);
@@ -12815,6 +12815,11 @@ bool CvUnit::canBlastTourism(const CvPlot* pPlot, bool bTestVisible) const
 		return false;
 	}
 
+	if (GET_PLAYER(eOwner).isMinorCiv() || eOwner == getOwner())
+	{
+		return false;
+	}
+
 	//No tourism while at war!
 	if (MOD_BALANCE_NO_WARTIME_CONCERT_TOURS && GET_TEAM(GET_PLAYER(eOwner).getTeam()).isAtWar(getTeam()))
 	{
@@ -12828,8 +12833,7 @@ bool CvUnit::canBlastTourism(const CvPlot* pPlot, bool bTestVisible) const
 		return false;
 	}
 
-	CvPlayer &kTileOwner = GET_PLAYER(eOwner);
-	return kTileOwner.isAlive() && !kTileOwner.isMinorCiv() && eOwner != getOwner();
+	return true;
 }
 
 //	--------------------------------------------------------------------------------
@@ -25458,7 +25462,7 @@ void CvUnit::setCombatUnit(CvUnit* pCombatUnit, bool bAttacking)
 
 	if(pCombatUnit != NULL)
 	{
-		PRECONDITION(getCombatUnit() == NULL && getCombatCity() == NULL, "Combat Unit or City is not expected to be assigned");
+		ASSERT(getCombatUnit() == NULL && getCombatCity() == NULL, "Combat Unit or City is not expected to be assigned");
 		m_bCombatFocus = (
 			bAttacking && 
 			!(DLLUI->isFocusedWidget()) && 
@@ -25511,7 +25515,7 @@ void CvUnit::setCombatCity(CvCity* pCombatCity)
 
 	if(pCombatCity != NULL)
 	{
-		PRECONDITION(getCombatUnit() == NULL && getCombatCity() == NULL, "Combat Unit or City is not expected to be assigned");
+		ASSERT(getCombatUnit() == NULL && getCombatCity() == NULL, "Combat Unit or City is not expected to be assigned");
 		m_bCombatFocus = (!(DLLUI->isFocusedWidget()) && ((getOwner() == GC.getGame().getActivePlayer()) || ((pCombatCity->getOwner() == GC.getGame().getActivePlayer()) && !(GET_PLAYER(GC.getGame().getActivePlayer()).isSimultaneousTurns()))));
 		m_combatCity = pCombatCity->GetIDInfo();
 	}

@@ -365,7 +365,6 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nMinCandidat
 
 		int iNearbyPenalty = 0;
 
-		bool bSkip = false;
 		// Add a bonus based on how far away all other explorers are from this plot
 		for (std::vector<pair<int, int>>::iterator it = vOtherExplorerCoordinates.begin(); it != vOtherExplorerCoordinates.end(); ++it)
 		{
@@ -373,15 +372,11 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nMinCandidat
 
 			if (iDistToOther == 0)
 			{
-				bSkip = true;
 				break;
 			}
 
 			iNearbyPenalty += 100 / iDistToOther;
 		}
-
-		if (bSkip)
-			continue;
 
 		iRating -= iNearbyPenalty;
 
@@ -441,6 +436,9 @@ void CvHomelandAI::FindHomelandTargets()
 	int iNumPlots = theMap.numPlots();
 	vector<PlayerTypes> vUnfriendlyMajors = m_pPlayer->GetUnfriendlyMajors();
 
+	bool bBonusFromGarrisons = m_pPlayer->GetHappinessPerGarrisonedUnit() > 0 || m_pPlayer->IsGarrisonFreeMaintenance();
+	bool bBonusFromCityStrength = m_pPlayer->GetHappinessPerCityOverStrengthThreshold() > 0;
+
 	for(int iI = 0; iI < iNumPlots; iI++)
 	{
 		CvPlot* pLoopPlot = theMap.plotByIndexUnchecked(iI);
@@ -450,13 +448,25 @@ void CvHomelandAI::FindHomelandTargets()
 			// Have a ...
 			// ... friendly city?
 			CvCity* pCity = pLoopPlot->getPlotCity();
-			if(pCity != NULL && m_pPlayer->GetID() == pCity->getOwner())
+			// If the city needs a garrison, it has been handled already by tactical AI
+			if(pCity != NULL && m_pPlayer->GetID() == pCity->getOwner() && !pCity->NeedsGarrison())
 			{
-				newTarget.SetTargetType(AI_HOMELAND_TARGET_CITY);
-				newTarget.SetTargetX(pLoopPlot->getX());
-				newTarget.SetTargetY(pLoopPlot->getY());
-				newTarget.SetAuxIntData(pCity->getThreatValue());
-				m_TargetedCities.push_back(newTarget);
+				int iEstimatedCityStrengthNoGarrison = pCity->getStrengthValue();
+				CvUnit* pGarrisonedUnit = pCity->GetGarrisonedUnit();
+				if (pGarrisonedUnit && pGarrisonedUnit->getDomainType() == DOMAIN_LAND)
+				{
+					int iStrengthFromGarrison = (max(pGarrisonedUnit->GetBaseCombatStrength(), pGarrisonedUnit->GetBaseRangedCombatStrength()) * 100) / /*500 in CP, 200 in VP*/ GD_INT_GET(CITY_STRENGTH_UNIT_DIVISOR);
+
+					iEstimatedCityStrengthNoGarrison -= (iStrengthFromGarrison * 100);
+				}
+				if (bBonusFromGarrisons || (bBonusFromCityStrength && iEstimatedCityStrengthNoGarrison < GD_INT_GET(CITY_STRENGTH_THRESHOLD_FOR_BONUSES) * 100))
+				{
+					newTarget.SetTargetType(AI_HOMELAND_TARGET_CITY);
+					newTarget.SetTargetX(pLoopPlot->getX());
+					newTarget.SetTargetY(pLoopPlot->getY());
+					newTarget.SetAuxIntData(pCity->getThreatValue());
+					m_TargetedCities.push_back(newTarget);
+				}
 			}
 			// ... antiquity site?
 			if (m_pPlayer->isMajorCiv())
@@ -600,6 +610,7 @@ void CvHomelandAI::AssignHomelandMoves()
 
 	//military again
 	PlotUpgradeMoves();
+	PlotOpportunityAttacks();
 	PlotGarrisonMoves();
 	PlotSentryMoves();
 	PlotSentryNavalMoves();
@@ -701,6 +712,9 @@ void CvHomelandAI::PlotGarrisonMoves()
 	// Grab units that make sense for this move type
 	FindUnitsForThisMove(AI_HOMELAND_MOVE_GARRISON);
 
+	bool bBonusFromGarrisons = m_pPlayer->GetHappinessPerGarrisonedUnit() > 0 || m_pPlayer->IsGarrisonFreeMaintenance();
+	bool bBonusFromCityStrength = m_pPlayer->GetHappinessPerCityOverStrengthThreshold() > 0;
+
 	for (unsigned int iI = 0; iI < m_TargetedCities.size(); iI++)
 	{
 		CvPlot* pTarget = GC.getMap().plot(m_TargetedCities[iI].GetTargetX(), m_TargetedCities[iI].GetTargetY());
@@ -708,10 +722,33 @@ void CvHomelandAI::PlotGarrisonMoves()
 		if (!pCity)
 			continue;
 
-		if (pCity->HasGarrison())
+		int iEstimatedCityStrengthNoGarrison = pCity->getStrengthValue();
+		bool bEnoughStrength = iEstimatedCityStrengthNoGarrison >= GD_INT_GET(CITY_STRENGTH_THRESHOLD_FOR_BONUSES) * 100;
+		int iMinStrengthNeeded100 = 0;
+
+		if (bBonusFromCityStrength && !pCity->NeedsGarrison() && !bBonusFromGarrisons)
+		{
+			CvUnit* pGarrisonedUnit = pCity->GetGarrisonedUnit();
+			if (pGarrisonedUnit && pGarrisonedUnit->getDomainType() == DOMAIN_LAND)
+			{
+				int iStrengthFromGarrison = (max(pGarrisonedUnit->GetBaseCombatStrength(), pGarrisonedUnit->GetBaseRangedCombatStrength()) * 100) / /*500 in CP, 200 in VP*/ GD_INT_GET(CITY_STRENGTH_UNIT_DIVISOR);
+
+				iEstimatedCityStrengthNoGarrison -= (iStrengthFromGarrison * 100);
+			}
+
+			if (iEstimatedCityStrengthNoGarrison < GD_INT_GET(CITY_STRENGTH_THRESHOLD_FOR_BONUSES) * 100)
+			{
+				iMinStrengthNeeded100 = (GD_INT_GET(CITY_STRENGTH_UNIT_DIVISOR) * (GD_INT_GET(CITY_STRENGTH_THRESHOLD_FOR_BONUSES) * 100 - iEstimatedCityStrengthNoGarrison)) / 100;
+			}
+		}
+
+		// If the city doesn't need a garrison, we just want a unit here for maintenance/happiness bonuses
+		// If we only want a unit here for city strength bonuses, check that we are getting that bonus
+		if (pCity->HasGarrison() && (bEnoughStrength || pCity->NeedsGarrison() || bBonusFromGarrisons))
 		{
 			//nothing to do really
 			CvUnit* pGarrison = pCity->GetGarrisonedUnit();
+
 			//do not touch units which are under human control (eg accidentally garrisoned explorers)
 			if (!pGarrison->TurnProcessed() && (!pGarrison->isHuman(ISHUMAN_AI_UNITS) || pGarrison->IsAutomated()))
 				UnitProcessed(pGarrison->GetID());
@@ -719,7 +756,7 @@ void CvHomelandAI::PlotGarrisonMoves()
 		else
 		{
 			//try to find a new garrison
-			CvUnit *pGarrison = GetBestUnitToReachTarget(pTarget, /*4*/ GD_INT_GET(AI_HOMELAND_MAX_DEFENSIVE_MOVE_TURNS));
+			CvUnit *pGarrison = GetBestUnitToReachTarget(pTarget, /*4*/ GD_INT_GET(AI_HOMELAND_MAX_DEFENSIVE_MOVE_TURNS), iMinStrengthNeeded100);
 			if (pGarrison)
 			{
 				ExecuteMoveToTarget(pGarrison, pTarget, 0);
@@ -757,8 +794,12 @@ void CvHomelandAI::PlotHealMoves()
 					continue;
 			}
 
+			int iDamageThreshold = 25;
+			if (pUnit->AI_getUnitAIType() == UNITAI_EXPLORE_SEA && pUnit->healRate(pUnit->plot()) == 0)
+				iDamageThreshold = pUnit->GetMaxHitPoints() - 50;
+
 			// We are not particularly damaged
-			if (pUnit->getDamage() <= 7)
+			if (pUnit->getDamage() <= iDamageThreshold)
 				continue;
 
 			CvHomelandUnit unit;
@@ -873,7 +914,7 @@ void CvHomelandAI::PlotSentryMoves()
 				continue;
 
 			// Very important sentry points (forts and workers) we don't want to leave unguarded
-			if (pSentry->atPlot(*pTarget) && m_TargetedSentryPoints[iI].GetAuxIntData() < 500)
+			if (pSentry->atPlot(*pTarget) && m_TargetedSentryPoints[iI].GetAuxIntData() < 500 && (pSentry->getDamage() == 0 || !pSentry->canHeal(pSentry->plot())))
 			{
 				//check our immediate neighbors if we can increase our visibility significantly
 				int iBestCount = 1;
@@ -928,7 +969,7 @@ void CvHomelandAI::PlotSentryNavalMoves()
 				if(pSentry)
 				{
 					// Very important sentry points (forts and workers) we don't want to leave unguarded
-					if(pSentry->plot() == pTarget && m_TargetedSentryPoints[iI].GetAuxIntData() < 500)
+					if(pSentry->plot() == pTarget && m_TargetedNavalSentryPoints[iI].GetAuxIntData() < 500)
 					{
 						//Remove all status if not fortified so we can see if it is possible to fortify.
 						if(pSentry->canSentry(pSentry->plot()))
@@ -1085,7 +1126,7 @@ void CvHomelandAI::PlanImprovements()
 // Figure out how many contiguous areas we have and how many workers should be in each
 void CvHomelandAI::PlanWorkerDistribution()
 {
-	if (m_pPlayer->isHuman(ISHUMAN_AI_UNITS) || m_pPlayer->isMinorCiv() || m_pPlayer->isBarbarian())
+	if (m_pPlayer->isHuman(ISHUMAN_AI_UNITS) || m_pPlayer->isMinorCiv() || m_pPlayer->isBarbarian() || m_pPlayer->IsAtWar())
 		return;
 
 	SWorkerRegion::ResetCounter();
@@ -1331,7 +1372,7 @@ void CvHomelandAI::ExecuteUnitGift()
 		int iLoop = 0;
 		for (CvUnit* pUnit = m_pPlayer->firstUnit(&iLoop); pUnit != NULL; pUnit = m_pPlayer->nextUnit(&iLoop))
 		{
-			if (pUnit->getUnitType() == eUnitType && !pUnit->IsGarrisoned() && !pUnit->isDelayedDeath() && pUnit->getExperienceTimes100() >= iMinExperienceRequired * 100)
+			if (pUnit->getUnitType() == eUnitType && (!pUnit->IsGarrisoned() || pUnit->getDomainType() != DOMAIN_LAND || !pUnit->plot()->getPlotCity()->NeedsGarrison()) && !pUnit->isDelayedDeath() && pUnit->getExperienceTimes100() >= iMinExperienceRequired * 100)
 			{
 				if (pUnit->CanDistanceGift(pMinor->GetID()) && pUnit->canUseForAIOperation())
 				{
@@ -1433,7 +1474,7 @@ bool CvHomelandAI::SendUnitGift(DomainTypes eDomain)
 		int iLoop = 0;
 		for (CvUnit* pUnit = m_pPlayer->firstUnit(&iLoop); pUnit != NULL; pUnit = m_pPlayer->nextUnit(&iLoop))
 		{
-			if (pUnit->IsCombatUnit() && pUnit->getDomainType() == eDomain && !pUnit->IsGarrisoned() && !pUnit->isDelayedDeath())
+			if (pUnit->IsCombatUnit() && pUnit->getDomainType() == eDomain && (!pUnit->IsGarrisoned() || !pUnit->plot()->getPlotCity()->NeedsGarrison()) && !pUnit->isDelayedDeath())
 			{
 				// Don't send a siege unit
 				if (eDomain == DOMAIN_LAND && pUnit->AI_getUnitAIType() == UNITAI_CITY_BOMBARD)
@@ -1508,7 +1549,7 @@ void CvHomelandAI::PlotPatrolMoves()
 	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
-		if(pUnit && pUnit->IsCombatUnit() && pUnit->getDomainType() != DOMAIN_AIR && !pUnit->IsGarrisoned() && pUnit->AI_getUnitAIType() != UNITAI_CITY_BOMBARD)
+		if(pUnit && pUnit->IsCombatUnit() && pUnit->getDomainType() != DOMAIN_AIR && (!pUnit->IsGarrisoned() || pUnit->getDomainType() != DOMAIN_LAND || !pUnit->plot()->getPlotCity()->NeedsGarrison()) && pUnit->AI_getUnitAIType() != UNITAI_CITY_BOMBARD)
 		{
 			CvHomelandUnit unit;
 			unit.SetID(pUnit->GetID());
@@ -2259,6 +2300,55 @@ void CvHomelandAI::PlotAircraftRebase()
 	}
 }
 
+void CvHomelandAI::PlotOpportunityAttacks()
+{
+	ClearCurrentMoveUnits(AI_HOMELAND_MOVE_OPPORTUNITY_ATTACK);
+
+	for (list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
+	{
+		CvUnit* pUnit = m_pPlayer->getUnit(*it);
+		if (pUnit)
+		{
+			if (pUnit->isHuman(ISHUMAN_AI_UNITS))
+				continue;
+
+			if (pUnit->IsCombatUnit() && pUnit->getDomainType() != DOMAIN_AIR)
+			{
+				CvHomelandUnit unit;
+				unit.SetID(pUnit->GetID());
+				m_CurrentMoveUnits.push_back(unit);
+			}
+		}
+	}
+
+	if (m_CurrentMoveUnits.size() > 0)
+	{
+		ExecuteOpportunityAttacks();
+	}
+}
+
+void CvHomelandAI::ExecuteOpportunityAttacks()
+{
+	for (CHomelandUnitArray::iterator it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
+	{
+		CvUnit* pUnit = m_pPlayer->getUnit(it->GetID());
+
+		bool bAllowMovement = !pUnit->IsGarrisoned() || pUnit->getDomainType() != DOMAIN_LAND || !pUnit->plot()->getPlotCity()->NeedsGarrison();
+
+		if (TacticalAIHelpers::PerformOpportunityAttack(pUnit, bAllowMovement))
+		{
+			CvString strTemp;
+			strTemp = pUnit->getUnitInfo().GetDescription();
+			CvString strLogString;
+			strLogString.Format("%s %d performed an opportunity attack, at X: %d, Y: %d", strTemp.GetCString(), pUnit->GetID(), pUnit->getX(), pUnit->getY());
+			LogHomelandMessage(strLogString);
+
+			if (!pUnit->canMove())
+				UnitProcessed(pUnit->GetID());
+		}
+	}
+}
+
 /// Send trade units on their way
 void CvHomelandAI::PlotTradeUnitMoves()
 {
@@ -2851,7 +2941,6 @@ bool CvHomelandAI::ExecuteExplorerMoves(CvUnit* pUnit)
 			// Add a penalty based on how many other explorers are at or are moving towards the vicinity of this plot
 			int iNearbyPenalty = 0;
 			int iLoop;
-			bool bSkip = false;
 			for (CvUnit* pLoopUnit = GET_PLAYER(pUnit->getOwner()).firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER(pUnit->getOwner()).nextUnit(&iLoop))
 			{
 				if (!pLoopUnit)
@@ -2886,15 +2975,11 @@ bool CvHomelandAI::ExecuteExplorerMoves(CvUnit* pUnit)
 				int iDist = plotDistance(iLoopX, iLoopY, pEvalPlot->getX(), pEvalPlot->getY());
 				if (iDist == 0)
 				{
-					bSkip = true;
 					break;
 				}
 
 				iNearbyPenalty += 100 / iDist;
 			}
-
-			if (bSkip)
-				continue;
 
 			int iRandom = GC.getGame().randRangeExclusive(0, 23, pEvalPlot->GetPseudoRandomSeed());
 			int iTotalScore = iScoreBase + iScoreExtra + iScoreBonus - iNearbyPenalty + iRandom;
@@ -3122,7 +3207,7 @@ static bool IsBestDirectiveForPlot(BuilderDirective eDirective, CvPlayer* pPlaye
 	return true;
 }
 
-int CvHomelandAI::GetBuilderNumTurnsAway(CvUnit* pUnit, BuilderDirective eDirective, const std::map<CvUnit*, ReachablePlots>& allWorkersReachablePlots)
+int CvHomelandAI::GetBuilderNumTurnsAway(CvUnit* pUnit, BuilderDirective eDirective, const std::map<CvUnit*, ReachablePlots>& allWorkersReachablePlots) const
 {
 	int iMoveTurns = INT_MAX;
 	CvPlot* pTarget = GC.getMap().plot(eDirective.m_sX, eDirective.m_sY);
@@ -3138,7 +3223,7 @@ int CvHomelandAI::GetBuilderNumTurnsAway(CvUnit* pUnit, BuilderDirective eDirect
 		if (itPlot == itPlots->second.end())
 			return INT_MAX;
 
-		iMoveTurns = itPlot->iPathLength;
+		iMoveTurns = itPlot->iPathLength + (itPlot->iMovesLeft == 0 ? 1 : 0);
 	}
 
 	return iMoveTurns;
@@ -3150,7 +3235,8 @@ vector<OptionWithScore<pair<CvUnit*, BuilderDirective>>> CvHomelandAI::GetWeight
 	const set<BuilderDirective> ignoredDirectives, 
 	const list<int> allWorkers, 
 	const set<int> ignoredWorkers, 
-	const std::map<CvUnit*, ReachablePlots>& allWorkersReachablePlots)
+	const std::map<CvUnit*, ReachablePlots>& allWorkersReachablePlots,
+	bool bConsiderRegions) const
 {
 	vector<OptionWithScore<pair<CvUnit*, BuilderDirective>>> aWeightedDirectives;
 	aWeightedDirectives.reserve(aDirectives.size());
@@ -3202,7 +3288,7 @@ vector<OptionWithScore<pair<CvUnit*, BuilderDirective>>> CvHomelandAI::GetWeight
 			if (ignoredWorkers.find(pUnit->GetID()) != ignoredWorkers.end())
 				continue;
 
-			if (!m_pPlayer->isHuman(ISHUMAN_AI_UNITS) && !m_pPlayer->isMinorCiv() && !m_pPlayer->isBarbarian())
+			if (bConsiderRegions)
 				if (GetWorkerRegionTargetPlot(pUnit) != NULL && !IsWorkerAtAllocatedRegion(pUnit, pDirectivePlot))
 					continue;
 
@@ -3384,8 +3470,8 @@ void CvHomelandAI::ExecuteWorkerMoves()
 		}
 	}
 
-
-	if (!m_pPlayer->isHuman(ISHUMAN_AI_UNITS) && !m_pPlayer->isMinorCiv() && !m_pPlayer->isBarbarian())
+	bool bConsiderRegions = !m_pPlayer->isHuman(ISHUMAN_AI_UNITS) && !m_pPlayer->isMinorCiv() && !m_pPlayer->isBarbarian() && m_pPlayer->IsAtPeace();
+	if (bConsiderRegions)
 	{
 		// Check if any worker is in the wrong region, if so they should move to the right one
 		for (std::list<int>::iterator it = allWorkers.begin(); it != allWorkers.end(); ++it)
@@ -3399,17 +3485,16 @@ void CvHomelandAI::ExecuteWorkerMoves()
 				continue;
 
 			CvPlot* pTargetPlot = GetWorkerRegionTargetPlot(pUnit);
-			if (pTargetPlot && ExecuteMoveToTarget(pUnit, pTargetPlot, CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_PRETEND_ALL_REVEALED, true))
+			if (pTargetPlot && ExecuteMoveToTarget(pUnit, pTargetPlot, CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER, false))
 			{
 				processedWorkers.insert(pUnit->GetID());
-				UnitProcessed(pUnit->GetID());
 			}
 		}
 	}
 
 	// This is the important part
 	vector<OptionWithScore<pair<CvUnit*, BuilderDirective>>> aDistanceWeightedDirectives = 
-		GetWeightedDirectives(topDirectives, ignoredDirectives, allWorkers, processedWorkers, allWorkersReachablePlots);
+		GetWeightedDirectives(topDirectives, ignoredDirectives, allWorkers, processedWorkers, allWorkersReachablePlots, bConsiderRegions);
 
 	// Loop through all the directives sorted by weighted score and distance (see GetDirectiveWeight)
 	while (!aDistanceWeightedDirectives.empty() && aDistanceWeightedDirectives.front().score != INT_MIN && allWorkers.size() > processedWorkers.size())
@@ -3921,7 +4006,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 				aNewBuilderDirectives.push_back(eOtherDirective);
 			}
 
-			aDistanceWeightedDirectives = GetWeightedDirectives(aNewBuilderDirectives, ignoredDirectives, allWorkers, processedWorkers, allWorkersReachablePlots);
+			aDistanceWeightedDirectives = GetWeightedDirectives(aNewBuilderDirectives, ignoredDirectives, allWorkers, processedWorkers, allWorkersReachablePlots, bConsiderRegions);
 		}
 	}
 
@@ -6233,7 +6318,7 @@ bool CvHomelandAI::FindUnitsForThisMove(AIHomelandMove eMove)
 				continue;
 
 			//Don't poach garrisons
-			if (pLoopUnit->IsGarrisoned() && pLoopUnit->getDomainType() == DOMAIN_LAND)
+			if (pLoopUnit->IsGarrisoned() && pLoopUnit->getDomainType() == DOMAIN_LAND && pLoopUnit->plot()->getPlotCity()->NeedsGarrison())
 				continue;
 
 			bool bSuitableUnit = false;
@@ -6249,13 +6334,7 @@ bool CvHomelandAI::FindUnitsForThisMove(AIHomelandMove eMove)
 				if (pLoopUnit->getDomainType() != DOMAIN_LAND)
 					continue;
 
-				// Want to put ranged units in cities to give them a ranged attack
-				if(pLoopUnit->IsCanAttackRanged() && !MOD_AI_UNIT_PRODUCTION)
-					bSuitableUnit = true;
-
-				// AI_UNIT_PRODUCTION : No skirmishers as garrison
-				if (pLoopUnit->IsCanAttackRanged() && MOD_AI_UNIT_PRODUCTION && !pLoopUnit->getUnitInfo().IsMounted())
-					bSuitableUnit = true;
+				bSuitableUnit = true;
 
 				break;
 
@@ -6294,7 +6373,7 @@ bool CvHomelandAI::FindUnitsForThisMove(AIHomelandMove eMove)
 
 //	---------------------------------------------------------------------------
 /// Compute the best unit to reach a target in the current normal and high priority move list
-CvUnit* CvHomelandAI::GetBestUnitToReachTarget(CvPlot* pTarget, int iMaxTurns)
+CvUnit* CvHomelandAI::GetBestUnitToReachTarget(CvPlot* pTarget, int iMaxTurns, int iMinStrengthTimes100)
 {
 	int iBestTurns = INT_MAX;
 	CvUnit* pBestUnit = NULL;
@@ -6317,6 +6396,9 @@ CvUnit* CvHomelandAI::GetBestUnitToReachTarget(CvPlot* pTarget, int iMaxTurns)
 				it->SetMovesToTarget(MAX_INT);
 				continue;
 			}
+
+			if (max(pLoopUnit->GetBaseCombatStrength(), pLoopUnit->GetBaseRangedCombatStrength()) * 100 < iMinStrengthTimes100)
+				continue;
 
 			if (pLoopUnit->plot() == pTarget)
 			{

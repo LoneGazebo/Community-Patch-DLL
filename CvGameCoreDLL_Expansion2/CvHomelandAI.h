@@ -271,12 +271,14 @@ private:
 	void PlotPatrolMoves();
 	void PlotUpgradeMoves();
 	void PlotAircraftRebase();
+	void PlotOpportunityAttacks();
 
 	void ExecuteUnitGift();
 	bool SendUnitGift(DomainTypes eDomain);
 
 	void ExecuteAircraftMoves();
 	void ExecutePatrolMoves();
+	void ExecuteOpportunityAttacks();
 
 	// Internal low-level utility routines
 	void EliminateAdjacentSentryPoints();
@@ -338,7 +340,7 @@ private:
 	void ExecuteArchaeologistMoves();
 
 	bool FindUnitsForThisMove(AIHomelandMove eMove);
-	CvUnit* GetBestUnitToReachTarget(CvPlot* pTarget, int iMaxTurns);
+	CvUnit* GetBestUnitToReachTarget(CvPlot* pTarget, int iMaxTurns, int iMinStrengthTimes100 = 0);
 	bool MoveToTargetButDontEndTurn(CvUnit* pUnit, CvPlot* pTargetPlot, int iFlags);
 
 	CvPlot* FindArchaeologistTarget(CvUnit *pUnit);
@@ -347,11 +349,12 @@ private:
 		const set<BuilderDirective> ignoredDirectives, 
 		const list<int> allWorkers, 
 		const set<int> ignoredWorkers, 
-		const std::map<CvUnit*, ReachablePlots>& allWorkersReachablePlots);
+		const std::map<CvUnit*, ReachablePlots>& allWorkersReachablePlots,
+		bool bConsiderRegions) const;
 	int GetBuilderNumTurnsAway(
 		CvUnit* pUnit, 
 		BuilderDirective eDirective, 
-		const std::map<CvUnit*, ReachablePlots>& allWorkersReachablePlots);
+		const std::map<CvUnit*, ReachablePlots>& allWorkersReachablePlots) const;
 
 	void UnitProcessed(int iID);
 	bool ExecuteCultureBlast(CvUnit* pUnit);

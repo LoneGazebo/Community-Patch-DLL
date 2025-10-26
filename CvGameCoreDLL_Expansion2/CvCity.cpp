@@ -17999,15 +17999,13 @@ void CvCity::UpdateYieldPerXFeature(YieldTypes eYield, FeatureTypes eFeature)
 		if (bTest)
 		{
 			iValidTiles = GetNumFeatureWorked(eFeature);
-			if (iValidTiles > 0)
-			{
-				//Gain 1 yield per x valid tiles - so if 'x' is 3, and you have 3 tiles that match, you get 1 yield
-				iYieldBase = (iValidTiles * iBaseYield);
-				iYieldReligion = (iValidTiles * iBaseYieldReligion);
 
-				SetYieldPerXFeatureTimes100(eFeature, eYield, iYieldBase);
-				SetYieldPerXFeatureFromReligionTimes100(eFeature, eYield, iYieldReligion);
-			}
+			//Gain 1 yield per x valid tiles - so if 'x' is 3, and you have 3 tiles that match, you get 1 yield
+			iYieldBase = (iValidTiles * iBaseYield);
+			iYieldReligion = (iValidTiles * iBaseYieldReligion);
+
+			SetYieldPerXFeatureTimes100(eFeature, eYield, iYieldBase);
+			SetYieldPerXFeatureFromReligionTimes100(eFeature, eYield, iYieldReligion);
 		}
 	}
 	else
@@ -22000,16 +21998,17 @@ void CvCity::ChangeWeLoveTheKingDayCounter(int iChange, bool bUATrigger)
 {
 	VALIDATE_OBJECT();
 
+	bool bNewWLTKD = false;
+	if (m_iWeLoveTheKingDayCounter <= 0)
+		bNewWLTKD = true;
+
+	m_iWeLoveTheKingDayCounter += iChange;
+
 	if (iChange <= 0)
 		return;
 
 	GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_WLTKD_START, false, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, this);
 
-	bool bNewWLTKD = false;
-	if (m_iWeLoveTheKingDayCounter <= 0)
-		bNewWLTKD = true;
-
-	SetWeLoveTheKingDayCounter(GetWeLoveTheKingDayCounter() + iChange);
 	if (bNewWLTKD)
 	{
 		GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityBeginsWLTKD, getOwner(), getX(), getY(), iChange);
@@ -22018,14 +22017,13 @@ void CvCity::ChangeWeLoveTheKingDayCounter(int iChange, bool bUATrigger)
 	{
 		GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityExtendsWLTKD, getOwner(), getX(), getY(), iChange);
 	}
+
 	if (bUATrigger)
 	{
-		for (int iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
+		for (int iI = 0; iI < GC.getNUM_YIELD_TYPES(); iI++)
 		{
-			if (GET_PLAYER(getOwner()).GetPlayerTraits()->GetPermanentYieldChangeWLTKD((YieldTypes)iJ) > 0)
-			{
-				ChangeBaseYieldRatePermanentWLTKDTimes100((YieldTypes)iJ, GET_PLAYER(getOwner()).GetPlayerTraits()->GetPermanentYieldChangeWLTKD((YieldTypes)iJ) * 100);
-			}
+			YieldTypes eYield = static_cast<YieldTypes>(iI);
+			ChangeBaseYieldRatePermanentWLTKDTimes100(eYield, GET_PLAYER(getOwner()).GetPlayerTraits()->GetPermanentYieldChangeWLTKD(eYield) * 100);
 		}
 	}
 }
@@ -27640,10 +27638,15 @@ bool CvCity::CanBuyPlot(int iPlotX, int iPlotY, bool bIgnoreCost) const
 	if (plotDistance(iPlotX, iPlotY, getX(), getY()) > iMaxRange)
 		return false;
 
+	// Some checks are inside the cost function
+	const int iCost = GetBuyPlotCost(pTargetPlot->getX(), pTargetPlot->getY());
+	if (iCost == INT_MAX)
+		return false;
+
 	// check money
 	if (!bIgnoreCost)
 	{
-		if (kOwner.GetTreasury()->GetGold() < GetBuyPlotCost(pTargetPlot->getX(), pTargetPlot->getY()))
+		if (kOwner.GetTreasury()->GetGold() < iCost)
 		{
 			return false;
 		}
@@ -28101,7 +28104,7 @@ int CvCity::GetBuyPlotCost(int iPlotX, int iPlotY) const
 	CvPlot* pPlot = GC.getMap().plot(iPlotX, iPlotY);
 	if (!pPlot)
 	{
-		return -1;
+		return INT_MAX;
 	}
 
 	// Base cost
@@ -28109,7 +28112,7 @@ int CvCity::GetBuyPlotCost(int iPlotX, int iPlotY) const
 
 	const int iMaxRange = getBuyPlotDistance();
 	if (plotDistance(iPlotX, iPlotY, getX(), getY()) > iMaxRange)
-		return 9999; // Critical hit!
+		return INT_MAX; // Critical hit!
 
 	int iPLOT_INFLUENCE_BASE = /*100*/ GD_INT_GET(PLOT_INFLUENCE_BASE_MULTIPLIER);
 	int iPLOT_INFLUENCE_DISTANCE_DIVISOR = /*3*/ GD_INT_GET(PLOT_INFLUENCE_DISTANCE_DIVISOR);
@@ -28118,7 +28121,7 @@ int CvCity::GetBuyPlotCost(int iPlotX, int iPlotY) const
 	// the path length can be larger than iMaxRange because there might not be a straight line of owned tiles from the city center to the plot
 	int iDistance = calculateInfluenceDistance(pPlot, GetNumWorkablePlots());
 	if (iDistance == -1)
-		return 9999; // failsafe
+		return INT_MAX; // failsafe
 
 	int iRefDistance = GetCheapestPlotInfluenceDistance();
 	if (iRefDistance == INT_MAX)
@@ -28593,7 +28596,7 @@ int CvCity::GetIndividualPlotScore(const CvPlot* pPlot) const
 	{
 		YieldTypes eYield = (YieldTypes)iI;
 
-		int iYield = pPlot->calculateNatureYield(eYield, getOwner(), pPlot->getFeatureType(), pPlot->getResourceType(getTeam()), NULL);
+		int iYield = pPlot->calculateNatureYield(eYield, getOwner(), pPlot->getFeatureType(), pPlot->getResourceType(getTeam()), pPlot->getImprovementType(), NULL);
 
 		int iTempValue = 0;
 
@@ -33644,7 +33647,7 @@ void CvCity::setCombatUnit(CvUnit* pCombatUnit, bool /*bAttacking*/)
 {
 	if (pCombatUnit != NULL)
 	{
-		PRECONDITION(getCombatUnit() == NULL, "Combat Unit is not expected to be assigned");
+		ASSERT(getCombatUnit() == NULL, "Combat Unit is not expected to be assigned");
 		ASSERT(!(plot()->isCityFighting()), "(plot()->isCityFighting()) did not return false as expected");
 		m_combatUnit = pCombatUnit->GetIDInfo();
 	}

@@ -514,14 +514,16 @@ FDataStream& operator<<(FDataStream&, const CvTacticalAI&);
 enum CLOSED_ENUM eUnitMoveEvalMode { EM_INITIAL, EM_INTERMEDIATE, EM_FINAL };
 enum CLOSED_ENUM eUnitMovementStrategy { MS_NONE,MS_FIRSTLINE,MS_SECONDLINE,MS_THIRDLINE,MS_SUPPORT,MS_EMBARKED }; //we should probably differentiate between regular ranged and siege ranged ...
 enum CLOSED_ENUM eUnitAssignmentType { A_INITIAL, A_MOVE, A_MELEEATTACK, A_MELEEKILL, A_RANGEATTACK, A_RANGEKILL, A_FINISH,
-							A_BLOCKED, A_PILLAGE, A_CAPTURE, A_MOVE_FORCED, A_RESTART, A_MELEEKILL_NO_ADVANCE, A_MOVE_SWAP, A_MOVE_SWAP_REVERSE, A_USE_POWER, A_FINISH_TEMP };
+							A_BLOCKED, A_PILLAGE, A_CAPTURE, A_MOVE_FORCED, A_RESTART, A_MELEEKILL_NO_ADVANCE, A_MOVE_SWAP,
+							A_MOVE_SWAP_REVERSE, A_MOVE_DOUBLE, A_USE_POWER, A_FINISH_TEMP, A_HEAL };
 
 struct STacticalAssignment
 {
 	//todo: use smaller data types
 	eUnitAssignmentType eAssignmentType;
 	int iUnitID;
-	int iScore;
+	short iPlotScore;
+	short iBonusScore;
 	int iFromPlotIndex;
 	int iToPlotIndex;
 	int iRemainingMoves;
@@ -532,21 +534,37 @@ struct STacticalAssignment
 	int iKillOrNearKillId; //unit or city we might have killed (for danger estimation)
 
 	//convenience constructor
-	STacticalAssignment(int iFromPlot = 0, int iToPlot = 0, int iUnitID_ = 0, int iRemainingMoves_ = 0, eUnitMovementStrategy eMoveType_ = MS_NONE, int iScore_ = 0, eUnitAssignmentType eType_ = A_FINISH) :
-		eAssignmentType(eType_), iUnitID(iUnitID_), iScore(iScore_), iFromPlotIndex(iFromPlot), iToPlotIndex(iToPlot), 
+	STacticalAssignment(int iFromPlot = 0, int iToPlot = 0, int iUnitID_ = 0, int iRemainingMoves_ = 0, eUnitMovementStrategy eMoveType_ = MS_NONE, short iPlotScore_ = 0, short iBonusScore_ = 0, eUnitAssignmentType eType_ = A_FINISH) :
+		eAssignmentType(eType_), iUnitID(iUnitID_), iPlotScore(iPlotScore_), iBonusScore(iBonusScore_), iFromPlotIndex(iFromPlot), iToPlotIndex(iToPlot),
 		iRemainingMoves(iRemainingMoves_), eMoveType(eMoveType_), iDamage(0), iSelfDamage(0), iKillOrNearKillId(-1) {}
 
+	int Score() const { return (int)iPlotScore + iBonusScore; }
+
 	//sort descending
-	bool operator<(const STacticalAssignment& rhs) const { return iScore>rhs.iScore; }
+	bool operator<(const STacticalAssignment& rhs) const { return iPlotScore + iBonusScore > rhs.iPlotScore + rhs.iBonusScore; }
 	bool operator==(const STacticalAssignment& rhs) const;
 };
 
 struct SComboMove
 {
 	STacticalAssignment a, b;
-	bool operator<(const SComboMove& rhs) const { return a.iScore+b.iScore > rhs.a.iScore+rhs.b.iScore; }
+	bool operator<(const SComboMove& rhs) const {
+		return a.Score() + b.Score() > rhs.a.Score() + rhs.b.Score();
+	}
 	bool operator==(const SComboMove& rhs) const { return a == rhs.a && b == rhs.b; }
 	bool addMove(const STacticalAssignment& move);
+
+	// When comparing combination moves, we should evaluate double moves as having halved value, otherwise they get double
+	// the prio of single moves during evaluation
+	struct PrEvalOrder
+	{
+		bool operator() (const SComboMove& lhs, const SComboMove& rhs)
+		{
+			int lhsScore = lhs.b.Score() == 0 ? lhs.a.Score() : (lhs.a.Score() + lhs.b.Score()) / 2;
+			int rhsScore = rhs.b.Score() == 0 ? rhs.a.Score() : (rhs.a.Score() + rhs.b.Score()) / 2;
+			return lhsScore > rhsScore;
+		}
+	};
 };
 
 struct STacticalUnit
@@ -673,6 +691,7 @@ struct SIntPairHash
 typedef tr1::unordered_map<SPathFinderStartPos, ReachablePlots, SPathFinderStartPosHash> TCachedMovePlots;
 typedef tr1::unordered_map<pair<int, int>, vector<int>, SIntPairHash> TCachedRangeAttackPlots; // (unit:plot) -> plots
 typedef tr1::unordered_map<int, unsigned char> TUnitFlagLookup;
+typedef tr1::unordered_map<DomainTypes, ReachablePlots> TCachedDistanceToTargetPlots;
 
 //forward
 class CvTacticalPosition;
@@ -832,7 +851,8 @@ class CvTacticalPosition
 {
 protected:
 	//for final sorting (does not include intermediate moves)
-	int iTotalScore;
+	map<int, short> iPlotScores; // not additive (only the final plot value is included in the total evaluation)
+	int iBonusScore; // additive
 	//for heap sorting (included all moves made in the last generation)
 	int iScoreOverParent;
 
@@ -865,6 +885,8 @@ protected:
 	unsigned char nOriginalEnemies; //enemy units and cities. ignoring garrisons. not updated after sim-kills!
 	unsigned char nFirstInterestingAssignment; //in case we want to skip INITIALs and BLOCKEDs
 	CvPlot* pTargetPlot;
+	bool bTargetDistanceRelevant;
+	bool bReturnToStartPositions;
 
 	//should be unique
 	size_t iGeneration;
@@ -942,7 +964,7 @@ public:
 
 	CvTacticalPosition();
 
-	void initFromScratch(PlayerTypes player, eAggressionLevel eAggLvl, CvPlot* pTarget);
+	void initFromScratch(PlayerTypes player, eAggressionLevel eAggLvl, CvPlot* pTarget, bool bTargetDistanceRelevant, bool bReturnToStartPositions);
 	void initFromParent(const CvTacticalPosition& parent);
 	void wipe();
 
@@ -961,6 +983,7 @@ public:
 	bool addTacticalPlot(const CvPlot* pPlot, const vector<CvUnit*>& allOurUnits);
 	bool addAvailableUnit(const CvUnit* pUnit);
 	const vector<SUnitStats>& getAvailableUnits() const { return availableUnits; }
+	const vector<SUnitStats>& getFinishedUnits() const { return notQuiteFinishedUnits; }
 	int countChildren() const;
 	float getAggressionBias() const;
 	bool canProbablyEndTurnAfterAssignment(const STacticalAssignment& assignment, const CvTacticalPlot& endPlot) const;
@@ -989,7 +1012,7 @@ public:
 	CvPlot* getTarget() const { return pTargetPlot; }
 	eAggressionLevel getAggressionLevel() const { return eAggression; }
 	PlayerTypes getPlayer() const { return ePlayer; }
-	int getScoreTotal() const { return iTotalScore; }
+	int getScoreTotal() const;
 	int getScoreLastRound() const { return iScoreOverParent; }
 
 	const CvTacticalPosition* getParent() const { return parentPosition; }
@@ -1002,7 +1025,7 @@ public:
 	int getTotalNumFriendlyUnits() const { return (int)nOurOriginalUnits; }
 
 	//sort descending cumulative score. only makes sense for "completed" positions
-	bool operator<(const CvTacticalPosition& rhs) { return iTotalScore>rhs.iTotalScore; }
+	bool operator<(const CvTacticalPosition& rhs) { return iPlotScores>rhs.iPlotScores; }
 
 	//debugging
 	unsigned long long getID() const { return iID; }
@@ -1048,6 +1071,8 @@ namespace TacticalAIHelpers
 	ReachablePlots GetAllPlotsInReachThisTurn(const CvUnit* pUnit, const CvPlot* pStartPlot, int iFlags, int iMinMovesLeft=0, int iStartMoves=-1, const PlotIndexContainer& plotsToIgnoreForZOC=PlotIndexContainer());
 	vector<int> GetPlotsUnderRangedAttackFrom(const CvUnit* pUnit, const CvPlot* pBasePlot, bool bOnlyWithEnemy, bool bIgnoreVisibility);
 	std::set<int> GetPlotsUnderRangedAttackFrom(const CvUnit* pUnit, ReachablePlots& basePlots, bool bOnlyWithEnemy,  bool bIgnoreVisibility);
+	void UpdatePlotDistanceToTarget(PlayerTypes ePlayer, CvPlot* pTargetPlot);
+	int GetPlotDistanceToTarget(int iPlotIndex, DomainTypes eRelevantDomain);
 
 	bool PerformRangedOpportunityAttack(CvUnit* pUnit, bool bAllowMovement = false);
 	bool PerformOpportunityAttack(CvUnit* pUnit, bool bAllowMovement = false);
@@ -1072,8 +1097,8 @@ namespace TacticalAIHelpers
 	bool IsOtherPlayerCitadel(const CvPlot* pPlot, PlayerTypes ePlayer, bool bCheckWar);
 	int SentryScore(const CvPlot* pPlot, PlayerTypes ePlayer);
 
-	bool FindAndExecuteBestUnitAssignments(vector<CvUnit*>& vUnits, CvPlot* pTarget, eAggressionLevel eAggLvl);
-	vector<STacticalAssignment> FindBestUnitAssignments(const vector<CvUnit*>& vUnits, CvPlot* pTarget, eAggressionLevel eAggLvl, CvTactPosStorage& storage, set<int>& unuseableUnits);
+	bool FindAndExecuteBestUnitAssignments(PlayerTypes ePlayer, vector<CvUnit*>& vUnits, CvPlot* pTarget, eAggressionLevel eAggLvl);
+	vector<STacticalAssignment> FindBestUnitAssignments(const vector<CvUnit*>& vUnits, CvPlot* pTarget, eAggressionLevel eAggLvl, CvTactPosStorage& storage, set<int>& unuseableUnits, bool bTargetDistanceRelevant, bool bReturnToStartPositions = false);
 	bool ExecuteUnitAssignments(PlayerTypes ePlayer, const vector<STacticalAssignment>& vAssignments);
 }
 

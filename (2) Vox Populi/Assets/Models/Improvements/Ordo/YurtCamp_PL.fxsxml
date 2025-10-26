@@ -7,4 +7,5 @@
 	<Texture file="Unit_Environment_Dull.dds" source="Max" />
 	<Texture file="Tipis_Decal_H.dds"/>
 	<Texture file="Tipis_Decal_PIL.dds"/>
+	<Texture file="fx_blk_blk4x4.dds" source="Max" />
 </Asset>

@@ -100,7 +100,7 @@ void CvUnitMission::PushMission(CvUnit* hUnit, MissionTypes eMission, int iData1
 {
 	if(hUnit->isHuman(ISHUMAN_AI_UNITS))
 	{
-		ASSERT(CvUnit::dispatchingNetMessage(), "Multiplayer Error! CvUnit::PushMission invoked for a human player outside of a network message!");
+		//ASSERT(CvUnit::dispatchingNetMessage(), "Multiplayer Error! CvUnit::PushMission invoked for a human player outside of a network message!");
 		if(!CvUnit::dispatchingNetMessage())
 			gDLL->netMessageDebugLog("*** PROTOCOL ERROR *** : PushMission invoked for a human controlled player outside of a network message!");
 	}
@@ -295,7 +295,7 @@ void CvUnitMission::WaitFor(CvUnit* hUnit, CvUnit* hWaitForUnit)
 {
 	if(CvPreGame::isHuman(hUnit->getOwner()))
 	{
-		ASSERT(CvUnit::dispatchingNetMessage(), "Multiplayer Error! CvUnit::PushMission invoked for a human player outside of a network message!");
+		//ASSERT(CvUnit::dispatchingNetMessage(), "Multiplayer Error! CvUnit::PushMission invoked for a human player outside of a network message!");
 		if(!CvUnit::dispatchingNetMessage())
 			gDLL->netMessageDebugLog("*** PROTOCOL ERROR *** : PushMission invoked for a human controlled player outside of a network message!");
 	}

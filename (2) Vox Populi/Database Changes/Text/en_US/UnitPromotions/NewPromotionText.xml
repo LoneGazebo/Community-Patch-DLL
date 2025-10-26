@@ -908,7 +908,7 @@
 			<Text>Hakkaa Päälle!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_HAKKAA_PAALLE_HELP">
-			<Text>+20% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Wounded Units[ENDCOLOR].[NEWLINE]Heal 30 HP after defeating an Enemy Unit.</Text>
+			<Text>+30% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Units above 50% HP[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_FOCUS_FIRE">

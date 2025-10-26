@@ -69,7 +69,7 @@ WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_LANDMARK_TEXT';
 -- Barbarian Encampment
 UPDATE Language_en_US
 SET Text = 'Barbarian Encampment'
-WHERE Tag = 'TXT_KEY_IMPROVEMENT_VP_ENCAMPMENT';
+WHERE Tag = 'TXT_KEY_IMPROVEMENT_ENCAMPMENT';
 
 UPDATE Language_en_US
 SET Text = 'A Barbarian Encampment is a temporary settlement by a group of rampaging barbarians intent upon overthrowing and destroying your civilization. These perpetual thorns in the sides of civilizations are capable of spitting out an unending stream of angry barbarians, all who seek to overrun your cities, pillage your lands and stare lewdly at your women. Encampments near to your cities should be destroyed without question. Encampments nearer to competing civilizations may be left to harass your foes, if you are that kind of sneaky leader...'

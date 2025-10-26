@@ -2488,6 +2488,9 @@ void CvEconomicAI::DoReconState()
 				if (!EconomicAIHelpers::IsPotentialNavalExplorer(pLoopUnit->getUnitInfo().GetDefaultUnitAIType()))
 					continue;
 
+				if (pLoopUnit->IsCanAttackRanged() && pLoopUnit->isNeverInvisible())
+					continue;
+
 				// Give units a few turns before sending them out
 				if (GC.getGame().getGameTurn() - pLoopUnit->getGameTurnCreated() <= 3)
 					continue;

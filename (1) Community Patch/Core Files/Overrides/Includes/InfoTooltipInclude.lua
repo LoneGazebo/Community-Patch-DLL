@@ -2551,7 +2551,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 	AddTooltipPositive(tGlobalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_INSTANT_SPY_RANK", kBuildingInfo.InstantSpyRankChange);
 
 	-- Instant pressure
-	AddTooltipPositive(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_INSTANT_PRESSURE", kBuildingInfo.InstantReligiousPressure);
+	AddTooltipPositive(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_INSTANT_PRESSURE", kBuildingInfo.InstantReligiousPressure / 10);
 
 	-- Nearby unique luxury
 	-- This assumes Traits.UniqueLuxuryCities is set to a large value if non-zero, so that it always spawns a resource
@@ -3602,7 +3602,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 			ExtractYieldFractionTable(tImprovementBoostsGlobal, "Building_YieldPerXImprovementGlobal", kYieldInfo, "ImprovementType");
 			ExtractSimpleYieldFractionTable(tBuildingCountBoosts, "Building_YieldChangesPerXBuilding", kYieldInfo);
 			ExtractSimpleYieldFractionTable(tCSStrategicBoosts, "Building_YieldChangesFromXCityStateStrategicResource", kYieldInfo);
-			ExtractSimpleYieldFractionTable(tPlotCountBoosts, "Building_YieldChangesPerXBuilding", kYieldInfo);
+			ExtractSimpleYieldFractionTable(tPlotCountBoosts, "Building_YieldChangesPerXTiles", kYieldInfo);
 			ExtractSimpleYieldTable(tPassingTRBoosts, "Building_YieldChangesFromPassingTR", kYieldInfo);
 			ExtractSimpleYieldTable(tThemeBoosts, "Building_YieldChangesPerLocalTheme", kYieldInfo);
 			ExtractSimpleYieldTable(tMonopolyBoosts, "Building_YieldChangesPerMonopoly", kYieldInfo);

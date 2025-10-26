@@ -1108,7 +1108,7 @@
 			<Strategy>TXT_KEY_UNIT_KLEPHT_STRATEGY</Strategy>
 			<Help>TXT_KEY_UNIT_KLEPHT_HELP</Help>
 			<Domain>DOMAIN_LAND</Domain>
-			<CombatClass>UNITCOMBAT_SIEGE</CombatClass>
+			<CombatClass>UNITCOMBAT_RECON</CombatClass>
 			<Class>UNITCLASS_COMMANDO</Class>
 			<DefaultUnitAI>UNITAI_EXPLORE</DefaultUnitAI>
 			<PrereqTech>TECH_RAILROAD</PrereqTech>

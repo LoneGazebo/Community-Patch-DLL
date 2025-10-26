@@ -470,6 +470,9 @@
 // XP is granted only on a unit's first attack
 #define MOD_BALANCE_XP_ON_FIRST_ATTACK								gCustomMods.isBALANCE_XP_ON_FIRST_ATTACK()
 
+// GP and similar improvements remove the yields from resources (but still connect them)
+#define BALANCE_NO_RESOURCE_YIELDS_FROM_GP_IMPROVEMENT				gCustomMods.isBALANCE_NO_RESOURCE_YIELDS_FROM_GP_IMPROVEMENT()
+
 // Changes melee ship units to be cargo carrying units with added promotions for ship and cargo
 // FIXME: Disabled for now; this needs to be examined to see if it still works properly
 #define MOD_CARGO_SHIPS												(false)
@@ -1622,6 +1625,7 @@ public:
 	MOD_OPT_DECL(BALANCE_UNCAPPED_UNHAPPINESS);
 	MOD_OPT_DECL(BALANCE_UNIT_INVESTMENTS);
 	MOD_OPT_DECL(BALANCE_XP_ON_FIRST_ATTACK);
+	MOD_OPT_DECL(BALANCE_NO_RESOURCE_YIELDS_FROM_GP_IMPROVEMENT);
 	MOD_OPT_DECL(CARGO_SHIPS); // disabled
 
 	// Other User Interface Options

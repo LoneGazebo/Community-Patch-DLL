@@ -9323,7 +9323,7 @@ end
 Controls.OK:RegisterCallback(Mouse.eLClick, OnSearchNotFoundOK );
 
 function InputHandler( uiMsg, wParam, lParam )
-    if(uiMsg == KeyEvents.KeyDown) then
+	if(uiMsg == KeyEvents.KeyDown) then
 		if(not Controls.SearchFoundNothing:IsHidden()) then
 			if(wParam == Keys.VK_ESCAPE or wParam == Keys.VK_RETURN) then
 				Controls.SearchFoundNothing:SetHide(true);
@@ -9341,7 +9341,11 @@ function InputHandler( uiMsg, wParam, lParam )
 				return true;
 			end
 		end
-    end
+
+		if ContextPtr and not ContextPtr:IsHidden() then
+			return true
+		end
+	end
 end
 ContextPtr:SetInputHandler( InputHandler );
 

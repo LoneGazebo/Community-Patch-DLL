@@ -198,7 +198,7 @@ SET Text = 'Great Ancestor'
 WHERE Tag = 'TXT_KEY_TRAIT_WONDER_BUILDER_SHORT';
 
 UPDATE Language_en_US
-SET Text = '+20% [ICON_PRODUCTION] Production towards [ICON_WONDER] Wonders (+40% during [ICON_GOLDEN_AGE] Golden Ages). Reveal a nearby [ICON_RES_ARTIFACTS] Antiquity Site when founding a City or (prior to anyone researching [COLOR_CYAN]Archaeology[ENDCOLOR]) completing a [ICON_WONDER] World Wonder. [ICON_RES_ARTIFACTS] Antiquity Sites gain +1 [ICON_RESEARCH] Science, [ICON_CULTURE] Culture, and [ICON_PEACE] Faith with each [ICON_GOLDEN_AGE] Golden Age (up to +5).'
+SET Text = '+20% [ICON_PRODUCTION] Production towards [ICON_WONDER] Wonders, doubling in [ICON_GOLDEN_AGE] Golden Ages. Reveal a nearby [ICON_RES_ARTIFACTS] Antiquity Site when founding a City or (before anyone researches [COLOR_CYAN]Archaeology[ENDCOLOR]) completing a [ICON_WONDER] World Wonder. [ICON_RES_ARTIFACTS] Antiquity Sites gain +1 [ICON_RESEARCH] Science, [ICON_CULTURE] Culture, and [ICON_PEACE] Faith with each [ICON_GOLDEN_AGE] Golden Age (max +5).'
 WHERE Tag = 'TXT_KEY_TRAIT_WONDER_BUILDER';
 
 UPDATE Language_en_US
@@ -770,7 +770,7 @@ SET Text = 'Lion of the North'
 WHERE Tag = 'TXT_KEY_TRAIT_DIPLOMACY_GREAT_PEOPLE_SHORT';
 
 UPDATE Language_en_US
-SET Text = 'Melee Land Units start with the [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_ATTACK_BONUS_SWEDEN}[ENDCOLOR] Promotion, and Siege Units start with the [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_MOBILITY}[ENDCOLOR] Promotion. All Military Land Units heal 10 HP and earn 2 XP when a [ICON_GREAT_PEOPLE] Great Person is born. +15% [ICON_STRENGTH] Combat Strength from [ICON_GREAT_GENERAL]/[ICON_GREAT_ADMIRAL] [COLOR_POSITIVE_TEXT]Leadership[ENDCOLOR] aura.'
+SET Text = 'Melee Land Units start with the [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_ATTACK_BONUS_SWEDEN}[ENDCOLOR] Promotion, and Siege Units start with the [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_MOBILITY}[ENDCOLOR] Promotion. All Military Land Units heal 10 HP and earn 2 XP when a [ICON_GREAT_PEOPLE] Great Person is born. +15% [ICON_STRENGTH] Combat Strength from [ICON_GREAT_GENERAL]/[ICON_GREAT_ADMIRAL] [COLOR_POSITIVE_TEXT]Leadership[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_TRAIT_DIPLOMACY_GREAT_PEOPLE';
 
 UPDATE Language_en_US
@@ -785,7 +785,7 @@ WHERE Tag = 'TXT_KEY_UNIT_SWEDISH_HAKKAPELIITTA_STRATEGY';
 -- Venice
 --------------------
 UPDATE Language_en_US
-SET Text = '[COLOR_NEGATIVE_TEXT]Cannot create Settlers or Annex Cities.[ENDCOLOR] [ICON_INTERNATIONAL_TRADE] Trade Route cap doubled, target restrictions removed. [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] {TXT_KEY_UNIT_VENETIAN_MERCHANT} at [COLOR_CYAN]{TXT_KEY_TECH_HORSEBACK_RIDING_TITLE}[ENDCOLOR]. [ICON_PUPPET] Puppets have -30% Yield penalties, can use [ICON_GOLD] Gold and gain [ICON_HAPPINESS_1] Happiness like normal Cities.'
+SET Text = '[COLOR_NEGATIVE_TEXT]Cannot create Settlers or annex Cities.[ENDCOLOR] [ICON_INTERNATIONAL_TRADE] Trade Route cap doubled, target restrictions removed. [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] {TXT_KEY_UNIT_VENETIAN_MERCHANT} at [COLOR_CYAN]{TXT_KEY_TECH_HORSEBACK_RIDING_TITLE}[ENDCOLOR]. [ICON_PUPPET] Puppets have -30% Yield penalties, can use [ICON_GOLD] Gold and gain [ICON_HAPPINESS_1] Happiness like normal Cities.'
 WHERE Tag = 'TXT_KEY_TRAIT_SUPER_CITY_STATE';
 
 UPDATE Language_en_US

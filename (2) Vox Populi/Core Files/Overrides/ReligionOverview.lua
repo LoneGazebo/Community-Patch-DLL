@@ -370,7 +370,7 @@ function RefreshYourReligion()
 				entry.BeliefType:SetText(beliefType);
 				entry.BeliefName:LocalizeAndSetText(belief.ShortDescription);
 				entry.BeliefDescription:LocalizeAndSetText(belief.Description);
-				if(belief.Tooltip ~= "") then
+				if(belief.Tooltip and belief.Tooltip ~= "") then
 					entry.BeliefDescription:LocalizeAndSetToolTip(belief.Tooltip);
 				else
 					entry.BeliefDescription:LocalizeAndSetToolTip(belief.Description);
@@ -392,7 +392,7 @@ function RefreshYourReligion()
 			entry.BeliefType:SetText(beliefType);
 			entry.BeliefName:LocalizeAndSetText(belief.ShortDescription);
 			entry.BeliefDescription:LocalizeAndSetText(belief.Description);
-			if(belief.Tooltip ~= "") then
+			if(belief.Tooltip and belief.Tooltip ~= "") then
 				entry.BeliefDescription:LocalizeAndSetToolTip(belief.Tooltip);
 			else
 				entry.BeliefDescription:LocalizeAndSetToolTip(belief.Description);
@@ -699,7 +699,7 @@ function RefreshBeliefs()
 				Name = Locale.Lookup(belief.ShortDescription),
 				Description = Locale.Lookup(belief.Description),
 				Type = GetBeliefType(belief),
-				Tooltip = Locale.Lookup(belief.Tooltip),
+				Tooltip = belief.Tooltip and Locale.Lookup(belief.Tooltip) or Locale.Lookup(belief.Description),
 				Religion = Locale.Lookup(Game.GetReligionName(eReligion)),
 				ReligionIconIndex = religion.PortraitIndex,
 				ReligionIconAtlas = religion.IconAtlas
@@ -729,7 +729,7 @@ function RefreshBeliefs()
 					Name = Locale.Lookup(belief.ShortDescription),
 					Description = Locale.Lookup(belief.Description),
 					Type = GetBeliefType(belief),
-					Tooltip = Locale.Lookup(belief.Tooltip),
+					Tooltip = belief.Tooltip and Locale.Lookup(belief.Tooltip) or Locale.Lookup(belief.Description),
 					Religion = religion,
 					ReligionIconIndex = pantheon.PortraitIndex,
 					ReligionIconAtlas = pantheon.IconAtlas
@@ -749,7 +749,7 @@ function RefreshBeliefs()
 			beliefEntry.BeliefName:SetText(v.Name);
 			beliefEntry.BeliefType:SetText(v.Type);
 			beliefEntry.BeliefDescription:SetText(v.Description);
-			if(v.Tooltip ~= "") then
+			if(v.Tooltip and v.Tooltip ~= "") then
 				beliefEntry.BeliefDescription:SetToolTipString(v.Tooltip);
 			else
 				beliefEntry.BeliefDescription:SetToolTipString(v.Description);

@@ -281,7 +281,6 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 	}
 
 	int iNumTotalUnits = iNumLandUnits + iNumSeaUnits;
-	int iNumTotalUnitsToSupply = iNumTotalUnits - kPlayer.getNumUnitsSupplyFree();
 
 	iNumLandUnits -= iNumExplorers;
 
@@ -1169,6 +1168,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		CvPlayer& kPlayer = GET_PLAYER(m_pCity->getOwner());
 
 		int iWorkBoatsNeeded = 0;
+		int iClosestPlotDistance = MAX_INT;
 
 		SPathFinderUserData data(m_pCity->getOwner(), PT_WORKER_SEA_UNIT_SAFE, 12);
 		ReachablePlots allReachablePlots = GC.GetStepFinder().GetPlotsInReach(m_pCity->getX(), m_pCity->getY(), data);
@@ -1206,7 +1206,10 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 				continue;
 
 			CvCity* pOwningCity = pLoopPlot->getOwningCity();
-			if (pOwningCity && pOwningCity->IsRazing())
+			if (!pOwningCity)
+				continue;
+
+			if (pOwningCity->IsRazing())
 				continue;
 
 			ResourceTypes eResource = pLoopPlot->getResourceType(kPlayer.getTeam());
@@ -1217,11 +1220,31 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			if (!kPlayer.NeedWorkboatToImproveResource(eResource))
 				continue;
 
+			CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+			if (pkResourceInfo && pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_BONUS)
+			{
+				if (!pOwningCity->IsWithinWorkRange(pLoopPlot))
+				{
+					pOwningCity = pLoopPlot->getEffectiveOwningCity();
+					if (!pOwningCity || !pOwningCity->IsWithinWorkRange(pLoopPlot))
+						continue;
+				}
+			}
+
+			int iPlotDistance = it->iPathLength;
+			if (iPlotDistance < iClosestPlotDistance)
+				iClosestPlotDistance = iPlotDistance;
+
 			iWorkBoatsNeeded++;
 		}
 
 		if (iWorkBoatsNeeded > 0)
-			iBonus += (1000 * iWorkBoatsNeeded * (m_pCity->getPopulation() + kPlayer.GetCurrentEra()));
+		{
+			if (!bForPurchase)
+				iBonus += (1000 * iWorkBoatsNeeded * (m_pCity->getPopulation() + kPlayer.GetCurrentEra()));
+			else
+				iBonus += (1000 * iWorkBoatsNeeded) * (kPlayer.getCapitalCity()->getPopulation() + kPlayer.GetCurrentEra()) - iClosestPlotDistance;
+		}
 		else
 			return SR_USELESS;
 	}
@@ -1390,7 +1413,8 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 
 			if (eDomain == DOMAIN_LAND)
 			{
-				if (m_pCity->GetGarrisonedUnit() == NULL)
+				CvUnit* pGarrison = m_pCity->GetGarrisonedUnit();
+				if (!pGarrison || pGarrison->getDomainType() != DOMAIN_LAND)
 				{
 					iBonus += 25;
 				}
@@ -1563,55 +1587,55 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			if (kPlayer.GetMilitaryAI()->IsUsingStrategy(eStrategyArcher))
 				iBonus += iBonusValueFromStrategy;
 			else if (kPlayer.GetMilitaryAI()->IsUsingStrategy(eStrategyEnoughArcher))
-				iBonus -= iBonusValueFromStrategy;
+				return SR_BALANCE;
 			break;
 		case UNITAI_CITY_BOMBARD:
 			if (kPlayer.GetMilitaryAI()->IsUsingStrategy(eStrategySiege))
 				iBonus += iBonusValueFromStrategy;
 			else if (kPlayer.GetMilitaryAI()->IsUsingStrategy(eStrategyEnoughSiege))
-				iBonus -= iBonusValueFromStrategy;
+				return SR_BALANCE;
 			break;
 		case UNITAI_SKIRMISHER:
 			if (kPlayer.GetMilitaryAI()->IsUsingStrategy(eStrategySkirmisher))
 				iBonus += iBonusValueFromStrategy;
 			else if (kPlayer.GetMilitaryAI()->IsUsingStrategy(eStrategyEnoughSkirmisher))
-				iBonus -= iBonusValueFromStrategy;
+				return SR_BALANCE;
 			break;
 		case UNITAI_FAST_ATTACK:
 			if (kPlayer.GetMilitaryAI()->IsUsingStrategy(eStrategyMobile))
 				iBonus += iBonusValueFromStrategy;
 			else if (kPlayer.GetMilitaryAI()->IsUsingStrategy(eStrategyEnoughMobile))
-				iBonus -= iBonusValueFromStrategy;
+				return SR_BALANCE;
 			break;
 		case UNITAI_ATTACK_SEA:
 			if (kPlayer.GetMilitaryAI()->IsUsingStrategy(eStrategyNavalMelee))
 				iBonus += iBonusValueFromStrategy;
 			/*else if (kPlayer.GetMilitaryAI()->IsUsingStrategy(eStrategyEnoughNavalMelee))
-				iBonus -= iBonusValueFromStrategy;*/ // ranged naval units may be resource limited, so don't discourage these
+				return SR_BALANCE;*/ // ranged naval units may be resource limited, so don't discourage these
 			break;
 		case UNITAI_ASSAULT_SEA:
 			if (kPlayer.GetMilitaryAI()->IsUsingStrategy(eStrategyNavalRanged))
 				iBonus += iBonusValueFromStrategy;
 			else if (kPlayer.GetMilitaryAI()->IsUsingStrategy(eStrategyEnoughNavalRanged))
-				iBonus -= iBonusValueFromStrategy;
+				return SR_BALANCE;
 			break;
 		case UNITAI_SUBMARINE:
 			if (kPlayer.GetMilitaryAI()->IsUsingStrategy(eStrategySubmarine))
 				iBonus += iBonusValueFromStrategy;
 			else if (kPlayer.GetMilitaryAI()->IsUsingStrategy(eStrategyEnoughSubmarine))
-				iBonus -= iBonusValueFromStrategy;
+				return SR_BALANCE;
 			break;
 		case UNITAI_ATTACK_AIR:
 			if (kPlayer.GetMilitaryAI()->IsUsingStrategy(eStrategyBomber))
 				iBonus += iBonusValueFromStrategy;
 			else if (kPlayer.GetMilitaryAI()->IsUsingStrategy(eStrategyEnoughBomber))
-				iBonus -= iBonusValueFromStrategy;
+				return SR_BALANCE;
 			break;
 		case UNITAI_DEFENSE_AIR:
 			if (kPlayer.GetMilitaryAI()->IsUsingStrategy(eStrategyFighter))
 				iBonus += iBonusValueFromStrategy;
 			else if (kPlayer.GetMilitaryAI()->IsUsingStrategy(eStrategyEnoughFighter))
-				iBonus -= iBonusValueFromStrategy;
+				return SR_BALANCE;
 		}
 	}
 

@@ -1,14 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" version="145">
+<Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" version="146">
   <Properties>
     <Name>(1) Community Patch</Name>
-    <Teaser>(5.0-alpha.02) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
+    <Teaser>(5.0-alpha.03) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
     <Description>Contains core AI improvements and bugfixes for the Civ 5 BNW DLL. Also contains support for the Vox Populi unofficial expansion and its associated mods.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
     <Homepage>https://forums.civfanatics.com/forums/community-patch-project.497/</Homepage>
     <AffectsSavedGames>1</AffectsSavedGames>
-    <MinCompatibleSaveVersion>145</MinCompatibleSaveVersion>
+    <MinCompatibleSaveVersion>146</MinCompatibleSaveVersion>
     <SupportsSinglePlayer>1</SupportsSinglePlayer>
     <SupportsMultiplayer>1</SupportsMultiplayer>
     <SupportsHotSeat>1</SupportsHotSeat>
@@ -457,7 +457,7 @@
     <File md5="34AF515180770B3554A250F1D77329A1" import="1">Core Files/Overrides/PathHelpManager.lua</File>
     <File md5="7BC0010F1CD4D0C1E5644B09D504A019" import="1">Core Files/Overrides/PathHelpManager.xml</File>
     <File md5="E0EB123F5D919F8359CE9F1041343BE9" import="1">Core Files/Overrides/PuppetCityPopup.lua</File>
-    <File md5="B9F3913388E5F2A4C28B0C44B42D8BEB" import="1">Core Files/Overrides/ReligionOverview.lua</File>
+    <File md5="05C4D1A3BD2DCA8BF173E1628A5D9BA4" import="1">Core Files/Overrides/ReligionOverview.lua</File>
     <File md5="C16A95DB183F4BD7D3236CFDA63855AD" import="1">Core Files/Overrides/ReplayViewer.lua</File>
     <File md5="56E38F28084CA596462B0C6390936D80" import="1">Core Files/Overrides/ReplayViewer.xml</File>
     <File md5="2EDB54EB7721D8240EAF44B71BCE74D6" import="1">Core Files/Overrides/SaveMenu.lua</File>
@@ -471,13 +471,13 @@
     <File md5="8F5DDB96458A46DB71C92CCB4026905E" import="1">Core Files/Overrides/WorldView.lua</File>
     <File md5="AA9CB9B8678EFAD4FEBB780B24385C24" import="1">Core Files/Overrides/Includes/AssignStartingPlots.lua</File>
     <File md5="C83F24B1D14DA36D5F7E4CFB028A0F9A" import="1">Core Files/Overrides/Includes/Bombardment.lua</File>
-    <File md5="1D0598ED79C314F182DEF114E8CBDED4" import="1">Core Files/Overrides/Includes/InfoTooltipInclude.lua</File>
+    <File md5="C04B8B25652DA2FE8D3593087045A34C" import="1">Core Files/Overrides/Includes/InfoTooltipInclude.lua</File>
     <File md5="F82D4290936952EACB989B91E36F79C6" import="1">Core Files/Overrides/Includes/MapGenerator.lua</File>
-    <File md5="912F67F578C779BFED67FE4A8F70D779" import="1">Core Files/Overrides/Includes/TechButtonInclude.lua</File>
+    <File md5="BF5236014AFB8C9D39100790BAABEDA6" import="1">Core Files/Overrides/Includes/TechButtonInclude.lua</File>
     <File md5="300F4204259B68D126487E0EF78681D4" import="1">Core Files/Overrides/Includes/TechHelpInclude.lua</File>
     <File md5="1D6FBE79C3778843EA7DDCE693BDD499" import="1">Core Files/Overrides/Includes/TradeRouteHelpers.lua</File>
     <File md5="F14D868410CCF7A5782AC07BA4F4B25F" import="1">Core Files/VPUI/VPUI_core.lua</File>
-    <File md5="B74477DB75E153724D2D0FEF1DEBF478" import="1">CvGameCore_Expansion2.dll</File>
+    <File md5="5A7967313F8693C327574331E396BA34" import="1">CvGameCore_Expansion2.dll</File>
     <File md5="CF1628DC6A82C749A951A27DF13D0BF0" import="0">Database Changes/CommunityTables.xml</File>
     <File md5="F724C999F084DBC0A88B654D521314EB" import="0">Database Changes/CoreGameOptionChanges.sql</File>
     <File md5="E5C280A2AC65C19D051F27EE7AAE11B4" import="0">Database Changes/CoreGameSpeedChanges.sql</File>
@@ -491,7 +491,7 @@
     <File md5="AAA176E4128E36358D0123F0D6C7CD3A" import="0">Database Changes/CoreWorldChanges.sql</File>
     <File md5="D0BFB3F71AFB183457D538EE3B0D771F" import="0">Database Changes/DatabaseIndexes.sql</File>
     <File md5="F18A37227B71DC4483AA2519DDC888E8" import="0">Database Changes/GameSpeedTableChanges.sql</File>
-    <File md5="0D23604F813FAB0AFD04AAB00487A2A8" import="0">Database Changes/NewCustomModOptions.xml</File>
+    <File md5="32BE563B5A36D0A828BE595158C5B556" import="0">Database Changes/NewCustomModOptions.xml</File>
     <File md5="278A7080850F3EE5132BF2C53E6C6419" import="0">Database Changes/NewEnums.xml</File>
     <File md5="476D91532E8B5E9B97198D943F101FFD" import="0">Database Changes/NewEnumTables.xml</File>
     <File md5="5403AA54F33FADD66B29FC5978F62E55" import="0">Database Changes/Remapper.sql</File>
@@ -534,7 +534,7 @@
     <File md5="C36218BB11511D4B8BBCBE71242994E7" import="0">Database Changes/Concepts/CoreConceptChanges.sql</File>
     <File md5="5AFB377345571BA35644B7880D3CF0BC" import="0">Database Changes/Concepts/CoreNewConcepts.xml</File>
     <File md5="38862270A17CC8A2A8339A404BBA242B" import="0">Database Changes/Corporations/NewCorporationTables.xml</File>
-    <File md5="69B247F6A0506B7D0AED954BBCA061CF" import="0">Database Changes/Defines/CoreDefineChanges.sql</File>
+    <File md5="A0D0A6307C0669691FAA003510872915" import="0">Database Changes/Defines/CoreDefineChanges.sql</File>
     <File md5="948C7007CD1779D44C09F02C2EE34D35" import="0">Database Changes/Defines/DiploApproachWeights.sql</File>
     <File md5="161C2BA666438C2B4D38AF46DAEF769E" import="0">Database Changes/Defines/DiploOpinionWeights.sql</File>
     <File md5="90ED5D6EE6AE8620EA764EB0531CA72E" import="0">Database Changes/Difficulty/CoreDifficultyChanges.sql</File>
@@ -582,7 +582,7 @@
     <File md5="468C9AA3A0E052286E8A6A455636B22B" import="0">Database Changes/Text/en_US/Notifications/CoreNewNotificationText.xml</File>
     <File md5="93390AF59DEF5A0380A5313CE5CF181E" import="0">Database Changes/Text/en_US/Notifications/CoreNotificationTextChanges.sql</File>
     <File md5="07FA4F3EE791BC55D0F0818B8645A785" import="0">Database Changes/Text/en_US/Religions/CoreReligionTextChanges.sql</File>
-    <File md5="4CA3C0770F9503BD1F44C1855EA288EC" import="0">Database Changes/Text/en_US/UI/CoreNewUIText.xml</File>
+    <File md5="511EE457D3F347F62EE4BA1A9B32AB79" import="0">Database Changes/Text/en_US/UI/CoreNewUIText.xml</File>
     <File md5="70E166EB57A3C416D5FC074356C47517" import="0">Database Changes/Text/en_US/UI/CoreUITextChanges.sql</File>
     <File md5="F9C0A53E9A6986F04ADADDBA2E138A10" import="0">Database Changes/Text/en_US/UnitPromotions/CoreNewPromotionText.xml</File>
     <File md5="8BDA888FE05533BBDA015FDA10D7DA2B" import="0">Database Changes/Text/en_US/UnitPromotions/CorePromotionTextChanges.sql</File>
@@ -712,7 +712,7 @@
     <File md5="F54B1EA651FC8C87A6BBB648F9D4CB0F" import="1">LUA/LeaderHeadRoot.xml</File>
     <File md5="372493C23E5E290ED50D148809915718" import="1">LUA/NotificationPanel.lua</File>
     <File md5="F19F8CBF1D8F8A6825ECDE6773DF63E3" import="1">LUA/NotificationPanel.xml</File>
-    <File md5="303078DF1645DC9EBF09F55FCC79E38C" import="1">LUA/ProductionPopup.lua</File>
+    <File md5="AE9D31E9EDCD8ACE66CF8BDB9333A204" import="1">LUA/ProductionPopup.lua</File>
     <File md5="0F79AF36C79EB3AAA6B71556FF292317" import="1">LUA/ProductionPopup.xml</File>
     <File md5="E1923020F807782237E8FA940383C38F" import="1">LUA/TechPopup.lua</File>
     <File md5="9E24D569780AACCE44AF9909C264D1BC" import="1">LUA/TechTree.lua</File>
