@@ -1715,8 +1715,8 @@ bool CvImprovementEntry::IsImprovementResourceTrade(int i) const
 
 bool CvImprovementEntry::IsConnectsResource(int i) const
 {
-	PRECONDITION(i < GC.getNumResourceInfos(), "Index out of bounds");
-	PRECONDITION(i > -1, "Index out of bounds");
+	ASSERT(i < GC.getNumResourceInfos(), "Index out of bounds");
+	ASSERT(i > -1, "Index out of bounds");
 	if (i >= 0 && i < GC.getNumResourceInfos())
 	{
 		if (m_paImprovementResource[i].m_bResourceTrade)
