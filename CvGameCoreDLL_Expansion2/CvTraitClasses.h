@@ -19,6 +19,9 @@ struct FreeResourceXCities
 		m_iResourceQuantity(0)
 	{};
 
+	template<typename FreeResourceXCitiesT, typename Visitor>
+	static void Serialize(FreeResourceXCitiesT& freeResourceXCities, Visitor& visitor);
+
 	int m_iNumCities;
 	int m_iResourceQuantity;
 };
