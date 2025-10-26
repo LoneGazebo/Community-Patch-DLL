@@ -312,19 +312,19 @@
 			<Text>Aplekton</Text>
 		</Row>
 		<Row Tag="TXT_KEY_IMPROVEMENT_APLEKTON_HELP">
-			<Text>Wally.</Text>
+			<Text>Unique Byzantine replacement for the Fort.[NEWLINE][NEWLINE]+50% [ICON_STRENGTH] Defensive Strength for any Unit stationed in this tile, and it cannot be [COLOR_NEGATIVE_TEXT]stolen[ENDCOLOR] by foreign Empires. Contains [COLOR_POSITIVE_TEXT]Fortifications[ENDCOLOR], allowing owned Units to stay stationed in this tile after attacking and a [COLOR_POSITIVE_TEXT]Canal[ENDCOLOR], allowing friendly [COLOR_POSITIVE_TEXT]Sea[ENDCOLOR] Units to traverse through it. Has improved yields compared to the Fort it replaces, including [ICON_FOOD] Food and [ICON_PRODUCTION] Production.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_IMPROVEMENT_APLEKTON_TEXT">
-			<Text>WALL-E</Text>
+			<Text>{TXT_KEY_IMPROVEMENT_APLEKTON_HELP}[NEWLINE][NEWLINE]Aplekton, from the Latin 'applicatum', was a Byzantine term used in the 10th-14th centuries for a fortified army base (in this sense similar to the Greek metaton). The aplekta were major assembly areas, where stores of supplies were kept and where the provincial armies of the themata were to join the main imperial force for a campaign. The original construction dates most probably to the reign of Emperor Constantine V (r. 741–775). Emperor Constantine VII Porphyrogennetos (r. 945–959), in his treatise on imperial expeditions, records the aplekta from west to east as follows: Malagina, Dorylaion, Kaborkin, Koloneia, Kaisareia and Dazimon.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_APLEKTON">
 			<Text>Build an [LINK=IMPROVEMENT_APLEKTON]Aplekton[\LINK]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_APLEKTON_HELP">
-			<Text>Yields</Text>
+			<Text>+50% [ICON_STRENGTH] Defensive Strength for any Unit stationed in this tile, and it cannot be [COLOR_NEGATIVE_TEXT]stolen[ENDCOLOR] by foreign Empires. Contains [COLOR_POSITIVE_TEXT]Fortifications[ENDCOLOR], allowing owned Units to stay stationed in this tile after attacking and a [COLOR_POSITIVE_TEXT]Canal[ENDCOLOR], allowing friendly [COLOR_POSITIVE_TEXT]Sea[ENDCOLOR] Units to traverse through it.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_APLEKTON_REC">
-			<Text>It will increase yields.</Text>
+			<Text>It will increase [ICON_FOOD] Food, [ICON_PRODUCTION] Production, [ICON_RESEARCH] Science, and [ICON_CULTURE_LOCAL] Border Growth Points, and defend the tile.</Text>
 		</Row>
 
 		<!-- Carthage -->
@@ -376,7 +376,7 @@
 			<Text>Oppidum</Text>
 		</Row>
 		<Row Tag="TXT_KEY_IMPROVEMENT_OPPIDUM_HELP">
-			<Text>Unique Celtic Great Tile Improvement. Can be built by Great Engineers, Merchants, Scientists, and Generals. Cannot be built next to another Oppidum.[NEWLINE]Improves Strategic Resources. Provides various yields and +100% [ICON_STRENGTH] Defense Bonus to Units stationed on it. Improves Adjacent Tiles.</Text>
+			<Text>Unique Celtic Great Person Tile Improvement. Can be built by Great Engineers, Merchants, Scientists, and Generals. Boosts all these Great People's Missions by a reduced amount. Cannot be built next to another Oppidum.[NEWLINE]Improves Strategic Resources. Provides various yields and +100% [ICON_STRENGTH] Defense Bonus to Units stationed on it. Improves Adjacent Tiles.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_IMPROVEMENT_OPPIDUM_TEXT">
 			<Text>{TXT_KEY_IMPROVEMENT_OPPIDUM_HELP}[NEWLINE][NEWLINE]An Oppidum is a large defended settlement associated with the late La Tene culture. These fortified villages were often built in naturally protected areas and full of circular constructions. In times of conflict, the people who lived in open fields moved to these strategically located compounds to ensure their safety. Oppida could also have other purposes such as control of territory or safeguarding of crops. The most famous oppidum was Alesia, the site of the battle between Julius Caesar and Vercingetorix and the final defeat of the Gauls, ending of Gallic independence in France and Belgium.</Text>
@@ -385,7 +385,7 @@
 			<Text>Construct an [LINK=IMPROVEMENT_CELTS_OPPIDUM]Oppidum[\LINK]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_OPPIDUM_HELP">
-			<Text>Cannot be built next to another Oppidum.[NEWLINE][NEWLINE]It will increase [COLOR_POSITIVE_TEXT]All Yields[ENDCOLOR]. Gives +100% [ICON_STRENGTH] Defense Bonus to units stationed on it. Provides bonus yields to all adjacent Tiles.</Text>
+			<Text>Cannot be built next to another Oppidum.[NEWLINE][NEWLINE]It will increase [COLOR_POSITIVE_TEXT]All Yields[ENDCOLOR] and the yields of [ICON_GREAT_ENGINEER], [ICON_GREAT_MERCHANT], and [ICON_GREAT_SCIENTIST] Missions (by a reduced amount compared to their own Great Person Tile Improvements). Gives +100% [ICON_STRENGTH] Defense Bonus to units stationed on it. Provides bonus yields to all adjacent Tiles.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_OPPIDUM_REC">
 			<Text>Unit will be consumed[NEWLINE]Unique Celtic Great Tile Improvement. Will connect Strategic Resources on this tile to the trade network. Gives a [ICON_STRENGTH] Defense Bonus to units stationed on it. Adjacent Tiles gain additional bonus yields.</Text>
@@ -495,19 +495,19 @@
 			<Text>Obelisk</Text>
 		</Row>
 		<Row Tag="TXT_KEY_IMPROVEMENT_OBELISK_HELP">
-			<Text>Pointy.</Text>
+			<Text>Unique Egyptian Improvement.[NEWLINE][NEWLINE]Can only be constructed on Antiquity Sites, like a Landmark, but does not remove it. Provides [ICON_RESEARCH] Science, [ICON_CULTURE] Culture, [ICON_PEACE] Faith, and [ICON_GOLDEN_AGE] Golden Age Points.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_IMPROVEMENT_OBELISK_TEXT">
-			<Text>Very Pointy</Text>
+			<Text>{TXT_KEY_IMPROVEMENT_OBELISK_HELP}[NEWLINE][NEWLINE]An obelisk is a tall, slender, tapered monument with four sides and a pyramidal or pyramidion top. Originally constructed by Ancient Egyptians and called tekhenu, the Greeks used the Greek term obeliskos to describe them, and this word passed into Latin and ultimately English. Ancient obelisks are monolithic and consist of a single stone symbolising the sun god Ra. They played a vital role in religious architecture, being placed in pairs at the entrance of temples.[NEWLINE][NEWLINE]Around 30 BCE, Rome seized control of Egypt and looted the various temple complexes; in one case they destroyed walls at the Temple of Karnak to haul them out. There are now more than twice as many obelisks that were seized and shipped out by Rome as remain in Egypt. Obelisks were being shipped out of Egypt as late as the nineteenth century when three of them were sent to London, New York and Paris. It is noteworthy that four of the obelisks in the British Museum are actually from Assyria, where they were also erected but as public monuments commemorating the King.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_OBELISK">
 			<Text>Build an [LINK=IMPROVEMENT_OBELISK]Obelisk[\LINK]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_OBELISK_HELP">
-			<Text>Yields</Text>
+			<Text>Does not remove the Antiquity Site.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_OBELISK_REC">
-			<Text>It will increase yields.</Text>
+			<Text>It will increase [ICON_RESEARCH] Science, [ICON_CULTURE] Culture, [ICON_PEACE] Faith, and [ICON_GOLDEN_AGE] Golden Age Points.</Text>
 		</Row>
 
 		<!-- England -->
@@ -614,10 +614,10 @@
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_SALON_HELP">
 			<Text>Possible Theming Bonuses:
-				[NEWLINE][ICON_BULLET] +2 [ICON_CULTURE] Culture and Tourism for two French Great Works of Art.
-				[NEWLINE][ICON_BULLET] +4 [ICON_CULTURE] Culture and Tourism for two French Great Works of Art from the same Era.
-				[NEWLINE][ICON_BULLET] +4 [ICON_CULTURE] Culture and Tourism for two Great Works of Art from the same foreign Civilization.
-				[NEWLINE][ICON_BULLET] +8 [ICON_CULTURE] Culture and Tourism for two Great Works of Art from the same foreign Civilization and the same Era.
+				[NEWLINE][ICON_BULLET] +2 [ICON_CULTURE] and [ICON_TOURISM] for two [COLOR_POSITIVE_TEXT]French[ENDCOLOR] [ICON_VP_GREATART].
+				[NEWLINE][ICON_BULLET] +4 [ICON_CULTURE] and [ICON_TOURISM] for two [COLOR_POSITIVE_TEXT]French[ENDCOLOR] [ICON_VP_GREATART] from the [COLOR_CYAN]same Era[ENDCOLOR].
+				[NEWLINE][ICON_BULLET] +4 [ICON_CULTURE] and [ICON_TOURISM] for two [ICON_VP_GREATART] from the [COLOR_POSITIVE_TEXT]same foreign Civilization[ENDCOLOR].
+				[NEWLINE][ICON_BULLET] +8 [ICON_CULTURE] and [ICON_TOURISM] for two [ICON_VP_GREATART] from the [COLOR_POSITIVE_TEXT]same foreign Civilization[ENDCOLOR] and the [COLOR_CYAN]same Era[ENDCOLOR].
 			</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_SALON_TEXT">
@@ -852,7 +852,7 @@
 			<Text>{TXT_KEY_IMPROVEMENT_KAMPONG_HELP}[NEWLINE][NEWLINE]The term 'Sama-Bajau' refers to a single ethnic group scattered between the modern day Philippines, Indonesia, and Malaysia. The Sama people live a semi-sedentary life in stilt villages or "kampongs" in coastal shallows, while Bajau refers to nomadic groups living in house boats. The Sama-Bajau defy national and ethnic borders, travelling and fishing between islands on the open ocean. The Sama-Bajau were frequently employed as privateers and raiders by the Srivijayan kingdoms. Bajau-Laut possess unique abilities which allow them to see better underwater, and dive longer and deeper than any other group of humans.[NEWLINE][NEWLINE]In recent years, the Bajau-Laut have been forced into sedentary lifestyles by various governments, and face discrimination as pagans, outsiders and squatters. A combination of overfishing and modernization threatens the Bajau's nomadic traditions, as they have been forcibly resettled on land. Still, a few communities of Bajau-Laut ride their lepa lepa across the blue water of Southeast Asia, only traveling to shore a few times each year.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_IMPROVEMENT_KAMPONG_HELP">
-			<Text>The Kampong can be built by [ICON_WORKER] Embarked Workers on Coastal and Lake Tiles, and not next to another Kampong.[NEWLINE][NEWLINE]Each Kampong yields [ICON_FOOD] Food, [ICON_PRODUCTION] Production, and [ICON_CULTURE] Culture.</Text>
+			<Text>Unique Indonesian Improvement. The Kampong can be built by [ICON_WORKER] Embarked Workers on Coastal and Lake Tiles, and not next to another Kampong.[NEWLINE][NEWLINE]Each Kampong yields [ICON_FOOD] Food, [ICON_PRODUCTION] Production, and [ICON_CULTURE] Culture.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_KAMPONG">
 			<Text>Build a [LINK=IMPROVEMENT_INDONESIA_KAMPONG]Kampong[\LINK]</Text>
@@ -966,7 +966,7 @@
 			<Text>{TXT_KEY_IMPROVEMENT_KUNA_HELP}[NEWLINE][NEWLINE]'Kuna' is the Mayan word for temple or church. Mayan Kuna were similar in design to the ziggurats and pyramids of Eurasia. Though the Kuna themselves are largely all that remain of these ancient sites, they were once the focal points of large cities. Most famous of these is Chichen Itza, a sight so grand that it qualifies as a World Wonder!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_IMPROVEMENT_KUNA_HELP">
-			<Text>Can only be constructed in Forests or Jungles, and cannot be adjacent to another Kuna.</Text>
+			<Text>Unique Mayan Improvement.[NEWLINE][NEWLINE]Can only be constructed in Forests or Jungles, and cannot be adjacent to another Kuna.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_KUNA">
 			<Text>Construct a [LINK=IMPROVEMENT_KUNA]Kuna[\LINK]</Text>
@@ -1173,7 +1173,7 @@
 			<Text>Tersane</Text>
 		</Row>
 		<Row Tag="TXT_KEY_IMPROVEMENT_TERSANE_HELP">
-			<Text>Unique Ottoman Great Person Tile Improvement. Can be built by Expending a [ICON_GREAT_ADMIRAL] Great Admiral or embarked [ICON_GREAT_GENERAL] Great General. Must be built in water next to a City, but not next to another Tersane.[NEWLINE][NEWLINE]Provides [ICON_GOLD] Gold, [ICON_PRODUCTION] Production, [ICON_RESEARCH] Science, and [ICON_GREAT_ADMIRAL] Great Admiral Points. +25% [ICON_PRODUCTION] Production and +15 Experience for Naval Units built in the Adjacent City. Does not stack with multiple Tersane next to the same City.[NEWLINE][NEWLINE]Building a Tersane claims adjacent tiles. Units standing on a Tersane receive +50% [ICON_STRENGTH] Tile Defense. Deals 30 damage to adjacent Enemy Units.</Text>
+			<Text>Unique Ottoman Great Person Tile Improvement. Can be built by Expending a [ICON_GREAT_ADMIRAL] Great Admiral or embarked [ICON_GREAT_GENERAL] Great General adjacent to a City and not adjacent to another Tersane.[NEWLINE][NEWLINE]Provides [ICON_GOLD] Gold, [ICON_PRODUCTION] Production, [ICON_RESEARCH] Science, and [ICON_GREAT_ADMIRAL] Great Admiral Points. +25% [ICON_PRODUCTION] Production and +15 Experience for Naval Units built in the Adjacent City. Does not stack with multiple Tersane next to the same City.[NEWLINE][NEWLINE]Building a Tersane claims adjacent tiles. Units standing on a Tersane receive +50% [ICON_STRENGTH] Tile Defense. Deals 30 damage to adjacent Enemy Units.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_IMPROVEMENT_TERSANE_TEXT">
 			<Text>
@@ -1326,7 +1326,7 @@
 			<Text>Villa</Text>
 		</Row>
 		<Row Tag="TXT_KEY_IMPROVEMENT_VILLA_HELP">
-			<Text>Cannot be built on Resources or adjacent to a City or another Villa.[NEWLINE][NEWLINE]A [ICON_RES_FIGS] Figs Resource appears on a tile adjacent to the Villa on construction, and claims that tile if not already owned by any Civilization. The [ICON_RES_FIGS] Figs Resource is removed when the Villa is removed.[NEWLINE]Provides additional [ICON_CULTURE] Culture on the tile, and +2 [ICON_FOOD] Food in the [ICON_CAPITAL] Capital.[NEWLINE]+1 [ICON_CULTURE] Culture and [ICON_GOLD] Gold to adjacent Plantations.[NEWLINE]+1 [ICON_FOOD] Food and [ICON_GOLD] Gold to adjacent Farms.</Text>
+			<Text>Unique Roman Improvement. Cannot be built on Resources or adjacent to a City or another Villa.[NEWLINE][NEWLINE]A [ICON_RES_FIGS] Figs Resource appears on a resourceless tile adjacent to the Villa on construction, claiming the tile if it is unowned. The [ICON_RES_FIGS] Figs Resource is removed when the Villa is removed.[NEWLINE]Provides additional [ICON_CULTURE] Culture on the tile, and +2 [ICON_FOOD] Food in the [ICON_CAPITAL] Capital.[NEWLINE]+1 [ICON_CULTURE] Culture and [ICON_GOLD] Gold to adjacent Plantations.[NEWLINE]+1 [ICON_FOOD] Food and [ICON_GOLD] Gold to adjacent Farms.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_IMPROVEMENT_VILLA_TEXT">
 			<Text>{TXT_KEY_IMPROVEMENT_VILLA_HELP}[NEWLINE][NEWLINE]Villae were country homes of upper class roman citizens. Over the progressive conquests and expansion of Roman territories and wealth, the villa evolved from relatively simple getaways for social elites into extravagant centers of sprawling agricultural landholdings called Latifundia, an ancient precursor to today's agribusinesses. The first latifundia were created from land confiscated from conquered peoples in the early 2nd century BC in Magna Graecia (Southern Italy). The Latifundia system expanded with later conquests into Spain and North Africa.[NEWLINE][NEWLINE]These estates depended on forced labor for their productivity, often supplied by the enslavement of the same people who occupied the land before conquest. The Latifundia consolidated agricultural production into larger estates with greater economies of scale; owners re-invested profits by purchasing small neighbouring farms to increase their own holdings. Evicted from their farms and replaced by slave labour, the Roman peasantry were forced to find work in the cities of Rome, though often resorting to squatting and handouts.[NEWLINE][NEWLINE]Latifundia became the template upon which later European nations would base their imperial experiments. The Spanish are especially noteworthy for patterning the Encomienda system after the late Roman Latifundia.</Text>
@@ -1335,10 +1335,10 @@
 			<Text>Build a [LINK=IMPROVEMENT_VILLA]Villa[\LINK]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_VILLA_HELP">
-			<Text>Constructs a Villa, which yields [ICON_CULTURE] Culture on the tile and gives [ICON_FOOD] Food permanently in the [ICON_CAPITOL] Capital.[NEWLINE]On construction, a [ICON_RES_FIGS] Figs Resource appears adjacent to the Villa and claims the tile.[NEWLINE]Adjacent Plantations Receive +1 [ICON_CULTURE] Culture and [ICON_GOLD] Gold.[NEWLINE]Adjacent Farms Receive +1 [ICON_FOOD] Food and [ICON_GOLD] Gold.</Text>
+			<Text>Constructs a Villa, which yields [ICON_CULTURE] Culture on the tile and gives [ICON_FOOD] Food permanently in the [ICON_CAPITOL] Capital.[NEWLINE]On completion, a [ICON_RES_FIGS] Figs Resource appearson a random adjacent resourceless tile, claiming the tile if it is unowned.[NEWLINE]Adjacent Plantations Receive +1 [ICON_CULTURE] Culture and [ICON_GOLD] Gold.[NEWLINE]Adjacent Farms Receive +1 [ICON_FOOD] Food and [ICON_GOLD] Gold.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_VILLA_REC">
-			<Text>It will increase [ICON_FOOD] Food and [ICON_CULTURE] Culture.[NEWLINE]On construction, a [ICON_RES_FIGS] Figs Resource appears adjacent to the Villa and claims the tile.[NEWLINE]Provides additional [ICON_FOOD] Food and [ICON_GOLD] Gold to adjacent Farms, and [ICON_GOLD] Gold and [ICON_CULTURE] Culture to adjacent Plantations.</Text>
+			<Text>It will increase [ICON_FOOD] Food and [ICON_CULTURE] Culture and spawn a [ICON_RES_FIGS] Figs Resource.[NEWLINE]Provides additional [ICON_FOOD] Food and [ICON_GOLD] Gold to adjacent Farms, and [ICON_GOLD] Gold and [ICON_CULTURE] Culture to adjacent Plantations.</Text>
 		</Row>
 
 		<!-- Russia -->
@@ -1807,7 +1807,7 @@
 			<Text>{TXT_KEY_IMPROVEMENT_ISIBAYA_HELP}[NEWLINE][NEWLINE]An Isibaya is a Zulu homestead and defensive structure. The Isibaya is laid out in a circular pattern with a cattle enclosure at the centre, ringed by huts, palisades, and mud walls. The layout and function are reminiscent of a European corral, hence the Afrikaans term for Amabaya, "Kraal".[NEWLINE][NEWLINE]Cattle were central to the life and economy of the Zulu Kingdom. Cattle were a sign of status, wealth, and power, and were instrumental for feeding and arming the amabutho regiments of the Zulu army.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_IMPROVEMENT_ISIBAYA_HELP">
-			<Text>Unique Zulu Great Person Tile Improvement, replacing the Citadel. Provides [ICON_PRODUCTION] Production, [ICON_RESEARCH] Science, and [ICON_CULTURE] Culture. Adjacent Pastures receive +1 [ICON_CULTURE] Culture.[NEWLINE][NEWLINE]Building an Isibaya claims adjacent tiles and places a [ICON_RES_COW] Cattle Resource adjacent to it.[NEWLINE][NEWLINE]Units standing on an Isibaya receive +100% [ICON_STRENGTH] Tile Defense. Deals 30 damage to adjacent Enemy Units.</Text>
+			<Text>Unique Zulu Great Person Tile Improvement, replacing the Citadel. Can only be constructed by a {TXT_KEY_UNIT_INDUNA}.[NEWLINE][NEWLINE]Provides [ICON_PRODUCTION] Production, [ICON_RESEARCH] Science, and [ICON_CULTURE] Culture. Adjacent Pastures receive +1 [ICON_CULTURE] Culture.[NEWLINE][NEWLINE]Building an Isibaya claims adjacent tiles and places a [ICON_RES_COW] Cattle Resource adjacent to it.[NEWLINE][NEWLINE]Units standing on an Isibaya receive +100% [ICON_STRENGTH] Tile Defense. Deals 30 damage to adjacent Enemy Units.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_ISIBAYA">
 			<Text>Construct an [LINK=IMPROVEMENT_ISIBAYA]Isibaya[\LINK]</Text>
