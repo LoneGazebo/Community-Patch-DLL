@@ -926,7 +926,7 @@
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <FileName>Database Changes/Text/en_US/Buildings/PreBuildingTextChanges.sql</FileName>
+        <FileName>Database Changes/Text/en_US/City/PreBuildingTextChanges.sql</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
@@ -6417,6 +6417,10 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
+    <Content Include="Database Changes\Text\en_US\City\PreBuildingTextChanges.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
     <Content Include="Database Changes\Text\en_US\City\BuildingTextChanges.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
@@ -6538,6 +6542,10 @@
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="Database Changes\Text\en_US\UnitPromotions\PromotionTextChanges.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Database Changes\Text\en_US\Units\PreUnitTextChanges.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
