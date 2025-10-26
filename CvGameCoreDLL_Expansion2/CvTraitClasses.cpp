@@ -7215,6 +7215,26 @@ bool CvPlayerTraits::IsFreeMayaGreatPersonChoice() const
 
 // SERIALIZATION METHODS
 
+// FreeResourceXCities
+template<typename FreeResourceXCitiesT, typename Visitor>
+void FreeResourceXCities::Serialize(FreeResourceXCitiesT& freeResourceXCities, Visitor& visitor)
+{
+	visitor(freeResourceXCities.m_iNumCities);
+	visitor(freeResourceXCities.m_iResourceQuantity);
+}
+FDataStream& operator<<(FDataStream& saveTo, const FreeResourceXCities& readFrom)
+{
+	CvStreamSaveVisitor serialVisitor(saveTo);
+	FreeResourceXCities::Serialize(readFrom, serialVisitor);
+	return saveTo;
+}
+FDataStream& operator>>(FDataStream& loadFrom, FreeResourceXCities& writeTo)
+{
+	CvStreamLoadVisitor serialVisitor(loadFrom);
+	FreeResourceXCities::Serialize(writeTo, serialVisitor);
+	return loadFrom;
+}
+
 // MayaBonusChoice
 template<typename MayaBonusChoiceT, typename Visitor>
 void MayaBonusChoice::Serialize(MayaBonusChoiceT& mayaBonusChoice, Visitor& visitor)
@@ -7517,6 +7537,7 @@ void CvPlayerTraits::Serialize(PlayerTraits& playerTraits, Visitor& visitor)
 	visitor(playerTraits.m_aiGreatPersonProgressFromKills);
 	visitor(playerTraits.m_aiRandomGreatPersonProgressFromKills);
 	visitor(playerTraits.m_aiNumPledgesDomainProdMod);
+	visitor(playerTraits.m_aFreeResourceXCities);
 	visitor(playerTraits.m_aiFreeUnitClassesDOW);
 	visitor(playerTraits.m_aiDomainFreeExperienceModifier);
 	visitor(playerTraits.m_ppiYieldFromTileEarnTerrainType);
