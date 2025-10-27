@@ -445,6 +445,7 @@ CvPlayer::CvPlayer() :
 	, m_iNumArchaeologyChoices()
 	, m_eFaithPurchaseType(NO_AUTOMATIC_FAITH_PURCHASE)
 	, m_iFaithPurchaseIndex()
+	, m_bDisableAutomaticFaithPurchase()
 	, m_bProcessedAutoMoves(false)
 #pragma warning(push)
 #pragma warning(disable:4355 )
@@ -1598,6 +1599,7 @@ void CvPlayer::uninit()
 	m_iCachedCurrentWarValue = 0;
 	m_eFaithPurchaseType = NO_AUTOMATIC_FAITH_PURCHASE;
 	m_iFaithPurchaseIndex = 0;
+	m_bDisableAutomaticFaithPurchase = false;
 	m_iLastSliceMoved = 0;
 	m_viCoreCitiesForSpaceshipProduction.clear();
 
@@ -43601,6 +43603,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_iNumArchaeologyChoices);
 	visitor(player.m_eFaithPurchaseType);
 	visitor(player.m_iFaithPurchaseIndex);
+	visitor(player.m_bDisableAutomaticFaithPurchase);
 	visitor(player.m_iFractionOriginalCapitalsUnderControl);
 	visitor(player.m_iAvgUnitExp100);
 	visitor(player.m_iNumMilitarySeaUnits);
@@ -46847,6 +46850,21 @@ int CvPlayer::GetFaithPurchaseIndex() const
 void CvPlayer::SetFaithPurchaseIndex(int iIndex)
 {
 	m_iFaithPurchaseIndex = iIndex;
+}
+
+bool CvPlayer::IsDisableAutomaticFaithPurchase() const
+{
+	return m_bDisableAutomaticFaithPurchase;
+}
+
+void CvPlayer::SetDisableAutomaticFaithPurchase(bool bValue)
+{
+	m_bDisableAutomaticFaithPurchase = bValue;
+}
+
+void CvPlayer::DoSetDisableAutomaticFaithPurchase(bool bValue)
+{
+	NetMessageExt::Send::SetDisableAutomaticFaithPurchase(m_eID, bValue);
 }
 
 int CvPlayer::GetNumFreePoliciesEver() const

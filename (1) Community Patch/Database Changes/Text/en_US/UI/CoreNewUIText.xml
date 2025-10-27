@@ -2358,8 +2358,40 @@
 		</Row>
 
 		<!-- Religion overview -->
+		
+		<!-- Religion overview -->
+		<Row Tag="TXT_KEY_RO_WR_TOTAL_CITIES">
+			<Text>Cities</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RO_WR_TOTAL_FOLLOWERS">
+			<Text>Followers</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RO_WR_YEAR_FOUNDED">
+			<Text>Founded</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RO_WR_OWNED_CITIES">
+			<Text>[COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR] of all Cities follows {2_Name}.[NEWLINE][NEWLINE]{3_Num} of your Cities have {4_Name} as the [ICON_RELIGION] Majority Religion. They account for [COLOR_POSITIVE_TEXT]{5_Num}%[ENDCOLOR] of the Majority Religion of your Cities. These cities also accounts for [COLOR_POSITIVE_TEXT]{6_Num}%[ENDCOLOR] of {7_Name}'s majority presence.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RO_WR_OWNED_FOLLOWERS">
+			<Text>[COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR] of the World's Population follows {2_Name}.[NEWLINE][NEWLINE]{3_Num} of your [ICON_CITIZEN] Population follows {4_Name}. They make up [COLOR_POSITIVE_TEXT]{5_Num}%[ENDCOLOR] of your [ICON_CITIZEN] Population. They also make up for [COLOR_POSITIVE_TEXT]{6_Num}%[ENDCOLOR] of {7_Name}'s followers.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RO_TAB_MAP">
+			<Text>Map</Text>
+		</Row>
 		<Row Tag="TXT_KEY_RO_AUTO_FAITH_PROPHET_PARAM">
 			<Text>Save for {1_UNITCLASS_PROPHET}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RO_DISABLE_AUTO_PURCHASE">
+			<Text>Notify Only</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RO_DISABLE_AUTO_PURCHASE_TT">
+			<Text>When checked, religious units and buildings will not be purchased automatically. Instead, you will receive a notification when enough Faith has been collected.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_FAITH_PURCHASE_AVAILABLE">
+			<Text>You have collected enough Faith to buy {TXT_KEY_GRAMMAR_A_AN &lt;&lt; {1_Name}}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_FAITH_PURCHASE_AVAILABLE">
+			<Text>Faith Purchase available</Text>
 		</Row>
 
 		<!-- Espionage overview -->

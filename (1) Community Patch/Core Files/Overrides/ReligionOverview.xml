@@ -215,6 +215,8 @@
             <Stack Size="953,32" Offset="20,0" StackGrowth="Right" Padding="20">
               <Label Anchor="L,C" String="TXT_KEY_RO_AUTO_FAITH_PURCHASE" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"  />
               <PullDown Anchor="L,C" Style="GenericPullDown" ScrollThreshold="150" Size="300,27" AutoSizePopUp="1" SpaceForScroll="1" ID="AutomaticPurchasePD" />
+              <CheckBox Anchor="L,C" Offset="5,0" IsChecked="0" ID="DisableAutoPurchaseCheckbox" ToolTip="TXT_KEY_RO_DISABLE_AUTO_PURCHASE_TT"/>
+              <Label Anchor="L,C" Offset="-15,0" String="TXT_KEY_RO_DISABLE_AUTO_PURCHASE" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"  />
             </Stack>
 
           </Box>
