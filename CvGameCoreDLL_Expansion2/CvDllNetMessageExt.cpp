@@ -45,6 +45,13 @@ namespace NetMessageExt
 					Response::DoQuestInfluenceDisabled(eActualPlayer, eMinor, booleanFromInt);
 					break;
 				}
+				case 1003:
+				{
+					PlayerTypes eActualPlayer = ePlayer;
+					bool bValue = iArg1 == 1;
+					Response::SetDisableAutomaticFaithPurchase(eActualPlayer, bValue);
+					break;
+				}
 			}
 			return true;
 		}
@@ -66,7 +73,7 @@ namespace NetMessageExt
 			gDLL->sendMoveGreatWorks(ePlayer, eMinor, -1, -1, -1, -1, 1001);
 		}
 		void DoQuestInfluenceDisabled(PlayerTypes ePlayer, PlayerTypes eMinor, bool bValue)
-		{	
+		{
 			int booleanToInt = 0;
 			if (bValue) {
 				booleanToInt = 1;
@@ -74,6 +81,11 @@ namespace NetMessageExt
 				booleanToInt = 0;
 			}
 			gDLL->sendMoveGreatWorks(ePlayer, eMinor, booleanToInt, -1, -1, -1, 1002);
+		}
+		void SetDisableAutomaticFaithPurchase(PlayerTypes ePlayer, bool bValue)
+		{
+			int booleanToInt = bValue ? 1 : 0;
+			gDLL->sendMoveGreatWorks(ePlayer, booleanToInt, -1, -1, -1, -1, 1003);
 		}
 	}
 
@@ -106,8 +118,12 @@ namespace NetMessageExt
 			GET_PLAYER(eMinor).GetMinorCivAI()->DoMajorBullyAnnex(ePlayer);
 		}
 		void DoQuestInfluenceDisabled(PlayerTypes ePlayer, PlayerTypes eMinor, bool bValue)
-		{	
+		{
 			GET_PLAYER(eMinor).GetMinorCivAI()->SetQuestInfluenceDisabled(ePlayer, bValue);
+		}
+		void SetDisableAutomaticFaithPurchase(PlayerTypes ePlayer, bool bValue)
+		{
+			GET_PLAYER(ePlayer).SetDisableAutomaticFaithPurchase(bValue);
 		}
 	}
 }
