@@ -509,6 +509,9 @@
 		<!-- Disables Golden Age Point acquisition during Golden Ages -->
 		<Row Class="5" Name="BALANCE_NO_GAP_DURING_GA" Value="0"/>
 
+		<!-- GP and similar improvements remove the yields from resources (but still connect them) -->
+		<Row Class="4" Name="BALANCE_NO_RESOURCE_YIELDS_FROM_GP_IMPROVEMENT" Value="0"/>
+
 		<!-- Disables passive religious pressure unless there's a Trade Route or City Connection -->
 		<Row Class="6" Name="BALANCE_PASSIVE_SPREAD_BY_CONNECTION" Value="0"/>
 
@@ -539,9 +542,6 @@
 
 		<!-- XP is granted only on a unit's first attack -->
 		<Row Class="6" Name="BALANCE_XP_ON_FIRST_ATTACK" Value="0"/>
-
-		<!-- GP and similar improvements remove the yields from resources (but still connect them) -->
-		<Row Class="4" Name="BALANCE_NO_RESOURCE_YIELDS_FROM_GP_IMPROVEMENT" Value="0"/>
 
 		<!-- CURRENTLY NON-FUNCTIONAL -->
 		<!-- Allows Land Units to become Cargo of Melee Ships -->
