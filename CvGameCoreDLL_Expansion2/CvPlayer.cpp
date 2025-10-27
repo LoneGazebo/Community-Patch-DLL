@@ -8601,7 +8601,7 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 
 				if (pMemberDiploAI->GetCoopWarAgreementScore(ePlayer) < 0)
 				{
-					pDiploAI->SetCoopWarAgreementScore(ePlayer, 0);
+					pMemberDiploAI->SetCoopWarAgreementScore(ePlayer, 0);
 				}
 
 				// Forget war history
