@@ -435,9 +435,9 @@ local g_cityToolTips = {
 			if weLoveTheKingDayCounter > 0 then
 				--- CBP
 				if(cityOwner:IsGPWLTKD()) then
-					return L( "TXT_KEY_CITYVIEW_WLTKD_COUNTER_UA", weLoveTheKingDayCounter );
+					return L( "TXT_KEY_CITYVIEW_WLTKD_COUNTER_UA_1", weLoveTheKingDayCounter );
 				elseif(cityOwner:IsCarnaval())then
-					return L( "TXT_KEY_CITYVIEW_WLTKD_COUNTER_UA_CARNAVAL", weLoveTheKingDayCounter );
+					return L( "TXT_KEY_CITYVIEW_WLTKD_COUNTER_UA_2", weLoveTheKingDayCounter );
 				else
 				-- END
 					return L( "TXT_KEY_CITYVIEW_WLTKD_COUNTER", weLoveTheKingDayCounter )
