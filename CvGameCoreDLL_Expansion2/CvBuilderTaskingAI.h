@@ -176,6 +176,8 @@ protected:
 
 	vector<OptionWithScore<BuilderDirective>> GetRouteDirectives();
 	vector<OptionWithScore<BuilderDirective>> GetImprovementDirectives();
+	void UpdateFutureYields(const vector<BuildTypes>& aPossibleBuilds);
+	int GetFutureYields(ImprovementTypes eImprovement, YieldTypes eYield);
 
 	void UpdateCurrentPlotYields(const CvPlot* pPlot);
 	void UpdateProjectedPlotYields(const CvPlot* pPlot, BuildTypes eBuild, RouteTypes eForceCityConnection);
@@ -217,6 +219,7 @@ protected:
 	vector<BuilderDirective> m_directives;
 	map<int, BuilderDirective> m_assignedDirectives;
 	map<const CvCity*, int> m_worstCityPlotValues;
+	std::tr1::unordered_map<ImprovementTypes, std::tr1::unordered_map<YieldTypes, int>> m_futureYieldBonuses;
 
 	int m_aiCurrentPlotYields[NUM_YIELD_TYPES];
 	int m_aiProjectedPlotYields[NUM_YIELD_TYPES];
