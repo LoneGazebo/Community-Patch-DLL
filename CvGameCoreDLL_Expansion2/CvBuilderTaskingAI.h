@@ -114,14 +114,14 @@ public:
 	vector<BuilderDirective> GetDirectives();
 	bool ExecuteWorkerMove(CvUnit* pUnit, BuilderDirective aDirective);
 
-	void AddImprovingPlotsDirective(vector<OptionWithScore<BuilderDirective>> &aDirectives, CvPlot* pPlot, CvCity* pWorkingCity, const vector<BuildTypes> aBuildsToConsider);
-	void AddRouteOrRepairDirective(vector<OptionWithScore<BuilderDirective>>& aDirectives, CvPlot* pPlot, RouteTypes eRoute, int iValue, RoutePurpose ePurpose);
-	void AddRouteDirective(vector<OptionWithScore<BuilderDirective>>& aDirectives, CvPlot* pPlot, RouteTypes eRoute, int iValue);
-	void AddRemoveRouteDirective(vector<OptionWithScore<BuilderDirective>> &aDirectives, CvPlot* pPlot, int iNetGoldTimes100);
-	void AddChopDirectives(vector<OptionWithScore<BuilderDirective>> &aDirectives, CvPlot* pPlot, CvCity* pWorkingCity);
-	void AddRepairImprovementDirective(vector<OptionWithScore<BuilderDirective>>& aDirectives, CvPlot* pPlot, CvCity* pWorkingCity);
-	void AddRepairRouteDirective(vector<OptionWithScore<BuilderDirective>>& aDirectives, CvPlot* pPlot, RouteTypes eRoute, int iValue);
-	void AddScrubFalloutDirectives(vector<OptionWithScore<BuilderDirective>> &aDirectives, CvPlot* pPlot, CvCity* pWorkingCity);
+	void AddImprovingPlotsDirective(vector<OptionWithScoreAndTiebreak<BuilderDirective>> &aDirectives, CvPlot* pPlot, CvCity* pWorkingCity, const vector<BuildTypes> aBuildsToConsider);
+	void AddRouteOrRepairDirective(vector<OptionWithScoreAndTiebreak<BuilderDirective>>& aDirectives, CvPlot* pPlot, RouteTypes eRoute, int iValue, RoutePurpose ePurpose);
+	void AddRouteDirective(vector<OptionWithScoreAndTiebreak<BuilderDirective>>& aDirectives, CvPlot* pPlot, RouteTypes eRoute, int iValue);
+	void AddRemoveRouteDirective(vector<OptionWithScoreAndTiebreak<BuilderDirective>> &aDirectives, CvPlot* pPlot, int iNetGoldTimes100);
+	void AddChopDirectives(vector<OptionWithScoreAndTiebreak<BuilderDirective>> &aDirectives, CvPlot* pPlot, CvCity* pWorkingCity);
+	void AddRepairImprovementDirective(vector<OptionWithScoreAndTiebreak<BuilderDirective>>& aDirectives, CvPlot* pPlot, CvCity* pWorkingCity);
+	void AddRepairRouteDirective(vector<OptionWithScoreAndTiebreak<BuilderDirective>>& aDirectives, CvPlot* pPlot, RouteTypes eRoute, int iValue);
+	void AddScrubFalloutDirectives(vector<OptionWithScoreAndTiebreak<BuilderDirective>> &aDirectives, CvPlot* pPlot, CvCity* pWorkingCity);
 
 	bool ShouldAnyBuilderConsiderPlot(const CvPlot* pPlot) const;  // general checks for whether the plot should be considered
 	bool ShouldBuilderConsiderPlot(CvUnit* pUnit, CvPlot* pPlot);  // specific checks for this particular worker
@@ -164,7 +164,7 @@ protected:
 	typedef pair<int, int> PlotPair;
 	typedef pair<PlotPair, pair<RouteTypes, bool>> PlannedRoute;
 
-	void LogDirectives(vector<OptionWithScore<BuilderDirective>> directives);
+	void LogDirectives(vector<OptionWithScoreAndTiebreak<BuilderDirective>> directives);
 	void LogDirective(BuilderDirective directive, int iWeight, bool bChosen = false);
 
 	void ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* pTargetCity, BuildTypes eBuild, RouteTypes eRoute);
@@ -174,8 +174,8 @@ protected:
 
 	void ShortcutConnectionHelper(CvCity* pCity1, CvCity* pCity2, BuildTypes eBuild, RouteTypes eRoute, int iPlotDistance, bool bUseRivers);
 
-	vector<OptionWithScore<BuilderDirective>> GetRouteDirectives();
-	vector<OptionWithScore<BuilderDirective>> GetImprovementDirectives();
+	vector<OptionWithScoreAndTiebreak<BuilderDirective>> GetRouteDirectives();
+	vector<OptionWithScoreAndTiebreak<BuilderDirective>> GetImprovementDirectives();
 
 	void UpdateCurrentPlotYields(const CvPlot* pPlot);
 	void UpdateProjectedPlotYields(const CvPlot* pPlot, BuildTypes eBuild, RouteTypes eForceCityConnection);
