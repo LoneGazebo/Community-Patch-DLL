@@ -714,7 +714,7 @@ void CvPlayerCorporations::ChangeNoForeignCorpsInCities(int iValue)
 {
 	int iOldValue = m_iNoForeignCorpsInCities;
 	m_iNoForeignCorpsInCities += iValue;
-	if (iOldValue <= 0 && m_iNoForeignCorpsInCities > 0)
+	if (iOldValue <= 0 && m_iNoForeignCorpsInCities > 0 && GetFoundedCorporation() != NO_CORPORATION)
 	{
 		int iLoop = 0;
 		for (CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
