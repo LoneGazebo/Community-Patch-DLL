@@ -429,6 +429,17 @@ struct OptionWithScore
 	bool operator<(const OptionWithScore& rhs) const { return score > rhs.score; } //sort descending!
 };
 
+
+template<class T>
+struct OptionWithScoreAndTiebreak
+{
+	T option;
+	int score;
+	int tiebreak;
+	OptionWithScoreAndTiebreak(const T& t, int s, int tb) : option(t), score(s), tiebreak(tb) {}
+	bool operator<(const OptionWithScoreAndTiebreak& rhs) const { return score > rhs.score || (score == rhs.score && tiebreak > rhs.tiebreak); } //sort descending!
+};
+
 template<class T>
 T PseudoRandomChoiceByWeight(vector<OptionWithScore<T>>& candidates, const T& defaultChoice, int maxCandidatesToConsider, CvSeeder randomSeed)
 {
