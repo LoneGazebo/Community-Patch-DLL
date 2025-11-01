@@ -3434,5 +3434,9 @@
 		<Row Tag="TXT_KEY_TP_UNHAPPINESS_BUILDINGS">
 			<Text>{1_Num} from Buildings.</Text>
 		</Row>
+
+		<Row Tag="TXT_KEY_PEDIA_BASE_COST_LABEL">
+			<Text>Base Cost:</Text>
+		</Row>
 	</Language_en_US>
 </GameData>
