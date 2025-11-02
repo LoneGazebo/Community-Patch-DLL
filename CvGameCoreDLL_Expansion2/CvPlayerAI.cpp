@@ -1957,19 +1957,13 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveAdmiral(CvUnit* pGreatAdmiral)
 
 GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveDiplomat(CvUnit* pGreatDiplomat)
 {
-	bool bTheVeniceException = GetPlayerTraits()->IsNoAnnexing();
 	bool bTheAustriaException = GetPlayerTraits()->IsAbleToAnnexCityStates();
 	
-	int iFlavorDiplo =  GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DIPLOMACY"));
 	int iNumMinors = GC.getGame().GetNumMinorCivsAlive();
-	int iEmbassies = GetImprovementLeagueVotes();
-	int iDesiredEmb = range(iFlavorDiplo*2 - 3, 1, iNumMinors);
-
-	//Embassy numbers should be based on Diplomacy Flavor. More flavor, more embassies!
-	CvPlot* pPlot = FindBestDiplomatTargetPlot(pGreatDiplomat);
-	if (pPlot && !bTheAustriaException && !bTheVeniceException)
+	if (iNumMinors > 0)
 	{
-		if ((iEmbassies < iDesiredEmb) || GetDiplomacyAI()->IsGoingForDiploVictory())
+		CvPlot* pPlot = FindBestDiplomatTargetPlot(pGreatDiplomat);
+		if (pPlot && !bTheAustriaException)
 		{
 			return GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT;
 		}
