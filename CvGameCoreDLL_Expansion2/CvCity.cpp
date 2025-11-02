@@ -2309,7 +2309,7 @@ void CvCity::doTurn()
 		int iHitsHealed = /*20 in CP, 8 in VP*/ GD_INT_GET(CITY_HIT_POINTS_HEALED_PER_TURN);
 
 		int iBuildingDefense = m_pCityBuildings->GetBuildingDefense();
-		iBuildingDefense *= (100 + m_pCityBuildings->GetBuildingDefenseMod());
+		iBuildingDefense *= (100 + m_pCityBuildings->GetBuildingDefenseMod() + GET_TEAM(getTeam()).GetGlobalDefenseModifier());
 		iBuildingDefense /= 100;
 
 		iHitsHealed += iBuildingDefense / 1000;
@@ -27140,7 +27140,7 @@ void CvCity::updateStrengthValue()
 
 	// Building Defense
 	int iBuildingDefense = m_pCityBuildings->GetBuildingDefense();
-	iBuildingDefense *= (100 + m_pCityBuildings->GetBuildingDefenseMod());
+	iBuildingDefense *= (100 + m_pCityBuildings->GetBuildingDefenseMod() + GET_TEAM(getTeam()).GetGlobalDefenseModifier());
 	iBuildingDefense /= 100;
 	iStrengthValue += iBuildingDefense;
 
