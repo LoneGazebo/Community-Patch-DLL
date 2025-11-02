@@ -4531,7 +4531,7 @@ void CvDealAI::DoAddGoldToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValu
 	//if raw gold in deal, remove so we can refresh.
 	if (iNumGoldAlreadyInTrade > 0)
 	{
-		DoRemoveGoldFromThem(pDeal, eThem, iTotalValue);
+		DoRemoveGoldFromThem(pDeal, eThem, iNumGoldAlreadyInTrade);
 		iNumGoldAlreadyInTrade = 0;
 		iTotalValue = GetDealValue(pDeal);
 	}
@@ -4579,7 +4579,7 @@ void CvDealAI::DoAddGoldToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue)
 	//if raw gold in deal, remove so we can refresh.
 	if (iNumGoldAlreadyInTrade > 0)
 	{
-		DoRemoveGoldFromUs(pDeal, iTotalValue);
+		DoRemoveGoldFromUs(pDeal, iNumGoldAlreadyInTrade);
 		iNumGoldAlreadyInTrade = 0;
 		iTotalValue = GetDealValue(pDeal);
 	}
@@ -7805,6 +7805,10 @@ void CvDealAI::DoAddMapsToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValu
 	if (pDeal->GetDemandingPlayer() != NO_PLAYER)
 		return;
 
+	// Already in the deal?
+	if (pDeal->IsMapTrade(eThem))
+		return;
+
 //	if(!bDontChangeTheirExistingItems)
 	{
 		if ((iThresholdValue != 0 || !WithinAcceptableRange(eThem, pDeal->GetMaxValue(), iTotalValue)) && (iThresholdValue == 0 || iTotalValue <= iThresholdValue))
@@ -7838,12 +7842,16 @@ void CvDealAI::DoAddMapsToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue,
 	PRECONDITION(eThem < MAX_MAJOR_CIVS);
 	ASSERT(eThem != GetPlayer()->GetID(), "DEAL_AI: Trying to add World Map to Us, but them is us.");
 
+	PlayerTypes eMyPlayer = GetPlayer()->GetID();
+
+	// Already in the deal?
+	if (pDeal->IsMapTrade(eMyPlayer))
+		return;
+
 	//if(!bDontChangeMyExistingItems)
 	{
 		if ((iThresholdValue != 0 || !WithinAcceptableRange(eThem, pDeal->GetMaxValue(), iTotalValue)) && (iThresholdValue == 0 || iTotalValue >= iThresholdValue))
 		{
-			PlayerTypes eMyPlayer = GetPlayer()->GetID();
-
 			// See if we can actually trade it to them
 			if(pDeal->IsPossibleToTradeItem(eMyPlayer, eThem, TRADE_ITEM_MAPS))
 			{
@@ -7891,6 +7899,10 @@ void CvDealAI::DoAddTechToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValu
 			for(iTechLoop = 0; iTechLoop < GC.getNumTechInfos(); iTechLoop++)
 			{
 				eTech = (TechTypes) iTechLoop;
+
+				// Already in the deal?
+				if (pDeal->IsTechTrade(eThem, eTech))
+					continue;
 
 				// See if they can actually trade it to us
 				if(pDeal->IsPossibleToTradeItem(eThem, eMyPlayer, TRADE_ITEM_TECHS, eTech))
@@ -7957,6 +7969,10 @@ void CvDealAI::DoAddTechToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue,
 			{
 				eTech = (TechTypes) iTechLoop;
 
+				// Already in the deal?
+				if (pDeal->IsTechTrade(eMyPlayer, eTech))
+					continue;
+
 				// See if they can actually trade it to us
 				if(pDeal->IsPossibleToTradeItem(eMyPlayer, eThem, TRADE_ITEM_TECHS, eTech))
 				{
@@ -7985,6 +8001,10 @@ void CvDealAI::DoAddVassalageToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalV
 	ASSERT(eThem != GetPlayer()->GetID(), "DEAL_AI: Trying to add Technology to Them, but them is us.");
 
 	if (!pDeal->IsPossibleToTradeItem(GetPlayer()->GetID(), eThem, TRADE_ITEM_VASSALAGE))
+		return;
+
+	// Already in the deal?
+	if (pDeal->IsVassalageTrade(GetPlayer()->GetID()))
 		return;
 
 	if ((iThresholdValue != 0 || !WithinAcceptableRange(eThem, pDeal->GetMaxValue(), iTotalValue)) && (iThresholdValue == 0 || iTotalValue >= iThresholdValue))
@@ -8031,6 +8051,10 @@ void CvDealAI::DoAddVassalageToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTota
 	ASSERT(eThem != GetPlayer()->GetID(), "DEAL_AI: Trying to add Vassalage to Them, but them is us.");
 
 	if (!pDeal->IsPossibleToTradeItem(eThem, GetPlayer()->GetID(), TRADE_ITEM_VASSALAGE))
+		return;
+
+	// Already in the deal?
+	if (pDeal->IsVassalageTrade(eThem))
 		return;
 
 	if (pDeal->GetDemandingPlayer() != NO_PLAYER)
@@ -8089,6 +8113,10 @@ void CvDealAI::DoAddRevokeVassalageToUs(CvDeal* pDeal, PlayerTypes eThem, int& i
 	if (!pDeal->IsPossibleToTradeItem(GetPlayer()->GetID(), eThem, TRADE_ITEM_VASSALAGE_REVOKE))
 		return;
 
+	// Already in the deal?
+	if (pDeal->IsRevokeVassalageTrade(GetPlayer()->GetID()))
+		return;
+
 	if ((iThresholdValue != 0 || !WithinAcceptableRange(eThem, pDeal->GetMaxValue(), iTotalValue)) && (iThresholdValue == 0 || iTotalValue >= iThresholdValue))
 	{
 		int iItemValue = 0;
@@ -8118,6 +8146,10 @@ void CvDealAI::DoAddRevokeVassalageToThem(CvDeal* pDeal, PlayerTypes eThem, int&
 		return;
 
 	if (!pDeal->IsPossibleToTradeItem(eThem, GetPlayer()->GetID(), TRADE_ITEM_VASSALAGE_REVOKE))
+		return;
+
+	// Already in the deal?
+	if (pDeal->IsRevokeVassalageTrade(eThem))
 		return;
 
 	if ((iThresholdValue != 0 || !WithinAcceptableRange(eThem, pDeal->GetMaxValue(), iTotalValue)) && (iThresholdValue == 0 || iTotalValue >= iThresholdValue))
