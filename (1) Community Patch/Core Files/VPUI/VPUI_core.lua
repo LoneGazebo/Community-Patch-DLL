@@ -46,7 +46,7 @@ if not VP and not (MapModData and MapModData.VP) then
 		Technologies = {"GridX"},
 		Policies = {},
 		Beliefs = {"ShortDescription"},
-		Religions = {"IconString"},
+		Religions = {"PortraitIndex", "IconAtlas", "IconString"},
 		Resolutions = {},
 		Victories = {},
 		UnitPromotions = {"PortraitIndex", "IconAtlas", "Help"},
