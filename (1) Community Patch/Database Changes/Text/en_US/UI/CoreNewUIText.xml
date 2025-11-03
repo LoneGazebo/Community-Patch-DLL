@@ -3316,6 +3316,11 @@
 			<Text>They want you to conquer the city of {1_City}.</Text>
 		</Row>
 
+		<!-- Debug score -->
+		<Row Tag="TXT_KEY_DEBUG_SCORE">
+			<Text>Score: [COLOR_CYAN]{1_Score}[ENDCOLOR]</Text>
+		</Row>
+
 		<!-- Plot popup -->
 		<Row Tag="TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_AOE_STRIKE_PILLAGE">
 			<Text>Viking</Text>
