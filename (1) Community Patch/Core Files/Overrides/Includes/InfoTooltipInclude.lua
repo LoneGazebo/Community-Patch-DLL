@@ -1954,7 +1954,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 
 	-- Defense modifier
 	AddTooltipNonZeroSigned(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_DEFENSE_MODIFIER", kBuildingInfo.BuildingDefenseModifier);
-	AddTooltipNonZeroSigned(tGlobalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_DEFENSE_MODIFIER_GLOBAL", kBuildingInfo.GlobalDefenseMod);
+	AddTooltipNonZeroSigned(tTeamAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_DEFENSE_MODIFIER_TEAM", kBuildingInfo.GlobalDefenseMod);
 
 	-- Food modifier per follower
 	AddTooltipNonZeroSigned(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_FOOD_MODIFIER_PER_FOLLOWER", kBuildingInfo.FoodBonusPerCityMajorityFollower);

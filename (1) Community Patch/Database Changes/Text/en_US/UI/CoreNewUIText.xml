@@ -715,8 +715,8 @@
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_DEFENSE_MODIFIER">
 			<Text>{2_Sign}{1_Num}% [ICON_STRENGTH] City Strength from Buildings</Text>
 		</Row>
-		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_DEFENSE_MODIFIER_GLOBAL">
-			<Text>{2_Sign}{1_Num}% [ICON_STRENGTH] City Strength in all Cities</Text>
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_DEFENSE_MODIFIER_TEAM">
+			<Text>{2_Sign}{1_Num}% [ICON_STRENGTH] City Strength from Buildings in all Cities of your Team</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_DAMAGE_REDUCTION">
 			<Text>[ICON_STRENGTH] Damage Reduction: {2_Sign}{1_Num}</Text>
