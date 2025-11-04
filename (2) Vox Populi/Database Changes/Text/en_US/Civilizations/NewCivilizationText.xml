@@ -200,7 +200,7 @@
 			<Text>The Telpochcalli, meaning "House of the Young Men" were centers of education for Aztec youth. While the children of nobles went to a separate institution called the Calmecac, the Telpochcalli were open to all Aztec boys starting at age 15, making them one of the earliest examples of public education in history. Education in Aztec society focused on civics, warfare, and religion. Accounts of the experience of growing up going to a Telpochcalli describe an austere and strict environment, where boys were expected to grow their own food on collective farms and were given responsibilities such as maintaining and repairing public facilities like temples.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_TELPOCHCALLI_STRATEGY">
-			<Text></Text>
+			<Text>Telpochcalli synergises powerfully with the Unique Ability of Aztecs to trigger Golden Ages when signing a Peace Treaty with Warscore above 25. If you manage to conduct many such wars early on, each of your city will gain large Food and Production bonus, as well as significant experience gain for newly trained units. Therfoer a very agressive playestyle in the early game is highly rewared by this unique library. </Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_HUEY_TEOCALLI">
@@ -213,7 +213,9 @@
 			<Text>In the Aztec Empire, a teocalli was a terraced pyramid surmounted by a roofed temple, and acted as the site of all the important religious rituals in the town. The greatest of these teocalli was located in the heart of Tenochtitlan, the Huey Teocalli (or, according to the Spanish, the Templo Mayor) dedicated to a pair of gods: Huitzilopochtli, the god of war, and Tlaloc, the god of agriculture (an indication of what was important in Aztec culture). Each god had a separate temple, reached by separate staircases.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_HUEY_TEOCALLI_STRATEGY">
-			<Text></Text>
+			<Text>Huey Teocalli synergises with Aztecs Unique ability. Assuming a very aggressive playstyle with frequent victorious Peace Treaties, Aztecs can trigger Golden Ages often, raising the population of the city owning this wonder significantly. Additionally it will allow to gather even more Gold and Faith from defeating enemy units.
+			[NEWLINE][NEWLINE].Prioritising Barracks and Temples, buildings that are already strong will further increase Food, Gold and Faith generation, allowing for stronger economy, and faster reformation of your religion.
+			[NEWLINE][NEWLINE]Due to the global increase in Lake yields, settling near them from the start of the game will pay off once this Wonder is constructed. Extra food from these buildings and lakes can be used to work more production heavy tiles instead, if your empire happiness doesn't allow for more population growth.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_UNIT_OTOMI">
@@ -226,7 +228,7 @@
 			<Text>The Otomi are an ancient people from the Altiplano region, predate the Mexica's arrival there by thousands of years. The name Otomi is Nahuatl, meaning "One who walks with Arrows" in recognition of their strength and bravery in combat. Within the Triple-Alliance, Otomi became a name for a military society, perhaps because of the fearsome reputation of the Otomi people or because they were originally comprised of Otomi allies and mercenaries. Whatever the case, the use of Otomi both as the name of an ethnicity within the Aztec Empire and as a military faction makes it hard to discern which is which in the historical record.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_OTOMI_STRATEGY">
-			<Text></Text>
+			<Text>Otomi is very effective at fighting barbarians, which together with Aztecs Unique ability allows to found a Pantheon quickly, and accumulate Gold to purchase more Otomis. Therefore, building them early instead of a Shrine is often be beneficial.[NEWLINE][NEWLINE]The Gold will allow to quickly upgrade them to Spearmen, so it''s worth unlocking Bronze Working fast.[NEWLINE][NEWLINE]With a group of 5-7 Otomi it is possible to siege newly founded cities of rival civilizations, either to conquer them or only to achieve more than 25 warscore and sign a Peace Treaty, to Trigger Golden Ages. [NEWLINE][NEWLINE]They're best used in Forests and Jungles. It is worth to promote some of the Otomis along the Drill line, and use them for the early sieges, and choose Shock line for the rest that will focus on fighting units. Later on, March promotion will work very well with the +5hp healing from Survivalism Promotion, and Stalwart will work mildly with Survivalism's 25% defensive bonus.</Text>
 		</Row>
 
 		<!-- Babylon -->
