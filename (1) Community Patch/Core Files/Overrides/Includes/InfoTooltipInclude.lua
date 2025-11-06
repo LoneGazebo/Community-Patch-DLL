@@ -15,6 +15,7 @@ local MOD_BALANCE_BOMBARD_RANGE_BUILDINGS = GameInfo.CustomModOptions{Name = "BA
 local MOD_BALANCE_WORLD_WONDER_COST_INCREASE = GameInfo.CustomModOptions{Name = "BALANCE_WORLD_WONDER_COST_INCREASE"}().Value == 1;
 local MOD_BALANCE_SPY_POINTS = GameInfo.CustomModOptions{Name = "BALANCE_SPY_POINTS"}().Value == 1;
 local MOD_BALANCE_SETTLERS_CONSUME_POPULATION = GameInfo.CustomModOptions{Name = "BALANCE_SETTLERS_CONSUME_POPULATION"}().Value == 1;
+local MOD_BALANCE_UNIQUE_BELIEFS_ONLY_FOR_CIV = GameInfo.CustomModOptions{Name = "BALANCE_UNIQUE_BELIEFS_ONLY_FOR_CIV"}().Value == 1;
 
 -- So is GameDefines
 local CITY_RESOURCE_WLTKD_TURNS = GameInfo.Defines{Name = "CITY_RESOURCE_WLTKD_TURNS"}().Value;
@@ -1411,7 +1412,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 		end
 
 		local kCheckBuildingInfo = GetInfoFromId("Buildings", eCheckBuilding);
-		if kCheckBuildingInfo.CivilizationRequired and kCheckBuildingInfo.CivilizationRequired ~= eActiveCiv then
+		if kCheckBuildingInfo.CivilizationRequired and GameInfoTypes[kCheckBuildingInfo.CivilizationRequired] ~= eActiveCiv then
 			return false;
 		end
 
@@ -3461,12 +3462,16 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 			end
 
 			for row in GameInfo.Belief_BuildingClassYieldChanges{BuildingClassType = kBuildingClassInfo.Type, YieldType = kYieldInfo.Type} do
-				local eBelief = GameInfoTypes[row.BeliefType];
+				local kBeliefInfo = GetInfoFromType("Beliefs", row.BeliefType);
+				local eBelief = kBeliefInfo.ID;
 
-				-- Don't show if the city already benefits from the belief in city view (only call DLL once per belief)
-				if tBeliefBoosts[eBelief] or not (pCity and Game.IsBeliefValid(pCity:GetReligiousMajority(), eBelief, pCity, false)) then
-					tBeliefBoosts[eBelief] = tBeliefBoosts[eBelief] or {};
-					tBeliefBoosts[eBelief][eYield] = row.YieldChange;
+				-- Don't show if the city cannot benefit from this belief (unique belief)
+				if not (MOD_BALANCE_UNIQUE_BELIEFS_ONLY_FOR_CIV and pActivePlayer and kBeliefInfo.CivilizationType and GameInfoTypes[kBeliefInfo.CivilizationType] ~= eActiveCiv) then
+					-- Don't show if the city already benefits from the belief in city view (only call DLL once per belief)
+					if tBeliefBoosts[eBelief] or not (pCity and Game.IsBeliefValid(pCity:GetReligiousMajority(), eBelief, pCity, false)) then
+						tBeliefBoosts[eBelief] = tBeliefBoosts[eBelief] or {};
+						tBeliefBoosts[eBelief][eYield] = row.YieldChange;
+					end
 				end
 			end
 
@@ -3645,12 +3650,15 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 		end
 
 		for row in GameInfo.Belief_BuildingClassTourism{BuildingClassType = kBuildingClassInfo.Type} do
-			local eBelief = GameInfoTypes[row.BeliefType];
-			if tBeliefBoosts[eBelief] or not (pCity and Game.IsBeliefValid(pCity:GetReligiousMajority(), eBelief, pCity, false)) then
-				local eYield = GameInfoTypes.YIELD_TOURISM;
-				tBeliefBoosts[eBelief] = tBeliefBoosts[eBelief] or {};
-				tBeliefBoosts[eBelief][eYield] = tBeliefBoosts[eBelief][eYield] or 0;
-				tBeliefBoosts[eBelief][eYield] = tBeliefBoosts[eBelief][eYield] + row.Tourism;
+			local kBeliefInfo = GetInfoFromType("Beliefs", row.BeliefType);
+			local eBelief = kBeliefInfo.ID;
+			if not (MOD_BALANCE_UNIQUE_BELIEFS_ONLY_FOR_CIV and pActivePlayer and kBeliefInfo.CivilizationType and GameInfoTypes[kBeliefInfo.CivilizationType] ~= eActiveCiv) then
+				if tBeliefBoosts[eBelief] or not (pCity and Game.IsBeliefValid(pCity:GetReligiousMajority(), eBelief, pCity, false)) then
+					local eYield = GameInfoTypes.YIELD_TOURISM;
+					tBeliefBoosts[eBelief] = tBeliefBoosts[eBelief] or {};
+					tBeliefBoosts[eBelief][eYield] = tBeliefBoosts[eBelief][eYield] or 0;
+					tBeliefBoosts[eBelief][eYield] = tBeliefBoosts[eBelief][eYield] + row.Tourism;
+				end
 			end
 		end
 
@@ -3778,8 +3786,10 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 
 		for row in GameInfo.Belief_BuildingClassHappiness{BuildingClassType = kBuildingClassInfo.Type} do
 			local kBeliefInfo = GetInfoFromType("Beliefs", row.BeliefType);
-			if tBeliefBoosts[kBeliefInfo.ID] or not (pCity and Game.IsBeliefValid(pCity:GetReligiousMajority(), kBeliefInfo.ID, pCity, false)) then
-				AddTooltipNonZeroSigned(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_HAPPINESS_FROM_BELIEF", row.Happiness, kBeliefInfo.ShortDescription);
+			if not (MOD_BALANCE_UNIQUE_BELIEFS_ONLY_FOR_CIV and pActivePlayer and kBeliefInfo.CivilizationType and GameInfoTypes[kBeliefInfo.CivilizationType] ~= eActiveCiv) then
+				if tBeliefBoosts[kBeliefInfo.ID] or not (pCity and Game.IsBeliefValid(pCity:GetReligiousMajority(), kBeliefInfo.ID, pCity, false)) then
+					AddTooltipNonZeroSigned(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_HAPPINESS_FROM_BELIEF", row.Happiness, kBeliefInfo.ShortDescription);
+				end
 			end
 		end
 	end
