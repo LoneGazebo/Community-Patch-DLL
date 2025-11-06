@@ -1072,6 +1072,7 @@
 			<CombatClass>UNITCOMBAT_FIGHTER</CombatClass>
 			<Class>UNITCLASS_TRIPLANE</Class>
 			<Special>SPECIALUNIT_FIGHTER</Special>
+			<Immobile>true</Immobile>
 			<DefaultUnitAI>UNITAI_DEFENSE_AIR</DefaultUnitAI>
 			<PrereqTech>TECH_FLIGHT</PrereqTech>
 			<ObsoleteTech>TECH_RADAR</ObsoleteTech>
