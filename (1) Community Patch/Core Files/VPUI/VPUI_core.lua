@@ -45,7 +45,7 @@ if not VP and not (MapModData and MapModData.VP) then
 		Eras = {},
 		Technologies = {"GridX"},
 		Policies = {},
-		Beliefs = {"ShortDescription"},
+		Beliefs = {"ShortDescription", "CivilizationType"},
 		Religions = {"PortraitIndex", "IconAtlas", "IconString"},
 		Resolutions = {},
 		Victories = {},
