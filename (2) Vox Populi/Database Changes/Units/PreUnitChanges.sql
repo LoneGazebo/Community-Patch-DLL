@@ -362,5 +362,6 @@ SET
 	PrereqTech = (SELECT PrereqTech FROM Units WHERE Type = 'UNIT_VP_GALLEY'),
 	ObsoleteTech = (SELECT ObsoleteTech FROM Units WHERE Type = 'UNIT_VP_GALLEY'),
 	CombatClass = (SELECT CombatClass FROM Units WHERE Type = 'UNIT_VP_GALLEY'),
-	DefaultUnitAI = (SELECT DefaultUnitAI FROM Units WHERE Type = 'UNIT_VP_GALLEY')
+	DefaultUnitAI = (SELECT DefaultUnitAI FROM Units WHERE Type = 'UNIT_VP_GALLEY'),
+	ShowInPedia = 0
 WHERE Type = 'UNIT_GALLEY';
