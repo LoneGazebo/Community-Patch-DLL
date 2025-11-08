@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Specialists and Great People - Vox Populi Civilopedia</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="searchIndex.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Specialists and Great People</h1>
+            <div class="search-container">
+                <input type="text" id="globalSearch" placeholder="Search Civilopedia... (Press S)" autocomplete="off">
+                <div id="searchResults" class="search-results"></div>
+            </div>
+        </header>
+
+        <nav class="main-nav">
+            <a href="index.html">Civilopedia Home Page</a>
+            <a href="concepts.html">Game Concepts</a>
+            <a href="civilizations.html">Civilizations and Leaders</a>
+            <a href="units.html">Units</a>
+            <a href="buildings.html">Buildings</a>
+            <a href="wonders.html">Wonders</a>
+            <a href="technologies.html">Technologies</a>
+            <a href="policies.html">Social Policies</a>
+            <a href="beliefs.html">Religion</a>
+            <a href="promotions.html">Promotions</a>
+            <a href="resources.html">Resources</a>
+            <a href="improvements.html">Improvements</a>
+            <a href="terrain.html">Terrain and Features</a>
+            <a href="greatPeople.html" class="active">Specialists and Great People</a>
+            <a href="cityStates.html">City-States</a>
+            <a href="worldCongress.html">World Congress</a>
+            <a href="corporations.html">Corporations</a>
+        </nav>
+
+        <main class="pediapage-layout">
+            <aside class="pediapage-sidebar">
+                <div class="sidebar-header" onclick="showHomePage(); return false;" style="cursor: pointer;">Specialists and Great People</div>
+                    <div class="sidebar-section collapsed">
+                        <div class="sidebar-section-header" onclick="toggleSection(this)">
+                            <span class="section-icon">▶</span> Specialists
+                        </div>
+                        <ul class="sidebar-list" style="display: none;">
+                            <li><a href="#" onclick="showItem('SPECIALIST_ARTIST'); return false;">Artist</a></li>
+                            <li><a href="#" onclick="showItem('SPECIALIST_CIVIL_SERVANT'); return false;">Civil Servant</a></li>
+                            <li><a href="#" onclick="showItem('SPECIALIST_ENGINEER'); return false;">Engineer</a></li>
+                            <li><a href="#" onclick="showItem('SPECIALIST_CITIZEN'); return false;">Laborer</a></li>
+                            <li><a href="#" onclick="showItem('SPECIALIST_MERCHANT'); return false;">Merchant</a></li>
+                            <li><a href="#" onclick="showItem('SPECIALIST_MUSICIAN'); return false;">Musician</a></li>
+                            <li><a href="#" onclick="showItem('SPECIALIST_SCIENTIST'); return false;">Scientist</a></li>
+                            <li><a href="#" onclick="showItem('SPECIALIST_WRITER'); return false;">Writer</a></li>
+                        </ul>
+                    </div>
+                    <div class="sidebar-section collapsed">
+                        <div class="sidebar-section-header" onclick="toggleSection(this)">
+                            <span class="section-icon">▶</span> Great People
+                        </div>
+                        <ul class="sidebar-list" style="display: none;">
+                            <li><a href="#" onclick="showItem('UNIT_GREAT_ADMIRAL'); return false;">Great Admiral</a></li>
+                            <li><a href="#" onclick="showItem('UNIT_ARTIST'); return false;">Great Artist</a></li>
+                            <li><a href="#" onclick="showItem('UNIT_GREAT_DIPLOMAT'); return false;">Great Diplomat</a></li>
+                            <li><a href="#" onclick="showItem('UNIT_ENGINEER'); return false;">Great Engineer</a></li>
+                            <li><a href="#" onclick="showItem('UNIT_GREAT_GENERAL'); return false;">Great General</a></li>
+                            <li><a href="#" onclick="showItem('UNIT_MERCHANT'); return false;">Great Merchant</a></li>
+                            <li><a href="#" onclick="showItem('UNIT_MUSICIAN'); return false;">Great Musician</a></li>
+                            <li><a href="#" onclick="showItem('UNIT_PROPHET'); return false;">Great Prophet</a></li>
+                            <li><a href="#" onclick="showItem('UNIT_SCIENTIST'); return false;">Great Scientist</a></li>
+                            <li><a href="#" onclick="showItem('UNIT_WRITER'); return false;">Great Writer</a></li>
+                            <li><a href="#" onclick="showItem('UNIT_TADODAHO'); return false;"><span class="positive">(Iroquois)</span> Tadodaho</a></li>
+                            <li><a href="#" onclick="showItem('UNIT_MONGOLIAN_KHAN'); return false;"><span class="positive">(Mongolian)</span> Khan</a></li>
+                            <li><a href="#" onclick="showItem('UNIT_VENETIAN_MERCHANT'); return false;"><span class="positive">(Venetian)</span> Merchant of Venice</a></li>
+                            <li><a href="#" onclick="showItem('UNIT_INDUNA'); return false;"><span class="positive">(Zulu)</span> InDuna</a></li>
+                        </ul>
+                    </div>
+            </aside>
+
+            <div class="pediapage-content" id="itemContent">
+                <div class="placeholder">
+                    <section class="welcome">
+                        <h2>Specialists and Great People</h2>
+                        <div class="summary">
+                            <div class="text-box">
+                                <br>&emsp;&emsp;"Be not afraid of greatness: some are born great, some achieve greatness, and some have greatness thrust upon them."<br>&emsp;&emsp;  - William Shakespeare<br>&emsp;
+                            </div>
+                        </div>
+                        <div class="summary">
+                            <div class="text-box">
+                                Time and again throughout history, there have arisen men and women who have profoundly changed the world around them - artists, scientists, generals, merchants and others, whose genius sets them head and shoulders above the rest. In this game such visionaries are called "Great People."<br><br>There are five different kinds of great people in the game: Great Merchants, Great Artists, Great Scientists, Great Engineers, and Great Generals (a sixth, the Great Diplomat, is added in CSD). Each has a special ability.<br><br>Your civilization acquires Great People by constructing certain buildings and wonders, and then staffing them with "specialists", citizens from your cities who have given up working in the field or the mines. While specialists do not work city tiles, they do greatly speed the arrival of Great People. Balancing the need for food and the desire for Great People is an important challenge of city management.<br><br>When a civilization has advanced technologically enough to be able to support citizens who are not directly involved in providing food, those citizens can be assigned as "specialists." Specialists can increase a city's output of culture, gold, science or production. In addition, specialists speed the creation of "Great People."<br><br>Great People are the artists, merchants, engineers, scientists and warriors who can, singlehandedly, change the course of a civilization. They're people like Leonardo Da Vinci, Andrew Carnegie, Louis Pasteur, and Robert E. Lee. Great People are extremely powerful. Great People are cool.
+                            </div>
+                        </div>
+                    </section>
+                </div>
+                    <div class="article-detail" id="item-SPECIALIST_ARTIST" style="display: none;">
+                        <section class="welcome">
+                            <h2>Artist</h2>
+                            <div class="summary">
+                                <h3>Strategy:</h3>
+                                <div class="text-box">
+                                    Create Artists to increase a city's 🎵 Cultural output and to speed the creation of Great Artists.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-SPECIALIST_CIVIL_SERVANT" style="display: none;">
+                        <section class="welcome">
+                            <h2>Civil Servant</h2>
+                            <div class="summary">
+                                <h3>Strategy:</h3>
+                                <div class="text-box">
+                                    Civil Servants produce 1 ⚗️ Science, 1 🎵 Culture, and 2 💰 Gold, and speed the creation of Great Diplomats.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-SPECIALIST_ENGINEER" style="display: none;">
+                        <section class="welcome">
+                            <h2>Engineer</h2>
+                            <div class="summary">
+                                <h3>Strategy:</h3>
+                                <div class="text-box">
+                                    Create Engineers to increase a city's 🔨 Production output and to speed the creation of Great Engineers.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-SPECIALIST_CITIZEN" style="display: none;">
+                        <section class="welcome">
+                            <h2>Laborer</h2>
+                            <div class="summary">
+                                <h3>Strategy:</h3>
+                                <div class="text-box">
+                                    Unemployed Citizens (Laborers) each provides a small amount of yields compared to other specialists, but you can assign as many of your citizens to this position as desired. They should, when possible, be assigned to work tiles or made into specialists.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-SPECIALIST_MERCHANT" style="display: none;">
+                        <section class="welcome">
+                            <h2>Merchant</h2>
+                            <div class="summary">
+                                <h3>Strategy:</h3>
+                                <div class="text-box">
+                                    Create Merchants to increase a city's 💰 Gold output and to speed the creation of Great Merchants.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-SPECIALIST_MUSICIAN" style="display: none;">
+                        <section class="welcome">
+                            <h2>Musician</h2>
+                            <div class="summary">
+                                <h3>Strategy:</h3>
+                                <div class="text-box">
+                                    Create Musicians to increase a city's 🎵 Cultural output and to speed the creation of Great Musicians.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-SPECIALIST_SCIENTIST" style="display: none;">
+                        <section class="welcome">
+                            <h2>Scientist</h2>
+                            <div class="summary">
+                                <h3>Strategy:</h3>
+                                <div class="text-box">
+                                    Create Scientists to increase a city's ⚗️ Science output and to speed the creation of Great Scientists.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-SPECIALIST_WRITER" style="display: none;">
+                        <section class="welcome">
+                            <h2>Writer</h2>
+                            <div class="summary">
+                                <h3>Strategy:</h3>
+                                <div class="text-box">
+                                    Create Writers to increase a city's 🎵 Cultural output and to speed the creation of Great Writers.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-UNIT_GREAT_ADMIRAL" style="display: none;">
+                        <section class="welcome">
+                            <h2>Great Admiral</h2>
+                            <div class="summary">
+                                <h3>Game Info:</h3>
+                                <div class="text-box">
+                                    👣 Moves: 6<br>----------------<br>Free Promotions:<br>• Naval Leadership<br>• Military Tradition<br>Voyage of Discovery: +2 Random Luxury Resources<br>----------------<br>The Great Admiral can immediately cross oceans for free, making it a useful (if vulnerable) exploration vessel. Furthermore, while in owned territory, the Great Admiral can be sent on a <span class="positive">Voyage of Discovery</span> that expends the Unit and gives you two copies of a Luxury Resource not available on the current map.<br><br>The Great Admiral has the ability to instantly <span class="positive">Repair</span> every Naval and Embarked Unit in the same hex, as well as in adjacent hexes. The Great Admiral is consumed when performing this action. The Great Admiral also provides +15% ⚔️ Combat Strength to all player-owned Naval Units within 2 tiles. The Great Admiral is NOT consumed when he provides this bonus. When the Great Admiral is expended for a <span class="positive">Voyage of Discovery</span> or <span class="positive">Repair</span>, it increases your Military Unit Supply Cap by 1.
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <h3>Strategy:</h3>
+                                <div class="text-box">
+                                    The Great Admiral can immediately cross oceans for free, making it a useful (if vulnerable) exploration vessel. Furthermore, while in owned territory, the Great Admiral can be sent on a <span class="positive">Voyage of Discovery</span> that expends the Unit and gives you two copies of a Luxury Resource not available on the current map.<br><br>The Great Admiral has the ability to instantly <span class="positive">Repair</span> every Naval and Embarked Unit in the same hex, as well as in adjacent hexes. The Great Admiral is consumed when performing this action. The Great Admiral also provides +15% ⚔️ Combat Strength to all player-owned Naval Units within 2 tiles. The Great Admiral is NOT consumed when he provides this bonus. When the Great Admiral is expended for a <span class="positive">Voyage of Discovery</span> or <span class="positive">Repair</span>, it increases your Military Unit Supply Cap by 1.
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    "Great Admirals" provide the leadership necessary to guide powerful navies to victory on the open sea. They plan, implement, and execute the complex maneuvers necessary to maintain naval superiority, providing the coastal security that every civilization needs.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-UNIT_ARTIST" style="display: none;">
+                        <section class="welcome">
+                            <h2>Great Artist</h2>
+                            <div class="summary">
+                                <h3>Game Info:</h3>
+                                <div class="text-box">
+                                    👣 Moves: 2<br>----------------<br>Start a Golden Age<br>----------------<br>A Great Artist can create a  Great Work of Art (generates both 🎵 Culture and 🗿 Tourism) that is placed in the nearest city that has an appropriate building with an empty slot (like the Palace, a Museum, or a Cathedral). A Great Artist can also generate a large sum of Golden Age Points, scaling with 🌟 Golden Age Point output, 🗿 Tourism output, and the number of <span class="positive">themed</span> sets of  Great Works. Great Artists are expended when used either of these ways.
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <h3>Strategy:</h3>
+                                <div class="text-box">
+                                    A Great Artist can create a  Great Work of Art (generates both 🎵 Culture and 🗿 Tourism) that is placed in the nearest city that has an appropriate building with an empty slot (like the Palace, a Museum, or a Cathedral). A Great Artist can also generate a large sum of Golden Age Points, scaling with 🌟 Golden Age Point output, 🗿 Tourism output, and the number of <span class="positive">themed</span> sets of  Great Works. Great Artists are expended when used either of these ways.
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    "Great Artists" are the visionaries of civilization. They interpret the world, bringing beauty, brilliance, form and color where none may have been found before. They carve the statues, paint the pictures, take the photos and make the films that define our humanity. Often their work surpasses its time and place, enlighten and elevate a people, making a civilization far greater than its material possessions and power.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-UNIT_GREAT_DIPLOMAT" style="display: none;">
+                        <section class="welcome">
+                            <h2>Great Diplomat</h2>
+                            <div class="summary">
+                                <h3>Game Info:</h3>
+                                <div class="text-box">
+                                    👣 Moves: 5<br>----------------<br>Free Promotions:<br>• Master Diplomat<br>When Expended: +1  Paper<br>Conduct Diplomatic Mission: +30 Resting  Influence with Target  City-State
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <h3>Strategy:</h3>
+                                <div class="text-box">
+                                    Receives <span class="positive">Master Diplomat</span> Promotion for free, which grants 100  Influence from Diplomatic Missions, plus additional  Influence for each completed era.<br><br>You may 👣 move this unit to a City-State you are not at war with and choose one of two options:<br>• Conduct a <span class="positive">Diplomatic Mission</span> which will grant you  Influence and reduce the Influence of other Civilizations by the same amount while also increasing the resting point with that City-State.<br>• Construct an <span class="positive">Embassy</span>, which grants an additional vote in the World Congress. For more on the Embassy, see its civilopedia page in the 'Improvements' section.<br><br>The Great Diplomat is expended when used in either of these ways. When expended, gain +1  Paper.
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    Throughout every civilization's history, great mediators, counsellors, and dignitaries have emerged during times of strife or times of great power. Great Diplomats represent these important historical figures and, as such, have the ability to greatly increase a player's diplomatic power. Players may use them to immediately gain a large amount of influence with a city-state, or, if they are looking towards the future, they may be used to build an Embassy in a city-state's land, thus granting the player an additional vote in the World Congress when it is founded.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-UNIT_ENGINEER" style="display: none;">
+                        <section class="welcome">
+                            <h2>Great Engineer</h2>
+                            <div class="summary">
+                                <h3>Game Info:</h3>
+                                <div class="text-box">
+                                    👣 Moves: 2<br>----------------<br>Hurry Production<br>----------------<br>Great Engineers can construct the special Manufactory improvement. It counts as every type of improvement for adjacency bonuses, and when worked, it provides a lot of 🔨 Production for a city. The Great Engineer can also hurry the production of a unit, building or Wonder in a city, increased by 10% per Manufactory created and owned. The Great Engineer is expended when used in either of these ways.
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <h3>Strategy:</h3>
+                                <div class="text-box">
+                                    Great Engineers can construct the special Manufactory improvement. It counts as every type of improvement for adjacency bonuses, and when worked, it provides a lot of 🔨 Production for a city. The Great Engineer can also hurry the production of a unit, building or Wonder in a city, increased by 10% per Manufactory created and owned. The Great Engineer is expended when used in either of these ways.
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    "Great Engineers" are the men and women who get things done. They construct the monuments, the roads, the information networks that improve the lives of those around them. They invent new processes for building high-rises or rolling steel; they dig canals; they irrigate deserts. They keep a civilization moving forward.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-UNIT_GREAT_GENERAL" style="display: none;">
+                        <section class="welcome">
+                            <h2>Great General</h2>
+                            <div class="summary">
+                                <h3>Game Info:</h3>
+                                <div class="text-box">
+                                    👣 Moves: 2<br>----------------<br>Free Promotions:<br>• Leadership<br>• Military Tradition<br>----------------<br>The Great General can construct the special <span class="positive">Citadel</span> improvement which gives a big defensive bonus to any Unit occupying it, damages Enemy Units that finish their turn in tiles adjacent to it, puts all adjacent tiles into your territory, and increases your Military Unit Supply Cap by 1. The Great General is consumed when it builds the <span class="positive">Citadel</span>. The Great General provides +15% ⚔️ Combat Strength to all player-owned Land Units within 2 tiles. The Great General is NOT consumed when he provides this bonus.
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <h3>Strategy:</h3>
+                                <div class="text-box">
+                                    The Great General can construct the special <span class="positive">Citadel</span> improvement which gives a big defensive bonus to any Unit occupying it, damages Enemy Units that finish their turn in tiles adjacent to it, puts all adjacent tiles into your territory, and increases your Military Unit Supply Cap by 1. The Great General is consumed when it builds the <span class="positive">Citadel</span>. The Great General provides +15% ⚔️ Combat Strength to all player-owned Land Units within 2 tiles. The Great General is NOT consumed when he provides this bonus.
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    "Great Generals" are the supreme warriors of civilization. They create the weapons and train the soldiers. They plan the strategies to protect a civilization from its enemies, creating bold offensives, strong fortifications and cunning traps. They are the first out of the trench or onto the enemy's ship. They lead the charge into battle, carrying the fate of the people on their broad shoulders.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-UNIT_MERCHANT" style="display: none;">
+                        <section class="welcome">
+                            <h2>Great Merchant</h2>
+                            <div class="summary">
+                                <h3>Game Info:</h3>
+                                <div class="text-box">
+                                    👣 Moves: 2<br>----------------<br>Conduct Diplomatic Mission<br>----------------<br>The Great Merchant can construct the special Town improvement which, when worked, produces 💰 Gold and 🌾 Food. The Great Merchant can also journey to a city-state and perform a "trade mission" which produces a large sum of 💰 Gold and starts a "We Love the King Day" in all owned cities, increased by 25% per Town created and owned. The Great Merchant is expended when used in either of these ways.<br><br>Towns receive +1 💰 Gold and 🔨 Production if built on a Road that connects two owned Cities, and +2 💰 Gold and 🔨 Production if a Railroad. Receive additional 💰 Gold and 🔨 Production (+1 for Roads, +2 for Railroads) if a Trade Route, either internal or international, passes over this Town.
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <h3>Strategy:</h3>
+                                <div class="text-box">
+                                    The Great Merchant can construct the special Town improvement which, when worked, produces 💰 Gold and 🌾 Food. The Great Merchant can also journey to a city-state and perform a "trade mission" which produces a large sum of 💰 Gold and starts a "We Love the King Day" in all owned cities, increased by 25% per Town created and owned. The Great Merchant is expended when used in either of these ways.<br><br>Towns receive +1 💰 Gold and 🔨 Production if built on a Road that connects two owned Cities, and +2 💰 Gold and 🔨 Production if a Railroad. Receive additional 💰 Gold and 🔨 Production (+1 for Roads, +2 for Railroads) if a Trade Route, either internal or international, passes over this Town.
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    "Great Merchants" provide the goods and services civilizations need to survive. They import food, medicines, and luxuries, and they export a civilization's manufactured goods. They provide the financing needed for great works to be accomplished. They create a civilization's wealth.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-UNIT_MUSICIAN" style="display: none;">
+                        <section class="welcome">
+                            <h2>Great Musician</h2>
+                            <div class="summary">
+                                <h3>Game Info:</h3>
+                                <div class="text-box">
+                                    👣 Moves: 2<br>----------------<br>Free Promotions:<br>• Can Enter Rival Territory<br>Perform Concert Tour<br>----------------<br>A Great Musician can create a  Great Work of Music (generates both 🎵 Culture and 🗿 Tourism) that is placed in the nearest city that has an appropriate building with an empty slot (like an Opera House or Broadcast Tower).<br><br>A Great Musician can also travel to another civilization and perform a <span class="positive">Concert Tour</span>, increasing your 🗿 Tourism with the target Civilization by 100%, and all other Civilizations by 50%, for 10 Turns plus 1 additional Turn for every owned  Great Work of Music. You also receive 1 😊 Happiness in every City. This action consumes the unit.<br><br>You cannot perform a Concert Tour if at war with the target Civilization, or if your 🗿 Cultural Influence over the Civilization is <span class="magenta">Influential</span> or greater.
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <h3>Strategy:</h3>
+                                <div class="text-box">
+                                    A Great Musician can create a  Great Work of Music (generates both 🎵 Culture and 🗿 Tourism) that is placed in the nearest city that has an appropriate building with an empty slot (like an Opera House or Broadcast Tower).<br><br>A Great Musician can also travel to another civilization and perform a <span class="positive">Concert Tour</span>, increasing your 🗿 Tourism with the target Civilization by 100%, and all other Civilizations by 50%, for 10 Turns plus 1 additional Turn for every owned  Great Work of Music. You also receive 1 😊 Happiness in every City. This action consumes the unit.<br><br>You cannot perform a Concert Tour if at war with the target Civilization, or if your 🗿 Cultural Influence over the Civilization is <span class="magenta">Influential</span> or greater.
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    It has been said that "music is the soul of a people." If that is indeed the case, then "Great Musicians" are the guardians of that soul. Whatever the form, whatever the instruments, no other art speaks to our emotions like music. From the time that men first beat out a rhythm on logs, to the modern electronic orchestra, great composers and performers have expressed the collective sorrows and joys of each civilization.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-UNIT_PROPHET" style="display: none;">
+                        <section class="welcome">
+                            <h2>Great Prophet</h2>
+                            <div class="summary">
+                                <h3>Game Info:</h3>
+                                <div class="text-box">
+                                    👣 Moves: 4<br>•  Sight: 1<br>----------------<br>Spread Religion<br>Found a Religion<br>Free Promotions:<br>• Can Enter Rival Territory<br>----------------<br>The Great Prophet is the only unit who can found or enhance a religion. He can also construct the special Holy Site improvement which, when worked, produces lots of 🕊️ Faith. Alternatively, the Great Prophet can spread religion 4 times (displacing any previous religions in these cities). The Great Prophet is expended when used in any of these ways.
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <h3>Strategy:</h3>
+                                <div class="text-box">
+                                    The Great Prophet is the only unit who can found or enhance a religion. He can also construct the special Holy Site improvement which, when worked, produces lots of 🕊️ Faith. Alternatively, the Great Prophet can spread religion 4 times (displacing any previous religions in these cities). The Great Prophet is expended when used in any of these ways.
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    "Great Prophets" explore the boundaries of religious belief, conveying their unique insights to guide the moral and ethical decisions of a civilization. They found religions, spread the word of god, and bring faith to the people. They provide hope to the nation during even the direst of times.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-UNIT_SCIENTIST" style="display: none;">
+                        <section class="welcome">
+                            <h2>Great Scientist</h2>
+                            <div class="summary">
+                                <h3>Game Info:</h3>
+                                <div class="text-box">
+                                    👣 Moves: 2<br>----------------<br>The Great Scientist can construct the special Academy improvement which, when worked, produces lots of ⚗️ Science. Further, a Great Scientist can give you a considerable boost towards your next tech, increased by <span class="positive">10%</span> per Academy created and owned. The Great Scientist is expended when used in any of these ways.
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <h3>Strategy:</h3>
+                                <div class="text-box">
+                                    The Great Scientist can construct the special Academy improvement which, when worked, produces lots of ⚗️ Science. Further, a Great Scientist can give you a considerable boost towards your next tech, increased by <span class="positive">10%</span> per Academy created and owned. The Great Scientist is expended when used in any of these ways.
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    "Great Scientists" figure out how the world works. They discover that the earth orbits the sun. They sequence DNA and invent quantum mechanics. They cure polio and predict eclipses. They make a civilization smarter. They invent the future.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-UNIT_WRITER" style="display: none;">
+                        <section class="welcome">
+                            <h2>Great Writer</h2>
+                            <div class="summary">
+                                <h3>Game Info:</h3>
+                                <div class="text-box">
+                                    👣 Moves: 2<br>----------------<br>Discover Technology<br>Write Political Treatise<br>----------------<br>A Great Writer can create a  Great Work of Writing (generates both 🎵 Culture and 🗿 Tourism) that is placed in the nearest city that has an appropriate building with an empty slot (like an Amphitheater, National Epic, Heroic Epic, or Royal Library). A Great Writer can also write a Political Treatise, which grants the player an amount of Culture that scales with the number of owned  Great Works. Great Writers are expended when used either of these ways.
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <h3>Strategy:</h3>
+                                <div class="text-box">
+                                    A Great Writer can create a  Great Work of Writing (generates both 🎵 Culture and 🗿 Tourism) that is placed in the nearest city that has an appropriate building with an empty slot (like an Amphitheater, National Epic, Heroic Epic, or Royal Library). A Great Writer can also write a Political Treatise, which grants the player an amount of Culture that scales with the number of owned  Great Works. Great Writers are expended when used either of these ways.
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    "Great Writers" are those gifted men and women who express our desires, insights, fancies, foibles, fears and joys in the written word. Whether in poetry, in novels and stories, for the stage or screen, these are the artists who have defined their civilizations and cultures. Some write prose and poetry about imaginary worlds; others write tracts of philosophy, politics, religion and science about how our world is or should be. Their words echo through time, binding us all together.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-UNIT_TADODAHO" style="display: none;">
+                        <section class="welcome">
+                            <h2><span class="positive">(Iroquois)</span> Tadodaho</h2>
+                            <div class="summary">
+                                <h3>Game Info:</h3>
+                                <div class="text-box">
+                                    Iroquois Unique <span class="yellow">Great Diplomat</span><br>----------------<br>👣 Moves: 5<br>----------------<br>When Expended: Add Tile Yield to 🏛️ Capital<br>Free Promotions:<br>• Master Diplomat<br>When Expended: +1  Paper<br>Conduct Diplomatic Mission: +45 Resting  Influence with Target  City-State
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <h3>Civilization:</h3>
+                                <div class="text-box">
+                                    <ul class="item-list">
+                                        <li><a href="#" onclick="showCivilization('CIVILIZATION_IROQUOIS'); return false;">The Iroquois</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    The Tadodaho, also called the Fire Keeper, refers to the head of the Grand Council of the Six Nations that includes the Cayuga, Mohawk, Oneida, Onondaga, Seneca, and Tuscarora people. A spiritual and political leader, the position dates back to the original founding of the Iroquois Confederacy; the hoyenah (chieftain) of the Onondaga Nation in the time of Hiawatha and the Great Peacemaker was named Tadodaho. The leadership of the Grand Council, and the honorific title of its founder, has been passed down for centuries, and is a lifetime appointment. It is said there have been 27 Tadodahos since the original founding of the Haudenosaunee (also called Iroquois) Confederacy.<br><br>The Great Council Fire of the Iroquois League is still located within the Onondaga reservation in present-day New York. The Tadodahos of recent history have continued to fight for the repatriation and preservation of Haudenosaunee culture, language, and history, as well as petition the American and Canadian governments in defense of their people's lands and treaty rights.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-UNIT_MONGOLIAN_KHAN" style="display: none;">
+                        <section class="welcome">
+                            <h2><span class="positive">(Mongolian)</span> Khan</h2>
+                            <div class="summary">
+                                <h3>Game Info:</h3>
+                                <div class="text-box">
+                                    Mongolian Unique <span class="yellow">Great General</span><br>----------------<br>👣 Moves: 5<br>----------------<br>Free Promotions:<br>• Leadership<br>• Medic I<br>• Khaaaan!<br>• Medic II<br>• Military Tradition
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <h3>Civilization:</h3>
+                                <div class="text-box">
+                                    <ul class="item-list">
+                                        <li><a href="#" onclick="showCivilization('CIVILIZATION_MONGOL'); return false;">Mongolia</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <h3>Strategy:</h3>
+                                <div class="text-box">
+                                    The Khan is the Mongolian unique unit, replacing the Great General. It moves much faster, heals stacked and adjacent units for additional HP per turn, and damages adjacent enemies if they end their turn next to it. It can also be expended to construct an <span class="positive">Ordo</span> and claim all adjacent tiles.
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    Originally the Khans were tribal chieftains of the Mongol people, ruling anywhere from one tribe to a loose confederation of many smaller ones.  At the time of Genghis' rise to power, the title was generally reserved for military leaders, but was later used to denote the civil leaders of the Mongolian Empire as well.  The Khans were the elected rulers of the empire provinces, holding their titles based on merit and loyalty rather than blood ties.  These leaders often served as generals as well, leading the large Mongolian armies in their successful raids and conquests. Later, an extension of the word was created, "Khagan", to denote the grand ruler, the Khan of Khans so to speak, but this wasn't used until after Genghis Khan's death in 1227 AD.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-UNIT_VENETIAN_MERCHANT" style="display: none;">
+                        <section class="welcome">
+                            <h2><span class="positive">(Venetian)</span> Merchant of Venice</h2>
+                            <div class="summary">
+                                <h3>Game Info:</h3>
+                                <div class="text-box">
+                                    Venetian Unique <span class="yellow">Great Merchant</span><br>----------------<br>👣 Moves: 4<br>----------------<br>Buy City-State<br>Found Colony (Puppet City)<br><span class="negative">Cannot found Cities next to anyone's border or if your Empire is very unhappy.</span><br>Free Buildings on Found (subject to location requirements): Monument, Market<br>Free Promotions:<br>• Trade Mission Bonus<br>Conduct Diplomatic Mission
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <h3>Civilization:</h3>
+                                <div class="text-box">
+                                    <ul class="item-list">
+                                        <li><a href="#" onclick="showCivilization('CIVILIZATION_VENICE'); return false;">Venice</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <h3>Strategy:</h3>
+                                <div class="text-box">
+                                    The Merchant of Venice is the Venetian unique unit, replacing the Great Merchant. It generates more 💰 when performing a trade mission. It can acquire a City-State outright, bringing it under Venetian control as a puppet. It can also found a Colonia, which is a city that starts puppeted with 3  Citizens, claims 3 additional tiles, and immediately receives a Monument and a Market. The Merchant of Venice is expended when used in any of these ways.<br><br>Note: the bonuses for constructing buildings from the Progress and Industry policy branches do not apply to the buildings automatically constructed on founding!
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    The merchants operating out of Venice in the 13th through 16th centuries were more than just traders; they were explorers, diplomats, geographers and authors. Besides bringing wealth to the Venetian Republic, they brought back knowledge and culture, and set them down in writing. The exploits of individuals such as Marco Polo, Gasparo Balbi and Ambrogio Contarini not only made Venice rich, but famous as well.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-UNIT_INDUNA" style="display: none;">
+                        <section class="welcome">
+                            <h2><span class="positive">(Zulu)</span> InDuna</h2>
+                            <div class="summary">
+                                <h3>Game Info:</h3>
+                                <div class="text-box">
+                                    Zulu Unique <span class="yellow">Great General</span><br>----------------<br>👣 Moves: 3<br>----------------<br>Free Promotions:<br>• Leadership<br>• Military Tradition<br>When Expended: +30 XP to Units on Tile
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <h3>Civilization:</h3>
+                                <div class="text-box">
+                                    <ul class="item-list">
+                                        <li><a href="#" onclick="showCivilization('CIVILIZATION_ZULU'); return false;">The Zulus</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    An InDuna can widely be translated to any leader of men, in commerce, in politics, and in war. An InDuna guided each regiment, or 'ibutho', of young Zulu men and he in turn answered to senior izinDuna who controlled the corps. One or more of these elder chiefs might accompany a big force on an important mission, but there was no single "field marshal" in command of all Zulu forces. Regimental izinDuna, like the non-commissioned officers of today's army, were important for morale and discipline. This was demonstrated during the battle of Isandlwana, where the army led by Ntshingwayo kaMahole outmaneuvered and destroyed a British column. Ntshingwayo kaMahole and his fellow izinDuna snuck a Zulu force of 20,000 men behind the British, hiding them in a valley only 7 miles from the British camp. When discovered sitting in complete silence by scouts, the izinDuna spurred their men into action and closed the remaining distance with lightning speed.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>Vox Populi Civilopedia - Version 5.0-alpha.03</p>
+        </footer>
+    </div>
+
+    <script>
+        function showHomePage() {
+            // Update URL hash
+            history.pushState(null, null, '#');
+
+            // Hide all items
+            const items = document.querySelectorAll('.article-detail');
+            items.forEach(c => c.style.display = 'none');
+
+            // Show placeholder
+            const placeholder = document.querySelector('.placeholder');
+            if (placeholder) placeholder.style.display = 'block';
+
+            // Remove active state from all sidebar links
+            const links = document.querySelectorAll('.sidebar-list a');
+            links.forEach(link => link.classList.remove('active'));
+
+            // Scroll to top of content
+            document.getElementById('itemContent').scrollTop = 0;
+        }
+
+        function showItem(itemType) {
+            // Update URL hash
+            history.pushState(null, null, '#item-' + itemType);
+
+            // Hide all items
+            const items = document.querySelectorAll('.article-detail');
+            items.forEach(c => c.style.display = 'none');
+
+            // Hide placeholder
+            const placeholder = document.querySelector('.placeholder');
+            if (placeholder) placeholder.style.display = 'none';
+
+            // Show selected item
+            const selected = document.getElementById('item-' + itemType);
+            if (selected) {
+                selected.style.display = 'block';
+                // Scroll to top of content
+                document.getElementById('itemContent').scrollTop = 0;
+            }
+
+            // Update active state in sidebar with exact matching and expand containing section
+            const links = document.querySelectorAll('.sidebar-list a');
+            links.forEach(link => {
+                const onclick = link.getAttribute('onclick');
+                // Extract the item type from onclick="showItem('TYPE'); return false;"
+                const match = onclick.match(/showItem\('([^']+)'\)/);
+                if (match && match[1] === itemType) {
+                    link.classList.add('active');
+
+                    // Expand the parent section if it's collapsed
+                    const parentSection = link.closest('.sidebar-section');
+                    if (parentSection && parentSection.classList.contains('collapsed')) {
+                        const list = parentSection.querySelector('.sidebar-list');
+                        const header = parentSection.querySelector('.sidebar-section-header');
+                        const icon = header ? header.querySelector('.section-icon') : null;
+
+                        if (list) list.style.display = 'block';
+                        if (icon) icon.textContent = '▼';
+                        parentSection.classList.remove('collapsed');
+                    }
+                } else {
+                    link.classList.remove('active');
+                }
+            });
+        }
+
+        function toggleSection(header) {
+            const section = header.parentElement;
+            const list = section.querySelector('.sidebar-list');
+            const icon = header.querySelector('.section-icon');
+
+            if (list.style.display === 'none') {
+                list.style.display = 'block';
+                icon.textContent = '▼';
+                section.classList.remove('collapsed');
+            } else {
+                list.style.display = 'none';
+                icon.textContent = '▶';
+                section.classList.add('collapsed');
+            }
+        }
+
+        // Handle browser back/forward buttons
+        window.addEventListener('popstate', function() {
+            handleHashChange();
+        });
+
+        // Handle URL hash on page load to show specific item
+        window.addEventListener('DOMContentLoaded', function() {
+            handleHashChange();
+        });
+
+        function handleHashChange() {
+            const hash = window.location.hash;
+
+            if (!hash || hash === '#') {
+                showHomePage();
+            } else if (hash.startsWith('#item-')) {
+                const itemType = hash.substring(6); // Remove '#item-' prefix
+                showItem(itemType);
+            }
+        }
+
+        function showTechnology(techType) {
+            window.location.href = 'technologies.html#item-' + techType;
+        }
+
+        function showPromotion(promotionType) {
+            window.location.href = 'promotions.html#item-' + promotionType;
+        }
+
+        function showBuilding(buildingType) {
+            // Check if the current page is buildings or wonders
+            const currentPage = window.location.pathname.split('/').pop();
+            if (currentPage === 'buildings.html' || currentPage === 'wonders.html') {
+                // Stay on same page
+                showItem(buildingType);
+            } else {
+                // Try buildings first, could be a wonder
+                window.location.href = 'buildings.html#item-' + buildingType;
+            }
+        }
+
+        function showUnit(unitType) {
+            window.location.href = 'units.html#item-' + unitType;
+        }
+
+        function showWonder(wonderType) {
+            window.location.href = 'wonders.html#item-' + wonderType;
+        }
+
+        function showResource(resourceType) {
+            window.location.href = 'resources.html#item-' + resourceType;
+        }
+
+        function showImprovement(improvementType) {
+            window.location.href = 'improvements.html#item-' + improvementType;
+        }
+
+        function showTerrain(terrainType) {
+            window.location.href = 'terrain.html#item-' + terrainType;
+        }
+
+        function showTech(techType) {
+            window.location.href = 'technologies.html#item-' + techType;
+        }
+
+        function showCivilization(techType) {
+            window.location.href = 'civilizations.html#item-' + techType;
+        }
+
+        // Search functionality using global search index
+        const searchInput = document.getElementById('globalSearch');
+        const searchResults = document.getElementById('searchResults');
+        let selectedIndex = -1;
+
+        if (searchInput && window.globalSearchIndex) {
+            searchInput.addEventListener('input', function(e) {
+                const query = e.target.value.trim().toLowerCase();
+                selectedIndex = -1; // Reset selection on new input
+
+                if (query.length < 2) {
+                    searchResults.style.display = 'none';
+                    searchResults.innerHTML = '';
+                    return;
+                }
+
+                // Search for matches in article titles across all categories
+                const matches = window.globalSearchIndex.filter(article =>
+                    article.name.toLowerCase().includes(query)
+                ).slice(0, 10); // Limit to 10 results
+
+                if (matches.length > 0) {
+                    // Clear previous results
+                    searchResults.innerHTML = '';
+
+                    // Create and append each result element
+                    matches.forEach(match => {
+                        const resultDiv = document.createElement('div');
+                        resultDiv.className = 'search-result-item';
+                        resultDiv.setAttribute('data-page', match.page);
+                        resultDiv.setAttribute('data-type', match.type);
+
+                        const strong = document.createElement('strong');
+                        strong.innerHTML = match.nameFormatted; // Use formatted name with HTML/colors
+                        resultDiv.appendChild(strong);
+
+                        // Add click handler
+                        resultDiv.addEventListener('click', function() {
+                            navigateToArticle(match.page, match.type);
+                        });
+
+                        searchResults.appendChild(resultDiv);
+                    });
+                    searchResults.style.display = 'block';
+                } else {
+                    searchResults.innerHTML = '<div class="search-result-item no-results">No results found</div>';
+                    searchResults.style.display = 'block';
+                }
+            });
+
+            // Keyboard navigation
+            searchInput.addEventListener('keydown', function(e) {
+                const items = searchResults.querySelectorAll('.search-result-item:not(.no-results)');
+
+                if (items.length === 0) return;
+
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    selectedIndex = Math.min(selectedIndex + 1, items.length - 1);
+                    updateSelection(items);
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    selectedIndex = Math.max(selectedIndex - 1, -1);
+                    updateSelection(items);
+                } else if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (selectedIndex >= 0 && selectedIndex < items.length) {
+                        const selectedItem = items[selectedIndex];
+                        const page = selectedItem.getAttribute('data-page');
+                        const type = selectedItem.getAttribute('data-type');
+                        navigateToArticle(page, type);
+                    }
+                } else if (e.key === 'Escape') {
+                    searchResults.style.display = 'none';
+                    selectedIndex = -1;
+                }
+            });
+
+            function updateSelection(items) {
+                items.forEach((item, index) => {
+                    if (index === selectedIndex) {
+                        item.classList.add('selected');
+                        item.scrollIntoView({ block: 'nearest' });
+                    } else {
+                        item.classList.remove('selected');
+                    }
+                });
+            }
+
+            // Close search results when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.search-container')) {
+                    searchResults.style.display = 'none';
+                    selectedIndex = -1;
+                }
+            });
+
+            // Prevent closing when clicking inside search container
+            searchInput.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+        }
+
+        // Global keyboard shortcut: Press 'S' to focus search
+        document.addEventListener('keydown', function(e) {
+            // Check if 'S' key is pressed and search input is not already focused
+            if (e.key === 's' || e.key === 'S') {
+                // Don't trigger if user is typing in an input field
+                if (document.activeElement.tagName === 'INPUT' ||
+                    document.activeElement.tagName === 'TEXTAREA' ||
+                    document.activeElement.isContentEditable) {
+                    return;
+                }
+                e.preventDefault();
+                searchInput.focus();
+            }
+        });
+
+        function navigateToArticle(page, itemType) {
+            const currentPage = window.location.pathname.split('/').pop();
+            const targetPage = page + '.html';
+
+            if (currentPage === targetPage) {
+                // Same page, just show the item
+                showItem(itemType);
+                searchResults.style.display = 'none';
+                searchInput.value = '';
+            } else {
+                // Different page, navigate
+                window.location.href = targetPage + '#item-' + itemType;
+            }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>

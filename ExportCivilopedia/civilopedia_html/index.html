@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vox Populi Civilopedia</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Vox Populi Civilopedia</h1>
+            <div class="search-container">
+                <input type="text" id="globalSearch" placeholder="Search Civilopedia... (Press S)" autocomplete="off">
+                <div id="searchResults" class="search-results"></div>
+            </div>
+        </header>
+
+        <nav class="main-nav">
+            <a href="index.html" class="active">Civilopedia Home Page</a>
+            <a href="concepts.html">Game Concepts</a>
+            <a href="civilizations.html">Civilizations and Leaders</a>
+            <a href="units.html">Units</a>
+            <a href="buildings.html">Buildings</a>
+            <a href="wonders.html">Wonders</a>
+            <a href="technologies.html">Technologies</a>
+            <a href="policies.html">Social Policies</a>
+            <a href="beliefs.html">Religion</a>
+            <a href="promotions.html">Promotions</a>
+            <a href="resources.html">Resources</a>
+            <a href="improvements.html">Improvements</a>
+            <a href="terrain.html">Terrain and Features</a>
+            <a href="greatPeople.html">Specialists and Great People</a>
+            <a href="cityStates.html">City-States</a>
+            <a href="worldCongress.html">World Congress</a>
+            <a href="corporations.html">Corporations</a>
+        </nav>
+
+        <main>
+            <section class="welcome">
+                <h2>Welcome to the Vox Populi Civilopedia</h2>
+                <p>Current version: 5.0-alpha.03</p>
+ 
+                <div class="text-box" style="margin-top: 1.5rem;">
+                    <br>&emsp;&emsp;"Such is the patriot's boast, where'er we roam, His first, best country ever is, at home."<br>&emsp;&emsp;  - Oliver Goldsmith<br>&emsp;
+                </div>
+                <div class="text-box" style="margin-top: 1.5rem;">
+                    Welcome to the Civilopedia! Here you will find detailed descriptions of all aspects of the game. Use the "Search" field to search for articles on any specific subject. Clicking on the tabs on the top edge of the screen will take you to the various major sections of the Civilopedia. The Navigation Bar on the left side of the screen will display the various entries within a section. Click on an entry to go directly there.<br><br>In the upper left-hand portion of the screen you will find the forward and back buttons which will help you navigate between pages. Click on the "X" on the upper right portion of the screen to return to the game.<br><br>Welcome to Vox Populi, a mod that completely overhauls the game by rebalancing policies, leaders, buildings, wonders, and more! <span class="yellow">Game Concepts that have been modified in Vox Populi are highlighted in yellow in the Civilopedia.</span> <span class="green">Entirely new Game Concepts or Game Concepts that have been completely overhauled are highlighted in green</span>.
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>Vox Populi Civilopedia - Version 5.0-alpha.03</p>
+        </footer>
+    </div>
+    <script src="searchIndex.js"></script>
+    <script>
+        // Search functionality for index page
+        const searchInput = document.getElementById('globalSearch');
+        const searchResults = document.getElementById('searchResults');
+        let selectedIndex = -1;
+
+        if (searchInput && window.globalSearchIndex) {
+            searchInput.addEventListener('input', function(e) {
+                const query = e.target.value.trim().toLowerCase();
+                selectedIndex = -1; // Reset selection on new input
+
+                if (query.length < 2) {
+                    searchResults.style.display = 'none';
+                    searchResults.innerHTML = '';
+                    return;
+                }
+
+                // Search for matches in article titles across all categories
+                const matches = window.globalSearchIndex.filter(article =>
+                    article.name.toLowerCase().includes(query)
+                ).slice(0, 10); // Limit to 10 results
+
+                if (matches.length > 0) {
+                    // Clear previous results
+                    searchResults.innerHTML = '';
+
+                    // Create and append each result element
+                    matches.forEach(match => {
+                        const resultDiv = document.createElement('div');
+                        resultDiv.className = 'search-result-item';
+                        resultDiv.setAttribute('data-page', match.page);
+                        resultDiv.setAttribute('data-type', match.type);
+
+                        const strong = document.createElement('strong');
+                        strong.innerHTML = match.nameFormatted; // Use formatted name with HTML/colors
+                        resultDiv.appendChild(strong);
+
+                        // Add click handler
+                        resultDiv.addEventListener('click', function() {
+                            navigateToArticle(match.page, match.type);
+                        });
+
+                        searchResults.appendChild(resultDiv);
+                    });
+                    searchResults.style.display = 'block';
+                } else {
+                    searchResults.innerHTML = '<div class="search-result-item no-results">No results found</div>';
+                    searchResults.style.display = 'block';
+                }
+            });
+
+            // Keyboard navigation
+            searchInput.addEventListener('keydown', function(e) {
+                const items = searchResults.querySelectorAll('.search-result-item:not(.no-results)');
+
+                if (items.length === 0) return;
+
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    selectedIndex = Math.min(selectedIndex + 1, items.length - 1);
+                    updateSelection(items);
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    selectedIndex = Math.max(selectedIndex - 1, -1);
+                    updateSelection(items);
+                } else if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (selectedIndex >= 0 && selectedIndex < items.length) {
+                        const selectedItem = items[selectedIndex];
+                        const page = selectedItem.getAttribute('data-page');
+                        const type = selectedItem.getAttribute('data-type');
+                        navigateToArticle(page, type);
+                    }
+                } else if (e.key === 'Escape') {
+                    searchResults.style.display = 'none';
+                    selectedIndex = -1;
+                }
+            });
+
+            function updateSelection(items) {
+                items.forEach((item, index) => {
+                    if (index === selectedIndex) {
+                        item.classList.add('selected');
+                        item.scrollIntoView({ block: 'nearest' });
+                    } else {
+                        item.classList.remove('selected');
+                    }
+                });
+            }
+
+            // Close search results when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.search-container')) {
+                    searchResults.style.display = 'none';
+                    selectedIndex = -1;
+                }
+            });
+
+            // Prevent closing when clicking inside search container
+            searchInput.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+        }
+
+        // Global keyboard shortcut: Press 'S' to focus search
+        document.addEventListener('keydown', function(e) {
+            // Check if 'S' key is pressed and search input is not already focused
+            if (e.key === 's' || e.key === 'S') {
+                // Don't trigger if user is typing in an input field
+                if (document.activeElement.tagName === 'INPUT' ||
+                    document.activeElement.tagName === 'TEXTAREA' ||
+                    document.activeElement.isContentEditable) {
+                    return;
+                }
+                e.preventDefault();
+                searchInput.focus();
+            }
+        });
+
+        function navigateToArticle(page, itemType) {
+            window.location.href = page + '.html#item-' + itemType;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>

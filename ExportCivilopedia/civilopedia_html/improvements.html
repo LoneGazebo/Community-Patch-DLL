@@ -1,0 +1,2287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Improvements - Vox Populi Civilopedia</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="searchIndex.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Improvements</h1>
+            <div class="search-container">
+                <input type="text" id="globalSearch" placeholder="Search Civilopedia... (Press S)" autocomplete="off">
+                <div id="searchResults" class="search-results"></div>
+            </div>
+        </header>
+
+        <nav class="main-nav">
+            <a href="index.html">Civilopedia Home Page</a>
+            <a href="concepts.html">Game Concepts</a>
+            <a href="civilizations.html">Civilizations and Leaders</a>
+            <a href="units.html">Units</a>
+            <a href="buildings.html">Buildings</a>
+            <a href="wonders.html">Wonders</a>
+            <a href="technologies.html">Technologies</a>
+            <a href="policies.html">Social Policies</a>
+            <a href="beliefs.html">Religion</a>
+            <a href="promotions.html">Promotions</a>
+            <a href="resources.html">Resources</a>
+            <a href="improvements.html" class="active">Improvements</a>
+            <a href="terrain.html">Terrain and Features</a>
+            <a href="greatPeople.html">Specialists and Great People</a>
+            <a href="cityStates.html">City-States</a>
+            <a href="worldCongress.html">World Congress</a>
+            <a href="corporations.html">Corporations</a>
+        </nav>
+
+        <main class="pediapage-layout">
+            <aside class="pediapage-sidebar">
+                <div class="sidebar-header" onclick="showHomePage(); return false;" style="cursor: pointer;">Improvements Home Page</div>
+                    <ul class="sidebar-list">
+                        <li><a href="#" onclick="showItem('IMPROVEMENT_ACADEMY'); return false;">Academy</a></li>
+                        <li><a href="#" onclick="showItem('IMPROVEMENT_GOODY_HUT'); return false;">Ancient Ruins</a></li>
+                        <li><a href="#" onclick="showItem('IMPROVEMENT_ARCHAEOLOGICAL_DIG'); return false;">Archaeological Dig</a></li>
+                        <li><a href="#" onclick="showItem('IMPROVEMENT_BARBARIAN_CAMP'); return false;">Barbarian Encampment</a></li>
+                        <li><a href="#" onclick="showItem('IMPROVEMENT_CAMP'); return false;">Camp</a></li>
+                        <li><a href="#" onclick="showItem('IMPROVEMENT_CITADEL'); return false;">Citadel</a></li>
+                        <li><a href="#" onclick="showItem('IMPROVEMENT_CITY_RUINS'); return false;">City Ruins</a></li>
+                        <li><a href="#" onclick="showItem('IMPROVEMENT_EMBASSY'); return false;">Embassy</a></li>
+                        <li><a href="#" onclick="showItem('IMPROVEMENT_FARM'); return false;">Farm</a></li>
+                        <li><a href="#" onclick="showItem('IMPROVEMENT_FISHING_BOATS'); return false;">Fishing Boats</a></li>
+                        <li><a href="#" onclick="showItem('IMPROVEMENT_FORT'); return false;">Fort</a></li>
+                        <li><a href="#" onclick="showItem('IMPROVEMENT_HOLY_SITE'); return false;">Holy Site</a></li>
+                        <li><a href="#" onclick="showItem('IMPROVEMENT_ISIBAYA'); return false;">Isibaya</a></li>
+                        <li><a href="#" onclick="showItem('IMPROVEMENT_LANDMARK'); return false;">Landmark</a></li>
+                        <li><a href="#" onclick="showItem('IMPROVEMENT_LUMBERMILL'); return false;">Lumber Mill</a></li>
+                        <li><a href="#" onclick="showItem('IMPROVEMENT_MANUFACTORY'); return false;">Manufactory</a></li>
+                        <li><a href="#" onclick="showItem('IMPROVEMENT_MINE'); return false;">Mine</a></li>
+                        <li><a href="#" onclick="showItem('IMPROVEMENT_MOUNTAIN_CITY'); return false;">Mountain City</a></li>
+                        <li><a href="#" onclick="showItem('IMPROVEMENT_OFFSHORE_PLATFORM'); return false;">Offshore Platform</a></li>
+                        <li><a href="#" onclick="showItem('IMPROVEMENT_WELL'); return false;">Oil Well</a></li>
+                        <li><a href="#" onclick="showItem('IMPROVEMENT_ORDO'); return false;">Ordo</a></li>
+                        <li><a href="#" onclick="showItem('IMPROVEMENT_PASTURE'); return false;">Pasture</a></li>
+                        <li><a href="#" onclick="showItem('IMPROVEMENT_PLANTATION'); return false;">Plantation</a></li>
+                        <li><a href="#" onclick="showItem('IMPROVEMENT_POLDER_WATER'); return false;">Polder</a></li>
+                        <li><a href="#" onclick="showItem('IMPROVEMENT_QUARRY'); return false;">Quarry</a></li>
+                        <li><a href="#" onclick="showItem('IMPROVEMENT_CUSTOMS_HOUSE'); return false;">Town</a></li>
+                        <li><a href="#" onclick="showItem('IMPROVEMENT_TRADING_POST'); return false;">Village</a></li>
+                        <li><a href="#" onclick="showItem('IMPROVEMENT_BRAZILWOOD_CAMP'); return false;"><span class="positive">(Brazilian)</span> Brazilwood Camp</a></li>
+                        <li><a href="#" onclick="showItem('IMPROVEMENT_APLEKTON'); return false;"><span class="positive">(Byzantine)</span> Aplekton</a></li>
+                        <li><a href="#" onclick="showItem('IMPROVEMENT_OPPIDUM'); return false;"><span class="positive">(Celtic)</span> Oppidum</a></li>
+                        <li><a href="#" onclick="showItem('IMPROVEMENT_SIHEYUAN'); return false;"><span class="positive">(Chinese)</span> Siheyuan</a></li>
+                        <li><a href="#" onclick="showItem('IMPROVEMENT_POLDER'); return false;"><span class="positive">(Dutch)</span> Polder</a></li>
+                        <li><a href="#" onclick="showItem('IMPROVEMENT_OBELISK'); return false;"><span class="positive">(Egyptian)</span> Obelisk</a></li>
+                        <li><a href="#" onclick="showItem('IMPROVEMENT_MONOLITHIC_CHURCH'); return false;"><span class="positive">(Ethiopian)</span> Monolithic Church</a></li>
+                        <li><a href="#" onclick="showItem('IMPROVEMENT_CHATEAU'); return false;"><span class="positive">(French)</span> Chateau</a></li>
+                        <li><a href="#" onclick="showItem('IMPROVEMENT_EKI'); return false;"><span class="positive">(Hunnic)</span> Eki</a></li>
+                        <li><a href="#" onclick="showItem('IMPROVEMENT_TERRACE_FARM'); return false;"><span class="positive">(Incan)</span> Pata-Pata</a></li>
+                        <li><a href="#" onclick="showItem('IMPROVEMENT_KAMPONG'); return false;"><span class="positive">(Indonesian)</span> Kampong</a></li>
+                        <li><a href="#" onclick="showItem('IMPROVEMENT_KUNA'); return false;"><span class="positive">(Mayan)</span> Kuna</a></li>
+                        <li><a href="#" onclick="showItem('IMPROVEMENT_KASBAH'); return false;"><span class="positive">(Moroccan)</span> Kasbah</a></li>
+                        <li><a href="#" onclick="showItem('IMPROVEMENT_TERSANE'); return false;"><span class="positive">(Ottoman)</span> Tersane</a></li>
+                        <li><a href="#" onclick="showItem('IMPROVEMENT_CHARBAGH'); return false;"><span class="positive">(Persian)</span> Charbagh</a></li>
+                        <li><a href="#" onclick="showItem('IMPROVEMENT_MOAI'); return false;"><span class="positive">(Polynesian)</span> Moai</a></li>
+                        <li><a href="#" onclick="showItem('IMPROVEMENT_FEITORIA'); return false;"><span class="positive">(Portuguese)</span> Feitoria</a></li>
+                        <li><a href="#" onclick="showItem('IMPROVEMENT_VILLA'); return false;"><span class="positive">(Roman)</span> Villa</a></li>
+                        <li><a href="#" onclick="showItem('IMPROVEMENT_VP_ENCAMPMENT'); return false;"><span class="positive">(Shoshone)</span> Encampment</a></li>
+                        <li><a href="#" onclick="showItem('IMPROVEMENT_HACIENDA'); return false;"><span class="positive">(Spanish)</span> Hacienda</a></li>
+                    </ul>
+            </aside>
+
+            <div class="pediapage-content" id="itemContent">
+                <div class="placeholder">
+                    <section class="welcome">
+                        <h2>Improvements</h2>
+                        <div class="summary">
+                            <div class="text-box">
+                                <br>&emsp;&emsp;"If I can in any way contribute to the diversion or improvement of the country in which I live, I shall leave it […] with the secret satisfaction of thinking that I have not lived in vain."<br>&emsp;&emsp;  - Joseph Addison<br>&emsp;
+                            </div>
+                        </div>
+                        <div class="summary">
+                            <div class="text-box">
+                                During a game, you will create "workers" - non-military units who will "improve" the land around your cities, increasing the land's productivity or providing access to a nearby "resource." Improvements include farms, trading posts, lumber mills, quarries, mines, and more. During wartime your enemy may "pillage" (destroy) your improvements. Pillaged improvements are ineffective until a worker has "repaired" them.<br><br>Certain buildings allow you to create "specialists" out of your citizens to work those buildings. Specialists improve the output of the building, and they also increase the city's output of Great People. <span class="yellow"> However, they reduce the city's growth because Specialists don't produce food and also consume more food than other citizens. The amount of food a specialist consumes is based on your current Era.</span><br><br>    <span class="cyan">Ancient-Medieval</span>: Specialists consume 🌾 3 Food.<br>    <span class="cyan">Renaissance</span>: Specialists consume 🌾 4 Food.<br>    <span class="cyan">Industrial</span>: Specialists consume 🌾 5 Food.<br>    <span class="cyan">Modern</span>: Specialists consume 🌾 6 Food.<br>    <span class="cyan">Atomic</span>: Specialists consume 🌾 7 Food.<br>    <span class="cyan">Information</span>: Specialists consume 🌾 8 Food.
+                            </div>
+                        </div>
+                    </section>
+                </div>
+                    <div class="article-detail" id="item-IMPROVEMENT_ACADEMY" style="display: none;">
+                        <section class="welcome">
+                            <h2>Academy</h2>
+                                <div class="summary">
+                                    <h3>Base Yield:</h3>
+                                    <div class="text-box">
++6 ⚗️ Science                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Can Be Built On:</h3>
+                                    <div class="text-box">
+                                        <ul class="item-list">
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_GRASS'); return false;">Grassland</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_PLAINS'); return false;">Plains</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_DESERT'); return false;">Desert</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_TUNDRA'); return false;">Tundra</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_SNOW'); return false;">Snow</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    An academy is an institution where children can get an advanced lower (that is, pre-college) education. Academies come in all flavors - military, religious, government, and the like. Some are private, open only to the children of wealth or power or influence, while others are open to all children who meet their strict requirements. England's Eton College is one of the most famous academies in the world, taking in England's best and brightest boys between the ages of 13 and 18 since 1440.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-IMPROVEMENT_GOODY_HUT" style="display: none;">
+                        <section class="welcome">
+                            <h2>Ancient Ruins</h2>
+                                <div class="summary">
+                                    <h3>Can Be Built On:</h3>
+                                    <div class="text-box">
+                                        <ul class="item-list">
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_GRASS'); return false;">Grassland</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_PLAINS'); return false;">Plains</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_DESERT'); return false;">Desert</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_TUNDRA'); return false;">Tundra</a></li>
+                                            <li><a href="#" onclick="showTerrain('FEATURE_JUNGLE'); return false;">Jungle</a></li>
+                                            <li><a href="#" onclick="showTerrain('FEATURE_FOREST'); return false;">Forest</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    Ancient Ruins are the remains of earlier long-dead civilizations. They are filled with valuable secrets - gold, maps, lost technologies and sometimes even survivors - awaiting discovery by the intrepid explorer. Rich rewards await those who first enter an Ancient Ruin!
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-IMPROVEMENT_ARCHAEOLOGICAL_DIG" style="display: none;">
+                        <section class="welcome">
+                            <h2>Archaeological Dig</h2>
+                                <div class="summary">
+                                    <h3>Improves Resources:</h3>
+                                    <div class="text-box">
+                                        <ul class="item-list">
+                                            <li><a href="#" onclick="showResource('RESOURCE_HIDDEN_ARTIFACTS'); return false;">Hidden Antiquity Site</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_ARTIFACTS'); return false;">Antiquity Site</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            <div class="summary">
+                                <h3>Required Technology:</h3>
+                                <div class="text-box">
+                                    <ul class="item-list">
+                                        <li><a href="#" onclick="showTechnology('TECH_ARCHAEOLOGY'); return false;">Archaeology</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    An Archaeological Dig can only be constructed by an Archaeologist at an Antiquity Site resource. The excavations at the ancient city of Troy are an example of a preeminent archaeological dig site. Upon constructing the Dig, your Archaeologist will discover what type of Artifact is buried at this location. You can then choose to either have the Archaeologist create a permanent Landmark improvement here, or extract the Artifact for placement in a Great Work of Art slot in a building in your empire.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-IMPROVEMENT_BARBARIAN_CAMP" style="display: none;">
+                        <section class="welcome">
+                            <h2>Barbarian Encampment</h2>
+                                <div class="summary">
+                                    <h3>Can Be Built On:</h3>
+                                    <div class="text-box">
+                                        <ul class="item-list">
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_GRASS'); return false;">Grassland</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_PLAINS'); return false;">Plains</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_DESERT'); return false;">Desert</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_TUNDRA'); return false;">Tundra</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_SNOW'); return false;">Snow</a></li>
+                                            <li><a href="#" onclick="showTerrain('FEATURE_JUNGLE'); return false;">Jungle</a></li>
+                                            <li><a href="#" onclick="showTerrain('FEATURE_FOREST'); return false;">Forest</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    A Barbarian Encampment is a temporary settlement by a group of rampaging barbarians intent upon overthrowing and destroying your civilization. These perpetual thorns in the sides of civilizations are capable of spitting out an unending stream of angry barbarians, all who seek to overrun your cities, pillage your lands and stare lewdly at your women. Encampments near to your cities should be destroyed without question. Encampments nearer to competing civilizations may be left to harass your foes, if you are that kind of sneaky leader...
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-IMPROVEMENT_CAMP" style="display: none;">
+                        <section class="welcome">
+                            <h2>Camp</h2>
+                                <div class="summary">
+                                    <h3>Improves Resources:</h3>
+                                    <div class="text-box">
+                                        <ul class="item-list">
+                                            <li><a href="#" onclick="showResource('RESOURCE_IVORY'); return false;">Ivory</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_FUR'); return false;">Furs</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_DEER'); return false;">Deer</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_TRUFFLES'); return false;">Truffles</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_BISON'); return false;">Bison</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            <div class="summary">
+                                <h3>Required Technology:</h3>
+                                <div class="text-box">
+                                    <ul class="item-list">
+                                        <li><a href="#" onclick="showTechnology('TECH_TRAPPING'); return false;">Trapping</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    Hunting wild animals is one of the first ways in which ancient Man harvested the resources of the world around him. A hunting camp allows access to deer, fur, truffles, and ivory resources.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-IMPROVEMENT_CITADEL" style="display: none;">
+                        <section class="welcome">
+                            <h2>Citadel</h2>
+                                <div class="summary">
+                                    <h3>Base Yield:</h3>
+                                    <div class="text-box">
++1 🔨 Production, +1 ⚗️ Science                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Can Be Built On:</h3>
+                                    <div class="text-box">
+                                        <ul class="item-list">
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_GRASS'); return false;">Grassland</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_PLAINS'); return false;">Plains</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_DESERT'); return false;">Desert</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_TUNDRA'); return false;">Tundra</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_SNOW'); return false;">Snow</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    A Citadel is a mighty fortification that can only be constructed by a Great General, usually near a city or on a particularly defensible piece of terrain. The Acropolis in Athens, Greece, is an example of an early powerful Citadel. Such structures were almost impossible to take by direct attack, and they were capable of withstanding protracted sieges before they fell.<br><br>You can construct a Citadel anywhere within your territory, or directly adjacent to your territory. Upon constructing the Citadel, your Military Unit Supply Cap will increase by 1, and your Culture borders will also expand to surround the Citadel on all sides by one hex. If the new Culture border claims hexes already owned by another civilization, you will incur a diplomatic penalty as a result. Any unit stationed within a Citadel receives a 100% defensive strength bonus. Additionally, any enemy unit which ends its turn next to a Citadel takes 30 damage (damage does not stack with other Citadels). Contains <span class="positive">Fortifications</span>, allowing owned Units to stay stationed in this tile after attacking and a <span class="positive">Canal</span>, allowing friendly <span class="positive">Sea</span> Units to traverse through it.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-IMPROVEMENT_CITY_RUINS" style="display: none;">
+                        <section class="welcome">
+                            <h2>City Ruins</h2>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    City Ruins are the remnants of cities destroyed in the game. They are of no particular value in themselves, but they often sit atop valuable locations. A worker may clean up a City Ruin or simply replace it with another improvement.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-IMPROVEMENT_EMBASSY" style="display: none;">
+                        <section class="welcome">
+                            <h2>Embassy</h2>
+                                <div class="summary">
+                                    <h3>Base Yield:</h3>
+                                    <div class="text-box">
++2 💰 Gold, +2 🎵 Culture, +2 ⚗️ Science                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Can Be Built On:</h3>
+                                    <div class="text-box">
+                                        <ul class="item-list">
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_GRASS'); return false;">Grassland</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_PLAINS'); return false;">Plains</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_DESERT'); return false;">Desert</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_TUNDRA'); return false;">Tundra</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_SNOW'); return false;">Snow</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    Embassies can only be built in City-State territory by Great Diplomats.<br><br>The first player (and only the first!) to construct an Embassy in a City-State's land <span class="positive">earns an extra vote in the World Congress</span>. No player will receive additional votes for Embassies beyond the first one placed in a City-State's territory.<br><br>An Embassy cannot be pillaged - once built, they can never be removed, and they will always grant their additional World Congress vote to the original builder. If, however, the original builder is conquered, the conqueror will take ownership of their Embassies, and their votes!
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-IMPROVEMENT_FARM" style="display: none;">
+                        <section class="welcome">
+                            <h2>Farm</h2>
+                                <div class="summary">
+                                    <h3>Base Yield:</h3>
+                                    <div class="text-box">
++1 🌾 Food                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Adjacent Bonus:</h3>
+                                    <div class="text-box">
+                                        <ul class="item-list">
+                                            <li>
+                                                <strong>Farm/Manufactory/Pata-Pata:</strong>
++0.5 🌾 Food                                            </li>
+                                            <li>
+                                                <strong>Villa:</strong>
++1 🌾 Food, +1 💰 Gold                                            </li>
+                                        </ul>
+                                        <p style="margin-top: 1rem;">Note: The sum of all fractional adjacency bonuses is rounded down to the nearest integer.</p>
+                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Can Be Built On:</h3>
+                                    <div class="text-box">
+                                        <ul class="item-list">
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_GRASS'); return false;">Grassland</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_PLAINS'); return false;">Plains</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Improves Resources:</h3>
+                                    <div class="text-box">
+                                        <ul class="item-list">
+                                            <li><a href="#" onclick="showResource('RESOURCE_WHEAT'); return false;">Wheat</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_MAIZE'); return false;">Maize</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_RICE'); return false;">Rice</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            <div class="summary">
+                                <h3>Required Technology:</h3>
+                                <div class="text-box">
+                                    <ul class="item-list">
+                                        <li><a href="#" onclick="showTechnology('TECH_AGRICULTURE'); return false;">Agriculture</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    Farms can be constructed on most any land to improve the output of food on the tile. Farms gain +1 Food for every two adjacent Farms and/or if Fresh Water is available.<br><br>Farming is one of the earliest and most important of all human professions, as it allowed mankind to stop migrating and settle in one location without depleting the local resources.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-IMPROVEMENT_FISHING_BOATS" style="display: none;">
+                        <section class="welcome">
+                            <h2>Fishing Boats</h2>
+                                <div class="summary">
+                                    <h3>Adjacent Bonus:</h3>
+                                    <div class="text-box">
+                                        <ul class="item-list">
+                                            <li>
+                                                <strong>Kasbah:</strong>
++2 💰 Gold                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Improves Resources:</h3>
+                                    <div class="text-box">
+                                        <ul class="item-list">
+                                            <li><a href="#" onclick="showResource('RESOURCE_FISH'); return false;">Fish</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_WHALE'); return false;">Whales</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_PEARLS'); return false;">Pearls</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_CRAB'); return false;">Crab</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_CORAL'); return false;">Coral</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            <div class="summary">
+                                <h3>Required Technology:</h3>
+                                <div class="text-box">
+                                    <ul class="item-list">
+                                        <li><a href="#" onclick="showTechnology('TECH_SAILING'); return false;">Fishing</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    Fishing boats allow a civilization to harvest the valuable crab, fish, whale and pearl resources. To construct fishing boats, you must build a work boat in a coastal city (after your civilization has learned the requisite technology). Work boats are consumed when they construct fishing boats.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-IMPROVEMENT_FORT" style="display: none;">
+                        <section class="welcome">
+                            <h2>Fort</h2>
+                                <div class="summary">
+                                    <h3>Base Yield:</h3>
+                                    <div class="text-box">
++1  Border Growth Points                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Can Be Built On:</h3>
+                                    <div class="text-box">
+                                        <ul class="item-list">
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_GRASS'); return false;">Grassland</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_PLAINS'); return false;">Plains</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_DESERT'); return false;">Desert</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_TUNDRA'); return false;">Tundra</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_SNOW'); return false;">Snow</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            <div class="summary">
+                                <h3>Required Technology:</h3>
+                                <div class="text-box">
+                                    <ul class="item-list">
+                                        <li><a href="#" onclick="showTechnology('TECH_ENGINEERING'); return false;">Engineering</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    A fort is a special improvement that improves the defensive bonus of the tile by 50% for units stationed in that tile. However, forts do not provide a defensive bonus to units in enemy territory. Cannot be built adjacent to one another. Contains <span class="positive">Fortifications</span>, allowing owned Units to stay stationed in this tile after attacking and a <span class="positive">Canal</span>, allowing friendly <span class="positive">Sea</span> Units to traverse through it.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-IMPROVEMENT_HOLY_SITE" style="display: none;">
+                        <section class="welcome">
+                            <h2>Holy Site</h2>
+                                <div class="summary">
+                                    <h3>Base Yield:</h3>
+                                    <div class="text-box">
++4 🕊️ Faith, +5 🎵 Culture, +3 🗿 Tourism                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Can Be Built On:</h3>
+                                    <div class="text-box">
+                                        <ul class="item-list">
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_GRASS'); return false;">Grassland</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_PLAINS'); return false;">Plains</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_DESERT'); return false;">Desert</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_TUNDRA'); return false;">Tundra</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_SNOW'); return false;">Snow</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    A place of religious significance, holy sites are locations held sacred as a testament to the gods, prophets, and traditions of a given religion. Often the destination for religious pilgrims, these sites are often visited by the faithful in the hopes of strengthening their connection to God, while also paying their respects.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-IMPROVEMENT_ISIBAYA" style="display: none;">
+                        <section class="welcome">
+                            <h2>Isibaya</h2>
+                            <div class="summary">
+                                <h3>Game Info:</h3>
+                                <div class="text-box">
+                                    Unique Zulu Great Person Tile Improvement, replacing the Citadel. Can only be constructed by a InDuna.<br><br>Provides 🔨 Production, ⚗️ Science, and 🎵 Culture. Adjacent Pastures receive +1 🎵 Culture.<br><br>Building an Isibaya claims adjacent tiles and places a  Cattle Resource adjacent to it.<br><br>Units standing on an Isibaya receive +100% ⚔️ Tile Defense. Deals 30 damage to adjacent Enemy Units.
+                                </div>
+                            </div>
+                                <div class="summary">
+                                    <h3>Base Yield:</h3>
+                                    <div class="text-box">
++1 🌾 Food, +2 🔨 Production, +1 ⚗️ Science, +1 🎵 Culture                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Can Be Built On:</h3>
+                                    <div class="text-box">
+                                        <ul class="item-list">
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_GRASS'); return false;">Grassland</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_PLAINS'); return false;">Plains</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_DESERT'); return false;">Desert</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_TUNDRA'); return false;">Tundra</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_SNOW'); return false;">Snow</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    Unique Zulu Great Person Tile Improvement, replacing the Citadel. Can only be constructed by a InDuna.<br><br>Provides 🔨 Production, ⚗️ Science, and 🎵 Culture. Adjacent Pastures receive +1 🎵 Culture.<br><br>Building an Isibaya claims adjacent tiles and places a  Cattle Resource adjacent to it.<br><br>Units standing on an Isibaya receive +100% ⚔️ Tile Defense. Deals 30 damage to adjacent Enemy Units.<br><br>An Isibaya is a Zulu homestead and defensive structure. The Isibaya is laid out in a circular pattern with a cattle enclosure at the centre, ringed by huts, palisades, and mud walls. The layout and function are reminiscent of a European corral, hence the Afrikaans term for Amabaya, "Kraal".<br><br>Cattle were central to the life and economy of the Zulu Kingdom. Cattle were a sign of status, wealth, and power, and were instrumental for feeding and arming the amabutho regiments of the Zulu army.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-IMPROVEMENT_LANDMARK" style="display: none;">
+                        <section class="welcome">
+                            <h2>Landmark</h2>
+                                <div class="summary">
+                                    <h3>Base Yield:</h3>
+                                    <div class="text-box">
++3 🎵 Culture, +3 💰 Gold                                    </div>
+                                </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    Landmarks provide +3 Empire-Wide 😊 Happiness to the builder and plot owner when constructed, as well as +1 🎵 Culture and +1 💰 Gold on the Tile for each additional Era that has passed in comparison to the original Era of the Artifact.<br><br>A Landmark is any magnificent artifact, structure, work of art, or wonder of nature that draws visitors to a location. Nelson's Column in London is a landmark, as is Mount Rushmore in the United States. Not every significantly sized object, however, is a landmark: the World's Largest Ball of Twine may never rise to that stature (though it might well be worth a visit).
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-IMPROVEMENT_LUMBERMILL" style="display: none;">
+                        <section class="welcome">
+                            <h2>Lumber Mill</h2>
+                                <div class="summary">
+                                    <h3>Base Yield:</h3>
+                                    <div class="text-box">
++1 🔨 Production                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Adjacent Bonus:</h3>
+                                    <div class="text-box">
+                                        <ul class="item-list">
+                                            <li>
+                                                <strong>Lumber Mill/Manufactory:</strong>
++0.5 💰 Gold, +0.5 🔨 Production                                            </li>
+                                        </ul>
+                                        <p style="margin-top: 1rem;">Note: The sum of all fractional adjacency bonuses is rounded down to the nearest integer.</p>
+                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Can Be Built On:</h3>
+                                    <div class="text-box">
+                                        <ul class="item-list">
+                                            <li><a href="#" onclick="showTerrain('FEATURE_FOREST'); return false;">Forest</a></li>
+                                            <li><a href="#" onclick="showTerrain('FEATURE_JUNGLE'); return false;">Jungle</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            <div class="summary">
+                                <h3>Required Technology:</h3>
+                                <div class="text-box">
+                                    <ul class="item-list">
+                                        <li><a href="#" onclick="showTechnology('TECH_METAL_CASTING'); return false;">Metal Casting</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    A Lumber Mill allows you to improve the Production and Gold output of forest and jungle tiles. Gains additional Gold and Production for every two adjacent Lumber Mills, so try to build them in clusters of three if possible.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-IMPROVEMENT_MANUFACTORY" style="display: none;">
+                        <section class="welcome">
+                            <h2>Manufactory</h2>
+                                <div class="summary">
+                                    <h3>Base Yield:</h3>
+                                    <div class="text-box">
++6 🔨 Production                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Can Be Built On:</h3>
+                                    <div class="text-box">
+                                        <ul class="item-list">
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_GRASS'); return false;">Grassland</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_PLAINS'); return false;">Plains</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_DESERT'); return false;">Desert</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_TUNDRA'); return false;">Tundra</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_SNOW'); return false;">Snow</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    A Manufactory is a plant consisting of one or more buildings in which things are built. The buildings might be foundries, factories, assembly lines, and so forth, usually all working on related items - the foundry creates the steel that the factory rolls into sheets which the workers on the assembly line make into cans, and so forth. A well-run Manufactory can be incredibly productive.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-IMPROVEMENT_MINE" style="display: none;">
+                        <section class="welcome">
+                            <h2>Mine</h2>
+                                <div class="summary">
+                                    <h3>Base Yield:</h3>
+                                    <div class="text-box">
++1 🔨 Production                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Can Be Built On:</h3>
+                                    <div class="text-box">
+                                        <ul class="item-list">
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_HILL'); return false;">Hill</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Improves Resources:</h3>
+                                    <div class="text-box">
+                                        <ul class="item-list">
+                                            <li><a href="#" onclick="showResource('RESOURCE_IRON'); return false;">Iron</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_COAL'); return false;">Coal</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_ALUMINUM'); return false;">Aluminum</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_GEMS'); return false;">Gems</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_GOLD'); return false;">Gold</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_SILVER'); return false;">Silver</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_COPPER'); return false;">Copper</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_SALT'); return false;">Salt</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            <div class="summary">
+                                <h3>Required Technology:</h3>
+                                <div class="text-box">
+                                    <ul class="item-list">
+                                        <li><a href="#" onclick="showTechnology('TECH_MINING'); return false;">Mining</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    Mines are among the most important improvements in Civilization V. Not only do they increase a hex's productivity output - and high productivity allows quicker construction of units, buildings, and wonders - but they also provide access to some of the most important resources in the game: iron, coal, and aluminium, to name a few.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-IMPROVEMENT_MOUNTAIN_CITY" style="display: none;">
+                        <section class="welcome">
+                            <h2>Mountain City</h2>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-IMPROVEMENT_OFFSHORE_PLATFORM" style="display: none;">
+                        <section class="welcome">
+                            <h2>Offshore Platform</h2>
+                                <div class="summary">
+                                    <h3>Base Yield:</h3>
+                                    <div class="text-box">
++4 💰 Gold                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Improves Resources:</h3>
+                                    <div class="text-box">
+                                        <ul class="item-list">
+                                            <li><a href="#" onclick="showResource('RESOURCE_OIL'); return false;">Oil</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            <div class="summary">
+                                <h3>Required Technology:</h3>
+                                <div class="text-box">
+                                    <ul class="item-list">
+                                        <li><a href="#" onclick="showTechnology('TECH_REFRIGERATION'); return false;">Refrigeration</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    The offshore platform is an important late-game improvement as it provides access to the highly-prized oil resource, but only when that resource is in the ocean (workers construct wells to access oil that is on land). Work boats are consumed when they construct an offshore platform.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-IMPROVEMENT_WELL" style="display: none;">
+                        <section class="welcome">
+                            <h2>Oil Well</h2>
+                                <div class="summary">
+                                    <h3>Base Yield:</h3>
+                                    <div class="text-box">
++7 💰 Gold                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Improves Resources:</h3>
+                                    <div class="text-box">
+                                        <ul class="item-list">
+                                            <li><a href="#" onclick="showResource('RESOURCE_OIL'); return false;">Oil</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            <div class="summary">
+                                <h3>Required Technology:</h3>
+                                <div class="text-box">
+                                    <ul class="item-list">
+                                        <li><a href="#" onclick="showTechnology('TECH_DYNAMITE'); return false;">Dynamite</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    The dry-land version of the offshore platform, a well is a late-game improvement which provides access to the crucially-important oil resource.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-IMPROVEMENT_ORDO" style="display: none;">
+                        <section class="welcome">
+                            <h2>Ordo</h2>
+                            <div class="summary">
+                                <h3>Game Info:</h3>
+                                <div class="text-box">
+                                    Unique Mongolian Great Person Tile Improvement, replacing the Citadel. Can only be constructed by a Khan.<br><br>Building an Ordo claims adjacent tiles.<br><br>+50% ⚔️ Defensive Strength for any Unit stationed in this tile. Units moving onto an Ordo have all their 👣 Movement restored. Contains <span class="positive">Fortifications</span>, allowing owned Units to stay stationed in this tile after attacking and a <span class="positive">Canal</span>, allowing friendly <span class="positive">Sea</span> Units to traverse through it.
+                                </div>
+                            </div>
+                                <div class="summary">
+                                    <h3>Base Yield:</h3>
+                                    <div class="text-box">
++1 🌾 Food, +1 🔨 Production, +1 💰 Gold, +1 🎵 Culture                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Can Be Built On:</h3>
+                                    <div class="text-box">
+                                        <ul class="item-list">
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_GRASS'); return false;">Grassland</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_PLAINS'); return false;">Plains</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_DESERT'); return false;">Desert</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_TUNDRA'); return false;">Tundra</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_SNOW'); return false;">Snow</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    Unique Mongolian Great Person Tile Improvement, replacing the Citadel. Can only be constructed by a Khan.<br><br>Building an Ordo claims adjacent tiles.<br><br>+50% ⚔️ Defensive Strength for any Unit stationed in this tile. Units moving onto an Ordo have all their 👣 Movement restored. Contains <span class="positive">Fortifications</span>, allowing owned Units to stay stationed in this tile after attacking and a <span class="positive">Canal</span>, allowing friendly <span class="positive">Sea</span> Units to traverse through it.<br><br>Simply translated, "ordo" means "palace tent." However, an ordo was something much more than just a simple tent - it was the center of the tribe for the nomadic Mongolians.<br><br>An ordo served as the headquarters and main encampment for the Khan and his warriors. Though built for travel, it had style, from simple decorations to carefully sewn patterns. The ordo moved with the Khan and his warriors as they went on campaign, ensuring they always felt at home no matter where they traveled.<br><br>You can construct an Ordo anywhere within your territory, or directly adjacent to your territory. Upon constructing the Ordo, your Military Unit Supply Cap will increase by 1, and your Cultural borders will also expand to surround the Ordo on all sides by one hex. If the new Cultural border claims hexes already owned by another civilization, you will incur a diplomatic penalty as a result. Unlike the Citadel, any enemy unit which ends its turn next to an Ordo takes no damage.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-IMPROVEMENT_PASTURE" style="display: none;">
+                        <section class="welcome">
+                            <h2>Pasture</h2>
+                                <div class="summary">
+                                    <h3>Adjacent Bonus:</h3>
+                                    <div class="text-box">
+                                        <ul class="item-list">
+                                            <li>
+                                                <strong>Isibaya:</strong>
++1 🌾 Food, +1 🔨 Production, +1 🎵 Culture                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Improves Resources:</h3>
+                                    <div class="text-box">
+                                        <ul class="item-list">
+                                            <li><a href="#" onclick="showResource('RESOURCE_HORSE'); return false;">Horses</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_COW'); return false;">Cattle</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_SHEEP'); return false;">Sheep</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            <div class="summary">
+                                <h3>Required Technology:</h3>
+                                <div class="text-box">
+                                    <ul class="item-list">
+                                        <li><a href="#" onclick="showTechnology('TECH_ANIMAL_HUSBANDRY'); return false;">Animal Husbandry</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    A pasture is a fenced-in section of open land that has been planted with grass to feed grazing animals like horses or cows.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-IMPROVEMENT_PLANTATION" style="display: none;">
+                        <section class="welcome">
+                            <h2>Plantation</h2>
+                                <div class="summary">
+                                    <h3>Adjacent Bonus:</h3>
+                                    <div class="text-box">
+                                        <ul class="item-list">
+                                            <li>
+                                                <strong>Villa:</strong>
++1 💰 Gold, +1 🎵 Culture                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Improves Resources:</h3>
+                                    <div class="text-box">
+                                        <ul class="item-list">
+                                            <li><a href="#" onclick="showResource('RESOURCE_BANANA'); return false;">Bananas</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_DYE'); return false;">Dyes</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_SILK'); return false;">Silk</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_SPICES'); return false;">Cinnamon</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_SUGAR'); return false;">Sugar</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_COTTON'); return false;">Cotton</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_WINE'); return false;">Wine</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_INCENSE'); return false;">Incense</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_CITRUS'); return false;">Citrus</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_COCOA'); return false;">Cocoa</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_COFFEE'); return false;">Coffee</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_TEA'); return false;">Tea</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_TOBACCO'); return false;">Tobacco</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_OLIVE'); return false;">Olives</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_PERFUME'); return false;">Perfume</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_NUTMEG'); return false;">Nutmeg</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_CLOVES'); return false;">Cloves</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_PEPPER'); return false;">Pepper</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_FIGS'); return false;">Figs</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            <div class="summary">
+                                <h3>Required Technology:</h3>
+                                <div class="text-box">
+                                    <ul class="item-list">
+                                        <li><a href="#" onclick="showTechnology('TECH_CALENDAR'); return false;">Calendar</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    A plantation is a fancy name for a farm. It is generally applied to large estates located in semi-tropical or tropical locations, and especially those which grow crops for export rather than for local consumption. The term has acquired an unsavory flavor because of its association with slavery in the United States and the Caribbean, but there's nothing inherently evil about a well-run plantation which employs free workers.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-IMPROVEMENT_POLDER_WATER" style="display: none;">
+                        <section class="welcome">
+                            <h2>Polder</h2>
+                            <div class="summary">
+                                <h3>Game Info:</h3>
+                                <div class="text-box">
+                                    Can only be built on Marsh tiles or on featureless Lake/Coast tiles adjacent to at least 3 land tiles. Polders built on water can be traversed by land units without embarkation, as if they are land tiles.
+                                </div>
+                            </div>
+                                <div class="summary">
+                                    <h3>Base Yield:</h3>
+                                    <div class="text-box">
++1 🌾 Food, +2 🔨 Production, +2 💰 Gold                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Can Be Built On:</h3>
+                                    <div class="text-box">
+                                        <ul class="item-list">
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_COAST'); return false;">Coast</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            <div class="summary">
+                                <h3>Required Technology:</h3>
+                                <div class="text-box">
+                                    <ul class="item-list">
+                                        <li><a href="#" onclick="showTechnology('TECH_GUILDS'); return false;">Guilds</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    Can only be built on Marsh tiles or on featureless Lake/Coast tiles adjacent to at least 3 land tiles. Polders built on water can be traversed by land units without embarkation, as if they are land tiles.<br><br>A polder is a low-lying tract enclosed by dikes with the water drained. In general, polder is land reclaimed from a lake or seabed, from flood plains, or from marshes. In time, the drained land subsides so that all polder is eventually below the surrounding water level. Because of this, water seeps into the drained area and must be pumped out or otherwise drained. The dikes are usually made of readily available materials, earth or sand; in modern times these barriers might be covered or completely composed of concrete. The drained land is extremely fertile and makes excellent pasturage or cropland.<br><br>The first polders of reclaimed land were constructed in the 11th Century AD, although building embankments as barriers to water date back to the Romans. The Dutch have a long history of reclaiming marshes and fenland, and even the seabed, and possess half of the polder acreage in Europe. Although there are polders in other countries of Europe, and examples can be found in Asia and North America, Holland has some 3000 polders accounting for about 27 percent of the country's land. Amsterdam itself is built largely upon polder. As the Dutch homily states, "God made the world, but the Dutch made Holland."
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-IMPROVEMENT_QUARRY" style="display: none;">
+                        <section class="welcome">
+                            <h2>Quarry</h2>
+                                <div class="summary">
+                                    <h3>Improves Resources:</h3>
+                                    <div class="text-box">
+                                        <ul class="item-list">
+                                            <li><a href="#" onclick="showResource('RESOURCE_URANIUM'); return false;">Uranium</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_MARBLE'); return false;">Marble</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_STONE'); return false;">Stone</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_AMBER'); return false;">Amber</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_JADE'); return false;">Jade</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_LAPIS'); return false;">Lapis Lazuli</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            <div class="summary">
+                                <h3>Required Technology:</h3>
+                                <div class="text-box">
+                                    <ul class="item-list">
+                                        <li><a href="#" onclick="showTechnology('TECH_MASONRY'); return false;">Construction</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    In common usage a quarry is a place that produces any stone or gravel. In Civilization V quarries boost production from the stone resource and provide access to the marble luxury resource, a highly-valued stone used for construction and artwork.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-IMPROVEMENT_CUSTOMS_HOUSE" style="display: none;">
+                        <section class="welcome">
+                            <h2>Town</h2>
+                                <div class="summary">
+                                    <h3>Base Yield:</h3>
+                                    <div class="text-box">
++6 💰 Gold, +2 🌾 Food, +1 🎵 Culture                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Bonus on City Connections:</h3>
+                                    <div class="text-box">
+                                        <ul class="item-list">
+                                            <li>
+                                                <strong>Road:</strong>
++2 💰 Gold, +2 🔨 Production                                            </li>
+                                            <li>
+                                                <strong>Railroad:</strong>
++4 💰 Gold, +4 🔨 Production                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Can Be Built On:</h3>
+                                    <div class="text-box">
+                                        <ul class="item-list">
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_GRASS'); return false;">Grassland</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_PLAINS'); return false;">Plains</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_DESERT'); return false;">Desert</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_TUNDRA'); return false;">Tundra</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_SNOW'); return false;">Snow</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    A town is a human settlement larger than a village but smaller than a city. The size definition for what constitutes a "town" varies considerably in different parts of the world. The word town shares an origin with the German word Zaun, the Dutch word tuin, and the Old Norse tun. The German word Zaun comes closest to the original meaning of the word: a fence of any material.<br><br>Towns receive +2 💰 Gold and 🔨 Production if built on a Road that connects two owned Cities, and +4 💰 and 🔨 Production if a Railroad. Receive additional 💰 Gold and 🔨 Production (+2 for Roads, +4 for Railroads) if a Trade Route, either internal or international, passes over this Town.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-IMPROVEMENT_TRADING_POST" style="display: none;">
+                        <section class="welcome">
+                            <h2>Village</h2>
+                                <div class="summary">
+                                    <h3>Base Yield:</h3>
+                                    <div class="text-box">
++2 💰 Gold, +1 🎵 Culture                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Bonus on City Connections:</h3>
+                                    <div class="text-box">
+                                        <ul class="item-list">
+                                            <li>
+                                                <strong>Road:</strong>
++1 💰 Gold, +1 🔨 Production                                            </li>
+                                            <li>
+                                                <strong>Railroad:</strong>
++2 💰 Gold, +2 🔨 Production                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Can Be Built On:</h3>
+                                    <div class="text-box">
+                                        <ul class="item-list">
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_GRASS'); return false;">Grassland</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_PLAINS'); return false;">Plains</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_DESERT'); return false;">Desert</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_TUNDRA'); return false;">Tundra</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            <div class="summary">
+                                <h3>Required Technology:</h3>
+                                <div class="text-box">
+                                    <ul class="item-list">
+                                        <li><a href="#" onclick="showTechnology('TECH_CURRENCY'); return false;">Currency</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    Villages are smaller settlements scattered around the countryside of a civilization, representative of the people that live off of the land and trade. They can generate a lot of wealth for a society, particularly when placed on Roads, Railroads, or on Trade Routes.<br><br>Receive 💰 Gold 🔨 Production if built on a Road or Railroad that connects two owned Cities.<br><br>Receive additional 💰 Gold and 🔨 Production (+1 pre-Industrial Era, +2 Industrial Era or later) if a Trade Route, either internal or international, passes over this Village.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-IMPROVEMENT_BRAZILWOOD_CAMP" style="display: none;">
+                        <section class="welcome">
+                            <h2><span class="positive">(Brazilian)</span> Brazilwood Camp</h2>
+                            <div class="summary">
+                                <h3>Game Info:</h3>
+                                <div class="text-box">
+                                    Can only be built on Jungle or Forest tiles without access to Fresh Water, and cannot be built adjacent to another Brazilwood Camp. It spawns and connects a  Brazilwood Resource under the tile.
+                                </div>
+                            </div>
+                                <div class="summary">
+                                    <h3>Base Yield:</h3>
+                                    <div class="text-box">
++1 💰 Gold                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Can Be Built On:</h3>
+                                    <div class="text-box">
+                                        <ul class="item-list">
+                                            <li><a href="#" onclick="showTerrain('FEATURE_JUNGLE'); return false;">Jungle</a></li>
+                                            <li><a href="#" onclick="showTerrain('FEATURE_FOREST'); return false;">Forest</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Improves Resources:</h3>
+                                    <div class="text-box">
+                                        <ul class="item-list">
+                                            <li><a href="#" onclick="showResource('RESOURCE_BRAZILWOOD'); return false;">Brazilwood</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            <div class="summary">
+                                <h3>Required Technology:</h3>
+                                <div class="text-box">
+                                    <ul class="item-list">
+                                        <li><a href="#" onclick="showTechnology('TECH_CALENDAR'); return false;">Calendar</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <h3>Civilization:</h3>
+                                <div class="text-box">
+                                    <ul class="item-list">
+                                        <li><a href="#" onclick="showCivilization('CIVILIZATION_BRAZIL'); return false;">Brazil</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    Can only be built on Jungle or Forest tiles without access to Fresh Water, and cannot be built adjacent to another Brazilwood Camp. It spawns and connects a  Brazilwood Resource under the tile.<br><br>Brazilwood is a tropical hardwood whose bark produces a bright crimson and deep purple extract used in dyes. Its wood is dense, and is prized for crafting stringed instruments (especially the bows) and cabinetry. The harvesting of brazilwood did not cease until 1875, by which time synthetic dyes dominated the textile industry and other hardwoods had been found to be better for musical instruments.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-IMPROVEMENT_APLEKTON" style="display: none;">
+                        <section class="welcome">
+                            <h2><span class="positive">(Byzantine)</span> Aplekton</h2>
+                            <div class="summary">
+                                <h3>Game Info:</h3>
+                                <div class="text-box">
+                                    Unique Byzantine replacement for the Fort.<br><br>+50% ⚔️ Defensive Strength for any Unit stationed in this tile, and it cannot be <span class="negative">stolen</span> by foreign Empires. Contains <span class="positive">Fortifications</span>, allowing owned Units to stay stationed in this tile after attacking and a <span class="positive">Canal</span>, allowing friendly <span class="positive">Sea</span> Units to traverse through it. Has improved yields compared to the Fort it replaces, including 🌾 Food and 🔨 Production.
+                                </div>
+                            </div>
+                                <div class="summary">
+                                    <h3>Base Yield:</h3>
+                                    <div class="text-box">
++2 🌾 Food, +2 🔨 Production, +1 ⚗️ Science, +1  Border Growth Points                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Can Be Built On:</h3>
+                                    <div class="text-box">
+                                        <ul class="item-list">
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_GRASS'); return false;">Grassland</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_PLAINS'); return false;">Plains</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_DESERT'); return false;">Desert</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_TUNDRA'); return false;">Tundra</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_SNOW'); return false;">Snow</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            <div class="summary">
+                                <h3>Required Technology:</h3>
+                                <div class="text-box">
+                                    <ul class="item-list">
+                                        <li><a href="#" onclick="showTechnology('TECH_ENGINEERING'); return false;">Engineering</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <h3>Civilization:</h3>
+                                <div class="text-box">
+                                    <ul class="item-list">
+                                        <li><a href="#" onclick="showCivilization('CIVILIZATION_BYZANTIUM'); return false;">Byzantium</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    Unique Byzantine replacement for the Fort.<br><br>+50% ⚔️ Defensive Strength for any Unit stationed in this tile, and it cannot be <span class="negative">stolen</span> by foreign Empires. Contains <span class="positive">Fortifications</span>, allowing owned Units to stay stationed in this tile after attacking and a <span class="positive">Canal</span>, allowing friendly <span class="positive">Sea</span> Units to traverse through it. Has improved yields compared to the Fort it replaces, including 🌾 Food and 🔨 Production.<br><br>Aplekton, from the Latin 'applicatum', was a Byzantine term used in the 10th-14th centuries for a fortified army base (in this sense similar to the Greek metaton). The aplekta were major assembly areas, where stores of supplies were kept and where the provincial armies of the themata were to join the main imperial force for a campaign. The original construction dates most probably to the reign of Emperor Constantine V (r. 741–775). Emperor Constantine VII Porphyrogennetos (r. 945–959), in his treatise on imperial expeditions, records the aplekta from west to east as follows: Malagina, Dorylaion, Kaborkin, Koloneia, Kaisareia and Dazimon.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-IMPROVEMENT_OPPIDUM" style="display: none;">
+                        <section class="welcome">
+                            <h2><span class="positive">(Celtic)</span> Oppidum</h2>
+                            <div class="summary">
+                                <h3>Game Info:</h3>
+                                <div class="text-box">
+                                    Unique Celtic Great Person Tile Improvement. Can be built by Great Engineers, Merchants, Scientists, and Generals. Boosts all these Great People's Missions by a reduced amount. Cannot be built next to another Oppidum.<br>Improves Strategic Resources. Provides various yields and +100% ⚔️ Defense Bonus to Units stationed on it. Improves Adjacent Tiles.
+                                </div>
+                            </div>
+                                <div class="summary">
+                                    <h3>Base Yield:</h3>
+                                    <div class="text-box">
++2 🌾 Food, +1 🔨 Production, +1 💰 Gold, +1 ⚗️ Science, +1 🎵 Culture, +1 🕊️ Faith                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Adjacent Bonus:</h3>
+                                    <div class="text-box">
+                                        <ul class="item-list">
+                                            <li>
+                                                <strong>Grassland/Plains/Desert/Tundra/Snow/Coast:</strong>
++1 🔨 Production, +1 🕊️ Faith                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Can Be Built On:</h3>
+                                    <div class="text-box">
+                                        <ul class="item-list">
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_GRASS'); return false;">Grassland</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_PLAINS'); return false;">Plains</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_DESERT'); return false;">Desert</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_TUNDRA'); return false;">Tundra</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_SNOW'); return false;">Snow</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            <div class="summary">
+                                <h3>Civilization:</h3>
+                                <div class="text-box">
+                                    <ul class="item-list">
+                                        <li><a href="#" onclick="showCivilization('CIVILIZATION_CELTS'); return false;">The Celts</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    Unique Celtic Great Person Tile Improvement. Can be built by Great Engineers, Merchants, Scientists, and Generals. Boosts all these Great People's Missions by a reduced amount. Cannot be built next to another Oppidum.<br>Improves Strategic Resources. Provides various yields and +100% ⚔️ Defense Bonus to Units stationed on it. Improves Adjacent Tiles.<br><br>An Oppidum is a large defended settlement associated with the late La Tene culture. These fortified villages were often built in naturally protected areas and full of circular constructions. In times of conflict, the people who lived in open fields moved to these strategically located compounds to ensure their safety. Oppida could also have other purposes such as control of territory or safeguarding of crops. The most famous oppidum was Alesia, the site of the battle between Julius Caesar and Vercingetorix and the final defeat of the Gauls, ending of Gallic independence in France and Belgium.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-IMPROVEMENT_SIHEYUAN" style="display: none;">
+                        <section class="welcome">
+                            <h2><span class="positive">(Chinese)</span> Siheyuan</h2>
+                            <div class="summary">
+                                <h3>Game Info:</h3>
+                                <div class="text-box">
+                                    Can only be built on flat land adjacent to a city or next to two other Siheyuans. +1 🔨 Production, 💰 Gold, and ⚗️ Science when worked by a city during <span class="positive">We Love The Empress Day</span>.
+                                </div>
+                            </div>
+                                <div class="summary">
+                                    <h3>Base Yield:</h3>
+                                    <div class="text-box">
++1 🔨 Production, +1 💰 Gold, +1 ⚗️ Science                                    </div>
+                                </div>
+                            <div class="summary">
+                                <h3>Required Technology:</h3>
+                                <div class="text-box">
+                                    <ul class="item-list">
+                                        <li><a href="#" onclick="showTechnology('TECH_CURRENCY'); return false;">Currency</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <h3>Civilization:</h3>
+                                <div class="text-box">
+                                    <ul class="item-list">
+                                        <li><a href="#" onclick="showCivilization('CIVILIZATION_CHINA'); return false;">China</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    Can only be built on flat land adjacent to a city or next to two other Siheyuans. +1 🔨 Production, 💰 Gold, and ⚗️ Science when worked by a city during <span class="positive">We Love The Empress Day</span>.<br><br>The stately Siheyuan are a mainstay of Chinese architecture dating back to antiquity. The style is often referred to as a Chinese quadrangle, and is used from relatively dwellings and monasteries to the most grand palaces. The Forbidden City in Beijing is designed as an enormous Siheyuan. All siheyuan are positioned along a east-west axis, with the main entrance facing south. The universality of this plan allows sequential siheyuan to be arranged in long rows, creating sprawling suburbs in many of China's largest cities. The narrow alleyways between these rows of Siheyuan are known as hutongs in northern China, forming long market streets similar to middle-eastern bazaars. Recent changes in city planning and construction have resulted in many historic neighbourhoods being demolished, but there have been coordinated efforts to preserve some districts as a valuable piece of Chinese cultural identity.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-IMPROVEMENT_POLDER" style="display: none;">
+                        <section class="welcome">
+                            <h2><span class="positive">(Dutch)</span> Polder</h2>
+                            <div class="summary">
+                                <h3>Game Info:</h3>
+                                <div class="text-box">
+                                    Can only be built on Marsh tiles or on featureless Lake/Coast tiles adjacent to at least 3 land tiles. Polders built on water can be traversed by land units without embarkation, as if they are land tiles.
+                                </div>
+                            </div>
+                                <div class="summary">
+                                    <h3>Base Yield:</h3>
+                                    <div class="text-box">
++1 🌾 Food, +2 🔨 Production, +2 💰 Gold                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Can Be Built On:</h3>
+                                    <div class="text-box">
+                                        <ul class="item-list">
+                                            <li><a href="#" onclick="showTerrain('FEATURE_MARSH'); return false;">Marsh</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            <div class="summary">
+                                <h3>Required Technology:</h3>
+                                <div class="text-box">
+                                    <ul class="item-list">
+                                        <li><a href="#" onclick="showTechnology('TECH_GUILDS'); return false;">Guilds</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <h3>Civilization:</h3>
+                                <div class="text-box">
+                                    <ul class="item-list">
+                                        <li><a href="#" onclick="showCivilization('CIVILIZATION_NETHERLANDS'); return false;">The Netherlands</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    Can only be built on Marsh tiles or on featureless Lake/Coast tiles adjacent to at least 3 land tiles. Polders built on water can be traversed by land units without embarkation, as if they are land tiles.<br><br>A polder is a low-lying tract enclosed by dikes with the water drained. In general, polder is land reclaimed from a lake or seabed, from flood plains, or from marshes. In time, the drained land subsides so that all polder is eventually below the surrounding water level. Because of this, water seeps into the drained area and must be pumped out or otherwise drained. The dikes are usually made of readily available materials, earth or sand; in modern times these barriers might be covered or completely composed of concrete. The drained land is extremely fertile and makes excellent pasturage or cropland.<br><br>The first polders of reclaimed land were constructed in the 11th Century AD, although building embankments as barriers to water date back to the Romans. The Dutch have a long history of reclaiming marshes and fenland, and even the seabed, and possess half of the polder acreage in Europe. Although there are polders in other countries of Europe, and examples can be found in Asia and North America, Holland has some 3000 polders accounting for about 27 percent of the country's land. Amsterdam itself is built largely upon polder. As the Dutch homily states, "God made the world, but the Dutch made Holland."
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-IMPROVEMENT_OBELISK" style="display: none;">
+                        <section class="welcome">
+                            <h2><span class="positive">(Egyptian)</span> Obelisk</h2>
+                            <div class="summary">
+                                <h3>Game Info:</h3>
+                                <div class="text-box">
+                                    Unique Egyptian Improvement.<br><br>Can only be constructed on Antiquity Sites, like a Landmark, but does not remove it. Provides ⚗️ Science, 🎵 Culture, 🕊️ Faith, and 🌟 Golden Age Points.
+                                </div>
+                            </div>
+                                <div class="summary">
+                                    <h3>Base Yield:</h3>
+                                    <div class="text-box">
++1 ⚗️ Science, +1 🎵 Culture, +1 🕊️ Faith, +2 🌟 Golden Age Points                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Improves Resources:</h3>
+                                    <div class="text-box">
+                                        <ul class="item-list">
+                                            <li><a href="#" onclick="showResource('RESOURCE_ARTIFACTS'); return false;">Antiquity Site</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_HIDDEN_ARTIFACTS'); return false;">Hidden Antiquity Site</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            <div class="summary">
+                                <h3>Required Technology:</h3>
+                                <div class="text-box">
+                                    <ul class="item-list">
+                                        <li><a href="#" onclick="showTechnology('TECH_MINING'); return false;">Mining</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <h3>Civilization:</h3>
+                                <div class="text-box">
+                                    <ul class="item-list">
+                                        <li><a href="#" onclick="showCivilization('CIVILIZATION_EGYPT'); return false;">Egypt</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    Unique Egyptian Improvement.<br><br>Can only be constructed on Antiquity Sites, like a Landmark, but does not remove it. Provides ⚗️ Science, 🎵 Culture, 🕊️ Faith, and 🌟 Golden Age Points.<br><br>An obelisk is a tall, slender, tapered monument with four sides and a pyramidal or pyramidion top. Originally constructed by Ancient Egyptians and called tekhenu, the Greeks used the Greek term obeliskos to describe them, and this word passed into Latin and ultimately English. Ancient obelisks are monolithic and consist of a single stone symbolising the sun god Ra. They played a vital role in religious architecture, being placed in pairs at the entrance of temples.<br><br>Around 30 BCE, Rome seized control of Egypt and looted the various temple complexes; in one case they destroyed walls at the Temple of Karnak to haul them out. There are now more than twice as many obelisks that were seized and shipped out by Rome as remain in Egypt. Obelisks were being shipped out of Egypt as late as the nineteenth century when three of them were sent to London, New York and Paris. It is noteworthy that four of the obelisks in the British Museum are actually from Assyria, where they were also erected but as public monuments commemorating the King.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-IMPROVEMENT_MONOLITHIC_CHURCH" style="display: none;">
+                        <section class="welcome">
+                            <h2><span class="positive">(Ethiopian)</span> Monolithic Church</h2>
+                            <div class="summary">
+                                <h3>Game Info:</h3>
+                                <div class="text-box">
+                                    Can be built on  Stone, and on Hills with no resources and not next to another Monolithic Church.<br><br>Provides 🔨 Production and 🕊️ Faith. Instead of Technologies, Monolithic Churches are improved by completing <span class="positive">Social Policy Branches</span> and adopting an <span class="positive">Ideology</span> or <span class="positive">Religious Beliefs</span>:<br>
+				+1 🎵 for every Ancient Policy Branch,<br>
+				+1 🕊️ for every Medieval Policy Branch,<br>
+				+1 ⚗️ for every Industrial Policy Branch,<br>
+				+1 🕊️ for adopting a Pantheon,<br>
+				+1 🔨 for founding a Religion,<br>
+				+1 🎵 and 🔨 for enhancing a Religion,<br>
+				+1 💰 and 🔨 for reforming a Religion,<br>
+				+2 💰 for adopting an Ideology.
+                                </div>
+                            </div>
+                                <div class="summary">
+                                    <h3>Base Yield:</h3>
+                                    <div class="text-box">
++1 🔨 Production, +1 🕊️ Faith                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Improves Resources:</h3>
+                                    <div class="text-box">
+                                        <ul class="item-list">
+                                            <li><a href="#" onclick="showResource('RESOURCE_STONE'); return false;">Stone</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            <div class="summary">
+                                <h3>Required Technology:</h3>
+                                <div class="text-box">
+                                    <ul class="item-list">
+                                        <li><a href="#" onclick="showTechnology('TECH_THEOLOGY'); return false;">Theology</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <h3>Civilization:</h3>
+                                <div class="text-box">
+                                    <ul class="item-list">
+                                        <li><a href="#" onclick="showCivilization('CIVILIZATION_ETHIOPIA'); return false;">Ethiopia</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    Can be built on  Stone, and on Hills with no resources and not next to another Monolithic Church.<br><br>Provides 🔨 Production and 🕊️ Faith. Instead of Technologies, Monolithic Churches are improved by completing <span class="positive">Social Policy Branches</span> and adopting an <span class="positive">Ideology</span> or <span class="positive">Religious Beliefs</span>:<br>
+				+1 🎵 for every Ancient Policy Branch,<br>
+				+1 🕊️ for every Medieval Policy Branch,<br>
+				+1 ⚗️ for every Industrial Policy Branch,<br>
+				+1 🕊️ for adopting a Pantheon,<br>
+				+1 🔨 for founding a Religion,<br>
+				+1 🎵 and 🔨 for enhancing a Religion,<br>
+				+1 💰 and 🔨 for reforming a Religion,<br>
+				+2 💰 for adopting an Ideology.<br><br>The term "Monolithic Church" (or "rock-hewn church") can be attributed to any church cut from a single stone formation, but is most often used to refer to the complex of 11 churches in Lalibela, Ethiopia. These churches were constructed in the 12th century by King Gebre Mesqel Lalibela, a devout Christian. This 'New Jerusalem' is situated in a mountainous region in the heart of Ethiopia, and is an important center of Christian pilgrimage to this day.<br><br>Monolithic Churches are found in places besides Lalibela, including many in Tigray. These churches were almost unknown to the outside world until Abba Tewelde Medhin Josief, a Catholic priest, announced the existence of over 120 rock-hewn churches, 90 of which were still in use. Over the next few years, the total of known churches was raised to 153.<br><br>Monolithic Churches can be built on  Stone, and on Hills with no resources and not next to another Monolithic Church.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-IMPROVEMENT_CHATEAU" style="display: none;">
+                        <section class="welcome">
+                            <h2><span class="positive">(French)</span> Chateau</h2>
+                            <div class="summary">
+                                <h3>Game Info:</h3>
+                                <div class="text-box">
+                                    Can only be built adjacent to a Luxury resource, and cannot be adjacent to another Chateau. +50% ⚔️ Defensive Strength for any Unit stationed in this tile. Contains <span class="positive">Fortifications</span>, allowing owned Units to stay stationed in this tile after attacking.
+                                </div>
+                            </div>
+                                <div class="summary">
+                                    <h3>Base Yield:</h3>
+                                    <div class="text-box">
++2 🎵 Culture, +3 💰 Gold, +3 🌾 Food                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Can Be Built On:</h3>
+                                    <div class="text-box">
+                                        <ul class="item-list">
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_GRASS'); return false;">Grassland</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_PLAINS'); return false;">Plains</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_DESERT'); return false;">Desert</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_TUNDRA'); return false;">Tundra</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_SNOW'); return false;">Snow</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            <div class="summary">
+                                <h3>Required Technology:</h3>
+                                <div class="text-box">
+                                    <ul class="item-list">
+                                        <li><a href="#" onclick="showTechnology('TECH_CHIVALRY'); return false;">Chivalry</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <h3>Civilization:</h3>
+                                <div class="text-box">
+                                    <ul class="item-list">
+                                        <li><a href="#" onclick="showCivilization('CIVILIZATION_FRANCE'); return false;">France</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    Can only be built adjacent to a Luxury resource, and cannot be adjacent to another Chateau. +50% ⚔️ Defensive Strength for any Unit stationed in this tile. Contains <span class="positive">Fortifications</span>, allowing owned Units to stay stationed in this tile after attacking.<br><br>A chateau is a manor house or country home of gentry, usually without fortifications. In the Middle Ages, a chateau was largely self-sufficient, being supported by the lord's demesne (hereditary lands). In the 1600s, the wealthy and aristocratic French lords dotted the countryside with elegant, luxuriant, architecturally refined mansions such as the Chateau de Maisons. Today, the term chateau is loosely used; for instance, it is common for any winery or inn, no matter how humble, to prefix its name with "Chateau".
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-IMPROVEMENT_EKI" style="display: none;">
+                        <section class="welcome">
+                            <h2><span class="positive">(Hunnic)</span> Eki</h2>
+                            <div class="summary">
+                                <h3>Game Info:</h3>
+                                <div class="text-box">
+                                    Can only be built on flat land tiles without access to Fresh Water. +1 🔨 Production and 💰 Gold if <span class="positive">adjacent to two</span> other Eki. Can be built <span class="positive">in or adjacent to</span> Hunnic territory. When completed, claims the tile beneath it if built in <span class="positive">Neutral Territory</span>.
+                                </div>
+                            </div>
+                                <div class="summary">
+                                    <h3>Base Yield:</h3>
+                                    <div class="text-box">
++1 🌾 Food, +1 🔨 Production, +1 🎵 Culture                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Adjacent Bonus:</h3>
+                                    <div class="text-box">
+                                        <ul class="item-list">
+                                            <li>
+                                                <strong>Eki/Manufactory:</strong>
++0.5 🔨 Production, +0.5 💰 Gold                                            </li>
+                                        </ul>
+                                        <p style="margin-top: 1rem;">Note: The sum of all fractional adjacency bonuses is rounded down to the nearest integer.</p>
+                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Can Be Built On:</h3>
+                                    <div class="text-box">
+                                        <ul class="item-list">
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_GRASS'); return false;">Grassland</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_PLAINS'); return false;">Plains</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_DESERT'); return false;">Desert</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_TUNDRA'); return false;">Tundra</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_SNOW'); return false;">Snow</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            <div class="summary">
+                                <h3>Required Technology:</h3>
+                                <div class="text-box">
+                                    <ul class="item-list">
+                                        <li><a href="#" onclick="showTechnology('TECH_ARCHERY'); return false;">Military Strategy</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <h3>Civilization:</h3>
+                                <div class="text-box">
+                                    <ul class="item-list">
+                                        <li><a href="#" onclick="showCivilization('CIVILIZATION_HUNS'); return false;">The Huns</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    Can only be built on flat land tiles without access to Fresh Water. +1 🔨 Production and 💰 Gold if <span class="positive">adjacent to two</span> other Eki. Can be built <span class="positive">in or adjacent to</span> Hunnic territory. When completed, claims the tile beneath it if built in <span class="positive">Neutral Territory</span>.<br><br>'Eki' is a term that the Huns likely used to describe the earth, particularly that which was essential to grazing livestock. Nomadic pastoralism is a form of pastoralism where livestock are herded in order to find fresh grazing land. Strictly speaking, true nomads follow an irregular pattern of movement, in contrast with transhumance where seasonal pastures are fixed. However this distinction is often not observed and the term nomad used for both - in historical cases the regularity of movements is often unknown in any case. The herded livestock include cattle, yaks, sheep, goats, reindeer, horses, donkeys or camels, or mixtures of species. Nomadic pastoralism is commonly practiced in regions with little arable land, typically in the developing world. Of the estimated 30 to 40 million nomadic pastoralists worldwide, most are found in central Asia and the Sahel region of West Africa. Increasing numbers of stock may lead to overgrazing of the area and desertification if lands are not allowed to fully recover between one grazing period and the next. Increased enclosure and fencing of land has reduced the amount of land available for this practice.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-IMPROVEMENT_TERRACE_FARM" style="display: none;">
+                        <section class="welcome">
+                            <h2><span class="positive">(Incan)</span> Pata-Pata</h2>
+                            <div class="summary">
+                                <h3>Game Info:</h3>
+                                <div class="text-box">
+                                    Can only be built on Hill. +1 🌾 Food for every two adjacent tiles with a Mountain, a Farm, a Pata-Pata or a Manufactory. Farms get +1 🌾 Food per 2 adjacent Farms or Pata-Pata
+                                </div>
+                            </div>
+                                <div class="summary">
+                                    <h3>Base Yield:</h3>
+                                    <div class="text-box">
++2 🌾 Food, +2 🔨 Production                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Adjacent Bonus:</h3>
+                                    <div class="text-box">
+                                        <ul class="item-list">
+                                            <li>
+                                                <strong>Farm/Pata-Pata/Manufactory/Mountain:</strong>
++0.5 🌾 Food                                            </li>
+                                        </ul>
+                                        <p style="margin-top: 1rem;">Note: The sum of all fractional adjacency bonuses is rounded down to the nearest integer.</p>
+                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Can Be Built On:</h3>
+                                    <div class="text-box">
+                                        <ul class="item-list">
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_HILL'); return false;">Hill</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            <div class="summary">
+                                <h3>Required Technology:</h3>
+                                <div class="text-box">
+                                    <ul class="item-list">
+                                        <li><a href="#" onclick="showTechnology('TECH_CONSTRUCTION'); return false;">Masonry</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <h3>Civilization:</h3>
+                                <div class="text-box">
+                                    <ul class="item-list">
+                                        <li><a href="#" onclick="showCivilization('CIVILIZATION_INCA'); return false;">The Inca</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    Can only be built on Hill. +1 🌾 Food for every two adjacent tiles with a Mountain, a Farm, a Pata-Pata or a Manufactory. Farms get +1 🌾 Food per 2 adjacent Farms or Pata-Pata<br><br>Terrace Farming developed in mountainous areas simultaneously around the world, including Bali, the Philippines, China, and Peru. These skinny, stepped fields are cut into hill and mountain sides, preventing the run off of irrigation water and providing space for arable land, usually where none previously was possible. The Incas in particular were masters of terrace farming, a technique handed down to them by the older Wari culture, and called Pata-Pata (meaning levelled place) in their native Quechua. The Inca erected large, drystone walls to hold their terraces in place and constructed systems of canals and aqueducts to provide the terraces with constant water, increasing the land's fertility. The Incan terracing techniques were so successful that modern Peruvian farmers still employ them in their farms today.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-IMPROVEMENT_KAMPONG" style="display: none;">
+                        <section class="welcome">
+                            <h2><span class="positive">(Indonesian)</span> Kampong</h2>
+                            <div class="summary">
+                                <h3>Game Info:</h3>
+                                <div class="text-box">
+                                    Unique Indonesian Improvement. The Kampong can be built by  Embarked Workers on Coastal and Lake Tiles, and not next to another Kampong.<br><br>Each Kampong yields 🌾 Food, 🔨 Production, and 🎵 Culture.
+                                </div>
+                            </div>
+                                <div class="summary">
+                                    <h3>Base Yield:</h3>
+                                    <div class="text-box">
++1 🌾 Food, +1 🔨 Production, +1 🎵 Culture                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Can Be Built On:</h3>
+                                    <div class="text-box">
+                                        <ul class="item-list">
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_COAST'); return false;">Coast</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            <div class="summary">
+                                <h3>Required Technology:</h3>
+                                <div class="text-box">
+                                    <ul class="item-list">
+                                        <li><a href="#" onclick="showTechnology('TECH_OPTICS'); return false;">Sailing</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <h3>Civilization:</h3>
+                                <div class="text-box">
+                                    <ul class="item-list">
+                                        <li><a href="#" onclick="showCivilization('CIVILIZATION_INDONESIA'); return false;">Indonesia</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    Unique Indonesian Improvement. The Kampong can be built by  Embarked Workers on Coastal and Lake Tiles, and not next to another Kampong.<br><br>Each Kampong yields 🌾 Food, 🔨 Production, and 🎵 Culture.<br><br>The term 'Sama-Bajau' refers to a single ethnic group scattered between the modern day Philippines, Indonesia, and Malaysia. The Sama people live a semi-sedentary life in stilt villages or "kampongs" in coastal shallows, while Bajau refers to nomadic groups living in house boats. The Sama-Bajau defy national and ethnic borders, travelling and fishing between islands on the open ocean. The Sama-Bajau were frequently employed as privateers and raiders by the Srivijayan kingdoms. Bajau-Laut possess unique abilities which allow them to see better underwater, and dive longer and deeper than any other group of humans.<br><br>In recent years, the Bajau-Laut have been forced into sedentary lifestyles by various governments, and face discrimination as pagans, outsiders and squatters. A combination of overfishing and modernization threatens the Bajau's nomadic traditions, as they have been forcibly resettled on land. Still, a few communities of Bajau-Laut ride their lepa lepa across the blue water of Southeast Asia, only traveling to shore a few times each year.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-IMPROVEMENT_KUNA" style="display: none;">
+                        <section class="welcome">
+                            <h2><span class="positive">(Mayan)</span> Kuna</h2>
+                            <div class="summary">
+                                <h3>Game Info:</h3>
+                                <div class="text-box">
+                                    Unique Mayan Improvement.<br><br>Can only be constructed in Forests or Jungles, and cannot be adjacent to another Kuna.
+                                </div>
+                            </div>
+                                <div class="summary">
+                                    <h3>Base Yield:</h3>
+                                    <div class="text-box">
++1 ⚗️ Science, +2 🕊️ Faith                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Can Be Built On:</h3>
+                                    <div class="text-box">
+                                        <ul class="item-list">
+                                            <li><a href="#" onclick="showTerrain('FEATURE_FOREST'); return false;">Forest</a></li>
+                                            <li><a href="#" onclick="showTerrain('FEATURE_JUNGLE'); return false;">Jungle</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            <div class="summary">
+                                <h3>Required Technology:</h3>
+                                <div class="text-box">
+                                    <ul class="item-list">
+                                        <li><a href="#" onclick="showTechnology('TECH_MASONRY'); return false;">Construction</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <h3>Civilization:</h3>
+                                <div class="text-box">
+                                    <ul class="item-list">
+                                        <li><a href="#" onclick="showCivilization('CIVILIZATION_MAYA'); return false;">The Maya</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    Unique Mayan Improvement.<br><br>Can only be constructed in Forests or Jungles, and cannot be adjacent to another Kuna.<br><br>'Kuna' is the Mayan word for temple or church. Mayan Kuna were similar in design to the ziggurats and pyramids of Eurasia. Though the Kuna themselves are largely all that remain of these ancient sites, they were once the focal points of large cities. Most famous of these is Chichen Itza, a sight so grand that it qualifies as a World Wonder!
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-IMPROVEMENT_KASBAH" style="display: none;">
+                        <section class="welcome">
+                            <h2><span class="positive">(Moroccan)</span> Kasbah</h2>
+                            <div class="summary">
+                                <h3>Game Info:</h3>
+                                <div class="text-box">
+                                    Can only be built adjacent to a City. +2 💰 Gold to adjacent Fishing Boats. +1 🎵 Culture to adjacent Coast tiles. +30% ⚔️ Defensive Strength for any Unit stationed in this tile. Any enemy unit which ends its turn next to this tile takes 5 damage (damage does not stack with other improvements). Can be built on Resources, and connects any Luxury or Strategic Resource on this tile to your trade network.
+                                </div>
+                            </div>
+                                <div class="summary">
+                                    <h3>Base Yield:</h3>
+                                    <div class="text-box">
++1 🌾 Food, +2 🔨 Production, +2 💰 Gold, +2 🎵 Culture                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Adjacent Bonus:</h3>
+                                    <div class="text-box">
+                                        <ul class="item-list">
+                                            <li>
+                                                <strong>Coast:</strong>
++1 🎵 Culture                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            <div class="summary">
+                                <h3>Required Technology:</h3>
+                                <div class="text-box">
+                                    <ul class="item-list">
+                                        <li><a href="#" onclick="showTechnology('TECH_CHIVALRY'); return false;">Chivalry</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <h3>Civilization:</h3>
+                                <div class="text-box">
+                                    <ul class="item-list">
+                                        <li><a href="#" onclick="showCivilization('CIVILIZATION_MOROCCO'); return false;">Morocco</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    Can only be built adjacent to a City. +2 💰 Gold to adjacent Fishing Boats. +1 🎵 Culture to adjacent Coast tiles. +30% ⚔️ Defensive Strength for any Unit stationed in this tile. Any enemy unit which ends its turn next to this tile takes 5 damage (damage does not stack with other improvements). Can be built on Resources, and connects any Luxury or Strategic Resource on this tile to your trade network.<br><br>A Kasbah is a type of medina (a walled quarter in a City) found in the countryside, usually a small settlement on a hilltop or hillside. Originally the home for a tribal chieftain or important Islamic imam, the Kasbah is characterized by high-walled, windowless houses and narrow, winding streets. It is usually dominated by a single fortified tower. Kasbahs were common along the North African coast and Middle East until the early 1900s. Building a Kasbah was a mark of wealth, influence, and power for Moroccan and Algerian families of Arab descent.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-IMPROVEMENT_TERSANE" style="display: none;">
+                        <section class="welcome">
+                            <h2><span class="positive">(Ottoman)</span> Tersane</h2>
+                            <div class="summary">
+                                <h3>Game Info:</h3>
+                                <div class="text-box">
+                                    Unique Ottoman Great Person Tile Improvement. Can be built by Expending a  Great Admiral or embarked  Great General adjacent to a City and not adjacent to another Tersane.<br><br>Provides 💰 Gold, 🔨 Production, ⚗️ Science, and  Great Admiral Points. +25% 🔨 Production and +15 Experience for Naval Units built in the Adjacent City. Does not stack with multiple Tersane next to the same City.<br><br>Building a Tersane claims adjacent tiles. Units standing on a Tersane receive +50% ⚔️ Tile Defense. Deals 30 damage to adjacent Enemy Units.
+                                </div>
+                            </div>
+                                <div class="summary">
+                                    <h3>Base Yield:</h3>
+                                    <div class="text-box">
++2 🔨 Production, +3 💰 Gold, +2 ⚗️ Science                                    </div>
+                                </div>
+                            <div class="summary">
+                                <h3>Civilization:</h3>
+                                <div class="text-box">
+                                    <ul class="item-list">
+                                        <li><a href="#" onclick="showCivilization('CIVILIZATION_OTTOMAN'); return false;">The Ottomans</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    Unique Ottoman Great Person Tile Improvement. Can be built by Expending a  Great Admiral or embarked  Great General adjacent to a City and not adjacent to another Tersane.<br><br>Provides 💰 Gold, 🔨 Production, ⚗️ Science, and  Great Admiral Points. +25% 🔨 Production and +15 Experience for Naval Units built in the Adjacent City. Does not stack with multiple Tersane next to the same City.<br><br>Building a Tersane claims adjacent tiles. Units standing on a Tersane receive +50% ⚔️ Tile Defense. Deals 30 damage to adjacent Enemy Units.The Turkish word 'Tersane' is derived from the Venetian 'darsane', from which the English word 'arsenal' is also derived. Though never at the forefront of shipbuilding technology, the Ottomans enjoyed over a century of naval dominance in the Mediterranean following their conquest of Constantinople in 1453. The largest Tersane, constructed at the Golden Horn across from Constantinople, housed over 160 docks, drydocks, storehouses and supply depots, making it one of the largest centers of commerce and industry in the Mediterranean.<br><br>Ottoman naval power was maintained through its tremendous shipbuilding capacity and its allegiances to the Barbary corsairs of North Africa. This pre-eminence was finally ended at the battle of Lepanto, where a combined Spanish and Venetian armada delivered a crushing defeat to the Ottomans, capturing or destroying more than two thirds of the Ottoman navy. In response, the Ottomans built 250 new vessels within six months.<br><br>"You come to see how we bear our misfortune. But I would have you know the difference between your loss and ours. In wresting Cyprus from you, we deprived you of an arm; in defeating our fleet, you have only shaved our beard."<br>&emsp; - Grand Vizier Mehmed Sokullu, on the defeat at Lepanto, and the capture of Cyprus, which the Ottomans had taken earlier the same year
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-IMPROVEMENT_CHARBAGH" style="display: none;">
+                        <section class="welcome">
+                            <h2><span class="positive">(Persian)</span> Charbagh</h2>
+                            <div class="summary">
+                                <h3>Game Info:</h3>
+                                <div class="text-box">
+                                    The Charbagh can be built by  Workers on Land with access to Fresh Water, and not next to another Charbagh.<br><br>Each Charbagh yields 🌾 Food, 🔨 Production, 💰 Gold, and 🎵 Culture. During a 🌟 Golden Age, the Charbagh's yields are increased by +1 🔨 Production and 🎵 Culture, in addition to the usual +1 💰 Gold.<br><br>+5% ⭐ Great People Points in City for each worked Charbagh.
+                                </div>
+                            </div>
+                                <div class="summary">
+                                    <h3>Base Yield:</h3>
+                                    <div class="text-box">
++2 🌾 Food, +1 🔨 Production, +1 💰 Gold, +1 🎵 Culture                                    </div>
+                                </div>
+                            <div class="summary">
+                                <h3>Required Technology:</h3>
+                                <div class="text-box">
+                                    <ul class="item-list">
+                                        <li><a href="#" onclick="showTechnology('TECH_THEOLOGY'); return false;">Theology</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <h3>Civilization:</h3>
+                                <div class="text-box">
+                                    <ul class="item-list">
+                                        <li><a href="#" onclick="showCivilization('CIVILIZATION_PERSIA'); return false;">Persia</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    A Charbagh is a walled garden divided into four square sections that is distinctive to Indo-Persian culture. These gardens trace their roots to the pairidaeza of the Achaemenid empire, and perhaps back even further to Assyrian garden designs. Charbagh construction was an invaluable a tool of state, demonstrating a king's ability to bring life to an otherwise desolate area; the angular, ordered construction served as a contrast the chaos of nature. Persian and later Persianized cultures employed garden building as a subtle way to demonstrate the King of King's command over his realm and the natural world within it through the creation of public spaces.<br><br>The Persian gardens have captured the imaginations of Mediterranean and western thinkers. The pairidaeza is the root of the Greek "paradise", informing modern notions of an earthly Eden in art and poetry.<br><br>The Charbagh can be built by  Workers on Land with access to Fresh Water, and not next to another Charbagh.<br><br>Each Charbagh yields 🌾 Food, 🔨 Production, 💰 Gold, and 🎵 Culture. During a 🌟 Golden Age, the Charbagh's yields are increased by +1 🔨 Production and 🎵 Culture, in addition to the usual +1 💰 Gold.<br><br>+5% ⭐ Great People Points in City for each worked Charbagh.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-IMPROVEMENT_MOAI" style="display: none;">
+                        <section class="welcome">
+                            <h2><span class="positive">(Polynesian)</span> Moai</h2>
+                            <div class="summary">
+                                <h3>Game Info:</h3>
+                                <div class="text-box">
+                                    Can only be built on coastal tiles. +1 🎵 for each adjacent Moai and City. Can be built on Resources but does not connect them.
+                                </div>
+                            </div>
+                                <div class="summary">
+                                    <h3>Base Yield:</h3>
+                                    <div class="text-box">
++1 🎵 Culture, +1 🔨 Production, +2  Border Growth Points                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Adjacent Bonus:</h3>
+                                    <div class="text-box">
+                                        <ul class="item-list">
+                                            <li>
+                                                <strong>Moai/Manufactory:</strong>
++1 🎵 Culture                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Can Be Built On:</h3>
+                                    <div class="text-box">
+                                        <ul class="item-list">
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_GRASS'); return false;">Grassland</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_PLAINS'); return false;">Plains</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_DESERT'); return false;">Desert</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_TUNDRA'); return false;">Tundra</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_SNOW'); return false;">Snow</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            <div class="summary">
+                                <h3>Required Technology:</h3>
+                                <div class="text-box">
+                                    <ul class="item-list">
+                                        <li><a href="#" onclick="showTechnology('TECH_MASONRY'); return false;">Construction</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <h3>Civilization:</h3>
+                                <div class="text-box">
+                                    <ul class="item-list">
+                                        <li><a href="#" onclick="showCivilization('CIVILIZATION_POLYNESIA'); return false;">Polynesia</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    Can only be built on coastal tiles. +1 🎵 for each adjacent Moai and City. Can be built on Resources but does not connect them.<br><br>Perhaps better known as the "Easter Island Statues", the Moai are large, humanoid figures carved mostly from volcanic rocks like tuff. 887 of these statues dot Easter Island, and are believed to have been created sometime between 1250 and 1500 AD. Almost half still remain at the original quarry site, but the rest were transported and erected around the island's coastline. Easily recognizable by their large heads and elongated features, it is believed that they were individual depictions of deceased ancestors and powerful chiefs.<br><br>While most scholars agree on why and how the statues were created, the method of their transportation still remains a mystery. Weighing from 9 to 86 tons a piece, they would have required an amazing feat of engineering to move from quarry to final resting place.<br><br>In 1994, the Moai statues were given official protection on the UNESCO World Heritage site list.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-IMPROVEMENT_FEITORIA" style="display: none;">
+                        <section class="welcome">
+                            <h2><span class="positive">(Portuguese)</span> Feitoria</h2>
+                            <div class="summary">
+                                <h3>Game Info:</h3>
+                                <div class="text-box">
+                                    Can be constructed by Workers in owned land to provide yields or by Portuguese-owned Naus (via <span class="positive">Sell Exotic Goods</span>) in City-State land.<br><br>In owned land:<br>Can only be built on coastal tiles, and cannot be adjacent to another Feitoria.<br><br>In City-State land:<br>Provides an untradeable copy of each Luxury Resource type owned by the City-State.  Trade Routes to this City-State generate bonus 🌾 Food and 🔨 Production based on 💰 Gold generated from the  Trade Route and relationship with the City-State (i.e. Neutral/Friend/Ally).<br><br>In addition to these bonuses, it provides vision within a 2-tile radius and a +25% ⚔️ Defensive Strength bonus for any Unit stationed in this tile. Contains a <span class="positive">Canal</span>, allowing friendly <span class="positive">Sea</span> Units to traverse through this tile.
+                                </div>
+                            </div>
+                                <div class="summary">
+                                    <h3>Base Yield:</h3>
+                                    <div class="text-box">
++3 🔨 Production, +4 💰 Gold                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Can Be Built On:</h3>
+                                    <div class="text-box">
+                                        <ul class="item-list">
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_GRASS'); return false;">Grassland</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_PLAINS'); return false;">Plains</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_DESERT'); return false;">Desert</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_TUNDRA'); return false;">Tundra</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_SNOW'); return false;">Snow</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            <div class="summary">
+                                <h3>Required Technology:</h3>
+                                <div class="text-box">
+                                    <ul class="item-list">
+                                        <li><a href="#" onclick="showTechnology('TECH_COMPASS'); return false;">Compass</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <h3>Civilization:</h3>
+                                <div class="text-box">
+                                    <ul class="item-list">
+                                        <li><a href="#" onclick="showCivilization('CIVILIZATION_PORTUGAL'); return false;">Portugal</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    Can be constructed by Workers in owned land to provide yields or by Portuguese-owned Naus (via <span class="positive">Sell Exotic Goods</span>) in City-State land.<br><br>In owned land:<br>Can only be built on coastal tiles, and cannot be adjacent to another Feitoria.<br><br>In City-State land:<br>Provides an untradeable copy of each Luxury Resource type owned by the City-State.  Trade Routes to this City-State generate bonus 🌾 Food and 🔨 Production based on 💰 Gold generated from the  Trade Route and relationship with the City-State (i.e. Neutral/Friend/Ally).<br><br>In addition to these bonuses, it provides vision within a 2-tile radius and a +25% ⚔️ Defensive Strength bonus for any Unit stationed in this tile. Contains a <span class="positive">Canal</span>, allowing friendly <span class="positive">Sea</span> Units to traverse through this tile.<br><br>The Feitoria - Portuguese for "factory" - were trading posts established in foreign territories during the Middle Ages. A feitoria served simultaneously as marketplace, warehouse, settlement, and staging point for exploration. Often established with a grant from the Portuguese crown, these private enterprises repaid their debt through the buying and selling of goods on behalf of the crown and through collecting taxes on trade that passed through their gates. During the 15th and 16th centuries, a chain of over 50 feitoria were built along the coasts of west and east Africa, India, Malaya, China and Japan. The feitoria allowed Portugal to dominate the Atlantic and Indian Ocean trade routes for three centuries.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-IMPROVEMENT_VILLA" style="display: none;">
+                        <section class="welcome">
+                            <h2><span class="positive">(Roman)</span> Villa</h2>
+                            <div class="summary">
+                                <h3>Game Info:</h3>
+                                <div class="text-box">
+                                    Unique Roman Improvement. Cannot be built on Resources or adjacent to a City or another Villa.<br><br>A  Figs Resource appears on a resourceless tile adjacent to the Villa on construction, claiming the tile if it is unowned. The  Figs Resource is removed when the Villa is removed.<br>Provides additional 🎵 Culture on the tile, and +2 🌾 Food in the 🏛️ Capital.<br>+1 🎵 Culture and 💰 Gold to adjacent Plantations.<br>+1 🌾 Food and 💰 Gold to adjacent Farms.
+                                </div>
+                            </div>
+                                <div class="summary">
+                                    <h3>Base Yield:</h3>
+                                    <div class="text-box">
++3 🎵 Culture                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Can Be Built On:</h3>
+                                    <div class="text-box">
+                                        <ul class="item-list">
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_GRASS'); return false;">Grassland</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_PLAINS'); return false;">Plains</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_DESERT'); return false;">Desert</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_TUNDRA'); return false;">Tundra</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_SNOW'); return false;">Snow</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            <div class="summary">
+                                <h3>Required Technology:</h3>
+                                <div class="text-box">
+                                    <ul class="item-list">
+                                        <li><a href="#" onclick="showTechnology('TECH_ENGINEERING'); return false;">Engineering</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <h3>Civilization:</h3>
+                                <div class="text-box">
+                                    <ul class="item-list">
+                                        <li><a href="#" onclick="showCivilization('CIVILIZATION_ROME'); return false;">Rome</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    Unique Roman Improvement. Cannot be built on Resources or adjacent to a City or another Villa.<br><br>A  Figs Resource appears on a resourceless tile adjacent to the Villa on construction, claiming the tile if it is unowned. The  Figs Resource is removed when the Villa is removed.<br>Provides additional 🎵 Culture on the tile, and +2 🌾 Food in the 🏛️ Capital.<br>+1 🎵 Culture and 💰 Gold to adjacent Plantations.<br>+1 🌾 Food and 💰 Gold to adjacent Farms.<br><br>Villae were country homes of upper class roman citizens. Over the progressive conquests and expansion of Roman territories and wealth, the villa evolved from relatively simple getaways for social elites into extravagant centers of sprawling agricultural landholdings called Latifundia, an ancient precursor to today's agribusinesses. The first latifundia were created from land confiscated from conquered peoples in the early 2nd century BC in Magna Graecia (Southern Italy). The Latifundia system expanded with later conquests into Spain and North Africa.<br><br>These estates depended on forced labor for their productivity, often supplied by the enslavement of the same people who occupied the land before conquest. The Latifundia consolidated agricultural production into larger estates with greater economies of scale; owners re-invested profits by purchasing small neighbouring farms to increase their own holdings. Evicted from their farms and replaced by slave labour, the Roman peasantry were forced to find work in the cities of Rome, though often resorting to squatting and handouts.<br><br>Latifundia became the template upon which later European nations would base their imperial experiments. The Spanish are especially noteworthy for patterning the Encomienda system after the late Roman Latifundia.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-IMPROVEMENT_VP_ENCAMPMENT" style="display: none;">
+                        <section class="welcome">
+                            <h2><span class="positive">(Shoshone)</span> Encampment</h2>
+                            <div class="summary">
+                                <h3>Game Info:</h3>
+                                <div class="text-box">
+                                    Can only be built on flat land tiles, and cannot be adjacent to another Encampment.<br><br>+15% ⚔️ Defensive Strength for any Unit stationed in this tile. Any enemy unit which ends its turn next to this tile takes 5 damage (damage does not stack with other improvements).<br><br>If within 2 tiles of an Encampment in Shoshone territory, all Shoshone units gain +20% ⚔️ Combat Strength.
+                                </div>
+                            </div>
+                                <div class="summary">
+                                    <h3>Base Yield:</h3>
+                                    <div class="text-box">
++2 🌾 Food, +1 🔨 Production, +1 🎵 Culture                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Can Be Built On:</h3>
+                                    <div class="text-box">
+                                        <ul class="item-list">
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_GRASS'); return false;">Grassland</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_PLAINS'); return false;">Plains</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_DESERT'); return false;">Desert</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_TUNDRA'); return false;">Tundra</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_SNOW'); return false;">Snow</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            <div class="summary">
+                                <h3>Required Technology:</h3>
+                                <div class="text-box">
+                                    <ul class="item-list">
+                                        <li><a href="#" onclick="showTechnology('TECH_HORSEBACK_RIDING'); return false;">Trade</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <h3>Civilization:</h3>
+                                <div class="text-box">
+                                    <ul class="item-list">
+                                        <li><a href="#" onclick="showCivilization('CIVILIZATION_SHOSHONE'); return false;">The Shoshone</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    Can only be built on flat land tiles, and cannot be adjacent to another Encampment.<br><br>+15% ⚔️ Defensive Strength for any Unit stationed in this tile. Any enemy unit which ends its turn next to this tile takes 5 damage (damage does not stack with other improvements).<br><br>If within 2 tiles of an Encampment in Shoshone territory, all Shoshone units gain +20% ⚔️ Combat Strength.<br><br>A tipi is a conical tent, traditionally made of animal skins, and wooden poles. The tipi was used in the encampments of nomadic tribes of the Great Plains in North America. Tipis are stereotypically associated with Native Americans in the United States in general, however Native Americans from places other than the Great Plains mostly used different types of dwellings. The tipi is durable, provides warmth and comfort in winter, is cool in the heat of summer, and is dry during heavy rains. Tipis could be disassembled and packed away quickly when a tribe decided to move and could be reconstructed quickly upon settling in a new area. This portability was important to Plains Indians with their nomadic lifestyle. Modern tipi covers are usually made of canvas. Contemporary users of tipis include historical reenactors, back-to-the-land devotees, and Native American families attending powwows or encampments who wish to preserve and pass on a part of their heritage and tradition.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-IMPROVEMENT_HACIENDA" style="display: none;">
+                        <section class="welcome">
+                            <h2><span class="positive">(Spanish)</span> Hacienda</h2>
+                            <div class="summary">
+                                <h3>Game Info:</h3>
+                                <div class="text-box">
+                                    Cannot be built adjacent to another Hacienda. Gains additional yields for each adjacent Resource:<br>+3 🌾 Food from Bonus Resources<br>+3 🔨 Production from Strategic Resources<br>+3 💰 Gold from Luxury Resources
+                                </div>
+                            </div>
+                                <div class="summary">
+                                    <h3>Base Yield:</h3>
+                                    <div class="text-box">
++1 🎵 Culture                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Can Be Built On:</h3>
+                                    <div class="text-box">
+                                        <ul class="item-list">
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_GRASS'); return false;">Grassland</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_PLAINS'); return false;">Plains</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_DESERT'); return false;">Desert</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_TUNDRA'); return false;">Tundra</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_SNOW'); return false;">Snow</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            <div class="summary">
+                                <h3>Required Technology:</h3>
+                                <div class="text-box">
+                                    <ul class="item-list">
+                                        <li><a href="#" onclick="showTechnology('TECH_STEEL'); return false;">Steel</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <h3>Civilization:</h3>
+                                <div class="text-box">
+                                    <ul class="item-list">
+                                        <li><a href="#" onclick="showCivilization('CIVILIZATION_SPAIN'); return false;">Spain</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    Cannot be built adjacent to another Hacienda. Gains additional yields for each adjacent Resource:<br>+3 🌾 Food from Bonus Resources<br>+3 🔨 Production from Strategic Resources<br>+3 💰 Gold from Luxury Resources<br><br>Haciendas are colonial estates constructed by the Spanish for the administration and extraction of resources from their native subjects. Haciendas were based on grants of property and enterprise, rather than the strict grant of indigenous labor as described by the older Encomienda system. Haciendas were generally large estates, but the nature of the work varied from plantations, to mining, to factories.<br><br>The owner of a Hacienda was called a Hacendado, but the wealthy landowners rarely visited their holdings and preferred to live in nearby cities. Day-to-day operations of a Hacienda were the responsibility of hired managers. Some unusually large and profitable Haciendas were the property of the Roman Catholic Church, exacerbating tension between native laborers and their Christian taskmasters.<br><br>The Hacienda system was abolished in most countries after the dissolution of the Spanish Empire, but with mixed results. Efforts to break apart the large estates into individual holdings for subsistence farmers led to crushing poverty in some South American nations. In contrast, Latin American and Filipino Haciendas were mostly left intact, but without the same legal standing or permissions of their colonial past.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>Vox Populi Civilopedia - Version 5.0-alpha.03</p>
+        </footer>
+    </div>
+
+    <script>
+        function showHomePage() {
+            // Update URL hash
+            history.pushState(null, null, '#');
+
+            // Hide all items
+            const items = document.querySelectorAll('.article-detail');
+            items.forEach(c => c.style.display = 'none');
+
+            // Show placeholder
+            const placeholder = document.querySelector('.placeholder');
+            if (placeholder) placeholder.style.display = 'block';
+
+            // Remove active state from all sidebar links
+            const links = document.querySelectorAll('.sidebar-list a');
+            links.forEach(link => link.classList.remove('active'));
+
+            // Scroll to top of content
+            document.getElementById('itemContent').scrollTop = 0;
+        }
+
+        function showItem(itemType) {
+            // Update URL hash
+            history.pushState(null, null, '#item-' + itemType);
+
+            // Hide all items
+            const items = document.querySelectorAll('.article-detail');
+            items.forEach(c => c.style.display = 'none');
+
+            // Hide placeholder
+            const placeholder = document.querySelector('.placeholder');
+            if (placeholder) placeholder.style.display = 'none';
+
+            // Show selected item
+            const selected = document.getElementById('item-' + itemType);
+            if (selected) {
+                selected.style.display = 'block';
+                // Scroll to top of content
+                document.getElementById('itemContent').scrollTop = 0;
+            }
+
+            // Update active state in sidebar with exact matching and expand containing section
+            const links = document.querySelectorAll('.sidebar-list a');
+            links.forEach(link => {
+                const onclick = link.getAttribute('onclick');
+                // Extract the item type from onclick="showItem('TYPE'); return false;"
+                const match = onclick.match(/showItem\('([^']+)'\)/);
+                if (match && match[1] === itemType) {
+                    link.classList.add('active');
+
+                    // Expand the parent section if it's collapsed
+                    const parentSection = link.closest('.sidebar-section');
+                    if (parentSection && parentSection.classList.contains('collapsed')) {
+                        const list = parentSection.querySelector('.sidebar-list');
+                        const header = parentSection.querySelector('.sidebar-section-header');
+                        const icon = header ? header.querySelector('.section-icon') : null;
+
+                        if (list) list.style.display = 'block';
+                        if (icon) icon.textContent = '▼';
+                        parentSection.classList.remove('collapsed');
+                    }
+                } else {
+                    link.classList.remove('active');
+                }
+            });
+        }
+
+        function toggleSection(header) {
+            const section = header.parentElement;
+            const list = section.querySelector('.sidebar-list');
+            const icon = header.querySelector('.section-icon');
+
+            if (list.style.display === 'none') {
+                list.style.display = 'block';
+                icon.textContent = '▼';
+                section.classList.remove('collapsed');
+            } else {
+                list.style.display = 'none';
+                icon.textContent = '▶';
+                section.classList.add('collapsed');
+            }
+        }
+
+        // Handle browser back/forward buttons
+        window.addEventListener('popstate', function() {
+            handleHashChange();
+        });
+
+        // Handle URL hash on page load to show specific item
+        window.addEventListener('DOMContentLoaded', function() {
+            handleHashChange();
+        });
+
+        function handleHashChange() {
+            const hash = window.location.hash;
+
+            if (!hash || hash === '#') {
+                showHomePage();
+            } else if (hash.startsWith('#item-')) {
+                const itemType = hash.substring(6); // Remove '#item-' prefix
+                showItem(itemType);
+            }
+        }
+
+        function showTechnology(techType) {
+            window.location.href = 'technologies.html#item-' + techType;
+        }
+
+        function showPromotion(promotionType) {
+            window.location.href = 'promotions.html#item-' + promotionType;
+        }
+
+        function showBuilding(buildingType) {
+            // Check if the current page is buildings or wonders
+            const currentPage = window.location.pathname.split('/').pop();
+            if (currentPage === 'buildings.html' || currentPage === 'wonders.html') {
+                // Stay on same page
+                showItem(buildingType);
+            } else {
+                // Try buildings first, could be a wonder
+                window.location.href = 'buildings.html#item-' + buildingType;
+            }
+        }
+
+        function showUnit(unitType) {
+            window.location.href = 'units.html#item-' + unitType;
+        }
+
+        function showWonder(wonderType) {
+            window.location.href = 'wonders.html#item-' + wonderType;
+        }
+
+        function showResource(resourceType) {
+            window.location.href = 'resources.html#item-' + resourceType;
+        }
+
+        function showImprovement(improvementType) {
+            window.location.href = 'improvements.html#item-' + improvementType;
+        }
+
+        function showTerrain(terrainType) {
+            window.location.href = 'terrain.html#item-' + terrainType;
+        }
+
+        function showTech(techType) {
+            window.location.href = 'technologies.html#item-' + techType;
+        }
+
+        function showCivilization(techType) {
+            window.location.href = 'civilizations.html#item-' + techType;
+        }
+
+        // Search functionality using global search index
+        const searchInput = document.getElementById('globalSearch');
+        const searchResults = document.getElementById('searchResults');
+        let selectedIndex = -1;
+
+        if (searchInput && window.globalSearchIndex) {
+            searchInput.addEventListener('input', function(e) {
+                const query = e.target.value.trim().toLowerCase();
+                selectedIndex = -1; // Reset selection on new input
+
+                if (query.length < 2) {
+                    searchResults.style.display = 'none';
+                    searchResults.innerHTML = '';
+                    return;
+                }
+
+                // Search for matches in article titles across all categories
+                const matches = window.globalSearchIndex.filter(article =>
+                    article.name.toLowerCase().includes(query)
+                ).slice(0, 10); // Limit to 10 results
+
+                if (matches.length > 0) {
+                    // Clear previous results
+                    searchResults.innerHTML = '';
+
+                    // Create and append each result element
+                    matches.forEach(match => {
+                        const resultDiv = document.createElement('div');
+                        resultDiv.className = 'search-result-item';
+                        resultDiv.setAttribute('data-page', match.page);
+                        resultDiv.setAttribute('data-type', match.type);
+
+                        const strong = document.createElement('strong');
+                        strong.innerHTML = match.nameFormatted; // Use formatted name with HTML/colors
+                        resultDiv.appendChild(strong);
+
+                        // Add click handler
+                        resultDiv.addEventListener('click', function() {
+                            navigateToArticle(match.page, match.type);
+                        });
+
+                        searchResults.appendChild(resultDiv);
+                    });
+                    searchResults.style.display = 'block';
+                } else {
+                    searchResults.innerHTML = '<div class="search-result-item no-results">No results found</div>';
+                    searchResults.style.display = 'block';
+                }
+            });
+
+            // Keyboard navigation
+            searchInput.addEventListener('keydown', function(e) {
+                const items = searchResults.querySelectorAll('.search-result-item:not(.no-results)');
+
+                if (items.length === 0) return;
+
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    selectedIndex = Math.min(selectedIndex + 1, items.length - 1);
+                    updateSelection(items);
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    selectedIndex = Math.max(selectedIndex - 1, -1);
+                    updateSelection(items);
+                } else if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (selectedIndex >= 0 && selectedIndex < items.length) {
+                        const selectedItem = items[selectedIndex];
+                        const page = selectedItem.getAttribute('data-page');
+                        const type = selectedItem.getAttribute('data-type');
+                        navigateToArticle(page, type);
+                    }
+                } else if (e.key === 'Escape') {
+                    searchResults.style.display = 'none';
+                    selectedIndex = -1;
+                }
+            });
+
+            function updateSelection(items) {
+                items.forEach((item, index) => {
+                    if (index === selectedIndex) {
+                        item.classList.add('selected');
+                        item.scrollIntoView({ block: 'nearest' });
+                    } else {
+                        item.classList.remove('selected');
+                    }
+                });
+            }
+
+            // Close search results when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.search-container')) {
+                    searchResults.style.display = 'none';
+                    selectedIndex = -1;
+                }
+            });
+
+            // Prevent closing when clicking inside search container
+            searchInput.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+        }
+
+        // Global keyboard shortcut: Press 'S' to focus search
+        document.addEventListener('keydown', function(e) {
+            // Check if 'S' key is pressed and search input is not already focused
+            if (e.key === 's' || e.key === 'S') {
+                // Don't trigger if user is typing in an input field
+                if (document.activeElement.tagName === 'INPUT' ||
+                    document.activeElement.tagName === 'TEXTAREA' ||
+                    document.activeElement.isContentEditable) {
+                    return;
+                }
+                e.preventDefault();
+                searchInput.focus();
+            }
+        });
+
+        function navigateToArticle(page, itemType) {
+            const currentPage = window.location.pathname.split('/').pop();
+            const targetPage = page + '.html';
+
+            if (currentPage === targetPage) {
+                // Same page, just show the item
+                showItem(itemType);
+                searchResults.style.display = 'none';
+                searchInput.value = '';
+            } else {
+                // Different page, navigate
+                window.location.href = targetPage + '#item-' + itemType;
+            }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>

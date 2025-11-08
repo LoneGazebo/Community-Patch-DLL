@@ -1,0 +1,1813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terrain and Features - Vox Populi Civilopedia</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="searchIndex.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Terrain and Features</h1>
+            <div class="search-container">
+                <input type="text" id="globalSearch" placeholder="Search Civilopedia... (Press S)" autocomplete="off">
+                <div id="searchResults" class="search-results"></div>
+            </div>
+        </header>
+
+        <nav class="main-nav">
+            <a href="index.html">Civilopedia Home Page</a>
+            <a href="concepts.html">Game Concepts</a>
+            <a href="civilizations.html">Civilizations and Leaders</a>
+            <a href="units.html">Units</a>
+            <a href="buildings.html">Buildings</a>
+            <a href="wonders.html">Wonders</a>
+            <a href="technologies.html">Technologies</a>
+            <a href="policies.html">Social Policies</a>
+            <a href="beliefs.html">Religion</a>
+            <a href="promotions.html">Promotions</a>
+            <a href="resources.html">Resources</a>
+            <a href="improvements.html">Improvements</a>
+            <a href="terrain.html" class="active">Terrain and Features</a>
+            <a href="greatPeople.html">Specialists and Great People</a>
+            <a href="cityStates.html">City-States</a>
+            <a href="worldCongress.html">World Congress</a>
+            <a href="corporations.html">Corporations</a>
+        </nav>
+
+        <main class="pediapage-layout">
+            <aside class="pediapage-sidebar">
+                <div class="sidebar-header" onclick="showHomePage(); return false;" style="cursor: pointer;">Terrain Home Page</div>
+                    <div class="sidebar-section collapsed">
+                        <div class="sidebar-section-header" onclick="toggleSection(this)">
+                            <span class="section-icon">▶</span> Terrain
+                        </div>
+                        <ul class="sidebar-list" style="display: none;">
+                            <li><a href="#" onclick="showItem('TERRAIN_COAST'); return false;">Coast</a></li>
+                            <li><a href="#" onclick="showItem('TERRAIN_DESERT'); return false;">Desert</a></li>
+                            <li><a href="#" onclick="showItem('TERRAIN_GRASS'); return false;">Grassland</a></li>
+                            <li><a href="#" onclick="showItem('TERRAIN_HILL'); return false;">Hill</a></li>
+                            <li><a href="#" onclick="showItem('TERRAIN_MOUNTAIN'); return false;">Mountain</a></li>
+                            <li><a href="#" onclick="showItem('TERRAIN_OCEAN'); return false;">Ocean</a></li>
+                            <li><a href="#" onclick="showItem('TERRAIN_PLAINS'); return false;">Plains</a></li>
+                            <li><a href="#" onclick="showItem('TERRAIN_SNOW'); return false;">Snow</a></li>
+                            <li><a href="#" onclick="showItem('TERRAIN_TUNDRA'); return false;">Tundra</a></li>
+                        </ul>
+                    </div>
+                    <div class="sidebar-section collapsed">
+                        <div class="sidebar-section-header" onclick="toggleSection(this)">
+                            <span class="section-icon">▶</span> Features
+                        </div>
+                        <ul class="sidebar-list" style="display: none;">
+                            <li><a href="#" onclick="showItem('FEATURE_ATOLL'); return false;">Atoll</a></li>
+                            <li><a href="#" onclick="showItem('FEATURE_POTOSI'); return false;">Cerro de Potosi</a></li>
+                            <li><a href="#" onclick="showItem('FEATURE_EL_DORADO'); return false;">El Dorado</a></li>
+                            <li><a href="#" onclick="showItem('FEATURE_FALLOUT'); return false;">Fallout</a></li>
+                            <li><a href="#" onclick="showItem('FEATURE_FLOOD_PLAINS'); return false;">Flood Plains</a></li>
+                            <li><a href="#" onclick="showItem('FEATURE_FOREST'); return false;">Forest</a></li>
+                            <li><a href="#" onclick="showItem('FEATURE_FOUNTAIN_YOUTH'); return false;">Fountain of Youth</a></li>
+                            <li><a href="#" onclick="showItem('FEATURE_ICE'); return false;">Ice</a></li>
+                            <li><a href="#" onclick="showItem('FEATURE_JUNGLE'); return false;">Jungle</a></li>
+                            <li><a href="#" onclick="showItem('FEATURE_SOLOMONS_MINES'); return false;">King Solomon's Mines</a></li>
+                            <li><a href="#" onclick="showItem('FEATURE_VOLCANO'); return false;">Krakatoa</a></li>
+                            <li><a href="#" onclick="showItem('FEATURE_LAKE_VICTORIA'); return false;">Lake Victoria</a></li>
+                            <li><a href="#" onclick="showItem('FEATURE_MARSH'); return false;">Marsh</a></li>
+                            <li><a href="#" onclick="showItem('FEATURE_FUJI'); return false;">Mt. Fuji</a></li>
+                            <li><a href="#" onclick="showItem('FEATURE_MT_KAILASH'); return false;">Mt. Kailash</a></li>
+                            <li><a href="#" onclick="showItem('FEATURE_KILIMANJARO'); return false;">Mt. Kilimanjaro</a></li>
+                            <li><a href="#" onclick="showItem('FEATURE_MT_SINAI'); return false;">Mt. Sinai</a></li>
+                            <li><a href="#" onclick="showItem('FEATURE_OASIS'); return false;">Oasis</a></li>
+                            <li><a href="#" onclick="showItem('FEATURE_GEYSER'); return false;">Old Faithful</a></li>
+                            <li><a href="#" onclick="showItem('FEATURE_GIBRALTAR'); return false;">Rock of Gibraltar</a></li>
+                            <li><a href="#" onclick="showItem('FEATURE_SRI_PADA'); return false;">Sri Pada</a></li>
+                            <li><a href="#" onclick="showItem('FEATURE_CRATER'); return false;">The Barringer Crater</a></li>
+                            <li><a href="#" onclick="showItem('FEATURE_MESA'); return false;">The Grand Mesa</a></li>
+                            <li><a href="#" onclick="showItem('FEATURE_REEF'); return false;">The Great Barrier Reef</a></li>
+                            <li><a href="#" onclick="showItem('FEATURE_ULURU'); return false;">Uluru</a></li>
+                        </ul>
+                    </div>
+            </aside>
+
+            <div class="pediapage-content" id="itemContent">
+                <div class="placeholder">
+                    <section class="welcome">
+                        <h2>Terrain and Features</h2>
+                        <div class="summary">
+                            <div class="text-box">
+                                <br>&emsp;&emsp;"Stand your ground. Don't fire unless fired upon, but if they mean to have a war let it begin here!"<br>&emsp;&emsp;  - John Parker<br>&emsp;
+                            </div>
+                        </div>
+                        <div class="summary">
+                            <div class="text-box">
+                                In Civilization V, the world is made up of hexagonally-shaped "tiles" (also occasionally known as hexes and spaces). These tiles come in a variety of "terrain types" - desert, plains, grassland, hills and so forth - and many also include "features" like forests and jungle. These elements help to determine the tile's usefulness to a nearby city as well as how easy or difficult it is to move through the tile. Also, a tile's terrain and features may have important effects upon any combat occurring there.
+                            </div>
+                        </div>
+                    </section>
+                </div>
+                    <div class="article-detail" id="item-TERRAIN_COAST" style="display: none;">
+                        <section class="welcome">
+                            <h2>Coast</h2>
+                                <div class="summary">
+                                    <h3>Base Yield:</h3>
+                                    <div class="text-box">
+                                                2 🌾 Food                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Movement Cost:</h3>
+                                    <div class="text-box">
+                                            1 》
+                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Combat Modifier:</h3>
+                                    <div class="text-box">
+0% 
+                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Features on:</h3>
+                                    <div class="text-box">
+                                        <ul class="item-list">
+                                            <li><a href="#" onclick="showTerrain('FEATURE_ICE'); return false;">Ice</a></li>
+                                            <li><a href="#" onclick="showTerrain('FEATURE_ATOLL'); return false;">Atoll</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Resources Found On:</h3>
+                                    <div class="text-box">
+                                        <ul class="item-list">
+                                            <li><a href="#" onclick="showResource('RESOURCE_OIL'); return false;">Oil</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_FISH'); return false;">Fish</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_WHALE'); return false;">Whales</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_PEARLS'); return false;">Pearls</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_CRAB'); return false;">Crab</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_CORAL'); return false;">Coral</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    Coast hexes are the ocean hexes directly adjacent to land. They provide food and gold to a nearby city, but only if that civilization has the Sailing technology. Only naval units and "embarked" land units may enter coastal hexes.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-TERRAIN_DESERT" style="display: none;">
+                        <section class="welcome">
+                            <h2>Desert</h2>
+                                <div class="summary">
+                                    <h3>Base Yield:</h3>
+                                    <div class="text-box">
+                                            No Yield
+                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Movement Cost:</h3>
+                                    <div class="text-box">
+                                            2 》
+                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Combat Modifier:</h3>
+                                    <div class="text-box">
+0% 
+                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Features on:</h3>
+                                    <div class="text-box">
+                                        <ul class="item-list">
+                                            <li><a href="#" onclick="showTerrain('FEATURE_OASIS'); return false;">Oasis</a></li>
+                                            <li><a href="#" onclick="showTerrain('FEATURE_FLOOD_PLAINS'); return false;">Flood Plains</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Resources Found On:</h3>
+                                    <div class="text-box">
+                                        <ul class="item-list">
+                                            <li><a href="#" onclick="showResource('RESOURCE_IRON'); return false;">Iron</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_OIL'); return false;">Oil</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_ALUMINUM'); return false;">Aluminum</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_URANIUM'); return false;">Uranium</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_SHEEP'); return false;">Sheep</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_STONE'); return false;">Stone</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_GOLD'); return false;">Gold</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_SILVER'); return false;">Silver</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_GEMS'); return false;">Gems</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_MARBLE'); return false;">Marble</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_COTTON'); return false;">Cotton</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_INCENSE'); return false;">Incense</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_COPPER'); return false;">Copper</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_SALT'); return false;">Salt</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_ARTIFACTS'); return false;">Antiquity Site</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_HIDDEN_ARTIFACTS'); return false;">Hidden Antiquity Site</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_AMBER'); return false;">Amber</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_JADE'); return false;">Jade</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_LAPIS'); return false;">Lapis Lazuli</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_NUTMEG'); return false;">Nutmeg</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_CLOVES'); return false;">Cloves</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_PEPPER'); return false;">Pepper</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_FIGS'); return false;">Figs</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    In general, desert hexes are remarkably unuseful. They provide no benefits to cities (unless the desert contains an oasis or resource, of course, or if it has access to fresh water).
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-TERRAIN_GRASS" style="display: none;">
+                        <section class="welcome">
+                            <h2>Grassland</h2>
+                                <div class="summary">
+                                    <h3>Base Yield:</h3>
+                                    <div class="text-box">
+                                                2 🌾 Food                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Movement Cost:</h3>
+                                    <div class="text-box">
+                                            1 》
+                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Combat Modifier:</h3>
+                                    <div class="text-box">
+0% 
+                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Features on:</h3>
+                                    <div class="text-box">
+                                        <ul class="item-list">
+                                            <li><a href="#" onclick="showTerrain('FEATURE_JUNGLE'); return false;">Jungle</a></li>
+                                            <li><a href="#" onclick="showTerrain('FEATURE_MARSH'); return false;">Marsh</a></li>
+                                            <li><a href="#" onclick="showTerrain('FEATURE_FOREST'); return false;">Forest</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Resources Found On:</h3>
+                                    <div class="text-box">
+                                        <ul class="item-list">
+                                            <li><a href="#" onclick="showResource('RESOURCE_IRON'); return false;">Iron</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_HORSE'); return false;">Horses</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_COAL'); return false;">Coal</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_URANIUM'); return false;">Uranium</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_COW'); return false;">Cattle</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_SHEEP'); return false;">Sheep</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_STONE'); return false;">Stone</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_GOLD'); return false;">Gold</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_GEMS'); return false;">Gems</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_MARBLE'); return false;">Marble</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_COTTON'); return false;">Cotton</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_WINE'); return false;">Wine</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_COPPER'); return false;">Copper</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_BISON'); return false;">Bison</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_ARTIFACTS'); return false;">Antiquity Site</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_HIDDEN_ARTIFACTS'); return false;">Hidden Antiquity Site</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_COFFEE'); return false;">Coffee</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_TEA'); return false;">Tea</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_TOBACCO'); return false;">Tobacco</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_OLIVE'); return false;">Olives</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_PERFUME'); return false;">Perfume</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_AMBER'); return false;">Amber</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_JADE'); return false;">Jade</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_LAPIS'); return false;">Lapis Lazuli</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_MAIZE'); return false;">Maize</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_RICE'); return false;">Rice</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_NUTMEG'); return false;">Nutmeg</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_CLOVES'); return false;">Cloves</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_PEPPER'); return false;">Pepper</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_FIGS'); return false;">Figs</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    Generally, grassland produces the most food of any terrain type. Cities constructed near to grasslands will tend to grow faster than cities built elsewhere.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-TERRAIN_HILL" style="display: none;">
+                        <section class="welcome">
+                            <h2>Hill</h2>
+                                <div class="summary">
+                                    <h3>Base Yield:</h3>
+                                    <div class="text-box">
+                                            No Yield
+                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Movement Cost:</h3>
+                                    <div class="text-box">
+                                            2 》
+                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Combat Modifier:</h3>
+                                    <div class="text-box">
++10% 
+                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Resources Found On:</h3>
+                                    <div class="text-box">
+                                        <ul class="item-list">
+                                            <li><a href="#" onclick="showResource('RESOURCE_SHEEP'); return false;">Sheep</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_AMBER'); return false;">Amber</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_JADE'); return false;">Jade</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_LAPIS'); return false;">Lapis Lazuli</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    Hills provide increased productivity to a nearby city. They also provide important combat bonuses to units stationed on the hills.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-TERRAIN_MOUNTAIN" style="display: none;">
+                        <section class="welcome">
+                            <h2>Mountain</h2>
+                                <div class="summary">
+                                    <h3>Base Yield:</h3>
+                                    <div class="text-box">
+                                            No Yield
+                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Movement Cost:</h3>
+                                    <div class="text-box">
+                                            Impassable
+                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Combat Modifier:</h3>
+                                    <div class="text-box">
++10% 
+                                    </div>
+                                </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    Mountains are impassable, except to air units, and Carthaginian units (after earning a Great General). They provide nothing to cities.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-TERRAIN_OCEAN" style="display: none;">
+                        <section class="welcome">
+                            <h2>Ocean</h2>
+                                <div class="summary">
+                                    <h3>Base Yield:</h3>
+                                    <div class="text-box">
+                                                1 🌾 Food                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Movement Cost:</h3>
+                                    <div class="text-box">
+                                            1 》
+                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Combat Modifier:</h3>
+                                    <div class="text-box">
+0% 
+                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Features on:</h3>
+                                    <div class="text-box">
+                                        <ul class="item-list">
+                                            <li><a href="#" onclick="showTerrain('FEATURE_ICE'); return false;">Ice</a></li>
+                                            <li><a href="#" onclick="showTerrain('FEATURE_ATOLL'); return false;">Atoll</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    Ocean hexes are deep-water hexes. They provide food and gold to a city once the city has the technology to access them.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-TERRAIN_PLAINS" style="display: none;">
+                        <section class="welcome">
+                            <h2>Plains</h2>
+                                <div class="summary">
+                                    <h3>Base Yield:</h3>
+                                    <div class="text-box">
+                                                1 🌾 Food,                                                 1 🔨 Production                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Movement Cost:</h3>
+                                    <div class="text-box">
+                                            1 》
+                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Combat Modifier:</h3>
+                                    <div class="text-box">
+0% 
+                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Features on:</h3>
+                                    <div class="text-box">
+                                        <ul class="item-list">
+                                            <li><a href="#" onclick="showTerrain('FEATURE_FOREST'); return false;">Forest</a></li>
+                                            <li><a href="#" onclick="showTerrain('FEATURE_JUNGLE'); return false;">Jungle</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Resources Found On:</h3>
+                                    <div class="text-box">
+                                        <ul class="item-list">
+                                            <li><a href="#" onclick="showResource('RESOURCE_IRON'); return false;">Iron</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_HORSE'); return false;">Horses</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_COAL'); return false;">Coal</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_ALUMINUM'); return false;">Aluminum</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_URANIUM'); return false;">Uranium</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_WHEAT'); return false;">Wheat</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_SHEEP'); return false;">Sheep</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_STONE'); return false;">Stone</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_GOLD'); return false;">Gold</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_GEMS'); return false;">Gems</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_MARBLE'); return false;">Marble</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_IVORY'); return false;">Ivory</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_COTTON'); return false;">Cotton</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_WINE'); return false;">Wine</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_INCENSE'); return false;">Incense</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_COPPER'); return false;">Copper</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_SALT'); return false;">Salt</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_BISON'); return false;">Bison</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_ARTIFACTS'); return false;">Antiquity Site</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_HIDDEN_ARTIFACTS'); return false;">Hidden Antiquity Site</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_COFFEE'); return false;">Coffee</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_TEA'); return false;">Tea</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_TOBACCO'); return false;">Tobacco</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_OLIVE'); return false;">Olives</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_PERFUME'); return false;">Perfume</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_AMBER'); return false;">Amber</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_JADE'); return false;">Jade</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_LAPIS'); return false;">Lapis Lazuli</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_MAIZE'); return false;">Maize</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_NUTMEG'); return false;">Nutmeg</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_CLOVES'); return false;">Cloves</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_PEPPER'); return false;">Pepper</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_FIGS'); return false;">Figs</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    Plains provide a mix of food and production to a nearby city. A city surrounded by plains will grow more slowly than one in grassland, but it will be far more productive.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-TERRAIN_SNOW" style="display: none;">
+                        <section class="welcome">
+                            <h2>Snow</h2>
+                                <div class="summary">
+                                    <h3>Base Yield:</h3>
+                                    <div class="text-box">
+                                            No Yield
+                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Movement Cost:</h3>
+                                    <div class="text-box">
+                                            2 》
+                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Combat Modifier:</h3>
+                                    <div class="text-box">
+0% 
+                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Resources Found On:</h3>
+                                    <div class="text-box">
+                                        <ul class="item-list">
+                                            <li><a href="#" onclick="showResource('RESOURCE_IRON'); return false;">Iron</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_OIL'); return false;">Oil</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_URANIUM'); return false;">Uranium</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_STONE'); return false;">Stone</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_COPPER'); return false;">Copper</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_ARTIFACTS'); return false;">Antiquity Site</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_HIDDEN_ARTIFACTS'); return false;">Hidden Antiquity Site</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    Snow is quite unproductive, with no food or production benefit to a nearby city. Of course a snow hex might contain a useful resource, but otherwise they're just cold and barren.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-TERRAIN_TUNDRA" style="display: none;">
+                        <section class="welcome">
+                            <h2>Tundra</h2>
+                                <div class="summary">
+                                    <h3>Base Yield:</h3>
+                                    <div class="text-box">
+                                                1 🌾 Food                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Movement Cost:</h3>
+                                    <div class="text-box">
+                                            1 》
+                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Combat Modifier:</h3>
+                                    <div class="text-box">
+0% 
+                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Features on:</h3>
+                                    <div class="text-box">
+                                        <ul class="item-list">
+                                            <li><a href="#" onclick="showTerrain('FEATURE_FOREST'); return false;">Forest</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Resources Found On:</h3>
+                                    <div class="text-box">
+                                        <ul class="item-list">
+                                            <li><a href="#" onclick="showResource('RESOURCE_IRON'); return false;">Iron</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_HORSE'); return false;">Horses</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_OIL'); return false;">Oil</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_ALUMINUM'); return false;">Aluminum</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_URANIUM'); return false;">Uranium</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_STONE'); return false;">Stone</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_SILVER'); return false;">Silver</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_GEMS'); return false;">Gems</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_MARBLE'); return false;">Marble</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_COPPER'); return false;">Copper</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_SALT'); return false;">Salt</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_ARTIFACTS'); return false;">Antiquity Site</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_HIDDEN_ARTIFACTS'); return false;">Hidden Antiquity Site</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_AMBER'); return false;">Amber</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_JADE'); return false;">Jade</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_LAPIS'); return false;">Lapis Lazuli</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_SHEEP'); return false;">Sheep</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_NUTMEG'); return false;">Nutmeg</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_CLOVES'); return false;">Cloves</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_PEPPER'); return false;">Pepper</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_FIGS'); return false;">Figs</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    Tundra is the semi-frozen land found in the world's colder climates. It is less useful than plains or grassland, but slightly better than desert. Nobody builds cities in the tundra unless they're desperate for resources - or they've got nowhere else to go.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-FEATURE_ATOLL" style="display: none;">
+                        <section class="welcome">
+                            <h2>Atoll</h2>
+                                <div class="summary">
+                                    <h3>Base Yield:</h3>
+                                    <div class="text-box">
+                                                2 🔨 Production,                                                 2 🌾 Food                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Movement Cost:</h3>
+                                    <div class="text-box">
+                                            1 》
+                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Combat Modifier:</h3>
+                                    <div class="text-box">
+0% 
+                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Features on:</h3>
+                                    <div class="text-box">
+                                        <ul class="item-list">
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_COAST'); return false;">Coast</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_OCEAN'); return false;">Ocean</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    An atoll is a formation of coral which creates an island. Atolls are typically ring-shaped, encompassing a central shallow lagoon, and the islands are typically low and small. Atolls are one of the most common island types in the Pacific, the other being islands of volcanic origin. Atolls are akin to oases, in that they are often the only points of land in hundreds of square miles of pelagic expanse. Marine life and birds make ready use of atolls, and though humans have inhabited some, atolls are often hostile for larger land animals. Their low profile means that storms regularly engulf them, and there is often little shade from the powerful sun. As a result of his experiences and observations on the Beagle Voyage, Charles Darwin was the first Westerner to correctly hypothesize how atolls were formed.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-FEATURE_POTOSI" style="display: none;">
+                        <section class="welcome">
+                            <h2>Cerro de Potosi</h2>
+                                <div class="summary">
+                                    <h3>Base Yield:</h3>
+                                    <div class="text-box">
+                                                2 🔨 Production,                                                 6 💰 Gold                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Yield increase per Era:</h3>
+                                    <div class="text-box">
++2 🔨 Production                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Movement Cost:</h3>
+                                    <div class="text-box">
+                                            1 》
+                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Combat Modifier:</h3>
+                                    <div class="text-box">
+0% 
+                                    </div>
+                                </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    +2 🔨 Production from this Natural Wonder for every Era after the Ancient Era.<br><br>Located in southern Bolivia, the mountain of Potosi produced nearly all of the silver mined by the Spanish during their imperial days. Once removed from the mountain, it was taken by llama and mule to the coast where it was then loaded onto treasure ships sailing back to Europe. Nearly 41,000 tons of pure silver were mined over the course of 200 years, 8,200 of which went directly to the Spanish crown. After 1800, the main silver mines were depleted, but the mining of Potosi still continues today - some for silver but now mostly for tin.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-FEATURE_EL_DORADO" style="display: none;">
+                        <section class="welcome">
+                            <h2>El Dorado</h2>
+                                <div class="summary">
+                                    <h3>Base Yield:</h3>
+                                    <div class="text-box">
+                                                8 💰 Gold                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Yield increase per Era:</h3>
+                                    <div class="text-box">
++2 🎵 Culture                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Movement Cost:</h3>
+                                    <div class="text-box">
+                                            2 》
+                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Combat Modifier:</h3>
+                                    <div class="text-box">
++10% 
+                                    </div>
+                                </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    +2 🎵 Culture from this Natural Wonder for every Era after the Ancient Era.<br><br>This fabled "Lost City of Gold" drew many Spanish conquistadors to the New World, all hoping to stumble upon its untold riches. For nearly three centuries, the myth of precious gems and gold drew explorers to the South American coasts, who often sacked other cities they found along the way. El Dorado has captivated explorers throughout the centuries, and expeditions as late as 1804 were arranged to divine its location. However, it is now believed that the mythical city was inspired by the name of a Muisca chief, who reportedly, as part of an initiation, covered himself in a fine layer of gold dust and dove into the Guatavita Lake.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-FEATURE_FALLOUT" style="display: none;">
+                        <section class="welcome">
+                            <h2>Fallout</h2>
+                                <div class="summary">
+                                    <h3>Base Yield:</h3>
+                                    <div class="text-box">
+                                                -3 🌾 Food,                                                 -3 🔨 Production,                                                 -3 💰 Gold                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Movement Cost:</h3>
+                                    <div class="text-box">
+                                            2 》
+                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Combat Modifier:</h3>
+                                    <div class="text-box">
++5% 
+                                    </div>
+                                </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    <span class="negative">Fallout deals 15 Damage to Units that end their turn on a tile with Fallout.</span><br><br>Fallout is the residual radiation left over following a nuclear explosion. The fallout "falls out" of the air as a layer of radioactive particles which are highly dangerous to plants and animals, killing them immediately or damaging their DNA, giving them cancer, other diseases, or unfortunate mutations. Depending upon the type of nuclear explosion, the land may remain poisoned for decades, possibly centuries. Cleanup requires the replacement of the contaminated buildings, soil and vegetation.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-FEATURE_FLOOD_PLAINS" style="display: none;">
+                        <section class="welcome">
+                            <h2>Flood Plains</h2>
+                                <div class="summary">
+                                    <h3>Base Yield:</h3>
+                                    <div class="text-box">
+                                                3 🌾 Food                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Movement Cost:</h3>
+                                    <div class="text-box">
+                                            1 》
+                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Combat Modifier:</h3>
+                                    <div class="text-box">
++5% 
+                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Features on:</h3>
+                                    <div class="text-box">
+                                        <ul class="item-list">
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_DESERT'); return false;">Desert</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Resources Found On:</h3>
+                                    <div class="text-box">
+                                        <ul class="item-list">
+                                            <li><a href="#" onclick="showResource('RESOURCE_WHEAT'); return false;">Wheat</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_SUGAR'); return false;">Sugar</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_ARTIFACTS'); return false;">Antiquity Site</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_HIDDEN_ARTIFACTS'); return false;">Hidden Antiquity Site</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_MAIZE'); return false;">Maize</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_NUTMEG'); return false;">Nutmeg</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_CLOVES'); return false;">Cloves</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_PEPPER'); return false;">Pepper</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_FIGS'); return false;">Figs</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    Flood plains are low-lying areas adjacent to rivers. Every year the river floods, providing natural irrigation and rich nutrients to the land, making flood plains incredibly fertile and the most productive farmland in the world. Ancient Egypt owed most of its wealth and power to the annual flood of the mighty Nile river.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-FEATURE_FOREST" style="display: none;">
+                        <section class="welcome">
+                            <h2>Forest</h2>
+                                <div class="summary">
+                                    <h3>Base Yield:</h3>
+                                    <div class="text-box">
+                                                1 🔨 Production                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Movement Cost:</h3>
+                                    <div class="text-box">
+                                            2 》
+                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Combat Modifier:</h3>
+                                    <div class="text-box">
++25% 
+                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Features on:</h3>
+                                    <div class="text-box">
+                                        <ul class="item-list">
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_GRASS'); return false;">Grassland</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_PLAINS'); return false;">Plains</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_TUNDRA'); return false;">Tundra</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Resources Found On:</h3>
+                                    <div class="text-box">
+                                        <ul class="item-list">
+                                            <li><a href="#" onclick="showResource('RESOURCE_URANIUM'); return false;">Uranium</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_DEER'); return false;">Deer</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_FUR'); return false;">Furs</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_DYE'); return false;">Dyes</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_SILK'); return false;">Silk</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_TRUFFLES'); return false;">Truffles</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_IRON'); return false;">Iron</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_ARTIFACTS'); return false;">Antiquity Site</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_HIDDEN_ARTIFACTS'); return false;">Hidden Antiquity Site</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_COAL'); return false;">Coal</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_NUTMEG'); return false;">Nutmeg</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_CLOVES'); return false;">Cloves</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_PEPPER'); return false;">Pepper</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_FIGS'); return false;">Figs</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    For early man, the forests were a great source of bounty, providing wood for fire, tools and shelter, and also many animals for sustenance and clothing. As a city grows there is a great temptation to cut down the forests for farmland, but a wise leader will always leave some standing - for productivity and to lift his people's spirits. Also, military units stationed in forests receive a significant defensive bonus.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-FEATURE_FOUNTAIN_YOUTH" style="display: none;">
+                        <section class="welcome">
+                            <h2>Fountain of Youth</h2>
+                                <div class="summary">
+                                    <h3>Base Yield:</h3>
+                                    <div class="text-box">
+                                                4 🌾 Food                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Yield increase per Era:</h3>
+                                    <div class="text-box">
++2 ⚗️ Science                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Movement Cost:</h3>
+                                    <div class="text-box">
+                                            2 》
+                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Combat Modifier:</h3>
+                                    <div class="text-box">
++10% 
+                                    </div>
+                                </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    +2 ⚗️ Science from this Natural Wonder for every Era after the Ancient Era.<br><br>One of the earliest accounts of this legendary spring comes from Herodotus, who describes it as a special "Water of Life" giving any who drinks of it exceptionally long life. Similar stories have also been told among the indigenous people of the Caribbean and South America, which brought the Fountain of Youth to prominence during Spain's era of exploration. According to one popular story, in 1513 the Spanish conquistador Juan Ponce de Leon heard tales of the fountain during his travels in Puerto Rico, and set sail to search for eternal life. In doing so, he discovered Florida (and become one of the first Europeans to set foot on American soil) but never did locate the mythical fountain. The Fountain of Youth continues to captivate audiences today - movies, books, comics, and games have all featured the fabled spring and man's eternal quest to obtain it.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-FEATURE_ICE" style="display: none;">
+                        <section class="welcome">
+                            <h2>Ice</h2>
+                                <div class="summary">
+                                    <h3>Base Yield:</h3>
+                                    <div class="text-box">
+                                            No Yield
+                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Movement Cost:</h3>
+                                    <div class="text-box">
+                                            1 》
+                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Combat Modifier:</h3>
+                                    <div class="text-box">
+0% 
+                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Features on:</h3>
+                                    <div class="text-box">
+                                        <ul class="item-list">
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_COAST'); return false;">Coast</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_OCEAN'); return false;">Ocean</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    Ice is impassable, except to air and submarine units. It provides nothing to cities.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-FEATURE_JUNGLE" style="display: none;">
+                        <section class="welcome">
+                            <h2>Jungle</h2>
+                                <div class="summary">
+                                    <h3>Base Yield:</h3>
+                                    <div class="text-box">
+                                                1 🌾 Food                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Movement Cost:</h3>
+                                    <div class="text-box">
+                                            2 》
+                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Combat Modifier:</h3>
+                                    <div class="text-box">
++25% 
+                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Features on:</h3>
+                                    <div class="text-box">
+                                        <ul class="item-list">
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_GRASS'); return false;">Grassland</a></li>
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_PLAINS'); return false;">Plains</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Resources Found On:</h3>
+                                    <div class="text-box">
+                                        <ul class="item-list">
+                                            <li><a href="#" onclick="showResource('RESOURCE_OIL'); return false;">Oil</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_URANIUM'); return false;">Uranium</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_BANANA'); return false;">Bananas</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_GEMS'); return false;">Gems</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_DYE'); return false;">Dyes</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_SPICES'); return false;">Cinnamon</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_TRUFFLES'); return false;">Truffles</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_COCOA'); return false;">Cocoa</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_ARTIFACTS'); return false;">Antiquity Site</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_HIDDEN_ARTIFACTS'); return false;">Hidden Antiquity Site</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_DEER'); return false;">Deer</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_NUTMEG'); return false;">Nutmeg</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_CLOVES'); return false;">Cloves</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_PEPPER'); return false;">Pepper</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_FIGS'); return false;">Figs</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    Dark, forbidding, and deadly to the uninitiated, jungles are a rich source of food to those with the skill and knowledge to live within them. However, jungles do not provide much in the way of materials, and a growing civilization may be tempted to mine them or turn them into cropland. However, military units situated in jungles receive a significant defensive bonus.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-FEATURE_SOLOMONS_MINES" style="display: none;">
+                        <section class="welcome">
+                            <h2>King Solomon's Mines</h2>
+                                <div class="summary">
+                                    <h3>Base Yield:</h3>
+                                    <div class="text-box">
+                                                4 🔨 Production,                                                 2 🕊️ Faith                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Yield increase per Era:</h3>
+                                    <div class="text-box">
++2 🔨 Production                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Movement Cost:</h3>
+                                    <div class="text-box">
+                                            2 》
+                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Combat Modifier:</h3>
+                                    <div class="text-box">
++10% 
+                                    </div>
+                                </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    +2 🔨 Production from this Natural Wonder for every Era after the Ancient Era.<br><br>King Solomon's Mines exerted a pull on European explorers in 19th Century Africa akin to that of El Dorado on Spanish conquistadors in the 16th Century New World. When Europeans first encountered the mysterious ruins of the ancient city of Zimbabwe in East Africa, they were baffled by its location. Numerous explanations were put forth for its existence, but the one that captured the popular imagination was that Great Zimbabwe served to shelter and protect the workers in King Solomon's mines in the nearby Chimanimani Mountains. Here, it was believed, could be found the source of the Biblical king's legendary treasure of precious metals and gems. For several decades adventurers and fortune hunters sought the legendary mines without success.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-FEATURE_VOLCANO" style="display: none;">
+                        <section class="welcome">
+                            <h2>Krakatoa</h2>
+                                <div class="summary">
+                                    <h3>Base Yield:</h3>
+                                    <div class="text-box">
+                                                4 🔨 Production,                                                 2 🎵 Culture                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Yield increase per Era:</h3>
+                                    <div class="text-box">
++2 ⚗️ Science                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Movement Cost:</h3>
+                                    <div class="text-box">
+                                            1 》
+                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Combat Modifier:</h3>
+                                    <div class="text-box">
+0% 
+                                    </div>
+                                </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    +2 ⚗️ Science from this Natural Wonder for every Era after the Ancient Era.<br><br>Krakatoa is a volcanic island located in Indonesia, between the islands of Java and Sumatra. The volcano exploded violently in August 1883 with a force equivalent to 13,000 times the power of the Hiroshima nuclear bomb. The eruption destroyed over half of the island, and was heard in parts of Australia, some 2,000 miles away. Some 37,000 people were killed by the eruption and subsequent tsunamis. The volcano has been emitting lava steadily for the past eighty years, rebuilding the cone at a rate of about 15 feet per year.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-FEATURE_LAKE_VICTORIA" style="display: none;">
+                        <section class="welcome">
+                            <h2>Lake Victoria</h2>
+                                <div class="summary">
+                                    <h3>Base Yield:</h3>
+                                    <div class="text-box">
+                                                4 🌾 Food,                                                 2 ⚗️ Science                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Yield increase per Era:</h3>
+                                    <div class="text-box">
++2 🌾 Food                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Movement Cost:</h3>
+                                    <div class="text-box">
+                                            1 》
+                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Combat Modifier:</h3>
+                                    <div class="text-box">
+0% 
+                                    </div>
+                                </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    +2 🌾 Food from this Natural Wonder for every Era after the Ancient Era.<br><br>With a surface area over 26,000 square miles, Lake Victoria is the largest lake in Africa, the second largest freshwater lake on Earth, and the largest tropical lake in the world. Two large rivers leave the lake, the White Nile and the Katonga. The first historical records of the lake come from Arab traders seeking gold, ivory and other commodities from the natives as they pushed inland from the coast. The search by European explorers for the source of the Nile led to the discovery of the lake by the Englishman John Speke in 1858 AD, who named it after the then British monarch.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-FEATURE_MARSH" style="display: none;">
+                        <section class="welcome">
+                            <h2>Marsh</h2>
+                                <div class="summary">
+                                    <h3>Base Yield:</h3>
+                                    <div class="text-box">
+                                                1 🌾 Food                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Movement Cost:</h3>
+                                    <div class="text-box">
+                                            3 》
+                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Combat Modifier:</h3>
+                                    <div class="text-box">
++5% 
+                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Features on:</h3>
+                                    <div class="text-box">
+                                        <ul class="item-list">
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_GRASS'); return false;">Grassland</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Resources Found On:</h3>
+                                    <div class="text-box">
+                                        <ul class="item-list">
+                                            <li><a href="#" onclick="showResource('RESOURCE_OIL'); return false;">Oil</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_URANIUM'); return false;">Uranium</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_SUGAR'); return false;">Sugar</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_TRUFFLES'); return false;">Truffles</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_ARTIFACTS'); return false;">Antiquity Site</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_HIDDEN_ARTIFACTS'); return false;">Hidden Antiquity Site</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_BANANA'); return false;">Bananas</a></li>
+                                            <li><a href="#" onclick="showResource('RESOURCE_RICE'); return false;">Rice</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    Although rich in biodiversity, marshes have little other than food to offer a hungry growing civilization, as they must be drained or otherwise altered before they provide any city bonuses.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-FEATURE_FUJI" style="display: none;">
+                        <section class="welcome">
+                            <h2>Mt. Fuji</h2>
+                                <div class="summary">
+                                    <h3>Base Yield:</h3>
+                                    <div class="text-box">
+                                                2 🎵 Culture,                                                 4 🕊️ Faith                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Yield increase per Era:</h3>
+                                    <div class="text-box">
++2 🎵 Culture                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Movement Cost:</h3>
+                                    <div class="text-box">
+                                            1 》
+                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Combat Modifier:</h3>
+                                    <div class="text-box">
+0% 
+                                    </div>
+                                </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    +2 🎵 Culture from this Natural Wonder for every Era after the Ancient Era.<br><br>An active volcano, Mount Fuji is the highest mountain in Japan. Standing some 12,000 feet high and often wreathed in clouds, its famous snow-capped silhouette can be seen from Tokyo. The stately mountain is the subject of uncounted works of art - poems, songs, photographs, sculptures and paintings. Mount Fuji is a symbol of pride and beauty for all of Japan.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-FEATURE_MT_KAILASH" style="display: none;">
+                        <section class="welcome">
+                            <h2>Mt. Kailash</h2>
+                                <div class="summary">
+                                    <h3>Base Yield:</h3>
+                                    <div class="text-box">
+                                                6 🕊️ Faith                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Yield increase per Era:</h3>
+                                    <div class="text-box">
++2 🕊️ Faith                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Movement Cost:</h3>
+                                    <div class="text-box">
+                                            1 》
+                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Combat Modifier:</h3>
+                                    <div class="text-box">
+0% 
+                                    </div>
+                                </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    +2 🕊️ Faith from this Natural Wonder for every Era after the Ancient Era.<br><br>The sacred peak of Mount Kailash, found in the Himalayas of Tibet, is cherished by a number of religions, particularly the followers of Hinduism. It is believed to be the home of Lord Shiva, who dwells on the mountain in a state of eternal bliss. Mount Kailash is said to be among the most difficult of all religious pilgrimages, as the harsh conditions dissuade many would-be pilgrims, and the mountain is not accessible by any forms of modern transportation.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-FEATURE_KILIMANJARO" style="display: none;">
+                        <section class="welcome">
+                            <h2>Mt. Kilimanjaro</h2>
+                                <div class="summary">
+                                    <h3>Base Yield:</h3>
+                                    <div class="text-box">
+                                                4 🎵 Culture                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Yield increase per Era:</h3>
+                                    <div class="text-box">
++2 🎵 Culture                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Movement Cost:</h3>
+                                    <div class="text-box">
+                                            1 》
+                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Combat Modifier:</h3>
+                                    <div class="text-box">
+0% 
+                                    </div>
+                                </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    +2 🎵 Culture from this Natural Wonder for every Era after the Ancient Era.<br><br>Composed of three volcanic cones, the highest reaching 19,340 feet - making it the highest point in Africa and the highest free-standing mountain in the world - the Kilimanjaro massif lies in northeastern Tanzania. Considered a strato-volcano, two of its peaks (Mawenzi and Shira) are extinct, while its highest (Kibo) is dormant; its last eruption dates back approximately 150 thousand years. According to Johann Krapf in 1860 the mountain was called "Kilimanjaro" by the Swahilis along the coast, meaning either "mountain of greatness" or "mountain of caravans."
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-FEATURE_MT_SINAI" style="display: none;">
+                        <section class="welcome">
+                            <h2>Mt. Sinai</h2>
+                                <div class="summary">
+                                    <h3>Base Yield:</h3>
+                                    <div class="text-box">
+                                                4 🌾 Food,                                                 2 🕊️ Faith                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Yield increase per Era:</h3>
+                                    <div class="text-box">
++2 🕊️ Faith                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Movement Cost:</h3>
+                                    <div class="text-box">
+                                            1 》
+                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Combat Modifier:</h3>
+                                    <div class="text-box">
+0% 
+                                    </div>
+                                </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    +2 🕊️ Faith from this Natural Wonder for every Era after the Ancient Era.<br><br>Found on the Sinai Peninsula of Egypt, Mount Sinai is among the most revered holy sites recognized by the followers of Judaism, Christianity, and Islam. Mount Sinai is believed to be the location where Moses first received the Ten Commandments from God during the Israelites' exodus from Egypt, making the peak an important site for religious pilgrims from around the world.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-FEATURE_OASIS" style="display: none;">
+                        <section class="welcome">
+                            <h2>Oasis</h2>
+                                <div class="summary">
+                                    <h3>Base Yield:</h3>
+                                    <div class="text-box">
+                                                3 🌾 Food,                                                 2 💰 Gold                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Movement Cost:</h3>
+                                    <div class="text-box">
+                                            1 》
+                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Combat Modifier:</h3>
+                                    <div class="text-box">
++5% 
+                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Features on:</h3>
+                                    <div class="text-box">
+                                        <ul class="item-list">
+                                            <li><a href="#" onclick="showTerrain('TERRAIN_DESERT'); return false;">Desert</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    An oasis is an especially lush and verdant area within a desert, usually because it sits atop a source of clean and plentiful water. Oases are extremely valuable resources in an otherwise barren and lifeless desert, and countless battles have been fought between desperate desert tribesmen to possess them.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-FEATURE_GEYSER" style="display: none;">
+                        <section class="welcome">
+                            <h2>Old Faithful</h2>
+                                <div class="summary">
+                                    <h3>Base Yield:</h3>
+                                    <div class="text-box">
+                                                6 ⚗️ Science                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Yield increase per Era:</h3>
+                                    <div class="text-box">
++2 🎵 Culture                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Movement Cost:</h3>
+                                    <div class="text-box">
+                                            2 》
+                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Combat Modifier:</h3>
+                                    <div class="text-box">
++10% 
+                                    </div>
+                                </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    +2 🎵 Culture from this Natural Wonder for every Era after the Ancient Era.<br><br>Old Faithful is a geyser found in Yellowstone National Park, in Wyoming, United States of America. First seen by Europeans in 1870 (and by natives some 10,000 years before that), Old Faithful was thus named because of the regularity of its eruption. The geyser shoots a column of boiling water to a height of some 100-175 feet every 60-90 minutes (the interval determined by the ferocity of the previous eruption). Geysers occur when subterranean water hits magma (molten rock). The water is instantly turned to steam, which rushes out the nearest available opening at tremendously high pressure. Old Faithful and the other 250 geysers in Yellowstone are enjoyed by some three million visitors each year.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-FEATURE_GIBRALTAR" style="display: none;">
+                        <section class="welcome">
+                            <h2>Rock of Gibraltar</h2>
+                                <div class="summary">
+                                    <h3>Base Yield:</h3>
+                                    <div class="text-box">
+                                                2 🌾 Food,                                                 2 🔨 Production,                                                 2 💰 Gold,                                                 2 🎵 Culture                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Yield increase per Era:</h3>
+                                    <div class="text-box">
++2 💰 Gold                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Movement Cost:</h3>
+                                    <div class="text-box">
+                                            1 》
+                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Combat Modifier:</h3>
+                                    <div class="text-box">
+0% 
+                                    </div>
+                                </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    +2 💰 Gold from this Natural Wonder for every Era after the Ancient Era.<br><br>Gibraltar is a peninsula containing a remarkable rock formation at the mouth of the Mediterranean Sea. Captured from Spain by the English and Dutch in 1704 and ceded to England in 1713, Gibraltar has been a British possession ever since (much to the annoyance of Spain, which wants it back). Commanding the entrance to the Atlantic from the Mediterranean, Gibraltar has been a major British naval base for three hundred years.<br>Most of Gibraltar is covered by the "Rock," a huge formation of shale, sandstone and limestone thrust up by the unimaginable power of plate tectonics. The Rock stands some 1400 feet in height. At one time Gibraltar was a massive fortification allowing Britain to dominate the narrow Mediterranean-Atlantic passage, but today the peninsula is more of a nature preserve and tourist destination than it is a military base.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-FEATURE_SRI_PADA" style="display: none;">
+                        <section class="welcome">
+                            <h2>Sri Pada</h2>
+                                <div class="summary">
+                                    <h3>Base Yield:</h3>
+                                    <div class="text-box">
+                                                2 🌾 Food,                                                 2 🕊️ Faith                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Yield increase per Era:</h3>
+                                    <div class="text-box">
++2 🌾 Food                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Movement Cost:</h3>
+                                    <div class="text-box">
+                                            1 》
+                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Combat Modifier:</h3>
+                                    <div class="text-box">
+0% 
+                                    </div>
+                                </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    +2 🌾 Food from this Natural Wonder for every Era after the Ancient Era.<br><br>Towering above Sri Lanka, Sri Pada is a large mountain peak with an unusually conical shape that is held sacred by a number of religions for the "footprint" found at its peak. The footprint, a large depression found in a rock formation on the mountain's summit, has been attributed to Buddha, Shiva, and the biblical figure Adam, leading to the mountain's reverence among followers of Buddhism, Hinduism, and Islam. Each year, thousands of pilgrims trek for hours up the mountain to pay their respects at the holy site.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-FEATURE_CRATER" style="display: none;">
+                        <section class="welcome">
+                            <h2>The Barringer Crater</h2>
+                                <div class="summary">
+                                    <h3>Base Yield:</h3>
+                                    <div class="text-box">
+                                                2 🔨 Production,                                                 4 ⚗️ Science                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Yield increase per Era:</h3>
+                                    <div class="text-box">
++2 ⚗️ Science                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Movement Cost:</h3>
+                                    <div class="text-box">
+                                            2 》
+                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Combat Modifier:</h3>
+                                    <div class="text-box">
++10% 
+                                    </div>
+                                </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    +2 ⚗️ Science from this Natural Wonder for every Era after the Ancient Era.<br><br>The Barringer Crater is a huge meteorite crater located in Arizona, in the United States of America. The crater is four thousand feet in diameter, and scientists believe that it was created some 50,000 years ago when the site was hit by a large nickel-iron meteorite weighing, at time of impact, 160,000 tons and moving at perhaps 27,000 miles per hour.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-FEATURE_MESA" style="display: none;">
+                        <section class="welcome">
+                            <h2>The Grand Mesa</h2>
+                                <div class="summary">
+                                    <h3>Base Yield:</h3>
+                                    <div class="text-box">
+                                                2 🌾 Food,                                                 4 🎵 Culture                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Yield increase per Era:</h3>
+                                    <div class="text-box">
++2 🌾 Food                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Movement Cost:</h3>
+                                    <div class="text-box">
+                                            2 》
+                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Combat Modifier:</h3>
+                                    <div class="text-box">
++10% 
+                                    </div>
+                                </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    +2 🌾 Food from this Natural Wonder for every Era after the Ancient Era.<br><br>The Grand Mesa is a large geologic formation in Colorado, the United States of America. Rising some 5,000 feet above the surrounding territory and with an area of 500 square miles, it is the largest mesa in the world. The Grand Mesa has a layer of volcanic basalt on top, which resists erosion. It did not so much rise into the air, as it remained at its original height as the surrounding terrain was eroded by the action of the Colorado and Gunnison rivers.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-FEATURE_REEF" style="display: none;">
+                        <section class="welcome">
+                            <h2>The Great Barrier Reef</h2>
+                                <div class="summary">
+                                    <h3>Base Yield:</h3>
+                                    <div class="text-box">
+                                                2 🌾 Food,                                                 2 ⚗️ Science,                                                 2 🎵 Culture                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Yield increase per Era:</h3>
+                                    <div class="text-box">
++2 ⚗️ Science                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Movement Cost:</h3>
+                                    <div class="text-box">
+                                            2 》
+                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Combat Modifier:</h3>
+                                    <div class="text-box">
++10% 
+                                    </div>
+                                </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    +2 ⚗️ Science from this Natural Wonder for every Era after the Ancient Era.<br><br>The Great Barrier Reef is the world's largest reef. A chain of almost 3000 reefs and 1000 islands, it stretches almost 1600 miles along the coast of north-east Australia. Constructed over 500,000 years by billions of coral polyps, the Great Barrier Reef is the largest single structure made by living creatures. The Great Barrier Reef is home to a hugely diverse population of whales, dolphins, porpoises, dugongs, turtles, fish, octopi, and snakes, not to mention over 200 species of birds.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-FEATURE_ULURU" style="display: none;">
+                        <section class="welcome">
+                            <h2>Uluru</h2>
+                                <div class="summary">
+                                    <h3>Base Yield:</h3>
+                                    <div class="text-box">
+                                                2 🌾 Food,                                                 4 🕊️ Faith                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Yield increase per Era:</h3>
+                                    <div class="text-box">
++2 🔨 Production                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Movement Cost:</h3>
+                                    <div class="text-box">
+                                            2 》
+                                    </div>
+                                </div>
+                                <div class="summary">
+                                    <h3>Combat Modifier:</h3>
+                                    <div class="text-box">
++10% 
+                                    </div>
+                                </div>
+                            <div class="summary">
+                                <h3>Historical Info:</h3>
+                                <div class="text-box">
+                                    +2 🔨 Production from this Natural Wonder for every Era after the Ancient Era.<br><br>Commonly referred to as "Ayers Rock," the massive red sandstone formation in central Australia has, over the past century, become one of Australia's most recognizable landmarks. Long before it was discovered by English explorers in the late 1800s, the mountain was known as "Uluru," a name given by the indigenous tribesmen of the area who share varying legends as to its creation and significance. Designated as a UNESCO World Heritage Site in 1987, this led to an immediate upsurge in tourism, with several hundred thousand visitors exploring the site each year.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>Vox Populi Civilopedia - Version 5.0-alpha.03</p>
+        </footer>
+    </div>
+
+    <script>
+        function showHomePage() {
+            // Update URL hash
+            history.pushState(null, null, '#');
+
+            // Hide all items
+            const items = document.querySelectorAll('.article-detail');
+            items.forEach(c => c.style.display = 'none');
+
+            // Show placeholder
+            const placeholder = document.querySelector('.placeholder');
+            if (placeholder) placeholder.style.display = 'block';
+
+            // Remove active state from all sidebar links
+            const links = document.querySelectorAll('.sidebar-list a');
+            links.forEach(link => link.classList.remove('active'));
+
+            // Scroll to top of content
+            document.getElementById('itemContent').scrollTop = 0;
+        }
+
+        function showItem(itemType) {
+            // Update URL hash
+            history.pushState(null, null, '#item-' + itemType);
+
+            // Hide all items
+            const items = document.querySelectorAll('.article-detail');
+            items.forEach(c => c.style.display = 'none');
+
+            // Hide placeholder
+            const placeholder = document.querySelector('.placeholder');
+            if (placeholder) placeholder.style.display = 'none';
+
+            // Show selected item
+            const selected = document.getElementById('item-' + itemType);
+            if (selected) {
+                selected.style.display = 'block';
+                // Scroll to top of content
+                document.getElementById('itemContent').scrollTop = 0;
+            }
+
+            // Update active state in sidebar with exact matching and expand containing section
+            const links = document.querySelectorAll('.sidebar-list a');
+            links.forEach(link => {
+                const onclick = link.getAttribute('onclick');
+                // Extract the item type from onclick="showItem('TYPE'); return false;"
+                const match = onclick.match(/showItem\('([^']+)'\)/);
+                if (match && match[1] === itemType) {
+                    link.classList.add('active');
+
+                    // Expand the parent section if it's collapsed
+                    const parentSection = link.closest('.sidebar-section');
+                    if (parentSection && parentSection.classList.contains('collapsed')) {
+                        const list = parentSection.querySelector('.sidebar-list');
+                        const header = parentSection.querySelector('.sidebar-section-header');
+                        const icon = header ? header.querySelector('.section-icon') : null;
+
+                        if (list) list.style.display = 'block';
+                        if (icon) icon.textContent = '▼';
+                        parentSection.classList.remove('collapsed');
+                    }
+                } else {
+                    link.classList.remove('active');
+                }
+            });
+        }
+
+        function toggleSection(header) {
+            const section = header.parentElement;
+            const list = section.querySelector('.sidebar-list');
+            const icon = header.querySelector('.section-icon');
+
+            if (list.style.display === 'none') {
+                list.style.display = 'block';
+                icon.textContent = '▼';
+                section.classList.remove('collapsed');
+            } else {
+                list.style.display = 'none';
+                icon.textContent = '▶';
+                section.classList.add('collapsed');
+            }
+        }
+
+        // Handle browser back/forward buttons
+        window.addEventListener('popstate', function() {
+            handleHashChange();
+        });
+
+        // Handle URL hash on page load to show specific item
+        window.addEventListener('DOMContentLoaded', function() {
+            handleHashChange();
+        });
+
+        function handleHashChange() {
+            const hash = window.location.hash;
+
+            if (!hash || hash === '#') {
+                showHomePage();
+            } else if (hash.startsWith('#item-')) {
+                const itemType = hash.substring(6); // Remove '#item-' prefix
+                showItem(itemType);
+            }
+        }
+
+        function showTechnology(techType) {
+            window.location.href = 'technologies.html#item-' + techType;
+        }
+
+        function showPromotion(promotionType) {
+            window.location.href = 'promotions.html#item-' + promotionType;
+        }
+
+        function showBuilding(buildingType) {
+            // Check if the current page is buildings or wonders
+            const currentPage = window.location.pathname.split('/').pop();
+            if (currentPage === 'buildings.html' || currentPage === 'wonders.html') {
+                // Stay on same page
+                showItem(buildingType);
+            } else {
+                // Try buildings first, could be a wonder
+                window.location.href = 'buildings.html#item-' + buildingType;
+            }
+        }
+
+        function showUnit(unitType) {
+            window.location.href = 'units.html#item-' + unitType;
+        }
+
+        function showWonder(wonderType) {
+            window.location.href = 'wonders.html#item-' + wonderType;
+        }
+
+        function showResource(resourceType) {
+            window.location.href = 'resources.html#item-' + resourceType;
+        }
+
+        function showImprovement(improvementType) {
+            window.location.href = 'improvements.html#item-' + improvementType;
+        }
+
+        function showTerrain(terrainType) {
+            window.location.href = 'terrain.html#item-' + terrainType;
+        }
+
+        function showTech(techType) {
+            window.location.href = 'technologies.html#item-' + techType;
+        }
+
+        function showCivilization(techType) {
+            window.location.href = 'civilizations.html#item-' + techType;
+        }
+
+        // Search functionality using global search index
+        const searchInput = document.getElementById('globalSearch');
+        const searchResults = document.getElementById('searchResults');
+        let selectedIndex = -1;
+
+        if (searchInput && window.globalSearchIndex) {
+            searchInput.addEventListener('input', function(e) {
+                const query = e.target.value.trim().toLowerCase();
+                selectedIndex = -1; // Reset selection on new input
+
+                if (query.length < 2) {
+                    searchResults.style.display = 'none';
+                    searchResults.innerHTML = '';
+                    return;
+                }
+
+                // Search for matches in article titles across all categories
+                const matches = window.globalSearchIndex.filter(article =>
+                    article.name.toLowerCase().includes(query)
+                ).slice(0, 10); // Limit to 10 results
+
+                if (matches.length > 0) {
+                    // Clear previous results
+                    searchResults.innerHTML = '';
+
+                    // Create and append each result element
+                    matches.forEach(match => {
+                        const resultDiv = document.createElement('div');
+                        resultDiv.className = 'search-result-item';
+                        resultDiv.setAttribute('data-page', match.page);
+                        resultDiv.setAttribute('data-type', match.type);
+
+                        const strong = document.createElement('strong');
+                        strong.innerHTML = match.nameFormatted; // Use formatted name with HTML/colors
+                        resultDiv.appendChild(strong);
+
+                        // Add click handler
+                        resultDiv.addEventListener('click', function() {
+                            navigateToArticle(match.page, match.type);
+                        });
+
+                        searchResults.appendChild(resultDiv);
+                    });
+                    searchResults.style.display = 'block';
+                } else {
+                    searchResults.innerHTML = '<div class="search-result-item no-results">No results found</div>';
+                    searchResults.style.display = 'block';
+                }
+            });
+
+            // Keyboard navigation
+            searchInput.addEventListener('keydown', function(e) {
+                const items = searchResults.querySelectorAll('.search-result-item:not(.no-results)');
+
+                if (items.length === 0) return;
+
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    selectedIndex = Math.min(selectedIndex + 1, items.length - 1);
+                    updateSelection(items);
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    selectedIndex = Math.max(selectedIndex - 1, -1);
+                    updateSelection(items);
+                } else if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (selectedIndex >= 0 && selectedIndex < items.length) {
+                        const selectedItem = items[selectedIndex];
+                        const page = selectedItem.getAttribute('data-page');
+                        const type = selectedItem.getAttribute('data-type');
+                        navigateToArticle(page, type);
+                    }
+                } else if (e.key === 'Escape') {
+                    searchResults.style.display = 'none';
+                    selectedIndex = -1;
+                }
+            });
+
+            function updateSelection(items) {
+                items.forEach((item, index) => {
+                    if (index === selectedIndex) {
+                        item.classList.add('selected');
+                        item.scrollIntoView({ block: 'nearest' });
+                    } else {
+                        item.classList.remove('selected');
+                    }
+                });
+            }
+
+            // Close search results when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.search-container')) {
+                    searchResults.style.display = 'none';
+                    selectedIndex = -1;
+                }
+            });
+
+            // Prevent closing when clicking inside search container
+            searchInput.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+        }
+
+        // Global keyboard shortcut: Press 'S' to focus search
+        document.addEventListener('keydown', function(e) {
+            // Check if 'S' key is pressed and search input is not already focused
+            if (e.key === 's' || e.key === 'S') {
+                // Don't trigger if user is typing in an input field
+                if (document.activeElement.tagName === 'INPUT' ||
+                    document.activeElement.tagName === 'TEXTAREA' ||
+                    document.activeElement.isContentEditable) {
+                    return;
+                }
+                e.preventDefault();
+                searchInput.focus();
+            }
+        });
+
+        function navigateToArticle(page, itemType) {
+            const currentPage = window.location.pathname.split('/').pop();
+            const targetPage = page + '.html';
+
+            if (currentPage === targetPage) {
+                // Same page, just show the item
+                showItem(itemType);
+                searchResults.style.display = 'none';
+                searchInput.value = '';
+            } else {
+                // Different page, navigate
+                window.location.href = targetPage + '#item-' + itemType;
+            }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>
