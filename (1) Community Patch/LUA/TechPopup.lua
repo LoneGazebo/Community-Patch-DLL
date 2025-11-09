@@ -28,6 +28,18 @@ local TURNS_STRING = L("TXT_KEY_TURNS");
 local FREE_STRING = L("TXT_KEY_FREE");
 
 ------------------------------------------------------------------
+local tooltipInstance = {};
+TTManager:GetTypeControlTable("CityViewTooltip", tooltipInstance);
+
+--- Shorthand for setting a custom tooltip and adjusting its size
+--- @param tooltip TooltipInstance
+--- @param strTooltip string
+local function SetTooltip(tooltip, strTooltip)
+	tooltip.TechTreeTooltipText:SetText(strTooltip);
+	tooltip.TechTreeTooltipGrid:DoAutoSize();
+end
+
+------------------------------------------------------------------
 -- Close this popup
 local function ClosePopup()
 	Hide(ContextPtr);
@@ -117,7 +129,16 @@ local function AddTechButton(kTechInfo, iNumTech)
 		end
 	end
 
-	instance.TechButton:SetToolTipString(GetHelpTextForTech(kTechInfo.ID));
+	-- Use a closure to track if we're already setting the tooltip
+	local bSettingTooltip = false;
+	instance.TechButton:SetToolTipCallback(function ()
+		if bSettingTooltip then
+			return;
+		end
+		bSettingTooltip = true;
+		SetTooltip(tooltipInstance, GetHelpTextForTech(kTechInfo.ID));
+		bSettingTooltip = false;
+	end);
 
 	-- Update the picture
 	if IconHookup(kTechInfo.PortraitIndex, 64, kTechInfo.IconAtlas, instance.TechPortrait) then
