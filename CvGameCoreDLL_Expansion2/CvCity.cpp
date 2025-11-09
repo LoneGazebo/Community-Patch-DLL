@@ -4289,6 +4289,26 @@ bool CvCity::IsCityEventChoiceValid(CityEventChoiceTypes eChosenEventChoice, Cit
 		if (pkEventInfo->lacksPlayerMajority() && kPlayer.GetReligions()->GetReligionInMostCities() == GetCityReligions()->GetReligiousMajority())
 			return false;
 
+		if (pkEventInfo->getEventBuilding() != -1)
+		{
+			BuildingClassTypes eBuildingClass = (BuildingClassTypes)pkEventInfo->getEventBuilding();
+			if (eBuildingClass == NO_BUILDINGCLASS)
+				return false;
+
+			const CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
+			CvCivilizationInfo* pCivilizationInfo = GC.getCivilizationInfo(getCivilizationType());
+
+			if (HasBuildingClass(eBuildingClass))
+				return false;
+
+			if (pCivilizationInfo != NULL)
+			{
+				BuildingTypes eBuilding = (BuildingTypes)pCivilizationInfo->getCivilizationBuildings(eBuildingClass);
+				if (GC.getGame().isBuildingClassMaxedOut(eBuildingClass) || GET_TEAM(getTeam()).isBuildingClassMaxedOut(eBuildingClass) || GET_PLAYER(getOwner()).isBuildingMaxedOut(eBuilding))
+					return false;
+			}
+		}
+
 		if (pkEventInfo->getRequiredStateReligion() != -1)
 		{
 			if (kPlayer.GetReligions()->GetOwnedReligion() != pkEventInfo->getRequiredStateReligion())
@@ -5943,6 +5963,32 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice, int
 			localizedDurationText = Localization::Lookup("TXT_KEY_NEED_SPECIFIC_STATE_RELIGION");
 			localizedDurationText << GC.getReligionInfo((ReligionTypes)pkEventInfo->getRequiredStateReligion())->GetDescription();
 			DisabledTT += localizedDurationText.toUTF8();
+		}
+	}
+
+	if (pkEventInfo->getEventBuilding() != -1)
+	{
+		BuildingClassTypes eBuildingClass = (BuildingClassTypes)pkEventInfo->getEventBuilding();
+		if (eBuildingClass != NO_BUILDINGCLASS)
+		{
+
+			const CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
+			CvCivilizationInfo* pCivilizationInfo = GC.getCivilizationInfo(getCivilizationType());
+
+			if (HasBuildingClass(eBuildingClass))
+			{
+				localizedDurationText = Localization::Lookup("TXT_KEY_BUILDING_ALREADY_BUILT");
+				DisabledTT += localizedDurationText.toUTF8();
+			}
+			else if (pCivilizationInfo != NULL)
+			{
+				BuildingTypes eBuilding = (BuildingTypes)pCivilizationInfo->getCivilizationBuildings(eBuildingClass);
+				if (GC.getGame().isBuildingClassMaxedOut(eBuildingClass) || GET_TEAM(getTeam()).isBuildingClassMaxedOut(eBuildingClass) || GET_PLAYER(getOwner()).isBuildingMaxedOut(eBuilding))
+				{
+					localizedDurationText = Localization::Lookup("TXT_KEY_BUILDING_MAXED_OUT");
+					DisabledTT += localizedDurationText.toUTF8();
+				}
+			}
 		}
 	}
 

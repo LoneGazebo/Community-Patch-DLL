@@ -38996,7 +38996,7 @@ bool CvPlayer::isBuildingMaxedOut(BuildingTypes eIndex, int iExtra) const
 
 	int iMaxInstances = getMaxPlayerInstances(eIndex);
 
-	PRECONDITION(getBuildingClassCount(eBuildingClass) <= iMaxInstances, "BuildingClassCount is expected to be less than or match the number of max player instances plus extra player instances");
+	ASSERT(getBuildingClassCount(eBuildingClass) <= iMaxInstances, "BuildingClassCount is expected to be less than or match the number of max player instances plus extra player instances");
 
 	return ((getBuildingClassCount(eBuildingClass) + iExtra) >= iMaxInstances);
 }
