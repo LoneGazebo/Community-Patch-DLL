@@ -9431,19 +9431,19 @@ void CvTeam::DoEndVassal(TeamTypes eTeam, bool bPeaceful, bool bSuppressNotifica
 			pOurPlayer->GetDiplomacyAI()->DoWeEndedVassalageWithSomeone(eTeam);
 			GET_TEAM(eTeam).SetVassalTax(eOurPlayer, 0);
 			GET_TEAM(eTeam).SetNumTurnsSinceVassalTaxSet(eOurPlayer, -1);
-		}
 
-		// remove spies as diplomats
-		if (!GC.getGame().isOption(GAMEOPTION_NO_ESPIONAGE))
-		{
-			for (int iMasterPlayerLoop = 0; iMasterPlayerLoop < MAX_CIV_PLAYERS; iMasterPlayerLoop++)
+			// remove spies as diplomats
+			if (!GC.getGame().isOption(GAMEOPTION_NO_ESPIONAGE))
 			{
-				PlayerTypes eMasterPlayer = (PlayerTypes)iMasterPlayerLoop;
-				CvPlayer* pMasterPlayer = &GET_PLAYER(eMasterPlayer);
-				if (pMasterPlayer->isAlive() && pMasterPlayer->getTeam() == eTeam)
+				for (int iMasterPlayerLoop = 0; iMasterPlayerLoop < MAX_CIV_PLAYERS; iMasterPlayerLoop++)
 				{
-					CvPlayerEspionage* pMasterEspionage = pMasterPlayer->GetEspionage();
-					pMasterEspionage->DeleteDiplomatForVassal(eOurPlayer);
+					PlayerTypes eMasterPlayer = (PlayerTypes)iMasterPlayerLoop;
+					CvPlayer* pMasterPlayer = &GET_PLAYER(eMasterPlayer);
+					if (pMasterPlayer->isAlive() && pMasterPlayer->getTeam() == eTeam)
+					{
+						CvPlayerEspionage* pMasterEspionage = pMasterPlayer->GetEspionage();
+						pMasterEspionage->DeleteDiplomatForVassal(eOurPlayer);
+					}
 				}
 			}
 		}
