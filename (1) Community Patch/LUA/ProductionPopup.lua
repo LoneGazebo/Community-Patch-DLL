@@ -15,7 +15,7 @@ local g_WonderInstanceManager = InstanceManager:new("ProductionButtonInstance", 
 local g_ProcessInstanceManager = InstanceManager:new("ProductionButtonInstance", "ProductionButton", Controls.OtherButtonStack);
 
 local tooltipInstance = {};
-TTManager:GetTypeControlTable("CustomTooltip", tooltipInstance);
+TTManager:GetTypeControlTable("CityViewTooltip", tooltipInstance);
 
 local g_popupInfo = {};
 
@@ -263,8 +263,8 @@ Controls.Backdrop:SetSizeY(iScreenSizeY - 300);
 --- @param tooltip TooltipInstance
 --- @param strTooltip string
 local function SetTooltip(tooltip, strTooltip)
-	tooltip.TooltipText:SetText(strTooltip);
-	tooltip.TooltipGrid:DoAutoSize();
+	tooltip.CityViewTooltipText:SetText(strTooltip);
+	tooltip.CityViewTooltipGrid:DoAutoSize();
 end
 
 ----------------------------------------------------------------

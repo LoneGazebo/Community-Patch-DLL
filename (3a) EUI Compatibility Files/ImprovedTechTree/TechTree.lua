@@ -105,6 +105,17 @@ local lockedString = "[ICON_LOCKED]"
 local CloseTechTree
 local g_queueInfo = {} --afw
 local g_blockedTechs = {} --afw
+
+local tooltipInstance = {};
+TTManager:GetTypeControlTable("TechTreeTooltip", tooltipInstance);
+
+--- Shorthand for setting a custom tooltip and adjusting its size
+--- @param tooltip TooltipInstance
+--- @param strTooltip string
+local function SetTooltip(tooltip, strTooltip)
+	tooltip.TechTreeTooltipText:SetText(strTooltip);
+	tooltip.TechTreeTooltipGrid:DoAutoSize();
+end
 -------------------------------------------------
 -- Tech Pipe Management
 -------------------------------------------------
@@ -267,10 +278,17 @@ local function RefreshDisplayOfSpecificTech( tech )
 	if g_EspionageViewMode then
 		thisTechButton.TechButton:SetDisabled(true);
 	else
-		thisTechButton.TechButton:RegisterCallback( Mouse.eMouseEnter, setTechToolTip )
+		-- Use a closure to track if we're already setting the tooltip
+		local bSettingTooltip = false
+		thisTechButton.TechButton:SetToolTipCallback(function ()
+			if bSettingTooltip then return end
+			bSettingTooltip = true
+			SetTooltip(tooltipInstance, GetHelpTextForTech(techID, false, g_activePlayerID))
+			bSettingTooltip = false
+		end)
 		thisTechButton.TechButton:SetDisabled(false);
 	end
-	
+
 	local showAlreadyResearched, showFreeTech, showCurrentlyResearching, showAvailable, showUnavailable, showLocked, queueUpdate, queueText, turnLabel, isClickable
 
 	if g_activeTeamTechs:HasTech( techID ) then
@@ -552,7 +570,15 @@ for tech in GameInfo.Technologies() do
 	-- add the input handler to this button
 	thisTechButton.TechButton:SetVoids( techID, -1 )
 	thisTechButton.TechButton:RegisterCallback( Mouse.eRClick, TechPedia )
-	thisTechButton.TechButton:RegisterCallback( Mouse.eMouseEnter, setTechToolTip )
+
+	-- Use a closure to track if we're already setting the tooltip
+	local bSettingTooltip = false
+	thisTechButton.TechButton:SetToolTipCallback(function ()
+		if bSettingTooltip then return end
+		bSettingTooltip = true
+		SetTooltip(tooltipInstance, GetHelpTextForTech(techID, false, g_activePlayerID))
+		bSettingTooltip = false
+	end)
 
 	if g_scienceEnabled then
 		thisTechButton.TechButton:RegisterCallback( Mouse.eLClick, TechSelected )
