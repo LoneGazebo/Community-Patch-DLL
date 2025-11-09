@@ -1306,7 +1306,7 @@ function OnBannerClick( x, y )
 		-- Other player, which has been met
 		elseif (Teams[Game.GetActiveTeam()]:IsHasMet(player:GetTeam())) then
 
-			if player:IsMinorCiv() then
+			if player:IsMinorCiv() or player:IsBarbarian() then
 				UI.DoSelectCityAtPlot( plot );
 			else
 				LeaderSelected( playerID );
