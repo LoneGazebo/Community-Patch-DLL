@@ -252,6 +252,11 @@ if not VP and not (MapModData and MapModData.VP) then
 	-- MapModData may not always exist. While it doesn't, we have no choice but to save the VP object under the context global.
 	if MapModData then
 		MapModData.VP = _VP;
+
+		-- Also include the custom tooltips here
+		if not _VP.CommonContext then
+			_VP.CommonContext = ContextPtr:LoadNewContext("VPUI_common");
+		end
 	else
 		VP = _VP;
 	end

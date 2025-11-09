@@ -31,7 +31,7 @@ local plotButtonInstanceManager = InstanceManager:new("PlotButtonInstance", "Plo
 local buyPlotButtonInstanceManager = InstanceManager:new("BuyPlotButtonInstance", "BuyPlotButtonAnchor", Controls.PlotButtonContainer);
 
 local tooltipInstance = {};
-TTManager:GetTypeControlTable("CustomTooltip", tooltipInstance);
+TTManager:GetTypeControlTable("CityViewTooltip", tooltipInstance);
 
 local NORMAL_WORLD_POSITION_OFFSET = {x = 0, y = 0, z = 30};
 local NORMAL_WORLD_POSITION_OFFSET2 = {x = 0, y = 35, z = 0};
@@ -63,8 +63,8 @@ local g_eBuildingToSell = -1;
 --- @param tooltip TooltipInstance
 --- @param strTooltip string
 local function SetTooltip(tooltip, strTooltip)
-	tooltip.TooltipText:SetText(strTooltip);
-	tooltip.TooltipGrid:DoAutoSize();
+	tooltip.CityViewTooltipText:SetText(strTooltip);
+	tooltip.CityViewTooltipGrid:DoAutoSize();
 end
 
 ---------------------------------------------------------------
