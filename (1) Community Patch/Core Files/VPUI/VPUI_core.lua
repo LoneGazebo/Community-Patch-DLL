@@ -256,3 +256,8 @@ if not VP and not (MapModData and MapModData.VP) then
 		VP = _VP;
 	end
 end
+
+-- Include the custom tooltips here
+if MapModData and not MapModData.CommonContext and ContextPtr then
+	MapModData.CommonContext = ContextPtr:LoadNewContext("VPUI_common");
+end

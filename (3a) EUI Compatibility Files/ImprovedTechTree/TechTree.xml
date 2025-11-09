@@ -103,7 +103,7 @@
 
 
     <Instance Name="TechButtonInstance" >
-        <Button Anchor="L,C" Size="270,60" Color="0,0,0,0" StateOffsetIncrement="0,0" ID="TechButton" >
+        <Button Anchor="L,C" Size="270,60" Color="0,0,0,0" StateOffsetIncrement="0,0" ID="TechButton" ToolTipType="TechTreeTooltip">
             <Grid Anchor="C,T" Offset="0,0" Size="274,102" Padding="0,0" Style="Grid9Frame" Hidden="1" ID="ExtraFrame"/>
             <!--The already researched style-->
             <Grid Anchor="L,T" Size="270,60" Color="255,255,255,255" Style="Grid9Gold8" ID="AlreadyResearched" Hidden="1">
@@ -219,16 +219,16 @@
             <!--The box full of stuff we can gain from this tech-->
             <Grid Anchor="L,T" Offset="64,20" Size="200,38" Padding="0,0" Style="GridBlackIndent8" ID="StuffBox">
                 <Stack Anchor="L,T" Offset="0,-22" Padding="-7" StackGrowth="Right" WrapGrowth="Down" WrapWidth="200" WrapPadding="-7">
-                    <Button NoStateChange="1"  Anchor="L,C" Size="45,45"  ID="B1"/>
-                    <Button NoStateChange="1"  Anchor="L,C" Size="45,45"  ID="B2"/>
-                    <Button NoStateChange="1"  Anchor="L,C" Size="45,45"  ID="B3"/>
-                    <Button NoStateChange="1"  Anchor="L,C" Size="45,45"  ID="B4"/>
-                    <Button NoStateChange="1"  Anchor="L,C" Size="45,45"  ID="B5"/>
-                    <Button NoStateChange="1"  Anchor="L,C" Size="45,45"  ID="B6"/>
-                    <Button NoStateChange="1"  Anchor="L,C" Size="45,45"  ID="B7"/>
-                    <Button NoStateChange="1"  Anchor="L,C" Size="45,45"  ID="B8"/>
-                    <Button NoStateChange="1"  Anchor="L,C" Size="45,45"  ID="B9"/>
-                    <Button NoStateChange="1"  Anchor="L,C" Size="45,45"  ID="B10"/>
+                    <Button NoStateChange="1" Anchor="L,C" Size="45,45" ID="B1" ToolTipType="TechTreeTooltip"/>
+                    <Button NoStateChange="1" Anchor="L,C" Size="45,45" ID="B2" ToolTipType="TechTreeTooltip"/>
+                    <Button NoStateChange="1" Anchor="L,C" Size="45,45" ID="B3" ToolTipType="TechTreeTooltip"/>
+                    <Button NoStateChange="1" Anchor="L,C" Size="45,45" ID="B4" ToolTipType="TechTreeTooltip"/>
+                    <Button NoStateChange="1" Anchor="L,C" Size="45,45" ID="B5" ToolTipType="TechTreeTooltip"/>
+                    <Button NoStateChange="1" Anchor="L,C" Size="45,45" ID="B6" ToolTipType="TechTreeTooltip"/>
+                    <Button NoStateChange="1" Anchor="L,C" Size="45,45" ID="B7" ToolTipType="TechTreeTooltip"/>
+                    <Button NoStateChange="1" Anchor="L,C" Size="45,45" ID="B8" ToolTipType="TechTreeTooltip"/>
+                    <Button NoStateChange="1" Anchor="L,C" Size="45,45" ID="B9" ToolTipType="TechTreeTooltip"/>
+                    <Button NoStateChange="1" Anchor="L,C" Size="45,45" ID="B10" ToolTipType="TechTreeTooltip"/>
                 </Stack>
             </Grid>
 

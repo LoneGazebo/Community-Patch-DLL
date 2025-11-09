@@ -58,6 +58,17 @@ local maxTechNameLength = 22 - Locale.Length(L("TXT_KEY_TURNS"));
 
 local GAMEOPTION_NO_SCIENCE = Game.IsOption(GameOptionTypes.GAMEOPTION_NO_SCIENCE);
 
+local tooltipInstance = {};
+TTManager:GetTypeControlTable("TechTreeTooltip", tooltipInstance);
+
+--- Shorthand for setting a custom tooltip and adjusting its size
+--- @param tooltip TooltipInstance
+--- @param strTooltip string
+local function SetTooltip(tooltip, strTooltip)
+	tooltip.TechTreeTooltipText:SetText(strTooltip);
+	tooltip.TechTreeTooltipGrid:DoAutoSize();
+end
+
 -------------------------------------------------
 -- Do initial setup stuff here
 -------------------------------------------------
@@ -350,11 +361,9 @@ function AddEraPanels()
 			blockWidth = blockWidth + 32;
 		end
 		thisEraBlockInstance.EraBlock:SetSizeX(blockWidth);
-		thisEraBlockInstance.FrameBottom:SetSizeX(blockWidth);
 		thisEraBlockInstance.OldBar:SetSizeX(blockWidth);
 		thisEraBlockInstance.OldBlock:SetSizeX(blockWidth);
 		thisEraBlockInstance.CurrentBlock:SetSizeX(blockWidth);
-		thisEraBlockInstance.CurrentBlock1:SetSizeX(blockWidth);
 		thisEraBlockInstance.CurrentBlock2:SetSizeX(blockWidth);
 		thisEraBlockInstance.CurrentTop:SetSizeX(blockWidth);
 		thisEraBlockInstance.CurrentTop1:SetSizeX(blockWidth);
@@ -412,12 +421,12 @@ function AddTechButton(tech)
 
 	-- Use a closure to track if we're already setting the tooltip
 	local bSettingTooltip = false;
-	thisTechButtonInstance.TechButton:SetToolTipCallback(function(control)
+	thisTechButtonInstance.TechButton:SetToolTipCallback(function ()
 		if bSettingTooltip then
 			return;
 		end
 		bSettingTooltip = true;
-		control:SetToolTipString(GetHelpTextForTech(tech.ID, false, playerID));
+		SetTooltip(tooltipInstance, GetHelpTextForTech(tech.ID, false, playerID));
 		bSettingTooltip = false;
 	end);
 
