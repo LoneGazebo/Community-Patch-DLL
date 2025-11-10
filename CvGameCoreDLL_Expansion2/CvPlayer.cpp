@@ -32807,6 +32807,50 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn) // R: bDoTurn default
 	if(!GC.getGame().isNetworkMultiPlayer() && m_eID==GC.getGame().getFirstAlivePlayer() && !bNewValue)
 		gDLL->AutoSave(false, true);
 
+	if (!bNewValue)
+	{
+		// check if resource numbers are stored correctly. there were a few issues with the calculations in the past
+		for (int iJ = 0; iJ < GC.getNumResourceInfos(); iJ++)
+		{
+			int iCntImproved = 0;
+			int iCntUnimproved = 0;
+			for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
+			{
+				CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
+				if (pLoopPlot->getOwner() == GetID())
+				{
+					ResourceTypes eRes = pLoopPlot->getResourceType(getTeam());
+					if (eRes == (ResourceTypes)iJ)
+					{
+						CvResourceInfo* pResourceInfo = GC.getResourceInfo(eRes);
+						int iNumExtraLuxury = 0;
+						if (pResourceInfo->getResourceUsage() == RESOURCEUSAGE_LUXURY)
+						{
+							CvCity* pCity = pLoopPlot->getOwningCity();
+							if (pCity && pCity->IsExtraLuxuryResources())
+							{
+								iNumExtraLuxury = 1;
+							}
+						}
+						if (pLoopPlot->IsResourceImprovedForOwner())
+						{
+							iCntImproved += pLoopPlot->getNumResource();
+							// ExtraLuxury resources are stored in m_paiNumResourceFromBuildings, but we can't compare it with the counted value because it also contains resources from other sources
+						}
+						else
+						{
+							iCntUnimproved += pLoopPlot->getNumResource() + iNumExtraLuxury;
+
+						}
+					}
+				}
+			}
+			const char* szResName = GC.getResourceInfo((ResourceTypes)iJ)->GetText();
+			ASSERT(m_paiNumResourceFromTiles[iJ] == iCntImproved, "Mismatch m_paiNumResourceFromTiles for Resource %s. Stored: %d, counted: %d.", szResName, m_paiNumResourceFromTiles[iJ], iCntImproved);
+			ASSERT(m_paiNumResourceUnimproved[iJ] == iCntUnimproved, "Mismatch m_paiNumResourceUnimproved for Resource %s. Stored: %d, counted: %d.", szResName, m_paiNumResourceUnimproved[iJ], iCntUnimproved);
+		}
+	}
+
 	if(isTurnActive() != bNewValue)
 	{
 		CvGame& kGame = GC.getGame();

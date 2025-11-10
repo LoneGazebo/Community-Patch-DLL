@@ -587,15 +587,11 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	pPlot->SetPlayerThatDestroyedCityHere(NO_PLAYER);
 
 	pPlot->SetImprovementPillaged(false, false);
+	pPlot->setImprovementType(NO_IMPROVEMENT);
 	pPlot->SetRoutePillaged(false, false);
 
 	// Plot Ownership
 	pPlot->setOwner(eOwner, m_iID, bBumpUnits, true, true);
-
-	// Clear the improvement before the city attaches itself to the plot, else the improvement does not
-	// remove the resource allocation from the current owner.  This would result in double resource points because
-	// the plot has already had setOwner called on it (above), giving the player the resource points.
-	pPlot->setImprovementType(NO_IMPROVEMENT);
 
 	//only after the owner is set!
 	pPlot->setIsCity(true, m_iID, getWorkPlotDistance());
@@ -4295,7 +4291,6 @@ bool CvCity::IsCityEventChoiceValid(CityEventChoiceTypes eChosenEventChoice, Cit
 			if (eBuildingClass == NO_BUILDINGCLASS)
 				return false;
 
-			const CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
 			CvCivilizationInfo* pCivilizationInfo = GC.getCivilizationInfo(getCivilizationType());
 
 			if (HasBuildingClass(eBuildingClass))
@@ -5971,8 +5966,6 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice, int
 		BuildingClassTypes eBuildingClass = (BuildingClassTypes)pkEventInfo->getEventBuilding();
 		if (eBuildingClass != NO_BUILDINGCLASS)
 		{
-
-			const CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
 			CvCivilizationInfo* pCivilizationInfo = GC.getCivilizationInfo(getCivilizationType());
 
 			if (HasBuildingClass(eBuildingClass))
@@ -14343,9 +14336,14 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 		{
 			CvPlot* pLoopPlot = NULL;
 
-			ChangeExtraLuxuryResources(iChange);
+			// When adding: update counter first so the add functions use the new value
+			// When removing: update counter last so the remove functions use the old value
+			if (iChange > 0)
+			{
+				ChangeExtraLuxuryResources(iChange);
+			}
 
-			// Add extra luxury counts
+			// Add/remove extra luxury counts
 
 			std::set<int>::iterator it;
 			for (it = m_siPlots.begin(); it != m_siPlots.end(); ++it)
@@ -14379,6 +14377,11 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 						}
 					}
 				}
+			}
+
+			if (iChange < 0)
+			{
+				ChangeExtraLuxuryResources(iChange);
 			}
 		}
 
