@@ -19,8 +19,6 @@ local L = Locale.Lookup;
 local Hide = CPK.UI.Control.Hide;
 local Show = CPK.UI.Control.Show;
 local StringBuilder = CPK.Util.StringBuilder;
-local VP = MapModData.VP;
-local GetInfoFromId = VP.GetInfoFromId;
 
 local strChooseResearch = L("TXT_KEY_NOTIFICATION_SUMMARY_NEW_RESEARCH");
 local strFinished = L("TXT_KEY_RESEARCH_FINISHED");
@@ -42,7 +40,7 @@ Controls.BigTechButton:RegisterCallback(Mouse.eLClick, OnTechnologyButtonClicked
 Controls.BigTechButton:RegisterCallback(Mouse.eRClick, function ()
 	local eTech = (eCurrentTech == -1) and eRecentTech or eCurrentTech;
 	if eTech ~= -1 then
-		Events.SearchForPediaEntry(L(GetInfoFromId("Technologies", eTech).Description));
+		Events.SearchForPediaEntry(L(GameInfo.Technologies[eTech].Description));
 	end
 end);
 
