@@ -6,7 +6,6 @@ include("CPK.lua");
 
 local L = Locale.Lookup;
 local VP = MapModData.VP;
-local GetInfoFromId = VP.GetInfoFromId;
 local IconHookupOrDefault = VP.IconHookupOrDefault;
 local Show = CPK.UI.Control.Show;
 local Hide = CPK.UI.Control.Hide;
@@ -406,7 +405,7 @@ end
 Controls.Yes:RegisterCallback(Mouse.eLClick, function ()
 	local ePlayer = Game.GetActivePlayer();
 	local pPlayer = Players[ePlayer];
-	local kReligionInfo = GetInfoFromId("Religions", g_eCurrentReligion);
+	local kReligionInfo = GameInfo.Religions[g_eCurrentReligion];
 
 	local strCustomName;
 	if L(kReligionInfo.Description) ~= g_strCurrentReligionName then
@@ -473,7 +472,7 @@ local function OnSelectButtonClick(eSlot)
 		local tAvailableBeliefs = {};
 		local ePlayer = Game.GetActivePlayer();
 		for _, eBelief in ipairs(tBeliefSlotDetails[eSlot].AvailableListFunc()) do
-			local kBeliefInfo = GetInfoFromId("Beliefs", eBelief);
+			local kBeliefInfo = GameInfo.Beliefs[eBelief];
 			if (eSlot == BeliefSlots.BONUS and eBelief ~= g_tSelectedBeliefs[BeliefSlots.PANTHEON] and
 				eBelief ~= g_tSelectedBeliefs[BeliefSlots.FOLLOWER1] and
 				eBelief ~= g_tSelectedBeliefs[BeliefSlots.FOUNDER]) or
@@ -529,7 +528,7 @@ end
 --- @param tSlotBeliefs table<BeliefSlot, BeliefType>
 local function SetupExistingBeliefButtons(tSlotBeliefs)
 	for eSlot, eBelief in ipairs(tSlotBeliefs) do
-		local kBeliefInfo = GetInfoFromId("Beliefs", eBelief);
+		local kBeliefInfo = GameInfo.Beliefs[eBelief];
 		assert(kBeliefInfo, "Savegame or database could be corrupt. If this issue persists, consider reinstalling the mod.");
 		tBeliefSlotDetails[eSlot].NameLabel:LocalizeAndSetText(kBeliefInfo.ShortDescription);
 		tBeliefSlotDetails[eSlot].NameLabel:LocalizeAndSetToolTip(kBeliefInfo.Description);
@@ -580,7 +579,7 @@ ContextPtr:SetShowHideHandler(function (bIsHide, bInitState)
 			RefreshExistingBeliefs();
 
 			if g_eCurrentReligion ~= ReligionTypes.NO_RELIGION then
-				local kReligionInfo = GetInfoFromId("Religions", g_eCurrentReligion);
+				local kReligionInfo = GameInfo.Religions[g_eCurrentReligion];
 				SelectReligion(g_eCurrentReligion, L(Game.GetReligionName(g_eCurrentReligion)), kReligionInfo.IconAtlas, kReligionInfo.PortraitIndex);
 			else
 				Show(Controls.LabelPleaseSelectAReligion);

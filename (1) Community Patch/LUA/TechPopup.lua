@@ -21,6 +21,8 @@ local g_eStealTechTargetPlayer = -1;
 local g_ePopup = -1;
 
 local L = Locale.Lookup;
+local VP = MapModData.VP;
+local GameInfoCache = VP.GameInfoCache;
 local Hide = CPK.UI.Control.Hide;
 local Show = CPK.UI.Control.Show;
 
@@ -178,16 +180,16 @@ local function OnTechPanelUpdated()
 	instanceManager:ResetInstances();
 
 	if not Game.IsOption(GameOptionTypes.GAMEOPTION_NO_SCIENCE) then
-		for kTechInfo in GameInfo.Technologies() do
-			if pActivePlayer:CanResearch(kTechInfo.ID) then
+		for eTech, kTechInfo in GameInfoCache("Technologies") do
+			if pActivePlayer:CanResearch(eTech) then
 				-- No espionage - choosing a tech
 				if g_eStealTechTargetPlayer == -1 then
 					-- Normal research or free tech available
-					if iNumTech == 0 or pActivePlayer:CanResearchForFree(kTechInfo.ID) then
+					if iNumTech == 0 or pActivePlayer:CanResearchForFree(eTech) then
 						AddTechButton(kTechInfo, iNumTech);
 					end
 				-- Espionage - stealing a tech
-				elseif Players[g_eStealTechTargetPlayer]:HasTech(kTechInfo.ID) then
+				elseif Players[g_eStealTechTargetPlayer]:HasTech(eTech) then
 					AddTechButton(kTechInfo, 0);
 				end
 			end
