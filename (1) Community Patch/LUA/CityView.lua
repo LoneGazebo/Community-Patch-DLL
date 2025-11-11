@@ -9,12 +9,8 @@ include("FLuaVector");
 include("VPUI_core");
 include("CPK.lua");
 
-local MOD_BALANCE_VP = Game.IsCustomModOption("BALANCE_VP");
-
 local L = Locale.Lookup;
 local VP = MapModData.VP;
-local GetInfoFromId = VP.GetInfoFromId;
-local GetInfoFromType = VP.GetInfoFromType;
 local GameInfoCache = VP.GameInfoCache;
 local GetGreatPersonInfoFromSpecialist = VP.GetGreatPersonInfoFromSpecialist;
 local IconHookupOrDefault = VP.IconHookupOrDefault;
@@ -23,6 +19,9 @@ local Show = CPK.UI.Control.Show;
 local Enable = CPK.UI.Control.Enable;
 local Disable = CPK.UI.Control.Disable;
 local Refresh = CPK.UI.Control.Refresh;
+local CustomModOptionEnabled = CPK.Misc.CustomModOptionEnabled;
+
+local MOD_BALANCE_VP = CustomModOptionEnabled("BALANCE_VP");
 
 local buildingInstanceManager = InstanceManager:new("BuildingInstance", "BuildingButton", Controls.BuildingStack);
 local gpInstanceManager = InstanceManager:new("GPInstance", "GPBox", Controls.GPStack);
@@ -380,7 +379,7 @@ local function AddBuildingButton(pCity, kBuildingInfo)
 	-- Can it hold any great works?
 	if kBuildingInfo.GreatWorkSlotType and kBuildingInfo.GreatWorkCount > 0 then
 		local kGreatWorkSlotInfo = GameInfo.GreatWorkSlots[kBuildingInfo.GreatWorkSlotType];
-		local eBuildingClass = GetInfoFromType("BuildingClasses", kBuildingInfo.BuildingClass).ID;
+		local eBuildingClass = GameInfoTypes[kBuildingInfo.BuildingClass];
 
 		local iThemeBonus = pCity:GetThemingBonus(eBuildingClass);
 		if iThemeBonus > 0 then
@@ -565,17 +564,17 @@ local function BuildProductionBox(pCity, ePlayer)
 		iPortraitIndex, strAtlas = UI.GetUnitPortraitIcon(eUnitProduction, ePlayer);
 		strHelp = GetHelpTextForUnit(eUnitProduction, false, pCity);
 	elseif eBuildingProduction ~= -1 then
-		local kBuildingInfo = GetInfoFromId("Buildings", eBuildingProduction);
+		local kBuildingInfo = GameInfo.Buildings[eBuildingProduction];
 		strHelp = GetHelpTextForBuilding(eBuildingProduction, true, _, false, pCity);
 		iPortraitIndex = kBuildingInfo.PortraitIndex;
 		strAtlas = kBuildingInfo.IconAtlas;
 	elseif eProjectProduction ~= -1 then
-		local kProjectInfo = GetInfoFromId("Projects", eProjectProduction);
+		local kProjectInfo = GameInfo.Projects[eProjectProduction];
 		strHelp = GetHelpTextForProject(eProjectProduction, false);
 		iPortraitIndex = kProjectInfo.PortraitIndex;
 		strAtlas = kProjectInfo.IconAtlas;
 	elseif eProcessProduction ~= -1 then
-		local kProcessInfo = GetInfoFromId("Processes", eProcessProduction);
+		local kProcessInfo = GameInfo.Processes[eProcessProduction];
 		strHelp = GetHelpTextForProcess(eProcessProduction);
 		iPortraitIndex = kProcessInfo.PortraitIndex;
 		strAtlas = kProcessInfo.IconAtlas;
@@ -658,7 +657,7 @@ local function BuildProductionBox(pCity, ePlayer)
 
 		local eOrder, eItem = pCity:GetOrderFromQueue(iQueueIndex - 1);
 		local tOrder = tOrderTypeDetails[eOrder];
-		local kInfo = GetInfoFromId(tOrder.TableName, eItem);
+		local kInfo = GameInfo[tOrder.TableName][eItem];
 
 		local iItemPortraitIndex = kInfo.PortraitIndex;
 		local strItemAtlas = kInfo.IconAtlas;
@@ -795,7 +794,7 @@ local function BuildGPMeter(pCity, ePlayer)
 
 				instance.GPBox:SetToolTipString(strTooltip);
 
-				local kUnitClassInfo = GetInfoFromType("UnitClasses", kGreatPersonInfo.Class);
+				local kUnitClassInfo = GameInfo.UnitClasses[kGreatPersonInfo.Class];
 				local iPortraitOffset, strAtlas = UI.GetUnitPortraitIcon(GameInfoTypes[kUnitClassInfo.DefaultUnit], ePlayer);
 				IconHookupOrDefault(iPortraitOffset, 64, strAtlas, instance.GPImage);
 			end
@@ -877,10 +876,9 @@ local function BuildBuildingBox(pCity)
 	local tOtherBuildings = {};
 	local bHasLockedSpecialists = false;
 	local bHasSpecialistSlotsInWonders = false;
-	for kBuildingInfo in GameInfo.Buildings() do
-		local eBuilding = kBuildingInfo.ID;
+	for eBuilding, kBuildingInfo in GameInfoCache("Buildings") do
 		if pCity:IsHasBuilding(eBuilding) then
-			local kBuildingClassInfo = GetInfoFromType("BuildingClasses", kBuildingInfo.BuildingClass);
+			local kBuildingClassInfo = GameInfo.BuildingClasses[kBuildingInfo.BuildingClass];
 			local building = {
 				Name = L(kBuildingInfo.Description),
 				ID = eBuilding,
@@ -1258,7 +1256,7 @@ local function UpdateViewFull()
 	local strResourceDemanded;
 	local eResourceDemanded = pCity:GetResourceDemanded();
 	if eResourceDemanded ~= -1 then
-		local kResourceInfo = GetInfoFromId("Resources", eResourceDemanded);
+		local kResourceInfo = GameInfo.Resources[eResourceDemanded];
 		strResourceDemanded = string.format("%s %s", L(kResourceInfo.IconString), L(kResourceInfo.Description));
 		Show(Controls.ResourceDemandedBox);
 	else
@@ -1785,13 +1783,13 @@ Controls.ProductionPortraitButton:RegisterCallback(Mouse.eRClick, function ()
 	local eProcessProduction = pCity:GetProductionProcess();
 
 	if eUnitProduction ~= -1 then
-		strSearch = L(GetInfoFromId("Units", eUnitProduction).Description);
+		strSearch = L(GameInfo.Units[eUnitProduction].Description);
 	elseif eBuildingProduction ~= -1 then
-		strSearch = L(GetInfoFromId("Buildings", eBuildingProduction).Description);
+		strSearch = L(GameInfo.Buildings[eBuildingProduction].Description);
 	elseif eProjectProduction ~= -1 then
-		strSearch = L(GetInfoFromId("Projects", eProjectProduction).Description);
+		strSearch = L(GameInfo.Projects[eProjectProduction].Description);
 	elseif eProcessProduction ~= -1 then
-		strSearch = L(GetInfoFromId("Processes", eProcessProduction).Description);
+		strSearch = L(GameInfo.Processes[eProcessProduction].Description);
 	end
 
 	if strSearch then
@@ -1893,9 +1891,8 @@ end);
 
 ---------------------------------------------------------------
 -- Section headers
---- @param strSectionName string
 --- @param tSection HeaderDef
-local function HandleAppearance(strSectionName, tSection)
+local function HandleAppearance(tSection)
 	if tSection.HeadingOpen then
 		Controls[tSection.Label]:SetText("[ICON_MINUS] " .. tSection.LabelText);
 	else
@@ -1915,7 +1912,7 @@ end
 local function MakeHeaderToggleCallback(strSectionName, tSection)
 	return function ()
 		tSection.HeadingOpen = not tSection.HeadingOpen;
-		HandleAppearance(strSectionName, tSection);
+		HandleAppearance(tSection);
 
 		-- Schedule an update
 		tSection.UpdateType.ScheduleFunc();
@@ -1923,7 +1920,7 @@ local function MakeHeaderToggleCallback(strSectionName, tSection)
 end
 
 for strSectionName, tSection in pairs(tRightSideSections) do
-	HandleAppearance(strSectionName, tSection);
+	HandleAppearance(tSection);
 	Controls[strSectionName]:RegisterCallback(Mouse.eLClick, MakeHeaderToggleCallback(strSectionName, tSection));
 end
 

@@ -310,7 +310,7 @@ function InitialSetup()
 	end
 
 	-- add the instances of the tech panels
-	for tech in GameInfo.Technologies() do
+	for _, tech in GameInfoCache("Technologies") do
 		AddTechButton(tech);
 	end
 
@@ -322,8 +322,8 @@ end
 
 function AddEraPanels()
 	-- find the range of columns that each era takes
-	for tech in GameInfo.Technologies() do
-		local eraID = GameInfo.Eras[tech.Era].ID;
+	for _, tech in GameInfoCache("Technologies") do
+		local eraID = GameInfoTypes[tech.Era];
 		if not eraColumns[eraID] then
 			eraColumns[eraID] = {minGridX = tech.GridX, maxGridX = tech.GridX, researched = false};
 		else
@@ -337,7 +337,7 @@ function AddEraPanels()
 	end
 
 	-- add the era panels
-	for era in GameInfo.Eras() do
+	for _, era in GameInfoCache("Eras") do
 		local thisEraBlockInstance = g_EraManager:GetInstance();
 		-- store this panel off for later
 		eraBlocks[era.ID] = thisEraBlockInstance;
@@ -497,7 +497,7 @@ function RefreshDisplay()
 		column.researched = false;
 	end
 
-	for tech in GameInfo.Technologies() do
+	for tech in GameInfoCache("Technologies") do
 		RefreshDisplayOfSpecificTech(tech);
 	end
 
@@ -580,7 +580,7 @@ function RefreshDisplayOfSpecificTech(tech)
 		Hide(thisTechButton.Locked);
 
 		-- update the era marker for this tech
-		local eraID = GameInfo.Eras[tech.Era].ID;
+		local eraID = GameInfoTypes[tech.Era];
 		if eraColumns[eraID] then
 			eraColumns[eraID].researched = true;
 		end
