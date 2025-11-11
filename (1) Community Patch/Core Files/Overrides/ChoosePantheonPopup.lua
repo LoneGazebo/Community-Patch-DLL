@@ -6,8 +6,6 @@ include("VPUI_core");
 include("CPK.lua");
 
 local L = Locale.Lookup;
-local VP = MapModData.VP;
-local GetInfoFromId = VP.GetInfoFromId;
 local Show = CPK.UI.Control.Show;
 local Hide = CPK.UI.Control.Hide;
 local Refresh = CPK.UI.Control.Refresh;
@@ -68,7 +66,7 @@ end);
 --- @param eBelief BeliefType
 local function SelectPantheon(eBelief)
 	g_eBelief = eBelief;
-	Controls.ConfirmText:LocalizeAndSetText("TXT_KEY_CONFIRM_PANTHEON", GetInfoFromId("Beliefs", eBelief).ShortDescription);
+	Controls.ConfirmText:LocalizeAndSetText("TXT_KEY_CONFIRM_PANTHEON", GameInfo.Beliefs[eBelief].ShortDescription);
 	Show(Controls.ChooseConfirm);
 end
 
