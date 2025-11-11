@@ -2603,6 +2603,9 @@ public:
 	void SetFaithPurchaseType(FaithPurchaseTypes eType);
 	int GetFaithPurchaseIndex() const;
 	void SetFaithPurchaseIndex(int iIndex);
+	bool IsDisableAutomaticFaithPurchase() const;
+	void SetDisableAutomaticFaithPurchase(bool bValue);
+	void DoSetDisableAutomaticFaithPurchase(bool bValue);
 
 	int GetNumFreePolicies() const;
 	void SetNumFreePolicies(int iValue);
@@ -3685,6 +3688,7 @@ protected:
 
 	FaithPurchaseTypes m_eFaithPurchaseType;
 	int m_iFaithPurchaseIndex;
+	bool m_bDisableAutomaticFaithPurchase;
 
 	void checkArmySizeAchievement();
 
