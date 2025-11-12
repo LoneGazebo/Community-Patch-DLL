@@ -16,6 +16,7 @@
 
 include("MapmakerUtilities");
 include("NaturalWondersCustomMethods");
+include("VPUI_core");
 
 ------------------------------------------------------------------------------
 -- NOTE FOR MODDERS: There is a detailed Reference at the end of the file.
@@ -103,10 +104,11 @@ include("NaturalWondersCustomMethods");
 -- azum4roll - 2025-03-07
 
 ------------------------------------------------------------------------------
-------------------------------------------------------------------------------
-AssignStartingPlots = {};
+--- @class AssignStartingPlots
+local ASP = {};
 
--- Enum values for region division methods
+--- @enum RegionDivision
+--- Enum values for region division methods
 RegionDivision = {
 	BIGGEST_LANDMASS = 1,
 	CONTINENTAL = 2,
@@ -114,7 +116,8 @@ RegionDivision = {
 	RECTANGULAR_SELF_DEFINED = 4,
 };
 
--- Enum values for region types
+--- @enum RegionType
+--- Enum values for region types
 RegionTypes = {
 	REGION_UNDEFINED = 0,
 	REGION_TUNDRA = 1,
@@ -129,7 +132,8 @@ RegionTypes = {
 	REGION_SNOW = 10,
 };
 
--- Enum values for impact layers
+--- @enum ImpactLayer
+--- Enum values for impact layers
 ImpactLayers = {
 	LAYER_NONE = -1,
 	LAYER_IRON = 1,
@@ -147,7 +151,8 @@ ImpactLayers = {
 	LAYER_URANIUM = 13,
 };
 
--- Enum values for plot lists
+--- @enum PlotListType
+--- Enum values for plot lists
 PlotListTypes = {
 	UNKNOWN = -1,
 	LAND = 0,
@@ -223,10 +228,15 @@ PlotListTypes = {
 	PLAINS_GRASS_FOREST = 1410,
 };
 
-NUM_REGION_TYPES = 11;
-NUM_IMPACT_LAYERS = 13;
-MAX_MAJOR_CIVS = GameDefines.MAX_MAJOR_CIVS;
-MAX_MINOR_CIVS = GameDefines.MAX_MINOR_CIVS;
+local VP = MapModData and MapModData.VP or VP;
+local GameInfoCache = VP.GameInfoCache;
+local GameInfoTypes = VP.GameInfoTypes;
+
+local NUM_REGION_TYPES = 11;
+local NUM_IMPACT_LAYERS = 13;
+local MAX_MAJOR_CIVS = GameDefines.MAX_MAJOR_CIVS;
+local MAX_MINOR_CIVS = GameDefines.MAX_MINOR_CIVS;
+local MAX_RESOURCE_INDEX = #GameInfo.Resources - 1;
 ------------------------------------------------------------------------------
 --[[
 WARNING: There must not be any recalculation of AreaIDs at any time during the execution of any operations in or attached to this table.
@@ -234,7 +244,10 @@ Recalculating will invalidate all data based on AreaID relationships with plots,
 A fix for scrambled AreaID data is theoretically possible, but I have not spent development resources and time on this, directing attention to other tasks.
 --]]
 ------------------------------------------------------------------------------
-function AssignStartingPlots.Create()
+
+--- Create a new instance of AssignStartingPlots
+--- @return AssignStartingPlots
+function ASP.Create()
 	--[[
 	There are three methods of dividing the map in to regions.
 	OneLandmass, Continents, Oceanic. Default method is Continents.
@@ -246,297 +259,100 @@ function AssignStartingPlots.Create()
 	If the desired process for a given map script would not define regions of this type, replace the start finder with your custom method.
 	--]]
 
-	-- Main data table ("self dot" table).
-	-- Scripters have the opportunity to replace member methods without having to replace the entire process.
-	local findStarts = {
+	ASP.__index = ASP;
 
-		-- Core Process member methods
-		__Init = AssignStartingPlots.__Init,
-		__InitLuxuryWeights = AssignStartingPlots.__InitLuxuryWeights,
-		__CustomInit = AssignStartingPlots.__CustomInit,
-		ApplyHexAdjustment = AssignStartingPlots.ApplyHexAdjustment,
-		GenerateRegions = AssignStartingPlots.GenerateRegions,
-		ChooseLocations = AssignStartingPlots.ChooseLocations,
-		BalanceAndAssign = AssignStartingPlots.BalanceAndAssign,
-		PlaceNaturalWonders = AssignStartingPlots.PlaceNaturalWonders,
-		PlaceResourcesAndCityStates = AssignStartingPlots.PlaceResourcesAndCityStates,
+	ASP:__Init();
 
-		-- Generate Regions member methods
-		MeasureStartPlacementFertilityOfPlot = AssignStartingPlots.MeasureStartPlacementFertilityOfPlot,
-		MeasureStartPlacementFertilityInRectangle = AssignStartingPlots.MeasureStartPlacementFertilityInRectangle,
-		MeasureStartPlacementFertilityOfLandmass = AssignStartingPlots.MeasureStartPlacementFertilityOfLandmass,
-		RemoveDeadRows = AssignStartingPlots.RemoveDeadRows,
-		DivideIntoRegions = AssignStartingPlots.DivideIntoRegions,
-		ChopIntoThreeRegions = AssignStartingPlots.ChopIntoThreeRegions,
-		ChopIntoTwoRegions = AssignStartingPlots.ChopIntoTwoRegions,
-		CustomOverride = AssignStartingPlots.CustomOverride,
-
-		-- Choose Locations member methods
-		MeasureTerrainInRegions = AssignStartingPlots.MeasureTerrainInRegions,
-		DetermineRegionTypes = AssignStartingPlots.DetermineRegionTypes,
-		PlaceImpactAndRipples = AssignStartingPlots.PlaceImpactAndRipples,
-		MeasureSinglePlot = AssignStartingPlots.MeasureSinglePlot,
-		EvaluateCandidatePlot = AssignStartingPlots.EvaluateCandidatePlot,
-		IterateThroughCandidatePlotList = AssignStartingPlots.IterateThroughCandidatePlotList,
-		FindStart = AssignStartingPlots.FindStart,
-		FindCoastalStart = AssignStartingPlots.FindCoastalStart,
-		FindStartWithoutRegardToAreaID = AssignStartingPlots.FindStartWithoutRegardToAreaID,
-
-		-- Balance and Assign member methods
-		AttemptToPlaceBonusResourceAtPlot = AssignStartingPlots.AttemptToPlaceBonusResourceAtPlot,
-		AttemptToPlaceHillsAtPlot = AssignStartingPlots.AttemptToPlaceHillsAtPlot,
-		AttemptToPlaceSmallStrategicAtPlot = AssignStartingPlots.AttemptToPlaceSmallStrategicAtPlot,
-		FindFallbackForUnmatchedRegionPriority = AssignStartingPlots.FindFallbackForUnmatchedRegionPriority,
-		AddStrategicBalanceResources = AssignStartingPlots.AddStrategicBalanceResources,
-		AttemptToPlaceCattleAtGrassPlot = AssignStartingPlots.AttemptToPlaceCattleAtGrassPlot,
-		AttemptToPlaceStoneAtGrassPlot = AssignStartingPlots.AttemptToPlaceStoneAtGrassPlot,
-		NormalizeStartLocation = AssignStartingPlots.NormalizeStartLocation,
-		NormalizeTeamLocations = AssignStartingPlots.NormalizeTeamLocations,
-
-		-- Natural Wonders member methods
-		ExaminePlotForNaturalWondersEligibility = AssignStartingPlots.ExaminePlotForNaturalWondersEligibility,
-		ExamineCandidatePlotForNaturalWondersEligibility = AssignStartingPlots.ExamineCandidatePlotForNaturalWondersEligibility,
-		CanBeThisNaturalWonderType = AssignStartingPlots.CanBeThisNaturalWonderType,
-		GenerateLocalVersionsOfDataFromXML = AssignStartingPlots.GenerateLocalVersionsOfDataFromXML,
-		GenerateNaturalWondersCandidatePlotLists = AssignStartingPlots.GenerateNaturalWondersCandidatePlotLists,
-		AttemptToPlaceNaturalWonder = AssignStartingPlots.AttemptToPlaceNaturalWonder,
-
-		-- City States member methods
-		AssignCityStatesToRegionsOrToUninhabited = AssignStartingPlots.AssignCityStatesToRegionsOrToUninhabited,
-		CanPlaceCityStateAt = AssignStartingPlots.CanPlaceCityStateAt,
-		ObtainNextSectionInRegion = AssignStartingPlots.ObtainNextSectionInRegion,
-		PlaceCityState = AssignStartingPlots.PlaceCityState,
-		PlaceCityStateInRegion = AssignStartingPlots.PlaceCityStateInRegion,
-		PlaceCityStates = AssignStartingPlots.PlaceCityStates, -- Dependent on AssignLuxuryRoles being executed first, so beware.
-		NormalizeCityState = AssignStartingPlots.NormalizeCityState,
-		NormalizeCityStateLocations = AssignStartingPlots.NormalizeCityStateLocations, -- Dependent on PlaceLuxuries being executed first.
-
-		-- Resources member methods
-		GenerateGlobalResourcePlotLists = AssignStartingPlots.GenerateGlobalResourcePlotLists,
-		PlaceResourceImpact = AssignStartingPlots.PlaceResourceImpact, -- Note: called from PlaceImpactAndRipples
-		ProcessResourceList = AssignStartingPlots.ProcessResourceList,
-		PlaceSpecificNumberOfResources = AssignStartingPlots.PlaceSpecificNumberOfResources,
-		IdentifyRegionsOfThisType = AssignStartingPlots.IdentifyRegionsOfThisType,
-		SortRegionsByType = AssignStartingPlots.SortRegionsByType,
-		AssignLuxuryToRegion = AssignStartingPlots.AssignLuxuryToRegion,
-		GetLuxuriesSplitCap = AssignStartingPlots.GetLuxuriesSplitCap, -- New for Expansion, because we have more luxuries now.
-		GetCityStateLuxuriesTargetNumber = AssignStartingPlots.GetCityStateLuxuriesTargetNumber, -- New for Expansion
-		GetDisabledLuxuriesTargetNumber = AssignStartingPlots.GetDisabledLuxuriesTargetNumber,
-		GetRandomLuxuriesTargetNumber = AssignStartingPlots.GetRandomLuxuriesTargetNumber, -- MOD.Barathor: New
-		AssignLuxuryRoles = AssignStartingPlots.AssignLuxuryRoles,
-		GetListOfAllowableLuxuriesAtCitySite = AssignStartingPlots.GetListOfAllowableLuxuriesAtCitySite,
-		GenerateLuxuryPlotListsAtCitySite = AssignStartingPlots.GenerateLuxuryPlotListsAtCitySite, -- Also doubles as Ice Removal.
-		GenerateLuxuryPlotListsInRegion = AssignStartingPlots.GenerateLuxuryPlotListsInRegion,
-		GetIndicesForLuxuryType = AssignStartingPlots.GetIndicesForLuxuryType,
-		GetRegionLuxuryTargetNumbers = AssignStartingPlots.GetRegionLuxuryTargetNumbers,
-		GetWorldLuxuryTargetNumbers = AssignStartingPlots.GetWorldLuxuryTargetNumbers,
-		PlaceMarble = AssignStartingPlots.PlaceMarble,
-		PlaceIvory = AssignStartingPlots.PlaceIvory,
-		PlaceLuxuries = AssignStartingPlots.PlaceLuxuries,
-		PlaceSmallQuantitiesOfStrategics = AssignStartingPlots.PlaceSmallQuantitiesOfStrategics,
-		PlaceFish = AssignStartingPlots.PlaceFish,
-		PlaceSexyBonusAtCivStarts = AssignStartingPlots.PlaceSexyBonusAtCivStarts,
-		AddExtraBonusesToHillsRegions = AssignStartingPlots.AddExtraBonusesToHillsRegions,
-		AddModernMinorStrategicsToCityStates = AssignStartingPlots.AddModernMinorStrategicsToCityStates,
-		PlaceOilInTheSea = AssignStartingPlots.PlaceOilInTheSea,
-		PrintFinalResourceTotalsToLog = AssignStartingPlots.PrintFinalResourceTotalsToLog,
-		GetMajorStrategicResourceQuantityValues = AssignStartingPlots.GetMajorStrategicResourceQuantityValues,
-		GetSmallStrategicResourceQuantityValues = AssignStartingPlots.GetSmallStrategicResourceQuantityValues,
-		PlaceStrategicAndBonusResources = AssignStartingPlots.PlaceStrategicAndBonusResources,
-
-		-- Extra functions for VP
-		AdjustTiles = AssignStartingPlots.AdjustTiles,
-		PlaceBonusResources = AssignStartingPlots.PlaceBonusResources,
-		IsEvenMoreResourcesActive = AssignStartingPlots.IsEvenMoreResourcesActive,
-		IsAloeVeraResourceActive = AssignStartingPlots.IsAloeVeraResourceActive,
-		IsAdditionalLuxuriesModActive  = AssignStartingPlots.IsAdditionalLuxuriesModActive,
-		IsReducedSupplyActive = AssignStartingPlots.IsReducedSupplyActive,
-		Plot_GetPlotsInCircle = AssignStartingPlots.Plot_GetPlotsInCircle,
-		Plot_GetFertilityInRange = AssignStartingPlots.Plot_GetFertilityInRange,
-		Plot_GetFertility = AssignStartingPlots.Plot_GetFertility,
-		IsBetween = AssignStartingPlots.IsBetween,
-		GetRandomMultiplier = AssignStartingPlots.GetRandomMultiplier,
-		GetRandomFromRangeInclusive = AssignStartingPlots.GetRandomFromRangeInclusive,
-		Constrain = AssignStartingPlots.Constrain,
-		PlaceStrategicResourceImpact = AssignStartingPlots.PlaceStrategicResourceImpact,
-		CountTotalStrategicResourceImpact = AssignStartingPlots.CountTotalStrategicResourceImpact,
-		IsImpactLayerStrategic = AssignStartingPlots.IsImpactLayerStrategic,
-		GenerateResourcePlotListsFromSpecificPlots = AssignStartingPlots.GenerateResourcePlotListsFromSpecificPlots,
-		IsTropical = AssignStartingPlots.IsTropical,
-		GetNumNaturalWondersToPlace = AssignStartingPlots.GetNumNaturalWondersToPlace,
-		GenerateCandidatePlotListsForSpecificNW = AssignStartingPlots.GenerateCandidatePlotListsForSpecificNW,
-		GetNumCityStatesPerRegion = AssignStartingPlots.GetNumCityStatesPerRegion,
-		GetNumCityStatesInUninhabitedRegion = AssignStartingPlots.GetNumCityStatesInUninhabitedRegion,
-		AssignCityStatesToRegions = AssignStartingPlots.AssignCityStatesToRegions,
-		AttemptToPlaceTreesAtResourcePlot = AssignStartingPlots.AttemptToPlaceTreesAtResourcePlot,
-		GetLowFertilityCompensations = AssignStartingPlots.GetLowFertilityCompensations,
-		MeasureStartPlacementFertilityOfArea = AssignStartingPlots.MeasureStartPlacementFertilityOfArea,
-		GetLandmassBoundaries = AssignStartingPlots.GetLandmassBoundaries,
-	};
-
-	findStarts:__Init();
-
-	findStarts:__InitLuxuryWeights();
+	ASP:__InitLuxuryWeights();
 
 	-- Entry point for easy overrides, for instance if only a couple things need to change.
-	findStarts:__CustomInit();
+	ASP:__CustomInit();
 
-	return findStarts;
+	return setmetatable({}, ASP);
 end
+
 ------------------------------------------------------------------------------
-function AssignStartingPlots:__Init()
-	-- Note that this operation relies on inclusion of the Mapmaker Utilities.
+--- Core Process member methods
+------------------------------------------------------------------------------
+
+function ASP:__Init()
 	local iW, iH = Map.GetGridSize();
 
-	-- Set up data tables that record whether a plot is coastal land and whether a plot is adjacent to coastal land.
+	-- Set up data tables that record whether a plot is coastal land and whether a plot is adjacent to coastal land
 	self.plotDataIsCoastal, self.plotDataIsNextToCoast = GenerateNextToCoastalLandDataTables();
 
-	-- Set up data for resource ID shortcuts.
-	self.MAX_RESOURCE_INDEX = 0;
-	for resource_data in GameInfo.Resources() do
-		local resourceID = resource_data.ID;
-		local resourceType = resource_data.Type;
-		if resourceID > self.MAX_RESOURCE_INDEX then
-			self.MAX_RESOURCE_INDEX = resourceID;
-		end
-
-		-- Set up Bonus IDs
-		if resourceType == "RESOURCE_WHEAT" then
-			self.wheat_ID = resourceID;
-		elseif resourceType == "RESOURCE_COW" then
-			self.cow_ID = resourceID;
-		elseif resourceType == "RESOURCE_DEER" then
-			self.deer_ID = resourceID;
-		elseif resourceType == "RESOURCE_BANANA" then
-			self.banana_ID = resourceID;
-		elseif resourceType == "RESOURCE_FISH" then
-			self.fish_ID = resourceID;
-		elseif resourceType == "RESOURCE_SHEEP" then
-			self.sheep_ID = resourceID;
-		elseif resourceType == "RESOURCE_STONE" then
-			self.stone_ID = resourceID;
-		elseif resourceType == "RESOURCE_BISON" then
-			self.bison_ID = resourceID;
-		elseif resourceType == "RESOURCE_MAIZE" then -- new farm resources for VP
-			self.maize_ID = resourceID;
-		elseif resourceType == "RESOURCE_RICE" then -- new farm resources for VP
-			self.rice_ID = resourceID;
-		-- Set up Strategic IDs
-		elseif resourceType == "RESOURCE_IRON" then
-			self.iron_ID = resourceID;
-		elseif resourceType == "RESOURCE_HORSE" then
-			self.horse_ID = resourceID;
-		elseif resourceType == "RESOURCE_COAL" then
-			self.coal_ID = resourceID;
-		elseif resourceType == "RESOURCE_OIL" then
-			self.oil_ID = resourceID;
-		elseif resourceType == "RESOURCE_ALUMINUM" then
-			self.aluminum_ID = resourceID;
-		elseif resourceType == "RESOURCE_URANIUM" then
-			self.uranium_ID = resourceID;
-		-- Set up Luxury IDs
-		elseif resourceType == "RESOURCE_WHALE" then
-			self.whale_ID = resourceID;
-		elseif resourceType == "RESOURCE_PEARLS" then
-			self.pearls_ID = resourceID;
-		elseif resourceType == "RESOURCE_IVORY" then
-			self.ivory_ID = resourceID;
-		elseif resourceType == "RESOURCE_FUR" then
-			self.fur_ID = resourceID;
-		elseif resourceType == "RESOURCE_SILK" then
-			self.silk_ID = resourceID;
-		elseif resourceType == "RESOURCE_DYE" then
-			self.dye_ID = resourceID;
-		elseif resourceType == "RESOURCE_SPICES" then
-			self.spices_ID = resourceID;
-		elseif resourceType == "RESOURCE_SUGAR" then
-			self.sugar_ID = resourceID;
-		elseif resourceType == "RESOURCE_COTTON" then
-			self.cotton_ID = resourceID;
-		elseif resourceType == "RESOURCE_WINE" then
-			self.wine_ID = resourceID;
-		elseif resourceType == "RESOURCE_INCENSE" then
-			self.incense_ID = resourceID;
-		elseif resourceType == "RESOURCE_GOLD" then
-			self.gold_ID = resourceID;
-		elseif resourceType == "RESOURCE_SILVER" then
-			self.silver_ID = resourceID;
-		elseif resourceType == "RESOURCE_GEMS" then
-			self.gems_ID = resourceID;
-		elseif resourceType == "RESOURCE_MARBLE" then
-			self.marble_ID = resourceID;
-		-- Set up Expansion Pack Luxury IDs
-		elseif resourceType == "RESOURCE_COPPER" then
-			self.copper_ID = resourceID;
-		elseif resourceType == "RESOURCE_SALT" then
-			self.salt_ID = resourceID;
-		elseif resourceType == "RESOURCE_CITRUS" then
-			self.citrus_ID = resourceID;
-		elseif resourceType == "RESOURCE_TRUFFLES" then
-			self.truffles_ID = resourceID;
-		elseif resourceType == "RESOURCE_CRAB" then
-			self.crab_ID = resourceID;
-		elseif resourceType == "RESOURCE_COCOA" then
-			self.cocoa_ID = resourceID;
-		-- Mod Luxury IDs
-		elseif resourceType == "RESOURCE_COFFEE" then
-			self.coffee_ID = resourceID;
-		elseif resourceType == "RESOURCE_TEA" then
-			self.tea_ID = resourceID;
-		elseif resourceType == "RESOURCE_TOBACCO" then
-			self.tobacco_ID = resourceID;
-		elseif resourceType == "RESOURCE_AMBER" then
-			self.amber_ID = resourceID;
-		elseif resourceType == "RESOURCE_JADE" then
-			self.jade_ID = resourceID;
-		elseif resourceType == "RESOURCE_OLIVE" then
-			self.olives_ID = resourceID;
-		elseif resourceType == "RESOURCE_PERFUME" then
-			self.perfume_ID = resourceID;
-		elseif resourceType == "RESOURCE_CORAL" then
-			self.coral_ID = resourceID;
-		elseif resourceType == "RESOURCE_LAPIS" then
-			self.lapis_ID = resourceID;
-		-- Even More Resources for Vox Populi (luxuries)
-		elseif resourceType == "RESOURCE_LAVENDER" then
-			self.lavender_ID = resourceID;
-		elseif resourceType == "RESOURCE_OBSIDIAN" then
-			self.obsidian_ID = resourceID;
-		elseif resourceType == "RESOURCE_PLATINUM" then
-			self.platinum_ID = resourceID;
-		elseif resourceType == "RESOURCE_POPPY" then
-			self.poppy_ID = resourceID;
-		elseif resourceType == "RESOURCE_TIN" then
-			self.tin_ID = resourceID;
-		-- Even More Resources for Vox Populi (bonus)
-		elseif resourceType == "RESOURCE_COCONUT" then
-			self.coconut_ID = resourceID;
-		elseif resourceType == "RESOURCE_HARDWOOD" then
-			self.hardwood_ID = resourceID;
-		elseif resourceType == "RESOURCE_LEAD" then
-			self.lead_ID = resourceID;
-		elseif resourceType == "RESOURCE_PINEAPPLE" then
-			self.pineapple_ID = resourceID;
-		elseif resourceType == "RESOURCE_POTATO" then
-			self.potato_ID = resourceID;
-		elseif resourceType == "RESOURCE_RUBBER" then
-			self.rubber_ID = resourceID;
-		elseif resourceType == "RESOURCE_SULFUR" then
-			self.sulfur_ID = resourceID;
-		elseif resourceType == "RESOURCE_TITANIUM" then
-			self.titanium_ID = resourceID;
-		-- Aloe Vera for Vox Populi
-		elseif resourceType == "RESOURCE_JAR_ALOE_VERA" then
-			self.aloevera_ID = resourceID;
-		-- Additional Luxuries
-		elseif resourceType == "RESOURCE_ALPACA" then
-			self.alpaca_ID = resourceID;
-		elseif resourceType == "RESOURCE_CAMEL" then
-			self.camel_ID = resourceID;
-		elseif resourceType == "RESOURCE_QUARTZ" then
-			self.quartz_ID = resourceID;
-		end
-	end
+	-- Set up resource IDs for quick access
+	-- Bonus resources
+	self.wheat_ID = GameInfoTypes.RESOURCE_WHEAT;
+	self.cow_ID = GameInfoTypes.RESOURCE_COW;
+	self.deer_ID = GameInfoTypes.RESOURCE_DEER;
+	self.banana_ID = GameInfoTypes.RESOURCE_BANANA;
+	self.fish_ID = GameInfoTypes.RESOURCE_FISH;
+	self.sheep_ID = GameInfoTypes.RESOURCE_SHEEP;
+	self.stone_ID = GameInfoTypes.RESOURCE_STONE;
+	self.bison_ID = GameInfoTypes.RESOURCE_BISON;
+	-- Strategic resources
+	self.iron_ID = GameInfoTypes.RESOURCE_IRON;
+	self.horse_ID = GameInfoTypes.RESOURCE_HORSE;
+	self.coal_ID = GameInfoTypes.RESOURCE_COAL;
+	self.oil_ID = GameInfoTypes.RESOURCE_OIL;
+	self.aluminum_ID = GameInfoTypes.RESOURCE_ALUMINUM;
+	self.uranium_ID = GameInfoTypes.RESOURCE_URANIUM;
+	-- Luxury resources
+	self.whale_ID = GameInfoTypes.RESOURCE_WHALE;
+	self.pearls_ID = GameInfoTypes.RESOURCE_PEARLS;
+	self.ivory_ID = GameInfoTypes.RESOURCE_IVORY;
+	self.fur_ID = GameInfoTypes.RESOURCE_FUR;
+	self.silk_ID = GameInfoTypes.RESOURCE_SILK;
+	self.dye_ID = GameInfoTypes.RESOURCE_DYE;
+	self.spices_ID = GameInfoTypes.RESOURCE_SPICES;
+	self.sugar_ID = GameInfoTypes.RESOURCE_SUGAR;
+	self.cotton_ID = GameInfoTypes.RESOURCE_COTTON;
+	self.wine_ID = GameInfoTypes.RESOURCE_WINE;
+	self.incense_ID = GameInfoTypes.RESOURCE_INCENSE;
+	self.gold_ID = GameInfoTypes.RESOURCE_GOLD;
+	self.silver_ID = GameInfoTypes.RESOURCE_SILVER;
+	self.gems_ID = GameInfoTypes.RESOURCE_GEMS;
+	self.marble_ID = GameInfoTypes.RESOURCE_MARBLE;
+	-- DLC resources
+	self.copper_ID = GameInfoTypes.RESOURCE_COPPER;
+	self.salt_ID = GameInfoTypes.RESOURCE_SALT;
+	self.citrus_ID = GameInfoTypes.RESOURCE_CITRUS;
+	self.truffles_ID = GameInfoTypes.RESOURCE_TRUFFLES;
+	self.crab_ID = GameInfoTypes.RESOURCE_CRAB;
+	self.cocoa_ID = GameInfoTypes.RESOURCE_COCOA;
+	-- VP additional resources
+	self.maize_ID = GameInfoTypes.RESOURCE_MAIZE;
+	self.rice_ID = GameInfoTypes.RESOURCE_RICE;
+	self.coffee_ID = GameInfoTypes.RESOURCE_COFFEE;
+	self.tea_ID = GameInfoTypes.RESOURCE_TEA;
+	self.tobacco_ID = GameInfoTypes.RESOURCE_TOBACCO;
+	self.amber_ID = GameInfoTypes.RESOURCE_AMBER;
+	self.jade_ID = GameInfoTypes.RESOURCE_JADE;
+	self.olives_ID = GameInfoTypes.RESOURCE_OLIVE;
+	self.perfume_ID = GameInfoTypes.RESOURCE_PERFUME;
+	self.coral_ID = GameInfoTypes.RESOURCE_CORAL;
+	self.lapis_ID = GameInfoTypes.RESOURCE_LAPIS;
+	-- Even More Resources for Vox Populi
+	self.lavender_ID = GameInfoTypes.RESOURCE_LAVENDER;
+	self.obsidian_ID = GameInfoTypes.RESOURCE_OBSIDIAN;
+	self.platinum_ID = GameInfoTypes.RESOURCE_PLATINUM;
+	self.poppy_ID = GameInfoTypes.RESOURCE_POPPY;
+	self.tin_ID = GameInfoTypes.RESOURCE_TIN;
+	self.coconut_ID = GameInfoTypes.RESOURCE_COCONUT;
+	self.hardwood_ID = GameInfoTypes.RESOURCE_HARDWOOD;
+	self.lead_ID = GameInfoTypes.RESOURCE_LEAD;
+	self.pineapple_ID = GameInfoTypes.RESOURCE_PINEAPPLE;
+	self.potato_ID = GameInfoTypes.RESOURCE_POTATO;
+	self.rubber_ID = GameInfoTypes.RESOURCE_RUBBER;
+	self.sulfur_ID = GameInfoTypes.RESOURCE_SULFUR;
+	self.titanium_ID = GameInfoTypes.RESOURCE_TITANIUM;
+	-- Aloe Vera bonus resource
+	self.aloevera_ID = GameInfoTypes.RESOURCE_JAR_ALOE_VERA;
+	-- Additional Luxury Resources for VP
+	self.alpaca_ID = GameInfoTypes.RESOURCE_ALPACA;
+	self.camel_ID = GameInfoTypes.RESOURCE_CAMEL;
+	self.quartz_ID = GameInfoTypes.RESOURCE_QUARTZ;
 
 	-- Support custom map resource settings
 	self.resDensity = 2;
@@ -566,7 +382,7 @@ function AssignStartingPlots:__Init()
 	-- Natural Wonders variables
 	self.wonder_list = {};
 	self.eligibility_lists = {};
-	self.xml_row_numbers = {};
+	self.xml_row_numbers = {}; -- Key: order of NW in Features table, Value: corresponding ID of the NW in Natural_Wonder_Placement table
 
 	-- City States variables
 	self.cityStatePlots = {}; -- Stores x and y coordinates, and region number, of city state sites
@@ -579,8 +395,8 @@ function AssignStartingPlots:__Init()
 	self.city_state_validity_table = table.fill(false, MAX_MINOR_CIVS); -- Value set to true when a given city state is successfully assigned a start plot
 
 	-- Resources variables
-	self.amounts_of_resources_placed = table.fill(0, self.MAX_RESOURCE_INDEX + 1); -- Stores amounts of each resource ID placed. WARNING: This table uses adjusted resource ID (+1) to account for Lua indexing. Add 1 to all IDs to index this table.
-	self.luxury_assignment_count = table.fill(0, self.MAX_RESOURCE_INDEX); -- Stores amount of each luxury type assigned to regions. WARNING: current implementation will crash if a Luxury is attached to resource ID 0 (default = iron), because this table uses unadjusted resource ID as table index.
+	self.amounts_of_resources_placed = table.fill(0, MAX_RESOURCE_INDEX + 1); -- Stores amounts of each resource ID placed. WARNING: This table uses adjusted resource ID (+1) to account for Lua indexing. Add 1 to all IDs to index this table.
+	self.luxury_assignment_count = table.fill(0, MAX_RESOURCE_INDEX); -- Stores amount of each luxury type assigned to regions. WARNING: current implementation will crash if a Luxury is attached to resource ID 0 (default = iron), because this table uses unadjusted resource ID as table index.
 	self.luxury_region_weights = {}; -- Stores weighted assignments for the types of regions
 	self.luxury_fallback_weights = {}; -- In case all options for a given region type got assigned or disabled, also used for Undefined regions
 	self.luxury_city_state_weights = {}; -- Stores weighted assignments for city state exclusive luxuries
@@ -801,7 +617,7 @@ function AssignStartingPlots:__Init()
 	end
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:__InitLuxuryWeights()
+function ASP:__InitLuxuryWeights()
 	-- Initialize luxury data table. Index == Region Type
 	-- Customize this function if the terrain will fall significantly
 	-- outside Earth normal, or if region definitions have been modified.
@@ -1127,12 +943,12 @@ function AssignStartingPlots:__InitLuxuryWeights()
 	end
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:__CustomInit()
+function ASP:__CustomInit()
 	-- This function included to provide a quick and easy override for changing any initial settings.
 	-- Add your customized version to the map script.
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:ApplyHexAdjustment(x, y, plot_adjustments)
+function ASP:ApplyHexAdjustment(x, y, plot_adjustments)
 	-- Used this bit of code so many times, I had to make it a function.
 	local iW, iH = Map.GetGridSize();
 	local adjusted_x, adjusted_y;
@@ -1148,10 +964,12 @@ function AssignStartingPlots:ApplyHexAdjustment(x, y, plot_adjustments)
 	end
 	return adjusted_x, adjusted_y;
 end
+
 ------------------------------------------------------------------------------
 -- Start of functions tied to GenerateRegions()
 ------------------------------------------------------------------------------
-function AssignStartingPlots:MeasureStartPlacementFertilityOfPlot(x, y, checkForCoastalLand)
+
+function ASP:MeasureStartPlacementFertilityOfPlot(x, y, checkForCoastalLand)
 	-- Fertility of plots is used to divide landmasses into Regions.
 	-- Regions are used to assign starting plots and place some resources.
 	-- Usage: x, y are plot coords, with 0, 0 in SW. The check is a boolean.
@@ -1219,7 +1037,7 @@ function AssignStartingPlots:MeasureStartPlacementFertilityOfPlot(x, y, checkFor
 	return plotFertility;
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:MeasureStartPlacementFertilityInRectangle(iWestX, iSouthY, iWidth, iHeight)
+function ASP:MeasureStartPlacementFertilityInRectangle(iWestX, iSouthY, iWidth, iHeight)
 	-- This function is designed to provide initial data for regional division recursion.
 	-- Loop through plots in this rectangle and measure Fertility Rating.
 	-- Results will include a data table of all measured plots.
@@ -1238,7 +1056,7 @@ function AssignStartingPlots:MeasureStartPlacementFertilityInRectangle(iWestX, i
 	return landmassFertilityTable, landmassFertilityCount, plotCount;
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:MeasureStartPlacementFertilityOfLandmass(iLandmassID, iWestX, iEastX, iSouthY, iNorthY, wrapsX, wrapsY)
+function ASP:MeasureStartPlacementFertilityOfLandmass(iLandmassID, iWestX, iEastX, iSouthY, iNorthY, wrapsX, wrapsY)
 	-- This function is designed to provide initial data for regional division recursion.
 	-- Loop through plots in this landmass and measure Fertility Rating.
 	-- Results will include a data table of all plots within the rectangle that includes the entirety of this landmass.
@@ -1287,7 +1105,7 @@ function AssignStartingPlots:MeasureStartPlacementFertilityOfLandmass(iLandmassI
 	return landmassFertilityTable, landmassFertilityCount, plotCount;
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:MeasureStartPlacementFertilityOfArea(iAreaID, iWestX, iEastX, iSouthY, iNorthY, wrapsX, wrapsY)
+function ASP:MeasureStartPlacementFertilityOfArea(iAreaID, iWestX, iEastX, iSouthY, iNorthY, wrapsX, wrapsY)
 	-- This function is designed to provide initial data for continental regional division only.
 	-- Biggest landmass method only needs to measure landmass fertility, and doesn't need to take areas into account.
 
@@ -1338,7 +1156,7 @@ function AssignStartingPlots:MeasureStartPlacementFertilityOfArea(iAreaID, iWest
 	return areaFertilityTable, areaFertilityCount, plotCount;
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:RemoveDeadRows(fertility_table, iWestX, iSouthY, iWidth, iHeight)
+function ASP:RemoveDeadRows(fertility_table, iWestX, iSouthY, iWidth, iHeight)
 	-- Any outside rows in the fertility table of a just-divided region that contains all zeroes can be safely removed.
 	-- This will improve the accuracy of operations involving any applicable region.
 	local iW, iH = Map.GetGridSize();
@@ -1452,7 +1270,7 @@ function AssignStartingPlots:RemoveDeadRows(fertility_table, iWestX, iSouthY, iW
 	end
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:DivideIntoRegions(iNumDivisions, fertility_table, rectangle_data_table)
+function ASP:DivideIntoRegions(iNumDivisions, fertility_table, rectangle_data_table)
 	if iNumDivisions == 1 then
 		local fAverageFertility = rectangle_data_table[6] / rectangle_data_table[7];
 		table.insert(rectangle_data_table, fAverageFertility);
@@ -1500,7 +1318,7 @@ function AssignStartingPlots:DivideIntoRegions(iNumDivisions, fertility_table, r
 	end
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:ChopIntoThreeRegions(fertility_table, rectangle_data_table, bTaller)
+function ASP:ChopIntoThreeRegions(fertility_table, rectangle_data_table, bTaller)
 	-- print("-"); print("ChopIntoThree called.");
 	-- Performs the mechanics of dividing a region into three roughly equal fertility subregions.
 	local results = {};
@@ -1557,7 +1375,7 @@ function AssignStartingPlots:ChopIntoThreeRegions(fertility_table, rectangle_dat
 	return results;
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:ChopIntoTwoRegions(fertility_table, rectangle_data_table, bTaller, chopPercent)
+function ASP:ChopIntoTwoRegions(fertility_table, rectangle_data_table, bTaller, chopPercent)
 	-- Performs the mechanics of dividing a region into two subregions.
 
 	-- Fertility table is a plot data array including data for all plots to be processed here.
@@ -1731,12 +1549,12 @@ function AssignStartingPlots:ChopIntoTwoRegions(fertility_table, rectangle_data_
 	return outcome;
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:CustomOverride()
+function ASP:CustomOverride()
 	-- This function allows an easy entry point for overrides that need to
 	-- take place after regional division, but before anything else.
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:GenerateRegions(args)
+function ASP:GenerateRegions(args)
 	print("Map Generation - Dividing the map in to Regions");
 	-- This function stores its data in the instance (self) data table.
 
@@ -2177,10 +1995,12 @@ function AssignStartingPlots:GenerateRegions(args)
 	end
 	--]]
 end
+
 ------------------------------------------------------------------------------
 -- Start of functions tied to ChooseLocations()
 ------------------------------------------------------------------------------
-function AssignStartingPlots:MeasureTerrainInRegions()
+
+function ASP:MeasureTerrainInRegions()
 	local iW, iH = Map.GetGridSize();
 	-- This function stores its data in the instance (self) data table.
 	for _, region_data_table in ipairs(self.regionData) do
@@ -2371,7 +2191,7 @@ function AssignStartingPlots:MeasureTerrainInRegions()
 	end
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:DetermineRegionTypes()
+function ASP:DetermineRegionTypes()
 	-- Determine region type and conditions. Use self.regionTypes to store the results
 
 	-- REGION TYPES
@@ -2561,7 +2381,7 @@ function AssignStartingPlots:DetermineRegionTypes()
 	end
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:PlaceImpactAndRipples(x, y)
+function ASP:PlaceImpactAndRipples(x, y)
 	-- This function operates upon the "impact and ripple" data overlays. This is the core version, which operates on start points.
 	-- Resources and city states have their own data layers, using this same design principle.
 	-- Execution of this function handles a single start point (x, y).
@@ -2678,7 +2498,7 @@ function AssignStartingPlots:PlaceImpactAndRipples(x, y)
 	end
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:MeasureSinglePlot(x, y, region_type)
+function ASP:MeasureSinglePlot(x, y, region_type)
 	local data = table.fill(false, 4);
 	-- Note that "Food" is not strictly about tile yield.
 	-- Different regions get their food in different ways.
@@ -2824,7 +2644,7 @@ function AssignStartingPlots:MeasureSinglePlot(x, y, region_type)
 	return data;
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:EvaluateCandidatePlot(plotIndex, region_type)
+function ASP:EvaluateCandidatePlot(plotIndex, region_type)
 	local goodSoFar = true;
 	local iW, iH = Map.GetGridSize();
 	local x = (plotIndex - 1) % iW;
@@ -3079,7 +2899,7 @@ function AssignStartingPlots:EvaluateCandidatePlot(plotIndex, region_type)
 	return finalScore, goodSoFar;
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:IterateThroughCandidatePlotList(plot_list, region_type)
+function ASP:IterateThroughCandidatePlotList(plot_list, region_type)
 	-- Iterates through a list of candidate plots.
 	-- Each plot is identified by its global plot index.
 	-- This function assumes all candidate plots can have a city built on them.
@@ -3113,7 +2933,7 @@ function AssignStartingPlots:IterateThroughCandidatePlotList(plot_list, region_t
 	return election_results;
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:FindStart(region_number)
+function ASP:FindStart(region_number)
 	-- This function attempts to choose a start position for a single region.
 	-- This function returns two boolean flags, indicating the success level of the operation.
 	local bSuccessFlag = false; -- Returns true when a start is placed, false when process fails.
@@ -3418,7 +3238,7 @@ function AssignStartingPlots:FindStart(region_number)
 	return bSuccessFlag, bForcedPlacementFlag;
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:FindCoastalStart(region_number)
+function ASP:FindCoastalStart(region_number)
 	-- This function attempts to choose a start position (which is along an ocean) for a single region.
 	-- This function returns two boolean flags, indicating the success level of the operation.
 	local bSuccessFlag = false; -- Returns true when a start is placed, false when process fails.
@@ -3740,7 +3560,7 @@ function AssignStartingPlots:FindCoastalStart(region_number)
 	return bSuccessFlag, bForcedPlacementFlag;
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:FindStartWithoutRegardToAreaID(region_number, bMustBeCoast)
+function ASP:FindStartWithoutRegardToAreaID(region_number, bMustBeCoast)
 	-- This function attempts to choose a start position on the best AreaID section within the Region's rectangle.
 	-- This function returns two boolean flags, indicating the success level of the operation.
 	local bSuccessFlag = false; -- Returns true when a start is placed, false when process fails.
@@ -3927,7 +3747,7 @@ function CivNeedsSnowStart(civType)
 	return false;
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:ChooseLocations(args)
+function ASP:ChooseLocations(args)
 	print("Map Generation - Choosing Start Locations for Civilizations");
 	args = args or {};
 	local mustBeCoast = args.mustBeCoast or false; -- if true, will force all starts on salt water coast if possible
@@ -4033,10 +3853,12 @@ function AssignStartingPlots:ChooseLocations(args)
 	print("-");
 	--]]
 end
+
 ------------------------------------------------------------------------------
 -- Start of functions tied to BalanceAndAssign()
 ------------------------------------------------------------------------------
-function AssignStartingPlots:AttemptToPlaceBonusResourceAtPlot(x, y, bAllowOasis)
+
+function ASP:AttemptToPlaceBonusResourceAtPlot(x, y, bAllowOasis)
 	-- Returns two booleans. First is true if something was placed. Second true if Oasis placed.
 	-- print("-"); print("Attempting to place a Bonus at: ", x, y);
 	local plot = Map.GetPlot(x, y);
@@ -4156,7 +3978,7 @@ function AssignStartingPlots:AttemptToPlaceBonusResourceAtPlot(x, y, bAllowOasis
 	return false, false;
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:AttemptToPlaceHillsAtPlot(x, y)
+function ASP:AttemptToPlaceHillsAtPlot(x, y)
 	-- This function will add hills at a specified plot, if able.
 	-- print("-"); print("Attempting to add Hills at: ", x, y);
 	local plot = Map.GetPlot(x, y);
@@ -4186,7 +4008,7 @@ function AssignStartingPlots:AttemptToPlaceHillsAtPlot(x, y)
 	return true;
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:AttemptToPlaceSmallStrategicAtPlot(x, y)
+function ASP:AttemptToPlaceSmallStrategicAtPlot(x, y)
 	-- This function will add a small horse or iron source to a specified plot, if able.
 	-- print("-"); print("Attempting to add Small Strategic resource at: ", x, y);
 	local plot = Map.GetPlot(x, y);
@@ -4227,7 +4049,7 @@ function AssignStartingPlots:AttemptToPlaceSmallStrategicAtPlot(x, y)
 	return false;
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:AddStrategicBalanceResources(region_number)
+function ASP:AddStrategicBalanceResources(region_number)
 	-- This function adds the required Strategic Resources to start plots, for
 	-- games that have selected to enable Strategic Resource Balance.
 	local iW, iH = Map.GetGridSize();
@@ -4349,7 +4171,7 @@ function AssignStartingPlots:AddStrategicBalanceResources(region_number)
 	end
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:AttemptToPlaceCattleAtGrassPlot(x, y)
+function ASP:AttemptToPlaceCattleAtGrassPlot(x, y)
 	-- Function modified May 2011 to boost production at heavy grass starts. - BT
 	-- Now placing Stone instead of Cows. Returns true if Stone is placed.
 	-- Now placing Forest instead of Stone. -- September 2020, azum4roll
@@ -4378,7 +4200,7 @@ function AssignStartingPlots:AttemptToPlaceCattleAtGrassPlot(x, y)
 	end
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:AttemptToPlaceStoneAtGrassPlot(x, y)
+function ASP:AttemptToPlaceStoneAtGrassPlot(x, y)
 	-- Function modified May 2011 to boost production at heavy grass starts. - BT
 	-- Now placing Stone instead of Cows. Returns true if Stone is placed.
 	-- print("-"); print("Attempting to place Stone at: ", x, y);
@@ -4406,7 +4228,7 @@ function AssignStartingPlots:AttemptToPlaceStoneAtGrassPlot(x, y)
 	end
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:NormalizeStartLocation(region_number)
+function ASP:NormalizeStartLocation(region_number)
 	--[[ This function measures the value of land in two rings around a given start
 	     location, primarily for the purpose of determining how much support the site
 	     requires in the form of Bonus Resources. Numerous assumptions are built in
@@ -5090,7 +4912,7 @@ function AssignStartingPlots:NormalizeStartLocation(region_number)
 	self.startLocationConditions[region_number] = results_table;
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:FindFallbackForUnmatchedRegionPriority(iRegionType, regions_still_available)
+function ASP:FindFallbackForUnmatchedRegionPriority(iRegionType, regions_still_available)
 	-- This function acts upon Civs with a single Region Priority who were unable to be matched to a region of their priority type.
 	-- We will scan remaining regions for the one with the most plots of the matching terrain type.
 	local tMaxMatch = table.fill(0, NUM_REGION_TYPES);
@@ -5121,13 +4943,13 @@ function AssignStartingPlots:FindFallbackForUnmatchedRegionPriority(iRegionType,
 	return -1;
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:NormalizeTeamLocations()
+function ASP:NormalizeTeamLocations()
 	-- This function will reorganize which Civs are assigned to which start
 	-- locations, to ensure that Civs on the same team start near one another.
 	-- Game:NormalizeStartingPlotLocations();
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:BalanceAndAssign(args)
+function ASP:BalanceAndAssign(args)
 	-- This function determines what level of Bonus Resource support a location may need, identifies compatibility with civ-specific biases, and places starts.
 
 	-- Now supports extra empty regions for maps like Frontier.
@@ -5832,10 +5654,12 @@ function AssignStartingPlots:BalanceAndAssign(args)
 		self:NormalizeTeamLocations();
 	end
 end
+
 ------------------------------------------------------------------------------
 -- Start of functions tied to PlaceNaturalWonders()
 ------------------------------------------------------------------------------
-function AssignStartingPlots:ExaminePlotForNaturalWondersEligibility(x, y)
+
+function ASP:ExaminePlotForNaturalWondersEligibility(x, y)
 	-- This function checks only for eligibility requirements applicable to all Natural Wonders.
 	-- If a candidate plot passes all such checks, we will move on to checking it against specific needs for each particular wonderID.
 
@@ -5870,12 +5694,12 @@ function AssignStartingPlots:ExaminePlotForNaturalWondersEligibility(x, y)
 	return true, true;
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:ExamineCandidatePlotForNaturalWondersEligibility(x, y)
+function ASP:ExamineCandidatePlotForNaturalWondersEligibility(x, y)
 	-- Now unused. Use ExaminePlotForNaturalWondersEligibility instead.
 	return self:ExaminePlotForNaturalWondersEligibility(x, y);
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:CanBeThisNaturalWonderType(x, y, wn)
+function ASP:CanBeThisNaturalWonderType(x, y, wn)
 	-- Checks a candidate plot for eligibility to host the supplied wonder type.
 	local plot = Map.GetPlot(x, y);
 
@@ -6306,142 +6130,143 @@ function AssignStartingPlots:CanBeThisNaturalWonderType(x, y, wn)
 	table.insert(self.eligibility_lists[wn], plotIndex);
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:GenerateLocalVersionsOfDataFromXML()
+function ASP:GenerateLocalVersionsOfDataFromXML()
 	for _, rn in ipairs(self.xml_row_numbers) do
-		table.insert(self.EligibilityMethodNumber, GameInfo.Natural_Wonder_Placement[rn].EligibilityMethodNumber);
-		table.insert(self.OccurrenceFrequency, GameInfo.Natural_Wonder_Placement[rn].OccurrenceFrequency);
-		table.insert(self.RequireBiggestLandmass, GameInfo.Natural_Wonder_Placement[rn].RequireBiggestLandmass);
-		table.insert(self.AvoidBiggestLandmass, GameInfo.Natural_Wonder_Placement[rn].AvoidBiggestLandmass);
-		table.insert(self.RequireFreshWater, GameInfo.Natural_Wonder_Placement[rn].RequireFreshWater);
-		table.insert(self.AvoidFreshWater, GameInfo.Natural_Wonder_Placement[rn].AvoidFreshWater);
-		table.insert(self.LandBased, GameInfo.Natural_Wonder_Placement[rn].LandBased);
-		table.insert(self.RequireLandAdjacentToOcean, GameInfo.Natural_Wonder_Placement[rn].RequireLandAdjacentToOcean);
-		table.insert(self.AvoidLandAdjacentToOcean, GameInfo.Natural_Wonder_Placement[rn].AvoidLandAdjacentToOcean);
-		table.insert(self.RequireLandOnePlotInland, GameInfo.Natural_Wonder_Placement[rn].RequireLandOnePlotInland);
-		table.insert(self.AvoidLandOnePlotInland, GameInfo.Natural_Wonder_Placement[rn].AvoidLandOnePlotInland);
-		table.insert(self.RequireLandTwoOrMorePlotsInland, GameInfo.Natural_Wonder_Placement[rn].RequireLandTwoOrMorePlotsInland);
-		table.insert(self.AvoidLandTwoOrMorePlotsInland, GameInfo.Natural_Wonder_Placement[rn].AvoidLandTwoOrMorePlotsInland);
+		local row = GameInfo.Natural_Wonder_Placement[rn];
+		table.insert(self.EligibilityMethodNumber, row.EligibilityMethodNumber);
+		table.insert(self.OccurrenceFrequency, row.OccurrenceFrequency);
+		table.insert(self.RequireBiggestLandmass, row.RequireBiggestLandmass);
+		table.insert(self.AvoidBiggestLandmass, row.AvoidBiggestLandmass);
+		table.insert(self.RequireFreshWater, row.RequireFreshWater);
+		table.insert(self.AvoidFreshWater, row.AvoidFreshWater);
+		table.insert(self.LandBased, row.LandBased);
+		table.insert(self.RequireLandAdjacentToOcean, row.RequireLandAdjacentToOcean);
+		table.insert(self.AvoidLandAdjacentToOcean, row.AvoidLandAdjacentToOcean);
+		table.insert(self.RequireLandOnePlotInland, row.RequireLandOnePlotInland);
+		table.insert(self.AvoidLandOnePlotInland, row.AvoidLandOnePlotInland);
+		table.insert(self.RequireLandTwoOrMorePlotsInland, row.RequireLandTwoOrMorePlotsInland);
+		table.insert(self.AvoidLandTwoOrMorePlotsInland, row.AvoidLandTwoOrMorePlotsInland);
 
-		table.insert(self.CoreTileCanBeAnyPlotType, GameInfo.Natural_Wonder_Placement[rn].CoreTileCanBeAnyPlotType);
-		table.insert(self.CoreTileCanBeFlatland, GameInfo.Natural_Wonder_Placement[rn].CoreTileCanBeFlatland);
-		table.insert(self.CoreTileCanBeHills, GameInfo.Natural_Wonder_Placement[rn].CoreTileCanBeHills);
-		table.insert(self.CoreTileCanBeMountain, GameInfo.Natural_Wonder_Placement[rn].CoreTileCanBeMountain);
-		table.insert(self.CoreTileCanBeOcean, GameInfo.Natural_Wonder_Placement[rn].CoreTileCanBeOcean);
-		table.insert(self.CoreTileCanBeAnyTerrainType, GameInfo.Natural_Wonder_Placement[rn].CoreTileCanBeAnyTerrainType);
-		table.insert(self.CoreTileCanBeGrass, GameInfo.Natural_Wonder_Placement[rn].CoreTileCanBeGrass);
-		table.insert(self.CoreTileCanBePlains, GameInfo.Natural_Wonder_Placement[rn].CoreTileCanBePlains);
-		table.insert(self.CoreTileCanBeDesert, GameInfo.Natural_Wonder_Placement[rn].CoreTileCanBeDesert);
-		table.insert(self.CoreTileCanBeTundra, GameInfo.Natural_Wonder_Placement[rn].CoreTileCanBeTundra);
-		table.insert(self.CoreTileCanBeSnow, GameInfo.Natural_Wonder_Placement[rn].CoreTileCanBeSnow);
-		table.insert(self.CoreTileCanBeShallowWater, GameInfo.Natural_Wonder_Placement[rn].CoreTileCanBeShallowWater);
-		table.insert(self.CoreTileCanBeDeepWater, GameInfo.Natural_Wonder_Placement[rn].CoreTileCanBeDeepWater);
-		table.insert(self.CoreTileCanBeAnyFeatureType, GameInfo.Natural_Wonder_Placement[rn].CoreTileCanBeAnyFeatureType);
-		table.insert(self.CoreTileCanBeNoFeature, GameInfo.Natural_Wonder_Placement[rn].CoreTileCanBeNoFeature);
-		table.insert(self.CoreTileCanBeForest, GameInfo.Natural_Wonder_Placement[rn].CoreTileCanBeForest);
-		table.insert(self.CoreTileCanBeJungle, GameInfo.Natural_Wonder_Placement[rn].CoreTileCanBeJungle);
-		table.insert(self.CoreTileCanBeOasis, GameInfo.Natural_Wonder_Placement[rn].CoreTileCanBeOasis);
-		table.insert(self.CoreTileCanBeFloodPlains, GameInfo.Natural_Wonder_Placement[rn].CoreTileCanBeFloodPlains);
-		table.insert(self.CoreTileCanBeMarsh, GameInfo.Natural_Wonder_Placement[rn].CoreTileCanBeMarsh);
-		table.insert(self.CoreTileCanBeIce, GameInfo.Natural_Wonder_Placement[rn].CoreTileCanBeIce);
-		table.insert(self.CoreTileCanBeAtoll, GameInfo.Natural_Wonder_Placement[rn].CoreTileCanBeAtoll);
+		table.insert(self.CoreTileCanBeAnyPlotType, row.CoreTileCanBeAnyPlotType);
+		table.insert(self.CoreTileCanBeFlatland, row.CoreTileCanBeFlatland);
+		table.insert(self.CoreTileCanBeHills, row.CoreTileCanBeHills);
+		table.insert(self.CoreTileCanBeMountain, row.CoreTileCanBeMountain);
+		table.insert(self.CoreTileCanBeOcean, row.CoreTileCanBeOcean);
+		table.insert(self.CoreTileCanBeAnyTerrainType, row.CoreTileCanBeAnyTerrainType);
+		table.insert(self.CoreTileCanBeGrass, row.CoreTileCanBeGrass);
+		table.insert(self.CoreTileCanBePlains, row.CoreTileCanBePlains);
+		table.insert(self.CoreTileCanBeDesert, row.CoreTileCanBeDesert);
+		table.insert(self.CoreTileCanBeTundra, row.CoreTileCanBeTundra);
+		table.insert(self.CoreTileCanBeSnow, row.CoreTileCanBeSnow);
+		table.insert(self.CoreTileCanBeShallowWater, row.CoreTileCanBeShallowWater);
+		table.insert(self.CoreTileCanBeDeepWater, row.CoreTileCanBeDeepWater);
+		table.insert(self.CoreTileCanBeAnyFeatureType, row.CoreTileCanBeAnyFeatureType);
+		table.insert(self.CoreTileCanBeNoFeature, row.CoreTileCanBeNoFeature);
+		table.insert(self.CoreTileCanBeForest, row.CoreTileCanBeForest);
+		table.insert(self.CoreTileCanBeJungle, row.CoreTileCanBeJungle);
+		table.insert(self.CoreTileCanBeOasis, row.CoreTileCanBeOasis);
+		table.insert(self.CoreTileCanBeFloodPlains, row.CoreTileCanBeFloodPlains);
+		table.insert(self.CoreTileCanBeMarsh, row.CoreTileCanBeMarsh);
+		table.insert(self.CoreTileCanBeIce, row.CoreTileCanBeIce);
+		table.insert(self.CoreTileCanBeAtoll, row.CoreTileCanBeAtoll);
 
-		table.insert(self.AdjacentTilesCareAboutPlotTypes, GameInfo.Natural_Wonder_Placement[rn].AdjacentTilesCareAboutPlotTypes);
-		table.insert(self.AdjacentTilesAvoidAnyland, GameInfo.Natural_Wonder_Placement[rn].AdjacentTilesAvoidAnyland);
-		table.insert(self.AdjacentTilesRequireFlatland, GameInfo.Natural_Wonder_Placement[rn].AdjacentTilesRequireFlatland);
-		table.insert(self.RequiredNumberOfAdjacentFlatland, GameInfo.Natural_Wonder_Placement[rn].RequiredNumberOfAdjacentFlatland);
-		table.insert(self.AdjacentTilesRequireHills, GameInfo.Natural_Wonder_Placement[rn].AdjacentTilesRequireHills);
-		table.insert(self.RequiredNumberOfAdjacentHills, GameInfo.Natural_Wonder_Placement[rn].RequiredNumberOfAdjacentHills);
-		table.insert(self.AdjacentTilesRequireMountain, GameInfo.Natural_Wonder_Placement[rn].AdjacentTilesRequireMountain);
-		table.insert(self.RequiredNumberOfAdjacentMountain, GameInfo.Natural_Wonder_Placement[rn].RequiredNumberOfAdjacentMountain);
-		table.insert(self.AdjacentTilesRequireHillsPlusMountains, GameInfo.Natural_Wonder_Placement[rn].AdjacentTilesRequireHillsPlusMountains);
-		table.insert(self.RequiredNumberOfAdjacentHillsPlusMountains, GameInfo.Natural_Wonder_Placement[rn].RequiredNumberOfAdjacentHillsPlusMountains);
-		table.insert(self.AdjacentTilesRequireOcean, GameInfo.Natural_Wonder_Placement[rn].AdjacentTilesRequireOcean);
-		table.insert(self.RequiredNumberOfAdjacentOcean, GameInfo.Natural_Wonder_Placement[rn].RequiredNumberOfAdjacentOcean);
-		table.insert(self.AdjacentTilesAvoidFlatland, GameInfo.Natural_Wonder_Placement[rn].AdjacentTilesAvoidFlatland);
-		table.insert(self.MaximumAllowedAdjacentFlatland, GameInfo.Natural_Wonder_Placement[rn].MaximumAllowedAdjacentFlatland);
-		table.insert(self.AdjacentTilesAvoidHills, GameInfo.Natural_Wonder_Placement[rn].AdjacentTilesAvoidHills);
-		table.insert(self.MaximumAllowedAdjacentHills, GameInfo.Natural_Wonder_Placement[rn].MaximumAllowedAdjacentHills);
-		table.insert(self.AdjacentTilesAvoidMountain, GameInfo.Natural_Wonder_Placement[rn].AdjacentTilesAvoidMountain);
-		table.insert(self.MaximumAllowedAdjacentMountain, GameInfo.Natural_Wonder_Placement[rn].MaximumAllowedAdjacentMountain);
-		table.insert(self.AdjacentTilesAvoidHillsPlusMountains, GameInfo.Natural_Wonder_Placement[rn].AdjacentTilesAvoidHillsPlusMountains);
-		table.insert(self.MaximumAllowedAdjacentHillsPlusMountains, GameInfo.Natural_Wonder_Placement[rn].MaximumAllowedAdjacentHillsPlusMountains);
-		table.insert(self.AdjacentTilesAvoidOcean, GameInfo.Natural_Wonder_Placement[rn].AdjacentTilesAvoidOcean);
-		table.insert(self.MaximumAllowedAdjacentOcean, GameInfo.Natural_Wonder_Placement[rn].MaximumAllowedAdjacentOcean);
+		table.insert(self.AdjacentTilesCareAboutPlotTypes, row.AdjacentTilesCareAboutPlotTypes);
+		table.insert(self.AdjacentTilesAvoidAnyland, row.AdjacentTilesAvoidAnyland);
+		table.insert(self.AdjacentTilesRequireFlatland, row.AdjacentTilesRequireFlatland);
+		table.insert(self.RequiredNumberOfAdjacentFlatland, row.RequiredNumberOfAdjacentFlatland);
+		table.insert(self.AdjacentTilesRequireHills, row.AdjacentTilesRequireHills);
+		table.insert(self.RequiredNumberOfAdjacentHills, row.RequiredNumberOfAdjacentHills);
+		table.insert(self.AdjacentTilesRequireMountain, row.AdjacentTilesRequireMountain);
+		table.insert(self.RequiredNumberOfAdjacentMountain, row.RequiredNumberOfAdjacentMountain);
+		table.insert(self.AdjacentTilesRequireHillsPlusMountains, row.AdjacentTilesRequireHillsPlusMountains);
+		table.insert(self.RequiredNumberOfAdjacentHillsPlusMountains, row.RequiredNumberOfAdjacentHillsPlusMountains);
+		table.insert(self.AdjacentTilesRequireOcean, row.AdjacentTilesRequireOcean);
+		table.insert(self.RequiredNumberOfAdjacentOcean, row.RequiredNumberOfAdjacentOcean);
+		table.insert(self.AdjacentTilesAvoidFlatland, row.AdjacentTilesAvoidFlatland);
+		table.insert(self.MaximumAllowedAdjacentFlatland, row.MaximumAllowedAdjacentFlatland);
+		table.insert(self.AdjacentTilesAvoidHills, row.AdjacentTilesAvoidHills);
+		table.insert(self.MaximumAllowedAdjacentHills, row.MaximumAllowedAdjacentHills);
+		table.insert(self.AdjacentTilesAvoidMountain, row.AdjacentTilesAvoidMountain);
+		table.insert(self.MaximumAllowedAdjacentMountain, row.MaximumAllowedAdjacentMountain);
+		table.insert(self.AdjacentTilesAvoidHillsPlusMountains, row.AdjacentTilesAvoidHillsPlusMountains);
+		table.insert(self.MaximumAllowedAdjacentHillsPlusMountains, row.MaximumAllowedAdjacentHillsPlusMountains);
+		table.insert(self.AdjacentTilesAvoidOcean, row.AdjacentTilesAvoidOcean);
+		table.insert(self.MaximumAllowedAdjacentOcean, row.MaximumAllowedAdjacentOcean);
 
-		table.insert(self.AdjacentTilesCareAboutTerrainTypes, GameInfo.Natural_Wonder_Placement[rn].AdjacentTilesCareAboutTerrainTypes);
-		table.insert(self.AdjacentTilesRequireGrass, GameInfo.Natural_Wonder_Placement[rn].AdjacentTilesRequireGrass);
-		table.insert(self.RequiredNumberOfAdjacentGrass, GameInfo.Natural_Wonder_Placement[rn].RequiredNumberOfAdjacentGrass);
-		table.insert(self.AdjacentTilesRequirePlains, GameInfo.Natural_Wonder_Placement[rn].AdjacentTilesRequirePlains);
-		table.insert(self.RequiredNumberOfAdjacentPlains, GameInfo.Natural_Wonder_Placement[rn].RequiredNumberOfAdjacentPlains);
-		table.insert(self.AdjacentTilesRequireDesert, GameInfo.Natural_Wonder_Placement[rn].AdjacentTilesRequireDesert);
-		table.insert(self.RequiredNumberOfAdjacentDesert, GameInfo.Natural_Wonder_Placement[rn].RequiredNumberOfAdjacentDesert);
-		table.insert(self.AdjacentTilesRequireTundra, GameInfo.Natural_Wonder_Placement[rn].AdjacentTilesRequireTundra);
-		table.insert(self.RequiredNumberOfAdjacentTundra, GameInfo.Natural_Wonder_Placement[rn].RequiredNumberOfAdjacentTundra);
-		table.insert(self.AdjacentTilesRequireSnow, GameInfo.Natural_Wonder_Placement[rn].AdjacentTilesRequireSnow);
-		table.insert(self.RequiredNumberOfAdjacentSnow, GameInfo.Natural_Wonder_Placement[rn].RequiredNumberOfAdjacentSnow);
-		table.insert(self.AdjacentTilesRequireShallowWater, GameInfo.Natural_Wonder_Placement[rn].AdjacentTilesRequireShallowWater);
-		table.insert(self.RequiredNumberOfAdjacentShallowWater, GameInfo.Natural_Wonder_Placement[rn].RequiredNumberOfAdjacentShallowWater);
-		table.insert(self.AdjacentTilesRequireDeepWater, GameInfo.Natural_Wonder_Placement[rn].AdjacentTilesRequireDeepWater);
-		table.insert(self.RequiredNumberOfAdjacentDeepWater, GameInfo.Natural_Wonder_Placement[rn].RequiredNumberOfAdjacentDeepWater);
-		table.insert(self.AdjacentTilesAvoidGrass, GameInfo.Natural_Wonder_Placement[rn].AdjacentTilesAvoidGrass);
-		table.insert(self.MaximumAllowedAdjacentGrass, GameInfo.Natural_Wonder_Placement[rn].MaximumAllowedAdjacentGrass);
-		table.insert(self.AdjacentTilesAvoidPlains, GameInfo.Natural_Wonder_Placement[rn].AdjacentTilesAvoidPlains);
-		table.insert(self.MaximumAllowedAdjacentPlains, GameInfo.Natural_Wonder_Placement[rn].MaximumAllowedAdjacentPlains);
-		table.insert(self.AdjacentTilesAvoidDesert, GameInfo.Natural_Wonder_Placement[rn].AdjacentTilesAvoidDesert);
-		table.insert(self.MaximumAllowedAdjacentDesert, GameInfo.Natural_Wonder_Placement[rn].MaximumAllowedAdjacentDesert);
-		table.insert(self.AdjacentTilesAvoidTundra, GameInfo.Natural_Wonder_Placement[rn].AdjacentTilesAvoidTundra);
-		table.insert(self.MaximumAllowedAdjacentTundra, GameInfo.Natural_Wonder_Placement[rn].MaximumAllowedAdjacentTundra);
-		table.insert(self.AdjacentTilesAvoidSnow, GameInfo.Natural_Wonder_Placement[rn].AdjacentTilesAvoidSnow);
-		table.insert(self.MaximumAllowedAdjacentSnow, GameInfo.Natural_Wonder_Placement[rn].MaximumAllowedAdjacentSnow);
-		table.insert(self.AdjacentTilesAvoidShallowWater, GameInfo.Natural_Wonder_Placement[rn].AdjacentTilesAvoidShallowWater);
-		table.insert(self.MaximumAllowedAdjacentShallowWater, GameInfo.Natural_Wonder_Placement[rn].MaximumAllowedAdjacentShallowWater);
-		table.insert(self.AdjacentTilesAvoidDeepWater, GameInfo.Natural_Wonder_Placement[rn].AdjacentTilesAvoidDeepWater);
-		table.insert(self.MaximumAllowedAdjacentDeepWater, GameInfo.Natural_Wonder_Placement[rn].MaximumAllowedAdjacentDeepWater);
+		table.insert(self.AdjacentTilesCareAboutTerrainTypes, row.AdjacentTilesCareAboutTerrainTypes);
+		table.insert(self.AdjacentTilesRequireGrass, row.AdjacentTilesRequireGrass);
+		table.insert(self.RequiredNumberOfAdjacentGrass, row.RequiredNumberOfAdjacentGrass);
+		table.insert(self.AdjacentTilesRequirePlains, row.AdjacentTilesRequirePlains);
+		table.insert(self.RequiredNumberOfAdjacentPlains, row.RequiredNumberOfAdjacentPlains);
+		table.insert(self.AdjacentTilesRequireDesert, row.AdjacentTilesRequireDesert);
+		table.insert(self.RequiredNumberOfAdjacentDesert, row.RequiredNumberOfAdjacentDesert);
+		table.insert(self.AdjacentTilesRequireTundra, row.AdjacentTilesRequireTundra);
+		table.insert(self.RequiredNumberOfAdjacentTundra, row.RequiredNumberOfAdjacentTundra);
+		table.insert(self.AdjacentTilesRequireSnow, row.AdjacentTilesRequireSnow);
+		table.insert(self.RequiredNumberOfAdjacentSnow, row.RequiredNumberOfAdjacentSnow);
+		table.insert(self.AdjacentTilesRequireShallowWater, row.AdjacentTilesRequireShallowWater);
+		table.insert(self.RequiredNumberOfAdjacentShallowWater, row.RequiredNumberOfAdjacentShallowWater);
+		table.insert(self.AdjacentTilesRequireDeepWater, row.AdjacentTilesRequireDeepWater);
+		table.insert(self.RequiredNumberOfAdjacentDeepWater, row.RequiredNumberOfAdjacentDeepWater);
+		table.insert(self.AdjacentTilesAvoidGrass, row.AdjacentTilesAvoidGrass);
+		table.insert(self.MaximumAllowedAdjacentGrass, row.MaximumAllowedAdjacentGrass);
+		table.insert(self.AdjacentTilesAvoidPlains, row.AdjacentTilesAvoidPlains);
+		table.insert(self.MaximumAllowedAdjacentPlains, row.MaximumAllowedAdjacentPlains);
+		table.insert(self.AdjacentTilesAvoidDesert, row.AdjacentTilesAvoidDesert);
+		table.insert(self.MaximumAllowedAdjacentDesert, row.MaximumAllowedAdjacentDesert);
+		table.insert(self.AdjacentTilesAvoidTundra, row.AdjacentTilesAvoidTundra);
+		table.insert(self.MaximumAllowedAdjacentTundra, row.MaximumAllowedAdjacentTundra);
+		table.insert(self.AdjacentTilesAvoidSnow, row.AdjacentTilesAvoidSnow);
+		table.insert(self.MaximumAllowedAdjacentSnow, row.MaximumAllowedAdjacentSnow);
+		table.insert(self.AdjacentTilesAvoidShallowWater, row.AdjacentTilesAvoidShallowWater);
+		table.insert(self.MaximumAllowedAdjacentShallowWater, row.MaximumAllowedAdjacentShallowWater);
+		table.insert(self.AdjacentTilesAvoidDeepWater, row.AdjacentTilesAvoidDeepWater);
+		table.insert(self.MaximumAllowedAdjacentDeepWater, row.MaximumAllowedAdjacentDeepWater);
 
-		table.insert(self.AdjacentTilesCareAboutFeatureTypes, GameInfo.Natural_Wonder_Placement[rn].AdjacentTilesCareAboutFeatureTypes);
-		table.insert(self.AdjacentTilesRequireNoFeature, GameInfo.Natural_Wonder_Placement[rn].AdjacentTilesRequireNoFeature);
-		table.insert(self.RequiredNumberOfAdjacentNoFeature, GameInfo.Natural_Wonder_Placement[rn].RequiredNumberOfAdjacentNoFeature);
-		table.insert(self.AdjacentTilesRequireForest, GameInfo.Natural_Wonder_Placement[rn].AdjacentTilesRequireForest);
-		table.insert(self.RequiredNumberOfAdjacentForest, GameInfo.Natural_Wonder_Placement[rn].RequiredNumberOfAdjacentForest);
-		table.insert(self.AdjacentTilesRequireJungle, GameInfo.Natural_Wonder_Placement[rn].AdjacentTilesRequireJungle);
-		table.insert(self.RequiredNumberOfAdjacentJungle, GameInfo.Natural_Wonder_Placement[rn].RequiredNumberOfAdjacentJungle);
-		table.insert(self.AdjacentTilesRequireOasis, GameInfo.Natural_Wonder_Placement[rn].AdjacentTilesRequireOasis);
-		table.insert(self.RequiredNumberOfAdjacentOasis, GameInfo.Natural_Wonder_Placement[rn].RequiredNumberOfAdjacentOasis);
-		table.insert(self.AdjacentTilesRequireFloodPlains, GameInfo.Natural_Wonder_Placement[rn].AdjacentTilesRequireFloodPlains);
-		table.insert(self.RequiredNumberOfAdjacentFloodPlains, GameInfo.Natural_Wonder_Placement[rn].RequiredNumberOfAdjacentFloodPlains);
-		table.insert(self.AdjacentTilesRequireMarsh, GameInfo.Natural_Wonder_Placement[rn].AdjacentTilesRequireMarsh);
-		table.insert(self.RequiredNumberOfAdjacentMarsh, GameInfo.Natural_Wonder_Placement[rn].RequiredNumberOfAdjacentMarsh);
-		table.insert(self.AdjacentTilesRequireIce, GameInfo.Natural_Wonder_Placement[rn].AdjacentTilesRequireIce);
-		table.insert(self.RequiredNumberOfAdjacentIce, GameInfo.Natural_Wonder_Placement[rn].RequiredNumberOfAdjacentIce);
-		table.insert(self.AdjacentTilesRequireAtoll, GameInfo.Natural_Wonder_Placement[rn].AdjacentTilesRequireAtoll);
-		table.insert(self.RequiredNumberOfAdjacentAtoll, GameInfo.Natural_Wonder_Placement[rn].RequiredNumberOfAdjacentAtoll);
-		table.insert(self.AdjacentTilesAvoidNoFeature, GameInfo.Natural_Wonder_Placement[rn].AdjacentTilesAvoidNoFeature);
-		table.insert(self.MaximumAllowedAdjacentNoFeature, GameInfo.Natural_Wonder_Placement[rn].MaximumAllowedAdjacentNoFeature);
-		table.insert(self.AdjacentTilesAvoidForest, GameInfo.Natural_Wonder_Placement[rn].AdjacentTilesAvoidForest);
-		table.insert(self.MaximumAllowedAdjacentForest, GameInfo.Natural_Wonder_Placement[rn].MaximumAllowedAdjacentForest);
-		table.insert(self.AdjacentTilesAvoidJungle, GameInfo.Natural_Wonder_Placement[rn].AdjacentTilesAvoidJungle);
-		table.insert(self.MaximumAllowedAdjacentJungle, GameInfo.Natural_Wonder_Placement[rn].MaximumAllowedAdjacentJungle);
-		table.insert(self.AdjacentTilesAvoidOasis, GameInfo.Natural_Wonder_Placement[rn].AdjacentTilesAvoidOasis);
-		table.insert(self.MaximumAllowedAdjacentOasis, GameInfo.Natural_Wonder_Placement[rn].MaximumAllowedAdjacentOasis);
-		table.insert(self.AdjacentTilesAvoidFloodPlains, GameInfo.Natural_Wonder_Placement[rn].AdjacentTilesAvoidFloodPlains);
-		table.insert(self.MaximumAllowedAdjacentFloodPlains, GameInfo.Natural_Wonder_Placement[rn].MaximumAllowedAdjacentFloodPlains);
-		table.insert(self.AdjacentTilesAvoidMarsh, GameInfo.Natural_Wonder_Placement[rn].AdjacentTilesAvoidMarsh);
-		table.insert(self.MaximumAllowedAdjacentMarsh, GameInfo.Natural_Wonder_Placement[rn].MaximumAllowedAdjacentMarsh);
-		table.insert(self.AdjacentTilesAvoidIce, GameInfo.Natural_Wonder_Placement[rn].AdjacentTilesAvoidIce);
-		table.insert(self.MaximumAllowedAdjacentIce, GameInfo.Natural_Wonder_Placement[rn].MaximumAllowedAdjacentIce);
-		table.insert(self.AdjacentTilesAvoidAtoll, GameInfo.Natural_Wonder_Placement[rn].AdjacentTilesAvoidAtoll);
-		table.insert(self.MaximumAllowedAdjacentAtoll, GameInfo.Natural_Wonder_Placement[rn].MaximumAllowedAdjacentAtoll);
+		table.insert(self.AdjacentTilesCareAboutFeatureTypes, row.AdjacentTilesCareAboutFeatureTypes);
+		table.insert(self.AdjacentTilesRequireNoFeature, row.AdjacentTilesRequireNoFeature);
+		table.insert(self.RequiredNumberOfAdjacentNoFeature, row.RequiredNumberOfAdjacentNoFeature);
+		table.insert(self.AdjacentTilesRequireForest, row.AdjacentTilesRequireForest);
+		table.insert(self.RequiredNumberOfAdjacentForest, row.RequiredNumberOfAdjacentForest);
+		table.insert(self.AdjacentTilesRequireJungle, row.AdjacentTilesRequireJungle);
+		table.insert(self.RequiredNumberOfAdjacentJungle, row.RequiredNumberOfAdjacentJungle);
+		table.insert(self.AdjacentTilesRequireOasis, row.AdjacentTilesRequireOasis);
+		table.insert(self.RequiredNumberOfAdjacentOasis, row.RequiredNumberOfAdjacentOasis);
+		table.insert(self.AdjacentTilesRequireFloodPlains, row.AdjacentTilesRequireFloodPlains);
+		table.insert(self.RequiredNumberOfAdjacentFloodPlains, row.RequiredNumberOfAdjacentFloodPlains);
+		table.insert(self.AdjacentTilesRequireMarsh, row.AdjacentTilesRequireMarsh);
+		table.insert(self.RequiredNumberOfAdjacentMarsh, row.RequiredNumberOfAdjacentMarsh);
+		table.insert(self.AdjacentTilesRequireIce, row.AdjacentTilesRequireIce);
+		table.insert(self.RequiredNumberOfAdjacentIce, row.RequiredNumberOfAdjacentIce);
+		table.insert(self.AdjacentTilesRequireAtoll, row.AdjacentTilesRequireAtoll);
+		table.insert(self.RequiredNumberOfAdjacentAtoll, row.RequiredNumberOfAdjacentAtoll);
+		table.insert(self.AdjacentTilesAvoidNoFeature, row.AdjacentTilesAvoidNoFeature);
+		table.insert(self.MaximumAllowedAdjacentNoFeature, row.MaximumAllowedAdjacentNoFeature);
+		table.insert(self.AdjacentTilesAvoidForest, row.AdjacentTilesAvoidForest);
+		table.insert(self.MaximumAllowedAdjacentForest, row.MaximumAllowedAdjacentForest);
+		table.insert(self.AdjacentTilesAvoidJungle, row.AdjacentTilesAvoidJungle);
+		table.insert(self.MaximumAllowedAdjacentJungle, row.MaximumAllowedAdjacentJungle);
+		table.insert(self.AdjacentTilesAvoidOasis, row.AdjacentTilesAvoidOasis);
+		table.insert(self.MaximumAllowedAdjacentOasis, row.MaximumAllowedAdjacentOasis);
+		table.insert(self.AdjacentTilesAvoidFloodPlains, row.AdjacentTilesAvoidFloodPlains);
+		table.insert(self.MaximumAllowedAdjacentFloodPlains, row.MaximumAllowedAdjacentFloodPlains);
+		table.insert(self.AdjacentTilesAvoidMarsh, row.AdjacentTilesAvoidMarsh);
+		table.insert(self.MaximumAllowedAdjacentMarsh, row.MaximumAllowedAdjacentMarsh);
+		table.insert(self.AdjacentTilesAvoidIce, row.AdjacentTilesAvoidIce);
+		table.insert(self.MaximumAllowedAdjacentIce, row.MaximumAllowedAdjacentIce);
+		table.insert(self.AdjacentTilesAvoidAtoll, row.AdjacentTilesAvoidAtoll);
+		table.insert(self.MaximumAllowedAdjacentAtoll, row.MaximumAllowedAdjacentAtoll);
 
-		table.insert(self.TileChangesMethodNumber, GameInfo.Natural_Wonder_Placement[rn].TileChangesMethodNumber);
-		table.insert(self.ChangeCoreTileToMountain, GameInfo.Natural_Wonder_Placement[rn].ChangeCoreTileToMountain);
-		table.insert(self.ChangeCoreTileToFlatland, GameInfo.Natural_Wonder_Placement[rn].ChangeCoreTileToFlatland);
-		table.insert(self.ChangeCoreTileTerrainToGrass, GameInfo.Natural_Wonder_Placement[rn].ChangeCoreTileTerrainToGrass);
-		table.insert(self.ChangeCoreTileTerrainToPlains, GameInfo.Natural_Wonder_Placement[rn].ChangeCoreTileTerrainToPlains);
-		table.insert(self.SetAdjacentTilesToShallowWater, GameInfo.Natural_Wonder_Placement[rn].SetAdjacentTilesToShallowWater);
+		table.insert(self.TileChangesMethodNumber, row.TileChangesMethodNumber);
+		table.insert(self.ChangeCoreTileToMountain, row.ChangeCoreTileToMountain);
+		table.insert(self.ChangeCoreTileToFlatland, row.ChangeCoreTileToFlatland);
+		table.insert(self.ChangeCoreTileTerrainToGrass, row.ChangeCoreTileTerrainToGrass);
+		table.insert(self.ChangeCoreTileTerrainToPlains, row.ChangeCoreTileTerrainToPlains);
+		table.insert(self.SetAdjacentTilesToShallowWater, row.SetAdjacentTilesToShallowWater);
 	end
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:GenerateCandidatePlotListsForSpecificNW()
+function ASP:GenerateCandidatePlotListsForSpecificNW()
 	-- Custom mapscripts can override this function to skip Natural Wonders that are not meant to be placed.
 	-- By default, all Natural Wonders are checked.
 	local iW, iH = Map.GetGridSize();
@@ -6463,7 +6288,7 @@ function AssignStartingPlots:GenerateCandidatePlotListsForSpecificNW()
 	end
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:GenerateNaturalWondersCandidatePlotLists(target_number)
+function ASP:GenerateNaturalWondersCandidatePlotLists(target_number)
 	-- This function scans the map for eligible sites for all "Natural Wonders" Features.
 
 	local iW, iH = Map.GetGridSize();
@@ -6481,31 +6306,28 @@ function AssignStartingPlots:GenerateNaturalWondersCandidatePlotLists(target_num
 		self.bWorldHasOceans = false;
 	end
 
-	-- Read the XML data. Count the number of wonders.
-	local iNumNW = 0;
-	for _ in GameInfo.Natural_Wonder_Placement() do
-		iNumNW = iNumNW + 1;
-	end
-
+	-- Read the database table. Count the number of wonders.
+	local iNumNW = #GameInfo.Natural_Wonder_Placement;
 	if iNumNW == 0 then
 		print("-"); print("*** No Natural Wonders found in Civ5Features.xml! ***"); print("-");
 		return {};
 	end
 
 	-- Set up NW IDs.
-	self.wonder_list = table.fill(-1, iNumNW);
-	local next_wonder_number = 1;
-	for row in GameInfo.Features() do
-		if row.NaturalWonder or row.PseudoNaturalWonder then
-			self.wonder_list[next_wonder_number] = row.Type;
-			next_wonder_number = next_wonder_number + 1;
+	for _, kFeatureInfo in GameInfoCache("Features") do
+		if kFeatureInfo.NaturalWonder or kFeatureInfo.PseudoNaturalWonder then
+			table.insert(self.wonder_list, kFeatureInfo.Type);
 		end
 	end
 
-	-- Set up Eligibility Lists.
-	for _ = 1, iNumNW do
-		table.insert(self.eligibility_lists, {});
+	-- Cross check whether Features and Natural_Wonder_Placement tables have the same number of NW.
+	if #self.wonder_list ~= iNumNW then
+		print("-"); print("*** ERROR: Different numbers of Natural Wonders found in Features and Natural_Wonder_Placement tables! Natural Wonders won't be placed. ***"); print("-");
+		return {};
 	end
+
+	-- Set up Eligibility Lists.
+	self.eligibility_lists = table.fill({}, iNumNW);
 
 	-- Set up Row Numbers.
 	for _, nw_type in ipairs(self.wonder_list) do
@@ -6606,7 +6428,7 @@ function AssignStartingPlots:GenerateNaturalWondersCandidatePlotLists(target_num
 	return NW_final_selections;
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:AttemptToPlaceNaturalWonder(wonder_number, row_number)
+function ASP:AttemptToPlaceNaturalWonder(wonder_number, row_number)
 	-- Attempts to place a specific natural wonder. The "wonder_number" is a Lua index while "row_number" is an XML index.
 	local iW, _ = Map.GetGridSize();
 	local feature_type_to_place;
@@ -6705,7 +6527,7 @@ function AssignStartingPlots:AttemptToPlaceNaturalWonder(wonder_number, row_numb
 	return false;
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:GetNumNaturalWondersToPlace(iWorldSize)
+function ASP:GetNumNaturalWondersToPlace(iWorldSize)
 	local tTarget = {
 		[GameInfo.Worlds.WORLDSIZE_DUEL.ID] = 2,
 		[GameInfo.Worlds.WORLDSIZE_TINY.ID] = 3,
@@ -6717,7 +6539,7 @@ function AssignStartingPlots:GetNumNaturalWondersToPlace(iWorldSize)
 	return tTarget[iWorldSize];
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:PlaceNaturalWonders()
+function ASP:PlaceNaturalWonders()
 	-- Determine how many NWs to attempt to place. Target is regulated per map size.
 	-- The final number cannot exceed the number the map has locations to support.
 	local target_number = self:GetNumNaturalWondersToPlace(Map.GetWorldSize());
@@ -6802,10 +6624,12 @@ function AssignStartingPlots:PlaceNaturalWonders()
 		print("-- Not all Natural Wonders targeted got placed --"); print("-"); print("-");
 	end
 end
+
 ------------------------------------------------------------------------------
 -- Start of functions tied to PlaceCityStates()
 ------------------------------------------------------------------------------
-function AssignStartingPlots:GetNumCityStatesPerRegion()
+
+function ASP:GetNumCityStatesPerRegion()
 	-- Extracted from AssignCityStatesToRegionsOrToUninhabited() for easy override
 	local ratio = self.iNumCityStates / self.iNumCivs;
 	if ratio > 14 then -- This is a ridiculous number of city states for a game with two civs, but we'll account for it anyway.
@@ -6827,7 +6651,7 @@ function AssignStartingPlots:GetNumCityStatesPerRegion()
 	end
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:GetNumCityStatesInUninhabitedRegion(iNumCivLandmassPlots, iNumUninhabitedLandmassPlots)
+function ASP:GetNumCityStatesInUninhabitedRegion(iNumCivLandmassPlots, iNumUninhabitedLandmassPlots)
 	-- Extracted from AssignCityStatesToRegionsOrToUninhabited() for easy override
 	local uninhabited_ratio = iNumUninhabitedLandmassPlots / (iNumCivLandmassPlots + iNumUninhabitedLandmassPlots);
 	local max_by_ratio = math.floor(3 * uninhabited_ratio * self.iNumCityStates);
@@ -6840,7 +6664,7 @@ function AssignStartingPlots:GetNumCityStatesInUninhabitedRegion(iNumCivLandmass
 	return math.min(self.iNumCityStatesUnassigned, max_by_ratio, max_by_method);
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:AssignCityStatesToRegions(current_cs_index)
+function ASP:AssignCityStatesToRegions(current_cs_index)
 	-- Extracted from AssignCityStatesToRegionsOrToUninhabited() for easy override
 	-- Assign the "Per Region" City States to their regions.
 	-- print("- - - - - - - - - - - - - - - - -"); print("Assigning City States to Regions");
@@ -6858,7 +6682,7 @@ function AssignStartingPlots:AssignCityStatesToRegions(current_cs_index)
 	return current_cs_index;
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:AssignCityStatesToRegionsOrToUninhabited()
+function ASP:AssignCityStatesToRegionsOrToUninhabited()
 	-- Placement methods include:
 	-- 1. Assign n Per Region
 	-- 2. Assign to uninhabited landmasses
@@ -7066,7 +6890,7 @@ function AssignStartingPlots:AssignCityStatesToRegionsOrToUninhabited()
 	end
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:CanPlaceCityStateAt(x, y, area_ID, force_it, ignore_collisions)
+function ASP:CanPlaceCityStateAt(x, y, area_ID, force_it, ignore_collisions)
 	local iW, iH = Map.GetGridSize();
 	local plot = Map.GetPlot(x, y);
 	local area = plot:GetArea();
@@ -7123,7 +6947,7 @@ function AssignStartingPlots:CanPlaceCityStateAt(x, y, area_ID, force_it, ignore
 	return true;
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:ObtainNextSectionInRegion(incoming_west_x, incoming_south_y, incoming_width, incoming_height, iAreaID, force_it, ignore_collisions)
+function ASP:ObtainNextSectionInRegion(incoming_west_x, incoming_south_y, incoming_width, incoming_height, iAreaID, force_it, ignore_collisions)
 	-- print("ObtainNextSectionInRegion called, for Area/Landmass#", iAreaID, "with SW plot at ", incoming_west_x, incoming_south_y, " Width/Height at", incoming_width, incoming_height);
 
 	-- This function carves off the outermost plots in a region, checks them for City State Placement eligibility,
@@ -7211,7 +7035,7 @@ function AssignStartingPlots:ObtainNextSectionInRegion(incoming_west_x, incoming
 	return coastal_plots, inland_plots, new_west_x, new_south_y, new_width, new_height, reached_middle;
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:PlaceCityState(coastal_plot_list, inland_plot_list, check_proximity, check_collision)
+function ASP:PlaceCityState(coastal_plot_list, inland_plot_list, check_proximity, check_collision)
 	-- returns coords, plus boolean indicating whether assignment succeeded or failed.
 	-- Argument "check_collision" should be false if plots in lists were already checked, true if not.
 	if not coastal_plot_list or not inland_plot_list then
@@ -7263,7 +7087,7 @@ function AssignStartingPlots:PlaceCityState(coastal_plot_list, inland_plot_list,
 	return 0, 0, false;
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:PlaceCityStateInRegion(city_state_number, region_number)
+function ASP:PlaceCityStateInRegion(city_state_number, region_number)
 	print("Place City State in Region called for City State", city_state_number, "Region", region_number);
 	local iW, _ = Map.GetGridSize();
 	local placed_city_state = false;
@@ -7323,7 +7147,7 @@ function AssignStartingPlots:PlaceCityStateInRegion(city_state_number, region_nu
 	end
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:PlaceCityStates()
+function ASP:PlaceCityStates()
 	print("Map Generation - Choosing sites for City States");
 	-- This function is dependent on AssignLuxuryRoles() having been executed first.
 	-- This is because some city state placements are made in compensation for drawing
@@ -7459,7 +7283,7 @@ function AssignStartingPlots:PlaceCityStates()
 	end
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:NormalizeCityState(x, y)
+function ASP:NormalizeCityState(x, y)
 	-- Similar to the version for normalizing civ starts, but less placed, no third-ring considerations and different weightings.
 	local iW, iH = Map.GetGridSize();
 	local isEvenY = true;
@@ -7783,7 +7607,8 @@ function AssignStartingPlots:NormalizeCityState(x, y)
 	end
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:NormalizeCityStateLocations()
+--- Dependent on PlaceLuxuries being executed first.
+function ASP:NormalizeCityStateLocations()
 	for city_state, data_table in ipairs(self.cityStatePlots) do
 		if self.city_state_validity_table[city_state] then
 			local x = data_table[1];
@@ -7794,10 +7619,12 @@ function AssignStartingPlots:NormalizeCityStateLocations()
 		end
 	end
 end
+
 ------------------------------------------------------------------------------
 -- Start of functions tied to PlaceResourcesAndCityStates()
 ------------------------------------------------------------------------------
-function AssignStartingPlots:GenerateResourcePlotListsFromSpecificPlots(plotList)
+
+function ASP:GenerateResourcePlotListsFromSpecificPlots(plotList)
 	-- This function generates resource plot lists out of a given list of plots.
 	-- This is called by GenerateGlobalResourcePlotLists, GenerateLuxuryPlotListsAtCitySite and GenerateLuxuryPlotListsInRegion.
 
@@ -8059,7 +7886,7 @@ function AssignStartingPlots:GenerateResourcePlotListsFromSpecificPlots(plotList
 	return tResourceList;
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:GenerateGlobalResourcePlotLists()
+function ASP:GenerateGlobalResourcePlotLists()
 	-- This function generates all global plot lists needed for resource distribution.
 	local iW, iH = Map.GetGridSize();
 	local plotList = {};
@@ -8087,7 +7914,7 @@ function AssignStartingPlots:GenerateGlobalResourcePlotLists()
 	-- print("Maize list size:", table.maxn(self.global_resource_plot_lists[PlotListTypes.MAIZE]));
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:PlaceStrategicResourceImpact(x, y, radius)
+function ASP:PlaceStrategicResourceImpact(x, y, radius)
 	self:PlaceResourceImpact(x, y, ImpactLayers.LAYER_IRON, radius);
 	self:PlaceResourceImpact(x, y, ImpactLayers.LAYER_HORSE, radius);
 	self:PlaceResourceImpact(x, y, ImpactLayers.LAYER_COAL, radius);
@@ -8096,7 +7923,7 @@ function AssignStartingPlots:PlaceStrategicResourceImpact(x, y, radius)
 	self:PlaceResourceImpact(x, y, ImpactLayers.LAYER_URANIUM, radius);
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:CountTotalStrategicResourceImpact(plotIndex)
+function ASP:CountTotalStrategicResourceImpact(plotIndex)
 	return self.impactData[ImpactLayers.LAYER_IRON][plotIndex] +
 		self.impactData[ImpactLayers.LAYER_HORSE][plotIndex] +
 		self.impactData[ImpactLayers.LAYER_COAL][plotIndex] +
@@ -8105,7 +7932,7 @@ function AssignStartingPlots:CountTotalStrategicResourceImpact(plotIndex)
 		self.impactData[ImpactLayers.LAYER_URANIUM][plotIndex];
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:IsImpactLayerStrategic(layerIndex)
+function ASP:IsImpactLayerStrategic(layerIndex)
 	return layerIndex == ImpactLayers.LAYER_IRON or
 		layerIndex == ImpactLayers.LAYER_HORSE or
 		layerIndex == ImpactLayers.LAYER_COAL or
@@ -8114,7 +7941,12 @@ function AssignStartingPlots:IsImpactLayerStrategic(layerIndex)
 		layerIndex == ImpactLayers.LAYER_URANIUM;
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:PlaceResourceImpact(x, y, impact_table_number, radius)
+--- Called from PlaceImpactAndRipples
+--- @param x integer
+--- @param y integer
+--- @param impact_table_number ImpactLayer
+--- @param radius integer
+function ASP:PlaceResourceImpact(x, y, impact_table_number, radius)
 	-- This function operates upon one of the "impact and ripple" data overlays for resources.
 	-- These data layers are a primary way of preventing assignments from clustering too much.
 	local iW, iH = Map.GetGridSize();
@@ -8199,7 +8031,7 @@ function AssignStartingPlots:PlaceResourceImpact(x, y, impact_table_number, radi
 	end
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:ProcessResourceList(frequency, impact_table_number, plot_list, resources_to_place)
+function ASP:ProcessResourceList(frequency, impact_table_number, plot_list, resources_to_place)
 	-- Added a random factor to strategic resources - Thalassicus
 
 	-- This function needs to receive two numbers and two tables.
@@ -8346,7 +8178,7 @@ function AssignStartingPlots:ProcessResourceList(frequency, impact_table_number,
 	end
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:PlaceSpecificNumberOfResources(resource_ID, quantity, amount,
+function ASP:PlaceSpecificNumberOfResources(resource_ID, quantity, amount,
 	                         ratio, impact_table_number, min_radius, max_radius, plot_list)
 	-- This function needs to receive seven numbers and one table.
 
@@ -8432,7 +8264,7 @@ function AssignStartingPlots:PlaceSpecificNumberOfResources(resource_ID, quantit
 	return iNumLeftToPlace;
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:IdentifyRegionsOfThisType(region_type)
+function ASP:IdentifyRegionsOfThisType(region_type)
 	-- Necessary for assigning luxury types to regions.
 	local regions_of_this_type = {};
 	for index, current_type in ipairs(self.regionTypes) do
@@ -8449,7 +8281,7 @@ function AssignStartingPlots:IdentifyRegionsOfThisType(region_type)
 	end
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:SortRegionsByType()
+function ASP:SortRegionsByType()
 	-- Necessary for assigning luxury types to regions.
 	for check_this_type = 1, NUM_REGION_TYPES - 1 do
 		self:IdentifyRegionsOfThisType(check_this_type);
@@ -8457,7 +8289,7 @@ function AssignStartingPlots:SortRegionsByType()
 	self:IdentifyRegionsOfThisType(0); -- If any Undefined Regions, put them at the bottom of the list.
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:AssignLuxuryToRegion(region_number)
+function ASP:AssignLuxuryToRegion(region_number)
 	local iNumMaxAllowedForRegions = 16; -- Constant: Maximum luxury types allowed to be assigned to regional distribution. CANNOT be reduced below 8!
 
 	-- Assigns a luxury type to an individual region.
@@ -8472,7 +8304,7 @@ function AssignStartingPlots:AssignLuxuryToRegion(region_number)
 	-- Build options list.
 	local iNumAvailableTypes = 0;
 	local resource_IDs, resource_weights, res_threshold = {}, {}, {};
-	local split_cap = self:GetLuxuriesSplitCap(); -- New for expansion. Cap no longer set to hardcoded value of 3.
+	local split_cap = self:GetLuxuriesSplitCap();
 
 	for _, resource_options in ipairs(luxury_candidates) do
 		local res_ID = resource_options[1];
@@ -8613,8 +8445,10 @@ function AssignStartingPlots:AssignLuxuryToRegion(region_number)
 	return use_this_ID;
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:GetLuxuriesSplitCap()
-	-- This data was separated out to allow easy replacement in map scripts.
+--- New for expansion. Cap no longer set to hardcoded value of 3.
+--- This was separated out to allow easy replacement in map scripts.
+--- @return integer
+function ASP:GetLuxuriesSplitCap()
 	local split_cap = 1;
 	if self.iNumCivs > 16 then
 		split_cap = 2;
@@ -8622,9 +8456,10 @@ function AssignStartingPlots:GetLuxuriesSplitCap()
 	return split_cap;
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:GetCityStateLuxuriesTargetNumber()
-	-- This data was separated out to allow easy replacement in map scripts.
-	-- This function is currently UNUSED.
+--- This was separated out to allow easy replacement in map scripts.
+--- This function is currently UNUSED.
+--- @return integer
+function ASP:GetCityStateLuxuriesTargetNumber()
 	local worldsizes = {
 		[GameInfo.Worlds.WORLDSIZE_DUEL.ID] = 3,
 		[GameInfo.Worlds.WORLDSIZE_TINY.ID] = 3,
@@ -8637,7 +8472,7 @@ function AssignStartingPlots:GetCityStateLuxuriesTargetNumber()
 	return CSluxCount;
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:GetDisabledLuxuriesTargetNumber()
+function ASP:GetDisabledLuxuriesTargetNumber()
 	-- This data was separated out to allow easy replacement in map scripts.
 	-- This function is currently UNUSED.
 	local worldsizes = {
@@ -8652,7 +8487,7 @@ function AssignStartingPlots:GetDisabledLuxuriesTargetNumber()
 	return maxToDisable;
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:GetRandomLuxuriesTargetNumber()
+function ASP:GetRandomLuxuriesTargetNumber()
 	-- This data was separated out to allow easy replacement in map scripts.
 	-- With more luxuries available, this ensures that the total luxuries used each game still match the default game,
 	-- except for Huge, which really needed a few more anyway!
@@ -8668,7 +8503,7 @@ function AssignStartingPlots:GetRandomLuxuriesTargetNumber()
 	return maxRandoms;
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:AssignLuxuryRoles()
+function ASP:AssignLuxuryRoles()
 	-- Each region gets an individual Luxury type assigned to it.
 	-- Each Luxury type can be assigned to no more than three regions.
 	-- No more than nine total Luxury types will be assigned to regions.
@@ -8848,7 +8683,7 @@ function AssignStartingPlots:AssignLuxuryRoles()
 	--]]
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:GetListOfAllowableLuxuriesAtCitySite(x, y, radius)
+function ASP:GetListOfAllowableLuxuriesAtCitySite(x, y, radius)
 	-- print("-"); print("- -"); print("Getting list of luxuries allowable at city state site:", x, y, "Radius:", radius);
 	local iW, iH = Map.GetGridSize();
 	local wrapX = Map:IsWrapX();
@@ -8856,7 +8691,7 @@ function AssignStartingPlots:GetListOfAllowableLuxuriesAtCitySite(x, y, radius)
 	local odd = self.firstRingYIsOdd;
 	local even = self.firstRingYIsEven;
 	local nextX, nextY, plot_adjustments;
-	local allowed_luxuries = table.fill(false, self.MAX_RESOURCE_INDEX);
+	local allowed_luxuries = table.fill(false, MAX_RESOURCE_INDEX);
 
 	for ripple_radius = 1, radius do
 		local currentX = x - ripple_radius;
@@ -9034,7 +8869,8 @@ function AssignStartingPlots:GetListOfAllowableLuxuriesAtCitySite(x, y, radius)
 	return allowed_luxuries;
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:GenerateLuxuryPlotListsAtCitySite(x, y, radius, bRemoveFeatureIce)
+-- Also doubles as Ice Removal.
+function ASP:GenerateLuxuryPlotListsAtCitySite(x, y, radius, bRemoveFeatureIce)
 	-- bRemoveFeatureIce is piggybacked on to this function to reduce redundant code.
 	-- If ice is being removed from around a plot, ONLY that will occur. If both ice
 	-- removal and plot list generation are desired, call this function twice.
@@ -9100,7 +8936,7 @@ function AssignStartingPlots:GenerateLuxuryPlotListsAtCitySite(x, y, radius, bRe
 	return self:GenerateResourcePlotListsFromSpecificPlots(plotList);
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:GenerateLuxuryPlotListsInRegion(region_number)
+function ASP:GenerateLuxuryPlotListsInRegion(region_number)
 	local iW, iH = Map.GetGridSize();
 	-- This function groups a region's plots in to lists, for Luxury resource assignment.
 	local region_data_table = self.regionData[region_number];
@@ -9164,7 +9000,7 @@ function AssignStartingPlots:GenerateLuxuryPlotListsInRegion(region_number)
 	return self:GenerateResourcePlotListsFromSpecificPlots(plotList);
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:GetIndicesForLuxuryType(resource_ID)
+function ASP:GetIndicesForLuxuryType(resource_ID)
 	-- This function will identify up to 6 of the plot lists defined in GenerateResourcePlotListsFromSpecificPlots that match terrain best suitable for this type of luxury.
 	-- print("-"); print("Obtaining indices for Luxury#", resource_ID);
 	local tList = {};
@@ -9497,7 +9333,7 @@ function AssignStartingPlots:GetIndicesForLuxuryType(resource_ID)
 	return tList;
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:GetRegionLuxuryTargetNumbers()
+function ASP:GetRegionLuxuryTargetNumbers()
 	-- This data was separated out to allow easy replacement in map scripts.
 
 	-- This table, indexed by civ-count, provides the target amount of luxuries to place in each region.
@@ -9524,7 +9360,7 @@ function AssignStartingPlots:GetRegionLuxuryTargetNumbers()
 	return target_list;
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:GetWorldLuxuryTargetNumbers()
+function ASP:GetWorldLuxuryTargetNumbers()
 	-- This data was separated out to allow easy replacement in map scripts.
 
 	-- The first number is the target for total luxuries in the world, NOT
@@ -9572,15 +9408,15 @@ function AssignStartingPlots:GetWorldLuxuryTargetNumbers()
 	return world_size_data;
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:GetLowFertilityCompensations(iNumRegions)
+function ASP:GetLowFertilityCompensations(iNumRegions)
 	-- Extracted from PlaceLuxuries() for easy override
 	-- No fertility compensations by default
 	local region_low_fert_compensation = table.fill(0, iNumRegions); -- Stores number of luxury compensation each region received
-	local luxury_low_fert_compensation = table.fill(0, self.MAX_RESOURCE_INDEX); -- Stores number of times each resource ID had extras handed out at civ starts. WARNING: Don't use ID 0.
+	local luxury_low_fert_compensation = table.fill(0, MAX_RESOURCE_INDEX); -- Stores number of times each resource ID had extras handed out at civ starts. WARNING: Don't use ID 0.
 	return region_low_fert_compensation, luxury_low_fert_compensation;
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:PlaceLuxuries(args)
+function ASP:PlaceLuxuries(args)
 	-- This function is dependent upon AssignLuxuryRoles() and PlaceCityStates() having been executed first.
 
 	args = args or {};
@@ -9957,7 +9793,7 @@ function AssignStartingPlots:PlaceLuxuries(args)
 	self.realtotalLuxPlacedSoFar = self.totalLuxPlacedSoFar; -- MOD.Barathor: New -- save the real total of luxuries before it gets corrupted with non-luxury additions which use the luxury placement method
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:PlaceMarble()
+function ASP:PlaceMarble()
 	local marble_already_placed = self.amounts_of_resources_placed[self.marble_ID + 1];
 	local marble_target = math.ceil(self.iNumCivs * 0.75);
 	if self.luxuryDensity == 1 then
@@ -9980,7 +9816,7 @@ function AssignStartingPlots:PlaceMarble()
 	end
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:PlaceIvory()
+function ASP:PlaceIvory()
 	local ivory_already_placed = self.amounts_of_resources_placed[self.ivory_ID + 1];
 	local ivory_target = math.ceil(self.iNumCivs * 0.75);
 	if self.luxuryDensity == 1 then
@@ -10009,7 +9845,7 @@ function AssignStartingPlots:PlaceIvory()
 	end
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:PlaceSmallQuantitiesOfStrategics(frequency, plot_list)
+function ASP:PlaceSmallQuantitiesOfStrategics(frequency, plot_list)
 	-- This function distributes small quantities of strategic resources.
 	if not plot_list then
 		print("No strategics were placed! -SmallQuantities");
@@ -10233,7 +10069,7 @@ function AssignStartingPlots:PlaceSmallQuantitiesOfStrategics(frequency, plot_li
 	end
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:PlaceFish(frequency, plot_list)
+function ASP:PlaceFish(frequency, plot_list)
 	-- This function places fish at members of plot_list. (Sounds fishy to me!)
 	if not plot_list then
 		print("No fish were placed! -PlaceFish");
@@ -10275,7 +10111,7 @@ function AssignStartingPlots:PlaceFish(frequency, plot_list)
 	end
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:PlaceSexyBonusAtCivStarts()
+function ASP:PlaceSexyBonusAtCivStarts()
 	-- This function will place a Bonus resource in the third ring around a Civ's start.
 	-- The added Bonus is meant to make the start look more sexy, so to speak.
 	-- Third-ring resources will take a long time to bring online, but will assist the site in the late game.
@@ -10423,7 +10259,7 @@ function AssignStartingPlots:PlaceSexyBonusAtCivStarts()
 	end
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:AddExtraBonusesToHillsRegions()
+function ASP:AddExtraBonusesToHillsRegions()
 	-- Hills/Mountain regions are very low on food, yet not deemed by the fertility measurements to be so.
 	-- Spreading some food bonus around in these regions will help bring them up closer to par.
 	local iW, iH = Map.GetGridSize();
@@ -10599,7 +10435,7 @@ function AssignStartingPlots:AddExtraBonusesToHillsRegions()
 	end
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:AddModernMinorStrategicsToCityStates()
+function ASP:AddModernMinorStrategicsToCityStates()
 	-- This function added Spring 2011. Purpose is to add a small strategic to most city states.
 	local _, _, oil_amt, _, coal_amt, alum_amt = self:GetSmallStrategicResourceQuantityValues();
 	for city_state = 1, self.iNumCityStates do
@@ -10667,7 +10503,7 @@ function AssignStartingPlots:AddModernMinorStrategicsToCityStates()
 	end
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:PlaceOilInTheSea()
+function ASP:PlaceOilInTheSea()
 	-- Places sources of Oil in Coastal waters, equal to half what's on the
 	-- land. If the map has too little ocean, then whatever will fit.
 
@@ -10685,7 +10521,7 @@ function AssignStartingPlots:PlaceOilInTheSea()
 	self:PlaceSpecificNumberOfResources(self.oil_ID, sea_oil_amt_major, iNumToPlaceMajor, 0.2, ImpactLayers.LAYER_OIL, 4, 7, tPlotList);
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:AttemptToPlaceTreesAtResourcePlot(plot)
+function ASP:AttemptToPlaceTreesAtResourcePlot(plot)
 	-- Sub-function of AdjustTiles()
 	-- Place forest or jungle on a resource plot depending on latitude and resource type
 	local iResourceType = plot:GetResourceType();
@@ -10700,7 +10536,7 @@ function AssignStartingPlots:AttemptToPlaceTreesAtResourcePlot(plot)
 	end
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:AdjustTiles()
+function ASP:AdjustTiles()
 	--[[ MOD.Barathor:
 
 		 Hijacked this function and it now fixes many resource types. Formerly, this function was FixSugarJungles.
@@ -10858,7 +10694,7 @@ function AssignStartingPlots:AdjustTiles()
 	end
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:PrintFinalResourceTotalsToLog()
+function ASP:PrintFinalResourceTotalsToLog()
 	print("-");
 	print("--- Table of Results, New Start Finder ---");
 	for loop, startData in ipairs(self.startingPlots) do
@@ -10982,7 +10818,7 @@ function AssignStartingPlots:PrintFinalResourceTotalsToLog()
 	print("-----------------------------------------------------");
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:GetMajorStrategicResourceQuantityValues()
+function ASP:GetMajorStrategicResourceQuantityValues()
 	-- This function determines quantity per tile for each strategic resource's major deposit size.
 	-- Note: scripts that cannot place Oil in the sea need to increase amounts on land to compensate.
 	local uran_amt, horse_amt, oil_amt, iron_amt, coal_amt, alum_amt = 2, 3, 5, 3, 4, 7;
@@ -11001,7 +10837,7 @@ function AssignStartingPlots:GetMajorStrategicResourceQuantityValues()
 	return uran_amt, horse_amt, oil_amt, iron_amt, coal_amt, alum_amt;
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:GetSmallStrategicResourceQuantityValues()
+function ASP:GetSmallStrategicResourceQuantityValues()
 	-- This function determines quantity per tile for each strategic resource's small deposit size.
 	local uran_amt, horse_amt, oil_amt, iron_amt, coal_amt, alum_amt = 1, 2, 2, 2, 2, 3;
 	-- Check the strategic deposit size setting.
@@ -11019,7 +10855,7 @@ function AssignStartingPlots:GetSmallStrategicResourceQuantityValues()
 	return uran_amt, horse_amt, oil_amt, iron_amt, coal_amt, alum_amt;
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:PlaceStrategicAndBonusResources()
+function ASP:PlaceStrategicAndBonusResources()
 	-- KEY: {Resource ID, Quantity (0 = unquantified), weighting, minimum radius, maximum radius}
 	-- KEY: (frequency (1 per n plots in the list), impact list number, plot list, resource data)
 
@@ -11173,7 +11009,7 @@ function AssignStartingPlots:PlaceStrategicAndBonusResources()
 	self:PlaceBonusResources();
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:PlaceBonusResources()
+function ASP:PlaceBonusResources()
 	local resMultiplier = 1;
 	if self.bonusDensity == 1 then -- Sparse, so increase the number of tiles per bonus.
 		resMultiplier = 1.5;
@@ -11426,7 +11262,7 @@ function AssignStartingPlots:PlaceBonusResources()
 	end
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:PlaceResourcesAndCityStates(args)
+function ASP:PlaceResourcesAndCityStates(args)
 	--[[
 	This function controls nearly all resource placement.
 	Only resources placed during Normalization operations are handled elsewhere.
@@ -11477,7 +11313,7 @@ end
 -- HELPER FUNCTIONS
 ------------------------------------------------------------------------------
 -- Check if Even More Resources for Vox Populi is activated
-function AssignStartingPlots:IsEvenMoreResourcesActive()
+function ASP:IsEvenMoreResourcesActive()
 	local communityPatchModID = "d1b6328c-ff44-4b0d-aad7-c657f83610cd";
 	local evenMoreResourcesModID = "8e54eb87-31e8-4fcd-aafe-ede055b463d0";
 	local isUsingCommunityPatch = false;
@@ -11498,7 +11334,7 @@ function AssignStartingPlots:IsEvenMoreResourcesActive()
 	return false;
 end
 --------------------------------------------------------------------------------
-function AssignStartingPlots:IsAloeVeraResourceActive()
+function ASP:IsAloeVeraResourceActive()
 	local communityPatchModID = "d1b6328c-ff44-4b0d-aad7-c657f83610cd";
 	local aloeVeraModID = "c2c3797b-2728-417c-94c8-f30410528bf2";
 	local isUsingCommunityPatch = false;
@@ -11519,7 +11355,7 @@ function AssignStartingPlots:IsAloeVeraResourceActive()
 	return false;
 end
 --------------------------------------------------------------------------------
-function AssignStartingPlots:IsAdditionalLuxuriesModActive()
+function ASP:IsAdditionalLuxuriesModActive()
 	local communityPatchModID = "d1b6328c-ff44-4b0d-aad7-c657f83610cd";
 	local AddLuxuriesModID = "8634880a-749f-4d64-aa68-560378e0f007";
 	local isUsingCommunityPatch = false;
@@ -11541,7 +11377,7 @@ function AssignStartingPlots:IsAdditionalLuxuriesModActive()
 end
 --------------------------------------------------------------------------------
 -- Check if Reduced Supply for Vox Populi is activated
-function AssignStartingPlots:IsReducedSupplyActive()
+function ASP:IsReducedSupplyActive()
 	local communityPatchModID = "d1b6328c-ff44-4b0d-aad7-c657f83610cd";
 	local ReducedSupplyModID = "abbade81-2894-41e9-SUPP-SWVPx13a770d";
 	local isUsingCommunityPatch = false;
@@ -11563,7 +11399,7 @@ function AssignStartingPlots:IsReducedSupplyActive()
 	return false;
 end
 ----------------------------------------------------------------
-function AssignStartingPlots:Plot_GetPlotsInCircle(plot, minR, maxR)
+function ASP:Plot_GetPlotsInCircle(plot, minR, maxR)
 	if not plot then
 		print("plot:GetPlotsInCircle plot=nil");
 		return;
@@ -11624,7 +11460,7 @@ function AssignStartingPlots:Plot_GetPlotsInCircle(plot, minR, maxR)
 	end
 end
 ------------------------------------------------------
-function AssignStartingPlots:Plot_GetFertilityInRange(plot, range, yieldID)
+function ASP:Plot_GetFertilityInRange(plot, range, yieldID)
 	local value = 0;
 	for nearPlot, distance in self:Plot_GetPlotsInCircle(plot, range) do
 		value = value + self:Plot_GetFertility(nearPlot, yieldID) / math.max(1, distance);
@@ -11632,7 +11468,7 @@ function AssignStartingPlots:Plot_GetFertilityInRange(plot, range, yieldID)
 	return value;
 end
 ------------------------------------------------------
-function AssignStartingPlots:Plot_GetFertility(plot, yieldID, ignoreStrategics)
+function ASP:Plot_GetFertility(plot, yieldID, ignoreStrategics)
 	if plot:IsImpassable() or plot:GetTerrainType() == TerrainTypes.TERRAIN_OCEAN then
 		return 0;
 	end
@@ -11689,7 +11525,7 @@ function AssignStartingPlots:Plot_GetFertility(plot, yieldID, ignoreStrategics)
 	return value;
 end
 ------------------------------------------------------
-function AssignStartingPlots:IsTropical(y)
+function ASP:IsTropical(y)
 	local _, iH = Map.GetGridSize();
 	local lat = 0;
 	if y >= iH / 2 then
@@ -11712,18 +11548,18 @@ function AssignStartingPlots:IsTropical(y)
 	return lat <= AvgJungleRange;
 end
 ------------------------------------------------------
-function AssignStartingPlots:IsBetween(lower, mid, upper)
+function ASP:IsBetween(lower, mid, upper)
 	return lower <= mid and mid <= upper;
 end
 ------------------------------------------------------
-function AssignStartingPlots:Constrain(lower, mid, upper)
+function ASP:Constrain(lower, mid, upper)
 	return math.max(lower, math.min(mid, upper));
 end
 ------------------------------------------------------
 -- Get random multiplier normalized to 1
 -- rand: optional random value
 -- higher: optional boolean, determines >1 or <1
-function AssignStartingPlots:GetRandomMultiplier(variance, rand, higher)
+function ASP:GetRandomMultiplier(variance, rand, higher)
 	higher = higher or (1 == Map.Rand(2, "GetRandomMultiplier"));
 
 	local multiplier = 1;
@@ -11742,7 +11578,7 @@ end
 ------------------------------------------------------
 -- Get random integer between min and max inclusive
 -- min and max must be integers
-function AssignStartingPlots:GetRandomFromRangeInclusive(min, max)
+function ASP:GetRandomFromRangeInclusive(min, max)
 	if min > max then
 		return self:GetRandomFromRangeInclusive(max, min);
 	end
@@ -11750,7 +11586,7 @@ function AssignStartingPlots:GetRandomFromRangeInclusive(min, max)
 end
 ------------------------------------------------------
 -- A copy of ObtainLandmassBoundaries from MapmakerUtilities, but actually works on landmass instead of area
-function AssignStartingPlots:GetLandmassBoundaries(iLandmassID)
+function ASP:GetLandmassBoundaries(iLandmassID)
 	local iW, iH = Map.GetGridSize();
 	-- Set up variables that will be returned by this function.
 	local wrapsX = false;
@@ -11967,6 +11803,10 @@ function AssignStartingPlots:GetLandmassBoundaries(iLandmassID)
 	local data = {iWestX, iSouthY, iEastX, iNorthY, iWidth, iHeight, wrapsX, wrapsY};
 	return data;
 end
+
+-- Finally, "export" the ASP class as a global
+AssignStartingPlots = ASP;
+
 ------------------------------------------------------------------------------
 --                             REFERENCE
 ------------------------------------------------------------------------------
