@@ -143,7 +143,7 @@
 					</Image>
 				</Button>
 			</Box>
-			<Box Offset="0,0" Anchor="L,T" Size="362,38" Color="255,255,255,0" ID="b2box" ToolTipType="CustomTooltip">
+			<Box Offset="0,0" Anchor="L,T" Size="362,38" Color="255,255,255,0" ID="b2box" ToolTipType="CityViewTooltip">
 				<Image Anchor="L,C" Offset="14,1" Texture="UnitPortraitsAncientMedieval360.dds" Size="45,45" ID="b2image"/>
 				<Label Anchor="L,B" Offset="60,22" Color0="255,255,200,255" Color1="0,0,0,128" Color2="255,255,200,255" Font="TwCenMT16" FontStyle="Shadow" ID="b2name"/>
 				<Label Anchor="L,B" Offset="60,6" Color0="255,255,200,255" Color1="0,0,0,128" Color2="255,255,200,255" Font="TwCenMT16" FontStyle="Shadow" ID="b2turns"/>
@@ -153,7 +153,7 @@
 				<Button Anchor="R,B" Offset="22,-2" Style="SelectedDown32" ToolTip="TXT_KEY_CITYVIEW_Q_DOWN_TEXT" ID="b2down"/>
 				<Button Anchor="R,B" Size="18,18" Offset="0,7" TextureOffset="0,0" Texture="assets\UI\Art\Controls\9 Grids\NewX.dds" ToolTip="TXT_KEY_CITYVIEW_Q_X_TEXT" ID="b2remove"/>
 			</Box>
-			<Box Offset="0,0" Anchor="L,T" Size="362,38" Color="255,255,255,0" ID="b3box" ToolTipType="CustomTooltip">
+			<Box Offset="0,0" Anchor="L,T" Size="362,38" Color="255,255,255,0" ID="b3box" ToolTipType="CityViewTooltip">
 				<Image Anchor="L,C" Offset="14,1" Texture="UnitPortraitsAncientMedieval360.dds" Size="45,45" ID="b3image"/>
 				<Label Anchor="L,B" Offset="60,22" Color0="255,255,200,255" Color1="0,0,0,128" Color2="255,255,200,255" Font="TwCenMT16" FontStyle="Shadow" ID="b3name"/>
 				<Label Anchor="L,B" Offset="60,6" Color0="255,255,200,255" Color1="0,0,0,128" Color2="255,255,200,255" Font="TwCenMT16" FontStyle="Shadow" ID="b3turns"/>
@@ -163,7 +163,7 @@
 				<Button Anchor="R,B" Offset="22,-2" Style="SelectedDown32" ToolTip="TXT_KEY_CITYVIEW_Q_DOWN_TEXT" ID="b3down"/>
 				<Button Anchor="R,B" Size="18,18" Offset="0,7" TextureOffset="0,0" Texture="assets\UI\Art\Controls\9 Grids\NewX.dds" ToolTip="TXT_KEY_CITYVIEW_Q_X_TEXT" ID="b3remove"/>
 			</Box>
-			<Box Offset="0,0" Anchor="L,T" Size="362,38" Color="255,255,255,0" ID="b4box" ToolTipType="CustomTooltip">
+			<Box Offset="0,0" Anchor="L,T" Size="362,38" Color="255,255,255,0" ID="b4box" ToolTipType="CityViewTooltip">
 				<Image Anchor="L,C" Offset="14,1" Texture="UnitPortraitsAncientMedieval360.dds" Size="45,45" ID="b4image"/>
 				<Label Anchor="L,B" Offset="60,22" Color0="255,255,200,255" Color1="0,0,0,128" Color2="255,255,200,255" Font="TwCenMT16" FontStyle="Shadow" ID="b4name"/>
 				<Label Anchor="L,B" Offset="60,6" Color0="255,255,200,255" Color1="0,0,0,128" Color2="255,255,200,255" Font="TwCenMT16" FontStyle="Shadow" ID="b4turns"/>
@@ -173,7 +173,7 @@
 				<Button Anchor="R,B" Offset="22,-2" Style="SelectedDown32" ToolTip="TXT_KEY_CITYVIEW_Q_DOWN_TEXT" ID="b4down"/>
 				<Button Anchor="R,B" Size="18,18" Offset="0,7" TextureOffset="0,0" Texture="assets\UI\Art\Controls\9 Grids\NewX.dds" ToolTip="TXT_KEY_CITYVIEW_Q_X_TEXT" ID="b4remove"/>
 			</Box>
-			<Box Offset="0,0" Anchor="L,T" Size="362,38" Color="255,255,255,0" ID="b5box" ToolTipType="CustomTooltip">
+			<Box Offset="0,0" Anchor="L,T" Size="362,38" Color="255,255,255,0" ID="b5box" ToolTipType="CityViewTooltip">
 				<Image Anchor="L,C" Offset="14,1" Texture="UnitPortraitsAncientMedieval360.dds" Size="45,45" ID="b5image"/>
 				<Label Anchor="L,B" Offset="60,22" Color0="255,255,200,255" Color1="0,0,0,128" Color2="255,255,200,255" Font="TwCenMT16" FontStyle="Shadow" ID="b5name"/>
 				<Label Anchor="L,B" Offset="60,6" Color0="255,255,200,255" Color1="0,0,0,128" Color2="255,255,200,255" Font="TwCenMT16" FontStyle="Shadow" ID="b5turns"/>
@@ -183,7 +183,7 @@
 				<Button Anchor="R,B" Offset="22,-2" Style="SelectedDown32" ToolTip="TXT_KEY_CITYVIEW_Q_DOWN_TEXT" ID="b5down"/>
 				<Button Anchor="R,B" Size="18,18" Offset="0,7" TextureOffset="0,0" Texture="assets\UI\Art\Controls\9 Grids\NewX.dds" ToolTip="TXT_KEY_CITYVIEW_Q_X_TEXT" ID="b5remove"/>
 			</Box>
-			<Box Offset="0,0" Anchor="L,T" Size="362,38" Color="255,255,255,0" ID="b6box" ToolTipType="CustomTooltip">
+			<Box Offset="0,0" Anchor="L,T" Size="362,38" Color="255,255,255,0" ID="b6box" ToolTipType="CityViewTooltip">
 				<Image Anchor="L,C" Offset="14,1" Texture="UnitPortraitsAncientMedieval360.dds" Size="45,45" ID="b6image"/>
 				<Label Anchor="L,B" Offset="60,22" Color0="255,255,200,255" Color1="0,0,0,128" Color2="255,255,200,255" Font="TwCenMT16" FontStyle="Shadow" ID="b6name"/>
 				<Label Anchor="L,B" Offset="60,6" Color0="255,255,200,255" Color1="0,0,0,128" Color2="255,255,200,255" Font="TwCenMT16" FontStyle="Shadow" ID="b6turns"/>
@@ -198,7 +198,7 @@
 	</Grid>
 	<!-- BUILDINGS -->
 	<Instance Name="BuildingInstance">
-		<Button NoStateChange="1" Anchor="L,C" Color="White,0" Offset="0,0" Size="254,64" ID="BuildingButton" ToolTipType="CustomTooltip">
+		<Button NoStateChange="1" Anchor="L,C" Color="White,0" Offset="0,0" Size="254,64" ID="BuildingButton" ToolTipType="CityViewTooltip">
 			<Label Anchor="R,T" Offset="64,8" TruncateWidth="185" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="BuildingName"/>
 			<Image Anchor="R,C" Size="64,64" Offset="0,-2" Texture="64x64FrameButtons.dds">
 				<Image Anchor="C,C" Texture="WonderAtlas512.dds" Size="64,64" ID="BuildingImage"/>
@@ -456,11 +456,4 @@
 			</Stack>
 		</Grid>
 	</Box>
-
-	<!-- Tooltip -->
-	<ToolTipType Name="CustomTooltip">
-		<Grid ID="TooltipGrid" Size="430,90" Offset="8,0" Padding="8,8" Style="GridBlack8" NoClip="1">
-			<Label ID="TooltipText" Offset="12,12" String="Brief description" LeadingOffset="-2" WrapWidth="400" Font="TwCenMT16"/>
-		</Grid>
-	</ToolTipType>
 </Context>

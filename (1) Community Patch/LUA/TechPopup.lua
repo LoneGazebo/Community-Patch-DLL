@@ -21,11 +21,25 @@ local g_eStealTechTargetPlayer = -1;
 local g_ePopup = -1;
 
 local L = Locale.Lookup;
+local VP = MapModData.VP;
+local GameInfoCache = VP.GameInfoCache;
 local Hide = CPK.UI.Control.Hide;
 local Show = CPK.UI.Control.Show;
 
 local TURNS_STRING = L("TXT_KEY_TURNS");
 local FREE_STRING = L("TXT_KEY_FREE");
+
+------------------------------------------------------------------
+local tooltipInstance = {};
+TTManager:GetTypeControlTable("CityViewTooltip", tooltipInstance);
+
+--- Shorthand for setting a custom tooltip and adjusting its size
+--- @param tooltip TooltipInstance
+--- @param strTooltip string
+local function SetTooltip(tooltip, strTooltip)
+	tooltip.TechTreeTooltipText:SetText(strTooltip);
+	tooltip.TechTreeTooltipGrid:DoAutoSize();
+end
 
 ------------------------------------------------------------------
 -- Close this popup
@@ -117,7 +131,16 @@ local function AddTechButton(kTechInfo, iNumTech)
 		end
 	end
 
-	instance.TechButton:SetToolTipString(GetHelpTextForTech(kTechInfo.ID));
+	-- Use a closure to track if we're already setting the tooltip
+	local bSettingTooltip = false;
+	instance.TechButton:SetToolTipCallback(function ()
+		if bSettingTooltip then
+			return;
+		end
+		bSettingTooltip = true;
+		SetTooltip(tooltipInstance, GetHelpTextForTech(kTechInfo.ID));
+		bSettingTooltip = false;
+	end);
 
 	-- Update the picture
 	if IconHookup(kTechInfo.PortraitIndex, 64, kTechInfo.IconAtlas, instance.TechPortrait) then
@@ -157,16 +180,16 @@ local function OnTechPanelUpdated()
 	instanceManager:ResetInstances();
 
 	if not Game.IsOption(GameOptionTypes.GAMEOPTION_NO_SCIENCE) then
-		for kTechInfo in GameInfo.Technologies() do
-			if pActivePlayer:CanResearch(kTechInfo.ID) then
+		for eTech, kTechInfo in GameInfoCache("Technologies") do
+			if pActivePlayer:CanResearch(eTech) then
 				-- No espionage - choosing a tech
 				if g_eStealTechTargetPlayer == -1 then
 					-- Normal research or free tech available
-					if iNumTech == 0 or pActivePlayer:CanResearchForFree(kTechInfo.ID) then
+					if iNumTech == 0 or pActivePlayer:CanResearchForFree(eTech) then
 						AddTechButton(kTechInfo, iNumTech);
 					end
 				-- Espionage - stealing a tech
-				elseif Players[g_eStealTechTargetPlayer]:HasTech(kTechInfo.ID) then
+				elseif Players[g_eStealTechTargetPlayer]:HasTech(eTech) then
 					AddTechButton(kTechInfo, 0);
 				end
 			end
