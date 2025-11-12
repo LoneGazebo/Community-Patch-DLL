@@ -1,94 +1,89 @@
--------------------------------------------------
--------------------------------------------------
-include( "InstanceManager" );
-local m_InstanceManager  = InstanceManager:new( "TurnIndicator",  "Anchor", Controls.Container );
+print("This is the modded PathHelpManager from Community Patch");
 
-local MOD_UI_DISPLAY_PRECISE_MOVEMENT_POINTS = GameInfo.CustomModOptions("Name = 'UI_DISPLAY_PRECISE_MOVEMENT_POINTS'")().Value == 1
+include("InstanceManager");
+include("CPK.lua");
 
--------------------------------------------------
--------------------------------------------------
-function OnPath( data )
-    m_InstanceManager:ResetInstances();
+local instanceManager = InstanceManager:new("TurnIndicator", "Anchor", Controls.Container);
 
-    local lastNode = { turn=1 };
-    for _, node in ipairs( data ) do
-    
-        if( node.turn ~= lastNode.turn ) then
-            BuildNode( lastNode, false );
-        end
-        
-        lastNode = node;
-    end
-    
-    BuildNode( lastNode, true );
-    
-end
-Events.UIPathFinderUpdate.Add( OnPath );
+local MOD_UI_DISPLAY_PRECISE_MOVEMENT_POINTS = CPK.Misc.CustomModOptionEnabled("UI_DISPLAY_PRECISE_MOVEMENT_POINTS");
 
+local MOVE_DENOMINATOR = GameDefines.MOVE_DENOMINATOR;
 
 -------------------------------------------------
--------------------------------------------------
-function BuildNode( data, bShowRemainingMoves )
-    local instance = m_InstanceManager:GetInstance();
+--- @param node PathNode
+--- @param bShowRemainingMoves boolean
+local function BuildNode(node, bShowRemainingMoves)
+	local instance = instanceManager:GetInstance();
 
-    -- see CvDllGameContext::TEMPCalculatePathFinderUpdates
-    if (not MOD_UI_DISPLAY_PRECISE_MOVEMENT_POINTS) then
-		local wholeturns = math.floor(data.turn/100);
-		local tmp = data.turn - wholeturns*100;
-		local totalmovementpoints = math.floor(tmp/10);
-		local remainder = tmp - totalmovementpoints*10;
+	-- See CvDllGameContext::TEMPCalculatePathFinderUpdates
+	if MOD_UI_DISPLAY_PRECISE_MOVEMENT_POINTS then
+		local iScale = MOVE_DENOMINATOR * 10;
+		local iTurns = math.floor(node.turn / iScale);
+		local iMoves = node.turn - iTurns * iScale;
 
-		if (remainder == 0) then
-			instance.TurnLabel:SetText(wholeturns);
-			instance.RemainingMoves:SetText("");
+		if iMoves == 0 then
+			-- Full moves (turn start) or no movement left (turn finished)
+			-- Value from path finder is as expected
+			instance.TurnLabel:SetText(iTurns);
 		else
-			instance.TurnLabel:SetText("<" .. (wholeturns+1));
-			instance.RemainingMoves:SetText("[ICON_MOVES]" .. remainder .. "/" .. totalmovementpoints);
+			-- Movement points left for the turn
+			-- By convention path finder returns completed turns, so we convert
+			instance.TurnLabel:SetText("<" .. (iTurns + 1));
+		end
+
+		if bShowRemainingMoves then
+			instance.RemainingMoves:SetText("[ICON_MOVES]" .. iMoves .. "/" .. MOVE_DENOMINATOR);
+		else
+			instance.RemainingMoves:SetText("");
 		end
 	else
-		local denominator = 60;
-		local scaler = denominator*10;
-		local wholeturns = math.floor(data.turn/scaler);
-		local remaining = data.turn - wholeturns*scaler;
+		local iTurns = math.floor(node.turn / 100);
+		local iRemainder = node.turn - iTurns * 100;
+		local iMaxMoves = math.floor(iRemainder / 10);
+		local iMoves = iRemainder - iMaxMoves * 10;
 
-		if (remaining==0) then
-			-- full moves (turn start) or no movement left (turn finished)
-			-- value from pathfinder is as expected
-			instance.TurnLabel:SetText(wholeturns);
-		else
-			-- movement points left for the turn
-			-- by convention pathfinder returns completed turns, so we convert
-			instance.TurnLabel:SetText("<" .. (wholeturns+1));
-		end
-
-		if (bShowRemainingMoves) then
-			-- for the plot the mouse is on we show extra info
-			instance.RemainingMoves:SetText("[ICON_MOVES]" .. remaining .. "/" .. denominator);
-		else
+		if iMoves == 0 then
+			instance.TurnLabel:SetText(iTurns);
 			instance.RemainingMoves:SetText("");
+		else
+			instance.TurnLabel:SetText("<" .. (iTurns + 1));
+			instance.RemainingMoves:SetText("[ICON_MOVES]" .. iMoves .. "/" .. iMaxMoves);
 		end
 	end
-    
-    local plot = Map.GetPlot( data.x, data.y );
-    if( plot ~= nil ) then
 
-        local worldPosX, worldPosY, worldPosZ = GridToWorld( data.x, data.y );
+	local pPlot = Map.GetPlot(node.x, node.y);
+	if pPlot then
+		local iWorldX, iWorldY, iWorldZ = GridToWorld(node.x, node.y);
 
-        if( plot:IsRevealed( Game.GetActiveTeam(), false ) ) then
-            worldPosZ = worldPosZ + 3;
-        else
-            worldPosZ = 15;            
-        end
-        
-        instance.Anchor:SetWorldPositionVal( worldPosX, worldPosY, worldPosZ );
-    end
+		if pPlot:IsRevealed(Game.GetActiveTeam(), false) then
+			iWorldZ = iWorldZ + 3;
+		else
+			iWorldZ = 15;
+		end
+
+		instance.Anchor:SetWorldPositionVal(iWorldX, iWorldY, iWorldZ);
+	end
 end
 
+-------------------------------------------------
+--- @param tPath PathNode[]
+Events.UIPathFinderUpdate.Add(function (tPath)
+	instanceManager:ResetInstances();
+
+	local lastNode = {turn = 1};
+	for _, node in ipairs(tPath) do
+		if node.turn ~= lastNode.turn then
+			BuildNode(lastNode, false);
+		end
+
+		lastNode = node;
+	end
+
+	BuildNode(lastNode, true);
+end);
 
 -------------------------------------------------
--------------------------------------------------
-function OnDisplay( bShow )
-    Controls.Container:SetHide( not bShow );
-end
-Events.DisplayMovementIndicator.Add( OnDisplay );
-
+--- @param bShow boolean
+Events.DisplayMovementIndicator.Add(function (bShow)
+	Controls.Container:SetHide(not bShow);
+end);
