@@ -70,3 +70,10 @@ ReligionTypes = {
 --- 	Tooltip: string,
 --- 	Score: integer,
 --- }
+
+--- See CvDllPathFinderUpdate.cpp and CvDllGameContext::TEMPCalculatePathFinderUpdates()
+--- @alias PathNode {
+--- 	x: integer,
+--- 	y: integer,
+--- 	turn: integer,
+--- }
