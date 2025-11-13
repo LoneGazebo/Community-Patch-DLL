@@ -3882,9 +3882,33 @@ window.globalSearchIndex = [
     "page": "units"
   },
   {
-    "nameFormatted": "Brute",
-    "name": "Brute",
+    "nameFormatted": "<span class=\"positive\">(Barbarian)</span> Brute",
+    "name": "[COLOR_POSITIVE_TEXT](Barbarian)[ENDCOLOR] Brute",
     "type": "UNIT_BARBARIAN_WARRIOR",
+    "page": "units"
+  },
+  {
+    "nameFormatted": "<span class=\"positive\">(Barbarian)</span> Galley",
+    "name": "[COLOR_POSITIVE_TEXT](Barbarian)[ENDCOLOR] Galley",
+    "type": "UNIT_GALLEY",
+    "page": "units"
+  },
+  {
+    "nameFormatted": "<span class=\"positive\">(Barbarian)</span> Archer",
+    "name": "[COLOR_POSITIVE_TEXT](Barbarian)[ENDCOLOR] Archer",
+    "type": "UNIT_BARBARIAN_ARCHER",
+    "page": "units"
+  },
+  {
+    "nameFormatted": "<span class=\"positive\">(Barbarian)</span> Spearman",
+    "name": "[COLOR_POSITIVE_TEXT](Barbarian)[ENDCOLOR] Spearman",
+    "type": "UNIT_BARBARIAN_SPEARMAN",
+    "page": "units"
+  },
+  {
+    "nameFormatted": "<span class=\"positive\">(Barbarian)</span> Swordsman",
+    "name": "[COLOR_POSITIVE_TEXT](Barbarian)[ENDCOLOR] Swordsman",
+    "type": "UNIT_BARBARIAN_SWORDSMAN",
     "page": "units"
   },
   {
@@ -4182,8 +4206,14 @@ window.globalSearchIndex = [
     "page": "units"
   },
   {
-    "nameFormatted": "Hand-Axe",
-    "name": "Hand-Axe",
+    "nameFormatted": "<span class=\"positive\">(Barbarian)</span> Horseman",
+    "name": "[COLOR_POSITIVE_TEXT](Barbarian)[ENDCOLOR] Horseman",
+    "type": "UNIT_BARBARIAN_HORSEMAN",
+    "page": "units"
+  },
+  {
+    "nameFormatted": "<span class=\"positive\">(Barbarian)</span> Hand-Axe",
+    "name": "[COLOR_POSITIVE_TEXT](Barbarian)[ENDCOLOR] Hand-Axe",
     "type": "UNIT_BARBARIAN_AXMAN",
     "page": "units"
   },

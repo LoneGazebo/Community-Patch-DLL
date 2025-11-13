@@ -10,12 +10,12 @@ include( "TechHelpInclude" );
 --END
 
 -- table.sort method for sorting alphabetically.
--- Civilization-specific entries (starting with "[COLOR_POSITIVE_TEXT") are sorted after regular entries.
+-- Civilization-specific entries (starting with "[COLOR_POSITIVE_TEXT]") are sorted after regular entries.
 function Alphabetically(a, b)
 	local aStartsWithColorText = string.sub(a.entryName, 1, 1) == "[";
 	local bStartsWithColorText = string.sub(b.entryName, 1, 1) == "[";
 
-	-- If one starts with "[" and the other doesn't, sort the one that doesn't 'first
+	-- If one starts with "[" and the other doesn't, sort the one that doesn't first
 	if aStartsWithColorText and not bStartsWithColorText then
 		return false;
 	elseif not aStartsWithColorText and bStartsWithColorText then
@@ -527,7 +527,7 @@ CivilopediaCategory[CategoryUnits].PopulateList = function()
 			local civNames = {};
 			for override in GameInfo.Civilization_UnitClassOverrides("UnitType = '" .. unitInfo.Type .. "'") do
 				local civ = GameInfo.Civilizations[override.CivilizationType];
-				if civ and civ.Type ~= "CIVILIZATION_BARBARIAN" and civ.Type ~= "CIVILIZATION_MINOR" then
+				if civ and civ.Type ~= "CIVILIZATION_MINOR" then
 					table.insert(civNames, Locale.ConvertTextKey(civ.Adjective));
 				end
 			end
@@ -832,7 +832,7 @@ CivilopediaCategory[CategoryBuildings].PopulateList = function()
 			local civNames = {};
 			for override in GameInfo.Civilization_BuildingClassOverrides("BuildingType = '" .. buildingInfo.Type .. "'") do
 				local civ = GameInfo.Civilizations[override.CivilizationType];
-				if civ and civ.Type ~= "CIVILIZATION_BARBARIAN" and civ.Type ~= "CIVILIZATION_MINOR" then
+				if civ and civ.Type ~= "CIVILIZATION_MINOR" then
 					table.insert(civNames, Locale.ConvertTextKey(civ.Adjective));
 				end
 			end
@@ -952,7 +952,7 @@ CivilopediaCategory[CategoryWonders].PopulateList = function()
 			local civNames = {};
 			for override in GameInfo.Civilization_BuildingClassOverrides("BuildingType = '" .. building.Type .. "'") do
 				local civ = GameInfo.Civilizations[override.CivilizationType];
-				if civ and civ.Type ~= "CIVILIZATION_BARBARIAN" and civ.Type ~= "CIVILIZATION_MINOR" then
+				if civ and civ.Type ~= "CIVILIZATION_MINOR" then
 					table.insert(civNames, Locale.ConvertTextKey(civ.Adjective));
 				end
 			end
@@ -999,7 +999,7 @@ CivilopediaCategory[CategoryWonders].PopulateList = function()
 			local civNames = {};
 			for override in GameInfo.Civilization_BuildingClassOverrides("BuildingType = '" .. building.Type .. "'") do
 				local civ = GameInfo.Civilizations[override.CivilizationType];
-				if civ and civ.Type ~= "CIVILIZATION_BARBARIAN" and civ.Type ~= "CIVILIZATION_MINOR" then
+				if civ and civ.Type ~= "CIVILIZATION_MINOR" then
 					table.insert(civNames, Locale.ConvertTextKey(civ.Adjective));
 				end
 			end
@@ -1082,7 +1082,7 @@ CivilopediaCategory[CategoryWonders].PopulateList = function()
 			local civNames = {};
 			for override in GameInfo.Civilization_BuildingClassOverrides("BuildingType = '" .. building.Type .. "'") do
 				local civ = GameInfo.Civilizations[override.CivilizationType];
-				if civ and civ.Type ~= "CIVILIZATION_BARBARIAN" and civ.Type ~= "CIVILIZATION_MINOR" then
+				if civ and civ.Type ~= "CIVILIZATION_MINOR" then
 					table.insert(civNames, Locale.ConvertTextKey(civ.Adjective));
 				end
 			end
@@ -1233,7 +1233,7 @@ CivilopediaCategory[CategoryPeople].PopulateList = function()
 				local civNames = {};
 				for override in GameInfo.Civilization_UnitClassOverrides("UnitType = '" .. unitInfo.Type .. "'") do
 					local civ = GameInfo.Civilizations[override.CivilizationType];
-					if civ and civ.Type ~= "CIVILIZATION_BARBARIAN" and civ.Type ~= "CIVILIZATION_MINOR" then
+					if civ and civ.Type ~= "CIVILIZATION_MINOR" then
 						table.insert(civNames, Locale.ConvertTextKey(civ.Adjective));
 					end
 				end

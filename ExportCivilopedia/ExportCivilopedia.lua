@@ -550,7 +550,7 @@ function ExportUnits()
             local civilizations = {}
             for override in GameInfo.Civilization_UnitClassOverrides("UnitType = '" .. row.Type .. "'") do
                 local civ = GameInfo.Civilizations[override.CivilizationType]
-                if civ and civ.Type ~= "CIVILIZATION_BARBARIAN" and civ.Type ~= "CIVILIZATION_MINOR" then
+                if civ and civ.Type ~= "CIVILIZATION_MINOR" then
                     table.insert(civNames, Locale.ConvertTextKey(civ.Adjective))
                     table.insert(civilizations, {
                         Type = civ.Type,
@@ -731,7 +731,7 @@ function ExportBuildings()
         local civilizations = {}
         for override in GameInfo.Civilization_BuildingClassOverrides("BuildingType = '" .. row.Type .. "'") do
             local civ = GameInfo.Civilizations[override.CivilizationType]
-            if civ and civ.Type ~= "CIVILIZATION_BARBARIAN" and civ.Type ~= "CIVILIZATION_MINOR" then
+            if civ and civ.Type ~= "CIVILIZATION_MINOR" then
                 table.insert(civNames, Locale.ConvertTextKey(civ.Adjective))
                 table.insert(civilizations, {
                         Type = civ.Type,
@@ -1442,7 +1442,7 @@ function ExportImprovements()
         -- Check if this is a civilization-specific improvement
         if row.CivilizationType then
             local civ = GameInfo.Civilizations[row.CivilizationType]
-            if civ and civ.Type ~= "CIVILIZATION_BARBARIAN" and civ.Type ~= "CIVILIZATION_MINOR" then
+            if civ and civ.Type ~= "CIVILIZATION_MINOR" then
                 improvementData.Civilizations = {{
                         Type = civ.Type,
                         Name = Locale.ConvertTextKey(civ.ShortDescription),
@@ -1850,7 +1850,7 @@ function ExportWonders()
             local civilizations = {}
             for override in GameInfo.Civilization_BuildingClassOverrides("BuildingType = '" .. row.Type .. "'") do
                 local civ = GameInfo.Civilizations[override.CivilizationType]
-                if civ and civ.Type ~= "CIVILIZATION_BARBARIAN" and civ.Type ~= "CIVILIZATION_MINOR" then
+                if civ and civ.Type ~= "CIVILIZATION_MINOR" then
                     table.insert(civNames, Locale.ConvertTextKey(civ.Adjective))
                     table.insert(civilizations, {
                         Type = civ.Type,
@@ -1901,7 +1901,7 @@ function ExportWonders()
             local civilizations = {}
             if safeGet(row, "CivilizationType") then
                 local civ = GameInfo.Civilizations[row.CivilizationType]
-                if civ and civ.Type ~= "CIVILIZATION_BARBARIAN" and civ.Type ~= "CIVILIZATION_MINOR" then
+                if civ and civ.Type ~= "CIVILIZATION_MINOR" then
                     table.insert(civNames, Locale.ConvertTextKey(civ.Adjective))
                     table.insert(civilizations, {
                         Type = civ.Type,
@@ -2023,7 +2023,7 @@ function ExportGreatPeople()
             local civilizations = {}
             for override in GameInfo.Civilization_UnitClassOverrides("UnitType = '" .. row.Type .. "'") do
                 local civ = GameInfo.Civilizations[override.CivilizationType]
-                if civ and civ.Type ~= "CIVILIZATION_BARBARIAN" and civ.Type ~= "CIVILIZATION_MINOR" then
+                if civ and civ.Type ~= "CIVILIZATION_MINOR" then
                     table.insert(civNames, Locale.ConvertTextKey(civ.Adjective))
                     table.insert(civilizations, {
                         Type = civ.Type,
