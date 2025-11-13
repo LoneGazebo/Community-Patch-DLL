@@ -1,0 +1,446 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #283a4c;
+    color: #333;
+    line-height: 1.6;
+    min-height: 100vh;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: #283a4c;
+    min-height: 100vh;
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.3);
+}
+
+header {
+    background: #283a4c;
+    color: white;
+    padding: 2rem;
+    text-align: center;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.subtitle {
+    font-size: 1.1rem;
+    opacity: 0.9;
+}
+
+.main-nav {
+    display: flex;
+    flex-wrap: wrap;
+    background: #34495e;
+    padding: 0;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.main-nav a {
+    color: white;
+    text-decoration: none;
+    padding: 1rem 1.5rem;
+    transition: background 0.3s;
+    border-bottom: 3px solid transparent;
+}
+
+.main-nav a:hover {
+    background: #3e5568;
+}
+
+.main-nav a.active {
+    background: #3e5568;
+}
+
+main {
+    padding: 2rem;
+    min-height: calc(100vh - 300px);
+}
+
+.welcome {
+    background: #34495e;
+    color: white;
+    padding: 2rem;
+    border-radius: 10px;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.welcome h2 {
+    margin-bottom: 1rem;
+    font-size: 2rem;
+}
+
+
+.search-box {
+    margin-bottom: 2rem;
+}
+
+#searchInput {
+    width: 100%;
+    padding: 1rem;
+    font-size: 1rem;
+    border: 2px solid #ddd;
+    border-radius: 5px;
+    transition: border-color 0.3s;
+}
+
+#searchInput:focus {
+    outline: none;
+    border-color: #3498db;
+}
+
+/* Concepts sidebar layout */
+.pediapage-layout {
+    display: flex;
+    gap: 0;
+    min-height: 600px;
+    padding: 0;
+}
+
+.pediapage-sidebar {
+    width: 300px;
+    background: #283a4c;
+    border-right: 2px solid #ddd;
+    overflow-y: auto;
+    max-height: calc(100vh - 200px);
+    position: sticky;
+    top: 0;
+}
+
+.sidebar-header {
+    background: #34495e;
+    color: white;
+    padding: 0.35rem 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    user-select: none;
+    border-bottom: 1px solid #eee;
+    border-top: 1px solid #eee;
+}
+
+.sidebar-section {
+    border-bottom: 1px solid #ddd;
+}
+
+.sidebar-section-header {
+    background: #34495e;
+    color: white;
+    padding: 0.35rem 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    user-select: none;
+    border-bottom: 1px solid #eee;
+    transition: background 0.2s;
+}
+
+.sidebar-section-header:hover {
+    background: #3e5568;
+}
+
+.sidebar-section-header .section-icon {
+    display: inline-block;
+    width: 1em;
+    transition: transform 0.2s;
+}
+
+.sidebar-section.collapsed .sidebar-section-header {
+    border-bottom: none;
+}
+
+.sidebar-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar-list li {
+    border-bottom: 1px solid #eee;
+}
+
+.sidebar-list li:last-child {
+    border-bottom: none;
+}
+
+.sidebar-list a {
+    display: block;
+    padding: 0.2rem 0.75rem;
+    color: white;
+    text-decoration: none;
+    transition: background 0.2s;
+    font-size: 0.9rem;
+}
+
+.sidebar-list a:hover {
+    background: #3e5568;
+    color: white;
+}
+
+.sidebar-list a.active {
+    background: #3e5568;
+    color: white;
+}
+
+.pediapage-content {
+    flex: 1;
+    padding: 2rem;
+    overflow-y: auto;
+    max-height: calc(100vh - 200px);
+}
+
+.placeholder {
+    color: white;
+}
+
+.placeholder h2 {
+    color: white;
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 3px solid #3498db;
+}
+
+.article-detail {
+    animation: fadeIn 0.3s;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.article-detail h2 {
+    color: white;
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 3px solid #3498db;
+}
+
+.summary {
+    margin-bottom: 1.5rem;
+}
+
+.summary h3 {
+    color: white;
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+}
+
+.text-box {
+    background: #283a4c;
+    border-left: 4px solid #3498db;
+    padding: 1.5rem;
+    border-radius: 5px;
+    line-height: 1.8;
+    text-align: justify;
+}
+
+.text-section {
+    background: white;
+}
+
+/* Links in text-box areas (resource details, etc.) */
+.text-box a {
+    color: #3498db;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.text-box a:hover {
+    color: #2980b9;
+    text-decoration: underline;
+}
+
+.text-box a:visited {
+    color: #9b59b6;
+}
+
+footer {
+    background: #34495e;
+    color: white;
+    text-align: center;
+    padding: 0.75rem;
+    margin-top: 2rem;
+}
+
+/* Civ5 formatting colors */
+
+.green {
+    color: #4caf50;
+}
+
+.positive {
+    color: #4caf50;
+    font-weight: bold;
+}
+
+
+.negative {
+    color: #f44336;
+    font-weight: bold;
+}
+
+.warning {
+    color: #ff9800;
+    font-weight: bold;
+}
+
+.cyan {
+    color: #00bcd4;
+}
+
+.yellow {
+    color: #ffeb3b;
+}
+
+.magenta {
+    color: #e91e63;
+}
+
+.white {
+    color: #9e9e9e;
+}
+
+.player-dark-green {
+    color: #2e7d32;
+    font-weight: bold;
+}
+
+.yield-food {
+    color: #8bc34a;
+    font-weight: bold;
+}
+
+.yield-production {
+    color: #ff9800;
+    font-weight: bold;
+}
+
+.yield-gold {
+    color: #ffc107;
+    font-weight: bold;
+}
+
+.yield-science {
+    color: #2196f3;
+    font-weight: bold;
+}
+
+.yield-culture {
+    color: #9c27b0;
+    font-weight: bold;
+}
+
+.yield-faith {
+    color: #cddc39;
+    font-weight: bold;
+}
+
+@media (max-width: 768px) {
+    .main-nav {
+        flex-direction: column;
+    }
+
+    .items-grid {
+        grid-template-columns: 1fr;
+    }
+
+    header h1 {
+        font-size: 1.8rem;
+    }
+}
+
+/* Search bar styles */
+.search-container {
+    position: relative;
+    margin-top: 1rem;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#globalSearch {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    border: 2px solid #34495e;
+    border-radius: 5px;
+    background: white;
+    color: #333;
+    transition: border-color 0.3s;
+}
+
+#globalSearch:focus {
+    outline: none;
+    border-color: #5dade2;
+}
+
+#globalSearch::placeholder {
+    color: #999;
+}
+
+.search-results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 2px solid #34495e;
+    border-top: none;
+    border-radius: 0 0 5px 5px;
+    max-height: 400px;
+    overflow-y: auto;
+    display: none;
+    z-index: 1000;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.search-result-item {
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    border-bottom: 1px solid #eee;
+    transition: background 0.2s;
+}
+
+.search-result-item:last-child {
+    border-bottom: none;
+}
+
+.search-result-item:hover {
+    background: #f0f0f0;
+}
+
+.search-result-item.selected {
+    background: #3498db;
+    color: white;
+}
+
+.search-result-item.selected strong {
+    color: white;
+}
+
+.search-result-item.no-results {
+    color: #999;
+    cursor: default;
+}
+
+.search-result-item.no-results:hover {
+    background: white;
+}
+
+.search-result-item strong {
+    color: #333;
+    font-weight: 600;
+}

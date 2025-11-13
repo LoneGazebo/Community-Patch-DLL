@@ -1447,6 +1447,12 @@
 		<Row Tag="TXT_KEY_PEDIA_ADJIMPROVYIELD_LABEL">
 			<Text>Adjacent Bonus:</Text>
 		</Row>
+		<Row Tag="TXT_KEY_PEDIA_ADJACENT_YIELDS_EXPLANATION">
+			<Text>Note: Fractional adjacency bonuses are summed up and then rounded down to the nearest integer.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PEDIA_LEADS_TO_PROMOTIONS_LABEL">
+			<Text>Leads to Promotions:</Text>
+		</Row>
 		<Row Tag="TXT_KEY_PEDIA_IMPROVEMENT_RESOURCE_CBP_LABEL">
 			<Text>Improvement Yield:</Text>
 		</Row>
@@ -1511,34 +1517,34 @@
 			<Text>-{1_Num} Damage</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PEDIA_CORPORATION_LABEL">
-			<Text>Corporation</Text>
+			<Text>Corporation:</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PEDIA_CORP_HEADQUARTERS_LABEL">
-			<Text>Headquarters</Text>
+			<Text>Headquarters:</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PEDIA_CORP_OFFICE_LABEL">
-			<Text>Office</Text>
+			<Text>Office:</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PEDIA_CORP_FRANCHISE_LABEL">
-			<Text>Franchise</Text>
+			<Text>Franchise:</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PEDIA_FREE_TR_LABEL">
-			<Text>Free Trade Routes</Text>
+			<Text>Free Trade Routes:</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PEDIA_CORPORATION_RESOURCE_BONUS_LABEL">
-			<Text>Franchise Resource Bonus</Text>
+			<Text>Franchise Resource Bonus:</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PEDIA_CORPORATION_OFFICE_BONUS_LABEL">
-			<Text>Office Bonus</Text>
+			<Text>Office Bonus:</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PEDIA_CORPORATION_TRADE_ROUTE_BONUS_LABEL">
-			<Text>Trade Route Bonus</Text>
+			<Text>Trade Route Bonus:</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PEDIA_MONOPOLY_RESRC_LABEL">
-			<Text>Monopoly Required (Any)</Text>
+			<Text>Monopoly Required (Any):</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PEDIA_MONOPOLY_RESOURCE_NAME">
-			<Text>Monopoly Resource</Text>
+			<Text>Monopoly Resource:</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PEDIA_CORPORATIONS_FREE_RESOURCE">
 			<Text>Provides {1_Num} {2_IconString} {3_ResourceName} </Text>

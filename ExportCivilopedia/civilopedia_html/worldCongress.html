@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>World Congress - Vox Populi Civilopedia</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="searchIndex.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>World Congress</h1>
+            <div class="search-container">
+                <input type="text" id="globalSearch" placeholder="Search Civilopedia... (Press S)" autocomplete="off">
+                <div id="searchResults" class="search-results"></div>
+            </div>
+        </header>
+
+        <nav class="main-nav">
+            <a href="index.html">Civilopedia Home Page</a>
+            <a href="concepts.html">Game Concepts</a>
+            <a href="civilizations.html">Civilizations and Leaders</a>
+            <a href="units.html">Units</a>
+            <a href="buildings.html">Buildings</a>
+            <a href="wonders.html">Wonders</a>
+            <a href="technologies.html">Technologies</a>
+            <a href="policies.html">Social Policies</a>
+            <a href="beliefs.html">Religion</a>
+            <a href="promotions.html">Promotions</a>
+            <a href="resources.html">Resources</a>
+            <a href="improvements.html">Improvements</a>
+            <a href="terrain.html">Terrain and Features</a>
+            <a href="greatPeople.html">Specialists and Great People</a>
+            <a href="cityStates.html">City-States</a>
+            <a href="worldCongress.html" class="active">World Congress</a>
+            <a href="corporations.html">Corporations</a>
+        </nav>
+
+        <main class="pediapage-layout">
+            <aside class="pediapage-sidebar">
+                <div class="sidebar-header" onclick="showHomePage(); return false;" style="cursor: pointer;">World Congress Home Page</div>
+                    <div class="sidebar-section collapsed">
+                        <div class="sidebar-section-header" onclick="toggleSection(this)">
+                            <span class="section-icon">▶</span> Resolutions
+                        </div>
+                        <ul class="sidebar-list" style="display: none;">
+                            <li><a href="#" onclick="showItem('RESOLUTION_BAN_LUXURY_HAPPINESS'); return false;">Ban Luxury</a></li>
+                            <li><a href="#" onclick="showItem('RESOLUTION_WORLD_WAR'); return false;">Casus Belli</a></li>
+                            <li><a href="#" onclick="showItem('RESOLUTION_CHANGE_LEAGUE_HOST'); return false;">Choose Host</a></li>
+                            <li><a href="#" onclick="showItem('RESOLUTION_ALL_CITY_STATES_EMBARGO'); return false;">City-State Sanctions</a></li>
+                            <li><a href="#" onclick="showItem('RESOLUTION_COLD_WAR'); return false;">Cold War</a></li>
+                            <li><a href="#" onclick="showItem('RESOLUTION_CULTURAL_HERITAGE_SITES'); return false;">Cultural Heritage Sites</a></li>
+                            <li><a href="#" onclick="showItem('RESOLUTION_DECOLONIZATION'); return false;">Decolonization</a></li>
+                            <li><a href="#" onclick="showItem('RESOLUTION_ARTS_FUNDING'); return false;">Endowment for the Arts</a></li>
+                            <li><a href="#" onclick="showItem('RESOLUTION_DIPLOMATIC_VICTORY'); return false;">Global Hegemony</a></li>
+                            <li><a href="#" onclick="showItem('RESOLUTION_PLAYER_VASSAL_TAX'); return false;">Global Liberation</a></li>
+                            <li><a href="#" onclick="showItem('RESOLUTION_STANDING_ARMY_TAX'); return false;">Global Peace Accords</a></li>
+                            <li><a href="#" onclick="showItem('RESOLUTION_WARGAMES'); return false;">Global Wargames</a></li>
+                            <li><a href="#" onclick="showItem('RESOLUTION_HISTORICAL_LANDMARKS'); return false;">Historical Landmarks</a></li>
+                            <li><a href="#" onclick="showItem('RESOLUTION_WORLD_GAMES'); return false;">International Games</a></li>
+                            <li><a href="#" onclick="showItem('RESOLUTION_INTERNATIONAL_SPACE_STATION'); return false;">International Space Station</a></li>
+                            <li><a href="#" onclick="showItem('RESOLUTION_NATURAL_HERITAGE_SITES'); return false;">Natural Heritage Sites</a></li>
+                            <li><a href="#" onclick="showItem('RESOLUTION_NUCLEAR_NON_PROLIFERATION'); return false;">Nuclear Non-Proliferation</a></li>
+                            <li><a href="#" onclick="showItem('RESOLUTION_OPEN_DOOR'); return false;">Open Door</a></li>
+                            <li><a href="#" onclick="showItem('RESOLUTION_TOURISM_BONUS'); return false;">Passport System</a></li>
+                            <li><a href="#" onclick="showItem('RESOLUTION_PLAYER_EMBARGO'); return false;">Sanction</a></li>
+                            <li><a href="#" onclick="showItem('RESOLUTION_MEMBER_DISCOVERED_TECH_DISCOUNT'); return false;">Scholars In Residence</a></li>
+                            <li><a href="#" onclick="showItem('RESOLUTION_SPACESHIP_INSPECTION'); return false;">Spaceflight Regulations</a></li>
+                            <li><a href="#" onclick="showItem('RESOLUTION_SPHERE_OF_INFLUENCE'); return false;">Sphere of Influence</a></li>
+                            <li><a href="#" onclick="showItem('RESOLUTION_TOURISM_PENALTY'); return false;">Travel Ban</a></li>
+                            <li><a href="#" onclick="showItem('RESOLUTION_TREASURE_FLEET'); return false;">Treasure Fleet</a></li>
+                            <li><a href="#" onclick="showItem('RESOLUTION_UNITED_NATIONS'); return false;">United Nations</a></li>
+                            <li><a href="#" onclick="showItem('RESOLUTION_WORLD_IDEOLOGY'); return false;">World Ideology</a></li>
+                            <li><a href="#" onclick="showItem('RESOLUTION_WORLD_RELIGION'); return false;">World Religion</a></li>
+                            <li><a href="#" onclick="showItem('RESOLUTION_SCIENCES_FUNDING'); return false;">World Science Initiative</a></li>
+                            <li><a href="#" onclick="showItem('RESOLUTION_WORLD_FAIR'); return false;">World's Fair</a></li>
+                        </ul>
+                    </div>
+                    <div class="sidebar-section collapsed">
+                        <div class="sidebar-section-header" onclick="toggleSection(this)">
+                            <span class="section-icon">▶</span> International Projects
+                        </div>
+                        <ul class="sidebar-list" style="display: none;">
+                            <li><a href="#" onclick="showItem('LEAGUE_PROJECT_WARGAMES'); return false;">Global Wargames</a></li>
+                            <li><a href="#" onclick="showItem('LEAGUE_PROJECT_WORLD_GAMES'); return false;">International Games</a></li>
+                            <li><a href="#" onclick="showItem('LEAGUE_PROJECT_INTERNATIONAL_SPACE_STATION'); return false;">International Space Station</a></li>
+                            <li><a href="#" onclick="showItem('LEAGUE_PROJECT_TREASURE_FLEET'); return false;">Treasure Fleet</a></li>
+                            <li><a href="#" onclick="showItem('LEAGUE_PROJECT_UNITED_NATIONS'); return false;">United Nations</a></li>
+                            <li><a href="#" onclick="showItem('LEAGUE_PROJECT_WORLD_FAIR'); return false;">World's Fair</a></li>
+                        </ul>
+                    </div>
+            </aside>
+
+            <div class="pediapage-content" id="itemContent">
+                <div class="placeholder">
+                    <section class="welcome">
+                        <h2>World Congress</h2>
+                        <div class="summary">
+                            <div class="text-box">
+                                <br>&emsp;&emsp;"More than ever before in human history, we share a common destiny. We can master it only if we face it together. And that is why we have the United Nations."<br>&emsp;&emsp; - Kofi Annan<br>&emsp;
+                            </div>
+                        </div>
+                        <div class="summary">
+                            <div class="text-box">
+                                Some great things are only possible through international cooperation. History has seen many examples of nations coming together for mutual benefit and decision making, from the trade-focused Hanseatic League to the more recent League of Nations. The twentieth century saw a new level of international cooperation begin with the United Nations.<br><br>In Civilization V, the "World Congress" represents these diplomatic interactions between multiple parties and acts as the path to Diplomatic Victory. In this diplomatic body, all civilizations have the chance to decide on game-changing effects in the form of "Resolutions." In addition, "International Projects" can be built, which combine the production efforts of multiple civilizations to benefit those who contribute.
+                            </div>
+                        </div>
+                    </section>
+                </div>
+                    <div class="article-detail" id="item-RESOLUTION_BAN_LUXURY_HAPPINESS" style="display: none;">
+                        <section class="welcome">
+                            <h2>Ban Luxury</h2>
+                            <div class="summary">
+                                <h3>Game Info:</h3>
+                                <div class="text-box">
+                                    A Luxury resource is designated as immoral, endangered, or otherwise inappropriate for use by the general population. As long as the ban is in place, Civilizations receive no 😊 Happiness or Monopoly benefits from this Luxury resource.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-RESOLUTION_WORLD_WAR" style="display: none;">
+                        <section class="welcome">
+                            <h2>Casus Belli</h2>
+                            <div class="summary">
+                                <h3>Game Info:</h3>
+                                <div class="text-box">
+                                    The world recognizes the need for justifiable war to resolve diplomatic disputes.<br><br>While this resolution is active, unit maintenance costs are lowered by 15% 💰 Gold. 0.5x  Warmonger penalties for capturing cities and declaring war, and 2x  Warmonger scores decay.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-RESOLUTION_CHANGE_LEAGUE_HOST" style="display: none;">
+                        <section class="welcome">
+                            <h2>Choose Host</h2>
+                            <div class="summary">
+                                <h3>Game Info:</h3>
+                                <div class="text-box">
+                                    Designate a Civilization to host the Congress.  Being the host grants additional Delegates and the ability to propose resolutions.<br><br>May not be proposed by a Civilization.  Automatically proposed as Civilizations advance to later eras.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-RESOLUTION_ALL_CITY_STATES_EMBARGO" style="display: none;">
+                        <section class="welcome">
+                            <h2>City-State Sanctions</h2>
+                            <div class="summary">
+                                <h3>Game Info:</h3>
+                                <div class="text-box">
+                                    No  Trade Routes can be established with City-States, and all Corporation Franchises are removed from City-States. 0.5x Warmonger penalty when declaring war on City-States or conquering cities owned by them.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-RESOLUTION_COLD_WAR" style="display: none;">
+                        <section class="welcome">
+                            <h2>Cold War</h2>
+                            <div class="summary">
+                                <h3>Game Info:</h3>
+                                <div class="text-box">
+                                    Ideological differences have pushed the world into a cold war, and economic and political factions are forming based on ideology alone.<br><br>While this resolution is active, players may only make  Trade Routes with civilizations that follow the same ideology, or with allied City-States. Furthermore,  Influence levels with allied City-States do not decline.<br><br>Available once any Civilization discovers Atomic Theory.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-RESOLUTION_CULTURAL_HERITAGE_SITES" style="display: none;">
+                        <section class="welcome">
+                            <h2>Cultural Heritage Sites</h2>
+                            <div class="summary">
+                                <h3>Game Info:</h3>
+                                <div class="text-box">
+                                    Each World Wonder provides +2 🎵 Culture to its city, and each Great Work provides +1 ⚗️ Science to its city.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-RESOLUTION_DECOLONIZATION" style="display: none;">
+                        <section class="welcome">
+                            <h2>Decolonization</h2>
+                            <div class="summary">
+                                <h3>Game Info:</h3>
+                                <div class="text-box">
+                                    Enforce global decolonization. If successful, the  Influence of all Players with all City-States is lowered to 50, unless they are permanent allies.<br><br>Available once any Civilization discovers Radio.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-RESOLUTION_ARTS_FUNDING" style="display: none;">
+                        <section class="welcome">
+                            <h2>Endowment for the Arts</h2>
+                            <div class="summary">
+                                <h3>Game Info:</h3>
+                                <div class="text-box">
+                                    Increases up to 33% generation of Great Writers, Artists, and Musicians. Decreases up to 33% generation of Great Scientists, Engineers, and Merchants.<br><br>Civilizations with Scores from Policies and Great Works <span class="positive">below the global median</span> will receive a boost to 🔨 Production and 🎵 Culture up to 33%.<br><br>Details: The boosts are proportional to the difference between the score of the Civilization and the leader.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-RESOLUTION_DIPLOMATIC_VICTORY" style="display: none;">
+                        <section class="welcome">
+                            <h2>Global Hegemony</h2>
+                            <div class="summary">
+                                <h3>Game Info:</h3>
+                                <div class="text-box">
+                                    Designate a player that could achieve Global Hegemony. If a Civilization receives support from enough Delegates in the Congress, that leader will attain <span class="positive">Diplomatic Victory</span>. The number of Delegates needed depends on the number of Civilizations and City-States in the game, and can be seen on the World Congress screen.<br><br>If no Civilization receives enough support to win, the two Civilizations who received the most support permanently gain <span class="positive">5 additional Delegates</span> to use in future sessions.<br><br>May not be proposed by a Civilization. Automatically proposed at regular intervals once a <span class="positive">World Ideology Resolution</span> is active.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-RESOLUTION_PLAYER_VASSAL_TAX" style="display: none;">
+                        <section class="welcome">
+                            <h2>Global Liberation</h2>
+                            <div class="summary">
+                                <h3>Game Info:</h3>
+                                <div class="text-box">
+                                    All Master-Vassal relationships are immediately and peacefully annulled.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-RESOLUTION_STANDING_ARMY_TAX" style="display: none;">
+                        <section class="welcome">
+                            <h2>Global Peace Accords</h2>
+                            <div class="summary">
+                                <h3>Game Info:</h3>
+                                <div class="text-box">
+                                    Unit maintenance costs are raised by 25% 💰 Gold. 2.0x  Warmonger penalties for capturing cities and declaring war, and 0.5x  Warmonger scores decay.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-RESOLUTION_WARGAMES" style="display: none;">
+                        <section class="welcome">
+                            <h2>Global Wargames</h2>
+                            <div class="summary">
+                                <h3>Game Info:</h3>
+                                <div class="text-box">
+                                    Begins the Global Wargames project. Once underway, Civilizations can contribute 🔨 Production towards its completion by selecting it in the city production list. When complete, Civilizations receive bonuses based on how much they contributed.<br><br>🥇: Menin Gate wonder appears in 🏛️ Capital. (Receive +2 😊 Happiness in the City in which it is built. Receive 2 🎵 Culture and 🌟 Golden Age Points whenever an owned unit is killed, scaling with Era. Forts, Citadels and Landmarks provide +2 🎵 Culture and 🌟 Golden Age Points when worked.)<br>🥈: Receive a +25% attack bonus to all Military Units for the next 30 turns and 4 of your military units will be maintenance-free.<br>🥉: Receive one Infantry and 3 of your military units will be maintenance-free.<br><br>Available once any Civilization discovers Replaceable Parts.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-RESOLUTION_HISTORICAL_LANDMARKS" style="display: none;">
+                        <section class="welcome">
+                            <h2>Historical Landmarks</h2>
+                            <div class="summary">
+                                <h3>Game Info:</h3>
+                                <div class="text-box">
+                                    Great Person tile improvements provide +1 to 🌾 Food, 🔨 Production, and 💰 Gold when worked, and Landmarks built by Archaeologists provide +1 ⚗️ Science, 🎵 Culture, and 🕊️ Faith when worked.<br><br>Available once any Civilization discovers Archaeology.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-RESOLUTION_WORLD_GAMES" style="display: none;">
+                        <section class="welcome">
+                            <h2>International Games</h2>
+                            <div class="summary">
+                                <h3>Game Info:</h3>
+                                <div class="text-box">
+                                    Begins the International Games project.  Once underway, Civilizations can contribute 🔨 Production towards its completion by selecting it in the city production list.  When complete, Civilizations receive bonuses based on how much they contributed.<br><br>🥇: Olympic Village wonder appears in 🏛️ Capital. (Receive +3 😊 Happiness and +3 🎵 Culture in the City in which it is built. 25% of the 🎵 Culture from World Wonders and Tiles is added to the 🗿 Tourism output of the City. All Stadiums receive +2 💰 Gold and 🗿 Tourism.)<br>🥈:  Receive a free Great Person of your choice.<br>🥉: 🗿 Tourism increases by 50% for 20 Turns.<br><br>Available once any Civilization discovers Radio.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-RESOLUTION_INTERNATIONAL_SPACE_STATION" style="display: none;">
+                        <section class="welcome">
+                            <h2>International Space Station</h2>
+                            <div class="summary">
+                                <h3>Game Info:</h3>
+                                <div class="text-box">
+                                    Begins the International Space Station project. Once underway, Civilizations can contribute 🔨 Production towards its completion by selecting it in the city production list. When complete, Civilizations receive bonuses based on how much they contributed.<br><br>🥇: International Space Station wonder appears in 🏛️ Capital. (+1 🔨 Production from Scientists, and +1 ⚗️ Science from Engineers.  Great Scientists provide 33% more ⚗️ Science when used to discover new Technology. +100 🔨 in City where it is built when you unlock a new Technology, scaling with Era.)<br>🥈: Free Great Scientist.<br>🥉: One time Research boost.<br><br>Available once any Civilization discovers Rocketry.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-RESOLUTION_NATURAL_HERITAGE_SITES" style="display: none;">
+                        <section class="welcome">
+                            <h2>Natural Heritage Sites</h2>
+                            <div class="summary">
+                                <h3>Game Info:</h3>
+                                <div class="text-box">
+                                    Each Natural Wonder provides +2 to all Yields when worked.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-RESOLUTION_NUCLEAR_NON_PROLIFERATION" style="display: none;">
+                        <section class="welcome">
+                            <h2>Nuclear Non-Proliferation</h2>
+                            <div class="summary">
+                                <h3>Game Info:</h3>
+                                <div class="text-box">
+                                    All Civilizations are prevented from constructing new nuclear weapons (Atomic Bomb and Nuclear Missile).  Weapons already constructed, however, are not disarmed.<br><br>Available once any Civilization discovers Advanced Ballistics.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-RESOLUTION_OPEN_DOOR" style="display: none;">
+                        <section class="welcome">
+                            <h2>Open Door</h2>
+                            <div class="summary">
+                                <h3>Game Info:</h3>
+                                <div class="text-box">
+                                    Enact an Open Door policy for a City-State. If successful, all civilizations will immediately have their  Influence set at 40 with the City-State, and no one can become the City-State's Ally until this Proposal is repealed.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-RESOLUTION_TOURISM_BONUS" style="display: none;">
+                        <section class="welcome">
+                            <h2>Passport System</h2>
+                            <div class="summary">
+                                <h3>Game Info:</h3>
+                                <div class="text-box">
+                                    Increases international travel between Civilizations. Increases the 🗿 Tourism modifier for all Civilizations by 50%.<br><br>Available once any Civilization discovers Flight.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-RESOLUTION_PLAYER_EMBARGO" style="display: none;">
+                        <section class="welcome">
+                            <h2>Sanction</h2>
+                            <div class="summary">
+                                <h3>Game Info:</h3>
+                                <div class="text-box">
+                                    No  Trade Routes, Deals, or Corporation Franchises can be established with the chosen Civilization (excluding Vassals). Their Corporation Franchises are removed from foreign cities. 0.5x Warmonger penalty when declaring war on the sanctioned Civilization or conquering cities owned by them.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-RESOLUTION_MEMBER_DISCOVERED_TECH_DISCOUNT" style="display: none;">
+                        <section class="welcome">
+                            <h2>Scholars In Residence</h2>
+                            <div class="summary">
+                                <h3>Game Info:</h3>
+                                <div class="text-box">
+                                    Civilizations have -20% ⚗️ Research cost for Technologies already discovered by another Civilization. Additional -2% for every City-State Ally, up to -50%.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-RESOLUTION_SPACESHIP_INSPECTION" style="display: none;">
+                        <section class="welcome">
+                            <h2>Spaceflight Regulations</h2>
+                            <div class="summary">
+                                <h3>Game Info:</h3>
+                                <div class="text-box">
+                                    Spaceflight Regulations control the proliferation of modern ballistic technology, oversee national space programs, and limit the advance of pontentially-dangerous technology.<br><br>As long as this resolution is active, all players will suffer a global -25% 🔨 Production penalty for  Spaceship Parts and +25% 💰 Gold purchase costs for  Spaceship Parts.<br><br>Available once any Civilization discovers Atomic Theory.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-RESOLUTION_SPHERE_OF_INFLUENCE" style="display: none;">
+                        <section class="welcome">
+                            <h2>Sphere of Influence</h2>
+                            <div class="summary">
+                                <h3>Game Info:</h3>
+                                <div class="text-box">
+                                    Demand a Sphere of Influence over a City-State. If successful, the proposing player becomes the permanent Ally of the City-State (unless this Proposal is repealed). The proposer must be the current ally of the City-State.<br><br>Available once any Civilization discovers Steam Power.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-RESOLUTION_TOURISM_PENALTY" style="display: none;">
+                        <section class="welcome">
+                            <h2>Travel Ban</h2>
+                            <div class="summary">
+                                <h3>Game Info:</h3>
+                                <div class="text-box">
+                                    Restricts international travel between Civilizations. Reduces the 🗿 Tourism modifier for all Civilizations by 35%.<br><br>Available once any Civilization discovers Flight.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-RESOLUTION_TREASURE_FLEET" style="display: none;">
+                        <section class="welcome">
+                            <h2>Treasure Fleet</h2>
+                            <div class="summary">
+                                <h3>Game Info:</h3>
+                                <div class="text-box">
+                                    Begins the Treasure Fleet project. Once underway, Civilizations can contribute 🔨 Production towards its completion by selecting it in the city production list. When complete, Civilizations receive bonuses based on how much they contributed.<br><br>🥇: Grand Canal wonder appears in 🏛️ Capital. (Receive 1 <span class="positive">Additional</span>  Trade Route. Grants all Naval Units except Submarines and Carriers the <span class="positive">Treasure Fleet</span> Promotion, which grants +10% ⚔️ Combat Strength when attacking, +1  Sight, and the ability to heal <span class="positive">Outside of Friendly Territory</span>.)<br>🥈: Receive a free Great Admiral and 3 of your military units will be maintenance-free.<br>🥉: Receive one Frigate. 300 points towards next 🌟 Golden Age.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-RESOLUTION_UNITED_NATIONS" style="display: none;">
+                        <section class="welcome">
+                            <h2>United Nations</h2>
+                            <div class="summary">
+                                <h3>Game Info:</h3>
+                                <div class="text-box">
+                                    Begins the United Nations project. Once underway, Civilizations can contribute 🔨 Production towards its completion by selecting it in the city production list. When complete, Civilizations receive bonuses based on how much they contributed.<br><br>🥇: United Nations wonder appears in 🏛️ Capital. (Receive 1 <span class="positive">Additional</span>  Delegate in the World Congress for every 8  City-States originally in the World. Also, when you expend a ⭐ Great Person, earn 25  Influence with all  City-States you have met. Triggers a 🌟 Golden Age, as well as the <span class="positive">United Nations</span> Special Session of the World Congress if the world has reached the Atomic Era.)<br>🥈: Receive an immediate boost of 25  Influence with all City-States. The Consulate National Wonder appears in 🏛️ Capital. (Receive 1 <span class="positive">Additional</span>  Delegate in the World Congress for every 8  City-States originally in the World.)<br>🥉: Receive a free Great Diplomat.<br><br>Available once any Civilization discovers Atomic Theory.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-RESOLUTION_WORLD_IDEOLOGY" style="display: none;">
+                        <section class="welcome">
+                            <h2>World Ideology</h2>
+                            <div class="summary">
+                                <h3>Game Info:</h3>
+                                <div class="text-box">
+                                    Designate an Ideology as the official World Ideology. Civilizations following the Ideology get an additional Delegate, plus 1 Delegate for every other Civilization that follows the Ideology. Public opinion in favor of that Ideology is increased for all Civilizations. Enables the <span class="positive">Diplomatic Victory</span> if the United Nations has been constructed.<br><br>Available once any Civilization discovers Nuclear Fission.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-RESOLUTION_WORLD_RELIGION" style="display: none;">
+                        <section class="welcome">
+                            <h2>World Religion</h2>
+                            <div class="summary">
+                                <h3>Game Info:</h3>
+                                <div class="text-box">
+                                    Designate a religion as the official World Religion. Civilizations who have a majority of the cities in their empire following the religion get an additional Delegate. The founder of the religion and/or the controller of its Holy City receives additional votes based on the number of Civilizations following the religion. The religion spreads 25% faster, and its Holy City receives +50% 🗿 Tourism. There can only be one World Religion at a time.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-RESOLUTION_SCIENCES_FUNDING" style="display: none;">
+                        <section class="welcome">
+                            <h2>World Science Initiative</h2>
+                            <div class="summary">
+                                <h3>Game Info:</h3>
+                                <div class="text-box">
+                                    Increases up to 33% generation of Great Scientists, Engineers, and Merchants. Decreases up to 33% generation of Great Writers, Artists, and Musicians.<br><br>Civilizations with Scores from Technologies and Future Tech <span class="positive">below the global median</span> will receive a boost to 🌾 Food and ⚗️ Science up to 33%.<br><br>Details: The boosts are proportional to the difference between the score of the Civilization and the leader.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-RESOLUTION_WORLD_FAIR" style="display: none;">
+                        <section class="welcome">
+                            <h2>World's Fair</h2>
+                            <div class="summary">
+                                <h3>Game Info:</h3>
+                                <div class="text-box">
+                                    Begins the World`s Fair project. Once underway, Civilizations can contribute 🔨 Production towards its completion by selecting it in the city production list. When complete, Civilizations receive bonuses based on how much they contributed.<br><br>🥇: Crystal Palace wonder appears in 🏛️ Capital. (Receive +2 🔨 Production and +2 ⚗️ Science for all Factories in owned Cities. The Empire enters a 🌟 Golden Age.)<br>🥈: 🎵 Culture increases by 33% for 20 Turns.<br>🥉: Free Social Policy.<br><br>Available once any Civilization discovers Industrialization.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-LEAGUE_PROJECT_WARGAMES" style="display: none;">
+                        <section class="welcome">
+                            <h2>Global Wargames</h2>
+                            <div class="summary">
+                                <h3>Game Info:</h3>
+                                <div class="text-box">
+                                    🥇 Field Marshal: Menin Gate wonder appears in 🏛️ Capital. (Receive +2 😊 Happiness in the City in which it is built. Receive 2 🎵 Culture and 🌟 Golden Age Points whenever an owned unit is killed, scaling with Era. Forts, Citadels and Landmarks provide +2 🎵 Culture and 🌟 Golden Age Points when worked.)<br><br>🥈 Major General: Receive a +25% attack bonus to all Military Units for the next 30 turns and 4 of your military units will be maintenance-free.<br><br>🥉 Colonel: Receive one Infantry and 3 of your military units will be maintenance-free.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-LEAGUE_PROJECT_WORLD_GAMES" style="display: none;">
+                        <section class="welcome">
+                            <h2>International Games</h2>
+                            <div class="summary">
+                                <h3>Game Info:</h3>
+                                <div class="text-box">
+                                    🥇 Hosted Games: Olympic Village wonder appears in 🏛️ Capital. (Receive +3 😊 Happiness and +3 🎵 Culture in the City in which it is built. 25% of the 🎵 Culture from World Wonders and Tiles is added to the 🗿 Tourism output of the City. All Stadiums receive +2 💰 Gold and 🗿 Tourism.)<br><br>🥈 Won Medals:  Receive a free Great Person of your choice.<br><br>🥉 Parade of Nations: 🗿 Tourism increases by 50% for 20 Turns.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-LEAGUE_PROJECT_INTERNATIONAL_SPACE_STATION" style="display: none;">
+                        <section class="welcome">
+                            <h2>International Space Station</h2>
+                            <div class="summary">
+                                <h3>Game Info:</h3>
+                                <div class="text-box">
+                                    🥇 Mission Control: International Space Station wonder appears in 🏛️ Capital. (+1 🔨 Production from Scientists, and +1 ⚗️ Science from Engineers.  Great Scientists provide 33% more ⚗️ Science when used to discover new Technology. +100 🔨 in City where it is built when you unlock a new Technology, scaling with Era.)<br><br>🥈 Crew On Board: Free Great Scientist.<br><br>🥉 Constructed Parts: One time Research boost.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-LEAGUE_PROJECT_TREASURE_FLEET" style="display: none;">
+                        <section class="welcome">
+                            <h2>Treasure Fleet</h2>
+                            <div class="summary">
+                                <h3>Game Info:</h3>
+                                <div class="text-box">
+                                    🥇 Master of the Fleet: Grand Canal wonder appears in 🏛️ Capital. (Receive 1 <span class="positive">Additional</span>  Trade Route. Grants all Naval Units except Submarines and Carriers the <span class="positive">Treasure Fleet</span> Promotion, which grants +10% ⚔️ Combat Strength when attacking, +1  Sight, and the ability to heal <span class="positive">Outside of Friendly Territory</span>.)<br><br>🥈 Skilled Navigator: Receive a free Great Admiral and 3 of your military units will be maintenance-free.<br><br>🥉 Prize Shipbuilder: Receive one Frigate. 300 points towards next 🌟 Golden Age.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-LEAGUE_PROJECT_UNITED_NATIONS" style="display: none;">
+                        <section class="welcome">
+                            <h2>United Nations</h2>
+                            <div class="summary">
+                                <h3>Game Info:</h3>
+                                <div class="text-box">
+                                    🥇 Secretary-General: United Nations wonder appears in 🏛️ Capital. (Receive 1 <span class="positive">Additional</span>  Delegate in the World Congress for every 8  City-States originally in the World. Also, when you expend a ⭐ Great Person, earn 25  Influence with all  City-States you have met. Triggers a 🌟 Golden Age, as well as the <span class="positive">United Nations</span> Special Session of the World Congress if the world has reached the Atomic Era.)<br><br>🥈 Permanent Member: Receive an immediate boost of 25  Influence with all City-States. The Consulate National Wonder appears in 🏛️ Capital. (Receive 1 <span class="positive">Additional</span>  Delegate in the World Congress for every 8  City-States originally in the World.)<br><br>🥉 High Commissioner: Receive a free Great Diplomat.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="article-detail" id="item-LEAGUE_PROJECT_WORLD_FAIR" style="display: none;">
+                        <section class="welcome">
+                            <h2>World's Fair</h2>
+                            <div class="summary">
+                                <h3>Game Info:</h3>
+                                <div class="text-box">
+                                    🥇 Hosted Fair: Crystal Palace wonder appears in 🏛️ Capital. (Receive +2 🔨 Production and +2 ⚗️ Science for all Factories in owned Cities. The Empire enters a 🌟 Golden Age.)<br><br>🥈 Groundbreaking Invention: 🎵 Culture increases by 33% for 20 Turns.<br><br>🥉 Exhibitor: Free Social Policy.
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>Vox Populi Civilopedia - Version 5.0-alpha.03</p>
+        </footer>
+    </div>
+
+    <script>
+        function showHomePage() {
+            // Update URL hash
+            history.pushState(null, null, '#');
+
+            // Hide all items
+            const items = document.querySelectorAll('.article-detail');
+            items.forEach(c => c.style.display = 'none');
+
+            // Show placeholder
+            const placeholder = document.querySelector('.placeholder');
+            if (placeholder) placeholder.style.display = 'block';
+
+            // Remove active state from all sidebar links
+            const links = document.querySelectorAll('.sidebar-list a');
+            links.forEach(link => link.classList.remove('active'));
+
+            // Scroll to top of content
+            document.getElementById('itemContent').scrollTop = 0;
+        }
+
+        function showItem(itemType) {
+            // Update URL hash
+            history.pushState(null, null, '#item-' + itemType);
+
+            // Hide all items
+            const items = document.querySelectorAll('.article-detail');
+            items.forEach(c => c.style.display = 'none');
+
+            // Hide placeholder
+            const placeholder = document.querySelector('.placeholder');
+            if (placeholder) placeholder.style.display = 'none';
+
+            // Show selected item
+            const selected = document.getElementById('item-' + itemType);
+            if (selected) {
+                selected.style.display = 'block';
+                // Scroll to top of content
+                document.getElementById('itemContent').scrollTop = 0;
+            }
+
+            // Update active state in sidebar with exact matching and expand containing section
+            const links = document.querySelectorAll('.sidebar-list a');
+            links.forEach(link => {
+                const onclick = link.getAttribute('onclick');
+                // Extract the item type from onclick="showItem('TYPE'); return false;"
+                const match = onclick.match(/showItem\('([^']+)'\)/);
+                if (match && match[1] === itemType) {
+                    link.classList.add('active');
+
+                    // Expand the parent section if it's collapsed
+                    const parentSection = link.closest('.sidebar-section');
+                    if (parentSection && parentSection.classList.contains('collapsed')) {
+                        const list = parentSection.querySelector('.sidebar-list');
+                        const header = parentSection.querySelector('.sidebar-section-header');
+                        const icon = header ? header.querySelector('.section-icon') : null;
+
+                        if (list) list.style.display = 'block';
+                        if (icon) icon.textContent = '▼';
+                        parentSection.classList.remove('collapsed');
+                    }
+                } else {
+                    link.classList.remove('active');
+                }
+            });
+        }
+
+        function toggleSection(header) {
+            const section = header.parentElement;
+            const list = section.querySelector('.sidebar-list');
+            const icon = header.querySelector('.section-icon');
+
+            if (list.style.display === 'none') {
+                list.style.display = 'block';
+                icon.textContent = '▼';
+                section.classList.remove('collapsed');
+            } else {
+                list.style.display = 'none';
+                icon.textContent = '▶';
+                section.classList.add('collapsed');
+            }
+        }
+
+        // Handle browser back/forward buttons
+        window.addEventListener('popstate', function() {
+            handleHashChange();
+        });
+
+        // Handle URL hash on page load to show specific item
+        window.addEventListener('DOMContentLoaded', function() {
+            handleHashChange();
+        });
+
+        function handleHashChange() {
+            const hash = window.location.hash;
+
+            if (!hash || hash === '#') {
+                showHomePage();
+            } else if (hash.startsWith('#item-')) {
+                const itemType = hash.substring(6); // Remove '#item-' prefix
+                showItem(itemType);
+            }
+        }
+
+        function showTechnology(techType) {
+            window.location.href = 'technologies.html#item-' + techType;
+        }
+
+        function showPromotion(promotionType) {
+            window.location.href = 'promotions.html#item-' + promotionType;
+        }
+
+        function showBuilding(buildingType) {
+            // Check if the current page is buildings or wonders
+            const currentPage = window.location.pathname.split('/').pop();
+            if (currentPage === 'buildings.html' || currentPage === 'wonders.html') {
+                // Stay on same page
+                showItem(buildingType);
+            } else {
+                // Try buildings first, could be a wonder
+                window.location.href = 'buildings.html#item-' + buildingType;
+            }
+        }
+
+        function showUnit(unitType) {
+            window.location.href = 'units.html#item-' + unitType;
+        }
+
+        function showWonder(wonderType) {
+            window.location.href = 'wonders.html#item-' + wonderType;
+        }
+
+        function showResource(resourceType) {
+            window.location.href = 'resources.html#item-' + resourceType;
+        }
+
+        function showImprovement(improvementType) {
+            window.location.href = 'improvements.html#item-' + improvementType;
+        }
+
+        function showTerrain(terrainType) {
+            window.location.href = 'terrain.html#item-' + terrainType;
+        }
+
+        function showTech(techType) {
+            window.location.href = 'technologies.html#item-' + techType;
+        }
+
+        function showCivilization(techType) {
+            window.location.href = 'civilizations.html#item-' + techType;
+        }
+
+        // Search functionality using global search index
+        const searchInput = document.getElementById('globalSearch');
+        const searchResults = document.getElementById('searchResults');
+        let selectedIndex = -1;
+
+        if (searchInput && window.globalSearchIndex) {
+            searchInput.addEventListener('input', function(e) {
+                const query = e.target.value.trim().toLowerCase();
+                selectedIndex = -1; // Reset selection on new input
+
+                if (query.length < 2) {
+                    searchResults.style.display = 'none';
+                    searchResults.innerHTML = '';
+                    return;
+                }
+
+                // Search for matches in article titles across all categories
+                const matches = window.globalSearchIndex.filter(article =>
+                    article.name.toLowerCase().includes(query)
+                ).slice(0, 10); // Limit to 10 results
+
+                if (matches.length > 0) {
+                    // Clear previous results
+                    searchResults.innerHTML = '';
+
+                    // Create and append each result element
+                    matches.forEach(match => {
+                        const resultDiv = document.createElement('div');
+                        resultDiv.className = 'search-result-item';
+                        resultDiv.setAttribute('data-page', match.page);
+                        resultDiv.setAttribute('data-type', match.type);
+
+                        const strong = document.createElement('strong');
+                        strong.innerHTML = match.nameFormatted; // Use formatted name with HTML/colors
+                        resultDiv.appendChild(strong);
+
+                        // Add click handler
+                        resultDiv.addEventListener('click', function() {
+                            navigateToArticle(match.page, match.type);
+                        });
+
+                        searchResults.appendChild(resultDiv);
+                    });
+                    searchResults.style.display = 'block';
+                } else {
+                    searchResults.innerHTML = '<div class="search-result-item no-results">No results found</div>';
+                    searchResults.style.display = 'block';
+                }
+            });
+
+            // Keyboard navigation
+            searchInput.addEventListener('keydown', function(e) {
+                const items = searchResults.querySelectorAll('.search-result-item:not(.no-results)');
+
+                if (items.length === 0) return;
+
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    selectedIndex = Math.min(selectedIndex + 1, items.length - 1);
+                    updateSelection(items);
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    selectedIndex = Math.max(selectedIndex - 1, -1);
+                    updateSelection(items);
+                } else if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (selectedIndex >= 0 && selectedIndex < items.length) {
+                        const selectedItem = items[selectedIndex];
+                        const page = selectedItem.getAttribute('data-page');
+                        const type = selectedItem.getAttribute('data-type');
+                        navigateToArticle(page, type);
+                    }
+                } else if (e.key === 'Escape') {
+                    searchResults.style.display = 'none';
+                    selectedIndex = -1;
+                }
+            });
+
+            function updateSelection(items) {
+                items.forEach((item, index) => {
+                    if (index === selectedIndex) {
+                        item.classList.add('selected');
+                        item.scrollIntoView({ block: 'nearest' });
+                    } else {
+                        item.classList.remove('selected');
+                    }
+                });
+            }
+
+            // Close search results when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.search-container')) {
+                    searchResults.style.display = 'none';
+                    selectedIndex = -1;
+                }
+            });
+
+            // Prevent closing when clicking inside search container
+            searchInput.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+        }
+
+        // Global keyboard shortcut: Press 'S' to focus search
+        document.addEventListener('keydown', function(e) {
+            // Check if 'S' key is pressed and search input is not already focused
+            if (e.key === 's' || e.key === 'S') {
+                // Don't trigger if user is typing in an input field
+                if (document.activeElement.tagName === 'INPUT' ||
+                    document.activeElement.tagName === 'TEXTAREA' ||
+                    document.activeElement.isContentEditable) {
+                    return;
+                }
+                e.preventDefault();
+                searchInput.focus();
+            }
+        });
+
+        function navigateToArticle(page, itemType) {
+            const currentPage = window.location.pathname.split('/').pop();
+            const targetPage = page + '.html';
+
+            if (currentPage === targetPage) {
+                // Same page, just show the item
+                showItem(itemType);
+                searchResults.style.display = 'none';
+                searchInput.value = '';
+            } else {
+                // Different page, navigate
+                window.location.href = targetPage + '#item-' + itemType;
+            }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>
