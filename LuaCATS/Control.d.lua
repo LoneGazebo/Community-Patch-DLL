@@ -9,6 +9,27 @@ Control = {}
 --- @type Context
 ContextPtr = {}
 
+--- TODO docs
+--- @param instanceName string
+--- @param controlTable table<string, Control>
+--- @param parentControl Control
+--- @return Control # Returns
+function ContextPtr:BuildInstanceForControl(
+		instanceName,
+		controlTable,
+		parentControl
+)
+end
+
+--- TODO docs
+--- @param instanceName string
+--- @param controlTable table<string, Control>
+function ContextPtr:BuildInstance(
+		instanceName,
+		controlTable
+)
+end
+
 --- @type table<string, Control>
 Controls = {}
 

@@ -1009,6 +1009,7 @@
     <Folder Include="Kit\Type" />
     <Folder Include="Kit\UI" />
     <Folder Include="Kit\UI\Control" />
+    <Folder Include="Kit\UI\Control\Instance" />
     <Folder Include="Kit\Util\" />
     <Folder Include="LUA" />
     <Folder Include="LUA\Includes" />
@@ -3652,7 +3653,6 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Kit\UI\Control\CPK.UI.Control.Create.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
@@ -3681,6 +3681,14 @@
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="Kit\UI\Control\CPK.UI.Control.Show.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Kit\UI\Control\Instance\CPK.UI.Control.Instance.Free.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Kit\UI\Control\Instance\CPK.UI.Control.Instance.Make.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
