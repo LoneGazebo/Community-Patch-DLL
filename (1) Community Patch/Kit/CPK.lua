@@ -411,6 +411,7 @@
 	kit.FP = M()    -- Functional Programming
 	kit.UI = M()
 	kit.UI.Control = M()
+	kit.UI.Control.Instance = M()
 	kit.Util = M() -- General Purpose Utilities	
 
 	if global then
