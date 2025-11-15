@@ -814,7 +814,7 @@ local function UpdateWindow(pCity)
 				if item1.IsAir ~= item2.IsAir then
 					return item1.IsAir or not item2.IsAir;
 				end
-			elseif eOrder == OrderTypes.ORDER_CREATE then
+			elseif eOrder == OrderTypes.ORDER_CONSTRUCT then
 				-- Sort order: national wonders, team wonders, world wonders, projects
 				if item1.IsNationalWonder ~= item2.IsNationalWonder then
 					return item1.IsNationalWonder or not item2.IsNationalWonder;
