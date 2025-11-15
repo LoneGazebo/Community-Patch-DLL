@@ -544,14 +544,14 @@
 			<AIUnitCostPercent>75</AIUnitCostPercent>
 			<AIUnitUpgradePercent>60</AIUnitUpgradePercent>
 			<AIGrowthPercent>100</AIGrowthPercent>
-			<AITrainPercent>75</AITrainPercent>
-			<AITrainPerEraModifier>-9</AITrainPerEraModifier>
+			<AITrainPercent>70</AITrainPercent>
+			<AITrainPerEraModifier>-8</AITrainPerEraModifier>
 			<AIWorldTrainPercent>100</AIWorldTrainPercent>
-			<AIConstructPercent>75</AIConstructPercent>
-			<AIConstructPerEraModifier>-9</AIConstructPerEraModifier>
+			<AIConstructPercent>70</AIConstructPercent>
+			<AIConstructPerEraModifier>-8</AIConstructPerEraModifier>
 			<AIWorldConstructPercent>100</AIWorldConstructPercent>
-			<AICreatePercent>75</AICreatePercent>
-			<AICreatePerEraModifier>-9</AICreatePerEraModifier>
+			<AICreatePercent>70</AICreatePercent>
+			<AICreatePerEraModifier>-8</AICreatePerEraModifier>
 			<AIWorldCreatePercent>100</AIWorldCreatePercent>
 			<AIFreeXP>25</AIFreeXP>
 			<AIFreeXPPercentVSHuman>80</AIFreeXPPercentVSHuman>
@@ -627,21 +627,21 @@
 			<!-- AI Bonuses -->
 			<AIHappinessDefault>8</AIHappinessDefault>
 			<AIHappinessDefaultCapital>2</AIHappinessDefaultCapital>
-			<AIUnitSupplyBase>12</AIUnitSupplyBase>
+			<AIUnitSupplyBase>15</AIUnitSupplyBase>
 			<AIUnitSupplyPopulationPercent>20</AIUnitSupplyPopulationPercent>
 			<AIWorkRateModifier>70</AIWorkRateModifier>
 			<AIBuildingCostPercent>70</AIBuildingCostPercent>
 			<AIUnitCostPercent>70</AIUnitCostPercent>
 			<AIUnitUpgradePercent>50</AIUnitUpgradePercent>
 			<AIGrowthPercent>100</AIGrowthPercent>
-			<AITrainPercent>70</AITrainPercent>
-			<AITrainPerEraModifier>-10</AITrainPerEraModifier>
+			<AITrainPercent>60</AITrainPercent>
+			<AITrainPerEraModifier>-8</AITrainPerEraModifier>
 			<AIWorldTrainPercent>100</AIWorldTrainPercent>
-			<AIConstructPercent>70</AIConstructPercent>
-			<AIConstructPerEraModifier>-10</AIConstructPerEraModifier>
+			<AIConstructPercent>60</AIConstructPercent>
+			<AIConstructPerEraModifier>-8</AIConstructPerEraModifier>
 			<AIWorldConstructPercent>100</AIWorldConstructPercent>
-			<AICreatePercent>70</AICreatePercent>
-			<AICreatePerEraModifier>-10</AICreatePerEraModifier>
+			<AICreatePercent>60</AICreatePercent>
+			<AICreatePerEraModifier>-8</AICreatePerEraModifier>
 			<AIWorldCreatePercent>100</AIWorldCreatePercent>
 			<AIFreeXP>30</AIFreeXP>
 			<AIFreeXPPercentVSHuman>100</AIFreeXPPercentVSHuman>
