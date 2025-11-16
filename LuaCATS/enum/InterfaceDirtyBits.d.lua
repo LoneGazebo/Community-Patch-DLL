@@ -1,4 +1,42 @@
 --- @meta
 
 --- @enum InterfaceDirtyBit
-InterfaceDirtyBits = {}
+InterfaceDirtyBits = {
+	SelectionCamera_DIRTY_BIT = 0,
+	Fog_DIRTY_BIT = 1,
+	Waypoints_DIRTY_BIT = 2,
+	PercentButtons_DIRTY_BIT = 3,
+	MiscButtons_DIRTY_BIT = 4,
+	PlotListButtons_DIRTY_BIT = 5,
+	SelectionButtons_DIRTY_BIT = 6,
+	CitizenButtons_DIRTY_BIT = 7,
+	ResearchButtons_DIRTY_BIT = 8,
+	Event_DIRTY_BIT = 9,
+	Center_DIRTY_BIT = 10,
+	GameData_DIRTY_BIT = 11,
+	Score_DIRTY_BIT = 12,
+	TurnTimer_DIRTY_BIT = 13,
+	Help_DIRTY_BIT = 14,
+	MinimapSection_DIRTY_BIT = 15,
+	SelectionSound_DIRTY_BIT = 16,
+	Cursor_DIRTY_BIT = 17,
+	CityInfo_DIRTY_BIT = 18,
+	UnitInfo_DIRTY_BIT = 19,
+	Popup_DIRTY_BIT = 20,
+	CityScreen_DIRTY_BIT = 21,
+	InfoPane_DIRTY_BIT = 22,
+	HighlightPlot_DIRTY_BIT = 23,
+	ColoredPlots_DIRTY_BIT = 24,
+	BlockadedPlots_DIRTY_BIT = 25,
+	Financial_Screen_DIRTY_BIT = 26,
+	Foreign_Screen_DIRTY_BIT = 27,
+	Soundtrack_DIRTY_BIT = 28,
+	Domestic_Advisor_DIRTY_BIT = 29,
+	Advanced_Start_DIRTY_BIT = 30,
+	NationalBorders_DIRTY_BIT = 31,
+	Policies_DIRTY_BIT = 32,
+	PlotData_DIRTY_BIT = 33,
+
+	-- This doesn't seem correct
+	NUM_INTERFACE_DIRTY_BITS = 37,
+}
