@@ -29,6 +29,9 @@ void CvLuaGameInfo::Register(lua_State* L)
 	//Register other game info structures.
 	Lua::CCallWithErrorHandling(L, pRegisterActions);
 	Lua::CCallWithErrorHandling(L, pRegisterTypesInfo);
+
+	luaopen_debug(L);
+	lua_setglobal(L, "debug2");
 }
 
 //------------------------------------------------------------------------------
