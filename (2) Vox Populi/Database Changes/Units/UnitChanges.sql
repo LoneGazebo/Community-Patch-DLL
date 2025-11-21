@@ -736,8 +736,8 @@ WHERE Class = 'UNITCLASS_GREAT_DIPLOMAT';
 -- Great General
 
 -- Great Admiral
-UPDATE Units 
-SET 
+UPDATE Units
+SET
 	NumFreeLux = 2,
 	WorkRate = 1  -- Tersane
 WHERE Class = 'UNITCLASS_GREAT_ADMIRAL';
