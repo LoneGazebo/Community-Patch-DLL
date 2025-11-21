@@ -146,7 +146,7 @@ VALUES
 UPDATE Buildings
 SET
 	GlobalHappinessPerMajorWar = 2,
-	GlobalMilitaryProductionModPerMajorWar = 10
+	GlobalMilitaryProductionModPerMajorWar = 5
 WHERE Type = 'BUILDING_ULTICUR';
 
 UPDATE Building_ResourceQuantity
