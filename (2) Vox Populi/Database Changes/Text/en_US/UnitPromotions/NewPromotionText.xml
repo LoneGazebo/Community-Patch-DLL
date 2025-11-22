@@ -894,7 +894,7 @@
 			<Text>Flag Bearer</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_FLAG_BEARER_HELP">
-			<Text>Gain 3 [ICON_GOLD] Gold, [ICON_RESEARCH] Science, and [ICON_CULTURE] Culture in the nearest City when revealing tiles.[NEWLINE]This value is multiplied by 12 for Natural Wonders, 4 for {TXT_KEY_IMPROVEMENT_GOODY_HUT}, and 3 for Resources.</Text>
+			<Text>Gain 2 [ICON_GOLD] Gold, [ICON_RESEARCH] Science, and [ICON_CULTURE] Culture in the nearest City when revealing tiles.[NEWLINE]This value is multiplied by 12 for Natural Wonders, 4 for {TXT_KEY_IMPROVEMENT_GOODY_HUT}, and 3 for Resources.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_ASSIZE_OF_ARMS">
