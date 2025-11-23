@@ -121,8 +121,7 @@ SET
 	Combat = 14,
 	RangedCombat = 21,
 	"Range" = 1,
-	Moves = 5,
-	NoSupply = 1
+	Moves = 5
 WHERE Type = 'UNIT_FUSTA';
 
 INSERT INTO Unit_ClassUpgrades
