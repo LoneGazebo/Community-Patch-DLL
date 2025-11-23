@@ -854,7 +854,7 @@ g_cities = g_RibbonManager( "CityInstance", Controls.CityStack, Controls.Scrap,
 		local borderGrowthRate = city:GetYieldRateTimes100(YieldTypes.YIELD_CULTURE) / 100 + city:GetBaseYieldRateTimes100(YieldTypes.YIELD_CULTURE_LOCAL) / 100
 		local borderGrowthRateIncrease = city:GetBorderGrowthRateIncreaseTotal()
 		borderGrowthRate = math_floor(borderGrowthRate * (100 + borderGrowthRateIncrease) / 100)
-		ShowSimpleCityTip( control, city, L("TXT_KEY_CITYVIEW_TURNS_TILL_TILE_TEXT", math_ceil( (city:GetJONSCultureThreshold() - (city:GetJONSCultureStoredTimes100() / 100)) / borderGrowthRate ) ), GetCultureTooltip( city ) + GetBorderGrowthTooltip(city) )
+		ShowSimpleCityTip( control, city, L("TXT_KEY_CITYVIEW_TURNS_TILL_TILE_TEXT", math_ceil( (city:GetJONSCultureThreshold() - (city:GetJONSCultureStoredTimes100() / 100)) / borderGrowthRate ) ), GetCultureTooltip( city ) .. GetBorderGrowthTooltip(city) )
 	end,
 	CityIsCapital = function( control )
 		local city = FindCity( control )
