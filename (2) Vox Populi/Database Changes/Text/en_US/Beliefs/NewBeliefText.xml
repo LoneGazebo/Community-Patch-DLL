@@ -91,34 +91,34 @@
 
 		<!-- Tooltips -->
 		<Row Tag="TXT_KEY_BUILDING_CATHEDRAL_TOOLTIP">
-			<Text>+2 [ICON_PEACE] Faith[NEWLINE]+2 [ICON_GOLD] Gold[NEWLINE][NEWLINE]{TXT_KEY_BUILDING_CATHEDRAL_HELP}</Text>
+			<Text>+2 [ICON_PEACE] Faith[NEWLINE]+2 [ICON_GOLD] Gold[NEWLINE][NEWLINE]+1 [ICON_FOOD] to Farms, Pastures, and Quarries worked by the City.[NEWLINE][NEWLINE]+10 [ICON_GOLD] Gold when the City naturally expands, scaling with Era.[NEWLINE][NEWLINE]+25% Religious Pressure towards other Cities if this Religion is the Majority Religion of the City.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_GOLD] Poverty.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_CHURCH_TOOLTIP">
-			<Text>+4 [ICON_PEACE] Faith[NEWLINE]+2 [ICON_CULTURE] Culture[NEWLINE][NEWLINE]{TXT_KEY_BUILDING_CHURCH_HELP}</Text>
+			<Text>+4 [ICON_PEACE] Faith[NEWLINE]+2 [ICON_CULTURE] Culture[NEWLINE][NEWLINE]+1 [ICON_PEACE] Faith to all [ICON_GREAT_WORK] Great Works in the City.[NEWLINE][NEWLINE]Start 15 Turns of [ICON_HAPPINESS_1] "We Love the King Day" when built.[NEWLINE][NEWLINE]+40% Religious Pressure towards other Cities if this Religion is the Majority Religion of the City.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_CULTURE] Boredom.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_GURDWARA_TOOLTIP">
-			<Text>+2 [ICON_PEACE] Faith[NEWLINE]+3 [ICON_FOOD] Food[NEWLINE][NEWLINE]{TXT_KEY_BUILDING_GURDWARA_HELP}</Text>
+			<Text>+2 [ICON_PEACE] Faith[NEWLINE]+3 [ICON_FOOD] Food[NEWLINE]+10% [ICON_FOOD] Food[NEWLINE][NEWLINE]+10% [ICON_STRENGTH] City Strength from Buildings.[NEWLINE][NEWLINE]+25% Religious Pressure towards other Cities if this Religion is the Majority Religion of the City.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_MANDIR_TOOLTIP">
-			<Text>+3 [ICON_PEACE] Faith[NEWLINE]+2 [ICON_FOOD] Food[NEWLINE][NEWLINE]{TXT_KEY_BUILDING_MANDIR_HELP}</Text>
+			<Text>+3 [ICON_PEACE] Faith[NEWLINE]+2 [ICON_FOOD] Food[NEWLINE][NEWLINE]+5 of all Yields when a [ICON_CITIZEN] Citizen is born in this City, scaling with Era.[NEWLINE][NEWLINE]+15% Religious Pressure towards other Cities if this Religion is the Majority Religion of the City, and -10% Religious Pressure towards this City from Cities following other Religions or active spreads of other Religions.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_GOLD] Poverty.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_MOSQUE_TOOLTIP">
-			<Text>+3 [ICON_PEACE] Faith[NEWLINE]+2 [ICON_RESEARCH] Science[NEWLINE][NEWLINE]{TXT_KEY_BUILDING_MOSQUE_HELP}</Text>
+			<Text>+3 [ICON_PEACE] Faith[NEWLINE]+2 [ICON_RESEARCH] Science[NEWLINE][NEWLINE]+15% [ICON_CULTURE] Culture during [ICON_GOLDEN_AGE] Golden Age.[NEWLINE][NEWLINE]+25% Religious Pressure towards other Cities if this Religion is the Majority Religion of the City.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_RESEARCH] Illiteracy.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_ORDER_TOOLTIP">
-			<Text>+2 [ICON_PEACE] Faith[NEWLINE]+3 [ICON_GOLD] Gold[NEWLINE][NEWLINE]{TXT_KEY_BUILDING_ORDER_HELP}</Text>
+			<Text>+2 [ICON_PEACE] Faith[NEWLINE]+3 [ICON_GOLD] Gold[NEWLINE][NEWLINE]Gain [ICON_PEACE] Faith equal to 10% of [ICON_PRODUCTION] Production cost when completing production of a Military Unit.[NEWLINE][NEWLINE]+10% [ICON_RANGE_STRENGTH] City Strike Strength.[NEWLINE][NEWLINE]All existing and future eligible Units trained in this City gain the [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_MORALE}[ENDCOLOR] Promotion.[NEWLINE][NEWLINE]+25% Religious Pressure towards other Cities if this Religion is the Majority Religion of the City.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_PAGODA_TOOLTIP">
-			<Text>+2 [ICON_PEACE] Faith[NEWLINE][NEWLINE]{TXT_KEY_BUILDING_PAGODA_HELP}</Text>
+			<Text>+2 [ICON_PEACE] Faith[NEWLINE][NEWLINE]+1 to all Yields for each [ICON_RELIGION] Religion with at least one Follower in the City.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_CULTURE] Boredom and -2 [ICON_HAPPINESS_3] Unhappiness from [ICON_RELIGION] Religious Unrest.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_STUPA_TOOLTIP">
-			<Text>+3 [ICON_PEACE] Faith[NEWLINE]+3 [ICON_GOLDEN_AGE] Golden Age Points[NEWLINE]+5 [ICON_TOURISM] Tourism[NEWLINE]+1 [ICON_HAPPINESS_1] Happiness[NEWLINE][NEWLINE]{TXT_KEY_BUILDING_STUPA_HELP}</Text>
+			<Text>+3 [ICON_PEACE] Faith[NEWLINE]+3 [ICON_GOLDEN_AGE] Golden Age Points[NEWLINE]+5 [ICON_TOURISM] Tourism[NEWLINE]+1 [ICON_HAPPINESS_1] Happiness[NEWLINE][NEWLINE]+25% Religious Pressure towards other Cities if this Religion is the Majority Religion of the City.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_RESEARCH] Illiteracy.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_SYNAGOGUE_TOOLTIP">
-			<Text>+2 [ICON_PEACE] Faith[NEWLINE]+3 [ICON_PRODUCTION] Production[NEWLINE][NEWLINE]{TXT_KEY_BUILDING_SYNAGOGUE_HELP}</Text>
+			<Text>+2 [ICON_PEACE] Faith[NEWLINE]+3 [ICON_PRODUCTION] Production[NEWLINE][NEWLINE]+10% [ICON_RESEARCH] Science during [ICON_HAPPINESS_1] "We Love the King Day".[NEWLINE][NEWLINE]-15% Religious Pressure towards this City from Cities following other Religions or active spreads of other Religions.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_TEOCALLI_TOOLTIP">
-			<Text>+2 [ICON_PEACE] Faith[NEWLINE][NEWLINE]{TXT_KEY_BUILDING_TEOCALLI_HELP}</Text>
+			<Text>+2 [ICON_PEACE] Faith[NEWLINE]+1 [ICON_WAR] Military Supply[NEWLINE][NEWLINE]+5 [ICON_PEACE] Faith when an owned Unit defeats a Military Unit.[NEWLINE][NEWLINE]+15 XP for Military Units trained in the City.[NEWLINE][NEWLINE]+25% Religious Pressure towards other Cities if this Religion is the Majority Religion of the City.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress.</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

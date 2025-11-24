@@ -29,6 +29,12 @@ function ToGridFromHex(x, y) end
 --- @return Vector3
 function HexToWorld(vector2) end
 
+--- TODO docs
+--- @param x integer
+--- @param y integer
+--- @return integer, integer, integer
+function GridToWorld(x, y) end
+
 --- Require `include("SupportFunctions")` to work<br>
 --- Truncate a given string if necessary so that the resultant string (with ellipsis and the given suffix) fits just within the target size.<br>
 --- The resultant string is set as the given control's text.

@@ -20358,42 +20358,24 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 		}
 #endif
 
-		bool bZero = false;
-		if(IsGainsXPFromScouting())
+		if (IsGainsXPFromScouting() && GetNumTilesRevealedThisTurn() > 0)
 		{
-			int iExperience = /*1*/ GD_INT_GET(BALANCE_SCOUT_XP_BASE);
-			iExperience += GetNumTilesRevealedThisTurn();
-			iExperience /= 6;
-			if(iExperience > 0)
-			{
-				//Up to max barb value - rest has to come through combat!
-				changeExperienceTimes100(iExperience * 100);
-				bZero = true;
-			}
+			changeExperienceTimes100(GetNumTilesRevealedThisTurn() * 100 / /*10*/ GD_INT_GET(BALANCE_SCOUT_XP_DENOMINATOR));
 		}
-		if(IsGainsYieldFromScouting())
+		if (IsGainsYieldFromScouting())
 		{
-			bool bSea = false;
-			if(getDomainType() == DOMAIN_SEA)
-			{
-				bSea = true;
-			}
+			bool bSea = (getDomainType() == DOMAIN_SEA);
 			CvCity* pCity = GC.getMap().findCity(getX(), getY(), getOwner(), getTeam());
+			if (!pCity)
+				pCity = kPlayer.getCapitalCity();
 
-			if(pCity == NULL)
+			if (pCity)
 			{
-				pCity = GET_PLAYER(getOwner()).getCapitalCity();
-			}
-			if(pCity != NULL)
-			{
-				GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_SCOUTING, false, NO_GREATPERSON, NO_BUILDING, 0, false, NO_PLAYER, NULL, false, pCity, bSea, true, false, NO_YIELD, this);
-				bZero = true;
+				kPlayer.doInstantYield(INSTANT_YIELD_TYPE_SCOUTING, false, NO_GREATPERSON, NO_BUILDING, GetNumTilesRevealedThisTurn(), false, NO_PLAYER, NULL, false, pCity, bSea, true, false, NO_YIELD, this);
 			}
 		}
-		if(bZero)
-		{
-			SetNumTilesRevealedThisTurn(0);
-		}
+
+		SetNumTilesRevealedThisTurn(0);
 
 		// if I was invisible to the active team but won't be any more or vice versa
 		InvisibleTypes eInvisoType = getInvisibleType();

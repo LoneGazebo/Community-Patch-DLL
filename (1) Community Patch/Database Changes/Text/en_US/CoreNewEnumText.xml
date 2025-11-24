@@ -62,7 +62,7 @@
 			<Text>Eliminating a Player</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ACCOMPLISHMENT_DIPLOMATIC_MISSION_BOOST">
-			<Text>Performing a Diplomatic Mission</Text>
+			<Text>Diplomatic Mission by Proxenos Unit</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

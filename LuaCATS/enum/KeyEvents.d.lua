@@ -1,7 +1,6 @@
 --- @meta
 
---- Unlike most other enums, this one doesn't come from the game core DLL<br>
---- We'll have to trust modiki on the values of these
+--- Unlike most other enums, this one doesn't come from the game core DLL
 --- @enum KeyEventType
 KeyEvents = {
 	WM_KEYDOWN = 256,
