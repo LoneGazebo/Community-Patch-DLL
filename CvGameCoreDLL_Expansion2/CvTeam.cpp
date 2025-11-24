@@ -198,6 +198,7 @@ void CvTeam::uninit()
 	m_iNumMinorCivsAttacked = 0;
 
 	m_bMapCentering = false;
+	m_iGlobalDefenseModifier = 0;
 	m_bHasTechForWorldCongress = false;
 	m_bCanBuildOceanCrossingUnit = false;
 
@@ -750,21 +751,7 @@ void CvTeam::processBuilding(BuildingTypes eBuilding, int iChange)
 		}
 	}
 
-	// Effects in every City on this Team
-	for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
-	{
-		CvPlayerAI& kPlayer = GET_PLAYER((PlayerTypes) iPlayerLoop);
-		if(kPlayer.getTeam() == m_eID && kPlayer.isAlive())
-		{
-			CvCity* pLoopCity = NULL;
-			int iLoop = 0;
-
-			for(pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
-			{
-				pLoopCity->GetCityBuildings()->ChangeBuildingDefenseMod(pBuildingInfo->GetGlobalDefenseModifier() * iChange);
-			}
-		}
-	}
+	ChangeGlobalDefenseModifier(pBuildingInfo->GetGlobalDefenseModifier() * iChange);
 }
 
 
@@ -3704,6 +3691,22 @@ void CvTeam::changeBorderObstacleCount(int iChange)
 	{
 		m_iBorderObstacleCount = (m_iBorderObstacleCount + iChange);
 		ASSERT(getBorderObstacleCount() >= 0);
+	}
+}
+
+//	--------------------------------------------------------------------------------
+int CvTeam::GetGlobalDefenseModifier() const
+{
+	return m_iGlobalDefenseModifier;
+}
+
+//	--------------------------------------------------------------------------------
+void CvTeam::ChangeGlobalDefenseModifier(int iChange)
+{
+	if(iChange != 0)
+	{
+		m_iGlobalDefenseModifier = (m_iGlobalDefenseModifier + iChange);
+		ASSERT(m_iGlobalDefenseModifier >= 0);
 	}
 }
 
@@ -9057,6 +9060,7 @@ void CvTeam::Serialize(Team& team, Visitor& visitor)
 	visitor(team.m_iNumMinorCivsAttacked);
 
 	visitor(team.m_bMapCentering);
+	visitor(team.m_iGlobalDefenseModifier);
 	visitor(team.m_bHasTechForWorldCongress);
 
 	visitor(team.m_eID);

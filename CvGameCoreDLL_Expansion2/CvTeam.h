@@ -203,6 +203,9 @@ public:
 	bool isBorderObstacle() const;
 	void changeBorderObstacleCount(int iChange);
 
+	int GetGlobalDefenseModifier() const;
+	void ChangeGlobalDefenseModifier(int iChange);
+
 	bool isMapCentering() const;
 	void setMapCentering(bool bNewValue);
 
@@ -521,6 +524,7 @@ protected:
 	int m_iNumMinorCivsAttacked;
 
 	bool m_bMapCentering;
+	bool m_iGlobalDefenseModifier;
 	bool m_bHasTechForWorldCongress;
 
 	bool m_bCanBuildOceanCrossingUnit;
