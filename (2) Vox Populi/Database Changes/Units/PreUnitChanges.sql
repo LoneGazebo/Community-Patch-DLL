@@ -346,3 +346,22 @@ SET
 	IsMounted = (SELECT IsMounted FROM Units WHERE Type = 'UNIT_CUIRASSIER'),
 	DefaultUnitAI = (SELECT DefaultUnitAI FROM Units WHERE Type = 'UNIT_CUIRASSIER')
 WHERE Type = 'UNIT_SWEDISH_HAKKAPELIITTA';
+
+
+-- Barbarian: Slinger
+UPDATE Units
+SET
+	PrereqTech = (SELECT PrereqTech FROM Units WHERE Type = 'UNIT_INCAN_SLINGER'),
+	ObsoleteTech = (SELECT ObsoleteTech FROM Units WHERE Type = 'UNIT_INCAN_SLINGER'),
+	CombatClass = (SELECT CombatClass FROM Units WHERE Type = 'UNIT_INCAN_SLINGER'),
+	DefaultUnitAI = (SELECT DefaultUnitAI FROM Units WHERE Type = 'UNIT_INCAN_SLINGER')
+WHERE Type = 'UNIT_BARBARIAN_AXMAN';
+
+-- Barbarian: Galley
+UPDATE Units
+SET
+	PrereqTech = (SELECT PrereqTech FROM Units WHERE Type = 'UNIT_VP_GALLEY'),
+	ObsoleteTech = (SELECT ObsoleteTech FROM Units WHERE Type = 'UNIT_VP_GALLEY'),
+	CombatClass = (SELECT CombatClass FROM Units WHERE Type = 'UNIT_VP_GALLEY'),
+	DefaultUnitAI = (SELECT DefaultUnitAI FROM Units WHERE Type = 'UNIT_VP_GALLEY')
+WHERE Type = 'UNIT_GALLEY';
