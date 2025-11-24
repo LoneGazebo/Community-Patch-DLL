@@ -988,9 +988,9 @@ UPDATE UnitPromotions SET FlankAttackModifier = 20, CityAttackPlunderModifier = 
 INSERT INTO UnitPromotions_YieldFromScouting
 	(PromotionType, YieldType, Yield)
 VALUES
-	('PROMOTION_FLAG_BEARER', 'YIELD_GOLD', 3),
-	('PROMOTION_FLAG_BEARER', 'YIELD_SCIENCE', 3),
-	('PROMOTION_FLAG_BEARER', 'YIELD_CULTURE', 3);
+	('PROMOTION_FLAG_BEARER', 'YIELD_GOLD', 2),
+	('PROMOTION_FLAG_BEARER', 'YIELD_SCIENCE', 2),
+	('PROMOTION_FLAG_BEARER', 'YIELD_CULTURE', 2);
 
 -- Longbowman: Assize of Arms
 INSERT INTO UnitPromotions_UnitCombatMods
