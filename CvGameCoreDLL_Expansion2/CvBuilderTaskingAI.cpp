@@ -2061,6 +2061,8 @@ vector<OptionWithScoreAndTiebreak<BuilderDirective>> CvBuilderTaskingAI::GetImpr
 	if (aPossibleBuilds.empty())
 		return aDirectives;
 
+	UpdateFutureYields(aPossibleBuilds);
+
 	//cache this
 	// TODO include net gold in all gold yield/maintenance computations
 	int iNetGoldTimes100 = m_pPlayer->GetTreasury()->CalculateBaseNetGoldTimes100();
@@ -2118,6 +2120,163 @@ vector<OptionWithScoreAndTiebreak<BuilderDirective>> CvBuilderTaskingAI::GetImpr
 	UpdateGreatPersonDirectives(aDirectives);
 
 	return aDirectives;
+}
+
+void CvBuilderTaskingAI::UpdateFutureYields(const vector<BuildTypes>& aPossibleBuilds)
+{
+	m_futureYieldBonuses.clear();
+	vector<ImprovementTypes> aImprovementsToConsider;
+	vector<TechTypes> aTechsToConsider;
+	vector<PolicyTypes> aPoliciesToConsider;
+
+	// Consider every improvement we can build
+	for (vector<BuildTypes>::const_iterator it = aPossibleBuilds.begin(); it != aPossibleBuilds.end(); ++it)
+	{
+		CvBuildInfo* pkBuildInfo = GC.getBuildInfo(*it);
+		if (pkBuildInfo)
+		{
+			ImprovementTypes eImprovement = (ImprovementTypes)pkBuildInfo->getImprovement();
+			if (eImprovement != NO_IMPROVEMENT && find(aImprovementsToConsider.begin(), aImprovementsToConsider.end(), eImprovement) == aImprovementsToConsider.end())
+				aImprovementsToConsider.push_back(eImprovement);
+		}
+	}
+
+	// Consider every improvement we currently own
+	const PlotIndexContainer& plots = m_pPlayer->GetPlots();
+	for (PlotIndexContainer::const_iterator it = plots.begin(); it != plots.end(); ++it)
+	{
+		ImprovementTypes eImprovement = GC.getMap().plotByIndexUnchecked(*it)->getImprovementType();
+		if (eImprovement != NO_IMPROVEMENT && find(aImprovementsToConsider.begin(), aImprovementsToConsider.end(), eImprovement) == aImprovementsToConsider.end())
+			aImprovementsToConsider.push_back(eImprovement);
+	}
+
+	int iOurLatestTechX = 0;
+	int iOurEarliestMissingTechX = INT_MAX;
+	for (int iI = 0; iI < GC.getNumTechInfos(); iI++)
+	{
+		TechTypes eTech = (TechTypes)iI;
+
+		CvTechEntry* pkTech = GC.getTechInfo(eTech);
+		if (!pkTech)
+			continue;
+
+		// Only consider future techs
+		if (m_pPlayer->HasTech(eTech))
+		{
+			// A bit hacky, use tech position in tech tree to decide how far away it is
+			int iTechX = pkTech->GetGridX();
+			if (iTechX > iOurLatestTechX)
+				iOurLatestTechX = iTechX;
+			continue;
+		}
+		else
+		{
+			int iTechX = pkTech->GetGridX();
+			if (iTechX < iOurEarliestMissingTechX)
+				iOurEarliestMissingTechX = iTechX;
+		}
+
+		aTechsToConsider.push_back(eTech);
+	}
+
+	// Check tech tree distance from the average of our latest known tech and our earliest unknown tech to account for beelining
+	int iOurAverageTechX = iOurEarliestMissingTechX != INT_MAX ? (iOurEarliestMissingTechX + iOurLatestTechX) / 2 : iOurLatestTechX;
+
+	for (int iI = 0; iI < GC.getNumPolicyInfos(); iI++)
+	{
+		PolicyTypes ePolicy = (PolicyTypes)iI;
+
+		// Only consider future policies
+		if (m_pPlayer->HasPolicy(ePolicy))
+			continue;
+
+		CvPolicyEntry* pkPolicy = GC.getPolicyInfo(ePolicy);
+		if (!pkPolicy)
+			continue;
+
+		PolicyBranchTypes eBranch = (PolicyBranchTypes)pkPolicy->GetPolicyBranchType();
+		if (eBranch == NO_POLICY_BRANCH_TYPE)
+			continue;
+
+		// Only consider policies from adopted policy trees (future consideration, could the AI plan this out ahead?)
+		if (!m_pPlayer->HasPolicyBranch(eBranch))
+			continue;
+
+		aPoliciesToConsider.push_back(ePolicy);
+	}
+
+	for (vector<ImprovementTypes>::const_iterator it = aImprovementsToConsider.begin(); it != aImprovementsToConsider.end(); ++it)
+	{
+		ImprovementTypes eImprovement = *it;
+
+		CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
+		if (!pkImprovementInfo)
+			continue;
+
+		// Bonuses from future techs
+		for (vector<TechTypes>::const_iterator it2 = aTechsToConsider.begin(); it2 != aTechsToConsider.end(); ++it2)
+		{
+			TechTypes eTech = *it2;
+			CvTechEntry* pkTech = GC.getTechInfo(eTech);
+
+			// Scale bonus with how far ahead the tech is from our current tech level
+			int iMultiplier = max(100 - max(pkTech->GetGridX() - iOurAverageTechX, 0) * 10, 0);
+			if (iMultiplier == 0)
+				continue;
+
+			for (int iI = 0; iI <= YIELD_TOURISM; iI++)
+			{
+				YieldTypes eYield = (YieldTypes)iI;
+				int iTechYieldBonus = pkImprovementInfo->GetTechYieldChanges(eTech, eYield);
+				if (iTechYieldBonus != 0)
+				{
+					m_futureYieldBonuses[eImprovement][eYield] += iTechYieldBonus * iMultiplier;
+				}
+			}
+		}
+
+		// Bonuses from future policies
+		for (vector<PolicyTypes>::const_iterator it2 = aPoliciesToConsider.begin(); it2 != aPoliciesToConsider.end(); ++it2)
+		{
+			PolicyTypes ePolicy = *it2;
+			CvPolicyEntry* pkPolicy = GC.getPolicyInfo(ePolicy);
+
+			// Set an arbitrary value for unadopted policies
+			int iMultiplier = 80;
+
+			PolicyBranchTypes eBranch = (PolicyBranchTypes)pkPolicy->GetPolicyBranchType();
+			if (eBranch != NO_POLICY_BRANCH_TYPE)
+			{
+				CvPolicyBranchEntry* pkBranch = GC.getPolicyBranchInfo(eBranch);
+				if (pkBranch && pkBranch->IsPurchaseByLevel())
+					// Ideology policies may stay unchosen
+					iMultiplier = 50;
+			}
+
+			for (int iI = 0; iI <= YIELD_TOURISM; iI++)
+			{
+				YieldTypes eYield = (YieldTypes)iI;
+				int iPolicyYieldBonus = pkPolicy->GetImprovementYieldChanges(eImprovement, eYield);
+				if (iPolicyYieldBonus != 0)
+				{
+					m_futureYieldBonuses[eImprovement][eYield] += iPolicyYieldBonus * iMultiplier;
+				}
+			}
+		}
+	}
+}
+
+int CvBuilderTaskingAI::GetFutureYields(ImprovementTypes eImprovement, YieldTypes eYield)
+{
+	std::tr1::unordered_map<ImprovementTypes, std::tr1::unordered_map<YieldTypes, int>>::const_iterator it = m_futureYieldBonuses.find(eImprovement);
+	if (it == m_futureYieldBonuses.end())
+		return 0;
+
+	std::tr1::unordered_map<YieldTypes, int>::const_iterator it2 = it->second.find(eYield);
+	if (it2 == it->second.end())
+		return 0;
+
+	return it2->second;
 }
 
 /// Evaluating a plot to determine what improvement could be best there
@@ -3246,6 +3405,7 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 
 		int iYieldModifier = GetYieldBaseModifierTimes100(eYield);
 		int iNewYieldTimes100 = 0;
+		int iFutureYieldTimes100 = 0;
 		int iProjectedNewYieldsTimes100 = bIsBuild ? 100 * m_aiProjectedPlotYields[ui] : 100 * m_aiCurrentPlotYields[ui];
 
 		if (bIsWithinWorkRange)
@@ -3287,6 +3447,10 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 						iNewYieldTimes100 -= 60 * iGoldenAgeYieldChange;
 				}
 			}
+
+			// Bonus yields from future techs/policies
+			if (eImprovement != NO_IMPROVEMENT)
+				iFutureYieldTimes100 += GetFutureYields(eImprovement, eYield);
 
 			// If we are creating a feature, check if city gets any extra yield gains
 			// TODO how to handle yield per X worked plots with feature Y...
@@ -3529,10 +3693,11 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 			}
 		}
 
-		if (iNewYieldTimes100 != 0)
+		if (iNewYieldTimes100 != 0 || iFutureYieldTimes100 != 0)
 		{
 			int iCityYieldModifier = pOwningCity ? GetYieldCityModifierTimes100(pOwningCity, m_pPlayer, eYield) : 100;
 			iYieldScore += (iNewYieldTimes100 * iYieldModifier * iCityYieldModifier) / 10000;
+			iPotentialScore += (iFutureYieldTimes100 * iYieldModifier * iCityYieldModifier) / 10000;
 		}
 
 		// Extra adjacency bonuses from potential adjacent same improvements

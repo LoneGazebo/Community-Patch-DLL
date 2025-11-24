@@ -457,7 +457,8 @@
     <File md5="34AF515180770B3554A250F1D77329A1" import="1">Core Files/Overrides/PathHelpManager.lua</File>
     <File md5="7BC0010F1CD4D0C1E5644B09D504A019" import="1">Core Files/Overrides/PathHelpManager.xml</File>
     <File md5="E0EB123F5D919F8359CE9F1041343BE9" import="1">Core Files/Overrides/PuppetCityPopup.lua</File>
-    <File md5="05C4D1A3BD2DCA8BF173E1628A5D9BA4" import="1">Core Files/Overrides/ReligionOverview.lua</File>
+    <File md5="9776B7AD0EAB959240F43BCA3E6D8EAD" import="1">Core Files/Overrides/ReligionOverview.lua</File>
+    <File md5="180D0D9007913D8483373F07C398A32B" import="1">Core Files/Overrides/ReligionOverview.xml</File>
     <File md5="C16A95DB183F4BD7D3236CFDA63855AD" import="1">Core Files/Overrides/ReplayViewer.lua</File>
     <File md5="56E38F28084CA596462B0C6390936D80" import="1">Core Files/Overrides/ReplayViewer.xml</File>
     <File md5="2EDB54EB7721D8240EAF44B71BCE74D6" import="1">Core Files/Overrides/SaveMenu.lua</File>

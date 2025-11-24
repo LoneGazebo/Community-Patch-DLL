@@ -152,6 +152,9 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(SetFaithPurchaseType);
 	Method(GetFaithPurchaseIndex);
 	Method(SetFaithPurchaseIndex);
+	Method(IsDisableAutomaticFaithPurchase);
+	Method(SetDisableAutomaticFaithPurchase);
+	Method(DoSetDisableAutomaticFaithPurchase);
 
 	Method(IsProductionMaxedUnitClass);
 	Method(IsProductionMaxedBuildingClass);
@@ -2598,6 +2601,24 @@ int CvLuaPlayer::lGetFaithPurchaseIndex(lua_State* L)
 int CvLuaPlayer::lSetFaithPurchaseIndex(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlayerAI::SetFaithPurchaseIndex);
+}
+//------------------------------------------------------------------------------
+//bool IsDisableAutomaticFaithPurchase();
+int CvLuaPlayer::lIsDisableAutomaticFaithPurchase(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::IsDisableAutomaticFaithPurchase);
+}
+//------------------------------------------------------------------------------
+//void SetDisableAutomaticFaithPurchase(bool bValue);
+int CvLuaPlayer::lSetDisableAutomaticFaithPurchase(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::SetDisableAutomaticFaithPurchase);
+}
+//------------------------------------------------------------------------------
+//void DoSetDisableAutomaticFaithPurchase(bool bValue);
+int CvLuaPlayer::lDoSetDisableAutomaticFaithPurchase(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::DoSetDisableAutomaticFaithPurchase);
 }
 //------------------------------------------------------------------------------
 //bool isProductionMaxedUnitClass(UnitClassTypes  eUnitClass);

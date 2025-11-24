@@ -23,8 +23,6 @@ local g_bHidden = true;
 
 local MOD_BALANCE_VP = Game.IsCustomModOption("BALANCE_VP");
 
-local g_isFaithPurchaseBuildingsInPuppetsMod = Game.IsCustomModOption("GLOBAL_PURCHASE_FAITH_BUILDINGS_IN_PUPPETS")
-
 local L = Locale.Lookup;
 local VP = MapModData.VP;
 local GetInfoFromId = VP.GetInfoFromId;
@@ -324,14 +322,11 @@ local function AddProductionButton(eItem, eOrder, ePurchaseYield, strTurnsOrCost
 			return;
 		end
 
-		local player = Players[Game.GetActivePlayer()];
-		if (UI.IsCityScreenViewingMode() and (g_bProductionMode or (not player:MayNotAnnex() and not g_isFaithPurchaseBuildingsInPuppetsMod))) then
-			return;
-		end
-
 		local eCity = pCurrentCity:GetID();
 		if g_bProductionMode then
-			Game.CityPushOrder(pCurrentCity, eOrder, eItem, false, not g_bQueueMode, true);
+			if tOrder.CanProduceFunc(eItem, pCurrentCity, false) then
+				Game.CityPushOrder(pCurrentCity, eOrder, eItem, false, not g_bQueueMode, true);
+			end
 		else
 			assert(eOrder ~= OrderTypes.ORDER_MAINTAIN, "Attempting to purchase a process");
 			if tOrder.CanPurchaseFunc(eItem, pCurrentCity, ePurchaseYield, false) then

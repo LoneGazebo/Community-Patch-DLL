@@ -712,14 +712,29 @@ void CvGameReligions::DoPlayerTurn(CvPlayer& kPlayer)
 					CvCity *pCity = CvReligionAIHelpers::GetBestCityFaithUnitPurchase(kPlayer, eUnit, eReligion);
 					if (pCity)
 					{
-						pCity->PurchaseUnit(eUnit, YIELD_FAITH);
-
-						CvNotifications* pNotifications = kPlayer.GetNotifications();
-						if (pNotifications)
+						// Check if automatic purchase is disabled
+						if (kPlayer.IsDisableAutomaticFaithPurchase())
 						{
-							CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_AUTOMATIC_FAITH_PURCHASE", szItemName, pCity->getNameKey());
-							CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_AUTOMATIC_FAITH_PURCHASE");
-							pNotifications->Add(NOTIFICATION_CAN_BUILD_MISSIONARY, strBuffer, strSummary, pCity->getX(), pCity->getY(), -1);
+							// Send notification instead of purchasing
+							CvNotifications* pNotifications = kPlayer.GetNotifications();
+							if (pNotifications)
+							{
+								CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_FAITH_PURCHASE_AVAILABLE", szItemName);
+								CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_FAITH_PURCHASE_AVAILABLE");
+								pNotifications->Add(NOTIFICATION_CAN_BUILD_MISSIONARY, strBuffer, strSummary, pCity->getX(), pCity->getY(), -1);
+							}
+						}
+						else
+						{
+							pCity->PurchaseUnit(eUnit, YIELD_FAITH);
+
+							CvNotifications* pNotifications = kPlayer.GetNotifications();
+							if (pNotifications)
+							{
+								CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_AUTOMATIC_FAITH_PURCHASE", szItemName, pCity->getNameKey());
+								CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_AUTOMATIC_FAITH_PURCHASE");
+								pNotifications->Add(NOTIFICATION_CAN_BUILD_MISSIONARY, strBuffer, strSummary, pCity->getX(), pCity->getY(), -1);
+							}
 						}
 					}
 					else
@@ -750,14 +765,29 @@ void CvGameReligions::DoPlayerTurn(CvPlayer& kPlayer)
 					CvCity *pCity = CvReligionAIHelpers::GetBestCityFaithBuildingPurchase(kPlayer, eBuilding, eReligion);
 					if (pCity)
 					{
-						pCity->PurchaseBuilding(eBuilding, YIELD_FAITH);
-
-						CvNotifications* pNotifications = kPlayer.GetNotifications();
-						if(pNotifications)
+						// Check if automatic purchase is disabled
+						if (kPlayer.IsDisableAutomaticFaithPurchase())
 						{
-							CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_AUTOMATIC_FAITH_PURCHASE", szItemName, pCity->getNameKey());
-							CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_AUTOMATIC_FAITH_PURCHASE");
-							pNotifications->Add(NOTIFICATION_CAN_BUILD_MISSIONARY, strBuffer, strSummary, -1, -1, -1);
+							// Send notification instead of purchasing
+							CvNotifications* pNotifications = kPlayer.GetNotifications();
+							if (pNotifications)
+							{
+								CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_FAITH_PURCHASE_AVAILABLE", szItemName);
+								CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_FAITH_PURCHASE_AVAILABLE");
+								pNotifications->Add(NOTIFICATION_CAN_BUILD_MISSIONARY, strBuffer, strSummary, -1, -1, -1);
+							}
+						}
+						else
+						{
+							pCity->PurchaseBuilding(eBuilding, YIELD_FAITH);
+
+							CvNotifications* pNotifications = kPlayer.GetNotifications();
+							if(pNotifications)
+							{
+								CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_AUTOMATIC_FAITH_PURCHASE", szItemName, pCity->getNameKey());
+								CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_AUTOMATIC_FAITH_PURCHASE");
+								pNotifications->Add(NOTIFICATION_CAN_BUILD_MISSIONARY, strBuffer, strSummary, -1, -1, -1);
+							}
 						}
 					}
 					else
