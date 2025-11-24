@@ -34,6 +34,7 @@
 !*.modinfo
 !*.mp3
 !*.natvis
+!*.png
 !*.py
 !*.rc
 !*.rtf
