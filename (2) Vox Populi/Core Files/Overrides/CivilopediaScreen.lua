@@ -3448,7 +3448,6 @@ CivilopediaCategory[CategoryPromotions].SelectArticle = function( promotionID, s
 		if thisPromotion.BarbarianOnly then sText = sText.."[NEWLINE][ICON_BULLET][COLOR_CYAN]Barbarian Only[ENDCOLOR]"; end
 		AnalyzePromotion("CityStateOnly");
 		AnalyzePromotion("StrongerDamaged");
-		AnalyzePromotion("MountainsDoubleMove");
 		AnalyzePromotion("CombatBonusFromNearbyUnitClass");
 		AnalyzePromotion("NearbyUnitClassBonusRange");
 		AnalyzePromotion("NearbyUnitClassBonus");
@@ -3462,11 +3461,8 @@ CivilopediaCategory[CategoryPromotions].SelectArticle = function( promotionID, s
 		AnalyzePromotion("ConvertDomain")
 		AnalyzePromotion("WonderProductionModifier");
 		AnalyzePromotion("LandAirDefenseBonus", "");
-		AnalyzePromotion("PlagueChance");
-		AnalyzePromotion("PlaguePriority");
 		AnalyzePromotion("PlagueID");
 		AnalyzePromotion("PlaguePromotion");
-		AnalyzePromotion("PlagueIDImmunity");
 		AnalyzePromotion("StackedGreatGeneralXP");
 		AnalyzePromotion("GoodyHutYieldBonus");
 		--AnalyzePromotion("GainsXPFromScouting");
@@ -4506,7 +4502,6 @@ function SelectBuildingOrWonderArticle( buildingID )
 			AnalyzeBuilding("SingleLeagueVotes", "[COLOR_POSITIVE_TEXT]votes[ENDCOLOR]");
 			AnalyzeBuilding("AllowsPuppetPurchase");
 			AnalyzeBuilding("GrantsRandomResourceTerritory", "");
-			AnalyzeBuilding("ResourceQuantityToPlace");
 			AnalyzeBuilding("TradeReligionModifier");
 			--AnalyzeBuilding("NeedBuildingThisCity");
 			if thisBuilding.NeedBuildingThisCity ~= nil then sText = sText.."[NEWLINE][ICON_BULLET]Requires [COLOR_NEGATIVE_TEXT]"..Locale.Lookup(GameInfo.BuildingClasses[thisBuilding.NeedBuildingThisCity].Description).."[ENDCOLOR] in the City"; end
