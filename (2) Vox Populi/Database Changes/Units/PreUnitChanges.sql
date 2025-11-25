@@ -347,6 +347,7 @@ SET
 	DefaultUnitAI = (SELECT DefaultUnitAI FROM Units WHERE Type = 'UNIT_CUIRASSIER')
 WHERE Type = 'UNIT_SWEDISH_HAKKAPELIITTA';
 
+
 -- Barbarian: Slinger
 UPDATE Units
 SET

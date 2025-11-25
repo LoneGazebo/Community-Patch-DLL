@@ -1,4 +1,4 @@
-#ignore everything except files used in the mod
+#ignore everything except files used in the mod and for the Civilopedia website
 *
 !*/
 !*.cpp
@@ -34,6 +34,7 @@
 !*.modinfo
 !*.mp3
 !*.natvis
+!*.png
 !*.py
 !*.rc
 !*.rtf
@@ -41,6 +42,11 @@
 !*.txt
 !*.vcxproj
 !*.yml
+
+!*UI.json
+!*.html
+!*.js
+!*.css
 
 !docs/images/*
 

@@ -54,10 +54,12 @@ B. Change the current version number on ISSUE_TEMPLATE in the main folder to mat
 
 C. Change MyAppVersion in VPSetupData.iss to match the new version number.
 
+D. Update the version number in ExportCivilopedia/Text/en_US/UI.json
+
 Tip: Notepad++'s Find in Files feature can be useful for this step, but it will not update ISSUE_TEMPLATE.
 Find what: {Old Version Number}
 Replace with: {New Version Number}
-Filters: *.iss *.civ5proj
+Filters: *.iss *.civ5proj *.json
 Directory: GitHub\Community-Patch-DLL
 
 
@@ -141,20 +143,28 @@ Copy the newly compiled .modinfo files for the following mods from Build to the 
 - (4a) Squads for VP
 
 
-
 [STEP 12]
+Generate the updated HTML files for the Civilopedia
+- (1) Copy "ExportCivilopedia" to your mods folder and start a game of Civ5 with VP and the ExportCivilopedia mod enabled. Make sure logging is turned on.
+- (2) After clicking on "Begin your Journey", the game data will be written to the lua log. In Lua.log, "END EXPORT DATA" will be printed when the export is complete.
+- (3) In ExportCivilopedia: run `python extract_from_log.py`. This script will export the data from Lua.log into a file "civilopedia_export.json" 
+- (4) In ExportCivilopedia: run `pip install -r requirements.txt` and `python generate_civilopedia.py`. This script will generate the HTML files in "civilopedia_html".
+- (5) Open `civilopedia_html/index.html` in your browser to make sure the files have been generated correctly.
+
+
+[STEP 13]
 Create a commit for the new release, and tag it as shown below.
 Commit Name: "{Version Number} Release"
 Tag Name: "Release-{Version Number}"
 
 
 
-[STEP 13]
+[STEP 14]
 Push the release commit to GitHub.
 
 
 
-[STEP 14]
+[STEP 15]
 A. Go to Releases on GitHub and draft a new release. Upload the compiled autoinstaller and zipped Debug folder to the release binaries.
 
 
