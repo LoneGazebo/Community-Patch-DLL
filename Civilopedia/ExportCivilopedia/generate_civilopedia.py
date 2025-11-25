@@ -2056,10 +2056,9 @@ def extract_or_find_icon_from_atlas(atlas_name, atlas_lookup, portrait_index, ic
         return None
 
     # Prepare output path
-    output_path = BNW_ICONS_FOLDER if is_bnw_icon else GENERATED_ICONS_FOLDER
-    atlas_folder = Path(output_path) / filename
-    atlas_folder.mkdir(parents=True, exist_ok=True)
-    
+    output_folder = BNW_ICONS_FOLDER if is_bnw_icon else GENERATED_ICONS_FOLDER
+    (Path(output_folder) / atlas_folder).mkdir(exist_ok=True)
+    icon_path = Path(output_folder) / atlas_folder / icon_filename
 
     # Try loading indexed DDS (virtual texture format with -index.dds file)
     atlas_img = load_indexed_dds(dds_path)
