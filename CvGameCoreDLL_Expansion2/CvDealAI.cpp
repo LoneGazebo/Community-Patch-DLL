@@ -3026,7 +3026,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 		if (!GET_PLAYER(vMyTeam[i]).isAlive() || !GET_PLAYER(vMyTeam[i]).isMajorCiv())
 			continue;
 
-		if (GET_PLAYER(vMyTeam[i]).GetDiplomacyAI()->GetGlobalCoopWarAgainstState(eWithPlayer) == COOP_WAR_STATE_PREPARING)
+		if (GET_PLAYER(eWithPlayer).isMajorCiv() && GET_PLAYER(vMyTeam[i]).GetDiplomacyAI()->GetGlobalCoopWarAgainstState(eWithPlayer) == COOP_WAR_STATE_PREPARING)
 			return INT_MAX;
 	}
 
