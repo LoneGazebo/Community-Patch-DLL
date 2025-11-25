@@ -198,6 +198,7 @@ public:
 	bool ContainsPermanentItems(PlayerTypes eFromPlayer);
 	bool ContainsTemporaryItems(PlayerTypes eFromPlayer, PlayerTypes eToPlayer);
 	bool BlockTemporaryForPermanentTrade(TradeableItems eItemType, PlayerTypes eFromPlayer, PlayerTypes eToPlayer);
+	bool BlockGoldOnlyTrade(TradeableItems eItemType, PlayerTypes eFromPlayer, PlayerTypes eToPlayer);
 	CvString GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToPlayer, TradeableItems eItem, int iData1, int iData2, int iData3, bool bFlag1);
 
 	bool ContainsItemType(TradeableItems eItemType, PlayerTypes eFrom = NO_PLAYER, ResourceTypes eResource = NO_RESOURCE);
