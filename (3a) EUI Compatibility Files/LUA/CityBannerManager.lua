@@ -220,10 +220,7 @@ local g_cityToolTips = {
 
 				local cultureStored = city:GetJONSCultureStoredTimes100() / 100
 				local cultureNeeded = city:GetJONSCultureThreshold()
-				local culturePerTurn = city:GetYieldRateTimes100(YieldTypes.YIELD_CULTURE) / 100
-				local borderGrowthRate = culturePerTurn + city:GetBaseYieldRateTimes100(YieldTypes.YIELD_CULTURE_LOCAL) / 100
-				local borderGrowthRateIncrease = city:GetBorderGrowthRateIncreaseTotal()
-				borderGrowthRate = math_floor(borderGrowthRate * (100 + borderGrowthRateIncrease) / 100)
+				local borderGrowthRate = city:GetYieldRateTimes100(YieldTypes.YIELD_CULTURE_LOCAL) / 100
 
 				local turnsRemaining
 				if borderGrowthRate > 0 then
