@@ -3071,6 +3071,9 @@
 		<Row Tag="TXT_KEY_DIPLO_NOT_BANK_TT">
 			<Text>Cannot trade one-time items (such as Gold) for items given over time (such as Resources).</Text>
 		</Row>
+		<Row Tag="TXT_KEY_DIPLO_GOLD_ONLY_TRADE_TT">
+			<Text>Cannot trade Gold for Gold per Turn.</Text>
+		</Row>
 		<Row Tag="TXT_KEY_DIPLO_AI_TEAMMATE_TRADE_TT">
 			<Text>A human teammate prevents this action.</Text>
 		</Row>
