@@ -7181,251 +7181,221 @@ bool CvPlot::isFlatlands() const
 //	--------------------------------------------------------------------------------
 void CvPlot::setPlotType(PlotTypes eNewValue, bool bRecalculate, bool bRebuildGraphics, bool bEraseUnitsIfWater)
 {
-	CvArea* pNewArea = NULL;
-	CvArea* pCurrArea = NULL;
-	CvArea* pLastArea = NULL;
-	CvPlot* pLoopPlot = NULL;
-	bool bWasWater = false;
-	bool bWasDeepWater = false;
-	bool bRecalculateAreas = false;
-	int iAreaCount = 0;
-	int iI = 0;
+	if (getPlotType() == eNewValue)
+		return;
 
-	if (eNewValue <= NO_PLOT || eNewValue >= NUM_PLOT_TYPES) return;
+	if (eNewValue <= NO_PLOT || eNewValue >= NUM_PLOT_TYPES)
+		return;
 
-	if(getPlotType() != eNewValue)
+	if (getPlotType() == PLOT_OCEAN || eNewValue == PLOT_OCEAN)
 	{
-		if((getPlotType() == PLOT_OCEAN) || (eNewValue == PLOT_OCEAN))
+		erase(bEraseUnitsIfWater);
+	}
+
+	bool bWasWater = isWater();
+	bool bWasDeepWater = isDeepWater();
+
+	updateSeeFromSight(false, bRecalculate);
+
+	if (MOD_EVENTS_TERRAFORMING)
+		GAMEEVENTINVOKE_HOOK(GAMEEVENT_TerraformingPlot, TERRAFORMINGEVENT_PLOT, m_iX, m_iY, 0, eNewValue, m_ePlotType, -1, -1);
+
+	m_ePlotType = eNewValue;
+
+	updateYield();
+	updateImpassable();
+
+	updateSeeFromSight(true, bRecalculate);
+
+	if (getTerrainType() == NO_TERRAIN || GC.getTerrainInfo(getTerrainType())->isWater() != isWater())
+	{
+		if (isWater())
 		{
-			erase(bEraseUnitsIfWater);
+			if (isAdjacentToLand(false))
+			{
+				setTerrainType(static_cast<TerrainTypes>(GD_INT_GET(SHALLOW_WATER_TERRAIN)), bRecalculate, bRebuildGraphics);
+			}
+			else
+			{
+				setTerrainType(static_cast<TerrainTypes>(GD_INT_GET(DEEP_WATER_TERRAIN)), bRecalculate, bRebuildGraphics);
+			}
+		}
+		else
+		{
+			setTerrainType(static_cast<TerrainTypes>(GD_INT_GET(LAND_TERRAIN)), bRecalculate, bRebuildGraphics);
+		}
+	}
+
+	bool bRecalculateContinents = false;
+	if (bWasDeepWater != isDeepWater() && bRecalculate)
+	{
+		bRecalculateContinents = true;
+	}
+
+	if (bWasWater != isWater())
+	{
+		GC.getMap().changeLandPlots(isWater() ? -1 : 1);
+		if (isOwned())
+		{
+			GET_PLAYER(getOwner()).changeTotalLand(isWater() ? -1 : 1);
+			GET_TEAM(getTeam()).changeTotalLand(isWater() ? -1 : 1);
 		}
 
-		bWasWater = isWater();
-		bWasDeepWater = isDeepWater();
-
-		updateSeeFromSight(false,bRecalculate);
-
-		if (MOD_EVENTS_TERRAFORMING)
-			GAMEEVENTINVOKE_HOOK(GAMEEVENT_TerraformingPlot, TERRAFORMINGEVENT_PLOT, m_iX, m_iY, 0, eNewValue, m_ePlotType, -1, -1);
-
-		m_ePlotType = eNewValue;
-
-		updateYield();
-		updateImpassable();
-
-		updateSeeFromSight(true,bRecalculate);
-
-		if((getTerrainType() == NO_TERRAIN) || (GC.getTerrainInfo(getTerrainType())->isWater() != isWater()))
+		if (getResourceType() != NO_RESOURCE)
 		{
-			if(isWater())
+			GC.getMap().changeNumResourcesOnLand(getResourceType(), isWater() ? -1 : 1);
+		}
+
+		for (int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+		{
+			CvPlot* pLoopPlot = plotDirection(getX(), getY(), static_cast<DirectionTypes>(iI));
+			if (pLoopPlot)
 			{
-				if(isAdjacentToLand(false))
+				// Update adjacent water plots to coast if new plot is land
+				if (bRecalculate && !isWater() && pLoopPlot->isDeepWater() && pLoopPlot->isAdjacentToLand(false))
 				{
-					setTerrainType(((TerrainTypes)(GD_INT_GET(SHALLOW_WATER_TERRAIN))), bRecalculate, bRebuildGraphics);
-					m_bIsAdjacentToLand = true;
+					pLoopPlot->setTerrainType(static_cast<TerrainTypes>(GD_INT_GET(SHALLOW_WATER_TERRAIN)), true, bRebuildGraphics);
+					bRecalculateContinents = true;
+				}
+
+				pLoopPlot->updateYield();
+			}
+		}
+
+		for (int iI = 0; iI < MAX_CITY_PLOTS; ++iI)
+		{
+			CvPlot* pLoopPlot = iterateRingPlots(getX(), getY(), iI);
+			if (pLoopPlot)
+			{
+				pLoopPlot->updatePotentialCityWork();
+			}
+		}
+
+		if (bRecalculate)
+		{
+			bool bRecalculateAreas = false;
+
+			// Cycle through all adjacent plots and calculate number of times that their area ID is different from the previous one (also count invalid plots)
+			// 0 = All adjacent plots are from the same area, so check whether this plot is the same isWater() as them.
+			// 2 = Adjacent plots have both land and water, and this plot isn't connecting different areas or splitting an area.
+			// >2 = We can't be sure which area this plot should belong to. A full recalculation is needed.
+			CvPlot* pLastPlot = plotDirection(getX(), getY(), static_cast<DirectionTypes>(NUM_DIRECTION_TYPES - 1));
+			CvArea* pLastArea = pLastPlot ? pLastPlot->area() : NULL;
+			CvArea* pLandArea = NULL;
+			CvArea* pWaterArea = NULL;
+			CvArea* pLastValidArea = NULL;
+			CvLandmass* pLandLandmass = NULL;
+			CvLandmass* pWaterLandmass = NULL;
+			int iAreaCount = 0;
+			for (int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+			{
+				CvPlot* pLoopPlot = plotDirection(getX(), getY(), static_cast<DirectionTypes>(iI));
+				CvArea* pLoopArea = pLoopPlot ? pLoopPlot->area() : NULL;
+				if (pLoopArea != pLastArea)
+				{
+					iAreaCount++;
+				}
+				pLastArea = pLoopArea;
+				if (pLoopPlot)
+				{
+					pLastPlot = pLoopPlot;
+				}
+				if (pLastArea)
+				{
+					pLastValidArea = pLastArea;
+					if (pLastArea->isWater())
+					{
+						pWaterArea = pLastArea;
+						pWaterLandmass = pLoopPlot->landmass();
+					}
+					else
+					{
+						pLandArea = pLastArea;
+						pLandLandmass = pLoopPlot->landmass();
+					}
+				}
+			}
+
+			ASSERT(iAreaCount == 1, "This should be logically impossible");
+			ASSERT(pLastPlot && pLastValidArea, "All adjacent plots are invalid???")
+
+			CvArea* pNewArea = NULL;
+			CvLandmass* pNewLandmass = NULL;
+			if (iAreaCount == 0)
+			{
+				if (isWater() == pLastPlot->isWater())
+				{
+					pNewArea = pLastValidArea;
+					pNewLandmass = pLastPlot->landmass();
 				}
 				else
 				{
-					setTerrainType(((TerrainTypes)(GD_INT_GET(DEEP_WATER_TERRAIN))), bRecalculate, bRebuildGraphics);
-					m_bIsAdjacentToLand = false;
+					pNewArea = GC.getMap().addArea();
+					pNewArea->init(pNewArea->GetID(), isWater());
+					pNewLandmass = GC.getMap().addLandmass();
+					pNewLandmass->init(pNewLandmass->GetID(), isWater());
+				}
+			}
+			else if (iAreaCount == 2)
+			{
+				pNewArea = isWater() ? pWaterArea : pLandArea;
+				pNewLandmass = isWater() ? pWaterLandmass : pLandLandmass;
+
+				// In case the surrounding areas are both land or both water
+				if (!pNewArea)
+				{
+					if (isWater() == pLastPlot->isWater())
+					{
+						pNewArea = pLastValidArea;
+						pNewLandmass = pLastPlot->landmass();
+					}
+					else
+					{
+						pNewArea = GC.getMap().addArea();
+						pNewArea->init(pNewArea->GetID(), isWater());
+						pNewLandmass = GC.getMap().addLandmass();
+						pNewLandmass->init(pNewLandmass->GetID(), isWater());
+					}
 				}
 			}
 			else
 			{
-				setTerrainType(((TerrainTypes)(GD_INT_GET(LAND_TERRAIN))), bRecalculate, bRebuildGraphics);
+				bRecalculateAreas = true;
+			}
+
+			if (bRecalculateAreas)
+			{
+				GC.getMap().recalculateAreas();
+			}
+			else
+			{
+				CvArea* pCurrArea = area();
+				CvLandmass* pCurrLandmass = landmass();
+				setArea(-1);
+				setLandmass(-1);
+
+				if (pCurrArea->getNumTiles() == 0)
+				{
+					GC.getMap().deleteArea(pCurrArea->GetID());
+				}
+
+				if (pCurrLandmass->getNumTiles() == 0)
+				{
+					GC.getMap().deleteLandmass(pCurrLandmass->GetID());
+				}
+
+				setArea(pNewArea->GetID());
+				setLandmass(pNewLandmass->GetID());
+				if (bRecalculateContinents)
+					GC.getMap().recalculateContinents();
 			}
 		}
+	}
 
-		if (bWasDeepWater != isDeepWater() && bRecalculate)
-		{
-			GC.getMap().recalculateContinents();
-		}
-
-		if(bWasWater != isWater())
-		{
-			if(bRecalculate)
-			{
-
-				for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
-				{
-					pLoopPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-
-					if(pLoopPlot != NULL)
-					{
-						if(pLoopPlot->isWater())
-						{
-							if(pLoopPlot->isAdjacentToLand(false))
-							{
-								pLoopPlot->setTerrainType(((TerrainTypes)(GD_INT_GET(SHALLOW_WATER_TERRAIN))), bRecalculate, bRebuildGraphics);
-								m_bIsAdjacentToLand = true;
-							}
-							else
-							{
-								pLoopPlot->setTerrainType(((TerrainTypes)(GD_INT_GET(DEEP_WATER_TERRAIN))), bRecalculate, bRebuildGraphics);
-								m_bIsAdjacentToLand = false;
-							}
-						}
-					}
-				}
-			}
-
-			for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
-			{
-				pLoopPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-
-				if(pLoopPlot != NULL)
-				{
-					pLoopPlot->updateYield();
-				}
-			}
-
-
-			for(iI = 0; iI < MAX_CITY_PLOTS; ++iI)
-			{
-				pLoopPlot = iterateRingPlots(getX(), getY(), iI);
-
-				if(pLoopPlot != NULL)
-				{
-					pLoopPlot->updatePotentialCityWork();
-				}
-			}
-
-			GC.getMap().changeLandPlots((isWater()) ? -1 : 1);
-
-			if(getResourceType() != NO_RESOURCE)
-			{
-				GC.getMap().changeNumResourcesOnLand(getResourceType(), ((isWater()) ? -1 : 1));
-			}
-
-			if(isOwned())
-			{
-				GET_PLAYER(getOwner()).changeTotalLand((isWater()) ? -1 : 1);
-				GET_TEAM(getTeam()).changeTotalLand((isWater()) ? -1 : 1);
-			}
-
-			if(bRecalculate)
-			{
-				pNewArea = NULL;
-				bRecalculateAreas = false;
-
-				if(isWater())
-				{
-					for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
-					{
-						pLoopPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-
-						if(pLoopPlot != NULL && pLoopPlot->getArea()!=-1)
-						{
-							if(pLoopPlot->area()->isWater())
-							{
-								if(pNewArea == NULL)
-								{
-									pNewArea = pLoopPlot->area();
-								}
-								else if(pNewArea != pLoopPlot->area())
-								{
-									bRecalculateAreas = true;
-									break;
-								}
-							}
-						}
-					}
-				}
-				else
-				{
-					for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
-					{
-						pLoopPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-
-						if(pLoopPlot != NULL && pLoopPlot->getArea()!=-1)
-						{
-							if(!(pLoopPlot->area()->isWater()))
-							{
-								if(pNewArea == NULL)
-								{
-									pNewArea = pLoopPlot->area();
-								}
-								else if(pNewArea != pLoopPlot->area())
-								{
-									bRecalculateAreas = true;
-									break;
-								}
-							}
-						}
-					}
-				}
-
-				if(!bRecalculateAreas)
-				{
-					pLoopPlot = plotDirection(getX(), getY(), ((DirectionTypes)(NUM_DIRECTION_TYPES - 1)));
-
-					if(pLoopPlot != NULL)
-					{
-						pLastArea = pLoopPlot->area();
-					}
-					else
-					{
-						pLastArea = NULL;
-					}
-
-					iAreaCount = 0;
-
-					for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
-					{
-						pLoopPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-
-						if(pLoopPlot != NULL)
-						{
-							pCurrArea = pLoopPlot->area();
-						}
-						else
-						{
-							pCurrArea = NULL;
-						}
-
-						if(pCurrArea != pLastArea)
-						{
-							iAreaCount++;
-						}
-
-						pLastArea = pCurrArea;
-					}
-
-					if(iAreaCount > 2)
-					{
-						bRecalculateAreas = true;
-					}
-				}
-
-				if(bRecalculateAreas)
-				{
-					GC.getMap().recalculateAreas();
-				}
-				else
-				{
-					setArea(-1);
-
-					if((area() != NULL) && (area()->getNumTiles() == 1))
-					{
-						GC.getMap().deleteArea(getArea());
-					}
-
-					if(pNewArea == NULL)
-					{
-						pNewArea = GC.getMap().addArea();
-						pNewArea->init(pNewArea->GetID(), isWater());
-					}
-
-					setArea(pNewArea->GetID());
-				}
-			}
-		}
-
-		if(bRebuildGraphics && GC.IsGraphicsInitialized())
-		{
-			//Update terrain graphical
-			setLayoutDirty(true);
-		}
+	if (bRebuildGraphics && GC.IsGraphicsInitialized())
+	{
+		// Update terrain graphics
+		setLayoutDirty(true);
 	}
 }
 
