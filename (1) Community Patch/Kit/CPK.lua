@@ -17,6 +17,8 @@
 	local lua_type = type
 	local lua_next = next
 	local lua_error = error
+	local lua_pcall = pcall
+	local lua_print = print
 	local lua_tostring = tostring
 
 	local lua_string_match = string.match
@@ -45,7 +47,7 @@
 			local hasOs = os and lua_type(os.getenv) == 'function'
 
 			if not hasOs then
-				error('Error in include emulation: Cannot determine OS')
+				lua_error('Error in include emulation: Cannot determine OS')
 			end
 
 			local isWin = (os.getenv('OS') or ''):lower():match('window')
@@ -68,7 +70,7 @@
 
 		--- @param filename string
 		local function GetCandidatePath(filename)
-			for _, path in lua_next, GetAvailablePaths(), nil do
+			for _, path in lua_next, GetAvailablePaths() do
 				if string.sub(path, - #filename) == filename then
 					return path
 				end
@@ -110,7 +112,7 @@
 
 	local function Info(message)
 		if Var.VERBOSE then
-			print('CPK:', message)
+			lua_print('CPK:', message)
 		end
 	end
 
@@ -147,7 +149,7 @@
 
 		local tokens = {}
 
-		for _, path in lua_next, included, nil do
+		for _, path in lua_next, included do
 			lua_table_insert(tokens, '"' .. path .. '"')
 		end
 
@@ -356,7 +358,7 @@
 			})
 		end
 
-		local success, result = pcall(Import, filename)
+		local success, result = lua_pcall(Import, filename)
 
 		if not success then
 			Error(4, {
