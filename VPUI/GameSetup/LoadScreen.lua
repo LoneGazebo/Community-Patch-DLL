@@ -1,3 +1,4 @@
+MapModData = nil ; --Prevents includes like CPK or VPUI to save themselves there and have their global environment invalidated later...
 include( "IconSupport" );
 include( "UniqueBonuses" );
 include( "ContentSwitch" ); -- Includes tips for Vox Populi
