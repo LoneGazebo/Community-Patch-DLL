@@ -11074,6 +11074,14 @@ void CvGame::addPlayer(PlayerTypes eNewPlayer, LeaderHeadTypes eLeader, Civiliza
 }
 
 //	--------------------------------------------------------------------------------
+void CvGame::changeMinorPlayer(PlayerTypes eNewPlayer, MinorCivTypes m)
+{
+	CvMinorCivInfo* pMinorCivInfo = GC.getMinorCivInfo(m);
+	CvPreGame::setPlayerColor(eNewPlayer, (PlayerColorTypes)pMinorCivInfo->getDefaultPlayerColor());
+	CvPreGame::setMinorCivType(eNewPlayer, m);
+}
+
+//	--------------------------------------------------------------------------------
 int CvGame::getPlotExtraYield(int iX, int iY, YieldTypes eYield) const
 {
 	for(std::vector<PlotExtraYield>::const_iterator it = m_aPlotExtraYields.begin(); it != m_aPlotExtraYields.end(); ++it)
