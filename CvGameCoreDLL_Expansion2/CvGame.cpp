@@ -11074,11 +11074,13 @@ void CvGame::addPlayer(PlayerTypes eNewPlayer, LeaderHeadTypes eLeader, Civiliza
 }
 
 //	--------------------------------------------------------------------------------
-void CvGame::changeMinorPlayer(PlayerTypes eNewPlayer, MinorCivTypes m)
+void CvGame::changeMinorPlayer(PlayerTypes ePlayer, MinorCivTypes m)
 {
+	if (GET_PLAYER(ePlayer).isMinorCiv()){
 	CvMinorCivInfo* pMinorCivInfo = GC.getMinorCivInfo(m);
-	CvPreGame::setPlayerColor(eNewPlayer, (PlayerColorTypes)pMinorCivInfo->getDefaultPlayerColor());
-	CvPreGame::setMinorCivType(eNewPlayer, m);
+	CvPreGame::setPlayerColor(ePlayer, (PlayerColorTypes)pMinorCivInfo->getDefaultPlayerColor());
+	CvPreGame::setMinorCivType(ePlayer, m);
+	}
 }
 
 //	--------------------------------------------------------------------------------
