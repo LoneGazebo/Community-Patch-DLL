@@ -2218,9 +2218,9 @@
 			<Type>BUILDING_CHARTARIUM</Type>
 			<BuildingClass>BUILDINGCLASS_CHARTARIUM</BuildingClass>
 			<Description>TXT_KEY_BUILDING_CHARTARIUM</Description>
-			<Civilopedia>TXT_KEY_BUILDING_CHARTAIUM_TEXT</Civilopedia>
-			<Help>TXT_KEY_BUILDING_CHARTAIUM_HELP</Help>
-			<Strategy>TXT_KEY_BUILDING_CHARTAIUM_STRATEGY</Strategy>
+			<Civilopedia>TXT_KEY_BUILDING_CHARTARIUM_TEXT</Civilopedia>
+			<Help>TXT_KEY_BUILDING_CHARTARIUM_HELP</Help>
+			<Strategy>TXT_KEY_BUILDING_CHARTARIUM_STRATEGY</Strategy>
 			<ThemingBonusHelp>TXT_KEY_CHARTARIUM_THEMING_BONUS_HELP</ThemingBonusHelp>
 			<GreatWorkSlotType>GREAT_WORK_SLOT_LITERATURE</GreatWorkSlotType>
 			<GreatWorkCount>3</GreatWorkCount>
