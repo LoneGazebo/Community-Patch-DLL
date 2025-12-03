@@ -627,7 +627,7 @@
 			<!-- AI Bonuses -->
 			<AIHappinessDefault>8</AIHappinessDefault>
 			<AIHappinessDefaultCapital>2</AIHappinessDefaultCapital>
-			<AIUnitSupplyBase>12</AIUnitSupplyBase>
+			<AIUnitSupplyBase>15</AIUnitSupplyBase>
 			<AIUnitSupplyPopulationPercent>20</AIUnitSupplyPopulationPercent>
 			<AIWorkRateModifier>70</AIWorkRateModifier>
 			<AIBuildingCostPercent>70</AIBuildingCostPercent>
