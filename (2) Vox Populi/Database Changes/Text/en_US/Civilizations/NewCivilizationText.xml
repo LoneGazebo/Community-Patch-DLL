@@ -6,7 +6,9 @@
 			<Text>Independence Hall</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_INDEPENDENCE_HALL_HELP">
-			<Text>Unlocks access to [COLOR_POSITIVE_TEXT]Slater Mill[ENDCOLOR], [COLOR_POSITIVE_TEXT]West Point[ENDCOLOR], and [COLOR_POSITIVE_TEXT]Smithsonian Institute[ENDCOLOR] in the [COLOR_CYAN]Industrial Era[ENDCOLOR].</Text>
+			<Text>Unlocks access to [COLOR_POSITIVE_TEXT]Slater Mill[ENDCOLOR], [COLOR_POSITIVE_TEXT]West Point[ENDCOLOR], and [COLOR_POSITIVE_TEXT]Smithsonian Institute[ENDCOLOR] in the [COLOR_CYAN]Industrial Era[ENDCOLOR].
+				[NEWLINE]Possible Theming Bonuses:
+  				[NEWLINE][ICON_BULLET] +8 [ICON_CULTURE] and [ICON_TOURISM] for two [COLOR_POSITIVE_TEXT]American[ENDCOLOR] [ICON_GW_ART].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_INDEPENDENCE_HALL_TEXT">
 			<Text>Originally constructed as the state house of Pennsylvannia, Independence Hall is where the United States Declaration of Independence and Constitution were debated and formally adopted, making it the birthplace of the American nation. Today, Independence Hall is a museum and the centre of the Independence National Park in the heart of Philadelphia.</Text>
@@ -616,8 +618,8 @@
 			<Text>Possible Theming Bonuses:
 				[NEWLINE][ICON_BULLET] +2 [ICON_CULTURE] and [ICON_TOURISM] for two [COLOR_POSITIVE_TEXT]French[ENDCOLOR] [ICON_VP_GREATART].
 				[NEWLINE][ICON_BULLET] +4 [ICON_CULTURE] and [ICON_TOURISM] for two [COLOR_POSITIVE_TEXT]French[ENDCOLOR] [ICON_VP_GREATART] from the [COLOR_CYAN]same Era[ENDCOLOR].
-				[NEWLINE][ICON_BULLET] +4 [ICON_CULTURE] and [ICON_TOURISM] for two [ICON_VP_GREATART] from the [COLOR_POSITIVE_TEXT]same foreign Civilization[ENDCOLOR].
-				[NEWLINE][ICON_BULLET] +8 [ICON_CULTURE] and [ICON_TOURISM] for two [ICON_VP_GREATART] from the [COLOR_POSITIVE_TEXT]same foreign Civilization[ENDCOLOR] and the [COLOR_CYAN]same Era[ENDCOLOR].
+				[NEWLINE][ICON_BULLET] +4 [ICON_CULTURE] and [ICON_TOURISM] for two [COLOR_POSITIVE_TEXT]Foreign[ENDCOLOR] [ICON_VP_GREATART] from the [COLOR_POSITIVE_TEXT]same Civilization[ENDCOLOR].
+				[NEWLINE][ICON_BULLET] +8 [ICON_CULTURE] and [ICON_TOURISM] for two [COLOR_POSITIVE_TEXT]Foreign[ENDCOLOR] [ICON_VP_GREATART] from the [COLOR_POSITIVE_TEXT]same Civilization[ENDCOLOR] and the [COLOR_CYAN]same Era[ENDCOLOR].
 			</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_SALON_TEXT">
@@ -688,7 +690,9 @@
 			<Text>Gymnasion</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_GYMNASION_HELP">
-			<Text></Text>
+			<Text>Possible Theming Bonuses:
+  			[NEWLINE][ICON_BULLET] +4 [ICON_CULTURE] and [ICON_TOURISM] for two [COLOR_POSITIVE_TEXT]Domestic[ENDCOLOR] [ICON_GW_WRITING].
+  			[NEWLINE][ICON_BULLET] +6 [ICON_CULTURE] and [ICON_TOURISM] for two [COLOR_POSITIVE_TEXT]Foreign[ENDCOLOR] [ICON_GW_WRITING].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_GYMNASION_TEXT">
 			<Text>The Gymnasion were training facilities used by adult Greek men to socialize and practice for public games. The name roughly translates to "naked training place", because all athletes practiced while naked, and usually while covered in olive oil. Gymnasia started as open fields outside city limits, but were later planned as enclosed spaces that were central to Greek public life. While the public games and festivals were important themselves, Gymnasia also became centers of arts and learning. The famous schools of philosophy in Athens - the Academic school founded by Plato, the Peripatetic School founded by Aristotle, and the Cynic school founded by Antisthenes - were all founded and named after the Gymnasia where they met.</Text>
@@ -1558,7 +1562,9 @@
 			<Text>Unique Venetian replacement for the {TXT_KEY_BUILDING_NATIONAL_EPIC}. In addition to the bonuses of the {TXT_KEY_BUILDING_NATIONAL_EPIC}, {TXT_KEY_BUILDING_PIAZZA_SAN_MARCO} provides additional [ICON_FOOD] Food, [ICON_PRODUCTION] Production, [ICON_GOLD] Gold, [ICON_RESEARCH] Science, [ICON_CITY_SECURITY] City Security, and [ICON_WAR] Military Supply, and an extra boost to the city's [ICON_GREAT_PEOPLE] Great People generation. This building also reduces the cooldown of purchasing civilian units and removes the cooldown of purchasing military units. Unlocks the ability for Venice to build 1 of 3 unique buildings once [COLOR_CYAN]Guilds[ENDCOLOR] is researched. Unlike the {TXT_KEY_BUILDING_NATIONAL_EPIC}, the {TXT_KEY_BUILDING_PIAZZA_SAN_MARCO} is made available with the discovery of [COLOR_CYAN]{TXT_KEY_TECH_WRITING_TITLE}[ENDCOLOR], does not require a {TXT_KEY_BUILDING_MONUMENT} in the city, but can only be built in the [ICON_CAPITAL] Capital.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_PIAZZA_SAN_MARCO_HELP">
-			<Text>Unlocks access to [COLOR_POSITIVE_TEXT]Murano Glassworks[ENDCOLOR], [COLOR_POSITIVE_TEXT]Arsenale di Venezia[ENDCOLOR], and [COLOR_POSITIVE_TEXT]Rialto District[ENDCOLOR] once [COLOR_CYAN]Guilds[ENDCOLOR] is researched.</Text>
+			<Text>Unlocks access to [COLOR_POSITIVE_TEXT]Murano Glassworks[ENDCOLOR], [COLOR_POSITIVE_TEXT]Arsenale di Venezia[ENDCOLOR], and [COLOR_POSITIVE_TEXT]Rialto District[ENDCOLOR] once [COLOR_CYAN]Guilds[ENDCOLOR] is researched.[NEWLINE]
+				Possible Theming Bonuses:
+  				[NEWLINE][ICON_BULLET] +8 [ICON_CULTURE] and [ICON_TOURISM] for two [COLOR_POSITIVE_TEXT]Venetian[ENDCOLOR] [ICON_GREAT_WORK]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_RIALTO_DISTRICT">
 			<Text>Rialto District</Text>
@@ -1726,7 +1732,9 @@
 			<Text>Iziko</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_IZIKO_HELP">
-			<Text></Text>
+			<Text>Possible Theming Bonuses:
+  			[NEWLINE][ICON_BULLET] +4 [ICON_CULTURE] and [ICON_TOURISM] for two [COLOR_POSITIVE_TEXT]Foreign[ENDCOLOR] [ICON_GW_WRITING].
+  			[NEWLINE][ICON_BULLET] +4 [ICON_CULTURE] and [ICON_TOURISM] for two [COLOR_POSITIVE_TEXT]Domestic[ENDCOLOR] [ICON_GW_WRITING].
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_IZIKO_TEXT">
 			<Text>An Iziko is a simple hearth used as a gathering place for Zulu communities. The fireplace was revered as a source for food, warmth, dreams, and ancestral ties. It is from these gatherings that a sense of community and identity was formed, and young Zulus could perform and bond.[NEWLINE][NEWLINE]The fireplace is used metaphorically for the "cooking of songs" in isicathamiya stage performances, a modern offshoot of traditional Zulu music. Dreams were an essential part of communicating with ancestors and formed part of a deeply rooted Zulu religion. Some isicathamiya musicians claim some of their songs were created in the spiritual realm or given to them by their ancestors.[NEWLINE][NEWLINE]"A person is a person because of other people"[NEWLINE][TAB]- Zulu proverb</Text>
