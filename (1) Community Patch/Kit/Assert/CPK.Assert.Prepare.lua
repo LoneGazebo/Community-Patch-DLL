@@ -24,7 +24,7 @@ local function AssertPrepare(exp, tst)
 	--- @param lvl? integer # An optional level of error. For common asserts level should be 3.
 	return function(val, mes, lvl)
 		if not tst(val) then
-			AssertError(lua_type(val), exp, mes, lvl or 3)
+			AssertError(lua_type(val), exp, mes, lvl and (lvl + 1) or 2)
 		end
 	end
 end
