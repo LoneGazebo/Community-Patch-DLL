@@ -420,6 +420,9 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 	if (BlockTemporaryForPermanentTrade(eItem, ePlayer, eToPlayer))
 		return false;
 
+	if (BlockGoldOnlyTrade(eItem, ePlayer, eToPlayer))
+		return false;
+
 	std::vector<CvDeal*> pRenewDeals;
 	pRenewDeals = pFromPlayer->GetDiplomacyAI()->GetDealsToRenew(eToPlayer);
 	std::vector<CvDeal*> pTheirRenewDeals;
@@ -1487,6 +1490,53 @@ bool CvDeal::BlockTemporaryForPermanentTrade(TradeableItems eItemType, PlayerTyp
 	return false;
 }
 
+bool CvDeal::BlockGoldOnlyTrade(TradeableItems eItemType, PlayerTypes eFromPlayer, PlayerTypes eToPlayer)
+{
+	// Block deals in which Gold is traded for GPT
+
+	// Adding items other than Gold and GPT is fine
+	if (eItemType != TRADE_ITEM_GOLD && eItemType != TRADE_ITEM_GOLD_PER_TURN)
+		return false;
+
+	// Count items from each player
+	int iFromPlayerItems = 0;
+	int iToPlayerItems = 0;
+	int iToPlayerGold = 0;
+	int iToPlayerGoldPerTurn = 0;
+
+	TradedItemList::iterator it;
+	for (it = m_TradedItems.begin(); it != m_TradedItems.end(); ++it)
+	{
+		if (it->m_eFromPlayer == eFromPlayer)
+		{
+			iFromPlayerItems++;
+		}
+		else if (it->m_eFromPlayer == eToPlayer)
+		{
+			iToPlayerItems++;
+			if (it->m_eItemType == TRADE_ITEM_GOLD)
+				iToPlayerGold++;
+			else if (it->m_eItemType == TRADE_ITEM_GOLD_PER_TURN)
+				iToPlayerGoldPerTurn++;
+		}
+	}
+
+	// Block adding gold per turn if our side is empty and other side has only a lump sum of gold
+	if (eItemType == TRADE_ITEM_GOLD_PER_TURN)
+	{
+		if (iFromPlayerItems == 0 && iToPlayerItems > 0 && iToPlayerGold == iToPlayerItems)
+			return true;
+	}
+	// Block adding a lump sum of gold if other side has only gold per turn
+	else if (eItemType == TRADE_ITEM_GOLD)
+	{
+		if (iToPlayerItems > 0 && iToPlayerGoldPerTurn == iToPlayerItems)
+			return true;
+	}
+
+	return false;
+}
+
 /// Why can't this item be traded?
 /// The Data parameters can be -1, which means we don't care about whatever data is stored there (e.g. -1 for Gold means can we trade ANY amount of Gold?)
 CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToPlayer, TradeableItems eItem, int iData1, int iData2, int iData3, bool bFlag1)
@@ -1588,7 +1638,14 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 			strTooltip += strReason;
 		}
 	}
-	else if (bIsGold)
+
+	// Block gold-only trades (gold for gold per turn or vice versa in one-sided deals).
+	if (BlockGoldOnlyTrade(eItem, ePlayer, eToPlayer))
+	{
+		return GetLocalizedText("TXT_KEY_DIPLO_GOLD_ONLY_TRADE_TT");
+	}
+
+	if (bIsGold)
 		return strError; // the reasons above are the only possible reasons why Gold/GPT would have an error tooltip
 
 	if (bSameTeam) // All of the items below shouldn't even be visible in the UI between teammates
