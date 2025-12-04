@@ -51,6 +51,9 @@ void LuaSupport::RegisterScriptData(lua_State* L)
 	CvLuaGame::Register(L);
 	CvLuaPlayer::Register(L);
 	CvLuaTeam::Register(L);
+
+	luaopen_debug(L);
+	lua_setglobal(L, "debug2");
 }
 
 //------------------------------------------------------------------------------
