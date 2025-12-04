@@ -351,7 +351,8 @@
 			<Text>Nalanda</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_NALANDA_HELP">
-			<Text></Text>
+			<Text>Possible Theming Bonuses:
+  			[NEWLINE][ICON_BULLET] +6 [ICON_CULTURE] and [ICON_TOURISM] for two [COLOR_POSITIVE_TEXT]Domestic[ENDCOLOR] [ICON_GW_WRITING].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_NALANDA_TEXT">
 			<Text>The mahavihara of Nalanda was a complex of monasteries, libraries, observatories, and amphitheatres spanning 30 acres in modern day Bihar, in Eastern India. One of the earliest institutions that could properly be considered a university, Nalanda boasted a curriculum that included philosophy, epistemology, theology, medicine, mathematics, astrology, and alchemy. In addition to its educational role, Nalanda hosted some of the most influential thinkers and lecturers of the Buddhist world for over 7 centuries, and attracted visiting scholars from across Asia. The university survived the fall of the Gupta Empire in the 6th century, and gained powerful patrons with the rise of the Pala Empire, but came to a violent end with the Muslim invasion of India. Archeological evidence suggests that Islamic invaders sacked Nalanda 3 separate times, the monks and scholars either killed or forced to flee. The national government of India has committed to founding a new Nalanda as a modern university near the ruins of the old compound. The revived Nalanda University accepted its first class of students in 2020.</Text>
@@ -362,7 +363,8 @@
 
 		<!-- Notre Dame -->
 		<Row Tag="TXT_KEY_BUILDING_NOTRE_DAME_HELP">
-			<Text></Text>
+			<Text>Possible Theming Bonuses:
+  			[NEWLINE][ICON_BULLET] +8 [ICON_CULTURE] and [ICON_TOURISM] for two [COLOR_POSITIVE_TEXT]Foreign[ENDCOLOR] [ICON_GW_MUSIC] from [COLOR_POSITIVE_TEXT]different Civilizations[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_ROMAN_FORUM">
@@ -943,13 +945,14 @@
 		<Row Tag="TXT_KEY_BUILDING_CHARTARIUM">
 			<Text>Chartarium</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_CHARTAIUM_STRATEGY">
-			<Text>Build the Religious Library to gain [ICON_GOLDEN_AGE] Golden Age Points, [ICON_TOURISM] Tourism and [ICON_CULTURE] Culture from researching techs and to improve all Holy Sites. Constructing this National Wonder will also allow you to choose a Reformation Belief. May only be constructed in a Holy City, and only if at least 15% of the global population follows your Religion (scaling with map size).</Text>
+		<Row Tag="TXT_KEY_BUILDING_CHARTARIUM_STRATEGY">
+			<Text>Build the Chartarium to gain [ICON_GOLDEN_AGE] Golden Age Points, [ICON_TOURISM] Tourism and [ICON_CULTURE] Culture from researching techs and to improve all Holy Sites. Constructing this National Wonder will also allow you to choose a Reformation Belief. May only be constructed in a Holy City, and only if at least 15% of the global population follows your Religion (scaling with map size).</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_CHARTAIUM_HELP">
-			<Text></Text>
+		<Row Tag="TXT_KEY_BUILDING_CHARTARIUM_HELP">
+			<Text>Possible Theming Bonuses:
+ 			[NEWLINE][ICON_BULLET] +8 [ICON_CULTURE] and [ICON_TOURISM] for three [ICON_GW_WRITING] from the [COLOR_POSITIVE_TEXT]same Civilization[ENDCOLOR].</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_CHARTAIUM_TEXT">
+		<Row Tag="TXT_KEY_BUILDING_CHARTARIUM_TEXT">
 			<Text>The Chartarium was a collection of correspondences and minutes held privately by the office of the Papacy. This collection formed the precursor to the Vatican's Secret Archives.</Text>
 		</Row>
 
@@ -1083,7 +1086,7 @@
 			<Text>Astrology, in its broadest sense, is the search for meaning in the sky. Early evidence for humans making conscious attempts to measure, record, and predict seasonal changes by reference to astronomical cycles, appears as markings on bones and cave walls, which show that lunar cycles were being noted as early as 25,000 years ago. This was a first step towards recording the Moon's influence upon tides and rivers, and towards organising a communal calendar. Farmers addressed agricultural needs with increasing knowledge of the constellations that appear in the different seasons - and used the rising of particular star-groups to herald annual floods or seasonal activities. By the 3rd millennium BCE, civilisations had sophisticated awareness of celestial cycles, and may have oriented temples in alignment with heliacal risings of the stars.</Text>
 		</Row>
 
-		<!-- Theming bonuses -->
+		<!-- Theming bonuses flavor text -->
 		<Row Tag="TXT_KEY_THEMING_BONUS_AMPHITHEATER_NATIONAL">
 			<Text>National Epics</Text>
 		</Row>
