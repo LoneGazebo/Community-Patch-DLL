@@ -331,3 +331,15 @@ ALTER TABLE Building_ThemingBonuses ADD ConsecutiveEras integer DEFAULT 0;
 -- If NULL, will fall back to using Buildings.EnhancedYieldTech
 -- Does nothing if both columns are NULL
 ALTER TABLE Building_TechEnhancedYieldChanges ADD TechType text REFERENCES Technologies (Type);
+-- The increasing output of building foundations with the times
+create table Building_YieldChangesPerEra (
+	BuildingType text not null references Buildings(Type),
+	YieldType text not null references Yields(Type),
+	Yield integer default 0
+);
+-- Percentage output of buildings increasing with the times
+create table Building_YieldModifiersChangesPerEra (
+	BuildingType text not null references Buildings(Type),
+	YieldType text not null references Yields(Type),
+	Yield integer default 0
+);

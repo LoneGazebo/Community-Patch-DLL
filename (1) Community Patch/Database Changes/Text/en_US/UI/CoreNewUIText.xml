@@ -1903,6 +1903,9 @@
 		<Row Tag="TXT_KEY_GPP_FROM_MONOPOLY">
 			<Text>[ICON_BULLET]{1_Num} {2_IconString} from [ICON_MONOPOLY] Monopolies</Text>
 		</Row>
+		<Row Tag="TXT_KEY_PRODMOD_YIELD_PER_ERA">
+			<Text>[NEWLINE][ICON_BULLET]Eras Modifier: {1_Num}%</Text>
+		</Row>
 		<Row Tag="TXT_KEY_GPP_BASE">
 			<Text>Base {1_IconString} {2_GreatPerson:textkey} Points: {3: number "#,##0.00"}</Text>
 		</Row>
