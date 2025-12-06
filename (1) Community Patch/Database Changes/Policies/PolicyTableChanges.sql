@@ -251,7 +251,7 @@ ALTER TABLE Policies ADD RazingSpeedBonus integer DEFAULT 0;
 -- Allows you to set whether or not partisans spawn from razing cities (via policy)
 ALTER TABLE Policies ADD NoPartisans boolean DEFAULT 0;
 
--- Allows you to set whether or not units gain full XP when purchased with Gold (BALANCE_HALF_XP_GOLD_PURCHASES)
+-- Allows you to set whether or not units gain full XP when purchased with Gold or Faith (BALANCE_HALF_XP_GOLD_PURCHASES)
 ALTER TABLE Policies ADD NoXPLossUnitPurchase boolean DEFAULT 0;
 
 -- Allows you to set a % of warscore that is added to a tourism bonus against a civ
