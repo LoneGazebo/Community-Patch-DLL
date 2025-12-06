@@ -8799,10 +8799,14 @@ bool CvCity::canConstruct(BuildingTypes eBuilding, const std::vector<int>& vPreE
 		return false;
 	}
 
+	//no buildings for barbarians, pump units instead
+	if (GET_PLAYER(m_eOwner).isBarbarian())
+		return false;
+
 	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 
-	//no wonders in puppets (also affects venice unless invest or already invested)
-	if (IsPuppet() && !(GET_PLAYER(m_eOwner).GetPlayerTraits()->IsNoAnnexing() && (bContinue || bWillPurchase)))
+	//no wonders for minor civs or in puppets (also affects venice unless invest or already invested)
+	if (GET_PLAYER(m_eOwner).isMinorCiv() || (IsPuppet() && !(GET_PLAYER(m_eOwner).GetPlayerTraits()->IsNoAnnexing() && (bContinue || bWillPurchase))))
 	{
 		if (isWorldWonderClass(pkBuildingInfo->GetBuildingClassInfo()) || isNationalWonderClass(pkBuildingInfo->GetBuildingClassInfo()))
 		{

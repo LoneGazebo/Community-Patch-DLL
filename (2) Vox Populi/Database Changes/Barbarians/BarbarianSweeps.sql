@@ -111,14 +111,6 @@ WHERE Type IN (
 	'UNITCLASS_SUPERCARRIER'
 );
 
--- All Wonders
-INSERT INTO Civilization_BuildingClassOverrides
-	(CivilizationType, BuildingClassType)
-SELECT
-	'CIVILIZATION_BARBARIAN', Type
-FROM BuildingClasses
-WHERE (MaxPlayerInstances <> -1 OR MaxGlobalInstances <> -1);
-
 -- Art stuff
 UPDATE Civilizations
 SET

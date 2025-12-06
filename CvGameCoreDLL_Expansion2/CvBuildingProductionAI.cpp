@@ -158,10 +158,6 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 
 	CvPlayerAI& kPlayer = GET_PLAYER(m_pCity->getOwner());
 
-	//no buildings for barbarians, pump units instead
-	if (kPlayer.isBarbarian())
-		return SR_IMPOSSIBLE;
-
 	//do not build any buildings at all when about to be captured
 	if (m_pCity->isInDangerOfFalling())
 		return SR_STRATEGY;
