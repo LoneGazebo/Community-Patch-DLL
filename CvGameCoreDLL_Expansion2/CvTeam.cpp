@@ -1202,6 +1202,9 @@ bool CvTeam::canDeclareWar(TeamTypes eTeam, PlayerTypes eOriginatingPlayer)
 //	-----------------------------------------------------------------------------------------------
 void CvTeam::declareWar(TeamTypes eTeam, bool bDefensivePact, PlayerTypes eOriginatingPlayer)
 {
+	if (GET_TEAM(eTeam).getNumMembers() == 0)
+		return;
+
 	DoDeclareWar(eOriginatingPlayer, true, eTeam, bDefensivePact);
 
 	CvPlayerManager::Refresh(true);
