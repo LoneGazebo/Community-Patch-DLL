@@ -27,7 +27,7 @@
 CvDangerPlots::CvDangerPlots(void)
 	: m_ePlayer(NO_PLAYER)
 	, m_bDirty(false)
-	, m_iTurnBuilt(0)
+	, m_iTurnBuilt(-1)
 	, m_DangerPlots()
 {
 }
@@ -51,7 +51,7 @@ void CvDangerPlots::Uninit()
 {
 	m_ePlayer = NO_PLAYER;
 	m_bDirty = false;
-	m_iTurnBuilt = 0;
+	m_iTurnBuilt = -1;
 	m_DangerPlots.clear();
 	m_knownUnits.clear();
 	m_vanishedUnits.clear();
@@ -120,10 +120,6 @@ void CvDangerPlots::UpdateDanger()
 	bool bReload = (m_iTurnBuilt == -1);
 	bool bTurnChange = !bReload && (m_iTurnBuilt != GC.getGame().getGameTurn());
 	bool bWarChange = !bReload && !bTurnChange;
-
-	//do not update from the UI thread, might lead to desyncs!
-	if (!bReload && !gDLL->IsGameCoreThread())
-		return;
 
 	//note: we do not do a dirty check here, that is done in GetDanger()
 
