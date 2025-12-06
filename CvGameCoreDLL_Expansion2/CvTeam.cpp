@@ -32,6 +32,7 @@
 #include "CvPlayerManager.h"
 #include "CvCitySpecializationAI.h"
 #include "CvEnumMapSerialization.h"
+#include "CvDllNetMessageExt.h"
 
 #include "CvDllUnit.h"
 
@@ -9610,21 +9611,7 @@ void CvTeam::DoEndVassal(TeamTypes eTeam, bool bPeaceful, bool bSuppressNotifica
 // We liberate eTeam, if we can
 void CvTeam::DoLiberateVassal(TeamTypes eTeam)
 {
-	if (!CanLiberateVassal(eTeam))
-		return;
-
-	// End our vassalage peacefully
-	GET_TEAM(eTeam).DoEndVassal(GetID(), true, false);
-
-	// Find our vassals
-	for (int iVassalPlayer = 0; iVassalPlayer < MAX_MAJOR_CIVS; iVassalPlayer++)
-	{
-		PlayerTypes eVassalPlayer = (PlayerTypes) iVassalPlayer;
-		if (GET_PLAYER(eVassalPlayer).isAlive() && GET_PLAYER(eVassalPlayer).getTeam() == eTeam)
-		{
-			GET_PLAYER(eVassalPlayer).GetDiplomacyAI()->DoLiberatedFromVassalage(GetID(), false);
-		}
-	}
+	NetMessageExt::Send::DoLiberateVassal(GetID(), eTeam);
 }
 //	----------------------------------------------------------------------------------------------
 // Update vassal war/peace relationships for one team
@@ -10171,43 +10158,7 @@ bool CvTeam::CanSetVassalTax(PlayerTypes ePlayer) const
 // We apply a vassal tax to ePlayer
 void CvTeam::DoApplyVassalTax(PlayerTypes ePlayer, int iPercent)
 {
-	if (!CanSetVassalTax(ePlayer))
-		return;
-
-	iPercent = max(iPercent, /*0*/ GD_INT_GET(VASSALAGE_VASSAL_TAX_PERCENT_MINIMUM));
-	iPercent = min(iPercent, /*25*/ GD_INT_GET(VASSALAGE_VASSAL_TAX_PERCENT_MAXIMUM));
-
-	int iCurrentTaxRate = GetVassalTax(ePlayer);
-	
-	SetNumTurnsSinceVassalTaxSet(ePlayer, 0);
-	SetVassalTax(ePlayer, iPercent);
-
-	// Note: using EspionageScreen dirty for this.
-	GC.GetEngineUserInterface()->setDirty(EspionageScreen_DIRTY_BIT, true);
-
-	// notify diplo AI if there was some change		
-	if(iPercent != iCurrentTaxRate)
-	{
-		GET_PLAYER(ePlayer).GetDiplomacyAI()->DoVassalTaxChanged(GetID(), (iPercent < iCurrentTaxRate));	
-
-		// send a notification if there was some change
-		Localization::String locString;
-		Localization::String summaryString;
-		if(iPercent > iCurrentTaxRate)
-		{
-			locString = Localization::Lookup("TXT_KEY_MISC_VASSAL_TAX_INCREASED");
-			summaryString = Localization::Lookup("TXT_KEY_MISC_VASSAL_TAX_INCREASED_SUMMARY");
-		}
-		else
-		{
-			locString = Localization::Lookup("TXT_KEY_MISC_VASSAL_TAX_DECREASED");
-			summaryString = Localization::Lookup("TXT_KEY_MISC_VASSAL_TAX_DECREASED_SUMMARY");
-		}
-
-		locString << getName().GetCString() << iCurrentTaxRate << iPercent;
-
-		GET_PLAYER(ePlayer).GetNotifications()->Add(NOTIFICATION_GENERIC, locString.toUTF8(), summaryString.toUTF8(), -1, -1, this->getLeaderID());
-	}
+	NetMessageExt::Send::DoApplyVassalTax(GetID(), ePlayer, iPercent);
 }
 
 //	--------------------------------------------------------------------------------
