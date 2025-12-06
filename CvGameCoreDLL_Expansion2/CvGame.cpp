@@ -1311,7 +1311,7 @@ void CvGame::initDiplomacy()
 			for(int iJ = 0; iJ < MAX_CIV_TEAMS; iJ++)
 			{
 				const TeamTypes eTeamB = static_cast<TeamTypes>(iJ);
-				if(iI != iJ)
+				if(iI != iJ) 
 				{
 					kTeamA.declareWar(eTeamB, false, kTeamA.getLeaderID());
 				}
@@ -1623,15 +1623,18 @@ void CvGame::CheckPlayerTurnDeactivate()
 				if(kPlayer.hasProcessedAutoMoves())
 				{
 					bool bAutoMovesComplete = false;
-					if(!(kPlayer.hasBusyUnitOrCity()))
+					if (kPlayer.GetEndTurnBlockingType() == NO_ENDTURN_BLOCKING_TYPE)
 					{
-						bAutoMovesComplete = true;
+						if (!(kPlayer.hasBusyUnitOrCity()))
+						{
+							bAutoMovesComplete = true;
 
-						NET_MESSAGE_DEBUG_OSTR_ALWAYS("CheckPlayerTurnDeactivate() : auto-moves complete for " << kPlayer.getName());
-					}
-					else if(gDLL->HasReceivedTurnComplete(kPlayer.GetID()))
-					{
-						bAutoMovesComplete = true;
+							NET_MESSAGE_DEBUG_OSTR_ALWAYS("CheckPlayerTurnDeactivate() : auto-moves complete for " << kPlayer.getName());
+						}
+						else if (gDLL->HasReceivedTurnComplete(kPlayer.GetID()))
+						{
+							bAutoMovesComplete = true;
+						}
 					}
 
 					if(bAutoMovesComplete)
