@@ -146,7 +146,7 @@ VALUES
 UPDATE Buildings
 SET
 	GlobalHappinessPerMajorWar = 2,
-	GlobalMilitaryProductionModPerMajorWar = 10
+	GlobalMilitaryProductionModPerMajorWar = 5
 WHERE Type = 'BUILDING_ULTICUR';
 
 UPDATE Building_ResourceQuantity
@@ -165,7 +165,7 @@ VALUES
 INSERT INTO Building_BuildingClassYieldChanges
 	(BuildingType, BuildingClassType, YieldType, YieldChange)
 VALUES
-	('BUILDING_ULTICUR', 'BUILDINGCLASS_COLOSSEUM', 'YIELD_PRODUCTION', 2),
+	('BUILDING_ULTICUR', 'BUILDINGCLASS_COLOSSEUM', 'YIELD_PRODUCTION', 3),
 --	('BUILDING_ULTICUR', 'BUILDINGCLASS_COLOSSEUM', 'YIELD_GOLD', 2),
 	('BUILDING_ULTICUR', 'BUILDINGCLASS_STABLE', 'YIELD_PRODUCTION', 2),
 	('BUILDING_ULTICUR', 'BUILDINGCLASS_STABLE', 'YIELD_GOLD', 2);

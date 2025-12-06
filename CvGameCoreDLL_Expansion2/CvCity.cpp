@@ -587,15 +587,11 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	pPlot->SetPlayerThatDestroyedCityHere(NO_PLAYER);
 
 	pPlot->SetImprovementPillaged(false, false);
+	pPlot->setImprovementType(NO_IMPROVEMENT);
 	pPlot->SetRoutePillaged(false, false);
 
 	// Plot Ownership
 	pPlot->setOwner(eOwner, m_iID, bBumpUnits, true, true);
-
-	// Clear the improvement before the city attaches itself to the plot, else the improvement does not
-	// remove the resource allocation from the current owner.  This would result in double resource points because
-	// the plot has already had setOwner called on it (above), giving the player the resource points.
-	pPlot->setImprovementType(NO_IMPROVEMENT);
 
 	//only after the owner is set!
 	pPlot->setIsCity(true, m_iID, getWorkPlotDistance());
@@ -1004,7 +1000,6 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 			InitBoost(/*5*/ GD_INT_GET(COLONIST_EXTRA_PLOTS), /*5*/ GD_INT_GET(COLONIST_POPULATION_CHANGE), /*50*/ GD_INT_GET(COLONIST_FOOD_PERCENT));
 		}
 
-		const int iNumBuildingClassInfos = GC.getNumBuildingClassInfos();
 		const CvCivilizationInfo& kCivInfo = getCivilizationInfo();
 		for (set<int>::const_iterator it = pkSettlerUnitEntry->GetBuildOnFound().begin(); it != pkSettlerUnitEntry->GetBuildOnFound().end(); ++it)
 		{
@@ -4289,6 +4284,25 @@ bool CvCity::IsCityEventChoiceValid(CityEventChoiceTypes eChosenEventChoice, Cit
 		if (pkEventInfo->lacksPlayerMajority() && kPlayer.GetReligions()->GetReligionInMostCities() == GetCityReligions()->GetReligiousMajority())
 			return false;
 
+		if (pkEventInfo->getEventBuilding() != -1)
+		{
+			BuildingClassTypes eBuildingClass = (BuildingClassTypes)pkEventInfo->getEventBuilding();
+			if (eBuildingClass == NO_BUILDINGCLASS)
+				return false;
+
+			CvCivilizationInfo* pCivilizationInfo = GC.getCivilizationInfo(getCivilizationType());
+
+			if (HasBuildingClass(eBuildingClass))
+				return false;
+
+			if (pCivilizationInfo != NULL)
+			{
+				BuildingTypes eBuilding = (BuildingTypes)pCivilizationInfo->getCivilizationBuildings(eBuildingClass);
+				if (GC.getGame().isBuildingClassMaxedOut(eBuildingClass) || GET_TEAM(getTeam()).isBuildingClassMaxedOut(eBuildingClass) || GET_PLAYER(getOwner()).isBuildingMaxedOut(eBuilding))
+					return false;
+			}
+		}
+
 		if (pkEventInfo->getRequiredStateReligion() != -1)
 		{
 			if (kPlayer.GetReligions()->GetOwnedReligion() != pkEventInfo->getRequiredStateReligion())
@@ -5943,6 +5957,30 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice, int
 			localizedDurationText = Localization::Lookup("TXT_KEY_NEED_SPECIFIC_STATE_RELIGION");
 			localizedDurationText << GC.getReligionInfo((ReligionTypes)pkEventInfo->getRequiredStateReligion())->GetDescription();
 			DisabledTT += localizedDurationText.toUTF8();
+		}
+	}
+
+	if (pkEventInfo->getEventBuilding() != -1)
+	{
+		BuildingClassTypes eBuildingClass = (BuildingClassTypes)pkEventInfo->getEventBuilding();
+		if (eBuildingClass != NO_BUILDINGCLASS)
+		{
+			CvCivilizationInfo* pCivilizationInfo = GC.getCivilizationInfo(getCivilizationType());
+
+			if (HasBuildingClass(eBuildingClass))
+			{
+				localizedDurationText = Localization::Lookup("TXT_KEY_BUILDING_ALREADY_BUILT");
+				DisabledTT += localizedDurationText.toUTF8();
+			}
+			else if (pCivilizationInfo != NULL)
+			{
+				BuildingTypes eBuilding = (BuildingTypes)pCivilizationInfo->getCivilizationBuildings(eBuildingClass);
+				if (GC.getGame().isBuildingClassMaxedOut(eBuildingClass) || GET_TEAM(getTeam()).isBuildingClassMaxedOut(eBuildingClass) || GET_PLAYER(getOwner()).isBuildingMaxedOut(eBuilding))
+				{
+					localizedDurationText = Localization::Lookup("TXT_KEY_BUILDING_MAXED_OUT");
+					DisabledTT += localizedDurationText.toUTF8();
+				}
+			}
 		}
 	}
 
@@ -10666,17 +10704,24 @@ int CvCity::getProductionExperience(UnitTypes eUnit) const
 
 
 //	--------------------------------------------------------------------------------
-void CvCity::addProductionExperience(CvUnit* pUnit, bool bHalveXP, bool bGoldPurchase) const
+void CvCity::addProductionExperience(CvUnit* pUnit, bool bHalveXP, UnitCreationReason eReason) const
 {
 	VALIDATE_OBJECT();
-	bHalveXP = (bHalveXP || (bGoldPurchase && MOD_BALANCE_HALF_XP_GOLD_PURCHASES && !GET_PLAYER(getOwner()).IsNoXPLossUnitPurchase() && !pUnit->getUnitInfo().CanMoveAfterPurchase()));
+	bool bGoldPurchaseAffected = eReason == REASON_BUY && MOD_BALANCE_HALF_XP_GOLD_PURCHASES;
+	bool bFaithPurchsaeAffected = eReason == REASON_FAITH_BUY && MOD_BALANCE_HALF_XP_FAITH_PURCHASES;
+
+	bool bPurchaseAffected = bGoldPurchaseAffected || bFaithPurchsaeAffected;
+	bool bPlayerAffected = !GET_PLAYER(getOwner()).IsNoXPLossUnitPurchase();
+	bool bUnitAffected = !pUnit->getUnitInfo().CanMoveAfterPurchase();
+
+	bHalveXP = (bHalveXP || (bPurchaseAffected && bPlayerAffected && bUnitAffected));
 
 	if (pUnit->canAcquirePromotionAny())
 	{
 		pUnit->changeExperienceTimes100(getProductionExperience(pUnit->getUnitType()) * 100 / ((bHalveXP) ? 2 : 1));
 
 		// Carthage UA: Bonus XP to Gold purchased units
-		int iBonusXP = bGoldPurchase ? GET_PLAYER(getOwner()).GetPlayerTraits()->GetPurchasedUnitsBonusXP() : 0;
+		int iBonusXP = (eReason == REASON_BUY) ? GET_PLAYER(getOwner()).GetPlayerTraits()->GetPurchasedUnitsBonusXP() : 0;
 		if (iBonusXP > 0)
 		{
 			int iEra = GET_PLAYER(getOwner()).GetCurrentEra();
@@ -14297,9 +14342,14 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 		{
 			CvPlot* pLoopPlot = NULL;
 
-			ChangeExtraLuxuryResources(iChange);
+			// When adding: update counter first so the add functions use the new value
+			// When removing: update counter last so the remove functions use the old value
+			if (iChange > 0)
+			{
+				ChangeExtraLuxuryResources(iChange);
+			}
 
-			// Add extra luxury counts
+			// Add/remove extra luxury counts
 
 			std::set<int>::iterator it;
 			for (it = m_siPlots.begin(); it != m_siPlots.end(); ++it)
@@ -14333,6 +14383,11 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 						}
 					}
 				}
+			}
+
+			if (iChange < 0)
+			{
+				ChangeExtraLuxuryResources(iChange);
 			}
 		}
 
@@ -29678,7 +29733,7 @@ CvUnit* CvCity::CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType, UnitCreatio
 		pUnit->changeDamage(min(iUnitDamage, pUnit->GetMaxHitPoints() - 1));
 	}
 
-	addProductionExperience(pUnit, false, (eReason == REASON_BUY));
+	addProductionExperience(pUnit, false, eReason);
 
 	if (!bIsPurchased || pUnit->getUnitInfo().CanMoveAfterPurchase())
 		pUnit->restoreFullMoves();

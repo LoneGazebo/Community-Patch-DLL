@@ -594,6 +594,7 @@ public:
 	void saveReplay();
 
 	void addPlayer(PlayerTypes eNewPlayer, LeaderHeadTypes eLeader, CivilizationTypes eCiv);
+	void changeMinorPlayer(PlayerTypes ePlayer, MinorCivTypes m);
 
 	void testVictory();
 	bool testVictory(VictoryTypes eVictory, TeamTypes eTeam, bool* pbEndScore = NULL) const;

@@ -2998,7 +2998,7 @@ CivilopediaCategory[CategoryUnits].SelectArticle = function( unitID, shouldAddTo
 		Controls.RelatedImagesFrame:SetHide( true );
 
 		-- Infixo Extended info (only shown in debug mode)
-		if Game.IsDebugMode() then
+		if Game and Game.IsDebugMode() then
 			local sText = "[COLOR_CYAN]Abilities[ENDCOLOR] of this unit:"; -- change to TXT_KEY_ later
 			local function AnalyzeUnit(...)
 				sText = sText .. AnalyzeObjectField(thisUnit, ...);
@@ -3448,7 +3448,6 @@ CivilopediaCategory[CategoryPromotions].SelectArticle = function( promotionID, s
 		if thisPromotion.BarbarianOnly then sText = sText.."[NEWLINE][ICON_BULLET][COLOR_CYAN]Barbarian Only[ENDCOLOR]"; end
 		AnalyzePromotion("CityStateOnly");
 		AnalyzePromotion("StrongerDamaged");
-		AnalyzePromotion("MountainsDoubleMove");
 		AnalyzePromotion("CombatBonusFromNearbyUnitClass");
 		AnalyzePromotion("NearbyUnitClassBonusRange");
 		AnalyzePromotion("NearbyUnitClassBonus");
@@ -3462,11 +3461,8 @@ CivilopediaCategory[CategoryPromotions].SelectArticle = function( promotionID, s
 		AnalyzePromotion("ConvertDomain")
 		AnalyzePromotion("WonderProductionModifier");
 		AnalyzePromotion("LandAirDefenseBonus", "");
-		AnalyzePromotion("PlagueChance");
-		AnalyzePromotion("PlaguePriority");
 		AnalyzePromotion("PlagueID");
 		AnalyzePromotion("PlaguePromotion");
-		AnalyzePromotion("PlagueIDImmunity");
 		AnalyzePromotion("StackedGreatGeneralXP");
 		AnalyzePromotion("GoodyHutYieldBonus");
 		--AnalyzePromotion("GainsXPFromScouting");
@@ -4328,7 +4324,7 @@ function SelectBuildingOrWonderArticle( buildingID )
 		end
 
 		-- Infixo more info (only shown in debug mode)
-		if Game.IsDebugMode() then
+		if Game and Game.IsDebugMode() then
 			local sText = "[COLOR_CYAN]Features[ENDCOLOR] of this building:"; -- change to TXT_KEY_ later
 			-- Generic info from main table
 			local function AnalyzeBuilding(sField, sSuffix)
@@ -4506,7 +4502,6 @@ function SelectBuildingOrWonderArticle( buildingID )
 			AnalyzeBuilding("SingleLeagueVotes", "[COLOR_POSITIVE_TEXT]votes[ENDCOLOR]");
 			AnalyzeBuilding("AllowsPuppetPurchase");
 			AnalyzeBuilding("GrantsRandomResourceTerritory", "");
-			AnalyzeBuilding("ResourceQuantityToPlace");
 			AnalyzeBuilding("TradeReligionModifier");
 			--AnalyzeBuilding("NeedBuildingThisCity");
 			if thisBuilding.NeedBuildingThisCity ~= nil then sText = sText.."[NEWLINE][ICON_BULLET]Requires [COLOR_NEGATIVE_TEXT]"..Locale.Lookup(GameInfo.BuildingClasses[thisBuilding.NeedBuildingThisCity].Description).."[ENDCOLOR] in the City"; end

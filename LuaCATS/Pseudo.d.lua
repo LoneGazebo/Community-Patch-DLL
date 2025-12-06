@@ -36,6 +36,19 @@
 --- @alias SpecialistType integer
 --- @alias GreatPersonType integer
 
+--- Usually acceptable values for DLL calls, but may not be valid database row IDs
+
+--- @type table<string, BeliefType>
+BeliefTypes = {
+	NO_BELIEF = -1,
+}
+
+--- @type table<string, ReligionType>
+ReligionTypes = {
+	NO_RELIGION = -1,
+	RELIGION_PANTHEON = 0,
+}
+
 --- Pseudo tables
 
 --- The field content differs by popup type when set in DLL. Refer to `CvNotifications::Activate()` and the `AddPopup` functions for details.<br>
@@ -49,3 +62,18 @@
 --- @field Option1 boolean?
 --- @field Option2 boolean?
 --- @field Type ButtonPopupType?
+
+--- @alias BeliefInfoWithScore {
+--- 	ID: BeliefType,
+--- 	Name: string,
+--- 	Description: string,
+--- 	Tooltip: string,
+--- 	Score: integer,
+--- }
+
+--- See CvDllPathFinderUpdate.cpp and CvDllGameContext::TEMPCalculatePathFinderUpdates()
+--- @alias PathNode {
+--- 	x: integer,
+--- 	y: integer,
+--- 	turn: integer,
+--- }

@@ -394,7 +394,7 @@ public:
 
 	bool canContinueProduction(OrderData order);
 	int getProductionExperience(UnitTypes eUnit = NO_UNIT) const;
-	void addProductionExperience(CvUnit* pUnit, bool bHalveXP = false, bool bGoldPurchase = false) const;
+	void addProductionExperience(CvUnit* pUnit, bool bHalveXP = false, UnitCreationReason eReason = REASON_DEFAULT) const;
 
 	UnitTypes getProductionUnit() const;
 	UnitAITypes getProductionUnitAI() const;

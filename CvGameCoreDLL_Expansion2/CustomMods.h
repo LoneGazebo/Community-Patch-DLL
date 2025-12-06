@@ -477,6 +477,9 @@
 // FIXME: Disabled for now; this needs to be examined to see if it still works properly
 #define MOD_CARGO_SHIPS												(false)
 
+// Halve starting XP for combat units purchased with Faith
+#define MOD_BALANCE_HALF_XP_FAITH_PURCHASES							gCustomMods.isBALANCE_HALF_XP_FAITH_PURCHASES()
+
 
 /////////////////////////////////////////
 // OTHER USER INTERFACE OPTIONS
@@ -1627,6 +1630,7 @@ public:
 	MOD_OPT_DECL(BALANCE_UNIT_INVESTMENTS);
 	MOD_OPT_DECL(BALANCE_XP_ON_FIRST_ATTACK);
 	MOD_OPT_DECL(CARGO_SHIPS); // disabled
+	MOD_OPT_DECL(BALANCE_HALF_XP_FAITH_PURCHASES);
 
 	// Other User Interface Options
 	MOD_OPT_DECL(UI_DISPLAY_PRECISE_MOVEMENT_POINTS);

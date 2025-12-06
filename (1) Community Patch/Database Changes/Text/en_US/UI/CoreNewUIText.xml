@@ -715,8 +715,8 @@
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_DEFENSE_MODIFIER">
 			<Text>{2_Sign}{1_Num}% [ICON_STRENGTH] City Strength from Buildings</Text>
 		</Row>
-		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_DEFENSE_MODIFIER_GLOBAL">
-			<Text>{2_Sign}{1_Num}% [ICON_STRENGTH] City Strength in all Cities</Text>
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_DEFENSE_MODIFIER_TEAM">
+			<Text>{2_Sign}{1_Num}% [ICON_STRENGTH] City Strength from Buildings in all Cities of your Team</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_DAMAGE_REDUCTION">
 			<Text>[ICON_STRENGTH] Damage Reduction: {2_Sign}{1_Num}</Text>
@@ -770,7 +770,7 @@
 			<Text>{2_Sign}{1_Num} XP for [COLOR_YELLOW]{3_Domain:textkey}[ENDCOLOR] per [ICON_GREAT_WORK] Great Work in City</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_UNIT_XP_DOMAIN_FROM_GREAT_WRITING_GLOBAL">
-			<Text>{2_Sign}{1_Num} XP for [COLOR_YELLOW]{3_Domain:textkey}[ENDCOLOR] in all Cities per [ICON_GW_WRITING] Great Work of Writing in Empire</Text>
+			<Text>{2_Sign}{1_Num} XP for [COLOR_YELLOW]{3_Domain:textkey}[ENDCOLOR] in all Cities per [ICON_GW_WRITING] Great Work of Writing in Empire, capped at 45 XP</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_FOOD_KEPT">
 			<Text>{2_Sign}{1_Num}% [ICON_FOOD] Food is carried over when City grows</Text>
@@ -2363,8 +2363,40 @@
 		</Row>
 
 		<!-- Religion overview -->
+		
+		<!-- Religion overview -->
+		<Row Tag="TXT_KEY_RO_WR_TOTAL_CITIES">
+			<Text>Cities</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RO_WR_TOTAL_FOLLOWERS">
+			<Text>Followers</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RO_WR_YEAR_FOUNDED">
+			<Text>Founded</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RO_WR_OWNED_CITIES">
+			<Text>[COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR] of all Cities follows {2_Name}.[NEWLINE][NEWLINE]{3_Num} of your Cities have {4_Name} as the [ICON_RELIGION] Majority Religion. They account for [COLOR_POSITIVE_TEXT]{5_Num}%[ENDCOLOR] of the Majority Religion of your Cities. These cities also accounts for [COLOR_POSITIVE_TEXT]{6_Num}%[ENDCOLOR] of {7_Name}'s majority presence.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RO_WR_OWNED_FOLLOWERS">
+			<Text>[COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR] of the World's Population follows {2_Name}.[NEWLINE][NEWLINE]{3_Num} of your [ICON_CITIZEN] Population follows {4_Name}. They make up [COLOR_POSITIVE_TEXT]{5_Num}%[ENDCOLOR] of your [ICON_CITIZEN] Population. They also make up for [COLOR_POSITIVE_TEXT]{6_Num}%[ENDCOLOR] of {7_Name}'s followers.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RO_TAB_MAP">
+			<Text>Map</Text>
+		</Row>
 		<Row Tag="TXT_KEY_RO_AUTO_FAITH_PROPHET_PARAM">
 			<Text>Save for {1_UNITCLASS_PROPHET}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RO_DISABLE_AUTO_PURCHASE">
+			<Text>Notify Only</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RO_DISABLE_AUTO_PURCHASE_TT">
+			<Text>When checked, religious units and buildings will not be purchased automatically. Instead, you will receive a notification when enough Faith has been collected.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_FAITH_PURCHASE_AVAILABLE">
+			<Text>You have collected enough Faith to buy {TXT_KEY_GRAMMAR_A_AN &lt;&lt; {1_Name}}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_FAITH_PURCHASE_AVAILABLE">
+			<Text>Faith Purchase available</Text>
 		</Row>
 
 		<!-- Espionage overview -->
@@ -3076,6 +3108,9 @@
 		<Row Tag="TXT_KEY_DIPLO_NOT_BANK_TT">
 			<Text>Cannot trade one-time items (such as Gold) for items given over time (such as Resources).</Text>
 		</Row>
+		<Row Tag="TXT_KEY_DIPLO_GOLD_ONLY_TRADE_TT">
+			<Text>Cannot trade Gold for Gold per Turn.</Text>
+		</Row>
 		<Row Tag="TXT_KEY_DIPLO_AI_TEAMMATE_TRADE_TT">
 			<Text>A human teammate prevents this action.</Text>
 		</Row>
@@ -3314,6 +3349,11 @@
 		</Row>
 		<Row Tag="TXT_KEY_CITY_STATE_QUEST_ACQUIRE_CITY_OCC_FORMAL">
 			<Text>They want you to conquer the city of {1_City}.</Text>
+		</Row>
+
+		<!-- Debug score -->
+		<Row Tag="TXT_KEY_DEBUG_SCORE">
+			<Text>Score: [COLOR_CYAN]{1_Score}[ENDCOLOR]</Text>
 		</Row>
 
 		<!-- Plot popup -->

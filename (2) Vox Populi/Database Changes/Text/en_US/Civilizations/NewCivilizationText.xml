@@ -6,7 +6,9 @@
 			<Text>Independence Hall</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_INDEPENDENCE_HALL_HELP">
-			<Text>Unlocks access to [COLOR_POSITIVE_TEXT]Slater Mill[ENDCOLOR], [COLOR_POSITIVE_TEXT]West Point[ENDCOLOR], and [COLOR_POSITIVE_TEXT]Smithsonian Institute[ENDCOLOR] in the [COLOR_CYAN]Industrial Era[ENDCOLOR].</Text>
+			<Text>Unlocks access to [COLOR_POSITIVE_TEXT]Slater Mill[ENDCOLOR], [COLOR_POSITIVE_TEXT]West Point[ENDCOLOR], and [COLOR_POSITIVE_TEXT]Smithsonian Institute[ENDCOLOR] in the [COLOR_CYAN]Industrial Era[ENDCOLOR].
+				[NEWLINE]Possible Theming Bonuses:
+  				[NEWLINE][ICON_BULLET] +8 [ICON_CULTURE] and [ICON_TOURISM] for two [COLOR_POSITIVE_TEXT]Domestic[ENDCOLOR] [ICON_GW_ART].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_INDEPENDENCE_HALL_TEXT">
 			<Text>Originally constructed as the state house of Pennsylvannia, Independence Hall is where the United States Declaration of Independence and Constitution were debated and formally adopted, making it the birthplace of the American nation. Today, Independence Hall is a museum and the centre of the Independence National Park in the heart of Philadelphia.</Text>
@@ -265,7 +267,7 @@
 			<Text>Avoid exploring early game (within reason) to leave lots of unexplored territory for the Bandeirantes, so that they can grant you enormous amounts of [ICON_GOLD] Gold, [ICON_RESEARCH] Science, and [ICON_CULTURE] Culture by revealing tiles. For reference, exploring 60% of a standard map will yield approximately 10,000 of each yield. These yields are added to the nearest owned city.[NEWLINE][NEWLINE]The Bandeirante is faster, heals every turn, and doesn't use Movement for pillaging, so use it for this, but carefully. During peace, after you have explored the World, use them to build Mines, Quarries, Brazilwood Camps, and Forts in your frontier Cities.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_BANDEIRANTE_HELP">
-			<Text>Unique Brazilian {TXT_KEY_UNIT_EXPLORER} that can construct {TXT_KEY_IMPROVEMENT_MINE}, {TXT_KEY_CIV5_IMPROVEMENTS_QUARRY}, {TXT_KEY_CIV5_IMPROVEMENTS_FORT}, and {TXT_KEY_IMPROVEMENT_BRAZILWOOD_CAMP}; and generate [ICON_GOLD] Gold, [ICON_RESEARCH] Science, and [ICON_CULTURE] Culture when revealing tiles with this unit. Starts with [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_SURVIVALISM_3}[ENDCOLOR].</Text>
+			<Text></Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_EMBRAPA">
@@ -305,7 +307,7 @@
 			<Text>The +1 [ICON_PEACE] Faith for every 3 Citizens bonus is very strong, so having high Population is encouraged. It will significantly increase your total Faith generation, so consider your Beliefs and Policies knowing you will have a lot of Faith to spend. For example, Zealotry might be an atypical but very strong choice for Byzantium. With the +100% Religious Pressure added to Cities receiving a Trade Route, consider which owned or foreign Cities need more Religious Pressure when choosing Trade Route destinations. Due to having no gold maintenance, extra Culture, and the above bonuses, this Building should be a priority.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_TETRACONCH_HELP">
-			<Text>+1 [ICON_PEACE] Faith for every 3 [ICON_CITIZEN] Citizens in the City. +25% Religious Pressure, and an additional +100% towards Cities connected by Trade Routes.[NEWLINE][NEWLINE]Contains 1 slot for a [ICON_GW_MUSIC] Great Work of Music.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_RELIGION] Religious Unrest.[NEWLINE][NEWLINE]Nearby [ICON_RES_INCENSE] Incense: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_WINE] Wine: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_AMBER] Amber: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.</Text>
+			<Text></Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_IMPROVEMENT_APLEKTON">
@@ -338,7 +340,7 @@
 			<Text>Maximizing the amount of Trade Routes is a prority for Carthage because their bonus to Trade Route [ICON_GOLD] Gold generation from Resource Diversity makes them much more profitable. Since the Great Cothon grants 2 additional Trade Routes and many other strong bonuses, this Wonder is an absolute priority, especially since it's unlocked earlier at Currency.[NEWLINE][NEWLINE]Build it in the City with the highest amount of unique Luxury Resources as it is the main determinant of the profitability of your Trade Routes and like the Chartered Company, the Great Cothon further increases this bonus for the City in which it is built, and grants an additional copy of each of these Resources. This City should become your main sender of Trade Routes.[NEWLINE][NEWLINE]As this National Wonder grants [ICON_PRODUCTION] Production and [ICON_CULTURE] Culture to all Lighthouses and Harbors and grants free Harbors to all coastal Cities, it is strongly encouraged to settle coastal Cities over landlocked ones.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_GREAT_COTHON_HELP">
-			<Text>Receive an additional copy of all Luxury Resources around this City and a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] {TXT_KEY_BUILDING_HARBOR} in all of your coastal Cities. Incoming [ICON_ARROW_LEFT] Trade Routes generate +5 [ICON_GOLD] Gold for the City, and +3 [ICON_GOLD] Gold for the [ICON_ARROW_RIGHT] Trade Route owner. +25% [COLOR_POSITIVE_TEXT]Resource Diversity Modifier for Trade Routes[ENDCOLOR] from this City.[NEWLINE][NEWLINE]All Harbors gain +3 [ICON_PRODUCTION] Production, and all Lighthouses gain +2 [ICON_CULTURE] Culture.[NEWLINE][NEWLINE]Gain 2 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_INTERNATIONAL_TRADE] Trade Routes.[NEWLINE][NEWLINE]-2 [ICON_HAPPINESS_3] Unhappiness from [ICON_GOLD] Poverty in this City, and -1 in all other Cities.[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost increases based on the number of Cities you own.</Text>
+			<Text></Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_UNIT_ASAMU">
@@ -356,7 +358,7 @@
 
 		<!-- Celts -->
 		<Row Tag="TXT_KEY_BUILDING_CEILIDH_HALL_HELP">
-			<Text>+150 [ICON_CULTURE] Culture when completed, and starts 15 turns of "We Love the King Day" in the City.[NEWLINE][NEWLINE]Contains 1 slot for a [ICON_GW_MUSIC] Great Work of Music.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_CULTURE] Boredom.[NEWLINE][NEWLINE]Nearby [ICON_RES_IVORY] Ivory: +3 [ICON_CULTURE] Culture.</Text>
+			<Text></Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_UNIT_SCYTHED_CHARIOT">
@@ -445,7 +447,7 @@
 			<Text>A runestone is typically a raised stone with a runic inscription, but the term can also be applied to inscriptions on boulders and on bedrock. The tradition began in the 4th century and lasted into the 12th century, but most of the runestones date from the late Viking Age. Most runestones are located in Scandinavia, but there are also scattered runestones in locations that were visited by Norsemen during the Viking Age. Runestones are often memorials to dead men. Runestones were usually brightly coloured when erected, though this is no longer evident as the colour has worn off.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_RUNESTONE_HELP">
-			<Text>When a Unit [COLOR_POSITIVE_TEXT]created by this City[ENDCOLOR] pillages a Tile, gain 30 [ICON_CULTURE] Culture in this City, scaling with Era.[NEWLINE][NEWLINE]+25% [ICON_PRODUCTION] Production towards Melee, Gunpowder, and Naval Melee Units.[NEWLINE][NEWLINE]+2 [ICON_FOOD] Food and +1 [ICON_GOLD] Gold from Coast and Ocean tiles. Internal [ICON_INTERNATIONAL_TRADE] Trade Routes from this City generate +4 [ICON_FOOD] Food.[NEWLINE][NEWLINE]Forms a [ICON_CONNECTED] City Connection with other Cities via water if they also have Runestones.</Text>
+			<Text></Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_RUNESTONE_STRATEGY">
 			<Text>Unique Danish replacement for the {TXT_KEY_BUILDING_LIGHTHOUSE}. In addition to the {TXT_KEY_BUILDING_LIGHTHOUSE}'s bonuses, {TXT_KEY_BUILDING_RUNESTONE} produces [ICON_CULTURE] Culture when units from this City pillage tiles (Roads and Railroads do not count), generates more [ICON_FOOD] Food from ocean tiles, and increases [ICON_PRODUCTION] Production of melee land and naval units. Unlike the {TXT_KEY_BUILDING_LIGHTHOUSE}, the {TXT_KEY_BUILDING_RUNESTONE} can be built in a non-coastal city.</Text>
@@ -518,7 +520,7 @@
 			<Text>The White Tower is the old keep at the Tower of London. It was built by William the Conqueror during the early 1080s, and was later extended. The White Tower was the castle's strongest defensive point, and originally housed the king and his representatives. Throughout its long history, the Tower has been many things to England: A symbol of tyranny, a treasury, a menagerie, a mint, a palace and a prison. Today, the Tower of London is a vast museum which boasts, amongst its many treasures, the Crown Jewels of the English Monarchy.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_WHITE_TOWER_HELP">
-			<Text>Provides 2 [ICON_RES_IRON] {TXT_KEY_RESOURCE_IRON}.[NEWLINE][NEWLINE]+40 [ICON_GOLD] Gold and [ICON_RESEARCH] Science when you identify, capture, or kill a foreign [ICON_SPY] Spy or when you perform a Spy Mission, and +25 [ICON_GOLD] Gold and [ICON_RESEARCH] Science when you successfully rig an election in a [ICON_CITY_STATE] City-State or construct a Building in this City, scaling with Era.[NEWLINE][NEWLINE]Contains 1 slot for a [ICON_GREAT_WORK] Great Work of Art or Artifact, and comes with a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] [ICON_GW_ART] Great Work of Art.[NEWLINE][NEWLINE]+1 [ICON_CULTURE] Culture to all Constabularies, Castles, and Armories.[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost increases based on the number of Cities you own.</Text>
+			<Text></Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_WHITE_TOWER_STRATEGY">
 			<Text>Unique English replacement for the {TXT_KEY_BUILDING_IRONWORKS}. In addition to the bonuses of the {TXT_KEY_BUILDING_IRONWORKS}, the {TXT_KEY_BUILDING_WHITE_TOWER} boosts Constabularies, Castles, and Armories; provides [ICON_GOLD] Gold and [ICON_RESEARCH] Science for both offensive and defensive Spy actions; and contains a free [ICON_GW_ART] Great Work of Art.</Text>
@@ -614,10 +616,10 @@
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_SALON_HELP">
 			<Text>Possible Theming Bonuses:
-				[NEWLINE][ICON_BULLET] +2 [ICON_CULTURE] and [ICON_TOURISM] for two [COLOR_POSITIVE_TEXT]French[ENDCOLOR] [ICON_VP_GREATART].
-				[NEWLINE][ICON_BULLET] +4 [ICON_CULTURE] and [ICON_TOURISM] for two [COLOR_POSITIVE_TEXT]French[ENDCOLOR] [ICON_VP_GREATART] from the [COLOR_CYAN]same Era[ENDCOLOR].
-				[NEWLINE][ICON_BULLET] +4 [ICON_CULTURE] and [ICON_TOURISM] for two [ICON_VP_GREATART] from the [COLOR_POSITIVE_TEXT]same foreign Civilization[ENDCOLOR].
-				[NEWLINE][ICON_BULLET] +8 [ICON_CULTURE] and [ICON_TOURISM] for two [ICON_VP_GREATART] from the [COLOR_POSITIVE_TEXT]same foreign Civilization[ENDCOLOR] and the [COLOR_CYAN]same Era[ENDCOLOR].
+				[NEWLINE][ICON_BULLET] +2 [ICON_CULTURE] and [ICON_TOURISM] for two [COLOR_POSITIVE_TEXT]Domestic[ENDCOLOR] [ICON_GW_ART].
+				[NEWLINE][ICON_BULLET] +4 [ICON_CULTURE] and [ICON_TOURISM] for two [COLOR_POSITIVE_TEXT]Domestic[ENDCOLOR] [ICON_GW_ART] from the [COLOR_CYAN]same Era[ENDCOLOR].
+				[NEWLINE][ICON_BULLET] +4 [ICON_CULTURE] and [ICON_TOURISM] for two [COLOR_POSITIVE_TEXT]Foreign[ENDCOLOR] [ICON_GW_ART] from the [COLOR_POSITIVE_TEXT]same Civilization[ENDCOLOR].
+				[NEWLINE][ICON_BULLET] +8 [ICON_CULTURE] and [ICON_TOURISM] for two [COLOR_POSITIVE_TEXT]Foreign[ENDCOLOR] [ICON_GW_ART] from the [COLOR_POSITIVE_TEXT]same Civilization[ENDCOLOR] and the [COLOR_CYAN]same Era[ENDCOLOR].
 			</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_SALON_TEXT">
@@ -688,7 +690,9 @@
 			<Text>Gymnasion</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_GYMNASION_HELP">
-			<Text></Text>
+			<Text>Possible Theming Bonuses:
+  			[NEWLINE][ICON_BULLET] +4 [ICON_CULTURE] and [ICON_TOURISM] for two [COLOR_POSITIVE_TEXT]Domestic[ENDCOLOR] [ICON_GW_WRITING].
+  			[NEWLINE][ICON_BULLET] +6 [ICON_CULTURE] and [ICON_TOURISM] for two [COLOR_POSITIVE_TEXT]Foreign[ENDCOLOR] [ICON_GW_WRITING].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_GYMNASION_TEXT">
 			<Text>The Gymnasion were training facilities used by adult Greek men to socialize and practice for public games. The name roughly translates to "naked training place", because all athletes practiced while naked, and usually while covered in olive oil. Gymnasia started as open fields outside city limits, but were later planned as enclosed spaces that were central to Greek public life. While the public games and festivals were important themselves, Gymnasia also became centers of arts and learning. The famous schools of philosophy in Athens - the Academic school founded by Plato, the Peripatetic School founded by Aristotle, and the Cynic school founded by Antisthenes - were all founded and named after the Gymnasia where they met.</Text>
@@ -768,7 +772,7 @@
 			<Text>The {TXT_KEY_UNIT_WARAKAQ} is the Incan unique unit, replacing the {TXT_KEY_UNIT_INCAN_SLINGER}. It has superior range and can daze enemy units which lowers their [ICON_STRENGTH] Combat Strength for a long time.[NEWLINE][NEWLINE]Use it to harass your foes and take down Barbarian camps quickly.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_WARAKAQ_HELP">
-			<Text>Unique Incan {TXT_KEY_UNIT_INCAN_SLINGER} that has increased [ICON_RANGE_STRENGTH] Attack Range, ignores enemy [COLOR_POSITIVE_TEXT]Zone of Control[ENDCOLOR], and can daze enemy units, lowering their [ICON_STRENGTH] Combat Strength.</Text>
+			<Text></Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_TERRACE_FARM_HELP">
 			<Text>+1 [ICON_FOOD] Food for every {TXT_KEY_IMPROVEMENT_TERRACE_FARM} or Mountain adjacent to this {TXT_KEY_IMPROVEMENT_TERRACE_FARM}. +1 [ICON_FOOD] Food to adjacent Farms.</Text>
@@ -811,7 +815,7 @@
 			<Text>The ancient Harappan and Indus Valley Civilizations of Northwest South Asia, including Pakistan and parts of India, were prominent in hydraulic engineering, and had many water supply and sanitation devices that were the first of their kind. Among other things, they contained the world's earliest known system of flush toilets. These existed in many homes, and were connected to a common sewerage pipe. Most houses also had private wells. City walls functioned as a barrier against floods, and massive reservoirs were often constructed along these walls to collect this floodwater to save for droughts.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_HARAPPAN_RESERVOIR_HELP">
-			<Text>20% of [ICON_FOOD] Food is carried over, and 25% of the [ICON_PRODUCTION] Production of the City is added to the City's current [ICON_PRODUCTION] Production after a new [ICON_CITIZEN] Citizen is born. +2 [ICON_FOOD] Food from Lakes and Oases, and +1 [ICON_FOOD] Food and [ICON_PRODUCTION] Production from Farms worked by this City.[NEWLINE][NEWLINE]+1% [ICON_FOOD] Food for each Follower of this City's Majority [ICON_RELIGION] Religion.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_GOLD] Poverty.</Text>
+			<Text></Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_HARAPPAN_RESERVOIR_STRATEGY">
 			<Text>Unique Indian replacement for the {TXT_KEY_BUILDING_AQUEDUCT}. In addition to the {TXT_KEY_BUILDING_AQUEDUCT}'s bonuses, {TXT_KEY_BUILDING_HARAPPAN_RESERVOIR} keeps more [ICON_FOOD] Food on [ICON_CITIZEN] population growth; boosts Farms; and increases the city's [ICON_FOOD] Food generation depending on the number of followers of this city's majority [ICON_RELIGION] religion.</Text>
@@ -899,7 +903,7 @@
 			<Text>A dojo is a Japanese term which literally means "place of the way". Initially, dojos were adjunct to temples. The term can refer to a formal training place for any of the Japanese do arts but typically it is considered the formal gathering place for students of any Japanese martial arts style such as karate, judo, or samurai, to conduct training, examinations and other related encounters. The concept of a dojo only referring to a training place specifically for Asian martial arts is a Western concept; in Japan, any physical training facility, including professional wrestling schools, may be called dojo because of its close martial arts roots.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_DOJO_HELP">
-			<Text>+25 XP for all Units. +2 [ICON_WAR] Military Supply.[NEWLINE][NEWLINE]All Melee, Mounted Melee, Gunpowder, and Armored Units trained in this City receive the [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_BUSHIDO}[ENDCOLOR] Promotion.[NEWLINE][NEWLINE]When Units created by this City gain Experience through combat, receive [ICON_RESEARCH] Science and [ICON_CULTURE] Culture equal to 140% of the gained Experience.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress.</Text>
+			<Text></Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_DOJO_STRATEGY">
 			<Text>Unique Japanese replacement for the {TXT_KEY_BUILDING_ARMORY}. In addition to the {TXT_KEY_BUILDING_ARMORY}'s bonuses, {TXT_KEY_BUILDING_DOJO} provides more training experience and more military supply; grants the {TXT_KEY_PROMOTION_BUSHIDO} promotion to all melee, gunpowder, mounted and armored units, which offers one of eight possible promotions to these unit types after their first combat and increases the unit's strength as it takes damage; and produces [ICON_RESEARCH] Science and [ICON_CULTURE] Culture when units gain experience in combat.</Text>
@@ -939,7 +943,7 @@
 			<Text>Seowon were the most common educational institution of Korea during the mid- to late-Joseon Dynasty. They were private institutions combining the functions of a Confucian shrine and a preparatory school. In educational terms, the seowon were primarily occupied with preparing students for the national civil service examinations. In most cases, seowon served only pupils of the aristocratic yangban class.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_SEOWON_HELP">
-			<Text>+1 [ICON_RESEARCH] Science from Jungle and Snow tiles worked by this City. +1 [ICON_PRODUCTION] Production and [ICON_RESEARCH] Science from [ICON_GREAT_WORK] Great Works in the City and Great Person Tile Improvements worked by this City. Gain 50% of the [ICON_RESEARCH] Science output of the City as an instant boost to your current Research when a [ICON_CITIZEN] Citizen is born in this City.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_RESEARCH] Illiteracy.</Text>
+			<Text></Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_SEOWON_STRATEGY">
 			<Text>Unique Korean replacement for the {TXT_KEY_BUILDING_UNIVERSITY}. In addition to the {TXT_KEY_BUILDING_UNIVERSITY}'s bonuses, {TXT_KEY_BUILDING_SEOWON} boosts [ICON_GREAT_WORK] Great Works and Great Person Tile Improvements, and provides a bigger [ICON_RESEARCH] Science boost on [ICON_CITIZEN] population growth.</Text>
@@ -1012,7 +1016,7 @@
 			<Text>A yurt, called a 'Ger' by Mongolians, is a portable, bent dwelling structure traditionally used by nomads in the steppes of Central Asia as their home. The structure comprises a crown or compression wheel, usually steam bent, supported by roof ribs which are bent down at the end where they meet the lattice wall (again, steam bent). The top of the wall is prevented from spreading by means of a tension band which opposes the force of the roof ribs. The structure is usually covered by layers of fabric and sheep's wool felt for insulation and weatherproofing. The traditional decoration within a yurt is primarily pattern based. These patterns are generally not according to taste, but are derived from sacred ornaments with certain symbolism. Symbols representing strength are among the most common, including the khas (swastika) and four powerful beasts (lion, tiger, garuda and dragon), as well as stylized representations of the five elements (fire, water, earth, metal, and wood), considered to be the fundamental, unchanging elements of the cosmos. Such patterns are commonly used in the home with the belief that they will bring strength and offer protection.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_GER_HELP">
-			<Text>+1 [ICON_PRODUCTION] Production from Camps and Pastures. +40% [ICON_CULTURE_LOCAL] Border Growth and the [ICON_GOLD] Gold cost of acquiring new tiles is reduced by 25% in this City. Gain 5 [ICON_FOOD] Food and [ICON_PRODUCTION] Production in the City when its borders expand, scaling with Era.[NEWLINE][NEWLINE]Nearby [ICON_RES_DEER] Deer: +1 [ICON_FOOD] Food.[NEWLINE]Nearby [ICON_RES_BISON] Bison: +1 [ICON_FOOD] Food.</Text>
+			<Text></Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_GER_STRATEGY">
 			<Text>Unique Mongolian replacement for the {TXT_KEY_BUILDING_SMOKEHOUSE}. In addition to the {TXT_KEY_BUILDING_SMOKEHOUSE}'s bonuses, {TXT_KEY_BUILDING_GER} generates [ICON_PEACE] Faith; boosts pastures; provides [ICON_PRODUCTION] Production when borders expand; and makes borders expand faster.</Text>
@@ -1135,7 +1139,7 @@
 			<Text>A foundry is a factory that produces metal castings. Metals are cast into shapes by melting them into a liquid, pouring the metal in a mold, and removing the mold material or casting after the metal has solidified as it cools. The most common metals processed are aluminium and cast iron. However, other metals, such as bronze, brass, steel, magnesium, and zinc, are also used to produce castings in foundries. In this process, parts of desired shapes and sizes can be formed. In the context of war, foundries were essential to the production of cannonry and other essential siege equipment.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_SIEGE_FOUNDRY_HELP">
-			<Text>+1 [ICON_PRODUCTION] Production from Mines worked by this City. +50% [ICON_PRODUCTION] Production towards Siege units, and all Siege units trained in this City receive the [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_VOLLEY}[ENDCOLOR] Promotion.[NEWLINE][NEWLINE]When you construct a Military Unit in this City, gain [ICON_RESEARCH] Science equal to 20% of the Unit's [ICON_PRODUCTION] Production cost.[NEWLINE][NEWLINE]Nearby [ICON_RES_IRON] Iron: +1 [ICON_PRODUCTION] Production, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_COPPER] Copper: +2 [ICON_GOLD] Gold.</Text>
+			<Text></Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_SIEGE_FOUNDRY_STRATEGY">
 			<Text>Unique Ottoman replacement for the {TXT_KEY_BUILDING_FORGE}. In addition to the {TXT_KEY_BUILDING_FORGE}'s bonuses, {TXT_KEY_BUILDING_SIEGE_FOUNDRY} generates [ICON_RESEARCH] Science from producing military units, produces Siege units more quickly, and grants them the [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_VOLLEY}[ENDCOLOR] Promotion.[NEWLINE][NEWLINE]Use these abilities to build a massive force of artillery to take down enemies' walls and conquer their lands!</Text>
@@ -1558,7 +1562,9 @@
 			<Text>Unique Venetian replacement for the {TXT_KEY_BUILDING_NATIONAL_EPIC}. In addition to the bonuses of the {TXT_KEY_BUILDING_NATIONAL_EPIC}, {TXT_KEY_BUILDING_PIAZZA_SAN_MARCO} provides additional [ICON_FOOD] Food, [ICON_PRODUCTION] Production, [ICON_GOLD] Gold, [ICON_RESEARCH] Science, [ICON_CITY_SECURITY] City Security, and [ICON_WAR] Military Supply, and an extra boost to the city's [ICON_GREAT_PEOPLE] Great People generation. This building also reduces the cooldown of purchasing civilian units and removes the cooldown of purchasing military units. Unlocks the ability for Venice to build 1 of 3 unique buildings once [COLOR_CYAN]Guilds[ENDCOLOR] is researched. Unlike the {TXT_KEY_BUILDING_NATIONAL_EPIC}, the {TXT_KEY_BUILDING_PIAZZA_SAN_MARCO} is made available with the discovery of [COLOR_CYAN]{TXT_KEY_TECH_WRITING_TITLE}[ENDCOLOR], does not require a {TXT_KEY_BUILDING_MONUMENT} in the city, but can only be built in the [ICON_CAPITAL] Capital.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_PIAZZA_SAN_MARCO_HELP">
-			<Text>Can only be built in the [ICON_CAPITAL] Capital.[NEWLINE][NEWLINE]+33% [ICON_GREAT_PEOPLE] Great People generation in this city. Receive 15 [ICON_CULTURE] Culture when a [ICON_CITIZEN] Citizen is born in the City, and 50 [ICON_GOLDEN_AGE] Golden Age Points whenever you unlock a Policy, scaling with Era. +5 [ICON_WAR] Military Supply. +10 [ICON_CITY_SECURITY] City Security.[NEWLINE][NEWLINE]Reduces the purchase cooldown of Civilian Units by 3 turns and removes the purchase cooldown of Military Units in this City.[NEWLINE][NEWLINE]Contains 1 slot for a [ICON_GREAT_WORK] Great Work of Art or Artifact.[NEWLINE][NEWLINE]Unlocks access to [COLOR_POSITIVE_TEXT]{TXT_KEY_BUILDING_MURANO_GLASSWORKS}[ENDCOLOR], [COLOR_POSITIVE_TEXT]{TXT_KEY_BUILDING_ARSENALE_DI_VENEZIA}[ENDCOLOR], and [COLOR_POSITIVE_TEXT]{TXT_KEY_BUILDING_RIALTO_DISTRICT}[ENDCOLOR] once [COLOR_CYAN]{TXT_KEY_TECH_GUILDS_TITLE}[ENDCOLOR] is researched.[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost increases based on the number of Cities you own.</Text>
+			<Text>Unlocks access to [COLOR_POSITIVE_TEXT]Murano Glassworks[ENDCOLOR], [COLOR_POSITIVE_TEXT]Arsenale di Venezia[ENDCOLOR], and [COLOR_POSITIVE_TEXT]Rialto District[ENDCOLOR] once [COLOR_CYAN]Guilds[ENDCOLOR] is researched.[NEWLINE]
+				Possible Theming Bonuses:
+  				[NEWLINE][ICON_BULLET] +8 [ICON_CULTURE] and [ICON_TOURISM] for two [COLOR_POSITIVE_TEXT]Domestic[ENDCOLOR] [ICON_GREAT_WORK]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_RIALTO_DISTRICT">
 			<Text>Rialto District</Text>
@@ -1570,7 +1576,7 @@
 			<Text>One of three mutually exclusive buildings that Venice can build in its capital after it has completed {TXT_KEY_BUILDING_PIAZZA_SAN_MARCO}. This building provides an additional [ICON_INTERNATIONAL_TRADE] trade route slot; boosts the value of [ICON_INTERNATIONAL_TRADE] Trade Routes to and from the City; generates [ICON_GOLD] Gold based on your empire population; reduces the [ICON_GOLD] Gold cost of purchasing Units and Buildings in the empire, and provides additional [ICON_DIPLOMAT] World Congress Delegates based on your [ICON_GOLD] Gold income.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_RIALTO_DISTRICT_HELP">
-			<Text>1 of 3 [COLOR_NEGATIVE_TEXT]Mutually Exclusive[ENDCOLOR] Unique Venetian Buildings. Requires construction of {TXT_KEY_BUILDING_PIAZZA_SAN_MARCO} in this City.[NEWLINE][NEWLINE]Cost of [ICON_GOLD] Gold purchases in all Cities reduced by 10% (15% in [ICON_CAPITAL] Capital). +1 [ICON_GOLD] Gold for every 3 [ICON_CITIZEN] Citizens in your Empire. +1 [ICON_INTERNATIONAL_TRADE] Trade Route. +1 [ICON_DIPLOMAT] Delegate in the World Congress for every 200 [ICON_GOLD] Gold Per Turn produced (caps at 25% of all [ICON_CITY_STATE] City-States ever alive).[NEWLINE][NEWLINE]Incoming [ICON_ARROW_LEFT] Trade Routes generate +3 [ICON_GOLD] Gold for the City, and +3 [ICON_GOLD] Gold for [ICON_ARROW_RIGHT] Trade Route owner.[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost increases based on the number of Cities you own.</Text>
+			<Text></Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_ARSENALE_DI_VENEZIA">
 			<Text>Arsenale di Venezia</Text>
@@ -1582,7 +1588,7 @@
 			<Text>One of three mutually exclusive buildings that Venice can build in its capital after it has completed {TXT_KEY_BUILDING_PIAZZA_SAN_MARCO}. This building boosts [ICON_PRODUCTION] Production and Internal [ICON_INTERNATIONAL_TRADE] Trade Routes; increases [ICON_STRENGTH] City Strength and [ICON_SILVER_FIST] Military Supply from population; and buffs the [ICON_STRENGTH] Combat Strength and [ICON_MOVES] Movement of all naval units.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_ARSENALE_DI_VENEZIA_HELP">
-			<Text>1 of 3 [COLOR_NEGATIVE_TEXT]Mutually Exclusive[ENDCOLOR] Unique Venetian Buildings. Requires construction of {TXT_KEY_BUILDING_PIAZZA_SAN_MARCO} in this City.[NEWLINE][NEWLINE]+10% [ICON_STRENGTH] Defense Strength and [ICON_SILVER_FIST] Military Supply from Population in all Cities (15% in [ICON_CAPITAL] Capital).[NEWLINE][NEWLINE]Internal [ICON_INTERNATIONAL_TRADE] Trade Routes from this City generate +4 [ICON_PRODUCTION] Production.[NEWLINE][NEWLINE]All Naval Units receive the [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_VENETIAN_CRAFTSMANSHIP}[ENDCOLOR] Promotion.[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost increases based on the number of Cities you own.</Text>
+			<Text></Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_MURANO_GLASSWORKS">
 			<Text>Murano Glassworks</Text>
@@ -1594,7 +1600,7 @@
 			<Text>One of three mutually exclusive buildings that Venice can build in its capital after it has completed {TXT_KEY_BUILDING_PIAZZA_SAN_MARCO}. Boosts the value of Great Person tile improvements and villages for all cities, enables or strengthens Historic Events on [ICON_INTERNATIONAL_TRADE] Trade Route completion, and contains 2 slots for [ICON_GREAT_WORK] Great Works of Art or Artifacts.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_MURANO_GLASSWORKS_HELP">
-			<Text>1 of 3 [COLOR_NEGATIVE_TEXT]Mutually Exclusive[ENDCOLOR] Unique Venetian Buildings. Requires construction of {TXT_KEY_BUILDING_PIAZZA_SAN_MARCO} in this City.[NEWLINE][NEWLINE]+2 [ICON_FOOD] Food and +2 [ICON_TOURISM] Tourism from Villages and Great Person Tile Improvements worked by all Cities.[NEWLINE][NEWLINE]Completing a [ICON_CARAVAN]/[ICON_CARGO_SHIP] Trade Route originating here and targeting another Civilization triggers a (or strengthens an existing) [COLOR_POSITIVE_TEXT]Historic Event[ENDCOLOR].[NEWLINE][NEWLINE]Contains 2 slots for [ICON_GREAT_WORK] Great Works of Art or Artifacts. +5 [ICON_RESEARCH] Science if [COLOR_POSITIVE_TEXT]Themed[ENDCOLOR].[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost increases based on the number of Cities you own.</Text>
+			<Text></Text>
 		</Row>
 		<Row Tag="TXT_KEY_THEMING_BONUS_MURANO_GLASSWORKS">
 			<Text>Murano Masterpiece Collection</Text>
@@ -1726,13 +1732,15 @@
 			<Text>Iziko</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_IZIKO_HELP">
-			<Text></Text>
+			<Text>Possible Theming Bonuses:
+  			[NEWLINE][ICON_BULLET] +4 [ICON_CULTURE] and [ICON_TOURISM] for two [COLOR_POSITIVE_TEXT]Foreign[ENDCOLOR] [ICON_GW_WRITING].
+  			[NEWLINE][ICON_BULLET] +4 [ICON_CULTURE] and [ICON_TOURISM] for two [COLOR_POSITIVE_TEXT]Domestic[ENDCOLOR] [ICON_GW_WRITING].
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_IZIKO_TEXT">
 			<Text>An Iziko is a simple hearth used as a gathering place for Zulu communities. The fireplace was revered as a source for food, warmth, dreams, and ancestral ties. It is from these gatherings that a sense of community and identity was formed, and young Zulus could perform and bond.[NEWLINE][NEWLINE]The fireplace is used metaphorically for the "cooking of songs" in isicathamiya stage performances, a modern offshoot of traditional Zulu music. Dreams were an essential part of communicating with ancestors and formed part of a deeply rooted Zulu religion. Some isicathamiya musicians claim some of their songs were created in the spiritual realm or given to them by their ancestors.[NEWLINE][NEWLINE]"A person is a person because of other people"[NEWLINE][TAB]- Zulu proverb</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_IZIKO_STRATEGY">
-			<Text></Text>
+			<Text>The Iziko's main unique bonus is that it provides culture when any of your units level up and scales with the number of cities you have it built in your empire. This synergizes well with the Zulu Unique Ability as less experience is needed for each unit level. To maximize the bonus, you should try to build instead of purchase military units so they start with full experience and have as many buildings and other bonuses that provide starting unit experience. You'll also generally want to play aggressively with Zulu so you can be actively gaining experience through combat to level up your existing units and expanding to have more cities to build the Iziko.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_UNIT_INDUNA">
@@ -1745,7 +1753,7 @@
 			<Text>An InDuna can widely be translated to any leader of men, in commerce, in politics, and in war. An InDuna guided each regiment, or 'ibutho', of young Zulu men and he in turn answered to senior izinDuna who controlled the corps. One or more of these elder chiefs might accompany a big force on an important mission, but there was no single "field marshal" in command of all Zulu forces. Regimental izinDuna, like the non-commissioned officers of today's army, were important for morale and discipline. This was demonstrated during the battle of Isandlwana, where the army led by Ntshingwayo kaMahole outmaneuvered and destroyed a British column. Ntshingwayo kaMahole and his fellow izinDuna snuck a Zulu force of 20,000 men behind the British, hiding them in a valley only 7 miles from the British camp. When discovered sitting in complete silence by scouts, the izinDuna spurred their men into action and closed the remaining distance with lightning speed.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_INDUNA_STRATEGY">
-			<Text></Text>
+			<Text>The InDuna's primary unique bonuses over a Great General are that when expended it provides experience to the unit it's stacked with and creates an Isibaya which places a [ICON_RES_COW] Cattle Resource adjacent to it and adjacent Pastures receive +1 [ICON_CULTURE] Culture. The Isibaya should still primarily be used for military purposes like a Citadel but where possible trying to build it within the working radius of a city and adjacent to Pastures should be considered so you get the economic bonuses. You should always make sure to have a military unit stacked with the InDuna when constructing an Isibaya and its usually best to try to give the bonus experience to higher level units especially ranged or siege units. This is due to these unit types being easier to keep alive longer compared to melee units and that they tend to gain experience slower so the bonus experience is more impactful.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_INDUNA_01">
 			<Text>Mzilikazi</Text>
