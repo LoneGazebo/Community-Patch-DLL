@@ -303,13 +303,6 @@ public:
 				logMsg << " | Context=" << containerContext;
 			}
 			
-#if !defined(FINAL_RELEASE) || defined(VPDEBUG)
-			// Add stack trace information if available
-			if (!this->m_callStackRemark.empty()) {
-				logMsg << " | StackTrace=" << this->m_callStackRemark;
-			}
-#endif
-			
 			gGlobals.getDLLIFace()->netMessageDebugLog(logMsg.str());
 			gGlobals.getGame().setDesynced(true);
 		}
@@ -371,7 +364,6 @@ public:
 	// Call once at initialization in multiplayer
 	inline void initSyncVars(SyncVars& syncVars)
 	{
-		ASSERT(m_syncVarsStorage == NULL);
 		m_syncVarsStorage = &syncVars;
 	}
 	inline void destroySyncVars()
