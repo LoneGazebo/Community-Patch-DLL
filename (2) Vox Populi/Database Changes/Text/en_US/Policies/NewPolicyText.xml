@@ -42,7 +42,7 @@
 			<Text>Transnationalism</Text>
 		</Row>
 		<Row Tag="TXT_KEY_POLICY_GLOBALIZATION_HELP">
-			<Text>[COLOR_POSITIVE_TEXT]Transnationalism[ENDCOLOR]: Each turn, increases the chance that a [ICON_FRANCHISE] Corporate Franchise will appear in a foreign City to 15% (normally 5%). Global Franchise maximum increased by 25%, and every Town counts as a Franchise. +2 [ICON_CULTURE] Culture from all [ICON_OFFICE] Corporation Offices.</Text>
+			<Text>[COLOR_POSITIVE_TEXT]Transnationalism[ENDCOLOR]: Each turn, increases the chance that a [ICON_FRANCHISE] Corporate Franchise will appear in a foreign City to 15% (normally 5%). Global Franchise maximum increased by 25%, and every owned Town you have built counts as a Franchise. +2 [ICON_CULTURE] Culture from all [ICON_OFFICE] Corporation Offices.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_POLICY_GLOBALIZATION_TEXT">
 			<Text>Transnationalism as an economic process involves the global reorganization of the production process, in which various stages of the production of any product can occur in various countries, typically with the aim of minimizing costs. Economic transnationalism, commonly known as Globalization, was spurred in the latter half of the 20th century by the development of the internet and wireless communication, as well as the reduction in global transportation costs caused by containerization. Multinational corporations could be seen as a form of transnationalism, in that they seek to minimize costs, and hence maximize profits, by organizing their operations in the most efficient means possible irrespective of political boundaries.</Text>

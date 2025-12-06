@@ -3880,7 +3880,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift, bool bO
 						kData.m_bTransferred = false;
 						vcGreatWorkData.push_back(kData);
 
-						CvPlayer &kOldOwner = GET_PLAYER(eOldOwner); // Recursive: shouldn't this be eOldOwner?
+						CvPlayer &kOldOwner = GET_PLAYER(eOldOwner);
 						if (kOldOwner.GetCulture()->GetSwappableWritingIndex() == iGreatWork)
 							kOldOwner.GetCulture()->SetSwappableWritingIndex(-1);
 
@@ -38680,6 +38680,10 @@ void CvPlayer::changeImprovementCount(ImprovementTypes eIndex, int iChange, bool
 
 			pLoopCity->UpdateYieldPerXImprovement(((YieldTypes)iI), eIndex);
 		}
+	}
+	if (GetCorporations()->GetFranchisesPerImprovement(eIndex) > 0)
+	{
+		GetCorporations()->RecalculateNumFranchises();
 	}
 }
 
