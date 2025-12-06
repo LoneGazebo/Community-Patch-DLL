@@ -8810,6 +8810,7 @@ bool CvCity::canConstruct(BuildingTypes eBuilding, const std::vector<int>& vPreE
 		}
 	}
 
+
 	if (!(GET_PLAYER(getOwner()).canConstruct(eBuilding, vPreExistingBuildings, bContinue, bTestVisible, bIgnoreCost, toolTipSink)))
 	{
 		return false;
@@ -30263,7 +30264,7 @@ bool CvCity::IsCanPurchase(const std::vector<int>& vPreExistingBuildings, bool b
 				if (IsBuildingInvestment(eBuildingClass))
 					return false;
 
-				if (getProductionTurnsLeft(eBuildingType, 0) == 1) //Can't invest when only 1 turn left, for parity with AI
+				if (getProductionTurnsLeft(eBuildingType, 0) == 1 && !(bIsPuppet && bVenetianException)) //Can't invest when only 1 turn left, for parity with AI
 					return false;
 			}
 		}
