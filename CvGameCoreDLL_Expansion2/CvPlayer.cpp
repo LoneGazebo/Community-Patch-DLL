@@ -8482,6 +8482,12 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 		}
 	}
 
+	// Removing a Sphere of Influence doesn't count as conquering the city
+	if (bSphereRemoval)
+	{
+		kPlayer.SetEverConqueredBy(GetID(), false);
+	}
+
 	// Diplo bonus for returning the city
 	if (!bForced && isMajorCiv() && kPlayer.isMajorCiv())
 	{
