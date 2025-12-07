@@ -32838,14 +32838,29 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn) // R: bDoTurn default
 								iNumExtraLuxury = 1;
 							}
 						}
+						int iNumResource = pLoopPlot->getNumResource();
+						if (pResourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
+						{
+							int iQuantityMod = GetPlayerTraits()->GetStrategicResourceQuantityModifier(pLoopPlot->getTerrainType());
+							iNumResource *= 100 + iQuantityMod;
+							iNumResource /= 100;
+						}
+
+						if (GetPlayerTraits()->GetResourceQuantityModifier(eRes) > 0)
+						{
+							int iQuantityMod = GetPlayerTraits()->GetResourceQuantityModifier(eRes);
+							iNumResource *= 100 + iQuantityMod;
+							iNumResource /= 100;
+						}
+
 						if (pLoopPlot->IsResourceImprovedForOwner())
 						{
-							iCntImproved += pLoopPlot->getNumResource();
+							iCntImproved += iNumResource;
 							// ExtraLuxury resources are stored in m_paiNumResourceFromBuildings, but we can't compare it with the counted value because it also contains resources from other sources
 						}
 						else
 						{
-							iCntUnimproved += pLoopPlot->getNumResource() + iNumExtraLuxury;
+							iCntUnimproved += iNumResource + iNumExtraLuxury;
 
 						}
 					}
