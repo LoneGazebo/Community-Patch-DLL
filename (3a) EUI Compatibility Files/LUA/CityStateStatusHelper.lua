@@ -646,44 +646,6 @@ function GetContenderInfo(majorPlayerID, minorPlayerID)
 	return tostring(iContInfluence).."[ICON_INFLUENCE]"
 end
 
-function GetContenderInfoTT(majorPlayerID, minorPlayerID)
-	local pMinor = Players[ minorPlayerID ]
-	if not pMinor then return "error" end
-	
-	local sAnchorInfluence = ""
-	local iHighestInfluence = 0
-	local influencetips = {}
-	
-	for ePlayer = 0, GameDefines.MAX_MAJOR_CIVS - 1 do
-		if Players[ePlayer]:IsEverAlive() then
-			local iInfluence = pMinor:GetMinorCivFriendshipAnchorWithMajor(ePlayer)
-			if iInfluence ~= 0 then
-				influencetips["PlayerID" .. ePlayer] = iInfluence
-			end
-		else
-			influencetips["PlayerID" .. ePlayer] = 0
-		end
-	end
-	
-	local sortedinfluencetips = {}
-	for k, v in pairs(influencetips) do table.insert(sortedinfluencetips,{k,v}) end
-	table.sort(sortedinfluencetips, function(a,b) return a[2] < b[2] end)
-	
-	for _, v in ipairs(sortedinfluencetips) do
-		if Teams[Players[majorPlayerID]:GetTeam()]:IsHasMet(Players[tonumber(v[1].sub(v[1], 9))]:GetTeam()) then
-			if Players[tonumber(v[1].sub(v[1], 9))]:IsAlive() then
-				sAnchorInfluence = "[NEWLINE][ICON_BULLET]" .. Players[tonumber(v[1].sub(v[1], 9))]:GetCivilizationShortDescription() .. ": " .. v[2] .. " " .. L("TXT_KEY_VP_RESTING_INFLUENCE") .. sAnchorInfluence
-			else
-				sAnchorInfluence = "[NEWLINE][ICON_BULLET][COLOR_GREY]" .. Players[tonumber(v[1].sub(v[1], 9))]:GetCivilizationShortDescription() .. ": " .. v[2] .. " " .. L("TXT_KEY_VP_RESTING_INFLUENCE") .. sAnchorInfluence
-			end
-		end
-	end
-	
-	if sAnchorInfluence == "" then return L("TXT_KEY_POP_CSTATE_LABEL_CONTENDER_TT_HEADER2", pMinor:GetName()) end
-	return L("TXT_KEY_POP_CSTATE_LABEL_CONTENDER_TT_HEADER", pMinor:GetName()) .. sAnchorInfluence
-end
-
-
 local isMinorCivQuestForPlayer
 if gk_mode then
 	if bnw_mode then
