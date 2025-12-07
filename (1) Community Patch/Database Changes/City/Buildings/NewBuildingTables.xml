@@ -624,4 +624,10 @@
 		<Column name="AccomplishmentType" type="text" reference="Accomplishments(Type)" notnull="true"/>
 		<Column name="ExtraInstances" type="integer" notnull="true"/>
 	</Table>
+    <!-- Percentage output of buildings increasing with the times -->
+	<Table name="Building_YieldModifiersChangesPerEra">
+		<Column name="BuildingType" type="text" notnull="1" reference="Buildings(Type)"/>
+		<Column name="YieldType" type="text" notnull="1" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
 </GameData>

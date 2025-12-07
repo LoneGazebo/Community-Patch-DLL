@@ -1397,7 +1397,6 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_miTechEnhancedYields.clear();
 	m_miGreatPersonPointFromConstruction.clear();
 	m_aiYieldPerReligion.resize(NUM_YIELD_TYPES);
-	m_aiYieldPerEra.resize(NUM_YIELD_TYPES);
 	m_aiYieldModifierPerEra.resize(NUM_YIELD_TYPES);
 	m_aiYieldRateModifier.resize(NUM_YIELD_TYPES);
 	m_aiLuxuryExtraYield.resize(NUM_YIELD_TYPES);
@@ -1481,7 +1480,6 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		m_afYieldPerTile[iI] = 0;
 		m_afYieldPerCityStateStrategicResource[iI] = 0;
 		m_aiYieldPerReligion[iI] = 0;
-		m_aiYieldPerEra[iI] = 0;
 		m_aiYieldModifierPerEra[iI] = 0;
 		m_aiYieldRateModifier[iI] = 0;
 		m_aiLuxuryExtraYield[iI] = 0;
@@ -14690,7 +14688,6 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			ChangeBaseYieldRateFromBuildings(eYield, ((pBuildingInfo->GetYieldChange(eYield) + m_pCityBuildings->GetBuildingYieldChange(eBuildingClass, eYield)) * iChange));
 			ChangeYieldRateFromBuildingsEraScalingTimes100(eYield, pBuildingInfo->GetYieldChangeEraScalingTimes100(eYield) * iChange);
 			ChangeYieldPerPopTimes100(eYield, pBuildingInfo->GetYieldChangePerPop(eYield) * iChange);
-			ChangeYieldPerEra(eYield, pBuildingInfo->GetYieldChangePerEra(eYield) * iChange);
 			ChangeYieldModifierPerEra(eYield, pBuildingInfo->GetYieldModifierChangePerEra(eYield) * iChange);
 			ChangeYieldPerBuilding(eYield, pBuildingInfo->GetYieldChangePerBuilding(eYield) * fraction(iChange));
 			ChangeYieldPerTile(eYield, pBuildingInfo->GetYieldChangePerTile(eYield) * fraction(iChange));
@@ -22600,10 +22597,10 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iAssumedExtraModifie
 		GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_YIELD_MOD_UNHAPPINESS", iTempMod);
 	
 	//Yield Modifier from PerEra
-	iTempMod = GetYieldModifierPerEra(eIndex)*(GET_PLAYER(getOwner()).GetCurrentEra()+1);
+	iTempMod = GetYieldModifierPerEra(eIndex)*(GET_PLAYER(getOwner()).GetCurrentEra());
 	iModifier += iTempMod;
 	if(iTempMod != 0 && toolTipSink)
-		GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD_PER_ERA", iTempMod);
+		GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_YIELD_MOD_PER_ERA", iTempMod);
 	// Area Yield Rate Modifier
 	CvArea* pArea = plot()->area();
 	if (pArea != NULL)
@@ -23258,11 +23255,6 @@ int CvCity::getBaseYieldRateTimes100(const YieldTypes eYield, CvString* tooltipS
 	if (tooltipSink)
 		GC.getGame().BuildYieldTimes100HelpText(tooltipSink, "TXT_KEY_YIELD_FROM_TERRAIN", iTempYield, szIconString);
 	
-	iTempYield = GetYieldPerEra(eYield) * (GET_PLAYER(getOwner()).GetCurrentEra() + 1) * 100;
-	if(tooltipSink)
-		GC.getGame().BuildYieldTimes100HelpText(tooltipSink,"TXT_KEY_CITYVIEW_BASE_YIELD_TT_FROM_ERA", iTempYield, szIconString);
-
-
 	iTempYield = GetBaseYieldRateFromBuildings(eYield) * 100;
 	iTempYield += GetYieldRateFromBuildingsEraScalingTimes100(eYield) * iEraScaler;
 	iTempYield += (GetYieldPerBuilding(eYield) * GetCityBuildings()->GetNumBuildings() * 100).Truncate();
@@ -26295,26 +26287,6 @@ int CvCity::getYieldRateModifier(YieldTypes eIndex)	const
 	return m_aiYieldRateModifier[eIndex];
 }
 
-/// Extra yield for each era
-int CvCity::GetYieldPerEra(YieldTypes eIndex) const
-{
-	VALIDATE_OBJECT();
-	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
-	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
-
-	return m_aiYieldPerEra[eIndex];
-}
-void CvCity::ChangeYieldPerEra(YieldTypes eIndex, int iChange)
-{
-	VALIDATE_OBJECT();
-	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
-	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
-
-	if(iChange != 0)
-	{
-		m_aiYieldPerEra[eIndex] = m_aiYieldPerEra[eIndex] + iChange;
-	}
-}
 int CvCity::GetYieldModifierPerEra(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT();
@@ -31798,7 +31770,6 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_aiBaseYieldRateFromLeague);
 	visitor(city.m_siPlots);
 	visitor(city.m_siAccomplishmentsWithBonuses);
-	visitor(city.m_aiYieldPerEra);
 	visitor(city.m_aiYieldModifierPerEra);
 	visitor(city.m_iTotalScienceyAid);
 	visitor(city.m_iTotalArtsyAid);

@@ -1361,8 +1361,6 @@ public:
 
 	int GetYieldPerReligionTimes100(YieldTypes eIndex) const;
 	void ChangeYieldPerReligionTimes100(YieldTypes eIndex, int iChange);
-	int GetYieldPerEra(YieldTypes eIndex) const;
-	void ChangeYieldPerEra(YieldTypes eIndex, int iChange);
 	int GetYieldModifierPerEra(YieldTypes eIndex) const;
 	void ChangeYieldModifierPerEra(YieldTypes eIndex, int iChange);
 
@@ -2080,7 +2078,6 @@ protected:
 	std::map<int, std::map<int, int>> m_miTechEnhancedYields;
 	std::map<pair<GreatPersonTypes, EraTypes>, int> m_miGreatPersonPointFromConstruction;
 	std::vector<int> m_aiYieldPerReligion;
-	std::vector<int> m_aiYieldPerEra;
 	std::vector<int> m_aiYieldModifierPerEra;
 	std::vector<int> m_aiPowerYieldRateModifier;
 	std::vector<int> m_aiResourceYieldRateModifier;

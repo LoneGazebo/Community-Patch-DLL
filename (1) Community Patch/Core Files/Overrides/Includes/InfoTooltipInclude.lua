@@ -3453,6 +3453,9 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 			if not (pActivePlayer and pActivePlayer:HasReachedEra(iNumEras - 1)) then
 				ExtractSimpleYieldTable(tEraBoosts, "Building_YieldChangesEraScalingTimes100", kYieldInfo);
 			end
+			if not (pActivePlayer and pActivePlayer:HasReachedEra(iNumEras - 1)) then
+				ExtractSimpleYieldTable(tEraBoosts, "Building_YieldModifiersChangesPerEra", kYieldInfo);
+			end
 
 			for row in GameInfo.Belief_BuildingClassYieldChanges{BuildingClassType = kBuildingClassInfo.Type, YieldType = kYieldInfo.Type} do
 				local kBeliefInfo = GameInfo.Beliefs[row.BeliefType];

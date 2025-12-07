@@ -142,10 +142,6 @@ SET Text = '[ICON_BULLET]{1_Num} {2_IconString} from Terrain'
 WHERE Tag = 'TXT_KEY_YIELD_FROM_TERRAIN';
 
 UPDATE Language_en_US
-SET Text = '[ICON_BULLET]{1_Num} {2_IconString} from Eras'
-WHERE Tag = 'TXT_KEY_CITYVIEW_BASE_YIELD_TT_FROM_ERA';
-
-UPDATE Language_en_US
 SET Text = '[ICON_BULLET]{1_Num} {2_IconString} from Buildings'
 WHERE Tag = 'TXT_KEY_YIELD_FROM_BUILDINGS';
 
