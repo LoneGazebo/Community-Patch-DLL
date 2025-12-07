@@ -298,12 +298,6 @@
 		<Row Tag="TXT_KEY_POP_CSTATE_LABEL_CONTENDER">
 			<Text>Contender:</Text>
 		</Row>
-		<Row Tag="TXT_KEY_POP_CSTATE_LABEL_CONTENDER_TT_HEADER">
-			<Text>These Civilizations have invested Resting [ICON_INFLUENCE] Influence in [COLOR_POSITIVE_TEXT]{1_Name}[ENDCOLOR]:</Text>
-		</Row>
-		<Row Tag="TXT_KEY_POP_CSTATE_LABEL_CONTENDER_TT_HEADER2">
-			<Text>No one has invested Resting [ICON_INFLUENCE] Influence in [COLOR_POSITIVE_TEXT]{1_Name}[ENDCOLOR].</Text>
-		</Row>
 		<Row Tag="TXT_KEY_CSTATE_GOLD_BONUS">
 			<Text>You are receiving [COLOR_POSITIVE_TEXT]{1_Num} [ICON_GOLD] Gold[ENDCOLOR] per turn from them.</Text>
 		</Row>
