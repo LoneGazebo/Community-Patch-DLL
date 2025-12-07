@@ -40345,7 +40345,7 @@ const char* CvDiplomacyAI::GetGreetHumanMessage(LeaderheadAnimationTypes& eAnima
 	int iNumPlayersKilled = GetPlayerNumMinorsConquered(eHuman) + GetPlayerNumMajorsConquered(eHuman);
 
 	bool bAtWar = IsAtWar(eHuman);
-	bool bAtWarButWantsPeace = bAtWar && GetTreatyWillingToOffer(eHuman) >= PEACE_TREATY_WHITE_PEACE && GetTreatyWillingToAccept(eHuman) >= PEACE_TREATY_WHITE_PEACE; // Have to be at war, high level AI has to want peace
+	bool bAtWarButWantsPeace = IsWantsPeaceWithPlayer(eHuman);
 
 	// Most Greetings are added to a vector to be picked from randomly
 	// However, some are returned immediately, as they "fit" well enough that we DEFINITELY want to use that specific greeting
