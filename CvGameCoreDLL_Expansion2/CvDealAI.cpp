@@ -4523,6 +4523,9 @@ void CvDealAI::DoAddGoldToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValu
 	PRECONDITION(eThem < MAX_MAJOR_CIVS);
 	ASSERT(eThem != GetPlayer()->GetID(), "DEAL_AI: Trying to add Gold to Them, but them is us.");
 
+	if (WithinAcceptableRange(eThem, pDeal->GetMaxValue(), iTotalValue))
+		return;
+
 	PlayerTypes eMyPlayer = GetPlayer()->GetID();
 	if (!pDeal->IsPossibleToTradeItem(eThem, eMyPlayer, TRADE_ITEM_GOLD))
 		return;
@@ -4570,6 +4573,9 @@ void CvDealAI::DoAddGoldToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue)
 	PRECONDITION(eThem < MAX_MAJOR_CIVS);
 	ASSERT(eThem != GetPlayer()->GetID(), "DEAL_AI: Trying to add Gold to Us, but them is us.");
 
+	if (WithinAcceptableRange(eThem, pDeal->GetMaxValue(), iTotalValue))
+		return;
+
 	PlayerTypes eMyPlayer = GetPlayer()->GetID();
 	if (!pDeal->IsPossibleToTradeItem(eMyPlayer, eThem, TRADE_ITEM_GOLD))
 		return;
@@ -4616,6 +4622,9 @@ void CvDealAI::DoAddGPTToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue
 	PRECONDITION(eThem >= 0);
 	PRECONDITION(eThem < MAX_MAJOR_CIVS);
 	ASSERT(eThem != GetPlayer()->GetID(), "DEAL_AI: Trying to add GPT to Them, but them is us.");
+
+	if (WithinAcceptableRange(eThem, pDeal->GetMaxValue(), iTotalValue))
+		return;
 
 	PlayerTypes eMyPlayer = GetPlayer()->GetID();
 	if (!pDeal->IsPossibleToTradeItem(eThem, eMyPlayer, TRADE_ITEM_GOLD_PER_TURN))
@@ -4668,6 +4677,9 @@ void CvDealAI::DoAddGPTToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue)
 	PRECONDITION(eThem >= 0);
 	PRECONDITION(eThem < MAX_MAJOR_CIVS);
 	ASSERT(eThem != GetPlayer()->GetID(), "DEAL_AI: Trying to add GPT to Us, but them is us.");
+
+	if (WithinAcceptableRange(eThem, pDeal->GetMaxValue(), iTotalValue))
+		return;
 
 	PlayerTypes eMyPlayer = GetPlayer()->GetID();
 	if (!pDeal->IsPossibleToTradeItem(eMyPlayer, eThem, TRADE_ITEM_GOLD_PER_TURN))
@@ -7809,22 +7821,25 @@ void CvDealAI::DoAddMapsToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValu
 	{
 		if ((iThresholdValue != 0 || !WithinAcceptableRange(eThem, pDeal->GetMaxValue(), iTotalValue)) && (iThresholdValue == 0 || iTotalValue <= iThresholdValue))
 		{
-			PlayerTypes eMyPlayer = GetPlayer()->GetID();
-
-			// See if they can actually trade it to us
-			if(pDeal->IsPossibleToTradeItem(eThem, eMyPlayer, TRADE_ITEM_MAPS))
+			if (!pDeal->IsMapTrade(eThem))
 			{
-				int iItemValue = GetTradeItemValue(TRADE_ITEM_MAPS, /*bFromMe*/ false, eThem, -1, -1, -1, /*bFlag1*/false, -1, true);
+				PlayerTypes eMyPlayer = GetPlayer()->GetID();
 
-				// If adding this to the deal doesn't take it over the limit, do it
-				if(iItemValue==INT_MAX)
+				// See if they can actually trade it to us
+				if(pDeal->IsPossibleToTradeItem(eThem, eMyPlayer, TRADE_ITEM_MAPS))
 				{
-					return;
-				}
-				if (pDeal->GetDemandingPlayer() != NO_PLAYER || !TooMuchAdded(eThem, pDeal->GetMaxValue(), iTotalValue-iThresholdValue, iItemValue, false))
-				{
-					pDeal->AddMapTrade(eThem);
-					return;
+					int iItemValue = GetTradeItemValue(TRADE_ITEM_MAPS, /*bFromMe*/ false, eThem, -1, -1, -1, /*bFlag1*/false, -1, true);
+
+					// If adding this to the deal doesn't take it over the limit, do it
+					if(iItemValue==INT_MAX)
+					{
+						return;
+					}
+					if (pDeal->GetDemandingPlayer() != NO_PLAYER || !TooMuchAdded(eThem, pDeal->GetMaxValue(), iTotalValue-iThresholdValue, iItemValue, false))
+					{
+						pDeal->AddMapTrade(eThem);
+						return;
+					}
 				}
 			}
 		}
@@ -7844,20 +7859,23 @@ void CvDealAI::DoAddMapsToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue,
 		{
 			PlayerTypes eMyPlayer = GetPlayer()->GetID();
 
-			// See if we can actually trade it to them
-			if(pDeal->IsPossibleToTradeItem(eMyPlayer, eThem, TRADE_ITEM_MAPS))
+			if (!pDeal->IsMapTrade(eMyPlayer))
 			{
-				int iItemValue = GetTradeItemValue(TRADE_ITEM_MAPS, /*bFromMe*/ true, eThem, -1, -1, -1, /*bFlag1*/false, -1, true);
+				// See if we can actually trade it to them
+				if(pDeal->IsPossibleToTradeItem(eMyPlayer, eThem, TRADE_ITEM_MAPS))
+				{
+					int iItemValue = GetTradeItemValue(TRADE_ITEM_MAPS, /*bFromMe*/ true, eThem, -1, -1, -1, /*bFlag1*/false, -1, true);
 
-				// If adding this to the deal doesn't take it over the limit, do it
-				if(iItemValue==INT_MAX)
-				{
-					return;
-				}
-				if (!TooMuchAdded(eThem, pDeal->GetMaxValue(), iTotalValue-iThresholdValue, iItemValue, true))
-				{
-					pDeal->AddMapTrade(eMyPlayer);
-					return;
+					// If adding this to the deal doesn't take it over the limit, do it
+					if(iItemValue==INT_MAX)
+					{
+						return;
+					}
+					if (!TooMuchAdded(eThem, pDeal->GetMaxValue(), iTotalValue-iThresholdValue, iItemValue, true))
+					{
+						pDeal->AddMapTrade(eMyPlayer);
+						return;
+					}
 				}
 			}
 		}
@@ -7891,6 +7909,10 @@ void CvDealAI::DoAddTechToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValu
 			for(iTechLoop = 0; iTechLoop < GC.getNumTechInfos(); iTechLoop++)
 			{
 				eTech = (TechTypes) iTechLoop;
+
+				// Don't add if already in the deal
+				if (pDeal->IsTechTrade(eThem, eTech))
+					continue;
 
 				// See if they can actually trade it to us
 				if(pDeal->IsPossibleToTradeItem(eThem, eMyPlayer, TRADE_ITEM_TECHS, eTech))
@@ -7957,6 +7979,10 @@ void CvDealAI::DoAddTechToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue,
 			{
 				eTech = (TechTypes) iTechLoop;
 
+				// Don't add if already in the deal
+				if (pDeal->IsTechTrade(eMyPlayer, eTech))
+					continue;
+
 				// See if they can actually trade it to us
 				if(pDeal->IsPossibleToTradeItem(eMyPlayer, eThem, TRADE_ITEM_TECHS, eTech))
 				{
@@ -7984,42 +8010,46 @@ void CvDealAI::DoAddVassalageToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalV
 	PRECONDITION(eThem < MAX_MAJOR_CIVS);
 	ASSERT(eThem != GetPlayer()->GetID(), "DEAL_AI: Trying to add Technology to Them, but them is us.");
 
-	if (!pDeal->IsPossibleToTradeItem(GetPlayer()->GetID(), eThem, TRADE_ITEM_VASSALAGE))
-		return;
+	PlayerTypes eMyPlayer = GetPlayer()->GetID();
 
 	if ((iThresholdValue != 0 || !WithinAcceptableRange(eThem, pDeal->GetMaxValue(), iTotalValue)) && (iThresholdValue == 0 || iTotalValue >= iThresholdValue))
 	{
-		PlayerTypes eMyPlayer = GetPlayer()->GetID();
-
-		int iItemValue = 0;
-
-		if (GetPlayer()->IsAtWarWith(eThem))
+		if (!pDeal->IsVassalageTrade(eMyPlayer))
 		{
-			return;
-		}
+			// See if we can actually trade it to them
+			if (pDeal->IsPossibleToTradeItem(eMyPlayer, eThem, TRADE_ITEM_VASSALAGE))
+			{
+				int iItemValue = 0;
 
-		// we don't want to do it?
-		if (!GetPlayer()->GetDiplomacyAI()->IsVassalageAcceptable(eThem, false))
-		{
-			return;
-		}
+				if (GetPlayer()->IsAtWarWith(eThem))
+				{
+					return;
+				}
 
-		// they don't want to do it?
-		if (!GET_PLAYER(eThem).isHuman(ISHUMAN_AI_DIPLOMACY) && !GET_PLAYER(eThem).GetDiplomacyAI()->IsVassalageAcceptable(GetPlayer()->GetID(), true))
-		{
-			return;
-		}
+				// we don't want to do it?
+				if (!GetPlayer()->GetDiplomacyAI()->IsVassalageAcceptable(eThem, false))
+				{
+					return;
+				}
 
-		iItemValue = GetTradeItemValue(TRADE_ITEM_VASSALAGE, /*bFromMe*/ true, eThem, -1, -1, -1, false, -1, true);
+				// they don't want to do it?
+				if (!GET_PLAYER(eThem).isHuman(ISHUMAN_AI_DIPLOMACY) && !GET_PLAYER(eThem).GetDiplomacyAI()->IsVassalageAcceptable(GetPlayer()->GetID(), true))
+				{
+					return;
+				}
 
-		if (iItemValue == INT_MAX)
-		{
-			return;
-		}
-		if (!TooMuchAdded(eThem, pDeal->GetMaxValue(), iTotalValue-iThresholdValue, iItemValue, true))
-		{
-			pDeal->AddVassalageTrade(eMyPlayer);
-			iTotalValue = GetDealValue(pDeal);
+				iItemValue = GetTradeItemValue(TRADE_ITEM_VASSALAGE, /*bFromMe*/ true, eThem, -1, -1, -1, false, -1, true);
+
+				if (iItemValue == INT_MAX)
+				{
+					return;
+				}
+				if (!TooMuchAdded(eThem, pDeal->GetMaxValue(), iTotalValue-iThresholdValue, iItemValue, true))
+				{
+					pDeal->AddVassalageTrade(eMyPlayer);
+					iTotalValue = GetDealValue(pDeal);
+				}
+			}
 		}
 	}
 }
@@ -8029,9 +8059,6 @@ void CvDealAI::DoAddVassalageToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTota
 	PRECONDITION(eThem >= 0);
 	PRECONDITION(eThem < MAX_MAJOR_CIVS);
 	ASSERT(eThem != GetPlayer()->GetID(), "DEAL_AI: Trying to add Vassalage to Them, but them is us.");
-
-	if (!pDeal->IsPossibleToTradeItem(eThem, GetPlayer()->GetID(), TRADE_ITEM_VASSALAGE))
-		return;
 
 	if (pDeal->GetDemandingPlayer() != NO_PLAYER)
 	{
@@ -8050,32 +8077,41 @@ void CvDealAI::DoAddVassalageToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTota
 		}
 	}
 
-	// we don't want to do it?
-	if (!GetPlayer()->GetDiplomacyAI()->IsVassalageAcceptable(eThem, true))
-	{
-		return;
-	}
-
-	// they don't want to do it?
-	if (!GET_PLAYER(eThem).isHuman(ISHUMAN_AI_DIPLOMACY) && !GET_PLAYER(eThem).GetDiplomacyAI()->IsVassalageAcceptable(GetPlayer()->GetID(), false))
-	{
-		return;
-	}
-
 	if ((iThresholdValue != 0 || !WithinAcceptableRange(eThem, pDeal->GetMaxValue(), iTotalValue)) && (iThresholdValue == 0 || iTotalValue <= iThresholdValue))
 	{
-		int iItemValue = 0;
-
-		iItemValue = GetTradeItemValue(TRADE_ITEM_VASSALAGE, /*bFromMe*/ false, eThem, -1, -1, -1, false, -1, true);
-
-		if (iItemValue == INT_MAX)
+		if (!pDeal->IsVassalageTrade(eThem))
 		{
-			return;
-		}
-		if (!TooMuchAdded(eThem, pDeal->GetMaxValue(), iTotalValue-iThresholdValue, iItemValue, true))
-		{
-			pDeal->AddVassalageTrade(eThem);
-			iTotalValue = GetDealValue(pDeal);
+			PlayerTypes eMyPlayer = GetPlayer()->GetID();
+
+			// See if they can actually trade it to us
+			if (pDeal->IsPossibleToTradeItem(eThem, eMyPlayer, TRADE_ITEM_VASSALAGE))
+			{
+				// we don't want to do it?
+				if (!GetPlayer()->GetDiplomacyAI()->IsVassalageAcceptable(eThem, true))
+				{
+					return;
+				}
+
+				// they don't want to do it?
+				if (!GET_PLAYER(eThem).isHuman(ISHUMAN_AI_DIPLOMACY) && !GET_PLAYER(eThem).GetDiplomacyAI()->IsVassalageAcceptable(GetPlayer()->GetID(), false))
+				{
+					return;
+				}
+
+				int iItemValue = 0;
+
+				iItemValue = GetTradeItemValue(TRADE_ITEM_VASSALAGE, /*bFromMe*/ false, eThem, -1, -1, -1, false, -1, true);
+
+				if (iItemValue == INT_MAX)
+				{
+					return;
+				}
+				if (!TooMuchAdded(eThem, pDeal->GetMaxValue(), iTotalValue-iThresholdValue, iItemValue, true))
+				{
+					pDeal->AddVassalageTrade(eThem);
+					iTotalValue = GetDealValue(pDeal);
+				}
+			}
 		}
 	}
 }
@@ -8086,23 +8122,29 @@ void CvDealAI::DoAddRevokeVassalageToUs(CvDeal* pDeal, PlayerTypes eThem, int& i
 	PRECONDITION(eThem < MAX_MAJOR_CIVS);
 	ASSERT(eThem != GetPlayer()->GetID(), "DEAL_AI: Trying to add Vassalage to Us, but them is us.");
 
-	if (!pDeal->IsPossibleToTradeItem(GetPlayer()->GetID(), eThem, TRADE_ITEM_VASSALAGE_REVOKE))
-		return;
+	PlayerTypes eMyPlayer = GetPlayer()->GetID();
 
 	if ((iThresholdValue != 0 || !WithinAcceptableRange(eThem, pDeal->GetMaxValue(), iTotalValue)) && (iThresholdValue == 0 || iTotalValue >= iThresholdValue))
 	{
-		int iItemValue = 0;
-
-		iItemValue = GetTradeItemValue(TRADE_ITEM_VASSALAGE_REVOKE, /*bFromMe*/ true, eThem, -1, -1, -1, false, -1, true);
-
-		if (iItemValue == INT_MAX)
+		if (!pDeal->IsRevokeVassalageTrade(eMyPlayer))
 		{
-			return;
-		}
-		if (!TooMuchAdded(eThem, pDeal->GetMaxValue(), iTotalValue-iThresholdValue, iItemValue, true))
-		{
-			pDeal->AddRevokeVassalageTrade(GetPlayer()->GetID());
-			iTotalValue = GetDealValue(pDeal);
+			// See if we can actually trade it to them
+			if (pDeal->IsPossibleToTradeItem(eMyPlayer, eThem, TRADE_ITEM_VASSALAGE_REVOKE))
+			{
+				int iItemValue = 0;
+
+				iItemValue = GetTradeItemValue(TRADE_ITEM_VASSALAGE_REVOKE, /*bFromMe*/ true, eThem, -1, -1, -1, false, -1, true);
+
+				if (iItemValue == INT_MAX)
+				{
+					return;
+				}
+				if (!TooMuchAdded(eThem, pDeal->GetMaxValue(), iTotalValue-iThresholdValue, iItemValue, true))
+				{
+					pDeal->AddRevokeVassalageTrade(eMyPlayer);
+					iTotalValue = GetDealValue(pDeal);
+				}
+			}
 		}
 	}
 }
@@ -8117,23 +8159,29 @@ void CvDealAI::DoAddRevokeVassalageToThem(CvDeal* pDeal, PlayerTypes eThem, int&
 	if (pDeal->GetDemandingPlayer() != NO_PLAYER)
 		return;
 
-	if (!pDeal->IsPossibleToTradeItem(eThem, GetPlayer()->GetID(), TRADE_ITEM_VASSALAGE_REVOKE))
-		return;
-
 	if ((iThresholdValue != 0 || !WithinAcceptableRange(eThem, pDeal->GetMaxValue(), iTotalValue)) && (iThresholdValue == 0 || iTotalValue >= iThresholdValue))
 	{
-		int iItemValue = 0;
-
-		iItemValue = GetTradeItemValue(TRADE_ITEM_VASSALAGE_REVOKE, /*bFromMe*/ false, eThem, -1, -1, -1, false, -1, true);
-
-		if (iItemValue == INT_MAX)
+		if (!pDeal->IsRevokeVassalageTrade(eThem))
 		{
-			return;
-		}
-		if (!TooMuchAdded(eThem, pDeal->GetMaxValue(), iTotalValue-iThresholdValue, iItemValue, true))
-		{
-			pDeal->AddRevokeVassalageTrade(eThem);
-			iTotalValue = GetDealValue(pDeal);
+			PlayerTypes eMyPlayer = GetPlayer()->GetID();
+
+			// See if they can actually trade it to us
+			if (pDeal->IsPossibleToTradeItem(eThem, eMyPlayer, TRADE_ITEM_VASSALAGE_REVOKE))
+			{
+				int iItemValue = 0;
+
+				iItemValue = GetTradeItemValue(TRADE_ITEM_VASSALAGE_REVOKE, /*bFromMe*/ false, eThem, -1, -1, -1, false, -1, true);
+
+				if (iItemValue == INT_MAX)
+				{
+					return;
+				}
+				if (!TooMuchAdded(eThem, pDeal->GetMaxValue(), iTotalValue-iThresholdValue, iItemValue, true))
+				{
+					pDeal->AddRevokeVassalageTrade(eThem);
+					iTotalValue = GetDealValue(pDeal);
+				}
+			}
 		}
 	}
 }
