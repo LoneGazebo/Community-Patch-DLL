@@ -31,7 +31,7 @@ local FREE_STRING = L("TXT_KEY_FREE");
 
 ------------------------------------------------------------------
 local tooltipInstance = {};
-TTManager:GetTypeControlTable("CityViewTooltip", tooltipInstance);
+TTManager:GetTypeControlTable("TechTreeTooltip", tooltipInstance);
 
 --- Shorthand for setting a custom tooltip and adjusting its size
 --- @param tooltip TooltipInstance
