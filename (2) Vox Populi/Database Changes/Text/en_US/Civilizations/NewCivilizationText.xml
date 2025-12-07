@@ -6,7 +6,9 @@
 			<Text>Independence Hall</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_INDEPENDENCE_HALL_HELP">
-			<Text>Unlocks access to [COLOR_POSITIVE_TEXT]Slater Mill[ENDCOLOR], [COLOR_POSITIVE_TEXT]West Point[ENDCOLOR], and [COLOR_POSITIVE_TEXT]Smithsonian Institute[ENDCOLOR] in the [COLOR_CYAN]Industrial Era[ENDCOLOR].</Text>
+			<Text>Unlocks access to [COLOR_POSITIVE_TEXT]Slater Mill[ENDCOLOR], [COLOR_POSITIVE_TEXT]West Point[ENDCOLOR], and [COLOR_POSITIVE_TEXT]Smithsonian Institute[ENDCOLOR] in the [COLOR_CYAN]Industrial Era[ENDCOLOR].
+				[NEWLINE]Possible Theming Bonuses:
+  				[NEWLINE][ICON_BULLET] +8 [ICON_CULTURE] and [ICON_TOURISM] for two [COLOR_POSITIVE_TEXT]Domestic[ENDCOLOR] [ICON_GW_ART].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_INDEPENDENCE_HALL_TEXT">
 			<Text>Originally constructed as the state house of Pennsylvannia, Independence Hall is where the United States Declaration of Independence and Constitution were debated and formally adopted, making it the birthplace of the American nation. Today, Independence Hall is a museum and the centre of the Independence National Park in the heart of Philadelphia.</Text>
@@ -614,10 +616,10 @@
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_SALON_HELP">
 			<Text>Possible Theming Bonuses:
-				[NEWLINE][ICON_BULLET] +2 [ICON_CULTURE] and [ICON_TOURISM] for two [COLOR_POSITIVE_TEXT]French[ENDCOLOR] [ICON_GW_ART].
-				[NEWLINE][ICON_BULLET] +4 [ICON_CULTURE] and [ICON_TOURISM] for two [COLOR_POSITIVE_TEXT]French[ENDCOLOR] [ICON_GW_ART] from the [COLOR_CYAN]same Era[ENDCOLOR].
-				[NEWLINE][ICON_BULLET] +4 [ICON_CULTURE] and [ICON_TOURISM] for two [ICON_GW_ART] from the [COLOR_POSITIVE_TEXT]same foreign Civilization[ENDCOLOR].
-				[NEWLINE][ICON_BULLET] +8 [ICON_CULTURE] and [ICON_TOURISM] for two [ICON_GW_ART] from the [COLOR_POSITIVE_TEXT]same foreign Civilization[ENDCOLOR] and the [COLOR_CYAN]same Era[ENDCOLOR].
+				[NEWLINE][ICON_BULLET] +2 [ICON_CULTURE] and [ICON_TOURISM] for two [COLOR_POSITIVE_TEXT]Domestic[ENDCOLOR] [ICON_GW_ART].
+				[NEWLINE][ICON_BULLET] +4 [ICON_CULTURE] and [ICON_TOURISM] for two [COLOR_POSITIVE_TEXT]Domestic[ENDCOLOR] [ICON_GW_ART] from the [COLOR_CYAN]same Era[ENDCOLOR].
+				[NEWLINE][ICON_BULLET] +4 [ICON_CULTURE] and [ICON_TOURISM] for two [COLOR_POSITIVE_TEXT]Foreign[ENDCOLOR] [ICON_GW_ART] from the [COLOR_POSITIVE_TEXT]same Civilization[ENDCOLOR].
+				[NEWLINE][ICON_BULLET] +8 [ICON_CULTURE] and [ICON_TOURISM] for two [COLOR_POSITIVE_TEXT]Foreign[ENDCOLOR] [ICON_GW_ART] from the [COLOR_POSITIVE_TEXT]same Civilization[ENDCOLOR] and the [COLOR_CYAN]same Era[ENDCOLOR].
 			</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_SALON_TEXT">
@@ -688,7 +690,9 @@
 			<Text>Gymnasion</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_GYMNASION_HELP">
-			<Text></Text>
+			<Text>Possible Theming Bonuses:
+  			[NEWLINE][ICON_BULLET] +4 [ICON_CULTURE] and [ICON_TOURISM] for two [COLOR_POSITIVE_TEXT]Domestic[ENDCOLOR] [ICON_GW_WRITING].
+  			[NEWLINE][ICON_BULLET] +6 [ICON_CULTURE] and [ICON_TOURISM] for two [COLOR_POSITIVE_TEXT]Foreign[ENDCOLOR] [ICON_GW_WRITING].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_GYMNASION_TEXT">
 			<Text>The Gymnasion were training facilities used by adult Greek men to socialize and practice for public games. The name roughly translates to "naked training place", because all athletes practiced while naked, and usually while covered in olive oil. Gymnasia started as open fields outside city limits, but were later planned as enclosed spaces that were central to Greek public life. While the public games and festivals were important themselves, Gymnasia also became centers of arts and learning. The famous schools of philosophy in Athens - the Academic school founded by Plato, the Peripatetic School founded by Aristotle, and the Cynic school founded by Antisthenes - were all founded and named after the Gymnasia where they met.</Text>
@@ -1558,7 +1562,9 @@
 			<Text>Unique Venetian replacement for the {TXT_KEY_BUILDING_NATIONAL_EPIC}. In addition to the bonuses of the {TXT_KEY_BUILDING_NATIONAL_EPIC}, {TXT_KEY_BUILDING_PIAZZA_SAN_MARCO} provides additional [ICON_FOOD] Food, [ICON_PRODUCTION] Production, [ICON_GOLD] Gold, [ICON_RESEARCH] Science, [ICON_CITY_SECURITY] City Security, and [ICON_WAR] Military Supply, and an extra boost to the city's [ICON_GREAT_PEOPLE] Great People generation. This building also reduces the cooldown of purchasing civilian units and removes the cooldown of purchasing military units. Unlocks the ability for Venice to build 1 of 3 unique buildings once [COLOR_CYAN]Guilds[ENDCOLOR] is researched. Unlike the {TXT_KEY_BUILDING_NATIONAL_EPIC}, the {TXT_KEY_BUILDING_PIAZZA_SAN_MARCO} is made available with the discovery of [COLOR_CYAN]{TXT_KEY_TECH_WRITING_TITLE}[ENDCOLOR], does not require a {TXT_KEY_BUILDING_MONUMENT} in the city, but can only be built in the [ICON_CAPITAL] Capital.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_PIAZZA_SAN_MARCO_HELP">
-			<Text>Unlocks access to [COLOR_POSITIVE_TEXT]Murano Glassworks[ENDCOLOR], [COLOR_POSITIVE_TEXT]Arsenale di Venezia[ENDCOLOR], and [COLOR_POSITIVE_TEXT]Rialto District[ENDCOLOR] once [COLOR_CYAN]Guilds[ENDCOLOR] is researched.</Text>
+			<Text>Unlocks access to [COLOR_POSITIVE_TEXT]Murano Glassworks[ENDCOLOR], [COLOR_POSITIVE_TEXT]Arsenale di Venezia[ENDCOLOR], and [COLOR_POSITIVE_TEXT]Rialto District[ENDCOLOR] once [COLOR_CYAN]Guilds[ENDCOLOR] is researched.[NEWLINE]
+				Possible Theming Bonuses:
+  				[NEWLINE][ICON_BULLET] +8 [ICON_CULTURE] and [ICON_TOURISM] for two [COLOR_POSITIVE_TEXT]Domestic[ENDCOLOR] [ICON_GREAT_WORK]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_RIALTO_DISTRICT">
 			<Text>Rialto District</Text>
@@ -1726,13 +1732,15 @@
 			<Text>Iziko</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_IZIKO_HELP">
-			<Text></Text>
+			<Text>Possible Theming Bonuses:
+  			[NEWLINE][ICON_BULLET] +4 [ICON_CULTURE] and [ICON_TOURISM] for two [COLOR_POSITIVE_TEXT]Foreign[ENDCOLOR] [ICON_GW_WRITING].
+  			[NEWLINE][ICON_BULLET] +4 [ICON_CULTURE] and [ICON_TOURISM] for two [COLOR_POSITIVE_TEXT]Domestic[ENDCOLOR] [ICON_GW_WRITING].
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_IZIKO_TEXT">
 			<Text>An Iziko is a simple hearth used as a gathering place for Zulu communities. The fireplace was revered as a source for food, warmth, dreams, and ancestral ties. It is from these gatherings that a sense of community and identity was formed, and young Zulus could perform and bond.[NEWLINE][NEWLINE]The fireplace is used metaphorically for the "cooking of songs" in isicathamiya stage performances, a modern offshoot of traditional Zulu music. Dreams were an essential part of communicating with ancestors and formed part of a deeply rooted Zulu religion. Some isicathamiya musicians claim some of their songs were created in the spiritual realm or given to them by their ancestors.[NEWLINE][NEWLINE]"A person is a person because of other people"[NEWLINE][TAB]- Zulu proverb</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_IZIKO_STRATEGY">
-			<Text></Text>
+			<Text>The Iziko's main unique bonus is that it provides culture when any of your units level up and scales with the number of cities you have it built in your empire. This synergizes well with the Zulu Unique Ability as less experience is needed for each unit level. To maximize the bonus, you should try to build instead of purchase military units so they start with full experience and have as many buildings and other bonuses that provide starting unit experience. You'll also generally want to play aggressively with Zulu so you can be actively gaining experience through combat to level up your existing units and expanding to have more cities to build the Iziko.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_UNIT_INDUNA">
@@ -1745,7 +1753,7 @@
 			<Text>An InDuna can widely be translated to any leader of men, in commerce, in politics, and in war. An InDuna guided each regiment, or 'ibutho', of young Zulu men and he in turn answered to senior izinDuna who controlled the corps. One or more of these elder chiefs might accompany a big force on an important mission, but there was no single "field marshal" in command of all Zulu forces. Regimental izinDuna, like the non-commissioned officers of today's army, were important for morale and discipline. This was demonstrated during the battle of Isandlwana, where the army led by Ntshingwayo kaMahole outmaneuvered and destroyed a British column. Ntshingwayo kaMahole and his fellow izinDuna snuck a Zulu force of 20,000 men behind the British, hiding them in a valley only 7 miles from the British camp. When discovered sitting in complete silence by scouts, the izinDuna spurred their men into action and closed the remaining distance with lightning speed.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_INDUNA_STRATEGY">
-			<Text></Text>
+			<Text>The InDuna's primary unique bonuses over a Great General are that when expended it provides experience to the unit it's stacked with and creates an Isibaya which places a [ICON_RES_COW] Cattle Resource adjacent to it and adjacent Pastures receive +1 [ICON_CULTURE] Culture. The Isibaya should still primarily be used for military purposes like a Citadel but where possible trying to build it within the working radius of a city and adjacent to Pastures should be considered so you get the economic bonuses. You should always make sure to have a military unit stacked with the InDuna when constructing an Isibaya and its usually best to try to give the bonus experience to higher level units especially ranged or siege units. This is due to these unit types being easier to keep alive longer compared to melee units and that they tend to gain experience slower so the bonus experience is more impactful.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_INDUNA_01">
 			<Text>Mzilikazi</Text>
