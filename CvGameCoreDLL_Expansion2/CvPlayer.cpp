@@ -46279,7 +46279,10 @@ void CvPlayer::DoUpdateCoreCitiesForSpaceshipProduction()
 {
 	m_viCoreCitiesForSpaceshipProduction.clear();
 
-	if (isHuman(ISHUMAN_AI_CITY_PRODUCTION) || !GetDiplomacyAI()->IsGoingForSpaceshipVictory())
+	if (isHuman(ISHUMAN_AI_CITY_PRODUCTION))
+		return;
+		
+	if (!GetDiplomacyAI()->IsGoingForSpaceshipVictory() && !GetDiplomacyAI()->IsCloseToSpaceshipVictory())
 		return;
 
 	int iNumCitiesToConsider = GD_INT_GET(AI_NUM_CORE_CITIES_FOR_SPACESHIP);
@@ -46349,6 +46352,9 @@ const vector<int>& CvPlayer::GetCoreCitiesForSpaceshipProduction() const
 /// the number of aluminum still needed for buildings in the core cities for spaceship parts (GetCoreCitiesForSpaceshipProduction)
 int CvPlayer::GetNumAluminumStillNeededForCoreCities() const
 {
+	if (!GetDiplomacyAI()->IsGoingForSpaceshipVictory() && !GetDiplomacyAI()->IsCloseToSpaceshipVictory())
+		return 0;
+
 	ResourceTypes eAluminum = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_ALUMINUM", true);
 
 	int iTotal = 0;
@@ -46391,7 +46397,7 @@ int CvPlayer::GetNumAluminumStillNeededForSpaceship() const
 	if (isBarbarian() || isMinorCiv())
 		return 0;
 
-	if (!GetDiplomacyAI()->IsGoingForSpaceshipVictory())
+	if (!GetDiplomacyAI()->IsGoingForSpaceshipVictory() && !GetDiplomacyAI()->IsCloseToSpaceshipVictory())
 		return 0;
 
 	if (getCapitalCity() == NULL)

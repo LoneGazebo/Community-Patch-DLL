@@ -2320,7 +2320,7 @@ const vector<CvCity*> CvPlayerAI::GetBestCitiesForSpaceshipParts()
 /// if going for spaceship victory, the results from GetBestCitiesForSpaceshipParts are used to overwrite normal AI city production selection
 void CvPlayerAI::AI_doSpaceshipProduction()
 {
-	if (isHuman(ISHUMAN_AI_CITY_PRODUCTION) || isMinorCiv() || !GetDiplomacyAI()->IsGoingForSpaceshipVictory())
+	if (isHuman(ISHUMAN_AI_CITY_PRODUCTION) || isMinorCiv())
 		return;
 
 	if (GetNumSpaceshipPartsBuildableNow(true) == 0)
