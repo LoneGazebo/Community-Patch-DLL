@@ -2632,12 +2632,7 @@ void CvEconomicAI::DisbandUnitsToFreeSpaceshipResources()
 	if (!GC.getGame().isVictoryValid((VictoryTypes)GC.getInfoTypeForString("VICTORY_SPACE_RACE", true)))
 		return;
 
-	// don't have apollo program yet?
-	ProjectTypes eApolloProgram = (ProjectTypes)GC.getInfoTypeForString("PROJECT_APOLLO_PROGRAM", true);
-	if (eApolloProgram == NO_PROJECT || GET_TEAM(m_pPlayer->getTeam()).getProjectCount(eApolloProgram) == 0)
-		return;
-
-	if (!m_pPlayer->GetDiplomacyAI()->IsGoingForSpaceshipVictory())
+	if (!m_pPlayer->GetDiplomacyAI()->IsGoingForSpaceshipVictory() && !m_pPlayer->GetDiplomacyAI()->IsCloseToSpaceshipVictory())
 		return;
 
 	int iNumTotalAluminumNeededForSpaceship = m_pPlayer->GetNumAluminumStillNeededForSpaceship();
