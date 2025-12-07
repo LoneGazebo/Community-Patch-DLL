@@ -10383,7 +10383,7 @@ void CvGame::updateGlobalMedians()
 			float fPopulation = (float)iPopulation;
 
 			// Distress
-			int iBasicNeedsYield = pLoopCity->getYieldRateTimes100(YIELD_FOOD, true) + pLoopCity->getYieldRateTimes100(YIELD_PRODUCTION, true);
+			int iBasicNeedsYield = pLoopCity->getFoodPerTurnBeforeConsumptionTimes100() + pLoopCity->getYieldRateTimes100(YIELD_PRODUCTION, true);
 			float fBasicNeedsAvg = iBasicNeedsYield / fPopulation;
 			vfBasicNeedsYield.push_back(fBasicNeedsAvg);
 

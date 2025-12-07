@@ -21245,7 +21245,7 @@ int CvCity::GetDistressRaw(bool bForceRecalc, int iAssumedExtraYieldRate) const
 {
 	// First, calculate the total yield
 	// Include yields from trade routes in the yield, but not the median, to make unhappiness management easier
-	int iTotalYield = getYieldRateTimes100(YIELD_FOOD, false, false, !bForceRecalc) + getYieldRateTimes100(YIELD_PRODUCTION, false, false, !bForceRecalc) + iAssumedExtraYieldRate;
+	int iTotalYield = getFoodPerTurnBeforeConsumptionTimes100() + getYieldRateTimes100(YIELD_PRODUCTION, false, false, !bForceRecalc) + iAssumedExtraYieldRate;
 
 	// Second, calculate the median (with need modifiers)
 	float fMedianYieldPerPop = 0.00f;
