@@ -5315,6 +5315,7 @@ void CvPlayerTraits::Reset()
 	m_bEmbarkedToLandFlatCost = false;
 	m_bNoHillsImprovementMaintenance = false;
 	m_bTechBoostFromCapitalScienceBuildings = false;
+	m_bArtistGoldenAgeTechBoost = false;
 	m_bStaysAliveZeroCities = false;
 	m_bFaithFromUnimprovedForest = false;
 	m_bAnyBelief = false;
