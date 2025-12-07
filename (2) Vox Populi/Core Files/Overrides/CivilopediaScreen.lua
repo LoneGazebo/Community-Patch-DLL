@@ -3462,7 +3462,6 @@ CivilopediaCategory[CategoryPromotions].SelectArticle = function( promotionID, s
 		AnalyzePromotion("WonderProductionModifier");
 		AnalyzePromotion("LandAirDefenseBonus", "");
 		AnalyzePromotion("PlagueID");
-		AnalyzePromotion("PlaguePromotion");
 		AnalyzePromotion("StackedGreatGeneralXP");
 		AnalyzePromotion("GoodyHutYieldBonus");
 		--AnalyzePromotion("GainsXPFromScouting");

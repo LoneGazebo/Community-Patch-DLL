@@ -3846,7 +3846,7 @@ function GetHelpTextForImprovement(eImprovement, bExcludeName, bExcludeHeader)
 
 	-- Pre-written Help text
 	if not kImprovementInfo.Help then
-		print("Improvement help is NULL:", L(kImprovementInfo.Description));
+		-- print("Improvement help is NULL:", L(kImprovementInfo.Description));
 	else
 		local strWrittenHelp = L(kImprovementInfo.Help);
 		-- Will include separator if there is extra info
