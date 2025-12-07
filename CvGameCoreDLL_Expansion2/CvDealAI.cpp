@@ -7204,7 +7204,7 @@ int CvDealAI::GetVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer)
 	else
 	{
 		// we don't want to do it?
-		if (!m_pDiploAI->IsVassalageAcceptable(m_pPlayer->GetID(), true))
+		if (!m_pDiploAI->IsVassalageAcceptable(eOtherPlayer, true))
 		{
 			return INT_MAX;
 		}
