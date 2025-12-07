@@ -4937,7 +4937,7 @@ void CvMinorCivAI::DoFirstContactWithMajor(PlayerTypes eMeetingPlayer, bool bSup
 
 	int iGiftData = 0;
 	char const* szTxtKeySuffix = "UNKNOWN";
-	bool bFirstMajorCiv = GET_TEAM(GetPlayer()->getTeam()).getHasMetCivCount(true) == 0;
+	bool bFirstMajorCiv = GET_TEAM(GetPlayer()->getTeam()).getHasMetCivCount(true) == GET_TEAM(m_pPlayer->getTeam()).getNumMembers();
 	bool bNoGifts = GET_TEAM(eTeam).IsMinorCivAggressor() || GET_TEAM(eTeam).isAtWar(m_pPlayer->getTeam());
 
 	// If this guy has been mean or we're at war already, then no gifts
