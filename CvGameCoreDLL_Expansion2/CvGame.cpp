@@ -10217,6 +10217,35 @@ void CvGame::addReplayMessage(ReplayMessageTypes eType, PlayerTypes ePlayer, con
 	//If this is a plot-related message, search for any previously created messages that match this one and just add the plot.
 	if(iPlotX != -1 || iPlotY != -1)
 	{
+		// the replay map can only display one plot owner change per plot and turn, if there were any previous ownership changes of this plot in this turn, delete them
+		if (eType == REPLAY_MESSAGE_PLOT_OWNER_CHANGE)
+		{
+			for (ReplayMessageList::iterator it = m_listReplayMessages.begin(); it != m_listReplayMessages.end(); ++it)
+			{
+				CvReplayMessage& msg = (*it);
+				if (msg.getType() == eType && msg.getTurn() == iGameTurn && msg.getText() == pszText)
+				{
+					for (uint ui = 0; ui < msg.getNumPlots(); ui++)
+					{
+						int iLoopPlotX = -1;
+						int iLoopPlotY = -1;
+						if (msg.getPlot(ui, iLoopPlotX, iLoopPlotY))
+						{
+							if (iLoopPlotX == iPlotX && iLoopPlotY == iPlotY)
+							{
+								msg.erasePlot(iPlotX, iPlotY);
+							}
+						}
+					}
+					if (msg.getNumPlots() == 0)
+					{
+						m_listReplayMessages.erase(it);
+						break;
+					}
+				}
+			}
+		}
+
 		for(ReplayMessageList::iterator it = m_listReplayMessages.begin(); it != m_listReplayMessages.end(); ++it)
 		{
 			CvReplayMessage& msg = (*it);
