@@ -10863,7 +10863,7 @@ void CvDiplomacyAI::DoUpdateWarStates()
 }
 
 /// What is the integer value of how well we think the war with ePlayer is going?
-int CvDiplomacyAI::GetWarScore(PlayerTypes ePlayer)
+int CvDiplomacyAI::GetWarScore(PlayerTypes ePlayer) const
 {
 	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return 0;
 
@@ -26910,7 +26910,7 @@ PeaceBlockReasons CvDiplomacyAI::GetPeaceBlockReason(PlayerTypes ePlayer) const
 	}
 
 	// Enemy captured a city and wants peace right away? Not if we can retaliate ... (sanity check: and our capital isn't about to fall)
-	if (GET_PLAYER(ePlayer).GetNumTurnsSinceCityCapture(GetID()) <= 1 && CountUnitsAroundEnemyCities(ePlayer,3)>1)
+	if (GetWarScore(ePlayer) > -100 && GET_PLAYER(ePlayer).GetNumTurnsSinceCityCapture(GetID()) <= 1 && CountUnitsAroundEnemyCities(ePlayer,3)>1)
 	{
 		CvCity* pCapital = GetPlayer()->getCapitalCity();
 		if (!pCapital || !pCapital->isInDangerOfFalling(true))
