@@ -1674,8 +1674,10 @@ int CvLuaCity::lGetBuildingYieldModifier(lua_State* L)
 	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
 	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 	BuildingClassTypes eBuildingClass = pkBuildingInfo->GetBuildingClassType();
+	int iEraScaler = max(1, static_cast<int>(kPlayer.GetCurrentEra()));
 
 	int iModifier = pkBuildingInfo->GetYieldModifier(eYield);
+	iModifier += pkBuildingInfo->GetYieldModifierEraScaling(eYield) * iEraScaler;
 	iModifier += kPlayer.GetPlayerPolicies()->GetBuildingClassYieldModifier(eBuildingClass, eYield);
 	iModifier += pCity->GetEventBuildingClassCityYieldModifier(eBuildingClass, eYield);
 

@@ -1613,7 +1613,7 @@
 			<Text>({1_Num} more from Accomplishments)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_ERA">
-			<Text>[ICON_BULLET] Every new Era: {1_YieldBoosts}</Text>
+			<Text>[ICON_BULLET] Every new Era after Classical Era: {1_YieldBoosts}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_CITY_STRENGTH">
 			<Text>[ICON_BULLET] Each point of [ICON_STRENGTH] City Strength: {1_YieldBoosts}</Text>
@@ -1863,6 +1863,9 @@
 		<Row Tag="TXT_KEY_YIELD_MOD_TECHNOLOGIES">
 			<Text>[NEWLINE][ICON_BULLET]{1: number "'+'##;'-'##"}% from Technologies</Text>
 		</Row>
+		<Row Tag="TXT_KEY_YIELD_MOD_ERA">
+            <Text>[NEWLINE][ICON_BULLET]{1: number "'+'##;'-'##"}% from Era</Text>
+        </Row>
 		<Row Tag="TXT_KEY_YIELD_MOD_UNHAPPINESS">
 			<Text>[NEWLINE][ICON_BULLET]{1_Num}% from [ICON_HAPPINESS_3] Unhappiness</Text>
 		</Row>

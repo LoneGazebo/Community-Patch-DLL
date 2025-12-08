@@ -3373,6 +3373,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 		local tPolicyBoostsStateReligion = {};
 		local tPolicyModifierBoosts = {};
 		local tEraBoosts = {};
+		local tEraModifierBoosts = {};
 		local tAccomplishmentBoosts = {};
 		local tCityStrengthBoosts = {};
 		local tCSStrategicBoosts = {};
@@ -3452,6 +3453,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 
 			if not (pActivePlayer and pActivePlayer:HasReachedEra(iNumEras - 1)) then
 				ExtractSimpleYieldTable(tEraBoosts, "Building_YieldChangesEraScalingTimes100", kYieldInfo);
+				ExtractSimpleYieldTable(tEraModifierBoosts, "Building_YieldModifiersEraScaling", kYieldInfo);
 			end
 
 			for row in GameInfo.Belief_BuildingClassYieldChanges{BuildingClassType = kBuildingClassInfo.Type, YieldType = kYieldInfo.Type} do
@@ -3682,6 +3684,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 		AddTooltipSimpleYieldFractionTable(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_BUILDING_COUNT", tBuildingCountBoosts);
 		AddTooltipSimpleYieldFractionTable(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_PLOT_COUNT", tPlotCountBoosts);
 		AddTooltipSimpleYieldFractionTable(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_CITY_STATE_STRATEGIC_RESOURCES", tCSStrategicBoosts);
+		AddTooltipSimpleYieldModifierTable(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_ERA", tEraModifierBoosts);
 		AddTooltipsYieldBoostTable(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_BUILDING", tBuildingBoosts, "Buildings");
 		AddTooltipsYieldBoostTable(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_BUILDING_GLOBAL", tBuildingBoostsGlobal, "Buildings");
 		AddTooltipsYieldBoostTable(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_WORKED_TERRAIN", tTerrainBoosts, "Terrains");

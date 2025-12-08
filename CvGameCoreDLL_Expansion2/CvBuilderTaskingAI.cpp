@@ -714,15 +714,14 @@ static int GetCapitalConnectionValue(CvPlayer* pPlayer, CvCity* pCity, RouteType
 	iConnectionValue += iCityConnectionFlatValueTimes100;
 	int iGoldYieldBaseModifierTimes100 = GetYieldBaseModifierTimes100(YIELD_GOLD);
 
+	int iEra = max(1, static_cast<int>(pPlayer->GetCurrentEra()));
+
 	for (int iI = 0; iI <= NUM_YIELD_TYPES; iI++)
 	{
 		YieldTypes eYield = (YieldTypes)iI;
 		if (eYield > YIELD_CULTURE_LOCAL)
 			break;
 
-		int iEra = pPlayer->GetCurrentEra();
-		if (iEra <= 0)
-			iEra = 1;
 		int iYieldModifier = GetYieldBaseModifierTimes100(eYield);
 		iConnectionValue += (100 * pPlayer->GetYieldChangeTradeRoute(eYield) * iYieldModifier) / iGoldYieldBaseModifierTimes100;
 		iConnectionValue += (100 * pPlayer->GetPlayerTraits()->GetYieldChangeTradeRoute(eYield) * iEra * iYieldModifier) / iGoldYieldBaseModifierTimes100;
@@ -760,7 +759,9 @@ static int GetCapitalConnectionValue(CvPlayer* pPlayer, CvCity* pCity, RouteType
 					continue;
 
 				iProductionYieldRateModifierTimes100 = pkBuilding->GetYieldModifier(YIELD_PRODUCTION);
+				iProductionYieldRateModifierTimes100 += pkBuilding->GetYieldModifierEraScaling(YIELD_PRODUCTION) * iEra;
 				iGoldYieldRateModifierTimes100 = pkBuilding->GetYieldModifier(YIELD_GOLD);
+				iGoldYieldRateModifierTimes100 += pkBuilding->GetYieldModifierEraScaling(YIELD_GOLD) * iEra;
 
 				iConnectionValue += (iBaseProductionYieldTimes100 * iProductionYieldRateModifierTimes100) / 100;
 				iConnectionValue += (iBaseGoldYieldTimes100 * iGoldYieldRateModifierTimes100) / 100;

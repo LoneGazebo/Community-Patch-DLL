@@ -344,6 +344,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_piYieldFromFaithPurchase(NULL),
 	m_piYieldFromUnitLevelUpGlobal(NULL),
 	m_piYieldChange(NULL),
+	m_piYieldModifierEraScaling(NULL),
 	m_piYieldChangeEraScalingTimes100(NULL),
 	m_pfYieldChangePerBuilding(NULL),
 	m_pfYieldChangePerTile(NULL),
@@ -497,6 +498,7 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	SAFE_DELETE_ARRAY(m_piYieldFromFaithPurchase);
 	SAFE_DELETE_ARRAY(m_piYieldFromUnitLevelUpGlobal);
 	SAFE_DELETE_ARRAY(m_piYieldChange);
+	SAFE_DELETE_ARRAY(m_piYieldModifierEraScaling);
 	SAFE_DELETE_ARRAY(m_piYieldChangeEraScalingTimes100);
 	SAFE_DELETE_ARRAY(m_pfYieldChangePerBuilding);
 	SAFE_DELETE_ARRAY(m_pfYieldChangePerTile);
@@ -1034,6 +1036,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	kUtility.SetYields(m_piYieldFromFaithPurchase, "Building_YieldFromFaithPurchase", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromUnitLevelUpGlobal, "Building_YieldFromUnitLevelUpGlobal", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldChange, "Building_YieldChanges", "BuildingType", szBuildingType);
+	kUtility.SetYields(m_piYieldModifierEraScaling, "Building_YieldModifiersEraScaling", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldChangeEraScalingTimes100, "Building_YieldChangesEraScalingTimes100", "BuildingType", szBuildingType);
 	kUtility.SetFractionYields(m_pfYieldChangePerBuilding, "Building_YieldChangesPerXBuilding", "BuildingType", szBuildingType, "NumRequired");
 	kUtility.SetFractionYields(m_pfYieldChangePerTile, "Building_YieldChangesPerXTiles", "BuildingType", szBuildingType, "NumRequired");
@@ -3237,6 +3240,10 @@ bool CvBuildingEntry::IsScienceBuilding() const
 	{
 		bRtnValue = true;
 	}
+	else if(GetYieldModifierEraScaling(YIELD_SCIENCE) > 0)
+	{
+		bRtnValue = true;
+	}
 	else if (GetYieldChangePerPopInEmpire(YIELD_SCIENCE) > 0)
 	{
 		bRtnValue = true;
@@ -4094,6 +4101,20 @@ int CvBuildingEntry::GetYieldModifier(int i) const
 int* CvBuildingEntry::GetYieldModifierArray() const
 {
 	return m_piYieldModifier;
+}
+
+/// Change to yieldModifier by type per era
+int CvBuildingEntry::GetYieldModifierEraScaling(int i) const
+{
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
+	return m_piYieldModifierEraScaling ? m_piYieldModifierEraScaling[i] : -1;
+}
+
+/// Array of yieldModifier changes per era
+int* CvBuildingEntry::GetYieldModifierEraScalingArray() const
+{
+	return m_piYieldModifierEraScaling;
 }
 
 /// Modifier to yield by type in area
