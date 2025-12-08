@@ -275,7 +275,6 @@ CvCity::CvCity() :
 	, m_miGreatPersonPointFromConstruction()
 	, m_aiDamagePermyriad()
 	, m_aiYieldPerReligion()
-	, m_aiPowerYieldRateModifier()
 	, m_aiResourceYieldRateModifier()
 	, m_aiExtraSpecialistYield()
 	, m_aiProductionToYieldModifier()
@@ -1398,8 +1397,8 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_miGreatPersonPointFromConstruction.clear();
 	m_aiYieldPerReligion.resize(NUM_YIELD_TYPES);
 	m_aiYieldRateModifier.resize(NUM_YIELD_TYPES);
+	m_aiYieldModifierEraScaling.resize(NUM_YIELD_TYPES);
 	m_aiLuxuryExtraYield.resize(NUM_YIELD_TYPES);
-	m_aiPowerYieldRateModifier.resize(NUM_YIELD_TYPES);
 	m_aiResourceYieldRateModifier.resize(NUM_YIELD_TYPES);
 	m_aiExtraSpecialistYield.resize(NUM_YIELD_TYPES);
 	m_aiProductionToYieldModifier.resize(NUM_YIELD_TYPES);
@@ -1480,8 +1479,8 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		m_afYieldPerCityStateStrategicResource[iI] = 0;
 		m_aiYieldPerReligion[iI] = 0;
 		m_aiYieldRateModifier[iI] = 0;
+		m_aiYieldModifierEraScaling[iI] = 0;
 		m_aiLuxuryExtraYield[iI] = 0;
-		m_aiPowerYieldRateModifier[iI] = 0;
 		m_aiResourceYieldRateModifier[iI] = 0;
 		m_aiExtraSpecialistYield[iI] = 0;
 		m_aiProductionToYieldModifier[iI] = 0;
@@ -14699,6 +14698,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			ChangeYieldPerPopInEmpireTimes100(eYield, pBuildingInfo->GetYieldChangePerPopInEmpire(eYield) * iChange);
 			ChangeYieldPerReligionTimes100(eYield, pBuildingInfo->GetYieldChangePerReligion(eYield) * iChange);
 			changeYieldRateModifier(eYield, (pBuildingInfo->GetYieldModifier(eYield) * iChange));
+			ChangeYieldModifierEraScaling(eYield, pBuildingInfo->GetYieldModifierEraScaling(eYield) * iChange);
 			ChangeLuxuryExtraYield(eYield, (pBuildingInfo->GetLuxuryYieldChanges(eYield) * iChange));
 
 			CvPlayerPolicies* pPolicies = GET_PLAYER(getOwner()).GetPlayerPolicies();
@@ -22599,6 +22599,12 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iAssumedExtraModifie
 	iModifier += iTempMod;
 	if (toolTipSink)
 		GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_YIELD_MOD_UNHAPPINESS", iTempMod);
+	
+	// Era Yield Rate Modifier
+	iTempMod = GetYieldModifierEraScaling(eIndex) * max(1, static_cast<int>(kOwner.GetCurrentEra()));
+	iModifier += iTempMod;
+	if (toolTipSink)
+		GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_YIELD_MOD_ERA", iTempMod);
 
 	// Area Yield Rate Modifier
 	CvArea* pArea = plot()->area();
@@ -26286,7 +26292,6 @@ int CvCity::getYieldRateModifier(YieldTypes eIndex)	const
 	return m_aiYieldRateModifier[eIndex];
 }
 
-
 //	--------------------------------------------------------------------------------
 void CvCity::changeYieldRateModifier(YieldTypes eIndex, int iChange)
 {
@@ -26299,6 +26304,24 @@ void CvCity::changeYieldRateModifier(YieldTypes eIndex, int iChange)
 		UpdateCityYields(eIndex);
 		GET_PLAYER(getOwner()).invalidateYieldRankCache(eIndex);
 	}
+}
+
+//	--------------------------------------------------------------------------------
+int CvCity::GetYieldModifierEraScaling(YieldTypes eIndex) const
+{
+	VALIDATE_OBJECT();
+	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	return m_aiYieldModifierEraScaling[eIndex];
+}
+
+//	--------------------------------------------------------------------------------
+void CvCity::ChangeYieldModifierEraScaling(YieldTypes eIndex, int iChange)
+{
+	VALIDATE_OBJECT();
+	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	m_aiYieldModifierEraScaling[eIndex] = m_aiYieldModifierEraScaling[eIndex] + iChange;
 }
 
 //	--------------------------------------------------------------------------------
@@ -31869,6 +31892,7 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_aiGreatWorkYieldChange);
 	visitor(city.m_aiDamagePermyriad);
 	visitor(city.m_aiYieldRateModifier);
+	visitor(city.m_aiYieldModifierEraScaling);
 	visitor(city.m_aiLuxuryExtraYield);
 	visitor(city.m_aiYieldPerPop);
 	visitor(city.m_aiYieldRateFromBuildingsEraScalingTimes100);
@@ -31876,7 +31900,6 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_afYieldPerTile);
 	visitor(city.m_afYieldPerCityStateStrategicResource);
 	visitor(city.m_aiYieldPerReligion);
-	visitor(city.m_aiPowerYieldRateModifier);
 	visitor(city.m_aiResourceYieldRateModifier);
 	visitor(city.m_aiExtraSpecialistYield);
 	visitor(city.m_aiProductionToYieldModifier);
