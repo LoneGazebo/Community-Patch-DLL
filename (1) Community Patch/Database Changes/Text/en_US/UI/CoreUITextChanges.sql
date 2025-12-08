@@ -156,11 +156,12 @@ WHERE Tag = 'TXT_KEY_YIELD_FROM_RELIGION';
 UPDATE Language_en_US
 SET Text = '[ICON_BULLET]{1_Num} {2_IconString} from [ICON_CITIZEN] Population'
 WHERE Tag = 'TXT_KEY_YIELD_FROM_POP';
-UPDATE Language_en_US
 
+UPDATE Language_en_US
 SET Text = '[ICON_BULLET]{1_Num} {2_IconString} from other sources'
 WHERE Tag = 'TXT_KEY_YIELD_FROM_MISC';
 
+UPDATE Language_en_US
 SET Text = '[ICON_BULLET]{1_Num} [ICON_TOURISM] from {2_Num}% of the [ICON_CULTURE] Culture from World Wonders, Natural Wonders, and Improvements'
 WHERE Tag = 'TXT_KEY_CO_CITY_TOURISM_TILES';
 
