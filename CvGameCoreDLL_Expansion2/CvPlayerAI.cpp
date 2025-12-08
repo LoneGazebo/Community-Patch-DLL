@@ -2138,6 +2138,9 @@ const vector<CvCity*> CvPlayerAI::GetBestCitiesForSpaceshipParts()
 		if (pLoopCity->isUnderSiege())
 			continue;
 
+		if (pLoopCity->IsResistance() || pLoopCity->IsRazing() || pLoopCity->isInDangerOfFalling())
+			continue;
+
 		// city too far away?
 		if (!(pLoopCity->CanAirlift() && pCapital->CanAirlift()) && plotDistance(pLoopCity->getX(), pLoopCity->getY(), pCapital->getX(), pCapital->getY()) > 40)
 			continue;
