@@ -1927,7 +1927,7 @@
 		<Row Tag="TXT_KEY_GPP_MOD_IMPROVEMENT">
 			<Text>[NEWLINE][ICON_BULLET]{1: number "'+'##;'-'##"}% from Worked Improvements</Text>
 		</Row>
-		<Row Tag="TXT_KEY_GP_MOD_LEAGUE">
+		<Row Tag="TXT_KEY_GPP_MOD_LEAGUE">
 			<Text>[NEWLINE][ICON_BULLET]{1: number "'+'##;'-'##"}% from Active Resolutions</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GPP_MOD_MONOPOLY">
