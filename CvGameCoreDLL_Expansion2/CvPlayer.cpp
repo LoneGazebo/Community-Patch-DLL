@@ -688,6 +688,8 @@ CvPlayer::CvPlayer() :
 	, m_iFreeWCVotes()
 	, m_iVotesPerFollowingCityTimes100()
 	, m_iInfluenceGPExpend()
+	, m_iTradeRouteFromBuildings()
+	, m_iTradeRouteFromTechs()
 	, m_iFreeTradeRoute()
 	, m_iReligionDistance()
 	, m_iPressureMod()
@@ -1496,6 +1498,8 @@ void CvPlayer::uninit()
 	m_iFreeWCVotes = 0;
 	m_iVotesPerFollowingCityTimes100 = 0;
 	m_iInfluenceGPExpend = 0;
+	m_iTradeRouteFromBuildings = 0;
+	m_iTradeRouteFromTechs = 0;
 	m_iFreeTradeRoute = 0;
 	m_iReligionDistance = 0;
 	m_iPressureMod = 0;
@@ -15785,6 +15789,9 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 
 	ChangeCityWorkingChange(pBuildingInfo->GetGlobalCityWorkingChange() * iChange);
 	ChangeCityAutomatonWorkersChange(pBuildingInfo->GetGlobalCityAutomatonWorkersChange() * iChange);
+
+	// Trade route num bonus
+	changeTradeRouteFromBuildings(pBuildingInfo->GetNumTradeRouteBonus() * iChange);
 
 	// Trade route gold modifier
 	GetTreasury()->ChangeCityConnectionTradeRouteGoldModifier(pBuildingInfo->GetCityConnectionTradeRouteModifier() * iChange);
@@ -34837,6 +34844,24 @@ void CvPlayer::changeInfluenceGPExpend(int iChange)
 	m_iInfluenceGPExpend += iChange;
 }
 
+int CvPlayer::GetTradeRouteFromBuildings() const
+{
+	return m_iTradeRouteFromBuildings;
+}
+void CvPlayer::changeTradeRouteFromBuildings(int iChange)
+{
+	m_iTradeRouteFromBuildings += iChange;
+}
+
+int CvPlayer::GetTradeRouteFromTechs() const
+{
+	return m_iTradeRouteFromTechs;
+}
+void CvPlayer::changeTradeRouteFromTechs(int iChange)
+{
+	m_iTradeRouteFromTechs += iChange;
+}
+
 int CvPlayer::GetFreeTradeRoute() const
 {
 	return m_iFreeTradeRoute;
@@ -43319,6 +43344,8 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_iFreeWCVotes);
 	visitor(player.m_iVotesPerFollowingCityTimes100);
 	visitor(player.m_iInfluenceGPExpend);
+	visitor(player.m_iTradeRouteFromBuildings);
+	visitor(player.m_iTradeRouteFromTechs);
 	visitor(player.m_iFreeTradeRoute);
 	visitor(player.m_iReligionDistance);
 	visitor(player.m_iPressureMod);

@@ -1855,6 +1855,12 @@ public:
 	int GetInfluenceGPExpend() const;
 	void changeInfluenceGPExpend(int iChange);
 
+	int GetTradeRouteFromBuildings() const;
+	void changeTradeRouteFromBuildings(int iChange);
+
+	int GetTradeRouteFromTechs() const;
+	void changeTradeRouteFromTechs(int iChange);
+
 	int GetFreeTradeRoute() const;
 	void changeFreeTradeRoute(int iChange);
 
@@ -3143,6 +3149,8 @@ protected:
 	int m_iFreeWCVotes;
 	int m_iVotesPerFollowingCityTimes100;
 	int m_iInfluenceGPExpend;
+	int m_iTradeRouteFromBuildings;
+	int m_iTradeRouteFromTechs;
 	int m_iFreeTradeRoute;
 	int m_iReligionDistance;
 	int m_iPressureMod;
@@ -3953,6 +3961,8 @@ SYNC_ARCHIVE_VAR(int, m_iGoldInternalTrade)
 SYNC_ARCHIVE_VAR(int, m_iFreeWCVotes)
 SYNC_ARCHIVE_VAR(int, m_iVotesPerFollowingCityTimes100)
 SYNC_ARCHIVE_VAR(int, m_iInfluenceGPExpend)
+SYNC_ARCHIVE_VAR(int, m_iTradeRouteFromBuildings)
+SYNC_ARCHIVE_VAR(int, m_iTradeRouteFromTechs)
 SYNC_ARCHIVE_VAR(int, m_iFreeTradeRoute)
 SYNC_ARCHIVE_VAR(int, m_iReligionDistance)
 SYNC_ARCHIVE_VAR(int, m_iPressureMod)

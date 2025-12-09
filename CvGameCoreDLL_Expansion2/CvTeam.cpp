@@ -7905,6 +7905,7 @@ void CvTeam::processTech(TechTypes eTech, int iChange, bool bNoBonus)
 			kPlayer.changeWorkerSpeedModifier(pTech->GetWorkerSpeedModifier() * iChange);
 			kPlayer.ChangeInfluenceSpreadModifier(pTech->GetInfluenceSpreadModifier() * iChange);
 			kPlayer.ChangeExtraVotesPerDiplomat(pTech->GetExtraVotesPerDiplomat() * iChange);
+			kPlayer.changeTradeRouteFromTechs(pTech->GetNumInternationalTradeRoutesChange() * iChange);
 
 			if (kPlayer.isMajorCiv())
 			{
