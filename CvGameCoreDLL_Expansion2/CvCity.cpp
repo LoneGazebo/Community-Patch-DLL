@@ -10712,9 +10712,9 @@ void CvCity::addProductionExperience(CvUnit* pUnit, bool bHalveXP, UnitCreationR
 {
 	VALIDATE_OBJECT();
 	bool bGoldPurchaseAffected = eReason == REASON_BUY && MOD_BALANCE_HALF_XP_GOLD_PURCHASES;
-	bool bFaithPurchsaeAffected = eReason == REASON_FAITH_BUY && MOD_BALANCE_HALF_XP_FAITH_PURCHASES;
+	bool bFaithPurchaseAffected = eReason == REASON_FAITH_BUY && MOD_BALANCE_HALF_XP_FAITH_PURCHASES;
 
-	bool bPurchaseAffected = bGoldPurchaseAffected || bFaithPurchsaeAffected;
+	bool bPurchaseAffected = bGoldPurchaseAffected || bFaithPurchaseAffected;
 	bool bPlayerAffected = !GET_PLAYER(getOwner()).IsNoXPLossUnitPurchase();
 	bool bUnitAffected = !pUnit->getUnitInfo().CanMoveAfterPurchase();
 
