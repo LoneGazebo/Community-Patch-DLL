@@ -1,0 +1,88 @@
+name: Bug Report Version 5.0+
+description: Bug Report for Version 5.0 or newer
+body:
+  - type: markdown
+    attributes:
+      value: |
+        <!-- PLEASE READ CAREFULLY AND INCLUDE ALL REQUESTED INFORMATION BEFORE SUBMITTING AN ISSUE REPORT!
+        If your issue lacks needed information, you will be asked to provide it and your issue will be CLOSED.
+        If you are using an old version, too many additional mods, or your issue cannot be reproduced, your issue may be CLOSED.-->
+
+  - type: dropdown
+    id: mod-version
+    attributes:
+      label: 1. Mod version
+      description: "Please select which version you are using. Current Version: 5.0"
+      options:
+        - 5.0
+    validations:
+      required: true
+
+  - type: dropdown
+    id: version-type
+    attributes:
+      label: 2. Installed Components
+      description: Please select which components you have installed.
+      options:
+        - Vox Populi with EUI
+        - Vox Populi with EUI (43 Civ version)
+        - Vox Populi Non-EUI
+        - Vox Populi Non-EUI (43 Civ version)
+        - Community Patch only
+        - Community Patch only (43 Civ version)
+      multiple: false
+    validations:
+      required: true
+
+  - type: textarea
+    id: mod-list
+    attributes:
+      label: 3. Additional mods used
+      description: |
+        If you're using additional mods other than VP, please upload a zip file containing all the mods here. If a mod is too large to be uploaded please provide a download link instead (not just the name of the mod). If you have installed VP as a modpack, upload or provide a link to the modpack.
+
+      placeholder: Upload or provide links to ALL mods other than VP that you are using
+    validations:
+      required: true
+      
+  - type: textarea
+    id: issue-description
+    attributes:
+      label: 4. Describe the Issue
+      description: |
+        NOTE: Please test that you can reproduce the issue before submitting it.
+
+        Please only report bugs (crashes, unexpected behavior, etc.) or problems with AI decision-making.
+
+        For game balance issues: https://forums.civfanatics.com/forums/community-patch-project.497
+
+      placeholder: Describe the issue in detail, including the steps to reproduce it. You may also upload screenshots of the issue. 
+    validations:
+      required: true
+
+  - type: textarea
+    id: save-game
+    attributes:
+      label: 5. Save Game From 1 Turn Before (ALWAYS ATTACH THIS IF POSSIBLE)
+      description: |
+        Located in My Documents/My Games/Sid Meier's Civilization 5/Saves
+
+        To make sure this is available, we recommend that you set Max Autosaves to 0 (infinite) and Turns Between Autosaves to 1.
+
+      placeholder: Zip your save file and drag and drop it here, or provide a link
+    validations:
+      required: false
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: 6. Logs (ALWAYS ATTACH THESE IF POSSIBLE)
+      description: |
+        Located at My Documents/My Games/Sid Meier's Civilization 5/Logs
+
+        You MUST have enabled logging BEFORE experiencing the issue or your logs will be useless.
+
+        See https://github.com/LoneGazebo/Community-Patch-DLL/blob/master/DEVELOPMENT.md#to-enable-logging-for-bug-reports
+      placeholder: Zip your Logs folder and drag and drop it here, or provide a link
+    validations:
+      required: false
