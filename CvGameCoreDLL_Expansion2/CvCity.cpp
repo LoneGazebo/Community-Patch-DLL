@@ -23401,7 +23401,7 @@ int CvCity::getBaseYieldRateTimes100(const YieldTypes eYield, CvString* tooltipS
 			iTempYield = (iFromWonders + iFromNaturalWonders + iFromImprovements) * iPercent;
 			iYield += iTempYield;
 			if (tooltipSink) 
-				(*tooltipSink) += CvString("[NEWLINE]") + GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_TILES", FormatYieldTimes100(iTempYield), iPercent); /* can't use BuildYieldTimes100HelpText here */
+				(*tooltipSink) += CvString("[NEWLINE]") + GetLocalizedText("TXT_KEY_YIELD_FROM_TERRAIN_WONDERS", FormatYieldTimes100(iTempYield), iPercent); /* can't use BuildYieldTimes100HelpText here */
 		}
 	}
 
