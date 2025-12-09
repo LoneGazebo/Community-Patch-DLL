@@ -557,6 +557,8 @@ public:
 
 	int GetYieldChange(int i) const;
 	int* GetYieldChangeArray() const;
+	int GetYieldModifierEraScaling(int i) const;
+	int* GetYieldModifierEraScalingArray() const;
 	int GetYieldChangeEraScalingTimes100(int i) const;
 	fraction GetYieldChangePerBuilding(int i) const;
 	fraction GetYieldChangePerTile(int i) const;
@@ -1047,6 +1049,7 @@ private:
 	int* m_piYieldFromGPBirthScaledWithArtistBulb;
 	map<GreatPersonTypes, map<pair<YieldTypes, YieldTypes>, int>> m_miYieldFromGPBirthScaledWithPerTurnYield;
 	int* m_piYieldChange;
+	int* m_piYieldModifierEraScaling;
 	int* m_piYieldChangeEraScalingTimes100;
 	fraction* m_pfYieldChangePerBuilding;
 	fraction* m_pfYieldChangePerTile;

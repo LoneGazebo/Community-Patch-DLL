@@ -1,7 +1,6 @@
 --- @meta
 
 --- Unlike most other enums, this one doesn't come from the game core DLL<br>
---- We'll have to trust modiki on the values of these<br>
 --- Only CIV5_GS_MAIN_MENU and CIV5_GS_MAINGAMEVIEW are used
 --- @enum GameStateType
 GameStateTypes = {

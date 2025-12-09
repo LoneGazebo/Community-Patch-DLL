@@ -7975,7 +7975,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 		}
 	}
 
-	if (eBuilder != NO_PLAYER && eNewValue != NO_IMPROVEMENT && getOwner() != NO_PLAYER && GET_PLAYER(getOwner()).isMinorCiv() && GET_PLAYER(eBuilder).isMajorCiv() && !GC.getImprovementInfo(eNewValue)->IsCreatedByGreatPerson())
+	if (eBuilder != NO_PLAYER && eNewValue != NO_IMPROVEMENT && getOwner() != NO_PLAYER && GET_PLAYER(getOwner()).isMinorCiv() && GET_PLAYER(eBuilder).isMajorCiv() && !GC.getImprovementInfo(eNewValue)->IsCreatedByGreatPerson() && !GC.getImprovementInfo(eNewValue)->IsRemovesResource())
 	{
 		bNewImprovementGiftFromMajor = true;
 	}

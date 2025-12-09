@@ -275,7 +275,6 @@ CvCity::CvCity() :
 	, m_miGreatPersonPointFromConstruction()
 	, m_aiDamagePermyriad()
 	, m_aiYieldPerReligion()
-	, m_aiPowerYieldRateModifier()
 	, m_aiResourceYieldRateModifier()
 	, m_aiExtraSpecialistYield()
 	, m_aiProductionToYieldModifier()
@@ -587,15 +586,11 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	pPlot->SetPlayerThatDestroyedCityHere(NO_PLAYER);
 
 	pPlot->SetImprovementPillaged(false, false);
+	pPlot->setImprovementType(NO_IMPROVEMENT);
 	pPlot->SetRoutePillaged(false, false);
 
 	// Plot Ownership
 	pPlot->setOwner(eOwner, m_iID, bBumpUnits, true, true);
-
-	// Clear the improvement before the city attaches itself to the plot, else the improvement does not
-	// remove the resource allocation from the current owner.  This would result in double resource points because
-	// the plot has already had setOwner called on it (above), giving the player the resource points.
-	pPlot->setImprovementType(NO_IMPROVEMENT);
 
 	//only after the owner is set!
 	pPlot->setIsCity(true, m_iID, getWorkPlotDistance());
@@ -1004,7 +999,6 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 			InitBoost(/*5*/ GD_INT_GET(COLONIST_EXTRA_PLOTS), /*5*/ GD_INT_GET(COLONIST_POPULATION_CHANGE), /*50*/ GD_INT_GET(COLONIST_FOOD_PERCENT));
 		}
 
-		const int iNumBuildingClassInfos = GC.getNumBuildingClassInfos();
 		const CvCivilizationInfo& kCivInfo = getCivilizationInfo();
 		for (set<int>::const_iterator it = pkSettlerUnitEntry->GetBuildOnFound().begin(); it != pkSettlerUnitEntry->GetBuildOnFound().end(); ++it)
 		{
@@ -1403,8 +1397,8 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_miGreatPersonPointFromConstruction.clear();
 	m_aiYieldPerReligion.resize(NUM_YIELD_TYPES);
 	m_aiYieldRateModifier.resize(NUM_YIELD_TYPES);
+	m_aiYieldModifierEraScaling.resize(NUM_YIELD_TYPES);
 	m_aiLuxuryExtraYield.resize(NUM_YIELD_TYPES);
-	m_aiPowerYieldRateModifier.resize(NUM_YIELD_TYPES);
 	m_aiResourceYieldRateModifier.resize(NUM_YIELD_TYPES);
 	m_aiExtraSpecialistYield.resize(NUM_YIELD_TYPES);
 	m_aiProductionToYieldModifier.resize(NUM_YIELD_TYPES);
@@ -1485,8 +1479,8 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		m_afYieldPerCityStateStrategicResource[iI] = 0;
 		m_aiYieldPerReligion[iI] = 0;
 		m_aiYieldRateModifier[iI] = 0;
+		m_aiYieldModifierEraScaling[iI] = 0;
 		m_aiLuxuryExtraYield[iI] = 0;
-		m_aiPowerYieldRateModifier[iI] = 0;
 		m_aiResourceYieldRateModifier[iI] = 0;
 		m_aiExtraSpecialistYield[iI] = 0;
 		m_aiProductionToYieldModifier[iI] = 0;
@@ -4289,6 +4283,25 @@ bool CvCity::IsCityEventChoiceValid(CityEventChoiceTypes eChosenEventChoice, Cit
 		if (pkEventInfo->lacksPlayerMajority() && kPlayer.GetReligions()->GetReligionInMostCities() == GetCityReligions()->GetReligiousMajority())
 			return false;
 
+		if (pkEventInfo->getEventBuilding() != -1)
+		{
+			BuildingClassTypes eBuildingClass = (BuildingClassTypes)pkEventInfo->getEventBuilding();
+			if (eBuildingClass == NO_BUILDINGCLASS)
+				return false;
+
+			CvCivilizationInfo* pCivilizationInfo = GC.getCivilizationInfo(getCivilizationType());
+
+			if (HasBuildingClass(eBuildingClass))
+				return false;
+
+			if (pCivilizationInfo != NULL)
+			{
+				BuildingTypes eBuilding = (BuildingTypes)pCivilizationInfo->getCivilizationBuildings(eBuildingClass);
+				if (GC.getGame().isBuildingClassMaxedOut(eBuildingClass) || GET_TEAM(getTeam()).isBuildingClassMaxedOut(eBuildingClass) || GET_PLAYER(getOwner()).isBuildingMaxedOut(eBuilding))
+					return false;
+			}
+		}
+
 		if (pkEventInfo->getRequiredStateReligion() != -1)
 		{
 			if (kPlayer.GetReligions()->GetOwnedReligion() != pkEventInfo->getRequiredStateReligion())
@@ -5943,6 +5956,30 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice, int
 			localizedDurationText = Localization::Lookup("TXT_KEY_NEED_SPECIFIC_STATE_RELIGION");
 			localizedDurationText << GC.getReligionInfo((ReligionTypes)pkEventInfo->getRequiredStateReligion())->GetDescription();
 			DisabledTT += localizedDurationText.toUTF8();
+		}
+	}
+
+	if (pkEventInfo->getEventBuilding() != -1)
+	{
+		BuildingClassTypes eBuildingClass = (BuildingClassTypes)pkEventInfo->getEventBuilding();
+		if (eBuildingClass != NO_BUILDINGCLASS)
+		{
+			CvCivilizationInfo* pCivilizationInfo = GC.getCivilizationInfo(getCivilizationType());
+
+			if (HasBuildingClass(eBuildingClass))
+			{
+				localizedDurationText = Localization::Lookup("TXT_KEY_BUILDING_ALREADY_BUILT");
+				DisabledTT += localizedDurationText.toUTF8();
+			}
+			else if (pCivilizationInfo != NULL)
+			{
+				BuildingTypes eBuilding = (BuildingTypes)pCivilizationInfo->getCivilizationBuildings(eBuildingClass);
+				if (GC.getGame().isBuildingClassMaxedOut(eBuildingClass) || GET_TEAM(getTeam()).isBuildingClassMaxedOut(eBuildingClass) || GET_PLAYER(getOwner()).isBuildingMaxedOut(eBuilding))
+				{
+					localizedDurationText = Localization::Lookup("TXT_KEY_BUILDING_MAXED_OUT");
+					DisabledTT += localizedDurationText.toUTF8();
+				}
+			}
 		}
 	}
 
@@ -10666,17 +10703,24 @@ int CvCity::getProductionExperience(UnitTypes eUnit) const
 
 
 //	--------------------------------------------------------------------------------
-void CvCity::addProductionExperience(CvUnit* pUnit, bool bHalveXP, bool bGoldPurchase) const
+void CvCity::addProductionExperience(CvUnit* pUnit, bool bHalveXP, UnitCreationReason eReason) const
 {
 	VALIDATE_OBJECT();
-	bHalveXP = (bHalveXP || (bGoldPurchase && MOD_BALANCE_HALF_XP_GOLD_PURCHASES && !GET_PLAYER(getOwner()).IsNoXPLossUnitPurchase() && !pUnit->getUnitInfo().CanMoveAfterPurchase()));
+	bool bGoldPurchaseAffected = eReason == REASON_BUY && MOD_BALANCE_HALF_XP_GOLD_PURCHASES;
+	bool bFaithPurchsaeAffected = eReason == REASON_FAITH_BUY && MOD_BALANCE_HALF_XP_FAITH_PURCHASES;
+
+	bool bPurchaseAffected = bGoldPurchaseAffected || bFaithPurchsaeAffected;
+	bool bPlayerAffected = !GET_PLAYER(getOwner()).IsNoXPLossUnitPurchase();
+	bool bUnitAffected = !pUnit->getUnitInfo().CanMoveAfterPurchase();
+
+	bHalveXP = (bHalveXP || (bPurchaseAffected && bPlayerAffected && bUnitAffected));
 
 	if (pUnit->canAcquirePromotionAny())
 	{
 		pUnit->changeExperienceTimes100(getProductionExperience(pUnit->getUnitType()) * 100 / ((bHalveXP) ? 2 : 1));
 
 		// Carthage UA: Bonus XP to Gold purchased units
-		int iBonusXP = bGoldPurchase ? GET_PLAYER(getOwner()).GetPlayerTraits()->GetPurchasedUnitsBonusXP() : 0;
+		int iBonusXP = (eReason == REASON_BUY) ? GET_PLAYER(getOwner()).GetPlayerTraits()->GetPurchasedUnitsBonusXP() : 0;
 		if (iBonusXP > 0)
 		{
 			int iEra = GET_PLAYER(getOwner()).GetCurrentEra();
@@ -14297,9 +14341,14 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 		{
 			CvPlot* pLoopPlot = NULL;
 
-			ChangeExtraLuxuryResources(iChange);
+			// When adding: update counter first so the add functions use the new value
+			// When removing: update counter last so the remove functions use the old value
+			if (iChange > 0)
+			{
+				ChangeExtraLuxuryResources(iChange);
+			}
 
-			// Add extra luxury counts
+			// Add/remove extra luxury counts
 
 			std::set<int>::iterator it;
 			for (it = m_siPlots.begin(); it != m_siPlots.end(); ++it)
@@ -14333,6 +14382,11 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 						}
 					}
 				}
+			}
+
+			if (iChange < 0)
+			{
+				ChangeExtraLuxuryResources(iChange);
 			}
 		}
 
@@ -14644,6 +14698,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			ChangeYieldPerPopInEmpireTimes100(eYield, pBuildingInfo->GetYieldChangePerPopInEmpire(eYield) * iChange);
 			ChangeYieldPerReligionTimes100(eYield, pBuildingInfo->GetYieldChangePerReligion(eYield) * iChange);
 			changeYieldRateModifier(eYield, (pBuildingInfo->GetYieldModifier(eYield) * iChange));
+			ChangeYieldModifierEraScaling(eYield, pBuildingInfo->GetYieldModifierEraScaling(eYield) * iChange);
 			ChangeLuxuryExtraYield(eYield, (pBuildingInfo->GetLuxuryYieldChanges(eYield) * iChange));
 
 			CvPlayerPolicies* pPolicies = GET_PLAYER(getOwner()).GetPlayerPolicies();
@@ -22544,6 +22599,12 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iAssumedExtraModifie
 	iModifier += iTempMod;
 	if (toolTipSink)
 		GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_YIELD_MOD_UNHAPPINESS", iTempMod);
+	
+	// Era Yield Rate Modifier
+	iTempMod = GetYieldModifierEraScaling(eIndex) * max(1, static_cast<int>(kOwner.GetCurrentEra()));
+	iModifier += iTempMod;
+	if (toolTipSink)
+		GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_YIELD_MOD_ERA", iTempMod);
 
 	// Area Yield Rate Modifier
 	CvArea* pArea = plot()->area();
@@ -26231,7 +26292,6 @@ int CvCity::getYieldRateModifier(YieldTypes eIndex)	const
 	return m_aiYieldRateModifier[eIndex];
 }
 
-
 //	--------------------------------------------------------------------------------
 void CvCity::changeYieldRateModifier(YieldTypes eIndex, int iChange)
 {
@@ -26244,6 +26304,24 @@ void CvCity::changeYieldRateModifier(YieldTypes eIndex, int iChange)
 		UpdateCityYields(eIndex);
 		GET_PLAYER(getOwner()).invalidateYieldRankCache(eIndex);
 	}
+}
+
+//	--------------------------------------------------------------------------------
+int CvCity::GetYieldModifierEraScaling(YieldTypes eIndex) const
+{
+	VALIDATE_OBJECT();
+	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	return m_aiYieldModifierEraScaling[eIndex];
+}
+
+//	--------------------------------------------------------------------------------
+void CvCity::ChangeYieldModifierEraScaling(YieldTypes eIndex, int iChange)
+{
+	VALIDATE_OBJECT();
+	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	m_aiYieldModifierEraScaling[eIndex] = m_aiYieldModifierEraScaling[eIndex] + iChange;
 }
 
 //	--------------------------------------------------------------------------------
@@ -29678,7 +29756,7 @@ CvUnit* CvCity::CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType, UnitCreatio
 		pUnit->changeDamage(min(iUnitDamage, pUnit->GetMaxHitPoints() - 1));
 	}
 
-	addProductionExperience(pUnit, false, (eReason == REASON_BUY));
+	addProductionExperience(pUnit, false, eReason);
 
 	if (!bIsPurchased || pUnit->getUnitInfo().CanMoveAfterPurchase())
 		pUnit->restoreFullMoves();
@@ -31814,6 +31892,7 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_aiGreatWorkYieldChange);
 	visitor(city.m_aiDamagePermyriad);
 	visitor(city.m_aiYieldRateModifier);
+	visitor(city.m_aiYieldModifierEraScaling);
 	visitor(city.m_aiLuxuryExtraYield);
 	visitor(city.m_aiYieldPerPop);
 	visitor(city.m_aiYieldRateFromBuildingsEraScalingTimes100);
@@ -31821,7 +31900,6 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_afYieldPerTile);
 	visitor(city.m_afYieldPerCityStateStrategicResource);
 	visitor(city.m_aiYieldPerReligion);
-	visitor(city.m_aiPowerYieldRateModifier);
 	visitor(city.m_aiResourceYieldRateModifier);
 	visitor(city.m_aiExtraSpecialistYield);
 	visitor(city.m_aiProductionToYieldModifier);

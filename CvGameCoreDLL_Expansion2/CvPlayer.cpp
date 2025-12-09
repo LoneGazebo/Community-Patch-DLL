@@ -445,6 +445,7 @@ CvPlayer::CvPlayer() :
 	, m_iNumArchaeologyChoices()
 	, m_eFaithPurchaseType(NO_AUTOMATIC_FAITH_PURCHASE)
 	, m_iFaithPurchaseIndex()
+	, m_bDisableAutomaticFaithPurchase()
 	, m_bProcessedAutoMoves(false)
 #pragma warning(push)
 #pragma warning(disable:4355 )
@@ -1598,6 +1599,7 @@ void CvPlayer::uninit()
 	m_iCachedCurrentWarValue = 0;
 	m_eFaithPurchaseType = NO_AUTOMATIC_FAITH_PURCHASE;
 	m_iFaithPurchaseIndex = 0;
+	m_bDisableAutomaticFaithPurchase = false;
 	m_iLastSliceMoved = 0;
 	m_viCoreCitiesForSpaceshipProduction.clear();
 
@@ -26170,7 +26172,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					{
 						continue;
 					}
-					iValue += (pUnit->getYieldFromScouting(eYield) * pUnit->GetNumTilesRevealedThisTurn());
+					iValue += pUnit->getYieldFromScouting(eYield) * iPassYield;
 					break;
 				}
 				case INSTANT_YIELD_TYPE_ANCIENT_RUIN:
@@ -32805,6 +32807,50 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn) // R: bDoTurn default
 	if(!GC.getGame().isNetworkMultiPlayer() && m_eID==GC.getGame().getFirstAlivePlayer() && !bNewValue)
 		gDLL->AutoSave(false, true);
 
+	if (!bNewValue)
+	{
+		// check if resource numbers are stored correctly. there were a few issues with the calculations in the past
+		for (int iJ = 0; iJ < GC.getNumResourceInfos(); iJ++)
+		{
+			int iCntImproved = 0;
+			int iCntUnimproved = 0;
+			for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
+			{
+				CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
+				if (pLoopPlot->getOwner() == GetID())
+				{
+					ResourceTypes eRes = pLoopPlot->getResourceType(getTeam());
+					if (eRes == (ResourceTypes)iJ)
+					{
+						CvResourceInfo* pResourceInfo = GC.getResourceInfo(eRes);
+						int iNumExtraLuxury = 0;
+						if (pResourceInfo->getResourceUsage() == RESOURCEUSAGE_LUXURY)
+						{
+							CvCity* pCity = pLoopPlot->getOwningCity();
+							if (pCity && pCity->IsExtraLuxuryResources())
+							{
+								iNumExtraLuxury = 1;
+							}
+						}
+						if (pLoopPlot->IsResourceImprovedForOwner())
+						{
+							iCntImproved += pLoopPlot->getNumResource();
+							// ExtraLuxury resources are stored in m_paiNumResourceFromBuildings, but we can't compare it with the counted value because it also contains resources from other sources
+						}
+						else
+						{
+							iCntUnimproved += pLoopPlot->getNumResource() + iNumExtraLuxury;
+
+						}
+					}
+				}
+			}
+			const char* szResName = GC.getResourceInfo((ResourceTypes)iJ)->GetText();
+			ASSERT(m_paiNumResourceFromTiles[iJ] == iCntImproved, "Mismatch m_paiNumResourceFromTiles for Resource %s. Stored: %d, counted: %d.", szResName, m_paiNumResourceFromTiles[iJ], iCntImproved);
+			ASSERT(m_paiNumResourceUnimproved[iJ] == iCntUnimproved, "Mismatch m_paiNumResourceUnimproved for Resource %s. Stored: %d, counted: %d.", szResName, m_paiNumResourceUnimproved[iJ], iCntUnimproved);
+		}
+	}
+
 	if(isTurnActive() != bNewValue)
 	{
 		CvGame& kGame = GC.getGame();
@@ -38996,7 +39042,7 @@ bool CvPlayer::isBuildingMaxedOut(BuildingTypes eIndex, int iExtra) const
 
 	int iMaxInstances = getMaxPlayerInstances(eIndex);
 
-	PRECONDITION(getBuildingClassCount(eBuildingClass) <= iMaxInstances, "BuildingClassCount is expected to be less than or match the number of max player instances plus extra player instances");
+	ASSERT(getBuildingClassCount(eBuildingClass) <= iMaxInstances, "BuildingClassCount is expected to be less than or match the number of max player instances plus extra player instances");
 
 	return ((getBuildingClassCount(eBuildingClass) + iExtra) >= iMaxInstances);
 }
@@ -43601,6 +43647,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_iNumArchaeologyChoices);
 	visitor(player.m_eFaithPurchaseType);
 	visitor(player.m_iFaithPurchaseIndex);
+	visitor(player.m_bDisableAutomaticFaithPurchase);
 	visitor(player.m_iFractionOriginalCapitalsUnderControl);
 	visitor(player.m_iAvgUnitExp100);
 	visitor(player.m_iNumMilitarySeaUnits);
@@ -46847,6 +46894,21 @@ int CvPlayer::GetFaithPurchaseIndex() const
 void CvPlayer::SetFaithPurchaseIndex(int iIndex)
 {
 	m_iFaithPurchaseIndex = iIndex;
+}
+
+bool CvPlayer::IsDisableAutomaticFaithPurchase() const
+{
+	return m_bDisableAutomaticFaithPurchase;
+}
+
+void CvPlayer::SetDisableAutomaticFaithPurchase(bool bValue)
+{
+	m_bDisableAutomaticFaithPurchase = bValue;
+}
+
+void CvPlayer::DoSetDisableAutomaticFaithPurchase(bool bValue)
+{
+	NetMessageExt::Send::SetDisableAutomaticFaithPurchase(m_eID, bValue);
 }
 
 int CvPlayer::GetNumFreePoliciesEver() const

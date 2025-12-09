@@ -9,6 +9,27 @@ Control = {}
 --- @type Context
 ContextPtr = {}
 
+--- TODO docs
+--- @param instanceName string
+--- @param controlTable table<string, Control>
+--- @param parentControl Control
+--- @return Control # Returns
+function ContextPtr:BuildInstanceForControl(
+		instanceName,
+		controlTable,
+		parentControl
+)
+end
+
+--- TODO docs
+--- @param instanceName string
+--- @param controlTable table<string, Control>
+function ContextPtr:BuildInstance(
+		instanceName,
+		controlTable
+)
+end
+
 --- @type table<string, Control>
 Controls = {}
 
@@ -61,6 +82,28 @@ function Control:SetOffsetX(iX) end
 
 --- @param iY integer
 function Control:SetOffsetY(iY) end
+
+--- All parameters should be in the range of 0-1. Cannot be used to set Color0, Color1, and Color2.<br>
+--- @see Control.SetColor
+--- @see Control.SetColorByName
+--- @param r number
+--- @param g number
+--- @param b number
+--- @param a number
+function Control:SetColorVal(r, g, b, a) end
+
+--- @see Control.SetColorVal
+--- @see Control.SetColorByName
+--- @param vColor Vector4 # The RGBA values of the color, in the range of 0-1
+--- @param iLayer nil # Set Color if nil
+--- |0 # Set Color0
+--- |1 # Set Color1
+--- |2 # Set Color2
+function Control:SetColor(vColor, iLayer) end
+
+--- @see Control.SetColorVal
+--- @param strColor string # The name of the color or color set as defined in ColorAtlas.xml or the Colors table
+function Control:SetColorByName(strColor) end
 
 --- @param nAlpha number
 function Control:SetAlpha(nAlpha) end

@@ -94,6 +94,7 @@ VALUES
 	('BALANCE_CORP_OFFICE_TR_CONVERSION', 1.0),
 -- Recon
 	('BALANCE_SCOUT_XP_RANDOM_VALUE', 12),
+	('BALANCE_SCOUT_XP_DENOMINATOR', 10),
 	('BALANCE_SCOUT_XP_BASE', 1),
 -- "Too early for agreement" turn buffers
 	('JUST_MET_TURN_BUFFER', 10), -- Hard floor for below two

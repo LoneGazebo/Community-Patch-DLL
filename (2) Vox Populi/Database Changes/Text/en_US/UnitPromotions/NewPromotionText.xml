@@ -153,19 +153,19 @@
 			<Text>Field I</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_FIELD_1_HELP">
-			<Text>+10% [ICON_RANGE_STRENGTH] Ranged Combat Strength.[NEWLINE]+10% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking Units in [COLOR_POSITIVE_TEXT]Open Terrain[ENDCOLOR].</Text>
+			<Text>+10% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking.[NEWLINE]+10% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking Units in [COLOR_POSITIVE_TEXT]Open Terrain[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_FIELD_2">
 			<Text>Field II</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_FIELD_2_HELP">
-			<Text>+10% [ICON_RANGE_STRENGTH] Ranged Combat Strength.[NEWLINE]+10% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking Units in [COLOR_POSITIVE_TEXT]Open Terrain[ENDCOLOR].</Text>
+			<Text>+10% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking.[NEWLINE]+10% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking Units in [COLOR_POSITIVE_TEXT]Open Terrain[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_FIELD_3">
 			<Text>Field III</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_FIELD_3_HELP">
-			<Text>+10% [ICON_RANGE_STRENGTH] Ranged Combat Strength.[NEWLINE]+10% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking Units in [COLOR_POSITIVE_TEXT]Open Terrain[ENDCOLOR].</Text>
+			<Text>+10% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking.[NEWLINE]+10% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking Units in [COLOR_POSITIVE_TEXT]Open Terrain[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_TRAILBLAZER_1">
@@ -484,6 +484,13 @@
 			<Text>[ICON_RAZING] Pillaging costs no [ICON_MOVES] Movement and [COLOR_POSITIVE_TEXT]fully heals[ENDCOLOR] this Unit.[NEWLINE]Deal [COLOR_POSITIVE_TEXT]15 Damage[ENDCOLOR] to all adjacent Enemy Units when [ICON_RAZING] Pillaging Improvements, and gain 60 [ICON_GOLD] Gold, scaling with Era.</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_PROMOTION_SUN_NEVER_SETS">
+			<Text>Sun Never Sets</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_SUN_NEVER_SETS_HELP">
+			<Text>+1 [ICON_MOVES] Movement.[NEWLINE]+1% [ICON_STRENGTH] Combat Strength per tile away from the [ICON_CAPITAL] Capital (max +30%).</Text>
+		</Row>
+
 		<Row Tag="TXT_KEY_PROMOTION_FASTER_WORKER">
 			<Text>Faster Worker</Text>
 		</Row>
@@ -523,7 +530,7 @@
 			<Text>Regimental Traditions</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_REGIMENTAL_TRADITIONS_HELP">
-			<Text>Leadership auras provide +10% more [ICON_STRENGTH] Combat Strength and gain +1 Radius.</Text>
+			<Text>[ICON_GREAT_GENERAL]/[ICON_GREAT_ADMIRAL] Leadership auras provide +10% more [ICON_STRENGTH] Combat Strength and gain +1 Radius.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_BANZAI">
@@ -652,6 +659,20 @@
 			<Text>Randomly gain one of the below promotions after first combat:[NEWLINE][COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_RIGHTEOUSNESS}[ENDCOLOR], [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_BENEVOLENCE}[ENDCOLOR], [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_RESPECT}[ENDCOLOR], [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_SINCERITY}[ENDCOLOR], [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_HONOR}[ENDCOLOR], [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_LOYALTY}[ENDCOLOR], [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_SELF_CONTROL}[ENDCOLOR], [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_COURAGE}[ENDCOLOR]</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_PROMOTION_PROXENOS">
+			<Text>Proxenos</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_PROXENOS_HELP">
+			<Text>+2 [ICON_GOLD] Gold to [COLOR_YIELD_FOOD]{TXT_KEY_BUILDING_PARTHENON}[ENDCOLOR] when this Unit completes a [ICON_INFLUENCE] Diplomatic Mission.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_AGE_OF_DISCOVERY">
+			<Text>Age of Discovery</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_AGE_OF_DISCOVERY_HELP">
+			<Text>Gain 1 [ICON_GOLD] Gold and 0.1 XP when revealing a tile.[NEWLINE]This value is multiplied by 12 for Natural Wonders, 4 for {TXT_KEY_IMPROVEMENT_GOODY_HUT}, and 3 for Resources.[NEWLINE]Can claim [COLOR_POSITIVE_TEXT]{TXT_KEY_IMPROVEMENT_GOODY_HUT}[ENDCOLOR].</Text>
+		</Row>
+
 		<Row Tag="TXT_KEY_PROMOTION_VENETIAN_CRAFTSMANSHIP">
 			<Text>Venetian Craftsmanship</Text>
 		</Row>
@@ -754,7 +775,7 @@
 			<Text>Reconnaissance</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_RECONNAISSANCE_HELP">
-			<Text>Gain XP when revealing tiles.[NEWLINE]Can claim [COLOR_POSITIVE_TEXT]{TXT_KEY_IMPROVEMENT_GOODY_HUT}[ENDCOLOR].</Text>
+			<Text>Gain 0.1 XP when revealing a tile.[NEWLINE]This value is multiplied by 12 for Natural Wonders, 4 for {TXT_KEY_IMPROVEMENT_GOODY_HUT}, and 3 for Resources.[NEWLINE]Can claim [COLOR_POSITIVE_TEXT]{TXT_KEY_IMPROVEMENT_GOODY_HUT}[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_OCEAN_EXPLORER">
@@ -894,7 +915,7 @@
 			<Text>Flag Bearer</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_FLAG_BEARER_HELP">
-			<Text>Gain 3 [ICON_GOLD] Gold, [ICON_RESEARCH] Science, and [ICON_CULTURE] Culture in the nearest City when revealing tiles.[NEWLINE]This value is multiplied by 12 for Natural Wonders, 4 for {TXT_KEY_IMPROVEMENT_GOODY_HUT}, and 3 for Resources.</Text>
+			<Text>Gain 2 [ICON_GOLD] Gold, [ICON_RESEARCH] Science, and [ICON_CULTURE] Culture in the nearest City when revealing tiles.[NEWLINE]This value is multiplied by 12 for Natural Wonders, 4 for {TXT_KEY_IMPROVEMENT_GOODY_HUT}, and 3 for Resources.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_ASSIZE_OF_ARMS">
@@ -981,6 +1002,342 @@
 			<Text>Gain 1000% of the [ICON_STRENGTH] Combat Strength of defeated Enemy Units as [ICON_GOLDEN_AGE] Golden Age Points.</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_PROMOTION_HARDENED">
+			<Text>Hardened</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_HARDENED_HELP">
+			<Text>-3 Damage from all sources.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_HARBOR_DEFENSE">
+			<Text>Harbor Defense</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_HARBOR_DEFENSE_HELP">
+			<Text>+5% [ICON_STRENGTH] City Strength to Cities of the same Team [COLOR_POSITIVE_TEXT]on or adjacent to[ENDCOLOR] this Unit.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_GARLAND_MINE">
+			<Text>Garland Mine</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_GARLAND_MINE_HELP">
+			<Text>[ICON_RAZING] Pillaging costs no [ICON_MOVES] Movement.[NEWLINE]Deal [COLOR_POSITIVE_TEXT]15 Damage[ENDCOLOR] to all adjacent Enemy Units when [ICON_RAZING] Pillaging Improvements.[NEWLINE]This Damage ignores damage reduction, but does not affect Units in [COLOR_NEGATIVE_TEXT]Cities[ENDCOLOR] and [COLOR_NEGATIVE_TEXT]Fortifications[ENDCOLOR].</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_DESERT_RAIDER">
+			<Text>Desert Raider</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_DESERT_RAIDER_HELP">
+			<Text>Double [ICON_MOVES] Movement in [COLOR_POSITIVE_TEXT]Desert[ENDCOLOR].[NEWLINE]+25% [ICON_STRENGTH] Combat Strength in [COLOR_POSITIVE_TEXT]Desert[ENDCOLOR].</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_SHOCK_CAVALRY">
+			<Text>Shock Cavalry</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_SHOCK_CAVALRY_HELP">
+			<Text>+20% [ICON_STRENGTH] Combat Strength when attacking into or defending in [COLOR_POSITIVE_TEXT]Open Terrain[ENDCOLOR].</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_FRONTIERSMAN">
+			<Text>Frontiersman</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_FRONTIERSMAN_HELP">
+			<Text>+40% [ICON_STRENGTH] Combat Strength on [COLOR_POSITIVE_TEXT]Border[ENDCOLOR] tiles.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_SCHUTZENKONIG">
+			<Text>Schützenkönig</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_SCHUTZENKONIG_HELP">
+			<Text>+2% [ICON_STRENGTH] Combat Strength for each non-Enemy [ICON_RES_MARRIAGE] Married City-State (max +30%).</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_BRUTE_STRENGTH">
+			<Text>Brute Strength</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_BRUTE_STRENGTH_HELP">
+			<Text>+40% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Barbarians[ENDCOLOR].</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_LEGACY">
+			<Text>Legacy</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_LEGACY_HELP">
+			<Text>+5% [ICON_STRENGTH] Combat Strength per Level beyond 1.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_RIACHUELO">
+			<Text>Riachuelo</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_RIACHUELO_HELP">
+			<Text>Gain 100% of the [ICON_STRENGTH] Combat Strength of defeated Enemy Units as [ICON_GOLDEN_AGE] Golden Age Points.[NEWLINE]Immune to the [COLOR_POSITIVE_TEXT]Boarded[ENDCOLOR] status.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_GREEK_FIRE">
+			<Text>Greek Fire</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_GREEK_FIRE_HELP">
+			<Text>Inflict the [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_ON_FIRE}[ENDCOLOR] status on Enemy Units when attacking, increasing their Damage received from Combat by 20% for 1 turn.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_ELISHAS_GUILE">
+			<Text>Elisha's Guile</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_ELISHAS_GUILE_HELP">
+			<Text>Can embark onto [COLOR_POSITIVE_TEXT]Water Tiles[ENDCOLOR].[NEWLINE]+1 [ICON_VISION] Sight and Embarked Sight.[NEWLINE]Withdraw from Melee Attack if there is an open tile behind this Unit, once per turn.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_AT_THE_GATES">
+			<Text>At the Gates!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_AT_THE_GATES_HELP">
+			<Text>+20 Hit Points.[NEWLINE]Can cross [COLOR_POSITIVE_TEXT]Mountains[ENDCOLOR].</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_REND">
+			<Text>Rend</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_REND_HELP">
+			<Text>Deal 5 Damage to all adjacent Enemy Units when moving into a tile.[NEWLINE]This Damage ignores damage reduction, but does not affect Units in [COLOR_NEGATIVE_TEXT]Cities[ENDCOLOR] and [COLOR_NEGATIVE_TEXT]Fortifications[ENDCOLOR].[NEWLINE][COLOR_NEGATIVE_TEXT]Lost on Upgrade.[ENDCOLOR]</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_CARNYX">
+			<Text>Carnyx</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_CARNYX_HELP">
+			<Text>+10% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Melee[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Archery Units[ENDCOLOR].</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_KOWTOW">
+			<Text>Kowtow</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_KOWTOW_HELP">
+			<Text>Gain 1 [ICON_INFLUENCE] Influence with the nearest [ICON_CITY_STATE] City-State for each XP gained through Combat.[NEWLINE][COLOR_NEGATIVE_TEXT]Lost on Upgrade.[ENDCOLOR]</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_VUR_HA">
+			<Text>Vur Ha!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_VUR_HA_HELP">
+			<Text>Attacking does not cost [ICON_MOVES] Movement.[NEWLINE]+25% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Units above 50% HP[ENDCOLOR].</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_RULE_BRITANNIA">
+			<Text>Rule Britannia</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_RULE_BRITANNIA_HELP">
+			<Text>Ignore Terrain Cost in [COLOR_POSITIVE_TEXT]Hill[ENDCOLOR].[NEWLINE]+2 [ICON_VISION] Embarked Sight.[NEWLINE]+100% [ICON_STRENGTH] Combat Strength when defending while Embarked.[NEWLINE][COLOR_NEGATIVE_TEXT]Lost on Upgrade.[ENDCOLOR]</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_AGINCOURT">
+			<Text>Agincourt</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_AGINCOURT_HELP">
+			<Text>+1 [ICON_RANGE_STRENGTH] Range if the Unit started the turn with full HP.[NEWLINE][COLOR_NEGATIVE_TEXT]Lost on Upgrade.[ENDCOLOR]</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_MAIM">
+			<Text>Maim</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_MAIM_HELP">
+			<Text>Inflict the [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_MAIMED}[ENDCOLOR] status on Enemy Land Units when attacking, reducing their [ICON_MOVES] Movement by -1 for 1 Turn.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_HOOKED_WEAPON">
+			<Text>Hooked Weapon</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_HOOKED_WEAPON_HELP">
+			<Text>+25% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Mounted Units[ENDCOLOR].[NEWLINE][COLOR_NEGATIVE_TEXT]Lost on Upgrade.[ENDCOLOR]</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_ZEMENE_MESAFINT">
+			<Text>Zemene Mesafint</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_ZEMENE_MESAFINT_HELP">
+			<Text>+20% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Units from [ICON_HAPPINESS_3] Unhappy Empires[ENDCOLOR].</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_MINENWERFER">
+			<Text>Minenwerfer</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_MINENWERFER_HELP">
+			<Text>+50% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Fortified Units[ENDCOLOR].[NEWLINE]Defeating an Enemy Unit [ICON_RAZING] Pillages any [COLOR_POSITIVE_TEXT]Fortifications[ENDCOLOR] on its tile.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_TROMMELFEUER">
+			<Text>Trommelfeuer</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_TROMMELFEUER_HELP">
+			<Text>+3% [ICON_STRENGTH] Combat Strength when attacking for every Attack done by Units with this Promotion in the last turn (max +30%).</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_PHILHELLENISM">
+			<Text>Philhellenism</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_PHILHELLENISM_HELP">
+			<Text>+5% [ICON_STRENGTH] Combat Strength for every [ICON_CITY_STATE] City-State Ally (max +25%).</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_BELLUM_ALET">
+			<Text>Bellum Alet</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_BELLUM_ALET_HELP">
+			<Text>Heal all adjacent Units of the same Team by 15 HP when [ICON_RAZING] Pillaging Improvements.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_SENTINEL_OF_THE_SUN">
+			<Text>Sentinel of the Sun</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_SENTINEL_OF_THE_SUN_HELP">
+			<Text>+25% [ICON_STRENGTH] Combat Strength in [COLOR_POSITIVE_TEXT]Hill[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Mountain[ENDCOLOR].[NEWLINE]+15 Hit Points.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_EPIC">
+			<Text>Epic</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_EPIC_HELP">
+			<Text>Gain 5 XP when defeating an Enemy Unit.[NEWLINE][COLOR_NEGATIVE_TEXT]Lost on Upgrade.[ENDCOLOR]</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_DHANURVIDYA">
+			<Text>Dhanurvidya</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_DHANURVIDYA_HELP">
+			<Text>Gain 0.5 [ICON_CULTURE] Culture and [ICON_PEACE] Faith for each XP gained through Combat.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_CETBANG">
+			<Text>Cetbang</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_CETBANG_HELP">
+			<Text>Deal 10 Damage to Enemy Units ending their turn adjacent to this Unit.[NEWLINE]This Damage ignores damage reduction.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_TAIKAN_KYOHO">
+			<Text>Taikan Kyoho</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_TAIKAN_KYOHO_HELP">
+			<Text>Gain 400% of the [ICON_STRENGTH] Combat Strength of defeated Enemy Units as [ICON_GREAT_ADMIRAL] Great Admiral Points.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_DECK_SPIKES">
+			<Text>Deck Spikes</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_DECK_SPIKES_HELP">
+			<Text>+25% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Naval Melee Units[ENDCOLOR].</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_LOST_CODEX">
+			<Text>Lost Codex</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_LOST_CODEX_HELP">
+			<Text>Gain 5 [ICON_RESEARCH] Science and [ICON_CULTURE] Culture when entering {TXT_KEY_IMPROVEMENT_GOODY_HUT}.[NEWLINE]+25% rewards from {TXT_KEY_IMPROVEMENT_GOODY_HUT}.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_MINGGHAN">
+			<Text>Mingghan</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_MINGGHAN_HELP">
+			<Text>Gain 3 XP when [ICON_RAZING] Pillaging Improvements.[NEWLINE]+20% base [ICON_STRENGTH] Combat Strength in tiles with Pillaged Improvements.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_RAZZIA">
+			<Text>Razzia</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_RAZZIA_HELP">
+			<Text>Gain 200% of the [ICON_STRENGTH] Combat Strength of defeated Enemy Units as [ICON_FOOD] Food and [ICON_PRODUCTION] Production in this unit's origin City.[NEWLINE]Gain 100 [ICON_FOOD] Food and [ICON_PRODUCTION] Production in this unit's origin City when [ICON_RAZING] Pillaging Improvements.[NEWLINE]Gain 200 [ICON_FOOD] Food and [ICON_PRODUCTION] Production in this unit's origin City when plundering [ICON_INTERNATIONAL_TRADE] Trade Routes.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_BURGHER">
+			<Text>Burgher</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_BURGHER_HELP">
+			<Text>+33% [ICON_STRENGTH] Combat Strength within 2 tiles of [COLOR_POSITIVE_TEXT]Friendly Cities[ENDCOLOR].</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_GOEDENDAG">
+			<Text>Goedendag!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_GOEDENDAG_HELP">
+			<Text>+10% [ICON_STRENGTH] Combat Strength to all [COLOR_POSITIVE_TEXT]Adjacent Owned Land Units[ENDCOLOR].</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_UNWIELDY">
+			<Text>Unwieldy</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_UNWIELDY_HELP">
+			<Text>[COLOR_NEGATIVE_TEXT]Cannot Heal[ENDCOLOR].[NEWLINE]-50% [ICON_STRENGTH] Combat Strength when attacking [COLOR_NEGATIVE_TEXT]Land Units[ENDCOLOR].[NEWLINE][COLOR_POSITIVE_TEXT]Lost on Upgrade.[ENDCOLOR]</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_SAFAVI_AGITATOR">
+			<Text>Safavi Agitator</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_SAFAVI_AGITATOR_HELP">
+			<Text>Gain 20 [ICON_GOLD] Gold, 10 [ICON_PEACE] Faith, and 30 [ICON_GOLDEN_AGE] Golden Age Points when [ICON_RAZING] Pillaging Improvements, scaling with Era.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_FIGHTING_COCK">
+			<Text>Fighting Cock</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_FIGHTING_COCK_HELP">
+			<Text>+1% [ICON_STRENGTH] Combat Strength for every 3 HP below maximum health.[NEWLINE]Eliminate combat penalties for attacking or defending against Melee Attacks while [ICON_POSITIVE_TEXT]Wounded[ENDCOLOR].</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_LEGATUS_LEGIONIS">
+			<Text>Legatus Legionis</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_LEGATUS_LEGIONIS_HELP">
+			<Text>+1 [ICON_MOVES] Movement if the Unit started the turn affected by a [ICON_GREAT_GENERAL] Leadership aura.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_PRAEFECTUS_CASTRORUM">
+			<Text>Praefectus Castrorum</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_PRAEFECTUS_CASTRORUM_HELP">
+			<Text>+60% [ICON_WORKER] Work Rate if the Unit started the turn affected by a [ICON_GREAT_GENERAL] Leadership aura.[NEWLINE][COLOR_NEGATIVE_TEXT]Lost on Upgrade.[ENDCOLOR]</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_GRAPESHOT">
+			<Text>Grapeshot</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_GRAPESHOT_HELP">
+			<Text>+33% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Melee[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Gunpowder Units[ENDCOLOR].</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_BIG_HORSE_DANCE">
+			<Text>Big Horse Dance</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_BIG_HORSE_DANCE_HELP">
+			<Text>+20% [ICON_STRENGTH] Combat Strength when [COLOR_POSITIVE_TEXT]Fortified[ENDCOLOR].[NEWLINE]+1% [ICON_STRENGTH] Combat Strength for every 3 HP below maximum health.[NEWLINE]Eliminate combat penalties for attacking or defending against Melee Attacks while [ICON_POSITIVE_TEXT]Wounded[ENDCOLOR].</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_CROUCHING_TIGER">
+			<Text>Crouching Tiger</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_CROUCHING_TIGER_HELP">
+			<Text>Deal 15 Damage to all Enemy Units on the target tile when attacking if the Unit has not moved this turn.[NEWLINE]This Damage ignores damage reduction.[NEWLINE][COLOR_NEGATIVE_TEXT]Lost on Upgrade.[ENDCOLOR]</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_FATHER_OF_THE_HORSE">
+			<Text>Father of the Horse</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_FATHER_OF_THE_HORSE_HELP">
+			<Text>+15% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Mounted Units[ENDCOLOR].</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_SANTA_MARIA">
+			<Text>Santa Maria</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_SANTA_MARIA_HELP">
+			<Text>Gain 100% of the [ICON_STRENGTH] Combat Strength of defeated Enemy Units as [ICON_GREAT_ADMIRAL] Great Admiral Points.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_INVINCIBLE">
+			<Text>Invincible</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_INVINCIBLE_HELP">
+			<Text>+6 base [ICON_STRENGTH] Combat Strength if the Unit started the turn with full HP.</Text>
+		</Row>
+
 		<Row Tag="TXT_KEY_PROMOTION_RIGHTEOUSNESS">
 			<Text>Righteousness</Text>
 		</Row>
@@ -1013,7 +1370,7 @@
 			<Text>Sincerity</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SINCERITY_HELP">
-			<Text>+50% Experience gained from combat.[NEWLINE]+1% [ICON_STRENGTH] Combat Strength for every 3 HP below maximum health.[NEWLINE]Eliminate combat penalties for attacking or defending against Melee Attacks while [ICON_POSITIVE_TEXT]Wounded[ENDCOLOR].[NEWLINE]Heal 10 HP after defeating an Enemy Unit.</Text>
+			<Text>+50% Experience gained from Combat.[NEWLINE]+1% [ICON_STRENGTH] Combat Strength for every 3 HP below maximum health.[NEWLINE]Eliminate combat penalties for attacking or defending against Melee Attacks while [ICON_POSITIVE_TEXT]Wounded[ENDCOLOR].[NEWLINE]Heal 10 HP after defeating an Enemy Unit.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_HONOR">
@@ -1055,6 +1412,20 @@
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_DAZED_HELP">
 			<Text>-15% [ICON_STRENGTH] Combat Strength.[NEWLINE]Lasts for 5 turns.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_ON_FIRE">
+			<Text>On Fire</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_ON_FIRE_HELP">
+			<Text>+20% Damage received from Combat.[NEWLINE]Lasts for 1 turn.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_MAIMED">
+			<Text>Maimed</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_MAIMED_HELP">
+			<Text>-1 [ICON_MOVES] Movement.[NEWLINE]Lasts for 1 turn.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_PRISONERS_OF_WAR">
@@ -1118,378 +1489,6 @@
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_JUGGERNAUT_HELP">
 			<Text>+25 Hit Points.</Text>
-		</Row>
-
-		<!-- 4UC -->
-		<Row Tag="TXT_KEY_PROMOTION_HARDENED">
-			<Text>Hardened</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_HARDENED_HELP">
-			<Text>Reduces Damage taken by -3.</Text>
-		</Row>
-		
-		<Row Tag="TXT_KEY_PROMOTION_HARBOR_DEFENSE">
-			<Text>Hardened</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_HARBOR_DEFENSE_HELP">
-			<Text>+5% [ICON_STRENGTH] City Defense to owned Cities within 1 tile.</Text>
-		</Row>
-		
-		<Row Tag="TXT_KEY_PROMOTION_GARLAND_MINE">
-			<Text>Garland Mine</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_GARLAND_MINE_HELP">
-			<Text>[ICON_RAZING] Pillaging costs no [ICON_MOVES] Movement.[NEWLINE]Deal [COLOR_POSITIVE_TEXT]15 Damage[ENDCOLOR] to adjacent Enemy Units on [ICON_RAZING] Pillaging Improvements.[NEWLINE]This Damage ignores damage reduction, but does not affect Units in [COLOR_NEGATIVE_TEXT]Cities[ENDCOLOR] and [COLOR_NEGATIVE_TEXT]Fortifications[ENDCOLOR].</Text>
-		</Row>
-		
-		<Row Tag="TXT_KEY_PROMOTION_DESERT_RAIDER">
-			<Text>Desert Raider</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_DESERT_RAIDER_HELP">
-			<Text>Double [ICON_MOVES] Movement in Desert.[NEWLINE]+25% [ICON_STRENGTH] Combat Strength in Desert.</Text>
-		</Row>
-		
-		<Row Tag="TXT_KEY_PROMOTION_SHOCK_CAVALRY">
-			<Text>Shock Cavalry</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_SHOCK_CAVALRY_HELP">
-			<Text>+20% [ICON_STRENGTH] Combat Strength when attacking into or defending in [COLOR_POSITIVE_TEXT]Open Terrain[ENDCOLOR].</Text>
-		</Row>
-		
-		<Row Tag="TXT_KEY_PROMOTION_FRONTIERSMAN">
-			<Text>Frontiersman</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_FRONTIERSMAN_HELP">
-			<Text>+40% [ICON_STRENGTH] Combat Strength on tiles containing a [COLOR_POSITIVE_TEXT]Border[ENDCOLOR] between Empires.</Text>
-		</Row>
-		
-		<Row Tag="TXT_KEY_PROMOTION_SCHUTZENKONIG">
-			<Text>Schützenkönig</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_SCHUTZENKONIG_HELP">
-			<Text>+2% [ICON_STRENGTH] Combat Strength for each non-enemy [ICON_RES_MARRIAGE] Married City-State (max 30%).</Text>
-		</Row>
-		
-		<Row Tag="TXT_KEY_PROMOTION_BRUTE_STRENGTH">
-			<Text>Brute Strength</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_BRUTE_STRENGTH_HELP">
-			<Text>+40% [ICON_STRENGTH] Combath Strength VS [COLOR_POSITIVE_TEXT]Barbarians[ENDCOLOR].</Text>
-		</Row>
-		
-		<Row Tag="TXT_KEY_PROMOTION_LEGACY">
-			<Text>Legacy</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_LEGACY_HELP">
-			<Text>+5% [ICON_STRENGTH] Combat Strength per Level.</Text>
-		</Row>
-		
-		<Row Tag="TXT_KEY_PROMOTION_RIACHUELO">
-			<Text>Riachuelo</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_RIACHUELO_HELP">
-			<Text>Gain 100% of the [ICON_STRENGTH] Combat Strength of defeated Enemy Units as [ICON_GOLDEN_AGE] Golden Age Points.[NEWLINE]Immune to the [COLOR_POSITIVE_TEXT]Boarded[ENDCOLOR] status.</Text>
-		</Row>
-		
-		<Row Tag="TXT_KEY_PROMOTION_GREEK_FIRE">
-			<Text>Greek Fire</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_GREEK_FIRE_HELP">
-			<Text>Inflict the [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_ON_FIRE}[ENDCOLOR] status on Enemy Units when attacking, increasing their damage taken from combat by 20% for 1 Turn.</Text>
-		</Row>
-		
-		<Row Tag="TXT_KEY_PROMOTION_ON_FIRE">
-			<Text>On Fire</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_ON_FIRE_HELP">
-			<Text>+20% Damage taken.[NEWLINE]Lasts for 1 turn.</Text>
-		</Row>
-		
-		<Row Tag="TXT_KEY_PROMOTION_ELISHAS_GUILE">
-			<Text>Elisha's Guile</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_ELISHAS_GUILE_HELP">
-			<Text>Can Embark.[NEWLINE]+1 [ICON_VISION] Sight and Embarked Sight.[NEWLINE]Withdraw from Melee Attack if there is an open tile behind this Unit, once per turn.</Text>
-		</Row>
-		
-		<Row Tag="TXT_KEY_PROMOTION_AT_THE_GATES">
-			<Text>At the Gates!</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_AT_THE_GATES_HELP">
-			<Text>+20 [COLOR_POSITIVE_TEXT]20[ENDCOLOR] max HP.[NEWLINE]Can cross Mountains.</Text>
-		</Row>
-		
-		<Row Tag="TXT_KEY_PROMOTION_REND">
-			<Text>Rend</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_REND_HELP">
-			<Text>Deal 5 Damage to all adjacent Enemy Units after entering a tile.</Text>
-		</Row>
-		
-		<Row Tag="TXT_KEY_PROMOTION_CARNYX">
-			<Text>Carnyx</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_CARNYX_HELP">
-			<Text>+10% [ICON_RANGE_STRENGTH] Ranged Combat Strength VS [COLOR_POSITIVE_TEXT]Archer[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Melee Units[ENDCOLOR].</Text>
-		</Row>
-		
-		<Row Tag="TXT_KEY_PROMOTION_KOWTOW">
-			<Text>Kowtow</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_KOWTOW_HELP">
-			<Text>100% of XP earned from combat is gained as [ICON_INFLUENCE] Influence with the nearest [ICON_CITY_STATE] City-State.[NEWLINE][COLOR_NEGATIVE_TEXT]Lost on Upgrade.[ENDCOLOR]</Text>
-		</Row>
-		
-		<Row Tag="TXT_KEY_PROMOTION_VUR_HA">
-			<Text>Vur Ha!</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_VUR_HA_HELP">
-			<Text>No [ICON_MOVES] Movement cost to [ICON_WAR] Attack.[NEWLINE]+25% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Units above 50% HP[ENDCOLOR].</Text>
-		</Row>
-		
-		<Row Tag="TXT_KEY_PROMOTION_RULE_BRITANNIA">
-			<Text>Rule Britannia</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_RULE_BRITANNIA_HELP">
-			<Text>Ignore Terrain Cost in [COLOR_POSITIVE_TEXT]Hill[ENDCOLOR].[NEWLINE]+2 [ICON_VISION] Embarked Sight and +50% [ICON_STRENGTH] Defense when Embarked.</Text>
-		</Row>
-		
-		<Row Tag="TXT_KEY_PROMOTION_SUN_NEVER_SETS">
-			<Text>Sun Never Sets</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_SUN_NEVER_SETS_HELP">
-			<Text>+1 [ICON_MOVES] Movement.[NEWLINE]+1% [ICON_STRENGTH] Combat Strength for every tile away from the [ICON_CAPITAL] Capital (max 30%).</Text>
-		</Row>
-		
-		<Row Tag="TXT_KEY_PROMOTION_AGINCOURT">
-			<Text>Agincourt</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_AGINCOURT_HELP">
-			<Text>+1 [ICON_RANGE_STRENGTH] Range if the Unit started the turn with full HP.</Text>
-		</Row>
-		
-		<Row Tag="TXT_KEY_PROMOTION_MAIM">
-			<Text>Maim</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_MAIM_HELP">
-			<Text>Inflict the [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_MAIMED}[ENDCOLOR] status on Enemy Units when attacking, reducing their [ICON_MOVES] Movement by -1 for 1 Turn.</Text>
-		</Row>
-		
-		<Row Tag="TXT_KEY_PROMOTION_MAIMED">
-			<Text>Maimed</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_MAIMED_HELP">
-			<Text>-1 [ICON_MOVES] Movement.[NEWLINE]Lasts 1 turn.</Text>
-		</Row>
-		
-		<Row Tag="TXT_KEY_PROMOTION_HOOKED_WEAPON">
-			<Text>Hooked Weapon</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_HOOKED_WEAPON_HELP">
-			<Text>+25% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Mounted Units[ENDCOLOR].[NEWLINE][COLOR_NEGATIVE_TEXT]Lost on Upgrade.[ENDCOLOR]</Text>
-		</Row>
-		
-		<Row Tag="TXT_KEY_PROMOTION_ZEMENE_MESAFINT">
-			<Text>Zemene Mesafint</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_ZEMENE_MESAFINT_HELP">
-			<Text>+20% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Units from [ICON_HAPPINESS_3] Unhappy Empires[ENDCOLOR].</Text>
-		</Row>
-		
-		<Row Tag="TXT_KEY_PROMOTION_MINENWERFER">
-			<Text>Minenwerfer</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_MINENWERFER_HELP">
-			<Text>+50% [ICON_STRENGTH] Combat Strength when attacking [COLOR_NEGATIVE_TEXT]Fortified Units[ENDCOLOR].[NEWLINE]Killing an Enemy Unit [ICON_RAZING] Pillages any [COLOR_POSITIVE_TEXT]Fortifications[ENDCOLOR] on the tile.</Text>
-		</Row>
-		
-		<Row Tag="TXT_KEY_PROMOTION_TROMMELFEUER">
-			<Text>Trommelfeuer</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_TROMMELFEUER_HELP">
-			<Text>+3% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking for every Unit with this Promotion that attacked last turn (max 30%).</Text>
-		</Row>
-		
-		<Row Tag="TXT_KEY_PROMOTION_PROXENOS">
-			<Text>Proxenos</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_PROXENOS_HELP">
-			<Text>Permanently adds +2 [ICON_GOLD] Gold to your [COLOR_MAGENTA]Parthenon[ENDCOLOR] National Wonder when completing a [ICON_INFLUENCE] Diplomatic Mission.</Text>
-		</Row>
-		
-		<Row Tag="TXT_KEY_PROMOTION_PHILHELLENISM">
-			<Text>Philhellenism</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_PHILHELLENISM_HELP">
-			<Text>+5% [ICON_STRENGTH] Combat Strength for every [ICON_CITY_STATE] City-State Ally (max 25%).</Text>
-		</Row>
-			
-		<Row Tag="TXT_KEY_PROMOTION_BELLUM_ALET">
-			<Text>Bellum Alet</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_BELLUM_ALET_HELP">
-			<Text>Heal all adjacent [COLOR_POSITIVE_TEXT]Friendly Units[ENDCOLOR] by 15 HP when [ICON_RAZING] Pillaging Improvements.</Text>
-		</Row>
-		
-		<Row Tag="TXT_KEY_PROMOTION_SENTINEL_OF_THE_SUN">
-			<Text>Sentinel of the Sun</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_SENTINEL_OF_THE_SUN_HELP">
-			<Text>+25% [ICON_STRENGTH] Combat Strength in [COLOR_POSITIVE_TEXT]Hill[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Mountain[ENDCOLOR].[NEWLINE]+15 max HP.</Text>
-		</Row>
-		
-		<Row Tag="TXT_KEY_PROMOTION_EPIC">
-			<Text>Epic</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_EPIC_HELP">
-			<Text>Gain 5 XP when killing an Enemy Unit.[NEWLINE][COLOR_NEGATIVE_TEXT]Lost on Upgrade.[ENDCOLOR]</Text>
-		</Row>
-		
-		<Row Tag="TXT_KEY_PROMOTION_DHANURVIDYA">
-			<Text>Dhanurvidya</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_DHANURVIDYA_HELP">
-			<Text>50% of XP earned from combat is gained as [ICON_CULTURE] Culture and [ICON_PEACE] Faith.</Text>
-		</Row>
-		
-		<Row Tag="TXT_KEY_PROMOTION_CETBANG">
-			<Text>Cetbang</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_CETBANG_HELP">
-			<Text>Deal 10 Damage to all adjacent Enemy Units when starting its turn.</Text>
-		</Row>
-		
-		<Row Tag="TXT_KEY_PROMOTION_TAIKAN_KYOHO">
-			<Text>Taikan Kyoho</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_TAIKAN_KYOHO_HELP">
-			<Text>Gain 400% of the [ICON_STRENGTH] Combat Strength of defeated Enemy Units as [ICON_GREAT_ADMIRAL] Great Admiral Points.</Text>
-		</Row>
-		
-		<Row Tag="TXT_KEY_PROMOTION_DECK_SPIKES">
-			<Text>Deck Spikes</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_DECK_SPIKES_HELP">
-			<Text>+25% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Naval Melee Units[ENDCOLOR].</Text>
-		</Row>
-		
-		<Row Tag="TXT_KEY_PROMOTION_LOST_CODEX">
-			<Text>Lost Codex</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_LOST_CODEX_HELP">
-			<Text>When collecting Ancient Ruins, gain 5 [ICON_RESEARCH] Science, [ICON_CULTURE] Culture, and +25% Rewards.</Text>
-		</Row>
-		
-		<Row Tag="TXT_KEY_PROMOTION_MINGGHAN">
-			<Text>Mingghan</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_MINGGHAN_HELP">
-			<Text>Gain 3 XP when [ICON_RAZING] Pillaging Improvements.[NEWLINE]+20% [ICON_STRENGTH] Combat Strength in tiles with Pillaged Improvements.</Text>
-		</Row>
-		
-		<Row Tag="TXT_KEY_PROMOTION_RAZZIA">
-			<Text>Razzia</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_RAZZIA_HELP">
-			<Text>Gain 200% of the [ICON_STRENGTH] Combat Strength of defeated Enemy Units as [ICON_FOOD] Food and [ICON_PRODUCTION] Production in this unit's origin City.[NEWLINE]Gain 100 [ICON_FOOD] Food and [ICON_PRODUCTION] Production when [ICON_RAZING] Pillaging Improvements.[NEWLINE]Gain 200 [ICON_FOOD] Food and [ICON_PRODUCTION] Production when plundering [ICON_INTERNATIONAL_TRADE] Trade Routes.</Text>
-		</Row>
-		
-		<Row Tag="TXT_KEY_PROMOTION_BURGHER">
-			<Text>Burgher</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_BURGHER_HELP">
-			<Text>+33% [ICON_STRENGTH] Combat Strength within 2 tiles of [COLOR_POSITIVE_TEXT]Friendly City[ENDCOLOR].</Text>
-		</Row>
-		
-		<Row Tag="TXT_KEY_PROMOTION_GOEDENDAG">
-			<Text>Goedendag!</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_GOEDENDAG_HELP">
-			<Text>+10% [ICON_STRENGTH] Combat Strength to all adjacent [COLOR_POSITIVE_TEXT]Friendly Units[ENDCOLOR].</Text>
-		</Row>
-		
-		<Row Tag="TXT_KEY_PROMOTION_UNWIELDY">
-			<Text>Unwieldy</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_UNWIELDY_HELP">
-			<Text>[COLOR_NEGATIVE_TEXT]Cannot Heal[ENDCOLOR].[NEWLINE]-50% [ICON_RANGE_ATTACK] Ranged Combat Strength when attacking [COLOR_NEGATIVE_TEXT]Land Units[ENDCOLOR].[NEWLINE][COLOR_POSITIVE_TEXT]Lost on Upgrade.[ENDCOLOR]</Text>
-		</Row>
-		
-		<Row Tag="TXT_KEY_PROMOTION_SAFAVI_AGITATOR">
-			<Text>Safavi Agitator</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_SAFAVI_AGITATOR_HELP">
-			<Text>Gain 20 [ICON_GOLD] Gold, 10 [ICON_PEACE] Faith, and [ICON_GOLDEN_AGE] Golden Age Points when [ICON_RAZING] Pillaging Improvements, scaling with Era.</Text>
-		</Row>
-		
-		<Row Tag="TXT_KEY_PROMOTION_FIGHTING_COCK">
-			<Text>Fighting Cock</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_FIGHTING_COCK_HELP">
-			<Text>+1% [ICON_STRENGTH] Combat Strength for every 3 HP below maximum health.[NEWLINE]Eliminate combat penalties for attacking or defending against Melee Attacks while [ICON_POSITIVE_TEXT]Wounded[ENDCOLOR].</Text>
-		</Row>
-		
-		<Row Tag="TXT_KEY_PROMOTION_AGE_OF_DISCOVERY">
-			<Text>Age of Discovery</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_AGE_OF_DISCOVERY_HELP">
-			<Text>Gain [ICON_GOLD] Gold and XP when revealing tiles.</Text>
-		</Row>
-		
-		<Row Tag="TXT_KEY_PROMOTION_LEGATUS_LEGIONIS">
-			<Text>Legatus Legionis</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_LEGATUS_LEGIONIS_HELP">
-			<Text>+1 [ICON_MOVES] Movement if a [ICON_GREAT_GENERAL] Great General is within 2 tiles.</Text>
-		</Row>
-		
-		<Row Tag="TXT_KEY_PROMOTION_PRAEFECTUS_CASTRORUM">
-			<Text>Praefectus Castrorum</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_PRAEFECTUS_CASTRORUM_HELP">
-			<Text>+60% [ICON_WORKER] Work Rate if a [ICON_GREAT_GENERAL] Great General is within 2 tiles.[NEWLINE][COLOR_NEGATIVE_TEXT]Lost on Upgrade.[ENDCOLOR]</Text>
-		</Row>
-		
-		<Row Tag="TXT_KEY_PROMOTION_GRAPESHOT">
-			<Text>Grapeshot</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_GRAPESHOT_HELP">
-			<Text>+33% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking [COLOR_POSITIVE_TEXT]Melee[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Gunpowder Units[ENDCOLOR].</Text>
-		</Row>
-		
-		<Row Tag="TXT_KEY_PROMOTION_BIG_HORSE_DANCE">
-			<Text>Big Horse Dance</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_BIG_HORSE_DANCE_HELP">
-			<Text>+20% [ICON_STRENGTH] Combat Strength when [COLOR_POSITIVE_TEXT]Fortified[ENDCOLOR].[NEWLINE]+1% [ICON_STRENGTH] Combat Strength for every 3 HP below maximum health.[NEWLINE]Eliminate combat penalties for attacking or defending against Melee Attacks while [ICON_POSITIVE_TEXT]Wounded[ENDCOLOR].</Text>
-		</Row>
-		
-		<Row Tag="TXT_KEY_PROMOTION_CROUCHING_TIGER">
-			<Text>Crouching Tiger</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_CROUCHING_TIGER_HELP">
-			<Text>15 bonus Damage when attacking if the Unit has not moved this turn.[NEWLINE][COLOR_NEGATIVE_TEXT]Lost on Upgrade.[ENDCOLOR]</Text>
-		</Row>
-		
-		<Row Tag="TXT_KEY_PROMOTION_FATHER_OF_THE_HORSE">
-			<Text>Father of the Horse</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_FATHER_OF_THE_HORSE_HELP">
-			<Text>+15% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Mounted Units[ENDCOLOR].</Text>
-		</Row>
-		
-		<Row Tag="TXT_KEY_PROMOTION_SANTA_MARIA">
-			<Text>Santa Maria</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_SANTA_MARIA_HELP">
-			<Text>Gain 100% of the [ICON_STRENGTH] Combat Strength of defeated Enemy Units as [ICON_GREAT_ADMIRAL] Great Admiral Points.</Text>
-		</Row>
-		
-		<Row Tag="TXT_KEY_PROMOTION_INVINCIBLE">
-			<Text>Invicible</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_INVINCIBLE_HELP">
-			<Text>+6 [ICON_STRENGTH] Combat Strength if the Unit started the turn with full HP.</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

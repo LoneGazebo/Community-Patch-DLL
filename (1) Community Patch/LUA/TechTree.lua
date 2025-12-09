@@ -58,6 +58,17 @@ local maxTechNameLength = 22 - Locale.Length(L("TXT_KEY_TURNS"));
 
 local GAMEOPTION_NO_SCIENCE = Game.IsOption(GameOptionTypes.GAMEOPTION_NO_SCIENCE);
 
+local tooltipInstance = {};
+TTManager:GetTypeControlTable("TechTreeTooltip", tooltipInstance);
+
+--- Shorthand for setting a custom tooltip and adjusting its size
+--- @param tooltip TooltipInstance
+--- @param strTooltip string
+local function SetTooltip(tooltip, strTooltip)
+	tooltip.TechTreeTooltipText:SetText(strTooltip);
+	tooltip.TechTreeTooltipGrid:DoAutoSize();
+end
+
 -------------------------------------------------
 -- Do initial setup stuff here
 -------------------------------------------------
@@ -299,7 +310,7 @@ function InitialSetup()
 	end
 
 	-- add the instances of the tech panels
-	for tech in GameInfo.Technologies() do
+	for _, tech in GameInfoCache("Technologies") do
 		AddTechButton(tech);
 	end
 
@@ -311,8 +322,8 @@ end
 
 function AddEraPanels()
 	-- find the range of columns that each era takes
-	for tech in GameInfo.Technologies() do
-		local eraID = GameInfo.Eras[tech.Era].ID;
+	for _, tech in GameInfoCache("Technologies") do
+		local eraID = GameInfoTypes[tech.Era];
 		if not eraColumns[eraID] then
 			eraColumns[eraID] = {minGridX = tech.GridX, maxGridX = tech.GridX, researched = false};
 		else
@@ -326,7 +337,7 @@ function AddEraPanels()
 	end
 
 	-- add the era panels
-	for era in GameInfo.Eras() do
+	for _, era in GameInfoCache("Eras") do
 		local thisEraBlockInstance = g_EraManager:GetInstance();
 		-- store this panel off for later
 		eraBlocks[era.ID] = thisEraBlockInstance;
@@ -350,11 +361,9 @@ function AddEraPanels()
 			blockWidth = blockWidth + 32;
 		end
 		thisEraBlockInstance.EraBlock:SetSizeX(blockWidth);
-		thisEraBlockInstance.FrameBottom:SetSizeX(blockWidth);
 		thisEraBlockInstance.OldBar:SetSizeX(blockWidth);
 		thisEraBlockInstance.OldBlock:SetSizeX(blockWidth);
 		thisEraBlockInstance.CurrentBlock:SetSizeX(blockWidth);
-		thisEraBlockInstance.CurrentBlock1:SetSizeX(blockWidth);
 		thisEraBlockInstance.CurrentBlock2:SetSizeX(blockWidth);
 		thisEraBlockInstance.CurrentTop:SetSizeX(blockWidth);
 		thisEraBlockInstance.CurrentTop1:SetSizeX(blockWidth);
@@ -412,12 +421,12 @@ function AddTechButton(tech)
 
 	-- Use a closure to track if we're already setting the tooltip
 	local bSettingTooltip = false;
-	thisTechButtonInstance.TechButton:SetToolTipCallback(function(control)
+	thisTechButtonInstance.TechButton:SetToolTipCallback(function ()
 		if bSettingTooltip then
 			return;
 		end
 		bSettingTooltip = true;
-		control:SetToolTipString(GetHelpTextForTech(tech.ID, false, playerID));
+		SetTooltip(tooltipInstance, GetHelpTextForTech(tech.ID, false, playerID));
 		bSettingTooltip = false;
 	end);
 
@@ -488,7 +497,7 @@ function RefreshDisplay()
 		column.researched = false;
 	end
 
-	for tech in GameInfo.Technologies() do
+	for tech in GameInfoCache("Technologies") do
 		RefreshDisplayOfSpecificTech(tech);
 	end
 
@@ -571,7 +580,7 @@ function RefreshDisplayOfSpecificTech(tech)
 		Hide(thisTechButton.Locked);
 
 		-- update the era marker for this tech
-		local eraID = GameInfo.Eras[tech.Era].ID;
+		local eraID = GameInfoTypes[tech.Era];
 		if eraColumns[eraID] then
 			eraColumns[eraID].researched = true;
 		end

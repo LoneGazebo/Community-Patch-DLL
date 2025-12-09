@@ -1,3 +1,4 @@
+MapModData = nil ; --Prevents includes like CPK or VPUI to save themselves there and have their global environment invalidated later...
 -------------------------------------------------
 -- Game Loading Screen
 -- modified by bc1 from 1.0.3.144 code

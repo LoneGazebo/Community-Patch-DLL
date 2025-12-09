@@ -46,14 +46,15 @@ WHERE CombatClass IN (
 	'UNITCLASS_NUCLEAR_MISSILE'
 );
 
--- Air units and missiles don't cost supply
+-- Air units, missiles, and Fusta don't cost supply
 UPDATE Units
 SET NoSupply = 1
 WHERE CombatClass IN (
 	SELECT Type FROM UnitCombatInfos WHERE IsAerial = 1
 ) OR Class IN (
 	'UNITCLASS_ROCKET_MISSILE',
-	'UNITCLASS_GUIDED_MISSILE'
+	'UNITCLASS_GUIDED_MISSILE',
+	'UNITCLASS_FUSTA'
 );
 
 -----------------------------------------------------------------

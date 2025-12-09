@@ -3429,7 +3429,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	}
 	if (pkBuildingInfo->GetYieldChangeEraScalingTimes100(eYield) > 0)
 	{
-		iFlatYield += pkBuildingInfo->GetYieldChangeEraScalingTimes100(eYield) * iEra / 100;
+		iFlatYield += pkBuildingInfo->GetYieldChangeEraScalingTimes100(eYield) * max(1, iEra) / 100;
 	}
 	if (pkBuildingInfo->GetYieldChangesPerLocalTheme(eYield) > 0)
 	{
@@ -4175,6 +4175,11 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	if (pkBuildingInfo->GetYieldFromProcessModifier(eYield) > 0)
 	{
 		iModifier += (pkBuildingInfo->GetYieldFromProcessModifier(eYield) * 2);
+	}
+
+	if (pkBuildingInfo->GetYieldModifierEraScaling(eYield) > 0)
+	{
+		iModifier += pkBuildingInfo->GetYieldModifierEraScaling(eYield) * max(1, iEra);
 	}
 
 	if (pkBuildingInfo->GetYieldModifier(eYield) > 0)

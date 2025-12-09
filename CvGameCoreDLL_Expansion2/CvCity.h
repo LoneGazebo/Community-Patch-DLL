@@ -394,7 +394,7 @@ public:
 
 	bool canContinueProduction(OrderData order);
 	int getProductionExperience(UnitTypes eUnit = NO_UNIT) const;
-	void addProductionExperience(CvUnit* pUnit, bool bHalveXP = false, bool bGoldPurchase = false) const;
+	void addProductionExperience(CvUnit* pUnit, bool bHalveXP = false, UnitCreationReason eReason = REASON_DEFAULT) const;
 
 	UnitTypes getProductionUnit() const;
 	UnitAITypes getProductionUnitAI() const;
@@ -1365,6 +1365,9 @@ public:
 	int getYieldRateModifier(YieldTypes eIndex) const;
 	void changeYieldRateModifier(YieldTypes eIndex, int iChange);
 
+	int GetYieldModifierEraScaling(YieldTypes eIndex) const;
+	void ChangeYieldModifierEraScaling(YieldTypes eIndex, int iChange);
+
 	int GetLuxuryExtraYield(YieldTypes eIndex) const;
 	void ChangeLuxuryExtraYield(YieldTypes eIndex, int iChange);
 
@@ -2066,6 +2069,7 @@ protected:
 	std::vector<int> m_aiGreatWorkYieldChange;
 	std::vector<int> m_aiDamagePermyriad;
 	std::vector<int> m_aiYieldRateModifier;
+	std::vector<int> m_aiYieldModifierEraScaling;
 	std::vector<int> m_aiLuxuryExtraYield;
 	std::vector<int> m_aiYieldPerPop;
 	std::vector<int> m_aiYieldRateFromBuildingsEraScalingTimes100;
@@ -2076,7 +2080,6 @@ protected:
 	std::map<int, std::map<int, int>> m_miTechEnhancedYields;
 	std::map<pair<GreatPersonTypes, EraTypes>, int> m_miGreatPersonPointFromConstruction;
 	std::vector<int> m_aiYieldPerReligion;
-	std::vector<int> m_aiPowerYieldRateModifier;
 	std::vector<int> m_aiResourceYieldRateModifier;
 	std::vector<int> m_aiExtraSpecialistYield;
 	std::vector<int> m_aiProductionToYieldModifier;
@@ -2474,6 +2477,7 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_aiDamagePermyriad)
 SYNC_ARCHIVE_VAR(SYNC_ARCHIVE_VAR_TYPE(std::map<int, std::map<int, int>>), m_miTechEnhancedYields)
 SYNC_ARCHIVE_VAR(SYNC_ARCHIVE_VAR_TYPE(std::map<pair<GreatPersonTypes, EraTypes>, int>), m_miGreatPersonPointFromConstruction)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldRateModifier)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldModifierEraScaling)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiLuxuryExtraYield)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldPerPop)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldRateFromBuildingsEraScalingTimes100)
@@ -2481,7 +2485,6 @@ SYNC_ARCHIVE_VAR(std::vector<fraction>, m_afYieldPerBuilding)
 SYNC_ARCHIVE_VAR(std::vector<fraction>, m_afYieldPerTile)
 SYNC_ARCHIVE_VAR(std::vector<fraction>, m_afYieldPerCityStateStrategicResource)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldPerReligion)
-SYNC_ARCHIVE_VAR(std::vector<int>, m_aiPowerYieldRateModifier)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiResourceYieldRateModifier)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiExtraSpecialistYield)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiProductionToYieldModifier)
