@@ -1070,7 +1070,7 @@ public:
 	// ------------------------------------
 
 	void DoUpdateWarStates();
-	int GetWarScore(PlayerTypes ePlayer);
+	int GetWarScore(PlayerTypes ePlayer) const;
 	int GetHighestWarscore();
 	PlayerTypes GetHighestWarscorePlayer();
 

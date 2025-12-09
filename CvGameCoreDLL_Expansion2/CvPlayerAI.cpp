@@ -2138,6 +2138,9 @@ const vector<CvCity*> CvPlayerAI::GetBestCitiesForSpaceshipParts()
 		if (pLoopCity->isUnderSiege())
 			continue;
 
+		if (pLoopCity->IsResistance() || pLoopCity->IsRazing() || pLoopCity->isInDangerOfFalling())
+			continue;
+
 		// city too far away?
 		if (!(pLoopCity->CanAirlift() && pCapital->CanAirlift()) && plotDistance(pLoopCity->getX(), pLoopCity->getY(), pCapital->getX(), pCapital->getY()) > 40)
 			continue;
@@ -2320,7 +2323,7 @@ const vector<CvCity*> CvPlayerAI::GetBestCitiesForSpaceshipParts()
 /// if going for spaceship victory, the results from GetBestCitiesForSpaceshipParts are used to overwrite normal AI city production selection
 void CvPlayerAI::AI_doSpaceshipProduction()
 {
-	if (isHuman(ISHUMAN_AI_CITY_PRODUCTION) || isMinorCiv() || !GetDiplomacyAI()->IsGoingForSpaceshipVictory())
+	if (isHuman(ISHUMAN_AI_CITY_PRODUCTION) || isMinorCiv())
 		return;
 
 	if (GetNumSpaceshipPartsBuildableNow(true) == 0)

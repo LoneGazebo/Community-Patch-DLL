@@ -1311,7 +1311,7 @@ void CvGame::initDiplomacy()
 			for(int iJ = 0; iJ < MAX_CIV_TEAMS; iJ++)
 			{
 				const TeamTypes eTeamB = static_cast<TeamTypes>(iJ);
-				if(iI != iJ)
+				if(iI != iJ) 
 				{
 					kTeamA.declareWar(eTeamB, false, kTeamA.getLeaderID());
 				}
@@ -1623,15 +1623,18 @@ void CvGame::CheckPlayerTurnDeactivate()
 				if(kPlayer.hasProcessedAutoMoves())
 				{
 					bool bAutoMovesComplete = false;
-					if(!(kPlayer.hasBusyUnitOrCity()))
+					if (kPlayer.GetEndTurnBlockingType() == NO_ENDTURN_BLOCKING_TYPE)
 					{
-						bAutoMovesComplete = true;
+						if (!(kPlayer.hasBusyUnitOrCity()))
+						{
+							bAutoMovesComplete = true;
 
-						NET_MESSAGE_DEBUG_OSTR_ALWAYS("CheckPlayerTurnDeactivate() : auto-moves complete for " << kPlayer.getName());
-					}
-					else if(gDLL->HasReceivedTurnComplete(kPlayer.GetID()))
-					{
-						bAutoMovesComplete = true;
+							NET_MESSAGE_DEBUG_OSTR_ALWAYS("CheckPlayerTurnDeactivate() : auto-moves complete for " << kPlayer.getName());
+						}
+						else if (gDLL->HasReceivedTurnComplete(kPlayer.GetID()))
+						{
+							bAutoMovesComplete = true;
+						}
 					}
 
 					if(bAutoMovesComplete)
@@ -10214,6 +10217,35 @@ void CvGame::addReplayMessage(ReplayMessageTypes eType, PlayerTypes ePlayer, con
 	//If this is a plot-related message, search for any previously created messages that match this one and just add the plot.
 	if(iPlotX != -1 || iPlotY != -1)
 	{
+		// the replay map can only display one plot owner change per plot and turn, if there were any previous ownership changes of this plot in this turn, delete them
+		if (eType == REPLAY_MESSAGE_PLOT_OWNER_CHANGE)
+		{
+			for (ReplayMessageList::iterator it = m_listReplayMessages.begin(); it != m_listReplayMessages.end(); ++it)
+			{
+				CvReplayMessage& msg = (*it);
+				if (msg.getType() == eType && msg.getTurn() == iGameTurn && msg.getText() == pszText)
+				{
+					for (uint ui = 0; ui < msg.getNumPlots(); ui++)
+					{
+						int iLoopPlotX = -1;
+						int iLoopPlotY = -1;
+						if (msg.getPlot(ui, iLoopPlotX, iLoopPlotY))
+						{
+							if (iLoopPlotX == iPlotX && iLoopPlotY == iPlotY)
+							{
+								msg.erasePlot(iPlotX, iPlotY);
+							}
+						}
+					}
+					if (msg.getNumPlots() == 0)
+					{
+						m_listReplayMessages.erase(it);
+						break;
+					}
+				}
+			}
+		}
+
 		for(ReplayMessageList::iterator it = m_listReplayMessages.begin(); it != m_listReplayMessages.end(); ++it)
 		{
 			CvReplayMessage& msg = (*it);
@@ -10380,7 +10412,7 @@ void CvGame::updateGlobalMedians()
 			float fPopulation = (float)iPopulation;
 
 			// Distress
-			int iBasicNeedsYield = pLoopCity->getYieldRateTimes100(YIELD_FOOD, true) + pLoopCity->getYieldRateTimes100(YIELD_PRODUCTION, true);
+			int iBasicNeedsYield = pLoopCity->getFoodPerTurnBeforeConsumptionTimes100() + pLoopCity->getYieldRateTimes100(YIELD_PRODUCTION, true);
 			float fBasicNeedsAvg = iBasicNeedsYield / fPopulation;
 			vfBasicNeedsYield.push_back(fBasicNeedsAvg);
 

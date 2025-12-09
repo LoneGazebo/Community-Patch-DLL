@@ -3323,8 +3323,6 @@ std::vector<CvCivilizationInfo*>& CvGlobals::getCivilizationInfo()
 
 CvCivilizationInfo* CvGlobals::getCivilizationInfo(CivilizationTypes eCivilizationNum)
 {
-	PRECONDITION(eCivilizationNum > -1);
-	PRECONDITION(eCivilizationNum < GC.getNumCivilizationInfos());
 	if(eCivilizationNum > -1 && eCivilizationNum < (int)m_paCivilizationInfo.size())
 		return m_paCivilizationInfo[eCivilizationNum];
 	else
@@ -3333,7 +3331,6 @@ CvCivilizationInfo* CvGlobals::getCivilizationInfo(CivilizationTypes eCivilizati
 
 CivilizationTypes CvGlobals::getCivilizationInfoIndex(const char* pszType)
 {
-	ASSERT(pszType != NULL);
 	if(pszType != NULL)
 	{
 		int iIndex = 0;

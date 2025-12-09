@@ -17,6 +17,8 @@ namespace NetMessageExt
 		void DoMinorBullyAnnex(PlayerTypes ePlayer, PlayerTypes eMinor);
 		void DoQuestInfluenceDisabled(PlayerTypes ePlayer, PlayerTypes eMinor, bool bValue);
 		void SetDisableAutomaticFaithPurchase(PlayerTypes ePlayer, bool bValue);
+		void DoApplyVassalTax(TeamTypes eMaster, PlayerTypes eVassal, int iPercent);
+		void DoLiberateVassal(TeamTypes eMaster, TeamTypes eVassal);
 		//void RefreshTradeRouteCache(PlayerTypes ePlayer);
 	}
 
@@ -28,6 +30,8 @@ namespace NetMessageExt
 		void DoMinorBullyAnnex(PlayerTypes ePlayer, PlayerTypes eMinor);
 		void DoQuestInfluenceDisabled(PlayerTypes ePlayer, PlayerTypes eMinor, bool bValue);
 		void SetDisableAutomaticFaithPurchase(PlayerTypes ePlayer, bool bValue);
+		void DoApplyVassalTax(TeamTypes eMaster, PlayerTypes eVassal, int iPercent);
+		void DoLiberateVassal(TeamTypes eMaster, TeamTypes eVassal);
 		//void RefreshTradeRouteCache(PlayerTypes ePlayer);
 	}
 }

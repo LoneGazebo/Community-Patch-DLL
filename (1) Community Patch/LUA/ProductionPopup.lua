@@ -735,7 +735,14 @@ local function UpdateWindow(pCity)
 	--- @return table
 	local function AssembleItem(eOrder, eItem, kInfo, eYield)
 		local tOrder = tOrderTypeDetails[eOrder];
-		local strPrereqTechKey = kInfo.PrereqTech or kInfo.TechPrereq;
+		local strPrereqTechKey = ""
+		if (eOrder == 0 or eOrder == 1) then
+			-- Buildings, Units
+			strPrereqTechKey = kInfo.PrereqTech;
+		else
+			-- Projects, Processes
+			strPrereqTechKey = kInfo.TechPrereq;
+		end
 		local item = {
 			ID = eItem,
 			Name = L(kInfo.Description),

@@ -1698,6 +1698,9 @@
 		<Row Tag="TXT_KEY_YIELD_FROM_PROCESS">
 			<Text>[ICON_BULLET]{1_Num} {2_IconString} from [ICON_SWAP] Process</Text>
 		</Row>
+		<Row Tag="TXT_KEY_YIELD_FROM_TERRAIN_WONDERS">
+			<Text>[ICON_BULLET]{1_Num} [ICON_TOURISM] from {2_Num}% of the [ICON_CULTURE] Culture from World Wonders, Natural Wonders, and Improvements</Text>
+		</Row>
 		<Row Tag="TXT_KEY_YIELD_FROM_TRADE_ROUTES">
 			<Text>[ICON_BULLET]{1_Num} {2_IconString} from [ICON_INTERNATIONAL_TRADE] Trade Routes</Text>
 		</Row>
@@ -1927,7 +1930,7 @@
 		<Row Tag="TXT_KEY_GPP_MOD_IMPROVEMENT">
 			<Text>[NEWLINE][ICON_BULLET]{1: number "'+'##;'-'##"}% from Worked Improvements</Text>
 		</Row>
-		<Row Tag="TXT_KEY_GP_MOD_LEAGUE">
+		<Row Tag="TXT_KEY_GPP_MOD_LEAGUE">
 			<Text>[NEWLINE][ICON_BULLET]{1: number "'+'##;'-'##"}% from Active Resolutions</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GPP_MOD_MONOPOLY">

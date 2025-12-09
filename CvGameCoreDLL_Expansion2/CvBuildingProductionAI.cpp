@@ -158,10 +158,6 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 
 	CvPlayerAI& kPlayer = GET_PLAYER(m_pCity->getOwner());
 
-	//no buildings for barbarians, pump units instead
-	if (kPlayer.isBarbarian())
-		return SR_IMPOSSIBLE;
-
 	//do not build any buildings at all when about to be captured
 	if (m_pCity->isInDangerOfFalling())
 		return SR_STRATEGY;
@@ -486,8 +482,8 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
 		if(pkResource)
 		{
-			//Building uses resources? Not if we're a puppet or automated, thanks! 
-			if(pkBuildingInfo->GetResourceQuantityRequirement(eResource) > 0 && (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(m_pCity) || m_pCity->isHumanAutomated()))
+			//Building uses resources? Not if we're in resistance, a puppet or automated, thanks! 
+			if(pkBuildingInfo->GetResourceQuantityRequirement(eResource) > 0 && (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(m_pCity) || m_pCity->isHumanAutomated() || m_pCity->IsResistance()))
 			{
 				return SR_STRATEGY;
 			}

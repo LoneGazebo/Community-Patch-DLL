@@ -11,7 +11,7 @@ local Hide = CPK.UI.Control.Hide;
 local Refresh = CPK.UI.Control.Refresh;
 local Color = CPK.Text.Color;
 
-local g_ItemInstanceManager = InstanceManager:new("instance", "Button", Controls.ItemStack);
+local g_ItemInstanceManager = InstanceManager:new("ItemInstance", "Button", Controls.ItemStack);
 local g_eBelief = BeliefTypes.NO_BELIEF;
 local g_popupInfo;
 
@@ -119,9 +119,9 @@ local function RefreshList()
 	local bDebug = Game.IsDebugMode();
 	for i, belief in ipairs(tAvailableBeliefs) do
 		local instance = g_ItemInstanceManager:GetInstance();
-		instance.Name:SetText(belief.Name);
 		instance.Description:SetText(belief.Description);
 		instance.Button:SetToolTipString("");
+
 		if not OptionsManager.IsNoBasicHelp() then
 			local iScore = belief.Score;
 			local strDebugScore = bDebug and L("TXT_KEY_DEBUG_SCORE", iScore) or "";
@@ -134,15 +134,28 @@ local function RefreshList()
 			elseif bDebug then
 				strDebugScore = string.format(" (%s)", strDebugScore);
 			end
+			instance.Name:SetText(belief.Name .. strDebugScore);
 
 			if iScore >= iRank3Score then
-				instance.Button:LocalizeAndSetToolTip("TXT_KEY_RELIGION_CHOOSER_ADVISOR_RECOMMENDATION");
+				instance.Button:SetToolTipString(L("TXT_KEY_RELIGION_CHOOSER_ADVISOR_RECOMMENDATION"));
+				instance.Name:SetToolTipString(L("TXT_KEY_RELIGION_CHOOSER_ADVISOR_RECOMMENDATION"));
+				instance.Description:SetToolTipString(L("TXT_KEY_RELIGION_CHOOSER_ADVISOR_RECOMMENDATION"));
 			end
 		end
 
 		instance.Button:RegisterCallback(Mouse.eLClick, function ()
 			SelectPantheon(belief.ID);
 		end);
+
+		-- Dynamically resize based on description height
+		local buttonWidth, buttonHeight = instance.Button:GetSizeVal();
+		local descWidth, descHeight = instance.Description:GetSizeVal();
+		local newHeight = descHeight + 40;
+
+		instance.Button:SetSizeVal(buttonWidth, newHeight);
+		instance.Box:SetSizeVal(buttonWidth + 20, newHeight);
+		instance.BounceAnim:SetSizeVal(buttonWidth + 20, newHeight + 5);
+		instance.BounceGrid:SetSizeVal(buttonWidth + 20, newHeight + 5);
 
 		-- Stripes
 		if i % 2 == 1 then

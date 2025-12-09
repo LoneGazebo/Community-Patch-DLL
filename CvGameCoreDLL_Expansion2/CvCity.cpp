@@ -8798,16 +8798,21 @@ bool CvCity::canConstruct(BuildingTypes eBuilding, const std::vector<int>& vPreE
 		return false;
 	}
 
+	//no buildings for barbarians, pump units instead
+	if (GET_PLAYER(m_eOwner).isBarbarian())
+		return false;
+
 	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 
-	//no wonders in puppets (also affects venice unless invest or already invested)
-	if (IsPuppet() && !(GET_PLAYER(m_eOwner).GetPlayerTraits()->IsNoAnnexing() && (bContinue || bWillPurchase)))
+	//no wonders for minor civs or in puppets (also affects venice unless invest or already invested)
+	if (GET_PLAYER(m_eOwner).isMinorCiv() || (IsPuppet() && !(GET_PLAYER(m_eOwner).GetPlayerTraits()->IsNoAnnexing() && (bContinue || bWillPurchase))))
 	{
 		if (isWorldWonderClass(pkBuildingInfo->GetBuildingClassInfo()) || isNationalWonderClass(pkBuildingInfo->GetBuildingClassInfo()))
 		{
 			return false;
 		}
 	}
+
 
 	if (!(GET_PLAYER(getOwner()).canConstruct(eBuilding, vPreExistingBuildings, bContinue, bTestVisible, bIgnoreCost, toolTipSink)))
 	{
@@ -21240,7 +21245,7 @@ int CvCity::GetDistressRaw(bool bForceRecalc, int iAssumedExtraYieldRate) const
 {
 	// First, calculate the total yield
 	// Include yields from trade routes in the yield, but not the median, to make unhappiness management easier
-	int iTotalYield = getYieldRateTimes100(YIELD_FOOD, false, false, !bForceRecalc) + getYieldRateTimes100(YIELD_PRODUCTION, false, false, !bForceRecalc) + iAssumedExtraYieldRate;
+	int iTotalYield = getFoodPerTurnBeforeConsumptionTimes100() + getYieldRateTimes100(YIELD_PRODUCTION, false, false, !bForceRecalc) + iAssumedExtraYieldRate;
 
 	// Second, calculate the median (with need modifiers)
 	float fMedianYieldPerPop = 0.00f;
@@ -23396,7 +23401,7 @@ int CvCity::getBaseYieldRateTimes100(const YieldTypes eYield, CvString* tooltipS
 			iTempYield = (iFromWonders + iFromNaturalWonders + iFromImprovements) * iPercent;
 			iYield += iTempYield;
 			if (tooltipSink) 
-				(*tooltipSink) += CvString("[NEWLINE]") + GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_TILES", FormatYieldTimes100(iTempYield), iPercent); /* can't use BuildYieldTimes100HelpText here */
+				(*tooltipSink) += CvString("[NEWLINE]") + GetLocalizedText("TXT_KEY_YIELD_FROM_TERRAIN_WONDERS", FormatYieldTimes100(iTempYield), iPercent); /* can't use BuildYieldTimes100HelpText here */
 		}
 	}
 
@@ -30286,7 +30291,7 @@ bool CvCity::IsCanPurchase(const std::vector<int>& vPreExistingBuildings, bool b
 				if (IsBuildingInvestment(eBuildingClass))
 					return false;
 
-				if (getProductionTurnsLeft(eBuildingType, 0) == 1) //Can't invest when only 1 turn left, for parity with AI
+				if (getProductionTurnsLeft(eBuildingType, 0) == 1 && !(bIsPuppet && bVenetianException)) //Can't invest when only 1 turn left, for parity with AI
 					return false;
 			}
 		}

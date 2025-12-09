@@ -28,6 +28,7 @@ public:
 	const CvString& getText() const;
 
 	void addPlot(int iPlotX, int iPlotY);
+	void erasePlot(int iPlotX, int iPlotY);
 	bool getPlot(unsigned int idx, int& iPlotX, int& iPlotY) const;
 	unsigned int getNumPlots() const;
 	void clearPlots();

@@ -3880,7 +3880,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift, bool bO
 						kData.m_bTransferred = false;
 						vcGreatWorkData.push_back(kData);
 
-						CvPlayer &kOldOwner = GET_PLAYER(eOldOwner); // Recursive: shouldn't this be eOldOwner?
+						CvPlayer &kOldOwner = GET_PLAYER(eOldOwner);
 						if (kOldOwner.GetCulture()->GetSwappableWritingIndex() == iGreatWork)
 							kOldOwner.GetCulture()->SetSwappableWritingIndex(-1);
 
@@ -8480,6 +8480,12 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 			bFirstLiberation = true;
 			pCity->setEverLiberated(GetID(), true);
 		}
+	}
+
+	// Removing a Sphere of Influence doesn't count as conquering the city
+	if (bSphereRemoval)
+	{
+		kPlayer.SetEverConqueredBy(GetID(), false);
 	}
 
 	// Diplo bonus for returning the city
@@ -32832,14 +32838,29 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn) // R: bDoTurn default
 								iNumExtraLuxury = 1;
 							}
 						}
+						int iNumResource = pLoopPlot->getNumResource();
+						if (pResourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
+						{
+							int iQuantityMod = GetPlayerTraits()->GetStrategicResourceQuantityModifier(pLoopPlot->getTerrainType());
+							iNumResource *= 100 + iQuantityMod;
+							iNumResource /= 100;
+						}
+
+						if (GetPlayerTraits()->GetResourceQuantityModifier(eRes) > 0)
+						{
+							int iQuantityMod = GetPlayerTraits()->GetResourceQuantityModifier(eRes);
+							iNumResource *= 100 + iQuantityMod;
+							iNumResource /= 100;
+						}
+
 						if (pLoopPlot->IsResourceImprovedForOwner())
 						{
-							iCntImproved += pLoopPlot->getNumResource();
+							iCntImproved += iNumResource;
 							// ExtraLuxury resources are stored in m_paiNumResourceFromBuildings, but we can't compare it with the counted value because it also contains resources from other sources
 						}
 						else
 						{
-							iCntUnimproved += pLoopPlot->getNumResource() + iNumExtraLuxury;
+							iCntUnimproved += iNumResource + iNumExtraLuxury;
 
 						}
 					}
@@ -38674,6 +38695,10 @@ void CvPlayer::changeImprovementCount(ImprovementTypes eIndex, int iChange, bool
 
 			pLoopCity->UpdateYieldPerXImprovement(((YieldTypes)iI), eIndex);
 		}
+	}
+	if (GetCorporations()->GetFranchisesPerImprovement(eIndex) > 0)
+	{
+		GetCorporations()->RecalculateNumFranchises();
 	}
 }
 
@@ -46254,7 +46279,10 @@ void CvPlayer::DoUpdateCoreCitiesForSpaceshipProduction()
 {
 	m_viCoreCitiesForSpaceshipProduction.clear();
 
-	if (isHuman(ISHUMAN_AI_CITY_PRODUCTION) || !GetDiplomacyAI()->IsGoingForSpaceshipVictory())
+	if (isHuman(ISHUMAN_AI_CITY_PRODUCTION))
+		return;
+		
+	if (!GetDiplomacyAI()->IsGoingForSpaceshipVictory() && !GetDiplomacyAI()->IsCloseToSpaceshipVictory())
 		return;
 
 	int iNumCitiesToConsider = GD_INT_GET(AI_NUM_CORE_CITIES_FOR_SPACESHIP);
@@ -46324,6 +46352,9 @@ const vector<int>& CvPlayer::GetCoreCitiesForSpaceshipProduction() const
 /// the number of aluminum still needed for buildings in the core cities for spaceship parts (GetCoreCitiesForSpaceshipProduction)
 int CvPlayer::GetNumAluminumStillNeededForCoreCities() const
 {
+	if (!GetDiplomacyAI()->IsGoingForSpaceshipVictory() && !GetDiplomacyAI()->IsCloseToSpaceshipVictory())
+		return 0;
+
 	ResourceTypes eAluminum = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_ALUMINUM", true);
 
 	int iTotal = 0;
@@ -46366,7 +46397,7 @@ int CvPlayer::GetNumAluminumStillNeededForSpaceship() const
 	if (isBarbarian() || isMinorCiv())
 		return 0;
 
-	if (!GetDiplomacyAI()->IsGoingForSpaceshipVictory())
+	if (!GetDiplomacyAI()->IsGoingForSpaceshipVictory() && !GetDiplomacyAI()->IsCloseToSpaceshipVictory())
 		return 0;
 
 	if (getCapitalCity() == NULL)

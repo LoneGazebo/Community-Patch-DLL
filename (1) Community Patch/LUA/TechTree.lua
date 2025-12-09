@@ -497,7 +497,7 @@ function RefreshDisplay()
 		column.researched = false;
 	end
 
-	for tech in GameInfoCache("Technologies") do
+	for _, tech in GameInfoCache("Technologies") do
 		RefreshDisplayOfSpecificTech(tech);
 	end
 
