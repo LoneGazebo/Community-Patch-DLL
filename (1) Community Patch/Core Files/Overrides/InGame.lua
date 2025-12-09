@@ -1275,6 +1275,7 @@ Events.GameViewTypeChanged.Add(OnGameViewTypeChanged);
 ---------------------------------------------------------------------------------------
 ContextPtr:SetShutdown(function ()
 	print("Shutting down InGame.lua");
+	CodeBuddy.vpSetGameCore({});
 	MapModData.VP = nil;
 	MapModData.CommonContext = nil;
 end);

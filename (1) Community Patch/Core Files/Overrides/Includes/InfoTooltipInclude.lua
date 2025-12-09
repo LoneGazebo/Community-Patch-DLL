@@ -15,7 +15,7 @@ local INQUISITION_EFFECTIVENESS = GameInfo.Defines{Name = "INQUISITION_EFFECTIVE
 
 -- Cache these values
 local eMerchantOfVeniceUnit;
-local iTrainPercent = Game and GameInfo.GameSpeeds[Game.GetGameSpeedType()].TrainPercent or 100;
+local iTrainPercent = function() return Game and GameInfo.GameSpeeds[Game.GetGameSpeedType()].TrainPercent or 100 end;
 local iNumEras = #GameInfo.Eras;
 
 local L = Locale.Lookup;
@@ -998,7 +998,7 @@ function GetHelpTextForUnit(eUnit, bIncludeRequirementsInfo, pCity, bExcludeName
 	if kUnitInfo.Special == "SPECIALUNIT_PEOPLE" then
 		-- Global WLTKD on birth
 		if kUnitInfo.WLTKDFromBirth then
-			local iWLTKDTurn = math.floor(math.floor(CITY_RESOURCE_WLTKD_TURNS / 3) * iTrainPercent / 100);
+			local iWLTKDTurn = math.floor(math.floor(CITY_RESOURCE_WLTKD_TURNS / 3) * iTrainPercent() / 100);
 			AddTooltipPositive(tAbilityLines, "TXT_KEY_PRODUCTION_UNIT_BIRTH_WLTKD", iWLTKDTurn);
 		end
 
@@ -2392,13 +2392,13 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 
 	-- WLTKD on completion
 	if kBuildingInfo.WLTKDTurns > 0 then
-		local iWLTKDTurn = math.floor(kBuildingInfo.WLTKDTurns * iTrainPercent / 100);
+		local iWLTKDTurn = math.floor(kBuildingInfo.WLTKDTurns * iTrainPercent() / 100);
 		AddTooltipPositive(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_START_WLTKD", iWLTKDTurn);
 	end
 
 	-- WLTKD on project completion
 	for row in GameInfo.Building_WLTKDFromProject{BuildingType = kBuildingInfo.Type} do
-		local iWLTKDTurn = math.floor(row.Turns * iTrainPercent / 100);
+		local iWLTKDTurn = math.floor(row.Turns * iTrainPercent() / 100);
 		AddTooltipNonZeroSigned(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_WLTKD_FROM_PROJECT", iWLTKDTurn, GameInfo.Projects[row.ProjectType].Description);
 	end
 
@@ -4254,4 +4254,28 @@ function GetReligionTooltip(pCity)
 	end
 
 	return table.concat(tLines, "[NEWLINE]");
+end
+
+
+if FLAG_STATIC_INCLUDE_ENV then
+	EXPORTS_ITTI = {
+		GetReligionTooltip = GetReligionTooltip;
+		GetTourismTooltip = GetTourismTooltip;
+		GetCityHappinessTooltip = GetCityHappinessTooltip;
+		GetHelpTextForProject = GetHelpTextForProject;
+		GetGoldTooltip = GetGoldTooltip;
+		GetHelpTextForBuilding = GetHelpTextForBuilding;
+		GetScienceTooltip = GetScienceTooltip;
+		GetHelpTextForUnit = GetHelpTextForUnit;
+		GetHelpTextForProcess = GetHelpTextForProcess;
+		GetCultureTooltip = GetCultureTooltip;
+		GetHelpTextForSpecialist = GetHelpTextForSpecialist;
+		GetBorderGrowthTooltip = GetBorderGrowthTooltip;
+		GetMoodInfo = GetMoodInfo;
+		GetFoodTooltip = GetFoodTooltip;
+		GetCityUnhappinessTooltip = GetCityUnhappinessTooltip;
+		GetFaithTooltip = GetFaithTooltip;
+		GetProductionTooltip = GetProductionTooltip;
+		GetHelpTextForImprovement = GetHelpTextForImprovement;
+	}
 end
