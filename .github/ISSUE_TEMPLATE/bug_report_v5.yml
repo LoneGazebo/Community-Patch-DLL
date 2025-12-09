@@ -1,5 +1,5 @@
-name: Bug Report 5.0 or newer
-description: Bug Report for Version 5.0 or newer
+name: Bug Report
+description: Bug Report
 body:
   - type: markdown
     attributes:
@@ -15,6 +15,11 @@ body:
       description: "Please select which version you are using. Current Version: 5.0"
       options:
         - 5.0
+        - 5.0-alpha.03
+        - 5.0-alpha.02
+        - 5.0-alpha.01
+        - 4.22
+        - older version, please specify below
     validations:
       required: true
 
