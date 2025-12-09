@@ -1,6 +1,5 @@
-name: Bug Report 5.0-alpha
-description: Bug Report for 5.0-alpha
-labels: ["5.0 alpha"]
+name: Bug Report
+description: Bug Report
 body:
   - type: markdown
     attributes:
@@ -13,11 +12,14 @@ body:
     id: mod-version
     attributes:
       label: 1. Mod version
-      description: "Please select which version you are using. Current Version: 5.0-alpha.03"
+      description: "Please select which version you are using. Current Version: 5.0"
       options:
+        - 5.0
         - 5.0-alpha.03
         - 5.0-alpha.02
         - 5.0-alpha.01
+        - 4.22
+        - older version, please specify below
     validations:
       required: true
 
@@ -38,9 +40,20 @@ body:
       required: true
 
   - type: textarea
+    id: mod-list
+    attributes:
+      label: 3. Additional mods used
+      description: |
+        If you're using additional mods other than VP, please upload a zip file containing all the mods here. If a mod is too large to be uploaded please provide a download link instead (not just the name of the mod). If you have installed VP as a modpack, upload or provide a link to the modpack.
+
+      placeholder: Upload or provide links to ALL mods other than VP that you are using
+    validations:
+      required: true
+      
+  - type: textarea
     id: issue-description
     attributes:
-      label: 3. Describe the Issue
+      label: 4. Describe the Issue
       description: |
         NOTE: Please test that you can reproduce the issue before submitting it.
 
@@ -55,7 +68,7 @@ body:
   - type: textarea
     id: save-game
     attributes:
-      label: 4. Save Game From 1 Turn Before (ALWAYS ATTACH THIS IF POSSIBLE)
+      label: 5. Save Game From 1 Turn Before (ALWAYS ATTACH THIS IF POSSIBLE)
       description: |
         Located in My Documents/My Games/Sid Meier's Civilization 5/Saves
 
@@ -68,7 +81,7 @@ body:
   - type: textarea
     id: logs
     attributes:
-      label: 5. Logs (ALWAYS ATTACH THESE IF POSSIBLE)
+      label: 6. Logs (ALWAYS ATTACH THESE IF POSSIBLE)
       description: |
         Located at My Documents/My Games/Sid Meier's Civilization 5/Logs
 

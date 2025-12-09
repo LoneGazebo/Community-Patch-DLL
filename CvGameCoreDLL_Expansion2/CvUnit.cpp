@@ -15091,8 +15091,6 @@ std::map<CvUnit*, CvPlot*> CvUnit::DoSquadPlotAssignments(CvPlot* pDestPlot, boo
 
 	CvPlayer* pPlayer = &GET_PLAYER(getOwner());
 
-	bool isDestWater = pDestPlot->isWater();
-
 	// First, construct a list of all units in squad eligible to go to target tile
 	std::vector<CvUnit*> stackingUnits;
 	std::vector<CvUnit*> eligibleLandUnits;
