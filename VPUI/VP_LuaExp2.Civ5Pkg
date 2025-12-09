@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Civ5Package>
+	<GUID>{570f793e-fc33-417f-ae18-7cecccdd5f00}</GUID>
+	<Version>1</Version>
+	<Priority>201</Priority>
+	<PTags>
+		<Tag>Version</Tag>
+	</PTags>
+	<Name>
+		<Value language="en_US">Collected BNW Lua files</Value>
+	</Name>
+	<Description>
+		<Value language="en_US">collection of lua files</Value>
+	</Description>
+
+	<UISkin name="Expansion2Primary" set="Expansion2" platform="Common">
+		<Skin>
+			<Directory>Lua_Expansion2</Directory>
+		</Skin>
+	</UISkin>
+
+</Civ5Package>
