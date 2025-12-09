@@ -1,4 +1,4 @@
-name: Bug Report Version 5.0+
+name: Bug Report 5.0 or newer
 description: Bug Report for Version 5.0 or newer
 body:
   - type: markdown
