@@ -364,7 +364,7 @@
 		<!-- Notre Dame -->
 		<Row Tag="TXT_KEY_BUILDING_NOTRE_DAME_HELP">
 			<Text>Possible Theming Bonuses:
-  			[NEWLINE][ICON_BULLET] +8 [ICON_CULTURE] and [ICON_TOURISM] for two [COLOR_POSITIVE_TEXT]Foreign[ENDCOLOR] [ICON_GW_MUSIC] Great Works of Music from [COLOR_POSITIVE_TEXT]different Civilizations[ENDCOLOR].</Text>
+  			[NEWLINE][ICON_BULLET] +8 [ICON_CULTURE] and [ICON_TOURISM] for two [COLOR_POSITIVE_TEXT]Foreign[ENDCOLOR] [ICON_GREAT_WORK] Great Works from [COLOR_POSITIVE_TEXT]different Civilizations[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_ROMAN_FORUM">
