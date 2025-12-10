@@ -8,7 +8,7 @@
 		<Row Tag="TXT_KEY_BUILDING_INDEPENDENCE_HALL_HELP">
 			<Text>Unlocks access to [COLOR_POSITIVE_TEXT]Slater Mill[ENDCOLOR], [COLOR_POSITIVE_TEXT]West Point[ENDCOLOR], and [COLOR_POSITIVE_TEXT]Smithsonian Institute[ENDCOLOR] in the [COLOR_CYAN]Industrial Era[ENDCOLOR].
 				[NEWLINE]Possible Theming Bonuses:
-  				[NEWLINE][ICON_BULLET] +8 [ICON_CULTURE] and [ICON_TOURISM] for two [COLOR_POSITIVE_TEXT]Domestic[ENDCOLOR] [ICON_GW_ART].</Text>
+  				[NEWLINE][ICON_BULLET] +8 [ICON_CULTURE] and [ICON_TOURISM] for two [COLOR_POSITIVE_TEXT]Domestic[ENDCOLOR] [ICON_GW_ART] Great Works of Art.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_INDEPENDENCE_HALL_TEXT">
 			<Text>Originally constructed as the state house of Pennsylvannia, Independence Hall is where the United States Declaration of Independence and Constitution were debated and formally adopted, making it the birthplace of the American nation. Today, Independence Hall is a museum and the centre of the Independence National Park in the heart of Philadelphia.</Text>
@@ -616,10 +616,10 @@
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_SALON_HELP">
 			<Text>Possible Theming Bonuses:
-				[NEWLINE][ICON_BULLET] +2 [ICON_CULTURE] and [ICON_TOURISM] for two [COLOR_POSITIVE_TEXT]Domestic[ENDCOLOR] [ICON_GW_ART].
-				[NEWLINE][ICON_BULLET] +4 [ICON_CULTURE] and [ICON_TOURISM] for two [COLOR_POSITIVE_TEXT]Domestic[ENDCOLOR] [ICON_GW_ART] from the [COLOR_CYAN]same Era[ENDCOLOR].
-				[NEWLINE][ICON_BULLET] +4 [ICON_CULTURE] and [ICON_TOURISM] for two [COLOR_POSITIVE_TEXT]Foreign[ENDCOLOR] [ICON_GW_ART] from the [COLOR_POSITIVE_TEXT]same Civilization[ENDCOLOR].
-				[NEWLINE][ICON_BULLET] +8 [ICON_CULTURE] and [ICON_TOURISM] for two [COLOR_POSITIVE_TEXT]Foreign[ENDCOLOR] [ICON_GW_ART] from the [COLOR_POSITIVE_TEXT]same Civilization[ENDCOLOR] and the [COLOR_CYAN]same Era[ENDCOLOR].
+				[NEWLINE][ICON_BULLET] +2 [ICON_CULTURE] and [ICON_TOURISM] for two [COLOR_POSITIVE_TEXT]Domestic[ENDCOLOR] [ICON_GW_ART] Great Works of Art.
+				[NEWLINE][ICON_BULLET] +4 [ICON_CULTURE] and [ICON_TOURISM] for two [COLOR_POSITIVE_TEXT]Domestic[ENDCOLOR] [ICON_GW_ART] Great Works of Art from the [COLOR_CYAN]same Era[ENDCOLOR].
+				[NEWLINE][ICON_BULLET] +4 [ICON_CULTURE] and [ICON_TOURISM] for two [COLOR_POSITIVE_TEXT]Foreign[ENDCOLOR] [ICON_GW_ART] Great Works of Art from the [COLOR_POSITIVE_TEXT]same Civilization[ENDCOLOR].
+				[NEWLINE][ICON_BULLET] +8 [ICON_CULTURE] and [ICON_TOURISM] for two [COLOR_POSITIVE_TEXT]Foreign[ENDCOLOR] [ICON_GW_ART] Great Works of Art from the [COLOR_POSITIVE_TEXT]same Civilization[ENDCOLOR] and the [COLOR_CYAN]same Era[ENDCOLOR].
 			</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_SALON_TEXT">
@@ -691,8 +691,8 @@
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_GYMNASION_HELP">
 			<Text>Possible Theming Bonuses:
-  			[NEWLINE][ICON_BULLET] +4 [ICON_CULTURE] and [ICON_TOURISM] for two [COLOR_POSITIVE_TEXT]Domestic[ENDCOLOR] [ICON_GW_WRITING].
-  			[NEWLINE][ICON_BULLET] +6 [ICON_CULTURE] and [ICON_TOURISM] for two [COLOR_POSITIVE_TEXT]Foreign[ENDCOLOR] [ICON_GW_WRITING].</Text>
+  			[NEWLINE][ICON_BULLET] +4 [ICON_CULTURE] and [ICON_TOURISM] for two [COLOR_POSITIVE_TEXT]Domestic[ENDCOLOR] [ICON_GW_WRITING] Great Works of Writing.
+  			[NEWLINE][ICON_BULLET] +6 [ICON_CULTURE] and [ICON_TOURISM] for two [COLOR_POSITIVE_TEXT]Foreign[ENDCOLOR] [ICON_GW_WRITING] Great Works of Writing.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_GYMNASION_TEXT">
 			<Text>The Gymnasion were training facilities used by adult Greek men to socialize and practice for public games. The name roughly translates to "naked training place", because all athletes practiced while naked, and usually while covered in olive oil. Gymnasia started as open fields outside city limits, but were later planned as enclosed spaces that were central to Greek public life. While the public games and festivals were important themselves, Gymnasia also became centers of arts and learning. The famous schools of philosophy in Athens - the Academic school founded by Plato, the Peripatetic School founded by Aristotle, and the Cynic school founded by Antisthenes - were all founded and named after the Gymnasia where they met.</Text>
@@ -1302,7 +1302,7 @@
 			<Text>University of Coimbra</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_UNIVERSITY_OF_COIMBRA_HELP">
-			<Text>Possible Theming Bonuses:[NEWLINE][ICON_BULLET] +10 [ICON_CULTURE] and [ICON_TOURISM] for two [COLOR_POSITIVE_TEXT]Foreign[ENDCOLOR] [ICON_GW_WRITING] from [COLOR_CYAN]different Eras[ENDCOLOR].'</Text>
+			<Text>Possible Theming Bonuses:[NEWLINE][ICON_BULLET] +10 [ICON_CULTURE] and [ICON_TOURISM] for two [COLOR_POSITIVE_TEXT]Foreign[ENDCOLOR] [ICON_GW_WRITING] Great Works of Writing from [COLOR_CYAN]different Eras[ENDCOLOR].'</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_UNIVERSITY_OF_COIMBRA_TEXT">
 			<Text>Opened in 1290, the University of Coimbra is one of the oldest centers of higher learning in the world. The university was founded by King Dinis as the Lisbon Estudo Geral, originally with faculties of Arts, Law, Canon Law and Medicine. As the first and only university in Portugal for 350 years, the University of Coimbra became a focus of educational, political, and social influence in Portugal.</Text>
@@ -1731,8 +1731,8 @@
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_IZIKO_HELP">
 			<Text>Possible Theming Bonuses:
-  			[NEWLINE][ICON_BULLET] +4 [ICON_CULTURE] and [ICON_TOURISM] for two [COLOR_POSITIVE_TEXT]Foreign[ENDCOLOR] [ICON_GW_WRITING].
-  			[NEWLINE][ICON_BULLET] +4 [ICON_CULTURE] and [ICON_TOURISM] for two [COLOR_POSITIVE_TEXT]Domestic[ENDCOLOR] [ICON_GW_WRITING].
+  			[NEWLINE][ICON_BULLET] +4 [ICON_CULTURE] and [ICON_TOURISM] for two [COLOR_POSITIVE_TEXT]Foreign[ENDCOLOR] [ICON_GW_WRITING] Great Works of Writing.
+  			[NEWLINE][ICON_BULLET] +4 [ICON_CULTURE] and [ICON_TOURISM] for two [COLOR_POSITIVE_TEXT]Domestic[ENDCOLOR] [ICON_GW_WRITING] Great Works of Writing.
 			</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_IZIKO_TEXT">
