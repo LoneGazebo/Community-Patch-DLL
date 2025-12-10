@@ -1673,6 +1673,10 @@
 		<Row Tag="TXT_KEY_TT_PROCESS_LEAGUE_PROJECT_HELP">
 			<Text>Contribute this City's [ICON_PRODUCTION] Production towards the {1_ProjName:textkey} project. Cost goes up based on the number of players in the game, and the current Era.</Text>
 		</Row>
+		<!-- Project -->
+		<Row Tag="TXT_KEY_PRODUCTION_EXCLUSIVE_PROJECT">
+			<Text>{1_CivAdj} Exclusive Project</Text>
+		</Row>
 		<!-- Yield -->
 		<Row Tag="TXT_KEY_YIELD_FROM_GREAT_WORKS">
 			<Text>[ICON_BULLET]{1_Num} {2_IconString} from [ICON_GREAT_WORK] Great Works and Themes</Text>
