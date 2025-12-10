@@ -1622,7 +1622,7 @@
 			<Text>[ICON_BULLET] [COLOR_WATER_TEXT]{1_Accomplishment:textkey}[ENDCOLOR]: {2_YieldBoosts}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_PASSING_TR">
-			<Text>[ICON_BULLET] Each Trade Route passing through this City: {1_YieldBoosts}</Text>
+			<Text>[ICON_BULLET] If a Trade Route passes through this City: {1_YieldBoosts}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_GOLDEN_AGE_START">
 			<Text>[ICON_BULLET] Adding [ICON_GOLDEN_AGE] Golden Age Turns: {1_YieldBoosts} (capped at {2_YieldBoostCaps})</Text>
