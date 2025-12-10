@@ -1150,6 +1150,9 @@
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_SPAWN_NEARBY_LUXURY">
 			<Text>On Completion: Add {1_Num} random {1: plural 1?copy; other?copies;} of the following Resources in City working range, or on City tile if impossible: {2_Resources}</Text>
 		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_SPAWN_NEARBY_LUXURY_GENERIC">
+			<Text>On Completion: Add {1_Num} random {1: plural 1?copy; other?copies;} of your unique Resources (if any) in City working range, or on City tile if impossible</Text>
+		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_SPAWN_NEARBY_RESOURCE">
 			<Text>On Completion: Add {1_Num} {1: plural 1?copy; other?copies;} of {2_ResourceIcon} {3_Resource:textkey} to random eligible Tiles in City working range</Text>
 		</Row>
