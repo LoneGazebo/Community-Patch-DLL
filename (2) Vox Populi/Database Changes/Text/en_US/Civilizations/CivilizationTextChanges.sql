@@ -203,7 +203,7 @@ SET Text = 'Great Ancestor'
 WHERE Tag = 'TXT_KEY_TRAIT_WONDER_BUILDER_SHORT';
 
 UPDATE Language_en_US
-SET Text = '+20% [ICON_PRODUCTION] Production towards [ICON_WONDER] Wonders, doubling in [ICON_GOLDEN_AGE] Golden Ages. Reveal a nearby [ICON_RES_ARTIFACTS] Antiquity Site when founding a City or (before anyone researches [COLOR_CYAN]Archaeology[ENDCOLOR]) completing a [ICON_WONDER] World Wonder. [ICON_RES_ARTIFACTS] Antiquity Sites gain +1 [ICON_RESEARCH] Science, [ICON_CULTURE] Culture, and [ICON_PEACE] Faith with each [ICON_GOLDEN_AGE] Golden Age (max +5).'
+SET Text = '+20% [ICON_PRODUCTION] Production towards [ICON_WONDER] Wonders, doubling in [ICON_GOLDEN_AGE] Golden Ages. Reveal a nearby [ICON_RES_ARTIFACTS] Antiquity Site when founding a City or (before anyone reaches [COLOR_CYAN]Archaeology[ENDCOLOR]) completing a [ICON_WONDER] World Wonder. [ICON_RES_ARTIFACTS] Antiquity Sites gain +1 [ICON_RESEARCH] Science, [ICON_CULTURE] Culture, and [ICON_PEACE] Faith with each [ICON_GOLDEN_AGE] Golden Age (max +5).'
 WHERE Tag = 'TXT_KEY_TRAIT_WONDER_BUILDER';
 
 UPDATE Language_en_US
