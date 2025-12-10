@@ -241,7 +241,7 @@ function AddSmallButtonsToTechButton(buttonStack, kTechInfo, iButtonCount, iText
 	--- @param strButtonText string?
 	local function SetupProjectButton(button, kProjectInfo, strCustomTooltip, strButtonText)
 		button:SetToolTipCallback(function ()
-			local strTooltip = strCustomTooltip or GetHelpTextForProject(kProjectInfo.ID, true);
+			local strTooltip = strCustomTooltip or GetHelpTextForProject(kProjectInfo.ID);
 			SetTooltip(tooltipInstance, strTooltip);
 		end);
 		tPediaSearchStrings[tostring(button)] = L(kProjectInfo.Description);

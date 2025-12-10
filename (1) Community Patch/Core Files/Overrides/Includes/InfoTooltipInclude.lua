@@ -3864,40 +3864,65 @@ function GetHelpTextForImprovement(eImprovement, bExcludeName, bExcludeHeader)
 	return table.concat(tLines, "[NEWLINE]");
 end
 
-function GetHelpTextForProject(eProject, bIncludeRequirementsInfo, pCity)
+function GetHelpTextForProject(eProject, pCity, bGeneralInfo)
 	local kProjectInfo = GameInfo.Projects[eProject];
-	local pActivePlayer = Players[Game.GetActivePlayer()];
+
+	--- @type Player?
+	local pActivePlayer = Game and Players[Game.GetActivePlayer()];
+
+	-- Only general info if Game object doesn't exist (e.g. in pregame)
+	if not Game then
+		bGeneralInfo = true;
+	end
+
+	-- When viewing a (foreign) city, always show tooltips as they are for the city owner
+	if pCity then
+		pActivePlayer = Players[pCity:GetOwner()];
+	end
+
+	-- Sometimes a city is needed in tooltips not in city view; in that case use the capital city
+	local pActiveCity = pCity or pActivePlayer and pActivePlayer:GetCapitalCity();
+
+	-- Invalidate pCity, pActivePlayer, pActiveCity if we only want general info (then we don't have to additionally check for bGeneralInfo on top of nil checks)
+	if bGeneralInfo then
+		pCity = nil;
+		pActivePlayer = nil;
+		pActiveCity = nil;
+	end
+
 	local tLines = {};
+	local tHeaderLines = {};
 
 	-- Name
-	table.insert(tLines, Locale.ToUpper(L(kProjectInfo.Description)));
+	table.insert(tHeaderLines, Locale.ToUpper(L(kProjectInfo.Description)));
+
+	-- Unique Project?
+	if kProjectInfo.CivilizationType then
+		AddTooltip(tHeaderLines, "TXT_KEY_PRODUCTION_EXCLUSIVE_PROJECT", GameInfo.Civilizations[kProjectInfo.CivilizationType].Adjective);
+	end
 
 	-- Cost
 	local iCost;
-	if pCity then
-		iCost = pCity:GetProjectProductionNeeded(eProject);
-	else
+	if pActiveCity then
+		iCost = pActiveCity:GetProjectProductionNeeded(eProject);
+	elseif pActivePlayer then
 		iCost = pActivePlayer:GetProjectProductionNeeded(eProject);
+	else
+		iCost = kProjectInfo.Cost;
 	end
-	table.insert(tLines, SEPARATOR_STRING);
-	table.insert(tLines, L("TXT_KEY_PRODUCTION_COST", iCost));
+	AddTooltip(tHeaderLines, "TXT_KEY_PRODUCTION_COST", iCost);
+
+	table.insert(tLines, table.concat(tHeaderLines, "[NEWLINE]"));
 
 	-- Pre-written Help text
 	if not kProjectInfo.Help then
 		print("Project help is NULL:", L(kProjectInfo.Description));
 	else
 		local strWrittenHelp = L(kProjectInfo.Help);
-		table.insert(tLines, SEPARATOR_STRING);
 		table.insert(tLines, strWrittenHelp);
 	end
 
-	-- Hardcoded Requirements text
-	if bIncludeRequirementsInfo and kProjectInfo.Requirements then
-		table.insert(tLines, SEPARATOR_STRING);
-		table.insert(tLines, L(kProjectInfo.Requirements));
-	end
-
-	return table.concat(tLines, "[NEWLINE]");
+	return table.concat(tLines, "[NEWLINE]" .. SEPARATOR_STRING .. "[NEWLINE]");
 end
 
 function GetHelpTextForProcess(eProcess)

@@ -132,7 +132,7 @@ local tOrderTypeDetails = {
 	[OrderTypes.ORDER_CREATE] = {
 		TableName = "Projects",
 		HelpTextFunc = function (eType, pCity)
-			return GetHelpTextForProject(eType, false, pCity);
+			return GetHelpTextForProject(eType, pCity);
 		end,
 		TurnsLeftFunc = function (eType, pCity, iQueueIndex)
 			return pCity:GetProjectProductionTurnsLeft(eType, iQueueIndex - 1);
@@ -570,7 +570,7 @@ local function BuildProductionBox(pCity, ePlayer)
 		strAtlas = kBuildingInfo.IconAtlas;
 	elseif eProjectProduction ~= -1 then
 		local kProjectInfo = GameInfo.Projects[eProjectProduction];
-		strHelp = GetHelpTextForProject(eProjectProduction, false);
+		strHelp = GetHelpTextForProject(eProjectProduction);
 		iPortraitIndex = kProjectInfo.PortraitIndex;
 		strAtlas = kProjectInfo.IconAtlas;
 	elseif eProcessProduction ~= -1 then
