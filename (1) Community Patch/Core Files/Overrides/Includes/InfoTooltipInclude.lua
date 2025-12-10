@@ -2552,13 +2552,17 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 	-- Nearby unique luxury
 	-- This assumes Traits.UniqueLuxuryCities is set to a large value if non-zero, so that it always spawns a resource
 	if kBuildingInfo.GrantsRandomResourceTerritory > 0 then
-		local tResources = {};
-		-- Get the list of unique luxuries for the active civ
-		for kResourceInfo in GameInfo.Resources{CivilizationType = GameInfo.Civilizations[eActiveCiv].Type} do
-			table.insert(tResources, string.format("%s %s", kResourceInfo.IconString, L(kResourceInfo.Description)));
-		end
-		if next(tResources) then
-			AddTooltip(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_SPAWN_NEARBY_LUXURY", kBuildingInfo.GrantsRandomResourceTerritory, table.concat(tResources, ", "));
+		if eActiveCiv ~= -1 then
+			-- Get the list of unique luxuries for the active civ
+			local tResources = {};
+			for kResourceInfo in GameInfo.Resources{CivilizationType = GameInfo.Civilizations[eActiveCiv].Type} do
+				table.insert(tResources, string.format("%s %s", kResourceInfo.IconString, L(kResourceInfo.Description)));
+			end
+			if next(tResources) then
+				AddTooltip(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_SPAWN_NEARBY_LUXURY", kBuildingInfo.GrantsRandomResourceTerritory, table.concat(tResources, ", "));
+			end
+		else
+			AddTooltip(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_SPAWN_NEARBY_LUXURY_GENERIC", kBuildingInfo.GrantsRandomResourceTerritory);
 		end
 	end
 
