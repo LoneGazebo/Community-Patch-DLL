@@ -375,7 +375,7 @@ WHERE Tag = 'TXT_KEY_WONDER_GLOBE_THEATER_HELP';
 UPDATE Language_en_US 
 SET Text = 'Possible Theming Bonuses:
   [NEWLINE][ICON_BULLET] +10 [ICON_CULTURE] and [ICON_TOURISM] for three [ICON_GW_WRITING] from [COLOR_POSITIVE_TEXT]different Civilizations[ENDCOLOR] and [COLOR_CYAN]different Eras[ENDCOLOR].'
-WHERE Tag = 'TXT_KEY_BUILDING_GREAT_LIBRARY_HELP';
+WHERE Tag = 'TXT_KEY_WONDER_GREAT_LIBRARY_HELP';
 
 UPDATE Language_en_US 
 SET Text = 'Possible Theming Bonuses:
