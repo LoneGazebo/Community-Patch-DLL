@@ -1559,12 +1559,10 @@
 			<Text>Piazza San Marco (often known in English as St Mark's Square), is the principal public square of Venice, Italy, where it is generally known just as "the Piazza" (la Piazza). All other urban spaces in the city (except the Piazzetta and the Piazzale Roma) are called "campi" (fields). The Piazzetta (the 'little Piazza') is an extension of the Piazza towards the lagoon in its south east corner (see plan). The two spaces together form the social, religious and political centre of Venice and are commonly considered together.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_PIAZZA_SAN_MARCO_STRATEGY">
-			<Text>Unique Venetian replacement for the {TXT_KEY_BUILDING_NATIONAL_EPIC}. In addition to the bonuses of the {TXT_KEY_BUILDING_NATIONAL_EPIC}, {TXT_KEY_BUILDING_PIAZZA_SAN_MARCO} provides additional [ICON_FOOD] Food, [ICON_PRODUCTION] Production, [ICON_GOLD] Gold, [ICON_RESEARCH] Science, [ICON_CITY_SECURITY] City Security, and [ICON_WAR] Military Supply, and an extra boost to the city's [ICON_GREAT_PEOPLE] Great People generation. This building also reduces the cooldown of purchasing civilian units and removes the cooldown of purchasing military units. Unlocks the ability for Venice to build 1 of 3 unique buildings once [COLOR_CYAN]Guilds[ENDCOLOR] is researched. Unlike the {TXT_KEY_BUILDING_NATIONAL_EPIC}, the {TXT_KEY_BUILDING_PIAZZA_SAN_MARCO} is made available with the discovery of [COLOR_CYAN]{TXT_KEY_TECH_WRITING_TITLE}[ENDCOLOR], does not require a {TXT_KEY_BUILDING_MONUMENT} in the city, but can only be built in the [ICON_CAPITAL] Capital.</Text>
+			<Text>Unique Venetian replacement for the {TXT_KEY_BUILDING_NATIONAL_EPIC}. In addition to the bonuses of the {TXT_KEY_BUILDING_NATIONAL_EPIC}, {TXT_KEY_BUILDING_PIAZZA_SAN_MARCO} provides additional [ICON_FOOD] Food, [ICON_PRODUCTION] Production, [ICON_GOLD] Gold, [ICON_RESEARCH] Science, [ICON_CITY_SECURITY] City Security, and [ICON_WAR] Military Supply, and an extra boost to the city's [ICON_GREAT_PEOPLE] Great People generation. This building also reduces the cooldown of purchasing civilian units and removes the cooldown of purchasing military units. Unlocks the ability for Venice to build 1 of 3 unique buildings once [COLOR_CYAN]Guilds[ENDCOLOR] is researched. Unlike the {TXT_KEY_BUILDING_NATIONAL_EPIC}, the {TXT_KEY_BUILDING_PIAZZA_SAN_MARCO} is made available with the discovery of [COLOR_CYAN]{TXT_KEY_TECH_WRITING_TITLE}[ENDCOLOR], does not require a {TXT_KEY_BUILDING_MONUMENT_DESC} in the city, but can only be built in the [ICON_CAPITAL] Capital.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_PIAZZA_SAN_MARCO_HELP">
-			<Text>Unlocks access to [COLOR_POSITIVE_TEXT]Murano Glassworks[ENDCOLOR], [COLOR_POSITIVE_TEXT]Arsenale di Venezia[ENDCOLOR], and [COLOR_POSITIVE_TEXT]Rialto District[ENDCOLOR] once [COLOR_CYAN]Guilds[ENDCOLOR] is researched.[NEWLINE]
-				Possible Theming Bonuses:
-  				[NEWLINE][ICON_BULLET] +8 [ICON_CULTURE] and [ICON_TOURISM] for two [COLOR_POSITIVE_TEXT]Domestic[ENDCOLOR] [ICON_GREAT_WORK]</Text>
+			<Text>Unlocks access to [COLOR_POSITIVE_TEXT]Murano Glassworks[ENDCOLOR], [COLOR_POSITIVE_TEXT]Arsenale di Venezia[ENDCOLOR], and [COLOR_POSITIVE_TEXT]Rialto District[ENDCOLOR] once [COLOR_CYAN]Guilds[ENDCOLOR] is researched.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_RIALTO_DISTRICT">
 			<Text>Rialto District</Text>
@@ -1600,7 +1598,7 @@
 			<Text>One of three mutually exclusive buildings that Venice can build in its capital after it has completed {TXT_KEY_BUILDING_PIAZZA_SAN_MARCO}. Boosts the value of Great Person tile improvements and villages for all cities, enables or strengthens Historic Events on [ICON_INTERNATIONAL_TRADE] Trade Route completion, and contains 2 slots for [ICON_GREAT_WORK] Great Works of Art or Artifacts.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_MURANO_GLASSWORKS_HELP">
-			<Text></Text>
+			<Text>Possible Theming Bonuses:[NEWLINE][ICON_BULLET] +8 [ICON_CULTURE] and [ICON_TOURISM] for two [COLOR_POSITIVE_TEXT]Domestic[ENDCOLOR] [ICON_GREAT_WORK]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_THEMING_BONUS_MURANO_GLASSWORKS">
 			<Text>Murano Masterpiece Collection</Text>
