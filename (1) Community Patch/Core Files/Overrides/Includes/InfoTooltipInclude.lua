@@ -1327,16 +1327,11 @@ function GetHelpTextForUnit(eUnit, bIncludeRequirementsInfo, pCity, bExcludeName
 	----------------------
 	local tPreWrittenLines = {};
 
-	-- Help/Strategy text
+	-- Pre-written Help text
 	if kUnitInfo.Help then
 		local strWrittenHelp = L(kUnitInfo.Help);
 		if strWrittenHelp ~= "" then
 			table.insert(tLines, strWrittenHelp);
-		end
-	elseif kUnitInfo.Strategy then
-		local strStrategy = L(kUnitInfo.Strategy);
-		if strStrategy ~= "" then
-			table.insert(tLines, strStrategy);
 		end
 	end
 
