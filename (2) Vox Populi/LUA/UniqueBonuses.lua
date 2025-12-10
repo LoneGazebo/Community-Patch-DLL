@@ -102,7 +102,7 @@ function AdjustArtOnUniqueProjectButton( thisButton, thisFrame, thisProjectInfo,
 	if thisButton then
 		if(noTooltip ~= true) then
 			if (extendedTooltip) then
-				thisButton:SetToolTipString( Locale.ConvertTextKey(GetHelpTextForProject(thisProjectInfo.ID, false, false, false)));
+				thisButton:SetToolTipString( Locale.ConvertTextKey(GetHelpTextForProject(thisProjectInfo.ID)));
 			else
 				thisButton:SetToolTipString( Locale.ConvertTextKey( thisProjectInfo.Description ) );
 			end
