@@ -88,6 +88,7 @@
 			<Civilopedia>TXT_KEY_IMPROVEMENT_ISIBAYA_TEXT</Civilopedia>
 			<Help>TXT_KEY_IMPROVEMENT_ISIBAYA_HELP</Help>
 			<ArtDefineTag>ART_DEF_IMPROVEMENT_ISIBAYA</ArtDefineTag>
+			<CreatedByGreatPerson>true</CreatedByGreatPerson>
 			<IconAtlas>IMPROVEMENT_ATLAS_VP</IconAtlas>
 			<PortraitIndex>7</PortraitIndex>
 		</Row>
@@ -141,6 +142,7 @@
 			<Civilopedia>TXT_KEY_IMPROVEMENT_OPPIDUM_TEXT</Civilopedia>
 			<Help>TXT_KEY_IMPROVEMENT_OPPIDUM_HELP</Help>
 			<ArtDefineTag>ART_DEF_IMPROVEMENT_OPPIDUM</ArtDefineTag>
+			<CreatedByGreatPerson>true</CreatedByGreatPerson>
 			<SpecificCivRequired>true</SpecificCivRequired>
 			<CivilizationType>CIVILIZATION_CELTS</CivilizationType>
 			<IconAtlas>IMPROVEMENT_ATLAS_VP</IconAtlas>
@@ -152,6 +154,7 @@
 			<Civilopedia>TXT_KEY_IMPROVEMENT_ORDO_TEXT</Civilopedia>
 			<Help>TXT_KEY_IMPROVEMENT_ORDO_HELP</Help>
 			<ArtDefineTag>ART_DEF_IMPROVEMENT_ORDO</ArtDefineTag>
+			<CreatedByGreatPerson>true</CreatedByGreatPerson>
 			<IconAtlas>IMPROVEMENT_ATLAS_VP</IconAtlas>
 			<PortraitIndex>13</PortraitIndex>
 		</Row>
@@ -172,6 +175,7 @@
 			<Civilopedia>TXT_KEY_IMPROVEMENT_TERSANE_TEXT</Civilopedia>
 			<Help>TXT_KEY_IMPROVEMENT_TERSANE_HELP</Help>
 			<ArtDefineTag>ART_DEF_IMPROVEMENT_TERSANE</ArtDefineTag>
+			<CreatedByGreatPerson>true</CreatedByGreatPerson>
 			<SpecificCivRequired>true</SpecificCivRequired>
 			<CivilizationType>CIVILIZATION_OTTOMAN</CivilizationType>
 			<IconAtlas>IMPROVEMENT_ATLAS_VP</IconAtlas>
