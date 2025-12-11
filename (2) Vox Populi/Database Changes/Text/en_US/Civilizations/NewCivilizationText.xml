@@ -1598,7 +1598,7 @@
 			<Text>One of three mutually exclusive buildings that Venice can build in its capital after it has completed {TXT_KEY_BUILDING_PIAZZA_SAN_MARCO}. Boosts the value of Great Person tile improvements and villages for all cities, enables or strengthens Historic Events on [ICON_INTERNATIONAL_TRADE] Trade Route completion, and contains 2 slots for [ICON_GREAT_WORK] Great Works of Art or Artifacts.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_MURANO_GLASSWORKS_HELP">
-			<Text>Possible Theming Bonuses:[NEWLINE][ICON_BULLET] +8 [ICON_CULTURE] and [ICON_TOURISM] for two [COLOR_POSITIVE_TEXT]Domestic[ENDCOLOR] [ICON_GREAT_WORK]</Text>
+			<Text>Possible Theming Bonuses:[NEWLINE][ICON_BULLET] +8 [ICON_CULTURE] and [ICON_TOURISM] for two [COLOR_POSITIVE_TEXT]Domestic[ENDCOLOR] [ICON_GREAT_WORK] Great Works.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_THEMING_BONUS_MURANO_GLASSWORKS">
 			<Text>Murano Masterpiece Collection</Text>
