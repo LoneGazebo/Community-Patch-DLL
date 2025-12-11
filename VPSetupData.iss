@@ -164,7 +164,7 @@ begin
   Result := not (CurPageID = CIVDirPage.ID) or DirExists(CIVDirPage.Values[0] + '\Assets\DLC');
   if Result = False then
     MsgBox('You did not provide the correct path to the Civ 5 folder. To locate the folder, right-click on Civilization V in Steam and select "Show local files".', mbInformation, MB_OK)
-  else
+  else if CurPageID = CIVDirPage.ID then
   begin
     // check if all required DLC are installed
     MissingFolders := TStringList.Create;
