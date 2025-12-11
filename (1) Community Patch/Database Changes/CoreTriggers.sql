@@ -9,23 +9,19 @@ WHEN (
 	)
 )
 BEGIN
-	UPDATE Policies
-	SET IsDummy = 1
-	WHERE Type = NEW.Type;
+	UPDATE Policies SET IsDummy = 1 WHERE Type = NEW.Type;
 END;
 
 CREATE TRIGGER Improvements_GPTIConnectsResources
 AFTER INSERT ON Improvements
-WHEN NEW.CreatedByGreatPerson = 1
+WHEN (NEW.CreatedByGreatPerson = 1)
 BEGIN
-	UPDATE Improvements
-	SET ConnectsAllResources = 1
-	WHERE Type = NEW.Type;
+	UPDATE Improvements SET ConnectsAllResources = 1 WHERE Type = NEW.Type;
 END;
 
 CREATE TRIGGER Units_GlobalSeparateGreatAdmiral
 AFTER INSERT ON Units
-WHEN NEW.Class = 'UNITCLASS_GREAT_ADMIRAL'
+WHEN (NEW.Class = 'UNITCLASS_GREAT_ADMIRAL')
 BEGIN
 	UPDATE Units
 	SET
