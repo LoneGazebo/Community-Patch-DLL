@@ -260,8 +260,7 @@ UPDATE Buildings
 SET
 	Cost = -1,
 	FaithCost = 300,
-	GoldMaintenance = 0,
-	UnlockedByBelief = 0
+	GoldMaintenance = 0
 WHERE BuildingClass = 'BUILDINGCLASS_WAT';
 
 -- Reformation buildings

@@ -270,5 +270,17 @@ WHERE Type = 'BUILDING_KREPOST';
 
 DELETE FROM Building_DomainFreeExperiences WHERE BuildingType = 'BUILDING_KREPOST';
 
+-- Existing unique buildings with no base buildings
+-- Set everything back to default values (as if the buildings do nothing)
+-- These should never need to be changed in the future
+
 -- Siam: Wat
+UPDATE Buildings
+SET
+	PrereqTech = NULL,
+	UnlockedByBelief = 0,
+	SpecialistType = NULL,
+	SpecialistCount = 0
+WHERE Type = 'BUILDING_WAT';
+
 DELETE FROM Building_FeatureYieldChanges WHERE BuildingType = 'BUILDING_WAT';
