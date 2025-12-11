@@ -1404,6 +1404,10 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 		end
 
 		local kCheckBuildingInfo = GameInfo.Buildings[eCheckBuilding];
+		if kCheckBuildingInfo.IsDummy then
+			return false;
+		end
+
 		if kCheckBuildingInfo.CivilizationRequired and GameInfoTypes[kCheckBuildingInfo.CivilizationRequired] ~= eActiveCiv then
 			return false;
 		end

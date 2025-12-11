@@ -141,6 +141,10 @@ function AddSmallButtonsToTechButton(buttonStack, kTechInfo, iButtonCount, iText
 		end
 
 		local kBuildingInfo = GameInfo.Buildings[eBuilding];
+		if kBuildingInfo.IsDummy then
+			return false;
+		end
+
 		if kBuildingInfo.CivilizationRequired and kBuildingInfo.CivilizationRequired ~= strCivType then
 			return false;
 		end
