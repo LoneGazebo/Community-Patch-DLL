@@ -724,7 +724,7 @@ function GetHelpTextForUnit(eUnit, bIncludeRequirementsInfo, pCity, bExcludeName
 	else
 		local tCivAdjectives = {};
 		for row in GameInfo.Civilization_UnitClassOverrides{UnitType = kUnitInfo.Type} do
-			table.insert(tCivAdjectives, GameInfo.Civilizations[row.CivilizationType].Adjective);
+			table.insert(tCivAdjectives, L(GameInfo.Civilizations[row.CivilizationType].Adjective));
 		end
 		if next(tCivAdjectives) then
 			-- Get the unit it is replacing
@@ -966,14 +966,16 @@ function GetHelpTextForUnit(eUnit, bIncludeRequirementsInfo, pCity, bExcludeName
 	local tImprovementLines = {};
 	for row in GameInfo.Unit_Builds{UnitType = kUnitInfo.Type} do
 		local kBuildInfo = GameInfo.Builds[row.BuildType];
-		local kPrereqTechInfo = kBuildInfo.PrereqTech and GameInfo.Technologies[kBuildInfo.PrereqTech];
-		if kBuildInfo.ImprovementType then
-			-- Only show improvements that the player can build
-			if CanPlayerEverBuildImprovementCached(kBuildInfo.ImprovementType) then
-				table.insert(tImprovementLines, L(GameInfo.Improvements[kBuildInfo.ImprovementType].Description) .. AppendTech(kPrereqTechInfo));
+		if kBuildInfo.ShowInPedia then
+			local kPrereqTechInfo = kBuildInfo.PrereqTech and GameInfo.Technologies[kBuildInfo.PrereqTech];
+			if kBuildInfo.ImprovementType then
+				-- Only show improvements that the player can build
+				if not pActivePlayer or CanPlayerEverBuildImprovementCached(kBuildInfo.ImprovementType) then
+					table.insert(tImprovementLines, L(GameInfo.Improvements[kBuildInfo.ImprovementType].Description) .. AppendTech(kPrereqTechInfo));
+				end
+			else
+				table.insert(tBuildLines, L(kBuildInfo.Description) .. AppendTech(kPrereqTechInfo));
 			end
-		elseif kBuildInfo.ShowInPedia then
-			table.insert(tBuildLines, L(kBuildInfo.Description) .. AppendTech(kPrereqTechInfo));
 		end
 	end
 	if next(tBuildLines) then
@@ -1327,16 +1329,11 @@ function GetHelpTextForUnit(eUnit, bIncludeRequirementsInfo, pCity, bExcludeName
 	----------------------
 	local tPreWrittenLines = {};
 
-	-- Help/Strategy text
+	-- Pre-written Help text
 	if kUnitInfo.Help then
 		local strWrittenHelp = L(kUnitInfo.Help);
 		if strWrittenHelp ~= "" then
 			table.insert(tLines, strWrittenHelp);
-		end
-	elseif kUnitInfo.Strategy then
-		local strStrategy = L(kUnitInfo.Strategy);
-		if strStrategy ~= "" then
-			table.insert(tLines, strStrategy);
 		end
 	end
 
@@ -1409,6 +1406,10 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 		end
 
 		local kCheckBuildingInfo = GameInfo.Buildings[eCheckBuilding];
+		if kCheckBuildingInfo.IsDummy then
+			return false;
+		end
+
 		if kCheckBuildingInfo.CivilizationRequired and GameInfoTypes[kCheckBuildingInfo.CivilizationRequired] ~= eActiveCiv then
 			return false;
 		end
@@ -1543,17 +1544,17 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 	local bExclusive = false; -- If only one civ can build it but it is not an override of any building class, it is an exclusive building
 	if kBuildingInfo.CivilizationRequired then
 		bExclusive = true;
-		tCivAdjectives = {GameInfo.Civilizations[kBuildingInfo.CivilizationRequired].Adjective};
+		tCivAdjectives = {L(GameInfo.Civilizations[kBuildingInfo.CivilizationRequired].Adjective)};
 	end
 
 	for row in GameInfo.Civilization_BuildingClassOverrides{BuildingType = kBuildingInfo.Type} do
 		if row.CivilizationType == kBuildingInfo.CivilizationRequired then
 			-- Only this civ is allowed to build this building, regardless of overrides
-			tCivAdjectives = {GameInfo.Civilizations[row.CivilizationType].Adjective};
+			tCivAdjectives = {L(GameInfo.Civilizations[row.CivilizationType].Adjective)};
 			bExclusive = false;
 			break;
 		end
-		table.insert(tCivAdjectives, GameInfo.Civilizations[row.CivilizationType].Adjective);
+		table.insert(tCivAdjectives, L(GameInfo.Civilizations[row.CivilizationType].Adjective));
 	end
 
 	if next(tCivAdjectives) then
@@ -2552,13 +2553,17 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 	-- Nearby unique luxury
 	-- This assumes Traits.UniqueLuxuryCities is set to a large value if non-zero, so that it always spawns a resource
 	if kBuildingInfo.GrantsRandomResourceTerritory > 0 then
-		local tResources = {};
-		-- Get the list of unique luxuries for the active civ
-		for kResourceInfo in GameInfo.Resources{CivilizationType = GameInfo.Civilizations[eActiveCiv].Type} do
-			table.insert(tResources, string.format("%s %s", kResourceInfo.IconString, L(kResourceInfo.Description)));
-		end
-		if next(tResources) then
-			AddTooltip(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_SPAWN_NEARBY_LUXURY", kBuildingInfo.GrantsRandomResourceTerritory, table.concat(tResources, ", "));
+		if eActiveCiv ~= -1 then
+			-- Get the list of unique luxuries for the active civ
+			local tResources = {};
+			for kResourceInfo in GameInfo.Resources{CivilizationType = GameInfo.Civilizations[eActiveCiv].Type} do
+				table.insert(tResources, string.format("%s %s", kResourceInfo.IconString, L(kResourceInfo.Description)));
+			end
+			if next(tResources) then
+				AddTooltip(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_SPAWN_NEARBY_LUXURY", kBuildingInfo.GrantsRandomResourceTerritory, table.concat(tResources, ", "));
+			end
+		else
+			AddTooltip(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_SPAWN_NEARBY_LUXURY_GENERIC", kBuildingInfo.GrantsRandomResourceTerritory);
 		end
 	end
 
@@ -2672,7 +2677,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 	AddTooltipIfTrue(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_EXTRA_LUXURIES", kBuildingInfo.ExtraLuxuries);
 	AddTooltipIfTrue(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_AIRLIFT", kBuildingInfo.Airlift);
 	AddTooltipIfTrue(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_REMOVE_OCCUPIED_UNHAPPINESS", kBuildingInfo.NoOccupiedUnhappiness);
-	AddTooltipIfTrue(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_FRESH_WATER", kBuildingInfo.AddsFreshWater);
+	AddTooltipIfTrue(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_ADD_FRESH_WATER", kBuildingInfo.AddsFreshWater);
 	AddTooltipIfTrue(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_GAINLESS_PILLAGE", kBuildingInfo.CityGainlessPillage);
 	AddTooltipIfTrue(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_BORDER_OBSTACLE_LAND", kBuildingInfo.BorderObstacleCity);
 	AddTooltipIfTrue(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_BORDER_OBSTACLE_WATER", kBuildingInfo.BorderObstacleWater);
@@ -3860,40 +3865,65 @@ function GetHelpTextForImprovement(eImprovement, bExcludeName, bExcludeHeader)
 	return table.concat(tLines, "[NEWLINE]");
 end
 
-function GetHelpTextForProject(eProject, bIncludeRequirementsInfo, pCity)
+function GetHelpTextForProject(eProject, pCity, bGeneralInfo)
 	local kProjectInfo = GameInfo.Projects[eProject];
-	local pActivePlayer = Players[Game.GetActivePlayer()];
+
+	--- @type Player?
+	local pActivePlayer = Game and Players[Game.GetActivePlayer()];
+
+	-- Only general info if Game object doesn't exist (e.g. in pregame)
+	if not Game then
+		bGeneralInfo = true;
+	end
+
+	-- When viewing a (foreign) city, always show tooltips as they are for the city owner
+	if pCity then
+		pActivePlayer = Players[pCity:GetOwner()];
+	end
+
+	-- Sometimes a city is needed in tooltips not in city view; in that case use the capital city
+	local pActiveCity = pCity or pActivePlayer and pActivePlayer:GetCapitalCity();
+
+	-- Invalidate pCity, pActivePlayer, pActiveCity if we only want general info (then we don't have to additionally check for bGeneralInfo on top of nil checks)
+	if bGeneralInfo then
+		pCity = nil;
+		pActivePlayer = nil;
+		pActiveCity = nil;
+	end
+
 	local tLines = {};
+	local tHeaderLines = {};
 
 	-- Name
-	table.insert(tLines, Locale.ToUpper(L(kProjectInfo.Description)));
+	table.insert(tHeaderLines, Locale.ToUpper(L(kProjectInfo.Description)));
+
+	-- Unique Project?
+	if kProjectInfo.CivilizationType then
+		AddTooltip(tHeaderLines, "TXT_KEY_PRODUCTION_EXCLUSIVE_PROJECT", GameInfo.Civilizations[kProjectInfo.CivilizationType].Adjective);
+	end
 
 	-- Cost
 	local iCost;
-	if pCity then
-		iCost = pCity:GetProjectProductionNeeded(eProject);
-	else
+	if pActiveCity then
+		iCost = pActiveCity:GetProjectProductionNeeded(eProject);
+	elseif pActivePlayer then
 		iCost = pActivePlayer:GetProjectProductionNeeded(eProject);
+	else
+		iCost = kProjectInfo.Cost;
 	end
-	table.insert(tLines, SEPARATOR_STRING);
-	table.insert(tLines, L("TXT_KEY_PRODUCTION_COST", iCost));
+	AddTooltip(tHeaderLines, "TXT_KEY_PRODUCTION_COST", iCost);
+
+	table.insert(tLines, table.concat(tHeaderLines, "[NEWLINE]"));
 
 	-- Pre-written Help text
 	if not kProjectInfo.Help then
 		print("Project help is NULL:", L(kProjectInfo.Description));
 	else
 		local strWrittenHelp = L(kProjectInfo.Help);
-		table.insert(tLines, SEPARATOR_STRING);
 		table.insert(tLines, strWrittenHelp);
 	end
 
-	-- Hardcoded Requirements text
-	if bIncludeRequirementsInfo and kProjectInfo.Requirements then
-		table.insert(tLines, SEPARATOR_STRING);
-		table.insert(tLines, L(kProjectInfo.Requirements));
-	end
-
-	return table.concat(tLines, "[NEWLINE]");
+	return table.concat(tLines, "[NEWLINE]" .. SEPARATOR_STRING .. "[NEWLINE]");
 end
 
 function GetHelpTextForProcess(eProcess)

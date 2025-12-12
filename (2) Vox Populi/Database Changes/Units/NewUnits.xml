@@ -1235,6 +1235,7 @@
 			<Description>TXT_KEY_UNIT_TADODAHO</Description>
 			<Civilopedia>TXT_KEY_UNIT_TADODAHO_TEXT</Civilopedia>
 			<Strategy>TXT_KEY_UNIT_TADODAHO_STRATEGY</Strategy>
+			<Help>TXT_KEY_UNIT_TADODAHO_HELP</Help>
 			<Domain>DOMAIN_LAND</Domain>
 			<Class>UNITCLASS_GREAT_DIPLOMAT</Class>
 			<Special>SPECIALUNIT_PEOPLE</Special>
@@ -1533,6 +1534,7 @@
 			<Description>TXT_KEY_UNIT_INDUNA</Description>
 			<Civilopedia>TXT_KEY_UNIT_INDUNA_TEXT</Civilopedia>
 			<Strategy>TXT_KEY_UNIT_INDUNA_STRATEGY</Strategy>
+			<Help>TXT_KEY_UNIT_INDUNA_HELP</Help>
 			<Domain>DOMAIN_LAND</Domain>
 			<Class>UNITCLASS_GREAT_GENERAL</Class>
 			<Special>SPECIALUNIT_PEOPLE</Special>

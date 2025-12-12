@@ -4903,9 +4903,7 @@ CivilopediaCategory[CategoryWonders].SelectArticle = function( wonderID, shouldA
 			UpdateButtonFrame( buttonAdded, Controls.RequiredBuildingsInnerFrame, Controls.RequiredBuildingsFrame );
 
 			-- update the game info
-			if thisProject.Help then
-				UpdateTextBlock( Locale.ConvertTextKey( thisProject.Help ), Controls.GameInfoLabel, Controls.GameInfoInnerFrame, Controls.GameInfoFrame );
-			end
+			UpdateTextBlock(GetHelpTextForProject(projectID, nil, true), Controls.GameInfoLabel, Controls.GameInfoInnerFrame, Controls.GameInfoFrame);
 
 			-- update the strategy info
 			if (thisProject.Strategy) then

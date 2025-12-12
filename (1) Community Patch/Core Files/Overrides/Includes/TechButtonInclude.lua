@@ -141,6 +141,10 @@ function AddSmallButtonsToTechButton(buttonStack, kTechInfo, iButtonCount, iText
 		end
 
 		local kBuildingInfo = GameInfo.Buildings[eBuilding];
+		if kBuildingInfo.IsDummy then
+			return false;
+		end
+
 		if kBuildingInfo.CivilizationRequired and kBuildingInfo.CivilizationRequired ~= strCivType then
 			return false;
 		end
@@ -241,7 +245,7 @@ function AddSmallButtonsToTechButton(buttonStack, kTechInfo, iButtonCount, iText
 	--- @param strButtonText string?
 	local function SetupProjectButton(button, kProjectInfo, strCustomTooltip, strButtonText)
 		button:SetToolTipCallback(function ()
-			local strTooltip = strCustomTooltip or GetHelpTextForProject(kProjectInfo.ID, true);
+			local strTooltip = strCustomTooltip or GetHelpTextForProject(kProjectInfo.ID);
 			SetTooltip(tooltipInstance, strTooltip);
 		end);
 		tPediaSearchStrings[tostring(button)] = L(kProjectInfo.Description);

@@ -117,7 +117,7 @@ local tOrderTypeDetails = {
 			Stack = "WonderButtonStack",
 		},
 		HelpTextFunc = function (eType, pCity)
-			return GetHelpTextForProject(eType, false, pCity);
+			return GetHelpTextForProject(eType, pCity);
 		end,
 		TurnsLeftFunc = function (eType, pCity, iQueueIndex)
 			return pCity:GetProjectProductionTurnsLeft(eType, iQueueIndex - 1);

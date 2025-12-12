@@ -101,7 +101,6 @@ SET
 	BuildableOnResources = 1,
 	ConnectsAllResources = 1,
 	NoTwoAdjacent = 1,
-	CreatedByGreatPerson = 1,
 	DefenseModifier = 100,
 	NoFollowUp = 1
 WHERE Type = 'IMPROVEMENT_OPPIDUM';

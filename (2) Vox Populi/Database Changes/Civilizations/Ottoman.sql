@@ -104,7 +104,6 @@ SET
 	BuildableOnResources = 1,
 	ConnectsAllResources = 1,
 	NoTwoAdjacent = 1,
-	CreatedByGreatPerson = 1,
 	CultureBombRadius = 1,
 	DefenseModifier = 50,
 	NoFollowUp = 1,
