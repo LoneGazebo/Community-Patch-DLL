@@ -2643,6 +2643,9 @@ bool CvAIOperationNukeAttack::CheckTransitionToNextStage()
 	CvPlot* pTargetPlot = GetTargetPlot();
 	CvArmyAI* pArmy = GetArmy(0);
 
+	if (m_eCurrentState == AI_OPERATION_STATE_SUCCESSFUL_FINISH)
+		return false;
+
 	//don't care about the intermediate niceties ... just nuke away!
 	if(pTargetPlot && pArmy)
 	{
