@@ -37242,15 +37242,15 @@ void CvPlayer::changeNumResourceTotal(ResourceTypes eIndex, int iChange, bool bF
 
 				if(eUsage == RESOURCEUSAGE_STRATEGIC || eUsage == RESOURCEUSAGE_LUXURY)
 				{
-					GET_PLAYER(eBestRelationsPlayer).changeResourceFromMinors(eIndex, iChange);
-					changeResourceExport(eIndex, iChange);
-
 					// Someone new is getting the bonus - but do they have the tech to see it?
 					CvResourceInfo* pResource = GC.getResourceInfo(eIndex);
 					if (pResource)
 					{
-						if (IsResourceRevealed(eIndex))
+						if (GET_PLAYER(eBestRelationsPlayer).IsResourceRevealed(eIndex))
 						{
+							GET_PLAYER(eBestRelationsPlayer).changeResourceFromMinors(eIndex, iChange);
+							changeResourceExport(eIndex, iChange);
+
 							CvNotifications* pNotifications = GET_PLAYER(eBestRelationsPlayer).GetNotifications();
 							if (pNotifications && !GetMinorCivAI()->IsDisableNotifications())
 							{
