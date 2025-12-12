@@ -724,7 +724,7 @@ function GetHelpTextForUnit(eUnit, bIncludeRequirementsInfo, pCity, bExcludeName
 	else
 		local tCivAdjectives = {};
 		for row in GameInfo.Civilization_UnitClassOverrides{UnitType = kUnitInfo.Type} do
-			table.insert(tCivAdjectives, GameInfo.Civilizations[row.CivilizationType].Adjective);
+			table.insert(tCivAdjectives, L(GameInfo.Civilizations[row.CivilizationType].Adjective));
 		end
 		if next(tCivAdjectives) then
 			-- Get the unit it is replacing
@@ -1544,17 +1544,17 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 	local bExclusive = false; -- If only one civ can build it but it is not an override of any building class, it is an exclusive building
 	if kBuildingInfo.CivilizationRequired then
 		bExclusive = true;
-		tCivAdjectives = {GameInfo.Civilizations[kBuildingInfo.CivilizationRequired].Adjective};
+		tCivAdjectives = {L(GameInfo.Civilizations[kBuildingInfo.CivilizationRequired].Adjective)};
 	end
 
 	for row in GameInfo.Civilization_BuildingClassOverrides{BuildingType = kBuildingInfo.Type} do
 		if row.CivilizationType == kBuildingInfo.CivilizationRequired then
 			-- Only this civ is allowed to build this building, regardless of overrides
-			tCivAdjectives = {GameInfo.Civilizations[row.CivilizationType].Adjective};
+			tCivAdjectives = {L(GameInfo.Civilizations[row.CivilizationType].Adjective)};
 			bExclusive = false;
 			break;
 		end
-		table.insert(tCivAdjectives, GameInfo.Civilizations[row.CivilizationType].Adjective);
+		table.insert(tCivAdjectives, L(GameInfo.Civilizations[row.CivilizationType].Adjective));
 	end
 
 	if next(tCivAdjectives) then

@@ -1675,7 +1675,7 @@
 		</Row>
 		<!-- Project -->
 		<Row Tag="TXT_KEY_PRODUCTION_EXCLUSIVE_PROJECT">
-			<Text>{1_CivAdj} Exclusive Project</Text>
+			<Text>{1_CivAdj:textkey} Exclusive Project</Text>
 		</Row>
 		<!-- Yield -->
 		<Row Tag="TXT_KEY_YIELD_FROM_GREAT_WORKS">
