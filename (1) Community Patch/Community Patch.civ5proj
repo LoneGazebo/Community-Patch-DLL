@@ -1004,6 +1004,7 @@
     <Folder Include="Kit\FP" />
     <Folder Include="Kit\Cache" />
     <Folder Include="Kit\DB" />
+    <Folder Include="Kit\Bit" />
     <Folder Include="Kit\Text" />
     <Folder Include="Kit\String" />
     <Folder Include="Kit\Table" />
@@ -3539,6 +3540,10 @@
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="Kit\Assert\CPK.Assert.Prepare.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Kit\Bit\CPK.Bit.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
