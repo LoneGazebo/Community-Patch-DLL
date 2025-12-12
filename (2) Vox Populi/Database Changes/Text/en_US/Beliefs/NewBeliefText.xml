@@ -91,7 +91,7 @@
 
 		<!-- Tooltips -->
 		<Row Tag="TXT_KEY_BUILDING_CATHEDRAL_TOOLTIP">
-			<Text>+2 [ICON_PEACE] Faith[NEWLINE]+2 [ICON_GOLD] Gold[NEWLINE][NEWLINE]+1 [ICON_FOOD] to Farms, Pastures, and Quarries worked by the City.[NEWLINE][NEWLINE]+10 [ICON_GOLD] Gold when the City naturally expands, scaling with Era.[NEWLINE][NEWLINE]+25% Religious Pressure towards other Cities if this Religion is the Majority Religion of the City.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_GOLD] Poverty.</Text>
+			<Text>+2 [ICON_PEACE] Faith[NEWLINE]+2 [ICON_GOLD] Gold[NEWLINE][NEWLINE]+1 [ICON_GOLD] Gold to Farms, Pastures, and Quarries worked by the City.[NEWLINE][NEWLINE]+10 [ICON_GOLD] Gold when the City naturally expands, scaling with Era.[NEWLINE][NEWLINE]+25% Religious Pressure towards other Cities if this Religion is the Majority Religion of the City.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_GOLD] Poverty.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_CHURCH_TOOLTIP">
 			<Text>+4 [ICON_PEACE] Faith[NEWLINE]+2 [ICON_CULTURE] Culture[NEWLINE][NEWLINE]+1 [ICON_PEACE] Faith to all [ICON_GREAT_WORK] Great Works in the City.[NEWLINE][NEWLINE]Start 15 Turns of [ICON_HAPPINESS_1] "We Love the King Day" when built.[NEWLINE][NEWLINE]+40% Religious Pressure towards other Cities if this Religion is the Majority Religion of the City.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_CULTURE] Boredom.</Text>
