@@ -144,7 +144,12 @@ VALUES
 
 -- New Deal
 DELETE FROM Policy_ImprovementYieldChanges
-WHERE PolicyType = 'POLICY_NEW_DEAL';
+WHERE PolicyType = 'POLICY_NEW_DEAL' AND ImprovementType IN (
+	'IMPROVEMENT_ACADEMY',
+	'IMPROVEMENT_CUSTOMS_HOUSE',
+	'IMPROVEMENT_MANUFACTORY',
+	'IMPROVEMENT_HOLY_SITE'
+);
 
 INSERT INTO Policy_ImprovementYieldChanges
 	(PolicyType, ImprovementType, YieldType, Yield)
