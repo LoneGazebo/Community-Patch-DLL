@@ -966,14 +966,16 @@ function GetHelpTextForUnit(eUnit, bIncludeRequirementsInfo, pCity, bExcludeName
 	local tImprovementLines = {};
 	for row in GameInfo.Unit_Builds{UnitType = kUnitInfo.Type} do
 		local kBuildInfo = GameInfo.Builds[row.BuildType];
-		local kPrereqTechInfo = kBuildInfo.PrereqTech and GameInfo.Technologies[kBuildInfo.PrereqTech];
-		if kBuildInfo.ImprovementType then
-			-- Only show improvements that the player can build
-			if CanPlayerEverBuildImprovementCached(kBuildInfo.ImprovementType) then
-				table.insert(tImprovementLines, L(GameInfo.Improvements[kBuildInfo.ImprovementType].Description) .. AppendTech(kPrereqTechInfo));
+		if kBuildInfo.ShowInPedia then
+			local kPrereqTechInfo = kBuildInfo.PrereqTech and GameInfo.Technologies[kBuildInfo.PrereqTech];
+			if kBuildInfo.ImprovementType then
+				-- Only show improvements that the player can build
+				if not pActivePlayer or CanPlayerEverBuildImprovementCached(kBuildInfo.ImprovementType) then
+					table.insert(tImprovementLines, L(GameInfo.Improvements[kBuildInfo.ImprovementType].Description) .. AppendTech(kPrereqTechInfo));
+				end
+			else
+				table.insert(tBuildLines, L(kBuildInfo.Description) .. AppendTech(kPrereqTechInfo));
 			end
-		elseif kBuildInfo.ShowInPedia then
-			table.insert(tBuildLines, L(kBuildInfo.Description) .. AppendTech(kPrereqTechInfo));
 		end
 	end
 	if next(tBuildLines) then
