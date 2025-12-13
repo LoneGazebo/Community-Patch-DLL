@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Civ5Package>
+	<GUID>{570f793e-fc33-417f-ae18-7cecccdd5f11}</GUID>
+	<Version>1</Version>
+	<Priority>400</Priority>
+	<PTags>
+		<Tag>Version</Tag>
+	</PTags>
+	<Name>
+		<Value language="en_US">Efficient Lua</Value>
+	</Name>
+	<Description>
+		<Value language="en_US">Efficient loading of Lua files for Civ5.</Value>
+	</Description>
+
+	<UISkin name="Expansion2Primary" set="Expansion2" platform="Common">
+		<Skin>
+			<Directory>LuaVP</Directory>
+		</Skin>
+	</UISkin>
+
+</Civ5Package>

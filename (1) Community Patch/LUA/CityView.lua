@@ -10,7 +10,7 @@ include("VPUI_core");
 include("CPK.lua");
 
 local L = Locale.Lookup;
-local VP = MapModData.VP;
+local VP = VP or MapModData.VP;
 local GameInfoCache = VP.GameInfoCache;
 local GetGreatPersonInfoFromSpecialist = VP.GetGreatPersonInfoFromSpecialist;
 local IconHookupOrDefault = VP.IconHookupOrDefault;

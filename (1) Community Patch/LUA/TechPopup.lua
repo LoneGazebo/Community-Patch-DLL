@@ -21,7 +21,7 @@ local g_eStealTechTargetPlayer = -1;
 local g_ePopup = -1;
 
 local L = Locale.Lookup;
-local VP = MapModData.VP;
+local VP = VP or MapModData.VP;
 local GameInfoCache = VP.GameInfoCache;
 local Hide = CPK.UI.Control.Hide;
 local Show = CPK.UI.Control.Show;
