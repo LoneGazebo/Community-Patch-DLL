@@ -6762,7 +6762,7 @@ void CvPlayer::DoCancelEventChoice(EventChoiceTypes eChosenEventChoice)
 					iBonus *= -1;
 					if(iBonus != 0)
 					{
-						changeNumResourceTotal(eResource, iBonus);
+						changeNumResourceTotal(eResource, iBonus, true);
 						bChanged = true;
 					}
 				}
@@ -8081,7 +8081,7 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent, b
 					int iBonus = pkEventChoiceInfo->getEventResourceChange(eResource);
 					if(iBonus != 0)
 					{
-						changeNumResourceTotal(eResource, iBonus);
+						changeNumResourceTotal(eResource, iBonus, true);
 					}
 				}
 			}
