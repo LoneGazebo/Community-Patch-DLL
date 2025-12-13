@@ -1003,6 +1003,8 @@
     <Folder Include="Kit\Assert" />
     <Folder Include="Kit\FP" />
     <Folder Include="Kit\Cache" />
+    <Folder Include="Kit\DB" />
+    <Folder Include="Kit\Bit" />
     <Folder Include="Kit\Text" />
     <Folder Include="Kit\String" />
     <Folder Include="Kit\Table" />
@@ -3541,6 +3543,10 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
+    <Content Include="Kit\Bit\CPK.Bit.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
     <Content Include="Kit\Cache\CPK.Cache.Memoize.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
@@ -3561,7 +3567,15 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
+    <Content Include="Kit\DB\CPK.DB.Gi.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
     <Content Include="Kit\FP\CPK.FP.Always.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Kit\FP\CPK.FP.Bind.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
