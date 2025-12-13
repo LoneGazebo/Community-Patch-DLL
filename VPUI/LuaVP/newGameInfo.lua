@@ -389,7 +389,7 @@ local MT_GAMEINFO_OBJECT = {
 				GI[k] = nil ;
 				collectgarbage("collect") ;
 				local m2 = collectgarbage("count") * 1024;
-				--print( m - m2, k );
+				print( m - m2, k );
 				tot = tot + m-m2 ;
 				m = m2 ;
 			end
@@ -412,7 +412,7 @@ end
 GameInfo = newGameInfo ;
 
 
-
+--[[
 
 -- DEBUG STUFF
 --
