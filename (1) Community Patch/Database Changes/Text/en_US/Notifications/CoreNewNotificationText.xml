@@ -424,113 +424,248 @@
 		<Row Tag="TXT_KEY_INSTANT_YIELD_BIRTH">
 			<Text>Birth of a [ICON_CITIZEN] Citizen:[NEWLINE]{1_YieldString}</Text>
 		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TYPE_BIRTH_SHORT">
+			<Text>Birth of a Citizen</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TYPE_BIRTH_HOLY_CITY_SHORT">
+			<Text>Birth of a Citizen (Holy City)</Text>
+		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_TYPE_BAKTUN_END">
 			<Text>End of a B'ak'tun:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TYPE_BAKTUN_END_SHORT">
+			<Text>Ending a B'ak'tun</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_ANCIENT_RUIN">
 			<Text>Ancient Ruin:[NEWLINE]{1_YieldString}</Text>
 		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TYPE_ANCIENT_RUIN_SHORT">
+			<Text>Picking up an Ancient Ruin</Text>
+		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_PLUNDER_TRADE_ROUTE">
 			<Text>Plundering a Trade Route:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TYPE_PLUNDER_TRADE_ROUTE_SHORT">
+			<Text>Plundering a Trade Route</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_TYPE_WLTKD_START">
 			<Text>Start of We Love The King Day:[NEWLINE]{1_YieldString}</Text>
 		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TYPE_WLTKD_START_SHORT">
+			<Text>Starting We Love the King Day</Text>
+		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_BIRTH_RETROACTIVE">
 			<Text>Total Number of City [ICON_CITIZEN] Citizens:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TYPE_BIRTH_RETROACTIVE_SHORT">
+			<Text>Birth of a Citizen (Retroactive)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_TECH_RETROACTIVE">
 			<Text>Total Number of Technologies Researched:[NEWLINE]{1_YieldString}</Text>
 		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TYPE_TECH_RETROACTIVE_SHORT">
+			<Text>Researching a Technology (Retroactive)</Text>
+		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_ERA">
 			<Text>Entering a new [ICON_RESEARCH] Era:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TYPE_ERA_UNLOCK_SHORT">
+			<Text>Entering a new Era</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_POLICY">
 			<Text>Unlocking a [ICON_CULTURE] Policy:[NEWLINE]{1_YieldString}</Text>
 		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TYPE_POLICY_UNLOCK_SHORT">
+			<Text>Adopting a Policy</Text>
+		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_INSTANT">
 			<Text>Instant Yield:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TYPE_INSTANT_SHORT">
+			<Text>Other Instant Yield</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_TECH">
 			<Text>Researching a [ICON_RESEARCH] Technology:[NEWLINE]{1_YieldString}</Text>
 		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TYPE_TECH_SHORT">
+			<Text>Researching a Technology</Text>
+		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_CONSTRUCTION">
 			<Text>Constructing a Building:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TYPE_CONSTRUCTION_SHORT">
+			<Text>Constructing a Building</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TYPE_CONSTRUCTION_WONDER_SHORT">
+			<Text>Constructing a Wonder</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_BORDERS">
 			<Text>Expanding [ICON_CULTURE] Borders:[NEWLINE]{1_YieldString}</Text>
 		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TYPE_BORDERS_SHORT">
+			<Text>Expanding Borders</Text>
+		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_PROPOSAL">
 			<Text>Passing a [ICON_INFLUENCE] Proposal:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TYPE_PROPOSAL_SHORT">
+			<Text>Passing a Proposal</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_GP_USE">
 			<Text>Expending a [ICON_GREAT_PEOPLE] Great Person:[NEWLINE]{1_YieldString}</Text>
 		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TYPE_GP_USE_SHORT">
+			<Text>Expending a Great Person</Text>
+		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_GP_BORN">
 			<Text>Birth of a [ICON_GREAT_PEOPLE] Great Person:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TYPE_GP_BORN_SHORT">
+			<Text>Birth of a Great Person</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_CONQUEST">
 			<Text>[ICON_VICTORY_DOMINATION] Conquering a City:[NEWLINE]{1_YieldString}</Text>
 		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TYPE_F_CONQUEST_SHORT">
+			<Text>Conquering a City</Text>
+		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_VICTORY">
 			<Text>[ICON_VICTORY_DOMINATION] Winning a Battle:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TYPE_VICTORY_SHORT">
+			<Text>Winning a Battle</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TYPE_VICTORY_GLOBAL_SHORT">
+			<Text>Winning a Battle (Global Yield)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_PILLAGE">
 			<Text>[ICON_RAZING] Pillaging a Tile:[NEWLINE]{1_YieldString}</Text>
 		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TYPE_PILLAGE_SHORT">
+			<Text>Pillaging a Tile</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TYPE_PILLAGE_UNIT_SHORT">
+			<Text>Pillaging a Tile (Specific Unit)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TYPE_PILLAGE_GLOBAL_SHORT">
+			<Text>Pillaging a Tile (Global Yield)</Text>
+		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_UNIT_PRODUCTION">
 			<Text>[ICON_PRODUCTION] Producing a Military Unit:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TYPE_U_PROD_SHORT">
+			<Text>Producing a Military Unit</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_PURCHASE">
 			<Text>[ICON_GOLD] Purchasing a Unit or Building:[NEWLINE]{1_YieldString}</Text>
 		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TYPE_PURCHASE_SHORT">
+			<Text>Purchasing a Building or Unit</Text>
+		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_TILE_PURCHASE">
 			<Text>[ICON_GOLD] Purchasing a Tile:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TYPE_TILE_PURCHASE_SHORT">
+			<Text>Purchasing a Tile</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_FOUND">
 			<Text>[ICON_GOLDEN_AGE] Founding a City:[NEWLINE]{1_YieldString}</Text>
 		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TYPE_FOUND_SHORT">
+			<Text>Founding a City</Text>
+		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_TRADE_ROUTE">
 			<Text>Completing a [ICON_INTERNATIONAL_TRADE] Trade Route:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TYPE_TR_END_SHORT">
+			<Text>Completing a Trade Route</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_CONVERSION">
 			<Text>Converting a City to your [ICON_RELIGION] Religion:[NEWLINE]{1_YieldString}</Text>
 		</Row>
-		<Row Tag="TXT_KEY_INSTANT_YIELD_GROWTH_EXTRA">
-			<Text>Yield conversion in [ICON_CITY_STATE] City:[NEWLINE]{1_YieldString}</Text>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TYPE_CONVERSION_SHORT">
+			<Text>Converting a City to your Religion</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TYPE_CONVERSION_EXPO_SHORT">
+			<Text>Converting a City to your Religion (scaling)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_DEATH">
 			<Text>[ICON_PIRATE] Death of a Military Unit:[NEWLINE]{1_YieldString}</Text>
 		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TYPE_DEATH_SHORT">
+			<Text>Death of a Military Unit</Text>
+		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_BULLY">
 			<Text>[ICON_PIRATE] Demanding Tribute from {2_MinorName}:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TYPE_BULLY_SHORT">
+			<Text>Demanding Tribute from a City-State</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_SPREAD">
 			<Text>Spreading your [ICON_RELIGION] Religion to a City:[NEWLINE]{1_YieldString}</Text>
 		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TYPE_SPREAD_SHORT">
+			<Text>Spreading your Religion</Text>
+		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_FOREIGN_SPREAD">
 			<Text>Spreading your [ICON_RELIGION] Religion to a Foreign City:[NEWLINE]{1_YieldString}</Text>
 		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TYPE_F_SPREAD_SHORT">
+			<Text>Spreading your Religion to a Foreign City</Text>
+		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_TR_MOVEMENT">
-			<Text>Movement of a [ICON_INTERNATIONAL_TRADE] Trade Route:[NEWLINE]{1_YieldString}</Text>
+			<Text>Active [ICON_INTERNATIONAL_TRADE] Trade Route:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TYPE_TR_MOVEMENT_SHORT">
+			<Text>Active Trade Route</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_TR_MOVEMENT_IN_FOREIGN">
-			<Text>Movement of a [ICON_INTERNATIONAL_TRADE] Trade Route in Foreign Territory:[NEWLINE]{1_YieldString}</Text>
+			<Text>Active [ICON_INTERNATIONAL_TRADE] Trade Route in Foreign Territory:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TYPE_TR_MOVEMENT_IN_FOREIGN_SHORT">
+			<Text>Active Trade Route (Foreign Territory)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_SCOUTING">
 			<Text>[ICON_MOVES] Exploration:[NEWLINE]{1_YieldString}</Text>
 		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TYPE_SCOUTING_SHORT">
+			<Text>Exploring Tiles</Text>
+		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_LEVEL_UP">
-			<Text>[ICON_STRENGTH] {2_Unit} Leveled Up:[NEWLINE]{1_YieldString}</Text>
+			<Text>[ICON_STRENGTH] {2_Unit} Promoting a Unit:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TYPE_LEVEL_UP_SHORT">
+			<Text>Promoting a Unit</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_DELEGATES">
 			<Text>Total [ICON_DIPLOMAT] Delegates:[NEWLINE]{1_YieldString}</Text>
 		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TYPE_DELEGATES_SHORT">
+			<Text>Controlling Delegates in the World Congress</Text>
+		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_SPIES">
 			<Text>[ICON_SPY] Spy Actions:[NEWLINE]{1_YieldString}</Text>
 		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TYPE_SPY_ATTACK_SHORT">
+			<Text>Conducting a Spy Mission</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TYPE_SPY_DEFENSE_SHORT">
+			<Text>Catching a Foreign Spy</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TYPE_SPY_IDENTIFY_SHORT">
+			<Text>Identifying a Foreign Spy</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TYPE_SPY_DEFENSE_OR_ID_SHORT">
+			<Text>Identifying or Catching a Foreign Spy</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TYPE_SPY_RIG_ELECTION_SHORT">
+			<Text>Rigging an Election</Text>
+		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_MINOR_QUEST">
 			<Text>[ICON_CITY_STATE] Completing Quest for {2_MinorName} ({1_Data}):[NEWLINE]{3_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TYPE_MINOR_QUEST_REWARD_SHORT">
+			<Text>Completing a City-State Quest</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_HEAVY_TRIBUTE_QUEST">
 			<Text>[ICON_PIRATE] Demanding Tribute from {2_MinorName} - Quest Reward ({1_Data}):[NEWLINE]{3_YieldString}</Text>
@@ -538,41 +673,80 @@
 		<Row Tag="TXT_KEY_INSTANT_YIELD_CULTURE_BOMB">
 			<Text>Expanding [ICON_CULTURE] Borders by Great Person:[NEWLINE]{1_YieldString}</Text>
 		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TYPE_CULTURE_BOMB_SHORT">
+			<Text>Expanding Borders with Great Writer</Text>
+		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_REMOVE_HERESY">
 			<Text>Removing [ICON_INQUISITOR] Religious Heresy:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TYPE_REMOVE_HERESY_SHORT">
+			<Text>Removing Heresy</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_FAITH_PURCHASE">
 			<Text>[ICON_RELIGION] Faith Purchase in City:[NEWLINE]{1_YieldString}</Text>
 		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TYPE_FAITH_PURCHASE_SHORT">
+			<Text>Purchasing a Building or Unit with Faith</Text>
+		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_PROMOTION_OBTAINED">
 			<Text>[ICON_STRENGTH] Obtained a Promotion:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TYPE_PROMOTION_OBTAINED_SHORT">
+			<Text>Promoting a Unit</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_BARBARIAN_CAMP_CLEARED">
 			<Text>[ICON_VICTORY_DOMINATION] Cleared a Barbarian Camp:[NEWLINE]{1_YieldString}</Text>
 		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TYPE_BARBARIAN_CAMP_CLEARED_SHORT">
+			<Text>Clearing a Barbarian Camp</Text>
+		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_TR_PRODUCTION_SIPHON">
 			<Text>Process in Destination City linked by [ICON_INTERNATIONAL_TRADE] Trade Route:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TYPE_TR_PRODUCTION_SIPHON_SHORT">
+			<Text>Siphoning Production using Trade Route</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_IMPROVEMENT_BUILD">
 			<Text>Building an Improvement:[NEWLINE]{1_YieldString}</Text>
 		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TYPE_IMPROVEMENT_BUILD_SHORT">
+			<Text>Building an Improvement</Text>
+		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_RESEARCH_AGREEMENT">
 			<Text>[ICON_RESEARCH] Research Agreement:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TYPE_RESEARCH_AGREMEENT_SHORT">
+			<Text>Completing a Research Agreement</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_LUXURY_RESOURCE_GAIN">
 			<Text>Acquiring a Luxury Resource:[NEWLINE]{1_YieldString}</Text>
 		</Row>
+		<Row Tag="TXT_KEY_IINSTANT_YIELD_TYPE_LUXURY_RESOURCE_GAIN_SHORT">
+			<Text>Gaining a Luxury Resource</Text>
+		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_GOLDEN_AGE_START">
 			<Text>Starting a Golden Age:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TYPE_GOLDEN_AGE_START_SHORT">
+			<Text>Starting a Golden Age</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_TYPE_UNIT_GIFT">
 			<Text>Gifting a Unit to a City-State:[NEWLINE]{1_YieldString}</Text>
 		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TYPE_UNIT_GIFT_SHORT">
+			<Text>Gifting a Unit to a City-State</Text>
+		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_REFUND">
 			<Text>[ICON_PRODUCTION] Refund from Free Building Replacement:[NEWLINE]{1_YieldString}</Text>
 		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TYPE_REFUND_SHORT">
+			<Text>Free Building Refund (Production)</Text>
+		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_FAITH_REFUND">
 			<Text>[ICON_PEACE] Refund from Free Building Replacement:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TYPE_FAITH_REFUND_SHORT">
+			<Text>Free Building Refund (Faith)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_ROUTE_NAME">
 			<Text>Construct Route</Text>
@@ -678,6 +852,18 @@
 		</Row>
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_ACQUIRE_CITY_NAME">
 			<Text>Conquer City</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_UNKNOWN">
+			<Text>Unknown Instant Yield Type {1_Num}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TYPE_LUA_SHORT">
+			<Text>Instant Yields from Modmods</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TYPE_COMBAT_EXPERIENCE_SHORT">
+			<Text>Getting Experience in Combat</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TYPE_CITY_DAMAGE_SHORT">
+			<Text>Inflicting Damage on a City</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_CITY">
 			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT]{1_City}: [ENDCOLOR]</Text>

@@ -138,5 +138,11 @@
 		<Replace Tag="TXT_KEY_VPUI_TIP_33">
 			<Text>Vox Populi has many shortcuts to simplify repetitive tasks! Check the Civilopedia Game Concepts "Input Shortcuts" section to learn more.</Text>
 		</Replace>
+		<Replace Tag="TXT_KEY_VPUI_TIP_34">
+			<Text>You can manage notification settings for Instant Yields in the "Notification Log" menu.</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_VPUI_TIP_35">
+			<Text>An online version of the Vox Populi Civilopedia is available at https://axatin.github.io/Vox-Populi-Civilopedia/</Text>
+		</Replace>
 	</Language_en_US>
 </GameData>

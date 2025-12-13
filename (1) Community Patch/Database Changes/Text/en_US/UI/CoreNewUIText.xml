@@ -3485,5 +3485,37 @@
 		<Row Tag="TXT_KEY_TP_UNHAPPINESS_BUILDINGS">
 			<Text>{1_Num} from Buildings.</Text>
 		</Row>
+		
+		<!-- Notification Settings -->
+		<Row Tag="TXT_KEY_NOTIFICATION_LOG_TAB">
+			<Text>Notification Log</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SETTINGS_TITLE">
+			<Text>Instant Yield Notification Settings</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SETTINGS_TAB">
+			<Text>Settings</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SETTINGS_CITY_BUTTON">
+			<Text>Cities</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SETTINGS_MILITARY_BUTTON">
+			<Text>Military Units</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SETTINGS_CIVILIAN_BUTTON">
+			<Text>Non-Combat Units</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SETTINGS_SPIES_BUTTON">
+			<Text>Spies</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SETTINGS_MISC_BUTTON">
+			<Text>Other</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SETTINGS_TURN_OFF_ALL_BUTTON">
+			<Text>Turn off all</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SETTINGS_TURN_ON_ALL_BUTTON">
+			<Text>Turn on all</Text>
+		</Row>
 	</Language_en_US>
 </GameData>

@@ -26727,7 +26727,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 	CvNotifications* pNotifications = GetNotifications();
 	if(!bSuppress && pNotifications && !totalyieldString.empty())
 	{
-		if (!MOD_NOTIFICATION_SETTINGS || !IsInstantYieldNotificationDisabled(iType))
+		if (!IsInstantYieldNotificationDisabled(iType))
 		{
 			Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_INSTANT_YIELD");
 			if(pCity != NULL)

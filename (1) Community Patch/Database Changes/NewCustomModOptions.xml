@@ -1157,9 +1157,6 @@
 		<!-- Enables Not For Sale modmod support -->
 		<Row Class="5" Name="NOT_FOR_SALE" Value="0"/>
 
-		<!-- Enables Notification Settings modmod support -->
-		<Row Class="4" Name="NOTIFICATION_SETTINGS" Value="0"/>
-
 		<!-- Enables Route Planner modmod support -->
 		<Row Class="5" Name="ROUTE_PLANNER" Value="0"/>
 
