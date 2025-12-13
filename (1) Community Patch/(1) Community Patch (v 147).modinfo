@@ -456,6 +456,8 @@
     <File md5="125DBB3FDF354092B6DA2FADB20C5849" import="1">Core Files/Overrides/MPList.lua</File>
     <File md5="2BFE0E6D6EAE4917F5068B6084CF75A2" import="1">Core Files/Overrides/MPTurnPanel.lua</File>
     <File md5="A9FEDE41B8D28348DDD9FD51E905C096" import="1">Core Files/Overrides/NaturalWonderPopup.lua</File>
+    <File md5="37A831378B37D512F4A0234BEEE438E7" import="1">Core Files/Overrides/NotificationLogPopup.xml</File>
+    <File md5="37A831378B37D512F4A0234BEEE438E7" import="1">Core Files/Overrides/NotificationLogPopup.lua</File>
     <File md5="91DEEC22E933A63497BBDA0E5066D8D3" import="1">Core Files/Overrides/NewEraPopup.lua</File>
     <File md5="D48C59AC437878A3B73568FAACFB9300" import="1">Core Files/Overrides/PathHelpManager.lua</File>
     <File md5="E752DD1920A620500531519E48FBC2B7" import="1">Core Files/Overrides/PathHelpManager.xml</File>

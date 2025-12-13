@@ -1,6 +1,6 @@
 -- Table of Vox Populi tips
 -- Update this when adding new tips
-local tips_count = 33;
+local tips_count = 35;
 
 -- Localize stuff for performance reason
 local L = Locale.ConvertTextKey;

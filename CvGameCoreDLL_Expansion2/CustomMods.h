@@ -1036,9 +1036,6 @@
 // Enables Not For Sale modmod support
 #define MOD_NOT_FOR_SALE											gCustomMods.isNOT_FOR_SALE()
 
-// Enables Notification Settings modmod support
-#define MOD_NOTIFICATION_SETTINGS									gCustomMods.isNOTIFICATION_SETTINGS()
-
 // Enables Route Planner modmod support
 #define MOD_ROUTE_PLANNER											gCustomMods.isROUTE_PLANNER()
 
@@ -1787,7 +1784,6 @@ public:
 	MOD_OPT_DECL(ISKA_PANTHEONS);
 	MOD_OPT_DECL(ISKA_GOLDENAGEPOINTS_TO_PRESTIGE);
 	MOD_OPT_DECL(NOT_FOR_SALE);
-	MOD_OPT_DECL(NOTIFICATION_SETTINGS);
 	MOD_OPT_DECL(ROUTE_PLANNER);
 	MOD_OPT_DECL(BALANCE_CORE_JFD);
 
