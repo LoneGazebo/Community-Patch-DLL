@@ -2,9 +2,14 @@ local lua_next = next
 local lua_type = type
 local lua_error = error
 local lua_tostring = tostring
-
 local lua_setmetatable = setmetatable
+local lua_collectgarbage = collectgarbage
 
+local lua_math_log = math.log
+local lua_math_max = math.max
+local lua_math_ceil = math.ceil
+
+local lua_table_sort = table.sort
 local lua_table_concat = table.concat
 local lua_string_format = string.format
 
@@ -25,49 +30,17 @@ local TableEmpty = CPK.Table.Empty
 local AssertError = CPK.Assert.Error
 local AssertIsString = CPK.Assert.IsString
 
---- @class GiRow
---- @field [string] nil | string | number | boolean
-
---- @class GiRowMeta
---- @field __index fun(row: GiRow, colName: string): nil | string | number | boolean
---- @field __newindex fun(row: GiRow, colName: string, colData: any)
-
---- @class GiTblCol
---- @field name string # Column name
---- @field null boolean # Is column nullable
---- @field prim boolean # Is column primary
---- @field type 'string' | 'number' | 'boolean'
-
---- @class GiTblInfo
---- @field tblName string # Table name
---- @field tblCols table<string, GiTblCol> # Table columns
---- @field tblBols table<string, GiTblCol> # Table boolean columns
---- @field tblNils table<string, GiTblCol> # Table nullable columns
---- @field tblIdxs { string: nil | GiTblCol, number: nil | GiTblCol }
-
---- @alias GiTblData
---- | { number: table<number, GiRow> }
---- | { string: table<string, GiRow> }
---- | { number: table<number, GiRow>, string: table<string, GiRow> }
-
---- @class GiTbl
---- @field [string | number] nil | GiRow
---- @operator len(): number
---- @operator call(string | table<string, number | string | boolean>): fun(): nil | GiRow
-
---- @class Gi
---- @field [string] GiTbl
-
---- @param rowType string
+--- @param t string # Row type
 --- @return boolean
-local function SqliteIsBooleanAffinity(rowType)
-	return rowType:lower():match('^bool') ~= nil
+local function sqlite_affinity_is_boolean(t)
+	return t:lower():match('^bool') ~= nil
 end
 
---- @param rowType string
+--- @param t string # Row type
 --- @return boolean
-local function SqliteIsNumericAffinity(rowType)
-	local t = rowType:lower()
+local function sqlite_affinity_is_numeric(t)
+	t = t:lower()
+
 	local r = t:match('^int')
 			or t:match('^doub')
 			or t:match('^real')
@@ -76,90 +49,276 @@ local function SqliteIsNumericAffinity(rowType)
 	return r ~= nil
 end
 
---- @param val number | boolean | nil
---- @return boolean
-local function Boolify(val)
-	if IsBoolean(val) then
-		return val --[[@as boolean]]
-	end
+--- Sentinel to represent nil values
+local NIL = {}
 
-	if IsNumber(val) then
-		if val ~= 0 and val ~= 1 then
-			AssertError(lua_type(val) .. ' ' .. lua_tostring(val), '1 | 0')
+--- @param b any
+--- @return boolean
+local gi_boolify = function(b)
+	if IsBoolean(b) then return b end
+
+	if IsNumber(b) then
+		if b ~= 0 and b ~= 1 then
+			AssertError(lua_tostring(b), '1 | 0')
 		end
 
-		return val == 1
+		return b == 1
 	end
 
-	return val ~= nil
+	return b ~= NIL and b ~= nil
 end
 
---- Checks if specified value type is allowed
---- @param val any
---- @return boolean # Of specified value allowed
---- @return type # Type of specified value
-local function Allowed(val)
-	local type = lua_type(val)
-	local allow = type == 'number'
-			or type == 'string'
-			or type == 'boolean'
-
-	return allow, type
+local function gi_gc_memory()
+	return lua_collectgarbage('count') / 1024
 end
 
-local ExistsGiTbl = (function()
-	local query = civ_db_create_query([[
-		SELECT NULL FROM sqlite_master
-		WHERE type = 'table' AND name = ?
-	]])
+local function gi_gc_collect()
+	return lua_collectgarbage('collect')
+end
 
-	--- Checks if DB table exists by table name
-	--- @param tblName string # DB Table name
-	--- @return boolean
-	return function(tblName)
-		return query(tblName)() ~= nil
+local gi_tbl_info = (function()
+	local tmp = 'PRAGMA table_info(%s)'
+
+	--- @param name string
+	--- @return fun(): { pk: 1 | 0, notnull: 1 | 0, name: string, type: string, dflt_value: any }
+	return function(name)
+		local sql = lua_string_format(tmp, name)
+		return civ_db_query(sql)
 	end
 end)()
 
-local SelectGiTblSize = (function()
+local gi_tbl_count = (function()
 	local tmp = 'SELECT COUNT() as Count FROM %s'
 
-	--- Counts DB table rows by table name
-	--- @param tblName string # DB Table name
-	--- @return integer
-	return function(tblName)
-		local sql = lua_string_format(tmp, tblName)
+	--- @type fun(name: string): integer
+	return function(name)
+		local sql = lua_string_format(tmp, name)
 		local row = civ_db_query(sql)()
 
 		return row.Count
 	end
 end)()
 
-local PragmaGiTblInfo = (function()
-	local tmp = 'PRAGMA table_info(%s)'
+local gi_tbl_exists = (function()
+	local query = civ_db_create_query([[
+		SELECT NULL FROM sqlite_master
+		WHERE type = 'table' AND name = ? AND name ~= 'sqlite%'
+	]])
 
-	--- @param tblName string
-	--- @return fun(): { pk: 1 | 0, notnull: 1 | 0, name: string, type: string }
-	return function(tblName)
-		local sql = lua_string_format(tmp, tblName)
-		return civ_db_query(sql)
+	--- @type fun(name: string): boolean
+	return function(name)
+		return query(name)() ~= nil
 	end
 end)()
 
+local gi_col_cardinality = (function()
+	local tmp = [[
+		SELECT COUNT(DISTINCT %s) + (SUM(%s IS NULL) > 0) as Cardinality FROM %s
+	]]
+
+	--- @param tbl_name string
+	--- @param col_name string
+	--- @return integer
+	return function(tbl_name, col_name)
+		local sql = lua_string_format(tmp, col_name, col_name, tbl_name)
+		local row = civ_db_query(sql)()
+
+		return row.Cardinality
+	end
+end)()
+
+--- @class GiCol
+--- @field name string # Column name
+--- @field prim boolean # Primary column
+--- @field null boolean # Nullable column
+--- @field dflt unknown # Default value for column
+--- @field type 'number' | 'string' | 'boolean'
+--- @field bits? integer # Bits required to pack
+
+local gi_tbl_columns = (function()
+	local fixs = {
+		['-1'] = -1,
+		['"-1"'] = -1,
+		["'-1'"] = -1,
+		['false'] = false,
+		['"false"'] = false,
+		["'false'"] = false,
+		['NULL'] = NIL,
+		['"NULL"'] = NIL,
+		["'NULL'"] = NIL,
+	}
+
+	--- @type fun(d: any): any
+	local function normalize_dflt(d)
+		if d == nil then
+			return NIL
+		end
+
+		if fixs[d] ~= nil then
+			return fixs[d]
+		end
+
+		return d
+	end
+
+	--- @type fun(t: string): 'number' | 'string' | 'boolean'
+	local function normalize_type(t)
+		return (sqlite_affinity_is_boolean(t) and 'boolean')
+				or (sqlite_affinity_is_numeric(t) and 'number')
+				or 'string'
+	end
+
+	--- Calculate the number of bits required to store cardinality
+	--- @param card integer # Cardinality
+	--- @return integer # Number of bits to represent
+	local function bits_for_cardinality(card)
+		return lua_math_max(
+			1,
+			lua_math_ceil(
+				lua_math_log(card) / lua_math_log(2)
+			)
+		)
+	end
+
+	--- @type fun(bits: integer): boolean
+	local function bits_packable(bits)
+		return bits <= 8
+	end
+
+	--- @param name string # Table name
+	--- @return table<string, GiCol[]> # Table columns
+	--- @return GiCol? # Primary index column
+	--- @return GiCol? # Support index column
+	return function(name)
+		local cols = {}
+		local main = nil
+		local supp = nil
+
+		for r in gi_tbl_info(name) do
+			local c = {
+				name = r.name,
+				prim = gi_boolify(r.pk),
+				type = normalize_type(r.type),
+				dflt = normalize_dflt(r.dflt_value),
+				null = not gi_boolify(r.notnull),
+			}
+
+			if c.prim then
+				if c.type == 'number' then main = c end
+				if c.type == 'string' then main = c end
+			elseif c.type == 'boolean' then
+				-- do nothing
+			elseif c.type == 'string' and c.name == 'Type' then
+				supp = c
+			else
+				local card = gi_col_cardinality(name, c.name)
+				local bits = bits_for_cardinality(card)
+
+				if bits_packable(bits) then
+					c.bits = bits
+				end
+			end
+
+			cols[c.name] = c
+		end
+
+		return cols, main, supp
+	end
+end)()
+
+--- @param cols table<string, GiCol>
+--- @param main GiCol?
+--- @param supp GiCol?
+local function gi_row_layout(cols, main, supp)
+	local bools = {}
+	local packs = {}
+	local other = {}
+
+	for _, col in lua_next, cols do
+		if col ~= main and col ~= supp then
+			if col.type == 'boolean' then
+				bools[#bools + 1] = col
+			elseif col.bits then
+				packs[#packs + 1] = col
+			else
+				other[#other + 1] = col
+			end
+		end
+	end
+
+	lua_table_sort(packs, function(a, b)
+		return a.bits > b.bits
+	end)
+
+	local width = 0
+	local slots = {}
+
+	if main then
+		width = width + 1
+		slots[main.name] = width
+	end
+
+	if supp then
+		width = width + 1
+		slots[supp.name] = width
+	end
+
+	local bool_slot, bool_nbit = nil, 0
+
+	for i = 1, #bools do
+		local col = bools[i]
+
+		if bool_nbit == 0 then
+			width = width + 1
+			bool_slot = width
+		end
+
+		slots[col.name] = { bool_slot, bool_nbit }
+
+		bool_nbit = bool_nbit + 1
+
+		if bool_nbit == 32 then
+			bool_slot = nil
+			bool_nbit = 0
+		end
+	end
+
+	local pack_slot, pack_nbit = nil, 0
+
+	for i = 1, #packs do
+		local col = packs[i]
+		local bits = col.bits
+
+		if not pack_slot or (bits + pack_nbit) > 32 then
+			width = width + 1
+			pack_slot = width
+			pack_nbit = 0
+		end
+
+		slots[col.name] = { pack_slot, pack_nbit, bits }
+
+		pack_nbit = pack_nbit + bits
+	end
+
+	for i = 1, #other do
+		width = width + 1
+		slots[other[i].name] = width
+	end
+
+	return width, slots
+end
+
+
+
+--- @param tblName string
 local function PrepareQueryAll(tblName)
 	local tmp = 'SELECT _ROWID_ as _ROWID_, * FROM %s'
 	local sql = lua_string_format(tmp, tblName)
-	local qry = civ_db_create_query(sql)
 
-	--- @return fun(): nil | GiRow
-	return function()
-		return qry()
-	end
+	return civ_db_create_query(sql) --[[@as fun(): nil | GiRow]]
 end
 
-local function DefaultColSetter()
-	lua_error('Row can not be changed, make a copy instead')
-end
+
 
 --- @param info GiTblInfo # Table info
 local function PrepareColGetter(info)
@@ -204,9 +363,12 @@ local function PrepareColFilter(info, fltr)
 			lua_error(lua_string_format(tmp, tblName, key))
 		end
 
-		local allowed, type = Allowed(val)
+		local type = lua_type(val)
+		local isok = type == 'number'
+				or type == 'string'
+				or type == 'boolean'
 
-		if not allowed then
+		if not isok then
 			local tmp = 'Column "%s.%s" can not be filtered by type %s'
 			local mes = lua_string_format(tmp, tblName, key, type)
 			AssertError(type, 'number | string | boolean', mes)
@@ -252,62 +414,6 @@ local GiTblMeta = {}
 --- @field __index fun(self: GiTbl, key: string | number): nil | GiRow
 local GiTblMetaImpl = {}
 GiTblMeta.__index = GiTblMetaImpl
-
---- @param tblName string
---- @return GiTblInfo
-local function SelectGiTblInfo(tblName)
-	local colms = {}
-	local idxes = {}
-	local bools = {}
-	local nulls = {}
-
-	for row in PragmaGiTblInfo(tblName) do
-		local name = row.name
-		local prim = Boolify(row.pk)
-		local null = not Boolify(row.notnull)
-		local type = (SqliteIsBooleanAffinity(row.type) and 'boolean')
-				or (SqliteIsNumericAffinity(row.type) and 'number')
-				or 'string'
-
-		local col = {
-			name = name,
-			null = null,
-			prim = prim,
-			type = type,
-		} --[[@as GiTblCol]]
-
-		colms[name] = col
-
-		if type == 'boolean' then
-			bools[name] = col
-		end
-
-		if null then
-			nulls[name] = col
-		end
-
-		if prim then
-			if type == 'number' then
-				idxes.number = col
-			end
-			if type == 'string' then
-				idxes.string = col
-			end
-		else
-			if name == 'Type' and type == 'string' then
-				idxes.string = col
-			end
-		end
-	end
-
-	return {
-		tblName = tblName,
-		tblCols = colms,
-		tblIdxs = idxes,
-		tblNils = nulls,
-		tblBols = bools,
-	} --[[@as GiTblInfo]]
-end
 
 --- @param row GiRow
 --- @return number
@@ -421,7 +527,7 @@ function GiTblMeta.New(tblName)
 	local this = SelectGiTblInfo(tblName)
 
 	--[[@cast this GiTblMeta]]
-	this.tblSize = SelectGiTblSize(tblName)
+	this.tblSize = GiCountTblRows(tblName)
 	this.rowMeta = {
 		__newindex = DefaultColSetter,
 		__index = PrepareColGetter(this),
@@ -501,7 +607,7 @@ CPK.DB.Gi = lua_setmetatable({}, {
 	__index = function(gi, tblName)
 		AssertIsString(tblName)
 
-		local exists = ExistsGiTbl(tblName)
+		local exists = GiExistsTbl(tblName)
 
 		if not exists then
 			AssertError('"' .. tblName .. '"', 'existing table name')
@@ -518,3 +624,7 @@ CPK.DB.Gi = lua_setmetatable({}, {
 		return giTbl
 	end
 })
+
+local function Flags(names)
+
+end
