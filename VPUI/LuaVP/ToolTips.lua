@@ -14,4 +14,20 @@
 --             overall tip against the screen bounds
 --------------------------------------------------------------------------------------
 TTManager:RegisterBasicControls( Controls.ToolTipRoot, Controls.ToolTipStore, Controls.ToolTipText, Controls.ToolTipGrid );
-include("vploader")
+
+--if true then return end ;
+
+local wrappedinit = coroutine.wrap( function() include("vploader") end )
+local print = print ;
+local CodeBuddy = CodeBuddy ;
+
+CodeBuddy.vpRegisterContext = function(...)
+	CodeBuddy.vpRegisterContext = nil ; -- delete this function
+	wrappedinit(); -- run vploader
+	if CodeBuddy.vpRegisterContext then  -- should now exist, so call it
+		return CodeBuddy.vpRegisterContext(...) -- ... and return all returned values from that call
+	else
+		print("[WARN] vploader didn't set vpRegisterContext!") -- print a warning
+		return true ; -- return true, allowing the game to load normally
+	end
+end

@@ -2,7 +2,9 @@ if CodeBuddy.vpRegisterContext and not CodeBuddy.vpRegisterContext() then return
 
 ContextPtr:SetShutdown(function ()
 	print("Shutting down InGame.lua");
-	CodeBuddy.vpSetGameCore({});
+	if CodeBuddy.vpSetGameCore then 
+		CodeBuddy.vpSetGameCore({}) 
+	end
 end);
 
 -------------------------------------------------

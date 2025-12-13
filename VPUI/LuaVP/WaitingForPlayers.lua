@@ -1,7 +1,8 @@
+if CodeBuddy.vpRequestReinit then CodeBuddy.vpRequestReinit() end
+
 if CodeBuddy.vpRegisterContext and not CodeBuddy.vpRegisterContext() then return end
 
-
-CodeBuddy.vpSetGameCore({
+if CodeBuddy.vpSetGameCore then CodeBuddy.vpSetGameCore({
 	Game = Game;
 	GameInfoTypes = GameInfoTypes;
 	GameOptionTypes = GameOptionTypes;
@@ -64,7 +65,7 @@ CodeBuddy.vpSetGameCore({
 	ThreatTypes = ThreatTypes;
 	TradeableItems = TradeableItems;
 --]]
-});
+}) end
 
 function ShowHide( isHide )
     if( isHide == true ) then

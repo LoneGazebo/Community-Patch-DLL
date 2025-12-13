@@ -116,7 +116,10 @@ local function getProperty( root, idx, prop )
 		elseif val ~= nil then
 			return val ;
 		else
-			print( "'" .. tostring(prop) .. "' is not a column in table '" .. root.__TABLENAME .. "'! Returning 'nil' to caller!" ) ;
+			if root.__NOTACOLWARN == false then
+				print( "'" .. tostring(prop) .. "' is not a column in table '" .. root.__TABLENAME .. "'! Returning 'nil' to caller!" ) ;
+				root.__NOTACOLWARN = tostring(pro) ;
+			end
 			return nil ;
 		end
 	end
@@ -199,7 +202,7 @@ local function callRootTable( root, filterarg )
 	-- That computes to 65kb (LuaJIT) or 131kb (stock) of extra memory consumption just from this one table (which might be the worst offender in that regard, but still)
 	-- given the ~1700kb this code needs to store almost the entire DB, and again how rare these requests are anyway, fetching/storing rowids is not worth it (IMHO)...
 	local querystring = "SELECT * FROM " .. root.__TABLENAME .. " WHERE " .. filterarg;
-	if root.__FILTERARGWARNING == nil then
+	if root.__FILTERARGWARNING == false then
 		print( "Can't handle filterarg for table:", root.__TABLENAME ,"Arg:", filterarg , "Redirecting to original database with query:", querystring ) ;
 		print( "This warning is only shown once per table!" ) ;
 		root.__FILTERARGWARNING = filterarg ;
@@ -271,6 +274,7 @@ local function setProtodata( root, tablename )
 	root.__TYPECOL = typecol ;
 	
 	root.__FILTERARGWARNING = false ;
+	root.__NOTACOLWARN = false ;
 	root.__DBIDTOIDX = false ;
 	
 end
@@ -385,7 +389,7 @@ local MT_GAMEINFO_OBJECT = {
 				GI[k] = nil ;
 				collectgarbage("collect") ;
 				local m2 = collectgarbage("count") * 1024;
-				print( m - m2, k );
+				--print( m - m2, k );
 				tot = tot + m-m2 ;
 				m = m2 ;
 			end
@@ -411,7 +415,7 @@ GameInfo = newGameInfo ;
 
 
 -- DEBUG STUFF
---[[
+--
 
 
 -- All tables that got cached during a game load...
@@ -433,19 +437,25 @@ local mem = function() return collectgarbage("count") * 1024 end
 local gc = function() collectgarbage("collect") end
 
 function loadAllTables( tab )
-	tab = createGameInfoObject( tab ) ;
+	--tab = createGameInfoObject( tab ) ;
 	local tot1,tot2,tot3 = 0 ,0,0;
 	gc();gc();gc();
-	print("T","C","P","Table", mem() )
+	local mem_start = mem()
+	gprint("T","C","P","Table", "Memory at start:", mem_start )
 	for k,v in ipairs( dbgTablenames ) do
 		local m1 = mem(gc()) ;
-		local m2 = mem( tab[v] )
+		for row in tab[v]() do
+			tot1 = tot1 ;
+		end
+		local m2 = mem()
 		local m3 = mem(gc()) ;
 		tot1,tot2,tot3 = tot1 + m2 - m3 , tot2 + m2 - m1 , tot3 + m3 - m1 ;
-		print( m2-m3, m2-m1, m3-m1, v ) 
+		gprint( m2-m1, m2-m3, m3-m1, v ) 
 	end
-	print( tot1, tot2, tot3 , "(totals)", mem(tab) ) ;
+	gprint( tot1, tot2, tot3 , "(totals)", "Memory at end:", mem() , "Memory Delta", mem() - mem_start  ) ;
 end
+
+--[[
 
 function createGameInfoAndLoadAllTablesNoPresets( )
 	local tab = {} ;

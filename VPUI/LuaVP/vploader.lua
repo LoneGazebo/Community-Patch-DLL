@@ -16,15 +16,23 @@ local type = type ;
 local ipairs = ipairs ;
 local tostring = tostring ;
 local error = error ;
+local insert = table.insert ;
 local os_clock = os.clock ;
 local coroutine_wrap = coroutine.wrap ;
 local coroutine_yield = coroutine.yield ;
 
+--Locals to be used/initialized later:
 local __vpRegisterContext ;
+local GAMECORE_LISTENERS ;
 
-local function psh( tab, val ) tab[#tab+1]=val end
+
+function vplAddGamecoreListener( func ) insert(GAMECORE_LISTENERS,func) end
+
 local function rawgetfromenv( key ) local val = loadstring("return " .. key )(); if val == nil then print("Global is nil", key) end; return val; end
 local function checkandwarn( tab, key ) if type(key) ~= "string" then print("Non string key!" , key ) elseif tab[key] ~= nil then print( "Key already exists!" , key ) end end
+local function emptyTable( tab ) for k in pairs(tab) do tab[k] = nil end end ;
+
+
 
 local init_unsafe = function(op)
 
@@ -33,9 +41,8 @@ local init_unsafe = function(op)
 	gprint( "################### VPLOADER:INIT@" .. tostring(StateName) .. "@" .. tostring(ContextPtr) .. "########################")
 	local time = os_clock() ;
 
-
-
-
+	--Declare/Override globals and also localize them for use in thise function
+	
 	staticIncludes = { -- This is an array, so that load order is properly defined by using ipairs later
 		{
 			file = "newGameInfo" ;
@@ -43,6 +50,7 @@ local init_unsafe = function(op)
 		};
 		{ 
 			file = "CPK.lua" ;
+			core = true ;
 			file_aliases = { "CPK" } ;
 			objects = { "CPK" } ;
 		};
@@ -61,10 +69,11 @@ local init_unsafe = function(op)
 		
 	}local staticIncludes = staticIncludes ;
 
-
+	GAMECORE_LISTENERS = {}
+	
 	importTable = {
 		-- serves as lookup for includes
-	} local importTable = importTable ;
+	}local importTable = importTable ;
 	
 	generatedObjects = {
 		-- Will hold key-object pairs to be imported
@@ -84,23 +93,42 @@ local init_unsafe = function(op)
 			return tmp_already_included[(...)]
 		end
 		
-		local wrapped_include = function( file )
-			include = include_if_not_already ;
-			local ret = include(file) ;
+		
+		-----------------------------------------------------------
+		-- Semi temporary workaround to make sure CPK loads any includes into this env....
+		
+		local coroutine_wrapped_include ;
+		local thraded_safe_include = function( file, regex, ... )
+			if FLAG_STATIC_INCLUDE_ENV then
+				return orig_include( file, regex, ... )
+			else
+				return coroutine_wrapped_include( file, regex, ... )
+			end
+		end
+		coroutine_wrapped_include = coroutine.wrap( function( arg1, ... ) while true do coroutine.yield( thraded_safe_include( tostring(arg1), ... ) ) end end );
+		
+		-----------------------------------------------------------
+		
+		local wrapped_include = function( file, includefunc )
+			include = includefunc ;
+			local ret = orig_include(file) ;
+			tmp_already_included[file] = ret ;
 			include = orig_include ;
 			return ret ;
 		end
 		
 		for idx, entry in ipairs(staticIncludes) do
 			
-			-- Step 1: Include the file. Duplicate includes semi silently fail when include is wrapped. The core flag is mainly (not needed?) compat for CPK so that is can bind the original include instead...
+			-- Step 1: Include the file. Duplicate includes semi silently fail when include is wrapped. The core flag is mainly compat for CPK so that is can bind a special version of include instead...
 			local tmp ;
 			
 			if entry.core then
-				tmp = orig_include(entry.file) ;
+				tmp = thraded_safe_include ;
 			else
-				tmp = wrapped_include(entry.file) ;
+				tmp = include_if_not_already ;
 			end
+			
+			tmp = wrapped_include(entry.file, tmp) ;
 			
 			if tmp == nil or #tmp == 0 then
 				print("Failed to include file!",entry.file);
@@ -184,15 +212,32 @@ local init_unsafe = function(op)
 
 
 	local CORE_LIBS = { "vpinclude" , "CPK.lua" , "newGameInfo" }
-	local currentstate = function() return loadstring("return StateName;")() end
+	local currentstate = function() return loadstring("return tostring(StateName)")() end
+	local currentcontext = function() return loadstring("return tostring(ContextPtr)")() end
+	
+	KNOWN_CONTEXTS = {
+		-- Will store tostring(ContextPtr) - MainState of known Contexts...
+	}local KNOWN_CONTEXTS = KNOWN_CONTEXTS;
 	
 	__vpRegisterContext = function (...)
 		if CodeBuddy.vpDebugHook and (not CodeBuddy.vpDebugHook(...)) then
 			return false
 		end
 		
-		--print( "@registerContext():",currentstate() )
+		
+		
+		local contextname = currentstate() ;
+		local contextptr = currentcontext() ;
+		if KNOWN_CONTEXTS[contextname] then
+			local msg = ( contextptr == KNOWN_CONTEXTS[contextname] and "SAME_CONTEXT_REGISTERED_TWICE" ) or "SAME_UI_LOADED_AGAIN" ;
+			print(msg, contextname, "KnownPtr:", KNOWN_CONTEXTS[contextname], "CurrentPtr:", contextptr ) ;
+		else
+			KNOWN_CONTEXTS[contextname] = contextptr ;
+			--print( "@registerContext():",contextname )
+		end
+		
 		vpinclude( CORE_LIBS );
+		
 		
 		return true ;
 	end
@@ -230,11 +275,24 @@ end
 CodeBuddy.vpRequestReinit = __requestReinit ;
 
 function CodeBuddy.vpRegisterContext( ... )
+
+	-- temporary fix for the madness of the engine when it comes to maps...
+	if loadstring("return StateName==nil and ContextPtr==nil")() then
+		return true ;
+	end
+
 	__checkReinit() ;
+	
 	return __vpRegisterContext(...) ;
 end
 
+
+
+local function notifyAllGamecoreSet( GC ) for _,func in ipairs(GAMECORE_LISTENERS) do func(GC) end end
+
 function CodeBuddy.vpSetGameCore( GC )
+	emptyTable( KNOWN_CONTEXTS ) ;
+	GC = GC or {} ;
 	Player = GC.Player;
 	NotificationTypes = GC.NotificationTypes;
 	Team = GC.Team;
@@ -295,6 +353,7 @@ function CodeBuddy.vpSetGameCore( GC )
 	InterfaceDirtyBits = GC.InterfaceDirtyBits;
 	CombatPredictionTypes = GC.CombatPredictionTypes;
 	PolicyBranchTypes = GC.PolicyBranchTypes;
+	notifyAllGamecoreSet( GC );
 end
 
 
