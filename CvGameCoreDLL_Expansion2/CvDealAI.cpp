@@ -164,8 +164,21 @@ bool CvDealAI::BothSidesIncluded(CvDeal* pDeal)
 		return true;
 
 	//humans sometimes give nice things!
-	if (GET_PLAYER(pDeal->m_eFromPlayer).isHuman(ISHUMAN_AI_DIPLOMACY) && pDeal->GetNumItems() > 0 && GetDealValue(pDeal) >= 0)
-		return true;
+	if (pDeal->GetNumItems() > 0 && GetDealValue(pDeal) >= 0)
+	{
+		bool bHumanGift = true;
+		TradedItemList::iterator it;
+		for (it = pDeal->m_TradedItems.begin(); it != pDeal->m_TradedItems.end(); ++it)
+		{
+			if (!GET_PLAYER(it->m_eFromPlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
+			{
+				bHumanGift = false;
+				break;
+			}
+		}
+		if (bHumanGift)
+			return true;
+	}
 
 	return (pDeal->GetFromPlayerValue() > 0 && pDeal->GetToPlayerValue() > 0);
 }
