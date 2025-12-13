@@ -174,12 +174,13 @@ if not VP and not (MapModData and MapModData.VP) then
 	_VP.GetGreatPersonInfoFromSpecialist = GetGreatPersonInfoFromSpecialist;
 	_VP.IconHookupOrDefault = IconHookupOrDefault;
 
-	-- MapModData may not always exist. While it doesn't, we have no choice but to save the VP object under the context global.
+	-- MapModData may not always exist...
 	if MapModData then
 		MapModData.VP = _VP;
-	else
-		VP = _VP;
 	end
+
+	VP = _VP; -- There is really no good reason to not save VP to the global env of the calling context in any case...
+
 end
 
 -- Include the custom tooltips here

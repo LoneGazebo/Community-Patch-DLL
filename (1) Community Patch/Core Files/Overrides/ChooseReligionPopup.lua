@@ -5,7 +5,7 @@ include("VPUI_core");
 include("CPK.lua");
 
 local L = Locale.Lookup;
-local VP = MapModData.VP;
+local VP = VP or MapModData.VP;
 local IconHookupOrDefault = VP.IconHookupOrDefault;
 local Show = CPK.UI.Control.Show;
 local Hide = CPK.UI.Control.Hide;
