@@ -6762,7 +6762,7 @@ void CvPlayer::DoCancelEventChoice(EventChoiceTypes eChosenEventChoice)
 					iBonus *= -1;
 					if(iBonus != 0)
 					{
-						changeNumResourceTotal(eResource, iBonus);
+						changeNumResourceTotal(eResource, iBonus, true);
 						bChanged = true;
 					}
 				}
@@ -8081,7 +8081,7 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent, b
 					int iBonus = pkEventChoiceInfo->getEventResourceChange(eResource);
 					if(iBonus != 0)
 					{
-						changeNumResourceTotal(eResource, iBonus);
+						changeNumResourceTotal(eResource, iBonus, true);
 					}
 				}
 			}
@@ -37242,15 +37242,15 @@ void CvPlayer::changeNumResourceTotal(ResourceTypes eIndex, int iChange, bool bF
 
 				if(eUsage == RESOURCEUSAGE_STRATEGIC || eUsage == RESOURCEUSAGE_LUXURY)
 				{
-					GET_PLAYER(eBestRelationsPlayer).changeResourceFromMinors(eIndex, iChange);
-					changeResourceExport(eIndex, iChange);
-
 					// Someone new is getting the bonus - but do they have the tech to see it?
 					CvResourceInfo* pResource = GC.getResourceInfo(eIndex);
 					if (pResource)
 					{
-						if (IsResourceRevealed(eIndex))
+						if (GET_PLAYER(eBestRelationsPlayer).IsResourceRevealed(eIndex))
 						{
+							GET_PLAYER(eBestRelationsPlayer).changeResourceFromMinors(eIndex, iChange);
+							changeResourceExport(eIndex, iChange);
+
 							CvNotifications* pNotifications = GET_PLAYER(eBestRelationsPlayer).GetNotifications();
 							if (pNotifications && !GetMinorCivAI()->IsDisableNotifications())
 							{

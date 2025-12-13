@@ -1053,7 +1053,7 @@ local function UpdateWorkingHexes()
 						iPortraitIndex = 12;
 						strTooltipKey = "TXT_KEY_CITYVIEW_NUTHA_CITY_TILE";
 					-- Other workable plot
-					elseif pCity:CanWork(pPlot) then
+					elseif pPlot:GetWorkingCity():CanWork(pPlot) then
 						iPortraitIndex = 9;
 						strTooltipKey = "TXT_KEY_CITYVIEW_UNWORKED_CITY_TILE";
 					-- Blockaded plot

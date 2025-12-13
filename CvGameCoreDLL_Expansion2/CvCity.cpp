@@ -4834,7 +4834,7 @@ void CvCity::DoCancelEventChoice(CityEventChoiceTypes eChosenEventChoice)
 					iBonus *= -1;
 					if (iBonus != 0)
 					{
-						GET_PLAYER(getOwner()).changeNumResourceTotal(eResource, iBonus * -1);
+						GET_PLAYER(getOwner()).changeNumResourceTotal(eResource, iBonus * -1, true);
 					}
 				}
 			}
@@ -6650,7 +6650,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 					int iBonus = pkEventChoiceInfo->getEventResourceChange(eResource);
 					if (iBonus != 0)
 					{
-						GET_PLAYER(getOwner()).changeNumResourceTotal(eResource, iBonus);
+						GET_PLAYER(getOwner()).changeNumResourceTotal(eResource, iBonus, true);
 					}
 				}
 			}

@@ -556,6 +556,15 @@ void CvDiplomacyRequests::SendDealRequest(PlayerTypes eFromPlayer, PlayerTypes e
 		CvDiplomacyRequests* pDiploRequests = kTo.GetDiplomacyRequests();
 		if (pDiploRequests && pkDeal)
 		{
+			if (pkDeal->GetFromPlayer() != eFromPlayer)
+			{
+				PlayerTypes tmp = pkDeal->GetFromPlayer();
+				pkDeal->SetFromPlayer(pkDeal->GetToPlayer());
+				pkDeal->SetToPlayer(tmp);
+				int tmpValue = pkDeal->GetFromPlayerValue();
+				pkDeal->SetFromPlayerValue(pkDeal->GetToPlayerValue());
+				pkDeal->SetToPlayerValue(tmpValue);
+			}
 			ASSERT(pkDeal->GetFromPlayer() == eFromPlayer);
 			ASSERT(pkDeal->GetToPlayer() == eToPlayer);
 			GC.getGame().GetGameDeals().AddProposedDeal(*pkDeal); // propose the deal (needed for activation...)
@@ -577,6 +586,15 @@ void CvDiplomacyRequests::SendDealRequest(PlayerTypes eFromPlayer, PlayerTypes e
 			CvDiplomacyRequests* pDiploRequests = kTo.GetDiplomacyRequests();
 			if (pDiploRequests && pkDeal && pkDeal->m_bConsideringForRenewal)
 			{
+				if (pkDeal->GetFromPlayer() != eFromPlayer)
+				{
+					PlayerTypes tmp = pkDeal->GetFromPlayer();
+					pkDeal->SetFromPlayer(pkDeal->GetToPlayer());
+					pkDeal->SetToPlayer(tmp);
+					int tmpValue = pkDeal->GetFromPlayerValue();
+					pkDeal->SetFromPlayerValue(pkDeal->GetToPlayerValue());
+					pkDeal->SetToPlayerValue(tmpValue);
+				}
 				ASSERT(pkDeal->GetFromPlayer() == eFromPlayer);
 				ASSERT(pkDeal->GetToPlayer() == eToPlayer);
 				CvGameDeals::PrepareRenewDeal(pkDeal);
