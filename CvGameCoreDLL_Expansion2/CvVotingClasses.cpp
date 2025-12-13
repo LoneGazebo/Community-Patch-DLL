@@ -1530,7 +1530,7 @@ void CvActiveResolution::DoEffects(PlayerTypes ePlayer)
 	if (GetEffects()->iResourceQuantity != 0)
 	{
 		PRECONDITION(eTargetLuxury != NO_RESOURCE, "Adding NO_RESOURCE for a player.");
-		pPlayer->changeNumResourceTotal(eTargetLuxury, GetEffects()->iResourceQuantity);
+		pPlayer->changeNumResourceTotal(eTargetLuxury, GetEffects()->iResourceQuantity, true);
 	}
 	if (GetEffects()->bEmbargoCityStates)
 	{	
@@ -1792,7 +1792,7 @@ void CvActiveResolution::RemoveEffects(PlayerTypes ePlayer)
 	if (GetEffects()->iResourceQuantity != 0)
 	{
 		PRECONDITION(eTargetLuxury != NO_RESOURCE, "Subtracting NO_RESOURCE for a player.");
-		pPlayer->changeNumResourceTotal(eTargetLuxury, -1 * GetEffects()->iResourceQuantity);
+		pPlayer->changeNumResourceTotal(eTargetLuxury, -1 * GetEffects()->iResourceQuantity, true);
 	}
 	if (GetEffects()->bEmbargoCityStates)
 	{
