@@ -410,6 +410,9 @@ local function UpdateTopPanelNow()
 		local sciencePerTurnTimes100 = g_activePlayer:GetScienceTimes100()
 
 		local strSciencePerTurn = FormatIntegerTimes100(sciencePerTurnTimes100)
+		if (sciencePerTurnTimes100 >= 0) then
+			strSciencePerTurn = "+" .. strSciencePerTurn
+		end
 
 		-- Gold being deducted from our Science ?
 		if g_activePlayer:GetScienceFromBudgetDeficitTimes100() == 0 then
@@ -840,7 +843,7 @@ local function UpdateTopPanelNow()
 			else
 				Controls.InternationalTradeRoutes:SetText( S( "%i/%i [ICON_INTERNATIONAL_TRADE]", activeRoutes, availableRoutes ) )
 			end
-			Controls.TourismString:SetText( S( "%+s [ICON_TOURISM]", FormatIntegerTimes100(g_activePlayer:GetTourism()) ) )
+			Controls.TourismString:SetText( S( "+%s [ICON_TOURISM]", FormatIntegerTimes100(g_activePlayer:GetTourism()) ) )
 		end
 	else
 		-----------------------------
