@@ -158,7 +158,7 @@ function AddCivilizationEntry(traitsQuery, populateUniqueBonuses, civ, leaderTyp
 	controlTable.Title:SetText(title);			
 	controlTable.Description:LocalizeAndSetText(civ.Description);
 	
-	populateUniqueBonuses( controlTable, civ.Type);
+	populateUniqueBonuses( controlTable, civ.Type, true);
 	
 	return controlTable;
 end
