@@ -86,16 +86,16 @@
                 <Stack Anchor="R,C"  Size="128,128" StackGrowth="Right" Padding="-8" Offset="-26,0" >
 
                     <Image Anchor="L,B" Texture="IconFrame64.dds" Size="64.64" Hidden="0" Offset="-4,58" ID="BF1">
-					  <Image Anchor="C,C" Size="64,64"   Texture="WonderAtlas512.dds" ID="B1"   />
+					  <Button Anchor="C,C" Size="64,64" Texture="WonderAtlas512.dds" ID="B1" NoStateChange="1" />
 					</Image>
 					<Image Anchor="L,T" Texture="IconFrame64.dds" Size="64.64" Offset="-64,58"  ID="BF2">
-					  <Image Anchor="C,C" Size="64,64" Texture="WonderAtlas512.dds" ID="B2"  />
+					  <Button Anchor="C,C" Size="64,64" Texture="WonderAtlas512.dds" ID="B2" NoStateChange="1" />
 					</Image>
 					<Image Anchor="L,B" Texture="IconFrame64.dds" Size="64.64" Offset="-4,58" ID="BF3">
-					  <Image Anchor="C,C" Size="64,64"   Texture="WonderAtlas512.dds" ID="B3"   />
+					  <Button Anchor="C,C" Size="64,64" Texture="WonderAtlas512.dds" ID="B3" NoStateChange="1" />
 					</Image>
 					<Image Anchor="R,T" Texture="IconFrame64.dds" Size="64.64" Offset="-64,58" ID="BF4">
-					  <Image Anchor="C,C" Size="64,64" Texture="WonderAtlas512.dds" ID="B4"  />
+					  <Button Anchor="C,C" Size="64,64" Texture="WonderAtlas512.dds" ID="B4" NoStateChange="1" />
 					</Image>
 
                     <Image Anchor="C,C"  Offset="5,0" Texture="IconFrame64.dds" Size="64.64" Hidden="0"  >

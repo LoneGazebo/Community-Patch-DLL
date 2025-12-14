@@ -13,6 +13,20 @@ nullOffset = Vector2(0,0);
 questionOffset, questionTextureSheet = IconLookup( 23, 64, "CIV_COLOR_ATLAS" );
 unknownString = Locale.ConvertTextKey( "TXT_KEY_MISC_UNKNOWN" );
 
+-------------------------------------------------
+-- Pedia Callback Setup
+-------------------------------------------------
+local getPedia;
+local function getPediaB( ... )
+	Events.SearchForPediaEntry( ... )
+end
+local function getPediaA( ... )
+	UIManager:QueuePopup( LookUpControl( CivilopediaControl ), PopupPriority.eUtmost );
+	getPedia = getPediaB;
+	getPedia( ... )
+end
+getPedia = CivilopediaControl and getPediaA;
+
 ------------------------------------------------------------------
 ------------------------------------------------------------------
 function AdjustArtOnUniqueUnitButton( thisButton, thisFrame, thisUnitInfo, textureSize, extendedTooltip, noTooltip)
@@ -37,7 +51,6 @@ function AdjustArtOnUniqueUnitButton( thisButton, thisFrame, thisUnitInfo, textu
 		thisButton:SetTextureOffset( textureOffset );
 		thisButton:SetHide( false );
 		thisFrame:SetHide( false );
-
 	end
 end
 
@@ -61,7 +74,7 @@ function AdjustArtOnUniqueBuildingButton( thisButton, thisFrame, thisBuildingInf
 			textureSheet = defaultErrorTextureSheet;
 			textureOffset = nullOffset;
 		end
-		
+
 		thisButton:SetTexture( textureSheet );
 		thisButton:SetTextureOffset( textureOffset );
 		thisButton:SetHide( false );
@@ -89,7 +102,7 @@ function AdjustArtOnUniqueImprovementButton( thisButton, thisFrame, thisImprovme
 			textureSheet = defaultErrorTextureSheet;
 			textureOffset = nullOffset;
 		end
-		
+
 		thisButton:SetTexture( textureSheet );
 		thisButton:SetTextureOffset( textureOffset );
 		thisButton:SetHide( false );
@@ -116,7 +129,7 @@ function AdjustArtOnUniqueProjectButton( thisButton, thisFrame, thisProjectInfo,
 			textureSheet = defaultErrorTextureSheet;
 			textureOffset = nullOffset;
 		end
-		
+
 		thisButton:SetTexture( textureSheet );
 		thisButton:SetTextureOffset( textureOffset );
 		thisButton:SetHide( false );
@@ -179,6 +192,11 @@ function PopulateUniqueBonuses( controlTable, civ, _, extendedTooltip, noTooltip
 			buttonFrame:SetHide(true);
 			local _, text = coroutine.resume(co, button, buttonFrame);
 			table.insert(BonusText, text);
+
+			-- Register pedia callback after button is populated
+			if CivilopediaControl and text and button then
+				button:RegisterCallback( Mouse.eRClick, function() getPedia( text ) end );
+			end
 		end
 	end
     
@@ -261,6 +279,11 @@ function PopulateUniqueBonuses_CreateCached()
 				buttonFrame:SetHide(true);
 				local text = buttonFuncs[buttonNum](button, buttonFrame);
 				table.insert(BonusText, text);
+
+				-- Register pedia callback after button is populated
+				if CivilopediaControl and text and button then
+					button:RegisterCallback( Mouse.eRClick, function() getPedia( text ) end );
+				end
 			end
 		end
 	    

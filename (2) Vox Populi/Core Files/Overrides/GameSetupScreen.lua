@@ -1,6 +1,7 @@
 -------------------------------------------------
 -- GameSetup Screen
 -------------------------------------------------
+CivilopediaControl = "/FrontEnd/MainMenu/Other/Civilopedia" -- MUST be before include( "UniqueBonuses" ) to enable pedia callback
 include( "IconSupport" );
 include( "UniqueBonuses" );
 
@@ -483,9 +484,8 @@ function SetSelectedCiv()
 		
         
 		IconHookup( leader.PortraitIndex, 128, leader.IconAtlas, Controls.Portrait );
+		IconHookup( civ.PortraitIndex, 64, civ.IconAtlas, Controls.IconShadow )
 
-		SimpleCivIconHookup( 0, 64, Controls.IconShadow );      
-         
 		-- Sets Trait bonus Text
         local leaderTrait = GameInfo.Leader_Traits("LeaderType ='" .. leader.Type .. "'")();
         local trait = GameInfo.Traits[leaderTrait.TraitType];
