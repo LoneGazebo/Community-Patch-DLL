@@ -4557,12 +4557,16 @@ void CvPlayerEspionage::ProcessSpyMessages()
 			ASSERT(pCity, "Plot does not contain a city");
 			if(pCity)
 			{
-				ASSERT(pCity->getOwner() == m_pPlayer->GetID(), "City does not belong to player. This is very strange");
 				pCityEspionage = pCity->GetCityEspionage();
 			}
 		}
 
 		if(!pCity || !pCityEspionage)
+		{
+			continue;
+		}
+		// The city might have just been conquered by someone else
+		if (pCity->getOwner() != m_pPlayer->GetID())
 		{
 			continue;
 		}
