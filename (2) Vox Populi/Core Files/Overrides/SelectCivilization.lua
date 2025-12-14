@@ -1,6 +1,7 @@
 -------------------------------------------------
 -- Select Civilization
 -------------------------------------------------
+CivilopediaControl = "/FrontEnd/MainMenu/Other/Civilopedia" -- MUST be before include( "UniqueBonuses" ) to enable pedia callback
 include( "UniqueBonuses" );
 
 ------------------------------------------------
@@ -124,11 +125,25 @@ function AddCivilizationEntry(traitsQuery, populateUniqueBonuses, civ, leaderTyp
 
 	IconHookup( leaderPortraitIndex, 128, leaderIconAtlas, controlTable.Portrait );
 	local textureOffset, textureAtlas = IconLookup( civ.PortraitIndex, 64, civ.IconAtlas );
-	if textureOffset ~= nil then       
+	if textureOffset ~= nil then
 		controlTable.CivIcon:SetTexture( textureAtlas );
 		controlTable.CivIcon:SetTextureOffset( textureOffset );
 	end
-    
+
+	-- Set pedia callbacks
+	if CivilopediaControl then
+		if controlTable.Portrait and leaderDescription then
+			controlTable.Portrait:RegisterCallback( Mouse.eRClick, function()
+				Events.SearchForPediaEntry( leaderDescription );
+			end );
+		end
+		if controlTable.CivIcon and civ.ShortDescription then
+			controlTable.CivIcon:RegisterCallback( Mouse.eRClick, function()
+				Events.SearchForPediaEntry( civ.ShortDescription );
+			end );
+		end
+	end
+
     -- Sets Trait bonus Text
 	local shortDescription = "";
 	
