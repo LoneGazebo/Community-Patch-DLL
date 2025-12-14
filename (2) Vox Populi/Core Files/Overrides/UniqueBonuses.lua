@@ -153,7 +153,7 @@ function PopulateUniqueBonuses( controlTable, civ, _, extendedTooltip, noTooltip
 
 		for row in DB.Query([[SELECT ID, Description, PortraitIndex, IconAtlas from Units INNER JOIN 
 							Civilization_UnitClassOverrides ON Units.Type = Civilization_UnitClassOverrides.UnitType 
-							WHERE Civilization_UnitClassOverrides.CivilizationType = ? AND
+							WHERE Units.ShowInPedia = 1 AND Civilization_UnitClassOverrides.CivilizationType = ? AND
 							Civilization_UnitClassOverrides.UnitType IS NOT NULL]], civ.Type) do
 			AdjustArtOnUniqueUnitButton(button, buttonFrame, row, textureSize, extendedTooltip, noTooltip);
  			button, buttonFrame = coroutine.yield(row.Description);	
@@ -161,7 +161,7 @@ function PopulateUniqueBonuses( controlTable, civ, _, extendedTooltip, noTooltip
 		
 		for row in DB.Query([[SELECT ID, Description, PortraitIndex, IconAtlas from Buildings INNER JOIN 
 							Civilization_BuildingClassOverrides ON Buildings.Type = Civilization_BuildingClassOverrides.BuildingType 
-							WHERE Civilization_BuildingClassOverrides.CivilizationType = ? AND
+							WHERE Buildings.ShowInPedia = 1 AND Civilization_BuildingClassOverrides.CivilizationType = ? AND
 							Civilization_BuildingClassOverrides.BuildingType IS NOT NULL]], civ.Type) do
 			AdjustArtOnUniqueBuildingButton(button, buttonFrame, row, textureSize, extendedTooltip, noTooltip);
  			button, buttonFrame = coroutine.yield(row.Description);	
@@ -212,12 +212,12 @@ function PopulateUniqueBonuses_CreateCached()
 	
 	local uniqueUnitsQuery = DB.CreateQuery([[SELECT ID, Description, PortraitIndex, IconAtlas from Units INNER JOIN 
 								Civilization_UnitClassOverrides ON Units.Type = Civilization_UnitClassOverrides.UnitType 
-								WHERE Civilization_UnitClassOverrides.CivilizationType = ? AND
+								WHERE Units.ShowInPedia = 1 AND Civilization_UnitClassOverrides.CivilizationType = ? AND
 								Civilization_UnitClassOverrides.UnitType IS NOT NULL]]);
 								
 	local uniqueBuildingsQuery = DB.CreateQuery([[SELECT ID, Description, PortraitIndex, IconAtlas from Buildings INNER JOIN 
 								Civilization_BuildingClassOverrides ON Buildings.Type = Civilization_BuildingClassOverrides.BuildingType 
-								WHERE Civilization_BuildingClassOverrides.CivilizationType = ? AND
+								WHERE Buildings.ShowInPedia = 1 AND Civilization_BuildingClassOverrides.CivilizationType = ? AND
 								Civilization_BuildingClassOverrides.BuildingType IS NOT NULL]]);
 								
 	local uniqueImprovementsQuery = DB.CreateQuery([[SELECT ID, Description, PortraitIndex, IconAtlas from Improvements where CivilizationType = ?]]);
