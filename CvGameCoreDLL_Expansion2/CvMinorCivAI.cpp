@@ -5610,9 +5610,6 @@ void CvMinorCivAI::AddQuestNotification(CvString sString, const CvString& sSumma
 	CvNotifications* pNotifications = GET_PLAYER(ePlayer).GetNotifications();
 	if(pNotifications)
 	{
-		sString += "[NEWLINE][NEWLINE]";
-		sString += Localization::Lookup("TXT_KEY_MINOR_QUEST_BLOCKING_TT").toUTF8();
-
 		if (bNewQuest)
 			pNotifications->Add(NOTIFICATION_MINOR_QUEST, sString, sSummaryString, iX, iY, GetPlayer()->GetID(), 1);
 		else
