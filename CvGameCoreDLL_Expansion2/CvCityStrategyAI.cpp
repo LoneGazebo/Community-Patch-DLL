@@ -3108,7 +3108,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_GoodGPCity(CvCity* pCity)
 				if (eMajority != NO_RELIGION)
 				{
 					const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pCity->getOwner());
-					if (pReligion)
+					if (pReligion && GetGreatPersonFromSpecialist(eSpecialist) != NO_GREATPERSON)
 					{
 						iGPPChange += pReligion->m_Beliefs.GetGreatPersonPoints(GetGreatPersonFromSpecialist(eSpecialist), pCity->getOwner(), pCity, true) * 100;
 					}
