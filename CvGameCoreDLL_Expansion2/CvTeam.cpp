@@ -6230,18 +6230,13 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 										pLoopPlot->updateSymbols();
 									}
 
-									for (int iI = 0; iI < MAX_PLAYERS; iI++)
+									if (pLoopPlot->getTeam() == GetID())
 									{
-										const PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iI);
-										CvPlayerAI& kLoopPlayer = GET_PLAYER(eLoopPlayer);
-										if (kLoopPlayer.isAlive() && kLoopPlayer.getTeam() == GetID() && pLoopPlot->getOwner() == eLoopPlayer)
+										// slewis - added in so resources wouldn't be double counted when the minor civ researches the technology
+										if (!(GET_PLAYER(pLoopPlot->getOwner()).isMinorCiv() && pLoopPlot->IsImprovedByGiftFromMajor()))
 										{
-											// slewis - added in so resources wouldn't be double counted when the minor civ researches the technology
-											if (!(kLoopPlayer.isMinorCiv() && pLoopPlot->IsImprovedByGiftFromMajor()))
-											{
-												// revealed resources are unimproved unless this tech also makes the resource improvable, which is checked later
-												kLoopPlayer.addResourcesOnPlotToUnimproved(pLoopPlot);
-											}
+											// revealed resources are unimproved unless this tech also makes the resource improvable, which is checked later
+											GET_PLAYER(pLoopPlot->getOwner()).addResourcesOnPlotToUnimproved(pLoopPlot);
 										}
 									}
 

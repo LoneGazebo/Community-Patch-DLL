@@ -42774,12 +42774,68 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 				continue;
 
 			CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
-			if (pkResourceInfo->getPolicyReveal() == ePolicy)
+			if (pkResourceInfo->getPolicyReveal() == ePolicy && IsResourceRevealed(eResource))
 			{
 				pLoopPlot->updateYield();
 				if (pLoopPlot->isRevealed(getTeam()))
 				{
 					pLoopPlot->setLayoutDirty(true);
+				}
+
+				if (pLoopPlot->getOwner() == GetID())
+				{
+					if (pLoopPlot->IsResourceImprovedForOwner(false))
+					{
+						addResourcesOnPlotToTotal(pLoopPlot);
+					}
+					else
+					{
+						addResourcesOnPlotToUnimproved(pLoopPlot);
+					}
+
+					// Notifications
+
+					CvNotifications* pNotifications = GetNotifications();
+					if (pNotifications)
+					{
+						CvString strBuffer;
+						CvString strSummary;
+						ResourceUsageTypes eResourceUsage = pkResourceInfo->getResourceUsage();
+						NotificationTypes eNotificationType = NO_NOTIFICATION_TYPE;
+
+						ResourceTypes eArtifactResource = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_ARTIFACTS", true);
+						ResourceTypes eHiddenArtifactResource = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_HIDDEN_ARTIFACTS", true);
+
+						if (eResource == eArtifactResource)
+						{
+							strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_FOUND_ARTIFACTS");
+						}
+						else if (eResource == eHiddenArtifactResource)
+						{
+							strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_FOUND_HIDDEN_ARTIFACTS");
+						}
+						else
+						{
+							strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_FOUND_RESOURCE", pkResourceInfo->GetTextKey());
+						}
+
+						strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_FOUND_RESOURCE", pkResourceInfo->GetTextKey());
+
+						switch (eResourceUsage)
+						{
+						case RESOURCEUSAGE_LUXURY:
+							eNotificationType = NOTIFICATION_DISCOVERED_LUXURY_RESOURCE;
+							break;
+						case RESOURCEUSAGE_STRATEGIC:
+							eNotificationType = NOTIFICATION_DISCOVERED_STRATEGIC_RESOURCE;
+							break;
+						case RESOURCEUSAGE_BONUS:
+							eNotificationType = NOTIFICATION_DISCOVERED_BONUS_RESOURCE;
+							break;
+						}
+
+						pNotifications->Add(eNotificationType, strBuffer, strSummary, pLoopPlot->getX(), pLoopPlot->getY(), eResource);
+					}
 				}
 			}
 		}

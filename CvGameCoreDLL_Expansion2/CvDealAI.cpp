@@ -3057,7 +3057,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 		{
 			iItemValue /= 2;
 		}
-		else if (pDiploAI->IsMajorCompetitor(eWithPlayer))
+		else if (GET_PLAYER(eWithPlayer).isMajorCiv() && pDiploAI->IsMajorCompetitor(eWithPlayer))
 		{
 			iItemValue *= 75;
 			iItemValue /= 100;
