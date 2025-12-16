@@ -5192,7 +5192,7 @@ int CvLuaCity::lGetExtraSpecialistPoints(lua_State* L)
 		if (eMajority != NO_RELIGION)
 		{
 			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pkCity->getOwner());
-			if (pReligion)
+			if (pReligion && GetGreatPersonFromSpecialist(eSpecialist) != NO_GREATPERSON)
 			{
 				lua_pushinteger(L, pReligion->m_Beliefs.GetGreatPersonPoints(GetGreatPersonFromSpecialist(eSpecialist), pkCity->getOwner(), pkCity, true));
 				return 1;
