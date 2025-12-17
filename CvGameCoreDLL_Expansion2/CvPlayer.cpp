@@ -42104,6 +42104,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_FAITH_COST_MODIFIER, pkPolicyInfo->GetFaithCostModifier() * iChange);
 	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_CULTURAL_PLUNDER_MULTIPLIER, pkPolicyInfo->GetCulturalPlunderMultiplier() * iChange);
 	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_STEAL_TECH_SLOWER_MODIFIER, pkPolicyInfo->GetStealTechSlowerModifier() * iChange);
+	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_STEAL_TECH_FASTER_MODIFIER, pkPolicyInfo->GetStealTechFasterModifier() * iChange);
 	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_CATCH_SPIES_MODIFIER, pkPolicyInfo->GetCatchSpiesModifier() * iChange);
 	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_BUILDING_PURCHASE_COST_MODIFIER, pkPolicyInfo->GetBuildingPurchaseCostModifier() * iChange);
 	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_LAND_TRADE_GOLD_CHANGE, pkPolicyInfo->GetLandTradeRouteGoldChange() * iChange);
