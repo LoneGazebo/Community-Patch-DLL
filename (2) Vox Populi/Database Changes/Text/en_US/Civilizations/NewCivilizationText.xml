@@ -386,7 +386,7 @@
 		<Row Tag="TXT_KEY_BUILD_OPPIDUM">
 			<Text>Construct an [LINK=IMPROVEMENT_CELTS_OPPIDUM]Oppidum[\LINK]</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILD_OPPIDUM_HELP">
+		<Row Tag="TXT_KEY_BUILD_CONSUMED_HELP_OPPIDUM">
 			<Text>Cannot be built next to another Oppidum.[NEWLINE][NEWLINE]It will increase [COLOR_POSITIVE_TEXT]All Yields[ENDCOLOR] and the yields of [ICON_GREAT_ENGINEER], [ICON_GREAT_MERCHANT], and [ICON_GREAT_SCIENTIST] Missions (by a reduced amount compared to their own Great Person Tile Improvements). Gives +100% [ICON_STRENGTH] Defense Bonus to units stationed on it. Provides bonus yields to all adjacent Tiles.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_OPPIDUM_REC">
@@ -1186,7 +1186,7 @@
 		<Row Tag="TXT_KEY_BUILD_TERSANE">
 			<Text>Construct a [LINK=IMPROVEMENT_OTTOMAN_TERSANE]Tersane[\LINK]</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILD_TERSANE_HELP">
+		<Row Tag="TXT_KEY_BUILD_CONSUMED_HELP_TERSANE">
 			<Text>It will increase [ICON_GOLD] Gold, [ICON_PRODUCTION] Production, [ICON_RESEARCH] Science, and [ICON_GREAT_ADMIRAL] Great Admiral Points. Increases the [ICON_PRODUCTION] Production rate and Experience of new Naval Units in an adjacent City. Gives [ICON_STRENGTH] Defense Bonus to units stationed on it. Claims adjacent tiles.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_TERSANE_REC">
@@ -1820,7 +1820,7 @@
 		<Row Tag="TXT_KEY_BUILD_ISIBAYA">
 			<Text>Construct an [LINK=IMPROVEMENT_ISIBAYA]Isibaya[\LINK]</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILD_ISIBAYA_HELP">
+		<Row Tag="TXT_KEY_BUILD_CONSUMED_HELP_ISIBAYA">
 			<Text>Constructs an Isibaya, which will increase [ICON_CULTURE] Culture, [ICON_RESEARCH] Science, and [ICON_PRODUCTION] Production, and give +1 [ICON_CULTURE] Culture to Adjacent Pastures. Gives +100% [ICON_STRENGTH] Defense Bonus to units and deals 30 damage to adjacent Enemy Units. Claims adjacent tiles and places a [ICON_RES_COW] Cattle Resource adjacent to the Isibaya.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_ISIBAYA_REC">
