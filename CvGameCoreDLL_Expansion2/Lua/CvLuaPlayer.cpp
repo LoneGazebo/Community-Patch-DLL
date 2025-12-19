@@ -939,6 +939,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetAgricultureHistory);
 	Method(GetPowerHistory);
 
+	Method(GetReasonPlunderTradeRouteDisabled);
 	Method(GetReplayData);
 	Method(SetReplayDataValue);
 
@@ -10816,6 +10817,105 @@ int CvLuaPlayer::lGetAgricultureHistory(lua_State* L)
 int CvLuaPlayer::lGetPowerHistory(lua_State* /*L*/)
 {
 	return 0;
+}
+int CvLuaPlayer::lGetReasonPlunderTradeRouteDisabled(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	int iUnitID = luaL_checkint(L, 2);
+	CvUnit* pUnit = pkPlayer->getUnit(iUnitID);
+	ASSERT(pUnit);
+	if (pUnit)
+	{
+		CvPlot* pPlot = pUnit->plot();
+		// this should only be called if we can't plunder any trade route and if a tooltip should be shown explaining why
+		ASSERT(!pUnit->canPlunderTradeRoute(pUnit->plot(), false) && pUnit->canPlunderTradeRoute(pPlot, true));
+
+		// First check: Is there a trade route here that we can't plunder because we're not at war with the civ?
+		bool bReasonFound = false;
+
+		std::vector<int> aiTradeUnitsAtPlot;
+		aiTradeUnitsAtPlot = pkPlayer->GetTrade()->GetOpposingTradeUnitsAtPlot(pPlot, false);
+
+		for (uint uiTradeRoute = 0; uiTradeRoute < aiTradeUnitsAtPlot.size(); uiTradeRoute++)
+		{
+			PlayerTypes eTradeUnitOwner = GC.getGame().GetGameTrade()->GetOwnerFromID(aiTradeUnitsAtPlot[uiTradeRoute]);
+			if (eTradeUnitOwner == NO_PLAYER)
+			{
+				// invalid TradeUnit
+				continue;
+			}
+
+			CorporationTypes eCorporation = GET_PLAYER(eTradeUnitOwner).GetCorporations()->GetFoundedCorporation();
+			if (eCorporation != NO_CORPORATION)
+			{
+				CvCorporationEntry* pkCorporation = GC.getCorporationInfo(eCorporation);
+				if (pkCorporation && pkCorporation->IsTradeRoutesInvulnerable())
+				{
+					// skip this reason for now, will be checked later
+					continue;
+				}
+			}
+
+			TeamTypes eTeam = GET_PLAYER(eTradeUnitOwner).getTeam();
+			if (pkPlayer->GetPlayerTraits()->IsCanPlunderWithoutWar())
+			{
+				PlayerTypes eTradeUnitDest = GC.getGame().GetGameTrade()->GetDestFromID(aiTradeUnitsAtPlot[uiTradeRoute]);
+				if (eTradeUnitDest == pkPlayer->GetID())
+				{
+					// can't plunder trade routes targeting ourselves as Morocco
+					bReasonFound = true;
+					break;
+				}
+			}
+			else
+			{
+				if (!GET_TEAM(pkPlayer->getTeam()).isAtWar(eTeam))
+				{
+					// must be at war with the player
+					bReasonFound = true;
+					break;
+				}
+			}
+		}
+
+		if (bReasonFound)
+		{
+			lua_pushstring(L, pkPlayer->GetPlayerTraits()->IsCanPlunderWithoutWar() ? "TXT_KEY_MISSION_PLUNDER_TRADE_ROUTE_DISABLED_WITHOUT_WAR_HELP" : "TXT_KEY_MISSION_PLUNDER_TRADE_ROUTE_DISABLED_HELP");
+		}
+		else
+		{
+			// second check: is there a trade routes here that we can't plunder because of the other civ's corporation
+			for (uint uiTradeRoute = 0; uiTradeRoute < aiTradeUnitsAtPlot.size(); uiTradeRoute++)
+			{
+				PlayerTypes eTradeUnitOwner = GC.getGame().GetGameTrade()->GetOwnerFromID(aiTradeUnitsAtPlot[uiTradeRoute]);
+				if (eTradeUnitOwner == NO_PLAYER)
+				{
+					// invalid TradeUnit
+					continue;
+				}
+
+				CorporationTypes eCorporation = GET_PLAYER(eTradeUnitOwner).GetCorporations()->GetFoundedCorporation();
+				if (eCorporation != NO_CORPORATION)
+				{
+					CvCorporationEntry* pkCorporation = GC.getCorporationInfo(eCorporation);
+					if (pkCorporation && pkCorporation->IsTradeRoutesInvulnerable())
+					{
+						bReasonFound = true;
+						break;
+					}
+				}
+			}
+			// no other possible reasons (see canPlunderTradeRoute)
+			ASSERT(bReasonFound, "Didn't find a reason why the trade unit on this plot can't be plundered. Inconsistency between canPlunderTradeRoute and GetReasonPlunderTradeRouteDisabled");
+			lua_pushstring(L, "TXT_KEY_MISSION_PLUNDER_TRADE_ROUTE_DISABLED_CORPORATION_HELP");
+		}
+	}
+	else
+	{
+		lua_pushstring(L, "");
+	}
+
+	return 1;
 }
 //------------------------------------------------------------------------------
 //table[dataSetName][turn] GetReplayData(nil)

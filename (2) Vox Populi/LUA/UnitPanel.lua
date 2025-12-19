@@ -1747,7 +1747,17 @@ function TipHandler( control )
 				end
 				
 				strDisabledString = strDisabledString .. Locale.ConvertTextKey("TXT_KEY_MISSION_CULTURE_BOMB_DISABLED_COOLDOWN", pActivePlayer:GetCultureBombTimer());
-				
+			
+			elseif (action.Type == "MISSION_PLUNDER_TRADE_ROUTE") then
+				-- Add spacing for all entries after the first
+				if (bFirstEntry) then
+					bFirstEntry = false;
+				elseif (not bFirstEntry) then
+					strDisabledString = strDisabledString .. "[NEWLINE][NEWLINE]";
+				end
+
+				strDisabledString = strDisabledString .. Locale.ConvertTextKey(pActivePlayer:GetReasonPlunderTradeRouteDisabled(unit:GetID()));	
+
 			elseif (action.DisabledHelp and action.DisabledHelp ~= "") then
 				-- Add spacing for all entries after the first
 				if (bFirstEntry) then

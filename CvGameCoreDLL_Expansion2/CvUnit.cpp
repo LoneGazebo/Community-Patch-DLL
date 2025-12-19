@@ -9053,6 +9053,7 @@ bool CvUnit::changeAdmiralPort(int iX, int iY)
 //	--------------------------------------------------------------------------------
 bool CvUnit::canPlunderTradeRoute(const CvPlot* pPlot, bool bOnlyTestVisibility) const
 {
+	// If you change anything here, make sure to also update CvLuaPlayer::lGetReasonPlunderTradeRouteDisabled and CvPlayerTrade::PlunderTradeRoute
 	if (!IsCombatUnit())
 	{
 		return false;
@@ -9076,8 +9077,9 @@ bool CvUnit::canPlunderTradeRoute(const CvPlot* pPlot, bool bOnlyTestVisibility)
 	if (GET_PLAYER(m_eOwner).GetTrade()->ContainsOpposingPlayerTradeUnit(pPlot))
 	{
 		std::vector<int> aiTradeUnitsAtPlot;
-		aiTradeUnitsAtPlot = GET_PLAYER(m_eOwner).GetTrade()->GetOpposingTradeUnitsAtPlot(pPlot, true);
+		aiTradeUnitsAtPlot = GET_PLAYER(m_eOwner).GetTrade()->GetOpposingTradeUnitsAtPlot(pPlot, false);
 
+		bool bShowTooltip = false;
 		for (uint uiTradeRoute = 0; uiTradeRoute < aiTradeUnitsAtPlot.size(); uiTradeRoute++)
 		{
 			PlayerTypes eTradeUnitOwner = GC.getGame().GetGameTrade()->GetOwnerFromID(aiTradeUnitsAtPlot[uiTradeRoute]);
@@ -9087,61 +9089,37 @@ bool CvUnit::canPlunderTradeRoute(const CvPlot* pPlot, bool bOnlyTestVisibility)
 				continue;
 			}
 
+			bool bCorporationInvulnerable = false;
 			CorporationTypes eCorporation = GET_PLAYER(eTradeUnitOwner).GetCorporations()->GetFoundedCorporation();
 			if (eCorporation != NO_CORPORATION)
 			{
 				CvCorporationEntry* pkCorporation = GC.getCorporationInfo(eCorporation);
 				if (pkCorporation && pkCorporation->IsTradeRoutesInvulnerable())
 				{
-					return false;
+					bCorporationInvulnerable = true;
 				}
 			}
 
-			TeamTypes eTeam = GET_PLAYER(eTradeUnitOwner).getTeam();
-			if (!GET_TEAM(GET_PLAYER(m_eOwner).getTeam()).isAtWar(eTeam) && !GET_PLAYER(m_eOwner).GetPlayerTraits()->IsCanPlunderWithoutWar())
-				continue;
-
-			if (GET_PLAYER(m_eOwner).GetPlayerTraits()->IsCanPlunderWithoutWar())
+			if (!bCorporationInvulnerable)
 			{
-				PlayerTypes eTradeUnitDest = GC.getGame().GetGameTrade()->GetDestFromID(aiTradeUnitsAtPlot[uiTradeRoute]);
-				if (eTradeUnitDest == m_eOwner && !GET_TEAM(GET_PLAYER(m_eOwner).getTeam()).isAtWar(eTeam))
+				TeamTypes eTeam = GET_PLAYER(eTradeUnitOwner).getTeam();
+				if (GET_TEAM(GET_PLAYER(m_eOwner).getTeam()).isAtWar(eTeam))
+					return true;
+
+				if (GET_PLAYER(m_eOwner).GetPlayerTraits()->IsCanPlunderWithoutWar())
 				{
-					return false;
-				}
-			}
-		}
-		if (!bOnlyTestVisibility)
-		{
-			if (aiTradeUnitsAtPlot.size() <= 0)
-			{
-				return false;
-			}
-
-			PlayerTypes eTradeUnitOwner = GC.getGame().GetGameTrade()->GetOwnerFromID(aiTradeUnitsAtPlot[0]);
-			if (eTradeUnitOwner == NO_PLAYER)
-			{
-				// invalid TradeUnit
-				return false;
-			}
-
-
-			CorporationTypes eCorporation = GET_PLAYER(eTradeUnitOwner).GetCorporations()->GetFoundedCorporation();
-			if (eCorporation != NO_CORPORATION)
-			{
-				CvCorporationEntry* pkCorporation = GC.getCorporationInfo(eCorporation);
-				if (pkCorporation && pkCorporation->IsTradeRoutesInvulnerable())
-				{
-					return false;
+					PlayerTypes eTradeUnitDest = GC.getGame().GetGameTrade()->GetDestFromID(aiTradeUnitsAtPlot[uiTradeRoute]);
+					if (eTradeUnitDest != m_eOwner)
+					{
+						return true;
+					}
 				}
 			}
 
-			TeamTypes eTeam = GET_PLAYER(eTradeUnitOwner).getTeam();
-			if (!GET_TEAM(GET_PLAYER(m_eOwner).getTeam()).isAtWar(eTeam) && !GET_PLAYER(m_eOwner).GetPlayerTraits()->IsCanPlunderWithoutWar())
-			{
-				return false;
-			}
+			// this TR cannot be plundered because we're not at war with the player or because of their corporation. The action button should be displayed with a tooltip explaining why the TR can't be plundered (unless there's another trade route here that can be plundered)
+			bShowTooltip = true;
 		}
-		return true;
+		return bOnlyTestVisibility && bShowTooltip;
 	}
 	else
 	{
@@ -9186,7 +9164,20 @@ bool CvUnit::plunderTradeRoute()
 			}
 		}
 		TeamTypes eTeam = GET_PLAYER(eTradeUnitOwner).getTeam();
-		if (GET_TEAM(GET_PLAYER(m_eOwner).getTeam()).isAtWar(eTeam) || GET_PLAYER(m_eOwner).GetPlayerTraits()->IsCanPlunderWithoutWar())
+		bool bValidTarget = false;
+
+		if (GET_TEAM(GET_PLAYER(m_eOwner).getTeam()).isAtWar(eTeam))
+			bValidTarget = true;
+
+		if (GET_PLAYER(m_eOwner).GetPlayerTraits()->IsCanPlunderWithoutWar())
+		{
+			PlayerTypes eTradeUnitDest = GC.getGame().GetGameTrade()->GetDestFromID(aiTradeUnitsAtPlot[uiTradeRoute]);
+			if (eTradeUnitDest != m_eOwner)
+			{
+				bValidTarget = true;
+			}
+		}
+		if (bValidTarget)
 		{
 			pTrade->PlunderTradeRoute(aiTradeUnitsAtPlot[uiTradeRoute], this);
 			bSuccess = true;
