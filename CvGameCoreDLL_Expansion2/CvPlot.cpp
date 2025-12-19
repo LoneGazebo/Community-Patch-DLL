@@ -2917,7 +2917,7 @@ BuildTypes CvPlot::GetBuildTypeFromImprovement(ImprovementTypes eImprovement) co
 bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible, bool bTestPlotOwner, bool bTestXAdjacent) const
 {
 	static const ImprovementTypes eFeitoria = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FEITORIA");
-	TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
+	TeamTypes eTeam = ePlayer != NO_PLAYER ? GET_PLAYER(ePlayer).getTeam() : NO_TEAM;
 
 	ImprovementTypes eImprovement;
 	ImprovementTypes eFinalImprovementType;

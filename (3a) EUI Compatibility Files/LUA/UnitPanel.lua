@@ -2050,6 +2050,10 @@ function ActionToolTipHandler( control )
 
 				disabledTip:insertLocalized( "TXT_KEY_MISSION_CULTURE_BOMB_DISABLED_COOLDOWN", g_activePlayer:GetCultureBombTimer() )
 
+			elseif (action.Type == "MISSION_PLUNDER_TRADE_ROUTE") then
+
+				disabledTip:insertLocalized( g_activePlayer:GetReasonPlunderTradeRouteDisabled(unit:GetID()) )
+
 			elseif action.Type == "COMMAND_DELETE" then
 				
 				if GameDefines.UNIT_DELETE_DISABLED == 1 then
