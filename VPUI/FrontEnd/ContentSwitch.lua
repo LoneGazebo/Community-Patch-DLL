@@ -1,3 +1,4 @@
+if CodeBuddy.vpRegisterContext and not CodeBuddy.vpRegisterContext() then return end
 -- Table of Vox Populi tips
 -- Update this when adding new tips
 local tips_count = 35;
@@ -54,7 +55,7 @@ end
 function OnShowHide( isHide, isInit )
 
 	if(not isHide) then
-
+		CodeBuddy.vpRequestReinit() ;
 	end
 
 	Controls.Title:SetText(VPTipTitle()) -- Vox Populi tip title
