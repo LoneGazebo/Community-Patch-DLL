@@ -4618,10 +4618,17 @@ std::vector<int> CvPlayerTrade::GetTradeUnitsAtPlot(const CvPlot* pPlot, bool bF
 	int iY = pPlot->getY();
 
 	TeamTypes eMyTeam = m_pPlayer->getTeam();
-
 	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
-	for (uint uiConnection = 0; uiConnection < pTrade->GetNumTradeConnections(); uiConnection++)
+
+	CvPlotManager& kPlotManager = GC.getMap().plotManager();
+	const CvIDInfoFixedVector& kUnits = kPlotManager.GetUnits(iX, iY, TRADE_UNIT_MAP_LAYER);
+	for (CvIDInfoFixedVector::const_iterator itrUnit = kUnits.begin(); itrUnit != kUnits.end(); ++itrUnit)
 	{
+		CvUnit* pLoopUnit = ::GetPlayerUnit(*itrUnit);
+		int uiConnection = pTrade->GetIndexFromUnitID(pLoopUnit->GetID(), pLoopUnit->getOwner());
+		if (uiConnection == -1)
+			continue;
+
 		const TradeConnection* pConnection = &(pTrade->GetTradeConnection(uiConnection));
 		if (pTrade->IsTradeRouteIndexEmpty(uiConnection))
 		{
@@ -4665,7 +4672,7 @@ std::vector<int> CvPlayerTrade::GetTradeUnitsAtPlot(const CvPlot* pPlot, bool bF
 			}
 		}
 	}
-
+	
 	return aiTradeConnectionIDs;	
 }
 
