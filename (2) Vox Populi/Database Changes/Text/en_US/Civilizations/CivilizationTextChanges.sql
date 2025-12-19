@@ -498,7 +498,7 @@ SET Text = 'After researching [COLOR_CYAN]Mathematics[ENDCOLOR], receive a bonus
 WHERE Tag = 'TXT_KEY_TRAIT_LONG_COUNT';
 
 UPDATE Language_en_US
-SET Text = 'The {TXT_KEY_UNIT_MAYAN_ATLATLIST} is the Mayan unique unit, replacing the {TXT_KEY_UNIT_COMPOSITE_BOWMAN}. It is the only ranged unit that can shoot over obstacles in the early eras. It is also cheaper and is available with the discovery of [COLOR_CYAN]{TXT_KEY_TECH_MATHEMATICS_TITLE}[ENDCOLOR], earlier than the {TXT_KEY_UNIT_COMPOSITE_BOWMAN}.[NEWLINE][NEWLINE]The {TXT_KEY_UNIT_MAYAN_ATLATLIST} allows you to set up a stronger defense line in rough terrain against slower units.'
+SET Text = 'The {TXT_KEY_UNIT_MAYAN_ATLATLIST} is the Mayan unique unit, replacing the {TXT_KEY_UNIT_COMPOSITE_BOWMAN}. It is the only ranged unit that can shoot over obstacles in the early eras. It is also cheaper than the {TXT_KEY_UNIT_COMPOSITE_BOWMAN}.'
 WHERE Tag = 'TXT_KEY_UNIT_MAYAN_ATLATLIST_STRATEGY';
 
 --------------------
