@@ -75,18 +75,6 @@
 			<IconIndex>6</IconIndex>
 		</Row>
 		<Row>
-			<Type>BUILD_ISIBAYA</Type>
-			<ImprovementType>IMPROVEMENT_ISIBAYA</ImprovementType>
-			<Description>TXT_KEY_BUILD_ISIBAYA</Description>
-			<Help>TXT_KEY_BUILD_ISIBAYA_HELP</Help>
-			<EntityEvent>ENTITY_EVENT_BUILD</EntityEvent>
-			<HotKey>KB_E</HotKey>
-			<OrderPriority>95</OrderPriority>
-			<Kill>true</Kill>
-			<IconAtlas>BUILD_ATLAS_VP</IconAtlas>
-			<IconIndex>7</IconIndex>
-		</Row>
-		<Row>
 			<Type>BUILD_KAMPONG</Type>
 			<ImprovementType>IMPROVEMENT_KAMPONG</ImprovementType>
 			<Description>TXT_KEY_BUILD_KAMPONG</Description>
@@ -135,30 +123,6 @@
 			<IconIndex>11</IconIndex>
 		</Row>
 		<Row>
-			<Type>BUILD_OPPIDUM</Type>
-			<ImprovementType>IMPROVEMENT_OPPIDUM</ImprovementType>
-			<Description>TXT_KEY_BUILD_OPPIDUM</Description>
-			<Help>TXT_KEY_BUILD_CONSUMED_HELP_OPPIDUM</Help>
-			<EntityEvent>ENTITY_EVENT_BUILD</EntityEvent>
-			<HotKey>KB_E</HotKey>
-			<OrderPriority>95</OrderPriority>
-			<Kill>true</Kill>
-			<IconAtlas>BUILD_ATLAS_VP</IconAtlas>
-			<IconIndex>12</IconIndex>
-		</Row>
-		<Row>
-			<Type>BUILD_ORDO</Type>
-			<ImprovementType>IMPROVEMENT_ORDO</ImprovementType>
-			<Description>TXT_KEY_BUILD_ORDO</Description>
-			<Help>TXT_KEY_BUILD_CONSUMED_HELP_ORDO</Help>
-			<EntityEvent>ENTITY_EVENT_MINE</EntityEvent>
-			<HotKey>KB_E</HotKey>
-			<OrderPriority>95</OrderPriority>
-			<Kill>true</Kill>
-			<IconAtlas>BUILD_ATLAS_VP</IconAtlas>
-			<IconIndex>13</IconIndex>
-		</Row>
-		<Row>
 			<Type>BUILD_SIHEYUAN</Type>
 			<ImprovementType>IMPROVEMENT_SIHEYUAN</ImprovementType>
 			<Description>TXT_KEY_BUILD_SIHEYUAN</Description>
@@ -169,18 +133,6 @@
 			<OrderPriority>97</OrderPriority>
 			<IconAtlas>BUILD_ATLAS_VP</IconAtlas>
 			<IconIndex>14</IconIndex>
-		</Row>
-		<Row>
-			<Type>BUILD_TERSANE</Type>
-			<ImprovementType>IMPROVEMENT_TERSANE</ImprovementType>
-			<Description>TXT_KEY_BUILD_TERSANE</Description>
-			<Help>TXT_KEY_BUILD_CONSUMED_HELP_TERSANE</Help>
-			<EntityEvent>ENTITY_EVENT_BUILD</EntityEvent>
-			<HotKey>KB_E</HotKey>
-			<OrderPriority>95</OrderPriority>
-			<Kill>true</Kill>
-			<IconAtlas>BUILD_ATLAS_VP</IconAtlas>
-			<IconIndex>15</IconIndex>
 		</Row>
 		<Row>
 			<Type>BUILD_VILLA</Type>
@@ -226,6 +178,55 @@
 			<IconIndex>35</IconIndex>
 			<ShowInPedia>false</ShowInPedia>
 			<ShowInTechTree>false</ShowInTechTree>
+		</Row>
+		<!-- GPTI which consume the unit building them -->
+		<Row>
+			<Type>BUILD_OPPIDUM</Type>
+			<ImprovementType>IMPROVEMENT_OPPIDUM</ImprovementType>
+			<Description>TXT_KEY_BUILD_OPPIDUM</Description>
+			<Help>TXT_KEY_BUILD_OPPIDUM_HELP</Help>
+			<EntityEvent>ENTITY_EVENT_BUILD</EntityEvent>
+			<HotKey>KB_E</HotKey>
+			<OrderPriority>95</OrderPriority>
+			<Kill>true</Kill>
+			<IconAtlas>BUILD_ATLAS_VP</IconAtlas>
+			<IconIndex>12</IconIndex>
+		</Row>
+		<Row>
+			<Type>BUILD_ORDO</Type>
+			<ImprovementType>IMPROVEMENT_ORDO</ImprovementType>
+			<Description>TXT_KEY_BUILD_ORDO</Description>
+			<Help>TXT_KEY_BUILD_ORDO_HELP</Help>
+			<EntityEvent>ENTITY_EVENT_MINE</EntityEvent>
+			<HotKey>KB_E</HotKey>
+			<OrderPriority>95</OrderPriority>
+			<Kill>true</Kill>
+			<IconAtlas>BUILD_ATLAS_VP</IconAtlas>
+			<IconIndex>13</IconIndex>
+		</Row>
+		<Row>
+			<Type>BUILD_ISIBAYA</Type>
+			<ImprovementType>IMPROVEMENT_ISIBAYA</ImprovementType>
+			<Description>TXT_KEY_BUILD_ISIBAYA</Description>
+			<Help>TXT_KEY_BUILD_ISIBAYA_HELP</Help>
+			<EntityEvent>ENTITY_EVENT_BUILD</EntityEvent>
+			<HotKey>KB_E</HotKey>
+			<OrderPriority>95</OrderPriority>
+			<Kill>true</Kill>
+			<IconAtlas>BUILD_ATLAS_VP</IconAtlas>
+			<IconIndex>7</IconIndex>
+		</Row>
+		<Row>
+			<Type>BUILD_TERSANE</Type>
+			<ImprovementType>IMPROVEMENT_TERSANE</ImprovementType>
+			<Description>TXT_KEY_BUILD_TERSANE</Description>
+			<Help>TXT_KEY_BUILD_TERSANE_HELP</Help>
+			<EntityEvent>ENTITY_EVENT_BUILD</EntityEvent>
+			<HotKey>KB_E</HotKey>
+			<OrderPriority>95</OrderPriority>
+			<Kill>true</Kill>
+			<IconAtlas>BUILD_ATLAS_VP</IconAtlas>
+			<IconIndex>15</IconIndex>
 		</Row>
 	</Builds>
 </GameData>

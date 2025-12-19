@@ -387,10 +387,7 @@
 			<Text>Construct an [LINK=IMPROVEMENT_CELTS_OPPIDUM]Oppidum[\LINK]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_OPPIDUM_HELP">
-			<Text>Cannot be built next to another Oppidum.[NEWLINE][NEWLINE]It will increase [COLOR_POSITIVE_TEXT]All Yields[ENDCOLOR] and the yields of [ICON_GREAT_ENGINEER], [ICON_GREAT_MERCHANT], and [ICON_GREAT_SCIENTIST] Missions (by a reduced amount compared to their own Great Person Tile Improvements). Gives +100% [ICON_STRENGTH] Defense Bonus to units stationed on it. Provides bonus yields to all adjacent Tiles.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_BUILD_OPPIDUM_REC">
-			<Text>Unit will be consumed[NEWLINE]Unique Celtic Great Tile Improvement. Will connect Strategic Resources on this tile to the trade network. Gives a [ICON_STRENGTH] Defense Bonus to units stationed on it. Adjacent Tiles gain additional bonus yields.</Text>
+			<Text>Cannot be built next to another Oppidum.[NEWLINE][NEWLINE]Constructing the Oppidum will increase the yields of [ICON_GREAT_ENGINEER], [ICON_GREAT_MERCHANT], and [ICON_GREAT_SCIENTIST] Missions (by a reduced amount compared to their own Great Person Tile Improvements), and will consume this unit.[NEWLINE][NEWLINE]Gives +100% [ICON_STRENGTH] Defense Bonus to units stationed on it. Provides bonus yields to all adjacent Tiles.</Text>
 		</Row>
 
 		<!-- China -->
@@ -1034,7 +1031,7 @@
 		<Row Tag="TXT_KEY_BUILD_ORDO">
 			<Text>Construct an [LINK=IMPROVEMENT_ORDO]Ordo[\LINK]</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILD_CONSUMED_HELP_ORDO">
+		<Row Tag="TXT_KEY_BUILD_ORDO_HELP">
 			<Text>Can only be built in owned territory or adjacent to your own borders in an unowned tile, and cannot be adjacent to other Ordos. Removes any feature on the tile.[NEWLINE][NEWLINE]Constructing the Ordo will expand your Cultural borders to surround the Ordo, increase your [ICON_WAR] Military Unit Supply Cap by 1, and will consume this unit. If the new Cultural border claims hexes already owned by another civilization, you will incur a diplomatic penalty as a result.[NEWLINE][NEWLINE]+50% [ICON_STRENGTH] Defensive Strength for any Unit stationed in this tile. Restores [ICON_MOVES] Movement for any Unit moving onto this tile. Contains [COLOR_POSITIVE_TEXT]Fortifications[ENDCOLOR], allowing owned Units to stay stationed in this tile after attacking and a [COLOR_POSITIVE_TEXT]Canal[ENDCOLOR], allowing friendly [COLOR_POSITIVE_TEXT]Sea[ENDCOLOR] Units to traverse through it.</Text>
 		</Row>
 
@@ -1187,13 +1184,7 @@
 			<Text>Construct a [LINK=IMPROVEMENT_OTTOMAN_TERSANE]Tersane[\LINK]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_TERSANE_HELP">
-			<Text>It will increase [ICON_GOLD] Gold, [ICON_PRODUCTION] Production, [ICON_RESEARCH] Science, and [ICON_GREAT_ADMIRAL] Great Admiral Points. Increases the [ICON_PRODUCTION] Production rate and Experience of new Naval Units in an adjacent City. Gives [ICON_STRENGTH] Defense Bonus to units stationed on it. Claims adjacent tiles.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_BUILD_TERSANE_REC">
-			<Text>Unit will be consumed.[NEWLINE]Unique Ottoman Tile Improvement. Provides [ICON_GOLD] Gold, [ICON_PRODUCTION] Production and [ICON_RESEARCH] Science. Gives a [ICON_STRENGTH] Defense Bonus to units stationed on it.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_BUILD_CONSUMED_HELP_TERSANE">
-			<Text>Can only be built in water next to an owned City, and cannot be adjacent to another Tersane.[NEWLINE][NEWLINE]+25% [ICON_PRODUCTION] Production and +10 Experience for Naval Units built in the Adjacent City. Does not stack with multiple Tersane next to the same City.[NEWLINE][NEWLINE]Building the Tersane will expand your Cultural borders to surround the Tersane, increase your [ICON_WAR] Military Unit Supply Cap by 1, and will consume this Unit. Units standing on a Tersane receive +50% [ICON_STRENGTH] Tile Defense. Contains [COLOR_POSITIVE_TEXT]Fortifications[ENDCOLOR], allowing owned Units to stay stationed in this tile after attacking. Deals 30 damage to adjacent Enemy Units.</Text>
+			<Text>Can only be built in water next to an owned City, and cannot be adjacent to another Tersane.[NEWLINE][NEWLINE]Building the Tersane will expand your Cultural borders to surround the Tersane, increase your [ICON_WAR] Military Unit Supply Cap by 1, and will consume this Unit.[NEWLINE][NEWLINE]+25% [ICON_PRODUCTION] Production and +10 Experience for Naval Units built in the Adjacent City. Does not stack with multiple Tersane next to the same City. Units standing on a Tersane receive +50% [ICON_STRENGTH] Tile Defense. Contains [COLOR_POSITIVE_TEXT]Fortifications[ENDCOLOR], allowing owned Units to stay stationed in this tile after attacking. Deals 30 damage to adjacent Enemy Units.</Text>
 		</Row>
 
 		<!-- Persia -->
@@ -1821,10 +1812,7 @@
 			<Text>Construct an [LINK=IMPROVEMENT_ISIBAYA]Isibaya[\LINK]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_ISIBAYA_HELP">
-			<Text>Constructs an Isibaya, which will increase [ICON_CULTURE] Culture, [ICON_RESEARCH] Science, and [ICON_PRODUCTION] Production, and give +1 [ICON_CULTURE] Culture to Adjacent Pastures. Gives +100% [ICON_STRENGTH] Defense Bonus to units and deals 30 damage to adjacent Enemy Units. Claims adjacent tiles and places a [ICON_RES_COW] Cattle Resource adjacent to the Isibaya.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_BUILD_ISIBAYA_REC">
-			<Text>Unit will be consumed.[NEWLINE]Unique Zulu Tile Improvement. [ICON_CULTURE] Culture, [ICON_RESEARCH] Science, and [ICON_PRODUCTION] Production. Adjacent Pastures receive +1 [ICON_CULTURE] Culture. Gives a [ICON_STRENGTH] Defense Bonus and damages adjacent Enemy Units. Claims adjacent tiles and places a [ICON_RES_COW] Cattle Resource adjacent to the Isibaya.</Text>
+			<Text>Can only be built in owned territory or adjacent to your own borders in an unowned tile, and cannot be adjacent to other Isibaya. Removes any feature on the tile.[NEWLINE][NEWLINE]Constructing the Isibaya will expand your Cultural borders to surround the Isibaya, increase your [ICON_WAR] Military Unit Supply Cap by 1, place a [ICON_RES_COW] Cattle Resource on an adjacent tile, and will consume this unit. If the new Cultural border claims hexes already owned by another civilization, you will incur a diplomatic penalty as a result.[NEWLINE][NEWLINE]+100% [ICON_STRENGTH] Defensive Strength for any Unit stationed in this tile. Deals 30 damage to adjacent Enemy Units. Provides +1 [ICON_CULTURE] Culture to adjacent Pastures. Contains [COLOR_POSITIVE_TEXT]Fortifications[ENDCOLOR], allowing owned Units to stay stationed in this tile after attacking and a [COLOR_POSITIVE_TEXT]Canal[ENDCOLOR], allowing friendly [COLOR_POSITIVE_TEXT]Sea[ENDCOLOR] Units to traverse through it.</Text>
 		</Row>
 	</Language_en_US>
 </GameData>
