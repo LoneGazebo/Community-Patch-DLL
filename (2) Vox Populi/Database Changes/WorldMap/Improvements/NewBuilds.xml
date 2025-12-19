@@ -184,7 +184,7 @@
 			<Type>BUILD_OPPIDUM</Type>
 			<ImprovementType>IMPROVEMENT_OPPIDUM</ImprovementType>
 			<Description>TXT_KEY_BUILD_OPPIDUM</Description>
-			<Help>TXT_KEY_BUILD_CONSUMED_HELP_OPPIDUM</Help>
+			<Help>TXT_KEY_BUILD_OPPIDUM_HELP</Help>
 			<EntityEvent>ENTITY_EVENT_BUILD</EntityEvent>
 			<HotKey>KB_E</HotKey>
 			<OrderPriority>95</OrderPriority>
@@ -196,7 +196,7 @@
 			<Type>BUILD_ORDO</Type>
 			<ImprovementType>IMPROVEMENT_ORDO</ImprovementType>
 			<Description>TXT_KEY_BUILD_ORDO</Description>
-			<Help>TXT_KEY_BUILD_CONSUMED_HELP_ORDO</Help>
+			<Help>TXT_KEY_BUILD_ORDO_HELP</Help>
 			<EntityEvent>ENTITY_EVENT_MINE</EntityEvent>
 			<HotKey>KB_E</HotKey>
 			<OrderPriority>95</OrderPriority>
@@ -208,7 +208,7 @@
 			<Type>BUILD_ISIBAYA</Type>
 			<ImprovementType>IMPROVEMENT_ISIBAYA</ImprovementType>
 			<Description>TXT_KEY_BUILD_ISIBAYA</Description>
-			<Help>TXT_KEY_BUILD_CONSUMED_HELP_ISIBAYA</Help>
+			<Help>TXT_KEY_BUILD_ISIBAYA_HELP</Help>
 			<EntityEvent>ENTITY_EVENT_BUILD</EntityEvent>
 			<HotKey>KB_E</HotKey>
 			<OrderPriority>95</OrderPriority>
@@ -220,7 +220,7 @@
 			<Type>BUILD_TERSANE</Type>
 			<ImprovementType>IMPROVEMENT_TERSANE</ImprovementType>
 			<Description>TXT_KEY_BUILD_TERSANE</Description>
-			<Help>TXT_KEY_BUILD_CONSUMED_HELP_TERSANE</Help>
+			<Help>TXT_KEY_BUILD_TERSANE_HELP</Help>
 			<EntityEvent>ENTITY_EVENT_BUILD</EntityEvent>
 			<HotKey>KB_E</HotKey>
 			<OrderPriority>95</OrderPriority>
