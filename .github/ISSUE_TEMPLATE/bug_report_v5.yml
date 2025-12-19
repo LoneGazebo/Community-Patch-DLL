@@ -12,14 +12,15 @@ body:
     id: mod-version
     attributes:
       label: 1. Mod version
-      description: "Please select which version you are using. Current Version: 5.0"
+      description: "Please select which version you are using. Current Version: 5.0.1"
       options:
+        - 5.0.1
         - 5.0
         - 5.0-alpha.03
         - 5.0-alpha.02
         - 5.0-alpha.01
         - 4.22
-        - older version, please specify below
+        - Older version, please specify below
     validations:
       required: true
 
@@ -48,7 +49,7 @@ body:
 
       placeholder: Upload or provide links to ALL mods other than VP that you are using
     validations:
-      required: true
+      required: false
       
   - type: textarea
     id: issue-description

@@ -2,7 +2,7 @@
 <Mod id="24923240-e4fb-4bf6-8f0e-6e5b6cf4d3c2" version="1">
   <Properties>
     <Name>(3a) VP - EUI Compatibility Files</Name>
-    <Teaser>(5.0) Vox Populi Compatibility and LUA (EUI Version)</Teaser>
+    <Teaser>(5.0.1) Vox Populi Compatibility and LUA (EUI Version)</Teaser>
     <Description>Contains LUA and mod compatibility files for Vox Populi if using EUI.</Description>
     <Authors>Gazebo</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -36,7 +36,7 @@
     <File md5="A6F18267CD67EEC3CA6CC792FD572282" import="1">LUA/CityStateDiploPopup.lua</File>
     <File md5="908C089812571BAB530B4E639E9DDC20" import="1">LUA/CityStateDiploPopup.xml</File>
     <File md5="871222C026C1253BB92CDCC0C423E038" import="1">LUA/CityStateStatusHelper.lua</File>
-    <File md5="1A8A9D11A6DE0DDB5E2B7E97B0663F17" import="1">LUA/CityView.lua</File>
+    <File md5="25097AA7937888EFA89B4B63729CBABE" import="1">LUA/CityView.lua</File>
     <File md5="F5FCDE73448EC1391CE1C06B10630AAD" import="1">LUA/CityView.xml</File>
     <File md5="D25BC7DE8ED5F24CD827D75E5B498069" import="1">LUA/CityView_small.xml</File>
     <File md5="5200A95BBF89848498105F1B3254EBA3" import="1">LUA/DiploCorner.lua</File>
@@ -60,12 +60,12 @@
     <File md5="B878A95C1F755D948A777A49B8B1AE64" import="1">LUA/TradeLogic.lua</File>
     <File md5="95590D57F72A1DA4C7837531464A6C2E" import="1">LUA/UnitFlagManager.lua</File>
     <File md5="C9640C05F6EDAA4ADF5E67E5D17FC01A" import="1">LUA/UnitFlagManager.xml</File>
-    <File md5="82F49007D26B47DCA5D61BF527A2A4DF" import="1">LUA/UnitPanel.lua</File>
+    <File md5="41B43600D9F74DF575E0462ADCD31112" import="1">LUA/UnitPanel.lua</File>
     <File md5="72BE225BBB8B757302AC7653198DA646" import="1">LUA/UnitPanel.xml</File>
     <File md5="BAEAE4CE4E8B8BEAA2267E1E89EB6D2E" import="1">LUA/UnitPanel_small.xml</File>
     <File md5="C5086E6289D8DC365D343C7BE312D802" import="1">LUA/YieldIconManager.lua</File>
     <File md5="55909A9DD5774FA7137CAA99141A5D2B" import="0">ImprovedTopPanel/Text.xml</File>
-    <File md5="4E6C95F98733AB05E3518F873C47F810" import="1">ImprovedTopPanel/TopPanel.lua</File>
+    <File md5="65A0DDD9CCEE4BB95B09C6360F13AB7F" import="1">ImprovedTopPanel/TopPanel.lua</File>
     <File md5="A832E556B1146BB64409DD813B700ECF" import="1">ImprovedTopPanel/TopPanel.xml</File>
     <File md5="89DFD821D1490765D53497CDD3DB3FC0" import="1">ImprovedTechTree/TechTree.lua</File>
     <File md5="C702A3B952BEA1E8D6F98BB0F178D789" import="1">ImprovedTechTree/TechTree.xml</File>
