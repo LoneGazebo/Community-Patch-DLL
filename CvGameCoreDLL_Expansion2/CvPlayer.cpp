@@ -45317,7 +45317,7 @@ int CvPlayer::GetAreaEffectModifier(AreaEffectType eType, DomainTypes eDomain, c
 		{
 			case AE_GREAT_GENERAL:
 			{
-				if (pUnit->IsGreatGeneral() || pUnit->IsGreatAdmiral())
+				if (pUnit->getUnitInfo().GetUnitAIType(UNITAI_GENERAL) || pUnit->GetGreatGeneralCount() > 0 || pUnit->getUnitInfo().GetUnitAIType(UNITAI_ADMIRAL) || pUnit->GetGreatAdmiralCount() > 0)
 					iResult = max(iResult, GetGreatGeneralCombatBonus() + GetPlayerTraits()->GetGreatGeneralExtraBonus() + pUnit->GetAuraEffectChange());
 				break;
 			}

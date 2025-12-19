@@ -24295,6 +24295,9 @@ bool CvUnit::IsGreatGeneral() const
 {
 	VALIDATE_OBJECT();
 
+	if (IsCombatUnit())
+		return false;
+
 	if (getUnitInfo().GetUnitAIType(UNITAI_GENERAL))
 		return true;
 
