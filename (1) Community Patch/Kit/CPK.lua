@@ -403,6 +403,7 @@
 	kit.Args = M()  -- Variadic Arguments
 	kit.Assert = M() -- Assertion utilities
 	kit.Cache = M() -- Caching
+	kit.Debug = M()
 	kit.Misc = M()  -- Miscellaneous
 	kit.String = M() -- String utilities
 	kit.Table = M() -- Table utilities
