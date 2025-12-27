@@ -1019,7 +1019,7 @@ function TipHandler( control )
 		strActionHelp = strActionHelp .. "[NEWLINE]";
 		
 		local iUnitType = unit:GetUpgradeUnitType();
-		local iGoldToUpgrade = unit:UpgradePrice(iUnitType);
+		local iGoldToUpgrade = ( iUnitType > -1 and unit:UpgradePrice(iUnitType) ) or 0;
 		strActionHelp = strActionHelp .. Locale.ConvertTextKey("TXT_KEY_UPGRADE_HELP", GameInfo.Units[iUnitType].Description, iGoldToUpgrade);
 		
         strToolTip = strToolTip .. strActionHelp;
