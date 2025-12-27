@@ -103,11 +103,6 @@ UPDATE Language_en_US
 SET Text = 'Resources Required: {1_NumResource} {2_ResIcon} {3_Res:textkey}'
 WHERE Tag = 'TXT_KEY_PRODUCTION_RESOURCES_REQUIRED';
 
--- Building
-UPDATE Language_en_US
-SET Text = '{1: number "''[ICON_HAPPINESS_1] Happiness: ''#;''[ICON_HAPPINESS_3] Unhappiness '':#"}'
-WHERE Tag = 'TXT_KEY_PRODUCTION_BUILDING_HAPPINESS';
-
 UPDATE Language_en_US
 SET Text = '[ICON_STRENGTH] City Strength: {2_Sign}{1_Num}'
 WHERE Tag = 'TXT_KEY_PRODUCTION_BUILDING_DEFENSE';
