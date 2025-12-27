@@ -249,7 +249,7 @@ FDataStream& operator<<(FDataStream& saveTo, const CvReligionInCity& readFrom)
 /// Constructor
 CvGameReligions::CvGameReligions(void) :
 	m_iMinimumFaithForNextPantheon(0)
-	, m_religionIndex(MAX_CIV_PLAYERS, -1)
+	, m_religionIndex(GC.GetGameReligions()->GetNumReligions(), -1)
 {
 }
 
