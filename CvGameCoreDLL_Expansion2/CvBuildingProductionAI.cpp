@@ -867,7 +867,8 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	for (set<int>::const_iterator it = sUnitClasses.begin(); it != sUnitClasses.end(); ++it)
 	{
 		// don't need it if we can train the unit anyway
-		if (!kPlayer.canTrainUnit(kPlayer.GetSpecificUnitType((UnitClassTypes)*it)))
+		UnitTypes eUpgradeUnit = kPlayer.GetSpecificUnitType((UnitClassTypes)*it) ;
+		if (eUpgradeUnit != NO_UNIT && !kPlayer.canTrainUnit(eUpgradeUnit))
 		{
 			iBonus += 200;
 		}
