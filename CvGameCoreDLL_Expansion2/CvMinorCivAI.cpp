@@ -2027,7 +2027,7 @@ bool CvMinorCivQuest::IsExpired()
 			if (pkUnitInfo->GetUpgradeUnitClass(iI))
 			{
 				UnitTypes eUpgradeUnit = GET_PLAYER(m_eAssignedPlayer).GetSpecificUnitType(eUnitClass);
-				if (GET_PLAYER(m_eAssignedPlayer).canTrainUnit(eUpgradeUnit, false, false, false, false))
+				if (eUpgradeUnit != NO_UNIT && GET_PLAYER(m_eAssignedPlayer).canTrainUnit(eUpgradeUnit, false, false, false, false))
 				{
 					bCanUpgrade = true;
 					break;
@@ -10957,7 +10957,7 @@ UnitTypes CvMinorCivAI::GetBestUnitGiftFromPlayer(PlayerTypes ePlayer)
 			if (pkUnitInfo->GetUpgradeUnitClass(iI))
 			{
 				UnitTypes eUpgradeUnit = GET_PLAYER(ePlayer).GetSpecificUnitType(eUnitClass);
-				if (GET_PLAYER(ePlayer).canTrainUnit(eUpgradeUnit, false, false, false, false))
+				if (eUpgradeUnit != NO_UNIT && GET_PLAYER(ePlayer).canTrainUnit(eUpgradeUnit, false, false, false, false))
 				{
 					bValid = false;
 					break;
