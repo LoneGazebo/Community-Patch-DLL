@@ -776,7 +776,11 @@ function GetHelpTextForUnit(eUnit, bIncludeRequirementsInfo, pCity, bExcludeName
 
 	-- Maintenance (base amount too dynamic to be shown)
 	-- These columns can stack, even if they don't make sense together
-	AddTooltipNonZero(tStatLines, "TXT_KEY_PRODUCTION_UNIT_EXTRA_MAINTENANCE", kUnitInfo.ExtraMaintenanceCost);
+	if kUnitInfo.ExtraMaintenanceCost > 0 then
+		AddTooltip(tStatLines, "TXT_KEY_PRODUCTION_UNIT_EXTRA_MAINTENANCE", kUnitInfo.ExtraMaintenanceCost);
+	else
+		AddTooltipNonZero(tStatLines, "TXT_KEY_PRODUCTION_UNIT_REDUCED_MAINTENANCE", kUnitInfo.ExtraMaintenanceCost * -1);
+	end
 	AddTooltipIfTrue(tStatLines, "TXT_KEY_PRODUCTION_UNIT_NO_MAINTENANCE", kUnitInfo.NoMaintenance);
 
 	-- Supply cost
@@ -835,7 +839,11 @@ function GetHelpTextForUnit(eUnit, bIncludeRequirementsInfo, pCity, bExcludeName
 
 	-- Unhappiness (can be negative)
 	if not MOD_BALANCE_VP then
-		AddTooltipNonZero(tStatLines, "TXT_KEY_PRODUCTION_UNIT_UNHAPPINESS", kUnitInfo.Unhappiness);
+		if kUnitInfo.Unhappiness > 0 then
+			AddTooltipNonZero(tStatLines, "TXT_KEY_PRODUCTION_UNIT_UNHAPPINESS", kUnitInfo.Unhappiness);
+		else
+			AddTooltipNonZero(tStatLines, "TXT_KEY_PRODUCTION_UNIT_UNHAPPINESS_REDUCTION", kUnitInfo.Unhappiness * -1);
+		end
 	end
 
 	if next(tStatLines) then
@@ -1875,10 +1883,15 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 	-- Happiness (from all sources)
 	local iHappinessTotal = kBuildingInfo.Happiness + kBuildingInfo.UnmoddedHappiness;
 	if MOD_BALANCE_VP then
-		AddTooltipNonZero(tYieldLines, "TXT_KEY_PRODUCTION_BUILDING_HAPPINESS", iHappinessTotal);
+		AddTooltipNonZeroSigned(tYieldLines, "TXT_KEY_PRODUCTION_BUILDING_HAPPINESS", iHappinessTotal);
 		AddTooltipNonZeroSigned(tYieldLines, "TXT_KEY_PRODUCTION_BUILDING_UNHAPPINESS", kBuildingInfo.Unhappiness);
 	else
-		AddTooltipNonZero(tYieldLines, "TXT_KEY_PRODUCTION_BUILDING_HAPPINESS", iHappinessTotal + kBuildingInfo.Unhappiness);
+		iHappinessTotal = iHappinessTotal + kBuildingInfo.Unhappiness;
+		if iHappinessTotal > 0 then
+			AddTooltipNonZeroSigned(tYieldLines, "TXT_KEY_PRODUCTION_BUILDING_HAPPINESS", iHappinessTotal);
+		else
+			AddTooltipNonZeroSigned(tYieldLines, "TXT_KEY_PRODUCTION_BUILDING_UNHAPPINESS", iHappinessTotal * -1);
+		end
 	end
 
 	-- Only show modified number in city view

@@ -105,7 +105,7 @@ WHERE Tag = 'TXT_KEY_PRODUCTION_RESOURCES_REQUIRED';
 
 -- Building
 UPDATE Language_en_US
-SET Text = '{1: number "''[ICON_HAPPINESS_1] Happiness: ''#;''[ICON_HAPPINESS_3] Unhappiness '':#"}'
+SET Text = '[ICON_HAPPINESS_1] Happiness: {2_Sign}{1_Num}'
 WHERE Tag = 'TXT_KEY_PRODUCTION_BUILDING_HAPPINESS';
 
 UPDATE Language_en_US
