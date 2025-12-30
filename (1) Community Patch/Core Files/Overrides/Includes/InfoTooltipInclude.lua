@@ -2429,7 +2429,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 	for row in GameInfo.Building_ResourceQuantityFromPOP{BuildingType = kBuildingInfo.Type} do
 		local kResourceInfo = GameInfo.Resources[row.ResourceType];
 		AddTooltipPositive(tGlobalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_FREE_RESOURCE_FROM_POPULATION",
-			row.Modifier, kResourceInfo.IconString, kResourceInfo.Description);
+			row.Modifier / 100, kResourceInfo.IconString, kResourceInfo.Description);
 	end
 
 	for row in GameInfo.Building_ResourceQuantityPerXFranchises{BuildingType = kBuildingInfo.Type} do
