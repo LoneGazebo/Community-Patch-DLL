@@ -836,9 +836,8 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 			const PromotionTypes promotionID = (PromotionTypes)iJ;
 			if(kPlayer.GetPlayerTraits()->HasFreePromotionUnitCombat(promotionID, unitCombatType))
 			{
-				TechTypes ePrereqTech = static_cast<TechTypes>(GC.getPromotionInfo(ePromotion)->GetTechPrereq());
-				CvPlayer& kOwner = GET_PLAYER(getOwner());
-				if (ePrereqTech == NO_TECH || kOwner.HasTech(ePrereqTech))
+				TechTypes ePrereqTech = static_cast<TechTypes>(GC.getPromotionInfo(promotionID)->GetTechPrereq());
+				if (ePrereqTech == NO_TECH || kPlayer.HasTech(ePrereqTech))
 				{
 					setHasPromotion(promotionID, true);
 				}
