@@ -331,3 +331,90 @@ ALTER TABLE Building_ThemingBonuses ADD ConsecutiveEras integer DEFAULT 0;
 -- If NULL, will fall back to using Buildings.EnhancedYieldTech
 -- Does nothing if both columns are NULL
 ALTER TABLE Building_TechEnhancedYieldChanges ADD TechType text REFERENCES Technologies (Type);
+
+-- Convert bool type to correct boolean type on Building_ThemingBonuses
+UPDATE Building_ThemingBonuses
+SET SameEra = CASE WHEN SameEra IN (1, 'true') THEN 1 ELSE 0 END;
+
+UPDATE Building_ThemingBonuses
+SET UniqueEras = CASE WHEN UniqueEras IN (1, 'true') THEN 1 ELSE 0 END;
+
+UPDATE Building_ThemingBonuses
+SET MustBeArt = CASE WHEN MustBeArt IN (1, 'true') THEN 1 ELSE 0 END;
+
+UPDATE Building_ThemingBonuses
+SET MustBeArtifact =
+	CASE WHEN MustBeArtifact IN (1, 'true') THEN 1 ELSE 0 END;
+
+UPDATE Building_ThemingBonuses
+SET MustBeEqualArtArtifact =
+	CASE WHEN MustBeEqualArtArtifact IN (1, 'true') THEN 1 ELSE 0 END;
+
+UPDATE Building_ThemingBonuses
+SET RequiresOwner =
+	CASE WHEN RequiresOwner IN (1, 'true') THEN 1 ELSE 0 END;
+
+UPDATE Building_ThemingBonuses
+SET RequiresAnyButOwner =
+	CASE WHEN RequiresAnyButOwner IN (1, 'true') THEN 1 ELSE 0 END;
+
+UPDATE Building_ThemingBonuses
+SET RequiresSamePlayer =
+	CASE WHEN RequiresSamePlayer IN (1, 'true') THEN 1 ELSE 0 END;
+
+UPDATE Building_ThemingBonuses
+SET RequiresUniquePlayers =
+	CASE WHEN RequiresUniquePlayers IN (1, 'true') THEN 1 ELSE 0 END;
+
+CREATE TABLE Building_ThemingBonuses_new (
+	BuildingType TEXT,
+	Description TEXT,
+	Bonus INTEGER,
+	SameEra boolean DEFAULT 0,
+	UniqueEras boolean DEFAULT 0,
+	MustBeArt boolean DEFAULT 0,
+	MustBeArtifact boolean DEFAULT 0,
+	MustBeEqualArtArtifact boolean DEFAULT 0,
+	RequiresOwner boolean DEFAULT 0,
+	RequiresAnyButOwner boolean DEFAULT 0,
+	RequiresSamePlayer boolean DEFAULT 0,
+	RequiresUniquePlayers boolean DEFAULT 0,
+	AIPriority INT,
+	ConsecutiveEras INTEGER
+);
+
+INSERT INTO Building_ThemingBonuses_new (
+	BuildingType,
+	Description,
+	Bonus,
+	SameEra,
+	UniqueEras,
+	MustBeArt,
+	MustBeArtifact,
+	MustBeEqualArtArtifact,
+	RequiresOwner,
+	RequiresAnyButOwner,
+	RequiresSamePlayer,
+	RequiresUniquePlayers,
+	AIPriority,
+	ConsecutiveEras
+)
+SELECT
+	BuildingType,
+	Description,
+	Bonus,
+	SameEra,
+	UniqueEras,
+	MustBeArt,
+	MustBeArtifact,
+	MustBeEqualArtArtifact,
+	RequiresOwner,
+	RequiresAnyButOwner,
+	RequiresSamePlayer,
+	RequiresUniquePlayers,
+	AIPriority,
+	ConsecutiveEras
+FROM Building_ThemingBonuses;
+
+DROP TABLE Building_ThemingBonuses;
+ALTER TABLE Building_ThemingBonuses_new RENAME TO Building_ThemingBonuses;
