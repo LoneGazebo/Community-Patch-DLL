@@ -1200,7 +1200,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 		CvUnit* pLoopUnit = NULL;
 		for (pLoopUnit = kPlayer.firstUnit(&iLoop); pLoopUnit; pLoopUnit = kPlayer.nextUnit(&iLoop))
 		{
-			if (pLoopUnit && pLoopUnit->IsCombatUnit() && pLoopUnit->getDomainType() == DOMAIN_LAND)
+			if (pLoopUnit && pLoopUnit->IsCombatUnit())
 			{
 				pLoopUnit->changeExperienceTimes100(kPlayer.GetPlayerTraits()->GetXPBonusFromGreatPersonBirth() * 100);
 			}
@@ -1212,7 +1212,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 		CvUnit* pLoopUnit = NULL;
 		for (pLoopUnit = kPlayer.firstUnit(&iLoop); pLoopUnit; pLoopUnit = kPlayer.nextUnit(&iLoop))
 		{
-			if (pLoopUnit && pLoopUnit->IsCombatUnit() && pLoopUnit->getDomainType() == DOMAIN_LAND)
+			if (pLoopUnit && pLoopUnit->IsCombatUnit())
 			{
 				pLoopUnit->changeDamage(-kPlayer.GetPlayerTraits()->GetUnitHealFromGreatPersonBirth());
 			}

@@ -775,7 +775,7 @@ SET Text = 'Lion of the North'
 WHERE Tag = 'TXT_KEY_TRAIT_DIPLOMACY_GREAT_PEOPLE_SHORT';
 
 UPDATE Language_en_US
-SET Text = 'Melee Land Units start with the [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_ATTACK_BONUS_SWEDEN}[ENDCOLOR] Promotion, and Siege Units start with the [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_MOBILITY}[ENDCOLOR] Promotion. All Military Land Units heal 10 HP and earn 2 XP when a [ICON_GREAT_PEOPLE] Great Person is born. +15% [ICON_STRENGTH] Combat Strength from [ICON_GREAT_GENERAL]/[ICON_GREAT_ADMIRAL] [COLOR_POSITIVE_TEXT]Leadership[ENDCOLOR].'
+SET Text = 'Melee Land Units start with the [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_ATTACK_BONUS_SWEDEN}[ENDCOLOR] Promotion, and Siege Units start with the [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_MOBILITY}[ENDCOLOR] Promotion. All Military Units heal 10 HP and earn 2 XP when a [ICON_GREAT_PEOPLE] Great Person is born. +15% [ICON_STRENGTH] Combat Strength from [ICON_GREAT_GENERAL]/[ICON_GREAT_ADMIRAL] [COLOR_POSITIVE_TEXT]Leadership[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_TRAIT_DIPLOMACY_GREAT_PEOPLE';
 
 UPDATE Language_en_US
