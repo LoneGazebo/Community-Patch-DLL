@@ -13492,8 +13492,8 @@ void CvUnit::promote(PromotionTypes ePromotion, int iLeaderUnitId)
 				GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_LEVEL_UP, false, NO_GREATPERSON, NO_BUILDING, (getLevel() - 1), false, NO_PLAYER, NULL, false, pCapital, getDomainType()==DOMAIN_SEA, true, false, NO_YIELD, this);
 			}
 		}
-		// global yields, scaling with era
-		GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_LEVEL_UP, false, NO_GREATPERSON, NO_BUILDING, (getLevel() - 1), true, NO_PLAYER, NULL, false, NULL, getDomainType() == DOMAIN_SEA, true, false, NO_YIELD, this);
+		// global yields
+		GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_LEVEL_UP, false, NO_GREATPERSON, NO_BUILDING, (getLevel() - 1), false, NO_PLAYER, NULL, false, NULL, getDomainType() == DOMAIN_SEA, true, false, NO_YIELD, this);
 
 		if (MOD_EVENTS_UNIT_UPGRADES)
 		{

@@ -1259,7 +1259,7 @@
 			<Text>When a Unit created by this City is promoted: {1_InstantYield}, scaling with (new Unit Level - 2) squared, minimum 1</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_INSTANT_YIELD_ON_UNIT_PROMOTION_GLOBAL">
-			<Text>When an owned Unit is promoted: {1_InstantYield}, scaling with Unit's original Level and Era</Text>
+			<Text>When an owned Unit is promoted: {1_InstantYield}, scaling with Unit's original Level</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_INSTANT_YIELD_ON_UNIT_KILL">
 			<Text>When a Unit created by this City defeats a Military Unit: {1_InstantYield}</Text>
