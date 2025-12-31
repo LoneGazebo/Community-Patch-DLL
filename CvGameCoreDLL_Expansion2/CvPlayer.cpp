@@ -26113,7 +26113,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 						}
 						if(pCity != NULL)
 						{
-							if(!pCity->GetCityReligions()->IsHolyCityForReligion(eReligion))
+							if (pCity->getOwner() != GetID())
 							{
 								iValue += pReligion->m_Beliefs.GetYieldFromSpread(eYield, GetID(), pLoopCity, true) * max(1, iPassYield+1);
 							}
