@@ -375,12 +375,13 @@ public:
 
 	int getVictoryPoints() const;
 	void changeVictoryPoints(int iChange);
+	
+	int GetBuildingDefenseModifier() const;
+	void ChangeBuildingDefenseModifier(int iChange);
 
 	void DoTestSmallAwards();
 	bool IsSmallAwardAchieved(SmallAwardTypes eAward) const;
 	void SetSmallAwardAchieved(SmallAwardTypes eAward, bool bValue);
-
-	void verifySpyUnitsValidPlot();
 
 	void setForceRevealedResource(ResourceTypes eResource, bool bRevealed);
 	bool isForceRevealedResource(ResourceTypes eResource) const;
@@ -519,6 +520,7 @@ protected:
 	int m_iNumLandmarksBuilt;
 	int m_iBestPossibleRoute;
 	int m_iNumMinorCivsAttacked;
+	int m_iBuildingDefenseModifier;
 
 	bool m_bMapCentering;
 	bool m_bHasTechForWorldCongress;

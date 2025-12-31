@@ -197,6 +197,7 @@ void CvTeam::uninit()
 	m_iNumLandmarksBuilt = 0;
 	m_iBestPossibleRoute = NO_ROUTE;
 	m_iNumMinorCivsAttacked = 0;
+	m_iBuildingDefenseModifier = 0;
 
 	m_bMapCentering = false;
 	m_bHasTechForWorldCongress = false;
@@ -751,21 +752,7 @@ void CvTeam::processBuilding(BuildingTypes eBuilding, int iChange)
 		}
 	}
 
-	// Effects in every City on this Team
-	for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
-	{
-		CvPlayerAI& kPlayer = GET_PLAYER((PlayerTypes) iPlayerLoop);
-		if(kPlayer.getTeam() == m_eID && kPlayer.isAlive())
-		{
-			CvCity* pLoopCity = NULL;
-			int iLoop = 0;
-
-			for(pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
-			{
-				pLoopCity->GetCityBuildings()->ChangeBuildingDefenseMod(pBuildingInfo->GetGlobalDefenseModifier() * iChange);
-			}
-		}
-	}
+	ChangeBuildingDefenseModifier(pBuildingInfo->GetGlobalDefenseModifier() * iChange);
 }
 
 
@@ -5852,6 +5839,29 @@ void CvTeam::changeVictoryPoints(int iChange)
 }
 
 //	--------------------------------------------------------------------------------
+int CvTeam::GetBuildingDefenseModifier() const
+{
+	return m_iBuildingDefenseModifier;
+}
+
+//	--------------------------------------------------------------------------------
+void CvTeam::ChangeBuildingDefenseModifier(int iChange)
+{
+	m_iBuildingDefenseModifier += iChange;
+
+	// Also update all cities immediately
+	for (CivsList::const_iterator it = getPlayers().begin(); it != getPlayers().end(); ++it)
+	{
+		CvPlayer& kPlayer = GET_PLAYER(*it);
+		int iLoop = 0;
+		for (CvCity* pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
+		{
+			pLoopCity->GetCityBuildings()->ChangeBuildingDefenseMod(iChange);
+		}
+	}
+}
+
+//	--------------------------------------------------------------------------------
 /// See if there are any Small Awards we've just accomplished
 void CvTeam::DoTestSmallAwards()
 {
@@ -9054,6 +9064,7 @@ void CvTeam::Serialize(Team& team, Visitor& visitor)
 	visitor(team.m_iNumLandmarksBuilt);
 	visitor(team.m_iBestPossibleRoute);
 	visitor(team.m_iNumMinorCivsAttacked);
+	visitor(team.m_iBuildingDefenseModifier);
 
 	visitor(team.m_bMapCentering);
 	visitor(team.m_bHasTechForWorldCongress);

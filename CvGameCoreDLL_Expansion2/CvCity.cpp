@@ -563,14 +563,15 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	// Init saved data
 	reset(iID, eOwner, pPlot->getX(), pPlot->getY());
 
-	CvPlayerAI& owningPlayer = GET_PLAYER(getOwner());
+	CvPlayer& kOwner = GET_PLAYER(getOwner());
+	CvTeam& kTeam = GET_TEAM(getTeam());
 
 	//--------------------------------
 	// Init non-saved data
 
 	//--------------------------------
 	// Init other game data
-	CvString strNewCityName = owningPlayer.getNewCityName();
+	CvString strNewCityName = kOwner.getNewCityName();
 	setName(strNewCityName.c_str());
 
 	if (MOD_ENABLE_ACHIEVEMENTS && strcmp(strNewCityName.c_str(), "TXT_KEY_CITY_NAME_LLANFAIRPWLLGWYNGYLL") == 0)
@@ -608,7 +609,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	}
 
 	// this is a list of plot that are owned by the player
-	owningPlayer.UpdatePlots();
+	kOwner.UpdatePlots();
 
 	static BuildTypes eBuildRemoveForest = (BuildTypes)GC.getInfoTypeForString("BUILD_REMOVE_FOREST");
 	static BuildTypes eBuildRemoveJungle = (BuildTypes)GC.getInfoTypeForString("BUILD_REMOVE_JUNGLE");
@@ -620,16 +621,16 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	if (pPlot->getFeatureType() != NO_FEATURE)
 	{
 		// Only for major civs building on a forest
-		if (MOD_GLOBAL_CITY_FOREST_BONUS && eFeature == FEATURE_FOREST && eBuildRemoveForest != -1 && owningPlayer.isMajorCiv())
+		if (MOD_GLOBAL_CITY_FOREST_BONUS && eFeature == FEATURE_FOREST && eBuildRemoveForest != -1 && kOwner.isMajorCiv())
 		{
 			TechTypes eRequiredTech = (TechTypes)gCustomMods.getOption("GLOBAL_CITY_FOREST_BONUS_TECH", -1);
-			bClearedForest = (eRequiredTech == NO_TECH || GET_TEAM(owningPlayer.getTeam()).GetTeamTechs()->HasTech(eRequiredTech));
+			bClearedForest = (eRequiredTech == NO_TECH || kOwner.HasTech(eRequiredTech));
 		}
 		// OR only for major civs building on a jungle
-		else if (MOD_GLOBAL_CITY_JUNGLE_BONUS && eFeature == FEATURE_JUNGLE && eBuildRemoveJungle != -1 && owningPlayer.isMajorCiv())
+		else if (MOD_GLOBAL_CITY_JUNGLE_BONUS && eFeature == FEATURE_JUNGLE && eBuildRemoveJungle != -1 && kOwner.isMajorCiv())
 		{
 			TechTypes eRequiredTech = (TechTypes)gCustomMods.getOption("GLOBAL_CITY_JUNGLE_BONUS_TECH", -1);
-			bClearedJungle = (eRequiredTech == NO_TECH || GET_TEAM(owningPlayer.getTeam()).GetTeamTechs()->HasTech(eRequiredTech));
+			bClearedJungle = (eRequiredTech == NO_TECH || kOwner.HasTech(eRequiredTech));
 		}
 
 		pPlot->setFeatureType(NO_FEATURE);
@@ -659,7 +660,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	for (iI = 0; iI < GC.getNumBuildingInfos(); iI++)
 	{
 		BuildingTypes eBuilding = static_cast<BuildingTypes>(iI);
-		if (owningPlayer.isBuildingFree(eBuilding))
+		if (kOwner.isBuildingFree(eBuilding))
 		{
 			SetNumFreeBuilding(eBuilding, 1);
 		}
@@ -675,14 +676,14 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 		if (eBuilding == NO_BUILDING)
 			continue;
 
-		if (owningPlayer.GetNumCitiesFreeChosenBuilding(eBuildingClass) > 0
-			|| owningPlayer.IsFreeChosenBuildingNewCity(eBuildingClass)
-			|| owningPlayer.IsFreeBuildingAllCity(eBuildingClass)
-			|| (owningPlayer.IsFreeBuildingNewFoundCity(eBuildingClass) && bInitialFounding))
+		if (kOwner.GetNumCitiesFreeChosenBuilding(eBuildingClass) > 0
+			|| kOwner.IsFreeChosenBuildingNewCity(eBuildingClass)
+			|| kOwner.IsFreeBuildingAllCity(eBuildingClass)
+			|| (kOwner.IsFreeBuildingNewFoundCity(eBuildingClass) && bInitialFounding))
 		{
-			if (SetNumFreeBuilding(eBuilding, 1) && owningPlayer.GetNumCitiesFreeChosenBuilding(eBuildingClass) > 0)
+			if (SetNumFreeBuilding(eBuilding, 1) && kOwner.GetNumCitiesFreeChosenBuilding(eBuildingClass) > 0)
 			{
-				owningPlayer.ChangeNumCitiesFreeChosenBuilding(eBuildingClass, -1);
+				kOwner.ChangeNumCitiesFreeChosenBuilding(eBuildingClass, -1);
 			}
 		}
 	}
@@ -692,12 +693,12 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 		for (int iUnitClassLoop = 0; iUnitClassLoop < GC.getNumUnitClassInfos(); iUnitClassLoop++)
 		{
 			const UnitClassTypes eUnitClass = static_cast<UnitClassTypes>(iUnitClassLoop);
-			if (GET_PLAYER(getOwner()).IsFreeUnitNewFoundCity(eUnitClass))
+			if (kOwner.IsFreeUnitNewFoundCity(eUnitClass))
 			{
-				UnitTypes eUnit = GET_PLAYER(getOwner()).GetSpecificUnitType(eUnitClass);
+				UnitTypes eUnit = kOwner.GetSpecificUnitType(eUnitClass);
 				if (eUnit != NO_UNIT)
 				{
-					CvUnit* pFreeUnit = owningPlayer.initUnit(eUnit, getX(), getY());
+					CvUnit* pFreeUnit = kOwner.initUnit(eUnit, getX(), getY());
 					bool bJumpSuccess = pFreeUnit->jumpToNearestValidPlot();
 					if (bJumpSuccess)
 					{
@@ -727,7 +728,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 			pkArea->changeCitiesPerPlayer(getOwner(), 1);
 	}
 
-	GET_TEAM(getTeam()).changeNumCities(1);
+	kTeam.changeNumCities(1);
 
 	GC.getGame().changeNumCities(1);
 	// Tell the city manager now as well.
@@ -743,7 +744,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	// Default starting population
 	changePopulation(/*1*/ GD_INT_GET(INITIAL_CITY_POPULATION) + GC.getGame().getStartEraInfo().getFreePopulation(), true, true);
 	// Free population from things (e.g. Policies)
-	changePopulation(GET_PLAYER(getOwner()).GetNewCityExtraPopulation(), true, true);
+	changePopulation(kOwner.GetNewCityExtraPopulation(), true, true);
 
 	// We do this here as changePopulation() sends a game event we may have caught to do funky renaming things
 	if (szName) 
@@ -752,43 +753,43 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	}
 
 	// Free food from things (e.g. Policies)
-	int iFreeFood = growthThreshold() * GET_PLAYER(getOwner()).GetFreeFoodBox();
+	int iFreeFood = growthThreshold() * kOwner.GetFreeFoodBox();
 	changeFoodTimes100(iFreeFood);
 
 	if (bInitialFounding)
 	{
-		owningPlayer.ChangeNumCitiesFounded(1);
+		kOwner.ChangeNumCitiesFounded(1);
 
-		if (MOD_BALANCE_ALTERNATE_INDONESIA_TRAIT && owningPlayer.isMajorCiv() && owningPlayer.GetPlayerTraits()->GetUniqueLuxuryQuantity() > 0)
+		if (MOD_BALANCE_ALTERNATE_INDONESIA_TRAIT && kOwner.isMajorCiv() && kOwner.GetPlayerTraits()->GetUniqueLuxuryQuantity() > 0)
 		{
-			owningPlayer.GetPlayerTraits()->AddUniqueLuxuriesAround(this, owningPlayer.GetPlayerTraits()->GetUniqueLuxuryQuantity());
+			kOwner.GetPlayerTraits()->AddUniqueLuxuriesAround(this, kOwner.GetPlayerTraits()->GetUniqueLuxuryQuantity());
 		}
 		else
 		{
-			owningPlayer.GetPlayerTraits()->AddUniqueLuxuries(this);
+			kOwner.GetPlayerTraits()->AddUniqueLuxuries(this);
 		}
 
-		if (owningPlayer.isMinorCiv())
+		if (kOwner.isMinorCiv())
 		{
-			owningPlayer.GetMinorCivAI()->DoAddStartingResources(plot());
+			kOwner.GetMinorCivAI()->DoAddStartingResources(plot());
 		}
 	}
 
-	// make sure that all the team members get the city connection update
-	for (int i = 0; i < MAX_PLAYERS; i++)
+	// Make sure that all the team members get the city connection update
+	for (CivsList::const_iterator it = kTeam.getPlayers().begin(); it != kTeam.getPlayers().end(); ++it)
 	{
-		PlayerTypes ePlayer = (PlayerTypes)i;
-		if (GET_PLAYER(ePlayer).getTeam() == owningPlayer.getTeam())
-		{
-			GET_PLAYER(ePlayer).GetCityConnections()->SetDirty();
-		}
+		CvPlayer& kPlayer = GET_PLAYER(*it);
+		kPlayer.GetCityConnections()->SetDirty();
 	}
+
+	GetCityBuildings()->ChangeBuildingDefenseMod(kTeam.GetBuildingDefenseModifier());
+
 	for (int iFeatureLoop = 0; iFeatureLoop < GC.getNumFeatureInfos(); iFeatureLoop++)
 	{
 		FeatureTypes eFeature2 = (FeatureTypes)iFeatureLoop;
 		if (eFeature2 != NO_FEATURE)
 		{
-			GET_PLAYER(getOwner()).UpdateCityFeatureCount(eFeature2);
+			kOwner.UpdateCityFeatureCount(eFeature2);
 		}
 	}
 
@@ -797,7 +798,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	{
 		PolicyTypes ePolicy = (PolicyTypes)iPoliciesLoop;
 
-		if (owningPlayer.GetPlayerPolicies()->HasPolicy(ePolicy) && !owningPlayer.GetPlayerPolicies()->IsPolicyBlocked(ePolicy))
+		if (kOwner.GetPlayerPolicies()->HasPolicy(ePolicy) && !kOwner.GetPlayerPolicies()->IsPolicyBlocked(ePolicy))
 		{
 			// Free Culture-per-turn in every City from Policies
 			ChangeBaseYieldRateFromPolicies(YIELD_CULTURE, GC.getPolicyInfo(ePolicy)->GetCulturePerCity());
@@ -814,14 +815,14 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	}
 
 	// Update Proximity between this Player and all others
-	owningPlayer.DoUpdateProximityToPlayers();
+	kOwner.DoUpdateProximityToPlayers();
 
 	UpdateYieldsFromExistingFriendsAndAllies(false);
 
 	// Free Buildings in the first City
 	if (GC.getGame().isFinalInitialized())
 	{
-		if (owningPlayer.getNumCities() == 1)
+		if (kOwner.getNumCities() == 1)
 		{
 			int iCapitalBuilding = thisCiv.getCivilizationBuildings(GD_INT_GET(CAPITAL_BUILDINGCLASS));
 
@@ -843,10 +844,10 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 			}
 
 			// Free building in Capital from Trait?
-			BuildingTypes eBuilding = owningPlayer.GetPlayerTraits()->GetFreeCapitalBuilding();
+			BuildingTypes eBuilding = kOwner.GetPlayerTraits()->GetFreeCapitalBuilding();
 			if (eBuilding != NO_BUILDING)
 			{
-				if (owningPlayer.GetPlayerTraits()->GetCapitalFreeBuildingPrereqTech() == NO_TECH)
+				if (kOwner.GetPlayerTraits()->GetCapitalFreeBuildingPrereqTech() == NO_TECH)
 				{
 					SetNumFreeBuilding(eBuilding, 1);
 				}
@@ -870,8 +871,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	SetGarrison(plot()->getBestGarrison(getOwner()));
 
 	// Update Unit Maintenance for the player
-	CvPlayer& kPlayer = GET_PLAYER(getOwner());
-	kPlayer.UpdateUnitProductionMaintenanceMod();
+	kOwner.UpdateUnitProductionMaintenanceMod();
 
 	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
@@ -896,9 +896,9 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	SetNearbyMountains(iMountain);
 
 	// Spread a pantheon here if one is active
-	CvPlayerReligions* pReligions = kPlayer.GetReligions();
-	CvCity* pCapital = GET_PLAYER(getOwner()).getCapitalCity();
-	if (GET_PLAYER(getOwner()).GetPlayerTraits()->IsNewCitiesStartWithCapitalReligion() && pCapital && pCapital->GetCityReligions()->GetMajorityReligion())
+	CvPlayerReligions* pReligions = kOwner.GetReligions();
+	CvCity* pCapital = kOwner.getCapitalCity();
+	if (kOwner.GetPlayerTraits()->IsNewCitiesStartWithCapitalReligion() && pCapital && pCapital->GetCityReligions()->GetMajorityReligion())
 	{
 		const CvReligion* pCapitalReligion = pCapital->GetCityReligions()->GetMajorityReligion();
 		int iInitialPressure = /*1000*/ GD_INT_GET(RELIGION_ATHEISM_PRESSURE_PER_POP) * getPopulation() * 2;
@@ -940,9 +940,9 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 		int iProduction = 0;
 
 		// Base value
-		if (GET_PLAYER(getOwner()).GetAllFeatureProduction() > 0)
+		if (kOwner.GetAllFeatureProduction() > 0)
 		{
-			iProduction = GET_PLAYER(getOwner()).GetAllFeatureProduction();
+			iProduction = kOwner.GetAllFeatureProduction();
 		}
 		else if (bClearedForest)
 		{
@@ -953,7 +953,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 			iProduction = GC.getBuildInfo(eBuildRemoveJungle)->getFeatureProduction(FEATURE_JUNGLE);
 		}
 
-		iProduction *= std::max(0, GET_PLAYER(getOwner()).getFeatureProductionModifier());
+		iProduction *= std::max(0, kOwner.getFeatureProductionModifier());
 		iProduction /= 100;
 
 		iProduction *= GC.getGame().getGameSpeedInfo().getFeatureProductionPercent();
@@ -1013,9 +1013,9 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 
 	if (bInitialFounding)
 	{
-		owningPlayer.doInstantYield(INSTANT_YIELD_TYPE_FOUND, false, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, this);
+		kOwner.doInstantYield(INSTANT_YIELD_TYPE_FOUND, false, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, this);
 
-		if (owningPlayer.GetPlayerTraits()->IsExpansionWLTKD())
+		if (kOwner.GetPlayerTraits()->IsExpansionWLTKD())
 		{
 			int iWLTKD = /*6*/ GD_INT_GET(CITY_RESOURCE_WLTKD_TURNS) / 3;
 			iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();
@@ -1027,11 +1027,11 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 				int iCityLoop = 0;
 
 				// Loop through owner's cities.
-				for (pLoopCity = owningPlayer.firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = owningPlayer.nextCity(&iCityLoop))
+				for (pLoopCity = kOwner.firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = kOwner.nextCity(&iCityLoop))
 				{
 					pLoopCity->ChangeWeLoveTheKingDayCounter(iWLTKD, true);
 				}
-				CvNotifications* pNotifications = owningPlayer.GetNotifications();
+				CvNotifications* pNotifications = kOwner.GetNotifications();
 				if (pNotifications)
 				{
 					Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_WLTKD_UA_CITY_SETTLING");
@@ -1058,19 +1058,19 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 			if (eYield == eYield2)
 				continue;
 
-			int iGlobalConversionYield = owningPlayer.getYieldFromYieldGlobal(eYield, eYield2);
+			int iGlobalConversionYield = kOwner.getYieldFromYieldGlobal(eYield, eYield2);
 			if (iGlobalConversionYield > 0)
 			{
 				ChangeBuildingYieldFromYield(eYield, eYield2, iGlobalConversionYield);
 			}
 		}
 	}
-	if (bInitialFounding && owningPlayer.GetPlayerTraits()->GetStartingSpies() > 0 && owningPlayer.getNumCities() == 1)
+	if (bInitialFounding && kOwner.GetPlayerTraits()->GetStartingSpies() > 0 && kOwner.getNumCities() == 1)
 	{
-		owningPlayer.CreateSpies(owningPlayer.GetPlayerTraits()->GetStartingSpies(), false);
+		kOwner.CreateSpies(kOwner.GetPlayerTraits()->GetStartingSpies(), false);
 	}
 
-	owningPlayer.CalculateNetHappiness();
+	kOwner.CalculateNetHappiness();
 
 	// Initialize all buildings to not be hidden
 	ClearHiddenBuildings();
@@ -1087,7 +1087,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 
 	// Possible difficulty bonus!
 	if (bInitialFounding)
-		owningPlayer.DoDifficultyBonus(bFoundingCapital ? DIFFICULTY_BONUS_CITY_FOUND_CAPITAL : DIFFICULTY_BONUS_CITY_FOUND);
+		kOwner.DoDifficultyBonus(bFoundingCapital ? DIFFICULTY_BONUS_CITY_FOUND_CAPITAL : DIFFICULTY_BONUS_CITY_FOUND);
 
 	AI_init();
 
@@ -1095,7 +1095,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	{
 		chooseProduction();
 	}
-	if (!GET_PLAYER(getOwner()).isHuman(ISHUMAN_AI_CITY_PRODUCTION))
+	if (!kOwner.isHuman(ISHUMAN_AI_CITY_PRODUCTION))
 	{
 		AI_chooseProduction(false, false);
 	}
