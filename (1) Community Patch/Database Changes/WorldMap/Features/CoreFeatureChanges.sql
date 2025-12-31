@@ -102,11 +102,10 @@ WHERE NaturalWonderType = 'FEATURE_KILIMANJARO';
 UPDATE Natural_Wonder_Placement
 SET
 	CoreTileCanBeAnyTerrainType = 0,
-	CoreTileCanBePlains = 0,
-	CoreTileCanBeDesert = 0,
-	CoreTileCanBeTundra = 0,
-	CoreTileCanBeSnow = 0,
+	CoreTileCanBePlains = 1,
+	CoreTileCanBeDesert = 1,
+	CoreTileCanBeTundra = 1,
+	CoreTileCanBeSnow = 1,
 	AdjacentTilesAvoidHills = 1,
-	MaximumAllowedAdjacentHills = 1,
-	ChangeCoreTileToMountain = 0
+	MaximumAllowedAdjacentHills = 1
 WHERE NaturalWonderType = 'FEATURE_SOLOMONS_MINES';
