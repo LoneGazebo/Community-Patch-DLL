@@ -3872,6 +3872,7 @@ CvDeal::DealRenewStatus CvDeal::GetItemTradeableState(TradeableItems eTradeItem)
 	case TRADE_ITEM_VASSALAGE:
 	case TRADE_ITEM_TECHS:
 	case TRADE_ITEM_MAPS:
+	case TRADE_ITEM_RESEARCH_AGREEMENT:
 	case TRADE_ITEM_VASSALAGE_REVOKE:
 		return DEAL_NONRENEWABLE;
 
@@ -3885,7 +3886,6 @@ CvDeal::DealRenewStatus CvDeal::GetItemTradeableState(TradeableItems eTradeItem)
 
 		// doesn't matter
 	case TRADE_ITEM_GOLD:
-	case TRADE_ITEM_RESEARCH_AGREEMENT:
 		return DEAL_SUPPLEMENTAL;
 	}
 
@@ -5160,6 +5160,37 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 			GET_TEAM(eGivingTeam).setForcePeace(eReceivingTeam, true);
 			break;
 		}
+		}
+	}
+
+	// if this is a renewal deal, cancel all items from the original deal that are no longer included now
+	std::vector<CvDeal*> pRenewDeals = GetRenewableDealsWithPlayer(eFromPlayer, eToPlayer, 1, true);
+	if (pRenewDeals.size() > 0)
+	{
+		for (uint i = 0; i < pRenewDeals.size(); i++)
+		{
+			CvDeal* pRenewalDeal = pRenewDeals[i];
+			for (TradedItemList::iterator itemIterOldDeal = pRenewalDeal->m_TradedItems.begin(); itemIterOldDeal != pRenewalDeal->m_TradedItems.end(); ++itemIterOldDeal)
+			{
+				// skip gold per turn and resources, they have already been processed in PrepareRenewDeal
+				if (itemIterOldDeal->m_eItemType == TRADE_ITEM_GOLD_PER_TURN || itemIterOldDeal->m_eItemType == TRADE_ITEM_RESOURCES)
+					continue;
+
+				bool bItemRenewed = false;
+				for (TradedItemList::iterator itemIterNewDeal = kDeal.m_TradedItems.begin(); itemIterNewDeal != kDeal.m_TradedItems.end(); ++itemIterNewDeal)
+				{
+					if (itemIterNewDeal->m_eItemType == itemIterOldDeal->m_eItemType &&
+						itemIterNewDeal->m_eFromPlayer == itemIterOldDeal->m_eFromPlayer)
+					{
+						bItemRenewed = true;
+						break;
+					}
+				}
+				if (bItemRenewed)
+					continue;
+
+				GC.getGame().GetGameDeals().DoEndTradedItem(&*itemIterOldDeal, pRenewalDeal->GetOtherPlayer(itemIterOldDeal->m_eFromPlayer), false);
+			}
 		}
 	}
 
