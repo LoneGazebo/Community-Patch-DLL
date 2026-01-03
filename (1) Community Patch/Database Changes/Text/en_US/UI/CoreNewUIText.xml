@@ -275,6 +275,9 @@
 		<Row Tag="TXT_KEY_PEDIA_BASE_COST_LABEL">
 			<Text>Base Cost:</Text>
 		</Row>
+		<Row Tag="TXT_KEY_PEDIA_UNIQUEPROJ_LABEL">
+			<Text>Unique Projects:</Text>
+		</Row>
 
 		<!-- Info tooltip -->
 		<!-- Common -->
