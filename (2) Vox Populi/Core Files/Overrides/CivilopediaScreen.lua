@@ -2686,7 +2686,15 @@ CivilopediaCategory[CategoryTech].SelectArticle = function( techID, shouldAddToL
 						textureSheet = defaultErrorTextureSheet;
 						textureOffset = nullOffset;
 					end
-					UpdateSmallButton( buttonAdded, thisUnitInstance.UnlockedUnitImage, thisUnitInstance.UnlockedUnitButton, textureSheet, textureOffset, CategoryUnits, Locale.ConvertTextKey( thisUnitInfo.Description ), thisUnitInfo.ID );
+					-- Check if unlocked unit is a Great Person
+					local unlockedCategory = CategoryUnits;
+					local unlockedEntryID = thisUnitInfo.ID;
+					if thisUnitInfo.PrereqTech == nil and thisUnitInfo.Special ~= nil then
+						-- This is a Great Person, use CategoryPeople with offset
+						unlockedCategory = CategoryPeople;
+						unlockedEntryID = thisUnitInfo.ID + 1000;
+					end
+					UpdateSmallButton( buttonAdded, thisUnitInstance.UnlockedUnitImage, thisUnitInstance.UnlockedUnitButton, textureSheet, textureOffset, unlockedCategory, Locale.ConvertTextKey( thisUnitInfo.Description ), unlockedEntryID );
 					buttonAdded = buttonAdded + 1;
 				end
 			end
@@ -3086,7 +3094,15 @@ CivilopediaCategory[CategoryUnits].SelectArticle = function( unitID, shouldAddTo
 							textureSheet = defaultErrorTextureSheet;
 							textureOffset = nullOffset;
 						end
-						UpdateSmallButton( buttonAdded, thisUpgradeInstance.UpgradeImage, thisUpgradeInstance.UpgradeButton, textureSheet, textureOffset, CategoryUnits, Locale.ConvertTextKey( obs.Description ), obs.ID );
+						-- Check if upgrade unit is a Great Person
+						local upgradeCategory = CategoryUnits;
+						local upgradeEntryID = obs.ID;
+						if obs.PrereqTech == nil and obs.Special ~= nil then
+							-- This is a Great Person, use CategoryPeople with offset
+							upgradeCategory = CategoryPeople;
+							upgradeEntryID = obs.ID + 1000;
+						end
+						UpdateSmallButton( buttonAdded, thisUpgradeInstance.UpgradeImage, thisUpgradeInstance.UpgradeButton, textureSheet, textureOffset, upgradeCategory, Locale.ConvertTextKey( obs.Description ), upgradeEntryID );
 						buttonAdded = buttonAdded + 1;
 					end
 				end
@@ -3103,7 +3119,15 @@ CivilopediaCategory[CategoryUnits].SelectArticle = function( unitID, shouldAddTo
 							textureSheet = defaultErrorTextureSheet;
 							textureOffset = nullOffset;
 						end
-						UpdateSmallButton( buttonAdded, thisUpgradeInstance.UpgradeImage, thisUpgradeInstance.UpgradeButton, textureSheet, textureOffset, CategoryUnits, Locale.ConvertTextKey( upgradeUnit.Description ), upgradeUnit.ID );
+						-- Check if upgrade unit is a Great Person
+						local upgradeCategory = CategoryUnits;
+						local upgradeEntryID = upgradeUnit.ID;
+						if upgradeUnit.PrereqTech == nil and upgradeUnit.Special ~= nil then
+							-- This is a Great Person, use CategoryPeople with offset
+							upgradeCategory = CategoryPeople;
+							upgradeEntryID = upgradeUnit.ID + 1000;
+						end
+						UpdateSmallButton( buttonAdded, thisUpgradeInstance.UpgradeImage, thisUpgradeInstance.UpgradeButton, textureSheet, textureOffset, upgradeCategory, Locale.ConvertTextKey( upgradeUnit.Description ), upgradeEntryID );
 						buttonAdded = buttonAdded + 1;
 					end
 				end
@@ -3125,7 +3149,7 @@ CivilopediaCategory[CategoryUnits].SelectArticle = function( unitID, shouldAddTo
 		g_ReplacesManager:ResetInstances();
 		buttonAdded = 0;
 		for unitClassType, _ in pairs(replacesUnitClass) do
-			for replacedUnit in DB.Query("SELECT u.ID, u.Description, u.PortraitIndex, u.IconAtlas from Units as u inner join UnitClasses as uc on u.Type = uc.DefaultUnit where uc.Type = ?", unitClassType) do
+			for replacedUnit in DB.Query("SELECT u.ID, u.Description, u.PortraitIndex, u.IconAtlas, u.PrereqTech, u.Special from Units as u inner join UnitClasses as uc on u.Type = uc.DefaultUnit where uc.Type = ?", unitClassType) do 
 				local thisUnitInstance = g_ReplacesManager:GetInstance();
 				if thisUnitInstance then
 					local textureOffset, textureSheet = IconLookup( replacedUnit.PortraitIndex, buttonSize, replacedUnit.IconAtlas );
@@ -3133,7 +3157,15 @@ CivilopediaCategory[CategoryUnits].SelectArticle = function( unitID, shouldAddTo
 						textureSheet = defaultErrorTextureSheet;
 						textureOffset = nullOffset;
 					end
-					UpdateSmallButton( buttonAdded, thisUnitInstance.ReplaceImage, thisUnitInstance.ReplaceButton, textureSheet, textureOffset, CategoryUnits, Locale.ConvertTextKey( replacedUnit.Description ), replacedUnit.ID );
+					-- Check if replaced unit is a Great Person
+					local replacedCategory = CategoryUnits;
+					local replacedEntryID = replacedUnit.ID;
+					if replacedUnit.PrereqTech == nil and replacedUnit.Special ~= nil then
+						-- This is a Great Person, use CategoryPeople with offset
+						replacedCategory = CategoryPeople;
+						replacedEntryID = replacedUnit.ID + 1000;
+					end
+					UpdateSmallButton( buttonAdded, thisUnitInstance.ReplaceImage, thisUnitInstance.ReplaceButton, textureSheet, textureOffset, replacedCategory, Locale.ConvertTextKey( replacedUnit.Description ), replacedEntryID );
 					buttonAdded = buttonAdded + 1;
 				end
 			end
@@ -5151,6 +5183,84 @@ CivilopediaCategory[CategoryPeople].SelectArticle =  function( rawPeopleID, shou
 
 			-- list the buildings that can spawn this unit
 
+			-- update free promotions (Abilities)
+			g_PromotionsManager:ResetInstances();
+			buttonAdded = 0;
+
+			local condition = "UnitType = '" .. thisPerson.Type .. "'";
+			for row in GameInfo.Unit_FreePromotions( condition ) do
+				local promotion = GameInfo.UnitPromotions[row.PromotionType];
+				if promotion then
+					local thisPromotionInstance = g_PromotionsManager:GetInstance();
+					if thisPromotionInstance then
+						local textureOffset, textureSheet = IconLookup( promotion.PortraitIndex, buttonSize, promotion.IconAtlas );
+						if textureOffset == nil then
+							textureSheet = defaultErrorTextureSheet;
+							textureOffset = nullOffset;
+						end
+						UpdateSmallButton( buttonAdded, thisPromotionInstance.PromotionImage, thisPromotionInstance.PromotionButton, textureSheet, textureOffset, CategoryPromotions, Locale.ConvertTextKey( promotion.Description ), promotion.ID );
+						buttonAdded = buttonAdded + 1;
+					end
+				end
+			end
+			UpdateButtonFrame( buttonAdded, Controls.FreePromotionsInnerFrame, Controls.FreePromotionsFrame );
+
+			-- Are we a unique unit?  If so, who do I replace?
+			local replacesUnitClass = {};
+			local specificCivs = {};
+
+			local classOverrideCondition = string.format("UnitType='%s' and CivilizationType <> 'CIVILIZATION_BARBARIAN' and CivilizationType <> 'CIVILIZATION_MINOR'", thisPerson.Type);
+			for row in GameInfo.Civilization_UnitClassOverrides(classOverrideCondition) do
+				specificCivs[row.CivilizationType] = 1;
+				replacesUnitClass[row.UnitClassType] = 1;
+			end
+
+			g_ReplacesManager:ResetInstances();
+			buttonAdded = 0;
+			for unitClassType, _ in pairs(replacesUnitClass) do
+				for replacedUnit in DB.Query("SELECT u.ID, u.Description, u.PortraitIndex, u.IconAtlas, u.PrereqTech, u.Special from Units as u inner join UnitClasses as uc on u.Type = uc.DefaultUnit where uc.Type = ?", unitClassType) do
+					local thisUnitInstance = g_ReplacesManager:GetInstance();
+					if thisUnitInstance then
+						local textureOffset, textureSheet = IconLookup( replacedUnit.PortraitIndex, buttonSize, replacedUnit.IconAtlas );
+						if textureOffset == nil then
+							textureSheet = defaultErrorTextureSheet;
+							textureOffset = nullOffset;
+						end
+						-- Check if replaced unit is a Great Person
+						local replacedCategory = CategoryUnits;
+						local replacedEntryID = replacedUnit.ID;
+						if replacedUnit.PrereqTech == nil and replacedUnit.Special ~= nil then
+							-- This is a Great Person, use CategoryPeople with offset
+							replacedCategory = CategoryPeople;
+							replacedEntryID = replacedUnit.ID + 1000;
+						end
+						UpdateSmallButton( buttonAdded, thisUnitInstance.ReplaceImage, thisUnitInstance.ReplaceButton, textureSheet, textureOffset, replacedCategory, Locale.ConvertTextKey( replacedUnit.Description ), replacedEntryID );
+						buttonAdded = buttonAdded + 1;
+					end
+				end
+			end
+			UpdateButtonFrame( buttonAdded, Controls.ReplacesInnerFrame, Controls.ReplacesFrame );
+
+			g_CivilizationsManager:ResetInstances();
+			buttonAdded = 0;
+			for civilizationType, _ in pairs(specificCivs) do
+
+				local civ = GameInfo.Civilizations[civilizationType];
+				if(civ ~= nil) then
+					local thisCivInstance = g_CivilizationsManager:GetInstance();
+					if thisCivInstance then
+						local textureOffset, textureSheet = IconLookup( civ.PortraitIndex, buttonSize, civ.IconAtlas );
+						if textureOffset == nil then
+							textureSheet = defaultErrorTextureSheet;
+							textureOffset = nullOffset;
+						end
+						UpdateSmallButton( buttonAdded, thisCivInstance.CivilizationImage, thisCivInstance.CivilizationButton, textureSheet, textureOffset, CategoryCivilizations, Locale.ConvertTextKey( civ.ShortDescription ), civ.ID );
+						buttonAdded = buttonAdded + 1;
+					end
+				end
+			end
+			UpdateButtonFrame( buttonAdded, Controls.CivilizationsInnerFrame, Controls.CivilizationsFrame );
+
 			-- update the game info
 			UpdateTextBlock(GetHelpTextForUnit(greatPersonID, true, nil, true, true), Controls.GameInfoLabel, Controls.GameInfoInnerFrame, Controls.GameInfoFrame);
 
@@ -5264,21 +5374,12 @@ CivilopediaCategory[CategoryCivilizations].SelectArticle = function( rawCivID, s
 
 								local unitCategory = CategoryUnits;
 								local unitEntryID = thisUnitInfo.ID;
-								--if(thisUnitInfo.Special == "SPECIALUNIT_PEOPLE") then
-									---- Either a great person or specialist.
-									--unitCategory = CategoryPeople;
-									--
-									---- Figure out which one it is!
-									--local bIsSpecialist = false;
-									--for row in GameInfo.Specialists{GreatPeopleUnitClass = thisUnitInfo.Class} do
-										--bIsSpecialist = true;
-										--break;
-									--end
-									--
-									--if(bIsSpecialist == false) then
-										--unitEntryID = unitEntryID + 1000;
-									--end
-								--end
+								-- Check if this is a Great Person
+								if thisUnitInfo.PrereqTech == nil and thisUnitInfo.Special ~= nil then
+									-- This is a Great Person, use CategoryPeople with offset
+									unitCategory = CategoryPeople;
+									unitEntryID = thisUnitInfo.ID + 1000;
+								end
 
 								UpdateSmallButton( buttonAdded, thisUnitInstance.UniqueUnitImage, thisUnitInstance.UniqueUnitButton, textureSheet, textureOffset, unitCategory, Locale.ConvertTextKey( thisUnitInfo.Description ), unitEntryID);
 								buttonAdded = buttonAdded + 1;
