@@ -157,6 +157,7 @@ local g_LeadersManager = InstanceManager:new( "LeaderInstance", "LeaderButton", 
 local g_UniqueUnitsManager = InstanceManager:new( "UniqueUnitInstance", "UniqueUnitButton", Controls.UniqueUnitsInnerFrame );
 local g_UniqueBuildingsManager = InstanceManager:new( "UniqueBuildingInstance", "UniqueBuildingButton", Controls.UniqueBuildingsInnerFrame );
 local g_UniqueImprovementsManager = InstanceManager:new( "UniqueImprovementInstance", "UniqueImprovementButton", Controls.UniqueImprovementsInnerFrame );
+local g_UniqueProjectsManager = InstanceManager:new( "UniqueProjectInstance", "UniqueProjectButton", Controls.UniqueProjectsInnerFrame );
 local g_StartAlongRegionManager = InstanceManager:new( "StartAlongRegionInstance", "StartAlongRegionButton", Controls.StartAlongRegionInnerFrame );
 local g_StartPriorityRegionManager = InstanceManager:new( "StartPriorityRegionInstance", "StartPriorityRegionButton", Controls.StartPriorityRegionInnerFrame );
 local g_StartAvoidRegionManager = InstanceManager:new( "StartAvoidRegionInstance", "StartAvoidRegionButton", Controls.StartAvoidRegionInnerFrame );
@@ -1058,7 +1059,7 @@ CivilopediaCategory[CategoryWonders].PopulateList = function()
 			tableid = tableid + 1;
 
 			-- index by various keys
-			searchableList[Locale.ToLower(name)] = article;
+			searchableList[Locale.ToLower(article.entryName)] = article;
 			searchableTextKeyList[building.Description] = article;
 			categorizedList[(CategoryWonders * absurdlyLargeNumTopicsInCategory) + building.ID + 1000] = article;
 		end
@@ -5345,6 +5346,30 @@ CivilopediaCategory[CategoryCivilizations].SelectArticle = function( rawCivID, s
 				end
 				UpdateButtonFrame( buttonAdded, Controls.UniqueImprovementsInnerFrame, Controls.UniqueImprovementsFrame );
 
+				-- list of unique projects
+				g_UniqueProjectsManager:ResetInstances();
+				buttonAdded = 0;
+				for thisProject in GameInfo.Projects( condition ) do
+					local thisProjectInstance = g_UniqueProjectsManager:GetInstance();
+					if thisProjectInstance then
+
+						if not IconHookup( thisProject.PortraitIndex, buttonSize, thisProject.IconAtlas, thisProjectInstance.UniqueProjectImage ) then
+							thisProjectInstance.UniqueProjectImage:SetTexture( defaultErrorTextureSheet );
+							thisProjectInstance.UniqueProjectImage:SetTextureOffset( nullOffset );
+						end
+
+						--move this button
+						thisProjectInstance.UniqueProjectButton:SetOffsetVal( (buttonAdded % numberOfButtonsPerRow) * buttonSize + buttonPadding, math.floor(buttonAdded / numberOfButtonsPerRow) * buttonSize + buttonPadding );
+
+						thisProjectInstance.UniqueProjectButton:SetToolTipString( Locale.ConvertTextKey( thisProject.Description ) );
+						thisProjectInstance.UniqueProjectButton:SetVoids( thisProject.ID + 1000, addToList );
+						thisProjectInstance.UniqueProjectButton:RegisterCallback( Mouse.eLClick, CivilopediaCategory[CategoryWonders].SelectArticle );
+
+						buttonAdded = buttonAdded + 1;
+					end
+				end
+				UpdateButtonFrame( buttonAdded, Controls.UniqueProjectsInnerFrame, Controls.UniqueProjectsFrame );
+
  				g_StartAlongRegionManager:ResetInstances();
 				buttonAdded = 0;
 				for row in GameInfo.Civilization_Start_Place_First_Along_Ocean( condition ) do
@@ -9162,6 +9187,7 @@ function ClearArticle()
 	Controls.UniqueUnitsFrame:SetHide( true );
 	Controls.UniqueBuildingsFrame:SetHide( true );
 	Controls.UniqueImprovementsFrame:SetHide( true );
+	Controls.UniqueProjectsFrame:SetHide( true );
 	Controls.StartAlongRegionFrame:SetHide( true );
 	Controls.StartPriorityRegionFrame:SetHide( true );
 	Controls.StartAvoidRegionFrame:SetHide( true );
@@ -9248,7 +9274,7 @@ Controls.ForwardButton:RegisterCallback( Mouse.eLClick, OnForwardButtonClicked )
 -------------------------------------------------------------------------------
 
 function SearchForPediaEntry( searchString )
-
+	
 	UIManager:SetUICursor( 1 );
 
     if( searchString ~= nil and searchString ~= "" ) then
