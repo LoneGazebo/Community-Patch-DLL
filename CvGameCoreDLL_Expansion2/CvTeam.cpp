@@ -7985,44 +7985,6 @@ void CvTeam::processTech(TechTypes eTech, int iChange, bool bNoBonus)
 				    }
 				}
 			}
-
-			for (int iPromotion = 0; iPromotion < GC.getNumPromotionInfos(); iPromotion++)
-			{
-				PromotionTypes ePromotion = (PromotionTypes) iPromotion;
-				if (pTech->IsFreePromotion(ePromotion))
-				{
-					kPlayer.ChangeFreePromotionCount(ePromotion, iChange);
-					
-					// Loop through existing units, because they have no way to earn it later
-					CivsList veMembers = getPlayers();
-					for (CivsList::iterator it = veMembers.begin(); it != veMembers.end(); ++it)
-					{
-						CvPlayer& kPlayer = GET_PLAYER(*it);
-						if (!kPlayer.isAlive())
-							continue;
-
-						int iLoop = 0;
-						for (CvUnit* pLoopUnit = kPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iLoop))
-						{
-							// If we're in friendly territory and we can embark, give the promotion for free
-							if (pLoopUnit->plot()->IsFriendlyTerritory(*it))
-							{
-								// Civilian unit or the unit can acquire this promotion
-								if (IsPromotionValidForUnitCombatType(ePromotion, pLoopUnit->getUnitType()) || IsPromotionValidForCivilianUnitType(ePromotion, pLoopUnit->getUnitType()))
-								{
-									pLoopUnit->setHasPromotion(ePromotion, true);
-								}
-							}
-						}
-					}
-
-					CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(ePromotion);
-					if (pkPromotionInfo && pkPromotionInfo->IsCanMoveImpassable())
-					{
-						kPlayer.SetWorkersIgnoreImpassable(true);
-					}
-				}
-			}
 			
 			// Update our traits (some may have become obsolete)
 			kPlayer.GetPlayerTraits()->InitPlayerTraits();
