@@ -167,6 +167,7 @@ function AddSmallButtonsToTechButton(buttonStack, kTechInfo, iButtonCount, iText
 
 	local tPediaSearchStrings = {};
 	local function GetTechPedia(_, _, button)
+		print("TechButton seaerching".. tostring(button))
 		Events.SearchForPediaEntry(tPediaSearchStrings[tostring(button)]);
 	end
 
@@ -199,7 +200,7 @@ function AddSmallButtonsToTechButton(buttonStack, kTechInfo, iButtonCount, iText
 			local strTooltip = strCustomTooltip or (not bSkipTooltips and GetHelpTextForUnit(kUnitInfo.ID, true) or "");
 			SetTooltip(tooltipInstance, strTooltip);
 		end);
-		tPediaSearchStrings[tostring(button)] = L(kUnitInfo.Description);
+		tPediaSearchStrings[tostring(button)] = kUnitInfo.Description;
 		local iIconIndex, strAtlas = UI.GetUnitPortraitIcon(kUnitInfo.ID, ePlayer);
 		SetCommonButtonProperties(button, true, iIconIndex, strAtlas, strButtonText);
 	end
@@ -214,7 +215,7 @@ function AddSmallButtonsToTechButton(buttonStack, kTechInfo, iButtonCount, iText
 				string.format("[COLOR_YIELD_GOLD]%s[ENDCOLOR][NEWLINE]----------------[NEWLINE]%s", L(kCorporationInfo.Description), L(kCorporationInfo.Help));
 			SetTooltip(tooltipInstance, strTooltip);
 		end);
-		tPediaSearchStrings[tostring(button)] = L(kCorporationInfo.Description);
+		tPediaSearchStrings[tostring(button)] = kCorporationInfo.Description;
 		SetCommonButtonProperties(button, true, kCorporationInfo.PortraitIndex, kCorporationInfo.IconAtlas, strButtonText);
 		-- Dim Corporations already taken
 		if not strCustomTooltip and Game.IsCorporationFounded(kCorporationInfo.ID) then
@@ -231,7 +232,7 @@ function AddSmallButtonsToTechButton(buttonStack, kTechInfo, iButtonCount, iText
 			local strTooltip = strCustomTooltip or GetHelpTextForBuilding(kBuildingInfo.ID, false, nil, false);
 			SetTooltip(tooltipInstance, strTooltip);
 		end);
-		tPediaSearchStrings[tostring(button)] = L(kBuildingInfo.Description);
+		tPediaSearchStrings[tostring(button)] = kBuildingInfo.Description;
 		SetCommonButtonProperties(button, true, kBuildingInfo.PortraitIndex, kBuildingInfo.IconAtlas, strButtonText);
 		-- Dim Wonders already taken
 		if not strCustomTooltip and (Game.AnyoneHasWonder(kBuildingInfo.ID) and GameInfo.BuildingClasses[kBuildingInfo.BuildingClass].MaxGlobalInstances == 1) then
@@ -248,7 +249,7 @@ function AddSmallButtonsToTechButton(buttonStack, kTechInfo, iButtonCount, iText
 			local strTooltip = strCustomTooltip or GetHelpTextForProject(kProjectInfo.ID);
 			SetTooltip(tooltipInstance, strTooltip);
 		end);
-		tPediaSearchStrings[tostring(button)] = L(kProjectInfo.Description);
+		tPediaSearchStrings[tostring(button)] = kProjectInfo.Description;
 		SetCommonButtonProperties(button, true, kProjectInfo.PortraitIndex, kProjectInfo.IconAtlas, strButtonText);
 	end
 
@@ -261,7 +262,7 @@ function AddSmallButtonsToTechButton(buttonStack, kTechInfo, iButtonCount, iText
 		button:SetToolTipCallback(function ()
 			SetTooltip(tooltipInstance, strTooltip);
 		end);
-		tPediaSearchStrings[tostring(button)] = L(kResourceInfo.Description);
+		tPediaSearchStrings[tostring(button)] = kResourceInfo.Description;
 		SetCommonButtonProperties(button, true, kResourceInfo.PortraitIndex, kResourceInfo.IconAtlas, strButtonText);
 	end
 
@@ -274,7 +275,7 @@ function AddSmallButtonsToTechButton(buttonStack, kTechInfo, iButtonCount, iText
 			local strTooltip = strCustomTooltip or GetHelpTextForProcess(kProcessInfo.ID);
 			SetTooltip(tooltipInstance, strTooltip);
 		end);
-		tPediaSearchStrings[tostring(button)] = L(kProcessInfo.Description);
+		tPediaSearchStrings[tostring(button)] = kProcessInfo.Description;
 		SetCommonButtonProperties(button, true, kProcessInfo.PortraitIndex, kProcessInfo.IconAtlas, strButtonText);
 	end
 
@@ -286,14 +287,14 @@ function AddSmallButtonsToTechButton(buttonStack, kTechInfo, iButtonCount, iText
 		local strTooltip;
 		if kBuildInfo.RouteType then
 			strTooltip = strCustomTooltip or L(kBuildInfo.Description);
-			tPediaSearchStrings[tostring(button)] = L(GameInfo.Routes[kBuildInfo.RouteType].Description);
+			tPediaSearchStrings[tostring(button)] = GameInfo.Routes[kBuildInfo.RouteType].Description;
 		elseif kBuildInfo.ImprovementType then
 			local kImprovementInfo = GameInfo.Improvements[kBuildInfo.ImprovementType];
 			strTooltip = strCustomTooltip or GetHelpTextForImprovement(kImprovementInfo.ID, false, false);
-			tPediaSearchStrings[tostring(button)] = L(kImprovementInfo.Description);
+			tPediaSearchStrings[tostring(button)] = kImprovementInfo.Description;
 		else -- we are a choppy thing
 			strTooltip = strCustomTooltip or L(kBuildInfo.Description);
-			tPediaSearchStrings[tostring(button)] = L(GameInfo.Concepts["CONCEPT_WORKERS_CLEARINGLAND"].Description);
+			tPediaSearchStrings[tostring(button)] = GameInfo.Concepts["CONCEPT_WORKERS_CLEARINGLAND"].Description;
 		end
 		button:SetToolTipCallback(function ()
 			SetTooltip(tooltipInstance, strTooltip);
@@ -315,7 +316,7 @@ function AddSmallButtonsToTechButton(buttonStack, kTechInfo, iButtonCount, iText
 		else
 			iIconIndex = kInfo.PortraitIndex;
 		end
-		tPediaSearchStrings[tostring(button)] = L(kInfo.Description);
+		tPediaSearchStrings[tostring(button)] = kInfo.Description;
 		button:SetToolTipCallback(function ()
 			SetTooltip(tooltipInstance, strCustomTooltip);
 		end);
