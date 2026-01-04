@@ -11,7 +11,9 @@ end
 --- Measures Lua heap usage (in MB) of Gi after loading given tables
 --- @param tables string[] # List of GameInfo table names
 --- @return number # Memory usage in megabytes
-local function MeasureGiMemoryMB(tables, holder)
+local function MeasureGiMemoryMB(tables)
+	local Gi = CPK.DB.Gi
+
 	-- Step 1: clean baseline
 	gc()
 
@@ -19,14 +21,14 @@ local function MeasureGiMemoryMB(tables, holder)
 	for i = 1, #tables do
 		local name = tables[i]
 		-- Access triggers creation + caching
-		local _ = holder[name]
+		local _ = Gi[name]
 	end
 
 	-- Clear holder
 	for i = 1, #tables do
 		local name = tables[i]
 		-- Access triggers creation + caching
-		holder[name] = nil
+		Gi[name] = nil
 	end
 
 	gc()
@@ -37,10 +39,10 @@ local function MeasureGiMemoryMB(tables, holder)
 	for i = 1, #tables do
 		local name = tables[i]
 		-- Access triggers creation + caching
-		local _ = holder[name]
+		local _ = Gi[name]
 
-		if holder == GameInfo then
-			for r in holder[name]() do end
+		if Gi == GameInfo then
+			for r in Gi[name]() do end
 		end
 	end
 
@@ -123,18 +125,18 @@ local function PrintBenchmark(fn, title, iterations)
 	print("")
 
 	print("Time:")
-	print("  total:           ", toFixed(r.time_ms, 3), "ms")
-	print("  per call:        ", toFixed(r.time_per_call_us, 3), "us")
+	print("  total:           ", toFixed(r.time_ms, 4), "ms")
+	print("  per call:        ", toFixed(r.time_per_call_us, 4), "us")
 	print("")
 
 	print("Memory (retained after GC):")
 	print("  total:           ", toFixed(r.mem_retained_mb, 4), "MB")
-	print("  per call:        ", toFixed(r.mem_retained_per_call_bytes, 3), "bytes")
+	print("  per call:        ", toFixed(r.mem_retained_per_call_bytes, 4), "bytes")
 	print("")
 
 	print("Memory (allocated, approx):")
 	print("  total:           ", toFixed(r.mem_allocated_mb, 4), "MB")
-	print("  per call:        ", toFixed(r.mem_allocated_per_call_bytes, 3), "bytes")
+	print("  per call:        ", toFixed(r.mem_allocated_per_call_bytes, 4), "bytes")
 
 	print("------------------------------------------------------------")
 
@@ -154,17 +156,7 @@ CPK.DB.GiTest = function()
 		tbl_names[#tbl_names + 1] = row.name
 	end
 
-	if debug and debug.getmetatable then
-		local mt = debug.getmetatable(GameInfo)
-		local nidx = mt.__newindex
-		mt.__newindex = nil
-		print(#tbl_names .. ' GameInfo tables used mb ' .. MeasureGiMemoryMB(tbl_names, GameInfo))
-		mt.__newindex = nidx
-	else
-		print('Cannot test GameInfo size without debug enabled')
-	end
-
-	print(#tbl_names .. ' Gi tables used mb .. ', MeasureGiMemoryMB(tbl_names, Gi))
+	print(#tbl_names .. ' Gi tables used mb .. ', MeasureGiMemoryMB(tbl_names))
 
 	for _, name in next, tbl_names do
 		local newIter = Gi[name]()
@@ -188,7 +180,7 @@ CPK.DB.GiTest = function()
 
 	-- init GameInfo
 	for _, name in next, tbl_names do
-		for row in GameInfo[name]() do end
+		local _ = GameInfo[name]()
 	end
 
 	gc()
