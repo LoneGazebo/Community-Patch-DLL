@@ -7923,25 +7923,16 @@ void CvTeam::processTech(TechTypes eTech, int iChange, bool bNoBonus)
 				{
 					kPlayer.ChangeFreePromotionCount(ePromotion, iChange);
 					
-					// Loop through existing units, because they have no way to earn it later
-					CivsList veMembers = getPlayers();
-					for (CivsList::iterator it = veMembers.begin(); it != veMembers.end(); ++it)
+					int iLoop = 0;
+					for (CvUnit* pLoopUnit = kPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iLoop))
 					{
-						CvPlayer& kPlayer = GET_PLAYER(*it);
-						if (!kPlayer.isAlive())
-							continue;
-
-						int iLoop = 0;
-						for (CvUnit* pLoopUnit = kPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iLoop))
+						// If we're in friendly territory and we can embark, give the promotion for free
+						if (pLoopUnit->plot()->IsFriendlyTerritory((PlayerTypes)iI)) 
 						{
-							// If we're in friendly territory and we can embark, give the promotion for free
-							if (pLoopUnit->plot()->IsFriendlyTerritory(*it))
+							// Civilian unit or the unit can acquire this promotion
+							if (IsPromotionValidForUnitCombatType(ePromotion, pLoopUnit->getUnitType()) || IsPromotionValidForCivilianUnitType(ePromotion, pLoopUnit->getUnitType()))
 							{
-								// Civilian unit or the unit can acquire this promotion
-								if (IsPromotionValidForUnitCombatType(ePromotion, pLoopUnit->getUnitType()) || IsPromotionValidForCivilianUnitType(ePromotion, pLoopUnit->getUnitType()))
-								{
-									pLoopUnit->setHasPromotion(ePromotion, true);
-								}
+								pLoopUnit->setHasPromotion(ePromotion, true);
 							}
 						}
 					}
@@ -7952,8 +7943,33 @@ void CvTeam::processTech(TechTypes eTech, int iChange, bool bNoBonus)
 						kPlayer.SetWorkersIgnoreImpassable(true);
 					}
 				}
-			}
+				// What about if the promotion comes through Trait_FreePromotionUnitCombats?
+				if (GC.getPromotionInfo(ePromotion)->GetTechPrereq() == pTech->GetID())
+				{
+				    // loop unit combat classes for the table check
+				    for (int iCombat = 0; iCombat < GC.getNumUnitCombatClassInfos(); iCombat++)
+				    {
+				        UnitCombatTypes eUnitCombat = (UnitCombatTypes)iCombat;
+				
+				        if (!kPlayer.GetPlayerTraits()->HasFreePromotionUnitCombat(ePromotion, eUnitCombat))
+				            continue;
 
+						// now loop all the units for that player that have this combat, and assign them the promo
+				        int iLoop = 0;
+				        for (CvUnit* pLoopUnit = kPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iLoop))
+				        {
+				            if (pLoopUnit->getUnitCombatType() != eUnitCombat)
+				                continue;
+
+				            if (pLoopUnit->isHasPromotion(ePromotion))
+				                continue;
+				
+				            pLoopUnit->setHasPromotion(ePromotion, true);
+				        }
+				    }
+				}
+			}
+			
 			// Update our traits (some may have become obsolete)
 			kPlayer.GetPlayerTraits()->InitPlayerTraits();
 			kPlayer.recomputePolicyCostModifier();
