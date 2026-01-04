@@ -21,11 +21,11 @@ SET Text = 'When you complete a [COLOR_POSITIVE_TEXT]Historic Event[ENDCOLOR], y
 WHERE Tag = 'TXT_KEY_TRAIT_LAND_TRADE_GOLD2';
 
 UPDATE Language_en_US
-SET Text = 'Unique Arabian replacement for the {TXT_KEY_BUILDING_MARKET}. In addition to the {TXT_KEY_BUILDING_MARKET}''s bonuses, {TXT_KEY_BUILDING_BAZAAR_DESC} generates [ICON_RESEARCH] Science and [ICON_PEACE] Faith, boosts [ICON_CARAVAN] land trade route range, and enables or strengthens Historic Events on [ICON_INTERNATIONAL_TRADE] Trade Route completion.'
+SET Text = 'Build the {TXT_KEY_BUILDING_BAZAAR_DESC} as soon as possible, and send [ICON_INTERNATIONAL_TRADE] International Trade Routes from the city, to start triggering Historical Events from their completions as soon as possible. This synergises with your Unique Ability. Normally the earliest building that allows triggering them from international trade routes is the {TXT_KEY_BUILDING_CARAVANSARY}. Consider prioritising Petra for an extra trade route and an even better synergy.[NEWLINE][NEWLINE] Bonus [ICON_RESEARCH] Science, [ICON_PEACE] Faith, boosts [ICON_CARAVAN] land trade route range are also strong bonuses, especially so early on, so build it early in every city.'
 WHERE Tag = 'TXT_KEY_BUILDING_BAZAAR_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = 'The {TXT_KEY_UNIT_ARABIAN_CAMELARCHER} is the Arabian unique unit, replacing the {TXT_KEY_UNIT_HEAVY_SKIRMISHER}. It can do chip damage to a group of enemies adjacent to itself, and can retreat from melee combat once per turn. Does not require [ICON_RES_HORSE] {TXT_KEY_RESOURCE_HORSES} to be trained.'
+SET Text = 'The {TXT_KEY_UNIT_ARABIAN_CAMELARCHER} can be used more aggressively since it can dodge a single melee attack per turn. Attacking from tiles where the unit is adjacent to as many enemy units as possible will maximise the unique splash damage. The Parthian Tactics Promotion is useful for gettign to these positions. Alternatively, Logistics allows to splash 2 times in one turn. Like with all ranged mounted units, Envelopment Promotion is a great choice too as it synergises with Skirmisher Doctrine, giving large flanking bonuses. [NEWLINE][NEWLINE] The {TXT_KEY_UNIT_ARABIAN_CAMELARCHER} will upgrade to the {TXT_KEY_HASHEMITE_RAIDER} through {TXT_KEY_CURIASSIER} later in the game, so make them the main force of your army. You may be unable to upgrade them all to {TXT_KEY_CURIASSIER}s due to the deficit of [ICON_RES_HORSE] Horses, so consider unlocking {TXT_KEY_HASHEMITE_RAIDER}s fast as [ICON_RES_ALUMINUM] Aluminum is more plentiful. [NEWLINE][NEWLINE]At the risk of being hated, consider declaring wars continously and sieging cities with {TXT_KEY_UNIT_ARABIAN_CAMELARCHER}s to achieve >25 Warscore, because then, a Peace Treaty will trigger a Historic event, synergising with your Unique Ability.'
 WHERE Tag = 'TXT_KEY_UNIT_ARABIAN_CAMELARCHER_STRATEGY';
 
 --------------------
@@ -36,16 +36,11 @@ SET Text = 'When you conquer a City, gain a Technology already known by the owne
 WHERE Tag = 'TXT_KEY_TRAIT_SLAYER_OF_TIAMAT';
 
 UPDATE Language_en_US
-SET Text = 'Unique Assyrian replacement for the {TXT_KEY_BUILDING_NATIONAL_COLLEGE}. In addition to the bonuses of the {TXT_KEY_BUILDING_NATIONAL_COLLEGE}, the {TXT_KEY_BUILDING_ROYAL_LIBRARY_DESC} generates more [ICON_RESEARCH] Science and [ICON_CULTURE] Culture and boosts all Libraries. It contains more slots for [ICON_GW_WRITING] Great Works of Writing, and comes with a free [ICON_GW_WRITING] Great Work of Writing. Units trained in all cities gain extra XP based on the number of [ICON_GW_WRITING] Great Works of Writing in your empire. Unlike the {TXT_KEY_BUILDING_NATIONAL_COLLEGE}, the {TXT_KEY_BUILDING_ROYAL_LIBRARY_DESC} is made available with the discovery of [COLOR_CYAN]{TXT_KEY_TECH_WRITING_TITLE}[ENDCOLOR], and comes with a free {TXT_KEY_BUILDING_LIBRARY} in the city instead of requiring one.'
+SET Text = 'When built in the Capital with high population, it will provide a huge boost to [ICON_RESEARCH] Science, so its worth prioritising [ICON_FOOD] in Assur. It increases the value of Libraries in the remaining cities significantly, because +3 [ICON_RESEARCH] Science bonus per city is powerful early in the game.[NEWLINE][NEWLINE] Priorising the gathering of [ICON_GW_WRITING] Great Work of Writing will provide a massive experience boost to units produced in any city. It is so large, that with 9 of them and all other possible XP bonuses (Barracks, Armory, Military Academy, Brandenburg Gate, Teocalli and [COLOR_POSITIVE_TEXT]Elite Forces[ENDCOLOR]), all new units will receive 150XP. This is just enough for 5 promotions from the get go, which is unattainable by any other civilization. However, delaying unit production until you gain many Great Works of Writing, denies the benefits of early conquest and its powerful synergy with your Unique Ability. Moreover, an aggressive conquest will help gather more Great Works of Writing from conquered cities.'
 WHERE Tag = 'TXT_KEY_BUILDING_ROYAL_LIBRARY_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = 'Possible Theming Bonuses:
-  [NEWLINE][ICON_BULLET] +6 [ICON_CULTURE] and [ICON_TOURISM] for three [COLOR_POSITIVE_TEXT]Foreign[ENDCOLOR] [ICON_GW_WRITING].'
-WHERE Tag = 'TXT_KEY_BUILDING_ROYAL_LIBRARY_HELP';
-
-UPDATE Language_en_US
-SET Text = 'The {TXT_KEY_UNIT_ASSYRIAN_SIEGE_TOWER} is the Assyrian unique unit.[NEWLINE][NEWLINE]If adjacent to a City, the {TXT_KEY_UNIT_ASSYRIAN_SIEGE_TOWER} confers a huge combat bonus to all owned units also attacking the City. If it is two tiles away from the City, all owned units attacking the City receive half of this bonus. It can see further, and nearby units heal at a faster rate. It cannot attack or defend itself, so protect it at all costs! Complement a {TXT_KEY_UNIT_ASSYRIAN_SIEGE_TOWER} with melee or ranged units, and make sure it reaches its target before getting killed, and cities will fall much more quickly.[NEWLINE][NEWLINE]Does not obsolete. You cannot have more than 2 active Siege Towers at one time.'
+SET Text = 'Siege Tower built early and combined with Iron Chariots allows for easy conquest of cities which synergizes with your Unique Ability. Thanks to its high movement, you can approach the city before attacking with other units, and then retreat after attacks, to keep the Tower safer. Their [COLOR_POSITIVE_TEXT]Medic I[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Medic II[ENDCOLOR] Promotions work perfectly together with [COLOR_POSITIVE_TEXT]March[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Survivalism III[ENDCOLOR], allowing for a more continuous siege with less time spent on healing. Remember to end the turn with units that need healing adjacent to the Siege Tower.[NEWLINE][NEWLINE]It is worth purchasing Siege Towers with [ICON_GOLD] Gold because the 50% XP penalty does not matter, as they do not accumulate XP.'
 WHERE Tag = 'TXT_KEY_UNIT_ASSYRIAN_SIEGE_TOWER_STRATEGY';
 
 --------------------
@@ -71,7 +66,9 @@ SET Text = 'Killing enemy Units grants 150% of their [ICON_STRENGTH] Strength as
 WHERE Tag = 'TXT_KEY_TRAIT_CULTURE_FROM_KILLS';
 
 UPDATE Language_en_US
-SET Text = 'The {TXT_KEY_UNIT_AZTEC_JAGUAR} is the Aztec unique unit, replacing the {TXT_KEY_UNIT_WARRIOR}. It is much stronger, especially in forests and jungles, and can heal when defeating an enemy unit.'
+SET Text = 'The {TXT_KEY_UNIT_AZTEC_JAGUAR}s high bonus when attacking units below 50% health, combined with large healing after defeating units makes them perfect for finishing off wounded enemies on the frontline. Therefore they benefit a lot from ranged units damaging their targets first.
+[NEWLINE][NEWLINE]Additionally, Jaguars benefit from Authority [COLOR_MAGENTA]Dominance[ENDCOLOR] Policy that boosts their health regeneration from 25 to 40hp, which lets them stay at high health even in intense wars.
+[NEWLINE][NEWLINE] [COLOR_POSITIVE_TEXT]Mobility[ENDCOLOR] Promotion is important for them, because it allows spending less turns moving and more turns defeating units, providing more healing. To reach it, the Shock line is recommended for enhanced flanking, which with good flanking setup helps finish off enemy units in one attack.[NEWLINE][NEWLINE]The lack of [ICON_RES_IRON] Iron requirement is valuable as it allows you to mass produce {TXT_KEY_UNIT_AZTEC_JAGUAR}s. This is especially useful for Aztecs because Jungle regions they tend to begin in, contain little Iron.'
 WHERE Tag = 'TXT_KEY_UNIT_AZTEC_JAGUAR_STRATEGY';
 
 --------------------
