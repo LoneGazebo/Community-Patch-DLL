@@ -5267,51 +5267,8 @@ uint CvPlayerTrade::GetNumTradeRoutesPossible() const
 	if (m_pPlayer->getCivilizationType() == NO_CIVILIZATION)
 		return 0;
 
-	CvPlayerTechs* pMyPlayerTechs = m_pPlayer->GetPlayerTechs();
-	CvTeamTechs* pMyTeamTechs = GET_TEAM(GET_PLAYER(m_pPlayer->GetID()).getTeam()).GetTeamTechs();
-	CvTechEntry* pTechInfo = NULL; 
-
-	CvTechXMLEntries* pMyPlayerTechEntries = pMyPlayerTechs->GetTechs();
-	ASSERT(pMyPlayerTechEntries);
-	if (pMyPlayerTechEntries == NULL)
-		return 0;
-
-	for(int iTechLoop = 0; iTechLoop < pMyPlayerTechEntries->GetNumTechs(); iTechLoop++)
-	{
-		TechTypes eTech = (TechTypes)iTechLoop;
-		if (!pMyTeamTechs->HasTech(eTech))
-		{
-			continue;
-		}
-
-		pTechInfo = pMyPlayerTechEntries->GetEntry(eTech);
-		ASSERT(pTechInfo, "null tech entry");
-		if (pTechInfo)
-		{
-			iNumRoutes += pTechInfo->GetNumInternationalTradeRoutesChange();
-		}
-	}
-
-	int iLoop = 0;
-	for (CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
-	{
-		const std::vector<BuildingTypes>& vBuildings = pLoopCity->GetCityBuildings()->GetAllBuildingsHere();
-		for (size_t i = 0; i < vBuildings.size(); i++)
-		{
-			CvBuildingEntry* pBuildingEntry = GC.GetGameBuildings()->GetEntry(vBuildings[i]);
-			if (pBuildingEntry)
-			{
-				if (pLoopCity->GetCityBuildings()->GetNumBuilding((BuildingTypes)pBuildingEntry->GetID()))
-				{
-					int iNumRouteBonus = pBuildingEntry->GetNumTradeRouteBonus();
-					if (iNumRouteBonus != 0)
-					{
-						iNumRoutes += iNumRouteBonus * pLoopCity->GetCityBuildings()->GetNumBuilding(vBuildings[i]);
-					}
-				}
-			}
-		}
-	}
+	iNumRoutes += m_pPlayer->GetTradeRouteFromBuildings();
+	iNumRoutes += m_pPlayer->GetTradeRouteFromTechs();
 
 	CorporationTypes eCorporation = m_pPlayer->GetCorporations()->GetFoundedCorporation();
 	if (eCorporation != NO_CORPORATION)

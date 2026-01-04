@@ -2367,7 +2367,7 @@
 		<Row>
 			<StrategicViewType>ART_DEF_UNIT_FIELD_GUN</StrategicViewType>
 			<TileType>Unit</TileType>
-			<Asset>svfieldgun.dds</Asset>
+			<Asset>sv_parrottcannon_acw.dds</Asset>
 		</Row>
 		<Row>
 			<StrategicViewType>ART_DEF_UNIT_LICORNE</StrategicViewType>
