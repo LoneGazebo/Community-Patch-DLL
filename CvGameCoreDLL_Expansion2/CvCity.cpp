@@ -29796,7 +29796,7 @@ CvUnit* CvCity::CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType, UnitCreatio
 
 	if (MOD_BALANCE_SETTLERS_CONSUME_POPULATION)
 	{
-		CvUnitEntry* pkUnitInfo = pUnit->getUnitInfo();
+		const CvUnitEntry& kUnitInfo = pUnit->getUnitInfo();
 		bool bSettler = pkUnitInfo->IsFound() || pkUnitInfo->IsFoundMid() || pkUnitInfo->IsFoundLate() || pkUnitInfo->IsFoundAbroad();
 		if (pkUnitInfo->IsFoodProduction() && getPopulation() > 1 && bSettler)
 			changePopulation(-1);
