@@ -801,6 +801,19 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 		{
 			// Free Culture-per-turn in every City from Policies
 			ChangeBaseYieldRateFromPolicies(YIELD_CULTURE, GC.getPolicyInfo(ePolicy)->GetCulturePerCity());
+			// Yield from training units
+			for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+			{
+				YieldTypes eYield = (YieldTypes)iI;
+				if (eYield == NO_YIELD)
+					continue;
+
+				//Simplification - errata yields not worth considering.
+				if ((YieldTypes)iI > YIELD_CULTURE_LOCAL && !MOD_BALANCE_CORE_JFD)
+					break;
+			
+				ChangeYieldFromUnitProduction(eYield, GC.getPolicyInfo(ePolicy)->GetYieldFromUnitProduction(eYield));
+			}
 		}
 	}
 
@@ -24373,7 +24386,7 @@ void CvCity::ChangeYieldFromBirthEraScaling(YieldTypes eIndex, int iChange)
 	}
 }
 //	--------------------------------------------------------------------------------
-/// Extra yield from building
+/// Extra yield from training units
 int CvCity::GetYieldFromUnitProduction(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT();
@@ -24383,7 +24396,7 @@ int CvCity::GetYieldFromUnitProduction(YieldTypes eIndex) const
 }
 
 //	--------------------------------------------------------------------------------
-/// Extra yield from building
+/// Extra yield from training units
 void CvCity::ChangeYieldFromUnitProduction(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT();
