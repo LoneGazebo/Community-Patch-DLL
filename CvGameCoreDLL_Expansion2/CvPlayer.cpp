@@ -25984,11 +25984,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 
 				case INSTANT_YIELD_TYPE_U_PROD:
 				{
-					if (pUnit && eYield == ePassYield)
-					{
-						iValue += iPassYield;
-					}
-					else if (pLoopCity->GetYieldFromUnitProduction(eYield) > 0)
+					if (pLoopCity->GetYieldFromUnitProduction(eYield) > 0)
 					{
 						int iBonus = iPassYield;
 						iBonus *= pLoopCity->GetYieldFromUnitProduction(eYield);
