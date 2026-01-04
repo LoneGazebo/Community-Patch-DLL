@@ -306,6 +306,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iFreeSpy(0),
 	m_iReligionDistance(0),
 	m_iPressureMod(0),
+	m_piYieldFromUnitProduction(NULL),
 	m_piYieldFromBorderGrowth(NULL),
 	m_piYieldGPExpend(NULL),
 	m_iGarrisonsOccupiedUnhappinessMod(0),
@@ -423,6 +424,7 @@ CvPolicyEntry::~CvPolicyEntry(void)
 	SAFE_DELETE_ARRAY(m_piYieldFromWorldWonderConstruction);
 	SAFE_DELETE_ARRAY(m_piYieldFromTech);
 	SAFE_DELETE_ARRAY(m_piYieldFromTechRetroactive);
+	SAFE_DELETE_ARRAY(m_piYieldFromUnitProduction);
 	SAFE_DELETE_ARRAY(m_piYieldFromBorderGrowth);
 	SAFE_DELETE_ARRAY(m_piYieldGPExpend);
 	SAFE_DELETE_ARRAY(m_piConquerorYield);
@@ -806,6 +808,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	kUtility.SetYields(m_piYieldFromWorldWonderConstruction, "Policy_YieldFromWorldWonderConstruction", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piYieldFromTech, "Policy_YieldFromTech", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piYieldFromTechRetroactive, "Policy_YieldFromTechRetroactive", "PolicyType", szPolicyType);
+	kUtility.SetYields(m_piYieldFromUnitProduction, "Policy_YieldFromUnitProduction", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piYieldFromBorderGrowth, "Policy_YieldFromBorderGrowth", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piYieldGPExpend, "Policy_YieldGPExpend", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piConquerorYield, "Policy_ConquerorYield", "PolicyType", szPolicyType);
@@ -3046,7 +3049,18 @@ int CvPolicyEntry::GetPressureMod() const
 {
 	return m_iPressureMod;
 }
-
+// Does this policy grant % of prod cost as yield on unit train?
+int CvPolicyEntry::GetYieldFromUnitProduction(int i) const
+{
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
+	return m_piYieldFromUnitProduction[i];
+}
+/// Array of yield changes
+int* CvPolicyEntry::GetYieldFromUnitProductionArray() const
+{
+	return m_piYieldFromUnitProduction;
+}
 /// Does this Policy grant yields from border growth?
 int CvPolicyEntry::GetYieldFromBorderGrowth(int i) const
 {
