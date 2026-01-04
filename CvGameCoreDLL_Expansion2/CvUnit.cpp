@@ -836,7 +836,11 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 			const PromotionTypes promotionID = (PromotionTypes)iJ;
 			if(kPlayer.GetPlayerTraits()->HasFreePromotionUnitCombat(promotionID, unitCombatType))
 			{
-				setHasPromotion(promotionID, true);
+				TechTypes ePrereqTech = static_cast<TechTypes>(GC.getPromotionInfo(promotionID)->GetTechPrereq());
+				if (ePrereqTech == NO_TECH || kPlayer.HasTech(ePrereqTech))
+				{
+					setHasPromotion(promotionID, true);
+				}
 			}
 		}
 	}
@@ -1196,7 +1200,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 		CvUnit* pLoopUnit = NULL;
 		for (pLoopUnit = kPlayer.firstUnit(&iLoop); pLoopUnit; pLoopUnit = kPlayer.nextUnit(&iLoop))
 		{
-			if (pLoopUnit && pLoopUnit->IsCombatUnit() && pLoopUnit->getDomainType() == DOMAIN_LAND)
+			if (pLoopUnit && pLoopUnit->IsCombatUnit())
 			{
 				pLoopUnit->changeExperienceTimes100(kPlayer.GetPlayerTraits()->GetXPBonusFromGreatPersonBirth() * 100);
 			}
@@ -1208,7 +1212,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 		CvUnit* pLoopUnit = NULL;
 		for (pLoopUnit = kPlayer.firstUnit(&iLoop); pLoopUnit; pLoopUnit = kPlayer.nextUnit(&iLoop))
 		{
-			if (pLoopUnit && pLoopUnit->IsCombatUnit() && pLoopUnit->getDomainType() == DOMAIN_LAND)
+			if (pLoopUnit && pLoopUnit->IsCombatUnit())
 			{
 				pLoopUnit->changeDamage(-kPlayer.GetPlayerTraits()->GetUnitHealFromGreatPersonBirth());
 			}
@@ -11167,7 +11171,7 @@ bool CvUnit::DoSpreadReligion()
 
 			int iPostFollowers = pCity->GetCityReligions()->GetNumFollowers(eReligion);
 			
-			kPlayer.doInstantYield(INSTANT_YIELD_TYPE_SPREAD, false, NO_GREATPERSON, NO_BUILDING, iPostFollowers - iPreSpreadFollowers, false, pCity->getOwner(), plot());
+			kPlayer.doInstantYield(INSTANT_YIELD_TYPE_SPREAD, false, NO_GREATPERSON, NO_BUILDING, iPostFollowers - iPreSpreadFollowers, false, NO_PLAYER, plot());
 
 			if (pCity->plot() && pCity->plot()->GetActiveFogOfWarMode() == FOGOFWARMODE_OFF)
 			{
@@ -13492,8 +13496,8 @@ void CvUnit::promote(PromotionTypes ePromotion, int iLeaderUnitId)
 				GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_LEVEL_UP, false, NO_GREATPERSON, NO_BUILDING, (getLevel() - 1), false, NO_PLAYER, NULL, false, pCapital, getDomainType()==DOMAIN_SEA, true, false, NO_YIELD, this);
 			}
 		}
-		// global yields, scaling with era
-		GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_LEVEL_UP, false, NO_GREATPERSON, NO_BUILDING, (getLevel() - 1), true, NO_PLAYER, NULL, false, NULL, getDomainType() == DOMAIN_SEA, true, false, NO_YIELD, this);
+		// global yields
+		GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_LEVEL_UP, false, NO_GREATPERSON, NO_BUILDING, (getLevel() - 1), false, NO_PLAYER, NULL, false, NULL, getDomainType() == DOMAIN_SEA, true, false, NO_YIELD, this);
 
 		if (MOD_EVENTS_UNIT_UPGRADES)
 		{

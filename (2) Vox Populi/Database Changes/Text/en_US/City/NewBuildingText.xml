@@ -216,7 +216,7 @@
 
 		<!-- Museum -->
 		<Row Tag="TXT_KEY_BUILDING_MUSEUM_HELP">
-			<Text></Text>
+			<Text>Possible Theming Bonuses:[NEWLINE][ICON_BULLET] +6 [ICON_CULTURE] and [ICON_TOURISM] for two [COLOR_POSITIVE_TEXT]Domestic[ENDCOLOR] or two [COLOR_POSITIVE_TEXT]Foreign[ENDCOLOR] [ICON_GW_ART] Great Works of Art from the [COLOR_CYAN]same Era[ENDCOLOR].[NEWLINE][ICON_BULLET] +6 [ICON_CULTURE] and [ICON_TOURISM] for two [COLOR_POSITIVE_TEXT]Domestic[ENDCOLOR] or two [COLOR_POSITIVE_TEXT]Foreign[ENDCOLOR] [ICON_ARTIFACT] Artifacts from the [COLOR_CYAN]same Era[ENDCOLOR].[NEWLINE][ICON_BULLET] +5 [ICON_CULTURE] and [ICON_TOURISM] for a [COLOR_POSITIVE_TEXT]Domestic[ENDCOLOR] or [COLOR_POSITIVE_TEXT]Foreign[ENDCOLOR] [ICON_GW_ART] Great Work of Art and [ICON_ARTIFACT] Artifact pair from the [COLOR_CYAN]same Era[ENDCOLOR].[NEWLINE][ICON_BULLET] +5 [ICON_CULTURE] and [ICON_TOURISM] for two [COLOR_POSITIVE_TEXT]Domestic[ENDCOLOR] or two [COLOR_POSITIVE_TEXT]Foreign[ENDCOLOR] [ICON_GW_ART] Great Works of Art.[NEWLINE][ICON_BULLET] +5 [ICON_CULTURE] and [ICON_TOURISM] for two [COLOR_POSITIVE_TEXT]Domestic[ENDCOLOR] or two [COLOR_POSITIVE_TEXT]Foreign[ENDCOLOR] [ICON_ARTIFACT] Artifacts.</Text>
 		</Row>
 
 		<!-- Market -->
@@ -352,7 +352,7 @@
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_NALANDA_HELP">
 			<Text>Possible Theming Bonuses:
-  			[NEWLINE][ICON_BULLET] +6 [ICON_CULTURE] and [ICON_TOURISM] for two [COLOR_POSITIVE_TEXT]Domestic[ENDCOLOR] [ICON_GW_WRITING].</Text>
+  			[NEWLINE][ICON_BULLET] +6 [ICON_CULTURE] and [ICON_TOURISM] for two [COLOR_POSITIVE_TEXT]Domestic[ENDCOLOR] [ICON_GW_WRITING] Great Works of Writing.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_NALANDA_TEXT">
 			<Text>The mahavihara of Nalanda was a complex of monasteries, libraries, observatories, and amphitheatres spanning 30 acres in modern day Bihar, in Eastern India. One of the earliest institutions that could properly be considered a university, Nalanda boasted a curriculum that included philosophy, epistemology, theology, medicine, mathematics, astrology, and alchemy. In addition to its educational role, Nalanda hosted some of the most influential thinkers and lecturers of the Buddhist world for over 7 centuries, and attracted visiting scholars from across Asia. The university survived the fall of the Gupta Empire in the 6th century, and gained powerful patrons with the rise of the Pala Empire, but came to a violent end with the Muslim invasion of India. Archeological evidence suggests that Islamic invaders sacked Nalanda 3 separate times, the monks and scholars either killed or forced to flee. The national government of India has committed to founding a new Nalanda as a modern university near the ruins of the old compound. The revived Nalanda University accepted its first class of students in 2020.</Text>
@@ -364,7 +364,7 @@
 		<!-- Notre Dame -->
 		<Row Tag="TXT_KEY_BUILDING_NOTRE_DAME_HELP">
 			<Text>Possible Theming Bonuses:
-  			[NEWLINE][ICON_BULLET] +8 [ICON_CULTURE] and [ICON_TOURISM] for two [COLOR_POSITIVE_TEXT]Foreign[ENDCOLOR] [ICON_GW_MUSIC] from [COLOR_POSITIVE_TEXT]different Civilizations[ENDCOLOR].</Text>
+  			[NEWLINE][ICON_BULLET] +8 [ICON_CULTURE] and [ICON_TOURISM] for two [COLOR_POSITIVE_TEXT]Foreign[ENDCOLOR] [ICON_GREAT_WORK] Great Works from [COLOR_POSITIVE_TEXT]different Civilizations[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_ROMAN_FORUM">
@@ -950,7 +950,7 @@
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_CHARTARIUM_HELP">
 			<Text>Possible Theming Bonuses:
- 			[NEWLINE][ICON_BULLET] +8 [ICON_CULTURE] and [ICON_TOURISM] for three [ICON_GW_WRITING] from the [COLOR_POSITIVE_TEXT]same Civilization[ENDCOLOR].</Text>
+ 			[NEWLINE][ICON_BULLET] +8 [ICON_CULTURE] and [ICON_TOURISM] for three [ICON_GW_WRITING] Great Works of Writing from the [COLOR_POSITIVE_TEXT]same Civilization[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_CHARTARIUM_TEXT">
 			<Text>The Chartarium was a collection of correspondences and minutes held privately by the office of the Papacy. This collection formed the precursor to the Vatican's Secret Archives.</Text>

@@ -876,6 +876,11 @@
         <Type>UpdateDatabase</Type>
         <FileName>Database Changes\Remapper.sql</FileName>
       </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Database Changes/Misc/NotificationsChanges.sql</FileName>
+      </Action>
     </ModActions>
     <ModContent>
       <Content>
@@ -970,6 +975,7 @@
     <Folder Include="Database Changes\Events" />
     <Folder Include="Database Changes\Minors" />
     <Folder Include="Database Changes\Mod Support" />
+    <Folder Include="Database Changes\Misc" />
     <Folder Include="Database Changes\Policies" />
     <Folder Include="Database Changes\Religions" />
     <Folder Include="Database Changes\Tech" />
@@ -2900,6 +2906,10 @@
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="Database Changes\GameSpeedTableChanges.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Database Changes\Misc\NotificationsChanges.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>

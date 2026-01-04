@@ -385,4 +385,11 @@
 		<Column name="UnitClassType" type="text" reference="UnitClasses(Type)"/>
 		<Column name="EraType" type="text" reference="Eras(Type)"/>
 	</Table>
+
+	<!-- POLICY: Allows you to grant a yield when a city produces a unit. Yield below is % of unit's production (so higher production units make more!) -->	
+	<Table name="Policy_YieldFromUnitProduction">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
 </GameData>

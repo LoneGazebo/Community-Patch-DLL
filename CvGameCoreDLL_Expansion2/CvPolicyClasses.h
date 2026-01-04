@@ -391,6 +391,9 @@ public:
 
 	bool IsOnlyTradeSameIdeology() const;
 
+	int GetYieldFromUnitProduction(int i) const;
+	int* GetYieldFromUnitProductionArray() const;
+
 	int GetYieldFromNonSpecialistCitizensTimes100(int i) const;
 	int* GetYieldFromNonSpecialistCitizensTimes100Array() const;
 
@@ -746,6 +749,7 @@ private:
 	int m_iFreeSpy;
 	int m_iReligionDistance;
 	int m_iPressureMod;
+	int* m_piYieldFromUnitProduction;
 	int* m_piYieldFromBorderGrowth;
 	int* m_piYieldGPExpend;
 	int m_iGarrisonsOccupiedUnhappinessMod;

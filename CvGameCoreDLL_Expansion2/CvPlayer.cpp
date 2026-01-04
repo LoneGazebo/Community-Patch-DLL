@@ -26113,7 +26113,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 						}
 						if(pCity != NULL)
 						{
-							if(!pCity->GetCityReligions()->IsHolyCityForReligion(eReligion))
+							if (pCity->getOwner() != GetID())
 							{
 								iValue += pReligion->m_Beliefs.GetYieldFromSpread(eYield, GetID(), pLoopCity, true) * max(1, iPassYield+1);
 							}
@@ -42285,6 +42285,19 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 			}
 		}
 		pLoopCity->ChangeBaseYieldRateFromPolicies(YIELD_CULTURE, iCityCultureChange);
+		// Yield from training units
+		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+		{
+			YieldTypes eYield = (YieldTypes)iI;
+			if (eYield == NO_YIELD)
+				continue;
+
+			//Simplification - errata yields not worth considering.
+			if ((YieldTypes)iI > YIELD_CULTURE_LOCAL && !MOD_BALANCE_CORE_JFD)
+				break;
+		
+			pLoopCity->ChangeYieldFromUnitProduction(eYield, pkPolicyInfo->GetYieldFromUnitProduction(eYield));
+		}
 
 		// Cities being razed aren't affected by below effects
 		if (pLoopCity->IsRazing())
