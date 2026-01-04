@@ -7326,8 +7326,16 @@ void CvPlot::setTerrainType(TerrainTypes eNewValue, bool bRecalculate, bool bReb
 				if ((YieldTypes)iI > YIELD_CULTURE_LOCAL && !MOD_BALANCE_CORE_JFD)
 					break;
 
-				pOwningCity->UpdateYieldPerXTerrain((YieldTypes)iI, getTerrainType());
-				pOwningCity->UpdateYieldPerXTerrainFromReligion((YieldTypes)iI, getTerrainType());
+				pOwningCity->UpdateYieldPerXTerrain((YieldTypes)iI, eOldValue);
+				pOwningCity->UpdateYieldPerXTerrain((YieldTypes)iI, eNewValue);
+				pOwningCity->UpdateYieldPerXTerrainFromReligion((YieldTypes)iI, eOldValue);
+				pOwningCity->UpdateYieldPerXTerrainFromReligion((YieldTypes)iI, eNewValue);
+			}
+
+			if (!isCity() && pOwningCity->GetCityCitizens()->IsWorkingPlot(this))
+			{
+				pOwningCity->ChangeNumTerrainWorked(eOldValue, -1);
+				pOwningCity->ChangeNumTerrainWorked(eNewValue, 1);
 			}
 		}
 
