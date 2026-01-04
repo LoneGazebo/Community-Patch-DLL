@@ -1215,6 +1215,49 @@ local gi_tbl_get_len = function(meta, _)
 	return meta.row_cnt
 end
 
+--- @param meta GiTblMeta # table metadata
+--- @param _ any # unused
+--- @param key string | number # row key
+--- @return GiRow | nil # row object or nil if not found
+local gi_tbl_get_row_unsafe = function(meta, _, key)
+	if IsNumber(key) and meta.row_num_key then
+		local row_num_idx = meta.row_num_idx --[[@as table<integer, integer> ]]
+
+		if IsFunction(row_num_idx) then
+			return row_num_idx(meta, key, nil)
+		end
+
+		return GI_ROW_IDX_MAPPED(meta, key, row_num_idx)
+	end
+
+	if IsString(key) and meta.row_str_key then
+		return GI_ROW_IDX_MAPPED(meta, key, meta.row_str_idx --[[@as table]])
+	end
+
+	local exp = {}
+
+	if meta.row_num_key then
+		exp[#exp + 1] = 'number'
+	end
+
+	if meta.row_str_key then
+		exp[#exp + 1] = 'string'
+	end
+
+	if #exp == 0 then
+		AssertError(
+			lua_type(key),
+			'nothing',
+			'Specified table "' .. meta.tbl_name .. '" does not support indexes!'
+		)
+	else
+		local type = lua_type(key)
+		local tmp = 'Specified table "%s" does not support indexing by %s!'
+		local mes = lua_string_format(tmp, meta.tbl_name, type)
+		AssertError(lua_type(key), lua_table_concat(exp, ' or '), mes)
+	end
+end
+
 --- Table index operator.
 --- Retrieves a row by primary key.
 ---
@@ -1229,34 +1272,16 @@ end
 --- @param _ any # unused
 --- @param key string | number # row key
 --- @return GiRow | nil # row object or nil if not found
-local gi_tbl_get_row = function(meta, _, key)
-	if IsNumber(key) and meta.row_num_key and meta.row_num_key ~= '_ROWID_' then
-		local row_num_idx = meta.row_num_idx --[[@as table<integer, integer> ]]
-
-		if IsFunction(row_num_idx) then
-			return row_num_idx(meta, key, nil)
-		end
-
-		return GI_ROW_IDX_MAPPED(meta, key, row_num_idx)
+local gi_tbl_get_row_strict = function(meta, _, key)
+	if meta.row_num_key == '_ROWID_' and IsNumber(key) then
+		local type = lua_type(key)
+		local exp = meta.row_str_key and 'string' or 'nothing'
+		local tmp = 'Specified table "%s" does not support indexing by %s!'
+		local mes = lua_string_format(tmp, meta.tbl_name, type)
+		AssertError(lua_type(key), exp, mes)
 	end
 
-	if IsString(key) and meta.row_str_key then
-		local row_str_idx = meta.row_str_idx
-		AssertIsTable(row_str_idx, 'Table was not allocated!')
-
-		return GI_ROW_IDX_MAPPED(meta, key, meta.row_str_idx --[[@as table]])
-	end
-
-	local exp = lua_table_concat({
-		meta.row_str_key and 'string',
-		meta.row_num_key and meta.row_num_key ~= '_ROWID_' and 'number',
-	}, ' or ')
-
-	AssertError(
-		lua_type(key),
-		exp,
-		'Specified indexing is not supported by table "' .. meta.tbl_name .. '"!'
-	)
+	return gi_tbl_get_row_unsafe(meta, _, key)
 end
 
 --- Disallow table mutation.
@@ -1398,7 +1423,7 @@ local gi_tbl_iterate = function(meta, _, cond, ...)
 				return nil
 			end
 
-			return gi_tbl_get_row(meta, nil, ent[1])
+			return gi_tbl_get_row_unsafe(meta, nil, ent[1])
 		end
 	end
 
@@ -1419,7 +1444,7 @@ local gi_tbl_iterate = function(meta, _, cond, ...)
 		end
 
 		if key ~= nil then
-			local row = gi_tbl_get_row(meta, nil, key --[[@as string | number]])
+			local row = gi_tbl_get_row_unsafe(meta, nil, key --[[@as string | number]])
 			local done = false
 
 			if row == nil then return Void end
@@ -1490,7 +1515,7 @@ function GiAsmImpl:Finalize()
 
 	tbl_meta.__len = Bind(gi_tbl_get_len, tbl_meta)
 	tbl_meta.__call = Bind(gi_tbl_iterate, tbl_meta)
-	tbl_meta.__index = Bind(gi_tbl_get_row, tbl_meta)
+	tbl_meta.__index = Bind(gi_tbl_get_row_strict, tbl_meta)
 	tbl_meta.__newindex = Bind(gi_tbl_set_row, tbl_meta)
 
 	self.tbl_meta = tbl_meta
