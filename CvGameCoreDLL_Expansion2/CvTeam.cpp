@@ -7926,7 +7926,7 @@ void CvTeam::processTech(TechTypes eTech, int iChange, bool bNoBonus)
 					for (CvUnit* pLoopUnit = kPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iLoop))
 					{
 						// If we're in friendly territory and we can embark, give the promotion for free
-						if (pLoopUnit->plot()->IsFriendlyTerritory(*it))
+						if (pLoopUnit->plot()->IsFriendlyTerritory((PlayerTypes)iI)) 
 						{
 							// Civilian unit or the unit can acquire this promotion
 							if (IsPromotionValidForUnitCombatType(ePromotion, pLoopUnit->getUnitType()) || IsPromotionValidForCivilianUnitType(ePromotion, pLoopUnit->getUnitType()))
