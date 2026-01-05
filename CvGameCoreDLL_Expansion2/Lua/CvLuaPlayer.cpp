@@ -10239,7 +10239,8 @@ int CvLuaPlayer::lChangeNumResourceTotal(lua_State* L)
 	const ResourceTypes eResource = (ResourceTypes)lua_tointeger(L, 2);
 	const int iChange = lua_tointeger(L, 3);
 	const bool bFromBuilding = luaL_optbool(L, 4, false);
-	pkPlayer->changeNumResourceTotal(eResource, iChange, bFromBuilding);
+	const bool bFromEvent = luaL_optbool(L, 5, false);
+	pkPlayer->changeNumResourceTotal(eResource, iChange, bFromBuilding, true, bFromEvent);
 	return 1;
 }
 //------------------------------------------------------------------------------

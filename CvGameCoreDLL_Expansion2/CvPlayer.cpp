@@ -388,6 +388,7 @@ CvPlayer::CvPlayer() :
 	, m_paiNumResourceUsed()
 	, m_paiNumResourceFromTiles()
 	, m_paiNumResourceFromBuildings()
+	, m_paiNumResourceFromEvents()
 	, m_paiResourceGiftedToMinors()
 	, m_paiResourceExport()
 	, m_paiResourceImportFromMajor()
@@ -1052,6 +1053,7 @@ void CvPlayer::uninit()
 	m_paiNumResourceUsed.clear();
 	m_paiNumResourceFromTiles.clear();
 	m_paiNumResourceFromBuildings.clear();
+	m_paiNumResourceFromEvents.clear();
 	m_paiResourceGiftedToMinors.clear();
 	m_paiResourceExport.clear();
 	m_paiResourceImportFromMajor.clear();
@@ -1938,6 +1940,9 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 		m_paiNumResourceFromBuildings.clear();
 		m_paiNumResourceFromBuildings.resize(GC.getNumResourceInfos(), 0);
+
+		m_paiNumResourceFromEvents.clear();
+		m_paiNumResourceFromEvents.resize(GC.getNumResourceInfos(), 0);
 
 		m_paiResourceGiftedToMinors.clear();
 		m_paiResourceGiftedToMinors.resize(GC.getNumResourceInfos(), 0);
@@ -6570,6 +6575,25 @@ bool CvPlayer::IsEventChoiceValid(EventChoiceTypes eChosenEventChoice, EventType
 	if(pkEventInfo->isLosingMoney() && GetTreasury()->CalculateBaseNetGold() > 0)
 		return false;
 
+	// Check if player has enough resources to consume
+	for (int iI = 0; iI < GC.getNumResourceInfos(); iI++)
+	{
+		ResourceTypes eResource = (ResourceTypes)iI;
+		if (eResource != NO_RESOURCE)
+		{
+			int iResourceChange = pkEventInfo->getEventResourceChange(eResource);
+			if (iResourceChange < 0)
+			{
+				int iResourcesNeeded = -iResourceChange;
+				int iResourcesAvailable = getNumResourceAvailable(eResource, false);
+				if (iResourcesAvailable < iResourcesNeeded)
+				{
+					return false;
+				}
+			}
+		}
+	}
+
 	return true;
 }
 void CvPlayer::DoStartEvent(EventTypes eChosenEvent, bool bSendMsg)
@@ -6766,7 +6790,7 @@ void CvPlayer::DoCancelEventChoice(EventChoiceTypes eChosenEventChoice)
 					iBonus *= -1;
 					if(iBonus != 0)
 					{
-						changeNumResourceTotal(eResource, iBonus, true);
+						changeNumResourceTotal(eResource, iBonus, false, true, true);
 						bChanged = true;
 					}
 				}
@@ -7675,6 +7699,27 @@ CvString CvPlayer::GetDisabledTooltip(EventChoiceTypes eChosenEventChoice)
 			}
 		}
 	}
+	// Check if player has enough resources to consume
+	for (int iJ = 0; iJ < GC.getNumResourceInfos(); iJ++)
+	{
+		ResourceTypes eResource = (ResourceTypes)iJ;
+		if (eResource != NO_RESOURCE)
+		{
+			int iResourceChange = pkEventInfo->getEventResourceChange(eResource);
+			if (iResourceChange < 0)
+			{
+				int iResourcesNeeded = -iResourceChange;
+				int iResourcesAvailable = getNumResourceAvailable(eResource, false);
+				if (iResourcesAvailable < iResourcesNeeded)
+				{
+					localizedDurationText = Localization::Lookup("TXT_KEY_NEED_RESOURCE_AMOUNT");
+					localizedDurationText << iResourcesNeeded;
+					localizedDurationText << GC.getResourceInfo(eResource)->GetDescription();
+					DisabledTT += localizedDurationText.toUTF8();
+				}
+			}
+		}
+	}
 	bool bHas = true;
 	for(int iJ = 0; iJ < GC.getNumFeatureInfos(); iJ++)
 	{
@@ -8085,7 +8130,7 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent, b
 					int iBonus = pkEventChoiceInfo->getEventResourceChange(eResource);
 					if(iBonus != 0)
 					{
-						changeNumResourceTotal(eResource, iBonus, true);
+						changeNumResourceTotal(eResource, iBonus, false, true, true);
 					}
 				}
 			}
@@ -37213,6 +37258,7 @@ int CvPlayer::getNumResourceTotal(ResourceTypes eIndex, bool bIncludeImport) con
 
 	int iTotalNumResource = m_paiNumResourceFromTiles[eIndex];
 	iTotalNumResource += m_paiNumResourceFromBuildings[eIndex];
+	iTotalNumResource += m_paiNumResourceFromEvents[eIndex];
 
 	//add resources from other sources, ex Corporations, Policies, Religion
 	iTotalNumResource += getNumResourcesFromOther(eIndex);
@@ -37228,14 +37274,19 @@ int CvPlayer::getNumResourceTotal(ResourceTypes eIndex, bool bIncludeImport) con
 
 	return iTotalNumResource;
 }
-void CvPlayer::changeNumResourceTotal(ResourceTypes eIndex, int iChange, bool bFromBuilding, bool bCheckForMonopoly, bool /*bIgnoreResourceWarning*/)
+void CvPlayer::changeNumResourceTotal(ResourceTypes eIndex, int iChange, bool bFromBuilding, bool bCheckForMonopoly, bool bFromEvent)
 {
 	ASSERT(eIndex >= 0);
 	PRECONDITION(eIndex < GC.getNumResourceInfos());
 
 	if(iChange != 0)
 	{
-		if (!bFromBuilding)
+		if (bFromEvent)
+		{
+			m_paiNumResourceFromEvents[eIndex] = m_paiNumResourceFromEvents[eIndex] + iChange;
+			// This value can be negative, so we don't assert m_paiNumResourceFromEvents[eIndex] >= 0
+		}
+		else if (!bFromBuilding)
 		{
 			m_paiNumResourceFromTiles[eIndex] = m_paiNumResourceFromTiles[eIndex] + iChange;
 			ASSERT(m_paiNumResourceFromTiles[eIndex] >= 0);
@@ -43719,7 +43770,8 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_paiNumResourceUnimproved);
 	visitor(player.m_paiNumResourceUsed);
 	visitor(player.m_paiNumResourceFromTiles);
-	visitor(player.m_paiNumResourceFromBuildings);
+	//visitor(player.m_paiNumResourceFromBuildings);
+	visitor(player.m_paiNumResourceFromEvents);
 	visitor(player.m_paiResourceGiftedToMinors);
 	visitor(player.m_paiResourceExport);
 	visitor(player.m_paiResourceImportFromMajor);

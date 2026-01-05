@@ -2726,6 +2726,9 @@
 		<Row Tag="TXT_KEY_NEED_RESOURCE_LOCAL">
 			<Text>[NEWLINE] [ICON_BULLET] Requires {1_Desc} Resource near City</Text>
 		</Row>
+		<Row Tag="TXT_KEY_NEED_RESOURCE_AMOUNT">
+			<Text>[NEWLINE] [ICON_BULLET] Requires {1_Num} {2_Desc}</Text>
+		</Row>
 		<Row Tag="TXT_KEY_NEED_IMPROVEMENT">
 			<Text>[NEWLINE] [ICON_BULLET] Requires {1_Desc} Improvement</Text>
 		</Row>

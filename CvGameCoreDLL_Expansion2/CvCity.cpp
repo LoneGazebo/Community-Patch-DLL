@@ -4580,6 +4580,25 @@ bool CvCity::IsCityEventChoiceValid(CityEventChoiceTypes eChosenEventChoice, Cit
 	if (pkEventInfo->isLosingMoney() && kPlayer.GetTreasury()->CalculateBaseNetGold() > 0)
 		return false;
 
+	// Check if player has enough resources to consume
+	for (int iI = 0; iI < GC.getNumResourceInfos(); iI++)
+	{
+		ResourceTypes eResource = (ResourceTypes)iI;
+		if (eResource != NO_RESOURCE)
+		{
+			int iResourceChange = pkEventInfo->getEventResourceChange(eResource);
+			if (iResourceChange < 0)
+			{
+				int iResourcesNeeded = -iResourceChange;
+				int iResourcesAvailable = kPlayer.getNumResourceAvailable(eResource, false);
+				if (iResourcesAvailable < iResourcesNeeded)
+				{
+					return false;
+				}
+			}
+		}
+	}
+
 	return true;
 }
 
@@ -4847,7 +4866,7 @@ void CvCity::DoCancelEventChoice(CityEventChoiceTypes eChosenEventChoice)
 					iBonus *= -1;
 					if (iBonus != 0)
 					{
-						GET_PLAYER(getOwner()).changeNumResourceTotal(eResource, iBonus * -1, true);
+						GET_PLAYER(getOwner()).changeNumResourceTotal(eResource, iBonus * -1, false, true, true);
 					}
 				}
 			}
@@ -6278,6 +6297,28 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice, int
 		}
 	}
 
+	// Check if player has enough resources to consume
+	for (int iI = 0; iI < GC.getNumResourceInfos(); iI++)
+	{
+		ResourceTypes eResource = (ResourceTypes)iI;
+		if (eResource != NO_RESOURCE)
+		{
+			int iResourceChange = pkEventInfo->getEventResourceChange(eResource);
+			if (iResourceChange < 0)
+			{
+				int iResourcesNeeded = -iResourceChange;
+				int iResourcesAvailable = kPlayer.getNumResourceAvailable(eResource, false);
+				if (iResourcesAvailable < iResourcesNeeded)
+				{
+					localizedDurationText = Localization::Lookup("TXT_KEY_NEED_RESOURCE_AMOUNT");
+					localizedDurationText << iResourcesNeeded;
+					localizedDurationText << GC.getResourceInfo(eResource)->GetDescription();
+					DisabledTT += localizedDurationText.toUTF8();
+				}
+			}
+		}
+	}
+
 	//Check our minimum yields - this looks at stored values, not yields per turn.
 	bool bHas = true;
 	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
@@ -6663,7 +6704,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 					int iBonus = pkEventChoiceInfo->getEventResourceChange(eResource);
 					if (iBonus != 0)
 					{
-						GET_PLAYER(getOwner()).changeNumResourceTotal(eResource, iBonus, true);
+						GET_PLAYER(getOwner()).changeNumResourceTotal(eResource, iBonus, false, true, true);
 					}
 				}
 			}
