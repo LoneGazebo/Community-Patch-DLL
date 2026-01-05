@@ -3482,6 +3482,7 @@ protected:
 	std::vector<int> m_paiNumResourceUsed;
 	std::vector<int> m_paiNumResourceFromTiles;
 	std::vector<int> m_paiNumResourceFromBuildings;
+	std::vector<int> m_paiNumResourceFromEvents;
 	std::vector<int> m_paiResourceGiftedToMinors;
 	std::vector<int> m_paiResourceExport; //always to majors
 	std::vector<int> m_paiResourceImportFromMajor;
@@ -4252,6 +4253,7 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_paiNumResourceUnimproved)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiNumResourceUsed)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiNumResourceFromTiles)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiNumResourceFromBuildings)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_paiNumResourceFromEvents)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiResourceGiftedToMinors)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiResourceExport)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiResourceImportFromMajor)
