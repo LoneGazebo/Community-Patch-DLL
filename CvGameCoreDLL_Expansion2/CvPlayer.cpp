@@ -3889,10 +3889,10 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift, bool bO
 							kOldOwner.GetCulture()->SetSwappableWritingIndex(-1);
 
 						if (kOldOwner.GetCulture()->GetSwappableArtifactIndex() == iGreatWork)
-							kOldOwner.GetCulture()->SetSwappableArtIndex(-1);
+							kOldOwner.GetCulture()->SetSwappableArtifactIndex(-1);
 
 						if (kOldOwner.GetCulture()->GetSwappableArtIndex() == iGreatWork)
-							kOldOwner.GetCulture()->SetSwappableArtifactIndex(-1);
+							kOldOwner.GetCulture()->SetSwappableArtIndex(-1);
 
 						if (kOldOwner.GetCulture()->GetSwappableMusicIndex() == iGreatWork)
 							kOldOwner.GetCulture()->SetSwappableMusicIndex(-1);
