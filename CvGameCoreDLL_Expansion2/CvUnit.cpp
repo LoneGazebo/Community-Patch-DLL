@@ -4594,15 +4594,19 @@ bool CvUnit::canEnterTerritory(TeamTypes eTeam, bool bEndTurn) const
 
 	if (MOD_GLOBAL_CS_OVERSEAS_TERRITORY && eMyTeam != eTeam && kTheirTeam.isMinorCiv())
 	{
-		PlayerTypes eMinor = kTheirTeam.getLeaderID();
-		ASSERT(eMinor != NO_PLAYER);
-		if (eMinor != NO_PLAYER)
+		CvUnitEntry* pkUnitEntry = GC.getUnitInfo(getUnitType());
+		if (pkUnitEntry->GetDefaultUnitAIType() != UNITAI_MESSENGER)
 		{
-			PlayerTypes eAlly = GET_PLAYER(eMinor).GetMinorCivAI()->GetAlly();
-			if (eAlly != NO_PLAYER && GET_PLAYER(eAlly).getTeam() != eMyTeam)
+			PlayerTypes eMinor = kTheirTeam.getLeaderID();
+			ASSERT(eMinor != NO_PLAYER);
+			if (eMinor != NO_PLAYER)
 			{
-				if (!canEnterTerritory(GET_PLAYER(eAlly).getTeam(), bEndTurn))
-					return false;
+				PlayerTypes eAlly = GET_PLAYER(eMinor).GetMinorCivAI()->GetAlly();
+				if (eAlly != NO_PLAYER && GET_PLAYER(eAlly).getTeam() != eMyTeam)
+				{
+					if (!canEnterTerritory(GET_PLAYER(eAlly).getTeam(), bEndTurn))
+						return false;
+				}
 			}
 		}
 	}
@@ -13949,9 +13953,9 @@ int CvUnit::upgradePrice(UnitTypes eUnit) const
 
 	// Upgrades for later units are more expensive
 	const TechTypes eTech = (TechTypes) pkUnitInfo->GetPrereqAndTech();
-	CvTechEntry* pkTechInfo = GC.getTechInfo(eTech);
-	if(pkTechInfo)
+	if (eTech != NO_TECH)
 	{
+		CvTechEntry* pkTechInfo = GC.getTechInfo(eTech);
 		const EraTypes eUpgradeEra = (EraTypes) pkTechInfo->GetEra();
 
 		double fMultiplier = 1.0f;
