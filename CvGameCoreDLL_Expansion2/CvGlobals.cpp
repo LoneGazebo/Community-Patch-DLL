@@ -4003,6 +4003,27 @@ void CvGlobals::GameDataPostCache()
 		}
 	}
 
+	// Cache Great Person lookups
+	for (int iI = 0; iI < getNumGreatPersonInfos(); ++iI)
+	{
+		GreatPersonTypes eGreatPerson = static_cast<GreatPersonTypes>(iI);
+		CvGreatPersonInfo* pGreatPersonInfo = getGreatPersonInfo(eGreatPerson);
+		if (pGreatPersonInfo == NULL)
+			continue;
+
+		SpecialistTypes eSpecialist = static_cast<SpecialistTypes>(pGreatPersonInfo->GetSpecialistType());
+		if (eSpecialist != NO_SPECIALIST)
+		{
+			m_specialistToGreatPersonCache[eSpecialist] = eGreatPerson;
+		}
+
+		UnitClassTypes eUnitClass = static_cast<UnitClassTypes>(pGreatPersonInfo->GetUnitClassType());
+		if (eUnitClass != NO_UNITCLASS)
+		{
+			m_unitClassToGreatPersonCache[eUnitClass] = eGreatPerson;
+		}
+	}
+
 	calcGameDataHash();
 }
 
