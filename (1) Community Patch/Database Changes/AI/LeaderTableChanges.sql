@@ -5,7 +5,7 @@
 -- 2 new columns: PrimaryVictoryPursuit, SecondaryVictoryPursuit
 -- Default diplomacy flavors are now 5
 CREATE TABLE Leaders_NEW (
-	ID integer PRIMARY KEY,
+	ID integer PRIMARY KEY AUTOINCREMENT,
 	Type text NOT NULL UNIQUE,
 	Description text REFERENCES Language_en_US (Tag),
 	Civilopedia text, -- unused?

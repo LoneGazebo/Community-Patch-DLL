@@ -1451,7 +1451,6 @@ bool CvPlayerEspionage::DoStealGW(CvCity* pPlayerCity, int iGWID)
 	if (pArtCity)
 	{
 		// Check if the great work to be stolen is offered for swap, and remove it if so
-		GreatWorkClass eGWClass = GC.getGame().GetGameCulture()->m_CurrentGreatWorks[iGWID].m_eClassType;
 		CvPlayerCulture* pDefendingCulture = GET_PLAYER(eDefendingPlayer).GetCulture();
 		if (pDefendingCulture->GetSwappableWritingIndex() == iGWID)
 		{
