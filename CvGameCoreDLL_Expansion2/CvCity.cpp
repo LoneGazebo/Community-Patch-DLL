@@ -15385,7 +15385,7 @@ int CvCity::GetCultureFromSpecialist(SpecialistTypes eSpecialist) const
 		return 0;
 	}
 
-	int iCulture = pkSpecialistInfo->getCulturePerTurn() + GET_PLAYER(getOwner()).getSpecialistExtraYield(YIELD_CULTURE);
+	int iCulture = pkSpecialistInfo->getCulturePerTurn();
 	return iCulture;
 }
 

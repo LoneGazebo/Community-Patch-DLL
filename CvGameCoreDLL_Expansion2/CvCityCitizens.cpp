@@ -809,7 +809,7 @@ YieldAndGPPList CvCityCitizens::GetSpecialistYields(SpecialistTypes eSpecialist)
 		}
 		//Culture is treated differently, sadly.
 		if (eYield == YIELD_CULTURE)
-			iYield100 = m_pCity->GetCultureFromSpecialist(eSpecialist) * 100;
+			iYield100 += m_pCity->GetCultureFromSpecialist(eSpecialist) * 100;
 
 		//religion bonus
 		ReligionTypes eMajority = m_pCity->GetCityReligions()->GetReligiousMajority();
