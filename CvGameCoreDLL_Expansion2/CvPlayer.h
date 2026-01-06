@@ -2038,7 +2038,7 @@ public:
 	int getNumResourceFromBuildings(ResourceTypes eIndex) const;
 	int getNumResourceTotal(ResourceTypes eIndex, bool bIncludeImport = true) const;
 	int getNumResourcesFromOther(ResourceTypes eIndex) const;
-	void changeNumResourceTotal(ResourceTypes eIndex, int iChange, bool bFromBuilding = false, bool bCheckForMonopoly = true, bool bIgnoreResourceWarning = false);
+	void changeNumResourceTotal(ResourceTypes eIndex, int iChange, bool bFromBuilding = false, bool bCheckForMonopoly = true, bool bFromEvent = false);
 
 	int GetHighestResourceQuantity(ResourceTypes eIndex) const;
 	void SetHighestResourceQuantity(ResourceTypes eIndex, int iValue);

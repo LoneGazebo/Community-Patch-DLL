@@ -43728,7 +43728,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_paiNumResourceUnimproved);
 	visitor(player.m_paiNumResourceUsed);
 	visitor(player.m_paiNumResourceFromTiles);
-	//visitor(player.m_paiNumResourceFromBuildings);
+	visitor(player.m_paiNumResourceFromBuildings);
 	visitor(player.m_paiNumResourceFromEvents);
 	visitor(player.m_paiResourceGiftedToMinors);
 	visitor(player.m_paiResourceExport);
