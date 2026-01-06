@@ -17717,7 +17717,7 @@ void CvMinorCivAI::DoTileImprovementGiftFromMajor(PlayerTypes eMajor, int iPlotX
 			return;
 	}
 
-	pPlot->setImprovementType(eImprovement, eMajor);
+	pPlot->setImprovementType(eImprovement, eMajor, true);
 
 	if (pPlot->getFeatureType() != NO_FEATURE)
 	{
