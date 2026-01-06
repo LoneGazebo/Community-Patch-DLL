@@ -2995,6 +2995,10 @@ public:
 	inline uint32 getSaveVersion() const { return m_saveVersion; }
 	inline void setSaveVersion(uint32 version) { m_saveVersion = version; }
 
+	// Caches for faster lookups
+	std::map<SpecialistTypes, GreatPersonTypes> m_specialistToGreatPersonCache;
+	std::map<UnitClassTypes, GreatPersonTypes> m_unitClassToGreatPersonCache;
+
 protected:
 
 	bool m_bGraphicsInitialized;

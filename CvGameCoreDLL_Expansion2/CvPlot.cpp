@@ -7953,7 +7953,6 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 {
 	int iI = 0;
 	ImprovementTypes eOldImprovement = getImprovementType();
-	bool bNewImprovementGiftFromMajor = false; // If it is a gift from a major civ, our tech limitations do not apply
 
 	if (eNewValue < NO_IMPROVEMENT) return;
 	if (eNewValue > NO_IMPROVEMENT && GC.getImprovementInfo(eNewValue) == NULL) return;
