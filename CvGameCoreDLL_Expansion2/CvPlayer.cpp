@@ -388,6 +388,7 @@ CvPlayer::CvPlayer() :
 	, m_paiNumResourceUsed()
 	, m_paiNumResourceFromTiles()
 	, m_paiNumResourceFromBuildings()
+	, m_paiNumResourceFromEvents()
 	, m_paiResourceGiftedToMinors()
 	, m_paiResourceExport()
 	, m_paiResourceImportFromMajor()
@@ -688,6 +689,8 @@ CvPlayer::CvPlayer() :
 	, m_iFreeWCVotes()
 	, m_iVotesPerFollowingCityTimes100()
 	, m_iInfluenceGPExpend()
+	, m_iTradeRouteFromBuildings()
+	, m_iTradeRouteFromTechs()
 	, m_iFreeTradeRoute()
 	, m_iReligionDistance()
 	, m_iPressureMod()
@@ -1050,6 +1053,7 @@ void CvPlayer::uninit()
 	m_paiNumResourceUsed.clear();
 	m_paiNumResourceFromTiles.clear();
 	m_paiNumResourceFromBuildings.clear();
+	m_paiNumResourceFromEvents.clear();
 	m_paiResourceGiftedToMinors.clear();
 	m_paiResourceExport.clear();
 	m_paiResourceImportFromMajor.clear();
@@ -1496,6 +1500,8 @@ void CvPlayer::uninit()
 	m_iFreeWCVotes = 0;
 	m_iVotesPerFollowingCityTimes100 = 0;
 	m_iInfluenceGPExpend = 0;
+	m_iTradeRouteFromBuildings = 0;
+	m_iTradeRouteFromTechs = 0;
 	m_iFreeTradeRoute = 0;
 	m_iReligionDistance = 0;
 	m_iPressureMod = 0;
@@ -1934,6 +1940,9 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 		m_paiNumResourceFromBuildings.clear();
 		m_paiNumResourceFromBuildings.resize(GC.getNumResourceInfos(), 0);
+
+		m_paiNumResourceFromEvents.clear();
+		m_paiNumResourceFromEvents.resize(GC.getNumResourceInfos(), 0);
 
 		m_paiResourceGiftedToMinors.clear();
 		m_paiResourceGiftedToMinors.resize(GC.getNumResourceInfos(), 0);
@@ -3885,10 +3894,10 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift, bool bO
 							kOldOwner.GetCulture()->SetSwappableWritingIndex(-1);
 
 						if (kOldOwner.GetCulture()->GetSwappableArtifactIndex() == iGreatWork)
-							kOldOwner.GetCulture()->SetSwappableArtIndex(-1);
+							kOldOwner.GetCulture()->SetSwappableArtifactIndex(-1);
 
 						if (kOldOwner.GetCulture()->GetSwappableArtIndex() == iGreatWork)
-							kOldOwner.GetCulture()->SetSwappableArtifactIndex(-1);
+							kOldOwner.GetCulture()->SetSwappableArtIndex(-1);
 
 						if (kOldOwner.GetCulture()->GetSwappableMusicIndex() == iGreatWork)
 							kOldOwner.GetCulture()->SetSwappableMusicIndex(-1);
@@ -6566,6 +6575,25 @@ bool CvPlayer::IsEventChoiceValid(EventChoiceTypes eChosenEventChoice, EventType
 	if(pkEventInfo->isLosingMoney() && GetTreasury()->CalculateBaseNetGold() > 0)
 		return false;
 
+	// Check if player has enough resources to consume
+	for (int iI = 0; iI < GC.getNumResourceInfos(); iI++)
+	{
+		ResourceTypes eResource = (ResourceTypes)iI;
+		if (eResource != NO_RESOURCE)
+		{
+			int iResourceChange = pkEventInfo->getEventResourceChange(eResource);
+			if (iResourceChange < 0)
+			{
+				int iResourcesNeeded = -iResourceChange;
+				int iResourcesAvailable = getNumResourceAvailable(eResource, false);
+				if (iResourcesAvailable < iResourcesNeeded)
+				{
+					return false;
+				}
+			}
+		}
+	}
+
 	return true;
 }
 void CvPlayer::DoStartEvent(EventTypes eChosenEvent, bool bSendMsg)
@@ -6762,7 +6790,7 @@ void CvPlayer::DoCancelEventChoice(EventChoiceTypes eChosenEventChoice)
 					iBonus *= -1;
 					if(iBonus != 0)
 					{
-						changeNumResourceTotal(eResource, iBonus, true);
+						changeNumResourceTotal(eResource, iBonus, false, true, true);
 						bChanged = true;
 					}
 				}
@@ -7671,6 +7699,27 @@ CvString CvPlayer::GetDisabledTooltip(EventChoiceTypes eChosenEventChoice)
 			}
 		}
 	}
+	// Check if player has enough resources to consume
+	for (int iJ = 0; iJ < GC.getNumResourceInfos(); iJ++)
+	{
+		ResourceTypes eResource = (ResourceTypes)iJ;
+		if (eResource != NO_RESOURCE)
+		{
+			int iResourceChange = pkEventInfo->getEventResourceChange(eResource);
+			if (iResourceChange < 0)
+			{
+				int iResourcesNeeded = -iResourceChange;
+				int iResourcesAvailable = getNumResourceAvailable(eResource, false);
+				if (iResourcesAvailable < iResourcesNeeded)
+				{
+					localizedDurationText = Localization::Lookup("TXT_KEY_NEED_RESOURCE_AMOUNT");
+					localizedDurationText << iResourcesNeeded;
+					localizedDurationText << GC.getResourceInfo(eResource)->GetDescription();
+					DisabledTT += localizedDurationText.toUTF8();
+				}
+			}
+		}
+	}
 	bool bHas = true;
 	for(int iJ = 0; iJ < GC.getNumFeatureInfos(); iJ++)
 	{
@@ -8081,7 +8130,7 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent, b
 					int iBonus = pkEventChoiceInfo->getEventResourceChange(eResource);
 					if(iBonus != 0)
 					{
-						changeNumResourceTotal(eResource, iBonus, true);
+						changeNumResourceTotal(eResource, iBonus, false, true, true);
 					}
 				}
 			}
@@ -15786,6 +15835,9 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 	ChangeCityWorkingChange(pBuildingInfo->GetGlobalCityWorkingChange() * iChange);
 	ChangeCityAutomatonWorkersChange(pBuildingInfo->GetGlobalCityAutomatonWorkersChange() * iChange);
 
+	// Trade route num bonus
+	changeTradeRouteFromBuildings(pBuildingInfo->GetNumTradeRouteBonus() * iChange);
+
 	// Trade route gold modifier
 	GetTreasury()->ChangeCityConnectionTradeRouteGoldModifier(pBuildingInfo->GetCityConnectionTradeRouteModifier() * iChange);
 
@@ -18210,6 +18262,8 @@ void CvPlayer::DoFreeGreatWorkOnConquest(CvCity* pCity)
 
 void CvPlayer::DoWarVictoryBonuses()
 {
+	CompleteAccomplishment(ACCOMPLISHMENT_WARS_WON);
+	
 	int iTurns = GetPlayerTraits()->GetGoldenAgeFromVictory();
 	if(iTurns > 0)
 	{
@@ -25975,11 +26029,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 
 				case INSTANT_YIELD_TYPE_U_PROD:
 				{
-					if (pUnit && eYield == ePassYield)
-					{
-						iValue += iPassYield;
-					}
-					else if (pLoopCity->GetYieldFromUnitProduction(eYield) > 0)
+					if (pLoopCity->GetYieldFromUnitProduction(eYield) > 0)
 					{
 						int iBonus = iPassYield;
 						iBonus *= pLoopCity->GetYieldFromUnitProduction(eYield);
@@ -26106,7 +26156,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 						}
 						if(pCity != NULL)
 						{
-							if(!pCity->GetCityReligions()->IsHolyCityForReligion(eReligion))
+							if (pCity->getOwner() != GetID())
 							{
 								iValue += pReligion->m_Beliefs.GetYieldFromSpread(eYield, GetID(), pLoopCity, true) * max(1, iPassYield+1);
 							}
@@ -34837,6 +34887,24 @@ void CvPlayer::changeInfluenceGPExpend(int iChange)
 	m_iInfluenceGPExpend += iChange;
 }
 
+int CvPlayer::GetTradeRouteFromBuildings() const
+{
+	return m_iTradeRouteFromBuildings;
+}
+void CvPlayer::changeTradeRouteFromBuildings(int iChange)
+{
+	m_iTradeRouteFromBuildings += iChange;
+}
+
+int CvPlayer::GetTradeRouteFromTechs() const
+{
+	return m_iTradeRouteFromTechs;
+}
+void CvPlayer::changeTradeRouteFromTechs(int iChange)
+{
+	m_iTradeRouteFromTechs += iChange;
+}
+
 int CvPlayer::GetFreeTradeRoute() const
 {
 	return m_iFreeTradeRoute;
@@ -37190,6 +37258,7 @@ int CvPlayer::getNumResourceTotal(ResourceTypes eIndex, bool bIncludeImport) con
 
 	int iTotalNumResource = m_paiNumResourceFromTiles[eIndex];
 	iTotalNumResource += m_paiNumResourceFromBuildings[eIndex];
+	iTotalNumResource += m_paiNumResourceFromEvents[eIndex];
 
 	//add resources from other sources, ex Corporations, Policies, Religion
 	iTotalNumResource += getNumResourcesFromOther(eIndex);
@@ -37205,14 +37274,19 @@ int CvPlayer::getNumResourceTotal(ResourceTypes eIndex, bool bIncludeImport) con
 
 	return iTotalNumResource;
 }
-void CvPlayer::changeNumResourceTotal(ResourceTypes eIndex, int iChange, bool bFromBuilding, bool bCheckForMonopoly, bool /*bIgnoreResourceWarning*/)
+void CvPlayer::changeNumResourceTotal(ResourceTypes eIndex, int iChange, bool bFromBuilding, bool bCheckForMonopoly, bool bFromEvent)
 {
 	ASSERT(eIndex >= 0);
 	PRECONDITION(eIndex < GC.getNumResourceInfos());
 
 	if(iChange != 0)
 	{
-		if (!bFromBuilding)
+		if (bFromEvent)
+		{
+			m_paiNumResourceFromEvents[eIndex] = m_paiNumResourceFromEvents[eIndex] + iChange;
+			// This value can be negative, so we don't assert m_paiNumResourceFromEvents[eIndex] >= 0
+		}
+		else if (!bFromBuilding)
 		{
 			m_paiNumResourceFromTiles[eIndex] = m_paiNumResourceFromTiles[eIndex] + iChange;
 			ASSERT(m_paiNumResourceFromTiles[eIndex] >= 0);
@@ -42260,6 +42334,19 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 			}
 		}
 		pLoopCity->ChangeBaseYieldRateFromPolicies(YIELD_CULTURE, iCityCultureChange);
+		// Yield from training units
+		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+		{
+			YieldTypes eYield = (YieldTypes)iI;
+			if (eYield == NO_YIELD)
+				continue;
+
+			//Simplification - errata yields not worth considering.
+			if ((YieldTypes)iI > YIELD_CULTURE_LOCAL && !MOD_BALANCE_CORE_JFD)
+				break;
+		
+			pLoopCity->ChangeYieldFromUnitProduction(eYield, pkPolicyInfo->GetYieldFromUnitProduction(eYield));
+		}
 
 		// Cities being razed aren't affected by below effects
 		if (pLoopCity->IsRazing())
@@ -43375,6 +43462,8 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_iFreeWCVotes);
 	visitor(player.m_iVotesPerFollowingCityTimes100);
 	visitor(player.m_iInfluenceGPExpend);
+	visitor(player.m_iTradeRouteFromBuildings);
+	visitor(player.m_iTradeRouteFromTechs);
 	visitor(player.m_iFreeTradeRoute);
 	visitor(player.m_iReligionDistance);
 	visitor(player.m_iPressureMod);
@@ -43682,6 +43771,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_paiNumResourceUsed);
 	visitor(player.m_paiNumResourceFromTiles);
 	visitor(player.m_paiNumResourceFromBuildings);
+	visitor(player.m_paiNumResourceFromEvents);
 	visitor(player.m_paiResourceGiftedToMinors);
 	visitor(player.m_paiResourceExport);
 	visitor(player.m_paiResourceImportFromMajor);

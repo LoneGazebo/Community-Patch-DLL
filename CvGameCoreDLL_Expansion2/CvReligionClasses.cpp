@@ -9096,7 +9096,7 @@ int CvReligionAI::GetNumCitiesWithReligionCalculator(ReligionTypes eReligion, bo
 					continue;
 			}
 
-			if (m_pPlayer->GetDiplomacyAI()->IsBadTheftTarget(kLoopPlayer.GetID(), THEFT_TYPE_CONVERSION))
+			if (m_pPlayer->isMajorCiv() && m_pPlayer->GetDiplomacyAI()->IsBadTheftTarget(kLoopPlayer.GetID(), THEFT_TYPE_CONVERSION))
 				continue;
 
 			int iNumCities = 0;

@@ -1855,6 +1855,12 @@ public:
 	int GetInfluenceGPExpend() const;
 	void changeInfluenceGPExpend(int iChange);
 
+	int GetTradeRouteFromBuildings() const;
+	void changeTradeRouteFromBuildings(int iChange);
+
+	int GetTradeRouteFromTechs() const;
+	void changeTradeRouteFromTechs(int iChange);
+
 	int GetFreeTradeRoute() const;
 	void changeFreeTradeRoute(int iChange);
 
@@ -2038,7 +2044,7 @@ public:
 	int getNumResourceFromBuildings(ResourceTypes eIndex) const;
 	int getNumResourceTotal(ResourceTypes eIndex, bool bIncludeImport = true) const;
 	int getNumResourcesFromOther(ResourceTypes eIndex) const;
-	void changeNumResourceTotal(ResourceTypes eIndex, int iChange, bool bFromBuilding = false, bool bCheckForMonopoly = true, bool bIgnoreResourceWarning = false);
+	void changeNumResourceTotal(ResourceTypes eIndex, int iChange, bool bFromBuilding = false, bool bCheckForMonopoly = true, bool bFromEvent = false);
 
 	int GetHighestResourceQuantity(ResourceTypes eIndex) const;
 	void SetHighestResourceQuantity(ResourceTypes eIndex, int iValue);
@@ -3143,6 +3149,8 @@ protected:
 	int m_iFreeWCVotes;
 	int m_iVotesPerFollowingCityTimes100;
 	int m_iInfluenceGPExpend;
+	int m_iTradeRouteFromBuildings;
+	int m_iTradeRouteFromTechs;
 	int m_iFreeTradeRoute;
 	int m_iReligionDistance;
 	int m_iPressureMod;
@@ -3482,6 +3490,7 @@ protected:
 	std::vector<int> m_paiNumResourceUsed;
 	std::vector<int> m_paiNumResourceFromTiles;
 	std::vector<int> m_paiNumResourceFromBuildings;
+	std::vector<int> m_paiNumResourceFromEvents;
 	std::vector<int> m_paiResourceGiftedToMinors;
 	std::vector<int> m_paiResourceExport; //always to majors
 	std::vector<int> m_paiResourceImportFromMajor;
@@ -3953,6 +3962,8 @@ SYNC_ARCHIVE_VAR(int, m_iGoldInternalTrade)
 SYNC_ARCHIVE_VAR(int, m_iFreeWCVotes)
 SYNC_ARCHIVE_VAR(int, m_iVotesPerFollowingCityTimes100)
 SYNC_ARCHIVE_VAR(int, m_iInfluenceGPExpend)
+SYNC_ARCHIVE_VAR(int, m_iTradeRouteFromBuildings)
+SYNC_ARCHIVE_VAR(int, m_iTradeRouteFromTechs)
 SYNC_ARCHIVE_VAR(int, m_iFreeTradeRoute)
 SYNC_ARCHIVE_VAR(int, m_iReligionDistance)
 SYNC_ARCHIVE_VAR(int, m_iPressureMod)
@@ -4252,6 +4263,7 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_paiNumResourceUnimproved)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiNumResourceUsed)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiNumResourceFromTiles)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiNumResourceFromBuildings)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_paiNumResourceFromEvents)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiResourceGiftedToMinors)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiResourceExport)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiResourceImportFromMajor)

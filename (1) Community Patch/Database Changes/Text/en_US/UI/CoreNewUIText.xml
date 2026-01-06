@@ -275,6 +275,9 @@
 		<Row Tag="TXT_KEY_PEDIA_BASE_COST_LABEL">
 			<Text>Base Cost:</Text>
 		</Row>
+		<Row Tag="TXT_KEY_PEDIA_UNIQUEPROJ_LABEL">
+			<Text>Unique Projects:</Text>
+		</Row>
 
 		<!-- Info tooltip -->
 		<!-- Common -->
@@ -355,7 +358,10 @@
 			<Text>[COLOR_CYAN](Part of Spaceship)[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_UNIT_EXTRA_MAINTENANCE">
-			<Text>{1: number "'[COLOR_POSITIVE_TEXT]Reduced Maintenance:[ENDCOLOR] '##;'[COLOR_NEGATIVE_TEXT]Extra Maintenance:[ENDCOLOR] '##"} [ICON_GOLD] Gold</Text>
+			<Text>[COLOR_NEGATIVE_TEXT]Extra Maintenance:[ENDCOLOR] {1_Num} [ICON_GOLD] Gold</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_UNIT_REDUCED_MAINTENANCE">
+			<Text>[COLOR_POSITIVE_TEXT]Reduced Maintenance:[ENDCOLOR] {1_Num} [ICON_GOLD] Gold</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_UNIT_NO_MAINTENANCE">
 			<Text>[COLOR_POSITIVE_TEXT]No Maintenance Cost[ENDCOLOR]</Text>
@@ -364,7 +370,10 @@
 			<Text>[COLOR_POSITIVE_TEXT]Does not consume [ICON_WAR] Unit Supply[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_UNIT_UNHAPPINESS">
-			<Text>[ICON_HAPPINESS_3] {1: number "'[COLOR_NEGATIVE_TEXT]Unhappiness:[ENDCOLOR] '##;'[COLOR_POSITIVE_TEXT]Unhappiness Reduction:[ENDCOLOR] '##"}</Text>
+			<Text>[ICON_HAPPINESS_3] [COLOR_NEGATIVE_TEXT]Unhappiness: {1_Num}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_UNIT_UNHAPPINESS_REDUCTION">
+			<Text>[ICON_HAPPINESS_3] [COLOR_POSITIVE_TEXT]Unhappiness Reduction: {1_Num}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_UNIT_STAGNATION">
 			<Text>[COLOR_NEGATIVE_TEXT]Stagnation during production[ENDCOLOR]</Text>
@@ -1253,7 +1262,7 @@
 			<Text>When a Unit created by this City is promoted: {1_InstantYield}, scaling with (new Unit Level - 2) squared, minimum 1</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_INSTANT_YIELD_ON_UNIT_PROMOTION_GLOBAL">
-			<Text>When an owned Unit is promoted: {1_InstantYield}, scaling with Unit's original Level and Era</Text>
+			<Text>When an owned Unit is promoted: {1_InstantYield}, scaling with Unit's original Level</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_INSTANT_YIELD_ON_UNIT_KILL">
 			<Text>When a Unit created by this City defeats a Military Unit: {1_InstantYield}</Text>

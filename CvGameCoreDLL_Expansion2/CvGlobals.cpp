@@ -4290,8 +4290,8 @@ std::vector<CvSpecialistInfo*>& CvGlobals::getSpecialistInfo()
 
 CvSpecialistInfo* CvGlobals::getSpecialistInfo(SpecialistTypes eSpecialistNum)
 {
-	PRECONDITION(eSpecialistNum > -1);
-	PRECONDITION(eSpecialistNum < GC.getNumSpecialistInfos());
+	ASSERT(eSpecialistNum > -1);
+	ASSERT(eSpecialistNum < GC.getNumSpecialistInfos());
 	if(eSpecialistNum > -1 && eSpecialistNum < (int)m_paSpecialistInfo.size())
 		return m_paSpecialistInfo[eSpecialistNum];
 	else

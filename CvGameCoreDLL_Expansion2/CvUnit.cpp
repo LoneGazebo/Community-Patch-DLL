@@ -836,7 +836,11 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 			const PromotionTypes promotionID = (PromotionTypes)iJ;
 			if(kPlayer.GetPlayerTraits()->HasFreePromotionUnitCombat(promotionID, unitCombatType))
 			{
-				setHasPromotion(promotionID, true);
+				TechTypes ePrereqTech = static_cast<TechTypes>(GC.getPromotionInfo(promotionID)->GetTechPrereq());
+				if (ePrereqTech == NO_TECH || kPlayer.HasTech(ePrereqTech))
+				{
+					setHasPromotion(promotionID, true);
+				}
 			}
 		}
 	}
@@ -1196,7 +1200,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 		CvUnit* pLoopUnit = NULL;
 		for (pLoopUnit = kPlayer.firstUnit(&iLoop); pLoopUnit; pLoopUnit = kPlayer.nextUnit(&iLoop))
 		{
-			if (pLoopUnit && pLoopUnit->IsCombatUnit() && pLoopUnit->getDomainType() == DOMAIN_LAND)
+			if (pLoopUnit && pLoopUnit->IsCombatUnit())
 			{
 				pLoopUnit->changeExperienceTimes100(kPlayer.GetPlayerTraits()->GetXPBonusFromGreatPersonBirth() * 100);
 			}
@@ -1208,7 +1212,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 		CvUnit* pLoopUnit = NULL;
 		for (pLoopUnit = kPlayer.firstUnit(&iLoop); pLoopUnit; pLoopUnit = kPlayer.nextUnit(&iLoop))
 		{
-			if (pLoopUnit && pLoopUnit->IsCombatUnit() && pLoopUnit->getDomainType() == DOMAIN_LAND)
+			if (pLoopUnit && pLoopUnit->IsCombatUnit())
 			{
 				pLoopUnit->changeDamage(-kPlayer.GetPlayerTraits()->GetUnitHealFromGreatPersonBirth());
 			}
@@ -4590,15 +4594,19 @@ bool CvUnit::canEnterTerritory(TeamTypes eTeam, bool bEndTurn) const
 
 	if (MOD_GLOBAL_CS_OVERSEAS_TERRITORY && eMyTeam != eTeam && kTheirTeam.isMinorCiv())
 	{
-		PlayerTypes eMinor = kTheirTeam.getLeaderID();
-		ASSERT(eMinor != NO_PLAYER);
-		if (eMinor != NO_PLAYER)
+		CvUnitEntry* pkUnitEntry = GC.getUnitInfo(getUnitType());
+		if (pkUnitEntry->GetDefaultUnitAIType() != UNITAI_MESSENGER)
 		{
-			PlayerTypes eAlly = GET_PLAYER(eMinor).GetMinorCivAI()->GetAlly();
-			if (eAlly != NO_PLAYER && GET_PLAYER(eAlly).getTeam() != eMyTeam)
+			PlayerTypes eMinor = kTheirTeam.getLeaderID();
+			ASSERT(eMinor != NO_PLAYER);
+			if (eMinor != NO_PLAYER)
 			{
-				if (!canEnterTerritory(GET_PLAYER(eAlly).getTeam(), bEndTurn))
-					return false;
+				PlayerTypes eAlly = GET_PLAYER(eMinor).GetMinorCivAI()->GetAlly();
+				if (eAlly != NO_PLAYER && GET_PLAYER(eAlly).getTeam() != eMyTeam)
+				{
+					if (!canEnterTerritory(GET_PLAYER(eAlly).getTeam(), bEndTurn))
+						return false;
+				}
 			}
 		}
 	}
@@ -11167,7 +11175,7 @@ bool CvUnit::DoSpreadReligion()
 
 			int iPostFollowers = pCity->GetCityReligions()->GetNumFollowers(eReligion);
 			
-			kPlayer.doInstantYield(INSTANT_YIELD_TYPE_SPREAD, false, NO_GREATPERSON, NO_BUILDING, iPostFollowers - iPreSpreadFollowers, false, pCity->getOwner(), plot());
+			kPlayer.doInstantYield(INSTANT_YIELD_TYPE_SPREAD, false, NO_GREATPERSON, NO_BUILDING, iPostFollowers - iPreSpreadFollowers, false, NO_PLAYER, plot());
 
 			if (pCity->plot() && pCity->plot()->GetActiveFogOfWarMode() == FOGOFWARMODE_OFF)
 			{
@@ -13492,7 +13500,7 @@ void CvUnit::promote(PromotionTypes ePromotion, int iLeaderUnitId)
 				GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_LEVEL_UP, false, NO_GREATPERSON, NO_BUILDING, (getLevel() - 1), false, NO_PLAYER, NULL, false, pCapital, getDomainType()==DOMAIN_SEA, true, false, NO_YIELD, this);
 			}
 		}
-		// global yields, no longer (27/12/2025) scaling with era 
+		// global yields
 		GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_LEVEL_UP, false, NO_GREATPERSON, NO_BUILDING, (getLevel() - 1), false, NO_PLAYER, NULL, false, NULL, getDomainType() == DOMAIN_SEA, true, false, NO_YIELD, this);
 
 		if (MOD_EVENTS_UNIT_UPGRADES)
@@ -13945,9 +13953,9 @@ int CvUnit::upgradePrice(UnitTypes eUnit) const
 
 	// Upgrades for later units are more expensive
 	const TechTypes eTech = (TechTypes) pkUnitInfo->GetPrereqAndTech();
-	CvTechEntry* pkTechInfo = GC.getTechInfo(eTech);
-	if(pkTechInfo)
+	if (eTech != NO_TECH)
 	{
+		CvTechEntry* pkTechInfo = GC.getTechInfo(eTech);
 		const EraTypes eUpgradeEra = (EraTypes) pkTechInfo->GetEra();
 
 		double fMultiplier = 1.0f;

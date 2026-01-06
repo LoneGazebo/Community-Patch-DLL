@@ -10239,7 +10239,8 @@ int CvLuaPlayer::lChangeNumResourceTotal(lua_State* L)
 	const ResourceTypes eResource = (ResourceTypes)lua_tointeger(L, 2);
 	const int iChange = lua_tointeger(L, 3);
 	const bool bFromBuilding = luaL_optbool(L, 4, false);
-	pkPlayer->changeNumResourceTotal(eResource, iChange, bFromBuilding);
+	const bool bFromEvent = luaL_optbool(L, 5, false);
+	pkPlayer->changeNumResourceTotal(eResource, iChange, bFromBuilding, true, bFromEvent);
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -10260,7 +10261,6 @@ int CvLuaPlayer::lGetResourceExport(lua_State* L)
 int CvLuaPlayer::lGetResourceImport(lua_State* L)
 {
 	//we have to sum up several types of import here
-	//everything except GetResourceFromMinors because that has it's own method
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	const ResourceTypes eResource = (ResourceTypes) lua_tointeger(L, 2);
 
