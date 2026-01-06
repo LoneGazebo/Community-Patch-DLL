@@ -495,7 +495,7 @@ public:
 	void setIsCity(bool bValue, int iCityID, int iWorkRange);
 	ImprovementTypes getImprovementType() const;
 	ImprovementTypes getImprovementTypeNeededToImproveResource(PlayerTypes ePlayer = NO_PLAYER, bool bTestPlotOwner = true, bool bIgnoreSpecialImprovements = false);
-	void setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder = NO_PLAYER);
+	void setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder = NO_PLAYER, bool bGiftFromMajor = false);
 	bool IsImprovementEmbassy() const;
 	void SetImprovementEmbassy(bool bEmbassy);
 	bool IsImprovementPassable() const;

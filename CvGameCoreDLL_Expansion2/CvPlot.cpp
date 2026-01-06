@@ -455,16 +455,16 @@ void CvPlot::doImprovementUpgrade()
 {
 	if(getImprovementType() != NO_IMPROVEMENT)
 	{
-		ImprovementTypes eImprovementUpdrade = (ImprovementTypes)GC.getImprovementInfo(getImprovementType())->GetImprovementUpgrade();
-		if(eImprovementUpdrade != NO_IMPROVEMENT)
+		ImprovementTypes eImprovementUpgrade = (ImprovementTypes)GC.getImprovementInfo(getImprovementType())->GetImprovementUpgrade();
+		if(eImprovementUpgrade != NO_IMPROVEMENT)
 		{
-			if(isBeingWorked() || GC.getImprovementInfo(eImprovementUpdrade)->IsOutsideBorders())
+			if(isBeingWorked() || GC.getImprovementInfo(eImprovementUpgrade)->IsOutsideBorders())
 			{
 				changeUpgradeProgress(GET_PLAYER(getOwner()).getImprovementUpgradeRate());
 
 				if(getUpgradeProgress() >= (GC.getGame().getImprovementUpgradeTime(getImprovementType(), this)) * 100)
 				{
-					setImprovementType(eImprovementUpdrade, GetPlayerThatBuiltImprovement());
+					setImprovementType(eImprovementUpgrade, GetPlayerThatBuiltImprovement());
 				}
 			}
 		}
@@ -7949,7 +7949,7 @@ void CvPlot::setIsCity(bool bValue, int iCityID, int iWorkRange)
 }
 
 //	--------------------------------------------------------------------------------
-void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder)
+void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder, bool bGiftFromMajor)
 {
 	int iI = 0;
 	ImprovementTypes eOldImprovement = getImprovementType();
@@ -7980,11 +7980,6 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 		if (eResourceType == (ResourceTypes)GC.getInfoTypeForString("RESOURCE_MAIZE", true) && iContinentType != 1) {
 			SetContinentType(1);
 		}
-	}
-
-	if (eBuilder != NO_PLAYER && eNewValue != NO_IMPROVEMENT && getOwner() != NO_PLAYER && GET_PLAYER(getOwner()).isMinorCiv() && GET_PLAYER(eBuilder).isMajorCiv() && !GC.getImprovementInfo(eNewValue)->IsCreatedByGreatPerson() && !GC.getImprovementInfo(eNewValue)->IsRemovesResource())
-	{
-		bNewImprovementGiftFromMajor = true;
 	}
 
 	bool bArchaeologyChoicePending = false;
@@ -8561,7 +8556,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 					ResourceTypes eResource = getResourceType(getTeam()); // can we see the resource?
 					if (eResource != NO_RESOURCE)
 					{
-						if (IsResourceImprovedForOwner(bNewImprovementGiftFromMajor) && !isCity())
+						if (IsResourceImprovedForOwner(bGiftFromMajor) && !isCity())
 						{
 							owningPlayer.addResourcesOnPlotToTotal(this, false);
 							owningPlayer.removeResourcesOnPlotFromUnimproved(this, false);
@@ -8575,11 +8570,11 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 					else
 					{
 						// if this is a gift from a major, add the resource even if we can't see it yet
-						if (bNewImprovementGiftFromMajor && getResourceType() != NO_RESOURCE)
+						if (bGiftFromMajor && getResourceType() != NO_RESOURCE)
 						{
-							if (IsResourceImprovedForOwner(bNewImprovementGiftFromMajor))
+							if (IsResourceImprovedForOwner(bGiftFromMajor))
 							{
-								owningPlayer.addResourcesOnPlotToTotal(this, false, bNewImprovementGiftFromMajor);
+								owningPlayer.addResourcesOnPlotToTotal(this, false, bGiftFromMajor);
 							}
 						}
 					}
@@ -8746,7 +8741,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 			SetPlayerThatBuiltImprovement(eBuilder);
 		}
 
-		SetImprovedByGiftFromMajor(bNewImprovementGiftFromMajor); // Assumes that only one tile improvement can be on this plot at a time
+		SetImprovedByGiftFromMajor(bGiftFromMajor); // Assumes that only one tile improvement can be on this plot at a time
 
 		if(GC.getGame().isDebugMode())
 		{
