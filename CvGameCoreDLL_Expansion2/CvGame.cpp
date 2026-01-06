@@ -986,13 +986,161 @@ void CvGame::DoGameStarted()
 	GET_PLAYER(getActivePlayer()).GetUnitCycler().Rebuild();
 
 	CvPlayerManager::Refresh(false);
+
+	// Initialize the LLM pipe and send the initial turn_start
+	m_kGameStatePipe.Initialize();
+	SendTurnStartToPipe();
 }
 
+//	--------------------------------------------------------------------------------
+void CvGame::SendTurnStartToPipe()
+{
+	if (!m_kGameStatePipe.IsRunning())
+		return;
 
+	PlayerTypes eActivePlayer = getActivePlayer();
+	const CvPlayer& kActivePlayer = GET_PLAYER(eActivePlayer);
+
+	std::ostringstream payload;
+	payload << "{\"type\":\"turn_start\"";
+	payload << ",\"player_id\":" << static_cast<int>(eActivePlayer);
+	payload << ",\"turn\":" << getGameTurn();
+	if (eActivePlayer != NO_PLAYER)
+	{
+		std::string playerName = kActivePlayer.getName();
+		payload << ",\"player_name\":\"" << PipeJson::Escape(playerName) << "\"";
+		payload << ",\"is_human\":" << (kActivePlayer.isHuman() ? "true" : "false");
+	}
+	payload << ",\"state\":{";
+	payload << "\"turn\":" << getGameTurn();
+	payload << ",\"playersAlive\":" << countCivPlayersAlive();
+	payload << ",\"civsEver\":" << countCivPlayersEverAlive();
+	payload << "}}";
+
+	m_kGameStatePipe.SendMessage(payload.str());
+	m_kGameStatePipe.Log("Sent turn_start for turn %d, player %d", getGameTurn(), static_cast<int>(eActivePlayer));
+}
+
+//	--------------------------------------------------------------------------------
+void CvGame::SendTurnCompleteToPipe()
+{
+	if (!m_kGameStatePipe.IsRunning())
+		return;
+
+	PlayerTypes eActivePlayer = getActivePlayer();
+	const CvPlayer& kActivePlayer = GET_PLAYER(eActivePlayer);
+
+	std::ostringstream payload;
+	payload << "{\"type\":\"turn_complete\"";
+	payload << ",\"turn\":" << getGameTurn();
+	payload << ",\"player_id\":" << static_cast<int>(eActivePlayer);
+	if (eActivePlayer != NO_PLAYER)
+	{
+		std::string playerName = kActivePlayer.getName();
+		payload << ",\"player_name\":\"" << PipeJson::Escape(playerName) << "\"";
+		payload << ",\"is_human\":" << (kActivePlayer.isHuman() ? "true" : "false");
+	}
+	payload << ",\"state\":{";
+	payload << "\"turn\":" << getGameTurn();
+	payload << ",\"playersAlive\":" << countCivPlayersAlive();
+	payload << ",\"civsEver\":" << countCivPlayersEverAlive();
+	payload << "}}";
+
+	m_kGameStatePipe.SendMessage(payload.str());
+	m_kGameStatePipe.Log("Sent turn_complete for turn %d, player %d", getGameTurn(), static_cast<int>(eActivePlayer));
+}
+
+//	--------------------------------------------------------------------------------
+void CvGame::HandlePipeCommand(const std::string& command)
+{
+	// Parse the JSON command and execute it
+	// Expected format: {"type":"<command_type>", ...}
+
+	std::string msgType = PipeJson::GetString(command, "type");
+	std::string requestId = PipeJson::GetString(command, "request_id");
+
+	m_kGameStatePipe.Log("HandlePipeCommand: type=%s, request_id=%s", msgType.c_str(), requestId.c_str());
+
+	if (msgType == "end_turn")
+	{
+		// End the current turn
+		m_kGameStatePipe.Log("Received end_turn command");
+
+		// Check if we can end the turn
+		if (canDoControl(CONTROL_ENDTURN))
+		{
+			doControl(CONTROL_ENDTURN);
+
+			std::ostringstream response;
+			response << "{\"type\":\"turn_end_ack\"";
+			response << ",\"turn\":" << getGameTurn();
+			response << ",\"player_id\":" << static_cast<int>(getActivePlayer());
+			response << "}";
+			m_kGameStatePipe.SendMessage(response.str());
+		}
+		else
+		{
+			std::ostringstream response;
+			response << "{\"type\":\"error\"";
+			response << ",\"code\":\"CANNOT_END_TURN\"";
+			response << ",\"message\":\"Cannot end turn at this time\"";
+			if (!requestId.empty())
+			{
+				response << ",\"request_id\":\"" << PipeJson::Escape(requestId) << "\"";
+			}
+			response << "}";
+			m_kGameStatePipe.SendMessage(response.str());
+		}
+	}
+	else if (msgType == "get_state")
+	{
+		// Return current game state
+		std::ostringstream response;
+		response << "{\"type\":\"state_refresh\"";
+		if (!requestId.empty())
+		{
+			response << ",\"request_id\":\"" << PipeJson::Escape(requestId) << "\"";
+		}
+		response << ",\"state\":{";
+		response << "\"turn\":" << getGameTurn();
+		response << ",\"playersAlive\":" << countCivPlayersAlive();
+		response << ",\"civsEver\":" << countCivPlayersEverAlive();
+		response << ",\"activePlayer\":" << static_cast<int>(getActivePlayer());
+		response << "}}";
+		m_kGameStatePipe.SendMessage(response.str());
+	}
+	else if (msgType.empty())
+	{
+		// Invalid JSON or missing type
+		std::ostringstream response;
+		response << "{\"type\":\"error\"";
+		response << ",\"code\":\"INVALID_JSON\"";
+		response << ",\"message\":\"Missing or invalid 'type' field\"";
+		response << "}";
+		m_kGameStatePipe.SendMessage(response.str());
+	}
+	else
+	{
+		// Unknown command type
+		std::ostringstream response;
+		response << "{\"type\":\"error\"";
+		response << ",\"code\":\"UNKNOWN_MESSAGE_TYPE\"";
+		response << ",\"message\":\"Unknown message type: " << PipeJson::Escape(msgType) << "\"";
+		if (!requestId.empty())
+		{
+			response << ",\"request_id\":\"" << PipeJson::Escape(requestId) << "\"";
+		}
+		response << "}";
+		m_kGameStatePipe.SendMessage(response.str());
+	}
+}
 
 //	--------------------------------------------------------------------------------
 void CvGame::uninit()
 {
+	// Shutdown the LLM pipe before anything else
+	m_kGameStatePipe.Shutdown();
+
 	CvGoodyHuts::Uninit();
 	CvBarbarians::Uninit();
 
@@ -1490,6 +1638,10 @@ bool ExternalPause()
 //	---------------------------------------------------------------------------
 void CvGame::update()
 {
+	// Process any pending pipe commands from the LLM orchestrator
+	// This happens FIRST, before any blocking checks, so commands are always processed
+	m_kGameStatePipe.ProcessCommands(*this);
+
 	if(IsWaitingForBlockingInput())
 	{
 		if(!GC.GetEngineUserInterface()->isDiploActive())
@@ -8387,6 +8539,9 @@ void CvGame::doTurn()
 	// old turn ends here, new turn starts
 	//-------------------------------------------------------------
 
+	// Notify LLM pipe that turn is complete (before incrementing turn number)
+	SendTurnCompleteToPipe();
+
 	OutputDebugString(CvString::format("Turn\t%03i\tTime\t%012u\tThread\t%d\n", getGameTurn(), GetTickCount(), GetCurrentThreadId()));
 	incrementGameTurn();
 	incrementElapsedGameTurns();
@@ -8521,6 +8676,9 @@ void CvGame::doTurn()
 			gGlobals.getDLLIFace()->sendChat(strWarningText, CHATTARGET_ALL, NO_PLAYER);
 		}
 	}
+
+	// Notify LLM pipe that new turn has started
+	SendTurnStartToPipe();
 }
 
 //	--------------------------------------------------------------------------------

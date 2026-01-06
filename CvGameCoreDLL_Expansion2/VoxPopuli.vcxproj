@@ -106,7 +106,7 @@
       <PrecompiledHeaderFile>CvGameCoreDLLPCH.h</PrecompiledHeaderFile>
       <Optimization>Full</Optimization>
       <AdditionalOptions>/Zm300 %(AdditionalOptions)</AdditionalOptions>
-      <WholeProgramOptimization>true</WholeProgramOptimization>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
     </ClCompile>
     <Link>
       <TargetMachine>MachineX86</TargetMachine>
@@ -136,6 +136,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="CustomMods.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CvGameCoreDLLPCH.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="GameStatePipe.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CvGameCoreDLLPCH.h</PrecompiledHeaderFile>
     </ClCompile>
@@ -848,6 +852,7 @@
     <ClInclude Include="CvFlavorManager.h" />
     <ClInclude Include="CvFractal.h" />
     <ClInclude Include="CvGame.h" />
+    <ClInclude Include="GameStatePipe.h" />
     <ClInclude Include="CvGameCoreDLL.h" />
     <ClInclude Include="CvGameCoreDLLPCH.h" />
     <ClInclude Include="CvGameCoreEnums.h" />

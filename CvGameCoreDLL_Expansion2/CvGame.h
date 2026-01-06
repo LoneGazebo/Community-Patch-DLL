@@ -19,6 +19,7 @@
 #include "CvDistanceMap.h"
 #include "CvDealClasses.h"
 #include "CvEnumMap.h"
+#include "GameStatePipe.h"
 
 class CvPlot;
 class CvCity;
@@ -67,6 +68,12 @@ public:
 
 	void update();
 	void updateScore(bool bForce = false);
+
+	// LLM Pipe Integration
+	void HandlePipeCommand(const std::string& command);
+	void SendTurnStartToPipe();
+	void SendTurnCompleteToPipe();
+	GameStatePipe& GetGameStatePipe() { return m_kGameStatePipe; }
 
 	int GetMapScoreMod() const;
 
@@ -975,6 +982,9 @@ protected:
 
 	CvDistanceMapByPathLength m_cityDistancePathLength;
 	CvDistanceMapByPlots m_cityDistancePlots;
+
+	// LLM Pipe Integration
+	GameStatePipe m_kGameStatePipe;
 
 	//----------------------------------------------------------------
 

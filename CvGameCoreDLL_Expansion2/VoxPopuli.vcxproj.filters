@@ -40,6 +40,7 @@
     <ClCompile Include="CvFlavorManager.cpp" />
     <ClCompile Include="CvFractal.cpp" />
     <ClCompile Include="CvGame.cpp" />
+    <ClCompile Include="GameStatePipe.cpp" />
     <ClCompile Include="CvGameCoreDLL.cpp" />
     <ClCompile Include="CvGameCoreEnumSerialization.cpp" />
     <ClCompile Include="CvGameCoreStructs.cpp" />
@@ -356,6 +357,7 @@
     <ClInclude Include="CvFlavorManager.h" />
     <ClInclude Include="CvFractal.h" />
     <ClInclude Include="CvGame.h" />
+    <ClInclude Include="GameStatePipe.h" />
     <ClInclude Include="CvGameCoreDLL.h" />
     <ClInclude Include="CvGameCoreDLLPCH.h" />
     <ClInclude Include="CvGameCoreEnums.h" />
