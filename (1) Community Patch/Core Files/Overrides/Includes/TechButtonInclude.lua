@@ -167,7 +167,6 @@ function AddSmallButtonsToTechButton(buttonStack, kTechInfo, iButtonCount, iText
 
 	local tPediaSearchStrings = {};
 	local function GetTechPedia(_, _, button)
-		print("TechButton seaerching".. tostring(button))
 		Events.SearchForPediaEntry(tPediaSearchStrings[tostring(button)]);
 	end
 
