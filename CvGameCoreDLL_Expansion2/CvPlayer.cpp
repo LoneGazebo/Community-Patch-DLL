@@ -38615,8 +38615,7 @@ void CvPlayer::changeResourceFromGP(ResourceTypes eIndex, byte iChange)
 	if (iChange != 0)
 	{
 		m_aiNumResourceFromGP[eIndex] = m_aiNumResourceFromGP[eIndex] + iChange;
-		if (iChange > 0)
-			CheckForLuxuryResourceGainInstantYields(eIndex);
+		CheckForLuxuryResourceGainInstantYields(eIndex);
 	}
 }
 

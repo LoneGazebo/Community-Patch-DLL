@@ -12914,7 +12914,7 @@ int CvCity::getProductionModifier(UnitTypes eUnit, CvString* toolTipSink, bool b
 			if (iTempMod != 0)
 			{
 				iMultiplier += iTempMod;
-				if (toolTipSink && iTempMod)
+				if (toolTipSink)
 				{
 					GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_MILITARY_UNITPROMOTION", iTempMod);
 				}
@@ -13113,7 +13113,7 @@ int CvCity::getProductionModifier(BuildingTypes eBuilding, CvString* toolTipSink
 			if (iTempMod != 0)
 			{
 				iMultiplier += iTempMod;
-				if (toolTipSink && iTempMod)
+				if (toolTipSink)
 				{
 					GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_WONDER_UNITPROMOTION", iTempMod);
 				}
@@ -13153,7 +13153,7 @@ int CvCity::getProductionModifier(BuildingTypes eBuilding, CvString* toolTipSink
 	if (iTempMod != 0)
 	{
 		iMultiplier += iTempMod;
-		if (toolTipSink && iTempMod)
+		if (toolTipSink)
 		{
 			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_BUILDING_POLICY", iTempMod);
 		}
@@ -13164,7 +13164,7 @@ int CvCity::getProductionModifier(BuildingTypes eBuilding, CvString* toolTipSink
 	if (iTempMod != 0)
 	{
 		iMultiplier += iTempMod;
-		if (toolTipSink && iTempMod)
+		if (toolTipSink)
 		{
 			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_CAPITAL_BUILDING_TRAIT", iTempMod);
 		}
@@ -13272,7 +13272,7 @@ int CvCity::getProductionModifier(BuildingTypes eBuilding, CvString* toolTipSink
 			if (iTempMod != 0)
 			{
 				iMultiplier += iTempMod;
-				if (toolTipSink && iTempMod)
+				if (toolTipSink)
 				{
 					GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_WONDER_TO_BUILDING_FROM_UNIT_TRAIT", iTempMod);
 				}
@@ -13648,10 +13648,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			{
 				if (pkCorporationInfo->GetHeadquartersBuildingClass() == eBuildingClass)
 				{
-					if (iChange > 0)
-					{
-						GC.getGame().GetGameCorporations()->FoundCorporation(getOwner(), eCorporation, this);
-					}
+					GC.getGame().GetGameCorporations()->FoundCorporation(getOwner(), eCorporation, this);
 				}
 			}
 
@@ -13873,21 +13870,18 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 				}
 			}
 
-			if (iChange > 0)
+			if (!IsBuildingConstructed(eBuildingClass))
 			{
-				if (!IsBuildingConstructed(eBuildingClass))
+				SetBuildingConstructed(eBuildingClass, true);
+				GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_INSTANT, false, NO_GREATPERSON, eBuilding, 0, false, NO_PLAYER, NULL, false, this);
+				
+				if (pBuildingInfo->GetInstantReligionPressure() > 0) 
 				{
-					SetBuildingConstructed(eBuildingClass, true);
-					GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_INSTANT, false, NO_GREATPERSON, eBuilding, 0, false, NO_PLAYER, NULL, false, this);
-					
-					if (pBuildingInfo->GetInstantReligionPressure() > 0) 
+					ReligionTypes eReligion = GET_PLAYER(getOwner()).getCapitalCity()->GetCityReligions()->GetReligiousMajority();
+					if (eReligion > RELIGION_PANTHEON)
 					{
-						ReligionTypes eReligion = GET_PLAYER(getOwner()).getCapitalCity()->GetCityReligions()->GetReligiousMajority();
-						if (eReligion > RELIGION_PANTHEON)
-						{
-							GetCityReligions()->AddReligiousPressure(FOLLOWER_CHANGE_INSTANT_YIELD, eReligion, pBuildingInfo->GetInstantReligionPressure());
-							GetCityReligions()->RecomputeFollowers(FOLLOWER_CHANGE_INSTANT_YIELD);
-						}
+						GetCityReligions()->AddReligiousPressure(FOLLOWER_CHANGE_INSTANT_YIELD, eReligion, pBuildingInfo->GetInstantReligionPressure());
+						GetCityReligions()->RecomputeFollowers(FOLLOWER_CHANGE_INSTANT_YIELD);
 					}
 				}
 			}
