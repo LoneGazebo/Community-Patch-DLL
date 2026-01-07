@@ -322,6 +322,7 @@ GameStatePipe::GameStatePipe()
 	, m_hStopEvent(NULL)
 	, m_bRunning(false)
 	, m_bConnected(false)
+	, m_bSentInitialTurnStart(false)
 	, m_hGameWnd(NULL)
 	, m_pfnOriginalWndProc(0)
 	, m_pGame(NULL)
@@ -348,6 +349,7 @@ void GameStatePipe::Initialize(CvGame* pGame)
 	// Store game pointer and set static instance for WndProc
 	m_pGame = pGame;
 	s_pInstance = this;
+	m_bSentInitialTurnStart = false;  // Reset so initial turn_start is sent on connect
 
 	// Create stop event
 	m_hStopEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
@@ -526,6 +528,18 @@ LRESULT CALLBACK GameStatePipe::SubclassWndProc(HWND hWnd, UINT uMsg, WPARAM wPa
 		return 0;
 	}
 
+	// Handle pipe connected notification - send initial turn_start
+	if (uMsg == WM_PIPE_CONNECTED)
+	{
+		if (s_pInstance && s_pInstance->m_pGame && !s_pInstance->m_bSentInitialTurnStart)
+		{
+			s_pInstance->m_bSentInitialTurnStart = true;
+			s_pInstance->m_pGame->SendTurnStartToPipe();
+			s_pInstance->LogMessage("GameStatePipe: Sent initial turn_start after connection");
+		}
+		return 0;
+	}
+
 	// Pass all other messages to the original window proc
 	if (s_pInstance && s_pInstance->m_pfnOriginalWndProc)
 	{
@@ -540,6 +554,14 @@ void GameStatePipe::NotifyMainThread()
 	if (m_hGameWnd)
 	{
 		PostMessageA(m_hGameWnd, WM_PIPE_COMMAND_READY, 0, 0);
+	}
+}
+
+void GameStatePipe::NotifyConnected()
+{
+	if (m_hGameWnd)
+	{
+		PostMessageA(m_hGameWnd, WM_PIPE_CONNECTED, 0, 0);
 	}
 }
 
@@ -565,6 +587,8 @@ void GameStatePipe::PipeThreadMain()
 			if (ConnectPipe())
 			{
 				LogMessage("GameStatePipe: Connected to pipe server");
+				// Notify main thread to send initial turn_start
+				NotifyConnected();
 			}
 			else
 			{
@@ -792,7 +816,7 @@ void CommandQueue::Clear() {}
 
 GameStatePipe::GameStatePipe() {}
 GameStatePipe::~GameStatePipe() {}
-void GameStatePipe::Initialize() {}
+void GameStatePipe::Initialize(CvGame*) {}
 void GameStatePipe::Shutdown() {}
 void GameStatePipe::ProcessCommands(CvGame&) {}
 bool GameStatePipe::SendMessage(const std::string&) { return false; }

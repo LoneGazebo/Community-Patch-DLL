@@ -59,8 +59,9 @@ private:
 #endif
 };
 
-// Custom message for waking up the main thread
+// Custom messages for waking up the main thread
 #define WM_PIPE_COMMAND_READY (WM_USER + 0x1337)
+#define WM_PIPE_CONNECTED     (WM_USER + 0x1338)
 
 // Main pipe communication class
 class GameStatePipe
@@ -105,12 +106,16 @@ private:
 	// Notify main thread that commands are waiting
 	void NotifyMainThread();
 
+	// Notify main thread that pipe connected (for initial turn_start)
+	void NotifyConnected();
+
 	// State
 	HANDLE m_hPipe;
 	HANDLE m_hThread;
 	HANDLE m_hStopEvent;
 	volatile bool m_bRunning;
 	volatile bool m_bConnected;
+	volatile bool m_bSentInitialTurnStart;  // Track if initial turn_start was sent
 
 	// Window subclassing state
 	HWND m_hGameWnd;

@@ -987,9 +987,8 @@ void CvGame::DoGameStarted()
 
 	CvPlayerManager::Refresh(false);
 
-	// Initialize the LLM pipe and send the initial turn_start
+	// Initialize the LLM pipe (initial turn_start is sent after pipe connects)
 	m_kGameStatePipe.Initialize(this);
-	SendTurnStartToPipe();
 }
 
 //	--------------------------------------------------------------------------------
