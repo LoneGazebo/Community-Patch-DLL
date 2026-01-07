@@ -5076,65 +5076,62 @@ void CvPlayer::UpdateBestMilitaryCities()
 	{
 		int iBestDomainValue = 0;
 		DomainTypes eTestDomain = (DomainTypes)iDomainLoop;
-		if (eTestDomain != NO_DOMAIN)
+		CvCity* pBestDomainCity = NULL;
+		for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 		{
-			CvCity* pBestDomainCity = NULL;
-			for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+			//Production is king, and also our base value.
+			int iDomainValue = (pLoopCity->getRawProductionPerTurnTimes100() / 500);
+
+			//Also get our XP boosts local to this city.
+			iDomainValue += pLoopCity->getFreeExperience();
+			iDomainValue += pLoopCity->GetExperienceFromPreviousGoldenAges();
+
+			if (pLoopCity->getDomainFreeExperience(eTestDomain) > 0)
 			{
-				//Production is king, and also our base value.
-				int iDomainValue = (pLoopCity->getRawProductionPerTurnTimes100() / 500);
+				iDomainValue += max(1, pLoopCity->getDomainFreeExperience(eTestDomain));
+			}
+			if (pLoopCity->getDomainFreeExperienceFromGreatWorks(eTestDomain) > 0)
+			{
+				iDomainValue += max(1, pLoopCity->getDomainFreeExperienceFromGreatWorks(eTestDomain));
+			}
+			if (pLoopCity->getDomainFreeExperienceFromGreatWorksGlobal(eTestDomain) > 0)
+			{
+				iDomainValue += max(1, pLoopCity->getDomainFreeExperienceFromGreatWorksGlobal(eTestDomain));
+			}
+			if (pLoopCity->getDomainProductionModifier(eTestDomain) > 0)
+			{
+				iDomainValue += max(1, pLoopCity->getDomainProductionModifier(eTestDomain));
+			}
 
-				//Also get our XP boosts local to this city.
-				iDomainValue += pLoopCity->getFreeExperience();
-				iDomainValue += pLoopCity->GetExperienceFromPreviousGoldenAges();
-
-				if (pLoopCity->getDomainFreeExperience(eTestDomain) > 0)
+			//Let's try to synergize our domain and combat class productions in the same cities.
+			for (int iI = 0; iI < GC.getNumUnitCombatClassInfos(); iI++)
+			{
+				const UnitCombatTypes eUnitCombatClass = static_cast<UnitCombatTypes>(iI);
+				CvBaseInfo* pkUnitCombatClassInfo = GC.getUnitCombatClassInfo(eUnitCombatClass);
+				if (pkUnitCombatClassInfo)
 				{
-					iDomainValue += max(1, pLoopCity->getDomainFreeExperience(eTestDomain));
-				}
-				if (pLoopCity->getDomainFreeExperienceFromGreatWorks(eTestDomain) > 0)
-				{
-					iDomainValue += max(1, pLoopCity->getDomainFreeExperienceFromGreatWorks(eTestDomain));
-				}
-				if (pLoopCity->getDomainFreeExperienceFromGreatWorksGlobal(eTestDomain) > 0)
-				{
-					iDomainValue += max(1, pLoopCity->getDomainFreeExperienceFromGreatWorksGlobal(eTestDomain));
-				}
-				if (pLoopCity->getDomainProductionModifier(eTestDomain) > 0)
-				{
-					iDomainValue += max(1, pLoopCity->getDomainProductionModifier(eTestDomain));
-				}
-
-				//Let's try to synergize our domain and combat class productions in the same cities.
-				for (int iI = 0; iI < GC.getNumUnitCombatClassInfos(); iI++)
-				{
-					const UnitCombatTypes eUnitCombatClass = static_cast<UnitCombatTypes>(iI);
-					CvBaseInfo* pkUnitCombatClassInfo = GC.getUnitCombatClassInfo(eUnitCombatClass);
-					if (pkUnitCombatClassInfo)
+					if (GetBestMilitaryCity(eUnitCombatClass, NO_DOMAIN) == pLoopCity)
 					{
-						if (GetBestMilitaryCity(eUnitCombatClass, NO_DOMAIN) == pLoopCity)
-						{
-							iDomainValue *= 2;
-						}
+						iDomainValue *= 2;
 					}
 				}
-				if (iDomainValue > iBestDomainValue)
-				{
-					iBestDomainValue = iDomainValue;
-					pBestDomainCity = pLoopCity;
-				}
 			}
-			if (pBestDomainCity != NULL && pBestDomainCity != GetBestMilitaryCity(NO_UNITCOMBAT, eTestDomain))
+			if (iDomainValue > iBestDomainValue)
 			{
-				if (GC.getLogging() && GC.getAILogging())
-				{
-					CvString strCity = pBestDomainCity->getName();
-					CvString strLogString;
-					strLogString.Format("***************** New Military Domain City Chosen for domain %d: %s. ****************", eTestDomain, strCity.c_str());
-					GetHomelandAI()->LogHomelandMessage(strLogString);
-				}
-				SetBestMilitaryCityDomain(pBestDomainCity->GetID(), eTestDomain);
+				iBestDomainValue = iDomainValue;
+				pBestDomainCity = pLoopCity;
 			}
+		}
+		if (pBestDomainCity != NULL && pBestDomainCity != GetBestMilitaryCity(NO_UNITCOMBAT, eTestDomain))
+		{
+			if (GC.getLogging() && GC.getAILogging())
+			{
+				CvString strCity = pBestDomainCity->getName();
+				CvString strLogString;
+				strLogString.Format("***************** New Military Domain City Chosen for domain %d: %s. ****************", eTestDomain, strCity.c_str());
+				GetHomelandAI()->LogHomelandMessage(strLogString);
+			}
+			SetBestMilitaryCityDomain(pBestDomainCity->GetID(), eTestDomain);
 		}
 	}
 }
