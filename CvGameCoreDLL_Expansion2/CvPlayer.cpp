@@ -11022,10 +11022,6 @@ void CvPlayer::chooseTech(int iDiscover, const char* strText, TechTypes iTechJus
 	if(iDiscover > 0)
 	{
 		SetNumFreeTechs(GetNumFreeTechs()+iDiscover);
-	}
-
-	if(iDiscover > 0)
-	{
 		CvNotifications* pNotifications = GetNotifications();
 		if(pNotifications)
 		{

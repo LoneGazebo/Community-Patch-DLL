@@ -5843,10 +5843,7 @@ bool CvUnit::CanAutomate(AutomateTypes eAutomate, bool bTestVisibility) const
 			{
 				return false;
 			}
-		}
 
-		if (!bTestVisibility)
-		{
 			if (/*0*/ GD_INT_GET(UNIT_AUTO_EXTRA_AUTOMATIONS_DISABLED) == 1)
 			{
 				return false;
@@ -5878,10 +5875,7 @@ bool CvUnit::CanAutomate(AutomateTypes eAutomate, bool bTestVisibility) const
 			{
 				return false;
 			}
-		}
 
-		if (!bTestVisibility)
-		{
 			if (/*0*/ GD_INT_GET(UNIT_AUTO_EXTRA_AUTOMATIONS_DISABLED) == 1)
 			{
 				return false;
@@ -5914,10 +5908,7 @@ bool CvUnit::CanAutomate(AutomateTypes eAutomate, bool bTestVisibility) const
 			{
 				return false;
 			}
-		}
 
-		if (!bTestVisibility)
-		{
 			if (/*0*/ GD_INT_GET(UNIT_AUTO_EXTRA_AUTOMATIONS_DISABLED) == 1)
 			{
 				return false;
