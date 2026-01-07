@@ -45725,11 +45725,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(CvUnit* pUnit, CvAIOperation* pOpToIgnore, b
 	for(int iPlotLoop = 0; iPlotLoop < iNumPlots; iPlotLoop++)
 	{
 		CvPlot* pPlot = kMap.plotByIndexUnchecked(iPlotLoop);
-
-		if(!pPlot)
-		{
-			continue;
-		}
+		ASSERT(pPlot != NULL, "plotByIndexUnchecked returned null - invalid plot index");
 
 		if (bLogging)
 		{
@@ -46722,7 +46718,8 @@ CvPlot* CvPlayer::GetClosestGoodyPlot(bool bStopAfterFindingFirst)
 	for(int i = 0; i < GC.getMap().numPlots(); i++)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(i);
-		if(!pPlot || !pPlot->isGoody(getTeam()))
+		ASSERT(pPlot != NULL, "plotByIndexUnchecked returned null - invalid plot index");
+		if(!pPlot->isGoody(getTeam()))
 		{
 			continue;
 		}
@@ -46788,10 +46785,7 @@ bool CvPlayer::GetAnyUnitHasOrderToGoody()
 	for(int i = 0; i < GC.getMap().numPlots(); i++)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(i);
-		if(!pPlot)
-		{
-			continue;
-		}
+		ASSERT(pPlot != NULL, "plotByIndexUnchecked returned null - invalid plot index");
 
 		if(!pPlot->isGoody(getTeam()))
 		{

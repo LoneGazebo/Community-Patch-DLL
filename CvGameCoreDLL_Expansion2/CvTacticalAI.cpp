@@ -3488,7 +3488,8 @@ void CvTacticalAI::ExecuteLandingOperation(CvPlot* pTargetPlot)
 		for (ReachablePlots::iterator tile=eligiblePlots.begin(); tile!=eligiblePlots.end(); ++tile)
 		{
 			CvPlot* pEvalPlot = GC.getMap().plotByIndexUnchecked(tile->iPlotIndex);
-			if (!pEvalPlot || !pEvalPlot->isCoastalLand())
+			ASSERT(pEvalPlot != NULL, "plotByIndexUnchecked returned null - invalid plot index");
+			if (!pEvalPlot->isCoastalLand())
 				continue;
 			
 			int iBonus = plotDistance(*pEvalPlot,*pTargetPlot) * (-10);
@@ -6600,8 +6601,7 @@ pair<int, int> TacticalAIHelpers::EstimateLocalUnitPower(const ReachablePlots& p
 	for (ReachablePlots::const_iterator it = plotsToCheck.begin(); it != plotsToCheck.end(); ++it)
 	{
 		CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
-		if (!pLoopPlot)
-			continue;
+		ASSERT(pLoopPlot != NULL, "plotByIndexUnchecked returned null - invalid plot index");
 
 		if (bMustBeVisibleToBoth && !(pLoopPlot->isVisible(eTeamA) && pLoopPlot->isVisible(eTeamB)))
 			continue;

@@ -3010,8 +3010,7 @@ priority_queue<SPlotWithScore> CvPlayerAI::GetBestCultureBombPlots(const UnitTyp
 		for (int iJ = 0; iJ < GC.getMap().numPlots(); iJ++)
 		{
 			CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iJ);
-			if (!pPlot)
-				continue;
+			ASSERT(pPlot != NULL, "plotByIndexUnchecked returned null - invalid plot index");
 
 			// Don't consider plots we already targeted
 			bool bTooClose = false;

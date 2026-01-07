@@ -2834,9 +2834,7 @@ bool CvHomelandAI::ExecuteExplorerMoves(CvUnit* pUnit)
 	for (ReachablePlots::iterator tile = eligiblePlots.begin(); tile != eligiblePlots.end(); ++tile)
 	{
 		CvPlot* pEvalPlot = GC.getMap().plotByIndexUnchecked(tile->iPlotIndex);
-
-		if (!pEvalPlot)
-			continue;
+		ASSERT(pEvalPlot != NULL, "plotByIndexUnchecked returned null - invalid plot index");
 
 		//we can pass through a minor's territory but we don't want to stay there (unless we're friends)
 		//this check shouldn't be necessary because of IsValidExplorerEndTurnPlot() but sometimes it is
