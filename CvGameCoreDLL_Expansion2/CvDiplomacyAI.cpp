@@ -24289,7 +24289,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMinorCiv(PlayerTypes ePlayer)
 		if (IsAtWar(ePlayer) || eOldApproach == CIV_APPROACH_WAR)
 		{
 			// Don't give this bias if the war is going poorly
-			if ((GetWarState(ePlayer) != NO_WAR_STATE_TYPE || GetWarState(ePlayer) > WAR_STATE_CALM) && !GetPlayer()->IsNoNewWars())
+			if (GetWarState(ePlayer) != NO_WAR_STATE_TYPE && !GetPlayer()->IsNoNewWars())
 			{
 				vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * 2;
 			}
