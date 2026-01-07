@@ -39,6 +39,14 @@
 * The log files will now be written to `My Games\Sid Meier's Civilization V\Logs`
   * Place them in a `.zip` file and attach them to your bug report!
 
+### To analyze crash dumps (minidumps)
+* When the game crashes, a minidump file is automatically generated in the game directory
+* Minidumps capture the state of the game at the moment of the crash
+* See the [Minidump Guide](docs/minidumps.md) for detailed information on:
+  * Locating and understanding minidump files
+  * Analyzing dumps with Visual Studio or WinDbg
+  * Submitting dumps with bug reports
+
 ### To debug the GameCoreDLL
 * Use Visual Studio to build the `DEBUG` configuration of the project (as opposed to the `RELEASE` config)
 * Place the generated `.dll` and `.pdb` file (from the `BuildOutput` folder) in the mods folder (Community Patch Core), replacing the dll there.
