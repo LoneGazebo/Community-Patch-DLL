@@ -3788,12 +3788,9 @@ int CvPlayerReligions::GetNumCitiesWithStateReligion(ReligionTypes eReligion)
 			CvCity* pLoopCity = NULL;
 			for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 			{
-				if(pLoopCity != NULL)
+				if(pLoopCity->GetCityReligions()->GetReligiousMajority() == GetStateReligion())
 				{
-					if(pLoopCity->GetCityReligions()->GetReligiousMajority() == GetStateReligion())
-					{
-						iNum++;
-					}
+					iNum++;
 				}
 			}
 		}
@@ -3804,12 +3801,9 @@ int CvPlayerReligions::GetNumCitiesWithStateReligion(ReligionTypes eReligion)
 			CvCity* pLoopCity = NULL;
 			for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 			{
-				if(pLoopCity != NULL)
+				if(pLoopCity->GetCityReligions()->GetReligiousMajority() == eReligion)
 				{
-					if(pLoopCity->GetCityReligions()->GetReligiousMajority() == eReligion)
-					{
-						iNum++;
-					}
+					iNum++;
 				}
 			}
 	}

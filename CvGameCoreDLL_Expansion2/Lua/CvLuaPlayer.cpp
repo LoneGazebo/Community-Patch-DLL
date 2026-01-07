@@ -18682,16 +18682,8 @@ int CvLuaPlayer::lGetRecentPlayerEventChoices(lua_State* L)
 					lua_setfield(L, t, "EventChoice");
 					lua_pushinteger(L, iDuration);
 					lua_setfield(L, t, "Duration");
-					if (bInstant)
-					{
-						lua_pushinteger(L, -1);
-						lua_setfield(L, t, "ParentEvent");
-					}
-					else
-					{
-						lua_pushinteger(L, eParentEvent);
-						lua_setfield(L, t, "ParentEvent");
-					}					
+					lua_pushinteger(L, -1);
+					lua_setfield(L, t, "ParentEvent");
 
 					lua_rawseti(L, -2, idx++);
 				}
@@ -18766,16 +18758,8 @@ int CvLuaPlayer::lGetRecentCityEventChoices(lua_State* L)
 						lua_setfield(L, t, "Duration");
 						lua_pushboolean(L, bEspionage);
 						lua_setfield(L, t, "Espionage");
-						if (bInstant)
-						{
-							lua_pushinteger(L, -1);
-							lua_setfield(L, t, "ParentEvent");
-						}
-						else
-						{
-							lua_pushinteger(L, eParentEvent);
-							lua_setfield(L, t, "ParentEvent");
-						}
+						lua_pushinteger(L, -1);
+						lua_setfield(L, t, "ParentEvent");
 						lua_pushinteger(L, pLoopCity->getX());
 						lua_setfield(L, t, "CityX");
 						lua_pushinteger(L, pLoopCity->getY());
