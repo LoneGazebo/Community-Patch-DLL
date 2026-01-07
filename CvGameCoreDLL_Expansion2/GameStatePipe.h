@@ -59,6 +59,9 @@ private:
 #endif
 };
 
+// Custom message for waking up the main thread
+#define WM_PIPE_COMMAND_READY (WM_USER + 0x1337)
+
 // Main pipe communication class
 class GameStatePipe
 {
@@ -66,8 +69,8 @@ public:
 	GameStatePipe();
 	~GameStatePipe();
 
-	// Lifecycle
-	void Initialize();
+	// Lifecycle - pass CvGame pointer for window proc callback
+	void Initialize(CvGame* pGame);
 	void Shutdown();
 
 	// Called from main thread during game update to process queued commands
@@ -89,10 +92,18 @@ private:
 	static DWORD WINAPI PipeThreadProc(LPVOID lpParam);
 	void PipeThreadMain();
 
+	// Window subclassing for main thread wakeup
+	static LRESULT CALLBACK SubclassWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+	bool SubclassGameWindow();
+	void UnsubclassGameWindow();
+
 	// Pipe operations (called from pipe thread)
 	bool ConnectPipe();
 	void DisconnectPipe();
 	bool ReadFromPipe();
+
+	// Notify main thread that commands are waiting
+	void NotifyMainThread();
 
 	// State
 	HANDLE m_hPipe;
@@ -100,6 +111,14 @@ private:
 	HANDLE m_hStopEvent;
 	volatile bool m_bRunning;
 	volatile bool m_bConnected;
+
+	// Window subclassing state
+	HWND m_hGameWnd;
+	LONG_PTR m_pfnOriginalWndProc;  // Stored as LONG_PTR, cast to WNDPROC when calling
+	CvGame* m_pGame;  // For WndProc callback
+
+	// Static instance pointer for WndProc access
+	static GameStatePipe* s_pInstance;
 
 	// Command queue
 	CommandQueue m_commandQueue;

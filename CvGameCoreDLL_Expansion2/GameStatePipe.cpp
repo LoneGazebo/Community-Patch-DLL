@@ -22,6 +22,30 @@
 extern "C" __declspec(dllimport) HRESULT __stdcall SHGetFolderPathA(HWND hwnd, int csidl, HANDLE hToken, DWORD dwFlags, LPSTR pszPath);
 extern "C" __declspec(dllimport) int __stdcall SHCreateDirectoryExA(HWND hwnd, LPCSTR pszPath, const SECURITY_ATTRIBUTES* psd);
 
+// Window API for subclassing
+#ifndef WM_USER
+#define WM_USER 0x0400
+#endif
+#ifndef GWLP_WNDPROC
+#define GWLP_WNDPROC (-4)
+#endif
+
+typedef LRESULT (CALLBACK* WNDPROC)(HWND, UINT, WPARAM, LPARAM);
+typedef BOOL (CALLBACK* WNDENUMPROC)(HWND, LPARAM);
+
+extern "C" __declspec(dllimport) BOOL __stdcall EnumWindows(WNDENUMPROC lpEnumFunc, LPARAM lParam);
+extern "C" __declspec(dllimport) int __stdcall GetClassNameA(HWND hWnd, LPSTR lpClassName, int nMaxCount);
+extern "C" __declspec(dllimport) int __stdcall GetWindowTextA(HWND hWnd, LPSTR lpString, int nMaxCount);
+extern "C" __declspec(dllimport) BOOL __stdcall IsWindowVisible(HWND hWnd);
+extern "C" __declspec(dllimport) HWND __stdcall GetParent(HWND hWnd);
+extern "C" __declspec(dllimport) LONG __stdcall SetWindowLongA(HWND hWnd, int nIndex, LONG dwNewLong);
+extern "C" __declspec(dllimport) LRESULT __stdcall CallWindowProcA(WNDPROC lpPrevWndFunc, HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam);
+extern "C" __declspec(dllimport) LRESULT __stdcall DefWindowProcA(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam);
+extern "C" __declspec(dllimport) BOOL __stdcall PostMessageA(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam);
+
+// On 32-bit, SetWindowLongPtrA is a macro for SetWindowLongA
+#define SetWindowLongPtrA(hWnd, nIndex, dwNewLong) SetWindowLongA(hWnd, nIndex, (LONG)(dwNewLong))
+
 //------------------------------------------------------------------------------
 // Configuration
 //------------------------------------------------------------------------------
@@ -233,12 +257,19 @@ void CommandQueue::Clear()
 //------------------------------------------------------------------------------
 // GameStatePipe implementation
 //------------------------------------------------------------------------------
+
+// Static instance pointer for WndProc access
+GameStatePipe* GameStatePipe::s_pInstance = NULL;
+
 GameStatePipe::GameStatePipe()
 	: m_hPipe(INVALID_HANDLE_VALUE)
 	, m_hThread(NULL)
 	, m_hStopEvent(NULL)
 	, m_bRunning(false)
 	, m_bConnected(false)
+	, m_hGameWnd(NULL)
+	, m_pfnOriginalWndProc(0)
+	, m_pGame(NULL)
 {
 	InitializeCriticalSection(&m_writeLock);
 }
@@ -249,7 +280,7 @@ GameStatePipe::~GameStatePipe()
 	DeleteCriticalSection(&m_writeLock);
 }
 
-void GameStatePipe::Initialize()
+void GameStatePipe::Initialize(CvGame* pGame)
 {
 	if (m_bRunning)
 	{
@@ -258,6 +289,10 @@ void GameStatePipe::Initialize()
 	}
 
 	LogMessage("GameStatePipe: Initializing...");
+
+	// Store game pointer and set static instance for WndProc
+	m_pGame = pGame;
+	s_pInstance = this;
 
 	// Create stop event
 	m_hStopEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
@@ -269,11 +304,18 @@ void GameStatePipe::Initialize()
 
 	m_bRunning = true;
 
+	// Subclass the game window for command processing
+	if (!SubclassGameWindow())
+	{
+		LogMessage("GameStatePipe: Warning - window subclassing failed, commands will only process during update()");
+	}
+
 	// Create pipe thread
 	m_hThread = CreateThread(NULL, 0, PipeThreadProc, this, 0, NULL);
 	if (!m_hThread)
 	{
 		LogMessage("GameStatePipe: Failed to create pipe thread, error=%lu", GetLastError());
+		UnsubclassGameWindow();
 		CloseHandle(m_hStopEvent);
 		m_hStopEvent = NULL;
 		m_bRunning = false;
@@ -315,6 +357,13 @@ void GameStatePipe::Shutdown()
 		m_hStopEvent = NULL;
 	}
 
+	// Restore original window proc
+	UnsubclassGameWindow();
+
+	// Clear static instance
+	s_pInstance = NULL;
+	m_pGame = NULL;
+
 	// Disconnect pipe
 	DisconnectPipe();
 
@@ -332,6 +381,111 @@ bool GameStatePipe::IsConnected() const
 bool GameStatePipe::IsRunning() const
 {
 	return m_bRunning;
+}
+
+//------------------------------------------------------------------------------
+// Window subclassing for main thread wakeup
+//------------------------------------------------------------------------------
+
+// Callback for EnumWindows to find the Civ5 game window
+static BOOL CALLBACK FindCiv5WindowProc(HWND hWnd, LPARAM lParam)
+{
+	HWND* pResult = reinterpret_cast<HWND*>(lParam);
+	char className[256] = {0};
+	char windowTitle[256] = {0};
+
+	GetClassNameA(hWnd, className, sizeof(className));
+	GetWindowTextA(hWnd, windowTitle, sizeof(windowTitle));
+
+	// Look for the main Civ5 window - check both class name patterns and window title
+	// The game uses "wxWindowClassNR" as its window class
+	if (strstr(className, "wxWindowClassNR") != NULL ||
+	    strstr(windowTitle, "Civilization V") != NULL ||
+	    strstr(windowTitle, "Sid Meier") != NULL)
+	{
+		// Make sure it's a visible top-level window
+		if (IsWindowVisible(hWnd) && GetParent(hWnd) == NULL)
+		{
+			*pResult = hWnd;
+			return FALSE;  // Stop enumeration
+		}
+	}
+
+	return TRUE;  // Continue enumeration
+}
+
+bool GameStatePipe::SubclassGameWindow()
+{
+	LogMessage("GameStatePipe: Attempting to subclass game window...");
+
+	// Find the game window
+	m_hGameWnd = NULL;
+	EnumWindows(FindCiv5WindowProc, reinterpret_cast<LPARAM>(&m_hGameWnd));
+
+	if (!m_hGameWnd)
+	{
+		LogMessage("GameStatePipe: Could not find game window");
+		return false;
+	}
+
+	char windowTitle[256] = {0};
+	GetWindowTextA(m_hGameWnd, windowTitle, sizeof(windowTitle));
+	LogMessage("GameStatePipe: Found game window: HWND=%p, Title='%s'", m_hGameWnd, windowTitle);
+
+	// Subclass the window
+	m_pfnOriginalWndProc = SetWindowLongPtrA(m_hGameWnd, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(SubclassWndProc));
+
+	if (!m_pfnOriginalWndProc)
+	{
+		LogMessage("GameStatePipe: SetWindowLongPtr failed, error=%lu", GetLastError());
+		m_hGameWnd = NULL;
+		return false;
+	}
+
+	LogMessage("GameStatePipe: Window subclassed successfully, original WndProc=%p", m_pfnOriginalWndProc);
+	return true;
+}
+
+void GameStatePipe::UnsubclassGameWindow()
+{
+	if (m_hGameWnd && m_pfnOriginalWndProc)
+	{
+		// Restore original window proc
+		SetWindowLongPtrA(m_hGameWnd, GWLP_WNDPROC, m_pfnOriginalWndProc);
+		LogMessage("GameStatePipe: Window unsubclassed, restored original WndProc");
+	}
+
+	m_hGameWnd = NULL;
+	m_pfnOriginalWndProc = 0;
+}
+
+LRESULT CALLBACK GameStatePipe::SubclassWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	// Handle our custom message (for immediate wakeup via PostMessage)
+	if (uMsg == WM_PIPE_COMMAND_READY)
+	{
+		if (s_pInstance && s_pInstance->m_pGame)
+		{
+			s_pInstance->ProcessCommands(*s_pInstance->m_pGame);
+		}
+		return 0;
+	}
+
+	// Pass all other messages to the original window proc
+	if (s_pInstance && s_pInstance->m_pfnOriginalWndProc)
+	{
+		return CallWindowProcA(reinterpret_cast<WNDPROC>(s_pInstance->m_pfnOriginalWndProc), hWnd, uMsg, wParam, lParam);
+	}
+
+	return DefWindowProcA(hWnd, uMsg, wParam, lParam);
+}
+
+void GameStatePipe::NotifyMainThread()
+{
+	if (m_hGameWnd)
+	{
+		PostMessageA(m_hGameWnd, WM_PIPE_COMMAND_READY, 0, 0);
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -495,6 +649,7 @@ bool GameStatePipe::ReadFromPipe()
 		{
 			LogMessage("GameStatePipe: Received command: %s", line.c_str());
 			m_commandQueue.Push(line);
+			NotifyMainThread();  // Wake up main thread to process command
 		}
 	}
 
