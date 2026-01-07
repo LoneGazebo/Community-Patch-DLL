@@ -1109,6 +1109,18 @@ void CvGame::HandlePipeCommand(const std::string& command)
 		response << "}}";
 		m_kGameStatePipe.SendMessage(response.str());
 	}
+	else if (msgType == "ping")
+	{
+		// Simple ping/pong for connection testing
+		std::ostringstream response;
+		response << "{\"type\":\"pong\"";
+		if (!requestId.empty())
+		{
+			response << ",\"request_id\":\"" << PipeJson::Escape(requestId) << "\"";
+		}
+		response << "}";
+		m_kGameStatePipe.SendMessage(response.str());
+	}
 	else if (msgType.empty())
 	{
 		// Invalid JSON or missing type
