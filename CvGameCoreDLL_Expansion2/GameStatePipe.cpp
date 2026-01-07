@@ -161,6 +161,61 @@ namespace PipeJson
 		return json.substr(valueStart, valueEnd - valueStart);
 	}
 
+	int GetInt(const std::string& json, const char* key)
+	{
+		// Simple JSON integer extraction - looks for "key":value or "key": value
+		std::string searchKey = std::string("\"") + key + "\"";
+		size_t keyPos = json.find(searchKey);
+		if (keyPos == std::string::npos) return -1;
+
+		size_t colonPos = json.find(':', keyPos + searchKey.size());
+		if (colonPos == std::string::npos) return -1;
+
+		// Skip whitespace after colon
+		size_t valueStart = colonPos + 1;
+		while (valueStart < json.size() && (json[valueStart] == ' ' || json[valueStart] == '\t'))
+		{
+			valueStart++;
+		}
+
+		if (valueStart >= json.size()) return -1;
+
+		// Find the end of the number (comma, }, ], or whitespace)
+		size_t valueEnd = valueStart;
+		bool hasDigits = false;
+		bool isNegative = false;
+		
+		if (json[valueEnd] == '-')
+		{
+			isNegative = true;
+			valueEnd++;
+		}
+
+		while (valueEnd < json.size())
+		{
+			char ch = json[valueEnd];
+			if (ch >= '0' && ch <= '9')
+			{
+				hasDigits = true;
+				valueEnd++;
+			}
+			else if (ch == ',' || ch == '}' || ch == ']' || ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r')
+			{
+				break;
+			}
+			else
+			{
+				// Invalid character in number
+				return -1;
+			}
+		}
+
+		if (!hasDigits) return -1;
+
+		std::string numStr = json.substr(valueStart, valueEnd - valueStart);
+		return atoi(numStr.c_str());
+	}
+
 	bool HasKey(const std::string& json, const char* key)
 	{
 		std::string searchKey = std::string("\"") + key + "\"";
@@ -724,6 +779,7 @@ namespace PipeJson
 {
 	std::string Escape(const std::string& value) { return value; }
 	std::string GetString(const std::string&, const char*) { return ""; }
+	int GetInt(const std::string&, const char*) { return -1; }
 	bool HasKey(const std::string&, const char*) { return false; }
 }
 

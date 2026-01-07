@@ -140,6 +140,9 @@ namespace PipeJson
 	// Simple JSON value extraction (returns empty string if not found)
 	std::string GetString(const std::string& json, const char* key);
 
+	// Get integer value (returns -1 if not found or invalid)
+	int GetInt(const std::string& json, const char* key);
+
 	// Check if JSON has a specific key
 	bool HasKey(const std::string& json, const char* key);
 }

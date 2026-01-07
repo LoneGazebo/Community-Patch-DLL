@@ -1051,6 +1051,45 @@ void CvGame::SendTurnCompleteToPipe()
 }
 
 //	--------------------------------------------------------------------------------
+// Helper function to convert EndTurnBlockingTypes enum to string name
+static const char* GetEndTurnBlockingTypeName(EndTurnBlockingTypes eType)
+{
+	switch(eType)
+	{
+	case NO_ENDTURN_BLOCKING_TYPE: return "NO_ENDTURN_BLOCKING_TYPE";
+	case ENDTURN_BLOCKING_POLICY: return "ENDTURN_BLOCKING_POLICY";
+	case ENDTURN_BLOCKING_RESEARCH: return "ENDTURN_BLOCKING_RESEARCH";
+	case ENDTURN_BLOCKING_PRODUCTION: return "ENDTURN_BLOCKING_PRODUCTION";
+	case ENDTURN_BLOCKING_UNITS: return "ENDTURN_BLOCKING_UNITS";
+	case ENDTURN_BLOCKING_DIPLO_VOTE: return "ENDTURN_BLOCKING_DIPLO_VOTE";
+	case ENDTURN_BLOCKING_MINOR_QUEST: return "ENDTURN_BLOCKING_MINOR_QUEST";
+	case ENDTURN_BLOCKING_FREE_TECH: return "ENDTURN_BLOCKING_FREE_TECH";
+	case ENDTURN_BLOCKING_STACKED_UNITS: return "ENDTURN_BLOCKING_STACKED_UNITS";
+	case ENDTURN_BLOCKING_UNIT_NEEDS_ORDERS: return "ENDTURN_BLOCKING_UNIT_NEEDS_ORDERS";
+	case ENDTURN_BLOCKING_UNIT_PROMOTION: return "ENDTURN_BLOCKING_UNIT_PROMOTION";
+	case ENDTURN_BLOCKING_CITY_RANGE_ATTACK: return "ENDTURN_BLOCKING_CITY_RANGE_ATTACK";
+	case ENDTURN_BLOCKING_FREE_POLICY: return "ENDTURN_BLOCKING_FREE_POLICY";
+	case ENDTURN_BLOCKING_FREE_ITEMS: return "ENDTURN_BLOCKING_FREE_ITEMS";
+	case ENDTURN_BLOCKING_FOUND_PANTHEON: return "ENDTURN_BLOCKING_FOUND_PANTHEON";
+	case ENDTURN_BLOCKING_FOUND_RELIGION: return "ENDTURN_BLOCKING_FOUND_RELIGION";
+	case ENDTURN_BLOCKING_ENHANCE_RELIGION: return "ENDTURN_BLOCKING_ENHANCE_RELIGION";
+	case ENDTURN_BLOCKING_STEAL_TECH: return "ENDTURN_BLOCKING_STEAL_TECH";
+	case ENDTURN_BLOCKING_MAYA_LONG_COUNT: return "ENDTURN_BLOCKING_MAYA_LONG_COUNT";
+	case ENDTURN_BLOCKING_FAITH_GREAT_PERSON: return "ENDTURN_BLOCKING_FAITH_GREAT_PERSON";
+	case ENDTURN_BLOCKING_ADD_REFORMATION_BELIEF: return "ENDTURN_BLOCKING_ADD_REFORMATION_BELIEF";
+	case ENDTURN_BLOCKING_LEAGUE_CALL_FOR_PROPOSALS: return "ENDTURN_BLOCKING_LEAGUE_CALL_FOR_PROPOSALS";
+	case ENDTURN_BLOCKING_CHOOSE_ARCHAEOLOGY: return "ENDTURN_BLOCKING_CHOOSE_ARCHAEOLOGY";
+	case ENDTURN_BLOCKING_LEAGUE_CALL_FOR_VOTES: return "ENDTURN_BLOCKING_LEAGUE_CALL_FOR_VOTES";
+	case ENDTURN_BLOCKING_CHOOSE_IDEOLOGY: return "ENDTURN_BLOCKING_CHOOSE_IDEOLOGY";
+	case ENDTURN_BLOCKING_CITY_TILE: return "ENDTURN_BLOCKING_CITY_TILE";
+	case ENDTURN_BLOCKING_PENDING_DEAL: return "ENDTURN_BLOCKING_PENDING_DEAL";
+	case ENDTURN_BLOCKING_EVENT_CHOICE: return "ENDTURN_BLOCKING_EVENT_CHOICE";
+	case ENDTURN_BLOCKING_CHOOSE_CITY_FATE: return "ENDTURN_BLOCKING_CHOOSE_CITY_FATE";
+	default: return "UNKNOWN_BLOCKING_TYPE";
+	}
+}
+
+//	--------------------------------------------------------------------------------
 void CvGame::HandlePipeCommand(const std::string& command)
 {
 	// Parse the JSON command and execute it
@@ -1064,7 +1103,30 @@ void CvGame::HandlePipeCommand(const std::string& command)
 	if (msgType == "end_turn")
 	{
 		// End the current turn
-		m_kGameStatePipe.Log("Received end_turn command");
+		int requestedTurn = PipeJson::GetInt(command, "turn");
+		int currentTurn = getGameTurn();
+		
+		m_kGameStatePipe.Log("Received end_turn command (requested turn: %d, current turn: %d)", 
+			requestedTurn, currentTurn);
+
+		// Validate turn number if provided
+		if (requestedTurn != -1 && requestedTurn != currentTurn)
+		{
+			std::ostringstream response;
+			response << "{\"type\":\"error\"";
+			response << ",\"code\":\"TURN_MISMATCH\"";
+			response << ",\"message\":\"Turn mismatch: requested turn " << requestedTurn 
+				<< " but current turn is " << currentTurn << "\"";
+			response << ",\"requested_turn\":" << requestedTurn;
+			response << ",\"current_turn\":" << currentTurn;
+			if (!requestId.empty())
+			{
+				response << ",\"request_id\":\"" << PipeJson::Escape(requestId) << "\"";
+			}
+			response << "}";
+			m_kGameStatePipe.SendMessage(response.str());
+			return;
+		}
 
 		// Check if we can end the turn
 		if (canDoControl(CONTROL_ENDTURN))
@@ -1080,10 +1142,28 @@ void CvGame::HandlePipeCommand(const std::string& command)
 		}
 		else
 		{
+			// Get the blocking type from the active player
+			PlayerTypes activePlayerID = getActivePlayer();
+			EndTurnBlockingTypes eBlockingType = NO_ENDTURN_BLOCKING_TYPE;
+			int iNotificationIndex = -1;
+			
+			if (activePlayerID != NO_PLAYER)
+			{
+				CvPlayer& activePlayer = GET_PLAYER(activePlayerID);
+				eBlockingType = activePlayer.GetEndTurnBlockingType();
+				iNotificationIndex = activePlayer.GetEndTurnBlockingNotificationIndex();
+			}
+			
 			std::ostringstream response;
 			response << "{\"type\":\"error\"";
 			response << ",\"code\":\"CANNOT_END_TURN\"";
 			response << ",\"message\":\"Cannot end turn at this time\"";
+			response << ",\"blocking_type\":" << static_cast<int>(eBlockingType);
+			response << ",\"blocking_type_name\":\"" << GetEndTurnBlockingTypeName(eBlockingType) << "\"";
+			if (iNotificationIndex != -1)
+			{
+				response << ",\"notification_index\":" << iNotificationIndex;
+			}
 			if (!requestId.empty())
 			{
 				response << ",\"request_id\":\"" << PipeJson::Escape(requestId) << "\"";
