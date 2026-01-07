@@ -267,9 +267,6 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nMinCandidat
 	int iLoop;
 	for (CvUnit* pLoopUnit = GET_PLAYER(pUnit->getOwner()).firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER(pUnit->getOwner()).nextUnit(&iLoop))
 	{
-		if (!pLoopUnit)
-			continue;
-
 		if (pLoopUnit == pUnit)
 			continue;
 
@@ -2943,9 +2940,6 @@ bool CvHomelandAI::ExecuteExplorerMoves(CvUnit* pUnit)
 			int iLoop;
 			for (CvUnit* pLoopUnit = GET_PLAYER(pUnit->getOwner()).firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER(pUnit->getOwner()).nextUnit(&iLoop))
 			{
-				if (!pLoopUnit)
-					continue;
-
 				if (pLoopUnit == pUnit)
 					continue;
 

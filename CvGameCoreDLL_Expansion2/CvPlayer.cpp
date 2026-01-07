@@ -46701,11 +46701,6 @@ bool CvPlayer::HasAnyUnitCanEmbark()
 
 	for (pLoopUnit = firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iUnitLoop))
 	{
-		if (!pLoopUnit)
-		{
-			continue;
-		}
-
 		if (pLoopUnit->IsHasEmbarkAbility())
 			return true;
 	}

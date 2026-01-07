@@ -17692,8 +17692,6 @@ int CvLuaPlayer::lGetWLTKDResourceTT(lua_State* L)
 		int iLoop;
 		for (pLoopCity = pkPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = pkPlayer->nextCity(&iLoop))
 		{
-			if (pLoopCity == NULL)
-				continue;
 
 			if (pLoopCity->GetWeLoveTheKingDayCounter() > 0)
 				continue;
@@ -17720,8 +17718,6 @@ int CvLuaPlayer::lGetNumNationalWonders(lua_State* L)
 	int iResult = 0;
 	for(pLoopCity = pkPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = pkPlayer->nextCity(&iLoop))
 	{
-		if(pLoopCity == NULL)
-			continue;
 
 		iResult += pLoopCity->getNumNationalWonders();
 	}
