@@ -1,0 +1,448 @@
+# LLM Civ Pipe Protocol Specification
+# Transport: Named pipe \\.\pipe\civv_llm
+# Format: Newline-delimited JSON messages
+
+version: "1.0"
+
+# =============================================================================
+# COMMANDS (Client -> DLL)
+# =============================================================================
+commands:
+  # ---------------------------------------------------------------------------
+  # Connection & Health
+  # ---------------------------------------------------------------------------
+  ping:
+    description: Connection health check
+    request:
+      type: ping
+      request_id: { type: string, required: true }
+    response:
+      type: pong
+      request_id: { type: string }
+
+  # ---------------------------------------------------------------------------
+  # Turn Control
+  # ---------------------------------------------------------------------------
+  end_turn:
+    description: End the current player's turn
+    request:
+      type: end_turn
+      request_id: { type: string, optional: true }
+      turn: { type: int, optional: true, description: "Expected turn number for validation" }
+    response:
+      type: turn_end_ack
+      turn: { type: int }
+      player_id: { type: int }
+      request_id: { type: string, optional: true }
+    errors:
+      CANNOT_END_TURN:
+        description: Turn cannot be ended (blocking action required)
+        fields: [blocking_type, blocking_type_id, notification_index]
+      AI_NOT_READY:
+        description: AI players or units still processing
+      TURN_ALREADY_ENDED:
+        description: Turn has already been ended
+
+  # ---------------------------------------------------------------------------
+  # Game State Queries
+  # ---------------------------------------------------------------------------
+  get_state:
+    description: Get basic game state
+    request:
+      type: get_state
+      request_id: { type: string, required: true }
+    response:
+      type: state_refresh
+      request_id: { type: string }
+      state:
+        turn: { type: int }
+        activePlayer: { type: int }
+
+  get_player_status:
+    description: Get detailed status for a player
+    request:
+      type: get_player_status
+      request_id: { type: string, required: true }
+      player_id: { type: int, optional: true, default: "active player" }
+    response:
+      type: player_status_result
+      request_id: { type: string }
+      player_id: { type: int }
+      turn: { type: int }
+      turn_string: { type: string, description: "Human-readable date string" }
+      science:
+        per_turn_times100: { type: int }
+      gold:
+        current_times100: { type: int }
+        per_turn_times100: { type: int }
+      trade_routes:
+        international_used: { type: int }
+        international_available: { type: int }
+      happiness:
+        excess: { type: int }
+        is_empire_unhappy: { type: bool }
+      golden_age:
+        turns_remaining: { type: int }
+        progress_times100: { type: int }
+        progress_threshold: { type: int }
+        is_active: { type: bool }
+      culture:
+        current_times100: { type: int }
+        per_turn_times100: { type: int }
+        next_policy_cost: { type: int }
+      tourism:
+        per_turn: { type: int }
+      faith:
+        current_times100: { type: int }
+        per_turn_times100: { type: int }
+    errors:
+      INVALID_PLAYER:
+        description: Player not alive
+
+  get_demographics:
+    description: Get demographics/rankings for all major civs
+    request:
+      type: get_demographics
+      request_id: { type: string, required: true }
+    response:
+      type: demographics_result
+      request_id: { type: string }
+      active_player_id: { type: int }
+      players:
+        type: array
+        items:
+          player_id: { type: int }
+          name: { type: string }
+          civ: { type: string }
+          is_human: { type: bool }
+          stats:
+            population: { type: long }
+            food: { type: int }
+            production: { type: int }
+            gold: { type: int }
+            land: { type: int }
+            military: { type: int }
+            approval: { type: int }
+            literacy: { type: int }
+      rankings:
+        description: Best/worst/average for each stat
+        fields: [population, food, production, gold, land, military, approval, literacy]
+        each:
+          best_player: { type: int }
+          best: { type: long }
+          worst_player: { type: int }
+          worst: { type: long }
+          average: { type: long }
+
+  get_notifications:
+    description: Get all notifications for a player
+    request:
+      type: get_notifications
+      request_id: { type: string, required: true }
+      player_id: { type: int, optional: true, default: "active player" }
+    response:
+      type: notifications_result
+      request_id: { type: string }
+      player_id: { type: int }
+      count: { type: int }
+      notifications:
+        type: array
+        items:
+          index: { type: int }
+          id: { type: int }
+          turn: { type: int }
+          message: { type: string }
+          summary: { type: string }
+          dismissed: { type: bool }
+
+  # ---------------------------------------------------------------------------
+  # Unit Queries & Commands
+  # ---------------------------------------------------------------------------
+  get_units:
+    description: Get all units for a player
+    request:
+      type: get_units
+      request_id: { type: string, required: true }
+      player_id: { type: int, optional: true, default: "active player" }
+    response:
+      type: units_result
+      request_id: { type: string }
+      player_id: { type: int }
+      turn: { type: int }
+      units:
+        type: array
+        items:
+          id: { type: int }
+          x: { type: int }
+          y: { type: int }
+          unit_type: { type: int }
+          unit_type_name: { type: string }
+          moves_remaining: { type: int }
+          max_moves: { type: int }
+          damage: { type: int }
+          max_hit_points: { type: int }
+          experience: { type: int }
+          level: { type: int }
+          can_move: { type: bool }
+          is_combat_unit: { type: bool }
+          plot:
+            terrain_type: { type: int }
+            feature_type: { type: int }
+    errors:
+      INVALID_PLAYER:
+        description: Player not alive
+
+  move_unit:
+    description: Move a unit to target coordinates
+    request:
+      type: move_unit
+      request_id: { type: string, required: true }
+      unit_id: { type: int, required: true }
+      to: { type: "[int, int]", required: true, description: "[x, y] coordinates" }
+    response:
+      type: move_unit_result
+      request_id: { type: string }
+      success: { type: bool }
+      result:
+        message: { type: string }
+      state_delta:
+        units:
+          type: array
+          items:
+            id: { type: int }
+            x: { type: int }
+            y: { type: int }
+            moves_remaining: { type: int }
+    errors:
+      UNIT_NOT_FOUND:
+        description: Unit with given ID not found
+      INVALID_PLOT:
+        description: Target plot is invalid
+      INVALID_COORDINATES:
+        description: Missing or invalid 'to' array
+
+  select_unit:
+    description: Select a unit in the UI
+    request:
+      type: select_unit
+      request_id: { type: string, required: true }
+      unit_id: { type: int, required: true }
+      clear: { type: bool, optional: true, default: true }
+      toggle: { type: bool, optional: true, default: false }
+      sound: { type: bool, optional: true, default: true }
+    response:
+      type: select_unit_result
+      request_id: { type: string }
+      success: { type: bool }
+      result:
+        message: { type: string }
+      state_delta:
+        selected_unit:
+          id: { type: int }
+          x: { type: int }
+          y: { type: int }
+    errors:
+      UNIT_NOT_FOUND:
+        description: Unit with given ID not found
+      UNIT_NOT_OWNED:
+        description: Unit does not belong to active player
+
+  # ---------------------------------------------------------------------------
+  # City Queries
+  # ---------------------------------------------------------------------------
+  get_cities:
+    description: Get all cities for a player
+    request:
+      type: get_cities
+      request_id: { type: string, required: true }
+      player_id: { type: int, optional: true, default: "active player" }
+    response:
+      type: cities_result
+      request_id: { type: string }
+      player_id: { type: int }
+      turn: { type: int }
+      cities:
+        type: array
+        items:
+          id: { type: int }
+          name: { type: string }
+          x: { type: int }
+          y: { type: int }
+          population: { type: int }
+          is_capital: { type: bool }
+          is_puppet: { type: bool }
+          production:
+            type: { type: string, enum: [unit, building, null] }
+            unit_type: { type: int, optional: true }
+            building_type: { type: int, optional: true }
+            name: { type: string }
+            turns_left: { type: int }
+          yields_per_turn:
+            food_times100: { type: int }
+            production_times100: { type: int }
+            gold_times100: { type: int }
+            science_times100: { type: int }
+            culture_times100: { type: int }
+            faith_times100: { type: int }
+          food:
+            stored: { type: int }
+            turns_to_growth: { type: int }
+            threshold: { type: int }
+          strength: { type: int }
+    errors:
+      INVALID_PLAYER:
+        description: Player not alive
+
+  # ---------------------------------------------------------------------------
+  # Game Control
+  # ---------------------------------------------------------------------------
+  do_control:
+    description: Execute a game control action (see ControlTypes enum)
+    request:
+      type: do_control
+      request_id: { type: string, required: true }
+      control_type: { type: int, required: true }
+    response:
+      type: control_executed
+      request_id: { type: string }
+      control_type: { type: int }
+    errors:
+      INVALID_CONTROL_TYPE:
+        description: Control type is invalid (negative)
+      CANNOT_DO_CONTROL:
+        description: Control cannot be executed at this time
+
+  can_do_control:
+    description: Check if a control action is available
+    request:
+      type: can_do_control
+      request_id: { type: string, required: true }
+      control_type: { type: int, required: true }
+    response:
+      type: can_do_control_result
+      request_id: { type: string }
+      control_type: { type: int }
+      can_do: { type: bool }
+    errors:
+      INVALID_CONTROL_TYPE:
+        description: Control type is invalid (negative)
+
+# =============================================================================
+# EVENTS (DLL -> Client, unsolicited)
+# =============================================================================
+events:
+  turn_start:
+    description: Sent at the start of a new turn
+    trigger: CvGame::DoGameStarted, CvGame::doTurn
+    payload:
+      type: turn_start
+      player_id: { type: int }
+      turn: { type: int }
+      player_name: { type: string }
+      is_human: { type: bool }
+      state:
+        turn: { type: int }
+        playersAlive: { type: int }
+        civsEver: { type: int }
+
+  turn_complete:
+    description: Sent when a turn completes (before next turn starts)
+    trigger: CvGame::doTurn
+    payload:
+      type: turn_complete
+      turn: { type: int }
+      player_id: { type: int }
+      player_name: { type: string }
+      is_human: { type: bool }
+      state:
+        turn: { type: int }
+        playersAlive: { type: int }
+        civsEver: { type: int }
+
+# =============================================================================
+# HOOKS (DLL -> Client, triggered by game events)
+# =============================================================================
+hooks:
+  notification:
+    description: Forwarded when a notification is added
+    trigger: CvNotifications::Add -> CvGame::SendNotificationToPipe
+    source_file: CvNotifications.cpp
+    payload:
+      type: notification
+      player_id: { type: int }
+      notification_type: { type: int, description: "NotificationTypes enum" }
+      lookup_index: { type: int }
+      turn: { type: int }
+      message: { type: string, optional: true }
+      summary: { type: string, optional: true }
+      x: { type: int, optional: true }
+      y: { type: int, optional: true }
+      game_data_index: { type: int, optional: true }
+      extra_game_data: { type: int, optional: true }
+
+  popup:
+    description: Forwarded when a popup is shown
+    trigger: CvGame::AddPopupWithPipe -> CvGame::SendPopupToPipe
+    source_file: CvGame.cpp
+    payload:
+      type: popup
+      popup_type: { type: int, description: "ButtonPopupTypes enum" }
+      turn: { type: int }
+      data1: { type: int, optional: true }
+      data2: { type: int, optional: true }
+      data3: { type: int, optional: true }
+      flags: { type: int, optional: true }
+      option1: { type: bool, optional: true }
+      option2: { type: bool, optional: true }
+      text: { type: string, optional: true }
+
+  diplomatic_message:
+    description: Forwarded when a diplomatic message is shown
+    trigger: "TBD -> CvGame::SendDiplomaticMessageToPipe"
+    source_file: CvGame.cpp
+    payload:
+      type: diplomatic_message
+      player: { type: int }
+      diplo_ui_state: { type: int, description: "DiploUIStateTypes enum" }
+      animation: { type: int, description: "LeaderheadAnimationTypes enum" }
+      turn: { type: int }
+      message: { type: string, optional: true }
+      data1: { type: int, optional: true }
+      deal:
+        optional: true
+        from_player: { type: int }
+        to_player: { type: int }
+        duration: { type: int }
+        items:
+          type: array
+          items:
+            item_type: { type: int }
+            from_player: { type: int }
+            duration: { type: int }
+            final_turn: { type: int }
+            data1: { type: int }
+            data2: { type: int }
+            data3: { type: int }
+            flag1: { type: bool }
+
+  tech_researched:
+    description: Forwarded when a tech is researched
+    trigger: "TBD -> CvGame::SendTechResearchedToPipe"
+    source_file: CvGame.cpp
+    payload:
+      type: tech_researched
+      player: { type: int }
+      tech: { type: int, description: "TechTypes enum" }
+      partial: { type: bool }
+      turn: { type: int }
+      tech_name: { type: string, optional: true }
+
+# =============================================================================
+# COMMON ERROR RESPONSE FORMAT
+# =============================================================================
+error_format:
+  type: error
+  code: { type: string, description: "Error code constant" }
+  message: { type: string, description: "Human-readable error message" }
+  request_id: { type: string, optional: true }
+  # Additional fields vary by error type
