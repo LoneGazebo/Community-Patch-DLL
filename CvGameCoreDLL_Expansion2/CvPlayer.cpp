@@ -29930,10 +29930,7 @@ int CvPlayer::GetReformCooldownRate() const
 void CvPlayer::SetReformCooldownRate(int iValue)
 {
 	GAMEEVENTINVOKE_HOOK(GAMEEVENT_ReformCooldownRateChanges, GetID(), iValue);
-	if(m_iJFDReformCooldownRate != iValue)
-	{
-		m_iJFDReformCooldownRate = iValue;
-	}
+	m_iJFDReformCooldownRate = iValue;
 }
 
 void CvPlayer::ChangeGovernmentCooldown(int iValue)
@@ -30088,10 +30085,7 @@ void CvPlayer::SetActiveContract(ContractTypes eContract, bool bValue)
 	VALIDATE_OBJECT();
 	PRECONDITION(eContract >= 0, "eContract expected to be >= 0");
 	PRECONDITION(eContract < GC.getNumContractInfos(), "eContract expected to be < GC.GetNumContractInfos()");
-	if (m_abActiveContract[eContract] != bValue)
-	{
-		m_abActiveContract[eContract] = bValue;
-	}
+	m_abActiveContract[eContract] = bValue;
 }
 
 void CvPlayer::DoUnitDiversity()
@@ -45666,8 +45660,7 @@ int CvPlayer::GetTurnsSinceSettledLastCity() const
 /// How long ago did this guy last settle a city?
 void CvPlayer::SetTurnsSinceSettledLastCity(int iValue)
 {
-	if(m_iTurnsSinceSettledLastCity != iValue)
-		m_iTurnsSinceSettledLastCity = iValue;
+	m_iTurnsSinceSettledLastCity = iValue;
 }
 
 /// How long ago did this guy last settle a city?
@@ -46316,10 +46309,7 @@ bool CvPlayer::IsWorkersIgnoreImpassable() const
 
 void CvPlayer::SetWorkersIgnoreImpassable(bool bValue)
 {
-	if (m_bWorkersIgnoreImpassable != bValue)
-	{
-		m_bWorkersIgnoreImpassable = bValue;
-	}
+	m_bWorkersIgnoreImpassable = bValue;
 }
 
 /// Number of Cities in the empire with our State Religion
@@ -47842,8 +47832,7 @@ void CvPlayer::DoVassalLevy()
 
 void CvPlayer::SetVassalLevy(bool bValue)
 {
-	if (m_bVassalLevy != bValue)
-		m_bVassalLevy = bValue;
+	m_bVassalLevy = bValue;
 }
 
 /// Is eUnit valid to be received on era change?
