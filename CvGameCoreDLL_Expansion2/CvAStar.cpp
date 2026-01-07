@@ -2270,8 +2270,10 @@ static int LandWorkerUnitSafeValid(const CvAStarNode* parent, const CvAStarNode*
 
 	CvPlot* pNewPlot = GC.getMap().plotUnchecked(node->m_iX, node->m_iY);
 	CvPlot* pOldPlot = GC.getMap().plotUnchecked(parent->m_iX, parent->m_iY);
+	ASSERT(pNewPlot != NULL, "plotUnchecked returned null - invalid node coordinates");
+	ASSERT(pOldPlot != NULL, "plotUnchecked returned null - invalid parent coordinates");
 
-	if (!pNewPlot || !pNewPlot->isRevealed(eTeam))
+	if (!pNewPlot->isRevealed(eTeam))
 		return FALSE;
 
 	if (!pNewPlot->isVisible(eTeam) && !pOldPlot->isVisible(eTeam))
@@ -2305,8 +2307,10 @@ static int SeaWorkerUnitSafeValid(const CvAStarNode* parent, const CvAStarNode* 
 
 	CvPlot* pNewPlot = GC.getMap().plotUnchecked(node->m_iX, node->m_iY);
 	CvPlot* pOldPlot = GC.getMap().plotUnchecked(parent->m_iX, parent->m_iY);
+	ASSERT(pNewPlot != NULL, "plotUnchecked returned null - invalid node coordinates");
+	ASSERT(pOldPlot != NULL, "plotUnchecked returned null - invalid parent coordinates");
 
-	if (!pNewPlot || !pNewPlot->isRevealed(eTeam))
+	if (!pNewPlot->isRevealed(eTeam))
 		return FALSE;
 
 	if (!pNewPlot->isVisible(eTeam) && !pOldPlot->isVisible(eTeam))
