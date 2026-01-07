@@ -49,7 +49,10 @@
 #include "CvBarbarians.h"
 #include "CvGoodyHuts.h"
 
+#include <algorithm>
+#include <map>
 #include <sstream>
+#include <vector>
 
 #include "CvDiplomacyRequests.h"
 
@@ -69,6 +72,259 @@
 // Public Functions...
 // must be included after all other headers
 #include "LintFree.h"
+
+namespace
+{
+#if defined(_WIN32)
+	// Minimal JSON parser for protocol messages
+	class JsonValue
+	{
+	public:
+		enum Type { Null, String, Number, Object, Array, Boolean };
+
+		Type type;
+		std::string strValue;
+		double numValue;
+		std::map<std::string, JsonValue> objValue;
+		std::vector<JsonValue> arrValue;
+
+		JsonValue() : type(Null), numValue(0.0) {}
+
+		bool isString() const { return type == String; }
+		bool isNumber() const { return type == Number; }
+		bool isObject() const { return type == Object; }
+		bool isArray() const { return type == Array; }
+		bool isBool() const { return type == Boolean; }
+
+		std::string asString(const std::string& def = "") const {
+			return type == String ? strValue : def;
+		}
+
+		int asInt(int def = 0) const {
+			return type == Number ? static_cast<int>(numValue) : def;
+		}
+
+		double asDouble(double def = 0.0) const {
+			return type == Number ? numValue : def;
+		}
+
+		bool asBool(bool def = false) const {
+			return type == Boolean ? (numValue != 0.0) : def;
+		}
+
+		bool has(const std::string& key) const {
+			return type == Object && objValue.find(key) != objValue.end();
+		}
+
+		const JsonValue& get(const std::string& key) const {
+			static JsonValue nullValue;
+			if (type != Object) return nullValue;
+			std::map<std::string, JsonValue>::const_iterator it = objValue.find(key);
+			return (it != objValue.end()) ? it->second : nullValue;
+		}
+
+		const JsonValue& operator[](size_t idx) const {
+			static JsonValue nullValue;
+			return (type == Array && idx < arrValue.size()) ? arrValue[idx] : nullValue;
+		}
+
+		size_t size() const {
+			return type == Array ? arrValue.size() : 0;
+		}
+	};
+
+	class JsonParser
+	{
+	private:
+		const char* p;
+
+		void skipWhitespace() {
+			while (*p && (*p == ' ' || *p == '\t' || *p == '\r' || *p == '\n')) p++;
+		}
+
+		bool parseString(std::string& out) {
+			if (*p != '"') return false;
+			p++;
+			out.clear();
+			while (*p && *p != '"') {
+				if (*p == '\\') {
+					p++;
+					if (*p == 'n') out += '\n';
+					else if (*p == 't') out += '\t';
+					else if (*p == 'r') out += '\r';
+					else if (*p == '"') out += '"';
+					else if (*p == '\\') out += '\\';
+					else out += *p;
+					p++;
+				} else {
+					out += *p++;
+				}
+			}
+			if (*p != '"') return false;
+			p++;
+			return true;
+		}
+
+		bool parseNumber(double& out) {
+			char* end;
+			out = strtod(p, &end);
+			if (end == p) return false;
+			p = end;
+			return true;
+		}
+
+		bool parseValue(JsonValue& val);
+
+		bool parseObject(JsonValue& val) {
+			if (*p != '{') return false;
+			p++;
+			val.type = JsonValue::Object;
+			val.objValue.clear();
+
+			skipWhitespace();
+			if (*p == '}') {
+				p++;
+				return true;
+			}
+
+			while (true) {
+				skipWhitespace();
+				std::string key;
+				if (!parseString(key)) return false;
+
+				skipWhitespace();
+				if (*p != ':') return false;
+				p++;
+
+				JsonValue value;
+				if (!parseValue(value)) return false;
+				val.objValue[key] = value;
+
+				skipWhitespace();
+				if (*p == ',') {
+					p++;
+					continue;
+				}
+				if (*p == '}') {
+					p++;
+					return true;
+				}
+				return false;
+			}
+		}
+
+		bool parseArray(JsonValue& val) {
+			if (*p != '[') return false;
+			p++;
+			val.type = JsonValue::Array;
+			val.arrValue.clear();
+
+			skipWhitespace();
+			if (*p == ']') {
+				p++;
+				return true;
+			}
+
+			while (true) {
+				JsonValue elem;
+				if (!parseValue(elem)) return false;
+				val.arrValue.push_back(elem);
+
+				skipWhitespace();
+				if (*p == ',') {
+					p++;
+					continue;
+				}
+				if (*p == ']') {
+					p++;
+					return true;
+				}
+				return false;
+			}
+		}
+
+	public:
+		bool parse(const std::string& json, JsonValue& out) {
+			p = json.c_str();
+			return parseValue(out);
+		}
+	};
+
+	bool JsonParser::parseValue(JsonValue& val) {
+		skipWhitespace();
+
+		if (*p == '"') {
+			val.type = JsonValue::String;
+			return parseString(val.strValue);
+		}
+		if (*p == '{') {
+			return parseObject(val);
+		}
+		if (*p == '[') {
+			return parseArray(val);
+		}
+		if (*p == '-' || (*p >= '0' && *p <= '9')) {
+			val.type = JsonValue::Number;
+			return parseNumber(val.numValue);
+		}
+		if (strncmp(p, "true", 4) == 0) {
+			val.type = JsonValue::Boolean;
+			val.numValue = 1.0;
+			p += 4;
+			return true;
+		}
+		if (strncmp(p, "false", 5) == 0) {
+			val.type = JsonValue::Boolean;
+			val.numValue = 0.0;
+			p += 5;
+			return true;
+		}
+		if (strncmp(p, "null", 4) == 0) {
+			val.type = JsonValue::Null;
+			p += 4;
+			return true;
+		}
+		return false;
+	}
+
+	const char* GetEndTurnBlockingTypeName(EndTurnBlockingTypes eType)
+	{
+		switch (eType)
+		{
+		case NO_ENDTURN_BLOCKING_TYPE: return "NO_ENDTURN_BLOCKING_TYPE";
+		case ENDTURN_BLOCKING_POLICY: return "ENDTURN_BLOCKING_POLICY";
+		case ENDTURN_BLOCKING_RESEARCH: return "ENDTURN_BLOCKING_RESEARCH";
+		case ENDTURN_BLOCKING_PRODUCTION: return "ENDTURN_BLOCKING_PRODUCTION";
+		case ENDTURN_BLOCKING_UNITS: return "ENDTURN_BLOCKING_UNITS";
+		case ENDTURN_BLOCKING_DIPLO_VOTE: return "ENDTURN_BLOCKING_DIPLO_VOTE";
+		case ENDTURN_BLOCKING_MINOR_QUEST: return "ENDTURN_BLOCKING_MINOR_QUEST";
+		case ENDTURN_BLOCKING_FREE_TECH: return "ENDTURN_BLOCKING_FREE_TECH";
+		case ENDTURN_BLOCKING_STACKED_UNITS: return "ENDTURN_BLOCKING_STACKED_UNITS";
+		case ENDTURN_BLOCKING_UNIT_NEEDS_ORDERS: return "ENDTURN_BLOCKING_UNIT_NEEDS_ORDERS";
+		case ENDTURN_BLOCKING_UNIT_PROMOTION: return "ENDTURN_BLOCKING_UNIT_PROMOTION";
+		case ENDTURN_BLOCKING_CITY_RANGE_ATTACK: return "ENDTURN_BLOCKING_CITY_RANGE_ATTACK";
+		case ENDTURN_BLOCKING_FREE_POLICY: return "ENDTURN_BLOCKING_FREE_POLICY";
+		case ENDTURN_BLOCKING_FREE_ITEMS: return "ENDTURN_BLOCKING_FREE_ITEMS";
+		case ENDTURN_BLOCKING_FOUND_PANTHEON: return "ENDTURN_BLOCKING_FOUND_PANTHEON";
+		case ENDTURN_BLOCKING_FOUND_RELIGION: return "ENDTURN_BLOCKING_FOUND_RELIGION";
+		case ENDTURN_BLOCKING_ENHANCE_RELIGION: return "ENDTURN_BLOCKING_ENHANCE_RELIGION";
+		case ENDTURN_BLOCKING_STEAL_TECH: return "ENDTURN_BLOCKING_STEAL_TECH";
+		case ENDTURN_BLOCKING_MAYA_LONG_COUNT: return "ENDTURN_BLOCKING_MAYA_LONG_COUNT";
+		case ENDTURN_BLOCKING_FAITH_GREAT_PERSON: return "ENDTURN_BLOCKING_FAITH_GREAT_PERSON";
+		case ENDTURN_BLOCKING_ADD_REFORMATION_BELIEF: return "ENDTURN_BLOCKING_ADD_REFORMATION_BELIEF";
+		case ENDTURN_BLOCKING_LEAGUE_CALL_FOR_PROPOSALS: return "ENDTURN_BLOCKING_LEAGUE_CALL_FOR_PROPOSALS";
+		case ENDTURN_BLOCKING_CHOOSE_ARCHAEOLOGY: return "ENDTURN_BLOCKING_CHOOSE_ARCHAEOLOGY";
+		case ENDTURN_BLOCKING_LEAGUE_CALL_FOR_VOTES: return "ENDTURN_BLOCKING_LEAGUE_CALL_FOR_VOTES";
+		case ENDTURN_BLOCKING_CHOOSE_IDEOLOGY: return "ENDTURN_BLOCKING_CHOOSE_IDEOLOGY";
+		case ENDTURN_BLOCKING_CITY_TILE: return "ENDTURN_BLOCKING_CITY_TILE";
+		case ENDTURN_BLOCKING_PENDING_DEAL: return "ENDTURN_BLOCKING_PENDING_DEAL";
+		case ENDTURN_BLOCKING_EVENT_CHOICE: return "ENDTURN_BLOCKING_EVENT_CHOICE";
+		case ENDTURN_BLOCKING_CHOOSE_CITY_FATE: return "ENDTURN_BLOCKING_CHOOSE_CITY_FATE";
+		default: return "UNKNOWN_BLOCKING_TYPE";
+		}
+	}
+#endif
+}
 
 int GetNextGlobalID() { return GC.getGame().GetNextGlobalID(); }
 int GetJonRand(int iRange) { return GC.getGame().getJonRandNum(iRange,"generic"); }
@@ -1050,180 +1306,899 @@ void CvGame::SendTurnCompleteToPipe()
 }
 
 //	--------------------------------------------------------------------------------
-// Helper function to convert EndTurnBlockingTypes enum to string name
-static const char* GetEndTurnBlockingTypeName(EndTurnBlockingTypes eType)
+void CvGame::SendNotificationToPipe(PlayerTypes ePlayer, NotificationTypes eNotificationType, const char* strMessage, const char* strSummary, int iX, int iY, int iGameDataIndex, int iExtraGameData, int iLookupIndex, int iTurn)
 {
-	switch(eType)
+#if defined(_WIN32)
+	if (!m_kGameStatePipe.IsRunning())
+		return;
+
+	std::ostringstream payload;
+	payload << "{\"type\":\"notification\"";
+	payload << ",\"player_id\":" << ePlayer;
+	payload << ",\"notification_type\":" << eNotificationType;
+	payload << ",\"lookup_index\":" << iLookupIndex;
+	payload << ",\"turn\":" << iTurn;
+
+	if (strMessage && strMessage[0] != '\0')
 	{
-	case NO_ENDTURN_BLOCKING_TYPE: return "NO_ENDTURN_BLOCKING_TYPE";
-	case ENDTURN_BLOCKING_POLICY: return "ENDTURN_BLOCKING_POLICY";
-	case ENDTURN_BLOCKING_RESEARCH: return "ENDTURN_BLOCKING_RESEARCH";
-	case ENDTURN_BLOCKING_PRODUCTION: return "ENDTURN_BLOCKING_PRODUCTION";
-	case ENDTURN_BLOCKING_UNITS: return "ENDTURN_BLOCKING_UNITS";
-	case ENDTURN_BLOCKING_DIPLO_VOTE: return "ENDTURN_BLOCKING_DIPLO_VOTE";
-	case ENDTURN_BLOCKING_MINOR_QUEST: return "ENDTURN_BLOCKING_MINOR_QUEST";
-	case ENDTURN_BLOCKING_FREE_TECH: return "ENDTURN_BLOCKING_FREE_TECH";
-	case ENDTURN_BLOCKING_STACKED_UNITS: return "ENDTURN_BLOCKING_STACKED_UNITS";
-	case ENDTURN_BLOCKING_UNIT_NEEDS_ORDERS: return "ENDTURN_BLOCKING_UNIT_NEEDS_ORDERS";
-	case ENDTURN_BLOCKING_UNIT_PROMOTION: return "ENDTURN_BLOCKING_UNIT_PROMOTION";
-	case ENDTURN_BLOCKING_CITY_RANGE_ATTACK: return "ENDTURN_BLOCKING_CITY_RANGE_ATTACK";
-	case ENDTURN_BLOCKING_FREE_POLICY: return "ENDTURN_BLOCKING_FREE_POLICY";
-	case ENDTURN_BLOCKING_FREE_ITEMS: return "ENDTURN_BLOCKING_FREE_ITEMS";
-	case ENDTURN_BLOCKING_FOUND_PANTHEON: return "ENDTURN_BLOCKING_FOUND_PANTHEON";
-	case ENDTURN_BLOCKING_FOUND_RELIGION: return "ENDTURN_BLOCKING_FOUND_RELIGION";
-	case ENDTURN_BLOCKING_ENHANCE_RELIGION: return "ENDTURN_BLOCKING_ENHANCE_RELIGION";
-	case ENDTURN_BLOCKING_STEAL_TECH: return "ENDTURN_BLOCKING_STEAL_TECH";
-	case ENDTURN_BLOCKING_MAYA_LONG_COUNT: return "ENDTURN_BLOCKING_MAYA_LONG_COUNT";
-	case ENDTURN_BLOCKING_FAITH_GREAT_PERSON: return "ENDTURN_BLOCKING_FAITH_GREAT_PERSON";
-	case ENDTURN_BLOCKING_ADD_REFORMATION_BELIEF: return "ENDTURN_BLOCKING_ADD_REFORMATION_BELIEF";
-	case ENDTURN_BLOCKING_LEAGUE_CALL_FOR_PROPOSALS: return "ENDTURN_BLOCKING_LEAGUE_CALL_FOR_PROPOSALS";
-	case ENDTURN_BLOCKING_CHOOSE_ARCHAEOLOGY: return "ENDTURN_BLOCKING_CHOOSE_ARCHAEOLOGY";
-	case ENDTURN_BLOCKING_LEAGUE_CALL_FOR_VOTES: return "ENDTURN_BLOCKING_LEAGUE_CALL_FOR_VOTES";
-	case ENDTURN_BLOCKING_CHOOSE_IDEOLOGY: return "ENDTURN_BLOCKING_CHOOSE_IDEOLOGY";
-	case ENDTURN_BLOCKING_CITY_TILE: return "ENDTURN_BLOCKING_CITY_TILE";
-	case ENDTURN_BLOCKING_PENDING_DEAL: return "ENDTURN_BLOCKING_PENDING_DEAL";
-	case ENDTURN_BLOCKING_EVENT_CHOICE: return "ENDTURN_BLOCKING_EVENT_CHOICE";
-	case ENDTURN_BLOCKING_CHOOSE_CITY_FATE: return "ENDTURN_BLOCKING_CHOOSE_CITY_FATE";
-	default: return "UNKNOWN_BLOCKING_TYPE";
+		payload << ",\"message\":\"" << PipeJson::Escape(strMessage) << "\"";
 	}
+	if (strSummary && strSummary[0] != '\0')
+	{
+		payload << ",\"summary\":\"" << PipeJson::Escape(strSummary) << "\"";
+	}
+	if (iX != -1)
+	{
+		payload << ",\"x\":" << iX;
+	}
+	if (iY != -1)
+	{
+		payload << ",\"y\":" << iY;
+	}
+	if (iGameDataIndex != -1)
+	{
+		payload << ",\"game_data_index\":" << iGameDataIndex;
+	}
+	if (iExtraGameData != -1)
+	{
+		payload << ",\"extra_game_data\":" << iExtraGameData;
+	}
+
+	payload << "}";
+
+	m_kGameStatePipe.SendMessage(payload.str());
+#else
+	UNUSED_VARIABLE(ePlayer);
+	UNUSED_VARIABLE(eNotificationType);
+	UNUSED_VARIABLE(strMessage);
+	UNUSED_VARIABLE(strSummary);
+	UNUSED_VARIABLE(iX);
+	UNUSED_VARIABLE(iY);
+	UNUSED_VARIABLE(iGameDataIndex);
+	UNUSED_VARIABLE(iExtraGameData);
+	UNUSED_VARIABLE(iLookupIndex);
+	UNUSED_VARIABLE(iTurn);
+#endif
 }
 
 //	--------------------------------------------------------------------------------
-void CvGame::HandlePipeCommand(const std::string& command)
+void CvGame::SendPopupToPipe(const CvPopupInfo& kPopup)
 {
-	// Parse the JSON command and execute it
-	// Expected format: {"type":"<command_type>", ...}
+#if defined(_WIN32)
+	if (!m_kGameStatePipe.IsRunning())
+		return;
 
-	std::string msgType = PipeJson::GetString(command, "type");
-	std::string requestId = PipeJson::GetString(command, "request_id");
+	std::ostringstream payload;
+	payload << "{\"type\":\"popup\"";
+	payload << ",\"popup_type\":" << static_cast<int>(kPopup.eButtonPopupType);
+	payload << ",\"turn\":" << getGameTurn();
 
-	m_kGameStatePipe.Log("HandlePipeCommand: type=%s, request_id=%s", msgType.c_str(), requestId.c_str());
-
-	if (msgType == "end_turn")
+	if (kPopup.iData1 != -1)
 	{
-		// End the current turn
-		int requestedTurn = PipeJson::GetInt(command, "turn");
-		int currentTurn = getGameTurn();
-		
-		m_kGameStatePipe.Log("Received end_turn command (requested turn: %d, current turn: %d)", 
-			requestedTurn, currentTurn);
+		payload << ",\"data1\":" << kPopup.iData1;
+	}
+	if (kPopup.iData2 != -1)
+	{
+		payload << ",\"data2\":" << kPopup.iData2;
+	}
+	if (kPopup.iData3 != -1)
+	{
+		payload << ",\"data3\":" << kPopup.iData3;
+	}
+	if (kPopup.iFlags != 0)
+	{
+		payload << ",\"flags\":" << kPopup.iFlags;
+	}
+	if (kPopup.bOption1)
+	{
+		payload << ",\"option1\":true";
+	}
+	if (kPopup.bOption2)
+	{
+		payload << ",\"option2\":true";
+	}
+	if (kPopup.szText[0] != '\0')
+	{
+		payload << ",\"text\":\"" << PipeJson::Escape(kPopup.szText) << "\"";
+	}
 
-		// Validate turn number if provided
-		if (requestedTurn != -1 && requestedTurn != currentTurn)
+	payload << "}";
+
+	m_kGameStatePipe.SendMessage(payload.str());
+#else
+	UNUSED_VARIABLE(kPopup);
+#endif
+}
+
+//	--------------------------------------------------------------------------------
+void CvGame::AddPopupWithPipe(const CvPopupInfo& kPopup)
+{
+	// Send to pipe first (before any filtering or UI processing)
+	SendPopupToPipe(kPopup);
+
+	// Then send to UI as normal
+	GC.GetEngineUserInterface()->AddPopup(kPopup);
+}
+
+//	--------------------------------------------------------------------------------
+void CvGame::SendDiplomaticMessageToPipe(PlayerTypes ePlayer, DiploUIStateTypes eDiploUIState, const char* szLeaderMessage, LeaderheadAnimationTypes eAction, int iData1, const CvDeal* pDeal)
+{
+#if defined(_WIN32)
+	if (!m_kGameStatePipe.IsRunning())
+		return;
+
+	std::ostringstream payload;
+	payload << "{\"type\":\"diplomatic_message\"";
+	payload << ",\"player\":" << static_cast<int>(ePlayer);
+	payload << ",\"diplo_ui_state\":" << static_cast<int>(eDiploUIState);
+	payload << ",\"animation\":" << static_cast<int>(eAction);
+	payload << ",\"turn\":" << getGameTurn();
+
+	if (szLeaderMessage && szLeaderMessage[0] != '\0')
+	{
+		payload << ",\"message\":\"" << PipeJson::Escape(szLeaderMessage) << "\"";
+	}
+	if (iData1 != -1)
+	{
+		payload << ",\"data1\":" << iData1;
+	}
+
+	// Serialize deal details if provided
+	if (pDeal != NULL)
+	{
+		payload << ",\"deal\":{";
+		payload << "\"from_player\":" << static_cast<int>(pDeal->m_eFromPlayer);
+		payload << ",\"to_player\":" << static_cast<int>(pDeal->m_eToPlayer);
+		payload << ",\"duration\":" << pDeal->m_iDuration;
+		payload << ",\"items\":[";
+
+		bool bFirstItem = true;
+		for (size_t i = 0; i < pDeal->m_TradedItems.size(); i++)
 		{
-			std::ostringstream response;
-			response << "{\"type\":\"error\"";
-			response << ",\"code\":\"TURN_MISMATCH\"";
-			response << ",\"message\":\"Turn mismatch: requested turn " << requestedTurn 
-				<< " but current turn is " << currentTurn << "\"";
-			response << ",\"requested_turn\":" << requestedTurn;
-			response << ",\"current_turn\":" << currentTurn;
+			const CvTradedItem& item = pDeal->m_TradedItems[i];
+			if (!bFirstItem)
+				payload << ",";
+			bFirstItem = false;
+
+			payload << "{";
+			payload << "\"item_type\":" << static_cast<int>(item.m_eItemType);
+			payload << ",\"from_player\":" << static_cast<int>(item.m_eFromPlayer);
+			payload << ",\"duration\":" << item.m_iDuration;
+			payload << ",\"final_turn\":" << item.m_iFinalTurn;
+			payload << ",\"data1\":" << item.m_iData1;
+			payload << ",\"data2\":" << item.m_iData2;
+			payload << ",\"data3\":" << item.m_iData3;
+			payload << ",\"flag1\":" << (item.m_bFlag1 ? "true" : "false");
+			payload << "}";
+		}
+
+		payload << "]";
+		payload << "}";
+	}
+
+	payload << "}";
+
+	m_kGameStatePipe.SendMessage(payload.str());
+#else
+	UNUSED_VARIABLE(ePlayer);
+	UNUSED_VARIABLE(eDiploUIState);
+	UNUSED_VARIABLE(szLeaderMessage);
+	UNUSED_VARIABLE(eAction);
+	UNUSED_VARIABLE(iData1);
+	UNUSED_VARIABLE(pDeal);
+#endif
+}
+
+//	--------------------------------------------------------------------------------
+void CvGame::SendTechResearchedToPipe(PlayerTypes ePlayer, TechTypes eTech, bool bPartial)
+{
+#if defined(_WIN32)
+	if (!m_kGameStatePipe.IsRunning())
+		return;
+
+	CvTechEntry* pkTechInfo = GC.getTechInfo(eTech);
+	if(pkTechInfo == NULL)
+		return;
+
+	std::ostringstream payload;
+	payload << "{\"type\":\"tech_researched\"";
+	payload << ",\"player\":" << static_cast<int>(ePlayer);
+	payload << ",\"tech\":" << static_cast<int>(eTech);
+	payload << ",\"partial\":" << (bPartial ? "true" : "false");
+	payload << ",\"turn\":" << getGameTurn();
+
+	if(pkTechInfo->GetTextKey())
+	{
+		payload << ",\"tech_name\":\"" << PipeJson::Escape(pkTechInfo->GetTextKey()) << "\"";
+	}
+
+	payload << "}";
+
+	m_kGameStatePipe.SendMessage(payload.str());
+#else
+	UNUSED_VARIABLE(ePlayer);
+	UNUSED_VARIABLE(eTech);
+	UNUSED_VARIABLE(bPartial);
+#endif
+}
+
+//	--------------------------------------------------------------------------------
+void CvGame::HandlePipeCommand(const std::string& commandLine)
+{
+#if defined(_WIN32)
+	// Try parsing as JSON first (new protocol)
+	JsonValue msg;
+	JsonParser parser;
+	if (parser.parse(commandLine, msg) && msg.isObject())
+	{
+		// Handle JSON protocol messages
+		std::string msgType = msg.get("type").asString();
+
+		if (msgType == "move_unit")
+		{
+			// Move unit to target coordinates
+			std::string requestId = msg.get("request_id").asString();
+			int unitId = msg.get("unit_id").asInt();
+			const JsonValue& toArray = msg.get("to");
+
+			std::ostringstream os;
+			os << "{\"type\":\"move_unit_result\",\"request_id\":\"" << PipeJson::Escape(requestId) << "\"";
+
+			if (toArray.isArray() && toArray.size() >= 2)
+			{
+				int targetX = toArray[0].asInt();
+				int targetY = toArray[1].asInt();
+
+				// Find unit
+				CvUnit* pUnit = NULL;
+				PlayerTypes owner = NO_PLAYER;
+				for (int iPlayer = 0; iPlayer < MAX_PLAYERS; ++iPlayer)
+				{
+					CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iPlayer);
+					pUnit = kPlayer.getUnit(unitId);
+					if (pUnit != NULL)
+					{
+						owner = (PlayerTypes)iPlayer;
+						break;
+					}
+				}
+
+				if (pUnit != NULL)
+				{
+					CvPlot* pTargetPlot = GC.getMap().plot(targetX, targetY);
+					if (pTargetPlot != NULL)
+					{
+						pUnit->ClearMissionQueue();
+						pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), targetX, targetY, 0, false, false, NO_MISSIONAI, pTargetPlot);
+
+						os << ",\"success\":true,\"result\":{\"message\":\"Unit moved\"}";
+						os << ",\"state_delta\":{\"units\":[{\"id\":" << unitId << ",\"x\":" << pUnit->getX() << ",\"y\":" << pUnit->getY() << ",\"moves_remaining\":" << pUnit->getMoves() << "}]}";
+					}
+					else
+					{
+						os << ",\"success\":false,\"error\":{\"code\":\"INVALID_PLOT\",\"message\":\"Target plot invalid\"}";
+					}
+				}
+				else
+				{
+					os << ",\"success\":false,\"error\":{\"code\":\"UNIT_NOT_FOUND\",\"message\":\"Unit not found\"}";
+				}
+			}
+			else
+			{
+				os << ",\"success\":false,\"error\":{\"code\":\"INVALID_COORDINATES\",\"message\":\"Missing or invalid 'to' array\"}";
+			}
+
+			os << "}";
+			m_kGameStatePipe.SendMessage(os.str());
+			return;
+		}
+		else if (msgType == "select_unit")
+		{
+			// Select a unit
+			std::string requestId = msg.get("request_id").asString();
+			int unitId = msg.get("unit_id").asInt();
+			bool bClear = msg.get("clear").asBool(true);
+			bool bToggle = msg.get("toggle").asBool(false);
+			bool bSound = msg.get("sound").asBool(true);
+
+			std::ostringstream os;
+			os << "{\"type\":\"select_unit_result\",\"request_id\":\"" << PipeJson::Escape(requestId) << "\"";
+
+			// Find unit
+			CvUnit* pUnit = NULL;
+			PlayerTypes owner = NO_PLAYER;
+			for (int iPlayer = 0; iPlayer < MAX_PLAYERS; ++iPlayer)
+			{
+				CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iPlayer);
+				pUnit = kPlayer.getUnit(unitId);
+				if (pUnit != NULL)
+				{
+					owner = (PlayerTypes)iPlayer;
+					break;
+				}
+			}
+
+			if (pUnit != NULL)
+			{
+				// Check if unit belongs to active player
+				if (pUnit->getOwner() == getActivePlayer())
+				{
+					selectUnit(pUnit, bClear, bToggle, bSound);
+					os << ",\"success\":true,\"result\":{\"message\":\"Unit selected\"}";
+					os << ",\"state_delta\":{\"selected_unit\":{\"id\":" << unitId << ",\"x\":" << pUnit->getX() << ",\"y\":" << pUnit->getY() << "}}}";
+				}
+				else
+				{
+					os << ",\"success\":false,\"error\":{\"code\":\"UNIT_NOT_OWNED\",\"message\":\"Unit does not belong to active player\"}";
+				}
+			}
+			else
+			{
+				os << ",\"success\":false,\"error\":{\"code\":\"UNIT_NOT_FOUND\",\"message\":\"Unit not found\"}";
+			}
+
+			os << "}";
+			m_kGameStatePipe.SendMessage(os.str());
+			return;
+		}
+		else if (msgType == "get_state")
+		{
+			std::string requestId = msg.get("request_id").asString();
+			std::ostringstream os;
+			os << "{\"type\":\"state_refresh\",\"request_id\":\"" << PipeJson::Escape(requestId) << "\"";
+			os << ",\"state\":{\"turn\":" << getGameTurn() << ",\"activePlayer\":" << static_cast<int>(getActivePlayer()) << "}}";
+			m_kGameStatePipe.SendMessage(os.str());
+			return;
+		}
+		else if (msgType == "ping")
+		{
+			std::string requestId = msg.get("request_id").asString();
+			std::ostringstream os;
+			os << "{\"type\":\"pong\",\"request_id\":\"" << PipeJson::Escape(requestId) << "\"}";
+			m_kGameStatePipe.SendMessage(os.str());
+			return;
+		}
+		else if (msgType == "get_notifications")
+		{
+			std::string requestId = msg.get("request_id").asString();
+			int playerId = msg.get("player_id").asInt(getActivePlayer());
+
+			CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)playerId);
+			CvNotifications* pNotifications = kPlayer.GetNotifications();
+
+			std::ostringstream os;
+			os << "{\"type\":\"notifications_result\"";
+			os << ",\"request_id\":\"" << PipeJson::Escape(requestId) << "\"";
+			os << ",\"player_id\":" << playerId;
+
+			int count = pNotifications ? pNotifications->GetNumNotifications() : 0;
+			os << ",\"count\":" << count;
+			os << ",\"notifications\":[";
+
+			for (int i = 0; i < count; i++)
+			{
+				if (i > 0) os << ",";
+				os << "{\"index\":" << i;
+				os << ",\"id\":" << pNotifications->GetNotificationID(i);
+				os << ",\"turn\":" << pNotifications->GetNotificationTurn(i);
+				os << ",\"message\":\"" << PipeJson::Escape(pNotifications->GetNotificationStr(i).c_str()) << "\"";
+				os << ",\"summary\":\"" << PipeJson::Escape(pNotifications->GetNotificationSummary(i).c_str()) << "\"";
+				os << ",\"dismissed\":" << (pNotifications->IsNotificationDismissed(i) ? "true" : "false");
+				os << "}";
+			}
+
+			os << "]}";
+			m_kGameStatePipe.SendMessage(os.str());
+			return;
+		}
+		else if (msgType == "get_demographics")
+		{
+			std::string requestId = msg.get("request_id").asString();
+			PlayerTypes activePlayer = getActivePlayer();
+
+			// Collect stats for all major civs
+			struct PlayerDemoStats {
+				int playerId;
+				std::string name;
+				std::string civ;
+				bool isHuman;
+				long population;
+				int food, production, gold, land, military, approval, literacy;
+			};
+			std::vector<PlayerDemoStats> allStats;
+
+			for (int i = 0; i < MAX_MAJOR_CIVS; i++)
+			{
+				CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)i);
+				if (!kPlayer.isAlive() || kPlayer.isMinorCiv()) continue;
+
+				PlayerDemoStats stats;
+				stats.playerId = i;
+				stats.name = kPlayer.getName();
+				stats.civ = kPlayer.getCivilizationDescription();
+				stats.isHuman = kPlayer.isHuman();
+				stats.population = kPlayer.getRealPopulation();
+				stats.food = kPlayer.calculateTotalYield(YIELD_FOOD);
+				stats.production = kPlayer.calculateTotalYield(YIELD_PRODUCTION);
+				stats.gold = kPlayer.GetTreasury()->CalculateGrossGold();
+				stats.land = kPlayer.GetNumPlots();
+				stats.military = kPlayer.GetMilitaryMight();
+				stats.approval = kPlayer.GetExcessHappiness();
+				stats.literacy = GET_TEAM(kPlayer.getTeam()).GetTeamTechs()->GetNumTechsKnown();
+				allStats.push_back(stats);
+			}
+
+			std::ostringstream os;
+			os << "{\"type\":\"demographics_result\"";
+			os << ",\"request_id\":\"" << PipeJson::Escape(requestId) << "\"";
+			os << ",\"active_player_id\":" << activePlayer;
+
+			// Output players array
+			os << ",\"players\":[";
+			for (size_t i = 0; i < allStats.size(); i++)
+			{
+				if (i > 0) os << ",";
+				const PlayerDemoStats& s = allStats[i];
+				os << "{\"player_id\":" << s.playerId;
+				os << ",\"name\":\"" << PipeJson::Escape(s.name) << "\"";
+				os << ",\"civ\":\"" << PipeJson::Escape(s.civ) << "\"";
+				os << ",\"is_human\":" << (s.isHuman ? "true" : "false");
+				os << ",\"stats\":{";
+				os << "\"population\":" << s.population;
+				os << ",\"food\":" << s.food;
+				os << ",\"production\":" << s.production;
+				os << ",\"gold\":" << s.gold;
+				os << ",\"land\":" << s.land;
+				os << ",\"military\":" << s.military;
+				os << ",\"approval\":" << s.approval;
+				os << ",\"literacy\":" << s.literacy;
+				os << "}}";
+			}
+			os << "]";
+
+			// Calculate rankings for each stat
+			if (!allStats.empty())
+			{
+				os << ",\"rankings\":{";
+
+				#define CALC_RANKING(field, name) \
+					do { \
+						long best = allStats[0].field, worst = allStats[0].field; \
+						int bestPlayer = allStats[0].playerId, worstPlayer = allStats[0].playerId; \
+						long sum = 0; \
+						for (size_t i = 0; i < allStats.size(); ++i) { \
+							long val = (long)allStats[i].field; \
+							sum += val; \
+							if (val > best) { best = val; bestPlayer = allStats[i].playerId; } \
+							if (val < worst) { worst = val; worstPlayer = allStats[i].playerId; } \
+						} \
+						os << "\"" << name << "\":{"; \
+						os << "\"best_player\":" << bestPlayer << ",\"best\":" << best; \
+						os << ",\"worst_player\":" << worstPlayer << ",\"worst\":" << worst; \
+						os << ",\"average\":" << (sum / (long)allStats.size()) << "}"; \
+					} while(0)
+
+				CALC_RANKING(population, "population");
+				os << ",";
+				CALC_RANKING(food, "food");
+				os << ",";
+				CALC_RANKING(production, "production");
+				os << ",";
+				CALC_RANKING(gold, "gold");
+				os << ",";
+				CALC_RANKING(land, "land");
+				os << ",";
+				CALC_RANKING(military, "military");
+				os << ",";
+				CALC_RANKING(approval, "approval");
+				os << ",";
+				CALC_RANKING(literacy, "literacy");
+
+				#undef CALC_RANKING
+				os << "}";
+			}
+
+			os << "}";
+			m_kGameStatePipe.SendMessage(os.str());
+			return;
+		}
+		else if (msgType == "get_player_status")
+		{
+			std::string requestId = msg.get("request_id").asString();
+			int playerId = msg.get("player_id").asInt(getActivePlayer());
+
+			CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)playerId);
+			if (!kPlayer.isAlive())
+			{
+				std::ostringstream os;
+				os << "{\"type\":\"error\",\"code\":\"INVALID_PLAYER\",\"message\":\"Player not alive\",\"request_id\":\"" << PipeJson::Escape(requestId) << "\"}";
+				m_kGameStatePipe.SendMessage(os.str());
+				return;
+			}
+
+			std::ostringstream os;
+			os << "{\"type\":\"player_status_result\"";
+			os << ",\"request_id\":\"" << PipeJson::Escape(requestId) << "\"";
+			os << ",\"player_id\":" << playerId;
+			os << ",\"turn\":" << getGameTurn();
+
+			// Turn/Date string
+			CvString strTurnString;
+			CvGameTextMgr::setDateStr(strTurnString, getGameTurn(), false, getCalendar(), getStartYear(), getGameSpeedType());
+			os << ",\"turn_string\":\"" << PipeJson::Escape(strTurnString.c_str()) << "\"";
+
+			// Science
+			os << ",\"science\":{";
+			os << "\"per_turn_times100\":" << kPlayer.GetScienceTimes100();
+			os << "}";
+
+			// Gold
+			CvTreasury* pTreasury = kPlayer.GetTreasury();
+			os << ",\"gold\":{";
+			os << "\"current_times100\":" << (pTreasury ? pTreasury->GetGoldTimes100() : 0);
+			os << ",\"per_turn_times100\":" << kPlayer.calculateGoldRateTimes100();
+			os << "}";
+
+			// Trade Routes
+			CvPlayerTrade* pTrade = kPlayer.GetTrade();
+			os << ",\"trade_routes\":{";
+			os << "\"international_used\":" << (pTrade ? pTrade->GetNumTradeUnits(true) : 0);
+			os << ",\"international_available\":" << (pTrade ? pTrade->GetNumTradeRoutesPossible() : 0);
+			os << "}";
+
+			// Happiness
+			os << ",\"happiness\":{";
+			os << "\"excess\":" << kPlayer.GetExcessHappiness();
+			os << ",\"is_empire_unhappy\":" << (kPlayer.IsEmpireUnhappy() ? "true" : "false");
+			os << "}";
+
+			// Golden Age
+			os << ",\"golden_age\":{";
+			os << "\"turns_remaining\":" << kPlayer.getGoldenAgeTurns();
+			os << ",\"progress_times100\":" << kPlayer.GetGoldenAgeProgressMeterTimes100();
+			os << ",\"progress_threshold\":" << kPlayer.GetGoldenAgeProgressThreshold();
+			os << ",\"is_active\":" << (kPlayer.isGoldenAge() ? "true" : "false");
+			os << "}";
+
+			// Culture
+			os << ",\"culture\":{";
+			os << "\"current_times100\":" << kPlayer.getJONSCultureTimes100();
+			os << ",\"per_turn_times100\":" << kPlayer.GetTotalJONSCulturePerTurnTimes100();
+			os << ",\"next_policy_cost\":" << kPlayer.getNextPolicyCost();
+			os << "}";
+
+			// Tourism
+			CvPlayerCulture* pCulture = kPlayer.GetCulture();
+			os << ",\"tourism\":{";
+			os << "\"per_turn\":" << (pCulture ? pCulture->GetTourism() : 0);
+			os << "}";
+
+			// Faith
+			os << ",\"faith\":{";
+			os << "\"current_times100\":" << kPlayer.GetFaithTimes100();
+			os << ",\"per_turn_times100\":" << kPlayer.GetTotalFaithPerTurnTimes100();
+			os << "}";
+
+			os << "}";
+			m_kGameStatePipe.SendMessage(os.str());
+			return;
+		}
+		else if (msgType == "get_units")
+		{
+			std::string requestId = msg.get("request_id").asString();
+			int playerId = msg.get("player_id").asInt(getActivePlayer());
+
+			CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)playerId);
+			if (!kPlayer.isAlive())
+			{
+				std::ostringstream os;
+				os << "{\"type\":\"error\",\"code\":\"INVALID_PLAYER\",\"message\":\"Player not alive\",\"request_id\":\"" << PipeJson::Escape(requestId) << "\"}";
+				m_kGameStatePipe.SendMessage(os.str());
+				return;
+			}
+
+			std::ostringstream os;
+			os << "{\"type\":\"units_result\"";
+			os << ",\"request_id\":\"" << PipeJson::Escape(requestId) << "\"";
+			os << ",\"player_id\":" << playerId;
+			os << ",\"turn\":" << getGameTurn();
+			os << ",\"units\":[";
+
+			bool first = true;
+			int iUnitIndex = 0;
+			for (CvUnit* pUnit = kPlayer.firstUnit(&iUnitIndex); pUnit != NULL; pUnit = kPlayer.nextUnit(&iUnitIndex))
+			{
+				if (!first) os << ",";
+				first = false;
+
+				os << "{";
+				os << "\"id\":" << pUnit->GetID();
+				os << ",\"x\":" << pUnit->getX();
+				os << ",\"y\":" << pUnit->getY();
+				os << ",\"unit_type\":" << static_cast<int>(pUnit->getUnitType());
+				os << ",\"unit_type_name\":\"" << PipeJson::Escape(GC.getUnitInfo(pUnit->getUnitType())->GetDescription()) << "\"";
+				os << ",\"moves_remaining\":" << pUnit->getMoves();
+				os << ",\"max_moves\":" << pUnit->maxMoves();
+				os << ",\"damage\":" << pUnit->getDamage();
+				os << ",\"max_hit_points\":" << pUnit->GetMaxHitPoints();
+				os << ",\"experience\":" << (pUnit->getExperienceTimes100() / 100);
+				os << ",\"level\":" << pUnit->getLevel();
+				os << ",\"can_move\":" << (pUnit->canMove() ? "true" : "false");
+				os << ",\"is_combat_unit\":" << (pUnit->IsCombatUnit() ? "true" : "false");
+
+				// Add plot info if available
+				CvPlot* pPlot = pUnit->plot();
+				if (pPlot != NULL)
+				{
+					os << ",\"plot\":{";
+					os << "\"terrain_type\":" << static_cast<int>(pPlot->getTerrainType());
+					os << ",\"feature_type\":" << static_cast<int>(pPlot->getFeatureType());
+					os << "}";
+				}
+
+				os << "}";
+			}
+
+			os << "]}";
+			m_kGameStatePipe.SendMessage(os.str());
+			return;
+		}
+		else if (msgType == "get_cities")
+		{
+			std::string requestId = msg.get("request_id").asString();
+			int playerId = msg.get("player_id").asInt(getActivePlayer());
+
+			CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)playerId);
+			if (!kPlayer.isAlive())
+			{
+				std::ostringstream os;
+				os << "{\"type\":\"error\",\"code\":\"INVALID_PLAYER\",\"message\":\"Player not alive\",\"request_id\":\"" << PipeJson::Escape(requestId) << "\"}";
+				m_kGameStatePipe.SendMessage(os.str());
+				return;
+			}
+
+			std::ostringstream os;
+			os << "{\"type\":\"cities_result\"";
+			os << ",\"request_id\":\"" << PipeJson::Escape(requestId) << "\"";
+			os << ",\"player_id\":" << playerId;
+			os << ",\"turn\":" << getGameTurn();
+			os << ",\"cities\":[";
+
+			bool first = true;
+			int iCityIndex = 0;
+			for (CvCity* pCity = kPlayer.firstCity(&iCityIndex); pCity != NULL; pCity = kPlayer.nextCity(&iCityIndex))
+			{
+				if (!first) os << ",";
+				first = false;
+
+				os << "{";
+				os << "\"id\":" << pCity->GetID();
+				os << ",\"name\":\"" << PipeJson::Escape(pCity->getName()) << "\"";
+				os << ",\"x\":" << pCity->getX();
+				os << ",\"y\":" << pCity->getY();
+				os << ",\"population\":" << pCity->getPopulation();
+				os << ",\"is_capital\":" << (pCity->isCapital() ? "true" : "false");
+				os << ",\"is_puppet\":" << (pCity->IsPuppet() ? "true" : "false");
+
+				// Production
+				UnitTypes eProductionUnit = pCity->getProductionUnit();
+				BuildingTypes eProductionBuilding = pCity->getProductionBuilding();
+				if (eProductionUnit != NO_UNIT)
+				{
+					os << ",\"production\":{";
+					os << "\"type\":\"unit\"";
+					os << ",\"unit_type\":" << static_cast<int>(eProductionUnit);
+					CvUnitEntry* pUnitInfo = GC.getUnitInfo(eProductionUnit);
+					if (pUnitInfo)
+					{
+						os << ",\"name\":\"" << PipeJson::Escape(pUnitInfo->GetDescription()) << "\"";
+					}
+					os << ",\"turns_left\":" << pCity->getProductionTurnsLeft();
+					os << "}";
+				}
+				else if (eProductionBuilding != NO_BUILDING)
+				{
+					os << ",\"production\":{";
+					os << "\"type\":\"building\"";
+					os << ",\"building_type\":" << static_cast<int>(eProductionBuilding);
+					CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(eProductionBuilding);
+					if (pBuildingInfo)
+					{
+						os << ",\"name\":\"" << PipeJson::Escape(pBuildingInfo->GetDescription()) << "\"";
+					}
+					os << ",\"turns_left\":" << pCity->getProductionTurnsLeft();
+					os << "}";
+				}
+				else
+				{
+					os << ",\"production\":null";
+				}
+
+				// Yields (per turn, times 100)
+				os << ",\"yields_per_turn\":{";
+				os << "\"food_times100\":" << pCity->getYieldRateTimes100(YIELD_FOOD, false);
+				os << ",\"production_times100\":" << pCity->getYieldRateTimes100(YIELD_PRODUCTION, false);
+				os << ",\"gold_times100\":" << pCity->getYieldRateTimes100(YIELD_GOLD, false);
+				os << ",\"science_times100\":" << pCity->getYieldRateTimes100(YIELD_SCIENCE, false);
+				os << ",\"culture_times100\":" << pCity->getYieldRateTimes100(YIELD_CULTURE, false);
+				os << ",\"faith_times100\":" << pCity->getYieldRateTimes100(YIELD_FAITH, false);
+				os << "}";
+
+				// Food and growth
+				os << ",\"food\":{";
+				os << "\"stored\":" << pCity->getFood();
+				os << ",\"turns_to_growth\":" << pCity->getFoodTurnsLeft();
+				os << ",\"threshold\":" << pCity->growthThreshold();
+				os << "}";
+
+				// City strength/defense
+				os << ",\"strength\":" << pCity->getStrengthValue();
+
+				os << "}";
+			}
+
+			os << "]}";
+			m_kGameStatePipe.SendMessage(os.str());
+			return;
+		}
+		else if (msgType == "do_control")
+		{
+			std::string requestId = msg.get("request_id").asString();
+			int controlType = msg.get("control_type").asInt(-1);
+
+			if (controlType < 0)
+			{
+				std::ostringstream os;
+				os << "{\"type\":\"error\",\"code\":\"INVALID_CONTROL_TYPE\",\"message\":\"Invalid control type\",\"request_id\":\"" << PipeJson::Escape(requestId) << "\"}";
+				m_kGameStatePipe.SendMessage(os.str());
+				return;
+			}
+
+			ControlTypes eControl = (ControlTypes)controlType;
+			bool bCanDo = canDoControl(eControl);
+
+			if (!bCanDo)
+			{
+				std::ostringstream os;
+				os << "{\"type\":\"error\",\"code\":\"CANNOT_DO_CONTROL\",\"message\":\"Control cannot be executed at this time\",\"request_id\":\"" << PipeJson::Escape(requestId) << "\",\"control_type\":" << controlType << "}";
+				m_kGameStatePipe.SendMessage(os.str());
+				return;
+			}
+
+			// Execute the control
+			doControl(eControl);
+
+			std::ostringstream os;
+			os << "{\"type\":\"control_executed\",\"request_id\":\"" << PipeJson::Escape(requestId) << "\",\"control_type\":" << controlType << "}";
+			m_kGameStatePipe.SendMessage(os.str());
+			return;
+		}
+		else if (msgType == "can_do_control")
+		{
+			std::string requestId = msg.get("request_id").asString();
+			int controlType = msg.get("control_type").asInt(-1);
+
+			if (controlType < 0)
+			{
+				std::ostringstream os;
+				os << "{\"type\":\"error\",\"code\":\"INVALID_CONTROL_TYPE\",\"message\":\"Invalid control type\",\"request_id\":\"" << PipeJson::Escape(requestId) << "\"}";
+				m_kGameStatePipe.SendMessage(os.str());
+				return;
+			}
+
+			ControlTypes eControl = (ControlTypes)controlType;
+			bool bCanDo = canDoControl(eControl);
+
+			std::ostringstream os;
+			os << "{\"type\":\"can_do_control_result\",\"request_id\":\"" << PipeJson::Escape(requestId) << "\",\"control_type\":" << controlType << ",\"can_do\":" << (bCanDo ? "true" : "false") << "}";
+			m_kGameStatePipe.SendMessage(os.str());
+			return;
+		}
+		else if (msgType == "end_turn")
+		{
+			// End the current player's turn
+			std::string requestId = msg.get("request_id").asString();
+			std::ostringstream os;
+
+			PlayerTypes activePlayer = getActivePlayer();
+			CvPlayerAI& kActivePlayer = GET_PLAYER(activePlayer);
+
+			// Check if we can end the turn
+			if (!GC.GetEngineUserInterface()->canEndTurn())
+			{
+				// Get blocking type information
+				EndTurnBlockingTypes eBlockingType = kActivePlayer.GetEndTurnBlockingType();
+				int iNotificationIndex = kActivePlayer.GetEndTurnBlockingNotificationIndex();
+
+				os << "{\"type\":\"error\",\"code\":\"CANNOT_END_TURN\",\"message\":\"Cannot end turn at this time\"";
+				os << ",\"blocking_type\":\"" << GetEndTurnBlockingTypeName(eBlockingType) << "\"";
+				os << ",\"blocking_type_id\":" << static_cast<int>(eBlockingType);
+				if (iNotificationIndex >= 0)
+				{
+					os << ",\"notification_index\":" << iNotificationIndex;
+				}
+				if (!requestId.empty())
+				{
+					os << ",\"request_id\":\"" << PipeJson::Escape(requestId) << "\"";
+				}
+				os << "}";
+				m_kGameStatePipe.SendMessage(os.str());
+				return;
+			}
+
+			if (!gDLL->allAICivsProcessedThisTurn() || !allUnitAIProcessed())
+			{
+				os << "{\"type\":\"error\",\"code\":\"AI_NOT_READY\",\"message\":\"AI players or units still processing\"";
+				if (!requestId.empty())
+				{
+					os << ",\"request_id\":\"" << PipeJson::Escape(requestId) << "\"";
+				}
+				os << "}";
+				m_kGameStatePipe.SendMessage(os.str());
+				return;
+			}
+
+			// Check if turn has already been ended
+			if (gDLL->HasSentTurnComplete())
+			{
+				os << "{\"type\":\"error\",\"code\":\"TURN_ALREADY_ENDED\",\"message\":\"Turn has already been ended\"";
+				if (!requestId.empty())
+				{
+					os << ",\"request_id\":\"" << PipeJson::Escape(requestId) << "\"";
+				}
+				os << "}";
+				m_kGameStatePipe.SendMessage(os.str());
+				return;
+			}
+
+			// Directly call sendTurnComplete
+			if (MOD_EVENTS_RED_TURN)
+			{
+				ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+				if(pkScriptSystem)
+				{
+					CvLuaArgsHandle args;
+					args->Push(getActivePlayer());
+					bool bResult = false;
+					LuaSupport::CallHook(pkScriptSystem, "TurnComplete", args.get(), bResult);
+				}
+			}
+
+			if (MOD_ENABLE_ACHIEVEMENTS)
+				kActivePlayer.GetPlayerAchievements().EndTurn();
+
+			gDLL->sendTurnComplete();
+
+			if (MOD_ENABLE_ACHIEVEMENTS)
+				CvAchievementUnlocker::EndTurn();
+
+			GC.GetEngineUserInterface()->setInterfaceMode(INTERFACEMODE_SELECTION);
+
+			os << "{\"type\":\"turn_end_ack\",\"turn\":" << getGameTurn() << ",\"player_id\":" << activePlayer;
 			if (!requestId.empty())
 			{
-				response << ",\"request_id\":\"" << PipeJson::Escape(requestId) << "\"";
+				os << ",\"request_id\":\"" << PipeJson::Escape(requestId) << "\"";
 			}
-			response << "}";
-			m_kGameStatePipe.SendMessage(response.str());
+			os << "}";
+			m_kGameStatePipe.SendMessage(os.str());
 			return;
 		}
 
-		// Check if we can end the turn
-		if (canDoControl(CONTROL_ENDTURN))
-		{
-			doControl(CONTROL_ENDTURN);
+		// Unknown message type
+		std::ostringstream os;
+		os << "{\"type\":\"error\",\"code\":\"UNKNOWN_MESSAGE_TYPE\",\"message\":\"Unknown type: " << PipeJson::Escape(msgType) << "\"}";
+		m_kGameStatePipe.SendMessage(os.str());
+		return;
+	}
 
-			std::ostringstream response;
-			response << "{\"type\":\"turn_end_ack\"";
-			response << ",\"turn\":" << getGameTurn();
-			response << ",\"player_id\":" << static_cast<int>(getActivePlayer());
-			response << "}";
-			m_kGameStatePipe.SendMessage(response.str());
-		}
-		else
-		{
-			// Get the blocking type from the active player
-			PlayerTypes activePlayerID = getActivePlayer();
-			EndTurnBlockingTypes eBlockingType = NO_ENDTURN_BLOCKING_TYPE;
-			int iNotificationIndex = -1;
-			
-			if (activePlayerID != NO_PLAYER)
-			{
-				CvPlayer& activePlayer = GET_PLAYER(activePlayerID);
-				eBlockingType = activePlayer.GetEndTurnBlockingType();
-				iNotificationIndex = activePlayer.GetEndTurnBlockingNotificationIndex();
-			}
-			
-			std::ostringstream response;
-			response << "{\"type\":\"error\"";
-			response << ",\"code\":\"CANNOT_END_TURN\"";
-			response << ",\"message\":\"Cannot end turn at this time\"";
-			response << ",\"blocking_type\":" << static_cast<int>(eBlockingType);
-			response << ",\"blocking_type_name\":\"" << GetEndTurnBlockingTypeName(eBlockingType) << "\"";
-			if (iNotificationIndex != -1)
-			{
-				response << ",\"notification_index\":" << iNotificationIndex;
-			}
-			if (!requestId.empty())
-			{
-				response << ",\"request_id\":\"" << PipeJson::Escape(requestId) << "\"";
-			}
-			response << "}";
-			m_kGameStatePipe.SendMessage(response.str());
-		}
-	}
-	else if (msgType == "get_state")
-	{
-		// Return current game state
-		std::ostringstream response;
-		response << "{\"type\":\"state_refresh\"";
-		if (!requestId.empty())
-		{
-			response << ",\"request_id\":\"" << PipeJson::Escape(requestId) << "\"";
-		}
-		response << ",\"state\":{";
-		response << "\"turn\":" << getGameTurn();
-		response << ",\"playersAlive\":" << countCivPlayersAlive();
-		response << ",\"civsEver\":" << countCivPlayersEverAlive();
-		response << ",\"activePlayer\":" << static_cast<int>(getActivePlayer());
-		response << "}}";
-		m_kGameStatePipe.SendMessage(response.str());
-	}
-	else if (msgType == "ping")
-	{
-		// Simple ping/pong for connection testing
-		std::ostringstream response;
-		response << "{\"type\":\"pong\"";
-		if (!requestId.empty())
-		{
-			response << ",\"request_id\":\"" << PipeJson::Escape(requestId) << "\"";
-		}
-		response << "}";
-		m_kGameStatePipe.SendMessage(response.str());
-	}
-	else if (msgType.empty())
-	{
-		// Invalid JSON or missing type
-		std::ostringstream response;
-		response << "{\"type\":\"error\"";
-		response << ",\"code\":\"INVALID_JSON\"";
-		response << ",\"message\":\"Missing or invalid 'type' field\"";
-		response << "}";
-		m_kGameStatePipe.SendMessage(response.str());
-	}
-	else
-	{
-		// Unknown command type
-		std::ostringstream response;
-		response << "{\"type\":\"error\"";
-		response << ",\"code\":\"UNKNOWN_MESSAGE_TYPE\"";
-		response << ",\"message\":\"Unknown message type: " << PipeJson::Escape(msgType) << "\"";
-		if (!requestId.empty())
-		{
-			response << ",\"request_id\":\"" << PipeJson::Escape(requestId) << "\"";
-		}
-		response << "}";
-		m_kGameStatePipe.SendMessage(response.str());
-	}
+	// Invalid JSON or not a JSON object
+	std::ostringstream os;
+	os << "{\"type\":\"error\",\"code\":\"INVALID_JSON\",\"message\":\"Command must be a valid JSON object\"}";
+	m_kGameStatePipe.SendMessage(os.str());
+#else
+	UNUSED_VARIABLE(commandLine);
+#endif
 }
 
 //	--------------------------------------------------------------------------------
