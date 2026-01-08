@@ -536,7 +536,7 @@ LRESULT CALLBACK GameStatePipe::SubclassWndProc(HWND hWnd, UINT uMsg, WPARAM wPa
 		{
 			s_pInstance->m_bSentInitialTurnStart = true;
 			s_pInstance->m_pGame->SendTurnStartToPipe();
-			s_pInstance->LogMessage("GameStatePipe: Sent initial turn_start after connection");
+			LogMessage("GameStatePipe: Sent initial turn_start after connection");
 		}
 		return 0;
 	}
