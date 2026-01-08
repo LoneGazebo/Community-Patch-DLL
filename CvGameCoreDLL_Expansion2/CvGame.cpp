@@ -2114,6 +2114,32 @@ void CvGame::HandlePipeCommand(const std::string& commandLine)
 			std::string requestId = msg.get("request_id").asString();
 			std::ostringstream os;
 
+			// Check for required 'turn' parameter
+			if (!msg.has("turn"))
+			{
+				os << "{\"type\":\"error\",\"code\":\"MISSING_PARAMETER\",\"message\":\"Required parameter 'turn' is missing\"";
+				if (!requestId.empty())
+				{
+					os << ",\"request_id\":\"" << PipeJson::Escape(requestId) << "\"";
+				}
+				os << "}";
+				m_kGameStatePipe.SendMessage(os.str());
+				return;
+			}
+
+			int requestedTurn = msg.get("turn").asInt(-1);
+			if (requestedTurn < 0)
+			{
+				os << "{\"type\":\"error\",\"code\":\"INVALID_PARAMETER\",\"message\":\"Parameter 'turn' must be a valid non-negative integer\"";
+				if (!requestId.empty())
+				{
+					os << ",\"request_id\":\"" << PipeJson::Escape(requestId) << "\"";
+				}
+				os << "}";
+				m_kGameStatePipe.SendMessage(os.str());
+				return;
+			}
+
 			PlayerTypes activePlayer = getActivePlayer();
 			CvPlayerAI& kActivePlayer = GET_PLAYER(activePlayer);
 

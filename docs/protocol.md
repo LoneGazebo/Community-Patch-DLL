@@ -116,9 +116,9 @@ Key:
       │                                                │
       │  ══════════════ TURN END ═════════════════════ │
       │                                                │
-      │              {"type": "end_turn"}              │
+      │              {"type": "end_turn", "turn": 7}   │
       │ ◄───────────────────────────────────────────── │
-      │  {"type": "turn_end_ack", ...}                 │
+      │  {"type": "end_turn_result", ...}              │
       │ ─────────────────────────────────────────────► │
       │                                                │
       │         (AI turns process...)                  │
@@ -252,7 +252,8 @@ See [`api.yaml`](api.yaml) for complete request/response schemas.
 ## Implementation Notes
 
 1. **Blocking**: Commands block until response; don't pipeline requests
-2. **Times 100**: Yield values are ×100 to avoid floats (e.g., `gold_times100`)
-3. **Player defaults**: Commands with `player_id` default to active player
-4. **Thread safety**: DLL uses CRITICAL_SECTION for write lock
-5. **Reconnection**: Pipe thread auto-reconnects on disconnect
+2. **Turn parameter**: `end_turn` requires a `turn` parameter to prevent accidental progression
+3. **Times 100**: Yield values are ×100 to avoid floats (e.g., `gold_times100`)
+4. **Player defaults**: Commands with `player_id` default to active player
+5. **Thread safety**: DLL uses CRITICAL_SECTION for write lock
+6. **Reconnection**: Pipe thread auto-reconnects on disconnect
