@@ -323,6 +323,7 @@ GameStatePipe::GameStatePipe()
 	, m_bRunning(false)
 	, m_bConnected(false)
 	, m_bSentInitialTurnStart(false)
+	, m_uiSessionId(0)
 	, m_hGameWnd(NULL)
 	, m_pfnOriginalWndProc(0)
 	, m_pGame(NULL)
@@ -645,6 +646,11 @@ bool GameStatePipe::ConnectPipe()
 
 	m_hPipe = hPipe;
 	m_bConnected = true;
+
+	// Generate a new session ID for this connection
+	m_uiSessionId = GetTickCount();
+	LogMessage("GameStatePipe: Connected with game_id=%u, session_id=%u", CvPreGame::mapRandomSeed(), m_uiSessionId);
+
 	return true;
 }
 

@@ -87,6 +87,9 @@ public:
 	bool IsConnected() const;
 	bool IsRunning() const;
 
+	// Session tracking - unique ID generated on each pipe connection
+	unsigned int GetSessionId() const { return m_uiSessionId; }
+
 private:
 #if defined(_WIN32)
 	// Thread management
@@ -116,6 +119,9 @@ private:
 	volatile bool m_bRunning;
 	volatile bool m_bConnected;
 	volatile bool m_bSentInitialTurnStart;  // Track if initial turn_start was sent
+
+	// Session tracking
+	unsigned int m_uiSessionId;  // Generated on each pipe connection
 
 	// Window subclassing state
 	HWND m_hGameWnd;

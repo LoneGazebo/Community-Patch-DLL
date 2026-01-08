@@ -336,6 +336,8 @@ events:
     trigger: CvGame::DoGameStarted, CvGame::doTurn
     payload:
       type: turn_start
+      game_id: { type: uint, description: "Unique game identifier (map random seed), persists across saves" }
+      session_id: { type: uint, description: "Unique session identifier, changes on each pipe connection" }
       player_id: { type: int }
       turn: { type: int }
       player_name: { type: string }
@@ -350,6 +352,8 @@ events:
     trigger: CvGame::doTurn
     payload:
       type: turn_complete
+      game_id: { type: uint, description: "Unique game identifier (map random seed)" }
+      session_id: { type: uint, description: "Unique session identifier" }
       turn: { type: int }
       player_id: { type: int }
       player_name: { type: string }
@@ -369,6 +373,8 @@ hooks:
     source_file: CvNotifications.cpp
     payload:
       type: notification
+      game_id: { type: uint, description: "Unique game identifier" }
+      session_id: { type: uint, description: "Unique session identifier" }
       player_id: { type: int }
       notification_type: { type: int, description: "NotificationTypes enum" }
       lookup_index: { type: int }
@@ -386,6 +392,8 @@ hooks:
     source_file: CvGame.cpp
     payload:
       type: popup
+      game_id: { type: uint, description: "Unique game identifier" }
+      session_id: { type: uint, description: "Unique session identifier" }
       popup_type: { type: int, description: "ButtonPopupTypes enum" }
       turn: { type: int }
       data1: { type: int, optional: true }
@@ -402,6 +410,8 @@ hooks:
     source_file: CvGame.cpp
     payload:
       type: diplomatic_message
+      game_id: { type: uint, description: "Unique game identifier" }
+      session_id: { type: uint, description: "Unique session identifier" }
       player: { type: int }
       diplo_ui_state: { type: int, description: "DiploUIStateTypes enum" }
       animation: { type: int, description: "LeaderheadAnimationTypes enum" }
@@ -431,6 +441,8 @@ hooks:
     source_file: CvGame.cpp
     payload:
       type: tech_researched
+      game_id: { type: uint, description: "Unique game identifier" }
+      session_id: { type: uint, description: "Unique session identifier" }
       player: { type: int }
       tech: { type: int, description: "TechTypes enum" }
       partial: { type: bool }

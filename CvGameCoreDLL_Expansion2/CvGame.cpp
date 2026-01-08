@@ -1258,6 +1258,8 @@ void CvGame::SendTurnStartToPipe()
 
 	std::ostringstream payload;
 	payload << "{\"type\":\"turn_start\"";
+	payload << ",\"game_id\":" << CvPreGame::mapRandomSeed();
+	payload << ",\"session_id\":" << m_kGameStatePipe.GetSessionId();
 	payload << ",\"player_id\":" << static_cast<int>(eActivePlayer);
 	payload << ",\"turn\":" << getGameTurn();
 	if (eActivePlayer != NO_PLAYER)
@@ -1273,7 +1275,8 @@ void CvGame::SendTurnStartToPipe()
 	payload << "}}";
 
 	m_kGameStatePipe.SendMessage(payload.str());
-	m_kGameStatePipe.Log("Sent turn_start for turn %d, player %d", getGameTurn(), static_cast<int>(eActivePlayer));
+	m_kGameStatePipe.Log("Sent turn_start for turn %d, player %d, game_id=%u, session_id=%u",
+		getGameTurn(), static_cast<int>(eActivePlayer), CvPreGame::mapRandomSeed(), m_kGameStatePipe.GetSessionId());
 }
 
 //	--------------------------------------------------------------------------------
@@ -1287,6 +1290,8 @@ void CvGame::SendTurnCompleteToPipe()
 
 	std::ostringstream payload;
 	payload << "{\"type\":\"turn_complete\"";
+	payload << ",\"game_id\":" << CvPreGame::mapRandomSeed();
+	payload << ",\"session_id\":" << m_kGameStatePipe.GetSessionId();
 	payload << ",\"turn\":" << getGameTurn();
 	payload << ",\"player_id\":" << static_cast<int>(eActivePlayer);
 	if (eActivePlayer != NO_PLAYER)
@@ -1314,6 +1319,8 @@ void CvGame::SendNotificationToPipe(PlayerTypes ePlayer, NotificationTypes eNoti
 
 	std::ostringstream payload;
 	payload << "{\"type\":\"notification\"";
+	payload << ",\"game_id\":" << CvPreGame::mapRandomSeed();
+	payload << ",\"session_id\":" << m_kGameStatePipe.GetSessionId();
 	payload << ",\"player_id\":" << ePlayer;
 	payload << ",\"notification_type\":" << eNotificationType;
 	payload << ",\"lookup_index\":" << iLookupIndex;
@@ -1370,6 +1377,8 @@ void CvGame::SendPopupToPipe(const CvPopupInfo& kPopup)
 
 	std::ostringstream payload;
 	payload << "{\"type\":\"popup\"";
+	payload << ",\"game_id\":" << CvPreGame::mapRandomSeed();
+	payload << ",\"session_id\":" << m_kGameStatePipe.GetSessionId();
 	payload << ",\"popup_type\":" << static_cast<int>(kPopup.eButtonPopupType);
 	payload << ",\"turn\":" << getGameTurn();
 
@@ -1429,6 +1438,8 @@ void CvGame::SendDiplomaticMessageToPipe(PlayerTypes ePlayer, DiploUIStateTypes 
 
 	std::ostringstream payload;
 	payload << "{\"type\":\"diplomatic_message\"";
+	payload << ",\"game_id\":" << CvPreGame::mapRandomSeed();
+	payload << ",\"session_id\":" << m_kGameStatePipe.GetSessionId();
 	payload << ",\"player\":" << static_cast<int>(ePlayer);
 	payload << ",\"diplo_ui_state\":" << static_cast<int>(eDiploUIState);
 	payload << ",\"animation\":" << static_cast<int>(eAction);
@@ -1502,6 +1513,8 @@ void CvGame::SendTechResearchedToPipe(PlayerTypes ePlayer, TechTypes eTech, bool
 
 	std::ostringstream payload;
 	payload << "{\"type\":\"tech_researched\"";
+	payload << ",\"game_id\":" << CvPreGame::mapRandomSeed();
+	payload << ",\"session_id\":" << m_kGameStatePipe.GetSessionId();
 	payload << ",\"player\":" << static_cast<int>(ePlayer);
 	payload << ",\"tech\":" << static_cast<int>(eTech);
 	payload << ",\"partial\":" << (bPartial ? "true" : "false");

@@ -150,6 +150,32 @@ Key:
 
 ---
 
+## Session Tracking
+
+All events and hooks include two identifiers for session management:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `game_id` | uint | Map random seed - unique per game, **persists across saves/loads** |
+| `session_id` | uint | Generated on pipe connect - unique per connection session |
+
+**Use cases:**
+- **game_id**: Filter logs to show only current game, detect game changes
+- **session_id**: Track connection sessions, detect reconnects
+
+**Example:**
+```json
+{
+  "type": "turn_start",
+  "game_id": 1847293654,
+  "session_id": 3847561,
+  "turn": 7,
+  ...
+}
+```
+
+---
+
 ## Message Categories
 
 | Category | Direction | Description |
