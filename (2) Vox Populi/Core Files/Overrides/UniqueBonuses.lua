@@ -145,7 +145,7 @@ end
 ------------------------------------------------------------------
 function PopulateUniqueBonuses( controlTable, civ, _, extendedTooltip, noTooltip)
 
-	local maxSmallButtons = 4;
+	local maxSmallButtons = 6;  -- 5/6 UC
 	local BonusText = {};
 
 	function PopulateButton(button, buttonFrame)
