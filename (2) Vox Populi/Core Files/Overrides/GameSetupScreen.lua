@@ -480,13 +480,11 @@ function SetSelectedCiv()
         -- Use the Civilization_Leaders table to cross reference from this civ to the Leaders table
         local leader = GameInfo.Leaders[GameInfo.Civilization_Leaders( "CivilizationType = '" .. civ.Type .. "'" )().LeaderheadType];
         local leaderDescription = leader.Description;
-
-		
         
-		IconHookup( leader.PortraitIndex, 128, leader.IconAtlas, Controls.Portrait );
-		IconHookup( civ.PortraitIndex, 64, civ.IconAtlas, Controls.IconShadow )
+	IconHookup( leader.PortraitIndex, 128, leader.IconAtlas, Controls.Portrait );
+	IconHookup( civ.PortraitIndex, 64, civ.IconAtlas, Controls.IconShadow )
 
-		-- Sets Trait bonus Text
+	-- Sets Trait bonus Text
         local leaderTrait = GameInfo.Leader_Traits("LeaderType ='" .. leader.Type .. "'")();
         local trait = GameInfo.Traits[leaderTrait.TraitType];
         
@@ -505,7 +503,7 @@ function SetSelectedCiv()
     else 
     	-------------------------------------------------
 		-- Random Civ Slot Setup
-		---------------------------------------------------           
+	---------------------------------------------------           
         SetCivName("TXT_KEY_RANDOM_LEADER", "TXT_KEY_RANDOM_CIV", "TXT_KEY_MISC_RANDOMIZE");
 
 		IconHookup( 22, 128, "LEADER_ATLAS", Controls.Portrait );
@@ -523,7 +521,7 @@ function SetSelectedCiv()
 		Controls.LargeMapImage:SetTexture(mapTexture);  
  
 		-- Sets Bonus Icons
-		local maxSmallButtons = 4;
+		local maxSmallButtons = 6;
 		for buttonNum = 1, maxSmallButtons, 1 do
 			local buttonName = "B"..tostring(buttonNum);
 			Controls[buttonName]:SetTexture( questionTextureSheet );
