@@ -5447,6 +5447,29 @@ CivilopediaCategory[CategoryCivilizations].SelectArticle = function( rawCivID, s
 				end
 				UpdateButtonFrame( buttonAdded, Controls.UniqueImprovementsInnerFrame, Controls.UniqueImprovementsFrame );
 
+				-- get unique improvements that don't use CivilizationRequired. Flag is to set OrderPriority = 90. Can combine with above block perhaps?
+                local CD_condition = "Type IN (SELECT ImprovementType FROM Builds WHERE OrderPriority = 90 AND Type IN (SELECT BuildType FROM Trait_BuildsUnitClasses WHERE TraitType IN (SELECT TraitType FROM Leader_Traits WHERE LeaderType IN (SELECT LeaderheadType FROM Civilization_Leaders WHERE CivilizationType = '" .. thisCiv.Type .. "'))))";
+				for thisImprovement in GameInfo.Improvements( CD_condition ) do
+					local thisImprovementInstance = g_UniqueImprovementsManager:GetInstance();
+					if thisImprovementInstance then
+
+						if not IconHookup( thisImprovement.PortraitIndex, buttonSize, thisImprovement.IconAtlas, thisImprovementInstance.UniqueImprovementImage ) then
+							thisImprovementInstance.UniqueImprovementImage:SetTexture( defaultErrorTextureSheet );
+							thisImprovementInstance.UniqueImprovementImage:SetTextureOffset( nullOffset );
+						end
+
+						--move this button
+						thisImprovementInstance.UniqueImprovementButton:SetOffsetVal( (buttonAdded % numberOfButtonsPerRow) * buttonSize + buttonPadding, math.floor(buttonAdded / numberOfButtonsPerRow) * buttonSize + buttonPadding );
+
+						thisImprovementInstance.UniqueImprovementButton:SetToolTipString( Locale.ConvertTextKey( thisImprovement.Description ) );
+						thisImprovementInstance.UniqueImprovementButton:SetVoids( thisImprovement.ID, addToList );
+						thisImprovementInstance.UniqueImprovementButton:RegisterCallback( Mouse.eLClick, CivilopediaCategory[CategoryImprovements].SelectArticle );
+
+						buttonAdded = buttonAdded + 1;
+					end
+				end
+				UpdateButtonFrame( buttonAdded, Controls.UniqueImprovementsInnerFrame, Controls.UniqueImprovementsFrame );
+
 				-- list of unique projects
 				g_UniqueProjectsManager:ResetInstances();
 				buttonAdded = 0;
