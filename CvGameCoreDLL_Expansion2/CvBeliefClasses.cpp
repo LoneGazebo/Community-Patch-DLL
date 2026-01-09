@@ -179,6 +179,71 @@ CvBeliefEntry::CvBeliefEntry() :
 /// Destructor
 CvBeliefEntry::~CvBeliefEntry()
 {
+	SAFE_DELETE_ARRAY(m_paiCityYieldChange);
+	SAFE_DELETE_ARRAY(m_paiHolyCityYieldChange);
+	SAFE_DELETE_ARRAY(m_paiYieldChangePerForeignCity);
+	SAFE_DELETE_ARRAY(m_paiYieldChangePerXForeignFollowers);
+	SAFE_DELETE_ARRAY(m_paiYieldChangePerXCityStateFollowers);
+	SAFE_DELETE_ARRAY(m_piYieldPerFollowingCity);
+	SAFE_DELETE_ARRAY(m_piYieldPerXFollowers);
+	SAFE_DELETE_ARRAY(m_piYieldPerOtherReligionFollower);
+	SAFE_DELETE_ARRAY(m_piResourceQuantityModifiers);
+
+	SAFE_DELETE_ARRAY(m_paiBuildingClassHappiness);
+
+	SAFE_DELETE_ARRAY(m_paiLakePlotYieldChange);
+
+	SAFE_DELETE_ARRAY(m_piGoldenAgeGreatPersonRateModifier);
+	SAFE_DELETE_ARRAY(m_piGreatPersonPoints);
+	SAFE_DELETE_ARRAY(m_piCapitalYieldChange);
+	SAFE_DELETE_ARRAY(m_piCoastalCityYieldChange);
+	SAFE_DELETE_ARRAY(m_piGreatWorkYieldChange);
+	SAFE_DELETE_ARRAY(m_piYieldFromKills);
+	SAFE_DELETE_ARRAY(m_piYieldFromRemoveHeresy);
+	SAFE_DELETE_ARRAY(m_piYieldFromBarbarianKills);
+
+	SAFE_DELETE_ARRAY(m_piResourceHappiness);
+	SAFE_DELETE_ARRAY(m_piYieldChangeAnySpecialist);
+	SAFE_DELETE_ARRAY(m_piYieldChangeTradeRoute);
+	SAFE_DELETE_ARRAY(m_piYieldChangeNaturalWonder);
+	SAFE_DELETE_ARRAY(m_piYieldChangeWorldWonder);
+	SAFE_DELETE_ARRAY(m_piYieldModifierNaturalWonder);
+	SAFE_DELETE_ARRAY(m_piMaxYieldModifierPerFollower);
+	SAFE_DELETE_ARRAY(m_piMaxYieldModifierPerFollowerPercent);
+	SAFE_DELETE_ARRAY(m_pbFaithPurchaseUnitSpecificEnabled);
+	SAFE_DELETE_ARRAY(m_pbFaithPurchaseUnitEraEnabled);
+    SAFE_DELETE_ARRAY(m_pbBuildingClassEnabled);
+
+	SAFE_DELETE_ARRAY(m_piYieldPerActiveTR);
+	SAFE_DELETE_ARRAY(m_piYieldPerConstruction);
+	SAFE_DELETE_ARRAY(m_piYieldPerWorldWonderConstruction);
+	SAFE_DELETE_ARRAY(m_piYieldPerPop);
+	SAFE_DELETE_ARRAY(m_piYieldPerGPT);
+	SAFE_DELETE_ARRAY(m_piYieldPerLux);
+
+	SAFE_DELETE_ARRAY(m_piYieldPerHeal);
+	SAFE_DELETE_ARRAY(m_piYieldPerBirth);
+	SAFE_DELETE_ARRAY(m_piYieldPerHolyCityBirth);
+	SAFE_DELETE_ARRAY(m_piYieldPerScience);
+	SAFE_DELETE_ARRAY(m_piYieldFromGPUse);
+	SAFE_DELETE_ARRAY(m_piYieldBonusGoldenAge);
+	SAFE_DELETE_ARRAY(m_piYieldFromSpread);
+	SAFE_DELETE_ARRAY(m_piYieldFromForeignSpread);
+	SAFE_DELETE_ARRAY(m_piYieldFromConquest);
+	SAFE_DELETE_ARRAY(m_piYieldFromPolicyUnlock);
+	SAFE_DELETE_ARRAY(m_piYieldFromEraUnlock);
+
+	SAFE_DELETE_ARRAY(m_piYieldFromConversion);
+	SAFE_DELETE_ARRAY(m_piYieldFromConversionExpo);
+	SAFE_DELETE_ARRAY(m_piYieldFromWLTKD);
+	SAFE_DELETE_ARRAY(m_piYieldFromProposal);
+	SAFE_DELETE_ARRAY(m_piYieldFromHost);
+	SAFE_DELETE_ARRAY(m_piYieldFromFaithPurchase);
+	SAFE_DELETE_ARRAY(m_piYieldFromKnownPantheons);
+	SAFE_DELETE_ARRAY(m_piMaxYieldPerFollower);
+	SAFE_DELETE_ARRAY(m_piMaxYieldPerFollowerPercent);
+	SAFE_DELETE_ARRAY(m_piImprovementVoteChange);
+
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiImprovementYieldChanges);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiBuildingClassYieldChanges);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiFeatureYieldChange);

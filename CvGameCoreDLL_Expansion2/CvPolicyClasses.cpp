@@ -402,6 +402,7 @@ CvPolicyEntry::~CvPolicyEntry(void)
 	SAFE_DELETE_ARRAY(m_piCapitalYieldModifier);
 	SAFE_DELETE_ARRAY(m_piGreatWorkYieldChange);
 	SAFE_DELETE_ARRAY(m_piSpecialistExtraYield);
+	SAFE_DELETE_ARRAY(m_piImprovementCultureChange);
 	SAFE_DELETE_ARRAY(m_pabFreePromotion);
 	SAFE_DELETE_ARRAY(m_paiUnitCombatProductionModifiers);
 	SAFE_DELETE_ARRAY(m_paiUnitCombatFreeExperiences);
@@ -460,6 +461,8 @@ CvPolicyEntry::~CvPolicyEntry(void)
 	SAFE_DELETE_ARRAY(m_piArtYieldChanges);
 	SAFE_DELETE_ARRAY(m_piLitYieldChanges);
 	SAFE_DELETE_ARRAY(m_piMusicYieldChanges);
+	SAFE_DELETE_ARRAY(m_piRelicYieldChanges);
+	SAFE_DELETE_ARRAY(m_piFilmYieldChanges);
 	SAFE_DELETE_ARRAY(m_piYieldFromNonSpecialistCitizensTimes100);
 	SAFE_DELETE_ARRAY(m_piYieldModifierFromGreatWorks);
 	SAFE_DELETE_ARRAY(m_piYieldModifierFromActiveSpies);
@@ -470,6 +473,7 @@ CvPolicyEntry::~CvPolicyEntry(void)
 #if defined(HH_MOD_API_TRADEROUTE_MODIFIERS)
 	SAFE_DELETE_ARRAY(m_piInternationalRouteYieldModifiers);
 #endif 
+	SAFE_DELETE_ARRAY(m_piFlavorValue);
 	m_piUnitClassReplacements.clear();
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiBuildingClassYieldModifiers);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiBuildingClassYieldChanges);
