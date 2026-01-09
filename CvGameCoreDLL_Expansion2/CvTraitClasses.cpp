@@ -308,6 +308,72 @@ CvTraitEntry::CvTraitEntry() :
 /// Destructor
 CvTraitEntry::~CvTraitEntry()
 {
+	SAFE_DELETE_ARRAY(m_paiExtraYieldThreshold);
+	SAFE_DELETE_ARRAY(m_paiYieldChange);
+	SAFE_DELETE_ARRAY(m_paiYieldChangeStrategicResources);
+	SAFE_DELETE_ARRAY(m_paiYieldChangeNaturalWonder);
+	SAFE_DELETE_ARRAY(m_paiYieldChangePerTradePartner);
+	SAFE_DELETE_ARRAY(m_paiYieldChangeIncomingTradeRoute);
+	SAFE_DELETE_ARRAY(m_paiYieldModifier);
+	SAFE_DELETE_ARRAY(m_piStrategicResourceQuantityModifier);
+	SAFE_DELETE_ARRAY(m_piResourceQuantityModifiers);
+	SAFE_DELETE_ARRAY(m_piNumFreeResourceOnWorldWonderCompletion);
+	SAFE_DELETE_ARRAY(m_piMovesChangeUnitCombats);
+	SAFE_DELETE_ARRAY(m_paiGAPToYield);
+	SAFE_DELETE_ARRAY(m_paiMountainRangeYield);
+	SAFE_DELETE_ARRAY(m_piMovesChangeUnitClasses);
+	
+	SAFE_DELETE_ARRAY(m_piMaintenanceModifierUnitCombats);
+
+	SAFE_DELETE_ARRAY(m_piYieldFromLevelUp);
+	SAFE_DELETE_ARRAY(m_piYieldFromHistoricEvent);
+	SAFE_DELETE_ARRAY(m_piYieldFromOwnPantheon);
+	SAFE_DELETE_ARRAY(m_piYieldFromXMilitaryUnits);
+
+	SAFE_DELETE_ARRAY(m_piYieldFromRouteMovement);
+	SAFE_DELETE_ARRAY(m_piYieldFromExport);
+	SAFE_DELETE_ARRAY(m_piYieldFromImport);
+	SAFE_DELETE_ARRAY(m_piYieldFromTilePurchase);
+	SAFE_DELETE_ARRAY(m_piYieldFromTileEarn);
+	SAFE_DELETE_ARRAY(m_piYieldFromCSAlly);
+	SAFE_DELETE_ARRAY(m_piYieldFromCSFriend);
+	SAFE_DELETE_ARRAY(m_piYieldFromSettle);
+	SAFE_DELETE_ARRAY(m_piYieldFromConquest);
+	SAFE_DELETE_ARRAY(m_piYieldFromCityDamageTimes100);
+
+	SAFE_DELETE_ARRAY(m_piNumPledgesDomainProdMod);
+	SAFE_DELETE_ARRAY(m_piDomainFreeExperienceModifier);
+	SAFE_DELETE_ARRAY(m_piGreatPersonProgressFromPolicyUnlock);
+
+	SAFE_DELETE_ARRAY(m_piFreeUnitClassesDOW);
+
+	SAFE_DELETE_ARRAY(m_piCapitalYieldChanges);
+	SAFE_DELETE_ARRAY(m_piCityYieldChanges);
+	SAFE_DELETE_ARRAY(m_piPermanentYieldChangeWLTKD);
+	SAFE_DELETE_ARRAY(m_piCoastalCityYieldChanges);
+	SAFE_DELETE_ARRAY(m_piGreatWorkYieldChanges);
+	SAFE_DELETE_ARRAY(m_piArtifactYieldChanges);
+	SAFE_DELETE_ARRAY(m_piArtYieldChanges);
+	SAFE_DELETE_ARRAY(m_piLitYieldChanges);
+	SAFE_DELETE_ARRAY(m_piMusicYieldChanges);
+	SAFE_DELETE_ARRAY(m_piSeaPlotYieldChanges);
+
+	SAFE_DELETE_ARRAY(m_piLuxuryYieldChanges);
+
+	SAFE_DELETE_ARRAY(m_piYieldFromKills);
+	SAFE_DELETE_ARRAY(m_piYieldFromBarbarianKills);
+	SAFE_DELETE_ARRAY(m_piYieldFromMinorDemand);
+	SAFE_DELETE_ARRAY(m_piYieldFromLuxuryResourceGain);
+	SAFE_DELETE_ARRAY(m_piYieldChangeTradeRoute);
+	SAFE_DELETE_ARRAY(m_piYieldChangeWorldWonder);
+
+	SAFE_DELETE_ARRAY(m_piGreatPersonCostReduction);
+	SAFE_DELETE_ARRAY(m_piGoldenAgeGreatPersonRateModifier);
+	SAFE_DELETE_ARRAY(m_piPerPuppetGreatPersonRateModifier);
+	SAFE_DELETE_ARRAY(m_piGreatPersonGWAM);
+
+	SAFE_DELETE_ARRAY(m_piGoldenAgeFromGreatPersonBirth);
+
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiImprovementYieldChanges);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiPlotYieldChanges);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiBuildingClassYieldChanges);
