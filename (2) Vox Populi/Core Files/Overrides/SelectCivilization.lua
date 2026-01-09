@@ -102,7 +102,7 @@ function AddRandomCivilizationEntry()
 	controlTable.BonusDescription:SetText( "" );
 
 	 -- Sets Bonus Icons
-	local maxSmallButtons = 4;
+	local maxSmallButtons = 6;
 	for buttonNum = 1, maxSmallButtons, 1 do
 		local buttonName = "B"..tostring(buttonNum);
 		controlTable[buttonName]:SetTexture( questionTextureSheet );
