@@ -237,7 +237,7 @@ function PopulateUniqueBonuses_CreateCached()
 	
 	
 	return function(controlTable, civType, extendedTooltip, noTooltip) 
-		local maxSmallButtons = 4;
+		local maxSmallButtons = 6;  -- 5/6 UC
 		local BonusText = {};
 
 		local textureSize = 64;
@@ -268,16 +268,26 @@ function PopulateUniqueBonuses_CreateCached()
 				end
 				
 				if(#buttonFuncs < maxSmallButtons) then	
-				for row in uniqueProjectsQuery(civType) do
-					table.insert(buttonFuncs, function(button, buttonFrame)
-						AdjustArtOnUniqueProjectButton( button, buttonFrame, row, textureSize, extendedTooltip, noTooltip);
-						return row.Description;
-					end);
+					for row in uniqueProjectsQuery(civType) do
+						table.insert(buttonFuncs, function(button, buttonFrame)
+							AdjustArtOnUniqueProjectButton( button, buttonFrame, row, textureSize, extendedTooltip, noTooltip);
+							return row.Description;
+						end);
+					end
+		
+					if(#buttonFuncs < maxSmallButtons) then	
+						for row in culturalImprovementsQuery(civType) do
+							table.insert(buttonFuncs, function(button, buttonFrame)
+								AdjustArtOnUniqueImprovementButton( button, buttonFrame, row, textureSize, extendedTooltip, noTooltip);
+								return row.Description;
+							end);
+						end
+					end
+
 				end
 			end
-			end
 		end
-	
+
 		for buttonNum = 1, maxSmallButtons, 1 do
 			local buttonName = "B"..tostring(buttonNum);
 			local buttonFrameName = "BF"..tostring(buttonNum);
