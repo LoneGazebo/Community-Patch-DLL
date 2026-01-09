@@ -171,7 +171,14 @@ function PopulateUniqueBonuses( controlTable, civ, _, extendedTooltip, noTooltip
 			AdjustArtOnUniqueImprovementButton( button, buttonFrame, row, textureSize, extendedTooltip, noTooltip);
  			button, buttonFrame = coroutine.yield(row.Description);
 		end
-		
+
+		-- 5/6 UC improvements using Trait_BuildsUnitClasses and OrderPriority
+		for row in DB.Query([[SELECT DISTINCT i.ID, i.Description, i.PortraitIndex, i.IconAtlas from Improvements i, Civilization_Leaders cl, Leader_Traits lt, Trait_BuildsUnitClasses tbuc, Builds b 
+			where cl.CivilizationType = ? and lt.LeaderType = cl.LeaderheadType and lt.TraitType = tbuc.TraitType and tbuc.BuildType = b.Type and i.Type = b.ImprovementType and b.OrderPriority=90]], civ.Type) do
+			AdjustArtOnUniqueImprovementButton( button, buttonFrame, row, textureSize, extendedTooltip, noTooltip);
+ 			button, buttonFrame = coroutine.yield(row.Description);
+		end
+
 		for row in DB.Query([[SELECT ID, Description, PortraitIndex, IconAtlas from Projects where CivilizationType = ?]], civ.Type) do
 			AdjustArtOnUniqueProjectButton( button, buttonFrame, row, textureSize, extendedTooltip, noTooltip);
  			button, buttonFrame = coroutine.yield(row.Description);
@@ -221,6 +228,10 @@ function PopulateUniqueBonuses_CreateCached()
 								Civilization_BuildingClassOverrides.BuildingType IS NOT NULL]]);
 								
 	local uniqueImprovementsQuery = DB.CreateQuery([[SELECT ID, Description, PortraitIndex, IconAtlas from Improvements where CivilizationType = ?]]);
+
+	-- 5/6 UC
+	local culturalImprovementsQuery = DB.CreateQuery([[SELECT DISTINCT i.ID, i.Description, i.PortraitIndex, i.IconAtlas from Improvements i, Civilization_Leaders cl, Leader_Traits lt, Trait_BuildsUnitClasses tbuc, Builds b 
+		where cl.CivilizationType = ? and lt.LeaderType = cl.LeaderheadType and lt.TraitType = tbuc.TraitType and tbuc.BuildType = b.Type and i.Type = b.ImprovementType and b.OrderPriority=90]]);
 	
 	local uniqueProjectsQuery = DB.CreateQuery([[SELECT ID, Description, PortraitIndex, IconAtlas from Projects where CivilizationType = ?]]);
 	
