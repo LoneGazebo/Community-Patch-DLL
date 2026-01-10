@@ -1536,6 +1536,40 @@ void CvGame::SendTechResearchedToPipe(PlayerTypes ePlayer, TechTypes eTech, bool
 }
 
 //	--------------------------------------------------------------------------------
+// Helper function to find and validate a unit for pipe commands
+// Returns the unit if found and owned by active player, NULL otherwise
+// Writes error response to os if validation fails
+static CvUnit* FindAndValidateUnitForPipe(int unitId, std::ostringstream& os, PlayerTypes activePlayer)
+{
+	// Find unit
+	CvUnit* pUnit = NULL;
+	for (int iPlayer = 0; iPlayer < MAX_PLAYERS; ++iPlayer)
+	{
+		CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iPlayer);
+		pUnit = kPlayer.getUnit(unitId);
+		if (pUnit != NULL)
+		{
+			break;
+		}
+	}
+
+	if (pUnit == NULL)
+	{
+		os << ",\"success\":false,\"error\":{\"code\":\"UNIT_NOT_FOUND\",\"message\":\"Unit not found\"}";
+		return NULL;
+	}
+
+	// Check if unit belongs to active player
+	if (pUnit->getOwner() != activePlayer)
+	{
+		os << ",\"success\":false,\"error\":{\"code\":\"UNIT_NOT_OWNED\",\"message\":\"Unit does not belong to active player\"}";
+		return NULL;
+	}
+
+	return pUnit;
+}
+
+//	--------------------------------------------------------------------------------
 void CvGame::HandlePipeCommand(const std::string& commandLine)
 {
 #if defined(_WIN32)
@@ -1649,6 +1683,315 @@ void CvGame::HandlePipeCommand(const std::string& commandLine)
 			else
 			{
 				os << ",\"success\":false,\"error\":{\"code\":\"UNIT_NOT_FOUND\",\"message\":\"Unit not found\"}";
+			}
+
+			os << "}";
+			m_kGameStatePipe.SendMessage(os.str());
+			return;
+		}
+		else if (msgType == "unit_found_city")
+		{
+			// Found a city with a settler unit
+			std::string requestId = msg.get("request_id").asString();
+			int unitId = msg.get("unit_id").asInt();
+
+			std::ostringstream os;
+			os << "{\"type\":\"unit_found_city_result\",\"request_id\":\"" << PipeJson::Escape(requestId) << "\"";
+
+			CvUnit* pUnit = FindAndValidateUnitForPipe(unitId, os, getActivePlayer());
+			if (pUnit != NULL)
+			{
+				// Check if unit can found a city at its current location
+				if (pUnit->canFoundCity(pUnit->plot()))
+				{
+					pUnit->ClearMissionQueue();
+					pUnit->PushMission(CvTypes::getMISSION_FOUND());
+
+					os << ",\"success\":true,\"result\":{\"message\":\"City founded\"}";
+					os << ",\"state_delta\":{\"unit_id\":" << unitId << ",\"x\":" << pUnit->getX() << ",\"y\":" << pUnit->getY() << "}";
+				}
+				else
+				{
+					os << ",\"success\":false,\"error\":{\"code\":\"CANNOT_FOUND_CITY\",\"message\":\"Unit cannot found a city at this location\"}";
+				}
+			}
+
+			os << "}";
+			m_kGameStatePipe.SendMessage(os.str());
+			return;
+		}
+		else if (msgType == "unit_sleep")
+		{
+			// Set unit to sleep/fortify
+			std::string requestId = msg.get("request_id").asString();
+			int unitId = msg.get("unit_id").asInt();
+
+			std::ostringstream os;
+			os << "{\"type\":\"unit_sleep_result\",\"request_id\":\"" << PipeJson::Escape(requestId) << "\"";
+
+			CvUnit* pUnit = FindAndValidateUnitForPipe(unitId, os, getActivePlayer());
+			if (pUnit != NULL)
+			{
+				pUnit->ClearMissionQueue();
+				pUnit->SetActivityType(ACTIVITY_SLEEP);
+
+				os << ",\"success\":true,\"result\":{\"message\":\"Unit set to sleep/fortify\"}";
+				os << ",\"state_delta\":{\"unit_id\":" << unitId << ",\"activity\":\"sleep\"}";
+			}
+
+			os << "}";
+			m_kGameStatePipe.SendMessage(os.str());
+			return;
+		}
+		else if (msgType == "unit_skip")
+		{
+			// Set unit to skip/hold (skip turn)
+			std::string requestId = msg.get("request_id").asString();
+			int unitId = msg.get("unit_id").asInt();
+
+			std::ostringstream os;
+			os << "{\"type\":\"unit_skip_result\",\"request_id\":\"" << PipeJson::Escape(requestId) << "\"";
+
+			CvUnit* pUnit = FindAndValidateUnitForPipe(unitId, os, getActivePlayer());
+			if (pUnit != NULL)
+			{
+				pUnit->ClearMissionQueue();
+				pUnit->SetActivityType(ACTIVITY_HOLD);
+
+				os << ",\"success\":true,\"result\":{\"message\":\"Unit set to skip/hold\"}";
+				os << ",\"state_delta\":{\"unit_id\":" << unitId << ",\"activity\":\"skip\"}";
+			}
+
+			os << "}";
+			m_kGameStatePipe.SendMessage(os.str());
+			return;
+		}
+		else if (msgType == "unit_fortify")
+		{
+			// Fortify a military unit
+			std::string requestId = msg.get("request_id").asString();
+			int unitId = msg.get("unit_id").asInt();
+
+			std::ostringstream os;
+			os << "{\"type\":\"unit_fortify_result\",\"request_id\":\"" << PipeJson::Escape(requestId) << "\"";
+
+			CvUnit* pUnit = FindAndValidateUnitForPipe(unitId, os, getActivePlayer());
+			if (pUnit != NULL)
+			{
+				if (pUnit->canFortify(pUnit->plot()))
+				{
+					pUnit->ClearMissionQueue();
+					pUnit->PushMission(CvTypes::getMISSION_FORTIFY());
+
+					os << ",\"success\":true,\"result\":{\"message\":\"Unit fortified\"}";
+					os << ",\"state_delta\":{\"unit_id\":" << unitId << ",\"activity\":\"fortify\"}";
+				}
+				else
+				{
+					os << ",\"success\":false,\"error\":{\"code\":\"CANNOT_FORTIFY\",\"message\":\"Unit cannot fortify at this location\"}";
+				}
+			}
+
+			os << "}";
+			m_kGameStatePipe.SendMessage(os.str());
+			return;
+		}
+		else if (msgType == "unit_alert")
+		{
+			// Put unit on alert (wake when enemy approaches)
+			std::string requestId = msg.get("request_id").asString();
+			int unitId = msg.get("unit_id").asInt();
+
+			std::ostringstream os;
+			os << "{\"type\":\"unit_alert_result\",\"request_id\":\"" << PipeJson::Escape(requestId) << "\"";
+
+			CvUnit* pUnit = FindAndValidateUnitForPipe(unitId, os, getActivePlayer());
+			if (pUnit != NULL)
+			{
+				if (pUnit->canSentry(pUnit->plot()))
+				{
+					pUnit->ClearMissionQueue();
+					pUnit->PushMission(CvTypes::getMISSION_ALERT());
+
+					os << ",\"success\":true,\"result\":{\"message\":\"Unit set to alert\"}";
+					os << ",\"state_delta\":{\"unit_id\":" << unitId << ",\"activity\":\"alert\"}";
+				}
+				else
+				{
+					os << ",\"success\":false,\"error\":{\"code\":\"CANNOT_ALERT\",\"message\":\"Unit cannot be set to alert at this location\"}";
+				}
+			}
+
+			os << "}";
+			m_kGameStatePipe.SendMessage(os.str());
+			return;
+		}
+		else if (msgType == "unit_heal")
+		{
+			// Heal the unit
+			std::string requestId = msg.get("request_id").asString();
+			int unitId = msg.get("unit_id").asInt();
+
+			std::ostringstream os;
+			os << "{\"type\":\"unit_heal_result\",\"request_id\":\"" << PipeJson::Escape(requestId) << "\"";
+
+			CvUnit* pUnit = FindAndValidateUnitForPipe(unitId, os, getActivePlayer());
+			if (pUnit != NULL)
+			{
+				if (pUnit->canHeal(pUnit->plot(), true))
+				{
+					pUnit->ClearMissionQueue();
+					pUnit->PushMission(CvTypes::getMISSION_HEAL());
+
+					os << ",\"success\":true,\"result\":{\"message\":\"Unit healing\"}";
+					os << ",\"state_delta\":{\"unit_id\":" << unitId << ",\"activity\":\"heal\",\"hp\":" << pUnit->GetCurrHitPoints() << ",\"max_hp\":" << pUnit->GetMaxHitPoints() << "}";
+				}
+				else
+				{
+					os << ",\"success\":false,\"error\":{\"code\":\"CANNOT_HEAL\",\"message\":\"Unit cannot heal at this location or has no movement\"}";
+				}
+			}
+
+			os << "}";
+			m_kGameStatePipe.SendMessage(os.str());
+			return;
+		}
+		else if (msgType == "unit_pillage")
+		{
+			// Pillage an improvement or route
+			std::string requestId = msg.get("request_id").asString();
+			int unitId = msg.get("unit_id").asInt();
+
+			std::ostringstream os;
+			os << "{\"type\":\"unit_pillage_result\",\"request_id\":\"" << PipeJson::Escape(requestId) << "\"";
+
+			CvUnit* pUnit = FindAndValidateUnitForPipe(unitId, os, getActivePlayer());
+			if (pUnit != NULL)
+			{
+				if (pUnit->canPillage(pUnit->plot()))
+				{
+					pUnit->ClearMissionQueue();
+					pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
+
+					os << ",\"success\":true,\"result\":{\"message\":\"Unit pillaging\"}";
+					os << ",\"state_delta\":{\"unit_id\":" << unitId << ",\"x\":" << pUnit->getX() << ",\"y\":" << pUnit->getY() << "}";
+				}
+				else
+				{
+					os << ",\"success\":false,\"error\":{\"code\":\"CANNOT_PILLAGE\",\"message\":\"Unit cannot pillage at this location\"}";
+				}
+			}
+
+			os << "}";
+			m_kGameStatePipe.SendMessage(os.str());
+			return;
+		}
+		else if (msgType == "unit_ranged_attack")
+		{
+			// Ranged attack a target
+			std::string requestId = msg.get("request_id").asString();
+			int unitId = msg.get("unit_id").asInt();
+			const JsonValue& targetArray = msg.get("target");
+
+			std::ostringstream os;
+			os << "{\"type\":\"unit_ranged_attack_result\",\"request_id\":\"" << PipeJson::Escape(requestId) << "\"";
+
+			if (targetArray.isArray() && targetArray.size() >= 2)
+			{
+				int targetX = targetArray[0].asInt();
+				int targetY = targetArray[1].asInt();
+
+				CvUnit* pUnit = FindAndValidateUnitForPipe(unitId, os, getActivePlayer());
+				if (pUnit != NULL)
+				{
+					if (pUnit->canRangeStrikeAt(targetX, targetY))
+					{
+						pUnit->ClearMissionQueue();
+						pUnit->PushMission(CvTypes::getMISSION_RANGE_ATTACK(), targetX, targetY);
+
+						os << ",\"success\":true,\"result\":{\"message\":\"Ranged attack executed\"}";
+						os << ",\"state_delta\":{\"unit_id\":" << unitId << ",\"target_x\":" << targetX << ",\"target_y\":" << targetY << "}";
+					}
+					else
+					{
+						os << ",\"success\":false,\"error\":{\"code\":\"CANNOT_ATTACK\",\"message\":\"Unit cannot range attack that target\"}";
+					}
+				}
+			}
+			else
+			{
+				os << ",\"success\":false,\"error\":{\"code\":\"INVALID_TARGET\",\"message\":\"Missing or invalid 'target' array [x, y]\"}";
+			}
+
+			os << "}";
+			m_kGameStatePipe.SendMessage(os.str());
+			return;
+		}
+		else if (msgType == "unit_build")
+		{
+			// Build an improvement (worker action)
+			std::string requestId = msg.get("request_id").asString();
+			int unitId = msg.get("unit_id").asInt();
+			int buildTypeId = msg.get("build_type").asInt(-1);
+
+			std::ostringstream os;
+			os << "{\"type\":\"unit_build_result\",\"request_id\":\"" << PipeJson::Escape(requestId) << "\"";
+
+			if (buildTypeId < 0 || buildTypeId >= GC.getNumBuildInfos())
+			{
+				os << ",\"success\":false,\"error\":{\"code\":\"INVALID_BUILD_TYPE\",\"message\":\"Invalid or missing 'build_type' parameter\"}";
+			}
+			else
+			{
+				CvUnit* pUnit = FindAndValidateUnitForPipe(unitId, os, getActivePlayer());
+				if (pUnit != NULL)
+				{
+					BuildTypes eBuild = (BuildTypes)buildTypeId;
+					if (pUnit->canBuild(pUnit->plot(), eBuild))
+					{
+						pUnit->ClearMissionQueue();
+						pUnit->PushMission(CvTypes::getMISSION_BUILD(), buildTypeId, -1, 0, false, false, MISSIONAI_BUILD, pUnit->plot());
+
+						CvBuildInfo* pBuildInfo = GC.getBuildInfo(eBuild);
+						const char* buildName = pBuildInfo ? pBuildInfo->GetType() : "Unknown";
+
+						os << ",\"success\":true,\"result\":{\"message\":\"Unit building\",\"build_name\":\"" << PipeJson::Escape(buildName) << "\"}";
+						os << ",\"state_delta\":{\"unit_id\":" << unitId << ",\"build_type\":" << buildTypeId << ",\"x\":" << pUnit->getX() << ",\"y\":" << pUnit->getY() << "}";
+					}
+					else
+					{
+						os << ",\"success\":false,\"error\":{\"code\":\"CANNOT_BUILD\",\"message\":\"Unit cannot build this improvement here\"}";
+					}
+				}
+			}
+
+			os << "}";
+			m_kGameStatePipe.SendMessage(os.str());
+			return;
+		}
+		else if (msgType == "unit_delete")
+		{
+			// Delete/disband a unit
+			std::string requestId = msg.get("request_id").asString();
+			int unitId = msg.get("unit_id").asInt();
+
+			std::ostringstream os;
+			os << "{\"type\":\"unit_delete_result\",\"request_id\":\"" << PipeJson::Escape(requestId) << "\"";
+
+			CvUnit* pUnit = FindAndValidateUnitForPipe(unitId, os, getActivePlayer());
+			if (pUnit != NULL)
+			{
+				if (pUnit->canScrap(false))
+				{
+					pUnit->scrap();
+
+					os << ",\"success\":true,\"result\":{\"message\":\"Unit disbanded\"}";
+					os << ",\"state_delta\":{\"unit_id\":" << unitId << ",\"deleted\":true}";
+				}
+				else
+				{
+					os << ",\"success\":false,\"error\":{\"code\":\"CANNOT_DELETE\",\"message\":\"Unit cannot be disbanded\"}";
+				}
 			}
 
 			os << "}";
