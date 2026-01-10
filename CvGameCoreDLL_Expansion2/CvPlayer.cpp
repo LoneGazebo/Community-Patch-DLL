@@ -42593,7 +42593,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 
 			if (pkPolicyInfo->GetInstantYield(iI) != 0)
 			{
-				doInstantYield(INSTANT_YIELD_TYPE_INSTANT, false, NO_GREATPERSON, NO_BUILDING, pkPolicyInfo->GetInstantYield(iI), false, NO_PLAYER, NULL, false, pCapital, false, false, false, eYield);
+				doInstantYield(INSTANT_YIELD_TYPE_INSTANT, false, NO_GREATPERSON, NO_BUILDING, pkPolicyInfo->GetInstantYield(iI), false, NO_PLAYER, NULL, false, pCapital, false, true, true, eYield);
 			}
 		}
 
