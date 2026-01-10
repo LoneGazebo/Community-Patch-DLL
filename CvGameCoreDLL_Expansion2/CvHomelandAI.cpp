@@ -3887,7 +3887,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 					if (pOtherPlot->getFeatureType() == eOldFeature)
 					{
 						FeatureTypes eFeatureFromOtherImprovement = pkOtherImprovementInfo ? pkOtherImprovementInfo->GetCreatedFeature() : NO_FEATURE;
-						FeatureTypes eOtherFeature = pkOtherBuildInfo && pkOtherBuildInfo->isFeatureRemove(pOtherPlot->getFeatureType()) ? NO_FEATURE : pOtherPlot->getFeatureType();
+						FeatureTypes eOtherFeature = pkOtherBuildInfo && pOtherPlot->getFeatureType() != NO_FEATURE && pkOtherBuildInfo->isFeatureRemove(pOtherPlot->getFeatureType()) ? NO_FEATURE : pOtherPlot->getFeatureType();
 						eOtherFeature = eFeatureFromOtherImprovement != NO_FEATURE ? eFeatureFromOtherImprovement : eOtherFeature;
 
 						if (eOtherFeature != pOtherPlot->getFeatureType() || eOtherImprovement != NO_IMPROVEMENT)
