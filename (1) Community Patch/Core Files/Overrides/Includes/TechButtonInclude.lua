@@ -690,8 +690,10 @@ function AddSmallButtonsToTechButton(buttonStack, kTechInfo, iButtonCount, iText
 			local strButtonText, strYieldBoosts = GetYieldBoostsString(tYieldBoosts);
 			local strTooltip = L("TXT_KEY_TECH_HELP_IMPROVEMENT_BOOST", kImprovementInfo.Description, strYieldBoosts);
 			local kBuildInfo = GameInfo.Builds{ImprovementType = kImprovementInfo.Type}();
-			GenerateNextButtonFromInfo(SetupBuildButton, kBuildInfo, strTooltip, strButtonText);
-			if iButtonIndex > iButtonCount then return iButtonCount end
+			if kBuildInfo then
+				GenerateNextButtonFromInfo(SetupBuildButton, kBuildInfo, strTooltip, strButtonText);
+				if iButtonIndex > iButtonCount then return iButtonCount end
+			end
 		end
 	end
 
@@ -701,8 +703,10 @@ function AddSmallButtonsToTechButton(buttonStack, kTechInfo, iButtonCount, iText
 			local strButtonText, strYieldBoosts = GetYieldBoostsString(tYieldBoosts);
 			local strTooltip = L("TXT_KEY_TECH_HELP_IMPROVEMENT_BOOST_FRESH_WATER", kImprovementInfo.Description, strYieldBoosts);
 			local kBuildInfo = GameInfo.Builds{ImprovementType = kImprovementInfo.Type}();
-			GenerateNextButtonFromInfo(SetupBuildButton, kBuildInfo, strTooltip, strButtonText);
-			if iButtonIndex > iButtonCount then return iButtonCount end
+			if kBuildInfo then
+				GenerateNextButtonFromInfo(SetupBuildButton, kBuildInfo, strTooltip, strButtonText);
+				if iButtonIndex > iButtonCount then return iButtonCount end
+			end
 		end
 	end
 
@@ -712,8 +716,10 @@ function AddSmallButtonsToTechButton(buttonStack, kTechInfo, iButtonCount, iText
 			local strButtonText, strYieldBoosts = GetYieldBoostsString(tYieldBoosts);
 			local strTooltip = L("TXT_KEY_TECH_HELP_IMPROVEMENT_BOOST_NO_FRESH_WATER", kImprovementInfo.Description, strYieldBoosts);
 			local kBuildInfo = GameInfo.Builds{ImprovementType = kImprovementInfo.Type}();
-			GenerateNextButtonFromInfo(SetupBuildButton, kBuildInfo, strTooltip, strButtonText);
-			if iButtonIndex > iButtonCount then return iButtonCount end
+			if kBuildInfo then
+				GenerateNextButtonFromInfo(SetupBuildButton, kBuildInfo, strTooltip, strButtonText);
+				if iButtonIndex > iButtonCount then return iButtonCount end
+			end
 		end
 	end
 
