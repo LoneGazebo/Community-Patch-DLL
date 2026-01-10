@@ -42590,6 +42590,11 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 				int iVal = pCapital->getPopulation() * pkPolicyInfo->GetYieldFromBirthCapitalRetroactive(iI);
 				doInstantYield(INSTANT_YIELD_TYPE_BIRTH_RETROACTIVE, false, NO_GREATPERSON, NO_BUILDING, iVal, true, NO_PLAYER, NULL, false, pCapital, false, false, false, eYield);
 			}
+
+			if (pkPolicyInfo->GetInstantYield(iI) != 0)
+			{
+				doInstantYield(INSTANT_YIELD_TYPE_INSTANT, false, NO_GREATPERSON, NO_BUILDING, pkPolicyInfo->GetInstantYield(iI), false, NO_PLAYER, NULL, false, pCapital, false, false, false, eYield);
+			}
 		}
 
 		// Store off number of newly built cities that will get a free building
