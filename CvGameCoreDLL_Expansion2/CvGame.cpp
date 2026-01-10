@@ -630,16 +630,75 @@ void CvGame::InitPlayers()
 		const PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iI);
 		PlayerColorTypes ePlayerColor = NO_PLAYERCOLOR;
 		SlotStatus eStatus = CvPreGame::slotStatus(eLoopPlayer);
-		if (eStatus == SS_TAKEN || eStatus == SS_COMPUTER) // Don't set colors for unoccupied slots.
+		// Fix Really Advanced Startup mod setting major slots to closed
+		if (eStatus == SS_CLOSED)
 		{
-			ePlayerColor = CvPreGame::playerColor(eLoopPlayer);
-
-			// If it wasn't set in the pregame for some reason, fetch it from the database.
-			if (ePlayerColor == NO_PLAYERCOLOR)
+			CvPreGame::setTeamType(eLoopPlayer, OBSERVER_TEAM);
+			CvPreGame::setSlotStatus(eLoopPlayer, SS_OBSERVER);
+			CvPreGame::setMinorCiv(eLoopPlayer, false);
+			CivilizationTypes ePlayerCiv = CvPreGame::civilization(eLoopPlayer);
+			if (ePlayerCiv == NO_CIVILIZATION)
 			{
-				CvCivilizationInfo* pCivilizationInfo = GC.getCivilizationInfo(CvPreGame::civilization(eLoopPlayer));
-				ePlayerColor = (PlayerColorTypes)pCivilizationInfo->getDefaultPlayerColor();
+				// Find an unused civilization
+				CivilizationTypes eAssignedCiv = NO_CIVILIZATION;
+				LeaderHeadTypes eAssignedLeader = NO_LEADER;
+
+				for (int iCiv = 0; iCiv < GC.getNumCivilizationInfos(); iCiv++)
+				{
+					CivilizationTypes eTestCiv = static_cast<CivilizationTypes>(iCiv);
+
+					// Skip barbarian and minor civilizations
+					if (eTestCiv == eBarbCiv || eTestCiv == eMinorCiv)
+						continue;
+
+					// Check if this civilization is already assigned to another player
+					bool bAlreadyUsed = false;
+					for (int iJ = 0; iJ < MAX_MAJOR_CIVS; iJ++)
+					{
+						if (iJ != iI && CvPreGame::civilization(static_cast<PlayerTypes>(iJ)) == eTestCiv)
+						{
+							bAlreadyUsed = true;
+							break;
+						}
+					}
+
+					if (!bAlreadyUsed)
+					{
+						// Find a leader for this civilization
+						CvCivilizationInfo* pCivInfo = GC.getCivilizationInfo(eTestCiv);
+						if (pCivInfo != NULL)
+						{
+							for (int iLeader = 0; iLeader < GC.getNumLeaderHeadInfos(); iLeader++)
+							{
+								if (pCivInfo->isLeaders(iLeader))
+								{
+									eAssignedCiv = eTestCiv;
+									eAssignedLeader = static_cast<LeaderHeadTypes>(iLeader);
+									break;
+								}
+							}
+						}
+
+						if (eAssignedCiv != NO_CIVILIZATION && eAssignedLeader != NO_LEADER)
+							break;
+					}
+				}
+
+				if (eAssignedCiv != NO_CIVILIZATION && eAssignedLeader != NO_LEADER)
+				{
+					CvPreGame::setCivilization(eLoopPlayer, eAssignedCiv);
+					CvPreGame::setLeaderHead(eLoopPlayer, eAssignedLeader);
+				}
 			}
+		}
+
+		ePlayerColor = CvPreGame::playerColor(eLoopPlayer);
+
+		// If it wasn't set in the pregame for some reason, fetch it from the database.
+		if (ePlayerColor == NO_PLAYERCOLOR)
+		{
+			CvCivilizationInfo* pCivilizationInfo = GC.getCivilizationInfo(CvPreGame::civilization(eLoopPlayer));
+			ePlayerColor = (PlayerColorTypes)pCivilizationInfo->getDefaultPlayerColor();
 		}
 
 		if (ePlayerColor == NO_PLAYERCOLOR || ePlayerColor == barbarianPlayerColor)
