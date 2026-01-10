@@ -278,6 +278,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_piYieldFromBirthCapital(NULL),
 	m_piYieldFromBirthRetroactive(NULL),
 	m_piYieldFromBirthCapitalRetroactive(NULL),
+    m_piInstantYield(NULL),
 	m_piYieldFromConstruction(NULL),
 	m_piYieldFromWorldWonderConstruction(NULL),
 	m_piYieldFromTech(NULL),
@@ -420,6 +421,7 @@ CvPolicyEntry::~CvPolicyEntry(void)
 	SAFE_DELETE_ARRAY(m_piYieldFromBirthRetroactive);
 	SAFE_DELETE_ARRAY(m_piYieldFromBirthCapital);
 	SAFE_DELETE_ARRAY(m_piYieldFromBirthCapitalRetroactive);
+	SAFE_DELETE_ARRAY(m_piInstantYield);
 	SAFE_DELETE_ARRAY(m_piYieldFromConstruction);
 	SAFE_DELETE_ARRAY(m_piYieldFromWorldWonderConstruction);
 	SAFE_DELETE_ARRAY(m_piYieldFromTech);
@@ -804,6 +806,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	kUtility.SetYields(m_piYieldFromBirthRetroactive, "Policy_YieldFromBirthRetroactive", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piYieldFromBirthCapital, "Policy_YieldFromBirthCapital", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piYieldFromBirthCapitalRetroactive, "Policy_YieldFromBirthCapitalRetroactive", "PolicyType", szPolicyType);
+	kUtility.SetYields(m_piInstantYield, "Policy_InstantYield", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piYieldFromConstruction, "Policy_YieldFromConstruction", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piYieldFromWorldWonderConstruction, "Policy_YieldFromWorldWonderConstruction", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piYieldFromTech, "Policy_YieldFromTech", "PolicyType", szPolicyType);
@@ -2904,6 +2907,18 @@ int CvPolicyEntry::GetYieldFromBirthCapitalRetroactive(int i) const
 	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
 	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piYieldFromBirthCapitalRetroactive[i];
+}
+/// Instant yield
+int CvPolicyEntry::GetInstantYield(int i) const
+{
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
+	return m_piInstantYield ? m_piInstantYield[i] : -1;
+}
+/// Array of instant yields
+int* CvPolicyEntry::GetInstantYieldArray() const
+{
+	return m_piInstantYield;
 }
 /// Does this Policy grant yields from constructing buildings?
 int CvPolicyEntry::GetYieldFromConstruction(int i) const
