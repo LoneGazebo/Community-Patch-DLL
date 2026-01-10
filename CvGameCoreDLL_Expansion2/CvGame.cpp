@@ -1998,6 +1998,35 @@ void CvGame::HandlePipeCommand(const std::string& commandLine)
 			m_kGameStatePipe.SendMessage(os.str());
 			return;
 		}
+		else if (msgType == "unit_auto_explore")
+		{
+			// Set unit to auto-explore
+			std::string requestId = msg.get("request_id").asString();
+			int unitId = msg.get("unit_id").asInt();
+
+			std::ostringstream os;
+			os << "{\"type\":\"unit_auto_explore_result\",\"request_id\":\"" << PipeJson::Escape(requestId) << "\"";
+
+			CvUnit* pUnit = FindAndValidateUnitForPipe(unitId, os, getActivePlayer());
+			if (pUnit != NULL)
+			{
+				if (pUnit->CanAutomate(AUTOMATE_EXPLORE))
+				{
+					pUnit->SetAutomateType(AUTOMATE_EXPLORE);
+
+					os << ",\"success\":true,\"result\":{\"message\":\"Unit set to auto-explore\"}";
+					os << ",\"state_delta\":{\"unit_id\":" << unitId << ",\"automate\":\"explore\"}";
+				}
+				else
+				{
+					os << ",\"success\":false,\"error\":{\"code\":\"CANNOT_EXPLORE\",\"message\":\"Unit cannot auto-explore\"}";
+				}
+			}
+
+			os << "}";
+			m_kGameStatePipe.SendMessage(os.str());
+			return;
+		}
 		else if (msgType == "get_state")
 		{
 			std::string requestId = msg.get("request_id").asString();
