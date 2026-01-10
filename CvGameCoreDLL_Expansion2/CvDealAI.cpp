@@ -53,6 +53,8 @@ void CvDealAI::Reset()
 {
 	m_iCachedValueOfPeaceWithHuman = 0;
 	m_vResearchRates = std::vector<std::pair<int,int>>(MAX_PLAYERS, std::make_pair(0,0));
+	m_dealItemValues.clear();
+	m_iDealItemValuesTurnSlice = -1;
 }
 
 ///
