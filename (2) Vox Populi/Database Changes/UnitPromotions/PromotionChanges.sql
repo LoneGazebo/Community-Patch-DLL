@@ -658,7 +658,7 @@ UPDATE UnitPromotions SET GainsXPFromScouting = 1 WHERE Type = 'PROMOTION_AGE_OF
 INSERT INTO UnitPromotions_YieldFromScouting
 	(PromotionType, YieldType, Yield)
 VALUES
-	('PROMOTION_AGE_OF_DISCOVERY', 'YIELD_GOLD', 1);
+	('PROMOTION_AGE_OF_DISCOVERY', 'YIELD_GOLD', 100);
 
 --------------------------------------------
 -- Unit free promotions
@@ -988,9 +988,9 @@ UPDATE UnitPromotions SET FlankAttackModifier = 20, CityAttackPlunderModifier = 
 INSERT INTO UnitPromotions_YieldFromScouting
 	(PromotionType, YieldType, Yield)
 VALUES
-	('PROMOTION_FLAG_BEARER', 'YIELD_GOLD', 2),
-	('PROMOTION_FLAG_BEARER', 'YIELD_SCIENCE', 2),
-	('PROMOTION_FLAG_BEARER', 'YIELD_CULTURE', 2);
+	('PROMOTION_FLAG_BEARER', 'YIELD_GOLD', 200),
+	('PROMOTION_FLAG_BEARER', 'YIELD_SCIENCE', 200),
+	('PROMOTION_FLAG_BEARER', 'YIELD_CULTURE', 200);
 
 -- Longbowman: Assize of Arms
 INSERT INTO UnitPromotions_UnitCombatMods
