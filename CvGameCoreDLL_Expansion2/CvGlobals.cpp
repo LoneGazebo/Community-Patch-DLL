@@ -2429,12 +2429,114 @@ PlayerTypes GetCurrentPlayer()
 /* See http://forums.civfanatics.com/showthread.php?t=498919                                    */
 /************************************************************************************************/
 
-#pragma comment(lib, "dbghelp.lib")
+// Function pointer types for manual dbghelp loading
+typedef BOOL (WINAPI *PFN_MiniDumpWriteDump)(
+	HANDLE hProcess,
+	DWORD ProcessId,
+	HANDLE hFile,
+	MINIDUMP_TYPE DumpType,
+	PMINIDUMP_EXCEPTION_INFORMATION ExceptionParam,
+	PMINIDUMP_USER_STREAM_INFORMATION UserStreamParam,
+	PMINIDUMP_CALLBACK_INFORMATION CallbackParam);
+
+typedef BOOL (WINAPI *PFN_SymInitialize)(
+	HANDLE hProcess,
+	PCSTR UserSearchPath,
+	BOOL fInvadeProcess);
+
+typedef DWORD (WINAPI *PFN_ImagehlpApiVersion)(void);
+
+// Define newer minidump flags if not present in older SDK headers
+#ifndef MiniDumpIgnoreInaccessibleMemory
+#define MiniDumpIgnoreInaccessibleMemory ((MINIDUMP_TYPE)0x00020000)
+#endif
+#ifndef MiniDumpWithTokenInformation
+#define MiniDumpWithTokenInformation ((MINIDUMP_TYPE)0x00040000)
+#endif
+
+// Global handles and function pointers
+static HMODULE g_hDbgHelp = NULL;
+static PFN_MiniDumpWriteDump g_pfnMiniDumpWriteDump = NULL;
+static PFN_SymInitialize g_pfnSymInitialize = NULL;
+static DWORD g_dwDbgHelpVersion = 0;
+
+// Load the best available dbghelp.dll
+static bool LoadBestDbgHelp()
+{
+	if (g_hDbgHelp)
+		return true; // Already loaded
+
+	// Try System32 first (better version on Win10/11)
+	TCHAR szSystem32Path[MAX_PATH];
+	if (GetSystemDirectory(szSystem32Path, MAX_PATH) > 0)
+	{
+		_tcscat_s(szSystem32Path, MAX_PATH, _T("\\dbghelp.dll"));
+		g_hDbgHelp = LoadLibrary(szSystem32Path);
+		if (g_hDbgHelp)
+		{
+			OutputDebugString(_T("Loaded dbghelp.dll from System32\n"));
+		}
+	}
+
+	// Fallback to default search (will find game directory version)
+	if (!g_hDbgHelp)
+	{
+		g_hDbgHelp = LoadLibrary(_T("dbghelp.dll"));
+		if (g_hDbgHelp)
+		{
+			OutputDebugString(_T("Loaded dbghelp.dll from default location\n"));
+		}
+	}
+
+	if (!g_hDbgHelp)
+	{
+		OutputDebugString(_T("Failed to load dbghelp.dll\n"));
+		return false;
+	}
+
+	// Get function pointers
+	g_pfnMiniDumpWriteDump = (PFN_MiniDumpWriteDump)GetProcAddress(g_hDbgHelp, "MiniDumpWriteDump");
+	g_pfnSymInitialize = (PFN_SymInitialize)GetProcAddress(g_hDbgHelp, "SymInitialize");
+
+	if (!g_pfnMiniDumpWriteDump)
+	{
+		OutputDebugString(_T("Failed to get MiniDumpWriteDump function\n"));
+		FreeLibrary(g_hDbgHelp);
+		g_hDbgHelp = NULL;
+		return false;
+	}
+
+	// Get version information
+	PFN_ImagehlpApiVersion pfnVersion = (PFN_ImagehlpApiVersion)GetProcAddress(g_hDbgHelp, "ImagehlpApiVersion");
+	if (pfnVersion)
+	{
+		g_dwDbgHelpVersion = pfnVersion();
+		TCHAR szVersion[128];
+		_stprintf_s(szVersion, sizeof(szVersion) / sizeof(TCHAR),
+			_T("dbghelp.dll version: %d.%d.%d.%d\n"),
+			HIWORD(g_dwDbgHelpVersion), LOWORD(g_dwDbgHelpVersion),
+			0, 0);
+		OutputDebugString(szVersion);
+	}
+
+	return true;
+}
+
 void CreateMiniDump(EXCEPTION_POINTERS* pep)
 {
+	// Load the best available dbghelp.dll
+	if (!LoadBestDbgHelp())
+	{
+		OutputDebugString(_T("Cannot create minidump: dbghelp.dll not available\n"));
+		return;
+	}
+
 	// Initialize debug symbols
 	HANDLE hProcess = GetCurrentProcess();
-	SymInitialize(hProcess, NULL, TRUE);
+	if (g_pfnSymInitialize)
+	{
+		g_pfnSymInitialize(hProcess, NULL, TRUE);
+	}
 
 	// Get timestamp
 	SYSTEMTIME st;
@@ -2445,26 +2547,52 @@ void CreateMiniDump(EXCEPTION_POINTERS* pep)
 		st.wYear, st.wMonth, st.wDay,
 		st.wHour, st.wMinute, st.wSecond);
 
-	// Extract just version number and commit hash from CURRENT_GAMECORE_VERSION
+	// Extract version identifier from CURRENT_GAMECORE_VERSION for filename
+	// Input formats:
+	//   "Release-5.1 Clean"                    (exactly on tag)
+	//   "Release-5.1 abc123 Dirty"             (on tag with local changes)
+	//   "Release-5.1-3-gabc123 Clean"          (git describe: 3 commits after tag)
+	//   "No-Tag abc123 Clean"                  (no tags in repo)
 	char shortVersion[64];
 	const char* fullVersion = CURRENT_GAMECORE_VERSION;
 	const char* versionStart = strchr(fullVersion, '-');
+	
 	if (versionStart) {
-		versionStart++; // Skip the '-'
-		const char* spaceAfterVersion = strchr(versionStart, ' ');
-		if (spaceAfterVersion) {
-			// Copy just the version number (e.g. "4.16")
-			size_t versionLen = spaceAfterVersion - versionStart;
-			strncpy_s(shortVersion, sizeof(shortVersion), versionStart, versionLen);
-			shortVersion[versionLen] = '\0';
-
-			// Add the commit hash if present
-			const char* commitHash = spaceAfterVersion + 1;
-			const char* nextSpace = strchr(commitHash, ' ');
-			if (nextSpace) {
+		versionStart++; // Skip the first '-'
+		
+		// Find the space that separates version/tag info from status
+		const char* spaceBeforeStatus = strrchr(versionStart, ' ');
+		
+		if (spaceBeforeStatus) {
+			// Copy everything between first '-' and last space
+			// This includes: "5.1", "5.1 abc123", or "5.1-3-gabc123"
+			size_t len = spaceBeforeStatus - versionStart;
+			
+			// Check if there's another space (commit hash is separate)
+			const char* middleSpace = strchr(versionStart, ' ');
+			if (middleSpace && middleSpace < spaceBeforeStatus) {
+				// Format: "Release-5.1 abc123 Status"
+				// Extract version and hash with underscore separator
+				size_t versionLen = middleSpace - versionStart;
+				strncpy_s(shortVersion, sizeof(shortVersion), versionStart, versionLen);
+				shortVersion[versionLen] = '\0';
+				
 				strcat_s(shortVersion, sizeof(shortVersion), "_");
-				strncat_s(shortVersion, sizeof(shortVersion), commitHash, nextSpace - commitHash);
+				
+				const char* hashStart = middleSpace + 1;
+				size_t hashLen = spaceBeforeStatus - hashStart;
+				strncat_s(shortVersion, sizeof(shortVersion), hashStart, hashLen);
 			}
+			else {
+				// Format: "Release-5.1-3-gabc123 Status" or "Release-5.1 Status"
+				// Copy the entire tag/describe output (already clean format for filename)
+				strncpy_s(shortVersion, sizeof(shortVersion), versionStart, len);
+				shortVersion[len] = '\0';
+			}
+		}
+		else {
+			// No status field - use everything after first dash
+			strcpy_s(shortVersion, sizeof(shortVersion), versionStart);
 		}
 	}
 	else {
@@ -2499,39 +2627,69 @@ void CreateMiniDump(EXCEPTION_POINTERS* pep)
 	MINIDUMP_TYPE mdt;
 #ifdef VPDEBUG
 	OutputDebugString(_T("Creating Debug minidump\n"));
+	// Debug build: Maximum detail for debugging
+	// All flags are SDK 7.0A compatible
 	mdt = (MINIDUMP_TYPE)(
-		MiniDumpWithFullMemory |             // Complete memory snapshot
-		MiniDumpWithFullMemoryInfo |         // Memory state information
-		MiniDumpWithHandleData |             // Handle usage
-		MiniDumpWithUnloadedModules |        // Track unloaded DLLs
-		MiniDumpWithThreadInfo |             // Extended thread information
-		MiniDumpWithProcessThreadData |      // Process thread data
-		MiniDumpWithCodeSegs |               // Code segments
-		MiniDumpWithDataSegs |               // Data segments
-		MiniDumpWithPrivateReadWriteMemory | // Private memory
-		MiniDumpWithFullAuxiliaryState |     // Auxiliary state (handles, GDI objects)
-		MINIDUMP_TYPE(0x00000040) |          // MiniDumpWithTokenInformation
-		MINIDUMP_TYPE(0x00000400) |          // MiniDumpWithPrivateWriteCopyMemory
-		MINIDUMP_TYPE(0x00020000) |          // MiniDumpIgnoreInaccessibleMemory
-		MiniDumpWithIndirectlyReferencedMemory | // Memory referenced by locals
-		MINIDUMP_TYPE(0x00000800)            // MiniDumpWithModuleHeaders
+		MiniDumpWithFullMemory |               // 0x00000002 Complete memory snapshot
+		MiniDumpWithFullMemoryInfo |           // 0x00000800 Memory state information
+		MiniDumpWithHandleData |               // 0x00000004 Handle usage
+		MiniDumpWithUnloadedModules |          // 0x00000020 Track unloaded DLLs
+		MiniDumpWithThreadInfo |               // 0x00001000 Extended thread information
+		MiniDumpWithProcessThreadData |        // 0x00000100 Process thread data
+		MiniDumpWithPrivateReadWriteMemory |   // 0x00000200 Private memory
+		MiniDumpWithIndirectlyReferencedMemory | // 0x00000040 Memory referenced by locals
+		MiniDumpWithFullAuxiliaryState |       // 0x00008000 Auxiliary state (handles, GDI objects)
+		MiniDumpWithTokenInformation |         // 0x00040000 Security token info
+		MiniDumpIgnoreInaccessibleMemory       // 0x00020000 Skip inaccessible memory
+		// Note: MiniDumpWithCodeSegs and MiniDumpWithDataSegs are redundant with FullMemory
 		);
 #else
 	OutputDebugString(_T("Creating Release minidump\n"));
+	// Release build: Maximum diagnostic info without full memory dump
+	// Optimized for crash analysis while keeping dump size reasonable
 	mdt = (MINIDUMP_TYPE)(
-		MiniDumpNormal |                    // Basic info
-		MiniDumpWithThreadInfo |            // Thread information
-		MINIDUMP_TYPE(0x00020000)           // MiniDumpIgnoreInaccessibleMemory
+		MiniDumpNormal |                       // 0x00000000 Basic info (stacks, modules, threads)
+		MiniDumpWithThreadInfo |               // 0x00001000 Extended thread information
+		MiniDumpWithUnloadedModules |          // 0x00000020 Track unloaded DLLs
+		MiniDumpWithProcessThreadData |        // 0x00000100 Process thread data
+		MiniDumpWithHandleData |               // 0x00000004 Handle usage
+		MiniDumpWithPrivateReadWriteMemory |   // 0x00000200 Private read/write memory
+		MiniDumpWithIndirectlyReferencedMemory | // 0x00000040 Memory referenced by locals/pointers
+		MiniDumpIgnoreInaccessibleMemory       // 0x00020000 Skip inaccessible memory
 		);
 #endif
 
-	// Add version info
+	// Add diagnostic info to user stream
 	MINIDUMP_USER_STREAM_INFORMATION additional_streams;
 	MINIDUMP_USER_STREAM user_streams[1];
-	char version_info[256];
+	char version_info[1024];
 
+	// Get OS version information
+	OSVERSIONINFOEX osvi;
+	ZeroMemory(&osvi, sizeof(OSVERSIONINFOEX));
+	osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
+	GetVersionEx((LPOSVERSIONINFO)&osvi);
+
+	// Build diagnostic string
 	sprintf_s(version_info, sizeof(version_info),
-		"Version: %s", CURRENT_GAMECORE_VERSION);
+		"Version: %s\n"
+		"DLL: %s (v%u%s)\n"
+		"Build: %s %s\n"
+		"Configuration: "
+#ifdef VPDEBUG
+		"Debug\n"
+#else
+		"Release\n"
+#endif
+		"Architecture: Win32 (x86)\n"
+		"OS: Windows %d.%d (Build %d) SP%d.%d\n"
+		"dbghelp.dll: %d.%d",
+		CURRENT_GAMECORE_VERSION,
+		MOD_DLL_NAME, MOD_DLL_VERSION_NUMBER, MOD_DLL_VERSION_STATUS,
+		__DATE__, __TIME__,
+		osvi.dwMajorVersion, osvi.dwMinorVersion, osvi.dwBuildNumber,
+		osvi.wServicePackMajor, osvi.wServicePackMinor,
+		HIWORD(g_dwDbgHelpVersion), LOWORD(g_dwDbgHelpVersion));
 
 	user_streams[0].Type = 0x00000003;  // MinidumpCommentStreamA
 	user_streams[0].Buffer = version_info;
@@ -2540,8 +2698,8 @@ void CreateMiniDump(EXCEPTION_POINTERS* pep)
 	additional_streams.UserStreamCount = 1;
 	additional_streams.UserStreamArray = user_streams;
 
-	// Write the dump
-	MiniDumpWriteDump(
+	// Write the dump using function pointer
+	BOOL bSuccess = g_pfnMiniDumpWriteDump(
 		GetCurrentProcess(),
 		GetCurrentProcessId(),
 		hFile,
@@ -2551,6 +2709,18 @@ void CreateMiniDump(EXCEPTION_POINTERS* pep)
 		NULL);
 
 	CloseHandle(hFile);
+
+	if (bSuccess)
+	{
+		OutputDebugString(_T("Minidump created successfully\n"));
+	}
+	else
+	{
+		TCHAR szError[128];
+		_stprintf_s(szError, sizeof(szError) / sizeof(TCHAR),
+			_T("MiniDumpWriteDump failed with error: %d\n"), GetLastError());
+		OutputDebugString(szError);
+	}
 }
 
 LONG WINAPI CustomFilter(EXCEPTION_POINTERS* ExceptionInfo)

@@ -67,7 +67,15 @@ Create a commit for the new release, and tag it as shown below. DO NOT PUSH TO G
 Commit Name: "{Version Number} Release"
 Tag Name: "Release-{Version Number}"
 
-Tip: This step is necessary to ensure the GameCoreDLL has the correct release identifier, which can be compared later when debugging.
+IMPORTANT: Use an annotated tag (not lightweight):
+Command: git tag -a Release-{Version Number} -m "{Version Number} Release"
+
+Verify the tag was created correctly:
+Command: git describe --tags HEAD
+Expected Output: Release-{Version Number}
+
+Tip #1: This step is necessary to ensure the GameCoreDLL has the correct release identifier, which can be compared later when debugging.
+Tip #2: Annotated tags include metadata (tagger, date, message) and are recommended for releases.
 
 
 [STEP 6]
@@ -112,6 +120,8 @@ F. Delete the clang-output and clang-build folders in the repository.
 
 [STEP 8]
 Delete the "Release-{Version Number}" tag you've added to the new release commit, and undo the commit.
+Command: git tag -d Release-{Version Number}
+Command: git reset --soft HEAD~1
 
 
 
@@ -147,10 +157,24 @@ Create a commit for the new release, and tag it as shown below.
 Commit Name: "{Version Number} Release"
 Tag Name: "Release-{Version Number}"
 
+IMPORTANT: Use an annotated tag (not lightweight):
+Command: git tag -a Release-{Version Number} -m "{Version Number} Release"
+
+Verify the tag was created correctly:
+Command: git describe --tags HEAD
+Expected Output: Release-{Version Number}
+
 
 
 [STEP 13]
-Push the release commit to GitHub.
+Push the release commit AND tag to GitHub.
+Command: git push origin master
+Command: git push origin Release-{Version Number}
+
+IMPORTANT: The tag MUST be pushed explicitly for other developers and the build system to see it.
+
+Verify the tag is on GitHub:
+Command: git ls-remote --tags origin | grep Release-{Version Number}
 
 
 
