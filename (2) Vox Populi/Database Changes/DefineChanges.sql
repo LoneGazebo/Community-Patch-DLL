@@ -7,6 +7,9 @@
 -- If > -1, a player with no cities but who is still alive (Complete Kills) will be granted a free Settler after this many turns
 UPDATE Defines SET Value = 10 WHERE Name = 'COMPLETE_KILLS_TURN_TIMER';
 
+-- Number of unique components per civ
+UPDATE Defines SET Value = 4 WHERE Name = 'NUM_UNIQUE_COMPONENTS';
+
 -------------------------------------------------------------------------------------------------------------------
 -- Victory Conditions
 -------------------------------------------------------------------------------------------------------------------

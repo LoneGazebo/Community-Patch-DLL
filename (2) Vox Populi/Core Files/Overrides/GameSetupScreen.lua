@@ -481,16 +481,40 @@ function SetSelectedCiv()
         local leader = GameInfo.Leaders[GameInfo.Civilization_Leaders( "CivilizationType = '" .. civ.Type .. "'" )().LeaderheadType];
         local leaderDescription = leader.Description;
         
-	IconHookup( leader.PortraitIndex, 128, leader.IconAtlas, Controls.Portrait );
-	IconHookup( civ.PortraitIndex, 64, civ.IconAtlas, Controls.IconShadow )
+		IconHookup( leader.PortraitIndex, 128, leader.IconAtlas, Controls.Portrait );
+		IconHookup( civ.PortraitIndex, 64, civ.IconAtlas, Controls.IconShadow )
 
 	-- Sets Trait bonus Text
         local leaderTrait = GameInfo.Leader_Traits("LeaderType ='" .. leader.Type .. "'")();
         local trait = GameInfo.Traits[leaderTrait.TraitType];
         
         Controls.BonusDescription:SetText( Locale.ConvertTextKey( trait.Description ));
+
+		local maxSmallButtons = GameDefines.NUM_UNIQUE_COMPONENTS;
+		local baseWrapWidth = 535;
+		local adjustedWrapWidth = baseWrapWidth + math.floor((6 - maxSmallButtons) / 2) * 64;
+		Controls.BonusDescription:SetWrapWidth(adjustedWrapWidth);
         
         SetCivName(leaderDescription, civ.ShortDescription, trait.ShortDescription);
+
+		-- Hide all buttons first
+		for buttonNum = 1, 6, 1 do
+			local buttonName = "B"..tostring(buttonNum);
+			local buttonFrameName = "BF"..tostring(buttonNum);
+			Controls[buttonName]:SetHide(true);
+			Controls[buttonFrameName]:SetHide(true);
+		end
+
+		-- Sets Bonus Icons
+		for buttonNum = 1, maxSmallButtons, 1 do
+			local buttonName = "B"..tostring(buttonNum);
+			local buttonFrameName = "BF"..tostring(buttonNum);
+			Controls[buttonName]:SetHide(false);
+			Controls[buttonFrameName]:SetHide(false);
+			Controls[buttonName]:SetTexture( questionTextureSheet );
+			Controls[buttonName]:SetTextureOffset( questionOffset );
+			Controls[buttonName]:SetToolTipString( unknownString );
+		end
 
         -- Sets Bonus Icons
         populateUniqueBonuses( Controls, civ.Type, true);
@@ -514,22 +538,34 @@ function SetSelectedCiv()
 
 		-- Sets Trait bonus Text
         Controls.BonusDescription:SetText( "" );
+
+		local maxSmallButtons = GameDefines.NUM_UNIQUE_COMPONENTS;
+		local baseWrapWidth = 535;
+		local adjustedWrapWidth = baseWrapWidth + math.floor((6 - maxSmallButtons) / 2) * 64;
+		Controls.BonusDescription:SetWrapWidth(adjustedWrapWidth);
 		
 		-- Set Selected Civ Map
 		Controls.LargeMapImage:UnloadTexture();
         local mapTexture="MapRandom512.dds";
 		Controls.LargeMapImage:SetTexture(mapTexture);  
  
+		-- Hide all buttons first
+		for buttonNum = 1, 6, 1 do
+			local buttonName = "B"..tostring(buttonNum);
+			local buttonFrameName = "BF"..tostring(buttonNum);
+			Controls[buttonName]:SetHide(true);
+			Controls[buttonFrameName]:SetHide(true);
+		end
+
 		-- Sets Bonus Icons
-		local maxSmallButtons = 6;
 		for buttonNum = 1, maxSmallButtons, 1 do
 			local buttonName = "B"..tostring(buttonNum);
+			local buttonFrameName = "BF"..tostring(buttonNum);
+			Controls[buttonName]:SetHide(false);
+			Controls[buttonFrameName]:SetHide(false);
 			Controls[buttonName]:SetTexture( questionTextureSheet );
 			Controls[buttonName]:SetTextureOffset( questionOffset );
 			Controls[buttonName]:SetToolTipString( unknownString );
-			Controls[buttonName]:SetHide(false);
-			local buttonFrameName = "BF"..tostring(buttonNum);
-			Controls[buttonFrameName]:SetHide(false);
 		end
 
     end

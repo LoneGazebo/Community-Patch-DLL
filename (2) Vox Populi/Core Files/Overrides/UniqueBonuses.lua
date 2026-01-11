@@ -145,7 +145,7 @@ end
 ------------------------------------------------------------------
 function PopulateUniqueBonuses( controlTable, civ, _, extendedTooltip, noTooltip)
 
-	local maxSmallButtons = 6;  -- 5/6 UC
+	local maxSmallButtons = GameDefines.NUM_UNIQUE_COMPONENTS;
 	local BonusText = {};
 
 	function PopulateButton(button, buttonFrame)
@@ -193,7 +193,7 @@ function PopulateUniqueBonuses( controlTable, civ, _, extendedTooltip, noTooltip
 
 		local button = controlTable[buttonName];
 		local buttonFrame = controlTable[buttonFrameName];
-		
+
 		if(button and buttonFrame) then
 			button:SetHide(true);
 			buttonFrame:SetHide(true);
@@ -235,9 +235,9 @@ function PopulateUniqueBonuses_CreateCached()
 	
 	local uniqueProjectsQuery = DB.CreateQuery([[SELECT ID, Description, PortraitIndex, IconAtlas from Projects where CivilizationType = ?]]);
 	
-	
-	return function(controlTable, civType, extendedTooltip, noTooltip) 
-		local maxSmallButtons = 6;  -- 5/6 UC
+
+	return function(controlTable, civType, extendedTooltip, noTooltip)
+		local maxSmallButtons = GameDefines.NUM_UNIQUE_COMPONENTS;
 		local BonusText = {};
 
 		local textureSize = 64;
@@ -288,16 +288,28 @@ function PopulateUniqueBonuses_CreateCached()
 			end
 		end
 
+		-- Hide all buttons first
+		for buttonNum = 1, 6, 1 do
+			local buttonName = "B"..tostring(buttonNum);
+			local buttonFrameName = "BF"..tostring(buttonNum);
+			local button = controlTable[buttonName];
+			local buttonFrame = controlTable[buttonFrameName];
+
+			if(button and buttonFrame) then
+				button:SetHide(true);
+				buttonFrame:SetHide(true);
+			end
+		end
+
+		-- Show only the buttons with content
 		for buttonNum = 1, maxSmallButtons, 1 do
 			local buttonName = "B"..tostring(buttonNum);
 			local buttonFrameName = "BF"..tostring(buttonNum);
 
 			local button = controlTable[buttonName];
 			local buttonFrame = controlTable[buttonFrameName];
-			
+
 			if(button and buttonFrame and #buttonFuncs >= buttonNum) then
-				button:SetHide(true);
-				buttonFrame:SetHide(true);
 				local text = buttonFuncs[buttonNum](button, buttonFrame);
 				table.insert(BonusText, text);
 
