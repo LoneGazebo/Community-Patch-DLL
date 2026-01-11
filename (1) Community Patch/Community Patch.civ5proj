@@ -36,6 +36,69 @@
       </Association>
       <Association>
         <Type>Dlc</Type>
+        <Name>Babylon (Nebuchadnezzar II)</Name>
+        <Id>7459BA32-5764-44ae-8E95-01AD0E0EFD48</Id>
+        <MinVersion>0</MinVersion>
+        <MaxVersion>999</MaxVersion>
+      </Association>
+      <Association>
+        <Type>Dlc</Type>
+        <Name>Civilization and Scenario Pack: Mongols (Genghis Khan)</Name>
+        <Id>293C1EE3-1176-44f6-AC1F-59663826DE74</Id>
+        <MinVersion>0</MinVersion>
+        <MaxVersion>999</MaxVersion>
+      </Association>
+      <Association>
+        <Type>Dlc</Type>
+        <Name>Civilization and Scenario Double Pack: Spain and Inca</Name>
+        <Id>B685D5DE-7CCA-4e75-81B4-2F60754E6330</Id>
+        <MinVersion>0</MinVersion>
+        <MaxVersion>999</MaxVersion>
+      </Association>
+      <Association>
+        <Type>Dlc</Type>
+        <Name>Civilization and Scenario Pack: Polynesia</Name>
+        <Id>ECF7C605-BA11-4CAC-8D80-D71306AAC471</Id>
+        <MinVersion>0</MinVersion>
+        <MaxVersion>999</MaxVersion>
+      </Association>
+      <Association>
+        <Type>Dlc</Type>
+        <Name>Civilization and Scenario Pack: Denmark (The Vikings)</Name>
+        <Id>B3030D39-C0D8-4bc7-91B1-7AD1CAF585AB</Id>
+        <MinVersion>0</MinVersion>
+        <MaxVersion>999</MaxVersion>
+      </Association>
+      <Association>
+        <Type>Dlc</Type>
+        <Name>Civilization and Scenario Pack: Korea</Name>
+        <Id>112C22B2-5308-42b6-B734-171CCAB3037B</Id>
+        <MinVersion>0</MinVersion>
+        <MaxVersion>999</MaxVersion>
+      </Association>
+      <Association>
+        <Type>Dlc</Type>
+        <Name>Scenario Pack: Wonders of the Ancient World</Name>
+        <Id>BBB0D085-A0B1-4475-B007-3E549CF3ADC3</Id>
+        <MinVersion>0</MinVersion>
+        <MaxVersion>999</MaxVersion>
+      </Association>
+      <Association>
+        <Type>Dlc</Type>
+        <Name>Scenario Pack: Conquest of the New World</Name>
+        <Id>EA67AED5-5859-4875-BF3A-360FE9E55D1B</Id>
+        <MinVersion>0</MinVersion>
+        <MaxVersion>999</MaxVersion>
+      </Association>
+      <Association>
+        <Type>Dlc</Type>
+        <Name>Expansion - Gods and Kings</Name>
+        <Id>0E3751A1-F840-4e1b-9706-519BF484E59D</Id>
+        <MinVersion>0</MinVersion>
+        <MaxVersion>999</MaxVersion>
+      </Association>
+      <Association>
+        <Type>Dlc</Type>
         <Name>Expansion 2 - Brave New World</Name>
         <Id>6DA07636-4123-4018-B643-6575B4EC336B</Id>
         <MinVersion>0</MinVersion>
