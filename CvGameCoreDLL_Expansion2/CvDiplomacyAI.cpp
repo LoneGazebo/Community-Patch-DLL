@@ -30795,8 +30795,6 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 			if(eMessageType != NUM_DIPLO_MESSAGE_TYPES)
 			{
 				CvDeal kDeal = *pDeal;
-				CvGameDeals::PrepareRenewDeal(&kDeal);
-				pDeal->m_bCheckedForRenewal = true;
 				szText = GetDiploStringForMessage(eMessageType);
 				CvDiplomacyRequests::SendDealRequest(GetID(), ePlayer, &kDeal, DIPLO_UI_STATE_TRADE_AI_MAKES_OFFER, szText, LEADERHEAD_ANIM_REQUEST, /* bRenew */ true);
 			}
@@ -30810,7 +30808,6 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 		else
 		{
 			CvDeal kDeal = *pDeal;
-			CvGameDeals::PrepareRenewDeal(&kDeal);
 
 			if (GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
 			{
@@ -34512,10 +34509,13 @@ CvDeal* CvDiplomacyAI::DoRenewExpiredDeal(PlayerTypes ePlayer, DiploStatementTyp
 
 		//Set as considered for renewal.
 		pCurrentDeal->m_iFinalTurn = -1;
-			
+
 		int iValue = m_pPlayer->GetDealAI()->GetDealValue(pCurrentDeal);
 		if (iValue != INT_MAX)
 		{
+			// Prepare the old deal for renewal BEFORE modifying it, so we reverse the correct old values
+			CvGameDeals::PrepareRenewDeal(pCurrentDeal);
+
 			bool bAbleToEqualize = false;
 			if (!GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
 			{
@@ -49960,6 +49960,17 @@ void CvDiplomacyAI::CancelRenewDeal(PlayerTypes eOtherPlayer, RenewalReason eRea
 			}
 
 		}
+		// find the deal in m_CurrentDeal and mark it as canceled
+		CvGameDeals& kGameDeals = GC.getGame().GetGameDeals();
+		DealList::iterator it;
+		for (it = kGameDeals.m_CurrentDeals.begin(); it != kGameDeals.m_CurrentDeals.end(); ++it)
+		{
+			if (*it == *pRenewalDeal)
+			{
+				it->m_bConsideringForRenewal = false;
+			}
+		}
+		GC.getGame().GetGameDeals().DoUpdateCurrentDealsList();
 		pRenewalDeal->m_bConsideringForRenewal = false;
 		//log it for me bby
 		if (GC.getLogging() && GC.getAILogging())
