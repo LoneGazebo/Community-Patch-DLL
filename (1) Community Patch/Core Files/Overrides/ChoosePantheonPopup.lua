@@ -6,6 +6,40 @@ include("VPUI_core");
 include("CPK.lua");
 
 local L = Locale.Lookup;
+
+-- Helper to encode JSON (simple implementation for our needs)
+local function JsonEncode(tbl)
+	local parts = {}
+	for k, v in pairs(tbl) do
+		local key = '"' .. tostring(k) .. '"'
+		local val
+		if type(v) == "string" then
+			val = '"' .. v:gsub('\\', '\\\\'):gsub('"', '\\"'):gsub('\n', '\\n') .. '"'
+		elseif type(v) == "table" then
+			val = JsonEncode(v)
+		elseif type(v) == "boolean" then
+			val = v and "true" or "false"
+		else
+			val = tostring(v)
+		end
+		table.insert(parts, key .. ":" .. val)
+	end
+	return "{" .. table.concat(parts, ",") .. "}"
+end
+
+local function JsonEncodeArray(arr)
+	local parts = {}
+	for _, v in ipairs(arr) do
+		if type(v) == "table" then
+			table.insert(parts, JsonEncode(v))
+		elseif type(v) == "string" then
+			table.insert(parts, '"' .. v:gsub('\\', '\\\\'):gsub('"', '\\"'):gsub('\n', '\\n') .. '"')
+		else
+			table.insert(parts, tostring(v))
+		end
+	end
+	return "[" .. table.concat(parts, ",") .. "]"
+end
 local Show = CPK.UI.Control.Show;
 local Hide = CPK.UI.Control.Hide;
 local Refresh = CPK.UI.Control.Refresh;
@@ -71,6 +105,25 @@ local function SelectPantheon(eBelief)
 end
 
 -------------------------------------------------------------------------------
+-- Send available choices to the pipe for LLM
+local function SendChoicesToPipe(ePlayer, choiceType, choices)
+	local message = {
+		type = "popup_choice_needed",
+		popup_type = choiceType,
+		player_id = ePlayer,
+		turn = Game.GetGameTurn(),
+		choices = choices
+	}
+	-- Build JSON manually since we have nested arrays
+	local choicesJson = JsonEncodeArray(choices)
+	local json = string.format(
+		'{"type":"popup_choice_needed","popup_type":"%s","player_id":%d,"turn":%d,"choices":%s}',
+		choiceType, ePlayer, Game.GetGameTurn(), choicesJson
+	)
+	Game.SendPipeMessage(json)
+end
+
+-------------------------------------------------------------------------------
 local function RefreshList()
 	g_ItemInstanceManager:ResetInstances();
 
@@ -81,6 +134,7 @@ local function RefreshList()
 	local tAvailableBeliefs = {};
 	local tAvailableBeliefTypes = (g_popupInfo.Data2 > 0) and Game.GetAvailablePantheonBeliefs() or Game.GetAvailableReformationBeliefs();
 	local strTitleKey = (g_popupInfo.Data2 > 0) and "TXT_KEY_CHOOSE_PANTHEON_TITLE" or "TXT_KEY_CHOOSE_REFORMATION_BELIEF_TITLE";
+	local choiceType = (g_popupInfo.Data2 > 0) and "choose_pantheon" or "choose_reformation";
 
 	Controls.PanelTitle:LocalizeAndSetText(strTitleKey);
 	for _, eBelief in ipairs(tAvailableBeliefTypes) do
@@ -97,6 +151,9 @@ local function RefreshList()
 	table.sort(tAvailableBeliefs, function(a, b)
 		return Locale.Compare(a.Name, b.Name) < 0;
 	end);
+
+	-- Send available choices to pipe for LLM
+	SendChoicesToPipe(ePlayer, choiceType, tAvailableBeliefs);
 
 	-- Get the top 3 scores
 	local iRank1Score = 0;
@@ -196,6 +253,20 @@ ContextPtr:SetShowHideHandler(function (bIsHide, bInitState)
 				Events.SerialEventGameMessagePopupProcessed.CallImmediate(g_popupInfo.Type, 0);
 			end
 			UI.decTurnTimerSemaphore();
+		end
+	end
+end);
+
+-------------------------------------------------------------------------------
+-- Auto-close when pantheon has been selected (e.g., via pipe command)
+-------------------------------------------------------------------------------
+ContextPtr:SetUpdate(function(fDTime)
+	if not ContextPtr:IsHidden() then
+		local ePlayer = Game.GetActivePlayer();
+		local pPlayer = Players[ePlayer];
+		if pPlayer and pPlayer:HasCreatedPantheon() then
+			-- Pantheon was selected (possibly via LLM pipe command), close the popup
+			Close();
 		end
 	end
 end);

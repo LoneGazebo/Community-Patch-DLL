@@ -499,6 +499,9 @@ protected:
 	static int lSetExeWantForceResyncValue(lua_State* L);
 
 	LUAAPIEXTN(GetNumYieldTypes, int);
+
+	// LLM Pipe Communication
+	static int lSendPipeMessage(lua_State* L);
 };
 
 #endif //CVLUAGAME_H

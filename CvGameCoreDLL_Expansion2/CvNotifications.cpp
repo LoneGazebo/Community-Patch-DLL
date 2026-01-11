@@ -735,7 +735,7 @@ void CvNotifications::Activate(Notification& notification)
 		{
 			CvPopupInfo kPopup(BUTTONPOPUP_TECH_AWARD, m_ePlayer, notification.m_iGameDataIndex, notification.m_iExtraGameData);
 			strcpy_s(kPopup.szText, notification.m_strMessage);
-			GC.GetEngineUserInterface()->AddPopup(kPopup);
+			GC.getGame().AddPopupWithPipe(kPopup);
 		}
 	}
 	break;

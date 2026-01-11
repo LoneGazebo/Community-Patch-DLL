@@ -4,6 +4,8 @@
 include( "IconSupport" );
 
 local m_PopupInfo = nil;
+local AUTO_CLOSE_SECONDS = 5.0;
+local g_autoCloseTimer = 0;
 
 -------------------------------------------------
 -- On Display
@@ -126,6 +128,8 @@ function ShowHideHandler( bIsHide, bInitState )
         if( not bIsHide ) then
         	UI.incTurnTimerSemaphore();
         	Events.SerialEventGameMessagePopupShown(m_PopupInfo);
+        	-- Reset auto-close timer when popup is shown
+        	g_autoCloseTimer = 0;
         else
             UI.decTurnTimerSemaphore();
             Events.SerialEventGameMessagePopupProcessed.CallImmediate(ButtonPopupTypes.BUTTONPOPUP_NATURAL_WONDER_REWARD, 0);
@@ -134,7 +138,19 @@ function ShowHideHandler( bIsHide, bInitState )
 end
 ContextPtr:SetShowHideHandler( ShowHideHandler );
 
+-------------------------------------------------
+-- Auto-close timer
+-------------------------------------------------
+ContextPtr:SetUpdate(function(fDTime)
+    if not ContextPtr:IsHidden() then
+        g_autoCloseTimer = g_autoCloseTimer + fDTime;
+        if g_autoCloseTimer >= AUTO_CLOSE_SECONDS then
+            OnCloseButtonClicked();
+        end
+    end
+end);
+
 ----------------------------------------------------------------
 -- 'Active' (local human) player has changed
 ----------------------------------------------------------------
-Events.GameplaySetActivePlayer.Add(OnClose);
+Events.GameplaySetActivePlayer.Add(OnCloseButtonClicked);

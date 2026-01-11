@@ -11953,7 +11953,7 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, CvUnit* pUnit, bool bT
 						if(!GC.getGame().isReallyNetworkMultiPlayer() && !bDontShowRewardPopup)
 						{
 							CvPopupInfo kPopupInfo(BUTTONPOPUP_NATURAL_WONDER_REWARD, getX(), getY(), iFinderGold, 0 /*iFlags */, bFirstFinder);
-							pInterface->AddPopup(kPopupInfo);
+							GC.getGame().AddPopupWithPipe(kPopupInfo);
 							CvPlayer& kActivePlayer = GET_PLAYER(GC.getGame().getActivePlayer());
 							if (kActivePlayer.getTeam() == eActiveTeam)
 							{

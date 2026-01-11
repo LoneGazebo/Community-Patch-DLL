@@ -512,6 +512,9 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 	Method(IsExeWantForceResyncAvailable);
 
 	Method(GetNumYieldTypes);
+
+	// LLM Pipe Communication
+	Method(SendPipeMessage);
 }
 //------------------------------------------------------------------------------
 
@@ -4186,8 +4189,31 @@ int CvLuaGame::lIsExeWantForceResyncAvailable(lua_State* L)
 	return BasicLuaMethod(L, &CvGame::IsExeWantForceResyncAvailable);
 }
 
-int CvLuaGame::lGetNumYieldTypes(lua_State* L) 
+int CvLuaGame::lGetNumYieldTypes(lua_State* L)
 {
 	lua_pushinteger(L, GC.getNUM_YIELD_TYPES());
+	return 1;
+}
+
+//------------------------------------------------------------------------------
+// LLM Pipe Communication
+// Game.SendPipeMessage(jsonString) - sends a raw JSON message to the pipe
+//------------------------------------------------------------------------------
+int CvLuaGame::lSendPipeMessage(lua_State* L)
+{
+#if defined(_WIN32)
+	const char* szMessage = luaL_checkstring(L, 1);
+	if (szMessage && szMessage[0] != '\0')
+	{
+		GC.getGame().SendRawMessageToPipe(szMessage);
+		lua_pushboolean(L, true);
+	}
+	else
+	{
+		lua_pushboolean(L, false);
+	}
+#else
+	lua_pushboolean(L, false);
+#endif
 	return 1;
 }

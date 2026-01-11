@@ -1460,6 +1460,22 @@ void CvGame::AddPopupWithPipe(const CvPopupInfo& kPopup)
 }
 
 //	--------------------------------------------------------------------------------
+void CvGame::SendRawMessageToPipe(const char* szMessage)
+{
+#if defined(_WIN32)
+	if (!m_kGameStatePipe.IsRunning())
+		return;
+
+	if (szMessage && szMessage[0] != '\0')
+	{
+		m_kGameStatePipe.SendMessage(szMessage);
+	}
+#else
+	UNUSED_VARIABLE(szMessage);
+#endif
+}
+
+//	--------------------------------------------------------------------------------
 void CvGame::SendDiplomaticMessageToPipe(PlayerTypes ePlayer, DiploUIStateTypes eDiploUIState, const char* szLeaderMessage, LeaderheadAnimationTypes eAction, int iData1, const CvDeal* pDeal)
 {
 #if defined(_WIN32)
@@ -2621,6 +2637,314 @@ void CvGame::HandlePipeCommand(const std::string& commandLine)
 			{
 				os << ",\"request_id\":\"" << PipeJson::Escape(requestId) << "\"";
 			}
+			os << "}";
+			m_kGameStatePipe.SendMessage(os.str());
+			return;
+		}
+		else if (msgType == "select_pantheon")
+		{
+			// Select a pantheon belief
+			std::string requestId = msg.get("request_id").asString();
+			int beliefId = msg.get("belief_id").asInt(-1);
+			int playerId = msg.get("player_id").asInt(-1);
+
+			std::ostringstream os;
+			os << "{\"type\":\"select_pantheon_result\"";
+			if (!requestId.empty())
+			{
+				os << ",\"request_id\":\"" << PipeJson::Escape(requestId) << "\"";
+			}
+
+			// Use active player if not specified
+			PlayerTypes ePlayer = (playerId >= 0) ? (PlayerTypes)playerId : getActivePlayer();
+
+			if (beliefId < 0)
+			{
+				os << ",\"success\":false,\"error\":{\"code\":\"INVALID_BELIEF\",\"message\":\"Invalid belief_id\"}";
+			}
+			else
+			{
+				BeliefTypes eBelief = (BeliefTypes)beliefId;
+				CvPlayer& kPlayer = GET_PLAYER(ePlayer);
+
+				// Check if player can found a pantheon
+				if (!kPlayer.isAlive())
+				{
+					os << ",\"success\":false,\"error\":{\"code\":\"PLAYER_DEAD\",\"message\":\"Player is not alive\"}";
+				}
+				else if (kPlayer.GetReligions()->HasCreatedPantheon())
+				{
+					os << ",\"success\":false,\"error\":{\"code\":\"ALREADY_HAS_PANTHEON\",\"message\":\"Player already has a pantheon\"}";
+				}
+				else
+				{
+					// Found the pantheon
+					GetGameReligions()->FoundPantheon(ePlayer, eBelief);
+
+					CvBeliefEntry* pBeliefEntry = GC.GetGameBeliefs()->GetEntry(eBelief);
+					const char* beliefName = pBeliefEntry ? pBeliefEntry->GetShortDescription() : "Unknown";
+
+					os << ",\"success\":true,\"player_id\":" << ePlayer;
+					os << ",\"belief_id\":" << beliefId;
+					os << ",\"belief_name\":\"" << PipeJson::Escape(beliefName) << "\"";
+				}
+			}
+
+			os << "}";
+			m_kGameStatePipe.SendMessage(os.str());
+			return;
+		}
+		else if (msgType == "found_religion")
+		{
+			// Found a new religion
+			std::string requestId = msg.get("request_id").asString();
+			int religionId = msg.get("religion_id").asInt(-1);
+			int founderBeliefId = msg.get("founder_belief_id").asInt(-1);
+			int followerBeliefId = msg.get("follower_belief_id").asInt(-1);
+			int pantheonBeliefId = msg.get("pantheon_belief_id").asInt((int)NO_BELIEF);
+			int bonusBeliefId = msg.get("bonus_belief_id").asInt((int)NO_BELIEF);
+			std::string customName = msg.get("religion_name").asString();
+			int playerId = msg.get("player_id").asInt(-1);
+			int cityX = msg.get("city_x").asInt(-1);
+			int cityY = msg.get("city_y").asInt(-1);
+
+			std::ostringstream os;
+			os << "{\"type\":\"found_religion_result\"";
+			if (!requestId.empty())
+			{
+				os << ",\"request_id\":\"" << PipeJson::Escape(requestId) << "\"";
+			}
+
+			PlayerTypes ePlayer = (playerId >= 0) ? (PlayerTypes)playerId : getActivePlayer();
+
+			if (religionId < 0 || founderBeliefId < 0 || followerBeliefId < 0)
+			{
+				os << ",\"success\":false,\"error\":{\"code\":\"INVALID_PARAMS\",\"message\":\"Missing required parameters: religion_id, founder_belief_id, follower_belief_id\"}";
+			}
+			else
+			{
+				CvPlayer& kPlayer = GET_PLAYER(ePlayer);
+
+				// Find the holy city if not provided
+				CvCity* pkCity = NULL;
+				if (cityX >= 0 && cityY >= 0)
+				{
+					CvPlot* pPlot = GC.getMap().plot(cityX, cityY);
+					if (pPlot)
+						pkCity = pPlot->getPlotCity();
+				}
+
+				// If no city provided, use capital
+				if (!pkCity)
+				{
+					pkCity = kPlayer.getCapitalCity();
+				}
+
+				if (!kPlayer.isAlive())
+				{
+					os << ",\"success\":false,\"error\":{\"code\":\"PLAYER_DEAD\",\"message\":\"Player is not alive\"}";
+				}
+				else if (!pkCity)
+				{
+					os << ",\"success\":false,\"error\":{\"code\":\"NO_CITY\",\"message\":\"No valid city found for holy city\"}";
+				}
+				else
+				{
+					ReligionTypes eReligion = (ReligionTypes)religionId;
+					BeliefTypes eFounder = (BeliefTypes)founderBeliefId;
+					BeliefTypes eFollower = (BeliefTypes)followerBeliefId;
+					BeliefTypes ePantheon = (BeliefTypes)pantheonBeliefId;
+					BeliefTypes eBonus = (BeliefTypes)bonusBeliefId;
+
+					const char* szName = customName.empty() ? NULL : customName.c_str();
+
+					CvGameReligions* pkGameReligions = GetGameReligions();
+					CvGameReligions::FOUNDING_RESULT eResult = pkGameReligions->CanFoundReligion(ePlayer, eReligion, szName, eFounder, eFollower, ePantheon, eBonus, pkCity);
+
+					if (eResult == CvGameReligions::FOUNDING_OK)
+					{
+						pkGameReligions->FoundReligion(ePlayer, eReligion, szName, eFounder, eFollower, ePantheon, eBonus, pkCity);
+
+						CvReligionEntry* pReligionEntry = GC.getReligionInfo(eReligion);
+						const char* religionName = pReligionEntry ? pReligionEntry->GetDescription() : "Unknown";
+
+						os << ",\"success\":true,\"player_id\":" << ePlayer;
+						os << ",\"religion_id\":" << religionId;
+						os << ",\"religion_name\":\"" << PipeJson::Escape(religionName) << "\"";
+					}
+					else
+					{
+						os << ",\"success\":false,\"error\":{\"code\":\"CANNOT_FOUND\",\"message\":\"Cannot found religion\",\"reason\":" << (int)eResult << "}";
+					}
+				}
+			}
+
+			os << "}";
+			m_kGameStatePipe.SendMessage(os.str());
+			return;
+		}
+		else if (msgType == "enhance_religion")
+		{
+			// Enhance an existing religion
+			std::string requestId = msg.get("request_id").asString();
+			int follower2BeliefId = msg.get("follower2_belief_id").asInt(-1);
+			int enhancerBeliefId = msg.get("enhancer_belief_id").asInt(-1);
+			int playerId = msg.get("player_id").asInt(-1);
+
+			std::ostringstream os;
+			os << "{\"type\":\"enhance_religion_result\"";
+			if (!requestId.empty())
+			{
+				os << ",\"request_id\":\"" << PipeJson::Escape(requestId) << "\"";
+			}
+
+			PlayerTypes ePlayer = (playerId >= 0) ? (PlayerTypes)playerId : getActivePlayer();
+
+			if (follower2BeliefId < 0 || enhancerBeliefId < 0)
+			{
+				os << ",\"success\":false,\"error\":{\"code\":\"INVALID_PARAMS\",\"message\":\"Missing required parameters: follower2_belief_id, enhancer_belief_id\"}";
+			}
+			else
+			{
+				CvPlayer& kPlayer = GET_PLAYER(ePlayer);
+
+				if (!kPlayer.isAlive())
+				{
+					os << ",\"success\":false,\"error\":{\"code\":\"PLAYER_DEAD\",\"message\":\"Player is not alive\"}";
+				}
+				else if (!kPlayer.GetReligions()->OwnsReligion())
+				{
+					os << ",\"success\":false,\"error\":{\"code\":\"NO_RELIGION\",\"message\":\"Player does not own a religion to enhance\"}";
+				}
+				else
+				{
+					ReligionTypes eReligion = kPlayer.GetReligions()->GetOwnedReligion();
+					BeliefTypes eFollower2 = (BeliefTypes)follower2BeliefId;
+					BeliefTypes eEnhancer = (BeliefTypes)enhancerBeliefId;
+
+					CvGameReligions* pkGameReligions = GetGameReligions();
+					CvGameReligions::FOUNDING_RESULT eResult = pkGameReligions->CanEnhanceReligion(ePlayer, eReligion, eFollower2, eEnhancer);
+
+					if (eResult == CvGameReligions::FOUNDING_OK)
+					{
+						pkGameReligions->EnhanceReligion(ePlayer, eReligion, eFollower2, eEnhancer);
+
+						CvReligionEntry* pReligionEntry = GC.getReligionInfo(eReligion);
+						const char* religionName = pReligionEntry ? pReligionEntry->GetDescription() : "Unknown";
+
+						os << ",\"success\":true,\"player_id\":" << ePlayer;
+						os << ",\"religion_id\":" << (int)eReligion;
+						os << ",\"religion_name\":\"" << PipeJson::Escape(religionName) << "\"";
+					}
+					else
+					{
+						os << ",\"success\":false,\"error\":{\"code\":\"CANNOT_ENHANCE\",\"message\":\"Cannot enhance religion\",\"reason\":" << (int)eResult << "}";
+					}
+				}
+			}
+
+			os << "}";
+			m_kGameStatePipe.SendMessage(os.str());
+			return;
+		}
+		else if (msgType == "city_capture_decision")
+		{
+			// Make a decision about a captured city (puppet, annex, raze, liberate)
+			std::string requestId = msg.get("request_id").asString();
+			int cityId = msg.get("city_id").asInt(-1);
+			std::string action = msg.get("action").asString();
+			int liberateTo = msg.get("liberate_to").asInt(-1);
+			int playerId = msg.get("player_id").asInt(-1);
+
+			std::ostringstream os;
+			os << "{\"type\":\"city_capture_decision_result\"";
+			if (!requestId.empty())
+			{
+				os << ",\"request_id\":\"" << PipeJson::Escape(requestId) << "\"";
+			}
+
+			PlayerTypes ePlayer = (playerId >= 0) ? (PlayerTypes)playerId : getActivePlayer();
+
+			if (cityId < 0 || action.empty())
+			{
+				os << ",\"success\":false,\"error\":{\"code\":\"INVALID_PARAMS\",\"message\":\"Missing required parameters: city_id, action\"}";
+			}
+			else
+			{
+				CvPlayer& kPlayer = GET_PLAYER(ePlayer);
+				CvCity* pCity = kPlayer.getCity(cityId);
+
+				if (!kPlayer.isAlive())
+				{
+					os << ",\"success\":false,\"error\":{\"code\":\"PLAYER_DEAD\",\"message\":\"Player is not alive\"}";
+				}
+				else if (!pCity)
+				{
+					os << ",\"success\":false,\"error\":{\"code\":\"INVALID_CITY\",\"message\":\"City not found\"}";
+				}
+				else
+				{
+					bool success = false;
+					std::string resultAction;
+
+					if (action == "puppet")
+					{
+						pCity->DoCreatePuppet();
+						success = true;
+						resultAction = "puppet";
+					}
+					else if (action == "annex")
+					{
+						pCity->DoAnnex();
+						success = true;
+						resultAction = "annex";
+					}
+					else if (action == "raze")
+					{
+						if (kPlayer.canRaze(pCity))
+						{
+							pCity->doTask(TASK_RAZE);
+							success = true;
+							resultAction = "raze";
+						}
+						else
+						{
+							os << ",\"success\":false,\"error\":{\"code\":\"CANNOT_RAZE\",\"message\":\"Cannot raze this city\"}";
+						}
+					}
+					else if (action == "destroy")
+					{
+						pCity->doTask(TASK_DISBAND);
+						success = true;
+						resultAction = "destroy";
+					}
+					else if (action == "liberate")
+					{
+						if (liberateTo >= 0)
+						{
+							kPlayer.DoLiberatePlayer((PlayerTypes)liberateTo, cityId, false, false);
+							success = true;
+							resultAction = "liberate";
+						}
+						else
+						{
+							os << ",\"success\":false,\"error\":{\"code\":\"INVALID_LIBERATE_TARGET\",\"message\":\"liberate_to player ID required for liberate action\"}";
+						}
+					}
+					else
+					{
+						os << ",\"success\":false,\"error\":{\"code\":\"INVALID_ACTION\",\"message\":\"Unknown action: " << PipeJson::Escape(action) << "\"}";
+					}
+
+					if (success)
+					{
+						os << ",\"success\":true,\"player_id\":" << ePlayer;
+						os << ",\"city_id\":" << cityId;
+						os << ",\"action\":\"" << PipeJson::Escape(resultAction) << "\"";
+					}
+				}
+			}
+
 			os << "}";
 			m_kGameStatePipe.SendMessage(os.str());
 			return;

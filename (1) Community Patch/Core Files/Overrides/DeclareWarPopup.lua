@@ -7,6 +7,44 @@ include( "IconSupport" );
 include( "InstanceManager" );
 include( "CommonBehaviors" );
 
+-- Helper to encode JSON (simple implementation for our needs)
+local function JsonEncode(tbl)
+	local parts = {}
+	for k, v in pairs(tbl) do
+		local key = '"' .. tostring(k) .. '"'
+		local val
+		if type(v) == "string" then
+			val = '"' .. v:gsub('\\', '\\\\'):gsub('"', '\\"'):gsub('\n', '\\n') .. '"'
+		elseif type(v) == "table" then
+			val = JsonEncode(v)
+		elseif type(v) == "boolean" then
+			val = v and "true" or "false"
+		else
+			val = tostring(v)
+		end
+		table.insert(parts, key .. ":" .. val)
+	end
+	return "{" .. table.concat(parts, ",") .. "}"
+end
+
+local function JsonEncodeArray(arr)
+	local parts = {}
+	for _, v in ipairs(arr) do
+		if type(v) == "table" then
+			table.insert(parts, JsonEncode(v))
+		elseif type(v) == "string" then
+			table.insert(parts, '"' .. v:gsub('\\', '\\\\'):gsub('"', '\\"'):gsub('\n', '\\n') .. '"')
+		else
+			table.insert(parts, tostring(v))
+		end
+	end
+	return "[" .. table.concat(parts, ",") .. "]"
+end
+
+-- Track city capture state for auto-close
+local g_capturedCityId = nil;
+local g_capturedCityOwnerId = nil;
+
 local g_AlliedCityStatesInstanceManager = GenerationalInstanceManager:new( "CityStateInstance", "Base", Controls.AlliedCityStatesStack);
 -- CP
 local g_DefensePactsInstanceManager = GenerationalInstanceManager:new( "DPInstance", "Base", Controls.DefensePactStack);
@@ -830,30 +868,140 @@ PopupLayouts[ButtonPopupTypes.BUTTONPOPUP_DECLAREWARRANGESTRIKE] = function(popu
 end
 
 
+-- Send city capture choices to pipe for LLM
+local function SendCityCaptureChoicesToPipe(popupInfo)
+	if popupInfo.Type ~= ButtonPopupTypes.BUTTONPOPUP_CITY_CAPTURED then
+		return;
+	end
+
+	local cityID = popupInfo.Data1;
+	local iCaptureGold = popupInfo.Data2;
+	local iCaptureCulture = popupInfo.Data3;
+	local iCaptureGreatWorks = popupInfo.Data4;
+	local iLiberatedPlayer = popupInfo.Data5;
+	local bMinorCivBuyout = popupInfo.Option1;
+	local bConquest = popupInfo.Option2;
+
+	local activePlayer = Players[Game.GetActivePlayer()];
+	local newCity = activePlayer:GetCityByID(cityID);
+
+	if not newCity then
+		return;
+	end
+
+	-- Track for auto-close
+	g_capturedCityId = cityID;
+	g_capturedCityOwnerId = Game.GetActivePlayer();
+
+	local bOneCity = Game.IsOption(GameOptionTypes.GAMEOPTION_ONE_CITY_CHALLENGE);
+
+	-- Build available choices
+	local choices = {};
+
+	if iLiberatedPlayer ~= -1 then
+		table.insert(choices, {
+			action = "liberate",
+			liberateTo = iLiberatedPlayer,
+			playerName = Locale.Lookup(Players[iLiberatedPlayer]:GetNameKey()),
+		});
+	end
+
+	if not bOneCity and not activePlayer:MayNotAnnex() then
+		table.insert(choices, {
+			action = "annex",
+		});
+	end
+
+	if not bOneCity then
+		table.insert(choices, {
+			action = "puppet",
+		});
+	end
+
+	if activePlayer:CanRaze(newCity) or bOneCity then
+		table.insert(choices, {
+			action = bOneCity and "destroy" or "raze",
+		});
+	end
+
+	local cityName = Locale.Lookup(newCity:GetNameKey());
+	local choicesJson = JsonEncodeArray(choices);
+
+	local json = string.format(
+		'{"type":"popup_choice_needed","popup_type":"city_capture","player_id":%d,"turn":%d,"city_id":%d,"city_name":"%s","capture_gold":%d,"capture_culture":%d,"capture_great_works":%d,"is_conquest":%s,"choices":%s}',
+		Game.GetActivePlayer(), Game.GetGameTurn(), cityID, cityName:gsub('"', '\\"'),
+		iCaptureGold or 0, iCaptureCulture or 0, iCaptureGreatWorks or 0,
+		bConquest and "true" or "false", choicesJson
+	)
+	Game.SendPipeMessage(json)
+end
+
 local oldCursor; -- The previous cursor being used.
 function ShowHideHandler( bIsHide, bInitState )
     if( not bInitState ) then
         if( not bIsHide ) then
-        	UI.incTurnTimerSemaphore(); 
-        	
+        	UI.incTurnTimerSemaphore();
+
         	oldCursor = UIManager:SetUICursor(0); -- make sure we start with the default cursor
-        	
-        	if(g_PopupInfo ~= nil) then        	
+
+        	if(g_PopupInfo ~= nil) then
         		Events.SerialEventGameMessagePopupShown(g_PopupInfo);
         		Events.SerialEventGameMessagePopupProcessed.CallImmediate(g_PopupInfo.Type, 0);
+
+        		-- Send city capture choices to pipe
+        		SendCityCaptureChoicesToPipe(g_PopupInfo);
         	end
         else
 			UIManager:SetUICursor(oldCursor);
 			if(g_PopupInfo ~= nil) then
 		--		Events.SerialEventGameMessagePopupProcessed.CallImmediate(g_PopupInfo.Type, 0);
 			end
+			-- Clear tracking
+			g_capturedCityId = nil;
+			g_capturedCityOwnerId = nil;
             UI.decTurnTimerSemaphore();
-            
-            
+
+
         end
     end
 end
 ContextPtr:SetShowHideHandler( ShowHideHandler );
+
+-------------------------------------------------------------------------------
+-- Auto-close when city capture decision has been made (e.g., via pipe command)
+-------------------------------------------------------------------------------
+ContextPtr:SetUpdate(function(fDTime)
+	if not ContextPtr:IsHidden() and g_capturedCityId and g_capturedCityOwnerId then
+		local pPlayer = Players[g_capturedCityOwnerId];
+		if pPlayer then
+			local pCity = pPlayer:GetCityByID(g_capturedCityId);
+
+			-- Check if the city decision has been made:
+			-- 1. City no longer exists (liberated or destroyed)
+			-- 2. City is now a puppet
+			-- 3. City is being razed
+			-- 4. City has been annexed (no longer needs decision)
+			if not pCity then
+				-- City was liberated or destroyed
+				HideWindow();
+			elseif pCity:IsPuppet() then
+				-- City was puppeted
+				HideWindow();
+			elseif pCity:IsRazing() then
+				-- City is being razed
+				HideWindow();
+			elseif not pCity:IsOccupied() then
+				-- City was annexed (no longer occupied = decision made)
+				-- Note: After annexing, the city is still occupied but the popup should close
+				-- This might need adjustment based on actual game behavior
+				HideWindow();
+			end
+		else
+			-- Player no longer valid, close popup
+			HideWindow();
+		end
+	end
+end);
 
 -------------------------------
 -- Collapse/Expand Behaviors --

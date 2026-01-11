@@ -10,6 +10,9 @@ local g_popupInfo = {};
 
 local L = Locale.Lookup;
 
+local AUTO_CLOSE_SECONDS = 5.0;
+local g_autoCloseTimer = 0;
+
 -------------------------------------------------------------------------------
 -- On display
 Events.SerialEventGameMessagePopup.Add(function (popupInfo)
@@ -79,9 +82,23 @@ ContextPtr:SetShowHideHandler(function (bIsHide, bInitState)
 		if not bIsHide then
 			UI.incTurnTimerSemaphore();
 			Events.SerialEventGameMessagePopupShown(g_popupInfo);
+			-- Reset auto-close timer when popup is shown
+			g_autoCloseTimer = 0;
 		else
 			UI.decTurnTimerSemaphore();
 			Events.SerialEventGameMessagePopupProcessed.CallImmediate(ButtonPopupTypes.BUTTONPOPUP_TECH_AWARD, 0);
+		end
+	end
+end);
+
+-------------------------------------------------
+-- Auto-close timer
+-------------------------------------------------
+ContextPtr:SetUpdate(function(fDTime)
+	if not ContextPtr:IsHidden() then
+		g_autoCloseTimer = g_autoCloseTimer + fDTime;
+		if g_autoCloseTimer >= AUTO_CLOSE_SECONDS then
+			Close();
 		end
 	end
 end);

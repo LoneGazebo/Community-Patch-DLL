@@ -77,6 +77,7 @@ public:
 	void SendNotificationToPipe(PlayerTypes ePlayer, NotificationTypes eNotificationType, const char* strMessage, const char* strSummary, int iX, int iY, int iGameDataIndex, int iExtraGameData, int iLookupIndex, int iTurn);
 	void SendPopupToPipe(const CvPopupInfo& kPopup);
 	void AddPopupWithPipe(const CvPopupInfo& kPopup);
+	void SendRawMessageToPipe(const char* szMessage);
 	void SendDiplomaticMessageToPipe(PlayerTypes ePlayer, DiploUIStateTypes eDiploUIState, const char* szLeaderMessage, LeaderheadAnimationTypes eAction, int iData1, const CvDeal* pDeal = NULL);
 	void SendTechResearchedToPipe(PlayerTypes ePlayer, TechTypes eTech, bool bPartial);
 	GameStatePipe& GetGameStatePipe() { return m_kGameStatePipe; }

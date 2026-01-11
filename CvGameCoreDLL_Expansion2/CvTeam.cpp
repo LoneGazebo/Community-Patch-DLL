@@ -7295,7 +7295,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 				{
 					CvPopupInfo kPopup(BUTTONPOPUP_TECH_AWARD, GC.getGame().getActivePlayer(), 0, eIndex);
 					//kPopup.setText(localizedText.toUTF8());
-					DLLUI->AddPopup(kPopup);
+					GC.getGame().AddPopupWithPipe(kPopup);
 				}
 			}
 		}
@@ -8547,7 +8547,7 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 					if (!GC.getGame().isReallyNetworkMultiPlayer() && isHuman(ISHUMAN_UI) && GetID() == GC.getGame().getActiveTeam())
 					{
 						CvPopupInfo kPopupInfo(BUTTONPOPUP_NEW_ERA, eNewValue);
-						DLLUI->AddPopup(kPopupInfo);
+						GC.getGame().AddPopupWithPipe(kPopupInfo);
 					}
 
 					for(iI = 0; iI < GC.getNumFeatureInfos(); iI++)

@@ -5,6 +5,43 @@ include("VPUI_core");
 include("CPK.lua");
 
 local L = Locale.Lookup;
+
+-- Helper to encode JSON (simple implementation for our needs)
+local function JsonEncode(tbl)
+	local parts = {}
+	for k, v in pairs(tbl) do
+		local key = '"' .. tostring(k) .. '"'
+		local val
+		if type(v) == "string" then
+			val = '"' .. v:gsub('\\', '\\\\'):gsub('"', '\\"'):gsub('\n', '\\n') .. '"'
+		elseif type(v) == "table" then
+			val = JsonEncode(v)
+		elseif type(v) == "boolean" then
+			val = v and "true" or "false"
+		else
+			val = tostring(v)
+		end
+		table.insert(parts, key .. ":" .. val)
+	end
+	return "{" .. table.concat(parts, ",") .. "}"
+end
+
+local function JsonEncodeArray(arr)
+	local parts = {}
+	for _, v in ipairs(arr) do
+		if type(v) == "table" then
+			table.insert(parts, JsonEncode(v))
+		elseif type(v) == "string" then
+			table.insert(parts, '"' .. v:gsub('\\', '\\\\'):gsub('"', '\\"'):gsub('\n', '\\n') .. '"')
+		else
+			table.insert(parts, tostring(v))
+		end
+	end
+	return "[" .. table.concat(parts, ",") .. "]"
+end
+
+-- Track the initial religion state when the popup opens
+local g_initialReligionState = nil;
 local VP = MapModData.VP;
 local IconHookupOrDefault = VP.IconHookupOrDefault;
 local Show = CPK.UI.Control.Show;
@@ -567,6 +604,135 @@ local function RefreshExistingBeliefs()
 	end
 end
 
+-------------------------------------------------------------------------------
+-- Send available choices to the pipe for LLM
+local function SendReligionChoicesToPipe()
+	local ePlayer = Game.GetActivePlayer();
+	local pPlayer = Players[ePlayer];
+
+	local choiceType = g_bFoundingReligion and "found_religion" or "enhance_religion";
+
+	-- Gather available religions
+	local availableReligions = {};
+	for kReligionInfo in GameInfo.Religions("Type <> 'RELIGION_PANTHEON'") do
+		local eReligion = kReligionInfo.ID;
+		local isAvailable = true;
+
+		-- Check if already taken
+		for eOtherPlayer = 0, GameDefines.MAX_MAJOR_CIVS - 1 do
+			local pOtherPlayer = Players[eOtherPlayer];
+			if pOtherPlayer:IsEverAlive() and pOtherPlayer:OwnsReligion() then
+				if pOtherPlayer:GetOwnedReligion() == eReligion then
+					isAvailable = false;
+					break;
+				end
+			end
+		end
+
+		if isAvailable then
+			table.insert(availableReligions, {
+				ID = eReligion,
+				Name = L(kReligionInfo.Description),
+				Type = kReligionInfo.Type,
+			});
+		end
+	end
+
+	-- Gather available beliefs by type
+	local beliefCategories = {};
+
+	if g_bFoundingReligion then
+		-- For founding: need pantheon (if not already has one), founder, follower
+		if not pPlayer:HasCreatedPantheon() then
+			local pantheonBeliefs = {};
+			for _, eBelief in ipairs(Game.GetAvailablePantheonBeliefs()) do
+				local kBeliefInfo = GameInfo.Beliefs[eBelief];
+				table.insert(pantheonBeliefs, {
+					ID = kBeliefInfo.ID,
+					Name = L(kBeliefInfo.ShortDescription),
+					Description = L(kBeliefInfo.Description),
+					Score = Game.ScoreBelief(ePlayer, kBeliefInfo.ID),
+				});
+			end
+			beliefCategories.pantheon = pantheonBeliefs;
+		end
+
+		local founderBeliefs = {};
+		for _, eBelief in ipairs(Game.GetAvailableFounderBeliefs()) do
+			local kBeliefInfo = GameInfo.Beliefs[eBelief];
+			table.insert(founderBeliefs, {
+				ID = kBeliefInfo.ID,
+				Name = L(kBeliefInfo.ShortDescription),
+				Description = L(kBeliefInfo.Description),
+				Score = Game.ScoreBelief(ePlayer, kBeliefInfo.ID),
+			});
+		end
+		beliefCategories.founder = founderBeliefs;
+
+		local followerBeliefs = {};
+		for _, eBelief in ipairs(Game.GetAvailableFollowerBeliefs()) do
+			local kBeliefInfo = GameInfo.Beliefs[eBelief];
+			table.insert(followerBeliefs, {
+				ID = kBeliefInfo.ID,
+				Name = L(kBeliefInfo.ShortDescription),
+				Description = L(kBeliefInfo.Description),
+				Score = Game.ScoreBelief(ePlayer, kBeliefInfo.ID),
+			});
+		end
+		beliefCategories.follower = followerBeliefs;
+
+		-- Bonus belief (for Byzantium trait)
+		if pPlayer:IsTraitBonusReligiousBelief() then
+			local bonusBeliefs = {};
+			for _, eBelief in ipairs(Game.GetAvailableBonusBeliefs()) do
+				local kBeliefInfo = GameInfo.Beliefs[eBelief];
+				table.insert(bonusBeliefs, {
+					ID = kBeliefInfo.ID,
+					Name = L(kBeliefInfo.ShortDescription),
+					Description = L(kBeliefInfo.Description),
+					Score = Game.ScoreBelief(ePlayer, kBeliefInfo.ID),
+				});
+			end
+			beliefCategories.bonus = bonusBeliefs;
+		end
+	else
+		-- For enhancing: need follower2 and enhancer
+		local follower2Beliefs = {};
+		for _, eBelief in ipairs(Game.GetAvailableFollowerBeliefs()) do
+			local kBeliefInfo = GameInfo.Beliefs[eBelief];
+			table.insert(follower2Beliefs, {
+				ID = kBeliefInfo.ID,
+				Name = L(kBeliefInfo.ShortDescription),
+				Description = L(kBeliefInfo.Description),
+				Score = Game.ScoreBelief(ePlayer, kBeliefInfo.ID),
+			});
+		end
+		beliefCategories.follower2 = follower2Beliefs;
+
+		local enhancerBeliefs = {};
+		for _, eBelief in ipairs(Game.GetAvailableEnhancerBeliefs()) do
+			local kBeliefInfo = GameInfo.Beliefs[eBelief];
+			table.insert(enhancerBeliefs, {
+				ID = kBeliefInfo.ID,
+				Name = L(kBeliefInfo.ShortDescription),
+				Description = L(kBeliefInfo.Description),
+				Score = Game.ScoreBelief(ePlayer, kBeliefInfo.ID),
+			});
+		end
+		beliefCategories.enhancer = enhancerBeliefs;
+	end
+
+	-- Build JSON
+	local religionsJson = JsonEncodeArray(availableReligions);
+	local beliefsJson = JsonEncode(beliefCategories);
+
+	local json = string.format(
+		'{"type":"popup_choice_needed","popup_type":"%s","player_id":%d,"turn":%d,"is_founding":%s,"available_religions":%s,"available_beliefs":%s}',
+		choiceType, ePlayer, Game.GetGameTurn(), g_bFoundingReligion and "true" or "false", religionsJson, beliefsJson
+	)
+	Game.SendPipeMessage(json)
+end
+
 --- @param bIsHide boolean
 --- @param bInitState boolean
 ContextPtr:SetShowHideHandler(function (bIsHide, bInitState)
@@ -574,6 +740,14 @@ ContextPtr:SetShowHideHandler(function (bIsHide, bInitState)
 		if not bIsHide then
 			UI.incTurnTimerSemaphore();
 			Events.SerialEventGameMessagePopupShown(g_popupInfo);
+
+			-- Capture initial state for auto-close detection
+			local pPlayer = Players[Game.GetActivePlayer()];
+			g_initialReligionState = {
+				ownsReligion = pPlayer:OwnsReligion(),
+				ownedReligion = pPlayer:OwnsReligion() and pPlayer:GetOwnedReligion() or nil,
+				numBeliefs = pPlayer:OwnsReligion() and #Game.GetBeliefsInReligion(pPlayer:GetOwnedReligion()) or 0,
+			};
 
 			RefreshReligions();
 			RefreshExistingBeliefs();
@@ -588,11 +762,49 @@ ContextPtr:SetShowHideHandler(function (bIsHide, bInitState)
 			ValidateSelection();
 
 			ToggleBeliefSlot(BeliefSlots.NONE);
+
+			-- Send available choices to pipe for LLM
+			SendReligionChoicesToPipe();
 		else
+			g_initialReligionState = nil;
 			if g_popupInfo then
 				Events.SerialEventGameMessagePopupProcessed.CallImmediate(g_popupInfo.Type, 0);
 			end
 			UI.decTurnTimerSemaphore();
+		end
+	end
+end);
+
+-------------------------------------------------------------------------------
+-- Auto-close when religion has been founded/enhanced (e.g., via pipe command)
+-------------------------------------------------------------------------------
+ContextPtr:SetUpdate(function(fDTime)
+	if not ContextPtr:IsHidden() and g_initialReligionState then
+		local ePlayer = Game.GetActivePlayer();
+		local pPlayer = Players[ePlayer];
+
+		local currentOwnsReligion = pPlayer:OwnsReligion();
+		local currentNumBeliefs = currentOwnsReligion and #Game.GetBeliefsInReligion(pPlayer:GetOwnedReligion()) or 0;
+
+		-- Check if state has changed
+		local stateChanged = false;
+
+		if g_bFoundingReligion then
+			-- For founding: close if player now owns a religion they didn't before
+			if currentOwnsReligion and not g_initialReligionState.ownsReligion then
+				stateChanged = true;
+			end
+		else
+			-- For enhancing: close if the number of beliefs increased
+			if currentNumBeliefs > g_initialReligionState.numBeliefs then
+				stateChanged = true;
+			end
+		end
+
+		if stateChanged then
+			-- Religion was founded/enhanced (possibly via LLM pipe command), close the popup
+			Hide(Controls.ChooseConfirm);
+			UIManager:DequeuePopup(ContextPtr);
 		end
 	end
 end);
