@@ -1542,7 +1542,6 @@
     <Folder Include="Assets\Atlases\Units" />
     <Folder Include="Assets\Graphics\Buttons" />
     <Folder Include="Assets\Graphics\Shared" />
-    <Folder Include="Assets\Graphics\Buttons\AlphaAnim" />
     <Folder Include="Assets\Images\RandomVictory" />
     <Folder Include="Assets\Images\WonderSplash" />
     <Folder Include="Assets\Models\AnimationGraphs" />
@@ -2089,19 +2088,7 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Assets\Graphics\Buttons\DC45_Generic.dds">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
     <Content Include="Assets\Graphics\Buttons\GreatWorks_Artifact_Empty.dds">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="Assets\Graphics\Buttons\AlphaAnim\vassal80.dds">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="Assets\Graphics\Buttons\AlphaAnim\vassal80hl.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
@@ -6818,14 +6805,6 @@
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="LUA\CityStateStatusHelper.lua">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="LUA\DiploCorner.lua">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="LUA\DiploCorner.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
