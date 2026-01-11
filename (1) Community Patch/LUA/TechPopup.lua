@@ -8,6 +8,43 @@ include("TechHelpInclude");
 include("VPUI_core");
 include("CPK.lua");
 
+-- Helper to encode JSON (simple implementation for our needs)
+local function JsonEncode(tbl)
+	local parts = {}
+	for k, v in pairs(tbl) do
+		local key = '"' .. tostring(k) .. '"'
+		local val
+		if type(v) == "string" then
+			val = '"' .. v:gsub('\\', '\\\\'):gsub('"', '\\"'):gsub('\n', '\\n') .. '"'
+		elseif type(v) == "table" then
+			val = JsonEncode(v)
+		elseif type(v) == "boolean" then
+			val = v and "true" or "false"
+		else
+			val = tostring(v)
+		end
+		table.insert(parts, key .. ":" .. val)
+	end
+	return "{" .. table.concat(parts, ",") .. "}"
+end
+
+local function JsonEncodeArray(arr)
+	local parts = {}
+	for _, v in ipairs(arr) do
+		if type(v) == "table" then
+			table.insert(parts, JsonEncode(v))
+		elseif type(v) == "string" then
+			table.insert(parts, '"' .. v:gsub('\\', '\\\\'):gsub('"', '\\"'):gsub('\n', '\\n') .. '"')
+		else
+			table.insert(parts, tostring(v))
+		end
+	end
+	return "[" .. table.concat(parts, ",") .. "]"
+end
+
+-- Track initial research state for auto-close
+local g_initialResearch = nil;
+
 local instanceManager = InstanceManager:new("TechButtonInstance", "TechButtonContainer", Controls.ButtonStack);
 
 local NUM_SMALL_BUTTONS = 5;
@@ -213,6 +250,68 @@ end
 
 Events.SerialEventGameDataDirty.Add(OnTechPanelUpdated);
 
+-------------------------------------------------------------------------------
+-- Send tech choices to the pipe for LLM
+local function SendTechChoicesToPipe()
+	local ePlayer = Game.GetActivePlayer();
+	local iNumTech = pActivePlayer:GetNumFreeTechs();
+
+	-- Build available tech options
+	local techs = {};
+
+	if not Game.IsOption(GameOptionTypes.GAMEOPTION_NO_SCIENCE) then
+		for eTech, kTechInfo in pairs(GameInfo.Technologies) do
+			if pActivePlayer:CanResearch(eTech) then
+				-- Normal research or free tech available
+				local shouldInclude = false;
+				if g_eStealTechTargetPlayer == -1 then
+					if iNumTech == 0 or pActivePlayer:CanResearchForFree(eTech) then
+						shouldInclude = true;
+					end
+				elseif Players[g_eStealTechTargetPlayer]:HasTech(eTech) then
+					shouldInclude = true;
+				end
+
+				if shouldInclude then
+					table.insert(techs, {
+						id = eTech,
+						name = L(kTechInfo.Description),
+						type = kTechInfo.Type,
+						turns = pActivePlayer:GetResearchTurnsLeft(eTech, true),
+						cost = pActivePlayer:GetResearchCost(eTech),
+						is_free = (iNumTech > 0 or g_eStealTechTargetPlayer ~= -1),
+					});
+				end
+			end
+		end
+	end
+
+	-- Current research
+	local currentResearch = pActivePlayer:GetCurrentResearch();
+	local currentResearchName = nil;
+	if currentResearch ~= -1 then
+		local kTechInfo = GameInfo.Technologies[currentResearch];
+		if kTechInfo then
+			currentResearchName = L(kTechInfo.Description);
+		end
+	end
+
+	local popupType = (g_eStealTechTargetPlayer ~= -1) and "choose_tech_steal" or "choose_tech";
+
+	-- Build JSON
+	local techsJson = JsonEncodeArray(techs);
+
+	local json = string.format(
+		'{"type":"popup_choice_needed","popup_type":"%s","player_id":%d,"turn":%d,"free_techs":%d,"current_research":%s,"current_research_name":%s,"steal_target":%s,"techs":%s}',
+		popupType, ePlayer, Game.GetGameTurn(), iNumTech,
+		currentResearch ~= -1 and tostring(currentResearch) or "null",
+		currentResearchName and ('"' .. currentResearchName:gsub('"', '\\"') .. '"') or "null",
+		g_eStealTechTargetPlayer ~= -1 and tostring(g_eStealTechTargetPlayer) or "null",
+		techsJson
+	)
+	Game.SendPipeMessage(json)
+end
+
 ------------------------------------------------------------------
 -- On display
 
@@ -246,7 +345,13 @@ Events.SerialEventGameMessagePopup.Add(function (popupInfo)
 		g_eStealTechTargetPlayer = popupInfo.Data2;
 	end
 
+	-- Track initial research for auto-close
+	g_initialResearch = pActivePlayer:GetCurrentResearch();
+
 	OnTechPanelUpdated();
+
+	-- Send tech choices to pipe for LLM
+	SendTechChoicesToPipe();
 end);
 
 ------------------------------------------------------------------
@@ -283,4 +388,29 @@ end);
 Controls.OpenTTButton:RegisterCallback(Mouse.eLClick, function ()
 	ClosePopup();
 	Events.SerialEventGameMessagePopup{Type = ButtonPopupTypes.BUTTONPOPUP_TECH_TREE, Data2 = g_eStealTechTargetPlayer};
+end);
+
+-------------------------------------------------------------------------------
+-- Auto-close when tech has been selected (e.g., via pipe command)
+-------------------------------------------------------------------------------
+ContextPtr:SetUpdate(function(fDTime)
+	if not ContextPtr:IsHidden() then
+		local currentResearch = pActivePlayer:GetCurrentResearch();
+
+		-- If research has changed from initial state, close popup
+		local shouldClose = false;
+
+		if g_initialResearch == -1 and currentResearch ~= -1 then
+			-- Started researching something
+			shouldClose = true;
+		elseif g_initialResearch ~= -1 and currentResearch ~= -1 and g_initialResearch ~= currentResearch then
+			-- Changed research target
+			shouldClose = true;
+		end
+
+		if shouldClose then
+			g_initialResearch = nil;
+			ClosePopup();
+		end
+	end
 end);

@@ -2949,6 +2949,163 @@ void CvGame::HandlePipeCommand(const std::string& commandLine)
 			m_kGameStatePipe.SendMessage(os.str());
 			return;
 		}
+		else if (msgType == "set_city_production")
+		{
+			// Set production for a city
+			std::string requestId = msg.get("request_id").asString();
+			int cityId = msg.get("city_id").asInt(-1);
+			int orderType = msg.get("order_type").asInt(-1);
+			int itemId = msg.get("item_id").asInt(-1);
+			int playerId = msg.get("player_id").asInt(-1);
+
+			std::ostringstream os;
+			os << "{\"type\":\"set_city_production_result\"";
+			if (!requestId.empty())
+			{
+				os << ",\"request_id\":\"" << PipeJson::Escape(requestId) << "\"";
+			}
+
+			PlayerTypes ePlayer = (playerId >= 0) ? (PlayerTypes)playerId : getActivePlayer();
+
+			if (cityId < 0 || orderType < 0 || itemId < 0)
+			{
+				os << ",\"success\":false,\"error\":{\"code\":\"INVALID_PARAMS\",\"message\":\"Missing required parameters: city_id, order_type, item_id\"}";
+			}
+			else
+			{
+				CvPlayer& kPlayer = GET_PLAYER(ePlayer);
+				CvCity* pCity = kPlayer.getCity(cityId);
+
+				if (!kPlayer.isAlive())
+				{
+					os << ",\"success\":false,\"error\":{\"code\":\"PLAYER_DEAD\",\"message\":\"Player is not alive\"}";
+				}
+				else if (!pCity)
+				{
+					os << ",\"success\":false,\"error\":{\"code\":\"INVALID_CITY\",\"message\":\"City not found\"}";
+				}
+				else
+				{
+					OrderTypes eOrder = (OrderTypes)orderType;
+					bool success = false;
+					std::string itemName = "Unknown";
+
+					// Validate the order can be performed
+					switch (eOrder)
+					{
+					case ORDER_TRAIN:
+						if (pCity->canTrain((UnitTypes)itemId))
+						{
+							pCity->pushOrder(ORDER_TRAIN, itemId, -1, false, true, false, false);
+							CvUnitEntry* pUnitEntry = GC.getUnitInfo((UnitTypes)itemId);
+							if (pUnitEntry) itemName = pUnitEntry->GetDescription();
+							success = true;
+						}
+						break;
+					case ORDER_CONSTRUCT:
+						if (pCity->canConstruct((BuildingTypes)itemId))
+						{
+							pCity->pushOrder(ORDER_CONSTRUCT, itemId, -1, false, true, false, false);
+							CvBuildingEntry* pBuildingEntry = GC.getBuildingInfo((BuildingTypes)itemId);
+							if (pBuildingEntry) itemName = pBuildingEntry->GetDescription();
+							success = true;
+						}
+						break;
+					case ORDER_CREATE:
+						if (pCity->canCreate((ProjectTypes)itemId))
+						{
+							pCity->pushOrder(ORDER_CREATE, itemId, -1, false, true, false, false);
+							CvProjectEntry* pProjectEntry = GC.getProjectInfo((ProjectTypes)itemId);
+							if (pProjectEntry) itemName = pProjectEntry->GetDescription();
+							success = true;
+						}
+						break;
+					case ORDER_MAINTAIN:
+						if (pCity->canMaintain((ProcessTypes)itemId))
+						{
+							pCity->pushOrder(ORDER_MAINTAIN, itemId, -1, false, true, false, false);
+							CvProcessInfo* pProcessEntry = GC.getProcessInfo((ProcessTypes)itemId);
+							if (pProcessEntry) itemName = pProcessEntry->GetDescription();
+							success = true;
+						}
+						break;
+					default:
+						break;
+					}
+
+					if (success)
+					{
+						os << ",\"success\":true,\"player_id\":" << ePlayer;
+						os << ",\"city_id\":" << cityId;
+						os << ",\"order_type\":" << orderType;
+						os << ",\"item_id\":" << itemId;
+						os << ",\"item_name\":\"" << PipeJson::Escape(itemName) << "\"";
+					}
+					else
+					{
+						os << ",\"success\":false,\"error\":{\"code\":\"CANNOT_PRODUCE\",\"message\":\"City cannot produce this item\"}";
+					}
+				}
+			}
+
+			os << "}";
+			m_kGameStatePipe.SendMessage(os.str());
+			return;
+		}
+		else if (msgType == "choose_tech")
+		{
+			// Select a technology to research
+			std::string requestId = msg.get("request_id").asString();
+			int techId = msg.get("tech_id").asInt(-1);
+			int playerId = msg.get("player_id").asInt(-1);
+
+			std::ostringstream os;
+			os << "{\"type\":\"choose_tech_result\"";
+			if (!requestId.empty())
+			{
+				os << ",\"request_id\":\"" << PipeJson::Escape(requestId) << "\"";
+			}
+
+			PlayerTypes ePlayer = (playerId >= 0) ? (PlayerTypes)playerId : getActivePlayer();
+
+			if (techId < 0)
+			{
+				os << ",\"success\":false,\"error\":{\"code\":\"INVALID_PARAMS\",\"message\":\"Missing required parameter: tech_id\"}";
+			}
+			else
+			{
+				CvPlayer& kPlayer = GET_PLAYER(ePlayer);
+
+				if (!kPlayer.isAlive())
+				{
+					os << ",\"success\":false,\"error\":{\"code\":\"PLAYER_DEAD\",\"message\":\"Player is not alive\"}";
+				}
+				else
+				{
+					TechTypes eTech = (TechTypes)techId;
+
+					if (kPlayer.GetPlayerTechs()->CanResearch(eTech))
+					{
+						kPlayer.pushResearch(eTech, true);
+
+						CvTechEntry* pTechEntry = GC.getTechInfo(eTech);
+						const char* techName = pTechEntry ? pTechEntry->GetDescription() : "Unknown";
+
+						os << ",\"success\":true,\"player_id\":" << ePlayer;
+						os << ",\"tech_id\":" << techId;
+						os << ",\"tech_name\":\"" << PipeJson::Escape(techName) << "\"";
+					}
+					else
+					{
+						os << ",\"success\":false,\"error\":{\"code\":\"CANNOT_RESEARCH\",\"message\":\"Cannot research this technology\"}";
+					}
+				}
+			}
+
+			os << "}";
+			m_kGameStatePipe.SendMessage(os.str());
+			return;
+		}
 
 		// Unknown message type
 		std::ostringstream os;

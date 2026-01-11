@@ -9,6 +9,43 @@ include("InfoTooltipInclude");
 include("VPUI_core");
 include("CPK.lua");
 
+-- Helper to encode JSON (simple implementation for our needs)
+local function JsonEncode(tbl)
+	local parts = {}
+	for k, v in pairs(tbl) do
+		local key = '"' .. tostring(k) .. '"'
+		local val
+		if type(v) == "string" then
+			val = '"' .. v:gsub('\\', '\\\\'):gsub('"', '\\"'):gsub('\n', '\\n') .. '"'
+		elseif type(v) == "table" then
+			val = JsonEncode(v)
+		elseif type(v) == "boolean" then
+			val = v and "true" or "false"
+		else
+			val = tostring(v)
+		end
+		table.insert(parts, key .. ":" .. val)
+	end
+	return "{" .. table.concat(parts, ",") .. "}"
+end
+
+local function JsonEncodeArray(arr)
+	local parts = {}
+	for _, v in ipairs(arr) do
+		if type(v) == "table" then
+			table.insert(parts, JsonEncode(v))
+		elseif type(v) == "string" then
+			table.insert(parts, '"' .. v:gsub('\\', '\\\\'):gsub('"', '\\"'):gsub('\n', '\\n') .. '"')
+		else
+			table.insert(parts, tostring(v))
+		end
+	end
+	return "[" .. table.concat(parts, ",") .. "]"
+end
+
+-- Track production state for auto-close
+local g_initialProductionItem = nil;
+
 local g_UnitInstanceManager = InstanceManager:new("ProductionButtonInstance", "ProductionButton", Controls.UnitButtonStack);
 local g_BuildingInstanceManager = InstanceManager:new("ProductionButtonInstance", "ProductionButton", Controls.BuildingButtonStack);
 local g_WonderInstanceManager = InstanceManager:new("ProductionButtonInstance", "ProductionButton", Controls.WonderButtonStack);
@@ -964,6 +1001,119 @@ ContextPtr:SetInputHandler(function (uiMsg, wParam)
 	end
 end);
 
+-------------------------------------------------------------------------------
+-- Send production choices to the pipe for LLM
+local function SendProductionChoicesToPipe(pCity)
+	if not pCity then return end
+
+	local ePlayer = Game.GetActivePlayer();
+	local cityID = pCity:GetID();
+	local cityName = pCity:GetName();
+
+	-- Build available production options
+	local units = {};
+	local buildings = {};
+	local wonders = {};
+	local processes = {};
+
+	-- Units
+	for eUnit, kInfo in pairs(GameInfo.Units) do
+		if pCity:CanTrain(eUnit, 0, 1) then -- bTestVisible = true
+			table.insert(units, {
+				id = eUnit,
+				name = L(kInfo.Description),
+				type = kInfo.Type,
+				turns = pCity:GetUnitProductionTurnsLeft(eUnit, 0),
+				order_type = OrderTypes.ORDER_TRAIN,
+			});
+		end
+	end
+
+	-- Buildings
+	for eBuilding, kInfo in pairs(GameInfo.Buildings) do
+		if pCity:CanConstruct(eBuilding, 0, 1) then -- bTestVisible = true
+			local kBuildingClassInfo = GameInfo.BuildingClasses[kInfo.BuildingClass];
+			local isWonder = (kBuildingClassInfo.MaxGlobalInstances > -1 or
+				kBuildingClassInfo.MaxPlayerInstances == 1 or
+				kBuildingClassInfo.MaxTeamInstances > -1);
+
+			local item = {
+				id = eBuilding,
+				name = L(kInfo.Description),
+				type = kInfo.Type,
+				turns = pCity:GetBuildingProductionTurnsLeft(eBuilding, 0),
+				order_type = OrderTypes.ORDER_CONSTRUCT,
+				is_wonder = isWonder,
+			};
+
+			if isWonder then
+				table.insert(wonders, item);
+			else
+				table.insert(buildings, item);
+			end
+		end
+	end
+
+	-- Projects
+	for eProject, kInfo in pairs(GameInfo.Projects) do
+		if pCity:CanCreate(eProject, 0, 1) then -- bTestVisible = true
+			table.insert(wonders, {
+				id = eProject,
+				name = L(kInfo.Description),
+				type = kInfo.Type,
+				turns = pCity:GetProjectProductionTurnsLeft(eProject, 0),
+				order_type = OrderTypes.ORDER_CREATE,
+			});
+		end
+	end
+
+	-- Processes
+	for eProcess, kInfo in pairs(GameInfo.Processes) do
+		if pCity:CanMaintain(eProcess) then
+			table.insert(processes, {
+				id = eProcess,
+				name = L(kInfo.Description),
+				type = kInfo.Type,
+				order_type = OrderTypes.ORDER_MAINTAIN,
+			});
+		end
+	end
+
+	-- Current production
+	local currentProduction = nil;
+	local eUnitProd = pCity:GetProductionUnit();
+	local eBuildingProd = pCity:GetProductionBuilding();
+	local eProjectProd = pCity:GetProductionProject();
+	local eProcessProd = pCity:GetProductionProcess();
+
+	if eUnitProd ~= -1 then
+		currentProduction = { order_type = OrderTypes.ORDER_TRAIN, id = eUnitProd };
+	elseif eBuildingProd ~= -1 then
+		currentProduction = { order_type = OrderTypes.ORDER_CONSTRUCT, id = eBuildingProd };
+	elseif eProjectProd ~= -1 then
+		currentProduction = { order_type = OrderTypes.ORDER_CREATE, id = eProjectProd };
+	elseif eProcessProd ~= -1 then
+		currentProduction = { order_type = OrderTypes.ORDER_MAINTAIN, id = eProcessProd };
+	end
+
+	-- Track initial production for auto-close
+	g_initialProductionItem = currentProduction;
+
+	-- Build JSON
+	local unitsJson = JsonEncodeArray(units);
+	local buildingsJson = JsonEncodeArray(buildings);
+	local wondersJson = JsonEncodeArray(wonders);
+	local processesJson = JsonEncodeArray(processes);
+	local currentJson = currentProduction and JsonEncode(currentProduction) or "null";
+
+	local json = string.format(
+		'{"type":"popup_choice_needed","popup_type":"choose_production","player_id":%d,"turn":%d,"city_id":%d,"city_name":"%s","current_production":%s,"units":%s,"buildings":%s,"wonders":%s,"processes":%s}',
+		ePlayer, Game.GetGameTurn(), cityID, cityName:gsub('"', '\\"'),
+		currentJson, unitsJson, buildingsJson, wondersJson, processesJson
+	)
+	Game.SendPipeMessage(json)
+end
+
 ----------------------------------------------------------------
 --- @param bIsHide boolean
 --- @param bInitState boolean
@@ -971,13 +1121,62 @@ ContextPtr:SetShowHideHandler(function (bIsHide, bInitState)
 	if not bInitState then
 		if not bIsHide then
 			Events.SerialEventGameMessagePopupShown(g_popupInfo);
+
+			-- Send production choices to pipe for LLM
+			local pCity = GetCurrentCity();
+			if pCity then
+				SendProductionChoicesToPipe(pCity);
+			end
 		else
 			Events.SerialEventGameMessagePopupProcessed.CallImmediate(ButtonPopupTypes.BUTTONPOPUP_CHOOSEPRODUCTION, 0);
+			g_initialProductionItem = nil;
 		end
 		g_bHidden = bIsHide;
 
 		-- Call CityView.lua
 		LuaEvents.ProductionPopup(bIsHide);
+	end
+end);
+
+-------------------------------------------------------------------------------
+-- Auto-close when production has been set (e.g., via pipe command)
+-------------------------------------------------------------------------------
+ContextPtr:SetUpdate(function(fDTime)
+	if not ContextPtr:IsHidden() and eCurrentCity ~= -1 then
+		local pCity = pActivePlayer:GetCityByID(eCurrentCity);
+		if pCity then
+			-- Check if production has changed from initial state
+			local eUnitProd = pCity:GetProductionUnit();
+			local eBuildingProd = pCity:GetProductionBuilding();
+			local eProjectProd = pCity:GetProductionProject();
+			local eProcessProd = pCity:GetProductionProcess();
+
+			local currentProd = nil;
+			if eUnitProd ~= -1 then
+				currentProd = { order_type = OrderTypes.ORDER_TRAIN, id = eUnitProd };
+			elseif eBuildingProd ~= -1 then
+				currentProd = { order_type = OrderTypes.ORDER_CONSTRUCT, id = eBuildingProd };
+			elseif eProjectProd ~= -1 then
+				currentProd = { order_type = OrderTypes.ORDER_CREATE, id = eProjectProd };
+			elseif eProcessProd ~= -1 then
+				currentProd = { order_type = OrderTypes.ORDER_MAINTAIN, id = eProcessProd };
+			end
+
+			-- If we had no production and now we have one, or production changed
+			local shouldClose = false;
+			if g_initialProductionItem == nil and currentProd ~= nil then
+				shouldClose = true;
+			elseif g_initialProductionItem ~= nil and currentProd ~= nil then
+				if g_initialProductionItem.order_type ~= currentProd.order_type or
+				   g_initialProductionItem.id ~= currentProd.id then
+					shouldClose = true;
+				end
+			end
+
+			if shouldClose then
+				Close();
+			end
+		end
 	end
 end);
 
