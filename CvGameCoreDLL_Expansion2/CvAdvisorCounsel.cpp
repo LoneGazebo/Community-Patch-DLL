@@ -1319,6 +1319,8 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 		int iMessageRating = 0;
 		AdvisorTypes eAdvisor = ADVISOR_FOREIGN;
 		//MinorCivQuestTypes eQuest = NO_MINOR_CIV_QUEST_TYPE;
+		// TODO: eEnemyPlayer is never assigned - incomplete feature for tracking rival major civ influence
+		// The checks below (lines ~1401, 1469, 1536) always fail, falling through to generic messages
 		PlayerTypes eEnemyPlayer = NO_PLAYER;
 
 		PlayerTypes eMinorPlayer = (PlayerTypes)ui;

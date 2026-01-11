@@ -3113,51 +3113,48 @@ void CvEconomicAI::DisbandLongObsoleteUnits()
 	// Loop through our units
 	for(CvUnit* pUnit = m_pPlayer->firstUnit(&iLoop); pUnit != NULL; pUnit = m_pPlayer->nextUnit(&iLoop))
 	{
-		if (pUnit)
+		int ArmyId = pUnit->getArmyID();
+		if (ArmyId != -1)
 		{
-			int ArmyId = pUnit->getArmyID();
-			if (ArmyId != -1)
+			CvArmyAI* pThisArmy = m_pPlayer->getArmyAI(ArmyId);
+			if (pThisArmy)
+				if ((pThisArmy->GetArmyAIState() == ARMYAISTATE_MOVING_TO_DESTINATION) || (pThisArmy->GetArmyAIState() == ARMYAISTATE_AT_DESTINATION))
+					continue;
+		}
+
+		// The unit must have an upgrade option, if not, then we don't care about this (includes workers, settlers, explorers)
+		UnitTypes eUpgradeUnitType = pUnit->GetUpgradeUnitType();
+
+		//Fixed for settlers for advanced start.
+		if(eUpgradeUnitType != NO_UNIT && !pUnit->isFound())
+		{
+			// Check out unit era based on the prerequirement tech, defaults at ancient era.
+			int unitEra = 0;
+			UnitTypes currentUnitType = pUnit->getUnitType();
+			TechTypes ePrereqTech = (TechTypes)GC.getUnitInfo(currentUnitType)->GetPrereqAndTech();
+
+			if (ePrereqTech != NO_TECH)
 			{
-				CvArmyAI* pThisArmy = m_pPlayer->getArmyAI(ArmyId);
-				if (pThisArmy)
-					if ((pThisArmy->GetArmyAIState() == ARMYAISTATE_MOVING_TO_DESTINATION) || (pThisArmy->GetArmyAIState() == ARMYAISTATE_AT_DESTINATION))
-						continue;
+				CvTechEntry* pkTechInfo = GC.getTechInfo(ePrereqTech);
+				if (pkTechInfo)
+				{
+					unitEra = pkTechInfo->GetEra();
+				}
 			}
 
-			// The unit must have an upgrade option, if not, then we don't care about this (includes workers, settlers, explorers)
-			UnitTypes eUpgradeUnitType = pUnit->GetUpgradeUnitType();
-
-			//Fixed for settlers for advanced start.
-			if(eUpgradeUnitType != NO_UNIT && !pUnit->isFound())
+			// Too much era difference for that unit, lets scrap it.
+			if ((playerCurrentEra - unitEra) > 2)
 			{
-				// Check out unit era based on the prerequirement tech, defaults at ancient era.
-				int unitEra = 0;
-				UnitTypes currentUnitType = pUnit->getUnitType();
-				TechTypes ePrereqTech = (TechTypes)GC.getUnitInfo(currentUnitType)->GetPrereqAndTech();
-
-				if (ePrereqTech != NO_TECH)
+				if(GC.getLogging() && GC.getAILogging())
 				{
-					CvTechEntry* pkTechInfo = GC.getTechInfo(ePrereqTech);
-					if (pkTechInfo)
-					{
-						unitEra = pkTechInfo->GetEra();
-					}
+					CvString strLogString;
+					strLogString.Format("Disbanding long obsolete unit. %s, X: %d, Y: %d", pUnit->getName().GetCString(), pUnit->getX(), pUnit->getY());
+					m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
 				}
 
-				// Too much era difference for that unit, lets scrap it.
-				if ((playerCurrentEra - unitEra) > 2)
-				{
-					if(GC.getLogging() && GC.getAILogging())
-					{
-						CvString strLogString;
-						strLogString.Format("Disbanding long obsolete unit. %s, X: %d, Y: %d", pUnit->getName().GetCString(), pUnit->getX(), pUnit->getY());
-						m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
-					}
-
-					pUnit->scrap();
-					// Only one unit scrap per turn.
-					return;
-				}
+				pUnit->scrap();
+				// Only one unit scrap per turn.
+				return;
 			}
 		}
 	}

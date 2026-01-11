@@ -3754,7 +3754,7 @@ int CvLuaCity::lGetReligionBuildingClassYieldChange(lua_State* L)
 			if (pPantheon != NULL && ePantheonBelief != NO_BELIEF && ePantheonBelief != eSecondaryPantheon)
 			{
 				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pkCity->getOwner());
-				if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, pkCity->getOwner()))) // check that the our religion does not have our belief, to prevent double counting
+				if (pReligion == NULL || !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, pkCity->getOwner())) // check that the our religion does not have our belief, to prevent double counting
 				{
 					iYieldFromBuilding += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetBuildingClassYieldChange(eBuildingClass, eYieldType);
 				}
@@ -5983,7 +5983,7 @@ int CvLuaCity::lGetSpecialistYieldChange(lua_State* L)
 			BeliefTypes ePantheonBelief = GC.getGame().GetGameReligions()->GetBeliefInPantheon(pkCity->getOwner());
 			if (pPantheon != NULL && ePantheonBelief != NO_BELIEF && ePantheonBelief != eSecondaryPantheon)
 			{
-				if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eReligion, pkCity->getOwner()))) // check that the our religion does not have our belief, to prevent double counting
+				if (pReligion == NULL || !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eReligion, pkCity->getOwner())) // check that the our religion does not have our belief, to prevent double counting
 				{
 					iRtnValue += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetSpecialistYieldChange(eSpecialist, eYield);
 				}
@@ -6258,7 +6258,7 @@ int CvLuaCity::lGetReligionCityRangeStrikeModifier(lua_State* L)
 			if (pPantheon != NULL && ePantheonBelief != NO_BELIEF && ePantheonBelief != eSecondaryPantheon)
 			{
 				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pkCity->getOwner());
-				if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, pkCity->getOwner()))) // check that the our religion does not have our belief, to prevent double counting
+				if (pReligion == NULL || !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, pkCity->getOwner())) // check that the our religion does not have our belief, to prevent double counting
 				{
 					iReligionRangeStrikeMod += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetCityRangeStrikeModifier();
 				}

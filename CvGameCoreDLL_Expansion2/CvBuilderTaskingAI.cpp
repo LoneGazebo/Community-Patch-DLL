@@ -1044,9 +1044,7 @@ int CvBuilderTaskingAI::GetRouteBuildTime(PlannedRoute plannedRoute, const CvUni
 	for (vector<int>::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(*it2);
-
-		if (!pPlot)
-			continue;
+		ASSERT(pPlot != NULL, "plotByIndexUnchecked returned null - invalid plot index");
 
 		if (m_pPlayer->GetSameRouteBenefitFromTrait(pPlot, eRoute))
 			continue;
@@ -1092,9 +1090,7 @@ int CvBuilderTaskingAI::GetRouteMissingTiles(PlannedRoute plannedRoute) const
 	for (vector<int>::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(*it2);
-
-		if (!pPlot)
-			continue;
+		ASSERT(pPlot != NULL, "plotByIndexUnchecked returned null - invalid plot index");
 
 		if (m_pPlayer->GetSameRouteBenefitFromTrait(pPlot, eRoute))
 			continue;
@@ -1756,9 +1752,7 @@ vector<OptionWithScore<BuilderDirective>> CvBuilderTaskingAI::GetRouteDirectives
 		for (vector<int>::const_iterator it2 = plots.begin(); it2 != plots.end(); ++it2)
 		{
 			CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(*it2);
-
-			if (!pPlot)
-				continue;
+			ASSERT(pPlot != NULL, "plotByIndexUnchecked returned null - invalid plot index");
 
 			plotPurposes[pPlot] = (RoutePurpose)(plotPurposes[pPlot] | ePurpose);
 

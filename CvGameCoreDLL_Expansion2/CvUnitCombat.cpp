@@ -3691,10 +3691,8 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackRanged(CvUnit& kAttacker, int iX
 					return CvUnitCombat::ATTACK_ABORTED;
 				}
 			}
-		}
-
-		if(!pDefender) 
 			return ATTACK_ABORTED;
+		}
 
 		pDefender->SetAutomateType(NO_AUTOMATE);
 
@@ -3816,10 +3814,8 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackAir(CvUnit& kAttacker, CvPlot& t
 					return CvUnitCombat::ATTACK_ABORTED;
 				}
 			}
-		}
-
-		if(!pDefender) 
 			return CvUnitCombat::ATTACK_ABORTED;
+		}
 
 		pDefender->SetAutomateType(NO_AUTOMATE);
 

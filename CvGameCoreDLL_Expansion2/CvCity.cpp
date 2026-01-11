@@ -2056,8 +2056,7 @@ void CvCity::PreKill()
 	for (int iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
 	{
 		CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
-		if (!pLoopPlot)
-			continue;
+		ASSERT(pLoopPlot != NULL, "plotByIndexUnchecked returned null - invalid plot index");
 		
 		//give up all plots owned by this city
 		if (pLoopPlot->getOwningCityID() == GetID())
@@ -12915,7 +12914,7 @@ int CvCity::getProductionModifier(UnitTypes eUnit, CvString* toolTipSink, bool b
 			if (iTempMod != 0)
 			{
 				iMultiplier += iTempMod;
-				if (toolTipSink && iTempMod)
+				if (toolTipSink)
 				{
 					GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_MILITARY_UNITPROMOTION", iTempMod);
 				}
@@ -13114,7 +13113,7 @@ int CvCity::getProductionModifier(BuildingTypes eBuilding, CvString* toolTipSink
 			if (iTempMod != 0)
 			{
 				iMultiplier += iTempMod;
-				if (toolTipSink && iTempMod)
+				if (toolTipSink)
 				{
 					GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_WONDER_UNITPROMOTION", iTempMod);
 				}
@@ -13154,7 +13153,7 @@ int CvCity::getProductionModifier(BuildingTypes eBuilding, CvString* toolTipSink
 	if (iTempMod != 0)
 	{
 		iMultiplier += iTempMod;
-		if (toolTipSink && iTempMod)
+		if (toolTipSink)
 		{
 			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_BUILDING_POLICY", iTempMod);
 		}
@@ -13165,7 +13164,7 @@ int CvCity::getProductionModifier(BuildingTypes eBuilding, CvString* toolTipSink
 	if (iTempMod != 0)
 	{
 		iMultiplier += iTempMod;
-		if (toolTipSink && iTempMod)
+		if (toolTipSink)
 		{
 			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_CAPITAL_BUILDING_TRAIT", iTempMod);
 		}
@@ -13273,7 +13272,7 @@ int CvCity::getProductionModifier(BuildingTypes eBuilding, CvString* toolTipSink
 			if (iTempMod != 0)
 			{
 				iMultiplier += iTempMod;
-				if (toolTipSink && iTempMod)
+				if (toolTipSink)
 				{
 					GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_WONDER_TO_BUILDING_FROM_UNIT_TRAIT", iTempMod);
 				}
@@ -13649,10 +13648,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			{
 				if (pkCorporationInfo->GetHeadquartersBuildingClass() == eBuildingClass)
 				{
-					if (iChange > 0)
-					{
-						GC.getGame().GetGameCorporations()->FoundCorporation(getOwner(), eCorporation, this);
-					}
+					GC.getGame().GetGameCorporations()->FoundCorporation(getOwner(), eCorporation, this);
 				}
 			}
 
@@ -13874,21 +13870,18 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 				}
 			}
 
-			if (iChange > 0)
+			if (!IsBuildingConstructed(eBuildingClass))
 			{
-				if (!IsBuildingConstructed(eBuildingClass))
+				SetBuildingConstructed(eBuildingClass, true);
+				GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_INSTANT, false, NO_GREATPERSON, eBuilding, 0, false, NO_PLAYER, NULL, false, this);
+				
+				if (pBuildingInfo->GetInstantReligionPressure() > 0) 
 				{
-					SetBuildingConstructed(eBuildingClass, true);
-					GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_INSTANT, false, NO_GREATPERSON, eBuilding, 0, false, NO_PLAYER, NULL, false, this);
-					
-					if (pBuildingInfo->GetInstantReligionPressure() > 0) 
+					ReligionTypes eReligion = GET_PLAYER(getOwner()).getCapitalCity()->GetCityReligions()->GetReligiousMajority();
+					if (eReligion > RELIGION_PANTHEON)
 					{
-						ReligionTypes eReligion = GET_PLAYER(getOwner()).getCapitalCity()->GetCityReligions()->GetReligiousMajority();
-						if (eReligion > RELIGION_PANTHEON)
-						{
-							GetCityReligions()->AddReligiousPressure(FOLLOWER_CHANGE_INSTANT_YIELD, eReligion, pBuildingInfo->GetInstantReligionPressure());
-							GetCityReligions()->RecomputeFollowers(FOLLOWER_CHANGE_INSTANT_YIELD);
-						}
+						GetCityReligions()->AddReligiousPressure(FOLLOWER_CHANGE_INSTANT_YIELD, eReligion, pBuildingInfo->GetInstantReligionPressure());
+						GetCityReligions()->RecomputeFollowers(FOLLOWER_CHANGE_INSTANT_YIELD);
 					}
 				}
 			}
@@ -17154,8 +17147,7 @@ int CvCity::GetImprovementGreatPersonRateModifier() const
 	for (std::vector<int>::const_iterator it = aWorkedPlots.begin(); it != aWorkedPlots.end(); ++it)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(*it);
-		if (!pPlot)
-			continue;
+		ASSERT(pPlot != NULL, "plotByIndexUnchecked returned null - invalid plot index");
 
 		if (pPlot->IsImprovementPillaged())
 			continue;
@@ -26037,10 +26029,7 @@ void CvCity::SetPurchased(BuildingClassTypes eBuildingClass, bool bValue)
 	VALIDATE_OBJECT();
 	PRECONDITION(eBuildingClass >= 0, "eIndex expected to be >= 0");
 	PRECONDITION(eBuildingClass < GC.getNumBuildingClassInfos(), "eIndex expected to be < MAX_PLAYERS");
-	if (m_abIsPurchased[eBuildingClass] != bValue)
-	{
-		m_abIsPurchased[eBuildingClass] = bValue;
-	}
+	m_abIsPurchased[eBuildingClass] = bValue;
 }
 bool CvCity::IsPurchased(BuildingClassTypes eBuildingClass)
 {
@@ -26054,10 +26043,7 @@ void CvCity::SetBestForWonder(BuildingClassTypes eBuildingClass, bool bValue)
 	VALIDATE_OBJECT();
 	PRECONDITION(eBuildingClass >= 0, "eBuildingClass expected to be >= 0");
 	PRECONDITION(eBuildingClass < GC.getNumBuildingClassInfos(), "eBuildingClass expected to be < GC.getNumBuildingClassInfos()");
-	if (m_abIsBestForWonder[eBuildingClass] != bValue)
-	{
-		m_abIsBestForWonder[eBuildingClass] = bValue;
-	}
+	m_abIsBestForWonder[eBuildingClass] = bValue;
 }
 bool CvCity::IsBestForWonder(BuildingClassTypes eBuildingClass)
 {

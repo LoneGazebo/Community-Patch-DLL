@@ -3481,27 +3481,24 @@ void CvMilitaryAI::UpdateWarType()
 				int iLoopCity = 0;
 				for(pLoopCity = GET_PLAYER(eLoopPlayer).firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = GET_PLAYER(eLoopPlayer).nextCity(&iLoopCity))
 				{
-					if(pLoopCity != NULL)
+					if (pLoopCity->IsInDanger(m_pPlayer->GetID()))
 					{
-						if (pLoopCity->IsInDanger(m_pPlayer->GetID()))
+						if (pLoopCity->isCoastal())
 						{
-							if (pLoopCity->isCoastal())
-							{
-								iFriendlySeaCities += 50;
-							}
-							else
-							{
-								iFriendlyLandCities += 50;
-							}
-						}
-						if(pLoopCity->isCoastal())
-						{
-							iEnemyWaterCities += 50;
+							iFriendlySeaCities += 50;
 						}
 						else
 						{
-							iEnemyLandCities += 50;
+							iFriendlyLandCities += 50;
 						}
+					}
+					if(pLoopCity->isCoastal())
+					{
+						iEnemyWaterCities += 50;
+					}
+					else
+					{
+						iEnemyLandCities += 50;
 					}
 				}
 			}

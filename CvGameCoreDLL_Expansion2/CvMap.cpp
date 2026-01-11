@@ -1871,8 +1871,9 @@ void CvMap::calculateAreas()
 	for(int iI = 0; iI < numPlots(); iI++)
 	{
 		CvPlot* pLoopPlot = plotByIndexUnchecked(iI);
+		ASSERT(pLoopPlot != NULL, "plotByIndexUnchecked returned null - invalid plot index");
 		//ignore plots which are already assigned
-		if(!pLoopPlot || pLoopPlot->getArea() != -1) 
+		if(pLoopPlot->getArea() != -1) 
 			continue;
 
 		//use flag for "wide connection"
@@ -1898,8 +1899,9 @@ void CvMap::calculateAreas()
 	for(int iI = 0; iI < numPlots(); iI++)
 	{
 		CvPlot* pLoopPlot = plotByIndexUnchecked(iI);
+		ASSERT(pLoopPlot != NULL, "plotByIndexUnchecked returned null - invalid plot index");
 		//ignore plots which are already assigned
-		if(!pLoopPlot || pLoopPlot->getArea() != -1) 
+		if(pLoopPlot->getArea() != -1) 
 			continue;
 
 		//use flag for "single connection"

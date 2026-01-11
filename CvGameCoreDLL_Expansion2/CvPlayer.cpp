@@ -5076,65 +5076,62 @@ void CvPlayer::UpdateBestMilitaryCities()
 	{
 		int iBestDomainValue = 0;
 		DomainTypes eTestDomain = (DomainTypes)iDomainLoop;
-		if (eTestDomain != NO_DOMAIN)
+		CvCity* pBestDomainCity = NULL;
+		for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 		{
-			CvCity* pBestDomainCity = NULL;
-			for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+			//Production is king, and also our base value.
+			int iDomainValue = (pLoopCity->getRawProductionPerTurnTimes100() / 500);
+
+			//Also get our XP boosts local to this city.
+			iDomainValue += pLoopCity->getFreeExperience();
+			iDomainValue += pLoopCity->GetExperienceFromPreviousGoldenAges();
+
+			if (pLoopCity->getDomainFreeExperience(eTestDomain) > 0)
 			{
-				//Production is king, and also our base value.
-				int iDomainValue = (pLoopCity->getRawProductionPerTurnTimes100() / 500);
+				iDomainValue += max(1, pLoopCity->getDomainFreeExperience(eTestDomain));
+			}
+			if (pLoopCity->getDomainFreeExperienceFromGreatWorks(eTestDomain) > 0)
+			{
+				iDomainValue += max(1, pLoopCity->getDomainFreeExperienceFromGreatWorks(eTestDomain));
+			}
+			if (pLoopCity->getDomainFreeExperienceFromGreatWorksGlobal(eTestDomain) > 0)
+			{
+				iDomainValue += max(1, pLoopCity->getDomainFreeExperienceFromGreatWorksGlobal(eTestDomain));
+			}
+			if (pLoopCity->getDomainProductionModifier(eTestDomain) > 0)
+			{
+				iDomainValue += max(1, pLoopCity->getDomainProductionModifier(eTestDomain));
+			}
 
-				//Also get our XP boosts local to this city.
-				iDomainValue += pLoopCity->getFreeExperience();
-				iDomainValue += pLoopCity->GetExperienceFromPreviousGoldenAges();
-
-				if (pLoopCity->getDomainFreeExperience(eTestDomain) > 0)
+			//Let's try to synergize our domain and combat class productions in the same cities.
+			for (int iI = 0; iI < GC.getNumUnitCombatClassInfos(); iI++)
+			{
+				const UnitCombatTypes eUnitCombatClass = static_cast<UnitCombatTypes>(iI);
+				CvBaseInfo* pkUnitCombatClassInfo = GC.getUnitCombatClassInfo(eUnitCombatClass);
+				if (pkUnitCombatClassInfo)
 				{
-					iDomainValue += max(1, pLoopCity->getDomainFreeExperience(eTestDomain));
-				}
-				if (pLoopCity->getDomainFreeExperienceFromGreatWorks(eTestDomain) > 0)
-				{
-					iDomainValue += max(1, pLoopCity->getDomainFreeExperienceFromGreatWorks(eTestDomain));
-				}
-				if (pLoopCity->getDomainFreeExperienceFromGreatWorksGlobal(eTestDomain) > 0)
-				{
-					iDomainValue += max(1, pLoopCity->getDomainFreeExperienceFromGreatWorksGlobal(eTestDomain));
-				}
-				if (pLoopCity->getDomainProductionModifier(eTestDomain) > 0)
-				{
-					iDomainValue += max(1, pLoopCity->getDomainProductionModifier(eTestDomain));
-				}
-
-				//Let's try to synergize our domain and combat class productions in the same cities.
-				for (int iI = 0; iI < GC.getNumUnitCombatClassInfos(); iI++)
-				{
-					const UnitCombatTypes eUnitCombatClass = static_cast<UnitCombatTypes>(iI);
-					CvBaseInfo* pkUnitCombatClassInfo = GC.getUnitCombatClassInfo(eUnitCombatClass);
-					if (pkUnitCombatClassInfo)
+					if (GetBestMilitaryCity(eUnitCombatClass, NO_DOMAIN) == pLoopCity)
 					{
-						if (GetBestMilitaryCity(eUnitCombatClass, NO_DOMAIN) == pLoopCity)
-						{
-							iDomainValue *= 2;
-						}
+						iDomainValue *= 2;
 					}
 				}
-				if (iDomainValue > iBestDomainValue)
-				{
-					iBestDomainValue = iDomainValue;
-					pBestDomainCity = pLoopCity;
-				}
 			}
-			if (pBestDomainCity != NULL && pBestDomainCity != GetBestMilitaryCity(NO_UNITCOMBAT, eTestDomain))
+			if (iDomainValue > iBestDomainValue)
 			{
-				if (GC.getLogging() && GC.getAILogging())
-				{
-					CvString strCity = pBestDomainCity->getName();
-					CvString strLogString;
-					strLogString.Format("***************** New Military Domain City Chosen for domain %d: %s. ****************", eTestDomain, strCity.c_str());
-					GetHomelandAI()->LogHomelandMessage(strLogString);
-				}
-				SetBestMilitaryCityDomain(pBestDomainCity->GetID(), eTestDomain);
+				iBestDomainValue = iDomainValue;
+				pBestDomainCity = pLoopCity;
 			}
+		}
+		if (pBestDomainCity != NULL && pBestDomainCity != GetBestMilitaryCity(NO_UNITCOMBAT, eTestDomain))
+		{
+			if (GC.getLogging() && GC.getAILogging())
+			{
+				CvString strCity = pBestDomainCity->getName();
+				CvString strLogString;
+				strLogString.Format("***************** New Military Domain City Chosen for domain %d: %s. ****************", eTestDomain, strCity.c_str());
+				GetHomelandAI()->LogHomelandMessage(strLogString);
+			}
+			SetBestMilitaryCityDomain(pBestDomainCity->GetID(), eTestDomain);
 		}
 	}
 }
@@ -11022,10 +11019,6 @@ void CvPlayer::chooseTech(int iDiscover, const char* strText, TechTypes iTechJus
 	if(iDiscover > 0)
 	{
 		SetNumFreeTechs(GetNumFreeTechs()+iDiscover);
-	}
-
-	if(iDiscover > 0)
-	{
 		CvNotifications* pNotifications = GetNotifications();
 		if(pNotifications)
 		{
@@ -29930,10 +29923,7 @@ int CvPlayer::GetReformCooldownRate() const
 void CvPlayer::SetReformCooldownRate(int iValue)
 {
 	GAMEEVENTINVOKE_HOOK(GAMEEVENT_ReformCooldownRateChanges, GetID(), iValue);
-	if(m_iJFDReformCooldownRate != iValue)
-	{
-		m_iJFDReformCooldownRate = iValue;
-	}
+	m_iJFDReformCooldownRate = iValue;
 }
 
 void CvPlayer::ChangeGovernmentCooldown(int iValue)
@@ -30088,10 +30078,7 @@ void CvPlayer::SetActiveContract(ContractTypes eContract, bool bValue)
 	VALIDATE_OBJECT();
 	PRECONDITION(eContract >= 0, "eContract expected to be >= 0");
 	PRECONDITION(eContract < GC.getNumContractInfos(), "eContract expected to be < GC.GetNumContractInfos()");
-	if (m_abActiveContract[eContract] != bValue)
-	{
-		m_abActiveContract[eContract] = bValue;
-	}
+	m_abActiveContract[eContract] = bValue;
 }
 
 void CvPlayer::DoUnitDiversity()
@@ -38625,8 +38612,7 @@ void CvPlayer::changeResourceFromGP(ResourceTypes eIndex, byte iChange)
 	if (iChange != 0)
 	{
 		m_aiNumResourceFromGP[eIndex] = m_aiNumResourceFromGP[eIndex] + iChange;
-		if (iChange > 0)
-			CheckForLuxuryResourceGainInstantYields(eIndex);
+		CheckForLuxuryResourceGainInstantYields(eIndex);
 	}
 }
 
@@ -45671,8 +45657,7 @@ int CvPlayer::GetTurnsSinceSettledLastCity() const
 /// How long ago did this guy last settle a city?
 void CvPlayer::SetTurnsSinceSettledLastCity(int iValue)
 {
-	if(m_iTurnsSinceSettledLastCity != iValue)
-		m_iTurnsSinceSettledLastCity = iValue;
+	m_iTurnsSinceSettledLastCity = iValue;
 }
 
 /// How long ago did this guy last settle a city?
@@ -45741,11 +45726,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(CvUnit* pUnit, CvAIOperation* pOpToIgnore, b
 	for(int iPlotLoop = 0; iPlotLoop < iNumPlots; iPlotLoop++)
 	{
 		CvPlot* pPlot = kMap.plotByIndexUnchecked(iPlotLoop);
-
-		if(!pPlot)
-		{
-			continue;
-		}
+		ASSERT(pPlot != NULL, "plotByIndexUnchecked returned null - invalid plot index");
 
 		if (bLogging)
 		{
@@ -46321,10 +46302,7 @@ bool CvPlayer::IsWorkersIgnoreImpassable() const
 
 void CvPlayer::SetWorkersIgnoreImpassable(bool bValue)
 {
-	if (m_bWorkersIgnoreImpassable != bValue)
-	{
-		m_bWorkersIgnoreImpassable = bValue;
-	}
+	m_bWorkersIgnoreImpassable = bValue;
 }
 
 /// Number of Cities in the empire with our State Religion
@@ -46716,11 +46694,6 @@ bool CvPlayer::HasAnyUnitCanEmbark()
 
 	for (pLoopUnit = firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iUnitLoop))
 	{
-		if (!pLoopUnit)
-		{
-			continue;
-		}
-
 		if (pLoopUnit->IsHasEmbarkAbility())
 			return true;
 	}
@@ -46746,7 +46719,8 @@ CvPlot* CvPlayer::GetClosestGoodyPlot(bool bStopAfterFindingFirst)
 	for(int i = 0; i < GC.getMap().numPlots(); i++)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(i);
-		if(!pPlot || !pPlot->isGoody(getTeam()))
+		ASSERT(pPlot != NULL, "plotByIndexUnchecked returned null - invalid plot index");
+		if(!pPlot->isGoody(getTeam()))
 		{
 			continue;
 		}
@@ -46812,10 +46786,7 @@ bool CvPlayer::GetAnyUnitHasOrderToGoody()
 	for(int i = 0; i < GC.getMap().numPlots(); i++)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(i);
-		if(!pPlot)
-		{
-			continue;
-		}
+		ASSERT(pPlot != NULL, "plotByIndexUnchecked returned null - invalid plot index");
 
 		if(!pPlot->isGoody(getTeam()))
 		{
@@ -47847,8 +47818,7 @@ void CvPlayer::DoVassalLevy()
 
 void CvPlayer::SetVassalLevy(bool bValue)
 {
-	if (m_bVassalLevy != bValue)
-		m_bVassalLevy = bValue;
+	m_bVassalLevy = bValue;
 }
 
 /// Is eUnit valid to be received on era change?
