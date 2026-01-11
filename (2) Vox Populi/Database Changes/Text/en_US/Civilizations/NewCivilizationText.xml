@@ -1293,7 +1293,7 @@
 			<Text>University of Coimbra</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_UNIVERSITY_OF_COIMBRA_HELP">
-			<Text>Possible Theming Bonuses:[NEWLINE][ICON_BULLET] +10 [ICON_CULTURE] and [ICON_TOURISM] for two [COLOR_POSITIVE_TEXT]Foreign[ENDCOLOR] [ICON_GW_WRITING] Great Works of Writing from [COLOR_CYAN]different Eras[ENDCOLOR].'</Text>
+			<Text>Possible Theming Bonuses:[NEWLINE][ICON_BULLET] +10 [ICON_CULTURE] and [ICON_TOURISM] for two [COLOR_POSITIVE_TEXT]Foreign[ENDCOLOR] [ICON_GW_WRITING] Great Works of Writing from [COLOR_CYAN]different Eras[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_UNIVERSITY_OF_COIMBRA_TEXT">
 			<Text>Opened in 1290, the University of Coimbra is one of the oldest centers of higher learning in the world. The university was founded by King Dinis as the Lisbon Estudo Geral, originally with faculties of Arts, Law, Canon Law and Medicine. As the first and only university in Portugal for 350 years, the University of Coimbra became a focus of educational, political, and social influence in Portugal.</Text>
