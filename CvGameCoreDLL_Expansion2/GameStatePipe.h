@@ -77,6 +77,9 @@ public:
 	// Called from main thread during game update to process queued commands
 	void ProcessCommands(CvGame& game);
 
+	// Check if heartbeat should be sent (called from ProcessCommands)
+	void MaybeSendHeartbeat(CvGame& game);
+
 	// Send a message to the connected client (called from main thread)
 	bool SendMessage(const std::string& message);
 
@@ -122,6 +125,9 @@ private:
 
 	// Session tracking
 	unsigned int m_uiSessionId;  // Generated on each pipe connection
+
+	// Heartbeat timing (milliseconds since last heartbeat)
+	DWORD m_dwLastHeartbeat;
 
 	// Window subclassing state
 	HWND m_hGameWnd;

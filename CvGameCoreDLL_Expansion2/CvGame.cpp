@@ -1311,6 +1311,36 @@ void CvGame::SendTurnCompleteToPipe()
 }
 
 //	--------------------------------------------------------------------------------
+void CvGame::SendHeartbeatToPipe()
+{
+	if (!m_kGameStatePipe.IsRunning())
+		return;
+
+	PlayerTypes eActivePlayer = getActivePlayer();
+	const CvPlayer& kActivePlayer = GET_PLAYER(eActivePlayer);
+
+	std::ostringstream payload;
+	payload << "{\"type\":\"heartbeat\"";
+	payload << ",\"game_id\":" << CvPreGame::mapRandomSeed();
+	payload << ",\"session_id\":" << m_kGameStatePipe.GetSessionId();
+	payload << ",\"player_id\":" << static_cast<int>(eActivePlayer);
+	payload << ",\"turn\":" << getGameTurn();
+	if (eActivePlayer != NO_PLAYER)
+	{
+		std::string playerName = kActivePlayer.getName();
+		payload << ",\"player_name\":\"" << PipeJson::Escape(playerName) << "\"";
+		payload << ",\"is_human\":" << (kActivePlayer.isHuman() ? "true" : "false");
+	}
+	payload << ",\"state\":{";
+	payload << "\"turn\":" << getGameTurn();
+	payload << ",\"playersAlive\":" << countCivPlayersAlive();
+	payload << ",\"civsEver\":" << countCivPlayersEverAlive();
+	payload << "}}";
+
+	m_kGameStatePipe.SendMessage(payload.str());
+}
+
+//	--------------------------------------------------------------------------------
 void CvGame::SendNotificationToPipe(PlayerTypes ePlayer, NotificationTypes eNotificationType, const char* strMessage, const char* strSummary, int iX, int iY, int iGameDataIndex, int iExtraGameData, int iLookupIndex, int iTurn)
 {
 #if defined(_WIN32)

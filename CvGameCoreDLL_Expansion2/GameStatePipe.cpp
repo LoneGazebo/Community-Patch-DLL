@@ -57,6 +57,7 @@ namespace
 	const DWORD PIPE_BUFFER_SIZE = 4096;
 	const DWORD CONNECT_RETRY_MS = 1000;  // Wait between connection attempts
 	const DWORD READ_TIMEOUT_MS = 100;    // Short timeout for responsive shutdown
+	const DWORD HEARTBEAT_INTERVAL_MS = 5000;  // Send heartbeat every 5 seconds
 }
 
 //------------------------------------------------------------------------------
@@ -324,6 +325,7 @@ GameStatePipe::GameStatePipe()
 	, m_bConnected(false)
 	, m_bSentInitialTurnStart(false)
 	, m_uiSessionId(0)
+	, m_dwLastHeartbeat(0)
 	, m_hGameWnd(NULL)
 	, m_pfnOriginalWndProc(0)
 	, m_pGame(NULL)
@@ -759,6 +761,24 @@ void GameStatePipe::ProcessCommands(CvGame& game)
 		game.HandlePipeCommand(command);
 
 		processed++;
+	}
+
+	// Check if we should send a heartbeat
+	MaybeSendHeartbeat(game);
+}
+
+void GameStatePipe::MaybeSendHeartbeat(CvGame& game)
+{
+	if (!m_bConnected)
+		return;
+
+	DWORD now = GetTickCount();
+
+	// Handle tick count wraparound and initial state
+	if (m_dwLastHeartbeat == 0 || (now - m_dwLastHeartbeat) >= HEARTBEAT_INTERVAL_MS)
+	{
+		m_dwLastHeartbeat = now;
+		game.SendHeartbeatToPipe();
 	}
 }
 

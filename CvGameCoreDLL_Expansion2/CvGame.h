@@ -73,6 +73,7 @@ public:
 	void HandlePipeCommand(const std::string& command);
 	void SendTurnStartToPipe();
 	void SendTurnCompleteToPipe();
+	void SendHeartbeatToPipe();
 	void SendNotificationToPipe(PlayerTypes ePlayer, NotificationTypes eNotificationType, const char* strMessage, const char* strSummary, int iX, int iY, int iGameDataIndex, int iExtraGameData, int iLookupIndex, int iTurn);
 	void SendPopupToPipe(const CvPopupInfo& kPopup);
 	void AddPopupWithPipe(const CvPopupInfo& kPopup);
