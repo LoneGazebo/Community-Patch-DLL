@@ -37,6 +37,7 @@
 !*.py
 !*.rc
 !*.rtf
+!*.sh
 !*.sln
 !*.txt
 !*.vcxproj

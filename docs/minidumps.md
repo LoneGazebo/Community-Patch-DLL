@@ -7,6 +7,7 @@ A minidump (crash dump) is a diagnostic file that captures the state of the game
 - [When are Minidumps Generated?](#when-are-minidumps-generated)
 - [Locating Minidump Files](#locating-minidump-files)
 - [Filename Format](#filename-format)
+- [Version String Format](#version-string-format)
 - [Analyzing Minidumps](#analyzing-minidumps)
   - [Using Visual Studio](#using-visual-studio)
   - [Using WinDbg](#using-windbg)
@@ -30,8 +31,12 @@ Minidumps can be shared with developers to help diagnose crashes that occurred o
 Minidumps are automatically generated when the game encounters an unhandled exception (crash) if the minidump feature is enabled in the DLL. The feature is enabled by default in both Debug and Release builds.
 
 **Types of Minidumps:**
-- **Debug builds:** Create comprehensive dumps including full memory, handles, thread info, and more (~100MB-1GB+)
-- **Release builds:** Create minimal dumps with basic thread and stack information (~1-10MB)
+- **Debug builds:** Create comprehensive dumps with 11 minidump flags including full memory, handles, thread info, auxiliary state, and more (~100MB-1GB+)
+- **Release builds:** Create detailed dumps with 8 minidump flags including thread info, handles, unloaded modules, and private memory, but without full memory (~1-20MB)
+
+**Technical Details:**
+- The DLL uses runtime loading of `dbghelp.dll` from `C:\Windows\System32\` to ensure access to the latest minidump capabilities (version 10.x) rather than the older version (6.11) shipped with the game
+- Version information and dbghelp.dll version are embedded in the minidump's user stream for diagnostics
 
 ## Locating Minidump Files
 
@@ -52,19 +57,68 @@ Minidump filenames follow this format:
 CvMiniDump_YYYYMMDD_HHMMSS_<version>_<buildtype>.dmp
 ```
 
-**Example:**
+**Examples:**
 ```
-CvMiniDump_20250329_143025_4.16_a1b2c3d_Release.dmp
+CvMiniDump_20260111_143025_5.1_Release.dmp
+CvMiniDump_20260111_143025_5.1-3-gabc123d_Release.dmp
+CvMiniDump_20260111_143025_5.1_abc123d_Debug.dmp
 ```
 
 **Components:**
 - `YYYYMMDD`: Date (Year, Month, Day)
 - `HHMMSS`: Time (Hour, Minute, Second)
-- `<version>`: DLL version (e.g., "4.16")
-- `<commit>`: Git commit hash (e.g., "a1b2c3d")
+- `<version>`: DLL version identifier (see [Version String Format](#version-string-format) below)
 - `<buildtype>`: Either "Debug" or "Release"
 
-This naming helps identify when the crash occurred and which version of the DLL was running.
+**Version Identifier Formats:**
+- `5.1` - Built exactly on release tag Release-5.1
+- `5.1-3-gabc123d` - Built 3 commits after Release-5.1 at commit abc123d (git describe format)
+- `5.1_abc123d` - Built on tag with uncommitted changes at commit abc123d
+- `Tag_abc123d` - Built when no release tags exist in repository
+
+This naming helps identify when the crash occurred and which exact version of the DLL was running.
+
+## Version String Format
+
+The DLL embeds version information that appears in both the filename and the minidump's user stream. This version string uses standard git describe format to provide precise version tracking.
+
+**Format Pattern:**
+```
+Release-<version>[-<distance>-g<commit>] <status>
+```
+
+**Version String Examples:**
+
+| Version String | Meaning |
+|----------------|---------|
+| `Release-5.1 Clean` | Built exactly on Release-5.1 tag, no uncommitted changes |
+| `Release-5.1 Dirty` | Built on Release-5.1 tag with uncommitted changes |
+| `Release-5.1-3-gabc123d Clean` | Built 3 commits after Release-5.1 at commit abc123d |
+| `Release-5.1 abc123d Dirty` | Built on Release-5.1 with local changes at commit abc123d |
+| `No-Tag abc123d Clean` | Built when no release tags exist in repository |
+
+**Understanding Git Describe Format:**
+
+The format `Release-5.1-3-gabc123d` breaks down as:
+- `Release-5.1` - Most recent release tag
+- `-3-` - Number of commits since that tag
+- `g` - Prefix indicating git hash follows
+- `abc123d` - Abbreviated commit hash (7-9 characters)
+
+This allows developers to immediately know:
+1. Which release the build is based on
+2. How many commits ahead it is (hotfixes, patches)
+3. The exact commit for reproducing the issue
+
+**Status Indicators:**
+- `Clean` - No uncommitted changes when built
+- `Dirty` - Had uncommitted modifications when built
+
+**Where to Find Version Info:**
+1. **Minidump filename** - Version appears in the filename itself
+2. **Minidump user stream** - Full version string embedded in the dump
+3. **Game log** - Printed at startup: `"Gamecore was built from git version Release-5.1-3-gabc123d Clean"`
+4. **WinDbg output** - Visible when analyzing the dump with `!analyze -v`
 
 ## Analyzing Minidumps
 
@@ -218,6 +272,21 @@ If you need to disable minidump generation (not recommended for debugging):
 4. Rebuild the DLL
 
 **Note:** If you disable minidumps, also set `GenerateDebugInfo=No` in the linker settings to reduce DLL size.
+
+**Build-Time Version Generation:**
+
+The version identifier is generated by running `update_commit_id.bat` (or `.sh`) before compilation, which:
+1. Runs `git describe --tags HEAD` to get version info
+2. Checks for uncommitted changes (Clean vs Dirty)
+3. Writes to `commit_id.inc` which is included at compile time
+4. Results in `CURRENT_GAMECORE_VERSION` constant embedded in the DLL
+
+**For Developers:**
+
+If you're modifying the minidump system:
+- Review SDK 7.0A compatibility in [`CvGameCoreDLLUtil/include/CvGlobals.h`](../CvGameCoreDLLUtil/include/CvGlobals.h) for flag definitions
+- Check release tagging instructions in [`NEW RELEASE INSTRUCTIONS.txt`](../NEW%20RELEASE%20INSTRUCTIONS.txt)
+- Ensure dbghelp.dll version compatibility when adding new minidump flags
 
 ## Additional Resources
 
