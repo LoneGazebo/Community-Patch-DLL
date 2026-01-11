@@ -882,7 +882,7 @@ public:
 	int GetExtraXPOnKill() const;
 	void ChangeExtraXPOnKill(int iValue);
 
-	bool IsGainsYieldFromScouting() const;
+	bool IsGainsYieldFromScoutingTimes100() const;
 
 	int GetCaptureDefeatedEnemyChance() const;
 	void ChangeCaptureDefeatedEnemyChance(int iValue);
@@ -1745,8 +1745,8 @@ public:
 	int getYieldFromBarbarianKills(YieldTypes eIndex) const;
 	void changeYieldFromBarbarianKills(YieldTypes eIndex, int iChange);
 
-	int getYieldFromScouting(YieldTypes eIndex) const;
-	void changeYieldFromScouting(YieldTypes eIndex, int iChange);
+	int getYieldFromScoutingTimes100(YieldTypes eIndex) const;
+	void changeYieldFromScoutingTimes100(YieldTypes eIndex, int iChange);
 	int getYieldFromAncientRuins(YieldTypes eIndex) const;
 	void changeYieldFromAncientRuins(YieldTypes eIndex, int iChange);
 	int getYieldFromTRPlunder(YieldTypes eIndex) const;
@@ -2389,7 +2389,7 @@ protected:
 	UnitClassCounter m_extraUnitClassAttackMod;
 	UnitClassCounter m_extraUnitClassDefenseMod;
 	std::vector<int> m_aiNumTimesAttackedThisTurn;
-	std::vector<int> m_yieldFromScouting;
+	std::vector<int> m_yieldFromScoutingTimes100;
 	std::vector<int> m_piYieldFromAncientRuins;
 	std::vector<int> m_piYieldFromTRPlunder;
 	std::vector<int> m_yieldFromKills;
@@ -2791,7 +2791,7 @@ SYNC_ARCHIVE_VAR(FeatureTypeCounter, m_extraFeatureDefensePercent)
 SYNC_ARCHIVE_VAR(UnitClassCounter, m_extraUnitClassAttackMod)
 SYNC_ARCHIVE_VAR(UnitClassCounter, m_extraUnitClassDefenseMod)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiNumTimesAttackedThisTurn)
-SYNC_ARCHIVE_VAR(std::vector<int>, m_yieldFromScouting)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_yieldFromScoutingTimes100)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_piYieldFromAncientRuins)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_piYieldFromTRPlunder)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_yieldFromKills)
