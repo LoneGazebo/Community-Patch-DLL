@@ -571,12 +571,18 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 
 	//--------------------------------
 	// Init other game data
-	CvString strNewCityName = kOwner.getNewCityName();
-	setName(strNewCityName.c_str());
-
-	if (MOD_ENABLE_ACHIEVEMENTS && strcmp(strNewCityName.c_str(), "TXT_KEY_CITY_NAME_LLANFAIRPWLLGWYNGYLL") == 0)
+	if (szName)
 	{
-		gDLL->UnlockAchievement(ACHIEVEMENT_XP1_34);
+		setName(szName);
+	}
+	else
+	{
+		CvString strNewCityName = kOwner.getNewCityName();
+		setName(strNewCityName.c_str());
+		if (MOD_ENABLE_ACHIEVEMENTS && strcmp(strNewCityName.c_str(), "TXT_KEY_CITY_NAME_LLANFAIRPWLLGWYNGYLL") == 0)
+		{
+			gDLL->UnlockAchievement(ACHIEVEMENT_XP1_34);
+		}
 	}
 
 	if (bInitialFounding)
@@ -745,12 +751,6 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	changePopulation(/*1*/ GD_INT_GET(INITIAL_CITY_POPULATION) + GC.getGame().getStartEraInfo().getFreePopulation(), true, true);
 	// Free population from things (e.g. Policies)
 	changePopulation(kOwner.GetNewCityExtraPopulation(), true, true);
-
-	// We do this here as changePopulation() sends a game event we may have caught to do funky renaming things
-	if (szName) 
-	{
-		setName(szName);
-	}
 
 	// Free food from things (e.g. Policies)
 	int iFreeFood = growthThreshold() * kOwner.GetFreeFoodBox();
