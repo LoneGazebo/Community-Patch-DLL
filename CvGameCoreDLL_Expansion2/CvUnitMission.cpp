@@ -20,6 +20,7 @@
 #include "CvUnitMission.h"
 #include "CvUnitCombat.h"
 #include "CvDllUnit.h"
+#include "CvDllPlot.h"
 #include "CvTypes.h"
 
 #if !defined(FINAL_RELEASE) || defined(VPDEBUG)
@@ -1913,6 +1914,30 @@ void CvUnitMission::StartMission(CvUnit* hUnit)
 				{
 					if (iValue == CUSTOM_MISSION_ACTION)
 						bAction = true;
+				}
+			}
+
+			// Move camera to unit when action mission is performed (not for movement missions)
+			if(hUnit->getOwner() == GC.getGame().getActivePlayer())
+			{
+				// Check if this is an action mission (not a movement mission)
+				bool bIsMovementMission = (pkQueueData->eMissionType == CvTypes::getMISSION_MOVE_TO() ||
+				                           pkQueueData->eMissionType == CvTypes::getMISSION_MOVE_TO_UNIT() ||
+				                           pkQueueData->eMissionType == CvTypes::getMISSION_ROUTE_TO());
+				
+				// Move camera for action missions (bAction, bNotify, or action-type missions)
+				if(!bIsMovementMission && (bAction || bNotify || pkQueueData->eMissionType == CvTypes::getMISSION_SKIP() ||
+				                          pkQueueData->eMissionType == CvTypes::getMISSION_SLEEP() ||
+				                          pkQueueData->eMissionType == CvTypes::getMISSION_FORTIFY() ||
+				                          pkQueueData->eMissionType == CvTypes::getMISSION_HEAL() ||
+				                          pkQueueData->eMissionType == CvTypes::getMISSION_ALERT()))
+				{
+					CvPlot* pPlot = hUnit->plot();
+					if(pPlot != NULL)
+					{
+						CvInterfacePtr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(pPlot);
+						GC.GetEngineUserInterface()->lookAt(pDllPlot.get(), CAMERALOOKAT_NORMAL);
+					}
 				}
 			}
 		}

@@ -4108,6 +4108,17 @@ void CvGame::cycleCities(bool bForward, bool bAdd)
 		{
 			GC.GetEngineUserInterface()->selectCity(pDllSelectedCity.get());
 		}
+
+		// Move camera to city when cycling
+		if(pSelectCity->getOwner() == getActivePlayer())
+		{
+			CvPlot* pPlot = pSelectCity->plot();
+			if(pPlot != NULL && pPlot->isActiveVisible())
+			{
+				CvInterfacePtr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(pPlot);
+				GC.GetEngineUserInterface()->lookAt(pDllPlot.get(), CAMERALOOKAT_NORMAL);
+			}
+		}
 	}
 }
 
@@ -4285,6 +4296,17 @@ bool CvGame::cyclePlotUnits(CvPlot* pPlot, bool bForward, bool bAuto, int iCount
 				{
 					CvInterfacePtr<ICvUnit1> pDllLoopUnit = GC.WrapUnitPointer(pLoopUnit);
 					GC.GetEngineUserInterface()->InsertIntoSelectionList(pDllLoopUnit.get(), true, false);
+					
+					// Move camera to unit when cycling on plot
+					if(pLoopUnit->getOwner() == getActivePlayer())
+					{
+						CvPlot* pUnitPlot = pLoopUnit->plot();
+						if(pUnitPlot != NULL && pUnitPlot->isActiveVisible())
+						{
+							CvInterfacePtr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(pUnitPlot);
+							GC.GetEngineUserInterface()->lookAt(pDllPlot.get(), CAMERALOOKAT_NORMAL);
+						}
+					}
 					return true;
 				}
 			}
@@ -4306,6 +4328,13 @@ void CvGame::selectionListMove(CvPlot* pPlot, bool bShift)
 	if(pPlot == NULL)
 	{
 		return;
+	}
+
+	// Move camera to plot when inspecting/selecting it
+	if(pPlot->isActiveVisible())
+	{
+		CvInterfacePtr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(pPlot);
+		GC.GetEngineUserInterface()->lookAt(pDllPlot.get(), CAMERALOOKAT_NORMAL);
 	}
 
 	CvInterfacePtr<ICvUnit1> pSelectedUnit(GC.GetEngineUserInterface()->GetHeadSelectedUnit());
@@ -4528,6 +4557,17 @@ void CvGame::selectUnit(CvUnit* pUnit, bool bClear, bool bToggle, bool bSound)
 		gDLL->TradeVisuals_ActivatePopupRoute(iRouteIndex);
 	else
 		gDLL->TradeVisuals_DeactivatePopupRoute();
+
+	// Move camera to unit when selected
+	if(GC.getGame().getActivePlayer() == pUnit->getOwner())
+	{
+		CvPlot* pPlot = pUnit->plot();
+		if(pPlot != NULL && pPlot->isActiveVisible())
+		{
+			CvInterfacePtr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(pPlot);
+			GC.GetEngineUserInterface()->lookAt(pDllPlot.get(), CAMERALOOKAT_NORMAL);
+		}
+	}
 }
 //	--------------------------------------------------------------------------------
 static void IfTradeUnit_DisplayPopupTradeRoute(CvUnit *pUnit)

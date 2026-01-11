@@ -4572,6 +4572,17 @@ void CvUnit::doCommand(CommandTypes eCommand, int iData1, int iData2)
 			DLLUI->setCycleSelectionCounter(1);
 		}
 	}
+
+	// Move camera to unit when action is performed
+	if(getOwner() == GC.getGame().getActivePlayer())
+	{
+		CvPlot* pPlot = plot();
+		if(pPlot != NULL)
+		{
+			CvInterfacePtr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(pPlot);
+			GC.GetEngineUserInterface()->lookAt(pDllPlot.get(), CAMERALOOKAT_NORMAL);
+		}
+	}
 }
 
 //	--------------------------------------------------------------------------------
