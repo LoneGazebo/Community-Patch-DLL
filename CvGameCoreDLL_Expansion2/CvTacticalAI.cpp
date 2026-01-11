@@ -11056,6 +11056,7 @@ bool TacticalAIHelpers::ExecuteUnitAssignments(PlayerTypes ePlayer, const std::v
 		{
 		case A_INITIAL:
 		case A_FINISH_TEMP:
+		case A_MOVE_DOUBLE:
 			continue; //skip this!
 			break;
 		case A_MOVE:
