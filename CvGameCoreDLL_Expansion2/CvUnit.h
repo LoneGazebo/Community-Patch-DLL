@@ -623,7 +623,7 @@ public:
 	void RemoveFromSquad();
 	CvPlot* GetSquadCenterOfMass();
 	void DoSquadPlotAssignmentsByDomain(std::vector<CvUnit*> eligibleUnits, CvPlot* pDestPlot, std::map<CvUnit*, CvPlot*>& unitToPlotMap);
-	std::map<CvUnit*, CvPlot*> CvUnit::DoSquadPlotAssignments(CvPlot* pDestPlot, bool escort, bool computeOnly);
+	std::map<CvUnit*, CvPlot*> DoSquadPlotAssignments(CvPlot* pDestPlot, bool escort, bool computeOnly);
 	void DoSquadMovement(CvPlot* pDestPlot, bool escort);
 	void GetSquadMovementPreview(std::vector<CvPlot*>& pPlotList, CvPlot* pDestPlot);
 	bool IsUnitInActiveMoveMission();
