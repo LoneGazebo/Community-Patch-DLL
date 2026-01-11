@@ -6655,7 +6655,7 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 			if(isGoody())
 			{
 				GET_PLAYER(eNewValue).doGoody(this, NULL);
-				eImprovement = NO_IMPROVEMENT;
+				eImprovement = getImprovementType();
 			}
 
 			// If there's a camp here, clear it
