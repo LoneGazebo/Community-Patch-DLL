@@ -8183,6 +8183,35 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 			{
 				setResourceType(NO_RESOURCE, 0);
 			}
+
+			// update plot ownership (needs ot be done before setting the improvement)
+			if (eBuilder != NO_PLAYER)
+			{
+				if (!isOwned() && newImprovementEntry.IsNewOwner())
+				{
+					int iBestCityID = -1;
+					int iBestCityDistance = -1;
+					int iDistance = 0;
+					CvCity* pLoopCity = NULL;
+					int iLoop = 0;
+					for (pLoopCity = GET_PLAYER(eBuilder).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eBuilder).nextCity(&iLoop))
+					{
+						CvPlot* pPlot = pLoopCity->plot();
+						if (pPlot)
+						{
+							iDistance = plotDistance(getX(), getY(), pLoopCity->getX(), pLoopCity->getY());
+							if (iBestCityDistance == -1 || iDistance < iBestCityDistance)
+							{
+								iBestCityID = pLoopCity->GetID();
+								iBestCityDistance = iDistance;
+								pOwningCity = pLoopCity;
+							}
+						}
+					}
+					setOwner(eBuilder, iBestCityID);
+					owningPlayerID = eBuilder;
+				}
+			}
 		}
 
 		m_eImprovementType = eNewValue;
@@ -8438,30 +8467,6 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				{
 					int iPlotVisRange = newImprovementEntry.GetGrantsVision();
 					changeAdjacentSight(GET_PLAYER(eBuilder).getTeam(), iPlotVisRange, true, NO_INVISIBLE, NO_DIRECTION, NULL);
-				}
-				if (!isOwned() && newImprovementEntry.IsNewOwner())
-				{
-					int iBestCityID = -1;
-					int iBestCityDistance = -1;
-					int iDistance = 0;
-					CvCity* pLoopCity = NULL;
-					int iLoop = 0;
-					for (pLoopCity = GET_PLAYER(eBuilder).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eBuilder).nextCity(&iLoop))
-					{
-						CvPlot* pPlot = pLoopCity->plot();
-						if (pPlot)
-						{
-							iDistance = plotDistance(getX(), getY(), pLoopCity->getX(), pLoopCity->getY());
-							if (iBestCityDistance == -1 || iDistance < iBestCityDistance)
-							{
-								iBestCityID = pLoopCity->GetID();
-								iBestCityDistance = iDistance;
-								pOwningCity = pLoopCity;
-							}
-						}
-					}
-					setOwner(eBuilder, iBestCityID);
-					owningPlayerID = eBuilder;
 				}
 				// Maintenance
 				// If plot is unowned, and the improvement can be built outside of borders, the builder is responsible for the improvement
