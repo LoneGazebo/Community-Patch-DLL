@@ -882,6 +882,11 @@
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
+        <FileName>Database Changes\Text\en_US\Policies\CorePolicyTextChanges.sql</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
         <FileName>Database Changes\Text\en_US\Religions\CoreReligionTextChanges.sql</FileName>
       </Action>
       <Action>
@@ -1051,6 +1056,7 @@
     <Folder Include="Database Changes\Text\en_US\Espionage" />
     <Folder Include="Database Changes\Text\en_US\Minors" />
     <Folder Include="Database Changes\Text\en_US\Notifications" />
+    <Folder Include="Database Changes\Text\en_US\Policies" />
     <Folder Include="Database Changes\Text\en_US\Religions" />
     <Folder Include="Database Changes\Text\en_US\UI" />
     <Folder Include="Database Changes\Text\en_US\UnitPromotions" />
@@ -3347,6 +3353,10 @@
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="Database Changes\Text\en_US\Notifications\CoreNotificationTextChanges.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Database Changes\Text\en_US\Policies\CorePolicyTextChanges.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
