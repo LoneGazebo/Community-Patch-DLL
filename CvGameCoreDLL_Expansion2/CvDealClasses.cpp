@@ -4454,19 +4454,6 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 	int iLatestItemLastTurn = 0;
 	int iLongestDuration = 0;
 
-	// if this is a renewed deal, the old deal should no longer be considered for renewal. otherwise it could happen that both players in an AI-AI deal renew the same deal and then two identical deals are active
-	if (kDeal.IsCheckedForRenewal())
-	{
-		for (DealList::iterator it = m_CurrentDeals.begin(); it != m_CurrentDeals.end(); ++it)
-		{
-			if (it->m_bConsideringForRenewal && it->m_eFromPlayer == eFromPlayer && it->m_eToPlayer == eToPlayer)
-			{
-				it->m_bConsideringForRenewal = false;
-				break;
-			}
-		}
-	}
-
 	// Set the surrendering player for a human v. human war (based on who puts what where).
 	bool bIsPeaceDeal = kDeal.IsPeaceTreatyTrade(eFromPlayer) || kDeal.IsPeaceTreatyTrade(eToPlayer);
 	bool bHumanToHuman = GET_PLAYER(eFromPlayer).isHuman(ISHUMAN_AI_DIPLOMACY) && GET_PLAYER(eToPlayer).isHuman(ISHUMAN_AI_DIPLOMACY);
@@ -4524,6 +4511,52 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 		kDeal.SetSurrenderingPlayer(eToPlayer);
 	}
 
+	// if this is a renewal deal, cancel all items from the original deal that are no longer included now
+	std::vector<CvDeal*> pRenewDeals = GetRenewableDealsWithPlayer(eFromPlayer, eToPlayer, 1, true);
+	if (pRenewDeals.size() > 0)
+	{
+		for (uint i = 0; i < pRenewDeals.size(); i++)
+		{
+			CvDeal* pRenewalDeal = pRenewDeals[i];
+			for (TradedItemList::iterator itemIterOldDeal = pRenewalDeal->m_TradedItems.begin(); itemIterOldDeal != pRenewalDeal->m_TradedItems.end(); ++itemIterOldDeal)
+			{
+				// skip gold per turn and resources, they have already been processed in PrepareRenewDeal
+				if (itemIterOldDeal->m_eItemType == TRADE_ITEM_GOLD_PER_TURN || itemIterOldDeal->m_eItemType == TRADE_ITEM_RESOURCES)
+					continue;
+
+				bool bItemRenewed = false;
+				for (TradedItemList::iterator itemIterNewDeal = kDeal.m_TradedItems.begin(); itemIterNewDeal != kDeal.m_TradedItems.end(); ++itemIterNewDeal)
+				{
+					if (itemIterNewDeal->m_eItemType == itemIterOldDeal->m_eItemType &&
+						itemIterNewDeal->m_eFromPlayer == itemIterOldDeal->m_eFromPlayer)
+					{
+						bItemRenewed = true;
+						break;
+					}
+				}
+				if (bItemRenewed)
+					continue;
+
+				GC.getGame().GetGameDeals().DoEndTradedItem(&*itemIterOldDeal, pRenewalDeal->GetOtherPlayer(itemIterOldDeal->m_eFromPlayer), false);
+			}
+		}
+		DoUpdateCurrentDealsList();
+	}
+
+	// if this is a renewed deal, the old deal should no longer be considered for renewal. otherwise it could happen that both players in an AI-AI deal renew the same deal and then two identical deals are active
+	if (kDeal.IsCheckedForRenewal())
+	{
+		for (DealList::iterator it = m_CurrentDeals.begin(); it != m_CurrentDeals.end(); ++it)
+		{
+			if (it->m_bConsideringForRenewal && it->m_eFromPlayer == eFromPlayer && it->m_eToPlayer == eToPlayer)
+			{
+				it->m_bConsideringForRenewal = false;
+				break;
+			}
+		}
+	}
+
+	// Add to the new deal
 	kDeal.m_iDuration = iLongestDuration;
 	kDeal.m_iFinalTurn = iLatestItemLastTurn;
 	kDeal.m_iStartTurn = GC.getGame().getGameTurn();
@@ -4531,7 +4564,6 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 	kDeal.m_bConsideringForRenewal = false;
 	kDeal.m_bCheckedForRenewal = false;
 
-	// Add to current deals
 	m_CurrentDeals.push_back(kDeal);
 
 	// Set one-time values here
@@ -5160,37 +5192,6 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 			GET_TEAM(eGivingTeam).setForcePeace(eReceivingTeam, true);
 			break;
 		}
-		}
-	}
-
-	// if this is a renewal deal, cancel all items from the original deal that are no longer included now
-	std::vector<CvDeal*> pRenewDeals = GetRenewableDealsWithPlayer(eFromPlayer, eToPlayer, 1, true);
-	if (pRenewDeals.size() > 0)
-	{
-		for (uint i = 0; i < pRenewDeals.size(); i++)
-		{
-			CvDeal* pRenewalDeal = pRenewDeals[i];
-			for (TradedItemList::iterator itemIterOldDeal = pRenewalDeal->m_TradedItems.begin(); itemIterOldDeal != pRenewalDeal->m_TradedItems.end(); ++itemIterOldDeal)
-			{
-				// skip gold per turn and resources, they have already been processed in PrepareRenewDeal
-				if (itemIterOldDeal->m_eItemType == TRADE_ITEM_GOLD_PER_TURN || itemIterOldDeal->m_eItemType == TRADE_ITEM_RESOURCES)
-					continue;
-
-				bool bItemRenewed = false;
-				for (TradedItemList::iterator itemIterNewDeal = kDeal.m_TradedItems.begin(); itemIterNewDeal != kDeal.m_TradedItems.end(); ++itemIterNewDeal)
-				{
-					if (itemIterNewDeal->m_eItemType == itemIterOldDeal->m_eItemType &&
-						itemIterNewDeal->m_eFromPlayer == itemIterOldDeal->m_eFromPlayer)
-					{
-						bItemRenewed = true;
-						break;
-					}
-				}
-				if (bItemRenewed)
-					continue;
-
-				GC.getGame().GetGameDeals().DoEndTradedItem(&*itemIterOldDeal, pRenewalDeal->GetOtherPlayer(itemIterOldDeal->m_eFromPlayer), false);
-			}
 		}
 	}
 
