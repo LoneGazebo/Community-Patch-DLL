@@ -944,7 +944,7 @@ SET Text = '[COLOR_POSITIVE_TEXT]Police State[ENDCOLOR]: +3 [ICON_HAPPINESS_1] L
 WHERE Tag = 'TXT_KEY_POLICY_POLICE_STATE_HELP';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Third Alternative[ENDCOLOR]: Quantity of Strategic Resources produced is increased by 100%. Reduces Unit [ICON_GOLD] Gold Maintenance costs by 25%.'
+SET Text = '[COLOR_POSITIVE_TEXT]Third Alternative[ENDCOLOR]: Quantity of Strategic Resources produced (including [ICON_RES_PAPER] Paper) is increased by 100%. Reduces Unit [ICON_GOLD] Gold Maintenance costs by 25%.'
 WHERE Tag = 'TXT_KEY_POLICY_THIRD_ALTERNATIVE_HELP';
 
 UPDATE Language_en_US
