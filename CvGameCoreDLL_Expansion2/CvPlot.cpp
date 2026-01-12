@@ -2175,7 +2175,7 @@ void CvPlot::changeEspionageSight(TeamTypes eTeam, CvCity* pCity, int iRange, bo
 }
 
 //	--------------------------------------------------------------------------------
-bool CvPlot::canSeePlot(const CvPlot* pPlot, TeamTypes eTeam, int iRange, DirectionTypes eFacingDirection) const
+bool CvPlot::canSeePlot(const CvPlot* pPlot, TeamTypes eTeam, int iRange, DirectionTypes eFacingDirection, int iSeeThrough) const
 {
 	if(pPlot == NULL)
 	{
@@ -2215,7 +2215,7 @@ bool CvPlot::canSeePlot(const CvPlot* pPlot, TeamTypes eTeam, int iRange, Direct
 			}
 
 			//check if anything blocking the plot
-			if (CvTargeting::CanSeeDisplacementPlot(startX, startY, dx, dy, seeFromLevel(eTeam)))
+			if (CvTargeting::CanSeeDisplacementPlot(startX, startY, dx, dy, seeFromLevel(eTeam) + iSeeThrough))
 			{
 				return true;
 			}
