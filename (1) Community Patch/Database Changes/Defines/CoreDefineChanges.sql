@@ -14,6 +14,8 @@ VALUES
 	('IGNORE_SPECIFIC_TERRAIN_COSTS_INCLUDES_RIVERS', 0),
 -- If > -1, a player with no cities but who is still alive (Complete Kills) will be granted a free Settler after this many turns
 	('COMPLETE_KILLS_TURN_TIMER', -1),
+-- Number of unique components displayed in the civ selection and loading screens
+	('NUM_UNIQUE_COMPONENTS', 2),
 -- Maximum number of Ideology Tenets of each Level that a Player can have (should correspond to the limitations put on human players by the Ideology Selection UI)
 	('MAX_NUM_TENETS_LEVEL_1', 7),
 	('MAX_NUM_TENETS_LEVEL_2', 4),

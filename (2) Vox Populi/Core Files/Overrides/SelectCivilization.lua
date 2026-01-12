@@ -91,18 +91,33 @@ function AddRandomCivilizationEntry()
 
 	controlTable.Title:LocalizeAndSetText("TXT_KEY_RANDOM_LEADER");
 	controlTable.Description:LocalizeAndSetText("TXT_KEY_RANDOM_LEADER_HELP");
-	
+
 	IconHookup( 22, 128, "LEADER_ATLAS", controlTable.Portrait );
-	if questionOffset ~= nil then       
+	if questionOffset ~= nil then
 		controlTable.CivIcon:SetTexture( questionTextureSheet );
 		controlTable.CivIcon:SetTextureOffset( questionOffset );
 	end
-		
+
 	-- Sets Trait bonus Text
 	controlTable.BonusDescription:SetText( "" );
 
 	 -- Sets Bonus Icons
-	local maxSmallButtons = 4;
+	local maxSmallButtons = GameDefines.NUM_UNIQUE_COMPONENTS;
+
+	-- Adjust text width based on number of buttons
+	local baseWrapWidth = 535;
+	local adjustedWrapWidth = baseWrapWidth + math.floor((6 - maxSmallButtons) / 2) * 64;
+	controlTable.BonusDescription:SetWrapWidth(adjustedWrapWidth);
+
+	-- Hide all buttons first
+	for buttonNum = 1, 6, 1 do
+		local buttonName = "B"..tostring(buttonNum);
+		local buttonFrameName = "BF"..tostring(buttonNum);
+		controlTable[buttonName]:SetHide(true);
+		controlTable[buttonFrameName]:SetHide(true);
+	end
+
+	-- Show only the buttons we need
 	for buttonNum = 1, maxSmallButtons, 1 do
 		local buttonName = "B"..tostring(buttonNum);
 		controlTable[buttonName]:SetTexture( questionTextureSheet );
@@ -146,18 +161,24 @@ function AddCivilizationEntry(traitsQuery, populateUniqueBonuses, civ, leaderTyp
 
     -- Sets Trait bonus Text
 	local shortDescription = "";
-	
+
 	for row in traitsQuery(leaderType) do
 		controlTable.BonusDescription:LocalizeAndSetText(row.Description);
 		shortDescription = row.ShortDescription;
 	end
-	
+
+	-- Adjust text width based on number of buttons
+	local maxSmallButtons = GameDefines.NUM_UNIQUE_COMPONENTS;
+	local baseWrapWidth = 535;
+	local adjustedWrapWidth = baseWrapWidth + math.floor((6 - maxSmallButtons) / 2) * 64;
+	controlTable.BonusDescription:SetWrapWidth(adjustedWrapWidth);
+
 	local title = Locale.ConvertTextKey("TXT_KEY_RANDOM_LEADER_CIV", leaderDescription, civ.ShortDescription);
 	title = string.format("%s (%s)", title, Locale.ConvertTextKey( shortDescription ));
-	
-	controlTable.Title:SetText(title);			
+
+	controlTable.Title:SetText(title);
 	controlTable.Description:LocalizeAndSetText(civ.Description);
-	
+
 	populateUniqueBonuses( controlTable, civ.Type, true);
 	
 	return controlTable;

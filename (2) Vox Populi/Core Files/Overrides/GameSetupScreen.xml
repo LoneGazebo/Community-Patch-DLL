@@ -75,38 +75,42 @@
                 </Image>
 
                 <Stack Anchor="L,T" Size="565,128" Offset="116,4"   StackGrowth="Bottom" Padding="6" >
-                    <Box Offset="-12,0"  Anchor="L,T" Size="424,28"  Color="White.0" >
-                        <Label Anchor="L,T" Offset="12,4" Font="TwCenMT22" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="Title" />
+                    <Box Offset="-20,0"  Anchor="L,T" Size="424,28"  Color="White.0" >
+                        <Label Anchor="L,T" Offset="12,6" Font="TwCenMT22" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="Title" />
                     </Box>
-                    <Label Anchor="L,T" Offset="0,0"  WrapWidth="565" LeadingOffset="-5" Font="TwCenMT18" ID="BonusDescription" String="[ICON_BULLET]Civ Specific Bonus 2"/>
+                    <Label Anchor="L,T" Offset="0,-2"  WrapWidth="565" LeadingOffset="-5" Font="TwCenMT18" ID="BonusDescription" String="[ICON_BULLET]Civ Specific Bonus 2"/>
 
                 </Stack>
 
                 <!-- Civ specific bonuses -->
-                <Stack Anchor="R,C"  Size="128,128" StackGrowth="Right" Padding="-8" Offset="-26,0" >
+     		<Stack Anchor="R,C"  Size="256,128" StackGrowth="Right" Padding="-8" Offset="-54,0" >
 
-                    <Image Anchor="L,B" Texture="IconFrame64.dds" Size="64.64" Hidden="0" Offset="-4,58" ID="BF1">
-					  <Button Anchor="C,C" Size="64,64" Texture="WonderAtlas512.dds" ID="B1" NoStateChange="1" />
-					</Image>
-					<Image Anchor="L,T" Texture="IconFrame64.dds" Size="64.64" Offset="-64,58"  ID="BF2">
-					  <Button Anchor="C,C" Size="64,64" Texture="WonderAtlas512.dds" ID="B2" NoStateChange="1" />
-					</Image>
-					<Image Anchor="L,B" Texture="IconFrame64.dds" Size="64.64" Offset="-4,58" ID="BF3">
-					  <Button Anchor="C,C" Size="64,64" Texture="WonderAtlas512.dds" ID="B3" NoStateChange="1" />
-					</Image>
-					<Image Anchor="R,T" Texture="IconFrame64.dds" Size="64.64" Offset="-64,58" ID="BF4">
-					  <Button Anchor="C,C" Size="64,64" Texture="WonderAtlas512.dds" ID="B4" NoStateChange="1" />
-					</Image>
+        		<Image Anchor="L,B" Texture="IconFrame64.dds" Size="64.64" Hidden="0" Offset="-4,58" ID="BF1">
+         		 <Button Anchor="C,C" Size="64,64" Texture="WonderAtlas512.dds" ID="B1" NoStateChange="1" />
+        		</Image>
+        		<Image Anchor="L,T" Texture="IconFrame64.dds" Size="64.64" Offset="-56,58"  ID="BF2">
+          		 <Button Anchor="C,C" Size="64,64" Texture="WonderAtlas512.dds" ID="B2" NoStateChange="1" />
+        		</Image>
+			<Image Anchor="L,B" Texture="IconFrame64.dds" Size="64.64" Offset="4,58" ID="BF3">
+          		 <Button Anchor="C,C" Size="64,64" Texture="WonderAtlas512.dds" ID="B3" NoStateChange="1" />
+        		</Image>
+        		<Image Anchor="L,T" Texture="IconFrame64.dds" Size="64.64" Offset="-56,58" ID="BF4">
+          		 <Button Anchor="C,C" Size="64,64" Texture="WonderAtlas512.dds" ID="B4" NoStateChange="1" />
+        		</Image>
+			<Image Anchor="L,B" Texture="IconFrame64.dds" Size="64.64" Offset="4,58" ID="BF5">
+          		 <Button Anchor="C,C" Size="64,64" Texture="WonderAtlas512.dds" ID="B5" NoStateChange="1" />
+        		</Image>
+        		<Image Anchor="L,T" Texture="IconFrame64.dds" Size="64.64" Offset="-56,58" ID="BF6">
+          		 <Button Anchor="C,C" Size="64,64" Texture="WonderAtlas512.dds" ID="B6" NoStateChange="1" />
+        		</Image>
 
-                    <Image Anchor="C,C"  Offset="5,0" Texture="IconFrame64.dds" Size="64.64" Hidden="0"  >
-                        <Image Size="64,64" Anchor="C,C"  Texture="Assets/UI/Art/Icons/Units/CivSymbolsColor512.dds" ID="IconShadow" Hidden="0" />
-                    </Image>
+        		<Image Anchor="C,C"  Offset="0,0" Texture="IconFrame64.dds" Size="64.64" Hidden="0" >
+          		<Button Size="64,64" Anchor="C,C" Texture="Assets/UI/Art/Icons/Units/CivSymbolsColor512.dds" ID="IconShadow" NoStateChange="1" />
+        		</Image>
 
                 </Stack>
                 <Image Anchor="L,B" Offset="100,0" Texture="bar340x2.dds" Size="340.1" />
             </Button>
-
-
 
 
             <Stack Anchor="L,C" Offset="0,-3"   Size="128,128" StackGrowth="Bottom" Padding="0" >

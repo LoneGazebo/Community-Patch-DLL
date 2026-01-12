@@ -68,7 +68,11 @@ local function initializePopulateCivilizationUniques()
 
 	g_uniqueImprovementsQuery = DB.CreateQuery([[SELECT ID, Description, PortraitIndex, IconAtlas from Improvements
 					WHERE CivilizationType = ?]]);
-					
+
+    -- adds 5/6UC unique improvements by checking Trait_BuildsUnitClasses and OrderPriority settings
+	g_culturalImprovementsQuery = DB.CreateQuery([[SELECT DISTINCT i.ID, i.Description, i.PortraitIndex, i.IconAtlas FROM Improvements i, Civilization_Leaders cl, Leader_Traits lt, Trait_BuildsUnitClasses tbuc, Builds b 
+		WHERE cl.CivilizationType = ? AND lt.LeaderType = cl.LeaderheadType AND lt.TraitType = tbuc.TraitType AND tbuc.BuildType = b.Type AND i.Type = b.ImprovementType AND b.OrderPriority=90]]);
+		
 	g_uniqueProjectsQuery = DB.CreateQuery([[SELECT ID, Description, PortraitIndex, IconAtlas from Projects
 					WHERE CivilizationType = ?]]);
 end
@@ -140,6 +144,12 @@ local function populateUniques( parentControl, civType )
 	for improvement in g_uniqueImprovementsQuery( civType ) do
 		newItemIcon( parentControl, improvement, pcall( GetHelpTextForImprovement, improvement.ID ) );
 	end
+
+	-- 5/6 UC
+	for improvement in g_culturalImprovementsQuery( civType ) do
+		newItemIcon( parentControl, improvement, pcall( GetHelpTextForImprovement, improvement.ID ) );
+	end
+
 	-- UP icons
 	for project in g_uniqueProjectsQuery( civType ) do
 		newItemIcon( parentControl, project, pcall( GetHelpTextForProject, project.ID ) );
