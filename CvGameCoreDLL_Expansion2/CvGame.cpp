@@ -1341,6 +1341,107 @@ void CvGame::SendHeartbeatToPipe()
 }
 
 //	--------------------------------------------------------------------------------
+void CvGame::SendGameStartInfoToPipe()
+{
+	if (!m_kGameStatePipe.IsRunning())
+		return;
+
+	PlayerTypes eActivePlayer = getActivePlayer();
+	if (eActivePlayer == NO_PLAYER)
+		return;
+
+	const CvPlayer& kActivePlayer = GET_PLAYER(eActivePlayer);
+	CivilizationTypes eCiv = kActivePlayer.getCivilizationType();
+	LeaderHeadTypes eLeader = kActivePlayer.getLeaderType();
+
+	CvCivilizationInfo* pkCivInfo = GC.getCivilizationInfo(eCiv);
+	CvLeaderHeadInfo* pkLeaderInfo = GC.getLeaderHeadInfo(eLeader);
+
+	if (!pkCivInfo || !pkLeaderInfo)
+		return;
+
+	std::ostringstream payload;
+	payload << "{\"type\":\"game_start\"";
+	payload << ",\"popup_type\":\"dawn_of_man\"";
+	payload << ",\"game_id\":" << CvPreGame::mapRandomSeed();
+	payload << ",\"session_id\":" << m_kGameStatePipe.GetSessionId();
+	payload << ",\"player_id\":" << static_cast<int>(eActivePlayer);
+	payload << ",\"turn\":" << getGameTurn();
+
+	// Civilization info
+	std::string civName = pkCivInfo->GetDescription();
+	std::string civType = pkCivInfo->GetType();
+	payload << ",\"civilization\":\"" << PipeJson::Escape(civName) << "\"";
+	payload << ",\"civilization_type\":\"" << PipeJson::Escape(civType) << "\"";
+
+	// Leader info
+	std::string leaderName = pkLeaderInfo->GetDescription();
+	payload << ",\"leader\":\"" << PipeJson::Escape(leaderName) << "\"";
+
+	// Trait info - find the first active trait for this leader
+	CvPlayerTraits* pkTraits = kActivePlayer.GetPlayerTraits();
+	if (pkTraits)
+	{
+		std::vector<TraitTypes> vTraits = pkTraits->GetPotentiallyActiveTraits();
+		for (size_t i = 0; i < vTraits.size(); ++i)
+		{
+			CvTraitEntry* pkTraitEntry = GC.getTraitInfo(vTraits[i]);
+			if (pkTraitEntry && pkTraits->HasTrait(vTraits[i]))
+			{
+				std::string traitName = pkTraitEntry->GetDescription();
+				std::string traitShortDesc = pkTraitEntry->GetDescription();
+				payload << ",\"trait_name\":\"" << PipeJson::Escape(traitShortDesc) << "\"";
+				payload << ",\"trait_description\":\"" << PipeJson::Escape(traitName) << "\"";
+				break; // Just get the first/primary trait
+			}
+		}
+	}
+
+	// Unique units and buildings
+	payload << ",\"uniques\":[";
+	bool bFirst = true;
+
+	// Check for unique units (civilization-specific unit overrides)
+	for (int iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
+	{
+		UnitTypes eUnit = (UnitTypes)pkCivInfo->getCivilizationUnits(iI);
+		UnitTypes eDefaultUnit = (UnitTypes)GC.getUnitClassInfo((UnitClassTypes)iI)->getDefaultUnitIndex();
+		if (eUnit != NO_UNIT && eUnit != eDefaultUnit)
+		{
+			CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eUnit);
+			if (pkUnitEntry)
+			{
+				if (!bFirst) payload << ",";
+				payload << "\"" << PipeJson::Escape(pkUnitEntry->GetDescription()) << "\"";
+				bFirst = false;
+			}
+		}
+	}
+
+	// Check for unique buildings
+	for (int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
+	{
+		BuildingTypes eBuilding = (BuildingTypes)pkCivInfo->getCivilizationBuildings(iI);
+		BuildingTypes eDefaultBuilding = (BuildingTypes)GC.getBuildingClassInfo((BuildingClassTypes)iI)->getDefaultBuildingIndex();
+		if (eBuilding != NO_BUILDING && eBuilding != eDefaultBuilding)
+		{
+			CvBuildingEntry* pkBuildingEntry = GC.getBuildingInfo(eBuilding);
+			if (pkBuildingEntry)
+			{
+				if (!bFirst) payload << ",";
+				payload << "\"" << PipeJson::Escape(pkBuildingEntry->GetDescription()) << "\"";
+				bFirst = false;
+			}
+		}
+	}
+
+	payload << "]}";
+
+	m_kGameStatePipe.SendMessage(payload.str());
+	m_kGameStatePipe.Log("Sent game_start info for player %d, civ %s", static_cast<int>(eActivePlayer), civType.c_str());
+}
+
+//	--------------------------------------------------------------------------------
 void CvGame::SendNotificationToPipe(PlayerTypes ePlayer, NotificationTypes eNotificationType, const char* strMessage, const char* strSummary, int iX, int iY, int iGameDataIndex, int iExtraGameData, int iLookupIndex, int iTurn)
 {
 #if defined(_WIN32)
@@ -2682,7 +2783,7 @@ void CvGame::HandlePipeCommand(const std::string& commandLine)
 					GetGameReligions()->FoundPantheon(ePlayer, eBelief);
 
 					CvBeliefEntry* pBeliefEntry = GC.GetGameBeliefs()->GetEntry(eBelief);
-					const char* beliefName = pBeliefEntry ? pBeliefEntry->GetShortDescription() : "Unknown";
+					const char* beliefName = pBeliefEntry ? pBeliefEntry->getShortDescription() : "Unknown";
 
 					os << ",\"success\":true,\"player_id\":" << ePlayer;
 					os << ",\"belief_id\":" << beliefId;

@@ -15,6 +15,8 @@ local math_max = math.max
 
 local g_civID = -1;
 local g_isLoadComplete = false;
+local g_autoCloseTimer = 0;
+local AUTO_CLOSE_SECONDS = 2.0; -- seconds to wait before auto-closing
 
 include( "ContentSwitch" )
 
@@ -145,3 +147,16 @@ function()
 		UIManager:SetUICursor( 0 );
 	end
 end );
+
+-------------------------------------------------------------------------------
+-- Auto-close timer for LLM - close Dawn of Man popup automatically
+-------------------------------------------------------------------------------
+ContextPtr:SetUpdate(function(fDTime)
+	if g_isLoadComplete and not ContextPtr:IsHidden() then
+		g_autoCloseTimer = g_autoCloseTimer + fDTime;
+		if g_autoCloseTimer >= AUTO_CLOSE_SECONDS then
+			g_autoCloseTimer = 0;
+			OnActivateButtonClicked();
+		end
+	end
+end);

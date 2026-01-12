@@ -531,14 +531,15 @@ LRESULT CALLBACK GameStatePipe::SubclassWndProc(HWND hWnd, UINT uMsg, WPARAM wPa
 		return 0;
 	}
 
-	// Handle pipe connected notification - send initial turn_start
+	// Handle pipe connected notification - send initial turn_start and game_start info
 	if (uMsg == WM_PIPE_CONNECTED)
 	{
 		if (s_pInstance && s_pInstance->m_pGame && !s_pInstance->m_bSentInitialTurnStart)
 		{
 			s_pInstance->m_bSentInitialTurnStart = true;
 			s_pInstance->m_pGame->SendTurnStartToPipe();
-			LogMessage("GameStatePipe: Sent initial turn_start after connection");
+			s_pInstance->m_pGame->SendGameStartInfoToPipe();
+			LogMessage("GameStatePipe: Sent initial turn_start and game_start info after connection");
 		}
 		return 0;
 	}
