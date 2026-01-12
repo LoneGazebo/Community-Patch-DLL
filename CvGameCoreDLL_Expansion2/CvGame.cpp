@@ -1682,7 +1682,12 @@ void CvGame::CheckPlayerTurnDeactivate()
 				if(kPlayer.hasProcessedAutoMoves())
 				{
 					bool bAutoMovesComplete = false;
-					if (kPlayer.GetEndTurnBlockingType() == NO_ENDTURN_BLOCKING_TYPE)
+					// Allow pending deal notifications to not block turn deactivation in simultaneous turns (multiplayer).
+					// This prevents a freeze when a proposal is sent to a player who has already ended their turn.
+					bool bIsBlockingTypeAllowed = (kPlayer.GetEndTurnBlockingType() == NO_ENDTURN_BLOCKING_TYPE) ||
+						(kPlayer.GetEndTurnBlockingType() == ENDTURN_BLOCKING_PENDING_DEAL && kPlayer.isSimultaneousTurns());
+
+					if (bIsBlockingTypeAllowed)
 					{
 						if (!(kPlayer.hasBusyUnitOrCity()))
 						{
