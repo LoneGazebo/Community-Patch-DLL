@@ -26,6 +26,7 @@ function RangedStrikeHighlight()
 	if pHeadSelectedCity and pHeadSelectedCity:CanRangeStrike() then
 		iRange, iIndirect = pHeadSelectedCity:GetBombardRange();
 		bIndirectFireAllowed = (iIndirect == 1);
+		iSeeThrough = 0;
 		thisPlot = pHeadSelectedCity:Plot();
 		thisX = pHeadSelectedCity:GetX();
 		thisY = pHeadSelectedCity:GetY();
@@ -35,6 +36,7 @@ function RangedStrikeHighlight()
 	elseif pHeadSelectedUnit and pHeadSelectedUnit:CanRangeStrike() then
 		iRange = pHeadSelectedUnit:Range();
 		bIndirectFireAllowed = pHeadSelectedUnit:IsRangeAttackIgnoreLOS();
+		iSeeThrough = pHeadSelectedUnit:GetSeeThrough()
 		thisPlot = pHeadSelectedUnit:GetPlot();
 		thisX = pHeadSelectedUnit:GetX();
 		thisY = pHeadSelectedUnit:GetY();
@@ -54,7 +56,7 @@ function RangedStrikeHighlight()
 
 				if pTargetPlot then
 					if not bIndirectFireAllowed then
-						if not thisPlot:CanSeePlot(pTargetPlot, thisTeam, iRange - 1, NO_DIRECTION) then
+						if not thisPlot:CanSeePlot(pTargetPlot, thisTeam, iRange - 1, NO_DIRECTION, iSeeThrough) then
 							bCanRangeStrike = false;
 						end
 					end
