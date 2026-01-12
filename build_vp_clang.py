@@ -300,14 +300,15 @@ class TaskMan:
         return results
 
 def build_cl_config_args(config: Config) -> list[str]:
-    args = ['-m32', '-msse3', '/c', '/MD', '/GS', '/EHsc', '/fp:precise', '/Zc:wchar_t', '/Z7']
+    args = ['-m32', '-msse3', '/c', '/MD', '/GS', '/EHsc', '/fp:precise', '/Zc:wchar_t', '/Zi', '/FS']
     if config == Config.Release:
         args.append('/Ox')
         args.append('/Ob2')
+        args.append('/Zo')
         args.append('-flto')
     else:
         args.append('/Od')
-        args.append('-g')
+        args.append('/Oy-')
     for predef in PREDEFS[config]:
         args.append(f'/D{predef}')
     for include_dir in INCLUDE_DIRS:
