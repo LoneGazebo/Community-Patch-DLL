@@ -491,7 +491,7 @@ function SetSelectedCiv()
         Controls.BonusDescription:SetText( Locale.ConvertTextKey( trait.Description ));
 
 		local maxSmallButtons = GameDefines.NUM_UNIQUE_COMPONENTS;
-		local baseWrapWidth = 535;
+		local baseWrapWidth = 500;
 		local adjustedWrapWidth = baseWrapWidth + math.floor((6 - maxSmallButtons) / 2) * 64;
 		Controls.BonusDescription:SetWrapWidth(adjustedWrapWidth);
         
@@ -540,7 +540,7 @@ function SetSelectedCiv()
         Controls.BonusDescription:SetText( "" );
 
 		local maxSmallButtons = GameDefines.NUM_UNIQUE_COMPONENTS;
-		local baseWrapWidth = 535;
+		local baseWrapWidth = 500;
 		local adjustedWrapWidth = baseWrapWidth + math.floor((6 - maxSmallButtons) / 2) * 64;
 		Controls.BonusDescription:SetWrapWidth(adjustedWrapWidth);
 		

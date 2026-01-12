@@ -79,11 +79,32 @@ function OnInitScreen()
         
          -- Sets Bonus Icons
         local bonusText = PopulateUniqueBonuses( Controls, civ, leader, false, true);
-        
-        Controls.BonusUnit:LocalizeAndSetText( bonusText[1] or "" );
-        Controls.BonusBuilding:LocalizeAndSetText( bonusText[2] or "" );
-        Controls.BonusUnit2:LocalizeAndSetText( bonusText[3] or "" );
-        Controls.BonusBuilding2:LocalizeAndSetText( bonusText[4] or "" );
+
+        local maxSmallButtons = GameDefines.NUM_UNIQUE_COMPONENTS;
+
+        -- Set bonus text for all available components
+        local bonusLabels = {"BonusUnit", "BonusBuilding", "BonusUnit2", "BonusBuilding2", "BonusUnit3", "BonusBuilding3"};
+        local bonusFrames = {"BF1", "BF2", "BF3", "BF4", "BF5", "BF6"};
+
+        for i = 1, maxSmallButtons do
+            if Controls[bonusLabels[i]] then
+                Controls[bonusLabels[i]]:SetHide(false);
+                Controls[bonusLabels[i]]:LocalizeAndSetText( bonusText[i] or "" );
+            end
+            if Controls[bonusFrames[i]] then
+                Controls[bonusFrames[i]]:SetHide(false);
+            end
+        end
+
+        -- Hide unused bonus labels and frames
+        for i = maxSmallButtons + 1, 6 do
+            if Controls[bonusLabels[i]] then
+                Controls[bonusLabels[i]]:SetHide(true);
+            end
+            if Controls[bonusFrames[i]] then
+                Controls[bonusFrames[i]]:SetHide(true);
+            end
+        end
         
         -- Sets Dawn of Man Quote
         Controls.Quote:LocalizeAndSetText(civ.DawnOfManQuote or "");
