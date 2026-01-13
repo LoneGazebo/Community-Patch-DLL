@@ -32852,60 +32852,64 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn) // R: bDoTurn default
 
 	if (!bNewValue)
 	{
-		// check if resource numbers are stored correctly. there were a few issues with the calculations in the past
-		for (int iJ = 0; iJ < GC.getNumResourceInfos(); iJ++)
+		// unfortunately the resource check doesn't work for CS because they can be gifted improvements from major civs which are connected even if the CS can't see/improve them yet...
+		if (isMajorCiv())
 		{
-			int iCntImproved = 0;
-			int iCntUnimproved = 0;
-			for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
+			// check if resource numbers are stored correctly. there were a few issues with the calculations in the past
+			for (int iJ = 0; iJ < GC.getNumResourceInfos(); iJ++)
 			{
-				CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
-				if (pLoopPlot->getOwner() == GetID())
+				int iCntImproved = 0;
+				int iCntUnimproved = 0;
+				for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
 				{
-					ResourceTypes eRes = pLoopPlot->getResourceType(getTeam());
-					if (eRes == (ResourceTypes)iJ)
+					CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
+					if (pLoopPlot->getOwner() == GetID())
 					{
-						CvResourceInfo* pResourceInfo = GC.getResourceInfo(eRes);
-						int iNumExtraLuxury = 0;
-						if (pResourceInfo->getResourceUsage() == RESOURCEUSAGE_LUXURY)
+						ResourceTypes eRes = pLoopPlot->getResourceType(getTeam());
+						if (eRes == (ResourceTypes)iJ)
 						{
-							CvCity* pCity = pLoopPlot->getOwningCity();
-							if (pCity && pCity->IsExtraLuxuryResources())
+							CvResourceInfo* pResourceInfo = GC.getResourceInfo(eRes);
+							int iNumExtraLuxury = 0;
+							if (pResourceInfo->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 							{
-								iNumExtraLuxury = 1;
+								CvCity* pCity = pLoopPlot->getOwningCity();
+								if (pCity && pCity->IsExtraLuxuryResources())
+								{
+									iNumExtraLuxury = 1;
+								}
 							}
-						}
-						int iNumResource = pLoopPlot->getNumResource();
-						if (pResourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
-						{
-							int iQuantityMod = GetPlayerTraits()->GetStrategicResourceQuantityModifier(pLoopPlot->getTerrainType());
-							iNumResource *= 100 + iQuantityMod;
-							iNumResource /= 100;
-						}
+							int iNumResource = pLoopPlot->getNumResource();
+							if (pResourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
+							{
+								int iQuantityMod = GetPlayerTraits()->GetStrategicResourceQuantityModifier(pLoopPlot->getTerrainType());
+								iNumResource *= 100 + iQuantityMod;
+								iNumResource /= 100;
+							}
 
-						if (GetPlayerTraits()->GetResourceQuantityModifier(eRes) > 0)
-						{
-							int iQuantityMod = GetPlayerTraits()->GetResourceQuantityModifier(eRes);
-							iNumResource *= 100 + iQuantityMod;
-							iNumResource /= 100;
-						}
+							if (GetPlayerTraits()->GetResourceQuantityModifier(eRes) > 0)
+							{
+								int iQuantityMod = GetPlayerTraits()->GetResourceQuantityModifier(eRes);
+								iNumResource *= 100 + iQuantityMod;
+								iNumResource /= 100;
+							}
 
-						if (pLoopPlot->IsResourceImprovedForOwner())
-						{
-							iCntImproved += iNumResource;
-							// ExtraLuxury resources are stored in m_paiNumResourceFromBuildings, but we can't compare it with the counted value because it also contains resources from other sources
-						}
-						else
-						{
-							iCntUnimproved += iNumResource + iNumExtraLuxury;
+							if (pLoopPlot->IsResourceImprovedForOwner())
+							{
+								iCntImproved += iNumResource;
+								// ExtraLuxury resources are stored in m_paiNumResourceFromBuildings, but we can't compare it with the counted value because it also contains resources from other sources
+							}
+							else
+							{
+								iCntUnimproved += iNumResource + iNumExtraLuxury;
 
+							}
 						}
 					}
 				}
+				const char* szResName = GC.getResourceInfo((ResourceTypes)iJ)->GetText();
+				ASSERT(m_paiNumResourceFromTiles[iJ] == iCntImproved, "Mismatch m_paiNumResourceFromTiles for Resource %s. Stored: %d, counted: %d.", szResName, m_paiNumResourceFromTiles[iJ], iCntImproved);
+				ASSERT(m_paiNumResourceUnimproved[iJ] == iCntUnimproved, "Mismatch m_paiNumResourceUnimproved for Resource %s. Stored: %d, counted: %d.", szResName, m_paiNumResourceUnimproved[iJ], iCntUnimproved);
 			}
-			const char* szResName = GC.getResourceInfo((ResourceTypes)iJ)->GetText();
-			ASSERT(m_paiNumResourceFromTiles[iJ] == iCntImproved, "Mismatch m_paiNumResourceFromTiles for Resource %s. Stored: %d, counted: %d.", szResName, m_paiNumResourceFromTiles[iJ], iCntImproved);
-			ASSERT(m_paiNumResourceUnimproved[iJ] == iCntUnimproved, "Mismatch m_paiNumResourceUnimproved for Resource %s. Stored: %d, counted: %d.", szResName, m_paiNumResourceUnimproved[iJ], iCntUnimproved);
 		}
 	}
 
