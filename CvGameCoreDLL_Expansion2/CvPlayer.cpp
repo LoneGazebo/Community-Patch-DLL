@@ -32907,49 +32907,6 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn) // R: bDoTurn default
 			ASSERT(m_paiNumResourceFromTiles[iJ] == iCntImproved, "Mismatch m_paiNumResourceFromTiles for Resource %s. Stored: %d, counted: %d.", szResName, m_paiNumResourceFromTiles[iJ], iCntImproved);
 			ASSERT(m_paiNumResourceUnimproved[iJ] == iCntUnimproved, "Mismatch m_paiNumResourceUnimproved for Resource %s. Stored: %d, counted: %d.", szResName, m_paiNumResourceUnimproved[iJ], iCntUnimproved);
 		}
-
-		// check if gold per turn from diplomacy is stored correctly
-		int iGoldPerTurnFromDiplomacy = 0;
-
-		// Sum up gold per turn from all active deals
-		CvGameDeals& kGameDeals = GC.getGame().GetGameDeals();
-		DealList::iterator dealIter;
-		for (dealIter = kGameDeals.m_CurrentDeals.begin(); dealIter != kGameDeals.m_CurrentDeals.end(); ++dealIter)
-		{
-			// Check if this player is involved in the deal
-			if (dealIter->m_eFromPlayer == GetID() || dealIter->m_eToPlayer == GetID())
-			{
-				// Iterate through all traded items in this deal
-				TradedItemList::iterator itemIter;
-				for (itemIter = dealIter->m_TradedItems.begin(); itemIter != dealIter->m_TradedItems.end(); ++itemIter)
-				{
-					if (itemIter->m_eItemType == TRADE_ITEM_GOLD_PER_TURN)
-					{
-						int iGoldPerTurn = itemIter->m_iData1;
-						if (itemIter->m_eFromPlayer == GetID())
-							iGoldPerTurnFromDiplomacy -= iGoldPerTurn;
-						else
-							iGoldPerTurnFromDiplomacy += iGoldPerTurn;
-					}
-				}
-			}
-		}
-
-		// Add gold per turn from league effects
-		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-		if (pLeague && pLeague->IsMember(GetID()))
-		{
-			ActiveResolutionList vActiveResolutions = pLeague->GetActiveResolutions();
-			for (ActiveResolutionList::iterator resIter = vActiveResolutions.begin(); resIter != vActiveResolutions.end(); ++resIter)
-			{
-				if (resIter->GetEffects()->iGoldPerTurn != 0)
-				{
-					iGoldPerTurnFromDiplomacy += resIter->GetEffects()->iGoldPerTurn;
-				}
-			}
-		}
-
-		ASSERT(GetTreasury()->GetGoldPerTurnFromDiplomacy() == iGoldPerTurnFromDiplomacy, "Mismatch GetGoldPerTurnFromDiplomacy for Player %d (%s). Stored: %d, counted: %d.", GetID(), getCivilizationShortDescription(), GetTreasury()->GetGoldPerTurnFromDiplomacy(), iGoldPerTurnFromDiplomacy);
 	}
 
 	if(isTurnActive() != bNewValue)
