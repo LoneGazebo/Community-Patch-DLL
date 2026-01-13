@@ -92,6 +92,7 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(Embark);
 
 	Method(IsRangeAttackIgnoreLOS);
+	Method(GetSeeThrough);
 
 	Method(CanAirlift);
 	Method(CanAirliftAt);
@@ -1557,6 +1558,12 @@ int CvLuaUnit::lEmbark(lua_State* L)
 int CvLuaUnit::lIsRangeAttackIgnoreLOS(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvUnit::IsRangeAttackIgnoreLOS);
+}
+//------------------------------------------------------------------------------
+//int GetSeeThrough(CyPlot* pPlot);
+int CvLuaUnit::lGetSeeThrough(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvUnit::GetSeeThrough);
 }
 //------------------------------------------------------------------------------
 //bool canAirlift(CyPlot* pPlot);
