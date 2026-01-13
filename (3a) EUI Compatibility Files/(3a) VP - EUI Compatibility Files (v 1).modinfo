@@ -2,7 +2,7 @@
 <Mod id="24923240-e4fb-4bf6-8f0e-6e5b6cf4d3c2" version="1">
   <Properties>
     <Name>(3a) VP - EUI Compatibility Files</Name>
-    <Teaser>(5.1) Vox Populi Compatibility and LUA (EUI Version)</Teaser>
+    <Teaser>(5.1.1) Vox Populi Compatibility and LUA (EUI Version)</Teaser>
     <Description>Contains LUA and mod compatibility files for Vox Populi if using EUI.</Description>
     <Authors>Gazebo</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -55,11 +55,11 @@
     <File md5="F1EE3061BCAD8E2FCA6F8C7C08F844DF" import="1">LUA/NotificationPanel.lua</File>
     <File md5="55E88523B0E22CF8E425321957273D6D" import="1">LUA/NotificationPanel.xml</File>
     <File md5="3817EFB90368887552D14F8A52E35276" import="1">LUA/PlotHelpManager.lua</File>
-    <File md5="33D6B39E39311E755136DDD10BA7D3B4" import="1">LUA/PopulateUniques.lua</File>
+    <File md5="ED69FF79C9093C24DBB3060838D26CB9" import="1">LUA/PopulateUniques.lua</File>
     <File md5="58B15BE7BDE12D658FD48153616665A6" import="1">LUA/SocialPolicyPopup.lua</File>
     <File md5="AFDCE04CF7F4A8FD40BB08BC1103B89B" import="1">LUA/SocialPolicyPopup.xml</File>
     <File md5="B878A95C1F755D948A777A49B8B1AE64" import="1">LUA/TradeLogic.lua</File>
-    <File md5="95590D57F72A1DA4C7837531464A6C2E" import="1">LUA/UnitFlagManager.lua</File>
+    <File md5="23FFEF0619E89F87FED6F82ACBBDEB70" import="1">LUA/UnitFlagManager.lua</File>
     <File md5="C9640C05F6EDAA4ADF5E67E5D17FC01A" import="1">LUA/UnitFlagManager.xml</File>
     <File md5="92622ADB0E074277AD0D1AF488C78B3D" import="1">LUA/UnitPanel.lua</File>
     <File md5="72BE225BBB8B757302AC7653198DA646" import="1">LUA/UnitPanel.xml</File>

@@ -49,7 +49,7 @@ Y = savegame incompatible release,
 Z = savegame compatible release
 
 
-B. Change the current version number on ISSUE_TEMPLATE in the main folder to match the new version number.
+B. Change the current version number of bug_report_v5 in .github/ISSUE_TEMPLATE to match the new version number.
 
 
 C. Change MyAppVersion in VPSetupData.iss to match the new version number.
