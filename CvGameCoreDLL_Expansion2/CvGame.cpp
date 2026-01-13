@@ -2574,6 +2574,364 @@ void CvGame::HandlePipeCommand(const std::string& commandLine)
 			m_kGameStatePipe.SendMessage(os.str());
 			return;
 		}
+		else if (msgType == "get_city_production")
+		{
+			// Get available production options for a city
+			std::string requestId = msg.get("request_id").asString();
+			int cityId = msg.get("city_id").asInt(-1);
+			int playerId = msg.get("player_id").asInt(-1);
+
+			PlayerTypes ePlayer = (playerId >= 0) ? (PlayerTypes)playerId : getActivePlayer();
+			CvPlayer& kPlayer = GET_PLAYER(ePlayer);
+
+			std::ostringstream os;
+			os << "{\"type\":\"city_production_result\"";
+			os << ",\"request_id\":\"" << PipeJson::Escape(requestId) << "\"";
+
+			if (!kPlayer.isAlive())
+			{
+				os << ",\"error\":{\"code\":\"INVALID_PLAYER\",\"message\":\"Player not alive\"}}";
+				m_kGameStatePipe.SendMessage(os.str());
+				return;
+			}
+
+			CvCity* pCity = kPlayer.getCity(cityId);
+			if (!pCity)
+			{
+				os << ",\"error\":{\"code\":\"INVALID_CITY\",\"message\":\"City not found\"}}";
+				m_kGameStatePipe.SendMessage(os.str());
+				return;
+			}
+
+			os << ",\"city_id\":" << cityId;
+			os << ",\"city_name\":\"" << PipeJson::Escape(pCity->getName()) << "\"";
+
+			// Trainable units (ORDER_TRAIN = 0)
+			os << ",\"trainable_units\":[";
+			bool first = true;
+			for (int i = 0; i < GC.getNumUnitInfos(); i++)
+			{
+				UnitTypes eUnit = (UnitTypes)i;
+				if (pCity->canTrain(eUnit))
+				{
+					if (!first) os << ",";
+					first = false;
+					CvUnitEntry* pInfo = GC.getUnitInfo(eUnit);
+					os << "{\"id\":" << i;
+					os << ",\"name\":\"" << (pInfo ? PipeJson::Escape(pInfo->GetDescription()) : "Unknown") << "\"";
+					os << ",\"turns\":" << pCity->getProductionTurnsLeft(eUnit, 0);
+					os << "}";
+				}
+			}
+			os << "]";
+
+			// Constructable buildings (ORDER_CONSTRUCT = 1)
+			os << ",\"constructable_buildings\":[";
+			first = true;
+			for (int i = 0; i < GC.getNumBuildingInfos(); i++)
+			{
+				BuildingTypes eBuilding = (BuildingTypes)i;
+				if (pCity->canConstruct(eBuilding))
+				{
+					if (!first) os << ",";
+					first = false;
+					CvBuildingEntry* pInfo = GC.getBuildingInfo(eBuilding);
+					os << "{\"id\":" << i;
+					os << ",\"name\":\"" << (pInfo ? PipeJson::Escape(pInfo->GetDescription()) : "Unknown") << "\"";
+					os << ",\"turns\":" << pCity->getProductionTurnsLeft(eBuilding, 0);
+					os << "}";
+				}
+			}
+			os << "]";
+
+			// Creatable projects (ORDER_CREATE = 2)
+			os << ",\"creatable_projects\":[";
+			first = true;
+			for (int i = 0; i < GC.getNumProjectInfos(); i++)
+			{
+				ProjectTypes eProject = (ProjectTypes)i;
+				if (pCity->canCreate(eProject))
+				{
+					if (!first) os << ",";
+					first = false;
+					CvProjectEntry* pInfo = GC.getProjectInfo(eProject);
+					os << "{\"id\":" << i;
+					os << ",\"name\":\"" << (pInfo ? PipeJson::Escape(pInfo->GetDescription()) : "Unknown") << "\"";
+					os << ",\"turns\":" << pCity->getProductionTurnsLeft(eProject, 0);
+					os << "}";
+				}
+			}
+			os << "]";
+
+			// Maintainable processes (ORDER_MAINTAIN = 3)
+			os << ",\"maintainable_processes\":[";
+			first = true;
+			for (int i = 0; i < GC.getNumProcessInfos(); i++)
+			{
+				ProcessTypes eProcess = (ProcessTypes)i;
+				if (pCity->canMaintain(eProcess))
+				{
+					if (!first) os << ",";
+					first = false;
+					CvProcessInfo* pInfo = GC.getProcessInfo(eProcess);
+					os << "{\"id\":" << i;
+					os << ",\"name\":\"" << (pInfo ? PipeJson::Escape(pInfo->GetDescription()) : "Unknown") << "\"";
+					os << "}";
+				}
+			}
+			os << "]";
+
+			os << "}";
+			m_kGameStatePipe.SendMessage(os.str());
+			return;
+		}
+		else if (msgType == "get_available_techs")
+		{
+			// Get available techs for research
+			std::string requestId = msg.get("request_id").asString();
+			int playerId = msg.get("player_id").asInt(-1);
+
+			PlayerTypes ePlayer = (playerId >= 0) ? (PlayerTypes)playerId : getActivePlayer();
+			CvPlayer& kPlayer = GET_PLAYER(ePlayer);
+
+			std::ostringstream os;
+			os << "{\"type\":\"available_techs_result\"";
+			os << ",\"request_id\":\"" << PipeJson::Escape(requestId) << "\"";
+			os << ",\"player_id\":" << ePlayer;
+
+			if (!kPlayer.isAlive())
+			{
+				os << ",\"error\":{\"code\":\"INVALID_PLAYER\",\"message\":\"Player not alive\"}}";
+				m_kGameStatePipe.SendMessage(os.str());
+				return;
+			}
+
+			CvPlayerTechs* pPlayerTechs = kPlayer.GetPlayerTechs();
+
+			// Current research
+			TechTypes eCurrentTech = pPlayerTechs->GetCurrentResearch();
+			if (eCurrentTech != NO_TECH)
+			{
+				CvTechEntry* pTechInfo = GC.getTechInfo(eCurrentTech);
+				os << ",\"current_research\":{";
+				os << "\"id\":" << eCurrentTech;
+				os << ",\"name\":\"" << (pTechInfo ? PipeJson::Escape(pTechInfo->GetDescription()) : "Unknown") << "\"";
+				os << ",\"turns_left\":" << pPlayerTechs->GetResearchTurnsLeft(eCurrentTech, true);
+				os << "}";
+			}
+			else
+			{
+				os << ",\"current_research\":null";
+			}
+
+			// Available techs
+			os << ",\"available_techs\":[";
+			bool first = true;
+			for (int i = 0; i < GC.getNumTechInfos(); i++)
+			{
+				TechTypes eTech = (TechTypes)i;
+				if (pPlayerTechs->CanResearch(eTech))
+				{
+					if (!first) os << ",";
+					first = false;
+					CvTechEntry* pTechInfo = GC.getTechInfo(eTech);
+					os << "{\"id\":" << i;
+					os << ",\"name\":\"" << (pTechInfo ? PipeJson::Escape(pTechInfo->GetDescription()) : "Unknown") << "\"";
+					os << ",\"cost\":" << pPlayerTechs->GetResearchCost(eTech);
+					os << ",\"turns\":" << pPlayerTechs->GetResearchTurnsLeft(eTech, true);
+					os << "}";
+				}
+			}
+			os << "]";
+
+			os << "}";
+			m_kGameStatePipe.SendMessage(os.str());
+			return;
+		}
+		else if (msgType == "get_available_policies")
+		{
+			// Get available policy branches and policies
+			std::string requestId = msg.get("request_id").asString();
+			int playerId = msg.get("player_id").asInt(-1);
+
+			PlayerTypes ePlayer = (playerId >= 0) ? (PlayerTypes)playerId : getActivePlayer();
+			CvPlayer& kPlayer = GET_PLAYER(ePlayer);
+
+			std::ostringstream os;
+			os << "{\"type\":\"available_policies_result\"";
+			os << ",\"request_id\":\"" << PipeJson::Escape(requestId) << "\"";
+			os << ",\"player_id\":" << ePlayer;
+
+			if (!kPlayer.isAlive())
+			{
+				os << ",\"error\":{\"code\":\"INVALID_PLAYER\",\"message\":\"Player not alive\"}}";
+				m_kGameStatePipe.SendMessage(os.str());
+				return;
+			}
+
+			CvPlayerPolicies* pPlayerPolicies = kPlayer.GetPlayerPolicies();
+			os << ",\"culture\":" << kPlayer.getJONSCultureTimes100() / 100;
+			os << ",\"next_policy_cost\":" << kPlayer.getNextPolicyCost();
+
+			// Available policy branches to unlock
+			os << ",\"unlockable_branches\":[";
+			bool first = true;
+			for (int i = 0; i < GC.getNumPolicyBranchInfos(); i++)
+			{
+				PolicyBranchTypes eBranch = (PolicyBranchTypes)i;
+				CvPolicyBranchEntry* pBranchInfo = GC.getPolicyBranchInfo(eBranch);
+				if (pBranchInfo && pPlayerPolicies->CanUnlockPolicyBranch(eBranch))
+				{
+					if (!first) os << ",";
+					first = false;
+					os << "{\"id\":" << i;
+					os << ",\"name\":\"" << PipeJson::Escape(pBranchInfo->GetDescription()) << "\"";
+					os << "}";
+				}
+			}
+			os << "]";
+
+			// Already unlocked branches
+			os << ",\"unlocked_branches\":[";
+			first = true;
+			for (int i = 0; i < GC.getNumPolicyBranchInfos(); i++)
+			{
+				PolicyBranchTypes eBranch = (PolicyBranchTypes)i;
+				CvPolicyBranchEntry* pBranchInfo = GC.getPolicyBranchInfo(eBranch);
+				if (pBranchInfo && pPlayerPolicies->IsPolicyBranchUnlocked(eBranch))
+				{
+					if (!first) os << ",";
+					first = false;
+					os << "{\"id\":" << i;
+					os << ",\"name\":\"" << PipeJson::Escape(pBranchInfo->GetDescription()) << "\"";
+					os << "}";
+				}
+			}
+			os << "]";
+
+			// Available policies to adopt (within unlocked branches)
+			os << ",\"adoptable_policies\":[";
+			first = true;
+			for (int i = 0; i < GC.getNumPolicyInfos(); i++)
+			{
+				PolicyTypes ePolicy = (PolicyTypes)i;
+				if (pPlayerPolicies->CanAdoptPolicy(ePolicy))
+				{
+					if (!first) os << ",";
+					first = false;
+					CvPolicyEntry* pPolicyInfo = GC.getPolicyInfo(ePolicy);
+					os << "{\"id\":" << i;
+					os << ",\"name\":\"" << (pPolicyInfo ? PipeJson::Escape(pPolicyInfo->GetDescription()) : "Unknown") << "\"";
+					if (pPolicyInfo)
+					{
+						os << ",\"branch_id\":" << pPolicyInfo->GetPolicyBranchType();
+					}
+					os << "}";
+				}
+			}
+			os << "]";
+
+			// Already adopted policies
+			os << ",\"adopted_policies\":[";
+			first = true;
+			for (int i = 0; i < GC.getNumPolicyInfos(); i++)
+			{
+				PolicyTypes ePolicy = (PolicyTypes)i;
+				if (pPlayerPolicies->HasPolicy(ePolicy))
+				{
+					if (!first) os << ",";
+					first = false;
+					CvPolicyEntry* pPolicyInfo = GC.getPolicyInfo(ePolicy);
+					os << "{\"id\":" << i;
+					os << ",\"name\":\"" << (pPolicyInfo ? PipeJson::Escape(pPolicyInfo->GetDescription()) : "Unknown") << "\"";
+					if (pPolicyInfo)
+					{
+						os << ",\"branch_id\":" << pPolicyInfo->GetPolicyBranchType();
+					}
+					os << "}";
+				}
+			}
+			os << "]";
+
+			os << "}";
+			m_kGameStatePipe.SendMessage(os.str());
+			return;
+		}
+		else if (msgType == "adopt_policy")
+		{
+			// Adopt a policy or unlock a branch
+			std::string requestId = msg.get("request_id").asString();
+			int policyId = msg.get("policy_id").asInt(-1);
+			int branchId = msg.get("branch_id").asInt(-1);
+			int playerId = msg.get("player_id").asInt(-1);
+
+			PlayerTypes ePlayer = (playerId >= 0) ? (PlayerTypes)playerId : getActivePlayer();
+			CvPlayer& kPlayer = GET_PLAYER(ePlayer);
+
+			std::ostringstream os;
+			os << "{\"type\":\"adopt_policy_result\"";
+			os << ",\"request_id\":\"" << PipeJson::Escape(requestId) << "\"";
+
+			if (!kPlayer.isAlive())
+			{
+				os << ",\"success\":false,\"error\":{\"code\":\"PLAYER_DEAD\",\"message\":\"Player not alive\"}}";
+				m_kGameStatePipe.SendMessage(os.str());
+				return;
+			}
+
+			CvPlayerPolicies* pPlayerPolicies = kPlayer.GetPlayerPolicies();
+			bool success = false;
+			std::string itemName = "Unknown";
+
+			// If branch_id provided, unlock a branch
+			if (branchId >= 0)
+			{
+				PolicyBranchTypes eBranch = (PolicyBranchTypes)branchId;
+				if (pPlayerPolicies->CanUnlockPolicyBranch(eBranch))
+				{
+					pPlayerPolicies->SetPolicyBranchUnlocked(eBranch, true, false);
+					CvPolicyBranchEntry* pBranchInfo = GC.getPolicyBranchInfo(eBranch);
+					if (pBranchInfo) itemName = pBranchInfo->GetDescription();
+					success = true;
+					os << ",\"action\":\"unlock_branch\",\"branch_id\":" << branchId;
+				}
+				else
+				{
+					os << ",\"success\":false,\"error\":{\"code\":\"CANNOT_UNLOCK_BRANCH\",\"message\":\"Cannot unlock this policy branch\"}}";
+					m_kGameStatePipe.SendMessage(os.str());
+					return;
+				}
+			}
+			// Otherwise adopt a policy
+			else if (policyId >= 0)
+			{
+				PolicyTypes ePolicy = (PolicyTypes)policyId;
+				if (pPlayerPolicies->CanAdoptPolicy(ePolicy))
+				{
+					pPlayerPolicies->SetPolicy(ePolicy, true, false);
+					CvPolicyEntry* pPolicyInfo = GC.getPolicyInfo(ePolicy);
+					if (pPolicyInfo) itemName = pPolicyInfo->GetDescription();
+					success = true;
+					os << ",\"action\":\"adopt_policy\",\"policy_id\":" << policyId;
+				}
+				else
+				{
+					os << ",\"success\":false,\"error\":{\"code\":\"CANNOT_ADOPT_POLICY\",\"message\":\"Cannot adopt this policy\"}}";
+					m_kGameStatePipe.SendMessage(os.str());
+					return;
+				}
+			}
+			else
+			{
+				os << ",\"success\":false,\"error\":{\"code\":\"INVALID_PARAMS\",\"message\":\"Must provide policy_id or branch_id\"}}";
+				m_kGameStatePipe.SendMessage(os.str());
+				return;
+			}
+
+			os << ",\"success\":true,\"name\":\"" << PipeJson::Escape(itemName) << "\"}";
+			m_kGameStatePipe.SendMessage(os.str());
+			return;
+		}
 		else if (msgType == "do_control")
 		{
 			std::string requestId = msg.get("request_id").asString();
