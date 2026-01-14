@@ -1634,8 +1634,8 @@ int CvLuaCity::lGetBuildingYieldRateTimes100(lua_State* L)
 	iYieldTimes100 += pCity->plot()->IsTradeUnitRoute() ? pkBuildingInfo->GetYieldChangeFromPassingTR(eYield) * 100 : 0;
 	iYieldTimes100 += (pkBuildingInfo->GetYieldChangePerCityStateStrategicResource(eYield) * kPlayer.GetNumStrategicResourcesFromMinors() * 100).Truncate();
 	iYieldTimes100 += pkBuildingInfo->GetYieldChangeEraScalingTimes100(eYield) * max(1, static_cast<int>(kPlayer.GetCurrentEra()));
-	iYieldTimes100 += pkBuildingInfo->GetYieldPerFriend(eYield) * kPlayer.GetNumCSFriends() * 100;
-	iYieldTimes100 += pkBuildingInfo->GetYieldPerAlly(eYield) * kPlayer.GetNumCSAllies() * 100;
+	iYieldTimes100 += pkBuildingInfo->GetYieldPerFriendTimes100(eYield) * kPlayer.GetNumCSFriends();
+	iYieldTimes100 += pkBuildingInfo->GetYieldPerAllyTimes100(eYield) * kPlayer.GetNumCSAllies();
 	iYieldTimes100 += pkBuildingInfo->GetYieldChangePerMonopoly(eYield) * kPlayer.GetNumGlobalMonopolies() * 100;
 	iYieldTimes100 += (pkBuildingInfo->GetYieldChangePerBuilding(eYield) * pCity->GetCityBuildings()->GetNumBuildings() * 100).Truncate();
 
