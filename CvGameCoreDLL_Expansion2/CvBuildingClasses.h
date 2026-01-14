@@ -632,8 +632,8 @@ public:
 	int GetNumFreeSpecialUnits(int i) const;
 	std::map<int, int> GetResourcePlotsToPlace(int i) const;
 	bool IsResourcePlotsToPlace() const;
-	int GetYieldPerFriend(int i) const;
-	int GetYieldPerAlly(int i) const;
+	int GetYieldPerFriendTimes100(int i) const;
+	int GetYieldPerAllyTimes100(int i) const;
 	int GetYieldChangeWorldWonder(int i) const;
 	int GetYieldChangeWorldWonderGlobal(int i) const;
 
@@ -1095,8 +1095,8 @@ private:
 	bool* m_pbBuildingClassNeededNowhere;
 	int* m_piNumSpecFreeUnits;
 	std::map<int, std::map<int, int>> m_ppiResourcePlotsToPlace;
-	int* m_piYieldPerFriend;
-	int* m_piYieldPerAlly;
+	int* m_piYieldPerFriendTimes100;
+	int* m_piYieldPerAllyTimes100;
 	int* m_piYieldChangeWorldWonder;
 	int* m_piYieldChangeWorldWonderGlobal;
 	int* m_piLuxuryYieldChanges;
