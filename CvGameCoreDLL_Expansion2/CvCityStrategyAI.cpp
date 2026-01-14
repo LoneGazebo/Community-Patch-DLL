@@ -3784,13 +3784,13 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 			}
 		}
 	}
-	if (pkBuildingInfo->GetYieldPerAlly(eYield) > 0)
+	if (pkBuildingInfo->GetYieldPerAllyTimes100(eYield) > 0)
 	{
-		iFlatYield += (pkBuildingInfo->GetYieldPerAlly(eYield) * max(GC.getGame().GetNumMinorCivsAlive() / 4, kPlayer.GetNumCSAllies()));
+		iFlatYield += (pkBuildingInfo->GetYieldPerAllyTimes100(eYield) * max(GC.getGame().GetNumMinorCivsAlive() / 400, kPlayer.GetNumCSAllies()));
 	}
-	if (pkBuildingInfo->GetYieldPerFriend(eYield) > 0)
+	if (pkBuildingInfo->GetYieldPerFriendTimes100(eYield) > 0)
 	{
-		iFlatYield += (pkBuildingInfo->GetYieldPerFriend(eYield) * max(GC.getGame().GetNumMinorCivsAlive() / 4, kPlayer.GetNumCSFriends()));
+		iFlatYield += (pkBuildingInfo->GetYieldPerFriendTimes100(eYield) * max(GC.getGame().GetNumMinorCivsAlive() / 400, kPlayer.GetNumCSFriends()));
 	}
 	if (pkBuildingInfo->GetYieldFromInternal(eYield) > 0)
 	{
