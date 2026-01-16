@@ -433,6 +433,7 @@ VALUES
 	('UNIT_SPAWN_NUM_CHOICES', 5), -- Number of top choices considered when spawning a random free unit. Also used for militaristic city states' unique unit choice.
 	('BLOCKADED_CITY_ATTACK_MODIFIER', 0), -- Attack bonus against blockaded cities
 	('GWAM_THRESHOLD_DECREASE', 0), -- Flat GPP cost reduction for GWAM
+	('HURRY_GOLD_BUILDING_COST_PERCENT', 60), -- How much % of production Cost determines cost of investment
 	('BALANCE_BUILDING_INVESTMENT_BASELINE', -50), -- Cost modifier for building investment
 	('BALANCE_UNIT_INVESTMENT_BASELINE', -50), -- Cost modifier for unit investment
 	('BALANCE_PRODUCTION_DESERT_IMPROVEMENT', 0), -- Production yield change on featureless flat desert with improved resource
