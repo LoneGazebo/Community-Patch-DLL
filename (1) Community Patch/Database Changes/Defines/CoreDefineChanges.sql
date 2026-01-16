@@ -434,8 +434,8 @@ VALUES
 	('BLOCKADED_CITY_ATTACK_MODIFIER', 0), -- Attack bonus against blockaded cities
 	('GWAM_THRESHOLD_DECREASE', 0), -- Flat GPP cost reduction for GWAM
 	('HURRY_GOLD_BUILDING_COST_PERCENT', 60), -- How much % of production Cost determines cost of investment
-	('BALANCE_BUILDING_INVESTMENT_BASELINE', -50), -- Cost modifier for building investment
-	('BALANCE_UNIT_INVESTMENT_BASELINE', -50), -- Cost modifier for unit investment
+	('BALANCE_BUILDING_INVESTMENT_BASELINE', -50), -- How much of total cost is provided by building investment
+	('BALANCE_UNIT_INVESTMENT_BASELINE', -50), -- How much of total cost is provided by unit investment
 	('BALANCE_PRODUCTION_DESERT_IMPROVEMENT', 0), -- Production yield change on featureless flat desert with improved resource
 	('BALANCE_CONQUEST_REDUCTION_BOOST', 0), -- Reduce resistance turns when annexing cities. Base is hardcoded per level of influence, this adds to it.
 	('EMBARKED_VISIBILITY_RANGE', 1), -- Base vision when embarked
