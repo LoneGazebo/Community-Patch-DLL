@@ -1071,7 +1071,7 @@ int CvDealAI::GetTradeItemValue(TradeableItems eItem, bool bFromMe, PlayerTypes 
 		}
 		if (eWinner != NO_PLAYER)
 		{
-			iItemValue = GET_PLAYER(eWinner).GetDealAI()->GetTradeItemValue(eItem, !bFromMe, eWinner == eMyPlayer ? eOtherPlayer : eMyPlayer, iData1, iData2, iData3, bFlag1, iDuration, bIsAIOffer, false);
+			iItemValue = GET_PLAYER(eWinner).GetDealAI()->GetTradeItemValue(eItem, (eWinner == eMyPlayer) == bFromMe, eWinner == eMyPlayer ? eOtherPlayer : eMyPlayer, iData1, iData2, iData3, bFlag1, iDuration, bIsAIOffer, false);
 			// resources which the winner evaluates as 0 must be impossible to trade, otherwise an unlimited amount of them could be added to the deal
 			if (iItemValue == 0 && eItem == TRADE_ITEM_RESOURCES)
 			{
