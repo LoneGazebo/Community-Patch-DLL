@@ -425,10 +425,14 @@ function OnUnitSelectionChange(iPlayerID, iUnitID, i, j, k, isSelected)
         -- workaround for when flag is clicked, need to put the correct
         -- UI.SetInterfaceMode back into place
         SetSquadsMode(currentMode);
-        return 
+        return
     end
 
-    Events.ClearHexHighlights();
+    -- Don't clear highlights if in city/unit range attack mode
+    local interfaceMode = UI.GetInterfaceMode();
+    if interfaceMode ~= InterfaceModeTypes.INTERFACEMODE_CITY_RANGE_ATTACK and interfaceMode ~= InterfaceModeTypes.INTERFACEMODE_RANGE_ATTACK then
+        Events.ClearHexHighlights();
+    end
     if (isSelected) then
         local pPlayer = Players[iPlayerID];
         local pUnit = pPlayer:GetUnitByID(iUnitID);
