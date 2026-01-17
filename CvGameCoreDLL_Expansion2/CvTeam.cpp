@@ -6182,9 +6182,6 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 				if(eResource != NO_RESOURCE)
 				{
 					CvResourceInfo* pResourceInfo = GC.getResourceInfo(eResource);
-					ASSERT(pResourceInfo);
-					if (!pResourceInfo)
-						continue;
 
 					if(bNewValue)
 					{
@@ -6375,74 +6372,6 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 							}
 						}
 					}
-					// Resource Connection
-					if(pLoopPlot->getTeam() == GetID())
-					{
-						// Check if this tech unlocks city trade for any of a team's players, and check if the resource has already been unlocked
-						bool bUnlocksResource = false;
-						bool bResourceUnlocked = false;
-						TechTypes eTech = (TechTypes)pResourceInfo->getImproveTech();
-						for (std::vector<PlayerTypes>::const_iterator iI = m_members.begin(); iI != m_members.end(); ++iI)
-						{
-							const PlayerTypes ePlayer = (PlayerTypes)*iI;
-							CvPlayer* pPlayer = &GET_PLAYER(ePlayer);
-
-							if (pPlayer && pPlayer->isAlive())
-							{
-								// Has this resource been unlocked by another tech?
-								if (eTech != eIndex && GetTeamTechs()->HasTech(eTech))
-								{
-									bResourceUnlocked = true;
-									break; // Resource already unlocked, so we're stopping the loop
-								}
-								// If the resource is still locked, will eIndex unlock our resource?
-								else if (!bUnlocksResource && eTech == eIndex)
-								{
-									bUnlocksResource = true;
-								}
-							}
-						}
-
-						if(!bResourceUnlocked && bUnlocksResource)
-						{
-							for (int iI = 0; iI < MAX_PLAYERS; iI++)
-							{
-								const PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iI);
-								CvPlayerAI& kLoopPlayer = GET_PLAYER(eLoopPlayer);
-								if (kLoopPlayer.isAlive() && kLoopPlayer.getTeam() == GetID() && pLoopPlot->getOwner() == eLoopPlayer)
-								{
-									// We now have a new Tech
-									if (bNewValue)
-									{
-										// slewis - added in so resources wouldn't be double counted when the minor civ researches the technology
-										if (!(kLoopPlayer.isMinorCiv() && pLoopPlot->IsImprovedByGiftFromMajor()))
-										{
-											if (pLoopPlot->IsResourceImprovedForOwner())
-											{
-												// the resource is now improved
-												kLoopPlayer.addResourcesOnPlotToTotal(pLoopPlot);
-												kLoopPlayer.removeResourcesOnPlotFromUnimproved(pLoopPlot);
-											}
-										}
-
-									}
-									// Removing Tech
-									else
-									{
-										if (!(kLoopPlayer.isMinorCiv() && pLoopPlot->IsImprovedByGiftFromMajor()))
-										{
-											if (pLoopPlot->IsResourceImprovedForOwner(/*bIgnoreTechPrereqs*/ true))
-											{
-												// the resource was previously improved
-												kLoopPlayer.removeResourcesOnPlotFromTotal(pLoopPlot, false, /*bIgnoreTechPrereqs*/ true);
-												kLoopPlayer.addResourcesOnPlotToUnimproved(pLoopPlot, false, /*bIgnoreTechPrereqs*/ true);
-											}
-										}
-									}
-								}
-							}
-						}
-					}
 				}
 			}
 		}
@@ -6470,6 +6399,82 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 		}
 
 		processTech(eIndex, ((bNewValue) ? 1 : -1), bNoBonus);
+
+		// process resources that are now improved
+		if (!pkTechInfo->IsRepeat())
+		{
+			const int iNumPlots = GC.getMap().numPlots();
+			for (int iPlotLoop = 0; iPlotLoop < iNumPlots; iPlotLoop++)
+			{
+				CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
+				const ResourceTypes eResource = pLoopPlot->getResourceType();
+				if (eResource != NO_RESOURCE)
+				{
+					CvResourceInfo* pResourceInfo = GC.getResourceInfo(eResource);
+					// Resource Connection
+					if (pLoopPlot->getTeam() == GetID())
+					{
+						// Check if this tech unlocks city trade for any of a team's players, and check if the resource has already been unlocked
+						bool bUnlocksResource = false;
+						bool bResourceUnlocked = false;
+						TechTypes eTech = (TechTypes)pResourceInfo->getImproveTech();
+						for (std::vector<PlayerTypes>::const_iterator iI = m_members.begin(); iI != m_members.end(); ++iI)
+						{
+							const PlayerTypes ePlayer = (PlayerTypes)*iI;
+							CvPlayer* pPlayer = &GET_PLAYER(ePlayer);
+
+							if (pPlayer && pPlayer->isAlive())
+							{
+								// Has this resource been unlocked by another tech?
+								if (eTech != eIndex && GetTeamTechs()->HasTech(eTech))
+								{
+									bResourceUnlocked = true;
+									break; // Resource already unlocked, so we're stopping the loop
+								}
+								// If the resource is still locked, will eIndex unlock our resource?
+								else if (!bUnlocksResource && eTech == eIndex)
+								{
+									bUnlocksResource = true;
+								}
+							}
+						}
+
+						if (!bResourceUnlocked && bUnlocksResource)
+						{
+							CvPlayerAI& kPlotOwner = GET_PLAYER(pLoopPlot->getOwner());
+							// We now have a new Tech
+							if (bNewValue)
+							{
+								// slewis - added in so resources wouldn't be double counted when the minor civ researches the technology
+								if (!(kPlotOwner.isMinorCiv() && pLoopPlot->IsImprovedByGiftFromMajor()))
+								{
+									if (pLoopPlot->IsResourceImprovedForOwner())
+									{
+										// kPlotOwner resource is now improved
+										kPlotOwner.addResourcesOnPlotToTotal(pLoopPlot);
+										kPlotOwner.removeResourcesOnPlotFromUnimproved(pLoopPlot);
+									}
+								}
+
+							}
+							// Removing Tech
+							else
+							{
+								if (!(kPlotOwner.isMinorCiv() && pLoopPlot->IsImprovedByGiftFromMajor()))
+								{
+									if (pLoopPlot->IsResourceImprovedForOwner(/*bIgnoreTechPrereqs*/ true))
+									{
+										// the resource was previously improved
+										kPlotOwner.removeResourcesOnPlotFromTotal(pLoopPlot, false, /*bIgnoreTechPrereqs*/ true);
+										kPlotOwner.addResourcesOnPlotToUnimproved(pLoopPlot, false, /*bIgnoreTechPrereqs*/ true);
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
 
 		//Antiquity site notifications.
 		//Notifications for Artifacts and Hidden Artifacts have to come AFTER processTech because they may not have been spawned yet.
