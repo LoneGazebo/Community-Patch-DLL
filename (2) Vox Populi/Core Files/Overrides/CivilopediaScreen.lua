@@ -2533,12 +2533,18 @@ CivilopediaCategory[CategoryGameConcepts].SelectArticle = function( conceptID, s
 	ClearArticle();
 
 	if shouldAddToList == addToList then
+		local article = categorizedList[(CategoryGameConcepts * absurdlyLargeNumTopicsInCategory) + conceptID];
+		if article then
 		currentTopic = currentTopic + 1;
-		listOfTopicsViewed[currentTopic] = categorizedList[(CategoryGameConcepts * absurdlyLargeNumTopicsInCategory) + conceptID];
-		for i = currentTopic + 1, endTopic, 1 do
-			listOfTopicsViewed[i] = nil;
+			listOfTopicsViewed[currentTopic] = article
+			for i = currentTopic + 1, endTopic, 1 do
+				listOfTopicsViewed[i] = nil;
+			end
+			endTopic = currentTopic;
+		else
+			print("Warning: GameConcepts Article could not be added to list of viewed topics: List ID " .. 
+				(CategoryGameConcepts * absurdlyLargeNumTopicsInCategory) + conceptID)
 		end
-		endTopic = currentTopic;
 	end
 
 	if conceptID ~= -1 then
@@ -2590,12 +2596,18 @@ CivilopediaCategory[CategoryTech].SelectArticle = function( techID, shouldAddToL
 	ClearArticle();
 
 	if shouldAddToList == addToList then
-		currentTopic = currentTopic + 1;
-		listOfTopicsViewed[currentTopic] = categorizedList[(CategoryTech * absurdlyLargeNumTopicsInCategory) + techID];
-		for i = currentTopic + 1, endTopic, 1 do
-			listOfTopicsViewed[i] = nil;
+		local article = categorizedList[(CategoryTech * absurdlyLargeNumTopicsInCategory) + techID];
+		if article then
+			currentTopic = currentTopic + 1;
+			listOfTopicsViewed[currentTopic] = article
+			for i = currentTopic + 1, endTopic, 1 do
+				listOfTopicsViewed[i] = nil;
+			end
+			endTopic = currentTopic;
+		else
+			print("Warning: Tech Article could not be added to list of viewed topics: List ID " .. 
+				(CategoryTech * absurdlyLargeNumTopicsInCategory) + techID)
 		end
-		endTopic = currentTopic;
 	end
 
 	if techID ~= -1 then
@@ -2881,12 +2893,18 @@ CivilopediaCategory[CategoryUnits].SelectArticle = function( unitID, shouldAddTo
 	ClearArticle();
 
 	if shouldAddToList == addToList then
-		currentTopic = currentTopic + 1;
-		listOfTopicsViewed[currentTopic] = categorizedList[(CategoryUnits * absurdlyLargeNumTopicsInCategory) + unitID];
-		for i = currentTopic + 1, endTopic, 1 do
-			listOfTopicsViewed[i] = nil;
+		local article = categorizedList[(CategoryUnits * absurdlyLargeNumTopicsInCategory) + unitID];
+		if article then
+			currentTopic = currentTopic + 1;
+			listOfTopicsViewed[currentTopic] = article
+			for i = currentTopic + 1, endTopic, 1 do
+				listOfTopicsViewed[i] = nil;
+			end
+			endTopic = currentTopic;
+		else
+			print("Warning: Unit Article could not be added to list of viewed topics: List ID " .. 
+				(CategoryUnits * absurdlyLargeNumTopicsInCategory) + unitID)
 		end
-		endTopic = currentTopic;
 	end
 
 	if unitID ~= -1 then
@@ -3362,12 +3380,18 @@ CivilopediaCategory[CategoryPromotions].SelectArticle = function( promotionID, s
 	ClearArticle();
 
 	if shouldAddToList == addToList then
-		currentTopic = currentTopic + 1;
-		listOfTopicsViewed[currentTopic] = categorizedList[(CategoryPromotions * absurdlyLargeNumTopicsInCategory) + promotionID];
-		for i = currentTopic + 1, endTopic, 1 do
-			listOfTopicsViewed[i] = nil;
+		local article = categorizedList[(CategoryPromotions * absurdlyLargeNumTopicsInCategory) + promotionID];
+		if article then
+			currentTopic = currentTopic + 1;
+			listOfTopicsViewed[currentTopic] = article
+			for i = currentTopic + 1, endTopic, 1 do
+				listOfTopicsViewed[i] = nil;
+			end
+			endTopic = currentTopic;
+		else
+			print("Warning: Promotion Article could not be added to list of viewed topics: List ID " .. 
+				(CategoryPromotions * absurdlyLargeNumTopicsInCategory) + promotionID)
 		end
-		endTopic = currentTopic;
 	end
 
 	if promotionID ~= -1 then
@@ -4412,7 +4436,13 @@ function SelectBuildingOrWonderArticle( buildingID )
 					textureSheet = defaultErrorTextureSheet;
 					textureOffset = nullOffset;
 				end
-				UpdateSmallButton( buttonAdded, thisBuildingInstance.ReplaceImage, thisBuildingInstance.ReplaceButton, textureSheet, textureOffset, CategoryBuildings, Locale.ConvertTextKey( defaultBuilding.Description ), defaultBuilding.ID );
+				local buildingCategory = CategoryBuildings;
+				local defaultBuildingClass = GameInfo.BuildingClasses[defaultBuilding.BuildingClass];
+				local defaultBuildingInfo = GameInfo.Buildings[defaultBuildingClass.DefaultBuilding];
+				if defaultBuildingClass and (defaultBuildingClass.MaxGlobalInstances > 0 or (defaultBuildingClass.MaxPlayerInstances == 1 and defaultBuildingInfo.SpecialistCount == 0) or thisBuildingClass.MaxTeamInstances > 0) then
+					buildingCategory = CategoryWonders;
+				end
+				UpdateSmallButton( buttonAdded, thisBuildingInstance.ReplaceImage, thisBuildingInstance.ReplaceButton, textureSheet, textureOffset, buildingCategory, Locale.ConvertTextKey( defaultBuilding.Description ), defaultBuilding.ID );
 				buttonAdded = buttonAdded + 1;
 			end
 		end
@@ -4808,12 +4838,18 @@ CivilopediaCategory[CategoryBuildings].SelectArticle = function( buildingID, sho
 	ClearArticle();
 
 	if shouldAddToList == addToList then
-		currentTopic = currentTopic + 1;
-		listOfTopicsViewed[currentTopic] = categorizedList[(CategoryBuildings * absurdlyLargeNumTopicsInCategory) + buildingID];
-		for i = currentTopic + 1, endTopic, 1 do
-			listOfTopicsViewed[i] = nil;
+		local article = categorizedList[(CategoryBuildings * absurdlyLargeNumTopicsInCategory) + buildingID];
+		if article then
+			currentTopic = currentTopic + 1;
+			listOfTopicsViewed[currentTopic] = article
+			for i = currentTopic + 1, endTopic, 1 do
+				listOfTopicsViewed[i] = nil;
+			end
+			endTopic = currentTopic;
+		else
+			print("Warning: Building Article could not be added to list of viewed topics: List ID " .. 
+				(CategoryBuildings * absurdlyLargeNumTopicsInCategory) + buildingID)
 		end
-		endTopic = currentTopic;
 	end
 
 	SelectBuildingOrWonderArticle( buildingID );
@@ -4832,12 +4868,18 @@ CivilopediaCategory[CategoryWonders].SelectArticle = function( wonderID, shouldA
 	ClearArticle();
 
 	if shouldAddToList == addToList then
-		currentTopic = currentTopic + 1;
-		listOfTopicsViewed[currentTopic] = categorizedList[(CategoryWonders * absurdlyLargeNumTopicsInCategory) + wonderID];
-		for i = currentTopic + 1, endTopic, 1 do
-			listOfTopicsViewed[i] = nil;
+		local article = categorizedList[(CategoryWonders * absurdlyLargeNumTopicsInCategory) + wonderID];
+		if article then
+			currentTopic = currentTopic + 1;
+			listOfTopicsViewed[currentTopic] = article
+			for i = currentTopic + 1, endTopic, 1 do
+				listOfTopicsViewed[i] = nil;
+			end
+			endTopic = currentTopic;
+		else
+			print("Warning: Wonder Article could not be added to list of viewed topics: List ID " .. 
+				(CategoryWonders * absurdlyLargeNumTopicsInCategory) + wonderID)
 		end
-		endTopic = currentTopic;
 	end
 
 	if wonderID < 1000 then
@@ -4966,12 +5008,18 @@ CivilopediaCategory[CategoryPolicies].SelectArticle = function( policyID, should
 	ClearArticle();
 
 	if shouldAddToList == addToList then
-		currentTopic = currentTopic + 1;
-		listOfTopicsViewed[currentTopic] = categorizedList[(CategoryPolicies * absurdlyLargeNumTopicsInCategory) + policyID];
-		for i = currentTopic + 1, endTopic, 1 do
-			listOfTopicsViewed[i] = nil;
+		local article = categorizedList[(CategoryPolicies * absurdlyLargeNumTopicsInCategory) + policyID];
+		if article then
+			currentTopic = currentTopic + 1;
+			listOfTopicsViewed[currentTopic] = article
+			for i = currentTopic + 1, endTopic, 1 do
+				listOfTopicsViewed[i] = nil;
+			end
+			endTopic = currentTopic;
+		else
+			print("Warning: Policy Article could not be added to list of viewed topics: List ID " .. 
+				(CategoryPolicies * absurdlyLargeNumTopicsInCategory) + policyID)
 		end
-		endTopic = currentTopic;
 	end
 
 	if policyID ~= -1 then
@@ -5081,12 +5129,18 @@ CivilopediaCategory[CategoryPeople].SelectArticle =  function( rawPeopleID, shou
 	ClearArticle();
 
 	if shouldAddToList == addToList then
-		currentTopic = currentTopic + 1;
-		listOfTopicsViewed[currentTopic] = categorizedList[(CategoryPeople * absurdlyLargeNumTopicsInCategory) + rawPeopleID];
-		for i = currentTopic + 1, endTopic, 1 do
-			listOfTopicsViewed[i] = nil;
+		local article = categorizedList[(CategoryPeople * absurdlyLargeNumTopicsInCategory) + rawPeopleID];
+		if article then
+			currentTopic = currentTopic + 1;
+			listOfTopicsViewed[currentTopic] = article
+			for i = currentTopic + 1, endTopic, 1 do
+				listOfTopicsViewed[i] = nil;
+			end
+			endTopic = currentTopic;
+		else
+			print("Warning: Specialist Article could not be added to list of viewed topics: List ID " .. 
+				(CategoryPeople * absurdlyLargeNumTopicsInCategory) + rawPeopleID)
 		end
-		endTopic = currentTopic;
 	end
 
 	if rawPeopleID < 1000 then
@@ -5312,12 +5366,18 @@ CivilopediaCategory[CategoryCivilizations].SelectArticle = function( rawCivID, s
 	ClearArticle();
 
 	if shouldAddToList == addToList then
-		currentTopic = currentTopic + 1;
-		listOfTopicsViewed[currentTopic] = categorizedList[(CategoryCivilizations * absurdlyLargeNumTopicsInCategory) + rawCivID];
-		for i = currentTopic + 1, endTopic, 1 do
-			listOfTopicsViewed[i] = nil;
+		local article = categorizedList[(CategoryCivilizations * absurdlyLargeNumTopicsInCategory) + rawCivID];
+		if article then
+			currentTopic = currentTopic + 1;
+			listOfTopicsViewed[currentTopic] = article
+			for i = currentTopic + 1, endTopic, 1 do
+				listOfTopicsViewed[i] = nil;
+			end
+			endTopic = currentTopic;
+		else
+			print("Warning: Civilization Article could not be added to list of viewed topics: List ID " .. 
+				(CategoryCivilizations * absurdlyLargeNumTopicsInCategory) + rawCivID)
 		end
-		endTopic = currentTopic;
 	end
 
 	if rawCivID < 1000 then
@@ -5851,12 +5911,18 @@ CivilopediaCategory[CategoryCityStates].SelectArticle = function( cityStateID, s
 	ClearArticle();
 
 	if shouldAddToList == addToList then
-		currentTopic = currentTopic + 1;
-		listOfTopicsViewed[currentTopic] = categorizedList[(CategoryCityStates * absurdlyLargeNumTopicsInCategory) + cityStateID];
-		for i = currentTopic + 1, endTopic, 1 do
-			listOfTopicsViewed[i] = nil;
+		local article = categorizedList[(CategoryCityStates * absurdlyLargeNumTopicsInCategory) + cityStateID];
+		if article then
+			currentTopic = currentTopic + 1;
+			listOfTopicsViewed[currentTopic] = article
+			for i = currentTopic + 1, endTopic, 1 do
+				listOfTopicsViewed[i] = nil;
+			end
+			endTopic = currentTopic;
+		else
+			print("Warning: City-State Article could not be added to list of viewed topics: List ID " .. 
+				(CategoryCityStates * absurdlyLargeNumTopicsInCategory) + cityStateID)
 		end
-		endTopic = currentTopic;
 	end
 
 	if cityStateID ~= -1 then
@@ -5896,12 +5962,18 @@ CivilopediaCategory[CategoryTerrain].SelectArticle = function( rawTerrainID, sho
 	ClearArticle();
 
 	if shouldAddToList == addToList then
-		currentTopic = currentTopic + 1;
-		listOfTopicsViewed[currentTopic] = categorizedList[(CategoryTerrain * absurdlyLargeNumTopicsInCategory) + rawTerrainID];
-		for i = currentTopic + 1, endTopic, 1 do
-			listOfTopicsViewed[i] = nil;
+		local article = categorizedList[(CategoryTerrain * absurdlyLargeNumTopicsInCategory) + rawTerrainID];
+		if article then
+			currentTopic = currentTopic + 1;
+			listOfTopicsViewed[currentTopic] = article
+			for i = currentTopic + 1, endTopic, 1 do
+				listOfTopicsViewed[i] = nil;
+			end
+			endTopic = currentTopic;
+		else
+			print("Warning: Terrain Article could not be added to list of viewed topics: List ID " .. 
+				(CategoryTerrain * absurdlyLargeNumTopicsInCategory) + rawTerrainID)
 		end
-		endTopic = currentTopic;
 	end
 
 	if rawTerrainID < 1000 then
@@ -6253,12 +6325,18 @@ CivilopediaCategory[CategoryResources].SelectArticle = function( resourceID, sho
 	ClearArticle();
 
 	if shouldAddToList == addToList then
-		currentTopic = currentTopic + 1;
-		listOfTopicsViewed[currentTopic] = categorizedList[(CategoryResources * absurdlyLargeNumTopicsInCategory) + resourceID];
-		for i = currentTopic + 1, endTopic, 1 do
-			listOfTopicsViewed[i] = nil;
+		local article = categorizedList[(CategoryResources * absurdlyLargeNumTopicsInCategory) + resourceID];
+		if article then
+			currentTopic = currentTopic + 1;
+			listOfTopicsViewed[currentTopic] = article
+			for i = currentTopic + 1, endTopic, 1 do
+				listOfTopicsViewed[i] = nil;
+			end
+			endTopic = currentTopic;
+		else
+			print("Warning: Resource Article could not be added to list of viewed topics: List ID " .. 
+				(CategoryResources * absurdlyLargeNumTopicsInCategory) + resourceID)
 		end
-		endTopic = currentTopic;
 	end
 
 	local thisPlayer = nil;
@@ -6509,12 +6587,18 @@ CivilopediaCategory[CategoryImprovements].SelectArticle = function( improvementI
 	ClearArticle();
 
 	if shouldAddToList == addToList then
-		currentTopic = currentTopic + 1;
-		listOfTopicsViewed[currentTopic] = categorizedList[(CategoryImprovements * absurdlyLargeNumTopicsInCategory) + improvementID];
-		for i = currentTopic + 1, endTopic, 1 do
-			listOfTopicsViewed[i] = nil;
+		local article = categorizedList[(CategoryImprovements * absurdlyLargeNumTopicsInCategory) + improvementID];
+		if article then
+			currentTopic = currentTopic + 1;
+			listOfTopicsViewed[currentTopic] = article
+			for i = currentTopic + 1, endTopic, 1 do
+				listOfTopicsViewed[i] = nil;
+			end
+			endTopic = currentTopic;
+		else
+			print("Warning: Improvement Article could not be added to list of viewed topics: List ID " .. 
+				(CategoryImprovements * absurdlyLargeNumTopicsInCategory) + improvementID)
 		end
-		endTopic = currentTopic;
 	end
 
 	if improvementID ~= -1 and improvementID < 1000 then
@@ -6938,12 +7022,18 @@ CivilopediaCategory[CategoryBeliefs].SelectArticle = function(entryID, shouldAdd
 	offset = offset + entryID[2];
 
 	if shouldAddToList == addToList then
-		currentTopic = currentTopic + 1;
-		listOfTopicsViewed[currentTopic] = categorizedList[(CategoryBeliefs * absurdlyLargeNumTopicsInCategory) + offset];
-		for i = currentTopic + 1, endTopic, 1 do
-			listOfTopicsViewed[i] = nil;
+		local article = categorizedList[(CategoryBeliefs * absurdlyLargeNumTopicsInCategory) + offset];
+		if article then
+			currentTopic = currentTopic + 1;
+			listOfTopicsViewed[currentTopic] = article
+			for i = currentTopic + 1, endTopic, 1 do
+				listOfTopicsViewed[i] = nil;
+			end
+			endTopic = currentTopic;
+		else
+			print("Warning: Belief Article could not be added to list of viewed topics: List ID " .. 
+				(CategoryBeliefs * absurdlyLargeNumTopicsInCategory) + offset)
 		end
-		endTopic = currentTopic;
 	end
 
 	if (entryID ~= nil) then
@@ -7001,12 +7091,18 @@ CivilopediaCategory[CategoryWorldCongress].SelectArticle = function(entryID, sho
 	offset = offset + entryID[2];
 
 	if shouldAddToList == addToList then
-		currentTopic = currentTopic + 1;
-		listOfTopicsViewed[currentTopic] = categorizedList[(CategoryWorldCongress * absurdlyLargeNumTopicsInCategory) + offset];
-		for i = currentTopic + 1, endTopic, 1 do
-			listOfTopicsViewed[i] = nil;
+		local article = categorizedList[(CategoryWorldCongress * absurdlyLargeNumTopicsInCategory) + offset];
+		if article then
+			currentTopic = currentTopic + 1;
+			listOfTopicsViewed[currentTopic] = article
+			for i = currentTopic + 1, endTopic, 1 do
+				listOfTopicsViewed[i] = nil;
+			end
+			endTopic = currentTopic;
+		else
+			print("Warning: World Congress Article could not be added to list of viewed topics: List ID " .. 
+				(CategoryWorldCongress * absurdlyLargeNumTopicsInCategory) + offset)
 		end
-		endTopic = currentTopic;
 	end
 
 	if (entryID ~= nil) then
@@ -7115,12 +7211,18 @@ CivilopediaCategory[CategoryCorporations].SelectArticle = function(corporationID
 	local buttonAdded = 0;
 
 	if shouldAddToList == addToList then
-		currentTopic = currentTopic + 1;
-		listOfTopicsViewed[currentTopic] = categorizedList[(CategoryCorporations * absurdlyLargeNumTopicsInCategory) + corporationID];
-		for i = currentTopic + 1, endTopic, 1 do
-			listOfTopicsViewed[i] = nil;
+		local article = categorizedList[(CategoryCorporations * absurdlyLargeNumTopicsInCategory) + corporationID];
+		if article then
+			currentTopic = currentTopic + 1;
+			listOfTopicsViewed[currentTopic] = article
+			for i = currentTopic + 1, endTopic, 1 do
+				listOfTopicsViewed[i] = nil;
+			end
+			endTopic = currentTopic;
+		else
+			print("Warning: Corporation Article could not be added to list of viewed topics: List ID " .. 
+				(CategoryCorporations * absurdlyLargeNumTopicsInCategory) + corporationID)
 		end
-		endTopic = currentTopic;
 	end
 
 	if (corporationID ~= -1 and corporationID < 1000) then
