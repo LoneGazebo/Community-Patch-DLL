@@ -517,9 +517,14 @@ bool CvNotifications::GetEndTurnBlockedType(EndTurnBlockingTypes& eBlockingType,
 				break;
 
 			case NOTIFICATION_POLICY:
-				eBlockingType = ENDTURN_BLOCKING_POLICY;
-				iNotificationIndex = m_aNotifications[iIndex].m_iLookupIndex;
-				return true;
+				// Only block if player can actually adopt a policy
+				if (GET_PLAYER(m_ePlayer).getJONSCultureTimes100() >= GET_PLAYER(m_ePlayer).getNextPolicyCost() * 100
+					&& GET_PLAYER(m_ePlayer).GetPlayerPolicies()->GetNumPoliciesCanBeAdopted() > 0)
+				{
+					eBlockingType = ENDTURN_BLOCKING_POLICY;
+					iNotificationIndex = m_aNotifications[iIndex].m_iLookupIndex;
+					return true;
+				}
 				break;
 
 			case NOTIFICATION_FREE_POLICY:
@@ -690,7 +695,13 @@ void CvNotifications::GetAllEndTurnBlockers(std::vector<EndTurnBlocker>& blocker
 				}
 				break;
 			case NOTIFICATION_POLICY:
-				blocker.eBlockingType = ENDTURN_BLOCKING_POLICY;
+				// Only report as blocker if player can actually adopt a policy
+				// (has enough culture AND there are policies available to adopt)
+				if (GET_PLAYER(m_ePlayer).getJONSCultureTimes100() >= GET_PLAYER(m_ePlayer).getNextPolicyCost() * 100
+					&& GET_PLAYER(m_ePlayer).GetPlayerPolicies()->GetNumPoliciesCanBeAdopted() > 0)
+				{
+					blocker.eBlockingType = ENDTURN_BLOCKING_POLICY;
+				}
 				break;
 			case NOTIFICATION_FREE_POLICY:
 				blocker.eBlockingType = ENDTURN_BLOCKING_FREE_POLICY;
