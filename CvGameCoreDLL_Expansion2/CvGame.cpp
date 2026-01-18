@@ -1271,13 +1271,15 @@ void CvGame::SendTurnStartToPipe()
 
 	// Include all end-turn blockers so LLM knows what to resolve before ending turn
 	payload << ",\"blockers\":[";
+	int blockerCount = 0;
 	if (eActivePlayer != NO_PLAYER && kActivePlayer.GetNotifications())
 	{
+		// Get notification-based blockers (research, production, policy, religion, etc.)
 		std::vector<CvNotifications::EndTurnBlocker> blockers;
 		kActivePlayer.GetNotifications()->GetAllEndTurnBlockers(blockers);
 		for (size_t i = 0; i < blockers.size(); i++)
 		{
-			if (i > 0) payload << ",";
+			if (blockerCount > 0) payload << ",";
 			payload << "{\"type\":\"" << GetEndTurnBlockingTypeName(blockers[i].eBlockingType) << "\"";
 			payload << ",\"type_id\":" << static_cast<int>(blockers[i].eBlockingType);
 			payload << ",\"notification_index\":" << blockers[i].iNotificationIndex;
@@ -1290,6 +1292,56 @@ void CvGame::SendTurnStartToPipe()
 				payload << ",\"extra_game_data\":" << blockers[i].iExtraGameData;
 			}
 			payload << "}";
+			blockerCount++;
+		}
+	}
+
+	// Add unit-based blockers (units needing orders, promotions, stacked units)
+	if (eActivePlayer != NO_PLAYER)
+	{
+		// Check for units needing promotions
+		if (!isOption(GAMEOPTION_PROMOTION_SAVING))
+		{
+			int iLoop = 0;
+			for (const CvUnit* pLoopUnit = kActivePlayer.firstUnit(&iLoop); pLoopUnit; pLoopUnit = kActivePlayer.nextUnit(&iLoop))
+			{
+				if (pLoopUnit->isPromotionReady() && !pLoopUnit->isDelayedDeath())
+				{
+					if (blockerCount > 0) payload << ",";
+					payload << "{\"type\":\"" << GetEndTurnBlockingTypeName(ENDTURN_BLOCKING_UNIT_PROMOTION) << "\"";
+					payload << ",\"type_id\":" << static_cast<int>(ENDTURN_BLOCKING_UNIT_PROMOTION);
+					payload << ",\"unit_id\":" << pLoopUnit->GetID();
+					CvString unitName = pLoopUnit->getName();
+					payload << ",\"unit_name\":\"" << PipeJson::Escape(unitName.c_str()) << "\"";
+					payload << ",\"x\":" << pLoopUnit->getX();
+					payload << ",\"y\":" << pLoopUnit->getY();
+					payload << "}";
+					blockerCount++;
+				}
+			}
+		}
+
+		// Check for units needing orders (ready to move)
+		int iLoop = 0;
+		for (const CvUnit* pLoopUnit = kActivePlayer.firstUnit(&iLoop); pLoopUnit; pLoopUnit = kActivePlayer.nextUnit(&iLoop))
+		{
+			if (pLoopUnit->ReadyToMove() && !pLoopUnit->isDelayedDeath() && !pLoopUnit->TurnProcessed())
+			{
+				if (blockerCount > 0) payload << ",";
+				// Check if stacked (can't hold on current tile)
+				EndTurnBlockingTypes eUnitBlockType = pLoopUnit->canHold(pLoopUnit->plot())
+					? ENDTURN_BLOCKING_UNITS
+					: ENDTURN_BLOCKING_STACKED_UNITS;
+				payload << "{\"type\":\"" << GetEndTurnBlockingTypeName(eUnitBlockType) << "\"";
+				payload << ",\"type_id\":" << static_cast<int>(eUnitBlockType);
+				payload << ",\"unit_id\":" << pLoopUnit->GetID();
+				CvString unitName = pLoopUnit->getName();
+				payload << ",\"unit_name\":\"" << PipeJson::Escape(unitName.c_str()) << "\"";
+				payload << ",\"x\":" << pLoopUnit->getX();
+				payload << ",\"y\":" << pLoopUnit->getY();
+				payload << "}";
+				blockerCount++;
+			}
 		}
 	}
 	payload << "]";
@@ -3147,13 +3199,15 @@ void CvGame::HandlePipeCommand(const std::string& commandLine)
 			os << ",\"turn\":" << getGameTurn();
 
 			os << ",\"blockers\":[";
+			int blockerCount = 0;
 			if (kPlayer.isAlive() && kPlayer.GetNotifications())
 			{
+				// Get notification-based blockers
 				std::vector<CvNotifications::EndTurnBlocker> blockers;
 				kPlayer.GetNotifications()->GetAllEndTurnBlockers(blockers);
 				for (size_t i = 0; i < blockers.size(); i++)
 				{
-					if (i > 0) os << ",";
+					if (blockerCount > 0) os << ",";
 					os << "{\"type\":\"" << GetEndTurnBlockingTypeName(blockers[i].eBlockingType) << "\"";
 					os << ",\"type_id\":" << static_cast<int>(blockers[i].eBlockingType);
 					os << ",\"notification_index\":" << blockers[i].iNotificationIndex;
@@ -3166,6 +3220,55 @@ void CvGame::HandlePipeCommand(const std::string& commandLine)
 						os << ",\"extra_game_data\":" << blockers[i].iExtraGameData;
 					}
 					os << "}";
+					blockerCount++;
+				}
+			}
+
+			// Add unit-based blockers
+			if (kPlayer.isAlive())
+			{
+				// Check for units needing promotions
+				if (!isOption(GAMEOPTION_PROMOTION_SAVING))
+				{
+					int iLoop = 0;
+					for (const CvUnit* pLoopUnit = kPlayer.firstUnit(&iLoop); pLoopUnit; pLoopUnit = kPlayer.nextUnit(&iLoop))
+					{
+						if (pLoopUnit->isPromotionReady() && !pLoopUnit->isDelayedDeath())
+						{
+							if (blockerCount > 0) os << ",";
+							os << "{\"type\":\"" << GetEndTurnBlockingTypeName(ENDTURN_BLOCKING_UNIT_PROMOTION) << "\"";
+							os << ",\"type_id\":" << static_cast<int>(ENDTURN_BLOCKING_UNIT_PROMOTION);
+							os << ",\"unit_id\":" << pLoopUnit->GetID();
+							CvString unitName = pLoopUnit->getName();
+							os << ",\"unit_name\":\"" << PipeJson::Escape(unitName.c_str()) << "\"";
+							os << ",\"x\":" << pLoopUnit->getX();
+							os << ",\"y\":" << pLoopUnit->getY();
+							os << "}";
+							blockerCount++;
+						}
+					}
+				}
+
+				// Check for units needing orders
+				int iLoop = 0;
+				for (const CvUnit* pLoopUnit = kPlayer.firstUnit(&iLoop); pLoopUnit; pLoopUnit = kPlayer.nextUnit(&iLoop))
+				{
+					if (pLoopUnit->ReadyToMove() && !pLoopUnit->isDelayedDeath() && !pLoopUnit->TurnProcessed())
+					{
+						if (blockerCount > 0) os << ",";
+						EndTurnBlockingTypes eUnitBlockType = pLoopUnit->canHold(pLoopUnit->plot())
+							? ENDTURN_BLOCKING_UNITS
+							: ENDTURN_BLOCKING_STACKED_UNITS;
+						os << "{\"type\":\"" << GetEndTurnBlockingTypeName(eUnitBlockType) << "\"";
+						os << ",\"type_id\":" << static_cast<int>(eUnitBlockType);
+						os << ",\"unit_id\":" << pLoopUnit->GetID();
+						CvString unitName = pLoopUnit->getName();
+						os << ",\"unit_name\":\"" << PipeJson::Escape(unitName.c_str()) << "\"";
+						os << ",\"x\":" << pLoopUnit->getX();
+						os << ",\"y\":" << pLoopUnit->getY();
+						os << "}";
+						blockerCount++;
+					}
 				}
 			}
 			os << "]}";
