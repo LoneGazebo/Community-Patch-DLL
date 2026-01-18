@@ -446,7 +446,7 @@
     <File md5="FC931E4734EB600194E5E14890E37E28" import="1">Core Files/Overrides/EspionageOverview.lua</File>
     <File md5="5965201A71E00881AB8639C5D6A79A04" import="1">Core Files/Overrides/EspionageOverview.xml</File>
     <File md5="D8A8BB74144BC653D26E1A07D7A9717E" import="1">Core Files/Overrides/GPList.lua</File>
-    <File md5="00000000000000000000000000000000" import="1">Core Files/Overrides/GoodyHutPopup.lua</File>
+    <File md5="6C92BD1BC5EA85AF3288482607C3240F" import="1">Core Files/Overrides/GoodyHutPopup.lua</File>
     <File md5="A0B9DBA07F98E3B8D050AAD5A247EFCB" import="1">Core Files/Overrides/HappinessInfo.lua</File>
     <File md5="3F0909308CAEA0B4F8CD7073E4DF6047" import="1">Core Files/Overrides/HappinessInfo.xml</File>
     <File md5="962424F5292F968672707CDC516E1FA3" import="1">Core Files/Overrides/InGame.lua</File>
