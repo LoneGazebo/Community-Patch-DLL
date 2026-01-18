@@ -27115,7 +27115,8 @@ void CvCity::changeUnitCombatProductionModifier(UnitCombatTypes eIndex, int iCha
 	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
 	PRECONDITION(eIndex < GC.getNumUnitCombatClassInfos(), "eIndex expected to be < GC.getNumUnitCombatInfos()");
 	m_paiUnitCombatProductionModifier[eIndex] = m_paiUnitCombatProductionModifier[eIndex] + iChange;
-	ASSERT(getUnitCombatProductionModifier(eIndex) >= 0);
+	// some modmods add buildings with negative values for UnitCombatProductionModifier
+	// ASSERT(getUnitCombatProductionModifier(eIndex) >= 0);
 }
 
 
