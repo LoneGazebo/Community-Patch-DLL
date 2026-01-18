@@ -63,6 +63,18 @@ public:
 
 	bool GetEndTurnBlockedType(EndTurnBlockingTypes& eBlockingType, int& iNotificationIndex);  // gets the type of blocking and the lookup index
 
+	// Struct to hold info about a single end-turn blocker
+	struct EndTurnBlocker
+	{
+		EndTurnBlockingTypes eBlockingType;
+		int iNotificationIndex;
+		int iGameDataIndex;   // e.g., city ID for production, unit ID for units
+		int iExtraGameData;   // additional context data
+	};
+
+	// Gets ALL end-turn blocking notifications (not just the first one)
+	void GetAllEndTurnBlockers(std::vector<EndTurnBlocker>& blockers);
+
 	// access by the lua script
 	int GetNumNotifications(void) const;
 	CvString GetNotificationStr(int iZeroBasedIndex);      // ignores begin/end values

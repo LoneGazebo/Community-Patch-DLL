@@ -1254,7 +1254,7 @@ void CvGame::SendTurnStartToPipe()
 		return;
 
 	PlayerTypes eActivePlayer = getActivePlayer();
-	const CvPlayer& kActivePlayer = GET_PLAYER(eActivePlayer);
+	CvPlayer& kActivePlayer = GET_PLAYER(eActivePlayer);
 
 	std::ostringstream payload;
 	payload << "{\"type\":\"turn_start\"";
@@ -1268,6 +1268,32 @@ void CvGame::SendTurnStartToPipe()
 		payload << ",\"player_name\":\"" << PipeJson::Escape(playerName) << "\"";
 		payload << ",\"is_human\":" << (kActivePlayer.isHuman() ? "true" : "false");
 	}
+
+	// Include all end-turn blockers so LLM knows what to resolve before ending turn
+	payload << ",\"blockers\":[";
+	if (eActivePlayer != NO_PLAYER && kActivePlayer.GetNotifications())
+	{
+		std::vector<CvNotifications::EndTurnBlocker> blockers;
+		kActivePlayer.GetNotifications()->GetAllEndTurnBlockers(blockers);
+		for (size_t i = 0; i < blockers.size(); i++)
+		{
+			if (i > 0) payload << ",";
+			payload << "{\"type\":\"" << GetEndTurnBlockingTypeName(blockers[i].eBlockingType) << "\"";
+			payload << ",\"type_id\":" << static_cast<int>(blockers[i].eBlockingType);
+			payload << ",\"notification_index\":" << blockers[i].iNotificationIndex;
+			if (blockers[i].iGameDataIndex >= 0)
+			{
+				payload << ",\"game_data_index\":" << blockers[i].iGameDataIndex;
+			}
+			if (blockers[i].iExtraGameData >= 0)
+			{
+				payload << ",\"extra_game_data\":" << blockers[i].iExtraGameData;
+			}
+			payload << "}";
+		}
+	}
+	payload << "]";
+
 	payload << ",\"state\":{";
 	payload << "\"turn\":" << getGameTurn();
 	payload << ",\"playersAlive\":" << countCivPlayersAlive();
@@ -2889,7 +2915,8 @@ void CvGame::HandlePipeCommand(const std::string& commandLine)
 				PolicyBranchTypes eBranch = (PolicyBranchTypes)branchId;
 				if (pPlayerPolicies->CanUnlockPolicyBranch(eBranch))
 				{
-					pPlayerPolicies->SetPolicyBranchUnlocked(eBranch, true, false);
+					// Use DoUnlockPolicyBranch to deduct culture and update UI properly
+					pPlayerPolicies->DoUnlockPolicyBranch(eBranch);
 					CvPolicyBranchEntry* pBranchInfo = GC.getPolicyBranchInfo(eBranch);
 					if (pBranchInfo) itemName = pBranchInfo->GetDescription();
 					success = true;
@@ -2908,7 +2935,8 @@ void CvGame::HandlePipeCommand(const std::string& commandLine)
 				PolicyTypes ePolicy = (PolicyTypes)policyId;
 				if (pPlayerPolicies->CanAdoptPolicy(ePolicy))
 				{
-					pPlayerPolicies->SetPolicy(ePolicy, true, false);
+					// Use doAdoptPolicy to deduct culture and update UI properly
+					kPlayer.doAdoptPolicy(ePolicy);
 					CvPolicyEntry* pPolicyInfo = GC.getPolicyInfo(ePolicy);
 					if (pPolicyInfo) itemName = pPolicyInfo->GetDescription();
 					success = true;
@@ -3097,6 +3125,50 @@ void CvGame::HandlePipeCommand(const std::string& commandLine)
 				os << ",\"request_id\":\"" << PipeJson::Escape(requestId) << "\"";
 			}
 			os << "}";
+			m_kGameStatePipe.SendMessage(os.str());
+			return;
+		}
+		else if (msgType == "get_turn_blockers")
+		{
+			// Get all current end-turn blockers
+			std::string requestId = msg.get("request_id").asString();
+			int playerId = msg.get("player_id").asInt(-1);
+
+			PlayerTypes ePlayer = (playerId >= 0) ? (PlayerTypes)playerId : getActivePlayer();
+			CvPlayer& kPlayer = GET_PLAYER(ePlayer);
+
+			std::ostringstream os;
+			os << "{\"type\":\"turn_blockers_result\"";
+			if (!requestId.empty())
+			{
+				os << ",\"request_id\":\"" << PipeJson::Escape(requestId) << "\"";
+			}
+			os << ",\"player_id\":" << static_cast<int>(ePlayer);
+			os << ",\"turn\":" << getGameTurn();
+
+			os << ",\"blockers\":[";
+			if (kPlayer.isAlive() && kPlayer.GetNotifications())
+			{
+				std::vector<CvNotifications::EndTurnBlocker> blockers;
+				kPlayer.GetNotifications()->GetAllEndTurnBlockers(blockers);
+				for (size_t i = 0; i < blockers.size(); i++)
+				{
+					if (i > 0) os << ",";
+					os << "{\"type\":\"" << GetEndTurnBlockingTypeName(blockers[i].eBlockingType) << "\"";
+					os << ",\"type_id\":" << static_cast<int>(blockers[i].eBlockingType);
+					os << ",\"notification_index\":" << blockers[i].iNotificationIndex;
+					if (blockers[i].iGameDataIndex >= 0)
+					{
+						os << ",\"game_data_index\":" << blockers[i].iGameDataIndex;
+					}
+					if (blockers[i].iExtraGameData >= 0)
+					{
+						os << ",\"extra_game_data\":" << blockers[i].iExtraGameData;
+					}
+					os << "}";
+				}
+			}
+			os << "]}";
 			m_kGameStatePipe.SendMessage(os.str());
 			return;
 		}

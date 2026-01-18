@@ -646,6 +646,126 @@ bool CvNotifications::GetEndTurnBlockedType(EndTurnBlockingTypes& eBlockingType,
 }
 
 //	---------------------------------------------------------------------------
+// Gets ALL end-turn blocking notifications, not just the first one.
+// This allows the LLM to see all blockers upfront and resolve them before attempting end_turn.
+void CvNotifications::GetAllEndTurnBlockers(std::vector<EndTurnBlocker>& blockers)
+{
+	blockers.clear();
+
+	int iIndex = m_iNotificationsBeginIndex;
+	while(iIndex != m_iNotificationsEndIndex)
+	{
+		if(!m_aNotifications[iIndex].m_bDismissed)
+		{
+			EndTurnBlocker blocker;
+			blocker.eBlockingType = NO_ENDTURN_BLOCKING_TYPE;
+			blocker.iNotificationIndex = m_aNotifications[iIndex].m_iLookupIndex;
+			blocker.iGameDataIndex = m_aNotifications[iIndex].m_iGameDataIndex;
+			blocker.iExtraGameData = m_aNotifications[iIndex].m_iExtraGameData;
+
+			switch(m_aNotifications[iIndex].m_eNotificationType)
+			{
+			case NOTIFICATION_CITY_RANGE_ATTACK:
+			{
+				bool automaticallyEndTurns = GC.getGame().isGameMultiPlayer() ? GC.GetEngineUserInterface()->IsMPAutoEndTurnEnabled() : GC.GetEngineUserInterface()->IsSPAutoEndTurnEnabled();
+				if(automaticallyEndTurns)
+				{
+					blocker.eBlockingType = ENDTURN_BLOCKING_CITY_RANGE_ATTACK;
+				}
+				break;
+			}
+			case NOTIFICATION_DIPLO_VOTE:
+				blocker.eBlockingType = ENDTURN_BLOCKING_DIPLO_VOTE;
+				break;
+			case NOTIFICATION_PRODUCTION:
+				blocker.eBlockingType = ENDTURN_BLOCKING_PRODUCTION;
+				break;
+			case NOTIFICATION_CITY_TILE:
+				if (MOD_UI_CITY_EXPANSION)
+				{
+					blocker.eBlockingType = ENDTURN_BLOCKING_CITY_TILE;
+				}
+				break;
+			case NOTIFICATION_POLICY:
+				blocker.eBlockingType = ENDTURN_BLOCKING_POLICY;
+				break;
+			case NOTIFICATION_FREE_POLICY:
+				blocker.eBlockingType = ENDTURN_BLOCKING_FREE_POLICY;
+				break;
+			case NOTIFICATION_TECH:
+				blocker.eBlockingType = ENDTURN_BLOCKING_RESEARCH;
+				break;
+			case NOTIFICATION_FREE_TECH:
+				blocker.eBlockingType = ENDTURN_BLOCKING_FREE_TECH;
+				break;
+			case NOTIFICATION_FREE_GREAT_PERSON:
+				blocker.eBlockingType = ENDTURN_BLOCKING_FREE_ITEMS;
+				break;
+			case NOTIFICATION_FOUND_PANTHEON:
+				blocker.eBlockingType = ENDTURN_BLOCKING_FOUND_PANTHEON;
+				break;
+			case NOTIFICATION_FOUND_RELIGION:
+				blocker.eBlockingType = ENDTURN_BLOCKING_FOUND_RELIGION;
+				break;
+			case NOTIFICATION_ENHANCE_RELIGION:
+				blocker.eBlockingType = ENDTURN_BLOCKING_ENHANCE_RELIGION;
+				break;
+			case NOTIFICATION_SPY_STOLE_TECH:
+				blocker.eBlockingType = ENDTURN_BLOCKING_STEAL_TECH;
+				break;
+			case NOTIFICATION_MAYA_LONG_COUNT:
+				blocker.eBlockingType = ENDTURN_BLOCKING_MAYA_LONG_COUNT;
+				break;
+			case NOTIFICATION_FAITH_GREAT_PERSON:
+				blocker.eBlockingType = ENDTURN_BLOCKING_FAITH_GREAT_PERSON;
+				break;
+			case NOTIFICATION_ADD_REFORMATION_BELIEF:
+				blocker.eBlockingType = ENDTURN_BLOCKING_ADD_REFORMATION_BELIEF;
+				break;
+			case NOTIFICATION_LEAGUE_CALL_FOR_PROPOSALS:
+				blocker.eBlockingType = ENDTURN_BLOCKING_LEAGUE_CALL_FOR_PROPOSALS;
+				break;
+			case NOTIFICATION_CHOOSE_ARCHAEOLOGY:
+				blocker.eBlockingType = ENDTURN_BLOCKING_CHOOSE_ARCHAEOLOGY;
+				break;
+			case NOTIFICATION_LEAGUE_CALL_FOR_VOTES:
+				blocker.eBlockingType = ENDTURN_BLOCKING_LEAGUE_CALL_FOR_VOTES;
+				break;
+			case NOTIFICATION_CHOOSE_IDEOLOGY:
+				blocker.eBlockingType = ENDTURN_BLOCKING_CHOOSE_IDEOLOGY;
+				break;
+			case NOTIFICATION_PLAYER_DEAL_RECEIVED:
+				blocker.eBlockingType = ENDTURN_BLOCKING_PENDING_DEAL;
+				break;
+			case 826076831:
+			case 419811917:
+			case -1608954742:
+				blocker.eBlockingType = ENDTURN_BLOCKING_EVENT_CHOICE;
+				break;
+			case -364200720:
+				blocker.eBlockingType = ENDTURN_BLOCKING_CHOOSE_CITY_FATE;
+				break;
+			default:
+				// Non-blocking notification type
+				break;
+			}
+
+			// Only add if it's actually a blocking type
+			if (blocker.eBlockingType != NO_ENDTURN_BLOCKING_TYPE)
+			{
+				blockers.push_back(blocker);
+			}
+		}
+
+		iIndex++;
+		if(iIndex >= int(MaxNotifications))
+		{
+			iIndex = 0;
+		}
+	}
+}
+
+//	---------------------------------------------------------------------------
 int CvNotifications::GetNumNotifications(void) const
 {
 	if(m_iNotificationsEndIndex >= m_iNotificationsBeginIndex)
