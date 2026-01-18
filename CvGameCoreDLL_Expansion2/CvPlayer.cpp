@@ -13309,12 +13309,11 @@ void CvPlayer::AwardFreeBuildings(CvCity* pCity)
 		{
 			if (pCity->SetNumFreeBuilding(eBuilding, 1, bRefund, bValidate))
 				bOwedBuilding = false;
-
-			pCity->SetOwedCultureBuilding(bOwedBuilding);
-			ChangeNumCitiesFreeCultureBuilding(-1);
-			pCity->SetHasFreeCultureBuilding(true);
 		}
 
+		pCity->SetOwedCultureBuilding(bOwedBuilding);
+		ChangeNumCitiesFreeCultureBuilding(-1);
+		pCity->SetHasFreeCultureBuilding(true);
 	}
 
 	int iNumFreeFoodBuildings = GetNumCitiesFreeFoodBuilding();
@@ -13326,12 +13325,11 @@ void CvPlayer::AwardFreeBuildings(CvCity* pCity)
 		{
 			if (pCity->SetNumFreeBuilding(eBuilding, 1, bRefund, bValidate))
 				bOwedBuilding = false;
-
-			pCity->SetOwedFoodBuilding(bOwedBuilding);
-			ChangeNumCitiesFreeFoodBuilding(-1);
-			pCity->SetHasFreeFoodBuilding(true);
 		}
 
+		pCity->SetOwedFoodBuilding(bOwedBuilding);
+		ChangeNumCitiesFreeFoodBuilding(-1);
+		pCity->SetHasFreeFoodBuilding(true);
 	}
 }
 
