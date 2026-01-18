@@ -4481,11 +4481,11 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift, bool bO
 			// Human decides what to do with a City
 			else
 			{
-				CvNotifications* pNotify = GetNotifications();
+				pNewCity->SetIgnoreCityForHappiness(true); // Used to display info for annex/puppet/raze popup - turned off in DoCreatePuppet and DoAnnex
 
+				CvNotifications* pNotify = GetNotifications();
 				if (GC.getGame().getActivePlayer() == GetID() && pNotify)
 				{
-					pNewCity->SetIgnoreCityForHappiness(true); // Used to display info for annex/puppet/raze popup - turned off in DoCreatePuppet and DoAnnex
 					int iTemp[5] = { pNewCity->GetID(), iCaptureGold, iCaptureCulture, iCaptureGreatWorks, ePlayerToLiberate };
 					bool bFirstParameter = MOD_BALANCE_VP ? bAllowSphereRemoval : bMinorCivBuyout;
 					bool bTemp[2] = { bFirstParameter, bConquest };

@@ -612,8 +612,7 @@ void CvTacticalAnalysisMap::Invalidate()
 /// Fill the map with data for this AI player's turn
 void CvTacticalAnalysisMap::RefreshIfOutdated()
 {
-	//do not update from the UI thread, might lead to desyncs!
-	if (IsUpToDate() || !gDLL->IsGameCoreThread())
+	if (IsUpToDate())
 		return;
 
 	//this is where the sausage is made
