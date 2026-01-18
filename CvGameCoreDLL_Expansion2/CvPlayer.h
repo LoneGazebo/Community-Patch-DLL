@@ -350,7 +350,8 @@ public:
 	int GetBuildingClassYieldModifier(const BuildingClassTypes eBuildingClass, const YieldTypes eYieldType, const vector<int>& preexistingBuildingsCount) const;
 
 	int GetWorldWonderYieldChange(int iYield);
-
+	
+	bool HasMountainImprovement() const;
 	bool canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestEra = false, bool bTestVisible = false, bool bTestGold = true, bool bTestPlotOwner = true, const CvUnit* pUnit = NULL) const;
 	bool IsBuildBlockedByFeature(BuildTypes eBuild, FeatureTypes eFeature, bool bTestEra = false) const;
 	int getBuildCost(const CvPlot* pPlot, BuildTypes eBuild) const;
