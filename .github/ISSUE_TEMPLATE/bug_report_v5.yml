@@ -12,8 +12,9 @@ body:
     id: mod-version
     attributes:
       label: 1. Mod version
-      description: "Please select which version you are using. Current Version: 5.1.1"
+      description: "Please select which version you are using. Current Version: 5.1.2"
       options:
+        - 5.1.2
         - 5.1.1
         - 5.1
         - 5.0.1
