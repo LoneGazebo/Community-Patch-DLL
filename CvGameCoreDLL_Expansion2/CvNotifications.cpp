@@ -298,6 +298,9 @@ int CvNotifications::Add(NotificationTypes eNotificationType, const char* strMes
 		{
 			GC.GetEngineUserInterface()->AddNotification(newNotification.m_iLookupIndex, newNotification.m_eNotificationType, newNotification.m_strMessage.c_str(), newNotification.m_strSummary.c_str(), newNotification.m_iGameDataIndex, newNotification.m_iExtraGameData, m_ePlayer, iX, iY);
 
+			// Send notification to pipe for LLM integration
+			GC.getGame().SendNotificationToPipe(m_ePlayer, newNotification.m_eNotificationType, newNotification.m_strMessage.c_str(), newNotification.m_strSummary.c_str(), iX, iY, newNotification.m_iGameDataIndex, newNotification.m_iExtraGameData, newNotification.m_iLookupIndex, newNotification.m_iTurn);
+
 			// Don't show effect with production notification or city tile acquisition
 			bool bShow = (eNotificationType != NOTIFICATION_PRODUCTION);
 			
