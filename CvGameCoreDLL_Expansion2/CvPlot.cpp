@@ -5456,7 +5456,7 @@ bool CvPlot::isValidRoute(const CvUnit* pUnit) const
 		if (!pUnit)
 			return true;
 
-		if (pUnit->getDomainType() == getDomain())
+		if (pUnit->getDomainType() == getDomain() && getRevealedRouteType(pUnit->getTeam()) != NO_ROUTE)
 			return !pUnit->isEnemy(getTeam(), this) || pUnit->isEnemyRoute();
 	}
 
