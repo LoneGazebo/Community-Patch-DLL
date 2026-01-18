@@ -16117,6 +16117,41 @@ int CvPlayer::GetWorldWonderYieldChange(int iYield)
 	return rtnValue;
 }
 
+/// Do we have any Improvements that go on Mountains?
+bool CvPlayer::HasMountainImprovement() const
+{
+	for (int i = 0; i < GC.getNumBuildInfos(); i++)
+	{
+		BuildTypes eBuild = (BuildTypes)i;
+		const CvBuildInfo* pkBuildInfo = GC.getBuildInfo(eBuild);
+		if (!pkBuildInfo)
+			continue;
+
+		ImprovementTypes eImprovement = pkBuildInfo->getImprovement();
+		if (eImprovement == NO_IMPROVEMENT)
+			continue;
+
+		const CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
+		if (!pkImprovementInfo || !pkImprovementInfo->IsMountainMakesValid())
+			continue;
+
+		// --- Unlock checks ---
+		// Tech prereq
+		if (pkBuildInfo->getTechPrereq() != NO_TECH &&
+			!GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)pkBuildInfo->getTechPrereq()))
+			continue;
+
+		// Civ restriction
+		if (pkBuildInfo->getCivilizationType() != NO_CIVILIZATION &&
+			pkBuildInfo->getCivilizationType() != getCivilizationType())
+			continue;
+
+		return true;
+	}
+
+	return false;
+}
+
 /// Can we eBuild on pPlot?
 bool CvPlayer::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestEra, bool bTestVisible, bool bTestGold, bool bTestPlotOwner, const CvUnit* pUnit) const
 {
