@@ -13379,11 +13379,6 @@ bool CvUnit::canPromote(PromotionTypes ePromotion, int iLeaderUnitId) const
 		return false;
 	}
 
-	if (IsPromotionBlocked(ePromotion))
-	{
-		return false;
-	}
-
 	CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(ePromotion);
 	if(pkPromotionInfo == NULL)
 	{
@@ -25034,6 +25029,9 @@ bool CvUnit::isPromotionReady() const
 void CvUnit::setPromotionReady(bool bNewValue)
 {
 	VALIDATE_OBJECT();
+	if (bNewValue && !canAcquirePromotionAny())
+		return;
+
 	if(isPromotionReady() != bNewValue)
 	{
 		m_bPromotionReady = bNewValue;
@@ -25074,7 +25072,7 @@ void CvUnit::testPromotionReady()
 {
 	VALIDATE_OBJECT();
 	
-	setPromotionReady(((getExperienceTimes100() / 100) >= experienceNeeded()) && !isOutOfAttacks(true) && canAcquirePromotionAny());
+	setPromotionReady(((getExperienceTimes100() / 100) >= experienceNeeded()) && !isOutOfAttacks(true));
 }
 
 
@@ -26961,6 +26959,12 @@ bool CvUnit::canAcquirePromotion(PromotionTypes ePromotion) const
 	{
 		return false;
 	}
+
+	if (IsPromotionBlocked(ePromotion))
+	{
+		return false;
+	}
+
 	CvPlayer& kPlayer = GET_PLAYER(getOwner());
 	static PromotionTypes ePromotionRoughTerrain = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_ROUGH_TERRAIN_ENDS_TURN");
 	if(ePromotion == ePromotionRoughTerrain && kPlayer.GetPlayerTraits()->IsConquestOfTheWorld())
