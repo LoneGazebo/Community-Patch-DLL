@@ -100,61 +100,13 @@ TeamTypes CvDealAI::GetTeam()
 	return m_pPlayer->getTeam();
 }
 
-/// How much are we willing to back off on what our perceived value of a deal is to make something work?
-int CvDealAI::GetDealPercentLeeway(PlayerTypes eOtherPlayer, bool bInTheBlack) const
-{
-	int iPercent = 0;
-
-	//for human players the opinion score is unreliable
-	//so we use a fixed amount, but make it asymmetric
-	if (GET_PLAYER(eOtherPlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
-		iPercent = bInTheBlack ? 13 : 7;
-	else
-	{
-		switch (m_pPlayer->GetDiplomacyAI()->GetCivOpinion(eOtherPlayer))
-		{
-		case CIV_OPINION_ALLY:
-			iPercent = 35;
-			break;
-		case CIV_OPINION_FRIEND:
-			iPercent = 30;
-			break;
-		case CIV_OPINION_FAVORABLE:
-			iPercent = 25;
-			break;
-		case CIV_OPINION_NEUTRAL:
-			iPercent = 20;
-			break;
-		case CIV_OPINION_COMPETITOR:
-		case CIV_OPINION_ENEMY:
-		case CIV_OPINION_UNFORGIVABLE:
-			iPercent = 15;
-			break;
-		default:
-			iPercent = 15;
-			break;
-		}
-	}
-
-	//want better deals if we're having economic problems
-	if (!bInTheBlack && m_pPlayer->GetEconomicAI()->IsUsingStrategy((EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY")))
-		iPercent /= 2;
-
-	return iPercent;
-}
 
 bool CvDealAI::WithinAcceptableRange(PlayerTypes ePlayer, int iMaxValue, int iNetValue) const
 {
-	int iLeewayPercent = GetDealPercentLeeway(ePlayer,iNetValue>0);
-	// Make trades at low max value easier
-	int iMaxDeviation = iMaxValue * iLeewayPercent + min(100, iMaxValue) * 15;
-	iMaxDeviation /= 100;
+	int iGPTValue = GetOneGPTValue(false);
 
 	// a deal value of less than or equal to half the value of 1 GPT should always be acceptable, to avoid deals that can't be equalized with GPT
-	int iGPTValue = GetOneGPTValue(m_pPlayer->IsAtWarWith(ePlayer));
-
-	//put some sanity checks
-	return abs(iNetValue) <= min(max(iMaxDeviation,iGPTValue/2),500);
+	return 2*abs(iNetValue) < iGPTValue || 2*iNetValue == iGPTValue;
 }
 
 bool CvDealAI::BothSidesIncluded(CvDeal* pDeal)

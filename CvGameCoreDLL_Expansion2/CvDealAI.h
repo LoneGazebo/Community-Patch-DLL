@@ -40,8 +40,6 @@ public:
 
 	TeamTypes GetTeam();
 
-	int GetDealPercentLeeway(PlayerTypes eOtherPlayer, bool bInTheBlack) const;
-
 	bool WithinAcceptableRange(PlayerTypes ePlayer, int iMaxValue, int iNetValue) const;
 	bool BothSidesIncluded(CvDeal* pDeal);
 	bool TooMuchAdded(PlayerTypes ePlayer, int iMaxValue, int iNetValue, int iItemValue, bool bFromUs);
