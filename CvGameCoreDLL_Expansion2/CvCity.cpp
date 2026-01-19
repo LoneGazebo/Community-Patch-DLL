@@ -15722,10 +15722,14 @@ bool CvCity::IsTraded(PlayerTypes ePlayer)
 void CvCity::SetIgnoredForExpansionBickering(PlayerTypes ePlayer, bool bValue)
 {
 	VALIDATE_OBJECT();
+	PRECONDITION(ePlayer >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "eIndex expected to be < MAX_PLAYERS");
 	m_abIgnoredForExpansionBickering[ePlayer] = bValue;
 }
 bool CvCity::IsIgnoredForExpansionBickering(PlayerTypes ePlayer) const
 {
+	PRECONDITION(ePlayer >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "eIndex expected to be < MAX_PLAYERS");
 	return m_abIgnoredForExpansionBickering[ePlayer];
 }
 

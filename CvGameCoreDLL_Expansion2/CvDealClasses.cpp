@@ -6199,6 +6199,13 @@ void CvGameDeals::LogDealFailed(CvDeal* pDeal, bool bNoRenew, bool bNotAccepted,
 			strOutBuf = strBaseString + "FAILED: UNKNOWN, ";
 		}
 
+		if (pDeal->m_TradedItems.empty())
+		{
+			strOutBuf += "NO ITEMS IN DEAL";
+			pLog->Msg(strOutBuf);
+			return;
+		}
+
 		TradedItemList::iterator itemIter;
 		for(itemIter = pDeal->m_TradedItems.begin(); itemIter != pDeal->m_TradedItems.end(); ++itemIter)
 		{
