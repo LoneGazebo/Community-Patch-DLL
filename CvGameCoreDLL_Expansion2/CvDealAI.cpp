@@ -101,7 +101,7 @@ TeamTypes CvDealAI::GetTeam()
 }
 
 
-bool CvDealAI::WithinAcceptableRange(PlayerTypes ePlayer, int iMaxValue, int iNetValue) const
+bool CvDealAI::WithinAcceptableRange(PlayerTypes /*ePlayer*/, int /*iMaxValue*/, int iNetValue) const
 {
 	int iGPTValue = GetOneGPTValue(false);
 
