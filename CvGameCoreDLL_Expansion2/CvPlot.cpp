@@ -6623,6 +6623,28 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 					}
 				}
 
+				// Remove domain modifiers from old owning city
+				CvCity* pOldOwningCity = getOwningCity();
+				if (pOldOwningCity)
+				{
+					for (int iI = 0; iI < NUM_DOMAIN_TYPES; iI++)
+					{
+						DomainTypes eDomain = (DomainTypes)iI;
+
+						int iDomainProductionModifier = pImprovementInfo->GetDomainProductionModifier(iI);
+						if (iDomainProductionModifier != 0)
+						{
+							pOldOwningCity->changeDomainProductionModifier(eDomain, -iDomainProductionModifier);
+						}
+
+						int iDomainFreeExperience = pImprovementInfo->GetDomainFreeExperience(iI);
+						if (iDomainFreeExperience != 0)
+						{
+							pOldOwningCity->changeDomainFreeExperience(eDomain, -iDomainFreeExperience);
+						}
+					}
+				}
+
 				// Remove credit for building Landmark if player took it from the minor
 				ImprovementTypes eLandmarkImprovement = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_LANDMARK");
 				if (eImprovement == eLandmarkImprovement && eOldOwner == GetLandmarkCreditMinor() && eBuilder != NO_PLAYER && eNewValue != NO_PLAYER && GET_PLAYER(eBuilder).getTeam() == GET_PLAYER(eNewValue).getTeam())
@@ -6816,6 +6838,28 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 						SetImprovementEmbassy(true);
 					else
 						SetImprovementEmbassy(false);
+				}
+
+				// Add domain modifiers to new owning city
+				CvCity* pNewOwningCity = getOwningCity();
+				if (pNewOwningCity)
+				{
+					for (int iI = 0; iI < NUM_DOMAIN_TYPES; iI++)
+					{
+						DomainTypes eDomain = (DomainTypes)iI;
+
+						int iDomainProductionModifier = pImprovementInfo->GetDomainProductionModifier(iI);
+						if (iDomainProductionModifier != 0)
+						{
+							pNewOwningCity->changeDomainProductionModifier(eDomain, iDomainProductionModifier);
+						}
+
+						int iDomainFreeExperience = pImprovementInfo->GetDomainFreeExperience(iI);
+						if (iDomainFreeExperience != 0)
+						{
+							pNewOwningCity->changeDomainFreeExperience(eDomain, iDomainFreeExperience);
+						}
+					}
 				}
 			}
 
