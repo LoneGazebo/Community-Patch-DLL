@@ -15979,6 +15979,10 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 			if (eOtherBuilding == NO_BUILDING)
 				continue;
 
+			// No Bonus for Obsoleted Building
+			if(GET_TEAM(getTeam()).isObsoleteBuilding(eOtherBuilding))
+				continue;
+
 			CvBuildingEntry* pkOtherBuildingInfo = GC.getBuildingInfo(eOtherBuilding);
 			if (!pkOtherBuildingInfo)
 				continue;
@@ -42369,6 +42373,10 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 
 			int iBuildingCount = pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding);
 			if (iBuildingCount <= 0)
+				continue;
+
+			// No Bonus for Obsoleted Building
+			if(GET_TEAM(getTeam()).isObsoleteBuilding(eBuilding))
 				continue;
 
 			const CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
