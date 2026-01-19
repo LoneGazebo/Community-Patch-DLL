@@ -6,7 +6,7 @@ SET Text = 'Military Land Units start with the [COLOR_POSITIVE_TEXT]{TXT_KEY_PRO
 WHERE Tag = 'TXT_KEY_TRAIT_RIVER_EXPANSION';
 
 UPDATE Language_en_US
-SET Text = 'The Minuteman is very powerful as it requires 50% less expereince to unlock the Range Promotion, thanks to Barrage I. Combined with Ignoring Rough Terrain you can position many Minutemen quickly and strike Cities or Units many times while being safe from ranged retaliation. Make sure to finish off units with them to gain Golden Age Points. Minuteman are also excellent in defense as they can retreat in Rough terrain and fire in the same turn.[NEWLINE][NEWLINE]Barrage Promotion Line is heavily recommeded thanks to the easy access to Range Promotion. Make Minutemen the core of your army at the cost of Melee and Siege Units.'
+SET Text = 'The Minuteman is very powerful as it requires 40% less experience to unlock the [COLOR_POSITIVE_TEXT]Range [ENDCOLOR] Range Promotion, thanks to [COLOR_POSITIVE_TEXT]Barrage I[ENDCOLOR], so this promotion line is heavily recommended. Combined with Ignoring Rough Terrain, they can be positioned quickly and strike Cities or Units many times while being safe from ranged retaliation. Make sure to finish off units with them to gain [ICON_GOLDEN_AGE] Golden Age Points. Minuteman are also excellent in defense as they can retreat in Rough terrain and fire in the same turn. Only fast units in open terrain remain its weakness.'
 WHERE Tag = 'TXT_KEY_UNIT_AMERICAN_MINUTEMAN_STRATEGY';
 
 --------------------
@@ -66,9 +66,9 @@ SET Text = 'Killing enemy Units grants 150% of their [ICON_STRENGTH] Strength as
 WHERE Tag = 'TXT_KEY_TRAIT_CULTURE_FROM_KILLS';
 
 UPDATE Language_en_US
-SET Text = 'The {TXT_KEY_UNIT_AZTEC_JAGUAR}s high bonus when attacking units below 50% health, combined with large healing after defeating units makes them perfect for finishing off wounded enemies on the frontline. Therefore they benefit a lot from ranged units damaging their targets first.
-[NEWLINE][NEWLINE]Additionally, Jaguars benefit from Authority [COLOR_MAGENTA]Dominance[ENDCOLOR] Policy that boosts their health regeneration from 25 to 40hp, which lets them stay at high health even in intense wars.
-[NEWLINE][NEWLINE] [COLOR_POSITIVE_TEXT]Mobility[ENDCOLOR] Promotion is important for them, because it allows spending less turns moving and more turns defeating units, providing more healing. To reach it, the Shock line is recommended for enhanced flanking, which with good flanking setup helps finish off enemy units in one attack.[NEWLINE][NEWLINE]The lack of [ICON_RES_IRON] Iron requirement is valuable as it allows you to mass produce {TXT_KEY_UNIT_AZTEC_JAGUAR}s. This is especially useful for Aztecs because Jungle regions they tend to begin in, contain little Iron.'
+SET Text = 'The Jaguar''s a high bonus when attacking units below 50% health, combined with large healing after defeating units makes them perfect for finishing off wounded enemies on the frontline. Therefore they benefit a lot from ranged units damaging their targets first.
+[NEWLINE][NEWLINE]Additionally, Jaguars profit from Authority [COLOR_MAGENTA]Dominance[ENDCOLOR] policy that boosts their health renegeration even further to 40hp, which lets them stay effective even in intense wars.
+[NEWLINE][NEWLINE] [COLOR_POSITIVE_TEXT]Mobility[ENDCOLOR] Promotion is important for them, because it allows spending less turns moving and more turns defeating units, providing more healing. To reach it, the Shock line is recommended for enhanced flanking, which with good flanking setup helps finish off enemy units in one attack, suffer less from attacking and so thus achieve higher net healing.[NEWLINE][NEWLINE]The lack of [ICON_RES_IRON] Iron requirement is valuable as it allows you to mass produce {TXT_KEY_UNIT_AZTEC_JAGUAR}s.'
 WHERE Tag = 'TXT_KEY_UNIT_AZTEC_JAGUAR_STRATEGY';
 
 --------------------
