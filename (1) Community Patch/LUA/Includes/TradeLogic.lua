@@ -1,9 +1,49 @@
 print("This is the modded TradeLogic from CP")
-----------------------------------------------------------------        
-----------------------------------------------------------------        
+----------------------------------------------------------------
+----------------------------------------------------------------
 include( "IconSupport" );
 include( "InstanceManager" );
 include( "SupportFunctions"  );
+
+-- Helper to encode JSON (simple implementation for our needs)
+local function JsonEncode(tbl)
+	local parts = {}
+	for k, v in pairs(tbl) do
+		local key = '"' .. tostring(k) .. '"'
+		local val
+		if type(v) == "string" then
+			val = '"' .. v:gsub('\\', '\\\\'):gsub('"', '\\"'):gsub('\n', '\\n') .. '"'
+		elseif type(v) == "table" then
+			val = JsonEncode(v)
+		elseif type(v) == "boolean" then
+			val = v and "true" or "false"
+		else
+			val = tostring(v)
+		end
+		table.insert(parts, key .. ":" .. val)
+	end
+	return "{" .. table.concat(parts, ",") .. "}"
+end
+
+local function JsonEncodeArray(arr)
+	local parts = {}
+	for _, v in ipairs(arr) do
+		if type(v) == "table" then
+			table.insert(parts, JsonEncode(v))
+		elseif type(v) == "string" then
+			table.insert(parts, '"' .. v:gsub('\\', '\\\\'):gsub('"', '\\"'):gsub('\n', '\\n') .. '"')
+		else
+			table.insert(parts, tostring(v))
+		end
+	end
+	return "[" .. table.concat(parts, ",") .. "]"
+end
+
+-- Auto-close configuration for LLM integration
+local AUTO_CLOSE_SECONDS = 2.0
+local g_autoCloseTimer = 0
+local g_shouldAutoClose = false
+local g_tradeOfferAIPlayer = -1
 
 local g_UsTableCitiesIM     = InstanceManager:new( "CityInstance", "Button", Controls.UsTableCitiesStack );
 local g_UsPocketCitiesIM    = InstanceManager:new( "CityInstance", "Button", Controls.UsPocketCitiesStack );
@@ -298,6 +338,8 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 				--print("DiploUIState: AI making offer");
 				bClearTableAndDisplayDeal = true;
 				g_bAIMakingOffer = true;
+				g_tradeOfferAIPlayer = g_iThem;
+				-- Send trade offer to pipe for LLM integration (defer until after DisplayDeal)
 			elseif (g_iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_ACCEPTS_OFFER) then
 				--print("DiploUIState: AI accepted offer");
 				g_iConcessionsPreviousDiploUIState = -1;		-- Clear out the fact that we were offering concessions if the AI has agreed to a deal
@@ -314,11 +356,16 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 			-- Clear table and display the deal currently stored in InterfaceBuddy
 			if (bClearTableAndDisplayDeal) then
 				g_bMessageFromDiploAI = true;
-			
+
 				Controls.DiscussionText:SetText( szLeaderMessage );
-		    
+
 				DoClearTable();
 				DisplayDeal();
+
+				-- Send trade offer to pipe for LLM integration
+				if (g_iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_MAKES_OFFER) then
+					SendTradeOfferToPipe();
+				end
 
 				if (g_iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_HUMAN_DEMAND) then
 					-- Hide unavailable items on their side
@@ -3758,6 +3805,166 @@ Controls.UsMakePeaceDuration:LocalizeAndSetText( "TXT_KEY_DIPLO_TURNS", g_PeaceD
 Controls.UsDeclareWarDuration:LocalizeAndSetText( "TXT_KEY_DIPLO_TURNS", g_PeaceDealDuration);
 Controls.ThemMakePeaceDuration:LocalizeAndSetText( "TXT_KEY_DIPLO_TURNS", g_PeaceDealDuration);
 Controls.ThemDeclareWarDuration:LocalizeAndSetText( "TXT_KEY_DIPLO_TURNS", g_PeaceDealDuration);
+
+---------------------------------------------------------------------------------------
+-- LLM Integration: Send trade offer details to pipe
+-- TODO: Add support for counter-offers and complex trade negotiations
+---------------------------------------------------------------------------------------
+function SendTradeOfferToPipe()
+	if not g_bAIMakingOffer or g_iThem < 0 then
+		return
+	end
+
+	-- Get the AI player info
+	local pAIPlayer = Players[g_iThem]
+	if not pAIPlayer then
+		return
+	end
+
+	local aiCivName = pAIPlayer:GetName()
+	local aiLeaderName = GameInfo.Leaders[pAIPlayer:GetLeaderType()].Description or "Unknown"
+
+	-- Extract deal items
+	local theyOffer = {}  -- What the AI is offering us
+	local theyWant = {}   -- What the AI wants from us
+
+	local itemType, duration, finalTurn, data1, data2, data3, flag1, fromPlayer
+	g_Deal:ResetIterator()
+	itemType, duration, finalTurn, data1, data2, data3, flag1, fromPlayer = g_Deal:GetNextItem()
+
+	while itemType ~= nil do
+		local itemDescription = GetTradeItemDescription(itemType, data1, data2, data3, duration, fromPlayer)
+		local itemData = {
+			item_type = itemType,
+			item_type_name = GetTradeItemTypeName(itemType),
+			description = itemDescription,
+			duration = duration,
+			data1 = data1,
+			data2 = data2,
+			data3 = data3,
+		}
+
+		if fromPlayer == g_iThem then
+			-- AI is giving this to us
+			table.insert(theyOffer, itemData)
+		else
+			-- We are giving this to AI
+			table.insert(theyWant, itemData)
+		end
+
+		itemType, duration, finalTurn, data1, data2, data3, flag1, fromPlayer = g_Deal:GetNextItem()
+	end
+
+	local theyOfferJson = JsonEncodeArray(theyOffer)
+	local theyWantJson = JsonEncodeArray(theyWant)
+
+	local json = string.format(
+		'{"type":"popup_choice_needed","popup_type":"trade_offer","player_id":%d,"turn":%d,"ai_player_id":%d,"ai_civ_name":"%s","ai_leader_name":"%s","they_offer":%s,"they_want":%s}',
+		Game.GetActivePlayer(), Game.GetGameTurn(), g_iThem,
+		aiCivName:gsub('"', '\\"'), aiLeaderName:gsub('"', '\\"'),
+		theyOfferJson, theyWantJson
+	)
+	Game.SendPipeMessage(json)
+end
+
+-- Helper to get human-readable trade item type name
+function GetTradeItemTypeName(itemType)
+	-- TODO: Add more trade item types as needed
+	local names = {
+		[TradeableItems.TRADE_ITEM_GOLD] = "Gold",
+		[TradeableItems.TRADE_ITEM_GOLD_PER_TURN] = "Gold Per Turn",
+		[TradeableItems.TRADE_ITEM_MAPS] = "Maps",
+		[TradeableItems.TRADE_ITEM_RESOURCES] = "Resources",
+		[TradeableItems.TRADE_ITEM_CITIES] = "Cities",
+		[TradeableItems.TRADE_ITEM_OPEN_BORDERS] = "Open Borders",
+		[TradeableItems.TRADE_ITEM_DEFENSIVE_PACT] = "Defensive Pact",
+		[TradeableItems.TRADE_ITEM_RESEARCH_AGREEMENT] = "Research Agreement",
+		[TradeableItems.TRADE_ITEM_PERMANENT_ALLIANCE] = "Permanent Alliance",
+		[TradeableItems.TRADE_ITEM_SURRENDER] = "Surrender",
+		[TradeableItems.TRADE_ITEM_TRUCE] = "Truce",
+		[TradeableItems.TRADE_ITEM_PEACE_TREATY] = "Peace Treaty",
+		[TradeableItems.TRADE_ITEM_THIRD_PARTY_PEACE] = "Third Party Peace",
+		[TradeableItems.TRADE_ITEM_THIRD_PARTY_WAR] = "Third Party War",
+		[TradeableItems.TRADE_ITEM_THIRD_PARTY_EMBARGO] = "Third Party Embargo",
+		[TradeableItems.TRADE_ITEM_ALLOW_EMBASSY] = "Allow Embassy",
+		[TradeableItems.TRADE_ITEM_DECLARATION_OF_FRIENDSHIP] = "Declaration of Friendship",
+		[TradeableItems.TRADE_ITEM_VOTE_COMMITMENT] = "Vote Commitment",
+		[TradeableItems.TRADE_ITEM_TECHS] = "Technology",
+		[TradeableItems.TRADE_ITEM_VASSALAGE] = "Vassalage",
+		[TradeableItems.TRADE_ITEM_VASSALAGE_REVOKE] = "Revoke Vassalage",
+	}
+	return names[itemType] or ("Unknown(" .. tostring(itemType) .. ")")
+end
+
+-- Helper to get human-readable description for a trade item
+function GetTradeItemDescription(itemType, data1, data2, data3, duration, fromPlayer)
+	local desc = GetTradeItemTypeName(itemType)
+
+	if itemType == TradeableItems.TRADE_ITEM_GOLD then
+		desc = data1 .. " Gold"
+	elseif itemType == TradeableItems.TRADE_ITEM_GOLD_PER_TURN then
+		desc = data1 .. " Gold Per Turn for " .. duration .. " turns"
+	elseif itemType == TradeableItems.TRADE_ITEM_RESOURCES then
+		local resourceInfo = GameInfo.Resources[data1]
+		if resourceInfo then
+			desc = data2 .. "x " .. Locale.ConvertTextKey(resourceInfo.Description)
+		end
+	elseif itemType == TradeableItems.TRADE_ITEM_CITIES then
+		local pPlayer = Players[fromPlayer]
+		if pPlayer then
+			local pCity = pPlayer:GetCityByID(data1)
+			if pCity then
+				desc = "City: " .. Locale.ConvertTextKey(pCity:GetNameKey())
+			end
+		end
+	elseif itemType == TradeableItems.TRADE_ITEM_TECHS then
+		local techInfo = GameInfo.Technologies[data1]
+		if techInfo then
+			desc = "Technology: " .. Locale.ConvertTextKey(techInfo.Description)
+		end
+	elseif itemType == TradeableItems.TRADE_ITEM_OPEN_BORDERS then
+		desc = "Open Borders for " .. duration .. " turns"
+	elseif itemType == TradeableItems.TRADE_ITEM_DEFENSIVE_PACT then
+		desc = "Defensive Pact for " .. duration .. " turns"
+	elseif itemType == TradeableItems.TRADE_ITEM_RESEARCH_AGREEMENT then
+		desc = "Research Agreement"
+	elseif itemType == TradeableItems.TRADE_ITEM_PEACE_TREATY then
+		desc = "Peace Treaty"
+	elseif itemType == TradeableItems.TRADE_ITEM_THIRD_PARTY_PEACE then
+		local pThirdParty = Players[data1]
+		if pThirdParty then
+			desc = "Make Peace with " .. pThirdParty:GetName()
+		end
+	elseif itemType == TradeableItems.TRADE_ITEM_THIRD_PARTY_WAR then
+		local pThirdParty = Players[data1]
+		if pThirdParty then
+			desc = "Declare War on " .. pThirdParty:GetName()
+		end
+	end
+
+	return desc
+end
+
+---------------------------------------------------------------------------------------
+-- Auto-close timer for LLM integration
+-- Closes the trade popup when the deal state changes (accepted/rejected via pipe command)
+---------------------------------------------------------------------------------------
+ContextPtr:SetUpdate(function(fDTime)
+	if g_shouldAutoClose and not ContextPtr:IsHidden() then
+		g_autoCloseTimer = g_autoCloseTimer + fDTime
+		if g_autoCloseTimer >= AUTO_CLOSE_SECONDS then
+			g_autoCloseTimer = 0
+			g_shouldAutoClose = false
+			-- Close the trade screen
+			if (g_iThem ~= -1) then
+				Players[g_iThem]:DoTradeScreenClosed(g_bAIMakingOffer)
+			end
+			g_bAIMakingOffer = false
+			UIManager:DequeuePopup(ContextPtr)
+			UI.RequestLeaveLeader()
+		end
+	end
+end)
 
 ResetDisplay();
 DisplayDeal();

@@ -3583,6 +3583,87 @@ void CvGame::HandlePipeCommand(const std::string& commandLine)
 			m_kGameStatePipe.SendMessage(os.str());
 			return;
 		}
+		else if (msgType == "trade_respond")
+		{
+			// Respond to an AI trade offer (accept or reject)
+			// TODO: Add support for counter-offers and complex trade negotiations
+			std::string requestId = msg.get("request_id").asString();
+			int aiPlayerId = msg.get("ai_player_id").asInt(-1);
+			bool bAccept = msg.get("accept").asBool(false);
+			int playerId = msg.get("player_id").asInt(-1);
+
+			std::ostringstream os;
+			os << "{\"type\":\"trade_respond_result\"";
+			if (!requestId.empty())
+			{
+				os << ",\"request_id\":\"" << PipeJson::Escape(requestId) << "\"";
+			}
+
+			PlayerTypes eHumanPlayer = (playerId >= 0) ? (PlayerTypes)playerId : getActivePlayer();
+			PlayerTypes eAIPlayer = (aiPlayerId >= 0) ? (PlayerTypes)aiPlayerId : NO_PLAYER;
+
+			if (eAIPlayer == NO_PLAYER)
+			{
+				os << ",\"success\":false,\"error\":{\"code\":\"INVALID_PARAMS\",\"message\":\"Missing required parameter: ai_player_id\"}";
+			}
+			else if (!GET_PLAYER(eHumanPlayer).isAlive())
+			{
+				os << ",\"success\":false,\"error\":{\"code\":\"PLAYER_DEAD\",\"message\":\"Human player is not alive\"}";
+			}
+			else if (!GET_PLAYER(eAIPlayer).isAlive())
+			{
+				os << ",\"success\":false,\"error\":{\"code\":\"AI_PLAYER_DEAD\",\"message\":\"AI player is not alive\"}";
+			}
+			else
+			{
+				// Get the scratch deal from the UI
+				CvInterfacePtr<ICvDeal1> pUIDeal(GC.GetEngineUserInterface()->GetScratchDeal());
+				CvDeal* pkScratchDeal = GC.UnwrapDealPointer(pUIDeal.get());
+
+				if (!pkScratchDeal || pkScratchDeal->GetNumItems() == 0)
+				{
+					os << ",\"success\":false,\"error\":{\"code\":\"NO_DEAL\",\"message\":\"No trade offer found in scratch deal\"}";
+				}
+				else
+				{
+					if (bAccept)
+					{
+						// Accept the deal - add to proposed deals and finalize
+						CvDeal kDeal = *pkScratchDeal;
+						kDeal.SetFromPlayer(eAIPlayer);
+						kDeal.SetToPlayer(eHumanPlayer);
+
+						// Add to proposed deals and finalize immediately
+						GetGameDeals().AddProposedDeal(kDeal);
+						bool bFinalized = GetGameDeals().FinalizeDeal(eAIPlayer, eHumanPlayer, true);
+
+						if (bFinalized)
+						{
+							os << ",\"success\":true,\"action\":\"accept\"";
+							os << ",\"ai_player_id\":" << eAIPlayer;
+						}
+						else
+						{
+							os << ",\"success\":false,\"error\":{\"code\":\"FINALIZE_FAILED\",\"message\":\"Failed to finalize the deal\"}";
+						}
+					}
+					else
+					{
+						// Reject the deal - just clear the scratch deal
+						pkScratchDeal->ClearItems();
+						os << ",\"success\":true,\"action\":\"reject\"";
+						os << ",\"ai_player_id\":" << eAIPlayer;
+					}
+
+					// Notify the AI that the trade screen is closed
+					GET_PLAYER(eAIPlayer).GetDealAI()->DoTradeScreenClosed(true);
+				}
+			}
+
+			os << "}";
+			m_kGameStatePipe.SendMessage(os.str());
+			return;
+		}
 		else if (msgType == "set_city_production")
 		{
 			// Set production for a city

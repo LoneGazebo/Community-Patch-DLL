@@ -738,7 +738,7 @@
     <File md5="5A87219957975A85A1D3CEDA1D98A835" import="1">LUA/YieldIconManager.lua</File>
     <File md5="8FD4EF5AAB5BD6E16DB8EBE95963FC33" import="1">LUA/YieldIconManager.xml</File>
     <File md5="9929A6BE6057A41C0D4FF92FFA43B0DB" import="1">LUA/Includes/CityStateStatusHelper.lua</File>
-    <File md5="3867F5E70B59C833874CBD457732E814" import="1">LUA/Includes/TradeLogic.lua</File>
+    <File md5="969A6F9D210AD4D70C81ACE454685AC4" import="1">LUA/Includes/TradeLogic.lua</File>
     <File md5="3EEC34EC93897595AABD4367C8B4B1A9" import="1">Mapscripts/Boreal.lua</File>
     <File md5="C94DD0DDF8E82E5B09B728BD7FCD951A" import="1">Mapscripts/Highlands.lua</File>
     <File md5="F10C5FF7AE8A7276B99B01F1A1066C65" import="1">Mapscripts/Terra.lua</File>
