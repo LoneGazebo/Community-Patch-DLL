@@ -1325,7 +1325,7 @@
     <File md5="EB1DABE644906CD1AA3312C36CE166AE" import="1">LUA/HappinessInfo.xml</File>
     <File md5="5405DE4A7B50B83FE1C6D87E82F44ABC" import="1">LUA/LeaderHeadRoot.lua</File>
     <File md5="F78BC96D218E6401821E6A8E5422E199" import="1">LUA/LeaderHeadRoot.xml</File>
-    <File md5="6E62A511EB019D061C636F58981D132A" import="1">LUA/LoadScreen.lua</File>
+    <File md5="E3DBA910FD14C4E1EEF51F166BFB043A" import="1">LUA/LoadScreen.lua</File>
     <File md5="592480C2024CC2FD2AF5BBFCBE580F3B" import="1">LUA/LoadScreen.xml</File>
     <File md5="34AC93D11F3AEE31F5FE062307A7FC2B" import="1">LUA/NotificationPanel.lua</File>
     <File md5="F19F8CBF1D8F8A6825ECDE6773DF63E3" import="1">LUA/NotificationPanel.xml</File>
