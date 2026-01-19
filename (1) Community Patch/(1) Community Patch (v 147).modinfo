@@ -722,7 +722,7 @@
     <File md5="BF3582B89D1F3FDEF55EA0096FBC043C" import="1">LUA/CityView.lua</File>
     <File md5="BA0AC92C817DF67C1E8325B2C9A1E327" import="1">LUA/CityView.xml</File>
     <File md5="6AA9DB940EBEEDE516278F42EACF4F5E" import="1">LUA/DiploList.lua</File>
-    <File md5="948270F0E1DD6B1A7820891B0993B56D" import="1">LUA/LeaderHeadRoot.lua</File>
+    <File md5="02A786E5718F393E9FBE21DA5E7BEF1A" import="1">LUA/LeaderHeadRoot.lua</File>
     <File md5="F54B1EA651FC8C87A6BBB648F9D4CB0F" import="1">LUA/LeaderHeadRoot.xml</File>
     <File md5="372493C23E5E290ED50D148809915718" import="1">LUA/NotificationPanel.lua</File>
     <File md5="F19F8CBF1D8F8A6825ECDE6773DF63E3" import="1">LUA/NotificationPanel.xml</File>

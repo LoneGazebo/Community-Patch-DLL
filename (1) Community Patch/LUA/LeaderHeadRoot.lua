@@ -22,7 +22,12 @@ local innerFrameWidth = 654;
 local outerFrameWidth = 650;
 local offsetsBetweenFrames = 4;
 
-----------------------------------------------------------------        
+-- Auto-close configuration for LLM integration
+local AUTO_CLOSE_SECONDS = 2.0
+local g_autoCloseTimer = 0
+local g_shouldAutoClose = false
+
+----------------------------------------------------------------
 -- LEADER MESSAGE HANDLER
 ----------------------------------------------------------------        
 function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimationAction, iData1 )
@@ -278,21 +283,29 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 	end
 	
 	print("Handling LeaderMessage: " .. iDiploUIState .. ", ".. szLeaderMessage);
-	
+
+	-- Enable auto-close for DEFAULT_ROOT (meet civ intro, etc.) for LLM integration
+	if (iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_DEFAULT_ROOT) then
+		g_shouldAutoClose = true
+		g_autoCloseTimer = 0
+	else
+		g_shouldAutoClose = false
+	end
+
 	-- Are we in this screen's mode?
-	if (bMyMode) then					
+	if (bMyMode) then
 		UI.SetLeaderHeadRootUp( true );
-		Controls.LeaderSpeech:SetText( szLeaderMessage );		
+		Controls.LeaderSpeech:SetText( szLeaderMessage );
 		-- Resize the height of the box to fit the text
 		local contentSize = Controls.LeaderSpeech:GetSize().y + offsetOfString + bonusPadding;
 		Controls.LeaderSpeechBorderFrame:SetSizeY( contentSize );
 		Controls.LeaderSpeechFrame:SetSizeY( contentSize - offsetsBetweenFrames );
-		
+
 	else
 		Controls.LeaderSpeech:SetText( g_strLeaveScreenText );		-- Seed the text box with something reasonable so that we don't get leftovers from somewhere else
-		
+
 	end
-	
+
 	UIManager:QueuePopup( ContextPtr, PopupPriority.LeaderHead );
     
 end
@@ -539,10 +552,24 @@ g_uiAddins = {};
 for addin in Modding.GetActivatedModEntryPoints("DiplomacyUIAddin") do
 	local addinFile = Modding.GetEvaluatedFilePath(addin.ModID, addin.Version, addin.File);
 	local addinPath = addinFile.EvaluatedPath;
-	
+
 	-- Get the absolute path and filename without extension.
 	local extension = Path.GetExtension(addinPath);
 	local path = string.sub(addinPath, 1, #addinPath - #extension);
-	
+
 	table.insert(g_uiAddins, ContextPtr:LoadNewContext(path));
 end
+
+---------------------------------------------------------------------------------------
+-- Auto-close timer for LLM integration
+---------------------------------------------------------------------------------------
+ContextPtr:SetUpdate(function(fDTime)
+	if g_shouldAutoClose and not ContextPtr:IsHidden() then
+		g_autoCloseTimer = g_autoCloseTimer + fDTime
+		if g_autoCloseTimer >= AUTO_CLOSE_SECONDS then
+			g_autoCloseTimer = 0
+			g_shouldAutoClose = false
+			OnReturn()
+		end
+	end
+end)
