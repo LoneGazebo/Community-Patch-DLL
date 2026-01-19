@@ -1,6 +1,11 @@
 include( "IconSupport" );
 ----------------------------------------------------------------
 ----------------------------------------------------------------
+
+-- Auto-close configuration for LLM integration
+local AUTO_CLOSE_SECONDS = 2.0
+local g_autoCloseTimer = 0
+
 local m_PopulationTable = {};
 local m_FoodTable = {};
 local m_ProductionTable = {};
@@ -461,9 +466,12 @@ function ShowHideHandler( bIsHide, bIsInit )
 
     if( not bIsInit ) then
         if( not bIsHide ) then
+            -- Reset auto-close timer when popup opens
+            g_autoCloseTimer = 0
+
             BuildTables();
             BuildList( Game.GetActivePlayer() );
-            
+
             if( not m_bIsEndGame ) then
 	            UI.incTurnTimerSemaphore();
 	            Events.SerialEventGameMessagePopupShown(m_PopupInfo);
@@ -478,6 +486,20 @@ function ShowHideHandler( bIsHide, bIsInit )
 
 end
 ContextPtr:SetShowHideHandler( ShowHideHandler );
+
+-------------------------------------------------------------------------------
+-- Auto-close timer for LLM integration
+-------------------------------------------------------------------------------
+ContextPtr:SetUpdate(function(fDTime)
+    -- Only auto-close if not end game and popup is visible
+    if not m_bIsEndGame and not ContextPtr:IsHidden() then
+        g_autoCloseTimer = g_autoCloseTimer + fDTime
+        if g_autoCloseTimer >= AUTO_CLOSE_SECONDS then
+            g_autoCloseTimer = 0
+            OnBack()
+        end
+    end
+end)
 
 BuildTables();
 BuildList( Game.GetActivePlayer() );
