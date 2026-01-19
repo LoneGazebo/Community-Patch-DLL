@@ -13058,7 +13058,7 @@ bool CvUnit::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestVisible,
 
 	if (MOD_EVENTS_PLOT)
 	{
-		if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlayerCanBuild, getOwner(), GetID(), getX(), getY(), eBuild) == GAMEEVENTRETURN_FALSE)
+		if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlayerCanBuild, getOwner(), GetID(), pPlot->getX(), pPlot->getY(), eBuild) == GAMEEVENTRETURN_FALSE)
 		{
 			return false;
 		}
