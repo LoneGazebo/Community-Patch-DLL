@@ -139,6 +139,8 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(DoGoody);
 	Method(CanGetGoody);
 
+	Method(SpawnResourceInVicinity);
+
 	Method(CanFound);
 	Method(Found);
 
@@ -2494,6 +2496,17 @@ int CvLuaPlayer::lCanGetGoody(lua_State* L)
 
 	lua_pushboolean(L, bResult);
 	return 1;
+}
+
+int CvLuaPlayer::lSpawnResourceInVicinity(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	CvCity* pkCity = CvLuaCity::GetInstance(L, 2);
+	const ResourceTypes eResource = (ResourceTypes)lua_tointeger(L, 3);
+	const int iQuantity = lua_tointeger(L, 4);
+	const bool bSarcophagus = luaL_optbool(L, 5, false);
+	pkPlayer->SpawnResourceInVicinity(pkCity, eResource, iQuantity, bSarcophagus);
+	return 0;
 }
 
 //------------------------------------------------------------------------------

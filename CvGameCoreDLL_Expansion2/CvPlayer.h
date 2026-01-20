@@ -313,7 +313,7 @@ public:
 	int GetChainLength(BuildingTypes eBuilding);
 
 	void AwardFreeBuildings(CvCity* pCity); // slewis - broken out so that Venice can get free buildings when they purchase something
-	void SpawnResourceInOwnedLands(ResourceTypes eResource, int iQuantity, bool bSarcophagus = false, CvCity* pCityToExclude = NULL);
+	void SpawnResourceInVicinity(CvCity* pCity, ResourceTypes eResource, int iQuantity, bool bSarcophagus);
 
 	bool canFoundCityExt(int iX, int iY, bool bIgnoreDistanceToExistingCities, bool bIgnoreHappiness) const;
 	bool canFoundCity(int iX, int iY) const;
