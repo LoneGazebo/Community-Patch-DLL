@@ -13781,7 +13781,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 					ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
 					int iQuantity = kPlayer.GetPlayerTraits()->GetNumFreeResourceOnWorldWonderCompletion(eResourceLoop);
 					if (iQuantity > 0)
-						kPlayer.SpawnResourceInOwnedLands(eResourceLoop, iQuantity);
+						kPlayer.SpawnResourceInVicinity(this, eResourceLoop, iQuantity, /*bSarcophagus*/ false);
 				}
 			}
 			if (pBuildingInfo->GrantsRandomResourceTerritory() > 0)
