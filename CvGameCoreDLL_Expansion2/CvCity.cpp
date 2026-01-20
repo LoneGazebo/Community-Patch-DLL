@@ -23708,10 +23708,10 @@ void CvCity::ChangeBaseYieldRateFromBuildings(YieldTypes eIndex, int iChange)
 	if (iChange != 0)
 	{
 		m_aiBaseYieldRateFromBuildings[eIndex] += iChange;
+		UpdateCityYields(eIndex);
 
 		if (getTeam() == GC.getGame().getActiveTeam())
 		{
-			UpdateCityYields(eIndex);
 			if (isCitySelected())
 			{
 				DLLUI->setDirty(CityScreen_DIRTY_BIT, true);
@@ -23742,10 +23742,10 @@ void CvCity::ChangeBaseYieldRateFromSpecialists(YieldTypes eIndex, int iChange)
 	if (iChange != 0)
 	{
 		m_aiBaseYieldRateFromSpecialists[eIndex] = m_aiBaseYieldRateFromSpecialists[eIndex] + iChange;
+		UpdateCityYields(eIndex);
 
 		if (getTeam() == GC.getGame().getActiveTeam())
 		{
-			UpdateCityYields(eIndex);
 			if (isCitySelected())
 			{
 				DLLUI->setDirty(CityScreen_DIRTY_BIT, true);
@@ -23776,10 +23776,10 @@ void CvCity::ChangeBaseYieldRateFromMisc(YieldTypes eIndex, int iChange)
 	if (iChange != 0)
 	{
 		m_aiBaseYieldRateFromMisc[eIndex] = m_aiBaseYieldRateFromMisc[eIndex] + iChange;
+		UpdateCityYields(eIndex);
 
 		if (getTeam() == GC.getGame().getActiveTeam())
 		{
-			UpdateCityYields(eIndex);
 			if (isCitySelected())
 			{
 				DLLUI->setDirty(CityScreen_DIRTY_BIT, true);
@@ -23812,10 +23812,10 @@ void CvCity::ChangeBaseYieldRatePermanentWLTKDTimes100(YieldTypes eIndex, int iC
 	if (iChange != 0)
 	{
 		m_aiBaseYieldRatePermanentWLTKDTimes100[eIndex] = m_aiBaseYieldRatePermanentWLTKDTimes100[eIndex] + iChange;
+		UpdateCityYields(eIndex);
 
 		if (getTeam() == GC.getGame().getActiveTeam())
 		{
-			UpdateCityYields(eIndex);
 			if (isCitySelected())
 			{
 				DLLUI->setDirty(CityScreen_DIRTY_BIT, true);
