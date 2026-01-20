@@ -976,7 +976,6 @@ function AssignStartingPlots:__InitLuxuryWeights()
 	-- MOD.HungryForFood: End
 	if self:IsAdditionalLuxuriesModActive() then
 		table.insert(self.luxury_region_weights[6], {self.alpaca_ID,	15});
-		table.insert(self.luxury_region_weights[7], {self.feathers_ID,	15});
 	end
 	
 	self.luxury_region_weights[7] = { -- Grass
@@ -1003,7 +1002,6 @@ function AssignStartingPlots:__InitLuxuryWeights()
 	-- MOD.HungryForFood: End
 	if self:IsAdditionalLuxuriesModActive() then
 		table.insert(self.luxury_region_weights[7], {self.alpaca_ID,	15});
-		table.insert(self.luxury_region_weights[7], {self.feathers_ID,	15});
 	end
 	
 	self.luxury_region_weights[8] = { -- Hybrid
@@ -9461,6 +9459,7 @@ function AssignStartingPlots:GetIndicesForLuxuryType(resource_ID)
 			PlotListTypes.FLAT_JUNGLE,
 			PlotListTypes.MARSH,
 			PlotListTypes.HILLS_COVERED,
+			PlotListTypes.FLAT_PLAINS_GRASS_NO_FEATURE,
 		};
 	-- MOD.HungryForFood: Start
 	-- Even More Resources for Vox Populi
