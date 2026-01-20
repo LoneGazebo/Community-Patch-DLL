@@ -43,3 +43,8 @@ function GridToWorld(x, y) end
 --- @param strOriginal string? The string to be truncated. The control's current text will be used if this is nil.
 --- @param strSuffix string? The optional string to be appended to the truncated text. This counts towards the target size.
 function TruncateString(control, iTargetSize, strOriginal, strSuffix) end
+
+--- Alias for `debug.traceback`
+--- that's available in every state except `Main State`
+--- even if EnableLuaDebugLibrary = 0 in config.ini
+traceback = debug.traceback
