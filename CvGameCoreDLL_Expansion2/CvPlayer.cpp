@@ -33906,7 +33906,7 @@ void CvPlayer::changeYieldFromDeath(YieldTypes eIndex, int iChange)
 
 		invalidateYieldRankCache(eIndex);
 
-		if(getTeam() == GC.getGame().getActiveTeam())
+		if (getTeam() == GC.getGame().getActiveTeam())
 		{
 			GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
 		}
