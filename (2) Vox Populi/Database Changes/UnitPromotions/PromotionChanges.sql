@@ -601,6 +601,10 @@ UPDATE UnitPromotions SET CanMoveImpassable = 1 WHERE Type = 'PROMOTION_ENGINEER
 UPDATE UnitPromotions SET ExtraFeatureDamage = 1 WHERE Type = 'PROMOTION_FALLOUT_RESISTANCE';
 
 UPDATE UnitPromotions SET IgnoreFeatureDamage = 1 WHERE Type = 'PROMOTION_FALLOUT_IMMUNITY';
+INSERT INTO UnitPromotions_BlockedPromotions
+	(PromotionType, BlockedPromotionType)
+VALUES
+	('PROMOTION_FALLOUT_IMMUNITY', 'PROMOTION_FALLOUT_RESISTANCE');
 
 --------------------------------------------
 -- Natural Wonder free promotions
@@ -898,7 +902,6 @@ UPDATE UnitPromotions SET AttackWoundedMod = 33 WHERE Type = 'PROMOTION_STRONGER
 UPDATE UnitPromotions SET MoraleBreakChance = -1 WHERE Type = 'PROMOTION_WITHERING_FIRE';
 
 -- Pictish Warrior, Norwegian Ski Infantry: Highlander
-DELETE FROM UnitPromotions_Terrains WHERE PromotionType = 'PROMOTION_SKI_INFANTRY' AND TerrainType IN ('TERRAIN_SNOW', 'TERRAIN_TUNDRA');
 UPDATE UnitPromotions_Terrains SET Attack = 0, Defense = 0 WHERE PromotionType = 'PROMOTION_SKI_INFANTRY';
 INSERT INTO UnitPromotions_TerrainModifiers
 	(PromotionType, TerrainType, Attack, Defense)
