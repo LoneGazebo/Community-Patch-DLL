@@ -22588,7 +22588,6 @@ void CvUnit::changeExtraFriendlyHeal(int iChange)
 {
 	VALIDATE_OBJECT();
 	m_iExtraFriendlyHeal = (m_iExtraFriendlyHeal + iChange);
-	ASSERT(getExtraFriendlyHeal() >= 0);
 }
 
 
@@ -22605,7 +22604,6 @@ void CvUnit::changeSameTileHeal(int iChange)
 {
 	VALIDATE_OBJECT();
 	m_iSameTileHeal = (m_iSameTileHeal + iChange);
-	ASSERT(getSameTileHeal() >= 0);
 }
 
 
