@@ -15538,7 +15538,8 @@ int CvPlayer::getBuildingClassPrereqBuilding(BuildingTypes eBuilding, BuildingCl
 				if (MOD_BUILDINGS_NW_EXCLUDE_RAZING && pLoopCity->IsRazing())
 					continue;
 
-				iNonPuppetCities++;
+				if (pLoopCity->GetCityBuildings()->GetNumBuildingClass(ePrereqBuildingClass) == 0)
+					iNonPuppetCities++;
 			}
 		}
 

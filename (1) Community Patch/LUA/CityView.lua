@@ -1347,9 +1347,7 @@ local function UpdateViewFull()
 		Hide(Controls.UnrazeCityButton);
 	end
 
-	if bViewingMode and bCanRazeOrUnraze then
-		Enable(Controls.RazeCityButton, Controls.UnrazeCityButton);
-	else
+	if bViewingMode then
 		Disable(Controls.RazeCityButton, Controls.UnrazeCityButton);
 	end
 
