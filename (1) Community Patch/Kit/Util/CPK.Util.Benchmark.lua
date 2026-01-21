@@ -21,6 +21,8 @@ local AssertError = CPK.Assert.Error
 local AssertIsTable = CPK.Assert.IsTable
 local AssertIsNumber = CPK.Assert.IsNumber
 
+local TableCopy = CPK.Table.Copy
+
 local StringPadStart = CPK.String.PadStart
 
 local FormatByteSize = CPK.Util.Format.ByteSize
@@ -43,7 +45,7 @@ local gc_count = function()
 end
 
 local gc_run = function(n)
-	n = n or 3
+	n = n or 1
 	for _ = 1, n do
 		lua_collectgarbage('collect')
 	end
@@ -75,6 +77,9 @@ local function stats(arr)
 			min = v,
 		}
 	end
+
+	arr = TableCopy(arr)
+	lua_table_sort(arr)
 
 	local sum = 0
 	for i = 1, len do
@@ -142,9 +147,6 @@ local benchmark = function(times, loops, fn)
 
 	gc_start()
 	live_after = gc_run()
-
-	lua_table_sort(durs)
-	lua_table_sort(mems)
 
 	return {
 		live = live_after - live_prior,
@@ -295,7 +297,6 @@ local function Benchmark(opts)
 
 		local amor = '(amortized over ' .. loops .. ' calls)'
 		local info = ''
-				.. '\nBenchmark result:'
 				.. '\n\tTitle = ' .. title
 				.. '\n\tTimes = ' .. times
 				.. '\n\tLoops = ' .. loops
@@ -396,7 +397,10 @@ local function Benchmark(opts)
 			sub:Clear()
 		end
 
+		lua_print('[Benchmark] START')
+		lua_print('FireTuner may truncate long output; check Lua.log if needed!')
 		lua_print(psb:Append(sep):Append(''):Concat('\n'))
+		lua_print('[Benchmark] END')
 
 		return results
 	end
