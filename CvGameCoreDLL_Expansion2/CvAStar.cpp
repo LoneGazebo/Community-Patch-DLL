@@ -2563,7 +2563,7 @@ int BuildRouteValid(const CvAStarNode* parent, const CvAStarNode* node, const SP
 	if(pNewPlot->isWater())
 		return FALSE;
 
-	if(!pNewPlot->isValidMovePlot(ePlayer) && (!pNewPlot->isMountain() || !kPlayer.IsWorkersIgnoreImpassable()))
+	if(!pNewPlot->isValidMovePlot(ePlayer) && !(pNewPlot->isMountain() && kPlayer.WorkersMountainPass()))
 		return FALSE;
 
 	if (!bIsManual && pNewPlot->GetPlannedRouteState(ePlayer) == ROAD_PLANNING_EXCLUDE && !pNewPlot->isCity())
