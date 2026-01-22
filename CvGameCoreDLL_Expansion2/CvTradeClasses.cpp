@@ -2381,7 +2381,11 @@ void CvPlayerTrade::MoveUnits (void)
 							pDestCity = pDestPlot->getPlotCity();
 						}
 
+						// do instant yields for trade route completion
 						m_pPlayer->doInstantYield(INSTANT_YIELD_TYPE_TR_END, false, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, pOriginCity, false, bInternational, false, NO_YIELD, NULL, NO_TERRAIN, NULL, pDestCity);
+						if (!bInternational)  // internal TR: fire yields for the other city too
+							m_pPlayer->doInstantYield(INSTANT_YIELD_TYPE_TR_END, false, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, pDestCity, false, bInternational, false, NO_YIELD, NULL, NO_TERRAIN, NULL, pOriginCity);
+						
 						if (pDestCity != NULL && pOriginCity != NULL)
 						{
 							CvPlayer& kOriginPlayer = GET_PLAYER(pOriginCity->getOwner());
