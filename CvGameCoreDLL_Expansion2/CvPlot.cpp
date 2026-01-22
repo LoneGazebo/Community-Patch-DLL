@@ -14181,6 +14181,10 @@ int CvPlot::Validate(CvMap& kParentMap)
 /// Some reason we don't need to pay maintenance here?
 bool CvPlot::MustPayMaintenanceHere(PlayerTypes ePlayer) const
 {
+	// can now build roads on mountains also. these are also free
+	if (MOD_BALANCE_VP)
+		return !static_cast<bool>((isHills() || isMountain()) && GET_PLAYER(ePlayer).GetPlayerTraits()->IsNoHillsImprovementMaintenance());
+	
 	return !static_cast<bool>(isHills() && GET_PLAYER(ePlayer).GetPlayerTraits()->IsNoHillsImprovementMaintenance());
 }
 
