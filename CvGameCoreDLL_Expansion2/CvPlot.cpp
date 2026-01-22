@@ -2517,11 +2517,6 @@ bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlay
 		return false;
 	}
 
-	if (pkImprovementInfo->IsMountainsMakesValid() && isMountain())
-	{
-		return true;
-	}
-
 	if(getFeatureType() != NO_FEATURE)
 	{
 		if (pkImprovementInfo->GetCreatedFeature() != NO_FEATURE && getFeatureType() == pkImprovementInfo->GetCreatedFeature())
@@ -2534,6 +2529,11 @@ bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlay
 		}
 	}
 
+	if (pkImprovementInfo->IsMountainsMakesValid() && isMountain())
+	{
+		return true;
+	}
+	
 	bValid = false;
 
 	if(isCity())
