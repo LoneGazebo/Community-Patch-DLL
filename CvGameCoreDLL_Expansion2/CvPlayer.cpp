@@ -35066,7 +35066,7 @@ ResourceTypes CvPlayer::GetFreeLuxury() const
 		{
 			if(GC.getMap().getNumResources(eResource) <= 0)
 			{
-				int iRandomFlavor = GC.getGame().randRangeInclusive(1, 100, CvSeeder(iResourceLoop));
+				int iRandomFlavor = GC.getGame().randRangeInclusive(1, 100,  CvSeeder::fromRaw(0xf24ac584).mix(iResourceLoop));
 				//If we've already got this resource, divide the value by the amount.
 				if(getNumResourceTotal(eResource, false) > 0)
 				{
@@ -35088,7 +35088,7 @@ ResourceTypes CvPlayer::GetFreeLuxury() const
 			CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
 			if (pkResource != NULL && pkResource->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 			{
-				int iRandomFlavor = GC.getGame().randRangeInclusive(1, 100, CvSeeder(iResourceLoop));
+				int iRandomFlavor = GC.getGame().randRangeInclusive(1, 100,  CvSeeder::fromRaw(0x67f3264c).mix(iResourceLoop));
 				//If we've already got this resource, divide the value by the amount.
 				if(getNumResourceTotal(eResource, false) > 0)
 				{
@@ -35110,7 +35110,7 @@ ResourceTypes CvPlayer::GetFreeLuxury() const
 			CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
 			if (pkResource != NULL && pkResource->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 			{
-				int iRandomFlavor = GC.getGame().randRangeInclusive(1, 100, CvSeeder(iResourceLoop));
+				int iRandomFlavor = GC.getGame().randRangeInclusive(1, 100,  CvSeeder::fromRaw(0xb5d7b965).mix(iResourceLoop));
 				if(iRandomFlavor > iBestFlavor)
 				{
 					eResourceToGive = eResource;

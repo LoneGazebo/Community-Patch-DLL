@@ -9373,11 +9373,11 @@ bool CvUnit::createFreeLuxury()
 	int iNumLuxuries = CreateFreeLuxuryCheckCopy();
 	if(iNumLuxuries > 0)
 	{
-		eResourceToGive = GetFreeLuxury();
+		CvPlayerAI& kOwner = GET_PLAYER(getOwner());
+		ResourceTypes eResourceToGive =  kOwner.GetFreeLuxury();
 		if (eResourceToGive != NO_RESOURCE)
 		{
-			GET_PLAYER(getOwner()).changeResourceFromGP(eResourceToGive, iNumLuxuries);
-			CvPlayerAI& kOwner = GET_PLAYER(getOwner());
+			kOwner.changeResourceFromGP(eResourceToGive, iNumLuxuries);
 			if(kOwner.isHuman(ISHUMAN_NOTIFICATIONS))
 			{
 				CvNotifications* pNotifications = kOwner.GetNotifications();
@@ -9414,7 +9414,7 @@ int CvUnit::CreateFreeLuxuryCheck()
 	int iNumLuxuries = CreateFreeLuxuryCheckCopy();
 	if(iNumLuxuries > 0)
 	{
-		eResourceToGive = GetFreeLuxury();
+		ResourceTypes eResourceToGive =  GET_PLAYER(getOwner()).GetFreeLuxury();
 		if (eResourceToGive != NO_RESOURCE)
 		{
 			return eResourceToGive;
@@ -9422,75 +9422,6 @@ int CvUnit::CreateFreeLuxuryCheck()
 	}
 
 	return NO_RESOURCE;
-}
-
-int CvUnit::GetFreeLuxury() const
-{
-// Loop through all resources and see if we can find this many unique ones
-	ResourceTypes eResourceToGive = NO_RESOURCE;
-	int iBestFlavor = 0;
-	for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
-	{
-		ResourceTypes eResource = (ResourceTypes) iResourceLoop;
-		CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
-		if (pkResource != NULL && pkResource->getResourceUsage() == RESOURCEUSAGE_LUXURY)
-		{
-			if(GC.getMap().getNumResources(eResource) <= 0)
-			{
-				int iRandomFlavor = GC.getGame().randRangeInclusive(1, 100, CvSeeder(iResourceLoop));
-				//If we've already got this resource, divide the value by the amount.
-				if(GET_PLAYER(getOwner()).getNumResourceTotal(eResource, false) > 0)
-				{
-					iRandomFlavor = 0;
-				}
-				if(iRandomFlavor > iBestFlavor)
-				{
-					eResourceToGive = eResource;
-					iBestFlavor = iRandomFlavor;
-				}
-			}
-		}
-	}
-	if (eResourceToGive == NO_RESOURCE)
-	{
-		for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
-		{
-			ResourceTypes eResource = (ResourceTypes) iResourceLoop;
-			CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
-			if (pkResource != NULL && pkResource->getResourceUsage() == RESOURCEUSAGE_LUXURY)
-			{
-				int iRandomFlavor = GC.getGame().randRangeInclusive(1, 100, CvSeeder(iResourceLoop));
-				//If we've already got this resource, divide the value by the amount.
-				if(GET_PLAYER(getOwner()).getNumResourceTotal(eResource, false) > 0)
-				{
-					iRandomFlavor = 0;
-				}
-				if(iRandomFlavor > iBestFlavor)
-				{
-					eResourceToGive = eResource;
-					iBestFlavor = iRandomFlavor;
-				}
-			}
-		}
-	}
-	if (eResourceToGive == NO_RESOURCE)
-	{
-		for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
-		{
-			ResourceTypes eResource = (ResourceTypes) iResourceLoop;
-			CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
-			if (pkResource != NULL && pkResource->getResourceUsage() == RESOURCEUSAGE_LUXURY)
-			{
-				int iRandomFlavor = GC.getGame().randRangeInclusive(1, 100, CvSeeder(iResourceLoop));
-				if(iRandomFlavor > iBestFlavor)
-				{
-					eResourceToGive = eResource;
-					iBestFlavor = iRandomFlavor;
-				}
-			}
-		}
-	}
-	return eResourceToGive;
 }
 
 //	--------------------------------------------------------------------------------
