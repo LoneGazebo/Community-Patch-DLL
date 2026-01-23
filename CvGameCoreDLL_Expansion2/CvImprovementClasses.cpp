@@ -84,6 +84,7 @@ CvImprovementEntry::CvImprovementEntry(void):
 	m_iLuxuryCopiesSiphonedFromMinor(0),
 	m_iImprovementLeagueVotes(0),
 	m_iHappinessOnConstruction(0),
+	m_bExoticResourceFromImprovement(false),
 	m_iImprovementResource(NO_RESOURCE),
 	m_iImprovementResourceQuantity(0),
 	m_iUnitFreePromotionImprovement(NO_PROMOTION),
@@ -344,6 +345,7 @@ bool CvImprovementEntry::CacheResults(Database::Results& kResults, CvDatabaseUti
 	const char* szCivilizationType = kResults.GetText("CivilizationType");
 	m_eRequiredCivilization = (CivilizationTypes)GC.getInfoTypeForString(szCivilizationType, true);
 	m_iHappinessOnConstruction = kResults.GetInt("HappinessOnConstruction");
+	m_bExoticResourceFromImprovement = kResults.GetBool("ExoticResourceFromImprovement");
 	const char* szImprovementResource = kResults.GetText("ImprovementResource");
 	m_iImprovementResource = (ResourceTypes)GC.getInfoTypeForString(szImprovementResource, true);
 	m_iImprovementResourceQuantity = kResults.GetInt("ImprovementResourceQuantity");
@@ -1019,6 +1021,10 @@ int CvImprovementEntry::GetHappinessOnConstruction() const
 	return m_iHappinessOnConstruction;
 }
 // Does this improvement create a resource when construced?
+bool CvImprovementEntry::IsExoticResourceFromImprovement() const
+{
+	return m_bExoticResourceFromImprovement;
+}
 int CvImprovementEntry::GetResourceFromImprovement() const
 {
 	return m_iImprovementResource;
