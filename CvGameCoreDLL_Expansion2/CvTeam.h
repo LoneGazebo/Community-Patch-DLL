@@ -635,10 +635,10 @@ protected:
 	void cancelDefensivePacts();
 	void announceTechToPlayers(TechTypes eIndex, bool bPartial = false);
 
-	void DoNowAtWarOrPeace(TeamTypes eTeam, bool bWar);
+	void DoNowAtWarOrPeace(TeamTypes eTeam, bool bWar, vector<pair<PlayerTypes, TeamTypes>>* pvMinorCivsDeferredPeaceUpdate = NULL);
 
 	void DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamTypes eTeam, bool bDefensivePact, TeamTypes eDefensivePactTeam = NO_TEAM, bool bMinorAllyPact = false);
-	void DoMakePeace(PlayerTypes eOriginatingPlayer, bool bPacifier, TeamTypes eTeam, bool bBumpUnits, bool bSuppressNotification = false);
+	void DoMakePeace(PlayerTypes eOriginatingPlayer, bool bPacifier, TeamTypes eTeam, bool bBumpUnits, bool bSuppressNotification = false, bool bIgnoreVassalsAndAllies = false, vector<pair<PlayerTypes, TeamTypes>>* pvMinorCivsDeferredPeaceUpdate = NULL);
 };
 
 // helper for accessing static functions
