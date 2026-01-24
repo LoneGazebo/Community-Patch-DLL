@@ -1290,6 +1290,10 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 	if (!pkResourceInfo)
 		return 0;
 
+	// Don't buy obsolete resources
+	if (!bFromMe && GET_TEAM(GetTeam()).IsResourceObsolete(eResource))
+		return 0;
+
 	//Integer zero check...
 	if (iNumTurns <= 0)
 		iNumTurns = 1;
@@ -2066,6 +2070,10 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 				return INT_MAX;
 		}
 	}
+
+	// Don't buy obsolete resources
+	if (!bFromMe && GET_TEAM(GetTeam()).IsResourceObsolete(eResource))
+		return 0;
 
 	// Don't buy if we already have enough
 	if (!bFromMe && iNumberAvailableToUs >= 5)

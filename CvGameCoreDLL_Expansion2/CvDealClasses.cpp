@@ -556,12 +556,6 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			if (eTech != NO_TECH && (GET_PLAYER(ePlayer).HasTech(eTech) || GET_PLAYER(eToPlayer).HasTech(eTech)))
 				return false;
 
-			// Resources can have a "AI will stop trading" era - if it's been passed, AI won't trade this
-			if (!pFromPlayer->isHuman(ISHUMAN_AI_DIPLOMACY) && pFromTeam->IsResourceObsolete(eResource))
-				return false;
-			if (!pToPlayer->isHuman(ISHUMAN_AI_DIPLOMACY) && pToTeam->IsResourceObsolete(eResource))
-				return false;
-
 			if (iData2 != -1)
 			{
 				int iResourceQuantity = iData2;
