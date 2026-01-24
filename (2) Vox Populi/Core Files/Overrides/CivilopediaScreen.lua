@@ -4439,7 +4439,7 @@ function SelectBuildingOrWonderArticle( buildingID )
 				local buildingCategory = CategoryBuildings;
 				local defaultBuildingClass = GameInfo.BuildingClasses[defaultBuilding.BuildingClass];
 				local defaultBuildingInfo = GameInfo.Buildings[defaultBuildingClass.DefaultBuilding];
-				if defaultBuildingClass and (defaultBuildingClass.MaxGlobalInstances > 0 or (defaultBuildingClass.MaxPlayerInstances == 1 and defaultBuildingInfo.SpecialistCount == 0) or thisBuildingClass.MaxTeamInstances > 0) then
+				if defaultBuildingClass and (defaultBuildingClass.MaxGlobalInstances > 0 or (defaultBuildingClass.MaxPlayerInstances == 1 and defaultBuildingInfo.SpecialistCount == 0) or defaultBuildingClass.MaxTeamInstances > 0) then
 					buildingCategory = CategoryWonders;
 				end
 				UpdateSmallButton( buttonAdded, thisBuildingInstance.ReplaceImage, thisBuildingInstance.ReplaceButton, textureSheet, textureOffset, buildingCategory, Locale.ConvertTextKey( defaultBuilding.Description ), defaultBuilding.ID );
