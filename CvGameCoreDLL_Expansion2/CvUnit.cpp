@@ -27672,7 +27672,7 @@ void CvUnit::setPromotionActive(PromotionTypes eIndex, bool bNewValue)
 		}
 		else
 		{
-			ChangePromotionDuration(NO_PROMOTION, 0);
+			ChangePromotionDuration(eIndex, 0);
 		}
 	}
 	if (thisPromotion.NegatesPromotion() != NO_PROMOTION)
