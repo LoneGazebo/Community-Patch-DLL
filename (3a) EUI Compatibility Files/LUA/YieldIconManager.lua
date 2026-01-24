@@ -115,6 +115,8 @@ end
 Events.ShowHexYield.Add(
 function( x, y, isShown )
 
+	isShown = isShown or OptionsManager.GetYieldOn();
+
 	local plot = Map_GetPlot( x, y )
 	if plot and plot:IsRevealed( g_activeTeamID, false ) then
 
