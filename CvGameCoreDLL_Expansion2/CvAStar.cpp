@@ -1505,8 +1505,8 @@ int PathValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFin
 	CvUnit* pUnit = pCacheData->pUnit;
 	TeamTypes eUnitTeam = pCacheData->getTeam();
 
-	if (!kToNodeCacheData.bIsRevealedToTeam && !pUnit->isHuman(ISHUMAN_AI_UNITS) && !finder->HaveFlag(CvUnit::MOVEFLAG_PRETEND_ALL_REVEALED) && pUnit->AI_getUnitAIType()!=UNITAI_EXPLORE)
-		return FALSE;
+		if (!kToNodeCacheData.bIsRevealedToTeam && !pUnit->isHuman(ISHUMAN_AI_UNITS) && !finder->HaveFlag(CvUnit::MOVEFLAG_PRETEND_ALL_REVEALED) && pUnit->AI_getUnitAIType()!=UNITAI_EXPLORE)
+			return FALSE;
 
 	bool bNextNodeHostile = kToNodeCacheData.bIsEnemyCity || (kToNodeCacheData.bIsVisibleEnemyCombatUnit && !finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_ENEMIES));
 	bool bNextNodeVisibleToTeam = kToNodeCacheData.bPlotVisibleToTeam;
@@ -1573,7 +1573,7 @@ int PathValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFin
 	//some checks about terrain etc. needs to be revealed, otherwise we leak information in the UI
 	if (kToNodeCacheData.bIsRevealedToTeam)
 	{
-		// if we can't enter the plot even temporarily, that's it. 
+		// if we can't enter the plot even temporarily, that's it.
 		// if we can enter, there's another check in PathCost once we know whether we need to stay here
 		if (!kToNodeCacheData.bCanEnterTerrainIntermediate)
 			return FALSE;
@@ -2884,6 +2884,9 @@ bool CvTwoLayerPathFinder::Configure(const SPathFinderUserData& config)
 		CvUnit* pUnit = GET_PLAYER(config.ePlayer).getUnit(config.iUnitID);
 		if (pUnit) //force an update before starting the actual pathfinding
 			GET_PLAYER(config.ePlayer).GetPlotDanger(*pUnit->plot(), pUnit, UnitIdContainer(), 0);
+
+		// GetPlotDanger may have triggered nested pathfinding that overwrote m_sData, restore it
+		m_sData = config;
 	}
 
 	switch(config.ePath)
@@ -3133,7 +3136,7 @@ ReachablePlots CvPathFinder::GetPlotsInReach(int iXstart, int iYstart, const SPa
 	}
 
 	ReachablePlots plots;
-	
+
 	//there is no destination! the return value will always be false
 	CvAStar::FindPathWithCurrentConfiguration(iXstart, iYstart, -1, -1);
 
