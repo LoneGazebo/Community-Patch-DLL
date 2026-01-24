@@ -6631,6 +6631,8 @@ int CvCityBuildings::GetNumGreatWorks(GreatWorkSlotType eGreatWorkSlot, bool bAr
 
 int CvCityBuildings::GetThemingBonusIndex(BuildingTypes eBuilding) const
 {
+	PRECONDITION(eBuilding >= 0, "eBuilding expected to be >= 0");
+	PRECONDITION(eBuilding < GC.getNumBuildingInfos(), "eBuilding expected to be < getNumBuildingInfos()");
 	return m_paiThemingBonusIndex[eBuilding];
 }
 

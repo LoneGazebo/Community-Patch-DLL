@@ -19631,10 +19631,16 @@ int CvPlayer::GetSciencePerTurnFromMinor(PlayerTypes eMinor) const
 
 int CvPlayer::GetYieldPerTurnFromMinors(YieldTypes eYield) const
 {
+	PRECONDITION(eYield >= 0, "eYield expected to be >= 0");
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "eYield expected to be < NUM_YIELD_TYPES");
+
 	return m_aiYieldFromMinors[eYield];
 }
 void CvPlayer::SetYieldPerTurnFromMinors(YieldTypes eYield, int iValue)
 {
+	PRECONDITION(eYield >= 0, "eYield expected to be >= 0");
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "eYield expected to be < NUM_YIELD_TYPES");
+
 	if (iValue != m_aiYieldFromMinors[eYield])
 	{
 		m_aiYieldFromMinors[eYield] = iValue;
@@ -33943,7 +33949,7 @@ void CvPlayer::ChangeYieldFromPillage(YieldTypes eIndex, int iChange)
 int CvPlayer::GetYieldFromVictory(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT();
-		PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
 	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	return m_aiYieldFromVictory[eIndex];
 }
