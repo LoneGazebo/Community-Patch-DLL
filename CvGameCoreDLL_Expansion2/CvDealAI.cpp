@@ -289,7 +289,6 @@ void CvDealAI::DoAcceptedDeal(PlayerTypes eFromPlayer, const CvDeal& kDeal, int 
 
 	if (GET_PLAYER(eFromPlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
 	{
-		// If this was a peace deal, apply a recent assist bonus for demanding less than the maximum value.
 		int iCachedPeaceValue = GetCachedValueOfPeaceWithHuman();
 		bool bGenerousPeaceTreaty = false;
 		if (iCachedPeaceValue != 0)
@@ -302,9 +301,7 @@ void CvDealAI::DoAcceptedDeal(PlayerTypes eFromPlayer, const CvDeal& kDeal, int 
 			{
 				int iDifference = iCachedPeaceValue - iDealValueToMe;
 				int iPercentage = (iDifference * 100) / iCachedPeaceValue;
-				int iRecentAssistBonus = (m_pPlayer->GetDiplomacyAI()->GetMaxRecentAssistValue() + (m_pPlayer->GetDiplomacyAI()->GetMaxRecentFailedAssistValue() * -1) * iPercentage) / 100;
-				m_pPlayer->GetDiplomacyAI()->ChangeRecentAssistValue(eFromPlayer, iRecentAssistBonus);
-
+				
 				// If half or less of max value, mark it as generous for the text selection below
 				if (iPercentage >= 50)
 				{

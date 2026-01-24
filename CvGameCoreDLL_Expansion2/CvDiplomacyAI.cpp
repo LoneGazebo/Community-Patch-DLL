@@ -29585,8 +29585,23 @@ void CvDiplomacyAI::DoFirstContact(PlayerTypes ePlayer)
 			{
 				if (!IsAtWar(ePlayer) && CvPreGame::isHuman(ePlayer))
 				{
-					const char* szText = GetDiploStringForMessage(DIPLO_MESSAGE_INTRO);
-					CvDiplomacyRequests::SendRequest(GetID(), ePlayer, DIPLO_UI_STATE_DEFAULT_ROOT, szText, LEADERHEAD_ANIM_INTRO);
+					// Human to Human will just send a notification
+					if (GetPlayer()->isHuman(ISHUMAN_AI_DIPLOMACY))
+					{
+						CvPlayer& kTargetPlayer = GET_PLAYER(ePlayer);
+						CvNotifications* pNotifications = kTargetPlayer.GetNotifications();
+						if (pNotifications)
+						{
+							CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_MET_MINOR_CIV", GetPlayer()->getNameKey());
+							pNotifications->Add(NOTIFICATION_GENERIC, strBuffer, strBuffer, -1, -1, GetID());
+						}
+					}
+					else
+					{
+						// AI to Human sends a diplo request
+						const char* szText = GetDiploStringForMessage(DIPLO_MESSAGE_INTRO);
+						CvDiplomacyRequests::SendRequest(GetID(), ePlayer, DIPLO_UI_STATE_DEFAULT_ROOT, szText, LEADERHEAD_ANIM_INTRO);
+					}
 				}
 			}
 		}
