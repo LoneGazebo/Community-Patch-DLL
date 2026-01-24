@@ -3960,7 +3960,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackAirSweep(CvUnit& kAttacker, CvPl
 			int iExperience = /*5*/ GD_INT_GET(EXPERIENCE_ATTACKING_AIR_SWEEP);
 			PlayerTypes eUnitOwner = kAttacker.getOwner();
 			PlayerTypes ePlotOwner = targetPlot.getOwner();
-			kAttacker.changeExperienceTimes100(100 * iExperience, -1, true, eUnitOwner == ePlotOwner, true, eUnitOwner != ePlotOwner && GET_PLAYER(ePlotOwner).isHuman(ISHUMAN_HANDICAP));
+			kAttacker.changeExperienceTimes100(100 * iExperience, -1, true, eUnitOwner == ePlotOwner, true, eUnitOwner != ePlotOwner && ePlotOwner != NO_PLAYER && GET_PLAYER(ePlotOwner).isHuman(ISHUMAN_HANDICAP));
 			kAttacker.testPromotionReady();
 
 			// attempted to do a sweep in a plot that had no interceptors
