@@ -1,204 +1,206 @@
-print("This is the modded YieldIconManager from 'DLL - Various Mod Components'")
-
 -------------------------------------------------
 -- Yield Icon Manager
+-- re-written by bc1, compatible with all Civ V and BE versions
+-- fix quantity erratic display & make code much more efficient
+-- add compatibility with "DLL - Various Mod Components" v63
+-- fixed invisible yields bug
 -------------------------------------------------
-include("FLuaVector");
-include("InstanceManager");
 
-local g_AnchorIM = InstanceManager:new("AnchorInstance", "Anchor", Controls.Scrap);
-local g_ImageIM  = InstanceManager:new("ImageInstance",  "Image",  Controls.Scrap);
+-- Minor optimizations
+local pairs = pairs
+local table_insert = table.insert
+local table_remove = table.remove
 
-local g_VisibleSet = {};
-local g_YieldInfoCache = {};
+local ContextPtr = ContextPtr
+local Controls_Scrap = Controls.Scrap
+local Controls_YieldStore = Controls.YieldStore
+local GridToWorld = GridToWorld
+local Map_GetPlot = Map.GetPlot
+local UI_RefreshYieldVisibleMode = UI.RefreshYieldVisibleMode
 
--- This MUST have (at least) YieldTypes.NUM_YIELD_TYPES entries!  (There are currently a few spare)
-local g_StackPlacement = {1, 1, 1, 2, 2, 2, 1, 2, 1, 2}
+-- Globals
+local g_ActiveAnchors = {}
+local g_AvailableAnchors = {}
+local g_AvailableImageInstances = {}
+local g_maxYieldID = ((YieldTypes or {}).NUM_YIELD_TYPES or 5) -1
+local g_activeTeamID = Game.GetActiveTeam()
+local g_isVanillaDLL = Map_GetPlot(0,0).GetCulture
+local g_defaultTexture = "YieldAtlas.dds"
+local g_Textures = { [0]=g_defaultTexture, g_defaultTexture, g_defaultTexture, g_defaultTexture, "YieldAtlas_128_Culture.dds", "YieldAtlas_128_Faith.dds", "YieldAtlas_128_Tourism.dds", "YieldAtlas_128_GoldenAge.dds" }
+local g_OffsetXs = { [0]=0, 128 , 256, 384, 0, 0, 0, 0, 0 }
+-- compatibility with "DLL - Various Mod Components" extra yields
+for row in GameInfo.Yields() do
+	for k,v in pairs(row) do
+		if k == "ImageTexture" then
+			g_Textures[row.ID] = v
+		elseif k == "ImageOffset" then
+			g_OffsetXs[row.ID] = v
+		end
+	end
+end
 
 ------------------------------------------------------------------
--- update the controls to reflect the current known yield 
+-- Update the controls to reflect the current known yield
 ------------------------------------------------------------------
-function BuildYield(gridX, gridY, index, pPlot)
-    if (not pPlot:IsRevealed(Game.GetActiveTeam(), false)) then
-        return;
-    end
+local function BuildAnchorYields( plot, anchor )
 
-    local yieldInfo = g_YieldInfoCache[index];
-    if (yieldInfo == nil) then    
-        yieldInfo = RecordYieldInfo(index, pPlot);
+	-- calculate the yields
+	local yieldInfo, amount = {}
+	for yieldID = 0, g_maxYieldID do
+		amount = plot:CalculateYield( yieldID, true ) --* 0 + math.random( 0, 3 ) * math.random( 0, 4 )
+		if amount > 0 then
+			table_insert( yieldInfo, { yieldID, amount } )
+		end
+	end
+	if g_isVanillaDLL then
+		amount = plot:GetCulture()
+		if amount > 0 then
+			table_insert( yieldInfo, { 4, amount } )
+		end
+	end
+	local n = #yieldInfo
+	if n > 0 then
+		local m = n<5 and 4 or (n+1)/2
+		for i = 1, n do
+			local yieldID = yieldInfo[i][1]
+			local amount = yieldInfo[i][2]
 
-        if (yieldInfo == nil) then
-            return;
-        end
-    end
+			local iconInstance = table_remove( g_AvailableImageInstances )
+			if iconInstance then
+				iconInstance.Image:ChangeParent( i <= m and anchor.Stack1 or anchor.Stack2 )
+			else
+				iconInstance = {}
+				ContextPtr:BuildInstanceForControl( "ImageInstance", iconInstance, i <= m and anchor.Stack1 or anchor.Stack2 )
+			end
+			table_insert( anchor, iconInstance )
 
-    record = {};
-    record.AnchorInstance = g_AnchorIM:GetInstance();
-    record.AnchorInstance.Anchor:ChangeParent(Controls.YieldStore);
-    g_VisibleSet[index] = record;
-    local anchor = record.AnchorInstance;
+			iconInstance.Image:SetTexture( g_Textures[ yieldID ] or g_defaultTexture )
+			iconInstance.Image:SetTextureOffsetVal( g_OffsetXs[ yieldID ] or 0, amount>4 and 512 or 128 * (amount - 1) )
 
-	local iPlace = 1
-	for iYield = 0, YieldTypes.NUM_YIELD_TYPES-1, 1 do
-		if (yieldInfo[iYield] > 0) then
-			SetYieldIcon(iYield, yieldInfo[iYield], anchor[string.format("Stack%i", (g_StackPlacement[iPlace] or 1))], record);
-			iPlace = iPlace + 1;
+			if amount > 5 then
+				local textInstance = table_remove( g_AvailableImageInstances )
+				if textInstance then
+					textInstance.Image:ChangeParent( iconInstance.Image )
+				else
+					textInstance = {}
+					ContextPtr:BuildInstanceForControl( "ImageInstance", textInstance, iconInstance.Image )
+				end
+				table_insert( anchor, textInstance )
+				textInstance.Image:SetTexture( g_defaultTexture )
+				textInstance.Image:SetTextureOffsetVal( amount > 12 and 256 or 128 * ((amount - 6) % 4), amount > 9  and 768 or 640 )
+			end
+		end
+
+		anchor.Stack1:CalculateSize()
+		anchor.Stack2:CalculateSize()
+		anchor.Stack:ReprocessAnchoring()
+	end
+end
+
+------------------------------------------------------------------
+-- Update the controls to remove yield display
+------------------------------------------------------------------
+local function RecycleAnchorYields( anchor )
+
+	for i = 1, #anchor do
+		local instance = table_remove( anchor )
+		instance.Image:ChangeParent( Controls_Scrap )
+		table_insert( g_AvailableImageInstances, instance )
+	end
+end
+
+------------------------------------------------------------------
+-- Plot Yield Show / Hide
+------------------------------------------------------------------
+Events.ShowHexYield.Add(
+function( x, y, isShown )
+
+	--workaround for bugged parameter isShown
+	isShown = isShown or OptionsManager.GetYieldOn();
+
+	local plot = Map_GetPlot( x, y )
+	if plot and plot:IsRevealed( g_activeTeamID, false ) then
+
+		local index = plot:GetPlotIndex()
+		local anchor = g_ActiveAnchors[ index ]
+
+		if isShown then
+			if anchor then
+				-- just show it
+				anchor.Anchor:ChangeParent( Controls_YieldStore )
+				-- updating world position to make it synchronized with current camera position
+				local a,b,c= GridToWorld( x, y )
+				anchor.Anchor:SetWorldPositionVal( a,b,c )
+			else
+				-- set up anchor
+				anchor = table_remove( g_AvailableAnchors )
+				if anchor then
+					anchor.Anchor:ChangeParent( Controls_YieldStore )
+				else
+					anchor = {}
+					ContextPtr:BuildInstanceForControl( "AnchorInstance", anchor, Controls_YieldStore )
+				end
+				g_ActiveAnchors[ index ] = anchor
+				local a,b,c= GridToWorld( x, y )
+				anchor.Anchor:SetWorldPositionVal( a,b,c ) -- compatibility with BE: SetHexPosition deprecated
+				-- add yields
+				BuildAnchorYields( plot, anchor )
+			end
+			anchor.IsVisible = true
+
+		elseif anchor then
+			-- just hide it
+			anchor.Anchor:ChangeParent( Controls_Scrap )
+			anchor.IsVisible = false
 		end
 	end
 
-    anchor.Stack1:CalculateSize();
-    anchor.Stack1:ReprocessAnchoring();
-    anchor.Stack2:CalculateSize();
-    anchor.Stack2:ReprocessAnchoring();
-    anchor.Anchor:SetHexPosition(gridX, gridY);
-end
+end)
 
 ------------------------------------------------------------------
-function SetYieldIcon(yieldType, amount, parent, record)
-    local imageInstance = g_ImageIM:GetInstance();
-	imageInstance.Image:SetTexture(GameInfo.Yields[yieldType].ImageTexture);
-			
-	local imageOffset = GameInfo.Yields[yieldType].ImageOffset
-    if (amount > 5) then
-        imageInstance.Image:SetTextureOffsetVal(imageOffset, 512);
-    else
-        imageInstance.Image:SetTextureOffsetVal(imageOffset, 128 * (amount - 1));
-    end
-
-	imageInstance.Image:ChangeParent(parent);
-
-	if (record.ImageInstances == nil) then
-		record.ImageInstances = {};
-	end
-	table.insert(record.ImageInstances, imageInstance);
-
-	if (amount > 5) then
-		local textImageInstance = g_ImageIM:GetInstance();
-		textImageInstance.Image:SetTextureOffsetVal(GetNumberOffset(amount));
-		textImageInstance.Image:ChangeParent(imageInstance.Image);
-		table.insert(record.ImageInstances, textImageInstance);
-    end
-end
-
+-- Plot Yield Update
 ------------------------------------------------------------------
-function GetNumberOffset(number)
-    if (number > 12) then
-        number = 12;
-    end
-    
-    local x = 128 * ((number - 6) % 4);
-    
-    local y;
-    if (number > 9) then
-        y = 768
-    else
-        y = 640;
-    end
-    
-    return x, y;
-end
+Events.HexYieldMightHaveChanged.Add(
+function( x, y )
 
-------------------------------------------------------------------
-function DestroyYield(index)
-    local instanceSet = g_VisibleSet[index];
-	
-    if (instanceSet) then
-        local instance = instanceSet.AnchorInstance;
-		
-        if (instance) then
-            instance.Anchor:ChangeParent(Controls.Scrap);
-            g_AnchorIM:ReleaseInstance(instance);
-        end
-        
-        for _, instance in ipairs(instanceSet.ImageInstances) do
-            instance.Image:ChangeParent(Controls.Scrap);
-            g_ImageIM:ReleaseInstance(instance);
-        end
-        
-        g_VisibleSet[index] = nil;
-    end
-end
-   
-------------------------------------------------------------------
-function RecordYieldInfo(index, pPlot)
-    local info = {};
-    local iTotal = 0
-	
-	for iYield = 0, YieldTypes.NUM_YIELD_TYPES-1, 1 do
-        info[iYield] = pPlot:CalculateYield(iYield, true);
-		iTotal = iTotal + info[iYield]
-	end
-	
-    if (iTotal == 0) then
-        info = nil;
-    end
-    
-    g_YieldInfoCache[index] = info;
-    
-    return info;
-end
-
------------------------------------------------------------------------
-function ShowHexYield(gridX, gridY, bShow)
-    local pPlot = Map.GetPlot(gridX, gridY);
-
-    if (pPlot) then
-		local index = pPlot:GetPlotIndex();
-		
-		if (bShow) then
-			DestroyYield(index);
-			BuildYield(gridX, gridY, index, pPlot);
-		else
-			DestroyYield(index);
+	local plot = Map_GetPlot( x, y )
+	if plot and plot:IsRevealed( g_activeTeamID, false ) then
+		local index = plot:GetPlotIndex()
+		local anchor = g_ActiveAnchors[ index ]
+		if anchor then
+			RecycleAnchorYields( anchor )
+			if anchor.IsVisible then
+				BuildAnchorYields( plot, anchor )
+			else
+				-- recycle anchor
+				table_insert( g_AvailableAnchors, anchor )
+				g_ActiveAnchors[ index ] = nil
+			end
 		end
 	end
- 
-end
-Events.ShowHexYield.Add(ShowHexYield);
+end)
 
--------------------------------------------------
-function OnYieldChangeEvent(gridX, gridY)
-    local pPlot = Map.GetPlot(gridX, gridY);
-
-    if (pPlot == nil) then
-        print("Missing Plot information [" .. gridX .. " " .. gridY .. "]");
-        return;
-    end
-    
-    if (not pPlot:IsRevealed(Game.GetActiveTeam(), false)) then
-        return;
-    end
-
-    local index = pPlot:GetPlotIndex();
-    
-    RecordYieldInfo(index, pPlot);
-    
-    if (g_VisibleSet[index]) then
-        DestroyYield(index);
-        BuildYield(gridX, gridY, index, pPlot);
-    end
-    
-end
-Events.HexYieldMightHaveChanged.Add(OnYieldChangeEvent);
-
-----------------------------------------------------------------
+------------------------------------------------------------------
 -- 'Active' (local human) player has changed
-----------------------------------------------------------------
-function OnActivePlayerChanged(iActivePlayer, iPrevActivePlayer)
-	for index, _ in pairs(g_VisibleSet) do
-        DestroyYield(index);
-   	end
+------------------------------------------------------------------
+Events.GameplaySetActivePlayer.Add(
+function()-- activePlayerID, prevActivePlayerID )
 
-	for index, _ in pairs(g_YieldInfoCache) do
-        g_YieldInfoCache[index] = nil;
-   	end
-	
-	UI.RefreshYieldVisibleMode();
-end
-Events.GameplaySetActivePlayer.Add(OnActivePlayerChanged);
+	g_activeTeamID = Game.GetActiveTeam()
 
-----------------------------------------------------------------
--- Bit of a hack here, we want to ensure that the yield icons
--- are properly refreshed when starting a new game.
-----------------------------------------------------------------
-UI.RefreshYieldVisibleMode();
+	for _, anchor in pairs( g_ActiveAnchors ) do
+		RecycleAnchorYields( anchor )
+		-- recycle anchor
+		anchor.Anchor:ChangeParent( Controls_Scrap )
+		table_insert( g_AvailableAnchors, anchor )
+	end
+
+	-- zap anchor cache
+	g_ActiveAnchors = {}
+
+	UI_RefreshYieldVisibleMode()
+end)
+
+-- Bit of a hack here, we want to ensure that the yield icons are properly refreshed
+-- when starting a new game.
+UI_RefreshYieldVisibleMode()
