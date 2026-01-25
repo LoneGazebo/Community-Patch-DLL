@@ -1160,6 +1160,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetDealValue);
 	Method(GetDealMyValue);
 	Method(GetDealTheyreValue);
+	Method(IsCurrentDealOfferChanged);
 	Method(MayNotAnnex);
 
 	Method(GetEspionageCityStatus);
@@ -16518,6 +16519,14 @@ int CvLuaPlayer::lGetDealTheyreValue(lua_State* L)
 		lua_pushinteger(L, pkDeal->GetFromPlayerValue());
 	else
 		lua_pushinteger(L, pkDeal->GetToPlayerValue());
+	return 1;
+}
+
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lIsCurrentDealOfferChanged(lua_State* L)
+{
+	CvPlayerAI* pkThisPlayer = GetInstance(L);
+	lua_pushinteger(L, pkThisPlayer->GetDiplomacyAI()->GetCurrentDealOfferChanged());
 	return 1;
 }
 

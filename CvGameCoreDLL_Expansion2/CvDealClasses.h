@@ -104,6 +104,8 @@ public:
 	static void Serialize(Deal& deal, Visitor& visitor);
 
 	// Public data
+	int m_iID;
+
 	PlayerTypes m_eFromPlayer;
 	PlayerTypes m_eToPlayer;
 	int m_iStartTurn;
@@ -117,9 +119,6 @@ public:
 	PlayerTypes m_eSurrenderingPlayer;
 	PlayerTypes m_eDemandingPlayer;
 	PlayerTypes m_eRequestingPlayer;
-
-	bool m_bConsideringForRenewal; // is currently considering renewing this deal
-	bool m_bCheckedForRenewal; // this deal has been discussed with the player for renewal
 	bool m_bIsGift;
 
 	TradedItemList m_TradedItems;
@@ -144,6 +143,10 @@ public:
 	PlayerTypes GetToPlayer()   const
 	{
 		return m_eToPlayer;
+	};
+	int GetID() const
+	{
+		return m_iID;
 	};
 	PlayerTypes GetFromPlayer() const
 	{
@@ -261,9 +264,6 @@ public:
 	bool IsVoteCommitmentTrade(PlayerTypes eFrom);
 	static DealRenewStatus GetItemTradeableState(TradeableItems eItem);
 	bool IsPotentiallyRenewable();
-	bool IsCheckedForRenewal();
-
-	void RemoveAllPossibleItems();
 
 	//return true if the item was removed
 	void RemoveByType(TradeableItems eItemType, PlayerTypes eFrom = NO_PLAYER);
@@ -329,10 +329,8 @@ public:
 	CvDeal* GetHistoricDealWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, uint index);
 	uint GetNumCurrentDealsWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer);
 	uint GetNumHistoricDealsWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, uint iMaxCount = UINT_MAX);
-	std::vector<CvDeal*> GetRenewableDealsWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, uint iMaxCount = UINT_MAX, bool bOnlyCheckedDeals = false);
 	bool IsReceivingItemsFromPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, bool bMutual);
 	int GetDealValueWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, bool bEmbargoEvaluation, bool bExcludeConcessions);
-	int GetTurnsBeforeRegainingLuxury(PlayerTypes ePlayer, ResourceTypes eResource);
 	int GetDealGPTLostFromWar(PlayerTypes ePlayer, PlayerTypes eOtherPlayer);
 
 	uint CreateDeal();
@@ -347,7 +345,11 @@ public:
 
 	int GetTradeItemGoldCost(TradeableItems eItem, PlayerTypes ePlayer1, PlayerTypes ePlayer2) const;
 
-	static void PrepareRenewDeal(CvDeal* pOldDeal);
+	// Renew deal ID for when a human player opens the trade screen
+	void SetRenewDealID(PlayerTypes ePlayer1, PlayerTypes ePlayer2, int iDealID);
+	int GetRenewDealID(PlayerTypes ePlayer1, PlayerTypes ePlayer2) const;
+	CvDeal* GetRenewDeal(PlayerTypes ePlayer1, PlayerTypes ePlayer2);
+	void ClearAllRenewDealIDs();
 
 	// Variables below should really be lists to support easy deletion
 	DealList m_ProposedDeals;
@@ -355,6 +357,7 @@ public:
 	DealList m_HistoricalDeals;
 
 protected:
+	int m_aaiRenewDeal[MAX_MAJOR_CIVS][MAX_MAJOR_CIVS];
 	void LogDealComplete(CvDeal* pDeal);
 	void LogDealFailed(CvDeal* pDeal, bool bNoRenew, bool bNotAccepted, bool bNotValid);
 

@@ -8368,8 +8368,6 @@ void CvGame::doTurn()
 		}
 	}
 
-	m_kGameDeals.DoTurnPost();
-
 	RollOverAssetCounter();
 
 	//-------------------------------------------------------------
@@ -8380,6 +8378,8 @@ void CvGame::doTurn()
 	incrementGameTurn();
 	incrementElapsedGameTurns();
 	gDLL->PublishNewGameTurn(getGameTurn());
+
+	m_kGameDeals.DoTurnPost();
 
 	if(isOption(GAMEOPTION_DYNAMIC_TURNS))
 	{// update turn mode for dynamic turn mode.
