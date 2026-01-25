@@ -196,6 +196,7 @@ local function BuildBeliefList(tAvailableBeliefs, eSlot)
 	-- Start building the list
 	for _, belief in ipairs(tAvailableBeliefs) do
 		local instance = g_BeliefInstanceManager:GetInstance();
+		instance.Name:SetText(belief.Name);
 		instance.Name:SetToolTipString(belief.Tooltip);
 		instance.Description:SetText(belief.Description);
 		instance.Description:SetToolTipString(belief.Tooltip);
