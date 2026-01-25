@@ -119,6 +119,7 @@ local function RefreshList()
 	local bDebug = Game.IsDebugMode();
 	for i, belief in ipairs(tAvailableBeliefs) do
 		local instance = g_ItemInstanceManager:GetInstance();
+		instance.Name:SetText(belief.Name);
 		instance.Description:SetText(belief.Description);
 		instance.Button:SetToolTipString("");
 
@@ -148,14 +149,11 @@ local function RefreshList()
 		end);
 
 		-- Dynamically resize based on description height
-		local buttonWidth, buttonHeight = instance.Button:GetSizeVal();
-		local descWidth, descHeight = instance.Description:GetSizeVal();
-		local newHeight = descHeight + 40;
-
-		instance.Button:SetSizeVal(buttonWidth, newHeight);
-		instance.Box:SetSizeVal(buttonWidth + 20, newHeight);
-		instance.BounceAnim:SetSizeVal(buttonWidth + 20, newHeight + 5);
-		instance.BounceGrid:SetSizeVal(buttonWidth + 20, newHeight + 5);
+		local iDescHeight = instance.Description:GetSizeY();
+		instance.Button:SetSizeY(iDescHeight + 40);
+		instance.Box:SetSizeY(iDescHeight + 40);
+		instance.BounceAnim:SetSizeY(iDescHeight + 45);
+		instance.BounceGrid:SetSizeY(iDescHeight + 45);
 
 		-- Stripes
 		if i % 2 == 1 then
