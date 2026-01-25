@@ -68,6 +68,13 @@ namespace NetMessageExt
 					Response::DoLiberateVassal(eMaster, eVassal);
 					break;
 				}
+				case 1006:
+				{
+					PlayerTypes ePlayer1 = static_cast<PlayerTypes>(iArg1);
+					PlayerTypes ePlayer2 = static_cast<PlayerTypes>(iArg2);
+					Response::DoClearDealRenewalID(ePlayer1, ePlayer2);
+					break;
+				}
 			}
 			return true;
 		}
@@ -112,6 +119,10 @@ namespace NetMessageExt
 		{
 			PlayerTypes eMasterPlayer = GET_TEAM(eMaster).getLeaderID();
 			gDLL->sendMoveGreatWorks(eMasterPlayer, static_cast<int>(eMaster), static_cast<int>(eVassal), -1, -1, -1, 1005);
+		}
+		void DoClearDealRenewalID(PlayerTypes ePlayer1, PlayerTypes ePlayer2)
+		{
+			gDLL->sendMoveGreatWorks(ePlayer1, static_cast<int>(ePlayer1), static_cast<int>(ePlayer2), -1, -1, -1, 1006);
 		}
 	}
 
@@ -212,6 +223,10 @@ namespace NetMessageExt
 					GET_PLAYER(eVassalPlayer).GetDiplomacyAI()->DoLiberatedFromVassalage(eMaster, false);
 				}
 			}
+		}
+		void DoClearDealRenewalID(PlayerTypes ePlayer1, PlayerTypes ePlayer2)
+		{
+			GC.getGame().GetGameDeals().SetRenewDealID(ePlayer1, ePlayer2, -1);
 		}
 	}
 }

@@ -313,6 +313,12 @@ public:
 	bool IsCantMatchDeal(PlayerTypes ePlayer);
 	void SetCantMatchDeal(PlayerTypes ePlayer, bool bValue);
 
+	int GetCurrentDealOfferGenerous() const;
+	void SetCurrentDealOfferGenerous(bool bValue);
+	int GetCurrentDealOfferChanged() const;
+	void SetCurrentDealOfferChanged(bool bValue);
+
+
 	// Demands
 	int GetNumDemandsMade(PlayerTypes ePlayer) const;
 	void SetNumDemandsMade(PlayerTypes ePlayer, int iValue);
@@ -1754,9 +1760,6 @@ public:
 	void LogMinorCivBuyout(PlayerTypes eMinor, int iGoldPaid, bool bSaving);
 	void LogMinorStatusChange(PlayerTypes eMinor, const char* msg);
 
-	std::vector<CvDeal*> GetDealsToRenew(PlayerTypes eOtherPlayer = NO_PLAYER, bool bOnlyCheckedDeals = false);
-	void CancelRenewDeal(PlayerTypes eOtherPlayer = NO_PLAYER, RenewalReason eReason = NO_REASON, bool bJustLogging = false, CvDeal* pPassDeal = NULL, bool bOnlyCheckedDeals = false, bool bSendNetworkMessage = true);
-
 	// Methods for injecting tests
 	void TestUIDiploStatement(PlayerTypes eToPlayer, DiploStatementTypes eStatement, int iArg1);
 
@@ -1924,6 +1927,8 @@ private:
 	char m_aeDoFType[MAX_MAJOR_CIVS];
 	int m_aiDenouncedPlayerTurn[MAX_MAJOR_CIVS];
 	bool m_abCantMatchDeal[MAX_MAJOR_CIVS];
+	bool m_bCurrentDealOfferGenerous; // not serialized
+	bool m_bCurrentDealOfferChanged; // not serialized
 	unsigned char m_aiNumDemandsMade[MAX_MAJOR_CIVS];
 	int m_aiDemandMadeTurn[MAX_MAJOR_CIVS];
 	char m_aiDemandTooSoonNumTurns[MAX_MAJOR_CIVS];
