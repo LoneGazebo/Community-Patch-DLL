@@ -373,7 +373,7 @@ local WriteAbilities = (function()
 		{ 'AllowsDefensiveEmbarking', 'TXT_KEY_ABLTY_DEFENSIVE_EMBARK_STRING' },
 		{ 'EmbarkedAllWaterPassage',  'TXT_KEY_ABLTY_OCEAN_EMBARK_STRING' },
 
-		PrepareNumericAbility('Happiness', 'TXT_KEY_ABLTY_HAPPINESS_BUMP'),
+		PrepareNumericAbility('Happiness', 'TXT_KEY_TECH_HELP_HAPPINESS_GLOBAL'),
 
 		{ 'BombardRange',                   'TXT_KEY_ABLTY_CITY_RANGE_INCREASE' },
 		{ 'BombardIndirect',                'TXT_KEY_ABLTY_CITY_INDIRECT_INCREASE' },
