@@ -3278,10 +3278,10 @@
 			<Text>A Pledge of Protection prevents this action.</Text>
 		</Row>
 		<!-- Multiplayer only -->
-		<Row Tag="TXT_KEY_DENOUNCE_HUMAN">
+		<Row Tag="TXT_KEY_MP_DENOUNCE_HUMAN">
 			<Text>Denounce</Text>
 		</Row>
-		<Row Tag="TXT_KEY_DENOUNCE_HUMAN_TT">
+		<Row Tag="TXT_KEY_MP_DENOUNCE_HUMAN_TT">
 			<Text>Clicking this button will [COLOR_NEGATIVE_TEXT]DENOUNCE[ENDCOLOR] the other player.</Text>
 		</Row>
 

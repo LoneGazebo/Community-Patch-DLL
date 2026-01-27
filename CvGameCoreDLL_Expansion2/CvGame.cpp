@@ -1682,23 +1682,15 @@ void CvGame::CheckPlayerTurnDeactivate()
 				if(kPlayer.hasProcessedAutoMoves())
 				{
 					bool bAutoMovesComplete = false;
-					// Allow pending deal notifications to not block turn deactivation in simultaneous turns (multiplayer).
-					// This prevents a freeze when a proposal is sent to a player who has already ended their turn.
-					bool bIsBlockingTypeAllowed = (kPlayer.GetEndTurnBlockingType() == NO_ENDTURN_BLOCKING_TYPE) ||
-						(kPlayer.GetEndTurnBlockingType() == ENDTURN_BLOCKING_PENDING_DEAL && kPlayer.isSimultaneousTurns());
-
-					if (bIsBlockingTypeAllowed)
+					if (!(kPlayer.hasBusyUnitOrCity()))
 					{
-						if (!(kPlayer.hasBusyUnitOrCity()))
-						{
-							bAutoMovesComplete = true;
+						bAutoMovesComplete = true;
 
-							NET_MESSAGE_DEBUG_OSTR_ALWAYS("CheckPlayerTurnDeactivate() : auto-moves complete for " << kPlayer.getName());
-						}
-						else if (gDLL->HasReceivedTurnComplete(kPlayer.GetID()))
-						{
-							bAutoMovesComplete = true;
-						}
+						NET_MESSAGE_DEBUG_OSTR_ALWAYS("CheckPlayerTurnDeactivate() : auto-moves complete for " << kPlayer.getName());
+					}
+					else if (gDLL->HasReceivedTurnComplete(kPlayer.GetID()))
+					{
+						bAutoMovesComplete = true;
 					}
 
 					if(bAutoMovesComplete)
@@ -2139,13 +2131,126 @@ void CvGame::updateTestEndTurn()
 	CvPlayer& activePlayer = GET_PLAYER(activePlayerID);
 
 	ICvUserInterface2* pkIface = GC.GetEngineUserInterface();
+	if (activePlayer.isTurnActive())
+	{
+		// check notifications
+		EndTurnBlockingTypes eEndTurnBlockingType = NO_ENDTURN_BLOCKING_TYPE;
+		int iNotificationIndex = -1;
+		activePlayer.GetNotifications()->GetEndTurnBlockedType(eEndTurnBlockingType, iNotificationIndex);
+
+		if (eEndTurnBlockingType == NO_ENDTURN_BLOCKING_TYPE)
+		{
+			// No notifications are blocking, check units/cities
+			if (activePlayer.hasPromotableUnit() && !GC.getGame().isOption(GAMEOPTION_PROMOTION_SAVING))
+			{
+				eEndTurnBlockingType = ENDTURN_BLOCKING_UNIT_PROMOTION;
+			}
+			else if (activePlayer.hasReadyUnit())
+			{
+				const CvUnit* pUnit = activePlayer.GetFirstReadyUnit();
+				ASSERT(pUnit, "GetFirstReadyUnit is returning null");
+				if (pUnit)
+				{
+					if (!pUnit->canHold(pUnit->plot()))
+					{
+						eEndTurnBlockingType = ENDTURN_BLOCKING_STACKED_UNITS;
+					}
+					else
+					{
+						eEndTurnBlockingType = ENDTURN_BLOCKING_UNITS;
+					}
+				}
+			}
+		}
+
+		if (eEndTurnBlockingType == NO_ENDTURN_BLOCKING_TYPE)
+		{
+			if (!(activePlayer.hasBusyUnitOrCity()) && !(activePlayer.hasReadyUnit()))
+			{
+				// JAR  - Looks like popups are pretty much disabled at this point, this check will break
+				// multiplayer games. Look at revision #27 to resurrect the old popup check code if/when
+				// they are implemented again.
+				if (!isGameMultiPlayer())
+				{
+					if ((activePlayer.isOption(PLAYEROPTION_WAIT_END_TURN) && !isGameMultiPlayer()) || !(GC.GetEngineUserInterface()->isHasMovedUnit()) || isHotSeat() || isPbem())
+					{
+						GC.GetEngineUserInterface()->setCanEndTurn(true);
+					}
+				}
+				else
+				{
+					if (activePlayer.hasAutoUnit() && !m_sentAutoMoves)
+					{
+						if (!(gDLL->shiftKey()))
+						{
+							gDLL->sendAutoMoves();
+							m_sentAutoMoves = true;
+						}
+					}
+					else
+					{
+						if ((activePlayer.isOption(PLAYEROPTION_WAIT_END_TURN) && !isGameMultiPlayer()) || !(GC.GetEngineUserInterface()->isHasMovedUnit()) || isHotSeat() || isPbem())
+						{
+							GC.GetEngineUserInterface()->setCanEndTurn(true);
+						}
+						else
+						{
+							if (GC.GetEngineUserInterface()->getEndTurnCounter() > 0)
+							{
+								GC.GetEngineUserInterface()->changeEndTurnCounter(-1);
+							}
+							else
+							{
+								if (!gDLL->HasSentTurnComplete() && gDLL->allAICivsProcessedThisTurn() && allUnitAIProcessed() && pkIface && pkIface->IsMPAutoEndTurnEnabled())
+								{
+									if (MOD_ENABLE_ACHIEVEMENTS)
+										activePlayer.GetPlayerAchievements().EndTurn();
+
+									if (MOD_EVENTS_RED_TURN)
+										// RED <<<<<
+									{
+										ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+										if (pkScriptSystem)
+										{
+											CvLuaArgsHandle args;
+
+											args->Push(getActivePlayer());
+
+											bool bResult = false;
+											LuaSupport::CallHook(pkScriptSystem, "TurnComplete", args.get(), bResult);
+										}
+									}
+									// RED >>>>>
+
+									gDLL->sendTurnComplete();
+
+									if (MOD_ENABLE_ACHIEVEMENTS)
+										CvAchievementUnlocker::EndTurn();
+								}
+
+								GC.GetEngineUserInterface()->setEndTurnCounter(3); // XXX
+								if (isGameMultiPlayer())
+								{
+									GC.GetEngineUserInterface()->setCanEndTurn(true);
+									m_endTurnTimer.Start();
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
+		activePlayer.SetEndTurnBlocking(eEndTurnBlockingType, iNotificationIndex);
+	}
+
 	if(pkIface != NULL)
 	{
 		bool automaticallyEndTurns = (isGameMultiPlayer())? pkIface->IsMPAutoEndTurnEnabled() : pkIface->IsSPAutoEndTurnEnabled();
 		if(automaticallyEndTurns && s_unitMoveTurnSlice != 0)
 			automaticallyEndTurns = s_unitMoveTurnSlice + 10 < getTurnSlice();
 
-		if(automaticallyEndTurns)
+		if(automaticallyEndTurns && activePlayer.GetEndTurnBlockingType() == NO_ENDTURN_BLOCKING_TYPE)
 		{
 			bool hasSelection = false;
 
@@ -2192,118 +2297,7 @@ void CvGame::updateTestEndTurn()
 		}
 	}
 
-	if(activePlayer.isTurnActive())
-	{
-		// check notifications
-		EndTurnBlockingTypes eEndTurnBlockingType = NO_ENDTURN_BLOCKING_TYPE;
-		int iNotificationIndex = -1;
-		activePlayer.GetNotifications()->GetEndTurnBlockedType(eEndTurnBlockingType, iNotificationIndex);
-
-		if(eEndTurnBlockingType == NO_ENDTURN_BLOCKING_TYPE)
-		{
-			// No notifications are blocking, check units/cities
-			if(activePlayer.hasPromotableUnit() && !GC.getGame().isOption(GAMEOPTION_PROMOTION_SAVING))
-			{
-				eEndTurnBlockingType = ENDTURN_BLOCKING_UNIT_PROMOTION;
-			}
-			else if(activePlayer.hasReadyUnit())
-			{
-				const CvUnit* pUnit = activePlayer.GetFirstReadyUnit();
-				ASSERT(pUnit, "GetFirstReadyUnit is returning null");
-				if(pUnit)
-				{
-					if(!pUnit->canHold(pUnit->plot()))
-					{
-						eEndTurnBlockingType = ENDTURN_BLOCKING_STACKED_UNITS;
-					}
-					else
-					{
-						eEndTurnBlockingType = ENDTURN_BLOCKING_UNITS;
-					}
-				}
-			}
-		}
-
-		if(eEndTurnBlockingType == NO_ENDTURN_BLOCKING_TYPE)
-		{
-			if(!(activePlayer.hasBusyUnitOrCity()) && !(activePlayer.hasReadyUnit()))
-			{
-				// JAR  - Looks like popups are pretty much disabled at this point, this check will break
-				// multiplayer games. Look at revision #27 to resurrect the old popup check code if/when
-				// they are implemented again.
-				if(!isGameMultiPlayer())
-				{
-					if((activePlayer.isOption(PLAYEROPTION_WAIT_END_TURN) && !isGameMultiPlayer()) || !(GC.GetEngineUserInterface()->isHasMovedUnit()) || isHotSeat() || isPbem())
-					{
-						GC.GetEngineUserInterface()->setCanEndTurn(true);
-					}
-				}
-				else
-				{
-					if(activePlayer.hasAutoUnit() && !m_sentAutoMoves)
-					{
-						if(!(gDLL->shiftKey()))
-						{
-							gDLL->sendAutoMoves();
-							m_sentAutoMoves = true;
-						}
-					}
-					else
-					{
-						if((activePlayer.isOption(PLAYEROPTION_WAIT_END_TURN) && !isGameMultiPlayer()) || !(GC.GetEngineUserInterface()->isHasMovedUnit()) || isHotSeat() || isPbem())
-						{
-							GC.GetEngineUserInterface()->setCanEndTurn(true);
-						}
-						else
-						{
-							if(GC.GetEngineUserInterface()->getEndTurnCounter() > 0)
-							{
-								GC.GetEngineUserInterface()->changeEndTurnCounter(-1);
-							}
-							else
-							{
-								if(!gDLL->HasSentTurnComplete() && gDLL->allAICivsProcessedThisTurn() && allUnitAIProcessed() && pkIface && pkIface->IsMPAutoEndTurnEnabled())
-								{
-									if (MOD_ENABLE_ACHIEVEMENTS)
-										activePlayer.GetPlayerAchievements().EndTurn();
-
-									if (MOD_EVENTS_RED_TURN)
-									// RED <<<<<
-									{
-										ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-										if(pkScriptSystem)
-										{	
-											CvLuaArgsHandle args;
-
-											args->Push(getActivePlayer());
-
-											bool bResult = false;
-											LuaSupport::CallHook(pkScriptSystem, "TurnComplete", args.get(), bResult);
-										}
-									}
-									// RED >>>>>
-
-									gDLL->sendTurnComplete();
-
-									if (MOD_ENABLE_ACHIEVEMENTS)
-										CvAchievementUnlocker::EndTurn();
-								}
-
-								GC.GetEngineUserInterface()->setEndTurnCounter(3); // XXX
-								if(isGameMultiPlayer())
-								{
-									GC.GetEngineUserInterface()->setCanEndTurn(true);
-									m_endTurnTimer.Start();
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-
-		activePlayer.SetEndTurnBlocking(eEndTurnBlockingType, iNotificationIndex);
-	}
+	
 }
 
 //	--------------------------------------------------------------------------------
