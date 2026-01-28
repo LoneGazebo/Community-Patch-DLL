@@ -2492,7 +2492,8 @@ bool CvPlot::CanSpawnResource(PlayerTypes ePlayer, bool bIgnoreTech, bool bIsLan
 	if (isMountain())
 		return false;
 
-	if (getFeatureType() == FEATURE_OASIS)
+	FeatureTypes eFeature = getFeatureType();
+	if (eFeature != NO_FEATURE && GC.getFeatureInfo(eFeature)->isNoImprovement())
 		return false;
 
 	if (bIgnoreTech && getResourceType() != NO_RESOURCE)
