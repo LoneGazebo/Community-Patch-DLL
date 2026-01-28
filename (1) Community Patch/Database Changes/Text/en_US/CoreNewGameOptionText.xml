@@ -51,6 +51,28 @@
 			<Text>In Game Setup, do not show the leader/civ details of other human players on other teams (if they are not choosing Random Leader).[NEWLINE]When loading a savegame, do not show the leader/civ details for players on other teams that you have not met in-game.</Text>
 		</Row>
 
+		<!-- Tech Trade (invisible in Community Patch) -->
+		<Row Tag="TXT_KEY_GAME_OPTION_DISABLE_RESEARCH_AGREEMENTS">
+			<Text>Disable Research Agreements</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GAME_OPTION_DISABLE_RESEARCH_AGREEMENTS_HELP">
+			<Text>Research Agreements cannot be signed with other civilizations.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_GAME_OPTION_ENABLE_TECH_TRADING">
+			<Text>Enable Tech Trading</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GAME_OPTION_ENABLE_TECH_TRADING_HELP">
+			<Text>Allows Technology trade between civilizations.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_GAME_OPTION_NO_TECH_BROKERING">
+			<Text>No Tech Brokering</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GAME_OPTION_NO_TECH_BROKERING_HELP">
+			<Text>Civilizations may not sell a Technology unless they have researched it themselves.</Text>
+		</Row>
+
 		<!-- Events (invisible in Community Patch) -->
 		<Row Tag="TXT_KEY_GAME_OPTION_BAD_EVENTS">
 			<Text>Enable Events (Bad)</Text>

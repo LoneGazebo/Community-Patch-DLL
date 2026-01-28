@@ -88,9 +88,9 @@ local homePageOfCategoryID = 9999;
 	local g_bTechTrading = true;
 	local g_bNoVassalage= false;
 	if(Game ~= nil)then
-		g_bResearchAgreementTrading = Game.IsOption("GAMEOPTION_RESEARCH_AGREEMENTS");
-		g_bTechTrading = Game.IsOption("GAMEOPTION_TECH_TRADING");
-		g_bNoVassalage= Game.IsOption("GAMEOPTION_NO_VASSALAGE");
+		g_bResearchAgreementTrading = not Game.IsOption("GAMEOPTION_DISABLE_RESEARCH_AGREEMENTS");
+		g_bTechTrading = not Game.IsOption("GAMEOPTION_ENABLE_TECH_TRADING");
+		g_bNoVassalage= not Game.IsOption("GAMEOPTION_ENABLE_VASSALAGE");
 	end
 -- END
 

@@ -38,6 +38,25 @@
 			<Help>TXT_KEY_GAME_OPTION_KEEP_UNMET_PLAYERS_UNKNOWN_HELP</Help>
 			<SupportsSinglePlayer>false</SupportsSinglePlayer>
 		</Row>
+		<!-- Tech Trade -->
+		<Row>
+			<Type>GAMEOPTION_DISABLE_RESEARCH_AGREEMENTS</Type>
+			<Description>TXT_KEY_GAME_OPTION_DISABLE_RESEARCH_AGREEMENTS</Description>
+			<Help>TXT_KEY_GAME_OPTION_DISABLE_RESEARCH_AGREEMENTS_HELP</Help>
+			<Visible>false</Visible>
+		</Row>
+		<Row>
+			<Type>GAMEOPTION_ENABLE_TECH_TRADING</Type>
+			<Description>TXT_KEY_GAME_OPTION_ENABLE_TECH_TRADING</Description>
+			<Help>TXT_KEY_GAME_OPTION_ENABLE_TECH_TRADING_HELP</Help>
+			<Visible>false</Visible>
+		</Row>
+		<Row>
+			<Type>GAMEOPTION_NO_TECH_BROKERING</Type>
+			<Description>TXT_KEY_GAME_OPTION_NO_TECH_BROKERING</Description>
+			<Help>TXT_KEY_GAME_OPTION_NO_TECH_BROKERING_HELP</Help>
+			<Visible>false</Visible>
+		</Row>
 		<!-- Events -->
 		<Row>
 			<Type>GAMEOPTION_BAD_EVENTS</Type>

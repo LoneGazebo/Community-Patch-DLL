@@ -2650,7 +2650,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 	end
 
 	-- Research agreement science modifier
-	local bResearchAgreement = Game and Game.IsOption("GAMEOPTION_RESEARCH_AGREEMENTS");
+	local bResearchAgreement = Game and (not Game.IsOption("GAMEOPTION_DISABLE_RESEARCH_AGREEMENTS"));
 	local iRAMod = kBuildingInfo.MedianTechPercentChange * 100 / 50; -- 50 is base RA multiplier hardcoded in DLL
 	if bResearchAgreement and not bGeneralInfo then
 		AddTooltipPositive(tGlobalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_RESEARCH_AGREEMENT_SCIENCE_MODIFIER", iRAMod);

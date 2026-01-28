@@ -80,6 +80,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetStrategicResourceMod);
 	Method(GetResourceModFromReligion);
 	Method(IsShowImports);
+	Method(IsImportsCountTowardsMonopolies);
 	Method(IsResourceCityTradeable);
 	Method(IsResourceImproveable);
 	Method(IsResourceRevealed);
@@ -1905,6 +1906,14 @@ int CvLuaPlayer::lIsShowImports(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	lua_pushboolean(L, (pkPlayer->GetPlayerTraits()->IsImportsCountTowardsMonopolies() || pkPlayer->IsCSResourcesCountMonopolies()));
+	return 1;
+}
+
+int CvLuaPlayer::lIsImportsCountTowardsMonopolies(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const bool bResult = pkPlayer->GetPlayerTraits()->IsImportsCountTowardsMonopolies();
+	lua_pushboolean(L, bResult);
 	return 1;
 }
 

@@ -1085,7 +1085,7 @@ g_toolTipHandler.SciencePerTurn = function()-- control )
 			-- Science from Annexed Minors
 			tips:insertLocalizedIfNonZeroFormatDecimal( "TXT_KEY_TP_SCIENCE_FROM_ANNEXED_MINORS", g_activePlayer:GetSciencePerTurnFromAnnexedMinors())
 			-- Putmalk
-			local g_bAllowResearchAgreements = Game.IsOption("GAMEOPTION_RESEARCH_AGREEMENTS")
+			local g_bAllowResearchAgreements = not Game.IsOption("GAMEOPTION_DISABLE_RESEARCH_AGREEMENTS")
 			-- Science from Religion
 			tips:insertLocalizedIfNonZeroFormatDecimal( "TXT_KEY_SCIENCE_FROM_RELIGION", g_activePlayer:GetYieldPerTurnFromReligion(YieldTypes.YIELD_SCIENCE))
 

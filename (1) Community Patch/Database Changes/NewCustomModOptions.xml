@@ -414,9 +414,6 @@
 		<!-- Halve starting XP for combat units purchased with Gold -->
 		<Row Class="6" Name="BALANCE_HALF_XP_GOLD_PURCHASES" Value="0"/>
 
-		<!-- Halve starting XP for combat units purchased with Faith -->
-		<Row Class="6" Name="BALANCE_HALF_XP_FAITH_PURCHASES" Value="0"/>
-
 		<!-- Purchased COMBAT units do not have full health when the city is damaged -->
 		<Row Class="6" Name="BALANCE_PURCHASED_UNIT_DAMAGE" Value="0"/>
 
@@ -499,6 +496,9 @@
 
 		<!-- Era scaling for Great Engineer & Great Merchant yields -->
 		<Row Class="5" Name="BALANCE_GREAT_PEOPLE_ERA_SCALING" Value="0"/>
+
+		<!-- Halve starting XP for combat units purchased with Faith -->
+		<Row Class="6" Name="BALANCE_HALF_XP_FAITH_PURCHASES" Value="0"/>
 
 		<!-- City-States' unit supply is equal to their handicap amount, which can be modified by globals based on trait, personality, and number of cities. No other unit supply bonuses/penalties apply. -->
 		<Row Class="5" Name="BALANCE_MINOR_UNIT_SUPPLY_HANDICAP" Value="0"/>

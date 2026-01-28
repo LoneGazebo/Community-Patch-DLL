@@ -1156,7 +1156,7 @@ local g_civListInstanceToolTips = { -- the tooltip function names need to match 
 			tips:insert( L("TXT_KEY_DIPLO_MY_SCORE_FUTURE_TECH", player:GetScoreFromFutureTech() ) )
 		end
 -- Putmalk
-		if (not Game.IsOption(GameOptionTypes.GAMEOPTION_NO_VASSALAGE)) then
+		if (Game.IsOption(GameOptionTypes.GAMEOPTION_ENABLE_VASSALAGE)) then
 			tips:insert( L("TXT_KEY_DIPLO_MY_SCORE_VASSALS", player:GetScoreFromVassals() ) )
 		end
 --END 
