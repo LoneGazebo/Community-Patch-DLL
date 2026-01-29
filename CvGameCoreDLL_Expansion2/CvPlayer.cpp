@@ -13489,7 +13489,10 @@ void CvPlayer::GetSpawnResourcePlots(CvCity* pCity, ResourceTypes eResource, boo
 		if (bLocal)
 			pLoopPlot = iterateRingPlots(iCityX, iCityY, iI);
 		else
-			ImTheMap.plotByIndexUnchecked(iI);
+			pLoopPlot = ImTheMap.plotByIndexUnchecked(iI);
+
+		if (!pLoopPlot)
+			continue;
 
 		bool bOwned = pLoopPlot->isOwned();
 
