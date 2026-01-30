@@ -82,7 +82,7 @@ Tip #2: Annotated tags include metadata (tagger, date, message) and are recommen
 A. Build the CvGameCore_Expansion2.dll file using the Release config (instructions are on the main repository page).
 
 
-B. Place the compiled DLL file in the "(1) Community Patch" folder, replacing the existing DLL there.
+B. Place the compiled DLL and PDB files in the "(1) Community Patch" folder, replacing the existing files there.
 
 
 C. Open Command Prompt and run the following commands. Leave the window open once you're done.
@@ -98,10 +98,10 @@ E. Delete the clang-output and clang-build folders in the repository.
 
 
 [STEP 7]
-A. Build the 43 Civ version of the game core using the Release config (uncomment "#define MAX_MAJOR_CIVS (43)" in CvGameCoreDLLUtil/include/CustomModsGlobal.h, then build normally).
+A. Build the 43 Civ version of the game core using the Release config: Uncomment "#define MAX_MAJOR_CIVS (43)" in CvGameCoreDLLUtil/include/CustomModsGlobal.h, amend the release commit to include the changed file, then build normally.
 
 
-B. Place the compiled 43 Civ DLL file in the "(3b) 43 Civs Community Patch" folder, replacing the existing DLL there.
+B. Place the compiled 43 Civ DLL and PDB files in the "(3b) 43 Civs Community Patch" folder, replacing the existing files there.
 
 
 C. Using your opened Command Prompt window, run the following command. Close the window when you're done.
@@ -122,6 +122,7 @@ F. Delete the clang-output and clang-build folders in the repository.
 Delete the "Release-{Version Number}" tag you've added to the new release commit, and undo the commit.
 Command: git tag -d Release-{Version Number}
 Command: git reset --soft HEAD~1
+Revert the change to CustomModsGlobal.h from the previous step.
 
 
 
