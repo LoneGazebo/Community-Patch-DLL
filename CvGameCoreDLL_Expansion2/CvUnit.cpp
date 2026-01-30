@@ -2221,7 +2221,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 		if (IsCombatUnit())
 		{
 			CvPlayer &kPlayer = GET_PLAYER(m_eOwner);
-			kPlayer.doInstantYield(INSTANT_YIELD_TYPE_DEATH);
+			kPlayer.doInstantYield(INSTANT_YIELD_TYPE_DEATH, false, NO_GREATPERSON, NO_BUILDING, 0, false, NO_PLAYER, NULL, false, NULL, getDomainType() == DOMAIN_SEA, true, false, NO_YIELD, this);
 		}
 		// Handle diplomacy and war damage repercussions
 		// This is a bit complicated because we need to account for a lot of possibilities
