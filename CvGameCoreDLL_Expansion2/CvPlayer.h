@@ -2929,6 +2929,10 @@ protected:
 	int calculateEconomicMight();
 	int calculateProductionMight();
 
+	void GetSpawnResourcePlots(CvCity* pCity, ResourceTypes eResource, bool bLocal, bool bSarcophagus, vector<CvPlot*>& vOwnedTiles, vector<CvPlot*>& vOwnedTilesYesArchaeology, vector<CvPlot*>& vOwnedTilesNoArchaeology, vector<CvPlot*>& vNeutralTiles, vector<CvPlot*>& vNeutralTilesYesArchaeology, vector<CvPlot*>& vNeutralTilesNoArchaeology);
+	void PlacePrioritizedDigSite(ResourceTypes eResource, bool bSarcophagus, CvWeightedVector<EraTypes> viEras, vector<CvPlot*>& vPrioritizedArchaeologyTiles, vector<CvPlot*>& vArchaeologyTiles, const CvSeeder& seedOne, const CvSeeder& seedTwo);
+	void PlaceSpawnedResource(ResourceTypes eResource, int iQuantity, bool bSarcophagus, vector<CvPlot*>& vResourceTiles, const CvSeeder& seedOne, const CvSeeder& seedTwo);
+
 	SYNC_ARCHIVE_MEMBER(CvPlayer)
 
 	PlayerTypes m_eID;
