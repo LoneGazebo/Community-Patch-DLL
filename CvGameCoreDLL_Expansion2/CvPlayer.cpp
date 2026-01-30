@@ -26137,6 +26137,24 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					if(pLoopCity->isCapital())
 					{
 						iValue += getYieldFromDeath(eYield);
+						
+						if (eYield == YIELD_FAITH && pReligion && !(GC.getGame().isOption(GAMEOPTION_NO_RELIGION)))
+						{
+							int iKillYield = pReligion->m_Beliefs.GetFaithFromDyingUnits(GetID(), true);
+							CvUnitEntry* pkKilledUnitInfo = GC.getUnitInfo(pUnit->getUnitType());
+							if (pkKilledUnitInfo)
+							{
+								int iCombatStrength = pUnit != NULL ? max(pUnit->GetBaseCombatStrength(), pUnit->GetBaseRangedCombatStrength()) : max(pkKilledUnitInfo->GetCombat(), pkKilledUnitInfo->GetRangedCombat());
+								if (iCombatStrength > 0)
+								{
+									iKillYield = (iKillYield * iCombatStrength) / 100;
+									if (iKillYield > 0)
+									{
+										iValue += iKillYield;
+									}
+								}
+							}
+						}
 					}
 					break;
 				}
