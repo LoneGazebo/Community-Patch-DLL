@@ -22,6 +22,7 @@ CvProjectEntry::CvProjectEntry(void):
 	m_eFreeBuilding(NO_BUILDINGCLASS),
 	m_eFreePolicy(NO_POLICY),
 	m_eCivType(NO_CIVILIZATION),
+	m_ePolicyType(NO_POLICY),
 	m_piFlavorValue(NULL)
 {
 }
@@ -89,7 +90,12 @@ bool CvProjectEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	{
 		m_eFreePolicy = (PolicyTypes)GC.getInfoTypeForString(szFreePolicy, true);
 	}
-
+	const char* szPolicyType = kResults.GetText("PolicyType");
+	if(szPolicyType)
+	{
+		m_ePolicyType = (PolicyTypes)GC.getInfoTypeForString(szPolicyType, true);
+	}
+	
 	m_strMovieArtDef = kResults.GetText("MovieDefineTag");
 
 	const char* szVictoryPrereq = kResults.GetText("VictoryPrereq");
@@ -280,6 +286,10 @@ bool CvProjectEntry::InfluenceAllRequired() const
 bool CvProjectEntry::IdeologyRequired() const
 {
 	return m_bIdeologyRequired;
+}
+PolicyTypes CvProjectEntry::PolicyType() const
+{
+	return m_ePolicyType;
 }
 
 bool CvProjectEntry::IsRepeatable() const

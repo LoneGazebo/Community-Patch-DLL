@@ -14584,6 +14584,13 @@ bool CvPlayer::canCreate(ProjectTypes eProject, bool bContinue, bool bTestVisibl
 		return false;
 	}
 
+	// Policy requirement
+	PolicyTypes eRequiredPolicy = pProjectInfo.PolicyType();
+	if (eRequiredPolicy != NO_POLICY && !GetPlayerPolicies()->HasPolicy(eRequiredPolicy))
+	{
+		return false;
+	}
+
 	// Policy branch requirement?
 	if(pProjectInfo.GetCultureBranchesRequired() > 0)
 	{

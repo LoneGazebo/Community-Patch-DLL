@@ -51,6 +51,7 @@ public:
 	int GetNumRequiredTier3Tenets() const;
 	bool InfluenceAllRequired() const;
 	bool IdeologyRequired() const;
+	PolicyTypes PolicyType() const;
 	bool IsRepeatable() const;
 	int GetHappiness() const;
 	int GetEmpireSizeModifierReduction() const;
@@ -107,6 +108,7 @@ protected:
 	int m_iNumRequiredTier3Tenets;
 	bool m_bInfluenceAllRequired;
 	bool m_bIdeologyRequired;
+	PolicyTypes m_ePolicyType;
 	int m_iHappiness;
 	int m_iEmpireSizeModifierReduction;
 	int m_iEmpireSizeModifierPerCityMod;
