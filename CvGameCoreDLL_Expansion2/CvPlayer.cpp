@@ -8269,49 +8269,6 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent, b
 					pLoopCity->AddEventGPPFromSpecialistsCounter(pkEventChoiceInfo->getEventDuration(), iChange);
 				}
 			}
-			for(int iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
-			{
-				const UnitClassTypes eUnitClass = static_cast<UnitClassTypes>(iI);
-				if (pkEventChoiceInfo->getNumFreeUnits(eUnitClass) <= 0)
-					continue;
-
-				const UnitTypes eLoopUnit = GetSpecificUnitType(eUnitClass);
-				if (eLoopUnit != NO_UNIT)
-				{
-					CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eLoopUnit);
-					if (pkUnitEntry)
-					{
-						int iLoop = 0;
-						for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-						{
-							if (pkEventChoiceInfo->isCoastalOnly() && !pLoopCity->isCoastal())
-								continue;
-
-							if (pkEventChoiceInfo->isCapitalEffectOnly() && !pLoopCity->isCapital())
-								continue;
-
-							for (int iJ = 0; iJ < pkEventChoiceInfo->getNumFreeUnits(eUnitClass); iJ++)
-							{
-								UnitAITypes eUnitAI = pkUnitEntry->GetDefaultUnitAIType();
-								CvUnit* pUnit = pLoopCity->CreateUnit(eLoopUnit, eUnitAI, REASON_GIFT);
-								if (pUnit)
-								{
-									if (!pUnit->jumpToNearestValidPlot())
-									{
-										pUnit->kill(false); // Could not find a valid spot!
-									}
-									else
-									{
-										pUnit->finishMoves();
-										//Lua Hook
-										GAMEEVENTINVOKE_HOOK(GAMEEVENT_EventUnitCreated, GetID(), eEventChoice, pUnit);
-									}
-								}
-							}
-						}
-					}
-				}
-			}
 			for(int iI = 0; iI < GC.getNumUnitInfos(); iI++)
 			{
 				const UnitTypes eUnit = static_cast<UnitTypes>(iI);
@@ -8435,6 +8392,51 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent, b
 			for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 			{
 				pLoopCity->ApplyPlayerEventChoice(eEventChoice);
+			}
+
+			// Spawn units needs to happen after ApplyPlayerEventChoice because e.g. if the choice gives AirSlots (in the subroutine) and Aircraft (here), the order needs to add the slots first or the aircraft dont spawn
+			for(int iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
+			{
+				const UnitClassTypes eUnitClass = static_cast<UnitClassTypes>(iI);
+				if (pkEventChoiceInfo->getNumFreeUnits(eUnitClass) <= 0)
+					continue;
+
+				const UnitTypes eLoopUnit = GetSpecificUnitType(eUnitClass);
+				if (eLoopUnit != NO_UNIT)
+				{
+					CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eLoopUnit);
+					if (pkUnitEntry)
+					{
+						int iLoop = 0;
+						for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+						{
+							if (pkEventChoiceInfo->isCoastalOnly() && !pLoopCity->isCoastal())
+								continue;
+
+							if (pkEventChoiceInfo->isCapitalEffectOnly() && !pLoopCity->isCapital())
+								continue;
+
+							for (int iJ = 0; iJ < pkEventChoiceInfo->getNumFreeUnits(eUnitClass); iJ++)
+							{
+								UnitAITypes eUnitAI = pkUnitEntry->GetDefaultUnitAIType();
+								CvUnit* pUnit = pLoopCity->CreateUnit(eLoopUnit, eUnitAI, REASON_GIFT);
+								if (pUnit)
+								{
+									if (!pUnit->jumpToNearestValidPlot())
+									{
+										pUnit->kill(false); // Could not find a valid spot!
+									}
+									else
+									{
+										pUnit->finishMoves();
+										//Lua Hook
+										GAMEEVENTINVOKE_HOOK(GAMEEVENT_EventUnitCreated, GetID(), eEventChoice, pUnit);
+									}
+								}
+							}
+						}
+					}
+				}
 			}
 
 			CalculateNetHappiness();
