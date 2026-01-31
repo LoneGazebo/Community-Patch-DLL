@@ -77,6 +77,7 @@ bool CvProjectEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	m_iCultureMedianModifier = kResults.GetInt("CultureMedianModifier");
 	m_iReligiousUnrestModifier = kResults.GetInt("ReligiousUnrestModifier");
 	m_iSpySecurityModifier = kResults.GetInt("SpySecurityModifier");
+	m_iCitySupplyFlat = kResults.GetInt("CitySupplyFlat");
 
 	const char* szFreeBuilding = kResults.GetText("FreeBuildingClassIfFirst");
 	if(szFreeBuilding)
@@ -346,6 +347,10 @@ int CvProjectEntry::GetReligiousUnrestModifier() const
 int CvProjectEntry::GetSpySecurityModifier() const
 {
 	return m_iSpySecurityModifier;
+}
+int CvProjectEntry::GetCitySupplyFlat() const
+{
+	return m_iCitySupplyFlat;
 }
 
 /// Retrieve movie file name

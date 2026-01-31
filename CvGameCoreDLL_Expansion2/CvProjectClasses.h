@@ -67,6 +67,7 @@ public:
 	int GetCultureMedianModifier() const;
 	int GetReligiousUnrestModifier() const;
 	int GetSpySecurityModifier() const;
+	int GetCitySupplyFlat() const;
 
 	const char* GetMovieArtDef() const;
 
@@ -121,6 +122,7 @@ protected:
 	int m_iCultureMedianModifier;
 	int m_iReligiousUnrestModifier;
 	int m_iSpySecurityModifier;
+	int m_iCitySupplyFlat;
 
 	CvString m_strCreateSound;
 	CvString m_strMovieArtDef;
