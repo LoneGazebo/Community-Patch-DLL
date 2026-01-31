@@ -9793,6 +9793,7 @@ CvModEventChoiceInfo::CvModEventChoiceInfo() :
 	 m_iCityHappinessGlobal(0),
 	 m_iFreeScaledUnits(0),
 	 m_iSpecialistsGreatPersonPointsPerTurn(0),
+	 m_iMaxAirUnitsChange(0),
 	 m_strDisabledTooltip(""),
 	 m_bVassal(false),
 	 m_bMaster(false),
@@ -9984,6 +9985,11 @@ int CvModEventChoiceInfo::getFreeScaledUnits() const
 int CvModEventChoiceInfo::getSpecialistsGreatPersonPointsPerTurn() const
 {
 	return m_iSpecialistsGreatPersonPointsPerTurn;
+}
+//------------------------------------------------------------------------------
+int CvModEventChoiceInfo::getMaxAirUnitsChange() const
+{
+	return m_iMaxAirUnitsChange;
 }
 //------------------------------------------------------------------------------
 int CvModEventChoiceInfo::getPlayerHappiness() const
@@ -10368,6 +10374,7 @@ bool CvModEventChoiceInfo::CacheResults(Database::Results& kResults, CvDatabaseU
 	m_iRandomBarbs = kResults.GetInt("RandomBarbarianSpawn");
 	m_iFreeScaledUnits = kResults.GetInt("FreeUnitsTechAppropriate");
 	m_iSpecialistsGreatPersonPointsPerTurn = kResults.GetInt("SpecialistsGreatPersonPointsPerTurn");
+	m_iMaxAirUnitsChange = kResults.GetInt("MaxAirUnitsChange");
 
 	m_iPlayerHappiness = kResults.GetInt("PlayerHappiness");
 	m_iCityHappinessGlobal = kResults.GetInt("HappinessPerCity");

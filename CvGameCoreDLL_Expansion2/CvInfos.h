@@ -3115,6 +3115,7 @@ public:
 	int getNumFreeUnits(int i) const;
 	int getFreeScaledUnits() const;
 	int getSpecialistsGreatPersonPointsPerTurn() const;
+	int getMaxAirUnitsChange() const;
 	int getEventConvertReligion(int i) const;
 	int getEventConvertReligionPercent(int i) const;
 	int getCityYield(int i) const;
@@ -3202,6 +3203,7 @@ protected:
 	int* m_piCityYield;
 	int m_iFreeScaledUnits;
 	int m_iSpecialistsGreatPersonPointsPerTurn;
+	int m_iMaxAirUnitsChange;
 	CvString m_strEventChoiceSoundEffect;
 	int m_iNumFreePolicies;
 	int m_iNumFreeTechs;

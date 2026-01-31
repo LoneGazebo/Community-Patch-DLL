@@ -383,6 +383,8 @@
 		<Column name="FreeUnitsTechAppropriate" type="integer" default="0"/>
 		<!-- Change to number of GPP produced by specialists. Can be negative. -->
 		<Column name="SpecialistsGreatPersonPointsPerTurn" type="integer" default="0"/>
+		<!-- Change to number of air slots in Cities, can be CapitalEffectOnly. -->
+		<Column name="MaxAirUnitsChange" type="integer" default="0"/>
 
 		<!-- Filters
 
