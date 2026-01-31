@@ -33,3 +33,12 @@ ALTER TABLE Projects ADD CivilizationType text REFERENCES Civilizations (Type);
 
 -- Per-player instance cap (analogous to BuildingClasses.MaxPlayerInstances)
 ALTER TABLE Projects ADD MaxPlayerInstances integer DEFAULT -1;
+
+-- Increase military supply by X in the City
+ALTER TABLE Projects ADD CitySupplyFlat integer DEFAULT 0;
+
+-- When the project finishes, fire this event
+ALTER TABLE Projects ADD DoStartEvent text REFERENCES Events (Type);
+
+-- Requires this Policy to be unlocked in order to build
+ALTER TABLE Projects ADD PolicyType text REFERENCES Policies (Type);
