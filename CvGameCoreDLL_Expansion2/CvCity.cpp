@@ -30107,7 +30107,17 @@ bool CvCity::CreateProject(ProjectTypes eProjectType)
 		iWLTKDTurns /= 100;
 		ChangeWeLoveTheKingDayCounter(max(1, iWLTKDTurns));
 	}
-
+	EventTypes eEventToStart = pProject->GetEventToStart();
+	if (eEventToStart != NO_EVENT)
+	{
+		GET_PLAYER(getOwner()).DoStartEvent(eEventToStart, false);
+	}
+	CityEventTypes eCityEventToStart = pProject->GetCityEventToStart();
+	if (eCityEventToStart != NO_EVENT_CITY)
+	{
+		DoStartEvent(eCityEventToStart, false);
+	}
+	
 	GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityProjectComplete, getOwner(), GetID(), eProjectType);
 
 	return true;

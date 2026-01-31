@@ -69,6 +69,8 @@ public:
 	int GetReligiousUnrestModifier() const;
 	int GetSpySecurityModifier() const;
 	int GetCitySupplyFlat() const;
+	EventTypes GetEventToStart() const;
+	CityEventTypes GetCityEventToStart() const;
 
 	const char* GetMovieArtDef() const;
 
@@ -125,6 +127,8 @@ protected:
 	int m_iReligiousUnrestModifier;
 	int m_iSpySecurityModifier;
 	int m_iCitySupplyFlat;
+	EventTypes m_eEventToStart;
+	CityEventTypes m_eCityEventToStart;
 
 	CvString m_strCreateSound;
 	CvString m_strMovieArtDef;
