@@ -77,6 +77,12 @@ Expected Output: Release-{Version Number}
 Tip #1: This step is necessary to ensure the GameCoreDLL has the correct release identifier, which can be compared later when debugging.
 Tip #2: Annotated tags include metadata (tagger, date, message) and are recommended for releases.
 
+IMPORTANT: After building (Step 6), minidump filenames will include the full commit hash due to 
+git describe --long being used in update_commit_id.bat. This is expected behavior.
+Example: CvMiniDump_20260111_143025_5.1-0-gb44ce57d_Release.dmp
+The "-0-gb44ce57d" means 0 commits after Release-5.1 tag, at commit b44ce57d.
+This ensures every minidump is traceable to an exact commit, even for official releases.
+
 
 [STEP 6]
 A. Build the CvGameCore_Expansion2.dll file using the Release config (instructions are on the main repository page).
@@ -164,6 +170,9 @@ Command: git tag -a Release-{Version Number} -m "{Version Number} Release"
 Verify the tag was created correctly:
 Command: git describe --tags HEAD
 Expected Output: Release-{Version Number}
+
+Note: The version string used in minidumps and logs will show "Release-{Version Number}-0-g{commit}" 
+format due to git describe --long. This is correct and ensures precise version tracking.
 
 
 
