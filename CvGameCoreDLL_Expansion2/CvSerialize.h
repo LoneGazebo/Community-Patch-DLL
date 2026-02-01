@@ -288,23 +288,74 @@ public:
 		const bool result = other == currentValue();
 
 		if (!result) {
-			// Desync logging with available context
-			std::ostringstream logMsg;
-			logMsg << "[DESYNC_DETECTED] Variable=" << this->name()
-				   << " | Turn=" << GC.getGame().getGameTurn()
-				   << " | Player=" << GC.getGame().getActivePlayer()
-				   << " | Host=" << (gDLL->IsHost() ? "YES" : "NO")
-				   << " | Local=" << FSerialization::toString(currentValue())
-				   << " | Remote=" << FSerialization::toString(other);
+			// Deduplication and cascade detection
+			static std::map<std::string, int> s_desyncCountThisTurn;
+			static std::map<int, std::pair<std::string, int> > s_firstDesyncPerTurn;
+			static int s_lastLoggedTurn = -1;
 			
-			// Add container-specific context
-			std::string containerContext = getContainer().debugDump(*this);
-			if (!containerContext.empty()) {
-				logMsg << " | Context=" << containerContext;
+			int currentTurn = GC.getGame().getGameTurn();
+			
+			// Clear tracking on new turn
+			if (currentTurn != s_lastLoggedTurn)
+			{
+				s_desyncCountThisTurn.clear();
+				s_lastLoggedTurn = currentTurn;
 			}
 			
-			gGlobals.getDLLIFace()->netMessageDebugLog(logMsg.str());
-			gGlobals.getGame().setDesynced(true);
+			std::string logKey = this->name();
+			int desyncCount = s_desyncCountThisTurn[logKey]++;
+			
+			// Only log first occurrence and a summary after that
+			if (desyncCount == 0)
+			{
+				// Desync logging with available context
+				std::ostringstream logMsg;
+				logMsg << "[DESYNC_DETECTED";
+				
+				// Cascade detection - mark first desync
+				if (s_firstDesyncPerTurn.find(currentTurn) == s_firstDesyncPerTurn.end())
+				{
+					logMsg << " - FIRST";
+					s_firstDesyncPerTurn[currentTurn] = std::make_pair(this->name(), currentTurn);
+				}
+				else
+				{
+					logMsg << " - CASCADE";
+				}
+				
+				logMsg << "] Variable=" << this->name()
+				       << " | Turn=" << currentTurn
+				       << " | Player=" << GC.getGame().getActivePlayer()
+				       << " | Host=" << (gDLL->IsHost() ? "YES" : "NO")
+				       << " | Local=" << FSerialization::toString(currentValue())
+				       << " | Remote=" << FSerialization::toString(other);
+				
+				// Add container-specific context
+				std::string containerContext = getContainer().debugDump(*this);
+				if (!containerContext.empty()) {
+					logMsg << " | Context=" << containerContext;
+				}
+				
+				// Show what first desync was if this is cascading
+				if (s_firstDesyncPerTurn.find(currentTurn) != s_firstDesyncPerTurn.end() &&
+				    s_firstDesyncPerTurn[currentTurn].first != this->name())
+				{
+					logMsg << " | First desync: " << s_firstDesyncPerTurn[currentTurn].first;
+				}
+				
+				gGlobals.getDLLIFace()->netMessageDebugLog(logMsg.str());
+				gGlobals.getGame().setDesynced(true);
+			}
+			else if (desyncCount == 1)
+			{
+				// Log suppression notice once
+				std::ostringstream logMsg;
+				logMsg << "[DESYNC_REPEATED] Variable=" << this->name()
+				       << " | Turn=" << currentTurn
+				       << " (suppressing further duplicates this turn)";
+				gGlobals.getDLLIFace()->netMessageDebugLog(logMsg.str());
+			}
+			// After 2nd occurrence, suppress completely
 		}
 
 		return result; // Place a conditional breakpoint here to help debug sync errors.
