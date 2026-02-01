@@ -90,7 +90,15 @@
 			<Blue>0</Blue>
 			<Alpha>1</Alpha>
 		</Row>
-		<!-- Additionally, Austria and Persia's reds look too similar to Barbarians, and the same goes for brightened England, Mongolia and Morocco, so some manual adjustments were made. -->
+		<!-- Additionally, Austria, Poland, and Persia's reds look too similar to Barbarians, and the same goes for brightened England, Mongolia and Morocco, so some manual adjustments were made. -->
+		<!-- Poland is now #E78587 (pale red). -->
+		<Row>
+			<Type>COLOR_PLAYER_POLAND_MINOR_BACKGROUND</Type> <!-- RGB = 231/133/135, Original ≈ 246/5/0 -->
+			<Red>0.9023</Red>
+			<Green>0.5195</Green>
+			<Blue>0.5273</Blue>
+			<Alpha>1</Alpha>
+		</Row>
 		<!-- Austria is now #FFAEFF (lavender rose). -->
 		<Row>
 			<Type>COLOR_PLAYER_AUSTRIA_MINOR_BACKGROUND</Type> <!-- RGB = 255/174/255, Original ≈ 235/0/0 -->
@@ -343,7 +351,7 @@
 		<Row>
 			<Type>PLAYERCOLOR_MINOR_POLAND</Type>
 			<PrimaryColor>COLOR_PLAYER_MINOR_ICON</PrimaryColor>
-			<SecondaryColor>COLOR_PLAYER_POLAND_BACKGROUND</SecondaryColor>
+			<SecondaryColor>COLOR_PLAYER_POLAND_MINOR_BACKGROUND</SecondaryColor>
 			<TextColor>COLOR_PLAYER_PEACH_TEXT</TextColor>
 		</Row>
 		<Row>
