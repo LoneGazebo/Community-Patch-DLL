@@ -2550,10 +2550,10 @@ void CreateMiniDump(EXCEPTION_POINTERS* pep)
 		st.wHour, st.wMinute, st.wSecond);
 
 	// Extract version identifier from CURRENT_GAMECORE_VERSION for filename
-	// Input formats:
-	//   "Release-5.1 Clean"                    (exactly on tag)
-	//   "Release-5.1 abc123 Dirty"             (on tag with local changes)
-	//   "Release-5.1-3-gabc123 Clean"          (git describe: 3 commits after tag)
+	// Input formats (after update_commit_id.bat with --long flag):
+	//   "Release-5.1.2-0-gb44ce57d Clean"      (exactly on tag, 0 commits after)
+	//   "Release-5.1.3-7-g2d10a8aee Clean"     (7 commits after tag)
+	//   "Release-5.1.2-0-gb44ce57d Dirty"      (on tag with local changes)
 	//   "No-Tag abc123 Clean"                  (no tags in repo)
 	char shortVersion[64];
 	const char* fullVersion = CURRENT_GAMECORE_VERSION;
@@ -2693,7 +2693,7 @@ void CreateMiniDump(EXCEPTION_POINTERS* pep)
 		osvi.wServicePackMajor, osvi.wServicePackMinor,
 		HIWORD(g_dwDbgHelpVersion), LOWORD(g_dwDbgHelpVersion));
 
-	user_streams[0].Type = 0x00000003;  // MinidumpCommentStreamA
+	user_streams[0].Type = 10;  // CommentStreamA
 	user_streams[0].Buffer = version_info;
 	user_streams[0].BufferSize = static_cast<ULONG>(strlen(version_info) + 1);
 
