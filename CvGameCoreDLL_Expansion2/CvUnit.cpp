@@ -24291,7 +24291,7 @@ void CvUnit::DoFinishBuildIfSafe()
 
 bool CvUnit::IsCombatSupportUnit() const
 {
-	return IsGreatGeneral() || IsGreatAdmiral() || IsCityAttackSupport() || IsSapper();
+	return getUnitInfo().GetUnitAIType(UNITAI_GENERAL) || GetGreatGeneralCount() > 0 || getUnitInfo().GetUnitAIType(UNITAI_ADMIRAL) || GetGreatAdmiralCount() > 0 || IsCityAttackSupport() || IsSapper();
 }
 
 //	--------------------------------------------------------------------------------
