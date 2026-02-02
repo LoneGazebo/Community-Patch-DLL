@@ -278,7 +278,6 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetJONSCulturePerTurnForFree);
 	Method(ChangeJONSCulturePerTurnForFree);
 
-	Method(GetCulturePerTurnFromMinorCivs);
 	Method(GetCulturePerTurnFromMinor);
 
 	Method(GetCulturePerTurnFromReligion);
@@ -354,10 +353,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetTotalFaithPerTurn);
 	Method(GetTotalFaithPerTurnTimes100);
 	Method(GetFaithPerTurnFromCities);
-	Method(GetFaithPerTurnFromMinorCivs);
-	Method(GetGoldPerTurnFromMinorCivs);
-	Method(GetSciencePerTurnFromMinorCivs);
-	Method(GetFaithPerTurnFromReligion);
+	Method(GetYieldPerTurnFromMinorCivs);
 	Method(HasCreatedPantheon);
 	Method(GetBeliefInPantheon);
 	Method(GetBeliefsInPantheon);
@@ -3478,7 +3474,7 @@ int CvLuaPlayer::lChangeJONSCulturePerTurnForFree(lua_State* L)
 //int GetCulturePerTurnFromMinorCivs();
 int CvLuaPlayer::lGetCulturePerTurnFromMinorCivs(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::GetCulturePerTurnFromMinorCivs);
+	return BasicLuaMethod(L, &CvPlayerAI::GetYieldPerTurnFromMinorCivs(YIELD_CULTURE));
 }
 //------------------------------------------------------------------------------
 //int GetCulturePerTurnFromMinor(int iMinor);
@@ -4177,19 +4173,19 @@ int CvLuaPlayer::lGetFaithPerTurnFromCities(lua_State* L)
 //int GetFaithPerTurnFromMinorCivs();
 int CvLuaPlayer::lGetFaithPerTurnFromMinorCivs(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::GetFaithPerTurnFromMinorCivs);
+	return BasicLuaMethod(L, &CvPlayerAI::GetYieldPerTurnFromMinorCivs(YIELD_FAITH));
 }
 //------------------------------------------------------------------------------
 //int GetGoldPerTurnFromMinorCivs();
 int CvLuaPlayer::lGetGoldPerTurnFromMinorCivs(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::GetGoldPerTurnFromMinorCivs);
+	return BasicLuaMethod(L, &CvPlayerAI::GetYieldPerTurnFromMinorCivs(YIELD_GOLD));
 }
 //------------------------------------------------------------------------------
 //int GetSciencePerTurnFromMinorCivs();
 int CvLuaPlayer::lGetSciencePerTurnFromMinorCivs(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::GetSciencePerTurnFromMinorCivs);
+	return BasicLuaMethod(L, &CvPlayerAI::GetYieldPerTurnFromMinorCivs(YIELD_SCIENCE));
 }
 //------------------------------------------------------------------------------
 //int GetFaithPerTurnFromReligion();
@@ -12989,7 +12985,7 @@ int CvLuaPlayer::lGetGoldPerTurnFromAnnexedMinors(lua_State* L)
 	CvPlayer* pkPlayer = GetInstance(L);
 	if (pkPlayer)
 	{
-		lua_pushinteger(L, pkPlayer->GetGoldPerTurnFromAnnexedMinors());
+		lua_pushinteger(L, pkPlayer->GetYieldPerTurnFromAnnexedMinors(YIELD_GOLD));
 		return 1;
 	}
 	//BUG: This can't be right...
@@ -13002,7 +12998,7 @@ int CvLuaPlayer::lGetCulturePerTurnFromAnnexedMinors(lua_State* L)
 	CvPlayer* pkPlayer = GetInstance(L);
 	if (pkPlayer)
 	{
-		lua_pushinteger(L, pkPlayer->GetCulturePerTurnFromAnnexedMinors());
+		lua_pushinteger(L, pkPlayer->GetYieldPerTurnFromAnnexedMinors(YIELD_CULTURE));
 		return 1;
 	}
 	//BUG: This can't be right...
@@ -13015,7 +13011,7 @@ int CvLuaPlayer::lGetFaithPerTurnFromAnnexedMinors(lua_State* L)
 	CvPlayer* pkPlayer = GetInstance(L);
 	if (pkPlayer)
 	{
-		lua_pushinteger(L, pkPlayer->GetFaithPerTurnFromAnnexedMinors());
+		lua_pushinteger(L, pkPlayer->GetYieldPerTurnFromAnnexedMinors(YIELD_FAITH));
 		return 1;
 	}
 	//BUG: This can't be right...
@@ -13028,7 +13024,7 @@ int CvLuaPlayer::lGetSciencePerTurnFromAnnexedMinors(lua_State* L)
 	CvPlayer* pkPlayer = GetInstance(L);
 	if (pkPlayer)
 	{
-		lua_pushinteger(L, pkPlayer->GetSciencePerTurnFromAnnexedMinors());
+		lua_pushinteger(L, pkPlayer->GetYieldPerTurnFromAnnexedMinors(YIELD_SCIENCE));
 		return 1;
 	}
 	//BUG: This can't be right...

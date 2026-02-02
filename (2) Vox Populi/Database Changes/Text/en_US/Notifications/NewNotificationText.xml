@@ -814,5 +814,19 @@
 		<Row Tag="TXT_KEY_BALANCE_ANNEXED_CS_SUMMARY">
 			<Text>You intimidated {1_CS}!</Text>
 		</Row>
+
+		<!-- Generic CS yield notifications -->
+		<Row Tag="TXT_KEY_NOTIFICATION_MINOR_NOW_FRIENDS_GENERIC">
+			<Text>This City-State is now your Friend. </Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_MINOR_NOW_ALLIES_GENERIC">
+			<Text>This City-State is now your Ally. </Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_MINOR_LOST_FRIENDS_GENERIC">
+			<Text></Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_MINOR_LOST_ALLIES_GENERIC">
+			<Text></Text>
+		</Row>
 	</Language_en_US>
 </GameData>
