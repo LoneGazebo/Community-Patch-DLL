@@ -3,12 +3,31 @@
 #include "CvDiplomacyAI.h"
 
 namespace NetMessageExt
-{		
+{
+	namespace
+	{
+		// Validation helpers - network messages can contain invalid data
+		bool IsPlayerInvalid(PlayerTypes ePlayer)
+		{
+			return ePlayer < 0 || ePlayer >= MAX_PLAYERS;
+		}
+
+		bool IsTeamInvalid(TeamTypes eTeam)
+		{
+			return eTeam < 0 || eTeam >= MAX_CIV_TEAMS;
+		}
+	}
+
 	namespace Process
 	{
 		bool ResponseMoveGreatWorks(PlayerTypes ePlayer, int iArg1, int iArg2, int iArg3, int iArg4, int iArg5, int iArg6) {
 			if (iArg6 < 999)
 				return false;
+
+			// Note: Caller (CvDllNetMessageHandler::ResponseMoveGreatWorks) already checks
+			// isFinalInitialized() before calling us. Individual Response functions also
+			// validate their inputs for defense in depth.
+
 			switch (iArg6)
 			{
 				case 999:				
@@ -117,16 +136,33 @@ namespace NetMessageExt
 
 	namespace Response
 	{
+		// Response handlers receive data from network messages. The Send-side validates before sending,
+		// so invalid data here indicates either a bug in Send logic, network corruption, or a desync.
+		// ASSERTs help trace these issues during development; defensive returns prevent crashes in release.
 
 		void DoEventChoice(PlayerTypes ePlayer, EventChoiceTypes eEventChoice, EventTypes eEvent)
 		{
+			ASSERT(!IsPlayerInvalid(ePlayer), "DoEventChoice: invalid ePlayer from network");
+			if (IsPlayerInvalid(ePlayer))
+				return;
+
 			CvPlayer& kActualPlayer = GET_PLAYER(ePlayer);
+			if (!kActualPlayer.isAlive())
+				return;
+
 			kActualPlayer.DoEventChoice(eEventChoice, eEvent, false);
 		}
 
 		void DoCityEventChoice(PlayerTypes ePlayer, int iCityID, CityEventChoiceTypes eEventChoice, CityEventTypes eCityEvent, int iSpyID, PlayerTypes eSpyOwner)
 		{
+			ASSERT(!IsPlayerInvalid(ePlayer), "DoCityEventChoice: invalid ePlayer from network");
+			if (IsPlayerInvalid(ePlayer))
+				return;
+
 			CvPlayer& kActualPlayer = GET_PLAYER(ePlayer);
+			if (!kActualPlayer.isAlive())
+				return;
+
 			int iLoop = 0;
 			CvCity* pLoopCity = NULL;
 			for (pLoopCity = kActualPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kActualPlayer.nextCity(&iLoop))
@@ -136,23 +172,57 @@ namespace NetMessageExt
 					pLoopCity->DoEventChoice(eEventChoice, eCityEvent, false, iSpyID, eSpyOwner);
 					break;
 				}
-
 			}
 		}
+
 		void DoMinorBullyAnnex(PlayerTypes ePlayer, PlayerTypes eMinor)
-		{	
-			GET_PLAYER(eMinor).GetMinorCivAI()->DoMajorBullyAnnex(ePlayer);
+		{
+			ASSERT(!IsPlayerInvalid(ePlayer), "DoMinorBullyAnnex: invalid ePlayer from network");
+			ASSERT(!IsPlayerInvalid(eMinor), "DoMinorBullyAnnex: invalid eMinor from network");
+			if (IsPlayerInvalid(ePlayer) || IsPlayerInvalid(eMinor))
+				return;
+
+			CvPlayer& kMinor = GET_PLAYER(eMinor);
+			if (!kMinor.isAlive() || !kMinor.isMinorCiv())
+				return;
+
+			kMinor.GetMinorCivAI()->DoMajorBullyAnnex(ePlayer);
 		}
+
 		void DoQuestInfluenceDisabled(PlayerTypes ePlayer, PlayerTypes eMinor, bool bValue)
 		{
-			GET_PLAYER(eMinor).GetMinorCivAI()->SetQuestInfluenceDisabled(ePlayer, bValue);
+			ASSERT(!IsPlayerInvalid(ePlayer), "DoQuestInfluenceDisabled: invalid ePlayer from network");
+			ASSERT(!IsPlayerInvalid(eMinor), "DoQuestInfluenceDisabled: invalid eMinor from network");
+			if (IsPlayerInvalid(ePlayer) || IsPlayerInvalid(eMinor))
+				return;
+
+			CvPlayer& kMinor = GET_PLAYER(eMinor);
+			if (!kMinor.isAlive() || !kMinor.isMinorCiv())
+				return;
+
+			kMinor.GetMinorCivAI()->SetQuestInfluenceDisabled(ePlayer, bValue);
 		}
+
 		void SetDisableAutomaticFaithPurchase(PlayerTypes ePlayer, bool bValue)
 		{
-			GET_PLAYER(ePlayer).SetDisableAutomaticFaithPurchase(bValue);
+			ASSERT(!IsPlayerInvalid(ePlayer), "SetDisableAutomaticFaithPurchase: invalid ePlayer from network");
+			if (IsPlayerInvalid(ePlayer))
+				return;
+
+			CvPlayer& kPlayer = GET_PLAYER(ePlayer);
+			if (!kPlayer.isAlive())
+				return;
+
+			kPlayer.SetDisableAutomaticFaithPurchase(bValue);
 		}
+
 		void DoApplyVassalTax(TeamTypes eMaster, PlayerTypes eVassal, int iPercent)
 		{
+			ASSERT(!IsTeamInvalid(eMaster), "DoApplyVassalTax: invalid eMaster from network");
+			ASSERT(!IsPlayerInvalid(eVassal), "DoApplyVassalTax: invalid eVassal from network");
+			if (IsTeamInvalid(eMaster) || IsPlayerInvalid(eVassal))
+				return;
+
 			CvTeam& kMasterTeam = GET_TEAM(eMaster);
 
 			if (!kMasterTeam.CanSetVassalTax(eVassal))
@@ -170,31 +240,41 @@ namespace NetMessageExt
 			GC.GetEngineUserInterface()->setDirty(EspionageScreen_DIRTY_BIT, true);
 
 			// notify diplo AI if there was some change
-			if(iPercent != iCurrentTaxRate)
+			if (iPercent != iCurrentTaxRate)
 			{
-				GET_PLAYER(eVassal).GetDiplomacyAI()->DoVassalTaxChanged(eMaster, (iPercent < iCurrentTaxRate));
-
-				// send a notification if there was some change
-				Localization::String locString;
-				Localization::String summaryString;
-				if(iPercent > iCurrentTaxRate)
+				CvPlayer& kVassalPlayer = GET_PLAYER(eVassal);
+				if (kVassalPlayer.isAlive())
 				{
-					locString = Localization::Lookup("TXT_KEY_MISC_VASSAL_TAX_INCREASED");
-					summaryString = Localization::Lookup("TXT_KEY_MISC_VASSAL_TAX_INCREASED_SUMMARY");
-				}
-				else
-				{
-					locString = Localization::Lookup("TXT_KEY_MISC_VASSAL_TAX_DECREASED");
-					summaryString = Localization::Lookup("TXT_KEY_MISC_VASSAL_TAX_DECREASED_SUMMARY");
-				}
+					kVassalPlayer.GetDiplomacyAI()->DoVassalTaxChanged(eMaster, (iPercent < iCurrentTaxRate));
 
-				locString << kMasterTeam.getName().GetCString() << iCurrentTaxRate << iPercent;
+					// send a notification if there was some change
+					Localization::String locString;
+					Localization::String summaryString;
+					if (iPercent > iCurrentTaxRate)
+					{
+						locString = Localization::Lookup("TXT_KEY_MISC_VASSAL_TAX_INCREASED");
+						summaryString = Localization::Lookup("TXT_KEY_MISC_VASSAL_TAX_INCREASED_SUMMARY");
+					}
+					else
+					{
+						locString = Localization::Lookup("TXT_KEY_MISC_VASSAL_TAX_DECREASED");
+						summaryString = Localization::Lookup("TXT_KEY_MISC_VASSAL_TAX_DECREASED_SUMMARY");
+					}
 
-				GET_PLAYER(eVassal).GetNotifications()->Add(NOTIFICATION_GENERIC, locString.toUTF8(), summaryString.toUTF8(), -1, -1, kMasterTeam.getLeaderID());
+					locString << kMasterTeam.getName().GetCString() << iCurrentTaxRate << iPercent;
+
+					kVassalPlayer.GetNotifications()->Add(NOTIFICATION_GENERIC, locString.toUTF8(), summaryString.toUTF8(), -1, -1, kMasterTeam.getLeaderID());
+				}
 			}
 		}
+
 		void DoLiberateVassal(TeamTypes eMaster, TeamTypes eVassal)
 		{
+			ASSERT(!IsTeamInvalid(eMaster), "DoLiberateVassal: invalid eMaster from network");
+			ASSERT(!IsTeamInvalid(eVassal), "DoLiberateVassal: invalid eVassal from network");
+			if (IsTeamInvalid(eMaster) || IsTeamInvalid(eVassal))
+				return;
+
 			CvTeam& kMasterTeam = GET_TEAM(eMaster);
 
 			if (!kMasterTeam.CanLiberateVassal(eVassal))
