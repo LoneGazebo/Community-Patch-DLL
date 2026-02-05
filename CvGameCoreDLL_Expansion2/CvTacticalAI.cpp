@@ -2793,8 +2793,11 @@ void CvTacticalAI::SortTargetListAndDropUselessTargets()
 		{
 			for (vector<CvTacticalTarget>::iterator it2 = reducedTargetList.begin(); it2 != reducedTargetList.end(); ++it2)
 			{
-				//trick: land zones have id > 0, water zones id < 0. so negative product means domain mismatch
-				if (it->GetDominanceZone() * it2->GetDominanceZone() < 0)
+				//land zones have id > 0, water zones id < 0. opposite signs means domain mismatch
+				//check signs without multiplication to avoid overflow with large zone IDs
+				int iZone1 = it->GetDominanceZone();
+				int iZone2 = it2->GetDominanceZone();
+				if ((iZone1 > 0 && iZone2 < 0) || (iZone1 < 0 && iZone2 > 0))
 					continue;
 
 				//if close to one of our cities, make sure we're not dropping it
