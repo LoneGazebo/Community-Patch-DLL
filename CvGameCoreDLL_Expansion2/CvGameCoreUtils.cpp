@@ -323,6 +323,10 @@ int dyWrap(int iDY)
 
 CvPlot* plotXY(int iX, int iY, int iDX, int iDY)
 {
+	// Handle invalid coordinates (e.g., units being removed from the map)
+	if (iX == INVALID_PLOT_COORD || iY == INVALID_PLOT_COORD)
+		return NULL;
+
 	// convert the start coord to hex-space coordinates
 	int iStartHexX = xToHexspaceX(iX, iY);
 
