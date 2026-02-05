@@ -21313,8 +21313,11 @@ int CvCity::GetDistressRaw(bool bForceRecalc, int iAssumedExtraYieldRate) const
 	int iTotalYield = getFoodPerTurnBeforeConsumptionTimes100() + getYieldRateTimes100(YIELD_PRODUCTION, false, false, !bForceRecalc) + iAssumedExtraYieldRate;
 
 	// Second, calculate the median (with need modifiers)
-	float fMedianYieldPerPop = 0.00f;
-	fMedianYieldPerPop += GetBasicNeedsMedian(bForceRecalc, 0);
+	float fMedianYieldPerPop = GetBasicNeedsMedian(bForceRecalc, 0);
+
+	// Avoid division by zero which produces NaN
+	if (fMedianYieldPerPop <= 0.0f)
+		return 0;
 
 	// Unhappiness = Population - (Total Yield / Modified Median)
 	int iPopulation = bForceRecalc ? getPopulation() + 1 : getPopulation();
@@ -21360,8 +21363,11 @@ int CvCity::GetPovertyRaw(bool bForceRecalc, int iAssumedExtraYieldRate) const
 	int iTotalYield = getYieldRateTimes100(YIELD_GOLD, false, false, !bForceRecalc) + iAssumedExtraYieldRate;
 
 	// Second, calculate the median (with need modifiers)
-	float fMedianYieldPerPop = 0.00f;
-	fMedianYieldPerPop += GetGoldMedian(bForceRecalc, 0);
+	float fMedianYieldPerPop = GetGoldMedian(bForceRecalc, 0);
+
+	// Avoid division by zero which produces NaN
+	if (fMedianYieldPerPop <= 0.0f)
+		return 0;
 
 	// Unhappiness = Population - (Total Yield / Modified Median)
 	int iPopulation = bForceRecalc ? getPopulation() + 1 : getPopulation();
@@ -21407,8 +21413,11 @@ int CvCity::GetIlliteracyRaw(bool bForceRecalc, int iAssumedExtraYieldRate) cons
 	int iTotalYield = getYieldRateTimes100(YIELD_SCIENCE, false, false, !bForceRecalc) + iAssumedExtraYieldRate;
 
 	// Second, calculate the median (with need modifiers)
-	float fMedianYieldPerPop = 0.00f;
-	fMedianYieldPerPop += GetScienceMedian(bForceRecalc, 0);
+	float fMedianYieldPerPop = GetScienceMedian(bForceRecalc, 0);
+
+	// Avoid division by zero which produces NaN
+	if (fMedianYieldPerPop <= 0.0f)
+		return 0;
 
 	// Unhappiness = Population - (Total Yield / Modified Median)
 	int iPopulation = bForceRecalc ? getPopulation() + 1 : getPopulation();
@@ -21454,8 +21463,11 @@ int CvCity::GetBoredomRaw(bool bForceRecalc, int iAssumedExtraYieldRate) const
 	int iTotalYield = getYieldRateTimes100(YIELD_CULTURE, false, false, !bForceRecalc) + iAssumedExtraYieldRate;
 
 	// Second, calculate the median (with need modifiers)
-	float fMedianYieldPerPop = 0.00f;
-	fMedianYieldPerPop += GetCultureMedian(bForceRecalc, 0);
+	float fMedianYieldPerPop = GetCultureMedian(bForceRecalc, 0);
+
+	// Avoid division by zero which produces NaN
+	if (fMedianYieldPerPop <= 0.0f)
+		return 0;
 
 	// Unhappiness = Population - (Total Yield / Modified Median)
 	int iPopulation = bForceRecalc ? getPopulation() + 1 : getPopulation();
