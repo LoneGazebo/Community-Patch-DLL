@@ -17697,7 +17697,7 @@ int CvUnit::maxXPValue() const
 		iMaxValue = std::min(iMaxValue, /*-1 in CP, 70 in VP*/ GD_INT_GET(MINOR_MAX_XP_VALUE));
 	}
 
-	if (iMaxValue > 0)
+	if (iMaxValue > 0 && iMaxValue != MAX_INT)
 	{
 		iMaxValue *= GC.getGame().getGameSpeedInfo().getExperiencePercent();
 		iMaxValue /= 100;
