@@ -129,6 +129,7 @@ CvGame::CvGame() :
 	, m_bIsDesynced(false)
 	, m_eObserverUIOverridePlayer(NO_PLAYER)
 	, m_lastTurnAICivsProcessed(-1)
+	, m_firstActivationOfPlayersAfterLoad(false)
 	, m_processPlayerAutoMoves(false)
 	, m_cityDistancePathLength(NO_DOMAIN) //for now!
 	, m_cityDistancePlots()
