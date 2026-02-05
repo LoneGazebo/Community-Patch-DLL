@@ -5908,6 +5908,8 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 		CvPlayer& kPlayer = GET_PLAYER(pUnit->getOwner());
 		int iDanger = pUnit->GetDanger(pPlot);
 		int iCityDistance = kPlayer.GetCityDistancePathLength(pPlot);
+		if (iCityDistance == INT_MAX)
+			iCityDistance = 0; // No cities (e.g. barbarians) - distance irrelevant, use 0 to avoid overflow
 
 		bool bIsZeroDanger = (iDanger <= 0);
 		bool bIsInTerritory = (pPlot->getTeam() == kPlayer.getTeam());
