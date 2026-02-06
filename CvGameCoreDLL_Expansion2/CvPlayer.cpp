@@ -32640,6 +32640,15 @@ void CvPlayer::setAlive(bool bNewValue, bool bNotify)
 		if (isMajorCiv())
 			GC.getGame().GetGameDeals().DoCancelAllDealsWithPlayer(GetID());
 
+		CvPlayerEspionage* pEspionage = GetEspionage();
+		if (pEspionage)
+		{
+			for (uint uiSpy = 0; uiSpy < (uint)pEspionage->GetNumSpies(); uiSpy++)
+			{
+				pEspionage->ExtractSpyFromCity(uiSpy);
+			}
+		}
+
 		clearResearchQueue();
 		killUnits();
 		killCities();
