@@ -555,6 +555,7 @@
     <File md5="B2328FD0387B8D177C2D97039D9D9999" import="0">Database Changes/City/Projects/ProjectTableChanges.sql</File>
     <File md5="274DC089B727CFCF69B0337F3B21C625" import="0">Database Changes/Civilizations/CivilizationChanges.sql</File>
     <File md5="F84FC0C21F4A11D162F4C04948EC478F" import="0">Database Changes/Civilizations/NewCivilizationTables.xml</File>
+    <File md5="6694D2B25D389BA5CBEAF077643FB904" import="0">Database Changes/Civilizations/CivilizationTableChanges.sql</File>
     <File md5="B4DA5141F34AA9B24A8C9A1A4B8274E2" import="0">Database Changes/Civilizations/NewTraitTables.xml</File>
     <File md5="EFF22272C1297968AE58E25650491E43" import="0">Database Changes/Civilizations/TraitChanges.sql</File>
     <File md5="42D27D9421733E59A91C217FDB9B1B14" import="0">Database Changes/Civilizations/TraitTableChanges.sql</File>
@@ -774,6 +775,7 @@
       <UpdateDatabase>Database Changes\City\Buildings\NewBuildingTables.xml</UpdateDatabase>
       <UpdateDatabase>Database Changes\City\Projects\NewProjectTables.xml</UpdateDatabase>
       <UpdateDatabase>Database Changes\Civilizations\NewCivilizationTables.xml</UpdateDatabase>
+      <UpdateDatabase>Database Changes\Civilizations\CivilizationTableChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes\Civilizations\NewTraitTables.xml</UpdateDatabase>
       <UpdateDatabase>Database Changes\Corporations\NewCorporationTables.xml</UpdateDatabase>
       <UpdateDatabase>Database Changes\Difficulty\NewDifficultyTables.xml</UpdateDatabase>
