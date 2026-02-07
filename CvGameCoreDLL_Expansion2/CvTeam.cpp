@@ -6436,6 +6436,10 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 						bool bUnlocksResource = false;
 						bool bResourceUnlocked = false;
 						TechTypes eTech = (TechTypes)pResourceInfo->getImproveTech();
+						if (eTech == NO_TECH)
+						{
+							eTech = (TechTypes)pResourceInfo->getTechReveal();
+						}
 						for (std::vector<PlayerTypes>::const_iterator iI = m_members.begin(); iI != m_members.end(); ++iI)
 						{
 							const PlayerTypes ePlayer = (PlayerTypes)*iI;
