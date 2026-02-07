@@ -775,6 +775,7 @@ public:
 	// keep track of annexed minor civs
 	int GetNumAnnexedCityStates()	const;
 	void ChangeNumAnnexedCityStates(int iChange);
+	std::vector<std::pair<PlayerTypes, int>> getAnnexedCityStatesUnitSpawnTurns() const;
 	void addAnnexedCityState(PlayerTypes eMinor);
 	void removeAnnexedCityState(PlayerTypes eMinor);
 	void updateTimerAnnexedMilitaryCityStates();

@@ -4320,16 +4320,16 @@ void CvMinorCivAI::Init(CvPlayer* pPlayer)
 	
 	if (GetPlayer()->isMinorCiv())
 	{
-		const char* szTraitType = GC.getMinorCivTraitsInfo(GetTrait())->GetType();
-
+		const char* szTraitType = GetTrait();
+		Utility* pUtility = GC.GetGameDatabaseUtility();
 		// MinorCivilizationTraits_FriendYieldBonuses
 		// Table: (MinorCivTraitsType, EraType, YieldType, Yield)
 		{
 			std::string strKey("MinorCivilizationTraits_FriendYieldBonuses");
-			Database::Results* pResults = GC.GetGameDatabase()->GetResults(strKey);
+			Database::Results* pResults = pUtility->GetResults(strKey);
 			if (pResults == NULL)
 			{
-				pResults = GC.GetGameDatabase()->PrepareResults(
+				pResults = pUtility->PrepareResults(
 					strKey,
 					"SELECT Eras.ID, YieldType, Yield "
 					"FROM MinorCivilizationTraits_FriendYieldBonuses "
@@ -4360,10 +4360,10 @@ void CvMinorCivAI::Init(CvPlayer* pPlayer)
 		// Table: (MinorCivTraitsType, EraType, YieldType, Yield, CapitalOnly)
 		{
 			std::string strKey("MinorCivilizationTraits_FriendCityYieldBonuses");
-			Database::Results* pResults = kUtility.GetResults(strKey);
+			Database::Results* pResults = pUtility->GetResults(strKey);
 			if (pResults == NULL)
 			{
-				pResults = kUtility.PrepareResults(
+				pResults = pUtility->PrepareResults(
 					strKey,
 					"SELECT Eras.ID, YieldType, Yield, CapitalOnly "
 					"FROM MinorCivilizationTraits_FriendCityYieldBonuses "
@@ -4395,10 +4395,10 @@ void CvMinorCivAI::Init(CvPlayer* pPlayer)
 		// Table: (MinorCivTraitsType, EraType, YieldType, Yield)
 		{
 			std::string strKey("MinorCivilizationTraits_AllyYieldBonuses");
-			Database::Results* pResults = GC.GetGameDatabase()->GetResults(strKey);
+			Database::Results* pResults = pUtility->GetResults(strKey);
 			if (pResults == NULL)
 			{
-				pResults = GC.GetGameDatabase()->PrepareResults(
+				pResults = pUtility->PrepareResults(
 					strKey,
 					"SELECT Eras.ID, YieldType, Yield "
 					"FROM MinorCivilizationTraits_AllyYieldBonuses "
@@ -4429,10 +4429,10 @@ void CvMinorCivAI::Init(CvPlayer* pPlayer)
 		// Table: (MinorCivTraitsType, EraType, YieldType, Yield, CapitalOnly)
 		{
 			std::string strKey("MinorCivilizationTraits_AllyCityYieldBonuses");
-			Database::Results* pResults = kUtility.GetResults(strKey);
+			Database::Results* pResults = pUtility->GetResults(strKey);
 			if (pResults == NULL)
 			{
-				pResults = kUtility.PrepareResults(
+				pResults = pUtility->PrepareResults(
 					strKey,
 					"SELECT Eras.ID, YieldType, Yield, CapitalOnly "
 					"FROM MinorCivilizationTraits_AllyCityYieldBonuses "
@@ -14558,7 +14558,7 @@ int CvMinorCivAI::GetCurrentYieldBonus(PlayerTypes ePlayer, YieldType eYield)
 	if (iInfluenceLevel == 0)
 		return iInfluenceLevel;
 	
-	int iAmount = GetYieldFlatBonus(ePlayer, NO_ERA, eYield, iInfluenceLevel);
+	int iAmount = GetYieldFlatBonus(ePlayer, eYield, NO_ERA, iInfluenceLevel);
 	
 	int iModifier = GET_PLAYER(ePlayer).GetPlayerTraits()->GetCityStateBonusModifier();
 	iModifier += GET_PLAYER(ePlayer).GetCSYieldBonusModifier();
@@ -14615,7 +14615,7 @@ int CvMinorCivAI::GetCurrentCityYieldBonus(PlayerTypes ePlayer, YieldTypes eYiel
 	if (iInfluenceLevel == 0)
 		return 0;
 	
-	int iAmount = GetCityYieldFlatBonus(ePlayer, NO_ERA, eYield, iInfluenceLevel, bCapitalOnly);
+	int iAmount = GetCityYieldFlatBonus(ePlayer, eYield, NO_ERA, iInfluenceLevel, bCapitalOnly);
 
 	int iModifier = GET_PLAYER(ePlayer).GetPlayerTraits()->GetCityStateBonusModifier();
 	iModifier += GET_PLAYER(ePlayer).GetCSYieldBonusModifier();
@@ -18141,7 +18141,7 @@ CvString CvMinorCivAI::GetStatusChangeDetails(PlayerTypes ePlayer, bool bAdd, bo
 	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
 		YieldTypes eYield = (YieldTypes)iI;
-		int iFriendYieldTimes100 = GetYieldFlatBonus(ePlayer, eYield, NO_ERA, 1);
+		int iFriendYieldTimes100 = GetYieldFlatBonus(ePlayer, eYield, NO_ERA, 1) * 100;
 		int iFriendCapitalYieldTimes100 = GetCityYieldFlatBonus(ePlayer, eYield, NO_ERA, 1, true);
 		int iFriendOtherCitiesYieldTimes100 = GetCityYieldFlatBonus(ePlayer, eYield, NO_ERA, 1, false);
 		int iAllyYieldTimes100 = 0;
@@ -18149,7 +18149,7 @@ CvString CvMinorCivAI::GetStatusChangeDetails(PlayerTypes ePlayer, bool bAdd, bo
 		int iAllyOtherCitiesYieldTimes100 = 0;
 		if (bAllies)
 		{
-			iAllyYieldTimes100 = GetYieldFlatBonus(ePlayer, eYield, NO_ERA, 2);
+			iAllyYieldTimes100 = GetYieldFlatBonus(ePlayer, eYield, NO_ERA, 2) * 100;
 			iAllyCapitalYieldTimes100 = GetCityYieldFlatBonus(ePlayer, eYield, NO_ERA, 2, true) - iFriendCapitalYieldTimes100;
 			iAllyOtherCitiesYieldTimes100 = GetCityYieldFlatBonus(ePlayer, eYield, NO_ERA, 2, false) - iFriendOtherCitiesYieldTimes100;
 		}
@@ -18165,7 +18165,7 @@ CvString CvMinorCivAI::GetStatusChangeDetails(PlayerTypes ePlayer, bool bAdd, bo
    			 strPlayerLevel += ", ";
 		}
 		strPlayerLevel += CvString::format("%+d %s %s", 
-			iFriendYieldTimes100 + iAllyYieldTimes100,
+			(iFriendYieldTimes100 + iAllyYieldTimes100) / 100,
 			GC.getYieldInfo(eYield)->getIconString(),
 			GC.getYieldInfo(eYield)->getDescription());
 		
@@ -18173,7 +18173,7 @@ CvString CvMinorCivAI::GetStatusChangeDetails(PlayerTypes ePlayer, bool bAdd, bo
    			 strCityLevel += ", ";
 		}
 		strCityLevel += CvString::format("%+d %s %s", 
-			iFriendOtherCitiesYieldTimes100 + iAllyOtherCitiesYieldTimes100,
+			(iFriendOtherCitiesYieldTimes100 + iAllyOtherCitiesYieldTimes100) / 100,
 			GC.getYieldInfo(eYield)->getIconString(),
 			GC.getYieldInfo(eYield)->getDescription());
 
@@ -18182,7 +18182,7 @@ CvString CvMinorCivAI::GetStatusChangeDetails(PlayerTypes ePlayer, bool bAdd, bo
 		}
 		// capital gets both yields but word it separately in case only one is set in database
 		strCityLevelCapital += CvString::format("%+d %s %s", 
-			iFriendCapitalYieldTimes100 + iAllyCapitalYieldTimes100,
+			(iFriendCapitalYieldTimes100 + iAllyCapitalYieldTimes100) / 100,
 			GC.getYieldInfo(eYield)->getIconString(),
 			GC.getYieldInfo(eYield)->getDescription());		
 	}

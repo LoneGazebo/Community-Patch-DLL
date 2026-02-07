@@ -13464,7 +13464,7 @@ int CvDiplomacyAI::CalculateGoldPerTurnLostFromWar(PlayerTypes ePlayer)
 	if (GET_PLAYER(ePlayer).isMinorCiv())
 	{
 		iGPT += (GetPlayer()->GetTrade()->GetTradeGPTLostFromWarTimes100(ePlayer) / 100);
-		iGPT += GET_PLAYER(ePlayer).GetMinorCivAI()->GetCurrentGoldBonus(eMyPlayer);
+		iGPT += GET_PLAYER(ePlayer).GetMinorCivAI()->GetCurrentYieldBonus(eMyPlayer, YIELD_GOLD);
 		return iGPT;
 	}
 
@@ -13489,7 +13489,7 @@ int CvDiplomacyAI::CalculateGoldPerTurnLostFromWar(PlayerTypes ePlayer)
 		}
 		else
 		{
-			iGPT += (GET_PLAYER(*it).GetMinorCivAI()->GetCurrentGoldBonus(eMyPlayer) * 100);
+			iGPT += (GET_PLAYER(*it).GetMinorCivAI()->GetCurrentYieldBonus(eMyPlayer, YIELD_GOLD) * 100);
 		}
 	}
 
@@ -24631,7 +24631,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMinorCiv(PlayerTypes ePlayer)
 							GetPlayer()->GetTrade()->GetAllTradeValueFromPlayerTimes100(YIELD_CULTURE, ePlayer) + 
 							GetPlayer()->GetTrade()->GetAllTradeValueFromPlayerTimes100(YIELD_SCIENCE, ePlayer);
 	iCurrentTradeValue /= 300;
-	iCurrentTradeValue += GET_PLAYER(ePlayer).GetMinorCivAI()->GetCurrentGoldBonus(eMyPlayer);
+	iCurrentTradeValue += GET_PLAYER(ePlayer).GetMinorCivAI()->GetCurrentYieldBonus(eMyPlayer, YIELD_GOLD);
 
 	if (iCurrentTradeValue > 0)
 	{
