@@ -502,7 +502,7 @@ CvPlayer::CvPlayer() :
 	, m_iVassalYieldBonusModifier()
 	, m_iCSYieldBonusModifier()
 	, m_iConversionModifier()
-	, m_aiNumAnnexedCityStates()
+	, m_iNumAnnexedCityStates()
 	, m_piYieldInCapitalFromAnnexedMinors()
 	, m_piYieldInOtherCitiesFromAnnexedMinors()
 	, m_piYieldPerTurnFromAnnexedMinors()
@@ -17649,33 +17649,6 @@ void CvPlayer::ChangeJONSCulturePerTurnForFree(int iChange)
 	}
 }
 
-/// Culture per turn from all minor civs
-int CvPlayer::GetCulturePerTurnFromMinorCivs() const
-{
-	int iAmount = 0;
-	for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
-	{
-		PlayerTypes eMinor = (PlayerTypes) iMinorLoop;
-		iAmount += GetCulturePerTurnFromMinor(eMinor);
-	}
-
-	return iAmount;
-}
-
-// Culture per turn from a minor civ
-int CvPlayer::GetCulturePerTurnFromMinor(PlayerTypes eMinor) const
-{
-	int iAmount = 0;
-
-	if (GET_PLAYER(eMinor).isAlive())
-	{
-		// Includes flat bonus and any bonus from cultural buildings
-		iAmount += GET_PLAYER(eMinor).GetMinorCivAI()->GetCurrentCultureBonus(GetID());
-	}
-
-	return iAmount;
-}
-
 /// Culture per turn from religion
 int CvPlayer::GetCulturePerTurnModifierFromReligion() const
 {
@@ -22805,15 +22778,20 @@ void CvPlayer::removeAnnexedCityState(PlayerTypes eMinor)
 		{
 			m_AnnexedCityStatesUnitSpawnTurns.erase(it);
 			
-			ChangeYieldInCapitalPerTurnFromAnnexedMinors(eMinor, -1);
-			ChangeYieldInOtherCitiesPerTurnFromAnnexedMinors(eMinor, -1);
-			ChangeYieldPerTurnFromAnnexedMinors(eMinor, -1);
-			ChangeHappinessFromAnnexedMinors(eMinor, -1);
+			ChangeYieldInCapitalPerTurnFromAnnexedMinor(eMinor, -1);
+			ChangeYieldInOtherCitiesPerTurnFromAnnexedMinor(eMinor, -1);
+			ChangeYieldPerTurnFromAnnexedMinor(eMinor, -1);
+			ChangeHappinessFromAnnexedMinor(eMinor, -1);
 			
 			return;
 		}
 	}
 	ASSERT(false);
+}
+
+std::vector<std::pair<PlayerTypes, int>> CvPlayer::getAnnexedCityStatesUnitSpawnTurns() const
+{
+	return m_AnnexedCityStatesUnitSpawnTurns;
 }
 
 void CvPlayer::updateTimerAnnexedMilitaryCityStates()
@@ -22870,9 +22848,9 @@ void CvPlayer::ChangeYieldInCapitalPerTurnFromAnnexedMinor(PlayerTypes eMinor, i
 			int iBonus = 0;
 			YieldTypes eYield = (YieldTypes)iI;
 			
-			iBonus += GET_PLAYER(eMinor).GetMinorCivAI()->GetCityYieldFlatBonus(this, eYield, eEra, 2, true)
+			iBonus += GET_PLAYER(eMinor).GetMinorCivAI()->GetCityYieldFlatBonus(GetID(), eYield, eEra, 2, true);
 			iBonus /= 100;
-			iBonus *= iSign
+			iBonus *= iSign;
 	
 			//update if necessary
 			//bonus yields are tracked on city level
@@ -22902,9 +22880,9 @@ void CvPlayer::ChangeYieldInOtherCitiesPerTurnFromAnnexedMinor(PlayerTypes eMino
 			int iBonus = 0;
 			YieldTypes eYield = (YieldTypes)iI;
 			
-			iBonus += GET_PLAYER(eMinor).GetMinorCivAI()->GetCityYieldFlatBonus(this, eYield, eEra, 2, true)
+			iBonus += GET_PLAYER(eMinor).GetMinorCivAI()->GetCityYieldFlatBonus(GetID(), eYield, eEra, 2, true);
 			iBonus /= 100;
-			iBonus *= iSign
+			iBonus *= iSign;
 	
 			//update if necessary
 			//bonus yields are tracked on city level
@@ -22937,7 +22915,7 @@ void CvPlayer::ChangeYieldPerTurnFromAnnexedMinor(PlayerTypes eMinor, int iSign,
 			int iBonus = 0;
 			YieldTypes eYield = (YieldTypes)iI;
 		
-			iBonus = GetYieldFlatBonus(this, eYield, eEra, 2)
+			iBonus = GetYieldFlatBonus(GetID(), eYield, eEra, 2);
 		
 			m_piYieldPerTurnFromAnnexedMinors[eYield] += iBonus * iSign;
 	}
@@ -43585,7 +43563,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_aiRelicYieldBonus);
 	visitor(player.m_aiReligionYieldRateModifier);
 	visitor(player.m_aiGoldenAgeYieldMod);
-	visitor(player.m_aiNumAnnexedCityStates);
+	visitor(player.m_iNumAnnexedCityStates);
 	visitor(player.m_aiYieldFromNonSpecialistCitizensTimes100);
 	visitor(player.m_aiYieldModifierFromGreatWorks);
 	visitor(player.m_aiYieldModifierFromActiveSpies);

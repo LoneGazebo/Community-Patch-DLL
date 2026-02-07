@@ -8829,9 +8829,9 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 			CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 			if (kPlayer.isAlive() && kPlayer.getTeam() == GetID())
 			{
-				EraTypes eCurrentEra = GetCurrentEra()
-				const std::vector<std::pair<PlayerTypes, int>>& m_annexed =	kPlayer.m_AnnexedCityStatesUnitSpawnTurns;
-				for (std::vector<std::pair<PlayerTypes, int>>::iterator it = m_annexed.begin(); it != m_annexed.end(); ++it)
+				EraTypes eCurrentEra = GetCurrentEra();
+				const std::vector<std::pair<PlayerTypes, int>>& m_annexed =	kPlayer.getAnnexedCityStatesUnitSpawnTurns();
+				for (std::vector<std::pair<PlayerTypes, int>>::const_iterator it = m_annexed.begin(); it != m_annexed.end(); ++it)
 				{
 					PlayerTypes eMinor = (*it).first;
 					// remove previous era bonuses
