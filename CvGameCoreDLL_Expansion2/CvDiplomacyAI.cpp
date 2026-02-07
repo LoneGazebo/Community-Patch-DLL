@@ -29361,9 +29361,23 @@ void CvDiplomacyAI::DoFirstContact(PlayerTypes ePlayer)
 					}
 					else
 					{
-						// AI to Human sends a diplo request
-						const char* szText = GetDiploStringForMessage(DIPLO_MESSAGE_INTRO);
-						CvDiplomacyRequests::SendRequest(GetID(), ePlayer, DIPLO_UI_STATE_DEFAULT_ROOT, szText, LEADERHEAD_ANIM_INTRO);
+						// AI to Human: during auto-moves, send a notification instead of a request
+						// to avoid creating pending requests after turn end
+						if (GET_PLAYER(ePlayer).isAutoMoves())
+						{
+							CvPlayer& kTargetPlayer = GET_PLAYER(ePlayer);
+							CvNotifications* pNotifications = kTargetPlayer.GetNotifications();
+							if (pNotifications)
+							{
+								CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_MET_MINOR_CIV", GetPlayer()->getNameKey());
+								pNotifications->Add(NOTIFICATION_GENERIC, strBuffer, strBuffer, -1, -1, GetID());
+							}
+						}
+						else
+						{
+							const char* szText = GetDiploStringForMessage(DIPLO_MESSAGE_INTRO);
+							CvDiplomacyRequests::SendRequest(GetID(), ePlayer, DIPLO_UI_STATE_DEFAULT_ROOT, szText, LEADERHEAD_ANIM_INTRO);
+						}
 					}
 				}
 			}
