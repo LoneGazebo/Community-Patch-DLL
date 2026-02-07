@@ -905,22 +905,23 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	// Spread a pantheon here if one is active
 	CvPlayerReligions* pReligions = kOwner.GetReligions();
 	CvCity* pCapital = kOwner.getCapitalCity();
-	if (kOwner.GetPlayerTraits()->IsNewCitiesStartWithCapitalReligion() && pCapital && pCapital->GetCityReligions()->GetMajorityReligion())
-	{
-		const CvReligion* pCapitalReligion = pCapital->GetCityReligions()->GetMajorityReligion();
-		int iInitialPressure = /*1000*/ GD_INT_GET(RELIGION_ATHEISM_PRESSURE_PER_POP) * getPopulation() * 2;
-		GetCityReligions()->AddReligiousPressure(FOLLOWER_CHANGE_POP_CHANGE, pCapitalReligion->m_eReligion, iInitialPressure);
-		GetCityReligions()->RecomputeFollowers(FOLLOWER_CHANGE_POP_CHANGE);
-	}
-	else if (pReligions->HasCreatedPantheon() && !pReligions->OwnsReligion())
-	{
-		int iInitialPressure = /*1000*/ GD_INT_GET(RELIGION_ATHEISM_PRESSURE_PER_POP) * getPopulation() * 2;
-		GetCityReligions()->AddReligiousPressure(FOLLOWER_CHANGE_POP_CHANGE, RELIGION_PANTHEON, iInitialPressure);
-		GetCityReligions()->RecomputeFollowers(FOLLOWER_CHANGE_POP_CHANGE);
-	}
 
-	if (bInitialFounding) 
+	if (bInitialFounding)
 	{
+		if (kOwner.GetPlayerTraits()->IsNewCitiesStartWithCapitalReligion() && pCapital && pCapital->GetCityReligions()->GetMajorityReligion())
+		{
+			const CvReligion* pCapitalReligion = pCapital->GetCityReligions()->GetMajorityReligion();
+			int iInitialPressure = /*1000*/ GD_INT_GET(RELIGION_ATHEISM_PRESSURE_PER_POP) * getPopulation() * 2;
+			GetCityReligions()->AddReligiousPressure(FOLLOWER_CHANGE_POP_CHANGE, pCapitalReligion->m_eReligion, iInitialPressure);
+			GetCityReligions()->RecomputeFollowers(FOLLOWER_CHANGE_POP_CHANGE);
+		}
+		else if (pReligions->HasCreatedPantheon() && !pReligions->OwnsReligion())
+		{
+			int iInitialPressure = /*1000*/ GD_INT_GET(RELIGION_ATHEISM_PRESSURE_PER_POP) * getPopulation() * 2;
+			GetCityReligions()->AddReligiousPressure(FOLLOWER_CHANGE_POP_CHANGE, RELIGION_PANTHEON, iInitialPressure);
+			GetCityReligions()->RecomputeFollowers(FOLLOWER_CHANGE_POP_CHANGE);
+		}
+
 		if (eInitialReligion != NO_RELIGION) 
 		{
 			// Spread an initial religion here if one was given
