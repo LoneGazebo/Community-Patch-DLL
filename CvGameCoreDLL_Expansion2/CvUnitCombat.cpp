@@ -3843,7 +3843,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackAir(CvUnit& kAttacker, CvPlot& t
 			kAttacker.setCombatUnit(pDefender, true);
 			pDefender->setCombatUnit(&kAttacker, false);
 			CvUnit* pDefenderSupport = kCombatInfo.getUnit(BATTLE_UNIT_INTERCEPTOR);
-			if(pDefenderSupport)
+			if(pDefenderSupport && pDefenderSupport != pDefender)
 				pDefenderSupport->setCombatUnit(&kAttacker, false);
 
 			eResult = ATTACK_QUEUED;
