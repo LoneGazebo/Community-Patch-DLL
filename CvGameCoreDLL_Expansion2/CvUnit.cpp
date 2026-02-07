@@ -5589,6 +5589,14 @@ bool CvUnit::jumpToNearestValidPlot()
 			if (pLoopPlot->needsEmbarkation(this) && !isEmbarked())
 				iValue += 3000;
 
+
+			//for civilians and Great Generals prefer tiles with a military unit
+			if (IsCivilianUnit() || IsCombatSupportUnit())
+			{
+				if (!pLoopPlot->isFriendlyUnit(getOwner(), true, true))
+					iValue += 1000;
+			}
+
 			//we allowed passage through enemy territory but we don't want to end up there
 			if (!GET_PLAYER(getOwner()).IsAtWarWith(pLoopPlot->getOwner()))
 				candidates.push_back(SPlotWithScore(pLoopPlot,iValue));
