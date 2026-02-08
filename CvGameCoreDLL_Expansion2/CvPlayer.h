@@ -2250,6 +2250,9 @@ public:
 	int GetYieldChangesPerReligionTimes100(YieldTypes eYield) const;
 	void ChangeYieldChangesPerReligionTimes100(YieldTypes eYield, int iChange);
 
+	int GetYieldChangeFaithPurchasableBuildings(YieldTypes eYield) const;
+	void ChangeYieldChangeFaithPurchasableBuildings(YieldTypes eYield, int iChange);
+
 	int GetYieldChangeWorldWonder(YieldTypes eYield) const;
 	void ChangeYieldChangeWorldWonder(YieldTypes eYield, int iChange);
 
@@ -3570,6 +3573,7 @@ protected:
 	std::vector<int> m_piYieldChangesNaturalWonder;
 	std::vector<int> m_piYieldChangesPerReligion;
 	std::vector<int> m_piYieldChangeWorldWonder;
+	std::vector<int> m_aiYieldChangeFaithPurchasableBuildings;
 	std::vector<int> m_piYieldFromMinorDemand;
 	std::vector<int> m_piYieldFromWLTKD;
 	int m_iEmpireSizeModifierPerCityMod;
@@ -4217,6 +4221,7 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromPillage)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromVictory)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromConstruction)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromWorldWonderConstruction)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldChangeFaithPurchasableBuildings)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromTech)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromBorderGrowth)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldGPExpend)
