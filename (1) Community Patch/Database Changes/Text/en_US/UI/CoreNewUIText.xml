@@ -1536,6 +1536,9 @@
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_ITR_BOOST">
 			<Text>{1_YieldBoosts} to [ICON_INTERNATIONAL_TRADE] Internal Trade Routes from this City</Text>
 		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_FAITH_PURCHASABLE_BUILDING_YIELDS">
+			<Text>{1_YieldBoosts} for each owned Building that would currently be purchasable with [ICON_PEACE] Faith</Text>
+		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_YIELD_MODIFIER_GOLDEN_AGE">
 			<Text>{1_YieldModifiers} during [ICON_GOLDEN_AGE] Golden Age</Text>
 		</Row>
