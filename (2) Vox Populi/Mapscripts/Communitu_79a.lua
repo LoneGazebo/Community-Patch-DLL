@@ -12,6 +12,7 @@
 								  resource placement, map options, inland seas, aesthetic polishing
 - tu_79							- Tweaked values for Vox Populi mod, clean deserts, reduced resources
 - azum4roll						- Tweaked resource distribution even more and added more spawns according to Civilopedia
+- alpakinator					- Removed tiny rivers and tributaries
 
 This map script generates climate based on a simplified model of geostrophic
 and monsoon wind patterns. Rivers are generated along accurate drainage paths
@@ -153,6 +154,7 @@ function MapGlobals:New()
 	--------------
 	mglobal.riverPercent = 0.18; -- Percent of river junctions that are large enough to become rivers.
 	mglobal.riverRainCheatFactor = 3.00; -- Values greater than one favor watershed size. Values less than one favor actual rain amount.
+	mglobal.minRiverLength = 3; -- Minimum number of river edges from origin to ocean.
 	mglobal.minWaterTemp = 0.10; -- Sets water temperature compression that creates the land/sea seasonal temperature differences that cause monsoon winds.
 	mglobal.maxWaterTemp = 0.50;
 	mglobal.geostrophicFactor = 5.0; -- Strength of latitude climate versus monsoon climate.
@@ -1233,7 +1235,7 @@ end
 function GetMapScriptInfo()
 	local world_age, temperature, rainfall, sea_level = GetCoreMapOptions();
 	return {
-		Name = "Communitu_79a v3.1.0",
+		Name = "Communitu_79a v3.1.1",
 		Description = "Communitas mapscript for Vox Populi (version 4.5+)",
 		IsAdvancedMap = false,
 		SupportsMultiplayer = true,
@@ -1769,6 +1771,7 @@ function GeneratePlotTypes()
 	riverMap:SiltifyLakes();
 	riverMap:SetFlowDestinations();
 	riverMap:SetRiverSizes();
+	riverMap:EnsureSingleLakeOutflows();
 
 	-- Find exact elevation thresholds
 	local hillsThreshold = DiffMap:FindThresholdFromPercent(MG.flatPercent, false, true);
@@ -6669,6 +6672,207 @@ function RiverMap:GetValidFlows(junction)
 	return validList;
 end
 
+-- Get all neighboring isRiver junctions whose flow leads into this junction
+function RiverMap:GetUpstreamRiverNeighbors(junction)
+	local list = {};
+	for dir = MG.WESTFLOW, MG.VERTFLOW do
+		local neighbor = self:GetJunctionNeighbor(dir, junction);
+		if neighbor and neighbor.isRiver and neighbor.flow ~= MG.NOFLOW then
+			local nextJunction = self:GetJunctionNeighbor(neighbor.flow, neighbor);
+			if nextJunction == junction then
+				table.insert(list, neighbor);
+			end
+		end
+	end
+	return list;
+end
+
+-- Remove rivers that are shorter than minEdges from source to ocean/lake
+function RiverMap:PruneShortRivers(minEdges, allJunctions)
+	if not minEdges or minEdges <= 1 then
+		return;
+	end
+
+	for n = 1, #allJunctions do
+		local junction = allJunctions[n];
+		if junction.isRiver then
+			if not self:IsTouchingLake(junction) then
+				local upstream = self:GetUpstreamRiverNeighbors(junction);
+				if #upstream == 0 then
+					local path = {junction};
+					local edges = 0;
+					local current = junction;
+					while true do
+						if current.flow == MG.NOFLOW then
+							break;
+						end
+						local nextJunction = self:GetJunctionNeighbor(current.flow, current);
+						if not nextJunction then
+							break;
+						end
+						edges = edges + 1;
+						table.insert(path, nextJunction);
+						if self:IsTouchingOcean(nextJunction) or self:IsTouchingLake(nextJunction) or not nextJunction.isRiver then
+							break;
+						end
+						current = nextJunction;
+					end
+
+					if edges < minEdges then
+						for i = 1, #path do
+							-- Stop pruning at confluences: if this junction has
+							-- upstream isRiver neighbors from outside this path,
+							-- it belongs to a longer river and must not be pruned.
+							if i > 1 then
+								local upstreamNeighbors = self:GetUpstreamRiverNeighbors(path[i]);
+								local hasOtherUpstream = false;
+								for _, up in ipairs(upstreamNeighbors) do
+									if up ~= path[i - 1] then
+										hasOtherUpstream = true;
+										break;
+									end
+								end
+								if hasOtherUpstream then
+									break;
+								end
+							end
+							path[i].isRiver = false;
+						end
+					end
+				end
+			end
+		end
+	end
+end
+
+-- Recursively check if any upstream branch has at least this many edges
+function RiverMap:HasUpstreamLengthAtLeast(junction, remainingEdges, visited)
+	if remainingEdges <= 0 then
+		return true;
+	end
+	visited = visited or {};
+	local upstream = self:GetUpstreamRiverNeighbors(junction);
+	for i = 1, #upstream do
+		local up = upstream[i];
+		if not visited[up] then
+			visited[up] = true;
+			if self:HasUpstreamLengthAtLeast(up, remainingEdges - 1, visited) then
+				return true;
+			end
+		end
+	end
+	return false;
+end
+
+-- Check if the downstream path from this junction has at least minEdges edges before reaching a sink
+function RiverMap:HasDownstreamLengthAtLeast(junction, minEdges)
+	local edges = 0;
+	local current = junction;
+	local guard = 0;
+	local maxGuard = self.elevationMap.width * self.elevationMap.height;
+	while true do
+		if edges >= minEdges then
+			return true;
+		end
+		if not current or not current.isRiver or current.flow == MG.NOFLOW then
+			break;
+		end
+		local nextJunction = self:GetJunctionNeighbor(current.flow, current);
+		if not nextJunction then
+			break;
+		end
+		edges = edges + 1;
+		if edges >= minEdges then
+			return true;
+		end
+		if self:IsTouchingOcean(nextJunction) or self:IsTouchingLake(nextJunction) or not nextJunction.isRiver then
+			break;
+		end
+		current = nextJunction;
+		guard = guard + 1;
+		if guard > maxGuard then
+			break;
+		end
+	end
+	return false;
+end
+
+-- Remove short tributaries that join a longer river at a confluence
+function RiverMap:PruneShortTributaries(maxEdges, allJunctions)
+	if not maxEdges or maxEdges < 1 then
+		return;
+	end
+
+	for n = 1, #allJunctions do
+		local junction = allJunctions[n];
+		if junction.isRiver then
+			if not self:IsTouchingLake(junction) then
+				local upstream = self:GetUpstreamRiverNeighbors(junction);
+				if #upstream == 0 then
+					local path = {junction};
+					local edges = 0;
+					local current = junction;
+					local confluence = nil;
+					local endedAtConfluence = false;
+					while true do
+						if current.flow == MG.NOFLOW then
+							break;
+						end
+						local nextJunction = self:GetJunctionNeighbor(current.flow, current);
+						if not nextJunction then
+							break;
+						end
+						edges = edges + 1;
+						table.insert(path, nextJunction);
+						if not nextJunction.isRiver then
+							break;
+						end
+						if self:IsTouchingOcean(nextJunction) or self:IsTouchingLake(nextJunction) then
+							break;
+						end
+						local upstreamNext = self:GetUpstreamRiverNeighbors(nextJunction);
+						if #upstreamNext >= 2 then
+							confluence = nextJunction;
+							endedAtConfluence = true;
+							break;
+						end
+						if edges > maxEdges then
+							break;
+						end
+						current = nextJunction;
+					end
+
+					if endedAtConfluence and edges <= maxEdges then
+						local target = edges + 1;
+						local longerRiver = false;
+						if self:HasDownstreamLengthAtLeast(confluence, target) then
+							longerRiver = true;
+						else
+							local tributaryEnd = path[#path - 1];
+							local upstreamAtConfluence = self:GetUpstreamRiverNeighbors(confluence);
+							for i = 1, #upstreamAtConfluence do
+								local up = upstreamAtConfluence[i];
+								if up ~= tributaryEnd then
+									if self:HasUpstreamLengthAtLeast(up, target - 1, {}) then
+										longerRiver = true;
+										break;
+									end
+								end
+							end
+						end
+
+						if longerRiver then
+							for i = 1, #path - 1 do
+								path[i].isRiver = false;
+							end
+						end
+					end
+				end
+			end
+		end
+	end
+end
+
 function RiverMap:IsTouchingOcean(junction)
 	if elevationMap:IsBelowSeaLevel(junction.x, junction.y) then
 		return true;
@@ -6685,11 +6889,277 @@ function RiverMap:IsTouchingOcean(junction)
 	return false;
 end
 
-function RiverMap:SetRiverSizes()
-	local junctionList = {}; -- only include junctions not touching ocean in this list
+-- Check if any of the three hexes adjacent to this junction is a lake
+function RiverMap:IsTouchingLake(junction)
+	local plot = Map.GetPlot(junction.x, junction.y);
+	if plot and Plot_IsLake(plot) then
+		return true;
+	end
+	local westNeighbor = self:GetRiverHexNeighbor(junction, true);
+	local eastNeighbor = self:GetRiverHexNeighbor(junction, false);
+	if westNeighbor then
+		local wPlot = Map.GetPlot(westNeighbor.x, westNeighbor.y);
+		if wPlot and Plot_IsLake(wPlot) then
+			return true;
+		end
+	end
+	if eastNeighbor then
+		local ePlot = Map.GetPlot(eastNeighbor.x, eastNeighbor.y);
+		if ePlot and Plot_IsLake(ePlot) then
+			return true;
+		end
+	end
+	return false;
+end
+
+-- Flood-fill lake plots into distinct lake areas, returning a plot-to-areaId map
+function RiverMap:BuildLakeAreaMap()
+	local mapW, mapH = Map.GetGridSize();
+	local lakeAreaByPlotId = {};
+	local areaId = 0;
+
+	for y = 0, mapH - 1 do
+		for x = 0, mapW - 1 do
+			local plot = Map.GetPlot(x, y);
+			if plot and Plot_IsLake(plot) then
+				local plotId = y * mapW + x;
+				if not lakeAreaByPlotId[plotId] then
+					areaId = areaId + 1;
+					local stack = {{x = x, y = y}};
+					lakeAreaByPlotId[plotId] = areaId;
+
+					while #stack > 0 do
+						local node = table.remove(stack);
+						for dir = 0, DirectionTypes.NUM_DIRECTION_TYPES - 1 do
+							local nPlot = Map.PlotDirection(node.x, node.y, dir);
+							if nPlot and Plot_IsLake(nPlot) then
+								local nx = nPlot:GetX();
+								local ny = nPlot:GetY();
+								local nId = ny * mapW + nx;
+								if not lakeAreaByPlotId[nId] then
+									lakeAreaByPlotId[nId] = areaId;
+									table.insert(stack, {x = nx, y = ny});
+								end
+							end
+						end
+					end
+				end
+			end
+		end
+	end
+
+	return lakeAreaByPlotId, areaId;
+end
+
+-- Get the distinct lake area IDs adjacent to this junction
+function RiverMap:GetJunctionLakeAreas(junction, lakeAreaByPlotId)
+	local mapW, _ = Map.GetGridSize();
+	local areas = {};
+
+	local function addPlot(plot)
+		if plot and Plot_IsLake(plot) then
+			local plotId = plot:GetY() * mapW + plot:GetX();
+			local areaId = lakeAreaByPlotId[plotId];
+			if areaId then
+				for i = 1, #areas do
+					if areas[i] == areaId then
+						return;
+					end
+				end
+				table.insert(areas, areaId);
+			end
+		end
+	end
+
+	addPlot(Map.GetPlot(junction.x, junction.y));
+	local westNeighbor = self:GetRiverHexNeighbor(junction, true);
+	if westNeighbor then
+		addPlot(Map.GetPlot(westNeighbor.x, westNeighbor.y));
+	end
+	local eastNeighbor = self:GetRiverHexNeighbor(junction, false);
+	if eastNeighbor then
+		addPlot(Map.GetPlot(eastNeighbor.x, eastNeighbor.y));
+	end
+
+	return areas;
+end
+
+-- Find all river junctions that flow out of each lake area
+function RiverMap:GetLakeOutflowsByArea(lakeAreaByPlotId)
+	local outflowsByLake = {};
 	for y = 0, self.elevationMap.height - 1 do
 		for x = 0, self.elevationMap.width - 1 do
 			local i = self.elevationMap:GetIndex(x, y);
+			local junctions = {self.riverData[i].northJunction, self.riverData[i].southJunction};
+			for j = 1, #junctions do
+				local junction = junctions[j];
+				if junction.isRiver then
+					local areas = self:GetJunctionLakeAreas(junction, lakeAreaByPlotId);
+					if #areas > 0 then
+						local nextJunction = nil;
+						if junction.flow ~= MG.NOFLOW then
+							nextJunction = self:GetJunctionNeighbor(junction.flow, junction);
+						end
+						local nextAreas = nextJunction and self:GetJunctionLakeAreas(nextJunction, lakeAreaByPlotId) or {};
+						for a = 1, #areas do
+							local lakeId = areas[a];
+							local leaving = true;
+							for n = 1, #nextAreas do
+								if nextAreas[n] == lakeId then
+									leaving = false;
+									break;
+								end
+							end
+							if leaving then
+								outflowsByLake[lakeId] = outflowsByLake[lakeId] or {};
+								table.insert(outflowsByLake[lakeId], junction);
+							end
+						end
+					end
+				end
+			end
+		end
+	end
+
+	return outflowsByLake;
+end
+
+-- Count how many edges an outflow travels before reaching ocean or another lake
+function RiverMap:GetOutflowDistanceToSink(startJunction, sourceLakeId, lakeAreaByPlotId)
+	local distance = 0;
+	local current = startJunction;
+	local visited = {};
+	local maxGuard = self.elevationMap.width * self.elevationMap.height * 2;
+	local guard = 0;
+
+	while current and guard < maxGuard do
+		if self:IsTouchingOcean(current) then
+			return distance;
+		end
+		local areas = self:GetJunctionLakeAreas(current, lakeAreaByPlotId);
+		for i = 1, #areas do
+			if areas[i] ~= sourceLakeId then
+				return distance;
+			end
+		end
+		if current.flow == MG.NOFLOW then
+			break;
+		end
+		local nextJunction = self:GetJunctionNeighbor(current.flow, current);
+		if not nextJunction or visited[nextJunction] then
+			break;
+		end
+		visited[nextJunction] = true;
+		distance = distance + 1;
+		current = nextJunction;
+		guard = guard + 1;
+	end
+
+	return distance + maxGuard;
+end
+
+-- Remove a river outflow from a lake, stopping at confluences or other sinks
+function RiverMap:RemoveLakeOutflow(startJunction, sourceLakeId, lakeAreaByPlotId)
+	local current = startJunction;
+	local visited = {};
+	local maxGuard = self.elevationMap.width * self.elevationMap.height * 2;
+	local guard = 0;
+
+	while current and current.isRiver and guard < maxGuard do
+		if current ~= startJunction then
+			local areas = self:GetJunctionLakeAreas(current, lakeAreaByPlotId);
+			for i = 1, #areas do
+				if areas[i] ~= sourceLakeId then
+					return;
+				end
+			end
+		end
+
+		local nextJunction = nil;
+		if current.flow ~= MG.NOFLOW then
+			nextJunction = self:GetJunctionNeighbor(current.flow, current);
+		end
+
+		local stopAfterRemovingCurrent = false;
+		if not nextJunction or not nextJunction.isRiver then
+			stopAfterRemovingCurrent = true;
+		else
+			local upstream = self:GetUpstreamRiverNeighbors(nextJunction);
+			for i = 1, #upstream do
+				if upstream[i] ~= current then
+					stopAfterRemovingCurrent = true;
+					break;
+				end
+			end
+			if not stopAfterRemovingCurrent then
+				if self:IsTouchingOcean(nextJunction) then
+					stopAfterRemovingCurrent = true;
+				else
+					local areas = self:GetJunctionLakeAreas(nextJunction, lakeAreaByPlotId);
+					for i = 1, #areas do
+						if areas[i] ~= sourceLakeId then
+							stopAfterRemovingCurrent = true;
+							break;
+						end
+					end
+				end
+			end
+		end
+
+		current.isRiver = false;
+		if stopAfterRemovingCurrent then
+			return;
+		end
+		if visited[current] then
+			return;
+		end
+		visited[current] = true;
+		current = nextJunction;
+		guard = guard + 1;
+	end
+end
+
+-- Ensure each lake has only one outflow river, keeping the shortest path to a sink
+function RiverMap:EnsureSingleLakeOutflows()
+	local lakeAreaByPlotId, lakeAreaCount = self:BuildLakeAreaMap();
+	if lakeAreaCount == 0 then
+		return;
+	end
+
+	local outflowsByLake = self:GetLakeOutflowsByArea(lakeAreaByPlotId);
+	for lakeId, outflows in pairs(outflowsByLake) do
+		if #outflows > 1 then
+			local bestIndex = 1;
+			local bestDistance = nil;
+			local bestSize = nil;
+			for i = 1, #outflows do
+				local outflow = outflows[i];
+				local dist = self:GetOutflowDistanceToSink(outflow, lakeId, lakeAreaByPlotId);
+				local size = outflow.size or 0;
+				if not bestDistance or dist < bestDistance or (dist == bestDistance and size > bestSize) then
+					bestDistance = dist;
+					bestSize = size;
+					bestIndex = i;
+				end
+			end
+
+			for i = 1, #outflows do
+				if i ~= bestIndex then
+					self:RemoveLakeOutflow(outflows[i], lakeId, lakeAreaByPlotId);
+				end
+			end
+		end
+	end
+end
+
+function RiverMap:SetRiverSizes()
+	local junctionList = {}; -- only include junctions not touching ocean in this list
+	local allJunctions = {};
+	for y = 0, self.elevationMap.height - 1 do
+		for x = 0, self.elevationMap.width - 1 do
+			local i = self.elevationMap:GetIndex(x, y);
+			table.insert(allJunctions, self.riverData[i].northJunction);
+			table.insert(allJunctions, self.riverData[i].southJunction);
 			if not self:IsTouchingOcean(self.riverData[i].northJunction) then
 				table.insert(junctionList, self.riverData[i].northJunction);
 			end
@@ -6720,6 +7190,16 @@ function RiverMap:SetRiverSizes()
 	local riverIndex = math.floor(MG.riverPercent * #junctionList);
 	self.riverThreshold = junctionList[riverIndex].size;
 	print(string.format("river threshold = %f", self.riverThreshold));
+
+	-- Mark junctions as rivers if their accumulated size exceeds the threshold
+	for n = 1, #allJunctions do
+		local junction = allJunctions[n];
+		junction.isRiver = (junction.size > self.riverThreshold);
+	end
+
+	-- Clean up: remove stubby rivers and insignificant tributaries
+	self:PruneShortRivers(MG.minRiverLength, allJunctions);
+	self:PruneShortTributaries(2, allJunctions);
 end
 
 -- This function returns the flow directions needed by civ
@@ -6730,14 +7210,14 @@ function RiverMap:GetFlowDirections(x, y)
 	local WOfRiver = MG.flowNONE;
 	local xx, yy = elevationMap:GetNeighbor(x, y, MG.NE);
 	local ii = elevationMap:GetIndex(xx, yy);
-	if ii ~= -1 and self.riverData[ii].southJunction.flow == MG.VERTFLOW and self.riverData[ii].southJunction.size > self.riverThreshold then
+	if ii ~= -1 and self.riverData[ii].southJunction.flow == MG.VERTFLOW and self.riverData[ii].southJunction.isRiver then
 		-- print(string.format("--NE(%d,%d) south flow = %d, size = %f", xx, yy, self.riverData[ii].southJunction.flow, self.riverData[ii].southJunction.size));
 		WOfRiver = MG.flowS;
 	end
 
 	xx, yy = elevationMap:GetNeighbor(x, y, MG.SE);
 	ii = elevationMap:GetIndex(xx, yy);
-	if ii ~= -1 and self.riverData[ii].northJunction.flow == MG.VERTFLOW and self.riverData[ii].northJunction.size > self.riverThreshold then
+	if ii ~= -1 and self.riverData[ii].northJunction.flow == MG.VERTFLOW and self.riverData[ii].northJunction.isRiver then
 		-- print(string.format("--SE(%d,%d) north flow = %d, size = %f", xx, yy, self.riverData[ii].northJunction.flow, self.riverData[ii].northJunction.size));
 		WOfRiver = MG.flowN;
 	end
@@ -6745,20 +7225,20 @@ function RiverMap:GetFlowDirections(x, y)
 	local NWOfRiver = MG.flowNONE;
 	xx, yy = elevationMap:GetNeighbor(x, y, MG.SE);
 	ii = elevationMap:GetIndex(xx, yy);
-	if ii ~= -1 and self.riverData[ii].northJunction.flow == MG.WESTFLOW and self.riverData[ii].northJunction.size > self.riverThreshold then
+	if ii ~= -1 and self.riverData[ii].northJunction.flow == MG.WESTFLOW and self.riverData[ii].northJunction.isRiver then
 		NWOfRiver = MG.flowSW;
 	end
-	if self.riverData[i].southJunction.flow == MG.EASTFLOW and self.riverData[i].southJunction.size > self.riverThreshold then
+	if self.riverData[i].southJunction.flow == MG.EASTFLOW and self.riverData[i].southJunction.isRiver then
 		NWOfRiver = MG.flowNE;
 	end
 
 	local NEOfRiver = MG.flowNONE;
 	xx, yy = elevationMap:GetNeighbor(x, y, MG.SW);
 	ii = elevationMap:GetIndex(xx, yy);
-	if ii ~= -1 and self.riverData[ii].northJunction.flow == MG.EASTFLOW and self.riverData[ii].northJunction.size > self.riverThreshold then
+	if ii ~= -1 and self.riverData[ii].northJunction.flow == MG.EASTFLOW and self.riverData[ii].northJunction.isRiver then
 		NEOfRiver = MG.flowSE;
 	end
-	if self.riverData[i].southJunction.flow == MG.WESTFLOW and self.riverData[i].southJunction.size > self.riverThreshold then
+	if self.riverData[i].southJunction.flow == MG.WESTFLOW and self.riverData[i].southJunction.isRiver then
 		NEOfRiver = MG.flowNW;
 	end
 
@@ -6795,6 +7275,7 @@ function RiverJunction:New(x, y, isNorth)
 	new_inst.altitude = 0.0;
 	new_inst.flow = MG.NOFLOW;
 	new_inst.size = 0.0;
+	new_inst.isRiver = false;
 
 	return new_inst;
 end
