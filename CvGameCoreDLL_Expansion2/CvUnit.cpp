@@ -30226,10 +30226,6 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags)
 // Returns true if we want to continue next turn or false if we are done
 bool CvUnit::UnitRoadTo(int iX, int iY, int iFlags)
 {
-	//do we have movement points left?
-	if (!canMove())
-		return true; //continue next turn
-
 	//first check if we can continue building on the current plot
 	BuildTypes eBestRouteBuildInPlot = NO_BUILD;
 	const RouteTypes eBestRouteInPlot = GetBestBuildRouteForRoadTo(plot(), &eBestRouteBuildInPlot);
@@ -30238,6 +30234,10 @@ bool CvUnit::UnitRoadTo(int iX, int iY, int iFlags)
 	bool bGetSameBenefitFromTrait = kPlayer.GetSameRouteBenefitFromTrait(plot(), eBestRouteInPlot);
 	if(!bGetSameBenefitFromTrait && eBestRouteBuildInPlot != NO_BUILD && UnitBuild(eBestRouteBuildInPlot))
 		return true;
+
+	//do we have movement points left?
+	if (!canMove())
+		return true; //continue next turn
 
 	//are we at the target plot? then there's nothing else to do
 	if (at(iX, iY))
