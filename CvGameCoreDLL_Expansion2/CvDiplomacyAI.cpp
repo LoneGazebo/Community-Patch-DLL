@@ -23270,6 +23270,10 @@ int CvDiplomacyAI::ScoreDefensivePactChoice(PlayerTypes eChoice, bool bCoastal)
 		iDPValue += GetNumCitiesLiberatedBy(eChoice) * 25;
 	}
 
+	// a value of exactly zero would cause problems for AI dealmaking
+	if (iDPValue == 0)
+		iDPValue = -5;
+
 	return iDPValue;
 }
 
