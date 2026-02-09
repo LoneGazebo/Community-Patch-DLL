@@ -6603,13 +6603,16 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 				{
 					ChangeUnitPlotGAExperience(-1 * pImprovementInfo->GetGAUnitPlotExperience());
 				}
-				if (pImprovementInfo->GetMovesChange() != 0)
+				if (!IsImprovementPillaged())
 				{
-					ChangePlotMovesChange(-1 * pImprovementInfo->GetMovesChange());
-				}
-				if (pImprovementInfo->IsRestoreMoves())
-				{
-					ChangeRestoreMovesCount(-1);
+					if (pImprovementInfo->GetMovesChange() != 0)
+					{
+						ChangePlotMovesChange(-1 * pImprovementInfo->GetMovesChange());
+					}
+					if (pImprovementInfo->IsRestoreMoves())
+					{
+						ChangeRestoreMovesCount(-1);
+					}
 				}
 
 				// Embassy extra vote in WC mod
@@ -6625,23 +6628,26 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 				}
 
 				// Remove domain modifiers from old owning city
-				CvCity* pOldOwningCity = getOwningCity();
-				if (pOldOwningCity)
+				if (!IsImprovementPillaged())
 				{
-					for (int iI = 0; iI < NUM_DOMAIN_TYPES; iI++)
+					CvCity* pOldOwningCity = getOwningCity();
+					if (pOldOwningCity)
 					{
-						DomainTypes eDomain = (DomainTypes)iI;
-
-						int iDomainProductionModifier = pImprovementInfo->GetDomainProductionModifier(iI);
-						if (iDomainProductionModifier != 0)
+						for (int iI = 0; iI < NUM_DOMAIN_TYPES; iI++)
 						{
-							pOldOwningCity->changeDomainProductionModifier(eDomain, -iDomainProductionModifier);
-						}
+							DomainTypes eDomain = (DomainTypes)iI;
 
-						int iDomainFreeExperience = pImprovementInfo->GetDomainFreeExperience(iI);
-						if (iDomainFreeExperience != 0)
-						{
-							pOldOwningCity->changeDomainFreeExperience(eDomain, -iDomainFreeExperience);
+							int iDomainProductionModifier = pImprovementInfo->GetDomainProductionModifier(iI);
+							if (iDomainProductionModifier != 0)
+							{
+								pOldOwningCity->changeDomainProductionModifier(eDomain, -iDomainProductionModifier);
+							}
+
+							int iDomainFreeExperience = pImprovementInfo->GetDomainFreeExperience(iI);
+							if (iDomainFreeExperience != 0)
+							{
+								pOldOwningCity->changeDomainFreeExperience(eDomain, -iDomainFreeExperience);
+							}
 						}
 					}
 				}
@@ -6801,13 +6807,16 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 				{
 					ChangeUnitPlotGAExperience(pImprovementInfo->GetGAUnitPlotExperience());
 				}
-				if (pImprovementInfo->GetMovesChange() != 0)
+				if (!IsImprovementPillaged())
 				{
-					ChangePlotMovesChange(pImprovementInfo->GetMovesChange());
-				}
-				if (pImprovementInfo->IsRestoreMoves())
-				{
-					ChangeRestoreMovesCount(1);
+					if (pImprovementInfo->GetMovesChange() != 0)
+					{
+						ChangePlotMovesChange(pImprovementInfo->GetMovesChange());
+					}
+					if (pImprovementInfo->IsRestoreMoves())
+					{
+						ChangeRestoreMovesCount(1);
+					}
 				}
 
 				ResourceTypes eResourceFromImprovement = (ResourceTypes)pImprovementInfo->GetResourceFromImprovement();
@@ -6842,23 +6851,26 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 				}
 
 				// Add domain modifiers to new owning city
-				CvCity* pNewOwningCity = getOwningCity();
-				if (pNewOwningCity)
+				if (!IsImprovementPillaged())
 				{
-					for (int iI = 0; iI < NUM_DOMAIN_TYPES; iI++)
+					CvCity* pNewOwningCity = getOwningCity();
+					if (pNewOwningCity)
 					{
-						DomainTypes eDomain = (DomainTypes)iI;
-
-						int iDomainProductionModifier = pImprovementInfo->GetDomainProductionModifier(iI);
-						if (iDomainProductionModifier != 0)
+						for (int iI = 0; iI < NUM_DOMAIN_TYPES; iI++)
 						{
-							pNewOwningCity->changeDomainProductionModifier(eDomain, iDomainProductionModifier);
-						}
+							DomainTypes eDomain = (DomainTypes)iI;
 
-						int iDomainFreeExperience = pImprovementInfo->GetDomainFreeExperience(iI);
-						if (iDomainFreeExperience != 0)
-						{
-							pNewOwningCity->changeDomainFreeExperience(eDomain, iDomainFreeExperience);
+							int iDomainProductionModifier = pImprovementInfo->GetDomainProductionModifier(iI);
+							if (iDomainProductionModifier != 0)
+							{
+								pNewOwningCity->changeDomainProductionModifier(eDomain, iDomainProductionModifier);
+							}
+
+							int iDomainFreeExperience = pImprovementInfo->GetDomainFreeExperience(iI);
+							if (iDomainFreeExperience != 0)
+							{
+								pNewOwningCity->changeDomainFreeExperience(eDomain, iDomainFreeExperience);
+							}
 						}
 					}
 				}
