@@ -112,6 +112,62 @@ void CvUnitCycler::Rebuild(CvUnit* pkStartUnit /* = NULL */)
 		else
 			break;
 	}
+
+	// 2-opt improvement: repeatedly reverse segments to shorten the tour
+	int iSize = m_kNodeList.getLength();
+	if (iSize > 3)
+	{
+		std::vector<int> tour;
+		tour.reserve(iSize);
+		for (const Node* pNode = m_kNodeList.head(); pNode != NULL; pNode = m_kNodeList.next(pNode))
+			tour.push_back(pNode->m_data);
+
+		// Cache unit positions
+		std::vector<int> posX(iSize), posY(iSize);
+		for (int i = 0; i < iSize; i++)
+		{
+			CvUnit* pUnit = m_pkPlayer->getUnit(tour[i]);
+			posX[i] = pUnit->getX();
+			posY[i] = pUnit->getY();
+		}
+
+		bool bImproved = true;
+		int iMaxPasses = 5;
+		while (bImproved && iMaxPasses-- > 0)
+		{
+			bImproved = false;
+			for (int i = 0; i < iSize - 1; i++)
+			{
+				for (int j = i + 2; j < iSize; j++)
+				{
+					// Skip adjacent edge across cycle boundary
+					if (i == 0 && j == iSize - 1)
+						continue;
+
+					int iNext = (j + 1) % iSize;
+					int iOldDist = plotDistance(posX[i], posY[i], posX[i + 1], posY[i + 1])
+					             + plotDistance(posX[j], posY[j], posX[iNext], posY[iNext]);
+					int iNewDist = plotDistance(posX[i], posY[i], posX[j], posY[j])
+					             + plotDistance(posX[i + 1], posY[i + 1], posX[iNext], posY[iNext]);
+
+					if (iNewDist < iOldDist)
+					{
+						std::reverse(tour.begin() + i + 1, tour.begin() + j + 1);
+						std::reverse(posX.begin() + i + 1, posX.begin() + j + 1);
+						std::reverse(posY.begin() + i + 1, posY.begin() + j + 1);
+						bImproved = true;
+					}
+				}
+			}
+		}
+
+		// Rebuild linked list from improved tour
+		pUnitNode = HeadNode();
+		while (pUnitNode != NULL)
+			pUnitNode = DeleteNode(pUnitNode);
+		for (int i = 0; i < iSize; i++)
+			m_kNodeList.insertAtEnd(tour[i]);
+	}
 }
 
 //	---------------------------------------------------------------------------
