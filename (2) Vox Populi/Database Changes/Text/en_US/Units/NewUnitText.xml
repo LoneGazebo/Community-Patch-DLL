@@ -291,6 +291,12 @@
 		</Row>
 
 		<!-- Unit Combats -->
+		<Row Tag="TXT_KEY_UNITCOMBAT_MISSILE">
+			<Text>Missile</Text>
+		</Row>		
+		<Row Tag="TXT_KEY_UNITCOMBAT_NUKE">
+			<Text>Nuclear Weapon</Text>
+		</Row>
 		<Row Tag="TXT_KEY_UNITCOMBAT_SETTLER">
 			<Text>Settler</Text>
 		</Row>
@@ -314,6 +320,15 @@
 		</Row>
 		<Row Tag="TXT_KEY_UNITCOMBAT_DIPLOMACY">
 			<Text>Diplomacy</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNITCOMBAT_ARCHAEOLOGIST">
+			<Text>Archaeologist</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNITCOMBAT_SPECIAL_PEOPLE">
+			<Text>Great Person</Text>
+		</Row>	
+		<Row Tag="TXT_KEY_UNITCOMBAT_SPACESHIP">
+			<Text>Spaceship Part</Text>
 		</Row>
 
 		<!-- Great Diplomat names -->

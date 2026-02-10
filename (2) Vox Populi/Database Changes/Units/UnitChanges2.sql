@@ -567,7 +567,7 @@ AND b.AirBuildingClass IS NOT NULL
 AND a.PurchaseOnly = 0
 AND a.MinorCivGift = 0
 AND a.CombatClass IN (
-	SELECT Type FROM UnitCombatInfos WHERE IsAerial = 1
+	SELECT Type FROM UnitCombatInfos WHERE IsAerial = 1 AND Type <> 'UNITCOMBAT_MISSILE'
 );
 
 DROP TABLE Era_BuildingClassRequiredForPurchase;

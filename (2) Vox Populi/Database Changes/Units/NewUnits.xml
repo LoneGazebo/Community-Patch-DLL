@@ -10,8 +10,17 @@
 			<Description>UNITAI_MESSENGER</Description>
 		</Row>
 	</UnitAIInfos>
-	<!-- Assign UnitCombat to civilian units, so they can have production bonuses and free promotions via buildings, traits and policies -->
+	<!-- Assign UnitCombat to civilian (and missile) units, so they can have production bonuses and free promotions via buildings, traits and policies -->
 	<UnitCombatInfos>
+		<!-- goes first because the military indices are grouped in the table for comprehension -->
+		<Row>
+			<Type>UNITCOMBAT_MISSILE</Type>
+			<Description>TXT_KEY_UNITCOMBAT_MISSILE</Description>
+		</Row>
+		<Row>
+			<Type>UNITCOMBAT_NUKE</Type>
+			<Description>TXT_KEY_UNITCOMBAT_NUKE</Description>
+		</Row>
 		<Row>
 			<Type>UNITCOMBAT_SETTLER</Type>
 			<Description>TXT_KEY_UNITCOMBAT_SETTLER</Description>
@@ -43,6 +52,18 @@
 		<Row>
 			<Type>UNITCOMBAT_DIPLOMACY</Type>
 			<Description>TXT_KEY_UNITCOMBAT_DIPLOMACY</Description>
+		</Row>
+		<Row>
+			<Type>UNITCOMBAT_ARCHAEOLOGIST</Type>
+			<Description>TXT_KEY_UNITCOMBAT_ARCHAEOLOGIST</Description>
+		</Row>
+		<Row>
+			<Type>UNITCOMBAT_SPECIAL_PEOPLE</Type>
+			<Description>TXT_KEY_UNITCOMBAT_SPECIAL_PEOPLE</Description>
+		</Row>
+		<Row>
+			<Type>UNITCOMBAT_SPACESHIP</Type>
+			<Description>TXT_KEY_UNITCOMBAT_SPACESHIP</Description>
 		</Row>
 	</UnitCombatInfos>
 	<UnitClasses>
