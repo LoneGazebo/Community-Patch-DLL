@@ -639,6 +639,11 @@ WHERE a.Class = 'UNITCLASS_COLONIST';
 
 DELETE FROM Helper;
 
+UPDATE Units
+SET
+	FoundColony = 9999  -- this is the max number of puppets you can found. i.e. unlimited
+WHERE Class = 'UNITCLASS_COLONIST';
+
 ----------------------------------------------------------------------------
 -- Diplo units
 ----------------------------------------------------------------------------
