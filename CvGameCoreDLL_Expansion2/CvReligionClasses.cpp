@@ -928,7 +928,7 @@ ReligionTypes CvGameReligions::GetReligionToFound(PlayerTypes ePlayer)
 			}
 		}
 
-		if(!HasBeenFounded(eCivReligion))
+		if (eCivReligion != NO_RELIGION && !HasBeenFounded(eCivReligion))
 		{
 			CvReligionEntry* pEntry = GC.getReligionInfo(eCivReligion);
 			if(pEntry)
