@@ -7200,6 +7200,174 @@ function RiverMap:SetRiverSizes()
 	-- Clean up: remove stubby rivers and insignificant tributaries
 	self:PruneShortRivers(MG.minRiverLength, allJunctions);
 	self:PruneShortTributaries(2, allJunctions);
+	self:ReshapeThreeEdgeCRivers(allJunctions);
+end
+
+-- Reshape 3-edge C-shaped rivers/tributaries around a single hex into a wide-N shape.
+-- If the alternative headwater origin is already a river junction, delete the 3-edge river instead.
+function RiverMap:ReshapeThreeEdgeCRivers(allJunctions)
+	local processed = {};
+
+	local function getJunctionAdjacentPlotIds(junction)
+		local ids = {};
+		local plot = Map.GetPlot(junction.x, junction.y);
+		if plot then
+			ids[Plot_GetID(plot)] = true;
+		end
+		local westHex = self:GetRiverHexNeighbor(junction, true);
+		if westHex then
+			local westPlot = Map.GetPlot(westHex.x, westHex.y);
+			if westPlot then
+				ids[Plot_GetID(westPlot)] = true;
+			end
+		end
+		local eastHex = self:GetRiverHexNeighbor(junction, false);
+		if eastHex then
+			local eastPlot = Map.GetPlot(eastHex.x, eastHex.y);
+			if eastPlot then
+				ids[Plot_GetID(eastPlot)] = true;
+			end
+		end
+		return ids;
+	end
+
+	local function getEdgeCommonPlotIds(junctionA, junctionB)
+		local idsA = getJunctionAdjacentPlotIds(junctionA);
+		local idsB = getJunctionAdjacentPlotIds(junctionB);
+		local common = {};
+		for id in pairs(idsA) do
+			if idsB[id] then
+				common[id] = true;
+			end
+		end
+		return common;
+	end
+
+	local function hasOtherUpstream(junction, exclude)
+		local upstream = self:GetUpstreamRiverNeighbors(junction);
+		for i = 1, #upstream do
+			local up = upstream[i];
+			if not exclude[up] then
+				return true;
+			end
+		end
+		return false;
+	end
+
+	local function getFlowDirectionBetween(fromJunction, toJunction)
+		for dir = MG.WESTFLOW, MG.VERTFLOW do
+			if self:GetJunctionNeighbor(dir, fromJunction) == toJunction then
+				return dir;
+			end
+		end
+		return MG.NOFLOW;
+	end
+
+	for n = 1, #allJunctions do
+		local startJunction = allJunctions[n];
+		if startJunction.isRiver and startJunction.flow ~= MG.NOFLOW and not processed[startJunction] then
+			local upstreamStart = self:GetUpstreamRiverNeighbors(startJunction);
+			if #upstreamStart == 0 then
+				processed[startJunction] = true;
+				local path = {startJunction};
+				local edges = 0;
+				local current = startJunction;
+				local endedAtConfluence = false;
+				local invalidPath = false;
+
+				while edges < 3 do
+					if current.flow == MG.NOFLOW then
+						break;
+					end
+					local nextJunction = self:GetJunctionNeighbor(current.flow, current);
+					if not nextJunction then
+						break;
+					end
+					edges = edges + 1;
+					table.insert(path, nextJunction);
+					if not nextJunction.isRiver and edges < 3 then
+						invalidPath = true;
+						break;
+					end
+					if edges < 3 then
+						local upstreamNext = self:GetUpstreamRiverNeighbors(nextJunction);
+						if #upstreamNext >= 2 then
+							endedAtConfluence = true;
+							break;
+						end
+					end
+					current = nextJunction;
+				end
+
+				if edges == 3 and not invalidPath then
+					local endJunction = path[#path];
+					local upstreamEnd = self:GetUpstreamRiverNeighbors(endJunction);
+					local endsAtConfluence = #upstreamEnd >= 2 or endedAtConfluence;
+					local endsAtSink = self:IsTouchingOcean(endJunction) or self:IsTouchingLake(endJunction) or endJunction.flow == MG.NOFLOW;
+					if endsAtConfluence or endsAtSink then
+						local valid = true;
+						for i = 2, #path - 1 do
+							local exclude = {[path[i - 1]] = true};
+							if hasOtherUpstream(path[i], exclude) then
+								valid = false;
+								break;
+							end
+						end
+
+						if valid then
+							local common1 = getEdgeCommonPlotIds(path[1], path[2]);
+							local common2 = getEdgeCommonPlotIds(path[2], path[3]);
+							local common3 = getEdgeCommonPlotIds(path[3], path[4]);
+							local hasCommonHex = false;
+							for id in pairs(common1) do
+								if common2[id] and common3[id] then
+									hasCommonHex = true;
+									break;
+								end
+							end
+
+							if hasCommonHex then
+								local head = path[1];
+								local skipReshape = self:IsTouchingLake(head);
+								if not skipReshape then
+								local mid = path[2];
+								local next = path[3];
+								local alt = nil;
+								for dir = MG.WESTFLOW, MG.VERTFLOW do
+									local neighbor = self:GetJunctionNeighbor(dir, mid);
+									if neighbor and neighbor ~= head and neighbor ~= next then
+										alt = neighbor;
+										break;
+									end
+								end
+
+								if alt then
+									if alt.isRiver or self:IsTouchingOcean(alt) or self:IsTouchingLake(alt) then
+										-- New headwater origin is already used; remove this 3-edge river
+										for i = 1, #path - 1 do
+											path[i].isRiver = false;
+										end
+										if #upstreamEnd <= 1 then
+											endJunction.isRiver = false;
+										end
+									else
+										-- Reshape: switch headwater to the alternate junction
+										head.isRiver = false;
+										alt.isRiver = true;
+										alt.flow = getFlowDirectionBetween(alt, mid);
+										if alt.flow == MG.NOFLOW then
+											alt.isRiver = false;
+										end
+									end
+								end
+							end
+							end
+						end
+					end
+				end
+			end
+		end
+	end
 end
 
 -- This function returns the flow directions needed by civ
