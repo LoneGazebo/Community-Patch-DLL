@@ -2793,8 +2793,11 @@ void CvTacticalAI::SortTargetListAndDropUselessTargets()
 		{
 			for (vector<CvTacticalTarget>::iterator it2 = reducedTargetList.begin(); it2 != reducedTargetList.end(); ++it2)
 			{
-				//trick: land zones have id > 0, water zones id < 0. so negative product means domain mismatch
-				if (it->GetDominanceZone() * it2->GetDominanceZone() < 0)
+				//land zones have id > 0, water zones id < 0. opposite signs means domain mismatch
+				//check signs without multiplication to avoid overflow with large zone IDs
+				int iZone1 = it->GetDominanceZone();
+				int iZone2 = it2->GetDominanceZone();
+				if ((iZone1 > 0 && iZone2 < 0) || (iZone1 < 0 && iZone2 > 0))
 					continue;
 
 				//if close to one of our cities, make sure we're not dropping it
@@ -5905,6 +5908,8 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 		CvPlayer& kPlayer = GET_PLAYER(pUnit->getOwner());
 		int iDanger = pUnit->GetDanger(pPlot);
 		int iCityDistance = kPlayer.GetCityDistancePathLength(pPlot);
+		if (iCityDistance == INT_MAX)
+			iCityDistance = 0; // No cities (e.g. barbarians) - distance irrelevant, use 0 to avoid overflow
 
 		bool bIsZeroDanger = (iDanger <= 0);
 		bool bIsInTerritory = (pPlot->getTeam() == kPlayer.getTeam());

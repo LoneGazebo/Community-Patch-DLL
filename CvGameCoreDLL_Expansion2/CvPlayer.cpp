@@ -42138,9 +42138,12 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	changeXPopulationConscription(pkPolicyInfo->GetXPopulationConscription() * iChange);
 	ChangeMedianTechPercentage(pkPolicyInfo->GetMedianTechPercentChange() * iChange);
 	ChangeInternalTRTourism(pkPolicyInfo->IsInternalTRTourism() * iChange);
-	ChangeFreeChosenBuildingNewCity(pkPolicyInfo->GetNewCityFreeBuilding(), iChange);
-	ChangeNewFoundCityFreeBuilding(pkPolicyInfo->GetNewFoundCityFreeBuilding(), iChange);
-	ChangeNewFoundCityFreeUnit(pkPolicyInfo->GetNewFoundCityFreeUnit(), iChange);
+	if (pkPolicyInfo->GetNewCityFreeBuilding() != NO_BUILDINGCLASS)
+		ChangeFreeChosenBuildingNewCity(pkPolicyInfo->GetNewCityFreeBuilding(), iChange);
+	if (pkPolicyInfo->GetNewFoundCityFreeBuilding() != NO_BUILDINGCLASS)
+		ChangeNewFoundCityFreeBuilding(pkPolicyInfo->GetNewFoundCityFreeBuilding(), iChange);
+	if (pkPolicyInfo->GetNewFoundCityFreeUnit() != NO_UNITCLASS)
+		ChangeNewFoundCityFreeUnit(pkPolicyInfo->GetNewFoundCityFreeUnit(), iChange);
 
 	GetTreasury()->ChangeCityConnectionTradeRouteGoldModifier(pkPolicyInfo->GetCityConnectionTradeRouteGoldModifier() * iChange);
 
