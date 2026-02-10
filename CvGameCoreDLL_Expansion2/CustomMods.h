@@ -401,7 +401,7 @@
 
 /////////////////////////////////////////
 // OTHER BALANCE OPTIONS
-// Sorting order: alphabetical
+// Sorting order: civs, victory, then alphabetical
 /////////////////////////////////////////
 
 // Alters Assyria's conquest trait so that the player always chooses a free tech upon city conquest
@@ -409,6 +409,9 @@
 
 // Grants Celts maximum up to 3 unimproved adjacent forests for faith
 #define MOD_BALANCE_ALTERNATE_CELTS_TRAIT							gCustomMods.isBALANCE_ALTERNATE_CELTS_TRAIT()
+
+// The Inca no longer ignore terrain cost if they're crossing a River
+#define MOD_BALANCE_ALTERNATE_INCA_TRAIT							gCustomMods.isBALANCE_ALTERNATE_INCA_TRAIT()
 
 // Pantheons can be picked even if they are already picked by someone else
 #define MOD_BALANCE_ANY_PANTHEON									gCustomMods.isBALANCE_ANY_PANTHEON()
@@ -1608,6 +1611,7 @@ public:
 	// Other Balance Options
 	MOD_OPT_DECL(BALANCE_ALTERNATE_ASSYRIA_TRAIT);
 	MOD_OPT_DECL(BALANCE_ALTERNATE_CELTS_TRAIT);
+	MOD_OPT_DECL(BALANCE_ALTERNATE_INCA_TRAIT);
 	MOD_OPT_DECL(BALANCE_ANY_PANTHEON);
 	MOD_OPT_DECL(BALANCE_CITY_STATE_SCALE);
 	MOD_OPT_DECL(BALANCE_CITY_STATE_TRAITS);
