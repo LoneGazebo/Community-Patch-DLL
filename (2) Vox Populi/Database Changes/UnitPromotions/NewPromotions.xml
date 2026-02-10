@@ -418,6 +418,13 @@
 		</Row>
 		<!-- Trait -->
 		<Row>
+			<Type>PROMOTION_SEWN_CANOES</Type>
+			<Description>TXT_KEY_PROMOTION_SEWN_CANOES</Description>
+			<Help>TXT_KEY_PROMOTION_SEWN_CANOES_HELP</Help>
+			<PediaType>PEDIA_ATTRIBUTES</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_SEWN_CANOES</PediaEntry>
+		</Row>
+		<Row>
 			<Type>PROMOTION_MONGOL_TERROR</Type>
 			<Description>TXT_KEY_PROMOTION_MONGOL_TERROR</Description>
 			<Help>TXT_KEY_PROMOTION_MONGOL_TERROR_HELP</Help>

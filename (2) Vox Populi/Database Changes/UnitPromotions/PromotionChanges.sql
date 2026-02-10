@@ -561,7 +561,11 @@ UPDATE UnitPromotions SET AllowsEmbarkation = 1, EmbarkedAllWater = 1, EmbarkExt
 
 UPDATE UnitPromotions SET CaptureDefeatedEnemy = 1, CapturedUnitsConscripted = 1 WHERE Type = 'PROMOTION_COERCION';
 
-UPDATE UnitPromotions SET RiverDoubleMove = 1 WHERE Type = 'PROMOTION_WAR_CANOES';
+UPDATE UnitPromotions 
+SET 
+	RiverDoubleMove = 1,
+	River = 1
+WHERE Type = 'PROMOTION_SEWN_CANOES';
 
 UPDATE UnitPromotions SET ExtraAttacks = 1 WHERE Type = 'PROMOTION_MONGOL_TERROR';
 

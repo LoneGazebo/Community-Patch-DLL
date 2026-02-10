@@ -760,7 +760,7 @@ WHERE Tag = 'TXT_KEY_UNIT_SIAMESE_WARELEPHANT_STRATEGY';
 -- Songhai
 --------------------
 UPDATE Language_en_US
-SET Text = 'Triple [ICON_GOLD] Gold from destroying Encampments and plundering Cities. Land Units gain the [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_AMPHIBIOUS}[ENDCOLOR] and [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_WAR_CANOES}[ENDCOLOR] Promotions.'
+SET Text = 'Triple [ICON_GOLD] Gold from destroying Encampments and plundering Cities. Land Units gain the [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_SEWN_CANOES}[ENDCOLOR] Promotion.'
 WHERE Tag = 'TXT_KEY_TRAIT_AMPHIB_WARLORD';
 
 UPDATE Language_en_US
