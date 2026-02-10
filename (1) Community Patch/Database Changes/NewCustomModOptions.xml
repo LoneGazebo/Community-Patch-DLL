@@ -333,6 +333,9 @@
 		<!-- Indonesia's unique luxuries spawn around the city instead of under the city tile, and also appear when conquering a city -->
 		<Row Class="6" Name="BALANCE_ALTERNATE_INDONESIA_TRAIT" Value="0"/>
 
+		<!-- The Iroquois treat all Forests/Jungles as if they were Roads, not just those in friendly territory -->
+		<Row Class="6" Name="BALANCE_ALTERNATE_IROQUOIS_TRAIT" Value="0"/>
+
 		<!-- The Maya cannot obtain a Great Prophet from their trait unless they have a religion (owned or majority), or the 9th or later Baktuns have been reached -->
 		<Row Class="6" Name="BALANCE_ALTERNATE_MAYA_TRAIT" Value="0"/>
 

@@ -2188,7 +2188,7 @@ int CityConnectionLandValid(const CvAStarNode* parent, const CvAStarNode* node, 
 		if (kPlayer.GetPlayerTraits()->IsWoodlandMovementBonus() && (pNewPlot->getFeatureType() == FEATURE_FOREST || pNewPlot->getFeatureType() == FEATURE_JUNGLE))
 		{
 			//balance patch does not require plot ownership
-			if (MOD_BALANCE_VP || pNewPlot->getTeam() == GET_PLAYER(ePlayer).getTeam())
+			if (MOD_BALANCE_ALTERNATE_IROQUOIS_TRAIT || pNewPlot->getTeam() == GET_PLAYER(ePlayer).getTeam())
 				ePlotRoute = ROUTE_ROAD;
 		}
 	}
@@ -3511,7 +3511,7 @@ int TradePathLandCost(const CvAStarNode* parent, const CvAStarNode* node, const 
 		iRouteDiscountTimes120 = 54; //can't get better than this even if next plot is railroad
 	// Iroquois ability
 	else if (((eFeature == FEATURE_FOREST || eFeature == FEATURE_JUNGLE) && pCacheData->IsWoodlandMovementBonus()) &&
-		(MOD_BALANCE_VP || pToPlot->getTeam() == GET_PLAYER(finder->GetData().ePlayer).getTeam()) &&
+		(MOD_BALANCE_ALTERNATE_IROQUOIS_TRAIT || pToPlot->getTeam() == GET_PLAYER(finder->GetData().ePlayer).getTeam()) &&
 		!(pFromPlot->isRiverCrossing(directionXY(pFromPlot, pToPlot))))
 		iRouteDiscountTimes120 = 40;
 	// ignore terrain cost for moving along rivers

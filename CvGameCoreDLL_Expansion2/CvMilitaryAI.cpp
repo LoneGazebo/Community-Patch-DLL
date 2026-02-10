@@ -1353,7 +1353,7 @@ int MilitaryAIHelpers::EvaluateTargetApproach(const CvAttackTarget& target, Play
 			continue;
 
 		//rough terrain makes us slow
-		bool bWoodlandException = bForestJungleBonus && (pLoopPlot->getFeatureType() == FEATURE_FOREST || pLoopPlot->getFeatureType() == FEATURE_JUNGLE) && (MOD_BALANCE_VP || pLoopPlot->getTeam() == GET_PLAYER(ePlayer).getTeam());
+		bool bWoodlandException = bForestJungleBonus && (pLoopPlot->getFeatureType() == FEATURE_FOREST || pLoopPlot->getFeatureType() == FEATURE_JUNGLE) && (MOD_BALANCE_ALTERNATE_IROQUOIS_TRAIT || pLoopPlot->getTeam() == GET_PLAYER(ePlayer).getTeam());
 		if (bWoodlandException || (bMountainBonus && pLoopPlot->isMountain()) || (bHillBonus && pLoopPlot->isHills()) || (bRiverBonus && pLoopPlot->isRiver()) || !pLoopPlot->isRoughGround())
 			bIsGood = true;
 

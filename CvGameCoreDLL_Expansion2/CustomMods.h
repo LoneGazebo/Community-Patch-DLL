@@ -277,6 +277,9 @@
 // Indonesia's unique luxuries spawn around the city instead of under the city tile, and also appear when conquering a city
 #define MOD_BALANCE_ALTERNATE_INDONESIA_TRAIT						gCustomMods.isBALANCE_ALTERNATE_INDONESIA_TRAIT()
 
+// The Iroquois treat all Forests/Jungles as if they were Roads, not just those in friendly territory
+#define MOD_BALANCE_ALTERNATE_IROQUOIS_TRAIT						gCustomMods.isBALANCE_ALTERNATE_IROQUOIS_TRAIT()
+
 // The Maya cannot obtain a Great Prophet from their trait unless they have a religion (owned or majority), or the 9th or later Baktuns have been reached
 #define MOD_BALANCE_ALTERNATE_MAYA_TRAIT							gCustomMods.isBALANCE_ALTERNATE_MAYA_TRAIT()
 
@@ -1562,6 +1565,7 @@ public:
 
 	// Vox Populi Balance Changes
 	MOD_OPT_DECL(BALANCE_ALTERNATE_INDONESIA_TRAIT);
+	MOD_OPT_DECL(BALANCE_ALTERNATE_IROQUOIS_TRAIT);
 	MOD_OPT_DECL(BALANCE_ALTERNATE_MAYA_TRAIT);
 	MOD_OPT_DECL(BALANCE_ALTERNATE_SIAM_TRAIT);
 	MOD_OPT_DECL(BALANCE_UNIQUE_BELIEFS_ONLY_FOR_CIV);
