@@ -330,6 +330,9 @@
 		<!-- Sorting order: civs, victory, then most to least impactful	-->
 		<!-- ********************************************************** -->
 
+		<!-- The Inca no longer ignore terrain cost if they're crossing a River -->
+		<Row Class="6" Name="BALANCE_ALTERNATE_INCA_TRAIT" Value="0"/>
+
 		<!-- Indonesia's unique luxuries spawn around the city instead of under the city tile, and also appear when conquering a city -->
 		<Row Class="6" Name="BALANCE_ALTERNATE_INDONESIA_TRAIT" Value="0"/>
 
@@ -482,9 +485,6 @@
 
 		<!-- Grants Celts maximum up to 3 unimproved adjacent forests for faith -->
 		<Row Class="4" Name="BALANCE_ALTERNATE_CELTS_TRAIT" Value="0"/>
-
-		<!-- The Inca no longer ignore terrain cost if they're crossing a River -->
-		<Row Class="6" Name="BALANCE_ALTERNATE_INCA_TRAIT" Value="0"/>
 
 		<!-- Pantheons can be picked even if they are already picked by someone else -->
 		<Row Class="6" Name="BALANCE_ANY_PANTHEON" Value="0"/>

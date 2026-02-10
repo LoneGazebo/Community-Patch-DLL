@@ -274,6 +274,9 @@
 // Sorting order: civs, victory, then most to least impactful
 /////////////////////////////////////////
 
+// The Inca no longer ignore terrain cost if they're crossing a River
+#define MOD_BALANCE_ALTERNATE_INCA_TRAIT							gCustomMods.isBALANCE_ALTERNATE_INCA_TRAIT()
+
 // Indonesia's unique luxuries spawn around the city instead of under the city tile, and also appear when conquering a city
 #define MOD_BALANCE_ALTERNATE_INDONESIA_TRAIT						gCustomMods.isBALANCE_ALTERNATE_INDONESIA_TRAIT()
 
@@ -409,9 +412,6 @@
 
 // Grants Celts maximum up to 3 unimproved adjacent forests for faith
 #define MOD_BALANCE_ALTERNATE_CELTS_TRAIT							gCustomMods.isBALANCE_ALTERNATE_CELTS_TRAIT()
-
-// The Inca no longer ignore terrain cost if they're crossing a River
-#define MOD_BALANCE_ALTERNATE_INCA_TRAIT							gCustomMods.isBALANCE_ALTERNATE_INCA_TRAIT()
 
 // Pantheons can be picked even if they are already picked by someone else
 #define MOD_BALANCE_ANY_PANTHEON									gCustomMods.isBALANCE_ANY_PANTHEON()
@@ -1567,6 +1567,7 @@ public:
 	MOD_OPT_DECL(GLOBAL_QUICK_ROUTES); // disabled
 
 	// Vox Populi Balance Changes
+	MOD_OPT_DECL(BALANCE_ALTERNATE_INCA_TRAIT);
 	MOD_OPT_DECL(BALANCE_ALTERNATE_INDONESIA_TRAIT);
 	MOD_OPT_DECL(BALANCE_ALTERNATE_IROQUOIS_TRAIT);
 	MOD_OPT_DECL(BALANCE_ALTERNATE_MAYA_TRAIT);
@@ -1611,7 +1612,6 @@ public:
 	// Other Balance Options
 	MOD_OPT_DECL(BALANCE_ALTERNATE_ASSYRIA_TRAIT);
 	MOD_OPT_DECL(BALANCE_ALTERNATE_CELTS_TRAIT);
-	MOD_OPT_DECL(BALANCE_ALTERNATE_INCA_TRAIT);
 	MOD_OPT_DECL(BALANCE_ANY_PANTHEON);
 	MOD_OPT_DECL(BALANCE_CITY_STATE_SCALE);
 	MOD_OPT_DECL(BALANCE_CITY_STATE_TRAITS);
