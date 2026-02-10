@@ -812,11 +812,16 @@ WHERE Class = 'UNITCLASS_PROPHET';
 UPDATE Units
 SET
 	CombatClass = 'UNITCOMBAT_WORKER',
-	WorkRate = 90 -- slowed down a bit, was 100
+	WorkRate = 90, -- slowed down a bit, was 100
+	PuppetPurchaseOverride = 1	
 WHERE Class = 'UNITCLASS_WORKER';
 
 -- Work Boat
-UPDATE Units SET CombatClass = 'UNITCOMBAT_WORKBOAT' WHERE Class = 'UNITCLASS_WORKBOAT';
+UPDATE Units 
+SET 
+	CombatClass = 'UNITCOMBAT_WORKBOAT',
+	PuppetPurchaseOverride = 1
+WHERE Class = 'UNITCLASS_WORKBOAT';
 
 -- Missionary
 UPDATE Units SET CombatClass = 'UNITCOMBAT_MISSIONARY' WHERE Class = 'UNITCLASS_MISSIONARY';
