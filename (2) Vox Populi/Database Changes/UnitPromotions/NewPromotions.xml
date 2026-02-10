@@ -418,6 +418,13 @@
 		</Row>
 		<!-- Trait -->
 		<Row>
+			<Type>PROMOTION_SEWN_CANOES</Type>
+			<Description>TXT_KEY_PROMOTION_SEWN_CANOES</Description>
+			<Help>TXT_KEY_PROMOTION_SEWN_CANOES_HELP</Help>
+			<PediaType>PEDIA_ATTRIBUTES</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_SEWN_CANOES</PediaEntry>
+		</Row>
+		<Row>
 			<Type>PROMOTION_ATTACK_BONUS_SWEDEN</Type>
 			<Description>TXT_KEY_PROMOTION_ATTACK_BONUS_SWEDEN</Description>
 			<Help>TXT_KEY_PROMOTION_ATTACK_BONUS_SWEDEN_HELP</Help>
