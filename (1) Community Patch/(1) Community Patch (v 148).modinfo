@@ -577,6 +577,7 @@
     <File md5="D983FAC8F864336264448A6A5CEBDC9E" import="0">Database Changes/Minors/MinorQuestTableChanges.sql</File>
     <File md5="1FEA0A00E00FF33965F4366E4d3863C4" import="0">Database Changes/Minors/CoreNewMinorTables.xml</File>
     <File md5="0D34A73F384820888AE225215B61AE64" import="0">Database Changes/Minors/MinorTableChanges.sql</File>
+    <File md5="50648A6286D211466BB6DDfEBB39B339" import="0">Database Changes/Minors/CoreMinorYieldChanges.sql</File>
     <File md5="028FA5959EF6F425AB88635FA56B8183" import="0">Database Changes/Mod Support/NewContractTables.xml</File>
     <File md5="5C2852DCB3D12D33F70486B229B310F8" import="0">Database Changes/Mod Support/NewDiploModifierTables.xml</File>
     <File md5="078FEB0A8D7806DE0CA2BF3499C9328B" import="0">Database Changes/Policies/NewPolicyTables.xml</File>
@@ -805,6 +806,7 @@
       <UpdateDatabase>Database Changes\Minors\MinorQuestTableChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes\Minors\CoreNewMinorTables.xml</UpdateDatabase>
       <UpdateDatabase>Database Changes\Minors\MinorTableChanges.sql</UpdateDatabase>
+      <UpdateDatabase>Database Changes\Minors\CoreMinorYieldChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes\Policies\PolicyTableChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes\Religions\BeliefTableChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes\Religions\ReligionTableChanges.sql</UpdateDatabase>
