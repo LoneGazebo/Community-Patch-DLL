@@ -31117,7 +31117,8 @@ void CvCity::doGrowth()
 	int iFoodPerTurn100 = getYieldRateTimes100(YIELD_FOOD);
 	int iFoodReqForGrowth = growthThreshold();
 
-	if (iFoodPerTurn100 < 0)
+	// show notification if we're starving and it would take less than 100 turns to reach zero food
+	if (iFoodPerTurn100 < 0 && getFoodTimes100() / (-iFoodPerTurn100) < 100)
 	{
 		CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
 		if (pNotifications)
