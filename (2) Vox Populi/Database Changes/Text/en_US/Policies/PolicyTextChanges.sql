@@ -28,7 +28,7 @@ SET Text = 'Sovereignty'
 WHERE Tag = 'TXT_KEY_POLICY_OLIGARCHY';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Sovereignty[ENDCOLOR][NEWLINE][ICON_BULLET][ICON_CULTURE] Culture cost of tiles reduced by 20% (exponentially) in all Cities.[NEWLINE][ICON_BULLET][COLOR_POSITIVE_TEXT]{TXT_KEY_BUILDING_COURT_CHAPEL}[ENDCOLOR] built in [ICON_CAPITAL] Capital (+3 [ICON_PEACE] Faith, 1 [ICON_GREAT_WORK] Great Work of Art or Artifact slot, 1 [ICON_ARTIST] Artist Slot).'
+SET Text = '[COLOR_POSITIVE_TEXT]Sovereignty[ENDCOLOR][NEWLINE][ICON_BULLET][COLOR_POSITIVE_TEXT]{TXT_KEY_BUILDING_COURT_CHAPEL}[ENDCOLOR] built in [ICON_CAPITAL] Capital (+3 [ICON_PEACE] Faith, +100% [ICON_CULTURE_LOCAL] Border Growth Points, +5 [ICON_CULTURE_LOCAL] Border Growth Points to all Shrines and Temples, 1 [ICON_GREAT_WORK] Great Work of Art or Artifact slot, 1 [ICON_ARTIST] Artist Slot).'
 WHERE Tag = 'TXT_KEY_POLICY_OLIGARCHY_HELP';
 
 UPDATE Language_en_US
@@ -40,7 +40,7 @@ SET Text = 'Majesty'
 WHERE Tag = 'TXT_KEY_POLICY_MONARCHY';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Majesty[ENDCOLOR][NEWLINE][ICON_BULLET]Specialists in [ICON_CAPITAL] Capital consume half the normal amount of [ICON_FOOD] Food.[NEWLINE][ICON_BULLET][COLOR_POSITIVE_TEXT]{TXT_KEY_BUILDING_PALACE_GARDEN}[ENDCOLOR] built in [ICON_CAPITAL] Capital (+5 [ICON_FOOD] Food, +25% [ICON_GREAT_PEOPLE] Great Person Rate, -2 [ICON_HAPPINESS_3] Unhappiness from [ICON_URBANIZATION] Urbanization, 1 [ICON_GREAT_WORK] Great Work of Writing slot, 1 [ICON_WRITER] Writer Slot).'
+SET Text = '[COLOR_POSITIVE_TEXT]Majesty[ENDCOLOR][NEWLINE][ICON_BULLET]Specialists in the [ICON_CAPITAL] Capital consume half the normal amount of [ICON_FOOD] Food.[NEWLINE][ICON_BULLET][COLOR_POSITIVE_TEXT]{TXT_KEY_BUILDING_PALACE_GARDEN}[ENDCOLOR] built in [ICON_CAPITAL] Capital (+5 [ICON_FOOD] Food, +25% [ICON_GREAT_PEOPLE] Great Person Rate, -2 [ICON_HAPPINESS_3] Unhappiness from [ICON_URBANIZATION] Urbanization, 1 [ICON_GREAT_WORK] Great Work of Writing slot, 1 [ICON_WRITER] Writer Slot).'
 WHERE Tag = 'TXT_KEY_POLICY_MONARCHY_HELP';
 
 UPDATE Language_en_US
@@ -52,7 +52,7 @@ SET Text = 'Splendor'
 WHERE Tag = 'TXT_KEY_POLICY_LANDED_ELITE';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Splendor[ENDCOLOR][NEWLINE][ICON_BULLET]Expending a [ICON_GREAT_PEOPLE] Great Person grants 50 [ICON_CULTURE] Culture, scaling with Era.[NEWLINE][ICON_BULLET][COLOR_POSITIVE_TEXT]{TXT_KEY_BUILDING_STATE_TREASURY}[ENDCOLOR] built in [ICON_CAPITAL] Capital (+4 [ICON_GOLD] Gold, +2 [ICON_CULTURE] Culture to all Monuments, Gardens, and Baths; 1 [ICON_MERCHANT] Merchant Slot).'
+SET Text = '[COLOR_POSITIVE_TEXT]Splendor[ENDCOLOR][NEWLINE][ICON_BULLET]Expending a [ICON_GREAT_PEOPLE] Great Person grants 50 [ICON_CULTURE] Culture, scaling with Era.[NEWLINE][ICON_BULLET][COLOR_POSITIVE_TEXT]{TXT_KEY_BUILDING_STATE_TREASURY}[ENDCOLOR] built in [ICON_CAPITAL] Capital (+4 [ICON_GOLD] Gold, +2 [ICON_CULTURE] Culture to all Monuments, Gardens, and Baths, 1 [ICON_MERCHANT] Merchant Slot).'
 WHERE Tag = 'TXT_KEY_POLICY_LANDED_ELITE_HELP';
 
 UPDATE Language_en_US
@@ -64,7 +64,7 @@ SET Text = 'Ceremony'
 WHERE Tag = 'TXT_KEY_POLICY_LEGALISM';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Ceremony[ENDCOLOR][NEWLINE][ICON_BULLET]+1 [ICON_HAPPINESS_1] Happiness from National Wonders with Building requirements.[NEWLINE][ICON_BULLET]+25% [ICON_PRODUCTION] Production toward National Wonders with Building requirements.[NEWLINE][ICON_BULLET][COLOR_POSITIVE_TEXT]{TXT_KEY_BUILDING_ROYAL_ASTROLOGER}[ENDCOLOR] built in [ICON_CAPITAL] Capital (+3 [ICON_RESEARCH] Science, +1 [ICON_RESEARCH] Science to all Councils, Smokehouses, and Herbalists; 1 [ICON_SCIENTIST] Scientist Slot).'
+SET Text = '[COLOR_POSITIVE_TEXT]Ceremony[ENDCOLOR][NEWLINE][ICON_BULLET]+1 [ICON_HAPPINESS_1] Happiness from National Wonders with Building requirements.[NEWLINE][ICON_BULLET]+25% [ICON_PRODUCTION] Production toward National Wonders with Building requirements.[NEWLINE][ICON_BULLET][COLOR_POSITIVE_TEXT]{TXT_KEY_BUILDING_ROYAL_ASTROLOGER}[ENDCOLOR] built in [ICON_CAPITAL] Capital (+3 [ICON_RESEARCH] Science, +1 [ICON_RESEARCH] Science to all Councils, Smokehouses, and Herbalists, 1 [ICON_SCIENTIST] Scientist Slot).'
 WHERE Tag = 'TXT_KEY_POLICY_LEGALISM_HELP';
 
 UPDATE Language_en_US
