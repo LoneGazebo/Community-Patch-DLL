@@ -1257,6 +1257,7 @@
     <File md5="615B1156EEEF0AFD6E0DD1F484802265" import="0">Database Changes/Text/en_US/WorldCongress/ResolutionTextChanges.sql</File>
     <File md5="2798405A9BB9C4318FCBC7EBA6627380" import="0">Database Changes/Text/en_US/WorldCongress/SpecialSessionTextChanges.sql</File>
     <File md5="B95A50B772D0D7EDCC2B814EC875A027" import="0">Database Changes/Text/en_US/WorldMap/FeatureTextChanges.sql</File>
+    <File md5="21C1597C5CD9D3D5DB806696A260D016" import="0">Database Changes/Text/en_US/WorldMap/TerrainTextChanges.sql</File>
     <File md5="3A355503A7BEA0BC2A7750B927E8BD1D" import="0">Database Changes/Text/en_US/WorldMap/ImprovementTextChanges.sql</File>
     <File md5="EC302DB02D9DB1AFBAC6D7C64981DB34" import="0">Database Changes/Text/en_US/WorldMap/NewFeatureText.xml</File>
     <File md5="7BC7EE5881368D7A64D7F08EF0B908FE" import="0">Database Changes/Text/en_US/WorldMap/NewGoodyHutText.xml</File>
@@ -1594,6 +1595,7 @@
       <UpdateDatabase>Database Changes/Text/en_US/WorldCongress/ResolutionTextChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes/Text/en_US/WorldCongress/SpecialSessionTextChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes/Text/en_US/WorldMap/FeatureTextChanges.sql</UpdateDatabase>
+      <UpdateDatabase>Database Changes/Text/en_US/WorldMap/TerrainTextChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes/Text/en_US/WorldMap/ImprovementTextChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes/Text/en_US/WorldMap/ResourceTextChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes/Text/en_US/WorldMap/RouteTextChanges.sql</UpdateDatabase>
