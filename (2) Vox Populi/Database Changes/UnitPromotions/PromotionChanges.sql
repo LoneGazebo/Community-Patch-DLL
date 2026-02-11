@@ -330,7 +330,7 @@ UPDATE UnitPromotions SET HealOutsideFriendly = 1, FriendlyHealChange = 5, Neutr
 --                 │                   │ │                    ┌───────────────────────────┘            │
 --                 │                   │ │                    │                                        │
 -- Bombardment I ──┴─► Bombardment II ─┴─┴─► Bombardment III ─┴─► Broadside ───────────────────────────┘
---                                                                Shrapnel Rounds
+--                                                                Shrapnel Rounds I ──► Shrapnel Rounds II
 ----------------------------------------------------------------------------------------------------------------------------
 UPDATE UnitPromotions
 SET AttackBelowEqual50HealthMod = 10
@@ -368,7 +368,8 @@ UPDATE UnitPromotions SET CityAttack = 40 WHERE Type = 'PROMOTION_BROADSIDE';
 INSERT INTO UnitPromotions_Domains
 	(PromotionType, DomainType, Attack)
 VALUES
-	('PROMOTION_SHRAPNEL_ROUNDS', 'DOMAIN_LAND', 50);
+	('PROMOTION_SHRAPNEL_ROUNDS_1', 'DOMAIN_LAND', 35),
+	('PROMOTION_SHRAPNEL_ROUNDS_2', 'DOMAIN_LAND', 35);
 
 ----------------------------------------------------------------------------------------------------------------------------
 -- Submarine promotion tree drawn using ASCIIFlow
