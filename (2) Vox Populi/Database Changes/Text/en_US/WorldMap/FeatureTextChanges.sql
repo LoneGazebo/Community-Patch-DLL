@@ -1,5 +1,5 @@
-UPDATE Language_en_US
-SET Text = 'Although rich in biodiversity, marshes have little other than food to offer a hungry growing civilization, as they must be drained or otherwise altered before they provide any city bonuses.'
+UPDATE Language_en_US 
+SET Text = 'Although rich in biodiversity, marshes require significant infrastructure and/or unique societal decisions (policies or beliefs) to make use of. They must be drained before their tiles can be improved, which is costly in time and (unlike forests and jungles) provides no benefit itself. Camps for resource improvement are the exception, but on marsh they lower the food output of the tile by 2, as your hunters ravage the natural ecosystem.'
 WHERE Tag = 'TXT_KEY_CIV5_FEATURES_MARSH_TEXT';
 
 UPDATE Language_en_US
