@@ -56,7 +56,7 @@ SET Text = '+2 [ICON_FOOD] Food from this Natural Wonder for every Era after the
 WHERE Tag = 'TXT_KEY_CIV5_FEATURES_LAKE_VICTORIA_TEXT';
 
 UPDATE Language_en_US
-SET Text = 'All Military Units on adjacent tiles gain the [COLOR_POSITIVE_TEXT]Altitude Training[ENDCOLOR] Promotion, doubling movement speed through Hills and granting a combat bonus on Hills for the rest of the game.'
+SET Text = 'All Military Units on adjacent tiles gain the [COLOR_POSITIVE_TEXT]Altitude Training[ENDCOLOR] Promotion, granting a combat bonus on Hills.'
 WHERE Tag = 'TXT_KEY_CIV5_FEATURES_KILIMANJARO_HELP';
 
 UPDATE Language_en_US
