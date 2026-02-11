@@ -5508,7 +5508,20 @@ CivilopediaCategory[CategoryCivilizations].SelectArticle = function( rawCivID, s
 				UpdateButtonFrame( buttonAdded, Controls.UniqueImprovementsInnerFrame, Controls.UniqueImprovementsFrame );
 
 				-- get unique improvements that don't use CivilizationRequired. Flag is to set OrderPriority = 90. Can combine with above block perhaps?
-                local CD_condition = "Type IN (SELECT ImprovementType FROM Builds WHERE OrderPriority = 90 AND Type IN (SELECT BuildType FROM Trait_BuildsUnitClasses WHERE TraitType IN (SELECT TraitType FROM Leader_Traits WHERE LeaderType IN (SELECT LeaderheadType FROM Civilization_Leaders WHERE CivilizationType = '" .. thisCiv.Type .. "'))))";
+                local CD_condition = [[
+										Type IN (
+										  SELECT b.ImprovementType
+										  FROM Civilization_Leaders cl
+										  JOIN Leader_Traits lt
+										    ON lt.LeaderType = cl.LeaderheadType
+										  JOIN Trait_BuildsUnitClasses tbu
+										    ON tbu.TraitType = lt.TraitType
+										  JOIN Builds b
+										    ON b.Type = tbu.BuildType
+										  WHERE cl.CivilizationType = ']] .. thisCiv.Type .. [['
+										    AND b.OrderPriority = 90
+										)
+									]];
 				for thisImprovement in GameInfo.Improvements( CD_condition ) do
 					local thisImprovementInstance = g_UniqueImprovementsManager:GetInstance();
 					if thisImprovementInstance then
@@ -5534,6 +5547,29 @@ CivilopediaCategory[CategoryCivilizations].SelectArticle = function( rawCivID, s
 				g_UniqueProjectsManager:ResetInstances();
 				buttonAdded = 0;
 				for thisProject in GameInfo.Projects( condition ) do
+					local thisProjectInstance = g_UniqueProjectsManager:GetInstance();
+					if thisProjectInstance then
+
+						if not IconHookup( thisProject.PortraitIndex, buttonSize, thisProject.IconAtlas, thisProjectInstance.UniqueProjectImage ) then
+							thisProjectInstance.UniqueProjectImage:SetTexture( defaultErrorTextureSheet );
+							thisProjectInstance.UniqueProjectImage:SetTextureOffset( nullOffset );
+						end
+
+						--move this button
+						thisProjectInstance.UniqueProjectButton:SetOffsetVal( (buttonAdded % numberOfButtonsPerRow) * buttonSize + buttonPadding, math.floor(buttonAdded / numberOfButtonsPerRow) * buttonSize + buttonPadding );
+
+						thisProjectInstance.UniqueProjectButton:SetToolTipString( Locale.ConvertTextKey( thisProject.Description ) );
+						thisProjectInstance.UniqueProjectButton:SetVoids( thisProject.ID + 1000, addToList );
+						thisProjectInstance.UniqueProjectButton:RegisterCallback( Mouse.eLClick, CivilopediaCategory[CategoryWonders].SelectArticle );
+
+						buttonAdded = buttonAdded + 1;
+					end
+				end
+				UpdateButtonFrame( buttonAdded, Controls.UniqueProjectsInnerFrame, Controls.UniqueProjectsFrame );
+
+				-- get unique projects that don't use CivilizationRequired
+				local CD_condition_project = "Type IN (SELECT p.Type FROM Projects p JOIN Civilizations c ON p.PolicyType = c.PolicyForUserInterface WHERE c.Type = '" .. thisCiv.Type .. "')";
+				for thisProject in GameInfo.Projects( CD_condition_project ) do
 					local thisProjectInstance = g_UniqueProjectsManager:GetInstance();
 					if thisProjectInstance then
 

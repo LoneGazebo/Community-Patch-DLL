@@ -37,7 +37,7 @@ Anim = height set to Button height + 2
 --]]
 
 local bnw_mode = ContentManager.IsActive("6DA07636-4123-4018-B643-6575B4EC336B", ContentType.GAMEPLAY);
-local g_traitsQuery, g_uniqueUnitsQuery, g_uniqueBuildingsQuery, g_uniqueImprovementsQuery, g_uniqueProjectsQuery;
+local g_traitsQuery, g_uniqueUnitsQuery, g_uniqueBuildingsQuery, g_uniqueImprovementsQuery, g_uniqueProjectsQuery, g_culturalImprovementsQuery, g_culturalProjectsQuery;
 local g_questionMark =	{ PortraitIndex = 23, IconAtlas = "CIV_COLOR_ATLAS" };
 local g_questionMarkTip = Locale.ConvertTextKey( "TXT_KEY_MISC_UNKNOWN" );
 local g_randomTrait =	{ Description = "TXT_KEY_RANDOM_LEADER_HELP", ShortDescription = "TXT_KEY_MISC_RANDOMIZE" };
@@ -69,12 +69,16 @@ local function initializePopulateCivilizationUniques()
 	g_uniqueImprovementsQuery = DB.CreateQuery([[SELECT ID, Description, PortraitIndex, IconAtlas from Improvements
 					WHERE CivilizationType = ?]]);
 
-    -- adds 5/6UC unique improvements by checking Trait_BuildsUnitClasses and OrderPriority settings
+    	-- adds 5/6UC unique improvements by checking Trait_BuildsUnitClasses and OrderPriority settings
 	g_culturalImprovementsQuery = DB.CreateQuery([[SELECT DISTINCT i.ID, i.Description, i.PortraitIndex, i.IconAtlas FROM Improvements i, Civilization_Leaders cl, Leader_Traits lt, Trait_BuildsUnitClasses tbuc, Builds b 
 		WHERE cl.CivilizationType = ? AND lt.LeaderType = cl.LeaderheadType AND lt.TraitType = tbuc.TraitType AND tbuc.BuildType = b.Type AND i.Type = b.ImprovementType AND b.OrderPriority=90]]);
 		
 	g_uniqueProjectsQuery = DB.CreateQuery([[SELECT ID, Description, PortraitIndex, IconAtlas from Projects
 					WHERE CivilizationType = ?]]);
+
+	-- 5/6 UC
+	g_culturalProjectsQuery = DB.CreateQuery([[SELECT DISTINCT p.ID, p.Description, p.PortraitIndex, p.IconAtlas 
+			FROM Projects p JOIN Civilizations c ON p.PolicyType = c.PolicyForUserInterface WHERE c.Type = ?]]);
 end
 
 -----------------
@@ -154,6 +158,12 @@ local function populateUniques( parentControl, civType )
 	for project in g_uniqueProjectsQuery( civType ) do
 		newItemIcon( parentControl, project, pcall( GetHelpTextForProject, project.ID ) );
 	end
+
+	-- 5/6 UC
+	for project in g_culturalProjectsQuery( civType ) do
+		newItemIcon( parentControl, project, pcall( GetHelpTextForProject, project.ID ) );
+	end
+
 end
 
 -----------------
