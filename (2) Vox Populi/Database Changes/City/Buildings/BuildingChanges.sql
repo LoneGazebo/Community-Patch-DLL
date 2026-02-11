@@ -1243,10 +1243,17 @@ SELECT
 FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_CHANCERY';
 
+INSERT INTO Building_YieldPerFriend
+	(BuildingType, YieldType, Yield)
+SELECT
+	Type, 'YIELD_PRODUCTION', 50
+FROM Buildings
+WHERE BuildingClass = 'BUILDINGCLASS_CHANCERY';
+
 INSERT INTO Building_YieldPerAlly
 	(BuildingType, YieldType, Yield)
 SELECT
-	Type, 'YIELD_PRODUCTION', 2
+	Type, 'YIELD_PRODUCTION', 100
 FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_CHANCERY';
 
@@ -1261,7 +1268,7 @@ WHERE BuildingClass = 'BUILDINGCLASS_WIRE_SERVICE';
 INSERT INTO Building_YieldPerFriend
 	(BuildingType, YieldType, Yield)
 SELECT
-	Type, 'YIELD_CULTURE', 1
+	Type, 'YIELD_CULTURE', 100
 FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_WIRE_SERVICE';
 
@@ -1274,7 +1281,7 @@ VALUES
 INSERT INTO Building_YieldPerAlly
 	(BuildingType, YieldType, Yield)
 SELECT
-	a.Type, b.YieldType, 1
+	a.Type, b.YieldType, 100
 FROM Buildings a, Helper b
 WHERE a.BuildingClass = 'BUILDINGCLASS_WIRE_SERVICE';
 

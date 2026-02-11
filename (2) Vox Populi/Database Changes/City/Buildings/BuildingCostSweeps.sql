@@ -191,8 +191,7 @@ UPDATE Buildings
 SET GoldMaintenance = 3
 WHERE Type IN (
 	'BUILDING_COURTHOUSE',
-	'BUILDING_GARDEN',
-	'BUILDING_CHANCERY'
+	'BUILDING_GARDEN'
 );
 
 -- Barbican
