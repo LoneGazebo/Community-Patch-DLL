@@ -3412,7 +3412,7 @@ bool CvLeague::IsResolutionEffectsValid(ResolutionTypes eResolution, int iPropos
 
 	if (pInfo->GetVassalMaintenanceGoldPercent() != 0 || pInfo->IsEndAllCurrentVassals())
 	{
-		if (GC.getGame().isOption(GAMEOPTION_NO_VASSALAGE))
+		if (!MOD_BALANCE_VP || !GC.getGame().isOption(GAMEOPTION_ENABLE_VASSALAGE))
 		{
 			if (sTooltipSink != NULL)
 			{

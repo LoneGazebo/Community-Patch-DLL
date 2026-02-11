@@ -6,9 +6,9 @@ include("InfoTooltipInclude");
 include("VPUI_core");
 include("CPK.lua");
 
-local bResearchAgreements = Game.IsOption("GAMEOPTION_RESEARCH_AGREEMENTS");
-local bNoTechTrading = Game.IsOption("GAMEOPTION_NO_TECH_TRADING");
-local bNoVassalage = Game.IsOption("GAMEOPTION_NO_VASSALAGE");
+local bResearchAgreements = not Game.IsOption("GAMEOPTION_DISABLE_RESEARCH_AGREEMENTS");
+local bNoTechTrading = not Game.IsOption("GAMEOPTION_ENABLE_TECH_TRADING");
+local bNoVassalage = not Game.IsOption("GAMEOPTION_ENABLE_VASSALAGE");
 
 local L = Locale.Lookup;
 local VP = MapModData and MapModData.VP or VP;

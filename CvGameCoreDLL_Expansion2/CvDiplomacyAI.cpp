@@ -10113,7 +10113,7 @@ void CvDiplomacyAI::DoUpdateTechBlockLevels()
 				iTechDifference--;
 			}
 			// Reduce if we're friends and they can trade tech to us
-			if (!GC.getGame().isOption(GAMEOPTION_NO_TECH_TRADING) && IsDoFAccepted(ePlayer) && IsHasEmbassy(ePlayer) && GET_PLAYER(ePlayer).GetDiplomacyAI()->IsHasEmbassy(GetID()) && GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isTechTrading())
+			if (GC.getGame().isOption(GAMEOPTION_ENABLE_TECH_TRADING) && IsDoFAccepted(ePlayer) && IsHasEmbassy(ePlayer) && GET_PLAYER(ePlayer).GetDiplomacyAI()->IsHasEmbassy(GetID()) && GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isTechTrading())
 			{
 				iTechDifference--;
 			}
@@ -26772,7 +26772,7 @@ void CvDiplomacyAI::LogPeaceWillingnessReason(PlayerTypes ePlayer, const CvStrin
 /// Determine tax rates for all vassals, if we can
 void CvDiplomacyAI::DetermineVassalTaxRates()
 {
-	if (!MOD_BALANCE_VP || GC.getGame().isOption(GAMEOPTION_NO_VASSALAGE) || GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR) || GetPlayer()->IsAITeammateOfHuman() || GetPlayer()->GetNumVassals() <= 0)
+	if (!MOD_BALANCE_VP || !GC.getGame().isOption(GAMEOPTION_ENABLE_VASSALAGE) || GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR) || GetPlayer()->IsAITeammateOfHuman() || GetPlayer()->GetNumVassals() <= 0)
 		return;
 
 	vector<PlayerTypes> vMyTeam = GET_TEAM(GetTeam()).getPlayers();

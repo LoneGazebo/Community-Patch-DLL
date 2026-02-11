@@ -19,11 +19,13 @@ local g_bAlwaysWar = Game.IsOption( GameOptionTypes.GAMEOPTION_ALWAYS_WAR );
 local g_bAlwaysPeace = Game.IsOption( GameOptionTypes.GAMEOPTION_ALWAYS_PEACE );
 local g_bNoChangeWar = Game.IsOption( GameOptionTypes.GAMEOPTION_NO_CHANGING_WAR_PEACE );
 
+local MOD_BALANCE_VP = GameInfo.CustomModOptions("Name = 'BALANCE_VP'")().Value == 1;
+
 local g_PeaceDealDuration = GameInfo.GameSpeeds[PreGame.GetGameSpeed()].PeaceDealDuration;
-local g_bAllowResearchAgreements = Game.IsOption("GAMEOPTION_RESEARCH_AGREEMENTS");
+local g_bAllowResearchAgreements = not Game.IsOption("GAMEOPTION_DISABLE_RESEARCH_AGREEMENTS");
 local g_bDisableScience = Game.IsOption("GAMEOPTION_NO_SCIENCE");
-local g_bDisableTechTrading = Game.IsOption("GAMEOPTION_NO_TECH_TRADING");
-local g_bDisableVassalage = Game.IsOption("GAMEOPTION_NO_VASSALAGE");
+local g_bDisableTechTrading = not Game.IsOption("GAMEOPTION_ENABLE_TECH_TRADING");
+local g_bDisableVassalage = (not MOD_BALANCE_VP) or (not Game.IsOption("GAMEOPTION_ENABLE_VASSALAGE"));
 local g_bDisableLeague = Game.IsOption("GAMEOPTION_NO_LEAGUES");
 
 ----------------------------------------------------------------        
@@ -193,7 +195,7 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 			["LEADER_ASHURBANIPAL"] = "Ashurbanipal.dds",
 			["LEADER_AHMAD_ALMANSUR"] = "Almansur.dds",
 		}
-		
+
 		if iPlayer > 21 then
 			print ("LeaderMessageHandler: Player ID > 21")
 			local backupTexture = "loadingbasegame_9.dds"
@@ -205,15 +207,15 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 
 			Controls.BackupTexture:SetTexture( backupTexture )
 			local screenW, screenH = Controls.BackupTexture:GetSizeVal() -- works, but maybe there is a direct way to get screen size ?
-				
+
 			Controls.BackupTexture:SetTextureAndResize( backupTexture )
 			local textureW, textureH = Controls.BackupTexture:GetSizeVal()	
-			
+
 			print ("Screen Width = " .. tostring(screenW) .. ", Screen Height = " .. tostring(screenH) .. ", Texture Width = " .. tostring(textureW) .. ", Texture Height = " .. tostring(textureH))
 
 			local ratioW = screenW / textureW
 			local ratioH = screenH / textureH
-			
+
 			print ("Width ratio = " .. tostring(ratioW) .. ", Height ratio = " .. tostring(ratioH))
 
 			local ratio = ratioW
@@ -224,7 +226,7 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 
 			Controls.BackupTexture:SetHide( false )
 		else
-			
+
 			Controls.BackupTexture:UnloadTexture()
 			Controls.BackupTexture:SetHide( true )
 
@@ -258,22 +260,22 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 		if (bMyMode) then
 			
 			--print("TradeScreen: It's MY mode!");
-			
+
 			if (ContextPtr:IsHidden()) then
 				UIManager:QueuePopup( ContextPtr, PopupPriority.LeaderTrade );
 			end
-			
+
 			--print("Handling LeaderMessage: " .. iDiploUIState .. ", ".. szLeaderMessage);
-			
+
 			g_Deal:SetFromPlayer(g_iUs);
 			g_Deal:SetToPlayer(g_iThem);
-			
+
 			-- Unhide our pocket, in case the last thing we were doing in this screen was a human demand
 			Controls.UsPanel:SetHide(false);
 			Controls.UsGlass:SetHide(false);
-			
+
 			local bClearTableAndDisplayDeal = false;
-			
+
 			-- Is this a UI State where we should be displaying a deal?
 			if (g_iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE) then
 				--print("DiploUIState: Default Trade");
@@ -281,28 +283,28 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 			elseif (g_iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_MAKES_DEMAND) then
 				--print("DiploUIState: AI making demand");
 				bClearTableAndDisplayDeal = true;
-				
+
 				DoDemandState(true);
-				
+
 			elseif (g_iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_MAKES_REQUEST) then
 				--print("DiploUIState: AI making Request");
 				bClearTableAndDisplayDeal = true;
-				
+
 				DoDemandState(true);
-				
+
 			-- Putmalk: Open Trade window when AI is giving a gift and set it to the demand state
 			elseif (g_iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_MAKES_GENEROUS_OFFER) then
 				--print("DiploUIState: AI making Offer");
 				bClearTableAndDisplayDeal = true;
-				
+
 				DoDemandState(true);
-				
+
 			elseif (g_iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_HUMAN_DEMAND) then
 				bClearTableAndDisplayDeal = true;
 				-- If we're demanding something, there's no need to show OUR items
 				Controls.UsPanel:SetHide(true);
 				Controls.UsGlass:SetHide(true);
-				
+
 			elseif (g_iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_HUMAN_OFFERS_CONCESSIONS) then
 				--print("DiploUIState: Human offers concessions");
 				bClearTableAndDisplayDeal = true;
@@ -314,7 +316,7 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 				--print("DiploUIState: AI accepted offer");
 				g_iConcessionsPreviousDiploUIState = -1;		-- Clear out the fact that we were offering concessions if the AI has agreed to a deal
 				bClearTableAndDisplayDeal = true;
-				
+
 			-- If the AI rejects a deal, don't clear the table: keep the items where they are in case the human wants to change things
 			elseif (g_iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_REJECTS_OFFER) then
 				--print("DiploUIState: AI rejects offer");
@@ -322,38 +324,38 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 			else
 				--print("DiploUIState: ?????");
 			end
-			
+
 			-- Clear table and display the deal currently stored in InterfaceBuddy
 			if (bClearTableAndDisplayDeal) then
 				g_bMessageFromDiploAI = true;
-				
+
 				Controls.DiscussionText:SetText( szLeaderMessage );
-				
+
 				DoClearTable();
 				DisplayDeal();
 
 				if (g_iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_HUMAN_DEMAND) then
 					-- Hide unavailable items on their side
 					Controls.ThemPocketGold:SetHide(not g_pUs:IsDoF(g_iThem));
-					Controls.ThemPocketTradeMap:SetHide(not g_pUs:IsDoF(g_iThem));
-					Controls.ThemPocketTechnology:SetHide(not g_pUs:IsDoF(g_iThem));
+					Controls.ThemPocketTradeMap:SetHide((not g_pUs:IsDoF(g_iThem)) or ((not MOD_BALANCE_VP) and (not g_pUsTeam:IsMapTrading()) and (not g_pThemTeam:IsMapTrading())));
+					Controls.ThemPocketTechnology:SetHide((not g_pUs:IsDoF(g_iThem)) or g_bDisableTechTrading);
 					Controls.ThemPocketRevokeVassalage:SetHide(true);
 					Controls.ThemPocketDefensivePact:SetHide(true);
 					Controls.ThemPocketResearchAgreement:SetHide(true);
 					Controls.ThemPocketCities:SetHide(true);
 					Controls.ThemPocketOtherPlayerWar:SetHide(true);
 				end
-				
+
 			-- Don't clear the table, leave things as they are
 			else
-				
+
 				--print("NOT clearing table");
-				
+
 				g_bMessageFromDiploAI = true;
-				
+
 				Controls.DiscussionText:SetText( szLeaderMessage );
 			end
-			
+
 			-- Resize the height of the box to fit the text
 			local contentSize = Controls.DiscussionText:GetSize().y + offsetOfString + bonusPadding;
 			local frameSize = {};
@@ -363,21 +365,21 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 			frameSize.x = outerFrameWidth;
 			frameSize.y = contentSize - offsetsBetweenFrames;
 			Controls.LeaderSpeechFrame:SetSize( frameSize );
-			
+
 			DoUpdateButtons();
-			
+
 		-- Not in trade mode
 		else
-			
+
 			--print("TradeScreen: NOT my mode! Hiding!");
 			--print("iDiploUIState: " .. iDiploUIState);
-			
+
 			g_Deal:ClearItems();
 
 			if (not ContextPtr:IsHidden()) then
 				ContextPtr:SetHide( true );
 			end
-		
+
 		end
 	end
 end
@@ -523,7 +525,6 @@ function OnBack( iType )
 					iDealValue = g_pUs:GetDealMyValue(g_Deal);
 				end
     			Game.DoFromUIDiploEvent( FromUIDiploEventTypes.FROM_UI_DIPLO_EVENT_REQUEST_HUMAN_REFUSAL, g_iThem, iDealValue, 0 );
-			-- Putmalk: What happened when human refused the request?
 			elseif (g_iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_MAKES_GENEROUS_OFFER) then
 				print("refused: generous offer");
 				local iDealValue = 0;
@@ -749,7 +750,7 @@ end
 ---------------------------------------------------------
 function DoUpdateButtons()
 
--- Dealing with a human in a MP game
+	-- Dealing with a human in a MP game
     if (g_bPVPTrade) then
 		
         --print( "PVP Updating ProposeButton" );
@@ -1245,7 +1246,7 @@ function ResetDisplay()
 	local bShowVotes = not g_bDisableLeague;
 	local bShowVassalage = (not bTeammates) and (not g_bDisableVassalage);
 	local bShowLiberation = (not bTeammates) and (not g_bDisableVassalage);
-	local bShowMap = not bTeammates;
+	local bShowMap = (not bTeammates) and (MOD_BALANCE_VP or g_pUsTeam:IsMapTrading() or g_pThemTeam:IsMapTrading());
 	local bShowTechs = (not g_bDisableTechTrading) and (not g_bDisableScience) and (not bTeammates);
 	local bShowOtherPlayers = (not bTeammates) and (not g_bAlwaysPeace) and (not g_bNoChangeWar);
 
@@ -1788,7 +1789,7 @@ function ResetDisplay()
 				Controls.UsPocketDoF:GetTextControl():SetColorByName("Gray_Black");
 				Controls.ThemPocketDoF:SetDisabled(true);
 				Controls.ThemPocketDoF:GetTextControl():SetColorByName("Gray_Black");
-	
+
 				if (g_pUsTeam:IsAtWar(g_iThemTeam)) then
 					strTooltip = strTooltip .. "[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]" .. Locale.ConvertTextKey("TXT_KEY_DIPLO_DECLARATION_OF_FRIENDSHIP_AT_WAR") .. "[ENDCOLOR]";
 				else
@@ -1944,8 +1945,7 @@ function ResetDisplay()
 			if(g_pThem:IsTradeItemValuedImpossible(TradeableItems.TRADE_ITEM_RESOURCES, g_iUs, false, g_iDealDuration, resType, 1)) then
 				strString = "[COLOR_NEGATIVE_TEXT]" .. strString .."[ENDCOLOR]";
 			end
-			-- VP Dutch UA. This use hardcoded stuff ok dont rework the UA or ur stinky add a method or something
-			if (g_pUs:GetCivilizationType() == GameInfoTypes.CIVILIZATION_NETHERLANDS and (g_pUs:GetResourceExport(resType) > 0 or g_pUs:GetResourceImport(resType) > 0) and pResource.ResourceUsage == 2) then
+			if (g_pUs:IsImportsCountTowardsMonopolies() and (g_pUs:GetResourceExport(resType) > 0 or g_pUs:GetResourceImport(resType) > 0) and pResource.ResourceUsage == 2) then
 				strString = "[ICON_CHECKBOX] " .. strString;
 			end
 			instance.Button:SetText(strString);
@@ -3155,7 +3155,7 @@ Controls.ThemGoldAmount:SetVoid1( 0 );
 function PocketGoldPerTurnHandler( isUs )
  	--print("PocketGoldPerTurnHandler")
 
-	local iGoldPerTurn = 5;
+	local iGoldPerTurn = 2;
 	
     if( isUs == 1 ) then
 		
@@ -3661,7 +3661,7 @@ function ChangeResourceAmount( string, control )
     else
         control:SetText( 0 );
     end
-	
+
     -- Can't offer more than someone has
     if (iNumResource > pPlayer:GetNumResourceAvailable(iResourceID, false)) then
 		iNumResource = pPlayer:GetNumResourceAvailable(iResourceID, false);
@@ -3671,7 +3671,7 @@ function ChangeResourceAmount( string, control )
 		iNumResource = 1;
 		control:SetText(iNumResource);
 	end
-	
+
     if ( bIsUs ) then
         g_Deal:ChangeResourceTrade( g_iUs, iResourceID, iNumResource, g_iDealDuration );
     else

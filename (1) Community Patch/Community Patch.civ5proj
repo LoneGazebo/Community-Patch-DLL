@@ -2928,6 +2928,10 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
+    <Content Include="Core Files\Overrides\Includes\TradeLogic.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
     <Content Include="Core Files\Overrides\Includes\TradeRouteHelpers.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
@@ -3957,10 +3961,6 @@
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="LUA\Includes\CityStateStatusHelper.lua">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="LUA\Includes\TradeLogic.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>

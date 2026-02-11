@@ -30,7 +30,7 @@ local g_SelectedMaster = nil;
 -- Add Vassal Overview to Dropdown (if enabled)
 -----------------------------------------------------------------
 LuaEvents.AdditionalInformationDropdownGatherEntries.Add( function(entries)
-	if(not Game.IsOption(GameOptionTypes.GAMEOPTION_NO_VASSALAGE)) then
+	if(Game.IsOption(GameOptionTypes.GAMEOPTION_ENABLE_VASSALAGE)) then
 		table.insert(entries, {
 			text = Locale.Lookup("TXT_KEY_VO"),
 			call = function()
@@ -867,7 +867,7 @@ function OnPopup( popupInfo )
 	if( popupInfo.Type == ButtonPopupTypes.BUTTONPOPUP_MODDER_11 ) then
     	m_PopupInfo = popupInfo;
     	
-		if(not Game.IsOption(GameOptionTypes.GAMEOPTION_NO_VASSALAGE)) then
+		if(Game.IsOption(GameOptionTypes.GAMEOPTION_ENABLE_VASSALAGE)) then
 
 			if( m_PopupInfo.Data1 == 1 ) then
         		if( ContextPtr:IsHidden() == false ) then

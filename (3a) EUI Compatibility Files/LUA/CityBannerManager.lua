@@ -1371,7 +1371,7 @@ local function RefreshCityBannersNow()
 				else
 					otherCivAlpha = 0.5
 					otherCivID = g_activeTeam:IsHasMet( originalCityOwner:GetTeam() ) and originalCityOwnerID
-					if (not Game.IsOption(GameOptionTypes.GAMEOPTION_NO_VASSALAGE) and not Players[originalCityOwnerID]:IsAlive() and Teams[Players[Game.GetActivePlayer()]:GetTeam()]:GetCurrentEra() >= Game.GetVassalageEnabledEra() and Players[Game.GetActivePlayer()]:CanLiberatePlayer(originalCityOwnerID)) then
+					if (Game.IsOption(GameOptionTypes.GAMEOPTION_ENABLE_VASSALAGE) and not Players[originalCityOwnerID]:IsAlive() and Teams[Players[Game.GetActivePlayer()]:GetTeam()]:GetCurrentEra() >= Game.GetVassalageEnabledEra() and Players[Game.GetActivePlayer()]:CanLiberatePlayer(originalCityOwnerID)) then
 							instance.CivIndicator:LocalizeAndSetToolTip( "TXT_KEY_POPUP_CITY_CAPTURE_INFO_LIBERATE_RESURRECT", originalCityOwner:GetCivilizationShortDescription() )
 						elseif (Players[Game.GetActivePlayer()]:CanLiberatePlayer(originalCityOwnerID)) then
 							instance.CivIndicator:LocalizeAndSetToolTip( "TXT_KEY_POPUP_CITY_CAPTURE_INFO_LIBERATE", originalCityOwner:GetCivilizationShortDescription() )
