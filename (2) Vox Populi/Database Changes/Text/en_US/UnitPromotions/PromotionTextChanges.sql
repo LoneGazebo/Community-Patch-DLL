@@ -203,15 +203,15 @@ WHERE Tag = 'TXT_KEY_PROMOTION_SORTIE_HELP';
 
 -- Dogfighting
 UPDATE Language_en_US
-SET Text = '+33% [ICON_STRENGTH] Combat Strength when performing an [COLOR_POSITIVE_TEXT]Air Sweep[ENDCOLOR]. Deal 5 Damage to all [COLOR_POSITIVE_TEXT]Air Units[ENDCOLOR] on or adjacent to the target tile if this Air Sweep is [COLOR_POSITIVE_TEXT]not Intercepted[ENDCOLOR].'
+SET Text = '+33% [ICON_STRENGTH] Combat Strength when performing an [COLOR_POSITIVE_TEXT]Air Sweep[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_PROMOTION_DOGFIGHTING_1_HELP';
 
 UPDATE Language_en_US
-SET Text = '+33% [ICON_STRENGTH] Combat Strength when performing an [COLOR_POSITIVE_TEXT]Air Sweep[ENDCOLOR]. Deal 10 Damage to all [COLOR_POSITIVE_TEXT]Air Units[ENDCOLOR] on or adjacent to the target tile if this Air Sweep is [COLOR_POSITIVE_TEXT]not Intercepted[ENDCOLOR].'
+SET Text = '+33% [ICON_STRENGTH] Combat Strength when performing an [COLOR_POSITIVE_TEXT]Air Sweep[ENDCOLOR]. Deal 5 Damage to all [COLOR_POSITIVE_TEXT]Air Units[ENDCOLOR] on or adjacent to the target tile if this Air Sweep is [COLOR_POSITIVE_TEXT]not Intercepted[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_PROMOTION_DOGFIGHTING_2_HELP';
 
 UPDATE Language_en_US
-SET Text = '+34% [ICON_STRENGTH] Combat Strength when performing an [COLOR_POSITIVE_TEXT]Air Sweep[ENDCOLOR]. Deal 15 Damage to all [COLOR_POSITIVE_TEXT]Air Units[ENDCOLOR] on or adjacent to the target tile if this Air Sweep is [COLOR_POSITIVE_TEXT]not Intercepted[ENDCOLOR].'
+SET Text = '+34% [ICON_STRENGTH] Combat Strength when performing an [COLOR_POSITIVE_TEXT]Air Sweep[ENDCOLOR]. Deal 10 Damage to all [COLOR_POSITIVE_TEXT]Air Units[ENDCOLOR] on or adjacent to the target tile if this Air Sweep is [COLOR_POSITIVE_TEXT]not Intercepted[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_PROMOTION_DOGFIGHTING_3_HELP';
 
 -- Siege (Air)
