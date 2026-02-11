@@ -1094,7 +1094,7 @@
 			<Text>Timeless Epics</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PALACE_THEMING_BONUS_HELP">
-			<Text>To maximize your bonus, make sure all Great Works meet one of the following criteria:[NEWLINE]1.) Both from the same Era[NEWLINE]2.) Both from different Eras.</Text>
+			<Text>To maximize your bonus, make sure all Great Works meet one of the following criteria:[NEWLINE]1.) All from the same Era[NEWLINE]2.) All from different Eras.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_THEMING_BONUS_AMPHITHEATER_NATIONAL">
