@@ -239,7 +239,7 @@
 			<Text>Chancery</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_CHANCERY_STRATEGY">
-			<Text>Increases Diplomatic Unit production speed and increases the amount of Influence received for Diplomatic Units built in the city. The Civil Servant specialist of this building offers a little [ICON_CULTURE] Culture, [ICON_RESEARCH] Science and [ICON_GOLD] Gold, in exchange for [ICON_FOOD] Food. The additional yields from City-State Allies increases the value of positive City-State relations during the mid-game.</Text>
+			<Text>Increases Diplomatic Unit production speed and increases the amount of Influence received for Diplomatic Units built in the city. The Civil Servant specialist of this building offers a little [ICON_CULTURE] Culture, [ICON_RESEARCH] Science and [ICON_GOLD] Gold, in exchange for [ICON_FOOD] Food. The additional yields from City-State Friends and Allies increases the value of positive City-State relations during the mid-game.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_CHANCERY_HELP">
 			<Text></Text>
