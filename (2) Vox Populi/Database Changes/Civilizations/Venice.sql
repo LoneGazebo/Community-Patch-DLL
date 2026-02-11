@@ -129,6 +129,12 @@ INSERT INTO Unit_ClassUpgrades
 VALUES
 	('UNIT_FUSTA', 'UNITCLASS_FRIGATE');
 
+-- Liburna don't upgrade to Galleass class (Great Galleass), instead to Fusta
+INSERT INTO Trait_UnitClassUpgrade
+	(TraitType, UnitClassType, UnitType)
+VALUES
+	('TRAIT_SUPER_CITY_STATE', 'UNITCLASS_FUSTA', 'UNIT_LIBURNA');
+
 INSERT INTO Unit_FreePromotions
 	(UnitType, PromotionType)
 VALUES

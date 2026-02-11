@@ -1638,7 +1638,7 @@
 			<Text>Fusta, or galliots, were small galleys with no more than 35 sailors. Exceptionally light and fast, the Venetians originally used them to maintain a standing navy against pirates, but the ship quickly became a favorite of the pirates themselves. The shallow draft, maneuverability and speed of the Fusta made them a legend throughout the Mediterranean.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_FUSTA_STRATEGY">
-			<Text></Text>
+			<Text>Fusta are to Venice as the Galleass is to other Civilizations, and Venetian Liburna upgrade to the Fusta rather than the Great Galleass. The Fusta is not really a direct replacement, having a slightly weaker ranged strength is compensated by a lower cost and additional movement point. However its truly unique feature is costing no military supply, meaning you can pump out an enormous fleet of Fusta to swarm your opponents, protect your larger and slower ships, and extend your naval presence to every corner of the world's oceans.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_GREAT_GALLEASS_01">
 			<Text>la nave Armera</Text>
