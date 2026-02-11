@@ -618,6 +618,8 @@ UPDATE UnitPromotions SET MovesChange = 2 WHERE Type = 'PROMOTION_SACRED_STEPS';
 
 UPDATE UnitPromotions SET FriendlyHealChange = 5, NeutralHealChange = 5, EnemyHealChange = 5 WHERE Type = 'PROMOTION_EVERLASTING_YOUTH';
 
+UPDATE UnitPromotions_Terrains SET DoubleMove = 0 WHERE PromotionType = 'PROMOTION_ALTITUDE_TRAINING';
+
 --------------------------------------------
 -- Building free promotions
 --------------------------------------------
