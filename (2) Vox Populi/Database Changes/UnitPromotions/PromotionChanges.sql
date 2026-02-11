@@ -887,7 +887,7 @@ UPDATE UnitPromotions SET GreatGeneralCombatModifier = 25 WHERE Type = 'PROMOTIO
 UPDATE UnitPromotions SET HPHealedIfDestroyEnemy = 25 WHERE Type = 'PROMOTION_PARTIAL_HEAL_IF_DESTROY_ENEMY';
 
 -- Hakkapeliitta: Hakkaa Päälle!
-UPDATE UnitPromotions SET AttackAbove50HealthMod = 30 WHERE Type = 'PROMOTION_HAKKAA_PAALLE';
+UPDATE UnitPromotions SET AttackAbove50HealthMod = 50 WHERE Type = 'PROMOTION_HAKKAA_PAALLE';
 
 -- Foreign Legion: Foreign Lands Bonus
 UPDATE UnitPromotions SET OutsideFriendlyLandsModifier = 20 WHERE Type = 'PROMOTION_FOREIGN_LANDS';
