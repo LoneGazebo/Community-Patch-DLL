@@ -1127,7 +1127,14 @@ VALUES
 	('PROMOTION_HOOKED_WEAPON', 'UNITCOMBAT_MOUNTED', 25);
 
 -- Oromo Cavalry: Zemene Mesafint
-UPDATE UnitPromotions SET VsUnhappyMod = 20 WHERE Type = 'PROMOTION_ZEMENE_MESAFINT';
+INSERT INTO UnitPromotions_Terrains
+	(PromotionType, TerrainType, DoubleMove)
+VALUES
+	('PROMOTION_ZEMENE_MESAFINT', 'TERRAIN_HILL', 1);
+INSERT INTO UnitPromotions_TerrainModifiers
+	(PromotionType, TerrainType, Attack, Defense)
+VALUES
+	('PROMOTION_ZEMENE_MESAFINT', 'TERRAIN_HILL', 25, 25);
 
 -- Krupp Gun: Minenwerfer
 UPDATE UnitPromotions SET AttackFortifiedMod = 50, PillageFortificationsOnKill = 1 WHERE Type = 'PROMOTION_MINENWERFER';
