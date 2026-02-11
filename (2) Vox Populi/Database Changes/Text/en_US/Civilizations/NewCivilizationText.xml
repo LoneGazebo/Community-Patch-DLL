@@ -343,17 +343,17 @@
 			<Text></Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_UNIT_ASAMU">
-			<Text>Asamu</Text>
+		<Row Tag="TXT_KEY_BUILDING_TOPHET">
+			<Text>Tophet</Text>
 		</Row>
-		<Row Tag="TXT_KEY_UNIT_ASAMU_HELP">
+		<Row Tag="TXT_KEY_BUILDING_TOPHET_HELP">
 			<Text></Text>
 		</Row>
-		<Row Tag="TXT_KEY_UNIT_ASAMU_TEXT">
-			<Text>In contrast to most Phoenician colonies, Carthage grew larger and more quickly thanks to its combination of favorable climate, arable land, and lucrative trade routes. Within just one century of its founding, its population rose to 30,000. Though the specific date and circumstances are unknown, Carthage became independent in the middle of the 6th century BC. It had grown into a fully independent thalassocracy, embarking its own colonization efforts across the western Mediterranean. Carthage became an expansionist power, driven by its desire to access new sources of wealth and trade. By 300 BC, through its vast patchwork of colonies, vassals, and satellite states, held together by its naval dominance of the western and central Mediterranean Sea, Carthage controlled the largest territory in the region, including the coast of northwestern Africa, southern and eastern Iberia, and the islands of Sicily, Sardinia, Corsica, Malta, and the Balearic Islands.</Text>
+		<Row Tag="TXT_KEY_BUILDING_TOPHET_TEXT">
+			<Text>"Tophet" is a Hebrew term for a place of worship and human sacrifice to the Canaanite gods, and has become a colorful synonym for hell within Judeo-Christian theology. Usually located outside cities, Tophets were holy places where sacrifices could be presented to gods of the Phoenician pantheon.[NEWLINE][NEWLINE]Regular sacrifices were made to ensure the prosperity of Carthage and the ashes of burnt offerings were sealed within the Tophet. Child sacrifice, once prevalent throughout the Near-East, was a persistent hallmark of Carthaginian religious life long after contemporary cultures had shunned the practice. Modern archaeological evidence suggests children were sacrificed in times of great stress such as wars, plagues, and natural disasters as an act of divine supplication.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_UNIT_ASAMU_STRATEGY">
-			<Text>The Asamu allows for more aggressive settling, but requires very high [ICON_GOLD] Gold generation, as it cannot be produced but only be purchased for a lot of [ICON_GOLD] Gold. Because purchasing one doesn't decrease Population like producing a Settler does, a major bottleneck on the speed of settling early game is replaced by [ICON_GOLD] Gold generation. Therefore, consider gathering as much [ICON_GOLD] Gold as possible early game from your Unique Ability, destroying Barbarian Encampments, exploring Ancient Ruins, and working [ICON_GOLD] Gold tiles to then settle at a high pace. Because Asamu can retreat from melee attack once per turn, it can travel though barbarain terriory without escort, unless two Units can attack it. Additionally, since Asamu can embark without having the Fishing Technology, you can claim valuable islands before your rivals. You can couple that with producing Settlers at the same time. This way, you can secure many great City locations with many Luxury Resources, synergizing with your Unique Ability.</Text>
+		<Row Tag="TXT_KEY_BUILDING_TOPHET_STRATEGY">
+			<Text>The Tophet is the unique Shrine replacement for Carthage. In addition to the normal bonuses of a Shrine, the Tophet provides Culture whenever Gold is spent in the City. Therefore, you want to avoid spending your early Gold in a City before it has a Tophet constructed. In effect, the value of Gold and Faith are increased by a percentage, increasing their value from all sources. Helpfully, the Tophet also provides a steady trickle of Gold, allowing more purchases throughout the game.</Text>
 		</Row>
 
 		<!-- Celts -->
