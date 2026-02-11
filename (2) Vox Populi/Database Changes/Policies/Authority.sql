@@ -31,11 +31,6 @@ SET
 	BarbarianCombatBonus = 25
 WHERE Type = 'POLICY_HONOR';
 
-INSERT INTO Policy_CityYieldChanges
-	(PolicyType, YieldType, Yield)
-VALUES
-	('POLICY_HONOR', 'YIELD_PRODUCTION', 1);
-
 INSERT INTO Policy_YieldFromKills
 	(PolicyType, YieldType, Yield)
 VALUES
@@ -102,7 +97,8 @@ WHERE Type = 'POLICY_MILITARY_TRADITION';
 INSERT INTO Policy_YieldPerCityOverStrengthThreshold
 	(PolicyType, YieldType, Yield)
 VALUES
-	('POLICY_MILITARY_TRADITION', 'YIELD_CULTURE', 2);
+	('POLICY_MILITARY_TRADITION', 'YIELD_CULTURE', 2),
+	('POLICY_MILITARY_TRADITION', 'YIELD_PRODUCTION', 2);
 
 -- Military Caste (Now Dominance)
 UPDATE Policies
