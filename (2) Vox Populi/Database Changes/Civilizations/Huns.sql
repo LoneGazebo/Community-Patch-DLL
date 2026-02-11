@@ -15,8 +15,8 @@ DELETE FROM Trait_ImprovementYieldChanges WHERE TraitType = 'TRAIT_RAZE_AND_HORS
 INSERT INTO Trait_YieldFromCityDamageTimes100
 	(TraitType, YieldType, Yield)
 VALUES
-	('TRAIT_RAZE_AND_HORSES', 'YIELD_GOLD', 33),
-	('TRAIT_RAZE_AND_HORSES', 'YIELD_CULTURE', 33);
+	('TRAIT_RAZE_AND_HORSES', 'YIELD_GOLD', 34),
+	('TRAIT_RAZE_AND_HORSES', 'YIELD_CULTURE', 34);
 
 ----------------------------------------------------------
 -- Unique Unit: Horse Archer (Skirmisher)
