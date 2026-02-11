@@ -156,7 +156,7 @@ WHERE Tag = 'TXT_KEY_PROMOTION_WOODSMAN_HELP';
 
 -- Logistics
 UPDATE Language_en_US
-SET Text = '+1 [ICON_WAR] Attack.[NEWLINE]-30% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking.'
+SET Text = '+1 [ICON_WAR] Attack.[NEWLINE]-20% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking.'
 WHERE Tag = 'TXT_KEY_PROMOTION_LOGISTICS_HELP';
 
 -- Range

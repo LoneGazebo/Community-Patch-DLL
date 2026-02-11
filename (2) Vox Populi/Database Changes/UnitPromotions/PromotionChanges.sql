@@ -111,7 +111,7 @@ UPDATE UnitPromotions SET AttackAbove50HealthMod = 25 WHERE Type = 'PROMOTION_FI
 
 UPDATE UnitPromotions SET OutsideFriendlyLandsModifier = 15, AttackWoundedMod = 15, NoAdjacentUnitMod = 10 WHERE Type = 'PROMOTION_INFILTRATORS';
 
-UPDATE UnitPromotions SET ExtraAttacks = 1, RangedAttackModifier = -30 WHERE Type = 'PROMOTION_LOGISTICS';
+UPDATE UnitPromotions SET ExtraAttacks = 1, RangedAttackModifier = -20 WHERE Type = 'PROMOTION_LOGISTICS';
 
 -- Archer only
 UPDATE UnitPromotions SET RangeChange = 1, RangedAttackModifier = -20, MinimumRangeRequired = 2 WHERE Type = 'PROMOTION_RANGE';
