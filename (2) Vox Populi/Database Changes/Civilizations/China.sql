@@ -27,13 +27,13 @@ SET
 			)
 		)
 	),
-	RangedCombat = (SELECT RangedCombat FROM Units WHERE Type = 'UNIT_CROSSBOWMAN') + 1
+	Combat = (SELECT RangedCombat FROM Units WHERE Type = 'UNIT_CROSSBOWMAN') + 1
 WHERE Type = 'UNIT_CHINESE_CHUKONU';
 
 INSERT INTO Unit_FreePromotions
 	(UnitType, PromotionType)
 VALUES
-	('UNIT_CHINESE_CHUKONU', 'PROMOTION_SIEGE_VOLLEY');
+	('UNIT_CHINESE_CHUKONU', 'PROMOTION_LOGISTICS');
 
 ----------------------------------------------------------
 -- Unique Unit: Treasure Ship (Frigate)
