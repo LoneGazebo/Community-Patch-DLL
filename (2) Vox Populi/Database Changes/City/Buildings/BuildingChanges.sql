@@ -1252,10 +1252,17 @@ SELECT
 FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_CHANCERY';
 
+INSERT INTO Building_YieldPerFriendTimes100
+	(BuildingType, YieldType, Yield)
+SELECT
+	Type, 'YIELD_PRODUCTION', 50
+FROM Buildings
+WHERE BuildingClass = 'BUILDINGCLASS_CHANCERY';
+
 INSERT INTO Building_YieldPerAllyTimes100
 	(BuildingType, YieldType, Yield)
 SELECT
-	Type, 'YIELD_PRODUCTION', 200
+	Type, 'YIELD_PRODUCTION', 100
 FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_CHANCERY';
 
