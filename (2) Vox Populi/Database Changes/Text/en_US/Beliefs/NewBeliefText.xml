@@ -83,7 +83,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_BELIEF_COMMUNALISM">
-			<Text>[ICON_FOOD] Food and [ICON_PRODUCTION] Production Internal Trade Routes generate +3 of their respective yields, scaling with Era. +2 [ICON_PRODUCTION] Production if City has a Specialist.</Text>
+			<Text>[ICON_FOOD] Food and [ICON_PRODUCTION] Production Internal Trade Routes generate +3 of their respective yields, scaling with Era. +2 [ICON_FOOD] Food and [ICON_PRODUCTION] Production if the City has a Specialist.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_COMMUNALISM_SHORT">
 			<Text>Cooperation</Text>
