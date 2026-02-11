@@ -1087,6 +1087,16 @@
 		</Row>
 
 		<!-- Theming bonuses flavor text -->
+		<Row Tag="TXT_KEY_THEMING_BONUS_PALACE_1">
+			<Text></Text>
+		</Row>
+		<Row Tag="TXT_KEY_THEMING_BONUS_PALACE_2">
+			<Text>Timeless Epics</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PALACE_THEMING_BONUS_HELP">
+			<Text>To maximize your bonus, make sure all Great Works meet one of the following criteria:[NEWLINE]1.) Both from the same Era[NEWLINE]2.) Both from different Eras.</Text>
+		</Row>
+
 		<Row Tag="TXT_KEY_THEMING_BONUS_AMPHITHEATER_NATIONAL">
 			<Text>National Epics</Text>
 		</Row>

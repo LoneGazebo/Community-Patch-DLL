@@ -1,8 +1,3 @@
--- Palace
-UPDATE Language_en_US
-SET Text = 'Automatically built in [ICON_CAPITAL] Capitals.'
-WHERE Tag = 'TXT_KEY_BUILDING_PALACE_HELP';
-
 -- Water Mill
 UPDATE Language_en_US
 SET Text = 'The Water Mill can only be constructed in a City located next to a river. The Water Mill increases the City''s [ICON_PRODUCTION] Production more efficiently (per Citizen in the City) than the Well.'
@@ -352,6 +347,12 @@ WHERE Tag = 'TXT_KEY_BUILDING_CIVILIZED_JEWELERS_FRANCHISE_HELP';
 
 -- Theming bonuses
 UPDATE Language_en_US 
+SET Text = 'Automatically built in [ICON_CAPITAL] Capitals.[NEWLINE]Possible Theming Bonuses:
+  [NEWLINE][ICON_BULLET] +6 [ICON_CULTURE] and [ICON_TOURISM] for three [ICON_GW_WRITING] Great Works of Writing from the [COLOR_CYAN]same Era[ENDCOLOR].
+  [NEWLINE][ICON_BULLET] +6 [ICON_CULTURE] and [ICON_TOURISM] for three [ICON_GW_WRITING] Great Works of Writing from [COLOR_CYAN]different Eras[ENDCOLOR].'
+WHERE Tag = 'TXT_KEY_BUILDING_PALACE_HELP';
+
+UPDATE Language_en_US 
 SET Text = 'Possible Theming Bonuses:
   [NEWLINE][ICON_BULLET] +4 [ICON_CULTURE] and [ICON_TOURISM] for two [COLOR_POSITIVE_TEXT]Domestic[ENDCOLOR] [ICON_GW_WRITING] Great Works of Writing.
   [NEWLINE][ICON_BULLET] +4 [ICON_CULTURE] and [ICON_TOURISM] for two [COLOR_POSITIVE_TEXT]Foreign[ENDCOLOR] [ICON_GW_WRITING] Great Works of Writing.'
@@ -408,6 +409,10 @@ SET Text = 'Possible Theming Bonuses:
 WHERE Tag = 'TXT_KEY_WONDER_UFFIZI_HELP';
 
 -- Theming bonus flavor text
+UPDATE Language_en_US
+SET Text = '{1_EraAdjective} Epics'
+WHERE Tag = 'TXT_KEY_THEMING_BONUS_PALACE_1';
+
 UPDATE Language_en_US
 SET Text = '{2_CivAdjective} Museum of the {1_EraAdjective} Era'
 WHERE Tag = 'TXT_KEY_THEMING_BONUS_MUSEUM_5';
