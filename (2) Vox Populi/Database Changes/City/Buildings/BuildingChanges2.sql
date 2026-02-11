@@ -497,7 +497,6 @@ VALUES
 UPDATE Buildings
 SET
 	InstantMilitaryIncrease = 0,
-	WorkerSpeedModifier = 25,
 	CitySupplyFlat = 5
 WHERE Type = 'BUILDING_TERRACOTTA_ARMY';
 
@@ -567,6 +566,7 @@ VALUES
 UPDATE Buildings
 SET
 	ObsoleteTech = 'TECH_GUNPOWDER',
+	WorkerSpeedModifier = 25,
 	CitySupplyFlat = 3
 WHERE Type = 'BUILDING_GREAT_WALL';
 
