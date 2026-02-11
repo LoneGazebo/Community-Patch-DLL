@@ -248,7 +248,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_TITHE';
 
 -- Asceticism
 UPDATE Language_en_US
-SET Text = '+1 [ICON_FOOD] Food for every follower in the City (max +15 [ICON_FOOD] Food).'
+SET Text = '+1 [ICON_FOOD] Food for every 2 followers in the City. +4 [ICON_FOOD] Food if the City has a Specialist.'
 WHERE Tag = 'TXT_KEY_BELIEF_ASCETISM';
 
 -- Cathedrals
@@ -277,7 +277,7 @@ SET Text = 'Creativity'
 WHERE Tag = 'TXT_KEY_BELIEF_DIVINE_INSPIRATION_SHORT';
 
 UPDATE Language_en_US
-SET Text = '+1 [ICON_CULTURE] Culture for every 3 followers in the City (max +6 [ICON_CULTURE] Culture), and +2 [ICON_PEACE] Faith if you have at least one Specialist in the City.'
+SET Text = '+1 [ICON_CULTURE] Culture for every 3 followers in the City. +1 [ICON_CULTURE] Culture from [ICON_GREAT_WORK] Great Works.'
 WHERE Tag = 'TXT_KEY_BELIEF_DIVINE_INSPIRATION';
 
 UPDATE Language_en_US
@@ -285,7 +285,7 @@ SET Text = 'Diligence'
 WHERE Tag = 'TXT_KEY_BELIEF_RELIGIOUS_COMMUNITY_SHORT';
 
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PRODUCTION] Production for every 2 followers in the City (max +15 [ICON_PRODUCTION] Production).'
+SET Text = '+1 [ICON_PRODUCTION] Production for every 2 followers in the City. +2 [ICON_PRODUCTION] Production per active [ICON_INTERNATIONAL_TRADE] Trade Route to or from the City.'
 WHERE Tag = 'TXT_KEY_BELIEF_RELIGIOUS_COMMUNITY';
 
 UPDATE Language_en_US
@@ -301,7 +301,7 @@ SET Text = 'Mastery'
 WHERE Tag = 'TXT_KEY_BELIEF_RELIGIOUS_ART_SHORT';
 
 UPDATE Language_en_US
-SET Text = 'Specialists generate +1 [ICON_GOLDEN_AGE] Golden Age Point and +1 of their primary Yield ([ICON_RESEARCH] Scientist, [ICON_GOLD] Merchant/Civil Servant, [ICON_PRODUCTION] Engineer, [ICON_CULTURE] Writer/Artist/Musician).'
+SET Text = 'Specialists generate +1 [ICON_GOLDEN_AGE] Golden Age Point and +1 of their primary Yield ([ICON_SCIENTIST]:[ICON_RESEARCH], [ICON_MERCHANT]/[ICON_CIVIL_SERVANT]:[ICON_GOLD], [ICON_ENGINEER]:[ICON_PRODUCTION], [ICON_WRITER]/[ICON_ARTIST]/[ICON_MUSICIAN]:[ICON_CULTURE]).'
 WHERE Tag = 'TXT_KEY_BELIEF_RELIGIOUS_ART';
 
 -- Mosques
@@ -327,7 +327,7 @@ SET Text = 'Scholarship'
 WHERE Tag = 'TXT_KEY_BELIEF_CHORAL_MUSIC_SHORT';
 
 UPDATE Language_en_US
-SET Text = '+1 [ICON_RESEARCH] Science for every 2 followers in the City (max +15 [ICON_RESEARCH] Science).'
+SET Text = '+1 [ICON_RESEARCH] Science for every 3 followers in the City. +2 [ICON_RESEARCH] Science from Universities.'
 WHERE Tag = 'TXT_KEY_BELIEF_CHORAL_MUSIC';
 
 UPDATE Language_en_US
@@ -351,7 +351,7 @@ SET Text = 'Thrift'
 WHERE Tag = 'TXT_KEY_BELIEF_FEED_WORLD_SHORT';
 
 UPDATE Language_en_US
-SET Text = '+1 [ICON_GOLD] Gold for every follower in the City (max +10 [ICON_GOLD] Gold).'
+SET Text = '+1 [ICON_GOLD] Gold for every 2 followers in the City. +1 [ICON_GOLD] Gold from [COLOR_POSITIVE_TEXT]Bonus Resources[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_BELIEF_FEED_WORLD';
 
 UPDATE Language_en_US
