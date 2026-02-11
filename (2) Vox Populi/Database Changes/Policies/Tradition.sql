@@ -82,7 +82,6 @@ UPDATE Policies
 SET
 	GarrisonedCityRangeStrikeModifier = 0,
 	GarrisonFreeMaintenance = 0,
-	PlotCultureExponentModifier = -20,
 	PortraitIndex = 59
 WHERE Type = 'POLICY_OLIGARCHY';
 
