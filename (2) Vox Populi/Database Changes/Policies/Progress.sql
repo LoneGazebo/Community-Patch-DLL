@@ -22,15 +22,20 @@ SET
 	OneShot = 1
 WHERE Type = 'POLICY_LIBERTY';
 
-INSERT INTO Policy_YieldFromBirthCapital
+INSERT INTO Policy_YieldFromBirth
 	(PolicyType, YieldType, Yield)
 VALUES
-	('POLICY_LIBERTY', 'YIELD_SCIENCE', 20);
+	('POLICY_LIBERTY', 'YIELD_SCIENCE', 10);
 
 INSERT INTO Policy_YieldFromBirthCapitalRetroactive
 	(PolicyType, YieldType, Yield)
 VALUES
-	('POLICY_LIBERTY', 'YIELD_SCIENCE', 15);
+	('POLICY_LIBERTY', 'YIELD_SCIENCE', 10);
+
+INSERT INTO Policy_InstantYield
+	(PolicyType, YieldType, Yield)
+VALUES
+	('POLICY_LIBERTY', 'YIELD_SCIENCE', 75);
 
 INSERT INTO Policy_YieldFromTech
 	(PolicyType, YieldType, Yield)
