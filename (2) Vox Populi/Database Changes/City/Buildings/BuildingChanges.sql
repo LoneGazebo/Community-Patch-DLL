@@ -1707,6 +1707,21 @@ WHERE a.BuildingClass = 'BUILDINGCLASS_STABLE';
 
 DELETE FROM Helper;
 
+-- Observatory
+UPDATE Buildings SET Mountain = 0 WHERE Type = 'BUILDING_OBSERVATORY';
+
+INSERT INTO Building_YieldChanges
+	(BuildingType, YieldType, Yield)
+SELECT
+	Type, 'YIELD_SCIENCE', 4
+FROM Buildings
+WHERE BuildingClass = 'BUILDINGCLASS_OBSERVATORY';
+
+INSERT INTO Building_YieldPerXTerrainTimes100
+	(BuildingType, TerrainType, YieldType, Yield)
+VALUES
+	('BUILDING_OBSERVATORY', 'TERRAIN_MOUNTAIN', 'YIELD_SCIENCE', 100);
+
 -- Windmill
 UPDATE Buildings
 SET
