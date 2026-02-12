@@ -460,7 +460,7 @@ SET Text = 'Industry'
 WHERE Tag = 'TXT_KEY_POLICY_BRANCH_COMMERCE';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Industry[ENDCOLOR] augments yields from common Improvements, Buildings, and Resources. It increases the value of [ICON_INVEST] Investments and Purchases, accrues additional, stronger [ICON_INTERNATIONAL_TRADE] Trade Routes, and enhances [ICON_GREAT_MERCHANT] Great Merchants.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting Industry grants:[ENDCOLOR][NEWLINE][ICON_BULLET]+2 [ICON_INTERNATIONAL_TRADE] Trade Routes.[NEWLINE][ICON_BULLET]-5% [ICON_INVEST] Gold needed for purchases.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Each Industry policy unlocked grants:[ENDCOLOR][NEWLINE][ICON_BULLET]-5% [ICON_INVEST] Gold needed for purchases.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting all Policies in Industry grants:[ENDCOLOR][NEWLINE][ICON_BULLET]Unlocks building [COLOR_POSITIVE_TEXT]Broadway[ENDCOLOR].[NEWLINE][ICON_BULLET]+3 [ICON_HAPPINESS_1] Happiness per unique owned Luxury Resource.[NEWLINE][ICON_BULLET]+2 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold from Specialists.[NEWLINE][ICON_BULLET]Allows for the purchase of [ICON_GREAT_MERCHANT] Great Merchants with [ICON_PEACE] Faith starting in the Industrial Era.'
+SET Text = '[COLOR_POSITIVE_TEXT]Industry[ENDCOLOR] augments yields from common Improvements, Buildings, and Resources. It increases the value of [ICON_INVEST] Investments and Purchases, accrues additional, stronger [ICON_INTERNATIONAL_TRADE] Trade Routes, and enhances [ICON_GREAT_MERCHANT] Great Merchants.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting Industry grants:[ENDCOLOR][NEWLINE][ICON_BULLET]+100% [ICON_PRODUCTION] Production towards Coaling Stations.[NEWLINE][ICON_BULLET]Earn [ICON_GREAT_MERCHANT] Great Merchants 50% faster.[NEWLINE][ICON_BULLET]-10% [ICON_INVEST] Gold needed for purchases.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Each Industry policy unlocked grants:[ENDCOLOR][NEWLINE][ICON_BULLET]-5% [ICON_INVEST] Gold needed for purchases.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting all Policies in Industry grants:[ENDCOLOR][NEWLINE][ICON_BULLET]Unlocks building [COLOR_POSITIVE_TEXT]Broadway[ENDCOLOR].[NEWLINE][ICON_BULLET]+3 [ICON_HAPPINESS_1] Happiness per unique owned Luxury Resource.[NEWLINE][ICON_BULLET]+2 [ICON_RESEARCH] Science and +1 [ICON_PRODUCTION] Production from Bonus Resources.[NEWLINE][ICON_BULLET]Allows for the purchase of [ICON_GREAT_MERCHANT] Great Merchants with [ICON_PEACE] Faith starting in the Industrial Era.'
 WHERE Tag = 'TXT_KEY_POLICY_BRANCH_COMMERCE_HELP';
 
 UPDATE Language_en_US
@@ -472,7 +472,7 @@ SET Text = 'Division of Labor'
 WHERE Tag = 'TXT_KEY_POLICY_TRADE_UNIONS';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Division of Labor[ENDCOLOR][NEWLINE][ICON_BULLET]+3% [ICON_PRODUCTION] Production and [ICON_GOLD] Gold from Forges, Windmills, Workshops, Factories, and Coaling Stations.[NEWLINE][ICON_BULLET]+100% [ICON_PRODUCTION] Production towards Coaling Stations.'
+SET Text = '[COLOR_POSITIVE_TEXT]Division of Labor[ENDCOLOR][NEWLINE][ICON_BULLET]+2 [ICON_PRODUCTION] Production and [ICON_CULTURE] Culture from Workshops, Windmills, Coaling Stations, and Factories.[NEWLINE][ICON_BULLET]+5 [ICON_GOLD] Gold from [ICON_INTERNATIONAL_TRADE] International Trade Routes.'
 WHERE Tag = 'TXT_KEY_POLICY_TRADE_UNIONS_HELP';
 
 UPDATE Language_en_US
@@ -480,28 +480,36 @@ SET Text = 'The division of labor is the specialization of cooperating individua
 WHERE Tag = 'TXT_KEY_POLICY_TRADEUNIONS_TEXT';
 
 UPDATE Language_en_US
-SET Text = 'Free Trade'
+SET Text = 'Subsidies'
 WHERE Tag = 'TXT_KEY_POLICY_CARAVANS';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Free Trade[ENDCOLOR][NEWLINE][ICON_BULLET]Earn [ICON_GREAT_MERCHANT] Great Merchants 50% faster.[NEWLINE][ICON_BULLET]+5 [ICON_GOLD] Gold from [ICON_INTERNATIONAL_TRADE] International Trade Routes.[NEWLINE][ICON_BULLET]-2 [ICON_HAPPINESS_3] Unhappiness from [ICON_GOLD] Poverty in all Cities.'
+SET Text = '[COLOR_POSITIVE_TEXT]Subsidies[ENDCOLOR][NEWLINE][ICON_BULLET]-50% [ICON_GOLD] Route Maintenance.[NEWLINE][ICON_BULLET]Cities earn +15 [ICON_RESEARCH] Science when they construct Buildings, scaling with Era.[NEWLINE][ICON_BULLET]+1 [ICON_HAPPINESS_1] Happiness from {TXT_KEY_BUILDING_WINDMILL}.'
 WHERE Tag = 'TXT_KEY_POLICY_CARAVANS_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Free trade is a policy followed by some international markets in which governments do not restrict imports from or exports to other countries. Free trade is exemplified by the European Economic Area and the North American Free Trade Agreement, which have established open markets. Most nations are today members of the World Trade Organization (WTO) multilateral trade agreements. However, most governments still impose some protectionist policies that are intended to support local employment, such as applying tariffs to imports or subsidies to exports. Governments may also restrict free trade to limit exports of natural resources. Other barriers that may hinder trade include import quotas, taxes, and non-tariff barriers, such as regulatory legislation.'
+SET Text = 'A subsidy is any financial aid provided by a government to a producer or seller of a good or service that is designed to increase the competitiveness of a particular industry firm or entire industry. An employment subsidy can protect jobs in a crisis, a transport subsidy can open up new transport routes, and an export subsidy can be used to pursue a policy of mercantilism.'
 WHERE Tag = 'TXT_KEY_POLICY_CARAVANS_TEXT';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Mercantilism[ENDCOLOR][NEWLINE][ICON_BULLET]+3% [ICON_RESEARCH] Science and [ICON_CULTURE] Culture from Markets, Caravansaries, Customs Houses, Banks, and Stock Exchanges.[NEWLINE][ICON_BULLET]Cities earn +10 [ICON_RESEARCH] Science when they construct Buildings, scaling with Era. '
+SET Text = '[COLOR_POSITIVE_TEXT]Mercantilism[ENDCOLOR][NEWLINE][ICON_BULLET]+2 [ICON_RESEARCH] Science and [ICON_GOLD] Gold from Customs Houses, Banks, Hotels, and Stock Exchanges.[NEWLINE][ICON_BULLET]+2 [ICON_INTERNATIONAL_TRADE] Trade Routes.'
 WHERE Tag = 'TXT_KEY_POLICY_MERCANTILISM_HELP';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Entrepreneurship[ENDCOLOR][NEWLINE][ICON_BULLET]+1 [ICON_HAPPINESS_1] Happiness from Workshops.[NEWLINE][ICON_BULLET]+2 [ICON_PRODUCTION] Production and +1 [ICON_GOLD] Gold from every Mine, Quarry, and Lumber Mill.[NEWLINE][ICON_BULLET]+25% Yields when you expend [ICON_GREAT_MERCHANT] Great Merchants or [ICON_GREAT_ENGINEER] Great Engineers for their Instant Yield abilities.'
+SET Text = '[COLOR_POSITIVE_TEXT]Entrepreneurship[ENDCOLOR][NEWLINE][ICON_BULLET]+2 [ICON_PRODUCTION] Production and +1 [ICON_GOLD] Gold from every Mine, Farm, and Lumber Mill.[NEWLINE][ICON_BULLET]+2 [ICON_GOLD] Gold and +1 [ICON_CULTURE] Culture from every Village.[NEWLINE][ICON_BULLET]+3 [ICON_FOOD] Food and [ICON_CULTURE] Culture from every Town.'
 WHERE Tag = 'TXT_KEY_POLICY_ENTREPRENEURSHIP_HELP';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Protectionism[ENDCOLOR][NEWLINE][ICON_BULLET][ICON_INVEST] Gold investments in Buildings reduce their [ICON_PRODUCTION] Production cost by an additional 10%.[NEWLINE][ICON_BULLET]+33% Yields from Internal [ICON_INTERNATIONAL_TRADE] Trade Routes.[NEWLINE][ICON_BULLET]+10% [ICON_FOOD] Food and [ICON_RESEARCH] Science during "[COLOR_POSITIVE_TEXT]We Love the King Day[ENDCOLOR]."'
+SET Text = 'Gold Standard'
+WHERE Tag = 'TXT_KEY_POLICY_PROTECTIONISM';
+
+UPDATE Language_en_US
+SET Text = '[COLOR_POSITIVE_TEXT]Gold Standard[ENDCOLOR][NEWLINE][ICON_BULLET][ICON_INVEST] Gold investments in Buildings reduce their [ICON_PRODUCTION] Production cost by an additional 10%.[NEWLINE][ICON_BULLET]+10% [ICON_GOLD] Gold and [ICON_CULTURE] Culture during "[COLOR_POSITIVE_TEXT]We Love the King Day[ENDCOLOR]".[NEWLINE][ICON_BULLET]+25% Instant Yields from [ICON_GREAT_MERCHANT] Great Merchants.'
 WHERE Tag = 'TXT_KEY_POLICY_PROTECTIONISM_HELP';
+
+UPDATE Language_en_US
+SET Text = 'Throughout history, precious metals have formed the basis of (commodity) money. As large sums became traded more commonly, representative money in the form of notes and certificates became the main medium of exchange. In this context, a gold standard is a monetary system in which representative money is exchangable for a fixed quantity of gold bullion. This was done to maintain stable exchange rates and limit inflation, although these effects are not guaranteed and the choice comes with significant monetary policy implications. The gold standard was the basis for the international monetary system from the 1870s to the early 1920s, and intermittently until 1971 when the world''s reserve currency, the US dollar, terminated its convertibility policy.'
+WHERE Tag = 'TXT_KEY_POLICY_PROTECTIONISM_TEXT';
 
 --------------------
 -- Imperialism
