@@ -11,6 +11,7 @@
 	<style name="GroupBorder" type="SplineBorder" width ="6" texture="spline_border_contour2.dds" color="255,128,0,200"/>
 	<style name="ValidFireTargetBorder" type="StaticTexture" texture="static_texture_highlight.dds"/>
 	<style name="FireRangeBorder" type="SplineBorder" width="6" texture="spline_border_contour2.dds" color="255,0,0,200"/>
+	<style name="RangedAttackPreview" type="SplineBorder" width ="2" texture="hex_contour1.dds" color="255,0,0,255" />
 	<style name="MovementRangeBorder" type="SplineBorder" width="6" texture="spline_border_contour2.dds" color="100,185,245,200"/>
 	<style name="AMRBorder" type="StaticTexture" texture="static_texture_highlight.dds"/>
 	<style name="TradeRoute" type="HexContour" width=".2" texture="hex_contour2.dds"/>
