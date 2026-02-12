@@ -109,10 +109,14 @@ SET
 	PortraitIndex = 22
 WHERE Type = 'POLICY_MILITARY_CASTE';
 
-INSERT INTO Policy_YieldFromXMilitaryUnits
-	(PolicyType, YieldType, Yield)
-VALUES
-	('POLICY_MILITARY_CASTE', 'YIELD_PRODUCTION', 10);
+INSERT INTO Policy_ResourceYieldChanges
+	(PolicyType, ResourceType, YieldType, Yield)
+SELECT
+	'POLICY_MILITARY_CASTE', Type, 'YIELD_PRODUCTION', 1
+FROM Resources WHERE ResourceUsage = 1 UNION ALL
+SELECT
+	'POLICY_MILITARY_CASTE', Type, 'YIELD_CULTURE_LOCAL', 2
+FROM Resources WHERE ResourceUsage = 1;
 
 INSERT INTO Policy_FreePromotions
 	(PolicyType, PromotionType)
