@@ -1623,15 +1623,28 @@ int CvLuaUnit::lCanRangeStrike(lua_State* L)
 	return BasicLuaMethod(L, &CvUnit::canRangeStrike);
 }
 //------------------------------------------------------------------------------
-//bool CanRangeStrikeAt(int iX, int iY)
+//bool CanRangeStrikeAt(int iX, int iY [, int sourceX, int sourceY, bool ignoreVision] )
 int CvLuaUnit::lCanEverRangeStrikeAt(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
 	const int x = lua_tointeger(L, 2);
 	const int y = lua_tointeger(L, 3);
 
-	const bool bResult = pkUnit->canEverRangeStrikeAt(x, y);
-	lua_pushboolean(L, bResult);
+	if ( lua_gettop(L) >= 5 )
+	{
+		const int sx = lua_tointeger(L, 4);
+		const int sy = lua_tointeger(L, 5);
+		const CvPlot* pTargetPlot = GC.getMap().plot(sx,sy) ;
+		const bool ignoreVision = luaL_optbool(L, 6, false) ; 
+		const bool bResult = pkUnit->canEverRangeStrikeAt(x, y, pTargetPlot, ignoreVision);
+		lua_pushboolean(L, bResult);
+	}
+	else 
+	{
+		const bool bResult = pkUnit->canEverRangeStrikeAt(x, y);
+		lua_pushboolean(L, bResult);
+	}
+
 	return 1;
 }
 
