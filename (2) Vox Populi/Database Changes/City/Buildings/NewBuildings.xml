@@ -2479,8 +2479,9 @@
 			<Help>TXT_KEY_BUILDING_TRADER_SIDS_HELP</Help>
 			<Strategy>TXT_KEY_BUILDING_TRADER_SIDS_STRATEGY</Strategy>
 			<IsCorporation>true</IsCorporation>
-			<TradeRouteRecipientBonus>2</TradeRouteRecipientBonus>
+			<TradeRouteRecipientBonus>4</TradeRouteRecipientBonus>
 			<TradeRouteTargetBonus>2</TradeRouteTargetBonus>
+			<CityStateTradeRouteProductionModifier>2</CityStateTradeRouteProductionModifier>
 			<IconAtlas>CORPORATION_ATLAS_VP</IconAtlas>
 			<PortraitIndex>6</PortraitIndex>
 		</Row>
@@ -2515,8 +2516,9 @@
 			<Help>TXT_KEY_BUILDING_GIORGIO_ARMEIER_HELP</Help>
 			<Strategy>TXT_KEY_BUILDING_GIORGIO_ARMEIER_STRATEGY</Strategy>
 			<IsCorporation>true</IsCorporation>
-			<IlliteracyFlatReduction>1</IlliteracyFlatReduction>
-			<BoredomFlatReduction>1</BoredomFlatReduction>
+			<GPRateModifierPerXFranchises>2</GPRateModifierPerXFranchises>
+			<SpecialistType>SPECIALIST_ARTIST</SpecialistType>
+			<SpecialistCount>1</SpecialistCount>
 			<IconAtlas>CORPORATION_ATLAS_VP</IconAtlas>
 			<PortraitIndex>18</PortraitIndex>
 		</Row>
@@ -2529,6 +2531,7 @@
 			<Strategy>TXT_KEY_BUILDING_FIRAXITE_MATERIALS_STRATEGY</Strategy>
 			<IsCorporation>true</IsCorporation>
 			<BuildingProductionModifier>20</BuildingProductionModifier>
+			<EnhancedYieldTech>TECH_ELECTRONICS</EnhancedYieldTech>
 			<IconAtlas>CORPORATION_ATLAS_VP</IconAtlas>
 			<PortraitIndex>30</PortraitIndex>
 		</Row>
@@ -2540,12 +2543,12 @@
 			<Help>TXT_KEY_BUILDING_TWOKAY_FOODS_HELP</Help>
 			<Strategy>TXT_KEY_BUILDING_TWOKAY_FOODS_STRATEGY</Strategy>
 			<IsCorporation>true</IsCorporation>
-			<EmpireSizeModifierReductionGlobal>-5</EmpireSizeModifierReductionGlobal>
-			<DistressFlatReductionGlobal>1</DistressFlatReductionGlobal>
-			<PovertyFlatReductionGlobal>1</PovertyFlatReductionGlobal>
-			<IlliteracyFlatReductionGlobal>1</IlliteracyFlatReductionGlobal>
-			<BoredomFlatReductionGlobal>1</BoredomFlatReductionGlobal>
-			<ReligiousUnrestFlatReductionGlobal>1</ReligiousUnrestFlatReductionGlobal>
+			<EmpireSizeModifierReduction>-2</EmpireSizeModifierReduction>
+			<DistressFlatReduction>1</DistressFlatReduction>
+			<PovertyFlatReduction>1</PovertyFlatReduction>
+			<IlliteracyFlatReduction>1</IlliteracyFlatReduction>
+			<BoredomFlatReduction>1</BoredomFlatReduction>
+			<ReligiousUnrestFlatReduction>1</ReligiousUnrestFlatReduction>
 			<IconAtlas>CORPORATION_ATLAS_VP</IconAtlas>
 			<PortraitIndex>14</PortraitIndex>
 		</Row>
@@ -2557,9 +2560,6 @@
 			<Help>TXT_KEY_BUILDING_CIVILIZED_JEWELERS_HELP</Help>
 			<Strategy>TXT_KEY_BUILDING_CIVILIZED_JEWELERS_STRATEGY</Strategy>
 			<IsCorporation>true</IsCorporation>
-			<GreatPeopleRateModifier>15</GreatPeopleRateModifier>
-			<GoldenAgeModifier>3</GoldenAgeModifier>
-			<GPRateModifierPerXFranchises>10</GPRateModifierPerXFranchises>
 			<IconAtlas>CORPORATION_ATLAS_VP</IconAtlas>
 			<PortraitIndex>26</PortraitIndex>
 		</Row>

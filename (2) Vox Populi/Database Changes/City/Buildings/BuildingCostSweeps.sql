@@ -150,7 +150,7 @@ WHERE BuildingClass IN (
 );
 
 UPDATE Buildings
-SET Cost = -1, GoldMaintenance = 1
+SET Cost = -1, GoldMaintenance = 6
 WHERE BuildingClass IN (
 	SELECT FranchiseBuildingClass FROM Corporations
 );

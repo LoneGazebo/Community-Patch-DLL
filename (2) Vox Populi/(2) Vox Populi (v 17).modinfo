@@ -1426,13 +1426,13 @@
       <UpdateDatabase>Database Changes/WorldMap/AncientRuinChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes/Tech/EraChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes/Tech/TechChanges.sql</UpdateDatabase>
+      <UpdateDatabase>Database Changes/Corporations/CorporationChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes/City/Buildings/BuildingChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes/City/Buildings/BuildingChanges2.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes/Policies/PolicyTreeChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes/City/Processes/ProcessChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes/City/Projects/ProjectChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes/City/Specialists/SpecialistChanges.sql</UpdateDatabase>
-      <UpdateDatabase>Database Changes/Corporations/CorporationChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes/UnitPromotions/PromotionChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes/UnitPromotions/PromotionIconChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes/Units/UnitChanges.sql</UpdateDatabase>

@@ -1238,54 +1238,117 @@ SELECT
 FROM Buildings
 WHERE IsCorporation = 1 AND WonderSplashImage IS NOT NULL;
 
+INSERT INTO Building_ResourceYieldChanges
+	(BuildingType, ResourceType, YieldType, Yield)
+SELECT
+	b.Type, a.ResourceType, a.YieldType, a.Yield
+FROM Corporation_ResourceYieldChanges a
+INNER JOIN Corporations c ON a.CorporationType = c.Type
+INNER JOIN BuildingClasses bc ON c.OfficeBuildingClass = bc.Type
+INNER JOIN Buildings b ON bc.DefaultBuilding = b.Type;
+
 -- Trader Sid's
 INSERT INTO Building_YieldPerFranchise
 	(BuildingType, YieldType, Yield)
 VALUES
-	('BUILDING_TRADER_SIDS', 'YIELD_GOLD', 4);
+	('BUILDING_TRADER_SIDS', 'YIELD_GOLD', 2);
 
 -- Centaurus Extractors
 INSERT INTO Building_YieldPerFranchise
 	(BuildingType, YieldType, Yield)
 VALUES
-	('BUILDING_CENTAURUS_EXTRACTORS', 'YIELD_PRODUCTION', 3);
+	('BUILDING_CENTAURUS_EXTRACTORS', 'YIELD_PRODUCTION', 1);
 
 INSERT INTO Building_SeaPlotYieldChanges
 	(BuildingType, YieldType, Yield)
 VALUES
-	('BUILDING_CENTAURUS_EXTRACTORS', 'YIELD_PRODUCTION', 1);
+	('BUILDING_CENTAURUS_EXTRACTORS', 'YIELD_PRODUCTION', 1),
+	('BUILDING_CENTAURUS_EXTRACTORS', 'YIELD_CULTURE', 1);
+
+INSERT INTO Building_SeaResourceYieldChanges
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_CENTAURUS_EXTRACTORS', 'YIELD_SCIENCE', 1),	
+	('BUILDING_CENTAURUS_EXTRACTORS', 'YIELD_CULTURE', 1);
 
 -- Hexxon Refinery
+INSERT INTO Building_YieldPerFranchise
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_HEXXON_REFINERY', 'YIELD_CULTURE_LOCAL', 3);
+
+INSERT INTO Building_YieldFromUnitProduction
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_HEXXON_REFINERY', 'YIELD_SCIENCE', 25);
+
 INSERT INTO Building_ResourceQuantityPerXFranchises
 	(BuildingType, ResourceType, NumFranchises)
 VALUES
-	('BUILDING_HEXXON_REFINERY', 'RESOURCE_COAL', 3),
-	('BUILDING_HEXXON_REFINERY', 'RESOURCE_OIL', 3);
+	('BUILDING_HEXXON_REFINERY_HQ', 'RESOURCE_COAL', 1),
+	('BUILDING_HEXXON_REFINERY_HQ', 'RESOURCE_OIL', 1);
 
 -- Giorgio Armeier
 INSERT INTO Building_YieldPerFranchise
 	(BuildingType, YieldType, Yield)
 VALUES
-	('BUILDING_GIORGIO_ARMEIER', 'YIELD_CULTURE', 2);
+	('BUILDING_GIORGIO_ARMEIER', 'YIELD_CULTURE', 1);
 
 -- Firaxite Materials
 INSERT INTO Building_YieldPerFranchise
 	(BuildingType, YieldType, Yield)
 VALUES
-	('BUILDING_FIRAXITE_MATERIALS', 'YIELD_SCIENCE', 2);
+	('BUILDING_FIRAXITE_MATERIALS', 'YIELD_SCIENCE', 1);
+
+INSERT INTO Building_TechEnhancedYieldChanges
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_FIRAXITE_MATERIALS', 'YIELD_SCIENCE', 8);
+
+INSERT INTO Building_YieldFromConstruction
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_FIRAXITE_MATERIALS', 'YIELD_SCIENCE', 10);
+
+INSERT INTO Building_ResourceQuantityPerXFranchises
+	(BuildingType, ResourceType, NumFranchises)
+VALUES
+	('BUILDING_FIRAXITE_MATERIALS_HQ', 'RESOURCE_IRON', 1),
+	('BUILDING_FIRAXITE_MATERIALS_HQ', 'RESOURCE_ALUMINUM', 2);
 
 -- TwoKay Foods
 INSERT INTO Building_YieldPerFranchise
 	(BuildingType, YieldType, Yield)
 VALUES
-	('BUILDING_TWOKAY_FOODS', 'YIELD_FOOD', 3);
+	('BUILDING_TWOKAY_FOODS', 'YIELD_FOOD', 2);
 
-INSERT INTO Building_YieldModifiers
-	(BuildingType, YieldType, Yield)
+INSERT INTO Building_ResourceQuantityPerXFranchises
+	(BuildingType, ResourceType, NumFranchises)
 VALUES
-	('BUILDING_TWOKAY_FOODS', 'YIELD_FOOD', 10);
+	('BUILDING_TWOKAY_FOODS_HQ', 'RESOURCE_HORSE', 1);
 
 -- Civilized Jewelers
+INSERT INTO Building_YieldPerFranchise
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_CIVILIZED_JEWELERS', 'YIELD_GOLDEN_AGE_POINTS', 2);
+
+INSERT INTO Building_YieldPerFriend
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_CIVILIZED_JEWELERS', 'YIELD_GOLD', 1);
+
+INSERT INTO Building_YieldPerAlly
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_CIVILIZED_JEWELERS', 'YIELD_GOLD', 2),
+	('BUILDING_CIVILIZED_JEWELERS', 'YIELD_TOURISM', 1);
+
+INSERT INTO Building_GoldenAgeYieldMod
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_CIVILIZED_JEWELERS', 'YIELD_GOLD', 10),
+	('BUILDING_CIVILIZED_JEWELERS', 'YIELD_TOURISM', 10);
 
 -- Populi Medicine
 INSERT INTO Building_YieldPerFranchise
