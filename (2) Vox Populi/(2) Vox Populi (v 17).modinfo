@@ -38,6 +38,7 @@
   </Blocks>
   <Files>
     <File md5="4D19A2F465CED315693D8621108F1C1E" import="0">CommunityOptions.sql</File>
+    <File md5="EBC507153D12C389B3838E94502A16EF" import="1">Assets/WTC_Quote.mp3</File>
     <File md5="244BEA46F857A5E48D4F4BE276DBC250" import="1">Assets/Atlases/Buildings/VPBuildingAtlas1_045.dds</File>
     <File md5="618770D078FBC6BD5026805F7B0C0805" import="1">Assets/Atlases/Buildings/VPBuildingAtlas1_064.dds</File>
     <File md5="081333E1F7DC1A4A0F789F47875B92E1" import="1">Assets/Atlases/Buildings/VPBuildingAtlas1_080.dds</File>
@@ -160,6 +161,7 @@
     <File md5="3F8BAC99D9F98BC026AF05A7CFF2015C" import="1">Assets/Images/WonderSplash/WonderForum.dds</File>
     <File md5="71B201948D8F1191B5A3FFA3E85E4642" import="1">Assets/Images/WonderSplash/WonderNalandaSplash.dds</File>
     <File md5="3CCC66415EC7D1C4700094F1FA90B50B" import="1">Assets/Images/WonderSplash/WonderSummerPalace.dds</File>
+    <File md5="32EA80F1FB5A59301FB5A37EB2AC6473" import="1">Assets/Images/WonderSplash/WTC_Splash.dds</File>
     <File md5="BA0D234DE017F5CEB6DEF37CE7DFE384" import="1">Assets/Models/AnimationGraphs/edited_aim_ms_attack_city_to_run.dge</File>
     <File md5="75D8FBC3A2C4D56B1089F20A2E9D9DA1" import="1">Assets/Models/AnimationGraphs/edited_aim_ms_attack_to_run_graph.dge</File>
     <File md5="82C3CE94F7827159DEA80CCF8AAF5D9E" import="1">Assets/Models/AnimationGraphs/edited_aim_ms_bombard_defend_loop_graph.dge</File>
