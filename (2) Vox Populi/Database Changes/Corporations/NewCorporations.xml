@@ -58,6 +58,7 @@
 			<OfficeBonusHelp>TXT_KEY_CORPORATION_OFFICE_BONUS_GIORGIO_ARMEIER</OfficeBonusHelp>
 			<TradeRouteBonusHelp>TXT_KEY_CORPORATION_TRADE_ROUTE_BONUS_GIORGIO_ARMEIER</TradeRouteBonusHelp>
 			<OfficeBenefitHelper>TXT_KEY_CORPORATION_GIORGIO_ARMEIER_OFFICE_BENEFIT_HELP</OfficeBenefitHelper>
+			<TradeRouteTargetBonus>5</TradeRouteTargetBonus>
 			<PortraitIndex>16</PortraitIndex>
 			<IconAtlas>CORPORATION_ATLAS_VP</IconAtlas>
 		</Row>
@@ -72,7 +73,6 @@
 			<OfficeBonusHelp>TXT_KEY_CORPORATION_OFFICE_BONUS_FIRAXITE_MATERIALS</OfficeBonusHelp>
 			<TradeRouteBonusHelp>TXT_KEY_CORPORATION_TRADE_ROUTE_BONUS_FIRAXITE_MATERIALS</TradeRouteBonusHelp>
 			<OfficeBenefitHelper>TXT_KEY_CORPORATION_FIRAXITE_MATERIALS_OFFICE_BENEFIT_HELP</OfficeBenefitHelper>
-			<TradeRoutesInvulnerable>true</TradeRoutesInvulnerable>
 			<PortraitIndex>28</PortraitIndex>
 			<IconAtlas>CORPORATION_ATLAS_VP</IconAtlas>
 		</Row>
