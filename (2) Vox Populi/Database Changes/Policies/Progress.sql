@@ -27,11 +27,6 @@ INSERT INTO Policy_YieldFromBirth
 VALUES
 	('POLICY_LIBERTY', 'YIELD_SCIENCE', 10);
 
-INSERT INTO Policy_YieldFromBirthCapitalRetroactive
-	(PolicyType, YieldType, Yield)
-VALUES
-	('POLICY_LIBERTY', 'YIELD_SCIENCE', 10);
-
 INSERT INTO Policy_InstantYield
 	(PolicyType, YieldType, Yield)
 VALUES
