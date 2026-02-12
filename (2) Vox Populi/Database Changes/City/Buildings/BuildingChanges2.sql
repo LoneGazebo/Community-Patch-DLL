@@ -1206,6 +1206,26 @@ VALUES
 	('BUILDING_CERN', 'YIELD_SCIENCE', 10),
 	('BUILDING_CERN', 'YIELD_CULTURE', 1);
 
+-- World Trade Center
+INSERT INTO Building_YieldChanges
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_WORLD_TRADE_CENTER', 'YIELD_GOLD', 5),
+	('BUILDING_WORLD_TRADE_CENTER', 'YIELD_CULTURE', 1),
+	('BUILDING_WORLD_TRADE_CENTER', 'YIELD_TOURISM', 4);
+
+INSERT INTO Building_BuildingClassYieldChanges
+	(BuildingType, BuildingClassType, YieldType, YieldChange)
+SELECT
+	'BUILDING_WORLD_TRADE_CENTER', FranchiseBuildingClass, 'YIELD_GOLD', 5
+FROM Corporations;
+
+INSERT INTO Building_BuildingClassYieldChanges
+	(BuildingType, BuildingClassType, YieldType, YieldChange)
+SELECT
+	'BUILDING_WORLD_TRADE_CENTER', FranchiseBuildingClass, 'YIELD_TOURISM', 4
+FROM Corporations;
+
 ----------------------------------------------------------------------------
 -- Corporation Buildings
 ----------------------------------------------------------------------------
@@ -1266,6 +1286,12 @@ VALUES
 	('BUILDING_TWOKAY_FOODS', 'YIELD_FOOD', 10);
 
 -- Civilized Jewelers
+
+-- Populi Medicine
+INSERT INTO Building_YieldPerFranchise
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_POPULI_MEDICINE', 'YIELD_FAITH', 1);
 
 ----------------------------------------------------------------------------
 -- World Congress Wonders

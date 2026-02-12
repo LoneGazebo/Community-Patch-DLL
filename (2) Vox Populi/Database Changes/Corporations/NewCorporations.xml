@@ -106,5 +106,20 @@
 			<PortraitIndex>24</PortraitIndex>
 			<IconAtlas>CORPORATION_ATLAS_VP</IconAtlas>
 		</Row>
+		<Row>
+			<Type>CORPORATION_POPULI_MEDICINE</Type>
+			<Description>TXT_KEY_CORPORATION_POPULI_MEDICINE</Description>
+			<Help>TXT_KEY_CORPORATION_POPULI_MEDICINE_HELP</Help>
+			<HeadquartersBuildingClass>BUILDINGCLASS_POPULI_MEDICINE_HQ</HeadquartersBuildingClass>
+			<OfficeBuildingClass>BUILDINGCLASS_POPULI_MEDICINE</OfficeBuildingClass>
+			<FranchiseBuildingClass>BUILDINGCLASS_POPULI_MEDICINE_FRANCHISE</FranchiseBuildingClass>
+			<OfficeBonusHelp>TXT_KEY_CORPORATION_OFFICE_BONUS_POPULI_MEDICINE</OfficeBonusHelp>
+			<TradeRouteBonusHelp>TXT_KEY_CORPORATION_TRADE_ROUTE_BONUS_POPULI_MEDICINE</TradeRouteBonusHelp>
+			<ResourceBonusHelp>TXT_KEY_CORPORATION_RESOURCE_BONUS_POPULI_MEDICINE</ResourceBonusHelp>
+			<OfficeBenefitHelper>TXT_KEY_CORPORATION_POPULI_MEDICINE_OFFICE_BENEFIT_HELP</OfficeBenefitHelper>
+			<TradeRouteRecipientBonus>5</TradeRouteRecipientBonus>
+			<PortraitIndex>32</PortraitIndex>
+			<IconAtlas>CORPORATION_ATLAS_VP</IconAtlas>
+		</Row>
 	</Corporations>
 </GameData>
