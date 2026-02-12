@@ -72,15 +72,15 @@ SET
 	IncludesOneShotFreeUnits = 1
 WHERE Type = 'POLICY_ARTISTIC_GENIUS';
 
-INSERT INTO Policy_ArtifactYieldChanges
-	(PolicyType, YieldType, Yield)
-VALUES
-	('POLICY_ARTISTIC_GENIUS', 'YIELD_SCIENCE', 2);
-
 INSERT INTO Policy_YieldFromWorldWonderConstruction
 	(PolicyType, YieldType, Yield)
 VALUES
 	('POLICY_ARTISTIC_GENIUS', 'YIELD_GOLD', 250);
+
+INSERT INTO Policy_YieldGPExpend
+	(PolicyType, YieldType, Yield)
+VALUES	
+	('POLICY_ARTISTIC_GENIUS', 'YIELD_GOLD', 50);
 
 -- Cultural Exchange
 UPDATE Policies
@@ -121,6 +121,11 @@ INSERT INTO Policy_ImprovementYieldChanges
 	(PolicyType, ImprovementType, YieldType, Yield)
 VALUES
 	('POLICY_AESTHETICS_FINISHER', 'IMPROVEMENT_LANDMARK', 'YIELD_SCIENCE', 3);
+
+INSERT INTO Policy_ArtifactYieldChanges
+	(PolicyType, YieldType, Yield)
+VALUES
+	('POLICY_AESTHETICS_FINISHER', 'YIELD_SCIENCE', 3);
 
 -- Scaler
 INSERT INTO Policy_CityYieldChanges
