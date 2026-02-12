@@ -133,5 +133,24 @@
 		<Row Tag="TXT_KEY_CORPORATION_CIVILIZED_JEWELERS_OFFICE_BENEFIT_HELP">
 			<Text>Current Office Bonus: {1_String}</Text>
 		</Row>
+		
+		<Row Tag="TXT_KEY_CORPORATION_POPULI_MEDICINE">
+			<Text>Populi Medicine, Inc.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_POPULI_MEDICINE_HELP">
+			<Text>Supports the [ICON_VICTORY_DOMINATION] Domination and [ICON_VICTORY_DIPLOMACY] Diplomatic victories by providing [ICON_HAPPINESS_1] Happiness and [ICON_INFLUENCE] Influence. It also uniquely increases [ICON_PEACE] Faith generation.[NEWLINE][ICON_BULLET]+2 [ICON_INTERNATIONAL_TRADE] Trade Routes.[NEWLINE][ICON_BULLET]Incoming [ICON_ARROW_LEFT] Trade Routes generate +5 [ICON_GOLD] Gold for the City.[NEWLINE][ICON_BULLET]+3 [ICON_PEACE] Faith from Hospital in all Cities.[NEWLINE][ICON_BULLET]+3 [ICON_GOLD] Gold from [ICON_CIVIL_SERVANT] Civil Servants.[NEWLINE][ICON_BULLET]Every [ICON_FRANCHISE] Franchise in a foreign Civilization's Cities increases [ICON_TOURISM] Tourism with them by 2%.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_RESOURCE_BONUS_POPULI_MEDICINE">
+			<Text>[ICON_RES_TOBACCO] Tobacco, [ICON_RES_INCENSE] Incense, [ICON_RES_IVORY] Ivory, [ICON_RES_JADE] Jade, and [ICON_RES_TEA] Tea worked by the City gain +3 [ICON_PEACE] Faith from Populi Medicine [ICON_OFFICE] Offices and [ICON_FRANCHISE] Franchises.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_OFFICE_BONUS_POPULI_MEDICINE">
+			<Text>+1 [ICON_PEACE] Faith for every Global [ICON_FRANCHISE] Franchise. +2 [ICON_HAPPINESS_1] Happiness. 15 [ICON_INFLUENCE] Influence with all [ICON_CITY_STATE] City-States when constructed.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_TRADE_ROUTE_BONUS_POPULI_MEDICINE">
+			<Text>[ICON_INTERNATIONAL_TRADE] Trade Routes from Cities with a Populi Medicine [ICON_OFFICE] Office to Cities with a Populi Medicine [ICON_FRANCHISE] Franchise grant +3% [ICON_PEACE] Faith to the origin City.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_POPULI_MEDICINE_OFFICE_BENEFIT_HELP">
+			<Text>Current Office Bonus: {1_String}</Text>
+		</Row>
 	</Language_en_US>
 </GameData>
