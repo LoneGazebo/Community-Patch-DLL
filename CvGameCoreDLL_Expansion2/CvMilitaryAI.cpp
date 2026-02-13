@@ -3335,6 +3335,7 @@ WarTypes CvMilitaryAI::GetWarType(PlayerTypes ePlayer)
 		return (iLand >= iSea) ? WARTYPE_LAND : WARTYPE_SEA;
 	}
 
+	PRECONDITION(ePlayer >= 0 && ePlayer < MAX_MAJOR_CIVS, "GetWarType only valid for major civs");
 	return (WarTypes)m_aiWarFocus[ePlayer];
 }
 

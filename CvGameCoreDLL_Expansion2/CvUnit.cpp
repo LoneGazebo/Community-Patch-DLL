@@ -5584,7 +5584,10 @@ bool CvUnit::jumpToNearestValidPlot()
 		bool bAvailable = (IsCivilianUnit() || !pLoopPlot->isNeutralUnit(getOwner(), false, false)) && !pLoopPlot->isEnemyUnit(getOwner(), false, false);
 		if (bAvailable && canMoveInto(*pLoopPlot,CvUnit::MOVEFLAG_DESTINATION))
 		{
-			int iValue = it->iNormalizedDistanceRaw + GET_PLAYER(getOwner()).GetCityDistanceInPlots(pLoopPlot);
+			int iCityDist = GET_PLAYER(getOwner()).GetCityDistanceInPlots(pLoopPlot);
+			if (iCityDist == INT_MAX)
+				iCityDist = 0; // No cities (e.g. barbarians) - distance irrelevant, use 0 to avoid overflow
+			int iValue = it->iNormalizedDistanceRaw + iCityDist;
 
 			//avoid putting ships on lakes etc (only possible in degenerate cases anyway)
 			if (getDomainType() == DOMAIN_SEA)
