@@ -197,7 +197,7 @@ end
 -- How much does it cost to upgrade a Unit to a shiny new eUnit?
 local function unitUpgradePrice( unit, unitUpgrade, unitProductionCost, unitUpgradeProductionCost )
 	local upgradePrice = GameDefines.BASE_UNIT_UPGRADE_COST
-		+ math_max( 0, (unitUpgradeProductionCost or unitUpgrade.Cost or 0) - (unitProductionCost or unit.Cost or 0) ) * GameDefines.UNIT_UPGRADE_COST_PER_PRODUCTION
+		+ (math_max( 0, (unitUpgradeProductionCost or unitUpgrade.Cost or 0) - (unitProductionCost or unit.Cost or 0) ) * GameDefines.UNIT_UPGRADE_COST_PRODUCTION_PERCENTAGE) / 100
 	-- Upgrades for later units are more expensive
 	local tech = unitUpgrade.PrereqTech and GameInfo.Technologies[ unitUpgrade.PrereqTech ]
 	if tech then

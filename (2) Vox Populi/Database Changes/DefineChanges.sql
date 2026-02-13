@@ -185,7 +185,8 @@ UPDATE Defines SET Value = 0 WHERE Name = 'STRATEGIC_RESOURCE_EXHAUSTED_PENALTY'
 -- Modified by personality!
 UPDATE Defines SET Value = 27 WHERE Name = 'MAX_PLOTS_PER_EXPLORER';
 
-UPDATE Defines SET Value = 1 WHERE Name = 'UNIT_UPGRADE_COST_PER_PRODUCTION';
+-- Unit upgrade cost = (production cost of the unit upgraded into -  production cost of the unit being upgraded) * 1.25 + 10
+UPDATE Defines SET Value = 125 WHERE Name = 'UNIT_UPGRADE_COST_PRODUCTION_PERCENTAGE';
 
 -- Maximum discount you can get for stacking unit upgrade discounts, so the number doesn't go negative
 UPDATE Defines SET Value = -99 WHERE Name = 'UNIT_UPGRADE_COST_DISCOUNT_MAX';
