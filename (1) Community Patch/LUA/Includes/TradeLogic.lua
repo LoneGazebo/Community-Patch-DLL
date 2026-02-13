@@ -89,6 +89,30 @@ local offsetsBetweenFrames = 4;
 local oldCursor = 0;
 
 
+-- Returns the effective GPT of a player, taking into account any GPT in a renew deal
+function GetEffectiveGoldRate(pPlayer, iPlayer, iOtherPlayer)
+	local iGoldRate = pPlayer:CalculateGoldRate();
+
+	if Game.GetRenewDeal(iPlayer, iOtherPlayer) > -1 then
+		iGoldRate = iGoldRate + Game.GetRenewDealGoldPerTurn(iPlayer, iOtherPlayer, iPlayer);
+		iGoldRate = iGoldRate - Game.GetRenewDealGoldPerTurn(iPlayer, iOtherPlayer, iOtherPlayer);
+	end
+
+	return iGoldRate;
+end
+
+-- Returns the effective resource count of a player, taking into account any resources in a renew deal
+function GetEffectiveResourceCount(pPlayer, iPlayer, iOtherPlayer, iResourceType)
+	local iResourceCount = pPlayer:GetNumResourceAvailable(iResourceType, false);
+
+	if Game.GetRenewDeal(iPlayer, iOtherPlayer) > -1 then
+		iResourceCount = iResourceCount + Game.GetRenewDealResourceCount(iPlayer, iOtherPlayer, iPlayer, iResourceType);
+		iResourceCount = iResourceCount - Game.GetRenewDealResourceCount(iPlayer, iOtherPlayer, iOtherPlayer, iResourceType);
+	end
+
+	return iResourceCount;
+end
+
 ---------------------------------------------------------
 -- LEADER MESSAGE HANDLER
 ---------------------------------------------------------
@@ -124,7 +148,7 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 
 		-- if the AI offers a deal, its valuation might have changed during the AI's turn. Reevaluate the deal and change deal items if necessary
 	if(g_iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_MAKES_OFFER) then
-		if(g_Deal:IsCheckedForRenewal()) then
+		if(Game.GetRenewDeal(g_iUs, g_iThem) > -1 and not g_pUs:IsCurrentDealOfferChanged()) then
 			-- modify leader message if necessary
 			szLeaderMessage = g_Deal:GetRenewDealMessage(g_iThem, g_iUs);
 		end
@@ -1396,7 +1420,7 @@ function ResetDisplay()
     ----------------------------------------------------------------------------------
 
 	-- Our Side
-	local iGoldPerTurn = g_pUs:CalculateGoldRate();
+	local iGoldPerTurn = GetEffectiveGoldRate(g_pUs, g_iUs, g_iThem);
     Controls.UsPocketGoldPerTurn:SetText( iGoldPerTurn .. " " .. Locale.ConvertTextKey("TXT_KEY_DIPLO_GOLD_PER_TURN") );
 
     bTradeAllowed = g_Deal:IsPossibleToTradeItem(g_iUs, g_iThem, TradeableItems.TRADE_ITEM_GOLD_PER_TURN, 1, g_iDealDuration);	-- 1 here is 1 GPT, which is the minimum possible
@@ -1428,7 +1452,7 @@ function ResetDisplay()
 	----------------------------------------------------------------------------------
 
     -- Their Side
-	iGoldPerTurn = g_pThem:CalculateGoldRate();
+	iGoldPerTurn = GetEffectiveGoldRate(g_pThem, g_iThem, g_iUs);
     Controls.ThemPocketGoldPerTurn:SetText( iGoldPerTurn .. " " .. Locale.ConvertTextKey("TXT_KEY_DIPLO_GOLD_PER_TURN") );
 
     bTradeAllowed = g_Deal:IsPossibleToTradeItem(g_iThem, g_iUs, TradeableItems.TRADE_ITEM_GOLD_PER_TURN, 1, g_iDealDuration);	-- 1 here is 1 GPT, which is the minimum possible
@@ -1842,7 +1866,7 @@ function ResetDisplay()
 			instance.Button:SetHide(false);
 
 			pResource = GameInfo.Resources[resType];
-			iResourceCount = g_pUs:GetNumResourceAvailable(resType, false);
+			iResourceCount = GetEffectiveResourceCount(g_pUs, g_iUs, g_iThem, resType);
 			strString = pResource.IconString .. " " .. Locale.ConvertTextKey(pResource.Description) .. " (" .. iResourceCount .. ")";
 			if(g_pThem:IsTradeItemValuedImpossible(TradeableItems.TRADE_ITEM_RESOURCES, g_iUs, false, g_iDealDuration, resType, 1)) then
 				strString = "[COLOR_NEGATIVE_TEXT]" .. strString .."[ENDCOLOR]";
@@ -1917,9 +1941,9 @@ function ResetDisplay()
 				bFoundStrat = true;
 			end
 			instance.Button:SetHide(false);
-			
+
 			pResource = GameInfo.Resources[resType];
-			iResourceCount = g_pThem:GetNumResourceAvailable(resType, false);
+			iResourceCount = GetEffectiveResourceCount(g_pThem, g_iThem, g_iUs, resType);
 			strString = pResource.IconString .. " " .. Locale.ConvertTextKey(pResource.Description) .. " (" .. iResourceCount .. ")";
 			if(g_pThem:IsTradeItemValuedImpossible(TradeableItems.TRADE_ITEM_RESOURCES, g_iUs, true, g_iDealDuration, resType, 1)) then
 				strString = "[COLOR_NEGATIVE_TEXT]" .. strString .."[ENDCOLOR]";
@@ -2266,19 +2290,19 @@ function DisplayDeal()
                 Controls.UsTableGoldPerTurn:SetHide( false );
                 Controls.UsGoldPerTurnTurns:LocalizeAndSetText( "TXT_KEY_DIPLO_TURNS", duration );
                 Controls.UsGoldPerTurnAmount:SetText( data1 );
-                
+
 				strString = Locale.ConvertTextKey( "TXT_KEY_DIPLO_GOLD_PER_TURN" );
 				Controls.UsTableGoldPerTurnButton:SetText( strString );
-				strTooltip = Locale.ConvertTextKey( "TXT_KEY_DIPLO_CURRENT_GPT", g_pUs:CalculateGoldRate() - data1 );
+				strTooltip = Locale.ConvertTextKey( "TXT_KEY_DIPLO_CURRENT_GPT", GetEffectiveGoldRate(g_pUs, g_iUs, g_iThem) - data1 );
 				Controls.UsTableGoldPerTurn:SetToolTipString( strTooltip );
            else
                 Controls.ThemTableGoldPerTurn:SetHide( false );
                 Controls.ThemGoldPerTurnTurns:LocalizeAndSetText( "TXT_KEY_DIPLO_TURNS", duration );
                 Controls.ThemGoldPerTurnAmount:SetText( data1 );
-                
+
 				strString = Locale.ConvertTextKey( "TXT_KEY_DIPLO_GOLD_PER_TURN" );
 				Controls.ThemTableGoldPerTurnButton:SetText( strString );
-				strTooltip = Locale.ConvertTextKey( "TXT_KEY_DIPLO_CURRENT_GPT", g_pThem:CalculateGoldRate() - data1 );
+				strTooltip = Locale.ConvertTextKey( "TXT_KEY_DIPLO_CURRENT_GPT", GetEffectiveGoldRate(g_pThem, g_iThem, g_iUs) - data1 );
 				Controls.ThemTableGoldPerTurn:SetToolTipString( strTooltip );
             end
         
@@ -2635,18 +2659,18 @@ function PocketGoldPerTurnHandler( isUs )
  	--print("PocketGoldPerTurnHandler")
 
 	local iGoldPerTurn = 5;
-	
+
     if( isUs == 1 ) then
-		
-		if (iGoldPerTurn > g_pUs:CalculateGoldRate()) then
-			iGoldPerTurn = g_pUs:CalculateGoldRate();
+		local iEffectiveRate = GetEffectiveGoldRate(g_pUs, g_iUs, g_iThem);
+		if (iGoldPerTurn > iEffectiveRate) then
+			iGoldPerTurn = iEffectiveRate;
 		end
-		
+
         g_Deal:AddGoldPerTurnTrade( g_iUs, iGoldPerTurn, g_iDealDuration );
     else
-		
-		if (iGoldPerTurn > g_pThem:CalculateGoldRate()) then
-			iGoldPerTurn = g_pThem:CalculateGoldRate();
+		local iEffectiveRate = GetEffectiveGoldRate(g_pThem, g_iThem, g_iUs);
+		if (iGoldPerTurn > iEffectiveRate) then
+			iGoldPerTurn = iEffectiveRate;
 		end
 
         g_Deal:AddGoldPerTurnTrade( g_iThem, iGoldPerTurn, g_iDealDuration );
@@ -2678,24 +2702,24 @@ Controls.ThemTableGoldPerTurnButton:SetVoid1( 0 );
 -----------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------
 function ChangeGoldPerTurnAmount( string, control )
-	
+
 	--print("ChangeGoldPerTurnAmount")
-	
+
 	local g_pUs = Players[ g_iUs ];
 	local g_pThem = Players[ g_iThem ];
-	
+
 	local iGoldPerTurn = 0;
 	if( string ~= nil and string ~= "" ) then
 	    iGoldPerTurn = tonumber(string);
     else
         control:SetText( 0 );
     end
-	
+
 	-- GPT from us
     if( control:GetVoid1() == 1 ) then
-		
-		if (iGoldPerTurn > g_pUs:CalculateGoldRate()) then
-			iGoldPerTurn = g_pUs:CalculateGoldRate();
+		local iEffectiveRate = GetEffectiveGoldRate(g_pUs, g_iUs, g_iThem);
+		if (iGoldPerTurn > iEffectiveRate) then
+			iGoldPerTurn = iEffectiveRate;
 			Controls.UsGoldPerTurnAmount:SetText(iGoldPerTurn);
 		end
 		if (iGoldPerTurn == 0) then
@@ -2704,15 +2728,15 @@ function ChangeGoldPerTurnAmount( string, control )
 		end
 
         g_Deal:ChangeGoldPerTurnTrade( g_iUs, iGoldPerTurn, g_iDealDuration );
-		
-		local strTooltip = Locale.ConvertTextKey( "TXT_KEY_DIPLO_CURRENT_GPT", g_pUs:CalculateGoldRate() - iGoldPerTurn );
+
+		local strTooltip = Locale.ConvertTextKey( "TXT_KEY_DIPLO_CURRENT_GPT", iEffectiveRate - iGoldPerTurn );
 		Controls.UsTableGoldPerTurn:SetToolTipString( strTooltip );
-		
+
     -- GPT from them
     else
-		
-		if (iGoldPerTurn > g_pThem:CalculateGoldRate()) then
-			iGoldPerTurn = g_pThem:CalculateGoldRate();
+		local iEffectiveRate = GetEffectiveGoldRate(g_pThem, g_iThem, g_iUs);
+		if (iGoldPerTurn > iEffectiveRate) then
+			iGoldPerTurn = iEffectiveRate;
 			Controls.ThemGoldPerTurnAmount:SetText(iGoldPerTurn);
 		end
 		if (iGoldPerTurn == 0) then
@@ -2721,10 +2745,10 @@ function ChangeGoldPerTurnAmount( string, control )
 		end
 
         g_Deal:ChangeGoldPerTurnTrade( g_iThem, iGoldPerTurn, g_iDealDuration );
-		
-		local strTooltip = Locale.ConvertTextKey( "TXT_KEY_DIPLO_CURRENT_GPT", g_pThem:CalculateGoldRate() - iGoldPerTurn );
+
+		local strTooltip = Locale.ConvertTextKey( "TXT_KEY_DIPLO_CURRENT_GPT", iEffectiveRate - iGoldPerTurn );
 		Controls.ThemTableGoldPerTurn:SetToolTipString( strTooltip );
-		
+
     end
 	--CBP
 	DoUIDealChangedByHuman();
@@ -2912,25 +2936,27 @@ Controls.ThemTableResearchAgreement:RegisterCallback( Mouse.eLClick, TableResear
 -- Handle the strategic and luxury resources
 -----------------------------------------------------------------------------------------------------------------------
 function PocketResourceHandler( isUs, resourceId )
-	
+
 	local iAmount = 3;
 
 	if ( GameInfo.Resources[ resourceId ].ResourceUsage == 2 ) then -- is a luxury resource
 		iAmount = 1;
 	end
-	
+
     if( isUs == 1 ) then
-		if (iAmount > g_pUs:GetNumResourceAvailable(resourceId, false)) then
-			iAmount = g_pUs:GetNumResourceAvailable(resourceId, false);
+		local iEffectiveCount = GetEffectiveResourceCount(g_pUs, g_iUs, g_iThem, resourceId);
+		if (iAmount > iEffectiveCount) then
+			iAmount = iEffectiveCount;
 		end
         g_Deal:AddResourceTrade( g_iUs, resourceId, iAmount, g_iDealDuration );
     else
-		if (iAmount > g_pThem:GetNumResourceAvailable(resourceId, false)) then
-			iAmount = g_pThem:GetNumResourceAvailable(resourceId, false);
+		local iEffectiveCount = GetEffectiveResourceCount(g_pThem, g_iThem, g_iUs, resourceId);
+		if (iAmount > iEffectiveCount) then
+			iAmount = iEffectiveCount;
 		end
         g_Deal:AddResourceTrade( g_iThem, resourceId, iAmount, g_iDealDuration );
     end
-    
+
     DisplayDeal();
     DoUIDealChangedByHuman();
 end
@@ -3009,13 +3035,16 @@ function ChangeResourceAmount( string, control )
 	
 	local bIsUs = control:GetVoid1() == 1;
 	local iResourceID = control:GetVoid2();
-	
+
 	local pPlayer;
 	local iPlayer;
+	local iOtherPlayer;
 	if (bIsUs) then
 		iPlayer = g_iUs;
+		iOtherPlayer = g_iThem;
 	else
 		iPlayer = g_iThem;
+		iOtherPlayer = g_iUs;
 	end
 	pPlayer = Players[iPlayer];
 
@@ -3025,17 +3054,18 @@ function ChangeResourceAmount( string, control )
     else
         control:SetText( 0 );
     end
-    
+
     -- Can't offer more than someone has
-    if (iNumResource > pPlayer:GetNumResourceAvailable(iResourceID, false)) then
-		iNumResource = pPlayer:GetNumResourceAvailable(iResourceID, false);
+	local iEffectiveCount = GetEffectiveResourceCount(pPlayer, iPlayer, iOtherPlayer, iResourceID);
+    if (iNumResource > iEffectiveCount) then
+		iNumResource = iEffectiveCount;
 		control:SetText(iNumResource);
 	end
 	if (iNumResource == 0) then
 		iNumResource = 1;
 		control:SetText(iNumResource);
 	end
-    
+
     if ( bIsUs ) then
         g_Deal:ChangeResourceTrade( g_iUs, iResourceID, iNumResource, g_iDealDuration );
     else

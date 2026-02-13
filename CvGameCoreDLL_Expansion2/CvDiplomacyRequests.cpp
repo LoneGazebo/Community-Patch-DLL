@@ -332,7 +332,7 @@ foundRequest:
 
 			if (!bAcceptable)
 			{				
-				if (kDeal.m_bConsideringForRenewal)
+				if (GC.getGame().GetGameDeals().GetRenewDealID(eFrom, eTo) > -1)
 				{
 					// doesn't make sense to alter deals that are being renewed, leads to confusion.
 					if (iTotalValueToMe < 0) {	// unacceptable deal in other player's favour, could be terrible but we don't want to cancel now. CvDiplomacyAI uses a more involved condition for this
@@ -584,7 +584,7 @@ void CvDiplomacyRequests::SendDealRequest(PlayerTypes eFromPlayer, PlayerTypes e
 		{
 			CvPlayer& kTo = GET_PLAYER(eToPlayer);
 			CvDiplomacyRequests* pDiploRequests = kTo.GetDiplomacyRequests();
-			if (pDiploRequests && pkDeal && pkDeal->m_bConsideringForRenewal)
+			if (pDiploRequests && pkDeal)
 			{
 				if (pkDeal->GetFromPlayer() != eFromPlayer)
 				{
@@ -597,7 +597,7 @@ void CvDiplomacyRequests::SendDealRequest(PlayerTypes eFromPlayer, PlayerTypes e
 				}
 				ASSERT(pkDeal->GetFromPlayer() == eFromPlayer);
 				ASSERT(pkDeal->GetToPlayer() == eToPlayer);
-				CvGameDeals::PrepareRenewDeal(pkDeal);
+				GC.getGame().GetGameDeals().AddProposedDeal(*pkDeal);
 				pDiploRequests->Add(eFromPlayer, eDiploType, pszMessage, eAnimationType, -1);
 			}
 		}
