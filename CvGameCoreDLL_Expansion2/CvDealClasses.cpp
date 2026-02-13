@@ -4361,6 +4361,8 @@ bool CvGameDeals::FinalizeMPDeal(CvDeal kDeal, bool bAccepted)
 			}
 		}
 	}
+
+	GC.getGame().GetGameDeals().SetRenewDealID(eFromPlayer, eToPlayer, -1);
 	
 	// Update UI if we were involved in the deal
 	PlayerTypes eActivePlayer = GC.getGame().getActivePlayer();
