@@ -1,6 +1,6 @@
 -- Great Writer
 UPDATE Language_en_US
-SET Text = 'A Great Writer can create a [ICON_GW_WRITING] Great Work of Writing (generates both [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism) that is placed in the nearest city that has an appropriate building with an empty slot (like an Amphitheater, National Epic, Heroic Epic, or Royal Library). A Great Writer can also write a Political Treatise, which grants the player an amount of Culture that scales with the number of owned [ICON_GREAT_WORK] Great Works. Great Writers are expended when used either of these ways.'
+SET Text = 'A Great Writer can create a [ICON_GW_WRITING] Great Work of Writing (generates both [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism) that is placed in the nearest city that has an appropriate building with an empty slot (like a Theater, Heroic Epic, or Royal Library). A Great Writer can also write a Political Treatise, which grants the player an amount of Culture that scales with the number of owned [ICON_GREAT_WORK] Great Works. Great Writers are expended when used either of these ways.'
 WHERE Tag = 'TXT_KEY_UNIT_GREAT_WRITER_STRATEGY';
 
 -- Great Artist

@@ -47,7 +47,7 @@ UPDATE Language_en_US
 SET Text = '[COLOR_YELLOW]Great Writer[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_SPECIALISTSANDGP_GREATWRITER_HEADING3_TITLE';
 UPDATE Language_en_US
-SET Text = '[COLOR_CYAN]Special Ability: {TXT_KEY_MISSION_CREATE_GREAT_WORK}[ENDCOLOR][NEWLINE]A Great Writer can create a [ICON_GW_WRITING] Great Work of Writing (generates both [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism) that is placed in the nearest city that has an appropriate building with an empty slot (like an Amphitheater, National Monument, or Heroic Epic). The Great Writer is expended when used this way.[NEWLINE][NEWLINE][COLOR_CYAN]Special Ability: {TXT_KEY_MISSION_GIVE_POLICIES}[ENDCOLOR][NEWLINE]A Great Writer can write a Political Treatise, which grants the player a large amount of [ICON_CULTURE] Culture, [COLOR_YELLOW]scaling by 3% for every owned Great Work[ENDCOLOR]. The Great Writer is expended when used this way.'
+SET Text = '[COLOR_CYAN]Special Ability: {TXT_KEY_MISSION_CREATE_GREAT_WORK}[ENDCOLOR][NEWLINE]A Great Writer can create a [ICON_GW_WRITING] Great Work of Writing (generates both [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism) that is placed in the nearest city that has an appropriate building with an empty slot (like a Theater or Heroic Epic). The Great Writer is expended when used this way.[NEWLINE][NEWLINE][COLOR_CYAN]Special Ability: {TXT_KEY_MISSION_GIVE_POLICIES}[ENDCOLOR][NEWLINE]A Great Writer can write a Political Treatise, which grants the player a large amount of [ICON_CULTURE] Culture, [COLOR_YELLOW]scaling by 3% for every owned Great Work[ENDCOLOR]. The Great Writer is expended when used this way.'
 WHERE Tag = 'TXT_KEY_SPECIALISTSANDGP_GREATWRITER_HEADING3_BODY';
 
 UPDATE Language_en_US
@@ -176,7 +176,7 @@ UPDATE Language_en_US
 SET Text = '[COLOR_YELLOW]Tourism[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_CULTURE_TOURISM_HEADING2_TITLE';
 UPDATE Language_en_US
-SET Text = '[ICON_TOURISM] Tourism is the primary yield you will use to spread your cultural influence to other civilizations. It is generated passively by [COLOR_POSITIVE_TEXT]Buildings[ENDCOLOR], [COLOR_POSITIVE_TEXT]Great Works[ENDCOLOR] or [COLOR_POSITIVE_TEXT]Artifacts[COLOR_YELLOW], and actively by [COLOR_POSITIVE_TEXT]Historic Events[COLOR_YELLOW] (for more on "Historic Events", see the section with this label) or completing [COLOR_POSITIVE_TEXT]Trade Routes[ENDCOLOR][COLOR_YELLOW] (if you have constructed buildings that grant such bonuses)[ENDCOLOR]. As you place more and more Great Works and Artifacts into your Museums, Amphitheaters, Opera Houses, etc., your [ICON_TOURISM] Tourism will continue to increase.
+SET Text = '[ICON_TOURISM] Tourism is the primary yield you will use to spread your cultural influence to other civilizations. It is generated passively by [COLOR_POSITIVE_TEXT]Buildings[ENDCOLOR], [COLOR_POSITIVE_TEXT]Great Works[ENDCOLOR] or [COLOR_POSITIVE_TEXT]Artifacts[COLOR_YELLOW], and actively by [COLOR_POSITIVE_TEXT]Historic Events[COLOR_YELLOW] (for more on "Historic Events", see the section with this label) or completing [COLOR_POSITIVE_TEXT]Trade Routes[ENDCOLOR][COLOR_YELLOW] (if you have constructed buildings that grant such bonuses)[ENDCOLOR]. As you place more and more Great Works and Artifacts into your Museums, Theaters, Opera Houses, etc., your [ICON_TOURISM] Tourism will continue to increase.
 
 [NEWLINE][NEWLINE]Your [ICON_TOURISM] Tourism is multiplied with each player in the following ways [COLOR_YELLOW](minimum [COLOR_NEGATIVE_TEXT]-100%[COLOR_YELLOW])[ENDCOLOR]:
 [NEWLINE][ICON_BULLET]Any Trade Route connecting your City with their City [COLOR_YELLOW]([COLOR_POSITIVE_TEXT]+10%[COLOR_YELLOW])[ENDCOLOR].
@@ -191,6 +191,14 @@ SET Text = '[ICON_TOURISM] Tourism is the primary yield you will use to spread y
 
 [NEWLINE][NEWLINE][COLOR_YELLOW]Additionally, certain player Abilities, Policies, Tenets, Corporations, and World Congress proposals can change this modifier.[ENDCOLOR] Other Abilities instead directly multiply the tourism generated in a city.'
 WHERE Tag = 'TXT_KEY_CULTURE_TOURISM_HEADING2_BODY';
+
+UPDATE Language_en_US
+SET Text = 'Great Artists, Writers, and Musicians all have the ability to create Great Works. These Great Works are iconic masterpieces from throughout time, like Leonardo Da Vinci''s Mona Lisa, or Charles Dickens'' A Christmas Carol.[NEWLINE][NEWLINE]Once created, you can then place these Great Works in an appropriate building that has an empty Great Work slot (like a Museum for a Great Work of Art, a Theater for a Great Work of Writing, or an Opera House for a Great Work of Music). Once placed, each Great Work produces both Culture and Tourism.'
+WHERE Tag = 'TXT_KEY_CULTURE_GREAT_WORKS_HEADING2_BODY';
+
+UPDATE Language_en_US
+SET Text = 'Great Writers can create a Great Work of Writing to place in any appropriate building in your empire that has an empty Great Work of Writing slot. This includes the Theater, the Heroic Epic, the Royal Library, as well as various Wonders.[NEWLINE][NEWLINE]To create a Great Work of Writing, select and move your Great Writer to within one hex of any city in your civilization. As long as there is an appropriate building with an empty slot available in any of your cities, you will be able to click the "Create Great Work" icon on the Unit Panel. The Great Work of Writing will display on your screen (for example, Charles Dickens'' A Christmas Carol), and the Great Writer is expended.'
+WHERE Tag = 'TXT_KEY_CULTURE_GREAT_WORK_WRITING_HEADING2_BODY';
 
 UPDATE Language_en_US
 SET Text = 'Laborers'
