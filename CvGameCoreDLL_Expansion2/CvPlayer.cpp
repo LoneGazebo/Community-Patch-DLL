@@ -35893,7 +35893,6 @@ void CvPlayer::DoUpdateWarDamageAndWeariness(bool bDamageOnly)
 			}
 		}
 
-		SetWarDamageValue(eLoopPlayer, iValueLostRatio);
 		if (GC.getGame().isReallyNetworkMultiPlayer() && IsAtWarAnyMajor())
 		{
 			if (GetWarDamageValue(eLoopPlayer) != iValueLostRatio || iWarValueLost > 0)
@@ -35913,6 +35912,7 @@ void CvPlayer::DoUpdateWarDamageAndWeariness(bool bDamageOnly)
 				pLog->Msg(strOutBuf);
 			}
 		}
+		SetWarDamageValue(eLoopPlayer, iValueLostRatio);
 
 		// Only update war weariness between major civs (and only on the once-per-turn update)
 		if (bDamageOnly || !isMajorCiv() || !GET_PLAYER(eLoopPlayer).isMajorCiv())
@@ -40807,6 +40807,20 @@ CvUnit* CvPlayer::addUnit()
 
 void CvPlayer::deleteUnit(int iID)
 {
+	if(GC.getGame().isNetworkMultiPlayer())
+	{
+		CvUnit* pUnit = m_units.Get(iID);
+		if(pUnit)
+		{
+			CvPlot* pPlot = pUnit->plot();
+			if(pPlot && pPlot->getUnitIndex(pUnit) >= 0)
+			{
+				CvString msg; CvString::format(msg, "*** PLOT UNIT DESYNC *** deleteUnit: unit (owner %d, id %d) is still on plot (%d,%d) when being deleted from player!",
+					GetID(), iID, pPlot->getX(), pPlot->getY());
+				gGlobals.getDLLIFace()->sendChat(msg, CHATTARGET_ALL, NO_PLAYER);
+			}
+		}
+	}
 	m_units.Remove(iID);
 }
 

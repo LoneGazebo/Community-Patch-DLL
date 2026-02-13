@@ -374,6 +374,15 @@ void CvTacticalAI::UpdateVisibilityFromUnits(CvPlot* pPlot)
 		for (int iI = 0; iI < pPlot->getNumUnits(); iI++)
 		{
 			pLoopUnit = pPlot->getUnitByIndex(iI);
+			if(pLoopUnit == NULL)
+			{
+				if(GC.getGame().isNetworkMultiPlayer())
+				{
+					CvString msg; CvString::format(msg, "*** PLOT UNIT DESYNC *** UpdateVisibilityFromUnits: NULL unit at index %d on plot (%d,%d). Plot reports %d units.",
+						iI, pPlot->getX(), pPlot->getY(), pPlot->getNumUnits());
+					gGlobals.getDLLIFace()->sendChat(msg, CHATTARGET_ALL, NO_PLAYER);
+				}
+			}
 			eLoopUnitTeam = pLoopUnit->getTeam();
 
 			if (eLoopUnitTeam != ePlayerTeam && !pLoopUnit->isInvisible(ePlayerTeam, false))

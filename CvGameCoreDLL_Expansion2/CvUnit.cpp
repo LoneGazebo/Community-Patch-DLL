@@ -2634,6 +2634,12 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 		GAMEEVENTINVOKE_HOOK(GAMEEVENT_UnitCaptured, kCaptureDef.eCapturingPlayer, kCaptureDef.eCaptureUnitType, eUnitOwner, GetID(), false, 1);
 	}
 
+	if(GC.getGame().isNetworkMultiPlayer() && pPlot && pPlot->getUnitIndex(this) < 0)
+	{
+		CvString msg; CvString::format(msg, "*** PLOT UNIT DESYNC *** kill: unit (owner %d, id %d) not found on its plot (%d,%d) before setXY(INVALID_PLOT_COORD). Unit coords: (%d,%d), delayed death: %d",
+			(int)eUnitOwner, GetID(), pPlot->getX(), pPlot->getY(), getX(), getY(), (int)isDelayedDeathExported());
+		gGlobals.getDLLIFace()->sendChat(msg, CHATTARGET_ALL, NO_PLAYER);
+	}
 	setXY(INVALID_PLOT_COORD, INVALID_PLOT_COORD, true);
 	if(pPlot)
 		pPlot->removeUnit(this, false);
