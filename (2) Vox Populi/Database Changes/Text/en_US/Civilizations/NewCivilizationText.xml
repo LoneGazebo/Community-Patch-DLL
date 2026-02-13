@@ -1447,7 +1447,7 @@
 			<Text>Gumeys were riverside entrepots used to conduct goods and soldiers back and forth along the Niger river before they were loaded onto camels for the arduous journey across the open desert. Even before gaining their independence from the Mali Empire, the Songhai had become fantastically wealthy off the trade of gold, salt, and slaves from the Trans-Saharan trade routes. The Songhai's seat of power lay at the edge of the vast Saharan desert, acting as a waystation between the Taghazan salt mines to the north, the gold mines in the southwest, and distant markets in Egypt and the Middle East.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_GUMEY_STRATEGY">
-			<Text></Text>
+			<Text>Gumeys provide bonus yields when a [ICON_INTERNATIONAL_TRADE] Trade Route passes through the City that it's built in similar to how Villages/Towns receive bonus yields from passing [ICON_INTERNATIONAL_TRADE] Trade Routes. They also give bonus [ICON_INTERNATIONAL_TRADE] Land Trade Route range and additional [ICON_GOLD] Gold on [ICON_INTERNATIONAL_TRADE] International Trade Routes.[NEWLINE][NEWLINE]To take advantage of this, you want to try to setup long [ICON_INTERNATIONAL_TRADE] Trade Routes that pass through as many of your Cities as possible so they can each receive the bonus yields.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_UNIT_SOFA">
@@ -1460,7 +1460,7 @@
 			<Text>Sofa is a Mandinka term for slave soldiers who served in the army of the various Empires of West Africa. Originally, the Sofas were horse grooms of the soldier-nobility, the Farari, but their role slowly changed to become skirmishers and soldiers in their own right. Sofas were recruited from "jonow" (slaves) captured in battle or bought from afar. The institution of slavery in the Mali and Songhai Empires heavily rewarded loyalty, and jonow could rise to civil or military positions of prominence. Jonow became part of their master's clan, and were often freed after a certain amount of years.[NEWLINE][NEWLINE]Sofas were equipped with two quivers, and their bow was small by European standards, so sofas employed deadly poisons and fired in arcs to give their arrows strength.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_SOFA_STRATEGY">
-			<Text></Text>
+			<Text>Sofas unlock around the same time as Mandekalu Cavalry and together they provide a very strong military power spike for Songhai to go on the offensive. While Mandekalu Cavalry are the workhorse units, Sofas provide additional healing through having the Medic I promotion and have bonus Combat Strength against Mounted Units which minimizes one of their only counters.[NEWLINE][NEWLINE]Since unlike Mandekalu Cavalry, they don't cost any Strategic Resources, you can easily spam lots of them out to round out your army.</Text>
 		</Row>
 
 		<!-- Spain -->
