@@ -309,19 +309,13 @@
 		<Column name="Amount" type="integer" notnull="true"/>
 	</Table>
 
-	<!-- FOLLOWER: Allows you to define a policy to grant a yield per follower in a city, up to a maximum amount. -->
-	<Table name="Belief_MaxYieldPerFollower">
+	<!-- FOLLOWER: Allows you to define a belief to grant a yield per X followers in a city, up to a maximum amount (defaults no cap). -->
+	<Table name="Belief_YieldPerXFollowersLocal">
 		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
-		<Column name="Max" type="integer" notnull="true"/>
-	</Table>
-	<!-- Same as above, but x * followers / 100 -->
-	<Table name="Belief_MaxYieldPerFollowerPercent">
-		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
-		<Column name="YieldType" type="text" reference="Yields(Type)"/>
-		<Column name="Max" type="integer" notnull="true"/>
-	</Table>
-
+		<Column name="NumRequired" type="integer" notnull="true"/>
+		<Column name="YieldCap" type="integer" notnull="true" default="-1"/>
+		
 	<!-- Same as vanilla but percent (as above)-->
 	<Table name="Belief_MaxYieldModifierPerFollowerPercent">
 		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
