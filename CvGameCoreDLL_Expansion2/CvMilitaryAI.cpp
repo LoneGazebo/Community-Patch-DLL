@@ -4298,6 +4298,8 @@ FDataStream& operator<<(FDataStream& saveTo, const CvAttackTarget& readFrom)
 	saveTo << readFrom.m_iStagingPlotIndex;
 	saveTo << readFrom.m_iTargetPlotIndex;
 	saveTo << readFrom.m_iPathLength;
+	saveTo << readFrom.m_iApproachScore;
+	saveTo << readFrom.m_bPreferred;
 	return saveTo;
 }
 
@@ -4308,6 +4310,8 @@ FDataStream& operator>>(FDataStream& loadFrom, CvAttackTarget& writeTo)
 	loadFrom >> writeTo.m_iStagingPlotIndex;
 	loadFrom >> writeTo.m_iTargetPlotIndex;
 	loadFrom >> writeTo.m_iPathLength;
+	loadFrom >> writeTo.m_iApproachScore;
+	loadFrom >> writeTo.m_bPreferred;
 	return loadFrom;
 }
 
