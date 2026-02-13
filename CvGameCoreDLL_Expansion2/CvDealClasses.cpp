@@ -2198,13 +2198,13 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 					}
 					else if (!pFromTeam->isMapTrading())
 					{
-						if (bFromHuman && eMapTradeTech != NO_TECH)
+						if (bFromHuman)
 						{
 							strReason = GetLocalizedText("TXT_KEY_DIPLO_TRADE_MAPS_NO_TECH_PLAYER", strTechDesc);
 							strTooltip += strDivider;
 							strTooltip += strReason;
 						}
-						else if (bToHuman && eMapTradeTech != NO_TECH)
+						else if (bToHuman)
 						{
 							strReason = GetLocalizedText("TXT_KEY_DIPLO_TRADE_MAPS_NO_TECH_OTHER_PLAYER", strTechDesc);
 							strTooltip += strDivider;
@@ -2213,13 +2213,13 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 					}
 					else
 					{
-						if (bToHuman && eMapTradeTech != NO_TECH)
+						if (bToHuman)
 						{
 							strReason = GetLocalizedText("TXT_KEY_DIPLO_TRADE_MAPS_NO_TECH_PLAYER", strTechDesc);
 							strTooltip += strDivider;
 							strTooltip += strReason;
 						}
-						else if (bFromHuman && eMapTradeTech != NO_TECH)
+						else if (bFromHuman)
 						{
 							strReason = GetLocalizedText("TXT_KEY_DIPLO_TRADE_MAPS_NO_TECH_OTHER_PLAYER", strTechDesc);
 							strTooltip += strDivider;
