@@ -14213,7 +14213,7 @@ int CvUnit::upgradePrice(UnitTypes eUnit) const
 		iProductionBase = kPlayer.getProductionNeeded(eUnit, true) / 2;
 	}
 
-	iPrice += (std::max(0, (kPlayer.getProductionNeeded(eUnit, true) - iProductionBase)) * /*2 in CP, 1 in VP*/ GD_INT_GET(UNIT_UPGRADE_COST_PER_PRODUCTION));
+	iPrice += (int)(std::max(0, (kPlayer.getProductionNeeded(eUnit, true) - iProductionBase)) * /*2.0f in CP, 1.25f in VP*/ GD_FLOAT_GET(UNIT_UPGRADE_COST_PER_PRODUCTION));
 
 	// Upgrades for later units are more expensive
 	const TechTypes eTech = (TechTypes) pkUnitInfo->GetPrereqAndTech();
