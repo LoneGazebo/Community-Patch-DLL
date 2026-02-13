@@ -174,7 +174,7 @@
 			<Text>Dreadnought</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_DREADNOUGHT_STRATEGY">
-			<Text>Dreadnoughts are capable of firing from a distance, but requires Iron to be built.</Text>
+			<Text>Dreadnoughts gain [COLOR_POSITIVE_TEXT]Indirect Fire[ENDCOLOR] Promotion over Cruisers they replace. Combined with high [ICON_RANGE_STRENGTH] Ranged Combat Strength, it allows for more aggressive coastal bombardment. Dreadnoughts are most useful when focusing on land targets and melee ships while your melee ships engage ranged naval units.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_DREADNOUGHT_TEXT">
 			<Text>The Dreadnought was the predominant type of battleship in the early 20th century. Its design had two revolutionary features: an "all-big-gun" armament scheme, with more heavy-caliber guns than previous ships, and steam turbine propulsion. The first of its kind, the Royal Navy's "Dreadnought" mounted ten 12-inch (305 mm) guns. The US Navy was the first to adopt oil-firing, deciding to do so in 1910 and ordering oil-fired boilers for the Nevada class, in 1911. Other major navies retained mixed coal-and-oil firing until the end of World War I.[NEWLINE][NEWLINE]Within five years of the commissioning of "Dreadnought", a new generation of more powerful "super-dreadnoughts" was being built. The first super-dreadnoughts are generally considered to be the British "Orion" class. What made them "super" was the introduction of the heavier 13.5-inch (343 mm) guns and the placement of all the main armament on the centerline. In 1917, the Japanese "Nagato" class was ordered, the first dreadnoughts to mount 16-inch (406 mm) guns, making them arguably the most powerful warships in the world.</Text>

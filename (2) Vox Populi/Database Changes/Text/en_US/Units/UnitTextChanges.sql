@@ -229,12 +229,12 @@ WHERE Tag = 'TXT_KEY_UNIT_CARRIER_STRATEGY';
 
 -- Battleship
 UPDATE Language_en_US
-SET Text = 'The Battleship is a powerful warship with a mighty Combat Strength. Its indirect fire ability allows it to bombard targets it cannot see (as long as other friendly units can see them). The Battleship is vulnerable to air and submarine attacks.'
+SET Text = 'Battleships have 3 range and 5 [ICON_MOVES] Movement, both higher than Dreadnoughts they replace. This, combined with [COLOR_POSITIVE_TEXT]Indirect Fire[ENDCOLOR] Promotion, allows for higher concentration of fire on units and cities, faster response time and better safety from coastal counterattacks. They are effective versus all targets, but vulnerable to air, submarine and melee attacks, so spotting and then countering or eliminating these units early is important for keeping a battleship fleet safe.'
 WHERE Tag = 'TXT_KEY_UNIT_BATTLESHIP_STRATEGY';
 
 -- Missile Cruiser
 UPDATE Language_en_US
-SET Text = 'The Missile Cruiser is a modern warship. It''s fast and tough and carries a mean punch. Most importantly, the Missile Cruiser can carry Guided Missiles and Nuclear Missiles, allowing you to carry these deadly weapons right up to the enemy''s shore. Missile Cruisers combined with carriers, submarines, and destroyers make a fiendishly powerful armada.'
+SET Text = 'Missile Cruisers, in addition to higher[ICON_STRENGTH] Combat Strength and [ICON_RANGE_STRENGTH] Ranged Combat Strength over Battleships, can carry 3 Guided Missiles or Nuclear Missiles, allowing for their deployment deep into the enemy territory after arriving near their coast. 3 range allows for concentrated fire on Cities and Units, as well as greater safety from coastal ranged attacks. +1 [ICON_MOVES] Movement enables even faster attacks.[NEWLINE][NEWLINE]They are still vulnerable to air, submarine, and melee attacks, but not as much as Battleships, due to the [COLOR_POSITIVE_TEXT]Armor Plating I[ENDCOLOR] Promotion.'
 WHERE Tag = 'TXT_KEY_UNIT_MISSILE_CRUISER_STRATEGY';
 
 -- Destroyer
