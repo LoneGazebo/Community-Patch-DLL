@@ -48,11 +48,13 @@ void InitializeArray(T*& pArray, const char* szTableName, T default_ = (T)0);
 
 	//!Allocates an array to Count(szTypeTableName) and initializes to false.
 	//!Then assigns pArray[Type.ID] = true for all resulting rows.
+	//!If iMinArraySize > 0 and > Count(szTypeTableName), uses iMinArraySize instead.
 	bool PopulateArrayByExistence(bool*& pArray,	const char* szTypeTableName,
 	                              const char* szDataTableName,
 	                              const char* szTypeColumn,
 	                              const char* szFilterColumn,
-	                              const char* szFilterValue);
+	                              const char* szFilterValue,
+	                              int iMinArraySize = 0);
 
 	//!Allocates an array to Count(szTypeTableName) and initializes to false.
 	//!Then assigns pArray[i++] = Type.ID for all resulting rows.

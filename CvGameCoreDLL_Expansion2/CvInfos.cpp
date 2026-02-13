@@ -1641,7 +1641,7 @@ bool CvSpecialUnitInfo::CacheResults(Database::Results& kResults, CvDatabaseUtil
 	m_bCityLoad = kResults.GetBool("CityLoad");
 
 	const char* szSpecialUnitType = GetType();
-	kUtility.PopulateArrayByExistence(m_pbCarrierUnitAITypes, "UnitAIInfos", "SpecialUnit_CarrierUnitAI", "UnitAIType", "SpecialUnitType", szSpecialUnitType);
+	kUtility.PopulateArrayByExistence(m_pbCarrierUnitAITypes, "UnitAIInfos", "SpecialUnit_CarrierUnitAI", "UnitAIType", "SpecialUnitType", szSpecialUnitType, NUM_UNITAI_TYPES);
 	kUtility.PopulateArrayByValue(m_piProductionTraits, "Traits", "SpecialUnit_ProductionTraits", "TraitType", "SpecialUnitType", szSpecialUnitType, "Trait");
 
 	return true;
