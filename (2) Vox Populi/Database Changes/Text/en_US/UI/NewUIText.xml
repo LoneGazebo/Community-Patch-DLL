@@ -1786,13 +1786,13 @@
 			<Text>Reveals all land explored by this civilization.[NEWLINE][NEWLINE]Note: Will not receive contact with unmet civilizations and city-states.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_TRADE_MAPS_NO_TECH_BOTH">
-			<Text>Both players don't yet have the Technology required to trade this item (Military Science).</Text>
+			<Text>Both players don't yet have the Technology required to trade this item {1_Tech:textkey}.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_TRADE_MAPS_NO_TECH_OTHER_PLAYER">
-			<Text>They don't yet have the Technology required to trade this item (Military Science).</Text>
+			<Text>They don't yet have the Technology required to trade this item {1_Tech:textkey}.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_TRADE_MAPS_NO_TECH_PLAYER">
-			<Text>You don't yet have the Technology required to trade this item (Military Science).</Text>
+			<Text>You don't yet have the Technology required to trade this item {1_Tech:textkey}.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_TRADE_MAPS_THEY_ALREADY_EXPLORED">
 			<Text>They have already explored all of the lands revealed in your World Map.</Text>
