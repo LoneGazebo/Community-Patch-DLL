@@ -59,6 +59,7 @@ AND PromotionType IN (
 INSERT INTO Unit_FreePromotions
 	(UnitType, PromotionType)
 VALUES
+	('UNIT_KOREAN_HWACHA', 'PROMOTION_SPLASH_1'),
 	('UNIT_KOREAN_HWACHA', 'PROMOTION_LOGISTICS');
 
 ----------------------------------------------------------
