@@ -887,7 +887,7 @@ UPDATE UnitPromotions SET GreatGeneralCombatModifier = 25 WHERE Type = 'PROMOTIO
 UPDATE UnitPromotions SET HPHealedIfDestroyEnemy = 25 WHERE Type = 'PROMOTION_PARTIAL_HEAL_IF_DESTROY_ENEMY';
 
 -- Hakkapeliitta: Hakkaa Päälle!
-UPDATE UnitPromotions SET AttackAbove50HealthMod = 30 WHERE Type = 'PROMOTION_HAKKAA_PAALLE';
+UPDATE UnitPromotions SET AttackAbove50HealthMod = 50 WHERE Type = 'PROMOTION_HAKKAA_PAALLE';
 
 -- Foreign Legion: Foreign Lands Bonus
 UPDATE UnitPromotions SET OutsideFriendlyLandsModifier = 20 WHERE Type = 'PROMOTION_FOREIGN_LANDS';
@@ -1127,7 +1127,14 @@ VALUES
 	('PROMOTION_HOOKED_WEAPON', 'UNITCOMBAT_MOUNTED', 25);
 
 -- Oromo Cavalry: Zemene Mesafint
-UPDATE UnitPromotions SET VsUnhappyMod = 20 WHERE Type = 'PROMOTION_ZEMENE_MESAFINT';
+INSERT INTO UnitPromotions_Terrains
+	(PromotionType, TerrainType, DoubleMove)
+VALUES
+	('PROMOTION_ZEMENE_MESAFINT', 'TERRAIN_HILL', 1);
+INSERT INTO UnitPromotions_TerrainModifiers
+	(PromotionType, TerrainType, Attack, Defense)
+VALUES
+	('PROMOTION_ZEMENE_MESAFINT', 'TERRAIN_HILL', 25, 25);
 
 -- Krupp Gun: Minenwerfer
 UPDATE UnitPromotions SET AttackFortifiedMod = 50, PillageFortificationsOnKill = 1 WHERE Type = 'PROMOTION_MINENWERFER';

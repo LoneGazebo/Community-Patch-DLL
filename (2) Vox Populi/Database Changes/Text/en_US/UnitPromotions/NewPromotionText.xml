@@ -929,7 +929,7 @@
 			<Text>Hakkaa Päälle!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_HAKKAA_PAALLE_HELP">
-			<Text>+30% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Units above 50% HP[ENDCOLOR].</Text>
+			<Text>+50% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Units above 50% HP[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_FOCUS_FIRE">
@@ -1153,7 +1153,7 @@
 			<Text>Zemene Mesafint</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ZEMENE_MESAFINT_HELP">
-			<Text>+20% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Units from [ICON_HAPPINESS_3] Unhappy Empires[ENDCOLOR].</Text>
+			<Text>Double [ICON_MOVES] Movement in [COLOR_POSITIVE_TEXT]Hill[ENDCOLOR].[NEWLINE]+25% [ICON_STRENGTH] Combat Strength when fighting in [COLOR_POSITIVE_TEXT]Hill[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_MINENWERFER">
