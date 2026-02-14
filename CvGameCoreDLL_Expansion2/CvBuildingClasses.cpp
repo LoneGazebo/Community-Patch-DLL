@@ -3797,7 +3797,7 @@ int CvBuildingEntry::GetYieldFromInternationalTREnd(int i) const
 	return m_piYieldFromInternationalTREnd[i];
 }
 
-/// Instant yield granted when an international trade route ends
+/// Instant yield granted when an internal trade route ends
 int CvBuildingEntry::GetYieldFromInternalTREnd(int i) const
 {
 	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");

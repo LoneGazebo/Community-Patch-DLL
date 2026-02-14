@@ -26114,10 +26114,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					else
 					{
 						iValue += pLoopCity->GetYieldFromInternalTREnd(eYield);
-						if (pOtherCity != NULL)
-						{
-							iValue += pOtherCity->GetYieldFromInternalTREnd(eYield);
-						}
+						// this is called both ways around in TradeClasses
 					}
 					break;
 				}
