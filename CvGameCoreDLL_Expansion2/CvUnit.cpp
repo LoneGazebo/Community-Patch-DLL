@@ -33253,11 +33253,45 @@ bool CvUnit::canChangeVisibility() const
 }
 
 //	--------------------------------------------------------------------------------
-std::string CvUnit::debugDump(const FAutoVariableBase& /*var*/) const
+std::string CvUnit::debugDump(const FAutoVariableBase& var) const
 {
-	// TODO: This... just can't be correct.  Surely, there must be something useful
-	// this function is supposed to do.  Unfortunately, I don't know what that is.
-	return EmptyString;
+	std::ostringstream result;
+	std::string varName = var.name();
+	
+	// Unit identity
+	result << "Unit: " << getName();
+	
+	if (getOwner() != NO_PLAYER)
+	{
+		result << " | Owner: " << GET_PLAYER(getOwner()).getCivilizationShortDescription()
+		       << " (ID:" << getOwner() << ")";
+	}
+	
+	// Position
+	result << " | Pos: (" << getX() << "," << getY() << ")";
+	
+	// Health
+	result << " | HP: " << GetCurrHitPoints() << "/" << GetMaxHitPoints();
+	
+	// Automation and activity context
+	if (varName.find("Automat") != std::string::npos ||
+	    varName.find("Mission") != std::string::npos ||
+	    varName.find("Path") != std::string::npos ||
+	    varName.find("Move") != std::string::npos)
+	{
+		if (IsAutomated())
+		{
+			result << " | Automated: YES";
+		}
+		
+		ActivityTypes eActivity = GetActivityType();
+		if (eActivity != NO_ACTIVITY)
+		{
+			result << " | Activity: " << eActivity;
+		}
+	}
+	
+	return result.str();
 }
 
 //	--------------------------------------------------------------------------------

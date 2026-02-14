@@ -14180,14 +14180,68 @@ const CvSyncArchive<CvPlot>& CvPlot::getSyncArchive() const
 }
 
 //	--------------------------------------------------------------------------------
-std::string CvPlot::debugDump(const FAutoVariableBase&) const
+std::string CvPlot::debugDump(const FAutoVariableBase& var) const
 {
-	std::string result = "Game Turn : ";
-	char gameTurnBuffer[8] = {0};
-	int gameTurn = GC.getGame().getGameTurn();
-	sprintf_s(gameTurnBuffer, "%d\0", gameTurn);
-	result += gameTurnBuffer;
-	return result;
+	std::ostringstream result;
+	std::string varName = var.name();
+	
+	// Plot coordinates
+	result << "Plot: (" << getX() << "," << getY() << ")";
+	
+	// Ownership
+	if (getOwner() != NO_PLAYER)
+	{
+		result << " | Owner: " << GET_PLAYER(getOwner()).getCivilizationShortDescription()
+		       << " (ID:" << getOwner() << ")";
+	}
+	else
+	{
+		result << " | Owner: None";
+	}
+	
+	// Terrain and features
+	if (varName.find("Terrain") != std::string::npos ||
+	    varName.find("Feature") != std::string::npos ||
+	    varName.find("Improvement") != std::string::npos ||
+	    varName.find("Yield") != std::string::npos)
+	{
+		if (getTerrainType() != NO_TERRAIN)
+		{
+			result << " | Terrain: " << GC.getTerrainInfo(getTerrainType())->GetType();
+		}
+		
+		if (getFeatureType() != NO_FEATURE)
+		{
+			result << " | Feature: " << GC.getFeatureInfo(getFeatureType())->GetType();
+		}
+		
+		if (getImprovementType() != NO_IMPROVEMENT)
+		{
+			result << " | Improvement: " << GC.getImprovementInfo(getImprovementType())->GetType();
+		}
+	}
+	
+	// City owning this plot
+	if (varName.find("City") != std::string::npos ||
+	    varName.find("Work") != std::string::npos ||
+	    varName.find("Yield") != std::string::npos)
+	{
+		CvCity* pOwningCity = getOwningCity();
+		if (pOwningCity != NULL)
+		{
+			result << " | Owning City: " << pOwningCity->getName();
+		}
+	}
+	
+	// Visibility
+	if (varName.find("Visible") != std::string::npos ||
+	    varName.find("Reveal") != std::string::npos ||
+	    varName.find("Seen") != std::string::npos)
+	{
+		result << " | Visible to active: " << (isVisible(GC.getGame().getActiveTeam()) ? "YES" : "NO");
+	}
+	
+	return result.str();
 }
 
 //	--------------------------------------------------------------------------------

@@ -33772,14 +33772,56 @@ CvSyncArchive<CvCity>& CvCity::getSyncArchive()
 }
 
 //	--------------------------------------------------------------------------------
-std::string CvCity::debugDump(const FAutoVariableBase& /*var*/) const
+std::string CvCity::debugDump(const FAutoVariableBase& var) const
 {
-	std::string result = "Game Turn : ";
-	char gameTurnBuffer[8] = { 0 };
-	int gameTurn = GC.getGame().getGameTurn();
-	sprintf_s(gameTurnBuffer, "%d\0", gameTurn);
-	result += gameTurnBuffer;
-	return result;
+	std::ostringstream result;
+	std::string varName = var.name();
+	
+	// City identity
+	result << "City: " << getName();
+	
+	if (getOwner() != NO_PLAYER)
+	{
+		result << " | Owner: " << GET_PLAYER(getOwner()).getCivilizationShortDescription()
+		       << " (ID:" << getOwner() << ")";
+	}
+	
+	result << " | Pop: " << getPopulation();
+	
+	// Yield context
+	if (varName.find("Yield") != std::string::npos || 
+	    varName.find("Specialist") != std::string::npos)
+	{
+		int iTotalSpecialists = GetCityCitizens()->GetTotalSpecialistCount();
+		if (iTotalSpecialists > 0)
+		{
+			result << " | Specialists: " << iTotalSpecialists;
+		}
+		
+		ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
+		if (eMajority != NO_RELIGION)
+		{
+			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
+			if (pReligion)
+			{
+				result << " | Religion: " << pReligion->GetName();
+			}
+		}
+	}
+	
+	// Ownership/capture context
+	if (varName.find("Ownership") != std::string::npos || 
+	    varName.find("Capture") != std::string::npos ||
+	    varName.find("Puppet") != std::string::npos ||
+	    varName.find("Raze") != std::string::npos ||
+	    varName.find("Occupy") != std::string::npos)
+	{
+		result << " | Puppet: " << (IsPuppet() ? "YES" : "NO");
+		result << " | Razing: " << (IsRazing() ? "YES" : "NO");
+		result << " | Occupied: " << (IsOccupied() ? "YES" : "NO");
+	}
+	
+	return result.str();
 }
 
 //	--------------------------------------------------------------------------------

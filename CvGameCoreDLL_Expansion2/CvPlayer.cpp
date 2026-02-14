@@ -47311,14 +47311,90 @@ bool CvPlayer::hasUnitsThatNeedAIUpdate() const
 	return false;
 }
 
-std::string CvPlayer::debugDump(const FAutoVariableBase&) const
+std::string CvPlayer::debugDump(const FAutoVariableBase& var) const
 {
-	std::string result = "Game Turn : ";
-	char gameTurnBuffer[8] = {0};
-	int gameTurn = GC.getGame().getGameTurn();
-	sprintf_s(gameTurnBuffer, "%d\0", gameTurn);
-	result += gameTurnBuffer;
-	return result;
+	std::ostringstream result;
+	std::string varName = var.name();
+	
+	// Player identity
+	result << "Player: ";
+	if (isMajorCiv())
+	{
+		result << getCivilizationShortDescription();
+	}
+	else if (isMinorCiv())
+	{
+		result << "CS-" << getName();
+	}
+	else
+	{
+		result << "Unknown";
+	}
+	result << " (ID:" << GetID() << ")";
+	
+	// Science rate / Minor allies context
+	if (varName.find("ScienceRate") != std::string::npos ||
+	    varName.find("MinorAllies") != std::string::npos ||
+	    varName.find("MinorCiv") != std::string::npos)
+	{
+		if (isMajorCiv())
+		{
+			int numAllies = GetNumCSAllies();
+			result << " | CS Allies: " << numAllies;
+			
+			if (numAllies > 0 && numAllies <= 5)
+			{
+				result << " [";
+				bool first = true;
+				for (int i = MAX_MAJOR_CIVS; i < MAX_CIV_PLAYERS; i++)
+				{
+					PlayerTypes eMinor = (PlayerTypes)i;
+					if (GET_PLAYER(eMinor).isAlive() && 
+					    GET_PLAYER(eMinor).GetMinorCivAI()->GetAlly() == GetID())
+					{
+						if (!first) result << ", ";
+						result << GET_PLAYER(eMinor).getName();
+						first = false;
+					}
+				}
+				result << "]";
+			}
+		}
+	}
+	
+	// War damage context
+	if (varName.find("WarDamage") != std::string::npos ||
+	    varName.find("War") != std::string::npos ||
+	    varName.find("Peace") != std::string::npos)
+	{
+		result << " | At War: [";
+		bool first = true;
+		for (int i = 0; i < MAX_CIV_PLAYERS; i++)
+		{
+			PlayerTypes ePlayer = (PlayerTypes)i;
+			if (GET_PLAYER(ePlayer).isAlive() && IsAtWarWith(ePlayer))
+			{
+				if (!first) result << ", ";
+				result << GET_PLAYER(ePlayer).getName();
+				first = false;
+			}
+		}
+		result << "]";
+	}
+	
+	// City/yield context
+	if (varName.find("City") != std::string::npos ||
+	    varName.find("Yield") != std::string::npos ||
+	    varName.find("Population") != std::string::npos)
+	{
+		result << " | Cities: " << getNumCities();
+		if (getNumCities() > 0)
+		{
+			result << " | Total Pop: " << getTotalPopulation();
+		}
+	}
+	
+	return result.str();
 }
 
 std::string CvPlayer::stackTraceRemark(const FAutoVariableBase& /*var*/) const
