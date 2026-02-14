@@ -1374,6 +1374,10 @@ public:
 	int getReligionBuildingYieldRateModifier(BuildingClassTypes eBuilding, YieldTypes eYield)	const;
 	void changeReligionBuildingYieldRateModifier(BuildingClassTypes eBuilding, YieldTypes eYield, int iChange);
 
+	int getYieldChangeFaithPurchasableBuildings(YieldTypes eYield)	const;
+	void changeYieldChangeFaithPurchasableBuildings(YieldTypes eYield, int iChange);
+	void applyYieldFaithPurchasableBuildings(YieldTypes eYield);
+
 	int getLocalBuildingClassYield(BuildingClassTypes eBuilding, YieldTypes eYield)	const;
 	void changeLocalBuildingClassYield(BuildingClassTypes eBuilding, YieldTypes eYield, int iChange);
 
@@ -2142,6 +2146,7 @@ protected:
 
 	vector<SCityExtraYields> m_yieldChanges; //[NUM_YIELD_TYPES]
 
+	std::vector<int> m_aiYieldChangeFaithPurchasableBuildings;
 	std::map<std::pair<int, int>, short> m_ppiGreatPersonProgressFromConstruction;
 	std::vector<int> m_aiEventCooldown;
 	std::vector<bool> m_abEventActive;
@@ -2532,6 +2537,7 @@ SYNC_ARCHIVE_VAR(bool, m_bRouteToCapitalConnectedThisTurn)
 SYNC_ARCHIVE_VAR(CvString, m_strName)
 SYNC_ARCHIVE_VAR(bool, m_bOwedCultureBuilding)
 SYNC_ARCHIVE_VAR(bool, m_bOwedFoodBuilding)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldChangeFaithPurchasableBuildings)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiEventCooldown)
 SYNC_ARCHIVE_VAR(std::vector<bool>, m_abEventActive)
 SYNC_ARCHIVE_VAR(std::vector<bool>, m_abEventChoiceActive)
