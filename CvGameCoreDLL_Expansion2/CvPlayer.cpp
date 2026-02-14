@@ -16144,6 +16144,41 @@ int CvPlayer::GetWorldWonderYieldChange(int iYield)
 	return rtnValue;
 }
 
+/// Do we have any Improvements that go on Mountains?
+bool CvPlayer::HasMountainImprovement() const
+{
+	for (int i = 0; i < GC.getNumBuildInfos(); i++)
+	{
+		BuildTypes eBuild = (BuildTypes)i;
+		const CvBuildInfo* pkBuildInfo = GC.getBuildInfo(eBuild);
+		if (!pkBuildInfo)
+			continue;
+
+		ImprovementTypes eImprovement = (ImprovementTypes)pkBuildInfo->getImprovement();
+		if (eImprovement == NO_IMPROVEMENT)
+			continue;
+
+		const CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
+		if (!pkImprovementInfo || !pkImprovementInfo->IsMountainsMakesValid())
+			continue;
+
+		// --- Unlock checks ---
+		// Tech prereq
+		if (pkBuildInfo->getTechPrereq() != NO_TECH &&
+			!GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)pkBuildInfo->getTechPrereq()))
+			continue;
+
+		// Civ restriction
+		if (pkImprovementInfo->GetRequiredCivilization() != NO_CIVILIZATION &&
+			pkImprovementInfo->GetRequiredCivilization() != getCivilizationType())
+			continue;
+
+		return true;
+	}
+
+	return false;
+}
+
 /// Can we eBuild on pPlot?
 bool CvPlayer::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestEra, bool bTestVisible, bool bTestGold, bool bTestPlotOwner, const CvUnit* pUnit) const
 {
@@ -46750,6 +46785,10 @@ bool CvPlayer::CanCrossOcean() const
 bool CvPlayer::CanCrossMountain() const
 {
 	return GetPlayerTraits()->IsMountainPass() || (getGreatGeneralsCreated(false) > 0 && GetPlayerTraits()->IsAbleToCrossMountainsWithGreatGeneral());
+}
+bool CvPlayer::WorkersMountainPass() const
+{
+	return (CanCrossMountain() || IsWorkersIgnoreImpassable() || GetPlayerTraits()->IsWorkersMountainPass()); //this works with the hack of IsNoHillsImprovementMaintenance();
 }
 bool CvPlayer::CanCrossIce() const
 {

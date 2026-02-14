@@ -97,6 +97,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_iWLTKDGPImprovementModifier(0),
 	m_iGrowthBoon(0),
 	m_bMountainPass(false),
+	m_bWorkersMountainPass(false),
 	m_bUniqueBeliefsOnly(false),
 	m_iAllianceCSDefense(0),
 	m_iAllianceCSStrength(0),
@@ -774,6 +775,10 @@ bool CvTraitEntry::IsKeepConqueredBuildings() const
 bool CvTraitEntry::IsMountainPass() const
 {
 	return m_bMountainPass;
+}
+bool CvTraitEntry::IsWorkersMountainPass() const
+{
+	return m_bWorkersMountainPass;
 }
 int CvTraitEntry::GetWLTKDGPImprovementModifier() const
 {
@@ -5111,6 +5116,25 @@ void CvPlayerTraits::InitPlayerTraits()
 				{
 					m_aibUnitCombatProductionCostModifier.insert(std::make_pair(jJ, trait->GetUnitCombatProductionCostModifier(jJ)));
 				}
+				// cache if any added promos will allow WorkersMountainPass
+				if (jJ == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_WORKER", true))
+				{
+					for (int iPromotion = 0; iPromotion < GC.getNumPromotionInfos(); iPromotion++)
+	           		{
+		                PromotionTypes ePromotion = (PromotionTypes)iPromotion;
+		
+		                // Check if this trait grants this promotion to workers
+		                if (trait->IsFreePromotionUnitCombat(ePromotion, jJ))
+		                {
+		                    const CvPromotionEntry* pPromotion = GC.getPromotionInfo(ePromotion);
+		                    if (pPromotion && pPromotion->CanCrossMountains())
+		                    {
+		                        m_bWorkersMountainPass = true;
+		                        break; // found one, no need to continue
+		                    }
+		                }
+	           		}
+				}
 			}
 			int iNumUnitClasses = GC.getNumUnitClassInfos();
 			for(int jJ= 0; jJ < iNumUnitClasses; jJ++)
@@ -5302,6 +5326,7 @@ void CvPlayerTraits::Reset()
 	m_bTradeRouteOnly = false;
 	m_bKeepConqueredBuildings = false;
 	m_bMountainPass = false;
+	m_bWorkersMountainPass= false;
 	m_bUniqueBeliefsOnly = false;
 	m_bNoNaturalReligionSpread = false;
 	m_bNoOpenTrade = false;
@@ -7457,6 +7482,7 @@ void CvPlayerTraits::Serialize(PlayerTraits& playerTraits, Visitor& visitor)
 	visitor(playerTraits.m_bTradeRouteOnly);
 	visitor(playerTraits.m_bKeepConqueredBuildings);
 	visitor(playerTraits.m_bMountainPass);
+	visitor(playerTraits.m_bWorkersMountainPass);
 	visitor(playerTraits.m_bUniqueBeliefsOnly);
 	visitor(playerTraits.m_bNoNaturalReligionSpread);
 	visitor(playerTraits.m_bNoOpenTrade);
