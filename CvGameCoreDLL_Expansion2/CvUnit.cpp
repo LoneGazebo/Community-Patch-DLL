@@ -156,6 +156,7 @@ CvUnit::CvUnit() :
 	, m_SquadEndMovementType()
 	, m_bImmobile()
 	, m_iExperienceTimes100()
+	, m_iStartingExperienceTimes100()
 	, m_iLevel()
 	, m_iCargo()
 	, m_iCargoCapacity()
@@ -975,7 +976,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 			iXP += kPlayer.isHuman(ISHUMAN_HANDICAP) ? 0 : GC.getGame().getHandicapInfo().getAIFreeXP();
 			if (iXP > 0)
 			{
-				changeExperienceTimes100(iXP * 100);
+				changeExperienceTimes100(iXP * 100, -1, false, false, false, false, true);
 			}
 
 			// bonus xp in combat from handicap?
@@ -992,7 +993,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 			int iXP = GC.getGame().getHandicapInfo().getCityStateFreeXP();
 			if (iXP > 0)
 			{
-				changeExperienceTimes100(iXP * 100);
+				changeExperienceTimes100(iXP * 100, -1, false, false, false, false, true);
 			}
 
 			// bonus xp in combat from handicap?
@@ -1202,7 +1203,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 		{
 			if (pLoopUnit && pLoopUnit->IsCombatUnit())
 			{
-				pLoopUnit->changeExperienceTimes100(kPlayer.GetPlayerTraits()->GetXPBonusFromGreatPersonBirth() * 100);
+				pLoopUnit->changeExperienceTimes100(kPlayer.GetPlayerTraits()->GetXPBonusFromGreatPersonBirth() * 100, -1, false, false, false, false, true);
 			}
 		}
 	}
@@ -1301,6 +1302,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_SquadEndMovementType = ALERT_ON_ARRIVAL;
 	m_bImmobile = false;
 	m_iExperienceTimes100 = 0;
+	m_iStartingExperienceTimes100 = 0;
 	m_iLevel = 1;
 	m_iCargo = 0;
 	m_iAttackPlotX = INVALID_PLOT_COORD;
@@ -13481,9 +13483,9 @@ void CvUnit::promote(PromotionTypes ePromotion, int iLeaderUnitId)
 	{
 		setHasPromotion(ePromotion, true);
 
-		if (MOD_BALANCE_VP && !IsCannotHeal(true))
+		if (MOD_BALANCE_VP && !IsCannotHeal(true) && getStartingExperienceTimes100() <= experienceNeeded(getLevel() - 1) * 100)
 		{
-			//Insta-heal removed, gain health with each promotion instead.
+			//Insta-heal removed, gain health with each promotion not obtained from starting XP instead.
 			changeDamage(/*-10*/ -GD_INT_GET(INSTA_HEAL_RATE) / 5);
 		}
 		if (getOriginCity() != NULL)
@@ -17660,11 +17662,11 @@ int CvUnit::fortifyModifier() const
 
 
 //	--------------------------------------------------------------------------------
-int CvUnit::experienceNeeded() const
+int CvUnit::experienceNeeded(int iOverrideLevel) const
 {
 	VALIDATE_OBJECT();
 
-	const int iLevel = getLevel();
+	const int iLevel = iOverrideLevel != -1 ? iOverrideLevel : getLevel();
 
 	// Sum up the levels to get our multiplier (1:1, 2:3, 3:6, 4:10, etc.)
 	int iExperienceMultiplier = 0;
@@ -21386,8 +21388,9 @@ int CvUnit::getExperienceTimes100() const
 }
 
 
+
 //	--------------------------------------------------------------------------------
-void CvUnit::setExperienceTimes100(int iNewValueTimes100, int iMax, bool bDontShow)
+void CvUnit::setExperienceTimes100(int iNewValueTimes100, int iMax, bool bDontShow, bool bStartingXP)
 {
 	VALIDATE_OBJECT();
 
@@ -21403,6 +21406,9 @@ void CvUnit::setExperienceTimes100(int iNewValueTimes100, int iMax, bool bDontSh
 
 		m_iExperienceTimes100 = std::min(iMaxTimes100, iNewValueTimes100);
 		ASSERT(getExperienceTimes100() >= 0);
+
+		if (bStartingXP)
+			m_iStartingExperienceTimes100 = m_iExperienceTimes100;
 
 		if(getOwner() == GC.getGame().getActivePlayer() && !bDontShow && iExperienceChange > 0)
 		{
@@ -21446,7 +21452,7 @@ void CvUnit::setExperienceTimes100(int iNewValueTimes100, int iMax, bool bDontSh
 
 
 //	--------------------------------------------------------------------------------
-void CvUnit::changeExperienceTimes100(int iChangeTimes100, int iMax, bool bFromCombat, bool bInBorders, bool bUpdateGlobal, bool bFromHuman)
+void CvUnit::changeExperienceTimes100(int iChangeTimes100, int iMax, bool bFromCombat, bool bInBorders, bool bUpdateGlobal, bool bFromHuman, bool bStartingXP)
 {
 	VALIDATE_OBJECT();
 	// Barbs don't get XP or Promotions
@@ -21638,9 +21644,15 @@ void CvUnit::changeExperienceTimes100(int iChangeTimes100, int iMax, bool bFromC
 		}
 	}
 
-	setExperienceTimes100((getExperienceTimes100() + iUnitExperienceTimes100), iMax);
+	setExperienceTimes100((getExperienceTimes100() + iUnitExperienceTimes100), iMax, false, bStartingXP);
 }
 
+//	--------------------------------------------------------------------------------
+int CvUnit::getStartingExperienceTimes100() const
+{
+	VALIDATE_OBJECT();
+	return m_iStartingExperienceTimes100;
+}
 
 //	--------------------------------------------------------------------------------
 int CvUnit::getLevel() const
@@ -28191,6 +28203,7 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_iGameTurnCreated);
 	visitor(unit.m_bImmobile);
 	visitor(unit.m_iExperienceTimes100);
+	visitor(unit.m_iStartingExperienceTimes100);
 	visitor(unit.m_iLevel);
 	visitor(unit.m_iCargo);
 	visitor(unit.m_iCargoCapacity);
