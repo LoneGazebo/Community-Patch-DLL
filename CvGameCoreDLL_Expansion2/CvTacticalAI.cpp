@@ -1492,8 +1492,8 @@ void CvTacticalAI::PlotGarrisonMoves(int iNumTurnsAway)
 		//note that garrisons do not need to be "recruited" into tactical AI
 		CvUnit* pGarrison = pCity->GetGarrisonedUnit();
 
-		// Only land units actually give a garrison bonus, and they can stack with both naval and air units, don't use recon units as garrisons
-		if (pGarrison && (pGarrison->getDomainType() != DOMAIN_LAND || pGarrison->getUnitInfo().GetDefaultUnitAIType() == UNITAI_EXPLORE))
+		// Allow valid land or naval garrisons, but don't use recon units as garrisons
+		if (pGarrison && (!pGarrison->CanGarrison() || pGarrison->getUnitInfo().GetDefaultUnitAIType() == UNITAI_EXPLORE))
 			pGarrison = NULL;
 
 		if (pGarrison)
@@ -4525,12 +4525,16 @@ CvUnit* CvTacticalAI::FindUnitForThisMove(AITacticalMove eMove, CvPlot* pTarget,
 				if (TacticalAIHelpers::IsPlayerCitadel(pUnitPlot, m_pPlayer->GetID()) && pUnitPlot->IsBorderLand(m_pPlayer->GetID()) && pLoopUnit->getDomainType() == DOMAIN_LAND)
 					continue;
 
+				CvCity* pTargetCity = pTarget->getPlotCity();
+				if (!pTargetCity)
+					continue;
+
 				// Want to put ranged units in cities to give them a ranged attack (but siege units should be used for offense)
 				switch (pLoopUnit->AI_getUnitAIType())
 				{
 				case UNITAI_RANGED:
 					if (pLoopUnit->GetRange() > 1)
-						iExtraScore += 30 + pTarget->getPlotCity()->getGarrisonRangedAttackModifier();
+						iExtraScore += 30 + pTargetCity->getGarrisonRangedAttackModifier();
 					break;
 				case UNITAI_DEFENSE_AIR:
 				case UNITAI_DEFENSE:
@@ -4541,16 +4545,29 @@ CvUnit* CvTacticalAI::FindUnitForThisMove(AITacticalMove eMove, CvPlot* pTarget,
 					break;
 				}
 
-				if (pLoopUnit->canFortify(pTarget))
-					iExtraScore += 17;
-
 				// Don't use recon units as garrisons
 				if (pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_EXPLORE)
 					iExtraScore -= 50;
 
-				//naval garrisons cannot attack inside cities and don't increase city strength...
-				if (!pLoopUnit->isNativeDomain(pTarget))
-					continue;
+				// Score candidate by effective city-strength contribution relative to city strength without garrison.
+				int iCityStrengthNoGarrison = pTargetCity->getStrengthValue();
+
+				CvUnit* pCurrentGarrison = pTargetCity->GetGarrisonedUnit();
+				if (pCurrentGarrison)
+					iCityStrengthNoGarrison -= (max(pCurrentGarrison->GetBaseCombatStrength(), pCurrentGarrison->GetBaseRangedCombatStrength()) * 10000) /
+						max(1, pCurrentGarrison->getDomainType() == DOMAIN_LAND ? GD_INT_GET(CITY_STRENGTH_LAND_UNIT_DIVISOR) : GD_INT_GET(CITY_STRENGTH_NAVAL_UNIT_DIVISOR));
+
+				iCityStrengthNoGarrison = max(1, iCityStrengthNoGarrison);
+
+				const int iCandidateRawStrength = max(pLoopUnit->GetBaseCombatStrength(), pLoopUnit->GetBaseRangedCombatStrength());
+				const int iCandidateDivisor = (pLoopUnit->getDomainType() == DOMAIN_LAND) ? GD_INT_GET(CITY_STRENGTH_LAND_UNIT_DIVISOR) : GD_INT_GET(CITY_STRENGTH_NAVAL_UNIT_DIVISOR);
+				const int iCandidateContributionTimes100 = (iCandidateRawStrength * 10000) / max(1, iCandidateDivisor);
+
+				iExtraScore += (120 * iCandidateContributionTimes100) / iCityStrengthNoGarrison;
+
+				// Naval garrisons cannot attack, so they're much worse
+				if (pLoopUnit->getDomainType() == DOMAIN_SEA && MOD_CORE_NO_NAVAL_RANGED_ATTACKS_FROM_CANALS && !pLoopUnit->isNativeDomain(pTarget))
+					iExtraScore -= 50;
 
 				// Don't put units with a defense boosted from promotions in cities, these boosts are ignored
 				iExtraScore -= pLoopUnit->getDefenseModifier();
