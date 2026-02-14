@@ -54,8 +54,11 @@ UPDATE Defines SET Value = 500 WHERE Name = 'CITY_STRENGTH_DEFAULT';
 -- Extra city strength if settled on hills x100
 UPDATE Defines SET Value = 200 WHERE Name = 'CITY_STRENGTH_HILL_CHANGE';
 
--- Divisor of garrison strength added to city strength x100
-UPDATE Defines SET Value = 200 WHERE Name = 'CITY_STRENGTH_UNIT_DIVISOR';
+-- Divisor of land garrison strength added to city strength x100
+UPDATE Defines SET Value = 200 WHERE Name = 'CITY_STRENGTH_LAND_UNIT_DIVISOR';
+
+-- Divisor of naval garrison strength added to city strength x100
+UPDATE Defines SET Value = 400 WHERE Name = 'CITY_STRENGTH_NAVAL_UNIT_DIVISOR';
 
 -- Extra city strength from tech progress
 -- Only used if BALANCE_CITY_STRENGTH_SWITCH is turned off

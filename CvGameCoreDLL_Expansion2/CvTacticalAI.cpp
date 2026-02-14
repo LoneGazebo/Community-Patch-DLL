@@ -1483,8 +1483,8 @@ void CvTacticalAI::PlotGarrisonMoves(int iNumTurnsAway)
 		//note that garrisons do not need to be "recruited" into tactical AI
 		CvUnit* pGarrison = pCity->GetGarrisonedUnit();
 
-		// Only land units actually give a garrison bonus, and they can stack with both naval and air units, don't use recon units as garrisons
-		if (pGarrison && (pGarrison->getDomainType() != DOMAIN_LAND || pGarrison->getUnitInfo().GetDefaultUnitAIType() == UNITAI_EXPLORE))
+		// Allow valid land or naval garrisons, but don't use recon units as garrisons
+		if (pGarrison && (!pGarrison->CanGarrison() || pGarrison->getUnitInfo().GetDefaultUnitAIType() == UNITAI_EXPLORE))
 			pGarrison = NULL;
 
 		if (pGarrison)
@@ -4539,9 +4539,9 @@ CvUnit* CvTacticalAI::FindUnitForThisMove(AITacticalMove eMove, CvPlot* pTarget,
 				if (pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_EXPLORE)
 					iExtraScore -= 50;
 
-				//naval garrisons cannot attack inside cities and don't increase city strength...
+				//naval garrisons cannot attack inside cities and contribure only 25% of their strength to city strength
 				if (!pLoopUnit->isNativeDomain(pTarget))
-					continue;
+					iExtraScore -= 35;
 
 				// Don't put units with a defense boosted from promotions in cities, these boosts are ignored
 				iExtraScore -= pLoopUnit->getDefenseModifier();
