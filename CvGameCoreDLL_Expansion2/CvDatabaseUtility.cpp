@@ -142,9 +142,10 @@ void CvDatabaseUtility::SafeDelete2DArray(int**& pArray)
 }
 
 //------------------------------------------------------------------------------
-bool CvDatabaseUtility::PopulateArrayByExistence(bool*& pArray, const char* szTypeTableName, const char* szDataTableName, const char* szTypeColumn, const char* szFilterColumn, const char* szFilterValue)
+bool CvDatabaseUtility::PopulateArrayByExistence(bool*& pArray, const char* szTypeTableName, const char* szDataTableName, const char* szTypeColumn, const char* szFilterColumn, const char* szFilterValue, int iMinArraySize)
 {
-	InitializeArray(pArray, MaxRows(szTypeTableName), false);
+	int iSize = MaxRows(szTypeTableName);
+	InitializeArray(pArray, (iSize < iMinArraySize) ? iMinArraySize : iSize, false);
 
 	std::string strKey = "_PABE_";
 	strKey.append(szTypeTableName);

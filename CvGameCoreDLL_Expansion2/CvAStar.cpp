@@ -1281,11 +1281,13 @@ int PathEndTurnCost(CvPlot* pToPlot, const CvPathNodeCacheData& kToNodeCacheData
 
 			//combat units can still tolerate some danger
 			//embarkation is handled implicitly because danger value will be higher
-			if (iPlotDanger*iScale >= pUnit->GetCurrHitPoints()*3)
+			//GetDanger returns MAX_INT for "fatal" plots (city about to fall, etc) - handle without overflow
+			int iScaledDanger = (iPlotDanger >= INT_MAX / 2) ? INT_MAX : iPlotDanger * iScale;
+			if (iScaledDanger >= pUnit->GetCurrHitPoints()*3)
 				iCost += PATH_END_TURN_MORTAL_DANGER_WEIGHT*iFutureFactor;
-			else if (iPlotDanger*iScale >= pUnit->GetCurrHitPoints())
+			else if (iScaledDanger >= pUnit->GetCurrHitPoints())
 				iCost += PATH_END_TURN_HIGH_DANGER_WEIGHT*iFutureFactor;
-			else if (iPlotDanger*iScale > pUnit->GetCurrHitPoints()/3)
+			else if (iScaledDanger > pUnit->GetCurrHitPoints()/3)
 				iCost += PATH_END_TURN_LOW_DANGER_WEIGHT*iFutureFactor;
 		}
 		else //civilian, embarked or exploring

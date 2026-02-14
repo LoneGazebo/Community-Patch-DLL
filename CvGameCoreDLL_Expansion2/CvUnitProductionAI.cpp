@@ -588,6 +588,10 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 					{
 						PlayerTypes eLoopPlayer = warPlayers[i];
 
+						// War type is only tracked for major civs
+						if (GET_PLAYER(eLoopPlayer).isMinorCiv())
+							continue;
+
 						if (kPlayer.GetMilitaryAI()->GetWarType(eLoopPlayer) == WARTYPE_SEA)
 						{
 							if (std::find(vUnfriendlyMajors.begin(), vUnfriendlyMajors.end(), eLoopPlayer) != vUnfriendlyMajors.end())
@@ -640,6 +644,10 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 					for (size_t i=0; i<warPlayers.size(); i++)
 					{
 						PlayerTypes eLoopPlayer = warPlayers[i];
+
+						// War type is only tracked for major civs
+						if (GET_PLAYER(eLoopPlayer).isMinorCiv())
+							continue;
 
 						if (kPlayer.GetMilitaryAI()->GetWarType(eLoopPlayer) == WARTYPE_LAND)
 						{
