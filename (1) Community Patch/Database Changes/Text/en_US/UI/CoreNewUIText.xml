@@ -663,8 +663,14 @@
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_SPECIAL_SESSION_REQUIREMENT">
 			<Text>Is required to trigger the Special Session for [COLOR_PLAYER_MIDDLE_PURPLE_TEXT]{1_Resolution:textkey}[ENDCOLOR]</Text>
 		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_GLOBAL_EFFECTS">
+			<Text>[COLOR_POSITIVE_TEXT]Empire-Wide Effects:[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_TEAM_EFFECTS">
+			<Text>[COLOR_POSITIVE_TEXT]Team-Wide Effects:[ENDCOLOR]</Text>
+		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_CORPORATION_EFFECTS">
-			<Text>Corporation Benefits:</Text>
+			<Text>[COLOR_POSITIVE_TEXT]Corporation Benefits:[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_HISTORIC_EVENTS">
 			<Text>Triggers or Enhances the following Historic Events:</Text>
@@ -712,7 +718,7 @@
 			<Text>Projected [ICON_HAPPINESS_1] Happiness when built: {2_Sign}{1_Num}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_AIR_DEFENSE">
-			<Text>[ICON_AIRSTRIKE_DEFENSE] City Air Strike Defense: +{1_Num}</Text>
+			<Text>[ICON_BULLET][ICON_AIRSTRIKE_DEFENSE] City Air Strike Defense: +{1_Num}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_GREAT_WORK_YIELD_TYPE">
 			<Text>[ICON_GREAT_WORK] Great Works in this Building provide {1_YieldIcon} {2_Yield:textkey} instead of [ICON_CULTURE] Culture</Text>
@@ -1309,10 +1315,10 @@
 			<Text>Non-friendly Land Units [COLOR_NEGATIVE_TEXT]expend all [ICON_MOVES] Movement[ENDCOLOR] when entering this City's Land territory from unowned or foreign territory</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_BORDER_OBSTACLE_LAND_PLAYER">
-			<Text>Non-friendly Land Units [COLOR_NEGATIVE_TEXT]expend all [ICON_MOVES] Movement[ENDCOLOR] when entering your Land territory</Text>
+			<Text>Non-friendly Land Units [COLOR_NEGATIVE_TEXT]expend all [ICON_MOVES] Movement[ENDCOLOR] when entering your Land territory from unowned or foreign territory</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_BORDER_OBSTACLE_LAND_TEAM">
-			<Text>Non-friendly Land Units [COLOR_NEGATIVE_TEXT]expend all [ICON_MOVES] Movement[ENDCOLOR] when entering your Team's Land territory</Text>
+			<Text>Non-friendly Land Units [COLOR_NEGATIVE_TEXT]expend all [ICON_MOVES] Movement[ENDCOLOR] when entering your Team's Land territory from unowned or foreign territory</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_BORDER_OBSTACLE_WATER">
 			<Text>Non-friendly Naval or Embarked Units [COLOR_NEGATIVE_TEXT]expend all [ICON_MOVES] Movement[ENDCOLOR] when entering this City's Water territory from unowned or foreign territory</Text>

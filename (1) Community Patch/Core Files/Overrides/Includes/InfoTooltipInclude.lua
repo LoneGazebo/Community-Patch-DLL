@@ -3088,10 +3088,12 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 	local iLocalAbilityPos = #tAbilityLines + 1;
 
 	if next(tGlobalAbilityLines) then
+		AddTooltip(tAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_GLOBAL_EFFECTS");
 		table.insert(tAbilityLines, "[ICON_BULLET]" .. table.concat(tGlobalAbilityLines, "[NEWLINE][ICON_BULLET]"));
 	end
 
 	if next(tTeamAbilityLines) then
+		AddTooltip(tAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_TEAM_EFFECTS");
 		table.insert(tAbilityLines, "[ICON_BULLET]" .. table.concat(tTeamAbilityLines, "[NEWLINE][ICON_BULLET]"));
 	end
 
