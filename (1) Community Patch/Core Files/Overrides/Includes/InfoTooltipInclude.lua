@@ -1813,6 +1813,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 	local tProjectedModifiers = {};
 	local bBoostedYields = false;
 	local bBoostedModifiers = false;
+	local bBoostedHappiness = false;
 	local bIsCultureBuilding = false;
 	for eYield, kYieldInfo in GameInfoCache("Yields") do
 		-- Only show modified numbers in city view
@@ -1859,12 +1860,6 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 		end
 		AddTooltipGlobalNonZeroSigned(tGlobalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_MODIFIER", iGlobalMod, kYieldInfo.IconString, kYieldInfo.Description);
 	end
-	if bBoostedYields then
-		AddTooltipSimpleYieldBoostTable(tYieldLines, "TXT_KEY_PRODUCTION_BUILDING_PROJECTED_YIELD_CHANGE", tProjectedYields);
-	end
-	if bBoostedModifiers then
-		AddTooltipSimpleYieldBoostTable(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_PROJECTED_YIELD_MODIFIER", tProjectedModifiers);
-	end
 
 	-- Yield from % of other yield
 	for row in GameInfo.Building_YieldFromYieldPercent{BuildingType = kBuildingInfo.Type} do
@@ -1896,10 +1891,13 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 
 	-- Only show modified number in city view
 	if pCity and pActivePlayer then
-		iHappinessTotal = iHappinessTotal + pCity:GetReligionBuildingClassHappiness(eBuildingClass)
+		local iBoostedHappiness = pCity:GetReligionBuildingClassHappiness(eBuildingClass)
 			+ pActivePlayer:GetExtraBuildingHappinessFromPolicies(eBuilding)
 			+ pActivePlayer:GetPlayerBuildingClassHappiness(eBuildingClass);
-		AddTooltipNonZeroSigned(tYieldLines, "TXT_KEY_PRODUCTION_BUILDING_PROJECTED_HAPPINESS", iHappinessTotal);
+		if (iBoostedHappiness > 0) then
+			bBoostedHappiness = true
+			iHappinessTotal = iHappinessTotal + iBoostedHappiness
+		end
 	end
 
 	AddTooltipNonZeroSigned(tGlobalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_HAPPINESS_GLOBAL", kBuildingInfo.HappinessPerCity);
@@ -3820,6 +3818,20 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 
 	if next(tAbilityLines) then
 		table.insert(tLines, iAbilityInsertPos, table.concat(tAbilityLines, "[NEWLINE]"));
+	end
+
+	if bBoostedYields or bBoostedModifiers or bBoostedHappiness then
+		local tProjectedLines = {}
+		if bBoostedYields then
+			AddTooltipSimpleYieldBoostTable(tProjectedLines, "TXT_KEY_PRODUCTION_BUILDING_PROJECTED_YIELD_CHANGE", tProjectedYields);
+		end
+		if bBoostedModifiers then
+			AddTooltipSimpleYieldBoostTable(tProjectedLines, "TXT_KEY_PRODUCTION_BUILDING_PROJECTED_YIELD_MODIFIER", tProjectedModifiers);
+		end
+		if bBoostedHappiness then
+			AddTooltipNonZeroSigned(tProjectedLines, "TXT_KEY_PRODUCTION_BUILDING_PROJECTED_HAPPINESS", iHappinessTotal);
+		end
+		table.insert(tLines, table.concat(tProjectedLines, "[NEWLINE]"));
 	end
 
 	if next(tBoostLines) then
