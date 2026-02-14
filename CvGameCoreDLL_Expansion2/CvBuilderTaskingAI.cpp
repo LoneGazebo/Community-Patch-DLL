@@ -229,8 +229,8 @@ int CvBuilderTaskingAI::GetMoveCostWithRoute(const CvPlot* pFromPlot, const CvPl
 	if (!MOD_BALANCE_SANE_UNIT_MOVEMENT_COST)
 	{
 		// VP does not require plot ownership
-		bFakeRouteTo |= (pTraits->IsWoodlandMovementBonus() && (eToFeature == FEATURE_FOREST || eToFeature == FEATURE_JUNGLE) && (MOD_BALANCE_VP || pToPlot->getTeam() == eTeam));
-		bFakeRouteFrom |= (pTraits->IsWoodlandMovementBonus() && (eFromFeature == FEATURE_FOREST || eFromFeature == FEATURE_JUNGLE) && (MOD_BALANCE_VP || pToPlot->getTeam() == eTeam));
+		bFakeRouteTo |= (pTraits->IsWoodlandMovementBonus() && (eToFeature == FEATURE_FOREST || eToFeature == FEATURE_JUNGLE) && (MOD_BALANCE_ALTERNATE_IROQUOIS_TRAIT || pToPlot->getTeam() == eTeam));
+		bFakeRouteFrom |= (pTraits->IsWoodlandMovementBonus() && (eFromFeature == FEATURE_FOREST || eFromFeature == FEATURE_JUNGLE) && (MOD_BALANCE_ALTERNATE_IROQUOIS_TRAIT || pToPlot->getTeam() == eTeam));
 	}
 
 	//check routes
@@ -268,8 +268,14 @@ int CvBuilderTaskingAI::GetMoveCostWithRoute(const CvPlot* pFromPlot, const CvPl
 		else if (pTraits->IsMountainPass() && pToPlot->isMountain())
 			bIgnoreCostsHere = true;
 
-		if (bIgnoreCostsHere) // Incan UA bypasses the check for river crossings, so no need to check those defines
+		if (bIgnoreCostsHere)
+		{
 			iRegularCost = 1;
+
+			// Inca still pays the normal cost for crossing a river
+			if (MOD_BALANCE_ALTERNATE_INCA_TRAIT && bRiverCrossing)
+				iRegularCost += /*10*/ GD_INT_GET(RIVER_EXTRA_MOVEMENT);
+		}
 		else
 		{
 			iRegularCost = ((eToFeature == NO_FEATURE) ? (pToTerrainInfo ? pToTerrainInfo->getMovementCost() : 0) : (pToFeatureInfo ? pToFeatureInfo->getMovementCost() : 0));

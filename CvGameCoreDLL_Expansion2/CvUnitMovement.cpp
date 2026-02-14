@@ -59,8 +59,8 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 	if (!MOD_BALANCE_SANE_UNIT_MOVEMENT_COST)
 	{
 		// VP does not require plot ownership
-		bFakeRouteTo |= (pTraits->IsWoodlandMovementBonus() && (eToFeature == FEATURE_FOREST || eToFeature == FEATURE_JUNGLE) && (MOD_BALANCE_VP || pToPlot->getTeam() == eUnitTeam));
-		bFakeRouteFrom |= (pTraits->IsWoodlandMovementBonus() && (eFromFeature == FEATURE_FOREST || eFromFeature == FEATURE_JUNGLE) && (MOD_BALANCE_VP || pToPlot->getTeam() == eUnitTeam));
+		bFakeRouteTo |= (pTraits->IsWoodlandMovementBonus() && (eToFeature == FEATURE_FOREST || eToFeature == FEATURE_JUNGLE) && (MOD_BALANCE_ALTERNATE_IROQUOIS_TRAIT || pToPlot->getTeam() == eUnitTeam));
+		bFakeRouteFrom |= (pTraits->IsWoodlandMovementBonus() && (eFromFeature == FEATURE_FOREST || eFromFeature == FEATURE_JUNGLE) && (MOD_BALANCE_ALTERNATE_IROQUOIS_TRAIT || pToPlot->getTeam() == eUnitTeam));
 	}
 
 	//check routes
@@ -225,12 +225,7 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 		bool bIsMountain = pToPlot->isMountain();
 
 		//in some cases, we ignore terrain and feature costs if the destination tile contains a specific terrain/feature
-		if ((bIsHills || bIsMountain) && pTraits->IsFasterInHills())
-		{
-			bIgnoreCostsHere = true;
-			bNoRiverCrossingPenalty = true; // as specified by Incan UA
-		}
-		else if (bIsHills && pUnit->isIgnoreTerrainCostIn(TERRAIN_HILL))
+		if (bIsHills && pUnit->isIgnoreTerrainCostIn(TERRAIN_HILL))
 		{
 			bIgnoreCostsHere = true;
 		}
@@ -264,6 +259,14 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 		// Check the define to see if ignoring specific terrain/feature costs includes rivers
 		if (bIgnoreCostsHere && !bNoRiverCrossingPenalty && /*FALSE*/ GD_INT_GET(IGNORE_SPECIFIC_TERRAIN_COSTS_INCLUDES_RIVERS) > 0)
 			bNoRiverCrossingPenalty = true;
+
+		// Incan UA
+		if ((bIsHills && pTraits->IsFasterInHills()) || (bIsMountain && pTraits->IsMountainPass()))
+		{
+			bIgnoreCostsHere = true;
+			if (!MOD_BALANCE_ALTERNATE_INCA_TRAIT)
+				bNoRiverCrossingPenalty = true;
+		}
 
 		if (bIgnoreCostsHere && bNoRiverCrossingPenalty)
 			iRegularCost = 1;

@@ -40552,7 +40552,7 @@ bool CvPlayer::GetSameRouteBenefitFromTrait(const CvPlot* pPlot, RouteTypes eRou
 
 	if (GetPlayerTraits()->IsWoodlandMovementBonus())
 	{
-		if ((pPlot->getFeatureType() == FEATURE_FOREST || pPlot->getFeatureType() == FEATURE_JUNGLE) && (MOD_BALANCE_VP || pPlot->getTeam() == getTeam()))
+		if ((pPlot->getFeatureType() == FEATURE_FOREST || pPlot->getFeatureType() == FEATURE_JUNGLE) && (MOD_BALANCE_ALTERNATE_IROQUOIS_TRAIT || pPlot->getTeam() == getTeam()))
 			return true;
 	}
 
