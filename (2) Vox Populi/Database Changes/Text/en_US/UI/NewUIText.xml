@@ -1526,7 +1526,7 @@
 			<Text>Free Trade Routes:</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PEDIA_CORPORATION_RESOURCE_BONUS_LABEL">
-			<Text>Franchise Resource Bonus:</Text>
+			<Text>Resource Bonus:</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PEDIA_CORPORATION_OFFICE_BONUS_LABEL">
 			<Text>Office Bonus:</Text>

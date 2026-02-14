@@ -7,6 +7,11 @@
 			<FileName>MotherlandStatue</FileName>
 			<LoadType>DynamicResident</LoadType>
 		</Row>
+		<Row>
+			<SoundID>SND_WONDER_SPEECH_WTC</SoundID>
+			<Filename>WTC_Quote</Filename>
+			<LoadType>DynamicResident</LoadType>
+		</Row>
 	</Audio_Sounds>
 	<Audio_2DSounds>
 		<Row>
@@ -15,6 +20,14 @@
 			<SoundType>GAME_SPEECH</SoundType>
 			<MaxVolume>170</MaxVolume>
 			<MinVolume>80</MinVolume>
+		</Row>
+		<Row>
+			<ScriptID>AS2D_WONDER_SPEECH_WTC</ScriptID>
+			<SoundID>SND_WONDER_SPEECH_WTC</SoundID>
+			<SoundType>GAME_MUSIC_STINGS</SoundType>
+			<TaperSoundtrackVolume>0.0</TaperSoundtrackVolume>
+			<MinVolume>80</MinVolume>
+			<MaxVolume>80</MaxVolume>
 		</Row>
 	</Audio_2DSounds>
 	<BuildingClasses>
@@ -582,6 +595,33 @@
 			<DefaultBuilding>BUILDING_CIVILIZED_JEWELERS_FRANCHISE</DefaultBuilding>
 			<Description>TXT_KEY_BUILDING_CIVILIZED_JEWELERS_FRANCHISE</Description>
 		</Row>
+		<Row>
+			<Type>BUILDINGCLASS_POPULI_MEDICINE_HQ</Type>
+			<DefaultBuilding>BUILDING_POPULI_MEDICINE_HQ</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_POPULI_MEDICINE_HQ</Description>
+			<MaxGlobalInstances>1</MaxGlobalInstances>
+		</Row>
+		<Row>
+			<Type>BUILDINGCLASS_POPULI_MEDICINE</Type>
+			<DefaultBuilding>BUILDING_POPULI_MEDICINE</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_POPULI_MEDICINE</Description>
+		</Row>
+		<Row>
+			<Type>BUILDINGCLASS_POPULI_MEDICINE_FRANCHISE</Type>
+			<DefaultBuilding>BUILDING_POPULI_MEDICINE_FRANCHISE</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_POPULI_MEDICINE_FRANCHISE</Description>
+		</Row>
+		<Row>
+			<Type>BUILDINGCLASS_SHOPPING_MALL</Type>
+			<DefaultBuilding>BUILDING_SHOPPING_MALL</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_SHOPPING_MALL</Description>
+		</Row>
+		<Row>
+			<Type>BUILDINGCLASS_WORLD_TRADE_CENTER</Type>
+			<DefaultBuilding>BUILDING_WORLD_TRADE_CENTER</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_WORLD_TRADE_CENTER</Description>
+			<MaxGlobalInstances>1</MaxGlobalInstances>
+		</Row>
 	</BuildingClasses>
 	<Buildings>
 		<!-- Council -->
@@ -749,6 +789,20 @@
 			<TrainedFreePromotion>PROMOTION_WIRE_SERVICE</TrainedFreePromotion>
 			<IconAtlas>TECH_ATLAS_1</IconAtlas>
 			<PortraitIndex>51</PortraitIndex>
+		</Row>
+		<!-- Shopping Mall -->
+		<Row>
+			<Type>BUILDING_SHOPPING_MALL</Type>
+			<BuildingClass>BUILDINGCLASS_SHOPPING_MALL</BuildingClass>
+			<Description>TXT_KEY_BUILDING_SHOPPING_MALL</Description>
+			<Civilopedia>TXT_KEY_BUILDING_SHOPPING_MALL_TEXT</Civilopedia>
+			<Help>TXT_KEY_BUILDING_SHOPPING_MALL_HELP</Help>
+			<Strategy>TXT_KEY_BUILDING_SHOPPING_MALL_STRATEGY</Strategy>
+			<PrereqTech>TECH_FLIGHT</PrereqTech>
+			<TradeRouteRecipientBonus>2</TradeRouteRecipientBonus>
+			<TradeRouteTargetBonus>2</TradeRouteTargetBonus>
+			<IconAtlas>CORPORATION_ATLAS_VP</IconAtlas>
+			<PortraitIndex>36</PortraitIndex>
 		</Row>
 		<!-- Mine Field -->
 		<Row>
@@ -1818,6 +1872,29 @@
 			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
 			<PortraitIndex>25</PortraitIndex>
 		</Row>
+		<!-- World Trade Center -->
+		<Row>
+			<Type>BUILDING_WORLD_TRADE_CENTER</Type>
+			<BuildingClass>BUILDINGCLASS_WORLD_TRADE_CENTER</BuildingClass>
+			<Description>TXT_KEY_BUILDING_WORLD_TRADE_CENTER</Description>
+			<Civilopedia>TXT_KEY_BUILDING_WORLD_TRADE_CENTER_TEXT</Civilopedia>
+			<Help>TXT_KEY_BUILDING_WORLD_TRADE_CENTER_HELP</Help>
+			<Quote>TXT_KEY_WONDER_WORLD_TRADE_CENTER_QUOTE</Quote>
+			<PrereqTech>TECH_TELECOM</PrereqTech>
+			<MaxStartEra>ERA_FUTURE</MaxStartEra>
+			<SpecialistType>SPECIALIST_MERCHANT</SpecialistType>
+			<GreatPeopleRateChange>5</GreatPeopleRateChange>
+			<TradeRouteRecipientBonus>6</TradeRouteRecipientBonus>
+			<TradeRouteTargetBonus>6</TradeRouteTargetBonus>
+			<ExtraLeagueVotes>12</ExtraLeagueVotes>
+			<NumTradeRouteBonus>1</NumTradeRouteBonus>
+			<WonderSplashImage>WTC_Splash.dds</WonderSplashImage>
+			<WonderSplashAnchor>R,B</WonderSplashAnchor>
+			<WonderSplashAudio>AS2D_WONDER_SPEECH_WTC</WonderSplashAudio>
+			<NumPoliciesNeeded>24</NumPoliciesNeeded>
+			<IconAtlas>CORPORATION_ATLAS_VP</IconAtlas>
+			<PortraitIndex>37</PortraitIndex>
+		</Row>
 		<!-- Unique World Wonders -->
 		<!-- West Point -->
 		<Row>
@@ -2380,6 +2457,19 @@
 			<IconAtlas>CORPORATION_ATLAS_VP</IconAtlas>
 			<PortraitIndex>25</PortraitIndex>
 		</Row>
+		<Row>
+			<Type>BUILDING_POPULI_MEDICINE_HQ</Type>
+			<BuildingClass>BUILDINGCLASS_POPULI_MEDICINE_HQ</BuildingClass>
+			<Description>TXT_KEY_BUILDING_POPULI_MEDICINE_HQ</Description>
+			<Civilopedia>TXT_KEY_BUILDING_CORP_TEXT</Civilopedia>
+			<Help>TXT_KEY_BUILDING_POPULI_MEDICINE_HQ_HELP</Help>
+			<Quote>TXT_KEY_WONDER_POPULI_MEDICINE_HQ_QUOTE</Quote>
+			<Strategy>TXT_KEY_BUILDING_POPULI_MEDICINE_HQ_STRATEGY</Strategy>
+			<IsCorporation>true</IsCorporation>
+			<WonderSplashImage>CorporationSplash.dds</WonderSplashImage>
+			<IconAtlas>CORPORATION_ATLAS_VP</IconAtlas>
+			<PortraitIndex>33</PortraitIndex>
+		</Row>
 		<!-- Corporation Offices -->
 		<Row>
 			<Type>BUILDING_TRADER_SIDS</Type>
@@ -2389,8 +2479,9 @@
 			<Help>TXT_KEY_BUILDING_TRADER_SIDS_HELP</Help>
 			<Strategy>TXT_KEY_BUILDING_TRADER_SIDS_STRATEGY</Strategy>
 			<IsCorporation>true</IsCorporation>
-			<TradeRouteRecipientBonus>2</TradeRouteRecipientBonus>
+			<TradeRouteRecipientBonus>4</TradeRouteRecipientBonus>
 			<TradeRouteTargetBonus>2</TradeRouteTargetBonus>
+			<CityStateTradeRouteProductionModifier>2</CityStateTradeRouteProductionModifier>
 			<IconAtlas>CORPORATION_ATLAS_VP</IconAtlas>
 			<PortraitIndex>6</PortraitIndex>
 		</Row>
@@ -2425,8 +2516,9 @@
 			<Help>TXT_KEY_BUILDING_GIORGIO_ARMEIER_HELP</Help>
 			<Strategy>TXT_KEY_BUILDING_GIORGIO_ARMEIER_STRATEGY</Strategy>
 			<IsCorporation>true</IsCorporation>
-			<IlliteracyFlatReduction>1</IlliteracyFlatReduction>
-			<BoredomFlatReduction>1</BoredomFlatReduction>
+			<GPRateModifierPerXFranchises>2</GPRateModifierPerXFranchises>
+			<SpecialistType>SPECIALIST_ARTIST</SpecialistType>
+			<SpecialistCount>1</SpecialistCount>
 			<IconAtlas>CORPORATION_ATLAS_VP</IconAtlas>
 			<PortraitIndex>18</PortraitIndex>
 		</Row>
@@ -2439,6 +2531,7 @@
 			<Strategy>TXT_KEY_BUILDING_FIRAXITE_MATERIALS_STRATEGY</Strategy>
 			<IsCorporation>true</IsCorporation>
 			<BuildingProductionModifier>20</BuildingProductionModifier>
+			<EnhancedYieldTech>TECH_ELECTRONICS</EnhancedYieldTech>
 			<IconAtlas>CORPORATION_ATLAS_VP</IconAtlas>
 			<PortraitIndex>30</PortraitIndex>
 		</Row>
@@ -2450,12 +2543,12 @@
 			<Help>TXT_KEY_BUILDING_TWOKAY_FOODS_HELP</Help>
 			<Strategy>TXT_KEY_BUILDING_TWOKAY_FOODS_STRATEGY</Strategy>
 			<IsCorporation>true</IsCorporation>
-			<EmpireSizeModifierReductionGlobal>-5</EmpireSizeModifierReductionGlobal>
-			<DistressFlatReductionGlobal>1</DistressFlatReductionGlobal>
-			<PovertyFlatReductionGlobal>1</PovertyFlatReductionGlobal>
-			<IlliteracyFlatReductionGlobal>1</IlliteracyFlatReductionGlobal>
-			<BoredomFlatReductionGlobal>1</BoredomFlatReductionGlobal>
-			<ReligiousUnrestFlatReductionGlobal>1</ReligiousUnrestFlatReductionGlobal>
+			<EmpireSizeModifierReduction>-2</EmpireSizeModifierReduction>
+			<DistressFlatReduction>1</DistressFlatReduction>
+			<PovertyFlatReduction>1</PovertyFlatReduction>
+			<IlliteracyFlatReduction>1</IlliteracyFlatReduction>
+			<BoredomFlatReduction>1</BoredomFlatReduction>
+			<ReligiousUnrestFlatReduction>1</ReligiousUnrestFlatReduction>
 			<IconAtlas>CORPORATION_ATLAS_VP</IconAtlas>
 			<PortraitIndex>14</PortraitIndex>
 		</Row>
@@ -2467,11 +2560,21 @@
 			<Help>TXT_KEY_BUILDING_CIVILIZED_JEWELERS_HELP</Help>
 			<Strategy>TXT_KEY_BUILDING_CIVILIZED_JEWELERS_STRATEGY</Strategy>
 			<IsCorporation>true</IsCorporation>
-			<GreatPeopleRateModifier>15</GreatPeopleRateModifier>
-			<GoldenAgeModifier>3</GoldenAgeModifier>
-			<GPRateModifierPerXFranchises>10</GPRateModifierPerXFranchises>
 			<IconAtlas>CORPORATION_ATLAS_VP</IconAtlas>
 			<PortraitIndex>26</PortraitIndex>
+		</Row>
+		<Row>
+			<Type>BUILDING_POPULI_MEDICINE</Type>
+			<BuildingClass>BUILDINGCLASS_POPULI_MEDICINE</BuildingClass>
+			<Description>TXT_KEY_BUILDING_POPULI_MEDICINE</Description>
+			<Civilopedia>TXT_KEY_BUILDING_CORP_TEXT</Civilopedia>
+			<Help>TXT_KEY_BUILDING_POPULI_MEDICINE_HELP</Help>
+			<Strategy>TXT_KEY_BUILDING_POPULI_MEDICINE_STRATEGY</Strategy>
+			<IsCorporation>true</IsCorporation>
+			<Happiness>2</Happiness>
+			<MinorFriendshipChange>15</MinorFriendshipChange>
+			<IconAtlas>CORPORATION_ATLAS_VP</IconAtlas>
+			<PortraitIndex>34</PortraitIndex>
 		</Row>
 		<!-- Corporation Franchises -->
 		<Row>
@@ -2550,6 +2653,17 @@
 			<IsCorporation>true</IsCorporation>
 			<IconAtlas>CORPORATION_ATLAS_VP</IconAtlas>
 			<PortraitIndex>27</PortraitIndex>
+		</Row>
+		<Row>
+			<Type>BUILDING_POPULI_MEDICINE_FRANCHISE</Type>
+			<BuildingClass>BUILDINGCLASS_POPULI_MEDICINE_FRANCHISE</BuildingClass>
+			<Description>TXT_KEY_BUILDING_POPULI_MEDICINE_FRANCHISE</Description>
+			<Civilopedia>TXT_KEY_BUILDING_CORP_TEXT</Civilopedia>
+			<Help>TXT_KEY_BUILDING_POPULI_MEDICINE_FRANCHISE_HELP</Help>
+			<Strategy>TXT_KEY_BUILDING_POPULI_MEDICINE_FRANCHISE_STRATEGY</Strategy>
+			<IsCorporation>true</IsCorporation>
+			<IconAtlas>CORPORATION_ATLAS_VP</IconAtlas>
+			<PortraitIndex>35</PortraitIndex>
 		</Row>
 	</Buildings>
 </GameData>

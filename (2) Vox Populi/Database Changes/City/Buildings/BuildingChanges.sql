@@ -1812,6 +1812,44 @@ WHERE a.BuildingClass = 'BUILDINGCLASS_COALING_STATION';
 
 DELETE FROM Helper;
 
+-- Shopping Mall
+
+INSERT INTO Helper
+	(YieldType, Yield)
+VALUES
+	('YIELD_GOLD', 2),
+	('YIELD_TOURISM', 3);
+
+INSERT INTO Building_YieldChanges
+	(BuildingType, YieldType, Yield)
+SELECT
+	a.Type, b.YieldType, b.Yield
+FROM Buildings a, Helper b
+WHERE a.BuildingClass = 'BUILDINGCLASS_SHOPPING_MALL';
+
+DELETE FROM Helper;
+
+INSERT INTO Building_YieldFromPurchase
+	(BuildingType, YieldType, Yield)
+SELECT
+	Type, 'YIELD_TOURISM', 5
+FROM Buildings
+WHERE BuildingClass = 'BUILDINGCLASS_SHOPPING_MALL';
+
+INSERT INTO Building_BuildingClassLocalYieldChanges
+	(BuildingType, BuildingClassType, YieldType, YieldChange)
+SELECT
+	b.Type, c.FranchiseBuildingClass, 'YIELD_GOLD', 4
+FROM Buildings b, Corporations c
+WHERE b.BuildingClass = 'BUILDINGCLASS_SHOPPING_MALL';
+
+INSERT INTO Building_BuildingClassLocalYieldChanges
+	(BuildingType, BuildingClassType, YieldType, YieldChange)
+SELECT
+	b.Type, c.FranchiseBuildingClass, 'YIELD_CULTURE', 2
+FROM Buildings b, Corporations c
+WHERE b.BuildingClass = 'BUILDINGCLASS_SHOPPING_MALL';
+
 -- Refinery
 INSERT INTO Building_YieldChanges
 	(BuildingType, YieldType, Yield)
