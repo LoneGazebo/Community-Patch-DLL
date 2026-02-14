@@ -97,3 +97,13 @@ body:
       placeholder: Zip your Logs folder and drag and drop it here, or provide a link
     validations:
       required: false
+      
+  - type: textarea
+    id: minidump
+    attributes:
+      label: 7. Crash dump (ALWAYS ATTACH IF REPORTING A CRASH)
+      description: |
+        If you're reporting a crash to desktop, attach the minidump (.dmp) file located at Steam\steamapps\common\Sid Meier's Civilization V
+      placeholder: Zip the crash dump file and drag and drop it here
+    validations:
+      required: false

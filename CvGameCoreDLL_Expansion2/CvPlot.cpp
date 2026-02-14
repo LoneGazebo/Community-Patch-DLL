@@ -13083,7 +13083,14 @@ CvUnit* CvPlot::getUnitByIndex(int iIndex) const
 
 	if(pUnitNode != NULL)
 	{
-		return GetPlayerUnit(*pUnitNode);
+		CvUnit* pUnit = GetPlayerUnit(*pUnitNode);
+		if(pUnit == NULL && GC.getGame().isNetworkMultiPlayer())
+		{
+			CvString msg; CvString::format(msg, "*** PLOT UNIT DESYNC *** getUnitByIndex: stale IDInfo at index %d (owner %d, id %d) on plot (%d,%d). Plot has %d units.",
+				iIndex, (int)pUnitNode->eOwner, pUnitNode->iID, getX(), getY(), getNumUnits());
+			gGlobals.getDLLIFace()->sendChat(msg, CHATTARGET_ALL, NO_PLAYER);
+		}
+		return pUnit;
 	}
 	else
 	{
@@ -13127,6 +13134,18 @@ void CvPlot::addUnit(CvUnit* pUnit, bool bUpdate)
 	while(pUnitNode != NULL)
 	{
 		CvUnit* pLoopUnit = GetPlayerUnit(*pUnitNode);
+		if(pLoopUnit == NULL)
+		{
+			if(GC.getGame().isNetworkMultiPlayer())
+			{
+				CvString msg; CvString::format(msg, "*** PLOT UNIT DESYNC *** addUnit: stale IDInfo (owner %d, id %d) on plot (%d,%d) while adding unit (owner %d, id %d). Removing stale entry. Plot has %d units.",
+					(int)pUnitNode->eOwner, pUnitNode->iID, getX(), getY(), (int)pUnit->getOwner(), pUnit->GetID(), getNumUnits());
+				gGlobals.getDLLIFace()->sendChat(msg, CHATTARGET_ALL, NO_PLAYER);
+			}
+			m_units.deleteNode(pUnitNode);
+			pUnitNode = headUnitNode();
+			continue;
+		}
 		if(!isBeforeUnitCycle(pLoopUnit, pUnit))
 		{
 			break;
@@ -13157,19 +13176,41 @@ void CvPlot::addUnit(CvUnit* pUnit, bool bUpdate)
 void CvPlot::removeUnit(CvUnit* pUnit, bool bUpdate)
 {
 	IDInfo* pUnitNode = headUnitNode();
+	bool bFound = false;
 
 	while(pUnitNode != NULL)
 	{
-		if(GetPlayerUnit(*pUnitNode) == pUnit)
+		CvUnit* pNodeUnit = GetPlayerUnit(*pUnitNode);
+		if(pNodeUnit == NULL)
 		{
-			PRECONDITION(GetPlayerUnit(*pUnitNode)->at(getX(), getY()), "The current unit instance is expected to be at getX_INLINE and getY_INLINE");
+			if(GC.getGame().isNetworkMultiPlayer())
+			{
+				CvString msg; CvString::format(msg, "*** PLOT UNIT DESYNC *** removeUnit: stale IDInfo (owner %d, id %d) on plot (%d,%d) while removing unit (owner %d, id %d). Removing stale entry.",
+					(int)pUnitNode->eOwner, pUnitNode->iID, getX(), getY(), (int)pUnit->getOwner(), pUnit->GetID());
+				gGlobals.getDLLIFace()->sendChat(msg, CHATTARGET_ALL, NO_PLAYER);
+			}
 			m_units.deleteNode(pUnitNode);
+			pUnitNode = headUnitNode();
+			continue;
+		}
+		if(pNodeUnit == pUnit)
+		{
+			PRECONDITION(pNodeUnit->at(getX(), getY()), "The current unit instance is expected to be at getX_INLINE and getY_INLINE");
+			m_units.deleteNode(pUnitNode);
+			bFound = true;
 			break;
 		}
 		else
 		{
 			pUnitNode = nextUnitNode(pUnitNode);
 		}
+	}
+
+	if(!bFound && GC.getGame().isNetworkMultiPlayer())
+	{
+		CvString msg; CvString::format(msg, "*** PLOT UNIT DESYNC *** removeUnit: unit (owner %d, id %d) not found on plot (%d,%d). Unit coords: (%d,%d). Plot has %d units.",
+			(int)pUnit->getOwner(), pUnit->GetID(), getX(), getY(), pUnit->getX(), pUnit->getY(), getNumUnits());
+		gGlobals.getDLLIFace()->sendChat(msg, CHATTARGET_ALL, NO_PLAYER);
 	}
 
 	GC.getMap().plotManager().RemoveUnit(pUnit->GetIDInfo(), m_iX, m_iY, -1);
