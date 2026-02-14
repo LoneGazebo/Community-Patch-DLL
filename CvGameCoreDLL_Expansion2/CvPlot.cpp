@@ -8241,7 +8241,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				setResourceType(NO_RESOURCE, 0);
 			}
 
-			// update plot ownership (needs ot be done before setting the improvement)
+			// update plot ownership (needs to be done before setting the improvement)
 			if (eBuilder != NO_PLAYER)
 			{
 				if (!isOwned() && newImprovementEntry.IsNewOwner())
@@ -8597,7 +8597,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				{
 					ChangeRestoreMovesCount(1);
 				}
-
+				
 				ResourceTypes eResourceFromImprovement = (ResourceTypes)newImprovementEntry.GetResourceFromImprovement();
 				if (eResourceFromImprovement != NO_RESOURCE)
 				{
@@ -8610,6 +8610,21 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 					bResourcesOnPlotChanged = true;
 				}
 
+				bool bIsExoticResource = newImprovementEntry.IsExoticResourceFromImprovement();
+				if (bIsExoticResource && eBuilder != NO_PLAYER)
+				{
+					int iQuantity = newImprovementEntry.GetResourceQuantityFromImprovement() + GET_PLAYER(eBuilder).GetAdmiralLuxuryBonus();
+					if (iQuantity > 0)  // allow it to be zero and only positive with the policy buff. unused but maybe useful
+					{
+						ResourceTypes eExoticResource = GET_PLAYER(eBuilder).GetFreeLuxury();
+						if (eExoticResource != NO_RESOURCE)
+						{
+							setResourceType(eExoticResource, iQuantity, true);
+							bResourcesOnPlotChanged = true;
+						}
+					}
+				}
+				
 				// if the resources on the plot have changed, resource quantities have already been updated in setResourceType. otherwise, we do it now
 				if (!bResourcesOnPlotChanged)
 				{
@@ -8757,6 +8772,16 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				if (eResourceFromImprovement != NO_RESOURCE)
 				{
 					if (getResourceType() != NO_RESOURCE && getResourceType() == eResourceFromImprovement)
+					{
+						setResourceType(NO_RESOURCE, 0);
+					}
+				}
+
+				if (GC.getImprovementInfo(eOldImprovement)->IsExoticResourceFromImprovement())
+				{
+					// if for some reason this doesnt place resources, then dont remove resources. unlikely to fire, but we do allow it to be zero = inactive
+					int iQuantity = GC.getImprovementInfo(eOldImprovement)->GetResourceQuantityFromImprovement() + GET_PLAYER(eBuilder).GetAdmiralLuxuryBonus();
+					if (getResourceType() != NO_RESOURCE && iQuantity > 0)
 					{
 						setResourceType(NO_RESOURCE, 0);
 					}

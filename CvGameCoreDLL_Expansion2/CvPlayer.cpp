@@ -35098,6 +35098,76 @@ void CvPlayer::changeConquestPerEraBuildingProductionMod(int iChange)
 	m_iConquestPerEraBuildingProductionMod += iChange;
 }
 
+// prefers luxuries that you dont have and arent on the map
+ResourceTypes CvPlayer::GetFreeLuxury() const
+{
+// Loop through all resources and see if we can find this many unique ones
+	ResourceTypes eResourceToGive = NO_RESOURCE;
+	int iBestFlavor = 0;
+	for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+	{
+		ResourceTypes eResource = (ResourceTypes) iResourceLoop;
+		CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
+		if (pkResource != NULL && pkResource->getResourceUsage() == RESOURCEUSAGE_LUXURY)
+		{
+			if(GC.getMap().getNumResources(eResource) <= 0)
+			{
+				int iRandomFlavor = GC.getGame().randRangeInclusive(1, 100,  CvSeeder::fromRaw(0xf24ac584).mix(iResourceLoop));
+				//If we've already got this resource, divide the value by the amount.
+				if(getNumResourceTotal(eResource, false) > 0)
+				{
+					iRandomFlavor = 0;
+				}
+				if(iRandomFlavor > iBestFlavor)
+				{
+					eResourceToGive = eResource;
+					iBestFlavor = iRandomFlavor;
+				}
+			}
+		}
+	}
+	if (eResourceToGive == NO_RESOURCE)
+	{
+		for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+		{
+			ResourceTypes eResource = (ResourceTypes) iResourceLoop;
+			CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
+			if (pkResource != NULL && pkResource->getResourceUsage() == RESOURCEUSAGE_LUXURY)
+			{
+				int iRandomFlavor = GC.getGame().randRangeInclusive(1, 100,  CvSeeder::fromRaw(0x67f3264c).mix(iResourceLoop));
+				//If we've already got this resource, divide the value by the amount.
+				if(getNumResourceTotal(eResource, false) > 0)
+				{
+					iRandomFlavor = 0;
+				}
+				if(iRandomFlavor > iBestFlavor)
+				{
+					eResourceToGive = eResource;
+					iBestFlavor = iRandomFlavor;
+				}
+			}
+		}
+	}
+	if (eResourceToGive == NO_RESOURCE)
+	{
+		for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+		{
+			ResourceTypes eResource = (ResourceTypes) iResourceLoop;
+			CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
+			if (pkResource != NULL && pkResource->getResourceUsage() == RESOURCEUSAGE_LUXURY)
+			{
+				int iRandomFlavor = GC.getGame().randRangeInclusive(1, 100,  CvSeeder::fromRaw(0xb5d7b965).mix(iResourceLoop));
+				if(iRandomFlavor > iBestFlavor)
+				{
+					eResourceToGive = eResource;
+					iBestFlavor = iRandomFlavor;
+				}
+			}
+		}
+	}
+	return eResourceToGive;
+}
+
 int CvPlayer::GetAdmiralLuxuryBonus() const
 {
 	return m_iAdmiralLuxuryBonus;
