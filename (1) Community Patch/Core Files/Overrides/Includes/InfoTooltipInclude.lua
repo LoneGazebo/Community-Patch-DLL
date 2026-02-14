@@ -2949,19 +2949,13 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 		AddTooltip(tAbilityLines, "TXT_KEY_PRODUCTION_CORPORATION_EFFECTS");
 		table.insert(tAbilityLines, "[ICON_BULLET]" .. table.concat(tCorporationAbilities, "[NEWLINE][ICON_BULLET]"));
 	end
-
-	if next(tLocalAbilityLines) then
-		AddTooltip(tAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_LOCAL_EFFECTS");
-		table.insert(tAbilityLines, "[ICON_BULLET]" .. table.concat(tLocalAbilityLines, "[NEWLINE][ICON_BULLET]"));
-	end
+	local iLocalAbilityPos = #tAbilityLines + 1;
 
 	if next(tGlobalAbilityLines) then
-		AddTooltip(tAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_GLOBAL_EFFECTS");
 		table.insert(tAbilityLines, "[ICON_BULLET]" .. table.concat(tGlobalAbilityLines, "[NEWLINE][ICON_BULLET]"));
 	end
 
 	if next(tTeamAbilityLines) then
-		AddTooltip(tAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_TEAM_EFFECTS");
 		table.insert(tAbilityLines, "[ICON_BULLET]" .. table.concat(tTeamAbilityLines, "[NEWLINE][ICON_BULLET]"));
 	end
 
@@ -2985,9 +2979,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 	-- Yield boosts on cities in the same area
 	AddTooltipSimpleYieldModifierTable(tAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_MODIFIER_AREA", tAreaBoosts);
 
-	if next(tAbilityLines) then
-		table.insert(tLines, table.concat(tAbilityLines, "[NEWLINE]"));
-	end
+	local iAbilityInsertPos = #tLines + 1;
 
 	----------------------
 	-- New medians (VP only)
@@ -3384,6 +3376,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 	-- In city view, only show if the boost has not been obtained
 	----------------------
 	local tBoostLines = {};
+	local tLocalBoostLines = {};
 
 	do
 		local tTechBoosts = {};
@@ -3686,41 +3679,41 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 			end
 		end
 
-		AddTooltipSimpleYieldBoostTable(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_POPULATION", tPopulationBoosts);
-		AddTooltipSimpleYieldBoostTable(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_POPULATION_GLOBAL", tPopulationBoostsGlobal);
-		AddTooltipSimpleYieldBoostTable(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_CITY_STRENGTH", tCityStrengthBoosts);
-		AddTooltipSimpleYieldBoostTable(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_PASSING_TR", tPassingTRBoosts);
-		AddTooltipSimpleYieldBoostTable(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_THEMES", tThemeBoosts);
-		AddTooltipSimpleYieldBoostTable(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_MONOPOLIES", tMonopolyBoosts);
-		AddTooltipSimpleYieldBoostTable(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_FRANCHISES", tFranchiseBoosts);
-		AddTooltipSimpleYieldBoostTable(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_RELIGION_COUNT", tReligionBoosts);
-		AddTooltipSimpleYieldBoostTable(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_CITY_STATE_FRIENDS", tCSFriendBoosts);
-		AddTooltipSimpleYieldBoostTable(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_CITY_STATE_ALLIES", tCSAllyBoosts);
-		AddTooltipSimpleYieldBoostTable(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_ERA", tEraBoosts);
-		AddTooltipSimpleYieldBoostTable(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_MOUNTAINS", tMountainBoosts);
-		AddTooltipSimpleYieldBoostTable(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_SNOW", tSnowBoosts);
-		AddTooltipSimpleYieldFractionTable(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_BUILDING_COUNT", tBuildingCountBoosts);
-		AddTooltipSimpleYieldFractionTable(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_PLOT_COUNT", tPlotCountBoosts);
-		AddTooltipSimpleYieldFractionTable(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_CITY_STATE_STRATEGIC_RESOURCES", tCSStrategicBoosts);
-		AddTooltipSimpleYieldModifierTable(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_ERA", tEraModifierBoosts);
+		AddTooltipSimpleYieldBoostTable(tLocalBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_POPULATION", tPopulationBoosts);
+		AddTooltipSimpleYieldBoostTable(tLocalBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_POPULATION_GLOBAL", tPopulationBoostsGlobal);
+		AddTooltipSimpleYieldBoostTable(tLocalBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_CITY_STRENGTH", tCityStrengthBoosts);
+		AddTooltipSimpleYieldBoostTable(tLocalBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_PASSING_TR", tPassingTRBoosts);
+		AddTooltipSimpleYieldBoostTable(tLocalBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_THEMES", tThemeBoosts);
+		AddTooltipSimpleYieldBoostTable(tLocalBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_MONOPOLIES", tMonopolyBoosts);
+		AddTooltipSimpleYieldBoostTable(tLocalBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_FRANCHISES", tFranchiseBoosts);
+		AddTooltipSimpleYieldBoostTable(tLocalBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_RELIGION_COUNT", tReligionBoosts);
+		AddTooltipSimpleYieldBoostTable(tLocalBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_CITY_STATE_FRIENDS", tCSFriendBoosts);
+		AddTooltipSimpleYieldBoostTable(tLocalBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_CITY_STATE_ALLIES", tCSAllyBoosts);
+		AddTooltipSimpleYieldBoostTable(tLocalBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_ERA", tEraBoosts);
+		AddTooltipSimpleYieldBoostTable(tLocalBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_MOUNTAINS", tMountainBoosts);
+		AddTooltipSimpleYieldBoostTable(tLocalBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_SNOW", tSnowBoosts);
+		AddTooltipSimpleYieldFractionTable(tLocalBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_BUILDING_COUNT", tBuildingCountBoosts);
+		AddTooltipSimpleYieldFractionTable(tLocalBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_PLOT_COUNT", tPlotCountBoosts);
+		AddTooltipSimpleYieldFractionTable(tLocalBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_CITY_STATE_STRATEGIC_RESOURCES", tCSStrategicBoosts);
+		AddTooltipSimpleYieldModifierTable(tLocalBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_ERA", tEraModifierBoosts);
 		AddTooltipsYieldBoostTable(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_BUILDING", tBuildingBoosts, "Buildings");
 		AddTooltipsYieldBoostTable(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_BUILDING_GLOBAL", tBuildingBoostsGlobal, "Buildings");
-		AddTooltipsYieldBoostTable(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_WORKED_TERRAIN", tTerrainBoosts, "Terrains");
-		AddTooltipsYieldBoostTable(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_WORKED_FEATURE", tFeatureBoosts, "Features");
+		AddTooltipsYieldBoostTable(tLocalBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_WORKED_TERRAIN", tTerrainBoosts, "Terrains");
+		AddTooltipsYieldBoostTable(tLocalBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_WORKED_FEATURE", tFeatureBoosts, "Features");
 		AddTooltipsYieldBoostTable(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_TECH", tTechBoosts, "Technologies");
 		AddTooltipsYieldBoostTable(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_POLICY", tPolicyBoosts, "Policies");
 		AddTooltipsYieldBoostTable(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_POLICY_STATE_RELIGION", tPolicyBoostsStateReligion, "Policies");
 		AddTooltipsYieldBoostTable(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_BELIEF", tBeliefBoosts, "Beliefs");
 		AddTooltipsYieldBoostTable(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_CORPORATION", tCorporationBoosts, "Corporations");
 		AddTooltipsYieldBoostTable(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_TRAIT", tTraitBoosts, "Civilizations");
-		AddTooltipsYieldBoostTable(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_ACCOMPLISHMENT", tAccomplishmentBoosts, "Accomplishments");
-		AddTooltipsYieldFractionTable(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_IMPROVEMENT", tImprovementBoosts, "Improvements");
-		AddTooltipsYieldFractionTable(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_IMPROVEMENT_GLOBAL", tImprovementBoostsGlobal, "Improvements");
+		AddTooltipsYieldBoostTable(tLocalBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_ACCOMPLISHMENT", tAccomplishmentBoosts, "Accomplishments");
+		AddTooltipsYieldFractionTable(tLocalBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_IMPROVEMENT", tImprovementBoosts, "Improvements");
+		AddTooltipsYieldFractionTable(tLocalBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_IMPROVEMENT_GLOBAL", tImprovementBoostsGlobal, "Improvements");
 		AddTooltipsYieldModifierTable(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_BUILDING_GLOBAL", tBuildingModifierBoosts, "Buildings");
 		AddTooltipsYieldModifierTable(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_POLICY", tPolicyModifierBoosts, "Policies");
 
 		if next(tGABoosts) then
-			AddTooltip(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_GOLDEN_AGE_START", table.concat(tGABoosts, " "), table.concat(tGABoostCaps, " "));
+			AddTooltip(tLocalBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_GOLDEN_AGE_START", table.concat(tGABoosts, " "), table.concat(tGABoostCaps, " "));
 		end
 
 		local tBoostsFromResource = {};
@@ -3748,26 +3741,26 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 				table.insert(tBoostStrings, GetYieldBoostString(GameInfo.Yields.YIELD_FAITH, iYield));
 			end
 			if next(tBoostStrings) then
-				AddTooltip(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_LOCAL_RESOURCE",
+				AddTooltip(tLocalBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_LOCAL_RESOURCE",
 				kResourceInfo.Description, table.concat(tBoostStrings, " "), kResourceInfo.IconString);
 			end
 
 			local iHappiness = tResourceYields.HAPPINESS or 0;
-			AddTooltipNonZeroSigned(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_HAPPINESS_FROM_LOCAL_RESOURCE",
+			AddTooltipNonZeroSigned(tLocalBoostLines, "TXT_KEY_PRODUCTION_BUILDING_HAPPINESS_FROM_LOCAL_RESOURCE",
 			iHappiness, kResourceInfo.IconString, kResourceInfo.Description);
 		end
 
-		AddTooltipsYieldModifierTable(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_LOCAL_RESOURCE", tResourceModifiers, "Resources");
+		AddTooltipsYieldModifierTable(tLocalBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_LOCAL_RESOURCE", tResourceModifiers, "Resources");
 
 		for row in GameInfo.Building_BonusFromAccomplishments{BuildingType = kBuildingInfo.Type} do
 			local kAccomplishmentInfo = GameInfo.Accomplishments[row.AccomplishmentType];
-			AddTooltipNonZeroSigned(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_HAPPINESS_FROM_ACCOMPLISHMENT", row.Happiness, kAccomplishmentInfo.Description);
+			AddTooltipNonZeroSigned(tLocalBoostLines, "TXT_KEY_PRODUCTION_BUILDING_HAPPINESS_FROM_ACCOMPLISHMENT", row.Happiness, kAccomplishmentInfo.Description);
 			if row.DomainType and row.DomainXP ~= 0 then
-				AddTooltipNonZeroSigned(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_XP_FOR_DOMAIN_FROM_ACCOMPLISHMENT", row.DomainXP,
+				AddTooltipNonZeroSigned(tLocalBoostLines, "TXT_KEY_PRODUCTION_BUILDING_XP_FOR_DOMAIN_FROM_ACCOMPLISHMENT", row.DomainXP,
 					kAccomplishmentInfo.Description, GameInfo.Domains[row.DomainType].Description);
 			end
 			if row.UnitCombatType and row.UnitProductionModifier ~= 0 then
-				AddTooltipNonZeroSigned(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_UNIT_COMBAT_PRODUCTION_MODIFIER_FROM_ACCOMPLISHMENT", row.UnitProductionModifier,
+				AddTooltipNonZeroSigned(tLocalBoostLines, "TXT_KEY_PRODUCTION_BUILDING_UNIT_COMBAT_PRODUCTION_MODIFIER_FROM_ACCOMPLISHMENT", row.UnitProductionModifier,
 				kAccomplishmentInfo.Description, GameInfo.UnitCombatInfos[row.UnitCombatType].Description);
 			end
 		end
@@ -3810,6 +3803,23 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 
 	if next(tExtraInstanceLines) then
 		table.insert(tBoostLines, table.concat(tExtraInstanceLines, "[NEWLINE]"));
+	end
+
+	do
+		local tLocalEffectStr = {};
+		if next(tLocalAbilityLines) then
+			table.insert(tLocalEffectStr, "[ICON_BULLET]" .. table.concat(tLocalAbilityLines, "[NEWLINE][ICON_BULLET]"));
+		end
+		if next(tLocalBoostLines) then
+			table.insert(tLocalEffectStr, table.concat(tLocalBoostLines, "[NEWLINE]"));
+		end
+		if next(tLocalEffectStr) then
+			table.insert(tAbilityLines, iLocalAbilityPos, table.concat(tLocalEffectStr, "[NEWLINE]"));
+		end
+	end
+
+	if next(tAbilityLines) then
+		table.insert(tLines, iAbilityInsertPos, table.concat(tAbilityLines, "[NEWLINE]"));
 	end
 
 	if next(tBoostLines) then

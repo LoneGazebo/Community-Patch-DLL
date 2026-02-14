@@ -657,15 +657,6 @@
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_SPECIAL_SESSION_REQUIREMENT">
 			<Text>Is required to trigger the Special Session for [COLOR_PLAYER_MIDDLE_PURPLE_TEXT]{1_Resolution:textkey}[ENDCOLOR]</Text>
 		</Row>
-		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_LOCAL_EFFECTS">
-			<Text>Local Effects:</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_GLOBAL_EFFECTS">
-			<Text>Empire-Wide Effects:</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_TEAM_EFFECTS">
-			<Text>Team-Wide Effects:</Text>
-		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_CORPORATION_EFFECTS">
 			<Text>Corporation Benefits:</Text>
 		</Row>
