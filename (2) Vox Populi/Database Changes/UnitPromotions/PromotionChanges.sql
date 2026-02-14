@@ -1251,6 +1251,9 @@ INSERT INTO UnitPromotions_UnitCombatMods
 VALUES
 	('PROMOTION_FATHER_OF_THE_HORSE', 'UNITCOMBAT_MOUNTED', 15);
 
+-- Conquistador: Cibola
+UPDATE UnitPromotions SET CityAttack = 125 WHERE Type = 'PROMOTION_CIBOLA';
+
 -- Armada: Santa Maria
 INSERT INTO UnitPromotions_YieldFromKills
 	(PromotionType, YieldType, Yield)

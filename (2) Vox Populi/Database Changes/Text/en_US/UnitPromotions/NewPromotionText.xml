@@ -1324,6 +1324,13 @@
 			<Text>+15% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Mounted Units[ENDCOLOR].</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_PROMOTION_CIBOLA">
+			<Text>Cíbola</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_CIBOLA_HELP">
+			<Text>+125% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].</Text>
+		</Row>
+
 		<Row Tag="TXT_KEY_PROMOTION_SANTA_MARIA">
 			<Text>Santa Maria</Text>
 		</Row>
