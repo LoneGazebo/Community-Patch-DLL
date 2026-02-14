@@ -37655,19 +37655,31 @@ void CvPlayer::CompleteAccomplishment(AccomplishmentTypes eAccomplishment)
 				for (size_t iI = 0; iI < vCityBuildings.size(); iI++)
 				{
 					CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(vCityBuildings[iI]);
-					if (pkBuildingInfo->GetBonusFromAccomplishments().count(eAccomplishment) > 0)
+					const std::map<int, std::vector<AccomplishmentBonusInfo>>& bonusMap = pkBuildingInfo->GetBonusFromAccomplishments();
+					std::map<int, std::vector<AccomplishmentBonusInfo>>::const_iterator it = bonusMap.find(eAccomplishment);
+					if (it != bonusMap.end())
 					{
-						AccomplishmentBonusInfo bonusInfo = pkBuildingInfo->GetBonusFromAccomplishments()[eAccomplishment];
-						// apply the bonuses
-						pLoopCity->ChangeBaseHappinessFromBuildings(bonusInfo.iHappiness);
-						if (bonusInfo.eDomainType != NO_DOMAIN)
-						{
-							pLoopCity->changeDomainFreeExperience(bonusInfo.eDomainType, bonusInfo.iDomainXP);
-						}
-						if (bonusInfo.eUnitCombatType != NO_UNITCOMBAT)
-						{
-							pLoopCity->changeUnitCombatProductionModifier(bonusInfo.eUnitCombatType, bonusInfo.iUnitProductionModifier);
-						}
+					    const std::vector<AccomplishmentBonusInfo>& vBonuses = it->second;
+					    for (size_t iBonus = 0; iBonus < vBonuses.size(); iBonus++)
+					    {
+					        const AccomplishmentBonusInfo& bonusInfo = vBonuses[iBonus];
+					        // apply the bonuses
+					        pLoopCity->ChangeBaseHappinessFromBuildings(bonusInfo.iHappiness);
+					        if (bonusInfo.eDomainType != NO_DOMAIN)
+					        {
+					            pLoopCity->changeDomainFreeExperience(
+					                bonusInfo.eDomainType,
+					                bonusInfo.iDomainXP
+					            );
+					        }
+					        if (bonusInfo.eUnitCombatType != NO_UNITCOMBAT)
+					        {
+					            pLoopCity->changeUnitCombatProductionModifier(
+					                bonusInfo.eUnitCombatType,
+					                bonusInfo.iUnitProductionModifier
+					            );
+					        }
+					    }
 					}
 				}
 			}
