@@ -1924,14 +1924,14 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 		local kSpecialistInfo = GameInfo.Specialists[kBuildingInfo.SpecialistType];
 		local iNumPoints = kBuildingInfo.GreatPeopleRateChange;
 		if iNumPoints > 0 then
-			table.insert(tYieldLines, string.format("[ICON_GREAT_PEOPLE] %s %d", L(kSpecialistInfo.GreatPeopleTitle), iNumPoints));
+			table.insert(tYieldLines, string.format("[ICON_BULLET][ICON_GREAT_PEOPLE] %s %d", L(kSpecialistInfo.GreatPeopleTitle), iNumPoints));
 		end
 
 		local iNumSlots = kBuildingInfo.SpecialistCount;
 		if iNumSlots > 0 then
 			-- Append a key such as TXT_KEY_SPECIALIST_ARTIST_SLOTS
 			local strSpecialistSlotsKey = kSpecialistInfo.Description .. "_SLOTS";
-			table.insert(tYieldLines, string.format("[ICON_GREAT_PEOPLE] %s %d", L(strSpecialistSlotsKey), iNumSlots));
+			table.insert(tYieldLines, string.format("[ICON_BULLET][ICON_GREAT_PEOPLE] %s %d", L(strSpecialistSlotsKey), iNumSlots));
 		end
 	end
 
