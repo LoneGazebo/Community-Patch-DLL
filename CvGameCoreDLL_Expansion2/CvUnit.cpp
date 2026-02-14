@@ -18954,12 +18954,7 @@ void CvUnit::changeNoAttackInOceanCount(int iValue)
 bool CvUnit::noDefensiveBonus() const
 {
 	VALIDATE_OBJECT();
-	// Boats get no bonus for fortifying
-	if(getDomainType() == DOMAIN_SEA)
-	{
-		return true;
-	}
-
+	
 	return getNoDefensiveBonusCount() > 0;
 }
 
