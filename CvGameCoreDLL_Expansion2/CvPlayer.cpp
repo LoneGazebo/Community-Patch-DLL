@@ -6731,6 +6731,23 @@ void CvPlayer::DoCancelEventChoice(EventChoiceTypes eChosenEventChoice)
 		//Let's only deduct if we actually started this event and it expires.
 		if(IsEventChoiceActive(eChosenEventChoice) && pkEventChoiceInfo->Expires())
 		{
+			if (pkEventChoiceInfo->getMaxAirUnitsChange() != 0)
+			{
+				int iChange = pkEventChoiceInfo->getMaxAirUnitsChange();
+				
+				int iLoop = 0;
+				for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+				{
+					if (pkEventChoiceInfo->isCoastalOnly() && !pLoopCity->isCoastal())
+						continue;
+					
+					if (pkEventChoiceInfo->isCapitalEffectOnly() && !pLoopCity->isCapital())
+						continue;
+					
+					pLoopCity->ChangeMaxAirUnits(iChange * -1);
+				}
+			}
+			
 			if(pkEventChoiceInfo->getEventPolicy() != -1)
 			{
 				PolicyTypes ePolicy = (PolicyTypes)pkEventChoiceInfo->getEventPolicy();
@@ -8265,49 +8282,6 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent, b
 					pLoopCity->AddEventGPPFromSpecialistsCounter(pkEventChoiceInfo->getEventDuration(), iChange);
 				}
 			}
-			for(int iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
-			{
-				const UnitClassTypes eUnitClass = static_cast<UnitClassTypes>(iI);
-				if (pkEventChoiceInfo->getNumFreeUnits(eUnitClass) <= 0)
-					continue;
-
-				const UnitTypes eLoopUnit = GetSpecificUnitType(eUnitClass);
-				if (eLoopUnit != NO_UNIT)
-				{
-					CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eLoopUnit);
-					if (pkUnitEntry)
-					{
-						int iLoop = 0;
-						for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-						{
-							if (pkEventChoiceInfo->isCoastalOnly() && !pLoopCity->isCoastal())
-								continue;
-
-							if (pkEventChoiceInfo->isCapitalEffectOnly() && !pLoopCity->isCapital())
-								continue;
-
-							for (int iJ = 0; iJ < pkEventChoiceInfo->getNumFreeUnits(eUnitClass); iJ++)
-							{
-								UnitAITypes eUnitAI = pkUnitEntry->GetDefaultUnitAIType();
-								CvUnit* pUnit = pLoopCity->CreateUnit(eLoopUnit, eUnitAI, REASON_GIFT);
-								if (pUnit)
-								{
-									if (!pUnit->jumpToNearestValidPlot())
-									{
-										pUnit->kill(false); // Could not find a valid spot!
-									}
-									else
-									{
-										pUnit->finishMoves();
-										//Lua Hook
-										GAMEEVENTINVOKE_HOOK(GAMEEVENT_EventUnitCreated, GetID(), eEventChoice, pUnit);
-									}
-								}
-							}
-						}
-					}
-				}
-			}
 			for(int iI = 0; iI < GC.getNumUnitInfos(); iI++)
 			{
 				const UnitTypes eUnit = static_cast<UnitTypes>(iI);
@@ -8431,6 +8405,51 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent, b
 			for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 			{
 				pLoopCity->ApplyPlayerEventChoice(eEventChoice);
+			}
+
+			// Spawn units needs to happen after ApplyPlayerEventChoice because e.g. if the choice gives AirSlots (in the subroutine) and Aircraft (here), the order needs to add the slots first or the aircraft dont spawn
+			for(int iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
+			{
+				const UnitClassTypes eUnitClass = static_cast<UnitClassTypes>(iI);
+				if (pkEventChoiceInfo->getNumFreeUnits(eUnitClass) <= 0)
+					continue;
+
+				const UnitTypes eLoopUnit = GetSpecificUnitType(eUnitClass);
+				if (eLoopUnit != NO_UNIT)
+				{
+					CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eLoopUnit);
+					if (pkUnitEntry)
+					{
+						int iLoop = 0;
+						for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+						{
+							if (pkEventChoiceInfo->isCoastalOnly() && !pLoopCity->isCoastal())
+								continue;
+
+							if (pkEventChoiceInfo->isCapitalEffectOnly() && !pLoopCity->isCapital())
+								continue;
+
+							for (int iJ = 0; iJ < pkEventChoiceInfo->getNumFreeUnits(eUnitClass); iJ++)
+							{
+								UnitAITypes eUnitAI = pkUnitEntry->GetDefaultUnitAIType();
+								CvUnit* pUnit = pLoopCity->CreateUnit(eLoopUnit, eUnitAI, REASON_GIFT);
+								if (pUnit)
+								{
+									if (!pUnit->jumpToNearestValidPlot())
+									{
+										pUnit->kill(false); // Could not find a valid spot!
+									}
+									else
+									{
+										pUnit->finishMoves();
+										//Lua Hook
+										GAMEEVENTINVOKE_HOOK(GAMEEVENT_EventUnitCreated, GetID(), eEventChoice, pUnit);
+									}
+								}
+							}
+						}
+					}
+				}
 			}
 
 			CalculateNetHappiness();
@@ -14596,6 +14615,13 @@ bool CvPlayer::canCreate(ProjectTypes eProject, bool bContinue, bool bTestVisibl
 
 	// Tech requirement
 	if(!(GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)(pProjectInfo.GetTechPrereq()))))
+	{
+		return false;
+	}
+
+	// Policy requirement
+	PolicyTypes eRequiredPolicy = pProjectInfo.PolicyType();
+	if (eRequiredPolicy != NO_POLICY && !GetPlayerPolicies()->HasPolicy(eRequiredPolicy))
 	{
 		return false;
 	}

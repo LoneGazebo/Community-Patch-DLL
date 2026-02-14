@@ -7589,6 +7589,13 @@ void CvCity::ApplyPlayerEventChoice(const EventChoiceTypes eEventChoice)
 			ChangeEventSpecialistYield(eSpecialist, eYield, pkEventChoiceInfo->getGlobalSpecialistYieldChange(iJ, iI));
 		}
 
+		// Air slot changes
+		if (pkEventChoiceInfo->getMaxAirUnitsChange() != 0)
+		{
+			int iChange = pkEventChoiceInfo->getMaxAirUnitsChange();
+			ChangeMaxAirUnits(iChange);
+		}
+
 		UpdateSpecialReligionYields(eYield);
 		UpdateCityYields(eYield);
 	}
@@ -30096,6 +30103,7 @@ bool CvCity::CreateProject(ProjectTypes eProjectType)
 		ChangeCultureMedianModifier(pProject->GetCultureMedianModifier());
 		ChangeReligiousUnrestModifier(pProject->GetReligiousUnrestModifier());
 		ChangeSpySecurityModifier(pProject->GetSpySecurityModifier());
+		changeCitySupplyFlat(pProject->GetCitySupplyFlat());
 		GET_PLAYER(getOwner()).ChangeEmpireSizeModifierPerCityMod(pProject->GetEmpireSizeModifierPerCityMod());
 		
 		for (int iI = 0; iI < GC.getNumUnitCombatClassInfos(); iI++)
@@ -30123,7 +30131,17 @@ bool CvCity::CreateProject(ProjectTypes eProjectType)
 		iWLTKDTurns /= 100;
 		ChangeWeLoveTheKingDayCounter(max(1, iWLTKDTurns));
 	}
-
+	EventTypes eEventToStart = pProject->GetEventToStart();
+	if (eEventToStart != NO_EVENT)
+	{
+		GET_PLAYER(getOwner()).DoStartEvent(eEventToStart, false);
+	}
+	CityEventTypes eCityEventToStart = pProject->GetCityEventToStart();
+	if (eCityEventToStart != NO_EVENT_CITY)
+	{
+		DoStartEvent(eCityEventToStart, false);
+	}
+	
 	GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityProjectComplete, getOwner(), GetID(), eProjectType);
 
 	return true;
