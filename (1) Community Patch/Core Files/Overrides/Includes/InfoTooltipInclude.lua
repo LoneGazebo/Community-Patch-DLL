@@ -363,6 +363,17 @@ end
 --- @param bGlobal boolean Whether "in all Cities" should be appended to tooltips
 --- @param bEraScaling boolean Whether ", scaling with Era" should be appended to tooltips
 --- @param ... number|string The rest of the parameters of strTextKey
+local tGroupableTypeColors = {
+	Resources = "",
+	Features = "[COLOR_PLAYER_DARK_GREEN_TEXT]",
+	Terrains = "[COLOR_PLAYER_DARK_GREEN_TEXT]",
+	Plots = "[COLOR_PLAYER_DARK_GREEN_TEXT]",
+	Specialists = "[COLOR_POSITIVE_TEXT]",
+	BuildingClasses = "[COLOR_YIELD_FOOD]",
+	Buildings = "[COLOR_YIELD_FOOD]",
+	Improvements = "[COLOR_POSITIVE_TEXT]",
+};
+
 local function AddTooltipsYieldTableGeneric(tTooltipList, strTextKey, tYieldTable, strOtherTypeTable, bModifier, bGlobal, bEraScaling, ...)
 	if not next(tYieldTable) then
 		return;
@@ -370,23 +381,56 @@ local function AddTooltipsYieldTableGeneric(tTooltipList, strTextKey, tYieldTabl
 	local GetStringFunc = bModifier and GetYieldModifierString or GetYieldBoostString;
 	local AddTooltipFunc = bGlobal and (bEraScaling and AddTooltipGlobalEraScaling or AddTooltipGlobal) or (bEraScaling and AddTooltipEraScaling or AddTooltip);
 	if strOtherTypeTable then
-		-- Add types to the cache if not already exist
-		for eOtherType, kOtherTypeInfo in GameInfoCache(strOtherTypeTable) do
-			if tYieldTable[eOtherType] then
-				local tBoostStrings = {};
-				for eYield, kYieldInfo in GameInfoCache("Yields") do
-					local nYield = tYieldTable[eOtherType][eYield];
-					if nYield and nYield ~= 0 then
-						table.insert(tBoostStrings, GetStringFunc(kYieldInfo, nYield));
+		local strColor = tGroupableTypeColors[strOtherTypeTable];
+		if strColor then
+			-- Group items by their yield boost string for merging
+			local tItemsByYields = {};
+			local tYieldsOrder = {};
+			for eOtherType, kOtherTypeInfo in GameInfoCache(strOtherTypeTable) do
+				if tYieldTable[eOtherType] then
+					local tBoostStrings = {};
+					for eYield, kYieldInfo in GameInfoCache("Yields") do
+						local nYield = tYieldTable[eOtherType][eYield];
+						if nYield and nYield ~= 0 then
+							table.insert(tBoostStrings, GetStringFunc(kYieldInfo, nYield));
+						end
+					end
+					if next(tBoostStrings) then
+						local strYields = table.concat(tBoostStrings, " ");
+						if not tItemsByYields[strYields] then
+							tItemsByYields[strYields] = {};
+							table.insert(tYieldsOrder, strYields);
+						end
+						local strName;
+						if strOtherTypeTable == "Resources" then
+							strName = kOtherTypeInfo.IconString .. " " .. L(kOtherTypeInfo.Description);
+						else
+							strName = strColor .. L(kOtherTypeInfo.Description) .. "[ENDCOLOR]";
+						end
+						table.insert(tItemsByYields[strYields], strName);
 					end
 				end
-				if next(tBoostStrings) then
-					if strOtherTypeTable == "Resources" then
-						AddTooltipFunc(tTooltipList, strTextKey, kOtherTypeInfo.Description, table.concat(tBoostStrings, " "), kOtherTypeInfo.IconString, ...);
-					elseif strOtherTypeTable == "Beliefs" then
-						AddTooltipFunc(tTooltipList, strTextKey, kOtherTypeInfo.ShortDescription, table.concat(tBoostStrings, " "), ...);
-					else
-						AddTooltipFunc(tTooltipList, strTextKey, kOtherTypeInfo.Description, table.concat(tBoostStrings, " "), ...);
+			end
+			for _, strYields in ipairs(tYieldsOrder) do
+				AddTooltipFunc(tTooltipList, strTextKey, ConcatWithCommaAnd(tItemsByYields[strYields]), strYields, ...);
+			end
+		else
+			-- Non-groupable types (Beliefs, Technologies, Policies, etc.)
+			for eOtherType, kOtherTypeInfo in GameInfoCache(strOtherTypeTable) do
+				if tYieldTable[eOtherType] then
+					local tBoostStrings = {};
+					for eYield, kYieldInfo in GameInfoCache("Yields") do
+						local nYield = tYieldTable[eOtherType][eYield];
+						if nYield and nYield ~= 0 then
+							table.insert(tBoostStrings, GetStringFunc(kYieldInfo, nYield));
+						end
+					end
+					if next(tBoostStrings) then
+						if strOtherTypeTable == "Beliefs" then
+							AddTooltipFunc(tTooltipList, strTextKey, kOtherTypeInfo.ShortDescription, table.concat(tBoostStrings, " "), ...);
+						else
+							AddTooltipFunc(tTooltipList, strTextKey, kOtherTypeInfo.Description, table.concat(tBoostStrings, " "), ...);
+						end
 					end
 				end
 			end
@@ -530,23 +574,56 @@ local function AddTooltipsYieldFractionTableGeneric(tTooltipList, strTextKey, tY
 	end
 	local AddTooltipFunc = bGlobal and AddTooltipGlobal or AddTooltip;
 	if strOtherTypeTable then
-		-- Add types to the cache if not already exist
-		for eOtherType, kOtherTypeInfo in GameInfoCache(strOtherTypeTable) do
-			if tYieldFractionTable[eOtherType] then
-				local tBoostStrings = {};
-				for eYield, kYieldInfo in GameInfoCache("Yields") do
-					local fYield = tYieldFractionTable[eOtherType][eYield];
-					if fYield and fYield.Numerator ~= 0 then
-						table.insert(tBoostStrings, GetFractionYieldBoostString(kYieldInfo, fYield.Numerator, fYield.Denominator));
+		local strColor = tGroupableTypeColors[strOtherTypeTable];
+		if strColor then
+			-- Group items by their yield boost string for merging
+			local tItemsByYields = {};
+			local tYieldsOrder = {};
+			for eOtherType, kOtherTypeInfo in GameInfoCache(strOtherTypeTable) do
+				if tYieldFractionTable[eOtherType] then
+					local tBoostStrings = {};
+					for eYield, kYieldInfo in GameInfoCache("Yields") do
+						local fYield = tYieldFractionTable[eOtherType][eYield];
+						if fYield and fYield.Numerator ~= 0 then
+							table.insert(tBoostStrings, GetFractionYieldBoostString(kYieldInfo, fYield.Numerator, fYield.Denominator));
+						end
+					end
+					if next(tBoostStrings) then
+						local strYields = table.concat(tBoostStrings, " ");
+						if not tItemsByYields[strYields] then
+							tItemsByYields[strYields] = {};
+							table.insert(tYieldsOrder, strYields);
+						end
+						local strName;
+						if strOtherTypeTable == "Resources" then
+							strName = kOtherTypeInfo.IconString .. " " .. L(kOtherTypeInfo.Description);
+						else
+							strName = strColor .. L(kOtherTypeInfo.Description) .. "[ENDCOLOR]";
+						end
+						table.insert(tItemsByYields[strYields], strName);
 					end
 				end
-				if next(tBoostStrings) then
-					if strOtherTypeTable == "Resources" then
-						AddTooltipFunc(tTooltipList, strTextKey, kOtherTypeInfo.Description, table.concat(tBoostStrings, " "), kOtherTypeInfo.IconString, ...);
-					elseif strOtherTypeTable == "Beliefs" then
-						AddTooltipFunc(tTooltipList, strTextKey, kOtherTypeInfo.ShortDescription, table.concat(tBoostStrings, " "), ...);
-					else
-						AddTooltipFunc(tTooltipList, strTextKey, kOtherTypeInfo.Description, table.concat(tBoostStrings, " "), ...);
+			end
+			for _, strYields in ipairs(tYieldsOrder) do
+				AddTooltipFunc(tTooltipList, strTextKey, ConcatWithCommaAnd(tItemsByYields[strYields]), strYields, ...);
+			end
+		else
+			-- Non-groupable types (Beliefs, etc.)
+			for eOtherType, kOtherTypeInfo in GameInfoCache(strOtherTypeTable) do
+				if tYieldFractionTable[eOtherType] then
+					local tBoostStrings = {};
+					for eYield, kYieldInfo in GameInfoCache("Yields") do
+						local fYield = tYieldFractionTable[eOtherType][eYield];
+						if fYield and fYield.Numerator ~= 0 then
+							table.insert(tBoostStrings, GetFractionYieldBoostString(kYieldInfo, fYield.Numerator, fYield.Denominator));
+						end
+					end
+					if next(tBoostStrings) then
+						if strOtherTypeTable == "Beliefs" then
+							AddTooltipFunc(tTooltipList, strTextKey, kOtherTypeInfo.ShortDescription, table.concat(tBoostStrings, " "), ...);
+						else
+							AddTooltipFunc(tTooltipList, strTextKey, kOtherTypeInfo.Description, table.concat(tBoostStrings, " "), ...);
+						end
 					end
 				end
 			end
@@ -3801,7 +3878,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 			end
 			if next(tBoostStrings) then
 				AddTooltip(tLocalBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_LOCAL_RESOURCE",
-				kResourceInfo.Description, table.concat(tBoostStrings, " "), kResourceInfo.IconString);
+				kResourceInfo.IconString .. " " .. L(kResourceInfo.Description), table.concat(tBoostStrings, " "));
 			end
 
 			local iHappiness = tResourceYields.HAPPINESS or 0;
