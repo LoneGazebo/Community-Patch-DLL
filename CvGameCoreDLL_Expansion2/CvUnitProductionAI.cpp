@@ -1362,26 +1362,17 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 				// pseudo unique units, e.g. Mongolia
 				if(kPlayer.GetPlayerTraits()->HasFreePromotionUnitClass(iI, pkUnitEntry->GetUnitClassType()))
 				{
-					if(::IsPromotionValidForUnitCombatType(ePromotion, eUnit))
-					{
-						iPromotionBonus += 100;
-					}
+					iPromotionBonus += 100;
 				}
 				// mostly accounted-for in flavors. etc. So small bonus?
 				if(kPlayer.GetPlayerTraits()->HasFreePromotionUnitCombat(iI, pkUnitEntry->GetUnitCombatType()))
 				{
-					if(::IsPromotionValidForUnitCombatType(ePromotion, eUnit))
-					{
-						iPromotionBonus += 10;
-					}
+					iPromotionBonus += 10;
 				}
 				// not currently used, but probably same as above
 				if(kPlayer.IsFreePromotion(ePromotion))
 				{
-					if(::IsPromotionValidForUnitCombatType(ePromotion, eUnit))
-					{
-						iPromotionBonus += 10;
-					}
+					iPromotionBonus += 10;
 				}
 				// in case someone adds many promos with traits, do not let this loop blow up
 				// also, if we find a "pseudo unique unit" we can stop looping
