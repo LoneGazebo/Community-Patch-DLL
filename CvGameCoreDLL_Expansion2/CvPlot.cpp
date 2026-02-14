@@ -8234,6 +8234,17 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				}
 			}
 
+			// if the improvement has yield changes by era, it needs the historical record set. 
+			// in the rare case there is also an invisible artifact record on the tile, its age is altered (player has no way to know this)
+			for (int iK = 0; iK < NUM_YIELD_TYPES; ++iK)
+			{
+				if (newImprovementEntry.GetYieldChangePerEra(iK) != 0)
+				{
+					m_kArchaeologyData.m_eEra = GET_PLAYER(eBuilder).GetCurrentEra();
+					break;
+				}
+			}
+			
 			// remove existing resource if this improvement places a new one (needs to be done before setting the improvement to make sure resource counts are updated correctly)
 			ResourceTypes eResourceFromImprovement = (ResourceTypes)newImprovementEntry.GetResourceFromImprovement();
 			if (eResourceFromImprovement != NO_RESOURCE && getResourceType() != NO_RESOURCE)
