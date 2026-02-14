@@ -728,7 +728,7 @@ public:
 	bool IsEverFortifyable() const;
 	int fortifyModifier() const;
 
-	int experienceNeeded() const;
+	int experienceNeeded(int iOverrideLevel = -1) const;
 	int maxXPValue() const;
 
 	bool ignoreBuildingDefense() const;
@@ -1117,8 +1117,10 @@ public:
 	bool IsInForeignOwnedTerritory() const;
 
 	int getExperienceTimes100() const;
-	void setExperienceTimes100(int iNewValueTimes100, int iMax = -1, bool bDontShow = false);
-	void changeExperienceTimes100(int iChangeTimes100, int iMax = -1, bool bFromCombat = false, bool bInBorders = false, bool bUpdateGlobal = false, bool bFromHuman = false);
+	void setExperienceTimes100(int iNewValueTimes100, int iMax = -1, bool bDontShow = false, bool bStartingXP = false);
+	void changeExperienceTimes100(int iChangeTimes100, int iMax = -1, bool bFromCombat = false, bool bInBorders = false, bool bUpdateGlobal = false, bool bFromHuman = false, bool bStartingXP = false);
+
+	int getStartingExperienceTimes100() const;
 
 	int getLevel() const;
 	void setLevel(int iNewValue);
@@ -2091,6 +2093,7 @@ protected:
 	int m_iTurnSliceCreated; // not serialized
 	bool m_bImmobile;
 	int m_iExperienceTimes100;
+	int m_iStartingExperienceTimes100;
 	int m_iLevel;
 	int m_iCargo;
 	int m_iCargoCapacity;
@@ -2525,6 +2528,7 @@ SYNC_ARCHIVE_VAR(int, m_iReconCount)
 SYNC_ARCHIVE_VAR(int, m_iGameTurnCreated)
 SYNC_ARCHIVE_VAR(bool, m_bImmobile)
 SYNC_ARCHIVE_VAR(int, m_iExperienceTimes100)
+SYNC_ARCHIVE_VAR(int, m_iStartingExperienceTimes100)
 SYNC_ARCHIVE_VAR(int, m_iLevel)
 SYNC_ARCHIVE_VAR(int, m_iCargo)
 SYNC_ARCHIVE_VAR(int, m_iCargoCapacity)
