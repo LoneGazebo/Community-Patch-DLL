@@ -3460,8 +3460,8 @@ CvUnit* CvPlot::getBestGarrison(PlayerTypes eOwner) const
 	CvUnit* pLoopUnit = NULL;
 	CvUnit* pBestUnit = NULL;
 
-	//we don't consider promotions here ...
-	int iBestBaseCS = -1;
+	// Score candidates by their effective city-strength contribution (same logic as CvCity::updateStrengthValue)
+	int iBestGarrisonContribution = 0;
 	while(pUnitNode != NULL)
 	{
 		pLoopUnit = GetPlayerUnit(*pUnitNode);
@@ -3470,14 +3470,13 @@ CvUnit* CvPlot::getBestGarrison(PlayerTypes eOwner) const
 		if(pLoopUnit && (pLoopUnit->getOwner() == eOwner) && pLoopUnit->CanGarrison() && !pLoopUnit->isDelayedDeath())
 		{
 			int iBaseCS = max(pLoopUnit->GetBaseCombatStrength(),pLoopUnit->GetBaseRangedCombatStrength());
-			//naval units are not the best garrison
-			if (!pLoopUnit->isNativeDomain(this))
-				iBaseCS = 0;
+			int iContribution = (iBaseCS * 100) /
+				(pLoopUnit->getDomainType() == DOMAIN_LAND ? GD_INT_GET(CITY_STRENGTH_LAND_UNIT_DIVISOR) : GD_INT_GET(CITY_STRENGTH_NAVAL_UNIT_DIVISOR));
 
-			if(iBaseCS>iBestBaseCS)
+			if(iContribution > iBestGarrisonContribution)
 			{
 				pBestUnit = pLoopUnit;
-				iBestBaseCS = iBaseCS;
+				iBestGarrisonContribution = iContribution;
 			}
 		}
 	}

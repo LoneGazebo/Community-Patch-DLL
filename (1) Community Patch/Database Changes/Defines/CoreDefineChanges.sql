@@ -429,6 +429,8 @@ VALUES
 	('PERSONALITY_FLAVOR_MIN_VALUE', 1),
 	('INFLUENCE_TARGET_DISTANCE_WEIGHT_VALUE', 3),
 	('UNIT_AUTO_EXTRA_AUTOMATIONS_DISABLED', 0),
+	('CITY_STRENGTH_LAND_UNIT_DIVISOR', 500),	-- Divisor of land garrison strength added to city strength x100
+	('CITY_STRENGTH_NAVAL_UNIT_DIVISOR', 500), 	-- Divisor of naval garrison strength added to city strength x100
 	('MAX_CITY_ATTACK_RANGE', 2), -- For EVENTS_CITY_BOMBARD: base city attack range
 	('UNIT_SPAWN_NUM_CHOICES', 5), -- Number of top choices considered when spawning a random free unit. Also used for militaristic city states' unique unit choice.
 	('BLOCKADED_CITY_ATTACK_MODIFIER', 0), -- Attack bonus against blockaded cities
