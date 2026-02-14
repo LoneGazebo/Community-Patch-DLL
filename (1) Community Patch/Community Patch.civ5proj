@@ -1086,6 +1086,7 @@
     <Folder Include="Kit\UI\Control" />
     <Folder Include="Kit\UI\Control\Instance" />
     <Folder Include="Kit\Util\" />
+    <Folder Include="Kit\Util\Format" />
     <Folder Include="LUA" />
     <Folder Include="LUA\Includes" />
     <Folder Include="Mapscripts" />
@@ -3708,6 +3709,10 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
+    <Content Include="Kit\FP\CPK.FP.Void.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
     <Content Include="Kit\Misc\CPK.Misc.AsPercentage.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
@@ -3717,6 +3722,18 @@
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="Kit\String\CPK.String.Distance.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Kit\String\CPK.String.Escape.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Kit\String\CPK.String.PadEnd.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Kit\String\CPK.String.PadStart.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
@@ -3852,6 +3869,10 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
+    <Content Include="Kit\Util\CPK.Util.Benchmark.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
     <Content Include="Kit\Util\CPK.Util.Color.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
@@ -3865,6 +3886,18 @@
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="Kit\Util\CPK.Util.StringBuilder.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Kit\Util\Format\CPK.Util.Format.ByteSize.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Kit\Util\Format\CPK.Util.Format.Duration.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Kit\Util\Format\CPK.Util.Format.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
