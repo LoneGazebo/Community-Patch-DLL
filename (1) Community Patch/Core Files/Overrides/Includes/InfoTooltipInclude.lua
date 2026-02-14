@@ -120,6 +120,28 @@ local function AppendEraScaling(strTooltip)
 	return string.format("%s, %s", strTooltip, L("TXT_KEY_PRODUCTION_BUILDING_ERA_SCALING_SUFFIX"));
 end
 
+--- Concatenate a list of strings with localized ", " and " and " before the last item
+--- e.g. {"a"} -> "a", {"a", "b"} -> "a and b", {"a", "b", "c"} -> "a, b and c"
+--- @param tItems string[]
+--- @return string
+local strListSeparator = L("TXT_KEY_LIST_SEPARATOR") .. " ";
+local strListAnd = " " .. L("TXT_KEY_LIST_AND") .. " ";
+local function ConcatWithCommaAnd(tItems)
+	local n = #tItems;
+	if n == 1 then
+		return tItems[1];
+	else
+		local strTemp = ""
+		strTemp = L("TXT_KEY_LIST_COMBINE_FINAL", tItems[n-1], tItems[n]);
+		if n > 2 then
+			for j = n-2, 1, -1 do
+				strTemp = L("TXT_KEY_LIST_COMBINE_NONFINAL", tItems[j], strTemp);
+			end
+		end
+		return strTemp
+	end
+end
+
 --- Can the given unit gain the given promotion?
 --- @param kUnitInfo Info
 --- @param strPromotionType string
@@ -1995,18 +2017,57 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 	for row in GameInfo.Building_UnitCombatFreeExperiences{BuildingType = kBuildingInfo.Type} do
 		AddTooltipNonZeroSigned(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_UNIT_XP_COMBAT", row.Experience, GameInfo.UnitCombatInfos[row.UnitCombatType].Description);
 	end
-	for row in GameInfo.Building_DomainFreeExperiences{BuildingType = kBuildingInfo.Type} do
-		AddTooltipNonZeroSigned(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_UNIT_XP_DOMAIN", row.Experience, GameInfo.Domains[row.DomainType].Description);
+	do
+		local tXPDomains = {};
+		for row in GameInfo.Building_DomainFreeExperiences{BuildingType = kBuildingInfo.Type} do
+			if row.Experience ~= 0 then
+				if not tXPDomains[row.Experience] then tXPDomains[row.Experience] = {} end
+				table.insert(tXPDomains[row.Experience], "[COLOR_YELLOW]" .. L(GameInfo.Domains[row.DomainType].Description) .. "[ENDCOLOR]");
+			end
+		end
+		for iXP, tDomains in pairs(tXPDomains) do
+			local strSign = iXP > 0 and "+" or "-";
+			table.insert(tLocalAbilityLines, L("TXT_KEY_PRODUCTION_BUILDING_UNIT_XP_DOMAINS", math.abs(iXP), strSign, ConcatWithCommaAnd(tDomains)));
+		end
 	end
-	for row in GameInfo.Building_DomainFreeExperiencesGlobal{BuildingType = kBuildingInfo.Type} do
-		AddTooltipGlobalNonZeroSigned(tGlobalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_UNIT_XP_DOMAIN", row.Experience, GameInfo.Domains[row.DomainType].Description);
+	do
+		local tXPDomains = {};
+		for row in GameInfo.Building_DomainFreeExperiencesGlobal{BuildingType = kBuildingInfo.Type} do
+			if row.Experience ~= 0 then
+				if not tXPDomains[row.Experience] then tXPDomains[row.Experience] = {} end
+				table.insert(tXPDomains[row.Experience], "[COLOR_YELLOW]" .. L(GameInfo.Domains[row.DomainType].Description) .. "[ENDCOLOR]");
+			end
+		end
+		for iXP, tDomains in pairs(tXPDomains) do
+			local strSign = iXP > 0 and "+" or "-";
+			table.insert(tGlobalAbilityLines, AppendGlobal(L("TXT_KEY_PRODUCTION_BUILDING_UNIT_XP_DOMAINS", math.abs(iXP), strSign, ConcatWithCommaAnd(tDomains))));
+		end
 	end
-	for row in GameInfo.Building_DomainFreeExperiencePerGreatWork{BuildingType = kBuildingInfo.Type} do
-		AddTooltipNonZeroSigned(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_UNIT_XP_DOMAIN_FROM_GREAT_WORK", row.Experience, GameInfo.Domains[row.DomainType].Description);
+	do
+		local tXPDomains = {};
+		for row in GameInfo.Building_DomainFreeExperiencePerGreatWork{BuildingType = kBuildingInfo.Type} do
+			if row.Experience ~= 0 then
+				if not tXPDomains[row.Experience] then tXPDomains[row.Experience] = {} end
+				table.insert(tXPDomains[row.Experience], "[COLOR_YELLOW]" .. L(GameInfo.Domains[row.DomainType].Description) .. "[ENDCOLOR]");
+			end
+		end
+		for iXP, tDomains in pairs(tXPDomains) do
+			local strSign = iXP > 0 and "+" or "-";
+			table.insert(tLocalAbilityLines, L("TXT_KEY_PRODUCTION_BUILDING_UNIT_XP_DOMAINS_FROM_GREAT_WORK", math.abs(iXP), strSign, ConcatWithCommaAnd(tDomains)));
+		end
 	end
-	for row in GameInfo.Building_DomainFreeExperiencePerGreatWorkGlobal{BuildingType = kBuildingInfo.Type} do
-		AddTooltipGlobalNonZeroSigned(tGlobalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_UNIT_XP_DOMAIN_FROM_GREAT_WRITING_GLOBAL",
-			row.Experience, GameInfo.Domains[row.DomainType].Description);
+	do
+		local tXPDomains = {};
+		for row in GameInfo.Building_DomainFreeExperiencePerGreatWorkGlobal{BuildingType = kBuildingInfo.Type} do
+			if row.Experience ~= 0 then
+				if not tXPDomains[row.Experience] then tXPDomains[row.Experience] = {} end
+				table.insert(tXPDomains[row.Experience], "[COLOR_YELLOW]" .. L(GameInfo.Domains[row.DomainType].Description) .. "[ENDCOLOR]");
+			end
+		end
+		for iXP, tDomains in pairs(tXPDomains) do
+			local strSign = iXP > 0 and "+" or "-";
+			table.insert(tGlobalAbilityLines, AppendGlobal(L("TXT_KEY_PRODUCTION_BUILDING_UNIT_XP_DOMAINS_FROM_GREAT_WRITING_GLOBAL", math.abs(iXP), strSign, ConcatWithCommaAnd(tDomains))));
+		end
 	end
 	AddTooltipNonZeroSigned(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_UNIT_XP_ON_GOLDEN_AGE_START", kBuildingInfo.ExperiencePerGoldenAge, kBuildingInfo.ExperiencePerGoldenAgeCap);
 

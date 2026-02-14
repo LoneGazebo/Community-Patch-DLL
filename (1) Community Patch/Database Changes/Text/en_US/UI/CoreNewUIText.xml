@@ -352,6 +352,12 @@
 		<Row Tag="TXT_KEY_PRODUCTION_GLOBAL_SUFFIX">
 			<Text>in all Cities</Text>
 		</Row>
+		<Row Tag="TXT_KEY_LIST_COMBINE_NONFINAL">
+			<Text>{1_String1}, {2_String2}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LIST_COMBINE_FINAL">
+			<Text>{1_String1} and {2_String2}</Text>
+		</Row>
 		<!-- Unit -->
 		<Row Tag="TXT_KEY_PRODUCTION_UNIT_COMBAT_CLASS">
 			<Text>({1:textkey} Unit)</Text>
@@ -768,14 +774,14 @@
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_UNIT_XP_COMBAT">
 			<Text>{2_Sign}{1_Num} XP for [COLOR_YELLOW]{3_Combat:textkey}[ENDCOLOR] Units</Text>
 		</Row>
-		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_UNIT_XP_DOMAIN">
-			<Text>{2_Sign}{1_Num} XP for [COLOR_YELLOW]{3_Domain:textkey}[ENDCOLOR]</Text>
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_UNIT_XP_DOMAINS">
+			<Text>{2_Sign}{1_Num} XP for {3_Domains}</Text>
 		</Row>
-		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_UNIT_XP_DOMAIN_FROM_GREAT_WORK">
-			<Text>{2_Sign}{1_Num} XP for [COLOR_YELLOW]{3_Domain:textkey}[ENDCOLOR] per [ICON_GREAT_WORK] Great Work in City</Text>
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_UNIT_XP_DOMAINS_FROM_GREAT_WORK">
+			<Text>{2_Sign}{1_Num} XP for {3_Domains} per [ICON_GREAT_WORK] Great Work in City</Text>
 		</Row>
-		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_UNIT_XP_DOMAIN_FROM_GREAT_WRITING_GLOBAL">
-			<Text>{2_Sign}{1_Num} XP for [COLOR_YELLOW]{3_Domain:textkey}[ENDCOLOR] in all Cities per [ICON_GW_WRITING] Great Work of Writing in Empire, capped at 45 XP</Text>
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_UNIT_XP_DOMAINS_FROM_GREAT_WRITING_GLOBAL">
+			<Text>{2_Sign}{1_Num} XP for {3_Domains} in all Cities per [ICON_GW_WRITING] Great Work of Writing in Empire, capped at 45 XP</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_FOOD_KEPT">
 			<Text>{2_Sign}{1_Num}% [ICON_FOOD] Food is carried over when City grows</Text>
@@ -814,7 +820,7 @@
 			<Text>Shares Empire-wide Effects with Team</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_TECH_SHARE">
-			<Text>Team gains Technologies that {1_Num} other {1: plural 1?Team; other?Teams;} have researched</Text>
+			<Text>Your Team gains Technologies that {1_Num} other {1: plural 1?Team; other?Teams;} have researched</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_WATER_CONNECTION">
 			<Text>Allows [ICON_CONNECTED] City Connection over Water</Text>
@@ -1303,10 +1309,10 @@
 			<Text>Non-friendly Land Units [COLOR_NEGATIVE_TEXT]expend all [ICON_MOVES] Movement[ENDCOLOR] when entering this City's Land territory from unowned or foreign territory</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_BORDER_OBSTACLE_LAND_PLAYER">
-			<Text>Non-friendly Land Units [COLOR_NEGATIVE_TEXT]expend all [ICON_MOVES] Movement[ENDCOLOR] when entering your Land territory from unowned or foreign territory</Text>
+			<Text>Non-friendly Land Units [COLOR_NEGATIVE_TEXT]expend all [ICON_MOVES] Movement[ENDCOLOR] when entering your Land territory</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_BORDER_OBSTACLE_LAND_TEAM">
-			<Text>Non-friendly Land Units [COLOR_NEGATIVE_TEXT]expend all [ICON_MOVES] Movement[ENDCOLOR] when entering your Team's Land territory from unowned or foreign territory</Text>
+			<Text>Non-friendly Land Units [COLOR_NEGATIVE_TEXT]expend all [ICON_MOVES] Movement[ENDCOLOR] when entering your Team's Land territory</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_BORDER_OBSTACLE_WATER">
 			<Text>Non-friendly Naval or Embarked Units [COLOR_NEGATIVE_TEXT]expend all [ICON_MOVES] Movement[ENDCOLOR] when entering this City's Water territory from unowned or foreign territory</Text>
