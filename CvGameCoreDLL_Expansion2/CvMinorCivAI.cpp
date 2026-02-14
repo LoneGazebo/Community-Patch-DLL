@@ -1056,7 +1056,7 @@ void CvMinorCivQuest::DoRewards(PlayerTypes ePlayer, bool bHeavyTribute)
 
 				if (iMaxTrainingXP > 0 && pJuggernaut->canAcquirePromotionAny())
 				{
-					pJuggernaut->changeExperienceTimes100(iMaxTrainingXP * 100);
+					pJuggernaut->changeExperienceTimes100(iMaxTrainingXP * 100, -1, false, false, false, false, true);
 					pJuggernaut->testPromotionReady();
 				}
 
@@ -5088,7 +5088,7 @@ void CvMinorCivAI::DoFirstContactWithMajor(PlayerTypes eMeetingPlayer, bool bSup
 							pUnit = DoSpawnUnit(ePlayer, true, true);
 							if (pUnit != NULL)
 							{
-								pUnit->changeExperienceTimes100(100 * (pPlayer->GetCurrentEra() * /*5*/ GD_INT_GET(MINOR_CIV_FIRST_CONTACT_XP_PER_ERA) + GC.getGame().randRangeInclusive(0, /*4*/ max(GD_INT_GET(MINOR_CIV_FIRST_CONTACT_XP_RANDOM), 0), CvSeeder::fromRaw(0x9022be60).mix(m_pPlayer->GetID()).mix(pPlayer->GetID()))));
+								pUnit->changeExperienceTimes100(100 * (pPlayer->GetCurrentEra() * /*5*/ GD_INT_GET(MINOR_CIV_FIRST_CONTACT_XP_PER_ERA) + GC.getGame().randRangeInclusive(0, /*4*/ max(GD_INT_GET(MINOR_CIV_FIRST_CONTACT_XP_RANDOM), 0), CvSeeder::fromRaw(0x9022be60).mix(m_pPlayer->GetID()).mix(pPlayer->GetID()))), -1, false, false, false, false, true);
 								pUnit->testPromotionReady();
 								iGiftData = pUnit->getUnitType();
 							}
@@ -15329,7 +15329,7 @@ CvUnit* CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor, bool bLocal, bool bExplore
 		{
 			// Bonus experience for CS Units (vanilla Siam UA)
 			if (!MOD_BALANCE_ALTERNATE_SIAM_TRAIT && GET_PLAYER(eMajor).GetPlayerTraits()->GetCityStateBonusModifier() > 0)
-				pNewUnit->changeExperienceTimes100(1000);
+				pNewUnit->changeExperienceTimes100(1000, -1, false, false, false, false, true);
 
 			if (MOD_BALANCE_VP)
 				pXPCity->addProductionExperience(pNewUnit);
