@@ -703,7 +703,7 @@ CvPlayer::CvPlayer() :
 	, m_iCSResourcesCountMonopolies()
 	, m_iConquestPerEraBuildingProductionMod()
 	, m_iAdmiralLuxuryBonus()
-	, m_iPuppetYieldPenaltyMod()
+	, m_iPuppetYieldAndSupplyModifierChange()
 	, m_iNeedsModifierFromAirUnits()
 	, m_iFlatDefenseFromAirUnits()
 	, m_piUnitClassReplacements()
@@ -1521,7 +1521,7 @@ void CvPlayer::uninit()
 	m_iCSResourcesCountMonopolies = 0;
 	m_iConquestPerEraBuildingProductionMod = 0;
 	m_iAdmiralLuxuryBonus = 0;
-	m_iPuppetYieldPenaltyMod = 0;
+	m_iPuppetYieldAndSupplyModifierChange = 0;
 	m_iNeedsModifierFromAirUnits = 0;
 	m_iFlatDefenseFromAirUnits = 0;
 	m_piUnitClassReplacements.clear();
@@ -16699,9 +16699,10 @@ int CvPlayer::GetNumUnitsSuppliedByCities(bool bIgnoreReduction) const
 		return 0;
 
 	int iSupply = 0;
+	// calculate supply times 100 here to account for puppet supply modifiers
 	if (isMajorCiv())
 	{
-		iSupply += GetExtraSupplyFlat();
+		iSupply += GetExtraSupplyFlat() * 100;
 
 		int iStartingSupplyPerCity = m_pTraits->GetExtraSupplyPerCity() + getCitySupplyFlatGlobal();
 		iStartingSupplyPerCity += getHandicapInfo().getUnitSupplyPerCity();
@@ -16710,7 +16711,12 @@ int CvPlayer::GetNumUnitsSuppliedByCities(bool bIgnoreReduction) const
 		int iLoop = 0;
 		for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 		{
-			int iCitySupply = iStartingSupplyPerCity + pLoopCity->getCitySupplyFlat();
+			int iYieldMod = 100;
+			if (pLoopCity->IsPuppet())
+			{
+				iYieldMod = GD_INT_GET(PUPPET_YIELD_AND_SUPPLY_MODIFIER_MULTIPLICATIVE) + GetPuppetYieldAndSupplyModifierChange() + GetPlayerTraits()->GetPuppetYieldAndSupplyModifierChange();
+			}
+			int iCitySupply = (iStartingSupplyPerCity + pLoopCity->getCitySupplyFlat()) * iYieldMod;
 			iSupply += iCitySupply;
 		}
 	}
@@ -16719,7 +16725,7 @@ int CvPlayer::GetNumUnitsSuppliedByCities(bool bIgnoreReduction) const
 		int iStartingSupplyPerCity = GC.getGame().getHandicapInfo().getCityStateUnitSupplyPerCity();
 		if (MOD_BALANCE_MINOR_UNIT_SUPPLY_HANDICAP)
 		{
-			iSupply = iStartingSupplyPerCity * getNumCities();
+			iSupply = iStartingSupplyPerCity * getNumCities() * 100;
 		}
 		else
 		{
@@ -16727,11 +16733,17 @@ int CvPlayer::GetNumUnitsSuppliedByCities(bool bIgnoreReduction) const
 			int iLoop = 0;
 			for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 			{
-				int iCitySupply = iStartingSupplyPerCity + pLoopCity->getCitySupplyFlat();
+				int iYieldMod = 100;
+				if (pLoopCity->IsPuppet())
+				{
+					iYieldMod = GD_INT_GET(PUPPET_YIELD_AND_SUPPLY_MODIFIER_MULTIPLICATIVE) + GetPuppetYieldAndSupplyModifierChange();
+				}
+				int iCitySupply = (iStartingSupplyPerCity + pLoopCity->getCitySupplyFlat()) * iYieldMod;
 				iSupply += iCitySupply;
 			}
 		}
 	}
+	iSupply /= 100;
 
 	if (!bIgnoreReduction && (!MOD_BALANCE_MINOR_UNIT_SUPPLY_HANDICAP || isMajorCiv()))
 	{
@@ -16766,10 +16778,9 @@ int CvPlayer::GetNumUnitsSuppliedByPopulation(bool bIgnoreReduction) const
 			int iPopulationPercent = iStartingPopulationPercent + pLoopCity->getCitySupplyModifier();
 			int iPopulation = 0;
 
-			// In VP, Venice gets 100% population percent from its puppet cities
-			if (pLoopCity->IsPuppet() && (!MOD_BALANCE_PUPPET_CHANGES || !GetPlayerTraits()->IsNoAnnexing()))
+			if (pLoopCity->IsPuppet())
 			{
-				iPopulation = pLoopCity->getPopulation() * /*100 in CP, 50 in VP*/ GD_INT_GET(UNIT_SUPPLY_POPULATION_PUPPET_PERCENT);
+				iPopulation = pLoopCity->getPopulation() * (/*100 in CP, 30 in VP*/ GD_INT_GET(PUPPET_YIELD_AND_SUPPLY_MODIFIER_MULTIPLICATIVE) + GetPlayerTraits()->GetPuppetYieldAndSupplyModifierChange() + GetPuppetYieldAndSupplyModifierChange());
 			}
 			else
 			{
@@ -16792,7 +16803,7 @@ int CvPlayer::GetNumUnitsSuppliedByPopulation(bool bIgnoreReduction) const
 
 			if (pLoopCity->IsPuppet())
 			{
-				iPopulation = pLoopCity->getPopulation() * /*100 in CP, 50 in VP*/ GD_INT_GET(UNIT_SUPPLY_POPULATION_PUPPET_PERCENT);
+				iPopulation = pLoopCity->getPopulation() * /*100 in CP, 30 in VP*/ GD_INT_GET(PUPPET_YIELD_AND_SUPPLY_MODIFIER_MULTIPLICATIVE);
 			}
 			else
 			{
@@ -35078,14 +35089,14 @@ void CvPlayer::changeFlatDefenseFromAirUnits(int iChange)
 	}
 }
 
-int CvPlayer::GetPuppetYieldPenaltyMod() const
+int CvPlayer::GetPuppetYieldAndSupplyModifierChange() const
 {
-	return m_iPuppetYieldPenaltyMod;
+	return m_iPuppetYieldAndSupplyModifierChange;
 }
 
-void CvPlayer::changePuppetYieldPenaltyMod(int iChange)
+void CvPlayer::changePuppetYieldAndSupplyModifierChange(int iChange)
 {
-	m_iPuppetYieldPenaltyMod += iChange;
+	m_iPuppetYieldAndSupplyModifierChange += iChange;
 }
 
 int CvPlayer::GetConquestPerEraBuildingProductionMod() const
@@ -42165,7 +42176,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	changeCSResourcesCountMonopolies(pkPolicyInfo->IsCSResourcesForMonopolies() * iChange);
 	changeNeedsModifierFromAirUnits(pkPolicyInfo->GetNeedsModifierFromAirUnits() * iChange);
 	changeFlatDefenseFromAirUnits(pkPolicyInfo->GetFlatDefenseFromAirUnits() * iChange);
-	changePuppetYieldPenaltyMod(pkPolicyInfo->GetPuppetYieldPenaltyMod() * iChange);
+	changePuppetYieldAndSupplyModifierChange(pkPolicyInfo->GetPuppetYieldAndSupplyModifierChange() * iChange);
 	changeConquestPerEraBuildingProductionMod(pkPolicyInfo->GetConquestPerEraBuildingProductionMod() * iChange);
 	changeAdmiralLuxuryBonus(pkPolicyInfo->GetAdmiralLuxuryBonus() * iChange);
 	changeExtraMoves(pkPolicyInfo->GetExtraMoves() * iChange);
@@ -42254,8 +42265,6 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	}
 	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_LIBERATION_BONUS, pkPolicyInfo->GetInfluenceForLiberation() * iChange);
 	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_LIBERATION_BONUS, pkPolicyInfo->GetExperienceForLiberation() * iChange);
-	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_PUPPET_BONUS, pkPolicyInfo->GetPuppetProdMod() * iChange);
-	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_PUPPET_BONUS, pkPolicyInfo->GetPuppetYieldPenaltyMod() * iChange);
 	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_SHARED_RELIGION_TOURISM_MODIFIER, pkPolicyInfo->GetSharedReligionTourismModifier() * iChange);
 	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_TRADE_ROUTE_TOURISM_MODIFIER, pkPolicyInfo->GetTradeRouteTourismModifier() * iChange);
 	GetPlayerPolicies()->ChangesNumericModifier(POLICYMOD_OPEN_BORDERS_TOURISM_MODIFIER, pkPolicyInfo->GetOpenBordersTourismModifier() * iChange);
@@ -43536,7 +43545,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_iCSResourcesCountMonopolies);
 	visitor(player.m_iConquestPerEraBuildingProductionMod);
 	visitor(player.m_iAdmiralLuxuryBonus);
-	visitor(player.m_iPuppetYieldPenaltyMod);
+	visitor(player.m_iPuppetYieldAndSupplyModifierChange);
 	visitor(player.m_iNeedsModifierFromAirUnits);
 	visitor(player.m_iFlatDefenseFromAirUnits);
 	visitor(player.m_iMaxGlobalBuildingProductionModifier);

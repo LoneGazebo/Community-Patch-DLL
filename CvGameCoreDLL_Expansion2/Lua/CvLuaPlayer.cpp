@@ -4989,7 +4989,7 @@ int CvLuaPlayer::lGetPuppetYieldPenalty(lua_State* L)
 	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 2);
 	PRECONDITION(eYield > NO_YIELD && eYield < NUM_YIELD_TYPES, "Unexpected yield in lGetPuppetYieldPenalty");
 
-	int iResult = pkPlayer->GetPlayerTraits()->GetPuppetPenaltyReduction() + pkPlayer->GetPuppetYieldPenaltyMod();
+	int iResult = 0;
 	switch (eYield)
 	{
 		case YIELD_FOOD:
@@ -4999,22 +4999,22 @@ int CvLuaPlayer::lGetPuppetYieldPenalty(lua_State* L)
 			iResult += /*0*/ GD_INT_GET(PUPPET_PRODUCTION_MODIFIER);
 			break;
 		case YIELD_SCIENCE:
-			iResult += /*-80 in VP*/ GD_INT_GET(PUPPET_SCIENCE_MODIFIER);
+			iResult += /*-25 in CP, 0 in VP*/ GD_INT_GET(PUPPET_SCIENCE_MODIFIER);
 			break;
 		case YIELD_GOLD:
-			iResult += /*-80 in VP*/ GD_INT_GET(PUPPET_GOLD_MODIFIER);
+			iResult += /*0*/ GD_INT_GET(PUPPET_GOLD_MODIFIER);
 			break;
 		case YIELD_FAITH:
-			iResult += /*-80 in VP*/ GD_INT_GET(PUPPET_FAITH_MODIFIER);
+			iResult += /*0*/ GD_INT_GET(PUPPET_FAITH_MODIFIER);
 			break;
 		case YIELD_TOURISM:
-			iResult += /*-80 in VP*/ GD_INT_GET(PUPPET_TOURISM_MODIFIER);
+			iResult += /*0*/ GD_INT_GET(PUPPET_TOURISM_MODIFIER);
 			break;
 		case YIELD_CULTURE:
-			iResult += /*-80 in VP*/ GD_INT_GET(PUPPET_CULTURE_MODIFIER);
+			iResult += /*-25 in CP, 0 in VP*/ GD_INT_GET(PUPPET_CULTURE_MODIFIER);
 			break;
 		case YIELD_GOLDEN_AGE_POINTS:
-			iResult += /*-80 in VP*/ GD_INT_GET(PUPPET_GOLDEN_AGE_MODIFIER);
+			iResult += /*0*/ GD_INT_GET(PUPPET_GOLDEN_AGE_MODIFIER);
 			break;
 		case NO_YIELD:
 		case YIELD_GREAT_GENERAL_POINTS:

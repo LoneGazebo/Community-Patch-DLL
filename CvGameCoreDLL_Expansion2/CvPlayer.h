@@ -1930,8 +1930,8 @@ public:
 	int GetFlatDefenseFromAirUnits() const;
 	void changeFlatDefenseFromAirUnits(int iChange);
 
-	int GetPuppetYieldPenaltyMod() const;
-	void changePuppetYieldPenaltyMod(int iChange);
+	int GetPuppetYieldAndSupplyModifierChange() const;
+	void changePuppetYieldAndSupplyModifierChange(int iChange);
 
 	int GetConquestPerEraBuildingProductionMod() const;
 	void changeConquestPerEraBuildingProductionMod(int iChange);
@@ -3172,7 +3172,7 @@ protected:
 	int m_iCSResourcesCountMonopolies;
 	int m_iConquestPerEraBuildingProductionMod;
 	int m_iAdmiralLuxuryBonus;
-	int m_iPuppetYieldPenaltyMod;
+	int m_iPuppetYieldAndSupplyModifierChange;
 	int m_iNeedsModifierFromAirUnits;
 	int m_iFlatDefenseFromAirUnits;
 	std::map<UnitClassTypes, UnitClassTypes> m_piUnitClassReplacements;
@@ -3980,7 +3980,7 @@ SYNC_ARCHIVE_VAR(int, m_iHappinessPerActiveTradeRoute)
 SYNC_ARCHIVE_VAR(int, m_iCSResourcesCountMonopolies)
 SYNC_ARCHIVE_VAR(int, m_iConquestPerEraBuildingProductionMod)
 SYNC_ARCHIVE_VAR(int, m_iAdmiralLuxuryBonus)
-SYNC_ARCHIVE_VAR(int, m_iPuppetYieldPenaltyMod)
+SYNC_ARCHIVE_VAR(int, m_iPuppetYieldAndSupplyModifierChange)
 SYNC_ARCHIVE_VAR(int, m_iNeedsModifierFromAirUnits)
 SYNC_ARCHIVE_VAR(int, m_iFlatDefenseFromAirUnits)
 SYNC_ARCHIVE_VAR(int, m_iMaxGlobalBuildingProductionModifier)

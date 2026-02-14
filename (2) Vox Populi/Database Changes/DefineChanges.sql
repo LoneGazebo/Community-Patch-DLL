@@ -161,9 +161,8 @@ UPDATE Defines SET Value = 100 WHERE Name = 'UNIT_SUPPLY_BASE_TECH_REDUCTION_PER
 -- City supply /= (1 + Tech progress * UNIT_SUPPLY_CITIES_TECH_REDUCTION_MULTIPLIER / 100)
 UPDATE Defines SET Value = 100 WHERE Name = 'UNIT_SUPPLY_CITIES_TECH_REDUCTION_MULTIPLIER';
 
--- Supply from population
--- % provided by puppet city population
-UPDATE Defines SET Value = 50 WHERE Name = 'UNIT_SUPPLY_POPULATION_PUPPET_PERCENT';
+-- Yields and supply from puppet cities
+UPDATE Defines SET Value = 30 WHERE Name = 'PUPPET_YIELD_AND_SUPPLY_MODIFIER_MULTIPLICATIVE';
 
 -- Population supply /= (1 + Tech progress * UNIT_SUPPLY_POPULATION_TECH_REDUCTION_MULTIPLIER / 100)
 UPDATE Defines SET Value = 100 WHERE Name = 'UNIT_SUPPLY_POPULATION_TECH_REDUCTION_MULTIPLIER';
@@ -425,12 +424,12 @@ UPDATE Defines SET Value = 100 WHERE Name = 'TECH_COST_EXTRA_TEAM_MEMBER_MODIFIE
 -------------------------------------------------------------------------------------------------------------------
 -- Puppet stuff
 -------------------------------------------------------------------------------------------------------------------
-UPDATE Defines SET Value = -80 WHERE Name = 'PUPPET_FAITH_MODIFIER';
-UPDATE Defines SET Value = -80 WHERE Name = 'PUPPET_CULTURE_MODIFIER';
-UPDATE Defines SET Value = -80 WHERE Name = 'PUPPET_SCIENCE_MODIFIER';
-UPDATE Defines SET Value = -80 WHERE Name = 'PUPPET_TOURISM_MODIFIER';
-UPDATE Defines SET Value = -80 WHERE Name = 'PUPPET_GOLD_MODIFIER';
-UPDATE Defines SET Value = -80 WHERE Name = 'PUPPET_GOLDEN_AGE_MODIFIER';
+UPDATE Defines SET Value = 0 WHERE Name = 'PUPPET_FAITH_MODIFIER';
+UPDATE Defines SET Value = 0 WHERE Name = 'PUPPET_CULTURE_MODIFIER';
+UPDATE Defines SET Value = 0 WHERE Name = 'PUPPET_SCIENCE_MODIFIER';
+UPDATE Defines SET Value = 0 WHERE Name = 'PUPPET_TOURISM_MODIFIER';
+UPDATE Defines SET Value = 0 WHERE Name = 'PUPPET_GOLD_MODIFIER';
+UPDATE Defines SET Value = 0 WHERE Name = 'PUPPET_GOLDEN_AGE_MODIFIER';
 
 -------------------------------------------------------------------------------------------------------------------
 -- Barbarians

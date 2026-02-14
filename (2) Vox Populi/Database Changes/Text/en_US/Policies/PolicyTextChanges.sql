@@ -525,7 +525,7 @@ SET Text = 'Martial Law'
 WHERE Tag = 'TXT_KEY_POLICY_MARITIME_INFRASTRUCTURE';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Martial Law[ENDCOLOR][NEWLINE][ICON_BULLET]No [ICON_GOLD] Gold Maintenance from Garrisons.[NEWLINE][ICON_BULLET]+1 [ICON_HAPPINESS_1] Happiness and +4 [ICON_CULTURE] Culture for each Garrison.[NEWLINE][ICON_BULLET]-20% Yield penalties of [ICON_PUPPET] Puppeted Cities.'
+SET Text = '[COLOR_POSITIVE_TEXT]Martial Law[ENDCOLOR][NEWLINE][ICON_BULLET]No [ICON_GOLD] Gold Maintenance from Garrisons.[NEWLINE][ICON_BULLET]+1 [ICON_HAPPINESS_1] Happiness and +4 [ICON_CULTURE] Culture for each Garrison.[NEWLINE][ICON_BULLET]Yield and Supply penalty for [ICON_PUPPET] Puppet Cities reduced by 20%.'
 WHERE Tag = 'TXT_KEY_POLICY_MARITIME_INFRASTRUCTURE_HELP';
 
 UPDATE Language_en_US
