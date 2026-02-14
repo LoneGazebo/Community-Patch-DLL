@@ -10774,7 +10774,7 @@ void CvCity::addProductionExperience(CvUnit* pUnit, bool bHalveXP, UnitCreationR
 
 	bHalveXP = (bHalveXP || (bPurchaseAffected && bPlayerAffected && bUnitAffected));
 
-	if (pUnit->canAcquirePromotionAny())
+	if (!pUnit->IsCivilianUnit() && pUnit->canAcquirePromotionAny())
 	{
 		pUnit->changeExperienceTimes100(getProductionExperience(pUnit->getUnitType()) * 100 / ((bHalveXP) ? 2 : 1), -1, false, false, false, false, true);
 
