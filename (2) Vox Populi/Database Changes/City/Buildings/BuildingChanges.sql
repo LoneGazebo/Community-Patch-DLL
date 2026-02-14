@@ -845,7 +845,6 @@ WHERE BuildingClass = 'BUILDINGCLASS_ARSENAL';
 UPDATE Buildings
 SET
 	PrereqTech = 'TECH_RADAR',
-	RangedStrikeModifier = 10,
 	CitySupplyModifier = 5,
 	HealRateChange = 20,
 	DistressFlatReduction = 1,

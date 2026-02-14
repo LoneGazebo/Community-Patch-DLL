@@ -702,6 +702,7 @@
 			<Strategy>TXT_KEY_BUILDING_BASTION_FORT_STRATEGY</Strategy>
 			<PrereqTech>TECH_NAVIGATION</PrereqTech>
 			<CityIndirectFire>true</CityIndirectFire>
+			<RangedStrikeModifier>10</RangedStrikeModifier>
 			<CitySupplyModifier>10</CitySupplyModifier>
 			<HealRateChange>5</HealRateChange>
 			<EmpireSizeModifierReduction>-5</EmpireSizeModifierReduction>
