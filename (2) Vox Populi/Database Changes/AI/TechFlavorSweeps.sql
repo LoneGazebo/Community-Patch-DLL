@@ -114,7 +114,7 @@ VALUES
 	('TECH_PHILOSOPHY', 'FLAVOR_RELIGION', 10),
 	('TECH_PHILOSOPHY', 'FLAVOR_WONDER', 10),
 
-	('TECH_CURRENCY', 'FLAVOR_GOLD', 15), -- Units: Composite Bowman, Buildings: Caravansary, Wonders: AngkorWat, Process: Wealth, Improvement: Village, Ability: +1 TR, Yields: Merchant +1 Gold
+	('TECH_CURRENCY', 'FLAVOR_GOLD', 15), -- Units: Composite Bowman, Buildings: Caravansary, Wonders: HagiaSophia, Process: Wealth, Improvement: Village, Ability: +1 TR, Yields: Merchant +1 Gold
 	('TECH_CURRENCY', 'FLAVOR_TILE_IMPROVEMENT', 15),
 	('TECH_CURRENCY', 'FLAVOR_WONDER', 10),
 	('TECH_CURRENCY', 'FLAVOR_I_LAND_TRADE_ROUTE', 10),
@@ -136,7 +136,7 @@ VALUES
 	('TECH_EDUCATION', 'FLAVOR_WONDER', 5),
 	('TECH_EDUCATION', 'FLAVOR_DIPLOMACY', 10),
 
-	('TECH_THEOLOGY', 'FLAVOR_RELIGION', 15), -- Buildings: Garden, GrandTemple, Wonders: HagiaSophia, Borobodur
+	('TECH_THEOLOGY', 'FLAVOR_RELIGION', 15), -- Buildings: Garden, GrandTemple, Wonders: AngkorWat, Borobodur
 	('TECH_THEOLOGY', 'FLAVOR_GREAT_PEOPLE', 10),
 	('TECH_THEOLOGY', 'FLAVOR_WONDER', 20),
 

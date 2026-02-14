@@ -548,20 +548,24 @@ VALUES
 	('BUILDING_ORACLE', 'YIELD_SCIENCE', 400),
 	('BUILDING_ORACLE', 'YIELD_CULTURE', 400);
 
--- Angkor Wat
+-- Hagia Sophia
 UPDATE Buildings
 SET
 	PrereqTech = 'TECH_CURRENCY',
-	GlobalPlotCultureCostModifier = 0,
+	SpecialistType = 'SPECIALIST_ENGINEER',
+	GreatPeopleRateChange = 1,
+	FreeBuildingThisCity = 'BUILDINGCLASS_CHURCH',
 	BorderGrowthRateIncreaseGlobal = 40,
-	FreeBuildingThisCity = 'BUILDINGCLASS_MANDIR'
-WHERE Type = 'BUILDING_ANGKOR_WAT';
+	GlobalPlotBuyCostModifier = -25
+WHERE Type = 'BUILDING_HAGIA_SOPHIA';
 
 INSERT INTO Building_YieldChanges
 	(BuildingType, YieldType, Yield)
 VALUES
-	('BUILDING_ANGKOR_WAT', 'YIELD_CULTURE', 1),
-	('BUILDING_ANGKOR_WAT', 'YIELD_FAITH', 1);
+	('BUILDING_HAGIA_SOPHIA', 'YIELD_CULTURE', 1),
+	('BUILDING_HAGIA_SOPHIA', 'YIELD_FAITH', 1);
+
+DELETE FROM Building_FreeUnits WHERE BuildingType = 'BUILDING_HAGIA_SOPHIA';
 
 -- Great Wall
 UPDATE Buildings
@@ -609,18 +613,28 @@ INSERT INTO Building_YieldFromGPExpend
 VALUES
 	('BUILDING_MOSQUE_OF_DJENNE', 'YIELD_SCIENCE', 50);
 
--- Hagia Sophia
+-- Angkor Wat
 UPDATE Buildings
 SET
-	FreeBuildingThisCity = 'BUILDINGCLASS_CHURCH',
+	PrereqTech = 'TECH_THEOLOGY',
+	SpecialistType = NULL,
+	GreatPeopleRateChange = 0,
+	GlobalPlotCultureCostModifier = 0,
+	GlobalPlotBuyCostModifier = 0,
+	FreeBuildingThisCity = 'BUILDINGCLASS_MANDIR',
 	ExtraMissionaryStrengthGlobal = 25
-WHERE Type = 'BUILDING_HAGIA_SOPHIA';
+WHERE Type = 'BUILDING_ANGKOR_WAT';
 
 INSERT INTO Building_YieldChanges
 	(BuildingType, YieldType, Yield)
 VALUES
-	('BUILDING_HAGIA_SOPHIA', 'YIELD_CULTURE', 2),
-	('BUILDING_HAGIA_SOPHIA', 'YIELD_FAITH', 1);
+	('BUILDING_ANGKOR_WAT', 'YIELD_CULTURE', 2),
+	('BUILDING_ANGKOR_WAT', 'YIELD_FAITH', 1);
+
+INSERT INTO Building_FreeUnits
+	(BuildingType, UnitType, NumUnits)
+VALUES
+	('BUILDING_ANGKOR_WAT', 'UNIT_PROPHET', 1);
 
 -- Borobudur
 UPDATE Buildings
