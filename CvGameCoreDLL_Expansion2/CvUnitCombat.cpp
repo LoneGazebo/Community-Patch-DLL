@@ -1429,6 +1429,11 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 			bBarbarian = true;
 		iMaxXP = pkDefender->maxXPValue();
 
+		//Chance to spread promotion?
+		kAttacker.DoPlagueTransfer(*pkDefender, true);
+		if (pkDefender->GetAirStrikeDefenseDamage(&kAttacker) > 0)
+			pkDefender->DoPlagueTransfer(kAttacker, false);
+
 		// Calculate attacker damage
 		bool bIncludeRand = !GC.getGame().isGameMultiPlayer();
 		int iUnusedReferenceVariable = 0;
