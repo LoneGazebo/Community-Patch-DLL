@@ -842,7 +842,6 @@ UPDATE UnitPromotions SET NukeImmune = 1 WHERE Type = 'PROMOTION_SHIELDED_SILO';
 UPDATE UnitPromotions SET ExtraWithdrawal = 100 WHERE Type = 'PROMOTION_WITHDRAW_BEFORE_MELEE';
 
 -- Hoplite: Unity
-UPDATE UnitPromotions SET CombatPercent = 10 WHERE Type = 'PROMOTION_ADJACENT_BONUS';
 INSERT INTO UnitPromotions_CombatModPerAdjacentUnitCombat
 	(PromotionType, UnitCombatType, Modifier)
 SELECT
@@ -874,7 +873,7 @@ VALUES
 -- Companion Cavalry: Great Generals I
 UPDATE UnitPromotions SET GreatGeneralModifier = 50 WHERE Type = 'PROMOTION_SPAWN_GENERALS_I';
 
--- Hoplite, Samurai: Great Generals II
+-- Samurai: Great Generals II
 UPDATE UnitPromotions SET GreatGeneralModifier = 100 WHERE Type = 'PROMOTION_SPAWN_GENERALS_II';
 
 -- Companion Cavalry: Transfer Movement to General

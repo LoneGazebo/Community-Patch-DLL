@@ -17,14 +17,13 @@ SET
 			)
 		)
 	),
-	Combat = (SELECT Combat FROM Units WHERE Type = 'UNIT_SPEARMAN') + 2
+	Combat = (SELECT Combat FROM Units WHERE Type = 'UNIT_SPEARMAN') + 1
 WHERE Type = 'UNIT_GREEK_HOPLITE';
 
 INSERT INTO Unit_FreePromotions
 	(UnitType, PromotionType)
 VALUES
-	('UNIT_GREEK_HOPLITE', 'PROMOTION_ADJACENT_BONUS'),
-	('UNIT_GREEK_HOPLITE', 'PROMOTION_SPAWN_GENERALS_II');
+	('UNIT_GREEK_HOPLITE', 'PROMOTION_ADJACENT_BONUS');
 
 ----------------------------------------------------------
 -- Unique Unit: Klepht (Commando)
