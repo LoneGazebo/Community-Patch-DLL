@@ -76,8 +76,8 @@ ALTER TABLE Policies ADD NeedsModifierFromAirUnits integer DEFAULT 0;
 -- air units increase defense by +x flat per unit
 ALTER TABLE Policies ADD FlatDefenseFromAirUnits integer DEFAULT 0;
 
--- puppet penalties reduced by positive amount
-ALTER TABLE Policies ADD PuppetYieldPenaltyMod integer DEFAULT 0;
+-- Change to Puppet yield and supply modifier
+ALTER TABLE Policies ADD PuppetYieldAndSupplyModifierChange integer DEFAULT 0;
 
 -- Puppet/Occupied cities gain x+x*era difference for buildings.
 ALTER TABLE Policies ADD ConquestPerEraBuildingProductionMod integer DEFAULT 0;

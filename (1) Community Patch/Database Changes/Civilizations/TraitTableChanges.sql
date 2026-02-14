@@ -102,8 +102,8 @@ ALTER TABLE Traits ADD GoldenAgeOnWar boolean DEFAULT 0;
 -- Is this Civ unable to cancel razing?
 ALTER TABLE Traits ADD UnableToCancelRazing boolean DEFAULT 0;
 
--- Puppet negative modifiers reduced
-ALTER TABLE Traits ADD ReducePuppetPenalties integer DEFAULT 0;
+-- Change to Puppet yield and supply modifier
+ALTER TABLE Traits ADD PuppetYieldAndSupplyModifierChange integer DEFAULT 0;
 
 -- Player gains a free policy after unlocking x number of technologies from the tech tree.
 ALTER TABLE Traits ADD FreePolicyPerXTechs integer DEFAULT 0;

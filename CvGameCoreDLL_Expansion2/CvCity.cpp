@@ -22967,11 +22967,10 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iAssumedExtraModifie
 	// Puppet
 	if (IsPuppet())
 	{
-		int iOwnerPuppetMod = kOwner.GetPuppetYieldPenaltyMod() + kOwner.GetPlayerTraits()->GetPuppetPenaltyReduction();
 		switch (eIndex)
 		{
 		case YIELD_SCIENCE:
-			iTempMod = iOwnerPuppetMod + /*-25 in CP, -80 in VP*/ GD_INT_GET(PUPPET_SCIENCE_MODIFIER);
+			iTempMod = /*-25 in CP, 0 in VP*/ GD_INT_GET(PUPPET_SCIENCE_MODIFIER);
 			if (iTempMod > 0)
 				iTempMod = 0;
 			iModifier += iTempMod;
@@ -22980,7 +22979,7 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iAssumedExtraModifie
 			break;
 
 		case YIELD_GOLD:
-			iTempMod = iOwnerPuppetMod + /*0 in CP, -80 in VP*/ GD_INT_GET(PUPPET_GOLD_MODIFIER);
+			iTempMod = /*0*/ GD_INT_GET(PUPPET_GOLD_MODIFIER);
 			if (iTempMod > 0)
 				iTempMod = 0;
 			iModifier += iTempMod;
@@ -22989,7 +22988,7 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iAssumedExtraModifie
 			break;
 
 		case YIELD_PRODUCTION:
-			iTempMod = iOwnerPuppetMod + /*0*/ GD_INT_GET(PUPPET_PRODUCTION_MODIFIER);
+			iTempMod = /*0*/ GD_INT_GET(PUPPET_PRODUCTION_MODIFIER);
 			if (iTempMod > 0)
 				iTempMod = 0;
 			iModifier += iTempMod;
@@ -22998,7 +22997,7 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iAssumedExtraModifie
 			break;
 
 		case YIELD_TOURISM:
-			iTempMod = iOwnerPuppetMod + /*0 in CP, -80 in VP*/ GD_INT_GET(PUPPET_TOURISM_MODIFIER);
+			iTempMod = /*0*/ GD_INT_GET(PUPPET_TOURISM_MODIFIER);
 			if (iTempMod > 0)
 				iTempMod = 0;
 			iModifier += iTempMod;
@@ -23007,7 +23006,7 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iAssumedExtraModifie
 			break;
 
 		case YIELD_GOLDEN_AGE_POINTS:
-			iTempMod = iOwnerPuppetMod + /*0 in CP, -80 in VP*/ GD_INT_GET(PUPPET_GOLDEN_AGE_MODIFIER);
+			iTempMod = /*0*/ GD_INT_GET(PUPPET_GOLDEN_AGE_MODIFIER);
 			if (iTempMod > 0)
 				iTempMod = 0;
 			iModifier += iTempMod;
@@ -23016,8 +23015,8 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iAssumedExtraModifie
 			break;
 
 		case YIELD_CULTURE:
-			iTempMod = iOwnerPuppetMod + /*-25 in CP, -80 in VP*/ GD_INT_GET(PUPPET_CULTURE_MODIFIER);
-			if (kOwner.GetPlayerTraits()->GetPuppetPenaltyReduction() != 0 && iTempMod > 0)
+			iTempMod = /*-25 in CP, 0 in VP*/ GD_INT_GET(PUPPET_CULTURE_MODIFIER);
+			if (iTempMod > 0)
 				iTempMod = 0;
 			iModifier += iTempMod;
 			if (iTempMod != 0 && toolTipSink)
@@ -23025,7 +23024,7 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iAssumedExtraModifie
 			break;
 
 		case YIELD_FAITH:
-			iTempMod = iOwnerPuppetMod + GD_INT_GET(PUPPET_FAITH_MODIFIER);
+			iTempMod = GD_INT_GET(PUPPET_FAITH_MODIFIER);
 			if (iTempMod > 0)
 				iTempMod = 0;
 			iModifier += iTempMod;
@@ -23107,6 +23106,16 @@ int CvCity::getHappinessModifier(YieldTypes eIndex) const
 	return iModifier;
 }
 
+int CvCity::getYieldModifierMultiplicative(YieldTypes eIndex) const
+{
+	if (IsPuppet() && (eIndex == YIELD_GOLD || eIndex == YIELD_SCIENCE || eIndex == YIELD_CULTURE || eIndex == YIELD_FAITH || eIndex == YIELD_TOURISM || eIndex == YIELD_GOLDEN_AGE_POINTS))
+	{
+		return /*100 in CP, 30 in VP*/ GD_INT_GET(PUPPET_YIELD_AND_SUPPLY_MODIFIER_MULTIPLICATIVE) + GET_PLAYER(getOwner()).GetPlayerTraits()->GetPuppetYieldAndSupplyModifierChange() + GET_PLAYER(getOwner()).GetPuppetYieldAndSupplyModifierChange();
+	}
+
+	return 100;
+}
+
 
 //	--------------------------------------------------------------------------------
 /// <summary>
@@ -23173,6 +23182,11 @@ int CvCity::getYieldRateTimes100(YieldTypes eYield, bool bIgnoreTrade, bool bIgn
 		iTotalYield /= 100;
 	}
 	
+	// multiplicative yield modifier
+	int iMultiplicativeModifier = getYieldModifierMultiplicative(eYield);
+	int iTotalYieldBeforeMultiplicative = iTotalYield;
+	iTotalYield = iTotalYield * iMultiplicativeModifier / 100;
+
 	if (bBuildTooltip)
 	{
 		if (!tooltipBaseYieldRate.IsEmpty())
@@ -23203,21 +23217,23 @@ int CvCity::getYieldRateTimes100(YieldTypes eYield, bool bIgnoreTrade, bool bIgn
 			(*tooltipSink) += tooltipPostModifierYields;
 			(*tooltipSink) += strNewLine;
 		}
-		if (tooltipGrowthMods.IsEmpty())
-		{
-			(*tooltipSink) += strLineDivision;
-			(*tooltipSink) += GetLocalizedText("TXT_KEY_YIELD_TOTAL", (float)iTotalYield / 100, szIconString);
-		}
-		else
+		if (!tooltipGrowthMods.IsEmpty())
 		{
 			(*tooltipSink) += strLineDivision;
 			(*tooltipSink) += GetLocalizedText("TXT_KEY_EXCESS_FOOD", (float)iTotalYieldBeforeGrowth / 100, szIconString) + strNewLine;
 			(*tooltipSink) += strLineDivision;
 			(*tooltipSink) += tooltipGrowthMods;
 			(*tooltipSink) += strNewLine;
-			(*tooltipSink) += strLineDivision;
-			(*tooltipSink) += GetLocalizedText("TXT_KEY_YIELD_TOTAL", (float)iTotalYield / 100, szIconString);
 		}
+		if (iMultiplicativeModifier != 100)
+		{
+			(*tooltipSink) += strLineDivision;
+			(*tooltipSink) += GetLocalizedText("TXT_KEY_YIELD_SUBTOTAL", (float)iTotalYieldBeforeMultiplicative / 100, szIconString) + strNewLine;
+			(*tooltipSink) += strLineDivision;
+			(*tooltipSink) += GetLocalizedText("TXT_KEY_YIELD_PUPPET_MODIFIER_MULTIPLICATIVE", iMultiplicativeModifier - 100, szIconString) + strNewLine;
+		}
+		(*tooltipSink) += strLineDivision;
+		(*tooltipSink) += GetLocalizedText("TXT_KEY_YIELD_TOTAL", (float)iTotalYield / 100, szIconString);
 	}
 
 

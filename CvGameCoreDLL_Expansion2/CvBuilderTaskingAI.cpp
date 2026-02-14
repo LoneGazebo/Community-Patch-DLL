@@ -329,59 +329,60 @@ static int GetYieldBaseModifierTimes100(YieldTypes eYield)
 }
 
 // Only include puppet calculations for now, most other things are too dynamic
-static int GetYieldCityModifierTimes100(const CvCity* pCity, const CvPlayer* pPlayer, YieldTypes eYield)
+static int GetYieldCityModifierTimes100(const CvCity* pCity, YieldTypes eYield)
 {
-	int iTempMod = 0;
-	int iModifier = iTempMod;
+	// apply additive yield modifiers
+	int iModifier = 100;
 	
+	int iTempMod = 0;
 	if (pCity->IsPuppet())
 	{
 		switch (eYield)
 		{
 		case YIELD_SCIENCE:
-			iTempMod = pPlayer->GetPuppetYieldPenaltyMod() + pPlayer->GetPlayerTraits()->GetPuppetPenaltyReduction() + /*-25 in CP, -80 in VP*/ GD_INT_GET(PUPPET_SCIENCE_MODIFIER);
+			iTempMod = /*-25 in CP, 0 in VP*/ GD_INT_GET(PUPPET_SCIENCE_MODIFIER);
 			if (iTempMod > 0)
 				iTempMod = 0;
 			iModifier += iTempMod;
 			break;
 
 		case YIELD_GOLD:
-			iTempMod = pPlayer->GetPuppetYieldPenaltyMod() + pPlayer->GetPlayerTraits()->GetPuppetPenaltyReduction() + /*0 in CP, -80 in VP*/ GD_INT_GET(PUPPET_GOLD_MODIFIER);
+			iTempMod = /*0*/ GD_INT_GET(PUPPET_GOLD_MODIFIER);
 			if (iTempMod > 0)
 				iTempMod = 0;
 			iModifier += iTempMod;
 			break;
 
 		case YIELD_PRODUCTION:
-			iTempMod = pPlayer->GetPuppetYieldPenaltyMod() + pPlayer->GetPlayerTraits()->GetPuppetPenaltyReduction() + /*0*/ GD_INT_GET(PUPPET_PRODUCTION_MODIFIER);
+			iTempMod = /*0*/ GD_INT_GET(PUPPET_PRODUCTION_MODIFIER);
 			if (iTempMod > 0)
 				iTempMod = 0;
 			iModifier += iTempMod;
 			break;
 
 		case YIELD_TOURISM:
-			iTempMod = pPlayer->GetPuppetYieldPenaltyMod() + pPlayer->GetPlayerTraits()->GetPuppetPenaltyReduction() + /*0 in CP, -80 in VP*/ GD_INT_GET(PUPPET_TOURISM_MODIFIER);
+			iTempMod = /*0*/ GD_INT_GET(PUPPET_TOURISM_MODIFIER);
 			if (iTempMod > 0)
 				iTempMod = 0;
 			iModifier += iTempMod;
 			break;
 
 		case YIELD_GOLDEN_AGE_POINTS:
-			iTempMod = pPlayer->GetPuppetYieldPenaltyMod() + pPlayer->GetPlayerTraits()->GetPuppetPenaltyReduction() + /*0 in CP, -80 in VP*/ GD_INT_GET(PUPPET_GOLDEN_AGE_MODIFIER);
+			iTempMod = /*0*/ GD_INT_GET(PUPPET_GOLDEN_AGE_MODIFIER);
 			if (iTempMod > 0)
 				iTempMod = 0;
 			iModifier += iTempMod;
 			break;
 
 		case YIELD_CULTURE: // taken from getJONSCulturePerTurn
-			iTempMod = pPlayer->GetPuppetYieldPenaltyMod() + pPlayer->GetPlayerTraits()->GetPuppetPenaltyReduction() + /*-25 in CP, -80 in VP*/ GD_INT_GET(PUPPET_CULTURE_MODIFIER);
-			if (pPlayer->GetPlayerTraits()->GetPuppetPenaltyReduction() != 0 && iTempMod > 0)
+			iTempMod = /*-25 in CP, 0 in VP*/ GD_INT_GET(PUPPET_CULTURE_MODIFIER);
+			if (iTempMod > 0)
 				iTempMod = 0;
 			iModifier += iTempMod;
 			break;
 
 		case YIELD_FAITH:
-			iTempMod = pPlayer->GetPuppetYieldPenaltyMod() + pPlayer->GetPlayerTraits()->GetPuppetPenaltyReduction() + GD_INT_GET(PUPPET_FAITH_MODIFIER);
+			iTempMod = /*0*/ GD_INT_GET(PUPPET_FAITH_MODIFIER);
 			if (iTempMod > 0)
 				iTempMod = 0;
 			iModifier += iTempMod;
@@ -402,7 +403,11 @@ static int GetYieldCityModifierTimes100(const CvCity* pCity, const CvPlayer* pPl
 		}
 	}
 
-	return std::max(0, (iModifier + 100));
+	// apply multiplicative yield modifiers
+	iModifier *= pCity->getYieldModifierMultiplicative(eYield);
+	iModifier /= 100;
+
+	return iModifier;
 }
 
 void CvBuilderTaskingAI::GetPathValues(const SPath& path, RouteTypes eRoute, int& iVillageBonusesIfCityConnected, int& iMovementBonus, int& iNumRoadsNeededToBuild)
@@ -3368,7 +3373,7 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 						break;
 
 					int iYieldModifier = GetYieldBaseModifierTimes100(eYield);
-					iYieldModifier *= pAdjacentOwningCity ? GetYieldCityModifierTimes100(pAdjacentOwningCity, m_pPlayer, eYield) : 100;
+					iYieldModifier *= pAdjacentOwningCity ? GetYieldCityModifierTimes100(pAdjacentOwningCity, eYield) : 100;
 
 					if (pkImprovementInfo->GetYieldPerXAdjacentImprovement(eYield, eOtherImprovement) != 0)
 						iImprovementScore += ((pkImprovementInfo->GetYieldPerXAdjacentImprovement(eYield, eOtherImprovement) * iYieldModifier) / 100).Truncate();
@@ -3680,7 +3685,7 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 
 				if (iNewAdjacentWorkedYield != 0 || iNewAdjacentUnworkedYield != 0)
 				{
-					int iAdjacentCityYieldModifier = pAdjacentOwningCity ? GetYieldCityModifierTimes100(pAdjacentOwningCity, m_pPlayer, eYield) : 100;
+					int iAdjacentCityYieldModifier = pAdjacentOwningCity ? GetYieldCityModifierTimes100(pAdjacentOwningCity, eYield) : 100;
 					iSecondaryScore += (iNewAdjacentWorkedYield * iYieldModifier * iAdjacentCityYieldModifier) / 100;
 					iPotentialScore += (iNewAdjacentUnworkedYield * iYieldModifier * iAdjacentCityYieldModifier) / 100;
 				}
@@ -3689,7 +3694,7 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 
 		if (iNewYieldTimes100 != 0 || iFutureYieldTimes100 != 0)
 		{
-			int iCityYieldModifier = pOwningCity ? GetYieldCityModifierTimes100(pOwningCity, m_pPlayer, eYield) : 100;
+			int iCityYieldModifier = pOwningCity ? GetYieldCityModifierTimes100(pOwningCity, eYield) : 100;
 			iYieldScore += (iNewYieldTimes100 * iYieldModifier * iCityYieldModifier) / 10000;
 			iPotentialScore += (iFutureYieldTimes100 * iYieldModifier * iCityYieldModifier) / 10000;
 		}
@@ -3769,7 +3774,7 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 
 			if (iPotentialNewYieldTimes100 != 0)
 			{
-				int iCityYieldModifier = pOwningCity ? GetYieldCityModifierTimes100(pOwningCity, m_pPlayer, eYield) : 100;
+				int iCityYieldModifier = pOwningCity ? GetYieldCityModifierTimes100(pOwningCity, eYield) : 100;
 				// Assume 2/3 of potential will happen (divide by 15000 instead of 10000)
 				iPotentialScore += (iPotentialNewYieldTimes100 * iYieldModifier * iCityYieldModifier) / 15000;
 			}
@@ -4180,7 +4185,7 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 				if (iYieldChange != 0)
 				{
 					int iYieldModifier = GetYieldBaseModifierTimes100(eYield);
-					int iCityYieldModifier = pOwningCity ? GetYieldCityModifierTimes100(pOwningCity, m_pPlayer, eYield) : 100;
+					int iCityYieldModifier = pOwningCity ? GetYieldCityModifierTimes100(pOwningCity, eYield) : 100;
 					iYieldScore += (iYieldChange * iTileWorkableChance * iYieldModifier * iCityYieldModifier) / 10000;
 				}
 			}

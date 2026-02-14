@@ -155,7 +155,7 @@ SET
 	GarrisonFreeMaintenance = 1,
 	HappinessPerGarrisonedUnit = 1,
 	CulturePerGarrisonedUnit = 4,
-	PuppetYieldPenaltyMod = 20,
+	PuppetYieldAndSupplyModifierChange = 20,
 	PortraitIndex = 0,
 	IconAtlas = 'EXPANSIONPATCH_POLICY_ATLAS',
 	IconAtlasAchieved = 'EXPANSIONPATCH_POLICY_ACHIEVED_ATLAS'
