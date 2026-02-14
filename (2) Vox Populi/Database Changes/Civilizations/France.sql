@@ -58,14 +58,13 @@ SET
 			)
 		)
 	),
-	RangedCombat = (SELECT RangedCombat FROM Units WHERE Type = 'UNIT_TRIPLANE') + 1,
-	AirInterceptRange = (SELECT AirInterceptRange FROM Units WHERE Type = 'UNIT_TRIPLANE') + 1
+	RangedCombat = (SELECT RangedCombat FROM Units WHERE Type = 'UNIT_TRIPLANE') + 5 
 WHERE Type = 'UNIT_SPAD';
 
 INSERT INTO Unit_FreePromotions
 	(UnitType, PromotionType)
 VALUES
-	('UNIT_SPAD', 'PROMOTION_AIR_LOGISTICS');
+	('UNIT_SPAD', 'PROMOTION_SORTIE');
 
 ----------------------------------------------------------
 -- Unique Improvement: Chateau
