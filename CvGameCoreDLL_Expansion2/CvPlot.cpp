@@ -14325,7 +14325,7 @@ void CvPlot::AddArchaeologicalRecord(GreatWorkArtifactClass eType, PlayerTypes e
 		return;
 
 	// if an improvement has set an era already, dont change it
-	EraTypes eNewEra = m_eEra;
+	EraTypes eNewEra = m_kArchaeologyData.m_eEra;
 	if (eNewEra == NO_ERA)
 		eNewEra = GET_PLAYER(ePlayer1).GetCurrentEra();
 
