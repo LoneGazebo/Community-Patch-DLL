@@ -111,6 +111,11 @@ UPDATE Improvement_Yields
 SET Yield = 4
 WHERE ImprovementType = 'IMPROVEMENT_HOLY_SITE' AND YieldType = 'YIELD_FAITH';
 
+INSERT INTO Improvement_YieldPerXAdjacentTerrain
+	(ImprovementType, TerrainType, YieldType, Yield, NumRequired)
+VALUES
+	('IMPROVEMENT_HOLY_SITE', 'TERRAIN_MOUNTAIN', 'YIELD_FAITH', 1, 1);
+
 INSERT INTO Improvement_Yields
 	(ImprovementType, YieldType, Yield)
 VALUES
