@@ -26151,6 +26151,31 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					{
 						iValue += getYieldFromDeath(eYield);
 					}
+					if (eYield == YIELD_FAITH && pReligion)
+					{
+						const ReligionTypes eReligion = GetReligions()->GetOwnedReligion();
+						const CvReligion* pMyReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, GetID());
+						CvCity* pHolyCity = pMyReligion->GetHolyCity();
+						if (pHolyCity == NULL)
+							pHolyCity = getCapitalCity();
+						if(pLoopCity == pHolyCity)
+						{
+							int iKillYield = pReligion->m_Beliefs.GetFaithFromDyingUnits(GetID(), true);
+							CvUnitEntry* pkKilledUnitInfo = GC.getUnitInfo(pUnit->getUnitType());
+							if (pkKilledUnitInfo)
+							{
+								int iCombatStrength = pUnit != NULL ? max(pUnit->GetBaseCombatStrength(), pUnit->GetBaseRangedCombatStrength()) : max(pkKilledUnitInfo->GetCombat(), pkKilledUnitInfo->GetRangedCombat());
+								if (iCombatStrength > 0)
+								{
+									iKillYield = (iKillYield * iCombatStrength) / 100;
+									if (iKillYield > 0)
+									{
+										iValue += iKillYield;
+									}
+								}
+							}
+						}
+					}
 					break;
 				}
 				case INSTANT_YIELD_TYPE_BULLY:
