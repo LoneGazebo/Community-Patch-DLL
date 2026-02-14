@@ -320,3 +320,106 @@ function EndNukeAttack()
 	Events.SerialEventMouseOverHex.Remove( DisplayNukeArrow );
 	ClearUnitHexHighlights();
 end
+
+-------------------------------------------------
+-- Ranged Strike Preview when moving...
+do
+	-- this code is somewhat optimized...
+	
+	local x,y ;
+	local range ;
+	local curr_ring ; 
+	
+	local nextStep ;
+	local stepRepeat ;
+	
+	local nextPlot = { 
+		-1,  1;
+		-1,  0; 
+		 0, -1; 
+		 1, -1; 
+		 1,  0; 
+		 0,  1; 
+	};
+	
+	local ret_table = {x=0,y=0} ;
+
+	local ret = function()
+		if nextStep >= 7 then
+			curr_ring = curr_ring + 1 ;
+			if curr_ring > range then return nil end ; 
+			y = y + 1 ;
+			nextStep = 1 ;
+			stepRepeat = curr_ring - 1 ;
+		else
+			
+			x = x + nextPlot[nextStep*2-1] ;
+			y = y + nextPlot[nextStep*2] ;
+			
+			stepRepeat = stepRepeat - 1 ;
+		end
+		
+		if stepRepeat <= 0 then
+			nextStep = nextStep + 1 ;
+			stepRepeat = curr_ring ;
+		end
+		
+		ret_table.x = x ;
+		ret_table.y = y ;
+		
+		return ret_table,x,y ;
+	end
+	
+	iteratePlots = function( base, _range, _curr_ring )
+		
+		range = _range ;
+		curr_ring = _curr_ring or 1 ;
+		if curr_ring == 0 then
+			x,y = base.x , base.y - 1 ;
+			nextStep = 6 ;
+			stepRepeat = 1 ;
+		else
+			x,y = base.x + curr_ring , base.y ;
+			nextStep = 1 ;
+			stepRepeat = curr_ring ;
+		end
+		return ret ;
+	end
+end
+
+do
+	local X, Y ;
+	local SHOWING = false ;
+	local STYLE = "RangedAttackPreview"
+	
+	local function checkRangedStrikePreview()
+		if not SHOWING then return end ;
+
+		Events.ClearHexHighlightStyle(STYLE);
+		local pUnit = UI.GetHeadSelectedUnit() ;
+		
+		if pUnit and pUnit:Range() > 0 then
+			for hex,tx,ty in iteratePlots( ToHexFromGrid({x=X,y=Y}) ,pUnit:Range(), 0) do
+				local gx,gy = ToGridFromHex(tx,ty);
+				if pUnit:CanEverRangeStrikeAt(gx,gy,X,Y,true) then
+					Events.SerialEventHexHighlight( hex , true, nil, STYLE );
+				end
+			end
+		end
+		
+	end
+	
+	Events.SerialEventMouseOverHex.Add(function( x , y )
+		X,Y = x,y ;
+		checkRangedStrikePreview()
+	end)
+	
+	Events.DisplayMovementIndicator.Add(function( show )
+		SHOWING = show ;
+		if not show then 
+			Events.ClearHexHighlightStyle(STYLE);
+		elseif X then
+			checkRangedStrikePreview() ;
+		end
+	end)
+end
