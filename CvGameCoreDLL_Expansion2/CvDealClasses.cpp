@@ -2173,40 +2173,58 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 			// Both need tech for Map trading
 			if (!pFromTeam->isMapTrading() || !pToTeam->isMapTrading())
 			{
-				if (!pFromTeam->isMapTrading() && !pToTeam->isMapTrading())
+				TechTypes eMapTradeTech = NO_TECH;
+				
+				for (int iTech = 0; iTech < GC.getNumTechInfos(); iTech++)
 				{
-					strReason = GetLocalizedText("TXT_KEY_DIPLO_TRADE_MAPS_NO_TECH_BOTH");
-					strTooltip += strDivider;
-					strTooltip += strReason;
+					TechTypes eTech = static_cast<TechTypes>(iTech);
+					
+					if (GC.getTechInfo(eTech)->IsMapTrading())
+				    {
+				        eMapTradeTech = eTech;
+				        break;
+				    }
 				}
-				else if (!pFromTeam->isMapTrading())
+				ASSERT(eMapTradeTech != NO_TECH, "DEAL: VP balance is active, but no map trading tech is found");
+				if (eMapTradeTech != NO_TECH)
 				{
-					if (bFromHuman)
+					CvString strTechDesc = GC.getTechInfo(eMapTradeTech)->GetDescription();
+					
+					if (!pFromTeam->isMapTrading() && !pToTeam->isMapTrading())
 					{
-						strReason = GetLocalizedText("TXT_KEY_DIPLO_TRADE_MAPS_NO_TECH_PLAYER");
+						strReason = GetLocalizedText("TXT_KEY_DIPLO_TRADE_MAPS_NO_TECH_BOTH", strTechDesc);
 						strTooltip += strDivider;
 						strTooltip += strReason;
 					}
-					else if (bToHuman)
+					else if (!pFromTeam->isMapTrading())
 					{
-						strReason = GetLocalizedText("TXT_KEY_DIPLO_TRADE_MAPS_NO_TECH_OTHER_PLAYER");
-						strTooltip += strDivider;
-						strTooltip += strReason;
+						if (bFromHuman)
+						{
+							strReason = GetLocalizedText("TXT_KEY_DIPLO_TRADE_MAPS_NO_TECH_PLAYER", strTechDesc);
+							strTooltip += strDivider;
+							strTooltip += strReason;
+						}
+						else if (bToHuman)
+						{
+							strReason = GetLocalizedText("TXT_KEY_DIPLO_TRADE_MAPS_NO_TECH_OTHER_PLAYER", strTechDesc);
+							strTooltip += strDivider;
+							strTooltip += strReason;
+						}
 					}
-				}
-				else
-				{
-					if (bToHuman)
+					else
 					{
-						strReason = GetLocalizedText("TXT_KEY_DIPLO_TRADE_MAPS_NO_TECH_PLAYER");
-						strTooltip += strDivider;
-						strTooltip += strReason;
-					}
-					else if (bFromHuman)
-					{
-						strReason = GetLocalizedText("TXT_KEY_DIPLO_TRADE_MAPS_NO_TECH_OTHER_PLAYER");
-						strTooltip += strDivider;
-						strTooltip += strReason;
+						if (bToHuman)
+						{
+							strReason = GetLocalizedText("TXT_KEY_DIPLO_TRADE_MAPS_NO_TECH_PLAYER", strTechDesc);
+							strTooltip += strDivider;
+							strTooltip += strReason;
+						}
+						else if (bFromHuman)
+						{
+							strReason = GetLocalizedText("TXT_KEY_DIPLO_TRADE_MAPS_NO_TECH_OTHER_PLAYER", strTechDesc);
+							strTooltip += strDivider;
+							strTooltip += strReason;
+						}
 					}
 				}
 			}
