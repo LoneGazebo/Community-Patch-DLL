@@ -1201,7 +1201,7 @@
 			<Type>PROMOTION_LOST_CODEX</Type>
 			<Description>TXT_KEY_PROMOTION_LOST_CODEX</Description>
 			<Help>TXT_KEY_PROMOTION_LOST_CODEX_HELP</Help>
-			<PediaType>PEDIA_SCOUT</PediaType>
+			<PediaType>PEDIA_SCOUTING</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_LOST_CODEX</PediaEntry>
 		</Row>
 		<Row>
