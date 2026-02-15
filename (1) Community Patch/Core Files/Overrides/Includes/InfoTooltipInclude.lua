@@ -1508,13 +1508,13 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 	end
 
 	local function CanPlayerEverBuild(eCheckBuilding)
-		if not pActivePlayer then
-			return false;
-		end
-
 		local kCheckBuildingInfo = GameInfo.Buildings[eCheckBuilding];
 		if kCheckBuildingInfo.IsDummy then
 			return false;
+		end
+
+		if not pActivePlayer then
+			return true;
 		end
 
 		if kCheckBuildingInfo.CivilizationRequired and GameInfoTypes[kCheckBuildingInfo.CivilizationRequired] ~= eActiveCiv then
