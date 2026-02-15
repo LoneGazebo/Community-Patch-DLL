@@ -352,11 +352,14 @@
 		<Row Tag="TXT_KEY_PRODUCTION_GLOBAL_SUFFIX">
 			<Text>in all Cities</Text>
 		</Row>
+		<Row Tag="TXT_KEY_LIST_COMBINE_TWO">
+			<Text>{1_String1} and {2_String2}</Text>
+		</Row>
 		<Row Tag="TXT_KEY_LIST_COMBINE_NONFINAL">
 			<Text>{1_String1}, {2_String2}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_LIST_COMBINE_FINAL">
-			<Text>{1_String1} and {2_String2}</Text>
+			<Text>{1_String1}, and {2_String2}</Text>
 		</Row>
 		<!-- Unit -->
 		<Row Tag="TXT_KEY_PRODUCTION_UNIT_COMBAT_CLASS">

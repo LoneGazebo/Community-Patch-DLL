@@ -130,6 +130,8 @@ local function ConcatWithCommaAnd(tItems)
 	local n = #tItems;
 	if n == 1 then
 		return tItems[1];
+	elseif n == 2 then
+		return L("TXT_KEY_LIST_COMBINE_TWO", tItems[1], tItems[2]);
 	else
 		local strTemp = ""
 		strTemp = L("TXT_KEY_LIST_COMBINE_FINAL", tItems[n-1], tItems[n]);
