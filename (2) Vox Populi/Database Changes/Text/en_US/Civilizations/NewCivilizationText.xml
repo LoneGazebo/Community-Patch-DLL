@@ -1346,7 +1346,7 @@
 			<Text>The Pogost as an institution of Russian rural life existed for nearly a millenium, and in that time it underwent multiple transformations. In many medieval Russian states, Pogosts began as inns and lodging for the nobility and priesthood, but may have doubled as community centers and trading hubs. By the end of the 10th century, however, Pogosts had evolved into administrative and legislative hubs throughout the Slavic states. By 1775 the last Pogost-led administrative district was abolished, and the buildings were repurposed as parishes of the Eastern Orthodox Church.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_POGOST_STRATEGY">
-			<Text>The Pogost provides extra yields on Villages/Towns and it receives additional yields every Technology level for the next 2 eras.[NEWLINE][NEWLINE]This often makes building Villages outside of [ICON_CONNECTED] City Connections worthwhile and you should consider prioritizing any bonuses to Villages since you'll then have lots of them.[NEWLINE][NEWLINE]Its often worth prioritizing any Technologies that provide bonus yields to Pogosts especially Industrialization as it provides the largest bonus.</Text>
+			<Text>The Pogost provides extra yields on Villages/Towns and it receives additional yields every Technology level for the next 2 eras.[NEWLINE][NEWLINE]This often makes building Villages worthwhile even outside of [ICON_CONNECTED] City Connections. Therefore, you should consider prioritizing any bonuses to Villages, since you'll then have lots of them.[NEWLINE][NEWLINE]Additionally, it's often worth prioritizing the Technologies that provide bonus yields to Pogosts, especially Industrialization as it provides the largest bonus.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_UNIT_LICORNE">
