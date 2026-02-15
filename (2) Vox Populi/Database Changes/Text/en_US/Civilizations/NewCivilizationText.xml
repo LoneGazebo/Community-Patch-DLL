@@ -1346,7 +1346,7 @@
 			<Text>The Pogost as an institution of Russian rural life existed for nearly a millenium, and in that time it underwent multiple transformations. In many medieval Russian states, Pogosts began as inns and lodging for the nobility and priesthood, but may have doubled as community centers and trading hubs. By the end of the 10th century, however, Pogosts had evolved into administrative and legislative hubs throughout the Slavic states. By 1775 the last Pogost-led administrative district was abolished, and the buildings were repurposed as parishes of the Eastern Orthodox Church.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_POGOST_STRATEGY">
-			<Text></Text>
+			<Text>The Pogost provides extra yields on Villages/Towns and it receives additional yields every Technology level for the next 2 eras.[NEWLINE][NEWLINE]This often makes building Villages outside of [ICON_CONNECTED] City Connections worthwhile and you should consider prioritizing any bonuses to Villages since you'll then have lots of them.[NEWLINE][NEWLINE]Its often worth prioritizing any Technologies that provide bonus yields to Pogosts especially Industrialization as it provides the largest bonus.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_UNIT_LICORNE">
@@ -1359,7 +1359,7 @@
 			<Text>Licorne is the French name given to the Russian 'unicorn' cannons, named for the distinctively shaped handles on the gun barrels. Devised in 1757, Licornes were a flexible design, easy to fire and transport and made in many differing weights and power. Lighter designs are best remembered from their use as mobile horse artillery, a Russian innovation that would change the European theory of combined arms for the next century.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_LICORNE_STRATEGY">
-			<Text></Text>
+			<Text>The Licorne has an attack bonus against Melee/Gunpowder units and the ability to move after attacking. This essentially allows it to function as both a Siege and Ranged unit. Being able to move after attacking provides a lot of flexibility when advancing so it can look to position to fire every turn and when retreating so it can fire while moving back to safety.</Text>
 		</Row>
 
 		<!-- Shoshone -->
