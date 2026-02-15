@@ -207,7 +207,7 @@ UPDATE Language_en_US
 SET Text = '[COLOR_YELLOW]Cities Firing at Attackers[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_COMBAT_CITYFIRINGATTACKERS_HEADING3_TITLE';
 UPDATE Language_en_US
-SET Text = 'A city has a Ranged Combat Strength equal to its full Strength at the start of combat, and [COLOR_YELLOW]it has a range of 1. This range increases as the game progresses based on researched technologies (look for the "ranged strike" icon in the tech tree for these technologies).[ENDCOLOR] It may attack any one enemy unit within that range. Note that the city''s Ranged Combat Strength doesn''t decline as the city takes damage; it remains equal to the city''s initial Strength until the city is captured.'
+SET Text = 'A city has a [ICON_RANGE_STRENGTH] Ranged Combat Strength equal to its full [ICON_STRENGTH] Combat Strength minus the garrison contribution to the city''s [ICON_STRENGTH] Combat Strength. Therefore stationed units don''t change the strength of city''s ranged attacks.[NEWLINE][NEWLINE]It has 1 range, increasing to 2 after building Walls and to 3 after building Arsenal.[COLOR_YELLOW]Note that the city''s Ranged Combat Strength doesn''t decline as the city takes damage; it remains equal to the city''s initial Strength until the city is captured.[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_COMBAT_CITYFIRINGATTACKERS_HEADING3_BODY';
 
 UPDATE Language_en_US

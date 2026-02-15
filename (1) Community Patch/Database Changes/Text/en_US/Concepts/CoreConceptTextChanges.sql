@@ -6,17 +6,10 @@ SET Text = 'War Score is ever-shifting status of a war between players. War Scor
 WHERE Tag = 'TXT_KEY_DIPLOMACY_PEACE_HEADING3_BODY';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_YELLOW]Combat Units in Cities[ENDCOLOR]'
-WHERE Tag = 'TXT_KEY_CITIES_COMBATUNITS_HEADING3_TITLE';
-UPDATE Language_en_US
-SET Text = 'Only one land and one naval unit may occupy a city at a time. A military unit in a city is said to "Garrison" the city, and it adds a significant defensive bonus to the city [COLOR_YELLOW]if it''s a land unit. If a city is attacked while a Garrison is in the city, the Garrison will deflect some of the damage onto itself, thus offering the city even more protection. Be careful, however, as a Garrison can be destroyed this way.[ENDCOLOR][NEWLINE][NEWLINE]Additional combat units may move through the city, but they cannot end their turn there. (So if you build a combat unit in a city with a garrison, you have to move one of the two units out before you end your turn.)[NEWLINE][NEWLINE][COLOR_YELLOW]Note also that naval units cannot perform any attacks while they are stationed in a city.[ENDCOLOR]'
-WHERE Tag = 'TXT_KEY_CITIES_COMBATUNITS_HEADING3_BODY';
-
-UPDATE Language_en_US
 SET Text = '[COLOR_YELLOW]Garrison Units in Cities[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_COMBAT_GARRISONINCITIES_HEADING3_TITLE';
 UPDATE Language_en_US
-SET Text = 'A city''s owner may "garrison" a military unit inside the city to bolster its defenses. A portion of the garrisoned unit''s combat strength is added to the city''s strength. [COLOR_YELLOW]The garrisoned will divert part of the damage to a city when the city is attacked. This can destroy the garrison, so be careful![ENDCOLOR] If the city is captured, the garrisoned unit is destroyed.[NEWLINE][NEWLINE]'
+SET Text = 'Only one land and one naval unit may occupy a city at a time. A military unit in a city is said to "Garrison" the city, and it adds [COLOR_YELLOW]50%[ENDCOLOR] of its [ICON_STRENGTH] Combat Strength or [ICON_RANGE_STRENGTH] Ranged Combat Strength, whichever is greater, to the city [ICON_STRENGTH] Combat Strength if it''s a land unit or [COLOR_YELLOW]25%[ENDCOLOR] if it''s a naval unit. This contribution doesn''t increase City [ICON_RANGE_STRENGTH] Ranged Combat Strength.[NEWLINE][NEWLINE]If a city is attacked while a Garrison is in the city, the Garrison will deflect some of the damage onto itself, thus offering the city even more protection. Be careful, however, as a Garrison can be destroyed this way.[NEWLINE][NEWLINE]If both a land and a naval unit are stationed in the city, their contributions do not stack; only the unit with the higher [ICON_STRENGTH] Combat Strength contribution applies it, and is the garrison that absorbs incoming damage.[NEWLINE][NEWLINE]Additional combat units may move through the city, but they cannot end their turn there. (So if you build a combat unit in a city with a garrison, you have to move one of the two units out before you end your turn.)[NEWLINE][NEWLINE]A unit garrisoned in the city may attack surrounding enemy units [COLOR_YELLOW]unless it''s a naval unit[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_COMBAT_GARRISONINCITIES_HEADING3_BODY';
 
 UPDATE Language_en_US
