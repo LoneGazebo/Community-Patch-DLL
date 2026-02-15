@@ -24272,8 +24272,8 @@ void CvUnit::DoFinishBuildIfSafe()
 	BuildTypes eBuild = getBuildType();
 	if (eBuild != NO_BUILD)
 	{
-		int iBuildTimeLeft = plot()->getBuildTurnsLeft(eBuild, getOwner(), 0, 0);
-		if (iBuildTimeLeft == 0 && canMove() && GetDanger() == 0)
+		int iBuildTimeLeft = plot()->getBuildTurnsLeft(eBuild, getOwner());
+		if (iBuildTimeLeft <= 1 && canMove() && GetDanger() == 0)
 		{
 			BuilderDirective eDirective = GET_PLAYER(m_eOwner).GetBuilderTaskingAI()->GetAssignedDirective(this);
 			if (eDirective.m_sX != m_iX || eDirective.m_sY != m_iY || eDirective.m_eBuild != eBuild)

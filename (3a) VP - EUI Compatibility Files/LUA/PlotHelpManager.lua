@@ -604,19 +604,14 @@ local PlotToolTips = EUI.PlotToolTips or function( plot, isExtraTips )
 						g_unitMouseOvers:insert( unit )
 						Game.MouseoverUnit( unit, true )
 					end
-					-- Can build something?
-					if unitOwnerID == activePlayerID then
-						local unitWorkRate = unit:WorkRate( true )
-						if unitWorkRate > workRate then
-							workRate = unitWorkRate
-						end
-					end
 					-- Building something?
-					local build = GameInfo.Builds[ unit:GetBuildType() ]
-					if build then
-						local buildTurnsLeft = plot:GetBuildTurnsLeft( build.ID, unitOwnerID, -unit:WorkRate() )
-						buildsInProgress[ build.ID ] = buildTurnsLeft
-						tips:insert( L( "TXT_KEY_WORKER_BUILD_PROGRESS", buildTurnsLeft, build.Description ) )
+					if unit:GetBuildType() > -1 then
+						local build = GameInfo.Builds[ unit:GetBuildType() ]
+						if build then
+							local buildTurnsLeft = plot:GetBuildTurnsLeft( build.ID, unitOwnerID)
+							buildsInProgress[ build.ID ] = buildTurnsLeft
+							tips:insert( L( "TXT_KEY_WORKER_BUILD_PROGRESS", buildTurnsLeft, build.Description ) )
+						end
 					end
 				end
 			end
