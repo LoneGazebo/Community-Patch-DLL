@@ -120,6 +120,30 @@ local function AppendEraScaling(strTooltip)
 	return string.format("%s, %s", strTooltip, L("TXT_KEY_PRODUCTION_BUILDING_ERA_SCALING_SUFFIX"));
 end
 
+--- Concatenate a list of strings with localized ", " and " and " before the last item
+--- e.g. {"a"} -> "a", {"a", "b"} -> "a and b", {"a", "b", "c"} -> "a, b and c"
+--- @param tItems string[]
+--- @return string
+local strListSeparator = L("TXT_KEY_LIST_SEPARATOR") .. " ";
+local strListAnd = " " .. L("TXT_KEY_LIST_AND") .. " ";
+local function ConcatWithCommaAnd(tItems)
+	local n = #tItems;
+	if n == 1 then
+		return tItems[1];
+	elseif n == 2 then
+		return L("TXT_KEY_LIST_COMBINE_TWO", tItems[1], tItems[2]);
+	else
+		local strTemp = ""
+		strTemp = L("TXT_KEY_LIST_COMBINE_FINAL", tItems[n-1], tItems[n]);
+		if n > 2 then
+			for j = n-2, 1, -1 do
+				strTemp = L("TXT_KEY_LIST_COMBINE_NONFINAL", tItems[j], strTemp);
+			end
+		end
+		return strTemp
+	end
+end
+
 --- Can the given unit gain the given promotion?
 --- @param kUnitInfo Info
 --- @param strPromotionType string
@@ -341,6 +365,17 @@ end
 --- @param bGlobal boolean Whether "in all Cities" should be appended to tooltips
 --- @param bEraScaling boolean Whether ", scaling with Era" should be appended to tooltips
 --- @param ... number|string The rest of the parameters of strTextKey
+local tGroupableTypeColors = {
+	Resources = "",
+	Features = "[COLOR_PLAYER_DARK_GREEN_TEXT]",
+	Terrains = "[COLOR_PLAYER_DARK_GREEN_TEXT]",
+	Plots = "[COLOR_PLAYER_DARK_GREEN_TEXT]",
+	Specialists = "[COLOR_POSITIVE_TEXT]",
+	BuildingClasses = "[COLOR_YIELD_FOOD]",
+	Buildings = "[COLOR_YIELD_FOOD]",
+	Improvements = "[COLOR_POSITIVE_TEXT]",
+};
+
 local function AddTooltipsYieldTableGeneric(tTooltipList, strTextKey, tYieldTable, strOtherTypeTable, bModifier, bGlobal, bEraScaling, ...)
 	if not next(tYieldTable) then
 		return;
@@ -348,23 +383,56 @@ local function AddTooltipsYieldTableGeneric(tTooltipList, strTextKey, tYieldTabl
 	local GetStringFunc = bModifier and GetYieldModifierString or GetYieldBoostString;
 	local AddTooltipFunc = bGlobal and (bEraScaling and AddTooltipGlobalEraScaling or AddTooltipGlobal) or (bEraScaling and AddTooltipEraScaling or AddTooltip);
 	if strOtherTypeTable then
-		-- Add types to the cache if not already exist
-		for eOtherType, kOtherTypeInfo in GameInfoCache(strOtherTypeTable) do
-			if tYieldTable[eOtherType] then
-				local tBoostStrings = {};
-				for eYield, kYieldInfo in GameInfoCache("Yields") do
-					local nYield = tYieldTable[eOtherType][eYield];
-					if nYield and nYield ~= 0 then
-						table.insert(tBoostStrings, GetStringFunc(kYieldInfo, nYield));
+		local strColor = tGroupableTypeColors[strOtherTypeTable];
+		if strColor then
+			-- Group items by their yield boost string for merging
+			local tItemsByYields = {};
+			local tYieldsOrder = {};
+			for eOtherType, kOtherTypeInfo in GameInfoCache(strOtherTypeTable) do
+				if tYieldTable[eOtherType] then
+					local tBoostStrings = {};
+					for eYield, kYieldInfo in GameInfoCache("Yields") do
+						local nYield = tYieldTable[eOtherType][eYield];
+						if nYield and nYield ~= 0 then
+							table.insert(tBoostStrings, GetStringFunc(kYieldInfo, nYield));
+						end
+					end
+					if next(tBoostStrings) then
+						local strYields = table.concat(tBoostStrings, " ");
+						if not tItemsByYields[strYields] then
+							tItemsByYields[strYields] = {};
+							table.insert(tYieldsOrder, strYields);
+						end
+						local strName;
+						if strOtherTypeTable == "Resources" then
+							strName = kOtherTypeInfo.IconString .. " " .. L(kOtherTypeInfo.Description);
+						else
+							strName = strColor .. L(kOtherTypeInfo.Description) .. "[ENDCOLOR]";
+						end
+						table.insert(tItemsByYields[strYields], strName);
 					end
 				end
-				if next(tBoostStrings) then
-					if strOtherTypeTable == "Resources" then
-						AddTooltipFunc(tTooltipList, strTextKey, kOtherTypeInfo.Description, table.concat(tBoostStrings, " "), kOtherTypeInfo.IconString, ...);
-					elseif strOtherTypeTable == "Beliefs" then
-						AddTooltipFunc(tTooltipList, strTextKey, kOtherTypeInfo.ShortDescription, table.concat(tBoostStrings, " "), ...);
-					else
-						AddTooltipFunc(tTooltipList, strTextKey, kOtherTypeInfo.Description, table.concat(tBoostStrings, " "), ...);
+			end
+			for _, strYields in ipairs(tYieldsOrder) do
+				AddTooltipFunc(tTooltipList, strTextKey, ConcatWithCommaAnd(tItemsByYields[strYields]), strYields, ...);
+			end
+		else
+			-- Non-groupable types (Beliefs, Technologies, Policies, etc.)
+			for eOtherType, kOtherTypeInfo in GameInfoCache(strOtherTypeTable) do
+				if tYieldTable[eOtherType] then
+					local tBoostStrings = {};
+					for eYield, kYieldInfo in GameInfoCache("Yields") do
+						local nYield = tYieldTable[eOtherType][eYield];
+						if nYield and nYield ~= 0 then
+							table.insert(tBoostStrings, GetStringFunc(kYieldInfo, nYield));
+						end
+					end
+					if next(tBoostStrings) then
+						if strOtherTypeTable == "Beliefs" then
+							AddTooltipFunc(tTooltipList, strTextKey, kOtherTypeInfo.ShortDescription, table.concat(tBoostStrings, " "), ...);
+						else
+							AddTooltipFunc(tTooltipList, strTextKey, kOtherTypeInfo.Description, table.concat(tBoostStrings, " "), ...);
+						end
 					end
 				end
 			end
@@ -508,23 +576,56 @@ local function AddTooltipsYieldFractionTableGeneric(tTooltipList, strTextKey, tY
 	end
 	local AddTooltipFunc = bGlobal and AddTooltipGlobal or AddTooltip;
 	if strOtherTypeTable then
-		-- Add types to the cache if not already exist
-		for eOtherType, kOtherTypeInfo in GameInfoCache(strOtherTypeTable) do
-			if tYieldFractionTable[eOtherType] then
-				local tBoostStrings = {};
-				for eYield, kYieldInfo in GameInfoCache("Yields") do
-					local fYield = tYieldFractionTable[eOtherType][eYield];
-					if fYield and fYield.Numerator ~= 0 then
-						table.insert(tBoostStrings, GetFractionYieldBoostString(kYieldInfo, fYield.Numerator, fYield.Denominator));
+		local strColor = tGroupableTypeColors[strOtherTypeTable];
+		if strColor then
+			-- Group items by their yield boost string for merging
+			local tItemsByYields = {};
+			local tYieldsOrder = {};
+			for eOtherType, kOtherTypeInfo in GameInfoCache(strOtherTypeTable) do
+				if tYieldFractionTable[eOtherType] then
+					local tBoostStrings = {};
+					for eYield, kYieldInfo in GameInfoCache("Yields") do
+						local fYield = tYieldFractionTable[eOtherType][eYield];
+						if fYield and fYield.Numerator ~= 0 then
+							table.insert(tBoostStrings, GetFractionYieldBoostString(kYieldInfo, fYield.Numerator, fYield.Denominator));
+						end
+					end
+					if next(tBoostStrings) then
+						local strYields = table.concat(tBoostStrings, " ");
+						if not tItemsByYields[strYields] then
+							tItemsByYields[strYields] = {};
+							table.insert(tYieldsOrder, strYields);
+						end
+						local strName;
+						if strOtherTypeTable == "Resources" then
+							strName = kOtherTypeInfo.IconString .. " " .. L(kOtherTypeInfo.Description);
+						else
+							strName = strColor .. L(kOtherTypeInfo.Description) .. "[ENDCOLOR]";
+						end
+						table.insert(tItemsByYields[strYields], strName);
 					end
 				end
-				if next(tBoostStrings) then
-					if strOtherTypeTable == "Resources" then
-						AddTooltipFunc(tTooltipList, strTextKey, kOtherTypeInfo.Description, table.concat(tBoostStrings, " "), kOtherTypeInfo.IconString, ...);
-					elseif strOtherTypeTable == "Beliefs" then
-						AddTooltipFunc(tTooltipList, strTextKey, kOtherTypeInfo.ShortDescription, table.concat(tBoostStrings, " "), ...);
-					else
-						AddTooltipFunc(tTooltipList, strTextKey, kOtherTypeInfo.Description, table.concat(tBoostStrings, " "), ...);
+			end
+			for _, strYields in ipairs(tYieldsOrder) do
+				AddTooltipFunc(tTooltipList, strTextKey, ConcatWithCommaAnd(tItemsByYields[strYields]), strYields, ...);
+			end
+		else
+			-- Non-groupable types (Beliefs, etc.)
+			for eOtherType, kOtherTypeInfo in GameInfoCache(strOtherTypeTable) do
+				if tYieldFractionTable[eOtherType] then
+					local tBoostStrings = {};
+					for eYield, kYieldInfo in GameInfoCache("Yields") do
+						local fYield = tYieldFractionTable[eOtherType][eYield];
+						if fYield and fYield.Numerator ~= 0 then
+							table.insert(tBoostStrings, GetFractionYieldBoostString(kYieldInfo, fYield.Numerator, fYield.Denominator));
+						end
+					end
+					if next(tBoostStrings) then
+						if strOtherTypeTable == "Beliefs" then
+							AddTooltipFunc(tTooltipList, strTextKey, kOtherTypeInfo.ShortDescription, table.concat(tBoostStrings, " "), ...);
+						else
+							AddTooltipFunc(tTooltipList, strTextKey, kOtherTypeInfo.Description, table.concat(tBoostStrings, " "), ...);
+						end
 					end
 				end
 			end
@@ -1409,13 +1510,13 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 	end
 
 	local function CanPlayerEverBuild(eCheckBuilding)
-		if not pActivePlayer then
-			return false;
-		end
-
 		local kCheckBuildingInfo = GameInfo.Buildings[eCheckBuilding];
 		if kCheckBuildingInfo.IsDummy then
 			return false;
+		end
+
+		if not pActivePlayer then
+			return true;
 		end
 
 		if kCheckBuildingInfo.CivilizationRequired and GameInfoTypes[kCheckBuildingInfo.CivilizationRequired] ~= eActiveCiv then
@@ -1813,6 +1914,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 	local tProjectedModifiers = {};
 	local bBoostedYields = false;
 	local bBoostedModifiers = false;
+	local bBoostedHappiness = false;
 	local bIsCultureBuilding = false;
 	for eYield, kYieldInfo in GameInfoCache("Yields") do
 		-- Only show modified numbers in city view
@@ -1859,12 +1961,6 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 		end
 		AddTooltipGlobalNonZeroSigned(tGlobalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_MODIFIER", iGlobalMod, kYieldInfo.IconString, kYieldInfo.Description);
 	end
-	if bBoostedYields then
-		AddTooltipSimpleYieldBoostTable(tYieldLines, "TXT_KEY_PRODUCTION_BUILDING_PROJECTED_YIELD_CHANGE", tProjectedYields);
-	end
-	if bBoostedModifiers then
-		AddTooltipSimpleYieldBoostTable(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_PROJECTED_YIELD_MODIFIER", tProjectedModifiers);
-	end
 
 	-- Yield from % of other yield
 	for row in GameInfo.Building_YieldFromYieldPercent{BuildingType = kBuildingInfo.Type} do
@@ -1896,10 +1992,13 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 
 	-- Only show modified number in city view
 	if pCity and pActivePlayer then
-		iHappinessTotal = iHappinessTotal + pCity:GetReligionBuildingClassHappiness(eBuildingClass)
+		local iBoostedHappiness = pCity:GetReligionBuildingClassHappiness(eBuildingClass)
 			+ pActivePlayer:GetExtraBuildingHappinessFromPolicies(eBuilding)
 			+ pActivePlayer:GetPlayerBuildingClassHappiness(eBuildingClass);
-		AddTooltipNonZeroSigned(tYieldLines, "TXT_KEY_PRODUCTION_BUILDING_PROJECTED_HAPPINESS", iHappinessTotal);
+		if (iBoostedHappiness > 0) then
+			bBoostedHappiness = true
+			iHappinessTotal = iHappinessTotal + iBoostedHappiness
+		end
 	end
 
 	AddTooltipNonZeroSigned(tGlobalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_HAPPINESS_GLOBAL", kBuildingInfo.HappinessPerCity);
@@ -1924,14 +2023,14 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 		local kSpecialistInfo = GameInfo.Specialists[kBuildingInfo.SpecialistType];
 		local iNumPoints = kBuildingInfo.GreatPeopleRateChange;
 		if iNumPoints > 0 then
-			table.insert(tYieldLines, string.format("[ICON_GREAT_PEOPLE] %s %d", L(kSpecialistInfo.GreatPeopleTitle), iNumPoints));
+			table.insert(tYieldLines, string.format("[ICON_BULLET][ICON_GREAT_PEOPLE] %s %d", L(kSpecialistInfo.GreatPeopleTitle), iNumPoints));
 		end
 
 		local iNumSlots = kBuildingInfo.SpecialistCount;
 		if iNumSlots > 0 then
 			-- Append a key such as TXT_KEY_SPECIALIST_ARTIST_SLOTS
 			local strSpecialistSlotsKey = kSpecialistInfo.Description .. "_SLOTS";
-			table.insert(tYieldLines, string.format("[ICON_GREAT_PEOPLE] %s %d", L(strSpecialistSlotsKey), iNumSlots));
+			table.insert(tYieldLines, string.format("[ICON_BULLET][ICON_GREAT_PEOPLE] %s %d", L(strSpecialistSlotsKey), iNumSlots));
 		end
 	end
 
@@ -1997,18 +2096,57 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 	for row in GameInfo.Building_UnitCombatFreeExperiences{BuildingType = kBuildingInfo.Type} do
 		AddTooltipNonZeroSigned(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_UNIT_XP_COMBAT", row.Experience, GameInfo.UnitCombatInfos[row.UnitCombatType].Description);
 	end
-	for row in GameInfo.Building_DomainFreeExperiences{BuildingType = kBuildingInfo.Type} do
-		AddTooltipNonZeroSigned(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_UNIT_XP_DOMAIN", row.Experience, GameInfo.Domains[row.DomainType].Description);
+	do
+		local tXPDomains = {};
+		for row in GameInfo.Building_DomainFreeExperiences{BuildingType = kBuildingInfo.Type} do
+			if row.Experience ~= 0 then
+				if not tXPDomains[row.Experience] then tXPDomains[row.Experience] = {} end
+				table.insert(tXPDomains[row.Experience], "[COLOR_YELLOW]" .. L(GameInfo.Domains[row.DomainType].Description) .. "[ENDCOLOR]");
+			end
+		end
+		for iXP, tDomains in pairs(tXPDomains) do
+			local strSign = iXP > 0 and "+" or "-";
+			table.insert(tLocalAbilityLines, L("TXT_KEY_PRODUCTION_BUILDING_UNIT_XP_DOMAINS", math.abs(iXP), strSign, ConcatWithCommaAnd(tDomains)));
+		end
 	end
-	for row in GameInfo.Building_DomainFreeExperiencesGlobal{BuildingType = kBuildingInfo.Type} do
-		AddTooltipGlobalNonZeroSigned(tGlobalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_UNIT_XP_DOMAIN", row.Experience, GameInfo.Domains[row.DomainType].Description);
+	do
+		local tXPDomains = {};
+		for row in GameInfo.Building_DomainFreeExperiencesGlobal{BuildingType = kBuildingInfo.Type} do
+			if row.Experience ~= 0 then
+				if not tXPDomains[row.Experience] then tXPDomains[row.Experience] = {} end
+				table.insert(tXPDomains[row.Experience], "[COLOR_YELLOW]" .. L(GameInfo.Domains[row.DomainType].Description) .. "[ENDCOLOR]");
+			end
+		end
+		for iXP, tDomains in pairs(tXPDomains) do
+			local strSign = iXP > 0 and "+" or "-";
+			table.insert(tGlobalAbilityLines, AppendGlobal(L("TXT_KEY_PRODUCTION_BUILDING_UNIT_XP_DOMAINS", math.abs(iXP), strSign, ConcatWithCommaAnd(tDomains))));
+		end
 	end
-	for row in GameInfo.Building_DomainFreeExperiencePerGreatWork{BuildingType = kBuildingInfo.Type} do
-		AddTooltipNonZeroSigned(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_UNIT_XP_DOMAIN_FROM_GREAT_WORK", row.Experience, GameInfo.Domains[row.DomainType].Description);
+	do
+		local tXPDomains = {};
+		for row in GameInfo.Building_DomainFreeExperiencePerGreatWork{BuildingType = kBuildingInfo.Type} do
+			if row.Experience ~= 0 then
+				if not tXPDomains[row.Experience] then tXPDomains[row.Experience] = {} end
+				table.insert(tXPDomains[row.Experience], "[COLOR_YELLOW]" .. L(GameInfo.Domains[row.DomainType].Description) .. "[ENDCOLOR]");
+			end
+		end
+		for iXP, tDomains in pairs(tXPDomains) do
+			local strSign = iXP > 0 and "+" or "-";
+			table.insert(tLocalAbilityLines, L("TXT_KEY_PRODUCTION_BUILDING_UNIT_XP_DOMAINS_FROM_GREAT_WORK", math.abs(iXP), strSign, ConcatWithCommaAnd(tDomains)));
+		end
 	end
-	for row in GameInfo.Building_DomainFreeExperiencePerGreatWorkGlobal{BuildingType = kBuildingInfo.Type} do
-		AddTooltipGlobalNonZeroSigned(tGlobalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_UNIT_XP_DOMAIN_FROM_GREAT_WRITING_GLOBAL",
-			row.Experience, GameInfo.Domains[row.DomainType].Description);
+	do
+		local tXPDomains = {};
+		for row in GameInfo.Building_DomainFreeExperiencePerGreatWorkGlobal{BuildingType = kBuildingInfo.Type} do
+			if row.Experience ~= 0 then
+				if not tXPDomains[row.Experience] then tXPDomains[row.Experience] = {} end
+				table.insert(tXPDomains[row.Experience], "[COLOR_YELLOW]" .. L(GameInfo.Domains[row.DomainType].Description) .. "[ENDCOLOR]");
+			end
+		end
+		for iXP, tDomains in pairs(tXPDomains) do
+			local strSign = iXP > 0 and "+" or "-";
+			table.insert(tGlobalAbilityLines, AppendGlobal(L("TXT_KEY_PRODUCTION_BUILDING_UNIT_XP_DOMAINS_FROM_GREAT_WRITING_GLOBAL", math.abs(iXP), strSign, ConcatWithCommaAnd(tDomains))));
+		end
 	end
 	AddTooltipNonZeroSigned(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_UNIT_XP_ON_GOLDEN_AGE_START", kBuildingInfo.ExperiencePerGoldenAge, kBuildingInfo.ExperiencePerGoldenAgeCap);
 
@@ -2949,11 +3087,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 		AddTooltip(tAbilityLines, "TXT_KEY_PRODUCTION_CORPORATION_EFFECTS");
 		table.insert(tAbilityLines, "[ICON_BULLET]" .. table.concat(tCorporationAbilities, "[NEWLINE][ICON_BULLET]"));
 	end
-
-	if next(tLocalAbilityLines) then
-		AddTooltip(tAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_LOCAL_EFFECTS");
-		table.insert(tAbilityLines, "[ICON_BULLET]" .. table.concat(tLocalAbilityLines, "[NEWLINE][ICON_BULLET]"));
-	end
+	local iLocalAbilityPos = #tAbilityLines + 1;
 
 	if next(tGlobalAbilityLines) then
 		AddTooltip(tAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_GLOBAL_EFFECTS");
@@ -2985,9 +3119,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 	-- Yield boosts on cities in the same area
 	AddTooltipSimpleYieldModifierTable(tAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_MODIFIER_AREA", tAreaBoosts);
 
-	if next(tAbilityLines) then
-		table.insert(tLines, table.concat(tAbilityLines, "[NEWLINE]"));
-	end
+	local iAbilityInsertPos = #tLines + 1;
 
 	----------------------
 	-- New medians (VP only)
@@ -3384,6 +3516,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 	-- In city view, only show if the boost has not been obtained
 	----------------------
 	local tBoostLines = {};
+	local tLocalBoostLines = {};
 
 	do
 		local tTechBoosts = {};
@@ -3686,41 +3819,41 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 			end
 		end
 
-		AddTooltipSimpleYieldBoostTable(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_POPULATION", tPopulationBoosts);
-		AddTooltipSimpleYieldBoostTable(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_POPULATION_GLOBAL", tPopulationBoostsGlobal);
-		AddTooltipSimpleYieldBoostTable(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_CITY_STRENGTH", tCityStrengthBoosts);
-		AddTooltipSimpleYieldBoostTable(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_PASSING_TR", tPassingTRBoosts);
-		AddTooltipSimpleYieldBoostTable(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_THEMES", tThemeBoosts);
-		AddTooltipSimpleYieldBoostTable(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_MONOPOLIES", tMonopolyBoosts);
-		AddTooltipSimpleYieldBoostTable(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_FRANCHISES", tFranchiseBoosts);
-		AddTooltipSimpleYieldBoostTable(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_RELIGION_COUNT", tReligionBoosts);
-		AddTooltipSimpleYieldBoostTable(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_CITY_STATE_FRIENDS", tCSFriendBoosts);
-		AddTooltipSimpleYieldBoostTable(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_CITY_STATE_ALLIES", tCSAllyBoosts);
-		AddTooltipSimpleYieldBoostTable(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_ERA", tEraBoosts);
-		AddTooltipSimpleYieldBoostTable(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_MOUNTAINS", tMountainBoosts);
-		AddTooltipSimpleYieldBoostTable(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_SNOW", tSnowBoosts);
-		AddTooltipSimpleYieldFractionTable(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_BUILDING_COUNT", tBuildingCountBoosts);
-		AddTooltipSimpleYieldFractionTable(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_PLOT_COUNT", tPlotCountBoosts);
-		AddTooltipSimpleYieldFractionTable(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_CITY_STATE_STRATEGIC_RESOURCES", tCSStrategicBoosts);
-		AddTooltipSimpleYieldModifierTable(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_ERA", tEraModifierBoosts);
+		AddTooltipSimpleYieldBoostTable(tLocalBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_POPULATION", tPopulationBoosts);
+		AddTooltipSimpleYieldBoostTable(tLocalBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_POPULATION_GLOBAL", tPopulationBoostsGlobal);
+		AddTooltipSimpleYieldBoostTable(tLocalBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_CITY_STRENGTH", tCityStrengthBoosts);
+		AddTooltipSimpleYieldBoostTable(tLocalBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_PASSING_TR", tPassingTRBoosts);
+		AddTooltipSimpleYieldBoostTable(tLocalBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_THEMES", tThemeBoosts);
+		AddTooltipSimpleYieldBoostTable(tLocalBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_MONOPOLIES", tMonopolyBoosts);
+		AddTooltipSimpleYieldBoostTable(tLocalBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_FRANCHISES", tFranchiseBoosts);
+		AddTooltipSimpleYieldBoostTable(tLocalBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_RELIGION_COUNT", tReligionBoosts);
+		AddTooltipSimpleYieldBoostTable(tLocalBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_CITY_STATE_FRIENDS", tCSFriendBoosts);
+		AddTooltipSimpleYieldBoostTable(tLocalBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_CITY_STATE_ALLIES", tCSAllyBoosts);
+		AddTooltipSimpleYieldBoostTable(tLocalBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_ERA", tEraBoosts);
+		AddTooltipSimpleYieldBoostTable(tLocalBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_MOUNTAINS", tMountainBoosts);
+		AddTooltipSimpleYieldBoostTable(tLocalBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_SNOW", tSnowBoosts);
+		AddTooltipSimpleYieldFractionTable(tLocalBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_BUILDING_COUNT", tBuildingCountBoosts);
+		AddTooltipSimpleYieldFractionTable(tLocalBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_PLOT_COUNT", tPlotCountBoosts);
+		AddTooltipSimpleYieldFractionTable(tLocalBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_CITY_STATE_STRATEGIC_RESOURCES", tCSStrategicBoosts);
+		AddTooltipSimpleYieldModifierTable(tLocalBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_ERA", tEraModifierBoosts);
 		AddTooltipsYieldBoostTable(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_BUILDING", tBuildingBoosts, "Buildings");
 		AddTooltipsYieldBoostTable(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_BUILDING_GLOBAL", tBuildingBoostsGlobal, "Buildings");
-		AddTooltipsYieldBoostTable(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_WORKED_TERRAIN", tTerrainBoosts, "Terrains");
-		AddTooltipsYieldBoostTable(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_WORKED_FEATURE", tFeatureBoosts, "Features");
+		AddTooltipsYieldBoostTable(tLocalBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_WORKED_TERRAIN", tTerrainBoosts, "Terrains");
+		AddTooltipsYieldBoostTable(tLocalBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_WORKED_FEATURE", tFeatureBoosts, "Features");
 		AddTooltipsYieldBoostTable(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_TECH", tTechBoosts, "Technologies");
 		AddTooltipsYieldBoostTable(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_POLICY", tPolicyBoosts, "Policies");
 		AddTooltipsYieldBoostTable(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_POLICY_STATE_RELIGION", tPolicyBoostsStateReligion, "Policies");
 		AddTooltipsYieldBoostTable(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_BELIEF", tBeliefBoosts, "Beliefs");
 		AddTooltipsYieldBoostTable(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_CORPORATION", tCorporationBoosts, "Corporations");
 		AddTooltipsYieldBoostTable(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_TRAIT", tTraitBoosts, "Civilizations");
-		AddTooltipsYieldBoostTable(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_ACCOMPLISHMENT", tAccomplishmentBoosts, "Accomplishments");
-		AddTooltipsYieldFractionTable(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_IMPROVEMENT", tImprovementBoosts, "Improvements");
-		AddTooltipsYieldFractionTable(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_IMPROVEMENT_GLOBAL", tImprovementBoostsGlobal, "Improvements");
+		AddTooltipsYieldBoostTable(tLocalBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_ACCOMPLISHMENT", tAccomplishmentBoosts, "Accomplishments");
+		AddTooltipsYieldFractionTable(tLocalBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_IMPROVEMENT", tImprovementBoosts, "Improvements");
+		AddTooltipsYieldFractionTable(tLocalBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_IMPROVEMENT_GLOBAL", tImprovementBoostsGlobal, "Improvements");
 		AddTooltipsYieldModifierTable(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_BUILDING_GLOBAL", tBuildingModifierBoosts, "Buildings");
 		AddTooltipsYieldModifierTable(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_POLICY", tPolicyModifierBoosts, "Policies");
 
 		if next(tGABoosts) then
-			AddTooltip(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_GOLDEN_AGE_START", table.concat(tGABoosts, " "), table.concat(tGABoostCaps, " "));
+			AddTooltip(tLocalBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_GOLDEN_AGE_START", table.concat(tGABoosts, " "), table.concat(tGABoostCaps, " "));
 		end
 
 		local tBoostsFromResource = {};
@@ -3748,26 +3881,26 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 				table.insert(tBoostStrings, GetYieldBoostString(GameInfo.Yields.YIELD_FAITH, iYield));
 			end
 			if next(tBoostStrings) then
-				AddTooltip(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_LOCAL_RESOURCE",
-				kResourceInfo.Description, table.concat(tBoostStrings, " "), kResourceInfo.IconString);
+				AddTooltip(tLocalBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_LOCAL_RESOURCE",
+				kResourceInfo.IconString .. " " .. L(kResourceInfo.Description), table.concat(tBoostStrings, " "));
 			end
 
 			local iHappiness = tResourceYields.HAPPINESS or 0;
-			AddTooltipNonZeroSigned(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_HAPPINESS_FROM_LOCAL_RESOURCE",
+			AddTooltipNonZeroSigned(tLocalBoostLines, "TXT_KEY_PRODUCTION_BUILDING_HAPPINESS_FROM_LOCAL_RESOURCE",
 			iHappiness, kResourceInfo.IconString, kResourceInfo.Description);
 		end
 
-		AddTooltipsYieldModifierTable(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_LOCAL_RESOURCE", tResourceModifiers, "Resources");
+		AddTooltipsYieldModifierTable(tLocalBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_LOCAL_RESOURCE", tResourceModifiers, "Resources");
 
 		for row in GameInfo.Building_BonusFromAccomplishments{BuildingType = kBuildingInfo.Type} do
 			local kAccomplishmentInfo = GameInfo.Accomplishments[row.AccomplishmentType];
-			AddTooltipNonZeroSigned(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_HAPPINESS_FROM_ACCOMPLISHMENT", row.Happiness, kAccomplishmentInfo.Description);
+			AddTooltipNonZeroSigned(tLocalBoostLines, "TXT_KEY_PRODUCTION_BUILDING_HAPPINESS_FROM_ACCOMPLISHMENT", row.Happiness, kAccomplishmentInfo.Description);
 			if row.DomainType and row.DomainXP ~= 0 then
-				AddTooltipNonZeroSigned(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_XP_FOR_DOMAIN_FROM_ACCOMPLISHMENT", row.DomainXP,
+				AddTooltipNonZeroSigned(tLocalBoostLines, "TXT_KEY_PRODUCTION_BUILDING_XP_FOR_DOMAIN_FROM_ACCOMPLISHMENT", row.DomainXP,
 					kAccomplishmentInfo.Description, GameInfo.Domains[row.DomainType].Description);
 			end
 			if row.UnitCombatType and row.UnitProductionModifier ~= 0 then
-				AddTooltipNonZeroSigned(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_UNIT_COMBAT_PRODUCTION_MODIFIER_FROM_ACCOMPLISHMENT", row.UnitProductionModifier,
+				AddTooltipNonZeroSigned(tLocalBoostLines, "TXT_KEY_PRODUCTION_BUILDING_UNIT_COMBAT_PRODUCTION_MODIFIER_FROM_ACCOMPLISHMENT", row.UnitProductionModifier,
 				kAccomplishmentInfo.Description, GameInfo.UnitCombatInfos[row.UnitCombatType].Description);
 			end
 		end
@@ -3810,6 +3943,37 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 
 	if next(tExtraInstanceLines) then
 		table.insert(tBoostLines, table.concat(tExtraInstanceLines, "[NEWLINE]"));
+	end
+
+	do
+		local tLocalEffectStr = {};
+		if next(tLocalAbilityLines) then
+			table.insert(tLocalEffectStr, "[ICON_BULLET]" .. table.concat(tLocalAbilityLines, "[NEWLINE][ICON_BULLET]"));
+		end
+		if next(tLocalBoostLines) then
+			table.insert(tLocalEffectStr, table.concat(tLocalBoostLines, "[NEWLINE]"));
+		end
+		if next(tLocalEffectStr) then
+			table.insert(tAbilityLines, iLocalAbilityPos, table.concat(tLocalEffectStr, "[NEWLINE]"));
+		end
+	end
+
+	if next(tAbilityLines) then
+		table.insert(tLines, iAbilityInsertPos, table.concat(tAbilityLines, "[NEWLINE]"));
+	end
+
+	if bBoostedYields or bBoostedModifiers or bBoostedHappiness then
+		local tProjectedLines = {}
+		if bBoostedYields then
+			AddTooltipSimpleYieldBoostTable(tProjectedLines, "TXT_KEY_PRODUCTION_BUILDING_PROJECTED_YIELD_CHANGE", tProjectedYields);
+		end
+		if bBoostedModifiers then
+			AddTooltipSimpleYieldBoostTable(tProjectedLines, "TXT_KEY_PRODUCTION_BUILDING_PROJECTED_YIELD_MODIFIER", tProjectedModifiers);
+		end
+		if bBoostedHappiness then
+			AddTooltipNonZeroSigned(tProjectedLines, "TXT_KEY_PRODUCTION_BUILDING_PROJECTED_HAPPINESS", iHappinessTotal);
+		end
+		table.insert(tLines, table.concat(tProjectedLines, "[NEWLINE]"));
 	end
 
 	if next(tBoostLines) then
