@@ -389,7 +389,7 @@ function UpdateUnitActions( unit )
 		local thisBuild = GameInfo.Builds[buildType];
 		--print("thisBuild.Type:"..tostring(thisBuild.Type));
 		local civilianUnitStr = Locale.ConvertTextKey(thisBuild.Description);
-		local iTurnsLeft = unit:GetPlot():GetBuildTurnsLeft(buildType, Game.GetActivePlayer(),  0, 0) + 1;	
+		local iTurnsLeft = unit:GetPlot():GetBuildTurnsLeft(buildType, Game.GetActivePlayer())
 		local iTurnsTotal = unit:GetPlot():GetBuildTurnsTotal(buildType);	
 		if (iTurnsLeft < 4000 and iTurnsLeft > 0) then
 			civilianUnitStr = civilianUnitStr.." ("..tostring(iTurnsLeft)..")";
@@ -397,7 +397,7 @@ function UpdateUnitActions( unit )
 		IconHookup( thisBuild.IconIndex, 45, thisBuild.IconAtlas, Controls.WorkerProgressIcon ); 		
 		Controls.WorkerProgressLabel:SetText( civilianUnitStr );
 		Controls.WorkerProgressLabel:SetToolTipString(civilianUnitStr );
-		local percent = (iTurnsTotal - (iTurnsLeft - 1)) / iTurnsTotal;
+		local percent = (iTurnsTotal - iTurnsLeft) / iTurnsTotal;
 		Controls.WorkerProgressBar:SetPercent( percent );
 		Controls.WorkerProgressIconFrame:SetHide( false );
 		Controls.WorkerProgressFrame:SetHide( false );
@@ -1550,15 +1550,7 @@ function TipHandler( control )
 	-- Is this a Worker build?
 	if (bBuild) then
 		
-		local iExtraBuildRate = 0;
-		
-		-- Are we building anything right now?
-		local iCurrentBuildID = unit:GetBuildType();
-		if (iCurrentBuildID == -1 or iBuildID ~= iCurrentBuildID) then
-			iExtraBuildRate = unit:WorkRate(true, iBuildID);
-		end
-		
-		local iBuildTurns = pPlot:GetBuildTurnsLeft(iBuildID, Game.GetActivePlayer(), iExtraBuildRate, iExtraBuildRate);
+		local iBuildTurns = pPlot:GetBuildTurnsLeft(iBuildID, Game.GetActivePlayer());
 		--print("iBuildTurns: " .. iBuildTurns);
 		if (iBuildTurns > 1) then
 			strBuildTurnsString = " ... " .. Locale.ConvertTextKey("TXT_KEY_BUILD_NUM_TURNS", iBuildTurns);

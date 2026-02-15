@@ -3328,32 +3328,57 @@ int CvPlot::getBuildTime(BuildTypes eBuild, PlayerTypes ePlayer) const
 int CvPlot::getBuildTurnsLeft(BuildTypes eBuild, PlayerTypes ePlayer, int iNowExtra, int iThenExtra) const
 {
 	int iBuildLeft = getBuildTime(eBuild, ePlayer);
-	if(iBuildLeft == 0)
+	if (iBuildLeft == 0)
 		return 0;
 
 	int iNowBuildRate = iNowExtra;
 	int iThenBuildRate = iThenExtra;
-
+	
+	int iThenWorkRateForUnitOnPlot = 0;
+	
 	const IDInfo* pUnitNode = headUnitNode();
 	while(pUnitNode != NULL)
 	{
 		const CvUnit* pLoopUnit = GetPlayerUnit(*pUnitNode);
 		pUnitNode = nextUnitNode(pUnitNode);
 
-		if(pLoopUnit && pLoopUnit->getBuildType() == eBuild)
+		if(pLoopUnit)
 		{
-			if(pLoopUnit->canMove())
+			if(!pLoopUnit->canMove() && pLoopUnit->getBuildType() == eBuild)
 			{
 				iNowBuildRate += pLoopUnit->workRate(false);
 			}
-			iThenBuildRate += pLoopUnit->workRate(true);
+
+			int iThenWorkRate = pLoopUnit->workRate(true);
+			if (iThenWorkRate > 0)
+			{
+				iThenWorkRateForUnitOnPlot = max(iThenWorkRateForUnitOnPlot, iThenWorkRate);
+			}
 		}
 	}
+	iThenBuildRate += iThenWorkRateForUnitOnPlot;
 
 	if(iThenBuildRate == 0)
 	{
 		//this means it will take forever under current circumstances
 		return INT_MAX;
+	}
+
+	CvBuildInfo* pkBuildInfo = GC.getBuildInfo(eBuild);
+	// if this build requires a feature to be removed, take into account the current process of the feature remove build
+	
+	FeatureTypes eFeature = getFeatureType();
+	if(ePlayer != NO_PLAYER && eFeature != NO_FEATURE && pkBuildInfo->isFeatureRemove(eFeature) && pkBuildInfo->getFeatureTime(eFeature) > 0)
+	{
+		// Don't bother looking if this is the build that removes this feature
+		if (!pkBuildInfo->isFeatureRemoveOnly(eFeature))
+		{
+			BuildTypes eRemoveBuild = GetRemoveFeatureBuild(eFeature, GET_PLAYER(ePlayer).getTeam());
+			if (eRemoveBuild != NO_BUILD)
+			{
+				iBuildLeft -= getBuildProgress(eRemoveBuild);
+			}
+		}
 	}
 
 	iBuildLeft -= getBuildProgress(eBuild);
