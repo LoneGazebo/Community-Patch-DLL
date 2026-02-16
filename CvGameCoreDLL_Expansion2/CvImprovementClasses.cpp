@@ -135,6 +135,7 @@ CvImprovementEntry::CvImprovementEntry(void):
 	m_iGrantsVision(0),
 	m_iMovesChange(0),
 	m_bRestoreMoves(false),
+	m_bFreeMoveAcross(false),
 	m_bNoTwoAdjacent(false),
 	m_iXSameAdjacentMakesValid(0),
 	m_bAdjacentLuxury(false),
@@ -329,6 +330,7 @@ bool CvImprovementEntry::CacheResults(Database::Results& kResults, CvDatabaseUti
 	m_bOwnerOnly = kResults.GetBool("OwnerOnly");
 	m_iMovesChange = kResults.GetInt("MovesChange");
 	m_bRestoreMoves = kResults.GetBool("RestoreMoves");
+	m_bFreeMoveAcross = kResults.GetBool("FreeMoveAcross");
 	m_bNoTwoAdjacent = kResults.GetBool("NoTwoAdjacent");
 	m_iXSameAdjacentMakesValid = kResults.GetInt("XSameAdjacentMakesValid");
 	m_bAdjacentLuxury = kResults.GetBool("AdjacentLuxury");
@@ -1047,6 +1049,10 @@ int CvImprovementEntry::GetMovesChange() const
 bool CvImprovementEntry::IsRestoreMoves() const
 {
 	return m_bRestoreMoves;
+}
+bool CvImprovementEntry::IsFreeMoveAcross() const
+{
+	return m_bFreeMoveAcross;
 }
 int CvImprovementEntry::GetGAUnitPlotExperience() const
 {

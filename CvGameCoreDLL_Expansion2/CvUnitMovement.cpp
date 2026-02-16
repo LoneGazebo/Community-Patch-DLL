@@ -28,6 +28,11 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 		return iMoveDenominator;
 	}
 
+	if (pToPlot->IsFreeMoveAcross() && pToPlot->getOwner() == pUnit->getOwner())
+	{
+		return 0;
+	}
+
 	CvPlayerTraits* pTraits = kPlayer.GetPlayerTraits();
 
 	bool bAmphibious = pUnit ? pUnit->isRiverCrossingNoPenalty() : false;
