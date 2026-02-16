@@ -1488,7 +1488,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 		end
 	end
 
-	--- Given a database table with BuildingType, <X>Type, YieldType, Yield and NumRequired, extract all entries of the given building/yield pair.
+	--- Given a database table with BuildingType, YieldType, Yield and NumRequired, extract all entries of the given building/yield pair.
 	--- Duplicate rows are overwritten.
 	--- @param tYieldFractionTable table<integer, table<string, integer>?> The yield table, could be empty or partially filled. Each entry is a table with Numerator and Denominator keys.
 	--- @param strDatabaseTable string The name of the database table to be extracted
@@ -3590,6 +3590,14 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 				tReligionBoosts[eYield] = row.Yield / 100;
 			end
 
+			for row in GameInfo.Building_YieldPerFriendTimes100{BuildingType = kBuildingInfo.Type, YieldType = kYieldInfo.Type} do
+				tCSFriendBoosts[eYield] = row.Yield / 100;
+			end
+			
+			for row in GameInfo.Building_YieldPerAllyTimes100{BuildingType = kBuildingInfo.Type, YieldType = kYieldInfo.Type} do
+				tCSAllyBoosts[eYield] = row.Yield / 100;
+			end
+			
 			local iGAYield = 0;
 			local iGAYieldCap = 0;
 			for row in GameInfo.Building_YieldChangesPerGoldenAge{BuildingType = kBuildingInfo.Type, YieldType = kYieldInfo.Type} do
@@ -3625,8 +3633,6 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 			ExtractSimpleYieldTable(tThemeBoosts, "Building_YieldChangesPerLocalTheme", kYieldInfo);
 			ExtractSimpleYieldTable(tMonopolyBoosts, "Building_YieldChangesPerMonopoly", kYieldInfo);
 			ExtractSimpleYieldTable(tFranchiseBoosts, "Building_YieldPerFranchise", kYieldInfo);
-			ExtractSimpleYieldTable(tCSFriendBoosts, "Building_YieldPerFriend", kYieldInfo);
-			ExtractSimpleYieldTable(tCSAllyBoosts, "Building_YieldPerAlly", kYieldInfo);
 		end
 
 		-- Special case for the TechEnhancedTourism column
