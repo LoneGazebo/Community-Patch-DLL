@@ -494,7 +494,7 @@ CvUnit::CvUnit() :
 	, m_yieldFromKills()
 	, m_yieldFromBarbarianKills()
 	, m_aiNumTimesAttackedThisTurn()
-	, m_yieldFromScouting()
+	, m_yieldFromScoutingTimes100()
 	, m_piYieldFromAncientRuins()
 	, m_piYieldFromTRPlunder()
 	, m_iBuilderStrength()
@@ -1668,13 +1668,13 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 		m_yieldFromBarbarianKills.clear();
 		m_aiNumTimesAttackedThisTurn.clear();
 		m_aiNumTimesAttackedThisTurn.resize(REALLY_MAX_PLAYERS);
-		m_yieldFromScouting.clear();
+		m_yieldFromScoutingTimes100.clear();
 		m_piYieldFromAncientRuins.clear();
 		m_piYieldFromTRPlunder.clear();
 		
 		m_yieldFromKills.resize(NUM_YIELD_TYPES);
 		m_yieldFromBarbarianKills.resize(NUM_YIELD_TYPES);
-		m_yieldFromScouting.resize(NUM_YIELD_TYPES);
+		m_yieldFromScoutingTimes100.resize(NUM_YIELD_TYPES);
 		m_piYieldFromAncientRuins.resize(NUM_YIELD_TYPES);
 		m_piYieldFromTRPlunder.resize(NUM_YIELD_TYPES);
 
@@ -1682,7 +1682,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 		{
 			m_yieldFromKills[i] = 0;
 			m_yieldFromBarbarianKills[i] = 0;
-			m_yieldFromScouting[i] = 0;
+			m_yieldFromScoutingTimes100[i] = 0;
 			m_piYieldFromAncientRuins[i] = 0;
 			m_piYieldFromTRPlunder[i] = 0;
 		}
@@ -1824,7 +1824,7 @@ void CvUnit::uninitInfos()
 	m_iCombatModPerAdjacentUnitCombatDefenseMod.clear();
 	m_yieldFromKills.clear();
 	m_yieldFromBarbarianKills.clear();
-	m_yieldFromScouting.clear();
+	m_yieldFromScoutingTimes100.clear();
 	m_piYieldFromAncientRuins.clear();
 	m_piYieldFromTRPlunder.clear();
 	m_extraUnitCombatModifier.clear();
@@ -18469,12 +18469,12 @@ void CvUnit::SetSpottedRuin(bool bValue)
 }
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::IsGainsYieldFromScouting() const
+bool CvUnit::IsGainsYieldFromScoutingTimes100() const
 {
 	VALIDATE_OBJECT();
 	for (int iI = 0; iI < YIELD_GREAT_ADMIRAL_POINTS; iI++)
 	{
-		if (getYieldFromScouting((YieldTypes)iI) > 0)
+		if (getYieldFromScoutingTimes100((YieldTypes)iI) > 0)
 		{
 			return true;
 		}
@@ -20368,7 +20368,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 		{
 			changeExperienceTimes100(GetNumTilesRevealedThisTurn() * 100 / /*10*/ GD_INT_GET(BALANCE_SCOUT_XP_DENOMINATOR));
 		}
-		if (IsGainsYieldFromScouting())
+		if (IsGainsYieldFromScoutingTimes100())
 		{
 			bool bSea = (getDomainType() == DOMAIN_SEA);
 			CvCity* pCity = GC.getMap().findCity(getX(), getY(), getOwner(), getTeam());
@@ -26739,17 +26739,17 @@ void CvUnit::changeCombatModPerAdjacentUnitCombatDefenseMod(UnitCombatTypes eInd
 }
 
 //	--------------------------------------------------------------------------------
-int CvUnit::getYieldFromScouting(YieldTypes eIndex) const
+int CvUnit::getYieldFromScoutingTimes100(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT();
 	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
-	return m_yieldFromScouting[eIndex];
+	return m_yieldFromScoutingTimes100[eIndex];
 }
 
 
 //	--------------------------------------------------------------------------------
-void CvUnit::changeYieldFromScouting(YieldTypes eIndex, int iChange)
+void CvUnit::changeYieldFromScoutingTimes100(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT();
 	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
@@ -26757,7 +26757,7 @@ void CvUnit::changeYieldFromScouting(YieldTypes eIndex, int iChange)
 
 	if(iChange != 0)
 	{
-		m_yieldFromScouting[eIndex] =  m_yieldFromScouting[eIndex] + iChange;
+		m_yieldFromScoutingTimes100[eIndex] =  m_yieldFromScoutingTimes100[eIndex] + iChange;
 	}
 }
 //	--------------------------------------------------------------------------------
@@ -27852,7 +27852,7 @@ void CvUnit::setPromotionActive(PromotionTypes eIndex, bool bNewValue)
 		SetFortificationYieldChange(eYield, (thisPromotion.GetFortificationYield(iI) * iChange));
 		changeYieldFromKills(eYield, (thisPromotion.GetYieldFromKills(iI) * iChange));
 		changeYieldFromBarbarianKills(eYield, (thisPromotion.GetYieldFromBarbarianKills(iI) * iChange));
-		changeYieldFromScouting(eYield, (thisPromotion.GetYieldFromScouting(iI) * iChange));
+		changeYieldFromScoutingTimes100(eYield, (thisPromotion.GetYieldFromScoutingTimes100(iI) * iChange));
 		changeYieldFromAncientRuins(eYield, (thisPromotion.GetYieldFromAncientRuins(iI) * iChange));
 		changeYieldFromTRPlunder(eYield, (thisPromotion.GetYieldFromTRPlunder(iI) * iChange));
 		{
@@ -28473,7 +28473,7 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_extraUnitClassAttackMod);
 	visitor(unit.m_extraUnitClassDefenseMod);
 	visitor(unit.m_aiNumTimesAttackedThisTurn);
-	visitor(unit.m_yieldFromScouting);
+	visitor(unit.m_yieldFromScoutingTimes100);
 	visitor(unit.m_piYieldFromAncientRuins);
 	visitor(unit.m_piYieldFromTRPlunder);
 	visitor(unit.m_yieldFromKills);

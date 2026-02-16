@@ -26252,7 +26252,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					{
 						continue;
 					}
-					iValue += pUnit->getYieldFromScouting(eYield) * iPassYield;
+					iValue += pUnit->getYieldFromScoutingTimes100(eYield) * iPassYield / 100;
 					break;
 				}
 				case INSTANT_YIELD_TYPE_ANCIENT_RUIN:

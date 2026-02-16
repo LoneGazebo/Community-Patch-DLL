@@ -12100,7 +12100,7 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, CvUnit* pUnit, bool bT
 
 		if(bNewValue)
 		{
-			if (pUnit && (pUnit->IsGainsXPFromScouting() || pUnit->IsGainsYieldFromScouting()) && !GET_TEAM(eTeam).isBarbarian() && !GET_TEAM(eTeam).isMinorCiv())
+			if (pUnit && (pUnit->IsGainsXPFromScouting() || pUnit->IsGainsYieldFromScoutingTimes100()) && !GET_TEAM(eTeam).isBarbarian() && !GET_TEAM(eTeam).isMinorCiv())
 			{
 				if (IsNaturalWonder())
 				{
