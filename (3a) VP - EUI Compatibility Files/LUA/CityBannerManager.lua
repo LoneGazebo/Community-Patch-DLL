@@ -850,7 +850,7 @@ local function OnBannerClick( plotIndex )
 					local x, y = plot:GetX(), plot:GetY()
 					for _, spy in ipairs( g_activePlayer:GetEspionageSpies() ) do
 						if spy.CityX == x and spy.CityY == y then
-							hasSpy = spy.EstablishedSurveillance
+							hasSpy = spy.RevealCityScreen
 							break
 						end
 					end
