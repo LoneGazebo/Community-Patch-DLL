@@ -33538,6 +33538,11 @@ void CvPlayer::CheckForMurder(PlayerTypes ePossibleVictimPlayer)
 				kPossibleVictimPlayer.GetDiplomacyAI()->DoKilledByPlayer(GetID());
 			}
 		}
+		else if (kPossibleVictimPlayer.isMinorCiv())
+		{
+			// Killing a city state gives war victory bonuses to the civ that eliminated them
+			DoWarVictoryBonuses();
+		}
 	}
 }
 
