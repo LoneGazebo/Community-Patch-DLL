@@ -85,25 +85,25 @@ ALTER TABLE UnitPromotions ADD NearbyRange integer DEFAULT 0;
 -- Set the Domain that Gets the Bonus
 ALTER TABLE UnitPromotions ADD GiveDomain text REFERENCES Domains (Type);
 
--- Unit gives additional combat strength to nearby units? Requires IsNearbyPromotion, NearbyRange, and GiveDomain Set on this Promotion.
+-- Unit gives additional combat strength to nearby units? Requires CustomModOption API_AREA_EFFECT_PROMOTIONS set to 1 and IsNearbyPromotion, NearbyRange, and GiveDomain set on this Promotion.
 ALTER TABLE UnitPromotions ADD GiveCombatMod integer DEFAULT 0;
 
--- Unit Gives HP to additional units if they kill an enemy units? Requires IsNearbyPromotion, NearbyRange, and GiveDomain Set on this Promotion.
+-- Unit Gives HP to additional units if they kill an enemy units? Requires CustomModOption API_AREA_EFFECT_PROMOTIONS set to 1 and IsNearbyPromotion, NearbyRange, and GiveDomain Set on this Promotion.
 ALTER TABLE UnitPromotions ADD GiveHPHealedIfEnemyKilled integer DEFAULT 0;
 
--- Unit Gives additional XP in combat to nearby units? Requires IsNearbyPromotion, NearbyRange, and GiveDomain Set on this Promotion.
+-- Unit Gives additional XP in combat to nearby units? Requires CustomModOption API_AREA_EFFECT_PROMOTIONS set to 1 and IsNearbyPromotion, NearbyRange, and GiveDomain set on this Promotion.
 ALTER TABLE UnitPromotions ADD GiveExperiencePercent integer DEFAULT 0;
 
--- Unit Gives a bonus to outside friendly lands unis? Requires IsNearbyPromotion, NearbyRange, and GiveDomain Set on this Promotion.
+-- Unit Gives a bonus to outside friendly lands unis? Requires CustomModOption API_AREA_EFFECT_PROMOTIONS set to 1 and IsNearbyPromotion, NearbyRange, and GiveDomain set on this Promotion.
 ALTER TABLE UnitPromotions ADD GiveOutsideFriendlyLandsModifier integer DEFAULT 0;
 
--- Unit Gives extra attacks to nearby units? Requires IsNearbyPromotion, NearbyRange, and GiveDomain Set on this Promotion.
+-- Unit Gives extra attacks to nearby units? Requires CustomModOption API_AREA_EFFECT_PROMOTIONS set to 1 and IsNearbyPromotion, NearbyRange, and GiveDomain set on this Promotion.
 ALTER TABLE UnitPromotions ADD GiveExtraAttacks integer DEFAULT 0;
 
--- Unit Gives extra defense to nearby units? Requires IsNearbyPromotion, NearbyRange, and GiveDomain Set on this Promotion.
+-- Unit Gives extra defense to nearby units? Requires CustomModOption API_AREA_EFFECT_PROMOTIONS set to 1 and IsNearbyPromotion, NearbyRange, and GiveDomain set on this Promotion.
 ALTER TABLE UnitPromotions ADD GiveDefenseMod integer DEFAULT 0;
 
--- Unit gives Invisibility to another Unit? Requires IsNearbyPromotion, NearbyRange, and GiveDomain Set on this Promotion.
+-- Unit gives Invisibility to another Unit? Requires CustomModOption API_AREA_EFFECT_PROMOTIONS set to 1 and IsNearbyPromotion, NearbyRange, and GiveDomain set on this Promotion.
 ALTER TABLE UnitPromotions ADD GiveInvisibility boolean DEFAULT 0;
 
 -- Unit only gives these effects at the start of the turn (works for GiveExperiencePercent, GiveCombatMod, GiveDefenseMod, GiveInvisibility, GiveOutsideFriendlyLandsModifier, GiveHPHealedIfEnemyKilled, GiveExtraAttacks)

@@ -198,6 +198,11 @@ CvUnitEntry::~CvUnitEntry(void)
 	SAFE_DELETE_ARRAY(m_piResourceQuantityExpended);
 	SAFE_DELETE_ARRAY(m_piProductionTraits);
 	SAFE_DELETE_ARRAY(m_piFlavorValue);
+	SAFE_DELETE_ARRAY(m_piProductionModifierBuildings);
+	SAFE_DELETE_ARRAY(m_piYieldOnBountyToKiller);
+	SAFE_DELETE_ARRAY(m_piYieldFromKills);
+	SAFE_DELETE_ARRAY(m_piYieldFromBarbarianKills);
+	SAFE_DELETE_ARRAY(m_piYieldOnCompletion);
 	SAFE_DELETE_ARRAY(m_pbFreePromotions);
 	SAFE_DELETE_ARRAY(m_paszEarlyArtDefineTags);
 	SAFE_DELETE_ARRAY(m_paszLateArtDefineTags);

@@ -571,12 +571,18 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 
 	//--------------------------------
 	// Init other game data
-	CvString strNewCityName = kOwner.getNewCityName();
-	setName(strNewCityName.c_str());
-
-	if (MOD_ENABLE_ACHIEVEMENTS && strcmp(strNewCityName.c_str(), "TXT_KEY_CITY_NAME_LLANFAIRPWLLGWYNGYLL") == 0)
+	if (szName)
 	{
-		gDLL->UnlockAchievement(ACHIEVEMENT_XP1_34);
+		setName(szName);
+	}
+	else
+	{
+		CvString strNewCityName = kOwner.getNewCityName();
+		setName(strNewCityName.c_str());
+		if (MOD_ENABLE_ACHIEVEMENTS && strcmp(strNewCityName.c_str(), "TXT_KEY_CITY_NAME_LLANFAIRPWLLGWYNGYLL") == 0)
+		{
+			gDLL->UnlockAchievement(ACHIEVEMENT_XP1_34);
+		}
 	}
 
 	if (bInitialFounding)
@@ -746,12 +752,6 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	// Free population from things (e.g. Policies)
 	changePopulation(kOwner.GetNewCityExtraPopulation(), true, true);
 
-	// We do this here as changePopulation() sends a game event we may have caught to do funky renaming things
-	if (szName) 
-	{
-		setName(szName);
-	}
-
 	// Free food from things (e.g. Policies)
 	int iFreeFood = growthThreshold() * kOwner.GetFreeFoodBox();
 	changeFoodTimes100(iFreeFood);
@@ -803,15 +803,9 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 			// Free Culture-per-turn in every City from Policies
 			ChangeBaseYieldRateFromPolicies(YIELD_CULTURE, GC.getPolicyInfo(ePolicy)->GetCulturePerCity());
 			// Yield from training units
-			for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+			for (int iI = 0; iI < GC.getNUM_YIELD_TYPES(); iI++)
 			{
 				YieldTypes eYield = (YieldTypes)iI;
-				if (eYield == NO_YIELD)
-					continue;
-
-				//Simplification - errata yields not worth considering.
-				if ((YieldTypes)iI > YIELD_CULTURE_LOCAL && !MOD_BALANCE_CORE_JFD)
-					break;
 			
 				ChangeYieldFromUnitProduction(eYield, GC.getPolicyInfo(ePolicy)->GetYieldFromUnitProduction(eYield));
 			}
@@ -911,22 +905,23 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	// Spread a pantheon here if one is active
 	CvPlayerReligions* pReligions = kOwner.GetReligions();
 	CvCity* pCapital = kOwner.getCapitalCity();
-	if (kOwner.GetPlayerTraits()->IsNewCitiesStartWithCapitalReligion() && pCapital && pCapital->GetCityReligions()->GetMajorityReligion())
-	{
-		const CvReligion* pCapitalReligion = pCapital->GetCityReligions()->GetMajorityReligion();
-		int iInitialPressure = /*1000*/ GD_INT_GET(RELIGION_ATHEISM_PRESSURE_PER_POP) * getPopulation() * 2;
-		GetCityReligions()->AddReligiousPressure(FOLLOWER_CHANGE_POP_CHANGE, pCapitalReligion->m_eReligion, iInitialPressure);
-		GetCityReligions()->RecomputeFollowers(FOLLOWER_CHANGE_POP_CHANGE);
-	}
-	else if (pReligions->HasCreatedPantheon() && !pReligions->OwnsReligion())
-	{
-		int iInitialPressure = /*1000*/ GD_INT_GET(RELIGION_ATHEISM_PRESSURE_PER_POP) * getPopulation() * 2;
-		GetCityReligions()->AddReligiousPressure(FOLLOWER_CHANGE_POP_CHANGE, RELIGION_PANTHEON, iInitialPressure);
-		GetCityReligions()->RecomputeFollowers(FOLLOWER_CHANGE_POP_CHANGE);
-	}
 
-	if (bInitialFounding) 
+	if (bInitialFounding)
 	{
+		if (kOwner.GetPlayerTraits()->IsNewCitiesStartWithCapitalReligion() && pCapital && pCapital->GetCityReligions()->GetMajorityReligion())
+		{
+			const CvReligion* pCapitalReligion = pCapital->GetCityReligions()->GetMajorityReligion();
+			int iInitialPressure = /*1000*/ GD_INT_GET(RELIGION_ATHEISM_PRESSURE_PER_POP) * getPopulation() * 2;
+			GetCityReligions()->AddReligiousPressure(FOLLOWER_CHANGE_POP_CHANGE, pCapitalReligion->m_eReligion, iInitialPressure);
+			GetCityReligions()->RecomputeFollowers(FOLLOWER_CHANGE_POP_CHANGE);
+		}
+		else if (pReligions->HasCreatedPantheon() && !pReligions->OwnsReligion())
+		{
+			int iInitialPressure = /*1000*/ GD_INT_GET(RELIGION_ATHEISM_PRESSURE_PER_POP) * getPopulation() * 2;
+			GetCityReligions()->AddReligiousPressure(FOLLOWER_CHANGE_POP_CHANGE, RELIGION_PANTHEON, iInitialPressure);
+			GetCityReligions()->RecomputeFollowers(FOLLOWER_CHANGE_POP_CHANGE);
+		}
+
 		if (eInitialReligion != NO_RELIGION) 
 		{
 			// Spread an initial religion here if one was given
@@ -2062,8 +2057,7 @@ void CvCity::PreKill()
 	for (int iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
 	{
 		CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
-		if (!pLoopPlot)
-			continue;
+		ASSERT(pLoopPlot != NULL, "plotByIndexUnchecked returned null - invalid plot index");
 		
 		//give up all plots owned by this city
 		if (pLoopPlot->getOwningCityID() == GetID())
@@ -4580,6 +4574,25 @@ bool CvCity::IsCityEventChoiceValid(CityEventChoiceTypes eChosenEventChoice, Cit
 	if (pkEventInfo->isLosingMoney() && kPlayer.GetTreasury()->CalculateBaseNetGold() > 0)
 		return false;
 
+	// Check if player has enough resources to consume
+	for (int iI = 0; iI < GC.getNumResourceInfos(); iI++)
+	{
+		ResourceTypes eResource = (ResourceTypes)iI;
+		if (eResource != NO_RESOURCE)
+		{
+			int iResourceChange = pkEventInfo->getEventResourceChange(eResource);
+			if (iResourceChange < 0)
+			{
+				int iResourcesNeeded = -iResourceChange;
+				int iResourcesAvailable = kPlayer.getNumResourceAvailable(eResource, false);
+				if (iResourcesAvailable < iResourcesNeeded)
+				{
+					return false;
+				}
+			}
+		}
+	}
+
 	return true;
 }
 
@@ -4847,7 +4860,7 @@ void CvCity::DoCancelEventChoice(CityEventChoiceTypes eChosenEventChoice)
 					iBonus *= -1;
 					if (iBonus != 0)
 					{
-						GET_PLAYER(getOwner()).changeNumResourceTotal(eResource, iBonus * -1, true);
+						GET_PLAYER(getOwner()).changeNumResourceTotal(eResource, iBonus * -1, false, true, true);
 					}
 				}
 			}
@@ -6278,6 +6291,28 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice, int
 		}
 	}
 
+	// Check if player has enough resources to consume
+	for (int iI = 0; iI < GC.getNumResourceInfos(); iI++)
+	{
+		ResourceTypes eResource = (ResourceTypes)iI;
+		if (eResource != NO_RESOURCE)
+		{
+			int iResourceChange = pkEventInfo->getEventResourceChange(eResource);
+			if (iResourceChange < 0)
+			{
+				int iResourcesNeeded = -iResourceChange;
+				int iResourcesAvailable = kPlayer.getNumResourceAvailable(eResource, false);
+				if (iResourcesAvailable < iResourcesNeeded)
+				{
+					localizedDurationText = Localization::Lookup("TXT_KEY_NEED_RESOURCE_AMOUNT");
+					localizedDurationText << iResourcesNeeded;
+					localizedDurationText << GC.getResourceInfo(eResource)->GetDescription();
+					DisabledTT += localizedDurationText.toUTF8();
+				}
+			}
+		}
+	}
+
 	//Check our minimum yields - this looks at stored values, not yields per turn.
 	bool bHas = true;
 	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
@@ -6663,7 +6698,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 					int iBonus = pkEventChoiceInfo->getEventResourceChange(eResource);
 					if (iBonus != 0)
 					{
-						GET_PLAYER(getOwner()).changeNumResourceTotal(eResource, iBonus, true);
+						GET_PLAYER(getOwner()).changeNumResourceTotal(eResource, iBonus, false, true, true);
 					}
 				}
 			}
@@ -7575,7 +7610,7 @@ int CvCity::maxXPValue() const
 		iMaxValue = std::min(iMaxValue, /*-1 in CP, 70 in VP*/ GD_INT_GET(MINOR_MAX_XP_VALUE));
 	}
 
-	if (iMaxValue > 0)
+	if (iMaxValue > 0 && iMaxValue != MAX_INT)
 	{
 		iMaxValue *= GC.getGame().getGameSpeedInfo().getExperiencePercent();
 		iMaxValue /= 100;
@@ -10082,6 +10117,9 @@ int CvCity::GetNumHiddenBuildings() const
 
 void CvCity::SetBuildingHidden(BuildingTypes eBuilding)
 {
+	PRECONDITION(eBuilding >= 0, "eBuilding expected to be >= 0");
+	PRECONDITION(eBuilding < GC.getNumBuildingInfos(), "eBuilding expected to be < GC.getNumBuildingInfos()");
+
 	if (!IsBuildingHidden(eBuilding))
 	{
 		m_inumHiddenBuildings++;
@@ -10099,6 +10137,9 @@ void CvCity::ClearHiddenBuildings()
 
 bool CvCity::IsBuildingHidden(BuildingTypes eBuilding) const
 {
+	PRECONDITION(eBuilding >= 0, "eBuilding expected to be >= 0");
+	PRECONDITION(eBuilding < GC.getNumBuildingInfos(), "eBuilding expected to be < GC.getNumBuildingInfos()");
+
 	return m_abIsBuildingHidden[eBuilding];
 }
 
@@ -12201,11 +12242,11 @@ int CvCity::GetPurchaseCost(BuildingTypes eBuilding)
 			iCost /= 100;
 		}
 	}
-	// Decrease final cost by 40% if we're investing in the building instead of buying it
+	// Gold cost is calculated as HURRY_GOLD_BUILDING_COST_PERCENT% of Production Cost if we're investing in the building instead of buying it
 	if (MOD_BALANCE_BUILDING_INVESTMENTS)
 	{
-		iCost *= 6;
-		iCost /= 10;
+		iCost *= GD_INT_GET(HURRY_GOLD_BUILDING_COST_PERCENT);
+		iCost /= 100;
 	}
 
 	// Make the number not be funky
@@ -12880,7 +12921,7 @@ int CvCity::getProductionModifier(UnitTypes eUnit, CvString* toolTipSink, bool b
 			if (iTempMod != 0)
 			{
 				iMultiplier += iTempMod;
-				if (toolTipSink && iTempMod)
+				if (toolTipSink)
 				{
 					GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_MILITARY_UNITPROMOTION", iTempMod);
 				}
@@ -13079,7 +13120,7 @@ int CvCity::getProductionModifier(BuildingTypes eBuilding, CvString* toolTipSink
 			if (iTempMod != 0)
 			{
 				iMultiplier += iTempMod;
-				if (toolTipSink && iTempMod)
+				if (toolTipSink)
 				{
 					GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_WONDER_UNITPROMOTION", iTempMod);
 				}
@@ -13119,7 +13160,7 @@ int CvCity::getProductionModifier(BuildingTypes eBuilding, CvString* toolTipSink
 	if (iTempMod != 0)
 	{
 		iMultiplier += iTempMod;
-		if (toolTipSink && iTempMod)
+		if (toolTipSink)
 		{
 			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_BUILDING_POLICY", iTempMod);
 		}
@@ -13130,7 +13171,7 @@ int CvCity::getProductionModifier(BuildingTypes eBuilding, CvString* toolTipSink
 	if (iTempMod != 0)
 	{
 		iMultiplier += iTempMod;
-		if (toolTipSink && iTempMod)
+		if (toolTipSink)
 		{
 			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_CAPITAL_BUILDING_TRAIT", iTempMod);
 		}
@@ -13238,7 +13279,7 @@ int CvCity::getProductionModifier(BuildingTypes eBuilding, CvString* toolTipSink
 			if (iTempMod != 0)
 			{
 				iMultiplier += iTempMod;
-				if (toolTipSink && iTempMod)
+				if (toolTipSink)
 				{
 					GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_WONDER_TO_BUILDING_FROM_UNIT_TRAIT", iTempMod);
 				}
@@ -13614,10 +13655,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			{
 				if (pkCorporationInfo->GetHeadquartersBuildingClass() == eBuildingClass)
 				{
-					if (iChange > 0)
-					{
-						GC.getGame().GetGameCorporations()->FoundCorporation(getOwner(), eCorporation, this);
-					}
+					GC.getGame().GetGameCorporations()->FoundCorporation(getOwner(), eCorporation, this);
 				}
 			}
 
@@ -13750,7 +13788,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 					ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
 					int iQuantity = kPlayer.GetPlayerTraits()->GetNumFreeResourceOnWorldWonderCompletion(eResourceLoop);
 					if (iQuantity > 0)
-						kPlayer.SpawnResourceInOwnedLands(eResourceLoop, iQuantity);
+						kPlayer.SpawnResourceInVicinity(this, eResourceLoop, iQuantity, /*bSarcophagus*/ false);
 				}
 			}
 			if (pBuildingInfo->GrantsRandomResourceTerritory() > 0)
@@ -13839,21 +13877,18 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 				}
 			}
 
-			if (iChange > 0)
+			if (!IsBuildingConstructed(eBuildingClass))
 			{
-				if (!IsBuildingConstructed(eBuildingClass))
+				SetBuildingConstructed(eBuildingClass, true);
+				GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_INSTANT, false, NO_GREATPERSON, eBuilding, 0, false, NO_PLAYER, NULL, false, this);
+				
+				if (pBuildingInfo->GetInstantReligionPressure() > 0) 
 				{
-					SetBuildingConstructed(eBuildingClass, true);
-					GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_INSTANT, false, NO_GREATPERSON, eBuilding, 0, false, NO_PLAYER, NULL, false, this);
-					
-					if (pBuildingInfo->GetInstantReligionPressure() > 0) 
+					ReligionTypes eReligion = GET_PLAYER(getOwner()).getCapitalCity()->GetCityReligions()->GetReligiousMajority();
+					if (eReligion > RELIGION_PANTHEON)
 					{
-						ReligionTypes eReligion = GET_PLAYER(getOwner()).getCapitalCity()->GetCityReligions()->GetReligiousMajority();
-						if (eReligion > RELIGION_PANTHEON)
-						{
-							GetCityReligions()->AddReligiousPressure(FOLLOWER_CHANGE_INSTANT_YIELD, eReligion, pBuildingInfo->GetInstantReligionPressure());
-							GetCityReligions()->RecomputeFollowers(FOLLOWER_CHANGE_INSTANT_YIELD);
-						}
+						GetCityReligions()->AddReligiousPressure(FOLLOWER_CHANGE_INSTANT_YIELD, eReligion, pBuildingInfo->GetInstantReligionPressure());
+						GetCityReligions()->RecomputeFollowers(FOLLOWER_CHANGE_INSTANT_YIELD);
 					}
 				}
 			}
@@ -15344,7 +15379,7 @@ int CvCity::GetCultureFromSpecialist(SpecialistTypes eSpecialist) const
 		return 0;
 	}
 
-	int iCulture = pkSpecialistInfo->getCulturePerTurn() + GET_PLAYER(getOwner()).getSpecialistExtraYield(YIELD_CULTURE);
+	int iCulture = pkSpecialistInfo->getCulturePerTurn();
 	return iCulture;
 }
 
@@ -15694,10 +15729,14 @@ bool CvCity::IsTraded(PlayerTypes ePlayer)
 void CvCity::SetIgnoredForExpansionBickering(PlayerTypes ePlayer, bool bValue)
 {
 	VALIDATE_OBJECT();
+	PRECONDITION(ePlayer >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "eIndex expected to be < MAX_PLAYERS");
 	m_abIgnoredForExpansionBickering[ePlayer] = bValue;
 }
 bool CvCity::IsIgnoredForExpansionBickering(PlayerTypes ePlayer) const
 {
+	PRECONDITION(ePlayer >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "eIndex expected to be < MAX_PLAYERS");
 	return m_abIgnoredForExpansionBickering[ePlayer];
 }
 
@@ -17119,8 +17158,7 @@ int CvCity::GetImprovementGreatPersonRateModifier() const
 	for (std::vector<int>::const_iterator it = aWorkedPlots.begin(); it != aWorkedPlots.end(); ++it)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(*it);
-		if (!pPlot)
-			continue;
+		ASSERT(pPlot != NULL, "plotByIndexUnchecked returned null - invalid plot index");
 
 		if (pPlot->IsImprovementPillaged())
 			continue;
@@ -17146,35 +17184,39 @@ int CvCity::GetReligionGreatPersonRateModifier(GreatPersonTypes eGreatPerson) co
 
 	if (GET_PLAYER(getOwner()).getGoldenAgeTurns() > 0)
 	{
-		ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
-		BeliefTypes eSecondaryPantheon = NO_BELIEF;
-		if (eMajority != NO_RELIGION)
+		ReligionTypes eOwnerReligion = GET_PLAYER(getOwner()).GetReligions()->GetOwnedReligion();
+		if (eOwnerReligion != NO_RELIGION && GetCityReligions()->IsHolyCityForReligion(eOwnerReligion))
 		{
-			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
-			if (pReligion)
+			ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
+			BeliefTypes eSecondaryPantheon = NO_BELIEF;
+			if (eMajority != NO_RELIGION)
 			{
-				iResult += pReligion->m_Beliefs.GetGoldenAgeGreatPersonRateModifier(eGreatPerson, getOwner(), this);
-				eSecondaryPantheon = GetCityReligions()->GetSecondaryReligionPantheonBelief();
-				if (eSecondaryPantheon != NO_BELIEF)
+				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
+				if (pReligion)
 				{
-					iResult += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
+					iResult += pReligion->m_Beliefs.GetGoldenAgeGreatPersonRateModifier(eGreatPerson, getOwner(), this);
+					eSecondaryPantheon = GetCityReligions()->GetSecondaryReligionPantheonBelief();
+					if (eSecondaryPantheon != NO_BELIEF)
+					{
+						iResult += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
+					}
 				}
 			}
-		}
 
-		// Mod for civs keeping their pantheon belief forever
-		if (MOD_BALANCE_PERMANENT_PANTHEONS)
-		{
-			if (GC.getGame().GetGameReligions()->HasCreatedPantheon(getOwner()))
+			// Mod for civs keeping their pantheon belief forever
+			if (MOD_BALANCE_PERMANENT_PANTHEONS)
 			{
-				const CvReligion* pPantheon = GC.getGame().GetGameReligions()->GetReligion(RELIGION_PANTHEON, getOwner());
-				BeliefTypes ePantheonBelief = GC.getGame().GetGameReligions()->GetBeliefInPantheon(getOwner());
-				if (pPantheon != NULL && ePantheonBelief != NO_BELIEF && ePantheonBelief != eSecondaryPantheon)
+				if (GC.getGame().GetGameReligions()->HasCreatedPantheon(getOwner()))
 				{
-					const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
-					if (pReligion == NULL || !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, getOwner())) // check that the our religion does not have our belief, to prevent double counting
+					const CvReligion* pPantheon = GC.getGame().GetGameReligions()->GetReligion(RELIGION_PANTHEON, getOwner());
+					BeliefTypes ePantheonBelief = GC.getGame().GetGameReligions()->GetBeliefInPantheon(getOwner());
+					if (pPantheon != NULL && ePantheonBelief != NO_BELIEF && ePantheonBelief != eSecondaryPantheon)
 					{
-						iResult += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
+						const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
+						if (pReligion == NULL || !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, getOwner())) // check that the our religion does not have our belief, to prevent double counting
+						{
+							iResult += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
+						}
 					}
 				}
 			}
@@ -21276,8 +21318,11 @@ int CvCity::GetDistressRaw(bool bForceRecalc, int iAssumedExtraYieldRate) const
 	int iTotalYield = getFoodPerTurnBeforeConsumptionTimes100() + getYieldRateTimes100(YIELD_PRODUCTION, false, false, !bForceRecalc) + iAssumedExtraYieldRate;
 
 	// Second, calculate the median (with need modifiers)
-	float fMedianYieldPerPop = 0.00f;
-	fMedianYieldPerPop += GetBasicNeedsMedian(bForceRecalc, 0);
+	float fMedianYieldPerPop = GetBasicNeedsMedian(bForceRecalc, 0);
+
+	// Avoid division by zero which produces NaN
+	if (fMedianYieldPerPop <= 0.0f)
+		return 0;
 
 	// Unhappiness = Population - (Total Yield / Modified Median)
 	int iPopulation = bForceRecalc ? getPopulation() + 1 : getPopulation();
@@ -21323,8 +21368,11 @@ int CvCity::GetPovertyRaw(bool bForceRecalc, int iAssumedExtraYieldRate) const
 	int iTotalYield = getYieldRateTimes100(YIELD_GOLD, false, false, !bForceRecalc) + iAssumedExtraYieldRate;
 
 	// Second, calculate the median (with need modifiers)
-	float fMedianYieldPerPop = 0.00f;
-	fMedianYieldPerPop += GetGoldMedian(bForceRecalc, 0);
+	float fMedianYieldPerPop = GetGoldMedian(bForceRecalc, 0);
+
+	// Avoid division by zero which produces NaN
+	if (fMedianYieldPerPop <= 0.0f)
+		return 0;
 
 	// Unhappiness = Population - (Total Yield / Modified Median)
 	int iPopulation = bForceRecalc ? getPopulation() + 1 : getPopulation();
@@ -21370,8 +21418,11 @@ int CvCity::GetIlliteracyRaw(bool bForceRecalc, int iAssumedExtraYieldRate) cons
 	int iTotalYield = getYieldRateTimes100(YIELD_SCIENCE, false, false, !bForceRecalc) + iAssumedExtraYieldRate;
 
 	// Second, calculate the median (with need modifiers)
-	float fMedianYieldPerPop = 0.00f;
-	fMedianYieldPerPop += GetScienceMedian(bForceRecalc, 0);
+	float fMedianYieldPerPop = GetScienceMedian(bForceRecalc, 0);
+
+	// Avoid division by zero which produces NaN
+	if (fMedianYieldPerPop <= 0.0f)
+		return 0;
 
 	// Unhappiness = Population - (Total Yield / Modified Median)
 	int iPopulation = bForceRecalc ? getPopulation() + 1 : getPopulation();
@@ -21417,8 +21468,11 @@ int CvCity::GetBoredomRaw(bool bForceRecalc, int iAssumedExtraYieldRate) const
 	int iTotalYield = getYieldRateTimes100(YIELD_CULTURE, false, false, !bForceRecalc) + iAssumedExtraYieldRate;
 
 	// Second, calculate the median (with need modifiers)
-	float fMedianYieldPerPop = 0.00f;
-	fMedianYieldPerPop += GetCultureMedian(bForceRecalc, 0);
+	float fMedianYieldPerPop = GetCultureMedian(bForceRecalc, 0);
+
+	// Avoid division by zero which produces NaN
+	if (fMedianYieldPerPop <= 0.0f)
+		return 0;
 
 	// Unhappiness = Population - (Total Yield / Modified Median)
 	int iPopulation = bForceRecalc ? getPopulation() + 1 : getPopulation();
@@ -22252,6 +22306,9 @@ bool CvCity::IsNoStarvationNonSpecialist() const
 int CvCity::GetNumTimesOwned(PlayerTypes ePlayer) const
 {
 	VALIDATE_OBJECT();
+	PRECONDITION(ePlayer >= 0, "ePlayer expected to be >= 0");
+	PRECONDITION(ePlayer < MAX_PLAYERS, "ePlayer expected to be < MAX_PLAYERS");
+
 	return m_aiNumTimesOwned[ePlayer];
 }
 void CvCity::SetNumTimesOwned(PlayerTypes ePlayer, int iValue)
@@ -23677,10 +23734,10 @@ void CvCity::ChangeBaseYieldRateFromBuildings(YieldTypes eIndex, int iChange)
 	if (iChange != 0)
 	{
 		m_aiBaseYieldRateFromBuildings[eIndex] += iChange;
+		UpdateCityYields(eIndex);
 
 		if (getTeam() == GC.getGame().getActiveTeam())
 		{
-			UpdateCityYields(eIndex);
 			if (isCitySelected())
 			{
 				DLLUI->setDirty(CityScreen_DIRTY_BIT, true);
@@ -23711,10 +23768,10 @@ void CvCity::ChangeBaseYieldRateFromSpecialists(YieldTypes eIndex, int iChange)
 	if (iChange != 0)
 	{
 		m_aiBaseYieldRateFromSpecialists[eIndex] = m_aiBaseYieldRateFromSpecialists[eIndex] + iChange;
+		UpdateCityYields(eIndex);
 
 		if (getTeam() == GC.getGame().getActiveTeam())
 		{
-			UpdateCityYields(eIndex);
 			if (isCitySelected())
 			{
 				DLLUI->setDirty(CityScreen_DIRTY_BIT, true);
@@ -23745,10 +23802,10 @@ void CvCity::ChangeBaseYieldRateFromMisc(YieldTypes eIndex, int iChange)
 	if (iChange != 0)
 	{
 		m_aiBaseYieldRateFromMisc[eIndex] = m_aiBaseYieldRateFromMisc[eIndex] + iChange;
+		UpdateCityYields(eIndex);
 
 		if (getTeam() == GC.getGame().getActiveTeam())
 		{
-			UpdateCityYields(eIndex);
 			if (isCitySelected())
 			{
 				DLLUI->setDirty(CityScreen_DIRTY_BIT, true);
@@ -23781,10 +23838,10 @@ void CvCity::ChangeBaseYieldRatePermanentWLTKDTimes100(YieldTypes eIndex, int iC
 	if (iChange != 0)
 	{
 		m_aiBaseYieldRatePermanentWLTKDTimes100[eIndex] = m_aiBaseYieldRatePermanentWLTKDTimes100[eIndex] + iChange;
+		UpdateCityYields(eIndex);
 
 		if (getTeam() == GC.getGame().getActiveTeam())
 		{
-			UpdateCityYields(eIndex);
 			if (isCitySelected())
 			{
 				DLLUI->setDirty(CityScreen_DIRTY_BIT, true);
@@ -25706,6 +25763,9 @@ void CvCity::ChangeResourceQuantityPerXFranchises(ResourceTypes eResource, fract
 int CvCity::GetResourceQuantityFromPOP(ResourceTypes eResource) const
 {
 	VALIDATE_OBJECT();
+	PRECONDITION(eResource >= 0, "eResource expected to be >= 0");
+	PRECONDITION(eResource < GC.getNumResourceInfos(), "eResource expected to be < GC.getNumResourceInfos()");
+
 	return m_aiResourceQuantityFromPOP[eResource];
 }
 //	--------------------------------------------------------------------------------
@@ -25716,6 +25776,9 @@ void CvCity::ChangeResourceQuantityFromPOP(ResourceTypes eResource, int iChange)
 }
 void CvCity::SetResourceQuantityFromPOP(ResourceTypes eResource, int iValue)
 {
+	PRECONDITION(eResource >= 0, "eResource expected to be >= 0");
+	PRECONDITION(eResource < GC.getNumResourceInfos(), "eResource expected to be < GC.getNumResourceInfos()");
+
 	m_aiResourceQuantityFromPOP[eResource] = iValue;
 }
 //	--------------------------------------------------------------------------------
@@ -26002,10 +26065,7 @@ void CvCity::SetPurchased(BuildingClassTypes eBuildingClass, bool bValue)
 	VALIDATE_OBJECT();
 	PRECONDITION(eBuildingClass >= 0, "eIndex expected to be >= 0");
 	PRECONDITION(eBuildingClass < GC.getNumBuildingClassInfos(), "eIndex expected to be < MAX_PLAYERS");
-	if (m_abIsPurchased[eBuildingClass] != bValue)
-	{
-		m_abIsPurchased[eBuildingClass] = bValue;
-	}
+	m_abIsPurchased[eBuildingClass] = bValue;
 }
 bool CvCity::IsPurchased(BuildingClassTypes eBuildingClass)
 {
@@ -26019,10 +26079,7 @@ void CvCity::SetBestForWonder(BuildingClassTypes eBuildingClass, bool bValue)
 	VALIDATE_OBJECT();
 	PRECONDITION(eBuildingClass >= 0, "eBuildingClass expected to be >= 0");
 	PRECONDITION(eBuildingClass < GC.getNumBuildingClassInfos(), "eBuildingClass expected to be < GC.getNumBuildingClassInfos()");
-	if (m_abIsBestForWonder[eBuildingClass] != bValue)
-	{
-		m_abIsBestForWonder[eBuildingClass] = bValue;
-	}
+	m_abIsBestForWonder[eBuildingClass] = bValue;
 }
 bool CvCity::IsBestForWonder(BuildingClassTypes eBuildingClass)
 {
@@ -27094,7 +27151,8 @@ void CvCity::changeUnitCombatProductionModifier(UnitCombatTypes eIndex, int iCha
 	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
 	PRECONDITION(eIndex < GC.getNumUnitCombatClassInfos(), "eIndex expected to be < GC.getNumUnitCombatInfos()");
 	m_paiUnitCombatProductionModifier[eIndex] = m_paiUnitCombatProductionModifier[eIndex] + iChange;
-	ASSERT(getUnitCombatProductionModifier(eIndex) >= 0);
+	// some modmods add buildings with negative values for UnitCombatProductionModifier
+	// ASSERT(getUnitCombatProductionModifier(eIndex) >= 0);
 }
 
 
@@ -31059,7 +31117,8 @@ void CvCity::doGrowth()
 	int iFoodPerTurn100 = getYieldRateTimes100(YIELD_FOOD);
 	int iFoodReqForGrowth = growthThreshold();
 
-	if (iFoodPerTurn100 < 0)
+	// show notification if we're starving and it would take less than 100 turns to reach zero food
+	if (iFoodPerTurn100 < 0 && getFoodTimes100() / (-iFoodPerTurn100) < 100)
 	{
 		CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
 		if (pNotifications)
@@ -31834,6 +31893,7 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_aiYieldFromGoldenAgeStart);
 	visitor(city.m_aiYieldChangePerGoldenAge);
 	visitor(city.m_aiYieldChangePerGoldenAgeCap);
+	visitor(city.m_aiYieldFromPreviousGoldenAges);
 	visitor(city.m_aiGoldenAgeYieldMod);
 	visitor(city.m_aiYieldChangesPerLocalTheme);
 	visitor(city.m_aiYieldFromUnitGiftGlobal);
@@ -34929,7 +34989,7 @@ void CvCity::SetYieldModifierFromHappiness(YieldTypes eYield, int iValue)
 int CvCity::GetYieldModifierFromHappiness(YieldTypes eYield) const
 {
 	VALIDATE_OBJECT();
-		PRECONDITION(eYield >= 0, "eYield expected to be >= 0");
+	PRECONDITION(eYield >= 0, "eYield expected to be >= 0");
 	PRECONDITION(eYield < NUM_YIELD_TYPES, "eYield expected to be < NUM_YIELD_TYPES");
 
 	return m_aiYieldModifierFromHappiness[eYield];
@@ -34946,6 +35006,9 @@ void CvCity::SetYieldModifierFromHealth(YieldTypes eYield, int iValue)
 int CvCity::GetYieldModifierFromHealth(YieldTypes eYield) const
 {
 	VALIDATE_OBJECT();
+	PRECONDITION(eYield >= 0, "eYield expected to be >= 0");
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "eYield expected to be < NUM_YIELD_TYPES");
+
 	return m_aiYieldModifierFromHealth[eYield];
 }
 
@@ -34960,6 +35023,9 @@ void CvCity::SetYieldModifierFromCrime(YieldTypes eYield, int iValue)
 int CvCity::GetYieldModifierFromCrime(YieldTypes eYield) const
 {
 	VALIDATE_OBJECT();
+	PRECONDITION(eYield >= 0, "eYield expected to be >= 0");
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "eYield expected to be < NUM_YIELD_TYPES");
+
 	return m_aiYieldModifierFromCrime[eYield];
 }
 
@@ -34974,6 +35040,9 @@ void CvCity::SetYieldModifierFromDevelopment(YieldTypes eYield, int iValue)
 int CvCity::GetYieldModifierFromDevelopment(YieldTypes eYield) const
 {
 	VALIDATE_OBJECT();
+	PRECONDITION(eYield >= 0, "eYield expected to be >= 0");
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "eYield expected to be < NUM_YIELD_TYPES");
+
 	return m_aiYieldModifierFromDevelopment[eYield];
 }
 

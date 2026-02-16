@@ -228,7 +228,7 @@ UPDATE Language_en_US
 SET Text = '[COLOR_YELLOW]Experience Points Limitations[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_BARBARIAN_POINTLIMITS_HEADING3_TITLE';
 UPDATE Language_en_US
-SET Text = 'When they fight barbarian units, your less well-trained units will gain experience points. However, any unit that has already acquired [COLOR_YELLOW]45 XPs[ENDCOLOR] (or has exchanged that many for promotions) no longer gains XPs from fighting barbarians.'
+SET Text = 'When they fight barbarian units, your less well-trained units will gain experience points. However, any unit that has already acquired [COLOR_YELLOW]45 XPs[ENDCOLOR] no longer gains XPs from fighting barbarians [COLOR_YELLOW]and a unit that has acquired 70 XPs no longer gains XPs from fighting city-states[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_BARBARIAN_POINTLIMITS_HEADING3_BODY';
 
 UPDATE Language_en_US

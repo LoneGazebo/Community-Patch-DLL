@@ -142,7 +142,7 @@
 			<Text>You can manage notification settings for Instant Yields in the "Notification Log" menu.</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_VPUI_TIP_35">
-			<Text>An online version of the Vox Populi Civilopedia is available at https://axatin.github.io/Vox-Populi-Civilopedia/</Text>
+			<Text>An online version of the Vox Populi Civilopedia is available at www.civpedia.org</Text>
 		</Replace>
 	</Language_en_US>
 </GameData>

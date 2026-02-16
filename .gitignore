@@ -18,6 +18,7 @@
 !*.def
 !*.dge
 !*.dll
+!*.pdb
 !*.filters
 !*.fsmxml
 !*.ftsxml
@@ -37,6 +38,7 @@
 !*.py
 !*.rc
 !*.rtf
+!*.sh
 !*.sln
 !*.txt
 !*.vcxproj

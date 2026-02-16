@@ -5,11 +5,11 @@
 	<!-- Currently Researching -->
 	<Grid Anchor="L,T" Offset="30,4" Size="0,0" Color="255,255,255,255" StateOffsetIncrement="0,0" Style="Grid9FrameBlack" ID="ActiveStyle">
 		<Stack Anchor="L,T" Offset="170,62" Size="32,32" StackGrowth="Right" Padding="-8">
-			<Button NoStateChange="1" Anchor="C,C" Size="64,64" ID="B1"/>
-			<Button NoStateChange="1" Anchor="C,C" Size="64,64" ID="B2"/>
-			<Button NoStateChange="1" Anchor="C,C" Size="64,64" ID="B3"/>
-			<Button NoStateChange="1" Anchor="C,C" Size="64,64" ID="B4"/>
-			<Button NoStateChange="1" Anchor="C,C" Size="64,64" ID="B5"/>
+			<Button NoStateChange="1" Anchor="C,C" Size="64,64" ID="B1" ToolTipType="TechTreeTooltip"/>
+			<Button NoStateChange="1" Anchor="C,C" Size="64,64" ID="B2" ToolTipType="TechTreeTooltip"/>
+			<Button NoStateChange="1" Anchor="C,C" Size="64,64" ID="B3" ToolTipType="TechTreeTooltip"/>
+			<Button NoStateChange="1" Anchor="C,C" Size="64,64" ID="B4" ToolTipType="TechTreeTooltip"/>
+			<Button NoStateChange="1" Anchor="C,C" Size="64,64" ID="B5" ToolTipType="TechTreeTooltip"/>
 		</Stack>
 	</Grid>
 

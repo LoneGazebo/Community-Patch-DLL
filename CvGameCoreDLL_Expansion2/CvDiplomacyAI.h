@@ -81,6 +81,7 @@ public:
 	vector<PlayerTypes> GetWarAllies(PlayerTypes eOtherPlayer, bool bDefensive, bool bIncludeWars, bool bReverseMode, bool bNewWarsOnly) const;
 	bool IsNuclearGandhi(bool bPotentially = false) const;
 	bool IsAIMustAcceptHumanDiscussRequests() const;
+	int ApplyPercentageModifier(int iValue, int iModifier, bool bDecrease = false) const;
 
 	// ************************************
 	// Personality Flavors
@@ -1075,7 +1076,12 @@ public:
 	PlayerTypes GetHighestWarscorePlayer();
 
 	void DoUpdatePlayerStrengthEstimates();
-	int ComputeDynamicStrengthModifier(PlayerTypes ePlayer, PlayerTypes eAgainstPlayer);
+	int ComputeDynamicStrengthModifier(PlayerTypes ePlayer, PlayerTypes eAgainstPlayer, int iStrength);
+	int ComputeRatingStrengthAdjustment(PlayerTypes ePlayer, PlayerTypes eAgainstPlayer, int iStrength);
+	StrengthTypes EconomicStrengthFromRatio(int iRatio) const;
+	StrengthTypes MilitaryStrengthFromRatio(int iRatio) const;
+	TargetValueTypes TargetValueFromRatio(int iRatio) const;
+	void AdjustThirdPartyStrength(PlayerTypes eThirdParty, PlayerTypes eThirdPartyEnemy, PlayerTypes eThirdPartyAlly, StrengthTypes eMilitaryStrength, int& iThirdPartyAttackValue, int& iThirdPartyDefenseValue);
 
 	void DoUpdateWarProgressScores();
 

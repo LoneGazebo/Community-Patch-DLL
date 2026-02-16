@@ -313,7 +313,7 @@ public:
 	int GetChainLength(BuildingTypes eBuilding);
 
 	void AwardFreeBuildings(CvCity* pCity); // slewis - broken out so that Venice can get free buildings when they purchase something
-	void SpawnResourceInOwnedLands(ResourceTypes eResource, int iQuantity, bool bSarcophagus = false, CvCity* pCityToExclude = NULL);
+	void SpawnResourceInVicinity(CvCity* pCity, ResourceTypes eResource, int iQuantity, bool bSarcophagus);
 
 	bool canFoundCityExt(int iX, int iY, bool bIgnoreDistanceToExistingCities, bool bIgnoreHappiness) const;
 	bool canFoundCity(int iX, int iY) const;
@@ -2044,7 +2044,7 @@ public:
 	int getNumResourceFromBuildings(ResourceTypes eIndex) const;
 	int getNumResourceTotal(ResourceTypes eIndex, bool bIncludeImport = true) const;
 	int getNumResourcesFromOther(ResourceTypes eIndex) const;
-	void changeNumResourceTotal(ResourceTypes eIndex, int iChange, bool bFromBuilding = false, bool bCheckForMonopoly = true, bool bIgnoreResourceWarning = false);
+	void changeNumResourceTotal(ResourceTypes eIndex, int iChange, bool bFromBuilding = false, bool bCheckForMonopoly = true, bool bFromEvent = false);
 
 	int GetHighestResourceQuantity(ResourceTypes eIndex) const;
 	void SetHighestResourceQuantity(ResourceTypes eIndex, int iValue);
@@ -2929,6 +2929,10 @@ protected:
 	int calculateEconomicMight();
 	int calculateProductionMight();
 
+	void GetSpawnResourcePlots(CvCity* pCity, ResourceTypes eResource, bool bLocal, bool bSarcophagus, vector<CvPlot*>& vOwnedTiles, vector<CvPlot*>& vOwnedTilesYesArchaeology, vector<CvPlot*>& vOwnedTilesNoArchaeology, vector<CvPlot*>& vNeutralTiles, vector<CvPlot*>& vNeutralTilesYesArchaeology, vector<CvPlot*>& vNeutralTilesNoArchaeology);
+	void PlacePrioritizedDigSite(ResourceTypes eResource, bool bSarcophagus, CvWeightedVector<EraTypes> viEras, vector<CvPlot*>& vPrioritizedArchaeologyTiles, vector<CvPlot*>& vArchaeologyTiles, const CvSeeder& seedOne, const CvSeeder& seedTwo);
+	void PlaceSpawnedResource(ResourceTypes eResource, int iQuantity, bool bSarcophagus, vector<CvPlot*>& vResourceTiles, const CvSeeder& seedOne, const CvSeeder& seedTwo);
+
 	SYNC_ARCHIVE_MEMBER(CvPlayer)
 
 	PlayerTypes m_eID;
@@ -3490,6 +3494,7 @@ protected:
 	std::vector<int> m_paiNumResourceUsed;
 	std::vector<int> m_paiNumResourceFromTiles;
 	std::vector<int> m_paiNumResourceFromBuildings;
+	std::vector<int> m_paiNumResourceFromEvents;
 	std::vector<int> m_paiResourceGiftedToMinors;
 	std::vector<int> m_paiResourceExport; //always to majors
 	std::vector<int> m_paiResourceImportFromMajor;
@@ -4081,7 +4086,6 @@ SYNC_ARCHIVE_VAR(int, m_iNumHistoricEvent)
 SYNC_ARCHIVE_VAR(int, m_iSingleLeagueVotes)
 SYNC_ARCHIVE_VAR(int, m_iMonopolyModFlat)
 SYNC_ARCHIVE_VAR(int, m_iMonopolyModPercent)
-SYNC_ARCHIVE_VAR(int, m_iCachedValueOfPeaceWithHuman)
 SYNC_ARCHIVE_VAR(int, m_iFaithPurchaseCooldown)
 SYNC_ARCHIVE_VAR(int, m_iCSAllies)
 SYNC_ARCHIVE_VAR(int, m_iCSFriends)
@@ -4262,6 +4266,7 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_paiNumResourceUnimproved)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiNumResourceUsed)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiNumResourceFromTiles)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiNumResourceFromBuildings)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_paiNumResourceFromEvents)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiResourceGiftedToMinors)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiResourceExport)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiResourceImportFromMajor)

@@ -152,6 +152,11 @@
 			<Text>[COLOR_POSITIVE_TEXT]If you meet Theme requirements on this Building, gain:[ENDCOLOR] +{1_Num} {2_YieldIcon} {3_YieldName}</Text>
 		</Row>
 
+		<!-- Religion picker -->
+		<Row Tag="TXT_KEY_RELIGION_CHOOSER_ADVISOR_RECOMMENDATION">
+			<Text>[COLOR_POSITIVE_TEXT]Your Advisor recommends this belief.[ENDCOLOR]</Text>
+		</Row>
+
 		<!-- Conquest picker -->
 		<Row Tag="TXT_KEY_POPUP_DESTROY_CAPTURED_CITY">
 			<Text>Destroy the City!</Text>
@@ -274,6 +279,9 @@
 		<!-- Civilopedia -->
 		<Row Tag="TXT_KEY_PEDIA_BASE_COST_LABEL">
 			<Text>Base Cost:</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PEDIA_UNIQUEPROJ_LABEL">
+			<Text>Unique Projects:</Text>
 		</Row>
 
 		<!-- Info tooltip -->
@@ -3275,10 +3283,10 @@
 			<Text>A Pledge of Protection prevents this action.</Text>
 		</Row>
 		<!-- Multiplayer only -->
-		<Row Tag="TXT_KEY_DENOUNCE_HUMAN">
+		<Row Tag="TXT_KEY_MP_DENOUNCE_HUMAN">
 			<Text>Denounce</Text>
 		</Row>
-		<Row Tag="TXT_KEY_DENOUNCE_HUMAN_TT">
+		<Row Tag="TXT_KEY_MP_DENOUNCE_HUMAN_TT">
 			<Text>Clicking this button will [COLOR_NEGATIVE_TEXT]DENOUNCE[ENDCOLOR] the other player.</Text>
 		</Row>
 

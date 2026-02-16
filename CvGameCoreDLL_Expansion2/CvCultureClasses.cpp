@@ -572,6 +572,7 @@ bool CvGameCulture::SwapGreatWorks(PlayerTypes ePlayer1, int iWork1, PlayerTypes
 	GreatWorkClass eClass1 = GetGreatWorkClass(iWork1);
 	GreatWorkClass eClass2 = GetGreatWorkClass(iWork2);
 
+	ASSERT(eClass1 == eClass2, "Trying to swap great works of different classes");
 	if (eClass1 != eClass2)
 	{
 		return false;
@@ -583,7 +584,6 @@ bool CvGameCulture::SwapGreatWorks(PlayerTypes ePlayer1, int iWork1, PlayerTypes
 	{
 		if (pCulture1->GetSwappableWritingIndex() == iWork1)
 		{
-			pCulture1->SetSwappableWritingIndex(-1);
 			bFoundSwappable = true;
 		}
 	}
@@ -591,7 +591,6 @@ bool CvGameCulture::SwapGreatWorks(PlayerTypes ePlayer1, int iWork1, PlayerTypes
 	{
 		if (pCulture1->GetSwappableArtIndex() == iWork1)
 		{
-			pCulture1->SetSwappableArtIndex(-1);
 			bFoundSwappable = true;
 		}
 	}
@@ -599,7 +598,6 @@ bool CvGameCulture::SwapGreatWorks(PlayerTypes ePlayer1, int iWork1, PlayerTypes
 	{
 		if (pCulture1->GetSwappableArtifactIndex() == iWork1)
 		{
-			pCulture1->SetSwappableArtifactIndex(-1);
 			bFoundSwappable = true;
 		}
 	}
@@ -607,11 +605,11 @@ bool CvGameCulture::SwapGreatWorks(PlayerTypes ePlayer1, int iWork1, PlayerTypes
 	{
 		if (pCulture1->GetSwappableMusicIndex() == iWork1)
 		{
-			pCulture1->SetSwappableMusicIndex(-1);
 			bFoundSwappable = true;
 		}
 	}
 
+	ASSERT(bFoundSwappable, "Trying so swap a Great Work not owned by the player. Player %d, WorkID %d", (int)ePlayer1, iWork1);
 	if (!bFoundSwappable)
 	{
 		return false;
@@ -622,7 +620,6 @@ bool CvGameCulture::SwapGreatWorks(PlayerTypes ePlayer1, int iWork1, PlayerTypes
 	{
 		if (pCulture2->GetSwappableWritingIndex() == iWork2)
 		{
-			pCulture2->SetSwappableWritingIndex(iWork1);
 			bFoundSwappable = true;
 		}
 	}
@@ -630,7 +627,6 @@ bool CvGameCulture::SwapGreatWorks(PlayerTypes ePlayer1, int iWork1, PlayerTypes
 	{
 		if (pCulture2->GetSwappableArtIndex() == iWork2)
 		{
-			pCulture2->SetSwappableArtIndex(iWork1);
 			bFoundSwappable = true;
 		}
 	}
@@ -638,7 +634,6 @@ bool CvGameCulture::SwapGreatWorks(PlayerTypes ePlayer1, int iWork1, PlayerTypes
 	{
 		if (pCulture2->GetSwappableArtifactIndex() == iWork2)
 		{
-			pCulture2->SetSwappableArtifactIndex(iWork1);
 			bFoundSwappable = true;
 		}
 	}
@@ -646,11 +641,11 @@ bool CvGameCulture::SwapGreatWorks(PlayerTypes ePlayer1, int iWork1, PlayerTypes
 	{
 		if (pCulture2->GetSwappableMusicIndex() == iWork2)
 		{
-			pCulture2->SetSwappableMusicIndex(iWork1);
 			bFoundSwappable = true;
 		}
 	}
 
+	ASSERT(bFoundSwappable, "Trying so swap a Great Work not owned by the player. Player %d, WorkID %d", (int)ePlayer2, iWork2);
 	if (!bFoundSwappable)
 	{
 		return false;
@@ -723,16 +718,22 @@ bool CvGameCulture::SwapGreatWorks(PlayerTypes ePlayer1, int iWork1, PlayerTypes
 		}
 	}
 
+	ASSERT(pCity1, "Trying so swap a Great Work not found in any of the player's cities. Player %d, WorkID %d", (int)ePlayer1, iWork1);
+	ASSERT(pCity2, "Trying so swap a Great Work not found in any of the player's cities. Player %d, WorkID %d", (int)ePlayer2, iWork2);
 	if (pCity1 == NULL || pCity2 == NULL)
 	{
 		return false;
 	}
 
+	ASSERT(eBuildingClass2 != NO_BUILDINGCLASS, "Trying so swap a Great Work not found in any of the player's buildings. Player %d, WorkID %d", (int)ePlayer1, iWork1);
+	ASSERT(eBuildingClass2 != NO_BUILDINGCLASS, "Trying so swap a Great Work not found in any of the player's buildings. Player %d, WorkID %d", (int)ePlayer2, iWork2);
 	if (eBuildingClass1 == NO_BUILDINGCLASS || eBuildingClass2 == NO_BUILDINGCLASS)
 	{
 		return false;
 	}
 
+	ASSERT(iSwapIndex1 != -1, "Trying so swap a Great Work with invalid swap index. Player %d, WorkID %d", (int)ePlayer1, iWork1);
+	ASSERT(iSwapIndex2 != -1, "Trying so swap a Great Work with invalid swap index. Player %d, WorkID %d", (int)ePlayer2, iWork2);
 	if (iSwapIndex1 == -1 || iSwapIndex2 == -1)
 	{
 		return false;
@@ -745,6 +746,27 @@ bool CvGameCulture::SwapGreatWorks(PlayerTypes ePlayer1, int iWork1, PlayerTypes
 	// add in new works
 	pCity1->GetCityBuildings()->SetBuildingGreatWork(eBuildingClass1, iSwapIndex1, iWork2);
 	pCity2->GetCityBuildings()->SetBuildingGreatWork(eBuildingClass2, iSwapIndex2, iWork1);
+
+	if (eClass1 == eWritingClass)
+	{
+		pCulture1->SetSwappableWritingIndex(-1);
+		pCulture2->SetSwappableWritingIndex(iWork1);
+	}
+	else if (eClass1 == eArtClass)
+	{
+		pCulture1->SetSwappableArtIndex(-1);
+		pCulture2->SetSwappableArtIndex(iWork1);
+	}
+	else if (eClass1 == eArtifactsClass)
+	{
+		pCulture1->SetSwappableArtifactIndex(-1);
+		pCulture2->SetSwappableArtifactIndex(iWork1);
+	}
+	else if (eClass1 == eMusicClass)
+	{
+		pCulture1->SetSwappableMusicIndex(-1);
+		pCulture2->SetSwappableMusicIndex(iWork1);
+	}
 	
 	GC.GetEngineUserInterface()->setDirty(GreatWorksScreen_DIRTY_BIT, true);
 
@@ -1399,7 +1421,6 @@ void CvPlayerCulture::MoveWorks(GreatWorkSlotType eType, vector<CvGreatWorkBuild
 				if (eType == CvTypes::getGREAT_WORK_SLOT_LITERATURE())
 				{
 					int iIndex = kPlayer.GetCulture()->GetSwappableWritingIndex();
-
 					if (iIndex != -1)
 					{
 						CvGreatWorkAvailableForUse work;
@@ -2455,21 +2476,41 @@ bool CvPlayerCulture::MoveWorkIntoSlot(int iWorkID, int iToCityID, BuildingTypes
 
 int CvPlayerCulture::GetSwappableWritingIndex() const
 {
+	if (m_iSwappableWritingIndex != -1)
+	{
+		PlayerTypes ePlayer = GC.getGame().GetGameCulture()->GetGreatWorkController(m_iSwappableWritingIndex);
+		ASSERT(ePlayer == m_pPlayer->GetID(), "Player offering to swap a great worked they don't own");
+	}
 	return m_iSwappableWritingIndex;
 }
 
 int CvPlayerCulture::GetSwappableArtIndex() const
 {
+	if (m_iSwappableArtIndex != -1)
+	{
+		PlayerTypes ePlayer = GC.getGame().GetGameCulture()->GetGreatWorkController(m_iSwappableArtIndex);
+		ASSERT(ePlayer == m_pPlayer->GetID(), "Player offering to swap a great worked they don't own");
+	}
 	return m_iSwappableArtIndex;
 }
 
 int CvPlayerCulture::GetSwappableArtifactIndex() const
 {
+	if (m_iSwappableArtifactIndex != -1)
+	{
+		PlayerTypes ePlayer = GC.getGame().GetGameCulture()->GetGreatWorkController(m_iSwappableArtifactIndex);
+		ASSERT(ePlayer == m_pPlayer->GetID(), "Player offering to swap a great worked they don't own");
+	}
 	return m_iSwappableArtifactIndex;
 }
 
 int CvPlayerCulture::GetSwappableMusicIndex() const
 {
+	if (m_iSwappableMusicIndex != -1)
+	{
+		PlayerTypes ePlayer = GC.getGame().GetGameCulture()->GetGreatWorkController(m_iSwappableMusicIndex);
+		ASSERT(ePlayer == m_pPlayer->GetID(), "Player offering to swap a great worked they don't own");
+	}
 	return m_iSwappableMusicIndex;
 }
 
@@ -2524,21 +2565,42 @@ void CvPlayerCulture::SetSwappableGreatWork(GreatWorkClass eGWClass, int iGreatW
 void CvPlayerCulture::SetSwappableWritingIndex(int iIndex)
 {
 	m_iSwappableWritingIndex = iIndex;
+	if (iIndex != -1)
+	{
+		PlayerTypes ePlayer = GC.getGame().GetGameCulture()->GetGreatWorkController(iIndex);
+		ASSERT(ePlayer == m_pPlayer->GetID(), "Player offering to swap a great worked they don't own");
+	}
 }
 
 void CvPlayerCulture::SetSwappableArtIndex(int iIndex)
 {
 	m_iSwappableArtIndex = iIndex;
+	if (iIndex != -1)
+	{
+		PlayerTypes ePlayer = GC.getGame().GetGameCulture()->GetGreatWorkController(iIndex);
+		ASSERT(ePlayer == m_pPlayer->GetID(), "Player offering to swap a great worked they don't own");
+	}
 }
 
 void CvPlayerCulture::SetSwappableArtifactIndex(int iIndex)
 {
 	m_iSwappableArtifactIndex = iIndex;
+	if (iIndex != -1)
+	{
+		PlayerTypes ePlayer = GC.getGame().GetGameCulture()->GetGreatWorkController(iIndex);
+
+		ASSERT(ePlayer == m_pPlayer->GetID(), "Player offering to swap a great worked they don't own");
+	}
 }
 
 void CvPlayerCulture::SetSwappableMusicIndex(int iIndex)
 {
 	m_iSwappableMusicIndex = iIndex;
+	if (iIndex != -1)
+	{
+		PlayerTypes ePlayer = GC.getGame().GetGameCulture()->GetGreatWorkController(iIndex);
+		ASSERT(ePlayer == m_pPlayer->GetID(), "Player offering to swap a great worked they don't own");
+	}
 }
 
 

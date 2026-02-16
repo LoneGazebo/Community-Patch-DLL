@@ -49,12 +49,10 @@ bool CvGreatPersonInfo::CacheResults(Database::Results& kResults, CvDatabaseUtil
 
 GreatPersonTypes GetGreatPersonFromUnitClass(UnitClassTypes eUnitClass)
 {
-	for (int iI = 0; iI < GC.getNumGreatPersonInfos(); ++iI) {
-		GreatPersonTypes eGreatPerson = (GreatPersonTypes) iI;
-
-		if (GC.getGreatPersonInfo(eGreatPerson)->GetUnitClassType() == eUnitClass) {
-			return eGreatPerson;
-		}
+	std::map<UnitClassTypes, GreatPersonTypes>::const_iterator it = GC.m_unitClassToGreatPersonCache.find(eUnitClass);
+	if (it != GC.m_unitClassToGreatPersonCache.end())
+	{
+		return it->second;
 	}
 
 	return NO_GREATPERSON;
@@ -62,12 +60,10 @@ GreatPersonTypes GetGreatPersonFromUnitClass(UnitClassTypes eUnitClass)
 
 GreatPersonTypes GetGreatPersonFromSpecialist(SpecialistTypes eSpecialist)
 {
-	for (int iI = 0; iI < GC.getNumGreatPersonInfos(); ++iI) {
-		GreatPersonTypes eGreatPerson = (GreatPersonTypes) iI;
-
-		if (GC.getGreatPersonInfo(eGreatPerson)->GetSpecialistType() == eSpecialist) {
-			return eGreatPerson;
-		}
+	std::map<SpecialistTypes, GreatPersonTypes>::const_iterator it = GC.m_specialistToGreatPersonCache.find(eSpecialist);
+	if (it != GC.m_specialistToGreatPersonCache.end())
+	{
+		return it->second;
 	}
 
 	return NO_GREATPERSON;

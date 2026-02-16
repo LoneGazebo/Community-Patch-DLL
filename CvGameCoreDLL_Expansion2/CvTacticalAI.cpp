@@ -374,6 +374,15 @@ void CvTacticalAI::UpdateVisibilityFromUnits(CvPlot* pPlot)
 		for (int iI = 0; iI < pPlot->getNumUnits(); iI++)
 		{
 			pLoopUnit = pPlot->getUnitByIndex(iI);
+			if(pLoopUnit == NULL)
+			{
+				if(GC.getGame().isNetworkMultiPlayer())
+				{
+					CvString msg; CvString::format(msg, "*** PLOT UNIT DESYNC *** UpdateVisibilityFromUnits: NULL unit at index %d on plot (%d,%d). Plot reports %d units.",
+						iI, pPlot->getX(), pPlot->getY(), pPlot->getNumUnits());
+					gGlobals.getDLLIFace()->sendChat(msg, CHATTARGET_ALL, NO_PLAYER);
+				}
+			}
 			eLoopUnitTeam = pLoopUnit->getTeam();
 
 			if (eLoopUnitTeam != ePlayerTeam && !pLoopUnit->isInvisible(ePlayerTeam, false))
@@ -2793,8 +2802,11 @@ void CvTacticalAI::SortTargetListAndDropUselessTargets()
 		{
 			for (vector<CvTacticalTarget>::iterator it2 = reducedTargetList.begin(); it2 != reducedTargetList.end(); ++it2)
 			{
-				//trick: land zones have id > 0, water zones id < 0. so negative product means domain mismatch
-				if (it->GetDominanceZone() * it2->GetDominanceZone() < 0)
+				//land zones have id > 0, water zones id < 0. opposite signs means domain mismatch
+				//check signs without multiplication to avoid overflow with large zone IDs
+				int iZone1 = it->GetDominanceZone();
+				int iZone2 = it2->GetDominanceZone();
+				if ((iZone1 > 0 && iZone2 < 0) || (iZone1 < 0 && iZone2 > 0))
 					continue;
 
 				//if close to one of our cities, make sure we're not dropping it
@@ -3488,7 +3500,8 @@ void CvTacticalAI::ExecuteLandingOperation(CvPlot* pTargetPlot)
 		for (ReachablePlots::iterator tile=eligiblePlots.begin(); tile!=eligiblePlots.end(); ++tile)
 		{
 			CvPlot* pEvalPlot = GC.getMap().plotByIndexUnchecked(tile->iPlotIndex);
-			if (!pEvalPlot || !pEvalPlot->isCoastalLand())
+			ASSERT(pEvalPlot != NULL, "plotByIndexUnchecked returned null - invalid plot index");
+			if (!pEvalPlot->isCoastalLand())
 				continue;
 			
 			int iBonus = plotDistance(*pEvalPlot,*pTargetPlot) * (-10);
@@ -5904,6 +5917,8 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 		CvPlayer& kPlayer = GET_PLAYER(pUnit->getOwner());
 		int iDanger = pUnit->GetDanger(pPlot);
 		int iCityDistance = kPlayer.GetCityDistancePathLength(pPlot);
+		if (iCityDistance == INT_MAX)
+			iCityDistance = 0; // No cities (e.g. barbarians) - distance irrelevant, use 0 to avoid overflow
 
 		bool bIsZeroDanger = (iDanger <= 0);
 		bool bIsInTerritory = (pPlot->getTeam() == kPlayer.getTeam());
@@ -6600,8 +6615,7 @@ pair<int, int> TacticalAIHelpers::EstimateLocalUnitPower(const ReachablePlots& p
 	for (ReachablePlots::const_iterator it = plotsToCheck.begin(); it != plotsToCheck.end(); ++it)
 	{
 		CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
-		if (!pLoopPlot)
-			continue;
+		ASSERT(pLoopPlot != NULL, "plotByIndexUnchecked returned null - invalid plot index");
 
 		if (bMustBeVisibleToBoth && !(pLoopPlot->isVisible(eTeamA) && pLoopPlot->isVisible(eTeamB)))
 			continue;
@@ -11056,6 +11070,7 @@ bool TacticalAIHelpers::ExecuteUnitAssignments(PlayerTypes ePlayer, const std::v
 		{
 		case A_INITIAL:
 		case A_FINISH_TEMP:
+		case A_MOVE_DOUBLE:
 			continue; //skip this!
 			break;
 		case A_MOVE:

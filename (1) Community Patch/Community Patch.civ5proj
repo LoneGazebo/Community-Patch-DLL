@@ -5,16 +5,16 @@
     <ProjectGuid>{0d66d522-b624-4bc5-acfe-15a0c5b729f4}</ProjectGuid>
     <Name>(1) Community Patch</Name>
     <Guid>d1b6328c-ff44-4b0d-aad7-c657f83610cd</Guid>
-    <ModVersion>147</ModVersion>
+    <ModVersion>148</ModVersion>
     <Stability>Stable</Stability>
-    <Teaser>(5.0.1) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
+    <Teaser>(5.1.4) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
     <Description>Contains core AI improvements and bugfixes for the Civ 5 BNW DLL. Also contains support for the Vox Populi unofficial expansion and its associated mods.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <SpecialThanks>
     </SpecialThanks>
     <Categories>$Categories$</Categories>
     <AffectsSavedGames>true</AffectsSavedGames>
-    <MinCompatibleSaveVersion>147</MinCompatibleSaveVersion>
+    <MinCompatibleSaveVersion>148</MinCompatibleSaveVersion>
     <SupportsSinglePlayer>true</SupportsSinglePlayer>
     <SupportsMultiplayer>true</SupportsMultiplayer>
     <SupportsHotSeat>true</SupportsHotSeat>
@@ -33,6 +33,69 @@
         <Id />
         <MinVersion>1.0.3.124</MinVersion>
         <MaxVersion>1.0.3.999</MaxVersion>
+      </Association>
+      <Association>
+        <Type>Dlc</Type>
+        <Name>Babylon (Nebuchadnezzar II)</Name>
+        <Id>7459BA32-5764-44ae-8E95-01AD0E0EFD48</Id>
+        <MinVersion>0</MinVersion>
+        <MaxVersion>999</MaxVersion>
+      </Association>
+      <Association>
+        <Type>Dlc</Type>
+        <Name>Civilization and Scenario Pack: Mongols (Genghis Khan)</Name>
+        <Id>293C1EE3-1176-44f6-AC1F-59663826DE74</Id>
+        <MinVersion>0</MinVersion>
+        <MaxVersion>999</MaxVersion>
+      </Association>
+      <Association>
+        <Type>Dlc</Type>
+        <Name>Civilization and Scenario Double Pack: Spain and Inca</Name>
+        <Id>B685D5DE-7CCA-4e75-81B4-2F60754E6330</Id>
+        <MinVersion>0</MinVersion>
+        <MaxVersion>999</MaxVersion>
+      </Association>
+      <Association>
+        <Type>Dlc</Type>
+        <Name>Civilization and Scenario Pack: Polynesia</Name>
+        <Id>ECF7C605-BA11-4CAC-8D80-D71306AAC471</Id>
+        <MinVersion>0</MinVersion>
+        <MaxVersion>999</MaxVersion>
+      </Association>
+      <Association>
+        <Type>Dlc</Type>
+        <Name>Civilization and Scenario Pack: Denmark (The Vikings)</Name>
+        <Id>B3030D39-C0D8-4bc7-91B1-7AD1CAF585AB</Id>
+        <MinVersion>0</MinVersion>
+        <MaxVersion>999</MaxVersion>
+      </Association>
+      <Association>
+        <Type>Dlc</Type>
+        <Name>Civilization and Scenario Pack: Korea</Name>
+        <Id>112C22B2-5308-42b6-B734-171CCAB3037B</Id>
+        <MinVersion>0</MinVersion>
+        <MaxVersion>999</MaxVersion>
+      </Association>
+      <Association>
+        <Type>Dlc</Type>
+        <Name>Scenario Pack: Wonders of the Ancient World</Name>
+        <Id>BBB0D085-A0B1-4475-B007-3E549CF3ADC3</Id>
+        <MinVersion>0</MinVersion>
+        <MaxVersion>999</MaxVersion>
+      </Association>
+      <Association>
+        <Type>Dlc</Type>
+        <Name>Scenario Pack: Conquest of the New World</Name>
+        <Id>EA67AED5-5859-4875-BF3A-360FE9E55D1B</Id>
+        <MinVersion>0</MinVersion>
+        <MaxVersion>999</MaxVersion>
+      </Association>
+      <Association>
+        <Type>Dlc</Type>
+        <Name>Expansion - Gods and Kings</Name>
+        <Id>0E3751A1-F840-4e1b-9706-519BF484E59D</Id>
+        <MinVersion>0</MinVersion>
+        <MaxVersion>999</MaxVersion>
       </Association>
       <Association>
         <Type>Dlc</Type>
@@ -819,6 +882,11 @@
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
+        <FileName>Database Changes\Text\en_US\Policies\CorePolicyTextChanges.sql</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
         <FileName>Database Changes\Text\en_US\Religions\CoreReligionTextChanges.sql</FileName>
       </Action>
       <Action>
@@ -988,6 +1056,7 @@
     <Folder Include="Database Changes\Text\en_US\Espionage" />
     <Folder Include="Database Changes\Text\en_US\Minors" />
     <Folder Include="Database Changes\Text\en_US\Notifications" />
+    <Folder Include="Database Changes\Text\en_US\Policies" />
     <Folder Include="Database Changes\Text\en_US\Religions" />
     <Folder Include="Database Changes\Text\en_US\UI" />
     <Folder Include="Database Changes\Text\en_US\UnitPromotions" />
@@ -2421,6 +2490,10 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
+    <Content Include="Assets\UI\Blank.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
     <Content Include="Assets\UI\citizenCivilServant.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
@@ -2442,6 +2515,10 @@
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="Assets\UI\DC45_Corporations.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\UI\DC45_Generic.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
@@ -2482,6 +2559,14 @@
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="Assets\UI\locked_writer.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\UI\vassal80.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\UI\vassal80hl.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
@@ -2693,6 +2778,10 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
+    <Content Include="Core Files\Overrides\Includes\FLuaVector.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
     <Content Include="Core Files\Overrides\InGame.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
@@ -2806,6 +2895,14 @@
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="Core Files\Overrides\WorldView.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Core Files\Overrides\YieldIconManager.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Core Files\Overrides\YieldIconManager.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
@@ -3270,6 +3367,10 @@
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="Database Changes\Text\en_US\Notifications\CoreNotificationTextChanges.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Database Changes\Text\en_US\Policies\CorePolicyTextChanges.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
@@ -3833,6 +3934,14 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
+    <Content Include="LUA\DiploCorner.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="LUA\DiploCorner.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
     <Content Include="LUA\DiploList.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
@@ -3886,14 +3995,6 @@
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="LUA\UnitPanel.lua">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="LUA\YieldIconManager.lua">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="LUA\YieldIconManager.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>

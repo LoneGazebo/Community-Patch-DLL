@@ -2634,6 +2634,12 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 		GAMEEVENTINVOKE_HOOK(GAMEEVENT_UnitCaptured, kCaptureDef.eCapturingPlayer, kCaptureDef.eCaptureUnitType, eUnitOwner, GetID(), false, 1);
 	}
 
+	if(GC.getGame().isNetworkMultiPlayer() && pPlot && pPlot->getUnitIndex(this) < 0)
+	{
+		CvString msg; CvString::format(msg, "*** PLOT UNIT DESYNC *** kill: unit (owner %d, id %d) not found on its plot (%d,%d) before setXY(INVALID_PLOT_COORD). Unit coords: (%d,%d), delayed death: %d",
+			(int)eUnitOwner, GetID(), pPlot->getX(), pPlot->getY(), getX(), getY(), (int)isDelayedDeathExported());
+		gGlobals.getDLLIFace()->sendChat(msg, CHATTARGET_ALL, NO_PLAYER);
+	}
 	setXY(INVALID_PLOT_COORD, INVALID_PLOT_COORD, true);
 	if(pPlot)
 		pPlot->removeUnit(this, false);
@@ -4594,15 +4600,19 @@ bool CvUnit::canEnterTerritory(TeamTypes eTeam, bool bEndTurn) const
 
 	if (MOD_GLOBAL_CS_OVERSEAS_TERRITORY && eMyTeam != eTeam && kTheirTeam.isMinorCiv())
 	{
-		PlayerTypes eMinor = kTheirTeam.getLeaderID();
-		ASSERT(eMinor != NO_PLAYER);
-		if (eMinor != NO_PLAYER)
+		CvUnitEntry* pkUnitEntry = GC.getUnitInfo(getUnitType());
+		if (pkUnitEntry->GetDefaultUnitAIType() != UNITAI_MESSENGER)
 		{
-			PlayerTypes eAlly = GET_PLAYER(eMinor).GetMinorCivAI()->GetAlly();
-			if (eAlly != NO_PLAYER && GET_PLAYER(eAlly).getTeam() != eMyTeam)
+			PlayerTypes eMinor = kTheirTeam.getLeaderID();
+			ASSERT(eMinor != NO_PLAYER);
+			if (eMinor != NO_PLAYER)
 			{
-				if (!canEnterTerritory(GET_PLAYER(eAlly).getTeam(), bEndTurn))
-					return false;
+				PlayerTypes eAlly = GET_PLAYER(eMinor).GetMinorCivAI()->GetAlly();
+				if (eAlly != NO_PLAYER && GET_PLAYER(eAlly).getTeam() != eMyTeam)
+				{
+					if (!canEnterTerritory(GET_PLAYER(eAlly).getTeam(), bEndTurn))
+						return false;
+				}
 			}
 		}
 	}
@@ -5585,6 +5595,14 @@ bool CvUnit::jumpToNearestValidPlot()
 			if (pLoopPlot->needsEmbarkation(this) && !isEmbarked())
 				iValue += 3000;
 
+
+			//for civilians and Great Generals prefer tiles with a military unit
+			if (IsCivilianUnit() || IsCombatSupportUnit())
+			{
+				if (!pLoopPlot->isFriendlyUnit(getOwner(), true, true))
+					iValue += 1000;
+			}
+
 			//we allowed passage through enemy territory but we don't want to end up there
 			if (!GET_PLAYER(getOwner()).IsAtWarWith(pLoopPlot->getOwner()))
 				candidates.push_back(SPlotWithScore(pLoopPlot,iValue));
@@ -5839,10 +5857,7 @@ bool CvUnit::CanAutomate(AutomateTypes eAutomate, bool bTestVisibility) const
 			{
 				return false;
 			}
-		}
 
-		if (!bTestVisibility)
-		{
 			if (/*0*/ GD_INT_GET(UNIT_AUTO_EXTRA_AUTOMATIONS_DISABLED) == 1)
 			{
 				return false;
@@ -5874,10 +5889,7 @@ bool CvUnit::CanAutomate(AutomateTypes eAutomate, bool bTestVisibility) const
 			{
 				return false;
 			}
-		}
 
-		if (!bTestVisibility)
-		{
 			if (/*0*/ GD_INT_GET(UNIT_AUTO_EXTRA_AUTOMATIONS_DISABLED) == 1)
 			{
 				return false;
@@ -5910,10 +5922,7 @@ bool CvUnit::CanAutomate(AutomateTypes eAutomate, bool bTestVisibility) const
 			{
 				return false;
 			}
-		}
 
-		if (!bTestVisibility)
-		{
 			if (/*0*/ GD_INT_GET(UNIT_AUTO_EXTRA_AUTOMATIONS_DISABLED) == 1)
 			{
 				return false;
@@ -6877,6 +6886,8 @@ int CvUnit::GetInfluenceFromCombatXPTimes100() const
 //	--------------------------------------------------------------------------------
 void CvUnit::SetPromotionDuration(PromotionTypes eIndex, int iValue)
 {
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumPromotionInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	std::map<PromotionTypes, int>& m_map = m_PromotionDuration;
 	if (iValue > 0)
 		m_map[eIndex] = iValue;
@@ -6887,6 +6898,8 @@ void CvUnit::SetPromotionDuration(PromotionTypes eIndex, int iValue)
 //	--------------------------------------------------------------------------------
 void CvUnit::ChangePromotionDuration(PromotionTypes eIndex, int iChange)
 {
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumPromotionInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	std::map<PromotionTypes, int>& m_map = m_PromotionDuration;
 	if (m_map.find(eIndex) != m_map.end())
 	{
@@ -6900,6 +6913,8 @@ void CvUnit::ChangePromotionDuration(PromotionTypes eIndex, int iChange)
 //	--------------------------------------------------------------------------------
 int CvUnit::getPromotionDuration(PromotionTypes eIndex) const
 {
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumPromotionInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	const std::map<PromotionTypes, int>& m_map = m_PromotionDuration;
 	std::map<PromotionTypes, int>::const_iterator it = m_map.find(eIndex);
 	if (it != m_map.end())
@@ -6911,6 +6926,8 @@ int CvUnit::getPromotionDuration(PromotionTypes eIndex) const
 //	--------------------------------------------------------------------------------
 void CvUnit::SetTurnPromotionGained(PromotionTypes eIndex, int iValue)
 {
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumPromotionInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	std::map<PromotionTypes, int>& m_map = m_TurnPromotionGained;
 	if (iValue>0)
 		m_map[eIndex] = iValue;
@@ -6920,6 +6937,8 @@ void CvUnit::SetTurnPromotionGained(PromotionTypes eIndex, int iValue)
 //	--------------------------------------------------------------------------------
 int CvUnit::getTurnPromotionGained(PromotionTypes eIndex) const
 {
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumPromotionInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	const std::map<PromotionTypes, int>& m_map = m_TurnPromotionGained;
 	std::map<PromotionTypes, int>::const_iterator it = m_map.find(eIndex);
 	if (it != m_map.end())
@@ -9294,10 +9313,7 @@ bool CvUnit::createGreatWork()
 				// Loop through owner's cities.
 				for (pLoopCity = GET_PLAYER(getOwner()).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iCityLoop))
 				{
-					if (pLoopCity != NULL)
-					{
-						pLoopCity->ChangeWeLoveTheKingDayCounter(iWLTKD, true);
-					}
+					pLoopCity->ChangeWeLoveTheKingDayCounter(iWLTKD, true);
 				}
 				CvNotifications* pNotifications = kPlayer.GetNotifications();
 				if (pNotifications)
@@ -12643,10 +12659,7 @@ int CvUnit::getGoldenAgeTurns() const
 		// Loop through owner's cities.
 		for (CvCity* pLoopCity = kPlayer.firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iCityLoop))
 		{
-			if (pLoopCity != NULL)
-			{
-				iTotalThemes += pLoopCity->GetCityBuildings()->GetTotalNumThemedBuildings();
-			}
+			iTotalThemes += pLoopCity->GetCityBuildings()->GetTotalNumThemedBuildings();
 		}
 
 		iTotalThemes = (iTotalThemes * getUnitInfo().GetScaleFromNumThemes());
@@ -13069,7 +13082,7 @@ bool CvUnit::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestVisible,
 
 	if (MOD_EVENTS_PLOT)
 	{
-		if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlayerCanBuild, getOwner(), GetID(), getX(), getY(), eBuild) == GAMEEVENTRETURN_FALSE)
+		if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlayerCanBuild, getOwner(), GetID(), pPlot->getX(), pPlot->getY(), eBuild) == GAMEEVENTRETURN_FALSE)
 		{
 			return false;
 		}
@@ -13386,11 +13399,6 @@ bool CvUnit::canPromote(PromotionTypes ePromotion, int iLeaderUnitId) const
 	}
 
 	if(ePromotion == NO_PROMOTION)
-	{
-		return false;
-	}
-
-	if (IsPromotionBlocked(ePromotion))
 	{
 		return false;
 	}
@@ -13949,9 +13957,9 @@ int CvUnit::upgradePrice(UnitTypes eUnit) const
 
 	// Upgrades for later units are more expensive
 	const TechTypes eTech = (TechTypes) pkUnitInfo->GetPrereqAndTech();
-	CvTechEntry* pkTechInfo = GC.getTechInfo(eTech);
-	if(pkTechInfo)
+	if (eTech != NO_TECH)
 	{
+		CvTechEntry* pkTechInfo = GC.getTechInfo(eTech);
 		const EraTypes eUpgradeEra = (EraTypes) pkTechInfo->GetEra();
 
 		double fMultiplier = 1.0f;
@@ -17703,7 +17711,7 @@ int CvUnit::maxXPValue() const
 		iMaxValue = std::min(iMaxValue, /*-1 in CP, 70 in VP*/ GD_INT_GET(MINOR_MAX_XP_VALUE));
 	}
 
-	if (iMaxValue > 0)
+	if (iMaxValue > 0 && iMaxValue != MAX_INT)
 	{
 		iMaxValue *= GC.getGame().getGameSpeedInfo().getExperiencePercent();
 		iMaxValue /= 100;
@@ -22604,7 +22612,6 @@ void CvUnit::changeExtraFriendlyHeal(int iChange)
 {
 	VALIDATE_OBJECT();
 	m_iExtraFriendlyHeal = (m_iExtraFriendlyHeal + iChange);
-	ASSERT(getExtraFriendlyHeal() >= 0);
 }
 
 
@@ -22621,7 +22628,6 @@ void CvUnit::changeSameTileHeal(int iChange)
 {
 	VALIDATE_OBJECT();
 	m_iSameTileHeal = (m_iSameTileHeal + iChange);
-	ASSERT(getSameTileHeal() >= 0);
 }
 
 
@@ -24291,7 +24297,7 @@ void CvUnit::DoFinishBuildIfSafe()
 
 bool CvUnit::IsCombatSupportUnit() const
 {
-	return IsGreatGeneral() || IsGreatAdmiral() || IsCityAttackSupport() || IsSapper();
+	return getUnitInfo().GetUnitAIType(UNITAI_GENERAL) || GetGreatGeneralCount() > 0 || getUnitInfo().GetUnitAIType(UNITAI_ADMIRAL) || GetGreatAdmiralCount() > 0 || IsCityAttackSupport() || IsSapper();
 }
 
 //	--------------------------------------------------------------------------------
@@ -25045,6 +25051,9 @@ bool CvUnit::isPromotionReady() const
 void CvUnit::setPromotionReady(bool bNewValue)
 {
 	VALIDATE_OBJECT();
+	if (bNewValue && !canAcquirePromotionAny())
+		return;
+
 	if(isPromotionReady() != bNewValue)
 	{
 		m_bPromotionReady = bNewValue;
@@ -25085,7 +25094,7 @@ void CvUnit::testPromotionReady()
 {
 	VALIDATE_OBJECT();
 	
-	setPromotionReady(((getExperienceTimes100() / 100) >= experienceNeeded()) && !isOutOfAttacks(true) && canAcquirePromotionAny());
+	setPromotionReady(((getExperienceTimes100() / 100) >= experienceNeeded()) && !isOutOfAttacks(true));
 }
 
 
@@ -25804,15 +25813,18 @@ void CvUnit::SetGAPBlastStrength(int iValue)
 //	--------------------------------------------------------------------------------
 void CvUnit::SetPromotionEverObtained(PromotionTypes eIndex, bool bValue)
 {
-	ASSERT(eIndex >= 0);
-	PRECONDITION(eIndex < GC.getNumPromotionInfos());
+	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eIndex < GC.getNumPromotionInfos(), "eIndex expected to be < GC.getNumPromotionInfos()");
 
-	m_abPromotionEverObtained[eIndex] =  bValue;
+	m_abPromotionEverObtained[eIndex] = bValue;
 }
 
 //	--------------------------------------------------------------------------------
 bool CvUnit::IsPromotionEverObtained(PromotionTypes eIndex) const
 {
+	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eIndex < GC.getNumPromotionInfos(), "eIndex expected to be < GC.getNumPromotionInfos()");
+
 	return m_abPromotionEverObtained[eIndex];
 }
 
@@ -26972,6 +26984,12 @@ bool CvUnit::canAcquirePromotion(PromotionTypes ePromotion) const
 	{
 		return false;
 	}
+
+	if (IsPromotionBlocked(ePromotion))
+	{
+		return false;
+	}
+
 	CvPlayer& kPlayer = GET_PLAYER(getOwner());
 	static PromotionTypes ePromotionRoughTerrain = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_ROUGH_TERRAIN_ENDS_TURN");
 	if(ePromotion == ePromotionRoughTerrain && kPlayer.GetPlayerTraits()->IsConquestOfTheWorld())
@@ -27668,7 +27686,7 @@ void CvUnit::setPromotionActive(PromotionTypes eIndex, bool bNewValue)
 		}
 		else
 		{
-			ChangePromotionDuration(NO_PROMOTION, 0);
+			ChangePromotionDuration(eIndex, 0);
 		}
 	}
 	if (thisPromotion.NegatesPromotion() != NO_PROMOTION)
@@ -30214,10 +30232,6 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags)
 // Returns true if we want to continue next turn or false if we are done
 bool CvUnit::UnitRoadTo(int iX, int iY, int iFlags)
 {
-	//do we have movement points left?
-	if (!canMove())
-		return true; //continue next turn
-
 	//first check if we can continue building on the current plot
 	BuildTypes eBestRouteBuildInPlot = NO_BUILD;
 	const RouteTypes eBestRouteInPlot = GetBestBuildRouteForRoadTo(plot(), &eBestRouteBuildInPlot);
@@ -30226,6 +30240,10 @@ bool CvUnit::UnitRoadTo(int iX, int iY, int iFlags)
 	bool bGetSameBenefitFromTrait = kPlayer.GetSameRouteBenefitFromTrait(plot(), eBestRouteInPlot);
 	if(!bGetSameBenefitFromTrait && eBestRouteBuildInPlot != NO_BUILD && UnitBuild(eBestRouteBuildInPlot))
 		return true;
+
+	//do we have movement points left?
+	if (!canMove())
+		return true; //continue next turn
 
 	//are we at the target plot? then there's nothing else to do
 	if (at(iX, iY))

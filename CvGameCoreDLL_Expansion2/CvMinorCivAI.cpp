@@ -2027,7 +2027,7 @@ bool CvMinorCivQuest::IsExpired()
 			if (pkUnitInfo->GetUpgradeUnitClass(iI))
 			{
 				UnitTypes eUpgradeUnit = GET_PLAYER(m_eAssignedPlayer).GetSpecificUnitType(eUnitClass);
-				if (GET_PLAYER(m_eAssignedPlayer).canTrainUnit(eUpgradeUnit, false, false, false, false))
+				if (eUpgradeUnit != NO_UNIT && GET_PLAYER(m_eAssignedPlayer).canTrainUnit(eUpgradeUnit, false, false, false, false))
 				{
 					bCanUpgrade = true;
 					break;
@@ -10957,7 +10957,7 @@ UnitTypes CvMinorCivAI::GetBestUnitGiftFromPlayer(PlayerTypes ePlayer)
 			if (pkUnitInfo->GetUpgradeUnitClass(iI))
 			{
 				UnitTypes eUpgradeUnit = GET_PLAYER(ePlayer).GetSpecificUnitType(eUnitClass);
-				if (GET_PLAYER(ePlayer).canTrainUnit(eUpgradeUnit, false, false, false, false))
+				if (eUpgradeUnit != NO_UNIT && GET_PLAYER(ePlayer).canTrainUnit(eUpgradeUnit, false, false, false, false))
 				{
 					bValid = false;
 					break;
@@ -12278,10 +12278,7 @@ bool CvMinorCivAI::SetAllyInternal(PlayerTypes eNewAlly)
 	{
 		if (eNewAlly != GetPermanentAlly() && eNewAlly != NO_PLAYER)
 		{
-			if(eNewAlly != NO_PLAYER)
-			{
-				GET_PLAYER(eNewAlly).GetDiplomacyAI()->LogMinorStatusChange(m_pPlayer->GetID(), "cannot become new ally because of PermanentAlly status");
-			}
+			GET_PLAYER(eNewAlly).GetDiplomacyAI()->LogMinorStatusChange(m_pPlayer->GetID(), "cannot become new ally because of PermanentAlly status");
 			return false;
 		}
 		else if (m_eAlly != GetPermanentAlly())
@@ -17717,7 +17714,7 @@ void CvMinorCivAI::DoTileImprovementGiftFromMajor(PlayerTypes eMajor, int iPlotX
 			return;
 	}
 
-	pPlot->setImprovementType(eImprovement, eMajor);
+	pPlot->setImprovementType(eImprovement, eMajor, true);
 
 	if (pPlot->getFeatureType() != NO_FEATURE)
 	{

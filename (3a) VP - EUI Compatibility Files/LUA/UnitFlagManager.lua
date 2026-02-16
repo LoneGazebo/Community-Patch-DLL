@@ -97,6 +97,8 @@ local g_colorYellow = Color( 1, 1, 0, 1 )
 local g_colorRed = Color( 1, 0, 0, 1 )
 local g_colorWhite = Color( 1, 1, 1, 1 )
 
+local g_isInStrategicView = InStrategicView()
+
 --[[
 local DebugPrint = print;
 
@@ -772,8 +774,13 @@ local function AddPromotionIcon(flag, promoID, iconPositionID)
 end
 
 local function UpdatePromotions(playerID, unitID)
+	-- Don't update promotions when in Strategic View
+	if g_isInStrategicView then
+		return
+	end
+
 	local flag = g_UnitFlags[ playerID ][ unitID ]
-	if flag == nil then 
+	if flag == nil then
 		-- DebugPrint("UpdatePromotions, No flag! playerID:" .. tostring(playerID) .. ", unitID:" .. tostring(unitID))
 		return
 	end
@@ -1112,12 +1119,13 @@ function()
 end)
 Events.SerialEventExitCityScreen.Add(
 function()
-	g_SelectedFlags:SetHide( InStrategicView() )
+	g_SelectedFlags:SetHide( g_isInStrategicView )
 end)
 
 --==========================================================
 Events.StrategicViewStateChanged.Add( function( isStrategicView, isCityBanners )
 	-- DebugPrint( "StrategicViewStateChanged, isStrategicView=", isStrategicView, "isCityBanners=", isCityBanners ) end
+	g_isInStrategicView = isStrategicView
 	g_CivilianFlags:SetHide( isStrategicView )
 	g_MilitaryFlags:SetHide( isStrategicView )
 	g_GarrisonFlags:SetHide( isStrategicView and not isCityBanners )

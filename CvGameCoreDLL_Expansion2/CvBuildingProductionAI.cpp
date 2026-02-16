@@ -867,7 +867,8 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	for (set<int>::const_iterator it = sUnitClasses.begin(); it != sUnitClasses.end(); ++it)
 	{
 		// don't need it if we can train the unit anyway
-		if (!kPlayer.canTrainUnit(kPlayer.GetSpecificUnitType((UnitClassTypes)*it)))
+		UnitTypes eUpgradeUnit = kPlayer.GetSpecificUnitType((UnitClassTypes)*it) ;
+		if (eUpgradeUnit != NO_UNIT && !kPlayer.canTrainUnit(eUpgradeUnit))
 		{
 			iBonus += 200;
 		}
@@ -976,58 +977,55 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		for (int iDomainLoop = 0; iDomainLoop < NUM_DOMAIN_TYPES; iDomainLoop++)
 		{
 			DomainTypes eTestDomain = (DomainTypes)iDomainLoop;
-			if(eTestDomain != NO_DOMAIN)
+			int iTempBonus = 0;
+			int iTempMod = 0;
+
+			if (pkBuildingInfo->GetDomainFreeExperience(eTestDomain) > 0 || pkBuildingInfo->GetDomainFreeExperiencePerGreatWork(eTestDomain))
 			{
-				int iTempBonus = 0;
-				int iTempMod = 0;
+				iTempBonus += (m_pCity->getDomainFreeExperience(eTestDomain) + pkBuildingInfo->GetDomainFreeExperience(eTestDomain) + (pkBuildingInfo->GetDomainFreeExperiencePerGreatWork(eTestDomain) * m_pCity->GetCityCulture()->GetNumGreatWorks()));
+			}
+			if (!pkBuildingInfo->GetBonusFromAccomplishments().empty())
+			{
+				map<int, AccomplishmentBonusInfo> mBonusesFromAccomplishments = pkBuildingInfo->GetBonusFromAccomplishments();
+				map<int, AccomplishmentBonusInfo>::iterator it;
+				for (it = mBonusesFromAccomplishments.begin(); it != mBonusesFromAccomplishments.end(); it++)
+				{
+					if (it->second.eDomainType == eTestDomain)
+					{
+						iTempBonus += m_pCity->getDomainFreeExperience(eTestDomain) + kPlayer.GetNumTimesAccomplishmentCompleted((AccomplishmentTypes)it->first) > 0 * it->second.iDomainXP;
+					}
+				}
+			}
+			if(pkBuildingInfo->GetDomainProductionModifier(eTestDomain) > 0)
+			{
+				iTempBonus += m_pCity->getDomainProductionModifier(eTestDomain) + pkBuildingInfo->GetDomainProductionModifier(eTestDomain);
+			}
+			if(pkBuildingInfo->GetDomainFreeExperiencePerGreatWorkGlobal(eTestDomain) > 0)
+			{
+				iTempBonus += (m_pCity->getDomainFreeExperience(eTestDomain) +  pkBuildingInfo->GetDomainFreeExperiencePerGreatWorkGlobal(eTestDomain));
+			}
+			if (pkBuildingInfo->GetDomainFreeExperienceGlobal(eTestDomain) > 0)
+			{
+				iTempBonus += m_pCity->getDomainFreeExperience(eTestDomain) + kPlayer.GetDomainFreeExperience(eTestDomain) + pkBuildingInfo->GetDomainFreeExperienceGlobal(eTestDomain);
+			}
+			if(kPlayer.GetPlayerTraits()->GetDomainFreeExperienceModifier(eTestDomain) != 0)
+			{
+				iTempMod += kPlayer.GetPlayerTraits()->GetDomainFreeExperienceModifier(eTestDomain);
+			}
 
-				if (pkBuildingInfo->GetDomainFreeExperience(eTestDomain) > 0 || pkBuildingInfo->GetDomainFreeExperiencePerGreatWork(eTestDomain))
+			iTempBonus *= (100 + iTempMod);
+			iTempBonus /= 100;
+			if(iTempBonus > 0)
+			{
+				//Let's try to build our military buildings in our best cities only. More cities we have, the more this matters.
+				if(m_pCity == kPlayer.GetBestMilitaryCity(NO_UNITCOMBAT, eTestDomain))
 				{
-					iTempBonus += (m_pCity->getDomainFreeExperience(eTestDomain) + pkBuildingInfo->GetDomainFreeExperience(eTestDomain) + (pkBuildingInfo->GetDomainFreeExperiencePerGreatWork(eTestDomain) * m_pCity->GetCityCulture()->GetNumGreatWorks()));
+					iBonus += iTempBonus;
 				}
-				if (!pkBuildingInfo->GetBonusFromAccomplishments().empty())
+				//Discourage bad cities.
+				else
 				{
-					map<int, AccomplishmentBonusInfo> mBonusesFromAccomplishments = pkBuildingInfo->GetBonusFromAccomplishments();
-					map<int, AccomplishmentBonusInfo>::iterator it;
-					for (it = mBonusesFromAccomplishments.begin(); it != mBonusesFromAccomplishments.end(); it++)
-					{
-						if (it->second.eDomainType == eTestDomain)
-						{
-							iTempBonus += m_pCity->getDomainFreeExperience(eTestDomain) + kPlayer.GetNumTimesAccomplishmentCompleted((AccomplishmentTypes)it->first) > 0 * it->second.iDomainXP;
-						}
-					}
-				}
-				if(pkBuildingInfo->GetDomainProductionModifier(eTestDomain) > 0)
-				{
-					iTempBonus += m_pCity->getDomainProductionModifier(eTestDomain) + pkBuildingInfo->GetDomainProductionModifier(eTestDomain);
-				}
-				if(pkBuildingInfo->GetDomainFreeExperiencePerGreatWorkGlobal(eTestDomain) > 0)
-				{
-					iTempBonus += (m_pCity->getDomainFreeExperience(eTestDomain) +  pkBuildingInfo->GetDomainFreeExperiencePerGreatWorkGlobal(eTestDomain));
-				}
-				if (pkBuildingInfo->GetDomainFreeExperienceGlobal(eTestDomain) > 0)
-				{
-					iTempBonus += m_pCity->getDomainFreeExperience(eTestDomain) + kPlayer.GetDomainFreeExperience(eTestDomain) + pkBuildingInfo->GetDomainFreeExperienceGlobal(eTestDomain);
-				}
-				if(kPlayer.GetPlayerTraits()->GetDomainFreeExperienceModifier(eTestDomain) != 0)
-				{
-					iTempMod += kPlayer.GetPlayerTraits()->GetDomainFreeExperienceModifier(eTestDomain);
-				}
-
-				iTempBonus *= (100 + iTempMod);
-				iTempBonus /= 100;
-				if(iTempBonus > 0)
-				{
-					//Let's try to build our military buildings in our best cities only. More cities we have, the more this matters.
-					if(m_pCity == kPlayer.GetBestMilitaryCity(NO_UNITCOMBAT, eTestDomain))
-					{
-						iBonus += iTempBonus;
-					}
-					//Discourage bad cities.
-					else
-					{
-						iBonus += iTempBonus / 2;
-					}
+					iBonus += iTempBonus / 2;
 				}
 			}
 		}

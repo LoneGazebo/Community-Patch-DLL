@@ -5816,6 +5816,28 @@ void CvCityBuildings::SetNumRealBuildingTimed(BuildingTypes eIndex, int iNewValu
 	{
 		m_pCity->SetBuildingInvestment(buildingClassType, false);
 		m_pCity->GetCityCitizens()->DoRemoveAllSpecialistsFromBuilding(eIndex, CvCity::YIELD_UPDATE_GLOBAL);
+		if (GetNumFreeBuilding(eIndex) == 0)
+		{
+			// remove great work from swap slot if necessary
+			for (int iJ = 0; iJ < buildingEntry->GetGreatWorkCount(); iJ++)
+			{
+				int iGreatWork = GetBuildingGreatWork(buildingClassType, iJ);
+				if (iGreatWork != NO_GREAT_WORK)
+				{
+					if (kPlayer.GetCulture()->GetSwappableWritingIndex() == iGreatWork)
+						kPlayer.GetCulture()->SetSwappableWritingIndex(-1);
+
+					if (kPlayer.GetCulture()->GetSwappableArtifactIndex() == iGreatWork)
+						kPlayer.GetCulture()->SetSwappableArtifactIndex(-1);
+
+					if (kPlayer.GetCulture()->GetSwappableArtIndex() == iGreatWork)
+						kPlayer.GetCulture()->SetSwappableArtIndex(-1);
+
+					if (kPlayer.GetCulture()->GetSwappableMusicIndex() == iGreatWork)
+						kPlayer.GetCulture()->SetSwappableMusicIndex(-1);
+				}
+			}
+		}
 	}
 
 	m_paiNumRealBuilding[eIndex] = iNewValue;
@@ -6631,6 +6653,8 @@ int CvCityBuildings::GetNumGreatWorks(GreatWorkSlotType eGreatWorkSlot, bool bAr
 
 int CvCityBuildings::GetThemingBonusIndex(BuildingTypes eBuilding) const
 {
+	PRECONDITION(eBuilding >= 0, "eBuilding expected to be >= 0");
+	PRECONDITION(eBuilding < GC.getNumBuildingInfos(), "eBuilding expected to be < getNumBuildingInfos()");
 	return m_paiThemingBonusIndex[eBuilding];
 }
 

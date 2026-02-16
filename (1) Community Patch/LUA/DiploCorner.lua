@@ -4,6 +4,10 @@
 include( "IconSupport" );
 include( "SupportFunctions"  );
 include( "InstanceManager" );
+
+local MOD_BALANCE_VP = GameInfo.CustomModOptions("Name = 'BALANCE_VP'")().Value == 1
+local MOD_BALANCE_SPY_POINTS = GameInfo.CustomModOptions("Name = 'BALANCE_SPY_POINTS'")().Value == 1
+
 local g_ChatInstances = {};
 
 local g_iChatTeam   = -1;
@@ -431,8 +435,10 @@ function DoUpdateEspionageButton()
 		Controls.UnassignedSpiesLabel:SetHide(true);
 	end
 	
-	strToolTip = strToolTip .. "[NEWLINE][NEWLINE]";
-	strToolTip = strToolTip .. Locale.ConvertTextKey("TXT_KEY_SPY_POINTS_TT", pLocalPlayer:GetSpyPoints(false), Game.GetSpyThreshold(), pLocalPlayer:GetSpyPoints(true));
+	if (MOD_BALANCE_SPY_POINTS) then
+		strToolTip = strToolTip .. "[NEWLINE][NEWLINE]";
+		strToolTip = strToolTip .. Locale.ConvertTextKey("TXT_KEY_SPY_POINTS_TT", pLocalPlayer:GetSpyPoints(false), Game.GetSpyThreshold(), pLocalPlayer:GetSpyPoints(true));
+	end
 	
 	Controls.EspionageButton:SetToolTipString(strToolTip);
 end
@@ -587,7 +593,7 @@ function CheckVassalageStarted()
 	function TestVassalageStarted()
 		local player = Players[Game.GetActivePlayer()];
 		local team = Teams[player:GetTeam()];
-		return (team:GetCurrentEra() >= Game.GetVassalageEnabledEra()) or team:IsVassalOfSomeone();
+		return (Game.GetVassalageEnabledEra() >= 0 and team:GetCurrentEra() >= Game.GetVassalageEnabledEra()) or team:IsVassalOfSomeone();
 	end
 
 	local bVassalStarted = TestVassalageStarted();
@@ -609,4 +615,9 @@ OnActivePlayerTurnStart();
 --Hide CultureOverview, if disabled.
 if(Game.IsOption("GAMEOPTION_NO_CULTURE_OVERVIEW_UI")) then
 	Controls.CultureOverviewButton:SetHide(true);
+end
+
+--Hide CorporationOverview in CP.
+if(not MOD_BALANCE_VP) then
+	Controls.CorpButton:SetHide(true);
 end

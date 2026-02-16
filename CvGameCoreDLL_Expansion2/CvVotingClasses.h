@@ -730,8 +730,8 @@ private:
 	void CheckResolutionsValid();
 	void AssignNewHost();
 	
-	void DoEnactResolution(CvEnactProposal* pProposal);
-	void DoRepealResolution(CvRepealProposal* pProposal);
+	void DoEnactResolution(CvEnactProposal* pProposal, bool bFromLua = false);
+	void DoRepealResolution(CvRepealProposal* pProposal, bool bFromLua = false);
 
 	void DoClearProposals();
 	void DoPutProposalsOnHold();

@@ -3144,35 +3144,39 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_GoodGPCity(CvCity* pCity)
 
 							iMod += pCity->GetPlayer()->GetPlayerTraits()->GetWLTKDGPImprovementModifier() * 10;
 
-							ReligionTypes eMajority = pCity->GetCityReligions()->GetReligiousMajority();
-							BeliefTypes eSecondaryPantheon = NO_BELIEF;
-							if(eMajority != NO_RELIGION)
+							ReligionTypes eOwnerReligion = pCity->GetPlayer()->GetReligions()->GetOwnedReligion();
+							if (eOwnerReligion != NO_RELIGION && pCity->GetCityReligions()->IsHolyCityForReligion(eOwnerReligion))
 							{
-								const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pCity->getOwner());
-								if(pReligion)
+								ReligionTypes eMajority = pCity->GetCityReligions()->GetReligiousMajority();
+								BeliefTypes eSecondaryPantheon = NO_BELIEF;
+								if(eMajority != NO_RELIGION)
 								{
-									iMod += pReligion->m_Beliefs.GetGoldenAgeGreatPersonRateModifier(eGreatPerson, pCity->getOwner(), pCity);
-									eSecondaryPantheon = pCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
-									if (eSecondaryPantheon != NO_BELIEF)
+									const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pCity->getOwner());
+									if(pReligion)
 									{
-										iMod += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
+										iMod += pReligion->m_Beliefs.GetGoldenAgeGreatPersonRateModifier(eGreatPerson, pCity->getOwner(), pCity);
+										eSecondaryPantheon = pCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
+										if (eSecondaryPantheon != NO_BELIEF)
+										{
+											iMod += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
+										}
 									}
 								}
-							}
 
-							// Mod for civs keeping their pantheon belief forever
-							if (MOD_BALANCE_PERMANENT_PANTHEONS)
-							{
-								if (GC.getGame().GetGameReligions()->HasCreatedPantheon(pCity->getOwner()))
+								// Mod for civs keeping their pantheon belief forever
+								if (MOD_BALANCE_PERMANENT_PANTHEONS)
 								{
-									const CvReligion* pPantheon = GC.getGame().GetGameReligions()->GetReligion(RELIGION_PANTHEON, pCity->getOwner());
-									BeliefTypes ePantheonBelief = GC.getGame().GetGameReligions()->GetBeliefInPantheon(pCity->getOwner());
-									if (pPantheon != NULL && ePantheonBelief != NO_BELIEF && ePantheonBelief != eSecondaryPantheon)
+									if (GC.getGame().GetGameReligions()->HasCreatedPantheon(pCity->getOwner()))
 									{
-										const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pCity->getOwner());
-										if (pReligion == NULL || !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, pReligion->m_eReligion, pCity->getOwner())) // check that the our religion does not have our belief, to prevent double counting
+										const CvReligion* pPantheon = GC.getGame().GetGameReligions()->GetReligion(RELIGION_PANTHEON, pCity->getOwner());
+										BeliefTypes ePantheonBelief = GC.getGame().GetGameReligions()->GetBeliefInPantheon(pCity->getOwner());
+										if (pPantheon != NULL && ePantheonBelief != NO_BELIEF && ePantheonBelief != eSecondaryPantheon)
 										{
-											iMod += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
+											const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pCity->getOwner());
+											if (pReligion == NULL || !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, pReligion->m_eReligion, pCity->getOwner())) // check that the our religion does not have our belief, to prevent double counting
+											{
+												iMod += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
+											}
 										}
 									}
 								}
@@ -4934,16 +4938,20 @@ int CityStrategyAIHelpers::GetBuildingPolicyValue(CvCity *pCity, BuildingTypes e
 			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, kPlayer.GetID());
 			if (pReligion)
 			{
-				for(int iJ = 0; iJ < GC.getNumGreatPersonInfos(); iJ++)
+				ReligionTypes eOwnedReligion = kPlayer.GetReligions()->GetOwnedReligion();
+				if (eOwnedReligion != NO_RELIGION && pCity->GetCityReligions()->IsHolyCityForReligion(eOwnedReligion))
 				{
-					GreatPersonTypes eGP = (GreatPersonTypes)iJ;
-					if(eGP == NO_GREATPERSON)
-						continue;
-
-					if (pReligion->m_Beliefs.GetGoldenAgeGreatPersonRateModifier(eGP, kPlayer.GetID(), pCity) > 0)
+					for(int iJ = 0; iJ < GC.getNumGreatPersonInfos(); iJ++)
 					{
-						iValue += pReligion->m_Beliefs.GetGoldenAgeGreatPersonRateModifier(eGP, kPlayer.GetID(), pCity);
-						iValue += kPlayer.GetPlayerTraits()->GetWLTKDGPImprovementModifier() * 10;
+						GreatPersonTypes eGP = (GreatPersonTypes)iJ;
+						if(eGP == NO_GREATPERSON)
+							continue;
+
+						if (pReligion->m_Beliefs.GetGoldenAgeGreatPersonRateModifier(eGP, kPlayer.GetID(), pCity) > 0)
+						{
+							iValue += pReligion->m_Beliefs.GetGoldenAgeGreatPersonRateModifier(eGP, kPlayer.GetID(), pCity);
+							iValue += kPlayer.GetPlayerTraits()->GetWLTKDGPImprovementModifier() * 10;
+						}
 					}
 				}
 				for(uint ui = 0; ui < NUM_YIELD_TYPES; ui++)
@@ -5320,21 +5328,21 @@ int CityStrategyAIHelpers::GetBuildingBasicValue(CvCity *pCity, BuildingTypes eB
     {
 		iValue += kPlayer.GetPlayerTraits()->GetWonderProductionToBuildingDiscount(eBuilding);
     }
-	if (pkBuildingInfo->GetExtraMissionarySpreads() > 0)
+	if (kPlayer.isMajorCiv() && pkBuildingInfo->GetExtraMissionarySpreads() > 0)
 	{
 		int iNumNearbyCities = kPlayer.GetReligionAI()->GetNumCitiesWithReligionCalculator(kPlayer.GetReligions()->GetStateReligion());
 
 		iValue += (iNumNearbyCities / 25);
 	}
 
-	if (pkBuildingInfo->GetExtraMissionarySpreadsGlobal() > 0)
+	if (kPlayer.isMajorCiv() && pkBuildingInfo->GetExtraMissionarySpreadsGlobal() > 0)
 	{
 		int iNumNearbyCities = kPlayer.GetReligionAI()->GetNumCitiesWithReligionCalculator(kPlayer.GetReligions()->GetStateReligion());
 
 		iValue += (iNumNearbyCities / 10);
 	}
 
-	if (pkBuildingInfo->GetExtraMissionaryStrength() > 0)
+	if (kPlayer.isMajorCiv() && pkBuildingInfo->GetExtraMissionaryStrength() > 0)
 	{
 		int iNumNearbyCities = kPlayer.GetReligionAI()->GetNumCitiesWithReligionCalculator(kPlayer.GetReligions()->GetStateReligion());
 

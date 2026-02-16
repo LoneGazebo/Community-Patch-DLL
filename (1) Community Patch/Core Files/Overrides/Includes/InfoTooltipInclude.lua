@@ -788,7 +788,7 @@ function GetHelpTextForUnit(eUnit, bIncludeRequirementsInfo, pCity, bExcludeName
 
 	-- Stagnation
 	AddTooltipIfTrue(tStatLines, "TXT_KEY_PRODUCTION_UNIT_STAGNATION", kUnitInfo.Food);
-	AddTooltipIfTrue(tStatLines, "TXT_KEY_PRODUCTION_UNIT_REDUCE_POPULATION", MOD_BALANCE_SETTLERS_CONSUME_POPULATION and kUnitInfo.Food);
+	AddTooltipIfTrue(tStatLines, "TXT_KEY_PRODUCTION_UNIT_REDUCE_POPULATION", MOD_BALANCE_SETTLERS_CONSUME_POPULATION and kUnitInfo.Food and (kUnitInfo.Found or kUnitInfo.FoundMid or kUnitInfo.FoundLate or kUnitInfo.FoundAbroad));
 
 	-- Max HP (show when non-standard only)
 	local iMaxHP = kUnitInfo.MaxHitPoints;

@@ -612,8 +612,7 @@ void CvTacticalAnalysisMap::Invalidate()
 /// Fill the map with data for this AI player's turn
 void CvTacticalAnalysisMap::RefreshIfOutdated()
 {
-	//do not update from the UI thread, might lead to desyncs!
-	if (IsUpToDate() || !gDLL->IsGameCoreThread())
+	if (IsUpToDate())
 		return;
 
 	//this is where the sausage is made
@@ -665,9 +664,10 @@ void CvTacticalAnalysisMap::CreateDominanceZones()
 	for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iI);
+		ASSERT(pPlot != NULL, "plotByIndexUnchecked returned null - invalid plot index");
 
 		//some plot will be part of the "unknown zone"
-		if (!pPlot || !pPlot->isRevealed(eOurTeam))
+		if (!pPlot->isRevealed(eOurTeam))
 		{
 			m_vPlotZoneID[iI] = 0;
 			continue;

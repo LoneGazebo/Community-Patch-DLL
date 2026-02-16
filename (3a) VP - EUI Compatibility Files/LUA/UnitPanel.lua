@@ -1666,7 +1666,7 @@ function ActionToolTipHandler( control )
 	if action.Type == "COMMAND_UPGRADE" then
 
 		local upgradeUnitTypeID = unit:GetUpgradeUnitType()
-		local unitUpgradePrice = unit:UpgradePrice(upgradeUnitTypeID)
+		local unitUpgradePrice = ( upgradeUnitTypeID > -1 and unit:UpgradePrice(upgradeUnitTypeID) ) or 0
 
 		toolTip:insertLocalized( "TXT_KEY_UPGRADE_HELP", GameInfo_Units[upgradeUnitTypeID].Description, unitUpgradePrice )
 		toolTip:insert( "----------------" )

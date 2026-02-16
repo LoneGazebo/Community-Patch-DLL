@@ -64,5 +64,8 @@
 		<Row Tag="TXT_KEY_ACCOMPLISHMENT_DIPLOMATIC_MISSION_BOOST">
 			<Text>Diplomatic Mission by Proxenos Unit</Text>
 		</Row>
+		<Row Tag="TXT_KEY_ACCOMPLISHMENT_WARS_WON">
+			<Text>Winning a War</Text>
+		</Row>
 	</Language_en_US>
 </GameData>

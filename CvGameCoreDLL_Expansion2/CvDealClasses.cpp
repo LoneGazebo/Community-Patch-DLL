@@ -556,12 +556,6 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			if (eTech != NO_TECH && (GET_PLAYER(ePlayer).HasTech(eTech) || GET_PLAYER(eToPlayer).HasTech(eTech)))
 				return false;
 
-			// Resources can have a "AI will stop trading" era - if it's been passed, AI won't trade this
-			if (!pFromPlayer->isHuman(ISHUMAN_AI_DIPLOMACY) && pFromTeam->IsResourceObsolete(eResource))
-				return false;
-			if (!pToPlayer->isHuman(ISHUMAN_AI_DIPLOMACY) && pToTeam->IsResourceObsolete(eResource))
-				return false;
-
 			if (iData2 != -1)
 			{
 				int iResourceQuantity = iData2;
@@ -3872,6 +3866,7 @@ CvDeal::DealRenewStatus CvDeal::GetItemTradeableState(TradeableItems eTradeItem)
 	case TRADE_ITEM_VASSALAGE:
 	case TRADE_ITEM_TECHS:
 	case TRADE_ITEM_MAPS:
+	case TRADE_ITEM_RESEARCH_AGREEMENT:
 	case TRADE_ITEM_VASSALAGE_REVOKE:
 		return DEAL_NONRENEWABLE;
 
@@ -3885,7 +3880,6 @@ CvDeal::DealRenewStatus CvDeal::GetItemTradeableState(TradeableItems eTradeItem)
 
 		// doesn't matter
 	case TRADE_ITEM_GOLD:
-	case TRADE_ITEM_RESEARCH_AGREEMENT:
 		return DEAL_SUPPLEMENTAL;
 	}
 
@@ -5163,6 +5157,37 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 		}
 	}
 
+	// if this is a renewal deal, cancel all items from the original deal that are no longer included now
+	std::vector<CvDeal*> pRenewDeals = GetRenewableDealsWithPlayer(eFromPlayer, eToPlayer, 1, true);
+	if (pRenewDeals.size() > 0)
+	{
+		for (uint i = 0; i < pRenewDeals.size(); i++)
+		{
+			CvDeal* pRenewalDeal = pRenewDeals[i];
+			for (TradedItemList::iterator itemIterOldDeal = pRenewalDeal->m_TradedItems.begin(); itemIterOldDeal != pRenewalDeal->m_TradedItems.end(); ++itemIterOldDeal)
+			{
+				// skip gold per turn and resources, they have already been processed in PrepareRenewDeal
+				if (itemIterOldDeal->m_eItemType == TRADE_ITEM_GOLD_PER_TURN || itemIterOldDeal->m_eItemType == TRADE_ITEM_RESOURCES)
+					continue;
+
+				bool bItemRenewed = false;
+				for (TradedItemList::iterator itemIterNewDeal = kDeal.m_TradedItems.begin(); itemIterNewDeal != kDeal.m_TradedItems.end(); ++itemIterNewDeal)
+				{
+					if (itemIterNewDeal->m_eItemType == itemIterOldDeal->m_eItemType &&
+						itemIterNewDeal->m_eFromPlayer == itemIterOldDeal->m_eFromPlayer)
+					{
+						bItemRenewed = true;
+						break;
+					}
+				}
+				if (bItemRenewed)
+					continue;
+
+				GC.getGame().GetGameDeals().DoEndTradedItem(&*itemIterOldDeal, pRenewalDeal->GetOtherPlayer(itemIterOldDeal->m_eFromPlayer), false);
+			}
+		}
+	}
+
 	LogDealComplete(&kDeal);
 	// to avoid caching issues
 	GC.getGame().changeTurnSlice(1);
@@ -6166,6 +6191,13 @@ void CvGameDeals::LogDealFailed(CvDeal* pDeal, bool bNoRenew, bool bNotAccepted,
 		else if (!(bNoRenew || bNotAccepted || bNotValid))
 		{
 			strOutBuf = strBaseString + "FAILED: UNKNOWN, ";
+		}
+
+		if (pDeal->m_TradedItems.empty())
+		{
+			strOutBuf += "NO ITEMS IN DEAL";
+			pLog->Msg(strOutBuf);
+			return;
 		}
 
 		TradedItemList::iterator itemIter;

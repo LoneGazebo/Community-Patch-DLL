@@ -4,7 +4,7 @@ local IsNumber = CPK.Type.IsNumber
 
 --- Checks if the type of the specified value is `integer`.
 --- @param val any # The value to check.
---- @return boolean # `true` if the value is a number, `false` otherwise.
+--- @return boolean # `true` if the value is a integer, `false` otherwise.
 --- @nodiscard
 local function IsInteger(val)
 	return IsNumber(val)

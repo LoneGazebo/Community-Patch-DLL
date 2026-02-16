@@ -14,36 +14,40 @@
         <Button Anchor="C,C" Offset="0,0" Size="128,128" Texture="Assets/UI/Art/Icons/LeaderPortraits1024.dds" ID="Portrait" NoStateChange="1" />
       </Image>
 
-      <Stack Anchor="L,T" Size="565,128" Offset="116,4"   StackGrowth="Bottom" Padding="6" >
-        <Box Offset="-12,0"  Anchor="L,T" Size="424,28"  Color="White.0" >
-          <Label Anchor="L,T" Offset="12,4" Font="TwCenMT22" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="Title" />
+      <Stack Anchor="L,T" Size="700,128" Offset="106,4"   StackGrowth="Bottom" Padding="6" >
+        <Box Offset="-20,0"  Anchor="L,T" Size="424,28"  Color="White.0" >
+          <Label Anchor="L,T" Offset="12,6" Font="TwCenMT22" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="Title" />
         </Box>
         <!--<Label Anchor="L,T" Offset="0,0"  WrapWidth="565" LeadingOffset="-5" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="BonusTitle" String="[ICON_BULLET]Civ Specific Bonus 1"/>-->
-        <Label Anchor="L,T" Offset="0,0"  WrapWidth="565" LeadingOffset="-5" Font="TwCenMT18" FontStyle="Base" ID="BonusDescription" String="[ICON_BULLET]Civ Specific Bonus 2"/>
+        <Label Anchor="L,T" Offset="0,-2"  WrapWidth="562" LeadingOffset="-5" Font="TwCenMT18" FontStyle="Base" ID="BonusDescription" String="[ICON_BULLET]Civ Specific Bonus 2"/>
 
       </Stack>
 
       <!-- Civ specific bonuses -->
-      <Stack Anchor="R,C"  Size="128,128" StackGrowth="Right" Padding="-8" Offset="-45,0" >
 
-        <Image Anchor="L,B" Texture="IconFrame64.dds" Size="64.64" Hidden="0" Offset="-4,58" ID="BF1">
+        <Image Anchor="R,B" Texture="IconFrame64.dds" Size="64.64" Offset="64,58" ID="BF1">
           <Button Anchor="C,C" Size="64,64" Texture="WonderAtlas512.dds" ID="B1" NoStateChange="1" />
         </Image>
-        <Image Anchor="L,T" Texture="IconFrame64.dds" Size="64.64" Offset="-64,58"  ID="BF2">
+        <Image Anchor="R,T" Texture="IconFrame64.dds" Size="64.64" Offset="64,58"  ID="BF2">
           <Button Anchor="C,C" Size="64,64" Texture="WonderAtlas512.dds" ID="B2" NoStateChange="1" />
         </Image>
-		<Image Anchor="L,B" Texture="IconFrame64.dds" Size="64.64" Offset="-4,58" ID="BF3">
+	      <Image Anchor="R,B" Texture="IconFrame64.dds" Size="64.64" Offset="128,58" ID="BF3">
           <Button Anchor="C,C" Size="64,64" Texture="WonderAtlas512.dds" ID="B3" NoStateChange="1" />
         </Image>
-        <Image Anchor="R,T" Texture="IconFrame64.dds" Size="64.64" Offset="-64,58" ID="BF4">
+        <Image Anchor="R,T" Texture="IconFrame64.dds" Size="64.64" Offset="128,58" ID="BF4">
           <Button Anchor="C,C" Size="64,64" Texture="WonderAtlas512.dds" ID="B4" NoStateChange="1" />
         </Image>
-
-        <Image Anchor="C,C"  Offset="5,0" Texture="IconFrame64.dds" Size="64.64" Hidden="0" >
-          <Button Size="64,64" Anchor="C,C" Texture="Assets/UI/Art/Icons/Units/CivSymbolsColor512.dds" ID="CivIcon" NoStateChange="1" />
+	      <Image Anchor="R,B" Texture="IconFrame64.dds" Size="64.64" Offset="192,58" ID="BF5">
+          <Button Anchor="C,C" Size="64,64" Texture="WonderAtlas512.dds" ID="B5" NoStateChange="1" />
+        </Image>
+        <Image Anchor="R,T" Texture="IconFrame64.dds" Size="64.64" Offset="192,58" ID="BF6">
+          <Button Anchor="C,C" Size="64,64" Texture="WonderAtlas512.dds" ID="B6" NoStateChange="1" />
         </Image>
 
-      </Stack>
+
+      <Image Anchor="R,C"  Offset="6,0" Texture="IconFrame64.dds" Size="64.64" Hidden="0" >
+        <Button Size="64,64" Anchor="C,C" Texture="Assets/UI/Art/Icons/Units/CivSymbolsColor512.dds" ID="CivIcon" NoStateChange="1" />
+      </Image>
 
       <Box Anchor="L,T" Offset="84,8"  Size="530,64" Color="255,255,255,0" >
         <Label Anchor="L,T" Offset="0,0"  WrapWidth="520" LeadingOffset="-8" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="Description" Hidden="1"/>

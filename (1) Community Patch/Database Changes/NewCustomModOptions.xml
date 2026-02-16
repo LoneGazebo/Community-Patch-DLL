@@ -224,7 +224,7 @@
 		<!-- The tech cost reduction from other teams having researched a tech requires an embassy or spy and not just having met them -->
 		<Row Class="4" Name="DIPLOMACY_TECH_BONUSES" Value="0"/>
 
-		<!-- If City-States are allied to a major, other players cannot enter their territory unless they would be able to enter the major's territory -->
+		<!-- If City-States are allied to a major, other players cannot enter their territory unless they would be able to enter the major's territory. Diplomatic units are excluded from this -->
 		<Row Class="6" Name="GLOBAL_CS_OVERSEAS_TERRITORY" Value="0"/>
 
 		<!-- Permits units to upgrade in allied militaristic City-States, but increases the # of turns until the next free unit spawns by UPGRADE_EXTRA_TURNS_UNIT_SPAWN, scaling with game speed -->

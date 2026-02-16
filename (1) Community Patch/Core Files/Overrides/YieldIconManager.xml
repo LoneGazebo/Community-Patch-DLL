@@ -2,16 +2,16 @@
 <Context>
 
 	<Instance Name="ImageInstance" >
-		<Image Size="128,128" Texture="Assets/UI/Art/Icons/YieldAtlas.dds" ID="Image" Sampler="Linear" />
+		<Image ID="Image" Size="128,128" Texture="Assets/UI/Art/Icons/YieldAtlas.dds" Sampler="Linear" />
 	</Instance>
 
 	<Instance Name="TextInstance" >
-		<Label Anchor="C,C" String="6" Font="TwCenMT24" FontStyle="Stroke" ColorSet="Beige_Black" ID="Text" />
+		<Label ID="Text" Anchor="C,C" String="6" Font="TwCenMT24" FontStyle="Stroke" ColorSet="Beige_Black" />
 	</Instance>
 
 	<Instance Name="AnchorInstance" >
 		<WorldAnchor ID="Anchor" Scaling="True" DepthAdjust="-25" >
-			<Stack ID="Stack" Offset="0,-10" Anchor="C,C" StackGrowth="Bottom" Padding="-20">
+			<Stack ID="Stack" Offset="0,-10" Anchor="C,C" StackGrowth="Bottom" Padding="-40">
 				<Stack ID="Stack1" Anchor="C,C" StackGrowth="Right" Padding="-40" />
 				<Stack ID="Stack2" Anchor="C,C" StackGrowth="Right" Padding="-40" />
 			</Stack>

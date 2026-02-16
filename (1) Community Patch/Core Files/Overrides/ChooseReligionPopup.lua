@@ -196,6 +196,7 @@ local function BuildBeliefList(tAvailableBeliefs, eSlot)
 	-- Start building the list
 	for _, belief in ipairs(tAvailableBeliefs) do
 		local instance = g_BeliefInstanceManager:GetInstance();
+		instance.Name:SetText(belief.Name);
 		instance.Name:SetToolTipString(belief.Tooltip);
 		instance.Description:SetText(belief.Description);
 		instance.Description:SetToolTipString(belief.Tooltip);
@@ -530,6 +531,10 @@ local function SetupExistingBeliefButtons(tSlotBeliefs)
 	for eSlot, eBelief in ipairs(tSlotBeliefs) do
 		local kBeliefInfo = GameInfo.Beliefs[eBelief];
 		assert(kBeliefInfo, "Savegame or database could be corrupt. If this issue persists, consider reinstalling the mod.");
+		if kBeliefInfo.Reformation then 
+			assert( eSlot == #tSlotBeliefs , "Did you reform before founding?!" );
+			break;
+		end
 		tBeliefSlotDetails[eSlot].NameLabel:LocalizeAndSetText(kBeliefInfo.ShortDescription);
 		tBeliefSlotDetails[eSlot].NameLabel:LocalizeAndSetToolTip(kBeliefInfo.Description);
 		tBeliefSlotDetails[eSlot].DescriptionLabel:LocalizeAndSetText(kBeliefInfo.Description);
@@ -541,18 +546,22 @@ end
 
 local function RefreshExistingBeliefs()
 	local pPlayer = Players[Game.GetActivePlayer()];
-	local bFounded = pPlayer:OwnsReligion();
+	local bEnhancing = pPlayer:OwnsReligion();
 	local bBonusBelief = pPlayer:IsTraitBonusReligiousBelief();
 
 	-- Handle bonus belief first
-	if bBonusBelief and not bFounded then
+	if bBonusBelief and not bEnhancing then
 		EnableBeliefButtons{BeliefSlots.BONUS};
-	elseif not bBonusBelief then
+	else
 		DisableBeliefButtons{BeliefSlots.BONUS};
+		if bBonusBelief then -- Already has the bonus belief by now!
+			Hide(Controls.BonusLock);
+			Hide(Controls.AlphaAnimBonus)
+		end
 	end
 
 	-- Config the UI based on the player's religion status
-	if bFounded then
+	if bEnhancing then
 		DisableBeliefButtons{BeliefSlots.PANTHEON, BeliefSlots.FOLLOWER1, BeliefSlots.FOUNDER};
 		EnableBeliefButtons{BeliefSlots.FOLLOWER2, BeliefSlots.ENHANCER};
 		-- The case where the player already founded and has a bonus belief is handled here

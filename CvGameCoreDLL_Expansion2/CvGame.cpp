@@ -129,6 +129,7 @@ CvGame::CvGame() :
 	, m_bIsDesynced(false)
 	, m_eObserverUIOverridePlayer(NO_PLAYER)
 	, m_lastTurnAICivsProcessed(-1)
+	, m_firstActivationOfPlayersAfterLoad(false)
 	, m_processPlayerAutoMoves(false)
 	, m_cityDistancePathLength(NO_DOMAIN) //for now!
 	, m_cityDistancePlots()
@@ -630,16 +631,75 @@ void CvGame::InitPlayers()
 		const PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iI);
 		PlayerColorTypes ePlayerColor = NO_PLAYERCOLOR;
 		SlotStatus eStatus = CvPreGame::slotStatus(eLoopPlayer);
-		if (eStatus == SS_TAKEN || eStatus == SS_COMPUTER) // Don't set colors for unoccupied slots.
+		// Fix Really Advanced Startup mod setting major slots to closed
+		if (eStatus == SS_CLOSED)
 		{
-			ePlayerColor = CvPreGame::playerColor(eLoopPlayer);
-
-			// If it wasn't set in the pregame for some reason, fetch it from the database.
-			if (ePlayerColor == NO_PLAYERCOLOR)
+			CvPreGame::setTeamType(eLoopPlayer, OBSERVER_TEAM);
+			CvPreGame::setSlotStatus(eLoopPlayer, SS_OBSERVER);
+			CvPreGame::setMinorCiv(eLoopPlayer, false);
+			CivilizationTypes ePlayerCiv = CvPreGame::civilization(eLoopPlayer);
+			if (ePlayerCiv == NO_CIVILIZATION)
 			{
-				CvCivilizationInfo* pCivilizationInfo = GC.getCivilizationInfo(CvPreGame::civilization(eLoopPlayer));
-				ePlayerColor = (PlayerColorTypes)pCivilizationInfo->getDefaultPlayerColor();
+				// Find an unused civilization
+				CivilizationTypes eAssignedCiv = NO_CIVILIZATION;
+				LeaderHeadTypes eAssignedLeader = NO_LEADER;
+
+				for (int iCiv = 0; iCiv < GC.getNumCivilizationInfos(); iCiv++)
+				{
+					CivilizationTypes eTestCiv = static_cast<CivilizationTypes>(iCiv);
+
+					// Skip barbarian and minor civilizations
+					if (eTestCiv == eBarbCiv || eTestCiv == eMinorCiv)
+						continue;
+
+					// Check if this civilization is already assigned to another player
+					bool bAlreadyUsed = false;
+					for (int iJ = 0; iJ < MAX_MAJOR_CIVS; iJ++)
+					{
+						if (iJ != iI && CvPreGame::civilization(static_cast<PlayerTypes>(iJ)) == eTestCiv)
+						{
+							bAlreadyUsed = true;
+							break;
+						}
+					}
+
+					if (!bAlreadyUsed)
+					{
+						// Find a leader for this civilization
+						CvCivilizationInfo* pCivInfo = GC.getCivilizationInfo(eTestCiv);
+						if (pCivInfo != NULL)
+						{
+							for (int iLeader = 0; iLeader < GC.getNumLeaderHeadInfos(); iLeader++)
+							{
+								if (pCivInfo->isLeaders(iLeader))
+								{
+									eAssignedCiv = eTestCiv;
+									eAssignedLeader = static_cast<LeaderHeadTypes>(iLeader);
+									break;
+								}
+							}
+						}
+
+						if (eAssignedCiv != NO_CIVILIZATION && eAssignedLeader != NO_LEADER)
+							break;
+					}
+				}
+
+				if (eAssignedCiv != NO_CIVILIZATION && eAssignedLeader != NO_LEADER)
+				{
+					CvPreGame::setCivilization(eLoopPlayer, eAssignedCiv);
+					CvPreGame::setLeaderHead(eLoopPlayer, eAssignedLeader);
+				}
 			}
+		}
+
+		ePlayerColor = CvPreGame::playerColor(eLoopPlayer);
+
+		// If it wasn't set in the pregame for some reason, fetch it from the database.
+		if (ePlayerColor == NO_PLAYERCOLOR)
+		{
+			CvCivilizationInfo* pCivilizationInfo = GC.getCivilizationInfo(CvPreGame::civilization(eLoopPlayer));
+			ePlayerColor = (PlayerColorTypes)pCivilizationInfo->getDefaultPlayerColor();
 		}
 
 		if (ePlayerColor == NO_PLAYERCOLOR || ePlayerColor == barbarianPlayerColor)
@@ -1623,18 +1683,15 @@ void CvGame::CheckPlayerTurnDeactivate()
 				if(kPlayer.hasProcessedAutoMoves())
 				{
 					bool bAutoMovesComplete = false;
-					if (kPlayer.GetEndTurnBlockingType() == NO_ENDTURN_BLOCKING_TYPE)
+					if (!(kPlayer.hasBusyUnitOrCity()))
 					{
-						if (!(kPlayer.hasBusyUnitOrCity()))
-						{
-							bAutoMovesComplete = true;
+						bAutoMovesComplete = true;
 
-							NET_MESSAGE_DEBUG_OSTR_ALWAYS("CheckPlayerTurnDeactivate() : auto-moves complete for " << kPlayer.getName());
-						}
-						else if (gDLL->HasReceivedTurnComplete(kPlayer.GetID()))
-						{
-							bAutoMovesComplete = true;
-						}
+						NET_MESSAGE_DEBUG_OSTR_ALWAYS("CheckPlayerTurnDeactivate() : auto-moves complete for " << kPlayer.getName());
+					}
+					else if (gDLL->HasReceivedTurnComplete(kPlayer.GetID()))
+					{
+						bAutoMovesComplete = true;
 					}
 
 					if(bAutoMovesComplete)
@@ -2075,13 +2132,126 @@ void CvGame::updateTestEndTurn()
 	CvPlayer& activePlayer = GET_PLAYER(activePlayerID);
 
 	ICvUserInterface2* pkIface = GC.GetEngineUserInterface();
+	if (activePlayer.isTurnActive())
+	{
+		// check notifications
+		EndTurnBlockingTypes eEndTurnBlockingType = NO_ENDTURN_BLOCKING_TYPE;
+		int iNotificationIndex = -1;
+		activePlayer.GetNotifications()->GetEndTurnBlockedType(eEndTurnBlockingType, iNotificationIndex);
+
+		if (eEndTurnBlockingType == NO_ENDTURN_BLOCKING_TYPE)
+		{
+			// No notifications are blocking, check units/cities
+			if (activePlayer.hasPromotableUnit() && !GC.getGame().isOption(GAMEOPTION_PROMOTION_SAVING))
+			{
+				eEndTurnBlockingType = ENDTURN_BLOCKING_UNIT_PROMOTION;
+			}
+			else if (activePlayer.hasReadyUnit())
+			{
+				const CvUnit* pUnit = activePlayer.GetFirstReadyUnit();
+				ASSERT(pUnit, "GetFirstReadyUnit is returning null");
+				if (pUnit)
+				{
+					if (!pUnit->canHold(pUnit->plot()))
+					{
+						eEndTurnBlockingType = ENDTURN_BLOCKING_STACKED_UNITS;
+					}
+					else
+					{
+						eEndTurnBlockingType = ENDTURN_BLOCKING_UNITS;
+					}
+				}
+			}
+		}
+
+		if (eEndTurnBlockingType == NO_ENDTURN_BLOCKING_TYPE)
+		{
+			if (!(activePlayer.hasBusyUnitOrCity()) && !(activePlayer.hasReadyUnit()))
+			{
+				// JAR  - Looks like popups are pretty much disabled at this point, this check will break
+				// multiplayer games. Look at revision #27 to resurrect the old popup check code if/when
+				// they are implemented again.
+				if (!isGameMultiPlayer())
+				{
+					if ((activePlayer.isOption(PLAYEROPTION_WAIT_END_TURN) && !isGameMultiPlayer()) || !(GC.GetEngineUserInterface()->isHasMovedUnit()) || isHotSeat() || isPbem())
+					{
+						GC.GetEngineUserInterface()->setCanEndTurn(true);
+					}
+				}
+				else
+				{
+					if (activePlayer.hasAutoUnit() && !m_sentAutoMoves)
+					{
+						if (!(gDLL->shiftKey()))
+						{
+							gDLL->sendAutoMoves();
+							m_sentAutoMoves = true;
+						}
+					}
+					else
+					{
+						if ((activePlayer.isOption(PLAYEROPTION_WAIT_END_TURN) && !isGameMultiPlayer()) || !(GC.GetEngineUserInterface()->isHasMovedUnit()) || isHotSeat() || isPbem())
+						{
+							GC.GetEngineUserInterface()->setCanEndTurn(true);
+						}
+						else
+						{
+							if (GC.GetEngineUserInterface()->getEndTurnCounter() > 0)
+							{
+								GC.GetEngineUserInterface()->changeEndTurnCounter(-1);
+							}
+							else
+							{
+								if (!gDLL->HasSentTurnComplete() && gDLL->allAICivsProcessedThisTurn() && allUnitAIProcessed() && pkIface && pkIface->IsMPAutoEndTurnEnabled())
+								{
+									if (MOD_ENABLE_ACHIEVEMENTS)
+										activePlayer.GetPlayerAchievements().EndTurn();
+
+									if (MOD_EVENTS_RED_TURN)
+										// RED <<<<<
+									{
+										ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+										if (pkScriptSystem)
+										{
+											CvLuaArgsHandle args;
+
+											args->Push(getActivePlayer());
+
+											bool bResult = false;
+											LuaSupport::CallHook(pkScriptSystem, "TurnComplete", args.get(), bResult);
+										}
+									}
+									// RED >>>>>
+
+									gDLL->sendTurnComplete();
+
+									if (MOD_ENABLE_ACHIEVEMENTS)
+										CvAchievementUnlocker::EndTurn();
+								}
+
+								GC.GetEngineUserInterface()->setEndTurnCounter(3); // XXX
+								if (isGameMultiPlayer())
+								{
+									GC.GetEngineUserInterface()->setCanEndTurn(true);
+									m_endTurnTimer.Start();
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
+		activePlayer.SetEndTurnBlocking(eEndTurnBlockingType, iNotificationIndex);
+	}
+
 	if(pkIface != NULL)
 	{
 		bool automaticallyEndTurns = (isGameMultiPlayer())? pkIface->IsMPAutoEndTurnEnabled() : pkIface->IsSPAutoEndTurnEnabled();
 		if(automaticallyEndTurns && s_unitMoveTurnSlice != 0)
 			automaticallyEndTurns = s_unitMoveTurnSlice + 10 < getTurnSlice();
 
-		if(automaticallyEndTurns)
+		if(automaticallyEndTurns && activePlayer.GetEndTurnBlockingType() == NO_ENDTURN_BLOCKING_TYPE)
 		{
 			bool hasSelection = false;
 
@@ -2128,118 +2298,7 @@ void CvGame::updateTestEndTurn()
 		}
 	}
 
-	if(activePlayer.isTurnActive())
-	{
-		// check notifications
-		EndTurnBlockingTypes eEndTurnBlockingType = NO_ENDTURN_BLOCKING_TYPE;
-		int iNotificationIndex = -1;
-		activePlayer.GetNotifications()->GetEndTurnBlockedType(eEndTurnBlockingType, iNotificationIndex);
-
-		if(eEndTurnBlockingType == NO_ENDTURN_BLOCKING_TYPE)
-		{
-			// No notifications are blocking, check units/cities
-			if(activePlayer.hasPromotableUnit() && !GC.getGame().isOption(GAMEOPTION_PROMOTION_SAVING))
-			{
-				eEndTurnBlockingType = ENDTURN_BLOCKING_UNIT_PROMOTION;
-			}
-			else if(activePlayer.hasReadyUnit())
-			{
-				const CvUnit* pUnit = activePlayer.GetFirstReadyUnit();
-				ASSERT(pUnit, "GetFirstReadyUnit is returning null");
-				if(pUnit)
-				{
-					if(!pUnit->canHold(pUnit->plot()))
-					{
-						eEndTurnBlockingType = ENDTURN_BLOCKING_STACKED_UNITS;
-					}
-					else
-					{
-						eEndTurnBlockingType = ENDTURN_BLOCKING_UNITS;
-					}
-				}
-			}
-		}
-
-		if(eEndTurnBlockingType == NO_ENDTURN_BLOCKING_TYPE)
-		{
-			if(!(activePlayer.hasBusyUnitOrCity()) && !(activePlayer.hasReadyUnit()))
-			{
-				// JAR  - Looks like popups are pretty much disabled at this point, this check will break
-				// multiplayer games. Look at revision #27 to resurrect the old popup check code if/when
-				// they are implemented again.
-				if(!isGameMultiPlayer())
-				{
-					if((activePlayer.isOption(PLAYEROPTION_WAIT_END_TURN) && !isGameMultiPlayer()) || !(GC.GetEngineUserInterface()->isHasMovedUnit()) || isHotSeat() || isPbem())
-					{
-						GC.GetEngineUserInterface()->setCanEndTurn(true);
-					}
-				}
-				else
-				{
-					if(activePlayer.hasAutoUnit() && !m_sentAutoMoves)
-					{
-						if(!(gDLL->shiftKey()))
-						{
-							gDLL->sendAutoMoves();
-							m_sentAutoMoves = true;
-						}
-					}
-					else
-					{
-						if((activePlayer.isOption(PLAYEROPTION_WAIT_END_TURN) && !isGameMultiPlayer()) || !(GC.GetEngineUserInterface()->isHasMovedUnit()) || isHotSeat() || isPbem())
-						{
-							GC.GetEngineUserInterface()->setCanEndTurn(true);
-						}
-						else
-						{
-							if(GC.GetEngineUserInterface()->getEndTurnCounter() > 0)
-							{
-								GC.GetEngineUserInterface()->changeEndTurnCounter(-1);
-							}
-							else
-							{
-								if(!gDLL->HasSentTurnComplete() && gDLL->allAICivsProcessedThisTurn() && allUnitAIProcessed() && pkIface && pkIface->IsMPAutoEndTurnEnabled())
-								{
-									if (MOD_ENABLE_ACHIEVEMENTS)
-										activePlayer.GetPlayerAchievements().EndTurn();
-
-									if (MOD_EVENTS_RED_TURN)
-									// RED <<<<<
-									{
-										ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-										if(pkScriptSystem)
-										{	
-											CvLuaArgsHandle args;
-
-											args->Push(getActivePlayer());
-
-											bool bResult = false;
-											LuaSupport::CallHook(pkScriptSystem, "TurnComplete", args.get(), bResult);
-										}
-									}
-									// RED >>>>>
-
-									gDLL->sendTurnComplete();
-
-									if (MOD_ENABLE_ACHIEVEMENTS)
-										CvAchievementUnlocker::EndTurn();
-								}
-
-								GC.GetEngineUserInterface()->setEndTurnCounter(3); // XXX
-								if(isGameMultiPlayer())
-								{
-									GC.GetEngineUserInterface()->setCanEndTurn(true);
-									m_endTurnTimer.Start();
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-
-		activePlayer.SetEndTurnBlocking(eEndTurnBlockingType, iNotificationIndex);
-	}
+	
 }
 
 //	--------------------------------------------------------------------------------
@@ -6255,76 +6314,6 @@ int CvGame::GetStartingMilitaryRating() const
 int CvGame::GetMinimumHumanMilitaryRating() const
 {
 	return GetStartingMilitaryRating() * /*80*/ range(GD_INT_GET(MILITARY_RATING_HUMAN_BUFFER_VALUE_PERCENT), 0, 100) / 100;
-}
-
-//	-----------------------------------------------------------------------------------------------
-/// Modify military strength perception based on skill rating
-int CvGame::ComputeRatingStrengthAdjustment(PlayerTypes ePlayer, PlayerTypes ePerceivingPlayer) const
-{
-	if (!GET_PLAYER(ePlayer).isMajorCiv())
-		return 100;
-	
-	int iCivRating = GET_PLAYER(ePlayer).GetMilitaryRating();
-	int iAverageRating = ComputeAverageMajorMilitaryRating(ePerceivingPlayer, /*eExcludedPlayer*/ ePlayer);
-
-	// Don't adjust
-	if (iAverageRating == -1)
-		return 100;
-
-	// Calculate the percentage difference from the average
-	int iPercentageDifference = (iCivRating * 100 - iAverageRating * 100) / max(iAverageRating, 1);
-	if (iPercentageDifference < 0)
-		iPercentageDifference *= -1; // need the absolute value
-
-	int iRtnValue = 100;
-
-	// If above average, apply the % difference as a positive modifier to strength, cap above at +100%
-	if (iCivRating > iAverageRating)
-	{
-		iRtnValue = min(100 + iPercentageDifference, max(GD_INT_GET(MILITARY_RATING_MAXIMUM_BONUS), 0) + 100);
-	}
-	// If below average, apply the % difference as a negative modifier to strength, cap below at -50%
-	else if (iCivRating < iAverageRating)
-	{
-		iRtnValue = max(100 - iPercentageDifference, max(GD_INT_GET(MILITARY_RATING_MAXIMUM_PENALTY), -100) + 100);
-	}
-
-	return iRtnValue;
-}
-
-/// What is the average (living) major civ's military rating (only counting players that we know)?
-int CvGame::ComputeAverageMajorMilitaryRating(PlayerTypes ePerceivingPlayer, PlayerTypes eExcludedPlayer /* = NO_PLAYER */) const
-{
-	int iTotalRating = 0;
-	int iNumCivs = 0;
-	
-	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-	{
-		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-		
-		if (eLoopPlayer == eExcludedPlayer)
-			continue;
-
-		if (ePerceivingPlayer != NO_PLAYER && GET_TEAM(GET_PLAYER(ePerceivingPlayer).getTeam()).isHasMet(GET_PLAYER(eLoopPlayer).getTeam()))
-			continue;
-		
-		if (GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMajorCiv() && GET_PLAYER(eLoopPlayer).getNumCities() > 0)
-		{
-			iTotalRating += GET_PLAYER(eLoopPlayer).GetMilitaryRating();
-			iNumCivs++;
-		}
-	}
-
-	// No other civs - don't adjust
-	if (iNumCivs == 0)
-		return -1;
-
-	// If there's only one other civ that the perceiving player has met, return -1 so the AI will adjust its opponent's strength perception, but not its own
-	// This avoids double counting when there isn't any other civ to factor into the global average
-	if (iNumCivs == 1 && ePerceivingPlayer == eExcludedPlayer && ePerceivingPlayer != NO_PLAYER)
-		return -1;
-	
-	return (iTotalRating / iNumCivs);
 }
 
 ///	-----------------------------------------------------------------------------------------------

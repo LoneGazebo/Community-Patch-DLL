@@ -392,4 +392,11 @@
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" notnull="true"/>
 	</Table>
+
+	<!-- POLICY: Allows you to gain an instant yield boost when adopting a policy. It does not scale with era. -->	
+	<Table name="Policy_InstantYield">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
 </GameData>

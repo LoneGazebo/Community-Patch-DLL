@@ -249,7 +249,7 @@ FDataStream& operator<<(FDataStream& saveTo, const CvReligionInCity& readFrom)
 /// Constructor
 CvGameReligions::CvGameReligions(void) :
 	m_iMinimumFaithForNextPantheon(0)
-	, m_religionIndex(MAX_CIV_PLAYERS, -1)
+	, m_religionIndex(GC.GetGameReligions()->GetNumReligions(), -1)
 {
 }
 
@@ -928,7 +928,7 @@ ReligionTypes CvGameReligions::GetReligionToFound(PlayerTypes ePlayer)
 			}
 		}
 
-		if(!HasBeenFounded(eCivReligion))
+		if (eCivReligion != NO_RELIGION && !HasBeenFounded(eCivReligion))
 		{
 			CvReligionEntry* pEntry = GC.getReligionInfo(eCivReligion);
 			if(pEntry)
@@ -3788,12 +3788,9 @@ int CvPlayerReligions::GetNumCitiesWithStateReligion(ReligionTypes eReligion)
 			CvCity* pLoopCity = NULL;
 			for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 			{
-				if(pLoopCity != NULL)
+				if(pLoopCity->GetCityReligions()->GetReligiousMajority() == GetStateReligion())
 				{
-					if(pLoopCity->GetCityReligions()->GetReligiousMajority() == GetStateReligion())
-					{
-						iNum++;
-					}
+					iNum++;
 				}
 			}
 		}
@@ -3804,12 +3801,9 @@ int CvPlayerReligions::GetNumCitiesWithStateReligion(ReligionTypes eReligion)
 			CvCity* pLoopCity = NULL;
 			for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 			{
-				if(pLoopCity != NULL)
+				if(pLoopCity->GetCityReligions()->GetReligiousMajority() == eReligion)
 				{
-					if(pLoopCity->GetCityReligions()->GetReligiousMajority() == eReligion)
-					{
-						iNum++;
-					}
+					iNum++;
 				}
 			}
 	}
@@ -8273,9 +8267,6 @@ int CvReligionAI::ScorePantheonBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity
 		CvUnit* pLoopUnit = NULL;
 		for (pLoopUnit = m_pPlayer->firstUnit(&iLoopUnit); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoopUnit))
 		{
-			if (pLoopUnit == NULL)
-				continue;
-
 			if (pLoopUnit->getUnitInfo().IsFoundReligion())
 			{
 				if (pLoopUnit->plot()->getEffectiveOwningCity() == pCity)
@@ -8743,9 +8734,6 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity) const
 		CvUnit* pLoopUnit = NULL;
 		for (pLoopUnit = m_pPlayer->firstUnit(&iLoopUnit); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoopUnit))
 		{
-			if (pLoopUnit == NULL)
-				continue;
-
 			if (pLoopUnit->getUnitInfo().IsFoundReligion())
 			{
 				if (pLoopUnit->plot()->getEffectiveOwningCity() == pCity)
@@ -9096,7 +9084,7 @@ int CvReligionAI::GetNumCitiesWithReligionCalculator(ReligionTypes eReligion, bo
 					continue;
 			}
 
-			if (m_pPlayer->GetDiplomacyAI()->IsBadTheftTarget(kLoopPlayer.GetID(), THEFT_TYPE_CONVERSION))
+			if (m_pPlayer->isMajorCiv() && m_pPlayer->GetDiplomacyAI()->IsBadTheftTarget(kLoopPlayer.GetID(), THEFT_TYPE_CONVERSION))
 				continue;
 
 			int iNumCities = 0;
@@ -9437,9 +9425,6 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 			CvCity* pLoopCity = NULL;
 			for (pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 			{
-				if (pLoopCity == NULL)
-					continue;
-
 				if (pLoopCity->GetCityReligions()->IsReligionHereOtherThan(eReligion, 1))
 					iForeignReligions++;
 			}
@@ -9924,8 +9909,6 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 			CvCity* pLoopCity = NULL;
 			for (pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 			{
-				if (pLoopCity == NULL)
-					continue;
 
 				int iEraBonus = (GC.getNumEraInfos() - (int)m_pPlayer->GetCurrentEra());
 				int iGW = pLoopCity->GetCityBuildings()->GetNumAvailableGreatWorkSlots() + iEraBonus + 1;

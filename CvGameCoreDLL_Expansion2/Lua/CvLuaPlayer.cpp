@@ -139,6 +139,8 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(DoGoody);
 	Method(CanGetGoody);
 
+	Method(SpawnResourceInVicinity);
+
 	Method(CanFound);
 	Method(Found);
 
@@ -2494,6 +2496,17 @@ int CvLuaPlayer::lCanGetGoody(lua_State* L)
 
 	lua_pushboolean(L, bResult);
 	return 1;
+}
+
+int CvLuaPlayer::lSpawnResourceInVicinity(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	CvCity* pkCity = CvLuaCity::GetInstance(L, 2);
+	const ResourceTypes eResource = (ResourceTypes)lua_tointeger(L, 3);
+	const int iQuantity = lua_tointeger(L, 4);
+	const bool bSarcophagus = luaL_optbool(L, 5, false);
+	pkPlayer->SpawnResourceInVicinity(pkCity, eResource, iQuantity, bSarcophagus);
+	return 0;
 }
 
 //------------------------------------------------------------------------------
@@ -10239,7 +10252,8 @@ int CvLuaPlayer::lChangeNumResourceTotal(lua_State* L)
 	const ResourceTypes eResource = (ResourceTypes)lua_tointeger(L, 2);
 	const int iChange = lua_tointeger(L, 3);
 	const bool bFromBuilding = luaL_optbool(L, 4, false);
-	pkPlayer->changeNumResourceTotal(eResource, iChange, bFromBuilding);
+	const bool bFromEvent = luaL_optbool(L, 5, false);
+	pkPlayer->changeNumResourceTotal(eResource, iChange, bFromBuilding, true, bFromEvent);
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -10260,7 +10274,6 @@ int CvLuaPlayer::lGetResourceExport(lua_State* L)
 int CvLuaPlayer::lGetResourceImport(lua_State* L)
 {
 	//we have to sum up several types of import here
-	//everything except GetResourceFromMinors because that has it's own method
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	const ResourceTypes eResource = (ResourceTypes) lua_tointeger(L, 2);
 
@@ -17692,8 +17705,6 @@ int CvLuaPlayer::lGetWLTKDResourceTT(lua_State* L)
 		int iLoop;
 		for (pLoopCity = pkPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = pkPlayer->nextCity(&iLoop))
 		{
-			if (pLoopCity == NULL)
-				continue;
 
 			if (pLoopCity->GetWeLoveTheKingDayCounter() > 0)
 				continue;
@@ -17720,8 +17731,6 @@ int CvLuaPlayer::lGetNumNationalWonders(lua_State* L)
 	int iResult = 0;
 	for(pLoopCity = pkPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = pkPlayer->nextCity(&iLoop))
 	{
-		if(pLoopCity == NULL)
-			continue;
 
 		iResult += pLoopCity->getNumNationalWonders();
 	}
@@ -18686,16 +18695,8 @@ int CvLuaPlayer::lGetRecentPlayerEventChoices(lua_State* L)
 					lua_setfield(L, t, "EventChoice");
 					lua_pushinteger(L, iDuration);
 					lua_setfield(L, t, "Duration");
-					if (bInstant)
-					{
-						lua_pushinteger(L, -1);
-						lua_setfield(L, t, "ParentEvent");
-					}
-					else
-					{
-						lua_pushinteger(L, eParentEvent);
-						lua_setfield(L, t, "ParentEvent");
-					}					
+					lua_pushinteger(L, -1);
+					lua_setfield(L, t, "ParentEvent");
 
 					lua_rawseti(L, -2, idx++);
 				}
@@ -18770,16 +18771,8 @@ int CvLuaPlayer::lGetRecentCityEventChoices(lua_State* L)
 						lua_setfield(L, t, "Duration");
 						lua_pushboolean(L, bEspionage);
 						lua_setfield(L, t, "Espionage");
-						if (bInstant)
-						{
-							lua_pushinteger(L, -1);
-							lua_setfield(L, t, "ParentEvent");
-						}
-						else
-						{
-							lua_pushinteger(L, eParentEvent);
-							lua_setfield(L, t, "ParentEvent");
-						}
+						lua_pushinteger(L, -1);
+						lua_setfield(L, t, "ParentEvent");
 						lua_pushinteger(L, pLoopCity->getX());
 						lua_setfield(L, t, "CityX");
 						lua_pushinteger(L, pLoopCity->getY());

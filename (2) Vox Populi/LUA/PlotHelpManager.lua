@@ -126,6 +126,19 @@ function Level1Tip()
 	if (plot and plot:IsRevealed(iActiveTeam, bIsDebug)) then
 		
 		local bFirstEntry = true;
+		if (bIsDebug) then
+			if (bFirstEntry) then
+				bFirstEntry = false;
+			else
+				TextString = TextString .. "[NEWLINE]";
+			end
+			-- X Y - in debug
+			TextString = TextString .. "[NEWLINE]";
+			TextString = TextString .. tostring(plot:GetX());
+			TextString = TextString .. "x ";
+			TextString = TextString .. tostring(plot:GetY());
+			TextString = TextString .. "y    ";
+		end
 		
 		-- Plot must be visible to see Units there
 		if (plot:IsVisible(iActiveTeam, bIsDebug)) then

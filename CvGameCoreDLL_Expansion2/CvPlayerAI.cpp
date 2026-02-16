@@ -2762,17 +2762,14 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit)
 		int iCityLoop = 0;
 		for (CvCity* pLoopCity = GET_PLAYER(GetID()).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(GetID()).nextCity(&iCityLoop))
 		{
-			if (pLoopCity != NULL)
+			ResourceTypes eResourceDemanded = pLoopCity->GetResourceDemanded();
+			if (eResourceDemanded != NO_RESOURCE)
 			{
-				ResourceTypes eResourceDemanded = pLoopCity->GetResourceDemanded();
-				if (eResourceDemanded != NO_RESOURCE)
+				//Will we get a WLTKD from this? We want it a bit more, please.
+				if (kMinor.getResourceInOwnedPlots(eResourceDemanded) > 0)
 				{
-					//Will we get a WLTKD from this? We want it a bit more, please.
-					if (kMinor.getResourceInOwnedPlots(eResourceDemanded) > 0)
-					{
-						iScore *= 3;
-						iScore /= 2;
-					}
+					iScore *= 3;
+					iScore /= 2;
 				}
 			}
 		}
@@ -3013,8 +3010,7 @@ priority_queue<SPlotWithScore> CvPlayerAI::GetBestCultureBombPlots(const UnitTyp
 		for (int iJ = 0; iJ < GC.getMap().numPlots(); iJ++)
 		{
 			CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iJ);
-			if (!pPlot)
-				continue;
+			ASSERT(pPlot != NULL, "plotByIndexUnchecked returned null - invalid plot index");
 
 			// Don't consider plots we already targeted
 			bool bTooClose = false;

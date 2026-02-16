@@ -145,7 +145,7 @@ function ClickSelect( wParam, lParam )
 		local bCtrl = UIManager:GetControl();
 		UI.LocationSelect(plot, bCtrl, bAlt, bShift);
 		-- fix the bug that no unit is being selected when clicking on a city tile
-		if (plot:IsCity() and plot:GetOwner() == Game.GetActivePlayer()) then
+		if (not bCityScreenOpen and plot:IsCity() and plot:GetOwner() == Game.GetActivePlayer()) then
 			local pSelectedUnit =  UI.GetHeadSelectedUnit()
 			if (pSelectedUnit == NULL or pSelectedUnit:GetX() ~= plot:GetX() or pSelectedUnit:GetY() ~= plot:GetY()) then
 				local pUnit = plot:GetBestDefender(plot:GetOwner(), -1)

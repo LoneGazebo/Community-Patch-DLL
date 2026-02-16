@@ -308,13 +308,13 @@
 			<Text>[COLOR_POSITIVE_TEXT][ICON_CITY_STATE] Establish an Embassy Available![ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_POP_CSTATE_MARRIAGE_TT">
-			<Text>You may spend {1_BuyoutCost} [ICON_GOLD] Gold to arrange a [ICON_RES_MARRIAGE] Diplomatic Marriage with this City-State. Doing so grants an increase of resting [ICON_INFLUENCE] Influence with the City-State of 75, scaling with Era, and +15% [ICON_GREAT_PEOPLE] Great Person rate in your [ICON_CAPITAL] Capital.[NEWLINE][NEWLINE] This can be only be done once per City-State, and the [ICON_GOLD] Gold cost increases with each [ICON_RES_MARRIAGE] Diplomatic Marriage.</Text>
+			<Text>You may spend {1_BuyoutCost} [ICON_GOLD] Gold to arrange a [ICON_RES_MARRIAGE] Diplomatic Marriage with this City-State. Doing so grants an increase of resting [ICON_INFLUENCE] Influence with the City-State of 200.[NEWLINE][NEWLINE] This can be only be done once per City-State, and the [ICON_GOLD] Gold cost increases with each [ICON_RES_MARRIAGE] Diplomatic Marriage.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_POP_CSTATE_MARRIAGE_DISABLED_TT">
-			<Text>You may spend {2_BuyoutCost} [ICON_GOLD] Gold to arrange a [ICON_RES_MARRIAGE] Diplomatic Marriage with this City-State. Doing so grants an increase of resting [ICON_INFLUENCE] Influence with the City-State of 75, scaling with Era, and +15% [ICON_GREAT_PEOPLE] Great Person rate in your [ICON_CAPITAL] Capital.[NEWLINE][NEWLINE] This can be only be done once per City-State, and the [ICON_GOLD] Gold cost increases with each [ICON_RES_MARRIAGE] Diplomatic Marriage.[NEWLINE][NEWLINE][COLOR_WARNING_TEXT]You must be allied for {1_NumTurns} turns and have {2_BuyoutCost} [ICON_GOLD] Gold to perform this action.[ENDCOLOR]</Text>
+			<Text>You may spend {2_BuyoutCost} [ICON_GOLD] Gold to arrange a [ICON_RES_MARRIAGE] Diplomatic Marriage with this City-State. Doing so grants an increase of resting [ICON_INFLUENCE] Influence with the City-State of 200.[NEWLINE][NEWLINE] This can be only be done once per City-State, and the [ICON_GOLD] Gold cost increases with each [ICON_RES_MARRIAGE] Diplomatic Marriage.[NEWLINE][NEWLINE][COLOR_WARNING_TEXT]You must be allied for {1_NumTurns} turns and have {2_BuyoutCost} [ICON_GOLD] Gold to perform this action.[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_POP_CSTATE_MARRIAGE_DISABLED_ALLY_TT">
-			<Text>You may spend {3_BuyoutCost} [ICON_GOLD] Gold to arrange a [ICON_RES_MARRIAGE] Diplomatic Marriage with this City-State. Doing so grants an increase of resting [ICON_INFLUENCE] Influence with the City-State of 75, scaling with Era, and +15% [ICON_GREAT_PEOPLE] Great Person rate in your [ICON_CAPITAL] Capital.[NEWLINE][NEWLINE] This can be only be done once per City-State, and the [ICON_GOLD] Gold cost increases with each [ICON_RES_MARRIAGE] Diplomatic Marriage.[NEWLINE][NEWLINE][COLOR_WARNING_TEXT]You must be allied for {1_NumTurns} turns ({2_TurnsAllied} {2_TurnsAllied: plural 1?turn; other?turns;} so far) and have {3_BuyoutCost} [ICON_GOLD] Gold to perform this action.[ENDCOLOR]</Text>
+			<Text>You may spend {3_BuyoutCost} [ICON_GOLD] Gold to arrange a [ICON_RES_MARRIAGE] Diplomatic Marriage with this City-State. Doing so grants an increase of resting [ICON_INFLUENCE] Influence with the City-State of 200.[NEWLINE][NEWLINE] This can be only be done once per City-State, and the [ICON_GOLD] Gold cost increases with each [ICON_RES_MARRIAGE] Diplomatic Marriage.[NEWLINE][NEWLINE][COLOR_WARNING_TEXT]You must be allied for {1_NumTurns} turns ({2_TurnsAllied} {2_TurnsAllied: plural 1?turn; other?turns;} so far) and have {3_BuyoutCost} [ICON_GOLD] Gold to perform this action.[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_POPUP_MINOR_BULLY_UNIT_AMOUNT_ANNEX">
 			<Text>Forcefully Annex City-State</Text>
@@ -1909,11 +1909,6 @@
 			<Text>The City-State of {1_CivName:textkey} wants you to send an archaeologist to study this tile.</Text>
 		</Row>
 
-		<!-- Religion picker -->
-		<Row Tag="TXT_KEY_RELIGION_CHOOSER_ADVISOR_RECOMMENDATION">
-			<Text>[COLOR_POSITIVE_TEXT]Your Advisor recommends this belief.[ENDCOLOR]</Text>
-		</Row>
-
 		<!-- Economic overview -->
 		<Row Tag="TXT_KEY_HAPPINESS_FROM_VASSALS">
 			<Text>Vassals</Text>
@@ -2725,6 +2720,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_NEED_RESOURCE_LOCAL">
 			<Text>[NEWLINE] [ICON_BULLET] Requires {1_Desc} Resource near City</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NEED_RESOURCE_AMOUNT">
+			<Text>[NEWLINE] [ICON_BULLET] Requires {1_Num} {2_Desc}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NEED_IMPROVEMENT">
 			<Text>[NEWLINE] [ICON_BULLET] Requires {1_Desc} Improvement</Text>

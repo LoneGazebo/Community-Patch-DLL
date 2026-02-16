@@ -267,9 +267,6 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nMinCandidat
 	int iLoop;
 	for (CvUnit* pLoopUnit = GET_PLAYER(pUnit->getOwner()).firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER(pUnit->getOwner()).nextUnit(&iLoop))
 	{
-		if (!pLoopUnit)
-			continue;
-
 		if (pLoopUnit == pUnit)
 			continue;
 
@@ -2837,9 +2834,7 @@ bool CvHomelandAI::ExecuteExplorerMoves(CvUnit* pUnit)
 	for (ReachablePlots::iterator tile = eligiblePlots.begin(); tile != eligiblePlots.end(); ++tile)
 	{
 		CvPlot* pEvalPlot = GC.getMap().plotByIndexUnchecked(tile->iPlotIndex);
-
-		if (!pEvalPlot)
-			continue;
+		ASSERT(pEvalPlot != NULL, "plotByIndexUnchecked returned null - invalid plot index");
 
 		//we can pass through a minor's territory but we don't want to stay there (unless we're friends)
 		//this check shouldn't be necessary because of IsValidExplorerEndTurnPlot() but sometimes it is
@@ -2943,9 +2938,6 @@ bool CvHomelandAI::ExecuteExplorerMoves(CvUnit* pUnit)
 			int iLoop;
 			for (CvUnit* pLoopUnit = GET_PLAYER(pUnit->getOwner()).firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER(pUnit->getOwner()).nextUnit(&iLoop))
 			{
-				if (!pLoopUnit)
-					continue;
-
 				if (pLoopUnit == pUnit)
 					continue;
 
@@ -3895,7 +3887,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 					if (pOtherPlot->getFeatureType() == eOldFeature)
 					{
 						FeatureTypes eFeatureFromOtherImprovement = pkOtherImprovementInfo ? pkOtherImprovementInfo->GetCreatedFeature() : NO_FEATURE;
-						FeatureTypes eOtherFeature = pkOtherBuildInfo && pkOtherBuildInfo->isFeatureRemove(pOtherPlot->getFeatureType()) ? NO_FEATURE : pOtherPlot->getFeatureType();
+						FeatureTypes eOtherFeature = pkOtherBuildInfo && pOtherPlot->getFeatureType() != NO_FEATURE && pkOtherBuildInfo->isFeatureRemove(pOtherPlot->getFeatureType()) ? NO_FEATURE : pOtherPlot->getFeatureType();
 						eOtherFeature = eFeatureFromOtherImprovement != NO_FEATURE ? eFeatureFromOtherImprovement : eOtherFeature;
 
 						if (eOtherFeature != pOtherPlot->getFeatureType() || eOtherImprovement != NO_IMPROVEMENT)

@@ -2398,6 +2398,7 @@ public:
 	GD_INT_MEMBER(MAJORS_CAN_MOVE_STARTING_SETTLER); // VP
 	GD_INT_MEMBER(CS_CAN_MOVE_STARTING_SETTLER); // VP
 	GD_INT_MEMBER(COMPLETE_KILLS_TURN_TIMER); // VP
+	GD_INT_MEMBER(NUM_UNIQUE_COMPONENTS);
 	GD_INT_MEMBER(MAX_NUM_TENETS_LEVEL_1); // VP
 	GD_INT_MEMBER(MAX_NUM_TENETS_LEVEL_2); // VP
 	GD_INT_MEMBER(MAX_NUM_TENETS_LEVEL_3); // VP
@@ -2806,6 +2807,7 @@ public:
 	GD_INT_MEMBER(VICTORY_DOMINATION_CONTROL_PERCENT); // VP
 	GD_INT_MEMBER(INQUISITION_EFFECTIVENESS); // VP
 	GD_INT_MEMBER(INQUISITOR_CONVERSION_REDUCTION_FACTOR); // VP
+	GD_INT_MEMBER(HURRY_GOLD_BUILDING_COST_PERCENT); // VP development
 	
 	// -- floats -- //
 	GD_FLOAT_MEMBER(AI_STRATEGY_NEED_IMPROVEMENT_CITY_RATIO);
@@ -2994,6 +2996,10 @@ public:
 	inline const GameDataHash& getGameDataHash() const { return m_gameDataHash; }
 	inline uint32 getSaveVersion() const { return m_saveVersion; }
 	inline void setSaveVersion(uint32 version) { m_saveVersion = version; }
+
+	// Caches for faster lookups
+	std::map<SpecialistTypes, GreatPersonTypes> m_specialistToGreatPersonCache;
+	std::map<UnitClassTypes, GreatPersonTypes> m_unitClassToGreatPersonCache;
 
 protected:
 

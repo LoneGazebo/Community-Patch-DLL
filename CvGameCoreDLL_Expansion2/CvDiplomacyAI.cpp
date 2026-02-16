@@ -1905,6 +1905,16 @@ bool CvDiplomacyAI::IsAIMustAcceptHumanDiscussRequests() const
 	return false;
 }
 
+int CvDiplomacyAI::ApplyPercentageModifier(int iValue, int iModifier, bool bDecrease) const
+{
+	PRECONDITION(!bDecrease || iModifier != 0);
+
+	long long lValue = static_cast<long long>(iValue);
+	return bDecrease
+		? static_cast<int>((lValue * 100) / iModifier)
+		: static_cast<int>((lValue * iModifier) / 100);
+}
+
 
 // ************************************
 // Personality Values
@@ -11015,26 +11025,9 @@ void CvDiplomacyAI::DoUpdatePlayerStrengthEstimates()
 		// First we update economic strength, that's easy
 		int iTheirEconomicStrength = GET_PLAYER(ePlayer).getNumCities() > 0 ? max(GET_PLAYER(ePlayer).GetEconomicMight(), 1) : 1;
 		int iEconomicRatio = iTheirEconomicStrength * /*100*/ GD_INT_GET(ECONOMIC_STRENGTH_RATIO_MULTIPLIER) / iEconomicStrength;
+		SetEconomicStrengthComparedToUs(ePlayer, EconomicStrengthFromRatio(iEconomicRatio));
 
-		// Now do the final assessment
-		StrengthTypes eEconomicStrength = STRENGTH_PATHETIC;
-		if (iEconomicRatio >= /*300*/ GD_INT_GET(ECONOMIC_STRENGTH_IMMENSE_THRESHOLD))
-			eEconomicStrength = STRENGTH_IMMENSE;
-		else if (iEconomicRatio >= /*200*/ GD_INT_GET(ECONOMIC_STRENGTH_POWERFUL_THRESHOLD))
-			eEconomicStrength = STRENGTH_POWERFUL;
-		else if (iEconomicRatio >= /*126*/ GD_INT_GET(ECONOMIC_STRENGTH_STRONG_THRESHOLD))
-			eEconomicStrength = STRENGTH_STRONG;
-		else if (iEconomicRatio >= /*75*/ GD_INT_GET(ECONOMIC_STRENGTH_AVERAGE_THRESHOLD))
-			eEconomicStrength = STRENGTH_AVERAGE;
-		else if (iEconomicRatio >= /*50*/ GD_INT_GET(ECONOMIC_STRENGTH_POOR_THRESHOLD))
-			eEconomicStrength = STRENGTH_POOR;
-		else if (iEconomicRatio >= /*33*/ GD_INT_GET(ECONOMIC_STRENGTH_WEAK_THRESHOLD))
-			eEconomicStrength = STRENGTH_WEAK;
-
-		// Set the value
-		SetEconomicStrengthComparedToUs(ePlayer, eEconomicStrength);
-
-
+		// Start with each player's base amount
 		int iOurMilitaryStrength = iMilitaryStrength;
 		int iTheirMilitaryStrength = max(iBase + GET_PLAYER(ePlayer).GetMilitaryMight() - GET_PLAYER(ePlayer).GetNuclearMight(), 1); // Remove strength from nukes, added later
 
@@ -11073,60 +11066,11 @@ void CvDiplomacyAI::DoUpdatePlayerStrengthEstimates()
 			continue;
 		}
 
-		// Factor in dynamic combat modifiers
-		iOurMilitaryStrength *= 100 + ComputeDynamicStrengthModifier(eOurPlayer, ePlayer);
-		iOurMilitaryStrength /= 100;
-		iTheirMilitaryStrength *= 100 + ComputeDynamicStrengthModifier(ePlayer, eOurPlayer);
-		iTheirMilitaryStrength /= 100;
-
-		// Factor in military rating (combat skill)
-		int iOurRatingModifier = GC.getGame().ComputeRatingStrengthAdjustment(eOurPlayer, eOurPlayer);
-		int iTheirRatingModifier = 100;
-		iOurMilitaryStrength *= iOurRatingModifier;
-		iOurMilitaryStrength /= 100;
-
-		// If we're an AI evaluating a human, modify their strength estimate based on difficulty level if they're reasonably strong
-		if (!GetPlayer()->isHuman(ISHUMAN_HANDICAP) && GET_PLAYER(ePlayer).isHuman(ISHUMAN_HANDICAP) && (GET_PLAYER(ePlayer).getNumNukeUnits() > 0 || (!GET_PLAYER(ePlayer).IsVassalOfSomeone() && !GET_PLAYER(ePlayer).IsInTerribleShapeForWar() && GetWarState(ePlayer) < WAR_STATE_OFFENSIVE)))
-		{
-			int iStartingRating = GC.getGame().GetStartingMilitaryRating();
-			int iMinimumHumanRating = GC.getGame().GetMinimumHumanMilitaryRating();
-			int iCurrentRating = GET_PLAYER(ePlayer).GetMilitaryRating();
-			int iHumanStrengthMod = max(0, GET_PLAYER(ePlayer).getHandicapInfo().getHumanStrengthPerceptionMod());
-			int iSkillRatingMod = GC.getGame().ComputeRatingStrengthAdjustment(ePlayer, eOurPlayer);
-
-			// If they're above the starting rating or are performing better than average, apply the highest of the human perception mod and the skill rating mod
-			if (iSkillRatingMod >= 100 || iCurrentRating >= iStartingRating || iStartingRating == 0)
-			{
-				iTheirRatingModifier = 100 + max(iHumanStrengthMod, iSkillRatingMod - 100);
-			}
-			// If the human hasn't lost 20% or more of the starting rating, they still get some of the strength perception bonus
-			else if (iCurrentRating >= iMinimumHumanRating && GD_INT_GET(MILITARY_RATING_HUMAN_BUFFER_VALUE_PERCENT) < 100)
-			{
-				int iMaxPercentageLost = 100 - /*80*/ max(GD_INT_GET(MILITARY_RATING_HUMAN_BUFFER_VALUE_PERCENT), 0);
-				int iPercentageLost = (iCurrentRating * 100 - iStartingRating * 100) / -iStartingRating;
-				int iDifference = (100 + iHumanStrengthMod) - iSkillRatingMod;
-
-				// Do not exceed human strength mod!
-				// example 1: if human strength mod is 10, skill rating mod is 80, and percentage lost is 10 (modifier of 95%), that'd be a 15% bonus; we cap the modifier to 90% (10% bonus) to avoid exceeding the XML value.
-				// example 2: if human strength mod is 30, skill rating mod is 80, and percentage lost is 10 (modifier of 105%), that'd be a 25% bonus, which is less than 30, so that's OK.
-				int iFinalModifier = 100 + iHumanStrengthMod - (iDifference * iPercentageLost / iMaxPercentageLost);
-				if (iFinalModifier - iSkillRatingMod > iHumanStrengthMod)
-					iFinalModifier = iSkillRatingMod + iHumanStrengthMod;
-
-				iTheirRatingModifier = iFinalModifier;
-			}
-			else
-			{
-				iTheirRatingModifier = iSkillRatingMod;
-			}
-		}
-		else if (GET_PLAYER(ePlayer).isMajorCiv())
-		{
-			iTheirRatingModifier = GC.getGame().ComputeRatingStrengthAdjustment(ePlayer, eOurPlayer);
-		}
-
-		iTheirMilitaryStrength *= iTheirRatingModifier;
-		iTheirMilitaryStrength /= 100;
+		// Factor in dynamic combat modifiers and military rating (combat skill)
+		iOurMilitaryStrength = ComputeDynamicStrengthModifier(eOurPlayer, ePlayer, iOurMilitaryStrength);
+		iOurMilitaryStrength = ComputeRatingStrengthAdjustment(eOurPlayer, ePlayer, iOurMilitaryStrength);
+		iTheirMilitaryStrength = ComputeDynamicStrengthModifier(ePlayer, eOurPlayer, iTheirMilitaryStrength);
+		iTheirMilitaryStrength = ComputeRatingStrengthAdjustment(ePlayer, eOurPlayer, iTheirMilitaryStrength);
 
 		// Factor in nuclear power
 		int iTheirCityDefense = 0;
@@ -11246,60 +11190,11 @@ void CvDiplomacyAI::DoUpdatePlayerStrengthEstimates()
 			int iAllyMight = max(iBase + GET_PLAYER(eAllyPlayer).GetMilitaryMight() - GET_PLAYER(eAllyPlayer).GetNuclearMight(), 1);
 			int iTheirMight = max(iBase + GET_PLAYER(ePlayer).GetMilitaryMight() - GET_PLAYER(ePlayer).GetNuclearMight(), 1);
 
-			// Factor in dynamic combat modifiers
-			iAllyMight *= 100 + ComputeDynamicStrengthModifier(eAllyPlayer, ePlayer);
-			iAllyMight /= 100;
-			int iTheirDynamicModifier = ComputeDynamicStrengthModifier(ePlayer, eAllyPlayer);
-			iTheirMight *= 100 + iTheirDynamicModifier;
-			iTheirMight /= 100;
-
-			// Factor in military rating (combat skill)
-			// If we're an AI evaluating a human, modify the ally's strength estimate based on difficulty level if they're reasonably strong
-			if (!GetPlayer()->isHuman(ISHUMAN_HANDICAP) && GET_PLAYER(eAllyPlayer).isHuman(ISHUMAN_HANDICAP) && (GET_PLAYER(eAllyPlayer).getNumNukeUnits() > 0 || (!GET_PLAYER(eAllyPlayer).IsVassalOfSomeone() && GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarState(eAllyPlayer) < WAR_STATE_OFFENSIVE)))
-			{
-				int iStartingRating = GC.getGame().GetStartingMilitaryRating();
-				int iMinimumHumanRating = GC.getGame().GetMinimumHumanMilitaryRating();
-				int iCurrentRating = GET_PLAYER(eAllyPlayer).GetMilitaryRating();
-				int iHumanStrengthMod = max(0, GET_PLAYER(eAllyPlayer).getHandicapInfo().getHumanStrengthPerceptionMod());
-				int iSkillRatingMod = GC.getGame().ComputeRatingStrengthAdjustment(eAllyPlayer, eOurPlayer);
-
-				// If they're above the starting rating or are performing better than average, apply the highest of the human perception mod and the skill rating mod
-				if (iSkillRatingMod >= 100 || iCurrentRating >= iStartingRating || iStartingRating == 0)
-				{
-					iAllyMight *= 100 + max(iHumanStrengthMod, iSkillRatingMod - 100);
-					iAllyMight /= 100;
-				}
-				// If the human hasn't lost 20% or more of the starting rating, they still get some of the strength perception bonus
-				else if (iCurrentRating >= iMinimumHumanRating && GD_INT_GET(MILITARY_RATING_HUMAN_BUFFER_VALUE_PERCENT) < 100)
-				{
-					int iMaxPercentageLost = 100 - /*80*/ max(GD_INT_GET(MILITARY_RATING_HUMAN_BUFFER_VALUE_PERCENT), 0);
-					int iPercentageLost = (iCurrentRating * 100 - iStartingRating * 100) / -iStartingRating;
-					int iDifference = (100 + iHumanStrengthMod) - iSkillRatingMod;
-
-					// Do not exceed human strength mod!
-					// example 1: if human strength mod is 10, skill rating mod is 80, and percentage lost is 10 (modifier of 95%), that'd be a 15% bonus; we cap the modifier to 90% (10% bonus) to avoid exceeding the XML value.
-					// example 2: if human strength mod is 30, skill rating mod is 80, and percentage lost is 10 (modifier of 105%), that'd be a 25% bonus, which is less than 30, so that's OK.
-					int iFinalModifier = 100 + iHumanStrengthMod - (iDifference * iPercentageLost / iMaxPercentageLost);
-					if (iFinalModifier - iSkillRatingMod > iHumanStrengthMod)
-						iFinalModifier = iSkillRatingMod + iHumanStrengthMod;
-
-					iAllyMight *= iFinalModifier;
-					iAllyMight /= 100;
-				}
-				else
-				{
-					iAllyMight *= iSkillRatingMod;
-					iAllyMight /= 100;
-				}
-			}
-			else if (GET_PLAYER(eAllyPlayer).isMajorCiv())
-			{
-				iAllyMight *= GC.getGame().ComputeRatingStrengthAdjustment(eAllyPlayer, eOurPlayer);
-				iAllyMight /= 100;
-			}
-
-			iTheirMight *= iTheirRatingModifier;
-			iTheirMight /= 100;
+			// Factor in dynamic combat modifiers and military rating (combat skill)
+			iAllyMight = ComputeDynamicStrengthModifier(eAllyPlayer, ePlayer, iAllyMight);
+			iAllyMight = ComputeRatingStrengthAdjustment(eAllyPlayer, ePlayer, iAllyMight);
+			iTheirMight = ComputeDynamicStrengthModifier(ePlayer, eAllyPlayer, iTheirMight);
+			iTheirMight = ComputeRatingStrengthAdjustment(ePlayer, eAllyPlayer, iTheirMight);
 
 			// Factor in nuclear power
 			iAllyMight += GET_PLAYER(eAllyPlayer).calculateNuclearMight(ePlayer, false, iTheirBombShelterPercent, iTheirAvgNukeModifier, iTheirAvgInterceptionChance);
@@ -11315,171 +11210,14 @@ void CvDiplomacyAI::DoUpdatePlayerStrengthEstimates()
 
 			// How much does this ally contribute to our ATTACK and DEFENSE?
 			int iMilitaryRatio = iAllyMight * /*100*/ GD_INT_GET(MILITARY_STRENGTH_RATIO_MULTIPLIER) / max(iTheirMight, 1);
-
-			StrengthTypes eMilitaryStrength = STRENGTH_PATHETIC;
-			if (iMilitaryRatio >= /*300*/ GD_INT_GET(MILITARY_STRENGTH_IMMENSE_THRESHOLD))
-				eMilitaryStrength = STRENGTH_IMMENSE;
-			else if (iMilitaryRatio >= /*200*/ GD_INT_GET(MILITARY_STRENGTH_POWERFUL_THRESHOLD))
-				eMilitaryStrength = STRENGTH_POWERFUL;
-			else if (iMilitaryRatio >= /*126*/ GD_INT_GET(MILITARY_STRENGTH_STRONG_THRESHOLD))
-				eMilitaryStrength = STRENGTH_STRONG;
-			else if (iMilitaryRatio >= /*75*/ GD_INT_GET(MILITARY_STRENGTH_AVERAGE_THRESHOLD))
-				eMilitaryStrength = STRENGTH_AVERAGE;
-			else if (iMilitaryRatio >= /*50*/ GD_INT_GET(MILITARY_STRENGTH_POOR_THRESHOLD))
-				eMilitaryStrength = STRENGTH_POOR;
-			else if (iMilitaryRatio >= /*33*/ GD_INT_GET(MILITARY_STRENGTH_WEAK_THRESHOLD))
-				eMilitaryStrength = STRENGTH_WEAK;
+			StrengthTypes eMilitaryStrength = MilitaryStrengthFromRatio(iMilitaryRatio);
 
 			int iThirdPartyAttackValue = std::find(vOurOffensiveAllies.begin(), vOurOffensiveAllies.end(), eAllyPlayer) != vOurOffensiveAllies.end() ? iAllyMight : 0;
 			int iThirdPartyDefenseValue = std::find(vOurDefensiveAllies.begin(), vOurDefensiveAllies.end(), eAllyPlayer) != vOurDefensiveAllies.end() ? iAllyMight : 0;
-			if (GET_PLAYER(eAllyPlayer).isMinorCiv())
-			{
-				switch (eMilitaryStrength)
-				{
-				case STRENGTH_IMMENSE:
-					iThirdPartyAttackValue *= /*50*/ GD_INT_GET(MILITARY_STRENGTH_MINOR_BACKUP_IMMENSE);
-					iThirdPartyDefenseValue *= /*50*/ GD_INT_GET(TARGET_MINOR_BACKUP_IMMENSE);
-					break;
-				case STRENGTH_POWERFUL:
-					iThirdPartyAttackValue *= /*35*/ GD_INT_GET(MILITARY_STRENGTH_MINOR_BACKUP_POWERFUL);
-					iThirdPartyDefenseValue *= /*35*/ GD_INT_GET(TARGET_MINOR_BACKUP_POWERFUL);
-					break;
-				case STRENGTH_STRONG:
-					iThirdPartyAttackValue *= /*25*/ GD_INT_GET(MILITARY_STRENGTH_MINOR_BACKUP_STRONG);
-					iThirdPartyDefenseValue *= /*25*/ GD_INT_GET(TARGET_MINOR_BACKUP_STRONG);
-					break;
-				case STRENGTH_AVERAGE:
-					iThirdPartyAttackValue *= /*15*/ GD_INT_GET(MILITARY_STRENGTH_MINOR_BACKUP_AVERAGE);
-					iThirdPartyDefenseValue *= /*15*/ GD_INT_GET(TARGET_MINOR_BACKUP_AVERAGE);
-					break;
-				case STRENGTH_POOR:
-					iThirdPartyAttackValue *= /*0*/ GD_INT_GET(MILITARY_STRENGTH_MINOR_BACKUP_POOR);
-					iThirdPartyDefenseValue *= /*0*/ GD_INT_GET(TARGET_MINOR_BACKUP_POOR);
-					break;
-				case STRENGTH_WEAK:
-					iThirdPartyAttackValue *= /*0*/ GD_INT_GET(MILITARY_STRENGTH_MINOR_BACKUP_WEAK);
-					iThirdPartyDefenseValue *= /*0*/ GD_INT_GET(TARGET_MINOR_BACKUP_WEAK);
-					break;
-				case STRENGTH_PATHETIC:
-					iThirdPartyAttackValue *= /*0*/ GD_INT_GET(MILITARY_STRENGTH_MINOR_BACKUP_PATHETIC);
-					iThirdPartyDefenseValue *= /*0*/ GD_INT_GET(TARGET_MINOR_BACKUP_PATHETIC);
-					break;
-				default:
-					UNREACHABLE();
-				}
-			}
-			else
-			{
-				switch (eMilitaryStrength)
-				{
-				case STRENGTH_IMMENSE:
-					iThirdPartyAttackValue *= /*50*/ GD_INT_GET(MILITARY_STRENGTH_MAJOR_BACKUP_IMMENSE);
-					iThirdPartyDefenseValue *= /*50*/ GD_INT_GET(TARGET_MAJOR_BACKUP_IMMENSE);
-					break;
-				case STRENGTH_POWERFUL:
-					iThirdPartyAttackValue *= /*35*/ GD_INT_GET(MILITARY_STRENGTH_MAJOR_BACKUP_POWERFUL);
-					iThirdPartyDefenseValue *= /*35*/ GD_INT_GET(TARGET_MAJOR_BACKUP_POWERFUL);
-					break;
-				case STRENGTH_STRONG:
-					iThirdPartyAttackValue *= /*25*/ GD_INT_GET(MILITARY_STRENGTH_MAJOR_BACKUP_STRONG);
-					iThirdPartyDefenseValue *= /*25*/ GD_INT_GET(TARGET_MAJOR_BACKUP_STRONG);
-					break;
-				case STRENGTH_AVERAGE:
-					iThirdPartyAttackValue *= /*15*/ GD_INT_GET(MILITARY_STRENGTH_MAJOR_BACKUP_AVERAGE);
-					iThirdPartyDefenseValue *= /*15*/ GD_INT_GET(TARGET_MAJOR_BACKUP_AVERAGE);
-					break;
-				case STRENGTH_POOR:
-					iThirdPartyAttackValue *= /*10*/ GD_INT_GET(MILITARY_STRENGTH_MAJOR_BACKUP_POOR);
-					iThirdPartyDefenseValue *= /*10*/ GD_INT_GET(TARGET_MAJOR_BACKUP_POOR);
-					break;
-				case STRENGTH_WEAK:
-					iThirdPartyAttackValue *= /*5*/ GD_INT_GET(MILITARY_STRENGTH_MAJOR_BACKUP_WEAK);
-					iThirdPartyDefenseValue *= /*5*/ GD_INT_GET(TARGET_MAJOR_BACKUP_WEAK);
-					break;
-				case STRENGTH_PATHETIC:
-					iThirdPartyAttackValue *= /*0*/ GD_INT_GET(MILITARY_STRENGTH_MAJOR_BACKUP_PATHETIC);
-					iThirdPartyDefenseValue *= /*0*/ GD_INT_GET(TARGET_MAJOR_BACKUP_PATHETIC);
-					break;
-				default:
-					UNREACHABLE();
-				}
-			}
 
-			iThirdPartyAttackValue /= 100;
-			iThirdPartyDefenseValue /= 100;
-
-			// ATTACK: How close is this ally to them?
-			if (GET_PLAYER(eAllyPlayer).isMinorCiv())
-			{
-				iThirdPartyAttackValue *= /*100*/ GD_INT_GET(MILITARY_STRENGTH_MINOR_BACKUP_NEIGHBORS);
-			}
-			else
-			{
-				switch (GET_PLAYER(eAllyPlayer).GetProximityToPlayer(ePlayer))
-				{
-				case PLAYER_PROXIMITY_NEIGHBORS:
-					iThirdPartyAttackValue *= /*200*/ GD_INT_GET(MILITARY_STRENGTH_MAJOR_BACKUP_NEIGHBORS);
-					break;
-				case PLAYER_PROXIMITY_CLOSE:
-					iThirdPartyAttackValue *= /*100*/ GD_INT_GET(MILITARY_STRENGTH_MAJOR_BACKUP_CLOSE);
-					break;
-				case PLAYER_PROXIMITY_FAR:
-					iThirdPartyAttackValue *= /*50*/ GD_INT_GET(MILITARY_STRENGTH_MAJOR_BACKUP_FAR);
-					break;
-				default:
-					iThirdPartyAttackValue *= /*0*/ GD_INT_GET(MILITARY_STRENGTH_MAJOR_BACKUP_DISTANT);
-					break;
-				}
-			}
-
-			// DEFENSE: How close is this ally to us?
-			if (GET_PLAYER(eAllyPlayer).isMinorCiv())
-			{
-				iThirdPartyDefenseValue *= /*100*/ GD_INT_GET(TARGET_MINOR_BACKUP_NEIGHBORS);
-			}
-			else
-			{
-				switch (GET_PLAYER(eAllyPlayer).GetProximityToPlayer(eOurPlayer))
-				{
-				case PLAYER_PROXIMITY_NEIGHBORS:
-					iThirdPartyDefenseValue *= /*200*/ GD_INT_GET(TARGET_MAJOR_BACKUP_NEIGHBORS);
-					break;
-				case PLAYER_PROXIMITY_CLOSE:
-					iThirdPartyDefenseValue *= /*100*/ GD_INT_GET(TARGET_MAJOR_BACKUP_CLOSE);
-					break;
-				case PLAYER_PROXIMITY_FAR:
-					iThirdPartyDefenseValue *= /*50*/ GD_INT_GET(TARGET_MAJOR_BACKUP_FAR);
-					break;
-				default:
-					iThirdPartyDefenseValue *= /*0*/ GD_INT_GET(TARGET_MAJOR_BACKUP_DISTANT);
-					break;
-				}
-			}
-
-			iThirdPartyAttackValue /= 100;
-			iThirdPartyDefenseValue /= 100;
-
-			// Reduce if the third party is already at war with other players
-			if (iThirdPartyAttackValue > 0 || iThirdPartyDefenseValue > 0)
-			{
-				int iThirdPartyWarCount = GET_PLAYER(eAllyPlayer).CountNumDangerousMajorsAtWarWith(false, true);
-
-				if (GET_PLAYER(eAllyPlayer).IsAtWarWith(ePlayer))
-					iThirdPartyWarCount--;
-
-				if (iThirdPartyWarCount > 0)
-				{
-					int iScale = max(/*20*/ max(GD_INT_GET(MILITARY_STRENGTH_BACKUP_ALREADY_WAR_MINIMUM), 0), 100 - iThirdPartyWarCount * /*30*/ GD_INT_GET(MILITARY_STRENGTH_BACKUP_ALREADY_WAR_EACH_PLAYER));
-					iThirdPartyAttackValue *= iScale;
-					iThirdPartyAttackValue /= 100;
-					iScale = max(/*20*/ max(GD_INT_GET(TARGET_ALREADY_WAR_MINIMUM), 0), 100 - iThirdPartyWarCount * /*30*/ GD_INT_GET(TARGET_ALREADY_WAR_EACH_PLAYER));
-					iThirdPartyDefenseValue *= iScale;
-					iThirdPartyDefenseValue /= 100;
-				}
-
-				iAllyAttackBonus += iThirdPartyAttackValue;
-				iAllyDefenseBonus += iThirdPartyDefenseValue;
-			}
+			AdjustThirdPartyStrength(eAllyPlayer, ePlayer, eOurPlayer, eMilitaryStrength, iThirdPartyAttackValue, iThirdPartyDefenseValue);
+			iAllyAttackBonus += iThirdPartyAttackValue;
+			iAllyDefenseBonus += iThirdPartyDefenseValue;
 		}
 
 		// Their allies
@@ -11489,60 +11227,11 @@ void CvDiplomacyAI::DoUpdatePlayerStrengthEstimates()
 			int iOurMight = iMilitaryStrength;
 			int iEnemyMight = max(iBase + GET_PLAYER(eEnemyPlayer).GetMilitaryMight() - GET_PLAYER(eEnemyPlayer).GetNuclearMight(), 1);
 
-			// Factor in dynamic combat modifiers
-			int iOurDynamicModifier = ComputeDynamicStrengthModifier(eOurPlayer, eEnemyPlayer);
-			iOurMight *= 100 + iOurDynamicModifier;
-			iOurMight /= 100;
-			iEnemyMight *= 100 + ComputeDynamicStrengthModifier(eEnemyPlayer, eOurPlayer);
-			iEnemyMight /= 100;
-
-			// Factor in military rating (combat skill)
-			iOurMight *= iOurRatingModifier;
-			iOurMight /= 100;
-
-			// If we're an AI evaluating a human, modify the ally's strength estimate based on difficulty level if they're reasonably strong
-			if (!GetPlayer()->isHuman(ISHUMAN_HANDICAP) && GET_PLAYER(eEnemyPlayer).isHuman(ISHUMAN_HANDICAP) && (GET_PLAYER(eEnemyPlayer).getNumNukeUnits() > 0 || (!GET_PLAYER(eEnemyPlayer).IsVassalOfSomeone() && GetWarState(eEnemyPlayer) < WAR_STATE_OFFENSIVE)))
-			{
-				int iStartingRating = GC.getGame().GetStartingMilitaryRating();
-				int iMinimumHumanRating = GC.getGame().GetMinimumHumanMilitaryRating();
-				int iCurrentRating = GET_PLAYER(eEnemyPlayer).GetMilitaryRating();
-				int iHumanStrengthMod = max(0, GET_PLAYER(eEnemyPlayer).getHandicapInfo().getHumanStrengthPerceptionMod());
-				int iSkillRatingMod = GC.getGame().ComputeRatingStrengthAdjustment(eEnemyPlayer, eOurPlayer);
-
-				// If they're above the starting rating or are performing better than average, apply the highest of the human perception mod and the skill rating mod
-				if (iSkillRatingMod >= 100 || iCurrentRating >= iStartingRating || iStartingRating == 0)
-				{
-					iEnemyMight *= 100 + max(iHumanStrengthMod, iSkillRatingMod - 100);
-					iEnemyMight /= 100;
-				}
-				// If the human hasn't lost 20% or more of the starting rating, they still get some of the strength perception bonus
-				else if (iCurrentRating >= iMinimumHumanRating && GD_INT_GET(MILITARY_RATING_HUMAN_BUFFER_VALUE_PERCENT) < 100)
-				{
-					int iMaxPercentageLost = 100 - /*80*/ max(GD_INT_GET(MILITARY_RATING_HUMAN_BUFFER_VALUE_PERCENT), 0);
-					int iPercentageLost = (iCurrentRating * 100 - iStartingRating * 100) / -iStartingRating;
-					int iDifference = (100 + iHumanStrengthMod) - iSkillRatingMod;
-
-					// Do not exceed human strength mod!
-					// example 1: if human strength mod is 10, skill rating mod is 80, and percentage lost is 10 (modifier of 95%), that'd be a 15% bonus; we cap the modifier to 90% (10% bonus) to avoid exceeding the XML value.
-					// example 2: if human strength mod is 30, skill rating mod is 80, and percentage lost is 10 (modifier of 105%), that'd be a 25% bonus, which is less than 30, so that's OK.
-					int iFinalModifier = 100 + iHumanStrengthMod - (iDifference * iPercentageLost / iMaxPercentageLost);
-					if (iFinalModifier - iSkillRatingMod > iHumanStrengthMod)
-						iFinalModifier = iSkillRatingMod + iHumanStrengthMod;
-
-					iEnemyMight *= iFinalModifier;
-					iEnemyMight /= 100;
-				}
-				else
-				{
-					iEnemyMight *= iSkillRatingMod;
-					iEnemyMight /= 100;
-				}
-			}
-			else if (GET_PLAYER(eEnemyPlayer).isMajorCiv())
-			{
-				iEnemyMight *= GC.getGame().ComputeRatingStrengthAdjustment(eEnemyPlayer, eOurPlayer);
-				iEnemyMight /= 100;
-			}
+			// Factor in dynamic combat modifiers and military rating (combat skill)
+			iOurMight = ComputeDynamicStrengthModifier(eOurPlayer, eEnemyPlayer, iOurMight);
+			iOurMight = ComputeRatingStrengthAdjustment(eOurPlayer, eEnemyPlayer, iOurMight);
+			iEnemyMight = ComputeDynamicStrengthModifier(eEnemyPlayer, eOurPlayer, iEnemyMight);
+			iEnemyMight = ComputeRatingStrengthAdjustment(eEnemyPlayer, eOurPlayer, iEnemyMight);
 
 			// Factor in nuclear power
 			iOurMight += GetPlayer()->calculateNuclearMight(eEnemyPlayer, true);
@@ -11558,172 +11247,16 @@ void CvDiplomacyAI::DoUpdatePlayerStrengthEstimates()
 
 			// How much does this enemy contribute to their ATTACK and DEFENSE?
 			int iMilitaryRatio = iEnemyMight * /*100*/ GD_INT_GET(MILITARY_STRENGTH_RATIO_MULTIPLIER) / max(iOurMight, 1);
-
-			StrengthTypes eMilitaryStrength = STRENGTH_PATHETIC;
-			if (iMilitaryRatio >= /*300*/ GD_INT_GET(MILITARY_STRENGTH_IMMENSE_THRESHOLD))
-				eMilitaryStrength = STRENGTH_IMMENSE;
-			else if (iMilitaryRatio >= /*200*/ GD_INT_GET(MILITARY_STRENGTH_POWERFUL_THRESHOLD))
-				eMilitaryStrength = STRENGTH_POWERFUL;
-			else if (iMilitaryRatio >= /*126*/ GD_INT_GET(MILITARY_STRENGTH_STRONG_THRESHOLD))
-				eMilitaryStrength = STRENGTH_STRONG;
-			else if (iMilitaryRatio >= /*75*/ GD_INT_GET(MILITARY_STRENGTH_AVERAGE_THRESHOLD))
-				eMilitaryStrength = STRENGTH_AVERAGE;
-			else if (iMilitaryRatio >= /*50*/ GD_INT_GET(MILITARY_STRENGTH_POOR_THRESHOLD))
-				eMilitaryStrength = STRENGTH_POOR;
-			else if (iMilitaryRatio >= /*33*/ GD_INT_GET(MILITARY_STRENGTH_WEAK_THRESHOLD))
-				eMilitaryStrength = STRENGTH_WEAK;
+			StrengthTypes eMilitaryStrength = MilitaryStrengthFromRatio(iMilitaryRatio);
 
 			int iThirdPartyAttackValue = std::find(vTheirOffensiveAllies.begin(), vTheirOffensiveAllies.end(), eEnemyPlayer) != vTheirOffensiveAllies.end() ? iEnemyMight : 0;
 			int iThirdPartyDefenseValue = std::find(vTheirDefensiveAllies.begin(), vTheirDefensiveAllies.end(), eEnemyPlayer) != vTheirDefensiveAllies.end() ? iEnemyMight : 0;
-			if (GET_PLAYER(eEnemyPlayer).isMinorCiv())
-			{
-				switch (eMilitaryStrength)
-				{
-				case STRENGTH_IMMENSE:
-					iThirdPartyAttackValue *= /*50*/ GD_INT_GET(MILITARY_STRENGTH_MINOR_BACKUP_IMMENSE);
-					iThirdPartyDefenseValue *= /*50*/ GD_INT_GET(TARGET_MINOR_BACKUP_IMMENSE);
-					break;
-				case STRENGTH_POWERFUL:
-					iThirdPartyAttackValue *= /*35*/ GD_INT_GET(MILITARY_STRENGTH_MINOR_BACKUP_POWERFUL);
-					iThirdPartyDefenseValue *= /*35*/ GD_INT_GET(TARGET_MINOR_BACKUP_POWERFUL);
-					break;
-				case STRENGTH_STRONG:
-					iThirdPartyAttackValue *= /*25*/ GD_INT_GET(MILITARY_STRENGTH_MINOR_BACKUP_STRONG);
-					iThirdPartyDefenseValue *= /*25*/ GD_INT_GET(TARGET_MINOR_BACKUP_STRONG);
-					break;
-				case STRENGTH_AVERAGE:
-					iThirdPartyAttackValue *= /*15*/ GD_INT_GET(MILITARY_STRENGTH_MINOR_BACKUP_AVERAGE);
-					iThirdPartyDefenseValue *= /*15*/ GD_INT_GET(TARGET_MINOR_BACKUP_AVERAGE);
-					break;
-				case STRENGTH_POOR:
-					iThirdPartyAttackValue *= /*0*/ GD_INT_GET(MILITARY_STRENGTH_MINOR_BACKUP_POOR);
-					iThirdPartyDefenseValue *= /*0*/ GD_INT_GET(TARGET_MINOR_BACKUP_POOR);
-					break;
-				case STRENGTH_WEAK:
-					iThirdPartyAttackValue *= /*0*/ GD_INT_GET(MILITARY_STRENGTH_MINOR_BACKUP_WEAK);
-					iThirdPartyDefenseValue *= /*0*/ GD_INT_GET(TARGET_MINOR_BACKUP_WEAK);
-					break;
-				case STRENGTH_PATHETIC:
-					iThirdPartyAttackValue *= /*0*/ GD_INT_GET(MILITARY_STRENGTH_MINOR_BACKUP_PATHETIC);
-					iThirdPartyDefenseValue *= /*0*/ GD_INT_GET(TARGET_MINOR_BACKUP_PATHETIC);
-					break;
-				default:
-					UNREACHABLE();
-				}
-			}
-			else
-			{
-				switch (eMilitaryStrength)
-				{
-				case STRENGTH_IMMENSE:
-					iThirdPartyAttackValue *= /*50*/ GD_INT_GET(MILITARY_STRENGTH_MAJOR_BACKUP_IMMENSE);
-					iThirdPartyDefenseValue *= /*50*/ GD_INT_GET(TARGET_MAJOR_BACKUP_IMMENSE);
-					break;
-				case STRENGTH_POWERFUL:
-					iThirdPartyAttackValue *= /*35*/ GD_INT_GET(MILITARY_STRENGTH_MAJOR_BACKUP_POWERFUL);
-					iThirdPartyDefenseValue *= /*35*/ GD_INT_GET(TARGET_MAJOR_BACKUP_POWERFUL);
-					break;
-				case STRENGTH_STRONG:
-					iThirdPartyAttackValue *= /*25*/ GD_INT_GET(MILITARY_STRENGTH_MAJOR_BACKUP_STRONG);
-					iThirdPartyDefenseValue *= /*25*/ GD_INT_GET(TARGET_MAJOR_BACKUP_STRONG);
-					break;
-				case STRENGTH_AVERAGE:
-					iThirdPartyAttackValue *= /*15*/ GD_INT_GET(MILITARY_STRENGTH_MAJOR_BACKUP_AVERAGE);
-					iThirdPartyDefenseValue *= /*15*/ GD_INT_GET(TARGET_MAJOR_BACKUP_AVERAGE);
-					break;
-				case STRENGTH_POOR:
-					iThirdPartyAttackValue *= /*10*/ GD_INT_GET(MILITARY_STRENGTH_MAJOR_BACKUP_POOR);
-					iThirdPartyDefenseValue *= /*10*/ GD_INT_GET(TARGET_MAJOR_BACKUP_POOR);
-					break;
-				case STRENGTH_WEAK:
-					iThirdPartyAttackValue *= /*5*/ GD_INT_GET(MILITARY_STRENGTH_MAJOR_BACKUP_WEAK);
-					iThirdPartyDefenseValue *= /*5*/ GD_INT_GET(TARGET_MAJOR_BACKUP_WEAK);
-					break;
-				case STRENGTH_PATHETIC:
-					iThirdPartyAttackValue *= /*0*/ GD_INT_GET(MILITARY_STRENGTH_MAJOR_BACKUP_PATHETIC);
-					iThirdPartyDefenseValue *= /*0*/ GD_INT_GET(TARGET_MAJOR_BACKUP_PATHETIC);
-					break;
-				default:
-					UNREACHABLE();
-				}
-			}
 
-			iThirdPartyAttackValue /= 100;
-			iThirdPartyDefenseValue /= 100;
-
-			// ATTACK: How close is this enemy to us?
-			if (GET_PLAYER(eEnemyPlayer).isMinorCiv())
-			{
-				iThirdPartyAttackValue *= /*100*/ GD_INT_GET(MILITARY_STRENGTH_MINOR_BACKUP_NEIGHBORS);
-			}
-			else
-			{
-				switch (GET_PLAYER(eEnemyPlayer).GetProximityToPlayer(eOurPlayer))
-				{
-				case PLAYER_PROXIMITY_NEIGHBORS:
-					iThirdPartyAttackValue *= /*200*/ GD_INT_GET(MILITARY_STRENGTH_MAJOR_BACKUP_NEIGHBORS);
-					break;
-				case PLAYER_PROXIMITY_CLOSE:
-					iThirdPartyAttackValue *= /*100*/ GD_INT_GET(MILITARY_STRENGTH_MAJOR_BACKUP_CLOSE);
-					break;
-				case PLAYER_PROXIMITY_FAR:
-					iThirdPartyAttackValue *= /*50*/ GD_INT_GET(MILITARY_STRENGTH_MAJOR_BACKUP_FAR);
-					break;
-				default:
-					iThirdPartyAttackValue *= /*0*/ GD_INT_GET(MILITARY_STRENGTH_MAJOR_BACKUP_DISTANT);
-					break;
-				}
-			}
-
-			// DEFENSE: How close is this enemy to them?
-			if (GET_PLAYER(eEnemyPlayer).isMinorCiv())
-			{
-				iThirdPartyDefenseValue *= /*100*/ GD_INT_GET(TARGET_MINOR_BACKUP_NEIGHBORS);
-			}
-			else
-			{
-				switch (GET_PLAYER(eEnemyPlayer).GetProximityToPlayer(ePlayer))
-				{
-				case PLAYER_PROXIMITY_NEIGHBORS:
-					iThirdPartyDefenseValue *= /*200*/ GD_INT_GET(TARGET_MAJOR_BACKUP_NEIGHBORS);
-					break;
-				case PLAYER_PROXIMITY_CLOSE:
-					iThirdPartyDefenseValue *= /*100*/ GD_INT_GET(TARGET_MAJOR_BACKUP_CLOSE);
-					break;
-				case PLAYER_PROXIMITY_FAR:
-					iThirdPartyDefenseValue *= /*50*/ GD_INT_GET(TARGET_MAJOR_BACKUP_FAR);
-					break;
-				default:
-					iThirdPartyDefenseValue *= /*0*/ GD_INT_GET(TARGET_MAJOR_BACKUP_DISTANT);
-					break;
-				}
-			}
-
-			iThirdPartyAttackValue /= 100;
-			iThirdPartyDefenseValue /= 100;
-
-			// Reduce if the third party is already at war with other players
-			if (iThirdPartyAttackValue > 0 || iThirdPartyDefenseValue > 0)
-			{
-				int iThirdPartyWarCount = GET_PLAYER(eEnemyPlayer).CountNumDangerousMajorsAtWarWith(false, true);
-
-				if (IsAtWar(eEnemyPlayer))
-					iThirdPartyWarCount--;
-
-				if (iThirdPartyWarCount > 0)
-				{
-					int iScale = max(/*20*/ max(GD_INT_GET(MILITARY_STRENGTH_BACKUP_ALREADY_WAR_MINIMUM), 0), 100 - iThirdPartyWarCount * /*30*/ GD_INT_GET(MILITARY_STRENGTH_BACKUP_ALREADY_WAR_EACH_PLAYER));
-					iThirdPartyAttackValue *= iScale;
-					iThirdPartyAttackValue /= 100;
-					iScale = max(/*20*/ max(GD_INT_GET(TARGET_ALREADY_WAR_MINIMUM), 0), 100 - iThirdPartyWarCount * /*30*/ GD_INT_GET(TARGET_ALREADY_WAR_EACH_PLAYER));
-					iThirdPartyDefenseValue *= iScale;
-					iThirdPartyDefenseValue /= 100;
-				}
-
-				iEnemyAttackBonus += iThirdPartyAttackValue;
-				iEnemyDefenseBonus += iThirdPartyDefenseValue;
-			}
+			AdjustThirdPartyStrength(eEnemyPlayer, eOurPlayer, ePlayer, eMilitaryStrength, iThirdPartyAttackValue, iThirdPartyDefenseValue);
+			iEnemyAttackBonus += iThirdPartyAttackValue;
+			iEnemyDefenseBonus += iThirdPartyDefenseValue;
 		}
+
 
 		// Calculate their overall ATTACK vs. our overall DEFENSE
 		int iTheirOverallAttack = iTheirMilitaryStrength + iEnemyAttackBonus;
@@ -11753,46 +11286,18 @@ void CvDiplomacyAI::DoUpdatePlayerStrengthEstimates()
 
 		iOurOverallDefense += iAllyDefenseBonus;
 
+
 		// ATTACK: Military Strength estimate
 		int iBoldnessReduction = GetBoldness() * /*-3*/ GD_INT_GET(MILITARY_STRENGTH_REDUCTION_PER_BOLDNESS); // AI underestimates opponents' military strength by 3% per point of Boldness flavor
 		int iRatioMultiplier = GetPlayer()->isHuman(ISHUMAN_AI_UNITS) ? 100 : max(iBoldnessReduction + /*100*/ GD_INT_GET(MILITARY_STRENGTH_RATIO_MULTIPLIER), 0);
 		int iMilitaryRatio = iTheirOverallAttack * iRatioMultiplier / max(iOurOverallDefense, 1);
 
-		StrengthTypes eMilitaryStrength = STRENGTH_PATHETIC;
-		if (iMilitaryRatio >= /*300*/ GD_INT_GET(MILITARY_STRENGTH_IMMENSE_THRESHOLD))
-			eMilitaryStrength = STRENGTH_IMMENSE;
-		else if (iMilitaryRatio >= /*200*/ GD_INT_GET(MILITARY_STRENGTH_POWERFUL_THRESHOLD))
-			eMilitaryStrength = STRENGTH_POWERFUL;
-		else if (iMilitaryRatio >= /*126*/ GD_INT_GET(MILITARY_STRENGTH_STRONG_THRESHOLD))
-			eMilitaryStrength = STRENGTH_STRONG;
-		else if (iMilitaryRatio >= /*75*/ GD_INT_GET(MILITARY_STRENGTH_AVERAGE_THRESHOLD))
-			eMilitaryStrength = STRENGTH_AVERAGE;
-		else if (iMilitaryRatio >= /*50*/ GD_INT_GET(MILITARY_STRENGTH_POOR_THRESHOLD))
-			eMilitaryStrength = STRENGTH_POOR;
-		else if (iMilitaryRatio >= /*33*/ GD_INT_GET(MILITARY_STRENGTH_WEAK_THRESHOLD))
-			eMilitaryStrength = STRENGTH_WEAK;
+		// Do the final assessment
+		SetMilitaryStrengthComparedToUs(ePlayer, MilitaryStrengthFromRatio(iMilitaryRatio));
 
-		// Set the value
-		SetMilitaryStrengthComparedToUs(ePlayer, eMilitaryStrength);
-
-		// Now do it again but with the unbiased value
+		// And again, but with the unbiased value
 		iMilitaryRatio = iTheirOverallAttack * 100 / max(iOurOverallDefense, 1);
-
-		eMilitaryStrength = STRENGTH_PATHETIC;
-		if (iMilitaryRatio >= /*300*/ GD_INT_GET(MILITARY_STRENGTH_IMMENSE_THRESHOLD))
-			eMilitaryStrength = STRENGTH_IMMENSE;
-		else if (iMilitaryRatio >= /*200*/ GD_INT_GET(MILITARY_STRENGTH_POWERFUL_THRESHOLD))
-			eMilitaryStrength = STRENGTH_POWERFUL;
-		else if (iMilitaryRatio >= /*126*/ GD_INT_GET(MILITARY_STRENGTH_STRONG_THRESHOLD))
-			eMilitaryStrength = STRENGTH_STRONG;
-		else if (iMilitaryRatio >= /*75*/ GD_INT_GET(MILITARY_STRENGTH_AVERAGE_THRESHOLD))
-			eMilitaryStrength = STRENGTH_AVERAGE;
-		else if (iMilitaryRatio >= /*50*/ GD_INT_GET(MILITARY_STRENGTH_POOR_THRESHOLD))
-			eMilitaryStrength = STRENGTH_POOR;
-		else if (iMilitaryRatio >= /*33*/ GD_INT_GET(MILITARY_STRENGTH_WEAK_THRESHOLD))
-			eMilitaryStrength = STRENGTH_WEAK;
-
-		SetRawMilitaryStrengthComparedToUs(ePlayer, eMilitaryStrength);
+		SetRawMilitaryStrengthComparedToUs(ePlayer, MilitaryStrengthFromRatio(iMilitaryRatio));
 
 
 		// Calculate our overall ATTACK vs. their overall DEFENSE
@@ -11821,6 +11326,7 @@ void CvDiplomacyAI::DoUpdatePlayerStrengthEstimates()
 
 		iTheirOverallDefense += iEnemyDefenseBonus;
 
+
 		// DEFENSE: Target Value estimate
 		iBoldnessReduction = GetBoldness() * /*-3*/ GD_INT_GET(TARGET_VALUE_REDUCTION_PER_BOLDNESS); // AI underestimates opponents' target values by 3% per point of Boldness flavor
 		iRatioMultiplier = GetPlayer()->isHuman(ISHUMAN_AI_UNITS) ? 100 : max(iBoldnessReduction + /*100*/ GD_INT_GET(MILITARY_STRENGTH_RATIO_MULTIPLIER), 0);
@@ -11847,25 +11353,11 @@ void CvDiplomacyAI::DoUpdatePlayerStrengthEstimates()
 			break;
 		}
 
-		// Now do the final assessment
-		TargetValueTypes eTargetValue = TARGET_VALUE_CAKEWALK;
-		if (iTargetValueRatio >= /*300*/ GD_INT_GET(TARGET_IMPOSSIBLE_THRESHOLD))
-			eTargetValue = TARGET_VALUE_IMPOSSIBLE;
-		else if (iTargetValueRatio >= /*200*/ GD_INT_GET(TARGET_BAD_THRESHOLD))
-			eTargetValue = TARGET_VALUE_BAD;
-		else if (iTargetValueRatio >= /*126*/ GD_INT_GET(TARGET_DIFFICULT_THRESHOLD))
-			eTargetValue = TARGET_VALUE_DIFFICULT;
-		else if (iTargetValueRatio >= /*75*/ GD_INT_GET(TARGET_AVERAGE_THRESHOLD))
-			eTargetValue = TARGET_VALUE_AVERAGE;
-		else if (iTargetValueRatio >= /*50*/ GD_INT_GET(TARGET_FAVORABLE_THRESHOLD))
-			eTargetValue = TARGET_VALUE_FAVORABLE;
-		else if (iTargetValueRatio >= /*33*/ GD_INT_GET(TARGET_SOFT_THRESHOLD))
-			eTargetValue = TARGET_VALUE_SOFT;
-
-		// Set the value
+		// Do the final assessment
+		TargetValueTypes eTargetValue = TargetValueFromRatio(iTargetValueRatio);
 		SetTargetValue(ePlayer, eTargetValue);
 
-		// Now do it again but with the unbiased value
+		// And again, but with the unbiased value
 		iTargetValueRatio = iTheirOverallDefense * 100 / max(iOurOverallAttack, 1);
 
 		// Factor in distance
@@ -11889,26 +11381,13 @@ void CvDiplomacyAI::DoUpdatePlayerStrengthEstimates()
 			break;
 		}
 
-		eTargetValue = TARGET_VALUE_CAKEWALK;
-		if (iTargetValueRatio >= /*300*/ GD_INT_GET(TARGET_IMPOSSIBLE_THRESHOLD))
-			eTargetValue = TARGET_VALUE_IMPOSSIBLE;
-		else if (iTargetValueRatio >= /*200*/ GD_INT_GET(TARGET_BAD_THRESHOLD))
-			eTargetValue = TARGET_VALUE_BAD;
-		else if (iTargetValueRatio >= /*126*/ GD_INT_GET(TARGET_DIFFICULT_THRESHOLD))
-			eTargetValue = TARGET_VALUE_DIFFICULT;
-		else if (iTargetValueRatio >= /*75*/ GD_INT_GET(TARGET_AVERAGE_THRESHOLD))
-			eTargetValue = TARGET_VALUE_AVERAGE;
-		else if (iTargetValueRatio >= /*50*/ GD_INT_GET(TARGET_FAVORABLE_THRESHOLD))
-			eTargetValue = TARGET_VALUE_FAVORABLE;
-		else if (iTargetValueRatio >= /*33*/ GD_INT_GET(TARGET_SOFT_THRESHOLD))
-			eTargetValue = TARGET_VALUE_SOFT;
-
+		eTargetValue = TargetValueFromRatio(iTargetValueRatio);
 		SetRawTargetValue(ePlayer, eTargetValue);
 	}
 }
 
 /// Calculates strength bonuses for a player which DO change based on who they're up against
-int CvDiplomacyAI::ComputeDynamicStrengthModifier(PlayerTypes ePlayer, PlayerTypes eAgainstPlayer)
+int CvDiplomacyAI::ComputeDynamicStrengthModifier(PlayerTypes ePlayer, PlayerTypes eAgainstPlayer, int iStrength)
 {
 	if (!GET_PLAYER(ePlayer).isMajorCiv())
 		return 0;
@@ -11958,7 +11437,301 @@ int CvDiplomacyAI::ComputeDynamicStrengthModifier(PlayerTypes ePlayer, PlayerTyp
 		}
 	}
 
-	return iModifier;
+	return ApplyPercentageModifier(iStrength, iModifier);
+}
+
+/// Adjusts the perceived military strength of a player based on how well they've been defeating their enemies
+/// For humans, also assume those playing on a higher difficulty level are more skilled, unless the evidence shows otherwise
+int CvDiplomacyAI::ComputeRatingStrengthAdjustment(PlayerTypes ePlayer, PlayerTypes eAgainstPlayer, int iStrength)
+{
+	if (!GET_PLAYER(ePlayer).isMajorCiv())
+		return iStrength;
+
+	// Calculate the average military rating aside from the player we're looking at
+	int iTotalRating = 0;
+	int iNumCivs = 0;
+	
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		if (eLoopPlayer == ePlayer)
+			continue;
+
+		if (!IsHasMet(eLoopPlayer, true))
+			continue;
+
+		if (GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMajorCiv() && GET_PLAYER(eLoopPlayer).getNumCities() > 0)
+		{
+			iTotalRating += GET_PLAYER(eLoopPlayer).GetMilitaryRating();
+			iNumCivs++;
+		}
+	}
+
+	// No other civs - don't adjust
+	if (iNumCivs == 0)
+		return iStrength;
+
+	// If there's only one other civ that the perceiving player has met, return -1 so the AI will adjust its opponent's strength perception, but not its own
+	// This avoids double counting when there isn't any other civ to factor into the global average
+	if (iNumCivs == 1 && GetID() == ePlayer)
+		return iStrength;
+
+	int iCivRating = GET_PLAYER(ePlayer).GetMilitaryRating();
+	int iAverageRating = iTotalRating / iNumCivs;
+
+	// Calculate the percentage difference from the average
+	int iPercentageDifference = (iCivRating * 100 - iAverageRating * 100) / max(iAverageRating, 1);
+	if (iPercentageDifference < 0)
+		iPercentageDifference *= -1; // need the absolute value
+
+	int iSkillMultiplier = 100;
+
+	// If above average, apply the % difference as a positive modifier to strength, cap above at +100%
+	if (iCivRating > iAverageRating)
+	{
+		iSkillMultiplier = min(100 + iPercentageDifference, max(GD_INT_GET(MILITARY_RATING_MAXIMUM_BONUS), 0) + 100);
+	}
+	// If below average, apply the % difference as a negative modifier to strength, cap below at -50%
+	else if (iCivRating < iAverageRating)
+	{
+		iSkillMultiplier = max(100 - iPercentageDifference, max(GD_INT_GET(MILITARY_RATING_MAXIMUM_PENALTY), -100) + 100);
+	}
+
+	int iRatingAdjustment = iSkillMultiplier;
+
+	// If we're an AI evaluating a human, modify their strength estimate based on difficulty level if they're reasonably strong
+	if (!GetPlayer()->isHuman(ISHUMAN_HANDICAP) && GET_PLAYER(ePlayer).isHuman(ISHUMAN_HANDICAP) && (GET_PLAYER(ePlayer).getNumNukeUnits() > 0 || (!GET_PLAYER(ePlayer).IsVassalOfSomeone() && !GET_PLAYER(ePlayer).IsInTerribleShapeForWar() && GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->GetWarState(ePlayer) < WAR_STATE_OFFENSIVE)))
+	{
+		int iStartingRating = GC.getGame().GetStartingMilitaryRating();
+		int iMinimumHumanRating = GC.getGame().GetMinimumHumanMilitaryRating();
+		int iHumanStrengthMultiplier = max(0, GET_PLAYER(ePlayer).getHandicapInfo().getHumanStrengthPerceptionMod());
+
+		// If they're above the starting rating or are performing better than average, apply the highest of the human perception mod and the skill rating mod
+		if (iSkillMultiplier >= 100 || iCivRating >= iStartingRating || iStartingRating == 0)
+		{
+			iRatingAdjustment = 100 + max(iHumanStrengthMultiplier, iSkillMultiplier - 100);
+		}
+		// If the human hasn't lost 20% or more of the starting rating, they still get some of the strength perception bonus
+		else if (iCivRating >= iMinimumHumanRating && GD_INT_GET(MILITARY_RATING_HUMAN_BUFFER_VALUE_PERCENT) < 100)
+		{
+			int iMaxPercentageLost = 100 - /*80*/ max(GD_INT_GET(MILITARY_RATING_HUMAN_BUFFER_VALUE_PERCENT), 0);
+			int iPercentageLost = (iCivRating * 100 - iStartingRating * 100) / -iStartingRating;
+			int iDifference = (100 + iHumanStrengthMultiplier) - iSkillMultiplier;
+
+			// Do not exceed human strength mod!
+			// example 1: if human strength mod is 10, skill rating mod is 80, and percentage lost is 10 (modifier of 95%), that'd be a 15% bonus; we cap the modifier to 90% (10% bonus) to avoid exceeding the XML value.
+			// example 2: if human strength mod is 30, skill rating mod is 80, and percentage lost is 10 (modifier of 105%), that'd be a 25% bonus, which is less than 30, so that's OK.
+			int iFinalMultiplier = 100 + iHumanStrengthMultiplier - (iDifference * iPercentageLost / iMaxPercentageLost);
+			if (iFinalMultiplier - iSkillMultiplier > iHumanStrengthMultiplier)
+				iFinalMultiplier = iSkillMultiplier + iHumanStrengthMultiplier;
+
+			iRatingAdjustment = iFinalMultiplier;
+		}
+	}
+
+	return ApplyPercentageModifier(iStrength, iRatingAdjustment);
+}
+
+/// Return an offensive or defensive power range based on a comparative ratio, using XML defines
+StrengthTypes CvDiplomacyAI::EconomicStrengthFromRatio(int iRatio) const
+{
+	StrengthTypes eEconomicStrength = STRENGTH_PATHETIC;
+	if (iRatio >= /*300*/ GD_INT_GET(ECONOMIC_STRENGTH_IMMENSE_THRESHOLD))
+		eEconomicStrength = STRENGTH_IMMENSE;
+	else if (iRatio >= /*200*/ GD_INT_GET(ECONOMIC_STRENGTH_POWERFUL_THRESHOLD))
+		eEconomicStrength = STRENGTH_POWERFUL;
+	else if (iRatio >= /*126*/ GD_INT_GET(ECONOMIC_STRENGTH_STRONG_THRESHOLD))
+		eEconomicStrength = STRENGTH_STRONG;
+	else if (iRatio >= /*75*/ GD_INT_GET(ECONOMIC_STRENGTH_AVERAGE_THRESHOLD))
+		eEconomicStrength = STRENGTH_AVERAGE;
+	else if (iRatio >= /*50*/ GD_INT_GET(ECONOMIC_STRENGTH_POOR_THRESHOLD))
+		eEconomicStrength = STRENGTH_POOR;
+	else if (iRatio >= /*33*/ GD_INT_GET(ECONOMIC_STRENGTH_WEAK_THRESHOLD))
+		eEconomicStrength = STRENGTH_WEAK;
+
+	return eEconomicStrength;
+}
+
+StrengthTypes CvDiplomacyAI::MilitaryStrengthFromRatio(int iRatio) const
+{
+	StrengthTypes eMilitaryStrength = STRENGTH_PATHETIC;
+	if (iRatio >= /*300*/ GD_INT_GET(MILITARY_STRENGTH_IMMENSE_THRESHOLD))
+		eMilitaryStrength = STRENGTH_IMMENSE;
+	else if (iRatio >= /*200*/ GD_INT_GET(MILITARY_STRENGTH_POWERFUL_THRESHOLD))
+		eMilitaryStrength = STRENGTH_POWERFUL;
+	else if (iRatio >= /*126*/ GD_INT_GET(MILITARY_STRENGTH_STRONG_THRESHOLD))
+		eMilitaryStrength = STRENGTH_STRONG;
+	else if (iRatio >= /*75*/ GD_INT_GET(MILITARY_STRENGTH_AVERAGE_THRESHOLD))
+		eMilitaryStrength = STRENGTH_AVERAGE;
+	else if (iRatio >= /*50*/ GD_INT_GET(MILITARY_STRENGTH_POOR_THRESHOLD))
+		eMilitaryStrength = STRENGTH_POOR;
+	else if (iRatio >= /*33*/ GD_INT_GET(MILITARY_STRENGTH_WEAK_THRESHOLD))
+		eMilitaryStrength = STRENGTH_WEAK;
+
+	return eMilitaryStrength;
+}
+
+TargetValueTypes CvDiplomacyAI::TargetValueFromRatio(int iRatio) const
+{
+	TargetValueTypes eTargetValue = TARGET_VALUE_CAKEWALK;
+	if (iRatio >= /*300*/ GD_INT_GET(TARGET_IMPOSSIBLE_THRESHOLD))
+		eTargetValue = TARGET_VALUE_IMPOSSIBLE;
+	else if (iRatio >= /*200*/ GD_INT_GET(TARGET_BAD_THRESHOLD))
+		eTargetValue = TARGET_VALUE_BAD;
+	else if (iRatio >= /*126*/ GD_INT_GET(TARGET_DIFFICULT_THRESHOLD))
+		eTargetValue = TARGET_VALUE_DIFFICULT;
+	else if (iRatio >= /*75*/ GD_INT_GET(TARGET_AVERAGE_THRESHOLD))
+		eTargetValue = TARGET_VALUE_AVERAGE;
+	else if (iRatio >= /*50*/ GD_INT_GET(TARGET_FAVORABLE_THRESHOLD))
+		eTargetValue = TARGET_VALUE_FAVORABLE;
+	else if (iRatio >= /*33*/ GD_INT_GET(TARGET_SOFT_THRESHOLD))
+		eTargetValue = TARGET_VALUE_SOFT;
+
+	return eTargetValue;
+}
+
+/// Adjusts the offensive and defensive power provided by a third party to their ally (based on comparative strength with the ally's enemy, as well as proximity to both players)
+void CvDiplomacyAI::AdjustThirdPartyStrength(PlayerTypes eThirdParty, PlayerTypes eThirdPartyEnemy, PlayerTypes eThirdPartyAlly, StrengthTypes eMilitaryStrength, int& iThirdPartyAttackValue, int& iThirdPartyDefenseValue)
+{
+	if (GET_PLAYER(eThirdParty).isMinorCiv())
+	{
+		switch (eMilitaryStrength)
+		{
+		case STRENGTH_IMMENSE:
+			iThirdPartyAttackValue = ApplyPercentageModifier(iThirdPartyAttackValue, /*50*/ GD_INT_GET(MILITARY_STRENGTH_MINOR_BACKUP_IMMENSE));
+			iThirdPartyDefenseValue = ApplyPercentageModifier(iThirdPartyDefenseValue, /*50*/ GD_INT_GET(TARGET_MINOR_BACKUP_IMMENSE));
+			break;
+		case STRENGTH_POWERFUL:
+			iThirdPartyAttackValue = ApplyPercentageModifier(iThirdPartyAttackValue, /*35*/ GD_INT_GET(MILITARY_STRENGTH_MINOR_BACKUP_POWERFUL));
+			iThirdPartyDefenseValue = ApplyPercentageModifier(iThirdPartyDefenseValue, /*35*/ GD_INT_GET(TARGET_MINOR_BACKUP_POWERFUL));
+			break;
+		case STRENGTH_STRONG:
+			iThirdPartyAttackValue = ApplyPercentageModifier(iThirdPartyAttackValue, /*25*/ GD_INT_GET(MILITARY_STRENGTH_MINOR_BACKUP_STRONG));
+			iThirdPartyDefenseValue = ApplyPercentageModifier(iThirdPartyDefenseValue, /*25*/ GD_INT_GET(TARGET_MINOR_BACKUP_STRONG));
+			break;
+		case STRENGTH_AVERAGE:
+			iThirdPartyAttackValue = ApplyPercentageModifier(iThirdPartyAttackValue, /*15*/ GD_INT_GET(MILITARY_STRENGTH_MINOR_BACKUP_AVERAGE));
+			iThirdPartyDefenseValue = ApplyPercentageModifier(iThirdPartyDefenseValue, /*15*/ GD_INT_GET(TARGET_MINOR_BACKUP_AVERAGE));
+			break;
+		case STRENGTH_POOR:
+			iThirdPartyAttackValue = ApplyPercentageModifier(iThirdPartyAttackValue, /*0*/ GD_INT_GET(MILITARY_STRENGTH_MINOR_BACKUP_POOR));
+			iThirdPartyDefenseValue = ApplyPercentageModifier(iThirdPartyDefenseValue, /*0*/ GD_INT_GET(TARGET_MINOR_BACKUP_POOR));
+			break;
+		case STRENGTH_WEAK:
+			iThirdPartyAttackValue = ApplyPercentageModifier(iThirdPartyAttackValue, /*0*/ GD_INT_GET(MILITARY_STRENGTH_MINOR_BACKUP_WEAK));
+			iThirdPartyDefenseValue = ApplyPercentageModifier(iThirdPartyDefenseValue, /*0*/ GD_INT_GET(TARGET_MINOR_BACKUP_WEAK));
+			break;
+		case STRENGTH_PATHETIC:
+			iThirdPartyAttackValue = ApplyPercentageModifier(iThirdPartyAttackValue, /*0*/ GD_INT_GET(MILITARY_STRENGTH_MINOR_BACKUP_PATHETIC));
+			iThirdPartyDefenseValue = ApplyPercentageModifier(iThirdPartyDefenseValue, /*0*/ GD_INT_GET(TARGET_MINOR_BACKUP_PATHETIC));
+			break;
+		default:
+			UNREACHABLE();
+		}
+	}
+	else
+	{
+		switch (eMilitaryStrength)
+		{
+		case STRENGTH_IMMENSE:
+			iThirdPartyAttackValue = ApplyPercentageModifier(iThirdPartyAttackValue, /*50*/ GD_INT_GET(MILITARY_STRENGTH_MAJOR_BACKUP_IMMENSE));
+			iThirdPartyDefenseValue = ApplyPercentageModifier(iThirdPartyDefenseValue, /*50*/ GD_INT_GET(TARGET_MAJOR_BACKUP_IMMENSE));
+			break;
+		case STRENGTH_POWERFUL:
+			iThirdPartyAttackValue = ApplyPercentageModifier(iThirdPartyAttackValue, /*35*/ GD_INT_GET(MILITARY_STRENGTH_MAJOR_BACKUP_POWERFUL));
+			iThirdPartyDefenseValue = ApplyPercentageModifier(iThirdPartyDefenseValue, /*35*/ GD_INT_GET(TARGET_MAJOR_BACKUP_POWERFUL));
+			break;
+		case STRENGTH_STRONG:
+			iThirdPartyAttackValue = ApplyPercentageModifier(iThirdPartyAttackValue, /*25*/ GD_INT_GET(MILITARY_STRENGTH_MAJOR_BACKUP_STRONG));
+			iThirdPartyDefenseValue = ApplyPercentageModifier(iThirdPartyDefenseValue, /*25*/ GD_INT_GET(TARGET_MAJOR_BACKUP_STRONG));
+			break;
+		case STRENGTH_AVERAGE:
+			iThirdPartyAttackValue = ApplyPercentageModifier(iThirdPartyAttackValue, /*15*/ GD_INT_GET(MILITARY_STRENGTH_MAJOR_BACKUP_AVERAGE));
+			iThirdPartyDefenseValue = ApplyPercentageModifier(iThirdPartyDefenseValue, /*15*/ GD_INT_GET(TARGET_MAJOR_BACKUP_AVERAGE));
+			break;
+		case STRENGTH_POOR:
+			iThirdPartyAttackValue = ApplyPercentageModifier(iThirdPartyAttackValue, /*10*/ GD_INT_GET(MILITARY_STRENGTH_MAJOR_BACKUP_POOR));
+			iThirdPartyDefenseValue = ApplyPercentageModifier(iThirdPartyDefenseValue, /*10*/ GD_INT_GET(TARGET_MAJOR_BACKUP_POOR));
+			break;
+		case STRENGTH_WEAK:
+			iThirdPartyAttackValue = ApplyPercentageModifier(iThirdPartyAttackValue, /*5*/ GD_INT_GET(MILITARY_STRENGTH_MAJOR_BACKUP_WEAK));
+			iThirdPartyDefenseValue = ApplyPercentageModifier(iThirdPartyDefenseValue, /*5*/ GD_INT_GET(TARGET_MAJOR_BACKUP_WEAK));
+			break;
+		case STRENGTH_PATHETIC:
+			iThirdPartyAttackValue = ApplyPercentageModifier(iThirdPartyAttackValue, /*0*/ GD_INT_GET(MILITARY_STRENGTH_MAJOR_BACKUP_PATHETIC));
+			iThirdPartyDefenseValue = ApplyPercentageModifier(iThirdPartyDefenseValue, /*0*/ GD_INT_GET(TARGET_MAJOR_BACKUP_PATHETIC));
+			break;
+		default:
+			UNREACHABLE();
+		}
+	}
+
+	// ATTACK: How close is this ally to the player?
+	if (GET_PLAYER(eThirdParty).isMinorCiv())
+	{
+		iThirdPartyAttackValue = ApplyPercentageModifier(iThirdPartyAttackValue, /*100*/ GD_INT_GET(MILITARY_STRENGTH_MINOR_BACKUP_NEIGHBORS));
+	}
+	else
+	{
+		switch (GET_PLAYER(eThirdParty).GetProximityToPlayer(eThirdPartyEnemy))
+		{
+		case PLAYER_PROXIMITY_NEIGHBORS:
+			iThirdPartyAttackValue = ApplyPercentageModifier(iThirdPartyAttackValue, /*200*/ GD_INT_GET(MILITARY_STRENGTH_MAJOR_BACKUP_NEIGHBORS));
+			break;
+		case PLAYER_PROXIMITY_CLOSE:
+			iThirdPartyAttackValue = ApplyPercentageModifier(iThirdPartyAttackValue, /*100*/ GD_INT_GET(MILITARY_STRENGTH_MAJOR_BACKUP_CLOSE));
+			break;
+		case PLAYER_PROXIMITY_FAR:
+			iThirdPartyAttackValue = ApplyPercentageModifier(iThirdPartyAttackValue, /*50*/ GD_INT_GET(MILITARY_STRENGTH_MAJOR_BACKUP_FAR));
+			break;
+		default:
+			iThirdPartyAttackValue = ApplyPercentageModifier(iThirdPartyAttackValue, /*0*/ GD_INT_GET(MILITARY_STRENGTH_MAJOR_BACKUP_DISTANT));
+			break;
+		}
+	}
+
+	// DEFENSE: How close is this ally to the player's enemy?
+	if (GET_PLAYER(eThirdParty).isMinorCiv())
+	{
+		iThirdPartyDefenseValue = ApplyPercentageModifier(iThirdPartyDefenseValue, /*100*/ GD_INT_GET(TARGET_MINOR_BACKUP_NEIGHBORS));
+	}
+	else
+	{
+		switch (GET_PLAYER(eThirdParty).GetProximityToPlayer(eThirdPartyAlly))
+		{
+		case PLAYER_PROXIMITY_NEIGHBORS:
+			iThirdPartyDefenseValue = ApplyPercentageModifier(iThirdPartyDefenseValue, /*200*/ GD_INT_GET(TARGET_MAJOR_BACKUP_NEIGHBORS));
+			break;
+		case PLAYER_PROXIMITY_CLOSE:
+			iThirdPartyDefenseValue = ApplyPercentageModifier(iThirdPartyDefenseValue, /*100*/ GD_INT_GET(TARGET_MAJOR_BACKUP_CLOSE));
+			break;
+		case PLAYER_PROXIMITY_FAR:
+			iThirdPartyDefenseValue = ApplyPercentageModifier(iThirdPartyDefenseValue, /*50*/ GD_INT_GET(TARGET_MAJOR_BACKUP_FAR));
+			break;
+		default:
+			iThirdPartyDefenseValue = ApplyPercentageModifier(iThirdPartyDefenseValue, /*0*/ GD_INT_GET(TARGET_MAJOR_BACKUP_DISTANT));
+			break;
+		}
+	}
+
+	// Reduce if the third party is already at war with other players
+	if (iThirdPartyAttackValue > 0 || iThirdPartyDefenseValue > 0)
+	{
+		int iThirdPartyWarCount = GET_PLAYER(eThirdParty).CountNumDangerousMajorsAtWarWith(false, true);
+
+		if (GET_PLAYER(eThirdParty).IsAtWarWith(eThirdPartyEnemy))
+			iThirdPartyWarCount--;
+
+		if (iThirdPartyWarCount > 0)
+		{
+			int iScale = max(/*20*/ max(GD_INT_GET(MILITARY_STRENGTH_BACKUP_ALREADY_WAR_MINIMUM), 0), 100 - iThirdPartyWarCount * /*30*/ GD_INT_GET(MILITARY_STRENGTH_BACKUP_ALREADY_WAR_EACH_PLAYER));
+			iThirdPartyAttackValue *= iScale;
+			iThirdPartyAttackValue /= 100;
+			iScale = max(/*20*/ max(GD_INT_GET(TARGET_ALREADY_WAR_MINIMUM), 0), 100 - iThirdPartyWarCount * /*30*/ GD_INT_GET(TARGET_ALREADY_WAR_EACH_PLAYER));
+			iThirdPartyDefenseValue *= iScale;
+			iThirdPartyDefenseValue /= 100;
+		}
+	}
 }
 
 /// Updates war progress scores (per turn decay)
@@ -15333,16 +15106,6 @@ void CvDiplomacyAI::SelectApproachTowardsVassal(PlayerTypes ePlayer)
 		LogMajorCivApproachUpdate(ePlayer, &vApproachScores[0], eApproach, eOldApproach, GetSurfaceApproach(ePlayer));
 		LogApproachValueDeltas(ePlayer, &vApproachScores[0], &vApproachScoresScratch[0]);
 	}
-}
-
-int ApplyPercentageModifier(int iValue, int iModifier, bool bDecrease = false)
-{
-	PRECONDITION(!bDecrease || iModifier != 0);
-
-	long long lValue = static_cast<long long>(iValue);
-	return bDecrease
-		? static_cast<int>((lValue * 100) / iModifier)
-		: static_cast<int>((lValue * iModifier) / 100);
 }
 
 /// What is the best Diplomatic Approach to take towards this major civilization?
@@ -24289,7 +24052,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMinorCiv(PlayerTypes ePlayer)
 		if (IsAtWar(ePlayer) || eOldApproach == CIV_APPROACH_WAR)
 		{
 			// Don't give this bias if the war is going poorly
-			if ((GetWarState(ePlayer) != NO_WAR_STATE_TYPE || GetWarState(ePlayer) > WAR_STATE_CALM) && !GetPlayer()->IsNoNewWars())
+			if (GetWarState(ePlayer) != NO_WAR_STATE_TYPE && !GetPlayer()->IsNoNewWars())
 			{
 				vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * 2;
 			}
@@ -29585,8 +29348,37 @@ void CvDiplomacyAI::DoFirstContact(PlayerTypes ePlayer)
 			{
 				if (!IsAtWar(ePlayer) && CvPreGame::isHuman(ePlayer))
 				{
-					const char* szText = GetDiploStringForMessage(DIPLO_MESSAGE_INTRO);
-					CvDiplomacyRequests::SendRequest(GetID(), ePlayer, DIPLO_UI_STATE_DEFAULT_ROOT, szText, LEADERHEAD_ANIM_INTRO);
+					// Human to Human will just send a notification
+					if (GetPlayer()->isHuman(ISHUMAN_AI_DIPLOMACY))
+					{
+						CvPlayer& kTargetPlayer = GET_PLAYER(ePlayer);
+						CvNotifications* pNotifications = kTargetPlayer.GetNotifications();
+						if (pNotifications)
+						{
+							CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_MET_MINOR_CIV", GetPlayer()->getNameKey());
+							pNotifications->Add(NOTIFICATION_GENERIC, strBuffer, strBuffer, -1, -1, GetID());
+						}
+					}
+					else
+					{
+						// AI to Human: during auto-moves, send a notification instead of a request
+						// to avoid creating pending requests after turn end
+						if (GET_PLAYER(ePlayer).isAutoMoves())
+						{
+							CvPlayer& kTargetPlayer = GET_PLAYER(ePlayer);
+							CvNotifications* pNotifications = kTargetPlayer.GetNotifications();
+							if (pNotifications)
+							{
+								CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_MET_MINOR_CIV", GetPlayer()->getNameKey());
+								pNotifications->Add(NOTIFICATION_GENERIC, strBuffer, strBuffer, -1, -1, GetID());
+							}
+						}
+						else
+						{
+							const char* szText = GetDiploStringForMessage(DIPLO_MESSAGE_INTRO);
+							CvDiplomacyRequests::SendRequest(GetID(), ePlayer, DIPLO_UI_STATE_DEFAULT_ROOT, szText, LEADERHEAD_ANIM_INTRO);
+						}
+					}
 				}
 			}
 		}
@@ -29719,8 +29511,27 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 		{
 			if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canDeclareWar(GetTeam()))
 			{
-				SetMilitaryPromiseState(ePlayer, PROMISE_STATE_MADE);
-				GET_PLAYER(ePlayer).GetDiplomacyAI()->SetMilitaryPromiseState(GetID(), PROMISE_STATE_MADE);
+				// Make promises between all members of both teams
+				for (int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
+				{
+					PlayerTypes eMyTeammate = (PlayerTypes)iI;
+					if (!GET_PLAYER(eMyTeammate).isAlive())
+						continue;
+					if (GET_PLAYER(eMyTeammate).getTeam() != GetTeam())
+						continue;
+
+					for (int iJ = 0; iJ < MAX_MAJOR_CIVS; iJ++)
+					{
+						PlayerTypes eTheirTeammate = (PlayerTypes)iJ;
+						if (!GET_PLAYER(eTheirTeammate).isAlive())
+							continue;
+						if (GET_PLAYER(eTheirTeammate).getTeam() != GET_PLAYER(ePlayer).getTeam())
+							continue;
+
+						GET_PLAYER(eMyTeammate).GetDiplomacyAI()->SetMilitaryPromiseState(eTheirTeammate, PROMISE_STATE_MADE);
+						GET_PLAYER(eTheirTeammate).GetDiplomacyAI()->SetMilitaryPromiseState(eMyTeammate, PROMISE_STATE_MADE);
+					}
+				}
 			}
 			else
 			{
@@ -29729,8 +29540,27 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 				{
 					if (!GET_PLAYER(ePlayer).GetDiplomacyAI()->DeclareWar(GetTeam()))
 					{
-						SetMilitaryPromiseState(ePlayer, PROMISE_STATE_MADE);
-						GET_PLAYER(ePlayer).GetDiplomacyAI()->SetMilitaryPromiseState(GetID(), PROMISE_STATE_MADE);
+						// Make promises between all members of both teams
+						for (int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
+						{
+							PlayerTypes eMyTeammate = (PlayerTypes)iI;
+							if (!GET_PLAYER(eMyTeammate).isAlive())
+								continue;
+							if (GET_PLAYER(eMyTeammate).getTeam() != GetTeam())
+								continue;
+
+							for (int iJ = 0; iJ < MAX_MAJOR_CIVS; iJ++)
+							{
+								PlayerTypes eTheirTeammate = (PlayerTypes)iJ;
+								if (!GET_PLAYER(eTheirTeammate).isAlive())
+									continue;
+								if (GET_PLAYER(eTheirTeammate).getTeam() != GET_PLAYER(ePlayer).getTeam())
+									continue;
+
+								GET_PLAYER(eMyTeammate).GetDiplomacyAI()->SetMilitaryPromiseState(eTheirTeammate, PROMISE_STATE_MADE);
+								GET_PLAYER(eTheirTeammate).GetDiplomacyAI()->SetMilitaryPromiseState(eMyTeammate, PROMISE_STATE_MADE);
+							}
+						}
 					}
 					else
 					{
@@ -29739,8 +29569,27 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 				}
 				else
 				{
-					SetMilitaryPromiseState(ePlayer, PROMISE_STATE_MADE);
-					GET_PLAYER(ePlayer).GetDiplomacyAI()->SetMilitaryPromiseState(GetID(), PROMISE_STATE_MADE);
+					// Make promises between all members of both teams
+					for (int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
+					{
+						PlayerTypes eMyTeammate = (PlayerTypes)iI;
+						if (!GET_PLAYER(eMyTeammate).isAlive())
+							continue;
+						if (GET_PLAYER(eMyTeammate).getTeam() != GetTeam())
+							continue;
+
+						for (int iJ = 0; iJ < MAX_MAJOR_CIVS; iJ++)
+						{
+							PlayerTypes eTheirTeammate = (PlayerTypes)iJ;
+							if (!GET_PLAYER(eTheirTeammate).isAlive())
+								continue;
+							if (GET_PLAYER(eTheirTeammate).getTeam() != GET_PLAYER(ePlayer).getTeam())
+								continue;
+
+							GET_PLAYER(eMyTeammate).GetDiplomacyAI()->SetMilitaryPromiseState(eTheirTeammate, PROMISE_STATE_MADE);
+							GET_PLAYER(eTheirTeammate).GetDiplomacyAI()->SetMilitaryPromiseState(eMyTeammate, PROMISE_STATE_MADE);
+						}
+					}
 				}
 			}
 		}
@@ -38467,8 +38316,27 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		// Human says he means no harm
 		if (iArg1 == 1)
 		{
-			SetMilitaryPromiseState(eFromPlayer, PROMISE_STATE_MADE);
-			GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetMilitaryPromiseState(GetID(), PROMISE_STATE_MADE);
+			// Make promises between all members of both teams
+			for (int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
+			{
+				PlayerTypes eMyTeammate = (PlayerTypes)iI;
+				if (!GET_PLAYER(eMyTeammate).isAlive())
+					continue;
+				if (GET_PLAYER(eMyTeammate).getTeam() != GetTeam())
+					continue;
+
+				for (int iJ = 0; iJ < MAX_MAJOR_CIVS; iJ++)
+				{
+					PlayerTypes eTheirTeammate = (PlayerTypes)iJ;
+					if (!GET_PLAYER(eTheirTeammate).isAlive())
+						continue;
+					if (GET_PLAYER(eTheirTeammate).getTeam() != GET_PLAYER(eFromPlayer).getTeam())
+						continue;
+
+					GET_PLAYER(eMyTeammate).GetDiplomacyAI()->SetMilitaryPromiseState(eTheirTeammate, PROMISE_STATE_MADE);
+					GET_PLAYER(eTheirTeammate).GetDiplomacyAI()->SetMilitaryPromiseState(eMyTeammate, PROMISE_STATE_MADE);
+				}
+			}
 
 			if (bActivePlayer)
 			{
@@ -40094,16 +39962,27 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			if (eResponse == MOVE_TROOPS_RESPONSE_ACCEPT)
 			{
 				// AI accepts move troops request
-				// Make sure all players on this team get this check, so that teammates don't screw each other over.
-				for (int iI=0; iI < MAX_MAJOR_CIVS; iI++)
+				// Make sure all players on both teams get this check, so that teammates don't screw each other over.
+				for (int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
 				{
-					PlayerTypes eTeammate = (PlayerTypes)iI;
-					TeamTypes eLoopTeam = GET_PLAYER(eTeammate).getTeam();
-					if (eLoopTeam == GetTeam())
+					PlayerTypes eMyTeammate = (PlayerTypes)iI;
+					if (!GET_PLAYER(eMyTeammate).isAlive())
+						continue;
+					if (GET_PLAYER(eMyTeammate).getTeam() != GetTeam())
+						continue;
+
+					GET_PLAYER(eMyTeammate).GetDiplomacyAI()->SetPlayerMoveTroopsRequestAccepted(eFromPlayer, true);
+
+					for (int iJ = 0; iJ < MAX_MAJOR_CIVS; iJ++)
 					{
-						GET_PLAYER(eTeammate).GetDiplomacyAI()->SetPlayerMoveTroopsRequestAccepted(eFromPlayer, true);
-						GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetMilitaryPromiseState(eTeammate, PROMISE_STATE_MADE);
-						GET_PLAYER(eTeammate).GetDiplomacyAI()->SetMilitaryPromiseState(eFromPlayer, PROMISE_STATE_MADE);
+						PlayerTypes eTheirTeammate = (PlayerTypes)iJ;
+						if (!GET_PLAYER(eTheirTeammate).isAlive())
+							continue;
+						if (GET_PLAYER(eTheirTeammate).getTeam() != GET_PLAYER(eFromPlayer).getTeam())
+							continue;
+
+						GET_PLAYER(eMyTeammate).GetDiplomacyAI()->SetMilitaryPromiseState(eTheirTeammate, PROMISE_STATE_MADE);
+						GET_PLAYER(eTheirTeammate).GetDiplomacyAI()->SetMilitaryPromiseState(eMyTeammate, PROMISE_STATE_MADE);
 					}
 				}
 
@@ -40127,15 +40006,25 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			else if (eResponse == MOVE_TROOPS_RESPONSE_NEUTRAL)
 			{
 				// AI agrees not to attack
-				// Make sure all players on this team get this check, so that teammates don't screw each other over.
-				for (int iI=0; iI < MAX_MAJOR_CIVS; iI++)
+				// Make sure all players on both teams get this check, so that teammates don't screw each other over.
+				for (int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
 				{
-					PlayerTypes eTeammate = (PlayerTypes)iI;
-					TeamTypes eLoopTeam = GET_PLAYER(eTeammate).getTeam();
-					if (eLoopTeam == GetTeam())
+					PlayerTypes eMyTeammate = (PlayerTypes)iI;
+					if (!GET_PLAYER(eMyTeammate).isAlive())
+						continue;
+					if (GET_PLAYER(eMyTeammate).getTeam() != GetTeam())
+						continue;
+
+					for (int iJ = 0; iJ < MAX_MAJOR_CIVS; iJ++)
 					{
-						GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetMilitaryPromiseState(eTeammate, PROMISE_STATE_MADE);
-						GET_PLAYER(eTeammate).GetDiplomacyAI()->SetMilitaryPromiseState(eFromPlayer, PROMISE_STATE_MADE);
+						PlayerTypes eTheirTeammate = (PlayerTypes)iJ;
+						if (!GET_PLAYER(eTheirTeammate).isAlive())
+							continue;
+						if (GET_PLAYER(eTheirTeammate).getTeam() != GET_PLAYER(eFromPlayer).getTeam())
+							continue;
+
+						GET_PLAYER(eMyTeammate).GetDiplomacyAI()->SetMilitaryPromiseState(eTheirTeammate, PROMISE_STATE_MADE);
+						GET_PLAYER(eTheirTeammate).GetDiplomacyAI()->SetMilitaryPromiseState(eMyTeammate, PROMISE_STATE_MADE);
 					}
 				}
 
@@ -40177,14 +40066,25 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 				else
 				{
 					// AI agrees not to attack
+					// Make promises between all members of both teams
 					for (int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
 					{
-						PlayerTypes eTeammate = (PlayerTypes)iI;
-						TeamTypes eLoopTeam = GET_PLAYER(eTeammate).getTeam();
-						if (eLoopTeam == GetTeam())
+						PlayerTypes eMyTeammate = (PlayerTypes)iI;
+						if (!GET_PLAYER(eMyTeammate).isAlive())
+							continue;
+						if (GET_PLAYER(eMyTeammate).getTeam() != GetTeam())
+							continue;
+
+						for (int iJ = 0; iJ < MAX_MAJOR_CIVS; iJ++)
 						{
-							GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetMilitaryPromiseState(eTeammate, PROMISE_STATE_MADE);
-							GET_PLAYER(eTeammate).GetDiplomacyAI()->SetMilitaryPromiseState(eFromPlayer, PROMISE_STATE_MADE);
+							PlayerTypes eTheirTeammate = (PlayerTypes)iJ;
+							if (!GET_PLAYER(eTheirTeammate).isAlive())
+								continue;
+							if (GET_PLAYER(eTheirTeammate).getTeam() != GET_PLAYER(eFromPlayer).getTeam())
+								continue;
+
+							GET_PLAYER(eMyTeammate).GetDiplomacyAI()->SetMilitaryPromiseState(eTheirTeammate, PROMISE_STATE_MADE);
+							GET_PLAYER(eTheirTeammate).GetDiplomacyAI()->SetMilitaryPromiseState(eMyTeammate, PROMISE_STATE_MADE);
 						}
 					}
 
@@ -54742,8 +54642,7 @@ void CvDiplomacyAI::DoMakeVassalageStatement(PlayerTypes ePlayer, DiploStatement
 			if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatement)
 			{
 				// Send the statement
-				if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatement)
-					eStatement = eTempStatement;
+				eStatement = eTempStatement;
 			}
 		}
 		else
@@ -55403,8 +55302,7 @@ void CvDiplomacyAI::DoRevokeVassalageStatement(PlayerTypes ePlayer, DiploStateme
 			if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatement)
 			{
 				// Send the statement
-				if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatement)
-					eStatement = eTempStatement;
+				eStatement = eTempStatement;
 			}
 		}
 		else

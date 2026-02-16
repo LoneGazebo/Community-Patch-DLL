@@ -7,7 +7,7 @@
     <Guid>3645dbca-bdfb-4d86-bdc5-46cb5a426cc2</Guid>
     <ModVersion>1</ModVersion>
     <Stability>Stable</Stability>
-    <Teaser>(5.0.1) RTS Style Control Groups and Group Movement</Teaser>
+    <Teaser>(5.1.4) RTS Style Control Groups and Group Movement</Teaser>
     <Description>QoL mod for organizing and moving groups of units at once.
 Squads is used in two modes: [COLOR_GREEN]Management Mode[ENDCOLOR] and [COLOR_GREEN]Movement Mode[ENDCOLOR].[NEWLINE][NEWLINE]
 In [COLOR_GREEN]Management Mode[ENDCOLOR], units can be added or removed with [COLOR_YELLOW]LCLICK[ENDCOLOR] on the unit or their flag. Groups of units can be added to a squad at once by holding [COLOR_YELLOW]RCLICK[ENDCOLOR] and dragging a box over units to be added. [COLOR_GREEN]Management Mode[ENDCOLOR] can be entered for a squad by pressing the [COLOR_BLUE]Manage Squad[ENDCOLOR] button on the UI with that squad selected, or using the key combination [COLOR_YELLOW]CTRL+NUM[ENDCOLOR] where num is the squad number key.[NEWLINE][NEWLINE]
@@ -58,7 +58,7 @@ The Squads UI allows renaming of squads, removing all units from a squad, removi
         <Type>Mod</Type>
         <Name>(1) Community Patch</Name>
         <Id>d1b6328c-ff44-4b0d-aad7-c657f83610cd</Id>
-        <MinVersion>147</MinVersion>
+        <MinVersion>148</MinVersion>
         <MaxVersion>999</MaxVersion>
       </Association>
     </ModDependencies>

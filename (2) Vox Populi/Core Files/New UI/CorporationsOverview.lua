@@ -499,8 +499,8 @@ function HookupResourceInstance(info)
 	local selectedPlayer = Players[g_MonopolyResourcePlayer];
 	if(selectedPlayer:IsShowImports()) then
 		iNumResources = selectedPlayer:GetNumResourceTotal(info.ResourceID, false, false) + selectedPlayer:GetResourceExport(info.ResourceID);
-		iNumImports = selectedPlayer:GetResourceImport(info.ResourceID);
 		iNumMinors = selectedPlayer:GetResourceFromMinors(info.ResourceID);
+		iNumImports = selectedPlayer:GetResourceImport(info.ResourceID) - iNumMinors;
 		instance.PercentLabel:LocalizeAndSetToolTip("TXT_KEY_RESOURCE_BREAKDOWN_IMPORTS", iNumResources, iNumImports, iNumMinors);
 		instance.PercentLabel2:LocalizeAndSetToolTip("TXT_KEY_RESOURCE_BREAKDOWN_IMPORTS", iNumResources, iNumImports, iNumMinors);
 	else

@@ -157,6 +157,7 @@ local g_LeadersManager = InstanceManager:new( "LeaderInstance", "LeaderButton", 
 local g_UniqueUnitsManager = InstanceManager:new( "UniqueUnitInstance", "UniqueUnitButton", Controls.UniqueUnitsInnerFrame );
 local g_UniqueBuildingsManager = InstanceManager:new( "UniqueBuildingInstance", "UniqueBuildingButton", Controls.UniqueBuildingsInnerFrame );
 local g_UniqueImprovementsManager = InstanceManager:new( "UniqueImprovementInstance", "UniqueImprovementButton", Controls.UniqueImprovementsInnerFrame );
+local g_UniqueProjectsManager = InstanceManager:new( "UniqueProjectInstance", "UniqueProjectButton", Controls.UniqueProjectsInnerFrame );
 local g_StartAlongRegionManager = InstanceManager:new( "StartAlongRegionInstance", "StartAlongRegionButton", Controls.StartAlongRegionInnerFrame );
 local g_StartPriorityRegionManager = InstanceManager:new( "StartPriorityRegionInstance", "StartPriorityRegionButton", Controls.StartPriorityRegionInnerFrame );
 local g_StartAvoidRegionManager = InstanceManager:new( "StartAvoidRegionInstance", "StartAvoidRegionButton", Controls.StartAvoidRegionInnerFrame );
@@ -1058,7 +1059,7 @@ CivilopediaCategory[CategoryWonders].PopulateList = function()
 			tableid = tableid + 1;
 
 			-- index by various keys
-			searchableList[Locale.ToLower(name)] = article;
+			searchableList[Locale.ToLower(article.entryName)] = article;
 			searchableTextKeyList[building.Description] = article;
 			categorizedList[(CategoryWonders * absurdlyLargeNumTopicsInCategory) + building.ID + 1000] = article;
 		end
@@ -2532,12 +2533,18 @@ CivilopediaCategory[CategoryGameConcepts].SelectArticle = function( conceptID, s
 	ClearArticle();
 
 	if shouldAddToList == addToList then
+		local article = categorizedList[(CategoryGameConcepts * absurdlyLargeNumTopicsInCategory) + conceptID];
+		if article then
 		currentTopic = currentTopic + 1;
-		listOfTopicsViewed[currentTopic] = categorizedList[(CategoryGameConcepts * absurdlyLargeNumTopicsInCategory) + conceptID];
-		for i = currentTopic + 1, endTopic, 1 do
-			listOfTopicsViewed[i] = nil;
+			listOfTopicsViewed[currentTopic] = article
+			for i = currentTopic + 1, endTopic, 1 do
+				listOfTopicsViewed[i] = nil;
+			end
+			endTopic = currentTopic;
+		else
+			print("Warning: GameConcepts Article could not be added to list of viewed topics: List ID " .. 
+				(CategoryGameConcepts * absurdlyLargeNumTopicsInCategory) + conceptID)
 		end
-		endTopic = currentTopic;
 	end
 
 	if conceptID ~= -1 then
@@ -2589,12 +2596,18 @@ CivilopediaCategory[CategoryTech].SelectArticle = function( techID, shouldAddToL
 	ClearArticle();
 
 	if shouldAddToList == addToList then
-		currentTopic = currentTopic + 1;
-		listOfTopicsViewed[currentTopic] = categorizedList[(CategoryTech * absurdlyLargeNumTopicsInCategory) + techID];
-		for i = currentTopic + 1, endTopic, 1 do
-			listOfTopicsViewed[i] = nil;
+		local article = categorizedList[(CategoryTech * absurdlyLargeNumTopicsInCategory) + techID];
+		if article then
+			currentTopic = currentTopic + 1;
+			listOfTopicsViewed[currentTopic] = article
+			for i = currentTopic + 1, endTopic, 1 do
+				listOfTopicsViewed[i] = nil;
+			end
+			endTopic = currentTopic;
+		else
+			print("Warning: Tech Article could not be added to list of viewed topics: List ID " .. 
+				(CategoryTech * absurdlyLargeNumTopicsInCategory) + techID)
 		end
-		endTopic = currentTopic;
 	end
 
 	if techID ~= -1 then
@@ -2685,7 +2698,15 @@ CivilopediaCategory[CategoryTech].SelectArticle = function( techID, shouldAddToL
 						textureSheet = defaultErrorTextureSheet;
 						textureOffset = nullOffset;
 					end
-					UpdateSmallButton( buttonAdded, thisUnitInstance.UnlockedUnitImage, thisUnitInstance.UnlockedUnitButton, textureSheet, textureOffset, CategoryUnits, Locale.ConvertTextKey( thisUnitInfo.Description ), thisUnitInfo.ID );
+					-- Check if unlocked unit is a Great Person
+					local unlockedCategory = CategoryUnits;
+					local unlockedEntryID = thisUnitInfo.ID;
+					if thisUnitInfo.PrereqTech == nil and thisUnitInfo.Special ~= nil then
+						-- This is a Great Person, use CategoryPeople with offset
+						unlockedCategory = CategoryPeople;
+						unlockedEntryID = thisUnitInfo.ID + 1000;
+					end
+					UpdateSmallButton( buttonAdded, thisUnitInstance.UnlockedUnitImage, thisUnitInstance.UnlockedUnitButton, textureSheet, textureOffset, unlockedCategory, Locale.ConvertTextKey( thisUnitInfo.Description ), unlockedEntryID );
 					buttonAdded = buttonAdded + 1;
 				end
 			end
@@ -2872,12 +2893,18 @@ CivilopediaCategory[CategoryUnits].SelectArticle = function( unitID, shouldAddTo
 	ClearArticle();
 
 	if shouldAddToList == addToList then
-		currentTopic = currentTopic + 1;
-		listOfTopicsViewed[currentTopic] = categorizedList[(CategoryUnits * absurdlyLargeNumTopicsInCategory) + unitID];
-		for i = currentTopic + 1, endTopic, 1 do
-			listOfTopicsViewed[i] = nil;
+		local article = categorizedList[(CategoryUnits * absurdlyLargeNumTopicsInCategory) + unitID];
+		if article then
+			currentTopic = currentTopic + 1;
+			listOfTopicsViewed[currentTopic] = article
+			for i = currentTopic + 1, endTopic, 1 do
+				listOfTopicsViewed[i] = nil;
+			end
+			endTopic = currentTopic;
+		else
+			print("Warning: Unit Article could not be added to list of viewed topics: List ID " .. 
+				(CategoryUnits * absurdlyLargeNumTopicsInCategory) + unitID)
 		end
-		endTopic = currentTopic;
 	end
 
 	if unitID ~= -1 then
@@ -3085,7 +3112,15 @@ CivilopediaCategory[CategoryUnits].SelectArticle = function( unitID, shouldAddTo
 							textureSheet = defaultErrorTextureSheet;
 							textureOffset = nullOffset;
 						end
-						UpdateSmallButton( buttonAdded, thisUpgradeInstance.UpgradeImage, thisUpgradeInstance.UpgradeButton, textureSheet, textureOffset, CategoryUnits, Locale.ConvertTextKey( obs.Description ), obs.ID );
+						-- Check if upgrade unit is a Great Person
+						local upgradeCategory = CategoryUnits;
+						local upgradeEntryID = obs.ID;
+						if obs.PrereqTech == nil and obs.Special ~= nil then
+							-- This is a Great Person, use CategoryPeople with offset
+							upgradeCategory = CategoryPeople;
+							upgradeEntryID = obs.ID + 1000;
+						end
+						UpdateSmallButton( buttonAdded, thisUpgradeInstance.UpgradeImage, thisUpgradeInstance.UpgradeButton, textureSheet, textureOffset, upgradeCategory, Locale.ConvertTextKey( obs.Description ), upgradeEntryID );
 						buttonAdded = buttonAdded + 1;
 					end
 				end
@@ -3102,7 +3137,15 @@ CivilopediaCategory[CategoryUnits].SelectArticle = function( unitID, shouldAddTo
 							textureSheet = defaultErrorTextureSheet;
 							textureOffset = nullOffset;
 						end
-						UpdateSmallButton( buttonAdded, thisUpgradeInstance.UpgradeImage, thisUpgradeInstance.UpgradeButton, textureSheet, textureOffset, CategoryUnits, Locale.ConvertTextKey( upgradeUnit.Description ), upgradeUnit.ID );
+						-- Check if upgrade unit is a Great Person
+						local upgradeCategory = CategoryUnits;
+						local upgradeEntryID = upgradeUnit.ID;
+						if upgradeUnit.PrereqTech == nil and upgradeUnit.Special ~= nil then
+							-- This is a Great Person, use CategoryPeople with offset
+							upgradeCategory = CategoryPeople;
+							upgradeEntryID = upgradeUnit.ID + 1000;
+						end
+						UpdateSmallButton( buttonAdded, thisUpgradeInstance.UpgradeImage, thisUpgradeInstance.UpgradeButton, textureSheet, textureOffset, upgradeCategory, Locale.ConvertTextKey( upgradeUnit.Description ), upgradeEntryID );
 						buttonAdded = buttonAdded + 1;
 					end
 				end
@@ -3124,7 +3167,7 @@ CivilopediaCategory[CategoryUnits].SelectArticle = function( unitID, shouldAddTo
 		g_ReplacesManager:ResetInstances();
 		buttonAdded = 0;
 		for unitClassType, _ in pairs(replacesUnitClass) do
-			for replacedUnit in DB.Query("SELECT u.ID, u.Description, u.PortraitIndex, u.IconAtlas from Units as u inner join UnitClasses as uc on u.Type = uc.DefaultUnit where uc.Type = ?", unitClassType) do
+			for replacedUnit in DB.Query("SELECT u.ID, u.Description, u.PortraitIndex, u.IconAtlas, u.PrereqTech, u.Special from Units as u inner join UnitClasses as uc on u.Type = uc.DefaultUnit where uc.Type = ?", unitClassType) do 
 				local thisUnitInstance = g_ReplacesManager:GetInstance();
 				if thisUnitInstance then
 					local textureOffset, textureSheet = IconLookup( replacedUnit.PortraitIndex, buttonSize, replacedUnit.IconAtlas );
@@ -3132,7 +3175,15 @@ CivilopediaCategory[CategoryUnits].SelectArticle = function( unitID, shouldAddTo
 						textureSheet = defaultErrorTextureSheet;
 						textureOffset = nullOffset;
 					end
-					UpdateSmallButton( buttonAdded, thisUnitInstance.ReplaceImage, thisUnitInstance.ReplaceButton, textureSheet, textureOffset, CategoryUnits, Locale.ConvertTextKey( replacedUnit.Description ), replacedUnit.ID );
+					-- Check if replaced unit is a Great Person
+					local replacedCategory = CategoryUnits;
+					local replacedEntryID = replacedUnit.ID;
+					if replacedUnit.PrereqTech == nil and replacedUnit.Special ~= nil then
+						-- This is a Great Person, use CategoryPeople with offset
+						replacedCategory = CategoryPeople;
+						replacedEntryID = replacedUnit.ID + 1000;
+					end
+					UpdateSmallButton( buttonAdded, thisUnitInstance.ReplaceImage, thisUnitInstance.ReplaceButton, textureSheet, textureOffset, replacedCategory, Locale.ConvertTextKey( replacedUnit.Description ), replacedEntryID );
 					buttonAdded = buttonAdded + 1;
 				end
 			end
@@ -3329,12 +3380,18 @@ CivilopediaCategory[CategoryPromotions].SelectArticle = function( promotionID, s
 	ClearArticle();
 
 	if shouldAddToList == addToList then
-		currentTopic = currentTopic + 1;
-		listOfTopicsViewed[currentTopic] = categorizedList[(CategoryPromotions * absurdlyLargeNumTopicsInCategory) + promotionID];
-		for i = currentTopic + 1, endTopic, 1 do
-			listOfTopicsViewed[i] = nil;
+		local article = categorizedList[(CategoryPromotions * absurdlyLargeNumTopicsInCategory) + promotionID];
+		if article then
+			currentTopic = currentTopic + 1;
+			listOfTopicsViewed[currentTopic] = article
+			for i = currentTopic + 1, endTopic, 1 do
+				listOfTopicsViewed[i] = nil;
+			end
+			endTopic = currentTopic;
+		else
+			print("Warning: Promotion Article could not be added to list of viewed topics: List ID " .. 
+				(CategoryPromotions * absurdlyLargeNumTopicsInCategory) + promotionID)
 		end
-		endTopic = currentTopic;
 	end
 
 	if promotionID ~= -1 then
@@ -4379,7 +4436,13 @@ function SelectBuildingOrWonderArticle( buildingID )
 					textureSheet = defaultErrorTextureSheet;
 					textureOffset = nullOffset;
 				end
-				UpdateSmallButton( buttonAdded, thisBuildingInstance.ReplaceImage, thisBuildingInstance.ReplaceButton, textureSheet, textureOffset, CategoryBuildings, Locale.ConvertTextKey( defaultBuilding.Description ), defaultBuilding.ID );
+				local buildingCategory = CategoryBuildings;
+				local defaultBuildingClass = GameInfo.BuildingClasses[defaultBuilding.BuildingClass];
+				local defaultBuildingInfo = GameInfo.Buildings[defaultBuildingClass.DefaultBuilding];
+				if defaultBuildingClass and (defaultBuildingClass.MaxGlobalInstances > 0 or (defaultBuildingClass.MaxPlayerInstances == 1 and defaultBuildingInfo.SpecialistCount == 0) or defaultBuildingClass.MaxTeamInstances > 0) then
+					buildingCategory = CategoryWonders;
+				end
+				UpdateSmallButton( buttonAdded, thisBuildingInstance.ReplaceImage, thisBuildingInstance.ReplaceButton, textureSheet, textureOffset, buildingCategory, Locale.ConvertTextKey( defaultBuilding.Description ), defaultBuilding.ID );
 				buttonAdded = buttonAdded + 1;
 			end
 		end
@@ -4775,12 +4838,18 @@ CivilopediaCategory[CategoryBuildings].SelectArticle = function( buildingID, sho
 	ClearArticle();
 
 	if shouldAddToList == addToList then
-		currentTopic = currentTopic + 1;
-		listOfTopicsViewed[currentTopic] = categorizedList[(CategoryBuildings * absurdlyLargeNumTopicsInCategory) + buildingID];
-		for i = currentTopic + 1, endTopic, 1 do
-			listOfTopicsViewed[i] = nil;
+		local article = categorizedList[(CategoryBuildings * absurdlyLargeNumTopicsInCategory) + buildingID];
+		if article then
+			currentTopic = currentTopic + 1;
+			listOfTopicsViewed[currentTopic] = article
+			for i = currentTopic + 1, endTopic, 1 do
+				listOfTopicsViewed[i] = nil;
+			end
+			endTopic = currentTopic;
+		else
+			print("Warning: Building Article could not be added to list of viewed topics: List ID " .. 
+				(CategoryBuildings * absurdlyLargeNumTopicsInCategory) + buildingID)
 		end
-		endTopic = currentTopic;
 	end
 
 	SelectBuildingOrWonderArticle( buildingID );
@@ -4799,12 +4868,18 @@ CivilopediaCategory[CategoryWonders].SelectArticle = function( wonderID, shouldA
 	ClearArticle();
 
 	if shouldAddToList == addToList then
-		currentTopic = currentTopic + 1;
-		listOfTopicsViewed[currentTopic] = categorizedList[(CategoryWonders * absurdlyLargeNumTopicsInCategory) + wonderID];
-		for i = currentTopic + 1, endTopic, 1 do
-			listOfTopicsViewed[i] = nil;
+		local article = categorizedList[(CategoryWonders * absurdlyLargeNumTopicsInCategory) + wonderID];
+		if article then
+			currentTopic = currentTopic + 1;
+			listOfTopicsViewed[currentTopic] = article
+			for i = currentTopic + 1, endTopic, 1 do
+				listOfTopicsViewed[i] = nil;
+			end
+			endTopic = currentTopic;
+		else
+			print("Warning: Wonder Article could not be added to list of viewed topics: List ID " .. 
+				(CategoryWonders * absurdlyLargeNumTopicsInCategory) + wonderID)
 		end
-		endTopic = currentTopic;
 	end
 
 	if wonderID < 1000 then
@@ -4933,12 +5008,18 @@ CivilopediaCategory[CategoryPolicies].SelectArticle = function( policyID, should
 	ClearArticle();
 
 	if shouldAddToList == addToList then
-		currentTopic = currentTopic + 1;
-		listOfTopicsViewed[currentTopic] = categorizedList[(CategoryPolicies * absurdlyLargeNumTopicsInCategory) + policyID];
-		for i = currentTopic + 1, endTopic, 1 do
-			listOfTopicsViewed[i] = nil;
+		local article = categorizedList[(CategoryPolicies * absurdlyLargeNumTopicsInCategory) + policyID];
+		if article then
+			currentTopic = currentTopic + 1;
+			listOfTopicsViewed[currentTopic] = article
+			for i = currentTopic + 1, endTopic, 1 do
+				listOfTopicsViewed[i] = nil;
+			end
+			endTopic = currentTopic;
+		else
+			print("Warning: Policy Article could not be added to list of viewed topics: List ID " .. 
+				(CategoryPolicies * absurdlyLargeNumTopicsInCategory) + policyID)
 		end
-		endTopic = currentTopic;
 	end
 
 	if policyID ~= -1 then
@@ -5048,12 +5129,18 @@ CivilopediaCategory[CategoryPeople].SelectArticle =  function( rawPeopleID, shou
 	ClearArticle();
 
 	if shouldAddToList == addToList then
-		currentTopic = currentTopic + 1;
-		listOfTopicsViewed[currentTopic] = categorizedList[(CategoryPeople * absurdlyLargeNumTopicsInCategory) + rawPeopleID];
-		for i = currentTopic + 1, endTopic, 1 do
-			listOfTopicsViewed[i] = nil;
+		local article = categorizedList[(CategoryPeople * absurdlyLargeNumTopicsInCategory) + rawPeopleID];
+		if article then
+			currentTopic = currentTopic + 1;
+			listOfTopicsViewed[currentTopic] = article
+			for i = currentTopic + 1, endTopic, 1 do
+				listOfTopicsViewed[i] = nil;
+			end
+			endTopic = currentTopic;
+		else
+			print("Warning: Specialist Article could not be added to list of viewed topics: List ID " .. 
+				(CategoryPeople * absurdlyLargeNumTopicsInCategory) + rawPeopleID)
 		end
-		endTopic = currentTopic;
 	end
 
 	if rawPeopleID < 1000 then
@@ -5150,6 +5237,84 @@ CivilopediaCategory[CategoryPeople].SelectArticle =  function( rawPeopleID, shou
 
 			-- list the buildings that can spawn this unit
 
+			-- update free promotions (Abilities)
+			g_PromotionsManager:ResetInstances();
+			buttonAdded = 0;
+
+			local condition = "UnitType = '" .. thisPerson.Type .. "'";
+			for row in GameInfo.Unit_FreePromotions( condition ) do
+				local promotion = GameInfo.UnitPromotions[row.PromotionType];
+				if promotion then
+					local thisPromotionInstance = g_PromotionsManager:GetInstance();
+					if thisPromotionInstance then
+						local textureOffset, textureSheet = IconLookup( promotion.PortraitIndex, buttonSize, promotion.IconAtlas );
+						if textureOffset == nil then
+							textureSheet = defaultErrorTextureSheet;
+							textureOffset = nullOffset;
+						end
+						UpdateSmallButton( buttonAdded, thisPromotionInstance.PromotionImage, thisPromotionInstance.PromotionButton, textureSheet, textureOffset, CategoryPromotions, Locale.ConvertTextKey( promotion.Description ), promotion.ID );
+						buttonAdded = buttonAdded + 1;
+					end
+				end
+			end
+			UpdateButtonFrame( buttonAdded, Controls.FreePromotionsInnerFrame, Controls.FreePromotionsFrame );
+
+			-- Are we a unique unit?  If so, who do I replace?
+			local replacesUnitClass = {};
+			local specificCivs = {};
+
+			local classOverrideCondition = string.format("UnitType='%s' and CivilizationType <> 'CIVILIZATION_BARBARIAN' and CivilizationType <> 'CIVILIZATION_MINOR'", thisPerson.Type);
+			for row in GameInfo.Civilization_UnitClassOverrides(classOverrideCondition) do
+				specificCivs[row.CivilizationType] = 1;
+				replacesUnitClass[row.UnitClassType] = 1;
+			end
+
+			g_ReplacesManager:ResetInstances();
+			buttonAdded = 0;
+			for unitClassType, _ in pairs(replacesUnitClass) do
+				for replacedUnit in DB.Query("SELECT u.ID, u.Description, u.PortraitIndex, u.IconAtlas, u.PrereqTech, u.Special from Units as u inner join UnitClasses as uc on u.Type = uc.DefaultUnit where uc.Type = ?", unitClassType) do
+					local thisUnitInstance = g_ReplacesManager:GetInstance();
+					if thisUnitInstance then
+						local textureOffset, textureSheet = IconLookup( replacedUnit.PortraitIndex, buttonSize, replacedUnit.IconAtlas );
+						if textureOffset == nil then
+							textureSheet = defaultErrorTextureSheet;
+							textureOffset = nullOffset;
+						end
+						-- Check if replaced unit is a Great Person
+						local replacedCategory = CategoryUnits;
+						local replacedEntryID = replacedUnit.ID;
+						if replacedUnit.PrereqTech == nil and replacedUnit.Special ~= nil then
+							-- This is a Great Person, use CategoryPeople with offset
+							replacedCategory = CategoryPeople;
+							replacedEntryID = replacedUnit.ID + 1000;
+						end
+						UpdateSmallButton( buttonAdded, thisUnitInstance.ReplaceImage, thisUnitInstance.ReplaceButton, textureSheet, textureOffset, replacedCategory, Locale.ConvertTextKey( replacedUnit.Description ), replacedEntryID );
+						buttonAdded = buttonAdded + 1;
+					end
+				end
+			end
+			UpdateButtonFrame( buttonAdded, Controls.ReplacesInnerFrame, Controls.ReplacesFrame );
+
+			g_CivilizationsManager:ResetInstances();
+			buttonAdded = 0;
+			for civilizationType, _ in pairs(specificCivs) do
+
+				local civ = GameInfo.Civilizations[civilizationType];
+				if(civ ~= nil) then
+					local thisCivInstance = g_CivilizationsManager:GetInstance();
+					if thisCivInstance then
+						local textureOffset, textureSheet = IconLookup( civ.PortraitIndex, buttonSize, civ.IconAtlas );
+						if textureOffset == nil then
+							textureSheet = defaultErrorTextureSheet;
+							textureOffset = nullOffset;
+						end
+						UpdateSmallButton( buttonAdded, thisCivInstance.CivilizationImage, thisCivInstance.CivilizationButton, textureSheet, textureOffset, CategoryCivilizations, Locale.ConvertTextKey( civ.ShortDescription ), civ.ID );
+						buttonAdded = buttonAdded + 1;
+					end
+				end
+			end
+			UpdateButtonFrame( buttonAdded, Controls.CivilizationsInnerFrame, Controls.CivilizationsFrame );
+
 			-- update the game info
 			UpdateTextBlock(GetHelpTextForUnit(greatPersonID, true, nil, true, true), Controls.GameInfoLabel, Controls.GameInfoInnerFrame, Controls.GameInfoFrame);
 
@@ -5201,12 +5366,18 @@ CivilopediaCategory[CategoryCivilizations].SelectArticle = function( rawCivID, s
 	ClearArticle();
 
 	if shouldAddToList == addToList then
-		currentTopic = currentTopic + 1;
-		listOfTopicsViewed[currentTopic] = categorizedList[(CategoryCivilizations * absurdlyLargeNumTopicsInCategory) + rawCivID];
-		for i = currentTopic + 1, endTopic, 1 do
-			listOfTopicsViewed[i] = nil;
+		local article = categorizedList[(CategoryCivilizations * absurdlyLargeNumTopicsInCategory) + rawCivID];
+		if article then
+			currentTopic = currentTopic + 1;
+			listOfTopicsViewed[currentTopic] = article
+			for i = currentTopic + 1, endTopic, 1 do
+				listOfTopicsViewed[i] = nil;
+			end
+			endTopic = currentTopic;
+		else
+			print("Warning: Civilization Article could not be added to list of viewed topics: List ID " .. 
+				(CategoryCivilizations * absurdlyLargeNumTopicsInCategory) + rawCivID)
 		end
-		endTopic = currentTopic;
 	end
 
 	if rawCivID < 1000 then
@@ -5263,21 +5434,12 @@ CivilopediaCategory[CategoryCivilizations].SelectArticle = function( rawCivID, s
 
 								local unitCategory = CategoryUnits;
 								local unitEntryID = thisUnitInfo.ID;
-								--if(thisUnitInfo.Special == "SPECIALUNIT_PEOPLE") then
-									---- Either a great person or specialist.
-									--unitCategory = CategoryPeople;
-									--
-									---- Figure out which one it is!
-									--local bIsSpecialist = false;
-									--for row in GameInfo.Specialists{GreatPeopleUnitClass = thisUnitInfo.Class} do
-										--bIsSpecialist = true;
-										--break;
-									--end
-									--
-									--if(bIsSpecialist == false) then
-										--unitEntryID = unitEntryID + 1000;
-									--end
-								--end
+								-- Check if this is a Great Person
+								if thisUnitInfo.PrereqTech == nil and thisUnitInfo.Special ~= nil then
+									-- This is a Great Person, use CategoryPeople with offset
+									unitCategory = CategoryPeople;
+									unitEntryID = thisUnitInfo.ID + 1000;
+								end
 
 								UpdateSmallButton( buttonAdded, thisUnitInstance.UniqueUnitImage, thisUnitInstance.UniqueUnitButton, textureSheet, textureOffset, unitCategory, Locale.ConvertTextKey( thisUnitInfo.Description ), unitEntryID);
 								buttonAdded = buttonAdded + 1;
@@ -5344,6 +5506,53 @@ CivilopediaCategory[CategoryCivilizations].SelectArticle = function( rawCivID, s
 					end
 				end
 				UpdateButtonFrame( buttonAdded, Controls.UniqueImprovementsInnerFrame, Controls.UniqueImprovementsFrame );
+
+				-- get unique improvements that don't use CivilizationRequired. Flag is to set OrderPriority = 90. Can combine with above block perhaps?
+                local CD_condition = "Type IN (SELECT ImprovementType FROM Builds WHERE OrderPriority = 90 AND Type IN (SELECT BuildType FROM Trait_BuildsUnitClasses WHERE TraitType IN (SELECT TraitType FROM Leader_Traits WHERE LeaderType IN (SELECT LeaderheadType FROM Civilization_Leaders WHERE CivilizationType = '" .. thisCiv.Type .. "'))))";
+				for thisImprovement in GameInfo.Improvements( CD_condition ) do
+					local thisImprovementInstance = g_UniqueImprovementsManager:GetInstance();
+					if thisImprovementInstance then
+
+						if not IconHookup( thisImprovement.PortraitIndex, buttonSize, thisImprovement.IconAtlas, thisImprovementInstance.UniqueImprovementImage ) then
+							thisImprovementInstance.UniqueImprovementImage:SetTexture( defaultErrorTextureSheet );
+							thisImprovementInstance.UniqueImprovementImage:SetTextureOffset( nullOffset );
+						end
+
+						--move this button
+						thisImprovementInstance.UniqueImprovementButton:SetOffsetVal( (buttonAdded % numberOfButtonsPerRow) * buttonSize + buttonPadding, math.floor(buttonAdded / numberOfButtonsPerRow) * buttonSize + buttonPadding );
+
+						thisImprovementInstance.UniqueImprovementButton:SetToolTipString( Locale.ConvertTextKey( thisImprovement.Description ) );
+						thisImprovementInstance.UniqueImprovementButton:SetVoids( thisImprovement.ID, addToList );
+						thisImprovementInstance.UniqueImprovementButton:RegisterCallback( Mouse.eLClick, CivilopediaCategory[CategoryImprovements].SelectArticle );
+
+						buttonAdded = buttonAdded + 1;
+					end
+				end
+				UpdateButtonFrame( buttonAdded, Controls.UniqueImprovementsInnerFrame, Controls.UniqueImprovementsFrame );
+
+				-- list of unique projects
+				g_UniqueProjectsManager:ResetInstances();
+				buttonAdded = 0;
+				for thisProject in GameInfo.Projects( condition ) do
+					local thisProjectInstance = g_UniqueProjectsManager:GetInstance();
+					if thisProjectInstance then
+
+						if not IconHookup( thisProject.PortraitIndex, buttonSize, thisProject.IconAtlas, thisProjectInstance.UniqueProjectImage ) then
+							thisProjectInstance.UniqueProjectImage:SetTexture( defaultErrorTextureSheet );
+							thisProjectInstance.UniqueProjectImage:SetTextureOffset( nullOffset );
+						end
+
+						--move this button
+						thisProjectInstance.UniqueProjectButton:SetOffsetVal( (buttonAdded % numberOfButtonsPerRow) * buttonSize + buttonPadding, math.floor(buttonAdded / numberOfButtonsPerRow) * buttonSize + buttonPadding );
+
+						thisProjectInstance.UniqueProjectButton:SetToolTipString( Locale.ConvertTextKey( thisProject.Description ) );
+						thisProjectInstance.UniqueProjectButton:SetVoids( thisProject.ID + 1000, addToList );
+						thisProjectInstance.UniqueProjectButton:RegisterCallback( Mouse.eLClick, CivilopediaCategory[CategoryWonders].SelectArticle );
+
+						buttonAdded = buttonAdded + 1;
+					end
+				end
+				UpdateButtonFrame( buttonAdded, Controls.UniqueProjectsInnerFrame, Controls.UniqueProjectsFrame );
 
  				g_StartAlongRegionManager:ResetInstances();
 				buttonAdded = 0;
@@ -5702,12 +5911,18 @@ CivilopediaCategory[CategoryCityStates].SelectArticle = function( cityStateID, s
 	ClearArticle();
 
 	if shouldAddToList == addToList then
-		currentTopic = currentTopic + 1;
-		listOfTopicsViewed[currentTopic] = categorizedList[(CategoryCityStates * absurdlyLargeNumTopicsInCategory) + cityStateID];
-		for i = currentTopic + 1, endTopic, 1 do
-			listOfTopicsViewed[i] = nil;
+		local article = categorizedList[(CategoryCityStates * absurdlyLargeNumTopicsInCategory) + cityStateID];
+		if article then
+			currentTopic = currentTopic + 1;
+			listOfTopicsViewed[currentTopic] = article
+			for i = currentTopic + 1, endTopic, 1 do
+				listOfTopicsViewed[i] = nil;
+			end
+			endTopic = currentTopic;
+		else
+			print("Warning: City-State Article could not be added to list of viewed topics: List ID " .. 
+				(CategoryCityStates * absurdlyLargeNumTopicsInCategory) + cityStateID)
 		end
-		endTopic = currentTopic;
 	end
 
 	if cityStateID ~= -1 then
@@ -5747,12 +5962,18 @@ CivilopediaCategory[CategoryTerrain].SelectArticle = function( rawTerrainID, sho
 	ClearArticle();
 
 	if shouldAddToList == addToList then
-		currentTopic = currentTopic + 1;
-		listOfTopicsViewed[currentTopic] = categorizedList[(CategoryTerrain * absurdlyLargeNumTopicsInCategory) + rawTerrainID];
-		for i = currentTopic + 1, endTopic, 1 do
-			listOfTopicsViewed[i] = nil;
+		local article = categorizedList[(CategoryTerrain * absurdlyLargeNumTopicsInCategory) + rawTerrainID];
+		if article then
+			currentTopic = currentTopic + 1;
+			listOfTopicsViewed[currentTopic] = article
+			for i = currentTopic + 1, endTopic, 1 do
+				listOfTopicsViewed[i] = nil;
+			end
+			endTopic = currentTopic;
+		else
+			print("Warning: Terrain Article could not be added to list of viewed topics: List ID " .. 
+				(CategoryTerrain * absurdlyLargeNumTopicsInCategory) + rawTerrainID)
 		end
-		endTopic = currentTopic;
 	end
 
 	if rawTerrainID < 1000 then
@@ -6104,12 +6325,18 @@ CivilopediaCategory[CategoryResources].SelectArticle = function( resourceID, sho
 	ClearArticle();
 
 	if shouldAddToList == addToList then
-		currentTopic = currentTopic + 1;
-		listOfTopicsViewed[currentTopic] = categorizedList[(CategoryResources * absurdlyLargeNumTopicsInCategory) + resourceID];
-		for i = currentTopic + 1, endTopic, 1 do
-			listOfTopicsViewed[i] = nil;
+		local article = categorizedList[(CategoryResources * absurdlyLargeNumTopicsInCategory) + resourceID];
+		if article then
+			currentTopic = currentTopic + 1;
+			listOfTopicsViewed[currentTopic] = article
+			for i = currentTopic + 1, endTopic, 1 do
+				listOfTopicsViewed[i] = nil;
+			end
+			endTopic = currentTopic;
+		else
+			print("Warning: Resource Article could not be added to list of viewed topics: List ID " .. 
+				(CategoryResources * absurdlyLargeNumTopicsInCategory) + resourceID)
 		end
-		endTopic = currentTopic;
 	end
 
 	local thisPlayer = nil;
@@ -6360,12 +6587,18 @@ CivilopediaCategory[CategoryImprovements].SelectArticle = function( improvementI
 	ClearArticle();
 
 	if shouldAddToList == addToList then
-		currentTopic = currentTopic + 1;
-		listOfTopicsViewed[currentTopic] = categorizedList[(CategoryImprovements * absurdlyLargeNumTopicsInCategory) + improvementID];
-		for i = currentTopic + 1, endTopic, 1 do
-			listOfTopicsViewed[i] = nil;
+		local article = categorizedList[(CategoryImprovements * absurdlyLargeNumTopicsInCategory) + improvementID];
+		if article then
+			currentTopic = currentTopic + 1;
+			listOfTopicsViewed[currentTopic] = article
+			for i = currentTopic + 1, endTopic, 1 do
+				listOfTopicsViewed[i] = nil;
+			end
+			endTopic = currentTopic;
+		else
+			print("Warning: Improvement Article could not be added to list of viewed topics: List ID " .. 
+				(CategoryImprovements * absurdlyLargeNumTopicsInCategory) + improvementID)
 		end
-		endTopic = currentTopic;
 	end
 
 	if improvementID ~= -1 and improvementID < 1000 then
@@ -6789,12 +7022,18 @@ CivilopediaCategory[CategoryBeliefs].SelectArticle = function(entryID, shouldAdd
 	offset = offset + entryID[2];
 
 	if shouldAddToList == addToList then
-		currentTopic = currentTopic + 1;
-		listOfTopicsViewed[currentTopic] = categorizedList[(CategoryBeliefs * absurdlyLargeNumTopicsInCategory) + offset];
-		for i = currentTopic + 1, endTopic, 1 do
-			listOfTopicsViewed[i] = nil;
+		local article = categorizedList[(CategoryBeliefs * absurdlyLargeNumTopicsInCategory) + offset];
+		if article then
+			currentTopic = currentTopic + 1;
+			listOfTopicsViewed[currentTopic] = article
+			for i = currentTopic + 1, endTopic, 1 do
+				listOfTopicsViewed[i] = nil;
+			end
+			endTopic = currentTopic;
+		else
+			print("Warning: Belief Article could not be added to list of viewed topics: List ID " .. 
+				(CategoryBeliefs * absurdlyLargeNumTopicsInCategory) + offset)
 		end
-		endTopic = currentTopic;
 	end
 
 	if (entryID ~= nil) then
@@ -6852,12 +7091,18 @@ CivilopediaCategory[CategoryWorldCongress].SelectArticle = function(entryID, sho
 	offset = offset + entryID[2];
 
 	if shouldAddToList == addToList then
-		currentTopic = currentTopic + 1;
-		listOfTopicsViewed[currentTopic] = categorizedList[(CategoryWorldCongress * absurdlyLargeNumTopicsInCategory) + offset];
-		for i = currentTopic + 1, endTopic, 1 do
-			listOfTopicsViewed[i] = nil;
+		local article = categorizedList[(CategoryWorldCongress * absurdlyLargeNumTopicsInCategory) + offset];
+		if article then
+			currentTopic = currentTopic + 1;
+			listOfTopicsViewed[currentTopic] = article
+			for i = currentTopic + 1, endTopic, 1 do
+				listOfTopicsViewed[i] = nil;
+			end
+			endTopic = currentTopic;
+		else
+			print("Warning: World Congress Article could not be added to list of viewed topics: List ID " .. 
+				(CategoryWorldCongress * absurdlyLargeNumTopicsInCategory) + offset)
 		end
-		endTopic = currentTopic;
 	end
 
 	if (entryID ~= nil) then
@@ -6966,12 +7211,18 @@ CivilopediaCategory[CategoryCorporations].SelectArticle = function(corporationID
 	local buttonAdded = 0;
 
 	if shouldAddToList == addToList then
-		currentTopic = currentTopic + 1;
-		listOfTopicsViewed[currentTopic] = categorizedList[(CategoryCorporations * absurdlyLargeNumTopicsInCategory) + corporationID];
-		for i = currentTopic + 1, endTopic, 1 do
-			listOfTopicsViewed[i] = nil;
+		local article = categorizedList[(CategoryCorporations * absurdlyLargeNumTopicsInCategory) + corporationID];
+		if article then
+			currentTopic = currentTopic + 1;
+			listOfTopicsViewed[currentTopic] = article
+			for i = currentTopic + 1, endTopic, 1 do
+				listOfTopicsViewed[i] = nil;
+			end
+			endTopic = currentTopic;
+		else
+			print("Warning: Corporation Article could not be added to list of viewed topics: List ID " .. 
+				(CategoryCorporations * absurdlyLargeNumTopicsInCategory) + corporationID)
 		end
-		endTopic = currentTopic;
 	end
 
 	if (corporationID ~= -1 and corporationID < 1000) then
@@ -9162,6 +9413,7 @@ function ClearArticle()
 	Controls.UniqueUnitsFrame:SetHide( true );
 	Controls.UniqueBuildingsFrame:SetHide( true );
 	Controls.UniqueImprovementsFrame:SetHide( true );
+	Controls.UniqueProjectsFrame:SetHide( true );
 	Controls.StartAlongRegionFrame:SetHide( true );
 	Controls.StartPriorityRegionFrame:SetHide( true );
 	Controls.StartAvoidRegionFrame:SetHide( true );
@@ -9248,7 +9500,7 @@ Controls.ForwardButton:RegisterCallback( Mouse.eLClick, OnForwardButtonClicked )
 -------------------------------------------------------------------------------
 
 function SearchForPediaEntry( searchString )
-
+	
 	UIManager:SetUICursor( 1 );
 
     if( searchString ~= nil and searchString ~= "" ) then

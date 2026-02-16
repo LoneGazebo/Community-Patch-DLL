@@ -14,6 +14,8 @@ VALUES
 	('IGNORE_SPECIFIC_TERRAIN_COSTS_INCLUDES_RIVERS', 0),
 -- If > -1, a player with no cities but who is still alive (Complete Kills) will be granted a free Settler after this many turns
 	('COMPLETE_KILLS_TURN_TIMER', -1),
+-- Number of unique components displayed in the civ selection and loading screens
+	('NUM_UNIQUE_COMPONENTS', 2),
 -- Maximum number of Ideology Tenets of each Level that a Player can have (should correspond to the limitations put on human players by the Ideology Selection UI)
 	('MAX_NUM_TENETS_LEVEL_1', 7),
 	('MAX_NUM_TENETS_LEVEL_2', 4),
@@ -431,8 +433,9 @@ VALUES
 	('UNIT_SPAWN_NUM_CHOICES', 5), -- Number of top choices considered when spawning a random free unit. Also used for militaristic city states' unique unit choice.
 	('BLOCKADED_CITY_ATTACK_MODIFIER', 0), -- Attack bonus against blockaded cities
 	('GWAM_THRESHOLD_DECREASE', 0), -- Flat GPP cost reduction for GWAM
-	('BALANCE_BUILDING_INVESTMENT_BASELINE', -50), -- Cost modifier for building investment
-	('BALANCE_UNIT_INVESTMENT_BASELINE', -50), -- Cost modifier for unit investment
+	('HURRY_GOLD_BUILDING_COST_PERCENT', 60), -- How much % of production Cost determines cost of investment
+	('BALANCE_BUILDING_INVESTMENT_BASELINE', -50), -- How much of total cost is provided by building investment
+	('BALANCE_UNIT_INVESTMENT_BASELINE', -50), -- How much of total cost is provided by unit investment
 	('BALANCE_PRODUCTION_DESERT_IMPROVEMENT', 0), -- Production yield change on featureless flat desert with improved resource
 	('BALANCE_CONQUEST_REDUCTION_BOOST', 0), -- Reduce resistance turns when annexing cities. Base is hardcoded per level of influence, this adds to it.
 	('EMBARKED_VISIBILITY_RANGE', 1), -- Base vision when embarked

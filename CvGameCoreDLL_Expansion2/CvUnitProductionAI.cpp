@@ -1636,6 +1636,9 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 				iBonus += iBonusValueFromStrategy;
 			else if (kPlayer.GetMilitaryAI()->IsUsingStrategy(eStrategyEnoughFighter))
 				return SR_BALANCE;
+			break;
+		default:
+			break;
 		}
 	}
 

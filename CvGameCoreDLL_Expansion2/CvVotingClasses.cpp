@@ -5642,11 +5642,11 @@ bool CvLeague::IsOpenDoorActive(PlayerTypes eTargetMinor)
 }
 void CvLeague::DoEnactResolutionPublic(CvEnactProposal* pProposal)
 {
-	DoEnactResolution(pProposal);
+	DoEnactResolution(pProposal, true);
 }
 void CvLeague::DoRepealResolutionPublic(CvRepealProposal* pProposal)
 {
-	DoRepealResolution(pProposal);
+	DoRepealResolution(pProposal, true);
 }
 CvString CvLeague::GetResolutionName(ResolutionTypes eResolution, int iResolutionID, int iProposerChoice, bool bIncludePrefix)
 {
@@ -8449,9 +8449,9 @@ void CvLeague::AssignNewHost()
 	SetHostMember(eNewHost);
 }
 
-void CvLeague::DoEnactResolution(CvEnactProposal* pProposal)
+void CvLeague::DoEnactResolution(CvEnactProposal* pProposal, bool bFromLua)
 {
-	ASSERT(pProposal->IsPassed(GetVotesSpentThisSession()), "Doing a proposal that has not been passed.");
+	ASSERT(bFromLua || pProposal->IsPassed(GetVotesSpentThisSession()), "Doing a proposal that has not been passed.");
 
 	CvActiveResolution resolution(pProposal);
 	for (uint i = 0; i < m_vMembers.size(); i++)
@@ -8482,9 +8482,9 @@ void CvLeague::DoEnactResolution(CvEnactProposal* pProposal)
 	m_iNumResolutionsEverEnacted++;
 }
 
-void CvLeague::DoRepealResolution(CvRepealProposal* pProposal)
+void CvLeague::DoRepealResolution(CvRepealProposal* pProposal, bool bFromLua)
 {
-	ASSERT(pProposal->IsPassed(GetVotesSpentThisSession()), "Doing a proposal that has not been passed.");
+	ASSERT(bFromLua || pProposal->IsPassed(GetVotesSpentThisSession()), "Doing a proposal that has not been passed.");
 
 	int iFound = 0;
 	for (ActiveResolutionList::iterator it = m_vActiveResolutions.begin(); it != m_vActiveResolutions.end(); )

@@ -123,6 +123,9 @@ protected:
 	static int lReceiveGoody(lua_State* L);
 	static int lDoGoody(lua_State* L);
 	static int lCanGetGoody(lua_State* L);
+
+	static int lSpawnResourceInVicinity(lua_State* L);
+
 	static int lCanFound(lua_State* L);
 	static int lFound(lua_State* L);
 

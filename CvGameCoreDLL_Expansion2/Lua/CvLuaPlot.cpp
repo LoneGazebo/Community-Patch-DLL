@@ -1790,7 +1790,7 @@ int CvLuaPlot::lGetYieldWithBuild(lua_State* L)
 				BeliefTypes ePantheonBelief = GC.getGame().GetGameReligions()->GetBeliefInPantheon(pOwningCity->getOwner());
 				if (pPantheon != NULL && ePantheonBelief != NO_BELIEF && ePantheonBelief != eSecondaryPantheon)
 				{
-					if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, pOwningCity->getOwner()))) // check that the our religion does not have our belief, to prevent double counting
+					if (pReligion == NULL || !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, pOwningCity->getOwner())) // check that the our religion does not have our belief, to prevent double counting
 					{
 						iResult += pkPlot->getYieldWithBuild(eBuild, eYield, bUpgrade, NUM_ROUTE_TYPES, ePlayer, pOwningCity, pPantheon, NULL);
 					}

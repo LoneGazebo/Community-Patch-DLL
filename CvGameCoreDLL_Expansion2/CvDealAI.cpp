@@ -53,6 +53,8 @@ void CvDealAI::Reset()
 {
 	m_iCachedValueOfPeaceWithHuman = 0;
 	m_vResearchRates = std::vector<std::pair<int,int>>(MAX_PLAYERS, std::make_pair(0,0));
+	m_dealItemValues.clear();
+	m_iDealItemValuesTurnSlice = -1;
 }
 
 ///
@@ -98,61 +100,13 @@ TeamTypes CvDealAI::GetTeam()
 	return m_pPlayer->getTeam();
 }
 
-/// How much are we willing to back off on what our perceived value of a deal is to make something work?
-int CvDealAI::GetDealPercentLeeway(PlayerTypes eOtherPlayer, bool bInTheBlack) const
+
+bool CvDealAI::WithinAcceptableRange(PlayerTypes /*ePlayer*/, int /*iMaxValue*/, int iNetValue) const
 {
-	int iPercent = 0;
-
-	//for human players the opinion score is unreliable
-	//so we use a fixed amount, but make it asymmetric
-	if (GET_PLAYER(eOtherPlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
-		iPercent = bInTheBlack ? 13 : 7;
-	else
-	{
-		switch (m_pPlayer->GetDiplomacyAI()->GetCivOpinion(eOtherPlayer))
-		{
-		case CIV_OPINION_ALLY:
-			iPercent = 35;
-			break;
-		case CIV_OPINION_FRIEND:
-			iPercent = 30;
-			break;
-		case CIV_OPINION_FAVORABLE:
-			iPercent = 25;
-			break;
-		case CIV_OPINION_NEUTRAL:
-			iPercent = 20;
-			break;
-		case CIV_OPINION_COMPETITOR:
-		case CIV_OPINION_ENEMY:
-		case CIV_OPINION_UNFORGIVABLE:
-			iPercent = 15;
-			break;
-		default:
-			iPercent = 15;
-			break;
-		}
-	}
-
-	//want better deals if we're having economic problems
-	if (!bInTheBlack && m_pPlayer->GetEconomicAI()->IsUsingStrategy((EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY")))
-		iPercent /= 2;
-
-	return iPercent;
-}
-
-bool CvDealAI::WithinAcceptableRange(PlayerTypes ePlayer, int iMaxValue, int iNetValue) const
-{
-	int iLeewayPercent = GetDealPercentLeeway(ePlayer,iNetValue>0);
-	// Make trades at low max value easier
-	int iMaxDeviation = iMaxValue * iLeewayPercent + min(100, iMaxValue) * 15;
-	iMaxDeviation /= 100;
+	int iGPTValue = GetOneGPTValue(false);
 
 	// a deal value of less than or equal to half the value of 1 GPT should always be acceptable, to avoid deals that can't be equalized with GPT
-	int iGPTValue = GetOneGPTValue(m_pPlayer->IsAtWarWith(ePlayer));
-
-	//put some sanity checks
-	return abs(iNetValue) <= min(max(iMaxDeviation,iGPTValue/2),500);
+	return 2*abs(iNetValue) < iGPTValue || 2*iNetValue == iGPTValue;
 }
 
 bool CvDealAI::BothSidesIncluded(CvDeal* pDeal)
@@ -335,7 +289,6 @@ void CvDealAI::DoAcceptedDeal(PlayerTypes eFromPlayer, const CvDeal& kDeal, int 
 
 	if (GET_PLAYER(eFromPlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
 	{
-		// If this was a peace deal, apply a recent assist bonus for demanding less than the maximum value.
 		int iCachedPeaceValue = GetCachedValueOfPeaceWithHuman();
 		bool bGenerousPeaceTreaty = false;
 		if (iCachedPeaceValue != 0)
@@ -348,9 +301,7 @@ void CvDealAI::DoAcceptedDeal(PlayerTypes eFromPlayer, const CvDeal& kDeal, int 
 			{
 				int iDifference = iCachedPeaceValue - iDealValueToMe;
 				int iPercentage = (iDifference * 100) / iCachedPeaceValue;
-				int iRecentAssistBonus = (m_pPlayer->GetDiplomacyAI()->GetMaxRecentAssistValue() + (m_pPlayer->GetDiplomacyAI()->GetMaxRecentFailedAssistValue() * -1) * iPercentage) / 100;
-				m_pPlayer->GetDiplomacyAI()->ChangeRecentAssistValue(eFromPlayer, iRecentAssistBonus);
-
+				
 				// If half or less of max value, mark it as generous for the text selection below
 				if (iPercentage >= 50)
 				{
@@ -1069,7 +1020,7 @@ int CvDealAI::GetTradeItemValue(TradeableItems eItem, bool bFromMe, PlayerTypes 
 		}
 		if (eWinner != NO_PLAYER)
 		{
-			iItemValue = GET_PLAYER(eWinner).GetDealAI()->GetTradeItemValue(eItem, !bFromMe, eWinner == eMyPlayer ? eOtherPlayer : eMyPlayer, iData1, iData2, iData3, bFlag1, iDuration, bIsAIOffer, false);
+			iItemValue = GET_PLAYER(eWinner).GetDealAI()->GetTradeItemValue(eItem, (eWinner == eMyPlayer) == bFromMe, eWinner == eMyPlayer ? eOtherPlayer : eMyPlayer, iData1, iData2, iData3, bFlag1, iDuration, bIsAIOffer, false);
 			// resources which the winner evaluates as 0 must be impossible to trade, otherwise an unlimited amount of them could be added to the deal
 			if (iItemValue == 0 && eItem == TRADE_ITEM_RESOURCES)
 			{
@@ -1337,6 +1288,10 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 
 	const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
 	if (!pkResourceInfo)
+		return 0;
+
+	// Don't buy obsolete resources
+	if (!bFromMe && GET_TEAM(GetTeam()).IsResourceObsolete(eResource))
 		return 0;
 
 	//Integer zero check...
@@ -2115,6 +2070,10 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 				return INT_MAX;
 		}
 	}
+
+	// Don't buy obsolete resources
+	if (!bFromMe && GET_TEAM(GetTeam()).IsResourceObsolete(eResource))
+		return 0;
 
 	// Don't buy if we already have enough
 	if (!bFromMe && iNumberAvailableToUs >= 5)

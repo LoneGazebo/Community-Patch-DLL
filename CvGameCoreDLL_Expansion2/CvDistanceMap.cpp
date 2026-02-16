@@ -252,8 +252,7 @@ void CvDistanceMapByPlots::Update()
 			for (int iPlotIndex = 0; iPlotIndex < nPlots; iPlotIndex++)
 			{
 				CvPlot* pPlot = map.plotByIndexUnchecked(iPlotIndex);
-				if (!pPlot)
-					continue;
+				ASSERT(pPlot != NULL, "plotByIndexUnchecked returned null - invalid plot index");
 
 				int iDistance = plotDistance(pCityPlot->getX(), pCityPlot->getY(), pPlot->getX(), pPlot->getY());
 

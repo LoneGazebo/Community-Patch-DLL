@@ -285,6 +285,8 @@ public:
 	int GetYieldFromBirthCapital(int i) const;
 	int GetYieldFromBirthRetroactive(int i) const;
 	int GetYieldFromBirthCapitalRetroactive(int i) const;
+    int GetInstantYield(int i) const;
+    int* GetInstantYieldArray() const; 
 	int GetYieldFromConstruction(int i) const;
 	int GetYieldFromWorldWonderConstruction(int i) const;
 	int GetYieldFromTech(int i) const;
@@ -721,6 +723,7 @@ private:
 	int* m_piYieldFromBirthCapital;
 	int* m_piYieldFromBirthRetroactive;
 	int* m_piYieldFromBirthCapitalRetroactive;
+    int* m_piInstantYield;
 	int* m_piYieldFromConstruction;
 	int* m_piYieldFromWorldWonderConstruction;
 	int* m_piYieldFromTech;

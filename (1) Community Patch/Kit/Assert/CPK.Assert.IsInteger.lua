@@ -3,4 +3,4 @@ local IsInteger = CPK.Type.IsInteger
 
 --- Asserts that the specified value is a integer.
 --- @type fun(val: any, mes?: string, lvl?: integer): nil
-CPK.Assert.IsInteger = Prepare('number', IsInteger)
+CPK.Assert.IsInteger = Prepare('integer', IsInteger)

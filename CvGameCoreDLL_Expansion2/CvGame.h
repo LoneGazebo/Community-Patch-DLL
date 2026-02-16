@@ -335,8 +335,6 @@ public:
 
 	int GetStartingMilitaryRating() const;
 	int GetMinimumHumanMilitaryRating() const;
-	int ComputeRatingStrengthAdjustment(PlayerTypes ePlayer, PlayerTypes ePerceivingPlayer) const;
-	int ComputeAverageMajorMilitaryRating(PlayerTypes ePerceivingPlayer, PlayerTypes eExcludedPlayer = NO_PLAYER) const;
 
 	// Global Diplomacy AI Options
 	bool IsVictoryCompetitionEnabled() const;
