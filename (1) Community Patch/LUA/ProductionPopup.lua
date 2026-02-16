@@ -22,7 +22,7 @@ local g_popupInfo = {};
 local g_bHidden = true;
 
 local L = Locale.Lookup;
-local VP = MapModData.VP;
+local VP = VP or MapModData.VP;
 local GameInfoCache = VP.GameInfoCache;
 local IconHookupOrDefault = VP.IconHookupOrDefault;
 local Hide = CPK.UI.Control.Hide;

@@ -15,11 +15,11 @@ local INQUISITION_EFFECTIVENESS = GameInfo.Defines{Name = "INQUISITION_EFFECTIVE
 
 -- Cache these values
 local eMerchantOfVeniceUnit;
-local iTrainPercent = Game and GameInfo.GameSpeeds[Game.GetGameSpeedType()].TrainPercent or 100;
-local iNumEras = #GameInfo.Eras;
+local iTrainPercent =  Game and GameInfo.GameSpeeds[Game.GetGameSpeedType()].TrainPercent or 100;
+local iNumEras = GameInfo.Eras.__COUNT or #GameInfo.Eras;
 
 local L = Locale.Lookup;
-local VP = MapModData and MapModData.VP or VP;
+local VP = VP or MapModData.VP;
 local GameInfoTypes = VP.GameInfoTypes;
 local GameInfoCache = VP.GameInfoCache;
 local GetCivsFromTrait = VP.GetCivsFromTrait;
@@ -4297,4 +4297,31 @@ function GetReligionTooltip(pCity)
 	end
 
 	return table.concat(tLines, "[NEWLINE]");
+end
+
+
+if FLAG_STATIC_INCLUDE_ENV then
+	EXPORTS_ITTI = {
+		GetReligionTooltip = GetReligionTooltip;
+		GetTourismTooltip = GetTourismTooltip;
+		GetCityHappinessTooltip = GetCityHappinessTooltip;
+		GetHelpTextForProject = GetHelpTextForProject;
+		GetGoldTooltip = GetGoldTooltip;
+		GetHelpTextForBuilding = GetHelpTextForBuilding;
+		GetScienceTooltip = GetScienceTooltip;
+		GetHelpTextForUnit = GetHelpTextForUnit;
+		GetHelpTextForProcess = GetHelpTextForProcess;
+		GetCultureTooltip = GetCultureTooltip;
+		GetHelpTextForSpecialist = GetHelpTextForSpecialist;
+		GetBorderGrowthTooltip = GetBorderGrowthTooltip;
+		GetMoodInfo = GetMoodInfo;
+		GetFoodTooltip = GetFoodTooltip;
+		GetCityUnhappinessTooltip = GetCityUnhappinessTooltip;
+		GetFaithTooltip = GetFaithTooltip;
+		GetProductionTooltip = GetProductionTooltip;
+		GetHelpTextForImprovement = GetHelpTextForImprovement;
+	}
+	vplAddGamecoreListener( function( core )
+		iTrainPercent = core.Game and GameInfo.GameSpeeds[core.Game.GetGameSpeedType()].TrainPercent or 100;
+	end )
 end

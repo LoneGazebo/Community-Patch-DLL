@@ -1,3 +1,4 @@
+if CodeBuddy.vpRegisterContext and not CodeBuddy.vpRegisterContext() then return end
 -- modified by Temudjin from 1.0.3.142 code
 -------------------------------------------------
 -- EULA Screen
