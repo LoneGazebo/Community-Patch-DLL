@@ -1,8 +1,3 @@
--- Palace
-UPDATE Language_en_US
-SET Text = 'Automatically built in [ICON_CAPITAL] Capitals.'
-WHERE Tag = 'TXT_KEY_BUILDING_PALACE_HELP';
-
 -- Water Mill
 UPDATE Language_en_US
 SET Text = 'The Water Mill can only be constructed in a City located next to a river. The Water Mill increases the City''s [ICON_PRODUCTION] Production more efficiently (per Citizen in the City) than the Well.'
@@ -351,6 +346,11 @@ SET Text = '{TXT_KEY_CORPORATION_TRADE_ROUTE_BONUS_CIVILIZED_JEWELERS}'
 WHERE Tag = 'TXT_KEY_BUILDING_CIVILIZED_JEWELERS_FRANCHISE_HELP';
 
 -- Theming bonuses
+UPDATE Language_en_US 
+SET Text = 'Automatically built in [ICON_CAPITAL] Capitals.[NEWLINE]Possible Theming Bonuses:
+  [NEWLINE][ICON_BULLET] +6 [ICON_CULTURE] and [ICON_TOURISM] for [COLOR_CYAN]any[ENDCOLOR] three [ICON_GW_WRITING] Great Works of Writing.'
+WHERE Tag = 'TXT_KEY_BUILDING_PALACE_HELP';
+
 UPDATE Language_en_US 
 SET Text = 'Possible Theming Bonuses:
   [NEWLINE][ICON_BULLET] +4 [ICON_CULTURE] and [ICON_TOURISM] for two [COLOR_POSITIVE_TEXT]Domestic[ENDCOLOR] [ICON_GW_WRITING] Great Works of Writing.

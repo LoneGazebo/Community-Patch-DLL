@@ -54,7 +54,7 @@ UPDATE Language_en_US
 SET Text = '[COLOR_YELLOW]Great Artist[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_SPECIALISTSANDGP_GREATARTIST_HEADING3_TITLE';
 UPDATE Language_en_US
-SET Text = '[COLOR_CYAN]Special Ability: {TXT_KEY_MISSION_CREATE_GREAT_WORK}[ENDCOLOR][NEWLINE]A Great Artist can create a [ICON_GW_ART] Great Work of Art (generates both [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism) that is placed in the nearest city that has an appropriate building with an empty slot (like the Palace, a Castle, or a Museum). The Great Artist is expended when used this way.[NEWLINE][NEWLINE][COLOR_CYAN]Special Ability: {TXT_KEY_MISSION_START_GOLDENAGE}[ENDCOLOR][NEWLINE]A Great Artist can be expended to [COLOR_YELLOW]generate Golden Age Points, which may trigger a [ICON_GOLDEN_AGE] Golden Age (extra [ICON_PRODUCTION] Production, [ICON_GOLD] Gold, and [ICON_CULTURE] Culture). The amount of Golden Age Points generated is based on the [ICON_TOURISM] Tourism and [ICON_GOLDEN_AGE] Golden Age Point output of the past 10 turns, and is increased by 10% for every owned themed Great Work set.[ENDCOLOR]'
+SET Text = '[COLOR_CYAN]Special Ability: {TXT_KEY_MISSION_CREATE_GREAT_WORK}[ENDCOLOR][NEWLINE]A Great Artist can create a [ICON_GW_ART] Great Work of Art (generates both [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism) that is placed in the nearest city that has an appropriate building with an empty slot (like a Monument, a Gallery, or a Museum). The Great Artist is expended when used this way.[NEWLINE][NEWLINE][COLOR_CYAN]Special Ability: {TXT_KEY_MISSION_START_GOLDENAGE}[ENDCOLOR][NEWLINE]A Great Artist can be expended to [COLOR_YELLOW]generate Golden Age Points, which may trigger a [ICON_GOLDEN_AGE] Golden Age (extra [ICON_PRODUCTION] Production, [ICON_GOLD] Gold, and [ICON_CULTURE] Culture). The amount of Golden Age Points generated is based on the [ICON_TOURISM] Tourism and [ICON_GOLDEN_AGE] Golden Age Point output of the past 10 turns, and is increased by 10% for every owned themed Great Work set.[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_SPECIALISTSANDGP_GREATARTIST_HEADING3_BODY';
 
 UPDATE Language_en_US
@@ -191,6 +191,14 @@ SET Text = '[ICON_TOURISM] Tourism is the primary yield you will use to spread y
 
 [NEWLINE][NEWLINE][COLOR_YELLOW]Additionally, certain player Abilities, Policies, Tenets, Corporations, and World Congress proposals can change this modifier.[ENDCOLOR] Other Abilities instead directly multiply the tourism generated in a city.'
 WHERE Tag = 'TXT_KEY_CULTURE_TOURISM_HEADING2_BODY';
+
+UPDATE Language_en_US
+SET Text = 'Great Artists can create a Great Work of Art to place in any appropriate building in your empire that has an empty Great Work of Art slot. This includes Monuments, Galleries, Museums, as well as various Wonders.[NEWLINE][NEWLINE]To create a Great Work of Art, select and move your Great Artist to within one hex of any city in your civilization. As long as there is an appropriate building with an empty slot available in any of your cities, you will be able to click the "Create Great Work" icon on the Unit Panel. The Great Work will display on your screen (for example, Leonardo Da Vinci''s Mona Lisa), and the Great Artist is expended.'
+WHERE Tag = 'TXT_KEY_CULTURE_GREAT_WORK_ART_HEADING2_BODY';
+
+UPDATE Language_en_US
+SET Text = 'Artifacts are historical relics that you can place in any open Great Work of Art slot in your Monuments, Galleries, Museums, or certain Wonders. Once placed, they will generate both Culture and Tourism.[NEWLINE][NEWLINE]There are also special Written Artifacts, which can only be discovered within Hidden Antiquity Sites (see Antiquity Sites for more information).'
+WHERE Tag = 'TXT_KEY_CULTURE_ARTIFACTS_HEADING2_BODY';
 
 UPDATE Language_en_US
 SET Text = 'Laborers'
