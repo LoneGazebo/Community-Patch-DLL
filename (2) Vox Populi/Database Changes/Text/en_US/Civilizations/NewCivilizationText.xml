@@ -1286,7 +1286,7 @@
 			<Text>The Caçadores were the elite light infantry of the Portuguese army in the 18th and 19th centuries. The divisions were famed for their marksmanship and their brown coats, one of the first attempts at military camouflage. After Portugal's sound defeat and occupation by Napoleon, the English intervened on behalf of their ally to rally and reorganize a joint war to retake the country. The British general, William Beresford, formed the Caçadores to fill a skirmishing role analogous to the German jaegers or American ranger divisions. Under this combined military, the Caçadores helped in reclaiming Portuguese independence and distinguished themselves as the "fighting cocks" of the Portuguese army until the units were eventually dissolved in the military reforms of 1911.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_CACADOR_STRATEGY">
-			<Text></Text>
+			<Text>Caçadores have +1 movement and become stronger as they take damage. This provides them excellent mobility especially when advancing as they can move onto hills and still fire. They can often be used on the frontlines as well at least until they begin facing Landships since they have pretty solid Combat Strength combined with them becoming stronger as they take damage.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_UNIVERSITY_OF_COIMBRA">
@@ -1299,7 +1299,7 @@
 			<Text>Opened in 1290, the University of Coimbra is one of the oldest centers of higher learning in the world. The university was founded by King Dinis as the Lisbon Estudo Geral, originally with faculties of Arts, Law, Canon Law and Medicine. As the first and only university in Portugal for 350 years, the University of Coimbra became a focus of educational, political, and social influence in Portugal.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_UNIVERSITY_OF_COIMBRA_STRATEGY">
-			<Text></Text>
+			<Text>The University of Coimbra provides the Age of Discovery promotion to all units generating [ICON_GOLD] Gold and Experience as they reveal tiles. It unlocks just before Naus which are often the best unit to use to then explore the world.[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production bonus for [ICON_TRADE] Trade Units allows any City to very quickly replace any lost [ICON_TRADE] Trade Units to keep their unique ability yields flowing.[NEWLINE][NEWLINE]It also provides a free University in the City and gives all Universities bonus [ICON_GOLD] Gold which you should often prioritize building.</Text>
 		</Row>
 
 		<!-- Rome -->
