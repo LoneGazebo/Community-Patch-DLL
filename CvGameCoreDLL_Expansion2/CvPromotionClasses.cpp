@@ -266,6 +266,7 @@ CvPromotionEntry::CvPromotionEntry():
 	m_bAirSweepCapable(false),
 	m_bAllowsEmbarkation(false),
 	m_bRangeAttackIgnoreLOS(false),
+	m_iSeeThrough(0),
 	m_bFreePillageMoves(false),
 	m_bHealOnPillage(false),
 	m_bHealIfDefeatExcludesBarbarians(false),
@@ -521,6 +522,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_bAirSweepCapable = kResults.GetBool("AirSweepCapable");
 	m_bAllowsEmbarkation = kResults.GetBool("AllowsEmbarkation");
 	m_bRangeAttackIgnoreLOS = kResults.GetBool("RangeAttackIgnoreLOS");
+	m_iSeeThrough = kResults.GetInt("SeeThrough");
 	m_bFreePillageMoves = kResults.GetBool("FreePillageMoves");
 	m_bHealOnPillage = kResults.GetBool("HealOnPillage");
 	m_bHealIfDefeatExcludesBarbarians = kResults.GetBool("HealIfDestroyExcludesBarbarians");
@@ -2630,6 +2632,12 @@ bool CvPromotionEntry::IsAllowsEmbarkation() const
 bool CvPromotionEntry::IsRangeAttackIgnoreLOS() const
 {
 	return m_bRangeAttackIgnoreLOS;
+}
+
+/// Accessor: How much does this unit have altered SeeThrough
+int CvPromotionEntry::GetSeeThrough() const
+{
+	return m_iSeeThrough;
 }
 
 /// Accessor: Lose no movement when pillaging?

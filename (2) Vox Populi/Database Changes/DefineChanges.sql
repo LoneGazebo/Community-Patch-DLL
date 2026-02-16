@@ -11,6 +11,14 @@ UPDATE Defines SET Value = 10 WHERE Name = 'COMPLETE_KILLS_TURN_TIMER';
 UPDATE Defines SET Value = 4 WHERE Name = 'NUM_UNIQUE_COMPONENTS';
 
 -------------------------------------------------------------------------------------------------------------------
+-- Map
+-------------------------------------------------------------------------------------------------------------------
+
+-- Mountains were the same height as Hills, which means you can shoot over them with SeeThrough+1
+-- Note MOUNTAIN_SEE_FROM_CHANGE is currently still 2
+UPDATE Defines SET Value = 3 WHERE Name = 'MOUNTAIN_SEE_THROUGH_CHANGE';
+
+-------------------------------------------------------------------------------------------------------------------
 -- Victory Conditions
 -------------------------------------------------------------------------------------------------------------------
 

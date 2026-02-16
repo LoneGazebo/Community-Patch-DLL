@@ -266,6 +266,7 @@ public:
 	bool IsAirSweepCapable() const;
 	bool IsAllowsEmbarkation() const;
 	bool IsRangeAttackIgnoreLOS() const;
+    int GetSeeThrough() const;
 	bool IsFreePillageMoves() const;
 	bool IsHealOnPillage() const;
 	bool IsHealIfDefeatExcludeBarbarians() const;
@@ -582,6 +583,7 @@ protected:
 	bool m_bAirSweepCapable;
 	bool m_bAllowsEmbarkation;
 	bool m_bRangeAttackIgnoreLOS;
+    int  m_iSeeThrough;
 	bool m_bFreePillageMoves;
 	bool m_bHealOnPillage;
 	bool m_bHealIfDefeatExcludesBarbarians;

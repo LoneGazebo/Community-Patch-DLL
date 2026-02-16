@@ -2108,7 +2108,7 @@ int CvLuaPlot::lIsImprovementEmbassy(lua_State* L)
 }
 
 //------------------------------------------------------------------------------
-//bool CvPlot::canSeePlot(CvPlot *pPlot, TeamTypes eTeam, int iRange, DirectionTypes eFacingDirection)
+//bool CvPlot::canSeePlot(CvPlot *pPlot, TeamTypes eTeam, int iRange, DirectionTypes eFacingDirection, int iSeeThrough = 0)
 int CvLuaPlot::lCanSeePlot(lua_State* L)
 {
 	CvPlot* pkThisPlot = GetInstance(L);
@@ -2116,12 +2116,13 @@ int CvLuaPlot::lCanSeePlot(lua_State* L)
 	TeamTypes eTeam = (TeamTypes) lua_tointeger(L, 3);
 	int iRange = lua_tointeger(L, 4);
 	DirectionTypes eFacingDirection = (DirectionTypes) lua_tointeger(L, 5);
-
+ 	int iSeeThrough = luaL_optinteger(L, 6, 0);
+	
 	bool bCanSee = false;
 	if(pkThisPlot)
 	{
 		//need to add one to the range to maintain backward compatibility
-		bCanSee = pkThisPlot->canSeePlot(pkThatPlot, eTeam, iRange + 1, eFacingDirection);
+		bCanSee = pkThisPlot->canSeePlot(pkThatPlot, eTeam, iRange + 1, eFacingDirection, iSeeThrough);
 	}
 
 	lua_pushboolean(L, bCanSee);

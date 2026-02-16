@@ -171,6 +171,7 @@ CvUnit::CvUnit() :
 	, m_iRivalTerritoryCount()
 	, m_iIsSlowInEnemyLandCount()
 	, m_iRangeAttackIgnoreLOSCount()
+    , m_iSeeThrough()
 	, m_iCityAttackOnlyCount()
 	, m_iCaptureDefeatedEnemyCount()
 	, m_iRangedSupportFireCount()
@@ -1316,6 +1317,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iRivalTerritoryCount = 0;
 	m_iIsSlowInEnemyLandCount = 0;
 	m_iRangeAttackIgnoreLOSCount = 0;
+	m_iSeeThrough = 0;
 	m_iCityAttackOnlyCount = 0;
 	m_iCaptureDefeatedEnemyCount = 0;
 	m_iOriginCity = -1;
@@ -6707,6 +6709,23 @@ void CvUnit::ChangeRangeAttackIgnoreLOSCount(int iChange)
 	if(iChange != 0)
 	{
 		m_iRangeAttackIgnoreLOSCount += iChange;
+	}
+}
+
+//	--------------------------------------------------------------------------------
+int CvUnit::GetSeeThrough() const
+{
+	VALIDATE_OBJECT();
+	return m_iSeeThrough;
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::ChangeSeeThrough(int iChange)
+{
+	VALIDATE_OBJECT();
+	if(iChange != 0)
+	{
+		m_iSeeThrough += iChange;
 	}
 }
 
@@ -27636,6 +27655,7 @@ void CvUnit::setPromotionActive(PromotionTypes eIndex, bool bNewValue)
 	ChangeAirSweepCapableCount((thisPromotion.IsAirSweepCapable()) ? iChange : 0);
 	ChangeEmbarkAbilityCount((thisPromotion.IsAllowsEmbarkation()) ? iChange : 0);
 	ChangeRangeAttackIgnoreLOSCount((thisPromotion.IsRangeAttackIgnoreLOS()) ? iChange : 0);
+	ChangeSeeThrough((thisPromotion.GetSeeThrough()) * iChange);
 	ChangeHealIfDefeatExcludeBarbariansCount((thisPromotion.IsHealIfDefeatExcludeBarbarians()) ? iChange : 0);
 	changeHealOnPillageCount((thisPromotion.IsHealOnPillage()) ? iChange : 0);
 	changeFreePillageMoveCount((thisPromotion.IsFreePillageMoves()) ? iChange : 0);
@@ -28213,6 +28233,7 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_iRivalTerritoryCount);
 	visitor(unit.m_iIsSlowInEnemyLandCount);
 	visitor(unit.m_iRangeAttackIgnoreLOSCount);
+	visitor(unit.m_iSeeThrough);
 	visitor(unit.m_iCityAttackOnlyCount);
 	visitor(unit.m_iCaptureDefeatedEnemyCount);
 	visitor(unit.m_iOriginCity);
@@ -28783,7 +28804,7 @@ bool CvUnit::canEverRangeStrikeAt(int iX, int iY, const CvPlot* pSourcePlot, boo
 		// Ignores LoS or can see the plot directly?
 		if (!IsRangeAttackIgnoreLOS() && getDomainType() != DOMAIN_AIR)
 			//not a typo, we need attack range here, not sight range
-			if (!pSourcePlot->canSeePlot(pTargetPlot, getTeam(), GetRange(), getFacingDirection(true)))
+			if (!pSourcePlot->canSeePlot(pTargetPlot, getTeam(), GetRange(), getFacingDirection(true), GetSeeThrough()))
 				return false;
 
 		if (!isNativeDomain(pSourcePlot))

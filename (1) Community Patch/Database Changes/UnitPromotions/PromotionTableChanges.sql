@@ -349,3 +349,6 @@ ALTER TABLE UnitPromotions_Features ADD IgnoreTerrainCostIn boolean DEFAULT 0;
 -- Likewise, the cost of crossing a river isn't ignored by this
 ALTER TABLE UnitPromotions_Terrains ADD IgnoreTerrainCostFrom boolean DEFAULT 0;
 ALTER TABLE UnitPromotions_Features ADD IgnoreTerrainCostFrom boolean DEFAULT 0;
+
+-- Alter the vision level of this unit for canEverRangeStrikeAt->canSeePlot, letting it shoot over some obstacles it couldnt before
+ALTER TABLE UnitPromotions ADD SeeThrough integer DEFAULT 0;
