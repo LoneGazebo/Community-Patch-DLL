@@ -80,6 +80,7 @@ public:
 	int GetUnitPlotExperience() const;
 	int GetMovesChange() const;
 	bool IsRestoreMoves() const;
+	bool IsFreeMoveAcross() const;
 	int GetGAUnitPlotExperience() const;
 	FeatureTypes GetCreatedFeature() const;
 	int GetRandomResourceChance() const;
@@ -259,6 +260,7 @@ protected:
 	bool m_bOwnerOnly;
 	int m_iMovesChange;
 	bool m_bRestoreMoves;
+	bool m_bFreeMoveAcross;
 	int m_iImprovementPillage;
 	int m_iImprovementUpgrade;
 	int m_iRequiresXAdjacentLand;

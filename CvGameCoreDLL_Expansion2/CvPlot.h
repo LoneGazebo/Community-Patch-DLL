@@ -713,6 +713,8 @@ public:
 	void ChangePlotMovesChange(int iValue);
 	bool IsRestoreMoves() const;
 	void ChangeRestoreMovesCount(int iValue);
+	bool IsFreeMoveAcross() const;
+	void ChangeFreeMoveAcrossCount(int iValue);
 	int GetNumCombatUnits();
 	CvUnit* getUnitByIndex(int iIndex) const;
 	int getUnitIndex(CvUnit* pUnit) const;
@@ -977,6 +979,7 @@ protected:
 	char m_iUnitPlotGAExperience;
 	char m_iPlotChangeMoves;
 	char m_iRestoreMoves;
+	char m_iFreeMoveAcross;
 	char /*ResourceTypes*/ m_eResourceType;
 	char /*ImprovementTypes*/ m_eImprovementType;
 	char /*PlayerTypes*/ m_ePlayerBuiltImprovement;
