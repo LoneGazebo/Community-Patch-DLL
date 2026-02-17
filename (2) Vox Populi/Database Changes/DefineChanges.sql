@@ -74,6 +74,9 @@ UPDATE Defines SET Value = 20 WHERE Name = 'CITY_HEAL_RATE';
 
 UPDATE Defines SET Value = 10 WHERE Name = 'HILLS_EXTRA_DEFENSE';
 
+-- Bombard civilian damage
+UPDATE Defines SET Value = 50 WHERE Name = 'NONCOMBAT_UNIT_RANGED_DAMAGE';
+
 -- Base number of air slots per city
 UPDATE Defines SET Value = 2 WHERE Name = 'BASE_CITY_AIR_STACKING';
 
