@@ -161,6 +161,8 @@ function MapGlobals:New()
 	mglobal.geostrophicLateralWindStrength = 0.3;
 	mglobal.lakeSize = GameDefines.MIN_WATER_SIZE_FOR_OCEAN; -- read-only; cannot change lake sizes with a map script
 	mglobal.oceanRiftWidth = 2 + math.floor(mapW / 60); -- minimum number of ocean tiles in a rift
+	mglobal.polarNoDigPercent = 0.10; -- percent of map height where channels cannot be dug at poles
+	mglobal.polarIceBandPercent = 0.04; -- percent of map height that always gets polar ice features
 
 	-- percent of map width
 	mglobal.atlanticSize = 0.09; -- size near poles
@@ -399,10 +401,11 @@ function MapGlobals:New()
 	This is currently used to prevent large continents in the uninhabitable polar regions.
 	East/west attenuation is set to zero, but modded maps may have need for them.
 	--]]
-	mglobal.northAttenuationFactor = 0.0;
-	mglobal.northAttenuationRange = 0.0; -- percent of the map height.
-	mglobal.southAttenuationFactor = 0.0;
-	mglobal.southAttenuationRange = 0.0;
+	mglobal.northAttenuationFactor = 0.35; -- percent of elevation at the north edge (0 to 1)
+	mglobal.northAttenuationRange = 0.125; -- percent of the map height.
+	mglobal.southAttenuationFactor = 0.35;
+	mglobal.southAttenuationRange = 0.125;
+	mglobal.attenuationExponent = 0.40;
 
 	-- East west attenuation may be desired for flat maps.
 	mglobal.eastAttenuationFactor = 0.0;
@@ -1235,7 +1238,7 @@ end
 function GetMapScriptInfo()
 	local world_age, temperature, rainfall, sea_level = GetCoreMapOptions();
 	return {
-		Name = "Communitu_79a v3.1.1",
+		Name = "Communitu_79a v3.2.1",
 		Description = "Communitas mapscript for Vox Populi (version 4.5+)",
 		IsAdvancedMap = false,
 		SupportsMultiplayer = true,
@@ -1984,6 +1987,7 @@ end
 function GetPathBetweenAreas(areaMap, areaA, areaB, findLowest, plotMatchFunc)
 	-- Using Dijkstra's algorithm
 	local mapW, mapH = Map.GetGridSize();
+	local polarNoDigRows = math.max(1, math.floor(mapH * MG.polarNoDigPercent));
 
 	-- Initialize
 	local plots = {};
@@ -1992,7 +1996,7 @@ function GetPathBetweenAreas(areaMap, areaA, areaB, findLowest, plotMatchFunc)
 		plots[plotID].plot = Map.GetPlot(elevationMap:GetXYFromIndex(plotID));
 		plots[plotID].areaID = areaMap.data[plotID];
 		local y = plots[plotID].plot:GetY();
-		if y < 2 or y > mapH - 3 then
+		if y < polarNoDigRows or y > mapH - 1 - polarNoDigRows then
 			-- No digging here!
 			plots[plotID].elevation = 10000;
 		elseif plots[plotID].areaID == areaA.id or plots[plotID].areaID == areaB.id then
@@ -3173,8 +3177,8 @@ end
 
 function CreateArcticOceans()
 	local _, mapH = Map.GetGridSize();
-	CreateOceanRift{y = 0, direction = MG.E, totalSize = 1, oceanSize = 1, fill = true};
-	CreateOceanRift{y = mapH - 1, direction = MG.E, totalSize = 1, oceanSize = 1, fill = true};
+	CreateOceanRift{y = 0, direction = MG.E, totalSize = 1, oceanSize = 0, fill = true};
+	CreateOceanRift{y = mapH - 1, direction = MG.E, totalSize = 1, oceanSize = 0, fill = true};
 end
 
 function CreateVerticalOceans()
@@ -4077,38 +4081,44 @@ function PlacePossibleIce(plot)
 	local lowestIce = MG.iceLatitude;
 	local odds = 100;
 	local oddsMultiplier = 1.0;
+	local placedIce = false;
 
-	if 1 < y and y < mapH - 2 then
-		if latitude >= lowestIce then
-			odds = math.pow((latitude - lowestIce) / (MG.topLatitude - lowestIce), 0.5);
-		else
-			return;
-		end
-	end
+	local polarBand = math.max(1, math.floor(mapH * MG.polarIceBandPercent));
+	if y <= polarBand or y >= mapH - 1 - polarBand then
+		placedIce = true;
+	elseif latitude >= lowestIce then
+		odds = math.pow((latitude - lowestIce) / (MG.topLatitude - lowestIce), 0.5);
 
-	-- Unblock islands surrounded by ice.
-	-- Avoid ice between land tiles and equator, increase ice between land tiles and poles
-	for nearPlot in Plot_GetPlotsInCircle(plot, 2) do
-		if not nearPlot:IsWater() then
-			if y < mapH / 2 then -- South hemisphere
-				if nearPlot:GetY() < y then
-					return;
-				else
-					oddsMultiplier = oddsMultiplier + 0.2;
-				end
-			else -- North hemisphere
-				if nearPlot:GetY() > y then
-					return;
-				else
-					oddsMultiplier = oddsMultiplier + 0.2;
+		-- Unblock islands surrounded by ice.
+		-- Avoid ice between land tiles and equator, increase ice between land tiles and poles
+		for nearPlot in Plot_GetPlotsInCircle(plot, 2) do
+			if not nearPlot:IsWater() then
+				if y < mapH / 2 then -- South hemisphere
+					if nearPlot:GetY() < y then
+						return;
+					else
+						oddsMultiplier = oddsMultiplier + 0.2;
+					end
+				else -- North hemisphere
+					if nearPlot:GetY() > y then
+						return;
+					else
+						oddsMultiplier = oddsMultiplier + 0.2;
+					end
 				end
 			end
 		end
+
+		odds = ModifyOdds(odds, oddsMultiplier);
+
+		if odds >= PWRand() then
+			placedIce = true;
+		end
+	else
+		return;
 	end
 
-	odds = ModifyOdds(odds, oddsMultiplier);
-
-	if odds >= PWRand() then
+	if placedIce then
 		plot:SetFeatureType(FeatureTypes.FEATURE_ICE);
 
 		-- No grass beside ice
@@ -4386,15 +4396,18 @@ end
 function GetAttenuationFactor(map, x, y)
 	local southY = map.height * MG.southAttenuationRange;
 	local southRange = map.height * MG.southAttenuationRange;
+	local attenuationExponent = MG.attenuationExponent;
 	local yAttenuation = 1.0;
-	if y < southY then
-		yAttenuation = MG.southAttenuationFactor + (y / southRange) * (1.0 - MG.southAttenuationFactor);
+	if southRange > 0 and y < southY then
+		local t = math.pow(y / southRange, attenuationExponent);
+		yAttenuation = MG.southAttenuationFactor + t * (1.0 - MG.southAttenuationFactor);
 	end
 
-	local northY = map.height - (map.height * MG.northAttenuationRange);
+	local northY = map.height - 1 - (map.height * MG.northAttenuationRange);
 	local northRange = map.height * MG.northAttenuationRange;
-	if y > northY then
-		yAttenuation = MG.northAttenuationFactor + ((map.height - y) / northRange) * (1.0 - MG.northAttenuationFactor);
+	if northRange > 0 and y > northY then
+		local t = math.pow((map.height - 1 - y) / northRange, attenuationExponent);
+		yAttenuation = MG.northAttenuationFactor + t * (1.0 - MG.northAttenuationFactor);
 	end
 
 	local eastY = map.width - (map.width * MG.eastAttenuationRange);
