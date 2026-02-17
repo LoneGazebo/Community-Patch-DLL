@@ -68,21 +68,21 @@ UPDATE Language_en_US
 SET Text = '[COLOR_YELLOW]Great Scientist[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_SPECIALISTSANDGP_GREATSCIENTIST_HEADING3_TITLE';
 UPDATE Language_en_US
-SET Text = '[COLOR_CYAN]Special Improvement: Academy[ENDCOLOR][NEWLINE]You can expend a Great Scientist to create an Academy. While worked, the Academy will give your city a big science boost.[NEWLINE][NEWLINE][COLOR_CYAN]Special Ability: {TXT_KEY_MISSION_DISCOVER_TECH}[ENDCOLOR][NEWLINE]You can expend your Great Scientist to immediately gain a lump sum of science. [COLOR_YELLOW]Every owned Academy you''ve created and own increases the amount of science gained by 10%.[ENDCOLOR]'
+SET Text = '[COLOR_CYAN]Special Improvement: Academy[ENDCOLOR][NEWLINE]You can expend a Great Scientist to create an Academy. [COLOR_YELLOW]The Academy counts as every type of Improvement for adjacency bonuses[ENDCOLOR] and, while worked, will give your city a big Science boost.[NEWLINE][NEWLINE][COLOR_CYAN]Special Ability: {TXT_KEY_MISSION_DISCOVER_TECH}[ENDCOLOR][NEWLINE]You can expend your Great Scientist to immediately gain a lump sum of science. [COLOR_YELLOW]Every owned Academy you''ve created and own increases the amount of science gained by 10%.[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_SPECIALISTSANDGP_GREATSCIENTIST_HEADING3_BODY';
 
 UPDATE Language_en_US
 SET Text = '[COLOR_YELLOW]Great Merchant[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_SPECIALISTSANDGP_GREATMERCHANT_HEADING3_TITLE';
 UPDATE Language_en_US
-SET Text = '[COLOR_CYAN]Special Improvement: Town[ENDCOLOR][NEWLINE]You can expend a Great Merchant to create the special Town improvement which, when worked, produces [ICON_GOLD] Gold [COLOR_YELLOW]and [ICON_FOOD] Food.[ENCDOLOR][NEWLINE][NEWLINE][COLOR_CYAN]Special Ability: {TXT_KEY_MISSION_CONDUCT_TRADE_MISSION}[ENDCOLOR][NEWLINE]If the Great Merchant is inside City-State territory that you are not at war with, you can expend it to conduct a Trade Mission.[NEWLINE][NEWLINE]You will receive a large amount of [ICON_GOLD] Gold [COLOR_YELLOW]and an instant "We Love the King Day" in all owned cities. Every Town you''ve created and own increases the gold and length of the "We Love the King Day" by 25%.[ENDCOLOR]'
+SET Text = '[COLOR_CYAN]Special Improvement: Town[ENDCOLOR][NEWLINE]You can expend a Great Merchant to create a Town. The Town [COLOR_YELLOW]receives additional yields from being on routes[ENDCOLOR] and, while worked, produces a lot of [ICON_GOLD] Gold [COLOR_YELLOW]and [ICON_FOOD] Food.[ENCDOLOR][NEWLINE][NEWLINE][COLOR_CYAN]Special Ability: {TXT_KEY_MISSION_CONDUCT_TRADE_MISSION}[ENDCOLOR][NEWLINE]If the Great Merchant is inside City-State territory that you are not at war with, you can expend it to conduct a Trade Mission.[NEWLINE][NEWLINE]You will receive a large amount of [ICON_GOLD] Gold [COLOR_YELLOW]and an instant "We Love the King Day" in all owned cities. Every Town you''ve created and own increases the gold and length of the "We Love the King Day" by 25%.[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_SPECIALISTSANDGP_GREATMERCHANT_HEADING3_BODY';
 
 UPDATE Language_en_US
 SET Text = '[COLOR_YELLOW]Great Engineer[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_SPECIALISTSANDGP_GREATENGINEER_HEADING3_TITLE';
 UPDATE Language_en_US
-SET Text = '[COLOR_CYAN]Special Improvement: Manufactory[ENDCOLOR][NEWLINE]You can expend a Great Engineer to create a Manufactory. A Manufactory produces huge amounts of production (hammers) for the city, if it is worked, and counts as every type of improvement for adjacency bonuses.[NEWLINE][NEWLINE][COLOR_CYAN]Special Ability: {TXT_KEY_MISSION_HURRY_PRODUCTION}[ENDCOLOR][NEWLINE]You can expend a Great Engineer to hurry production on the city''s current effort. [COLOR_YELLOW]The amount of Production is equal to 5 turns of the best city''s average recent output. Every owned Manufactory you''ve created and own increases it by 10%.[ENDCOLOR]'
+SET Text = '[COLOR_CYAN]Special Improvement: Manufactory[ENDCOLOR][NEWLINE]You can expend a Great Engineer to create a Manufactory. [COLOR_YELLOW]When placed on a Strategic or Luxury Resource, the Manufactory connects it and provides an additional copy[ENDCOLOR] and, while worked, it grants huge amounts of Production (hammers).[NEWLINE][NEWLINE][COLOR_CYAN]Special Ability: {TXT_KEY_MISSION_HURRY_PRODUCTION}[ENDCOLOR][NEWLINE]You can expend a Great Engineer to hurry production on the city''s current effort. [COLOR_YELLOW]The amount of Production is equal to 5 turns of the best city''s average recent output. Every owned Manufactory you''ve created and own increases it by 10%.[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_SPECIALISTSANDGP_GREATENGINEER_HEADING3_BODY';
 
 UPDATE Language_en_US

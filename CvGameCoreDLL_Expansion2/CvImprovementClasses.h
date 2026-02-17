@@ -69,7 +69,6 @@ public:
 	int GetDefenseModifier() const;
 	int GetNearbyEnemyDamage() const;
 	int GetPillageGold() const;
-	int GetResourceExtractionMod() const;
 	int GetLuxuryCopiesSiphonedFromMinor() const;
 	int GetCityStateExtraVote() const;
 	int GetHappinessOnConstruction() const;
@@ -219,6 +218,9 @@ public:
 	int  GetImprovementResourceDiscoverRand(int i) const;
 	int  GetFlavorValue(int i) const;
 
+	int GetResourceExtractionIncrease(int i) const;
+	int GetResourceExtractionMod(int i) const;
+
 	int GetDomainProductionModifier(int i) const;
 	int GetDomainFreeExperience(int i) const;
 
@@ -242,7 +244,6 @@ protected:
 	int m_iDefenseModifier;
 	int m_iNearbyEnemyDamage;
 	int m_iPillageGold;
-	int m_iResourceExtractionMod;
 	int m_iLuxuryCopiesSiphonedFromMinor;
 	int m_iImprovementLeagueVotes;
 	int m_iHappinessOnConstruction;
@@ -336,6 +337,8 @@ protected:
 	int* m_piAdjacentCityYieldChange;
 	int* m_piAdjacentMountainYieldChange;
 	int* m_piFlavorValue;
+	int* m_piResourceExtractionIncrease;
+	int* m_piResourceExtractionMod;
 
 	int* m_piDomainProductionModifier;
 	int* m_piDomainFreeExperience;

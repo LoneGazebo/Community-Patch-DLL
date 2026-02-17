@@ -687,7 +687,7 @@ local PlotToolTips = EUI.PlotToolTips or function( plot, isExtraTips )
 		-- Resources
 		local resourceTip = ""
 		local resourceID = plot:GetResourceType( activeTeamID )
-		local resource, numResource, isResourceConnected, isResourceUsefull, resourceUsageType
+		local resource, numResource, isResourceConnected, isResourceUsefull, resourceUsageType, numResourcePostModifiers
 		local isPillaged = plot:IsImprovementPillaged()
 		local revealedImprovementID = plot:GetRevealedImprovementType( activeTeamID, true )
 		local actualImprovementID = plot:GetImprovementType()
@@ -699,6 +699,10 @@ local PlotToolTips = EUI.PlotToolTips or function( plot, isExtraTips )
 			isResourceUsefull = resourceUsageType ~= ResourceUsageTypes_RESOURCEUSAGE_BONUS
 			isResourceConnected = revealedImprovementID ~= -1 and plot:IsResourceConnectedByImprovement( revealedImprovementID ) and not isPillaged
 			numResource = plot:GetNumResource()
+			numResourcePostModifiers = numResource
+			if plotOwner then
+				numResourcePostModifiers = plot:GetNumResourcePostModifiers(plotOwnerID, revealedImprovementID)
+			end
 
 			if resourceUsageType == ResourceUsageTypes_RESOURCEUSAGE_STRATEGIC then
 				resourceTip = resourceTip .. numResource
@@ -838,7 +842,7 @@ local PlotToolTips = EUI.PlotToolTips or function( plot, isExtraTips )
 			end
 		end
 		if resource and isResourceConnected and isResourceUsefull then
-			yieldTips:insert( numResource .. resource.IconString )
+			yieldTips:insert( numResourcePostModifiers .. resource.IconString )
 		end
 
 		-- Defense
@@ -977,10 +981,14 @@ local PlotToolTips = EUI.PlotToolTips or function( plot, isExtraTips )
 
 				local canBuild = plot:CanBuild( buildID, activePlayerID ) and build.ShowInPedia and isWaterPlot == build.Water -- filter duplicates, fix DLL bug can build roads in lakes
 				local isBasicBuild = true
-				local buildImprovementID = build.ImprovementType
-				local buildImprovement = GameInfo.Improvements[ buildImprovementID or -1 ]
+				local buildImprovementType = build.ImprovementType
+				local buildImprovement = GameInfo.Improvements[ buildImprovementType or -1 ]
+				local buildImprovementID = buildImprovement and buildImprovement.ID
 
 				local buildInProgress = buildsInProgress[ buildID ]
+
+				local oldImprovementAmount = 0
+				local newImprovementAmount = 0
 
 				if buildImprovement then
 					buildTip = L(buildImprovement.Description)
@@ -1100,11 +1108,15 @@ local PlotToolTips = EUI.PlotToolTips or function( plot, isExtraTips )
 						end
 						if resource and isResourceUsefull then
 							if plot:IsResourceConnectedByImprovement( buildImprovementID ) then
-								if not isResourceConnected then
-									buildTip = string_format("%s [COLOR_POSITIVE_TEXT]%+i[ENDCOLOR]%s", buildTip, numResource, resource.IconString )
-								end
-							elseif isResourceConnected then
-								buildTip = string_format("%s [COLOR_NEGATIVE_TEXT]%+i[ENDCOLOR]%s", buildTip, -numResource, resource.IconString )
+								newImprovementAmount = plot:GetNumResourcePostModifiers(activePlayerID, buildImprovementID)
+							end
+							if isResourceConnected then
+								oldImprovementAmount = plot:GetNumResourcePostModifiers(activePlayerID, revealedImprovementID)
+							end
+							if newImprovementAmount > oldImprovementAmount then
+								buildTip = string_format("%s [COLOR_POSITIVE_TEXT]%+i[ENDCOLOR]%s", buildTip, newImprovementAmount - oldImprovementAmount, resource.IconString )
+							elseif newImprovementAmount < oldImprovementAmount then
+								buildTip = string_format("%s [COLOR_NEGATIVE_TEXT]%+i[ENDCOLOR]%s", buildTip, newImprovementAmount - oldImprovementAmount, resource.IconString )
 							end
 						end
 					end

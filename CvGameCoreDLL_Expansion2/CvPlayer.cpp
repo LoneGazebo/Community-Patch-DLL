@@ -32919,22 +32919,42 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn) // R: bDoTurn default
 								}
 							}
 							int iNumResource = pLoopPlot->getNumResource();
-							if (pResourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
-							{
-								int iQuantityMod = GetPlayerTraits()->GetStrategicResourceQuantityModifier(pLoopPlot->getTerrainType());
-								iNumResource *= 100 + iQuantityMod;
-								iNumResource /= 100;
-							}
-
-							if (GetPlayerTraits()->GetResourceQuantityModifier(eRes) > 0)
-							{
-								int iQuantityMod = GetPlayerTraits()->GetResourceQuantityModifier(eRes);
-								iNumResource *= 100 + iQuantityMod;
-								iNumResource /= 100;
-							}
 
 							if (pLoopPlot->IsResourceImprovedForOwner())
 							{
+								ImprovementTypes eImprovement = pLoopPlot->getImprovementType();
+								if (eImprovement != NO_IMPROVEMENT)
+								{
+									CvImprovementEntry* pkImprovementType = GC.getImprovementInfo(eImprovement);
+									if (pkImprovementType)
+									{
+										int iIncrease = pkImprovementType->GetResourceExtractionIncrease(eRes);
+										if (iIncrease != 0)
+											iNumResource += iIncrease;
+
+										int iMod = pkImprovementType->GetResourceExtractionMod(eRes);
+										if (iMod != 0)
+										{
+											iNumResource *= 100 + iMod;
+											iNumResource /= 100;
+										}
+									}
+								}
+
+								if (pResourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
+								{
+									int iQuantityMod = GetPlayerTraits()->GetStrategicResourceQuantityModifier(pLoopPlot->getTerrainType());
+									iNumResource *= 100 + iQuantityMod;
+									iNumResource /= 100;
+								}
+
+								if (GetPlayerTraits()->GetResourceQuantityModifier(eRes) > 0)
+								{
+									int iQuantityMod = GetPlayerTraits()->GetResourceQuantityModifier(eRes);
+									iNumResource *= 100 + iQuantityMod;
+									iNumResource /= 100;
+								}
+
 								iCntImproved += iNumResource;
 								// ExtraLuxury resources are stored in m_paiNumResourceFromBuildings, but we can't compare it with the counted value because it also contains resources from other sources
 							}
@@ -37159,17 +37179,17 @@ void CvPlayer::addResourcesOnPlotToUnimproved(CvPlot* pPlot, bool bOnlyExtraReso
 {
 	if (!bOnlyExtraResources)
 	{
-		changeNumResourceUnimproved(pPlot->getResourceType(), pPlot->getNumResourceForPlayer(GetID(), false, bIgnoreTechPrereq));
+		changeNumResourceUnimproved(pPlot->getResourceType(), pPlot->getNumResourceForPlayer(GetID(), false, bIgnoreTechPrereq, true));
 	}
-	changeNumResourceUnimproved(pPlot->getResourceType(), pPlot->getNumResourceForPlayer(GetID(), true, bIgnoreTechPrereq));
+	changeNumResourceUnimproved(pPlot->getResourceType(), pPlot->getNumResourceForPlayer(GetID(), true, bIgnoreTechPrereq, true));
 
 	CvCity* pOwningCity = pPlot->getOwningCity();
 	if (pOwningCity)
 	{
-		pOwningCity->ChangeNumResourceLocal(pPlot->getResourceType(), pPlot->getNumResourceForPlayer(GetID(), true, bIgnoreTechPrereq), /*bUnimproved*/ true);
+		pOwningCity->ChangeNumResourceLocal(pPlot->getResourceType(), pPlot->getNumResourceForPlayer(GetID(), true, bIgnoreTechPrereq, true), /*bUnimproved*/ true);
 		if (!bOnlyExtraResources)
 		{
-			pOwningCity->ChangeNumResourceLocal(pPlot->getResourceType(), pPlot->getNumResourceForPlayer(GetID(), false, bIgnoreTechPrereq), /*bUnimproved*/ true);
+			pOwningCity->ChangeNumResourceLocal(pPlot->getResourceType(), pPlot->getNumResourceForPlayer(GetID(), false, bIgnoreTechPrereq, true), /*bUnimproved*/ true);
 		}
 	}
 }
@@ -37178,17 +37198,17 @@ void CvPlayer::removeResourcesOnPlotFromUnimproved(CvPlot* pPlot, bool bOnlyExtr
 {
 	if (!bOnlyExtraResources)
 	{
-		changeNumResourceUnimproved(pPlot->getResourceType(), -pPlot->getNumResourceForPlayer(GetID(), false, bIgnoreTechPrereq));
+		changeNumResourceUnimproved(pPlot->getResourceType(), -pPlot->getNumResourceForPlayer(GetID(), false, bIgnoreTechPrereq, true));
 	}
-	changeNumResourceUnimproved(pPlot->getResourceType(), -pPlot->getNumResourceForPlayer(GetID(), true, bIgnoreTechPrereq));
+	changeNumResourceUnimproved(pPlot->getResourceType(), -pPlot->getNumResourceForPlayer(GetID(), true, bIgnoreTechPrereq, true));
 
 	CvCity* pOwningCity = pPlot->getOwningCity();
 	if (pOwningCity)
 	{
-		pOwningCity->ChangeNumResourceLocal(pPlot->getResourceType(), -pPlot->getNumResourceForPlayer(GetID(), true, bIgnoreTechPrereq), /*bUnimproved*/ true);
+		pOwningCity->ChangeNumResourceLocal(pPlot->getResourceType(), -pPlot->getNumResourceForPlayer(GetID(), true, bIgnoreTechPrereq, true), /*bUnimproved*/ true);
 		if (!bOnlyExtraResources)
 		{
-			pOwningCity->ChangeNumResourceLocal(pPlot->getResourceType(), -pPlot->getNumResourceForPlayer(GetID(), false, bIgnoreTechPrereq), /*bUnimproved*/ true);
+			pOwningCity->ChangeNumResourceLocal(pPlot->getResourceType(), -pPlot->getNumResourceForPlayer(GetID(), false, bIgnoreTechPrereq, true), /*bUnimproved*/ true);
 		}
 	}
 }
