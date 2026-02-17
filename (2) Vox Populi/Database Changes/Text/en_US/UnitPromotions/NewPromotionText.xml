@@ -449,13 +449,6 @@
 			<Text>+40% [ICON_STRENGTH] Combat Strength when defending against [COLOR_POSITIVE_TEXT]Ranged Attacks[ENDCOLOR].[NEWLINE]Withdraw from Melee Attack if there is an open tile behind this Unit, once per turn.</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_PROMOTION_MONGOL_TERROR">
-			<Text>Steppe Nomads</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_MONGOL_TERROR_HELP">
-			<Text>+1 [ICON_WAR] Attack.</Text>
-		</Row>
-
 		<Row Tag="TXT_KEY_PROMOTION_ATTACK_BONUS_SWEDEN">
 			<Text>Gå-På</Text>
 		</Row>

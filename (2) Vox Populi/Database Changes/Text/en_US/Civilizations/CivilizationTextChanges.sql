@@ -517,7 +517,7 @@ WHERE Tag = 'TXT_KEY_UNIT_MAYAN_ATLATLIST_STRATEGY';
 -- Mongols
 --------------------
 UPDATE Language_en_US
-SET Text = 'Skirmisher Units have an extra Attack. Gain All Yields equal to 20% of the [ICON_GOLD] Gold from bullying [ICON_CITY_STATE] City-States.'
+SET Text = 'Skirmisher Units start with the [COLOR_POSITIVE_TEXT]Logistics[ENDCOLOR] Promotion. When you [ICON_PIRATE] Bully a City-State, gain an instant boost of [ICON_PRODUCTION] Production and [ICON_RESEARCH] Science in the [ICON_CAPITAL] Capital equal to 25% of the [ICON_GOLD] Gold received.'
 WHERE Tag = 'TXT_KEY_TRAIT_TERROR';
 
 UPDATE Language_en_US
@@ -817,7 +817,7 @@ WHERE Tag = 'TXT_KEY_UNIT_VENETIAN_GALLEASS_STRATEGY';
 -- Zulu
 --------------------
 UPDATE Language_en_US
-SET Text = '-50% [ICON_GOLD] Gold maintenance for Melee and Gunpowder Units. All Units require 25% less Experience for Promotions. Your military ignores Alliance and Protection penalties and is 50% more effective at intimidating [ICON_CITY_STATE] City-States.'
+SET Text = '-50% [ICON_GOLD] Gold maintenance for Melee and Gunpowder Units. All Units require 25% less Experience for Promotions. Your military ignores Alliance and Protection penalties and is 50% more effective at [ICON_PIRATE] intimidating City-States.'
 WHERE Tag = 'TXT_KEY_TRAIT_BUFFALO_HORNS';
 
 UPDATE Language_en_US
