@@ -3785,7 +3785,14 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 		if (bCreatesResource || bConnectsResource)
 		{
 			ResourceTypes eConnectedResource = bCreatesResource ? eResourceFromImprovement : eResource;
-			int iResourceAmount = eResourceFromImprovement != NO_RESOURCE ? pkImprovementInfo->GetResourceQuantityFromImprovement() : pPlot->getNumResource();
+
+			int iResourceQuantityFromImprovement = pkImprovementInfo->GetResourceQuantityFromImprovement();
+			if (iResourceQuantityFromImprovement <= 0)
+				iResourceQuantityFromImprovement = 1;
+
+			int iResourceAmount = eResourceFromImprovement != NO_RESOURCE ? iResourceQuantityFromImprovement : pPlot->GetNumResourcePostModifiers(m_pPlayer->GetID(), eImprovement);
+			int iBaseResourceAmount = eResourceFromImprovement != NO_RESOURCE ? iResourceQuantityFromImprovement : pPlot->getNumResource();
+
 			int iResourceWeight = GetResourceWeight(eConnectedResource, iResourceAmount);
 
 			// If the old improvement granted the same resource, subtract the resource from this improvement
@@ -3794,8 +3801,14 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 			{
 				CvImprovementEntry* pkOldImprovementInfo = GC.getImprovementInfo(eOldImprovement);
 				if (pkOldImprovementInfo && (pkOldImprovementInfo->IsConnectsResource(eResource) || pkOldImprovementInfo->GetResourceFromImprovement() == eResource))
-					iExtraResource -= iResourceAmount;
-			
+				{
+					ResourceTypes eResourceFromOldImprovement = pkOldImprovementInfo ? (ResourceTypes)pkOldImprovementInfo->GetResourceFromImprovement() : NO_RESOURCE;
+					int iOldResourceQuantityFromImprovement = pkOldImprovementInfo->GetResourceQuantityFromImprovement();
+					if (iOldResourceQuantityFromImprovement <= 0)
+						iOldResourceQuantityFromImprovement = 1;
+					int iOldResourceAmount = eResourceFromOldImprovement != NO_RESOURCE ? iOldResourceQuantityFromImprovement : pPlot->GetNumResourcePostModifiers(m_pPlayer->GetID(), eOldImprovement);
+					iExtraResource -= iOldResourceAmount;
+				}
 			}
 
 			int iNumResourceAvailable = m_pPlayer->getNumResourceAvailable(eConnectedResource) + iExtraResource;
@@ -3836,19 +3849,19 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 				}
 				int iTotalNumResource = GC.getMap().getNumResources(eConnectedResource);
 				if (bCreatesResource)
-					iTotalNumResource += iResourceAmount;
+					iTotalNumResource += iResourceQuantityFromImprovement;
 
 				int iCurrentMonopolyPercent = 0;
 				int iFutureMonopolyPercent = 0;
 				if (iTotalNumResource <= 0)
 				{
 					iCurrentMonopolyPercent = iOwnedNumResource + iResourceFromMinors + iResourceFromImports + iExtraResource > 0 ? 100 : 0;
-					iFutureMonopolyPercent = iOwnedNumResource + iResourceFromMinors + iResourceFromImports + iExtraResource + iResourceAmount > 0 ? 100 : 0;
+					iFutureMonopolyPercent = iOwnedNumResource + iResourceFromMinors + iResourceFromImports + iExtraResource + iBaseResourceAmount > 0 ? 100 : 0;
 				}
 				else
 				{
 					iCurrentMonopolyPercent = ((iOwnedNumResource + iResourceFromMinors + iResourceFromImports + iExtraResource) * 100) / iTotalNumResource;
-					iFutureMonopolyPercent = ((iOwnedNumResource + iResourceFromMinors + iResourceFromImports + iExtraResource + iResourceAmount) * 100) / iTotalNumResource;
+					iFutureMonopolyPercent = ((iOwnedNumResource + iResourceFromMinors + iResourceFromImports + iExtraResource + iBaseResourceAmount) * 100) / iTotalNumResource;
 				}
 
 				int iGlobalThreshold = /*50*/ GD_INT_GET(GLOBAL_RESOURCE_MONOPOLY_THRESHOLD);
