@@ -1111,10 +1111,10 @@
 			<Text>On Completion: {1_Num} Free [ICON_GREAT_PEOPLE] Great {1: plural 1?Person; other?People;} of your choice {1: plural 1?appears; other?appear;} in [ICON_CAPITAL] Capital</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_FREE_SPY_POINTS">
-			<Text>On Completion: Gain {1_Num} [ICON_SPY] Spy {1: plural 1?Point; other?Points;}</Text>
+			<Text>On Completion: Gain {1_Num} [ICON_SPY_POINT] Spy {1: plural 1?Point; other?Points;}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_FREE_SPIES">
-			<Text>On Completion: Gain {1_Num} [ICON_SPY] {1: plural 1?Spy; other?Spies;}</Text>
+			<Text>On Completion: Gain {1_Num} [ICON_SPY_POINT] {1: plural 1?Spy; other?Spies;}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_FREE_UNIT">
 			<Text>On Completion: {1_Num} [COLOR_YELLOW]{2_Unit:textkey}[ENDCOLOR] {1: plural 1?appears; other?appear;} in or near City</Text>
