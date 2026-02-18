@@ -2180,6 +2180,35 @@
 			<Text>You need positive {1_ResourcesString} count to upgrade this Unit.</Text>
 		</Row>
 
+		<!-- Heal action disabled tooltips -->
+		<Row Tag="TXT_KEY_MISSION_HEAL_DISABLED_CANNOT_HEAL">
+			<Text>This unit cannot heal.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISSION_HEAL_DISABLED_RESOURCE_SHORTAGE">
+			<Text>This unit cannot heal due to a resource shortage.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISSION_HEAL_DISABLED_CANNOT_END_TURN">
+			<Text>This unit cannot end its turn here.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISSION_HEAL_DISABLED_HOVERING_WATER">
+			<Text>Hovering units can only heal over land.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISSION_HEAL_DISABLED_MOUNTAIN">
+			<Text>Units cannot heal on Mountains.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISSION_HEAL_DISABLED_EMBARKED">
+			<Text>Units cannot heal while embarked.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISSION_HEAL_DISABLED_NAVAL_TERRITORY">
+			<Text>Naval units can only heal in friendly territory.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISSION_HEAL_DISABLED_NO_HEAL_RATE">
+			<Text>This unit has no heal rate in its current location.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISSION_HEAL_DISABLED_BLOCKADED">
+			<Text>Units cannot heal in a fully blockaded city.</Text>
+		</Row>
+
 		<!-- Combat simulator -->
 		<Row Tag="TXT_KEY_UNITCOMBAT_DAMAGE_MODIFIER">
 			<Text>Unit Health</Text>

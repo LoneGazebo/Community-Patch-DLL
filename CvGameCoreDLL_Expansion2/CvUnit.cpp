@@ -7656,69 +7656,151 @@ int CvUnit::GetPower() const
 }
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::canHeal(const CvPlot* pPlot, bool bCheckMovement) const
+bool CvUnit::canHeal(const CvPlot* pPlot, bool bCheckMovement, CvString* toolTipSink) const
 {
 	VALIDATE_OBJECT();
+	bool bCanHeal = true;
 
-	if (IsCannotHeal(true))
-		return false;
+	if (IsCannotHeal(false))
+	{
+		if (toolTipSink == NULL)
+			return false;
+		if (!toolTipSink->empty())
+			(*toolTipSink) += "[NEWLINE]";
+		GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_MISSION_HEAL_DISABLED_CANNOT_HEAL");
+		bCanHeal = false;
+	}
+
+	if (MOD_BALANCE_RESOURCE_SHORTAGE_UNIT_HEALING)
+	{
+		CvPlayer& kPlayer = GET_PLAYER(getOwner());
+		if (kPlayer.isMajorCiv() && !kPlayer.HasResourceForNewUnit(getUnitType(), false, false, NO_UNIT, /*bContinue*/ true))
+		{
+			if (toolTipSink == NULL) 
+				return false;
+			if (!toolTipSink->empty()) 
+				(*toolTipSink) += "[NEWLINE]";
+			GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_MISSION_HEAL_DISABLED_RESOURCE_SHORTAGE");
+			bCanHeal = false;
+		}
+	}
 
 	if (isHuman(ISHUMAN_AI_UNITS) && !IsFortified())
 	{
 		if (!canEndTurnAtPlot(pPlot))
 		{
-			return false;
+			if (toolTipSink == NULL) 
+				return false;
+			if (!toolTipSink->empty())
+				(*toolTipSink) += "[NEWLINE]";
+			GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_MISSION_HEAL_DISABLED_CANNOT_END_TURN");
+			bCanHeal = false;
 		}
 	}
 
 	// No healing after movement, except for exceptions
 	if (bCheckMovement && hasMoved() && !isAlwaysHeal())
-		return false;
+	{
+		if (toolTipSink == NULL)
+			return false;
+		bCanHeal = false;
+	}
 
 	// No barb healing, except for a special case handled in CvUnit::doHeal()
 	if (isBarbarian())
-		return false;
+	{
+		if (toolTipSink == NULL)
+			return false;
+		bCanHeal = false;
+	}
 
 	if (pPlot == NULL)
 		return false;
 
 	//if this is a hypothetical check, hitpoints don't matter
 	if (pPlot == plot() && !IsHurt())
-		return false;
+	{
+		if (toolTipSink == NULL)
+			return false;
+		bCanHeal = false;
+	}
 
 	if (MOD_UNITS_HOVERING_LAND_ONLY_HEAL)
 	{
 		// Hovering units can only heal over land
 		if (IsHoveringUnit() && pPlot->isWater())
-			return false;
+		{
+			if (toolTipSink == NULL)
+				return false;
+			if (!toolTipSink->empty())
+				(*toolTipSink) += "[NEWLINE]";
+			GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_MISSION_HEAL_DISABLED_HOVERING_WATER");
+			bCanHeal = false;
+		}
 	}
 
 	if (MOD_CORE_NO_HEALING_ON_MOUNTAINS)
 	{
 		// No healing on mountains outside of cities
 		if (pPlot->isMountain() && !pPlot->isCity())
-			return false;
+		{
+			if (toolTipSink == NULL)
+				return false;
+			if (!toolTipSink->empty())
+				(*toolTipSink) += "[NEWLINE]";
+			GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_MISSION_HEAL_DISABLED_MOUNTAIN");
+			bCanHeal = false;
+		}
 	}
 
 	// Embarked Units can't heal
 	if (pPlot->needsEmbarkation(this) && !isCargo())
-		return false;
+	{
+		if (toolTipSink == NULL)
+			return false;
+		if (!toolTipSink->empty())
+			(*toolTipSink) += "[NEWLINE]";
+		GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_MISSION_HEAL_DISABLED_EMBARKED");
+		bCanHeal = false;
+	}
 
 	// Boats can only heal in friendly territory (without promotion)
 	if (getDomainType() == DOMAIN_SEA)
 	{
 		if (!pPlot->IsFriendlyTerritory(getOwner()) && !isHealOutsideFriendly())
 		{
-			return false;
+			if (toolTipSink == NULL)
+				return false;
+			if (!toolTipSink->empty())
+				(*toolTipSink) += "[NEWLINE]";
+			GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_MISSION_HEAL_DISABLED_NAVAL_TERRITORY");
+			bCanHeal = false;
 		}
 	}
 
 	if (healRate(pPlot) <= 0)
-		return false;
+	{
+		if (toolTipSink == NULL)
+			return false;
+		if (!toolTipSink->empty())
+			(*toolTipSink) += "[NEWLINE]";
+		GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_MISSION_HEAL_DISABLED_NO_HEAL_RATE");
+		bCanHeal = false;
+	}
 
 	// Can't heal in a blockaded city
 	CvCity* pCity = pPlot->getPlotCity();
-	return !(pCity && pCity->IsBlockadedWaterAndLand());
+	if (pCity && pCity->IsBlockadedWaterAndLand())
+	{
+		if (toolTipSink == NULL)
+			return false;
+		if (!toolTipSink->empty())
+			(*toolTipSink) += "[NEWLINE]";
+		GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_MISSION_HEAL_DISABLED_BLOCKADED");
+		bCanHeal = false;
+	}
+
+	return bCanHeal;
 }
 
 

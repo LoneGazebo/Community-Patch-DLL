@@ -1014,6 +1014,7 @@ protected:
 	static int lGetAgricultureHistory(lua_State* L);
 	static int lGetPowerHistory(lua_State* L);
 	static int lGetReasonPlunderTradeRouteDisabled(lua_State* L);
+	static int lGetReasonHelpDisabled(lua_State* L);
 	static int lGetReplayData(lua_State* L);
 	static int lSetReplayDataValue(lua_State* L);
 

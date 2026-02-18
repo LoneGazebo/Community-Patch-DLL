@@ -2054,6 +2054,10 @@ function ActionToolTipHandler( control )
 
 				disabledTip:insertLocalized( g_activePlayer:GetReasonPlunderTradeRouteDisabled(unit:GetID()) )
 
+			elseif (action.Type == "MISSION_HEAL") then
+
+				disabledTip:insert( g_activePlayer:GetReasonHelpDisabled(unit:GetID()) )
+
 			elseif action.Type == "COMMAND_DELETE" then
 				
 				if GameDefines.UNIT_DELETE_DISABLED == 1 then

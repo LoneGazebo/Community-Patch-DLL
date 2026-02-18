@@ -1099,9 +1099,16 @@ bool CvUnitMission::CanStartMission(CvUnit* hUnit, int iMission, int iData1, int
 	}
 	else if(iMission == CvTypes::getMISSION_HEAL())
 	{
-		if(hUnit->IsHurt() && hUnit->canHeal(pPlot, false)) //next turn is also ok
+		if (hUnit->IsHurt())
 		{
-			return true;
+			if (hUnit->canHeal(pPlot, false)) // next turn is also ok
+			{
+				return true;
+			}
+			else if (bTestVisible)
+			{
+				return true; // show a tooltip explaining why we can't heal
+			}
 		}
 	}
 	else if(iMission == CvTypes::getMISSION_ALERT())

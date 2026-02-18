@@ -942,6 +942,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetPowerHistory);
 
 	Method(GetReasonPlunderTradeRouteDisabled);
+	Method(GetReasonHelpDisabled);
 	Method(GetReplayData);
 	Method(SetReplayDataValue);
 
@@ -10922,6 +10923,30 @@ int CvLuaPlayer::lGetReasonPlunderTradeRouteDisabled(lua_State* L)
 			ASSERT(bReasonFound, "Didn't find a reason why the trade unit on this plot can't be plundered. Inconsistency between canPlunderTradeRoute and GetReasonPlunderTradeRouteDisabled");
 			lua_pushstring(L, "TXT_KEY_MISSION_PLUNDER_TRADE_ROUTE_DISABLED_CORPORATION_HELP");
 		}
+	}
+	else
+	{
+		lua_pushstring(L, "");
+	}
+
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetReasonHelpDisabled(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	int iUnitID = luaL_checkint(L, 2);
+	CvUnit* pUnit = pkPlayer->getUnit(iUnitID);
+	ASSERT(pUnit);
+	if (pUnit)
+	{
+		CvPlot* pPlot = pUnit->plot();
+		// this should only be called if the unit is hurt and can't heal, but a tooltip should be shown explaining why
+		ASSERT(pUnit->IsHurt() && !pUnit->canHeal(pPlot, false));
+
+		CvString toolTip;
+		pUnit->canHeal(pPlot, false, &toolTip);
+		lua_pushstring(L, toolTip.c_str());
 	}
 	else
 	{

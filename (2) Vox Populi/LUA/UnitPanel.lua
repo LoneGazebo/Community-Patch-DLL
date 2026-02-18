@@ -1756,7 +1756,17 @@ function TipHandler( control )
 					strDisabledString = strDisabledString .. "[NEWLINE][NEWLINE]";
 				end
 
-				strDisabledString = strDisabledString .. Locale.ConvertTextKey(pActivePlayer:GetReasonPlunderTradeRouteDisabled(unit:GetID()));	
+				strDisabledString = strDisabledString .. Locale.ConvertTextKey(pActivePlayer:GetReasonPlunderTradeRouteDisabled(unit:GetID()));
+
+			elseif (action.Type == "MISSION_HEAL") then
+				-- Add spacing for all entries after the first
+				if (bFirstEntry) then
+					bFirstEntry = false;
+				elseif (not bFirstEntry) then
+					strDisabledString = strDisabledString .. "[NEWLINE][NEWLINE]";
+				end
+
+				strDisabledString = strDisabledString .. pActivePlayer:GetReasonHelpDisabled(unit:GetID());
 
 			elseif (action.DisabledHelp and action.DisabledHelp ~= "") then
 				-- Add spacing for all entries after the first
