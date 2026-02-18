@@ -1,5 +1,8 @@
 -- TODO: Documentation
 
+-- Bonus to recovery rate of City-State Influence when below Neutral (decoupled from CityStateFriendshipModifier)
+ALTER TABLE Traits ADD CityStateRecoveryModifier integer DEFAULT 0;
+
 -- Bonus XP to Gold-purchased military units, scaling with era.
 ALTER TABLE Traits ADD PurchasedUnitsBonusXP integer DEFAULT 0;
 
