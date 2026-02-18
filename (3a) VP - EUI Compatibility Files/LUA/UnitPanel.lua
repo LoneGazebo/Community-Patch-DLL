@@ -1671,98 +1671,6 @@ function ActionToolTipHandler( control )
 		toolTip:insertLocalized( "TXT_KEY_UPGRADE_HELP", GameInfo_Units[upgradeUnitTypeID].Description, unitUpgradePrice )
 		toolTip:insert( "----------------" )
 		toolTip:insert( GetHelpTextForUnit( upgradeUnitTypeID, true ) )
-
-		if not gameCanHandleAction then
-			toolTip:insert( "----------------" )
-
-			local eUnitClass = GameInfoTypes[GameInfo.Units[upgradeUnitTypeID].Class];
-			local iMaxPlayerInstances = GameInfo.UnitClasses[eUnitClass].MaxPlayerInstances;
-			local iMaxTeamInstances = GameInfo.UnitClasses[eUnitClass].MaxTeamInstances;
-			local iMaxGlobalInstances = GameInfo.UnitClasses[eUnitClass].MaxGlobalInstances;
-
-			-- Can't upgrade because the world has too many of the upgraded units
-			if Game:IsUnitClassMaxedOut(eUnitClass, 0) then
-
-				disabledTip:insertLocalized("TXT_KEY_UPGRADE_HELP_DISABLED_GLOBAL_UNITCLASS_LIMIT", iMaxGlobalInstances)
-			end
-
-			-- Can't upgrade because our team has too many of the upgraded units
-			if g_activeTeam:IsUnitClassMaxedOut(eUnitClass, 0) then
-
-				disabledTip:insertLocalized("TXT_KEY_UPGRADE_HELP_DISABLED_TEAM_UNITCLASS_LIMIT", iMaxTeamInstances)
-			end
-
-			-- Can't upgrade because we have too many of the upgraded units
-			-- (can't use IsUnitClassMaxedOut here as it also checks the city limit)
-			if iMaxPlayerInstances >= 0 and g_activePlayer:GetUnitClassCount(eUnitClass) >= iMaxPlayerInstances then
-
-				disabledTip:insertLocalized("TXT_KEY_UPGRADE_HELP_DISABLED_PLAYER_UNITCLASS_LIMIT", iMaxPlayerInstances)
-			end
-
-			-- Can't upgrade because we're outside our territory
-			if (not unit:CanUpgradeInTerritory(false)) then
-				disabledTip:insertLocalized( "TXT_KEY_UPGRADE_HELP_DISABLED_TERRITORY" )
-			end
-
-			-- Can't upgrade because we're outside of a city
-			if unit:GetDomainType() == DomainTypes.DOMAIN_AIR and not plot:IsCity() then
-
-				disabledTip:insertLocalized( "TXT_KEY_UPGRADE_HELP_DISABLED_CITY" )
-			end
-
-			-- Can't upgrade because we lack the Gold
-			if unitUpgradePrice > g_activePlayer:GetGold() then
-
-				disabledTip:insertLocalized( "TXT_KEY_UPGRADE_HELP_DISABLED_GOLD" )
-			end
-
-			-- Can't upgrade because we lack the Resources
-			local resourcesNeeded = table()
-			local resourcesTotalNeeded = table()
-			local resourcesPositiveNeeded = table()
-
-			-- Loop through all resources to see how many we need. If it's > 0 then add to the string
-			for resource in GameInfo.Resources() do
-				local iResourceLoop = resource.ID
-
-				local iNumResourceNeededToUpgrade = unit:GetNumResourceNeededToUpgrade(iResourceLoop)
-
-				if iNumResourceNeededToUpgrade > 0 and iNumResourceNeededToUpgrade > g_activePlayer:GetNumResourceAvailable(iResourceLoop) then
-					resourcesNeeded:insert( iNumResourceNeededToUpgrade .. " " .. resource.IconString .. " " .. L(resource.Description) )
-				end
-				
-				if Game.IsCustomModOption("UNITS_RESOURCE_QUANTITY_TOTALS") then
-					local iNumResourcesTotalNeeded = unit:GetNumResourceTotalNeededToUpgrade(iResourceLoop)
-					
-					if iNumResourcesTotalNeeded > 0 and iNumResourcesTotalNeeded > g_activePlayer:GetNumResourceTotal(iResourceLoop) then
-						resourcesTotalNeeded:insert( iNumResourcesTotalNeeded .. " " .. resource.IconString .. " " .. L(resource.Description) )
-					elseif iNumResourcesTotalNeeded > 0 and g_activePlayer:GetNumResourceAvailable(iResourceLoop) < 0 then
-						resourcesPositiveNeeded:insert( resource.IconString .. " " .. L(resource.Description) )
-					end
-				end
-			end
-
-			-- Build resources required string
-			if #resourcesNeeded > 0 then
-
-				disabledTip:insertLocalized( "TXT_KEY_UPGRADE_HELP_DISABLED_RESOURCES", resourcesNeeded:concat(", ") )
-			end
-			
-			-- Build resources total required string
-			if Game.IsCustomModOption("UNITS_RESOURCE_QUANTITY_TOTALS") and #resourcesTotalNeeded > 0 then
-				disabledTip:insertLocalized( "TXT_KEY_UPGRADE_HELP_DISABLED_GROSS_RESOURCES", resourcesTotalNeeded:concat(", ") )
-			end
-			if Game.IsCustomModOption("UNITS_RESOURCE_QUANTITY_TOTALS") and #resourcesPositiveNeeded > 0 then
-				disabledTip:insertLocalized( "TXT_KEY_UPGRADE_HELP_DISABLED_RESOURCES_NET_NEGATIVE", resourcesPositiveNeeded:concat(", ") )
-			end
-
-				-- if we can't upgrade due to stacking
-			if plot:GetNumFriendlyUnitsOfType(unit) > 1 then
-
-				disabledTip:insertLocalized( "TXT_KEY_UPGRADE_HELP_DISABLED_STACKING" )
-
-			end
-		end
 	end
 
 	if action.Type == "MISSION_ALERT" and not unit:IsEverFortifyable() then
@@ -1933,146 +1841,6 @@ function ActionToolTipHandler( control )
 		end
 	end
 
-	-- Not able to perform action
-	if not gameCanHandleAction then
-
-		-- Worker build
-		if isBuild then
-
-			-- Figure out what the name of the thing is that we're looking at
-			local strImpRouteKey = (improvement and improvement.Description) or (route and route.Description) or ""
-
-			-- Don't have Tech for Build?
-			if improvement or route then
-				local prereqTech = GameInfo.Technologies[build.PrereqTech]
-				if prereqTech and prereqTech.ID ~= -1 and not g_activeTechs:HasTech(prereqTech.ID) then
-
-						disabledTip:insertLocalized( "TXT_KEY_BUILD_BLOCKED_PREREQ_TECH", prereqTech.Description, strImpRouteKey )
-				end
-			end
-
-			-- Trying to build something and are not adjacent to our territory?
-			if gk_mode and improvement and improvement.InAdjacentFriendly then
-				if plot:GetTeam() ~= unit:GetTeam() and not plot:IsAdjacentTeam(unit:GetTeam(), true) then
-
-						disabledTip:insertLocalized( "TXT_KEY_BUILD_BLOCKED_NOT_IN_ADJACENT_TERRITORY", strImpRouteKey )
-				end
-
-			-- Trying to build something in a City-State's territory?
-			elseif bnw_mode and improvement and improvement.OnlyCityStateTerritory then
-				if not plot:IsOwned() or not Players[plot:GetOwner()]:IsMinorCiv() then
-					disabledTip:insertLocalized( "TXT_KEY_BUILD_BLOCKED_NOT_IN_CITY_STATE_TERRITORY", strImpRouteKey )
-				end
-
-			-- Trying to build something outside of our territory?
-			elseif improvement and not improvement.OutsideBorders then
-				if plot:GetTeam() ~= unit:GetTeam() then
-					disabledTip:insertLocalized( "TXT_KEY_BUILD_BLOCKED_OUTSIDE_TERRITORY", strImpRouteKey )
-				end
-			end
-
-			-- Trying to build something that requires an adjacent luxury?
-			if bnw_mode and improvement and improvement.AdjacentLuxury then
-				local bAdjacentLuxury = false
-
-				for _, direction in ipairs( g_directionTypes ) do
-					local adjacentPlot = Map_PlotDirection(x, y, direction)
-					if adjacentPlot then
-						local eResourceType = adjacentPlot:GetResourceType()
-						if eResourceType ~= -1 then
-							if Game.GetResourceUsageType(eResourceType) == ResourceUsageTypes.RESOURCEUSAGE_LUXURY then
-								bAdjacentLuxury = true
-								break
-							end
-						end
-					end
-				end
-
-				if not bAdjacentLuxury then
-
-					disabledTip:insertLocalized( "TXT_KEY_BUILD_BLOCKED_NO_ADJACENT_LUXURY", strImpRouteKey )
-				end
-			end
-
-			-- Trying to build something where we can't have two adjacent?
-			if bnw_mode and improvement and improvement.NoTwoAdjacent then
-				local bTwoAdjacent = false
-
-				for _, direction in ipairs( g_directionTypes ) do
-					local adjacentPlot = Map_PlotDirection(x, y, direction)
-					if adjacentPlot then
-						if adjacentPlot:GetImprovementType() == improvementID or adjacentPlot:GetBuildProgress(buildID) > 0 then
-							bTwoAdjacent = true
-							break
-						end
-					end
-				end
-
-				if bTwoAdjacent then
-					disabledTip:insertLocalized( "TXT_KEY_BUILD_BLOCKED_CANNOT_BE_ADJACENT", strImpRouteKey )
-				end
-			end
-
-			-- Build blocked by a feature here?
-			if g_activePlayer:IsBuildBlockedByFeature(buildID, featureID) then
-
-				for row in GameInfo.BuildFeatures{ BuildType = build.Type, FeatureType = feature.Type } do
-					local pFeatureTech = GameInfo.Technologies[row.PrereqTech]
-					disabledTip:insertLocalized( "TXT_KEY_BUILD_BLOCKED_BY_FEATURE", pFeatureTech.Description, feature.Description )
-				end
-
-			end
-
-			-- Insufficient resource count?
-			if improvement or route then
-				for resource in GameInfo.Resources() do
-					local resourceID = resource.ID
-					local numResource = 0
-					if improvement then
-						numResource = Game.GetNumResourceRequiredForImprovement(improvementID, resourceID)
-					elseif route then
-						numResource = Game.GetNumResourceRequiredForRoute(routeID, resourceID)
-					end
-					if numResource > 0 and g_activePlayer:GetNumResourceAvailable( resourceID, true ) <= 0 then
-						disabledTip:insertLocalized( "TXT_KEY_BUILD_BLOCKED_RESOURCE_REQUIRED", numResource, resource.IconString, resource.Description, strImpRouteKey )
-					end
-				end
-			end
-
-		-- Not a Worker build, use normal disabled help from XML
-		else
-
-			if action.Type == "MISSION_FOUND" and g_activePlayer:IsEmpireVeryUnhappy() then
-
-				disabledTip :insertLocalized( "TXT_KEY_MISSION_BUILD_CITY_DISABLED_UNHAPPY" )
-
-			elseif action.Type == "MISSION_CULTURE_BOMB" and g_activePlayer:GetCultureBombTimer() > 0 then
-
-				disabledTip:insertLocalized( "TXT_KEY_MISSION_CULTURE_BOMB_DISABLED_COOLDOWN", g_activePlayer:GetCultureBombTimer() )
-
-			elseif (action.Type == "MISSION_PLUNDER_TRADE_ROUTE") then
-
-				disabledTip:insertLocalized( g_activePlayer:GetReasonPlunderTradeRouteDisabled(unit:GetID()) )
-
-			elseif action.Type == "COMMAND_DELETE" then
-				
-				if GameDefines.UNIT_DELETE_DISABLED == 1 then
-					disabledTip:insertLocalized( "TXT_KEY_UNIT_DELETE_DISABLED_GAME_OPTION" )
-				else
-					disabledTip:insertLocalized( "TXT_KEY_UNIT_DELETE_DISABLED_ENEMIES" )
-				end
-				
-			elseif action.DisabledHelp and action.DisabledHelp ~= "" then
-
-				disabledTip:insertLocalized( action.DisabledHelp )
-			end
-		end
-
-		if #disabledTip > 0 then
-			toolTip:insert( "[COLOR_WARNING_TEXT]" .. disabledTip:concat("[NEWLINE]") .. "[ENDCOLOR]" )
-		end
-	end
-
 	-- Is this a Worker build?
 	if isBuild then
 
@@ -2117,6 +1885,37 @@ function ActionToolTipHandler( control )
 					toolTip:append( " (".. city:GetName()..")" )
 				end
 			end
+		end
+	end
+
+	
+	-- Not able to perform action
+	if not gameCanHandleAction then
+
+		-- Worker build: get disabled reason from DLL
+		if isBuild then
+
+			local strDLLReason = unit:GetBuildDisabledReasonString(buildID)
+			if strDLLReason ~= "" then
+				disabledTip:insert( strDLLReason )
+			end
+
+		-- Not a Worker build, use normal disabled help from the DLL or the XML
+		else
+
+			local strDLLReason = g_activePlayer:GetReasonActionDisabled(unit:GetID(), action.Type)
+			if strDLLReason ~= "" then
+
+				disabledTip:insert( strDLLReason )
+
+			elseif action.DisabledHelp and action.DisabledHelp ~= "" then
+
+				disabledTip:insertLocalized( action.DisabledHelp )
+			end
+		end
+
+		if #disabledTip > 0 then
+			toolTip:insert( "[NEWLINE][COLOR_WARNING_TEXT]" .. disabledTip:concat("[NEWLINE]") .. "[ENDCOLOR]" )
 		end
 	end
 

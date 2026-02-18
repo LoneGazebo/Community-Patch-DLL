@@ -173,7 +173,7 @@ public:
 
 	bool CanSpawnResource(PlayerTypes ePlayer, bool bIgnoreTech = true, bool bIsLand=true) const;
 
-	bool canBuild(BuildTypes eBuild, PlayerTypes ePlayer = NO_PLAYER, bool bTestVisible = false, bool bTestPlotOwner = true, bool bTestXAdjacent = false) const;
+	bool canBuild(BuildTypes eBuild, PlayerTypes ePlayer = NO_PLAYER, bool bTestVisible = false, bool bTestPlotOwner = true, bool bTestXAdjacent = false, CvString* toolTipSink = NULL) const;
 	int getBuildTime(BuildTypes eBuild, PlayerTypes ePlayer) const;
 	int getBuildTurnsTotal(BuildTypes eBuild, PlayerTypes ePlayer) const;
 	int getBuildTurnsLeft(BuildTypes eBuild, PlayerTypes ePlayer, int iNowExtra = 0, int iThenExtra = 0) const;
