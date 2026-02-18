@@ -8638,7 +8638,7 @@ bool CvUnit::canNukeAt(const CvPlot* pPlot, int iX, int iY) const
 }
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::canParadrop(const CvPlot* pPlot, bool bOnlyTestVisibility) const
+bool CvUnit::canParadrop(const CvPlot* pPlot, bool bOnlyTestVisibility, CvString* toolTipSink) const
 {
 	VALIDATE_OBJECT();
 	if(getDropRange() <= 0)
@@ -8649,19 +8649,32 @@ bool CvUnit::canParadrop(const CvPlot* pPlot, bool bOnlyTestVisibility) const
 	// Things we check when we want to know if the unit can actually drop RIGHT NOW
 	if (!bOnlyTestVisibility)
 	{
+		bool bCanParadrop = true;
+
 		if (hasMoved())
 		{
-			return false;
+			if (toolTipSink == NULL)
+				return false;
+			if (!toolTipSink->empty())
+				(*toolTipSink) += "[NEWLINE]";
+			GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_MISSION_PARADROP_DISABLED_MOVED");
+			bCanParadrop = false;
 		}
 
 		if (isEmbarked())
 		{
-			return false;
+			if (toolTipSink == NULL)
+				return false;
+			if (!toolTipSink->empty())
+				(*toolTipSink) += "[NEWLINE]";
+			GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_MISSION_PARADROP_DISABLED_EMBARKED");
+			bCanParadrop = false;
 		}
 
 		if (pPlot->IsFriendlyTerritory(getOwner()))
 		{
 			// We're in friendly territory, call the event to see if we CAN'T start from here anyway
+			// Custom event overrides normal behavior — no tooltip
 			if (MOD_EVENTS_PARADROPS)
 			{
 				if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_CannotParadropFrom, getOwner(), GetID(), pPlot->getX(), pPlot->getY()) == GAMEEVENTRETURN_TRUE)
@@ -8694,10 +8707,12 @@ bool CvUnit::canParadrop(const CvPlot* pPlot, bool bOnlyTestVisibility) const
 		else
 		{
 			// We're not in friendly territory, call the event to see if we CAN start from here anyway
+			// Custom event overrides normal behavior — no tooltip
+			bool bEventAllows = false;
 			if (MOD_EVENTS_PARADROPS)
 			{
 				if (GAMEEVENTINVOKE_TESTANY(GAMEEVENT_CanParadropFrom, getOwner(), GetID(), pPlot->getX(), pPlot->getY()) == GAMEEVENTRETURN_TRUE)
-					return true;
+					bEventAllows = true;
 			}
 			else
 			{
@@ -8716,13 +8731,23 @@ bool CvUnit::canParadrop(const CvPlot* pPlot, bool bOnlyTestVisibility) const
 					if (LuaSupport::CallTestAny(pkScriptSystem, "CanParadropFrom", args.get(), bResult))
 					{
 						if (bResult)
-							return true;
+							bEventAllows = true;
 					}
 				}
 			}
 
-			return false;
+			if (bEventAllows)
+				return true;
+
+			if (toolTipSink == NULL)
+				return false;
+			if (!toolTipSink->empty())
+				(*toolTipSink) += "[NEWLINE]";
+			GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_MISSION_PARADROP_DISABLED_TERRITORY");
+			bCanParadrop = false;
 		}
+
+		return bCanParadrop;
 	}
 
 	return true;
@@ -8730,10 +8755,10 @@ bool CvUnit::canParadrop(const CvPlot* pPlot, bool bOnlyTestVisibility) const
 
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::canParadropAt(const CvPlot* pPlot, int iX, int iY) const
+bool CvUnit::canParadropAt(const CvPlot* pPlot, int iX, int iY, bool bOnlyTestVisibility) const
 {
 	VALIDATE_OBJECT();
-	if(!canParadrop(pPlot, false))
+	if(!canParadrop(pPlot, bOnlyTestVisibility))
 	{
 		return false;
 	}

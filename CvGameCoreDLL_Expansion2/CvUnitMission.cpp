@@ -1134,7 +1134,7 @@ bool CvUnitMission::CanStartMission(CvUnit* hUnit, int iMission, int iData1, int
 	}
 	else if(iMission == CvTypes::getMISSION_PARADROP())
 	{
-		if(hUnit->canParadropAt(pPlot, iData1, iData2))
+		if(hUnit->canParadropAt(pPlot, iData1, iData2, bTestVisible))
 		{
 			return true;
 		}

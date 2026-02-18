@@ -10946,6 +10946,12 @@ int CvLuaPlayer::lGetReasonActionDisabled(lua_State* L)
 			ASSERT(pUnit->IsHurt() && !pUnit->canHeal(pPlot, false));
 			pUnit->canHeal(pPlot, false, &toolTip);
 		}
+		else if (strcmp(szActionType, "MISSION_PARADROP") == 0)
+		{
+			// this should only be called if the unit can paradrop (visibility check) but can't right now, and a tooltip should be shown explaining why
+			ASSERT(pUnit->canParadrop(pPlot, true) && !pUnit->canParadrop(pPlot, false));
+			pUnit->canParadrop(pPlot, false, &toolTip);
+		}
 		else if (strcmp(szActionType, "COMMAND_DELETE") == 0)
 		{
 			// mirrors the bTestVisible condition in canScrap

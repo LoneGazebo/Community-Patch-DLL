@@ -426,8 +426,8 @@ public:
 	bool canNuke() const;
 	bool canNukeAt(const CvPlot* pPlot, int iX, int iY) const;
 
-	bool canParadrop(const CvPlot* pPlot, bool bOnlyTestVisibility) const;
-	bool canParadropAt(const CvPlot* pPlot, int iX, int iY) const;
+	bool canParadrop(const CvPlot* pPlot, bool bOnlyTestVisibility, CvString* toolTipSink = NULL) const;
+	bool canParadropAt(const CvPlot* pPlot, int iX, int iY, bool bOnlyTestVisibility = false) const;
 	bool paradrop(int iX, int iY, bool& bAnimationShown);
 
 	bool canMakeTradeRoute(const CvPlot* pPlot) const;
