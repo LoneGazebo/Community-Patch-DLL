@@ -836,16 +836,6 @@ private:
 	MinorCivStatusTypes m_eStatus;
 	UnitTypes m_eUniqueUnit;
 
-	// do it this way so querying a particular yield for entries is O(1) not O(n)
-	std::map<YieldTypes, std::map<EraTypes, int>> m_miFriendYieldBonuses;
-	bool m_hasFriendByYield[NUM_YIELD_TYPES]; // for fast lookup since its per-player per-turn
-	std::map<YieldTypes, std::map<std::pair<EraTypes, bool>, int>> m_miFriendCityYieldBonuses;
-	bool m_hasFriendCityByYield[NUM_YIELD_TYPES];
-	std::map<YieldTypes, std::map<EraTypes, int>> m_miAllyYieldBonuses;
-	bool m_hasAllyByYield[NUM_YIELD_TYPES];
-	std::map<YieldTypes, std::map<std::pair<EraTypes, bool>, int>> m_miAllyCityYieldBonuses;
-	bool m_hasAllyCityByYield[NUM_YIELD_TYPES];
-
 	int m_iTurnsSinceThreatenedByBarbarians;
 	int m_iGlobalQuestCountdown;
 
@@ -957,6 +947,15 @@ public:
 	int getFlavorValue(int i) const;
 	const std::string& getCityNames(int i) const;
 
+	int getFriendYieldBonuses(YieldTypes eYield, EraTypes eEra) const;
+    bool hasFriendYieldBonuses(YieldTypes eYield) const;
+	int getFriendCityYieldBonuses(YieldTypes eYield, EraTypes eEra, bool bCapital) const;
+	bool hasFriendCityYieldBonuses(YieldTypes eYield) const;
+	int getAllyYieldBonuses(YieldTypes eYield, EraTypes eEra) const;
+	bool hasAllyYieldBonuses(YieldTypes eYield) const;
+	int getAllyCityYieldBonuses(YieldTypes eYield, EraTypes eEra, bool bCapital) const;
+	bool hasAllyCityYieldBonuses(YieldTypes eYield) const;
+
 	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
 
 protected:
@@ -985,6 +984,16 @@ protected:
 	// Arrays
 	int* m_piFlavorValue;
 	std::vector<CvString> m_vCityNames;
+
+	// do it this way so querying a particular yield for entries is O(1) not O(n)
+	std::map<YieldTypes, std::map<EraTypes, int>> m_miFriendYieldBonuses;
+	bool* m_pbHasFriendByYield; // for fast lookup since its per-player per-turn
+	std::map<YieldTypes, std::map<std::pair<EraTypes, bool>, int>> m_miFriendCityYieldBonuses;
+	bool* m_pbHasFriendCityByYield;
+	std::map<YieldTypes, std::map<EraTypes, int>> m_miAllyYieldBonuses;
+	bool* m_pbHasAllyByYield;
+	std::map<YieldTypes, std::map<std::pair<EraTypes, bool>, int>> m_miAllyCityYieldBonuses;
+	bool* m_pbHasAllyCityByYield;
 };
 
 #endif //CIV5_MINOR_CIV_AI_H
