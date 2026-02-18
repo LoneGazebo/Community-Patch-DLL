@@ -116,6 +116,9 @@
 // Enables era-specific messages for civ influence; disabling this may be useful for mods like Unique Cultural Influence that add special notifications
 #define MOD_COREUI_DIPLOMACY_ERA_INFLUENCE							gCustomMods.isCOREUI_DIPLOMACY_ERA_INFLUENCE()
 
+// Randomizes the order of each civilization's spy names
+#define MOD_COREUI_SHUFFLE_SPY_NAMES								gCustomMods.isCOREUI_SHUFFLE_SPY_NAMES()
+
 
 /////////////////////////////////////////
 // CORE AI CHANGES
@@ -1510,6 +1513,7 @@ public:
 	// Core User Interface Changes
 	MOD_OPT_DECL(COREUI_REDUCE_NOTIFICATIONS);
 	MOD_OPT_DECL(COREUI_DIPLOMACY_ERA_INFLUENCE);
+	MOD_OPT_DECL(COREUI_SHUFFLE_SPY_NAMES);
 
 	// Core AI Changes
 	MOD_OPT_DECL(DEALAI_HUMAN_PERMANENT_FOR_AI_TEMPORARY);

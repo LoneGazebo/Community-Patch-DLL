@@ -231,8 +231,7 @@ CvSpyPassiveBonusDiplomatEntry* CvSpyPassiveBonusDiplomatXMLEntries::GetEntry(in
 //=====================================
 /// Default Constructor
 CvEspionageSpy::CvEspionageSpy()
-	: m_iName(-1)
-	, m_sName("")
+	: m_sName("")
 	, m_eRank(SPY_RANK_RECRUIT)
 	, m_iExperience(0)
 	, m_iCityX(-1)
@@ -313,7 +312,6 @@ FDataStream& operator>>(FDataStream& loadFrom, CvEspionageSpy& writeTo)
 	loadFrom >> uiVersion;
 	MOD_SERIALIZE_INIT_READ(loadFrom);
 
-	loadFrom >> writeTo.m_iName;
 	MOD_SERIALIZE_READ(53, loadFrom, writeTo.m_sName, NULL);
 	int iSpyRank = 0;
 	loadFrom >> iSpyRank;
@@ -350,7 +348,6 @@ FDataStream& operator<<(FDataStream& saveTo, const CvEspionageSpy& readFrom)
 	saveTo << uiVersion;
 	MOD_SERIALIZE_INIT_WRITE(saveTo);
 
-	saveTo << readFrom.m_iName;
 	MOD_SERIALIZE_WRITE(saveTo, readFrom.m_sName);
 	saveTo << (int)readFrom.m_eRank;
 	saveTo << readFrom.m_iExperience;
@@ -393,31 +390,11 @@ void CvPlayerEspionage::Init(CvPlayer* pPlayer)
 	m_pPlayer = pPlayer;
 
 	// catching empty players, minor civs, and barbarians
-	if(m_pPlayer->getCivilizationType() == NO_CIVILIZATION || !m_pPlayer->getCivilizationInfo().isPlayable())
-	{
+	if (m_pPlayer->getCivilizationType() == NO_CIVILIZATION || !m_pPlayer->getCivilizationInfo().isPlayable())
 		return;
-	}
 
 	m_eCounterspyEvent = NO_EVENT_CITY;
 	m_eSpyMissionEvent = NO_EVENT_CITY;
-
-	// create m_aiSpyListNameOrder list
-	for(int i = 0; i < m_pPlayer->getCivilizationInfo().getNumSpyNames(); i++)
-	{
-		m_aiSpyListNameOrder.push_back(i);
-	}
-
-	// Shuffle the list of names
-	for (uint ui = 0; ui < m_aiSpyListNameOrder.size(); ui++)
-	{
-		int iCounter = static_cast<int>(ui);
-		uint uiTargetSlot = GC.getGame().urandLimitExclusive(m_aiSpyListNameOrder.size(), CvSeeder::fromRaw(0xff0af677).mix(pPlayer->GetID()).mix(iCounter));
-		uint uiTempValue = m_aiSpyListNameOrder[ui];
-		m_aiSpyListNameOrder[ui] = m_aiSpyListNameOrder[uiTargetSlot];
-		m_aiSpyListNameOrder[uiTargetSlot] = uiTempValue;
-	}
-
-	m_iSpyListNameOrderIndex = 0;
 
 	for(uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
 	{
@@ -438,8 +415,6 @@ void CvPlayerEspionage::Reset()
 {
 	m_pPlayer = NULL;
 	m_aSpyList.clear();
-	m_aiSpyListNameOrder.clear();
-	m_iSpyListNameOrderIndex = -1;
 	m_aSpyNotificationMessages.clear();
 
 	m_eCounterspyEvent = NO_EVENT_CITY;
@@ -2501,13 +2476,11 @@ void CvPlayerEspionage::GetRandomIntrigue(CvCity* pCity, uint uiSpyIndex)
 bool isSpyNameInUse(CvPlayer* pPlayer, const char* szSpyName)
 {
 	CvPlayerEspionage* pkPlayerEspionage = pPlayer->GetEspionage();
-
-	for (uint uiSpy = 0; uiSpy < pkPlayerEspionage->m_aSpyList.size(); ++uiSpy) {
+	for (uint uiSpy = 0; uiSpy < pkPlayerEspionage->m_aSpyList.size(); ++uiSpy)
+	{
 		CvEspionageSpy* pSpy = pkPlayerEspionage->GetSpyByID(uiSpy);
-
-		if (strcmp(szSpyName, pSpy->GetSpyName()) == 0) {
+		if (strcmp(szSpyName, pSpy->GetSpyName()) == 0)
 			return true;
-		}
 	}
 
 	return false;
@@ -2515,46 +2488,39 @@ bool isSpyNameInUse(CvPlayer* pPlayer, const char* szSpyName)
 
 bool isSpyNameInUse(const char* szSpyName)
 {
-	for (int iPlayer = 0; iPlayer < MAX_MAJOR_CIVS; iPlayer++) {
+	for (int iPlayer = 0; iPlayer < MAX_MAJOR_CIVS; iPlayer++)
+	{
 		CvPlayerAI& thisPlayer = GET_PLAYER((PlayerTypes)iPlayer);
-		if (thisPlayer.isEverAlive()) {
-			if (isSpyNameInUse(&thisPlayer, szSpyName)) {
-				return true;
-			}
-		}
+		if (thisPlayer.isEverAlive() && isSpyNameInUse(&thisPlayer, szSpyName))
+			return true;
 	}
-	
+
 	return false;
 }
 
 bool pickSpyName(const CvCivilizationInfo& kCivInfo, CvEspionageSpy* pSpy)
 {
-	int iCivSpyNames = kCivInfo.getNumSpyNames();
-	if (iCivSpyNames > 0)
+	vector<CvString> vSpyNames = kCivInfo.getSpyNames();
+
+	// Shuffle the order of the civ's spy names
+	if (MOD_COREUI_SHUFFLE_SPY_NAMES)
 	{
-		int iOffset = GC.getGame().randRangeExclusive(0, iCivSpyNames, CvSeeder(iCivSpyNames));
-
-		for (int i = 0; i < iCivSpyNames; i++) {
-			const char* szSpyName = kCivInfo.getSpyNames((i + iOffset) % iCivSpyNames);
-
-			if (!isSpyNameInUse(szSpyName)) {
-				pSpy->m_sName = szSpyName;
-				// CUSTOMLOG("Using spy name %s (from civ %s)", szSpyName, pkCivInfo->GetDescription());
-				return true;
-			}
+		uint uiSpyNameSize = vSpyNames.size();
+		for (uint ui = 0; ui < uiSpyNameSize; ui++)
+		{
+			uint uiTargetSlot = GC.getGame().urandLimitExclusive(uiSpyNameSize, CvSeeder::fromRaw(0xff0af677).mix(m_pPlayer->GetID()).mix(static_cast<int>(ui)));
+			CvString strTempValue = vSpyNames[ui];
+			vSpyNames[ui] = vSpyNames[uiTargetSlot];
+			vSpyNames[uiTargetSlot] = strTempValue;
 		}
-	} else {
-		CUSTOMLOG("WARNING! Civilization %s appears to be missing spy names", kCivInfo.GetDescription());
 	}
 
-	return false;
-}
-
-bool isCivInPlay(const CivilizationTypes eCiv)
-{
-	for (int iPlayer = 0; iPlayer < MAX_MAJOR_CIVS; iPlayer++) {
-		CvPlayerAI& thisPlayer = GET_PLAYER((PlayerTypes)iPlayer);
-		if (thisPlayer.isEverAlive() && thisPlayer.getCivilizationType() == eCiv) {
+	for (std::vector<CvString>::iterator it = vSpyNames.begin(); it != vSpyNames.end(); ++it)
+	{
+		const char* szSpyName = (*it).c_str();
+		if (!isSpyNameInUse(szSpyName))
+		{
+			pSpy->m_sName = szSpyName;
 			return true;
 		}
 	}
@@ -2562,58 +2528,64 @@ bool isCivInPlay(const CivilizationTypes eCiv)
 	return false;
 }
 
+bool isCivInPlay(const CivilizationTypes eCiv)
+{
+	for (int iPlayer = 0; iPlayer < MAX_MAJOR_CIVS; iPlayer++)
+	{
+		CvPlayerAI& thisPlayer = GET_PLAYER((PlayerTypes)iPlayer);
+		if (thisPlayer.isEverAlive() && thisPlayer.getCivilizationType() == eCiv)
+			return true;
+	}
+
+	return false;
+}
+
 void CvPlayerEspionage::GetNextSpyName(CvEspionageSpy* pSpy)
 {
-	// CUSTOMLOG("GetNextSpyName for %s", m_pPlayer->getCivilizationInfo().GetDescription());
-
-	// This is a complete rewrite, using similiar logic to that for city names
+	// This is a complete rewrite, using similar logic to that for city names
 	// If there is a spare spy name for this player, use that
 	// Otherwise, pick a spy name not in use at random from the civs not in the game
 	// Otherwise, pick a spy name not in use at random from the civs in the game
 	// Otherwise, use the default unknown spy name
 
-	// As there is now no concept of "name index", just set this to -1 (unknown)
-	pSpy->m_iName = -1;
-
-	// Try to locate a spy name within the player's civ
-	if (pickSpyName(m_pPlayer->getCivilizationInfo(), pSpy)) {
+	// Round 1: Try to locate an unused spy name within the player's civ
+	CvCivilizationInfo* pkCiv = GC.getCivilizationInfo(m_pPlayer->getCivilizationType());
+	ASSERT(pkCiv->getNumSpyNames() > 0, "WARNING! Civilization appears to be missing spy names");
+	if (pkCiv->getNumSpyNames() > 0 && pickSpyName(*pkCiv, pSpy))
 		return;
-	}
 
-	// Try to locate a spy name not in use by a civ not in the game
+	// Round 2: Try to locate an unused spy name from a civ that isn't ingame
 	int iMaxCivs = GC.getNumCivilizationInfos();
 	int iCivOffset = GC.getGame().randRangeExclusive(0, iMaxCivs, m_pPlayer->GetPseudoRandomSeed());
-	for (int i = 0; i < GC.getNumCivilizationInfos(); i++) {
+	for (int i = 0; i < GC.getNumCivilizationInfos(); i++)
+	{
 		const CivilizationTypes eCiv = static_cast<CivilizationTypes>((i + iCivOffset) % iMaxCivs);
-		CvCivilizationInfo* pkCivilizationInfo = GC.getCivilizationInfo(eCiv);
-		
-		if (pkCivilizationInfo != NULL && pkCivilizationInfo->getNumSpyNames() > 0) {
-			if (isCivInPlay(eCiv)) {
+		pkCiv = GC.getCivilizationInfo(eCiv);
+		if (pkCiv != NULL && pkCiv->getNumSpyNames() > 0)
+		{
+			if (isCivInPlay(eCiv))
 				continue;
-			}
 
-			if (pickSpyName(*pkCivilizationInfo, pSpy)) {
+			if (pickSpyName(*pkCiv, pSpy))
 				return;
-			}
 		}
 	}
 
-	// Try to locate a spy name not in use by a civ in the game
+	// Round 3: Try to locate an unused spy name from a civ that *is* ingame
 	int iPlayerOffset = GC.getGame().randRangeExclusive(0, MAX_MAJOR_CIVS, m_pPlayer->GetPseudoRandomSeed());
-
-	for (int i = 0; i < MAX_MAJOR_CIVS; i++) {
+	for (int i = 0; i < MAX_MAJOR_CIVS; i++)
+	{
 		const PlayerTypes ePlayer = static_cast<PlayerTypes>((i + iPlayerOffset) % MAX_MAJOR_CIVS);
 		CvPlayerAI& thisPlayer = GET_PLAYER(ePlayer);
-		if (thisPlayer.isEverAlive() && thisPlayer.getCivilizationInfo().getNumSpyNames() > 0) {
-			if (pickSpyName(thisPlayer.getCivilizationInfo(), pSpy)) {
+		if (thisPlayer.isEverAlive() && thisPlayer.getCivilizationInfo().getNumSpyNames() > 0)
+		{
+			if (pickSpyName(thisPlayer.getCivilizationInfo(), pSpy))
 				return;
-			}
 		}
 	}
 
 	// Just use the unknown spy name
 	pSpy->m_sName = "TXT_KEY_SPY_NAME_UNKNOWN";
-	CUSTOMLOG("Using unknown spy name TXT_KEY_SPY_NAME_UNKNOWN");
 }
 
 /// IsSpyInCity - Checks to see if spy is in a city
@@ -6600,17 +6572,6 @@ FDataStream& operator>>(FDataStream& loadFrom, CvPlayerEspionage& writeTo)
 		writeTo.m_aSpyList.push_back(kTempSpy);
 	}
 
-	int iNumSpyNames = 0;
-	loadFrom >> iNumSpyNames;
-	for(int i = 0; i < iNumSpyNames; i++)
-	{
-		int iSpyNameIndex = 0;
-		loadFrom >> iSpyNameIndex;
-		writeTo.m_aiSpyListNameOrder.push_back(iSpyNameIndex);
-	}
-
-	loadFrom >> writeTo.m_iSpyListNameOrderIndex;
-
 	uint uiNumCivs = 0;
 	loadFrom >> uiNumCivs;
 	for(uint uiCiv = 0; uiCiv < uiNumCivs; uiCiv++)
@@ -6699,14 +6660,6 @@ FDataStream& operator<<(FDataStream& saveTo, const CvPlayerEspionage& readFrom)
 	{
 		saveTo << readFrom.m_aSpyList[i];
 	}
-
-	saveTo << readFrom.m_aiSpyListNameOrder.size();
-	for(uint ui = 0; ui < readFrom.m_aiSpyListNameOrder.size(); ui++)
-	{
-		saveTo << readFrom.m_aiSpyListNameOrder[ui];
-	}
-
-	saveTo << readFrom.m_iSpyListNameOrderIndex;
 
 	saveTo << readFrom.m_aaPlayerStealableTechList.size();
 	for(uint uiCiv = 0; uiCiv < readFrom.m_aaPlayerStealableTechList.size(); uiCiv++)
