@@ -6621,14 +6621,17 @@ void CvUnit::unloadAll()
 
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::canHold(const CvPlot* pPlot) const // skip turn
+bool CvUnit::canHold(const CvPlot* pPlot, bool bTestVisibility) const // skip turn
 {
 	VALIDATE_OBJECT();
 	if(isHuman(ISHUMAN_AI_UNITS) && !IsFortified())  // we aren't fortified
 	{
-		if (!canEndTurnAtPlot(pPlot))
+		if (!bTestVisibility)
 		{
-			return false;
+			if (!canEndTurnAtPlot(pPlot))
+			{
+				return false;
+			}
 		}
 	}
 
@@ -6637,7 +6640,7 @@ bool CvUnit::canHold(const CvPlot* pPlot) const // skip turn
 
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::canSleep(const CvPlot* pPlot) const
+bool CvUnit::canSleep(const CvPlot* pPlot, bool bTestVisiblility) const
 {
 	VALIDATE_OBJECT();
 	// Can't sleep if we're a Unit that can normally fortify
@@ -6648,9 +6651,12 @@ bool CvUnit::canSleep(const CvPlot* pPlot) const
 
 	if(isHuman(ISHUMAN_AI_UNITS) && !IsFortified())  // we aren't fortified
 	{
-		if (!canEndTurnAtPlot(pPlot))
+		if (!bTestVisiblility)
 		{
-			return false;
+			if (!canEndTurnAtPlot(pPlot))
+			{
+				return false;
+			}
 		}
 	}
 
@@ -6659,11 +6665,14 @@ bool CvUnit::canSleep(const CvPlot* pPlot) const
 
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::canFortify(const CvPlot* pPlot) const
+bool CvUnit::canFortify(const CvPlot* pPlot, bool bTestVisiblility) const
 {
-	if (!canEndTurnAtPlot(pPlot))
+	if (!bTestVisiblility)
 	{
-		return false;
+		if (!canEndTurnAtPlot(pPlot))
+		{
+			return false;
+		}
 	}
 
 	return IsEverFortifyable() && isNativeDomain(pPlot);
@@ -7693,7 +7702,7 @@ bool CvUnit::canHeal(const CvPlot* pPlot, bool bCheckMovement, CvString* toolTip
 				return false;
 			if (!toolTipSink->empty())
 				(*toolTipSink) += "[NEWLINE]";
-			GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_MISSION_HEAL_DISABLED_CANNOT_END_TURN");
+			GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_MISSION_DISABLED_CANNOT_END_TURN");
 			bCanHeal = false;
 		}
 	}
@@ -7805,14 +7814,17 @@ bool CvUnit::canHeal(const CvPlot* pPlot, bool bCheckMovement, CvString* toolTip
 
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::canSentry(const CvPlot* pPlot) const
+bool CvUnit::canSentry(const CvPlot* pPlot, bool bTestVisibility) const
 {
 	VALIDATE_OBJECT();
 	if(isHuman(ISHUMAN_AI_UNITS) && !IsFortified())  // we aren't fortified
 	{
-		if (!canEndTurnAtPlot(pPlot))
+		if (!bTestVisibility)
 		{
-			return false;
+			if (!canEndTurnAtPlot(pPlot))
+			{
+				return false;
+			}
 		}
 	}
 
@@ -8634,19 +8646,19 @@ bool CvUnit::canParadrop(const CvPlot* pPlot, bool bOnlyTestVisibility) const
 	}
 
 	// Things we check when we want to know if the unit can actually drop RIGHT NOW
-	if(!bOnlyTestVisibility)
+	if (!bOnlyTestVisibility)
 	{
-		if(hasMoved())
+		if (hasMoved())
 		{
 			return false;
 		}
 
-		if(isEmbarked())
+		if (isEmbarked())
 		{
 			return false;
 		}
 
-		if(pPlot->IsFriendlyTerritory(getOwner()))
+		if (pPlot->IsFriendlyTerritory(getOwner()))
 		{
 			// We're in friendly territory, call the event to see if we CAN'T start from here anyway
 			if (MOD_EVENTS_PARADROPS)
@@ -8657,7 +8669,7 @@ bool CvUnit::canParadrop(const CvPlot* pPlot, bool bOnlyTestVisibility) const
 			else
 			{
 				ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-				if (pkScriptSystem) 
+				if (pkScriptSystem)
 				{
 					CvLuaArgsHandle args;
 					args->Push(((int)getOwner()));

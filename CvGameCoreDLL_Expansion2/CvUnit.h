@@ -343,9 +343,9 @@ public:
 	bool canCargoAllMove() const;
 	int getUnitAICargo(UnitAITypes eUnitAI) const;
 
-	bool canHold(const CvPlot* pPlot) const; // skip turn
-	bool canSleep(const CvPlot* pPlot) const;
-	bool canFortify(const CvPlot* pPlot) const;
+	bool canHold(const CvPlot* pPlot, bool bTestVisiblility = false) const; // skip turn
+	bool canSleep(const CvPlot* pPlot, bool bTestVisiblility = false) const;
+	bool canFortify(const CvPlot* pPlot, bool bTestVisiblility = false) const;
 	bool canAirPatrol(const CvPlot* pPlot) const;
 
 	bool IsRangeAttackIgnoreLOS() const;
@@ -406,7 +406,7 @@ public:
 	void ChangeEmbarkAbilityCount(int iChange);
 
 	bool canHeal(const CvPlot* pPlot, bool bCheckMovement = true, CvString* toolTipSink = NULL) const;
-	bool canSentry(const CvPlot* pPlot) const;
+	bool canSentry(const CvPlot* pPlot, bool bTestVisibility = false) const;
 
 	int healRate(const CvPlot* pPlot) const;
 	int healTurns(const CvPlot* pPlot) const;

@@ -1064,21 +1064,21 @@ bool CvUnitMission::CanStartMission(CvUnit* hUnit, int iMission, int iData1, int
 	}
 	else if(iMission == CvTypes::getMISSION_SKIP())
 	{
-		if(hUnit->canHold(pPlot))
+		if(hUnit->canHold(pPlot, bTestVisible))
 		{
 			return true;
 		}
 	}
 	else if(iMission == CvTypes::getMISSION_SLEEP())
 	{
-		if(hUnit->canSleep(pPlot))
+		if(hUnit->canSleep(pPlot, bTestVisible))
 		{
 			return true;
 		}
 	}
 	else if(iMission == CvTypes::getMISSION_FORTIFY())
 	{
-		if(hUnit->canFortify(pPlot))
+		if(hUnit->canFortify(pPlot, bTestVisible))
 		{
 			return true;
 		}
@@ -1113,7 +1113,7 @@ bool CvUnitMission::CanStartMission(CvUnit* hUnit, int iMission, int iData1, int
 	}
 	else if(iMission == CvTypes::getMISSION_ALERT())
 	{
-		if(hUnit->canSentry(pPlot))
+		if(hUnit->canSentry(pPlot, bTestVisible))
 		{
 			return true;
 		}

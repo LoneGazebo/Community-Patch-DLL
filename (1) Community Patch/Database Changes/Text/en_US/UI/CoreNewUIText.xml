@@ -2187,9 +2187,6 @@
 		<Row Tag="TXT_KEY_MISSION_HEAL_DISABLED_RESOURCE_SHORTAGE">
 			<Text>This unit cannot heal due to a resource shortage.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_MISSION_HEAL_DISABLED_CANNOT_END_TURN">
-			<Text>This unit cannot end its turn here.</Text>
-		</Row>
 		<Row Tag="TXT_KEY_MISSION_HEAL_DISABLED_HOVERING_WATER">
 			<Text>Hovering units can only heal over land.</Text>
 		</Row>
@@ -2207,6 +2204,10 @@
 		</Row>
 		<Row Tag="TXT_KEY_MISSION_HEAL_DISABLED_BLOCKADED">
 			<Text>Units cannot heal in a fully blockaded city.</Text>
+		</Row>
+		<!-- Other disabled tooltips -->
+		<Row Tag="TXT_KEY_MISSION_DISABLED_CANNOT_END_TURN">
+			<Text>This unit cannot end its turn here.</Text>
 		</Row>
 
 		<!-- Combat simulator -->
