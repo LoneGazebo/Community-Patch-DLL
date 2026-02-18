@@ -715,7 +715,14 @@ int CvLuaPlot::lGetBuildTime(lua_State* L)
 //int getBuildTurnsLeft(BuildTypes eBuild, int iNowExtra, int iThenExtra);
 int CvLuaPlot::lGetBuildTurnsLeft(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlot::getBuildTurnsLeft);
+	CvPlot* pkPlot = GetInstance(L);
+	const BuildTypes eBuild = (BuildTypes)lua_tointeger(L, 2);
+	const PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 3);
+	const int iNowExtra = luaL_optint(L, 4, 0);
+	const int iThenExtra = luaL_optint(L, 5, 0);
+
+	lua_pushinteger(L, pkPlot->getBuildTurnsLeft(eBuild, ePlayer, iNowExtra, iThenExtra));
+	return 1;
 }
 //------------------------------------------------------------------------------
 //int getBuildTurnsTotal(BuildTypes eBuild);

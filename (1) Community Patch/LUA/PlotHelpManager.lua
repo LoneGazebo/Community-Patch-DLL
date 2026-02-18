@@ -116,10 +116,9 @@ function Level1Tip()
 	local TextString = "";
 	
 	local iActiveTeam = Game.GetActiveTeam();
-  local iActivePlayer = Game.GetActivePlayer();
-	local pTeam = Teams[iActiveTeam];
+  	local iActivePlayer = Game.GetActivePlayer();
 
-	local bIsDebug = Game.IsDebugMode();
+	local bIsDebug = Game.IsDebugMode() or OptionsManager:IsDebugMode();
 	
 	local plot = Map.GetPlot(m_iCurrentX, m_iCurrentY);
 	
@@ -133,11 +132,10 @@ function Level1Tip()
 				TextString = TextString .. "[NEWLINE]";
 			end
 			-- X Y - in debug
-			TextString = TextString .. "[NEWLINE]";
+			TextString = TextString .. "x: ";
 			TextString = TextString .. tostring(plot:GetX());
-			TextString = TextString .. "x ";
+			TextString = TextString .. ", y: ";
 			TextString = TextString .. tostring(plot:GetY());
-			TextString = TextString .. "y    ";
 		end
 		
 		-- Plot must be visible to see Units there
@@ -152,27 +150,33 @@ function Level1Tip()
 				end
 				TextString = TextString .. strUnitsText;
 			end
-		end
-
-		-- under construction display
-		local UnderConstructionStr = "";
-		for pBuildInfo in GameInfo.Builds() do
-			local iTurnsLeft = plot:GetBuildTurnsLeft(pBuildInfo.ID, 0, 0);
 			
-			if (iTurnsLeft < 4000 and iTurnsLeft > 0) then
-				if (bFirstEntry) then
-					bFirstEntry = false;
-				else
-					TextString = TextString .. "[NEWLINE]";
+			-- under construction display
+			local UnderConstructionStr = "";
+			local unitCount = plot:GetNumUnits();
+			local plotOwner = plot:GetOwner()
+			for i = 0, unitCount - 1 do
+				local unit = plot:GetUnit(i);
+				if unit ~= nil and unit:WorkRate( true ) > 0 and unit:GetBuildType() >= 0 then
+					local pBuildInfo = GameInfo.Builds[ unit:GetBuildType() ]
+					local iTurnsLeft = plot:GetBuildTurnsLeft(pBuildInfo.ID, plotOwner);
+					if (iTurnsLeft < 4000 and iTurnsLeft > 0) then
+						if (bFirstEntry) then
+							bFirstEntry = false;
+						else
+							TextString = TextString .. "[NEWLINE]";
+						end
+						local convertedKey = Locale.ConvertTextKey(pBuildInfo.Description);
+						UnderConstructionStr = UnderConstructionStr .. Locale.ConvertTextKey("TXT_KEY_WORKER_BUILD_PROGRESS", iTurnsLeft, convertedKey);
+					end
 				end
-				local convertedKey = Locale.ConvertTextKey(pBuildInfo.Description);
-				UnderConstructionStr = UnderConstructionStr .. Locale.ConvertTextKey("TXT_KEY_WORKER_BUILD_PROGRESS", iTurnsLeft, convertedKey);
+			end
+
+			if (UnderConstructionStr ~= "") then
+				TextString = TextString .. UnderConstructionStr;
 			end
 		end
 
-		if (UnderConstructionStr ~= "") then
-			TextString = TextString .. UnderConstructionStr;
-		end
 
 		--local player = Players[Game.GetActivePlayer()];
 		--local dangerPlotValue = player:GetPlotDanger(plot);

@@ -960,6 +960,39 @@ ImprovementTypes finalImprovementUpgrade(ImprovementTypes eImprovement, int iCou
 	}
 }
 
+BuildTypes GetRemoveFeatureBuild(FeatureTypes eFeature, TeamTypes eTeam)
+{
+	BuildTypes eRemoveBuild = NO_BUILD;
+	CvTeamTechs* pTechs = GET_TEAM(eTeam).GetTeamTechs();
+
+	for (int iI = 0; iI < GC.getNumBuildInfos(); iI++)
+	{
+		CvBuildInfo* pLoopBuildInfo = GC.getBuildInfo((BuildTypes)iI);
+		if (pLoopBuildInfo && pLoopBuildInfo->isFeatureRemoveOnly(eFeature))
+		{
+			TechTypes eObsoleteTech = (TechTypes)pLoopBuildInfo->getFeatureObsoleteTech(eFeature);
+			if (eObsoleteTech != NO_TECH && pTechs->HasTech(eObsoleteTech))
+				continue;
+
+			TechTypes ePrereqTech = (TechTypes)pLoopBuildInfo->getFeatureTech(eFeature);
+			if (ePrereqTech == NO_TECH)
+			{
+				if (eRemoveBuild == NO_BUILD)
+					eRemoveBuild = (BuildTypes)iI;
+			}
+			else if (pTechs->HasTech(ePrereqTech))
+			{
+				if (eRemoveBuild == NO_BUILD)
+					eRemoveBuild = (BuildTypes)iI;
+				else if (GC.getTechInfo(ePrereqTech)->GetGridX() > GC.getTechInfo((TechTypes)GC.getBuildInfo(eRemoveBuild)->getFeatureTech(eFeature))->GetGridX())
+					eRemoveBuild = (BuildTypes)iI;
+			}
+		}
+	}
+
+	return eRemoveBuild;
+}
+
 bool isTechRequiredForUnit(TechTypes eTech, UnitTypes eUnit)
 {
 	CvUnitEntry* info = GC.getUnitInfo(eUnit);
