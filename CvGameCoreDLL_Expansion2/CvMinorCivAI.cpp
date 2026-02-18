@@ -4317,149 +4317,6 @@ void CvMinorCivAI::Init(CvPlayer* pPlayer)
 #endif
 
 	Reset();
-	
-	if (GetPlayer()->isMinorCiv())
-	{
-		const char* szTraitType = GetTrait();
-		Utility* pUtility = GC.GetGameDatabaseUtility();
-		// MinorCivilizationTraits_FriendYieldBonuses
-		// Table: (MinorCivTraitsType, EraType, YieldType, Yield)
-		{
-			std::string strKey("MinorCivilizationTraits_FriendYieldBonuses");
-			Database::Results* pResults = pUtility->GetResults(strKey);
-			if (pResults == NULL)
-			{
-				pResults = pUtility->PrepareResults(
-					strKey,
-					"SELECT Eras.ID, YieldType, Yield "
-					"FROM MinorCivilizationTraits_FriendYieldBonuses "
-					"INNER JOIN Eras ON Eras.Type = EraType "
-					"WHERE MinorCivTraitsType = ?"
-				);
-			}
-	
-			pResults->Bind(1, szTraitType);
-	
-			while (pResults->Step())
-			{
-				const EraTypes eEra = (EraTypes)pResults->GetInt(0);
-				const YieldTypes eYield = (YieldTypes)pResults->GetInt(1);
-				const int iValue = pResults->GetInt(2);
-	
-				m_miFriendYieldBonuses[eYield][eEra] += iValue;
-				m_hasFriendByYield[eYield] = true;
-			}
-	
-			pResults->Reset();
-	
-			// Trim memory
-			std::map<YieldTypes, std::map<EraTypes, int>>(m_miFriendYieldBonuses).swap(m_miFriendYieldBonuses);
-		}
-
-		// MinorCivilizationTraits_FriendCityYieldBonuses
-		// Table: (MinorCivTraitsType, EraType, YieldType, Yield, CapitalOnly)
-		{
-			std::string strKey("MinorCivilizationTraits_FriendCityYieldBonuses");
-			Database::Results* pResults = pUtility->GetResults(strKey);
-			if (pResults == NULL)
-			{
-				pResults = pUtility->PrepareResults(
-					strKey,
-					"SELECT Eras.ID, YieldType, Yield, CapitalOnly "
-					"FROM MinorCivilizationTraits_FriendCityYieldBonuses "
-					"INNER JOIN Eras ON Eras.Type = EraType "
-					"WHERE MinorCivTraitsType = ?"
-				);
-			}
-		
-			pResults->Bind(1, szTraitType);
-		
-			while (pResults->Step())
-			{
-				const EraTypes eEra = (EraTypes)pResults->GetInt(0);
-				const YieldTypes eYield = (YieldTypes)pResults->GetInt(1);
-				const int iValue = pResults->GetInt(2);
-				const bool bCapitalOnly = pResults->GetBool(3);
-		
-				m_miFriendCityYieldBonuses[eYield][std::make_pair(eEra, bCapitalOnly)] += iValue;
-				m_hasFriendCityByYield[eYield] = true;
-			}
-		
-			pResults->Reset();
-		
-			// Trim memory
-			std::map<YieldTypes, std::map<std::pair<EraTypes, bool>, int>>(m_miFriendCityYieldBonuses).swap(m_miFriendCityYieldBonuses);
-		}
-		
-		// MinorCivilizationTraits_AllyYieldBonuses
-		// Table: (MinorCivTraitsType, EraType, YieldType, Yield)
-		{
-			std::string strKey("MinorCivilizationTraits_AllyYieldBonuses");
-			Database::Results* pResults = pUtility->GetResults(strKey);
-			if (pResults == NULL)
-			{
-				pResults = pUtility->PrepareResults(
-					strKey,
-					"SELECT Eras.ID, YieldType, Yield "
-					"FROM MinorCivilizationTraits_AllyYieldBonuses "
-					"INNER JOIN Eras ON Eras.Type = EraType "
-					"WHERE MinorCivTraitsType = ?"
-				);
-			}
-	
-			pResults->Bind(1, szTraitType);
-	
-			while (pResults->Step())
-			{
-				const EraTypes eEra = (EraTypes)pResults->GetInt(0);
-				const YieldTypes eYield = (YieldTypes)pResults->GetInt(1);
-				const int iValue = pResults->GetInt(2);
-	
-				m_miAllyYieldBonuses[eYield][eEra] += iValue;
-				m_hasAllyByYield[eYield] = true;
-			}
-	
-			pResults->Reset();
-	
-			// Trim memory
-			std::map<YieldTypes, std::map<EraTypes, int>>(m_miAllyYieldBonuses).swap(m_miAllyYieldBonuses);
-		}
-
-		// MinorCivilizationTraits_AllyCityYieldBonuses
-		// Table: (MinorCivTraitsType, EraType, YieldType, Yield, CapitalOnly)
-		{
-			std::string strKey("MinorCivilizationTraits_AllyCityYieldBonuses");
-			Database::Results* pResults = pUtility->GetResults(strKey);
-			if (pResults == NULL)
-			{
-				pResults = pUtility->PrepareResults(
-					strKey,
-					"SELECT Eras.ID, YieldType, Yield, CapitalOnly "
-					"FROM MinorCivilizationTraits_AllyCityYieldBonuses "
-					"INNER JOIN Eras ON Eras.Type = EraType "
-					"WHERE MinorCivTraitsType = ?"
-				);
-			}
-		
-			pResults->Bind(1, szTraitType);
-		
-			while (pResults->Step())
-			{
-				const EraTypes eEra = (EraTypes)pResults->GetInt(0);
-				const YieldTypes eYield = (YieldTypes)pResults->GetInt(1);
-				const int iValue = pResults->GetInt(2);
-				const bool bCapitalOnly = pResults->GetBool(3);
-		
-				m_miAllyCityYieldBonuses[eYield][std::make_pair(eEra, bCapitalOnly)] += iValue;
-				m_hasAllyCityByYield[eYield] = true;
-			}
-		
-			pResults->Reset();
-		
-			// Trim memory
-			std::map<YieldTypes, std::map<std::pair<EraTypes, bool>, int>>(m_miAllyCityYieldBonuses).swap(m_miAllyCityYieldBonuses);
-		}
-	}
 }
 
 /// Deallocate memory created in initialize
@@ -4474,11 +4331,6 @@ void CvMinorCivAI::Reset()
 	m_eStatus = NO_MINOR_CIV_STATUS_TYPE;
 	m_eUniqueUnit = NO_UNIT;
 	m_eBullyUnit = NO_UNITCLASS;
-
-	m_miFriendYieldBonuses.clear();
-	m_miFriendCityYieldBonuses.clear();
-	m_miAllyYieldBonuses.clear();
-	m_miAllyCityYieldBonuses.clear();
 
 	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
     {
@@ -4894,97 +4746,44 @@ void CvMinorCivAI::DoPickUniqueUnit()
 // get the friend yield bonuses based on the era
 bool CvMinorCivAI::HasFriendYieldBonuses(YieldTypes eYield) const
 {
-	return m_hasFriendByYield[eYield];
+	CvMinorCivInfo* pkMinorCivInfo = GC.getMinorCivInfo(GetMinorCivType());
+	return pkMinorCivInfo->hasFriendYieldBonuses(eYield);
 }
-
 int CvMinorCivAI::GetFriendYieldBonusValue(YieldTypes eYield, EraTypes eEra) const
 {
-    const auto yieldIt = m_miFriendYieldBonuses.find(eYield);
-    if (yieldIt == m_miFriendYieldBonuses.end())
-        return 0;
-
-    const auto eraIt = yieldIt->second.find(eEra);
-    if (eraIt == yieldIt->second.end())
-        return 0;
-
-    return eraIt->second;
+	CvMinorCivInfo* pkMinorCivInfo = GC.getMinorCivInfo(GetMinorCivType());
+    return pkMinorCivInfo->getFriendYieldBonuses(eYield, eEra);
 }
-
-
 bool CvMinorCivAI::HasFriendCityYieldBonuses(YieldTypes eYield) const
 {
-	return m_hasFriendCityByYield[eYield];
+	CvMinorCivInfo* pkMinorCivInfo = GC.getMinorCivInfo(GetMinorCivType());
+	return pkMinorCivInfo->hasFriendCityYieldBonuses(eYield);
 }
-
 int CvMinorCivAI::GetFriendCityYieldBonusValue(YieldTypes eYield, EraTypes eEra, bool bCapital) const
 {
-    const auto yieldIt = m_miFriendCityYieldBonuses.find(eYield);
-    if (yieldIt == m_miFriendCityYieldBonuses.end())
-        return 0;
-
-    const auto eraIt = yieldIt->second.find(eEra);
-	if (eraIt == yieldIt->second.end())
-    	return 0;
-
-    const auto& byCapital = eraIt->second;
-
-    auto it = byCapital.find(bCapital);
-    if (it != byCapital.end())
-        return it->second;
-
-    it = byCapital.find(false);
-    if (it != byCapital.end())
-        return it->second;
-
-    return 0;
+	CvMinorCivInfo* pkMinorCivInfo = GC.getMinorCivInfo(GetMinorCivType());
+    return pkMinorCivInfo->getFriendCityYieldBonuses(eYield, eEra, bCapital);
 }
-
-
 // get the ally yield bonuses based on the era
 bool CvMinorCivAI::HasAllyYieldBonuses(YieldTypes eYield) const
 {
-	return m_hasAllyByYield[eYield];
+	CvMinorCivInfo* pkMinorCivInfo = GC.getMinorCivInfo(GetMinorCivType());
+	return pkMinorCivInfo->hasAllyYieldBonuses(eYield);
 }
-
 int CvMinorCivAI::GetAllyYieldBonusValue(YieldTypes eYield, EraTypes eEra) const
 {
-    const auto yieldIt = m_miAllyYieldBonuses.find(eYield);
-    if (yieldIt == m_miAllyYieldBonuses.end())
-        return 0;
-
-    const auto eraIt = yieldIt->second.find(eEra);
-    if (eraIt == yieldIt->second.end())
-        return 0;
-
-    return eraIt->second;
+	CvMinorCivInfo* pkMinorCivInfo = GC.getMinorCivInfo(GetMinorCivType());
+    return pkMinorCivInfo->getAllyYieldBonuses(eYield, eEra); 
 }
-
 bool CvMinorCivAI::HasAllyCityYieldBonuses(YieldTypes eYield) const
 {
-	return m_hasAllyCityByYield[eYield];
+	CvMinorCivInfo* pkMinorCivInfo = GC.getMinorCivInfo(GetMinorCivType());
+	return pkMinorCivInfo->hasAllyCityYieldBonuses(eYield);
 }
-
 int CvMinorCivAI::GetAllyCityYieldBonusValue(YieldTypes eYield, EraTypes eEra, bool bCapital) const
 {
-    const auto yieldIt = m_miAllyCityYieldBonuses.find(eYield);
-    if (yieldIt == m_miAllyCityYieldBonuses.end())
-        return 0;
-
-    const auto eraIt = yieldIt->second.find(eEra);
-	if (eraIt == yieldIt->second.end())
-    	return 0;
-
-    const auto& byCapital = eraIt->second;
-
-    auto it = byCapital.find(bCapital);
-    if (it != byCapital.end())
-        return it->second;
-
-    it = byCapital.find(false);
-    if (it != byCapital.end())
-        return it->second;
-
-    return 0;
+	CvMinorCivInfo* pkMinorCivInfo = GC.getMinorCivInfo(GetMinorCivType());
+    return pkMinorCivInfo->getAllyCityYieldBonuses(eYield, eEra, bCapital);
 }
 
 int CvMinorCivAI::GetQuestRewardModifier(PlayerTypes ePlayer)
@@ -18422,13 +18221,29 @@ CvMinorCivInfo::CvMinorCivInfo() :
 	m_iMinorCivTrait(NO_MINOR_CIV_TRAIT_TYPE),
 	m_eFixedPersonality(NO_MINOR_CIV_PERSONALITY_TYPE),
 	m_iBullyUnit(NO_UNITCLASS),
-	m_piFlavorValue(NULL)
+	m_piFlavorValue(NULL),
+	m_miFriendYieldBonuses(NULL),
+	m_pbHasFriendByYield(NULL),
+	m_miFriendCityYieldBonuses(NULL),
+	m_pbHasFriendCityByYield(NULL),
+	m_miAllyYieldBonuses(NULL),
+	m_pbHasAllyByYield(NULL),
+	m_miAllyCityYieldBonuses(NULL),
+	m_pbHasAllyCityByYield(NULL)
 {
 }
 //------------------------------------------------------------------------------
 CvMinorCivInfo::~CvMinorCivInfo()
 {
 	SAFE_DELETE_ARRAY(m_piFlavorValue);
+	SAFE_DELETE_ARRAY(m_miFriendYieldBonuses);
+	SAFE_DELETE_ARRAY(m_pbHasFriendByYield);
+	SAFE_DELETE_ARRAY(m_miFriendCityYieldBonuses);
+	SAFE_DELETE_ARRAY(m_pbHasFriendCityByYield);
+	SAFE_DELETE_ARRAY(m_miAllyYieldBonuses);
+	SAFE_DELETE_ARRAY(m_pbHasAllyByYield);
+	SAFE_DELETE_ARRAY(m_miAllyCityYieldBonuses);
+	SAFE_DELETE_ARRAY(m_pbHasAllyCityByYield);
 }
 //------------------------------------------------------------------------------
 bool CvMinorCivInfo::IsPlayable() const
@@ -18566,6 +18381,114 @@ int CvMinorCivInfo::getFlavorValue(int i) const
 	return m_piFlavorValue ? m_piFlavorValue[i] : 0;
 }
 //------------------------------------------------------------------------------
+int CvMinorCivInfo::getFriendYieldBonuses(YieldTypes eYield, EraTypes eEra) const
+{
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(eYield > -1, "Index out of bounds");
+	PRECONDITION(eEra < NUM_ERA, "Index out of bounds");
+	PRECONDITION(eEra > -1, "Index out of bounds");
+
+	std::map<YieldTypes, std::map<EraTypes, int> >::const_iterator itYield;
+	itYield = m_miFriendYieldBonuses.find(eYield);
+    if (itYield == m_miFriendYieldBonuses.end())
+        return 0;
+
+    std::map<EraTypes, int>::const_iterator itEra;
+	itEra = itYield->second.find(eEra);
+    if (itEra == itYield->second.end())
+        return 0;
+
+    return itEra->second;
+}
+//------------------------------------------------------------------------------
+bool CvMinorCivInfo::hasFriendYieldBonuses(YieldTypes eYield) const
+{
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(eYield > -1, "Index out of bounds");
+	return m_pbHasFriendByYield ? m_pbHasFriendByYield[i] : false;
+}
+//------------------------------------------------------------------------------
+int CvMinorCivInfo::getFriendCityYieldBonuses(YieldTypes eYield, EraTypes eEra, bool bCapital) const
+{
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(eYield > -1, "Index out of bounds");
+	PRECONDITION(eEra < NUM_ERA, "Index out of bounds");
+	PRECONDITION(eEra > -1, "Index out of bounds");
+	
+    std::map<YieldTypes, std::map<std::pair<EraTypes, bool>, int> >::const_iterator itYield;
+	itYield = m_miFriendCityYieldBonuses.find(eYield);
+    if (itYield == m_miFriendCityYieldBonuses.end())
+        return 0;
+
+    std::map<std::pair<EraTypes, bool>, int>::const_iterator itEra;
+	itEra = itYield->second.find(std::make_pair(eEra, bCapital));
+	if (itEra != itYield->second.end())
+    	return itEra->second;
+
+    return 0;
+}
+//------------------------------------------------------------------------------
+bool CvMinorCivInfo::hasFriendCityYieldBonuses(YieldTypes eYield) const
+{
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(eYield > -1, "Index out of bounds");
+	return m_pbHasFriendCityByYield ? m_pbHasFriendCityByYield[i] : false;
+}
+//------------------------------------------------------------------------------
+int CvMinorCivInfo::getAllyYieldBonuses(YieldTypes eYield, EraTypes eEra) const
+{
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(eYield > -1, "Index out of bounds");
+	PRECONDITION(eEra < NUM_ERA, "Index out of bounds");
+	PRECONDITION(eEra > -1, "Index out of bounds");
+
+	std::map<YieldTypes, std::map<EraTypes, int> >::const_iterator itYield;
+	itYield = m_miAllyYieldBonuses.find(eYield);
+    if (itYield == m_miAllyYieldBonuses.end())
+        return 0;
+
+    std::map<EraTypes, int>::const_iterator itEra;
+	itEra = itYield->second.find(eEra);
+    if (itEra == itYield->second.end())
+        return 0;
+
+    return itEra->second;
+}
+//------------------------------------------------------------------------------
+bool CvMinorCivInfo::hasAllyYieldBonuses(YieldTypes eYield) const
+{
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(eYield > -1, "Index out of bounds");
+	return m_pbHasAllyByYield ? m_pbHasAllyByYield[i] : false;
+}
+//------------------------------------------------------------------------------
+int CvMinorCivInfo::getAllyCityYieldBonuses(YieldTypes eYield, EraTypes eEra, bool bCapital) const
+{
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(eYield > -1, "Index out of bounds");
+	PRECONDITION(eEra < NUM_ERA, "Index out of bounds");
+	PRECONDITION(eEra > -1, "Index out of bounds");
+	
+    std::map<YieldTypes, std::map<std::pair<EraTypes, bool>, int> >::const_iterator itYield;
+	itYield = m_miAllyCityYieldBonuses.find(eYield);
+    if (itYield == m_miAllyCityYieldBonuses.end())
+        return 0;
+
+    std::map<std::pair<EraTypes, bool>, int>::const_iterator itEra;
+	itEra = itYield->second.find(std::make_pair(eEra, bCapital));
+	if (itEra != itYield->second.end())
+    	return itEra->second;
+
+    return 0;
+}
+//------------------------------------------------------------------------------
+bool CvMinorCivInfo::hasAllyCityYieldBonuses(YieldTypes eYield) const
+{
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(eYield > -1, "Index out of bounds");
+	return m_pbHasAllyCityByYield ? m_pbHasAllyCityByYield[i] : false;
+}
+//------------------------------------------------------------------------------
 const std::string& CvMinorCivInfo::getCityNames(int i) const
 {
 	return m_vCityNames[i];
@@ -18624,6 +18547,154 @@ bool CvMinorCivInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	//Arrays
 	const char* szType = GetType();
 	kUtility.SetFlavors(m_piFlavorValue, "MinorCivilization_Flavors", "MinorCivType", szType, -1);
+
+	// do minor yields. also initialize some boolean masks for quick lookup calls
+	m_pbHasFriendByYield = new bool[NUM_YIELD_TYPES];
+	memset(m_pbHasFriendByYield, 0, sizeof(bool) * NUM_YIELD_TYPES);
+	m_pbHasFriendByYield = new bool[NUM_YIELD_TYPES];
+	memset(m_pbHasFriendCityByYield, 0, sizeof(bool) * NUM_YIELD_TYPES);
+	m_pbHasFriendByYield = new bool[NUM_YIELD_TYPES];
+	memset(m_pbHasAllyByYield, 0, sizeof(bool) * NUM_YIELD_TYPES);
+	m_pbHasFriendByYield = new bool[NUM_YIELD_TYPES];
+	memset(m_pbHasAllyCityByYield, 0, sizeof(bool) * NUM_YIELD_TYPES);
+	
+	// MinorCivilizationTraits_FriendYieldBonuses
+	// Table: (MinorCivTraitsType, EraType, YieldType, Yield)
+	{
+		std::string strKey("MinorCivilizationTraits_FriendYieldBonuses");
+		Database::Results* pResults = kUtility->GetResults(strKey);
+		if (pResults == NULL)
+		{
+			pResults = kUtility->PrepareResults(
+				strKey,
+				"SELECT Eras.ID, YieldType, Yield "
+				"FROM MinorCivilizationTraits_FriendYieldBonuses "
+				"INNER JOIN Eras ON Eras.Type = EraType "
+				"WHERE MinorCivTraitsType = ?"
+			);
+		}
+
+		pResults->Bind(1, m_iMinorCivTrait);
+
+		while (pResults->Step())
+		{
+			const EraTypes eEra = (EraTypes)pResults->GetInt(0);
+			const YieldTypes eYield = (YieldTypes)pResults->GetInt(1);
+			const int iValue = pResults->GetInt(2);
+
+			m_miFriendYieldBonuses[eYield][eEra] += iValue;
+			m_pbHasFriendByYield[eYield] = true;
+		}
+
+		pResults->Reset();
+
+		// Trim memory
+		std::map<YieldTypes, std::map<EraTypes, int>>(m_miFriendYieldBonuses).swap(m_miFriendYieldBonuses);
+	}
+
+	// MinorCivilizationTraits_FriendCityYieldBonuses
+	// Table: (MinorCivTraitsType, EraType, YieldType, Yield, CapitalOnly)
+	{
+		std::string strKey("MinorCivilizationTraits_FriendCityYieldBonuses");
+		Database::Results* pResults = kUtility->GetResults(strKey);
+		if (pResults == NULL)
+		{
+			pResults = kUtility->PrepareResults(
+				strKey,
+				"SELECT Eras.ID, YieldType, Yield, CapitalOnly "
+				"FROM MinorCivilizationTraits_FriendCityYieldBonuses "
+				"INNER JOIN Eras ON Eras.Type = EraType "
+				"WHERE MinorCivTraitsType = ?"
+			);
+		}
+	
+		pResults->Bind(1, m_iMinorCivTrait);
+	
+		while (pResults->Step())
+		{
+			const EraTypes eEra = (EraTypes)pResults->GetInt(0);
+			const YieldTypes eYield = (YieldTypes)pResults->GetInt(1);
+			const int iValue = pResults->GetInt(2);
+			const bool bCapitalOnly = pResults->GetBool(3);
+	
+			m_miFriendCityYieldBonuses[eYield][std::make_pair(eEra, bCapitalOnly)] += iValue;
+			m_pbHasFriendCityByYield[eYield] = true;
+		}
+	
+		pResults->Reset();
+	
+		// Trim memory
+		std::map<YieldTypes, std::map<std::pair<EraTypes, bool>, int>>(m_miFriendCityYieldBonuses).swap(m_miFriendCityYieldBonuses);
+	}
+	
+	// MinorCivilizationTraits_AllyYieldBonuses
+	// Table: (MinorCivTraitsType, EraType, YieldType, Yield)
+	{
+		std::string strKey("MinorCivilizationTraits_AllyYieldBonuses");
+		Database::Results* pResults = kUtility->GetResults(strKey);
+		if (pResults == NULL)
+		{
+			pResults = kUtility->PrepareResults(
+				strKey,
+				"SELECT Eras.ID, YieldType, Yield "
+				"FROM MinorCivilizationTraits_AllyYieldBonuses "
+				"INNER JOIN Eras ON Eras.Type = EraType "
+				"WHERE MinorCivTraitsType = ?"
+			);
+		}
+
+		pResults->Bind(1, m_iMinorCivTrait);
+
+		while (pResults->Step())
+		{
+			const EraTypes eEra = (EraTypes)pResults->GetInt(0);
+			const YieldTypes eYield = (YieldTypes)pResults->GetInt(1);
+			const int iValue = pResults->GetInt(2);
+
+			m_miAllyYieldBonuses[eYield][eEra] += iValue;
+			m_pbHasAllyByYield[eYield] = true;
+		}
+
+		pResults->Reset();
+
+		// Trim memory
+		std::map<YieldTypes, std::map<EraTypes, int>>(m_miAllyYieldBonuses).swap(m_miAllyYieldBonuses);
+	}
+
+	// MinorCivilizationTraits_AllyCityYieldBonuses
+	// Table: (MinorCivTraitsType, EraType, YieldType, Yield, CapitalOnly)
+	{
+		std::string strKey("MinorCivilizationTraits_AllyCityYieldBonuses");
+		Database::Results* pResults = kUtility->GetResults(strKey);
+		if (pResults == NULL)
+		{
+			pResults = kUtility->PrepareResults(
+				strKey,
+				"SELECT Eras.ID, YieldType, Yield, CapitalOnly "
+				"FROM MinorCivilizationTraits_AllyCityYieldBonuses "
+				"INNER JOIN Eras ON Eras.Type = EraType "
+				"WHERE MinorCivTraitsType = ?"
+			);
+		}
+	
+		pResults->Bind(1, m_iMinorCivTrait);
+	
+		while (pResults->Step())
+		{
+			const EraTypes eEra = (EraTypes)pResults->GetInt(0);
+			const YieldTypes eYield = (YieldTypes)pResults->GetInt(1);
+			const int iValue = pResults->GetInt(2);
+			const bool bCapitalOnly = pResults->GetBool(3);
+	
+			m_miAllyCityYieldBonuses[eYield][std::make_pair(eEra, bCapitalOnly)] += iValue;
+			m_pbHasAllyCityByYield[eYield] = true;
+		}
+	
+		pResults->Reset();
+	
+		// Trim memory
+		std::map<YieldTypes, std::map<std::pair<EraTypes, bool>, int>>(m_miAllyCityYieldBonuses).swap(m_miAllyCityYieldBonuses);
+	}
 
 	//City Names
 	{
