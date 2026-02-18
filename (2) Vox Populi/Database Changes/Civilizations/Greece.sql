@@ -2,7 +2,9 @@
 -- Unique Ability: Hellenic League
 ----------------------------------------------------------
 UPDATE Traits
-SET AllianceCSStrength = 5
+SET
+	CityStateFriendshipModifier = 66,
+	AllianceCSStrength = 5
 WHERE Type = 'TRAIT_CITY_STATE_FRIENDSHIP';
 
 ----------------------------------------------------------
