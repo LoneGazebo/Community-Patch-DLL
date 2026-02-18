@@ -686,7 +686,6 @@ void CvPlayerEspionage::CreateSpy(PlayerTypes eAsDiplomatInCapitalOfPlayer)
 	kNewSpy.m_eRank = (CvSpyRank)m_pPlayer->GetStartingSpyRank();
 	kNewSpy.m_iExperience = 0;
 	kNewSpy.m_eSpyFocus = NO_EVENT_CHOICE_CITY;
-	GetNextSpyName(&kNewSpy);
 	if (eAsDiplomatInCapitalOfPlayer != NO_PLAYER)
 	{
 		kNewSpy.m_eVassalDiplomatPlayer = eAsDiplomatInCapitalOfPlayer;
@@ -695,6 +694,7 @@ void CvPlayerEspionage::CreateSpy(PlayerTypes eAsDiplomatInCapitalOfPlayer)
 	{
 		kNewSpy.m_bEvaluateReassignment = true;
 	}
+	GetNextSpyName(&kNewSpy);
 	kNewSpy.m_bPassive = false;
 	kNewSpy.m_iTurnCounterspyMissionChanged = 0;
 	kNewSpy.m_iTurnActiveMissionConducted = 0;
@@ -2548,8 +2548,10 @@ void CvPlayerEspionage::GetNextSpyName(CvEspionageSpy* pSpy)
 	// Otherwise, pick a spy name not in use at random from the civs in the game
 	// Otherwise, use the default unknown spy name
 
+	PlayerTypes eVassalDiplomatPlayer = (MOD_COREUI_COLLABORATOR_SPY_NAMES && pSpy->m_eVassalDiplomatPlayer != NO_PLAYER) ? pSpy->m_eVassalDiplomatPlayer : NO_PLAYER;
+
 	// Round 1: Try to locate an unused spy name within the player's civ
-	CvCivilizationInfo* pkCiv = GC.getCivilizationInfo(m_pPlayer->getCivilizationType());
+	CvCivilizationInfo* pkCiv = eVassalDiplomatPlayer != NO_PLAYER ? GC.getCivilizationInfo(GET_PLAYER(eVassalDiplomatPlayer).getCivilizationType()) : GC.getCivilizationInfo(m_pPlayer->getCivilizationType());
 	ASSERT(pkCiv->getNumSpyNames() > 0, "WARNING! Civilization appears to be missing spy names");
 	if (pkCiv->getNumSpyNames() > 0 && pickSpyName(*pkCiv, pSpy))
 		return;

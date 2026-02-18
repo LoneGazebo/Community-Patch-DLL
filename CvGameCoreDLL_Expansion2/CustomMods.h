@@ -119,6 +119,9 @@
 // Randomizes the order of each civilization's spy names
 #define MOD_COREUI_SHUFFLE_SPY_NAMES								gCustomMods.isCOREUI_SHUFFLE_SPY_NAMES()
 
+// Free spies-as-diplomats in vassals' capitals use the vassal's spy name list, not the master's
+#define MOD_COREUI_COLLABORATOR_SPY_NAMES							gCustomMods.isCOREUI_COLLABORATOR_SPY_NAMES()
+
 
 /////////////////////////////////////////
 // CORE AI CHANGES
@@ -1514,6 +1517,7 @@ public:
 	MOD_OPT_DECL(COREUI_REDUCE_NOTIFICATIONS);
 	MOD_OPT_DECL(COREUI_DIPLOMACY_ERA_INFLUENCE);
 	MOD_OPT_DECL(COREUI_SHUFFLE_SPY_NAMES);
+	MOD_OPT_DECL(COREUI_COLLABORATOR_SPY_NAMES);
 
 	// Core AI Changes
 	MOD_OPT_DECL(DEALAI_HUMAN_PERMANENT_FOR_AI_TEMPORARY);
