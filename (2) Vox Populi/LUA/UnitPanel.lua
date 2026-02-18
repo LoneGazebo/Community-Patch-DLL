@@ -1513,16 +1513,7 @@ function TipHandler( control )
 			strActionHelp = strActionHelp .. "[NEWLINE]";
 			strActionHelp = strActionHelp .. Locale.ConvertTextKey("TXT_KEY_SCRAP_HELP", iGoldToScrap);
 		end
-		
-		if (bDisabled) then
-			strActionHelp = strActionHelp .. "[NEWLINE][NEWLINE]";
-			local textKey =  (g_UnitDeleteDisabled == 1)
-				and "TXT_KEY_UNIT_DELETE_DISABLED_GAME_OPTION" 
-				or "TXT_KEY_UNIT_DELETE_DISABLED_ENEMIES";
-			strActionHelp = strActionHelp .. "[COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey(textKey) .. "[ENDCOLOR]";
- 
-		end;
-		
+				
         strToolTip = strToolTip .. strActionHelp;
 	end
 	
@@ -1728,27 +1719,8 @@ function TipHandler( control )
 		-- Not a Worker build, use normal disabled help from XML
 		else
 			
-            if (action.Type == "MISSION_FOUND" and pActivePlayer:IsEmpireVeryUnhappy()) then
-				-- Add spacing for all entries after the first
-				if (bFirstEntry) then
-					bFirstEntry = false;
-				elseif (not bFirstEntry) then
-					strDisabledString = strDisabledString .. "[NEWLINE][NEWLINE]";
-				end
-				
-				strDisabledString = strDisabledString .. Locale.ConvertTextKey("TXT_KEY_MISSION_BUILD_CITY_DISABLED_UNHAPPY");
-			
-            elseif (action.Type == "MISSION_CULTURE_BOMB" and pActivePlayer:GetCultureBombTimer() > 0) then
-				-- Add spacing for all entries after the first
-				if (bFirstEntry) then
-					bFirstEntry = false;
-				elseif (not bFirstEntry) then
-					strDisabledString = strDisabledString .. "[NEWLINE][NEWLINE]";
-				end
-				
-				strDisabledString = strDisabledString .. Locale.ConvertTextKey("TXT_KEY_MISSION_CULTURE_BOMB_DISABLED_COOLDOWN", pActivePlayer:GetCultureBombTimer());
-			
-			elseif (action.Type == "MISSION_PLUNDER_TRADE_ROUTE") then
+            local strDLLReason = pActivePlayer:GetReasonActionDisabled(unit:GetID(), action.Type);
+			if strDLLReason ~= "" then
 				-- Add spacing for all entries after the first
 				if (bFirstEntry) then
 					bFirstEntry = false;
@@ -1756,17 +1728,7 @@ function TipHandler( control )
 					strDisabledString = strDisabledString .. "[NEWLINE][NEWLINE]";
 				end
 
-				strDisabledString = strDisabledString .. Locale.ConvertTextKey(pActivePlayer:GetReasonPlunderTradeRouteDisabled(unit:GetID()));
-
-			elseif (action.Type == "MISSION_HEAL") then
-				-- Add spacing for all entries after the first
-				if (bFirstEntry) then
-					bFirstEntry = false;
-				elseif (not bFirstEntry) then
-					strDisabledString = strDisabledString .. "[NEWLINE][NEWLINE]";
-				end
-
-				strDisabledString = strDisabledString .. pActivePlayer:GetReasonHelpDisabled(unit:GetID());
+				strDisabledString = strDisabledString .. strDLLReason;
 
 			elseif (action.DisabledHelp and action.DisabledHelp ~= "") then
 				-- Add spacing for all entries after the first
@@ -1775,7 +1737,7 @@ function TipHandler( control )
 				elseif (not bFirstEntry) then
 					strDisabledString = strDisabledString .. "[NEWLINE][NEWLINE]";
 				end
-				
+
 				strDisabledString = strDisabledString .. Locale.ConvertTextKey(action.DisabledHelp);
 			end
 		end

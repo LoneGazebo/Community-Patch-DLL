@@ -5964,16 +5964,17 @@ bool CvUnit::canScrap(bool bTestVisible) const
 	if(!canMove())
 		return false;
 
-	if(!bTestVisible)
+
+	if (/*0*/ GD_INT_GET(UNIT_DELETE_DISABLED) == 1)
+	{
+		return false;
+	}
+
+	if (!bTestVisible)
 	{
 		//prevent an exploit where players disband units to deny kill yields to their enemies
 		if (MOD_BALANCE_VP && getDomainType() != DOMAIN_AIR && !GET_PLAYER(m_eOwner).GetPossibleAttackers(*plot(), getTeam()).empty() && !plot()->isCity())
 			return false;
-
-		if (/*0*/ GD_INT_GET(UNIT_DELETE_DISABLED) == 1)
-		{
-			return false;
-		}
 	}
 
 	if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlayerCanDisbandUnit, getOwner(), GetID()) == GAMEEVENTRETURN_FALSE)

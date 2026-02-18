@@ -2039,33 +2039,14 @@ function ActionToolTipHandler( control )
 				end
 			end
 
-		-- Not a Worker build, use normal disabled help from XML
+		-- Not a Worker build, use normal disabled help from the DLL or the XML
 		else
 
-			if action.Type == "MISSION_FOUND" and g_activePlayer:IsEmpireVeryUnhappy() then
+			local strDLLReason = g_activePlayer:GetReasonActionDisabled(unit:GetID(), action.Type)
+			if strDLLReason ~= "" then
 
-				disabledTip :insertLocalized( "TXT_KEY_MISSION_BUILD_CITY_DISABLED_UNHAPPY" )
+				disabledTip:insert( strDLLReason )
 
-			elseif action.Type == "MISSION_CULTURE_BOMB" and g_activePlayer:GetCultureBombTimer() > 0 then
-
-				disabledTip:insertLocalized( "TXT_KEY_MISSION_CULTURE_BOMB_DISABLED_COOLDOWN", g_activePlayer:GetCultureBombTimer() )
-
-			elseif (action.Type == "MISSION_PLUNDER_TRADE_ROUTE") then
-
-				disabledTip:insertLocalized( g_activePlayer:GetReasonPlunderTradeRouteDisabled(unit:GetID()) )
-
-			elseif (action.Type == "MISSION_HEAL") then
-
-				disabledTip:insert( g_activePlayer:GetReasonHelpDisabled(unit:GetID()) )
-
-			elseif action.Type == "COMMAND_DELETE" then
-				
-				if GameDefines.UNIT_DELETE_DISABLED == 1 then
-					disabledTip:insertLocalized( "TXT_KEY_UNIT_DELETE_DISABLED_GAME_OPTION" )
-				else
-					disabledTip:insertLocalized( "TXT_KEY_UNIT_DELETE_DISABLED_ENEMIES" )
-				end
-				
 			elseif action.DisabledHelp and action.DisabledHelp ~= "" then
 
 				disabledTip:insertLocalized( action.DisabledHelp )
