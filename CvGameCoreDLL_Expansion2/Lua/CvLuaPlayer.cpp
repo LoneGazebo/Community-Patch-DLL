@@ -737,10 +737,6 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetFriendshipNeededForNextLevel);
 	Method(GetMinorCivFavoriteMajor);
 	Method(GetMinorCivScienceFriendshipBonus);
-	Method(GetMinorCivCultureFriendshipBonus); // DEPRECATED
-	Method(GetMinorCivCurrentCultureFlatBonus);
-	Method(GetMinorCivCurrentCulturePerBuildingBonus);
-	Method(GetCurrentCultureBonus); // DEPRECATED
 	Method(GetMinorCivCurrentCultureBonus);
 	Method(GetMinorCivHappinessFriendshipBonus); // DEPRECATED
 	Method(GetMinorCivCurrentHappinessFlatBonus);

@@ -832,10 +832,6 @@ protected:
 	static int lGetFriendshipFromGoldGift(lua_State* L);
 	static int lGetMinorCivFavoriteMajor(lua_State* L);
 	static int lGetMinorCivScienceFriendshipBonus(lua_State* L);
-	static int lGetMinorCivCultureFriendshipBonus(lua_State* L); // DEPRECATED
-	static int lGetMinorCivCurrentCultureFlatBonus(lua_State* L);
-	static int lGetMinorCivCurrentCulturePerBuildingBonus(lua_State* L);
-	static int lGetCurrentCultureBonus(lua_State* L); // DEPRECATED, use lGetMinorCivCurrentCultureBonus instead
 	static int lGetMinorCivCurrentCultureBonus(lua_State* L);
 	static int lGetMinorCivHappinessFriendshipBonus(lua_State* L); // DEPRECATED
 	static int lGetMinorCivCurrentHappinessFlatBonus(lua_State* L);

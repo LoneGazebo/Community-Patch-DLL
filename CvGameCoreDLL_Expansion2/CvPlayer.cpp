@@ -22874,7 +22874,7 @@ int CvPlayer::GetYieldInCapitalPerTurnFromAnnexedMinors(YieldTypes eYield) const
 {
 	PRECONDITION(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	PRECONDITION(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
-	return m_piYieldInCapitalFromAnnexedMinors;
+	return m_piYieldInCapitalFromAnnexedMinors[eYield];
 }
 /// Update the yields in the capital from annexed City-States (Rome UA)
 void CvPlayer::ChangeYieldInCapitalPerTurnFromAnnexedMinor(PlayerTypes eMinor, int iSign, EraTypes eEra)
@@ -22906,7 +22906,7 @@ int CvPlayer::GetYieldInOtherCitiesPerTurnFromAnnexedMinors(YieldTypes eYield) c
 {
 	PRECONDITION(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	PRECONDITION(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
-	return m_piYieldInOtherCitiesFromAnnexedMinors;
+	return m_piYieldInOtherCitiesFromAnnexedMinors[eYield];
 }
 /// Update the yields in other cities from annexed City-States (Rome UA)
 void CvPlayer::ChangeYieldInOtherCitiesPerTurnFromAnnexedMinor(PlayerTypes eMinor, int iSign, EraTypes eEra)
@@ -22952,14 +22952,15 @@ void CvPlayer::ChangeYieldPerTurnFromAnnexedMinor(PlayerTypes eMinor, int iSign,
 		{
 			eEra = GET_TEAM(getTeam()).GetCurrentEra();
 		}
+		const CvMinorCivAI* kMinor = GET_PLAYER(eMinor).GetMinorCivAI();
 		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 		{
-			int iBonus = 0;
 			YieldTypes eYield = (YieldTypes)iI;
 		
-			iBonus = GetYieldFlatBonus(GetID(), eYield, eEra, 2);
+			int iBonus = kMinor->GetYieldFlatBonus(GetID(), eYield, eEra, 2);
 		
 			m_piYieldPerTurnFromAnnexedMinors[eYield] += iBonus * iSign;
+		}
 	}
 }
 /// Get the happiness per turn from annexed City-States (Rome UA)
@@ -22968,7 +22969,7 @@ int CvPlayer::GetHappinessFromAnnexedMinors() const
 	return m_iHappinessFromAnnexedMinors;
 }
 /// Update the happiness per turn from annexed City-States (Rome UA)
-void CvPlayer::ChangeHappinessFromAnnexedMinor(PlayerTypes eMinor, int iSign)
+void CvPlayer::ChangeHappinessFromAnnexedMinor(PlayerTypes eMinor, int iSign, EraTypes eEra)
 {
 	if (GetPlayerTraits()->IsAnnexedCityStatesGiveYields() && (GET_PLAYER(eMinor).GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_MERCANTILE))
 	{

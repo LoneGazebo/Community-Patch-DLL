@@ -28980,7 +28980,7 @@ void CvCity::UpdateYieldsFromExistingFriendsAndAllies(bool bRemove)
 					}
 				}
 			}
-			if (iInfluenceLevel = 1)
+			if (iInfluenceLevel == 1)
 			{
 				for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 				{
