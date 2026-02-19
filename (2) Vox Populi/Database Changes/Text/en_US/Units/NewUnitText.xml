@@ -91,7 +91,7 @@
 			<Text>Pioneer</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_PIONEER_STRATEGY">
-			<Text>Use this unit to construct new cities. It cannot defend itself, so accompany it with a combat unit. When founded, cities built by Pioneers start with 3 Citizens, claim additional territory, and automatically receive the following selection of buildings:[NEWLINE][NEWLINE][ICON_BULLET] Arena[NEWLINE][ICON_BULLET] Barracks[NEWLINE][ICON_BULLET] Council[NEWLINE][ICON_BULLET] Forge[NEWLINE][ICON_BULLET] Granary[NEWLINE][ICON_BULLET] Herbalist[NEWLINE][ICON_BULLET] Library[NEWLINE][ICON_BULLET] Market[NEWLINE][ICON_BULLET] Monument[NEWLINE][ICON_BULLET] Shrine[NEWLINE][ICON_BULLET] Smokehouse[NEWLINE][ICON_BULLET] Water Mill (if applicable)[NEWLINE][ICON_BULLET] Well (if applicable)[NEWLINE][NEWLINE]Note: the bonuses for constructing buildings from the Progress and Industry policy branches do not apply to the buildings constructed by Pioneers!</Text>
+			<Text>Use this unit to construct new Cities. It cannot defend itself, so accompany it with a combat unit. When founded, Cities built by Pioneers start with 3 Citizens, claim additional territory, and automatically receive the following selection of buildings:[NEWLINE][NEWLINE][ICON_BULLET] Arena[NEWLINE][ICON_BULLET] Barracks[NEWLINE][ICON_BULLET] Council[NEWLINE][ICON_BULLET] Forge[NEWLINE][ICON_BULLET] Granary[NEWLINE][ICON_BULLET] Herbalist[NEWLINE][ICON_BULLET] Library[NEWLINE][ICON_BULLET] Market[NEWLINE][ICON_BULLET] Monument[NEWLINE][ICON_BULLET] Shrine[NEWLINE][ICON_BULLET] Smokehouse[NEWLINE][ICON_BULLET] Water Mill (if applicable)[NEWLINE][ICON_BULLET] Well (if applicable)[NEWLINE][NEWLINE]Note: the bonuses for constructing buildings from the Progress and Industry policy branches do not apply to the buildings constructed by Pioneers!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_PIONEER_TEXT">
 			<Text>Pioneers are any of the people in history who migrated to join in settling and developing new areas. The term especially refers to those who were going to settle any territory which had previously not been settled or developed by European or American society, although the territory may have been inhabited by or utilized by native peoples. The pioneer concept and ethos greatly predate the migration to parts of the United States now called Western, as many places now considered as East were also settled by pioneers from the coast. For example, Daniel Boone, a key figure in American history, settled in Kentucky, when that "Dark and Bloody Ground" was still undeveloped. One important development in the Western settlement was the Homestead Act, which provided formal legislation which regulated the settlement process.</Text>
@@ -104,7 +104,7 @@
 			<Text>Colonist</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_COLONIST_STRATEGY">
-			<Text>Use this unit to construct new cities. It cannot defend itself, so accompany it with a combat unit. When founded, cities built by Colonists start with 5 Citizens, claim additional territory, and automatically receive the following selection of buildings:[NEWLINE][NEWLINE][ICON_BULLET] Amphitheater[NEWLINE][ICON_BULLET] Aqueduct[NEWLINE][ICON_BULLET] Arena[NEWLINE][ICON_BULLET] Barracks[NEWLINE][ICON_BULLET] Council[NEWLINE][ICON_BULLET] Forge[NEWLINE][ICON_BULLET] Granary[NEWLINE][ICON_BULLET] Harbor[NEWLINE][ICON_BULLET] Herbalist[NEWLINE][ICON_BULLET] Library[NEWLINE][ICON_BULLET] Lighthouse[NEWLINE][ICON_BULLET] Market[NEWLINE][ICON_BULLET] Monument[NEWLINE][ICON_BULLET] Shrine[NEWLINE][ICON_BULLET] Smokehouse[NEWLINE][ICON_BULLET] Temple[NEWLINE][ICON_BULLET] Water Mill (if applicable)[NEWLINE][ICON_BULLET] Well (if applicable)[NEWLINE][ICON_BULLET] Windmill[NEWLINE][ICON_BULLET] Workshop[NEWLINE][NEWLINE]Note: the bonuses for constructing buildings from the Progress and Industry policy branches do not apply to the buildings constructed by Colonists!</Text>
+			<Text>Use this unit to construct new Cities; unlike previous Settler Units, Cities founded by a Colonist are considered Puppets and do not increase empire-size penalities, such as Tech and Policy costs. They can be annexed at no cost, and do not require Courthouses.[NEWLINE][NEWLINE]The Colonist cannot defend itself, so accompany it with a combat unit. When founded, Cities built by Colonists start with 5 Citizens, claim additional territory, and automatically receive the following selection of buildings:[NEWLINE][NEWLINE][ICON_BULLET] Amphitheater[NEWLINE][ICON_BULLET] Aqueduct[NEWLINE][ICON_BULLET] Arena[NEWLINE][ICON_BULLET] Barracks[NEWLINE][ICON_BULLET] Council[NEWLINE][ICON_BULLET] Forge[NEWLINE][ICON_BULLET] Granary[NEWLINE][ICON_BULLET] Harbor[NEWLINE][ICON_BULLET] Herbalist[NEWLINE][ICON_BULLET] Library[NEWLINE][ICON_BULLET] Lighthouse[NEWLINE][ICON_BULLET] Market[NEWLINE][ICON_BULLET] Monument[NEWLINE][ICON_BULLET] Shrine[NEWLINE][ICON_BULLET] Smokehouse[NEWLINE][ICON_BULLET] Temple[NEWLINE][ICON_BULLET] Water Mill (if applicable)[NEWLINE][ICON_BULLET] Well (if applicable)[NEWLINE][ICON_BULLET] Windmill[NEWLINE][ICON_BULLET] Workshop[NEWLINE][NEWLINE]Note: the bonuses for constructing buildings from the Progress and Industry policy branches do not apply to the buildings constructed by Colonists!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_COLONIST_TEXT">
 			<Text>Studying throughout history, one can witness how colonists, a type of setter, very often occupied land previously home to long-established peoples, designated as indigenous (also called "natives", "Aborigines" or, in the Americas, "Indians"). In some cases (such as Australia), as colonialist mentalities and laws change, the legal ownership of some lands is contested by indigenous people, who either claim or seek restoration of traditional usage, land rights, native title and related forms of legal ownership or partial control. The word "settler" was not originally usually used in relation to unfree labour immigrants, such as slaves (e.g. in the United States), indentured labourers (such as in Colonial America), or convicts (such as in British America, c. 1615-1775; Australia 1788-1868). More recently descendants of these immigrants may argue that they have as much right to use the word "settler" as the descendants of free immigrants. In the figurative usage, a "person who goes first or does something first" also applies to the American English use of "pioneer" to refer to a settler - a person who has migrated to a less occupied area and established permanent residence there, often to colonize the area; as first recorded in English in 1605. In United States history it refers to those people who helped to settle new lands. In this usage, pioneers are usually among the first to an area, whereas settlers can arrive after first settlement and join others in the process of human settlement.[citation needed] This correlates with the work of military pioneers who were tasked with construction of camps before the main body of troops would arrive at the designated camp site.</Text>
@@ -291,6 +291,12 @@
 		</Row>
 
 		<!-- Unit Combats -->
+		<Row Tag="TXT_KEY_UNITCOMBAT_MISSILE">
+			<Text>Missile</Text>
+		</Row>		
+		<Row Tag="TXT_KEY_UNITCOMBAT_NUKE">
+			<Text>Nuclear Weapon</Text>
+		</Row>
 		<Row Tag="TXT_KEY_UNITCOMBAT_SETTLER">
 			<Text>Settler</Text>
 		</Row>
@@ -314,6 +320,15 @@
 		</Row>
 		<Row Tag="TXT_KEY_UNITCOMBAT_DIPLOMACY">
 			<Text>Diplomacy</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNITCOMBAT_ARCHAEOLOGIST">
+			<Text>Archaeologist</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNITCOMBAT_SPECIAL_PEOPLE">
+			<Text>Great Person</Text>
+		</Row>	
+		<Row Tag="TXT_KEY_UNITCOMBAT_SPACESHIP">
+			<Text>Spaceship Part</Text>
 		</Row>
 
 		<!-- Great Diplomat names -->

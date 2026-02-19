@@ -1326,6 +1326,21 @@
 			<IconAtlas>BUILDING_ATLAS_VP_1</IconAtlas>
 			<PortraitIndex>51</PortraitIndex>
 		</Row>
+		<!-- Tophet -->
+		<Row>
+			<Type>BUILDING_TOPHET</Type>
+			<BuildingClass>BUILDINGCLASS_SHRINE</BuildingClass>
+			<Description>TXT_KEY_BUILDING_TOPHET</Description>
+			<Civilopedia>TXT_KEY_BUILDING_TOPHET_TEXT</Civilopedia>
+			<Help>TXT_KEY_BUILDING_TOPHET_HELP</Help>
+			<Strategy>TXT_KEY_BUILDING_TOPHET_STRATEGY</Strategy>
+			<PrereqTech>TECH_POTTERY</PrereqTech>
+			<FreeStartEra>ERA_MEDIEVAL</FreeStartEra>
+			<MaxStartEra>ERA_RENAISSANCE</MaxStartEra>
+			<ArtDefineTag>TEMPLE</ArtDefineTag>
+			<IconAtlas>BUILDING_ATLAS_VP_1</IconAtlas>
+			<PortraitIndex>56</PortraitIndex>
+		</Row>
 		<!-- End of UB replacements -->
 
 		<!-- National Wonders -->

@@ -66,11 +66,9 @@ UPDATE BuildFeatures
 SET Remove = 1
 WHERE BuildType IN ('BUILD_TRADING_POST', 'BUILD_FORT');
 
--- Camp needs to remove Marsh
 INSERT INTO BuildFeatures
 	(BuildType, FeatureType, Time, Remove)
 VALUES
-	('BUILD_CAMP', 'FEATURE_MARSH', 500, 1),
 	('BUILD_EMBASSY', 'FEATURE_FOREST', NULL, 1),
 	('BUILD_EMBASSY', 'FEATURE_JUNGLE', NULL, 1),
 	('BUILD_EMBASSY', 'FEATURE_MARSH', NULL, 1);

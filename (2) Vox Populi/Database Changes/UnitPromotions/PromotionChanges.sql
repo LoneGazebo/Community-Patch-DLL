@@ -330,7 +330,7 @@ UPDATE UnitPromotions SET HealOutsideFriendly = 1, FriendlyHealChange = 5, Neutr
 --                 │                   │ │                    ┌───────────────────────────┘            │
 --                 │                   │ │                    │                                        │
 -- Bombardment I ──┴─► Bombardment II ─┴─┴─► Bombardment III ─┴─► Broadside ───────────────────────────┘
---                                                                Shrapnel Rounds
+--                                                                Shrapnel Rounds I ──► Shrapnel Rounds II
 ----------------------------------------------------------------------------------------------------------------------------
 UPDATE UnitPromotions
 SET AttackBelowEqual50HealthMod = 10
@@ -368,7 +368,8 @@ UPDATE UnitPromotions SET CityAttack = 40 WHERE Type = 'PROMOTION_BROADSIDE';
 INSERT INTO UnitPromotions_Domains
 	(PromotionType, DomainType, Attack)
 VALUES
-	('PROMOTION_SHRAPNEL_ROUNDS', 'DOMAIN_LAND', 50);
+	('PROMOTION_SHRAPNEL_ROUNDS_1', 'DOMAIN_LAND', 35),
+	('PROMOTION_SHRAPNEL_ROUNDS_2', 'DOMAIN_LAND', 35);
 
 ----------------------------------------------------------------------------------------------------------------------------
 -- Submarine promotion tree drawn using ASCIIFlow
@@ -561,7 +562,11 @@ UPDATE UnitPromotions SET AllowsEmbarkation = 1, EmbarkedAllWater = 1, EmbarkExt
 
 UPDATE UnitPromotions SET CaptureDefeatedEnemy = 1, CapturedUnitsConscripted = 1 WHERE Type = 'PROMOTION_COERCION';
 
-UPDATE UnitPromotions SET RiverDoubleMove = 1 WHERE Type = 'PROMOTION_WAR_CANOES';
+UPDATE UnitPromotions 
+SET 
+	RiverDoubleMove = 1,
+	River = 1
+WHERE Type = 'PROMOTION_SEWN_CANOES';
 
 UPDATE UnitPromotions SET ExtraAttacks = 1 WHERE Type = 'PROMOTION_MONGOL_TERROR';
 
@@ -612,6 +617,8 @@ VALUES
 UPDATE UnitPromotions SET MovesChange = 2 WHERE Type = 'PROMOTION_SACRED_STEPS';
 
 UPDATE UnitPromotions SET FriendlyHealChange = 5, NeutralHealChange = 5, EnemyHealChange = 5 WHERE Type = 'PROMOTION_EVERLASTING_YOUTH';
+
+UPDATE UnitPromotions_Terrains SET DoubleMove = 0 WHERE PromotionType = 'PROMOTION_ALTITUDE_TRAINING';
 
 --------------------------------------------
 -- Building free promotions

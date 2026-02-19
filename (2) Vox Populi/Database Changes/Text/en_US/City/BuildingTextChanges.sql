@@ -107,7 +107,7 @@ WHERE Tag = 'TXT_KEY_BUILDING_LABORATORY_STRATEGY';
 
 -- Observatory
 UPDATE Language_en_US
-SET Text = 'The Observatory increases [ICON_RESEARCH] Science output, especially for Cities near lots of Mountains. Requires [COLOR_MAGENTA]{TXT_KEY_POLICY_SECULARISM}[ENDCOLOR] Policy to unlock.'
+SET Text = 'The Observatory increases [ICON_RESEARCH] Science output, especially for Cities near lots of Mountains.'
 WHERE Tag = 'TXT_KEY_BUILDING_OBSERVATORY_STRATEGY';
 
 -- Windmill

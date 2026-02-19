@@ -292,12 +292,20 @@
 			<PediaEntry>TXT_KEY_PROMOTION_SENTRY</PediaEntry>
 		</Row>
 		<Row>
-			<Type>PROMOTION_SHRAPNEL_ROUNDS</Type>
-			<Description>TXT_KEY_PROMOTION_SHRAPNEL_ROUNDS</Description>
-			<Help>TXT_KEY_PROMOTION_SHRAPNEL_ROUNDS_HELP</Help>
+			<Type>PROMOTION_SHRAPNEL_ROUNDS_1</Type>
+			<Description>TXT_KEY_PROMOTION_SHRAPNEL_ROUNDS_1</Description>
+			<Help>TXT_KEY_PROMOTION_SHRAPNEL_ROUNDS_1_HELP</Help>
 			<PromotionPrereqOr1>PROMOTION_BOMBARDMENT_3</PromotionPrereqOr1>
 			<PediaType>PEDIA_NAVAL</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_SHRAPNEL_ROUNDS</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_SHRAPNEL_ROUNDS_1</PediaEntry>
+		</Row>
+		<Row>
+			<Type>PROMOTION_SHRAPNEL_ROUNDS_2</Type>
+			<Description>TXT_KEY_PROMOTION_SHRAPNEL_ROUNDS_2</Description>
+			<Help>TXT_KEY_PROMOTION_SHRAPNEL_ROUNDS_2_HELP</Help>
+			<PromotionPrereqOr1>PROMOTION_SHRAPNEL_ROUNDS_1</PromotionPrereqOr1>
+			<PediaType>PEDIA_NAVAL</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_SHRAPNEL_ROUNDS_2</PediaEntry>
 		</Row>
 		<Row>
 			<Type>PROMOTION_VANGUARD</Type>
@@ -417,6 +425,13 @@
 			<PediaEntry>TXT_KEY_PROMOTION_PERISCOPE_DEPTH</PediaEntry>
 		</Row>
 		<!-- Trait -->
+		<Row>
+			<Type>PROMOTION_SEWN_CANOES</Type>
+			<Description>TXT_KEY_PROMOTION_SEWN_CANOES</Description>
+			<Help>TXT_KEY_PROMOTION_SEWN_CANOES_HELP</Help>
+			<PediaType>PEDIA_ATTRIBUTES</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_SEWN_CANOES</PediaEntry>
+		</Row>
 		<Row>
 			<Type>PROMOTION_MONGOL_TERROR</Type>
 			<Description>TXT_KEY_PROMOTION_MONGOL_TERROR</Description>

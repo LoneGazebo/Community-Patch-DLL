@@ -344,13 +344,20 @@
 			<Text>+30% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Units at or below 50% HP[ENDCOLOR].</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_PROMOTION_SHRAPNEL_ROUNDS">
-			<Text>Shrapnel Rounds</Text>
+		<Row Tag="TXT_KEY_PROMOTION_SHRAPNEL_ROUNDS_1">
+			<Text>Shrapnel Rounds I</Text>
 		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_SHRAPNEL_ROUNDS_HELP">
-			<Text>+50% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Land Units[ENDCOLOR].</Text>
+		<Row Tag="TXT_KEY_PROMOTION_SHRAPNEL_ROUNDS_1_HELP">
+			<Text>+35% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Land Units[ENDCOLOR].</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_PROMOTION_SHRAPNEL_ROUNDS_2">
+			<Text>Shrapnel Rounds II</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_SHRAPNEL_ROUNDS_2_HELP">
+			<Text>+35% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Land Units[ENDCOLOR].</Text>
+		</Row>
+		
 		<Row Tag="TXT_KEY_PROMOTION_VANGUARD">
 			<Text>Vanguard</Text>
 		</Row>
@@ -982,7 +989,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_SIEGE_VOLLEY">
-			<Text>Siege Volley</Text>
+			<Text>Singijeon</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SIEGE_VOLLEY_HELP">
 			<Text>+25% [ICON_STRENGTH] Combat Strength in or adjacent to a [COLOR_POSITIVE_TEXT]City[ENDCOLOR].[NEWLINE]Deal [COLOR_POSITIVE_TEXT]5 Damage[ENDCOLOR] to all Enemy Units [COLOR_POSITIVE_TEXT]adjacent to[ENDCOLOR] the target Unit (within [ICON_RANGE_STRENGTH] Range) when attacking.[NEWLINE]This Damage ignores damage reduction, but does not affect Units in [COLOR_NEGATIVE_TEXT]Cities[ENDCOLOR] and [COLOR_NEGATIVE_TEXT]Fortifications[ENDCOLOR].</Text>
