@@ -2205,6 +2205,10 @@
 		<Row Tag="TXT_KEY_MISSION_HEAL_DISABLED_BLOCKADED">
 			<Text>Units cannot heal in a fully blockaded city.</Text>
 		</Row>
+		<!-- Build action disabled tooltips -->
+		<Row Tag="TXT_KEY_BUILD_BLOCKED_OTHER_UNIT_WORKING">
+			<Text>Another unit is already building something here.</Text>
+		</Row>
 		<!-- Upgrade action disabled tooltips -->
 		<Row Tag="TXT_KEY_UPGRADE_HELP_DISABLED_EMBARKED">
 			<Text>Embarked units cannot upgrade.</Text>

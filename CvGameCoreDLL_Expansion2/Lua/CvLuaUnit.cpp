@@ -228,6 +228,7 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(IsFound);
 	Method(IsFoundAbroad);
 	Method(IsWork);
+	Method(GetBuildDisabledReasonString);
 	Method(IsGoldenAge);
 	Method(CanCoexistWithEnemyUnit);
 	Method(IsContractUnit);
@@ -2852,6 +2853,24 @@ int CvLuaUnit::lIsWork(lua_State* L)
 	const bool bResult = pkUnit->IsWork();
 
 	lua_pushboolean(L, bResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+// string GetBuildDisabledReasonString(int iBuildID)
+int CvLuaUnit::lGetBuildDisabledReasonString(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	const BuildTypes eBuild = (BuildTypes)lua_tointeger(L, 2);
+
+	CvString toolTip = "";
+	if (eBuild >= 0 && eBuild < GC.getNumBuildInfos())
+	{
+		CvPlot* pPlot = pkUnit->plot();
+		if (pPlot)
+			pkUnit->canBuild(pPlot, eBuild, false, false, false, &toolTip);
+	}
+
+	lua_pushstring(L, toolTip.c_str());
 	return 1;
 }
 //------------------------------------------------------------------------------

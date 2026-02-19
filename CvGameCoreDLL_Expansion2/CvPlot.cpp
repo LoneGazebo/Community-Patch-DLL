@@ -2915,7 +2915,7 @@ BuildTypes CvPlot::GetBuildTypeFromImprovement(ImprovementTypes eImprovement) co
 
 
 //	--------------------------------------------------------------------------------
-bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible, bool bTestPlotOwner, bool bTestXAdjacent) const
+bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible, bool bTestPlotOwner, bool bTestXAdjacent, CvString* toolTipSink) const
 {
 	static const ImprovementTypes eFeitoria = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FEITORIA");
 	TeamTypes eTeam = ePlayer != NO_PLAYER ? GET_PLAYER(ePlayer).getTeam() : NO_TEAM;
@@ -2924,6 +2924,7 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 	ImprovementTypes eFinalImprovementType;
 	RouteTypes eRoute;
 	bool bValid = false;
+	bool bPlotCanBuild = true;
 
 	// Can't build nothing!
 	if(eBuild == NO_BUILD)
@@ -3042,6 +3043,16 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 			bool bHasNoAdjacencyRequirement = pkImprovement->IsNoTwoAdjacent();
 			if (pkImprovement && (bHasLuxuryRequirement || bHasNoAdjacencyRequirement))
 			{
+				// Compute improvement description key for tooltip params
+				CvString strImpParam;
+				if (toolTipSink != NULL)
+				{
+					CvImprovementEntry* pkImpEntry = GC.getImprovementInfo(eImprovement);
+					if (pkImpEntry)
+						strImpParam = CvString(pkImpEntry->GetDescriptionKey()) + ":textkey";
+				}
+
+				bool bTwoAdjacent = false;
 				bool bLuxuryRequirementMet = !bHasLuxuryRequirement;
 				for (int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 				{
@@ -3060,32 +3071,44 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 								}
 							}
 						}
-						if (bHasNoAdjacencyRequirement)
+						if (bHasNoAdjacencyRequirement && !bTwoAdjacent)
 						{
-							ImprovementTypes eAdjacentImprovement =  pAdjacentPlot->getImprovementType();
+							ImprovementTypes eAdjacentImprovement = pAdjacentPlot->getImprovementType();
 							if (eAdjacentImprovement != NO_IMPROVEMENT)
 							{
 								if (eAdjacentImprovement == eImprovement)
 								{
-									return false;
+									bTwoAdjacent = true;
 								}
-								CvImprovementEntry* pkImprovement2 = GC.getImprovementInfo(eAdjacentImprovement);
-								if (pkImprovement2 && pkImprovement2->GetImprovementMakesValid(eImprovement))
+								else
 								{
-									return false;
+									CvImprovementEntry* pkImprovement2 = GC.getImprovementInfo(eAdjacentImprovement);
+									if (pkImprovement2 && pkImprovement2->GetImprovementMakesValid(eImprovement))
+										bTwoAdjacent = true;
 								}
 							}
-							int iBuildProgress = pAdjacentPlot->getBuildProgress(eBuild);
-							if (iBuildProgress > 0)
+							if (!bTwoAdjacent)
 							{
-								return false;
+								int iBuildProgress = pAdjacentPlot->getBuildProgress(eBuild);
+								if (iBuildProgress > 0)
+									bTwoAdjacent = true;
 							}
 						}
 					}
 				}
+				if (bTwoAdjacent)
+				{
+					if (toolTipSink && !toolTipSink->empty()) (*toolTipSink) += "[NEWLINE]";
+					GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_BUILD_BLOCKED_CANNOT_BE_ADJACENT", strImpParam.c_str());
+					if (toolTipSink == NULL) return false;
+					bPlotCanBuild = false;
+				}
 				if (bHasLuxuryRequirement && !bLuxuryRequirementMet)
 				{
-					return false;
+					if (toolTipSink && !toolTipSink->empty()) (*toolTipSink) += "[NEWLINE]";
+					GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_BUILD_BLOCKED_NO_ADJACENT_LUXURY", strImpParam.c_str());
+					if (toolTipSink == NULL) return false;
+					bPlotCanBuild = false;
 				}
 			}
 		}
@@ -3097,12 +3120,24 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 				// Gifts for minors can ignore borders requirements
 				if(bTestPlotOwner)
 				{
+					// Compute improvement description key for tooltip params
+					CvString strImpParam;
+					if (toolTipSink != NULL)
+					{
+						CvImprovementEntry* pkImpEntry = GC.getImprovementInfo(eImprovement);
+						if (pkImpEntry)
+							strImpParam = CvString(pkImpEntry->GetDescriptionKey()) + ":textkey";
+					}
+
 					// Outside Borders - Can be built in or outside our lands, but not in other lands
 					if(GC.getImprovementInfo(eImprovement)->IsOutsideBorders())
 					{
 						if (getTeam() != eTeam && getTeam() != NO_TEAM)
 						{
-							return false;
+							if (toolTipSink && !toolTipSink->empty()) (*toolTipSink) += "[NEWLINE]";
+							GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_BUILD_BLOCKED_OUTSIDE_TERRITORY", strImpParam.c_str());
+							if (toolTipSink == NULL) return false;
+							bPlotCanBuild = false;
 						}
 					}
 					// In Adjacent Friendly - Can be built in or adjacent to our lands
@@ -3112,17 +3147,28 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 						if (getTeam() == NO_TEAM)
 						{
 							if (!isAdjacentTeam(eTeam, false))
-								return false;
+							{
+								if (toolTipSink && !toolTipSink->empty()) (*toolTipSink) += "[NEWLINE]";
+								GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_BUILD_BLOCKED_NOT_IN_ADJACENT_TERRITORY", strImpParam.c_str());
+								if (toolTipSink == NULL) return false;
+								bPlotCanBuild = false;
+							}
 						}
 						else if (getTeam() != eTeam)
 						{
+							bool bBlocked = true;
 							if (GC.getImprovementInfo(eImprovement)->GetCultureBombRadius() > 0 && GET_PLAYER(ePlayer).IsCultureBombForeignTerritory())
 							{
-								if (IsStealBlockedByImprovement() || !isAdjacentTeam(eTeam, false))
-									return false;
+								if (!IsStealBlockedByImprovement() && isAdjacentTeam(eTeam, false))
+									bBlocked = false;
 							}
-							else
-								return false;
+							if (bBlocked)
+							{
+								if (toolTipSink && !toolTipSink->empty()) (*toolTipSink) += "[NEWLINE]";
+								GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_BUILD_BLOCKED_NOT_IN_ADJACENT_TERRITORY", strImpParam.c_str());
+								if (toolTipSink == NULL) return false;
+								bPlotCanBuild = false;
+							}
 						}
 					}
 					// Only City State Territory - Can only be built in City-State territory (not our own lands)
@@ -3145,11 +3191,19 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 							}
 						}
 						else
-							return false;
+						{
+							if (toolTipSink && !toolTipSink->empty()) (*toolTipSink) += "[NEWLINE]";
+							GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_BUILD_BLOCKED_NOT_IN_CITY_STATE_TERRITORY", strImpParam.c_str());
+							if (toolTipSink == NULL) return false;
+							bPlotCanBuild = false;
+						}
 					}
-					else if(getTeam() != eTeam) 
+					else if(getTeam() != eTeam)
 					{//only buildable in own culture
-						return false;
+						if (toolTipSink && !toolTipSink->empty()) (*toolTipSink) += "[NEWLINE]";
+						GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_BUILD_BLOCKED_OUTSIDE_TERRITORY", strImpParam.c_str());
+						if (toolTipSink == NULL) return false;
+						bPlotCanBuild = false;
 					}
 				}
 			}
@@ -3230,7 +3284,7 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 		}
 	}
 
-	return bValid;
+	return bValid && bPlotCanBuild;
 }
 
 

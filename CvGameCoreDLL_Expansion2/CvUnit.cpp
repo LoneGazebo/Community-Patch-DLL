@@ -13145,7 +13145,7 @@ bool CvUnit::blastTourism()
 
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestVisible, bool bTestGold, bool bTestEra) const
+bool CvUnit::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestVisible, bool bTestGold, bool bTestEra, CvString* toolTipSink) const
 {
 	VALIDATE_OBJECT();
 	PRECONDITION(eBuild < GC.getNumBuildInfos() && eBuild >= 0, "Index out of bounds");
@@ -13167,7 +13167,8 @@ bool CvUnit::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestVisible,
 	if (!pPlot)
 		return true;
 
-	if (!(GET_PLAYER(getOwner()).canBuild(pPlot, eBuild, bTestEra, bTestVisible, bTestGold, true, this)))
+	bool bCanBuild = GET_PLAYER(getOwner()).canBuild(pPlot, eBuild, bTestEra, bTestVisible, bTestGold, true, this, toolTipSink);
+	if (!bCanBuild && toolTipSink == NULL)
 		return false;
 
 	bool bValidBuildPlot = isNativeDomain(pPlot);
@@ -13199,9 +13200,15 @@ bool CvUnit::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestVisible,
 
 			if(pLoopUnit && pLoopUnit != this)
 			{
-				if(pLoopUnit->IsWork() && pLoopUnit->IsWorking())
+				if(pLoopUnit->IsWork() && pLoopUnit->getBuildType() != NO_BUILD)
 				{
-					return false;
+					if (toolTipSink && !toolTipSink->empty())
+						(*toolTipSink) += "[NEWLINE]";
+					GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_BUILD_BLOCKED_OTHER_UNIT_WORKING");
+					if (toolTipSink == NULL)
+						return false;
+					bCanBuild = false;
+					break;
 				}
 			}
 		}
@@ -13215,7 +13222,7 @@ bool CvUnit::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestVisible,
 		}
 	}
 
-	return true;
+	return bCanBuild;
 }
 
 //	--------------------------------------------------------------------------------
@@ -15690,14 +15697,6 @@ BuildTypes CvUnit::getBuildType() const
 	}
 
 	return NO_BUILD;
-}
-
-//	----------------------------------------------------------------------------
-bool CvUnit::IsWorking() const
-{
-	VALIDATE_OBJECT();
-	const MissionData* pkMissionNode = HeadMissionData();
-	return pkMissionNode && (pkMissionNode->eMissionType == CvTypes::getMISSION_ROUTE_TO() || pkMissionNode->eMissionType == CvTypes::getMISSION_BUILD());
 }
 
 //	--------------------------------------------------------------------------------

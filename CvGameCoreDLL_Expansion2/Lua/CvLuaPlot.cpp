@@ -700,10 +700,17 @@ int CvLuaPlot::lCanHaveImprovement(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
-//bool canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible);
+//bool canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible, bool bTestPlotOwner, bool bTestXAdjacent);
 int CvLuaPlot::lCanBuild(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlot::canBuild);
+	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
+	const BuildTypes eBuild = (BuildTypes)lua_tointeger(L, 2);
+	const PlayerTypes ePlayer = (PlayerTypes)luaL_optint(L, 3, -1);
+	const bool bTestVisible = luaL_optbool(L, 4, false);
+	const bool bTestPlotOwner = luaL_optbool(L, 5, true);
+	const bool bTestXAdjacent = luaL_optbool(L, 6, false);
+	lua_pushboolean(L, pkPlot->canBuild(eBuild, ePlayer, bTestVisible, bTestPlotOwner, bTestXAdjacent));
+	return 1;
 }
 //------------------------------------------------------------------------------
 //int getBuildTime(BuildTypes eBuild);

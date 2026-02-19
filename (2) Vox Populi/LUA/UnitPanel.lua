@@ -1348,232 +1348,7 @@ function TipHandler( control )
     if (action.SubType == ActionSubTypes.ACTIONSUBTYPE_BUILD) then
 		bBuild = true;
 	end
-	
-    -- Not able to perform action
-    if (bDisabled) then
-		
-		-- Worker build
-		if (bBuild) then
-			
-			-- Figure out what the name of the thing is that we're looking at
-			local strImpRouteKey = "";
-			if (pImprovement) then
-				strImpRouteKey = pImprovement.Description;
-			elseif (pRoute) then
-				strImpRouteKey = pRoute.Description;
-			end
-			
-			-- Don't have Tech for Build?
-			if (pBuild.PrereqTech ~= nil) then
-				local pPrereqTech = GameInfo.Technologies[pBuild.PrereqTech];
-				local iPrereqTech = pPrereqTech.ID;
-				if (iPrereqTech ~= -1 and not pActiveTeam:GetTeamTechs():HasTech(iPrereqTech)) then
-					
-					-- Must not be a build which constructs something
-					if (pImprovement or pRoute) then
-						
-						-- Add spacing for all entries after the first
-						if (bFirstEntry) then
-							bFirstEntry = false;
-						elseif (not bFirstEntry) then
-							strDisabledString = strDisabledString .. "[NEWLINE]";
-						end
-						
-						strDisabledString = strDisabledString .. "[NEWLINE]";
-						strDisabledString = strDisabledString .. Locale.ConvertTextKey("TXT_KEY_BUILD_BLOCKED_PREREQ_TECH", pPrereqTech.Description, strImpRouteKey);
-					end
-				end
-			end
-			
-			-- Trying to build something and are not adjacent to our territory?
-			if (pImprovement and pImprovement.InAdjacentFriendly) then
-				if (pPlot:GetTeam() ~= unit:GetTeam()) then
-					if (not pPlot:IsAdjacentTeam(unit:GetTeam(), true)) then
-
-					
-						-- Add spacing for all entries after the first
-						if (bFirstEntry) then
-							bFirstEntry = false;
-						elseif (not bFirstEntry) then
-							strDisabledString = strDisabledString .. "[NEWLINE]";
-						end
-					
-						strDisabledString = strDisabledString .. "[NEWLINE]";
-						strDisabledString = strDisabledString .. Locale.ConvertTextKey("TXT_KEY_BUILD_BLOCKED_NOT_IN_ADJACENT_TERRITORY", strImpRouteKey);
-					end
-				end
-				
-			-- Trying to build something in a City-State's territory?
-			elseif (pImprovement and pImprovement.OnlyCityStateTerritory) then
-				local bCityStateTerritory = false;
-				if (pPlot:IsOwned()) then
-					local pPlotOwner = Players[pPlot:GetOwner()];
-					if (pPlotOwner and pPlotOwner:IsMinorCiv()) then
-						bCityStateTerritory = true;
-					end
-				end
-				
-				if (not bCityStateTerritory) then
-					-- Add spacing for all entries after the first
-					if (bFirstEntry) then
-						bFirstEntry = false;
-					elseif (not bFirstEntry) then
-						strDisabledString = strDisabledString .. "[NEWLINE]";
-					end
-					
-					strDisabledString = strDisabledString .. "[NEWLINE]";
-					strDisabledString = strDisabledString .. Locale.ConvertTextKey("TXT_KEY_BUILD_BLOCKED_NOT_IN_CITY_STATE_TERRITORY", strImpRouteKey);
-				end	
-
-			-- Trying to build something outside of our territory?
-			elseif (pImprovement and not pImprovement.OutsideBorders) then
-				if (pPlot:GetTeam() ~= unit:GetTeam()) then
-				
-					
-					-- Add spacing for all entries after the first
-					if (bFirstEntry) then
-						bFirstEntry = false;
-					elseif (not bFirstEntry) then
-						strDisabledString = strDisabledString .. "[NEWLINE]";
-					end
-					
-					strDisabledString = strDisabledString .. "[NEWLINE]";
-					strDisabledString = strDisabledString .. Locale.ConvertTextKey("TXT_KEY_BUILD_BLOCKED_OUTSIDE_TERRITORY", strImpRouteKey);
-				end
-			end
-			
-			-- Trying to build something that requires an adjacent luxury?
-			if (pImprovement and pImprovement.AdjacentLuxury) then
-				local bAdjacentLuxury = false;
-
-				for loop, direction in ipairs(direction_types) do
-					local adjacentPlot = Map.PlotDirection(pPlot:GetX(), pPlot:GetY(), direction);
-					if (adjacentPlot ~= nil) then
-						local eResourceType = adjacentPlot:GetResourceType();
-						if (eResourceType ~= -1) then
-							if (Game.GetResourceUsageType(eResourceType) == ResourceUsageTypes.RESOURCEUSAGE_LUXURY) then
-								bAdjacentLuxury = true;
-							end
-						end
-					end
-				end
-				
-				if (not bAdjacentLuxury) then
-					-- Add spacing for all entries after the first
-					if (bFirstEntry) then
-						bFirstEntry = false;
-					elseif (not bFirstEntry) then
-						strDisabledString = strDisabledString .. "[NEWLINE]";
-					end
-					
-					strDisabledString = strDisabledString .. "[NEWLINE]";
-					strDisabledString = strDisabledString .. Locale.ConvertTextKey("TXT_KEY_BUILD_BLOCKED_NO_ADJACENT_LUXURY", strImpRouteKey);
-				end
-			end
-			
-			-- Trying to build something where we can't have two adjacent?
-			if (pImprovement and pImprovement.NoTwoAdjacent) then
-				local bTwoAdjacent = false;
-
-				 for loop, direction in ipairs(direction_types) do
-					local adjacentPlot = Map.PlotDirection(pPlot:GetX(), pPlot:GetY(), direction);
-					if (adjacentPlot ~= nil) then
-						local eImprovementType = adjacentPlot:GetImprovementType();
-						if (eImprovementType ~= -1) then
-							if (eImprovementType == iImprovement) then
-								bTwoAdjacent = true;
-							end
-						end
-						local iBuildProgress = adjacentPlot:GetBuildProgress(iBuildID);
-						if (iBuildProgress > 0) then
-							bTwoAdjacent = true;
-						end
-					end
-				end
-				
-				if (bTwoAdjacent) then
-					-- Add spacing for all entries after the first
-					if (bFirstEntry) then
-						bFirstEntry = false;
-					elseif (not bFirstEntry) then
-						strDisabledString = strDisabledString .. "[NEWLINE]";
-					end
-					
-					strDisabledString = strDisabledString .. "[NEWLINE]";
-					strDisabledString = strDisabledString .. Locale.ConvertTextKey("TXT_KEY_BUILD_BLOCKED_CANNOT_BE_ADJACENT", strImpRouteKey);
-				end
-			end
-			
-			-- Build blocked by a feature here?
-			if (pActivePlayer:IsBuildBlockedByFeature(iBuildID, iFeature)) then
-				local iFeatureTech;
-				
-				local filter = "BuildType = '" .. strBuildType .. "' and FeatureType = '" .. strFeatureType .. "'";
-				for row in GameInfo.BuildFeatures(filter) do
-					iFeatureTech = GameInfo.Technologies[row.PrereqTech].ID;
-				end
-				
-				local pFeatureTech = GameInfo.Technologies[iFeatureTech];
-				
-				-- Add spacing for all entries after the first
-				if (bFirstEntry) then
-					bFirstEntry = false;
-				elseif (not bFirstEntry) then
-					strDisabledString = strDisabledString .. "[NEWLINE]";
-				end
-				
-				strDisabledString = strDisabledString .. "[NEWLINE]";
-				strDisabledString = strDisabledString .. Locale.ConvertTextKey("TXT_KEY_BUILD_BLOCKED_BY_FEATURE", pFeatureTech.Description, pFeature.Description);
-			end
-
-			-- Insufficient resource count?
-			if pImprovement or pRoute then
-				for resource in GameInfo.Resources() do
-					local iResource = resource.ID;
-					local iNumResource = 0;
-					if pImprovement then
-						iNumResource = Game.GetNumResourceRequiredForImprovement(iImprovement, iResource);
-					elseif pRoute then
-						iNumResource = Game.GetNumResourceRequiredForRoute(iRoute, iResource);
-					end
-					if iNumResource > 0 and pActivePlayer:GetNumResourceAvailable(iResource, true) <= 0 then
-						strDisabledString = strDisabledString .. "[NEWLINE]";
-						strDisabledString = strDisabledString .. Locale.ConvertTextKey("TXT_KEY_BUILD_BLOCKED_RESOURCE_REQUIRED", iNumResource, resource.IconString, resource.Description, strImpRouteKey);
-					end
-				end
-			end
-			
-		-- Not a Worker build, use normal disabled help from XML
-		else
-			
-            local strDLLReason = pActivePlayer:GetReasonActionDisabled(unit:GetID(), action.Type);
-			if strDLLReason ~= "" then
-				-- Add spacing for all entries after the first
-				if (bFirstEntry) then
-					bFirstEntry = false;
-				elseif (not bFirstEntry) then
-					strDisabledString = strDisabledString .. "[NEWLINE][NEWLINE]";
-				end
-
-				strDisabledString = strDisabledString .. strDLLReason;
-
-			elseif (action.DisabledHelp and action.DisabledHelp ~= "") then
-				-- Add spacing for all entries after the first
-				if (bFirstEntry) then
-					bFirstEntry = false;
-				elseif (not bFirstEntry) then
-					strDisabledString = strDisabledString .. "[NEWLINE][NEWLINE]";
-				end
-
-				strDisabledString = strDisabledString .. Locale.ConvertTextKey(action.DisabledHelp);
-			end
-		end
-		
-        strDisabledString = "[COLOR_WARNING_TEXT]" .. strDisabledString .. "[ENDCOLOR]";
-        strToolTip = strToolTip .. strDisabledString;
-        
-    end
-    
+	    
 	-- Is this a Worker build?
 	if (bBuild) then
 		
@@ -1715,6 +1490,54 @@ function TipHandler( control )
 			strToolTip = strToolTip .. strClearFeatureString;
 		end
 	end
+
+	-- Not able to perform action
+    if (bDisabled) then
+		
+		-- Worker build: get disabled reason from DLL
+		if (bBuild) then
+			local strDLLReason = unit:GetBuildDisabledReasonString(iBuildID);
+			if strDLLReason ~= "" then
+				-- Add spacing for all entries after the first
+				if (bFirstEntry) then
+					bFirstEntry = false;
+				elseif (not bFirstEntry) then
+					strDisabledString = strDisabledString .. "[NEWLINE][NEWLINE]";
+				end
+
+				strDisabledString = strDisabledString .. strDLLReason;
+			end
+
+		-- Not a Worker build, use normal disabled help from XML
+		else
+			
+            local strDLLReason = pActivePlayer:GetReasonActionDisabled(unit:GetID(), action.Type);
+			if strDLLReason ~= "" then
+				-- Add spacing for all entries after the first
+				if (bFirstEntry) then
+					bFirstEntry = false;
+				elseif (not bFirstEntry) then
+					strDisabledString = strDisabledString .. "[NEWLINE][NEWLINE]";
+				end
+
+				strDisabledString = strDisabledString .. strDLLReason;
+
+			elseif (action.DisabledHelp and action.DisabledHelp ~= "") then
+				-- Add spacing for all entries after the first
+				if (bFirstEntry) then
+					bFirstEntry = false;
+				elseif (not bFirstEntry) then
+					strDisabledString = strDisabledString .. "[NEWLINE][NEWLINE]";
+				end
+
+				strDisabledString = strDisabledString .. Locale.ConvertTextKey(action.DisabledHelp);
+			end
+		end
+		
+        strDisabledString = "[COLOR_WARNING_TEXT]" .. strDisabledString .. "[ENDCOLOR]";
+        strToolTip = strToolTip .. strDisabledString;
+        
+    end
     
     -- Tooltip
     if (strToolTip and strToolTip ~= "") then

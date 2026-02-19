@@ -540,7 +540,7 @@ public:
 	bool canBlastTourism(const CvPlot* pPlot, bool bTestVisible = false) const;
 	bool blastTourism();
 
-	bool canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestVisible = false, bool bTestGold = true, bool bTestEra = false) const;
+	bool canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestVisible = false, bool bTestGold = true, bool bTestEra = false, CvString* toolTipSink = NULL) const;
 	bool build(BuildTypes eBuild);
 
 	int getBuilderStrength() const;
@@ -641,7 +641,6 @@ public:
 
 	bool canBuildRoute() const;
 	BuildTypes getBuildType() const;
-	bool IsWorking() const;
 	int workRate(bool bMax, BuildTypes eBuild = NO_BUILD) const;
 
 	bool isNoBadGoodies() const;

@@ -16145,34 +16145,66 @@ int CvPlayer::GetWorldWonderYieldChange(int iYield)
 }
 
 /// Can we eBuild on pPlot?
-bool CvPlayer::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestEra, bool bTestVisible, bool bTestGold, bool bTestPlotOwner, const CvUnit* pUnit) const
+bool CvPlayer::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestEra, bool bTestVisible, bool bTestGold, bool bTestPlotOwner, const CvUnit* pUnit, CvString* toolTipSink) const
 {
-	if(pPlot && !(pPlot->canBuild(eBuild, GetID(), bTestVisible, bTestPlotOwner)))
+	bool bCanBuild = true;
+
+	if(pPlot && !(pPlot->canBuild(eBuild, GetID(), bTestVisible, bTestPlotOwner, false, toolTipSink)))
 	{
-		return false;
+		if (toolTipSink == NULL)
+			return false;
+		bCanBuild = false;
 	}
 
-	if(GC.getBuildInfo(eBuild)->getTechPrereq() != NO_TECH)
+	CvBuildInfo* pkBuildInfo = GC.getBuildInfo(eBuild);
+	
+	if(pkBuildInfo->getTechPrereq() != NO_TECH)
 	{
-		if(!(GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)GC.getBuildInfo(eBuild)->getTechPrereq())))
+		TechTypes eTechPrereq = (TechTypes)pkBuildInfo->getTechPrereq();
+		if(!(GET_TEAM(getTeam()).GetTeamTechs()->HasTech(eTechPrereq)))
 		{
-			if((!bTestEra && !bTestVisible) || ((GetCurrentEra() + 1) < GC.getTechInfo((TechTypes) GC.getBuildInfo(eBuild)->getTechPrereq())->GetEra()))
+			if((!bTestEra && !bTestVisible) || ((GetCurrentEra() + 1) < GC.getTechInfo(eTechPrereq)->GetEra()))
 			{
-				return false;
+				if (toolTipSink != NULL)
+				{
+					CvTechEntry* pkTechInfo = GC.getTechInfo(eTechPrereq);
+					if (pkTechInfo)
+					{
+						if (!toolTipSink->empty())
+							(*toolTipSink) += "[NEWLINE]";
+						if (pkBuildInfo->getImprovement() != NO_IMPROVEMENT)
+						{
+							GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_BUILD_BLOCKED_PREREQ_TECH", pkTechInfo->GetDescription(), GC.getImprovementInfo((ImprovementTypes)pkBuildInfo->getImprovement())->GetDescription());
+						}
+						else if (pkBuildInfo->getRoute() != NO_ROUTE)
+						{
+							GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_BUILD_BLOCKED_PREREQ_TECH", pkTechInfo->GetDescription(), GC.getRouteInfo((RouteTypes)pkBuildInfo->getRoute())->GetDescription());
+						}
+						bCanBuild = false;
+					}
+					else
+					{
+						return false;
+					}
+				}
+				else
+				{
+					return false;
+				}
 			}
 		}
 	}
 
-	if(GC.getBuildInfo(eBuild)->getTechObsolete() != NO_TECH)
+	if(pkBuildInfo->getTechObsolete() != NO_TECH)
 	{
-		if((GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)GC.getBuildInfo(eBuild)->getTechObsolete())))
+		if((GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)pkBuildInfo->getTechObsolete())))
 		{
 			return false;
 		}
 	}
 
 	// Is this an improvement that is only useable by a specific civ?
-	ImprovementTypes eImprovement = (ImprovementTypes)GC.getBuildInfo(eBuild)->getImprovement();
+	ImprovementTypes eImprovement = (ImprovementTypes)pkBuildInfo->getImprovement();
 	if(eImprovement != NO_IMPROVEMENT)
 	{
 		CvImprovementEntry* pkEntry = GC.getImprovementInfo(eImprovement);
@@ -16196,17 +16228,33 @@ bool CvPlayer::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestEra, b
 					int iNumResource = pkEntry->GetResourceQuantityRequirement(iI);
 					if (iNumResource > 0)
 					{
+						bool bResourceBlocked = false;
 						if (pUnit && pUnit->getBuildType() == eBuild)
 						{
 							// If a unit is checking while building the improvement, we just need to see if the resource count is negative
 							if (getNumResourceAvailable(eResource) < 0)
-							{
-								return false;
-							}
+								bResourceBlocked = true;
 						}
 						else
 						{
 							if (getNumResourceAvailable(eResource) < iNumResource)
+								bResourceBlocked = true;
+						}
+						if (bResourceBlocked)
+						{
+							CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+							if (pkResourceInfo && toolTipSink != NULL)
+							{
+								if (!toolTipSink->empty())
+									(*toolTipSink) += "[NEWLINE]";
+								Localization::String locText = Localization::Lookup("TXT_KEY_BUILD_BLOCKED_RESOURCE_REQUIRED");
+								locText << iNumResource << pkResourceInfo->GetIconString() << pkResourceInfo->GetDescription() << pkEntry->GetDescription();
+								const char* localized = locText.toUTF8();
+								if (localized)
+									(*toolTipSink) += localized;
+								bCanBuild = false;
+							}
+							else
 							{
 								return false;
 							}
@@ -16219,7 +16267,7 @@ bool CvPlayer::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestEra, b
 
 	if (MOD_IMPROVEMENTS_EXTENSIONS && !bTestVisible)
 	{
-		RouteTypes eRoute = (RouteTypes)GC.getBuildInfo(eBuild)->getRoute();
+		RouteTypes eRoute = (RouteTypes)pkBuildInfo->getRoute();
 		if (eRoute != NO_ROUTE)
 		{
 			CvRouteInfo* pkBuildRoute = GC.getRouteInfo(eRoute);
@@ -16232,17 +16280,33 @@ bool CvPlayer::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestEra, b
 					int iNumResource = pkBuildRoute->getResourceQuantityRequirement(iI);
 					if (iNumResource > 0)
 					{
+						bool bResourceBlocked = false;
 						if (pUnit && pUnit->getBuildType() == eBuild)
 						{
 							// If a unit is checking while building the route, we just need to see if the resource count is negative
 							if (getNumResourceAvailable(eResource) < 0)
-							{
-								return false;
-							}
+								bResourceBlocked = true;
 						}
 						else
 						{
 							if (getNumResourceAvailable(eResource) < iNumResource)
+								bResourceBlocked = true;
+						}
+						if (bResourceBlocked)
+						{
+							CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+							if (pkResourceInfo && toolTipSink != NULL)
+							{
+								if (!toolTipSink->empty())
+									(*toolTipSink) += "[NEWLINE]";
+								Localization::String locText = Localization::Lookup("TXT_KEY_BUILD_BLOCKED_RESOURCE_REQUIRED");
+								locText << iNumResource << pkResourceInfo->GetIconString() << pkResourceInfo->GetDescription() << pkBuildRoute->GetDescription();
+								const char* localized = locText.toUTF8();
+								if (localized)
+									(*toolTipSink) += localized;
+								bCanBuild = false;
+							}
+							else
 							{
 								return false;
 							}
@@ -16257,7 +16321,28 @@ bool CvPlayer::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestEra, b
 	{
 		if(IsBuildBlockedByFeature(eBuild, pPlot->getFeatureType(), bTestEra))
 		{
-			return false;
+			if (toolTipSink != NULL)
+			{
+				FeatureTypes eFeature = pPlot->getFeatureType();
+				TechTypes eFeatureTech = (TechTypes)pkBuildInfo->getFeatureTech(eFeature);
+				CvTechEntry* pkTechInfo = eFeatureTech != NO_TECH ? GC.getTechInfo(eFeatureTech) : NULL;
+				CvFeatureInfo* pkFeatureInfo = GC.getFeatureInfo(eFeature);
+				if (pkTechInfo && pkFeatureInfo)
+				{
+					if (!toolTipSink->empty())
+						(*toolTipSink) += "[NEWLINE]";
+					GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_BUILD_BLOCKED_BY_FEATURE", pkTechInfo->GetDescription(), pkFeatureInfo->GetDescription());
+					bCanBuild = false;
+				}
+				else
+				{
+					return false;
+				}
+			}
+			else
+			{
+				return false;
+			}
 		}
 
 		if(bTestGold)
@@ -16269,7 +16354,7 @@ bool CvPlayer::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestEra, b
 		}
 	}
 
-	return true;
+	return bCanBuild;
 }
 
 /// Are we prevented from eBuild-ing because of a Feature on this plot?
