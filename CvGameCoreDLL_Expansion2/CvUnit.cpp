@@ -22425,7 +22425,6 @@ void CvUnit::changeExtraNavalMoves(int iChange)
 {
 	VALIDATE_OBJECT();
 	m_iExtraNavalMoves += iChange;
-	ASSERT(getExtraNavalMoves() >= 0);
 }
 
 
