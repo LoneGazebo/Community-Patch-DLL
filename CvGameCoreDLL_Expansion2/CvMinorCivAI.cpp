@@ -4332,14 +4332,6 @@ void CvMinorCivAI::Reset()
 	m_eUniqueUnit = NO_UNIT;
 	m_eBullyUnit = NO_UNITCLASS;
 
-	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-    {
-        m_hasFriendByYield[iI] = false;
-		m_hasFriendCityByYield[iI] = false;
-		m_hasAllyByYield[iI] = false;
-		m_hasAllyCityByYield[iI] = false;
-    }
-
 	m_iTurnsSinceThreatenedByBarbarians = -1;
 	m_iGlobalQuestCountdown = -1;
 
@@ -13020,14 +13012,12 @@ void CvMinorCivAI::DoSetBonus(PlayerTypes ePlayer, bool bAdd, bool bFriendChange
 				if (iAllyCapitalYieldTimes100 != 0)
 				{
 					pLoopCity->ChangeBaseYieldRateFromCSAlliance(eYield, iAllyCapitalYieldTimes100 / 100 * iSign);
-					//("changed capital %s in %s by %d/100 for alliance with %s, current value is %d", 
-					GC.getYieldInfo(eYield)->getDescription(), pLoopCity->getNameKey(), iAllyCapitalYieldTimes100, m_pPlayer->getNameKey(), pLoopCity->GetBaseYieldRateFromCSAlliance(eYield));
+					//CUSTOMLOG("changed capital %s in %s by %d/100 for alliance with %s, current value is %d", GC.getYieldInfo(eYield)->getIconString(), pLoopCity->getNameKey(), iAllyCapitalYieldTimes100, m_pPlayer->getNameKey(), pLoopCity->GetBaseYieldRateFromCSAlliance(eYield));
 				}
 				if (iFriendCapitalYieldTimes100 != 0)
 				{
 					pLoopCity->ChangeBaseYieldRateFromCSFriendship(eYield, iFriendCapitalYieldTimes100 / 100 * iSign);
-					//CUSTOMLOG("changed capital %s in %s by %d/100 for friendship with %s, current value is %d", 
-					GC.getYieldInfo(eYield)->getDescription(), pLoopCity->getNameKey(), iFriendCapitalYieldTimes100, m_pPlayer->getNameKey(), pLoopCity->GetBaseYieldRateFromCSFriendship(eYield));
+					//CUSTOMLOG("changed capital %s in %s by %d/100 for friendship with %s, current value is %d", GC.getYieldInfo(eYield)->getIconString(), pLoopCity->getNameKey(), iFriendCapitalYieldTimes100, m_pPlayer->getNameKey(), pLoopCity->GetBaseYieldRateFromCSFriendship(eYield));
 				}
 			}
 			else
@@ -13035,14 +13025,12 @@ void CvMinorCivAI::DoSetBonus(PlayerTypes ePlayer, bool bAdd, bool bFriendChange
 				if (iAllyOtherCitiesYieldTimes100 != 0)
 				{
 					pLoopCity->ChangeBaseYieldRateFromCSAlliance(eYield, iAllyOtherCitiesYieldTimes100 / 100 * iSign);
-					//CUSTOMLOG("changed non-capital %s in %s by %d/100 for alliance with %s, current value is %d", 
-					GC.getYieldInfo(eYield)->getDescription(), pLoopCity->getNameKey(), iAllyOtherCitiesYieldTimes100, m_pPlayer->getNameKey(), pLoopCity->GetBaseYieldRateFromCSAlliance(eYield));
+					//CUSTOMLOG("changed non-capital %s in %s by %d/100 for alliance with %s, current value is %d", GC.getYieldInfo(eYield)->getIconString(), pLoopCity->getNameKey(), iAllyOtherCitiesYieldTimes100, m_pPlayer->getNameKey(), pLoopCity->GetBaseYieldRateFromCSAlliance(eYield));
 				}
 				if (iFriendOtherCitiesYieldTimes100 != 0)
 				{
 					pLoopCity->ChangeBaseYieldRateFromCSFriendship(eYield, iFriendOtherCitiesYieldTimes100 / 100 * iSign);
-					//CUSTOMLOG("changed non-capital %s in %s by %d/100 for friendship with %s, current value is %d", 
-					GC.getYieldInfo(eYield)->getDescription(), pLoopCity->getNameKey(), iFriendOtherCitiesYieldTimes100, m_pPlayer->getNameKey(), pLoopCity->GetBaseYieldRateFromCSFriendship(eYield));
+					//CUSTOMLOG("changed non-capital %s in %s by %d/100 for friendship with %s, current value is %d", GC.getYieldInfo(eYield)->getIconString(), pLoopCity->getNameKey(), iFriendOtherCitiesYieldTimes100, m_pPlayer->getNameKey(), pLoopCity->GetBaseYieldRateFromCSFriendship(eYield));
 				}
 			}
 
@@ -13956,11 +13944,11 @@ bool CvMinorCivAI::DoMajorCivEraChange(PlayerTypes ePlayer, EraTypes eNewEra)
 {
 	bool bSomethingChanged = false;
 
-	int iCurrentEra = max(1, (int)kMajor.GetCurrentEra());
-	int iNextEra = max(1, (int)eNewEra);
 	//bonuses based on major traits
 	CvPlayer& kMajor = GET_PLAYER(ePlayer);
 	CvCity* pCapital = kMajor.getCapitalCity();
+	int iCurrentEra = max(1, (int)kMajor.GetCurrentEra());
+	int iNextEra = max(1, (int)eNewEra);
 	if (pCapital)
 	{
 		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
@@ -13988,19 +13976,20 @@ bool CvMinorCivAI::DoMajorCivEraChange(PlayerTypes ePlayer, EraTypes eNewEra)
 	kMajor.GetDiplomacyAI()->LogMinorStatusChange(m_pPlayer->GetID(), "era change yield update");
 
 	int iInfluenceLevel = IsFriends(ePlayer) + IsAllies(ePlayer);
-
+	EraTypes eOldEra = (EraTypes)iCurrentEra;
+	
 	for (int iYield = 0; iYield < NUM_YIELD_TYPES; ++iYield)
 	{
 		YieldTypes eYield = (YieldTypes)iYield;
 
-		int iOldFlat = GetYieldFlatBonus(ePlayer, eYield, eOldEra, iInfluence);
-		int iNewFlat = GetYieldFlatBonus(ePlayer, eYield, eNewEra, iInfluence);
+		int iOldFlat = GetYieldFlatBonus(ePlayer, eYield, eOldEra, iInfluenceLevel);
+		int iNewFlat = GetYieldFlatBonus(ePlayer, eYield, eNewEra, iInfluenceLevel);
 
-		int iOldCap  = GetCityYieldFlatBonus(ePlayer, eYield, eOldEra, iInfluence, true);
-		int iNewCap  = GetCityYieldFlatBonus(ePlayer, eYield, eNewEra, iInfluence, true);
+		int iOldCap  = GetCityYieldFlatBonus(ePlayer, eYield, eOldEra, iInfluenceLevel, true);
+		int iNewCap  = GetCityYieldFlatBonus(ePlayer, eYield, eNewEra, iInfluenceLevel, true);
 
-		int iOldCity = GetCityYieldFlatBonus(ePlayer, eYield, eOldEra, iInfluence);
-		int iNewCity = GetCityYieldFlatBonus(ePlayer, eYield, eNewEra, iInfluence);
+		int iOldCity = GetCityYieldFlatBonus(ePlayer, eYield, eOldEra, iInfluenceLevel, false);
+		int iNewCity = GetCityYieldFlatBonus(ePlayer, eYield, eNewEra, iInfluenceLevel, false);
 
 		int iFlatDelta = iNewFlat - iOldFlat;
 		int iCapDelta  = iNewCap  - iOldCap;
@@ -14342,7 +14331,7 @@ int CvMinorCivAI::GetYieldFlatBonus(PlayerTypes ePlayer, YieldTypes eYield, EraT
 	return iYieldBonus;
 }
 
-int CvMinorCivAI::GetCurrentYieldBonus(PlayerTypes ePlayer, YieldType eYield)
+int CvMinorCivAI::GetCurrentYieldBonus(PlayerTypes ePlayer, YieldTypes eYield)
 {
 	PRECONDITION(ePlayer >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	PRECONDITION(ePlayer < MAX_PLAYERS, "ePlayer is expected to be within maximum bounds (invalid Index)");
@@ -14394,10 +14383,10 @@ int CvMinorCivAI::GetCityYieldFlatBonus(PlayerTypes ePlayer, YieldTypes eYield, 
 	{
 		EraTypes eEra = (EraTypes)iEra;
 
-		if (HasFriendCityYieldBonus(eYield))
+		if (HasFriendCityYieldBonuses(eYield))
 			iYieldBonus += GetFriendCityYieldBonusValue(eYield, eEra, bCapitalOnly);
 		
-		if (HasAllyCityYieldBonus(eYield) && iInfluenceLevel > 1)
+		if (HasAllyCityYieldBonuses(eYield) && iInfluenceLevel > 1)
 			iYieldBonus += GetAllyCityYieldBonusValue(eYield, eEra, bCapitalOnly);
 	}
 
@@ -14407,8 +14396,6 @@ int CvMinorCivAI::GetCityYieldFlatBonus(PlayerTypes ePlayer, YieldTypes eYield, 
 /// How much are we getting RIGHT NOW (usually 0)
 int CvMinorCivAI::GetCurrentCityYieldBonus(PlayerTypes ePlayer, YieldTypes eYield, bool bCapitalOnly)
 {
-	int iAmount = 0;
-
 	int iInfluenceLevel = IsAllies(ePlayer) + IsFriends(ePlayer);
 	
 	if (iInfluenceLevel == 0)
@@ -17920,7 +17907,7 @@ bool CvMinorCivAI::IsSameReligionAsMajor(PlayerTypes eMajor)
 
 CvString CvMinorCivAI::GetStatusChangeDetails(PlayerTypes ePlayer, bool bAdd, bool bFriends, bool bAllies)
 {
-	Localization::String strDetailedInfo;
+	CvString strDetailedInfo;
 
 	if(bAllies && bAdd)		// Now Allies (includes jump from nothing through Friends to Allies)
 		strDetailedInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_NOW_ALLIES_GENERIC");
@@ -17931,9 +17918,9 @@ CvString CvMinorCivAI::GetStatusChangeDetails(PlayerTypes ePlayer, bool bAdd, bo
 	else if(bAllies && !bAdd)		// No longer Allies
 		strDetailedInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_LOST_ALLIES_GENERIC");
 	
-	Localization::String strPlayerLevel;
-	Localization::String strCityLevel;
-	Localization::String strCityLevelCapital;
+	CvString strPlayerLevel;
+	CvString strCityLevel;
+	CvString strCityLevelCapital;
 
 	// code to compute the yield change similar to DoSetBonus
 	const int iSign = bAdd ? 1 : -1;
@@ -17966,7 +17953,7 @@ CvString CvMinorCivAI::GetStatusChangeDetails(PlayerTypes ePlayer, bool bAdd, bo
 		strPlayerLevel += CvString::format("%+d %s %s", 
 			(iFriendYieldTimes100 + iAllyYieldTimes100) / 100,
 			GC.getYieldInfo(eYield)->getIconString(),
-			GC.getYieldInfo(eYield)->getDescription());
+			GC.getYieldInfo(eYield)->GetDescription());
 		
 		if (!strCityLevel.empty()) {
    			 strCityLevel += ", ";
@@ -17974,7 +17961,7 @@ CvString CvMinorCivAI::GetStatusChangeDetails(PlayerTypes ePlayer, bool bAdd, bo
 		strCityLevel += CvString::format("%+d %s %s", 
 			(iFriendOtherCitiesYieldTimes100 + iAllyOtherCitiesYieldTimes100) / 100,
 			GC.getYieldInfo(eYield)->getIconString(),
-			GC.getYieldInfo(eYield)->getDescription());
+			GC.getYieldInfo(eYield)->GetDescription());
 
 		if (!strCityLevelCapital.empty()) {
    			 strCityLevelCapital += ", ";
@@ -17983,7 +17970,7 @@ CvString CvMinorCivAI::GetStatusChangeDetails(PlayerTypes ePlayer, bool bAdd, bo
 		strCityLevelCapital += CvString::format("%+d %s %s", 
 			(iFriendCapitalYieldTimes100 + iAllyCapitalYieldTimes100) / 100,
 			GC.getYieldInfo(eYield)->getIconString(),
-			GC.getYieldInfo(eYield)->getDescription());		
+			GC.getYieldInfo(eYield)->GetDescription());		
 	}
 
 	// now happiness, since that's not in the loop
@@ -18222,13 +18209,9 @@ CvMinorCivInfo::CvMinorCivInfo() :
 	m_eFixedPersonality(NO_MINOR_CIV_PERSONALITY_TYPE),
 	m_iBullyUnit(NO_UNITCLASS),
 	m_piFlavorValue(NULL),
-	m_miFriendYieldBonuses(NULL),
 	m_pbHasFriendByYield(NULL),
-	m_miFriendCityYieldBonuses(NULL),
 	m_pbHasFriendCityByYield(NULL),
-	m_miAllyYieldBonuses(NULL),
 	m_pbHasAllyByYield(NULL),
-	m_miAllyCityYieldBonuses(NULL),
 	m_pbHasAllyCityByYield(NULL)
 {
 }
@@ -18236,13 +18219,9 @@ CvMinorCivInfo::CvMinorCivInfo() :
 CvMinorCivInfo::~CvMinorCivInfo()
 {
 	SAFE_DELETE_ARRAY(m_piFlavorValue);
-	SAFE_DELETE_ARRAY(m_miFriendYieldBonuses);
 	SAFE_DELETE_ARRAY(m_pbHasFriendByYield);
-	SAFE_DELETE_ARRAY(m_miFriendCityYieldBonuses);
 	SAFE_DELETE_ARRAY(m_pbHasFriendCityByYield);
-	SAFE_DELETE_ARRAY(m_miAllyYieldBonuses);
 	SAFE_DELETE_ARRAY(m_pbHasAllyByYield);
-	SAFE_DELETE_ARRAY(m_miAllyCityYieldBonuses);
 	SAFE_DELETE_ARRAY(m_pbHasAllyCityByYield);
 }
 //------------------------------------------------------------------------------
@@ -18378,15 +18357,13 @@ int CvMinorCivInfo::getFlavorValue(int i) const
 {
 	PRECONDITION(i < GC.getNumFlavorTypes(), "Index out of bounds");
 	PRECONDITION(i > -1, "Index out of bounds");
-	return m_piFlavorValue ? m_piFlavorValue[i] : 0;
+	return m_piFlavorValue ? m_piFlavorValue[eYield] : 0;
 }
 //------------------------------------------------------------------------------
 int CvMinorCivInfo::getFriendYieldBonuses(YieldTypes eYield, EraTypes eEra) const
 {
 	PRECONDITION(eYield < NUM_YIELD_TYPES, "Index out of bounds");
 	PRECONDITION(eYield > -1, "Index out of bounds");
-	PRECONDITION(eEra < NUM_ERA, "Index out of bounds");
-	PRECONDITION(eEra > -1, "Index out of bounds");
 
 	std::map<YieldTypes, std::map<EraTypes, int> >::const_iterator itYield;
 	itYield = m_miFriendYieldBonuses.find(eYield);
@@ -18405,15 +18382,13 @@ bool CvMinorCivInfo::hasFriendYieldBonuses(YieldTypes eYield) const
 {
 	PRECONDITION(eYield < NUM_YIELD_TYPES, "Index out of bounds");
 	PRECONDITION(eYield > -1, "Index out of bounds");
-	return m_pbHasFriendByYield ? m_pbHasFriendByYield[i] : false;
+	return m_pbHasFriendByYield ? m_pbHasFriendByYield[eYield] : false;
 }
 //------------------------------------------------------------------------------
 int CvMinorCivInfo::getFriendCityYieldBonuses(YieldTypes eYield, EraTypes eEra, bool bCapital) const
 {
 	PRECONDITION(eYield < NUM_YIELD_TYPES, "Index out of bounds");
 	PRECONDITION(eYield > -1, "Index out of bounds");
-	PRECONDITION(eEra < NUM_ERA, "Index out of bounds");
-	PRECONDITION(eEra > -1, "Index out of bounds");
 	
     std::map<YieldTypes, std::map<std::pair<EraTypes, bool>, int> >::const_iterator itYield;
 	itYield = m_miFriendCityYieldBonuses.find(eYield);
@@ -18432,16 +18407,14 @@ bool CvMinorCivInfo::hasFriendCityYieldBonuses(YieldTypes eYield) const
 {
 	PRECONDITION(eYield < NUM_YIELD_TYPES, "Index out of bounds");
 	PRECONDITION(eYield > -1, "Index out of bounds");
-	return m_pbHasFriendCityByYield ? m_pbHasFriendCityByYield[i] : false;
+	return m_pbHasFriendCityByYield ? m_pbHasFriendCityByYield[eYield] : false;
 }
 //------------------------------------------------------------------------------
 int CvMinorCivInfo::getAllyYieldBonuses(YieldTypes eYield, EraTypes eEra) const
 {
 	PRECONDITION(eYield < NUM_YIELD_TYPES, "Index out of bounds");
 	PRECONDITION(eYield > -1, "Index out of bounds");
-	PRECONDITION(eEra < NUM_ERA, "Index out of bounds");
-	PRECONDITION(eEra > -1, "Index out of bounds");
-
+	
 	std::map<YieldTypes, std::map<EraTypes, int> >::const_iterator itYield;
 	itYield = m_miAllyYieldBonuses.find(eYield);
     if (itYield == m_miAllyYieldBonuses.end())
@@ -18459,15 +18432,13 @@ bool CvMinorCivInfo::hasAllyYieldBonuses(YieldTypes eYield) const
 {
 	PRECONDITION(eYield < NUM_YIELD_TYPES, "Index out of bounds");
 	PRECONDITION(eYield > -1, "Index out of bounds");
-	return m_pbHasAllyByYield ? m_pbHasAllyByYield[i] : false;
+	return m_pbHasAllyByYield ? m_pbHasAllyByYield[eYield] : false;
 }
 //------------------------------------------------------------------------------
 int CvMinorCivInfo::getAllyCityYieldBonuses(YieldTypes eYield, EraTypes eEra, bool bCapital) const
 {
 	PRECONDITION(eYield < NUM_YIELD_TYPES, "Index out of bounds");
 	PRECONDITION(eYield > -1, "Index out of bounds");
-	PRECONDITION(eEra < NUM_ERA, "Index out of bounds");
-	PRECONDITION(eEra > -1, "Index out of bounds");
 	
     std::map<YieldTypes, std::map<std::pair<EraTypes, bool>, int> >::const_iterator itYield;
 	itYield = m_miAllyCityYieldBonuses.find(eYield);
@@ -18486,7 +18457,7 @@ bool CvMinorCivInfo::hasAllyCityYieldBonuses(YieldTypes eYield) const
 {
 	PRECONDITION(eYield < NUM_YIELD_TYPES, "Index out of bounds");
 	PRECONDITION(eYield > -1, "Index out of bounds");
-	return m_pbHasAllyCityByYield ? m_pbHasAllyCityByYield[i] : false;
+	return m_pbHasAllyCityByYield ? m_pbHasAllyCityByYield[eYield] : false;
 }
 //------------------------------------------------------------------------------
 const std::string& CvMinorCivInfo::getCityNames(int i) const
