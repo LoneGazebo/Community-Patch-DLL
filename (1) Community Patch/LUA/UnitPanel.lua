@@ -1023,100 +1023,6 @@ function TipHandler( control )
 		strActionHelp = strActionHelp .. Locale.ConvertTextKey("TXT_KEY_UPGRADE_HELP", GameInfo.Units[iUnitType].Description, iGoldToUpgrade);
 		
         strToolTip = strToolTip .. strActionHelp;
-        
-		if bDisabled then
-			
-			local pActivePlayer = Players[Game.GetActivePlayer()];
-			
-			-- Can't upgrade because we're outside our territory
-			if (not unit:CanUpgradeInTerritory(false)) then
-				
-				-- Add spacing for all entries after the first
-				if (bFirstEntry) then
-					bFirstEntry = false;
-				elseif (not bFirstEntry) then
-					strDisabledString = strDisabledString .. "[NEWLINE][NEWLINE]";
-				end
-				
-				strDisabledString = strDisabledString .. Locale.ConvertTextKey("TXT_KEY_UPGRADE_HELP_DISABLED_TERRITORY");
-			end
-			
-			-- Can't upgrade because we're outside of a city
-			if (unit:GetDomainType() == DomainTypes.DOMAIN_AIR and not pPlot:IsCity()) then
-				
-				-- Add spacing for all entries after the first
-				if (bFirstEntry) then
-					bFirstEntry = false;
-				elseif (not bFirstEntry) then
-					strDisabledString = strDisabledString .. "[NEWLINE][NEWLINE]";
-				end
-				
-				strDisabledString = strDisabledString .. Locale.ConvertTextKey("TXT_KEY_UPGRADE_HELP_DISABLED_CITY");
-			end
-			
-			-- Can't upgrade because we lack the Gold
-			if (iGoldToUpgrade > pActivePlayer:GetGold()) then
-				
-				-- Add spacing for all entries after the first
-				if (bFirstEntry) then
-					bFirstEntry = false;
-				elseif (not bFirstEntry) then
-					strDisabledString = strDisabledString .. "[NEWLINE][NEWLINE]";
-				end
-				
-				strDisabledString = strDisabledString .. Locale.ConvertTextKey("TXT_KEY_UPGRADE_HELP_DISABLED_GOLD");
-			end
-			
-			-- Can't upgrade because we lack the Resources
-			local strResourcesNeeded = "";
-			
-			local iNumResourceNeededToUpgrade;
-			local iResourceLoop;
-			
-			-- Loop through all resources to see how many we need. If it's > 0 then add to the string
-			for pResource in GameInfo.Resources() do
-				iResourceLoop = pResource.ID;
-				
-				iNumResourceNeededToUpgrade = unit:GetNumResourceNeededToUpgrade(iResourceLoop);
-				
-				if (iNumResourceNeededToUpgrade > 0 and iNumResourceNeededToUpgrade > pActivePlayer:GetNumResourceAvailable(iResourceLoop)) then
-					-- Add separator for non-initial entries
-					if (strResourcesNeeded ~= "") then
-						strResourcesNeeded = strResourcesNeeded .. ", ";
-					end
-					
-					strResourcesNeeded = strResourcesNeeded .. iNumResourceNeededToUpgrade .. " " .. pResource.IconString .. " " .. Locale.ConvertTextKey(pResource.Description);
-				end
-			end
-			
-			-- Build resources required string
-			if (strResourcesNeeded ~= "") then
-				
-				-- Add spacing for all entries after the first
-				if (bFirstEntry) then
-					bFirstEntry = false;
-				elseif (not bFirstEntry) then
-					strDisabledString = strDisabledString .. "[NEWLINE][NEWLINE]";
-				end
-				
-				strDisabledString = strDisabledString .. Locale.ConvertTextKey("TXT_KEY_UPGRADE_HELP_DISABLED_RESOURCES", strResourcesNeeded);
-			end
-    
-    	        -- if we can't upgrade due to stacking
-	        if (pPlot:GetNumFriendlyUnitsOfType(unit) > 1) then
-				-- Add spacing for all entries after the first
-				if (bFirstEntry) then
-					bFirstEntry = false;
-				elseif (not bFirstEntry) then
-					strDisabledString = strDisabledString .. "[NEWLINE][NEWLINE]";
-				end
-				
-				strDisabledString = strDisabledString .. Locale.ConvertTextKey("TXT_KEY_UPGRADE_HELP_DISABLED_STACKING");
-
-	        end
-    
-	        strDisabledString = "[COLOR_WARNING_TEXT]" .. strDisabledString .. "[ENDCOLOR]";	        
-		end
     end
     
     if (action.Type == "MISSION_ALERT" and not unit:IsEverFortifyable()) then
@@ -1178,6 +1084,13 @@ function TipHandler( control )
 	
 	-- Paradrop
 	elseif (action.Type == "INTERFACEMODE_PARADROP") then
+		-- Add spacing for all entries after the first
+		if (bFirstEntry) then
+			bFirstEntry = false;
+		elseif (not bFirstEntry) then
+			strToolTip = strToolTip .. "[NEWLINE]";
+		end
+		
 		strToolTip = Locale.Lookup("TXT_KEY_INTERFACEMODE_PARADROP_HELP_WITH_RANGE", unit:GetDropRange());
 
 	-- Sell Exotic Goods

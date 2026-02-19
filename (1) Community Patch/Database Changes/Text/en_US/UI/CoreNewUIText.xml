@@ -2205,6 +2205,16 @@
 		<Row Tag="TXT_KEY_MISSION_HEAL_DISABLED_BLOCKADED">
 			<Text>Units cannot heal in a fully blockaded city.</Text>
 		</Row>
+		<!-- Upgrade action disabled tooltips -->
+		<Row Tag="TXT_KEY_UPGRADE_HELP_DISABLED_EMBARKED">
+			<Text>Embarked units cannot upgrade.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UPGRADE_HELP_DISABLED_HAS_CARGO">
+			<Text>A unit carrying other units cannot upgrade.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UPGRADE_HELP_DISABLED_CARGO_INCOMPATIBLE">
+			<Text>The transport cannot carry the upgraded unit type.</Text>
+		</Row>
 		<!-- Paradrop action disabled tooltips -->
 		<Row Tag="TXT_KEY_MISSION_PARADROP_DISABLED_MOVED">
 			<Text>A unit cannot paradrop after moving.</Text>

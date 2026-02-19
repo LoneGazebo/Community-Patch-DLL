@@ -38701,6 +38701,11 @@ bool CvPlayer::HasResourceForNewUnit(const UnitTypes eUnit, const bool bNoRequir
 
 	bool bResult = true;
 
+
+	CvString strRequirementResources;
+	CvString strTotalResources;
+	CvString strNetNegResources;
+
 	for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 	{
 		const ResourceTypes eResource = static_cast<ResourceTypes>(iResourceLoop);
@@ -38714,7 +38719,25 @@ bool CvPlayer::HasResourceForNewUnit(const UnitTypes eUnit, const bool bNoRequir
 			if (getNumResourceTotal(eResource) < iResourceTotal || getNumResourceAvailable(eResource) < 0)
 			{
 				CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
-				GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_UNIT_LACKS_RESOURCES_TOTAL", pkResource->GetIconString(), pkResource->GetTextKey(), iResourceTotal);
+				if (eFromUnit != NO_UNIT)
+				{
+					CvString strEntry;
+					strEntry.Format("%d %s %s", iResourceTotal, pkResource->GetIconString(), pkResource->GetDescription());
+					if (getNumResourceAvailable(eResource) < 0)
+					{
+						if (!strNetNegResources.empty()) strNetNegResources += ", ";
+						strNetNegResources += strEntry;
+					}
+					else
+					{
+						if (!strTotalResources.empty()) strTotalResources += ", ";
+						strTotalResources += strEntry;
+					}
+				}
+				else
+				{
+					GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_UNIT_LACKS_RESOURCES_TOTAL", pkResource->GetIconString(), pkResource->GetTextKey(), iResourceTotal);
+				}
 				bResult = false;
 			}
 		}
@@ -38744,9 +38767,42 @@ bool CvPlayer::HasResourceForNewUnit(const UnitTypes eUnit, const bool bNoRequir
 			if (getNumResourceAvailable(eResource, true) + iFreedUpResource < iResourceRequirement)
 			{
 				CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
-				GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_UNIT_LACKS_RESOURCES", pkResource->GetIconString(), pkResource->GetTextKey(), iResourceRequirement);
+				if (eFromUnit != NO_UNIT)
+				{
+					CvString strEntry;
+					strEntry.Format("%d %s %s", iResourceRequirement, pkResource->GetIconString(), pkResource->GetDescription());
+					if (!strRequirementResources.empty()) strRequirementResources += ", ";
+					strRequirementResources += strEntry;
+				}
+				else
+				{
+					GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_UNIT_LACKS_RESOURCES", pkResource->GetIconString(), pkResource->GetTextKey(), iResourceRequirement);
+				}
 				bResult = false;
 			}
+		}
+	}
+
+	// Emit combined resource tooltips for upgrade context
+	if (eFromUnit != NO_UNIT)
+	{
+		if (!strRequirementResources.empty())
+		{
+			if (toolTipSink && !toolTipSink->empty())
+				(*toolTipSink) += "[NEWLINE]";
+			GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_UPGRADE_HELP_DISABLED_RESOURCES", strRequirementResources.c_str());
+		}
+		if (!strTotalResources.empty())
+		{
+			if (toolTipSink && !toolTipSink->empty())
+				(*toolTipSink) += "[NEWLINE]";
+			GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_UPGRADE_HELP_DISABLED_GROSS_RESOURCES", strTotalResources.c_str());
+		}
+		if (!strNetNegResources.empty())
+		{
+			if (toolTipSink && !toolTipSink->empty())
+				(*toolTipSink) += "[NEWLINE]";
+			GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_UPGRADE_HELP_DISABLED_RESOURCES_NET_NEGATIVE", strNetNegResources.c_str());
 		}
 	}
 

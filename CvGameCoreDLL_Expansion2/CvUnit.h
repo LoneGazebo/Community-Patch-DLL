@@ -305,7 +305,7 @@ public:
 	bool jumpToNearestValidPlot();
 	bool jumpToNearestValidPlotWithinRange(int iRange, CvPlot* pStartPlot=NULL);
 
-	bool canScrap(bool bTestVisible = false) const;
+	bool canScrap(bool bTestVisible = false, CvString* toolTipSink = NULL) const;
 	void scrap(bool bDelay = true);
 	int GetScrapGold() const;
 
@@ -558,7 +558,7 @@ public:
 
 	bool isReadyForUpgrade() const;
 	bool CanUpgradeRightNow(bool bOnlyTestVisible) const;
-	bool CanUpgradeTo(UnitTypes eUpgradeUnitType, bool bOnlyTestVisible) const;
+	bool CanUpgradeTo(UnitTypes eUpgradeUnitType, bool bOnlyTestVisible, CvString* toolTipSink = NULL) const;
 	bool CanUpgradeInTerritory(bool bOnlyTestVisible) const;
 	UnitTypes GetUpgradeUnitType() const;
 	int upgradePrice(UnitTypes eUnit) const;

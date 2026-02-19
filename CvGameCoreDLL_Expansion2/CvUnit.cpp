@@ -5952,7 +5952,7 @@ void CvUnit::Automate(AutomateTypes eAutomate)
 
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::canScrap(bool bTestVisible) const
+bool CvUnit::canScrap(bool bTestVisible, CvString* toolTipSink) const
 {
 	VALIDATE_OBJECT();
 	if(plot()->isUnitFighting())
@@ -5974,7 +5974,14 @@ bool CvUnit::canScrap(bool bTestVisible) const
 	{
 		//prevent an exploit where players disband units to deny kill yields to their enemies
 		if (MOD_BALANCE_VP && getDomainType() != DOMAIN_AIR && !GET_PLAYER(m_eOwner).GetPossibleAttackers(*plot(), getTeam()).empty() && !plot()->isCity())
+		{
+			if (toolTipSink == NULL)
+				return false;
+			if (!toolTipSink->empty())
+				(*toolTipSink) += "[NEWLINE]";
+			GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_UNIT_DELETE_DISABLED_ENEMIES");
 			return false;
+		}
 	}
 
 	if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlayerCanDisbandUnit, getOwner(), GetID()) == GAMEEVENTRETURN_FALSE)
@@ -13826,7 +13833,7 @@ bool CvUnit::CanUpgradeRightNow(bool bOnlyTestVisible) const
 	return CanUpgradeTo(GetUpgradeUnitType(), bOnlyTestVisible);
 }
 
-bool CvUnit::CanUpgradeTo(UnitTypes eUpgradeUnitType, bool bOnlyTestVisible) const
+bool CvUnit::CanUpgradeTo(UnitTypes eUpgradeUnitType, bool bOnlyTestVisible, CvString* toolTipSink) const
 {
 	// Does the Unit actually upgrade into anything?
 	if (eUpgradeUnitType == NO_UNIT)
@@ -13857,54 +13864,134 @@ bool CvUnit::CanUpgradeTo(UnitTypes eUpgradeUnitType, bool bOnlyTestVisible) con
 	// Show the upgrade, but don't actually allow it
 	if (!bOnlyTestVisible)
 	{
+		bool bCanUpgrade = true;
+
 		if (!canEndTurnAtPlot(pPlot))
-			return false;
+		{
+			if (toolTipSink == NULL)
+				return false;
+			if (!toolTipSink->empty())
+				(*toolTipSink) += "[NEWLINE]";
+			GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_MISSION_DISABLED_CANNOT_END_TURN");
+			bCanUpgrade = false;
+		}
 
 		if (!CanUpgradeInTerritory(bOnlyTestVisible))
-			return false;
+		{
+			if (toolTipSink == NULL)
+				return false;
+			if (!toolTipSink->empty())
+				(*toolTipSink) += "[NEWLINE]";
+			GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_UPGRADE_HELP_DISABLED_TERRITORY");
+			bCanUpgrade = false;
+		}
 
 		if (isEmbarked() || pPlot->needsEmbarkation(this))
-			return false;
+		{
+			if (toolTipSink == NULL)
+				return false;
+			if (!toolTipSink->empty())
+				(*toolTipSink) += "[NEWLINE]";
+			GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_UPGRADE_HELP_DISABLED_EMBARKED");
+			bCanUpgrade = false;
+		}
 
 		// Check max instances of unit class
 		// Don't count units already in production; upgrading is prioritized
 		UnitClassTypes eUpgradeUnitClassType = static_cast<UnitClassTypes>(pkUpgradeUnitInfo->GetUnitClassType());
+		CvUnitClassInfo* pkUpgradeUnitClassInfo = GC.getUnitClassInfo(eUpgradeUnitClassType);
 
 		// Maxed out unit class for Game
 		if (GC.getGame().isUnitClassMaxedOut(eUpgradeUnitClassType))
-			return false;
+		{
+			if (toolTipSink == NULL)
+				return false;
+			if (!toolTipSink->empty())
+				(*toolTipSink) += "[NEWLINE]";
+			GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_UPGRADE_HELP_DISABLED_GLOBAL_UNITCLASS_LIMIT", "", "", pkUpgradeUnitClassInfo ? pkUpgradeUnitClassInfo->getMaxGlobalInstances() : 0);
+			bCanUpgrade = false;
+		}
 
 		// Maxed out unit class for Team
 		if (kTeam.isUnitClassMaxedOut(eUpgradeUnitClassType))
-			return false;
+		{
+			if (toolTipSink == NULL)
+				return false;
+			if (!toolTipSink->empty())
+				(*toolTipSink) += "[NEWLINE]";
+			GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_UPGRADE_HELP_DISABLED_TEAM_UNITCLASS_LIMIT", "", "", pkUpgradeUnitClassInfo ? pkUpgradeUnitClassInfo->getMaxTeamInstances() : 0);
+			bCanUpgrade = false;
+		}
 
 		// Maxed out unit class for Player
 		if (kOwner.isUnitClassMaxedOut(eUpgradeUnitClassType))
-			return false;
+		{
+			if (toolTipSink == NULL)
+				return false;
+			if (!toolTipSink->empty())
+				(*toolTipSink) += "[NEWLINE]";
+			GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_UPGRADE_HELP_DISABLED_PLAYER_UNITCLASS_LIMIT", "", "", pkUpgradeUnitClassInfo ? pkUpgradeUnitClassInfo->getMaxPlayerInstances() : 0);
+			bCanUpgrade = false;
+		}
 
 		// Can't upgrade into something that our current transporter can't carry (e.g. base game Stealth Bomber)
 		SpecialUnitTypes eSpecialUnit = static_cast<SpecialUnitTypes>(pkUpgradeUnitInfo->GetSpecialUnitType());
 		if (isCargo() && !getTransportUnit()->CanHaveCargo(eSpecialUnit, pkUpgradeUnitInfo->GetDomainType()))
-			return false;
+		{
+			if (toolTipSink == NULL)
+				return false;
+			if (!toolTipSink->empty())
+				(*toolTipSink) += "[NEWLINE]";
+			GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_UPGRADE_HELP_DISABLED_CARGO_INCOMPATIBLE");
+			bCanUpgrade = false;
+		}
 
 		// Can't have cargo on board, in case it upgrades into something that can't carry cargo
 		if (hasCargo())
-			return false;
+		{
+			if (toolTipSink == NULL)
+				return false;
+			if (!toolTipSink->empty())
+				(*toolTipSink) += "[NEWLINE]";
+			GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_UPGRADE_HELP_DISABLED_HAS_CARGO");
+			bCanUpgrade = false;
+		}
 
 		// Player must have enough Gold
 		if (kOwner.GetTreasury()->GetGold() < upgradePrice(eUpgradeUnitType) && !kOwner.isMinorCiv())
-			return false;
+		{
+			if (toolTipSink == NULL)
+				return false;
+			if (!toolTipSink->empty())
+				(*toolTipSink) += "[NEWLINE]";
+			GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_UPGRADE_HELP_DISABLED_GOLD");
+			bCanUpgrade = false;
+		}
 
 		// Resource Requirements
-		if (kOwner.isMajorCiv() && !kOwner.HasResourceForNewUnit(eUpgradeUnitType, false, false, getUnitType()))
-			return false;
+		if (kOwner.isMajorCiv() && !kOwner.HasResourceForNewUnit(eUpgradeUnitType, false, false, getUnitType(), false, toolTipSink))
+		{
+			if (toolTipSink == NULL)
+				return false;
+			bCanUpgrade = false;
+		}
 
 		if (getDomainType() == DOMAIN_AIR)
 		{
 			// Yes! upgrade if in territory and on a carrier. Community Patch knows how to Retrofit bitch on a Carrier!
 			if (!pPlot->isCity() && !isCargo())
+			{
+				if (toolTipSink == NULL)
 				return false;
+				if (!toolTipSink->empty())
+					(*toolTipSink) += "[NEWLINE]";
+				GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_UPGRADE_HELP_DISABLED_CITY");
+				bCanUpgrade = false;
+			}
 		}
+
+		if (!bCanUpgrade)
+			return false;
 	}
 
 	if (MOD_EVENTS_UNIT_UPGRADES)

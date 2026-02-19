@@ -10946,7 +10946,13 @@ int CvLuaPlayer::lGetReasonActionDisabled(lua_State* L)
 			ASSERT(pUnit->IsHurt() && !pUnit->canHeal(pPlot, false));
 			pUnit->canHeal(pPlot, false, &toolTip);
 		}
-		else if (strcmp(szActionType, "MISSION_PARADROP") == 0)
+		else if (strcmp(szActionType, "COMMAND_UPGRADE") == 0)
+		{
+			// this should only be called if the unit can upgrade (visibility check) but can't right now, and a tooltip should be shown explaining why
+			ASSERT(pUnit->CanUpgradeRightNow(true) && !pUnit->CanUpgradeRightNow(false));
+			pUnit->CanUpgradeTo(pUnit->GetUpgradeUnitType(), false, &toolTip);
+		}
+		else if (strcmp(szActionType, "INTERFACEMODE_PARADROP") == 0)
 		{
 			// this should only be called if the unit can paradrop (visibility check) but can't right now, and a tooltip should be shown explaining why
 			ASSERT(pUnit->canParadrop(pPlot, true) && !pUnit->canParadrop(pPlot, false));
@@ -10954,13 +10960,9 @@ int CvLuaPlayer::lGetReasonActionDisabled(lua_State* L)
 		}
 		else if (strcmp(szActionType, "COMMAND_DELETE") == 0)
 		{
-			// mirrors the bTestVisible condition in canScrap
-			if (MOD_BALANCE_VP && pUnit->getDomainType() != DOMAIN_AIR
-				&& !GET_PLAYER(pUnit->getOwner()).GetPossibleAttackers(*pPlot, pUnit->getTeam()).empty()
-				&& !pPlot->isCity())
-			{
-				GC.getGame().BuildCannotPerformActionHelpText(&toolTip, "TXT_KEY_UNIT_DELETE_DISABLED_ENEMIES");
-			}
+			// this should only be called if the unit can be scrapped (visibility check) but can't right now, and a tooltip should be shown explaining why
+			ASSERT(pUnit->canScrap(true) && !pUnit->canScrap(false));
+			pUnit->canScrap(false, &toolTip);
 		}
 	}
 
