@@ -305,7 +305,7 @@ public:
 	bool jumpToNearestValidPlot();
 	bool jumpToNearestValidPlotWithinRange(int iRange, CvPlot* pStartPlot=NULL);
 
-	bool canScrap(bool bTestVisible = false) const;
+	bool canScrap(bool bTestVisible = false, CvString* toolTipSink = NULL) const;
 	void scrap(bool bDelay = true);
 	int GetScrapGold() const;
 
@@ -343,9 +343,9 @@ public:
 	bool canCargoAllMove() const;
 	int getUnitAICargo(UnitAITypes eUnitAI) const;
 
-	bool canHold(const CvPlot* pPlot) const; // skip turn
-	bool canSleep(const CvPlot* pPlot) const;
-	bool canFortify(const CvPlot* pPlot) const;
+	bool canHold(const CvPlot* pPlot, bool bTestVisibility = false) const; // skip turn
+	bool canSleep(const CvPlot* pPlot, bool bTestVisibility = false) const;
+	bool canFortify(const CvPlot* pPlot, bool bTestVisibility = false) const;
 	bool canAirPatrol(const CvPlot* pPlot) const;
 
 	bool IsRangeAttackIgnoreLOS() const;
@@ -405,8 +405,8 @@ public:
 	int GetEmbarkAbilityCount() const;
 	void ChangeEmbarkAbilityCount(int iChange);
 
-	bool canHeal(const CvPlot* pPlot, bool bCheckMovement = true) const;
-	bool canSentry(const CvPlot* pPlot) const;
+	bool canHeal(const CvPlot* pPlot, bool bCheckMovement = true, CvString* toolTipSink = NULL) const;
+	bool canSentry(const CvPlot* pPlot, bool bTestVisibility = false) const;
 
 	int healRate(const CvPlot* pPlot) const;
 	int healTurns(const CvPlot* pPlot) const;
@@ -426,8 +426,8 @@ public:
 	bool canNuke() const;
 	bool canNukeAt(const CvPlot* pPlot, int iX, int iY) const;
 
-	bool canParadrop(const CvPlot* pPlot, bool bOnlyTestVisibility) const;
-	bool canParadropAt(const CvPlot* pPlot, int iX, int iY) const;
+	bool canParadrop(const CvPlot* pPlot, bool bOnlyTestVisibility, CvString* toolTipSink = NULL) const;
+	bool canParadropAt(const CvPlot* pPlot, int iX, int iY, bool bOnlyTestVisibility = false) const;
 	bool paradrop(int iX, int iY, bool& bAnimationShown);
 
 	bool canMakeTradeRoute(const CvPlot* pPlot) const;
@@ -540,7 +540,7 @@ public:
 	bool canBlastTourism(const CvPlot* pPlot, bool bTestVisible = false) const;
 	bool blastTourism();
 
-	bool canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestVisible = false, bool bTestGold = true, bool bTestEra = false) const;
+	bool canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestVisible = false, bool bTestGold = true, bool bTestEra = false, CvString* toolTipSink = NULL) const;
 	bool build(BuildTypes eBuild);
 
 	int getBuilderStrength() const;
@@ -558,7 +558,7 @@ public:
 
 	bool isReadyForUpgrade() const;
 	bool CanUpgradeRightNow(bool bOnlyTestVisible) const;
-	bool CanUpgradeTo(UnitTypes eUpgradeUnitType, bool bOnlyTestVisible) const;
+	bool CanUpgradeTo(UnitTypes eUpgradeUnitType, bool bOnlyTestVisible, CvString* toolTipSink = NULL) const;
 	bool CanUpgradeInTerritory(bool bOnlyTestVisible) const;
 	UnitTypes GetUpgradeUnitType() const;
 	int upgradePrice(UnitTypes eUnit) const;
@@ -641,7 +641,6 @@ public:
 
 	bool canBuildRoute() const;
 	BuildTypes getBuildType() const;
-	bool IsWorking() const;
 	int workRate(bool bMax, BuildTypes eBuild = NO_BUILD) const;
 
 	bool isNoBadGoodies() const;

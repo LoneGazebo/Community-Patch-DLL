@@ -1064,21 +1064,21 @@ bool CvUnitMission::CanStartMission(CvUnit* hUnit, int iMission, int iData1, int
 	}
 	else if(iMission == CvTypes::getMISSION_SKIP())
 	{
-		if(hUnit->canHold(pPlot))
+		if(hUnit->canHold(pPlot, bTestVisible))
 		{
 			return true;
 		}
 	}
 	else if(iMission == CvTypes::getMISSION_SLEEP())
 	{
-		if(hUnit->canSleep(pPlot))
+		if(hUnit->canSleep(pPlot, bTestVisible))
 		{
 			return true;
 		}
 	}
 	else if(iMission == CvTypes::getMISSION_FORTIFY())
 	{
-		if(hUnit->canFortify(pPlot))
+		if(hUnit->canFortify(pPlot, bTestVisible))
 		{
 			return true;
 		}
@@ -1099,14 +1099,21 @@ bool CvUnitMission::CanStartMission(CvUnit* hUnit, int iMission, int iData1, int
 	}
 	else if(iMission == CvTypes::getMISSION_HEAL())
 	{
-		if(hUnit->IsHurt() && hUnit->canHeal(pPlot, false)) //next turn is also ok
+		if (hUnit->IsHurt())
 		{
-			return true;
+			if (hUnit->canHeal(pPlot, false)) // next turn is also ok
+			{
+				return true;
+			}
+			else if (bTestVisible)
+			{
+				return true; // show a tooltip explaining why we can't heal
+			}
 		}
 	}
 	else if(iMission == CvTypes::getMISSION_ALERT())
 	{
-		if(hUnit->canSentry(pPlot))
+		if(hUnit->canSentry(pPlot, bTestVisible))
 		{
 			return true;
 		}
@@ -1127,7 +1134,7 @@ bool CvUnitMission::CanStartMission(CvUnit* hUnit, int iMission, int iData1, int
 	}
 	else if(iMission == CvTypes::getMISSION_PARADROP())
 	{
-		if(hUnit->canParadropAt(pPlot, iData1, iData2))
+		if(hUnit->canParadropAt(pPlot, iData1, iData2, bTestVisible))
 		{
 			return true;
 		}
