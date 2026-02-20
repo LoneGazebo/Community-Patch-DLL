@@ -4800,23 +4800,52 @@ void CvPlayer::getCivilizationCityName(CvString& szBuffer, CivilizationTypes eCi
 	else
 	{
 		const CvCivilizationInfo& kCivInfo = *pkCivilizationInfo;
-		for(int iI = 0; iI < kCivInfo.getNumCityNames(); iI++)
+		const int iNumNames = kCivInfo.getNumCityNames();
+
+		if (iNumNames == 0)
+			return;
+
+		if (GC.getGame().isOption(GAMEOPTION_RANDOMIZE_CITY_NAMES) && GetNumCitiesFounded() != 0)
 		{
-			iLoopName = ((iI + iRandOffset) % kCivInfo.getNumCityNames());
-
-			const CvString strCityName = kCivInfo.getCityNames(iLoopName);
-			CvString strName = GetLocalizedText(strCityName.c_str());
-
-			if(isCityNameValid(strName, true))
+			vector<CvString> availableNames;
+			availableNames.reserve(iNumNames);
+			for (int iI = 0; iI < iNumNames; iI++)
 			{
-				szBuffer = strCityName;
-				break;
+				const CvString strCityName = kCivInfo.getCityNames(iI);
+				CvString strName = GetLocalizedText(strCityName.c_str());
+
+				if (isCityNameValid(strName, true))
+				{
+					availableNames.push_back(strCityName);
+				}
+			}
+
+			if (availableNames.empty())
+				return;
+
+			uint iRand = GC.getGame().urandLimitExclusive(availableNames.size(), CvSeeder(GetID()).mix(GetNumCitiesFounded()));
+			szBuffer = availableNames[iRand];
+		}
+		else
+		{
+			for (int iI = 0; iI < iNumNames; iI++)
+			{
+				iLoopName = ((iI + iRandOffset) % iNumNames);
+
+				const CvString strCityName = kCivInfo.getCityNames(iLoopName);
+				CvString strName = GetLocalizedText(strCityName.c_str());
+
+				if (isCityNameValid(strName, true))
+				{
+					szBuffer = strCityName;
+					break;
+				}
 			}
 		}
 	}
 }
 
-bool CvPlayer::isCityNameValid(CvString& szName, bool bTestDestroyed, bool bForce) const
+bool CvPlayer::isCityNameValid(const CvString& szName, bool bTestDestroyed, bool bForce) const
 {
 	if (bForce)
 		return true;
@@ -11658,7 +11687,7 @@ void CvPlayer::disband(CvCity* pCity)
 
 	GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityRazed, GetID(), pPlot->getX(), pPlot->getY());
 
-	GC.getGame().addDestroyedCityName(pCity->getNameKey());
+	GC.getGame().addDestroyedCityName(pCity->getName());
 
 	for (int eBuildingType = 0; eBuildingType < GC.getNumBuildingInfos(); eBuildingType++)
 	{
