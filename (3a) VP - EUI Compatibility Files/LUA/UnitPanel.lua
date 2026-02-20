@@ -1841,36 +1841,6 @@ function ActionToolTipHandler( control )
 		end
 	end
 
-	-- Not able to perform action
-	if not gameCanHandleAction then
-
-		-- Worker build: get disabled reason from DLL
-		if isBuild then
-
-			local strDLLReason = unit:GetBuildDisabledReasonString(buildID)
-			if strDLLReason ~= "" then
-				disabledTip:insert( strDLLReason )
-			end
-
-		-- Not a Worker build, use normal disabled help from the DLL or the XML
-		else
-
-			local strDLLReason = g_activePlayer:GetReasonActionDisabled(unit:GetID(), action.Type)
-			if strDLLReason ~= "" then
-
-				disabledTip:insert( strDLLReason )
-
-			elseif action.DisabledHelp and action.DisabledHelp ~= "" then
-
-				disabledTip:insertLocalized( action.DisabledHelp )
-			end
-		end
-
-		if #disabledTip > 0 then
-			toolTip:insert( "[COLOR_WARNING_TEXT]" .. disabledTip:concat("[NEWLINE]") .. "[ENDCOLOR]" )
-		end
-	end
-
 	-- Is this a Worker build?
 	if isBuild then
 
@@ -1915,6 +1885,37 @@ function ActionToolTipHandler( control )
 					toolTip:append( " (".. city:GetName()..")" )
 				end
 			end
+		end
+	end
+
+	
+	-- Not able to perform action
+	if not gameCanHandleAction then
+
+		-- Worker build: get disabled reason from DLL
+		if isBuild then
+
+			local strDLLReason = unit:GetBuildDisabledReasonString(buildID)
+			if strDLLReason ~= "" then
+				disabledTip:insert( strDLLReason )
+			end
+
+		-- Not a Worker build, use normal disabled help from the DLL or the XML
+		else
+
+			local strDLLReason = g_activePlayer:GetReasonActionDisabled(unit:GetID(), action.Type)
+			if strDLLReason ~= "" then
+
+				disabledTip:insert( strDLLReason )
+
+			elseif action.DisabledHelp and action.DisabledHelp ~= "" then
+
+				disabledTip:insertLocalized( action.DisabledHelp )
+			end
+		end
+
+		if #disabledTip > 0 then
+			toolTip:insert( "[NEWLINE][COLOR_WARNING_TEXT]" .. disabledTip:concat("[NEWLINE]") .. "[ENDCOLOR]" )
 		end
 	end
 

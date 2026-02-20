@@ -6648,7 +6648,7 @@ bool CvUnit::canHold(const CvPlot* pPlot, bool bTestVisibility) const // skip tu
 
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::canSleep(const CvPlot* pPlot, bool bTestVisiblility) const
+bool CvUnit::canSleep(const CvPlot* pPlot, bool bTestVisibility) const
 {
 	VALIDATE_OBJECT();
 	// Can't sleep if we're a Unit that can normally fortify
@@ -6659,7 +6659,7 @@ bool CvUnit::canSleep(const CvPlot* pPlot, bool bTestVisiblility) const
 
 	if(isHuman(ISHUMAN_AI_UNITS) && !IsFortified())  // we aren't fortified
 	{
-		if (!bTestVisiblility)
+		if (!bTestVisibility)
 		{
 			if (!canEndTurnAtPlot(pPlot))
 			{
@@ -6673,9 +6673,9 @@ bool CvUnit::canSleep(const CvPlot* pPlot, bool bTestVisiblility) const
 
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::canFortify(const CvPlot* pPlot, bool bTestVisiblility) const
+bool CvUnit::canFortify(const CvPlot* pPlot, bool bTestVisibility) const
 {
-	if (!bTestVisiblility)
+	if (!bTestVisibility)
 	{
 		if (!canEndTurnAtPlot(pPlot))
 		{

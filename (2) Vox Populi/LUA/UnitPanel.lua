@@ -1508,7 +1508,7 @@ function TipHandler( control )
 				strDisabledString = strDisabledString .. strDLLReason;
 			end
 
-		-- Not a Worker build, use normal disabled help from XML
+		-- Not a Worker build, use disabled help from the DLL or from XML
 		else
 			
             local strDLLReason = pActivePlayer:GetReasonActionDisabled(unit:GetID(), action.Type);

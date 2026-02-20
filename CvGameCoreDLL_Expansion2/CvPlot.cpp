@@ -3035,23 +3035,14 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 			}
 		}
 
-		// Requirements on adjacent plots?
 		if (!bTestVisible)
 		{
+			// Requirements on adjacent plots?
 			CvImprovementEntry *pkImprovement = GC.getImprovementInfo(eImprovement);
 			bool bHasLuxuryRequirement = pkImprovement->IsAdjacentLuxury();
 			bool bHasNoAdjacencyRequirement = pkImprovement->IsNoTwoAdjacent();
 			if (pkImprovement && (bHasLuxuryRequirement || bHasNoAdjacencyRequirement))
 			{
-				// Compute improvement description key for tooltip params
-				CvString strImpParam;
-				if (toolTipSink != NULL)
-				{
-					CvImprovementEntry* pkImpEntry = GC.getImprovementInfo(eImprovement);
-					if (pkImpEntry)
-						strImpParam = CvString(pkImpEntry->GetDescriptionKey()) + ":textkey";
-				}
-
 				bool bTwoAdjacent = false;
 				bool bLuxuryRequirementMet = !bHasLuxuryRequirement;
 				for (int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
@@ -3098,44 +3089,37 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 				}
 				if (bTwoAdjacent)
 				{
-					if (toolTipSink && !toolTipSink->empty()) (*toolTipSink) += "[NEWLINE]";
-					GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_BUILD_BLOCKED_CANNOT_BE_ADJACENT", strImpParam.c_str());
-					if (toolTipSink == NULL) return false;
+					if (toolTipSink && !toolTipSink->empty())
+						(*toolTipSink) += "[NEWLINE]";
+					GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_BUILD_BLOCKED_CANNOT_BE_ADJACENT", GC.getImprovementInfo(eImprovement)->GetDescription());
+					if (toolTipSink == NULL)
+						return false;
 					bPlotCanBuild = false;
 				}
 				if (bHasLuxuryRequirement && !bLuxuryRequirementMet)
 				{
-					if (toolTipSink && !toolTipSink->empty()) (*toolTipSink) += "[NEWLINE]";
-					GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_BUILD_BLOCKED_NO_ADJACENT_LUXURY", strImpParam.c_str());
-					if (toolTipSink == NULL) return false;
+					if (toolTipSink && !toolTipSink->empty())
+						(*toolTipSink) += "[NEWLINE]";
+					GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_BUILD_BLOCKED_NO_ADJACENT_LUXURY", GC.getImprovementInfo(eImprovement)->GetDescription());
+					if (toolTipSink == NULL)
+						return false;
 					bPlotCanBuild = false;
 				}
 			}
-		}
 
-		if(!bTestVisible)
-		{
 			if(!GC.getImprovementInfo(eImprovement)->IsIgnoreOwnership())
 			{
 				// Gifts for minors can ignore borders requirements
 				if(bTestPlotOwner)
 				{
-					// Compute improvement description key for tooltip params
-					CvString strImpParam;
-					if (toolTipSink != NULL)
-					{
-						CvImprovementEntry* pkImpEntry = GC.getImprovementInfo(eImprovement);
-						if (pkImpEntry)
-							strImpParam = CvString(pkImpEntry->GetDescriptionKey()) + ":textkey";
-					}
-
 					// Outside Borders - Can be built in or outside our lands, but not in other lands
 					if(GC.getImprovementInfo(eImprovement)->IsOutsideBorders())
 					{
 						if (getTeam() != eTeam && getTeam() != NO_TEAM)
 						{
-							if (toolTipSink && !toolTipSink->empty()) (*toolTipSink) += "[NEWLINE]";
-							GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_BUILD_BLOCKED_OUTSIDE_TERRITORY", strImpParam.c_str());
+							if (toolTipSink && !toolTipSink->empty())
+								(*toolTipSink) += "[NEWLINE]";
+							GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_BUILD_BLOCKED_OUTSIDE_TERRITORY", GC.getImprovementInfo(eImprovement)->GetDescription());
 							if (toolTipSink == NULL) return false;
 							bPlotCanBuild = false;
 						}
@@ -3148,8 +3132,9 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 						{
 							if (!isAdjacentTeam(eTeam, false))
 							{
-								if (toolTipSink && !toolTipSink->empty()) (*toolTipSink) += "[NEWLINE]";
-								GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_BUILD_BLOCKED_NOT_IN_ADJACENT_TERRITORY", strImpParam.c_str());
+								if (toolTipSink && !toolTipSink->empty())
+									(*toolTipSink) += "[NEWLINE]";
+								GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_BUILD_BLOCKED_NOT_IN_ADJACENT_TERRITORY", GC.getImprovementInfo(eImprovement)->GetDescription());
 								if (toolTipSink == NULL) return false;
 								bPlotCanBuild = false;
 							}
@@ -3164,8 +3149,9 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 							}
 							if (bBlocked)
 							{
-								if (toolTipSink && !toolTipSink->empty()) (*toolTipSink) += "[NEWLINE]";
-								GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_BUILD_BLOCKED_NOT_IN_ADJACENT_TERRITORY", strImpParam.c_str());
+								if (toolTipSink && !toolTipSink->empty())
+									(*toolTipSink) += "[NEWLINE]";
+								GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_BUILD_BLOCKED_NOT_IN_ADJACENT_TERRITORY", GC.getImprovementInfo(eImprovement)->GetDescription());
 								if (toolTipSink == NULL) return false;
 								bPlotCanBuild = false;
 							}
@@ -3192,16 +3178,18 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 						}
 						else
 						{
-							if (toolTipSink && !toolTipSink->empty()) (*toolTipSink) += "[NEWLINE]";
-							GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_BUILD_BLOCKED_NOT_IN_CITY_STATE_TERRITORY", strImpParam.c_str());
+							if (toolTipSink && !toolTipSink->empty())
+								(*toolTipSink) += "[NEWLINE]";
+							GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_BUILD_BLOCKED_NOT_IN_CITY_STATE_TERRITORY", GC.getImprovementInfo(eImprovement)->GetDescription());
 							if (toolTipSink == NULL) return false;
 							bPlotCanBuild = false;
 						}
 					}
 					else if(getTeam() != eTeam)
 					{//only buildable in own culture
-						if (toolTipSink && !toolTipSink->empty()) (*toolTipSink) += "[NEWLINE]";
-						GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_BUILD_BLOCKED_OUTSIDE_TERRITORY", strImpParam.c_str());
+						if (toolTipSink && !toolTipSink->empty())
+							(*toolTipSink) += "[NEWLINE]";
+						GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_BUILD_BLOCKED_OUTSIDE_TERRITORY", GC.getImprovementInfo(eImprovement)->GetDescription());
 						if (toolTipSink == NULL) return false;
 						bPlotCanBuild = false;
 					}

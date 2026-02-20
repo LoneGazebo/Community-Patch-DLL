@@ -343,9 +343,9 @@ public:
 	bool canCargoAllMove() const;
 	int getUnitAICargo(UnitAITypes eUnitAI) const;
 
-	bool canHold(const CvPlot* pPlot, bool bTestVisiblility = false) const; // skip turn
-	bool canSleep(const CvPlot* pPlot, bool bTestVisiblility = false) const;
-	bool canFortify(const CvPlot* pPlot, bool bTestVisiblility = false) const;
+	bool canHold(const CvPlot* pPlot, bool bTestVisibility = false) const; // skip turn
+	bool canSleep(const CvPlot* pPlot, bool bTestVisibility = false) const;
+	bool canFortify(const CvPlot* pPlot, bool bTestVisibility = false) const;
 	bool canAirPatrol(const CvPlot* pPlot) const;
 
 	bool IsRangeAttackIgnoreLOS() const;

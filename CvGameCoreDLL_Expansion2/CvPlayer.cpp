@@ -38810,12 +38810,14 @@ bool CvPlayer::HasResourceForNewUnit(const UnitTypes eUnit, const bool bNoRequir
 					strEntry.Format("%d %s %s", iResourceTotal, pkResource->GetIconString(), pkResource->GetDescription());
 					if (getNumResourceAvailable(eResource) < 0)
 					{
-						if (!strNetNegResources.empty()) strNetNegResources += ", ";
+						if (!strNetNegResources.empty())
+							strNetNegResources += ", ";
 						strNetNegResources += strEntry;
 					}
 					else
 					{
-						if (!strTotalResources.empty()) strTotalResources += ", ";
+						if (!strTotalResources.empty())
+							strTotalResources += ", ";
 						strTotalResources += strEntry;
 					}
 				}
@@ -38856,7 +38858,8 @@ bool CvPlayer::HasResourceForNewUnit(const UnitTypes eUnit, const bool bNoRequir
 				{
 					CvString strEntry;
 					strEntry.Format("%d %s %s", iResourceRequirement, pkResource->GetIconString(), pkResource->GetDescription());
-					if (!strRequirementResources.empty()) strRequirementResources += ", ";
+					if (!strRequirementResources.empty())
+						strRequirementResources += ", ";
 					strRequirementResources += strEntry;
 				}
 				else
@@ -38868,7 +38871,7 @@ bool CvPlayer::HasResourceForNewUnit(const UnitTypes eUnit, const bool bNoRequir
 		}
 	}
 
-	// Emit combined resource tooltips for upgrade context
+	// generate tooltip for resource requirements
 	if (eFromUnit != NO_UNIT)
 	{
 		if (!strRequirementResources.empty())

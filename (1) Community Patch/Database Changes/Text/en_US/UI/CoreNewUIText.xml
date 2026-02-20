@@ -2197,7 +2197,7 @@
 			<Text>Units cannot heal while embarked.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MISSION_HEAL_DISABLED_NAVAL_TERRITORY">
-			<Text>Naval units can only heal in friendly territory.</Text>
+			<Text>This unit can only heal in friendly territory.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MISSION_HEAL_DISABLED_NO_HEAL_RATE">
 			<Text>This unit has no heal rate in its current location.</Text>
