@@ -36,6 +36,13 @@
 			<Text>One random Victory Type (Culture, Diplomatic, or Science) is enabled when any player enters the Atomic Era. All other victories are disabled (note: Time and Domination Victories are always possible).</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_GAME_OPTION_RANDOMIZE_CITY_NAMES">
+			<Text>Randomize City Names</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GAME_OPTION_RANDOMIZE_CITY_NAMES_HELP">
+			<Text>City names after the capital will be assigned in random order instead of the normal civilization naming order.</Text>
+		</Row>
+
 		<Row Tag="TXT_KEY_GAME_OPTION_TRANSPARENT_DIPLOMACY">
 			<Text>Transparent Diplomacy</Text>
 		</Row>

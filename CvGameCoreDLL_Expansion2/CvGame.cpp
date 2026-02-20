@@ -8230,7 +8230,7 @@ void CvGame::setName(const char* szName)
 }
 
 //	--------------------------------------------------------------------------------
-bool CvGame::isDestroyedCityName(CvString& szName) const
+bool CvGame::isDestroyedCityName(const CvString& szName) const
 {
 	stringHash hasher;
 	std::vector<size_t>::const_iterator it = std::find(m_aszDestroyedCities.begin(), m_aszDestroyedCities.end(), hasher(szName.c_str()));
