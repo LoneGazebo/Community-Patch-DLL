@@ -1359,7 +1359,7 @@
 			<Text>Licorne is the French name given to the Russian 'unicorn' cannons, named for the distinctively shaped handles on the gun barrels. Devised in 1757, Licornes were a flexible design, easy to fire and transport and made in many differing weights and power. Lighter designs are best remembered from their use as mobile horse artillery, a Russian innovation that would change the European theory of combined arms for the next century.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_LICORNE_STRATEGY">
-			<Text>The Licorne has an attack bonus against Melee/Gunpowder units and the ability to move after attacking. This essentially allows it to function as both a Siege and Ranged unit. Being able to move after attacking provides a lot of flexibility when advancing so it can look to position to fire every turn and when retreating so it can fire while moving back to safety.</Text>
+			<Text>The Licorne has an attack bonus against Melee/Gunpowder units and the ability to move after attacking. This essentially allows it to function as both a Siege and Ranged unit. Being able to move after attacking provides a lot of flexibility when advancing so it can look to position to fire every turn. It also helps when retreating so it can fire before moving back to safety.</Text>
 		</Row>
 
 		<!-- Shoshone -->
