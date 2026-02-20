@@ -121,6 +121,7 @@ public:
 	int GetPopulationUnhappinessModifier() const;
 	int GetCityStateBonusModifier() const;
 	int GetCityStateFriendshipModifier() const;
+	int GetCityStateRecoveryModifier() const;
 	int GetCityStateCombatModifier() const;
 	int GetLandBarbarianConversionPercent() const;
 	int GetLandBarbarianConversionExtraUnits() const;
@@ -453,6 +454,7 @@ protected:
 	int m_iPopulationUnhappinessModifier;
 	int m_iCityStateBonusModifier;
 	int m_iCityStateFriendshipModifier;
+	int m_iCityStateRecoveryModifier;
 	int m_iCityStateCombatModifier;
 	int m_iLandBarbarianConversionPercent;
 	int m_iLandBarbarianConversionExtraUnits;
@@ -912,6 +914,10 @@ public:
 	int GetCityStateFriendshipModifier() const
 	{
 		return m_iCityStateFriendshipModifier;
+	};
+	int GetCityStateRecoveryModifier() const
+	{
+		return m_iCityStateRecoveryModifier;
 	};
 	int GetCityStateCombatModifier() const
 	{
@@ -2041,6 +2047,7 @@ private:
 	int m_iPopulationUnhappinessModifier;
 	int m_iCityStateBonusModifier;
 	int m_iCityStateFriendshipModifier;
+	int m_iCityStateRecoveryModifier;
 	int m_iCityStateCombatModifier;
 	int m_iLandBarbarianConversionPercent;
 	int m_iLandBarbarianConversionExtraUnits;

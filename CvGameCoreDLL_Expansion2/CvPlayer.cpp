@@ -37032,7 +37032,7 @@ PlayerTypes CvPlayer::GetBestGiftTarget(DomainTypes eUnitDomain)
 						int iReligionBonus = pMinorCivAI->IsSameReligionAsMajor(GetID()) ? /*50*/ GD_INT_GET(MINOR_FRIENDSHIP_RATE_MOD_SHARED_RELIGION) : 0;
 						if (iReduction > 0)
 						{
-							iReduction *= (100 + iReligionBonus + GetPlayerTraits()->GetCityStateFriendshipModifier());
+							iReduction *= (100 + iReligionBonus + GetPlayerTraits()->GetCityStateRecoveryModifier());
 							iReduction /= 100;
 							iCurrentShift -= iReduction;
 						}

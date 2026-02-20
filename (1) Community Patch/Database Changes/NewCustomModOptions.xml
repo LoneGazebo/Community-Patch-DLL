@@ -106,6 +106,12 @@
 		<!-- Enables era-specific messages for civ influence; disabling this may be useful for mods like Unique Cultural Influence that add special notifications -->
 		<Row Class="4" Name="COREUI_DIPLOMACY_ERA_INFLUENCE" Value="1"/>
 
+		<!-- Randomizes the order of each civilization's spy names -->
+		<Row Class="4" Name="COREUI_SHUFFLE_SPY_NAMES" Value="1"/>
+
+		<!-- Free spies-as-diplomats in vassals' capitals use the vassal's spy name list, not the master's -->
+		<Row Class="4" Name="COREUI_COLLABORATOR_SPY_NAMES" Value="1"/>
+
 
 		<!-- ********************************************************** -->
 		<!-- 					CORE AI CHANGES							-->

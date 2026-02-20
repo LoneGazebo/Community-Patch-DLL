@@ -11794,7 +11794,7 @@ int CvMinorCivAI::GetFriendshipChangePerTurnTimes100(PlayerTypes ePlayer)
 
 		if (iChangeThisTurn > 0)
 		{
-			iChangeThisTurn *= (100 + iReligionBonus + kPlayer.GetPlayerTraits()->GetCityStateFriendshipModifier());
+			iChangeThisTurn *= (100 + iReligionBonus + kPlayer.GetPlayerTraits()->GetCityStateRecoveryModifier());
 			iChangeThisTurn /= 100;
 		}
 		else
