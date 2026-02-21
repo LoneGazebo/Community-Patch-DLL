@@ -232,6 +232,7 @@ public:
 	bool IsMustSetUpToRangedAttack() const;
 	bool IsRangedSupportFire() const;
 	bool IsAlwaysHeal() const;
+	int GetFlatHealRate() const;
 	bool IsHealOutsideFriendly() const;
 	bool IsRiverDoubleMove() const;
 
@@ -528,6 +529,7 @@ protected:
 	bool m_bMustSetUpToRangedAttack;
 	bool m_bRangedSupportFire;
 	bool m_bAlwaysHeal;
+	int m_iFlatHealRate;
 	bool m_bHealOutsideFriendly;
 	bool m_bRiverDoubleMove;
 	bool m_bIgnoreTerrainCost;

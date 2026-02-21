@@ -3,7 +3,7 @@
 	<Language_en_US>
 		<!-- Air Repair -->
 		<Row Tag="TXT_KEY_PROMOTION_AIR_REPAIR_HELP">
-			<Text>Unit will [COLOR_POSITIVE_TEXT]Heal Every Turn[ENDCOLOR], even if it performs an action.</Text>
+			<Text>Unit will [COLOR_POSITIVE_TEXT]Heal an additional 10 HP[ENDCOLOR] each turn, regardless of action taken.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_AIR_LOGISTICS">

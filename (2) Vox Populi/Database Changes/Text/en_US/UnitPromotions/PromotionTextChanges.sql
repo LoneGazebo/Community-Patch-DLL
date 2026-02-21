@@ -141,7 +141,7 @@ WHERE Tag = 'TXT_KEY_PROMOTION_SUPPLY_HELP';
 
 -- March
 UPDATE Language_en_US
-SET Text = 'Unit will [COLOR_POSITIVE_TEXT]Heal Every Turn[ENDCOLOR], even if it performs an action.'
+SET Text = 'Unit will [COLOR_POSITIVE_TEXT]Heal an additional 10 HP[ENDCOLOR] each turn, regardless of action taken.'
 WHERE Tag = 'TXT_KEY_PROMOTION_MARCH_HELP';
 
 -- Blitz
@@ -284,7 +284,7 @@ SET Text = '+25% [ICON_STRENGTH] Combat Strength when defending.[NEWLINE]+5 HP w
 WHERE Tag = 'TXT_KEY_PROMOTION_SURVIVALISM_2_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Unit will [COLOR_POSITIVE_TEXT]Heal Every Turn[ENDCOLOR], even if it performs an action.[NEWLINE][ICON_RAZING] Pillaging costs no [ICON_MOVES] Movement.'
+SET Text = 'Unit will [COLOR_POSITIVE_TEXT]Heal an additional 10 HP[ENDCOLOR] each turn, regardless of action taken.[NEWLINE][ICON_RAZING] Pillaging costs no [ICON_MOVES] Movement.'
 WHERE Tag = 'TXT_KEY_PROMOTION_SURVIVALISM_3_HELP';
 
 UPDATE Language_en_US

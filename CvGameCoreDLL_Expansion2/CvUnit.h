@@ -415,6 +415,8 @@ public:
 	int GetDanger(const CvPlot* pAtPlot=NULL) const;
 	int GetDanger(const CvPlot* pAtPlot, const UnitIdContainer& unitsToIgnore, int iExtraDamage) const;
 
+	int ActualHealRate(const CvPlot* pPlot, bool bCheckMovement = true) const;
+
 	const CvPlot* getAirliftFromPlot(const CvPlot* pPlot) const;
 	const CvPlot* getAirliftToPlot(const CvPlot* pPlot, bool bIncludeCities) const;
 
@@ -1165,6 +1167,9 @@ public:
 	int getAlwaysHealCount() const;
 	bool isAlwaysHeal() const;
 	void changeAlwaysHealCount(int iChange);
+
+	int GetFlatHealRate() const;
+	void ChangeFlatHealRate(int iChange);
 
 	int getHealOutsideFriendlyCount() const;
 	bool isHealOutsideFriendly() const;
@@ -2112,6 +2117,7 @@ protected:
 	std::map<PromotionTypes, int> m_TurnPromotionGained;
 	int m_iRangedSupportFireCount;
 	int m_iAlwaysHealCount;
+	int m_iFlatHealRate;
 	int m_iHealOutsideFriendlyCount;
 	int m_iRiverDoubleMoveCount;
 	int m_iEmbarkFlatCostCount;
