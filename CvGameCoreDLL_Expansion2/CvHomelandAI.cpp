@@ -792,7 +792,7 @@ void CvHomelandAI::PlotHealMoves()
 			}
 
 			int iDamageThreshold = 25;
-			if (pUnit->AI_getUnitAIType() == UNITAI_EXPLORE_SEA && pUnit->healRate(pUnit->plot()) == 0)
+			if (pUnit->AI_getUnitAIType() == UNITAI_EXPLORE_SEA && pUnit->ActualHealRate(pUnit->plot(), false) == 0)
 				iDamageThreshold = pUnit->GetMaxHitPoints() - 50;
 
 			// We are not particularly damaged
@@ -911,7 +911,7 @@ void CvHomelandAI::PlotSentryMoves()
 				continue;
 
 			// Very important sentry points (forts and workers) we don't want to leave unguarded
-			if (pSentry->atPlot(*pTarget) && m_TargetedSentryPoints[iI].GetAuxIntData() < 500 && (pSentry->getDamage() == 0 || !pSentry->canHeal(pSentry->plot())))
+			if (pSentry->atPlot(*pTarget) && m_TargetedSentryPoints[iI].GetAuxIntData() < 500 && (pSentry->getDamage() == 0 || pSentry->ActualHealRate(pSentry->plot()) == 0))
 			{
 				//check our immediate neighbors if we can increase our visibility significantly
 				int iBestCount = 1;
