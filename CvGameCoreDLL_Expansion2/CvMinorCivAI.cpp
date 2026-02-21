@@ -17907,7 +17907,7 @@ bool CvMinorCivAI::IsSameReligionAsMajor(PlayerTypes eMajor)
 
 CvString CvMinorCivAI::GetStatusChangeDetails(PlayerTypes ePlayer, bool bAdd, bool bFriends, bool bAllies)
 {
-	CvString strDetailedInfo;
+	Localization::String strDetailedInfo;
 
 	if(bAllies && bAdd)		// Now Allies (includes jump from nothing through Friends to Allies)
 		strDetailedInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_NOW_ALLIES_GENERIC");
@@ -17918,9 +17918,9 @@ CvString CvMinorCivAI::GetStatusChangeDetails(PlayerTypes ePlayer, bool bAdd, bo
 	else if(bAllies && !bAdd)		// No longer Allies
 		strDetailedInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_LOST_ALLIES_GENERIC");
 	
-	CvString strPlayerLevel;
-	CvString strCityLevel;
-	CvString strCityLevelCapital;
+	Localization::String strPlayerLevel;
+	Localization::String strCityLevel;
+	Localization::String strCityLevelCapital;
 
 	// code to compute the yield change similar to DoSetBonus
 	const int iSign = bAdd ? 1 : -1;
@@ -17947,30 +17947,57 @@ CvString CvMinorCivAI::GetStatusChangeDetails(PlayerTypes ePlayer, bool bAdd, bo
 			iFriendOtherCitiesYieldTimes100 = 0;
 		}
 
-		if (!strPlayerLevel.empty()) {
-   			 strPlayerLevel += ", ";
+		int iTotal = 0;  // don't include zero yields
+		// player yields
+		iTotal = (iFriendYieldTimes100 + iAllyYieldTimes100) / 100;
+		if (iTotal != 0) 
+		{
+			CvString formatted = CvString::format(
+			    "%+d %s %s",
+			    iTotal * iSign,
+			    GC.getYieldInfo(eYield)->getIconString(),
+			    GC.getYieldInfo(eYield)->GetDescription()
+			);
+			Localization::String temp = Localization::String::FromUTF8(formatted.c_str());
+			
+			if (!strPlayerLevel.empty())
+			    strPlayerLevel.append(", ");
+			strPlayerLevel.append(temp);
 		}
-		strPlayerLevel += CvString::format("%+d %s %s", 
-			(iFriendYieldTimes100 + iAllyYieldTimes100) / 100,
-			GC.getYieldInfo(eYield)->getIconString(),
-			GC.getYieldInfo(eYield)->GetDescription());
-		
-		if (!strCityLevel.empty()) {
-   			 strCityLevel += ", ";
-		}
-		strCityLevel += CvString::format("%+d %s %s", 
-			(iFriendOtherCitiesYieldTimes100 + iAllyOtherCitiesYieldTimes100) / 100,
-			GC.getYieldInfo(eYield)->getIconString(),
-			GC.getYieldInfo(eYield)->GetDescription());
 
-		if (!strCityLevelCapital.empty()) {
-   			 strCityLevelCapital += ", ";
+		// city yields
+		iTotal = (iFriendOtherCitiesYieldTimes100 + iAllyOtherCitiesYieldTimes100) / 100;
+		if (iTotal != 0) 
+		{
+			CvString formatted = CvString::format(
+			    "%+d %s %s",
+			    iTotal * iSign,
+			    GC.getYieldInfo(eYield)->getIconString(),
+			    GC.getYieldInfo(eYield)->GetDescription()
+			);
+			Localization::String temp = Localization::String::FromUTF8(formatted.c_str());
+			
+			if (!strCityLevel.empty())
+			    strCityLevel.append(", ");
+			strCityLevel.append(temp);
 		}
+		
 		// capital gets both yields but word it separately in case only one is set in database
-		strCityLevelCapital += CvString::format("%+d %s %s", 
-			(iFriendCapitalYieldTimes100 + iAllyCapitalYieldTimes100) / 100,
-			GC.getYieldInfo(eYield)->getIconString(),
-			GC.getYieldInfo(eYield)->GetDescription());		
+		iTotal = (iFriendCapitalYieldTimes100 + iAllyCapitalYieldTimes100) / 100;
+		if (iTotal != 0) 
+		{
+			CvString formatted = CvString::format(
+				"%+d %s %s",
+				iTotal * iSign,
+				GC.getYieldInfo(eYield)->getIconString(),
+				GC.getYieldInfo(eYield)->GetDescription()
+			);
+			Localization::String temp = Localization::String::FromUTF8(formatted.c_str());
+			
+			if (!strCityLevelCapital.empty())
+				strCityLevelCapital.append(", ");
+			strCityLevelCapital.append(temp);
+		}
 	}
 
 	// now happiness, since that's not in the loop
@@ -17983,40 +18010,49 @@ CvString CvMinorCivAI::GetStatusChangeDetails(PlayerTypes ePlayer, bool bAdd, bo
 	{
 		iHappinessBonus += GetHappinessFlatAlliesBonus(ePlayer) + GetHappinessPerLuxuryAlliesBonus(ePlayer);
 	}
-	if(!bAdd)		// Flip amount of we're taking bonuses away
-	{
-		iHappinessBonus = -iHappinessBonus;
-	}
 	if (iHappinessBonus != 0)
 	{
-		if(!strPlayerLevel.empty())
-    		strPlayerLevel += ", and ";
-		strPlayerLevel += CvString::format("%+d", iHappinessBonus) + " [ICON_HAPPINESS_1] Happiness";
+		Localization::String temp =	Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_HAPPINESS").Format(iHappinessBonus * iSign);
+	
+	    if (!strPlayerLevel.empty())
+	        strPlayerLevel.append(", and ");
+	
+	    strPlayerLevel.append(temp);
 	}
 
 	// stick together all the non-empty strings into a notification
 	if (!strPlayerLevel.empty()) {
-		 strDetailedInfo += "[NEWLINE]" + "Generate " + strPlayerLevel + " per turn.";
+		strDetailedInfo.append(
+		    Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_PLAYER_YIELDS")
+		        .Format(strPlayerLevel)
+		);
 	}
 	if (!strCityLevel.empty()) {
-		 strDetailedInfo += "[NEWLINE]" + "Cities contribute " + strCityLevel;
+		strDetailedInfo.append(
+		    Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_CITY_YIELDS")
+		        .Format(strCityLevel)
+		);
 	}
 	if (!strCityLevelCapital.empty()) {
-		 strDetailedInfo += "[NEWLINE]" + "The [ICON_CAPITAL] Capital further contributes " + strCityLevelCapital;
+		strDetailedInfo.append(
+		    Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_CITY_YIELDS_CAPITAL")
+		        .Format(strCityLevelCapital)
+		);
 	}
 
 	// if the city-state grants units we should mention that too! currently only militaristic ones do this
-	MinorCivTraitTypes eTrait = GetTrait();
 	if(GetTrait() == MINOR_CIV_TRAIT_MILITARISTIC)
 	{
+    	strDetailedInfo.append("[NEWLINE]");
+
 		if(bAllies && bAdd)	
-			strDetailedInfo += "[NEWLINE]" + Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_NOW_ALLIES_MILITARISTIC");
+			strDetailedInfo.append(Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_NOW_ALLIES_MILITARISTIC"));
 		else if(bFriends && bAdd)		// Now Friends
-			strDetailedInfo += "[NEWLINE]" + Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_NOW_FRIENDS_MILITARISTIC");
+			strDetailedInfo.append(Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_NOW_FRIENDS_MILITARISTIC"));
 		else if(bFriends && !bAdd)		// No longer Friends (includes drop from Allies down to nothing)
-			strDetailedInfo += "[NEWLINE]" + Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_LOST_FRIENDS_MILITARISTIC");
+			strDetailedInfo.append(Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_LOST_FRIENDS_MILITARISTIC"));
 		else if(bAllies && !bAdd)		// No longer Allies
-			strDetailedInfo += "[NEWLINE]" + Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_LOST_ALLIES_MILITARISTIC");
+			strDetailedInfo.append(Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_LOST_ALLIES_MILITARISTIC"));
 	}
 	
 	return strDetailedInfo.toUTF8();
