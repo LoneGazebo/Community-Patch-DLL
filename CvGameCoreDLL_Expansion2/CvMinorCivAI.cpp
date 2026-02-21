@@ -17335,7 +17335,8 @@ void CvMinorCivAI::DoUnitGiftFromMajor(PlayerTypes eFromPlayer, CvUnit*& pGiftUn
 	if (pGiftUnit == NULL) return;
 
 	ChangeNumUnitsGifted(eFromPlayer, 1);
-	GET_PLAYER(eFromPlayer).doInstantYield(INSTANT_YIELD_TYPE_UNIT_GIFT);
+	if (GET_PLAYER(eFromPlayer).isInstantYieldsFromUnitGift())
+		GET_PLAYER(eFromPlayer).doInstantYield(INSTANT_YIELD_TYPE_UNIT_GIFT, false, NO_GREATPERSON, NO_BUILDING, 0, false);
 
 	// Influence
 	int iInfluence = GetFriendshipFromUnitGift(eFromPlayer, pGiftUnit->IsGreatPerson(), bDistanceGift);
