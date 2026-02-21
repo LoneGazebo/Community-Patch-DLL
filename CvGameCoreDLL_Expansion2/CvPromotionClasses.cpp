@@ -212,6 +212,7 @@ CvPromotionEntry::CvPromotionEntry():
 	m_bMustSetUpToRangedAttack(false),
 	m_bRangedSupportFire(false),
 	m_bAlwaysHeal(false),
+	m_iFlatHealRate(0),
 	m_bHealOutsideFriendly(false),
 	m_bRiverDoubleMove(false),
 	m_bIgnoreTerrainCost(false),
@@ -463,6 +464,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_bMustSetUpToRangedAttack = kResults.GetBool("MustSetUpToRangedAttack");
 	m_bRangedSupportFire= kResults.GetBool("RangedSupportFire");
 	m_bAlwaysHeal = kResults.GetBool("AlwaysHeal");
+	m_iFlatHealRate = kResults.GetInt("FlatHealRate");
 	m_bHealOutsideFriendly = kResults.GetBool("HealOutsideFriendly");
 	m_bRiverDoubleMove = kResults.GetBool("RiverDoubleMove");
 	m_bIgnoreTerrainCost = kResults.GetBool("IgnoreTerrainCost");
@@ -2344,6 +2346,12 @@ bool CvPromotionEntry::IsRangedSupportFire() const
 bool CvPromotionEntry::IsAlwaysHeal() const
 {
 	return m_bAlwaysHeal;
+}
+
+/// Accessor: Unit heals an extra flat amount each turn regardless of action taken
+int CvPromotionEntry::GetFlatHealRate() const
+{
+	return m_iFlatHealRate;
 }
 
 /// Accessor: Unit can heal outside friendly territory (naval units)

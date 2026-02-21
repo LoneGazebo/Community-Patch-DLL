@@ -349,3 +349,6 @@ ALTER TABLE UnitPromotions_Features ADD IgnoreTerrainCostIn boolean DEFAULT 0;
 -- Likewise, the cost of crossing a river isn't ignored by this
 ALTER TABLE UnitPromotions_Terrains ADD IgnoreTerrainCostFrom boolean DEFAULT 0;
 ALTER TABLE UnitPromotions_Features ADD IgnoreTerrainCostFrom boolean DEFAULT 0;
+
+-- Additonal healing for a flat amount each turn regardless of action taken
+ALTER TABLE UnitPromotions ADD FlatHealRate integer DEFAULT 0;
