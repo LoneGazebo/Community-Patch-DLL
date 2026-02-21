@@ -28957,30 +28957,39 @@ void CvCity::UpdateYieldsFromExistingFriendsAndAllies(bool bRemove)
 
 	for (int iPlayerLoop = MAX_MAJOR_CIVS; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 	{
+		PlayerTypes eCityOwner = (PlayerTypes)getOwner();
 		PlayerTypes ePlayer = (PlayerTypes)iPlayerLoop;
 		CvMinorCivAI* pMinor = GET_PLAYER(ePlayer).isMinorCiv() && GET_PLAYER(ePlayer).isAlive() ? GET_PLAYER(ePlayer).GetMinorCivAI() : 0;
-		if (pMinor && pMinor->GetTrait() == MINOR_CIV_TRAIT_MARITIME)
+		if (pMinor)
 		{
-			if (pMinor->IsAllies(getOwner()))
+			int iInfluenceLevel = pMinor->IsAllies(eCityOwner) + pMinor->IsFriends(eCityOwner);
+			if (iInfluenceLevel == 2)
 			{
-				int iBonus = isCapital() ? pMinor->GetAlliesCapitalFoodBonus() : pMinor->GetAlliesOtherCityFoodBonus();
-				if (iBonus != 0)
+				for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 				{
-					ChangeBaseYieldRateFromCSAlliance(YIELD_FOOD, iSign * iBonus / 100);
-					//CUSTOMLOG("adjusted food in %s by %d/100 for alliance with %s, current value is %d", getNameKey(), iSign * iBonus, GET_PLAYER(ePlayer).getNameKey(), GetBaseYieldRateFromCSAlliance(YIELD_FOOD));
+					YieldTypes eYield = (YieldTypes)iI;
+					int iBonus = pMinor->GetCityYieldFlatBonus(eCityOwner, eYield, NO_ERA, iInfluenceLevel, isCapital());
+					if (iBonus != 0)
+					{
+						ChangeBaseYieldRateFromCSAlliance(eYield, iSign * iBonus / 100);
+						//CUSTOMLOG("adjusted %s in %s by %d/100 for alliance with %s, current value is %d", GC.getYieldInfo(eYield)->getDescription(), getNameKey(), iSign * iBonus, GET_PLAYER(ePlayer).getNameKey(), GetBaseYieldRateFromCSAlliance(eYield));
+					}
 				}
 			}
-
-			if (pMinor->IsFriends(getOwner()))
+			if (iInfluenceLevel = 1)
 			{
-				int iBonus = isCapital() ? pMinor->GetFriendsCapitalFoodBonus(getOwner()) : pMinor->GetFriendsOtherCityFoodBonus(getOwner());
-				if (iBonus != 0)
+				for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 				{
-					ChangeBaseYieldRateFromCSFriendship(YIELD_FOOD, iSign * iBonus / 100);
-					//CUSTOMLOG("adjusted food in %s by %d/100 for friendship with %s, current value is %d", getNameKey(), iSign * iBonus, GET_PLAYER(ePlayer).getNameKey(), GetBaseYieldRateFromCSAlliance(YIELD_FOOD));
+					YieldTypes eYield = (YieldTypes)iI;
+					int iBonus = pMinor->GetCityYieldFlatBonus(eCityOwner, eYield, NO_ERA, iInfluenceLevel, isCapital());
+					if (iBonus != 0)
+					{
+						ChangeBaseYieldRateFromCSFriendship(eYield, iSign * iBonus / 100);
+						//CUSTOMLOG("adjusted %s in %s by %d/100 for alliance with %s, current value is %d", GC.getYieldInfo(eYield)->getDescription(), getNameKey(), iSign * iBonus, GET_PLAYER(ePlayer).getNameKey(), GetBaseYieldRateFromCSFriendship(eYield));
+					}
 				}
 			}
-
+			
 			updateYield();
 		}
 	}
@@ -31446,29 +31455,25 @@ bool CvCity::CrosscheckYieldsFromMinors()
 					iMajorBonus += kMajor.GetPlayerTraits()->GetYieldFromCSFriend(eYield)*iEra*100;
 			}
 
-			//bonuses based on minor traits (currently food only). do not consider any major-trait specific modifiers here!
-			if (eYield == YIELD_FOOD && pMinorLoop->GetTrait() == MINOR_CIV_TRAIT_MARITIME)
+			//bonuses based on minor traits
+			if (isCapital())
 			{
-				if (isCapital())
-				{
-					if (pMinorLoop->IsAllies(getOwner()))
-						iMinorBonus += pMinorLoop->GetAlliesCapitalFoodBonus();
-					if (pMinorLoop->IsFriends(getOwner()))
-						iMinorBonus += pMinorLoop->GetFriendsCapitalFoodBonus(getOwner());
-				}
-				else
-				{
-					if (pMinorLoop->IsAllies(getOwner()))
-						iMinorBonus += pMinorLoop->GetAlliesOtherCityFoodBonus();
-					if (pMinorLoop->IsFriends(getOwner()))
-						iMinorBonus += pMinorLoop->GetFriendsOtherCityFoodBonus(getOwner());
-				}
+				if (pMinorLoop->IsAllies(getOwner()))
+					iMinorBonus += pMinorLoop->GetCityYieldFlatBonus(getOwner(), eYield,  static_cast<EraTypes>(iEra), 2, true);
+				else if (pMinorLoop->IsFriends(getOwner()))
+					iMinorBonus += pMinorLoop->GetCityYieldFlatBonus(getOwner(), eYield, static_cast<EraTypes>(iEra), 1, true);
+			}
+			else
+			{
+				if (pMinorLoop->IsAllies(getOwner()))
+					iMinorBonus += pMinorLoop->GetCityYieldFlatBonus(getOwner(), eYield, static_cast<EraTypes>(iEra), 2, false);
+				else if (pMinorLoop->IsFriends(getOwner()))
+					iMinorBonus += pMinorLoop->GetCityYieldFlatBonus(getOwner(), eYield, static_cast<EraTypes>(iEra), 1, false);
 			}
 		}
 
 		//roman UA adds yields from conquered city states ...
-		if (eYield == YIELD_FOOD)
-			iMajorBonus += isCapital() ? kMajor.GetFoodInCapitalPerTurnFromAnnexedMinors()*100 : kMajor.GetFoodInOtherCitiesPerTurnFromAnnexedMinors()*100;
+		iMajorBonus += isCapital() ? kMajor.GetYieldInCapitalPerTurnFromAnnexedMinors(eYield)*100 : kMajor.GetYieldInOtherCitiesPerTurnFromAnnexedMinors(eYield)*100;
 
 		if (m_aiBaseYieldRateFromCSAlliance[eYield]*100 + m_aiBaseYieldRateFromCSFriendship[eYield]*100 != iMajorBonus + iMinorBonus)
 		{

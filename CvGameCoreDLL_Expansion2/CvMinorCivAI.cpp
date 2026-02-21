@@ -4735,6 +4735,48 @@ void CvMinorCivAI::DoPickUniqueUnit()
 	}
 }
 
+// get the friend yield bonuses based on the era
+bool CvMinorCivAI::HasFriendYieldBonuses(YieldTypes eYield) const
+{
+	CvMinorCivInfo* pkMinorCivInfo = GC.getMinorCivInfo(GetMinorCivType());
+	return pkMinorCivInfo->hasFriendYieldBonuses(eYield);
+}
+int CvMinorCivAI::GetFriendYieldBonusValue(YieldTypes eYield, EraTypes eEra) const
+{
+	CvMinorCivInfo* pkMinorCivInfo = GC.getMinorCivInfo(GetMinorCivType());
+    return pkMinorCivInfo->getFriendYieldBonuses(eYield, eEra);
+}
+bool CvMinorCivAI::HasFriendCityYieldBonuses(YieldTypes eYield) const
+{
+	CvMinorCivInfo* pkMinorCivInfo = GC.getMinorCivInfo(GetMinorCivType());
+	return pkMinorCivInfo->hasFriendCityYieldBonuses(eYield);
+}
+int CvMinorCivAI::GetFriendCityYieldBonusValue(YieldTypes eYield, EraTypes eEra, bool bCapital) const
+{
+	CvMinorCivInfo* pkMinorCivInfo = GC.getMinorCivInfo(GetMinorCivType());
+    return pkMinorCivInfo->getFriendCityYieldBonuses(eYield, eEra, bCapital);
+}
+// get the ally yield bonuses based on the era
+bool CvMinorCivAI::HasAllyYieldBonuses(YieldTypes eYield) const
+{
+	CvMinorCivInfo* pkMinorCivInfo = GC.getMinorCivInfo(GetMinorCivType());
+	return pkMinorCivInfo->hasAllyYieldBonuses(eYield);
+}
+int CvMinorCivAI::GetAllyYieldBonusValue(YieldTypes eYield, EraTypes eEra) const
+{
+	CvMinorCivInfo* pkMinorCivInfo = GC.getMinorCivInfo(GetMinorCivType());
+    return pkMinorCivInfo->getAllyYieldBonuses(eYield, eEra); 
+}
+bool CvMinorCivAI::HasAllyCityYieldBonuses(YieldTypes eYield) const
+{
+	CvMinorCivInfo* pkMinorCivInfo = GC.getMinorCivInfo(GetMinorCivType());
+	return pkMinorCivInfo->hasAllyCityYieldBonuses(eYield);
+}
+int CvMinorCivAI::GetAllyCityYieldBonusValue(YieldTypes eYield, EraTypes eEra, bool bCapital) const
+{
+	CvMinorCivInfo* pkMinorCivInfo = GC.getMinorCivInfo(GetMinorCivType());
+    return pkMinorCivInfo->getAllyCityYieldBonuses(eYield, eEra, bCapital);
+}
 
 int CvMinorCivAI::GetQuestRewardModifier(PlayerTypes ePlayer)
 {
@@ -12937,17 +12979,69 @@ void CvMinorCivAI::DoSetBonus(PlayerTypes ePlayer, bool bAdd, bool bFriendChange
 				pCapital->ChangeBaseYieldRateFromCSAlliance(eYield, ((kMajor.GetPlayerTraits()->GetYieldFromCSAlly(eYield)- kMajor.GetPlayerTraits()->GetYieldFromCSFriend(eYield)) * iSign * iEra));
 		}
 	}
-
-	//the rest depends on the minor's traits
-	MinorCivTraitTypes eTrait = GetTrait();
-
-	// Cultured
-	if(eTrait == MINOR_CIV_TRAIT_CULTURED)
+	
+	int iSign = bAdd ? 1 : -1;
+	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
-		//nothing to do, all handled via GetCurrentCultureBonus on player level
+		YieldTypes eYield = (YieldTypes)iI;
+		// there are three possibilities (and the reverses)
+		// neutral -> friend
+		// friend -> ally
+		// neutral ->-> ally
+		// our function calculates the first and last, the middle is the difference
+		int iFriendCapitalYieldTimes100 = GetCityYieldFlatBonus(ePlayer, eYield, NO_ERA, 1, true);
+		int iFriendOtherCitiesYieldTimes100 = GetCityYieldFlatBonus(ePlayer, eYield, NO_ERA, 1, false);
+		int iAllyCapitalYieldTimes100 = 0;
+		int iAllyOtherCitiesYieldTimes100 = 0;
+		if (bAllyChange)
+		{
+			iAllyCapitalYieldTimes100 = GetCityYieldFlatBonus(ePlayer, eYield, NO_ERA, 2, true) - iFriendCapitalYieldTimes100;
+			iAllyOtherCitiesYieldTimes100 = GetCityYieldFlatBonus(ePlayer, eYield, NO_ERA, 2, false) - iFriendOtherCitiesYieldTimes100;
+		}
+		// if we are doing friend->ally, zero the friendchange now we've used it
+		if (!bFriendChange)
+		{
+			iFriendCapitalYieldTimes100 = 0;
+			iFriendOtherCitiesYieldTimes100 = 0;
+		}
+		int iLoop;
+		for (CvCity* pLoopCity = kMajor.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kMajor.nextCity(&iLoop))
+		{
+			if (pLoopCity->GetID() == kMajor.getCapitalCityID())
+			{
+				if (iAllyCapitalYieldTimes100 != 0)
+				{
+					pLoopCity->ChangeBaseYieldRateFromCSAlliance(eYield, iAllyCapitalYieldTimes100 / 100 * iSign);
+					//CUSTOMLOG("changed capital %s in %s by %d/100 for alliance with %s, current value is %d", GC.getYieldInfo(eYield)->getIconString(), pLoopCity->getNameKey(), iAllyCapitalYieldTimes100, m_pPlayer->getNameKey(), pLoopCity->GetBaseYieldRateFromCSAlliance(eYield));
+				}
+				if (iFriendCapitalYieldTimes100 != 0)
+				{
+					pLoopCity->ChangeBaseYieldRateFromCSFriendship(eYield, iFriendCapitalYieldTimes100 / 100 * iSign);
+					//CUSTOMLOG("changed capital %s in %s by %d/100 for friendship with %s, current value is %d", GC.getYieldInfo(eYield)->getIconString(), pLoopCity->getNameKey(), iFriendCapitalYieldTimes100, m_pPlayer->getNameKey(), pLoopCity->GetBaseYieldRateFromCSFriendship(eYield));
+				}
+			}
+			else
+			{
+				if (iAllyOtherCitiesYieldTimes100 != 0)
+				{
+					pLoopCity->ChangeBaseYieldRateFromCSAlliance(eYield, iAllyOtherCitiesYieldTimes100 / 100 * iSign);
+					//CUSTOMLOG("changed non-capital %s in %s by %d/100 for alliance with %s, current value is %d", GC.getYieldInfo(eYield)->getIconString(), pLoopCity->getNameKey(), iAllyOtherCitiesYieldTimes100, m_pPlayer->getNameKey(), pLoopCity->GetBaseYieldRateFromCSAlliance(eYield));
+				}
+				if (iFriendOtherCitiesYieldTimes100 != 0)
+				{
+					pLoopCity->ChangeBaseYieldRateFromCSFriendship(eYield, iFriendOtherCitiesYieldTimes100 / 100 * iSign);
+					//CUSTOMLOG("changed non-capital %s in %s by %d/100 for friendship with %s, current value is %d", GC.getYieldInfo(eYield)->getIconString(), pLoopCity->getNameKey(), iFriendOtherCitiesYieldTimes100, m_pPlayer->getNameKey(), pLoopCity->GetBaseYieldRateFromCSFriendship(eYield));
+				}
+			}
+
+			pLoopCity->updateYield();
+		}
 	}
+
+	// special effects	
+	MinorCivTraitTypes eTrait = GetTrait();
 	// Militaristic
-	else if(eTrait == MINOR_CIV_TRAIT_MILITARISTIC)
+	if(eTrait == MINOR_CIV_TRAIT_MILITARISTIC)
 	{
 		if(bAdd)
 		{
@@ -12955,69 +13049,11 @@ void CvMinorCivAI::DoSetBonus(PlayerTypes ePlayer, bool bAdd, bool bFriendChange
 			if(GetUnitSpawnCounter(ePlayer) == -1)
 				DoSeedUnitSpawnCounter(ePlayer, /*bBias*/ true);
 		}
-	}
-	// Maritime
-	else if(eTrait == MINOR_CIV_TRAIT_MARITIME)
-	{
-		int iAllyCapitalFoodTimes100 = 0;
-		int iAllyOtherCitiesFoodTimes100 = 0;
-		int iFriendCapitalFoodTimes100 = 0;
-		int iFriendOtherCitiesFoodTimes100 = 0;
-		int iSign = bAdd ? 1 : -1;
-
-		if(bFriendChange)	// Friends bonus
-		{
-			iFriendCapitalFoodTimes100 = GetFriendsCapitalFoodBonus(ePlayer);
-			iFriendOtherCitiesFoodTimes100 = GetFriendsOtherCityFoodBonus(ePlayer);
-		}
-		if(bAllyChange)		// Allies bonus
-		{
-			iAllyCapitalFoodTimes100 = GetAlliesCapitalFoodBonus();
-			iAllyOtherCitiesFoodTimes100 = GetAlliesOtherCityFoodBonus();
-		}
-
-		int iLoop;
-		for (CvCity* pLoopCity = kMajor.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kMajor.nextCity(&iLoop))
-		{
-			if (pLoopCity->GetID() == kMajor.getCapitalCityID())
-			{
-				if (iAllyCapitalFoodTimes100 != 0)
-				{
-					pLoopCity->ChangeBaseYieldRateFromCSAlliance(YIELD_FOOD, iAllyCapitalFoodTimes100 / 100 * iSign);
-					//("changed capital food in %s by %d/100 for alliance with %s, current value is %d", pLoopCity->getNameKey(), iAllyCapitalFoodTimes100, m_pPlayer->getNameKey(), pLoopCity->GetBaseYieldRateFromCSAlliance(YIELD_FOOD));
-				}
-				if (iFriendCapitalFoodTimes100 != 0)
-				{
-					pLoopCity->ChangeBaseYieldRateFromCSFriendship(YIELD_FOOD, iFriendCapitalFoodTimes100 / 100 * iSign);
-					//CUSTOMLOG("changed capital food in %s by %d/100 for friendship with %s, current value is %d", pLoopCity->getNameKey(), iFriendCapitalFoodTimes100, m_pPlayer->getNameKey(), pLoopCity->GetBaseYieldRateFromCSFriendship(YIELD_FOOD));
-				}
-			}
-			else
-			{
-				if (iAllyOtherCitiesFoodTimes100 != 0)
-				{
-					pLoopCity->ChangeBaseYieldRateFromCSAlliance(YIELD_FOOD, iAllyOtherCitiesFoodTimes100 / 100 * iSign);
-					//CUSTOMLOG("changed non-capital food in %s by %d/100 for alliance with %s, current value is %d", pLoopCity->getNameKey(), iAllyOtherCitiesFoodTimes100, m_pPlayer->getNameKey(), pLoopCity->GetBaseYieldRateFromCSAlliance(YIELD_FOOD));
-				}
-				if (iFriendOtherCitiesFoodTimes100 != 0)
-				{
-					pLoopCity->ChangeBaseYieldRateFromCSFriendship(YIELD_FOOD, iFriendOtherCitiesFoodTimes100 / 100 * iSign);
-					//CUSTOMLOG("changed non-capital food in %s by %d/100 for friendship with %s, current value is %d", pLoopCity->getNameKey(), iFriendOtherCitiesFoodTimes100, m_pPlayer->getNameKey(), pLoopCity->GetBaseYieldRateFromCSFriendship(YIELD_FOOD));
-				}
-			}
-
-			pLoopCity->updateYield();
-		}
-	}
+	}	
 	// Mercantile
 	else if(eTrait == MINOR_CIV_TRAIT_MERCANTILE)
 	{
 		GET_PLAYER(ePlayer).CalculateNetHappiness();
-	}
-	// Religious
-	else if(eTrait == MINOR_CIV_TRAIT_RELIGIOUS)
-	{
-		//nothing to do, all handled via GetCurrentFaithBonus on player level
 	}
 
 	if(ePlayer == GC.getGame().getActivePlayer())
@@ -13911,11 +13947,10 @@ bool CvMinorCivAI::DoMajorCivEraChange(PlayerTypes ePlayer, EraTypes eNewEra)
 	//bonuses based on major traits
 	CvPlayer& kMajor = GET_PLAYER(ePlayer);
 	CvCity* pCapital = kMajor.getCapitalCity();
+	int iCurrentEra = max(1, (int)kMajor.GetCurrentEra());
+	int iNextEra = max(1, (int)eNewEra);
 	if (pCapital)
 	{
-		int iCurrentEra = max(1, (int)kMajor.GetCurrentEra());
-		int iNextEra = max(1, (int)eNewEra);
-
 		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 		{
 			YieldTypes eYield = (YieldTypes)iI;
@@ -13940,76 +13975,77 @@ bool CvMinorCivAI::DoMajorCivEraChange(PlayerTypes ePlayer, EraTypes eNewEra)
 
 	kMajor.GetDiplomacyAI()->LogMinorStatusChange(m_pPlayer->GetID(), "era change yield update");
 
-	//bonuses based on minor traits
-	MinorCivTraitTypes eTrait = GetTrait();
-
-	// MARITIME
-	if(eTrait == MINOR_CIV_TRAIT_MARITIME)
+	int iInfluenceLevel = IsFriends(ePlayer) + IsAllies(ePlayer);
+	EraTypes eOldEra = (EraTypes)iCurrentEra;
+	
+	for (int iYield = 0; iYield < NUM_YIELD_TYPES; ++iYield)
 	{
-		// Friends
-		if(IsFriends(ePlayer))
-		{
-			// Capital
-			int iCapDelta = GetFriendsCapitalFoodBonus(ePlayer, eNewEra) - GetFriendsCapitalFoodBonus(ePlayer);
-			int iOtherDelta = GetFriendsOtherCityFoodBonus(ePlayer, eNewEra) - GetFriendsOtherCityFoodBonus(ePlayer);
-			bSomethingChanged = iCapDelta || iOtherDelta;
+		YieldTypes eYield = (YieldTypes)iYield;
 
-			CvPlayer& kMajor = GET_PLAYER(ePlayer);
+		int iOldFlat = GetYieldFlatBonus(ePlayer, eYield, eOldEra, iInfluenceLevel);
+		int iNewFlat = GetYieldFlatBonus(ePlayer, eYield, eNewEra, iInfluenceLevel);
+
+		int iOldCap  = GetCityYieldFlatBonus(ePlayer, eYield, eOldEra, iInfluenceLevel, true);
+		int iNewCap  = GetCityYieldFlatBonus(ePlayer, eYield, eNewEra, iInfluenceLevel, true);
+
+		int iOldCity = GetCityYieldFlatBonus(ePlayer, eYield, eOldEra, iInfluenceLevel, false);
+		int iNewCity = GetCityYieldFlatBonus(ePlayer, eYield, eNewEra, iInfluenceLevel, false);
+
+		int iFlatDelta = iNewFlat - iOldFlat;
+		int iCapDelta  = iNewCap  - iOldCap;
+		int iCityDelta = iNewCity - iOldCity;
+
+		if (iFlatDelta == 0 && iCapDelta == 0 && iCityDelta == 0)
+			continue;
+
+		bSomethingChanged = true;
+
+		// now we update per-city values
+		if (iCapDelta != 0 || iCityDelta != 0)
+		{
 			int iLoop;
-			for (CvCity* pLoopCity = kMajor.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kMajor.nextCity(&iLoop))
+			for (CvCity* pCity = kMajor.firstCity(&iLoop); pCity != NULL; pCity = kMajor.nextCity(&iLoop))
 			{
-				if (pLoopCity->GetID() == kMajor.getCapitalCityID())
+				if (pCity->isCapital())
 				{
 					if (iCapDelta != 0)
 					{
-						pLoopCity->ChangeBaseYieldRateFromCSFriendship(YIELD_FOOD, iCapDelta / 100);
-						//CUSTOMLOG("updated capital food in %s by %d/100 for friendship with %s, current value is %d", pLoopCity->getNameKey(), iCapDelta, m_pPlayer->getNameKey(), pLoopCity->GetBaseYieldRateFromCSFriendship(YIELD_FOOD));
+						if (iInfluenceLevel == 1)
+						{
+							pCity->ChangeBaseYieldRateFromCSFriendship(eYield, iCapDelta);
+							//CUSTOMLOG("updated capital %s in %s by %d/100 for friendship with %s, current value is %d",  GC.getYieldInfo(eYield)->getDescription(), pLoopCity->getNameKey(), iCapDelta, m_pPlayer->getNameKey(), pLoopCity->GetBaseYieldRateFromCSFriendship(eYield));
+						}
+						else if(iInfluenceLevel == 2)
+						{
+							pCity->ChangeBaseYieldRateFromCSAlliance(eYield, iCapDelta);
+							//CUSTOMLOG("updated capital %s in %s by %d/100 for friendship with %s, current value is %d",  GC.getYieldInfo(eYield)->getDescription(), pLoopCity->getNameKey(), iCapDelta, m_pPlayer->getNameKey(), pLoopCity->GetBaseYieldRateFromCSFriendship(eYield));
+						}
 					}
 				}
 				else
 				{
-					if (iOtherDelta != 0)
+					if (iCityDelta != 0)
 					{
-						pLoopCity->ChangeBaseYieldRateFromCSFriendship(YIELD_FOOD, iOtherDelta / 100);
-						//CUSTOMLOG("updated non-capital food in %s by %d/100 for friendship with %s, current value is %d", pLoopCity->getNameKey(), iOtherDelta, m_pPlayer->getNameKey(), pLoopCity->GetBaseYieldRateFromCSFriendship(YIELD_FOOD));
+						if (iInfluenceLevel == 1)
+						{
+							pCity->ChangeBaseYieldRateFromCSFriendship(eYield, iCapDelta);
+							//CUSTOMLOG("updated %s in %s by %d/100 for friendship with %s, current value is %d",  GC.getYieldInfo(eYield)->getDescription(), pLoopCity->getNameKey(), iCapDelta, m_pPlayer->getNameKey(), pLoopCity->GetBaseYieldRateFromCSFriendship(eYield));
+						}
+						else if(iInfluenceLevel == 2)
+						{
+							pCity->ChangeBaseYieldRateFromCSAlliance(eYield, iCapDelta);
+							//CUSTOMLOG("updated %s in %s by %d/100 for friendship with %s, current value is %d",  GC.getYieldInfo(eYield)->getDescription(), pLoopCity->getNameKey(), iCapDelta, m_pPlayer->getNameKey(), pLoopCity->GetBaseYieldRateFromCSFriendship(eYield));
+						}
 					}
 				}
 
-				pLoopCity->updateYield();
+				pCity->updateYield();
 			}
 		}
 	}
-
-	// CULTURED
-	else if(eTrait == MINOR_CIV_TRAIT_CULTURED)
-	{
-		// Friends
-		if(IsFriends(ePlayer))
-		{
-			int iOldCulture = GetCultureFlatFriendshipBonus(ePlayer) + GetCulturePerBuildingFriendshipBonus(ePlayer);
-			int iNewCulture = GetCultureFlatFriendshipBonus(ePlayer, eNewEra) + GetCulturePerBuildingFriendshipBonus(ePlayer, eNewEra);
-
-			if(iOldCulture != iNewCulture)
-			{
-				bSomethingChanged = true;
-			}
-		}
-
-		// Allies
-		if(IsAllies(ePlayer))
-		{
-			int iOldCulture = GetCultureFlatAlliesBonus(ePlayer) + GetCulturePerBuildingAlliesBonus(ePlayer);
-			int iNewCulture = GetCultureFlatAlliesBonus(ePlayer, eNewEra) + GetCulturePerBuildingAlliesBonus(ePlayer, eNewEra);
-
-			if(iOldCulture != iNewCulture)
-			{
-				bSomethingChanged = true;
-			}
-		}
-	}
-
+	
 	// MERCANTILE
-	else if(eTrait == MINOR_CIV_TRAIT_MERCANTILE)
+	if(GetTrait() == MINOR_CIV_TRAIT_MERCANTILE)
 	{
 		// Friends
 		if(IsFriends(ePlayer))
@@ -14044,34 +14080,6 @@ bool CvMinorCivAI::DoMajorCivEraChange(PlayerTypes ePlayer, EraTypes eNewEra)
 		}
 	}
 
-	// RELIGIOUS
-	else if(eTrait == MINOR_CIV_TRAIT_RELIGIOUS)
-	{
-		// Friends
-		if(IsFriends(ePlayer))
-		{
-			int iOldFaith = GetFaithFlatFriendshipBonus(ePlayer);
-			int iNewFaith = GetFaithFlatFriendshipBonus(ePlayer, eNewEra);
-
-			if(iOldFaith != iNewFaith)
-			{
-				bSomethingChanged = true;
-			}
-		}
-
-		// Allies
-		if(IsAllies(ePlayer))
-		{
-			int iOldFaith = GetFaithFlatAlliesBonus(ePlayer);
-			int iNewFaith = GetFaithFlatAlliesBonus(ePlayer, eNewEra);
-
-			if(iOldFaith != iNewFaith)
-			{
-				bSomethingChanged = true;
-			}
-		}
-	}
-
 	return bSomethingChanged;
 }
 
@@ -14099,180 +14107,6 @@ int CvMinorCivAI::GetCurrentScienceFriendshipBonusTimes100(PlayerTypes ePlayer)
 		return GetScienceFriendshipBonusTimes100();
 
 	return 0;
-}
-
-// Flat culture bonus when Friends with a minor
-int CvMinorCivAI::GetCultureFlatFriendshipBonus(PlayerTypes ePlayer, EraTypes eAssumeEra)
-{
-	//antonjs: consider: here it was assumed that this CS is cultured type, which is nice for me prototyping, but later maybe add in a check for this
-	int iCultureBonus = 0;
-
-	EraTypes eCurrentEra = eAssumeEra;
-	if(eCurrentEra == NO_ERA)
-		eCurrentEra = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetCurrentEra();
-
-	EraTypes eIndustrial = (EraTypes) GC.getInfoTypeForString("ERA_INDUSTRIAL", true);
-	EraTypes eMedieval = (EraTypes) GC.getInfoTypeForString("ERA_MEDIEVAL", true);
-
-	// Industrial era or Later
-	if(eCurrentEra >= eIndustrial)
-	{
-		iCultureBonus += /*13 in CP, 10 in VP*/ GD_INT_GET(FRIENDS_CULTURE_BONUS_AMOUNT_INDUSTRIAL);
-	}
-
-	// Medieval era or later
-	else if(eCurrentEra >= eMedieval)
-	{
-		iCultureBonus += /*6 in CP, 4 in VP*/ GD_INT_GET(FRIENDS_CULTURE_BONUS_AMOUNT_MEDIEVAL);
-	}
-
-	// Pre-Medieval
-	else
-	{
-		iCultureBonus += /*3 in CP, 1 in VP*/ GD_INT_GET(FRIENDS_CULTURE_BONUS_AMOUNT_ANCIENT);
-	}
-
-	return iCultureBonus;
-}
-
-// Flat culture bonus when Allies with a minor
-int CvMinorCivAI::GetCultureFlatAlliesBonus(PlayerTypes ePlayer, EraTypes eAssumeEra)
-{
-	//antonjs: consider: here it was assumed that this CS is cultured type, which is nice for me prototyping, but later maybe add in a check for this
-	int iCultureBonus = 0;
-
-	EraTypes eCurrentEra = eAssumeEra;
-	if(eCurrentEra == NO_ERA)
-		eCurrentEra = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetCurrentEra();
-
-	EraTypes eIndustrial = (EraTypes) GC.getInfoTypeForString("ERA_INDUSTRIAL", true);
-	EraTypes eMedieval = (EraTypes) GC.getInfoTypeForString("ERA_MEDIEVAL", true);
-
-	// Industrial era or Later
-	if (eCurrentEra >= eIndustrial)
-	{
-		iCultureBonus += /*13 in CP, 12 in VP*/ GD_INT_GET(ALLIES_CULTURE_BONUS_AMOUNT_INDUSTRIAL);
-	}
-
-	// Medieval era or later
-	else if (eCurrentEra >= eMedieval)
-	{
-		iCultureBonus += /*6*/ GD_INT_GET(ALLIES_CULTURE_BONUS_AMOUNT_MEDIEVAL);
-	}
-
-	// Pre-Medieval
-	else
-	{
-		iCultureBonus += /*3 in CP, 2 in VP*/ GD_INT_GET(ALLIES_CULTURE_BONUS_AMOUNT_ANCIENT);
-	}
-
-	return iCultureBonus;
-}
-
-/// Flat-rate culture bonus
-int CvMinorCivAI::GetCurrentCultureFlatBonus(PlayerTypes ePlayer)
-{
-	PRECONDITION(ePlayer >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	PRECONDITION(ePlayer < MAX_PLAYERS, "ePlayer is expected to be within maximum bounds (invalid Index)");
-	if(ePlayer < 0 || ePlayer >= MAX_PLAYERS) return 0;
-
-	// Don't give a bonus to a minor civ player
-	if (ePlayer >= MAX_MAJOR_CIVS)
-		return 0;
-
-	// Only give a bonus if we are Cultural trait
-	if (GetTrait() != MINOR_CIV_TRAIT_CULTURED)
-		return 0;
-
-	int iAmount = 0;
-
-	if (IsAllies(ePlayer))
-		iAmount += GetCultureFlatAlliesBonus(ePlayer);
-
-	if (IsFriends(ePlayer))
-		iAmount += GetCultureFlatFriendshipBonus(ePlayer);
-
-	int iModifier = GET_PLAYER(ePlayer).GetPlayerTraits()->GetCityStateBonusModifier();
-	iModifier += GET_PLAYER(ePlayer).GetCSYieldBonusModifier();
-	iModifier += IsSameReligionAsMajor(ePlayer) ? GET_PLAYER(ePlayer).GetReligions()->GetCityStateYieldModifier(ePlayer) : 0;
-	if (iModifier > 0)
-	{
-		iAmount *= 100 + iModifier;
-		iAmount /= 100;
-	}
-
-	if (MOD_BALANCE_CITY_STATE_SCALE)
-	{
-		iAmount *= 100 + max( 1, GetPlayer()->getNumCities() - 1) * /*0*/ GD_INT_GET(CITY_STATE_SCALE_PER_CITY_MOD);
-		iAmount /= 100;
-	}
-
-	return iAmount;
-}
-
-//antonjs: This feature was prototyped, but later removed. Rewrite this function to add the bonus back in.
-/// Cumulative per building culture bonus from friendship with a minor
-int CvMinorCivAI::GetCulturePerBuildingFriendshipBonus(PlayerTypes /*ePlayer*/, EraTypes /*eAssumeEra*/)
-{
-	return 0;
-}
-
-//antonjs: This feature was prototyped, but later removed. Rewrite this function to add the bonus back in.
-/// Cumulative per building culture bonus from being allies with a minor
-int CvMinorCivAI::GetCulturePerBuildingAlliesBonus(PlayerTypes /*ePlayer*/, EraTypes /*eAssumeEra*/)
-{
-	return 0;
-}
-
-//antonjs: This feature was prototyped, but later removed. It will return 0 (no bonus).
-int CvMinorCivAI::GetCurrentCulturePerBuildingBonus(PlayerTypes ePlayer)
-{
-	PRECONDITION(ePlayer >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	PRECONDITION(ePlayer < MAX_PLAYERS, "ePlayer is expected to be within maximum bounds (invalid Index)");
-	if(ePlayer < 0 || ePlayer >= MAX_PLAYERS) return 0;
-
-	// Don't give a bonus to a minor civ player
-	if(ePlayer >= MAX_MAJOR_CIVS)
-		return 0;
-
-	// Only give a bonus if we are Cultural trait
-	if(GetTrait() != MINOR_CIV_TRAIT_CULTURED)
-		return 0;
-
-	int iAmount = 0;
-
-	if(IsAllies(ePlayer))
-		iAmount += GetCulturePerBuildingAlliesBonus(ePlayer);
-
-	if(IsFriends(ePlayer))
-		iAmount += GetCulturePerBuildingFriendshipBonus(ePlayer);
-
-	// Modify the bonus if called for by our trait
-	int iModifier = GET_PLAYER(ePlayer).GetPlayerTraits()->GetCityStateBonusModifier();
-	if (iModifier > 0)
-	{
-		iAmount *= (iModifier + 100);
-		iAmount /= 100;
-	}
-
-	return iAmount;
-}
-
-int CvMinorCivAI::GetCurrentCultureBonus(PlayerTypes ePlayer)
-{
-	PRECONDITION(ePlayer >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	PRECONDITION(ePlayer < MAX_PLAYERS, "ePlayer is expected to be within maximum bounds (invalid Index)");
-	if(ePlayer < 0 || ePlayer >= MAX_PLAYERS) return 0;
-
-	int iAmount = 0;
-
-	iAmount += GetCurrentCultureFlatBonus(ePlayer);
-	iAmount += GetCurrentCulturePerBuildingBonus(ePlayer); //antonjs: This feature was prototyped, but later removed. Its value is 0 (no bonus).
-
-	iAmount *= (100 + GET_PLAYER(ePlayer).GetCSYieldBonusModifier());
-	iAmount /= 100;
-
-	return iAmount;
 }
 
 /// Flat happiness bonus from friendship with a minor
@@ -14470,99 +14304,34 @@ int CvMinorCivAI::GetCurrentHappinessBonus(PlayerTypes ePlayer)
 	return iValue;
 }
 
-int CvMinorCivAI::GetFaithFlatFriendshipBonus(PlayerTypes ePlayer, EraTypes eAssumeEra) const
+// one function to rule them all, player version
+int CvMinorCivAI::GetYieldFlatBonus(PlayerTypes ePlayer, YieldTypes eYield, EraTypes eAssumeEra, int iInfluenceLevel) const
 {
-	int iFaithBonus = 0;
+	if (iInfluenceLevel == 0)
+		return 0;
+	
+	int iYieldBonus = 0;
 
 	EraTypes eCurrentEra = eAssumeEra;
 	if(eCurrentEra == NO_ERA)
 		eCurrentEra = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetCurrentEra();
 
-	EraTypes eIndustrial = (EraTypes) GC.getInfoTypeForString("ERA_INDUSTRIAL", true);
-	EraTypes eRenaissance = (EraTypes) GC.getInfoTypeForString("ERA_RENAISSANCE", true);
-	EraTypes eMedieval = (EraTypes) GC.getInfoTypeForString("ERA_MEDIEVAL", true);
-	EraTypes eClassical = (EraTypes) GC.getInfoTypeForString("ERA_CLASSICAL", true);
-
-	// Industrial era or later
-	if(eCurrentEra >= eIndustrial)
+	// Iterate from current era down to Ancient
+	for (int iEra = (int)eCurrentEra; iEra >= 0; --iEra)
 	{
-		iFaithBonus += /*8 in CP, 12 in VP*/ GD_INT_GET(FRIENDS_FAITH_FLAT_BONUS_AMOUNT_INDUSTRIAL);
+		EraTypes eEra = (EraTypes)iEra;
+
+		if (HasFriendYieldBonuses(eYield))
+			iYieldBonus += GetFriendYieldBonusValue(eYield, eEra);
+		
+		if (HasAllyYieldBonuses(eYield) && iInfluenceLevel > 1)
+			iYieldBonus += GetAllyYieldBonusValue(eYield, eEra);
 	}
 
-	// Renaissance era
-	else if(eCurrentEra >= eRenaissance)
-	{
-		iFaithBonus += /*4 in CP, 9 in VP*/ GD_INT_GET(FRIENDS_FAITH_FLAT_BONUS_AMOUNT_RENAISSANCE);
-	}
-
-	// Medieval era
-	else if(eCurrentEra >= eMedieval)
-	{
-		iFaithBonus += /*4 in CP, 7 in VP*/ GD_INT_GET(FRIENDS_FAITH_FLAT_BONUS_AMOUNT_MEDIEVAL);
-	}
-
-	// Classical era
-	else if(eCurrentEra >= eClassical)
-	{
-		iFaithBonus += /*2*/ GD_INT_GET(FRIENDS_FAITH_FLAT_BONUS_AMOUNT_CLASSICAL);
-	}
-
-	// Ancient era
-	else
-	{
-		iFaithBonus += /*2 in CP, 1 in VP*/ GD_INT_GET(FRIENDS_FAITH_FLAT_BONUS_AMOUNT_ANCIENT);
-	}
-
-	return iFaithBonus;
+	return iYieldBonus;
 }
 
-int CvMinorCivAI::GetFaithFlatAlliesBonus(PlayerTypes ePlayer, EraTypes eAssumeEra) const
-{
-	int iFaithBonus = 0;
-
-	EraTypes eCurrentEra = eAssumeEra;
-	if(eCurrentEra == NO_ERA)
-		eCurrentEra = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetCurrentEra();
-
-	EraTypes eIndustrial = (EraTypes) GC.getInfoTypeForString("ERA_INDUSTRIAL", true);
-	EraTypes eRenaissance = (EraTypes) GC.getInfoTypeForString("ERA_RENAISSANCE", true);
-	EraTypes eMedieval = (EraTypes) GC.getInfoTypeForString("ERA_MEDIEVAL", true);
-	EraTypes eClassical = (EraTypes) GC.getInfoTypeForString("ERA_CLASSICAL", true);
-
-	// Industrial era or later
-	if(eCurrentEra >= eIndustrial)
-	{
-		iFaithBonus += /*8 in CP, 12 in VP*/ GD_INT_GET(ALLIES_FAITH_FLAT_BONUS_AMOUNT_INDUSTRIAL);
-	}
-
-	// Renaissance era
-	else if(eCurrentEra >= eRenaissance)
-	{
-		iFaithBonus += /*4 in CP, 9 in VP*/ GD_INT_GET(ALLIES_FAITH_FLAT_BONUS_AMOUNT_RENAISSANCE);
-	}
-
-	// Medieval era
-	else if(eCurrentEra >= eMedieval)
-	{
-		iFaithBonus += /*4 in CP, 7 in VP*/ GD_INT_GET(ALLIES_FAITH_FLAT_BONUS_AMOUNT_MEDIEVAL);
-	}
-
-	// Classical era
-	else if(eCurrentEra >= eClassical)
-	{
-		iFaithBonus += /*2 in CP, 3 in VP*/ GD_INT_GET(ALLIES_FAITH_FLAT_BONUS_AMOUNT_CLASSICAL);
-	}
-
-	// Ancient era
-	else
-	{
-		iFaithBonus += /*2*/ GD_INT_GET(ALLIES_FAITH_FLAT_BONUS_AMOUNT_ANCIENT);
-	}
-
-	return iFaithBonus;
-}
-
-int CvMinorCivAI::GetCurrentFaithFlatBonus(PlayerTypes ePlayer)
+int CvMinorCivAI::GetCurrentYieldBonus(PlayerTypes ePlayer, YieldTypes eYield)
 {
 	PRECONDITION(ePlayer >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	PRECONDITION(ePlayer < MAX_PLAYERS, "ePlayer is expected to be within maximum bounds (invalid Index)");
@@ -14572,16 +14341,13 @@ int CvMinorCivAI::GetCurrentFaithFlatBonus(PlayerTypes ePlayer)
 	if(ePlayer >= MAX_MAJOR_CIVS)
 		return 0;
 
-	// Only for Religious trait minors
-	if(GetTrait() != MINOR_CIV_TRAIT_RELIGIOUS)
-		return 0;
-
-	int iAmount = 0;
-	if(IsAllies(ePlayer))
-		iAmount += GetFaithFlatAlliesBonus(ePlayer);
-	if(IsFriends(ePlayer))
-		iAmount += GetFaithFlatFriendshipBonus(ePlayer);
-
+	int iInfluenceLevel = IsAllies(ePlayer) + IsFriends(ePlayer);
+	
+	if (iInfluenceLevel == 0)
+		return iInfluenceLevel;
+	
+	int iAmount = GetYieldFlatBonus(ePlayer, eYield, NO_ERA, iInfluenceLevel);
+	
 	int iModifier = GET_PLAYER(ePlayer).GetPlayerTraits()->GetCityStateBonusModifier();
 	iModifier += GET_PLAYER(ePlayer).GetCSYieldBonusModifier();
 	iModifier += IsSameReligionAsMajor(ePlayer) ? GET_PLAYER(ePlayer).GetReligions()->GetCityStateYieldModifier(ePlayer) : 0;
@@ -14600,397 +14366,42 @@ int CvMinorCivAI::GetCurrentFaithFlatBonus(PlayerTypes ePlayer)
 	return iAmount;
 }
 
-/// Total faith bonus from this minor civ for this player
-int CvMinorCivAI::GetCurrentFaithBonus(PlayerTypes ePlayer)
+// one function to rule them all, city version
+int CvMinorCivAI::GetCityYieldFlatBonus(PlayerTypes ePlayer, YieldTypes eYield, EraTypes eAssumeEra, int iInfluenceLevel, bool bCapitalOnly) const
 {
-	int iValue = 0;
-
-	iValue += GetCurrentFaithFlatBonus(ePlayer);
-
-	return iValue;
-}
-
-int CvMinorCivAI::GetGoldFlatFriendshipBonus(PlayerTypes ePlayer, EraTypes eAssumeEra) const
-{
-	int iGoldBonus = 0;
+	if (iInfluenceLevel == 0)
+		return 0;
+	
+	int iYieldBonus = 0;
 
 	EraTypes eCurrentEra = eAssumeEra;
 	if(eCurrentEra == NO_ERA)
 		eCurrentEra = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetCurrentEra();
 
-	EraTypes eIndustrial = (EraTypes) GC.getInfoTypeForString("ERA_INDUSTRIAL", true);
-	EraTypes eRenaissance = (EraTypes) GC.getInfoTypeForString("ERA_RENAISSANCE", true);
-	EraTypes eMedieval = (EraTypes) GC.getInfoTypeForString("ERA_MEDIEVAL", true);
-	EraTypes eClassical = (EraTypes) GC.getInfoTypeForString("ERA_CLASSICAL", true);
-
-	// Industrial era or later
-	if(eCurrentEra >= eIndustrial)
+	// Iterate from current era down to Ancient
+	for (int iEra = (int)eCurrentEra; iEra >= 0; --iEra)
 	{
-		iGoldBonus += /*4*/ GD_INT_GET(FRIENDS_GOLD_FLAT_BONUS_AMOUNT_INDUSTRIAL);
+		EraTypes eEra = (EraTypes)iEra;
+
+		if (HasFriendCityYieldBonuses(eYield))
+			iYieldBonus += GetFriendCityYieldBonusValue(eYield, eEra, bCapitalOnly);
+		
+		if (HasAllyCityYieldBonuses(eYield) && iInfluenceLevel > 1)
+			iYieldBonus += GetAllyCityYieldBonusValue(eYield, eEra, bCapitalOnly);
 	}
 
-	// Renaissance era
-	else if(eCurrentEra >= eRenaissance)
-	{
-		iGoldBonus += /*3*/ GD_INT_GET(FRIENDS_GOLD_FLAT_BONUS_AMOUNT_RENAISSANCE);
-	}
-
-	// Medieval era
-	else if(eCurrentEra >= eMedieval)
-	{
-		iGoldBonus += /*2*/ GD_INT_GET(FRIENDS_GOLD_FLAT_BONUS_AMOUNT_MEDIEVAL);
-	}
-
-	// Classical era
-	else if(eCurrentEra >= eClassical)
-	{
-		iGoldBonus += /*1*/ GD_INT_GET(FRIENDS_GOLD_FLAT_BONUS_AMOUNT_CLASSICAL);
-	}
-
-	// Ancient era
-	else
-	{
-		iGoldBonus += /*1*/ GD_INT_GET(FRIENDS_GOLD_FLAT_BONUS_AMOUNT_ANCIENT);
-	}
-
-	return iGoldBonus;
-}
-
-int CvMinorCivAI::GetGoldFlatAlliesBonus(PlayerTypes ePlayer, EraTypes eAssumeEra) const
-{
-	int iGoldBonus = 0;
-
-	EraTypes eCurrentEra = eAssumeEra;
-	if(eCurrentEra == NO_ERA)
-		eCurrentEra = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetCurrentEra();
-
-	EraTypes eIndustrial = (EraTypes) GC.getInfoTypeForString("ERA_INDUSTRIAL", true);
-	EraTypes eRenaissance = (EraTypes) GC.getInfoTypeForString("ERA_RENAISSANCE", true);
-	EraTypes eMedieval = (EraTypes) GC.getInfoTypeForString("ERA_MEDIEVAL", true);
-	EraTypes eClassical = (EraTypes) GC.getInfoTypeForString("ERA_CLASSICAL", true);
-
-	// Industrial era or later
-	if(eCurrentEra >= eIndustrial)
-	{
-		iGoldBonus += /*6*/ GD_INT_GET(ALLIES_GOLD_FLAT_BONUS_AMOUNT_INDUSTRIAL);
-	}
-
-	// Renaissance era
-	else if(eCurrentEra >= eRenaissance)
-	{
-		iGoldBonus += /*5*/ GD_INT_GET(ALLIES_GOLD_FLAT_BONUS_AMOUNT_RENAISSANCE);
-	}
-
-	// Medieval era
-	else if(eCurrentEra >= eMedieval)
-	{
-		iGoldBonus += /*4*/ GD_INT_GET(ALLIES_GOLD_FLAT_BONUS_AMOUNT_MEDIEVAL);
-	}
-
-	// Classical era
-	else if(eCurrentEra >= eClassical)
-	{
-		iGoldBonus += /*3*/ GD_INT_GET(ALLIES_GOLD_FLAT_BONUS_AMOUNT_CLASSICAL);
-	}
-
-	// Ancient era
-	else
-	{
-		iGoldBonus += /*2*/ GD_INT_GET(ALLIES_GOLD_FLAT_BONUS_AMOUNT_ANCIENT);
-	}
-
-	return iGoldBonus;
-}
-
-int CvMinorCivAI::GetCurrentGoldFlatBonus(PlayerTypes ePlayer)
-{
-	PRECONDITION(ePlayer >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	PRECONDITION(ePlayer < MAX_PLAYERS, "ePlayer is expected to be within maximum bounds (invalid Index)");
-	if(ePlayer < 0 || ePlayer >= MAX_PLAYERS) return 0;
-
-	// Minor civ players do not get a bonus
-	if(ePlayer >= MAX_MAJOR_CIVS)
-		return 0;
-
-	// Only for Mercantile trait minors
-	if(GetTrait() != MINOR_CIV_TRAIT_MERCANTILE)
-		return 0;
-
-	int iAmount = 0;
-	if(IsAllies(ePlayer))
-		iAmount += GetGoldFlatAlliesBonus(ePlayer);
-	if(IsFriends(ePlayer))
-		iAmount += GetGoldFlatFriendshipBonus(ePlayer);
-
-	int iModifier = MOD_BALANCE_ALTERNATE_SIAM_TRAIT ? GET_PLAYER(ePlayer).GetPlayerTraits()->GetCityStateBonusModifier() : 0;
-	iModifier += GET_PLAYER(ePlayer).GetCSYieldBonusModifier();
-	iModifier += IsSameReligionAsMajor(ePlayer) ? GET_PLAYER(ePlayer).GetReligions()->GetCityStateYieldModifier(ePlayer) : 0;
-	if (iModifier > 0)
-	{
-		iAmount *= 100 + iModifier;
-		iAmount /= 100;
-	}
-
-	if (MOD_BALANCE_CITY_STATE_SCALE)
-	{
-		iAmount *= 100 + max(0, GetPlayer()->getNumCities() - 1) * /*0*/ GD_INT_GET(CITY_STATE_SCALE_PER_CITY_MOD);
-		iAmount /= 100;
-	}
-
-	return iAmount;
-}
-
-/// Total Gold bonus from this minor civ for this player
-int CvMinorCivAI::GetCurrentGoldBonus(PlayerTypes ePlayer)
-{
-	int iValue = 0;
-
-	iValue += GetCurrentGoldFlatBonus(ePlayer);
-
-	return iValue;
-}
-
-int CvMinorCivAI::GetScienceFlatFriendshipBonus(PlayerTypes ePlayer, EraTypes eAssumeEra) const
-{
-	int iScienceBonus = 0;
-
-	EraTypes eCurrentEra = eAssumeEra;
-	if(eCurrentEra == NO_ERA)
-		eCurrentEra = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetCurrentEra();
-
-	EraTypes eIndustrial = (EraTypes) GC.getInfoTypeForString("ERA_INDUSTRIAL", true);
-	EraTypes eRenaissance = (EraTypes) GC.getInfoTypeForString("ERA_RENAISSANCE", true);
-	EraTypes eMedieval = (EraTypes) GC.getInfoTypeForString("ERA_MEDIEVAL", true);
-	EraTypes eClassical = (EraTypes) GC.getInfoTypeForString("ERA_CLASSICAL", true);
-
-	// Industrial era or later
-	if(eCurrentEra >= eIndustrial)
-	{
-		iScienceBonus += /*10*/ GD_INT_GET(FRIENDS_SCIENCE_FLAT_BONUS_AMOUNT_INDUSTRIAL);
-	}
-
-	// Renaissance era
-	else if(eCurrentEra >= eRenaissance)
-	{
-		iScienceBonus += /*6*/ GD_INT_GET(FRIENDS_SCIENCE_FLAT_BONUS_AMOUNT_RENAISSANCE);
-	}
-
-	// Medieval era
-	else if(eCurrentEra >= eMedieval)
-	{
-		iScienceBonus += /*4*/ GD_INT_GET(FRIENDS_SCIENCE_FLAT_BONUS_AMOUNT_MEDIEVAL);
-	}
-
-	// Classical era
-	else if(eCurrentEra >= eClassical)
-	{
-		iScienceBonus += /*2*/ GD_INT_GET(FRIENDS_SCIENCE_FLAT_BONUS_AMOUNT_CLASSICAL);
-	}
-
-	// Ancient era
-	else
-	{
-		iScienceBonus += /*1*/ GD_INT_GET(FRIENDS_SCIENCE_FLAT_BONUS_AMOUNT_ANCIENT);
-	}
-
-	return iScienceBonus;
-}
-
-int CvMinorCivAI::GetScienceFlatAlliesBonus(PlayerTypes ePlayer, EraTypes eAssumeEra) const
-{
-	int iScienceBonus = 0;
-
-	EraTypes eCurrentEra = eAssumeEra;
-	if(eCurrentEra == NO_ERA)
-		eCurrentEra = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetCurrentEra();
-
-	EraTypes eIndustrial = (EraTypes) GC.getInfoTypeForString("ERA_INDUSTRIAL", true);
-	EraTypes eRenaissance = (EraTypes) GC.getInfoTypeForString("ERA_RENAISSANCE", true);
-	EraTypes eMedieval = (EraTypes) GC.getInfoTypeForString("ERA_MEDIEVAL", true);
-	EraTypes eClassical = (EraTypes) GC.getInfoTypeForString("ERA_CLASSICAL", true);
-
-	// Industrial era or later
-	if(eCurrentEra >= eIndustrial)
-	{
-		iScienceBonus += /*10*/ GD_INT_GET(ALLIES_SCIENCE_FLAT_BONUS_AMOUNT_INDUSTRIAL);
-	}
-
-	// Renaissance era
-	else if(eCurrentEra >= eRenaissance)
-	{
-		iScienceBonus += /*8*/ GD_INT_GET(ALLIES_SCIENCE_FLAT_BONUS_AMOUNT_RENAISSANCE);
-	}
-
-	// Medieval era
-	else if(eCurrentEra >= eMedieval)
-	{
-		iScienceBonus += /*6*/ GD_INT_GET(ALLIES_SCIENCE_FLAT_BONUS_AMOUNT_MEDIEVAL);
-	}
-
-	// Classical era
-	else if(eCurrentEra >= eClassical)
-	{
-		iScienceBonus += /*4*/ GD_INT_GET(ALLIES_SCIENCE_FLAT_BONUS_AMOUNT_CLASSICAL);
-	}
-
-	// Ancient era
-	else
-	{
-		iScienceBonus += /*3*/ GD_INT_GET(ALLIES_SCIENCE_FLAT_BONUS_AMOUNT_ANCIENT);
-	}
-
-	return iScienceBonus;
-}
-
-int CvMinorCivAI::GetCurrentScienceFlatBonus(PlayerTypes ePlayer)
-{
-	PRECONDITION(ePlayer >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	PRECONDITION(ePlayer < MAX_PLAYERS, "ePlayer is expected to be within maximum bounds (invalid Index)");
-	if(ePlayer < 0 || ePlayer >= MAX_PLAYERS) return 0;
-
-	// Minor civ players do not get a bonus
-	if(ePlayer >= MAX_MAJOR_CIVS)
-		return 0;
-
-	// Only for Religious trait minors
-	if(GetTrait() != MINOR_CIV_TRAIT_MILITARISTIC)
-		return 0;
-
-	int iAmount = 0;
-	if(IsAllies(ePlayer))
-		iAmount += GetScienceFlatAlliesBonus(ePlayer);
-	if(IsFriends(ePlayer))
-		iAmount += GetScienceFlatFriendshipBonus(ePlayer);
-
-	int iModifier = MOD_BALANCE_ALTERNATE_SIAM_TRAIT ? GET_PLAYER(ePlayer).GetPlayerTraits()->GetCityStateBonusModifier() : 0;
-	iModifier += GET_PLAYER(ePlayer).GetCSYieldBonusModifier();
-	iModifier += IsSameReligionAsMajor(ePlayer) ? GET_PLAYER(ePlayer).GetReligions()->GetCityStateYieldModifier(ePlayer) : 0;
-	if (iModifier > 0)
-	{
-		iAmount *= 100 + iModifier;
-		iAmount /= 100;
-	}
-
-	if (MOD_BALANCE_CITY_STATE_SCALE)
-	{
-		iAmount *= 100 + max(0, GetPlayer()->getNumCities() - 1) * /*0*/ GD_INT_GET(CITY_STATE_SCALE_PER_CITY_MOD);
-		iAmount /= 100;
-	}
-
-	return iAmount;
-}
-
-/// Total faith bonus from this minor civ for this player
-int CvMinorCivAI::GetCurrentScienceBonus(PlayerTypes ePlayer)
-{
-	int iValue = 0;
-
-	iValue += GetCurrentScienceFlatBonus(ePlayer);
-
-	return iValue;
-}
-
-// Food bonus when Friends with a minor - additive with general city bonus
-int CvMinorCivAI::GetFriendsCapitalFoodBonus(PlayerTypes ePlayer, EraTypes eAssumeEra)
-{
-	int iBonus = 0;
-
-	EraTypes eRenaissance = (EraTypes) GC.getInfoTypeForString("ERA_RENAISSANCE", true);
-	EraTypes eCurrentEra = eAssumeEra;
-	if (eCurrentEra == NO_ERA)
-		eCurrentEra = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetCurrentEra();
-
-	// Medieval era or sooner
-	if (eCurrentEra < eRenaissance)
-		iBonus = /*200 in CP, 300 in VP*/ GD_INT_GET(FRIENDS_CAPITAL_FOOD_BONUS_AMOUNT_PRE_RENAISSANCE);
-
-	// Renaissance era or later
-	else
-		iBonus = /*200 in CP, 600 in VP*/ GD_INT_GET(FRIENDS_CAPITAL_FOOD_BONUS_AMOUNT_POST_RENAISSANCE);
-
-	return iBonus;
-}
-
-// Food bonus when Friends with a minor
-int CvMinorCivAI::GetFriendsOtherCityFoodBonus(PlayerTypes ePlayer, EraTypes eAssumeEra)
-{
-	int iBonus = 0;
-
-	EraTypes eRenaissance = (EraTypes) GC.getInfoTypeForString("ERA_RENAISSANCE", true);
-	EraTypes eCurrentEra = eAssumeEra;
-	if (eCurrentEra == NO_ERA)
-		eCurrentEra = GET_PLAYER(ePlayer).GetCurrentEra();
-
-	// Medieval era or sooner
-	if (eCurrentEra < eRenaissance)
-		iBonus = /*0 in CP, 100 in VP*/ GD_INT_GET(FRIENDS_OTHER_CITIES_FOOD_BONUS_AMOUNT_PRE_RENAISSANCE);
-
-	// Renaissance era or later
-	else
-		iBonus = /*0 in CP, 100 in VP*/ GD_INT_GET(FRIENDS_OTHER_CITIES_FOOD_BONUS_AMOUNT_POST_RENAISSANCE);
-
-	return iBonus;
-}
-
-// Food bonus when Allies with a minor - additive with general city bonus
-int CvMinorCivAI::GetAlliesCapitalFoodBonus()
-{
-	return /*0 in CP, 200 in VP*/ GD_INT_GET(ALLIES_CAPITAL_FOOD_BONUS_AMOUNT);
-}
-
-// Food bonus when Allies with a minor
-int CvMinorCivAI::GetAlliesOtherCityFoodBonus()
-{
-	return /*100 in CP, 200 in VP*/ GD_INT_GET(ALLIES_OTHER_CITIES_FOOD_BONUS_AMOUNT);
+	return iYieldBonus;
 }
 
 /// How much are we getting RIGHT NOW (usually 0)
-int CvMinorCivAI::GetCurrentCapitalFoodBonus(PlayerTypes ePlayer)
+int CvMinorCivAI::GetCurrentCityYieldBonus(PlayerTypes ePlayer, YieldTypes eYield, bool bCapitalOnly)
 {
-	// This guy isn't Maritime
-	if (GetTrait() != MINOR_CIV_TRAIT_MARITIME)
+	int iInfluenceLevel = IsAllies(ePlayer) + IsFriends(ePlayer);
+	
+	if (iInfluenceLevel == 0)
 		return 0;
-
-	int iAmount = 0;
-
-	if (IsAllies(ePlayer))
-		iAmount += GetAlliesCapitalFoodBonus();
-
-	if (IsFriends(ePlayer))
-		iAmount += GetFriendsCapitalFoodBonus(ePlayer);
-
-	int iModifier = GET_PLAYER(ePlayer).GetPlayerTraits()->GetCityStateBonusModifier();
-	iModifier += GET_PLAYER(ePlayer).GetCSYieldBonusModifier();
-	iModifier += IsSameReligionAsMajor(ePlayer) ? GET_PLAYER(ePlayer).GetReligions()->GetCityStateYieldModifier(ePlayer) : 0;
-	if (iModifier > 0)
-	{
-		iAmount *= 100 + iModifier;
-		iAmount /= 100;
-	}
-
-	if (MOD_BALANCE_CITY_STATE_SCALE)
-	{
-		iAmount *= 100 + max(0, GetPlayer()->getNumCities() - 1) * GD_INT_GET(CITY_STATE_SCALE_PER_CITY_MOD);
-		iAmount /= 100;
-	}
-
-	return iAmount;
-}
-
-/// How much are we getting RIGHT NOW (usually 0)
-int CvMinorCivAI::GetCurrentOtherCityFoodBonus(PlayerTypes ePlayer)
-{
-	// This guy isn't Maritime
-	if (GetTrait() != MINOR_CIV_TRAIT_MARITIME)
-		return 0;
-
-	int iAmount = 0;
-
-	if (IsAllies(ePlayer))
-		iAmount += GetAlliesOtherCityFoodBonus();
-
-	if (IsFriends(ePlayer))
-		iAmount += GetFriendsOtherCityFoodBonus(ePlayer);
+	
+	int iAmount = GetCityYieldFlatBonus(ePlayer, eYield, NO_ERA, iInfluenceLevel, bCapitalOnly);
 
 	int iModifier = GET_PLAYER(ePlayer).GetPlayerTraits()->GetCityStateBonusModifier();
 	iModifier += GET_PLAYER(ePlayer).GetCSYieldBonusModifier();
@@ -18498,216 +17909,152 @@ CvString CvMinorCivAI::GetStatusChangeDetails(PlayerTypes ePlayer, bool bAdd, bo
 {
 	Localization::String strDetailedInfo;
 
-	MinorCivTraitTypes eTrait = GetTrait();
+	if(bAllies && bAdd)		// Now Allies (includes jump from nothing through Friends to Allies)
+		strDetailedInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_NOW_ALLIES_GENERIC");
+	else if(bFriends && bAdd)		// Now Friends
+		strDetailedInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_NOW_FRIENDS_GENERIC");
+	else if(bFriends && !bAdd)		// No longer Friends (includes drop from Allies down to nothing) - this should be before the Allies check!
+		strDetailedInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_LOST_FRIENDS_GENERIC");
+	else if(bAllies && !bAdd)		// No longer Allies
+		strDetailedInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_LOST_ALLIES_GENERIC");
+	
+	Localization::String strPlayerLevel;
+	Localization::String strCityLevel;
+	Localization::String strCityLevelCapital;
 
-	if(eTrait == MINOR_CIV_TRAIT_CULTURED)
+	// code to compute the yield change similar to DoSetBonus
+	const int iSign = bAdd ? 1 : -1;
+	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
-		int iCultureBonusAmount = 0;
-		if (bFriends)
-		{
-			iCultureBonusAmount += GetCultureFlatFriendshipBonus(ePlayer) + GetCulturePerBuildingFriendshipBonus(ePlayer);
-		}
+		YieldTypes eYield = (YieldTypes)iI;
+		int iFriendYieldTimes100 = GetYieldFlatBonus(ePlayer, eYield, NO_ERA, 1) * 100;
+		int iFriendCapitalYieldTimes100 = GetCityYieldFlatBonus(ePlayer, eYield, NO_ERA, 1, true);
+		int iFriendOtherCitiesYieldTimes100 = GetCityYieldFlatBonus(ePlayer, eYield, NO_ERA, 1, false);
+		int iAllyYieldTimes100 = 0;
+		int iAllyCapitalYieldTimes100 = 0;
+		int iAllyOtherCitiesYieldTimes100 = 0;
 		if (bAllies)
 		{
-			iCultureBonusAmount += GetCultureFlatAlliesBonus(ePlayer) + GetCulturePerBuildingAlliesBonus(ePlayer);
+			iAllyYieldTimes100 = GetYieldFlatBonus(ePlayer, eYield, NO_ERA, 2) * 100;
+			iAllyCapitalYieldTimes100 = GetCityYieldFlatBonus(ePlayer, eYield, NO_ERA, 2, true) - iFriendCapitalYieldTimes100;
+			iAllyOtherCitiesYieldTimes100 = GetCityYieldFlatBonus(ePlayer, eYield, NO_ERA, 2, false) - iFriendOtherCitiesYieldTimes100;
 		}
-		if (!bAdd)
+		// if we are doing friend->ally, zero the friendchange now we've used it
+		if (!bFriends)
 		{
-			iCultureBonusAmount = -iCultureBonusAmount;
+			iFriendYieldTimes100 = 0;
+			iFriendCapitalYieldTimes100 = 0;
+			iFriendOtherCitiesYieldTimes100 = 0;
 		}
 
-		if(bAllies && bAdd)		// Now Allies (includes jump from nothing through Friends to Allies)
+		int iTotal = 0;  // don't include zero yields
+		// player yields
+		iTotal = (iFriendYieldTimes100 + iAllyYieldTimes100) / 100;
+		if (iTotal != 0) 
 		{
-			strDetailedInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_NOW_ALLIES_CULTURE");
-			strDetailedInfo << iCultureBonusAmount;
+			CvString formatted = CvString::format(
+			    "%+d %s %s",
+			    iTotal * iSign,
+			    GC.getYieldInfo(eYield)->getIconString(),
+			    GC.getYieldInfo(eYield)->GetDescription()
+			);
+			Localization::String temp = Localization::String::FromUTF8(formatted.c_str());
+			
+			if (!strPlayerLevel.empty())
+			    strPlayerLevel.append(", ");
+			strPlayerLevel.append(temp);
 		}
-		else if(bFriends && bAdd)		// Now Friends
+
+		// city yields
+		iTotal = (iFriendOtherCitiesYieldTimes100 + iAllyOtherCitiesYieldTimes100) / 100;
+		if (iTotal != 0) 
 		{
-			strDetailedInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_NOW_FRIENDS_CULTURE");
-			strDetailedInfo << iCultureBonusAmount;
+			CvString formatted = CvString::format(
+			    "%+d %s %s",
+			    iTotal * iSign,
+			    GC.getYieldInfo(eYield)->getIconString(),
+			    GC.getYieldInfo(eYield)->GetDescription()
+			);
+			Localization::String temp = Localization::String::FromUTF8(formatted.c_str());
+			
+			if (!strCityLevel.empty())
+			    strCityLevel.append(", ");
+			strCityLevel.append(temp);
 		}
-		else if(!bAdd)		// Bonus diminished (or removed)
+		
+		// capital gets both yields but word it separately in case only one is set in database
+		iTotal = (iFriendCapitalYieldTimes100 + iAllyCapitalYieldTimes100) / 100;
+		if (iTotal != 0) 
 		{
-			strDetailedInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_LOST_CULTURE");
-			strDetailedInfo << iCultureBonusAmount;
+			CvString formatted = CvString::format(
+				"%+d %s %s",
+				iTotal * iSign,
+				GC.getYieldInfo(eYield)->getIconString(),
+				GC.getYieldInfo(eYield)->GetDescription()
+			);
+			Localization::String temp = Localization::String::FromUTF8(formatted.c_str());
+			
+			if (!strCityLevelCapital.empty())
+				strCityLevelCapital.append(", ");
+			strCityLevelCapital.append(temp);
 		}
 	}
-	else if(eTrait == MINOR_CIV_TRAIT_MILITARISTIC)
+
+	// now happiness, since that's not in the loop
+	int iHappinessBonus = 0;
+	if(bFriends)	// Friends bonus
 	{
-		int iScienceBonusAmount = 0;
-		if (bFriends)
-		{
-			iScienceBonusAmount += GetScienceFlatFriendshipBonus(ePlayer);
-		}
-		if (bAllies)
-		{
-			iScienceBonusAmount += GetScienceFlatAlliesBonus(ePlayer);
-		}
-		if (!bAdd)
-		{
-			iScienceBonusAmount = -iScienceBonusAmount;
-		}
-		if(bAllies && bAdd)		// Now Allies (includes jump from nothing through Friends to Allies)
-			strDetailedInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_NOW_ALLIES_MILITARISTIC");
-		if(iScienceBonusAmount != 0)
-		{
-			strDetailedInfo << iScienceBonusAmount;
-		}
+		iHappinessBonus += GetHappinessFlatFriendshipBonus(ePlayer) + GetHappinessPerLuxuryFriendshipBonus(ePlayer);
+	}
+	if(bAllies)		// Allies bonus
+	{
+		iHappinessBonus += GetHappinessFlatAlliesBonus(ePlayer) + GetHappinessPerLuxuryAlliesBonus(ePlayer);
+	}
+	if (iHappinessBonus != 0)
+	{
+		Localization::String temp =	Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_HAPPINESS").Format(iHappinessBonus * iSign);
+	
+	    if (!strPlayerLevel.empty())
+	        strPlayerLevel.append(", and ");
+	
+	    strPlayerLevel.append(temp);
+	}
+
+	// stick together all the non-empty strings into a notification
+	if (!strPlayerLevel.empty()) {
+		strDetailedInfo.append(
+		    Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_PLAYER_YIELDS")
+		        .Format(strPlayerLevel)
+		);
+	}
+	if (!strCityLevel.empty()) {
+		strDetailedInfo.append(
+		    Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_CITY_YIELDS")
+		        .Format(strCityLevel)
+		);
+	}
+	if (!strCityLevelCapital.empty()) {
+		strDetailedInfo.append(
+		    Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_CITY_YIELDS_CAPITAL")
+		        .Format(strCityLevelCapital)
+		);
+	}
+
+	// if the city-state grants units we should mention that too! currently only militaristic ones do this
+	if(GetTrait() == MINOR_CIV_TRAIT_MILITARISTIC)
+	{
+    	strDetailedInfo.append("[NEWLINE]");
+
+		if(bAllies && bAdd)	
+			strDetailedInfo.append(Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_NOW_ALLIES_MILITARISTIC"));
 		else if(bFriends && bAdd)		// Now Friends
-			strDetailedInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_NOW_FRIENDS_MILITARISTIC");
-			if(iScienceBonusAmount != 0)
-			{
-				strDetailedInfo << iScienceBonusAmount;
-			}
-		else if(bFriends && !bAdd)		// No longer Friends (includes drop from Allies down to nothing) - this should be before the Allies check!
-			strDetailedInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_LOST_FRIENDS_MILITARISTIC");
-			if(iScienceBonusAmount != 0)
-			{
-				strDetailedInfo << iScienceBonusAmount;
-			}
+			strDetailedInfo.append(Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_NOW_FRIENDS_MILITARISTIC"));
+		else if(bFriends && !bAdd)		// No longer Friends (includes drop from Allies down to nothing)
+			strDetailedInfo.append(Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_LOST_FRIENDS_MILITARISTIC"));
 		else if(bAllies && !bAdd)		// No longer Allies
-			strDetailedInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_LOST_ALLIES_MILITARISTIC");
-			if(iScienceBonusAmount != 0)
-			{
-				strDetailedInfo << iScienceBonusAmount;
-			}
+			strDetailedInfo.append(Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_LOST_ALLIES_MILITARISTIC"));
 	}
-	else if(eTrait == MINOR_CIV_TRAIT_MARITIME)
-	{
-		int iCapitalFoodTimes100 = 0;
-		int iOtherCitiesFoodTimes100 = 0;
-
-		if(bFriends)	// Friends bonus
-		{
-			iCapitalFoodTimes100 += GetFriendsCapitalFoodBonus(ePlayer);
-			iOtherCitiesFoodTimes100 += GetFriendsOtherCityFoodBonus(ePlayer);
-		}
-		if(bAllies)		// Allies bonus
-		{
-			iCapitalFoodTimes100 += GetAlliesCapitalFoodBonus();
-			iOtherCitiesFoodTimes100 += GetAlliesOtherCityFoodBonus();
-		}
-
-		if(!bAdd)		// Flip amount of we're taking bonuses away
-		{
-			iCapitalFoodTimes100 = -iCapitalFoodTimes100;
-			iOtherCitiesFoodTimes100 = -iOtherCitiesFoodTimes100;
-		}
-
-		// Now that we've changed the gameplay, add together the two so the DISPLAY looks right
-		iCapitalFoodTimes100 += iOtherCitiesFoodTimes100;
-		float fCapitalFood = float(iCapitalFoodTimes100) / 100;
-		float fOtherCitiesFood = float(iOtherCitiesFoodTimes100) / 100;
-		//iCapitalFood += iOtherCitiesFood;
-
-		if(bAllies && bAdd)		// Now Allies (includes jump from nothing through Friends to Allies)
-		{
-			strDetailedInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_NOW_ALLIES_MARITIME");
-			strDetailedInfo << fCapitalFood << fOtherCitiesFood;
-		}
-		else if(bFriends && bAdd)		// Now Friends
-		{
-			strDetailedInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_NOW_FRIENDS_MARITIME");
-			strDetailedInfo << fCapitalFood << fOtherCitiesFood;
-		}
-		else if(!bAdd)		// Bonus diminished (or removed)
-		{
-			strDetailedInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_LOST_MARITIME");
-			strDetailedInfo << fCapitalFood << fOtherCitiesFood;
-		}
-	}
-	else if(eTrait == MINOR_CIV_TRAIT_MERCANTILE)
-	{
-		int iHappinessBonus = 0;
-		int iGoldBonusAmount = 0;
-		if (bFriends)
-		{
-			iGoldBonusAmount += GetGoldFlatFriendshipBonus(ePlayer);
-		}
-		if (bAllies)
-		{
-			iGoldBonusAmount += GetGoldFlatAlliesBonus(ePlayer);
-		}
-		if (!bAdd)
-		{
-			iGoldBonusAmount = -iGoldBonusAmount;
-		}
-		if(bFriends)	// Friends bonus
-		{
-			iHappinessBonus += GetHappinessFlatFriendshipBonus(ePlayer) + GetHappinessPerLuxuryFriendshipBonus(ePlayer);
-		}
-		if(bAllies)		// Allies bonus
-		{
-			iHappinessBonus += GetHappinessFlatAlliesBonus(ePlayer) + GetHappinessPerLuxuryAlliesBonus(ePlayer);
-		}
-		if(!bAdd)		// Flip amount of we're taking bonuses away
-		{
-			iHappinessBonus = -iHappinessBonus;
-		}
-
-		if(bAllies && bAdd)		// Now Allies (includes jump from nothing through Friends to Allies)
-		{
-			strDetailedInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_NOW_ALLIES_MERCANTILE");
-			strDetailedInfo << iHappinessBonus;
-			if(iGoldBonusAmount != 0)
-			{
-				strDetailedInfo << iGoldBonusAmount;
-			}
-		}
-		else if(bFriends && bAdd)		// Now Friends
-		{
-			strDetailedInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_NOW_FRIENDS_MERCANTILE");
-			strDetailedInfo << iHappinessBonus;
-			if(iGoldBonusAmount != 0)
-			{
-				strDetailedInfo << iGoldBonusAmount;
-			}
-		}
-		else if(!bAdd)		// Bonus diminished (or removed)
-		{
-			strDetailedInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_LOST_MERCANTILE");
-			strDetailedInfo << iHappinessBonus;
-			if(iGoldBonusAmount != 0)
-			{
-				strDetailedInfo << iGoldBonusAmount;
-			}
-		}
-	}
-
-	// Religious
-	if(eTrait == MINOR_CIV_TRAIT_RELIGIOUS)
-	{
-		int iFaithBonusAmount = 0;
-		if (bFriends)
-		{
-			iFaithBonusAmount += GetFaithFlatFriendshipBonus(ePlayer);
-		}
-		if (bAllies)
-		{
-			iFaithBonusAmount += GetFaithFlatAlliesBonus(ePlayer);
-		}
-		if (!bAdd)
-		{
-			iFaithBonusAmount = -iFaithBonusAmount;
-		}
-
-		if(bAllies && bAdd)		// Now Allies (includes jump from nothing through Friends to Allies)
-		{
-			strDetailedInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_NOW_ALLIES_RELIGIOUS");
-			strDetailedInfo << iFaithBonusAmount;
-		}
-		else if(bFriends && bAdd)		// Now Friends
-		{
-			strDetailedInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_NOW_FRIENDS_RELIGIOUS");
-			strDetailedInfo << iFaithBonusAmount;
-		}
-		else if(!bAdd)		// Bonus diminished (or removed)
-		{
-			strDetailedInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_LOST_RELIGIOUS");
-			strDetailedInfo << iFaithBonusAmount;
-		}
-	}
-
+	
 	return strDetailedInfo.toUTF8();
 }
 
@@ -18897,13 +18244,21 @@ CvMinorCivInfo::CvMinorCivInfo() :
 	m_iMinorCivTrait(NO_MINOR_CIV_TRAIT_TYPE),
 	m_eFixedPersonality(NO_MINOR_CIV_PERSONALITY_TYPE),
 	m_iBullyUnit(NO_UNITCLASS),
-	m_piFlavorValue(NULL)
+	m_piFlavorValue(NULL),
+	m_pbHasFriendByYield(NULL),
+	m_pbHasFriendCityByYield(NULL),
+	m_pbHasAllyByYield(NULL),
+	m_pbHasAllyCityByYield(NULL)
 {
 }
 //------------------------------------------------------------------------------
 CvMinorCivInfo::~CvMinorCivInfo()
 {
 	SAFE_DELETE_ARRAY(m_piFlavorValue);
+	SAFE_DELETE_ARRAY(m_pbHasFriendByYield);
+	SAFE_DELETE_ARRAY(m_pbHasFriendCityByYield);
+	SAFE_DELETE_ARRAY(m_pbHasAllyByYield);
+	SAFE_DELETE_ARRAY(m_pbHasAllyCityByYield);
 }
 //------------------------------------------------------------------------------
 bool CvMinorCivInfo::IsPlayable() const
@@ -19038,7 +18393,107 @@ int CvMinorCivInfo::getFlavorValue(int i) const
 {
 	PRECONDITION(i < GC.getNumFlavorTypes(), "Index out of bounds");
 	PRECONDITION(i > -1, "Index out of bounds");
-	return m_piFlavorValue ? m_piFlavorValue[i] : 0;
+	return m_piFlavorValue ? m_piFlavorValue[eYield] : 0;
+}
+//------------------------------------------------------------------------------
+int CvMinorCivInfo::getFriendYieldBonuses(YieldTypes eYield, EraTypes eEra) const
+{
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(eYield > -1, "Index out of bounds");
+
+	std::map<YieldTypes, std::map<EraTypes, int> >::const_iterator itYield;
+	itYield = m_miFriendYieldBonuses.find(eYield);
+    if (itYield == m_miFriendYieldBonuses.end())
+        return 0;
+
+    std::map<EraTypes, int>::const_iterator itEra;
+	itEra = itYield->second.find(eEra);
+    if (itEra == itYield->second.end())
+        return 0;
+
+    return itEra->second;
+}
+//------------------------------------------------------------------------------
+bool CvMinorCivInfo::hasFriendYieldBonuses(YieldTypes eYield) const
+{
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(eYield > -1, "Index out of bounds");
+	return m_pbHasFriendByYield ? m_pbHasFriendByYield[eYield] : false;
+}
+//------------------------------------------------------------------------------
+int CvMinorCivInfo::getFriendCityYieldBonuses(YieldTypes eYield, EraTypes eEra, bool bCapital) const
+{
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(eYield > -1, "Index out of bounds");
+	
+    std::map<YieldTypes, std::map<std::pair<EraTypes, bool>, int> >::const_iterator itYield;
+	itYield = m_miFriendCityYieldBonuses.find(eYield);
+    if (itYield == m_miFriendCityYieldBonuses.end())
+        return 0;
+
+    std::map<std::pair<EraTypes, bool>, int>::const_iterator itEra;
+	itEra = itYield->second.find(std::make_pair(eEra, bCapital));
+	if (itEra != itYield->second.end())
+    	return itEra->second;
+
+    return 0;
+}
+//------------------------------------------------------------------------------
+bool CvMinorCivInfo::hasFriendCityYieldBonuses(YieldTypes eYield) const
+{
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(eYield > -1, "Index out of bounds");
+	return m_pbHasFriendCityByYield ? m_pbHasFriendCityByYield[eYield] : false;
+}
+//------------------------------------------------------------------------------
+int CvMinorCivInfo::getAllyYieldBonuses(YieldTypes eYield, EraTypes eEra) const
+{
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(eYield > -1, "Index out of bounds");
+	
+	std::map<YieldTypes, std::map<EraTypes, int> >::const_iterator itYield;
+	itYield = m_miAllyYieldBonuses.find(eYield);
+    if (itYield == m_miAllyYieldBonuses.end())
+        return 0;
+
+    std::map<EraTypes, int>::const_iterator itEra;
+	itEra = itYield->second.find(eEra);
+    if (itEra == itYield->second.end())
+        return 0;
+
+    return itEra->second;
+}
+//------------------------------------------------------------------------------
+bool CvMinorCivInfo::hasAllyYieldBonuses(YieldTypes eYield) const
+{
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(eYield > -1, "Index out of bounds");
+	return m_pbHasAllyByYield ? m_pbHasAllyByYield[eYield] : false;
+}
+//------------------------------------------------------------------------------
+int CvMinorCivInfo::getAllyCityYieldBonuses(YieldTypes eYield, EraTypes eEra, bool bCapital) const
+{
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(eYield > -1, "Index out of bounds");
+	
+    std::map<YieldTypes, std::map<std::pair<EraTypes, bool>, int> >::const_iterator itYield;
+	itYield = m_miAllyCityYieldBonuses.find(eYield);
+    if (itYield == m_miAllyCityYieldBonuses.end())
+        return 0;
+
+    std::map<std::pair<EraTypes, bool>, int>::const_iterator itEra;
+	itEra = itYield->second.find(std::make_pair(eEra, bCapital));
+	if (itEra != itYield->second.end())
+    	return itEra->second;
+
+    return 0;
+}
+//------------------------------------------------------------------------------
+bool CvMinorCivInfo::hasAllyCityYieldBonuses(YieldTypes eYield) const
+{
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(eYield > -1, "Index out of bounds");
+	return m_pbHasAllyCityByYield ? m_pbHasAllyCityByYield[eYield] : false;
 }
 //------------------------------------------------------------------------------
 const std::string& CvMinorCivInfo::getCityNames(int i) const
@@ -19099,6 +18554,154 @@ bool CvMinorCivInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	//Arrays
 	const char* szType = GetType();
 	kUtility.SetFlavors(m_piFlavorValue, "MinorCivilization_Flavors", "MinorCivType", szType, -1);
+
+	// do minor yields. also initialize some boolean masks for quick lookup calls
+	m_pbHasFriendByYield = new bool[NUM_YIELD_TYPES];
+	memset(m_pbHasFriendByYield, 0, sizeof(bool) * NUM_YIELD_TYPES);
+	m_pbHasFriendByYield = new bool[NUM_YIELD_TYPES];
+	memset(m_pbHasFriendCityByYield, 0, sizeof(bool) * NUM_YIELD_TYPES);
+	m_pbHasFriendByYield = new bool[NUM_YIELD_TYPES];
+	memset(m_pbHasAllyByYield, 0, sizeof(bool) * NUM_YIELD_TYPES);
+	m_pbHasFriendByYield = new bool[NUM_YIELD_TYPES];
+	memset(m_pbHasAllyCityByYield, 0, sizeof(bool) * NUM_YIELD_TYPES);
+	
+	// MinorCivilizationTraits_FriendYieldBonuses
+	// Table: (MinorCivTraitsType, EraType, YieldType, Yield)
+	{
+		std::string strKey("MinorCivilizationTraits_FriendYieldBonuses");
+		Database::Results* pResults = kUtility->GetResults(strKey);
+		if (pResults == NULL)
+		{
+			pResults = kUtility->PrepareResults(
+				strKey,
+				"SELECT Eras.ID, YieldType, Yield "
+				"FROM MinorCivilizationTraits_FriendYieldBonuses "
+				"INNER JOIN Eras ON Eras.Type = EraType "
+				"WHERE MinorCivTraitsType = ?"
+			);
+		}
+
+		pResults->Bind(1, m_iMinorCivTrait);
+
+		while (pResults->Step())
+		{
+			const EraTypes eEra = (EraTypes)pResults->GetInt(0);
+			const YieldTypes eYield = (YieldTypes)pResults->GetInt(1);
+			const int iValue = pResults->GetInt(2);
+
+			m_miFriendYieldBonuses[eYield][eEra] += iValue;
+			m_pbHasFriendByYield[eYield] = true;
+		}
+
+		pResults->Reset();
+
+		// Trim memory
+		std::map<YieldTypes, std::map<EraTypes, int>>(m_miFriendYieldBonuses).swap(m_miFriendYieldBonuses);
+	}
+
+	// MinorCivilizationTraits_FriendCityYieldBonuses
+	// Table: (MinorCivTraitsType, EraType, YieldType, Yield, CapitalOnly)
+	{
+		std::string strKey("MinorCivilizationTraits_FriendCityYieldBonuses");
+		Database::Results* pResults = kUtility->GetResults(strKey);
+		if (pResults == NULL)
+		{
+			pResults = kUtility->PrepareResults(
+				strKey,
+				"SELECT Eras.ID, YieldType, Yield, CapitalOnly "
+				"FROM MinorCivilizationTraits_FriendCityYieldBonuses "
+				"INNER JOIN Eras ON Eras.Type = EraType "
+				"WHERE MinorCivTraitsType = ?"
+			);
+		}
+	
+		pResults->Bind(1, m_iMinorCivTrait);
+	
+		while (pResults->Step())
+		{
+			const EraTypes eEra = (EraTypes)pResults->GetInt(0);
+			const YieldTypes eYield = (YieldTypes)pResults->GetInt(1);
+			const int iValue = pResults->GetInt(2);
+			const bool bCapitalOnly = pResults->GetBool(3);
+	
+			m_miFriendCityYieldBonuses[eYield][std::make_pair(eEra, bCapitalOnly)] += iValue;
+			m_pbHasFriendCityByYield[eYield] = true;
+		}
+	
+		pResults->Reset();
+	
+		// Trim memory
+		std::map<YieldTypes, std::map<std::pair<EraTypes, bool>, int>>(m_miFriendCityYieldBonuses).swap(m_miFriendCityYieldBonuses);
+	}
+	
+	// MinorCivilizationTraits_AllyYieldBonuses
+	// Table: (MinorCivTraitsType, EraType, YieldType, Yield)
+	{
+		std::string strKey("MinorCivilizationTraits_AllyYieldBonuses");
+		Database::Results* pResults = kUtility->GetResults(strKey);
+		if (pResults == NULL)
+		{
+			pResults = kUtility->PrepareResults(
+				strKey,
+				"SELECT Eras.ID, YieldType, Yield "
+				"FROM MinorCivilizationTraits_AllyYieldBonuses "
+				"INNER JOIN Eras ON Eras.Type = EraType "
+				"WHERE MinorCivTraitsType = ?"
+			);
+		}
+
+		pResults->Bind(1, m_iMinorCivTrait);
+
+		while (pResults->Step())
+		{
+			const EraTypes eEra = (EraTypes)pResults->GetInt(0);
+			const YieldTypes eYield = (YieldTypes)pResults->GetInt(1);
+			const int iValue = pResults->GetInt(2);
+
+			m_miAllyYieldBonuses[eYield][eEra] += iValue;
+			m_pbHasAllyByYield[eYield] = true;
+		}
+
+		pResults->Reset();
+
+		// Trim memory
+		std::map<YieldTypes, std::map<EraTypes, int>>(m_miAllyYieldBonuses).swap(m_miAllyYieldBonuses);
+	}
+
+	// MinorCivilizationTraits_AllyCityYieldBonuses
+	// Table: (MinorCivTraitsType, EraType, YieldType, Yield, CapitalOnly)
+	{
+		std::string strKey("MinorCivilizationTraits_AllyCityYieldBonuses");
+		Database::Results* pResults = kUtility->GetResults(strKey);
+		if (pResults == NULL)
+		{
+			pResults = kUtility->PrepareResults(
+				strKey,
+				"SELECT Eras.ID, YieldType, Yield, CapitalOnly "
+				"FROM MinorCivilizationTraits_AllyCityYieldBonuses "
+				"INNER JOIN Eras ON Eras.Type = EraType "
+				"WHERE MinorCivTraitsType = ?"
+			);
+		}
+	
+		pResults->Bind(1, m_iMinorCivTrait);
+	
+		while (pResults->Step())
+		{
+			const EraTypes eEra = (EraTypes)pResults->GetInt(0);
+			const YieldTypes eYield = (YieldTypes)pResults->GetInt(1);
+			const int iValue = pResults->GetInt(2);
+			const bool bCapitalOnly = pResults->GetBool(3);
+	
+			m_miAllyCityYieldBonuses[eYield][std::make_pair(eEra, bCapitalOnly)] += iValue;
+			m_pbHasAllyCityByYield[eYield] = true;
+		}
+	
+		pResults->Reset();
+	
+		// Trim memory
+		std::map<YieldTypes, std::map<std::pair<EraTypes, bool>, int>>(m_miAllyCityYieldBonuses).swap(m_miAllyCityYieldBonuses);
+	}
 
 	//City Names
 	{

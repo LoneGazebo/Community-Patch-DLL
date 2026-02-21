@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<!-- Determines what player yields a city-state type will give when friendly, in what era -->
+	<Table name="MinorCivilizationTraits_FriendYieldBonuses">
+		<Column name="MinorCivTraitsType" type="text" reference="MinorCivTraits(Type)" notnull="true"/>
+        <Column name="EraType" type="text" reference="Eras(Type)" notnull="true"/>
+		<Column name="YieldType" type="integer" notnull="true"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- Determines what player yields a city-state type will give when allied, in what era -->
+	<Table name="MinorCivilizationTraits_AllyYieldBonuses">
+		<Column name="MinorCivTraitsType" type="text" reference="MinorCivTraits(Type)" notnull="true"/>
+        <Column name="EraType" type="text" reference="Eras(Type)" notnull="true"/>
+		<Column name="YieldType" type="integer" notnull="true"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- Determines what city yields a city-state type will give when friendly, in what era, and whether its capital specific -->
+	<Table name="MinorCivilizationTraits_FriendCityYieldBonuses">
+		<Column name="MinorCivTraitsType" type="text" reference="MinorCivTraits(Type)" notnull="true"/>
+        <Column name="EraType" type="text" reference="Eras(Type)" notnull="true"/>
+		<Column name="YieldType" type="integer" notnull="true"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+		<Column name="CapitalOnly" type="boolean" notnull="true" default="false"/>
+	</Table>
+	<!-- Determines what city yields a city-state type will give when allied, in what era, and whether its capital specific -->
+	<Table name="MinorCivilizationTraits_AllyCityYieldBonuses">
+		<Column name="MinorCivTraitsType" type="text" reference="MinorCivTraits(Type)" notnull="true"/>
+        <Column name="EraType" type="text" reference="Eras(Type)" notnull="true"/>
+		<Column name="YieldType" type="integer" notnull="true"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+		<Column name="CapitalOnly" type="boolean" notnull="true" default="false"/>
+	</Table>
+</GameData>

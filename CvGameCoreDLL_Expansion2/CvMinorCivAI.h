@@ -641,14 +641,20 @@ public:
 	int GetScienceFriendshipBonusTimes100();
 	int GetCurrentScienceFriendshipBonusTimes100(PlayerTypes ePlayer);
 
-	// Culture bonuses
-	int GetCultureFlatFriendshipBonus(PlayerTypes ePlayer, EraTypes eAssumeEra = NO_ERA);
-	int GetCultureFlatAlliesBonus(PlayerTypes ePlayer, EraTypes eAssumeEra = NO_ERA);
-	int GetCurrentCultureFlatBonus(PlayerTypes ePlayer);
-	int GetCulturePerBuildingFriendshipBonus(PlayerTypes ePlayer, EraTypes eAssumeEra = NO_ERA);
-	int GetCulturePerBuildingAlliesBonus(PlayerTypes ePlayer, EraTypes eAssumeEra = NO_ERA);
-	int GetCurrentCulturePerBuildingBonus(PlayerTypes ePlayer);
-	int GetCurrentCultureBonus(PlayerTypes ePlayer);
+	// CS yield tables
+	bool HasFriendYieldBonuses(YieldTypes eYield) const;
+	int GetFriendYieldBonusValue(YieldTypes eYield, EraTypes eEra) const;
+	bool HasFriendCityYieldBonuses(YieldTypes eYield) const;
+	int GetFriendCityYieldBonusValue(YieldTypes eYield, EraTypes eEra, bool bCapitalOnly) const;
+	bool HasAllyYieldBonuses(YieldTypes eYield) const;
+	int GetAllyYieldBonusValue(YieldTypes eYield, EraTypes eEra) const;
+	bool HasAllyCityYieldBonuses(YieldTypes eYield) const;
+	int GetAllyCityYieldBonusValue(YieldTypes eYield, EraTypes eEra, bool bCapitalOnly) const;
+
+	int GetYieldFlatBonus(PlayerTypes ePlayer, YieldTypes eYield, EraTypes eAssumeEra, int iInfluenceLevel) const;
+	int GetCurrentYieldBonus(PlayerTypes ePlayer, YieldTypes eYield);
+	int GetCityYieldFlatBonus(PlayerTypes ePlayer, YieldTypes eYield, EraTypes eAssumeEra, int iInfluenceLevel, bool bCapitalOnly) const;
+	int GetCurrentCityYieldBonus(PlayerTypes ePlayer, YieldTypes eYield, bool bCapitalOnly);
 
 	// Happiness bonuses
 	int GetHappinessFlatFriendshipBonus(PlayerTypes ePlayer, EraTypes eAssumeEra = NO_ERA);
@@ -658,32 +664,6 @@ public:
 	int GetHappinessPerLuxuryAlliesBonus(PlayerTypes ePlayer, EraTypes eAssumeEra = NO_ERA);
 	int GetCurrentHappinessPerLuxuryBonus(PlayerTypes ePlayer);
 	int GetCurrentHappinessBonus(PlayerTypes ePlayer);
-
-	// Faith bonuses
-	int GetFaithFlatFriendshipBonus(PlayerTypes ePlayer, EraTypes eAssumeEra = NO_ERA) const;
-	int GetFaithFlatAlliesBonus(PlayerTypes ePlayer, EraTypes eAssumeEra = NO_ERA) const;
-	int GetCurrentFaithFlatBonus(PlayerTypes ePlayer);
-	int GetCurrentFaithBonus(PlayerTypes ePlayer);
-
-	//Gold bonuses
-	int GetGoldFlatFriendshipBonus(PlayerTypes ePlayer, EraTypes eAssumeEra = NO_ERA) const;
-	int GetGoldFlatAlliesBonus(PlayerTypes ePlayer, EraTypes eAssumeEra = NO_ERA) const;
-	int GetCurrentGoldFlatBonus(PlayerTypes ePlayer);
-	int GetCurrentGoldBonus(PlayerTypes ePlayer);
-
-	//Science bonuses
-	int GetScienceFlatFriendshipBonus(PlayerTypes ePlayer, EraTypes eAssumeEra = NO_ERA) const;
-	int GetScienceFlatAlliesBonus(PlayerTypes ePlayer, EraTypes eAssumeEra = NO_ERA) const;
-	int GetCurrentScienceFlatBonus(PlayerTypes ePlayer);
-	int GetCurrentScienceBonus(PlayerTypes ePlayer);
-
-	// Food bonuses
-	int GetFriendsCapitalFoodBonus(PlayerTypes ePlayer, EraTypes eAssumeEra = NO_ERA);
-	int GetFriendsOtherCityFoodBonus(PlayerTypes ePlayer, EraTypes eAssumeEra = NO_ERA);
-	int GetAlliesCapitalFoodBonus();
-	int GetAlliesOtherCityFoodBonus();
-	int GetCurrentCapitalFoodBonus(PlayerTypes ePlayer);
-	int GetCurrentOtherCityFoodBonus(PlayerTypes ePlayer);
 
 	// Unit bonuses
 	void DoSeedUnitSpawnCounter(PlayerTypes ePlayer, bool bBias = false);
@@ -967,6 +947,15 @@ public:
 	int getFlavorValue(int i) const;
 	const std::string& getCityNames(int i) const;
 
+	int getFriendYieldBonuses(YieldTypes eYield, EraTypes eEra) const;
+    bool hasFriendYieldBonuses(YieldTypes eYield) const;
+	int getFriendCityYieldBonuses(YieldTypes eYield, EraTypes eEra, bool bCapital) const;
+	bool hasFriendCityYieldBonuses(YieldTypes eYield) const;
+	int getAllyYieldBonuses(YieldTypes eYield, EraTypes eEra) const;
+	bool hasAllyYieldBonuses(YieldTypes eYield) const;
+	int getAllyCityYieldBonuses(YieldTypes eYield, EraTypes eEra, bool bCapital) const;
+	bool hasAllyCityYieldBonuses(YieldTypes eYield) const;
+
 	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
 
 protected:
@@ -995,6 +984,16 @@ protected:
 	// Arrays
 	int* m_piFlavorValue;
 	std::vector<CvString> m_vCityNames;
+
+	// do it this way so querying a particular yield for entries is O(1) not O(n)
+	std::map<YieldTypes, std::map<EraTypes, int>> m_miFriendYieldBonuses;
+	bool* m_pbHasFriendByYield; // for fast lookup since its per-player per-turn
+	std::map<YieldTypes, std::map<std::pair<EraTypes, bool>, int>> m_miFriendCityYieldBonuses;
+	bool* m_pbHasFriendCityByYield;
+	std::map<YieldTypes, std::map<EraTypes, int>> m_miAllyYieldBonuses;
+	bool* m_pbHasAllyByYield;
+	std::map<YieldTypes, std::map<std::pair<EraTypes, bool>, int>> m_miAllyCityYieldBonuses;
+	bool* m_pbHasAllyCityByYield;
 };
 
 #endif //CIV5_MINOR_CIV_AI_H

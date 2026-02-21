@@ -408,7 +408,7 @@ int CvTreasury::CalculateGrossGoldTimes100()
 	// We're a master of someone, we get gold from taxes
 	iNetGold += GetMyShareOfVassalTaxes();
 
-	iNetGold += m_pPlayer->GetGoldPerTurnFromMinorCivs() * 100;
+	iNetGold += m_pPlayer->GetYieldPerTurnFromMinorCivs(YIELD_GOLD) * 100;
 
 	if (MOD_BALANCE_CORE_JFD)
 	{
@@ -416,7 +416,7 @@ int CvTreasury::CalculateGrossGoldTimes100()
 	}
 
 	// Annexed City-States (Rome UA)
-	iNetGold += m_pPlayer->GetGoldPerTurnFromAnnexedMinors() * 100;
+	iNetGold += m_pPlayer->GetYieldPerTurnFromAnnexedMinors(YIELD_GOLD) * 100;
 
 	//Espionage Events
 	iNetGold += m_pPlayer->GetYieldPerTurnFromEspionageEvents(YIELD_GOLD, true) * 100;

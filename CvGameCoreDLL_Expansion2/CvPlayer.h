@@ -467,9 +467,6 @@ public:
 	int GetJONSCulturePerTurnForFree() const;
 	void ChangeJONSCulturePerTurnForFree(int iChange);
 
-	int GetCulturePerTurnFromMinorCivs() const;
-	int GetCulturePerTurnFromMinor(PlayerTypes eMinor) const;
-
 	int GetCulturePerTurnModifierFromReligion() const;
 
 	int getJONSCultureTimes100() const;
@@ -533,18 +530,15 @@ public:
 	int GetYieldPerTurnFromReligion(YieldTypes eYield) const;
 	int GetYieldPerTurnFromTraits(YieldTypes eYield) const;
 
-	// Faith
-	int GetTotalFaithPerTurnTimes100() const;
-	int GetFaithPerTurnFromMinorCivs() const;
-	int GetGoldPerTurnFromMinorCivs() const;
-	int GetGoldPerTurnFromMinor(PlayerTypes eMinor) const;
+	int GetYieldPerTurnFromMinorCivs(YieldTypes eYield) const;
+	int GetYieldPerTurnFromMinor(PlayerTypes eMinor, YieldTypes eYield) const;
 
-	int GetSciencePerTurnFromMinorCivs() const;
-	int GetSciencePerTurnFromMinor(PlayerTypes eMinor) const;
-
+	// JFD
 	int GetYieldPerTurnFromMinors(YieldTypes eYield) const;
 	void SetYieldPerTurnFromMinors(YieldTypes eYield, int iValue);
-	int GetFaithPerTurnFromMinor(PlayerTypes eMinor) const;
+
+	// Faith
+	int GetTotalFaithPerTurnTimes100() const;
 	int GetFaithPerTurnFromReligion() const;
 	int GetFaithTimes100() const;
 	void SetFaithTimes100(int iNewValue);
@@ -778,22 +772,23 @@ public:
 	int GetConversionModifier() const;
 	void ChangeConversionModifier(int iChange);
 
+	// keep track of annexed minor civs
+	int GetNumAnnexedCityStates()	const;
+	void ChangeNumAnnexedCityStates(int iChange);
+	std::vector<std::pair<PlayerTypes, int>> getAnnexedCityStatesUnitSpawnTurns() const;
+	void addAnnexedCityState(PlayerTypes eMinor);
+	void removeAnnexedCityState(PlayerTypes eMinor);
+	void updateTimerAnnexedMilitaryCityStates();
 	// City-level Extra Yields from Annexed Minors
-	int GetFoodInCapitalPerTurnFromAnnexedMinors() const;
-	void UpdateFoodInCapitalPerTurnFromAnnexedMinors();
-	int GetFoodInOtherCitiesPerTurnFromAnnexedMinors() const;
-	void UpdateFoodInOtherCitiesPerTurnFromAnnexedMinors();
+	int GetYieldInCapitalPerTurnFromAnnexedMinors(YieldTypes eYield) const;
+	void ChangeYieldInCapitalPerTurnFromAnnexedMinor(PlayerTypes eMinor, int iSign, EraTypes eEra = NO_ERA);
+	int GetYieldInOtherCitiesPerTurnFromAnnexedMinors(YieldTypes eYield) const;
+	void ChangeYieldInOtherCitiesPerTurnFromAnnexedMinor(PlayerTypes eMinor, int iSign, EraTypes eEra = NO_ERA);
 	// Player-level Extra Yields from Annexed Minors
-	int GetGoldPerTurnFromAnnexedMinors() const;
-	void UpdateGoldPerTurnFromAnnexedMinors();
-	int GetCulturePerTurnFromAnnexedMinors() const;
-	void UpdateCulturePerTurnFromAnnexedMinors();
-	int GetSciencePerTurnFromAnnexedMinors() const;
-	void UpdateSciencePerTurnFromAnnexedMinors();
-	int GetFaithPerTurnFromAnnexedMinors() const;
-	void UpdateFaithPerTurnFromAnnexedMinors();
+	int GetYieldPerTurnFromAnnexedMinors(YieldTypes eYield) const;
+	void ChangeYieldPerTurnFromAnnexedMinor(PlayerTypes eMinor, int iSign, EraTypes eEra = NO_ERA);
 	int GetHappinessFromAnnexedMinors() const;
-	void UpdateHappinessFromAnnexedMinors();
+	void ChangeHappinessFromAnnexedMinor(PlayerTypes eMinor, int iSign, EraTypes eEra = NO_ERA);
 
 	int getHappinessPerMajorWar() const;
 	void changeHappinessPerMajorWar(int iValue);
@@ -1744,9 +1739,6 @@ public:
 
 	int GetSciencePerTurnFromPassiveSpyBonusesTimes100() const;
 
-	int GetNumAnnexedCityStates(MinorCivTraitTypes eIndex)	const;
-	void ChangeNumAnnexedCityStates(MinorCivTraitTypes eIndex, int iChange);
-
 	int getYieldFromNonSpecialistCitizensTimes100(YieldTypes eIndex)	const;
 	void changeYieldFromNonSpecialistCitizensTimes100(YieldTypes eIndex, int iChange);
 
@@ -2392,10 +2384,6 @@ public:
 	int getUnitExtraCost(UnitClassTypes eUnitClass) const;
 	void setUnitExtraCost(UnitClassTypes eUnitClass, int iCost);
 
-	void addAnnexedMilitaryCityStates(PlayerTypes eMinor);
-	void removeAnnexedMilitaryCityStates(PlayerTypes eMinor);
-	void updateTimerAnnexedMilitaryCityStates();
-
 	void UpdateEspionageYields(bool bIncoming);
 	void AddEspionageEvent(PlayerTypes eOtherPlayer, bool bIncoming, int iStartTurn, int iEndTurn, YieldTypes eYield, int iAmount);
 	void RemoveEspionageEventsForPlayer(PlayerTypes ePlayer);
@@ -3028,14 +3016,14 @@ protected:
 	int m_iSpyStartingRank;
 	int m_iConversionModifier;
 
+	// tracking of annexed city states including spawn timer if applicable
+	int m_iNumAnnexedCityStates;
+	std::vector< std::pair<PlayerTypes, int> > m_AnnexedCityStatesUnitSpawnTurns;
 	//for bookkeeping only, yields are added to cities
-	int m_iFoodInCapitalFromAnnexedMinors;
-	int m_iFoodInOtherCitiesFromAnnexedMinors;
+	std::vector<int> m_piYieldInCapitalFromAnnexedMinors;
+	std::vector<int>  m_piYieldInOtherCitiesFromAnnexedMinors;
 	//real bonuses on player level
-	int m_iGoldPerTurnFromAnnexedMinors;
-	int m_iCulturePerTurnFromAnnexedMinors;
-	int m_iSciencePerTurnFromAnnexedMinors;
-	int m_iFaithPerTurnFromAnnexedMinors;
+	std::vector<int> m_piYieldPerTurnFromAnnexedMinors;
 	int	m_iHappinessFromAnnexedMinors;
 
 	int m_iHappinessPerMajorWar;
@@ -3443,8 +3431,6 @@ protected:
 	std::vector<int> m_aiRelicYieldBonus;
 	std::vector<int> m_aiReligionYieldRateModifier;
 	std::vector<int> m_aiGoldenAgeYieldMod;
-	std::vector<int> m_aiNumAnnexedCityStates;
-	std::vector< std::pair<PlayerTypes, int> > m_AnnexedMilitaryCityStatesUnitSpawnTurns;
 	std::vector<SPlayerActiveEspionageEvent> m_vActiveEspionageEventsList;
 	std::vector<int> m_aiIncomingEspionageYields;
 	std::vector<int> m_aiOutgoingEspionageYields;
@@ -3848,12 +3834,10 @@ SYNC_ARCHIVE_VAR(int, m_iSpyPoints)
 SYNC_ARCHIVE_VAR(int, m_iSpyPointsTotal)
 SYNC_ARCHIVE_VAR(int, m_iSpyStartingRank)
 SYNC_ARCHIVE_VAR(int, m_iConversionModifier)
-SYNC_ARCHIVE_VAR(int, m_iFoodInCapitalFromAnnexedMinors)
-SYNC_ARCHIVE_VAR(int, m_iFoodInOtherCitiesFromAnnexedMinors)
-SYNC_ARCHIVE_VAR(int, m_iGoldPerTurnFromAnnexedMinors)
-SYNC_ARCHIVE_VAR(int, m_iCulturePerTurnFromAnnexedMinors)
-SYNC_ARCHIVE_VAR(int, m_iSciencePerTurnFromAnnexedMinors)
-SYNC_ARCHIVE_VAR(int, m_iFaithPerTurnFromAnnexedMinors)
+SYNC_ARCHIVE_VAR(int, m_iNumAnnexedCityStates)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_piYieldInCapitalFromAnnexedMinors)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_piYieldInOtherCitiesFromAnnexedMinors)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_piYieldPerTurnFromAnnexedMinors)
 SYNC_ARCHIVE_VAR(int, m_iHappinessFromAnnexedMinors)
 SYNC_ARCHIVE_VAR(int, m_iHappinessPerMajorWar)
 SYNC_ARCHIVE_VAR(int, m_iMilitaryProductionModPerMajorWar)
@@ -4230,7 +4214,6 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_aiFilmYieldBonus)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiRelicYieldBonus)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiReligionYieldRateModifier)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiGoldenAgeYieldMod)
-SYNC_ARCHIVE_VAR(std::vector<int>, m_aiNumAnnexedCityStates)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiIncomingEspionageYields)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiOutgoingEspionageYields)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromNonSpecialistCitizensTimes100)

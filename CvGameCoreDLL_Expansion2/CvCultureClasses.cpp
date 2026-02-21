@@ -4271,6 +4271,10 @@ int CvPlayerCulture::GetTourism() const
 		// Trait bonus which adds Tourism for trade partners? 
 		iRtnValue += m_pPlayer->GetYieldPerTurnFromTraits(YIELD_TOURISM) * 100;
 
+		// Minor civs
+		iRtnValue += m_pPlayer->GetYieldPerTurnFromMinorCivs(YIELD_TOURISM) * 100;
+		iRtnValue += m_pPlayer->GetYieldPerTurnFromAnnexedMinors(YIELD_TOURISM) * 100;
+
 		// Tourism from Espionage Events
 		iRtnValue += m_pPlayer->GetYieldPerTurnFromEspionageEvents(YIELD_TOURISM, true) * 100;
 		iRtnValue -= m_pPlayer->GetYieldPerTurnFromEspionageEvents(YIELD_TOURISM, false) * 100;
