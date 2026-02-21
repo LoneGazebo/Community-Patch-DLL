@@ -13691,7 +13691,7 @@ bool CvUnit::isReadyForUpgrade() const
 {
 	VALIDATE_OBJECT();
 
-	return m_iMoves > 0;
+	return m_iMoves > 0 && !isDelayedDeath();
 }
 
 //	--------------------------------------------------------------------------------
