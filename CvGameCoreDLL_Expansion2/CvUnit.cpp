@@ -8019,73 +8019,8 @@ void CvUnit::doHeal()
 
 		changeDamage( -iHealRate );
 
-		if (GET_PLAYER(getOwner()).getCapitalCity() != NULL && plot()->getOwner() == getOwner() && plot()->getTurnDamage(false, false, true, true) == 0)
-		{
-			int iEra = GET_PLAYER(getOwner()).GetCurrentEra();
-			if (iEra < 1)
-			{
-				iEra = 1;
-			}
-			ReligionTypes eMajority = GET_PLAYER(getOwner()).GetReligions()->GetStateReligion();
-			if (eMajority != NO_RELIGION)
-			{
-				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
-				if (pReligion)
-				{
-					CvCity* pHolyCity = pReligion->GetHolyCity();
-					if (pReligion->m_Beliefs.GetYieldPerHeal(YIELD_FAITH, getOwner(), pHolyCity) > 0)
-					{
-						GET_PLAYER(getOwner()).ChangeFaith(pReligion->m_Beliefs.GetYieldPerHeal(YIELD_FAITH, getOwner(), pHolyCity) * iEra);
-						if(getOwner() == GC.getGame().getActivePlayer())
-						{
-							char text[256] = {0};
-							sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", pReligion->m_Beliefs.GetYieldPerHeal(YIELD_FAITH, getOwner(), pHolyCity)* iEra);
-							SHOW_PLOT_POPUP(plot(),getOwner(), text);
-						}
-					}
-					BeliefTypes eSecondaryPantheon = GET_PLAYER(getOwner()).getCapitalCity()->GetCityReligions()->GetSecondaryReligionPantheonBelief();
-					if (eSecondaryPantheon != NO_BELIEF)
-					{
-						if(GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetYieldPerHeal(YIELD_FAITH) > 0)
-						{
-							GET_PLAYER(getOwner()).ChangeFaith(GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetYieldPerHeal(YIELD_FAITH) * iEra);
-							if(getOwner() == GC.getGame().getActivePlayer())
-							{
-								char text[256] = {0};
-
-								sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetYieldPerHeal(YIELD_FAITH) * iEra);
-								SHOW_PLOT_POPUP(plot(),getOwner(), text);
-							}
-						}
-					}
-				}
-			}
-
-			// Mod for civs keeping their pantheon belief forever
-			if (MOD_BALANCE_PERMANENT_PANTHEONS)
-			{
-				if (GC.getGame().GetGameReligions()->HasCreatedPantheon(getOwner()))
-				{
-					const CvReligion* pPantheon = GC.getGame().GetGameReligions()->GetReligion(RELIGION_PANTHEON, getOwner());
-					BeliefTypes ePantheonBelief = GC.getGame().GetGameReligions()->GetBeliefInPantheon(getOwner());
-					if (pPantheon != NULL && ePantheonBelief != NO_BELIEF && ePantheonBelief != GET_PLAYER(getOwner()).getCapitalCity()->GetCityReligions()->GetSecondaryReligionPantheonBelief())
-					{
-						const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
-						if (pReligion == NULL || !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, pReligion->m_eReligion, getOwner())) // check that the our religion does not have our belief, to prevent double counting
-						{
-							GET_PLAYER(getOwner()).ChangeFaith(GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetYieldPerHeal(YIELD_FAITH) * iEra);
-							if (getOwner() == GC.getGame().getActivePlayer())
-							{
-								char text[256] = { 0 };
-
-								sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetYieldPerHeal(YIELD_FAITH) * iEra);
-								SHOW_PLOT_POPUP(plot(), getOwner(), text);
-							}
-						}
-					}
-				}
-			}
-		}
+		if (GET_PLAYER(getOwner()).getCapitalCity() != NULL)
+			GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_HEALING, false, NO_GREATPERSON, NO_BUILDING, iHealRate, true, NO_PLAYER, NULL, false, getOriginCity(), getDomainType()==DOMAIN_SEA, false, false, NO_YIELD, this);
 	}
 }
 
