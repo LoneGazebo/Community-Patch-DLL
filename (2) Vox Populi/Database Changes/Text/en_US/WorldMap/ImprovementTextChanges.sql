@@ -61,6 +61,11 @@ UPDATE Language_en_US
 SET Text = 'Can only be built in owned territory or adjacent to your own borders in an unowned tile, and cannot be adjacent to other Citadels. Constructing the Citadel will expand your Culture borders to surround the Citadel, increase your [ICON_WAR] Military Unit Supply Cap by 1, and consume this unit. If the new Culture border claims hexes already owned by another civilization, you will incur a diplomatic penalty as a result.[NEWLINE][NEWLINE]+100% [ICON_STRENGTH] Defensive Strength for any Unit stationed in this tile. Any enemy unit which ends its turn next to this tile takes 30 damage (damage does not stack with other improvements). Contains [COLOR_POSITIVE_TEXT]Fortifications[ENDCOLOR], allowing owned Units to stay stationed in this tile after attacking and a [COLOR_POSITIVE_TEXT]Canal[ENDCOLOR], allowing friendly [COLOR_POSITIVE_TEXT]Sea[ENDCOLOR] Units to traverse through it.'
 WHERE Tag = 'TXT_KEY_BUILD_CITADEL_HELP';
 
+-- Holy Site
+UPDATE Language_en_US
+SET Text = 'Unit will be consumed.[NEWLINE][NEWLINE]Provides an additional 1 [ICON_PEACE] Faith for every adjacent Mountain tile.[NEWLINE][NEWLINE]Great Tile Improvements will connect Strategic Resources on this tile to the trade network.'
+Where Tag = 'TXT_KEY_BUILD_HOLY_SITE_HELP';
+
 -- Landmark
 UPDATE Language_en_US
 SET Text = 'Landmarks provide +3 Empire-Wide [ICON_HAPPINESS_1] Happiness to the builder and plot owner when constructed, as well as +1 [ICON_CULTURE] Culture and +1 [ICON_GOLD] Gold on the Tile for each additional Era that has passed in comparison to the original Era of the Artifact.[NEWLINE][NEWLINE]A Landmark is any magnificent artifact, structure, work of art, or wonder of nature that draws visitors to a location. Nelson''s Column in London is a landmark, as is Mount Rushmore in the United States. Not every significantly sized object, however, is a landmark: the World''s Largest Ball of Twine may never rise to that stature (though it might well be worth a visit).'
