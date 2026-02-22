@@ -15,8 +15,8 @@ DELETE FROM Trait_ImprovementYieldChanges WHERE TraitType = 'TRAIT_RAZE_AND_HORS
 INSERT INTO Trait_YieldFromCityDamageTimes100
 	(TraitType, YieldType, Yield)
 VALUES
-	('TRAIT_RAZE_AND_HORSES', 'YIELD_GOLD', 50),
-	('TRAIT_RAZE_AND_HORSES', 'YIELD_CULTURE', 50);
+	('TRAIT_RAZE_AND_HORSES', 'YIELD_GOLD', 34),
+	('TRAIT_RAZE_AND_HORSES', 'YIELD_CULTURE', 34);
 
 ----------------------------------------------------------
 -- Unique Unit: Horse Archer (Skirmisher)
@@ -39,7 +39,6 @@ WHERE Type = 'UNIT_HUN_HORSE_ARCHER';
 INSERT INTO Unit_FreePromotions
 	(UnitType, PromotionType)
 VALUES
-	('UNIT_HUN_HORSE_ARCHER', 'PROMOTION_BARRAGE_1'),
 	('UNIT_HUN_HORSE_ARCHER', 'PROMOTION_FOCUS_FIRE');
 
 ----------------------------------------------------------
