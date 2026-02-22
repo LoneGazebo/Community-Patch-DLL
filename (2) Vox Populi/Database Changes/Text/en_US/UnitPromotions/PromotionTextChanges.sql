@@ -570,7 +570,7 @@ WHERE Tag = 'TXT_KEY_PROMOTION_GREAT_GENERAL_HELP';
 
 -- Naval Leadership
 UPDATE Language_en_US
-SET Text = '+15% [ICON_STRENGTH] Combat Strength for [COLOR_POSITIVE_TEXT]Naval Units[ENDCOLOR] within 2 tiles of this Unit.[NEWLINE]May use the [COLOR_POSITIVE_TEXT]{TXT_KEY_MISSION_REPAIR_FLEET}[ENDCOLOR] Ability, expending this Unit and fully healing all [COLOR_POSITIVE_TEXT]Naval[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Embarked Units[ENDCOLOR] on or adjacent to this tile.'
+SET Text = '+15% [ICON_STRENGTH] Combat Strength and +3 [COLOR_POSITIVE_TEXT]Healing[ENDCOLOR] per turn for [COLOR_POSITIVE_TEXT]Naval Units[ENDCOLOR] within 2 tiles of this Unit.'
 WHERE Tag = 'TXT_KEY_PROMOTION_GREAT_ADMIRAL_HELP';
 
 -- Withdraw Before Melee

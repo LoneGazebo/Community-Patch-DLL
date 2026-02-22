@@ -473,6 +473,7 @@ CvUnit::CvUnit() :
 	, m_iNearbyHealEnemyTerritory()
 	, m_iNearbyHealNeutralTerritory()
 	, m_iNearbyHealFriendlyTerritory()
+	, m_iPassiveAoEHeal()
 	, m_iCanCrossMountainsCount()
 	, m_iCanCrossOceansCount()
 	, m_iCanCrossIceCount()
@@ -1455,6 +1456,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iNearbyHealEnemyTerritory = 0;
 	m_iNearbyHealNeutralTerritory = 0;
 	m_iNearbyHealFriendlyTerritory = 0;
+	m_iPassiveAoEHeal = 0;
 	m_iBuilderStrength = 0;
 	m_iCanCrossMountainsCount = 0;
 	m_iCanCrossOceansCount = 0;
@@ -8034,6 +8036,10 @@ void CvUnit::doHeal()
 	else //normal player units
 	{
 		int iHealRate = ActualHealRate(plot());
+
+		if (!IsCannotHeal(true))
+			iHealRate += GET_PLAYER(getOwner()).GetAreaEffectModifier(AE_PASSIVE_HEAL, getDomainType(), plot());
+
 		if (iHealRate==0)
 			return;
 
@@ -18237,6 +18243,16 @@ void CvUnit::ChangeNearbyHealFriendlyTerritory(int iValue)
 	VALIDATE_OBJECT();
 	m_iNearbyHealFriendlyTerritory += iValue;
 }
+int CvUnit::GetPassiveAoEHeal() const
+{
+	return m_iPassiveAoEHeal;
+}
+void CvUnit::ChangePassiveAoEHeal(int iValue)
+{
+	VALIDATE_OBJECT();
+	m_iPassiveAoEHeal += iValue;
+	ASSERT(GetPassiveAoEHeal() >= 0);
+}
 void CvUnit::ChangeIsGiveInvisibility(int iValue)
 {
 	VALIDATE_OBJECT();
@@ -27637,6 +27653,7 @@ void CvUnit::setPromotionActive(PromotionTypes eIndex, bool bNewValue)
 	ChangeNearbyHealEnemyTerritory(thisPromotion.GetNearbyHealEnemyTerritory() * iChange);
 	ChangeNearbyHealNeutralTerritory(thisPromotion.GetNearbyHealNeutralTerritory() * iChange);
 	ChangeNearbyHealFriendlyTerritory(thisPromotion.GetNearbyHealFriendlyTerritory() * iChange);
+	ChangePassiveAoEHeal(thisPromotion.GetPassiveAoEHeal() * iChange);
 	SetIsGiveOnlyOnStartingTurn(thisPromotion.IsGiveOnlyOnStartingTurn() ? iChange > 0 : false);
 	ChangeIsConvertUnit((thisPromotion.IsConvertUnit()) ? iChange : 0);
 	ChangeIsConvertEnemyUnitToBarbarian((thisPromotion.IsConvertEnemyUnitToBarbarian()) ? iChange : 0);
@@ -28387,6 +28404,7 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_iNearbyHealEnemyTerritory);
 	visitor(unit.m_iNearbyHealNeutralTerritory);
 	visitor(unit.m_iNearbyHealFriendlyTerritory);
+	visitor(unit.m_iPassiveAoEHeal);
 	visitor(unit.m_iCanCrossMountainsCount);
 	visitor(unit.m_iCanCrossOceansCount);
 	visitor(unit.m_iCanCrossIceCount);

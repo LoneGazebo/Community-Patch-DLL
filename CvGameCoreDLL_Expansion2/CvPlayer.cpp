@@ -45558,6 +45558,11 @@ int CvPlayer::GetAreaEffectModifier(AreaEffectType eType, DomainTypes eDomain, c
 					return 1; //just used as a boolean flag
 				break;
 			}
+			case AE_PASSIVE_HEAL:
+				int iPassiveAoEHeal = pUnit->GetPassiveAoEHeal();
+				if (iPassiveAoEHeal > 0)
+					iResult = max(iResult, iPassiveAoEHeal);
+				break;
 		}
 	}
 

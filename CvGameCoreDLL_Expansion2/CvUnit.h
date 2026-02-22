@@ -164,7 +164,8 @@ enum AreaEffectType
 {
 	AE_GREAT_GENERAL,
 	AE_SAPPER,
-	AE_SIEGETOWER
+	AE_SIEGETOWER,
+	AE_PASSIVE_HEAL
 };
 
 enum SquadsEndMovementType
@@ -823,6 +824,8 @@ public:
 	void ChangeNearbyHealNeutralTerritory(int iValue);
 	int getNearbyHealFriendlyTerritory() const;
 	void ChangeNearbyHealFriendlyTerritory(int iValue);
+	int GetPassiveAoEHeal() const;
+	void ChangePassiveAoEHeal(int iValue);
 	void ChangeIsGiveInvisibility(int iValue);
 	int GetIsGiveInvisibility() const;
 	bool isGiveInvisibility() const;
@@ -2244,6 +2247,7 @@ protected:
 	int m_iNearbyHealEnemyTerritory;
 	int m_iNearbyHealNeutralTerritory;
 	int m_iNearbyHealFriendlyTerritory;
+	int m_iPassiveAoEHeal;
 	int m_iCanCrossMountainsCount;
 	int m_iCanCrossOceansCount;
 	int m_iCanCrossIceCount;
@@ -2677,6 +2681,7 @@ SYNC_ARCHIVE_VAR(int, m_iNumberOfCultureBombs)
 SYNC_ARCHIVE_VAR(int, m_iNearbyHealEnemyTerritory)
 SYNC_ARCHIVE_VAR(int, m_iNearbyHealNeutralTerritory)
 SYNC_ARCHIVE_VAR(int, m_iNearbyHealFriendlyTerritory)
+SYNC_ARCHIVE_VAR(int, m_iPassiveAoEHeal)
 SYNC_ARCHIVE_VAR(int, m_iCanCrossMountainsCount)
 SYNC_ARCHIVE_VAR(int, m_iCanCrossOceansCount)
 SYNC_ARCHIVE_VAR(int, m_iCanCrossIceCount)
