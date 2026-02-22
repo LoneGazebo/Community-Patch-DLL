@@ -26498,15 +26498,20 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					
 					int iYieldPer100HP = 0;
 					
-					// does this player's religion give yields for healing?
+					// does this player's religion give yields for healing on this tile?
 					if (pReligion)
-						iYieldPer100HP += pReligion->m_Beliefs.GetYieldPerHeal(eYield, GetID(), pLoopCity, true);
-														
-					if (iYieldPer100HP > 0)
 					{
-						iValue = iPassYield * iYieldPer100HP;  //iPassYield is the HP healed
-						iValue /= 100;
+    					PlayerTypes ePlotOwner = pUnit->plot()->getOwner();
+						bool bOwnedTerritory = (ePlotOwner != NO_PLAYER && ePlotOwner == pUnit->getOwner());
+						iYieldPer100HP += pReligion->m_Beliefs.GetYieldPerHeal(eYield, GetID(), pLoopCity, true, bOwnedTerritory);
+
+						if (iYieldPer100HP > 0)
+						{
+							iValue = iPassYield * iYieldPer100HP;  //iPassYield is the HP healed
+							iValue /= 100;
+						}
 					}
+					
 					break;
 				}
 				case INSTANT_YIELD_TYPE_CITY_DAMAGE:

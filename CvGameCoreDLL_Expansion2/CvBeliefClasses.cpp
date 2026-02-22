@@ -75,6 +75,7 @@ CvBeliefEntry::CvBeliefEntry() :
 	m_bRequiresResource(false),
 	m_bRequiresNoImprovement(false),
 	m_bRequiresNoFeature(false),
+	m_bRequiresOwnTerritory(false),
 
 	m_iHappinessFromForeignSpies(0),
 	m_iGetPressureChangeTradeRoute(0),
@@ -584,6 +585,11 @@ bool CvBeliefEntry::RequiresNoImprovement() const
 bool CvBeliefEntry::RequiresNoFeature() const
 {
 	return m_bRequiresNoFeature;
+}
+/// Accessor: does yield per heal only work in your own territory?
+bool CvBeliefEntry::RequiresOwnTerritory() const
+{
+	return m_bRequiresOwnTerritory;
 }
 
 int CvBeliefEntry::GetHappinessFromForeignSpies() const
@@ -1341,6 +1347,7 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_bRequiresResource				  = kResults.GetBool("RequiresResource");
 	m_bRequiresNoImprovement		  = kResults.GetBool("RequiresNoImprovement");
 	m_bRequiresNoFeature			  = kResults.GetBool("RequiresNoImprovementFeature");
+	m_bRequiresOwnTerritory			  = kResults.GetBool("RequiresOwnTerritory");
 
 	m_iHappinessFromForeignSpies = kResults.GetInt("HappinessFromForeignSpies");
 	m_iGetPressureChangeTradeRoute = kResults.GetInt("PressureChangeTradeRoute");
@@ -4211,17 +4218,19 @@ int CvReligionBeliefs::GetYieldPerBorderGrowth(YieldTypes eYieldType, bool bEraS
 	return rtnValue;
 }
 /// Get yield modifier from beliefs for border growth
-int CvReligionBeliefs::GetYieldPerHeal(YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetYieldPerHeal(YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly, bool bOwnedTerritory) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
 
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
-		int iValue = pBeliefs->GetEntry(*it)->GetYieldPerHeal(eYieldType);
+		const CvBeliefEntry* pEntry = pBeliefs->GetEntry(*it);
+		int iValue = pEntry->GetYieldPerHeal(eYieldType);
 		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
-			rtnValue += iValue;
+			if (!pEntry->RequiresOwnTerritory() || bOwnedTerritory)
+				rtnValue += iValue;
 		}
 	}
 

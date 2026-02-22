@@ -22,6 +22,9 @@ ALTER TABLE Beliefs ADD RequiresNoImprovementFeature boolean DEFAULT 0;
 
 -- NOTE: THESE TWO (RequiresNoImprovement and RequiresNoImprovementFeature) interact, and can be used to refine belief yields.
 
+-- Yield Per Heal can be restricted to owned tiles only
+ALTER TABLE Beliefs ADD RequiresOwnTerritory boolean DEFAULT 0;
+
 -- Belief - reduces policy cost of Wonders by 1 for every x cities following religion
 ALTER TABLE Beliefs ADD PolicyReductionWonderXFollowerCities integer DEFAULT 0;
 
