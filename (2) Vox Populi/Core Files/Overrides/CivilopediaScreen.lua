@@ -3592,6 +3592,7 @@ CivilopediaCategory[CategoryPromotions].SelectArticle = function( promotionID, s
 		AnalyzePromotion("TradeMissionInfluenceModifier", "");
 		AnalyzePromotion("TradeMissionGoldModifier");
 		AnalyzePromotion("GoldenAgeValueFromKills", "GAP");
+		AnalyzePromotion("PassiveAoEHeal")
 		AnalyzePromotion("Sapper");
 		AnalyzePromotion("HeavyCharge");
 		--AnalyzePromotion("TechPrereq");

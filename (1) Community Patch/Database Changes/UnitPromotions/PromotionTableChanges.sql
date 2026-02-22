@@ -352,3 +352,6 @@ ALTER TABLE UnitPromotions_Features ADD IgnoreTerrainCostFrom boolean DEFAULT 0;
 
 -- Additonal healing for a flat amount each turn regardless of action taken
 ALTER TABLE UnitPromotions ADD FlatHealRate integer DEFAULT 0;
+
+-- Heals friendly units of the same domain within aura range for +X at the end of every turn. Default aura range is 2, and is increased/decreased by AuraRangeChange.
+ALTER TABLE UnitPromotions ADD PassiveAoEHeal integer DEFAULT 0;

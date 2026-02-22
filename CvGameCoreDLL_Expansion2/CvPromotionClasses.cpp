@@ -315,6 +315,7 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iNearbyHealEnemyTerritory(0),
 	m_iNearbyHealNeutralTerritory(0),
 	m_iNearbyHealFriendlyTerritory(0),
+	m_iPassiveAoEHeal(0),
 	m_iAdjacentEnemySapMovement(0),
 	m_bCanHeavyCharge(false),
 	m_piTerrainAttackPercent(NULL),
@@ -571,6 +572,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iNearbyHealEnemyTerritory = kResults.GetInt("NearbyHealEnemyTerritory");
 	m_iNearbyHealNeutralTerritory = kResults.GetInt("NearbyHealNeutralTerritory");
 	m_iNearbyHealFriendlyTerritory = kResults.GetInt("NearbyHealFriendlyTerritory");
+	m_iPassiveAoEHeal = kResults.GetInt("PassiveAoEHeal");
 
 	m_iAdjacentEnemySapMovement = kResults.GetInt("AdjacentEnemySapMovement");
 	m_bCanHeavyCharge = kResults.GetBool("HeavyCharge");
@@ -2827,6 +2829,11 @@ int CvPromotionEntry::GetNearbyHealNeutralTerritory() const
 int CvPromotionEntry::GetNearbyHealFriendlyTerritory() const
 {
 	return m_iNearbyHealFriendlyTerritory;
+}
+
+int CvPromotionEntry::GetPassiveAoEHeal() const
+{
+	return m_iPassiveAoEHeal;
 }
 
 int CvPromotionEntry::GetAdjacentEnemySapMovement() const

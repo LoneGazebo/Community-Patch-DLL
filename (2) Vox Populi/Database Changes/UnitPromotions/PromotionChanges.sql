@@ -824,7 +824,7 @@ UPDATE UnitPromotions SET DiploMissionInfluence = 70 WHERE Type = 'PROMOTION_AMB
 
 UPDATE UnitPromotions SET GreatGeneral = 1 WHERE Type = 'PROMOTION_GREAT_GENERAL';
 
-UPDATE UnitPromotions SET GreatAdmiral = 1, NumRepairCharges = 1 WHERE Type = 'PROMOTION_GREAT_ADMIRAL';
+UPDATE UnitPromotions SET GreatAdmiral = 1, PassiveAoEHeal = 3 WHERE Type = 'PROMOTION_GREAT_ADMIRAL';
 
 UPDATE UnitPromotions SET DiploMissionInfluence = 100, RivalTerritory = 1, ExtraNavalMovement = 2 WHERE Type = 'PROMOTION_GREAT_DIPLOMAT';
 

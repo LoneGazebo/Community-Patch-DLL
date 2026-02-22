@@ -309,6 +309,7 @@ public:
 	int GetNearbyHealEnemyTerritory() const;
 	int GetNearbyHealNeutralTerritory() const;
 	int GetNearbyHealFriendlyTerritory() const;
+	int GetPassiveAoEHeal() const;
 	int GetAdjacentEnemySapMovement() const;
 	bool IsCanHeavyCharge() const;
 	bool HasPostCombatPromotions() const;
@@ -631,6 +632,7 @@ protected:
 	int m_iNearbyHealFriendlyTerritory;
 	int m_iAdjacentEnemySapMovement;
 	bool m_bCanHeavyCharge;
+	int m_iPassiveAoEHeal;
 
 	CvString m_strSound;
 
