@@ -59,7 +59,7 @@ VALUES
 	('UNIT_KLEPHT', 'UNITAI_FAST_ATTACK');
 
 ----------------------------------------------------------
--- Unique Building: Gymnasion (Amphitheater)
+-- Unique Building: Gymnasion (Theater)
 ----------------------------------------------------------
 INSERT INTO Civilization_BuildingClassOverrides
 	(CivilizationType, BuildingClassType, BuildingType)

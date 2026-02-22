@@ -120,7 +120,7 @@ VALUES
 -- Classical Era
 --------------------------------------
 
-	-- Amphitheater
+	-- Theater
 	('BUILDING_AMPHITHEATER', 'FLAVOR_CULTURE', 20),
 	('BUILDING_AMPHITHEATER', 'FLAVOR_GREAT_PEOPLE', 2),
 

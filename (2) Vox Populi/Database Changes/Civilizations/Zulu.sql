@@ -150,7 +150,7 @@ VALUES
 	('BUILDING_IKANDA', 'YIELD_CULTURE', 1);
 
 ----------------------------------------------------------
--- Unique Building: Iziko (Amphitheater)
+-- Unique Building: Iziko (Theater)
 ----------------------------------------------------------
 INSERT INTO Civilization_BuildingClassOverrides
 	(CivilizationType, BuildingClassType, BuildingType)

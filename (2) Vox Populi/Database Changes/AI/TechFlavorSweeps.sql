@@ -105,7 +105,7 @@ VALUES
 
 	-------------------------------------------------------------------
 
-	('TECH_DRAMA', 'FLAVOR_CULTURE', 25), -- Buildings: Amphitheater, Writers' Guild, NationalMonument, Wonders: Parthenon, Process: Culture
+	('TECH_DRAMA', 'FLAVOR_CULTURE', 25), -- Buildings: Theater, Writers' Guild, NationalMonument, Wonders: Parthenon, Process: Culture
 	('TECH_DRAMA', 'FLAVOR_GREAT_PEOPLE', 10),
 	('TECH_DRAMA', 'FLAVOR_WONDER', 10),
 

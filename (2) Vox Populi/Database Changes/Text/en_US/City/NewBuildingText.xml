@@ -18,7 +18,7 @@
 			<Text>Bath</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_BATH_STRATEGY">
-			<Text>The Bath generates Culture, and boosts the Gold and Culture yield of Temples, Gardens, and Amphitheaters in the City. Also generates additional Culture during Golden Ages. Baths can be constructed only in cities next to fresh water.</Text>
+			<Text>The Bath generates Culture, and boosts the Gold and Culture yield of Temples, Gardens, and Theaters in the City. Also generates additional Culture during Golden Ages. Baths can be constructed only in cities next to fresh water.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_BATH_HELP">
 			<Text></Text>
@@ -204,7 +204,7 @@
 			<Text></Text>
 		</Row>
 
-		<!-- Amphitheater -->
+		<!-- Theater -->
 		<Row Tag="TXT_KEY_BUILDING_AMPHITHEATER_HELP">
 			<Text></Text>
 		</Row>
