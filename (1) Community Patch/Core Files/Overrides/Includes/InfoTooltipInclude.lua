@@ -356,15 +356,6 @@ local function AddTooltipIfTrue(tTooltipList, strTextKey, bCondition, ...)
 	end
 end
 
---- Generic version of the AddTooltipsYieldTable functions, not supposed to be called directly.
---- @param tTooltipList string[] List of tooltip strings/lines to be added to
---- @param strTextKey string Text key to be added, must have 1+ or 2+ parameters (refer to the specific functions)
---- @param tYieldTable table<integer, table<integer, number?>?> The yield/modifier table to be converted into tooltip. If strOtherTypeTable is nil, the table is tYieldTable[1] and other entries are ignored.
---- @param strOtherTypeTable string? The name of the database table used as the key of the yield/modifier table, e.g. `"Specialists"`
---- @param bModifier boolean tYieldTable consists of modifiers (%) if true, flat yields otherwise
---- @param bGlobal boolean Whether "in all Cities" should be appended to tooltips
---- @param bEraScaling boolean Whether ", scaling with Era" should be appended to tooltips
---- @param ... number|string The rest of the parameters of strTextKey
 local tGroupableTypeColors = {
 	Resources = "",
 	Features = "[COLOR_PLAYER_DARK_GREEN_TEXT]",
@@ -376,6 +367,15 @@ local tGroupableTypeColors = {
 	Improvements = "[COLOR_POSITIVE_TEXT]",
 };
 
+--- Generic version of the AddTooltipsYieldTable functions, not supposed to be called directly.
+--- @param tTooltipList string[] List of tooltip strings/lines to be added to
+--- @param strTextKey string Text key to be added, must have 1+ or 2+ parameters (refer to the specific functions)
+--- @param tYieldTable table<integer, table<integer, number?>?> The yield/modifier table to be converted into tooltip. If strOtherTypeTable is nil, the table is tYieldTable[1] and other entries are ignored.
+--- @param strOtherTypeTable string? The name of the database table used as the key of the yield/modifier table, e.g. `"Specialists"`
+--- @param bModifier boolean tYieldTable consists of modifiers (%) if true, flat yields otherwise
+--- @param bGlobal boolean Whether "in all Cities" should be appended to tooltips
+--- @param bEraScaling boolean Whether ", scaling with Era" should be appended to tooltips
+--- @param ... number|string The rest of the parameters of strTextKey
 local function AddTooltipsYieldTableGeneric(tTooltipList, strTextKey, tYieldTable, strOtherTypeTable, bModifier, bGlobal, bEraScaling, ...)
 	if not next(tYieldTable) then
 		return;
@@ -2105,8 +2105,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 			end
 		end
 		for iXP, tDomains in pairs(tXPDomains) do
-			local strSign = iXP > 0 and "+" or "-";
-			table.insert(tLocalAbilityLines, L("TXT_KEY_PRODUCTION_BUILDING_UNIT_XP_DOMAINS", math.abs(iXP), strSign, ConcatWithCommaAnd(tDomains)));
+			AddTooltipNonZeroSigned(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_UNIT_XP_DOMAINS", iXP, ConcatWithCommaAnd(tDomains));
 		end
 	end
 	do
@@ -2118,8 +2117,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 			end
 		end
 		for iXP, tDomains in pairs(tXPDomains) do
-			local strSign = iXP > 0 and "+" or "-";
-			table.insert(tGlobalAbilityLines, AppendGlobal(L("TXT_KEY_PRODUCTION_BUILDING_UNIT_XP_DOMAINS", math.abs(iXP), strSign, ConcatWithCommaAnd(tDomains))));
+			AddTooltipGlobalNonZeroSigned(tGlobalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_UNIT_XP_DOMAINS", iXP, ConcatWithCommaAnd(tDomains));
 		end
 	end
 	do
@@ -2131,8 +2129,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 			end
 		end
 		for iXP, tDomains in pairs(tXPDomains) do
-			local strSign = iXP > 0 and "+" or "-";
-			table.insert(tLocalAbilityLines, L("TXT_KEY_PRODUCTION_BUILDING_UNIT_XP_DOMAINS_FROM_GREAT_WORK", math.abs(iXP), strSign, ConcatWithCommaAnd(tDomains)));
+			AddTooltipNonZeroSigned(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_UNIT_XP_DOMAINS_FROM_GREAT_WORK", iXP, ConcatWithCommaAnd(tDomains));
 		end
 	end
 	do
@@ -2144,8 +2141,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 			end
 		end
 		for iXP, tDomains in pairs(tXPDomains) do
-			local strSign = iXP > 0 and "+" or "-";
-			table.insert(tGlobalAbilityLines, AppendGlobal(L("TXT_KEY_PRODUCTION_BUILDING_UNIT_XP_DOMAINS_FROM_GREAT_WRITING_GLOBAL", math.abs(iXP), strSign, ConcatWithCommaAnd(tDomains))));
+			AddTooltipGlobalNonZeroSigned(tGlobalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_UNIT_XP_DOMAINS_FROM_GREAT_WRITING_GLOBAL", iXP, ConcatWithCommaAnd(tDomains));
 		end
 	end
 	AddTooltipNonZeroSigned(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_UNIT_XP_ON_GOLDEN_AGE_START", kBuildingInfo.ExperiencePerGoldenAge, kBuildingInfo.ExperiencePerGoldenAgeCap);
