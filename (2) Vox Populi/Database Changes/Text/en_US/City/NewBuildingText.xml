@@ -1087,6 +1087,13 @@
 		</Row>
 
 		<!-- Theming bonuses flavor text -->
+		<Row Tag="TXT_KEY_THEMING_BONUS_PALACE">
+			<Text>National Epics</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PALACE_THEMING_BONUS_HELP">
+			<Text>Fill with any three Great Works of Writing to obtain this bonus.</Text>
+		</Row>
+
 		<Row Tag="TXT_KEY_THEMING_BONUS_AMPHITHEATER_NATIONAL">
 			<Text>National Epics</Text>
 		</Row>

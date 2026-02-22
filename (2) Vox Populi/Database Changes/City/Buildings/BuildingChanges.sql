@@ -33,7 +33,10 @@ UPDATE Buildings
 SET
 	EventTourism = 7,
 	NoUnhappfromXSpecialists = 1,
-	VassalLevyEra = 2
+	VassalLevyEra = 2,
+	ThemingBonusHelp = 'TXT_KEY_PALACE_THEMING_BONUS_HELP',
+	GreatWorkSlotType = 'GREAT_WORK_SLOT_LITERATURE',
+	GreatWorkCount = 3
 WHERE BuildingClass = 'BUILDINGCLASS_PALACE';
 
 INSERT INTO Helper
@@ -59,6 +62,14 @@ SELECT
 	Type, 'YIELD_SCIENCE', 34
 FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_PALACE';
+
+-- Any three Great Works of Literature can be themed
+-- Bonus and AIPriority to be swept in ThemingSweeps.sql
+INSERT INTO Building_ThemingBonuses
+	(BuildingType, Description)
+SELECT a.Type, 'TXT_KEY_THEMING_BONUS_PALACE'
+FROM Buildings a
+WHERE a.BuildingClass = 'BUILDINGCLASS_PALACE';
 
 ----------------------------------------------------------------------------
 -- Guild support/theming line (which starts at Monument for some reason)
@@ -224,7 +235,10 @@ DELETE FROM Helper;
 
 -- Shrine
 UPDATE Buildings
-SET PrereqTech = 'TECH_AGRICULTURE'
+SET 
+	PrereqTech = 'TECH_AGRICULTURE',
+	GreatWorkSlotType = 'GREAT_WORK_SLOT_MUSIC',
+	GreatWorkCount = 1
 WHERE BuildingClass = 'BUILDINGCLASS_SHRINE';
 
 INSERT INTO Building_YieldChanges
@@ -242,8 +256,6 @@ WHERE Type = 'BUILDING_TEMPLE';
 UPDATE Buildings
 SET
 	ReligiousPressureModifier = 25,
-	GreatWorkSlotType = 'GREAT_WORK_SLOT_MUSIC',
-	GreatWorkCount = 1,
 	ReligiousUnrestFlatReduction = 1
 WHERE BuildingClass = 'BUILDINGCLASS_TEMPLE';
 
@@ -817,8 +829,6 @@ WHERE BuildingClass = 'BUILDINGCLASS_WALLS';
 UPDATE Buildings
 SET
 	CitySupplyModifier = 5,
-	GreatWorkSlotType = 'GREAT_WORK_SLOT_ART_ARTIFACT',
-	GreatWorkCount = 1,
 	EmpireSizeModifierReduction = -5
 WHERE BuildingClass = 'BUILDINGCLASS_CASTLE';
 
