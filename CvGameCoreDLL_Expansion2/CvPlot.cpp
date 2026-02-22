@@ -15854,6 +15854,8 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner, BuildTypes eBuild, Improvem
 
 	CvDiplomacyAI* pDiplomacyAI = kPlayer.GetDiplomacyAI();
 
+	bool bKeep = bExistingImprovement || getBuildProgress(eBuild) > 0;
+
 	// Evaluate based on surrounding plots
 	int iMaxAdjacentThreat = 0;
 
@@ -15956,7 +15958,20 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner, BuildTypes eBuild, Improvem
 				CivApproachTypes eApproach = pDiplomacyAI->GetCivApproach(pAdjacentPlot->getOwner());
 				StrengthTypes eStrength = pDiplomacyAI->GetMilitaryStrengthComparedToUs(pAdjacentPlot->getOwner());
 
+				// For existing improvements or currently in progress, assume neighboring land not owned by us is unsafe (even if it's currently owned by our friends)
+				// This should mitigate possibly inconsistent neighbor approach values
+				if (bKeep)
+				{
+					eApproach = min(eApproach, CIV_APPROACH_GUARDED);
+					eStrength = max(eStrength, STRENGTH_STRONG);
+				}
+
 				iMaxAdjacentThreat = max(iMaxAdjacentThreat, GetDefensiveApproachMultiplierTimes100(eApproach) * GetDefensiveStrengthMultiplierTimes100(eStrength) / 100);
+			}
+			else if (bKeep && !pAdjacentPlot->isOwned())
+			{
+				const int iMultiplier = GetDefensiveApproachMultiplierTimes100(CIV_APPROACH_GUARDED) * GetDefensiveStrengthMultiplierTimes100(STRENGTH_STRONG) / 100;
+				iMaxAdjacentThreat = max(iMaxAdjacentThreat, iMultiplier);
 			}
 		}
 	}
