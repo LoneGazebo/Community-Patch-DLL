@@ -747,6 +747,16 @@
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
+        <FileName>Database Changes\Misc\MissionsChanges.sql</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Database Changes\Misc\NotificationsChanges.sql</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
         <FileName>Database Changes\WorldMap\Improvements\CoreBuildSweeps.sql</FileName>
       </Action>
       <Action>
@@ -943,16 +953,6 @@
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
         <FileName>Database Changes\Remapper.sql</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>Database Changes/Misc/MissionsChanges.sql</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>Database Changes/Misc/NotificationsChanges.sql</FileName>
       </Action>
     </ModActions>
     <ModContent>
