@@ -418,8 +418,8 @@ CvCity::CvCity() :
 	, m_aiYieldFromUnitLevelUp()
 	, m_aiYieldFromUnitLevelUpGlobal()
 	, m_aiYieldFromCombatExperienceTimes100()
-	, m_aiYieldPerAlly()
-	, m_aiYieldPerFriend()
+	, m_aiYieldPerAllyTimes100()
+	, m_aiYieldPerFriendTimes100()
 	, m_aiYieldFromInternalTREnd()
 	, m_aiYieldFromInternationalTREnd()
 	, m_aiYieldFromInternalTR()
@@ -1346,8 +1346,8 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_aiYieldFromUnitLevelUp.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromUnitLevelUpGlobal.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromCombatExperienceTimes100.resize(NUM_YIELD_TYPES);
-	m_aiYieldPerAlly.resize(NUM_YIELD_TYPES);
-	m_aiYieldPerFriend.resize(NUM_YIELD_TYPES);
+	m_aiYieldPerAllyTimes100.resize(NUM_YIELD_TYPES);
+	m_aiYieldPerFriendTimes100.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromInternalTREnd.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromInternationalTREnd.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromInternalTR.resize(NUM_YIELD_TYPES);
@@ -1457,8 +1457,8 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		m_aiYieldFromUnitLevelUp[iI] = 0;
 		m_aiYieldFromUnitLevelUpGlobal[iI] = 0;
 		m_aiYieldFromCombatExperienceTimes100[iI] = 0;
-		m_aiYieldPerAlly[iI] = 0;
-		m_aiYieldPerFriend[iI] = 0;
+		m_aiYieldPerAllyTimes100[iI] = 0;
+		m_aiYieldPerFriendTimes100[iI] = 0;
 		m_aiYieldFromInternalTREnd[iI] = 0;
 		m_aiYieldFromInternationalTREnd[iI] = 0;
 		m_aiYieldFromInternalTR[iI] = 0;
@@ -14741,8 +14741,8 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 				ChangeYieldFromCombatExperienceTimes100(eYield, pBuildingInfo->GetYieldFromCombatExperienceTimes100(eYield) * iChange);
 			}
 
-			ChangeYieldPerAlly(eYield, pBuildingInfo->GetYieldPerAlly(eYield) * iChange);
-			ChangeYieldPerFriend(eYield, pBuildingInfo->GetYieldPerFriend(eYield) * iChange);
+			ChangeYieldPerAllyTimes100(eYield, pBuildingInfo->GetYieldPerAllyTimes100(eYield) * iChange);
+			ChangeYieldPerFriendTimes100(eYield, pBuildingInfo->GetYieldPerFriendTimes100(eYield) * iChange);
 
 			if (GetEventBuildingClassCityYield(eBuildingClass, eYield) != 0)
 			{
@@ -24665,17 +24665,17 @@ void CvCity::ChangeYieldFromCombatExperienceTimes100(YieldTypes eIndex, int iCha
 
 //	--------------------------------------------------------------------------------
 /// Extra yield from building
-int CvCity::GetYieldPerAlly(YieldTypes eIndex) const
+int CvCity::GetYieldPerAllyTimes100(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT();
 	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
 	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
-	return m_aiYieldPerAlly[eIndex];
+	return m_aiYieldPerAllyTimes100[eIndex];
 }
 
 //	--------------------------------------------------------------------------------
 /// Extra yield from building
-void CvCity::ChangeYieldPerAlly(YieldTypes eIndex, int iChange)
+void CvCity::ChangeYieldPerAllyTimes100(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT();
 	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
@@ -24683,23 +24683,23 @@ void CvCity::ChangeYieldPerAlly(YieldTypes eIndex, int iChange)
 
 	if (iChange != 0)
 	{
-		m_aiYieldPerAlly[eIndex] = m_aiYieldPerAlly[eIndex] + iChange;
-		ASSERT(GetYieldPerAlly(eIndex) >= 0);
+		m_aiYieldPerAllyTimes100[eIndex] = m_aiYieldPerAllyTimes100[eIndex] + iChange;
+		ASSERT(GetYieldPerAllyTimes100(eIndex) >= 0);
 	}
 }
 //	--------------------------------------------------------------------------------
 /// Extra yield from building
-int CvCity::GetYieldPerFriend(YieldTypes eIndex) const
+int CvCity::GetYieldPerFriendTimes100(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT();
 	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
 	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
-	return m_aiYieldPerFriend[eIndex];
+	return m_aiYieldPerFriendTimes100[eIndex];
 }
 
 //	--------------------------------------------------------------------------------
 /// Extra yield from building
-void CvCity::ChangeYieldPerFriend(YieldTypes eIndex, int iChange)
+void CvCity::ChangeYieldPerFriendTimes100(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT();
 	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
@@ -24707,8 +24707,8 @@ void CvCity::ChangeYieldPerFriend(YieldTypes eIndex, int iChange)
 
 	if (iChange != 0)
 	{
-		m_aiYieldPerFriend[eIndex] = m_aiYieldPerFriend[eIndex] + iChange;
-		ASSERT(GetYieldPerFriend(eIndex) >= 0);
+		m_aiYieldPerFriendTimes100[eIndex] = m_aiYieldPerFriendTimes100[eIndex] + iChange;
+		ASSERT(GetYieldPerFriendTimes100(eIndex) >= 0);
 	}
 }
 
@@ -25452,7 +25452,7 @@ int CvCity::GetEffectiveYieldRateFromCSAllianceTimes100(YieldTypes eIndex) const
 
 	int iValue = GetBaseYieldRateFromCSAlliance(eIndex) * (100 + iModifier);
 
-	int iBonus = GetYieldPerAlly(eIndex) * GET_PLAYER(getOwner()).GetNumCSAllies() * 100;
+	int iBonus = GetYieldPerAllyTimes100(eIndex) * GET_PLAYER(getOwner()).GetNumCSAllies();
 	return iValue + iBonus;
 }
 //	--------------------------------------------------------------------------------
@@ -25505,7 +25505,7 @@ int CvCity::GetEffectiveYieldRateFromCSFriendshipTimes100(YieldTypes eIndex) con
 
 	int iValue = GetBaseYieldRateFromCSFriendship(eIndex) * (100 + iModifier);
 
-	int iBonus = GetYieldPerFriend(eIndex) * GET_PLAYER(getOwner()).GetNumCSFriends() * 100;
+	int iBonus = GetYieldPerFriendTimes100(eIndex) * GET_PLAYER(getOwner()).GetNumCSFriends();
 	return iValue + iBonus;
 
 }
@@ -31912,8 +31912,8 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_aiYieldFromUnitLevelUp);
 	visitor(city.m_aiYieldFromUnitLevelUpGlobal);
 	visitor(city.m_aiYieldFromCombatExperienceTimes100);
-	visitor(city.m_aiYieldPerAlly);
-	visitor(city.m_aiYieldPerFriend);
+	visitor(city.m_aiYieldPerAllyTimes100);
+	visitor(city.m_aiYieldPerFriendTimes100);
 	visitor(city.m_aiYieldFromInternalTREnd);
 	visitor(city.m_aiYieldFromInternationalTREnd);
 	visitor(city.m_aiYieldFromInternalTR);

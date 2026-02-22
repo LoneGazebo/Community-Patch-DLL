@@ -388,8 +388,8 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_pbBuildingClassNeededNowhere(NULL),
 	m_piNumSpecFreeUnits(NULL),
 	m_ppiResourcePlotsToPlace(),
-	m_piYieldPerFriend(NULL),
-	m_piYieldPerAlly(NULL),
+	m_piYieldPerFriendTimes100(NULL),
+	m_piYieldPerAllyTimes100(NULL),
 	m_piYieldChangeWorldWonder(NULL),
 	m_piYieldChangeWorldWonderGlobal(NULL),
 	m_piLuxuryYieldChanges(NULL),
@@ -542,8 +542,8 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	SAFE_DELETE_ARRAY(m_piNumSpecFreeUnits);
 	m_ppiResourcePlotsToPlace.clear();
 	SAFE_DELETE_ARRAY(m_paiResourceHappinessChange);
-	SAFE_DELETE_ARRAY(m_piYieldPerFriend);
-	SAFE_DELETE_ARRAY(m_piYieldPerAlly);
+	SAFE_DELETE_ARRAY(m_piYieldPerFriendTimes100);
+	SAFE_DELETE_ARRAY(m_piYieldPerAllyTimes100);
 	SAFE_DELETE_ARRAY(m_piYieldChangeWorldWonder);
 	SAFE_DELETE_ARRAY(m_piYieldChangeWorldWonderGlobal);
 	SAFE_DELETE_ARRAY(m_piLuxuryYieldChanges);
@@ -1094,8 +1094,8 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	kUtility.SetYields(m_piYieldChangeFromPassingTR, "Building_YieldChangesFromPassingTR", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldPerFranchise, "Building_YieldPerFranchise", "BuildingType", szBuildingType);
 
-	kUtility.SetYields(m_piYieldPerFriend, "Building_YieldPerFriend", "BuildingType", szBuildingType);
-	kUtility.SetYields(m_piYieldPerAlly, "Building_YieldPerAlly", "BuildingType", szBuildingType);
+	kUtility.SetYields(m_piYieldPerFriendTimes100, "Building_YieldPerFriendTimes100", "BuildingType", szBuildingType);
+	kUtility.SetYields(m_piYieldPerAllyTimes100, "Building_YieldPerAllyTimes100", "BuildingType", szBuildingType);
 
 	kUtility.SetYields(m_piYieldChangeWorldWonder, "Building_YieldChangeWorldWonder", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldChangeWorldWonderGlobal, "Building_YieldChangeWorldWonderGlobal", "BuildingType", szBuildingType);
@@ -4516,18 +4516,18 @@ bool CvBuildingEntry::IsResourcePlotsToPlace() const
 {
 	return !m_ppiResourcePlotsToPlace.empty();
 }
-int CvBuildingEntry::GetYieldPerFriend(int i) const
+int CvBuildingEntry::GetYieldPerFriendTimes100(int i) const
 {
 	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
 	PRECONDITION(i > -1, "Index out of bounds");
-	return m_piYieldPerFriend ? m_piYieldPerFriend[i] : -1;
+	return m_piYieldPerFriendTimes100 ? m_piYieldPerFriendTimes100[i] : -1;
 }
 
-int CvBuildingEntry::GetYieldPerAlly(int i) const
+int CvBuildingEntry::GetYieldPerAllyTimes100(int i) const
 {
 	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
 	PRECONDITION(i > -1, "Index out of bounds");
-	return m_piYieldPerAlly ? m_piYieldPerAlly[i] : -1;
+	return m_piYieldPerAllyTimes100 ? m_piYieldPerAllyTimes100[i] : -1;
 }
 
 int CvBuildingEntry::GetYieldChangeWorldWonder(int i) const
