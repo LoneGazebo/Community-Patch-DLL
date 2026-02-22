@@ -6613,6 +6613,10 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 					{
 						ChangeRestoreMovesCount(-1);
 					}
+					if (pImprovementInfo->IsFreeMoveAcross())
+					{
+						ChangeFreeMoveAcrossCount(-1);
+					}
 				}
 
 				// Embassy extra vote in WC mod
@@ -6816,6 +6820,10 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 					if (pImprovementInfo->IsRestoreMoves())
 					{
 						ChangeRestoreMovesCount(1);
+					}
+					if (pImprovementInfo->IsFreeMoveAcross())
+					{
+						ChangeFreeMoveAcrossCount(1);
 					}
 				}
 
@@ -7778,7 +7786,7 @@ void CvPlot::changeNumResource(int iChange)
 }
 
 //	--------------------------------------------------------------------------------
-int CvPlot::getNumResourceForPlayer(PlayerTypes ePlayer, bool bExtraResources, bool bIgnoreTechPrereq) const
+int CvPlot::getNumResourceForPlayer(PlayerTypes ePlayer, bool bExtraResources, bool bIgnoreTechPrereq, bool bIgnorePostModifiers) const
 {
 	ResourceTypes eResource = getResourceType(bIgnoreTechPrereq ? NO_TEAM : getTeam());
 	if(eResource != NO_RESOURCE)
@@ -7804,25 +7812,59 @@ int CvPlot::getNumResourceForPlayer(PlayerTypes ePlayer, bool bExtraResources, b
 					return 0;
 				}
 				else
+					return GetNumResourcePostModifiers(ePlayer, getImprovementType(), bIgnoreTechPrereq, bIgnorePostModifiers);
+			}
+		}
+	}
+	return 0;
+}
+
+int CvPlot::GetNumResourcePostModifiers(PlayerTypes ePlayer, ImprovementTypes eImprovement, bool bIgnoreTechPrereq, bool bIgnorePostModifiers) const
+{
+	ResourceTypes eResource = getResourceType(bIgnoreTechPrereq ? NO_TEAM : getTeam());
+	if (eResource != NO_RESOURCE)
+	{
+		CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
+		if (pkResource)
+		{
+			int iRtnValue = m_iResourceNum;
+
+			if (bIgnorePostModifiers)
+				return iRtnValue;
+
+			if (eImprovement != NO_IMPROVEMENT)
+			{
+				CvImprovementEntry* pkImprovementType = GC.getImprovementInfo(eImprovement);
+				if (pkImprovementType)
 				{
-					int iRtnValue = m_iResourceNum;
-					if (pkResource->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
+					int iIncrease = pkImprovementType->GetResourceExtractionIncrease(eResource);
+					if (iIncrease != 0)
+						iRtnValue += iIncrease;
+
+					int iMod = pkImprovementType->GetResourceExtractionMod(eResource);
+					if (iMod != 0)
 					{
-						int iQuantityMod = GET_PLAYER(ePlayer).GetPlayerTraits()->GetStrategicResourceQuantityModifier(getTerrainType());
-						iRtnValue *= 100 + iQuantityMod;
+						iRtnValue *= 100 + iMod;
 						iRtnValue /= 100;
 					}
-
-					if (GET_PLAYER(ePlayer).GetPlayerTraits()->GetResourceQuantityModifier(eResource) > 0)
-					{
-						int iQuantityMod = GET_PLAYER(ePlayer).GetPlayerTraits()->GetResourceQuantityModifier(eResource);
-						iRtnValue *= 100 + iQuantityMod;
-						iRtnValue /= 100;
-					}
-
-					return iRtnValue;
 				}
 			}
+
+			if (pkResource->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
+			{
+				int iQuantityMod = GET_PLAYER(ePlayer).GetPlayerTraits()->GetStrategicResourceQuantityModifier(getTerrainType());
+				iRtnValue *= 100 + iQuantityMod;
+				iRtnValue /= 100;
+			}
+
+			if (GET_PLAYER(ePlayer).GetPlayerTraits()->GetResourceQuantityModifier(eResource) > 0)
+			{
+				int iQuantityMod = GET_PLAYER(ePlayer).GetPlayerTraits()->GetResourceQuantityModifier(eResource);
+				iRtnValue *= 100 + iQuantityMod;
+				iRtnValue /= 100;
+			}
+
+			return iRtnValue;
 		}
 	}
 	return 0;
@@ -8196,6 +8238,10 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				if (oldImprovementEntry.IsRestoreMoves())
 				{
 					ChangeRestoreMovesCount(-1);
+				}
+				if (oldImprovementEntry.IsFreeMoveAcross())
+				{
+					ChangeFreeMoveAcrossCount(-1);
 				}
 
 				// Embassy extra vote in WC mod
@@ -8596,6 +8642,10 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				if (newImprovementEntry.IsRestoreMoves())
 				{
 					ChangeRestoreMovesCount(1);
+				}
+				if (newImprovementEntry.IsFreeMoveAcross())
+				{
+					ChangeFreeMoveAcrossCount(1);
 				}
 
 				ResourceTypes eResourceFromImprovement = (ResourceTypes)newImprovementEntry.GetResourceFromImprovement();
@@ -8999,6 +9049,10 @@ void CvPlot::SetImprovementPillaged(bool bPillaged, bool bEvents)
 			if (pImprovementInfo->IsRestoreMoves())
 			{
 				ChangeRestoreMovesCount(iChange);
+			}
+			if (pImprovementInfo->IsFreeMoveAcross())
+			{
+				ChangeFreeMoveAcrossCount(iChange);
 			}
 
 			CvImprovementEntry& improvementEntry = *GC.getImprovementInfo(getImprovementType());
@@ -13050,6 +13104,16 @@ void CvPlot::ChangeRestoreMovesCount(int iValue)
 	VALIDATE_OBJECT();
 	m_iRestoreMoves += iValue;
 }
+bool CvPlot::IsFreeMoveAcross() const
+{
+	VALIDATE_OBJECT();
+	return m_iFreeMoveAcross > 0;
+}
+void CvPlot::ChangeFreeMoveAcrossCount(int iValue)
+{
+	VALIDATE_OBJECT();
+	m_iFreeMoveAcross += iValue;
+}
 //	--------------------------------------------------------------------------------
 int CvPlot::GetNumCombatUnits()
 {
@@ -13503,6 +13567,7 @@ void CvPlot::Serialize(Plot& plot, Visitor& visitor)
 	visitor(plot.m_iUnitPlotGAExperience);
 	visitor(plot.m_iPlotChangeMoves);
 	visitor(plot.m_iRestoreMoves);
+	visitor(plot.m_iFreeMoveAcross);
 
 	visitor(plot.m_eOwner);
 	visitor(plot.m_ePlotType);
@@ -15854,6 +15919,8 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner, BuildTypes eBuild, Improvem
 
 	CvDiplomacyAI* pDiplomacyAI = kPlayer.GetDiplomacyAI();
 
+	bool bKeep = bExistingImprovement || getBuildProgress(eBuild) > 0;
+
 	// Evaluate based on surrounding plots
 	int iMaxAdjacentThreat = 0;
 
@@ -15956,7 +16023,20 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner, BuildTypes eBuild, Improvem
 				CivApproachTypes eApproach = pDiplomacyAI->GetCivApproach(pAdjacentPlot->getOwner());
 				StrengthTypes eStrength = pDiplomacyAI->GetMilitaryStrengthComparedToUs(pAdjacentPlot->getOwner());
 
+				// For existing improvements or currently in progress, assume neighboring land not owned by us is unsafe (even if it's currently owned by our friends)
+				// This should mitigate possibly inconsistent neighbor approach values
+				if (bKeep)
+				{
+					eApproach = min(eApproach, CIV_APPROACH_GUARDED);
+					eStrength = max(eStrength, STRENGTH_STRONG);
+				}
+
 				iMaxAdjacentThreat = max(iMaxAdjacentThreat, GetDefensiveApproachMultiplierTimes100(eApproach) * GetDefensiveStrengthMultiplierTimes100(eStrength) / 100);
+			}
+			else if (bKeep && !pAdjacentPlot->isOwned())
+			{
+				const int iMultiplier = GetDefensiveApproachMultiplierTimes100(CIV_APPROACH_GUARDED) * GetDefensiveStrengthMultiplierTimes100(STRENGTH_STRONG) / 100;
+				iMaxAdjacentThreat = max(iMaxAdjacentThreat, iMultiplier);
 			}
 		}
 	}

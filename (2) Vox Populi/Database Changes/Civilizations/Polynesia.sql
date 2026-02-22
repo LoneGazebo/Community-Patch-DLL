@@ -97,7 +97,7 @@ INSERT INTO Improvement_YieldPerXAdjacentImprovement
 	(ImprovementType, OtherImprovementType, YieldType, Yield, NumRequired)
 VALUES
 --	('IMPROVEMENT_MOAI', 'IMPROVEMENT_MOAI', 'YIELD_CULTURE', 1, 1),
-	('IMPROVEMENT_MOAI', 'IMPROVEMENT_MANUFACTORY', 'YIELD_CULTURE', 1, 1);
+	('IMPROVEMENT_MOAI', 'IMPROVEMENT_ACADEMY', 'YIELD_CULTURE', 1, 1);
 
 INSERT INTO Improvement_TechYieldChanges
 	(ImprovementType, TechType, YieldType, Yield)

@@ -83,13 +83,7 @@ SELECT
 FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_MONUMENT';
 
-UPDATE Buildings
-SET
-	GreatWorkSlotType = 'GREAT_WORK_SLOT_ART_ARTIFACT',
-	GreatWorkCount = 1
-WHERE BuildingClass = 'BUILDINGCLASS_MONUMENT';
-
--- Amphitheater
+-- Theater
 UPDATE Buildings
 SET Help = 'TXT_KEY_BUILDING_AMPHITHEATER_HELP'
 WHERE Type = 'BUILDING_AMPHITHEATER';
@@ -861,7 +855,6 @@ WHERE BuildingClass = 'BUILDINGCLASS_ARSENAL';
 UPDATE Buildings
 SET
 	PrereqTech = 'TECH_RADAR',
-	RangedStrikeModifier = 10,
 	CitySupplyModifier = 5,
 	HealRateChange = 20,
 	DistressFlatReduction = 1,
@@ -1259,10 +1252,10 @@ SELECT
 FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_CHANCERY';
 
-INSERT INTO Building_YieldPerAlly
+INSERT INTO Building_YieldPerAllyTimes100
 	(BuildingType, YieldType, Yield)
 SELECT
-	Type, 'YIELD_PRODUCTION', 2
+	Type, 'YIELD_PRODUCTION', 200
 FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_CHANCERY';
 
@@ -1274,10 +1267,10 @@ SELECT
 FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_WIRE_SERVICE';
 
-INSERT INTO Building_YieldPerFriend
+INSERT INTO Building_YieldPerFriendTimes100
 	(BuildingType, YieldType, Yield)
 SELECT
-	Type, 'YIELD_CULTURE', 1
+	Type, 'YIELD_CULTURE', 100
 FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_WIRE_SERVICE';
 
@@ -1287,10 +1280,10 @@ VALUES
 	('YIELD_SCIENCE'),
 	('YIELD_CULTURE');
 
-INSERT INTO Building_YieldPerAlly
+INSERT INTO Building_YieldPerAllyTimes100
 	(BuildingType, YieldType, Yield)
 SELECT
-	a.Type, b.YieldType, 1
+	a.Type, b.YieldType, 100
 FROM Buildings a, Helper b
 WHERE a.BuildingClass = 'BUILDINGCLASS_WIRE_SERVICE';
 
@@ -1938,10 +1931,10 @@ SELECT
 FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_SCRIVENERS_OFFICE';
 
-INSERT INTO Building_YieldPerFriend
+INSERT INTO Building_YieldPerFriendTimes100
 	(BuildingType, YieldType, Yield)
 SELECT
-	Type, 'YIELD_FOOD', 1
+	Type, 'YIELD_FOOD', 100
 FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_SCRIVENERS_OFFICE';
 
@@ -1951,10 +1944,10 @@ VALUES
 	('YIELD_FOOD'),
 	('YIELD_FAITH');
 
-INSERT INTO Building_YieldPerAlly
+INSERT INTO Building_YieldPerAllyTimes100
 	(BuildingType, YieldType, Yield)
 SELECT
-	a.Type, b.YieldType, 1
+	a.Type, b.YieldType, 100
 FROM Buildings a, Helper b
 WHERE a.BuildingClass = 'BUILDINGCLASS_SCRIVENERS_OFFICE';
 

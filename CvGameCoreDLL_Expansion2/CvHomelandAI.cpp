@@ -3676,8 +3676,10 @@ void CvHomelandAI::ExecuteWorkerMoves()
 
 				bool bOldCreatedResource = eResourceFromOldImprovement != NO_RESOURCE;
 				bool bOldConnectedResource = eNaturalResource != NO_RESOURCE && pkOldImprovementInfo && pkOldImprovementInfo->IsConnectsResource(eNaturalResource);
+				bool bOldAmplifiedResource = bOldConnectedResource && (pkOldImprovementInfo->GetResourceExtractionIncrease(eNaturalResource) != 0 || pkOldImprovementInfo->GetResourceExtractionMod(eNaturalResource));
 				bool bNewCreatesResource = eResourceFromImprovement != NO_RESOURCE;
 				bool bNewConnectsResource = eNaturalResource != NO_RESOURCE && pkImprovementInfo && pkImprovementInfo->IsConnectsResource(eNaturalResource);
+				bool bNewAmplifiesResource = bOldConnectedResource && (pkOldImprovementInfo->GetResourceExtractionIncrease(eNaturalResource) != 0 || pkOldImprovementInfo->GetResourceExtractionMod(eNaturalResource));
 
 				ResourceTypes eRemovedResource = NO_RESOURCE;
 				ResourceTypes eCreatedResource = NO_RESOURCE;
@@ -3685,11 +3687,11 @@ void CvHomelandAI::ExecuteWorkerMoves()
 				{
 					eRemovedResource = eResourceFromOldImprovement;
 				}
-				if (bOldConnectedResource && !bNewConnectsResource)
+				if (bOldConnectedResource && (!bNewConnectsResource || bOldAmplifiedResource))
 				{
 					eRemovedResource = eNaturalResource;
 				}
-				if (!bOldConnectedResource && bNewConnectsResource)
+				if ((!bOldConnectedResource || bNewAmplifiesResource) && bNewConnectsResource)
 				{
 					eCreatedResource = eNaturalResource;
 				}
@@ -3702,8 +3704,8 @@ void CvHomelandAI::ExecuteWorkerMoves()
 				{
 					if (!bFinishedBuilding)
 					{
-						int iResourceAmount = eResourceFromImprovement != NO_RESOURCE ? pkImprovementInfo->GetResourceQuantityFromImprovement() : pDirectivePlot->getNumResource();
-						sState.mExtraResources[eOldResource] += iResourceAmount;
+						int iResourceAmount = eResourceFromImprovement != NO_RESOURCE ? pkImprovementInfo->GetResourceQuantityFromImprovement() : pDirectivePlot->GetNumResourcePostModifiers(m_pPlayer->GetID(), eImprovement);
+						sState.mExtraResources[eCreatedResource] += iResourceAmount;
 					}
 					bResourceStateChanged = true;
 				}
@@ -3712,7 +3714,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 					if (!bFinishedBuilding)
 					{
 						int iResourceAmount = eResourceFromOldImprovement != NO_RESOURCE ? pkOldImprovementInfo->GetResourceQuantityFromImprovement() : pDirectivePlot->getNumResource();
-						sState.mExtraResources[eOldResource] -= iResourceAmount;
+						sState.mExtraResources[eRemovedResource] -= iResourceAmount;
 					}
 					bResourceStateChanged = true;
 				}

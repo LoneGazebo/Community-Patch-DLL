@@ -8,7 +8,7 @@ DELETE FROM Trait_MovesChangeUnitCombats WHERE TraitType = 'TRAIT_TERROR';
 INSERT INTO Trait_FreePromotionUnitClass
 	(TraitType, UnitClassType, PromotionType)
 SELECT
-	'TRAIT_TERROR', Type, 'PROMOTION_MONGOL_TERROR'
+	'TRAIT_TERROR', Type, 'PROMOTION_LOGISTICS'
 FROM UnitClasses
 WHERE DefaultUnit IN (
 	SELECT Type FROM Units WHERE IsMounted = 1
@@ -17,9 +17,8 @@ WHERE DefaultUnit IN (
 INSERT INTO Trait_YieldFromMinorDemand
 	(TraitType, YieldType, Yield)
 SELECT
-	'TRAIT_TERROR', Type, 20
-FROM Yields
-WHERE ID < 6; -- "All" yields
+	'TRAIT_TERROR', Type, 25
+FROM Yields WHERE Type IN ('YIELD_PRODUCTION', 'YIELD_SCIENCE');
 
 ----------------------------------------------------------
 -- Unique Unit: Khan (Great General)
@@ -63,7 +62,7 @@ SET
 	NoTwoAdjacent = 1,
 	CultureBombRadius = 1,
 	MakesPassable = 1,
-	RestoreMoves = 1,
+	FreeMoveAcross = 1,
 	DefenseModifier = 50,
 	NoFollowUp = 1
 WHERE Type = 'IMPROVEMENT_ORDO';

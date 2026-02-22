@@ -98,3 +98,6 @@ ALTER TABLE Improvements ADD AllowsAirliftTo integer DEFAULT 0;
 
 -- Improvement requires a resource in the tile to be buildable
 ALTER TABLE Improvements ADD RequiresResource boolean DEFAULT 0;
+
+-- Improvement lets all units enter the tile without using any movement points
+ALTER TABLE Improvements ADD FreeMoveAcross boolean DEFAULT 0;
