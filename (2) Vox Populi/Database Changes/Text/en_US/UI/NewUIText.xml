@@ -2435,6 +2435,12 @@
 		<Row Tag="TXT_KEY_APPLY_CHANGES">
 			<Text>Apply Changes</Text>
 		</Row>
+		<Row Tag="TXT_KEY_SET_TAXES">
+			<Text>Set Taxes</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SET_TAXES_TT">
+			<Text>Set the Vassal's tax rate. The changes will take effect on the next turn.</Text>
+		</Row>
 		<Row Tag="TXT_KEY_APPLY_CHANGES_TT">
 			<Text>Apply changes to the Vassal's tax rate. The changes will take effect on the next turn.</Text>
 		</Row>
