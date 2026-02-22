@@ -366,7 +366,7 @@ SET Text = '[ICON_INFLUENCE] Influence degrades at half and recovers at twice th
 WHERE Tag = 'TXT_KEY_TRAIT_CITY_STATE_FRIENDSHIP';
 
 UPDATE Language_en_US
-SET Text = 'The {TXT_KEY_UNIT_GREEK_HOPLITE} is the Greek unique unit, replacing the {TXT_KEY_UNIT_SPEARMAN}. It is stronger when adjacent to more owned land units, and generates[ICON_GREAT_GENERAL] Great Generals faster through combat.'
+SET Text = 'The {TXT_KEY_UNIT_GREEK_HOPLITE} is the Greek unique unit, replacing the {TXT_KEY_UNIT_SPEARMAN}. It is stronger when adjacent to more owned land units, and these other units don''t need to be next to the enemy in order to boost the {TXT_KEY_UNIT_GREEK_HOPLITE}''s strength.'
 WHERE Tag = 'TXT_KEY_UNIT_GREEK_HOPLITE_STRATEGY';
 
 --------------------

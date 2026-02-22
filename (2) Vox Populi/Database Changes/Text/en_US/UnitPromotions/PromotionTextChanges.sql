@@ -583,7 +583,7 @@ SET Text = 'Unity'
 WHERE Tag = 'TXT_KEY_PROMOTION_DISCIPLINE';
 
 UPDATE Language_en_US
-SET Text = '+10% [ICON_STRENGTH] Combat Strength.[NEWLINE]+15% [ICON_STRENGTH] Combat Strength per [COLOR_POSITIVE_TEXT]Adjacent Owned Land Unit[ENDCOLOR].'
+SET Text = '+15% [ICON_STRENGTH] Combat Strength per [COLOR_POSITIVE_TEXT]Adjacent Owned Land Unit[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_PROMOTION_DISCIPLINE_HELP';
 
 -- Bonus vs Mounted (50)
