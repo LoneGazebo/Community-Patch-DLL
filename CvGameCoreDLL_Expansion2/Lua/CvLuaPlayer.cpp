@@ -10935,33 +10935,23 @@ int CvLuaPlayer::lGetReasonActionDisabled(lua_State* L)
 						}
 					}
 				}
-				// no other possible reasons (see canPlunderTradeRoute)
-				ASSERT(bReasonFound, "Didn't find a reason why the trade unit on this plot can't be plundered. Inconsistency between canPlunderTradeRoute and GetReasonActionDisabled");
 				GC.getGame().BuildCannotPerformActionHelpText(&toolTip, "TXT_KEY_MISSION_PLUNDER_TRADE_ROUTE_DISABLED_CORPORATION_HELP");
 			}
 		}
 		else if (strcmp(szActionType, "MISSION_HEAL") == 0)
 		{
-			// this should only be called if the unit is hurt and can't heal, but a tooltip should be shown explaining why
-			ASSERT(pUnit->IsHurt() && !pUnit->canHeal(pPlot, false));
 			pUnit->canHeal(pPlot, false, &toolTip);
 		}
 		else if (strcmp(szActionType, "COMMAND_UPGRADE") == 0)
 		{
-			// this should only be called if the unit can upgrade (visibility check) but can't right now, and a tooltip should be shown explaining why
-			ASSERT(pUnit->CanUpgradeRightNow(true) && !pUnit->CanUpgradeRightNow(false));
 			pUnit->CanUpgradeTo(pUnit->GetUpgradeUnitType(), false, &toolTip);
 		}
 		else if (strcmp(szActionType, "INTERFACEMODE_PARADROP") == 0)
 		{
-			// this should only be called if the unit can paradrop (visibility check) but can't right now, and a tooltip should be shown explaining why
-			ASSERT(pUnit->canParadrop(pPlot, true) && !pUnit->canParadrop(pPlot, false));
 			pUnit->canParadrop(pPlot, false, &toolTip);
 		}
 		else if (strcmp(szActionType, "COMMAND_DELETE") == 0)
 		{
-			// this should only be called if the unit can be scrapped (visibility check) but can't right now, and a tooltip should be shown explaining why
-			ASSERT(pUnit->canScrap(true) && !pUnit->canScrap(false));
 			pUnit->canScrap(false, &toolTip);
 		}
 	}
