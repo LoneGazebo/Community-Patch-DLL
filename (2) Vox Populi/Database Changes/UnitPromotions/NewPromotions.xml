@@ -1296,6 +1296,13 @@
 			<PediaEntry>TXT_KEY_PROMOTION_FATHER_OF_THE_HORSE</PediaEntry>
 		</Row>
 		<Row>
+			<Type>PROMOTION_CIBOLA</Type>
+			<Description>TXT_KEY_PROMOTION_CIBOLA</Description>
+			<Help>TXT_KEY_PROMOTION_CIBOLA_HELP</Help>
+			<PediaType>PEDIA_SCOUTING</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_CIBOLA</PediaEntry>
+		</Row>
+		<Row>
 			<Type>PROMOTION_SANTA_MARIA</Type>
 			<Description>TXT_KEY_PROMOTION_SANTA_MARIA</Description>
 			<Help>TXT_KEY_PROMOTION_SANTA_MARIA_HELP</Help>
