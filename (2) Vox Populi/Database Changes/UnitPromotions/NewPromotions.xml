@@ -418,13 +418,6 @@
 		</Row>
 		<!-- Trait -->
 		<Row>
-			<Type>PROMOTION_MONGOL_TERROR</Type>
-			<Description>TXT_KEY_PROMOTION_MONGOL_TERROR</Description>
-			<Help>TXT_KEY_PROMOTION_MONGOL_TERROR_HELP</Help>
-			<PediaType>PEDIA_ATTRIBUTES</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_MONGOL_TERROR</PediaEntry>
-		</Row>
-		<Row>
 			<Type>PROMOTION_ATTACK_BONUS_SWEDEN</Type>
 			<Description>TXT_KEY_PROMOTION_ATTACK_BONUS_SWEDEN</Description>
 			<Help>TXT_KEY_PROMOTION_ATTACK_BONUS_SWEDEN_HELP</Help>

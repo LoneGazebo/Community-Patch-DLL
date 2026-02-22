@@ -6613,6 +6613,10 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 					{
 						ChangeRestoreMovesCount(-1);
 					}
+					if (pImprovementInfo->IsFreeMoveAcross())
+					{
+						ChangeFreeMoveAcrossCount(-1);
+					}
 				}
 
 				// Embassy extra vote in WC mod
@@ -6816,6 +6820,10 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 					if (pImprovementInfo->IsRestoreMoves())
 					{
 						ChangeRestoreMovesCount(1);
+					}
+					if (pImprovementInfo->IsFreeMoveAcross())
+					{
+						ChangeFreeMoveAcrossCount(1);
 					}
 				}
 
@@ -8231,6 +8239,10 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				{
 					ChangeRestoreMovesCount(-1);
 				}
+				if (oldImprovementEntry.IsFreeMoveAcross())
+				{
+					ChangeFreeMoveAcrossCount(-1);
+				}
 
 				// Embassy extra vote in WC mod
 				if (oldImprovementEntry.GetCityStateExtraVote() > 0 && eOldBuilder != NO_PLAYER)
@@ -8630,6 +8642,10 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				if (newImprovementEntry.IsRestoreMoves())
 				{
 					ChangeRestoreMovesCount(1);
+				}
+				if (newImprovementEntry.IsFreeMoveAcross())
+				{
+					ChangeFreeMoveAcrossCount(1);
 				}
 
 				ResourceTypes eResourceFromImprovement = (ResourceTypes)newImprovementEntry.GetResourceFromImprovement();
@@ -9033,6 +9049,10 @@ void CvPlot::SetImprovementPillaged(bool bPillaged, bool bEvents)
 			if (pImprovementInfo->IsRestoreMoves())
 			{
 				ChangeRestoreMovesCount(iChange);
+			}
+			if (pImprovementInfo->IsFreeMoveAcross())
+			{
+				ChangeFreeMoveAcrossCount(iChange);
 			}
 
 			CvImprovementEntry& improvementEntry = *GC.getImprovementInfo(getImprovementType());
@@ -13084,6 +13104,16 @@ void CvPlot::ChangeRestoreMovesCount(int iValue)
 	VALIDATE_OBJECT();
 	m_iRestoreMoves += iValue;
 }
+bool CvPlot::IsFreeMoveAcross() const
+{
+	VALIDATE_OBJECT();
+	return m_iFreeMoveAcross > 0;
+}
+void CvPlot::ChangeFreeMoveAcrossCount(int iValue)
+{
+	VALIDATE_OBJECT();
+	m_iFreeMoveAcross += iValue;
+}
 //	--------------------------------------------------------------------------------
 int CvPlot::GetNumCombatUnits()
 {
@@ -13537,6 +13567,7 @@ void CvPlot::Serialize(Plot& plot, Visitor& visitor)
 	visitor(plot.m_iUnitPlotGAExperience);
 	visitor(plot.m_iPlotChangeMoves);
 	visitor(plot.m_iRestoreMoves);
+	visitor(plot.m_iFreeMoveAcross);
 
 	visitor(plot.m_eOwner);
 	visitor(plot.m_ePlotType);

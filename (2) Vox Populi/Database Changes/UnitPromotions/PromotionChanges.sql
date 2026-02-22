@@ -563,8 +563,6 @@ UPDATE UnitPromotions SET CaptureDefeatedEnemy = 1, CapturedUnitsConscripted = 1
 
 UPDATE UnitPromotions SET RiverDoubleMove = 1 WHERE Type = 'PROMOTION_WAR_CANOES';
 
-UPDATE UnitPromotions SET ExtraAttacks = 1 WHERE Type = 'PROMOTION_MONGOL_TERROR';
-
 UPDATE UnitPromotions SET AttackMod = 20 WHERE Type = 'PROMOTION_ATTACK_BONUS_SWEDEN';
 
 --------------------------------------------
