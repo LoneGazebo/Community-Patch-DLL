@@ -455,9 +455,9 @@ UPDATE UnitPromotions SET InterceptChanceChange = 33, InterceptionCombatModifier
 UPDATE UnitPromotions SET InterceptChanceChange = 34, InterceptionCombatModifier = 33, RangeChange = 1 WHERE Type = 'PROMOTION_INTERCEPTION_3';
 UPDATE UnitPromotions SET NumInterceptionChange = 1, InterceptionCombatModifier = 34, RangeChange = 1 WHERE Type = 'PROMOTION_SORTIE';
 
-UPDATE UnitPromotions SET AirSweepCombatModifier = 33, GetGroundAttackDamage = 5 WHERE Type = 'PROMOTION_DOGFIGHTING_1';
-UPDATE UnitPromotions SET AirSweepCombatModifier = 33, GetGroundAttackDamage = 10 WHERE Type = 'PROMOTION_DOGFIGHTING_2';
-UPDATE UnitPromotions SET AirSweepCombatModifier = 34, GetGroundAttackDamage = 15 WHERE Type = 'PROMOTION_DOGFIGHTING_3';
+UPDATE UnitPromotions SET AirSweepCombatModifier = 33 WHERE Type = 'PROMOTION_DOGFIGHTING_1';
+UPDATE UnitPromotions SET AirSweepCombatModifier = 33, GetGroundAttackDamage = 5 WHERE Type = 'PROMOTION_DOGFIGHTING_2';
+UPDATE UnitPromotions SET AirSweepCombatModifier = 34, GetGroundAttackDamage = 10 WHERE Type = 'PROMOTION_DOGFIGHTING_3';
 
 DELETE FROM UnitPromotions_UnitCombatMods WHERE PromotionType IN (SELECT Type FROM UnitPromotions WHERE RankList = 'AIR_SUPREMACY');
 INSERT INTO UnitPromotions_Domains
