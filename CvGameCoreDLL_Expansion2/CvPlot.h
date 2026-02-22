@@ -489,7 +489,8 @@ public:
 	int getNumResource() const;
 	void setNumResource(int iNum);
 	void changeNumResource(int iChange);
-	int getNumResourceForPlayer(PlayerTypes ePlayer, bool bExtraResources, bool bIgnoreTechPrereq = false) const;
+	int getNumResourceForPlayer(PlayerTypes ePlayer, bool bExtraResources, bool bIgnoreTechPrereq = false, bool bIgnorePostModifiers = false) const;
+	int GetNumResourcePostModifiers(PlayerTypes ePlayer, ImprovementTypes eImprovement, bool bIgnoreTechPrereq = false, bool bIgnorePostModifiers = false) const;
 	void removeMinorResources();
 
 	void setIsCity(bool bValue, int iCityID, int iWorkRange);

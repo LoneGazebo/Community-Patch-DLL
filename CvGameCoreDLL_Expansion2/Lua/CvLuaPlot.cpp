@@ -212,6 +212,7 @@ void CvLuaPlot::PushMethods(lua_State* L, int t)
 	Method(GetNumResource);
 	Method(SetNumResource);
 	Method(ChangeNumResource);
+	Method(GetNumResourcePostModifiers);
 
 	Method(GetImprovementType);
 	Method(SetImprovementType);
@@ -1556,6 +1557,25 @@ int CvLuaPlot::lSetNumResource(lua_State* L)
 int CvLuaPlot::lChangeNumResource(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlot::changeNumResource);
+}
+//------------------------------------------------------------------------------
+//int GetNumResourcePostModifiers();
+int CvLuaPlot::lGetNumResourcePostModifiers(lua_State* L)
+{
+	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
+	if (pkPlot != NULL)
+	{
+		PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 2);
+		ImprovementTypes eImprovement = lua_gettop(L) >= 3 ? (ImprovementTypes)lua_tointeger(L, 3) : pkPlot->getImprovementType();
+		int iResult = pkPlot->GetNumResourcePostModifiers(ePlayer, eImprovement);
+		lua_pushinteger(L, iResult);
+		return 1;
+	}
+	else
+	{
+		lua_pushinteger(L, 0);
+		return 1;
+	}
 }
 
 //------------------------------------------------------------------------------

@@ -7778,7 +7778,7 @@ void CvPlot::changeNumResource(int iChange)
 }
 
 //	--------------------------------------------------------------------------------
-int CvPlot::getNumResourceForPlayer(PlayerTypes ePlayer, bool bExtraResources, bool bIgnoreTechPrereq) const
+int CvPlot::getNumResourceForPlayer(PlayerTypes ePlayer, bool bExtraResources, bool bIgnoreTechPrereq, bool bIgnorePostModifiers) const
 {
 	ResourceTypes eResource = getResourceType(bIgnoreTechPrereq ? NO_TEAM : getTeam());
 	if(eResource != NO_RESOURCE)
@@ -7804,25 +7804,59 @@ int CvPlot::getNumResourceForPlayer(PlayerTypes ePlayer, bool bExtraResources, b
 					return 0;
 				}
 				else
+					return GetNumResourcePostModifiers(ePlayer, getImprovementType(), bIgnoreTechPrereq, bIgnorePostModifiers);
+			}
+		}
+	}
+	return 0;
+}
+
+int CvPlot::GetNumResourcePostModifiers(PlayerTypes ePlayer, ImprovementTypes eImprovement, bool bIgnoreTechPrereq, bool bIgnorePostModifiers) const
+{
+	ResourceTypes eResource = getResourceType(bIgnoreTechPrereq ? NO_TEAM : getTeam());
+	if (eResource != NO_RESOURCE)
+	{
+		CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
+		if (pkResource)
+		{
+			int iRtnValue = m_iResourceNum;
+
+			if (bIgnorePostModifiers)
+				return iRtnValue;
+
+			if (eImprovement != NO_IMPROVEMENT)
+			{
+				CvImprovementEntry* pkImprovementType = GC.getImprovementInfo(eImprovement);
+				if (pkImprovementType)
 				{
-					int iRtnValue = m_iResourceNum;
-					if (pkResource->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
+					int iIncrease = pkImprovementType->GetResourceExtractionIncrease(eResource);
+					if (iIncrease != 0)
+						iRtnValue += iIncrease;
+
+					int iMod = pkImprovementType->GetResourceExtractionMod(eResource);
+					if (iMod != 0)
 					{
-						int iQuantityMod = GET_PLAYER(ePlayer).GetPlayerTraits()->GetStrategicResourceQuantityModifier(getTerrainType());
-						iRtnValue *= 100 + iQuantityMod;
+						iRtnValue *= 100 + iMod;
 						iRtnValue /= 100;
 					}
-
-					if (GET_PLAYER(ePlayer).GetPlayerTraits()->GetResourceQuantityModifier(eResource) > 0)
-					{
-						int iQuantityMod = GET_PLAYER(ePlayer).GetPlayerTraits()->GetResourceQuantityModifier(eResource);
-						iRtnValue *= 100 + iQuantityMod;
-						iRtnValue /= 100;
-					}
-
-					return iRtnValue;
 				}
 			}
+
+			if (pkResource->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
+			{
+				int iQuantityMod = GET_PLAYER(ePlayer).GetPlayerTraits()->GetStrategicResourceQuantityModifier(getTerrainType());
+				iRtnValue *= 100 + iQuantityMod;
+				iRtnValue /= 100;
+			}
+
+			if (GET_PLAYER(ePlayer).GetPlayerTraits()->GetResourceQuantityModifier(eResource) > 0)
+			{
+				int iQuantityMod = GET_PLAYER(ePlayer).GetPlayerTraits()->GetResourceQuantityModifier(eResource);
+				iRtnValue *= 100 + iQuantityMod;
+				iRtnValue /= 100;
+			}
+
+			return iRtnValue;
 		}
 	}
 	return 0;
