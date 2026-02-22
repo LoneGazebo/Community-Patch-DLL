@@ -35,9 +35,9 @@
 		</Row>
 		<Row>
 			<Type>COLOR_PLAYER_DENMARK_MINOR_BACKGROUND</Type> <!-- RGB = 205/83/39, Original ≈ 109/43/21 -->
-			<Red>0.8039215686</Red>
-			<Green>0.3254901961</Green>
-			<Blue>0.1529411765</Blue>
+			<Red>0.6509803922</Red>
+			<Green>0.3764705882</Green>
+			<Blue>0.2000000000</Blue>
 			<Alpha>1</Alpha>
 		</Row>
 		<Row>
