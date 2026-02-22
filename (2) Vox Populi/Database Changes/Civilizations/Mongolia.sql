@@ -8,11 +8,12 @@ DELETE FROM Trait_MovesChangeUnitCombats WHERE TraitType = 'TRAIT_TERROR';
 INSERT INTO Trait_FreePromotionUnitClass
 	(TraitType, UnitClassType, PromotionType)
 SELECT
-	'TRAIT_TERROR', Type, 'PROMOTION_LOGISTICS'
-FROM UnitClasses
-WHERE DefaultUnit IN (
+	'TRAIT_TERROR', u.Type, p.Type
+FROM UnitClasses u, UnitPromotions p
+WHERE u.DefaultUnit IN (
 	SELECT Type FROM Units WHERE IsMounted = 1
-);
+)
+AND p.Type IN ('PROMOTION_LOGISTICS', 'PROMOTION_SPAWN_GENERALS_I');
 
 INSERT INTO Trait_YieldFromMinorDemand
 	(TraitType, YieldType, Yield)
