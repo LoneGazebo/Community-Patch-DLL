@@ -17353,7 +17353,7 @@ int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, const CvCity* pCity, i
 			if (AI_getUnitAIType() == UNITAI_MISSILE_AIR)
 				return pDefender->GetCurrHitPoints();
 			else
-				return /*40*/ GD_INT_GET(NONCOMBAT_UNIT_RANGED_DAMAGE);
+				return /*40 in CP, 50 in VP*/ GD_INT_GET(NONCOMBAT_UNIT_RANGED_DAMAGE);
 		}
 
 		if (pDefender->getForcedDamageValue() != 0)

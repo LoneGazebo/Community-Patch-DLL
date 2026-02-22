@@ -32814,7 +32814,7 @@ int CvCity::rangeCombatDamage(const CvUnit* pDefender, bool bIncludeRand, const 
 
 	// If this is a defenseless unit, do a fixed amount of damage
 	if (!pDefender->IsCanDefend())
-		return /*40*/ GD_INT_GET(NONCOMBAT_UNIT_RANGED_DAMAGE);
+		return /*40 in CP, 50 in VP*/ GD_INT_GET(NONCOMBAT_UNIT_RANGED_DAMAGE);
 
 	if (pDefender->getForcedDamageValue() != 0)
 		return pDefender->getForcedDamageValue();

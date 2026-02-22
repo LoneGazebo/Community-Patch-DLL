@@ -614,6 +614,10 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvUnit& kAttacker, CvUnit* pkDefende
 		ASSERT(pkDefender != NULL);
 
 		iExperience = /*2*/ GD_INT_GET(EXPERIENCE_ATTACKING_UNIT_RANGED);
+
+		if (MOD_BALANCE_VP && pkDefender->IsCivilianUnit())
+			iExperience = 0;
+
 		if(pkDefender->isBarbarian())
 			bBarbarian = true;
 		iMaxXP = pkDefender->maxXPValue();
