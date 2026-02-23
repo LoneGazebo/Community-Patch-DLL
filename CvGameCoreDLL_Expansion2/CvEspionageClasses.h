@@ -208,7 +208,6 @@ public:
 	int GetTurnActiveMissionConducted() const;
 
 	// Public data
-	int m_iName;
 	CvString m_sName;
 	int m_iCityX;
 	int m_iCityY;
@@ -405,8 +404,6 @@ public:
 	void LogEspionageScoringMsg(CvString& strMsg);
 
 	SpyList m_aSpyList;
-	std::vector<int> m_aiSpyListNameOrder;
-	int m_iSpyListNameOrderIndex;
 
 	CityEventTypes m_eSpyMissionEvent;
 	CityEventTypes m_eCounterspyEvent;

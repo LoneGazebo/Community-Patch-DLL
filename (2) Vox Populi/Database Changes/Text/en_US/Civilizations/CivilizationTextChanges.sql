@@ -366,14 +366,14 @@ SET Text = '[ICON_INFLUENCE] Influence degrades at half and recovers at twice th
 WHERE Tag = 'TXT_KEY_TRAIT_CITY_STATE_FRIENDSHIP';
 
 UPDATE Language_en_US
-SET Text = 'The {TXT_KEY_UNIT_GREEK_HOPLITE} is the Greek unique unit, replacing the {TXT_KEY_UNIT_SPEARMAN}. It is stronger when adjacent to more owned land units, and generates[ICON_GREAT_GENERAL] Great Generals faster through combat.'
+SET Text = 'The {TXT_KEY_UNIT_GREEK_HOPLITE} is the Greek unique unit, replacing the {TXT_KEY_UNIT_SPEARMAN}. It is stronger when adjacent to more owned land units, and these other units don''t need to be next to the enemy in order to boost the {TXT_KEY_UNIT_GREEK_HOPLITE}''s strength.'
 WHERE Tag = 'TXT_KEY_UNIT_GREEK_HOPLITE_STRATEGY';
 
 --------------------
 -- Huns
 --------------------
 UPDATE Language_en_US
-SET Text = 'Inflict +100% and receive -50% [ICON_HAPPINESS_3] [COLOR_POSITIVE_TEXT]War Weariness[ENDCOLOR]. +10% [ICON_STRENGTH] Combat Strength for each subsequent attack on the same target in a turn. Gain 1 [ICON_GOLD] Gold and [ICON_CULTURE] Culture for every 2 damage dealt to Cities, scaling with Era.'
+SET Text = 'Inflict +100% and receive -50% [ICON_HAPPINESS_3] [COLOR_POSITIVE_TEXT]War Weariness[ENDCOLOR]. +10% [ICON_STRENGTH] Combat Strength for each subsequent attack on the same target in a turn. Gain 1 [ICON_GOLD] Gold and [ICON_CULTURE] Culture for every 3 damage dealt to Cities, scaling with Era.'
 WHERE Tag = 'TXT_KEY_TRAIT_RAZE_AND_HORSES';
 
 UPDATE Language_en_US
@@ -384,7 +384,7 @@ WHERE Tag = 'TXT_KEY_UNIT_HUN_HORSE_ARCHER_STRATEGY';
 -- Inca
 --------------------
 UPDATE Language_en_US
-SET Text = 'Units can cross Mountains and ignore terrain costs when entering any Hill or Mountain. Cities, Roads, and Railroads may be built on Mountains. Mountains produce +1 [ICON_PRODUCTION] Production, [ICON_GOLD] Gold, and [ICON_RESEARCH] Science when worked, scaling with Era.'
+SET Text = 'Units can cross Mountains and ignore terrain costs when entering any Hill or Mountain, except when crossing a River. Cities, Roads, and Railroads may be built on Mountains. Mountains produce +1 [ICON_PRODUCTION] Production, [ICON_GOLD] Gold, and [ICON_RESEARCH] Science when worked, scaling with Era.'
 WHERE Tag = 'TXT_KEY_TRAIT_GREAT_ANDEAN_ROAD';
 
 UPDATE Language_en_US
@@ -392,7 +392,7 @@ SET Text = 'Pata-Pata'
 WHERE Tag = 'TXT_KEY_IMPROVEMENT_TERRACE_FARM';
 
 UPDATE Language_en_US
-SET Text = 'Can only be built on Hill. +1 [ICON_FOOD] Food for every two adjacent tiles with a Mountain, a Farm, a Pata-Pata or a Manufactory. Farms get +1 [ICON_FOOD] Food per 2 adjacent Farms or Pata-Pata.'
+SET Text = 'Can only be built on Hill. +1 [ICON_FOOD] Food for every two adjacent tiles with a Mountain, a Farm, a Pata-Pata or an Academy. Farms get +1 [ICON_FOOD] Food per 2 adjacent Farms or Pata-Pata.'
 WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_TERRACE_FARM_HELP';
 
 UPDATE Language_en_US
@@ -517,7 +517,7 @@ WHERE Tag = 'TXT_KEY_UNIT_MAYAN_ATLATLIST_STRATEGY';
 -- Mongols
 --------------------
 UPDATE Language_en_US
-SET Text = 'Skirmisher Units have an extra Attack. Gain All Yields equal to 20% of the [ICON_GOLD] Gold from bullying [ICON_CITY_STATE] City-States.'
+SET Text = 'Skirmisher Units start with the [COLOR_POSITIVE_TEXT]Logistics[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Great Generals I[ENDCOLOR] Promotions. When you [ICON_PIRATE] Bully a City-State, gain an instant boost of [ICON_PRODUCTION] Production and [ICON_RESEARCH] Science in the [ICON_CAPITAL] Capital equal to 25% of the [ICON_GOLD] Gold received.'
 WHERE Tag = 'TXT_KEY_TRAIT_TERROR';
 
 UPDATE Language_en_US
@@ -817,7 +817,7 @@ WHERE Tag = 'TXT_KEY_UNIT_VENETIAN_GALLEASS_STRATEGY';
 -- Zulu
 --------------------
 UPDATE Language_en_US
-SET Text = '-50% [ICON_GOLD] Gold maintenance for Melee and Gunpowder Units. All Units require 25% less Experience for Promotions. Your military ignores Alliance and Protection penalties and is 50% more effective at intimidating [ICON_CITY_STATE] City-States.'
+SET Text = '-50% [ICON_GOLD] Gold maintenance for Melee and Gunpowder Units. All Units require 25% less Experience for Promotions. Your military ignores Alliance and Protection penalties and is 50% more effective at [ICON_PIRATE] intimidating City-States.'
 WHERE Tag = 'TXT_KEY_TRAIT_BUFFALO_HORNS';
 
 UPDATE Language_en_US

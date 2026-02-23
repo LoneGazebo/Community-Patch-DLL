@@ -1641,7 +1641,7 @@ bool CvSpecialUnitInfo::CacheResults(Database::Results& kResults, CvDatabaseUtil
 	m_bCityLoad = kResults.GetBool("CityLoad");
 
 	const char* szSpecialUnitType = GetType();
-	kUtility.PopulateArrayByExistence(m_pbCarrierUnitAITypes, "UnitAIInfos", "SpecialUnit_CarrierUnitAI", "UnitAIType", "SpecialUnitType", szSpecialUnitType);
+	kUtility.PopulateArrayByExistence(m_pbCarrierUnitAITypes, "UnitAIInfos", "SpecialUnit_CarrierUnitAI", "UnitAIType", "SpecialUnitType", szSpecialUnitType, NUM_UNITAI_TYPES);
 	kUtility.PopulateArrayByValue(m_piProductionTraits, "Traits", "SpecialUnit_ProductionTraits", "TraitType", "SpecialUnitType", szSpecialUnitType, "Trait");
 
 	return true;
@@ -2270,9 +2270,9 @@ const char* CvCivilizationInfo::getCityNames(int i) const
 	return i>=0 ? m_vCityNames[i].c_str() : "vilanova";
 }
 //------------------------------------------------------------------------------
-const char* CvCivilizationInfo::getSpyNames(int i) const
+vector<CvString> CvCivilizationInfo::getSpyNames() const
 {
-	return i>=0 ? m_vSpyNames[i].c_str() : "john doe";
+	return m_vSpyNames;
 }
 //------------------------------------------------------------------------------
 bool CvCivilizationInfo::isCoastalCiv() const
@@ -2448,7 +2448,6 @@ bool CvCivilizationInfo::CacheResults(Database::Results& kResults, CvDatabaseUti
 		}
 
 		pResults->Reset();
-
 	}
 
 	//FreeUnits
@@ -2476,7 +2475,6 @@ bool CvCivilizationInfo::CacheResults(Database::Results& kResults, CvDatabaseUti
 		}
 
 		pResults->Reset();
-
 	}
 
 	kUtility.PopulateArrayByExistence(m_pbCivilizationFreeBuildingClass,

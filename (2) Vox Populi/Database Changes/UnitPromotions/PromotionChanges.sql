@@ -111,7 +111,7 @@ UPDATE UnitPromotions SET AttackAbove50HealthMod = 25 WHERE Type = 'PROMOTION_FI
 
 UPDATE UnitPromotions SET OutsideFriendlyLandsModifier = 15, AttackWoundedMod = 15, NoAdjacentUnitMod = 10 WHERE Type = 'PROMOTION_INFILTRATORS';
 
-UPDATE UnitPromotions SET ExtraAttacks = 1, RangedAttackModifier = -30 WHERE Type = 'PROMOTION_LOGISTICS';
+UPDATE UnitPromotions SET ExtraAttacks = 1, RangedAttackModifier = -20 WHERE Type = 'PROMOTION_LOGISTICS';
 
 -- Archer only
 UPDATE UnitPromotions SET RangeChange = 1, RangedAttackModifier = -20, MinimumRangeRequired = 2 WHERE Type = 'PROMOTION_RANGE';
@@ -455,9 +455,9 @@ UPDATE UnitPromotions SET InterceptChanceChange = 33, InterceptionCombatModifier
 UPDATE UnitPromotions SET InterceptChanceChange = 34, InterceptionCombatModifier = 33, RangeChange = 1 WHERE Type = 'PROMOTION_INTERCEPTION_3';
 UPDATE UnitPromotions SET NumInterceptionChange = 1, InterceptionCombatModifier = 34, RangeChange = 1 WHERE Type = 'PROMOTION_SORTIE';
 
-UPDATE UnitPromotions SET AirSweepCombatModifier = 33, GetGroundAttackDamage = 5 WHERE Type = 'PROMOTION_DOGFIGHTING_1';
-UPDATE UnitPromotions SET AirSweepCombatModifier = 33, GetGroundAttackDamage = 10 WHERE Type = 'PROMOTION_DOGFIGHTING_2';
-UPDATE UnitPromotions SET AirSweepCombatModifier = 34, GetGroundAttackDamage = 15 WHERE Type = 'PROMOTION_DOGFIGHTING_3';
+UPDATE UnitPromotions SET AirSweepCombatModifier = 33 WHERE Type = 'PROMOTION_DOGFIGHTING_1';
+UPDATE UnitPromotions SET AirSweepCombatModifier = 33, GetGroundAttackDamage = 5 WHERE Type = 'PROMOTION_DOGFIGHTING_2';
+UPDATE UnitPromotions SET AirSweepCombatModifier = 34, GetGroundAttackDamage = 10 WHERE Type = 'PROMOTION_DOGFIGHTING_3';
 
 DELETE FROM UnitPromotions_UnitCombatMods WHERE PromotionType IN (SELECT Type FROM UnitPromotions WHERE RankList = 'AIR_SUPREMACY');
 INSERT INTO UnitPromotions_Domains
@@ -562,8 +562,6 @@ UPDATE UnitPromotions SET AllowsEmbarkation = 1, EmbarkedAllWater = 1, EmbarkExt
 UPDATE UnitPromotions SET CaptureDefeatedEnemy = 1, CapturedUnitsConscripted = 1 WHERE Type = 'PROMOTION_COERCION';
 
 UPDATE UnitPromotions SET RiverDoubleMove = 1 WHERE Type = 'PROMOTION_WAR_CANOES';
-
-UPDATE UnitPromotions SET ExtraAttacks = 1 WHERE Type = 'PROMOTION_MONGOL_TERROR';
 
 UPDATE UnitPromotions SET AttackMod = 20 WHERE Type = 'PROMOTION_ATTACK_BONUS_SWEDEN';
 
@@ -842,7 +840,6 @@ UPDATE UnitPromotions SET NukeImmune = 1 WHERE Type = 'PROMOTION_SHIELDED_SILO';
 UPDATE UnitPromotions SET ExtraWithdrawal = 100 WHERE Type = 'PROMOTION_WITHDRAW_BEFORE_MELEE';
 
 -- Hoplite: Unity
-UPDATE UnitPromotions SET CombatPercent = 10 WHERE Type = 'PROMOTION_ADJACENT_BONUS';
 INSERT INTO UnitPromotions_CombatModPerAdjacentUnitCombat
 	(PromotionType, UnitCombatType, Modifier)
 SELECT
@@ -874,7 +871,7 @@ VALUES
 -- Companion Cavalry: Great Generals I
 UPDATE UnitPromotions SET GreatGeneralModifier = 50 WHERE Type = 'PROMOTION_SPAWN_GENERALS_I';
 
--- Hoplite, Samurai: Great Generals II
+-- Samurai: Great Generals II
 UPDATE UnitPromotions SET GreatGeneralModifier = 100 WHERE Type = 'PROMOTION_SPAWN_GENERALS_II';
 
 -- Companion Cavalry: Transfer Movement to General
@@ -887,7 +884,7 @@ UPDATE UnitPromotions SET GreatGeneralCombatModifier = 25 WHERE Type = 'PROMOTIO
 UPDATE UnitPromotions SET HPHealedIfDestroyEnemy = 25 WHERE Type = 'PROMOTION_PARTIAL_HEAL_IF_DESTROY_ENEMY';
 
 -- Hakkapeliitta: Hakkaa Päälle!
-UPDATE UnitPromotions SET AttackAbove50HealthMod = 30 WHERE Type = 'PROMOTION_HAKKAA_PAALLE';
+UPDATE UnitPromotions SET AttackAbove50HealthMod = 50 WHERE Type = 'PROMOTION_HAKKAA_PAALLE';
 
 -- Foreign Legion: Foreign Lands Bonus
 UPDATE UnitPromotions SET OutsideFriendlyLandsModifier = 20 WHERE Type = 'PROMOTION_FOREIGN_LANDS';
@@ -1127,7 +1124,14 @@ VALUES
 	('PROMOTION_HOOKED_WEAPON', 'UNITCOMBAT_MOUNTED', 25);
 
 -- Oromo Cavalry: Zemene Mesafint
-UPDATE UnitPromotions SET VsUnhappyMod = 20 WHERE Type = 'PROMOTION_ZEMENE_MESAFINT';
+INSERT INTO UnitPromotions_Terrains
+	(PromotionType, TerrainType, DoubleMove)
+VALUES
+	('PROMOTION_ZEMENE_MESAFINT', 'TERRAIN_HILL', 1);
+INSERT INTO UnitPromotions_TerrainModifiers
+	(PromotionType, TerrainType, Attack, Defense)
+VALUES
+	('PROMOTION_ZEMENE_MESAFINT', 'TERRAIN_HILL', 25, 25);
 
 -- Krupp Gun: Minenwerfer
 UPDATE UnitPromotions SET AttackFortifiedMod = 50, PillageFortificationsOnKill = 1 WHERE Type = 'PROMOTION_MINENWERFER';
@@ -1250,6 +1254,9 @@ INSERT INTO UnitPromotions_UnitCombatMods
 	(PromotionType, UnitCombatType, Modifier)
 VALUES
 	('PROMOTION_FATHER_OF_THE_HORSE', 'UNITCOMBAT_MOUNTED', 15);
+
+-- Conquistador: Cibola
+UPDATE UnitPromotions SET CityAttack = 125 WHERE Type = 'PROMOTION_CIBOLA';
 
 -- Armada: Santa Maria
 INSERT INTO UnitPromotions_YieldFromKills

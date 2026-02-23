@@ -116,6 +116,12 @@
 // Enables era-specific messages for civ influence; disabling this may be useful for mods like Unique Cultural Influence that add special notifications
 #define MOD_COREUI_DIPLOMACY_ERA_INFLUENCE							gCustomMods.isCOREUI_DIPLOMACY_ERA_INFLUENCE()
 
+// Randomizes the order of each civilization's spy names
+#define MOD_COREUI_SHUFFLE_SPY_NAMES								gCustomMods.isCOREUI_SHUFFLE_SPY_NAMES()
+
+// Free spies-as-diplomats in vassals' capitals use the vassal's spy name list, not the master's
+#define MOD_COREUI_COLLABORATOR_SPY_NAMES							gCustomMods.isCOREUI_COLLABORATOR_SPY_NAMES()
+
 
 /////////////////////////////////////////
 // CORE AI CHANGES
@@ -274,8 +280,14 @@
 // Sorting order: civs, victory, then most to least impactful
 /////////////////////////////////////////
 
+// The Inca no longer ignore terrain cost if they're crossing a River
+#define MOD_BALANCE_ALTERNATE_INCA_TRAIT							gCustomMods.isBALANCE_ALTERNATE_INCA_TRAIT()
+
 // Indonesia's unique luxuries spawn around the city instead of under the city tile, and also appear when conquering a city
 #define MOD_BALANCE_ALTERNATE_INDONESIA_TRAIT						gCustomMods.isBALANCE_ALTERNATE_INDONESIA_TRAIT()
+
+// The Iroquois treat all Forests/Jungles as if they were Roads, not just those in friendly territory
+#define MOD_BALANCE_ALTERNATE_IROQUOIS_TRAIT						gCustomMods.isBALANCE_ALTERNATE_IROQUOIS_TRAIT()
 
 // The Maya cannot obtain a Great Prophet from their trait unless they have a religion (owned or majority), or the 9th or later Baktuns have been reached
 #define MOD_BALANCE_ALTERNATE_MAYA_TRAIT							gCustomMods.isBALANCE_ALTERNATE_MAYA_TRAIT()
@@ -398,7 +410,7 @@
 
 /////////////////////////////////////////
 // OTHER BALANCE OPTIONS
-// Sorting order: alphabetical
+// Sorting order: civs, victory, then alphabetical
 /////////////////////////////////////////
 
 // Alters Assyria's conquest trait so that the player always chooses a free tech upon city conquest
@@ -1510,6 +1522,8 @@ public:
 	// Core User Interface Changes
 	MOD_OPT_DECL(COREUI_REDUCE_NOTIFICATIONS);
 	MOD_OPT_DECL(COREUI_DIPLOMACY_ERA_INFLUENCE);
+	MOD_OPT_DECL(COREUI_SHUFFLE_SPY_NAMES);
+	MOD_OPT_DECL(COREUI_COLLABORATOR_SPY_NAMES);
 
 	// Core AI Changes
 	MOD_OPT_DECL(DEALAI_HUMAN_PERMANENT_FOR_AI_TEMPORARY);
@@ -1561,7 +1575,9 @@ public:
 	MOD_OPT_DECL(GLOBAL_QUICK_ROUTES); // disabled
 
 	// Vox Populi Balance Changes
+	MOD_OPT_DECL(BALANCE_ALTERNATE_INCA_TRAIT);
 	MOD_OPT_DECL(BALANCE_ALTERNATE_INDONESIA_TRAIT);
+	MOD_OPT_DECL(BALANCE_ALTERNATE_IROQUOIS_TRAIT);
 	MOD_OPT_DECL(BALANCE_ALTERNATE_MAYA_TRAIT);
 	MOD_OPT_DECL(BALANCE_ALTERNATE_SIAM_TRAIT);
 	MOD_OPT_DECL(BALANCE_UNIQUE_BELIEFS_ONLY_FOR_CIV);

@@ -76,4 +76,16 @@
 		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
 		<Column name="Yield" type="integer" notnull="true"/>
 	</Table>
+	<!-- Improvement: get extra resource amount from local resource (flat bonus) -->
+	<Table name="Improvement_ResourceExtractionIncrease">
+		<Column name="ImprovementType" type="text" reference="Improvements(Type)" notnull="true"/>
+		<Column name="ResourceType" type="text" reference="Resources(Type)" notnull="true"/>
+		<Column name="Num" type="integer" notnull="true"/>
+	</Table>
+	<!-- Improvement: get extra resource amount from local resource (percentage modifier) -->
+	<Table name="Improvement_ResourceExtractionMod">
+		<Column name="ImprovementType" type="text" reference="Improvements(Type)" notnull="true"/>
+		<Column name="ResourceType" type="text" reference="Resources(Type)" notnull="true"/>
+		<Column name="Modifier" type="integer" notnull="true"/>
+	</Table>
 </GameData>

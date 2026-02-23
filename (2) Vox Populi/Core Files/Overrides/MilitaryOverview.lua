@@ -293,18 +293,7 @@ function BuildUnitList(iSelectedUnit)
             --instance.Status:SetHide( false ); -- Infixo
 			
         elseif( buildType ~= -1) then -- this is a worker who is actively building something
-			--[[ Infixo
-    		local thisBuild = GameInfo.Builds[buildType];
-    		local civilianUnitStr = Locale.ConvertTextKey(thisBuild.Description);
-    		local iTurnsLeft = unit:GetPlot():GetBuildTurnsLeft(buildType,Game.GetActivePlayer(), 0, 0);	
-    		local iTurnsTotal = unit:GetPlot():GetBuildTurnsTotal(buildType);
-    		if (iTurnsLeft < 4000 and iTurnsLeft > 0) then
-				civilianUnitStr = civilianUnitStr.." ("..tostring(iTurnsLeft)..")";
-    		end
-            sortEntry.status = civilianUnitStr;
-            instance.Status:SetHide( false );
-			-- Infixo ]]
-			sortEntry.status = Locale.Lookup(GameInfo.Builds[buildType].Description).." ("..tostring( unit:GetPlot():GetBuildTurnsLeft(buildType,Game.GetActivePlayer(), 0, 0) )..")";
+			sortEntry.status = Locale.Lookup(GameInfo.Builds[buildType].Description).." ("..tostring( unit:GetPlot():GetBuildTurnsLeft(buildType,Game.GetActivePlayer()) )..")";
             
         elseif( unit:IsAutomated()) then
 			if(unit:IsWork()) then

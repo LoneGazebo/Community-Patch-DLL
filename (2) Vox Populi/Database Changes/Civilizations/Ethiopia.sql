@@ -55,14 +55,13 @@ SET
 			)
 		)
 	),
-	Combat = (SELECT Combat FROM Units WHERE Type = 'UNIT_CUIRASSIER') + 1,
-	RangedCombat = (SELECT RangedCombat FROM Units WHERE Type = 'UNIT_CUIRASSIER') + 2
+	Combat = (SELECT Combat FROM Units WHERE Type = 'UNIT_CUIRASSIER') + 3,
+	RangedCombat = (SELECT RangedCombat FROM Units WHERE Type = 'UNIT_CUIRASSIER') + 4
 WHERE Type = 'UNIT_OROMO_CAVALRY';
 
 INSERT INTO Unit_FreePromotions
 	(UnitType, PromotionType)
 VALUES
-	('UNIT_OROMO_CAVALRY', 'PROMOTION_FIELD_1'),
 	('UNIT_OROMO_CAVALRY', 'PROMOTION_ZEMENE_MESAFINT');
 
 ----------------------------------------------------------

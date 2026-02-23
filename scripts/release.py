@@ -49,7 +49,7 @@ PROJECT_DIR = SCRIPT_DIR.parent.resolve()
 MODS = {
     "(1) Community Patch": "Community Patch.civ5proj",
     "(2) Vox Populi": "Vox Populi.civ5proj",
-    "(3a) EUI Compatibility Files": "VP EUI Compatibility.civ5proj",
+    "(3a) VP - EUI Compatibility Files": "VP EUI Compatibility.civ5proj",
     "(3b) 43 Civs Community Patch": "43 Civs Community Patch.civ5proj",
     "(4a) Squads for VP": "Squads.civ5proj",
 }
@@ -272,7 +272,7 @@ def update_dependency_min_versions(old_mod_version: int, new_mod_version: int):
     """Update MinVersion of Community Patch dependency in other mods."""
     dependent_mods = [
         "(2) Vox Populi",
-        "(3a) EUI Compatibility Files",
+        "(3a) VP - EUI Compatibility Files",
         "(3b) 43 Civs Community Patch",
         "(4a) Squads for VP",
     ]
@@ -794,14 +794,14 @@ def generate_modinfo_xml(data: dict, mod_dir: Path) -> str:
     return '\n'.join(lines)
 
 
-def generate_modinfo_for_mod(mod_folder: str, civ5proj_name: str) -> Optional[Path]:
-    """Generate modinfo file for a specific mod."""
+def generate_modinfo_for_mod(mod_folder: str, civ5proj_name: str) -> Tuple[Optional[Path], Optional[dict]]:
+    """Generate modinfo file for a specific mod. Returns (modinfo_path, parsed_data)."""
     mod_dir = PROJECT_DIR / mod_folder
     civ5proj_path = mod_dir / civ5proj_name
 
     if not civ5proj_path.exists():
         print(f"  ERROR: {civ5proj_path} not found")
-        return None
+        return None, None
 
     print(f"  Processing: {mod_folder}")
 
@@ -820,11 +820,11 @@ def generate_modinfo_for_mod(mod_folder: str, civ5proj_name: str) -> Optional[Pa
         f.write(xml_content)
 
     print(f"    Generated: {modinfo_name}")
-    return modinfo_path
+    return modinfo_path, data
 
 
-def copy_mod_to_build(mod_folder: str) -> Optional[Path]:
-    """Copy mod folder contents to Build directory."""
+def copy_mod_to_build(mod_folder: str, file_list: List[dict]) -> Optional[Path]:
+    """Copy only files listed in the .civ5proj to Build directory."""
     src_dir = PROJECT_DIR / mod_folder
     dest_dir = BUILD_DIR / mod_folder
 
@@ -835,22 +835,18 @@ def copy_mod_to_build(mod_folder: str) -> Optional[Path]:
     # Create destination directory
     dest_dir.mkdir(parents=True, exist_ok=True)
 
-    # Copy all files (excluding .civ5proj and other build artifacts)
-    exclude_extensions = {'.civ5proj', '.civ5sln', '.suo', '.user'}
-    exclude_dirs = {'bin', 'obj', '.vs'}
+    for file_info in file_list:
+        file_path = Path(file_info['path'])
+        src_file = src_dir / file_path
+        dest_file = dest_dir / file_path
 
-    for item in src_dir.iterdir():
-        if item.is_dir():
-            if item.name not in exclude_dirs:
-                dest_subdir = dest_dir / item.name
-                if dest_subdir.exists():
-                    shutil.rmtree(dest_subdir)
-                shutil.copytree(item, dest_subdir)
+        if src_file.exists():
+            dest_file.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(src_file, dest_file)
         else:
-            if item.suffix.lower() not in exclude_extensions:
-                shutil.copy2(item, dest_dir / item.name)
+            print(f"  WARNING: File listed in .civ5proj not found: {src_file}")
 
-    print(f"  Copied: {mod_folder} -> Build/")
+    print(f"  Copied {len(file_list)} files: {mod_folder} -> Build/")
     return dest_dir
 
 
@@ -867,13 +863,14 @@ def build_mods():
 
     for mod_folder, civ5proj_name in MODS.items():
         # Generate modinfo in the mod folder
-        modinfo_path = generate_modinfo_for_mod(mod_folder, civ5proj_name)
+        modinfo_path, data = generate_modinfo_for_mod(mod_folder, civ5proj_name)
 
         if modinfo_path:
             generated_modinfo_files.append((mod_folder, modinfo_path))
 
-        # Copy mod folder to Build directory
-        copy_mod_to_build(mod_folder)
+        # Copy only files listed in .civ5proj to Build directory
+        if data:
+            copy_mod_to_build(mod_folder, data['files'])
   
     print(f"\n  Built {len(generated_modinfo_files)} mods successfully")
     

@@ -374,6 +374,15 @@ void CvTacticalAI::UpdateVisibilityFromUnits(CvPlot* pPlot)
 		for (int iI = 0; iI < pPlot->getNumUnits(); iI++)
 		{
 			pLoopUnit = pPlot->getUnitByIndex(iI);
+			if(pLoopUnit == NULL)
+			{
+				if(GC.getGame().isNetworkMultiPlayer())
+				{
+					CvString msg; CvString::format(msg, "*** PLOT UNIT DESYNC *** UpdateVisibilityFromUnits: NULL unit at index %d on plot (%d,%d). Plot reports %d units.",
+						iI, pPlot->getX(), pPlot->getY(), pPlot->getNumUnits());
+					gGlobals.getDLLIFace()->sendChat(msg, CHATTARGET_ALL, NO_PLAYER);
+				}
+			}
 			eLoopUnitTeam = pLoopUnit->getTeam();
 
 			if (eLoopUnitTeam != ePlayerTeam && !pLoopUnit->isInvisible(ePlayerTeam, false))
@@ -9273,8 +9282,14 @@ bool CvTacticalPosition::isKillOrImprovedPosition() const
 			const CvTacticalPlot& finalPlot = getTactPlot(move.iFromPlotIndex);
 
 			//only relevant in degenerate cases without enemies
-			iBefore += TacticalAIHelpers::GetPlotDistanceToTarget(initial->iFromPlotIndex, pUnit->getDomainType());
-			iAfter += TacticalAIHelpers::GetPlotDistanceToTarget(move.iFromPlotIndex, pUnit->getDomainType());
+			int iDistBefore = TacticalAIHelpers::GetPlotDistanceToTarget(initial->iFromPlotIndex, pUnit->getDomainType());
+			int iDistAfter = TacticalAIHelpers::GetPlotDistanceToTarget(move.iFromPlotIndex, pUnit->getDomainType());
+			// Only count if both are reachable - can't meaningfully compare if either is INT_MAX
+			if (iDistBefore != INT_MAX && iDistAfter != INT_MAX)
+			{
+				iBefore += iDistBefore;
+				iAfter += iDistAfter;
+			}
 
 			//which domain to use here? for simplicity assume firstline is melee and in-domain, everything else cross-domain
 			CvTacticalPlot::eTactPlotDomain eRelevantDomain = unit->eMoveStrategy == MS_FIRSTLINE ? (finalPlot.getPlot()->isWater() ? CvTacticalPlot::TD_SEA : CvTacticalPlot::TD_LAND) : CvTacticalPlot::TD_BOTH;

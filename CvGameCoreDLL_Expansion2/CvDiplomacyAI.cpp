@@ -11725,11 +11725,9 @@ void CvDiplomacyAI::AdjustThirdPartyStrength(PlayerTypes eThirdParty, PlayerType
 		if (iThirdPartyWarCount > 0)
 		{
 			int iScale = max(/*20*/ max(GD_INT_GET(MILITARY_STRENGTH_BACKUP_ALREADY_WAR_MINIMUM), 0), 100 - iThirdPartyWarCount * /*30*/ GD_INT_GET(MILITARY_STRENGTH_BACKUP_ALREADY_WAR_EACH_PLAYER));
-			iThirdPartyAttackValue *= iScale;
-			iThirdPartyAttackValue /= 100;
+			iThirdPartyAttackValue = ApplyPercentageModifier(iThirdPartyAttackValue, iScale);
 			iScale = max(/*20*/ max(GD_INT_GET(TARGET_ALREADY_WAR_MINIMUM), 0), 100 - iThirdPartyWarCount * /*30*/ GD_INT_GET(TARGET_ALREADY_WAR_EACH_PLAYER));
-			iThirdPartyDefenseValue *= iScale;
-			iThirdPartyDefenseValue /= 100;
+			iThirdPartyDefenseValue = ApplyPercentageModifier(iThirdPartyDefenseValue, iScale);
 		}
 	}
 }

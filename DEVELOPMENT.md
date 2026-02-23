@@ -1,13 +1,14 @@
 ## How can I build the GameCoreDLL
 
 * Install the git command line client and make sure it's in your path (it is needed for a pre-build script to run).
-* Clone the repo. The Visual Studio solution file `VoxPopuli_vs2013.sln`` is included in the repository folder
+* Clone the repo. The Visual Studio solution file `VoxPopuli_vs2013.sln` is included in the repository folder
 * Significant portions of the mods are Lua / SQL / XML files. Those can be modified without rebuilding the game core
-* You need the Visual C++ 2008 SP1 (VC9) toolset to actually link the resulting game core DLL.
-  * The SP1 is important, else you get errors that STL headers like `<array>` are missing. Try the internet archive ...
-  * It is possible to use a recent IDE like Visual Studio 2022 Community, just make sure to use the correct toolset
-    * If you get errors that the VC9 toolset cannot be found, install Visual C++ 2010 (not logical but true)
-  * It's best to install different Visual Studio editions in chronological order, eg 2008 before 2019
+* You need both **Visual C++ 2008 SP1** and **Visual C++ 2010 SP1** installed to build with the v90 toolset
+  * See the [Build Toolchain Guide](docs/build-toolchain.md) for detailed information on:
+    * Why both versions are required (compiler vs MSBuild integration)
+    * Archived download links for the installers
+    * Installation order and troubleshooting
+  * It is possible to use a recent IDE like Visual Studio 2022 Community as your development environment
 * If prompted on loading the solution file whether you want to retarget projects, select "No Upgrade" for both options and continue
 * If you encounter an "unexpected precompiler header error", install [this hotfix](http://thehotfixshare.net/board/index.php?autocom=downloads&showfile=11640)
 * A tutorial with visual aids has been posted [here](https://forums.civfanatics.com/threads/how-to-compile-the-vox-populi-dll.665916/), courtesy of ASCII Guy
@@ -18,12 +19,14 @@
 * If building the Release version, Whole Program Optimization is enabled, which will cause a several minute delay at the end of pass 1, but the compiler is still functioning!
   * You can disable Whole Program Optimization locally under Project > VoxPopuli Properties > C/C++ > Optimization > Whole Program Optimization (set it to No)
 * If the compiler stops responding at the end of pass 2, try deleting the hidden .vs folder as well as the BuildOutput/BuildTemp folders in the project directory, then reopening the solution file.
-* There is also clang-based build script now!
+* There are also clang-based build scripts available (`build_vp_clang.py` for local dev, `build_vp_clang_sdk.py` for CI). See the [Build Toolchain Guide](docs/build-toolchain.md#alternative-clang-build) for details.
+
+**Note for contributors:** Please verify your changes compile without new warnings in both MSVC and clang builds before submitting a PR. CI runs both compilers.
 
 ## How do I debug this
 
 ### To enable logging (for bug reports)
-[This thread](https://forums.civfanatics.com/threads/how-to-enable-logging.487482) is useful for basic understanding of how logging works, down there is below and for more serious bug reports!
+[This thread](https://forums.civfanatics.com/threads/how-to-enable-logging.487482) provides a basic understanding of how logging works. See below for more details.
 	
 * Logs provide some useful information on AI decisions and other problems
 * Logging can be enabled in `My Games\Sid Meier's Civilization V\config.ini`

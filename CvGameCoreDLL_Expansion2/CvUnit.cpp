@@ -2634,6 +2634,12 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 		GAMEEVENTINVOKE_HOOK(GAMEEVENT_UnitCaptured, kCaptureDef.eCapturingPlayer, kCaptureDef.eCaptureUnitType, eUnitOwner, GetID(), false, 1);
 	}
 
+	if(GC.getGame().isNetworkMultiPlayer() && pPlot && pPlot->getUnitIndex(this) < 0)
+	{
+		CvString msg; CvString::format(msg, "*** PLOT UNIT DESYNC *** kill: unit (owner %d, id %d) not found on its plot (%d,%d) before setXY(INVALID_PLOT_COORD). Unit coords: (%d,%d), delayed death: %d",
+			(int)eUnitOwner, GetID(), pPlot->getX(), pPlot->getY(), getX(), getY(), (int)isDelayedDeathExported());
+		gGlobals.getDLLIFace()->sendChat(msg, CHATTARGET_ALL, NO_PLAYER);
+	}
 	setXY(INVALID_PLOT_COORD, INVALID_PLOT_COORD, true);
 	if(pPlot)
 		pPlot->removeUnit(this, false);
@@ -5578,7 +5584,10 @@ bool CvUnit::jumpToNearestValidPlot()
 		bool bAvailable = (IsCivilianUnit() || !pLoopPlot->isNeutralUnit(getOwner(), false, false)) && !pLoopPlot->isEnemyUnit(getOwner(), false, false);
 		if (bAvailable && canMoveInto(*pLoopPlot,CvUnit::MOVEFLAG_DESTINATION))
 		{
-			int iValue = it->iNormalizedDistanceRaw + GET_PLAYER(getOwner()).GetCityDistanceInPlots(pLoopPlot);
+			int iCityDist = GET_PLAYER(getOwner()).GetCityDistanceInPlots(pLoopPlot);
+			if (iCityDist == INT_MAX)
+				iCityDist = 0; // No cities (e.g. barbarians) - distance irrelevant, use 0 to avoid overflow
+			int iValue = it->iNormalizedDistanceRaw + iCityDist;
 
 			//avoid putting ships on lakes etc (only possible in degenerate cases anyway)
 			if (getDomainType() == DOMAIN_SEA)
@@ -13685,7 +13694,7 @@ bool CvUnit::isReadyForUpgrade() const
 {
 	VALIDATE_OBJECT();
 
-	return m_iMoves > 0;
+	return m_iMoves > 0 && !isDelayedDeath();
 }
 
 //	--------------------------------------------------------------------------------
@@ -17347,7 +17356,7 @@ int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, const CvCity* pCity, i
 			if (AI_getUnitAIType() == UNITAI_MISSILE_AIR)
 				return pDefender->GetCurrHitPoints();
 			else
-				return /*40*/ GD_INT_GET(NONCOMBAT_UNIT_RANGED_DAMAGE);
+				return /*40 in CP, 50 in VP*/ GD_INT_GET(NONCOMBAT_UNIT_RANGED_DAMAGE);
 		}
 
 		if (pDefender->getForcedDamageValue() != 0)
@@ -24266,8 +24275,8 @@ void CvUnit::DoFinishBuildIfSafe()
 	BuildTypes eBuild = getBuildType();
 	if (eBuild != NO_BUILD)
 	{
-		int iBuildTimeLeft = plot()->getBuildTurnsLeft(eBuild, getOwner(), 0, 0);
-		if (iBuildTimeLeft == 0 && canMove() && GetDanger() == 0)
+		int iBuildTimeLeft = plot()->getBuildTurnsLeft(eBuild, getOwner());
+		if (iBuildTimeLeft <= 1 && canMove() && GetDanger() == 0)
 		{
 			BuilderDirective eDirective = GET_PLAYER(m_eOwner).GetBuilderTaskingAI()->GetAssignedDirective(this);
 			if (eDirective.m_sX != m_iX || eDirective.m_sY != m_iY || eDirective.m_eBuild != eBuild)
@@ -33247,11 +33256,45 @@ bool CvUnit::canChangeVisibility() const
 }
 
 //	--------------------------------------------------------------------------------
-std::string CvUnit::debugDump(const FAutoVariableBase& /*var*/) const
+std::string CvUnit::debugDump(const FAutoVariableBase& var) const
 {
-	// TODO: This... just can't be correct.  Surely, there must be something useful
-	// this function is supposed to do.  Unfortunately, I don't know what that is.
-	return EmptyString;
+	std::ostringstream result;
+	std::string varName = var.name();
+	
+	// Unit identity
+	result << "Unit: " << getName();
+	
+	if (getOwner() != NO_PLAYER)
+	{
+		result << " | Owner: " << GET_PLAYER(getOwner()).getCivilizationShortDescription()
+		       << " (ID:" << getOwner() << ")";
+	}
+	
+	// Position
+	result << " | Pos: (" << getX() << "," << getY() << ")";
+	
+	// Health
+	result << " | HP: " << GetCurrHitPoints() << "/" << GetMaxHitPoints();
+	
+	// Automation and activity context
+	if (varName.find("Automat") != std::string::npos ||
+	    varName.find("Mission") != std::string::npos ||
+	    varName.find("Path") != std::string::npos ||
+	    varName.find("Move") != std::string::npos)
+	{
+		if (IsAutomated())
+		{
+			result << " | Automated: YES";
+		}
+		
+		ActivityTypes eActivity = GetActivityType();
+		if (eActivity != NO_ACTIVITY)
+		{
+			result << " | Activity: " << eActivity;
+		}
+	}
+	
+	return result.str();
 }
 
 //	--------------------------------------------------------------------------------
