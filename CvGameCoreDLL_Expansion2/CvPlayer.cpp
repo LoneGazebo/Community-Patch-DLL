@@ -8547,6 +8547,10 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 		kPlayer.SetEverConqueredBy(GetID(), false);
 	}
 
+	// If we were at permanent war with a liberated City-State, cancel that
+	if (!bForced && isMajorCiv() && kPlayer.isMinorCiv())
+		kPlayer.GetMinorCivAI()->SetPermanentWar(getTeam(), false);
+
 	// Diplo bonus for returning the city
 	if (!bForced && isMajorCiv() && kPlayer.isMajorCiv())
 	{

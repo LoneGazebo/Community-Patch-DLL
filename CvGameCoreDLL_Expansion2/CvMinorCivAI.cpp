@@ -13215,6 +13215,7 @@ void CvMinorCivAI::DoLiberationByMajor(PlayerTypes eLiberator, TeamTypes eConque
 
 	// Ignore jerk status for the liberator's team
 	SetIgnoreJerk(GET_PLAYER(eLiberator).getTeam(), true);
+	SetWaryOfTeam(GET_PLAYER(eLiberator).getTeam(), false);
 
 	//set this to a value > 0 so that it takes one turn until other players may not enter our territory
 	//prevents immediate teleport of AI units in the neighborhood
@@ -17886,6 +17887,7 @@ void CvMinorCivAI::DoTeamDeclaredWarOnMe(TeamTypes eEnemyTeam)
 	CivsList veMinorsNowWary;
 	int iRand = 0;
 	bool bOthersDontUpdateWariness = false;
+	bool bTargetDoesntUpdateWariness = false;
 
 	// Since eEnemyTeam was the aggressor, drop the base influence to the minimum
 	for(int iEnemyMajorLoop = 0; iEnemyMajorLoop < MAX_MAJOR_CIVS; iEnemyMajorLoop++)
@@ -17900,10 +17902,15 @@ void CvMinorCivAI::DoTeamDeclaredWarOnMe(TeamTypes eEnemyTeam)
 		int iTurn = GetTurnLastAttacked(eEnemyTeam);
 		int iTurnDifference = GC.getGame().getGameTurn() - iTurn;
 		if (iTurn > -1 && iTurnDifference < 50)
+			bOthersDontUpdateWariness = true;
+
+		// If this player can treat annexed City-States as allies, no wariness penalties
+		if (GET_PLAYER(eEnemyMajorLoop).GetPlayerTraits()->IsAnnexedCityStatesGiveYields())
 		{
 			bOthersDontUpdateWariness = true;
+			bTargetDoesntUpdateWariness = true;
 		}
-		
+
 		SetFriendshipWithMajor(eEnemyMajorLoop, /*-60*/ GD_INT_GET(MINOR_FRIENDSHIP_AT_WAR), false, true);
 		SetRestingPointChange(eEnemyMajorLoop, 0); // Remove any liberation / Great Diplomat bonuses to resting Influence
 		DoChangeProtectionFromMajor(eEnemyMajorLoop, false, true, false);
@@ -17913,9 +17920,8 @@ void CvMinorCivAI::DoTeamDeclaredWarOnMe(TeamTypes eEnemyTeam)
 		}
 	}
 
-	//antonjs: todo: xml, rename xml to indicate it is for WaryOf, not Permanent War
 	// Minor Civ Warmonger
-	if (pEnemyTeam->IsMinorCivWarmonger() || pEnemyTeam->IsMinorCivAggressor())
+	if (!bTargetDoesntUpdateWariness && (pEnemyTeam->IsMinorCivWarmonger() || pEnemyTeam->IsMinorCivAggressor()))
 	{
 		if(!IsWaryOfTeam(eEnemyTeam))
 		{
@@ -17941,7 +17947,7 @@ void CvMinorCivAI::DoTeamDeclaredWarOnMe(TeamTypes eEnemyTeam)
 	}
 
 	// See if other minors will declare war
-	if(pEnemyTeam->IsMinorCivAggressor() && !bOthersDontUpdateWariness)
+	if (!bOthersDontUpdateWariness && pEnemyTeam->IsMinorCivAggressor())
 	{
 		int iChance = 0;
 
