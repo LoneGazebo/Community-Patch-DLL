@@ -235,7 +235,7 @@ DELETE FROM Helper;
 
 -- Shrine
 UPDATE Buildings
-SET 
+SET
 	PrereqTech = 'TECH_AGRICULTURE',
 	GreatWorkSlotType = 'GREAT_WORK_SLOT_MUSIC',
 	GreatWorkCount = 1
@@ -1687,7 +1687,7 @@ FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_STABLE';
 
 UPDATE Building_UnitCombatProductionModifiers
-SET Modifier = 33
+SET Modifier = 20
 WHERE BuildingType IN (
 	SELECT Type FROM Buildings
 	WHERE BuildingClass = 'BUILDINGCLASS_STABLE'
