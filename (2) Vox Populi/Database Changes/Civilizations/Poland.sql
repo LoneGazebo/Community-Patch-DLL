@@ -63,7 +63,7 @@ DELETE FROM Building_LocalResourceOrs
 WHERE BuildingType = 'BUILDING_DUCAL_STABLE';
 
 UPDATE Building_UnitCombatProductionModifiers
-SET Modifier = 50 -- 33
+SET Modifier = (SELECT Modifier FROM Building_UnitCombatProductionModifiers WHERE BuildingType = 'BUILDING_STABLE' AND UnitCombatType = 'UNITCOMBAT_MOUNTED') * 150 / 100
 WHERE BuildingType = 'BUILDING_DUCAL_STABLE';
 
 INSERT INTO Building_UnitCombatFreeExperiences
