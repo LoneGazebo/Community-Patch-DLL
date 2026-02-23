@@ -517,7 +517,7 @@ WHERE Tag = 'TXT_KEY_UNIT_MAYAN_ATLATLIST_STRATEGY';
 -- Mongols
 --------------------
 UPDATE Language_en_US
-SET Text = 'Skirmisher Units start with the [COLOR_POSITIVE_TEXT]Logistics[ENDCOLOR] Promotion. When you [ICON_PIRATE] Bully a City-State, gain an instant boost of [ICON_PRODUCTION] Production and [ICON_RESEARCH] Science in the [ICON_CAPITAL] Capital equal to 25% of the [ICON_GOLD] Gold received.'
+SET Text = 'Skirmisher Units start with the [COLOR_POSITIVE_TEXT]Logistics[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Great Generals I[ENDCOLOR] Promotions. When you [ICON_PIRATE] Bully a City-State, gain an instant boost of [ICON_PRODUCTION] Production and [ICON_RESEARCH] Science in the [ICON_CAPITAL] Capital equal to 25% of the [ICON_GOLD] Gold received.'
 WHERE Tag = 'TXT_KEY_TRAIT_TERROR';
 
 UPDATE Language_en_US
