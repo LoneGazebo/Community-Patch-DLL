@@ -9,16 +9,6 @@ SET
 	NoConnectionUnhappiness = 1
 WHERE Type = 'TRAIT_WAYFINDING';
 
-INSERT INTO Trait_ImprovementYieldChanges
-	(TraitType, ImprovementType, YieldType, Yield)
-VALUES
-	('TRAIT_WAYFINDING', 'IMPROVEMENT_FISHING_BOATS', 'YIELD_PRODUCTION', 2);
-
-INSERT INTO Trait_FeatureYieldChanges
-	(TraitType, FeatureType, YieldType, Yield)
-VALUES
-	('TRAIT_WAYFINDING', 'FEATURE_ATOLL', 'YIELD_PRODUCTION', 2);
-
 INSERT INTO Trait_BuildsUnitClasses
 	(TraitType, UnitClassType, BuildType)
 SELECT DISTINCT
@@ -125,6 +115,16 @@ INSERT INTO Building_YieldChanges
 VALUES
 --	('BUILDING_MARAE', 'YIELD_SCIENCE', 1),
 	('BUILDING_MARAE', 'YIELD_CULTURE', 1);
+
+INSERT INTO Building_FeatureYieldChanges
+	(BuildingType, FeatureType, YieldType, Yield)
+VALUES
+	('BUILDING_MARAE', 'FEATURE_ATOLL', 'YIELD_PRODUCTION', 2);
+
+INSERT INTO Building_ImprovementYieldChanges
+	(BuildingType, ImprovementType, YieldType, Yield)
+VALUES
+	('BUILDING_MARAE', 'IMPROVEMENT_FISHING_BOATS', 'YIELD_PRODUCTION', 2);
 
 INSERT INTO Building_YieldFromConstruction
 	(BuildingType, YieldType, Yield)
